@@ -54,45 +54,45 @@ class CefNavigationEntry : public virtual CefBaseRefCounted {
   // function returns false.
   ///
   /*--cef()--*/
-  virtual bool IsValid() =0;
+  virtual bool IsValid() = 0;
 
   ///
   // Returns the actual URL of the page. For some pages this may be data: URL or
   // similar. Use GetDisplayURL() to return a display-friendly version.
   ///
   /*--cef()--*/
-  virtual CefString GetURL() =0;
+  virtual CefString GetURL() = 0;
 
   ///
   // Returns a display-friendly version of the URL.
   ///
   /*--cef()--*/
-  virtual CefString GetDisplayURL() =0;
+  virtual CefString GetDisplayURL() = 0;
 
   ///
   // Returns the original URL that was entered by the user before any redirects.
   ///
   /*--cef()--*/
-  virtual CefString GetOriginalURL() =0;
+  virtual CefString GetOriginalURL() = 0;
 
   ///
   // Returns the title set by the page. This value may be empty.
   ///
   /*--cef()--*/
-  virtual CefString GetTitle() =0;
+  virtual CefString GetTitle() = 0;
 
   ///
   // Returns the transition type which indicates what the user did to move to
   // this page from the previous page.
   ///
   /*--cef(default_retval=TT_EXPLICIT)--*/
-  virtual TransitionType GetTransitionType() =0;
+  virtual TransitionType GetTransitionType() = 0;
 
   ///
   // Returns true if this navigation includes post data.
   ///
   /*--cef()--*/
-  virtual bool HasPostData() =0;
+  virtual bool HasPostData() = 0;
 
   ///
   // Returns the time for the last known successful navigation completion. A
@@ -100,7 +100,7 @@ class CefNavigationEntry : public virtual CefBaseRefCounted {
   // 0 if the navigation has not yet completed.
   ///
   /*--cef()--*/
-  virtual CefTime GetCompletionTime() =0;
+  virtual CefTime GetCompletionTime() = 0;
 
   ///
   // Returns the HTTP status code for the last known successful navigation
@@ -108,13 +108,13 @@ class CefNavigationEntry : public virtual CefBaseRefCounted {
   // navigation has not yet completed.
   ///
   /*--cef()--*/
-  virtual int GetHttpStatusCode() =0;
+  virtual int GetHttpStatusCode() = 0;
 
   ///
   // Returns the SSL information for this navigation entry.
   ///
   /*--cef()--*/
-  virtual CefRefPtr<CefSSLStatus> GetSSLStatus() =0;
+  virtual CefRefPtr<CefSSLStatus> GetSSLStatus() = 0;
 };
 
 #endif  // CEF_INCLUDE_CEF_NAVIGATION_ENTRY_H_

@@ -9,6 +9,8 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=2b6e104252b8713c7c700e819e997f045f4afec9$
+//
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_URLREQUEST_CLIENT_CTOCPP_H_
 #define CEF_LIBCEF_DLL_CTOCPP_URLREQUEST_CLIENT_CTOCPP_H_
@@ -18,29 +20,36 @@
 #error This file can be included DLL-side only
 #endif
 
-#include "include/cef_urlrequest.h"
 #include "include/capi/cef_urlrequest_capi.h"
+#include "include/cef_urlrequest.h"
 #include "libcef_dll/ctocpp/ctocpp_ref_counted.h"
 
 // Wrap a C structure with a C++ class.
 // This class may be instantiated and accessed DLL-side only.
 class CefURLRequestClientCToCpp
-    : public CefCToCppRefCounted<CefURLRequestClientCToCpp, CefURLRequestClient,
-        cef_urlrequest_client_t> {
+    : public CefCToCppRefCounted<CefURLRequestClientCToCpp,
+                                 CefURLRequestClient,
+                                 cef_urlrequest_client_t> {
  public:
   CefURLRequestClientCToCpp();
 
   // CefURLRequestClient methods.
   void OnRequestComplete(CefRefPtr<CefURLRequest> request) override;
-  void OnUploadProgress(CefRefPtr<CefURLRequest> request, int64 current,
-      int64 total) override;
-  void OnDownloadProgress(CefRefPtr<CefURLRequest> request, int64 current,
-      int64 total) override;
-  void OnDownloadData(CefRefPtr<CefURLRequest> request, const void* data,
-      size_t data_length) override;
-  bool GetAuthCredentials(bool isProxy, const CefString& host, int port,
-      const CefString& realm, const CefString& scheme,
-      CefRefPtr<CefAuthCallback> callback) override;
+  void OnUploadProgress(CefRefPtr<CefURLRequest> request,
+                        int64 current,
+                        int64 total) override;
+  void OnDownloadProgress(CefRefPtr<CefURLRequest> request,
+                          int64 current,
+                          int64 total) override;
+  void OnDownloadData(CefRefPtr<CefURLRequest> request,
+                      const void* data,
+                      size_t data_length) override;
+  bool GetAuthCredentials(bool isProxy,
+                          const CefString& host,
+                          int port,
+                          const CefString& realm,
+                          const CefString& scheme,
+                          CefRefPtr<CefAuthCallback> callback) override;
 };
 
 #endif  // CEF_LIBCEF_DLL_CTOCPP_URLREQUEST_CLIENT_CTOCPP_H_

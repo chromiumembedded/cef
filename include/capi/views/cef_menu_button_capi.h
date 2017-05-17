@@ -33,6 +33,8 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
+// $hash=cf3b867dfc26e13b96f2e20fe8b974a38d28119e$
+//
 
 #ifndef CEF_INCLUDE_CAPI_VIEWS_CEF_MENU_BUTTON_CAPI_H_
 #define CEF_INCLUDE_CAPI_VIEWS_CEF_MENU_BUTTON_CAPI_H_
@@ -45,7 +47,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
 
 ///
 // MenuButton is a button with optional text, icon and/or menu marker that shows
@@ -65,17 +66,17 @@ typedef struct _cef_menu_button_t {
   // will be anchored relative to |screen_point|. This function should be called
   // from cef_menu_button_delegate_t::on_menu_button_pressed().
   ///
-  void (CEF_CALLBACK *show_menu)(struct _cef_menu_button_t* self,
-      struct _cef_menu_model_t* menu_model, const cef_point_t* screen_point,
-      cef_menu_anchor_position_t anchor_position);
+  void(CEF_CALLBACK* show_menu)(struct _cef_menu_button_t* self,
+                                struct _cef_menu_model_t* menu_model,
+                                const cef_point_t* screen_point,
+                                cef_menu_anchor_position_t anchor_position);
 
   ///
   // Show the menu for this button. Results in a call to
   // cef_menu_button_delegate_t::on_menu_button_pressed().
   ///
-  void (CEF_CALLBACK *trigger_menu)(struct _cef_menu_button_t* self);
+  void(CEF_CALLBACK* trigger_menu)(struct _cef_menu_button_t* self);
 } cef_menu_button_t;
-
 
 ///
 // Create a new MenuButton. A |delegate| must be provided to call show_menu()
@@ -88,9 +89,10 @@ typedef struct _cef_menu_button_t {
 // will be added to the button.
 ///
 CEF_EXPORT cef_menu_button_t* cef_menu_button_create(
-    struct _cef_menu_button_delegate_t* delegate, const cef_string_t* text,
-    int with_frame, int with_menu_marker);
-
+    struct _cef_menu_button_delegate_t* delegate,
+    const cef_string_t* text,
+    int with_frame,
+    int with_menu_marker);
 
 #ifdef __cplusplus
 }

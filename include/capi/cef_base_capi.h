@@ -27,7 +27,6 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-
 #ifndef CEF_INCLUDE_CAPI_CEF_BASE_CAPI_H_
 #define CEF_INCLUDE_CAPI_CEF_BASE_CAPI_H_
 
@@ -57,21 +56,20 @@ typedef struct _cef_base_ref_counted_t {
   // Called to increment the reference count for the object. Should be called
   // for every new copy of a pointer to a given object.
   ///
-  void (CEF_CALLBACK *add_ref)(struct _cef_base_ref_counted_t* self);
+  void(CEF_CALLBACK* add_ref)(struct _cef_base_ref_counted_t* self);
 
   ///
   // Called to decrement the reference count for the object. If the reference
   // count falls to 0 the object should self-delete. Returns true (1) if the
   // resulting reference count is 0.
   ///
-  int (CEF_CALLBACK *release)(struct _cef_base_ref_counted_t* self);
+  int(CEF_CALLBACK* release)(struct _cef_base_ref_counted_t* self);
 
   ///
   // Returns true (1) if the current reference count is 1.
   ///
-  int (CEF_CALLBACK *has_one_ref)(struct _cef_base_ref_counted_t* self);
+  int(CEF_CALLBACK* has_one_ref)(struct _cef_base_ref_counted_t* self);
 } cef_base_ref_counted_t;
-
 
 ///
 // All scoped framework structures must include this structure first.
@@ -85,19 +83,17 @@ typedef struct _cef_base_scoped_t {
   ///
   // Called to delete this object. May be NULL if the object is not owned.
   ///
-  void (CEF_CALLBACK *del)(struct _cef_base_scoped_t* self);
+  void(CEF_CALLBACK* del)(struct _cef_base_scoped_t* self);
 
 } cef_base_scoped_t;
 
-
 // Check that the structure |s|, which is defined with a size_t member at the
 // top, is large enough to contain the specified member |f|.
-#define CEF_MEMBER_EXISTS(s, f)   \
-  ((intptr_t)&((s)->f) - (intptr_t)(s) + sizeof((s)->f) <= \
-  *reinterpret_cast<size_t*>(s))
+#define CEF_MEMBER_EXISTS(s, f) \
+  ((intptr_t) &                 \
+   ((s)->f) - (intptr_t)(s) + sizeof((s)->f) <= *reinterpret_cast<size_t*>(s))
 
-#define CEF_MEMBER_MISSING(s, f)  (!CEF_MEMBER_EXISTS(s, f) || !((s)->f))
-
+#define CEF_MEMBER_MISSING(s, f) (!CEF_MEMBER_EXISTS(s, f) || !((s)->f))
 
 #ifdef __cplusplus
 }

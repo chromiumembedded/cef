@@ -38,10 +38,8 @@ CEF_PANEL_IMPL_T class CefPanelImpl : public CEF_VIEW_IMPL_D {
   CefRefPtr<CefLayout> GetLayout() override;
   void Layout() override;
   void AddChildView(CefRefPtr<CefView> view) override;
-  void AddChildViewAt(CefRefPtr<CefView> view,
-                      int index) override;
-  void ReorderChildView(CefRefPtr<CefView> view,
-                        int index) override;
+  void AddChildViewAt(CefRefPtr<CefView> view, int index) override;
+  void ReorderChildView(CefRefPtr<CefView> view, int index) override;
   void RemoveChildView(CefRefPtr<CefView> view) override;
   void RemoveAllChildViews() override;
   size_t GetChildViewCount() override;
@@ -80,8 +78,7 @@ CEF_PANEL_IMPL_T class CefPanelImpl : public CEF_VIEW_IMPL_D {
   // Always call Initialize() after creation.
   // |delegate| may be nullptr.
   explicit CefPanelImpl(CefRefPtr<CefViewDelegateClass> delegate)
-      : ParentClass(delegate) {
-  }
+      : ParentClass(delegate) {}
 
   void Initialize() override {
     ParentClass::Initialize();
@@ -112,8 +109,7 @@ CEF_PANEL_IMPL_T void CEF_PANEL_IMPL_D::Layout() {
   return ParentClass::root_view()->Layout();
 }
 
-CEF_PANEL_IMPL_T void CEF_PANEL_IMPL_D::AddChildView(
-    CefRefPtr<CefView> view) {
+CEF_PANEL_IMPL_T void CEF_PANEL_IMPL_D::AddChildView(CefRefPtr<CefView> view) {
   CEF_REQUIRE_VALID_RETURN_VOID();
   DCHECK(view.get());
   DCHECK(view->IsValid());
@@ -125,17 +121,16 @@ CEF_PANEL_IMPL_T void CEF_PANEL_IMPL_D::AddChildView(
   ParentClass::content_view()->AddChildView(view_ptr.release());
 }
 
-CEF_PANEL_IMPL_T void CEF_PANEL_IMPL_D::AddChildViewAt(
-    CefRefPtr<CefView> view,
-    int index) {
+CEF_PANEL_IMPL_T void CEF_PANEL_IMPL_D::AddChildViewAt(CefRefPtr<CefView> view,
+                                                       int index) {
   CEF_REQUIRE_VALID_RETURN_VOID();
   DCHECK(view.get());
   DCHECK(view->IsValid());
   DCHECK(!view->IsAttached());
   DCHECK_GE(index, 0);
   DCHECK_LE(index, ParentClass::content_view()->child_count());
-  if (!view.get() || !view->IsValid() || view->IsAttached() ||
-      index < 0 || index > ParentClass::content_view()->child_count()) {
+  if (!view.get() || !view->IsValid() || view->IsAttached() || index < 0 ||
+      index > ParentClass::content_view()->child_count()) {
     return;
   }
 
@@ -152,7 +147,7 @@ CEF_PANEL_IMPL_T void CEF_PANEL_IMPL_D::ReorderChildView(
   DCHECK(view->IsAttached());
   if (!view.get() || !view->IsValid() || !view->IsAttached())
     return;
-  
+
   views::View* view_ptr = view_util::GetFor(view);
   DCHECK(view_ptr);
   DCHECK_EQ(view_ptr->parent(), ParentClass::content_view());

@@ -71,8 +71,8 @@ struct ParamTraits<net::UploadElement> {
   }
 };
 
-void ParamTraits<scoped_refptr<net::UploadData> >::Write(base::Pickle* m,
-                                                         const param_type& p) {
+void ParamTraits<scoped_refptr<net::UploadData>>::Write(base::Pickle* m,
+                                                        const param_type& p) {
   WriteParam(m, p.get() != NULL);
   if (p.get()) {
     WriteParam(m, p->elements());
@@ -82,7 +82,7 @@ void ParamTraits<scoped_refptr<net::UploadData> >::Write(base::Pickle* m,
   }
 }
 
-bool ParamTraits<scoped_refptr<net::UploadData> >::Read(
+bool ParamTraits<scoped_refptr<net::UploadData>>::Read(
     const base::Pickle* m,
     base::PickleIterator* iter,
     param_type* r) {
@@ -111,8 +111,8 @@ bool ParamTraits<scoped_refptr<net::UploadData> >::Read(
   return true;
 }
 
-void ParamTraits<scoped_refptr<net::UploadData> >::Log(const param_type& p,
-                                                       std::string* l) {
+void ParamTraits<scoped_refptr<net::UploadData>>::Log(const param_type& p,
+                                                      std::string* l) {
   l->append("<net::UploadData>");
 }
 

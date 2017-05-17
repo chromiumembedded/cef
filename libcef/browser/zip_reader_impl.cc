@@ -2,10 +2,10 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#include "libcef/browser/zip_reader_impl.h"
 #include <time.h>
-#include "include/cef_stream.h"
 #include "base/logging.h"
+#include "include/cef_stream.h"
+#include "libcef/browser/zip_reader_impl.h"
 
 // Static functions
 
@@ -18,19 +18,19 @@ CefRefPtr<CefZipReader> CefZipReader::Create(
   return impl.get();
 }
 
-
 // CefZipReaderImpl
 
 namespace {
 
-voidpf ZCALLBACK zlib_open_callback OF((voidpf opaque, const void* filename,
-                                       int mode)) {
+voidpf ZCALLBACK zlib_open_callback OF((voidpf opaque,
+                                        const void* filename,
+                                        int mode)) {
   // The stream is already implicitly open so just return the pointer.
   return opaque;
 }
 
-uLong ZCALLBACK zlib_read_callback OF((voidpf opaque, voidpf stream, void* buf,
-                                      uLong size)) {
+uLong ZCALLBACK zlib_read_callback
+OF((voidpf opaque, voidpf stream, void* buf, uLong size)) {
   CefRefPtr<CefStreamReader> reader(static_cast<CefStreamReader*>(opaque));
   return reader->Read(buf, 1, size);
 }
@@ -40,9 +40,8 @@ ZPOS64_T ZCALLBACK zlib_tell_callback OF((voidpf opaque, voidpf stream)) {
   return reader->Tell();
 }
 
-long ZCALLBACK zlib_seek_callback OF((voidpf opaque,  // NOLINT(runtime/int)
-                                     voidpf stream, ZPOS64_T offset,
-                                     int origin)) {
+long ZCALLBACK zlib_seek_callback
+OF((voidpf opaque, voidpf stream, ZPOS64_T offset, int origin)) {
   CefRefPtr<CefStreamReader> reader(static_cast<CefStreamReader*>(opaque));
   int whence;
   switch (origin) {
@@ -76,12 +75,12 @@ int ZCALLBACK zlib_error_callback OF((voidpf opaque, voidpf stream)) {
 }  // namespace
 
 CefZipReaderImpl::CefZipReaderImpl()
-  : supported_thread_id_(base::PlatformThread::CurrentId()), reader_(NULL),
-    has_fileopen_(false),
-    has_fileinfo_(false),
-    filesize_(0),
-    filemodified_(0) {
-}
+    : supported_thread_id_(base::PlatformThread::CurrentId()),
+      reader_(NULL),
+      has_fileopen_(false),
+      has_fileinfo_(false),
+      filesize_(0),
+      filemodified_(0) {}
 
 CefZipReaderImpl::~CefZipReaderImpl() {
   if (reader_ != NULL) {

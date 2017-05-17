@@ -33,8 +33,7 @@ class CefContextMenuParamsImpl
   MediaStateFlags GetMediaStateFlags() override;
   CefString GetSelectionText() override;
   CefString GetMisspelledWord() override;
-  bool GetDictionarySuggestions(
-      std::vector<CefString>& suggestions) override;
+  bool GetDictionarySuggestions(std::vector<CefString>& suggestions) override;
   bool IsEditable() override;
   bool IsSpellCheckEnabled() override;
   EditStateFlags GetEditStateFlags() override;

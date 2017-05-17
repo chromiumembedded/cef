@@ -9,6 +9,8 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=726d31775862e2628f53ad4f37b667c249ab5eaa$
+//
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_GEOLOCATION_HANDLER_CTOCPP_H_
 #define CEF_LIBCEF_DLL_CTOCPP_GEOLOCATION_HANDLER_CTOCPP_H_
@@ -18,24 +20,27 @@
 #error This file can be included DLL-side only
 #endif
 
-#include "include/cef_geolocation_handler.h"
 #include "include/capi/cef_geolocation_handler_capi.h"
+#include "include/cef_geolocation_handler.h"
 #include "libcef_dll/ctocpp/ctocpp_ref_counted.h"
 
 // Wrap a C structure with a C++ class.
 // This class may be instantiated and accessed DLL-side only.
 class CefGeolocationHandlerCToCpp
     : public CefCToCppRefCounted<CefGeolocationHandlerCToCpp,
-        CefGeolocationHandler, cef_geolocation_handler_t> {
+                                 CefGeolocationHandler,
+                                 cef_geolocation_handler_t> {
  public:
   CefGeolocationHandlerCToCpp();
 
   // CefGeolocationHandler methods.
-  bool OnRequestGeolocationPermission(CefRefPtr<CefBrowser> browser,
-      const CefString& requesting_url, int request_id,
+  bool OnRequestGeolocationPermission(
+      CefRefPtr<CefBrowser> browser,
+      const CefString& requesting_url,
+      int request_id,
       CefRefPtr<CefGeolocationCallback> callback) override;
   void OnCancelGeolocationPermission(CefRefPtr<CefBrowser> browser,
-      int request_id) override;
+                                     int request_id) override;
 };
 
 #endif  // CEF_LIBCEF_DLL_CTOCPP_GEOLOCATION_HANDLER_CTOCPP_H_

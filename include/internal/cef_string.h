@@ -44,7 +44,6 @@
 // Build with the wide string type as default.
 // #define CEF_STRING_TYPE_WIDE 1
 
-
 #include "include/internal/cef_string_types.h"
 
 #ifdef __cplusplus

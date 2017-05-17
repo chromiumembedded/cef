@@ -9,6 +9,8 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=6d426e05965adc35312b0232862373d07804464d$
+//
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_TEST_TRANSLATOR_TEST_SCOPED_LIBRARY_CHILD_CPPTOC_H_
 #define CEF_LIBCEF_DLL_CPPTOC_TEST_TRANSLATOR_TEST_SCOPED_LIBRARY_CHILD_CPPTOC_H_
@@ -18,16 +20,16 @@
 #error This file can be included DLL-side only
 #endif
 
-#include "include/test/cef_translator_test.h"
 #include "include/capi/test/cef_translator_test_capi.h"
+#include "include/test/cef_translator_test.h"
 #include "libcef_dll/cpptoc/cpptoc_scoped.h"
 
 // Wrap a C++ class with a C structure.
 // This class may be instantiated and accessed DLL-side only.
 class CefTranslatorTestScopedLibraryChildCppToC
     : public CefCppToCScoped<CefTranslatorTestScopedLibraryChildCppToC,
-        CefTranslatorTestScopedLibraryChild,
-        cef_translator_test_scoped_library_child_t> {
+                             CefTranslatorTestScopedLibraryChild,
+                             cef_translator_test_scoped_library_child_t> {
  public:
   CefTranslatorTestScopedLibraryChildCppToC();
 };

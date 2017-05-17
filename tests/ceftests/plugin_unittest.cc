@@ -176,9 +176,7 @@ class PluginTestHandler : public RoutingTestHandler,
       return false;
     }
 
-    void Detach() {
-      handler_ = NULL;
-    }
+    void Detach() { handler_ = NULL; }
 
    private:
     PluginTestHandler* handler_;
@@ -186,26 +184,18 @@ class PluginTestHandler : public RoutingTestHandler,
     IMPLEMENT_REFCOUNTING(RequestContextHandler);
   };
 
-  PluginTestHandler(Mode mode,
-                    const std::string& url)
-      : mode_(mode),
-        url_(url) {
-  }
+  PluginTestHandler(Mode mode, const std::string& url)
+      : mode_(mode), url_(url) {}
 
   // Loading the PDF directly in the main frame instead of a sub-frame.
-  bool HasDirectPluginLoad() const {
-    return url_ == kPdfDirectUrl;
-  }
+  bool HasDirectPluginLoad() const { return url_ == kPdfDirectUrl; }
 
   // Has a specified RequestContext but not necessarily a custom handler.
-  bool HasRequestContext() const {
-    return mode_ != GLOBAL_DEFAULT;
-  }
+  bool HasRequestContext() const { return mode_ != GLOBAL_DEFAULT; }
 
   // Has a specified RequestContext and custom handler.
   bool HasRequestContextHandler() const {
-    return mode_ != GLOBAL_DEFAULT &&
-           mode_ != GLOBAL_NO_HANDLER &&
+    return mode_ != GLOBAL_DEFAULT && mode_ != GLOBAL_NO_HANDLER &&
            mode_ != CUSTOM_NO_HANDLER;
   }
 
@@ -221,22 +211,18 @@ class PluginTestHandler : public RoutingTestHandler,
 
   // Should block the plugin load via the custom handler.
   bool HasBlock() const {
-    return mode_ == GLOBAL_BLOCK_LOAD ||
-           mode_ == GLOBAL_BLOCK_HIDE ||
-           mode_ == CUSTOM_BLOCK_LOAD ||
-           mode_ == CUSTOM_BLOCK_HIDE;
+    return mode_ == GLOBAL_BLOCK_LOAD || mode_ == GLOBAL_BLOCK_HIDE ||
+           mode_ == CUSTOM_BLOCK_LOAD || mode_ == CUSTOM_BLOCK_HIDE;
   }
 
   // Should disable the plugin load via the custom handler.
   bool HasDisable() const {
-    return mode_ == GLOBAL_DISABLE_HIDE ||
-           mode_ == CUSTOM_DISABLE_HIDE;
+    return mode_ == GLOBAL_DISABLE_HIDE || mode_ == CUSTOM_DISABLE_HIDE;
   }
 
   // Should exclude the plugin from the `navigator.plugins` list.
   bool HasNoList() const {
-    return mode_ == GLOBAL_NO_LIST ||
-           mode_ == CUSTOM_NO_LIST;
+    return mode_ == GLOBAL_NO_LIST || mode_ == CUSTOM_NO_LIST;
   }
 
   // Should load the plugin via the context menu.
@@ -246,10 +232,8 @@ class PluginTestHandler : public RoutingTestHandler,
 
   // Should hide the plugin via the context menu.
   bool HasContextHide() const {
-    return mode_ == GLOBAL_BLOCK_HIDE ||
-           mode_ == GLOBAL_DISABLE_HIDE ||
-           mode_ == CUSTOM_BLOCK_HIDE ||
-           mode_ == CUSTOM_DISABLE_HIDE;
+    return mode_ == GLOBAL_BLOCK_HIDE || mode_ == GLOBAL_DISABLE_HIDE ||
+           mode_ == CUSTOM_BLOCK_HIDE || mode_ == CUSTOM_DISABLE_HIDE;
   }
 
   std::string GetPluginNode() const {
@@ -271,16 +255,17 @@ class PluginTestHandler : public RoutingTestHandler,
   void WaitForPlaceholderLoad(CefRefPtr<CefFrame> frame) {
     // Waits for the placeholder to load.
     CefPostDelayedTask(TID_UI,
-        base::Bind(&PluginTestHandler::TriggerContextMenu, this,
-                   frame->GetBrowser()),
-        kPlaceholderLoadDelayMs);
+                       base::Bind(&PluginTestHandler::TriggerContextMenu, this,
+                                  frame->GetBrowser()),
+                       kPlaceholderLoadDelayMs);
   }
 
   void WaitForPlaceholderHide(CefRefPtr<CefFrame> frame) const {
     // Waits for the placeholder to be hidden (style set to display:none).
     // See PluginPlaceholderBase::HidePlugin.
     const std::string& code =
-        "var plugin = " + GetPluginNode() +";"
+        "var plugin = " + GetPluginNode() +
+        ";"
         "var observer = new MutationObserver(function(mutations) {"
         "  mutations.forEach(function(mutationRecord) {"
         "    window.testQuery({request:'placeholder_hidden'});"
@@ -299,14 +284,14 @@ class PluginTestHandler : public RoutingTestHandler,
       if (got_context_menu_dismissed_) {
         // After context menu display. Destroy the test.
         CefPostDelayedTask(TID_UI,
-            base::Bind(&PluginTestHandler::DestroyTest, this),
-            kPdfLoadDelayMs);
+                           base::Bind(&PluginTestHandler::DestroyTest, this),
+                           kPdfLoadDelayMs);
       } else {
         // Trigger the context menu.
         CefPostDelayedTask(TID_UI,
-            base::Bind(&PluginTestHandler::TriggerContextMenu, this,
-                       frame->GetBrowser()),
-            kPdfLoadDelayMs);
+                           base::Bind(&PluginTestHandler::TriggerContextMenu,
+                                      this, frame->GetBrowser()),
+                           kPdfLoadDelayMs);
       }
       return;
     }
@@ -319,7 +304,8 @@ class PluginTestHandler : public RoutingTestHandler,
     frame->ExecuteJavaScript(scripting_api_js, frame->GetURL(), 0);
 
     const std::string& code =
-        "var scriptingAPI = new PDFScriptingAPI(window, "+ GetPluginNode() +");"
+        "var scriptingAPI = new PDFScriptingAPI(window, " + GetPluginNode() +
+        ");"
         "scriptingAPI.setLoadCallback(function(success) {"
         "  window.testQuery({request:'plugin_ready'});"
         "});";
@@ -348,8 +334,8 @@ class PluginTestHandler : public RoutingTestHandler,
       } else {
         // Create the request context that will use an in-memory cache.
         CefRequestContextSettings settings;
-        request_context = CefRequestContext::CreateContext(
-            settings, context_handler_.get());
+        request_context =
+            CefRequestContext::CreateContext(settings, context_handler_.get());
       }
     }
 
@@ -451,8 +437,8 @@ class PluginTestHandler : public RoutingTestHandler,
         EndTest();
       } else {
         // Trigger the context menu.
-        CefPostTask(TID_UI,
-            base::Bind(&PluginTestHandler::TriggerContextMenu, this, browser));
+        CefPostTask(TID_UI, base::Bind(&PluginTestHandler::TriggerContextMenu,
+                                       this, browser));
       }
     } else {
       NOTREACHED();
@@ -617,12 +603,12 @@ class PluginTestHandler : public RoutingTestHandler,
 
 }  // namespace
 
-#define RUN_TEST(name, type, url) \
-  TEST(PluginTest, name) { \
-    CefRefPtr<PluginTestHandler> handler = \
+#define RUN_TEST(name, type, url)                            \
+  TEST(PluginTest, name) {                                   \
+    CefRefPtr<PluginTestHandler> handler =                   \
         new PluginTestHandler(PluginTestHandler::type, url); \
-    handler->ExecuteTest(); \
-    ReleaseAndWaitForDestructor(handler); \
+    handler->ExecuteTest();                                  \
+    ReleaseAndWaitForDestructor(handler);                    \
   }
 
 RUN_TEST(GlobalDefaultPdfDirect, GLOBAL_DEFAULT, kPdfDirectUrl);
@@ -651,7 +637,6 @@ RUN_TEST(CustomBlockThenHidePdfHtml, CUSTOM_BLOCK_HIDE, kPdfHtmlUrl);
 RUN_TEST(CustomDisableThenHidePdfDirect, CUSTOM_DISABLE_HIDE, kPdfDirectUrl);
 RUN_TEST(CustomDisableThenHidePdfHtml, CUSTOM_DISABLE_HIDE, kPdfHtmlUrl);
 RUN_TEST(CustomNoListHtml, CUSTOM_NO_LIST, kPdfHtmlUrl);
-
 
 // Entry point for creating plugin browser test objects.
 // Called from client_app_delegates.cc.

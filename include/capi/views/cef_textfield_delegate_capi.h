@@ -33,6 +33,8 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
+// $hash=542381be4ca1f8b31da984b8ba9a13696da3917c$
+//
 
 #ifndef CEF_INCLUDE_CAPI_VIEWS_CEF_TEXTFIELD_DELEGATE_CAPI_H_
 #define CEF_INCLUDE_CAPI_VIEWS_CEF_TEXTFIELD_DELEGATE_CAPI_H_
@@ -62,18 +64,17 @@ typedef struct _cef_textfield_delegate_t {
   // information about the keyboard event. Return true (1) if the keyboard event
   // was handled or false (0) otherwise for default handling.
   ///
-  int (CEF_CALLBACK *on_key_event)(struct _cef_textfield_delegate_t* self,
-      struct _cef_textfield_t* textfield,
-      const struct _cef_key_event_t* event);
+  int(CEF_CALLBACK* on_key_event)(struct _cef_textfield_delegate_t* self,
+                                  struct _cef_textfield_t* textfield,
+                                  const struct _cef_key_event_t* event);
 
   ///
   // Called after performing a user action that may change |textfield|.
   ///
-  void (CEF_CALLBACK *on_after_user_action)(
+  void(CEF_CALLBACK* on_after_user_action)(
       struct _cef_textfield_delegate_t* self,
       struct _cef_textfield_t* textfield);
 } cef_textfield_delegate_t;
-
 
 #ifdef __cplusplus
 }

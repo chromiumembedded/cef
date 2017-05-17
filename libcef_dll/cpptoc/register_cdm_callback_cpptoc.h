@@ -9,6 +9,8 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=61d87a325371d018c2c7c4edc2ff5cc361c78a35$
+//
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_REGISTER_CDM_CALLBACK_CPPTOC_H_
 #define CEF_LIBCEF_DLL_CPPTOC_REGISTER_CDM_CALLBACK_CPPTOC_H_
@@ -18,17 +20,18 @@
 #error This file can be included wrapper-side only
 #endif
 
-#include "include/cef_web_plugin.h"
+#include "include/capi/cef_browser_capi.h"
 #include "include/capi/cef_web_plugin_capi.h"
 #include "include/cef_browser.h"
-#include "include/capi/cef_browser_capi.h"
+#include "include/cef_web_plugin.h"
 #include "libcef_dll/cpptoc/cpptoc_ref_counted.h"
 
 // Wrap a C++ class with a C structure.
 // This class may be instantiated and accessed wrapper-side only.
 class CefRegisterCdmCallbackCppToC
     : public CefCppToCRefCounted<CefRegisterCdmCallbackCppToC,
-        CefRegisterCdmCallback, cef_register_cdm_callback_t> {
+                                 CefRegisterCdmCallback,
+                                 cef_register_cdm_callback_t> {
  public:
   CefRegisterCdmCallbackCppToC();
 };

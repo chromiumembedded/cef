@@ -33,6 +33,8 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
+// $hash=e4957abc4c3b80b9f324d74d2c8c6aa2632c52d9$
+//
 
 #ifndef CEF_INCLUDE_CAPI_VIEWS_CEF_WINDOW_DELEGATE_CAPI_H_
 #define CEF_INCLUDE_CAPI_VIEWS_CEF_WINDOW_DELEGATE_CAPI_H_
@@ -60,67 +62,68 @@ typedef struct _cef_window_delegate_t {
   ///
   // Called when |window| is created.
   ///
-  void (CEF_CALLBACK *on_window_created)(struct _cef_window_delegate_t* self,
-      struct _cef_window_t* window);
+  void(CEF_CALLBACK* on_window_created)(struct _cef_window_delegate_t* self,
+                                        struct _cef_window_t* window);
 
   ///
   // Called when |window| is destroyed. Release all references to |window| and
   // do not attempt to execute any functions on |window| after this callback
   // returns.
   ///
-  void (CEF_CALLBACK *on_window_destroyed)(struct _cef_window_delegate_t* self,
-      struct _cef_window_t* window);
+  void(CEF_CALLBACK* on_window_destroyed)(struct _cef_window_delegate_t* self,
+                                          struct _cef_window_t* window);
 
   ///
   // Return true (1) if |window| should be created without a frame or title bar.
   // The window will be resizable if can_resize() returns true (1). Use
   // cef_window_t::set_draggable_regions() to specify draggable regions.
   ///
-  int (CEF_CALLBACK *is_frameless)(struct _cef_window_delegate_t* self,
-      struct _cef_window_t* window);
+  int(CEF_CALLBACK* is_frameless)(struct _cef_window_delegate_t* self,
+                                  struct _cef_window_t* window);
 
   ///
   // Return true (1) if |window| can be resized.
   ///
-  int (CEF_CALLBACK *can_resize)(struct _cef_window_delegate_t* self,
-      struct _cef_window_t* window);
+  int(CEF_CALLBACK* can_resize)(struct _cef_window_delegate_t* self,
+                                struct _cef_window_t* window);
 
   ///
   // Return true (1) if |window| can be maximized.
   ///
-  int (CEF_CALLBACK *can_maximize)(struct _cef_window_delegate_t* self,
-      struct _cef_window_t* window);
+  int(CEF_CALLBACK* can_maximize)(struct _cef_window_delegate_t* self,
+                                  struct _cef_window_t* window);
 
   ///
   // Return true (1) if |window| can be minimized.
   ///
-  int (CEF_CALLBACK *can_minimize)(struct _cef_window_delegate_t* self,
-      struct _cef_window_t* window);
+  int(CEF_CALLBACK* can_minimize)(struct _cef_window_delegate_t* self,
+                                  struct _cef_window_t* window);
 
   ///
   // Return true (1) if |window| can be closed. This will be called for user-
   // initiated window close actions and when cef_window_t::close() is called.
   ///
-  int (CEF_CALLBACK *can_close)(struct _cef_window_delegate_t* self,
-      struct _cef_window_t* window);
+  int(CEF_CALLBACK* can_close)(struct _cef_window_delegate_t* self,
+                               struct _cef_window_t* window);
 
   ///
   // Called when a keyboard accelerator registered with
   // cef_window_t::SetAccelerator is triggered. Return true (1) if the
   // accelerator was handled or false (0) otherwise.
   ///
-  int (CEF_CALLBACK *on_accelerator)(struct _cef_window_delegate_t* self,
-      struct _cef_window_t* window, int command_id);
+  int(CEF_CALLBACK* on_accelerator)(struct _cef_window_delegate_t* self,
+                                    struct _cef_window_t* window,
+                                    int command_id);
 
   ///
   // Called after all other controls in the window have had a chance to handle
   // the event. |event| contains information about the keyboard event. Return
   // true (1) if the keyboard event was handled or false (0) otherwise.
   ///
-  int (CEF_CALLBACK *on_key_event)(struct _cef_window_delegate_t* self,
-      struct _cef_window_t* window, const struct _cef_key_event_t* event);
+  int(CEF_CALLBACK* on_key_event)(struct _cef_window_delegate_t* self,
+                                  struct _cef_window_t* window,
+                                  const struct _cef_key_event_t* event);
 } cef_window_delegate_t;
-
 
 #ifdef __cplusplus
 }

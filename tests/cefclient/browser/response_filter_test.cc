@@ -33,8 +33,7 @@ class FindReplaceResponseFilter : public CefResponseFilter {
   FindReplaceResponseFilter()
       : find_match_offset_(0U),
         replace_overflow_size_(0U),
-        replace_count_(0U) {
-  }
+        replace_count_(0U) {}
 
   bool InitFilter() OVERRIDE {
     const size_t find_size = sizeof(kFindString) - 1;
@@ -122,8 +121,8 @@ class FindReplaceResponseFilter : public CefResponseFilter {
 
     // If a match is currently in-progress we need more data. Otherwise, we're
     // done.
-    return find_match_offset_ > 0 ?
-        RESPONSE_FILTER_NEED_MORE_DATA : RESPONSE_FILTER_DONE;
+    return find_match_offset_ > 0 ? RESPONSE_FILTER_NEED_MORE_DATA
+                                  : RESPONSE_FILTER_DONE;
   }
 
  private:
@@ -176,9 +175,7 @@ class PassThruResponseFilter : public CefResponseFilter {
  public:
   PassThruResponseFilter() {}
 
-  bool InitFilter() OVERRIDE {
-    return true;
-  }
+  bool InitFilter() OVERRIDE { return true; }
 
   FilterStatus Filter(void* data_in,
                       size_t data_in_size,

@@ -4,9 +4,8 @@
 
 #include <windows.h>
 
-#include "tests/cefsimple/simple_app.h"
 #include "include/cef_sandbox_win.h"
-
+#include "tests/cefsimple/simple_app.h"
 
 // When generating projects with CMake the CEF_USE_SANDBOX value will be defined
 // automatically if using the required compiler version. Pass -DUSE_SANDBOX=OFF
@@ -20,12 +19,11 @@
 #pragma comment(lib, "cef_sandbox.lib")
 #endif
 
-
 // Entry point function for all processes.
 int APIENTRY wWinMain(HINSTANCE hInstance,
                       HINSTANCE hPrevInstance,
-                      LPTSTR    lpCmdLine,
-                      int       nCmdShow) {
+                      LPTSTR lpCmdLine,
+                      int nCmdShow) {
   UNREFERENCED_PARAMETER(hPrevInstance);
   UNREFERENCED_PARAMETER(lpCmdLine);
 

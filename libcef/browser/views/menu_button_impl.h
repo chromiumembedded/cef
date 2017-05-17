@@ -14,12 +14,14 @@
 
 #include "ui/views/controls/button/menu_button.h"
 
-class CefMenuButtonImpl :
-    public CefLabelButtonImpl<views::MenuButton, CefMenuButton,
-                              CefMenuButtonDelegate> {
+class CefMenuButtonImpl : public CefLabelButtonImpl<views::MenuButton,
+                                                    CefMenuButton,
+                                                    CefMenuButtonDelegate> {
  public:
-  typedef CefLabelButtonImpl<views::MenuButton, CefMenuButton,
-                             CefMenuButtonDelegate> ParentClass;
+  typedef CefLabelButtonImpl<views::MenuButton,
+                             CefMenuButton,
+                             CefMenuButtonDelegate>
+      ParentClass;
 
   // Create a new CefMenuButton instance. |delegate| must not be nullptr.
   static CefRefPtr<CefMenuButtonImpl> Create(

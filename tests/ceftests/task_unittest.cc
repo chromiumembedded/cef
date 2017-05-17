@@ -52,7 +52,7 @@ void GetForThread(bool* ran_test) {
   EXPECT_FALSE(runner->IsSame(runner3));
   EXPECT_FALSE(runner3->IsSame(runner));
 
- *ran_test = true;
+  *ran_test = true;
 }
 
 void PostTaskEvent1(bool* got_it, CefRefPtr<CefTaskRunner> runner) {
@@ -97,7 +97,7 @@ void PostTask1(bool* ran_test) {
   EXPECT_TRUE(runner.get());
   EXPECT_FALSE(runner->BelongsToCurrentThread());
   EXPECT_TRUE(runner->BelongsToThread(TID_DB));
-  
+
   bool got_it = false;
   runner->PostTask(
       CefCreateClosureTask(base::Bind(&PostTaskEvent1, &got_it, runner)));
@@ -114,7 +114,7 @@ void PostDelayedTask1(bool* ran_test) {
   EXPECT_TRUE(runner.get());
   EXPECT_FALSE(runner->BelongsToCurrentThread());
   EXPECT_TRUE(runner->BelongsToThread(TID_DB));
-  
+
   bool got_it = false;
   runner->PostDelayedTask(
       CefCreateClosureTask(base::Bind(&PostTaskEvent1, &got_it, runner)), 0);
@@ -138,7 +138,7 @@ void PostTask2(bool* ran_test) {
 
   bool got_it = false;
   CefPostTask(TID_DB,
-      CefCreateClosureTask(base::Bind(&PostTaskEvent2, &got_it)));
+              CefCreateClosureTask(base::Bind(&PostTaskEvent2, &got_it)));
 
   WaitForThread(TID_DB);
   EXPECT_TRUE(got_it);
@@ -151,8 +151,8 @@ void PostDelayedTask2(bool* ran_test) {
   EXPECT_FALSE(CefCurrentlyOn(TID_DB));
 
   bool got_it = false;
-  CefPostDelayedTask(TID_DB,
-      CefCreateClosureTask(base::Bind(&PostTaskEvent2, &got_it)), 0);
+  CefPostDelayedTask(
+      TID_DB, CefCreateClosureTask(base::Bind(&PostTaskEvent2, &got_it)), 0);
 
   WaitForThread(TID_DB);
   EXPECT_TRUE(got_it);
@@ -164,8 +164,8 @@ void PostDelayedTask2(bool* ran_test) {
 
 TEST(TaskTest, GetForCurrentThread) {
   bool ran_test = false;
-  CefPostTask(TID_FILE,
-      CefCreateClosureTask(base::Bind(&GetForCurrentThread, &ran_test)));
+  CefPostTask(TID_FILE, CefCreateClosureTask(
+                            base::Bind(&GetForCurrentThread, &ran_test)));
   WaitForThread(TID_FILE);
   EXPECT_TRUE(ran_test);
 }
@@ -173,14 +173,15 @@ TEST(TaskTest, GetForCurrentThread) {
 TEST(TaskTest, GetForThread) {
   bool ran_test = false;
   CefPostTask(TID_FILE,
-      CefCreateClosureTask(base::Bind(&GetForThread, &ran_test)));
+              CefCreateClosureTask(base::Bind(&GetForThread, &ran_test)));
   WaitForThread(TID_FILE);
   EXPECT_TRUE(ran_test);
 }
 
 TEST(TaskTest, PostTask1) {
   bool ran_test = false;
-  CefPostTask(TID_FILE, CefCreateClosureTask(base::Bind(&PostTask1, &ran_test)));
+  CefPostTask(TID_FILE,
+              CefCreateClosureTask(base::Bind(&PostTask1, &ran_test)));
   WaitForThread(TID_FILE);
   EXPECT_TRUE(ran_test);
 }
@@ -188,14 +189,15 @@ TEST(TaskTest, PostTask1) {
 TEST(TaskTest, PostDelayedTask1) {
   bool ran_test = false;
   CefPostTask(TID_FILE,
-      CefCreateClosureTask(base::Bind(&PostDelayedTask1, &ran_test)));
+              CefCreateClosureTask(base::Bind(&PostDelayedTask1, &ran_test)));
   WaitForThread(TID_FILE);
   EXPECT_TRUE(ran_test);
 }
 
 TEST(TaskTest, PostTask2) {
   bool ran_test = false;
-  CefPostTask(TID_FILE, CefCreateClosureTask(base::Bind(&PostTask2, &ran_test)));
+  CefPostTask(TID_FILE,
+              CefCreateClosureTask(base::Bind(&PostTask2, &ran_test)));
   WaitForThread(TID_FILE);
   EXPECT_TRUE(ran_test);
 }
@@ -203,7 +205,7 @@ TEST(TaskTest, PostTask2) {
 TEST(TaskTest, PostDelayedTask2) {
   bool ran_test = false;
   CefPostTask(TID_FILE,
-      CefCreateClosureTask(base::Bind(&PostDelayedTask2, &ran_test)));
+              CefCreateClosureTask(base::Bind(&PostDelayedTask2, &ran_test)));
   WaitForThread(TID_FILE);
   EXPECT_TRUE(ran_test);
 }

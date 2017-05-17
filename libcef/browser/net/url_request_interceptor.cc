@@ -149,6 +149,6 @@ net::URLRequestJob* CefRequestInterceptor::MaybeInterceptResponse(
   }
 
   // Otherwise queue a new job.
-  return net::URLRequestJobManager::GetInstance()->CreateJob(
-      request, network_delegate);
+  return net::URLRequestJobManager::GetInstance()->CreateJob(request,
+                                                             network_delegate);
 }

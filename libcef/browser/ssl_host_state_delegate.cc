@@ -18,10 +18,8 @@ net::SHA256HashValue getChainFingerprint256(const net::X509Certificate& cert) {
   return fingerprint;
 }
 
-CertPolicy::CertPolicy() {
-}
-CertPolicy::~CertPolicy() {
-}
+CertPolicy::CertPolicy() {}
+CertPolicy::~CertPolicy() {}
 
 // For an allowance, we consider a given |cert| to be a match to a saved
 // allowed cert if the |error| is an exact match to or subset of the errors
@@ -49,11 +47,9 @@ void CertPolicy::Allow(const net::X509Certificate& cert,
 
 }  // namespace internal
 
-CefSSLHostStateDelegate::CefSSLHostStateDelegate() {
-}
+CefSSLHostStateDelegate::CefSSLHostStateDelegate() {}
 
-CefSSLHostStateDelegate::~CefSSLHostStateDelegate() {
-}
+CefSSLHostStateDelegate::~CefSSLHostStateDelegate() {}
 
 void CefSSLHostStateDelegate::HostRanInsecureContent(
     const std::string& host,

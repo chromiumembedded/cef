@@ -9,39 +9,39 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=f1b350a92e8fe8cd6d8b81d807e0da11691b3167$
+//
 
 #include "libcef_dll/cpptoc/task_runner_cpptoc.h"
 #include "libcef_dll/cpptoc/thread_cpptoc.h"
 
-
 // GLOBAL FUNCTIONS - Body may be edited by hand.
 
-CEF_EXPORT cef_thread_t* cef_thread_create(const cef_string_t* display_name,
-    cef_thread_priority_t priority, cef_message_loop_type_t message_loop_type,
-    int stoppable, cef_com_init_mode_t com_init_mode) {
+CEF_EXPORT cef_thread_t* cef_thread_create(
+    const cef_string_t* display_name,
+    cef_thread_priority_t priority,
+    cef_message_loop_type_t message_loop_type,
+    int stoppable,
+    cef_com_init_mode_t com_init_mode) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Unverified params: display_name
 
   // Execute
   CefRefPtr<CefThread> _retval = CefThread::CreateThread(
-      CefString(display_name),
-      priority,
-      message_loop_type,
-      stoppable?true:false,
-      com_init_mode);
+      CefString(display_name), priority, message_loop_type,
+      stoppable ? true : false, com_init_mode);
 
   // Return type: refptr_same
   return CefThreadCppToC::Wrap(_retval);
 }
 
-
 namespace {
 
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
-cef_task_runner_t* CEF_CALLBACK thread_get_task_runner(
-    struct _cef_thread_t* self) {
+cef_task_runner_t* CEF_CALLBACK
+thread_get_task_runner(struct _cef_thread_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -49,15 +49,15 @@ cef_task_runner_t* CEF_CALLBACK thread_get_task_runner(
     return NULL;
 
   // Execute
-  CefRefPtr<CefTaskRunner> _retval = CefThreadCppToC::Get(self)->GetTaskRunner(
-      );
+  CefRefPtr<CefTaskRunner> _retval =
+      CefThreadCppToC::Get(self)->GetTaskRunner();
 
   // Return type: refptr_same
   return CefTaskRunnerCppToC::Wrap(_retval);
 }
 
-cef_platform_thread_id_t CEF_CALLBACK thread_get_platform_thread_id(
-    struct _cef_thread_t* self) {
+cef_platform_thread_id_t CEF_CALLBACK
+thread_get_platform_thread_id(struct _cef_thread_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -65,8 +65,8 @@ cef_platform_thread_id_t CEF_CALLBACK thread_get_platform_thread_id(
     return kInvalidPlatformThreadId;
 
   // Execute
-  cef_platform_thread_id_t _retval = CefThreadCppToC::Get(
-      self)->GetPlatformThreadId();
+  cef_platform_thread_id_t _retval =
+      CefThreadCppToC::Get(self)->GetPlatformThreadId();
 
   // Return type: simple
   return _retval;
@@ -99,7 +99,6 @@ int CEF_CALLBACK thread_is_running(struct _cef_thread_t* self) {
 
 }  // namespace
 
-
 // CONSTRUCTOR - Do not edit by hand.
 
 CefThreadCppToC::CefThreadCppToC() {
@@ -109,16 +108,22 @@ CefThreadCppToC::CefThreadCppToC() {
   GetStruct()->is_running = thread_is_running;
 }
 
-template<> CefRefPtr<CefThread> CefCppToCRefCounted<CefThreadCppToC, CefThread,
-    cef_thread_t>::UnwrapDerived(CefWrapperType type, cef_thread_t* s) {
+template <>
+CefRefPtr<CefThread>
+CefCppToCRefCounted<CefThreadCppToC, CefThread, cef_thread_t>::UnwrapDerived(
+    CefWrapperType type,
+    cef_thread_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCppToCRefCounted<CefThreadCppToC, CefThread,
-    cef_thread_t>::DebugObjCt = 0;
+template <>
+base::AtomicRefCount
+    CefCppToCRefCounted<CefThreadCppToC, CefThread, cef_thread_t>::DebugObjCt =
+        0;
 #endif
 
-template<> CefWrapperType CefCppToCRefCounted<CefThreadCppToC, CefThread,
-    cef_thread_t>::kWrapperType = WT_THREAD;
+template <>
+CefWrapperType CefCppToCRefCounted<CefThreadCppToC, CefThread, cef_thread_t>::
+    kWrapperType = WT_THREAD;

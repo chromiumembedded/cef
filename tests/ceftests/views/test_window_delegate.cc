@@ -24,8 +24,7 @@ const int TestWindowDelegate::kWSize = 400;
 // static
 void TestWindowDelegate::RunTest(CefRefPtr<CefWaitableEvent> event,
                                  const Config& config) {
-  CefWindow::CreateTopLevelWindow(
-      new TestWindowDelegate(event, config));
+  CefWindow::CreateTopLevelWindow(new TestWindowDelegate(event, config));
 }
 
 void TestWindowDelegate::OnWindowCreated(CefRefPtr<CefWindow> window) {
@@ -73,15 +72,15 @@ void TestWindowDelegate::OnWindowCreated(CefRefPtr<CefWindow> window) {
 
   if (config_.close_window) {
     // Close the window asynchronously.
-    CefPostTask(TID_UI,
-        base::Bind(&TestWindowDelegate::OnCloseWindow, this));
+    CefPostTask(TID_UI, base::Bind(&TestWindowDelegate::OnCloseWindow, this));
   } else if (!CefCommandLine::GetGlobalCommandLine()->HasSwitch(
                  "disable-test-timeout")) {
     // Timeout the test after a reasonable delay. Use a WeakPtr so that the
     // delayed task doesn't keep this object alive.
     CefPostDelayedTask(TID_UI,
-        base::Bind(&TestWindowDelegate::OnTimeoutWindow,
-                   weak_ptr_factory_.GetWeakPtr()), kTestTimeout);
+                       base::Bind(&TestWindowDelegate::OnTimeoutWindow,
+                                  weak_ptr_factory_.GetWeakPtr()),
+                       kTestTimeout);
   }
 }
 
@@ -128,10 +127,7 @@ bool TestWindowDelegate::OnKeyEvent(CefRefPtr<CefWindow> window,
 
 TestWindowDelegate::TestWindowDelegate(CefRefPtr<CefWaitableEvent> event,
                                        const Config& config)
-    : event_(event),
-      config_(config),
-      weak_ptr_factory_(this) {
-}
+    : event_(event), config_(config), weak_ptr_factory_(this) {}
 
 TestWindowDelegate::~TestWindowDelegate() {
   // Complete the test (signal the event) asynchronously so objects on the call

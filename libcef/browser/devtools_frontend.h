@@ -80,8 +80,7 @@ class CefDevToolsFrontend : public content::WebContentsObserver,
   // net::URLFetcherDelegate overrides.
   void OnURLFetchComplete(const net::URLFetcher* source) override;
 
-  void SendMessageAck(int request_id,
-                      const base::Value* arg1);
+  void SendMessageAck(int request_id, const base::Value* arg1);
 
   PrefService* GetPrefs() const;
 

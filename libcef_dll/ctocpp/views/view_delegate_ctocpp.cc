@@ -9,6 +9,8 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=89d54d92898217240204511d1f90da18890f04ee$
+//
 
 #include "libcef_dll/cpptoc/views/view_cpptoc.h"
 #include "libcef_dll/ctocpp/views/browser_view_delegate_ctocpp.h"
@@ -18,7 +20,6 @@
 #include "libcef_dll/ctocpp/views/textfield_delegate_ctocpp.h"
 #include "libcef_dll/ctocpp/views/view_delegate_ctocpp.h"
 #include "libcef_dll/ctocpp/views/window_delegate_ctocpp.h"
-
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
@@ -35,8 +36,8 @@ CefSize CefViewDelegateCToCpp::GetPreferredSize(CefRefPtr<CefView> view) {
     return CefSize();
 
   // Execute
-  cef_size_t _retval = _struct->get_preferred_size(_struct,
-      CefViewCppToC::Wrap(view));
+  cef_size_t _retval =
+      _struct->get_preferred_size(_struct, CefViewCppToC::Wrap(view));
 
   // Return type: simple
   return _retval;
@@ -55,8 +56,8 @@ CefSize CefViewDelegateCToCpp::GetMinimumSize(CefRefPtr<CefView> view) {
     return CefSize();
 
   // Execute
-  cef_size_t _retval = _struct->get_minimum_size(_struct,
-      CefViewCppToC::Wrap(view));
+  cef_size_t _retval =
+      _struct->get_minimum_size(_struct, CefViewCppToC::Wrap(view));
 
   // Return type: simple
   return _retval;
@@ -75,15 +76,15 @@ CefSize CefViewDelegateCToCpp::GetMaximumSize(CefRefPtr<CefView> view) {
     return CefSize();
 
   // Execute
-  cef_size_t _retval = _struct->get_maximum_size(_struct,
-      CefViewCppToC::Wrap(view));
+  cef_size_t _retval =
+      _struct->get_maximum_size(_struct, CefViewCppToC::Wrap(view));
 
   // Return type: simple
   return _retval;
 }
 
 int CefViewDelegateCToCpp::GetHeightForWidth(CefRefPtr<CefView> view,
-    int width) {
+                                             int width) {
   cef_view_delegate_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_height_for_width))
     return 0;
@@ -96,16 +97,16 @@ int CefViewDelegateCToCpp::GetHeightForWidth(CefRefPtr<CefView> view,
     return 0;
 
   // Execute
-  int _retval = _struct->get_height_for_width(_struct,
-      CefViewCppToC::Wrap(view),
-      width);
+  int _retval =
+      _struct->get_height_for_width(_struct, CefViewCppToC::Wrap(view), width);
 
   // Return type: simple
   return _retval;
 }
 
 void CefViewDelegateCToCpp::OnParentViewChanged(CefRefPtr<CefView> view,
-    bool added, CefRefPtr<CefView> parent) {
+                                                bool added,
+                                                CefRefPtr<CefView> parent) {
   cef_view_delegate_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_parent_view_changed))
     return;
@@ -122,14 +123,13 @@ void CefViewDelegateCToCpp::OnParentViewChanged(CefRefPtr<CefView> view,
     return;
 
   // Execute
-  _struct->on_parent_view_changed(_struct,
-      CefViewCppToC::Wrap(view),
-      added,
-      CefViewCppToC::Wrap(parent));
+  _struct->on_parent_view_changed(_struct, CefViewCppToC::Wrap(view), added,
+                                  CefViewCppToC::Wrap(parent));
 }
 
 void CefViewDelegateCToCpp::OnChildViewChanged(CefRefPtr<CefView> view,
-    bool added, CefRefPtr<CefView> child) {
+                                               bool added,
+                                               CefRefPtr<CefView> child) {
   cef_view_delegate_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_child_view_changed))
     return;
@@ -146,10 +146,8 @@ void CefViewDelegateCToCpp::OnChildViewChanged(CefRefPtr<CefView> view,
     return;
 
   // Execute
-  _struct->on_child_view_changed(_struct,
-      CefViewCppToC::Wrap(view),
-      added,
-      CefViewCppToC::Wrap(child));
+  _struct->on_child_view_changed(_struct, CefViewCppToC::Wrap(view), added,
+                                 CefViewCppToC::Wrap(child));
 }
 
 void CefViewDelegateCToCpp::OnFocus(CefRefPtr<CefView> view) {
@@ -165,8 +163,7 @@ void CefViewDelegateCToCpp::OnFocus(CefRefPtr<CefView> view) {
     return;
 
   // Execute
-  _struct->on_focus(_struct,
-      CefViewCppToC::Wrap(view));
+  _struct->on_focus(_struct, CefViewCppToC::Wrap(view));
 }
 
 void CefViewDelegateCToCpp::OnBlur(CefRefPtr<CefView> view) {
@@ -182,57 +179,61 @@ void CefViewDelegateCToCpp::OnBlur(CefRefPtr<CefView> view) {
     return;
 
   // Execute
-  _struct->on_blur(_struct,
-      CefViewCppToC::Wrap(view));
+  _struct->on_blur(_struct, CefViewCppToC::Wrap(view));
 }
-
 
 // CONSTRUCTOR - Do not edit by hand.
 
-CefViewDelegateCToCpp::CefViewDelegateCToCpp() {
-}
+CefViewDelegateCToCpp::CefViewDelegateCToCpp() {}
 
-template<> cef_view_delegate_t* CefCToCppRefCounted<CefViewDelegateCToCpp,
-    CefViewDelegate, cef_view_delegate_t>::UnwrapDerived(CefWrapperType type,
-    CefViewDelegate* c) {
+template <>
+cef_view_delegate_t*
+CefCToCppRefCounted<CefViewDelegateCToCpp,
+                    CefViewDelegate,
+                    cef_view_delegate_t>::UnwrapDerived(CefWrapperType type,
+                                                        CefViewDelegate* c) {
   if (type == WT_BROWSER_VIEW_DELEGATE) {
     return reinterpret_cast<cef_view_delegate_t*>(
         CefBrowserViewDelegateCToCpp::Unwrap(
-        reinterpret_cast<CefBrowserViewDelegate*>(c)));
+            reinterpret_cast<CefBrowserViewDelegate*>(c)));
   }
   if (type == WT_BUTTON_DELEGATE) {
     return reinterpret_cast<cef_view_delegate_t*>(
-        CefButtonDelegateCToCpp::Unwrap(reinterpret_cast<CefButtonDelegate*>(
-        c)));
+        CefButtonDelegateCToCpp::Unwrap(
+            reinterpret_cast<CefButtonDelegate*>(c)));
   }
   if (type == WT_MENU_BUTTON_DELEGATE) {
     return reinterpret_cast<cef_view_delegate_t*>(
         CefMenuButtonDelegateCToCpp::Unwrap(
-        reinterpret_cast<CefMenuButtonDelegate*>(c)));
+            reinterpret_cast<CefMenuButtonDelegate*>(c)));
   }
   if (type == WT_PANEL_DELEGATE) {
     return reinterpret_cast<cef_view_delegate_t*>(
-        CefPanelDelegateCToCpp::Unwrap(reinterpret_cast<CefPanelDelegate*>(
-        c)));
+        CefPanelDelegateCToCpp::Unwrap(reinterpret_cast<CefPanelDelegate*>(c)));
   }
   if (type == WT_TEXTFIELD_DELEGATE) {
     return reinterpret_cast<cef_view_delegate_t*>(
         CefTextfieldDelegateCToCpp::Unwrap(
-        reinterpret_cast<CefTextfieldDelegate*>(c)));
+            reinterpret_cast<CefTextfieldDelegate*>(c)));
   }
   if (type == WT_WINDOW_DELEGATE) {
     return reinterpret_cast<cef_view_delegate_t*>(
-        CefWindowDelegateCToCpp::Unwrap(reinterpret_cast<CefWindowDelegate*>(
-        c)));
+        CefWindowDelegateCToCpp::Unwrap(
+            reinterpret_cast<CefWindowDelegate*>(c)));
   }
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCppRefCounted<CefViewDelegateCToCpp,
-    CefViewDelegate, cef_view_delegate_t>::DebugObjCt = 0;
+template <>
+base::AtomicRefCount CefCToCppRefCounted<CefViewDelegateCToCpp,
+                                         CefViewDelegate,
+                                         cef_view_delegate_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCppRefCounted<CefViewDelegateCToCpp,
-    CefViewDelegate, cef_view_delegate_t>::kWrapperType = WT_VIEW_DELEGATE;
+template <>
+CefWrapperType CefCToCppRefCounted<CefViewDelegateCToCpp,
+                                   CefViewDelegate,
+                                   cef_view_delegate_t>::kWrapperType =
+    WT_VIEW_DELEGATE;

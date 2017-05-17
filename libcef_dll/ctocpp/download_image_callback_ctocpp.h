@@ -9,6 +9,8 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=b7a0a41bf55f4d22f65f8d067df1dc854288a2b5$
+//
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_DOWNLOAD_IMAGE_CALLBACK_CTOCPP_H_
 #define CEF_LIBCEF_DLL_CTOCPP_DOWNLOAD_IMAGE_CALLBACK_CTOCPP_H_
@@ -18,23 +20,25 @@
 #error This file can be included DLL-side only
 #endif
 
-#include "include/cef_browser.h"
 #include "include/capi/cef_browser_capi.h"
-#include "include/cef_client.h"
 #include "include/capi/cef_client_capi.h"
+#include "include/cef_browser.h"
+#include "include/cef_client.h"
 #include "libcef_dll/ctocpp/ctocpp_ref_counted.h"
 
 // Wrap a C structure with a C++ class.
 // This class may be instantiated and accessed DLL-side only.
 class CefDownloadImageCallbackCToCpp
     : public CefCToCppRefCounted<CefDownloadImageCallbackCToCpp,
-        CefDownloadImageCallback, cef_download_image_callback_t> {
+                                 CefDownloadImageCallback,
+                                 cef_download_image_callback_t> {
  public:
   CefDownloadImageCallbackCToCpp();
 
   // CefDownloadImageCallback methods.
-  void OnDownloadImageFinished(const CefString& image_url, int http_status_code,
-      CefRefPtr<CefImage> image) override;
+  void OnDownloadImageFinished(const CefString& image_url,
+                               int http_status_code,
+                               CefRefPtr<CefImage> image) override;
 };
 
 #endif  // CEF_LIBCEF_DLL_CTOCPP_DOWNLOAD_IMAGE_CALLBACK_CTOCPP_H_

@@ -231,7 +231,7 @@ TEST(StringTest, Map) {
   it = map.begin();
   for (; it != map.end(); ++it) {
     cef_string_map_append(mapPtr, it->first.GetStruct(),
-        it->second.GetStruct());
+                          it->second.GetStruct());
   }
 
   CefString str;
@@ -288,8 +288,8 @@ TEST(StringTest, Multimap) {
   EXPECT_EQ(it->first, "Key 2");
   EXPECT_EQ(it->second, "String 2");
 
-  std::pair<MapType::const_iterator, MapType::const_iterator>
-      range_it = map.equal_range("Key 2");
+  std::pair<MapType::const_iterator, MapType::const_iterator> range_it =
+      map.equal_range("Key 2");
   EXPECT_TRUE(range_it.first != range_it.second);
   MapType::const_iterator same_key_it = range_it.first;
   // Either of "String 2" or "String 2.1" is fine since
@@ -307,7 +307,7 @@ TEST(StringTest, Multimap) {
   it = map.begin();
   for (; it != map.end(); ++it) {
     cef_string_multimap_append(mapPtr, it->first.GetStruct(),
-        it->second.GetStruct());
+                               it->second.GetStruct());
   }
 
   CefString str;
@@ -348,13 +348,13 @@ TEST(StringTest, Multimap) {
   size_t size = cef_string_multimap_find_count(mapPtr, key.GetStruct());
   EXPECT_EQ(size, 2U);
 
-  ret = cef_string_multimap_enumerate(mapPtr,
-                    key.GetStruct(), 0U, str.GetWritableStruct());
+  ret = cef_string_multimap_enumerate(mapPtr, key.GetStruct(), 0U,
+                                      str.GetWritableStruct());
   EXPECT_TRUE(ret);
   EXPECT_EQ(str.ToString().find("String 2"), 0U);
 
-  ret = cef_string_multimap_enumerate(mapPtr,
-                    key.GetStruct(), 1U, str.GetWritableStruct());
+  ret = cef_string_multimap_enumerate(mapPtr, key.GetStruct(), 1U,
+                                      str.GetWritableStruct());
   EXPECT_TRUE(ret);
   EXPECT_EQ(str.ToString().find("String 2"), 0U);
 

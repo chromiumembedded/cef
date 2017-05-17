@@ -9,12 +9,13 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=543054b6b4e606ea5c571ca48d2108f8ed6674ab$
+//
 
 #include "libcef_dll/ctocpp/drag_data_ctocpp.h"
 #include "libcef_dll/ctocpp/image_ctocpp.h"
 #include "libcef_dll/ctocpp/stream_writer_ctocpp.h"
 #include "libcef_dll/transfer_util.h"
-
 
 // STATIC METHODS - Body may be edited by hand.
 
@@ -27,7 +28,6 @@ CefRefPtr<CefDragData> CefDragData::Create() {
   // Return type: refptr_same
   return CefDragDataCToCpp::Wrap(_retval);
 }
-
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
@@ -56,7 +56,7 @@ bool CefDragDataCToCpp::IsReadOnly() {
   int _retval = _struct->is_read_only(_struct);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 bool CefDragDataCToCpp::IsLink() {
@@ -70,7 +70,7 @@ bool CefDragDataCToCpp::IsLink() {
   int _retval = _struct->is_link(_struct);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 bool CefDragDataCToCpp::IsFragment() {
@@ -84,7 +84,7 @@ bool CefDragDataCToCpp::IsFragment() {
   int _retval = _struct->is_fragment(_struct);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 bool CefDragDataCToCpp::IsFile() {
@@ -98,7 +98,7 @@ bool CefDragDataCToCpp::IsFile() {
   int _retval = _struct->is_file(_struct);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 CefString CefDragDataCToCpp::GetLinkURL() {
@@ -223,8 +223,8 @@ size_t CefDragDataCToCpp::GetFileContents(CefRefPtr<CefStreamWriter> writer) {
   // Unverified params: writer
 
   // Execute
-  size_t _retval = _struct->get_file_contents(_struct,
-      CefStreamWriterCToCpp::Unwrap(writer));
+  size_t _retval = _struct->get_file_contents(
+      _struct, CefStreamWriterCToCpp::Unwrap(writer));
 
   // Return type: simple
   return _retval;
@@ -244,8 +244,7 @@ bool CefDragDataCToCpp::GetFileNames(std::vector<CefString>& names) {
     transfer_string_list_contents(names, namesList);
 
   // Execute
-  int _retval = _struct->get_file_names(_struct,
-      namesList);
+  int _retval = _struct->get_file_names(_struct, namesList);
 
   // Restore param:names; type: string_vec_byref
   if (namesList) {
@@ -255,7 +254,7 @@ bool CefDragDataCToCpp::GetFileNames(std::vector<CefString>& names) {
   }
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 void CefDragDataCToCpp::SetLinkURL(const CefString& url) {
@@ -268,8 +267,7 @@ void CefDragDataCToCpp::SetLinkURL(const CefString& url) {
   // Unverified params: url
 
   // Execute
-  _struct->set_link_url(_struct,
-      url.GetStruct());
+  _struct->set_link_url(_struct, url.GetStruct());
 }
 
 void CefDragDataCToCpp::SetLinkTitle(const CefString& title) {
@@ -282,8 +280,7 @@ void CefDragDataCToCpp::SetLinkTitle(const CefString& title) {
   // Unverified params: title
 
   // Execute
-  _struct->set_link_title(_struct,
-      title.GetStruct());
+  _struct->set_link_title(_struct, title.GetStruct());
 }
 
 void CefDragDataCToCpp::SetLinkMetadata(const CefString& data) {
@@ -296,8 +293,7 @@ void CefDragDataCToCpp::SetLinkMetadata(const CefString& data) {
   // Unverified params: data
 
   // Execute
-  _struct->set_link_metadata(_struct,
-      data.GetStruct());
+  _struct->set_link_metadata(_struct, data.GetStruct());
 }
 
 void CefDragDataCToCpp::SetFragmentText(const CefString& text) {
@@ -310,8 +306,7 @@ void CefDragDataCToCpp::SetFragmentText(const CefString& text) {
   // Unverified params: text
 
   // Execute
-  _struct->set_fragment_text(_struct,
-      text.GetStruct());
+  _struct->set_fragment_text(_struct, text.GetStruct());
 }
 
 void CefDragDataCToCpp::SetFragmentHtml(const CefString& html) {
@@ -324,8 +319,7 @@ void CefDragDataCToCpp::SetFragmentHtml(const CefString& html) {
   // Unverified params: html
 
   // Execute
-  _struct->set_fragment_html(_struct,
-      html.GetStruct());
+  _struct->set_fragment_html(_struct, html.GetStruct());
 }
 
 void CefDragDataCToCpp::SetFragmentBaseURL(const CefString& base_url) {
@@ -338,8 +332,7 @@ void CefDragDataCToCpp::SetFragmentBaseURL(const CefString& base_url) {
   // Unverified params: base_url
 
   // Execute
-  _struct->set_fragment_base_url(_struct,
-      base_url.GetStruct());
+  _struct->set_fragment_base_url(_struct, base_url.GetStruct());
 }
 
 void CefDragDataCToCpp::ResetFileContents() {
@@ -354,7 +347,7 @@ void CefDragDataCToCpp::ResetFileContents() {
 }
 
 void CefDragDataCToCpp::AddFile(const CefString& path,
-    const CefString& display_name) {
+                                const CefString& display_name) {
   cef_drag_data_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, add_file))
     return;
@@ -368,9 +361,7 @@ void CefDragDataCToCpp::AddFile(const CefString& path,
   // Unverified params: display_name
 
   // Execute
-  _struct->add_file(_struct,
-      path.GetStruct(),
-      display_name.GetStruct());
+  _struct->add_file(_struct, path.GetStruct(), display_name.GetStruct());
 }
 
 CefRefPtr<CefImage> CefDragDataCToCpp::GetImage() {
@@ -412,25 +403,30 @@ bool CefDragDataCToCpp::HasImage() {
   int _retval = _struct->has_image(_struct);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
-
 
 // CONSTRUCTOR - Do not edit by hand.
 
-CefDragDataCToCpp::CefDragDataCToCpp() {
-}
+CefDragDataCToCpp::CefDragDataCToCpp() {}
 
-template<> cef_drag_data_t* CefCToCppRefCounted<CefDragDataCToCpp, CefDragData,
-    cef_drag_data_t>::UnwrapDerived(CefWrapperType type, CefDragData* c) {
+template <>
+cef_drag_data_t*
+CefCToCppRefCounted<CefDragDataCToCpp, CefDragData, cef_drag_data_t>::
+    UnwrapDerived(CefWrapperType type, CefDragData* c) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCppRefCounted<CefDragDataCToCpp,
-    CefDragData, cef_drag_data_t>::DebugObjCt = 0;
+template <>
+base::AtomicRefCount CefCToCppRefCounted<CefDragDataCToCpp,
+                                         CefDragData,
+                                         cef_drag_data_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCppRefCounted<CefDragDataCToCpp, CefDragData,
-    cef_drag_data_t>::kWrapperType = WT_DRAG_DATA;
+template <>
+CefWrapperType CefCToCppRefCounted<CefDragDataCToCpp,
+                                   CefDragData,
+                                   cef_drag_data_t>::kWrapperType =
+    WT_DRAG_DATA;

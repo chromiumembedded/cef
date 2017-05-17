@@ -17,7 +17,7 @@ class Compositor;
 // All Rect/Size values are in pixels.
 class CefSoftwareOutputDeviceOSR : public cc::SoftwareOutputDevice {
  public:
-  typedef base::Callback<void(const gfx::Rect&,int,int,void*)>
+  typedef base::Callback<void(const gfx::Rect&, int, int, void*)>
       OnPaintCallback;
 
   CefSoftwareOutputDeviceOSR(ui::Compositor* compositor,
@@ -27,7 +27,7 @@ class CefSoftwareOutputDeviceOSR : public cc::SoftwareOutputDevice {
 
   // cc::SoftwareOutputDevice implementation.
   void Resize(const gfx::Size& viewport_pixel_size,
-             float scale_factor) override;
+              float scale_factor) override;
   SkCanvas* BeginPaint(const gfx::Rect& damage_rect) override;
   void EndPaint() override;
 

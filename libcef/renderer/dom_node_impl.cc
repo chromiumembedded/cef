@@ -3,6 +3,7 @@
 // can be found in the LICENSE file.
 
 #include "libcef/renderer/dom_node_impl.h"
+
 #include "libcef/common/tracker.h"
 #include "libcef/renderer/browser_impl.h"
 #include "libcef/renderer/dom_document_impl.h"
@@ -13,11 +14,11 @@
 #include "base/strings/string_util.h"
 #include "base/strings/utf_string_conversions.h"
 #include "third_party/WebKit/public/platform/WebString.h"
-#include "third_party/WebKit/public/web/WebDocument.h"
 #include "third_party/WebKit/public/web/WebDOMEvent.h"
+#include "third_party/WebKit/public/web/WebDocument.h"
 #include "third_party/WebKit/public/web/WebElement.h"
-#include "third_party/WebKit/public/web/WebFrame.h"
 #include "third_party/WebKit/public/web/WebFormControlElement.h"
+#include "third_party/WebKit/public/web/WebFrame.h"
 #include "third_party/WebKit/public/web/WebInputElement.h"
 #include "third_party/WebKit/public/web/WebNode.h"
 #include "third_party/WebKit/public/web/WebSelectElement.h"
@@ -34,9 +35,7 @@ using blink::WebString;
 
 CefDOMNodeImpl::CefDOMNodeImpl(CefRefPtr<CefDOMDocumentImpl> document,
                                const blink::WebNode& node)
-    : document_(document),
-      node_(node) {
-}
+    : document_(document), node_(node) {}
 
 CefDOMNodeImpl::~CefDOMNodeImpl() {
   CEF_REQUIRE_RT();

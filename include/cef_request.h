@@ -38,9 +38,9 @@
 #define CEF_INCLUDE_CEF_REQUEST_H_
 #pragma once
 
-#include "include/cef_base.h"
 #include <map>
 #include <vector>
+#include "include/cef_base.h"
 
 class CefPostData;
 class CefPostDataElement;
@@ -67,32 +67,32 @@ class CefRequest : public virtual CefBaseRefCounted {
   // Returns true if this object is read-only.
   ///
   /*--cef()--*/
-  virtual bool IsReadOnly() =0;
+  virtual bool IsReadOnly() = 0;
 
   ///
   // Get the fully qualified URL.
   ///
   /*--cef()--*/
-  virtual CefString GetURL() =0;
+  virtual CefString GetURL() = 0;
 
   ///
   // Set the fully qualified URL.
   ///
   /*--cef()--*/
-  virtual void SetURL(const CefString& url) =0;
+  virtual void SetURL(const CefString& url) = 0;
 
   ///
   // Get the request method type. The value will default to POST if post data
   // is provided and GET otherwise.
   ///
   /*--cef()--*/
-  virtual CefString GetMethod() =0;
+  virtual CefString GetMethod() = 0;
 
   ///
   // Set the request method type.
   ///
   /*--cef()--*/
-  virtual void SetMethod(const CefString& method) =0;
+  virtual void SetMethod(const CefString& method) = 0;
 
   ///
   // Set the referrer URL and policy. If non-empty the referrer URL must be
@@ -101,44 +101,44 @@ class CefRequest : public virtual CefBaseRefCounted {
   ///
   /*--cef()--*/
   virtual void SetReferrer(const CefString& referrer_url,
-                           ReferrerPolicy policy) =0;
+                           ReferrerPolicy policy) = 0;
 
   ///
   // Get the referrer URL.
   ///
   /*--cef()--*/
-  virtual CefString GetReferrerURL() =0;
+  virtual CefString GetReferrerURL() = 0;
 
   ///
   // Get the referrer policy.
   ///
   /*--cef(default_retval=REFERRER_POLICY_DEFAULT)--*/
-  virtual ReferrerPolicy GetReferrerPolicy() =0;
+  virtual ReferrerPolicy GetReferrerPolicy() = 0;
 
   ///
   // Get the post data.
   ///
   /*--cef()--*/
-  virtual CefRefPtr<CefPostData> GetPostData() =0;
+  virtual CefRefPtr<CefPostData> GetPostData() = 0;
 
   ///
   // Set the post data.
   ///
   /*--cef()--*/
-  virtual void SetPostData(CefRefPtr<CefPostData> postData) =0;
+  virtual void SetPostData(CefRefPtr<CefPostData> postData) = 0;
 
   ///
   // Get the header values. Will not include the Referer value if any.
   ///
   /*--cef()--*/
-  virtual void GetHeaderMap(HeaderMap& headerMap) =0;
+  virtual void GetHeaderMap(HeaderMap& headerMap) = 0;
 
   ///
   // Set the header values. If a Referer value exists in the header map it will
   // be removed and ignored.
   ///
   /*--cef()--*/
-  virtual void SetHeaderMap(const HeaderMap& headerMap) =0;
+  virtual void SetHeaderMap(const HeaderMap& headerMap) = 0;
 
   ///
   // Set all values at one time.
@@ -147,42 +147,42 @@ class CefRequest : public virtual CefBaseRefCounted {
   virtual void Set(const CefString& url,
                    const CefString& method,
                    CefRefPtr<CefPostData> postData,
-                   const HeaderMap& headerMap) =0;
+                   const HeaderMap& headerMap) = 0;
 
   ///
   // Get the flags used in combination with CefURLRequest. See
   // cef_urlrequest_flags_t for supported values.
   ///
   /*--cef(default_retval=UR_FLAG_NONE)--*/
-  virtual int GetFlags() =0;
+  virtual int GetFlags() = 0;
 
   ///
   // Set the flags used in combination with CefURLRequest.  See
   // cef_urlrequest_flags_t for supported values.
   ///
   /*--cef()--*/
-  virtual void SetFlags(int flags) =0;
+  virtual void SetFlags(int flags) = 0;
 
   ///
   // Set the URL to the first party for cookies used in combination with
   // CefURLRequest.
   ///
   /*--cef()--*/
-  virtual CefString GetFirstPartyForCookies() =0;
+  virtual CefString GetFirstPartyForCookies() = 0;
 
   ///
   // Get the URL to the first party for cookies used in combination with
   // CefURLRequest.
   ///
   /*--cef()--*/
-  virtual void SetFirstPartyForCookies(const CefString& url) =0;
+  virtual void SetFirstPartyForCookies(const CefString& url) = 0;
 
   ///
   // Get the resource type for this request. Only available in the browser
   // process.
   ///
   /*--cef(default_retval=RT_SUB_RESOURCE)--*/
-  virtual ResourceType GetResourceType() =0;
+  virtual ResourceType GetResourceType() = 0;
 
   ///
   // Get the transition type for this request. Only available in the browser
@@ -190,7 +190,7 @@ class CefRequest : public virtual CefBaseRefCounted {
   // sub-frame navigation.
   ///
   /*--cef(default_retval=TT_EXPLICIT)--*/
-  virtual TransitionType GetTransitionType() =0;
+  virtual TransitionType GetTransitionType() = 0;
 
   ///
   // Returns the globally unique identifier for this request or 0 if not
@@ -198,9 +198,8 @@ class CefRequest : public virtual CefBaseRefCounted {
   // process to track a single request across multiple callbacks.
   ///
   /*--cef()--*/
-  virtual uint64 GetIdentifier() =0;
+  virtual uint64 GetIdentifier() = 0;
 };
-
 
 ///
 // Class used to represent post data for a web request. The methods of this
@@ -209,7 +208,7 @@ class CefRequest : public virtual CefBaseRefCounted {
 /*--cef(source=library,no_debugct_check)--*/
 class CefPostData : public virtual CefBaseRefCounted {
  public:
-  typedef std::vector<CefRefPtr<CefPostDataElement> > ElementVector;
+  typedef std::vector<CefRefPtr<CefPostDataElement>> ElementVector;
 
   ///
   // Create a new CefPostData object.
@@ -221,7 +220,7 @@ class CefPostData : public virtual CefBaseRefCounted {
   // Returns true if this object is read-only.
   ///
   /*--cef()--*/
-  virtual bool IsReadOnly() =0;
+  virtual bool IsReadOnly() = 0;
 
   ///
   // Returns true if the underlying POST data includes elements that are not
@@ -236,34 +235,33 @@ class CefPostData : public virtual CefBaseRefCounted {
   // Returns the number of existing post data elements.
   ///
   /*--cef()--*/
-  virtual size_t GetElementCount() =0;
+  virtual size_t GetElementCount() = 0;
 
   ///
   // Retrieve the post data elements.
   ///
   /*--cef(count_func=elements:GetElementCount)--*/
-  virtual void GetElements(ElementVector& elements) =0;
+  virtual void GetElements(ElementVector& elements) = 0;
 
   ///
   // Remove the specified post data element.  Returns true if the removal
   // succeeds.
   ///
   /*--cef()--*/
-  virtual bool RemoveElement(CefRefPtr<CefPostDataElement> element) =0;
+  virtual bool RemoveElement(CefRefPtr<CefPostDataElement> element) = 0;
 
   ///
   // Add the specified post data element.  Returns true if the add succeeds.
   ///
   /*--cef()--*/
-  virtual bool AddElement(CefRefPtr<CefPostDataElement> element) =0;
+  virtual bool AddElement(CefRefPtr<CefPostDataElement> element) = 0;
 
   ///
   // Remove all existing post data elements.
   ///
   /*--cef()--*/
-  virtual void RemoveElements() =0;
+  virtual void RemoveElements() = 0;
 };
-
 
 ///
 // Class used to represent a single element in the request post data. The
@@ -287,51 +285,51 @@ class CefPostDataElement : public virtual CefBaseRefCounted {
   // Returns true if this object is read-only.
   ///
   /*--cef()--*/
-  virtual bool IsReadOnly() =0;
+  virtual bool IsReadOnly() = 0;
 
   ///
   // Remove all contents from the post data element.
   ///
   /*--cef()--*/
-  virtual void SetToEmpty() =0;
+  virtual void SetToEmpty() = 0;
 
   ///
   // The post data element will represent a file.
   ///
   /*--cef()--*/
-  virtual void SetToFile(const CefString& fileName) =0;
+  virtual void SetToFile(const CefString& fileName) = 0;
 
   ///
   // The post data element will represent bytes.  The bytes passed
   // in will be copied.
   ///
   /*--cef()--*/
-  virtual void SetToBytes(size_t size, const void* bytes) =0;
+  virtual void SetToBytes(size_t size, const void* bytes) = 0;
 
   ///
   // Return the type of this post data element.
   ///
   /*--cef(default_retval=PDE_TYPE_EMPTY)--*/
-  virtual Type GetType() =0;
+  virtual Type GetType() = 0;
 
   ///
   // Return the file name.
   ///
   /*--cef()--*/
-  virtual CefString GetFile() =0;
+  virtual CefString GetFile() = 0;
 
   ///
   // Return the number of bytes.
   ///
   /*--cef()--*/
-  virtual size_t GetBytesCount() =0;
+  virtual size_t GetBytesCount() = 0;
 
   ///
   // Read up to |size| bytes into |bytes| and return the number of bytes
   // actually read.
   ///
   /*--cef()--*/
-  virtual size_t GetBytes(size_t size, void* bytes) =0;
+  virtual size_t GetBytes(size_t size, void* bytes) = 0;
 };
 
 #endif  // CEF_INCLUDE_CEF_REQUEST_H_

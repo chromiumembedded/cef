@@ -9,6 +9,8 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=a358f21b2b2c5923476110bf59aebd9f35f65184$
+//
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_END_TRACING_CALLBACK_CPPTOC_H_
 #define CEF_LIBCEF_DLL_CPPTOC_END_TRACING_CALLBACK_CPPTOC_H_
@@ -18,15 +20,16 @@
 #error This file can be included wrapper-side only
 #endif
 
-#include "include/cef_trace.h"
 #include "include/capi/cef_trace_capi.h"
+#include "include/cef_trace.h"
 #include "libcef_dll/cpptoc/cpptoc_ref_counted.h"
 
 // Wrap a C++ class with a C structure.
 // This class may be instantiated and accessed wrapper-side only.
 class CefEndTracingCallbackCppToC
     : public CefCppToCRefCounted<CefEndTracingCallbackCppToC,
-        CefEndTracingCallback, cef_end_tracing_callback_t> {
+                                 CefEndTracingCallback,
+                                 cef_end_tracing_callback_t> {
  public:
   CefEndTracingCallbackCppToC();
 };

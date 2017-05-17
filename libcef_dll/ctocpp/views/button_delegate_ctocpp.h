@@ -9,6 +9,8 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=0c1f554d07c5025bf039d701dd48a2ea109ecbfa$
+//
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_VIEWS_BUTTON_DELEGATE_CTOCPP_H_
 #define CEF_LIBCEF_DLL_CTOCPP_VIEWS_BUTTON_DELEGATE_CTOCPP_H_
@@ -18,17 +20,18 @@
 #error This file can be included DLL-side only
 #endif
 
-#include "include/views/cef_button_delegate.h"
+#include "include/capi/views/cef_button_capi.h"
 #include "include/capi/views/cef_button_delegate_capi.h"
 #include "include/views/cef_button.h"
-#include "include/capi/views/cef_button_capi.h"
+#include "include/views/cef_button_delegate.h"
 #include "libcef_dll/ctocpp/ctocpp_ref_counted.h"
 
 // Wrap a C structure with a C++ class.
 // This class may be instantiated and accessed DLL-side only.
 class CefButtonDelegateCToCpp
-    : public CefCToCppRefCounted<CefButtonDelegateCToCpp, CefButtonDelegate,
-        cef_button_delegate_t> {
+    : public CefCToCppRefCounted<CefButtonDelegateCToCpp,
+                                 CefButtonDelegate,
+                                 cef_button_delegate_t> {
  public:
   CefButtonDelegateCToCpp();
 
@@ -41,10 +44,12 @@ class CefButtonDelegateCToCpp
   CefSize GetMinimumSize(CefRefPtr<CefView> view) override;
   CefSize GetMaximumSize(CefRefPtr<CefView> view) override;
   int GetHeightForWidth(CefRefPtr<CefView> view, int width) override;
-  void OnParentViewChanged(CefRefPtr<CefView> view, bool added,
-      CefRefPtr<CefView> parent) override;
-  void OnChildViewChanged(CefRefPtr<CefView> view, bool added,
-      CefRefPtr<CefView> child) override;
+  void OnParentViewChanged(CefRefPtr<CefView> view,
+                           bool added,
+                           CefRefPtr<CefView> parent) override;
+  void OnChildViewChanged(CefRefPtr<CefView> view,
+                          bool added,
+                          CefRefPtr<CefView> child) override;
   void OnFocus(CefRefPtr<CefView> view) override;
   void OnBlur(CefRefPtr<CefView> view) override;
 };

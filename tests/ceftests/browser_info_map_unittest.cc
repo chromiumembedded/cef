@@ -17,9 +17,7 @@ struct MyObject {
 int g_destruct_ct = 0;
 
 struct MyObjectTraits {
-  static void Destruct(MyObject info) {
-    g_destruct_ct++;
-  }
+  static void Destruct(MyObject info) { g_destruct_ct++; }
 };
 
 typedef CefBrowserInfoMap<int, MyObject, MyObjectTraits> MyObjectMap;
@@ -45,16 +43,14 @@ class MyVisitor : public MyObjectMap::Visitor {
 
     // Based on test configuration remove no objects, all objects, or only the
     // specified object.
-    *remove = remove_ || (browser_id == remove_browser_id_ &&
-                          info_id == remove_info_id_);
+    *remove = remove_ ||
+              (browser_id == remove_browser_id_ && info_id == remove_info_id_);
     return true;
   }
 
   // Returns true if the specified info was passed to OnNextInfo. Removes the
   // record if found.
-  bool Exists(int browser_id,
-              InfoIdType info_id,
-              InfoObjectType info) {
+  bool Exists(int browser_id, InfoIdType info_id, InfoObjectType info) {
     InfoList::iterator it = info_list_.begin();
     for (; it != info_list_.end(); ++it) {
       const Info& found_info = *it;
@@ -680,15 +676,12 @@ TEST(BrowserInfoMapTest, FindAllAndRemoveOneByBrowser) {
   EXPECT_EQ(3, g_destruct_ct);
 }
 
-
 namespace {
 
 class MyHeapObject {
  public:
   MyHeapObject(int* destroy_ct) : destroy_ct_(destroy_ct) {}
-  ~MyHeapObject() {
-    (*destroy_ct_)++;
-  }
+  ~MyHeapObject() { (*destroy_ct_)++; }
 
  private:
   int* destroy_ct_;

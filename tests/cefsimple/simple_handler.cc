@@ -21,8 +21,7 @@ SimpleHandler* g_instance = NULL;
 }  // namespace
 
 SimpleHandler::SimpleHandler(bool use_views)
-    : use_views_(use_views),
-      is_closing_(false) {
+    : use_views_(use_views), is_closing_(false) {
   DCHECK(!g_instance);
   g_instance = this;
 }
@@ -110,17 +109,17 @@ void SimpleHandler::OnLoadError(CefRefPtr<CefBrowser> browser,
   // Display a load error message.
   std::stringstream ss;
   ss << "<html><body bgcolor=\"white\">"
-        "<h2>Failed to load URL " << std::string(failedUrl) <<
-        " with error " << std::string(errorText) << " (" << errorCode <<
-        ").</h2></body></html>";
+        "<h2>Failed to load URL "
+     << std::string(failedUrl) << " with error " << std::string(errorText)
+     << " (" << errorCode << ").</h2></body></html>";
   frame->LoadString(ss.str(), failedUrl);
 }
 
 void SimpleHandler::CloseAllBrowsers(bool force_close) {
   if (!CefCurrentlyOn(TID_UI)) {
     // Execute on the UI thread.
-    CefPostTask(TID_UI,
-        base::Bind(&SimpleHandler::CloseAllBrowsers, this, force_close));
+    CefPostTask(TID_UI, base::Bind(&SimpleHandler::CloseAllBrowsers, this,
+                                   force_close));
     return;
   }
 

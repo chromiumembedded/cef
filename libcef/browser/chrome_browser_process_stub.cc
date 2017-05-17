@@ -18,10 +18,10 @@
 #include "ui/message_center/message_center.h"
 
 ChromeBrowserProcessStub::ChromeBrowserProcessStub()
-  : initialized_(false),
-    context_initialized_(false),
-    shutdown_(false),
-    locale_("en-US") {
+    : initialized_(false),
+      context_initialized_(false),
+      shutdown_(false),
+      locale_("en-US") {
   chrome::SetBrowserContextIncognitoHelper(this);
 }
 
@@ -88,7 +88,7 @@ void ChromeBrowserProcessStub::EndSession() {
 };
 
 metrics_services_manager::MetricsServicesManager*
-    ChromeBrowserProcessStub::GetMetricsServicesManager() {
+ChromeBrowserProcessStub::GetMetricsServicesManager() {
   NOTREACHED();
   return NULL;
 }
@@ -124,18 +124,17 @@ ProfileManager* ChromeBrowserProcessStub::profile_manager() {
 
 PrefService* ChromeBrowserProcessStub::local_state() {
   DCHECK(context_initialized_);
-  return profile_manager_->GetLastUsedProfile(
-      profile_manager_->user_data_dir())->GetPrefs();
+  return profile_manager_->GetLastUsedProfile(profile_manager_->user_data_dir())
+      ->GetPrefs();
 }
 
 net::URLRequestContextGetter*
-  ChromeBrowserProcessStub::system_request_context() {
+ChromeBrowserProcessStub::system_request_context() {
   NOTREACHED();
   return NULL;
 }
 
-variations::VariationsService*
-  ChromeBrowserProcessStub::variations_service() {
+variations::VariationsService* ChromeBrowserProcessStub::variations_service() {
   NOTREACHED();
   return NULL;
 }
@@ -146,7 +145,7 @@ BrowserProcessPlatformPart* ChromeBrowserProcessStub::platform_part() {
 }
 
 extensions::EventRouterForwarder*
-    ChromeBrowserProcessStub::extension_event_router_forwarder() {
+ChromeBrowserProcessStub::extension_event_router_forwarder() {
   DCHECK(context_initialized_);
   return event_router_forwarder_.get();
 }
@@ -157,7 +156,7 @@ NotificationUIManager* ChromeBrowserProcessStub::notification_ui_manager() {
 }
 
 NotificationPlatformBridge*
-  ChromeBrowserProcessStub::notification_platform_bridge() {
+ChromeBrowserProcessStub::notification_platform_bridge() {
   NOTREACHED();
   return NULL;
 }
@@ -168,7 +167,7 @@ message_center::MessageCenter* ChromeBrowserProcessStub::message_center() {
 }
 
 policy::BrowserPolicyConnector*
-  ChromeBrowserProcessStub::browser_policy_connector() {
+ChromeBrowserProcessStub::browser_policy_connector() {
   NOTREACHED();
   return NULL;
 }
@@ -214,24 +213,24 @@ printing::PrintJobManager* ChromeBrowserProcessStub::print_job_manager() {
 }
 
 printing::PrintPreviewDialogController*
-    ChromeBrowserProcessStub::print_preview_dialog_controller() {
+ChromeBrowserProcessStub::print_preview_dialog_controller() {
   NOTREACHED();
   return NULL;
 }
 
 printing::BackgroundPrintingManager*
-    ChromeBrowserProcessStub::background_printing_manager() {
+ChromeBrowserProcessStub::background_printing_manager() {
   NOTREACHED();
   return NULL;
 }
 
 IntranetRedirectDetector*
-  ChromeBrowserProcessStub::intranet_redirect_detector() {
+ChromeBrowserProcessStub::intranet_redirect_detector() {
   NOTREACHED();
   return NULL;
 }
 
-const std::string &ChromeBrowserProcessStub::GetApplicationLocale() {
+const std::string& ChromeBrowserProcessStub::GetApplicationLocale() {
   DCHECK(!locale_.empty());
   return locale_;
 }
@@ -256,7 +255,7 @@ BackgroundModeManager* ChromeBrowserProcessStub::background_mode_manager() {
 }
 
 void ChromeBrowserProcessStub::set_background_mode_manager_for_test(
-  std::unique_ptr<BackgroundModeManager> manager) {
+    std::unique_ptr<BackgroundModeManager> manager) {
   NOTREACHED();
 }
 
@@ -266,26 +265,25 @@ StatusTray* ChromeBrowserProcessStub::status_tray() {
 }
 
 safe_browsing::SafeBrowsingService*
-    ChromeBrowserProcessStub::safe_browsing_service() {
+ChromeBrowserProcessStub::safe_browsing_service() {
   NOTREACHED();
   return NULL;
 }
 
 safe_browsing::ClientSideDetectionService*
-    ChromeBrowserProcessStub::safe_browsing_detection_service() {
+ChromeBrowserProcessStub::safe_browsing_detection_service() {
   NOTREACHED();
   return NULL;
 }
 
 subresource_filter::ContentRulesetService*
-   ChromeBrowserProcessStub::subresource_filter_ruleset_service() {
+ChromeBrowserProcessStub::subresource_filter_ruleset_service() {
   NOTREACHED();
   return NULL;
 }
 
 #if (defined(OS_WIN) || defined(OS_LINUX)) && !defined(OS_CHROMEOS)
-void ChromeBrowserProcessStub::StartAutoupdateTimer() {
-}
+void ChromeBrowserProcessStub::StartAutoupdateTimer() {}
 #endif
 
 net_log::ChromeNetLog* ChromeBrowserProcessStub::net_log() {
@@ -294,7 +292,7 @@ net_log::ChromeNetLog* ChromeBrowserProcessStub::net_log() {
 }
 
 component_updater::ComponentUpdateService*
-    ChromeBrowserProcessStub::component_updater() {
+ChromeBrowserProcessStub::component_updater() {
   NOTREACHED();
   return NULL;
 }
@@ -305,19 +303,19 @@ CRLSetFetcher* ChromeBrowserProcessStub::crl_set_fetcher() {
 }
 
 component_updater::PnaclComponentInstaller*
-    ChromeBrowserProcessStub::pnacl_component_installer() {
+ChromeBrowserProcessStub::pnacl_component_installer() {
   NOTREACHED();
   return NULL;
 }
 
 component_updater::SupervisedUserWhitelistInstaller*
-    ChromeBrowserProcessStub::supervised_user_whitelist_installer() {
+ChromeBrowserProcessStub::supervised_user_whitelist_installer() {
   NOTREACHED();
   return NULL;
 }
 
 MediaFileSystemRegistry*
-    ChromeBrowserProcessStub::media_file_system_registry() {
+ChromeBrowserProcessStub::media_file_system_registry() {
   NOTREACHED();
   return NULL;
 }
@@ -335,7 +333,7 @@ WebRtcLogUploader* ChromeBrowserProcessStub::webrtc_log_uploader() {
 #endif
 
 network_time::NetworkTimeTracker*
-    ChromeBrowserProcessStub::network_time_tracker() {
+ChromeBrowserProcessStub::network_time_tracker() {
   NOTREACHED();
   return NULL;
 }

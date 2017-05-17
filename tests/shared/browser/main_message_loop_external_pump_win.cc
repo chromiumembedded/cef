@@ -36,7 +36,9 @@ class MainMessageLoopExternalPumpWin : public MainMessageLoopExternalPump {
   bool IsTimerPending() OVERRIDE { return timer_pending_; }
 
  private:
-  static LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wparam,
+  static LRESULT CALLBACK WndProc(HWND hwnd,
+                                  UINT msg,
+                                  WPARAM wparam,
                                   LPARAM lparam);
 
   // True if a timer event is currently pending.
@@ -47,8 +49,7 @@ class MainMessageLoopExternalPumpWin : public MainMessageLoopExternalPump {
 };
 
 MainMessageLoopExternalPumpWin::MainMessageLoopExternalPumpWin()
-  : timer_pending_(false),
-    main_thread_target_(NULL) {
+    : timer_pending_(false), main_thread_target_(NULL) {
   HINSTANCE hInstance = GetModuleHandle(NULL);
   const wchar_t* const kClassName = L"CEFMainTargetHWND";
 
@@ -60,8 +61,9 @@ MainMessageLoopExternalPumpWin::MainMessageLoopExternalPumpWin()
   RegisterClassEx(&wcex);
 
   // Create the message handling window.
-  main_thread_target_ = CreateWindowW(kClassName, NULL, WS_OVERLAPPEDWINDOW,
-      0, 0, 0, 0, HWND_MESSAGE , NULL, hInstance, NULL);
+  main_thread_target_ =
+      CreateWindowW(kClassName, NULL, WS_OVERLAPPEDWINDOW, 0, 0, 0, 0,
+                    HWND_MESSAGE, NULL, hInstance, NULL);
   DCHECK(main_thread_target_);
   SetUserDataPtr(main_thread_target_, this);
 }
@@ -91,11 +93,11 @@ int MainMessageLoopExternalPumpWin::Run() {
   for (int i = 0; i < 10; ++i) {
     // Do some work.
     CefDoMessageLoopWork();
-    
+
     // Sleep to allow the CEF proc to do work.
     Sleep(50);
   }
-  
+
   return 0;
 }
 
@@ -120,8 +122,10 @@ void MainMessageLoopExternalPumpWin::KillTimer() {
 }
 
 // static
-LRESULT CALLBACK MainMessageLoopExternalPumpWin::WndProc(
-    HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) {
+LRESULT CALLBACK MainMessageLoopExternalPumpWin::WndProc(HWND hwnd,
+                                                         UINT msg,
+                                                         WPARAM wparam,
+                                                         LPARAM lparam) {
   if (msg == WM_TIMER || msg == kMsgHaveWork) {
     MainMessageLoopExternalPumpWin* message_loop =
         GetUserDataPtr<MainMessageLoopExternalPumpWin*>(hwnd);
@@ -137,11 +141,10 @@ LRESULT CALLBACK MainMessageLoopExternalPumpWin::WndProc(
   return DefWindowProc(hwnd, msg, wparam, lparam);
 }
 
-} // namespace
+}  // namespace
 
 // static
-scoped_ptr<MainMessageLoopExternalPump>
-MainMessageLoopExternalPump::Create() {
+scoped_ptr<MainMessageLoopExternalPump> MainMessageLoopExternalPump::Create() {
   return scoped_ptr<MainMessageLoopExternalPump>(
       new MainMessageLoopExternalPumpWin());
 }

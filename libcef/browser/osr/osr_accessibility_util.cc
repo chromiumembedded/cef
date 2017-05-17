@@ -12,20 +12,20 @@
 #include "base/strings/string_number_conversions.h"
 #include "base/strings/stringprintf.h"
 #include "content/public/browser/ax_event_notification_details.h"
-#include "ui/accessibility/ax_tree_update.h"
 #include "ui/accessibility/ax_text_utils.h"
+#include "ui/accessibility/ax_tree_update.h"
 #include "ui/gfx/transform.h"
 
 namespace {
 using ui::ToString;
 
-template<typename T>
+template <typename T>
 CefRefPtr<CefListValue> ToCefValue(const std::vector<T>& vecData);
 
-template<>
+template <>
 CefRefPtr<CefListValue> ToCefValue<int>(const std::vector<int>& vecData) {
-  CefRefPtr<CefListValue> value =  CefListValue::Create();
-  for (size_t i = 0; i <vecData.size(); i ++)
+  CefRefPtr<CefListValue> value = CefListValue::Create();
+  for (size_t i = 0; i < vecData.size(); i++)
     value->SetInt(i, vecData[i]);
 
   return value;
@@ -34,37 +34,23 @@ CefRefPtr<CefListValue> ToCefValue<int>(const std::vector<int>& vecData) {
 // Helper function for AXNodeData::ToCefValue - Converts AXState attributes to
 // CefListValue.
 CefRefPtr<CefListValue> ToCefValue(uint32_t state) {
-  CefRefPtr<CefListValue> value =  CefListValue::Create();
+  CefRefPtr<CefListValue> value = CefListValue::Create();
 
   static ui::AXState state_arr[] = {
-    ui::AX_STATE_NONE,
-    ui::AX_STATE_BUSY,
-    ui::AX_STATE_CHECKED,
-    ui::AX_STATE_COLLAPSED,
-    ui::AX_STATE_DEFAULT,
-    ui::AX_STATE_DISABLED,
-    ui::AX_STATE_EDITABLE,
-    ui::AX_STATE_EXPANDED,
-    ui::AX_STATE_FOCUSABLE,
-    ui::AX_STATE_HASPOPUP,
-    ui::AX_STATE_HORIZONTAL,
-    ui::AX_STATE_HOVERED,
-    ui::AX_STATE_INVISIBLE,
-    ui::AX_STATE_LINKED,
-    ui::AX_STATE_MULTILINE,
-    ui::AX_STATE_MULTISELECTABLE,
-    ui::AX_STATE_OFFSCREEN,
-    ui::AX_STATE_PRESSED,
-    ui::AX_STATE_PROTECTED,
-    ui::AX_STATE_READ_ONLY,
-    ui::AX_STATE_REQUIRED,
-    ui::AX_STATE_RICHLY_EDITABLE,
-    ui::AX_STATE_SELECTABLE,
-    ui::AX_STATE_SELECTED,
-    ui::AX_STATE_VERTICAL,
-    ui::AX_STATE_VISITED,
-    ui::AX_STATE_LAST
-  };
+      ui::AX_STATE_NONE,       ui::AX_STATE_BUSY,
+      ui::AX_STATE_CHECKED,    ui::AX_STATE_COLLAPSED,
+      ui::AX_STATE_DEFAULT,    ui::AX_STATE_DISABLED,
+      ui::AX_STATE_EDITABLE,   ui::AX_STATE_EXPANDED,
+      ui::AX_STATE_FOCUSABLE,  ui::AX_STATE_HASPOPUP,
+      ui::AX_STATE_HORIZONTAL, ui::AX_STATE_HOVERED,
+      ui::AX_STATE_INVISIBLE,  ui::AX_STATE_LINKED,
+      ui::AX_STATE_MULTILINE,  ui::AX_STATE_MULTISELECTABLE,
+      ui::AX_STATE_OFFSCREEN,  ui::AX_STATE_PRESSED,
+      ui::AX_STATE_PROTECTED,  ui::AX_STATE_READ_ONLY,
+      ui::AX_STATE_REQUIRED,   ui::AX_STATE_RICHLY_EDITABLE,
+      ui::AX_STATE_SELECTABLE, ui::AX_STATE_SELECTED,
+      ui::AX_STATE_VERTICAL,   ui::AX_STATE_VISITED,
+      ui::AX_STATE_LAST};
 
   int index = 0;
   // Iterate and find which states are set.
@@ -78,7 +64,7 @@ CefRefPtr<CefListValue> ToCefValue(uint32_t state) {
 // Helper function for AXNodeData::ToCefValue - converts GfxRect to
 // CefDictionaryValue.
 CefRefPtr<CefDictionaryValue> ToCefValue(const gfx::RectF& bounds) {
-  CefRefPtr<CefDictionaryValue> value =  CefDictionaryValue::Create();
+  CefRefPtr<CefDictionaryValue> value = CefDictionaryValue::Create();
   value->SetDouble("x", bounds.x());
   value->SetDouble("y", bounds.y());
   value->SetDouble("width", bounds.width());
@@ -90,8 +76,8 @@ CefRefPtr<CefDictionaryValue> ToCefValue(const gfx::RectF& bounds) {
 struct PopulateAxNodeAttributes {
   CefRefPtr<CefDictionaryValue> attributes;
 
-  explicit PopulateAxNodeAttributes(CefRefPtr<CefDictionaryValue> attrs) :
-      attributes(attrs) {}
+  explicit PopulateAxNodeAttributes(CefRefPtr<CefDictionaryValue> attrs)
+      : attributes(attrs) {}
 
   // Int Attributes
   void operator()(const std::pair<ui::AXIntAttribute, int32_t> attr) {
@@ -137,25 +123,29 @@ struct PopulateAxNodeAttributes {
         attributes->SetInt(ToString(attr.first), attr.second);
         break;
       case ui::AX_ATTR_ACTION:
-        attributes->SetString(ToString(attr.first),
+        attributes->SetString(
+            ToString(attr.first),
             ui::ActionToUnlocalizedString(
                 static_cast<ui::AXSupportedAction>(attr.second)));
         break;
       case ui::AX_ATTR_INVALID_STATE:
         if (ui::AX_INVALID_STATE_NONE != attr.second) {
-          attributes->SetString(ToString(attr.first), ToString(
-                                static_cast<ui::AXInvalidState>(attr.second)));
+          attributes->SetString(
+              ToString(attr.first),
+              ToString(static_cast<ui::AXInvalidState>(attr.second)));
         }
         break;
       case ui::AX_ATTR_SORT_DIRECTION:
         if (ui::AX_SORT_DIRECTION_NONE != attr.second) {
-          attributes->SetString(ToString(attr.first), ToString(
-                                static_cast<ui::AXSortDirection>(attr.second)));
+          attributes->SetString(
+              ToString(attr.first),
+              ToString(static_cast<ui::AXSortDirection>(attr.second)));
         }
         break;
       case ui::AX_ATTR_NAME_FROM:
-        attributes->SetString(ToString(attr.first), ToString(
-                              static_cast<ui::AXNameFrom>(attr.second)));
+        attributes->SetString(
+            ToString(attr.first),
+            ToString(static_cast<ui::AXNameFrom>(attr.second)));
         break;
       case ui::AX_ATTR_COLOR_VALUE:
       case ui::AX_ATTR_BACKGROUND_COLOR:
@@ -164,43 +154,42 @@ struct PopulateAxNodeAttributes {
                               base::StringPrintf("0x%X", attr.second));
         break;
       case ui::AX_ATTR_DESCRIPTION_FROM:
-        attributes->SetString(ToString(attr.first), ToString(
-                              static_cast<ui::AXDescriptionFrom>(attr.second)));
+        attributes->SetString(
+            ToString(attr.first),
+            ToString(static_cast<ui::AXDescriptionFrom>(attr.second)));
         break;
       case ui::AX_ATTR_ARIA_CURRENT_STATE:
         if (ui::AX_ARIA_CURRENT_STATE_NONE != attr.second) {
-          attributes->SetString(ToString(attr.first), ToString(
-              static_cast<ui::AXAriaCurrentState>(attr.second)));
+          attributes->SetString(
+              ToString(attr.first),
+              ToString(static_cast<ui::AXAriaCurrentState>(attr.second)));
         }
         break;
       case ui::AX_ATTR_TEXT_DIRECTION:
         if (ui::AX_TEXT_DIRECTION_NONE != attr.second) {
-          attributes->SetString(ToString(attr.first), ToString(
-                                static_cast<ui::AXTextDirection>(attr.second)));
+          attributes->SetString(
+              ToString(attr.first),
+              ToString(static_cast<ui::AXTextDirection>(attr.second)));
         }
         break;
       case ui::AX_ATTR_TEXT_STYLE: {
-          auto text_style = static_cast<ui::AXTextStyle>(attr.second);
-          if (text_style == ui::AX_TEXT_STYLE_NONE)
-            break;
+        auto text_style = static_cast<ui::AXTextStyle>(attr.second);
+        if (text_style == ui::AX_TEXT_STYLE_NONE)
+          break;
 
-          static ui::AXTextStyle textStyleArr[] = {
-            ui::AX_TEXT_STYLE_BOLD,
-            ui::AX_TEXT_STYLE_ITALIC,
-            ui::AX_TEXT_STYLE_UNDERLINE,
-            ui::AX_TEXT_STYLE_LINE_THROUGH
-          };
+        static ui::AXTextStyle textStyleArr[] = {
+            ui::AX_TEXT_STYLE_BOLD, ui::AX_TEXT_STYLE_ITALIC,
+            ui::AX_TEXT_STYLE_UNDERLINE, ui::AX_TEXT_STYLE_LINE_THROUGH};
 
-          CefRefPtr<CefListValue> list = CefListValue::Create();
-          int index = 0;
-          // Iterate and find which states are set.
-          for (unsigned i = 0; i < arraysize(textStyleArr); i++) {
-            if (text_style & textStyleArr[i])
-              list->SetString(index++, ToString(textStyleArr[i]));
-          }
-          attributes->SetList(ToString(attr.first), list);
+        CefRefPtr<CefListValue> list = CefListValue::Create();
+        int index = 0;
+        // Iterate and find which states are set.
+        for (unsigned i = 0; i < arraysize(textStyleArr); i++) {
+          if (text_style & textStyleArr[i])
+            list->SetString(index++, ToString(textStyleArr[i]));
         }
-        break;
+        attributes->SetList(ToString(attr.first), list);
+      } break;
     }
   }
 
@@ -221,8 +210,8 @@ struct PopulateAxNodeAttributes {
   }
 
   // Set Int list attributes.
-  void operator()(const std::pair<ui::AXIntListAttribute,
-                                  std::vector<int32_t>>& attr) {
+  void operator()(
+      const std::pair<ui::AXIntListAttribute, std::vector<int32_t>>& attr) {
     if (attr.first != ui::AX_INT_LIST_ATTRIBUTE_NONE) {
       CefRefPtr<CefListValue> list;
 
@@ -236,10 +225,8 @@ struct PopulateAxNodeAttributes {
             continue;
 
           static ui::AXMarkerType marktypeArr[] = {
-            ui::AX_MARKER_TYPE_SPELLING,
-            ui::AX_MARKER_TYPE_GRAMMAR,
-            ui::AX_MARKER_TYPE_TEXT_MATCH
-          };
+              ui::AX_MARKER_TYPE_SPELLING, ui::AX_MARKER_TYPE_GRAMMAR,
+              ui::AX_MARKER_TYPE_TEXT_MATCH};
 
           // Iterate and find which markers are set.
           for (unsigned j = 0; j < arraysize(marktypeArr); j++) {
@@ -257,7 +244,7 @@ struct PopulateAxNodeAttributes {
 
 // Converts AXNodeData to CefDictionaryValue(like AXNodeData::ToString).
 CefRefPtr<CefDictionaryValue> ToCefValue(const ui::AXNodeData& node) {
-  CefRefPtr<CefDictionaryValue> value =  CefDictionaryValue::Create();
+  CefRefPtr<CefDictionaryValue> value = CefDictionaryValue::Create();
 
   if (node.id != -1)
     value->SetInt("id", node.id);
@@ -278,26 +265,26 @@ CefRefPtr<CefDictionaryValue> ToCefValue(const ui::AXNodeData& node) {
   if (!node.child_ids.empty())
     value->SetList("child_ids", ToCefValue(node.child_ids));
 
-  CefRefPtr<CefDictionaryValue> attributes =  CefDictionaryValue::Create();
+  CefRefPtr<CefDictionaryValue> attributes = CefDictionaryValue::Create();
   PopulateAxNodeAttributes func(attributes);
 
   // Poupulate Int Attributes.
   std::for_each(node.int_attributes.begin(), node.int_attributes.end(), func);
 
   // Poupulate String Attributes.
-  std::for_each(node.string_attributes.begin(),
-                node.string_attributes.end(), func);
+  std::for_each(node.string_attributes.begin(), node.string_attributes.end(),
+                func);
 
   // Poupulate Float Attributes.
-  std::for_each(node.float_attributes.begin(),
-                node.float_attributes.end(), func);
+  std::for_each(node.float_attributes.begin(), node.float_attributes.end(),
+                func);
 
   // Poupulate Bool Attributes.
   std::for_each(node.bool_attributes.begin(), node.bool_attributes.end(), func);
 
   // Populate int list attributes.
-  std::for_each(node.intlist_attributes.begin(),
-                node.intlist_attributes.end(), func);
+  std::for_each(node.intlist_attributes.begin(), node.intlist_attributes.end(),
+                func);
 
   value->SetDictionary("attributes", attributes);
 
@@ -306,7 +293,7 @@ CefRefPtr<CefDictionaryValue> ToCefValue(const ui::AXNodeData& node) {
 
 // Converts AXTreeData to CefDictionaryValue(like AXTreeData::ToString).
 CefRefPtr<CefDictionaryValue> ToCefValue(const ui::AXTreeData& treeData) {
-  CefRefPtr<CefDictionaryValue> value =  CefDictionaryValue::Create();
+  CefRefPtr<CefDictionaryValue> value = CefDictionaryValue::Create();
 
   if (treeData.tree_id != -1)
     value->SetInt("tree_id", treeData.tree_id);
@@ -353,7 +340,7 @@ CefRefPtr<CefDictionaryValue> ToCefValue(const ui::AXTreeData& treeData) {
 
 // Converts AXTreeUpdate to CefDictionaryValue(like AXTreeUpdate::ToString).
 CefRefPtr<CefDictionaryValue> ToCefValue(const ui::AXTreeUpdate& update) {
-  CefRefPtr<CefDictionaryValue> value =  CefDictionaryValue::Create();
+  CefRefPtr<CefDictionaryValue> value = CefDictionaryValue::Create();
 
   if (update.has_tree_data) {
     value->SetBool("has_tree_data", true);
@@ -374,7 +361,7 @@ CefRefPtr<CefDictionaryValue> ToCefValue(const ui::AXTreeUpdate& update) {
 // Convert AXEventNotificationDetails to CefDictionaryValue.
 CefRefPtr<CefDictionaryValue> ToCefValue(
     const content::AXEventNotificationDetails& eventData) {
-  CefRefPtr<CefDictionaryValue> value =  CefDictionaryValue::Create();
+  CefRefPtr<CefDictionaryValue> value = CefDictionaryValue::Create();
 
   if (eventData.id != -1)
     value->SetInt("id", eventData.id);
@@ -395,7 +382,7 @@ CefRefPtr<CefDictionaryValue> ToCefValue(
 // Convert AXRelativeBounds to CefDictionaryValue. Similar to
 // AXRelativeBounds::ToString. See that for more details
 CefRefPtr<CefDictionaryValue> ToCefValue(const ui::AXRelativeBounds& location) {
-  CefRefPtr<CefDictionaryValue> value =  CefDictionaryValue::Create();
+  CefRefPtr<CefDictionaryValue> value = CefDictionaryValue::Create();
 
   if (location.offset_container_id != -1)
     value->SetInt("offset_container_id", location.offset_container_id);
@@ -413,7 +400,7 @@ CefRefPtr<CefDictionaryValue> ToCefValue(const ui::AXRelativeBounds& location) {
 // Convert AXEventNotificationDetails to CefDictionaryValue.
 CefRefPtr<CefDictionaryValue> ToCefValue(
     const content::AXLocationChangeNotificationDetails& locData) {
-  CefRefPtr<CefDictionaryValue> value =  CefDictionaryValue::Create();
+  CefRefPtr<CefDictionaryValue> value = CefDictionaryValue::Create();
 
   if (locData.id != -1)
     value->SetInt("id", locData.id);
@@ -426,11 +413,11 @@ CefRefPtr<CefDictionaryValue> ToCefValue(
   return value;
 }
 
-template<typename T>
+template <typename T>
 CefRefPtr<CefListValue> ToCefValue(const std::vector<T>& vecData) {
-  CefRefPtr<CefListValue> value =  CefListValue::Create();
+  CefRefPtr<CefListValue> value = CefListValue::Create();
 
-  for (size_t i = 0; i <vecData.size(); i ++)
+  for (size_t i = 0; i < vecData.size(); i++)
     value->SetDictionary(i, ToCefValue(vecData[i]));
 
   return value;
@@ -442,14 +429,14 @@ namespace osr_accessibility_util {
 
 CefRefPtr<CefValue> ParseAccessibilityEventData(
     const std::vector<content::AXEventNotificationDetails>& data) {
-  CefRefPtr<CefValue> value =  CefValue::Create();
+  CefRefPtr<CefValue> value = CefValue::Create();
   value->SetList(ToCefValue(data));
   return value;
 }
 
 CefRefPtr<CefValue> ParseAccessibilityLocationData(
     const std::vector<content::AXLocationChangeNotificationDetails>& data) {
-  CefRefPtr<CefValue> value =  CefValue::Create();
+  CefRefPtr<CefValue> value = CefValue::Create();
   value->SetList(ToCefValue(data));
   return value;
 }

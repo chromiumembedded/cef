@@ -24,10 +24,7 @@ const size_t kReadDesiredSize = 100U * 1024U;  // 100k
 class ReadHandler : public CefReadHandler {
  public:
   explicit ReadHandler(bool may_block)
-    : may_block_(may_block),
-      offset_(0),
-      expected_result_(0) {
-  }
+      : may_block_(may_block), offset_(0), expected_result_(0) {}
 
   void CreateContent() {
     // To verify that the data transers successfully we're going to make a big
@@ -40,13 +37,12 @@ class ReadHandler : public CefReadHandler {
       expected_result_++;
     }
 
-    content_ += "window.testQuery({request:myratherlongvariablename+''});"
-                "</script></body></html>";
+    content_ +=
+        "window.testQuery({request:myratherlongvariablename+''});"
+        "</script></body></html>";
   }
 
-  int GetExpectedResult() const {
-    return expected_result_;
-  }
+  int GetExpectedResult() const { return expected_result_; }
 
   size_t Read(void* ptr, size_t size, size_t n) override {
     EXPECT_EQ(1U, size);
@@ -77,9 +73,7 @@ class ReadHandler : public CefReadHandler {
     return 0;
   }
 
-  bool MayBlock() override {
-    return may_block_;
-  }
+  bool MayBlock() override { return may_block_; }
 
  private:
   const bool may_block_;
@@ -93,8 +87,7 @@ class ReadHandler : public CefReadHandler {
 class ReadTestHandler : public RoutingTestHandler {
  public:
   explicit ReadTestHandler(bool may_block)
-      : may_block_(may_block),
-        expected_result_(0) {}
+      : may_block_(may_block), expected_result_(0) {}
 
   void RunTest() override {
     // Create the browser.

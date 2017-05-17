@@ -19,8 +19,8 @@
 #include "include/cef_app.h"
 #include "include/cef_task.h"
 #include "include/cef_thread.h"
-#include "include/wrapper/cef_helpers.h"
 #include "include/wrapper/cef_closure_task.h"
+#include "include/wrapper/cef_helpers.h"
 #include "tests/ceftests/test_handler.h"
 #include "tests/ceftests/test_suite.h"
 #include "tests/shared/browser/client_app_browser.h"
@@ -74,24 +74,23 @@ void ContinueOnUIThread(CefRefPtr<CefTaskRunner> test_task_runner) {
 }
 
 #if defined(OS_LINUX)
-int XErrorHandlerImpl(Display *display, XErrorEvent *event) {
-  LOG(WARNING)
-        << "X error received: "
-        << "type " << event->type << ", "
-        << "serial " << event->serial << ", "
-        << "error_code " << static_cast<int>(event->error_code) << ", "
-        << "request_code " << static_cast<int>(event->request_code) << ", "
-        << "minor_code " << static_cast<int>(event->minor_code);
+int XErrorHandlerImpl(Display* display, XErrorEvent* event) {
+  LOG(WARNING) << "X error received: "
+               << "type " << event->type << ", "
+               << "serial " << event->serial << ", "
+               << "error_code " << static_cast<int>(event->error_code) << ", "
+               << "request_code " << static_cast<int>(event->request_code)
+               << ", "
+               << "minor_code " << static_cast<int>(event->minor_code);
   return 0;
 }
 
-int XIOErrorHandlerImpl(Display *display) {
+int XIOErrorHandlerImpl(Display* display) {
   return 0;
 }
 #endif  // defined(OS_LINUX)
 
 }  // namespace
-
 
 int main(int argc, char* argv[]) {
   // Create the singleton test suite object.
@@ -186,7 +185,7 @@ int main(int argc, char* argv[]) {
     // Start the tests from the UI thread so that any pending UI tasks get a
     // chance to execute first.
     CefPostTask(TID_UI,
-        base::Bind(&ContinueOnUIThread, thread->GetTaskRunner()));
+                base::Bind(&ContinueOnUIThread, thread->GetTaskRunner()));
 
     // Run the CEF message loop.
     message_loop->Run();

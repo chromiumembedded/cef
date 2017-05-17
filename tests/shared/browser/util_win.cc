@@ -10,8 +10,8 @@ namespace client {
 
 void SetUserDataPtr(HWND hWnd, void* ptr) {
   SetLastError(ERROR_SUCCESS);
-  LONG_PTR result = ::SetWindowLongPtr(
-      hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(ptr));
+  LONG_PTR result =
+      ::SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(ptr));
   CHECK(result != 0 || GetLastError() == ERROR_SUCCESS);
 }
 
@@ -19,14 +19,14 @@ WNDPROC SetWndProcPtr(HWND hWnd, WNDPROC wndProc) {
   WNDPROC old =
       reinterpret_cast<WNDPROC>(::GetWindowLongPtr(hWnd, GWLP_WNDPROC));
   CHECK(old != NULL);
-  LONG_PTR result = ::SetWindowLongPtr(
-      hWnd, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(wndProc));
+  LONG_PTR result = ::SetWindowLongPtr(hWnd, GWLP_WNDPROC,
+                                       reinterpret_cast<LONG_PTR>(wndProc));
   CHECK(result != 0 || GetLastError() == ERROR_SUCCESS);
   return old;
 }
 
 std::wstring GetResourceString(UINT id) {
-  #define MAX_LOADSTRING 100
+#define MAX_LOADSTRING 100
   TCHAR buff[MAX_LOADSTRING] = {0};
   LoadString(::GetModuleHandle(NULL), id, buff, MAX_LOADSTRING);
   return buff;
@@ -71,66 +71,66 @@ int GetCefKeyboardModifiers(WPARAM wparam, LPARAM lparam) {
     modifiers |= EVENTFLAG_CAPS_LOCK_ON;
 
   switch (wparam) {
-  case VK_RETURN:
-    if ((lparam >> 16) & KF_EXTENDED)
+    case VK_RETURN:
+      if ((lparam >> 16) & KF_EXTENDED)
+        modifiers |= EVENTFLAG_IS_KEY_PAD;
+      break;
+    case VK_INSERT:
+    case VK_DELETE:
+    case VK_HOME:
+    case VK_END:
+    case VK_PRIOR:
+    case VK_NEXT:
+    case VK_UP:
+    case VK_DOWN:
+    case VK_LEFT:
+    case VK_RIGHT:
+      if (!((lparam >> 16) & KF_EXTENDED))
+        modifiers |= EVENTFLAG_IS_KEY_PAD;
+      break;
+    case VK_NUMLOCK:
+    case VK_NUMPAD0:
+    case VK_NUMPAD1:
+    case VK_NUMPAD2:
+    case VK_NUMPAD3:
+    case VK_NUMPAD4:
+    case VK_NUMPAD5:
+    case VK_NUMPAD6:
+    case VK_NUMPAD7:
+    case VK_NUMPAD8:
+    case VK_NUMPAD9:
+    case VK_DIVIDE:
+    case VK_MULTIPLY:
+    case VK_SUBTRACT:
+    case VK_ADD:
+    case VK_DECIMAL:
+    case VK_CLEAR:
       modifiers |= EVENTFLAG_IS_KEY_PAD;
-    break;
-  case VK_INSERT:
-  case VK_DELETE:
-  case VK_HOME:
-  case VK_END:
-  case VK_PRIOR:
-  case VK_NEXT:
-  case VK_UP:
-  case VK_DOWN:
-  case VK_LEFT:
-  case VK_RIGHT:
-    if (!((lparam >> 16) & KF_EXTENDED))
-      modifiers |= EVENTFLAG_IS_KEY_PAD;
-    break;
-  case VK_NUMLOCK:
-  case VK_NUMPAD0:
-  case VK_NUMPAD1:
-  case VK_NUMPAD2:
-  case VK_NUMPAD3:
-  case VK_NUMPAD4:
-  case VK_NUMPAD5:
-  case VK_NUMPAD6:
-  case VK_NUMPAD7:
-  case VK_NUMPAD8:
-  case VK_NUMPAD9:
-  case VK_DIVIDE:
-  case VK_MULTIPLY:
-  case VK_SUBTRACT:
-  case VK_ADD:
-  case VK_DECIMAL:
-  case VK_CLEAR:
-    modifiers |= EVENTFLAG_IS_KEY_PAD;
-    break;
-  case VK_SHIFT:
-    if (IsKeyDown(VK_LSHIFT))
+      break;
+    case VK_SHIFT:
+      if (IsKeyDown(VK_LSHIFT))
+        modifiers |= EVENTFLAG_IS_LEFT;
+      else if (IsKeyDown(VK_RSHIFT))
+        modifiers |= EVENTFLAG_IS_RIGHT;
+      break;
+    case VK_CONTROL:
+      if (IsKeyDown(VK_LCONTROL))
+        modifiers |= EVENTFLAG_IS_LEFT;
+      else if (IsKeyDown(VK_RCONTROL))
+        modifiers |= EVENTFLAG_IS_RIGHT;
+      break;
+    case VK_MENU:
+      if (IsKeyDown(VK_LMENU))
+        modifiers |= EVENTFLAG_IS_LEFT;
+      else if (IsKeyDown(VK_RMENU))
+        modifiers |= EVENTFLAG_IS_RIGHT;
+      break;
+    case VK_LWIN:
       modifiers |= EVENTFLAG_IS_LEFT;
-    else if (IsKeyDown(VK_RSHIFT))
+      break;
+    case VK_RWIN:
       modifiers |= EVENTFLAG_IS_RIGHT;
-    break;
-  case VK_CONTROL:
-    if (IsKeyDown(VK_LCONTROL))
-      modifiers |= EVENTFLAG_IS_LEFT;
-    else if (IsKeyDown(VK_RCONTROL))
-      modifiers |= EVENTFLAG_IS_RIGHT;
-    break;
-  case VK_MENU:
-    if (IsKeyDown(VK_LMENU))
-      modifiers |= EVENTFLAG_IS_LEFT;
-    else if (IsKeyDown(VK_RMENU))
-      modifiers |= EVENTFLAG_IS_RIGHT;
-    break;
-  case VK_LWIN:
-    modifiers |= EVENTFLAG_IS_LEFT;
-    break;
-  case VK_RWIN:
-    modifiers |= EVENTFLAG_IS_RIGHT;
-    break;
+      break;
   }
   return modifiers;
 }

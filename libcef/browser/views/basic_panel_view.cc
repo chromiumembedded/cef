@@ -5,5 +5,4 @@
 #include "libcef/browser/views/basic_panel_view.h"
 
 CefBasicPanelView::CefBasicPanelView(CefPanelDelegate* cef_delegate)
-    : ParentClass(cef_delegate) {
-}
+    : ParentClass(cef_delegate) {}

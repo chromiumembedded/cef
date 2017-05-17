@@ -13,8 +13,8 @@
 
 #include "ui/views/view.h"
 
-class CefBasicPanelImpl :
-    public CefPanelImpl<views::View, CefPanel, CefPanelDelegate> {
+class CefBasicPanelImpl
+    : public CefPanelImpl<views::View, CefPanel, CefPanelDelegate> {
  public:
   typedef CefPanelImpl<views::View, CefPanel, CefPanelDelegate> ParentClass;
 

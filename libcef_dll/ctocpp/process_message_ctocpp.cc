@@ -9,10 +9,11 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=8d022d9bff90419f3c199e1ee0068945cf6329f1$
+//
 
 #include "libcef_dll/ctocpp/list_value_ctocpp.h"
 #include "libcef_dll/ctocpp/process_message_ctocpp.h"
-
 
 // STATIC METHODS - Body may be edited by hand.
 
@@ -25,13 +26,11 @@ CefRefPtr<CefProcessMessage> CefProcessMessage::Create(const CefString& name) {
     return NULL;
 
   // Execute
-  cef_process_message_t* _retval = cef_process_message_create(
-      name.GetStruct());
+  cef_process_message_t* _retval = cef_process_message_create(name.GetStruct());
 
   // Return type: refptr_same
   return CefProcessMessageCToCpp::Wrap(_retval);
 }
-
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
@@ -46,7 +45,7 @@ bool CefProcessMessageCToCpp::IsValid() {
   int _retval = _struct->is_valid(_struct);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 bool CefProcessMessageCToCpp::IsReadOnly() {
@@ -60,7 +59,7 @@ bool CefProcessMessageCToCpp::IsReadOnly() {
   int _retval = _struct->is_read_only(_struct);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 CefRefPtr<CefProcessMessage> CefProcessMessageCToCpp::Copy() {
@@ -107,24 +106,29 @@ CefRefPtr<CefListValue> CefProcessMessageCToCpp::GetArgumentList() {
   return CefListValueCToCpp::Wrap(_retval);
 }
 
-
 // CONSTRUCTOR - Do not edit by hand.
 
-CefProcessMessageCToCpp::CefProcessMessageCToCpp() {
-}
+CefProcessMessageCToCpp::CefProcessMessageCToCpp() {}
 
-template<> cef_process_message_t* CefCToCppRefCounted<CefProcessMessageCToCpp,
-    CefProcessMessage, cef_process_message_t>::UnwrapDerived(
-    CefWrapperType type, CefProcessMessage* c) {
+template <>
+cef_process_message_t* CefCToCppRefCounted<
+    CefProcessMessageCToCpp,
+    CefProcessMessage,
+    cef_process_message_t>::UnwrapDerived(CefWrapperType type,
+                                          CefProcessMessage* c) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCppRefCounted<CefProcessMessageCToCpp,
-    CefProcessMessage, cef_process_message_t>::DebugObjCt = 0;
+template <>
+base::AtomicRefCount CefCToCppRefCounted<CefProcessMessageCToCpp,
+                                         CefProcessMessage,
+                                         cef_process_message_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCppRefCounted<CefProcessMessageCToCpp,
-    CefProcessMessage, cef_process_message_t>::kWrapperType =
+template <>
+CefWrapperType CefCToCppRefCounted<CefProcessMessageCToCpp,
+                                   CefProcessMessage,
+                                   cef_process_message_t>::kWrapperType =
     WT_PROCESS_MESSAGE;

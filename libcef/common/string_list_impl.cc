@@ -3,7 +3,9 @@
 // can be found in the LICENSE file.
 
 #include <vector>
+
 #include "include/internal/cef_string_list.h"
+
 #include "base/logging.h"
 
 typedef std::vector<CefString> StringList;
@@ -18,7 +20,8 @@ CEF_EXPORT size_t cef_string_list_size(cef_string_list_t list) {
   return impl->size();
 }
 
-CEF_EXPORT int cef_string_list_value(cef_string_list_t list, size_t index,
+CEF_EXPORT int cef_string_list_value(cef_string_list_t list,
+                                     size_t index,
                                      cef_string_t* value) {
   DCHECK(list);
   DCHECK(value);

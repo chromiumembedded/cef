@@ -2,18 +2,19 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#include "libcef/browser/x509_certificate_impl.h"
 #include "libcef/browser/x509_cert_principal_impl.h"
+#include "libcef/browser/x509_certificate_impl.h"
 #include "libcef/common/time_util.h"
 
 namespace {
 
 CefRefPtr<CefBinaryValue> EncodeCertificate(
-    const net::X509Certificate::OSCertHandle& os_handle, bool der) {
+    const net::X509Certificate::OSCertHandle& os_handle,
+    bool der) {
   CefRefPtr<CefBinaryValue> bin_encoded;
   std::string encoded;
 
-  if (( der && net::X509Certificate::GetDEREncoded(os_handle, &encoded)) ||
+  if ((der && net::X509Certificate::GetDEREncoded(os_handle, &encoded)) ||
       (!der && net::X509Certificate::GetPEMEncoded(os_handle, &encoded))) {
     bin_encoded = CefBinaryValue::Create(encoded.c_str(), encoded.size());
   }
@@ -25,8 +26,7 @@ CefRefPtr<CefBinaryValue> EncodeCertificate(
 
 CefX509CertificateImpl::CefX509CertificateImpl(
     scoped_refptr<net::X509Certificate> cert)
-  :cert_(cert) {
-}
+    : cert_(cert) {}
 
 CefRefPtr<CefX509CertPrincipal> CefX509CertificateImpl::GetSubject() {
   if (cert_)
@@ -93,13 +93,15 @@ size_t CefX509CertificateImpl::GetIssuerChainSize() {
 }
 
 void CefX509CertificateImpl::GetEncodedIssuerChain(
-    CefX509Certificate::IssuerChainBinaryList& chain, bool der) {
+    CefX509Certificate::IssuerChainBinaryList& chain,
+    bool der) {
   chain.clear();
   if (cert_) {
     const net::X509Certificate::OSCertHandles& handles =
         cert_->GetIntermediateCertificates();
     for (net::X509Certificate::OSCertHandles::const_iterator it =
-        handles.begin(); it != handles.end(); it++) {
+             handles.begin();
+         it != handles.end(); it++) {
       // Add each to the chain, even if one conversion unexpectedly failed.
       // GetIssuerChainSize depends on these being the same length.
       chain.push_back(EncodeCertificate(*it, der));

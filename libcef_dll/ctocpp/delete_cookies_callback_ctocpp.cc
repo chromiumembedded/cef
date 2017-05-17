@@ -9,9 +9,10 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=d6a443ca416468eb7fadc6a4b991c5dc9e742b75$
+//
 
 #include "libcef_dll/ctocpp/delete_cookies_callback_ctocpp.h"
-
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
@@ -23,28 +24,34 @@ void CefDeleteCookiesCallbackCToCpp::OnComplete(int num_deleted) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  _struct->on_complete(_struct,
-      num_deleted);
+  _struct->on_complete(_struct, num_deleted);
 }
-
 
 // CONSTRUCTOR - Do not edit by hand.
 
-CefDeleteCookiesCallbackCToCpp::CefDeleteCookiesCallbackCToCpp() {
-}
+CefDeleteCookiesCallbackCToCpp::CefDeleteCookiesCallbackCToCpp() {}
 
-template<> cef_delete_cookies_callback_t* CefCToCppRefCounted<CefDeleteCookiesCallbackCToCpp,
-    CefDeleteCookiesCallback, cef_delete_cookies_callback_t>::UnwrapDerived(
-    CefWrapperType type, CefDeleteCookiesCallback* c) {
+template <>
+cef_delete_cookies_callback_t* CefCToCppRefCounted<
+    CefDeleteCookiesCallbackCToCpp,
+    CefDeleteCookiesCallback,
+    cef_delete_cookies_callback_t>::UnwrapDerived(CefWrapperType type,
+                                                  CefDeleteCookiesCallback* c) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCppRefCounted<CefDeleteCookiesCallbackCToCpp,
-    CefDeleteCookiesCallback, cef_delete_cookies_callback_t>::DebugObjCt = 0;
+template <>
+base::AtomicRefCount
+    CefCToCppRefCounted<CefDeleteCookiesCallbackCToCpp,
+                        CefDeleteCookiesCallback,
+                        cef_delete_cookies_callback_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCppRefCounted<CefDeleteCookiesCallbackCToCpp,
-    CefDeleteCookiesCallback, cef_delete_cookies_callback_t>::kWrapperType =
-    WT_DELETE_COOKIES_CALLBACK;
+template <>
+CefWrapperType
+    CefCToCppRefCounted<CefDeleteCookiesCallbackCToCpp,
+                        CefDeleteCookiesCallback,
+                        cef_delete_cookies_callback_t>::kWrapperType =
+        WT_DELETE_COOKIES_CALLBACK;

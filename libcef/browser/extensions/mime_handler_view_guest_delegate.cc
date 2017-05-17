@@ -32,11 +32,9 @@ CefRefPtr<CefBrowserHostImpl> GetOwnerBrowser(
 
 CefMimeHandlerViewGuestDelegate::CefMimeHandlerViewGuestDelegate(
     MimeHandlerViewGuest* guest)
-    : guest_(guest) {
-}
+    : guest_(guest) {}
 
-CefMimeHandlerViewGuestDelegate::~CefMimeHandlerViewGuestDelegate() {
-}
+CefMimeHandlerViewGuestDelegate::~CefMimeHandlerViewGuestDelegate() {}
 
 void CefMimeHandlerViewGuestDelegate::OverrideWebContentsCreateParams(
     content::WebContents::CreateParams* params) {
@@ -64,11 +62,9 @@ void CefMimeHandlerViewGuestDelegate::OnGuestAttached(
   // Associate guest state information with the owner browser.
   scoped_refptr<CefBrowserInfo> info = owner_browser->browser_info();
   info->guest_render_id_manager()->add_render_view_id(
-      view_host->GetProcess()->GetID(),
-      view_host->GetRoutingID());
+      view_host->GetProcess()->GetID(), view_host->GetRoutingID());
   info->guest_render_id_manager()->add_render_frame_id(
-      main_frame_host->GetProcess()->GetID(),
-      main_frame_host->GetRoutingID());
+      main_frame_host->GetProcess()->GetID(), main_frame_host->GetRoutingID());
 }
 
 void CefMimeHandlerViewGuestDelegate::OnGuestDetached(
@@ -88,10 +84,9 @@ void CefMimeHandlerViewGuestDelegate::OnGuestDetached(
   // Disassociate guest state information with the owner browser.
   scoped_refptr<CefBrowserInfo> info = owner_browser->browser_info();
   info->guest_render_id_manager()->remove_render_view_id(
-      view_host->GetProcess()->GetID(),
-      view_host->GetRoutingID());
-  info->guest_render_id_manager()->remove_render_frame_id(
-      render_process_id, render_frame_id);
+      view_host->GetProcess()->GetID(), view_host->GetRoutingID());
+  info->guest_render_id_manager()->remove_render_frame_id(render_process_id,
+                                                          render_frame_id);
 
   CefBrowserContext* context =
       static_cast<CefBrowserContext*>(web_contents->GetBrowserContext());
@@ -107,8 +102,9 @@ bool CefMimeHandlerViewGuestDelegate::HandleContextMenu(
   content::ContextMenuParams new_params = params;
 
   gfx::Point guest_coordinates =
-      static_cast<content::WebContentsImpl*>(web_contents)->
-          GetBrowserPluginGuest()->GetScreenCoordinates(gfx::Point());
+      static_cast<content::WebContentsImpl*>(web_contents)
+          ->GetBrowserPluginGuest()
+          ->GetScreenCoordinates(gfx::Point());
 
   // Adjust (x,y) position for offset from guest to embedder.
   new_params.x += guest_coordinates.x();

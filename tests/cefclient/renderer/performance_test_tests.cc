@@ -93,7 +93,9 @@ PERF_TEST_FUNC(V8FunctionCreate) {
                          CefRefPtr<CefV8Value> object,
                          const CefV8ValueList& arguments,
                          CefRefPtr<CefV8Value>& retval,
-                         CefString& exception) OVERRIDE { return false; }
+                         CefString& exception) OVERRIDE {
+      return false;
+    }
     IMPLEMENT_REFCOUNTING(Handler);
   };
 
@@ -113,7 +115,9 @@ PERF_TEST_FUNC(V8FunctionExecute) {
                          CefRefPtr<CefV8Value> object,
                          const CefV8ValueList& arguments,
                          CefRefPtr<CefV8Value>& retval,
-                         CefString& exception) OVERRIDE { return true; }
+                         CefString& exception) OVERRIDE {
+      return true;
+    }
     IMPLEMENT_REFCOUNTING(Handler);
   };
 
@@ -136,7 +140,9 @@ PERF_TEST_FUNC(V8FunctionExecuteWithContext) {
                          CefRefPtr<CefV8Value> object,
                          const CefV8ValueList& arguments,
                          CefRefPtr<CefV8Value>& retval,
-                         CefString& exception) OVERRIDE { return true; }
+                         CefString& exception) OVERRIDE {
+      return true;
+    }
     IMPLEMENT_REFCOUNTING(Handler);
   };
 
@@ -218,8 +224,7 @@ PERF_TEST_FUNC(V8ObjectCreateWithInterceptor) {
   CefRefPtr<CefV8Interceptor> interceptor = new Interceptor();
 
   PERF_ITERATIONS_START()
-  CefRefPtr<CefV8Value> value = CefV8Value::CreateObject(NULL,
-                                                         interceptor);
+  CefRefPtr<CefV8Value> value = CefV8Value::CreateObject(NULL, interceptor);
   PERF_ITERATIONS_END()
 }
 
@@ -335,32 +340,31 @@ PERF_TEST_FUNC(V8ContextEval) {
 
 }  // namespace
 
-
 // Test function entries.
 
 const PerfTestEntry kPerfTests[] = {
-  PERF_TEST_ENTRY(V8NullCreate),
-  PERF_TEST_ENTRY(V8BoolCreate),
-  PERF_TEST_ENTRY(V8IntCreate),
-  PERF_TEST_ENTRY(V8UIntCreate),
-  PERF_TEST_ENTRY(V8DoubleCreate),
-  PERF_TEST_ENTRY(V8DateCreate),
-  PERF_TEST_ENTRY(V8StringCreate),
-  PERF_TEST_ENTRY(V8ArrayCreate),
-  PERF_TEST_ENTRY(V8ArraySetValue),
-  PERF_TEST_ENTRY(V8ArrayGetValue),
-  PERF_TEST_ENTRY(V8FunctionCreate),
-  PERF_TEST_ENTRY(V8FunctionExecute),
-  PERF_TEST_ENTRY(V8FunctionExecuteWithContext),
-  PERF_TEST_ENTRY(V8ObjectCreate),
-  PERF_TEST_ENTRY(V8ObjectCreateWithAccessor),
-  PERF_TEST_ENTRY(V8ObjectCreateWithInterceptor),
-  PERF_TEST_ENTRY(V8ObjectSetValue),
-  PERF_TEST_ENTRY(V8ObjectGetValue),
-  PERF_TEST_ENTRY(V8ObjectSetValueWithAccessor),
-  PERF_TEST_ENTRY(V8ObjectGetValueWithAccessor),
-  PERF_TEST_ENTRY(V8ContextEnterExit),
-  PERF_TEST_ENTRY(V8ContextEval),
+    PERF_TEST_ENTRY(V8NullCreate),
+    PERF_TEST_ENTRY(V8BoolCreate),
+    PERF_TEST_ENTRY(V8IntCreate),
+    PERF_TEST_ENTRY(V8UIntCreate),
+    PERF_TEST_ENTRY(V8DoubleCreate),
+    PERF_TEST_ENTRY(V8DateCreate),
+    PERF_TEST_ENTRY(V8StringCreate),
+    PERF_TEST_ENTRY(V8ArrayCreate),
+    PERF_TEST_ENTRY(V8ArraySetValue),
+    PERF_TEST_ENTRY(V8ArrayGetValue),
+    PERF_TEST_ENTRY(V8FunctionCreate),
+    PERF_TEST_ENTRY(V8FunctionExecute),
+    PERF_TEST_ENTRY(V8FunctionExecuteWithContext),
+    PERF_TEST_ENTRY(V8ObjectCreate),
+    PERF_TEST_ENTRY(V8ObjectCreateWithAccessor),
+    PERF_TEST_ENTRY(V8ObjectCreateWithInterceptor),
+    PERF_TEST_ENTRY(V8ObjectSetValue),
+    PERF_TEST_ENTRY(V8ObjectGetValue),
+    PERF_TEST_ENTRY(V8ObjectSetValueWithAccessor),
+    PERF_TEST_ENTRY(V8ObjectGetValueWithAccessor),
+    PERF_TEST_ENTRY(V8ContextEnterExit),
+    PERF_TEST_ENTRY(V8ContextEval),
 };
 
 const int kPerfTestsCount = (sizeof(kPerfTests) / sizeof(kPerfTests[0]));

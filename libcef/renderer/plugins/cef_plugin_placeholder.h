@@ -15,11 +15,10 @@
 
 enum class CefViewHostMsg_GetPluginInfo_Status;
 
-class CefPluginPlaceholder final
-    : public plugins::LoadablePluginPlaceholder,
-      public content::RenderThreadObserver,
-      public content::ContextMenuClient,
-      public gin::Wrappable<CefPluginPlaceholder> {
+class CefPluginPlaceholder final : public plugins::LoadablePluginPlaceholder,
+                                   public content::RenderThreadObserver,
+                                   public content::ContextMenuClient,
+                                   public gin::Wrappable<CefPluginPlaceholder> {
  public:
   static gin::WrapperInfo kWrapperInfo;
 

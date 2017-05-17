@@ -61,7 +61,7 @@ class CefResourceHandler : public virtual CefBaseRefCounted {
   ///
   /*--cef()--*/
   virtual bool ProcessRequest(CefRefPtr<CefRequest> request,
-                              CefRefPtr<CefCallback> callback) =0;
+                              CefRefPtr<CefCallback> callback) = 0;
 
   ///
   // Retrieve response header information. If the response length is not known
@@ -77,7 +77,7 @@ class CefResourceHandler : public virtual CefBaseRefCounted {
   /*--cef()--*/
   virtual void GetResponseHeaders(CefRefPtr<CefResponse> response,
                                   int64& response_length,
-                                  CefString& redirectUrl) =0;
+                                  CefString& redirectUrl) = 0;
 
   ///
   // Read response data. If data is available immediately copy up to
@@ -90,7 +90,7 @@ class CefResourceHandler : public virtual CefBaseRefCounted {
   virtual bool ReadResponse(void* data_out,
                             int bytes_to_read,
                             int& bytes_read,
-                            CefRefPtr<CefCallback> callback) =0;
+                            CefRefPtr<CefCallback> callback) = 0;
 
   ///
   // Return true if the specified cookie can be sent with the request or false
@@ -111,7 +111,7 @@ class CefResourceHandler : public virtual CefBaseRefCounted {
   // Request processing has been canceled.
   ///
   /*--cef()--*/
-  virtual void Cancel() =0;
+  virtual void Cancel() = 0;
 };
 
 #endif  // CEF_INCLUDE_CEF_RESOURCE_HANDLER_H_

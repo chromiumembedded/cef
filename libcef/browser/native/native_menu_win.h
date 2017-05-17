@@ -10,8 +10,8 @@
 
 #include "libcef/browser/native/menu_wrapper.h"
 
-#include "base/macros.h"
 #include "base/compiler_specific.h"
+#include "base/macros.h"
 #include "base/memory/weak_ptr.h"
 #include "base/observer_list.h"
 #include "base/strings/string16.h"
@@ -105,8 +105,9 @@ class CefNativeMenuWin : public MenuWrapper {
                                          HighlightedMenuItemInfo* info);
 
   // Hook to receive keyboard events while the menu is open.
-  static LRESULT CALLBACK MenuMessageHook(
-      int n_code, WPARAM w_param, LPARAM l_param);
+  static LRESULT CALLBACK MenuMessageHook(int n_code,
+                                          WPARAM w_param,
+                                          LPARAM l_param);
 
   // Our attached model and delegate.
   ui::MenuModel* model_;

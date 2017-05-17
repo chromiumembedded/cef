@@ -9,6 +9,8 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=d2930fdc22bf9f6281d2bf797dd27f749b5e512a$
+//
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_FRAME_CTOCPP_H_
 #define CEF_LIBCEF_DLL_CTOCPP_FRAME_CTOCPP_H_
@@ -18,12 +20,12 @@
 #error This file can be included wrapper-side only
 #endif
 
-#include "include/cef_frame.h"
-#include "include/capi/cef_frame_capi.h"
-#include "include/cef_browser.h"
 #include "include/capi/cef_browser_capi.h"
-#include "include/cef_v8.h"
+#include "include/capi/cef_frame_capi.h"
 #include "include/capi/cef_v8_capi.h"
+#include "include/cef_browser.h"
+#include "include/cef_frame.h"
+#include "include/cef_v8.h"
 #include "libcef_dll/ctocpp/ctocpp_ref_counted.h"
 
 // Wrap a C structure with a C++ class.
@@ -48,8 +50,9 @@ class CefFrameCToCpp
   void LoadRequest(CefRefPtr<CefRequest> request) OVERRIDE;
   void LoadURL(const CefString& url) OVERRIDE;
   void LoadString(const CefString& string_val, const CefString& url) OVERRIDE;
-  void ExecuteJavaScript(const CefString& code, const CefString& script_url,
-      int start_line) OVERRIDE;
+  void ExecuteJavaScript(const CefString& code,
+                         const CefString& script_url,
+                         int start_line) OVERRIDE;
   bool IsMain() OVERRIDE;
   bool IsFocused() OVERRIDE;
   CefString GetName() OVERRIDE;

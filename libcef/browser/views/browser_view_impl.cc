@@ -7,8 +7,8 @@
 #include "libcef/browser/browser_host_impl.h"
 #include "libcef/browser/browser_util.h"
 #include "libcef/browser/context.h"
-#include "libcef/browser/views/window_impl.h"
 #include "libcef/browser/thread_util.h"
+#include "libcef/browser/views/window_impl.h"
 
 #include "content/public/browser/native_web_keyboard_event.h"
 #include "ui/content_accelerators/accelerator_util.h"
@@ -16,10 +16,10 @@
 // static
 CefRefPtr<CefBrowserView> CefBrowserView::CreateBrowserView(
     CefRefPtr<CefClient> client,
-      const CefString& url,
-      const CefBrowserSettings& settings,
-      CefRefPtr<CefRequestContext> request_context,
-      CefRefPtr<CefBrowserViewDelegate> delegate) {
+    const CefString& url,
+    const CefBrowserSettings& settings,
+    CefRefPtr<CefRequestContext> request_context,
+    CefRefPtr<CefBrowserViewDelegate> delegate) {
   return CefBrowserViewImpl::Create(client, url, settings, request_context,
                                     delegate);
 }
@@ -164,8 +164,7 @@ void CefBrowserViewImpl::OnBrowserViewAdded() {
 
 CefBrowserViewImpl::CefBrowserViewImpl(
     CefRefPtr<CefBrowserViewDelegate> delegate)
-    : ParentClass(delegate) {
-}
+    : ParentClass(delegate) {}
 
 void CefBrowserViewImpl::SetPendingBrowserCreateParams(
     CefRefPtr<CefClient> client,

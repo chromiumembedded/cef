@@ -9,18 +9,19 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=12bfad16bf7ce5f2a54f06cb48fa49df496bf9a9$
+//
 
 #include "libcef_dll/cpptoc/print_dialog_callback_cpptoc.h"
 #include "libcef_dll/cpptoc/print_settings_cpptoc.h"
-
 
 namespace {
 
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
-void CEF_CALLBACK print_dialog_callback_cont(
-    struct _cef_print_dialog_callback_t* self,
-    struct _cef_print_settings_t* settings) {
+void CEF_CALLBACK
+print_dialog_callback_cont(struct _cef_print_dialog_callback_t* self,
+                           struct _cef_print_settings_t* settings) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -36,8 +37,8 @@ void CEF_CALLBACK print_dialog_callback_cont(
       CefPrintSettingsCppToC::Unwrap(settings));
 }
 
-void CEF_CALLBACK print_dialog_callback_cancel(
-    struct _cef_print_dialog_callback_t* self) {
+void CEF_CALLBACK
+print_dialog_callback_cancel(struct _cef_print_dialog_callback_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -50,7 +51,6 @@ void CEF_CALLBACK print_dialog_callback_cancel(
 
 }  // namespace
 
-
 // CONSTRUCTOR - Do not edit by hand.
 
 CefPrintDialogCallbackCppToC::CefPrintDialogCallbackCppToC() {
@@ -58,18 +58,27 @@ CefPrintDialogCallbackCppToC::CefPrintDialogCallbackCppToC() {
   GetStruct()->cancel = print_dialog_callback_cancel;
 }
 
-template<> CefRefPtr<CefPrintDialogCallback> CefCppToCRefCounted<CefPrintDialogCallbackCppToC,
-    CefPrintDialogCallback, cef_print_dialog_callback_t>::UnwrapDerived(
-    CefWrapperType type, cef_print_dialog_callback_t* s) {
+template <>
+CefRefPtr<CefPrintDialogCallback> CefCppToCRefCounted<
+    CefPrintDialogCallbackCppToC,
+    CefPrintDialogCallback,
+    cef_print_dialog_callback_t>::UnwrapDerived(CefWrapperType type,
+                                                cef_print_dialog_callback_t*
+                                                    s) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCppToCRefCounted<CefPrintDialogCallbackCppToC,
-    CefPrintDialogCallback, cef_print_dialog_callback_t>::DebugObjCt = 0;
+template <>
+base::AtomicRefCount
+    CefCppToCRefCounted<CefPrintDialogCallbackCppToC,
+                        CefPrintDialogCallback,
+                        cef_print_dialog_callback_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCppToCRefCounted<CefPrintDialogCallbackCppToC,
-    CefPrintDialogCallback, cef_print_dialog_callback_t>::kWrapperType =
+template <>
+CefWrapperType CefCppToCRefCounted<CefPrintDialogCallbackCppToC,
+                                   CefPrintDialogCallback,
+                                   cef_print_dialog_callback_t>::kWrapperType =
     WT_PRINT_DIALOG_CALLBACK;

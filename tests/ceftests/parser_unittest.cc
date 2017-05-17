@@ -9,8 +9,10 @@
 TEST(ParserTest, CreateURLSpec) {
   CefURLParts parts;
   CefString url;
-  CefString(&parts.spec).FromASCII(
-      "http://user:pass@www.example.com:88/path/to.html?foo=test&bar=test2");
+  CefString(&parts.spec)
+      .FromASCII(
+          "http://user:pass@www.example.com:88/path/"
+          "to.html?foo=test&bar=test2");
   EXPECT_TRUE(CefCreateURL(parts, url));
   EXPECT_STREQ(
       "http://user:pass@www.example.com:88/path/to.html?foo=test&bar=test2",
@@ -64,7 +66,7 @@ TEST(ParserTest, CreateURLSchemeHostPathQuery) {
   CefString(&parts.query).FromASCII("foo=test&bar=test2");
   EXPECT_TRUE(CefCreateURL(parts, url));
   EXPECT_STREQ("http://www.example.com/path/to.html?foo=test&bar=test2",
-                url.ToString().c_str());
+               url.ToString().c_str());
 }
 
 // Create the URL using all the various components.
@@ -115,8 +117,7 @@ TEST(ParserTest, ParseURLSchemeHostPath) {
   EXPECT_TRUE(CefParseURL(url, parts));
 
   CefString spec(&parts.spec);
-  EXPECT_STREQ("http://www.example.com/path/to.html",
-                spec.ToString().c_str());
+  EXPECT_STREQ("http://www.example.com/path/to.html", spec.ToString().c_str());
   EXPECT_EQ(0U, parts.username.length);
   EXPECT_EQ(0U, parts.password.length);
   CefString scheme(&parts.scheme);
@@ -140,7 +141,7 @@ TEST(ParserTest, ParseURLSchemeHostPathQuery) {
 
   CefString spec(&parts.spec);
   EXPECT_STREQ("http://www.example.com/path/to.html?foo=test&bar=test2",
-                spec.ToString().c_str());
+               spec.ToString().c_str());
   EXPECT_EQ(0U, parts.username.length);
   EXPECT_EQ(0U, parts.password.length);
   CefString scheme(&parts.scheme);
@@ -268,9 +269,8 @@ TEST(ParserTest, Base64Decode) {
 
   std::string decoded_str;
   decoded_str.resize(decoded_size + 1);  // Include space for NUL-terminator.
-  const size_t get_data_result =
-      decoded_value->GetData(const_cast<char*>(decoded_str.data()),
-                             decoded_size, 0);
+  const size_t get_data_result = decoded_value->GetData(
+      const_cast<char*>(decoded_str.data()), decoded_size, 0);
   EXPECT_EQ(decoded_size, get_data_result);
   EXPECT_STREQ(test_str_decoded.c_str(), decoded_str.c_str());
 }
@@ -285,11 +285,10 @@ TEST(ParserTest, URIEncode) {
 TEST(ParserTest, URIDecode) {
   const std::string& test_str_decoded = "A test string=";
   const std::string& test_str_encoded = "A%20test%20string%3D";
-  const CefString& decoded_value =
-      CefURIDecode(test_str_encoded, false,
-                   static_cast<cef_uri_unescape_rule_t>(
-                       UU_SPACES |
-                       UU_URL_SPECIAL_CHARS_EXCEPT_PATH_SEPARATORS));
+  const CefString& decoded_value = CefURIDecode(
+      test_str_encoded, false,
+      static_cast<cef_uri_unescape_rule_t>(
+          UU_SPACES | UU_URL_SPECIAL_CHARS_EXCEPT_PATH_SEPARATORS));
   EXPECT_STREQ(test_str_decoded.c_str(), decoded_value.ToString().c_str());
 }
 
@@ -402,8 +401,8 @@ TEST(ParserTest, ParseJSONAndReturnErrorInvalid) {
   const char data[] = "This is my test data";
   cef_json_parser_error_t error_code;
   CefString error_msg;
-  CefRefPtr<CefValue> value = CefParseJSONAndReturnError(data,
-      JSON_PARSER_RFC, error_code, error_msg);
+  CefRefPtr<CefValue> value =
+      CefParseJSONAndReturnError(data, JSON_PARSER_RFC, error_code, error_msg);
   CefString expect_error_msg = "Line: 1, column: 1, Unexpected token.";
   EXPECT_FALSE(value.get());
   EXPECT_EQ(JSON_UNEXPECTED_TOKEN, error_code);
@@ -414,8 +413,8 @@ TEST(ParserTest, ParseJSONAndReturnErrorTrailingComma) {
   const char data[] = "{\"key1\":123,}";
   cef_json_parser_error_t error_code;
   CefString error_msg;
-  CefRefPtr<CefValue> value = CefParseJSONAndReturnError(data,
-      JSON_PARSER_RFC, error_code, error_msg);
+  CefRefPtr<CefValue> value =
+      CefParseJSONAndReturnError(data, JSON_PARSER_RFC, error_code, error_msg);
   CefString expect_error_msg =
       "Line: 1, column: 13, Trailing comma not allowed.";
   EXPECT_FALSE(value.get());

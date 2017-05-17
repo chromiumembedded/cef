@@ -9,6 +9,8 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=cc6dd68800da221cf4bbed462aaec34d6f20c8f5$
+//
 
 #include "libcef_dll/cpptoc/browser_cpptoc.h"
 #include "libcef_dll/cpptoc/frame_cpptoc.h"
@@ -16,7 +18,6 @@
 #include "libcef_dll/cpptoc/v8context_cpptoc.h"
 #include "libcef_dll/cpptoc/v8exception_cpptoc.h"
 #include "libcef_dll/cpptoc/v8value_cpptoc.h"
-
 
 // GLOBAL FUNCTIONS - Body may be edited by hand.
 
@@ -50,13 +51,12 @@ CEF_EXPORT int cef_v8context_in_context() {
   return _retval;
 }
 
-
 namespace {
 
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
-cef_task_runner_t* CEF_CALLBACK v8context_get_task_runner(
-    struct _cef_v8context_t* self) {
+cef_task_runner_t* CEF_CALLBACK
+v8context_get_task_runner(struct _cef_v8context_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -64,8 +64,8 @@ cef_task_runner_t* CEF_CALLBACK v8context_get_task_runner(
     return NULL;
 
   // Execute
-  CefRefPtr<CefTaskRunner> _retval = CefV8ContextCppToC::Get(
-      self)->GetTaskRunner();
+  CefRefPtr<CefTaskRunner> _retval =
+      CefV8ContextCppToC::Get(self)->GetTaskRunner();
 
   // Return type: refptr_same
   return CefTaskRunnerCppToC::Wrap(_retval);
@@ -85,8 +85,8 @@ int CEF_CALLBACK v8context_is_valid(struct _cef_v8context_t* self) {
   return _retval;
 }
 
-cef_browser_t* CEF_CALLBACK v8context_get_browser(
-    struct _cef_v8context_t* self) {
+cef_browser_t* CEF_CALLBACK
+v8context_get_browser(struct _cef_v8context_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -114,8 +114,8 @@ cef_frame_t* CEF_CALLBACK v8context_get_frame(struct _cef_v8context_t* self) {
   return CefFrameCppToC::Wrap(_retval);
 }
 
-struct _cef_v8value_t* CEF_CALLBACK v8context_get_global(
-    struct _cef_v8context_t* self) {
+struct _cef_v8value_t* CEF_CALLBACK
+v8context_get_global(struct _cef_v8context_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -158,7 +158,7 @@ int CEF_CALLBACK v8context_exit(struct _cef_v8context_t* self) {
 }
 
 int CEF_CALLBACK v8context_is_same(struct _cef_v8context_t* self,
-    struct _cef_v8context_t* that) {
+                                   struct _cef_v8context_t* that) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -170,16 +170,19 @@ int CEF_CALLBACK v8context_is_same(struct _cef_v8context_t* self,
     return 0;
 
   // Execute
-  bool _retval = CefV8ContextCppToC::Get(self)->IsSame(
-      CefV8ContextCppToC::Unwrap(that));
+  bool _retval =
+      CefV8ContextCppToC::Get(self)->IsSame(CefV8ContextCppToC::Unwrap(that));
 
   // Return type: bool
   return _retval;
 }
 
 int CEF_CALLBACK v8context_eval(struct _cef_v8context_t* self,
-    const cef_string_t* code, const cef_string_t* script_url, int start_line,
-    struct _cef_v8value_t** retval, struct _cef_v8exception_t** exception) {
+                                const cef_string_t* code,
+                                const cef_string_t* script_url,
+                                int start_line,
+                                struct _cef_v8value_t** retval,
+                                struct _cef_v8exception_t** exception) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -212,10 +215,7 @@ int CEF_CALLBACK v8context_eval(struct _cef_v8context_t* self,
 
   // Execute
   bool _retval = CefV8ContextCppToC::Get(self)->Eval(
-      CefString(code),
-      CefString(script_url),
-      start_line,
-      retvalPtr,
+      CefString(code), CefString(script_url), start_line, retvalPtr,
       exceptionPtr);
 
   // Restore param: retval; type: refptr_same_byref
@@ -245,7 +245,6 @@ int CEF_CALLBACK v8context_eval(struct _cef_v8context_t* self,
 
 }  // namespace
 
-
 // CONSTRUCTOR - Do not edit by hand.
 
 CefV8ContextCppToC::CefV8ContextCppToC() {
@@ -260,17 +259,23 @@ CefV8ContextCppToC::CefV8ContextCppToC() {
   GetStruct()->eval = v8context_eval;
 }
 
-template<> CefRefPtr<CefV8Context> CefCppToCRefCounted<CefV8ContextCppToC,
-    CefV8Context, cef_v8context_t>::UnwrapDerived(CefWrapperType type,
-    cef_v8context_t* s) {
+template <>
+CefRefPtr<CefV8Context>
+CefCppToCRefCounted<CefV8ContextCppToC, CefV8Context, cef_v8context_t>::
+    UnwrapDerived(CefWrapperType type, cef_v8context_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCppToCRefCounted<CefV8ContextCppToC,
-    CefV8Context, cef_v8context_t>::DebugObjCt = 0;
+template <>
+base::AtomicRefCount CefCppToCRefCounted<CefV8ContextCppToC,
+                                         CefV8Context,
+                                         cef_v8context_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCppToCRefCounted<CefV8ContextCppToC, CefV8Context,
-    cef_v8context_t>::kWrapperType = WT_V8CONTEXT;
+template <>
+CefWrapperType CefCppToCRefCounted<CefV8ContextCppToC,
+                                   CefV8Context,
+                                   cef_v8context_t>::kWrapperType =
+    WT_V8CONTEXT;

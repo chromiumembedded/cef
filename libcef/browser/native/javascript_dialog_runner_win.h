@@ -15,13 +15,12 @@ class CefJavaScriptDialogRunnerWin : public CefJavaScriptDialogRunner {
   ~CefJavaScriptDialogRunnerWin() override;
 
   // CefJavaScriptDialogRunner methods:
-  void Run(
-      CefBrowserHostImpl* browser,
-      content::JavaScriptDialogType message_type,
-      const base::string16& display_url,
-      const base::string16& message_text,
-      const base::string16& default_prompt_text,
-      const DialogClosedCallback& callback) override;
+  void Run(CefBrowserHostImpl* browser,
+           content::JavaScriptDialogType message_type,
+           const base::string16& display_url,
+           const base::string16& message_text,
+           const base::string16& default_prompt_text,
+           const DialogClosedCallback& callback) override;
   void Cancel() override;
 
  private:
@@ -35,7 +34,9 @@ class CefJavaScriptDialogRunnerWin : public CefJavaScriptDialogRunner {
 
   bool hook_installed_;
 
-  static INT_PTR CALLBACK DialogProc(HWND dialog, UINT message, WPARAM wparam,
+  static INT_PTR CALLBACK DialogProc(HWND dialog,
+                                     UINT message,
+                                     WPARAM wparam,
                                      LPARAM lparam);
 
   // Since the message loop we expect to run in isn't going to be nicely

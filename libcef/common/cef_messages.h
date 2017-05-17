@@ -14,8 +14,8 @@
 #include "base/values.h"
 #include "content/public/common/common_param_traits.h"
 #include "content/public/common/referrer.h"
-#include "ui/gfx/ipc/gfx_param_traits.h"
 #include "ipc/ipc_message_macros.h"
+#include "ui/gfx/ipc/gfx_param_traits.h"
 
 // Singly-included section for enums and custom IPC traits.
 #ifndef CEF_LIBCEF_COMMON_CEF_MESSAGES_H_
@@ -39,10 +39,11 @@ namespace IPC {
 
 // Extracted from chrome/common/automation_messages.h.
 template <>
-struct ParamTraits<scoped_refptr<net::UploadData> > {
+struct ParamTraits<scoped_refptr<net::UploadData>> {
   typedef scoped_refptr<net::UploadData> param_type;
   static void Write(base::Pickle* m, const param_type& p);
-  static bool Read(const base::Pickle* m, base::PickleIterator* iter,
+  static bool Read(const base::Pickle* m,
+                   base::PickleIterator* iter,
                    param_type* r);
   static void Log(const param_type& p, std::string* l);
 };
@@ -50,7 +51,6 @@ struct ParamTraits<scoped_refptr<net::UploadData> > {
 }  // namespace IPC
 
 #endif  // CEF_LIBCEF_COMMON_CEF_MESSAGES_H_
-
 
 // TODO(cef): Re-using the message start for extensions may be problematic in
 // the future. It would be better if ipc_message_utils.h contained a value
@@ -110,7 +110,6 @@ IPC_STRUCT_BEGIN(Cef_DraggableRegion_Params)
   IPC_STRUCT_MEMBER(bool, draggable)
 IPC_STRUCT_END()
 
-
 // Messages sent from the browser to the renderer.
 
 // Parameters for a resource request.
@@ -149,27 +148,22 @@ IPC_STRUCT_BEGIN(CefMsg_LoadRequest_Params)
 IPC_STRUCT_END()
 
 // Tell the renderer to load a request.
-IPC_MESSAGE_ROUTED1(CefMsg_LoadRequest,
-                    CefMsg_LoadRequest_Params)
+IPC_MESSAGE_ROUTED1(CefMsg_LoadRequest, CefMsg_LoadRequest_Params)
 
 // Sent when the browser has a request for the renderer. The renderer may
 // respond with a CefHostMsg_Response.
-IPC_MESSAGE_ROUTED1(CefMsg_Request,
-                    Cef_Request_Params)
+IPC_MESSAGE_ROUTED1(CefMsg_Request, Cef_Request_Params)
 
 // Optional message sent in response to a CefHostMsg_Request.
-IPC_MESSAGE_ROUTED1(CefMsg_Response,
-                    Cef_Response_Params)
+IPC_MESSAGE_ROUTED1(CefMsg_Response, Cef_Response_Params)
 
 // Optional Ack message sent to the browser to notify that a CefHostMsg_Response
 // has been processed.
-IPC_MESSAGE_ROUTED1(CefMsg_ResponseAck,
-                    int /* request_id */)
+IPC_MESSAGE_ROUTED1(CefMsg_ResponseAck, int /* request_id */)
 
 // Tells the render frame to load all blocked plugins with the given identifier.
 // Based on ChromeViewMsg_LoadBlockedPlugins.
-IPC_MESSAGE_ROUTED1(CefViewMsg_LoadBlockedPlugins,
-                    std::string /* identifier */)
+IPC_MESSAGE_ROUTED1(CefViewMsg_LoadBlockedPlugins, std::string /* identifier */)
 
 // Sent on process startup to indicate whether this process is running in
 // incognito mode. Based on ChromeViewMsg_SetIsIncognitoProcess.
@@ -183,7 +177,6 @@ IPC_MESSAGE_CONTROL2(CefProcessMsg_ModifyCrossOriginWhitelistEntry,
 
 // Sent to child processes to clear the cross-origin whitelist.
 IPC_MESSAGE_CONTROL0(CefProcessMsg_ClearCrossOriginWhitelist)
-
 
 // Messages sent from the renderer to the browser.
 
@@ -268,17 +261,14 @@ IPC_MESSAGE_ROUTED4(CefHostMsg_DidFinishLoad,
 
 // Sent when the renderer has a request for the browser. The browser may respond
 // with a CefMsg_Response.
-IPC_MESSAGE_ROUTED1(CefHostMsg_Request,
-                    Cef_Request_Params)
+IPC_MESSAGE_ROUTED1(CefHostMsg_Request, Cef_Request_Params)
 
 // Optional message sent in response to a CefMsg_Request.
-IPC_MESSAGE_ROUTED1(CefHostMsg_Response,
-                    Cef_Response_Params)
+IPC_MESSAGE_ROUTED1(CefHostMsg_Response, Cef_Response_Params)
 
 // Optional Ack message sent to the browser to notify that a CefMsg_Response
 // has been processed.
-IPC_MESSAGE_ROUTED1(CefHostMsg_ResponseAck,
-                    int /* request_id */)
+IPC_MESSAGE_ROUTED1(CefHostMsg_ResponseAck, int /* request_id */)
 
 // Sent by the renderer when the draggable regions are updated.
 IPC_MESSAGE_ROUTED1(CefHostMsg_UpdateDraggableRegions,

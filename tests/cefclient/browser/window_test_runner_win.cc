@@ -28,7 +28,10 @@ void Toggle(HWND root_hwnd, UINT nCmdShow) {
 }
 
 void SetPosImpl(CefRefPtr<CefBrowser> browser,
-                int x, int y, int width, int height) {
+                int x,
+                int y,
+                int width,
+                int height) {
   HWND root_hwnd = GetRootHwnd(browser);
   if (!root_hwnd)
     return;
@@ -38,18 +41,16 @@ void SetPosImpl(CefRefPtr<CefBrowser> browser,
   ::GetWindowPlacement(root_hwnd, &placement);
 
   // Retrieve information about the display that contains the window.
-  HMONITOR monitor = MonitorFromRect(&placement.rcNormalPosition,
-                                     MONITOR_DEFAULTTONEAREST);
+  HMONITOR monitor =
+      MonitorFromRect(&placement.rcNormalPosition, MONITOR_DEFAULTTONEAREST);
   MONITORINFO info;
   info.cbSize = sizeof(info);
   GetMonitorInfo(monitor, &info);
 
   // Make sure the window is inside the display.
-  CefRect display_rect(
-      info.rcWork.left,
-      info.rcWork.top,
-      info.rcWork.right - info.rcWork.left,
-      info.rcWork.bottom - info.rcWork.top);
+  CefRect display_rect(info.rcWork.left, info.rcWork.top,
+                       info.rcWork.right - info.rcWork.left,
+                       info.rcWork.bottom - info.rcWork.top);
   CefRect window_rect(x, y, width, height);
   WindowTestRunner::ModifyBounds(display_rect, window_rect);
 
@@ -92,11 +93,13 @@ void RestoreImpl(CefRefPtr<CefBrowser> browser) {
 
 }  // namespace
 
-WindowTestRunnerWin::WindowTestRunnerWin() {
-}
+WindowTestRunnerWin::WindowTestRunnerWin() {}
 
 void WindowTestRunnerWin::SetPos(CefRefPtr<CefBrowser> browser,
-                                 int x, int y, int width, int height) {
+                                 int x,
+                                 int y,
+                                 int width,
+                                 int height) {
   if (CURRENTLY_ON_MAIN_THREAD()) {
     SetPosImpl(browser, x, y, width, height);
   } else {

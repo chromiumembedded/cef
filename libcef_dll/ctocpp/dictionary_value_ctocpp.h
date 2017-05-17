@@ -9,6 +9,8 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=81bfcc253678bc246a83d077a2cf3509958c86ad$
+//
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_DICTIONARY_VALUE_CTOCPP_H_
 #define CEF_LIBCEF_DLL_CTOCPP_DICTIONARY_VALUE_CTOCPP_H_
@@ -18,15 +20,16 @@
 #error This file can be included wrapper-side only
 #endif
 
-#include "include/cef_values.h"
 #include "include/capi/cef_values_capi.h"
+#include "include/cef_values.h"
 #include "libcef_dll/ctocpp/ctocpp_ref_counted.h"
 
 // Wrap a C structure with a C++ class.
 // This class may be instantiated and accessed wrapper-side only.
 class CefDictionaryValueCToCpp
-    : public CefCToCppRefCounted<CefDictionaryValueCToCpp, CefDictionaryValue,
-        cef_dictionary_value_t> {
+    : public CefCToCppRefCounted<CefDictionaryValueCToCpp,
+                                 CefDictionaryValue,
+                                 cef_dictionary_value_t> {
  public:
   CefDictionaryValueCToCpp();
 
@@ -58,9 +61,9 @@ class CefDictionaryValueCToCpp
   bool SetDouble(const CefString& key, double value) OVERRIDE;
   bool SetString(const CefString& key, const CefString& value) OVERRIDE;
   bool SetBinary(const CefString& key,
-      CefRefPtr<CefBinaryValue> value) OVERRIDE;
+                 CefRefPtr<CefBinaryValue> value) OVERRIDE;
   bool SetDictionary(const CefString& key,
-      CefRefPtr<CefDictionaryValue> value) OVERRIDE;
+                     CefRefPtr<CefDictionaryValue> value) OVERRIDE;
   bool SetList(const CefString& key, CefRefPtr<CefListValue> value) OVERRIDE;
 };
 

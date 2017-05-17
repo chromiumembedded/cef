@@ -10,9 +10,9 @@
 #include "libcef/browser/views/browser_view_impl.h"
 
 // Implementation of Views-based browser functionality.
-class CefBrowserPlatformDelegateViews :
-    public CefBrowserPlatformDelegate,
-    public CefBrowserPlatformDelegateNative::WindowlessHandler {
+class CefBrowserPlatformDelegateViews
+    : public CefBrowserPlatformDelegate,
+      public CefBrowserPlatformDelegateNative::WindowlessHandler {
  public:
   // Platform-specific behaviors will be delegated to |native_delegate|.
   // |browser_view_getter| may be initially empty for popup browsers.
@@ -39,9 +39,8 @@ class CefBrowserPlatformDelegateViews :
       content::WebContents* new_web_contents,
       CefBrowserPlatformDelegate* new_platform_delegate,
       bool is_devtools) override;
-  void PopupBrowserCreated(
-      CefBrowserHostImpl* new_browser,
-      bool is_devtools) override;
+  void PopupBrowserCreated(CefBrowserHostImpl* new_browser,
+                           bool is_devtools) override;
   SkColor GetBackgroundColor() const override;
   void WasResized() override;
   void SendKeyEvent(const content::NativeWebKeyboardEvent& event) override;
@@ -58,17 +57,20 @@ class CefBrowserPlatformDelegateViews :
   void TranslateClickEvent(blink::WebMouseEvent& result,
                            const CefMouseEvent& mouse_event,
                            CefBrowserHost::MouseButtonType type,
-                           bool mouseUp, int clickCount) const override;
+                           bool mouseUp,
+                           int clickCount) const override;
   void TranslateMoveEvent(blink::WebMouseEvent& result,
                           const CefMouseEvent& mouse_event,
                           bool mouseLeave) const override;
   void TranslateWheelEvent(blink::WebMouseWheelEvent& result,
                            const CefMouseEvent& mouse_event,
-                           int deltaX, int deltaY) const override;
+                           int deltaX,
+                           int deltaY) const override;
   CefEventHandle GetEventHandle(
       const content::NativeWebKeyboardEvent& event) const override;
   std::unique_ptr<CefFileDialogRunner> CreateFileDialogRunner() override;
-  std::unique_ptr<CefJavaScriptDialogRunner> CreateJavaScriptDialogRunner() override;
+  std::unique_ptr<CefJavaScriptDialogRunner> CreateJavaScriptDialogRunner()
+      override;
   std::unique_ptr<CefMenuRunner> CreateMenuRunner() override;
   bool IsWindowless() const override;
   bool IsViewsHosted() const override;

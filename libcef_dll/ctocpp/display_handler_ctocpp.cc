@@ -9,17 +9,19 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=6ca2f1e0e45645a486603e812aeaffa2de275268$
+//
 
 #include "libcef_dll/cpptoc/browser_cpptoc.h"
 #include "libcef_dll/cpptoc/frame_cpptoc.h"
 #include "libcef_dll/ctocpp/display_handler_ctocpp.h"
 #include "libcef_dll/transfer_util.h"
 
-
 // VIRTUAL METHODS - Body may be edited by hand.
 
 void CefDisplayHandlerCToCpp::OnAddressChange(CefRefPtr<CefBrowser> browser,
-    CefRefPtr<CefFrame> frame, const CefString& url) {
+                                              CefRefPtr<CefFrame> frame,
+                                              const CefString& url) {
   cef_display_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_address_change))
     return;
@@ -40,14 +42,12 @@ void CefDisplayHandlerCToCpp::OnAddressChange(CefRefPtr<CefBrowser> browser,
     return;
 
   // Execute
-  _struct->on_address_change(_struct,
-      CefBrowserCppToC::Wrap(browser),
-      CefFrameCppToC::Wrap(frame),
-      url.GetStruct());
+  _struct->on_address_change(_struct, CefBrowserCppToC::Wrap(browser),
+                             CefFrameCppToC::Wrap(frame), url.GetStruct());
 }
 
 void CefDisplayHandlerCToCpp::OnTitleChange(CefRefPtr<CefBrowser> browser,
-    const CefString& title) {
+                                            const CefString& title) {
   cef_display_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_title_change))
     return;
@@ -61,12 +61,12 @@ void CefDisplayHandlerCToCpp::OnTitleChange(CefRefPtr<CefBrowser> browser,
   // Unverified params: title
 
   // Execute
-  _struct->on_title_change(_struct,
-      CefBrowserCppToC::Wrap(browser),
-      title.GetStruct());
+  _struct->on_title_change(_struct, CefBrowserCppToC::Wrap(browser),
+                           title.GetStruct());
 }
 
-void CefDisplayHandlerCToCpp::OnFaviconURLChange(CefRefPtr<CefBrowser> browser,
+void CefDisplayHandlerCToCpp::OnFaviconURLChange(
+    CefRefPtr<CefBrowser> browser,
     const std::vector<CefString>& icon_urls) {
   cef_display_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_favicon_urlchange))
@@ -87,9 +87,8 @@ void CefDisplayHandlerCToCpp::OnFaviconURLChange(CefRefPtr<CefBrowser> browser,
     transfer_string_list_contents(icon_urls, icon_urlsList);
 
   // Execute
-  _struct->on_favicon_urlchange(_struct,
-      CefBrowserCppToC::Wrap(browser),
-      icon_urlsList);
+  _struct->on_favicon_urlchange(_struct, CefBrowserCppToC::Wrap(browser),
+                                icon_urlsList);
 
   // Restore param:icon_urls; type: string_vec_byref_const
   if (icon_urlsList)
@@ -97,7 +96,8 @@ void CefDisplayHandlerCToCpp::OnFaviconURLChange(CefRefPtr<CefBrowser> browser,
 }
 
 void CefDisplayHandlerCToCpp::OnFullscreenModeChange(
-    CefRefPtr<CefBrowser> browser, bool fullscreen) {
+    CefRefPtr<CefBrowser> browser,
+    bool fullscreen) {
   cef_display_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_fullscreen_mode_change))
     return;
@@ -110,13 +110,12 @@ void CefDisplayHandlerCToCpp::OnFullscreenModeChange(
     return;
 
   // Execute
-  _struct->on_fullscreen_mode_change(_struct,
-      CefBrowserCppToC::Wrap(browser),
-      fullscreen);
+  _struct->on_fullscreen_mode_change(_struct, CefBrowserCppToC::Wrap(browser),
+                                     fullscreen);
 }
 
 bool CefDisplayHandlerCToCpp::OnTooltip(CefRefPtr<CefBrowser> browser,
-    CefString& text) {
+                                        CefString& text) {
   cef_display_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_tooltip))
     return false;
@@ -130,16 +129,15 @@ bool CefDisplayHandlerCToCpp::OnTooltip(CefRefPtr<CefBrowser> browser,
   // Unverified params: text
 
   // Execute
-  int _retval = _struct->on_tooltip(_struct,
-      CefBrowserCppToC::Wrap(browser),
-      text.GetWritableStruct());
+  int _retval = _struct->on_tooltip(_struct, CefBrowserCppToC::Wrap(browser),
+                                    text.GetWritableStruct());
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 void CefDisplayHandlerCToCpp::OnStatusMessage(CefRefPtr<CefBrowser> browser,
-    const CefString& value) {
+                                              const CefString& value) {
   cef_display_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_status_message))
     return;
@@ -153,13 +151,14 @@ void CefDisplayHandlerCToCpp::OnStatusMessage(CefRefPtr<CefBrowser> browser,
   // Unverified params: value
 
   // Execute
-  _struct->on_status_message(_struct,
-      CefBrowserCppToC::Wrap(browser),
-      value.GetStruct());
+  _struct->on_status_message(_struct, CefBrowserCppToC::Wrap(browser),
+                             value.GetStruct());
 }
 
 bool CefDisplayHandlerCToCpp::OnConsoleMessage(CefRefPtr<CefBrowser> browser,
-    const CefString& message, const CefString& source, int line) {
+                                               const CefString& message,
+                                               const CefString& source,
+                                               int line) {
   cef_display_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_console_message))
     return false;
@@ -173,34 +172,37 @@ bool CefDisplayHandlerCToCpp::OnConsoleMessage(CefRefPtr<CefBrowser> browser,
   // Unverified params: message, source
 
   // Execute
-  int _retval = _struct->on_console_message(_struct,
-      CefBrowserCppToC::Wrap(browser),
-      message.GetStruct(),
-      source.GetStruct(),
-      line);
+  int _retval = _struct->on_console_message(
+      _struct, CefBrowserCppToC::Wrap(browser), message.GetStruct(),
+      source.GetStruct(), line);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
-
 
 // CONSTRUCTOR - Do not edit by hand.
 
-CefDisplayHandlerCToCpp::CefDisplayHandlerCToCpp() {
-}
+CefDisplayHandlerCToCpp::CefDisplayHandlerCToCpp() {}
 
-template<> cef_display_handler_t* CefCToCppRefCounted<CefDisplayHandlerCToCpp,
-    CefDisplayHandler, cef_display_handler_t>::UnwrapDerived(
-    CefWrapperType type, CefDisplayHandler* c) {
+template <>
+cef_display_handler_t* CefCToCppRefCounted<
+    CefDisplayHandlerCToCpp,
+    CefDisplayHandler,
+    cef_display_handler_t>::UnwrapDerived(CefWrapperType type,
+                                          CefDisplayHandler* c) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCppRefCounted<CefDisplayHandlerCToCpp,
-    CefDisplayHandler, cef_display_handler_t>::DebugObjCt = 0;
+template <>
+base::AtomicRefCount CefCToCppRefCounted<CefDisplayHandlerCToCpp,
+                                         CefDisplayHandler,
+                                         cef_display_handler_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCppRefCounted<CefDisplayHandlerCToCpp,
-    CefDisplayHandler, cef_display_handler_t>::kWrapperType =
+template <>
+CefWrapperType CefCToCppRefCounted<CefDisplayHandlerCToCpp,
+                                   CefDisplayHandler,
+                                   cef_display_handler_t>::kWrapperType =
     WT_DISPLAY_HANDLER;

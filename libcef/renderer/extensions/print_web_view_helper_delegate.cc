@@ -18,8 +18,7 @@
 
 namespace extensions {
 
-CefPrintWebViewHelperDelegate::~CefPrintWebViewHelperDelegate(){
-}
+CefPrintWebViewHelperDelegate::~CefPrintWebViewHelperDelegate() {}
 
 bool CefPrintWebViewHelperDelegate::CancelPrerender(
     content::RenderFrame* render_frame) {
@@ -28,7 +27,7 @@ bool CefPrintWebViewHelperDelegate::CancelPrerender(
 
 // Return the PDF object element if |frame| is the out of process PDF extension.
 blink::WebElement CefPrintWebViewHelperDelegate::GetPdfElement(
-        blink::WebLocalFrame* frame) {
+    blink::WebLocalFrame* frame) {
   GURL url = frame->GetDocument().Url();
   if (url.SchemeIs(extensions::kExtensionScheme) &&
       url.host() == extension_misc::kPdfExtensionId) {
@@ -47,8 +46,7 @@ bool CefPrintWebViewHelperDelegate::IsPrintPreviewEnabled() {
   return false;
 }
 
-bool CefPrintWebViewHelperDelegate::OverridePrint(
-    blink::WebLocalFrame* frame) {
+bool CefPrintWebViewHelperDelegate::OverridePrint(blink::WebLocalFrame* frame) {
   if (!frame->GetDocument().IsPluginDocument())
     return false;
 

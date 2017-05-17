@@ -4,18 +4,18 @@
 
 #include "tests/cefclient/browser/browser_window_osr_gtk.h"
 
+#include <GL/gl.h>
 #include <gdk/gdk.h>
 #include <gdk/gdkkeysyms.h>
 #include <gdk/gdkx.h>
 #include <glib-object.h>
 #include <gtk/gtk.h>
 #include <gtk/gtkgl.h>
-#include <GL/gl.h>
 
 #define XK_3270  // for XK_3270_BackTab
-#include <X11/keysym.h>
 #include <X11/XF86keysym.h>
 #include <X11/Xcursor/Xcursor.h>
+#include <X11/keysym.h>
 
 #include "include/base/cef_logging.h"
 #include "include/wrapper/cef_closure_task.h"
@@ -637,7 +637,7 @@ KeyboardCode KeyboardCodeFromXKeysym(unsigned int keysym) {
     case XF86XK_KbdBrightnessUp:
       return VKEY_KBD_BRIGHTNESS_UP;
 
-    // TODO(sad): some keycodes are still missing.
+      // TODO(sad): some keycodes are still missing.
   }
   return VKEY_UNKNOWN;
 }
@@ -645,123 +645,123 @@ KeyboardCode KeyboardCodeFromXKeysym(unsigned int keysym) {
 // From content/browser/renderer_host/input/web_input_event_util_posix.cc.
 KeyboardCode GdkEventToWindowsKeyCode(const GdkEventKey* event) {
   static const unsigned int kHardwareCodeToGDKKeyval[] = {
-    0,                 // 0x00:
-    0,                 // 0x01:
-    0,                 // 0x02:
-    0,                 // 0x03:
-    0,                 // 0x04:
-    0,                 // 0x05:
-    0,                 // 0x06:
-    0,                 // 0x07:
-    0,                 // 0x08:
-    0,                 // 0x09: GDK_Escape
-    GDK_1,             // 0x0A: GDK_1
-    GDK_2,             // 0x0B: GDK_2
-    GDK_3,             // 0x0C: GDK_3
-    GDK_4,             // 0x0D: GDK_4
-    GDK_5,             // 0x0E: GDK_5
-    GDK_6,             // 0x0F: GDK_6
-    GDK_7,             // 0x10: GDK_7
-    GDK_8,             // 0x11: GDK_8
-    GDK_9,             // 0x12: GDK_9
-    GDK_0,             // 0x13: GDK_0
-    GDK_minus,         // 0x14: GDK_minus
-    GDK_equal,         // 0x15: GDK_equal
-    0,                 // 0x16: GDK_BackSpace
-    0,                 // 0x17: GDK_Tab
-    GDK_q,             // 0x18: GDK_q
-    GDK_w,             // 0x19: GDK_w
-    GDK_e,             // 0x1A: GDK_e
-    GDK_r,             // 0x1B: GDK_r
-    GDK_t,             // 0x1C: GDK_t
-    GDK_y,             // 0x1D: GDK_y
-    GDK_u,             // 0x1E: GDK_u
-    GDK_i,             // 0x1F: GDK_i
-    GDK_o,             // 0x20: GDK_o
-    GDK_p,             // 0x21: GDK_p
-    GDK_bracketleft,   // 0x22: GDK_bracketleft
-    GDK_bracketright,  // 0x23: GDK_bracketright
-    0,                 // 0x24: GDK_Return
-    0,                 // 0x25: GDK_Control_L
-    GDK_a,             // 0x26: GDK_a
-    GDK_s,             // 0x27: GDK_s
-    GDK_d,             // 0x28: GDK_d
-    GDK_f,             // 0x29: GDK_f
-    GDK_g,             // 0x2A: GDK_g
-    GDK_h,             // 0x2B: GDK_h
-    GDK_j,             // 0x2C: GDK_j
-    GDK_k,             // 0x2D: GDK_k
-    GDK_l,             // 0x2E: GDK_l
-    GDK_semicolon,     // 0x2F: GDK_semicolon
-    GDK_apostrophe,    // 0x30: GDK_apostrophe
-    GDK_grave,         // 0x31: GDK_grave
-    0,                 // 0x32: GDK_Shift_L
-    GDK_backslash,     // 0x33: GDK_backslash
-    GDK_z,             // 0x34: GDK_z
-    GDK_x,             // 0x35: GDK_x
-    GDK_c,             // 0x36: GDK_c
-    GDK_v,             // 0x37: GDK_v
-    GDK_b,             // 0x38: GDK_b
-    GDK_n,             // 0x39: GDK_n
-    GDK_m,             // 0x3A: GDK_m
-    GDK_comma,         // 0x3B: GDK_comma
-    GDK_period,        // 0x3C: GDK_period
-    GDK_slash,         // 0x3D: GDK_slash
-    0,                 // 0x3E: GDK_Shift_R
-    0,                 // 0x3F:
-    0,                 // 0x40:
-    0,                 // 0x41:
-    0,                 // 0x42:
-    0,                 // 0x43:
-    0,                 // 0x44:
-    0,                 // 0x45:
-    0,                 // 0x46:
-    0,                 // 0x47:
-    0,                 // 0x48:
-    0,                 // 0x49:
-    0,                 // 0x4A:
-    0,                 // 0x4B:
-    0,                 // 0x4C:
-    0,                 // 0x4D:
-    0,                 // 0x4E:
-    0,                 // 0x4F:
-    0,                 // 0x50:
-    0,                 // 0x51:
-    0,                 // 0x52:
-    0,                 // 0x53:
-    0,                 // 0x54:
-    0,                 // 0x55:
-    0,                 // 0x56:
-    0,                 // 0x57:
-    0,                 // 0x58:
-    0,                 // 0x59:
-    0,                 // 0x5A:
-    0,                 // 0x5B:
-    0,                 // 0x5C:
-    0,                 // 0x5D:
-    0,                 // 0x5E:
-    0,                 // 0x5F:
-    0,                 // 0x60:
-    0,                 // 0x61:
-    0,                 // 0x62:
-    0,                 // 0x63:
-    0,                 // 0x64:
-    0,                 // 0x65:
-    0,                 // 0x66:
-    0,                 // 0x67:
-    0,                 // 0x68:
-    0,                 // 0x69:
-    0,                 // 0x6A:
-    0,                 // 0x6B:
-    0,                 // 0x6C:
-    0,                 // 0x6D:
-    0,                 // 0x6E:
-    0,                 // 0x6F:
-    0,                 // 0x70:
-    0,                 // 0x71:
-    0,                 // 0x72:
-    GDK_Super_L,       // 0x73: GDK_Super_L
-    GDK_Super_R,       // 0x74: GDK_Super_R
+      0,                 // 0x00:
+      0,                 // 0x01:
+      0,                 // 0x02:
+      0,                 // 0x03:
+      0,                 // 0x04:
+      0,                 // 0x05:
+      0,                 // 0x06:
+      0,                 // 0x07:
+      0,                 // 0x08:
+      0,                 // 0x09: GDK_Escape
+      GDK_1,             // 0x0A: GDK_1
+      GDK_2,             // 0x0B: GDK_2
+      GDK_3,             // 0x0C: GDK_3
+      GDK_4,             // 0x0D: GDK_4
+      GDK_5,             // 0x0E: GDK_5
+      GDK_6,             // 0x0F: GDK_6
+      GDK_7,             // 0x10: GDK_7
+      GDK_8,             // 0x11: GDK_8
+      GDK_9,             // 0x12: GDK_9
+      GDK_0,             // 0x13: GDK_0
+      GDK_minus,         // 0x14: GDK_minus
+      GDK_equal,         // 0x15: GDK_equal
+      0,                 // 0x16: GDK_BackSpace
+      0,                 // 0x17: GDK_Tab
+      GDK_q,             // 0x18: GDK_q
+      GDK_w,             // 0x19: GDK_w
+      GDK_e,             // 0x1A: GDK_e
+      GDK_r,             // 0x1B: GDK_r
+      GDK_t,             // 0x1C: GDK_t
+      GDK_y,             // 0x1D: GDK_y
+      GDK_u,             // 0x1E: GDK_u
+      GDK_i,             // 0x1F: GDK_i
+      GDK_o,             // 0x20: GDK_o
+      GDK_p,             // 0x21: GDK_p
+      GDK_bracketleft,   // 0x22: GDK_bracketleft
+      GDK_bracketright,  // 0x23: GDK_bracketright
+      0,                 // 0x24: GDK_Return
+      0,                 // 0x25: GDK_Control_L
+      GDK_a,             // 0x26: GDK_a
+      GDK_s,             // 0x27: GDK_s
+      GDK_d,             // 0x28: GDK_d
+      GDK_f,             // 0x29: GDK_f
+      GDK_g,             // 0x2A: GDK_g
+      GDK_h,             // 0x2B: GDK_h
+      GDK_j,             // 0x2C: GDK_j
+      GDK_k,             // 0x2D: GDK_k
+      GDK_l,             // 0x2E: GDK_l
+      GDK_semicolon,     // 0x2F: GDK_semicolon
+      GDK_apostrophe,    // 0x30: GDK_apostrophe
+      GDK_grave,         // 0x31: GDK_grave
+      0,                 // 0x32: GDK_Shift_L
+      GDK_backslash,     // 0x33: GDK_backslash
+      GDK_z,             // 0x34: GDK_z
+      GDK_x,             // 0x35: GDK_x
+      GDK_c,             // 0x36: GDK_c
+      GDK_v,             // 0x37: GDK_v
+      GDK_b,             // 0x38: GDK_b
+      GDK_n,             // 0x39: GDK_n
+      GDK_m,             // 0x3A: GDK_m
+      GDK_comma,         // 0x3B: GDK_comma
+      GDK_period,        // 0x3C: GDK_period
+      GDK_slash,         // 0x3D: GDK_slash
+      0,                 // 0x3E: GDK_Shift_R
+      0,                 // 0x3F:
+      0,                 // 0x40:
+      0,                 // 0x41:
+      0,                 // 0x42:
+      0,                 // 0x43:
+      0,                 // 0x44:
+      0,                 // 0x45:
+      0,                 // 0x46:
+      0,                 // 0x47:
+      0,                 // 0x48:
+      0,                 // 0x49:
+      0,                 // 0x4A:
+      0,                 // 0x4B:
+      0,                 // 0x4C:
+      0,                 // 0x4D:
+      0,                 // 0x4E:
+      0,                 // 0x4F:
+      0,                 // 0x50:
+      0,                 // 0x51:
+      0,                 // 0x52:
+      0,                 // 0x53:
+      0,                 // 0x54:
+      0,                 // 0x55:
+      0,                 // 0x56:
+      0,                 // 0x57:
+      0,                 // 0x58:
+      0,                 // 0x59:
+      0,                 // 0x5A:
+      0,                 // 0x5B:
+      0,                 // 0x5C:
+      0,                 // 0x5D:
+      0,                 // 0x5E:
+      0,                 // 0x5F:
+      0,                 // 0x60:
+      0,                 // 0x61:
+      0,                 // 0x62:
+      0,                 // 0x63:
+      0,                 // 0x64:
+      0,                 // 0x65:
+      0,                 // 0x66:
+      0,                 // 0x67:
+      0,                 // 0x68:
+      0,                 // 0x69:
+      0,                 // 0x6A:
+      0,                 // 0x6B:
+      0,                 // 0x6C:
+      0,                 // 0x6D:
+      0,                 // 0x6E:
+      0,                 // 0x6F:
+      0,                 // 0x70:
+      0,                 // 0x71:
+      0,                 // 0x72:
+      GDK_Super_L,       // 0x73: GDK_Super_L
+      GDK_Super_R,       // 0x74: GDK_Super_R
   };
 
   // |windows_key_code| has to include a valid virtual-key code even when we
@@ -779,8 +779,7 @@ KeyboardCode GdkEventToWindowsKeyCode(const GdkEventKey* event) {
   // even when we change the layout options, e.g. when we swap a control
   // key and a caps-lock key, GTK doesn't swap their
   // |event->hardware_keycode| values but swap their |event->keyval| values.
-  KeyboardCode windows_key_code =
-      KeyboardCodeFromXKeysym(event->keyval);
+  KeyboardCode windows_key_code = KeyboardCodeFromXKeysym(event->keyval);
   if (windows_key_code)
     return windows_key_code;
 
@@ -803,7 +802,7 @@ KeyboardCode GetWindowsKeyCodeWithoutLocation(KeyboardCode key_code) {
       return VKEY_CONTROL;
     case VKEY_LSHIFT:
     case VKEY_RSHIFT:
-    return VKEY_SHIFT;
+      return VKEY_SHIFT;
     case VKEY_LMENU:
     case VKEY_RMENU:
       return VKEY_MENU;
@@ -880,8 +879,8 @@ void GetWidgetRectInScreen(GtkWidget* widget, GdkRectangle* r) {
   r->height = widget->allocation.height;
 }
 
-CefBrowserHost::DragOperationsMask
-GetDragOperationsMask(GdkDragContext* drag_context) {
+CefBrowserHost::DragOperationsMask GetDragOperationsMask(
+    GdkDragContext* drag_context) {
   int allowed_ops = DRAG_OPERATION_NONE;
   GdkDragAction drag_action = gdk_drag_context_get_actions(drag_context);
   if (drag_action & GDK_ACTION_COPY)
@@ -908,7 +907,7 @@ class ScopedGLContext {
     if (is_valid_) {
       gdk_gl_drawable_gl_end(gldrawable_);
 
-      if(swap_buffers_) {
+      if (swap_buffers_) {
         if (gdk_gl_drawable_is_double_buffered(gldrawable_))
           gdk_gl_drawable_swap_buffers(gldrawable_);
         else
@@ -968,8 +967,8 @@ void BrowserWindowOsrGtk::CreateBrowser(
   Create(parent_handle);
 
   // Retrieve the X11 Window ID for the GTK parent window.
-  GtkWidget* window = gtk_widget_get_ancestor(
-      GTK_WIDGET(parent_handle), GTK_TYPE_WINDOW);
+  GtkWidget* window =
+      gtk_widget_get_ancestor(GTK_WIDGET(parent_handle), GTK_TYPE_WINDOW);
   ::Window xwindow = GDK_WINDOW_XID(gtk_widget_get_window(window));
   DCHECK(xwindow);
 
@@ -978,8 +977,8 @@ void BrowserWindowOsrGtk::CreateBrowser(
 
   // Create the browser asynchronously.
   CefBrowserHost::CreateBrowser(window_info, client_handler_,
-                                client_handler_->startup_url(),
-                                settings, request_context);
+                                client_handler_->startup_url(), settings,
+                                request_context);
 }
 
 void BrowserWindowOsrGtk::GetPopupConfig(CefWindowHandle temp_handle,
@@ -992,7 +991,10 @@ void BrowserWindowOsrGtk::GetPopupConfig(CefWindowHandle temp_handle,
 }
 
 void BrowserWindowOsrGtk::ShowPopup(ClientWindowHandle parent_handle,
-                                    int x, int y, size_t width, size_t height) {
+                                    int x,
+                                    int y,
+                                    size_t width,
+                                    size_t height) {
   REQUIRE_MAIN_THREAD();
   DCHECK(browser_.get());
 
@@ -1021,7 +1023,7 @@ void BrowserWindowOsrGtk::Show() {
 
 void BrowserWindowOsrGtk::Hide() {
   REQUIRE_MAIN_THREAD();
-  
+
   if (!browser_)
     return;
 
@@ -1087,8 +1089,8 @@ void BrowserWindowOsrGtk::OnBeforeClose(CefRefPtr<CefBrowser> browser) {
   UnregisterDragDrop();
 
   // Disconnect all signal handlers that reference |this|.
-  g_signal_handlers_disconnect_matched(glarea_, G_SIGNAL_MATCH_DATA, 0, 0,
-      NULL, NULL, this);
+  g_signal_handlers_disconnect_matched(glarea_, G_SIGNAL_MATCH_DATA, 0, 0, NULL,
+                                       NULL, this);
 
   DisableGL();
 }
@@ -1111,8 +1113,8 @@ bool BrowserWindowOsrGtk::GetViewRect(CefRefPtr<CefBrowser> browser,
   // for popup menus to be located and sized inside the view.
   rect.x = rect.y = 0;
   rect.width = DeviceToLogical(glarea_->allocation.width, device_scale_factor_);
-  rect.height = DeviceToLogical(glarea_->allocation.height,
-                                device_scale_factor_);
+  rect.height =
+      DeviceToLogical(glarea_->allocation.height, device_scale_factor_);
   return true;
 }
 
@@ -1167,13 +1169,12 @@ void BrowserWindowOsrGtk::OnPopupSize(CefRefPtr<CefBrowser> browser,
   renderer_.OnPopupSize(browser, LogicalToDevice(rect, device_scale_factor_));
 }
 
-void BrowserWindowOsrGtk::OnPaint(
-    CefRefPtr<CefBrowser> browser,
-    CefRenderHandler::PaintElementType type,
-    const CefRenderHandler::RectList& dirtyRects,
-    const void* buffer,
-    int width,
-    int height) {
+void BrowserWindowOsrGtk::OnPaint(CefRefPtr<CefBrowser> browser,
+                                  CefRenderHandler::PaintElementType type,
+                                  const CefRenderHandler::RectList& dirtyRects,
+                                  const void* buffer,
+                                  int width,
+                                  int height) {
   CEF_REQUIRE_UI_THREAD();
   REQUIRE_MAIN_THREAD();
 
@@ -1226,7 +1227,8 @@ bool BrowserWindowOsrGtk::StartDragging(
     CefRefPtr<CefBrowser> browser,
     CefRefPtr<CefDragData> drag_data,
     CefRenderHandler::DragOperationsMask allowed_ops,
-    int x, int y) {
+    int x,
+    int y) {
   CEF_REQUIRE_UI_THREAD();
   REQUIRE_MAIN_THREAD();
 
@@ -1290,10 +1292,9 @@ void BrowserWindowOsrGtk::Create(ClientWindowHandle parent_handle) {
   glarea_ = gtk_drawing_area_new();
   DCHECK(glarea_);
 
-  GdkGLConfig* glconfig = gdk_gl_config_new_by_mode(
-      static_cast<GdkGLConfigMode>(GDK_GL_MODE_RGB |
-                                   GDK_GL_MODE_DEPTH |
-                                   GDK_GL_MODE_DOUBLE));
+  GdkGLConfig* glconfig =
+      gdk_gl_config_new_by_mode(static_cast<GdkGLConfigMode>(
+          GDK_GL_MODE_RGB | GDK_GL_MODE_DEPTH | GDK_GL_MODE_DOUBLE));
   DCHECK(glconfig);
 
   gtk_widget_set_gl_capability(glarea_, glconfig, NULL, TRUE, GDK_GL_RGBA_TYPE);
@@ -1303,17 +1304,12 @@ void BrowserWindowOsrGtk::Create(ClientWindowHandle parent_handle) {
   g_signal_connect(G_OBJECT(glarea_), "size_allocate",
                    G_CALLBACK(&BrowserWindowOsrGtk::SizeAllocation), this);
 
-  gtk_widget_set_events(glarea_,
-                        GDK_BUTTON_PRESS_MASK |
-                        GDK_BUTTON_RELEASE_MASK |
-                        GDK_KEY_PRESS_MASK |
-                        GDK_KEY_RELEASE_MASK |
-                        GDK_ENTER_NOTIFY_MASK |
-                        GDK_LEAVE_NOTIFY_MASK |
-                        GDK_POINTER_MOTION_MASK |
-                        GDK_POINTER_MOTION_HINT_MASK |
-                        GDK_SCROLL_MASK |
-                        GDK_FOCUS_CHANGE_MASK);
+  gtk_widget_set_events(
+      glarea_, GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK |
+                   GDK_KEY_PRESS_MASK | GDK_KEY_RELEASE_MASK |
+                   GDK_ENTER_NOTIFY_MASK | GDK_LEAVE_NOTIFY_MASK |
+                   GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK |
+                   GDK_SCROLL_MASK | GDK_FOCUS_CHANGE_MASK);
   g_signal_connect(G_OBJECT(glarea_), "button_press_event",
                    G_CALLBACK(&BrowserWindowOsrGtk::ClickEvent), this);
   g_signal_connect(G_OBJECT(glarea_), "button_release_event",
@@ -1456,9 +1452,8 @@ gint BrowserWindowOsrGtk::KeyEvent(GtkWidget* widget,
 
   // If ctrl key is pressed down, then control character shall be input.
   if (key_event.modifiers & EVENTFLAG_CONTROL_DOWN) {
-    key_event.character =
-      GetControlCharacter(windows_key_code,
-                          key_event.modifiers & EVENTFLAG_SHIFT_DOWN);
+    key_event.character = GetControlCharacter(
+        windows_key_code, key_event.modifiers & EVENTFLAG_SHIFT_DOWN);
   } else {
     key_event.character = key_event.unmodified_character;
   }
@@ -1574,7 +1569,7 @@ gint BrowserWindowOsrGtk::FocusEvent(GtkWidget* widget,
   REQUIRE_MAIN_THREAD();
 
   if (self->browser_.get())
-     self->browser_->GetHost()->SendFocusEvent(event->in == TRUE);
+    self->browser_->GetHost()->SendFocusEvent(event->in == TRUE);
   return TRUE;
 }
 
@@ -1582,8 +1577,7 @@ bool BrowserWindowOsrGtk::IsOverPopupWidget(int x, int y) const {
   const CefRect& rc = renderer_.popup_rect();
   int popup_right = rc.x + rc.width;
   int popup_bottom = rc.y + rc.height;
-  return (x >= rc.x) && (x < popup_right) &&
-         (y >= rc.y) && (y < popup_bottom);
+  return (x >= rc.x) && (x < popup_right) && (y >= rc.y) && (y < popup_bottom);
 }
 
 int BrowserWindowOsrGtk::GetPopupXOffset() const {
@@ -1669,11 +1663,8 @@ void BrowserWindowOsrGtk::RegisterDragDrop() {
                    G_CALLBACK(&BrowserWindowOsrGtk::DragEnd), this);
 
   // Destination widget and its events.
-  gtk_drag_dest_set(glarea_,
-                    (GtkDestDefaults) 0,
-                    (GtkTargetEntry*) NULL,
-                    0,
-                    (GdkDragAction) GDK_ACTION_COPY);
+  gtk_drag_dest_set(glarea_, (GtkDestDefaults)0, (GtkTargetEntry*)NULL, 0,
+                    (GdkDragAction)GDK_ACTION_COPY);
   g_signal_connect(G_OBJECT(glarea_), "drag_motion",
                    G_CALLBACK(&BrowserWindowOsrGtk::DragMotion), this);
   g_signal_connect(G_OBJECT(glarea_), "drag_leave",
@@ -1723,20 +1714,18 @@ void BrowserWindowOsrGtk::DragBegin(GtkWidget* widget,
   int pixel_width = 0;
   int pixel_height = 0;
   CefRefPtr<CefBinaryValue> image_binary =
-      self->drag_data_->GetImage()->GetAsPNG(self->device_scale_factor_,
-                                             true,
-                                             pixel_width,
-                                             pixel_height);
+      self->drag_data_->GetImage()->GetAsPNG(self->device_scale_factor_, true,
+                                             pixel_width, pixel_height);
   if (!image_binary) {
     LOG(ERROR) << "Failed to set drag icon, drag image error";
     return;
   }
   size_t image_size = image_binary->GetSize();
-  guint8* image_buffer = (guint8*) malloc(image_size);  // must free
-  image_binary->GetData((void*) image_buffer, image_size, 0);
+  guint8* image_buffer = (guint8*)malloc(image_size);  // must free
+  image_binary->GetData((void*)image_buffer, image_size, 0);
   GdkPixbufLoader* loader = NULL;  // must unref
-  GError* error = NULL;  // must free
-  GdkPixbuf* pixbuf = NULL;  // owned by loader
+  GError* error = NULL;            // must free
+  GdkPixbuf* pixbuf = NULL;        // owned by loader
   gboolean success = FALSE;
   loader = gdk_pixbuf_loader_new_with_type("png", &error);
   if (error == NULL && loader) {
@@ -1853,7 +1842,7 @@ gboolean BrowserWindowOsrGtk::DragMotion(GtkWidget* widget,
     return TRUE;
   } else {
     LOG(WARNING) << "Invalid drag destination widget";
-    gdk_drag_status(drag_context, (GdkDragAction) 0, time);
+    gdk_drag_status(drag_context, (GdkDragAction)0, time);
     return FALSE;
   }
 }
@@ -1890,8 +1879,7 @@ gboolean BrowserWindowOsrGtk::DragFailed(GtkWidget* widget,
   // Send drag end coordinates and system drag ended event.
   if (self->browser_) {
     // Real coordinates not available.
-    self->browser_->GetHost()->DragSourceEndedAt(-1, -1,
-                                                 self->drag_operation_);
+    self->browser_->GetHost()->DragSourceEndedAt(-1, -1, self->drag_operation_);
     self->browser_->GetHost()->DragSourceSystemDragEnded();
   }
 

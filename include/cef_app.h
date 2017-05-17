@@ -34,7 +34,6 @@
 // tools directory for more information.
 //
 
-
 #ifndef CEF_INCLUDE_CEF_APP_H_
 #define CEF_INCLUDE_CEF_APP_H_
 #pragma once
@@ -159,8 +158,7 @@ class CefApp : public virtual CefBaseRefCounted {
   /*--cef(optional_param=process_type)--*/
   virtual void OnBeforeCommandLineProcessing(
       const CefString& process_type,
-      CefRefPtr<CefCommandLine> command_line) {
-  }
+      CefRefPtr<CefCommandLine> command_line) {}
 
   ///
   // Provides an opportunity to register custom schemes. Do not keep a reference
@@ -170,8 +168,7 @@ class CefApp : public virtual CefBaseRefCounted {
   ///
   /*--cef()--*/
   virtual void OnRegisterCustomSchemes(
-      CefRawPtr<CefSchemeRegistrar> registrar) {
-  }
+      CefRawPtr<CefSchemeRegistrar> registrar) {}
 
   ///
   // Return the handler for resource bundle events. If

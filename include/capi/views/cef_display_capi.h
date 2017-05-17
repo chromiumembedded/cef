@@ -33,6 +33,8 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
+// $hash=20e9f8cdab0325b3d860128a946f3120563fa08e$
+//
 
 #ifndef CEF_INCLUDE_CAPI_VIEWS_CEF_DISPLAY_CAPI_H_
 #define CEF_INCLUDE_CAPI_VIEWS_CEF_DISPLAY_CAPI_H_
@@ -43,7 +45,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
 
 ///
 // This structure typically, but not always, corresponds to a physical display
@@ -62,7 +63,7 @@ typedef struct _cef_display_t {
   ///
   // Returns the unique identifier for this Display.
   ///
-  int64 (CEF_CALLBACK *get_id)(struct _cef_display_t* self);
+  int64(CEF_CALLBACK* get_id)(struct _cef_display_t* self);
 
   ///
   // Returns this Display's device pixel scale factor. This specifies how much
@@ -70,39 +71,38 @@ typedef struct _cef_display_t {
   // standard displays (which is around 100~120dpi). The potential return values
   // differ by platform.
   ///
-  float (CEF_CALLBACK *get_device_scale_factor)(struct _cef_display_t* self);
+  float(CEF_CALLBACK* get_device_scale_factor)(struct _cef_display_t* self);
 
   ///
   // Convert |point| from density independent pixels (DIP) to pixel coordinates
   // using this Display's device scale factor.
   ///
-  void (CEF_CALLBACK *convert_point_to_pixels)(struct _cef_display_t* self,
-      cef_point_t* point);
+  void(CEF_CALLBACK* convert_point_to_pixels)(struct _cef_display_t* self,
+                                              cef_point_t* point);
 
   ///
   // Convert |point| from pixel coordinates to density independent pixels (DIP)
   // using this Display's device scale factor.
   ///
-  void (CEF_CALLBACK *convert_point_from_pixels)(struct _cef_display_t* self,
-      cef_point_t* point);
+  void(CEF_CALLBACK* convert_point_from_pixels)(struct _cef_display_t* self,
+                                                cef_point_t* point);
 
   ///
   // Returns this Display's bounds. This is the full size of the display.
   ///
-  cef_rect_t (CEF_CALLBACK *get_bounds)(struct _cef_display_t* self);
+  cef_rect_t(CEF_CALLBACK* get_bounds)(struct _cef_display_t* self);
 
   ///
   // Returns this Display's work area. This excludes areas of the display that
   // are occupied for window manager toolbars, etc.
   ///
-  cef_rect_t (CEF_CALLBACK *get_work_area)(struct _cef_display_t* self);
+  cef_rect_t(CEF_CALLBACK* get_work_area)(struct _cef_display_t* self);
 
   ///
   // Returns this Display's rotation in degrees.
   ///
-  int (CEF_CALLBACK *get_rotation)(struct _cef_display_t* self);
+  int(CEF_CALLBACK* get_rotation)(struct _cef_display_t* self);
 } cef_display_t;
-
 
 ///
 // Returns the primary Display.
@@ -114,7 +114,8 @@ CEF_EXPORT cef_display_t* cef_display_get_primary();
 // |point| is in pixel coordinates instead of density independent pixels (DIP).
 ///
 CEF_EXPORT cef_display_t* cef_display_get_nearest_point(
-    const cef_point_t* point, int input_pixel_coords);
+    const cef_point_t* point,
+    int input_pixel_coords);
 
 ///
 // Returns the Display that most closely intersects |bounds|.  Set
@@ -122,7 +123,8 @@ CEF_EXPORT cef_display_t* cef_display_get_nearest_point(
 // of density independent pixels (DIP).
 ///
 CEF_EXPORT cef_display_t* cef_display_get_matching_bounds(
-    const cef_rect_t* bounds, int input_pixel_coords);
+    const cef_rect_t* bounds,
+    int input_pixel_coords);
 
 ///
 // Returns the total number of Displays. Mirrored displays are excluded; this
@@ -135,8 +137,7 @@ CEF_EXPORT size_t cef_display_get_count();
 // intended to return distinct, usable displays.
 ///
 CEF_EXPORT void cef_display_get_alls(size_t* displaysCount,
-    cef_display_t** displays);
-
+                                     cef_display_t** displays);
 
 #ifdef __cplusplus
 }

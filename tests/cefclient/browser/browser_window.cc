@@ -10,13 +10,11 @@
 namespace client {
 
 BrowserWindow::BrowserWindow(Delegate* delegate)
-    : delegate_(delegate),
-      is_closing_(false) {
+    : delegate_(delegate), is_closing_(false) {
   DCHECK(delegate_);
 }
 
-void BrowserWindow::SetDeviceScaleFactor(float device_scale_factor) {
-}
+void BrowserWindow::SetDeviceScaleFactor(float device_scale_factor) {}
 
 float BrowserWindow::GetDeviceScaleFactor() const {
   return 1.0f;
@@ -83,7 +81,7 @@ void BrowserWindow::OnSetLoadingState(bool isLoading,
 }
 
 void BrowserWindow::OnSetDraggableRegions(
-      const std::vector<CefDraggableRegion>& regions) {
+    const std::vector<CefDraggableRegion>& regions) {
   REQUIRE_MAIN_THREAD();
   delegate_->OnSetDraggableRegions(regions);
 }

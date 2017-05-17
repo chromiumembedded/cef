@@ -29,11 +29,11 @@ CefRefPtr<CefWaitableEvent> CefWaitableEvent::CreateWaitableEvent(
 
 CefWaitableEventImpl::CefWaitableEventImpl(bool automatic_reset,
                                            bool initially_signaled)
-  : event_(automatic_reset ? base::WaitableEvent::ResetPolicy::AUTOMATIC :
-                             base::WaitableEvent::ResetPolicy::MANUAL,
-           initially_signaled ? base::WaitableEvent::InitialState::SIGNALED :
-                              base::WaitableEvent::InitialState::NOT_SIGNALED) {
-}
+    : event_(automatic_reset ? base::WaitableEvent::ResetPolicy::AUTOMATIC
+                             : base::WaitableEvent::ResetPolicy::MANUAL,
+             initially_signaled
+                 ? base::WaitableEvent::InitialState::SIGNALED
+                 : base::WaitableEvent::InitialState::NOT_SIGNALED) {}
 
 void CefWaitableEventImpl::Reset() {
   event_.Reset();

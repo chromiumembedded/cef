@@ -9,6 +9,8 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=bb001eb3753ab4ab8e4fb10ae1aadea6e5db0ffb$
+//
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_VIEWS_MENU_BUTTON_DELEGATE_CPPTOC_H_
 #define CEF_LIBCEF_DLL_CPPTOC_VIEWS_MENU_BUTTON_DELEGATE_CPPTOC_H_
@@ -18,17 +20,18 @@
 #error This file can be included wrapper-side only
 #endif
 
-#include "include/views/cef_menu_button_delegate.h"
+#include "include/capi/views/cef_menu_button_capi.h"
 #include "include/capi/views/cef_menu_button_delegate_capi.h"
 #include "include/views/cef_menu_button.h"
-#include "include/capi/views/cef_menu_button_capi.h"
+#include "include/views/cef_menu_button_delegate.h"
 #include "libcef_dll/cpptoc/cpptoc_ref_counted.h"
 
 // Wrap a C++ class with a C structure.
 // This class may be instantiated and accessed wrapper-side only.
 class CefMenuButtonDelegateCppToC
     : public CefCppToCRefCounted<CefMenuButtonDelegateCppToC,
-        CefMenuButtonDelegate, cef_menu_button_delegate_t> {
+                                 CefMenuButtonDelegate,
+                                 cef_menu_button_delegate_t> {
  public:
   CefMenuButtonDelegateCppToC();
 };

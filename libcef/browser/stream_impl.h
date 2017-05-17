@@ -124,15 +124,9 @@ class CefHandlerReader : public CefStreamReader {
   int Seek(int64 offset, int whence) override {
     return handler_->Seek(offset, whence);
   }
-  int64 Tell() override {
-    return handler_->Tell();
-  }
-  int Eof() override {
-    return handler_->Eof();
-  }
-  bool MayBlock() override {
-    return handler_->MayBlock();
-  }
+  int64 Tell() override { return handler_->Tell(); }
+  int Eof() override { return handler_->Eof(); }
+  bool MayBlock() override { return handler_->MayBlock(); }
 
  protected:
   CefRefPtr<CefReadHandler> handler_;
@@ -152,15 +146,9 @@ class CefHandlerWriter : public CefStreamWriter {
   int Seek(int64 offset, int whence) override {
     return handler_->Seek(offset, whence);
   }
-  int64 Tell() override {
-    return handler_->Tell();
-  }
-  int Flush() override {
-    return handler_->Flush();
-  }
-  bool MayBlock() override {
-    return handler_->MayBlock();
-  }
+  int64 Tell() override { return handler_->Tell(); }
+  int Flush() override { return handler_->Flush(); }
+  bool MayBlock() override { return handler_->MayBlock(); }
 
  protected:
   CefRefPtr<CefWriteHandler> handler_;

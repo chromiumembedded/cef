@@ -13,9 +13,9 @@
 
 // static
 CefRefPtr<CefURLRequest> CefURLRequest::Create(
-      CefRefPtr<CefRequest> request,
-      CefRefPtr<CefURLRequestClient> client,
-      CefRefPtr<CefRequestContext> request_context) {
+    CefRefPtr<CefRequest> request,
+    CefRefPtr<CefURLRequestClient> client,
+    CefRefPtr<CefRequestContext> request_context) {
   if (!request.get() || !client.get()) {
     NOTREACHED() << "called with invalid parameters";
     return NULL;

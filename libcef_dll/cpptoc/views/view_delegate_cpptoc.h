@@ -9,6 +9,8 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=52ff851dd3f66acdab5a61d7eb87be29ba59e1ca$
+//
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_VIEWS_VIEW_DELEGATE_CPPTOC_H_
 #define CEF_LIBCEF_DLL_CPPTOC_VIEWS_VIEW_DELEGATE_CPPTOC_H_
@@ -18,17 +20,17 @@
 #error This file can be included wrapper-side only
 #endif
 
-#include "include/views/cef_view_delegate.h"
+#include "include/capi/views/cef_view_capi.h"
 #include "include/capi/views/cef_view_delegate_capi.h"
 #include "include/views/cef_view.h"
-#include "include/capi/views/cef_view_capi.h"
+#include "include/views/cef_view_delegate.h"
 #include "libcef_dll/cpptoc/cpptoc_ref_counted.h"
 
 // Wrap a C++ class with a C structure.
 // This class may be instantiated and accessed wrapper-side only.
-class CefViewDelegateCppToC
-    : public CefCppToCRefCounted<CefViewDelegateCppToC, CefViewDelegate,
-        cef_view_delegate_t> {
+class CefViewDelegateCppToC : public CefCppToCRefCounted<CefViewDelegateCppToC,
+                                                         CefViewDelegate,
+                                                         cef_view_delegate_t> {
  public:
   CefViewDelegateCppToC();
 };

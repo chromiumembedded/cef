@@ -9,6 +9,8 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=9f702354dd9771258d66cec721eba3e2ab0cd046$
+//
 
 #include <algorithm>
 #include "libcef_dll/ctocpp/browser_ctocpp.h"
@@ -16,7 +18,6 @@
 #include "libcef_dll/ctocpp/frame_ctocpp.h"
 #include "libcef_dll/ctocpp/process_message_ctocpp.h"
 #include "libcef_dll/transfer_util.h"
-
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
@@ -45,7 +46,7 @@ bool CefBrowserCToCpp::CanGoBack() {
   int _retval = _struct->can_go_back(_struct);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 void CefBrowserCToCpp::GoBack() {
@@ -70,7 +71,7 @@ bool CefBrowserCToCpp::CanGoForward() {
   int _retval = _struct->can_go_forward(_struct);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 void CefBrowserCToCpp::GoForward() {
@@ -95,7 +96,7 @@ bool CefBrowserCToCpp::IsLoading() {
   int _retval = _struct->is_loading(_struct);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 void CefBrowserCToCpp::Reload() {
@@ -158,11 +159,10 @@ bool CefBrowserCToCpp::IsSame(CefRefPtr<CefBrowser> that) {
     return false;
 
   // Execute
-  int _retval = _struct->is_same(_struct,
-      CefBrowserCToCpp::Unwrap(that));
+  int _retval = _struct->is_same(_struct, CefBrowserCToCpp::Unwrap(that));
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 bool CefBrowserCToCpp::IsPopup() {
@@ -176,7 +176,7 @@ bool CefBrowserCToCpp::IsPopup() {
   int _retval = _struct->is_popup(_struct);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 bool CefBrowserCToCpp::HasDocument() {
@@ -190,7 +190,7 @@ bool CefBrowserCToCpp::HasDocument() {
   int _retval = _struct->has_document(_struct);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 CefRefPtr<CefFrame> CefBrowserCToCpp::GetMainFrame() {
@@ -229,8 +229,7 @@ CefRefPtr<CefFrame> CefBrowserCToCpp::GetFrame(int64 identifier) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  cef_frame_t* _retval = _struct->get_frame_byident(_struct,
-      identifier);
+  cef_frame_t* _retval = _struct->get_frame_byident(_struct, identifier);
 
   // Return type: refptr_same
   return CefFrameCToCpp::Wrap(_retval);
@@ -246,8 +245,7 @@ CefRefPtr<CefFrame> CefBrowserCToCpp::GetFrame(const CefString& name) {
   // Unverified params: name
 
   // Execute
-  cef_frame_t* _retval = _struct->get_frame(_struct,
-      name.GetStruct());
+  cef_frame_t* _retval = _struct->get_frame(_struct, name.GetStruct());
 
   // Return type: refptr_same
   return CefFrameCToCpp::Wrap(_retval);
@@ -282,7 +280,7 @@ void CefBrowserCToCpp::GetFrameIdentifiers(std::vector<int64>& identifiers) {
     identifiersList = new int64[identifiersCount];
     DCHECK(identifiersList);
     if (identifiersList) {
-       memset(identifiersList, 0, sizeof(int64)*identifiersCount);
+      memset(identifiersList, 0, sizeof(int64) * identifiersCount);
     }
     if (identifiersList && identifiersSize > 0) {
       for (size_t i = 0; i < identifiersSize; ++i) {
@@ -292,9 +290,7 @@ void CefBrowserCToCpp::GetFrameIdentifiers(std::vector<int64>& identifiers) {
   }
 
   // Execute
-  _struct->get_frame_identifiers(_struct,
-      &identifiersCount,
-      identifiersList);
+  _struct->get_frame_identifiers(_struct, &identifiersCount, identifiersList);
 
   // Restore param:identifiers; type: simple_vec_byref
   identifiers.clear();
@@ -302,7 +298,7 @@ void CefBrowserCToCpp::GetFrameIdentifiers(std::vector<int64>& identifiers) {
     for (size_t i = 0; i < identifiersCount; ++i) {
       identifiers.push_back(identifiersList[i]);
     }
-    delete [] identifiersList;
+    delete[] identifiersList;
   }
 }
 
@@ -320,8 +316,7 @@ void CefBrowserCToCpp::GetFrameNames(std::vector<CefString>& names) {
     transfer_string_list_contents(names, namesList);
 
   // Execute
-  _struct->get_frame_names(_struct,
-      namesList);
+  _struct->get_frame_names(_struct, namesList);
 
   // Restore param:names; type: string_vec_byref
   if (namesList) {
@@ -331,7 +326,8 @@ void CefBrowserCToCpp::GetFrameNames(std::vector<CefString>& names) {
   }
 }
 
-bool CefBrowserCToCpp::SendProcessMessage(CefProcessId target_process,
+bool CefBrowserCToCpp::SendProcessMessage(
+    CefProcessId target_process,
     CefRefPtr<CefProcessMessage> message) {
   cef_browser_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, send_process_message))
@@ -345,30 +341,34 @@ bool CefBrowserCToCpp::SendProcessMessage(CefProcessId target_process,
     return false;
 
   // Execute
-  int _retval = _struct->send_process_message(_struct,
-      target_process,
-      CefProcessMessageCToCpp::Unwrap(message));
+  int _retval = _struct->send_process_message(
+      _struct, target_process, CefProcessMessageCToCpp::Unwrap(message));
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
-
 
 // CONSTRUCTOR - Do not edit by hand.
 
-CefBrowserCToCpp::CefBrowserCToCpp() {
-}
+CefBrowserCToCpp::CefBrowserCToCpp() {}
 
-template<> cef_browser_t* CefCToCppRefCounted<CefBrowserCToCpp, CefBrowser,
-    cef_browser_t>::UnwrapDerived(CefWrapperType type, CefBrowser* c) {
+template <>
+cef_browser_t*
+CefCToCppRefCounted<CefBrowserCToCpp, CefBrowser, cef_browser_t>::UnwrapDerived(
+    CefWrapperType type,
+    CefBrowser* c) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCppRefCounted<CefBrowserCToCpp,
-    CefBrowser, cef_browser_t>::DebugObjCt = 0;
+template <>
+base::AtomicRefCount CefCToCppRefCounted<CefBrowserCToCpp,
+                                         CefBrowser,
+                                         cef_browser_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCppRefCounted<CefBrowserCToCpp, CefBrowser,
-    cef_browser_t>::kWrapperType = WT_BROWSER;
+template <>
+CefWrapperType CefCToCppRefCounted<CefBrowserCToCpp,
+                                   CefBrowser,
+                                   cef_browser_t>::kWrapperType = WT_BROWSER;

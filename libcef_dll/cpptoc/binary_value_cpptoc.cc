@@ -9,14 +9,15 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=3bb896234f1b9fc0ee14f936f28b6585a82502db$
+//
 
 #include "libcef_dll/cpptoc/binary_value_cpptoc.h"
-
 
 // GLOBAL FUNCTIONS - Body may be edited by hand.
 
 CEF_EXPORT cef_binary_value_t* cef_binary_value_create(const void* data,
-    size_t data_size) {
+                                                       size_t data_size) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: data; type: simple_byaddr
@@ -25,14 +26,11 @@ CEF_EXPORT cef_binary_value_t* cef_binary_value_create(const void* data,
     return NULL;
 
   // Execute
-  CefRefPtr<CefBinaryValue> _retval = CefBinaryValue::Create(
-      data,
-      data_size);
+  CefRefPtr<CefBinaryValue> _retval = CefBinaryValue::Create(data, data_size);
 
   // Return type: refptr_same
   return CefBinaryValueCppToC::Wrap(_retval);
 }
-
 
 namespace {
 
@@ -67,7 +65,7 @@ int CEF_CALLBACK binary_value_is_owned(struct _cef_binary_value_t* self) {
 }
 
 int CEF_CALLBACK binary_value_is_same(struct _cef_binary_value_t* self,
-    struct _cef_binary_value_t* that) {
+                                      struct _cef_binary_value_t* that) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -87,7 +85,7 @@ int CEF_CALLBACK binary_value_is_same(struct _cef_binary_value_t* self,
 }
 
 int CEF_CALLBACK binary_value_is_equal(struct _cef_binary_value_t* self,
-    struct _cef_binary_value_t* that) {
+                                       struct _cef_binary_value_t* that) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -106,8 +104,8 @@ int CEF_CALLBACK binary_value_is_equal(struct _cef_binary_value_t* self,
   return _retval;
 }
 
-struct _cef_binary_value_t* CEF_CALLBACK binary_value_copy(
-    struct _cef_binary_value_t* self) {
+struct _cef_binary_value_t* CEF_CALLBACK
+binary_value_copy(struct _cef_binary_value_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -136,7 +134,9 @@ size_t CEF_CALLBACK binary_value_get_size(struct _cef_binary_value_t* self) {
 }
 
 size_t CEF_CALLBACK binary_value_get_data(struct _cef_binary_value_t* self,
-    void* buffer, size_t buffer_size, size_t data_offset) {
+                                          void* buffer,
+                                          size_t buffer_size,
+                                          size_t data_offset) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -148,17 +148,14 @@ size_t CEF_CALLBACK binary_value_get_data(struct _cef_binary_value_t* self,
     return 0;
 
   // Execute
-  size_t _retval = CefBinaryValueCppToC::Get(self)->GetData(
-      buffer,
-      buffer_size,
-      data_offset);
+  size_t _retval = CefBinaryValueCppToC::Get(self)->GetData(buffer, buffer_size,
+                                                            data_offset);
 
   // Return type: simple
   return _retval;
 }
 
 }  // namespace
-
 
 // CONSTRUCTOR - Do not edit by hand.
 
@@ -172,17 +169,23 @@ CefBinaryValueCppToC::CefBinaryValueCppToC() {
   GetStruct()->get_data = binary_value_get_data;
 }
 
-template<> CefRefPtr<CefBinaryValue> CefCppToCRefCounted<CefBinaryValueCppToC,
-    CefBinaryValue, cef_binary_value_t>::UnwrapDerived(CefWrapperType type,
-    cef_binary_value_t* s) {
+template <>
+CefRefPtr<CefBinaryValue>
+CefCppToCRefCounted<CefBinaryValueCppToC, CefBinaryValue, cef_binary_value_t>::
+    UnwrapDerived(CefWrapperType type, cef_binary_value_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCppToCRefCounted<CefBinaryValueCppToC,
-    CefBinaryValue, cef_binary_value_t>::DebugObjCt = 0;
+template <>
+base::AtomicRefCount CefCppToCRefCounted<CefBinaryValueCppToC,
+                                         CefBinaryValue,
+                                         cef_binary_value_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCppToCRefCounted<CefBinaryValueCppToC,
-    CefBinaryValue, cef_binary_value_t>::kWrapperType = WT_BINARY_VALUE;
+template <>
+CefWrapperType CefCppToCRefCounted<CefBinaryValueCppToC,
+                                   CefBinaryValue,
+                                   cef_binary_value_t>::kWrapperType =
+    WT_BINARY_VALUE;

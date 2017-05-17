@@ -9,6 +9,8 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=c6eb4bd13fab27f265a692432a8f17de2b9ac471$
+//
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_VIEWS_PANEL_CPPTOC_H_
 #define CEF_LIBCEF_DLL_CPPTOC_VIEWS_PANEL_CPPTOC_H_
@@ -18,16 +20,16 @@
 #error This file can be included DLL-side only
 #endif
 
-#include "include/views/cef_panel.h"
-#include "include/capi/views/cef_panel_capi.h"
-#include "include/views/cef_box_layout.h"
 #include "include/capi/views/cef_box_layout_capi.h"
-#include "include/views/cef_fill_layout.h"
 #include "include/capi/views/cef_fill_layout_capi.h"
-#include "include/views/cef_layout.h"
 #include "include/capi/views/cef_layout_capi.h"
-#include "include/views/cef_window.h"
+#include "include/capi/views/cef_panel_capi.h"
 #include "include/capi/views/cef_window_capi.h"
+#include "include/views/cef_box_layout.h"
+#include "include/views/cef_fill_layout.h"
+#include "include/views/cef_layout.h"
+#include "include/views/cef_panel.h"
+#include "include/views/cef_window.h"
 #include "libcef_dll/cpptoc/cpptoc_ref_counted.h"
 
 // Wrap a C++ class with a C structure.

@@ -27,7 +27,6 @@ using blink::WebURLLoader;
 using blink::WebURLRequest;
 using blink::WebURLResponse;
 
-
 namespace {
 
 class CefWebURLLoaderClient : public blink::WebURLLoaderClient {
@@ -37,20 +36,14 @@ class CefWebURLLoaderClient : public blink::WebURLLoaderClient {
   ~CefWebURLLoaderClient() override;
 
   // blink::WebURLLoaderClient methods.
-  bool WillFollowRedirect(
-      WebURLRequest& newRequest,
-      const WebURLResponse& redirectResponse) override;
-  void DidSendData(
-      unsigned long long bytesSent,
-      unsigned long long totalBytesToBeSent) override;
-  void DidReceiveResponse(
-      const WebURLResponse& response) override;
-  void DidDownloadData(int dataLength,
-                       int encodedDataLength) override;
-  void DidReceiveData(const char* data,
-                      int dataLength) override;
-  void DidReceiveCachedMetadata(const char* data,
-                                int dataLength) override;
+  bool WillFollowRedirect(WebURLRequest& newRequest,
+                          const WebURLResponse& redirectResponse) override;
+  void DidSendData(unsigned long long bytesSent,
+                   unsigned long long totalBytesToBeSent) override;
+  void DidReceiveResponse(const WebURLResponse& response) override;
+  void DidDownloadData(int dataLength, int encodedDataLength) override;
+  void DidReceiveData(const char* data, int dataLength) override;
+  void DidReceiveCachedMetadata(const char* data, int dataLength) override;
   void DidFinishLoading(double finishTime,
                         int64_t totalEncodedDataLength,
                         int64_t totalEncodedBodyLength) override;
@@ -66,7 +59,6 @@ class CefWebURLLoaderClient : public blink::WebURLLoaderClient {
 
 }  // namespace
 
-
 // CefRenderURLRequest::Context -----------------------------------------------
 
 class CefRenderURLRequest::Context
@@ -75,16 +67,16 @@ class CefRenderURLRequest::Context
   Context(CefRefPtr<CefRenderURLRequest> url_request,
           CefRefPtr<CefRequest> request,
           CefRefPtr<CefURLRequestClient> client)
-    : url_request_(url_request),
-      request_(request),
-      client_(client),
-      task_runner_(base::MessageLoop::current()->task_runner()),
-      status_(UR_IO_PENDING),
-      error_code_(ERR_NONE),
-      upload_data_size_(0),
-      got_upload_progress_complete_(false),
-      download_data_received_(0),
-      download_data_total_(-1) {
+      : url_request_(url_request),
+        request_(request),
+        client_(client),
+        task_runner_(base::MessageLoop::current()->task_runner()),
+        status_(UR_IO_PENDING),
+        error_code_(ERR_NONE),
+        upload_data_size_(0),
+        got_upload_progress_complete_(false),
+        download_data_received_(0),
+        download_data_total_(-1) {
     // Mark the request as read-only.
     static_cast<CefRequestImpl*>(request_.get())->SetReadOnly(true);
   }
@@ -104,8 +96,8 @@ class CefRenderURLRequest::Context
     url_client_.reset(new CefWebURLLoaderClient(this, request_->GetFlags()));
 
     WebURLRequest urlRequest;
-    static_cast<CefRequestImpl*>(request_.get())->Get(urlRequest,
-                                                      upload_data_size_);
+    static_cast<CefRequestImpl*>(request_.get())
+        ->Get(urlRequest, upload_data_size_);
 
     loader_->LoadAsynchronously(urlRequest, url_client_.get());
     return true;
@@ -174,7 +166,7 @@ class CefRenderURLRequest::Context
 
     download_data_received_ += current;
     client_->OnDownloadProgress(url_request_.get(), download_data_received_,
-        download_data_total_);
+                                download_data_total_);
   }
 
   void OnDownloadData(const char* data, int dataLength) {
@@ -229,7 +221,6 @@ class CefRenderURLRequest::Context
   int64_t download_data_total_;
 };
 
-
 // CefWebURLLoaderClient --------------------------------------------------
 
 namespace {
@@ -237,12 +228,9 @@ namespace {
 CefWebURLLoaderClient::CefWebURLLoaderClient(
     CefRenderURLRequest::Context* context,
     int request_flags)
-  : context_(context),
-    request_flags_(request_flags) {
-}
+    : context_(context), request_flags_(request_flags) {}
 
-CefWebURLLoaderClient::~CefWebURLLoaderClient() {
-}
+CefWebURLLoaderClient::~CefWebURLLoaderClient() {}
 
 bool CefWebURLLoaderClient::WillFollowRedirect(
     WebURLRequest& newRequest,
@@ -250,24 +238,20 @@ bool CefWebURLLoaderClient::WillFollowRedirect(
   return true;
 }
 
-void CefWebURLLoaderClient::DidSendData(
-    unsigned long long bytesSent,
-    unsigned long long totalBytesToBeSent) {
+void CefWebURLLoaderClient::DidSendData(unsigned long long bytesSent,
+                                        unsigned long long totalBytesToBeSent) {
   if (request_flags_ & UR_FLAG_REPORT_UPLOAD_PROGRESS)
     context_->OnUploadProgress(bytesSent, totalBytesToBeSent);
 }
 
-void CefWebURLLoaderClient::DidReceiveResponse(
-    const WebURLResponse& response) {
+void CefWebURLLoaderClient::DidReceiveResponse(const WebURLResponse& response) {
   context_->OnResponse(response);
 }
 
 void CefWebURLLoaderClient::DidDownloadData(int dataLength,
-                                            int encodedDataLength) {
-}
+                                            int encodedDataLength) {}
 
-void CefWebURLLoaderClient::DidReceiveData(const char* data,
-                                           int dataLength) {
+void CefWebURLLoaderClient::DidReceiveData(const char* data, int dataLength) {
   context_->OnDownloadProgress(dataLength);
 
   if (!(request_flags_ & UR_FLAG_NO_DOWNLOAD_DATA))
@@ -275,8 +259,7 @@ void CefWebURLLoaderClient::DidReceiveData(const char* data,
 }
 
 void CefWebURLLoaderClient::DidReceiveCachedMetadata(const char* data,
-                                                     int dataLength) {
-}
+                                                     int dataLength) {}
 
 void CefWebURLLoaderClient::DidFinishLoading(double finishTime,
                                              int64_t totalEncodedDataLength,
@@ -290,9 +273,7 @@ void CefWebURLLoaderClient::DidFail(const WebURLError& error,
   context_->OnError(error);
 }
 
-
 }  // namespace
-
 
 // CefRenderURLRequest --------------------------------------------------------
 
@@ -302,8 +283,7 @@ CefRenderURLRequest::CefRenderURLRequest(
   context_ = new Context(this, request, client);
 }
 
-CefRenderURLRequest::~CefRenderURLRequest() {
-}
+CefRenderURLRequest::~CefRenderURLRequest() {}
 
 bool CefRenderURLRequest::Start() {
   if (!VerifyContext())

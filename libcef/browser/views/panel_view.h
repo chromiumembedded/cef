@@ -27,8 +27,7 @@ CEF_PANEL_VIEW_T class CefPanelView : public CEF_VIEW_VIEW_D {
 
   // |cef_delegate| may be nullptr.
   explicit CefPanelView(CefViewDelegateClass* cef_delegate)
-      : ParentClass(cef_delegate) {
-  }
+      : ParentClass(cef_delegate) {}
 
   // Returns the CefPanel associated with this view. See comments on
   // CefViewView::GetCefView.

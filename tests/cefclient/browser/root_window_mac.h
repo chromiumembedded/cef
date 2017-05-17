@@ -27,8 +27,7 @@ namespace client {
 // OS X implementation of a top-level native window in the browser process.
 // The methods of this class must be called on the main thread unless otherwise
 // indicated.
-class RootWindowMac : public RootWindow,
-                      public BrowserWindow::Delegate {
+class RootWindowMac : public RootWindow, public BrowserWindow::Delegate {
  public:
   // Constructor may be called on any thread.
   RootWindowMac();

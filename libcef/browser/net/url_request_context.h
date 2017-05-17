@@ -21,7 +21,7 @@ class CefURLRequestContext : public net::URLRequestContext {
 
 #if DCHECK_IS_ON()
   // Simple tracking of allocated objects.
-  static base::AtomicRefCount DebugObjCt;  // NOLINT(runtime/int)
+  static base::AtomicRefCount DebugObjCt;
 #endif
 
  private:

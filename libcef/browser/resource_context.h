@@ -86,9 +86,9 @@ class CefResourceContext : public content::ResourceContext {
 
   // Map (render_process_id, plugin_path, is_main_frame, main_frame_origin) to
   // plugin load decision.
-  typedef std::map<std::pair<std::pair<int, base::FilePath>,
-                             std::pair<bool, url::Origin>>,
-                   CefViewHostMsg_GetPluginInfo_Status>
+  typedef std::map<
+      std::pair<std::pair<int, base::FilePath>, std::pair<bool, url::Origin>>,
+      CefViewHostMsg_GetPluginInfo_Status>
       PluginLoadDecisionMap;
   PluginLoadDecisionMap plugin_load_decision_map_;
 

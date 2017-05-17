@@ -22,25 +22,27 @@
 #if !defined(HANDLE_EINTR)
 #if !DCHECK_IS_ON()
 
-#define HANDLE_EINTR(x) ({ \
-  decltype(x) eintr_wrapper_result; \
-  do { \
-    eintr_wrapper_result = (x); \
-  } while (eintr_wrapper_result == -1 && errno == EINTR); \
-  eintr_wrapper_result; \
-})
+#define HANDLE_EINTR(x)                                     \
+  ({                                                        \
+    decltype(x) eintr_wrapper_result;                       \
+    do {                                                    \
+      eintr_wrapper_result = (x);                           \
+    } while (eintr_wrapper_result == -1 && errno == EINTR); \
+    eintr_wrapper_result;                                   \
+  })
 
 #else
 
-#define HANDLE_EINTR(x) ({ \
-  int eintr_wrapper_counter = 0; \
-  decltype(x) eintr_wrapper_result; \
-  do { \
-    eintr_wrapper_result = (x); \
-  } while (eintr_wrapper_result == -1 && errno == EINTR && \
-           eintr_wrapper_counter++ < 100); \
-  eintr_wrapper_result; \
-})
+#define HANDLE_EINTR(x)                                      \
+  ({                                                         \
+    int eintr_wrapper_counter = 0;                           \
+    decltype(x) eintr_wrapper_result;                        \
+    do {                                                     \
+      eintr_wrapper_result = (x);                            \
+    } while (eintr_wrapper_result == -1 && errno == EINTR && \
+             eintr_wrapper_counter++ < 100);                 \
+    eintr_wrapper_result;                                    \
+  })
 
 #endif  // !DCHECK_IS_ON()
 #endif  // !defined(HANDLE_EINTR)
@@ -114,8 +116,8 @@ int GetTimeIntervalMilliseconds(const CefTime& from) {
   // Be careful here. CefTime has a precision of microseconds, but we want a
   // value in milliseconds. If there are 5.5ms left, should the delay be 5 or
   // 6?  It should be 6 to avoid executing delayed work too early.
-  int delay = static_cast<int>(
-      ceil((from.GetDoubleT() - now.GetDoubleT()) * 1000.0));
+  int delay =
+      static_cast<int>(ceil((from.GetDoubleT() - now.GetDoubleT()) * 1000.0));
 
   // If this value is negative, then we need to run delayed work soon.
   return delay < 0 ? 0 : delay;
@@ -125,8 +127,7 @@ struct WorkSource : public GSource {
   MainMessageLoopExternalPumpLinux* pump;
 };
 
-gboolean WorkSourcePrepare(GSource* source,
-                           gint* timeout_ms) {
+gboolean WorkSourcePrepare(GSource* source, gint* timeout_ms) {
   *timeout_ms = static_cast<WorkSource*>(source)->pump->HandlePrepare();
   // We always return FALSE, so that our timeout is honored.  If we were
   // to return TRUE, the timeout would be considered to be 0 and the poll
@@ -142,31 +143,26 @@ gboolean WorkSourceCheck(GSource* source) {
 gboolean WorkSourceDispatch(GSource* source,
                             GSourceFunc unused_func,
                             gpointer unused_data) {
-
   static_cast<WorkSource*>(source)->pump->HandleDispatch();
   // Always return TRUE so our source stays registered.
   return TRUE;
 }
 
 // I wish these could be const, but g_source_new wants non-const.
-GSourceFuncs WorkSourceFuncs = {
-  WorkSourcePrepare,
-  WorkSourceCheck,
-  WorkSourceDispatch,
-  NULL
-};
+GSourceFuncs WorkSourceFuncs = {WorkSourcePrepare, WorkSourceCheck,
+                                WorkSourceDispatch, NULL};
 
 MainMessageLoopExternalPumpLinux::MainMessageLoopExternalPumpLinux()
-  : should_quit_(false),
-    context_(g_main_context_default()),
-    wakeup_gpollfd_(new GPollFD) {
+    : should_quit_(false),
+      context_(g_main_context_default()),
+      wakeup_gpollfd_(new GPollFD) {
   // Create our wakeup pipe, which is used to flag when work was scheduled.
   int fds[2];
   int ret = pipe(fds);
   DCHECK_EQ(ret, 0);
   (void)ret;  // Prevent warning in release mode.
 
-  wakeup_pipe_read_  = fds[0];
+  wakeup_pipe_read_ = fds[0];
   wakeup_pipe_write_ = fds[1];
   wakeup_gpollfd_->fd = wakeup_pipe_read_;
   wakeup_gpollfd_->events = G_IO_IN;
@@ -231,7 +227,7 @@ void MainMessageLoopExternalPumpLinux::OnScheduleMessagePumpWork(
   // variables as we would then need locks all over. This ensures that if we
   // are sleeping in a poll that we will wake up.
   if (HANDLE_EINTR(write(wakeup_pipe_write_, &delay_ms, sizeof(int64))) !=
-                   sizeof(int64)) {
+      sizeof(int64)) {
     NOTREACHED() << "Could not write to the UI message loop wakeup pipe!";
   }
 }
@@ -293,11 +289,10 @@ bool MainMessageLoopExternalPumpLinux::IsTimerPending() {
   return GetTimeIntervalMilliseconds(delayed_work_time_) > 0;
 }
 
-} // namespace
+}  // namespace
 
 // static
-scoped_ptr<MainMessageLoopExternalPump>
-MainMessageLoopExternalPump::Create() {
+scoped_ptr<MainMessageLoopExternalPump> MainMessageLoopExternalPump::Create() {
   return scoped_ptr<MainMessageLoopExternalPump>(
       new MainMessageLoopExternalPumpLinux());
 }

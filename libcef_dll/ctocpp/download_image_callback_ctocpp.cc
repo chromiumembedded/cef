@@ -9,15 +9,17 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=65f2da73259d7f1847c8b4cdfbd8c7298469fa5c$
+//
 
 #include "libcef_dll/cpptoc/image_cpptoc.h"
 #include "libcef_dll/ctocpp/download_image_callback_ctocpp.h"
 
-
 // VIRTUAL METHODS - Body may be edited by hand.
 
 void CefDownloadImageCallbackCToCpp::OnDownloadImageFinished(
-    const CefString& image_url, int http_status_code,
+    const CefString& image_url,
+    int http_status_code,
     CefRefPtr<CefImage> image) {
   cef_download_image_callback_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_download_image_finished))
@@ -32,30 +34,36 @@ void CefDownloadImageCallbackCToCpp::OnDownloadImageFinished(
   // Unverified params: image
 
   // Execute
-  _struct->on_download_image_finished(_struct,
-      image_url.GetStruct(),
-      http_status_code,
-      CefImageCppToC::Wrap(image));
+  _struct->on_download_image_finished(_struct, image_url.GetStruct(),
+                                      http_status_code,
+                                      CefImageCppToC::Wrap(image));
 }
-
 
 // CONSTRUCTOR - Do not edit by hand.
 
-CefDownloadImageCallbackCToCpp::CefDownloadImageCallbackCToCpp() {
-}
+CefDownloadImageCallbackCToCpp::CefDownloadImageCallbackCToCpp() {}
 
-template<> cef_download_image_callback_t* CefCToCppRefCounted<CefDownloadImageCallbackCToCpp,
-    CefDownloadImageCallback, cef_download_image_callback_t>::UnwrapDerived(
-    CefWrapperType type, CefDownloadImageCallback* c) {
+template <>
+cef_download_image_callback_t* CefCToCppRefCounted<
+    CefDownloadImageCallbackCToCpp,
+    CefDownloadImageCallback,
+    cef_download_image_callback_t>::UnwrapDerived(CefWrapperType type,
+                                                  CefDownloadImageCallback* c) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCppRefCounted<CefDownloadImageCallbackCToCpp,
-    CefDownloadImageCallback, cef_download_image_callback_t>::DebugObjCt = 0;
+template <>
+base::AtomicRefCount
+    CefCToCppRefCounted<CefDownloadImageCallbackCToCpp,
+                        CefDownloadImageCallback,
+                        cef_download_image_callback_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCppRefCounted<CefDownloadImageCallbackCToCpp,
-    CefDownloadImageCallback, cef_download_image_callback_t>::kWrapperType =
-    WT_DOWNLOAD_IMAGE_CALLBACK;
+template <>
+CefWrapperType
+    CefCToCppRefCounted<CefDownloadImageCallbackCToCpp,
+                        CefDownloadImageCallback,
+                        cef_download_image_callback_t>::kWrapperType =
+        WT_DOWNLOAD_IMAGE_CALLBACK;

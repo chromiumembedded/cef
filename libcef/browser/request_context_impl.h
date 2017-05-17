@@ -75,9 +75,8 @@ class CefRequestContextImpl : public CefRequestContext {
   void ClearCertificateExceptions(
       CefRefPtr<CefCompletionCallback> callback) override;
   void CloseAllConnections(CefRefPtr<CefCompletionCallback> callback) override;
-  void ResolveHost(
-      const CefString& origin,
-      CefRefPtr<CefResolveCallback> callback) override;
+  void ResolveHost(const CefString& origin,
+                   CefRefPtr<CefResolveCallback> callback) override;
   cef_errorcode_t ResolveHostCached(
       const CefString& origin,
       std::vector<CefString>& resolved_ips) override;
@@ -133,9 +132,8 @@ class CefRequestContextImpl : public CefRequestContext {
       scoped_refptr<CefURLRequestContextGetterImpl> request_context);
   void ClearSchemeHandlerFactoriesInternal(
       scoped_refptr<CefURLRequestContextGetterImpl> request_context);
-  void PurgePluginListCacheInternal(
-      bool reload_pages,
-      CefBrowserContext* browser_context);
+  void PurgePluginListCacheInternal(bool reload_pages,
+                                    CefBrowserContext* browser_context);
   void ClearCertificateExceptionsInternal(
       CefRefPtr<CefCompletionCallback> callback,
       CefBrowserContext* browser_context);

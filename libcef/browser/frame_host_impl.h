@@ -7,8 +7,10 @@
 #pragma once
 
 #include <string>
+
 #include "include/cef_frame.h"
 #include "libcef/common/response_manager.h"
+
 #include "base/synchronization/lock.h"
 
 class CefBrowserHostImpl;
@@ -19,11 +21,11 @@ class CefBrowserHostImpl;
 class CefFrameHostImpl : public CefFrame {
  public:
   CefFrameHostImpl(CefBrowserHostImpl* browser,
-               int64 frame_id,
-               bool is_main_frame,
-               const CefString& url,
-               const CefString& name,
-               int64 parent_frame_id);
+                   int64 frame_id,
+                   bool is_main_frame,
+                   const CefString& url,
+                   const CefString& name,
+                   int64 parent_frame_id);
   ~CefFrameHostImpl() override;
 
   // CefFrame methods
@@ -40,8 +42,7 @@ class CefFrameHostImpl : public CefFrame {
   void GetText(CefRefPtr<CefStringVisitor> visitor) override;
   void LoadRequest(CefRefPtr<CefRequest> request) override;
   void LoadURL(const CefString& url) override;
-  void LoadString(const CefString& string,
-                  const CefString& url) override;
+  void LoadString(const CefString& string, const CefString& url) override;
   void ExecuteJavaScript(const CefString& jsCode,
                          const CefString& scriptUrl,
                          int startLine) override;

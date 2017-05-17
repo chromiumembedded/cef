@@ -9,10 +9,11 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=419a1382826b28236d1489946915172ab944e081$
+//
 
 #include <algorithm>
 #include "libcef_dll/cpptoc/views/display_cpptoc.h"
-
 
 // GLOBAL FUNCTIONS - Body may be edited by hand.
 
@@ -27,7 +28,8 @@ CEF_EXPORT cef_display_t* cef_display_get_primary() {
 }
 
 CEF_EXPORT cef_display_t* cef_display_get_nearest_point(
-    const cef_point_t* point, int input_pixel_coords) {
+    const cef_point_t* point,
+    int input_pixel_coords) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: point; type: simple_byref_const
@@ -36,19 +38,19 @@ CEF_EXPORT cef_display_t* cef_display_get_nearest_point(
     return NULL;
 
   // Translate param: point; type: simple_byref_const
-  CefPoint pointVal = point?*point:CefPoint();
+  CefPoint pointVal = point ? *point : CefPoint();
 
   // Execute
   CefRefPtr<CefDisplay> _retval = CefDisplay::GetDisplayNearestPoint(
-      pointVal,
-      input_pixel_coords?true:false);
+      pointVal, input_pixel_coords ? true : false);
 
   // Return type: refptr_same
   return CefDisplayCppToC::Wrap(_retval);
 }
 
 CEF_EXPORT cef_display_t* cef_display_get_matching_bounds(
-    const cef_rect_t* bounds, int input_pixel_coords) {
+    const cef_rect_t* bounds,
+    int input_pixel_coords) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: bounds; type: simple_byref_const
@@ -57,12 +59,11 @@ CEF_EXPORT cef_display_t* cef_display_get_matching_bounds(
     return NULL;
 
   // Translate param: bounds; type: simple_byref_const
-  CefRect boundsVal = bounds?*bounds:CefRect();
+  CefRect boundsVal = bounds ? *bounds : CefRect();
 
   // Execute
   CefRefPtr<CefDisplay> _retval = CefDisplay::GetDisplayMatchingBounds(
-      boundsVal,
-      input_pixel_coords?true:false);
+      boundsVal, input_pixel_coords ? true : false);
 
   // Return type: refptr_same
   return CefDisplayCppToC::Wrap(_retval);
@@ -79,7 +80,7 @@ CEF_EXPORT size_t cef_display_get_count() {
 }
 
 CEF_EXPORT void cef_display_get_alls(size_t* displaysCount,
-    cef_display_t** displays) {
+                                     cef_display_t** displays) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: displays; type: refptr_vec_same_byref
@@ -88,7 +89,7 @@ CEF_EXPORT void cef_display_get_alls(size_t* displaysCount,
     return;
 
   // Translate param: displays; type: refptr_vec_same_byref
-  std::vector<CefRefPtr<CefDisplay> > displaysList;
+  std::vector<CefRefPtr<CefDisplay>> displaysList;
   if (displaysCount && *displaysCount > 0 && displays) {
     for (size_t i = 0; i < *displaysCount; ++i) {
       displaysList.push_back(CefDisplayCppToC::Unwrap(displays[i]));
@@ -96,8 +97,7 @@ CEF_EXPORT void cef_display_get_alls(size_t* displaysCount,
   }
 
   // Execute
-  CefDisplay::GetAllDisplays(
-      displaysList);
+  CefDisplay::GetAllDisplays(displaysList);
 
   // Restore param: displays; type: refptr_vec_same_byref
   if (displaysCount && displays) {
@@ -109,7 +109,6 @@ CEF_EXPORT void cef_display_get_alls(size_t* displaysCount,
     }
   }
 }
-
 
 namespace {
 
@@ -129,8 +128,8 @@ int64 CEF_CALLBACK display_get_id(struct _cef_display_t* self) {
   return _retval;
 }
 
-float CEF_CALLBACK display_get_device_scale_factor(
-    struct _cef_display_t* self) {
+float CEF_CALLBACK
+display_get_device_scale_factor(struct _cef_display_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -145,7 +144,7 @@ float CEF_CALLBACK display_get_device_scale_factor(
 }
 
 void CEF_CALLBACK display_convert_point_to_pixels(struct _cef_display_t* self,
-    cef_point_t* point) {
+                                                  cef_point_t* point) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -157,11 +156,10 @@ void CEF_CALLBACK display_convert_point_to_pixels(struct _cef_display_t* self,
     return;
 
   // Translate param: point; type: simple_byref
-  CefPoint pointVal = point?*point:CefPoint();
+  CefPoint pointVal = point ? *point : CefPoint();
 
   // Execute
-  CefDisplayCppToC::Get(self)->ConvertPointToPixels(
-      pointVal);
+  CefDisplayCppToC::Get(self)->ConvertPointToPixels(pointVal);
 
   // Restore param: point; type: simple_byref
   if (point)
@@ -169,7 +167,7 @@ void CEF_CALLBACK display_convert_point_to_pixels(struct _cef_display_t* self,
 }
 
 void CEF_CALLBACK display_convert_point_from_pixels(struct _cef_display_t* self,
-    cef_point_t* point) {
+                                                    cef_point_t* point) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -181,11 +179,10 @@ void CEF_CALLBACK display_convert_point_from_pixels(struct _cef_display_t* self,
     return;
 
   // Translate param: point; type: simple_byref
-  CefPoint pointVal = point?*point:CefPoint();
+  CefPoint pointVal = point ? *point : CefPoint();
 
   // Execute
-  CefDisplayCppToC::Get(self)->ConvertPointFromPixels(
-      pointVal);
+  CefDisplayCppToC::Get(self)->ConvertPointFromPixels(pointVal);
 
   // Restore param: point; type: simple_byref
   if (point)
@@ -236,7 +233,6 @@ int CEF_CALLBACK display_get_rotation(struct _cef_display_t* self) {
 
 }  // namespace
 
-
 // CONSTRUCTOR - Do not edit by hand.
 
 CefDisplayCppToC::CefDisplayCppToC() {
@@ -249,17 +245,23 @@ CefDisplayCppToC::CefDisplayCppToC() {
   GetStruct()->get_rotation = display_get_rotation;
 }
 
-template<> CefRefPtr<CefDisplay> CefCppToCRefCounted<CefDisplayCppToC,
-    CefDisplay, cef_display_t>::UnwrapDerived(CefWrapperType type,
+template <>
+CefRefPtr<CefDisplay>
+CefCppToCRefCounted<CefDisplayCppToC, CefDisplay, cef_display_t>::UnwrapDerived(
+    CefWrapperType type,
     cef_display_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCppToCRefCounted<CefDisplayCppToC,
-    CefDisplay, cef_display_t>::DebugObjCt = 0;
+template <>
+base::AtomicRefCount CefCppToCRefCounted<CefDisplayCppToC,
+                                         CefDisplay,
+                                         cef_display_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCppToCRefCounted<CefDisplayCppToC, CefDisplay,
-    cef_display_t>::kWrapperType = WT_DISPLAY;
+template <>
+CefWrapperType CefCppToCRefCounted<CefDisplayCppToC,
+                                   CefDisplay,
+                                   cef_display_t>::kWrapperType = WT_DISPLAY;

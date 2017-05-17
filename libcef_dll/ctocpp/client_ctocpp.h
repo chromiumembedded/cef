@@ -9,6 +9,8 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=c5a433652b493e327563d0aad569dec2416fdf42$
+//
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_CLIENT_CTOCPP_H_
 #define CEF_LIBCEF_DLL_CTOCPP_CLIENT_CTOCPP_H_
@@ -18,8 +20,8 @@
 #error This file can be included DLL-side only
 #endif
 
-#include "include/cef_client.h"
 #include "include/capi/cef_client_capi.h"
+#include "include/cef_client.h"
 #include "libcef_dll/ctocpp/ctocpp_ref_counted.h"
 
 // Wrap a C structure with a C++ class.
@@ -45,8 +47,8 @@ class CefClientCToCpp
   CefRefPtr<CefRenderHandler> GetRenderHandler() override;
   CefRefPtr<CefRequestHandler> GetRequestHandler() override;
   bool OnProcessMessageReceived(CefRefPtr<CefBrowser> browser,
-      CefProcessId source_process,
-      CefRefPtr<CefProcessMessage> message) override;
+                                CefProcessId source_process,
+                                CefRefPtr<CefProcessMessage> message) override;
 };
 
 #endif  // CEF_LIBCEF_DLL_CTOCPP_CLIENT_CTOCPP_H_

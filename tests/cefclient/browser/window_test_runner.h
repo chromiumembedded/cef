@@ -16,7 +16,10 @@ namespace window_test {
 class WindowTestRunner {
  public:
   virtual void SetPos(CefRefPtr<CefBrowser> browser,
-                      int x, int y, int width, int height) = 0;
+                      int x,
+                      int y,
+                      int width,
+                      int height) = 0;
   virtual void Minimize(CefRefPtr<CefBrowser> browser) = 0;
   virtual void Maximize(CefRefPtr<CefBrowser> browser) = 0;
   virtual void Restore(CefRefPtr<CefBrowser> browser) = 0;

@@ -13,8 +13,7 @@ class KeySystemProperties;
 }
 
 // Register the key systems supported by populating |key_systems_properties|.
-void AddCefKeySystems(
-    std::vector<std::unique_ptr<media::KeySystemProperties>>*
-        key_systems_properties);
+void AddCefKeySystems(std::vector<std::unique_ptr<media::KeySystemProperties>>*
+                          key_systems_properties);
 
 #endif  // CEF_LIBCEF_RENDERER_MEDIA_CEF_KEY_SYSTEMS_H_

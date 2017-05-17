@@ -52,15 +52,14 @@ class ShutdownNotifierFactory
 
   ShutdownNotifierFactory()
       : BrowserContextKeyedServiceShutdownNotifierFactory(
-            "CefPrintingMessageFilter") {
-  }
+            "CefPrintingMessageFilter") {}
   ~ShutdownNotifierFactory() override {}
 
   DISALLOW_COPY_AND_ASSIGN(ShutdownNotifierFactory);
 };
 
-base::LazyInstance<ShutdownNotifierFactory>::Leaky
-    g_shutdown_notifier_factory = LAZY_INSTANCE_INITIALIZER;
+base::LazyInstance<ShutdownNotifierFactory>::Leaky g_shutdown_notifier_factory =
+    LAZY_INSTANCE_INITIALIZER;
 
 // static
 ShutdownNotifierFactory* ShutdownNotifierFactory::GetInstance() {
@@ -100,7 +99,8 @@ void CefPrintingMessageFilter::ShutdownOnUIThread() {
 }
 
 void CefPrintingMessageFilter::OverrideThreadForMessage(
-    const IPC::Message& message, BrowserThread::ID* thread) {
+    const IPC::Message& message,
+    BrowserThread::ID* thread) {
 #if defined(OS_ANDROID)
   if (message.type() == PrintHostMsg_AllocateTempFileForPrinting::ID ||
       message.type() == PrintHostMsg_TempFileForPrintingWritten::ID) {
@@ -235,7 +235,8 @@ void CefPrintingMessageFilter::OnScriptedPrintReply(
 }
 
 void CefPrintingMessageFilter::OnUpdatePrintSettings(
-    int document_cookie, const base::DictionaryValue& job_settings,
+    int document_cookie,
+    const base::DictionaryValue& job_settings,
     IPC::Message* reply_msg) {
   std::unique_ptr<base::DictionaryValue> new_settings(job_settings.DeepCopy());
 

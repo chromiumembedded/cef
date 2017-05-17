@@ -21,8 +21,7 @@ class WebFrame;
 // associated renderer WebFrame will close.
 class CefFrameImpl : public CefFrame {
  public:
-  CefFrameImpl(CefBrowserImpl* browser,
-               blink::WebFrame* frame);
+  CefFrameImpl(CefBrowserImpl* browser, blink::WebFrame* frame);
   ~CefFrameImpl() override;
 
   // CefFrame implementation.
@@ -39,8 +38,7 @@ class CefFrameImpl : public CefFrame {
   void GetText(CefRefPtr<CefStringVisitor> visitor) override;
   void LoadRequest(CefRefPtr<CefRequest> request) override;
   void LoadURL(const CefString& url) override;
-  void LoadString(const CefString& string,
-                  const CefString& url) override;
+  void LoadString(const CefString& string, const CefString& url) override;
   void ExecuteJavaScript(const CefString& jsCode,
                          const CefString& scriptUrl,
                          int startLine) override;

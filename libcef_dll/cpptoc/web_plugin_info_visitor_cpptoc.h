@@ -9,6 +9,8 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=89c5f96f547bcb4d721e63e583579d5ac343c26f$
+//
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_WEB_PLUGIN_INFO_VISITOR_CPPTOC_H_
 #define CEF_LIBCEF_DLL_CPPTOC_WEB_PLUGIN_INFO_VISITOR_CPPTOC_H_
@@ -18,17 +20,18 @@
 #error This file can be included wrapper-side only
 #endif
 
-#include "include/cef_web_plugin.h"
+#include "include/capi/cef_browser_capi.h"
 #include "include/capi/cef_web_plugin_capi.h"
 #include "include/cef_browser.h"
-#include "include/capi/cef_browser_capi.h"
+#include "include/cef_web_plugin.h"
 #include "libcef_dll/cpptoc/cpptoc_ref_counted.h"
 
 // Wrap a C++ class with a C structure.
 // This class may be instantiated and accessed wrapper-side only.
 class CefWebPluginInfoVisitorCppToC
     : public CefCppToCRefCounted<CefWebPluginInfoVisitorCppToC,
-        CefWebPluginInfoVisitor, cef_web_plugin_info_visitor_t> {
+                                 CefWebPluginInfoVisitor,
+                                 cef_web_plugin_info_visitor_t> {
  public:
   CefWebPluginInfoVisitorCppToC();
 };

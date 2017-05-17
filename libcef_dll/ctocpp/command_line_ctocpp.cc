@@ -9,11 +9,12 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=2d277a1a0ba292fb02e44230912d75b438a7fb4f$
+//
 
 #include "include/cef_version.h"
 #include "libcef_dll/ctocpp/command_line_ctocpp.h"
 #include "libcef_dll/transfer_util.h"
-
 
 // STATIC METHODS - Body may be edited by hand.
 
@@ -51,7 +52,6 @@ CefRefPtr<CefCommandLine> CefCommandLine::GetGlobalCommandLine() {
   return CefCommandLineCToCpp::Wrap(_retval);
 }
 
-
 // VIRTUAL METHODS - Body may be edited by hand.
 
 bool CefCommandLineCToCpp::IsValid() {
@@ -65,7 +65,7 @@ bool CefCommandLineCToCpp::IsValid() {
   int _retval = _struct->is_valid(_struct);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 bool CefCommandLineCToCpp::IsReadOnly() {
@@ -79,7 +79,7 @@ bool CefCommandLineCToCpp::IsReadOnly() {
   int _retval = _struct->is_read_only(_struct);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 CefRefPtr<CefCommandLine> CefCommandLineCToCpp::Copy() {
@@ -109,9 +109,7 @@ void CefCommandLineCToCpp::InitFromArgv(int argc, const char* const* argv) {
     return;
 
   // Execute
-  _struct->init_from_argv(_struct,
-      argc,
-      argv);
+  _struct->init_from_argv(_struct, argc, argv);
 }
 
 void CefCommandLineCToCpp::InitFromString(const CefString& command_line) {
@@ -127,8 +125,7 @@ void CefCommandLineCToCpp::InitFromString(const CefString& command_line) {
     return;
 
   // Execute
-  _struct->init_from_string(_struct,
-      command_line.GetStruct());
+  _struct->init_from_string(_struct, command_line.GetStruct());
 }
 
 void CefCommandLineCToCpp::Reset() {
@@ -156,8 +153,7 @@ void CefCommandLineCToCpp::GetArgv(std::vector<CefString>& argv) {
     transfer_string_list_contents(argv, argvList);
 
   // Execute
-  _struct->get_argv(_struct,
-      argvList);
+  _struct->get_argv(_struct, argvList);
 
   // Restore param:argv; type: string_vec_byref
   if (argvList) {
@@ -212,8 +208,7 @@ void CefCommandLineCToCpp::SetProgram(const CefString& program) {
     return;
 
   // Execute
-  _struct->set_program(_struct,
-      program.GetStruct());
+  _struct->set_program(_struct, program.GetStruct());
 }
 
 bool CefCommandLineCToCpp::HasSwitches() {
@@ -227,7 +222,7 @@ bool CefCommandLineCToCpp::HasSwitches() {
   int _retval = _struct->has_switches(_struct);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 bool CefCommandLineCToCpp::HasSwitch(const CefString& name) {
@@ -243,11 +238,10 @@ bool CefCommandLineCToCpp::HasSwitch(const CefString& name) {
     return false;
 
   // Execute
-  int _retval = _struct->has_switch(_struct,
-      name.GetStruct());
+  int _retval = _struct->has_switch(_struct, name.GetStruct());
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 CefString CefCommandLineCToCpp::GetSwitchValue(const CefString& name) {
@@ -263,8 +257,8 @@ CefString CefCommandLineCToCpp::GetSwitchValue(const CefString& name) {
     return CefString();
 
   // Execute
-  cef_string_userfree_t _retval = _struct->get_switch_value(_struct,
-      name.GetStruct());
+  cef_string_userfree_t _retval =
+      _struct->get_switch_value(_struct, name.GetStruct());
 
   // Return type: string
   CefString _retvalStr;
@@ -286,8 +280,7 @@ void CefCommandLineCToCpp::GetSwitches(SwitchMap& switches) {
     transfer_string_map_contents(switches, switchesMap);
 
   // Execute
-  _struct->get_switches(_struct,
-      switchesMap);
+  _struct->get_switches(_struct, switchesMap);
 
   // Restore param:switches; type: string_map_single_byref
   if (switchesMap) {
@@ -310,12 +303,11 @@ void CefCommandLineCToCpp::AppendSwitch(const CefString& name) {
     return;
 
   // Execute
-  _struct->append_switch(_struct,
-      name.GetStruct());
+  _struct->append_switch(_struct, name.GetStruct());
 }
 
 void CefCommandLineCToCpp::AppendSwitchWithValue(const CefString& name,
-    const CefString& value) {
+                                                 const CefString& value) {
   cef_command_line_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, append_switch_with_value))
     return;
@@ -332,9 +324,8 @@ void CefCommandLineCToCpp::AppendSwitchWithValue(const CefString& name,
     return;
 
   // Execute
-  _struct->append_switch_with_value(_struct,
-      name.GetStruct(),
-      value.GetStruct());
+  _struct->append_switch_with_value(_struct, name.GetStruct(),
+                                    value.GetStruct());
 }
 
 bool CefCommandLineCToCpp::HasArguments() {
@@ -348,7 +339,7 @@ bool CefCommandLineCToCpp::HasArguments() {
   int _retval = _struct->has_arguments(_struct);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 void CefCommandLineCToCpp::GetArguments(ArgumentList& arguments) {
@@ -365,8 +356,7 @@ void CefCommandLineCToCpp::GetArguments(ArgumentList& arguments) {
     transfer_string_list_contents(arguments, argumentsList);
 
   // Execute
-  _struct->get_arguments(_struct,
-      argumentsList);
+  _struct->get_arguments(_struct, argumentsList);
 
   // Restore param:arguments; type: string_vec_byref
   if (argumentsList) {
@@ -389,8 +379,7 @@ void CefCommandLineCToCpp::AppendArgument(const CefString& argument) {
     return;
 
   // Execute
-  _struct->append_argument(_struct,
-      argument.GetStruct());
+  _struct->append_argument(_struct, argument.GetStruct());
 }
 
 void CefCommandLineCToCpp::PrependWrapper(const CefString& wrapper) {
@@ -406,27 +395,30 @@ void CefCommandLineCToCpp::PrependWrapper(const CefString& wrapper) {
     return;
 
   // Execute
-  _struct->prepend_wrapper(_struct,
-      wrapper.GetStruct());
+  _struct->prepend_wrapper(_struct, wrapper.GetStruct());
 }
-
 
 // CONSTRUCTOR - Do not edit by hand.
 
-CefCommandLineCToCpp::CefCommandLineCToCpp() {
-}
+CefCommandLineCToCpp::CefCommandLineCToCpp() {}
 
-template<> cef_command_line_t* CefCToCppRefCounted<CefCommandLineCToCpp,
-    CefCommandLine, cef_command_line_t>::UnwrapDerived(CefWrapperType type,
-    CefCommandLine* c) {
+template <>
+cef_command_line_t*
+CefCToCppRefCounted<CefCommandLineCToCpp, CefCommandLine, cef_command_line_t>::
+    UnwrapDerived(CefWrapperType type, CefCommandLine* c) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCppRefCounted<CefCommandLineCToCpp,
-    CefCommandLine, cef_command_line_t>::DebugObjCt = 0;
+template <>
+base::AtomicRefCount CefCToCppRefCounted<CefCommandLineCToCpp,
+                                         CefCommandLine,
+                                         cef_command_line_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCppRefCounted<CefCommandLineCToCpp,
-    CefCommandLine, cef_command_line_t>::kWrapperType = WT_COMMAND_LINE;
+template <>
+CefWrapperType CefCToCppRefCounted<CefCommandLineCToCpp,
+                                   CefCommandLine,
+                                   cef_command_line_t>::kWrapperType =
+    WT_COMMAND_LINE;

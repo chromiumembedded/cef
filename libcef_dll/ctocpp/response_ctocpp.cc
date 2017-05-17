@@ -9,10 +9,11 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=874b9373e3311b3f0828c5c47d88500d268d4825$
+//
 
 #include "libcef_dll/ctocpp/response_ctocpp.h"
 #include "libcef_dll/transfer_util.h"
-
 
 // STATIC METHODS - Body may be edited by hand.
 
@@ -25,7 +26,6 @@ CefRefPtr<CefResponse> CefResponse::Create() {
   // Return type: refptr_same
   return CefResponseCToCpp::Wrap(_retval);
 }
-
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
@@ -40,7 +40,7 @@ bool CefResponseCToCpp::IsReadOnly() {
   int _retval = _struct->is_read_only(_struct);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 cef_errorcode_t CefResponseCToCpp::GetError() {
@@ -65,8 +65,7 @@ void CefResponseCToCpp::SetError(cef_errorcode_t error) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  _struct->set_error(_struct,
-      error);
+  _struct->set_error(_struct, error);
 }
 
 int CefResponseCToCpp::GetStatus() {
@@ -91,8 +90,7 @@ void CefResponseCToCpp::SetStatus(int status) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  _struct->set_status(_struct,
-      status);
+  _struct->set_status(_struct, status);
 }
 
 CefString CefResponseCToCpp::GetStatusText() {
@@ -124,8 +122,7 @@ void CefResponseCToCpp::SetStatusText(const CefString& statusText) {
     return;
 
   // Execute
-  _struct->set_status_text(_struct,
-      statusText.GetStruct());
+  _struct->set_status_text(_struct, statusText.GetStruct());
 }
 
 CefString CefResponseCToCpp::GetMimeType() {
@@ -157,8 +154,7 @@ void CefResponseCToCpp::SetMimeType(const CefString& mimeType) {
     return;
 
   // Execute
-  _struct->set_mime_type(_struct,
-      mimeType.GetStruct());
+  _struct->set_mime_type(_struct, mimeType.GetStruct());
 }
 
 CefString CefResponseCToCpp::GetHeader(const CefString& name) {
@@ -174,8 +170,8 @@ CefString CefResponseCToCpp::GetHeader(const CefString& name) {
     return CefString();
 
   // Execute
-  cef_string_userfree_t _retval = _struct->get_header(_struct,
-      name.GetStruct());
+  cef_string_userfree_t _retval =
+      _struct->get_header(_struct, name.GetStruct());
 
   // Return type: string
   CefString _retvalStr;
@@ -197,8 +193,7 @@ void CefResponseCToCpp::GetHeaderMap(HeaderMap& headerMap) {
     transfer_string_multimap_contents(headerMap, headerMapMultimap);
 
   // Execute
-  _struct->get_header_map(_struct,
-      headerMapMultimap);
+  _struct->get_header_map(_struct, headerMapMultimap);
 
   // Restore param:headerMap; type: string_map_multi_byref
   if (headerMapMultimap) {
@@ -222,30 +217,33 @@ void CefResponseCToCpp::SetHeaderMap(const HeaderMap& headerMap) {
     transfer_string_multimap_contents(headerMap, headerMapMultimap);
 
   // Execute
-  _struct->set_header_map(_struct,
-      headerMapMultimap);
+  _struct->set_header_map(_struct, headerMapMultimap);
 
   // Restore param:headerMap; type: string_map_multi_byref_const
   if (headerMapMultimap)
     cef_string_multimap_free(headerMapMultimap);
 }
 
-
 // CONSTRUCTOR - Do not edit by hand.
 
-CefResponseCToCpp::CefResponseCToCpp() {
-}
+CefResponseCToCpp::CefResponseCToCpp() {}
 
-template<> cef_response_t* CefCToCppRefCounted<CefResponseCToCpp, CefResponse,
-    cef_response_t>::UnwrapDerived(CefWrapperType type, CefResponse* c) {
+template <>
+cef_response_t*
+CefCToCppRefCounted<CefResponseCToCpp, CefResponse, cef_response_t>::
+    UnwrapDerived(CefWrapperType type, CefResponse* c) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCppRefCounted<CefResponseCToCpp,
-    CefResponse, cef_response_t>::DebugObjCt = 0;
+template <>
+base::AtomicRefCount CefCToCppRefCounted<CefResponseCToCpp,
+                                         CefResponse,
+                                         cef_response_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCppRefCounted<CefResponseCToCpp, CefResponse,
-    cef_response_t>::kWrapperType = WT_RESPONSE;
+template <>
+CefWrapperType CefCToCppRefCounted<CefResponseCToCpp,
+                                   CefResponse,
+                                   cef_response_t>::kWrapperType = WT_RESPONSE;

@@ -9,16 +9,17 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=6e7fee65b06841fd683275211fd2091a08e43473$
+//
 
 #include "libcef_dll/cpptoc/web_plugin_info_cpptoc.h"
-
 
 namespace {
 
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
-cef_string_userfree_t CEF_CALLBACK web_plugin_info_get_name(
-    struct _cef_web_plugin_info_t* self) {
+cef_string_userfree_t CEF_CALLBACK
+web_plugin_info_get_name(struct _cef_web_plugin_info_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -32,8 +33,8 @@ cef_string_userfree_t CEF_CALLBACK web_plugin_info_get_name(
   return _retval.DetachToUserFree();
 }
 
-cef_string_userfree_t CEF_CALLBACK web_plugin_info_get_path(
-    struct _cef_web_plugin_info_t* self) {
+cef_string_userfree_t CEF_CALLBACK
+web_plugin_info_get_path(struct _cef_web_plugin_info_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -47,8 +48,8 @@ cef_string_userfree_t CEF_CALLBACK web_plugin_info_get_path(
   return _retval.DetachToUserFree();
 }
 
-cef_string_userfree_t CEF_CALLBACK web_plugin_info_get_version(
-    struct _cef_web_plugin_info_t* self) {
+cef_string_userfree_t CEF_CALLBACK
+web_plugin_info_get_version(struct _cef_web_plugin_info_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -62,8 +63,8 @@ cef_string_userfree_t CEF_CALLBACK web_plugin_info_get_version(
   return _retval.DetachToUserFree();
 }
 
-cef_string_userfree_t CEF_CALLBACK web_plugin_info_get_description(
-    struct _cef_web_plugin_info_t* self) {
+cef_string_userfree_t CEF_CALLBACK
+web_plugin_info_get_description(struct _cef_web_plugin_info_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -79,7 +80,6 @@ cef_string_userfree_t CEF_CALLBACK web_plugin_info_get_description(
 
 }  // namespace
 
-
 // CONSTRUCTOR - Do not edit by hand.
 
 CefWebPluginInfoCppToC::CefWebPluginInfoCppToC() {
@@ -89,18 +89,25 @@ CefWebPluginInfoCppToC::CefWebPluginInfoCppToC() {
   GetStruct()->get_description = web_plugin_info_get_description;
 }
 
-template<> CefRefPtr<CefWebPluginInfo> CefCppToCRefCounted<CefWebPluginInfoCppToC,
-    CefWebPluginInfo, cef_web_plugin_info_t>::UnwrapDerived(
-    CefWrapperType type, cef_web_plugin_info_t* s) {
+template <>
+CefRefPtr<CefWebPluginInfo> CefCppToCRefCounted<
+    CefWebPluginInfoCppToC,
+    CefWebPluginInfo,
+    cef_web_plugin_info_t>::UnwrapDerived(CefWrapperType type,
+                                          cef_web_plugin_info_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCppToCRefCounted<CefWebPluginInfoCppToC,
-    CefWebPluginInfo, cef_web_plugin_info_t>::DebugObjCt = 0;
+template <>
+base::AtomicRefCount CefCppToCRefCounted<CefWebPluginInfoCppToC,
+                                         CefWebPluginInfo,
+                                         cef_web_plugin_info_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCppToCRefCounted<CefWebPluginInfoCppToC,
-    CefWebPluginInfo, cef_web_plugin_info_t>::kWrapperType =
+template <>
+CefWrapperType CefCppToCRefCounted<CefWebPluginInfoCppToC,
+                                   CefWebPluginInfo,
+                                   cef_web_plugin_info_t>::kWrapperType =
     WT_WEB_PLUGIN_INFO;

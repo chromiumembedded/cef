@@ -5,10 +5,10 @@
 
 #import <Cocoa/Cocoa.h>
 
-#include "tests/cefsimple/simple_app.h"
-#include "tests/cefsimple/simple_handler.h"
 #include "include/cef_application_mac.h"
 #include "include/wrapper/cef_helpers.h"
+#include "tests/cefsimple/simple_app.h"
+#include "tests/cefsimple/simple_handler.h"
 
 // Receives notifications from the application.
 @interface SimpleAppDelegate : NSObject<NSApplicationDelegate>
@@ -18,7 +18,7 @@
 
 // Provide the CefAppProtocol implementation required by CEF.
 @interface SimpleApplication : NSApplication<CefAppProtocol> {
-@private
+ @private
   BOOL handlingSendEvent_;
 }
 @end
@@ -102,11 +102,10 @@
 }
 
 - (NSApplicationTerminateReply)applicationShouldTerminate:
-      (NSApplication *)sender {
+    (NSApplication*)sender {
   return NSTerminateNow;
 }
 @end
-
 
 // Entry point function for the browser process.
 int main(int argc, char* argv[]) {
@@ -129,7 +128,7 @@ int main(int argc, char* argv[]) {
 
   // Initialize CEF for the browser process.
   CefInitialize(main_args, settings, app.get(), NULL);
-  
+
   // Create the application delegate.
   NSObject* delegate = [[SimpleAppDelegate alloc] init];
   [delegate performSelectorOnMainThread:@selector(createApplication:)

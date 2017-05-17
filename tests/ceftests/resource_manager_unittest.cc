@@ -16,32 +16,32 @@
 
 namespace {
 
-std::string CreateMessage(const std::string& name,
-                          const std::string& value) {
+std::string CreateMessage(const std::string& name, const std::string& value) {
   return name + ":" + value;
 }
 
 // The returned contents execute a JavaScript callback containing |message|.
 std::string CreateContents(const std::string& message) {
-  return  "<html><body>" + message + "<script>"
-          "window.testQuery({request:'" + message + "'});"
-          "</script></html></body>";
+  return "<html><body>" + message +
+         "<script>"
+         "window.testQuery({request:'" +
+         message +
+         "'});"
+         "</script></html></body>";
 }
 
 void WriteFile(const std::string& path, const std::string& contents) {
   int contents_size = static_cast<int>(contents.size());
-  int write_ct =
-      file_util::WriteFile(path, contents.data(), contents_size);
+  int write_ct = file_util::WriteFile(path, contents.data(), contents_size);
   EXPECT_EQ(contents_size, write_ct);
 }
 
 CefRefPtr<CefResourceHandler> CreateContentsResourceHandler(
     const std::string& message) {
   const std::string& contents = CreateContents(message);
-  CefRefPtr<CefStreamReader> stream =
-      CefStreamReader::CreateForData(
-          static_cast<void*>(const_cast<char*>(contents.data())),
-          contents.length());
+  CefRefPtr<CefStreamReader> stream = CefStreamReader::CreateForData(
+      static_cast<void*>(const_cast<char*>(contents.data())),
+      contents.length());
   return new CefStreamResourceHandler("text/html", stream);
 }
 
@@ -55,8 +55,7 @@ class ResourceManagerTestHandler : public RoutingTestHandler {
     State()
         : manager_(new CefResourceManager()),
           expected_message_ct_(0),
-          timeout_(0) {
-    }
+          timeout_(0) {}
 
     CefRefPtr<CefResourceManager> manager_;
 
@@ -76,8 +75,7 @@ class ResourceManagerTestHandler : public RoutingTestHandler {
   };
 
   explicit ResourceManagerTestHandler(State* state)
-    : state_(state),
-      current_url_(0) {
+      : state_(state), current_url_(0) {
     EXPECT_TRUE(state_);
     EXPECT_TRUE(state_->manager_.get());
     EXPECT_TRUE(!state_->urls_.empty());
@@ -127,8 +125,8 @@ class ResourceManagerTestHandler : public RoutingTestHandler {
     state_->messages_.push_back(request);
     callback->Success("");
 
-    CefPostTask(TID_UI,
-        base::Bind(&ResourceManagerTestHandler::Continue, this, browser));
+    CefPostTask(TID_UI, base::Bind(&ResourceManagerTestHandler::Continue, this,
+                                   browser));
 
     return true;
   }
@@ -194,10 +192,7 @@ class TestProvider : public CefResourceManager::Provider {
     std::string request_url_;
   };
 
-  explicit TestProvider(State* state)
-      : state_(state) {
-    EXPECT_TRUE(state_);
-  }
+  explicit TestProvider(State* state) : state_(state) { EXPECT_TRUE(state_); }
 
   ~TestProvider() {
     CEF_REQUIRE_IO_THREAD();
@@ -215,8 +210,8 @@ class TestProvider : public CefResourceManager::Provider {
     return false;
   }
 
-  void OnRequestCanceled(scoped_refptr<CefResourceManager::Request> request)
-      override {
+  void OnRequestCanceled(
+      scoped_refptr<CefResourceManager::Request> request) override {
     CEF_REQUIRE_IO_THREAD();
     EXPECT_TRUE(state_->got_on_request_);
     EXPECT_FALSE(state_->got_on_request_canceled_);
@@ -233,7 +228,7 @@ class TestProvider : public CefResourceManager::Provider {
 
 // Test that that the URL retrieved via Request::url() is parsed as expected.
 // Fragment or query components in any order should be removed.
-void TestUrlParsing(const char *kUrl) {
+void TestUrlParsing(const char* kUrl) {
   const char kRequestUrl[] = "http://test.com/ResourceManagerTest";
 
   ResourceManagerTestHandler::State state;
@@ -306,13 +301,8 @@ class SimpleTestProvider : public TestProvider {
     DO_NOTHING,
   };
 
-  SimpleTestProvider(State* state,
-                     Mode mode,
-                     CefResourceManager* manager)
-      : TestProvider(state),
-        mode_(mode),
-        manager_(manager) {
-  }
+  SimpleTestProvider(State* state, Mode mode, CefResourceManager* manager)
+      : TestProvider(state), mode_(mode), manager_(manager) {}
 
   bool OnRequest(scoped_refptr<CefResourceManager::Request> request) override {
     TestProvider::OnRequest(request);
@@ -351,13 +341,13 @@ TEST(ResourceManagerTest, ProviderNotHandled) {
   TestProvider::State provider_state2;
 
   state.manager_->AddProvider(
-      new SimpleTestProvider(&provider_state1,
-                             SimpleTestProvider::NOT_HANDLED, NULL),
-                             0, std::string());
+      new SimpleTestProvider(&provider_state1, SimpleTestProvider::NOT_HANDLED,
+                             NULL),
+      0, std::string());
   state.manager_->AddProvider(
-      new SimpleTestProvider(&provider_state2,
-                             SimpleTestProvider::NOT_HANDLED, NULL),
-                             0, std::string());
+      new SimpleTestProvider(&provider_state2, SimpleTestProvider::NOT_HANDLED,
+                             NULL),
+      0, std::string());
 
   CefRefPtr<ResourceManagerTestHandler> handler =
       new ResourceManagerTestHandler(&state);
@@ -394,13 +384,13 @@ TEST(ResourceManagerTest, ProviderContinue) {
   TestProvider::State provider_state2;
 
   state.manager_->AddProvider(
-      new SimpleTestProvider(&provider_state1,
-                             SimpleTestProvider::CONTINUE, NULL),
-                             0, std::string());
+      new SimpleTestProvider(&provider_state1, SimpleTestProvider::CONTINUE,
+                             NULL),
+      0, std::string());
   state.manager_->AddProvider(
-      new SimpleTestProvider(&provider_state2,
-                             SimpleTestProvider::CONTINUE, NULL),
-                             0, std::string());
+      new SimpleTestProvider(&provider_state2, SimpleTestProvider::CONTINUE,
+                             NULL),
+      0, std::string());
 
   CefRefPtr<ResourceManagerTestHandler> handler =
       new ResourceManagerTestHandler(&state);
@@ -437,13 +427,12 @@ TEST(ResourceManagerTest, ProviderStop) {
   TestProvider::State provider_state2;
 
   state.manager_->AddProvider(
-      new SimpleTestProvider(&provider_state1,
-                             SimpleTestProvider::STOP, NULL),
-                             0, std::string());
+      new SimpleTestProvider(&provider_state1, SimpleTestProvider::STOP, NULL),
+      0, std::string());
   state.manager_->AddProvider(
-      new SimpleTestProvider(&provider_state2,
-                             SimpleTestProvider::CONTINUE, NULL),
-                             0, std::string());
+      new SimpleTestProvider(&provider_state2, SimpleTestProvider::CONTINUE,
+                             NULL),
+      0, std::string());
 
   CefRefPtr<ResourceManagerTestHandler> handler =
       new ResourceManagerTestHandler(&state);
@@ -483,17 +472,17 @@ TEST(ResourceManagerTest, ProviderRemove) {
   TestProvider::State provider_state3;
 
   state.manager_->AddProvider(
-      new SimpleTestProvider(&provider_state1,
-                             SimpleTestProvider::REMOVE, state.manager_.get()),
-                             0, kProviderId);
+      new SimpleTestProvider(&provider_state1, SimpleTestProvider::REMOVE,
+                             state.manager_.get()),
+      0, kProviderId);
   state.manager_->AddProvider(
-      new SimpleTestProvider(&provider_state2,
-                             SimpleTestProvider::CONTINUE, NULL),
-                             0, kProviderId);
+      new SimpleTestProvider(&provider_state2, SimpleTestProvider::CONTINUE,
+                             NULL),
+      0, kProviderId);
   state.manager_->AddProvider(
-      new SimpleTestProvider(&provider_state3,
-                             SimpleTestProvider::CONTINUE, NULL),
-                             1, std::string());
+      new SimpleTestProvider(&provider_state3, SimpleTestProvider::CONTINUE,
+                             NULL),
+      1, std::string());
 
   CefRefPtr<ResourceManagerTestHandler> handler =
       new ResourceManagerTestHandler(&state);
@@ -538,18 +527,17 @@ TEST(ResourceManagerTest, ProviderRemoveAll) {
   TestProvider::State provider_state3;
 
   state.manager_->AddProvider(
-      new SimpleTestProvider(&provider_state1,
-                             SimpleTestProvider::REMOVE_ALL,
+      new SimpleTestProvider(&provider_state1, SimpleTestProvider::REMOVE_ALL,
                              state.manager_.get()),
-                             0, std::string());
+      0, std::string());
   state.manager_->AddProvider(
-      new SimpleTestProvider(&provider_state2,
-                             SimpleTestProvider::CONTINUE, NULL),
-                             0, std::string());
+      new SimpleTestProvider(&provider_state2, SimpleTestProvider::CONTINUE,
+                             NULL),
+      0, std::string());
   state.manager_->AddProvider(
-      new SimpleTestProvider(&provider_state3,
-                             SimpleTestProvider::CONTINUE, NULL),\
-                             1, std::string());
+      new SimpleTestProvider(&provider_state3, SimpleTestProvider::CONTINUE,
+                             NULL),
+      1, std::string());
 
   CefRefPtr<ResourceManagerTestHandler> handler =
       new ResourceManagerTestHandler(&state);
@@ -595,13 +583,13 @@ TEST(ResourceManagerTest, ProviderDoNothing) {
   TestProvider::State provider_state2;
 
   state.manager_->AddProvider(
-      new SimpleTestProvider(&provider_state1,
-                             SimpleTestProvider::DO_NOTHING, NULL),
-                             0, std::string());
+      new SimpleTestProvider(&provider_state1, SimpleTestProvider::DO_NOTHING,
+                             NULL),
+      0, std::string());
   state.manager_->AddProvider(
-      new SimpleTestProvider(&provider_state2,
-                             SimpleTestProvider::DO_NOTHING, NULL),
-                             0, std::string());
+      new SimpleTestProvider(&provider_state2, SimpleTestProvider::DO_NOTHING,
+                             NULL),
+      0, std::string());
 
   CefRefPtr<ResourceManagerTestHandler> handler =
       new ResourceManagerTestHandler(&state);
@@ -647,10 +635,10 @@ TEST(ResourceManagerTest, ContentProvider) {
   state.urls_.push_back(kUrl3);
 
   // Only the first 2 URLs will be handled.
-  state.manager_->AddContentProvider(kUrl1,
-      CreateContents(success1_message), "text/html", 0, std::string());
-  state.manager_->AddContentProvider(kUrl2,
-      CreateContents(success2_message), "text/html", 0, std::string());
+  state.manager_->AddContentProvider(kUrl1, CreateContents(success1_message),
+                                     "text/html", 0, std::string());
+  state.manager_->AddContentProvider(kUrl2, CreateContents(success2_message),
+                                     "text/html", 0, std::string());
 
   CefRefPtr<ResourceManagerTestHandler> handler =
       new ResourceManagerTestHandler(&state);
@@ -695,15 +683,15 @@ TEST(ResourceManagerTest, DirectoryProvider) {
   // Write the files to disk.
   const std::string& temp_dir = scoped_dir.GetPath();
   WriteFile(file_util::JoinPath(temp_dir, kFile1),
-      CreateContents(success1_message));
+            CreateContents(success1_message));
   WriteFile(file_util::JoinPath(temp_dir, kFile2),
-      CreateContents(success2_message));
+            CreateContents(success2_message));
 
   // Also include a subdirectory.
   const std::string& sub_dir = file_util::JoinPath(temp_dir, "sub");
   EXPECT_TRUE(CefCreateDirectory(sub_dir));
   WriteFile(file_util::JoinPath(sub_dir, kFile3),
-      CreateContents(success3_message));
+            CreateContents(success3_message));
 
   state.manager_->AddDirectoryProvider(kUrlBase, temp_dir, 0, std::string());
 
@@ -757,15 +745,15 @@ TEST(ResourceManagerTest, ArchiveProvider) {
   const std::string& file_dir = file_util::JoinPath(temp_dir, "files");
   EXPECT_TRUE(CefCreateDirectory(file_dir));
   WriteFile(file_util::JoinPath(file_dir, kFile1),
-      CreateContents(success1_message));
+            CreateContents(success1_message));
   WriteFile(file_util::JoinPath(file_dir, kFile2),
-      CreateContents(success2_message));
+            CreateContents(success2_message));
 
   // Also include a subdirectory.
   const std::string& sub_dir = file_util::JoinPath(file_dir, "sub");
   EXPECT_TRUE(CefCreateDirectory(sub_dir));
   WriteFile(file_util::JoinPath(sub_dir, kFile3),
-      CreateContents(success3_message));
+            CreateContents(success3_message));
 
   const std::string& archive_path =
       file_util::JoinPath(temp_dir, "archive.zip");
@@ -773,8 +761,8 @@ TEST(ResourceManagerTest, ArchiveProvider) {
   // Create the archive file.
   EXPECT_TRUE(CefZipDirectory(file_dir, archive_path, false));
 
-  state.manager_->AddArchiveProvider(kUrlBase, archive_path, std::string(),
-                                     0, std::string());
+  state.manager_->AddArchiveProvider(kUrlBase, archive_path, std::string(), 0,
+                                     std::string());
 
   CefRefPtr<ResourceManagerTestHandler> handler =
       new ResourceManagerTestHandler(&state);
@@ -803,8 +791,7 @@ namespace {
 class OneShotProvider : public CefResourceManager::Provider {
  public:
   explicit OneShotProvider(const std::string& content)
-    : done_(false),
-      content_(content) {
+      : done_(false), content_(content) {
     EXPECT_FALSE(content.empty());
   }
 
@@ -818,10 +805,9 @@ class OneShotProvider : public CefResourceManager::Provider {
 
     done_ = true;
 
-    CefRefPtr<CefStreamReader> stream =
-        CefStreamReader::CreateForData(
-            static_cast<void*>(const_cast<char*>(content_.data())),
-            content_.length());
+    CefRefPtr<CefStreamReader> stream = CefStreamReader::CreateForData(
+        static_cast<void*>(const_cast<char*>(content_.data())),
+        content_.length());
 
     request->Continue(new CefStreamResourceHandler("text/html", stream));
     return true;
@@ -860,17 +846,15 @@ TEST(ResourceManagerTest, ProviderOrder) {
 
   // Resulting order should be sequential; success1 .. success4.
   state.manager_->AddProvider(
-      new OneShotProvider(CreateContents(success2_message)),
-      0, std::string());
+      new OneShotProvider(CreateContents(success2_message)), 0, std::string());
   state.manager_->AddProvider(
-      new OneShotProvider(CreateContents(success1_message)),
-      -100, std::string());
+      new OneShotProvider(CreateContents(success1_message)), -100,
+      std::string());
   state.manager_->AddProvider(
-      new OneShotProvider(CreateContents(success4_message)),
-      100, std::string());
+      new OneShotProvider(CreateContents(success4_message)), 100,
+      std::string());
   state.manager_->AddProvider(
-      new OneShotProvider(CreateContents(success3_message)),
-      0, std::string());
+      new OneShotProvider(CreateContents(success3_message)), 0, std::string());
 
   CefRefPtr<ResourceManagerTestHandler> handler =
       new ResourceManagerTestHandler(&state);
@@ -896,8 +880,7 @@ namespace {
 // Content provider that returns the path component as the result.
 class EchoProvider : public CefResourceManager::Provider {
  public:
-  EchoProvider(const std::string& base_url)
-    : base_url_(base_url) {
+  EchoProvider(const std::string& base_url) : base_url_(base_url) {
     EXPECT_TRUE(!base_url_.empty());
   }
 
@@ -916,15 +899,15 @@ class EchoProvider : public CefResourceManager::Provider {
     int delay = atoi(url.substr(base_url_.size()).data());
     EXPECT_GE(delay, 0);
 
-    CefRefPtr<CefStreamReader> stream =
-        CefStreamReader::CreateForData(
-            static_cast<void*>(const_cast<char*>(content.data())),
-            content.length());
+    CefRefPtr<CefStreamReader> stream = CefStreamReader::CreateForData(
+        static_cast<void*>(const_cast<char*>(content.data())),
+        content.length());
 
-    CefPostDelayedTask(TID_IO,
+    CefPostDelayedTask(
+        TID_IO,
         base::Bind(&CefResourceManager::Request::Continue, request,
                    new CefStreamResourceHandler("text/html", stream)),
-         delay);
+        delay);
 
     return true;
   }
@@ -956,8 +939,8 @@ TEST(ResourceManagerTest, ManyRequests) {
   }
   ss << "</body></html>";
 
-  state.manager_->AddContentProvider(kUrl, ss.str(), "text/html",
-                                     0, std::string());
+  state.manager_->AddContentProvider(kUrl, ss.str(), "text/html", 0,
+                                     std::string());
   state.manager_->AddProvider(new EchoProvider(kBaseUrl), 0, std::string());
 
   CefRefPtr<ResourceManagerTestHandler> handler =
@@ -992,21 +975,20 @@ class OneShotRemovalProvider : public TestProvider {
                          CefResourceManager* manager,
                          const std::string& identifier,
                          bool remove_before_continue)
-    : TestProvider(state),
-      content_(content),
-      manager_(manager),
-      identifier_(identifier),
-      remove_before_continue_(remove_before_continue) {
+      : TestProvider(state),
+        content_(content),
+        manager_(manager),
+        identifier_(identifier),
+        remove_before_continue_(remove_before_continue) {
     EXPECT_FALSE(content.empty());
   }
 
   bool OnRequest(scoped_refptr<CefResourceManager::Request> request) override {
     TestProvider::OnRequest(request);
 
-    CefRefPtr<CefStreamReader> stream =
-        CefStreamReader::CreateForData(
-            static_cast<void*>(const_cast<char*>(content_.data())),
-            content_.length());
+    CefRefPtr<CefStreamReader> stream = CefStreamReader::CreateForData(
+        static_cast<void*>(const_cast<char*>(content_.data())),
+        content_.length());
 
     if (remove_before_continue_) {
       // Removing the provider before continuing should trigger a call to
@@ -1388,14 +1370,12 @@ namespace {
 // Test the URL filter capability.
 class UrlFilterTestProvider : public TestProvider {
  public:
-  UrlFilterTestProvider(
-      State* state,
-      const std::string& expected_url,
-      const std::string& expected_url_after_filter)
+  UrlFilterTestProvider(State* state,
+                        const std::string& expected_url,
+                        const std::string& expected_url_after_filter)
       : TestProvider(state),
         expected_url_(expected_url),
-        expected_url_after_filter_(expected_url_after_filter) {
-  }
+        expected_url_after_filter_(expected_url_after_filter) {}
 
   bool OnRequest(scoped_refptr<CefResourceManager::Request> request) override {
     TestProvider::OnRequest(request);
@@ -1540,7 +1520,7 @@ TEST(ResourceManagerTest, UrlFilterWithFragment) {
   const char kUrl[] = "http://test.com/ResourceManagerTest#fragment";
   const char kExpectedUrl[] = "http://test.com/ResourceManagerTestRewrite";
   const char kExpectedUrlAfterFilter[] =
-    "http://test.com/ResourceManagerTestRewrite#fragment";
+      "http://test.com/ResourceManagerTestRewrite#fragment";
 
   ResourceManagerTestHandler::State state;
   state.urls_.push_back(kUrl);
@@ -1589,11 +1569,8 @@ namespace {
 // Test the mime type resolver capability.
 class MimeTypeTestProvider : public TestProvider {
  public:
-  MimeTypeTestProvider(State* state,
-                      const std::string& expected_mime_type)
-      : TestProvider(state),
-        expected_mime_type_(expected_mime_type) {
-  }
+  MimeTypeTestProvider(State* state, const std::string& expected_mime_type)
+      : TestProvider(state), expected_mime_type_(expected_mime_type) {}
 
   bool OnRequest(scoped_refptr<CefResourceManager::Request> request) override {
     TestProvider::OnRequest(request);
@@ -1633,11 +1610,11 @@ TEST(ResourceManagerTest, MimeTypeResolver) {
   TestProvider::State provider_state2;
 
   state.manager_->AddProvider(
-      new MimeTypeTestProvider(&provider_state1, kExpectedMimeType),
-      0, std::string());
+      new MimeTypeTestProvider(&provider_state1, kExpectedMimeType), 0,
+      std::string());
   state.manager_->AddProvider(
-      new MimeTypeTestProvider(&provider_state2, kExpectedMimeType),
-      0, std::string());
+      new MimeTypeTestProvider(&provider_state2, kExpectedMimeType), 0,
+      std::string());
 
   CefRefPtr<ResourceManagerTestHandler> handler =
       new ResourceManagerTestHandler(&state);
@@ -1676,8 +1653,7 @@ class AddingTestProvider : public TestProvider {
       : TestProvider(state),
         new_state_(new_state),
         manager_(manager),
-        before_(before) {
-  }
+        before_(before) {}
 
   bool OnRequest(scoped_refptr<CefResourceManager::Request> request) override {
     TestProvider::OnRequest(request);

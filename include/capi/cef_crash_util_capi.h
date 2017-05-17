@@ -33,6 +33,8 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
+// $hash=8b7354f5a1ad6b255d77e477c64374b927f4fe28$
+//
 
 #ifndef CEF_INCLUDE_CAPI_CEF_CRASH_UTIL_CAPI_H_
 #define CEF_INCLUDE_CAPI_CEF_CRASH_UTIL_CAPI_H_
@@ -43,7 +45,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
 
 ///
 // Crash reporting is configured using an INI-style config file named
@@ -143,7 +144,7 @@ CEF_EXPORT int cef_crash_reporting_enabled();
 // Sets or clears a specific key-value pair from the crash metadata.
 ///
 CEF_EXPORT void cef_set_crash_key_value(const cef_string_t* key,
-    const cef_string_t* value);
+                                        const cef_string_t* value);
 
 #ifdef __cplusplus
 }

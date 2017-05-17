@@ -8,9 +8,12 @@
 
 CefContextMenuParamsImpl::CefContextMenuParamsImpl(
     content::ContextMenuParams* value)
-  : CefValueBase<CefContextMenuParams, content::ContextMenuParams>(
-        value, NULL, kOwnerNoDelete, true,
-        new CefValueControllerNonThreadSafe()) {
+    : CefValueBase<CefContextMenuParams, content::ContextMenuParams>(
+          value,
+          NULL,
+          kOwnerNoDelete,
+          true,
+          new CefValueControllerNonThreadSafe()) {
   // Indicate that this object owns the controller.
   SetOwnsController();
 }
@@ -90,7 +93,7 @@ CefContextMenuParamsImpl::MediaType CefContextMenuParamsImpl::GetMediaType() {
 }
 
 CefContextMenuParamsImpl::MediaStateFlags
-    CefContextMenuParamsImpl::GetMediaStateFlags() {
+CefContextMenuParamsImpl::GetMediaStateFlags() {
   CEF_VALUE_VERIFY_RETURN(false, CM_MEDIAFLAG_NONE);
   return static_cast<MediaStateFlags>(const_value().media_flags);
 }
@@ -112,7 +115,7 @@ bool CefContextMenuParamsImpl::GetDictionarySuggestions(
   if (!suggestions.empty())
     suggestions.clear();
 
-  if(const_value().dictionary_suggestions.empty())
+  if (const_value().dictionary_suggestions.empty())
     return false;
 
   std::vector<base::string16>::const_iterator it =
@@ -134,7 +137,7 @@ bool CefContextMenuParamsImpl::IsSpellCheckEnabled() {
 }
 
 CefContextMenuParamsImpl::EditStateFlags
-    CefContextMenuParamsImpl::GetEditStateFlags() {
+CefContextMenuParamsImpl::GetEditStateFlags() {
   CEF_VALUE_VERIFY_RETURN(false, CM_EDITFLAG_NONE);
   return static_cast<EditStateFlags>(const_value().edit_flags);
 }

@@ -12,20 +12,18 @@ namespace {
 // The expected image size in device independent pixels (DIPs).
 const int kExpectedDIPSize = 16;
 
-void LoadImage(CefRefPtr<CefImage> image,
-               double scale_factor) {
+void LoadImage(CefRefPtr<CefImage> image, double scale_factor) {
   image_util::LoadIconImage(image, scale_factor);
 }
 
-void VerifyScaleEmpty(CefRefPtr<CefImage> image,
-                      float scale_factor) {
+void VerifyScaleEmpty(CefRefPtr<CefImage> image, float scale_factor) {
   float actual_scale_factor = 0.0f;
   int pixel_width = 0;
   int pixel_height = 0;
 
   EXPECT_FALSE(image->HasRepresentation(scale_factor));
   EXPECT_FALSE(image->GetRepresentationInfo(scale_factor, actual_scale_factor,
-                                           pixel_width, pixel_height));
+                                            pixel_width, pixel_height));
   EXPECT_EQ(0.0f, actual_scale_factor);
   EXPECT_EQ(0, pixel_width);
   EXPECT_EQ(0, pixel_height);
@@ -84,10 +82,10 @@ void VerifySaveAsBitmap(CefRefPtr<CefImage> image,
 
   CefRefPtr<CefImage> image2 = CefImage::CreateImage();
   EXPECT_TRUE(image2.get());
-  EXPECT_TRUE(image2->AddBitmap(expected_scale_factor,
-      pixel_width, pixel_height,
-      CEF_COLOR_TYPE_RGBA_8888, CEF_ALPHA_TYPE_PREMULTIPLIED,
-      &data[0], data_size));
+  EXPECT_TRUE(image2->AddBitmap(expected_scale_factor, pixel_width,
+                                pixel_height, CEF_COLOR_TYPE_RGBA_8888,
+                                CEF_ALPHA_TYPE_PREMULTIPLIED, &data[0],
+                                data_size));
   VerifyScaleExists(image2, expected_scale_factor, expected_scale_factor);
 }
 
@@ -98,8 +96,8 @@ void VerifySaveAsPNG(CefRefPtr<CefImage> image,
   int pixel_height = 0;
   int expected_pixel_size = kExpectedDIPSize * expected_scale_factor;
 
-  CefRefPtr<CefBinaryValue> value = image->GetAsPNG(scale_factor, true,
-                                                    pixel_width, pixel_height);
+  CefRefPtr<CefBinaryValue> value =
+      image->GetAsPNG(scale_factor, true, pixel_width, pixel_height);
   EXPECT_TRUE(value.get());
   size_t data_size = value->GetSize();
   EXPECT_GT(data_size, 0U);
@@ -111,8 +109,7 @@ void VerifySaveAsPNG(CefRefPtr<CefImage> image,
 
   CefRefPtr<CefImage> image2 = CefImage::CreateImage();
   EXPECT_TRUE(image2.get());
-  EXPECT_TRUE(image2->AddPNG(expected_scale_factor,
-                             &data[0], data_size));
+  EXPECT_TRUE(image2->AddPNG(expected_scale_factor, &data[0], data_size));
   VerifyScaleExists(image2, expected_scale_factor, expected_scale_factor);
 }
 
@@ -123,8 +120,8 @@ void VerifySaveAsJPEG(CefRefPtr<CefImage> image,
   int pixel_height = 0;
   int expected_pixel_size = kExpectedDIPSize * expected_scale_factor;
 
-  CefRefPtr<CefBinaryValue> value = image->GetAsJPEG(scale_factor, 80,
-                                                     pixel_width, pixel_height);
+  CefRefPtr<CefBinaryValue> value =
+      image->GetAsJPEG(scale_factor, 80, pixel_width, pixel_height);
   EXPECT_TRUE(value.get());
   size_t data_size = value->GetSize();
   EXPECT_GT(data_size, 0U);
@@ -136,8 +133,7 @@ void VerifySaveAsJPEG(CefRefPtr<CefImage> image,
 
   CefRefPtr<CefImage> image2 = CefImage::CreateImage();
   EXPECT_TRUE(image2.get());
-  EXPECT_TRUE(image2->AddJPEG(expected_scale_factor,
-                              &data[0], data_size));
+  EXPECT_TRUE(image2->AddJPEG(expected_scale_factor, &data[0], data_size));
   VerifyScaleExists(image2, expected_scale_factor, expected_scale_factor);
 }
 

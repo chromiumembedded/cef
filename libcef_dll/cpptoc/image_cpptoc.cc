@@ -9,10 +9,11 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=c5a593e30b9f8b61aeb4d07f38e471be0cc521c0$
+//
 
 #include "libcef_dll/cpptoc/binary_value_cpptoc.h"
 #include "libcef_dll/cpptoc/image_cpptoc.h"
-
 
 // GLOBAL FUNCTIONS - Body may be edited by hand.
 
@@ -25,7 +26,6 @@ CEF_EXPORT cef_image_t* cef_image_create() {
   // Return type: refptr_same
   return CefImageCppToC::Wrap(_retval);
 }
-
 
 namespace {
 
@@ -46,7 +46,7 @@ int CEF_CALLBACK image_is_empty(struct _cef_image_t* self) {
 }
 
 int CEF_CALLBACK image_is_same(struct _cef_image_t* self,
-    struct _cef_image_t* that) {
+                               struct _cef_image_t* that) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -58,17 +58,21 @@ int CEF_CALLBACK image_is_same(struct _cef_image_t* self,
     return 0;
 
   // Execute
-  bool _retval = CefImageCppToC::Get(self)->IsSame(
-      CefImageCppToC::Unwrap(that));
+  bool _retval =
+      CefImageCppToC::Get(self)->IsSame(CefImageCppToC::Unwrap(that));
 
   // Return type: bool
   return _retval;
 }
 
-int CEF_CALLBACK image_add_bitmap(struct _cef_image_t* self, float scale_factor,
-    int pixel_width, int pixel_height, cef_color_type_t color_type,
-    cef_alpha_type_t alpha_type, const void* pixel_data,
-    size_t pixel_data_size) {
+int CEF_CALLBACK image_add_bitmap(struct _cef_image_t* self,
+                                  float scale_factor,
+                                  int pixel_width,
+                                  int pixel_height,
+                                  cef_color_type_t color_type,
+                                  cef_alpha_type_t alpha_type,
+                                  const void* pixel_data,
+                                  size_t pixel_data_size) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -81,20 +85,17 @@ int CEF_CALLBACK image_add_bitmap(struct _cef_image_t* self, float scale_factor,
 
   // Execute
   bool _retval = CefImageCppToC::Get(self)->AddBitmap(
-      scale_factor,
-      pixel_width,
-      pixel_height,
-      color_type,
-      alpha_type,
-      pixel_data,
-      pixel_data_size);
+      scale_factor, pixel_width, pixel_height, color_type, alpha_type,
+      pixel_data, pixel_data_size);
 
   // Return type: bool
   return _retval;
 }
 
-int CEF_CALLBACK image_add_png(struct _cef_image_t* self, float scale_factor,
-    const void* png_data, size_t png_data_size) {
+int CEF_CALLBACK image_add_png(struct _cef_image_t* self,
+                               float scale_factor,
+                               const void* png_data,
+                               size_t png_data_size) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -106,17 +107,17 @@ int CEF_CALLBACK image_add_png(struct _cef_image_t* self, float scale_factor,
     return 0;
 
   // Execute
-  bool _retval = CefImageCppToC::Get(self)->AddPNG(
-      scale_factor,
-      png_data,
-      png_data_size);
+  bool _retval =
+      CefImageCppToC::Get(self)->AddPNG(scale_factor, png_data, png_data_size);
 
   // Return type: bool
   return _retval;
 }
 
-int CEF_CALLBACK image_add_jpeg(struct _cef_image_t* self, float scale_factor,
-    const void* jpeg_data, size_t jpeg_data_size) {
+int CEF_CALLBACK image_add_jpeg(struct _cef_image_t* self,
+                                float scale_factor,
+                                const void* jpeg_data,
+                                size_t jpeg_data_size) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -128,10 +129,8 @@ int CEF_CALLBACK image_add_jpeg(struct _cef_image_t* self, float scale_factor,
     return 0;
 
   // Execute
-  bool _retval = CefImageCppToC::Get(self)->AddJPEG(
-      scale_factor,
-      jpeg_data,
-      jpeg_data_size);
+  bool _retval = CefImageCppToC::Get(self)->AddJPEG(scale_factor, jpeg_data,
+                                                    jpeg_data_size);
 
   // Return type: bool
   return _retval;
@@ -166,7 +165,7 @@ size_t CEF_CALLBACK image_get_height(struct _cef_image_t* self) {
 }
 
 int CEF_CALLBACK image_has_representation(struct _cef_image_t* self,
-    float scale_factor) {
+                                          float scale_factor) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -174,15 +173,14 @@ int CEF_CALLBACK image_has_representation(struct _cef_image_t* self,
     return 0;
 
   // Execute
-  bool _retval = CefImageCppToC::Get(self)->HasRepresentation(
-      scale_factor);
+  bool _retval = CefImageCppToC::Get(self)->HasRepresentation(scale_factor);
 
   // Return type: bool
   return _retval;
 }
 
 int CEF_CALLBACK image_remove_representation(struct _cef_image_t* self,
-    float scale_factor) {
+                                             float scale_factor) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -190,16 +188,17 @@ int CEF_CALLBACK image_remove_representation(struct _cef_image_t* self,
     return 0;
 
   // Execute
-  bool _retval = CefImageCppToC::Get(self)->RemoveRepresentation(
-      scale_factor);
+  bool _retval = CefImageCppToC::Get(self)->RemoveRepresentation(scale_factor);
 
   // Return type: bool
   return _retval;
 }
 
 int CEF_CALLBACK image_get_representation_info(struct _cef_image_t* self,
-    float scale_factor, float* actual_scale_factor, int* pixel_width,
-    int* pixel_height) {
+                                               float scale_factor,
+                                               float* actual_scale_factor,
+                                               int* pixel_width,
+                                               int* pixel_height) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -219,18 +218,15 @@ int CEF_CALLBACK image_get_representation_info(struct _cef_image_t* self,
     return 0;
 
   // Translate param: actual_scale_factor; type: simple_byref
-  float actual_scale_factorVal = actual_scale_factor?*actual_scale_factor:0;
+  float actual_scale_factorVal = actual_scale_factor ? *actual_scale_factor : 0;
   // Translate param: pixel_width; type: simple_byref
-  int pixel_widthVal = pixel_width?*pixel_width:0;
+  int pixel_widthVal = pixel_width ? *pixel_width : 0;
   // Translate param: pixel_height; type: simple_byref
-  int pixel_heightVal = pixel_height?*pixel_height:0;
+  int pixel_heightVal = pixel_height ? *pixel_height : 0;
 
   // Execute
   bool _retval = CefImageCppToC::Get(self)->GetRepresentationInfo(
-      scale_factor,
-      actual_scale_factorVal,
-      pixel_widthVal,
-      pixel_heightVal);
+      scale_factor, actual_scale_factorVal, pixel_widthVal, pixel_heightVal);
 
   // Restore param: actual_scale_factor; type: simple_byref
   if (actual_scale_factor)
@@ -246,9 +242,13 @@ int CEF_CALLBACK image_get_representation_info(struct _cef_image_t* self,
   return _retval;
 }
 
-struct _cef_binary_value_t* CEF_CALLBACK image_get_as_bitmap(
-    struct _cef_image_t* self, float scale_factor, cef_color_type_t color_type,
-    cef_alpha_type_t alpha_type, int* pixel_width, int* pixel_height) {
+struct _cef_binary_value_t* CEF_CALLBACK
+image_get_as_bitmap(struct _cef_image_t* self,
+                    float scale_factor,
+                    cef_color_type_t color_type,
+                    cef_alpha_type_t alpha_type,
+                    int* pixel_width,
+                    int* pixel_height) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -264,17 +264,13 @@ struct _cef_binary_value_t* CEF_CALLBACK image_get_as_bitmap(
     return NULL;
 
   // Translate param: pixel_width; type: simple_byref
-  int pixel_widthVal = pixel_width?*pixel_width:0;
+  int pixel_widthVal = pixel_width ? *pixel_width : 0;
   // Translate param: pixel_height; type: simple_byref
-  int pixel_heightVal = pixel_height?*pixel_height:0;
+  int pixel_heightVal = pixel_height ? *pixel_height : 0;
 
   // Execute
   CefRefPtr<CefBinaryValue> _retval = CefImageCppToC::Get(self)->GetAsBitmap(
-      scale_factor,
-      color_type,
-      alpha_type,
-      pixel_widthVal,
-      pixel_heightVal);
+      scale_factor, color_type, alpha_type, pixel_widthVal, pixel_heightVal);
 
   // Restore param: pixel_width; type: simple_byref
   if (pixel_width)
@@ -287,9 +283,12 @@ struct _cef_binary_value_t* CEF_CALLBACK image_get_as_bitmap(
   return CefBinaryValueCppToC::Wrap(_retval);
 }
 
-struct _cef_binary_value_t* CEF_CALLBACK image_get_as_png(
-    struct _cef_image_t* self, float scale_factor, int with_transparency,
-    int* pixel_width, int* pixel_height) {
+struct _cef_binary_value_t* CEF_CALLBACK
+image_get_as_png(struct _cef_image_t* self,
+                 float scale_factor,
+                 int with_transparency,
+                 int* pixel_width,
+                 int* pixel_height) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -305,15 +304,13 @@ struct _cef_binary_value_t* CEF_CALLBACK image_get_as_png(
     return NULL;
 
   // Translate param: pixel_width; type: simple_byref
-  int pixel_widthVal = pixel_width?*pixel_width:0;
+  int pixel_widthVal = pixel_width ? *pixel_width : 0;
   // Translate param: pixel_height; type: simple_byref
-  int pixel_heightVal = pixel_height?*pixel_height:0;
+  int pixel_heightVal = pixel_height ? *pixel_height : 0;
 
   // Execute
   CefRefPtr<CefBinaryValue> _retval = CefImageCppToC::Get(self)->GetAsPNG(
-      scale_factor,
-      with_transparency?true:false,
-      pixel_widthVal,
+      scale_factor, with_transparency ? true : false, pixel_widthVal,
       pixel_heightVal);
 
   // Restore param: pixel_width; type: simple_byref
@@ -327,9 +324,12 @@ struct _cef_binary_value_t* CEF_CALLBACK image_get_as_png(
   return CefBinaryValueCppToC::Wrap(_retval);
 }
 
-struct _cef_binary_value_t* CEF_CALLBACK image_get_as_jpeg(
-    struct _cef_image_t* self, float scale_factor, int quality,
-    int* pixel_width, int* pixel_height) {
+struct _cef_binary_value_t* CEF_CALLBACK
+image_get_as_jpeg(struct _cef_image_t* self,
+                  float scale_factor,
+                  int quality,
+                  int* pixel_width,
+                  int* pixel_height) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -345,16 +345,13 @@ struct _cef_binary_value_t* CEF_CALLBACK image_get_as_jpeg(
     return NULL;
 
   // Translate param: pixel_width; type: simple_byref
-  int pixel_widthVal = pixel_width?*pixel_width:0;
+  int pixel_widthVal = pixel_width ? *pixel_width : 0;
   // Translate param: pixel_height; type: simple_byref
-  int pixel_heightVal = pixel_height?*pixel_height:0;
+  int pixel_heightVal = pixel_height ? *pixel_height : 0;
 
   // Execute
   CefRefPtr<CefBinaryValue> _retval = CefImageCppToC::Get(self)->GetAsJPEG(
-      scale_factor,
-      quality,
-      pixel_widthVal,
-      pixel_heightVal);
+      scale_factor, quality, pixel_widthVal, pixel_heightVal);
 
   // Restore param: pixel_width; type: simple_byref
   if (pixel_width)
@@ -368,7 +365,6 @@ struct _cef_binary_value_t* CEF_CALLBACK image_get_as_jpeg(
 }
 
 }  // namespace
-
 
 // CONSTRUCTOR - Do not edit by hand.
 
@@ -388,16 +384,22 @@ CefImageCppToC::CefImageCppToC() {
   GetStruct()->get_as_jpeg = image_get_as_jpeg;
 }
 
-template<> CefRefPtr<CefImage> CefCppToCRefCounted<CefImageCppToC, CefImage,
-    cef_image_t>::UnwrapDerived(CefWrapperType type, cef_image_t* s) {
+template <>
+CefRefPtr<CefImage>
+CefCppToCRefCounted<CefImageCppToC, CefImage, cef_image_t>::UnwrapDerived(
+    CefWrapperType type,
+    cef_image_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCppToCRefCounted<CefImageCppToC, CefImage,
-    cef_image_t>::DebugObjCt = 0;
+template <>
+base::AtomicRefCount
+    CefCppToCRefCounted<CefImageCppToC, CefImage, cef_image_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCppToCRefCounted<CefImageCppToC, CefImage,
-    cef_image_t>::kWrapperType = WT_IMAGE;
+template <>
+CefWrapperType
+    CefCppToCRefCounted<CefImageCppToC, CefImage, cef_image_t>::kWrapperType =
+        WT_IMAGE;

@@ -19,7 +19,7 @@ class CefCrashReportUploadThread : public crashpad::CrashReportUploadThread {
  private:
   void ProcessPendingReports() override;
   void ProcessPendingReport(
-    const crashpad::CrashReportDatabase::Report& report) override;
+      const crashpad::CrashReportDatabase::Report& report) override;
 
   bool UploadsEnabled() const;
 

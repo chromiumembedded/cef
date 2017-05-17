@@ -28,10 +28,10 @@ static void VerifyStreamReadBehavior(CefRefPtr<CefStreamReader> stream,
   char buff[10];
   int res, read, offset = 0;
   do {
-    read = std::min(static_cast<int>(sizeof(buff)), contentSize-offset);
+    read = std::min(static_cast<int>(sizeof(buff)), contentSize - offset);
     res = static_cast<int>(stream->Read(buff, 1, read));
     ASSERT_EQ(read, res);
-    ASSERT_TRUE(!memcmp(contentStr+offset, buff, res));
+    ASSERT_TRUE(!memcmp(contentStr + offset, buff, res));
     offset += res;
   } while (offset < contentSize);
 
@@ -48,8 +48,8 @@ static void VerifyStreamWriteBehavior(CefRefPtr<CefStreamWriter> stream,
   // Write 10 characters at a time and verify the result
   int res, write, offset = 0;
   do {
-    write = std::min(10, contentSize-offset);
-    res = static_cast<int>(stream->Write(contentStr+offset, 1, write));
+    write = std::min(10, contentSize - offset);
+    res = static_cast<int>(stream->Write(contentStr + offset, 1, write));
     ASSERT_EQ(write, res);
     offset += res;
     ASSERT_EQ(offset, stream->Tell());
@@ -94,7 +94,7 @@ TEST(StreamTest, ReadFile) {
   // Release the file pointer
   stream = NULL;
 
-  // Delete the file
+// Delete the file
 #ifdef _WIN32
   ASSERT_EQ(0, _unlink(fileName));
 #else
@@ -106,10 +106,9 @@ TEST(StreamTest, ReadData) {
   std::string contents = "This is my test\ncontents for the file";
 
   // Test the stream
-  CefRefPtr<CefStreamReader> stream(
-      CefStreamReader::CreateForData(
-          static_cast<void*>(const_cast<char*>(contents.c_str())),
-          contents.size()));
+  CefRefPtr<CefStreamReader> stream(CefStreamReader::CreateForData(
+      static_cast<void*>(const_cast<char*>(contents.c_str())),
+      contents.size()));
   ASSERT_TRUE(stream.get() != NULL);
   ASSERT_FALSE(stream->MayBlock());
   VerifyStreamReadBehavior(stream, contents);
@@ -148,9 +147,9 @@ TEST(StreamTest, WriteFile) {
 
   // Verify the file contents
   ASSERT_TRUE(!memcmp(contents.c_str(), buff, contents.size()));
-  delete [] buff;
+  delete[] buff;
 
-  // Delete the file
+// Delete the file
 #ifdef _WIN32
   ASSERT_EQ(0, _unlink(fileName));
 #else
@@ -163,19 +162,16 @@ bool g_ReadHandlerTesterDeleted = false;
 class ReadHandlerTester : public CefReadHandler {
  public:
   ReadHandlerTester()
-    : read_called_(false),
-      read_ptr_(NULL),
-      read_size_(0),
-      read_n_(0),
-      seek_called_(false),
-      seek_offset_(0),
-      seek_whence_(0),
-      tell_called_(false),
-      eof_called_(false) {
-  }
-  ~ReadHandlerTester() override {
-    g_ReadHandlerTesterDeleted = true;
-  }
+      : read_called_(false),
+        read_ptr_(NULL),
+        read_size_(0),
+        read_n_(0),
+        seek_called_(false),
+        seek_offset_(0),
+        seek_whence_(0),
+        tell_called_(false),
+        eof_called_(false) {}
+  ~ReadHandlerTester() override { g_ReadHandlerTesterDeleted = true; }
 
   size_t Read(void* ptr, size_t size, size_t n) override {
     read_called_ = true;
@@ -202,9 +198,7 @@ class ReadHandlerTester : public CefReadHandler {
     return 10;
   }
 
-  bool MayBlock() override {
-    return false;
-  }
+  bool MayBlock() override { return false; }
 
   bool read_called_;
   const void* read_ptr_;
@@ -273,19 +267,16 @@ bool g_WriteHandlerTesterDeleted = false;
 class WriteHandlerTester : public CefWriteHandler {
  public:
   WriteHandlerTester()
-    : write_called_(false),
-      write_ptr_(NULL),
-      write_size_(0),
-      write_n_(0),
-      seek_called_(false),
-      seek_offset_(0),
-      seek_whence_(0),
-      tell_called_(false),
-      flush_called_(false) {
-  }
-  ~WriteHandlerTester() override {
-    g_WriteHandlerTesterDeleted = true;
-  }
+      : write_called_(false),
+        write_ptr_(NULL),
+        write_size_(0),
+        write_n_(0),
+        seek_called_(false),
+        seek_offset_(0),
+        seek_whence_(0),
+        tell_called_(false),
+        flush_called_(false) {}
+  ~WriteHandlerTester() override { g_WriteHandlerTesterDeleted = true; }
 
   size_t Write(const void* ptr, size_t size, size_t n) override {
     write_called_ = true;
@@ -312,9 +303,7 @@ class WriteHandlerTester : public CefWriteHandler {
     return 10;
   }
 
-  bool MayBlock() override {
-    return false;
-  }
+  bool MayBlock() override { return false; }
 
   bool write_called_;
   const void* write_ptr_;

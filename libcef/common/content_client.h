@@ -39,8 +39,7 @@ class CefContentClient : public content::ContentClient,
   base::StringPiece GetDataResource(
       int resource_id,
       ui::ScaleFactor scale_factor) const override;
-   base::RefCountedMemory* GetDataResourceBytes(
-      int resource_id) const override;
+  base::RefCountedMemory* GetDataResourceBytes(int resource_id) const override;
   gfx::Image& GetNativeImageNamed(int resource_id) const override;
 
   // Values are registered with all processes (url/url_util.h) and with Blink
@@ -67,7 +66,7 @@ class CefContentClient : public content::ContentClient,
     // restrict access.
     // This value is registered with Blink only.
     bool is_display_isolated;
-    
+
     // A scheme that will be treated the same as "https". For example, loading
     // this scheme from other secure schemes will not trigger mixed content
     // warnings.
@@ -104,12 +103,10 @@ class CefContentClient : public content::ContentClient,
 
  private:
   // ui::ResourceBundle::Delegate methods.
-  base::FilePath GetPathForResourcePack(
-      const base::FilePath& pack_path,
-      ui::ScaleFactor scale_factor) override;
-  base::FilePath GetPathForLocalePack(
-      const base::FilePath& pack_path,
-      const std::string& locale) override;
+  base::FilePath GetPathForResourcePack(const base::FilePath& pack_path,
+                                        ui::ScaleFactor scale_factor) override;
+  base::FilePath GetPathForLocalePack(const base::FilePath& pack_path,
+                                      const std::string& locale) override;
   gfx::Image GetImageNamed(int resource_id) override;
   gfx::Image GetNativeImageNamed(int resource_id) override;
   base::RefCountedStaticMemory* LoadDataResourceBytes(
@@ -118,8 +115,7 @@ class CefContentClient : public content::ContentClient,
   bool GetRawDataResource(int resource_id,
                           ui::ScaleFactor scale_factor,
                           base::StringPiece* value) override;
-  bool GetLocalizedString(int message_id,
-                          base::string16* value) override;
+  bool GetLocalizedString(int message_id, base::string16* value) override;
 
   CefRefPtr<CefApp> application_;
   bool pack_loading_disabled_;

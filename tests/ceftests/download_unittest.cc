@@ -21,7 +21,7 @@ const char kTestContentDisposition[] =
 const char kTestMimeType[] = "text/plain";
 const char kTestContent[] = "Download test text";
 
-typedef base::Callback<void(CefRefPtr<CefCallback>/*callback*/)> DelayCallback;
+typedef base::Callback<void(CefRefPtr<CefCallback> /*callback*/)> DelayCallback;
 
 class DownloadSchemeHandler : public CefResourceHandler {
  public:
@@ -45,10 +45,10 @@ class DownloadSchemeHandler : public CefResourceHandler {
       content_disposition_ = kTestContentDisposition;
       should_delay_ = true;
     } else {
-      EXPECT_TRUE(false); // Not reached.
+      EXPECT_TRUE(false);  // Not reached.
       return false;
     }
-    
+
     callback->Continue();
     return true;
   }
@@ -98,8 +98,7 @@ class DownloadSchemeHandler : public CefResourceHandler {
     return has_data;
   }
 
-  void Cancel() override {
-  }
+  void Cancel() override {}
 
  private:
   DelayCallback delay_callback_;
@@ -117,14 +116,13 @@ class DownloadSchemeHandlerFactory : public CefSchemeHandlerFactory {
  public:
   DownloadSchemeHandlerFactory(const DelayCallback& delay_callback,
                                TrackCallback* got_download_request)
-    : delay_callback_(delay_callback),
-      got_download_request_(got_download_request) {}
+      : delay_callback_(delay_callback),
+        got_download_request_(got_download_request) {}
 
-  CefRefPtr<CefResourceHandler> Create(
-      CefRefPtr<CefBrowser> browser,
-      CefRefPtr<CefFrame> frame,
-      const CefString& scheme_name,
-      CefRefPtr<CefRequest> request) override {
+  CefRefPtr<CefResourceHandler> Create(CefRefPtr<CefBrowser> browser,
+                                       CefRefPtr<CefFrame> frame,
+                                       const CefString& scheme_name,
+                                       CefRefPtr<CefRequest> request) override {
     return new DownloadSchemeHandler(delay_callback_, got_download_request_);
   }
 
@@ -143,15 +141,15 @@ class DownloadTestHandler : public TestHandler {
     PENDING,
   };
 
-  DownloadTestHandler(TestMode test_mode)
-      : test_mode_(test_mode) {}
+  DownloadTestHandler(TestMode test_mode) : test_mode_(test_mode) {}
 
   void RunTest() override {
     DelayCallback delay_callback;
     if (test_mode_ == NAVIGATED || test_mode_ == PENDING)
       delay_callback = base::Bind(&DownloadTestHandler::OnDelayCallback, this);
 
-    CefRegisterSchemeHandlerFactory("http", kTestDomain,
+    CefRegisterSchemeHandlerFactory(
+        "http", kTestDomain,
         new DownloadSchemeHandlerFactory(delay_callback,
                                          &got_download_request_));
 
@@ -188,8 +186,8 @@ class DownloadTestHandler : public TestHandler {
   // Callback from the scheme handler when the download request is delayed.
   void OnDelayCallback(CefRefPtr<CefCallback> callback) {
     if (!CefCurrentlyOn(TID_UI)) {
-      CefPostTask(TID_UI,
-          base::Bind(&DownloadTestHandler::OnDelayCallback, this, callback));
+      CefPostTask(TID_UI, base::Bind(&DownloadTestHandler::OnDelayCallback,
+                                     this, callback));
       return;
     }
 
@@ -239,19 +237,20 @@ class DownloadTestHandler : public TestHandler {
 
     download_id_ = download_item->GetId();
     EXPECT_LT(0U, download_id_);
-    
+
     EXPECT_TRUE(download_item->IsValid());
     EXPECT_TRUE(download_item->IsInProgress());
     EXPECT_FALSE(download_item->IsComplete());
     EXPECT_FALSE(download_item->IsCanceled());
-    EXPECT_EQ(static_cast<int64>(sizeof(kTestContent)-1),
-        download_item->GetTotalBytes());
+    EXPECT_EQ(static_cast<int64>(sizeof(kTestContent) - 1),
+              download_item->GetTotalBytes());
     EXPECT_EQ(0UL, download_item->GetFullPath().length());
     EXPECT_STREQ(kTestDownloadUrl, download_item->GetURL().ToString().c_str());
     EXPECT_EQ(0UL, download_item->GetSuggestedFileName().length());
     EXPECT_STREQ(kTestContentDisposition,
-        download_item->GetContentDisposition().ToString().c_str());
-    EXPECT_STREQ(kTestMimeType, download_item->GetMimeType().ToString().c_str());
+                 download_item->GetContentDisposition().ToString().c_str());
+    EXPECT_STREQ(kTestMimeType,
+                 download_item->GetMimeType().ToString().c_str());
 
     callback->Continue(test_path_, false);
 
@@ -261,10 +260,9 @@ class DownloadTestHandler : public TestHandler {
       ContinuePendingIfReady();
   }
 
-  void OnDownloadUpdated(
-      CefRefPtr<CefBrowser> browser,
-      CefRefPtr<CefDownloadItem> download_item,
-      CefRefPtr<CefDownloadItemCallback> callback) override {
+  void OnDownloadUpdated(CefRefPtr<CefBrowser> browser,
+                         CefRefPtr<CefDownloadItem> download_item,
+                         CefRefPtr<CefDownloadItemCallback> callback) override {
     EXPECT_TRUE(CefCurrentlyOn(TID_UI));
 
     got_on_download_updated_.yes();
@@ -283,9 +281,9 @@ class DownloadTestHandler : public TestHandler {
     EXPECT_FALSE(download_item->IsCanceled());
     EXPECT_STREQ(kTestDownloadUrl, download_item->GetURL().ToString().c_str());
     EXPECT_STREQ(kTestContentDisposition,
-        download_item->GetContentDisposition().ToString().c_str());
+                 download_item->GetContentDisposition().ToString().c_str());
     EXPECT_STREQ(kTestMimeType,
-        download_item->GetMimeType().ToString().c_str());
+                 download_item->GetMimeType().ToString().c_str());
 
     std::string full_path = download_item->GetFullPath();
     if (!full_path.empty()) {
@@ -298,10 +296,10 @@ class DownloadTestHandler : public TestHandler {
 
       EXPECT_FALSE(download_item->IsInProgress());
       EXPECT_EQ(100, download_item->GetPercentComplete());
-      EXPECT_EQ(static_cast<int64>(sizeof(kTestContent)-1),
-          download_item->GetReceivedBytes());
-      EXPECT_EQ(static_cast<int64>(sizeof(kTestContent)-1),
-          download_item->GetTotalBytes());
+      EXPECT_EQ(static_cast<int64>(sizeof(kTestContent) - 1),
+                download_item->GetReceivedBytes());
+      EXPECT_EQ(static_cast<int64>(sizeof(kTestContent) - 1),
+                download_item->GetTotalBytes());
 
       DestroyTest();
     } else {
@@ -332,7 +330,8 @@ class DownloadTestHandler : public TestHandler {
   void DestroyTest() override {
     if (!temp_dir_.IsEmpty()) {
       // Clean up temp_dir_ on the FILE thread before destroying the test.
-      CefPostTask(TID_FILE,
+      CefPostTask(
+          TID_FILE,
           base::Bind(&DownloadTestHandler::VerifyResultsOnFileThread, this));
       return;
     }

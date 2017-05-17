@@ -33,6 +33,8 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
+// $hash=7f554250e73537ece3f8f67310c23e718f91d41b$
+//
 
 #ifndef CEF_INCLUDE_CAPI_CEF_CLIENT_CAPI_H_
 #define CEF_INCLUDE_CAPI_CEF_CLIENT_CAPI_H_
@@ -59,7 +61,6 @@
 extern "C" {
 #endif
 
-
 ///
 // Implement this structure to provide handler implementations.
 ///
@@ -73,89 +74,89 @@ typedef struct _cef_client_t {
   // Return the handler for context menus. If no handler is provided the default
   // implementation will be used.
   ///
-  struct _cef_context_menu_handler_t* (CEF_CALLBACK *get_context_menu_handler)(
+  struct _cef_context_menu_handler_t*(CEF_CALLBACK* get_context_menu_handler)(
       struct _cef_client_t* self);
 
   ///
   // Return the handler for dialogs. If no handler is provided the default
   // implementation will be used.
   ///
-  struct _cef_dialog_handler_t* (CEF_CALLBACK *get_dialog_handler)(
+  struct _cef_dialog_handler_t*(CEF_CALLBACK* get_dialog_handler)(
       struct _cef_client_t* self);
 
   ///
   // Return the handler for browser display state events.
   ///
-  struct _cef_display_handler_t* (CEF_CALLBACK *get_display_handler)(
+  struct _cef_display_handler_t*(CEF_CALLBACK* get_display_handler)(
       struct _cef_client_t* self);
 
   ///
   // Return the handler for download events. If no handler is returned downloads
   // will not be allowed.
   ///
-  struct _cef_download_handler_t* (CEF_CALLBACK *get_download_handler)(
+  struct _cef_download_handler_t*(CEF_CALLBACK* get_download_handler)(
       struct _cef_client_t* self);
 
   ///
   // Return the handler for drag events.
   ///
-  struct _cef_drag_handler_t* (CEF_CALLBACK *get_drag_handler)(
+  struct _cef_drag_handler_t*(CEF_CALLBACK* get_drag_handler)(
       struct _cef_client_t* self);
 
   ///
   // Return the handler for find result events.
   ///
-  struct _cef_find_handler_t* (CEF_CALLBACK *get_find_handler)(
+  struct _cef_find_handler_t*(CEF_CALLBACK* get_find_handler)(
       struct _cef_client_t* self);
 
   ///
   // Return the handler for focus events.
   ///
-  struct _cef_focus_handler_t* (CEF_CALLBACK *get_focus_handler)(
+  struct _cef_focus_handler_t*(CEF_CALLBACK* get_focus_handler)(
       struct _cef_client_t* self);
 
   ///
   // Return the handler for geolocation permissions requests. If no handler is
   // provided geolocation access will be denied by default.
   ///
-  struct _cef_geolocation_handler_t* (CEF_CALLBACK *get_geolocation_handler)(
+  struct _cef_geolocation_handler_t*(CEF_CALLBACK* get_geolocation_handler)(
       struct _cef_client_t* self);
 
   ///
   // Return the handler for JavaScript dialogs. If no handler is provided the
   // default implementation will be used.
   ///
-  struct _cef_jsdialog_handler_t* (CEF_CALLBACK *get_jsdialog_handler)(
+  struct _cef_jsdialog_handler_t*(CEF_CALLBACK* get_jsdialog_handler)(
       struct _cef_client_t* self);
 
   ///
   // Return the handler for keyboard events.
   ///
-  struct _cef_keyboard_handler_t* (CEF_CALLBACK *get_keyboard_handler)(
+  struct _cef_keyboard_handler_t*(CEF_CALLBACK* get_keyboard_handler)(
       struct _cef_client_t* self);
 
   ///
   // Return the handler for browser life span events.
   ///
-  struct _cef_life_span_handler_t* (CEF_CALLBACK *get_life_span_handler)(
+  struct _cef_life_span_handler_t*(CEF_CALLBACK* get_life_span_handler)(
       struct _cef_client_t* self);
 
   ///
   // Return the handler for browser load status events.
   ///
-  struct _cef_load_handler_t* (CEF_CALLBACK *get_load_handler)(
+  struct _cef_load_handler_t*(CEF_CALLBACK* get_load_handler)(
       struct _cef_client_t* self);
 
   ///
   // Return the handler for off-screen rendering events.
   ///
-  struct _cef_render_handler_t* (CEF_CALLBACK *get_render_handler)(
+  struct _cef_render_handler_t*(CEF_CALLBACK* get_render_handler)(
       struct _cef_client_t* self);
 
   ///
   // Return the handler for browser request events.
   ///
-  struct _cef_request_handler_t* (CEF_CALLBACK *get_request_handler)(
+  struct _cef_request_handler_t*(CEF_CALLBACK* get_request_handler)(
       struct _cef_client_t* self);
 
   ///
@@ -163,11 +164,12 @@ typedef struct _cef_client_t {
   // (1) if the message was handled or false (0) otherwise. Do not keep a
   // reference to or attempt to access the message outside of this callback.
   ///
-  int (CEF_CALLBACK *on_process_message_received)(struct _cef_client_t* self,
-      struct _cef_browser_t* browser, cef_process_id_t source_process,
+  int(CEF_CALLBACK* on_process_message_received)(
+      struct _cef_client_t* self,
+      struct _cef_browser_t* browser,
+      cef_process_id_t source_process,
       struct _cef_process_message_t* message);
 } cef_client_t;
-
 
 #ifdef __cplusplus
 }

@@ -29,7 +29,7 @@ base::FilePath GetFrameworksPath() {
     return base::FilePath();
 
   return bundle_path.Append(FILE_PATH_LITERAL("Contents"))
-                    .Append(FILE_PATH_LITERAL("Frameworks"));
+      .Append(FILE_PATH_LITERAL("Frameworks"));
 }
 
 }  // namespace
@@ -74,7 +74,7 @@ base::FilePath GetMainResourcesDirectory() {
     return base::FilePath();
 
   return bundle_path.Append(FILE_PATH_LITERAL("Contents"))
-                    .Append(FILE_PATH_LITERAL("Resources"));
+      .Append(FILE_PATH_LITERAL("Resources"));
 }
 
 base::FilePath GetChildProcessPath() {
@@ -84,9 +84,9 @@ base::FilePath GetChildProcessPath() {
 
   std::string exe_name = GetMainProcessPath().BaseName().value();
   return frameworks_path.Append(FILE_PATH_LITERAL(exe_name + " Helper.app"))
-                        .Append(FILE_PATH_LITERAL("Contents"))
-                        .Append(FILE_PATH_LITERAL("MacOS"))
-                        .Append(FILE_PATH_LITERAL(exe_name + " Helper"));
+      .Append(FILE_PATH_LITERAL("Contents"))
+      .Append(FILE_PATH_LITERAL("MacOS"))
+      .Append(FILE_PATH_LITERAL(exe_name + " Helper"));
 }
 
 }  // namespace util_mac

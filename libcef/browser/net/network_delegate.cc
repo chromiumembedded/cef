@@ -32,12 +32,11 @@ class CefBeforeResourceLoadCallbackImpl : public CefRequestCallback {
  public:
   typedef net::CompletionCallback CallbackType;
 
-  CefBeforeResourceLoadCallbackImpl(
-      CefRefPtr<CefRequestImpl> cef_request,
-      GURL* new_url,
-      net::URLRequest* url_request,
-      bool force_google_safesearch,
-      const CallbackType& callback)
+  CefBeforeResourceLoadCallbackImpl(CefRefPtr<CefRequestImpl> cef_request,
+                                    GURL* new_url,
+                                    net::URLRequest* url_request,
+                                    bool force_google_safesearch,
+                                    const CallbackType& callback)
       : cef_request_(cef_request),
         new_url_(new_url),
         url_request_(url_request),
@@ -57,10 +56,10 @@ class CefBeforeResourceLoadCallbackImpl : public CefRequestCallback {
         RunNow(cef_request_, new_url_, url_request_, callback_,
                force_google_safesearch_, false);
       } else {
-        CEF_POST_TASK(CEF_IOT,
-            base::Bind(&CefBeforeResourceLoadCallbackImpl::RunNow,
-                       cef_request_, new_url_, url_request_, callback_,
-                       force_google_safesearch_, false));
+        CEF_POST_TASK(
+            CEF_IOT, base::Bind(&CefBeforeResourceLoadCallbackImpl::RunNow,
+                                cef_request_, new_url_, url_request_, callback_,
+                                force_google_safesearch_, false));
       }
     }
   }
@@ -68,13 +67,11 @@ class CefBeforeResourceLoadCallbackImpl : public CefRequestCallback {
   void Continue(bool allow) override {
     // Always continue asynchronously.
     CEF_POST_TASK(CEF_IOT,
-        base::Bind(&CefBeforeResourceLoadCallbackImpl::ContinueNow,
-                   this, allow));
+                  base::Bind(&CefBeforeResourceLoadCallbackImpl::ContinueNow,
+                             this, allow));
   }
 
-  void Cancel() override {
-    Continue(false);
-  }
+  void Cancel() override { Continue(false); }
 
   void ContinueNow(bool allow) {
     CEF_REQUIRE_IOT();
@@ -99,16 +96,13 @@ class CefBeforeResourceLoadCallbackImpl : public CefRequestCallback {
   class Disconnector : public base::SupportsUserData::Data {
    public:
     explicit Disconnector(CefBeforeResourceLoadCallbackImpl* callback)
-        : callback_(callback) {
-    }
+        : callback_(callback) {}
     ~Disconnector() override {
       if (callback_)
         callback_->Disconnect();
     }
 
-    void Disconnect() {
-      callback_ = NULL;
-    }
+    void Disconnect() { callback_ = NULL; }
 
    private:
     CefBeforeResourceLoadCallbackImpl* callback_;
@@ -151,9 +145,7 @@ class CefBeforeResourceLoadCallbackImpl : public CefRequestCallback {
     }
   }
 
-  static inline void* UserDataKey() {
-    return &kLocatorKey;
-  }
+  static inline void* UserDataKey() { return &kLocatorKey; }
 
   CefRefPtr<CefRequestImpl> cef_request_;
   const GURL old_url_;
@@ -175,9 +167,7 @@ class CefAuthCallbackImpl : public CefAuthCallback {
  public:
   CefAuthCallbackImpl(const net::NetworkDelegate::AuthCallback& callback,
                       net::AuthCredentials* credentials)
-      : callback_(callback),
-        credentials_(credentials) {
-  }
+      : callback_(callback), credentials_(credentials) {}
   ~CefAuthCallbackImpl() override {
     if (!callback_.is_null()) {
       // The auth callback is still pending. Cancel it now.
@@ -185,13 +175,12 @@ class CefAuthCallbackImpl : public CefAuthCallback {
         CancelNow(callback_);
       } else {
         CEF_POST_TASK(CEF_IOT,
-            base::Bind(&CefAuthCallbackImpl::CancelNow, callback_));
+                      base::Bind(&CefAuthCallbackImpl::CancelNow, callback_));
       }
     }
   }
 
-  void Continue(const CefString& username,
-                const CefString& password) override {
+  void Continue(const CefString& username, const CefString& password) override {
     if (CEF_CURRENTLY_ON_IOT()) {
       if (!callback_.is_null()) {
         credentials_->Set(username, password);
@@ -199,8 +188,8 @@ class CefAuthCallbackImpl : public CefAuthCallback {
         callback_.Reset();
       }
     } else {
-      CEF_POST_TASK(CEF_IOT,
-          base::Bind(&CefAuthCallbackImpl::Continue, this, username, password));
+      CEF_POST_TASK(CEF_IOT, base::Bind(&CefAuthCallbackImpl::Continue, this,
+                                        username, password));
     }
   }
 
@@ -215,9 +204,7 @@ class CefAuthCallbackImpl : public CefAuthCallback {
     }
   }
 
-  void Disconnect() {
-    callback_.Reset();
-  }
+  void Disconnect() { callback_.Reset(); }
 
  private:
   static void CancelNow(const net::NetworkDelegate::AuthCallback& callback) {
@@ -233,20 +220,17 @@ class CefAuthCallbackImpl : public CefAuthCallback {
 
 }  // namespace
 
-CefNetworkDelegate::CefNetworkDelegate()
-  : force_google_safesearch_(nullptr) {
-}
+CefNetworkDelegate::CefNetworkDelegate() : force_google_safesearch_(nullptr) {}
 
-CefNetworkDelegate::~CefNetworkDelegate() {
-}
+CefNetworkDelegate::~CefNetworkDelegate() {}
 
 // static
 bool CefNetworkDelegate::AreExperimentalCookieFeaturesEnabled() {
   static bool initialized = false;
   static bool enabled = false;
   if (!initialized) {
-    enabled = base::CommandLine::ForCurrentProcess()->
-        HasSwitch(switches::kEnableExperimentalWebPlatformFeatures);
+    enabled = base::CommandLine::ForCurrentProcess()->HasSwitch(
+        switches::kEnableExperimentalWebPlatformFeatures);
     initialized = true;
   }
   return enabled;
@@ -274,9 +258,8 @@ std::unique_ptr<net::SourceStream> CefNetworkDelegate::CreateSourceStream(
         cefResponse->Set(request);
         cefResponse->SetReadOnly(true);
 
-        cef_filter = handler->GetResourceResponseFilter(browser.get(), frame,
-                                                        cefRequest.get(),
-                                                        cefResponse.get());
+        cef_filter = handler->GetResourceResponseFilter(
+            browser.get(), frame, cefRequest.get(), cefResponse.get());
       }
     }
   }
@@ -384,11 +367,8 @@ void CefNetworkDelegate::OnCompleted(net::URLRequest* request, bool started) {
 
         const int64 received_content_length =
             request->received_response_content_length();
-        handler->OnResourceLoadComplete(browser.get(),
-                                        frame,
-                                        cefRequest.get(),
-                                        cefResponse.get(),
-                                        status,
+        handler->OnResourceLoadComplete(browser.get(), frame, cefRequest.get(),
+                                        cefResponse.get(), status,
                                         received_content_length);
       }
     }
@@ -411,14 +391,10 @@ net::NetworkDelegate::AuthRequiredResponse CefNetworkDelegate::OnAuthRequired(
 
         CefRefPtr<CefAuthCallbackImpl> callbackPtr(
             new CefAuthCallbackImpl(callback, credentials));
-        if (handler->GetAuthCredentials(browser.get(),
-                                        frame,
-                                        auth_info.is_proxy,
-                                        auth_info.challenger.host(),
-                                        auth_info.challenger.port(),
-                                        auth_info.realm,
-                                        auth_info.scheme,
-                                        callbackPtr.get())) {
+        if (handler->GetAuthCredentials(
+                browser.get(), frame, auth_info.is_proxy,
+                auth_info.challenger.host(), auth_info.challenger.port(),
+                auth_info.realm, auth_info.scheme, callbackPtr.get())) {
           return AUTH_REQUIRED_RESPONSE_IO_PENDING;
         } else {
           callbackPtr->Disconnect();
@@ -435,12 +411,10 @@ net::NetworkDelegate::AuthRequiredResponse CefNetworkDelegate::OnAuthRequired(
     if (client.get()) {
       CefRefPtr<CefAuthCallbackImpl> callbackPtr(
           new CefAuthCallbackImpl(callback, credentials));
-      if (client->GetAuthCredentials(auth_info.is_proxy,
-                                     auth_info.challenger.host(),
-                                     auth_info.challenger.port(),
-                                     auth_info.realm,
-                                     auth_info.scheme,
-                                     callbackPtr.get())) {
+      if (client->GetAuthCredentials(
+              auth_info.is_proxy, auth_info.challenger.host(),
+              auth_info.challenger.port(), auth_info.realm, auth_info.scheme,
+              callbackPtr.get())) {
         return AUTH_REQUIRED_RESPONSE_IO_PENDING;
       } else {
         callbackPtr->Disconnect();

@@ -9,9 +9,10 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=eb26fb79e218ac49035cc0097fe82f394e880df7$
+//
 
 #include "libcef_dll/ctocpp/request_callback_ctocpp.h"
-
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
@@ -23,8 +24,7 @@ void CefRequestCallbackCToCpp::Continue(bool allow) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  _struct->cont(_struct,
-      allow);
+  _struct->cont(_struct, allow);
 }
 
 void CefRequestCallbackCToCpp::Cancel() {
@@ -38,24 +38,30 @@ void CefRequestCallbackCToCpp::Cancel() {
   _struct->cancel(_struct);
 }
 
-
 // CONSTRUCTOR - Do not edit by hand.
 
-CefRequestCallbackCToCpp::CefRequestCallbackCToCpp() {
-}
+CefRequestCallbackCToCpp::CefRequestCallbackCToCpp() {}
 
-template<> cef_request_callback_t* CefCToCppRefCounted<CefRequestCallbackCToCpp,
-    CefRequestCallback, cef_request_callback_t>::UnwrapDerived(
-    CefWrapperType type, CefRequestCallback* c) {
+template <>
+cef_request_callback_t* CefCToCppRefCounted<
+    CefRequestCallbackCToCpp,
+    CefRequestCallback,
+    cef_request_callback_t>::UnwrapDerived(CefWrapperType type,
+                                           CefRequestCallback* c) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCppRefCounted<CefRequestCallbackCToCpp,
-    CefRequestCallback, cef_request_callback_t>::DebugObjCt = 0;
+template <>
+base::AtomicRefCount CefCToCppRefCounted<CefRequestCallbackCToCpp,
+                                         CefRequestCallback,
+                                         cef_request_callback_t>::DebugObjCt =
+    0;
 #endif
 
-template<> CefWrapperType CefCToCppRefCounted<CefRequestCallbackCToCpp,
-    CefRequestCallback, cef_request_callback_t>::kWrapperType =
+template <>
+CefWrapperType CefCToCppRefCounted<CefRequestCallbackCToCpp,
+                                   CefRequestCallback,
+                                   cef_request_callback_t>::kWrapperType =
     WT_REQUEST_CALLBACK;

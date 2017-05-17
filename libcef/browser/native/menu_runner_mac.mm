@@ -6,17 +6,15 @@
 
 #include "libcef/browser/browser_host_impl.h"
 
-#include "base/message_loop/message_loop.h"
 #include "base/compiler_specific.h"
 #import "base/mac/scoped_sending_event.h"
+#include "base/message_loop/message_loop.h"
 #import "ui/base/cocoa/menu_controller.h"
 #include "ui/gfx/geometry/point.h"
 
-CefMenuRunnerMac::CefMenuRunnerMac() {
-}
+CefMenuRunnerMac::CefMenuRunnerMac() {}
 
-CefMenuRunnerMac::~CefMenuRunnerMac() {
-}
+CefMenuRunnerMac::~CefMenuRunnerMac() {}
 
 bool CefMenuRunnerMac::RunContextMenu(
     CefBrowserHostImpl* browser,
@@ -88,4 +86,3 @@ void CefMenuRunnerMac::CancelContextMenu() {
   if (menu_controller_.get())
     [menu_controller_ cancel];
 }
-

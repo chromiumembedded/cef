@@ -87,14 +87,12 @@
 class CefScopedSendingEvent {
  public:
   CefScopedSendingEvent()
-    : app_(static_cast<NSApplication<CefAppProtocol>*>(
-              [NSApplication sharedApplication])),
-      handling_([app_ isHandlingSendEvent]) {
+      : app_(static_cast<NSApplication<CefAppProtocol>*>(
+            [NSApplication sharedApplication])),
+        handling_([app_ isHandlingSendEvent]) {
     [app_ setHandlingSendEvent:YES];
   }
-  ~CefScopedSendingEvent() {
-    [app_ setHandlingSendEvent:handling_];
-  }
+  ~CefScopedSendingEvent() { [app_ setHandlingSendEvent:handling_]; }
 
  private:
   NSApplication<CefAppProtocol>* app_;

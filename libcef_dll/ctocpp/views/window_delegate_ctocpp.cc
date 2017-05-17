@@ -9,11 +9,12 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=6427d6295c6219f21468ed99bf20e4d3eddfe83b$
+//
 
 #include "libcef_dll/cpptoc/views/view_cpptoc.h"
 #include "libcef_dll/cpptoc/views/window_cpptoc.h"
 #include "libcef_dll/ctocpp/views/window_delegate_ctocpp.h"
-
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
@@ -30,8 +31,7 @@ void CefWindowDelegateCToCpp::OnWindowCreated(CefRefPtr<CefWindow> window) {
     return;
 
   // Execute
-  _struct->on_window_created(_struct,
-      CefWindowCppToC::Wrap(window));
+  _struct->on_window_created(_struct, CefWindowCppToC::Wrap(window));
 }
 
 void CefWindowDelegateCToCpp::OnWindowDestroyed(CefRefPtr<CefWindow> window) {
@@ -47,8 +47,7 @@ void CefWindowDelegateCToCpp::OnWindowDestroyed(CefRefPtr<CefWindow> window) {
     return;
 
   // Execute
-  _struct->on_window_destroyed(_struct,
-      CefWindowCppToC::Wrap(window));
+  _struct->on_window_destroyed(_struct, CefWindowCppToC::Wrap(window));
 }
 
 bool CefWindowDelegateCToCpp::IsFrameless(CefRefPtr<CefWindow> window) {
@@ -64,11 +63,10 @@ bool CefWindowDelegateCToCpp::IsFrameless(CefRefPtr<CefWindow> window) {
     return false;
 
   // Execute
-  int _retval = _struct->is_frameless(_struct,
-      CefWindowCppToC::Wrap(window));
+  int _retval = _struct->is_frameless(_struct, CefWindowCppToC::Wrap(window));
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 bool CefWindowDelegateCToCpp::CanResize(CefRefPtr<CefWindow> window) {
@@ -84,11 +82,10 @@ bool CefWindowDelegateCToCpp::CanResize(CefRefPtr<CefWindow> window) {
     return false;
 
   // Execute
-  int _retval = _struct->can_resize(_struct,
-      CefWindowCppToC::Wrap(window));
+  int _retval = _struct->can_resize(_struct, CefWindowCppToC::Wrap(window));
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 bool CefWindowDelegateCToCpp::CanMaximize(CefRefPtr<CefWindow> window) {
@@ -104,11 +101,10 @@ bool CefWindowDelegateCToCpp::CanMaximize(CefRefPtr<CefWindow> window) {
     return false;
 
   // Execute
-  int _retval = _struct->can_maximize(_struct,
-      CefWindowCppToC::Wrap(window));
+  int _retval = _struct->can_maximize(_struct, CefWindowCppToC::Wrap(window));
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 bool CefWindowDelegateCToCpp::CanMinimize(CefRefPtr<CefWindow> window) {
@@ -124,11 +120,10 @@ bool CefWindowDelegateCToCpp::CanMinimize(CefRefPtr<CefWindow> window) {
     return false;
 
   // Execute
-  int _retval = _struct->can_minimize(_struct,
-      CefWindowCppToC::Wrap(window));
+  int _retval = _struct->can_minimize(_struct, CefWindowCppToC::Wrap(window));
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 bool CefWindowDelegateCToCpp::CanClose(CefRefPtr<CefWindow> window) {
@@ -144,15 +139,14 @@ bool CefWindowDelegateCToCpp::CanClose(CefRefPtr<CefWindow> window) {
     return false;
 
   // Execute
-  int _retval = _struct->can_close(_struct,
-      CefWindowCppToC::Wrap(window));
+  int _retval = _struct->can_close(_struct, CefWindowCppToC::Wrap(window));
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 bool CefWindowDelegateCToCpp::OnAccelerator(CefRefPtr<CefWindow> window,
-    int command_id) {
+                                            int command_id) {
   cef_window_delegate_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_accelerator))
     return false;
@@ -165,16 +159,15 @@ bool CefWindowDelegateCToCpp::OnAccelerator(CefRefPtr<CefWindow> window,
     return false;
 
   // Execute
-  int _retval = _struct->on_accelerator(_struct,
-      CefWindowCppToC::Wrap(window),
-      command_id);
+  int _retval = _struct->on_accelerator(_struct, CefWindowCppToC::Wrap(window),
+                                        command_id);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 bool CefWindowDelegateCToCpp::OnKeyEvent(CefRefPtr<CefWindow> window,
-    const CefKeyEvent& event) {
+                                         const CefKeyEvent& event) {
   cef_window_delegate_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_key_event))
     return false;
@@ -187,17 +180,16 @@ bool CefWindowDelegateCToCpp::OnKeyEvent(CefRefPtr<CefWindow> window,
     return false;
 
   // Execute
-  int _retval = _struct->on_key_event(_struct,
-      CefWindowCppToC::Wrap(window),
-      &event);
+  int _retval =
+      _struct->on_key_event(_struct, CefWindowCppToC::Wrap(window), &event);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 CefSize CefWindowDelegateCToCpp::GetPreferredSize(CefRefPtr<CefView> view) {
-  cef_view_delegate_t* _struct = reinterpret_cast<cef_view_delegate_t*>(
-      GetStruct());
+  cef_view_delegate_t* _struct =
+      reinterpret_cast<cef_view_delegate_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, get_preferred_size))
     return CefSize();
 
@@ -209,16 +201,16 @@ CefSize CefWindowDelegateCToCpp::GetPreferredSize(CefRefPtr<CefView> view) {
     return CefSize();
 
   // Execute
-  cef_size_t _retval = _struct->get_preferred_size(_struct,
-      CefViewCppToC::Wrap(view));
+  cef_size_t _retval =
+      _struct->get_preferred_size(_struct, CefViewCppToC::Wrap(view));
 
   // Return type: simple
   return _retval;
 }
 
 CefSize CefWindowDelegateCToCpp::GetMinimumSize(CefRefPtr<CefView> view) {
-  cef_view_delegate_t* _struct = reinterpret_cast<cef_view_delegate_t*>(
-      GetStruct());
+  cef_view_delegate_t* _struct =
+      reinterpret_cast<cef_view_delegate_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, get_minimum_size))
     return CefSize();
 
@@ -230,16 +222,16 @@ CefSize CefWindowDelegateCToCpp::GetMinimumSize(CefRefPtr<CefView> view) {
     return CefSize();
 
   // Execute
-  cef_size_t _retval = _struct->get_minimum_size(_struct,
-      CefViewCppToC::Wrap(view));
+  cef_size_t _retval =
+      _struct->get_minimum_size(_struct, CefViewCppToC::Wrap(view));
 
   // Return type: simple
   return _retval;
 }
 
 CefSize CefWindowDelegateCToCpp::GetMaximumSize(CefRefPtr<CefView> view) {
-  cef_view_delegate_t* _struct = reinterpret_cast<cef_view_delegate_t*>(
-      GetStruct());
+  cef_view_delegate_t* _struct =
+      reinterpret_cast<cef_view_delegate_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, get_maximum_size))
     return CefSize();
 
@@ -251,17 +243,17 @@ CefSize CefWindowDelegateCToCpp::GetMaximumSize(CefRefPtr<CefView> view) {
     return CefSize();
 
   // Execute
-  cef_size_t _retval = _struct->get_maximum_size(_struct,
-      CefViewCppToC::Wrap(view));
+  cef_size_t _retval =
+      _struct->get_maximum_size(_struct, CefViewCppToC::Wrap(view));
 
   // Return type: simple
   return _retval;
 }
 
 int CefWindowDelegateCToCpp::GetHeightForWidth(CefRefPtr<CefView> view,
-    int width) {
-  cef_view_delegate_t* _struct = reinterpret_cast<cef_view_delegate_t*>(
-      GetStruct());
+                                               int width) {
+  cef_view_delegate_t* _struct =
+      reinterpret_cast<cef_view_delegate_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, get_height_for_width))
     return 0;
 
@@ -273,18 +265,18 @@ int CefWindowDelegateCToCpp::GetHeightForWidth(CefRefPtr<CefView> view,
     return 0;
 
   // Execute
-  int _retval = _struct->get_height_for_width(_struct,
-      CefViewCppToC::Wrap(view),
-      width);
+  int _retval =
+      _struct->get_height_for_width(_struct, CefViewCppToC::Wrap(view), width);
 
   // Return type: simple
   return _retval;
 }
 
 void CefWindowDelegateCToCpp::OnParentViewChanged(CefRefPtr<CefView> view,
-    bool added, CefRefPtr<CefView> parent) {
-  cef_view_delegate_t* _struct = reinterpret_cast<cef_view_delegate_t*>(
-      GetStruct());
+                                                  bool added,
+                                                  CefRefPtr<CefView> parent) {
+  cef_view_delegate_t* _struct =
+      reinterpret_cast<cef_view_delegate_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, on_parent_view_changed))
     return;
 
@@ -300,16 +292,15 @@ void CefWindowDelegateCToCpp::OnParentViewChanged(CefRefPtr<CefView> view,
     return;
 
   // Execute
-  _struct->on_parent_view_changed(_struct,
-      CefViewCppToC::Wrap(view),
-      added,
-      CefViewCppToC::Wrap(parent));
+  _struct->on_parent_view_changed(_struct, CefViewCppToC::Wrap(view), added,
+                                  CefViewCppToC::Wrap(parent));
 }
 
 void CefWindowDelegateCToCpp::OnChildViewChanged(CefRefPtr<CefView> view,
-    bool added, CefRefPtr<CefView> child) {
-  cef_view_delegate_t* _struct = reinterpret_cast<cef_view_delegate_t*>(
-      GetStruct());
+                                                 bool added,
+                                                 CefRefPtr<CefView> child) {
+  cef_view_delegate_t* _struct =
+      reinterpret_cast<cef_view_delegate_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, on_child_view_changed))
     return;
 
@@ -325,15 +316,13 @@ void CefWindowDelegateCToCpp::OnChildViewChanged(CefRefPtr<CefView> view,
     return;
 
   // Execute
-  _struct->on_child_view_changed(_struct,
-      CefViewCppToC::Wrap(view),
-      added,
-      CefViewCppToC::Wrap(child));
+  _struct->on_child_view_changed(_struct, CefViewCppToC::Wrap(view), added,
+                                 CefViewCppToC::Wrap(child));
 }
 
 void CefWindowDelegateCToCpp::OnFocus(CefRefPtr<CefView> view) {
-  cef_view_delegate_t* _struct = reinterpret_cast<cef_view_delegate_t*>(
-      GetStruct());
+  cef_view_delegate_t* _struct =
+      reinterpret_cast<cef_view_delegate_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, on_focus))
     return;
 
@@ -345,13 +334,12 @@ void CefWindowDelegateCToCpp::OnFocus(CefRefPtr<CefView> view) {
     return;
 
   // Execute
-  _struct->on_focus(_struct,
-      CefViewCppToC::Wrap(view));
+  _struct->on_focus(_struct, CefViewCppToC::Wrap(view));
 }
 
 void CefWindowDelegateCToCpp::OnBlur(CefRefPtr<CefView> view) {
-  cef_view_delegate_t* _struct = reinterpret_cast<cef_view_delegate_t*>(
-      GetStruct());
+  cef_view_delegate_t* _struct =
+      reinterpret_cast<cef_view_delegate_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, on_blur))
     return;
 
@@ -363,28 +351,32 @@ void CefWindowDelegateCToCpp::OnBlur(CefRefPtr<CefView> view) {
     return;
 
   // Execute
-  _struct->on_blur(_struct,
-      CefViewCppToC::Wrap(view));
+  _struct->on_blur(_struct, CefViewCppToC::Wrap(view));
 }
-
 
 // CONSTRUCTOR - Do not edit by hand.
 
-CefWindowDelegateCToCpp::CefWindowDelegateCToCpp() {
-}
+CefWindowDelegateCToCpp::CefWindowDelegateCToCpp() {}
 
-template<> cef_window_delegate_t* CefCToCppRefCounted<CefWindowDelegateCToCpp,
-    CefWindowDelegate, cef_window_delegate_t>::UnwrapDerived(
-    CefWrapperType type, CefWindowDelegate* c) {
+template <>
+cef_window_delegate_t* CefCToCppRefCounted<
+    CefWindowDelegateCToCpp,
+    CefWindowDelegate,
+    cef_window_delegate_t>::UnwrapDerived(CefWrapperType type,
+                                          CefWindowDelegate* c) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCppRefCounted<CefWindowDelegateCToCpp,
-    CefWindowDelegate, cef_window_delegate_t>::DebugObjCt = 0;
+template <>
+base::AtomicRefCount CefCToCppRefCounted<CefWindowDelegateCToCpp,
+                                         CefWindowDelegate,
+                                         cef_window_delegate_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCppRefCounted<CefWindowDelegateCToCpp,
-    CefWindowDelegate, cef_window_delegate_t>::kWrapperType =
+template <>
+CefWrapperType CefCToCppRefCounted<CefWindowDelegateCToCpp,
+                                   CefWindowDelegate,
+                                   cef_window_delegate_t>::kWrapperType =
     WT_WINDOW_DELEGATE;

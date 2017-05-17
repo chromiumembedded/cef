@@ -13,8 +13,7 @@
 #include "net/base/mime_util.h"
 #include "url/gurl.h"
 
-bool CefParseURL(const CefString& url,
-                 CefURLParts& parts) {
+bool CefParseURL(const CefString& url, CefURLParts& parts) {
   GURL gurl(url.ToString());
   if (!gurl.is_valid())
     return false;
@@ -32,8 +31,7 @@ bool CefParseURL(const CefString& url,
   return true;
 }
 
-bool CefCreateURL(const CefURLParts& parts,
-                  CefString& url) {
+bool CefCreateURL(const CefURLParts& parts, CefString& url) {
   std::string spec = CefString(parts.spec.str, parts.spec.length, false);
   std::string scheme = CefString(parts.scheme.str, parts.scheme.length, false);
   std::string username =

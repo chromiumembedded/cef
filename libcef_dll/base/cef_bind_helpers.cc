@@ -8,7 +8,6 @@
 
 namespace base {
 
-void DoNothing() {
-}
+void DoNothing() {}
 
 }  // namespace base

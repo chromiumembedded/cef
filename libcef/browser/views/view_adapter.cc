@@ -23,8 +23,8 @@ CefViewAdapter* CefViewAdapter::GetFor(CefRefPtr<CefView> view) {
     if (button->AsLabelButton()) {
       CefRefPtr<CefLabelButton> label_button = button->AsLabelButton();
       if (label_button->AsMenuButton()) {
-        adapter = static_cast<CefMenuButtonImpl*>(
-            label_button->AsMenuButton().get());
+        adapter =
+            static_cast<CefMenuButtonImpl*>(label_button->AsMenuButton().get());
       } else {
         adapter = static_cast<CefBasicLabelButtonImpl*>(label_button.get());
       }

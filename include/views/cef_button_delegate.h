@@ -53,13 +53,13 @@ class CefButtonDelegate : public CefViewDelegate {
   // Called when |button| is pressed.
   ///
   /*--cef()--*/
-  virtual void OnButtonPressed(CefRefPtr<CefButton> button) =0;
+  virtual void OnButtonPressed(CefRefPtr<CefButton> button) = 0;
 
   ///
   // Called when the state of |button| changes.
   ///
   /*--cef()--*/
-  virtual void OnButtonStateChanged(CefRefPtr<CefButton> button) {};
+  virtual void OnButtonStateChanged(CefRefPtr<CefButton> button){};
 };
 
 #endif  // CEF_INCLUDE_VIEWS_CEF_BUTTON_DELEGATE_H_

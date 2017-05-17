@@ -30,23 +30,22 @@ class RoutingRenderDelegate : public ClientAppRenderer::Delegate {
                         CefRefPtr<CefBrowser> browser,
                         CefRefPtr<CefFrame> frame,
                         CefRefPtr<CefV8Context> context) override {
-    message_router_->OnContextCreated(browser,  frame, context);
+    message_router_->OnContextCreated(browser, frame, context);
   }
 
   void OnContextReleased(CefRefPtr<ClientAppRenderer> app,
                          CefRefPtr<CefBrowser> browser,
                          CefRefPtr<CefFrame> frame,
                          CefRefPtr<CefV8Context> context) override {
-    message_router_->OnContextReleased(browser,  frame, context);
+    message_router_->OnContextReleased(browser, frame, context);
   }
 
-  bool OnProcessMessageReceived(
-      CefRefPtr<ClientAppRenderer> app,
-      CefRefPtr<CefBrowser> browser,
-      CefProcessId source_process,
-      CefRefPtr<CefProcessMessage> message) override {
-    return message_router_->OnProcessMessageReceived(
-        browser, source_process, message);
+  bool OnProcessMessageReceived(CefRefPtr<ClientAppRenderer> app,
+                                CefRefPtr<CefBrowser> browser,
+                                CefProcessId source_process,
+                                CefRefPtr<CefProcessMessage> message) override {
+    return message_router_->OnProcessMessageReceived(browser, source_process,
+                                                     message);
   }
 
  private:
@@ -57,8 +56,7 @@ class RoutingRenderDelegate : public ClientAppRenderer::Delegate {
 
 }  // namespace
 
-RoutingTestHandler::RoutingTestHandler() {
-}
+RoutingTestHandler::RoutingTestHandler() {}
 
 void RoutingTestHandler::OnAfterCreated(CefRefPtr<CefBrowser> browser) {
   if (!message_router_.get()) {
@@ -94,8 +92,8 @@ bool RoutingTestHandler::OnProcessMessageReceived(
     CefRefPtr<CefBrowser> browser,
     CefProcessId source_process,
     CefRefPtr<CefProcessMessage> message) {
-  return message_router_->OnProcessMessageReceived(
-      browser, source_process,  message);
+  return message_router_->OnProcessMessageReceived(browser, source_process,
+                                                   message);
 }
 
 // Entry point for creating the test delegate.

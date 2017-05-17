@@ -2,11 +2,12 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#ifndef  CEF_LIBCEF_COMMON_TASK_RUNNER_IMPL_H_
-#define  CEF_LIBCEF_COMMON_TASK_RUNNER_IMPL_H_
+#ifndef CEF_LIBCEF_COMMON_TASK_RUNNER_IMPL_H_
+#define CEF_LIBCEF_COMMON_TASK_RUNNER_IMPL_H_
 #pragma once
 
 #include "include/cef_task.h"
+
 #include "base/sequenced_task_runner.h"
 
 class CefTaskRunnerImpl : public CefTaskRunner {
@@ -15,8 +16,8 @@ class CefTaskRunnerImpl : public CefTaskRunner {
       scoped_refptr<base::SequencedTaskRunner> task_runner);
 
   // Returns the task runner associated with |threadId|.
-  static scoped_refptr<base::SequencedTaskRunner>
-      GetTaskRunner(CefThreadId threadId);
+  static scoped_refptr<base::SequencedTaskRunner> GetTaskRunner(
+      CefThreadId threadId);
   // Returns the current task runner.
   static scoped_refptr<base::SequencedTaskRunner> GetCurrentTaskRunner();
 
@@ -25,8 +26,7 @@ class CefTaskRunnerImpl : public CefTaskRunner {
   bool BelongsToCurrentThread() override;
   bool BelongsToThread(CefThreadId threadId) override;
   bool PostTask(CefRefPtr<CefTask> task) override;
-  bool PostDelayedTask(CefRefPtr<CefTask> task,
-                       int64 delay_ms) override;
+  bool PostDelayedTask(CefRefPtr<CefTask> task, int64 delay_ms) override;
 
  private:
   scoped_refptr<base::SequencedTaskRunner> task_runner_;

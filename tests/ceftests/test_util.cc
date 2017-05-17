@@ -31,9 +31,9 @@ void TestMapNoDuplicates(const CefRequest::HeaderMap& map) {
   for (; it1 != map.end(); ++it1) {
     CefRequest::HeaderMap::const_iterator it2 = it1;
     for (++it2; it2 != map.end(); ++it2) {
-      EXPECT_FALSE(it1->first == it2->first && it1->second == it2->second) <<
-          "Duplicate entry for " << it1->first.ToString() << ": " <<
-          it1->second.ToString();
+      EXPECT_FALSE(it1->first == it2->first && it1->second == it2->second)
+          << "Duplicate entry for " << it1->first.ToString() << ": "
+          << it1->second.ToString();
     }
   }
 }
@@ -53,9 +53,9 @@ void TestPostDataElementEqual(CefRefPtr<CefPostDataElement> elem1,
       elem1->GetBytes(bytesCt, buff1);
       elem2->GetBytes(bytesCt, buff2);
       EXPECT_TRUE(!memcmp(buff1, buff2, bytesCt));
-      delete [] buff1;
-      delete [] buff2;
-    }  break;
+      delete[] buff1;
+      delete[] buff2;
+    } break;
     case PDE_TYPE_FILE:
       EXPECT_EQ(elem1->GetFile(), elem2->GetFile());
       break;
@@ -140,8 +140,8 @@ void TestBinaryEqual(CefRefPtr<CefBinaryValue> val1,
 
   EXPECT_GT(data_size, (size_t)0);
 
-  char* data1 = new char[data_size+1];
-  char* data2 = new char[data_size+1];
+  char* data1 = new char[data_size + 1];
+  char* data2 = new char[data_size + 1];
 
   EXPECT_EQ(data_size, val1->GetData(data1, data_size, 0));
   data1[data_size] = 0;
@@ -150,8 +150,8 @@ void TestBinaryEqual(CefRefPtr<CefBinaryValue> val1,
 
   EXPECT_STREQ(data1, data2);
 
-  delete [] data1;
-  delete [] data2;
+  delete[] data1;
+  delete[] data2;
 }
 
 void TestDictionaryEqual(CefRefPtr<CefDictionaryValue> val1,
@@ -202,8 +202,7 @@ void TestDictionaryEqual(CefRefPtr<CefDictionaryValue> val1,
   }
 }
 
-void TestListEqual(CefRefPtr<CefListValue> val1,
-                   CefRefPtr<CefListValue> val2) {
+void TestListEqual(CefRefPtr<CefListValue> val1, CefRefPtr<CefListValue> val2) {
   EXPECT_TRUE(val1.get());
   EXPECT_TRUE(val2.get());
 

@@ -9,6 +9,8 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=e96ae0220686ce1cb36adf65a51dd725eba8786e$
+//
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_VIEWS_BUTTON_CTOCPP_H_
 #define CEF_LIBCEF_DLL_CTOCPP_VIEWS_BUTTON_CTOCPP_H_
@@ -18,10 +20,10 @@
 #error This file can be included wrapper-side only
 #endif
 
-#include "include/views/cef_button.h"
 #include "include/capi/views/cef_button_capi.h"
-#include "include/views/cef_label_button.h"
 #include "include/capi/views/cef_label_button_capi.h"
+#include "include/views/cef_button.h"
+#include "include/views/cef_label_button.h"
 #include "libcef_dll/ctocpp/ctocpp_ref_counted.h"
 
 // Wrap a C structure with a C++ class.

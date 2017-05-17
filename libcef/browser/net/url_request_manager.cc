@@ -42,8 +42,8 @@ struct SchemeToFactory {
   net::URLRequest::ProtocolFactory* factory;
 };
 static const SchemeToFactory kBuiltinFactories[] = {
-  { "http", net::URLRequestHttpJob::Factory },
-  { "https", net::URLRequestHttpJob::Factory },
+    {"http", net::URLRequestHttpJob::Factory},
+    {"https", net::URLRequestHttpJob::Factory},
 };
 
 bool IsBuiltinScheme(const std::string& scheme) {
@@ -73,7 +73,7 @@ net::URLRequestJob* GetBuiltinSchemeRequestJob(
 std::string ToLower(const std::string& str) {
   std::string str_lower = str;
   std::transform(str_lower.begin(), str_lower.end(), str_lower.begin(),
-      towlower);
+                 towlower);
   return str;
 }
 
@@ -85,8 +85,7 @@ class CefProtocolHandler : public net::URLRequestJobFactory::ProtocolHandler {
  public:
   CefProtocolHandler(CefURLRequestManager* request_manager,
                      const std::string& scheme)
-    : request_manager_(request_manager),
-      scheme_(scheme) {}
+      : request_manager_(request_manager), scheme_(scheme) {}
 
   // From net::URLRequestJobFactory::ProtocolHandler
   net::URLRequestJob* MaybeCreateJob(
@@ -100,7 +99,6 @@ class CefProtocolHandler : public net::URLRequestJobFactory::ProtocolHandler {
   CefURLRequestManager* request_manager_;
   std::string scheme_;
 };
-
 
 CefURLRequestManager::CefURLRequestManager(
     net::URLRequestJobFactoryImpl* job_factory)
@@ -165,12 +163,12 @@ void CefURLRequestManager::ClearFactories() {
   // Create a unique set of scheme names.
   std::set<std::string> schemes;
   for (HandlerMap::const_iterator i = handler_map_.begin();
-      i != handler_map_.end(); ++i) {
+       i != handler_map_.end(); ++i) {
     schemes.insert(i->first.first);
   }
 
   for (std::set<std::string>::const_iterator scheme = schemes.begin();
-      scheme != schemes.end(); ++scheme) {
+       scheme != schemes.end(); ++scheme) {
     const std::string& scheme_name = *scheme;
     if (!scheme::IsInternalProtectedScheme(scheme_name)) {
       bool set_protocol = job_factory_->SetProtocolHandler(scheme_name, NULL);
@@ -211,7 +209,7 @@ bool CefURLRequestManager::HasFactory(const std::string& scheme) {
     return false;
 
   for (HandlerMap::const_iterator i = handler_map_.begin();
-      i != handler_map_.end(); ++i) {
+       i != handler_map_.end(); ++i) {
     if (scheme == i->first.first)
       return true;
   }

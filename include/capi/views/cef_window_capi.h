@@ -33,6 +33,8 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
+// $hash=ef258af57aea577693ce52d61b630ca29bdd5ea0$
+//
 
 #ifndef CEF_INCLUDE_CAPI_VIEWS_CEF_WINDOW_CAPI_H_
 #define CEF_INCLUDE_CAPI_VIEWS_CEF_WINDOW_CAPI_H_
@@ -47,7 +49,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
 
 ///
 // A Window is a top-level Window/widget in the Views hierarchy. By default it
@@ -65,121 +66,120 @@ typedef struct _cef_window_t {
   ///
   // Show the Window.
   ///
-  void (CEF_CALLBACK *show)(struct _cef_window_t* self);
+  void(CEF_CALLBACK* show)(struct _cef_window_t* self);
 
   ///
   // Hide the Window.
   ///
-  void (CEF_CALLBACK *hide)(struct _cef_window_t* self);
+  void(CEF_CALLBACK* hide)(struct _cef_window_t* self);
 
   ///
   // Sizes the Window to |size| and centers it in the current display.
   ///
-  void (CEF_CALLBACK *center_window)(struct _cef_window_t* self,
-      const cef_size_t* size);
+  void(CEF_CALLBACK* center_window)(struct _cef_window_t* self,
+                                    const cef_size_t* size);
 
   ///
   // Close the Window.
   ///
-  void (CEF_CALLBACK *close)(struct _cef_window_t* self);
+  void(CEF_CALLBACK* close)(struct _cef_window_t* self);
 
   ///
   // Returns true (1) if the Window has been closed.
   ///
-  int (CEF_CALLBACK *is_closed)(struct _cef_window_t* self);
+  int(CEF_CALLBACK* is_closed)(struct _cef_window_t* self);
 
   ///
   // Activate the Window, assuming it already exists and is visible.
   ///
-  void (CEF_CALLBACK *activate)(struct _cef_window_t* self);
+  void(CEF_CALLBACK* activate)(struct _cef_window_t* self);
 
   ///
   // Deactivate the Window, making the next Window in the Z order the active
   // Window.
   ///
-  void (CEF_CALLBACK *deactivate)(struct _cef_window_t* self);
+  void(CEF_CALLBACK* deactivate)(struct _cef_window_t* self);
 
   ///
   // Returns whether the Window is the currently active Window.
   ///
-  int (CEF_CALLBACK *is_active)(struct _cef_window_t* self);
+  int(CEF_CALLBACK* is_active)(struct _cef_window_t* self);
 
   ///
   // Bring this Window to the top of other Windows in the Windowing system.
   ///
-  void (CEF_CALLBACK *bring_to_top)(struct _cef_window_t* self);
+  void(CEF_CALLBACK* bring_to_top)(struct _cef_window_t* self);
 
   ///
   // Set the Window to be on top of other Windows in the Windowing system.
   ///
-  void (CEF_CALLBACK *set_always_on_top)(struct _cef_window_t* self,
-      int on_top);
+  void(CEF_CALLBACK* set_always_on_top)(struct _cef_window_t* self, int on_top);
 
   ///
   // Returns whether the Window has been set to be on top of other Windows in
   // the Windowing system.
   ///
-  int (CEF_CALLBACK *is_always_on_top)(struct _cef_window_t* self);
+  int(CEF_CALLBACK* is_always_on_top)(struct _cef_window_t* self);
 
   ///
   // Maximize the Window.
   ///
-  void (CEF_CALLBACK *maximize)(struct _cef_window_t* self);
+  void(CEF_CALLBACK* maximize)(struct _cef_window_t* self);
 
   ///
   // Minimize the Window.
   ///
-  void (CEF_CALLBACK *minimize)(struct _cef_window_t* self);
+  void(CEF_CALLBACK* minimize)(struct _cef_window_t* self);
 
   ///
   // Restore the Window.
   ///
-  void (CEF_CALLBACK *restore)(struct _cef_window_t* self);
+  void(CEF_CALLBACK* restore)(struct _cef_window_t* self);
 
   ///
   // Set fullscreen Window state.
   ///
-  void (CEF_CALLBACK *set_fullscreen)(struct _cef_window_t* self,
-      int fullscreen);
+  void(CEF_CALLBACK* set_fullscreen)(struct _cef_window_t* self,
+                                     int fullscreen);
 
   ///
   // Returns true (1) if the Window is maximized.
   ///
-  int (CEF_CALLBACK *is_maximized)(struct _cef_window_t* self);
+  int(CEF_CALLBACK* is_maximized)(struct _cef_window_t* self);
 
   ///
   // Returns true (1) if the Window is minimized.
   ///
-  int (CEF_CALLBACK *is_minimized)(struct _cef_window_t* self);
+  int(CEF_CALLBACK* is_minimized)(struct _cef_window_t* self);
 
   ///
   // Returns true (1) if the Window is fullscreen.
   ///
-  int (CEF_CALLBACK *is_fullscreen)(struct _cef_window_t* self);
+  int(CEF_CALLBACK* is_fullscreen)(struct _cef_window_t* self);
 
   ///
   // Set the Window title.
   ///
-  void (CEF_CALLBACK *set_title)(struct _cef_window_t* self,
-      const cef_string_t* title);
+  void(CEF_CALLBACK* set_title)(struct _cef_window_t* self,
+                                const cef_string_t* title);
 
   ///
   // Get the Window title.
   ///
   // The resulting string must be freed by calling cef_string_userfree_free().
-  cef_string_userfree_t (CEF_CALLBACK *get_title)(struct _cef_window_t* self);
+  cef_string_userfree_t(CEF_CALLBACK* get_title)(struct _cef_window_t* self);
 
   ///
   // Set the Window icon. This should be a 16x16 icon suitable for use in the
   // Windows's title bar.
   ///
-  void (CEF_CALLBACK *set_window_icon)(struct _cef_window_t* self,
-      struct _cef_image_t* image);
+  void(CEF_CALLBACK* set_window_icon)(struct _cef_window_t* self,
+                                      struct _cef_image_t* image);
 
   ///
   // Get the Window icon.
   ///
-  struct _cef_image_t* (CEF_CALLBACK *get_window_icon)(
+  struct _cef_image_t*(CEF_CALLBACK* get_window_icon)(
       struct _cef_window_t* self);
 
   ///
@@ -188,13 +188,13 @@ typedef struct _cef_window_t {
   // Tab list and Windows taskbar. The Window icon will be used by default if no
   // Window App icon is specified.
   ///
-  void (CEF_CALLBACK *set_window_app_icon)(struct _cef_window_t* self,
-      struct _cef_image_t* image);
+  void(CEF_CALLBACK* set_window_app_icon)(struct _cef_window_t* self,
+                                          struct _cef_image_t* image);
 
   ///
   // Get the Window App icon.
   ///
-  struct _cef_image_t* (CEF_CALLBACK *get_window_app_icon)(
+  struct _cef_image_t*(CEF_CALLBACK* get_window_app_icon)(
       struct _cef_window_t* self);
 
   ///
@@ -202,27 +202,27 @@ typedef struct _cef_window_t {
   // position in screen coordinates. |anchor_position| specifies how the menu
   // will be anchored relative to |screen_point|.
   ///
-  void (CEF_CALLBACK *show_menu)(struct _cef_window_t* self,
-      struct _cef_menu_model_t* menu_model, const cef_point_t* screen_point,
-      cef_menu_anchor_position_t anchor_position);
+  void(CEF_CALLBACK* show_menu)(struct _cef_window_t* self,
+                                struct _cef_menu_model_t* menu_model,
+                                const cef_point_t* screen_point,
+                                cef_menu_anchor_position_t anchor_position);
 
   ///
   // Cancel the menu that is currently showing, if any.
   ///
-  void (CEF_CALLBACK *cancel_menu)(struct _cef_window_t* self);
+  void(CEF_CALLBACK* cancel_menu)(struct _cef_window_t* self);
 
   ///
   // Returns the Display that most closely intersects the bounds of this Window.
   // May return NULL if this Window is not currently displayed.
   ///
-  struct _cef_display_t* (CEF_CALLBACK *get_display)(
-      struct _cef_window_t* self);
+  struct _cef_display_t*(CEF_CALLBACK* get_display)(struct _cef_window_t* self);
 
   ///
   // Returns the bounds (size and position) of this Window's client area.
   // Position is in screen coordinates.
   ///
-  cef_rect_t (CEF_CALLBACK *get_client_area_bounds_in_screen)(
+  cef_rect_t(CEF_CALLBACK* get_client_area_bounds_in_screen)(
       struct _cef_window_t* self);
 
   ///
@@ -231,13 +231,15 @@ typedef struct _cef_window_t {
   // the draggable regions. The draggable region bounds should be in window
   // coordinates.
   ///
-  void (CEF_CALLBACK *set_draggable_regions)(struct _cef_window_t* self,
-      size_t regionsCount, cef_draggable_region_t const* regions);
+  void(CEF_CALLBACK* set_draggable_regions)(
+      struct _cef_window_t* self,
+      size_t regionsCount,
+      cef_draggable_region_t const* regions);
 
   ///
   // Retrieve the platform window handle for this Window.
   ///
-  cef_window_handle_t (CEF_CALLBACK *get_window_handle)(
+  cef_window_handle_t(CEF_CALLBACK* get_window_handle)(
       struct _cef_window_t* self);
 
   ///
@@ -247,16 +249,18 @@ typedef struct _cef_window_t {
   // EVENTFLAG_CONTROL_DOWN and/or EVENTFLAG_ALT_DOWN. This function is exposed
   // primarily for testing purposes.
   ///
-  void (CEF_CALLBACK *send_key_press)(struct _cef_window_t* self, int key_code,
-      uint32 event_flags);
+  void(CEF_CALLBACK* send_key_press)(struct _cef_window_t* self,
+                                     int key_code,
+                                     uint32 event_flags);
 
   ///
   // Simulate a mouse move. The mouse cursor will be moved to the specified
   // (screen_x, screen_y) position. This function is exposed primarily for
   // testing purposes.
   ///
-  void (CEF_CALLBACK *send_mouse_move)(struct _cef_window_t* self, int screen_x,
-      int screen_y);
+  void(CEF_CALLBACK* send_mouse_move)(struct _cef_window_t* self,
+                                      int screen_x,
+                                      int screen_y);
 
   ///
   // Simulate mouse down and/or mouse up events. |button| is the mouse button
@@ -267,8 +271,10 @@ typedef struct _cef_window_t {
   // cursor position so make sure to call send_mouse_move() first to position
   // the mouse. This function is exposed primarily for testing purposes.
   ///
-  void (CEF_CALLBACK *send_mouse_events)(struct _cef_window_t* self,
-      cef_mouse_button_type_t button, int mouse_down, int mouse_up);
+  void(CEF_CALLBACK* send_mouse_events)(struct _cef_window_t* self,
+                                        cef_mouse_button_type_t button,
+                                        int mouse_down,
+                                        int mouse_up);
 
   ///
   // Set the keyboard accelerator for the specified |command_id|. |key_code| can
@@ -276,29 +282,30 @@ typedef struct _cef_window_t {
   // will be called if the keyboard combination is triggered while this window
   // has focus.
   ///
-  void (CEF_CALLBACK *set_accelerator)(struct _cef_window_t* self,
-      int command_id, int key_code, int shift_pressed, int ctrl_pressed,
-      int alt_pressed);
+  void(CEF_CALLBACK* set_accelerator)(struct _cef_window_t* self,
+                                      int command_id,
+                                      int key_code,
+                                      int shift_pressed,
+                                      int ctrl_pressed,
+                                      int alt_pressed);
 
   ///
   // Remove the keyboard accelerator for the specified |command_id|.
   ///
-  void (CEF_CALLBACK *remove_accelerator)(struct _cef_window_t* self,
-      int command_id);
+  void(CEF_CALLBACK* remove_accelerator)(struct _cef_window_t* self,
+                                         int command_id);
 
   ///
   // Remove all keyboard accelerators.
   ///
-  void (CEF_CALLBACK *remove_all_accelerators)(struct _cef_window_t* self);
+  void(CEF_CALLBACK* remove_all_accelerators)(struct _cef_window_t* self);
 } cef_window_t;
-
 
 ///
 // Create a new Window.
 ///
 CEF_EXPORT cef_window_t* cef_window_create_top_level(
     struct _cef_window_delegate_t* delegate);
-
 
 #ifdef __cplusplus
 }

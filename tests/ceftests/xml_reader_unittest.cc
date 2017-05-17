@@ -39,9 +39,8 @@ TEST(XmlReaderTest, Read) {
   ASSERT_TRUE(stream.get() != NULL);
 
   // Create the XML reader.
-  CefRefPtr<CefXmlReader> reader(
-      CefXmlReader::Create(stream, XML_ENCODING_NONE,
-      "http://www.example.org/example.xml"));
+  CefRefPtr<CefXmlReader> reader(CefXmlReader::Create(
+      stream, XML_ENCODING_NONE, "http://www.example.org/example.xml"));
   ASSERT_TRUE(reader.get() != NULL);
 
   // Move to the processing instruction node.
@@ -74,7 +73,7 @@ TEST(XmlReaderTest, Read) {
   ASSERT_EQ(reader->GetAttribute(0), "http://www.example.org/ns");
   ASSERT_EQ(reader->GetAttribute("xmlns:ns"), "http://www.example.org/ns");
   ASSERT_EQ(reader->GetAttribute("ns", "http://www.w3.org/2000/xmlns/"),
-      "http://www.example.org/ns");
+            "http://www.example.org/ns");
 
   // Move to the whitespace node.
   ASSERT_TRUE(reader->MoveToNextNode());
@@ -267,8 +266,8 @@ TEST(XmlReaderTest, Read) {
   ASSERT_FALSE(reader->HasValue());
   ASSERT_EQ(reader->GetInnerXml(), "<b>this is</b> mixed content &EA;");
   ASSERT_EQ(reader->GetOuterXml(),
-      "<ns:objB_4 xmlns:ns=\"http://www.example.org/ns\">"
-      "<b>this is</b> mixed content &EA;</ns:objB_4>");
+            "<ns:objB_4 xmlns:ns=\"http://www.example.org/ns\">"
+            "<b>this is</b> mixed content &EA;</ns:objB_4>");
 
   // Move to the <b> element node.
   ASSERT_TRUE(reader->MoveToNextNode());
@@ -361,11 +360,11 @@ TEST(XmlReaderTest, Read) {
   ASSERT_EQ(reader->GetAttribute(0), "value C1");
   ASSERT_EQ(reader->GetAttribute("ns:attr1"), "value C1");
   ASSERT_EQ(reader->GetAttribute("attr1", "http://www.example.org/ns"),
-      "value C1");
+            "value C1");
   ASSERT_EQ(reader->GetAttribute(1), "value C2");
   ASSERT_EQ(reader->GetAttribute("ns:attr2"), "value C2");
   ASSERT_EQ(reader->GetAttribute("attr2", "http://www.example.org/ns"),
-      "value C2");
+            "value C2");
 
   // Move to the ns:attr1 attribute.
   ASSERT_TRUE(reader->MoveToFirstAttribute());
@@ -498,8 +497,8 @@ TEST(XmlReaderTest, Read) {
 // Test XML read error handling.
 TEST(XmlReaderTest, ReadError) {
   char test_str[] =
-    "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\n"
-    "<!ATTRIBUTE foo bar>\n";
+      "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\n"
+      "<!ATTRIBUTE foo bar>\n";
 
   // Create the stream reader.
   CefRefPtr<CefStreamReader> stream(
@@ -507,9 +506,8 @@ TEST(XmlReaderTest, ReadError) {
   ASSERT_TRUE(stream.get() != NULL);
 
   // Create the XML reader.
-  CefRefPtr<CefXmlReader> reader(
-      CefXmlReader::Create(stream, XML_ENCODING_NONE,
-      "http://www.example.org/example.xml"));
+  CefRefPtr<CefXmlReader> reader(CefXmlReader::Create(
+      stream, XML_ENCODING_NONE, "http://www.example.org/example.xml"));
   ASSERT_TRUE(reader.get() != NULL);
 
   // Move to the processing instruction node and generate parser error.
@@ -527,7 +525,7 @@ TEST(XmlReaderTest, ObjectLoad) {
   // Create the XML reader.
   CefRefPtr<CefXmlObject> object(new CefXmlObject("object"));
   ASSERT_TRUE(object->Load(stream, XML_ENCODING_NONE,
-      "http://www.example.org/example.xml", NULL));
+                           "http://www.example.org/example.xml", NULL));
 
   ASSERT_FALSE(object->HasAttributes());
   ASSERT_TRUE(object->HasChildren());
@@ -570,8 +568,7 @@ TEST(XmlReaderTest, ObjectLoad) {
       obj_child = obj_child->FindChild("ns:objB_4");
       ASSERT_TRUE(obj_child.get());
       ASSERT_TRUE(obj_child->HasValue());
-      ASSERT_EQ(obj_child->GetValue(),
-          "<b>this is</b> mixed content EA Value");
+      ASSERT_EQ(obj_child->GetValue(), "<b>this is</b> mixed content EA Value");
     } else if (ct == 2) {
       // ns:objC
       ASSERT_EQ(obj_child->GetName(), "ns:objC");
@@ -616,9 +613,10 @@ TEST(XmlReaderTest, ObjectLoadError) {
     // Create the XML reader.
     CefRefPtr<CefXmlObject> object(new CefXmlObject("object"));
     ASSERT_FALSE(object->Load(stream, XML_ENCODING_NONE,
-        "http://www.example.org/example.xml", &error_str));
+                              "http://www.example.org/example.xml",
+                              &error_str));
     ASSERT_EQ(error_str,
-        "Opening and ending tag mismatch: foo line 2 and obj, line 3");
+              "Opening and ending tag mismatch: foo line 2 and obj, line 3");
   }
 
   // Test value following child error.
@@ -635,8 +633,8 @@ TEST(XmlReaderTest, ObjectLoadError) {
     // Create the XML reader.
     CefRefPtr<CefXmlObject> object(new CefXmlObject("object"));
     ASSERT_FALSE(object->Load(stream, XML_ENCODING_NONE,
-        "http://www.example.org/example.xml", &error_str));
-    ASSERT_EQ(error_str,
-        "Value following child element, line 4");
+                              "http://www.example.org/example.xml",
+                              &error_str));
+    ASSERT_EQ(error_str, "Value following child element, line 4");
   }
 }

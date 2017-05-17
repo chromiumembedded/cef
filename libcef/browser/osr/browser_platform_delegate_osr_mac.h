@@ -12,7 +12,7 @@ class CefBrowserPlatformDelegateOsrMac : public CefBrowserPlatformDelegateOsr {
  public:
   explicit CefBrowserPlatformDelegateOsrMac(
       std::unique_ptr<CefBrowserPlatformDelegateNative> native_delegate);
-    
+
   // CefBrowserPlatformDelegate methods:
   CefWindowHandle GetHostWindowHandle() const override;
 };

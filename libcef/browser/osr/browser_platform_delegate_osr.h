@@ -16,9 +16,9 @@ class RenderWidgetHostImpl;
 }
 
 // Base implementation of windowless browser functionality.
-class CefBrowserPlatformDelegateOsr :
-    public CefBrowserPlatformDelegate,
-    public CefBrowserPlatformDelegateNative::WindowlessHandler {
+class CefBrowserPlatformDelegateOsr
+    : public CefBrowserPlatformDelegate,
+      public CefBrowserPlatformDelegateNative::WindowlessHandler {
  public:
   // CefBrowserPlatformDelegate methods:
   void CreateViewForWebContents(
@@ -43,17 +43,20 @@ class CefBrowserPlatformDelegateOsr :
   void TranslateClickEvent(blink::WebMouseEvent& result,
                            const CefMouseEvent& mouse_event,
                            CefBrowserHost::MouseButtonType type,
-                           bool mouseUp, int clickCount) const override;
+                           bool mouseUp,
+                           int clickCount) const override;
   void TranslateMoveEvent(blink::WebMouseEvent& result,
                           const CefMouseEvent& mouse_event,
                           bool mouseLeave) const override;
   void TranslateWheelEvent(blink::WebMouseWheelEvent& result,
                            const CefMouseEvent& mouse_event,
-                           int deltaX, int deltaY) const override;
+                           int deltaX,
+                           int deltaY) const override;
   CefEventHandle GetEventHandle(
       const content::NativeWebKeyboardEvent& event) const override;
   std::unique_ptr<CefFileDialogRunner> CreateFileDialogRunner() override;
-  std::unique_ptr<CefJavaScriptDialogRunner> CreateJavaScriptDialogRunner() override;
+  std::unique_ptr<CefJavaScriptDialogRunner> CreateJavaScriptDialogRunner()
+      override;
   std::unique_ptr<CefMenuRunner> CreateMenuRunner() override;
   bool IsWindowless() const override;
   bool IsViewsHosted() const override;
@@ -61,12 +64,12 @@ class CefBrowserPlatformDelegateOsr :
   void NotifyScreenInfoChanged() override;
   void Invalidate(cef_paint_element_type_t type) override;
   void SetWindowlessFrameRate(int frame_rate) override;
-  void ImeSetComposition(
-      const CefString& text,
-      const std::vector<CefCompositionUnderline>& underlines,
-      const CefRange& replacement_range,
-      const CefRange& selection_range) override;
-  void ImeCommitText(const CefString& text, const CefRange& replacement_range,
+  void ImeSetComposition(const CefString& text,
+                         const std::vector<CefCompositionUnderline>& underlines,
+                         const CefRange& replacement_range,
+                         const CefRange& selection_range) override;
+  void ImeCommitText(const CefString& text,
+                     const CefRange& replacement_range,
                      int relative_cursor_pos) override;
   void ImeFinishComposingText(bool keep_selection) override;
   void ImeCancelComposition() override;
@@ -77,16 +80,14 @@ class CefBrowserPlatformDelegateOsr :
                           cef_drag_operations_mask_t allowed_ops) override;
   void DragTargetDragLeave() override;
   void DragTargetDrop(const CefMouseEvent& event) override;
-  void StartDragging(
-      const content::DropData& drop_data,
-      blink::WebDragOperationsMask allowed_ops,
-      const gfx::ImageSkia& image,
-      const gfx::Vector2d& image_offset,
-      const content::DragEventSourceInfo& event_info,
-      content::RenderWidgetHostImpl* source_rwh) override;
+  void StartDragging(const content::DropData& drop_data,
+                     blink::WebDragOperationsMask allowed_ops,
+                     const gfx::ImageSkia& image,
+                     const gfx::Vector2d& image_offset,
+                     const content::DragEventSourceInfo& event_info,
+                     content::RenderWidgetHostImpl* source_rwh) override;
   void UpdateDragCursor(blink::WebDragOperation operation) override;
-  void DragSourceEndedAt(int x, int y,
-                         cef_drag_operations_mask_t op) override;
+  void DragSourceEndedAt(int x, int y, cef_drag_operations_mask_t op) override;
   void DragSourceSystemDragEnded() override;
   void AccessibilityEventReceived(
       const std::vector<content::AXEventNotificationDetails>& eventData)

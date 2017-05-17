@@ -29,8 +29,7 @@ class UserData : public base::SupportsUserData::Data {
   // reference to the CefLayout and the CefLayout will keep an unowned reference
   // to the views::LayoutManager. Destruction of the views::View will release
   // the reference to the CefLayout.
-  static void Assign(CefRefPtr<CefLayout> cef_layout,
-                     views::View* owner_view) {
+  static void Assign(CefRefPtr<CefLayout> cef_layout, views::View* owner_view) {
     DCHECK(owner_view);
     DCHECK(cef_layout->IsValid());
 
@@ -43,14 +42,11 @@ class UserData : public base::SupportsUserData::Data {
   }
 
  private:
-  explicit UserData(CefRefPtr<CefLayout> cef_layout)
-      : layout_(cef_layout) {
+  explicit UserData(CefRefPtr<CefLayout> cef_layout) : layout_(cef_layout) {
     DCHECK(layout_);
   }
 
-  ~UserData() override {
-    CefLayoutAdapter::GetFor(layout_)->Detach();
-  }
+  ~UserData() override { CefLayoutAdapter::GetFor(layout_)->Detach(); }
 
   static void* UserDataKey() {
     // We just need a unique constant. Use the address of a static that

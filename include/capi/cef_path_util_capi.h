@@ -33,6 +33,8 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
+// $hash=fbb817705137a12b4718950ff696396c30057007$
+//
 
 #ifndef CEF_INCLUDE_CAPI_CEF_PATH_UTIL_CAPI_H_
 #define CEF_INCLUDE_CAPI_CEF_PATH_UTIL_CAPI_H_
@@ -43,7 +45,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
 
 ///
 // Retrieve the path associated with the specified |key|. Returns true (1) on

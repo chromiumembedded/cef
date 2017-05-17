@@ -30,7 +30,7 @@ void RunOnThread(CefThreadId thread_id,
                  CefRefPtr<CefWaitableEvent> event) {
   if (!CefCurrentlyOn(thread_id)) {
     CefPostTask(thread_id,
-        base::Bind(RunOnThread, thread_id, test_impl, event));
+                base::Bind(RunOnThread, thread_id, test_impl, event));
     return;
   }
 
@@ -44,7 +44,7 @@ void RunOnThreadAsync(
     CefRefPtr<CefWaitableEvent> event) {
   if (!CefCurrentlyOn(thread_id)) {
     CefPostTask(thread_id,
-        base::Bind(RunOnThreadAsync, thread_id, test_impl, event));
+                base::Bind(RunOnThreadAsync, thread_id, test_impl, event));
     return;
   }
 

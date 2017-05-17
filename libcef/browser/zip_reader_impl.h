@@ -8,8 +8,8 @@
 
 #include <sstream>
 
-#include "include/cef_zip_reader.h"
 #include "base/threading/platform_thread.h"
+#include "include/cef_zip_reader.h"
 #include "third_party/zlib/contrib/minizip/unzip.h"
 
 // Implementation of CefZipReader

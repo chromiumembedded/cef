@@ -13,8 +13,10 @@ namespace client {
 
 OsrAXNode::OsrAXNode(CefRefPtr<CefDictionaryValue> value,
                      OsrAccessibilityHelper* helper)
-    : node_id_(-1), platform_accessibility_(NULL), parent_(NULL),
-    accessibility_helper_(helper) {
+    : node_id_(-1),
+      platform_accessibility_(NULL),
+      parent_(NULL),
+      accessibility_helper_(helper) {
   UpdateValue(value);
 }
 
@@ -29,7 +31,7 @@ void OsrAXNode::UpdateValue(CefRefPtr<CefDictionaryValue> value) {
       CefRefPtr<CefListValue> childs = value->GetList("child_ids");
       // Reset child Ids
       child_ids_.clear();
-      for(size_t idx = 0; idx < childs->GetSize(); idx++)
+      for (size_t idx = 0; idx < childs->GetSize(); idx++)
         child_ids_.push_back(childs->GetInt(idx));
     }
     // Update Location
@@ -51,9 +53,9 @@ void OsrAXNode::UpdateValue(CefRefPtr<CefDictionaryValue> value) {
       if (attributes_ && attributes_->HasKey("name"))
         name_ = attributes_->GetString("name");
       if (attributes_ && attributes_->HasKey("value"))
-          value_ = attributes_->GetString("value");
+        value_ = attributes_->GetString("value");
       if (attributes_ && attributes_->HasKey("description"))
-          description_ = attributes_->GetString("description");
+        description_ = attributes_->GetString("description");
     }
   }
 }

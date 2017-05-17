@@ -40,11 +40,9 @@ namespace extensions {
 
 CefExtensionsBrowserClient::CefExtensionsBrowserClient()
     : api_client_(new CefExtensionsAPIClient),
-      resource_manager_(new CefComponentExtensionResourceManager) {
-}
+      resource_manager_(new CefComponentExtensionResourceManager) {}
 
-CefExtensionsBrowserClient::~CefExtensionsBrowserClient() {
-}
+CefExtensionsBrowserClient::~CefExtensionsBrowserClient() {}
 
 bool CefExtensionsBrowserClient::IsShuttingDown() {
   return false;
@@ -84,8 +82,7 @@ BrowserContext* CefExtensionsBrowserClient::GetOriginalContext(
   return chrome::GetBrowserContextRedirectedInIncognito(context);
 }
 
-bool CefExtensionsBrowserClient::IsGuestSession(
-    BrowserContext* context) const {
+bool CefExtensionsBrowserClient::IsGuestSession(BrowserContext* context) const {
   return false;
 }
 
@@ -109,10 +106,7 @@ CefExtensionsBrowserClient::MaybeCreateResourceBundleRequestJob(
     const std::string& content_security_policy,
     bool send_cors_header) {
   return chrome_url_request_util::MaybeCreateURLRequestResourceBundleJob(
-      request,
-      network_delegate,
-      directory_path,
-      content_security_policy,
+      request, network_delegate, directory_path, content_security_policy,
       send_cors_header);
 }
 
@@ -145,11 +139,10 @@ PrefService* CefExtensionsBrowserClient::GetPrefServiceForContext(
 
 void CefExtensionsBrowserClient::GetEarlyExtensionPrefsObservers(
     content::BrowserContext* context,
-    std::vector<ExtensionPrefsObserver*>* observers) const {
-}
+    std::vector<ExtensionPrefsObserver*>* observers) const {}
 
-ProcessManagerDelegate*
-CefExtensionsBrowserClient::GetProcessManagerDelegate() const {
+ProcessManagerDelegate* CefExtensionsBrowserClient::GetProcessManagerDelegate()
+    const {
   return NULL;
 }
 
@@ -165,14 +158,13 @@ bool CefExtensionsBrowserClient::DidVersionUpdate(BrowserContext* context) {
   return false;
 }
 
-void CefExtensionsBrowserClient::PermitExternalProtocolHandler() {
-}
+void CefExtensionsBrowserClient::PermitExternalProtocolHandler() {}
 
 bool CefExtensionsBrowserClient::IsRunningInForcedAppMode() {
   return false;
 }
 
-bool CefExtensionsBrowserClient::IsLoggedInAsPublicAccount()  {
+bool CefExtensionsBrowserClient::IsLoggedInAsPublicAccount() {
   return false;
 }
 
@@ -189,7 +181,7 @@ void CefExtensionsBrowserClient::RegisterExtensionFunctions(
   // CEF-only APIs.
   // TODO(cef): Enable if/when CEF exposes its own Mojo APIs. See
   // libcef/common/extensions/api/README.txt for details.
-  //api::cef::CefGeneratedFunctionRegistry::RegisterAll(registry);
+  // api::cef::CefGeneratedFunctionRegistry::RegisterAll(registry);
 
   // Chrome APIs whitelisted by CEF.
   api::cef::ChromeFunctionRegistry::RegisterAll(registry);
@@ -218,9 +210,9 @@ void CefExtensionsBrowserClient::BroadcastEventToRenderers(
     events::HistogramValue histogram_value,
     const std::string& event_name,
     std::unique_ptr<base::ListValue> args) {
-  g_browser_process->extension_event_router_forwarder()->
-      BroadcastEventToRenderers(histogram_value, event_name, std::move(args),
-                                GURL());
+  g_browser_process->extension_event_router_forwarder()
+      ->BroadcastEventToRenderers(histogram_value, event_name, std::move(args),
+                                  GURL());
 }
 
 net::NetLog* CefExtensionsBrowserClient::GetNetLog() {

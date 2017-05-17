@@ -218,10 +218,10 @@ NSMenuItem* GetMenuItemWithAction(NSMenu* menu, SEL action_selector) {
 
   // Create the first window.
   client::MainContext::Get()->GetRootWindowManager()->CreateRootWindow(
-      with_controls_,   // Show controls.
-      with_osr_,        // Use off-screen rendering.
-      CefRect(),        // Use default system size.
-      std::string());   // Use default URL.
+      with_controls_,  // Show controls.
+      with_osr_,       // Use off-screen rendering.
+      CefRect(),       // Use default system size.
+      std::string());  // Use default URL.
 }
 
 - (void)tryToTerminateApplication:(NSApplication*)app {
@@ -321,13 +321,13 @@ NSMenuItem* GetMenuItemWithAction(NSMenu* menu, SEL action_selector) {
 
   CefRefPtr<CefBrowser> browser = root_window->GetBrowser();
   if (browser.get()) {
-    browser->GetHost()->SetAccessibilityState(bEnable ?
-                                              STATE_ENABLED : STATE_DISABLED);
+    browser->GetHost()->SetAccessibilityState(bEnable ? STATE_ENABLED
+                                                      : STATE_DISABLED);
   }
 }
 
 - (NSApplicationTerminateReply)applicationShouldTerminate:
-      (NSApplication *)sender {
+    (NSApplication*)sender {
   return NSTerminateNow;
 }
 
@@ -401,7 +401,6 @@ int RunMain(int argc, char* argv[]) {
 
 }  // namespace
 }  // namespace client
-
 
 // Program entry point function.
 int main(int argc, char* argv[]) {

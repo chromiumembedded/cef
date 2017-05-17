@@ -26,8 +26,8 @@
 #include "content/browser/frame_host/render_widget_host_view_guest.h"
 #include "content/browser/renderer_host/dip_util.h"
 #include "content/browser/renderer_host/render_widget_host_delegate.h"
-#include "content/browser/renderer_host/render_widget_host_view_frame_subscriber.h"
 #include "content/browser/renderer_host/render_widget_host_impl.h"
+#include "content/browser/renderer_host/render_widget_host_view_frame_subscriber.h"
 #include "content/common/input_messages.h"
 #include "content/common/view_messages.h"
 #include "content/public/browser/browser_thread.h"
@@ -52,12 +52,11 @@ static content::ScreenInfo ScreenInfoFrom(const CefScreenInfo& src) {
   screenInfo.depth = src.depth;
   screenInfo.depth_per_component = src.depth_per_component;
   screenInfo.is_monochrome = src.is_monochrome ? true : false;
-  screenInfo.rect = gfx::Rect(src.rect.x, src.rect.y,
-                              src.rect.width, src.rect.height);
-  screenInfo.available_rect = gfx::Rect(src.available_rect.x,
-                                        src.available_rect.y,
-                                        src.available_rect.width,
-                                        src.available_rect.height);
+  screenInfo.rect =
+      gfx::Rect(src.rect.x, src.rect.y, src.rect.width, src.rect.height);
+  screenInfo.available_rect =
+      gfx::Rect(src.available_rect.x, src.available_rect.y,
+                src.available_rect.width, src.available_rect.height);
 
   return screenInfo;
 }
@@ -71,17 +70,14 @@ class CefCopyFrameGenerator {
  public:
   CefCopyFrameGenerator(int frame_rate_threshold_ms,
                         CefRenderWidgetHostViewOSR* view)
-    : frame_rate_threshold_ms_(frame_rate_threshold_ms),
-      view_(view),
-      frame_pending_(false),
-      frame_in_progress_(false),
-      frame_retry_count_(0),
-      weak_ptr_factory_(this) {
-  }
+      : frame_rate_threshold_ms_(frame_rate_threshold_ms),
+        view_(view),
+        frame_pending_(false),
+        frame_in_progress_(false),
+        frame_retry_count_(0),
+        weak_ptr_factory_(this) {}
 
-  void GenerateCopyFrame(
-      bool force_frame,
-      const gfx::Rect& damage_rect) {
+  void GenerateCopyFrame(bool force_frame, const gfx::Rect& damage_rect) {
     if (force_frame && !frame_pending_)
       frame_pending_ = true;
 
@@ -103,7 +99,8 @@ class CefCopyFrameGenerator {
         (base::TimeTicks::Now() - frame_start_time_).InMilliseconds();
     if (frame_rate_delta < frame_rate_threshold_ms_) {
       // Generate the frame after the necessary time has passed.
-      CEF_POST_DELAYED_TASK(CEF_UIT,
+      CEF_POST_DELAYED_TASK(
+          CEF_UIT,
           base::Bind(&CefCopyFrameGenerator::InternalGenerateCopyFrame,
                      weak_ptr_factory_.GetWeakPtr()),
           frame_rate_threshold_ms_ - frame_rate_delta);
@@ -136,8 +133,7 @@ class CefCopyFrameGenerator {
     std::unique_ptr<cc::CopyOutputRequest> request =
         cc::CopyOutputRequest::CreateRequest(base::Bind(
             &CefCopyFrameGenerator::CopyFromCompositingSurfaceHasResult,
-            weak_ptr_factory_.GetWeakPtr(),
-            damage_rect));
+            weak_ptr_factory_.GetWeakPtr(), damage_rect));
 
     request->set_area(gfx::Rect(view_->GetPhysicalBackingSize()));
     view_->GetRootLayer()->RequestCopyOfOutput(std::move(request));
@@ -167,22 +163,18 @@ class CefCopyFrameGenerator {
     DCHECK(result->HasTexture());
     base::ScopedClosureRunner scoped_callback_runner(
         base::Bind(&CefCopyFrameGenerator::OnCopyFrameCaptureFailure,
-                   weak_ptr_factory_.GetWeakPtr(),
-                   damage_rect));
+                   weak_ptr_factory_.GetWeakPtr(), damage_rect));
 
     const gfx::Size& result_size = result->size();
     SkIRect bitmap_size;
     if (bitmap_)
       bitmap_->getBounds(&bitmap_size);
 
-    if (!bitmap_ ||
-        bitmap_size.width() != result_size.width() ||
+    if (!bitmap_ || bitmap_size.width() != result_size.width() ||
         bitmap_size.height() != result_size.height()) {
       // Create a new bitmap if the size has changed.
       bitmap_.reset(new SkBitmap);
-      bitmap_->allocN32Pixels(result_size.width(),
-                              result_size.height(),
-                              true);
+      bitmap_->allocN32Pixels(result_size.width(), result_size.height(), true);
       if (bitmap_->drawsNothing())
         return;
     }
@@ -207,19 +199,12 @@ class CefCopyFrameGenerator {
     ignore_result(scoped_callback_runner.Release());
 
     gl_helper->CropScaleReadbackAndCleanMailbox(
-        texture_mailbox.mailbox(),
-        texture_mailbox.sync_token(),
-        result_size,
-        gfx::Rect(result_size),
-        result_size,
-        pixels,
-        kN32_SkColorType,
+        texture_mailbox.mailbox(), texture_mailbox.sync_token(), result_size,
+        gfx::Rect(result_size), result_size, pixels, kN32_SkColorType,
         base::Bind(
             &CefCopyFrameGenerator::CopyFromCompositingSurfaceFinishedProxy,
-            weak_ptr_factory_.GetWeakPtr(),
-            base::Passed(&release_callback),
-            damage_rect,
-            base::Passed(&bitmap_),
+            weak_ptr_factory_.GetWeakPtr(), base::Passed(&release_callback),
+            damage_rect, base::Passed(&bitmap_),
             base::Passed(&bitmap_pixels_lock)),
         display_compositor::GLHelper::SCALER_QUALITY_FAST);
   }
@@ -286,8 +271,7 @@ class CefCopyFrameGenerator {
     }
   }
 
-  void OnCopyFrameCaptureFailure(
-      const gfx::Rect& damage_rect) {
+  void OnCopyFrameCaptureFailure(const gfx::Rect& damage_rect) {
     // Retry with the same |damage_rect|.
     pending_damage_rect_.Union(damage_rect);
 
@@ -316,11 +300,10 @@ class CefCopyFrameGenerator {
     if (frame_pending_) {
       // Another frame was requested while the current frame was in-progress.
       // Generate the pending frame now.
-      CEF_POST_TASK(CEF_UIT,
+      CEF_POST_TASK(
+          CEF_UIT,
           base::Bind(&CefCopyFrameGenerator::GenerateCopyFrame,
-                     weak_ptr_factory_.GetWeakPtr(),
-                     force_frame,
-                     gfx::Rect()));
+                     weak_ptr_factory_.GetWeakPtr(), force_frame, gfx::Rect()));
     }
   }
 
@@ -343,8 +326,7 @@ class CefCopyFrameGenerator {
 // enabled.
 class CefBeginFrameTimer : public cc::DelayBasedTimeSourceClient {
  public:
-  CefBeginFrameTimer(int frame_rate_threshold_ms,
-                     const base::Closure& callback)
+  CefBeginFrameTimer(int frame_rate_threshold_ms, const base::Closure& callback)
       : callback_(callback) {
     time_source_.reset(new cc::DelayBasedTimeSource(
         content::BrowserThread::GetTaskRunnerForThread(CEF_UIT).get()));
@@ -354,13 +336,9 @@ class CefBeginFrameTimer : public cc::DelayBasedTimeSourceClient {
     time_source_->SetClient(this);
   }
 
-  void SetActive(bool active) {
-    time_source_->SetActive(active);
-  }
+  void SetActive(bool active) { time_source_->SetActive(active); }
 
-  bool IsActive() const {
-    return time_source_->Active();
-  }
+  bool IsActive() const { return time_source_->Active(); }
 
   void SetFrameRateThresholdMs(int frame_rate_threshold_ms) {
     time_source_->SetTimebaseAndInterval(
@@ -370,16 +348,13 @@ class CefBeginFrameTimer : public cc::DelayBasedTimeSourceClient {
 
  private:
   // cc::TimerSourceClient implementation.
-  void OnTimerTick() override {
-    callback_.Run();
-  }
+  void OnTimerTick() override { callback_.Run(); }
 
   const base::Closure callback_;
   std::unique_ptr<cc::DelayBasedTimeSource> time_source_;
 
   DISALLOW_COPY_AND_ASSIGN(CefBeginFrameTimer);
 };
-
 
 CefRenderWidgetHostViewOSR::CefRenderWidgetHostViewOSR(
     SkColor background_color,
@@ -499,16 +474,14 @@ void CefRenderWidgetHostViewOSR::InitAsChild(gfx::NativeView parent_view) {
   Show();
 }
 
-content::RenderWidgetHost*
-    CefRenderWidgetHostViewOSR::GetRenderWidgetHost() const {
+content::RenderWidgetHost* CefRenderWidgetHostViewOSR::GetRenderWidgetHost()
+    const {
   return render_widget_host_;
 }
 
-void CefRenderWidgetHostViewOSR::SetSize(const gfx::Size& size) {
-}
+void CefRenderWidgetHostViewOSR::SetSize(const gfx::Size& size) {}
 
-void CefRenderWidgetHostViewOSR::SetBounds(const gfx::Rect& rect) {
-}
+void CefRenderWidgetHostViewOSR::SetBounds(const gfx::Rect& rect) {}
 
 gfx::Vector2dF CefRenderWidgetHostViewOSR::GetLastScrollOffset() const {
   return last_scroll_offset_;
@@ -519,12 +492,11 @@ gfx::NativeView CefRenderWidgetHostViewOSR::GetNativeView() const {
 }
 
 gfx::NativeViewAccessible
-    CefRenderWidgetHostViewOSR::GetNativeViewAccessible() {
+CefRenderWidgetHostViewOSR::GetNativeViewAccessible() {
   return gfx::NativeViewAccessible();
 }
 
-void CefRenderWidgetHostViewOSR::Focus() {
-}
+void CefRenderWidgetHostViewOSR::Focus() {}
 
 bool CefRenderWidgetHostViewOSR::HasFocus() const {
   return false;
@@ -598,8 +570,8 @@ void CefRenderWidgetHostViewOSR::SetBackgroundColor(SkColor color) {
   DCHECK(SkColorGetA(color) == SK_AlphaOPAQUE ||
          SkColorGetA(color) == SK_AlphaTRANSPARENT);
   if (render_widget_host_) {
-    render_widget_host_->SetBackgroundOpaque(
-        SkColorGetA(color) == SK_AlphaOPAQUE);
+    render_widget_host_->SetBackgroundOpaque(SkColorGetA(color) ==
+                                             SK_AlphaOPAQUE);
   }
 }
 
@@ -611,12 +583,10 @@ bool CefRenderWidgetHostViewOSR::LockMouse() {
   return false;
 }
 
-void CefRenderWidgetHostViewOSR::UnlockMouse() {
-}
+void CefRenderWidgetHostViewOSR::UnlockMouse() {}
 
 void CefRenderWidgetHostViewOSR::DidCreateNewRendererCompositorFrameSink(
-    cc::mojom::MojoCompositorFrameSinkClient*
-        renderer_compositor_frame_sink) {
+    cc::mojom::MojoCompositorFrameSinkClient* renderer_compositor_frame_sink) {
   renderer_compositor_frame_sink_ = renderer_compositor_frame_sink;
   if (GetDelegatedFrameHost()) {
     GetDelegatedFrameHost()->DidCreateNewRendererCompositorFrameSink(
@@ -634,7 +604,8 @@ void CefRenderWidgetHostViewOSR::SubmitCompositorFrame(
 
     if (!is_scroll_offset_changed_pending_) {
       // Send the notification asnychronously.
-      CEF_POST_TASK(CEF_UIT,
+      CEF_POST_TASK(
+          CEF_UIT,
           base::Bind(&CefRenderWidgetHostViewOSR::OnScrollOffsetChanged,
                      weak_ptr_factory_.GetWeakPtr()));
     }
@@ -656,7 +627,7 @@ void CefRenderWidgetHostViewOSR::SubmitCompositorFrame(
       // Consequently we instead call the SwapDelegatedFrame method directly.
       GetDelegatedFrameHost()->SubmitCompositorFrame(local_surface_id,
                                                      std::move(frame));
-   } else {
+    } else {
       if (!copy_frame_generator_.get()) {
         copy_frame_generator_.reset(
             new CefCopyFrameGenerator(frame_rate_threshold_ms_, this));
@@ -786,8 +757,7 @@ void CefRenderWidgetHostViewOSR::UpdateCursor(
 #endif
 }
 
-void CefRenderWidgetHostViewOSR::SetIsLoading(bool is_loading) {
-}
+void CefRenderWidgetHostViewOSR::SetIsLoading(bool is_loading) {}
 
 void CefRenderWidgetHostViewOSR::RenderProcessGone(
     base::TerminationStatus status,
@@ -841,8 +811,8 @@ void CefRenderWidgetHostViewOSR::CopyFromSurface(
     const gfx::Size& dst_size,
     const content::ReadbackRequestCallback& callback,
     const SkColorType color_type) {
-  GetDelegatedFrameHost()->CopyFromCompositingSurface(
-      src_subrect, dst_size, callback, color_type);
+  GetDelegatedFrameHost()->CopyFromCompositingSurface(src_subrect, dst_size,
+                                                      callback, color_type);
 }
 
 void CefRenderWidgetHostViewOSR::CopyFromSurfaceToVideoFrame(
@@ -884,17 +854,16 @@ gfx::Rect CefRenderWidgetHostViewOSR::GetBoundsInRootWindow() {
 }
 
 content::BrowserAccessibilityManager*
-    CefRenderWidgetHostViewOSR::CreateBrowserAccessibilityManager(
-        content::BrowserAccessibilityDelegate* delegate,
-        bool for_root_frame) {
+CefRenderWidgetHostViewOSR::CreateBrowserAccessibilityManager(
+    content::BrowserAccessibilityDelegate* delegate,
+    bool for_root_frame) {
   return NULL;
 }
 
 #if defined(TOOLKIT_VIEWS) || defined(USE_AURA)
 void CefRenderWidgetHostViewOSR::ShowDisambiguationPopup(
     const gfx::Rect& rect_pixels,
-    const SkBitmap& zoomed_bitmap) {
-}
+    const SkBitmap& zoomed_bitmap) {}
 #endif
 
 void CefRenderWidgetHostViewOSR::ImeSetComposition(
@@ -909,21 +878,17 @@ void CefRenderWidgetHostViewOSR::ImeSetComposition(
   std::vector<blink::WebCompositionUnderline> web_underlines;
   web_underlines.reserve(underlines.size());
   for (const CefCompositionUnderline& line : underlines) {
-    web_underlines.push_back(
-        blink::WebCompositionUnderline(line.range.from,
-                                       line.range.to,
-                                       line.color,
-                                       line.thick ? true : false,
-                                       line.background_color));
+    web_underlines.push_back(blink::WebCompositionUnderline(
+        line.range.from, line.range.to, line.color, line.thick ? true : false,
+        line.background_color));
   }
   gfx::Range range(replacement_range.from, replacement_range.to);
 
   // Start Monitoring for composition updates before we set.
   RequestImeCompositionUpdate(true);
 
-  render_widget_host_->ImeSetComposition(text, web_underlines, range,
-                                         selection_range.from,
-                                         selection_range.to);
+  render_widget_host_->ImeSetComposition(
+      text, web_underlines, range, selection_range.from, selection_range.to);
 }
 
 void CefRenderWidgetHostViewOSR::ImeCommitText(
@@ -984,8 +949,7 @@ bool CefRenderWidgetHostViewOSR::TransformPointToLocalCoordSpace(
     gfx::Point* transformed_point) {
   // Transformations use physical pixels rather than DIP, so conversion
   // is necessary.
-  gfx::Point point_in_pixels =
-      gfx::ConvertPointToPixel(scale_factor_, point);
+  gfx::Point point_in_pixels = gfx::ConvertPointToPixel(scale_factor_, point);
   if (!GetDelegatedFrameHost()->TransformPointToLocalCoordSpace(
           point_in_pixels, original_surface, transformed_point)) {
     return false;
@@ -1047,8 +1011,8 @@ SkColor CefRenderWidgetHostViewOSR::DelegatedFrameHostGetGutterColor(
   return color;
 }
 
-gfx::Size
-CefRenderWidgetHostViewOSR::DelegatedFrameHostDesiredSizeInDIP() const {
+gfx::Size CefRenderWidgetHostViewOSR::DelegatedFrameHostDesiredSizeInDIP()
+    const {
   return GetRootLayer()->bounds().size();
 }
 
@@ -1116,17 +1080,16 @@ void CefRenderWidgetHostViewOSR::GetScreenInfo(content::ScreenInfo* results) {
   if (!browser_impl_.get())
     return;
 
-  CefScreenInfo screen_info(
-      kDefaultScaleFactor, 0, 0, false, CefRect(), CefRect());
+  CefScreenInfo screen_info(kDefaultScaleFactor, 0, 0, false, CefRect(),
+                            CefRect());
 
   CefRefPtr<CefRenderHandler> handler =
       browser_impl_->client()->GetRenderHandler();
   if (handler.get() &&
       (!handler->GetScreenInfo(browser_impl_.get(), screen_info) ||
-      screen_info.rect.width == 0 ||
-      screen_info.rect.height == 0 ||
-      screen_info.available_rect.width == 0 ||
-      screen_info.available_rect.height == 0)) {
+       screen_info.rect.width == 0 || screen_info.rect.height == 0 ||
+       screen_info.available_rect.width == 0 ||
+       screen_info.available_rect.height == 0)) {
     // If a screen rectangle was not provided, try using the view rectangle
     // instead. Otherwise, popup views may be drawn incorrectly, or not at all.
     CefRect screenRect;
@@ -1166,7 +1129,7 @@ void CefRenderWidgetHostViewOSR::OnScreenInfoChanged() {
 void CefRenderWidgetHostViewOSR::Invalidate(
     CefBrowserHost::PaintElementType type) {
   TRACE_EVENT1("libcef", "CefRenderWidgetHostViewOSR::Invalidate", "type",
-               type); 
+               type);
   if (!IsPopupWidget() && type == PET_POPUP) {
     if (popup_host_view_)
       popup_host_view_->Invalidate(type);
@@ -1221,7 +1184,7 @@ void CefRenderWidgetHostViewOSR::SendMouseWheelEvent(
 
     if (popup_host_view_) {
       if (popup_host_view_->popup_position_.Contains(
-            event.PositionInWidget().x, event.PositionInWidget().y)) {
+              event.PositionInWidget().x, event.PositionInWidget().y)) {
         blink::WebMouseWheelEvent popup_event(event);
         popup_event.SetPositionInWidget(
             event.PositionInWidget().x - popup_host_view_->popup_position_.x(),
@@ -1235,7 +1198,8 @@ void CefRenderWidgetHostViewOSR::SendMouseWheelEvent(
         // Scrolling outside of the popup widget so destroy it.
         // Execute asynchronously to avoid deleting the widget from inside some
         // other callback.
-        CEF_POST_TASK(CEF_UIT,
+        CEF_POST_TASK(
+            CEF_UIT,
             base::Bind(&CefRenderWidgetHostViewOSR::CancelWidget,
                        popup_host_view_->weak_ptr_factory_.GetWeakPtr()));
       }
@@ -1285,17 +1249,15 @@ void CefRenderWidgetHostViewOSR::ReleaseResize() {
   hold_resize_ = false;
   if (pending_resize_) {
     pending_resize_ = false;
-    CEF_POST_TASK(CEF_UIT,
-        base::Bind(&CefRenderWidgetHostViewOSR::WasResized,
-                   weak_ptr_factory_.GetWeakPtr()));
+    CEF_POST_TASK(CEF_UIT, base::Bind(&CefRenderWidgetHostViewOSR::WasResized,
+                                      weak_ptr_factory_.GetWeakPtr()));
   }
 }
 
-void CefRenderWidgetHostViewOSR::OnPaint(
-    const gfx::Rect& damage_rect,
-    int bitmap_width,
-    int bitmap_height,
-    void* bitmap_pixels) {
+void CefRenderWidgetHostViewOSR::OnPaint(const gfx::Rect& damage_rect,
+                                         int bitmap_width,
+                                         int bitmap_height,
+                                         void* bitmap_pixels) {
   TRACE_EVENT0("libcef", "CefRenderWidgetHostViewOSR::OnPaint");
 
   CefRefPtr<CefRenderHandler> handler =
@@ -1313,13 +1275,8 @@ void CefRenderWidgetHostViewOSR::OnPaint(
   rcList.push_back(CefRect(rect_in_bitmap.x(), rect_in_bitmap.y(),
                            rect_in_bitmap.width(), rect_in_bitmap.height()));
 
-  handler->OnPaint(
-        browser_impl_.get(),
-        IsPopupWidget() ? PET_POPUP : PET_VIEW,
-        rcList,
-        bitmap_pixels,
-        bitmap_width,
-        bitmap_height);
+  handler->OnPaint(browser_impl_.get(), IsPopupWidget() ? PET_POPUP : PET_VIEW,
+                   rcList, bitmap_pixels, bitmap_width, bitmap_height);
 
   ReleaseResize();
 }
@@ -1374,20 +1331,20 @@ void CefRenderWidgetHostViewOSR::SetFrameRate() {
     begin_frame_timer_.reset(new CefBeginFrameTimer(
         frame_rate_threshold_ms_,
         base::Bind(&CefRenderWidgetHostViewOSR::OnBeginFrameTimerTick,
-                    weak_ptr_factory_.GetWeakPtr())));
+                   weak_ptr_factory_.GetWeakPtr())));
   }
 }
 
 void CefRenderWidgetHostViewOSR::SetDeviceScaleFactor() {
   float new_scale_factor = kDefaultScaleFactor;
 
-  if (browser_impl_.get())  {
-    CefScreenInfo screen_info(
-        kDefaultScaleFactor, 0, 0, false, CefRect(), CefRect());
+  if (browser_impl_.get()) {
+    CefScreenInfo screen_info(kDefaultScaleFactor, 0, 0, false, CefRect(),
+                              CefRect());
     CefRefPtr<CefRenderHandler> handler =
         browser_impl_->client()->GetRenderHandler();
-    if (handler.get() && handler->GetScreenInfo(browser_impl_.get(),
-                                                screen_info)) {
+    if (handler.get() &&
+        handler->GetScreenInfo(browser_impl_.get(), screen_info)) {
       new_scale_factor = screen_info.device_scale_factor;
     }
   }
@@ -1395,14 +1352,15 @@ void CefRenderWidgetHostViewOSR::SetDeviceScaleFactor() {
   scale_factor_ = new_scale_factor;
 
   if (render_widget_host_ && render_widget_host_->delegate())
-     render_widget_host_->delegate()->UpdateDeviceScaleFactor(new_scale_factor);
+    render_widget_host_->delegate()->UpdateDeviceScaleFactor(new_scale_factor);
 
   // Notify the guest hosts if any.
   for (auto guest_host_view : guest_host_views_) {
     if (guest_host_view->render_widget_host() &&
         guest_host_view->render_widget_host()->delegate()) {
-      guest_host_view->render_widget_host()->delegate()->
-          UpdateDeviceScaleFactor(new_scale_factor);
+      guest_host_view->render_widget_host()
+          ->delegate()
+          ->UpdateDeviceScaleFactor(new_scale_factor);
     }
   }
 }
@@ -1452,17 +1410,15 @@ void CefRenderWidgetHostViewOSR::SendBeginFrame(base::TimeTicks frame_time,
 
   base::TimeTicks deadline = display_time - estimated_browser_composite_time;
 
-  const cc::BeginFrameArgs& begin_frame_args =
-      cc::BeginFrameArgs::Create(BEGINFRAME_FROM_HERE,
-                                 begin_frame_source_.source_id(),
-                                 begin_frame_number_, frame_time, deadline,
-                                 vsync_period, cc::BeginFrameArgs::NORMAL);
+  const cc::BeginFrameArgs& begin_frame_args = cc::BeginFrameArgs::Create(
+      BEGINFRAME_FROM_HERE, begin_frame_source_.source_id(),
+      begin_frame_number_, frame_time, deadline, vsync_period,
+      cc::BeginFrameArgs::NORMAL);
   DCHECK(begin_frame_args.IsValid());
   begin_frame_number_++;
 
   render_widget_host_->Send(new ViewMsg_BeginFrame(
-      render_widget_host_->GetRoutingID(),
-      begin_frame_args));
+      render_widget_host_->GetRoutingID(), begin_frame_args));
 }
 
 void CefRenderWidgetHostViewOSR::CancelWidget() {
@@ -1525,10 +1481,10 @@ void CefRenderWidgetHostViewOSR::RemoveGuestHostView(
 
 void CefRenderWidgetHostViewOSR::RegisterGuestViewFrameSwappedCallback(
     content::RenderWidgetHostViewGuest* guest_host_view) {
-  guest_host_view->RegisterFrameSwappedCallback(base::MakeUnique<base::Closure>(
-      base::Bind(&CefRenderWidgetHostViewOSR::OnGuestViewFrameSwapped,
-                 weak_ptr_factory_.GetWeakPtr(),
-                 base::Unretained(guest_host_view))));
+  guest_host_view->RegisterFrameSwappedCallback(
+      base::MakeUnique<base::Closure>(base::Bind(
+          &CefRenderWidgetHostViewOSR::OnGuestViewFrameSwapped,
+          weak_ptr_factory_.GetWeakPtr(), base::Unretained(guest_host_view))));
 }
 
 void CefRenderWidgetHostViewOSR::OnGuestViewFrameSwapped(
@@ -1586,11 +1542,11 @@ cc::FrameSinkId CefRenderWidgetHostViewOSR::AllocateFrameSinkId(
   content::ImageTransportFactory* factory =
       content::ImageTransportFactory::GetInstance();
   return is_guest_view_hack
-          ? factory->GetContextFactoryPrivate()->AllocateFrameSinkId()
-          : cc::FrameSinkId(base::checked_cast<uint32_t>(
-                                render_widget_host_->GetProcess()->GetID()),
-                            base::checked_cast<uint32_t>(
-                                render_widget_host_->GetRoutingID()));
+             ? factory->GetContextFactoryPrivate()->AllocateFrameSinkId()
+             : cc::FrameSinkId(base::checked_cast<uint32_t>(
+                                   render_widget_host_->GetProcess()->GetID()),
+                               base::checked_cast<uint32_t>(
+                                   render_widget_host_->GetRoutingID()));
 }
 
 void CefRenderWidgetHostViewOSR::UpdateBackgroundColorFromRenderer(

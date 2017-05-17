@@ -17,13 +17,9 @@ class CallRecordUploadAttempt {
  public:
   CallRecordUploadAttempt(CrashReportDatabase* database,
                           const CrashReportDatabase::Report* report)
-      : database_(database),
-        report_(report) {
-  }
+      : database_(database), report_(report) {}
 
-  ~CallRecordUploadAttempt() {
-    Fire();
-  }
+  ~CallRecordUploadAttempt() { Fire(); }
 
   void Fire() {
     if (report_) {
@@ -33,12 +29,10 @@ class CallRecordUploadAttempt {
     Disarm();
   }
 
-  void Disarm() {
-    report_ = nullptr;
-  }
+  void Disarm() { report_ = nullptr; }
 
  private:
-  CrashReportDatabase* database_;  // weak
+  CrashReportDatabase* database_;              // weak
   const CrashReportDatabase::Report* report_;  // weak
 
   DISALLOW_COPY_AND_ASSIGN(CallRecordUploadAttempt);
@@ -53,11 +47,9 @@ CefCrashReportUploadThread::CefCrashReportUploadThread(
     bool upload_gzip,
     int max_uploads)
     : CrashReportUploadThread(database, url, rate_limit, upload_gzip),
-      max_uploads_(max_uploads) {
-}
+      max_uploads_(max_uploads) {}
 
-CefCrashReportUploadThread::~CefCrashReportUploadThread() {
-}
+CefCrashReportUploadThread::~CefCrashReportUploadThread() {}
 
 void CefCrashReportUploadThread::ProcessPendingReports() {
   if (BackoffPending()) {
@@ -69,7 +61,7 @@ void CefCrashReportUploadThread::ProcessPendingReports() {
     // Retrieve all completed reports.
     std::vector<CrashReportDatabase::Report> reports;
     if (database_->GetCompletedReports(&reports) !=
-            CrashReportDatabase::kNoError) {
+        CrashReportDatabase::kNoError) {
       // The database is sick. It might be prudent to stop trying to poke it
       // from this thread by abandoning the thread altogether. On the other
       // hand, if the problem is transient, it might be possible to talk to it
@@ -171,8 +163,8 @@ void CefCrashReportUploadThread::ProcessPendingReport(
 bool CefCrashReportUploadThread::UploadsEnabled() const {
   Settings* const settings = database_->GetSettings();
   bool uploads_enabled;
-  return !url_.empty() &&
-         settings->GetUploadsEnabled(&uploads_enabled) && uploads_enabled;
+  return !url_.empty() && settings->GetUploadsEnabled(&uploads_enabled) &&
+         uploads_enabled;
 }
 
 bool CefCrashReportUploadThread::MaxUploadsEnabled() const {
@@ -206,12 +198,12 @@ void CefCrashReportUploadThread::IncreaseBackoff() {
 
   const int kHour = 60 * 60;  // 1 hour
   const int kBackoffSchedule[] = {
-    kHour / 4,   // 15 minutes
-    kHour,       // 1 hour
-    kHour * 2,   // 2 hours
-    kHour * 4,   // 4 hours
-    kHour * 8,   // 8 hours
-    kHour * 24,  // 24 hours
+      kHour / 4,   // 15 minutes
+      kHour,       // 1 hour
+      kHour * 2,   // 2 hours
+      kHour * 4,   // 4 hours
+      kHour * 8,   // 8 hours
+      kHour * 24,  // 24 hours
   };
   const int kBackoffScheduleSize =
       sizeof(kBackoffSchedule) / sizeof(kBackoffSchedule[0]);

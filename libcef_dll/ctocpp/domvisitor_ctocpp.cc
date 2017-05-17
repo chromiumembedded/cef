@@ -9,10 +9,11 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=b3f68b08525a2336833f6449763044ad22788e39$
+//
 
 #include "libcef_dll/cpptoc/domdocument_cpptoc.h"
 #include "libcef_dll/ctocpp/domvisitor_ctocpp.h"
-
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
@@ -29,27 +30,30 @@ void CefDOMVisitorCToCpp::Visit(CefRefPtr<CefDOMDocument> document) {
     return;
 
   // Execute
-  _struct->visit(_struct,
-      CefDOMDocumentCppToC::Wrap(document));
+  _struct->visit(_struct, CefDOMDocumentCppToC::Wrap(document));
 }
-
 
 // CONSTRUCTOR - Do not edit by hand.
 
-CefDOMVisitorCToCpp::CefDOMVisitorCToCpp() {
-}
+CefDOMVisitorCToCpp::CefDOMVisitorCToCpp() {}
 
-template<> cef_domvisitor_t* CefCToCppRefCounted<CefDOMVisitorCToCpp,
-    CefDOMVisitor, cef_domvisitor_t>::UnwrapDerived(CefWrapperType type,
-    CefDOMVisitor* c) {
+template <>
+cef_domvisitor_t*
+CefCToCppRefCounted<CefDOMVisitorCToCpp, CefDOMVisitor, cef_domvisitor_t>::
+    UnwrapDerived(CefWrapperType type, CefDOMVisitor* c) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCppRefCounted<CefDOMVisitorCToCpp,
-    CefDOMVisitor, cef_domvisitor_t>::DebugObjCt = 0;
+template <>
+base::AtomicRefCount CefCToCppRefCounted<CefDOMVisitorCToCpp,
+                                         CefDOMVisitor,
+                                         cef_domvisitor_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCppRefCounted<CefDOMVisitorCToCpp,
-    CefDOMVisitor, cef_domvisitor_t>::kWrapperType = WT_DOMVISITOR;
+template <>
+CefWrapperType CefCToCppRefCounted<CefDOMVisitorCToCpp,
+                                   CefDOMVisitor,
+                                   cef_domvisitor_t>::kWrapperType =
+    WT_DOMVISITOR;

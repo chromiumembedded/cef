@@ -80,8 +80,7 @@ class CefStreamResourceHandler : public CefResourceHandler {
   virtual void Cancel() OVERRIDE;
 
  private:
-  void ReadOnFileThread(int bytes_to_read,
-                        CefRefPtr<CefCallback> callback);
+  void ReadOnFileThread(int bytes_to_read, CefRefPtr<CefCallback> callback);
 
   const int status_code_;
   const CefString status_text_;

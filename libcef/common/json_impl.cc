@@ -5,9 +5,9 @@
 #include "include/cef_parser.h"
 #include "libcef/common/values_impl.h"
 
-#include "base/values.h"
 #include "base/json/json_reader.h"
 #include "base/json/json_writer.h"
+#include "base/values.h"
 
 namespace {
 
@@ -50,8 +50,9 @@ CefRefPtr<CefValue> CefParseJSONAndReturnError(
 
   int error_code;
   std::string error_msg;
-  std::unique_ptr<base::Value> parse_result = base::JSONReader::ReadAndReturnError(
-      json, GetJSONReaderOptions(options), &error_code, &error_msg);
+  std::unique_ptr<base::Value> parse_result =
+      base::JSONReader::ReadAndReturnError(json, GetJSONReaderOptions(options),
+                                           &error_code, &error_msg);
   if (parse_result)
     return new CefValueImpl(parse_result.release());
 
@@ -69,9 +70,8 @@ CefString CefWriteJSON(CefRefPtr<CefValue> node,
   CefValueImpl::ScopedLockedValue scoped_value(impl);
 
   std::string json_string;
-  if (base::JSONWriter::WriteWithOptions(*scoped_value.value(),
-                                         GetJSONWriterOptions(options),
-                                         &json_string)) {
+  if (base::JSONWriter::WriteWithOptions(
+          *scoped_value.value(), GetJSONWriterOptions(options), &json_string)) {
     return json_string;
   }
   return CefString();

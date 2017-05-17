@@ -15,8 +15,8 @@
 #include "libcef/browser/context.h"
 #include "libcef/browser/devtools_manager_delegate.h"
 #include "libcef/browser/extensions/browser_context_keyed_service_factories.h"
-#include "libcef/browser/extensions/extensions_browser_client.h"
 #include "libcef/browser/extensions/extension_system_factory.h"
+#include "libcef/browser/extensions/extensions_browser_client.h"
 #include "libcef/browser/net/chrome_scheme_handler.h"
 #include "libcef/browser/printing/printing_message_filter.h"
 #include "libcef/browser/thread_util.h"
@@ -74,8 +74,8 @@ class CefAccessTokenStore : public device::AccessTokenStore {
     callback.Run(access_token_map_, system_context_);
   }
 
-  void SaveAccessToken(
-      const GURL& server_url, const base::string16& access_token) override {
+  void SaveAccessToken(const GURL& server_url,
+                       const base::string16& access_token) override {
     access_token_map_[server_url] = access_token;
   }
 
@@ -101,17 +101,14 @@ class CefGeolocationDelegate : public device::GeolocationDelegate {
 
   DISALLOW_COPY_AND_ASSIGN(CefGeolocationDelegate);
 };
-  
+
 }  // namespace
 
 CefBrowserMainParts::CefBrowserMainParts(
     const content::MainFunctionParams& parameters)
-    : BrowserMainParts(),
-      devtools_delegate_(NULL) {
-}
+    : BrowserMainParts(), devtools_delegate_(NULL) {}
 
-CefBrowserMainParts::~CefBrowserMainParts() {
-}
+CefBrowserMainParts::~CefBrowserMainParts() {}
 
 void CefBrowserMainParts::PreMainMessageLoopStart() {
   if (!base::MessageLoop::current()) {
@@ -176,7 +173,8 @@ void CefBrowserMainParts::PreMainMessageLoopRun() {
     // BrowserContext.
     extensions_client_.reset(new extensions::CefExtensionsClient());
     extensions::ExtensionsClient::Set(extensions_client_.get());
-    extensions_browser_client_.reset(new extensions::CefExtensionsBrowserClient);
+    extensions_browser_client_.reset(
+        new extensions::CefExtensionsBrowserClient);
     extensions::ExtensionsBrowserClient::Set(extensions_browser_client_.get());
 
     // Register additional KeyedService factories here. See

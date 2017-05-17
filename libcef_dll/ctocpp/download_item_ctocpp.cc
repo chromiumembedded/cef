@@ -9,9 +9,10 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=8d42b80fd9a45dc0d59127e1b72ec9900d5e1679$
+//
 
 #include "libcef_dll/ctocpp/download_item_ctocpp.h"
-
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
@@ -26,7 +27,7 @@ bool CefDownloadItemCToCpp::IsValid() {
   int _retval = _struct->is_valid(_struct);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 bool CefDownloadItemCToCpp::IsInProgress() {
@@ -40,7 +41,7 @@ bool CefDownloadItemCToCpp::IsInProgress() {
   int _retval = _struct->is_in_progress(_struct);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 bool CefDownloadItemCToCpp::IsComplete() {
@@ -54,7 +55,7 @@ bool CefDownloadItemCToCpp::IsComplete() {
   int _retval = _struct->is_complete(_struct);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 bool CefDownloadItemCToCpp::IsCanceled() {
@@ -68,7 +69,7 @@ bool CefDownloadItemCToCpp::IsCanceled() {
   int _retval = _struct->is_canceled(_struct);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 int64 CefDownloadItemCToCpp::GetCurrentSpeed() {
@@ -265,23 +266,29 @@ CefString CefDownloadItemCToCpp::GetMimeType() {
   return _retvalStr;
 }
 
-
 // CONSTRUCTOR - Do not edit by hand.
 
-CefDownloadItemCToCpp::CefDownloadItemCToCpp() {
-}
+CefDownloadItemCToCpp::CefDownloadItemCToCpp() {}
 
-template<> cef_download_item_t* CefCToCppRefCounted<CefDownloadItemCToCpp,
-    CefDownloadItem, cef_download_item_t>::UnwrapDerived(CefWrapperType type,
-    CefDownloadItem* c) {
+template <>
+cef_download_item_t*
+CefCToCppRefCounted<CefDownloadItemCToCpp,
+                    CefDownloadItem,
+                    cef_download_item_t>::UnwrapDerived(CefWrapperType type,
+                                                        CefDownloadItem* c) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCppRefCounted<CefDownloadItemCToCpp,
-    CefDownloadItem, cef_download_item_t>::DebugObjCt = 0;
+template <>
+base::AtomicRefCount CefCToCppRefCounted<CefDownloadItemCToCpp,
+                                         CefDownloadItem,
+                                         cef_download_item_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCppRefCounted<CefDownloadItemCToCpp,
-    CefDownloadItem, cef_download_item_t>::kWrapperType = WT_DOWNLOAD_ITEM;
+template <>
+CefWrapperType CefCToCppRefCounted<CefDownloadItemCToCpp,
+                                   CefDownloadItem,
+                                   cef_download_item_t>::kWrapperType =
+    WT_DOWNLOAD_ITEM;

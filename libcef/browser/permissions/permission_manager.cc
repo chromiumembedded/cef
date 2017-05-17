@@ -104,17 +104,17 @@ PermissionStatus GetPermissionStatusForConstantPermission(PermissionType type) {
 
 class CefPermissionManager::PendingRequest {
  public:
-  PendingRequest(content::RenderFrameHost* render_frame_host,
-                 const std::vector<PermissionType> permissions,
-                 const base::Callback<void(
-                     const std::vector<PermissionStatus>&)>& callback)
-    : render_process_id_(render_frame_host->GetProcess()->GetID()),
-      render_frame_id_(render_frame_host->GetRoutingID()),
-      callback_(callback),
-      permissions_(permissions),
-      results_(permissions.size(), PermissionStatus::DENIED),
-      remaining_results_(permissions.size()) {
-  }
+  PendingRequest(
+      content::RenderFrameHost* render_frame_host,
+      const std::vector<PermissionType> permissions,
+      const base::Callback<void(const std::vector<PermissionStatus>&)>&
+          callback)
+      : render_process_id_(render_frame_host->GetProcess()->GetID()),
+        render_frame_id_(render_frame_host->GetRoutingID()),
+        callback_(callback),
+        permissions_(permissions),
+        results_(permissions.size(), PermissionStatus::DENIED),
+        remaining_results_(permissions.size()) {}
 
   void SetPermissionStatus(int permission_id, PermissionStatus status) {
     DCHECK(!IsComplete());
@@ -123,25 +123,19 @@ class CefPermissionManager::PendingRequest {
     --remaining_results_;
   }
 
-  bool IsComplete() const {
-    return remaining_results_ == 0;
-  }
+  bool IsComplete() const { return remaining_results_ == 0; }
 
   int render_process_id() const { return render_process_id_; }
   int render_frame_id() const { return render_frame_id_; }
 
-  const base::Callback<void(const std::vector<PermissionStatus>&)>
-  callback() const {
+  const base::Callback<void(const std::vector<PermissionStatus>&)> callback()
+      const {
     return callback_;
   }
 
-  std::vector<PermissionType> permissions() const {
-    return permissions_;
-  }
+  std::vector<PermissionType> permissions() const { return permissions_; }
 
-  std::vector<PermissionStatus> results() const {
-    return results_;
-  }
+  std::vector<PermissionStatus> results() const { return results_; }
 
  private:
   int render_process_id_;
@@ -161,10 +155,7 @@ struct CefPermissionManager::Subscription {
 };
 
 CefPermissionManager::CefPermissionManager(CefBrowserContext* profile)
-    : profile_(profile),
-      context_(profile),
-      weak_ptr_factory_(this) {
-}
+    : profile_(profile), context_(profile), weak_ptr_factory_(this) {}
 
 CefPermissionManager::~CefPermissionManager() {
   if (!subscriptions_.IsEmpty())
@@ -178,10 +169,8 @@ int CefPermissionManager::RequestPermission(
     bool user_gesture,
     const base::Callback<void(PermissionStatus)>& callback) {
   return RequestPermissions(
-      std::vector<PermissionType>(1, permission),
-      render_frame_host,
-      requesting_origin,
-      user_gesture,
+      std::vector<PermissionType>(1, permission), render_frame_host,
+      requesting_origin, user_gesture,
       base::Bind(&PermissionRequestResponseCallbackWrapper, callback));
 }
 
@@ -190,8 +179,8 @@ int CefPermissionManager::RequestPermissions(
     content::RenderFrameHost* render_frame_host,
     const GURL& requesting_origin,
     bool user_gesture,
-    const base::Callback<void(
-        const std::vector<PermissionStatus>&)>& callback) {
+    const base::Callback<void(const std::vector<PermissionStatus>&)>&
+        callback) {
   if (permissions.empty()) {
     callback.Run(std::vector<PermissionStatus>());
     return kNoPendingOperation;
@@ -202,8 +191,8 @@ int CefPermissionManager::RequestPermissions(
   GURL embedding_origin = web_contents->GetLastCommittedURL().GetOrigin();
 
   std::unique_ptr<PendingRequest> pending_request =
-      base::MakeUnique<PendingRequest>(
-          render_frame_host, permissions, callback);
+      base::MakeUnique<PendingRequest>(render_frame_host, permissions,
+                                       callback);
   int request_id = pending_requests_.Add(std::move(pending_request));
 
   const PermissionRequestID request(render_frame_host, request_id);
@@ -213,14 +202,16 @@ int CefPermissionManager::RequestPermissions(
 
     if (IsConstantPermission(permission) ||
         !context_.SupportsPermission(permission)) {
-      OnPermissionsRequestResponseStatus(request_id, i,
+      OnPermissionsRequestResponseStatus(
+          request_id, i,
           GetPermissionStatus(permission, requesting_origin, embedding_origin));
       continue;
     }
 
     context_.RequestPermission(
         permission, web_contents, request, requesting_origin,
-        base::Bind(&ContentSettingToPermissionStatusCallbackWrapper,
+        base::Bind(
+            &ContentSettingToPermissionStatusCallbackWrapper,
             base::Bind(
                 &CefPermissionManager::OnPermissionsRequestResponseStatus,
                 weak_ptr_factory_.GetWeakPtr(), request_id, i)));
@@ -289,9 +280,8 @@ PermissionStatus CefPermissionManager::GetPermissionStatus(
   if (!context_.SupportsPermission(permission))
     return PermissionStatus::DENIED;
 
-  return ContentSettingToPermissionStatus(
-      context_.GetPermissionStatus(permission, requesting_origin,
-                                   embedding_origin));
+  return ContentSettingToPermissionStatus(context_.GetPermissionStatus(
+      permission, requesting_origin, embedding_origin));
 }
 
 int CefPermissionManager::SubscribePermissionStatusChange(
@@ -309,8 +299,7 @@ int CefPermissionManager::SubscribePermissionStatusChange(
   subscription->callback = callback;
 
   subscription->current_value = PermissionStatusToContentSetting(
-      GetPermissionStatus(permission,
-                          subscription->requesting_origin,
+      GetPermissionStatus(permission, subscription->requesting_origin,
                           subscription->embedding_origin));
 
   return subscriptions_.Add(std::move(subscription));
@@ -332,8 +321,8 @@ void CefPermissionManager::OnContentSettingChanged(
     std::string resource_identifier) {
   std::list<base::Closure> callbacks;
 
-  for (SubscriptionsMap::iterator iter(&subscriptions_);
-       !iter.IsAtEnd(); iter.Advance()) {
+  for (SubscriptionsMap::iterator iter(&subscriptions_); !iter.IsAtEnd();
+       iter.Advance()) {
     Subscription* subscription = iter.GetCurrentValue();
     if (permission_util::PermissionTypeToContentSetting(
             subscription->permission) != content_type) {
@@ -347,10 +336,10 @@ void CefPermissionManager::OnContentSettingChanged(
         !secondary_pattern.Matches(subscription->embedding_origin))
       continue;
 
-    ContentSetting new_value = PermissionStatusToContentSetting(
-        GetPermissionStatus(subscription->permission,
-                            subscription->requesting_origin,
-                            subscription->embedding_origin));
+    ContentSetting new_value =
+        PermissionStatusToContentSetting(GetPermissionStatus(
+            subscription->permission, subscription->requesting_origin,
+            subscription->embedding_origin));
     if (subscription->current_value == new_value)
       continue;
 
@@ -358,9 +347,8 @@ void CefPermissionManager::OnContentSettingChanged(
 
     // Add the callback to |callbacks| which will be run after the loop to
     // prevent re-entrance issues.
-    callbacks.push_back(
-        base::Bind(subscription->callback,
-                   ContentSettingToPermissionStatus(new_value)));
+    callbacks.push_back(base::Bind(
+        subscription->callback, ContentSettingToPermissionStatus(new_value)));
   }
 
   for (const auto& callback : callbacks)

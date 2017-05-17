@@ -28,30 +28,28 @@ void InstallInternalProtectedHandlers(
     CefURLRequestManager* request_manager,
     content::ProtocolHandlerMap* protocol_handlers,
     net::HostResolver* host_resolver) {
-  protocol_handlers->insert(
-      std::make_pair(url::kDataScheme,
-          linked_ptr<net::URLRequestJobFactory::ProtocolHandler>(
-              new net::DataProtocolHandler)));
-  protocol_handlers->insert(
-      std::make_pair(url::kFileScheme,
-          linked_ptr<net::URLRequestJobFactory::ProtocolHandler>(
-              new net::FileProtocolHandler(
-                  content::BrowserThread::GetBlockingPool()->
-                      GetTaskRunnerWithShutdownBehavior(
-                          base::SequencedWorkerPool::SKIP_ON_SHUTDOWN)))));
+  protocol_handlers->insert(std::make_pair(
+      url::kDataScheme, linked_ptr<net::URLRequestJobFactory::ProtocolHandler>(
+                            new net::DataProtocolHandler)));
+  protocol_handlers->insert(std::make_pair(
+      url::kFileScheme,
+      linked_ptr<net::URLRequestJobFactory::ProtocolHandler>(
+          new net::FileProtocolHandler(
+              content::BrowserThread::GetBlockingPool()
+                  ->GetTaskRunnerWithShutdownBehavior(
+                      base::SequencedWorkerPool::SKIP_ON_SHUTDOWN)))));
 #if !BUILDFLAG(DISABLE_FTP_SUPPORT)
-  protocol_handlers->insert(
-      std::make_pair(url::kFtpScheme,
-          linked_ptr<net::URLRequestJobFactory::ProtocolHandler>(
-              net::FtpProtocolHandler::Create(host_resolver).release())));
+  protocol_handlers->insert(std::make_pair(
+      url::kFtpScheme,
+      linked_ptr<net::URLRequestJobFactory::ProtocolHandler>(
+          net::FtpProtocolHandler::Create(host_resolver).release())));
 #endif
 
-  for (content::ProtocolHandlerMap::iterator it =
-           protocol_handlers->begin();
-       it != protocol_handlers->end();
-       ++it) {
+  for (content::ProtocolHandlerMap::iterator it = protocol_handlers->begin();
+       it != protocol_handlers->end(); ++it) {
     const std::string& scheme = it->first;
-    std::unique_ptr<net::URLRequestJobFactory::ProtocolHandler> protocol_handler;
+    std::unique_ptr<net::URLRequestJobFactory::ProtocolHandler>
+        protocol_handler;
 
     if (scheme == content::kChromeDevToolsScheme) {
       // Don't use the default "chrome-devtools" handler.
@@ -61,8 +59,8 @@ void InstallInternalProtectedHandlers(
       // not to interfere with CEF's "chrome" handler.
       protocol_handler.reset(
           scheme::WrapChromeProtocolHandler(
-              request_manager,
-              base::WrapUnique(it->second.release())).release());
+              request_manager, base::WrapUnique(it->second.release()))
+              .release());
     } else {
       protocol_handler.reset(it->second.release());
     }

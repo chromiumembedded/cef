@@ -44,13 +44,13 @@ namespace {
 // glibc has two strerror_r functions: a historical GNU-specific one that
 // returns type char *, and a POSIX.1-2001 compliant one available since 2.3.4
 // that returns int. This wraps the GNU-specific one.
-static void POSSIBLY_UNUSED wrap_posix_strerror_r(
-    char *(*strerror_r_ptr)(int, char *, size_t),
-    int err,
-    char *buf,
-    size_t len) {
+static void POSSIBLY_UNUSED
+wrap_posix_strerror_r(char* (*strerror_r_ptr)(int, char*, size_t),
+                      int err,
+                      char* buf,
+                      size_t len) {
   // GNU version.
-  char *rc = (*strerror_r_ptr)(err, buf, len);
+  char* rc = (*strerror_r_ptr)(err, buf, len);
   if (rc != buf) {
     // glibc did not use buf and returned a static string instead. Copy it
     // into buf.
@@ -67,11 +67,12 @@ static void POSSIBLY_UNUSED wrap_posix_strerror_r(
 // guarantee that they are handled. This is compiled on all POSIX platforms, but
 // it will only be used on Linux if the POSIX strerror_r implementation is
 // being used (see below).
-static void POSSIBLY_UNUSED wrap_posix_strerror_r(
-    int (*strerror_r_ptr)(int, char *, size_t),
-    int err,
-    char *buf,
-    size_t len) {
+static void POSSIBLY_UNUSED wrap_posix_strerror_r(int (*strerror_r_ptr)(int,
+                                                                        char*,
+                                                                        size_t),
+                                                  int err,
+                                                  char* buf,
+                                                  size_t len) {
   int old_errno = errno;
   // Have to cast since otherwise we get an error if this is the GNU version
   // (but in such a scenario this function is never called). Sadly we can't use
@@ -103,16 +104,13 @@ static void POSSIBLY_UNUSED wrap_posix_strerror_r(
       strerror_error = result;
     }
     // snprintf truncates and always null-terminates.
-    snprintf(buf,
-             len,
-             "Error %d while retrieving error %d",
-             strerror_error,
+    snprintf(buf, len, "Error %d while retrieving error %d", strerror_error,
              err);
   }
   errno = old_errno;
 }
 
-void safe_strerror_r(int err, char *buf, size_t len) {
+void safe_strerror_r(int err, char* buf, size_t len) {
   if (buf == NULL || len <= 0) {
     return;
   }
@@ -136,21 +134,29 @@ std::string safe_strerror(int err) {
 // MSVC doesn't like complex extern templates and DLLs.
 #if !defined(COMPILER_MSVC)
 // Explicit instantiations for commonly used comparisons.
-template std::string* MakeCheckOpString<int, int>(
-    const int&, const int&, const char* names);
+template std::string* MakeCheckOpString<int, int>(const int&,
+                                                  const int&,
+                                                  const char* names);
 template std::string* MakeCheckOpString<unsigned long, unsigned long>(
-    const unsigned long&, const unsigned long&, const char* names);
+    const unsigned long&,
+    const unsigned long&,
+    const char* names);
 template std::string* MakeCheckOpString<unsigned long, unsigned int>(
-    const unsigned long&, const unsigned int&, const char* names);
+    const unsigned long&,
+    const unsigned int&,
+    const char* names);
 template std::string* MakeCheckOpString<unsigned int, unsigned long>(
-    const unsigned int&, const unsigned long&, const char* names);
+    const unsigned int&,
+    const unsigned long&,
+    const char* names);
 template std::string* MakeCheckOpString<std::string, std::string>(
-    const std::string&, const std::string&, const char* name);
+    const std::string&,
+    const std::string&,
+    const char* name);
 #endif
 
 #if defined(OS_WIN)
-LogMessage::SaveLastError::SaveLastError() : last_error_(::GetLastError()) {
-}
+LogMessage::SaveLastError::SaveLastError() : last_error_(::GetLastError()) {}
 
 LogMessage::SaveLastError::~SaveLastError() {
   ::SetLastError(last_error_);
@@ -158,8 +164,7 @@ LogMessage::SaveLastError::~SaveLastError() {
 #endif  // defined(OS_WIN)
 
 LogMessage::LogMessage(const char* file, int line, LogSeverity severity)
-    : severity_(severity), file_(file), line_(line) {
-}
+    : severity_(severity), file_(file), line_(line) {}
 
 LogMessage::LogMessage(const char* file, int line, std::string* result)
     : severity_(LOG_FATAL), file_(file), line_(line) {
@@ -167,7 +172,9 @@ LogMessage::LogMessage(const char* file, int line, std::string* result)
   delete result;
 }
 
-LogMessage::LogMessage(const char* file, int line, LogSeverity severity,
+LogMessage::LogMessage(const char* file,
+                       int line,
+                       LogSeverity severity,
                        std::string* result)
     : severity_(severity), file_(file), line_(line) {
   stream_ << "Check failed: " << *result;
@@ -211,8 +218,8 @@ std::string SystemErrorCodeToString(SystemErrorCode error_code) {
     s.erase(std::remove_if(s.begin(), s.end(), ::isspace), s.end());
     ss << s << " (0x" << std::hex << error_code << ")";
   } else {
-    ss << "Error (0x" << std::hex << GetLastError() <<
-          ") while retrieving error. (0x" << error_code << ")";
+    ss << "Error (0x" << std::hex << GetLastError()
+       << ") while retrieving error. (0x" << error_code << ")";
   }
   return ss.str();
 }
@@ -229,9 +236,7 @@ Win32ErrorLogMessage::Win32ErrorLogMessage(const char* file,
                                            int line,
                                            LogSeverity severity,
                                            SystemErrorCode err)
-    : err_(err),
-      log_message_(file, line, severity) {
-}
+    : err_(err), log_message_(file, line, severity) {}
 
 Win32ErrorLogMessage::~Win32ErrorLogMessage() {
   stream() << ": " << SystemErrorCodeToString(err_);
@@ -241,9 +246,7 @@ ErrnoLogMessage::ErrnoLogMessage(const char* file,
                                  int line,
                                  LogSeverity severity,
                                  SystemErrorCode err)
-    : err_(err),
-      log_message_(file, line, severity) {
-}
+    : err_(err), log_message_(file, line, severity) {}
 
 ErrnoLogMessage::~ErrnoLogMessage() {
   stream() << ": " << SystemErrorCodeToString(err_);

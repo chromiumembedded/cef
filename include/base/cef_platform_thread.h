@@ -69,21 +69,14 @@ class PlatformThreadRef {
  public:
   typedef cef_platform_thread_handle_t RefType;
 
-  PlatformThreadRef()
-      : id_(0) {
-  }
+  PlatformThreadRef() : id_(0) {}
 
-  explicit PlatformThreadRef(RefType id)
-      : id_(id) {
-  }
+  explicit PlatformThreadRef(RefType id) : id_(id) {}
 
-  bool operator==(PlatformThreadRef other) const {
-    return id_ == other.id_;
-  }
+  bool operator==(PlatformThreadRef other) const { return id_ == other.id_; }
 
-  bool is_null() const {
-    return id_ == 0;
-  }
+  bool is_null() const { return id_ == 0; }
+
  private:
   RefType id_;
 };

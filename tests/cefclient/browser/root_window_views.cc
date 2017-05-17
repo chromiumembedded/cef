@@ -6,8 +6,8 @@
 
 #include "include/base/cef_bind.h"
 #include "include/base/cef_build.h"
-#include "include/wrapper/cef_helpers.h"
 #include "include/cef_app.h"
+#include "include/wrapper/cef_helpers.h"
 #include "tests/cefclient/browser/client_handler_std.h"
 
 namespace client {
@@ -18,8 +18,7 @@ RootWindowViews::RootWindowViews()
       is_popup_(false),
       initialized_(false),
       window_destroyed_(false),
-      browser_destroyed_(false) {
-}
+      browser_destroyed_(false) {}
 
 RootWindowViews::~RootWindowViews() {
   REQUIRE_MAIN_THREAD();
@@ -114,8 +113,8 @@ void RootWindowViews::Hide() {
 void RootWindowViews::SetBounds(int x, int y, size_t width, size_t height) {
   if (!CefCurrentlyOn(TID_UI)) {
     // Execute this method on the UI thread.
-    CefPostTask(TID_UI,
-        base::Bind(&RootWindowViews::SetBounds, this, x, y, width, height));
+    CefPostTask(TID_UI, base::Bind(&RootWindowViews::SetBounds, this, x, y,
+                                   width, height));
     return;
   }
 
@@ -128,8 +127,7 @@ void RootWindowViews::SetBounds(int x, int y, size_t width, size_t height) {
 void RootWindowViews::Close(bool force) {
   if (!CefCurrentlyOn(TID_UI)) {
     // Execute this method on the UI thread.
-    CefPostTask(TID_UI,
-        base::Bind(&RootWindowViews::Close, this, force));
+    CefPostTask(TID_UI, base::Bind(&RootWindowViews::Close, this, force));
     return;
   }
 
@@ -250,8 +248,7 @@ void RootWindowViews::OnBrowserClosed(CefRefPtr<CefBrowser> browser) {
 void RootWindowViews::OnSetAddress(const std::string& url) {
   if (!CefCurrentlyOn(TID_UI)) {
     // Execute this method on the UI thread.
-    CefPostTask(TID_UI,
-        base::Bind(&RootWindowViews::OnSetAddress, this, url));
+    CefPostTask(TID_UI, base::Bind(&RootWindowViews::OnSetAddress, this, url));
     return;
   }
 
@@ -274,7 +271,7 @@ void RootWindowViews::OnSetFavicon(CefRefPtr<CefImage> image) {
   if (!CefCurrentlyOn(TID_UI)) {
     // Execute this method on the UI thread.
     CefPostTask(TID_UI,
-        base::Bind(&RootWindowViews::OnSetFavicon, this, image));
+                base::Bind(&RootWindowViews::OnSetFavicon, this, image));
     return;
   }
 
@@ -285,8 +282,8 @@ void RootWindowViews::OnSetFavicon(CefRefPtr<CefImage> image) {
 void RootWindowViews::OnSetFullscreen(bool fullscreen) {
   if (!CefCurrentlyOn(TID_UI)) {
     // Execute this method on the UI thread.
-    CefPostTask(TID_UI,
-        base::Bind(&RootWindowViews::OnSetFullscreen, this, fullscreen));
+    CefPostTask(TID_UI, base::Bind(&RootWindowViews::OnSetFullscreen, this,
+                                   fullscreen));
     return;
   }
 
@@ -299,9 +296,8 @@ void RootWindowViews::OnSetLoadingState(bool isLoading,
                                         bool canGoForward) {
   if (!CefCurrentlyOn(TID_UI)) {
     // Execute this method on the UI thread.
-    CefPostTask(TID_UI,
-        base::Bind(&RootWindowViews::OnSetLoadingState, this, isLoading,
-                   canGoBack, canGoForward));
+    CefPostTask(TID_UI, base::Bind(&RootWindowViews::OnSetLoadingState, this,
+                                   isLoading, canGoBack, canGoForward));
     return;
   }
 
@@ -320,8 +316,8 @@ void RootWindowViews::OnSetDraggableRegions(
     const std::vector<CefDraggableRegion>& regions) {
   if (!CefCurrentlyOn(TID_UI)) {
     // Execute this method on the UI thread.
-    CefPostTask(TID_UI,
-        base::Bind(&RootWindowViews::OnSetDraggableRegions, this, regions));
+    CefPostTask(TID_UI, base::Bind(&RootWindowViews::OnSetDraggableRegions,
+                                   this, regions));
     return;
   }
 
@@ -332,8 +328,7 @@ void RootWindowViews::OnSetDraggableRegions(
 void RootWindowViews::OnTakeFocus(bool next) {
   if (!CefCurrentlyOn(TID_UI)) {
     // Execute this method on the UI thread.
-    CefPostTask(TID_UI,
-        base::Bind(&RootWindowViews::OnTakeFocus, this, next));
+    CefPostTask(TID_UI, base::Bind(&RootWindowViews::OnTakeFocus, this, next));
     return;
   }
 
@@ -354,14 +349,12 @@ void RootWindowViews::CreateClientHandler(const std::string& url) {
   client_handler_->set_download_favicon_images(true);
 }
 
-void RootWindowViews::InitOnMainThread(
-    const CefBrowserSettings& settings,
-    const std::string& startup_url) {
+void RootWindowViews::InitOnMainThread(const CefBrowserSettings& settings,
+                                       const std::string& startup_url) {
   if (!CURRENTLY_ON_MAIN_THREAD()) {
     // Execute this method on the main thread.
-    MAIN_POST_CLOSURE(
-        base::Bind(&RootWindowViews::InitOnMainThread, this, settings,
-                   startup_url));
+    MAIN_POST_CLOSURE(base::Bind(&RootWindowViews::InitOnMainThread, this,
+                                 settings, startup_url));
     return;
   }
 
@@ -374,9 +367,8 @@ void RootWindowViews::CreateViewsWindow(
     CefRefPtr<CefRequestContext> request_context) {
   if (!CefCurrentlyOn(TID_UI)) {
     // Execute this method on the UI thread.
-    CefPostTask(TID_UI,
-        base::Bind(&RootWindowViews::CreateViewsWindow, this, settings,
-                   startup_url, request_context));
+    CefPostTask(TID_UI, base::Bind(&RootWindowViews::CreateViewsWindow, this,
+                                   settings, startup_url, request_context));
     return;
   }
 

@@ -92,11 +92,10 @@ class CefContentRendererClient : public content::ContentRendererClient,
   void RenderThreadStarted() override;
   void RenderFrameCreated(content::RenderFrame* render_frame) override;
   void RenderViewCreated(content::RenderView* render_view) override;
-  bool OverrideCreatePlugin(
-      content::RenderFrame* render_frame,
-      blink::WebLocalFrame* frame,
-      const blink::WebPluginParams& params,
-      blink::WebPlugin** plugin) override;
+  bool OverrideCreatePlugin(content::RenderFrame* render_frame,
+                            blink::WebLocalFrame* frame,
+                            const blink::WebPluginParams& params,
+                            blink::WebPlugin** plugin) override;
   bool HandleNavigation(content::RenderFrame* render_frame,
                         bool is_content_initiated,
                         bool render_view_was_created_by_renderer,
@@ -151,11 +150,11 @@ class CefContentRendererClient : public content::ContentRendererClient,
   std::unique_ptr<SpellCheck> spellcheck_;
 
   // Map of RenderView pointers to CefBrowserImpl references.
-  typedef std::map<content::RenderView*, CefRefPtr<CefBrowserImpl> > BrowserMap;
+  typedef std::map<content::RenderView*, CefRefPtr<CefBrowserImpl>> BrowserMap;
   BrowserMap browsers_;
 
   // Map of RenderView poiners to CefGuestView implementations.
-  typedef std::map<content::RenderView*, std::unique_ptr<CefGuestView> >
+  typedef std::map<content::RenderView*, std::unique_ptr<CefGuestView>>
       GuestViewMap;
   GuestViewMap guest_views_;
 

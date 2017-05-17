@@ -9,14 +9,17 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=e8834bbf6ab6cb2575f73e3f62e70709f9b36322$
+//
 
 #include "libcef_dll/ctocpp/cookie_visitor_ctocpp.h"
 
-
 // VIRTUAL METHODS - Body may be edited by hand.
 
-bool CefCookieVisitorCToCpp::Visit(const CefCookie& cookie, int count,
-    int total, bool& deleteCookie) {
+bool CefCookieVisitorCToCpp::Visit(const CefCookie& cookie,
+                                   int count,
+                                   int total,
+                                   bool& deleteCookie) {
   cef_cookie_visitor_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, visit))
     return false;
@@ -27,36 +30,39 @@ bool CefCookieVisitorCToCpp::Visit(const CefCookie& cookie, int count,
   int deleteCookieInt = deleteCookie;
 
   // Execute
-  int _retval = _struct->visit(_struct,
-      &cookie,
-      count,
-      total,
-      &deleteCookieInt);
+  int _retval =
+      _struct->visit(_struct, &cookie, count, total, &deleteCookieInt);
 
   // Restore param:deleteCookie; type: bool_byref
-  deleteCookie = deleteCookieInt?true:false;
+  deleteCookie = deleteCookieInt ? true : false;
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
-
 
 // CONSTRUCTOR - Do not edit by hand.
 
-CefCookieVisitorCToCpp::CefCookieVisitorCToCpp() {
-}
+CefCookieVisitorCToCpp::CefCookieVisitorCToCpp() {}
 
-template<> cef_cookie_visitor_t* CefCToCppRefCounted<CefCookieVisitorCToCpp,
-    CefCookieVisitor, cef_cookie_visitor_t>::UnwrapDerived(CefWrapperType type,
-    CefCookieVisitor* c) {
+template <>
+cef_cookie_visitor_t*
+CefCToCppRefCounted<CefCookieVisitorCToCpp,
+                    CefCookieVisitor,
+                    cef_cookie_visitor_t>::UnwrapDerived(CefWrapperType type,
+                                                         CefCookieVisitor* c) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCppRefCounted<CefCookieVisitorCToCpp,
-    CefCookieVisitor, cef_cookie_visitor_t>::DebugObjCt = 0;
+template <>
+base::AtomicRefCount CefCToCppRefCounted<CefCookieVisitorCToCpp,
+                                         CefCookieVisitor,
+                                         cef_cookie_visitor_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCppRefCounted<CefCookieVisitorCToCpp,
-    CefCookieVisitor, cef_cookie_visitor_t>::kWrapperType = WT_COOKIE_VISITOR;
+template <>
+CefWrapperType CefCToCppRefCounted<CefCookieVisitorCToCpp,
+                                   CefCookieVisitor,
+                                   cef_cookie_visitor_t>::kWrapperType =
+    WT_COOKIE_VISITOR;

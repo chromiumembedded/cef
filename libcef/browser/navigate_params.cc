@@ -5,16 +5,13 @@
 
 #include "libcef/browser/navigate_params.h"
 
-CefNavigateParams::CefNavigateParams(
-    const GURL& a_url,
-    ui::PageTransition a_transition)
+CefNavigateParams::CefNavigateParams(const GURL& a_url,
+                                     ui::PageTransition a_transition)
     : url(a_url),
       frame_id(-1),
       disposition(WindowOpenDisposition::CURRENT_TAB),
       transition(a_transition),
       is_renderer_initiated(false),
-      user_gesture(true) {
-}
+      user_gesture(true) {}
 
-CefNavigateParams::~CefNavigateParams() {
-}
+CefNavigateParams::~CefNavigateParams() {}

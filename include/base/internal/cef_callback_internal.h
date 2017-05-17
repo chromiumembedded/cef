@@ -92,7 +92,7 @@ class CallbackBase {
   // another type. It is not okay to use void*. We create a InvokeFuncStorage
   // that that can store our function pointer, and then cast it back to
   // the original type on usage.
-  typedef void(*InvokeFuncStorage)(void);
+  typedef void (*InvokeFuncStorage)(void);
 
   // Returns true if this callback equals |other|. |other| may be null.
   bool Equals(const CallbackBase& other) const;
@@ -115,15 +115,16 @@ class CallbackBase {
 // A helper template to determine if given type is non-const move-only-type,
 // i.e. if a value of the given type should be passed via .Pass() in a
 // destructive way.
-template <typename T> struct IsMoveOnlyType {
+template <typename T>
+struct IsMoveOnlyType {
   template <typename U>
   static YesType Test(const typename U::MoveOnlyTypeForCPP03*);
 
   template <typename U>
   static NoType Test(...);
 
-  static const bool value = sizeof(Test<T>(0)) == sizeof(YesType) &&
-                            !is_const<T>::value;
+  static const bool value =
+      sizeof(Test<T>(0)) == sizeof(YesType) && !is_const<T>::value;
 };
 
 // This is a typetraits object that's used to take an argument type, and

@@ -9,6 +9,8 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=9bbb5a9d025a7e2dca5d4510f3a36cedebe06e1e$
+//
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_KEYBOARD_HANDLER_CTOCPP_H_
 #define CEF_LIBCEF_DLL_CTOCPP_KEYBOARD_HANDLER_CTOCPP_H_
@@ -18,23 +20,27 @@
 #error This file can be included DLL-side only
 #endif
 
-#include "include/cef_keyboard_handler.h"
 #include "include/capi/cef_keyboard_handler_capi.h"
+#include "include/cef_keyboard_handler.h"
 #include "libcef_dll/ctocpp/ctocpp_ref_counted.h"
 
 // Wrap a C structure with a C++ class.
 // This class may be instantiated and accessed DLL-side only.
 class CefKeyboardHandlerCToCpp
-    : public CefCToCppRefCounted<CefKeyboardHandlerCToCpp, CefKeyboardHandler,
-        cef_keyboard_handler_t> {
+    : public CefCToCppRefCounted<CefKeyboardHandlerCToCpp,
+                                 CefKeyboardHandler,
+                                 cef_keyboard_handler_t> {
  public:
   CefKeyboardHandlerCToCpp();
 
   // CefKeyboardHandler methods.
-  bool OnPreKeyEvent(CefRefPtr<CefBrowser> browser, const CefKeyEvent& event,
-      CefEventHandle os_event, bool* is_keyboard_shortcut) override;
-  bool OnKeyEvent(CefRefPtr<CefBrowser> browser, const CefKeyEvent& event,
-      CefEventHandle os_event) override;
+  bool OnPreKeyEvent(CefRefPtr<CefBrowser> browser,
+                     const CefKeyEvent& event,
+                     CefEventHandle os_event,
+                     bool* is_keyboard_shortcut) override;
+  bool OnKeyEvent(CefRefPtr<CefBrowser> browser,
+                  const CefKeyEvent& event,
+                  CefEventHandle os_event) override;
 };
 
 #endif  // CEF_LIBCEF_DLL_CTOCPP_KEYBOARD_HANDLER_CTOCPP_H_

@@ -9,6 +9,8 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=11ba7f2c44ac267c732baf2518203538641bd805$
+//
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_V8HANDLER_CTOCPP_H_
 #define CEF_LIBCEF_DLL_CTOCPP_V8HANDLER_CTOCPP_H_
@@ -18,22 +20,24 @@
 #error This file can be included DLL-side only
 #endif
 
-#include "include/cef_v8.h"
 #include "include/capi/cef_v8_capi.h"
+#include "include/cef_v8.h"
 #include "libcef_dll/ctocpp/ctocpp_ref_counted.h"
 
 // Wrap a C structure with a C++ class.
 // This class may be instantiated and accessed DLL-side only.
-class CefV8HandlerCToCpp
-    : public CefCToCppRefCounted<CefV8HandlerCToCpp, CefV8Handler,
-        cef_v8handler_t> {
+class CefV8HandlerCToCpp : public CefCToCppRefCounted<CefV8HandlerCToCpp,
+                                                      CefV8Handler,
+                                                      cef_v8handler_t> {
  public:
   CefV8HandlerCToCpp();
 
   // CefV8Handler methods.
-  bool Execute(const CefString& name, CefRefPtr<CefV8Value> object,
-      const CefV8ValueList& arguments, CefRefPtr<CefV8Value>& retval,
-      CefString& exception) override;
+  bool Execute(const CefString& name,
+               CefRefPtr<CefV8Value> object,
+               const CefV8ValueList& arguments,
+               CefRefPtr<CefV8Value>& retval,
+               CefString& exception) override;
 };
 
 #endif  // CEF_LIBCEF_DLL_CTOCPP_V8HANDLER_CTOCPP_H_

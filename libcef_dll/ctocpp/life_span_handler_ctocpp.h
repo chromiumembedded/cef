@@ -9,6 +9,8 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=60562c32e13837f5b1c35765c135caf39a121258$
+//
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_LIFE_SPAN_HANDLER_CTOCPP_H_
 #define CEF_LIBCEF_DLL_CTOCPP_LIFE_SPAN_HANDLER_CTOCPP_H_
@@ -18,27 +20,33 @@
 #error This file can be included DLL-side only
 #endif
 
-#include "include/cef_life_span_handler.h"
+#include "include/capi/cef_client_capi.h"
 #include "include/capi/cef_life_span_handler_capi.h"
 #include "include/cef_client.h"
-#include "include/capi/cef_client_capi.h"
+#include "include/cef_life_span_handler.h"
 #include "libcef_dll/ctocpp/ctocpp_ref_counted.h"
 
 // Wrap a C structure with a C++ class.
 // This class may be instantiated and accessed DLL-side only.
 class CefLifeSpanHandlerCToCpp
-    : public CefCToCppRefCounted<CefLifeSpanHandlerCToCpp, CefLifeSpanHandler,
-        cef_life_span_handler_t> {
+    : public CefCToCppRefCounted<CefLifeSpanHandlerCToCpp,
+                                 CefLifeSpanHandler,
+                                 cef_life_span_handler_t> {
  public:
   CefLifeSpanHandlerCToCpp();
 
   // CefLifeSpanHandler methods.
-  bool OnBeforePopup(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame,
-      const CefString& target_url, const CefString& target_frame_name,
-      WindowOpenDisposition target_disposition, bool user_gesture,
-      const CefPopupFeatures& popupFeatures, CefWindowInfo& windowInfo,
-      CefRefPtr<CefClient>& client, CefBrowserSettings& settings,
-      bool* no_javascript_access) override;
+  bool OnBeforePopup(CefRefPtr<CefBrowser> browser,
+                     CefRefPtr<CefFrame> frame,
+                     const CefString& target_url,
+                     const CefString& target_frame_name,
+                     WindowOpenDisposition target_disposition,
+                     bool user_gesture,
+                     const CefPopupFeatures& popupFeatures,
+                     CefWindowInfo& windowInfo,
+                     CefRefPtr<CefClient>& client,
+                     CefBrowserSettings& settings,
+                     bool* no_javascript_access) override;
   void OnAfterCreated(CefRefPtr<CefBrowser> browser) override;
   bool DoClose(CefRefPtr<CefBrowser> browser) override;
   void OnBeforeClose(CefRefPtr<CefBrowser> browser) override;

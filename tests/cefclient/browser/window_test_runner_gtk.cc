@@ -35,11 +35,13 @@ bool IsMaximized(GtkWindow* window) {
 
 }  // namespace
 
-WindowTestRunnerGtk::WindowTestRunnerGtk() {
-}
+WindowTestRunnerGtk::WindowTestRunnerGtk() {}
 
 void WindowTestRunnerGtk::SetPos(CefRefPtr<CefBrowser> browser,
-                                 int x, int y, int width, int height) {
+                                 int x,
+                                 int y,
+                                 int width,
+                                 int height) {
   CEF_REQUIRE_UI_THREAD();
   REQUIRE_MAIN_THREAD();
 

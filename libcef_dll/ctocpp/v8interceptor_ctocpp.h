@@ -9,6 +9,8 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=864b1b13843f4e36dfd48bd6a724266080324899$
+//
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_V8INTERCEPTOR_CTOCPP_H_
 #define CEF_LIBCEF_DLL_CTOCPP_V8INTERCEPTOR_CTOCPP_H_
@@ -18,27 +20,36 @@
 #error This file can be included DLL-side only
 #endif
 
-#include "include/cef_v8.h"
 #include "include/capi/cef_v8_capi.h"
+#include "include/cef_v8.h"
 #include "libcef_dll/ctocpp/ctocpp_ref_counted.h"
 
 // Wrap a C structure with a C++ class.
 // This class may be instantiated and accessed DLL-side only.
 class CefV8InterceptorCToCpp
-    : public CefCToCppRefCounted<CefV8InterceptorCToCpp, CefV8Interceptor,
-        cef_v8interceptor_t> {
+    : public CefCToCppRefCounted<CefV8InterceptorCToCpp,
+                                 CefV8Interceptor,
+                                 cef_v8interceptor_t> {
  public:
   CefV8InterceptorCToCpp();
 
   // CefV8Interceptor methods.
-  bool Get(const CefString& name, const CefRefPtr<CefV8Value> object,
-      CefRefPtr<CefV8Value>& retval, CefString& exception) override;
-  bool Get(int index, const CefRefPtr<CefV8Value> object,
-      CefRefPtr<CefV8Value>& retval, CefString& exception) override;
-  bool Set(const CefString& name, const CefRefPtr<CefV8Value> object,
-      const CefRefPtr<CefV8Value> value, CefString& exception) override;
-  bool Set(int index, const CefRefPtr<CefV8Value> object,
-      const CefRefPtr<CefV8Value> value, CefString& exception) override;
+  bool Get(const CefString& name,
+           const CefRefPtr<CefV8Value> object,
+           CefRefPtr<CefV8Value>& retval,
+           CefString& exception) override;
+  bool Get(int index,
+           const CefRefPtr<CefV8Value> object,
+           CefRefPtr<CefV8Value>& retval,
+           CefString& exception) override;
+  bool Set(const CefString& name,
+           const CefRefPtr<CefV8Value> object,
+           const CefRefPtr<CefV8Value> value,
+           CefString& exception) override;
+  bool Set(int index,
+           const CefRefPtr<CefV8Value> object,
+           const CefRefPtr<CefV8Value> value,
+           CefString& exception) override;
 };
 
 #endif  // CEF_LIBCEF_DLL_CTOCPP_V8INTERCEPTOR_CTOCPP_H_

@@ -27,7 +27,6 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-
 #ifndef CEF_INCLUDE_INTERNAL_CEF_MAC_H_
 #define CEF_INCLUDE_INTERNAL_CEF_MAC_H_
 #pragma once
@@ -46,8 +45,9 @@ struct CefMainArgsTraits {
   static inline void init(struct_type* s) {}
   static inline void clear(struct_type* s) {}
 
-  static inline void set(const struct_type* src, struct_type* target,
-      bool copy) {
+  static inline void set(const struct_type* src,
+                         struct_type* target,
+                         bool copy) {
     target->argc = src->argc;
     target->argv = src->argv;
   }
@@ -76,10 +76,11 @@ struct CefWindowInfoTraits {
     cef_string_clear(&s->window_name);
   }
 
-  static inline void set(const struct_type* src, struct_type* target,
-      bool copy) {
+  static inline void set(const struct_type* src,
+                         struct_type* target,
+                         bool copy) {
     cef_string_set(src->window_name.str, src->window_name.length,
-        &target->window_name, copy);
+                   &target->window_name, copy);
     target->x = src->x;
     target->y = src->y;
     target->width = src->width;
@@ -103,8 +104,7 @@ class CefWindowInfo : public CefStructBase<CefWindowInfoTraits> {
   ///
   // Create the browser as a child view.
   ///
-  void SetAsChild(CefWindowHandle parent, int x, int y, int width,
-                  int height) {
+  void SetAsChild(CefWindowHandle parent, int x, int y, int width, int height) {
     parent_view = parent;
     this->x = x;
     this->y = y;

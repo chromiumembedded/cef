@@ -9,11 +9,12 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=ec22bd815e23e3643d6ffb3db5573d6b24ea275c$
+//
 
 #include "libcef_dll/cpptoc/post_data_cpptoc.h"
 #include "libcef_dll/cpptoc/request_cpptoc.h"
 #include "libcef_dll/transfer_util.h"
-
 
 // GLOBAL FUNCTIONS - Body may be edited by hand.
 
@@ -26,7 +27,6 @@ CEF_EXPORT cef_request_t* cef_request_create() {
   // Return type: refptr_same
   return CefRequestCppToC::Wrap(_retval);
 }
-
 
 namespace {
 
@@ -46,8 +46,8 @@ int CEF_CALLBACK request_is_read_only(struct _cef_request_t* self) {
   return _retval;
 }
 
-cef_string_userfree_t CEF_CALLBACK request_get_url(
-    struct _cef_request_t* self) {
+cef_string_userfree_t CEF_CALLBACK
+request_get_url(struct _cef_request_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -62,7 +62,7 @@ cef_string_userfree_t CEF_CALLBACK request_get_url(
 }
 
 void CEF_CALLBACK request_set_url(struct _cef_request_t* self,
-    const cef_string_t* url) {
+                                  const cef_string_t* url) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -74,12 +74,11 @@ void CEF_CALLBACK request_set_url(struct _cef_request_t* self,
     return;
 
   // Execute
-  CefRequestCppToC::Get(self)->SetURL(
-      CefString(url));
+  CefRequestCppToC::Get(self)->SetURL(CefString(url));
 }
 
-cef_string_userfree_t CEF_CALLBACK request_get_method(
-    struct _cef_request_t* self) {
+cef_string_userfree_t CEF_CALLBACK
+request_get_method(struct _cef_request_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -94,7 +93,7 @@ cef_string_userfree_t CEF_CALLBACK request_get_method(
 }
 
 void CEF_CALLBACK request_set_method(struct _cef_request_t* self,
-    const cef_string_t* method) {
+                                     const cef_string_t* method) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -106,12 +105,12 @@ void CEF_CALLBACK request_set_method(struct _cef_request_t* self,
     return;
 
   // Execute
-  CefRequestCppToC::Get(self)->SetMethod(
-      CefString(method));
+  CefRequestCppToC::Get(self)->SetMethod(CefString(method));
 }
 
 void CEF_CALLBACK request_set_referrer(struct _cef_request_t* self,
-    const cef_string_t* referrer_url, cef_referrer_policy_t policy) {
+                                       const cef_string_t* referrer_url,
+                                       cef_referrer_policy_t policy) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -123,13 +122,11 @@ void CEF_CALLBACK request_set_referrer(struct _cef_request_t* self,
     return;
 
   // Execute
-  CefRequestCppToC::Get(self)->SetReferrer(
-      CefString(referrer_url),
-      policy);
+  CefRequestCppToC::Get(self)->SetReferrer(CefString(referrer_url), policy);
 }
 
-cef_string_userfree_t CEF_CALLBACK request_get_referrer_url(
-    struct _cef_request_t* self) {
+cef_string_userfree_t CEF_CALLBACK
+request_get_referrer_url(struct _cef_request_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -143,8 +140,8 @@ cef_string_userfree_t CEF_CALLBACK request_get_referrer_url(
   return _retval.DetachToUserFree();
 }
 
-cef_referrer_policy_t CEF_CALLBACK request_get_referrer_policy(
-    struct _cef_request_t* self) {
+cef_referrer_policy_t CEF_CALLBACK
+request_get_referrer_policy(struct _cef_request_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -152,15 +149,15 @@ cef_referrer_policy_t CEF_CALLBACK request_get_referrer_policy(
     return REFERRER_POLICY_DEFAULT;
 
   // Execute
-  cef_referrer_policy_t _retval = CefRequestCppToC::Get(
-      self)->GetReferrerPolicy();
+  cef_referrer_policy_t _retval =
+      CefRequestCppToC::Get(self)->GetReferrerPolicy();
 
   // Return type: simple
   return _retval;
 }
 
-struct _cef_post_data_t* CEF_CALLBACK request_get_post_data(
-    struct _cef_request_t* self) {
+struct _cef_post_data_t* CEF_CALLBACK
+request_get_post_data(struct _cef_request_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -175,7 +172,7 @@ struct _cef_post_data_t* CEF_CALLBACK request_get_post_data(
 }
 
 void CEF_CALLBACK request_set_post_data(struct _cef_request_t* self,
-    struct _cef_post_data_t* postData) {
+                                        struct _cef_post_data_t* postData) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -187,12 +184,11 @@ void CEF_CALLBACK request_set_post_data(struct _cef_request_t* self,
     return;
 
   // Execute
-  CefRequestCppToC::Get(self)->SetPostData(
-      CefPostDataCppToC::Unwrap(postData));
+  CefRequestCppToC::Get(self)->SetPostData(CefPostDataCppToC::Unwrap(postData));
 }
 
 void CEF_CALLBACK request_get_header_map(struct _cef_request_t* self,
-    cef_string_multimap_t headerMap) {
+                                         cef_string_multimap_t headerMap) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -208,8 +204,7 @@ void CEF_CALLBACK request_get_header_map(struct _cef_request_t* self,
   transfer_string_multimap_contents(headerMap, headerMapMultimap);
 
   // Execute
-  CefRequestCppToC::Get(self)->GetHeaderMap(
-      headerMapMultimap);
+  CefRequestCppToC::Get(self)->GetHeaderMap(headerMapMultimap);
 
   // Restore param: headerMap; type: string_map_multi_byref
   cef_string_multimap_clear(headerMap);
@@ -217,7 +212,7 @@ void CEF_CALLBACK request_get_header_map(struct _cef_request_t* self,
 }
 
 void CEF_CALLBACK request_set_header_map(struct _cef_request_t* self,
-    cef_string_multimap_t headerMap) {
+                                         cef_string_multimap_t headerMap) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -233,13 +228,14 @@ void CEF_CALLBACK request_set_header_map(struct _cef_request_t* self,
   transfer_string_multimap_contents(headerMap, headerMapMultimap);
 
   // Execute
-  CefRequestCppToC::Get(self)->SetHeaderMap(
-      headerMapMultimap);
+  CefRequestCppToC::Get(self)->SetHeaderMap(headerMapMultimap);
 }
 
 void CEF_CALLBACK request_set(struct _cef_request_t* self,
-    const cef_string_t* url, const cef_string_t* method,
-    struct _cef_post_data_t* postData, cef_string_multimap_t headerMap) {
+                              const cef_string_t* url,
+                              const cef_string_t* method,
+                              struct _cef_post_data_t* postData,
+                              cef_string_multimap_t headerMap) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -264,11 +260,9 @@ void CEF_CALLBACK request_set(struct _cef_request_t* self,
   transfer_string_multimap_contents(headerMap, headerMapMultimap);
 
   // Execute
-  CefRequestCppToC::Get(self)->Set(
-      CefString(url),
-      CefString(method),
-      CefPostDataCppToC::Unwrap(postData),
-      headerMapMultimap);
+  CefRequestCppToC::Get(self)->Set(CefString(url), CefString(method),
+                                   CefPostDataCppToC::Unwrap(postData),
+                                   headerMapMultimap);
 }
 
 int CEF_CALLBACK request_get_flags(struct _cef_request_t* self) {
@@ -293,12 +287,11 @@ void CEF_CALLBACK request_set_flags(struct _cef_request_t* self, int flags) {
     return;
 
   // Execute
-  CefRequestCppToC::Get(self)->SetFlags(
-      flags);
+  CefRequestCppToC::Get(self)->SetFlags(flags);
 }
 
-cef_string_userfree_t CEF_CALLBACK request_get_first_party_for_cookies(
-    struct _cef_request_t* self) {
+cef_string_userfree_t CEF_CALLBACK
+request_get_first_party_for_cookies(struct _cef_request_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -312,8 +305,9 @@ cef_string_userfree_t CEF_CALLBACK request_get_first_party_for_cookies(
   return _retval.DetachToUserFree();
 }
 
-void CEF_CALLBACK request_set_first_party_for_cookies(
-    struct _cef_request_t* self, const cef_string_t* url) {
+void CEF_CALLBACK
+request_set_first_party_for_cookies(struct _cef_request_t* self,
+                                    const cef_string_t* url) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -325,12 +319,11 @@ void CEF_CALLBACK request_set_first_party_for_cookies(
     return;
 
   // Execute
-  CefRequestCppToC::Get(self)->SetFirstPartyForCookies(
-      CefString(url));
+  CefRequestCppToC::Get(self)->SetFirstPartyForCookies(CefString(url));
 }
 
-cef_resource_type_t CEF_CALLBACK request_get_resource_type(
-    struct _cef_request_t* self) {
+cef_resource_type_t CEF_CALLBACK
+request_get_resource_type(struct _cef_request_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -344,8 +337,8 @@ cef_resource_type_t CEF_CALLBACK request_get_resource_type(
   return _retval;
 }
 
-cef_transition_type_t CEF_CALLBACK request_get_transition_type(
-    struct _cef_request_t* self) {
+cef_transition_type_t CEF_CALLBACK
+request_get_transition_type(struct _cef_request_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -353,8 +346,8 @@ cef_transition_type_t CEF_CALLBACK request_get_transition_type(
     return TT_EXPLICIT;
 
   // Execute
-  cef_transition_type_t _retval = CefRequestCppToC::Get(
-      self)->GetTransitionType();
+  cef_transition_type_t _retval =
+      CefRequestCppToC::Get(self)->GetTransitionType();
 
   // Return type: simple
   return _retval;
@@ -375,7 +368,6 @@ uint64 CEF_CALLBACK request_get_identifier(struct _cef_request_t* self) {
 }
 
 }  // namespace
-
 
 // CONSTRUCTOR - Do not edit by hand.
 
@@ -404,17 +396,23 @@ CefRequestCppToC::CefRequestCppToC() {
   GetStruct()->get_identifier = request_get_identifier;
 }
 
-template<> CefRefPtr<CefRequest> CefCppToCRefCounted<CefRequestCppToC,
-    CefRequest, cef_request_t>::UnwrapDerived(CefWrapperType type,
+template <>
+CefRefPtr<CefRequest>
+CefCppToCRefCounted<CefRequestCppToC, CefRequest, cef_request_t>::UnwrapDerived(
+    CefWrapperType type,
     cef_request_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCppToCRefCounted<CefRequestCppToC,
-    CefRequest, cef_request_t>::DebugObjCt = 0;
+template <>
+base::AtomicRefCount CefCppToCRefCounted<CefRequestCppToC,
+                                         CefRequest,
+                                         cef_request_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCppToCRefCounted<CefRequestCppToC, CefRequest,
-    cef_request_t>::kWrapperType = WT_REQUEST;
+template <>
+CefWrapperType CefCppToCRefCounted<CefRequestCppToC,
+                                   CefRequest,
+                                   cef_request_t>::kWrapperType = WT_REQUEST;

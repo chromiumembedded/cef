@@ -9,32 +9,32 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=ac4acfafda72e57c9bd261be73e8d47fd30ebc0e$
+//
 
 #include "libcef_dll/ctocpp/task_runner_ctocpp.h"
 #include "libcef_dll/ctocpp/thread_ctocpp.h"
 
-
 // STATIC METHODS - Body may be edited by hand.
 
-CefRefPtr<CefThread> CefThread::CreateThread(const CefString& display_name,
-    cef_thread_priority_t priority, cef_message_loop_type_t message_loop_type,
-    bool stoppable, cef_com_init_mode_t com_init_mode) {
+CefRefPtr<CefThread> CefThread::CreateThread(
+    const CefString& display_name,
+    cef_thread_priority_t priority,
+    cef_message_loop_type_t message_loop_type,
+    bool stoppable,
+    cef_com_init_mode_t com_init_mode) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Unverified params: display_name
 
   // Execute
-  cef_thread_t* _retval = cef_thread_create(
-      display_name.GetStruct(),
-      priority,
-      message_loop_type,
-      stoppable,
-      com_init_mode);
+  cef_thread_t* _retval =
+      cef_thread_create(display_name.GetStruct(), priority, message_loop_type,
+                        stoppable, com_init_mode);
 
   // Return type: refptr_same
   return CefThreadCToCpp::Wrap(_retval);
 }
-
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
@@ -88,25 +88,29 @@ bool CefThreadCToCpp::IsRunning() {
   int _retval = _struct->is_running(_struct);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
-
 
 // CONSTRUCTOR - Do not edit by hand.
 
-CefThreadCToCpp::CefThreadCToCpp() {
-}
+CefThreadCToCpp::CefThreadCToCpp() {}
 
-template<> cef_thread_t* CefCToCppRefCounted<CefThreadCToCpp, CefThread,
-    cef_thread_t>::UnwrapDerived(CefWrapperType type, CefThread* c) {
+template <>
+cef_thread_t*
+CefCToCppRefCounted<CefThreadCToCpp, CefThread, cef_thread_t>::UnwrapDerived(
+    CefWrapperType type,
+    CefThread* c) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCppRefCounted<CefThreadCToCpp, CefThread,
-    cef_thread_t>::DebugObjCt = 0;
+template <>
+base::AtomicRefCount
+    CefCToCppRefCounted<CefThreadCToCpp, CefThread, cef_thread_t>::DebugObjCt =
+        0;
 #endif
 
-template<> CefWrapperType CefCToCppRefCounted<CefThreadCToCpp, CefThread,
-    cef_thread_t>::kWrapperType = WT_THREAD;
+template <>
+CefWrapperType CefCToCppRefCounted<CefThreadCToCpp, CefThread, cef_thread_t>::
+    kWrapperType = WT_THREAD;

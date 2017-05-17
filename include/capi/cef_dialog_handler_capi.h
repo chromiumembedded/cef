@@ -33,6 +33,8 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
+// $hash=b8a44f4f624ba51107d06ff3d1a7934e83765786$
+//
 
 #ifndef CEF_INCLUDE_CAPI_CEF_DIALOG_HANDLER_CAPI_H_
 #define CEF_INCLUDE_CAPI_CEF_DIALOG_HANDLER_CAPI_H_
@@ -44,7 +46,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
 
 ///
 // Callback structure for asynchronous continuation of file dialog requests.
@@ -62,15 +63,15 @@ typedef struct _cef_file_dialog_callback_t {
   // or a list of values depending on the dialog mode. An NULL |file_paths|
   // value is treated the same as calling cancel().
   ///
-  void (CEF_CALLBACK *cont)(struct _cef_file_dialog_callback_t* self,
-      int selected_accept_filter, cef_string_list_t file_paths);
+  void(CEF_CALLBACK* cont)(struct _cef_file_dialog_callback_t* self,
+                           int selected_accept_filter,
+                           cef_string_list_t file_paths);
 
   ///
   // Cancel the file selection.
   ///
-  void (CEF_CALLBACK *cancel)(struct _cef_file_dialog_callback_t* self);
+  void(CEF_CALLBACK* cancel)(struct _cef_file_dialog_callback_t* self);
 } cef_file_dialog_callback_t;
-
 
 ///
 // Implement this structure to handle dialog events. The functions of this
@@ -97,13 +98,16 @@ typedef struct _cef_dialog_handler_t {
   // return true (1) and execute |callback| either inline or at a later time. To
   // display the default dialog return false (0).
   ///
-  int (CEF_CALLBACK *on_file_dialog)(struct _cef_dialog_handler_t* self,
-      struct _cef_browser_t* browser, cef_file_dialog_mode_t mode,
-      const cef_string_t* title, const cef_string_t* default_file_path,
-      cef_string_list_t accept_filters, int selected_accept_filter,
+  int(CEF_CALLBACK* on_file_dialog)(
+      struct _cef_dialog_handler_t* self,
+      struct _cef_browser_t* browser,
+      cef_file_dialog_mode_t mode,
+      const cef_string_t* title,
+      const cef_string_t* default_file_path,
+      cef_string_list_t accept_filters,
+      int selected_accept_filter,
       struct _cef_file_dialog_callback_t* callback);
 } cef_dialog_handler_t;
-
 
 #ifdef __cplusplus
 }

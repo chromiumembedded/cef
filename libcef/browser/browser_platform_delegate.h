@@ -11,8 +11,8 @@
 
 #include "include/cef_client.h"
 #include "include/cef_drag_data.h"
-#include "include/views/cef_browser_view.h"
 #include "include/internal/cef_types.h"
+#include "include/views/cef_browser_view.h"
 #include "libcef/browser/browser_host_impl.h"
 
 #include "base/callback.h"
@@ -64,8 +64,7 @@ class CefBrowserPlatformDelegate {
   virtual void WebContentsCreated(content::WebContents* web_contents);
 
   // Called after the RenderViewHost is created.
-  virtual void RenderViewCreated(
-    content::RenderViewHost* render_view_host);
+  virtual void RenderViewCreated(content::RenderViewHost* render_view_host);
 
   // Called after the owning CefBrowserHostImpl is created. Will only be called
   // a single time per instance. Do not send any client notifications from this
@@ -79,7 +78,7 @@ class CefBrowserPlatformDelegate {
   // Send any notifications related to browser destruction. Called before
   // BrowserDestroyed().
   virtual void NotifyBrowserDestroyed();
-  
+
   // Called before the owning CefBrowserHostImpl is destroyed. Will only be
   // called a single time per instance. All references to the CefBrowserHostImpl
   // and WebContents should be cleared when this method is called. Do not send
@@ -98,7 +97,7 @@ class CefBrowserPlatformDelegate {
   // Return the OS handle for the window that hosts the browser. For windowed
   // rendering this will return the most immediate parent window handle. For
   // windowless rendering this will return the parent window handle specified by
-  // the client, which may be NULL. May be called on multiple threads. 
+  // the client, which may be NULL. May be called on multiple threads.
   virtual CefWindowHandle GetHostWindowHandle() const = 0;
 
 #if defined(USE_AURA)
@@ -130,9 +129,8 @@ class CefBrowserPlatformDelegate {
   // CefLifeSpanHandler::OnAfterCreated() for the popup browser. It is safe to
   // make the new browser visible in this callback (for example, add the browser
   // to a window and show it).
-  virtual void PopupBrowserCreated(
-      CefBrowserHostImpl* new_browser,
-      bool is_devtools);
+  virtual void PopupBrowserCreated(CefBrowserHostImpl* new_browser,
+                                   bool is_devtools);
 
   // Returns the background color for the browser. The alpha component will be
   // either SK_AlphaTRANSPARENT or SK_AlphaOPAQUE (e.g. fully transparent or
@@ -187,13 +185,15 @@ class CefBrowserPlatformDelegate {
   virtual void TranslateClickEvent(blink::WebMouseEvent& result,
                                    const CefMouseEvent& mouse_event,
                                    CefBrowserHost::MouseButtonType type,
-                                   bool mouseUp, int clickCount) const = 0;
+                                   bool mouseUp,
+                                   int clickCount) const = 0;
   virtual void TranslateMoveEvent(blink::WebMouseEvent& result,
                                   const CefMouseEvent& mouse_event,
                                   bool mouseLeave) const = 0;
   virtual void TranslateWheelEvent(blink::WebMouseWheelEvent& result,
                                    const CefMouseEvent& mouse_event,
-                                   int deltaX, int deltaY) const = 0;
+                                   int deltaX,
+                                   int deltaY) const = 0;
 
   // Returns the OS event handle, if any, associated with |event|.
   virtual CefEventHandle GetEventHandle(
@@ -203,7 +203,8 @@ class CefBrowserPlatformDelegate {
   virtual std::unique_ptr<CefFileDialogRunner> CreateFileDialogRunner();
 
   // Create the platform-specific JavaScript dialog runner.
-  virtual std::unique_ptr<CefJavaScriptDialogRunner> CreateJavaScriptDialogRunner();
+  virtual std::unique_ptr<CefJavaScriptDialogRunner>
+  CreateJavaScriptDialogRunner();
 
   // Create the platform-specific menu runner.
   virtual std::unique_ptr<CefMenuRunner> CreateMenuRunner() = 0;
@@ -245,22 +246,20 @@ class CefBrowserPlatformDelegate {
   // Drag/drop-related callbacks. See documentation in CefRenderHandler. Only
   // used with windowless rendering.
   virtual void DragTargetDragEnter(CefRefPtr<CefDragData> drag_data,
-                                  const CefMouseEvent& event,
-                                  cef_drag_operations_mask_t allowed_ops);
+                                   const CefMouseEvent& event,
+                                   cef_drag_operations_mask_t allowed_ops);
   virtual void DragTargetDragOver(const CefMouseEvent& event,
                                   cef_drag_operations_mask_t allowed_ops);
   virtual void DragTargetDragLeave();
   virtual void DragTargetDrop(const CefMouseEvent& event);
-  virtual void StartDragging(
-      const content::DropData& drop_data,
-      blink::WebDragOperationsMask allowed_ops,
-      const gfx::ImageSkia& image,
-      const gfx::Vector2d& image_offset,
-      const content::DragEventSourceInfo& event_info,
-      content::RenderWidgetHostImpl* source_rwh);
+  virtual void StartDragging(const content::DropData& drop_data,
+                             blink::WebDragOperationsMask allowed_ops,
+                             const gfx::ImageSkia& image,
+                             const gfx::Vector2d& image_offset,
+                             const content::DragEventSourceInfo& event_info,
+                             content::RenderWidgetHostImpl* source_rwh);
   virtual void UpdateDragCursor(blink::WebDragOperation operation);
-  virtual void DragSourceEndedAt(int x, int y,
-                                 cef_drag_operations_mask_t op);
+  virtual void DragSourceEndedAt(int x, int y, cef_drag_operations_mask_t op);
   virtual void DragSourceSystemDragEnded();
   virtual void AccessibilityEventReceived(
       const std::vector<content::AXEventNotificationDetails>& eventData);
@@ -276,7 +275,7 @@ class CefBrowserPlatformDelegate {
 
   static int TranslateModifiers(uint32 cef_modifiers);
 
-  CefBrowserHostImpl *browser_;  // Not owned by this object.
+  CefBrowserHostImpl* browser_;  // Not owned by this object.
 
  private:
   DISALLOW_COPY_AND_ASSIGN(CefBrowserPlatformDelegate);

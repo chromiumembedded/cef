@@ -11,8 +11,8 @@
 #include "libcef/browser/views/layout_impl.h"
 #include "ui/views/layout/fill_layout.h"
 
-class CefFillLayoutImpl :
-    public CefLayoutImpl<views::FillLayout, CefFillLayout> {
+class CefFillLayoutImpl
+    : public CefLayoutImpl<views::FillLayout, CefFillLayout> {
  public:
   // Create a new CefFillLayout insance. |owner_view| must be non-nullptr.
   static CefRefPtr<CefFillLayout> Create(views::View* owner_view);

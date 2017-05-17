@@ -9,10 +9,12 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=855d24c5bb0627952e9a7549e98d023488d5fcd5$
+//
 
+#include "libcef_dll/cpptoc/image_cpptoc.h"
 #include "libcef_dll/cpptoc/views/browser_view_cpptoc.h"
 #include "libcef_dll/cpptoc/views/button_cpptoc.h"
-#include "libcef_dll/cpptoc/image_cpptoc.h"
 #include "libcef_dll/cpptoc/views/label_button_cpptoc.h"
 #include "libcef_dll/cpptoc/views/menu_button_cpptoc.h"
 #include "libcef_dll/cpptoc/views/panel_cpptoc.h"
@@ -23,11 +25,11 @@
 #include "libcef_dll/ctocpp/views/button_delegate_ctocpp.h"
 #include "libcef_dll/ctocpp/views/view_delegate_ctocpp.h"
 
-
 // GLOBAL FUNCTIONS - Body may be edited by hand.
 
 CEF_EXPORT cef_label_button_t* cef_label_button_create(
-    cef_button_delegate_t* delegate, const cef_string_t* text,
+    cef_button_delegate_t* delegate,
+    const cef_string_t* text,
     int with_frame) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -39,21 +41,19 @@ CEF_EXPORT cef_label_button_t* cef_label_button_create(
 
   // Execute
   CefRefPtr<CefLabelButton> _retval = CefLabelButton::CreateLabelButton(
-      CefButtonDelegateCToCpp::Wrap(delegate),
-      CefString(text),
-      with_frame?true:false);
+      CefButtonDelegateCToCpp::Wrap(delegate), CefString(text),
+      with_frame ? true : false);
 
   // Return type: refptr_same
   return CefLabelButtonCppToC::Wrap(_retval);
 }
 
-
 namespace {
 
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
-cef_menu_button_t* CEF_CALLBACK label_button_as_menu_button(
-    struct _cef_label_button_t* self) {
+cef_menu_button_t* CEF_CALLBACK
+label_button_as_menu_button(struct _cef_label_button_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -61,15 +61,15 @@ cef_menu_button_t* CEF_CALLBACK label_button_as_menu_button(
     return NULL;
 
   // Execute
-  CefRefPtr<CefMenuButton> _retval = CefLabelButtonCppToC::Get(
-      self)->AsMenuButton();
+  CefRefPtr<CefMenuButton> _retval =
+      CefLabelButtonCppToC::Get(self)->AsMenuButton();
 
   // Return type: refptr_same
   return CefMenuButtonCppToC::Wrap(_retval);
 }
 
 void CEF_CALLBACK label_button_set_text(struct _cef_label_button_t* self,
-    const cef_string_t* text) {
+                                        const cef_string_t* text) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -81,12 +81,11 @@ void CEF_CALLBACK label_button_set_text(struct _cef_label_button_t* self,
     return;
 
   // Execute
-  CefLabelButtonCppToC::Get(self)->SetText(
-      CefString(text));
+  CefLabelButtonCppToC::Get(self)->SetText(CefString(text));
 }
 
-cef_string_userfree_t CEF_CALLBACK label_button_get_text(
-    struct _cef_label_button_t* self) {
+cef_string_userfree_t CEF_CALLBACK
+label_button_get_text(struct _cef_label_button_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -101,7 +100,8 @@ cef_string_userfree_t CEF_CALLBACK label_button_get_text(
 }
 
 void CEF_CALLBACK label_button_set_image(struct _cef_label_button_t* self,
-    cef_button_state_t button_state, cef_image_t* image) {
+                                         cef_button_state_t button_state,
+                                         cef_image_t* image) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -110,13 +110,13 @@ void CEF_CALLBACK label_button_set_image(struct _cef_label_button_t* self,
   // Unverified params: image
 
   // Execute
-  CefLabelButtonCppToC::Get(self)->SetImage(
-      button_state,
-      CefImageCppToC::Unwrap(image));
+  CefLabelButtonCppToC::Get(self)->SetImage(button_state,
+                                            CefImageCppToC::Unwrap(image));
 }
 
-cef_image_t* CEF_CALLBACK label_button_get_image(
-    struct _cef_label_button_t* self, cef_button_state_t button_state) {
+cef_image_t* CEF_CALLBACK
+label_button_get_image(struct _cef_label_button_t* self,
+                       cef_button_state_t button_state) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -124,15 +124,16 @@ cef_image_t* CEF_CALLBACK label_button_get_image(
     return NULL;
 
   // Execute
-  CefRefPtr<CefImage> _retval = CefLabelButtonCppToC::Get(self)->GetImage(
-      button_state);
+  CefRefPtr<CefImage> _retval =
+      CefLabelButtonCppToC::Get(self)->GetImage(button_state);
 
   // Return type: refptr_same
   return CefImageCppToC::Wrap(_retval);
 }
 
 void CEF_CALLBACK label_button_set_text_color(struct _cef_label_button_t* self,
-    cef_button_state_t for_state, cef_color_t color) {
+                                              cef_button_state_t for_state,
+                                              cef_color_t color) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -140,13 +141,12 @@ void CEF_CALLBACK label_button_set_text_color(struct _cef_label_button_t* self,
     return;
 
   // Execute
-  CefLabelButtonCppToC::Get(self)->SetTextColor(
-      for_state,
-      color);
+  CefLabelButtonCppToC::Get(self)->SetTextColor(for_state, color);
 }
 
-void CEF_CALLBACK label_button_set_enabled_text_colors(
-    struct _cef_label_button_t* self, cef_color_t color) {
+void CEF_CALLBACK
+label_button_set_enabled_text_colors(struct _cef_label_button_t* self,
+                                     cef_color_t color) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -154,12 +154,11 @@ void CEF_CALLBACK label_button_set_enabled_text_colors(
     return;
 
   // Execute
-  CefLabelButtonCppToC::Get(self)->SetEnabledTextColors(
-      color);
+  CefLabelButtonCppToC::Get(self)->SetEnabledTextColors(color);
 }
 
 void CEF_CALLBACK label_button_set_font_list(struct _cef_label_button_t* self,
-    const cef_string_t* font_list) {
+                                             const cef_string_t* font_list) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -171,12 +170,12 @@ void CEF_CALLBACK label_button_set_font_list(struct _cef_label_button_t* self,
     return;
 
   // Execute
-  CefLabelButtonCppToC::Get(self)->SetFontList(
-      CefString(font_list));
+  CefLabelButtonCppToC::Get(self)->SetFontList(CefString(font_list));
 }
 
-void CEF_CALLBACK label_button_set_horizontal_alignment(
-    struct _cef_label_button_t* self, cef_horizontal_alignment_t alignment) {
+void CEF_CALLBACK
+label_button_set_horizontal_alignment(struct _cef_label_button_t* self,
+                                      cef_horizontal_alignment_t alignment) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -184,32 +183,12 @@ void CEF_CALLBACK label_button_set_horizontal_alignment(
     return;
 
   // Execute
-  CefLabelButtonCppToC::Get(self)->SetHorizontalAlignment(
-      alignment);
+  CefLabelButtonCppToC::Get(self)->SetHorizontalAlignment(alignment);
 }
 
-void CEF_CALLBACK label_button_set_minimum_size(
-    struct _cef_label_button_t* self, const cef_size_t* size) {
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  DCHECK(self);
-  if (!self)
-    return;
-  // Verify param: size; type: simple_byref_const
-  DCHECK(size);
-  if (!size)
-    return;
-
-  // Translate param: size; type: simple_byref_const
-  CefSize sizeVal = size?*size:CefSize();
-
-  // Execute
-  CefLabelButtonCppToC::Get(self)->SetMinimumSize(
-      sizeVal);
-}
-
-void CEF_CALLBACK label_button_set_maximum_size(
-    struct _cef_label_button_t* self, const cef_size_t* size) {
+void CEF_CALLBACK
+label_button_set_minimum_size(struct _cef_label_button_t* self,
+                              const cef_size_t* size) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -221,15 +200,34 @@ void CEF_CALLBACK label_button_set_maximum_size(
     return;
 
   // Translate param: size; type: simple_byref_const
-  CefSize sizeVal = size?*size:CefSize();
+  CefSize sizeVal = size ? *size : CefSize();
 
   // Execute
-  CefLabelButtonCppToC::Get(self)->SetMaximumSize(
-      sizeVal);
+  CefLabelButtonCppToC::Get(self)->SetMinimumSize(sizeVal);
 }
 
-cef_label_button_t* CEF_CALLBACK label_button_as_label_button(
-    struct _cef_button_t* self) {
+void CEF_CALLBACK
+label_button_set_maximum_size(struct _cef_label_button_t* self,
+                              const cef_size_t* size) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return;
+  // Verify param: size; type: simple_byref_const
+  DCHECK(size);
+  if (!size)
+    return;
+
+  // Translate param: size; type: simple_byref_const
+  CefSize sizeVal = size ? *size : CefSize();
+
+  // Execute
+  CefLabelButtonCppToC::Get(self)->SetMaximumSize(sizeVal);
+}
+
+cef_label_button_t* CEF_CALLBACK
+label_button_as_label_button(struct _cef_button_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -237,15 +235,16 @@ cef_label_button_t* CEF_CALLBACK label_button_as_label_button(
     return NULL;
 
   // Execute
-  CefRefPtr<CefLabelButton> _retval = CefLabelButtonCppToC::Get(
-      reinterpret_cast<cef_label_button_t*>(self))->AsLabelButton();
+  CefRefPtr<CefLabelButton> _retval =
+      CefLabelButtonCppToC::Get(reinterpret_cast<cef_label_button_t*>(self))
+          ->AsLabelButton();
 
   // Return type: refptr_same
   return CefLabelButtonCppToC::Wrap(_retval);
 }
 
 void CEF_CALLBACK label_button_set_state(struct _cef_button_t* self,
-    cef_button_state_t state) {
+                                         cef_button_state_t state) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -253,13 +252,12 @@ void CEF_CALLBACK label_button_set_state(struct _cef_button_t* self,
     return;
 
   // Execute
-  CefLabelButtonCppToC::Get(reinterpret_cast<cef_label_button_t*>(
-      self))->SetState(
-      state);
+  CefLabelButtonCppToC::Get(reinterpret_cast<cef_label_button_t*>(self))
+      ->SetState(state);
 }
 
-cef_button_state_t CEF_CALLBACK label_button_get_state(
-    struct _cef_button_t* self) {
+cef_button_state_t CEF_CALLBACK
+label_button_get_state(struct _cef_button_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -267,15 +265,16 @@ cef_button_state_t CEF_CALLBACK label_button_get_state(
     return CEF_BUTTON_STATE_NORMAL;
 
   // Execute
-  cef_button_state_t _retval = CefLabelButtonCppToC::Get(
-      reinterpret_cast<cef_label_button_t*>(self))->GetState();
+  cef_button_state_t _retval =
+      CefLabelButtonCppToC::Get(reinterpret_cast<cef_label_button_t*>(self))
+          ->GetState();
 
   // Return type: simple
   return _retval;
 }
 
 void CEF_CALLBACK label_button_set_ink_drop_enabled(struct _cef_button_t* self,
-    int enabled) {
+                                                    int enabled) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -283,13 +282,13 @@ void CEF_CALLBACK label_button_set_ink_drop_enabled(struct _cef_button_t* self,
     return;
 
   // Execute
-  CefLabelButtonCppToC::Get(reinterpret_cast<cef_label_button_t*>(
-      self))->SetInkDropEnabled(
-      enabled?true:false);
+  CefLabelButtonCppToC::Get(reinterpret_cast<cef_label_button_t*>(self))
+      ->SetInkDropEnabled(enabled ? true : false);
 }
 
-void CEF_CALLBACK label_button_set_tooltip_text(struct _cef_button_t* self,
-    const cef_string_t* tooltip_text) {
+void CEF_CALLBACK
+label_button_set_tooltip_text(struct _cef_button_t* self,
+                              const cef_string_t* tooltip_text) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -301,13 +300,12 @@ void CEF_CALLBACK label_button_set_tooltip_text(struct _cef_button_t* self,
     return;
 
   // Execute
-  CefLabelButtonCppToC::Get(reinterpret_cast<cef_label_button_t*>(
-      self))->SetTooltipText(
-      CefString(tooltip_text));
+  CefLabelButtonCppToC::Get(reinterpret_cast<cef_label_button_t*>(self))
+      ->SetTooltipText(CefString(tooltip_text));
 }
 
 void CEF_CALLBACK label_button_set_accessible_name(struct _cef_button_t* self,
-    const cef_string_t* name) {
+                                                   const cef_string_t* name) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -319,13 +317,12 @@ void CEF_CALLBACK label_button_set_accessible_name(struct _cef_button_t* self,
     return;
 
   // Execute
-  CefLabelButtonCppToC::Get(reinterpret_cast<cef_label_button_t*>(
-      self))->SetAccessibleName(
-      CefString(name));
+  CefLabelButtonCppToC::Get(reinterpret_cast<cef_label_button_t*>(self))
+      ->SetAccessibleName(CefString(name));
 }
 
-cef_browser_view_t* CEF_CALLBACK label_button_as_browser_view(
-    struct _cef_view_t* self) {
+cef_browser_view_t* CEF_CALLBACK
+label_button_as_browser_view(struct _cef_view_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -333,8 +330,9 @@ cef_browser_view_t* CEF_CALLBACK label_button_as_browser_view(
     return NULL;
 
   // Execute
-  CefRefPtr<CefBrowserView> _retval = CefLabelButtonCppToC::Get(
-      reinterpret_cast<cef_label_button_t*>(self))->AsBrowserView();
+  CefRefPtr<CefBrowserView> _retval =
+      CefLabelButtonCppToC::Get(reinterpret_cast<cef_label_button_t*>(self))
+          ->AsBrowserView();
 
   // Return type: refptr_same
   return CefBrowserViewCppToC::Wrap(_retval);
@@ -348,8 +346,9 @@ cef_button_t* CEF_CALLBACK label_button_as_button(struct _cef_view_t* self) {
     return NULL;
 
   // Execute
-  CefRefPtr<CefButton> _retval = CefLabelButtonCppToC::Get(
-      reinterpret_cast<cef_label_button_t*>(self))->AsButton();
+  CefRefPtr<CefButton> _retval =
+      CefLabelButtonCppToC::Get(reinterpret_cast<cef_label_button_t*>(self))
+          ->AsButton();
 
   // Return type: refptr_same
   return CefButtonCppToC::Wrap(_retval);
@@ -363,15 +362,16 @@ cef_panel_t* CEF_CALLBACK label_button_as_panel(struct _cef_view_t* self) {
     return NULL;
 
   // Execute
-  CefRefPtr<CefPanel> _retval = CefLabelButtonCppToC::Get(
-      reinterpret_cast<cef_label_button_t*>(self))->AsPanel();
+  CefRefPtr<CefPanel> _retval =
+      CefLabelButtonCppToC::Get(reinterpret_cast<cef_label_button_t*>(self))
+          ->AsPanel();
 
   // Return type: refptr_same
   return CefPanelCppToC::Wrap(_retval);
 }
 
-cef_scroll_view_t* CEF_CALLBACK label_button_as_scroll_view(
-    struct _cef_view_t* self) {
+cef_scroll_view_t* CEF_CALLBACK
+label_button_as_scroll_view(struct _cef_view_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -379,15 +379,16 @@ cef_scroll_view_t* CEF_CALLBACK label_button_as_scroll_view(
     return NULL;
 
   // Execute
-  CefRefPtr<CefScrollView> _retval = CefLabelButtonCppToC::Get(
-      reinterpret_cast<cef_label_button_t*>(self))->AsScrollView();
+  CefRefPtr<CefScrollView> _retval =
+      CefLabelButtonCppToC::Get(reinterpret_cast<cef_label_button_t*>(self))
+          ->AsScrollView();
 
   // Return type: refptr_same
   return CefScrollViewCppToC::Wrap(_retval);
 }
 
-cef_textfield_t* CEF_CALLBACK label_button_as_textfield(
-    struct _cef_view_t* self) {
+cef_textfield_t* CEF_CALLBACK
+label_button_as_textfield(struct _cef_view_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -395,15 +396,16 @@ cef_textfield_t* CEF_CALLBACK label_button_as_textfield(
     return NULL;
 
   // Execute
-  CefRefPtr<CefTextfield> _retval = CefLabelButtonCppToC::Get(
-      reinterpret_cast<cef_label_button_t*>(self))->AsTextfield();
+  CefRefPtr<CefTextfield> _retval =
+      CefLabelButtonCppToC::Get(reinterpret_cast<cef_label_button_t*>(self))
+          ->AsTextfield();
 
   // Return type: refptr_same
   return CefTextfieldCppToC::Wrap(_retval);
 }
 
-cef_string_userfree_t CEF_CALLBACK label_button_get_type_string(
-    struct _cef_view_t* self) {
+cef_string_userfree_t CEF_CALLBACK
+label_button_get_type_string(struct _cef_view_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -411,15 +413,16 @@ cef_string_userfree_t CEF_CALLBACK label_button_get_type_string(
     return NULL;
 
   // Execute
-  CefString _retval = CefLabelButtonCppToC::Get(
-      reinterpret_cast<cef_label_button_t*>(self))->GetTypeString();
+  CefString _retval =
+      CefLabelButtonCppToC::Get(reinterpret_cast<cef_label_button_t*>(self))
+          ->GetTypeString();
 
   // Return type: string
   return _retval.DetachToUserFree();
 }
 
-cef_string_userfree_t CEF_CALLBACK label_button_to_string(
-    struct _cef_view_t* self, int include_children) {
+cef_string_userfree_t CEF_CALLBACK
+label_button_to_string(struct _cef_view_t* self, int include_children) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -427,9 +430,9 @@ cef_string_userfree_t CEF_CALLBACK label_button_to_string(
     return NULL;
 
   // Execute
-  CefString _retval = CefLabelButtonCppToC::Get(
-      reinterpret_cast<cef_label_button_t*>(self))->ToString(
-      include_children?true:false);
+  CefString _retval =
+      CefLabelButtonCppToC::Get(reinterpret_cast<cef_label_button_t*>(self))
+          ->ToString(include_children ? true : false);
 
   // Return type: string
   return _retval.DetachToUserFree();
@@ -443,8 +446,9 @@ int CEF_CALLBACK label_button_is_valid(struct _cef_view_t* self) {
     return 0;
 
   // Execute
-  bool _retval = CefLabelButtonCppToC::Get(
-      reinterpret_cast<cef_label_button_t*>(self))->IsValid();
+  bool _retval =
+      CefLabelButtonCppToC::Get(reinterpret_cast<cef_label_button_t*>(self))
+          ->IsValid();
 
   // Return type: bool
   return _retval;
@@ -458,15 +462,16 @@ int CEF_CALLBACK label_button_is_attached(struct _cef_view_t* self) {
     return 0;
 
   // Execute
-  bool _retval = CefLabelButtonCppToC::Get(
-      reinterpret_cast<cef_label_button_t*>(self))->IsAttached();
+  bool _retval =
+      CefLabelButtonCppToC::Get(reinterpret_cast<cef_label_button_t*>(self))
+          ->IsAttached();
 
   // Return type: bool
   return _retval;
 }
 
 int CEF_CALLBACK label_button_is_same(struct _cef_view_t* self,
-    struct _cef_view_t* that) {
+                                      struct _cef_view_t* that) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -478,16 +483,16 @@ int CEF_CALLBACK label_button_is_same(struct _cef_view_t* self,
     return 0;
 
   // Execute
-  bool _retval = CefLabelButtonCppToC::Get(
-      reinterpret_cast<cef_label_button_t*>(self))->IsSame(
-      CefViewCppToC::Unwrap(that));
+  bool _retval =
+      CefLabelButtonCppToC::Get(reinterpret_cast<cef_label_button_t*>(self))
+          ->IsSame(CefViewCppToC::Unwrap(that));
 
   // Return type: bool
   return _retval;
 }
 
-struct _cef_view_delegate_t* CEF_CALLBACK label_button_get_delegate(
-    struct _cef_view_t* self) {
+struct _cef_view_delegate_t* CEF_CALLBACK
+label_button_get_delegate(struct _cef_view_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -495,15 +500,16 @@ struct _cef_view_delegate_t* CEF_CALLBACK label_button_get_delegate(
     return NULL;
 
   // Execute
-  CefRefPtr<CefViewDelegate> _retval = CefLabelButtonCppToC::Get(
-      reinterpret_cast<cef_label_button_t*>(self))->GetDelegate();
+  CefRefPtr<CefViewDelegate> _retval =
+      CefLabelButtonCppToC::Get(reinterpret_cast<cef_label_button_t*>(self))
+          ->GetDelegate();
 
   // Return type: refptr_diff
   return CefViewDelegateCToCpp::Unwrap(_retval);
 }
 
-struct _cef_window_t* CEF_CALLBACK label_button_get_window(
-    struct _cef_view_t* self) {
+struct _cef_window_t* CEF_CALLBACK
+label_button_get_window(struct _cef_view_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -511,8 +517,9 @@ struct _cef_window_t* CEF_CALLBACK label_button_get_window(
     return NULL;
 
   // Execute
-  CefRefPtr<CefWindow> _retval = CefLabelButtonCppToC::Get(
-      reinterpret_cast<cef_label_button_t*>(self))->GetWindow();
+  CefRefPtr<CefWindow> _retval =
+      CefLabelButtonCppToC::Get(reinterpret_cast<cef_label_button_t*>(self))
+          ->GetWindow();
 
   // Return type: refptr_same
   return CefWindowCppToC::Wrap(_retval);
@@ -526,8 +533,9 @@ int CEF_CALLBACK label_button_get_id(struct _cef_view_t* self) {
     return 0;
 
   // Execute
-  int _retval = CefLabelButtonCppToC::Get(reinterpret_cast<cef_label_button_t*>(
-      self))->GetID();
+  int _retval =
+      CefLabelButtonCppToC::Get(reinterpret_cast<cef_label_button_t*>(self))
+          ->GetID();
 
   // Return type: simple
   return _retval;
@@ -541,8 +549,8 @@ void CEF_CALLBACK label_button_set_id(struct _cef_view_t* self, int id) {
     return;
 
   // Execute
-  CefLabelButtonCppToC::Get(reinterpret_cast<cef_label_button_t*>(self))->SetID(
-      id);
+  CefLabelButtonCppToC::Get(reinterpret_cast<cef_label_button_t*>(self))
+      ->SetID(id);
 }
 
 int CEF_CALLBACK label_button_get_group_id(struct _cef_view_t* self) {
@@ -553,15 +561,16 @@ int CEF_CALLBACK label_button_get_group_id(struct _cef_view_t* self) {
     return 0;
 
   // Execute
-  int _retval = CefLabelButtonCppToC::Get(reinterpret_cast<cef_label_button_t*>(
-      self))->GetGroupID();
+  int _retval =
+      CefLabelButtonCppToC::Get(reinterpret_cast<cef_label_button_t*>(self))
+          ->GetGroupID();
 
   // Return type: simple
   return _retval;
 }
 
 void CEF_CALLBACK label_button_set_group_id(struct _cef_view_t* self,
-    int group_id) {
+                                            int group_id) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -569,13 +578,12 @@ void CEF_CALLBACK label_button_set_group_id(struct _cef_view_t* self,
     return;
 
   // Execute
-  CefLabelButtonCppToC::Get(reinterpret_cast<cef_label_button_t*>(
-      self))->SetGroupID(
-      group_id);
+  CefLabelButtonCppToC::Get(reinterpret_cast<cef_label_button_t*>(self))
+      ->SetGroupID(group_id);
 }
 
-struct _cef_view_t* CEF_CALLBACK label_button_get_parent_view(
-    struct _cef_view_t* self) {
+struct _cef_view_t* CEF_CALLBACK
+label_button_get_parent_view(struct _cef_view_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -583,15 +591,16 @@ struct _cef_view_t* CEF_CALLBACK label_button_get_parent_view(
     return NULL;
 
   // Execute
-  CefRefPtr<CefView> _retval = CefLabelButtonCppToC::Get(
-      reinterpret_cast<cef_label_button_t*>(self))->GetParentView();
+  CefRefPtr<CefView> _retval =
+      CefLabelButtonCppToC::Get(reinterpret_cast<cef_label_button_t*>(self))
+          ->GetParentView();
 
   // Return type: refptr_same
   return CefViewCppToC::Wrap(_retval);
 }
 
-struct _cef_view_t* CEF_CALLBACK label_button_get_view_for_id(
-    struct _cef_view_t* self, int id) {
+struct _cef_view_t* CEF_CALLBACK
+label_button_get_view_for_id(struct _cef_view_t* self, int id) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -599,16 +608,16 @@ struct _cef_view_t* CEF_CALLBACK label_button_get_view_for_id(
     return NULL;
 
   // Execute
-  CefRefPtr<CefView> _retval = CefLabelButtonCppToC::Get(
-      reinterpret_cast<cef_label_button_t*>(self))->GetViewForID(
-      id);
+  CefRefPtr<CefView> _retval =
+      CefLabelButtonCppToC::Get(reinterpret_cast<cef_label_button_t*>(self))
+          ->GetViewForID(id);
 
   // Return type: refptr_same
   return CefViewCppToC::Wrap(_retval);
 }
 
 void CEF_CALLBACK label_button_set_bounds(struct _cef_view_t* self,
-    const cef_rect_t* bounds) {
+                                          const cef_rect_t* bounds) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -620,12 +629,11 @@ void CEF_CALLBACK label_button_set_bounds(struct _cef_view_t* self,
     return;
 
   // Translate param: bounds; type: simple_byref_const
-  CefRect boundsVal = bounds?*bounds:CefRect();
+  CefRect boundsVal = bounds ? *bounds : CefRect();
 
   // Execute
-  CefLabelButtonCppToC::Get(reinterpret_cast<cef_label_button_t*>(
-      self))->SetBounds(
-      boundsVal);
+  CefLabelButtonCppToC::Get(reinterpret_cast<cef_label_button_t*>(self))
+      ->SetBounds(boundsVal);
 }
 
 cef_rect_t CEF_CALLBACK label_button_get_bounds(struct _cef_view_t* self) {
@@ -636,15 +644,16 @@ cef_rect_t CEF_CALLBACK label_button_get_bounds(struct _cef_view_t* self) {
     return CefRect();
 
   // Execute
-  cef_rect_t _retval = CefLabelButtonCppToC::Get(
-      reinterpret_cast<cef_label_button_t*>(self))->GetBounds();
+  cef_rect_t _retval =
+      CefLabelButtonCppToC::Get(reinterpret_cast<cef_label_button_t*>(self))
+          ->GetBounds();
 
   // Return type: simple
   return _retval;
 }
 
-cef_rect_t CEF_CALLBACK label_button_get_bounds_in_screen(
-    struct _cef_view_t* self) {
+cef_rect_t CEF_CALLBACK
+label_button_get_bounds_in_screen(struct _cef_view_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -652,15 +661,16 @@ cef_rect_t CEF_CALLBACK label_button_get_bounds_in_screen(
     return CefRect();
 
   // Execute
-  cef_rect_t _retval = CefLabelButtonCppToC::Get(
-      reinterpret_cast<cef_label_button_t*>(self))->GetBoundsInScreen();
+  cef_rect_t _retval =
+      CefLabelButtonCppToC::Get(reinterpret_cast<cef_label_button_t*>(self))
+          ->GetBoundsInScreen();
 
   // Return type: simple
   return _retval;
 }
 
 void CEF_CALLBACK label_button_set_size(struct _cef_view_t* self,
-    const cef_size_t* size) {
+                                        const cef_size_t* size) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -672,12 +682,11 @@ void CEF_CALLBACK label_button_set_size(struct _cef_view_t* self,
     return;
 
   // Translate param: size; type: simple_byref_const
-  CefSize sizeVal = size?*size:CefSize();
+  CefSize sizeVal = size ? *size : CefSize();
 
   // Execute
-  CefLabelButtonCppToC::Get(reinterpret_cast<cef_label_button_t*>(
-      self))->SetSize(
-      sizeVal);
+  CefLabelButtonCppToC::Get(reinterpret_cast<cef_label_button_t*>(self))
+      ->SetSize(sizeVal);
 }
 
 cef_size_t CEF_CALLBACK label_button_get_size(struct _cef_view_t* self) {
@@ -688,15 +697,16 @@ cef_size_t CEF_CALLBACK label_button_get_size(struct _cef_view_t* self) {
     return CefSize();
 
   // Execute
-  cef_size_t _retval = CefLabelButtonCppToC::Get(
-      reinterpret_cast<cef_label_button_t*>(self))->GetSize();
+  cef_size_t _retval =
+      CefLabelButtonCppToC::Get(reinterpret_cast<cef_label_button_t*>(self))
+          ->GetSize();
 
   // Return type: simple
   return _retval;
 }
 
 void CEF_CALLBACK label_button_set_position(struct _cef_view_t* self,
-    const cef_point_t* position) {
+                                            const cef_point_t* position) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -708,12 +718,11 @@ void CEF_CALLBACK label_button_set_position(struct _cef_view_t* self,
     return;
 
   // Translate param: position; type: simple_byref_const
-  CefPoint positionVal = position?*position:CefPoint();
+  CefPoint positionVal = position ? *position : CefPoint();
 
   // Execute
-  CefLabelButtonCppToC::Get(reinterpret_cast<cef_label_button_t*>(
-      self))->SetPosition(
-      positionVal);
+  CefLabelButtonCppToC::Get(reinterpret_cast<cef_label_button_t*>(self))
+      ->SetPosition(positionVal);
 }
 
 cef_point_t CEF_CALLBACK label_button_get_position(struct _cef_view_t* self) {
@@ -724,15 +733,16 @@ cef_point_t CEF_CALLBACK label_button_get_position(struct _cef_view_t* self) {
     return CefPoint();
 
   // Execute
-  cef_point_t _retval = CefLabelButtonCppToC::Get(
-      reinterpret_cast<cef_label_button_t*>(self))->GetPosition();
+  cef_point_t _retval =
+      CefLabelButtonCppToC::Get(reinterpret_cast<cef_label_button_t*>(self))
+          ->GetPosition();
 
   // Return type: simple
   return _retval;
 }
 
-cef_size_t CEF_CALLBACK label_button_get_preferred_size(
-    struct _cef_view_t* self) {
+cef_size_t CEF_CALLBACK
+label_button_get_preferred_size(struct _cef_view_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -740,15 +750,16 @@ cef_size_t CEF_CALLBACK label_button_get_preferred_size(
     return CefSize();
 
   // Execute
-  cef_size_t _retval = CefLabelButtonCppToC::Get(
-      reinterpret_cast<cef_label_button_t*>(self))->GetPreferredSize();
+  cef_size_t _retval =
+      CefLabelButtonCppToC::Get(reinterpret_cast<cef_label_button_t*>(self))
+          ->GetPreferredSize();
 
   // Return type: simple
   return _retval;
 }
 
-void CEF_CALLBACK label_button_size_to_preferred_size(
-    struct _cef_view_t* self) {
+void CEF_CALLBACK
+label_button_size_to_preferred_size(struct _cef_view_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -756,12 +767,12 @@ void CEF_CALLBACK label_button_size_to_preferred_size(
     return;
 
   // Execute
-  CefLabelButtonCppToC::Get(reinterpret_cast<cef_label_button_t*>(
-      self))->SizeToPreferredSize();
+  CefLabelButtonCppToC::Get(reinterpret_cast<cef_label_button_t*>(self))
+      ->SizeToPreferredSize();
 }
 
-cef_size_t CEF_CALLBACK label_button_get_minimum_size(
-    struct _cef_view_t* self) {
+cef_size_t CEF_CALLBACK
+label_button_get_minimum_size(struct _cef_view_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -769,15 +780,16 @@ cef_size_t CEF_CALLBACK label_button_get_minimum_size(
     return CefSize();
 
   // Execute
-  cef_size_t _retval = CefLabelButtonCppToC::Get(
-      reinterpret_cast<cef_label_button_t*>(self))->GetMinimumSize();
+  cef_size_t _retval =
+      CefLabelButtonCppToC::Get(reinterpret_cast<cef_label_button_t*>(self))
+          ->GetMinimumSize();
 
   // Return type: simple
   return _retval;
 }
 
-cef_size_t CEF_CALLBACK label_button_get_maximum_size(
-    struct _cef_view_t* self) {
+cef_size_t CEF_CALLBACK
+label_button_get_maximum_size(struct _cef_view_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -785,15 +797,16 @@ cef_size_t CEF_CALLBACK label_button_get_maximum_size(
     return CefSize();
 
   // Execute
-  cef_size_t _retval = CefLabelButtonCppToC::Get(
-      reinterpret_cast<cef_label_button_t*>(self))->GetMaximumSize();
+  cef_size_t _retval =
+      CefLabelButtonCppToC::Get(reinterpret_cast<cef_label_button_t*>(self))
+          ->GetMaximumSize();
 
   // Return type: simple
   return _retval;
 }
 
 int CEF_CALLBACK label_button_get_height_for_width(struct _cef_view_t* self,
-    int width) {
+                                                   int width) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -801,9 +814,9 @@ int CEF_CALLBACK label_button_get_height_for_width(struct _cef_view_t* self,
     return 0;
 
   // Execute
-  int _retval = CefLabelButtonCppToC::Get(reinterpret_cast<cef_label_button_t*>(
-      self))->GetHeightForWidth(
-      width);
+  int _retval =
+      CefLabelButtonCppToC::Get(reinterpret_cast<cef_label_button_t*>(self))
+          ->GetHeightForWidth(width);
 
   // Return type: simple
   return _retval;
@@ -817,12 +830,12 @@ void CEF_CALLBACK label_button_invalidate_layout(struct _cef_view_t* self) {
     return;
 
   // Execute
-  CefLabelButtonCppToC::Get(reinterpret_cast<cef_label_button_t*>(
-      self))->InvalidateLayout();
+  CefLabelButtonCppToC::Get(reinterpret_cast<cef_label_button_t*>(self))
+      ->InvalidateLayout();
 }
 
 void CEF_CALLBACK label_button_set_visible(struct _cef_view_t* self,
-    int visible) {
+                                           int visible) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -830,9 +843,8 @@ void CEF_CALLBACK label_button_set_visible(struct _cef_view_t* self,
     return;
 
   // Execute
-  CefLabelButtonCppToC::Get(reinterpret_cast<cef_label_button_t*>(
-      self))->SetVisible(
-      visible?true:false);
+  CefLabelButtonCppToC::Get(reinterpret_cast<cef_label_button_t*>(self))
+      ->SetVisible(visible ? true : false);
 }
 
 int CEF_CALLBACK label_button_is_visible(struct _cef_view_t* self) {
@@ -843,8 +855,9 @@ int CEF_CALLBACK label_button_is_visible(struct _cef_view_t* self) {
     return 0;
 
   // Execute
-  bool _retval = CefLabelButtonCppToC::Get(
-      reinterpret_cast<cef_label_button_t*>(self))->IsVisible();
+  bool _retval =
+      CefLabelButtonCppToC::Get(reinterpret_cast<cef_label_button_t*>(self))
+          ->IsVisible();
 
   // Return type: bool
   return _retval;
@@ -858,15 +871,16 @@ int CEF_CALLBACK label_button_is_drawn(struct _cef_view_t* self) {
     return 0;
 
   // Execute
-  bool _retval = CefLabelButtonCppToC::Get(
-      reinterpret_cast<cef_label_button_t*>(self))->IsDrawn();
+  bool _retval =
+      CefLabelButtonCppToC::Get(reinterpret_cast<cef_label_button_t*>(self))
+          ->IsDrawn();
 
   // Return type: bool
   return _retval;
 }
 
 void CEF_CALLBACK label_button_set_enabled(struct _cef_view_t* self,
-    int enabled) {
+                                           int enabled) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -874,9 +888,8 @@ void CEF_CALLBACK label_button_set_enabled(struct _cef_view_t* self,
     return;
 
   // Execute
-  CefLabelButtonCppToC::Get(reinterpret_cast<cef_label_button_t*>(
-      self))->SetEnabled(
-      enabled?true:false);
+  CefLabelButtonCppToC::Get(reinterpret_cast<cef_label_button_t*>(self))
+      ->SetEnabled(enabled ? true : false);
 }
 
 int CEF_CALLBACK label_button_is_enabled(struct _cef_view_t* self) {
@@ -887,15 +900,16 @@ int CEF_CALLBACK label_button_is_enabled(struct _cef_view_t* self) {
     return 0;
 
   // Execute
-  bool _retval = CefLabelButtonCppToC::Get(
-      reinterpret_cast<cef_label_button_t*>(self))->IsEnabled();
+  bool _retval =
+      CefLabelButtonCppToC::Get(reinterpret_cast<cef_label_button_t*>(self))
+          ->IsEnabled();
 
   // Return type: bool
   return _retval;
 }
 
 void CEF_CALLBACK label_button_set_focusable(struct _cef_view_t* self,
-    int focusable) {
+                                             int focusable) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -903,9 +917,8 @@ void CEF_CALLBACK label_button_set_focusable(struct _cef_view_t* self,
     return;
 
   // Execute
-  CefLabelButtonCppToC::Get(reinterpret_cast<cef_label_button_t*>(
-      self))->SetFocusable(
-      focusable?true:false);
+  CefLabelButtonCppToC::Get(reinterpret_cast<cef_label_button_t*>(self))
+      ->SetFocusable(focusable ? true : false);
 }
 
 int CEF_CALLBACK label_button_is_focusable(struct _cef_view_t* self) {
@@ -916,15 +929,16 @@ int CEF_CALLBACK label_button_is_focusable(struct _cef_view_t* self) {
     return 0;
 
   // Execute
-  bool _retval = CefLabelButtonCppToC::Get(
-      reinterpret_cast<cef_label_button_t*>(self))->IsFocusable();
+  bool _retval =
+      CefLabelButtonCppToC::Get(reinterpret_cast<cef_label_button_t*>(self))
+          ->IsFocusable();
 
   // Return type: bool
   return _retval;
 }
 
-int CEF_CALLBACK label_button_is_accessibility_focusable(
-    struct _cef_view_t* self) {
+int CEF_CALLBACK
+label_button_is_accessibility_focusable(struct _cef_view_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -932,8 +946,9 @@ int CEF_CALLBACK label_button_is_accessibility_focusable(
     return 0;
 
   // Execute
-  bool _retval = CefLabelButtonCppToC::Get(
-      reinterpret_cast<cef_label_button_t*>(self))->IsAccessibilityFocusable();
+  bool _retval =
+      CefLabelButtonCppToC::Get(reinterpret_cast<cef_label_button_t*>(self))
+          ->IsAccessibilityFocusable();
 
   // Return type: bool
   return _retval;
@@ -947,12 +962,12 @@ void CEF_CALLBACK label_button_request_focus(struct _cef_view_t* self) {
     return;
 
   // Execute
-  CefLabelButtonCppToC::Get(reinterpret_cast<cef_label_button_t*>(
-      self))->RequestFocus();
+  CefLabelButtonCppToC::Get(reinterpret_cast<cef_label_button_t*>(self))
+      ->RequestFocus();
 }
 
 void CEF_CALLBACK label_button_set_background_color(struct _cef_view_t* self,
-    cef_color_t color) {
+                                                    cef_color_t color) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -960,13 +975,12 @@ void CEF_CALLBACK label_button_set_background_color(struct _cef_view_t* self,
     return;
 
   // Execute
-  CefLabelButtonCppToC::Get(reinterpret_cast<cef_label_button_t*>(
-      self))->SetBackgroundColor(
-      color);
+  CefLabelButtonCppToC::Get(reinterpret_cast<cef_label_button_t*>(self))
+      ->SetBackgroundColor(color);
 }
 
-cef_color_t CEF_CALLBACK label_button_get_background_color(
-    struct _cef_view_t* self) {
+cef_color_t CEF_CALLBACK
+label_button_get_background_color(struct _cef_view_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -974,15 +988,16 @@ cef_color_t CEF_CALLBACK label_button_get_background_color(
     return 0;
 
   // Execute
-  cef_color_t _retval = CefLabelButtonCppToC::Get(
-      reinterpret_cast<cef_label_button_t*>(self))->GetBackgroundColor();
+  cef_color_t _retval =
+      CefLabelButtonCppToC::Get(reinterpret_cast<cef_label_button_t*>(self))
+          ->GetBackgroundColor();
 
   // Return type: simple
   return _retval;
 }
 
 int CEF_CALLBACK label_button_convert_point_to_screen(struct _cef_view_t* self,
-    cef_point_t* point) {
+                                                      cef_point_t* point) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -994,12 +1009,12 @@ int CEF_CALLBACK label_button_convert_point_to_screen(struct _cef_view_t* self,
     return 0;
 
   // Translate param: point; type: simple_byref
-  CefPoint pointVal = point?*point:CefPoint();
+  CefPoint pointVal = point ? *point : CefPoint();
 
   // Execute
-  bool _retval = CefLabelButtonCppToC::Get(
-      reinterpret_cast<cef_label_button_t*>(self))->ConvertPointToScreen(
-      pointVal);
+  bool _retval =
+      CefLabelButtonCppToC::Get(reinterpret_cast<cef_label_button_t*>(self))
+          ->ConvertPointToScreen(pointVal);
 
   // Restore param: point; type: simple_byref
   if (point)
@@ -1009,8 +1024,9 @@ int CEF_CALLBACK label_button_convert_point_to_screen(struct _cef_view_t* self,
   return _retval;
 }
 
-int CEF_CALLBACK label_button_convert_point_from_screen(
-    struct _cef_view_t* self, cef_point_t* point) {
+int CEF_CALLBACK
+label_button_convert_point_from_screen(struct _cef_view_t* self,
+                                       cef_point_t* point) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -1022,12 +1038,12 @@ int CEF_CALLBACK label_button_convert_point_from_screen(
     return 0;
 
   // Translate param: point; type: simple_byref
-  CefPoint pointVal = point?*point:CefPoint();
+  CefPoint pointVal = point ? *point : CefPoint();
 
   // Execute
-  bool _retval = CefLabelButtonCppToC::Get(
-      reinterpret_cast<cef_label_button_t*>(self))->ConvertPointFromScreen(
-      pointVal);
+  bool _retval =
+      CefLabelButtonCppToC::Get(reinterpret_cast<cef_label_button_t*>(self))
+          ->ConvertPointFromScreen(pointVal);
 
   // Restore param: point; type: simple_byref
   if (point)
@@ -1038,7 +1054,7 @@ int CEF_CALLBACK label_button_convert_point_from_screen(
 }
 
 int CEF_CALLBACK label_button_convert_point_to_window(struct _cef_view_t* self,
-    cef_point_t* point) {
+                                                      cef_point_t* point) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -1050,12 +1066,12 @@ int CEF_CALLBACK label_button_convert_point_to_window(struct _cef_view_t* self,
     return 0;
 
   // Translate param: point; type: simple_byref
-  CefPoint pointVal = point?*point:CefPoint();
+  CefPoint pointVal = point ? *point : CefPoint();
 
   // Execute
-  bool _retval = CefLabelButtonCppToC::Get(
-      reinterpret_cast<cef_label_button_t*>(self))->ConvertPointToWindow(
-      pointVal);
+  bool _retval =
+      CefLabelButtonCppToC::Get(reinterpret_cast<cef_label_button_t*>(self))
+          ->ConvertPointToWindow(pointVal);
 
   // Restore param: point; type: simple_byref
   if (point)
@@ -1065,8 +1081,9 @@ int CEF_CALLBACK label_button_convert_point_to_window(struct _cef_view_t* self,
   return _retval;
 }
 
-int CEF_CALLBACK label_button_convert_point_from_window(
-    struct _cef_view_t* self, cef_point_t* point) {
+int CEF_CALLBACK
+label_button_convert_point_from_window(struct _cef_view_t* self,
+                                       cef_point_t* point) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -1078,12 +1095,12 @@ int CEF_CALLBACK label_button_convert_point_from_window(
     return 0;
 
   // Translate param: point; type: simple_byref
-  CefPoint pointVal = point?*point:CefPoint();
+  CefPoint pointVal = point ? *point : CefPoint();
 
   // Execute
-  bool _retval = CefLabelButtonCppToC::Get(
-      reinterpret_cast<cef_label_button_t*>(self))->ConvertPointFromWindow(
-      pointVal);
+  bool _retval =
+      CefLabelButtonCppToC::Get(reinterpret_cast<cef_label_button_t*>(self))
+          ->ConvertPointFromWindow(pointVal);
 
   // Restore param: point; type: simple_byref
   if (point)
@@ -1094,7 +1111,8 @@ int CEF_CALLBACK label_button_convert_point_from_window(
 }
 
 int CEF_CALLBACK label_button_convert_point_to_view(struct _cef_view_t* self,
-    struct _cef_view_t* view, cef_point_t* point) {
+                                                    struct _cef_view_t* view,
+                                                    cef_point_t* point) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -1110,13 +1128,12 @@ int CEF_CALLBACK label_button_convert_point_to_view(struct _cef_view_t* self,
     return 0;
 
   // Translate param: point; type: simple_byref
-  CefPoint pointVal = point?*point:CefPoint();
+  CefPoint pointVal = point ? *point : CefPoint();
 
   // Execute
-  bool _retval = CefLabelButtonCppToC::Get(
-      reinterpret_cast<cef_label_button_t*>(self))->ConvertPointToView(
-      CefViewCppToC::Unwrap(view),
-      pointVal);
+  bool _retval =
+      CefLabelButtonCppToC::Get(reinterpret_cast<cef_label_button_t*>(self))
+          ->ConvertPointToView(CefViewCppToC::Unwrap(view), pointVal);
 
   // Restore param: point; type: simple_byref
   if (point)
@@ -1127,7 +1144,8 @@ int CEF_CALLBACK label_button_convert_point_to_view(struct _cef_view_t* self,
 }
 
 int CEF_CALLBACK label_button_convert_point_from_view(struct _cef_view_t* self,
-    struct _cef_view_t* view, cef_point_t* point) {
+                                                      struct _cef_view_t* view,
+                                                      cef_point_t* point) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -1143,13 +1161,12 @@ int CEF_CALLBACK label_button_convert_point_from_view(struct _cef_view_t* self,
     return 0;
 
   // Translate param: point; type: simple_byref
-  CefPoint pointVal = point?*point:CefPoint();
+  CefPoint pointVal = point ? *point : CefPoint();
 
   // Execute
-  bool _retval = CefLabelButtonCppToC::Get(
-      reinterpret_cast<cef_label_button_t*>(self))->ConvertPointFromView(
-      CefViewCppToC::Unwrap(view),
-      pointVal);
+  bool _retval =
+      CefLabelButtonCppToC::Get(reinterpret_cast<cef_label_button_t*>(self))
+          ->ConvertPointFromView(CefViewCppToC::Unwrap(view), pointVal);
 
   // Restore param: point; type: simple_byref
   if (point)
@@ -1160,7 +1177,6 @@ int CEF_CALLBACK label_button_convert_point_from_view(struct _cef_view_t* self,
 }
 
 }  // namespace
-
 
 // CONSTRUCTOR - Do not edit by hand.
 
@@ -1244,9 +1260,10 @@ CefLabelButtonCppToC::CefLabelButtonCppToC() {
       label_button_convert_point_from_view;
 }
 
-template<> CefRefPtr<CefLabelButton> CefCppToCRefCounted<CefLabelButtonCppToC,
-    CefLabelButton, cef_label_button_t>::UnwrapDerived(CefWrapperType type,
-    cef_label_button_t* s) {
+template <>
+CefRefPtr<CefLabelButton>
+CefCppToCRefCounted<CefLabelButtonCppToC, CefLabelButton, cef_label_button_t>::
+    UnwrapDerived(CefWrapperType type, cef_label_button_t* s) {
   if (type == WT_MENU_BUTTON) {
     return CefMenuButtonCppToC::Unwrap(reinterpret_cast<cef_menu_button_t*>(s));
   }
@@ -1255,9 +1272,14 @@ template<> CefRefPtr<CefLabelButton> CefCppToCRefCounted<CefLabelButtonCppToC,
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCppToCRefCounted<CefLabelButtonCppToC,
-    CefLabelButton, cef_label_button_t>::DebugObjCt = 0;
+template <>
+base::AtomicRefCount CefCppToCRefCounted<CefLabelButtonCppToC,
+                                         CefLabelButton,
+                                         cef_label_button_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCppToCRefCounted<CefLabelButtonCppToC,
-    CefLabelButton, cef_label_button_t>::kWrapperType = WT_LABEL_BUTTON;
+template <>
+CefWrapperType CefCppToCRefCounted<CefLabelButtonCppToC,
+                                   CefLabelButton,
+                                   cef_label_button_t>::kWrapperType =
+    WT_LABEL_BUTTON;

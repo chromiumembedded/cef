@@ -9,6 +9,8 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=c97277909b83548acb27b8e1e2fafd99cb715d20$
+//
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_BINARY_VALUE_CPPTOC_H_
 #define CEF_LIBCEF_DLL_CPPTOC_BINARY_VALUE_CPPTOC_H_
@@ -18,15 +20,15 @@
 #error This file can be included DLL-side only
 #endif
 
-#include "include/cef_values.h"
 #include "include/capi/cef_values_capi.h"
+#include "include/cef_values.h"
 #include "libcef_dll/cpptoc/cpptoc_ref_counted.h"
 
 // Wrap a C++ class with a C structure.
 // This class may be instantiated and accessed DLL-side only.
-class CefBinaryValueCppToC
-    : public CefCppToCRefCounted<CefBinaryValueCppToC, CefBinaryValue,
-        cef_binary_value_t> {
+class CefBinaryValueCppToC : public CefCppToCRefCounted<CefBinaryValueCppToC,
+                                                        CefBinaryValue,
+                                                        cef_binary_value_t> {
  public:
   CefBinaryValueCppToC();
 };

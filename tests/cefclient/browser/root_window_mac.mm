@@ -19,15 +19,15 @@
 
 // Receives notifications from controls and the browser window. Will delete
 // itself when done.
-@interface RootWindowDelegate : NSObject <NSWindowDelegate> {
+@interface RootWindowDelegate : NSObject<NSWindowDelegate> {
  @private
   NSWindow* window_;
   client::RootWindowMac* root_window_;
   bool force_close_;
 }
 
-@property (nonatomic, readonly) client::RootWindowMac* root_window;
-@property (nonatomic, readwrite) bool force_close;
+@property(nonatomic, readonly) client::RootWindowMac* root_window;
+@property(nonatomic, readwrite) bool force_close;
 
 - (id)initWithWindow:(NSWindow*)window
        andRootWindow:(client::RootWindowMac*)root_window;
@@ -35,7 +35,7 @@
 - (IBAction)goForward:(id)sender;
 - (IBAction)reload:(id)sender;
 - (IBAction)stopLoading:(id)sender;
-- (IBAction)takeURLStringValueFrom:(NSTextField *)sender;
+- (IBAction)takeURLStringValueFrom:(NSTextField*)sender;
 @end
 
 @implementation RootWindowDelegate
@@ -53,15 +53,15 @@
 
     // Register for application hide/unhide notifications.
     [[NSNotificationCenter defaultCenter]
-         addObserver:self
-            selector:@selector(applicationDidHide:)
-                name:NSApplicationDidHideNotification
-              object:nil];
+        addObserver:self
+           selector:@selector(applicationDidHide:)
+               name:NSApplicationDidHideNotification
+             object:nil];
     [[NSNotificationCenter defaultCenter]
-         addObserver:self
-            selector:@selector(applicationDidUnhide:)
-                name:NSApplicationDidUnhideNotification
-              object:nil];
+        addObserver:self
+           selector:@selector(applicationDidUnhide:)
+               name:NSApplicationDidUnhideNotification
+             object:nil];
   }
   return self;
 }
@@ -96,12 +96,12 @@
     browser->StopLoad();
 }
 
-- (IBAction)takeURLStringValueFrom:(NSTextField *)sender {
+- (IBAction)takeURLStringValueFrom:(NSTextField*)sender {
   CefRefPtr<CefBrowser> browser = root_window_->GetBrowser();
   if (!browser.get())
     return;
 
-  NSString *url = [sender stringValue];
+  NSString* url = [sender stringValue];
 
   // if it doesn't already have a prefix, add http. If we can't parse it,
   // just don't bother rather than making things worse.
@@ -128,21 +128,21 @@
 }
 
 // Called when we have been minimized.
-- (void)windowDidMiniaturize:(NSNotification *)notification {
+- (void)windowDidMiniaturize:(NSNotification*)notification {
   client::BrowserWindow* browser_window = root_window_->browser_window();
   if (browser_window)
     browser_window->Hide();
 }
 
 // Called when we have been unminimized.
-- (void)windowDidDeminiaturize:(NSNotification *)notification {
+- (void)windowDidDeminiaturize:(NSNotification*)notification {
   client::BrowserWindow* browser_window = root_window_->browser_window();
   if (browser_window)
     browser_window->Show();
 }
 
 // Called when the application has been hidden.
-- (void)applicationDidHide:(NSNotification *)notification {
+- (void)applicationDidHide:(NSNotification*)notification {
   // If the window is miniaturized then nothing has really changed.
   if (![window_ isMiniaturized]) {
     client::BrowserWindow* browser_window = root_window_->browser_window();
@@ -152,7 +152,7 @@
 }
 
 // Called when the application has been unhidden.
-- (void)applicationDidUnhide:(NSNotification *)notification {
+- (void)applicationDidUnhide:(NSNotification*)notification {
   // If the window is miniaturized then nothing has really changed.
   if (![window_ isMiniaturized]) {
     client::BrowserWindow* browser_window = root_window_->browser_window();
@@ -206,16 +206,15 @@
 
 @end
 
-
 namespace client {
 
 namespace {
 
 // Sizes for URL bar layout.
-#define BUTTON_HEIGHT   22
-#define BUTTON_WIDTH    72
-#define BUTTON_MARGIN   8
-#define URLBAR_HEIGHT   32
+#define BUTTON_HEIGHT 22
+#define BUTTON_WIDTH 72
+#define BUTTON_MARGIN 8
+#define URLBAR_HEIGHT 32
 
 NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
   NSButton* button = [[[NSButton alloc] initWithFrame:*rect] autorelease];
@@ -249,8 +248,7 @@ RootWindowMac::RootWindowMac()
       stop_button_(nil),
       url_textfield_(nil),
       window_destroyed_(false),
-      browser_destroyed_(false) {
-}
+      browser_destroyed_(false) {}
 
 RootWindowMac::~RootWindowMac() {
   REQUIRE_MAIN_THREAD();
@@ -318,8 +316,8 @@ void RootWindowMac::InitAsPopup(RootWindow::Delegate* delegate,
   // The new popup is initially parented to a temporary window. The native root
   // window will be created after the browser is created and the popup window
   // will be re-parented to it at that time.
-  browser_window_->GetPopupConfig(TempWindow::GetWindowHandle(),
-                                  windowInfo, client, settings);
+  browser_window_->GetPopupConfig(TempWindow::GetWindowHandle(), windowInfo,
+                                  client, settings);
 }
 
 void RootWindowMac::Show(ShowMode mode) {
@@ -327,7 +325,7 @@ void RootWindowMac::Show(ShowMode mode) {
 
   if (!window_)
     return;
-  
+
   const bool is_visible = [window_ isVisible];
   const bool is_minimized = [window_ isMiniaturized];
   const bool is_maximized = [window_ isZoomed];
@@ -348,7 +346,7 @@ void RootWindowMac::Show(ShowMode mode) {
   // Window visibility may change after (for example) deminiaturizing the
   // window.
   if (![window_ isVisible])
-    [window_ makeKeyAndOrderFront: nil];
+    [window_ makeKeyAndOrderFront:nil];
 
   if (mode == ShowMinimized)
     [window_ performMiniaturize:nil];
@@ -381,8 +379,8 @@ void RootWindowMac::SetBounds(int x, int y, size_t width, size_t height) {
   // Desired content rectangle.
   NSRect content_rect;
   content_rect.size.width = static_cast<int>(width);
-  content_rect.size.height = static_cast<int>(height) +
-                             (with_controls_ ? URLBAR_HEIGHT : 0);
+  content_rect.size.height =
+      static_cast<int>(height) + (with_controls_ ? URLBAR_HEIGHT : 0);
 
   // Convert to a frame rectangle.
   NSRect frame_rect = [window_ frameRectForContentRect:content_rect];
@@ -468,14 +466,12 @@ void RootWindowMac::CreateRootWindow(const CefBrowserSettings& settings) {
   NSRect window_rect =
       NSMakeRect(x, screen_rect.size.height - y, width, height);
   window_ = [[UnderlayOpenGLHostingWindow alloc]
-                initWithContentRect:window_rect
-                styleMask:(NSTitledWindowMask |
-                           NSClosableWindowMask |
-                           NSMiniaturizableWindowMask |
-                           NSResizableWindowMask |
-                           NSUnifiedTitleAndToolbarWindowMask )
-                backing:NSBackingStoreBuffered
-                defer:NO];
+      initWithContentRect:window_rect
+                styleMask:(NSTitledWindowMask | NSClosableWindowMask |
+                           NSMiniaturizableWindowMask | NSResizableWindowMask |
+                           NSUnifiedTitleAndToolbarWindowMask)
+                  backing:NSBackingStoreBuffered
+                    defer:NO];
   [window_ setTitle:@"cefclient"];
 
   // Create the delegate for control and browser window events.
@@ -489,12 +485,18 @@ void RootWindowMac::CreateRootWindow(const CefBrowserSettings& settings) {
   [window_ setReleasedWhenClosed:NO];
 
   const cef_color_t background_color = MainContext::Get()->GetBackgroundColor();
-  [window_ setBackgroundColor:
-      [NSColor colorWithCalibratedRed:
-                            float(CefColorGetR(background_color)) / 255.0f
-                      green:float(CefColorGetG(background_color)) / 255.0f
-                       blue:float(CefColorGetB(background_color)) / 255.0f
-                      alpha:1.f]];
+  [window_
+      setBackgroundColor:[NSColor
+                             colorWithCalibratedRed:float(CefColorGetR(
+                                                        background_color)) /
+                                                    255.0f
+                                              green:float(CefColorGetG(
+                                                        background_color)) /
+                                                    255.0f
+                                               blue:float(CefColorGetB(
+                                                        background_color)) /
+                                                    255.0f
+                                              alpha:1.f]];
 
   NSView* contentView = [window_ contentView];
   NSRect contentBounds = [contentView bounds];
@@ -510,7 +512,7 @@ void RootWindowMac::CreateRootWindow(const CefBrowserSettings& settings) {
     // Create the buttons.
     NSRect button_rect = contentBounds;
     button_rect.origin.y = window_rect.size.height - URLBAR_HEIGHT +
-        (URLBAR_HEIGHT - BUTTON_HEIGHT) / 2;
+                           (URLBAR_HEIGHT - BUTTON_HEIGHT) / 2;
     button_rect.size.height = BUTTON_HEIGHT;
     button_rect.origin.x += BUTTON_MARGIN;
     button_rect.size.width = BUTTON_WIDTH;
@@ -539,12 +541,12 @@ void RootWindowMac::CreateRootWindow(const CefBrowserSettings& settings) {
 
     // Create the URL text field.
     button_rect.origin.x += BUTTON_MARGIN;
-    button_rect.size.width = [contentView bounds].size.width -
-        button_rect.origin.x - BUTTON_MARGIN;
+    button_rect.size.width =
+        [contentView bounds].size.width - button_rect.origin.x - BUTTON_MARGIN;
     url_textfield_ = [[NSTextField alloc] initWithFrame:button_rect];
     [contentView addSubview:url_textfield_];
-    [url_textfield_ setAutoresizingMask:
-        (NSViewWidthSizable | NSViewMinYMargin)];
+    [url_textfield_
+        setAutoresizingMask:(NSViewWidthSizable | NSViewMinYMargin)];
     [url_textfield_ setTarget:delegate];
     [url_textfield_ setAction:@selector(takeURLStringValueFrom:)];
     [url_textfield_ setEnabled:NO];

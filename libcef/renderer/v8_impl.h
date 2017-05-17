@@ -11,11 +11,11 @@
 #include "include/cef_v8.h"
 #include "libcef/common/tracker.h"
 
-#include "v8/include/v8.h"
 #include "base/location.h"
 #include "base/logging.h"
 #include "base/memory/ref_counted.h"
 #include "base/sequenced_task_runner.h"
+#include "v8/include/v8.h"
 
 class CefTrackNode;
 class GURL;
@@ -70,11 +70,10 @@ class CefV8ContextState : public base::RefCounted<CefV8ContextState> {
   CefTrackManager track_manager_;
 };
 
-
 // Use this template in conjuction with RefCountedThreadSafe to ensure that a
 // V8 object is deleted on the correct thread.
 struct CefV8DeleteOnMessageLoopThread {
-  template<typename T>
+  template <typename T>
   static void Destruct(const T* x) {
     if (x->task_runner()->RunsTasksOnCurrentThread()) {
       delete x;
@@ -91,9 +90,9 @@ struct CefV8DeleteOnMessageLoopThread {
 };
 
 // Base class for V8 Handle types.
-class CefV8HandleBase :
-    public base::RefCountedThreadSafe<CefV8HandleBase,
-                                      CefV8DeleteOnMessageLoopThread> {
+class CefV8HandleBase
+    : public base::RefCountedThreadSafe<CefV8HandleBase,
+                                        CefV8DeleteOnMessageLoopThread> {
  public:
   // Returns true if there is no underlying context or if the underlying context
   // is valid.
@@ -116,8 +115,7 @@ class CefV8HandleBase :
 
   // |context| is the context that owns this handle. If empty the current
   // context will be used.
-  CefV8HandleBase(v8::Isolate* isolate,
-                  v8::Local<v8::Context> context);
+  CefV8HandleBase(v8::Isolate* isolate, v8::Local<v8::Context> context);
   virtual ~CefV8HandleBase();
 
  protected:
@@ -137,23 +135,17 @@ class CefV8Handle : public CefV8HandleBase {
   CefV8Handle(v8::Isolate* isolate,
               v8::Local<v8::Context> context,
               handleType v)
-      : CefV8HandleBase(isolate, context),
-        handle_(isolate, v) {
-  }
+      : CefV8HandleBase(isolate, context), handle_(isolate, v) {}
 
   handleType GetNewV8Handle() {
     DCHECK(IsValid());
     return handleType::New(isolate(), handle_);
   }
 
-  persistentType& GetPersistentV8Handle() {
-    return handle_;
-  }
+  persistentType& GetPersistentV8Handle() { return handle_; }
 
  protected:
-  ~CefV8Handle() override {
-    handle_.Reset();
-  }
+  ~CefV8Handle() override { handle_.Reset(); }
 
   persistentType handle_;
 
@@ -163,14 +155,11 @@ class CefV8Handle : public CefV8HandleBase {
 // Specialization for v8::Value with empty implementation to avoid incorrect
 // usage.
 template <>
-class CefV8Handle<v8::Value> {
-};
-
+class CefV8Handle<v8::Value> {};
 
 class CefV8ContextImpl : public CefV8Context {
  public:
-  CefV8ContextImpl(v8::Isolate* isolate,
-                   v8::Local<v8::Context> context);
+  CefV8ContextImpl(v8::Isolate* isolate, v8::Local<v8::Context> context);
   ~CefV8ContextImpl() override;
 
   CefRefPtr<CefTaskRunner> GetTaskRunner() override;
@@ -258,10 +247,12 @@ class CefV8ValueImpl : public CefV8Value {
   bool DeleteValue(int index) override;
   CefRefPtr<CefV8Value> GetValue(const CefString& key) override;
   CefRefPtr<CefV8Value> GetValue(int index) override;
-  bool SetValue(const CefString& key, CefRefPtr<CefV8Value> value,
+  bool SetValue(const CefString& key,
+                CefRefPtr<CefV8Value> value,
                 PropertyAttribute attribute) override;
   bool SetValue(int index, CefRefPtr<CefV8Value> value) override;
-  bool SetValue(const CefString& key, AccessControl settings,
+  bool SetValue(const CefString& key,
+                AccessControl settings,
                 PropertyAttribute attribute) override;
   bool GetKeys(std::vector<CefString>& keys) override;
   bool SetUserData(CefRefPtr<CefBaseRefCounted> user_data) override;
@@ -323,7 +314,7 @@ class CefV8ValueImpl : public CefV8Value {
   };
 
   v8::Isolate* isolate_;
- 
+
   enum {
     TYPE_INVALID = 0,
     TYPE_UNDEFINED,
@@ -358,8 +349,7 @@ class CefV8ValueImpl : public CefV8Value {
 
 class CefV8StackTraceImpl : public CefV8StackTrace {
  public:
-  CefV8StackTraceImpl(v8::Isolate* isolate,
-                      v8::Local<v8::StackTrace> handle);
+  CefV8StackTraceImpl(v8::Isolate* isolate, v8::Local<v8::StackTrace> handle);
   ~CefV8StackTraceImpl() override;
 
   bool IsValid() override;
@@ -367,7 +357,7 @@ class CefV8StackTraceImpl : public CefV8StackTrace {
   CefRefPtr<CefV8StackFrame> GetFrame(int index) override;
 
  private:
-  std::vector<CefRefPtr<CefV8StackFrame> > frames_;
+  std::vector<CefRefPtr<CefV8StackFrame>> frames_;
 
   IMPLEMENT_REFCOUNTING(CefV8StackTraceImpl);
   DISALLOW_COPY_AND_ASSIGN(CefV8StackTraceImpl);
@@ -375,8 +365,7 @@ class CefV8StackTraceImpl : public CefV8StackTrace {
 
 class CefV8StackFrameImpl : public CefV8StackFrame {
  public:
-  CefV8StackFrameImpl(v8::Isolate* isolate,
-                      v8::Local<v8::StackFrame> handle);
+  CefV8StackFrameImpl(v8::Isolate* isolate, v8::Local<v8::StackFrame> handle);
   ~CefV8StackFrameImpl() override;
 
   bool IsValid() override;

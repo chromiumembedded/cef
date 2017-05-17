@@ -188,12 +188,14 @@ v8::MaybeLocal<v8::Value> ExecuteV8ScriptAndReturnValue(
   if (start_line < 1)
     start_line = 1;
 
-  const blink::KURL kurl = source_url.IsEmpty() ?
-      blink::KURL() : blink::KURL(blink::kParsedURLString, source_url);
+  const blink::KURL kurl =
+      source_url.IsEmpty() ? blink::KURL()
+                           : blink::KURL(blink::kParsedURLString, source_url);
 
-  const blink::ScriptSourceCode ssc = blink::ScriptSourceCode(source, kurl,
+  const blink::ScriptSourceCode ssc = blink::ScriptSourceCode(
+      source, kurl,
       WTF::TextPosition(WTF::OrdinalNumber::FromOneBasedInt(start_line),
-      WTF::OrdinalNumber::FromZeroBasedInt(0)));
+                        WTF::OrdinalNumber::FromZeroBasedInt(0)));
 
   v8::MaybeLocal<v8::Value> result;
 
@@ -206,13 +208,14 @@ v8::MaybeLocal<v8::Value> ExecuteV8ScriptAndReturnValue(
       v8CacheOptions = frame->GetSettings()->GetV8CacheOptions();
 
     v8::Local<v8::Script> script;
-    if (!blink::V8Call(blink::V8ScriptRunner::CompileScript(ssc, isolate,
-            accessControlStatus, v8CacheOptions), script, tryCatch)) {
+    if (!blink::V8Call(blink::V8ScriptRunner::CompileScript(
+                           ssc, isolate, accessControlStatus, v8CacheOptions),
+                       script, tryCatch)) {
       return result;
     }
 
-    result = blink::V8ScriptRunner::RunCompiledScript(isolate, script,
-        blink::ToExecutionContext(context));
+    result = blink::V8ScriptRunner::RunCompiledScript(
+        isolate, script, blink::ToExecutionContext(context));
   }
 
   return result;

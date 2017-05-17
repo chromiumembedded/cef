@@ -7,9 +7,7 @@
 CefStoragePartitionProxy::CefStoragePartitionProxy(
     content::StoragePartition* parent,
     CefURLRequestContextGetterProxy* url_request_context)
-  : parent_(parent),
-    url_request_context_(url_request_context) {
-}
+    : parent_(parent), url_request_context_(url_request_context) {}
 
 CefStoragePartitionProxy::~CefStoragePartitionProxy() {
   url_request_context_->ShutdownOnUIThread();
@@ -159,4 +157,3 @@ void CefStoragePartitionProxy::Bind(
     mojo::InterfaceRequest<content::mojom::StoragePartitionService> request) {
   parent_->Bind(std::move(request));
 }
-

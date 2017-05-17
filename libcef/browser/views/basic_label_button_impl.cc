@@ -30,9 +30,9 @@ CefRefPtr<CefBasicLabelButtonImpl> CefBasicLabelButtonImpl::Create(
   return label_button;
 }
 
-CefBasicLabelButtonImpl::CefBasicLabelButtonImpl(CefRefPtr<CefButtonDelegate> delegate)
-    : ParentClass(delegate) {
-}
+CefBasicLabelButtonImpl::CefBasicLabelButtonImpl(
+    CefRefPtr<CefButtonDelegate> delegate)
+    : ParentClass(delegate) {}
 
 views::LabelButton* CefBasicLabelButtonImpl::CreateRootView() {
   return new CefBasicLabelButtonView(delegate());

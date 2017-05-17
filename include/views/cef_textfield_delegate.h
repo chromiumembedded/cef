@@ -57,7 +57,9 @@ class CefTextfieldDelegate : public CefViewDelegate {
   ///
   /*--cef()--*/
   virtual bool OnKeyEvent(CefRefPtr<CefTextfield> textfield,
-                          const CefKeyEvent& event) { return false; }
+                          const CefKeyEvent& event) {
+    return false;
+  }
 
   ///
   // Called after performing a user action that may change |textfield|.

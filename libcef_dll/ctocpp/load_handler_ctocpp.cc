@@ -9,16 +9,19 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=bbb850a48e96714faf6f4772b517bd748a1d36e2$
+//
 
 #include "libcef_dll/cpptoc/browser_cpptoc.h"
 #include "libcef_dll/cpptoc/frame_cpptoc.h"
 #include "libcef_dll/ctocpp/load_handler_ctocpp.h"
 
-
 // VIRTUAL METHODS - Body may be edited by hand.
 
 void CefLoadHandlerCToCpp::OnLoadingStateChange(CefRefPtr<CefBrowser> browser,
-    bool isLoading, bool canGoBack, bool canGoForward) {
+                                                bool isLoading,
+                                                bool canGoBack,
+                                                bool canGoForward) {
   cef_load_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_loading_state_change))
     return;
@@ -31,15 +34,13 @@ void CefLoadHandlerCToCpp::OnLoadingStateChange(CefRefPtr<CefBrowser> browser,
     return;
 
   // Execute
-  _struct->on_loading_state_change(_struct,
-      CefBrowserCppToC::Wrap(browser),
-      isLoading,
-      canGoBack,
-      canGoForward);
+  _struct->on_loading_state_change(_struct, CefBrowserCppToC::Wrap(browser),
+                                   isLoading, canGoBack, canGoForward);
 }
 
 void CefLoadHandlerCToCpp::OnLoadStart(CefRefPtr<CefBrowser> browser,
-    CefRefPtr<CefFrame> frame, TransitionType transition_type) {
+                                       CefRefPtr<CefFrame> frame,
+                                       TransitionType transition_type) {
   cef_load_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_load_start))
     return;
@@ -56,14 +57,13 @@ void CefLoadHandlerCToCpp::OnLoadStart(CefRefPtr<CefBrowser> browser,
     return;
 
   // Execute
-  _struct->on_load_start(_struct,
-      CefBrowserCppToC::Wrap(browser),
-      CefFrameCppToC::Wrap(frame),
-      transition_type);
+  _struct->on_load_start(_struct, CefBrowserCppToC::Wrap(browser),
+                         CefFrameCppToC::Wrap(frame), transition_type);
 }
 
 void CefLoadHandlerCToCpp::OnLoadEnd(CefRefPtr<CefBrowser> browser,
-    CefRefPtr<CefFrame> frame, int httpStatusCode) {
+                                     CefRefPtr<CefFrame> frame,
+                                     int httpStatusCode) {
   cef_load_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_load_end))
     return;
@@ -80,15 +80,15 @@ void CefLoadHandlerCToCpp::OnLoadEnd(CefRefPtr<CefBrowser> browser,
     return;
 
   // Execute
-  _struct->on_load_end(_struct,
-      CefBrowserCppToC::Wrap(browser),
-      CefFrameCppToC::Wrap(frame),
-      httpStatusCode);
+  _struct->on_load_end(_struct, CefBrowserCppToC::Wrap(browser),
+                       CefFrameCppToC::Wrap(frame), httpStatusCode);
 }
 
 void CefLoadHandlerCToCpp::OnLoadError(CefRefPtr<CefBrowser> browser,
-    CefRefPtr<CefFrame> frame, ErrorCode errorCode, const CefString& errorText,
-    const CefString& failedUrl) {
+                                       CefRefPtr<CefFrame> frame,
+                                       ErrorCode errorCode,
+                                       const CefString& errorText,
+                                       const CefString& failedUrl) {
   cef_load_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_load_error))
     return;
@@ -110,31 +110,32 @@ void CefLoadHandlerCToCpp::OnLoadError(CefRefPtr<CefBrowser> browser,
   // Unverified params: errorText
 
   // Execute
-  _struct->on_load_error(_struct,
-      CefBrowserCppToC::Wrap(browser),
-      CefFrameCppToC::Wrap(frame),
-      errorCode,
-      errorText.GetStruct(),
-      failedUrl.GetStruct());
+  _struct->on_load_error(_struct, CefBrowserCppToC::Wrap(browser),
+                         CefFrameCppToC::Wrap(frame), errorCode,
+                         errorText.GetStruct(), failedUrl.GetStruct());
 }
-
 
 // CONSTRUCTOR - Do not edit by hand.
 
-CefLoadHandlerCToCpp::CefLoadHandlerCToCpp() {
-}
+CefLoadHandlerCToCpp::CefLoadHandlerCToCpp() {}
 
-template<> cef_load_handler_t* CefCToCppRefCounted<CefLoadHandlerCToCpp,
-    CefLoadHandler, cef_load_handler_t>::UnwrapDerived(CefWrapperType type,
-    CefLoadHandler* c) {
+template <>
+cef_load_handler_t*
+CefCToCppRefCounted<CefLoadHandlerCToCpp, CefLoadHandler, cef_load_handler_t>::
+    UnwrapDerived(CefWrapperType type, CefLoadHandler* c) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCppRefCounted<CefLoadHandlerCToCpp,
-    CefLoadHandler, cef_load_handler_t>::DebugObjCt = 0;
+template <>
+base::AtomicRefCount CefCToCppRefCounted<CefLoadHandlerCToCpp,
+                                         CefLoadHandler,
+                                         cef_load_handler_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCppRefCounted<CefLoadHandlerCToCpp,
-    CefLoadHandler, cef_load_handler_t>::kWrapperType = WT_LOAD_HANDLER;
+template <>
+CefWrapperType CefCToCppRefCounted<CefLoadHandlerCToCpp,
+                                   CefLoadHandler,
+                                   cef_load_handler_t>::kWrapperType =
+    WT_LOAD_HANDLER;

@@ -9,6 +9,8 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=e06b1addaaf2c8ddd13278a75ece4481e0f949c3$
+//
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_AUTH_CALLBACK_CPPTOC_H_
 #define CEF_LIBCEF_DLL_CPPTOC_AUTH_CALLBACK_CPPTOC_H_
@@ -18,15 +20,15 @@
 #error This file can be included DLL-side only
 #endif
 
-#include "include/cef_auth_callback.h"
 #include "include/capi/cef_auth_callback_capi.h"
+#include "include/cef_auth_callback.h"
 #include "libcef_dll/cpptoc/cpptoc_ref_counted.h"
 
 // Wrap a C++ class with a C structure.
 // This class may be instantiated and accessed DLL-side only.
-class CefAuthCallbackCppToC
-    : public CefCppToCRefCounted<CefAuthCallbackCppToC, CefAuthCallback,
-        cef_auth_callback_t> {
+class CefAuthCallbackCppToC : public CefCppToCRefCounted<CefAuthCallbackCppToC,
+                                                         CefAuthCallback,
+                                                         cef_auth_callback_t> {
  public:
   CefAuthCallbackCppToC();
 };

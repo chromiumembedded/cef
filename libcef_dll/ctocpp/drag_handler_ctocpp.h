@@ -9,6 +9,8 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=a8fc4eaf03379541cdbcf337a97f258abe76a057$
+//
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_DRAG_HANDLER_CTOCPP_H_
 #define CEF_LIBCEF_DLL_CTOCPP_DRAG_HANDLER_CTOCPP_H_
@@ -19,22 +21,24 @@
 #endif
 
 #include <vector>
-#include "include/cef_drag_handler.h"
 #include "include/capi/cef_drag_handler_capi.h"
+#include "include/cef_drag_handler.h"
 #include "libcef_dll/ctocpp/ctocpp_ref_counted.h"
 
 // Wrap a C structure with a C++ class.
 // This class may be instantiated and accessed DLL-side only.
-class CefDragHandlerCToCpp
-    : public CefCToCppRefCounted<CefDragHandlerCToCpp, CefDragHandler,
-        cef_drag_handler_t> {
+class CefDragHandlerCToCpp : public CefCToCppRefCounted<CefDragHandlerCToCpp,
+                                                        CefDragHandler,
+                                                        cef_drag_handler_t> {
  public:
   CefDragHandlerCToCpp();
 
   // CefDragHandler methods.
   bool OnDragEnter(CefRefPtr<CefBrowser> browser,
-      CefRefPtr<CefDragData> dragData, DragOperationsMask mask) override;
-  void OnDraggableRegionsChanged(CefRefPtr<CefBrowser> browser,
+                   CefRefPtr<CefDragData> dragData,
+                   DragOperationsMask mask) override;
+  void OnDraggableRegionsChanged(
+      CefRefPtr<CefBrowser> browser,
       const std::vector<CefDraggableRegion>& regions) override;
 };
 

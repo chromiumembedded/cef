@@ -90,13 +90,13 @@ class CefDisplay : public CefBaseRefCounted {
   // intended to return distinct, usable displays.
   ///
   /*--cef(count_func=displays:GetDisplayCount)--*/
-  static void GetAllDisplays(std::vector<CefRefPtr<CefDisplay> >& displays);
+  static void GetAllDisplays(std::vector<CefRefPtr<CefDisplay>>& displays);
 
   ///
   // Returns the unique identifier for this Display.
   ///
   /*--cef()--*/
-  virtual int64 GetID() =0;
+  virtual int64 GetID() = 0;
 
   ///
   // Returns this Display's device pixel scale factor. This specifies how much
@@ -105,40 +105,40 @@ class CefDisplay : public CefBaseRefCounted {
   // differ by platform.
   ///
   /*--cef()--*/
-  virtual float GetDeviceScaleFactor() =0;
+  virtual float GetDeviceScaleFactor() = 0;
 
   ///
   // Convert |point| from density independent pixels (DIP) to pixel coordinates
   // using this Display's device scale factor.
   ///
   /*--cef()--*/
-  virtual void ConvertPointToPixels(CefPoint& point) =0;
+  virtual void ConvertPointToPixels(CefPoint& point) = 0;
 
   ///
   // Convert |point| from pixel coordinates to density independent pixels (DIP)
   // using this Display's device scale factor.
   ///
   /*--cef()--*/
-  virtual void ConvertPointFromPixels(CefPoint& point) =0;
+  virtual void ConvertPointFromPixels(CefPoint& point) = 0;
 
   ///
   // Returns this Display's bounds. This is the full size of the display.
   ///
   /*--cef()--*/
-  virtual CefRect GetBounds() =0;
+  virtual CefRect GetBounds() = 0;
 
   ///
   // Returns this Display's work area. This excludes areas of the display that
   // are occupied for window manager toolbars, etc.
   ///
   /*--cef()--*/
-  virtual CefRect GetWorkArea() =0;
+  virtual CefRect GetWorkArea() = 0;
 
   ///
   // Returns this Display's rotation in degrees.
   ///
   /*--cef()--*/
-  virtual int GetRotation() =0;
+  virtual int GetRotation() = 0;
 };
 
 #endif  // CEF_INCLUDE_VIEWS_CEF_DISPLAY_H_

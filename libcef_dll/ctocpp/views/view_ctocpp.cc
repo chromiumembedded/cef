@@ -9,6 +9,8 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=7d48e623cbf70be51e4809e2fd1b08341d5dd620$
+//
 
 #include "libcef_dll/cpptoc/views/view_delegate_cpptoc.h"
 #include "libcef_dll/ctocpp/views/browser_view_ctocpp.h"
@@ -20,7 +22,6 @@
 #include "libcef_dll/ctocpp/views/textfield_ctocpp.h"
 #include "libcef_dll/ctocpp/views/view_ctocpp.h"
 #include "libcef_dll/ctocpp/views/window_ctocpp.h"
-
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
@@ -118,8 +119,7 @@ CefString CefViewCToCpp::ToString(bool include_children) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  cef_string_userfree_t _retval = _struct->to_string(_struct,
-      include_children);
+  cef_string_userfree_t _retval = _struct->to_string(_struct, include_children);
 
   // Return type: string
   CefString _retvalStr;
@@ -138,7 +138,7 @@ bool CefViewCToCpp::IsValid() {
   int _retval = _struct->is_valid(_struct);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 bool CefViewCToCpp::IsAttached() {
@@ -152,7 +152,7 @@ bool CefViewCToCpp::IsAttached() {
   int _retval = _struct->is_attached(_struct);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 bool CefViewCToCpp::IsSame(CefRefPtr<CefView> that) {
@@ -168,11 +168,10 @@ bool CefViewCToCpp::IsSame(CefRefPtr<CefView> that) {
     return false;
 
   // Execute
-  int _retval = _struct->is_same(_struct,
-      CefViewCToCpp::Unwrap(that));
+  int _retval = _struct->is_same(_struct, CefViewCToCpp::Unwrap(that));
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 CefRefPtr<CefViewDelegate> CefViewCToCpp::GetDelegate() {
@@ -225,8 +224,7 @@ void CefViewCToCpp::SetID(int id) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  _struct->set_id(_struct,
-      id);
+  _struct->set_id(_struct, id);
 }
 
 int CefViewCToCpp::GetGroupID() {
@@ -251,8 +249,7 @@ void CefViewCToCpp::SetGroupID(int group_id) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  _struct->set_group_id(_struct,
-      group_id);
+  _struct->set_group_id(_struct, group_id);
 }
 
 CefRefPtr<CefView> CefViewCToCpp::GetParentView() {
@@ -277,8 +274,7 @@ CefRefPtr<CefView> CefViewCToCpp::GetViewForID(int id) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  cef_view_t* _retval = _struct->get_view_for_id(_struct,
-      id);
+  cef_view_t* _retval = _struct->get_view_for_id(_struct, id);
 
   // Return type: refptr_same
   return CefViewCToCpp::Wrap(_retval);
@@ -292,8 +288,7 @@ void CefViewCToCpp::SetBounds(const CefRect& bounds) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  _struct->set_bounds(_struct,
-      &bounds);
+  _struct->set_bounds(_struct, &bounds);
 }
 
 CefRect CefViewCToCpp::GetBounds() {
@@ -332,8 +327,7 @@ void CefViewCToCpp::SetSize(const CefSize& size) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  _struct->set_size(_struct,
-      &size);
+  _struct->set_size(_struct, &size);
 }
 
 CefSize CefViewCToCpp::GetSize() {
@@ -358,8 +352,7 @@ void CefViewCToCpp::SetPosition(const CefPoint& position) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  _struct->set_position(_struct,
-      &position);
+  _struct->set_position(_struct, &position);
 }
 
 CefPoint CefViewCToCpp::GetPosition() {
@@ -437,8 +430,7 @@ int CefViewCToCpp::GetHeightForWidth(int width) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int _retval = _struct->get_height_for_width(_struct,
-      width);
+  int _retval = _struct->get_height_for_width(_struct, width);
 
   // Return type: simple
   return _retval;
@@ -463,8 +455,7 @@ void CefViewCToCpp::SetVisible(bool visible) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  _struct->set_visible(_struct,
-      visible);
+  _struct->set_visible(_struct, visible);
 }
 
 bool CefViewCToCpp::IsVisible() {
@@ -478,7 +469,7 @@ bool CefViewCToCpp::IsVisible() {
   int _retval = _struct->is_visible(_struct);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 bool CefViewCToCpp::IsDrawn() {
@@ -492,7 +483,7 @@ bool CefViewCToCpp::IsDrawn() {
   int _retval = _struct->is_drawn(_struct);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 void CefViewCToCpp::SetEnabled(bool enabled) {
@@ -503,8 +494,7 @@ void CefViewCToCpp::SetEnabled(bool enabled) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  _struct->set_enabled(_struct,
-      enabled);
+  _struct->set_enabled(_struct, enabled);
 }
 
 bool CefViewCToCpp::IsEnabled() {
@@ -518,7 +508,7 @@ bool CefViewCToCpp::IsEnabled() {
   int _retval = _struct->is_enabled(_struct);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 void CefViewCToCpp::SetFocusable(bool focusable) {
@@ -529,8 +519,7 @@ void CefViewCToCpp::SetFocusable(bool focusable) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  _struct->set_focusable(_struct,
-      focusable);
+  _struct->set_focusable(_struct, focusable);
 }
 
 bool CefViewCToCpp::IsFocusable() {
@@ -544,7 +533,7 @@ bool CefViewCToCpp::IsFocusable() {
   int _retval = _struct->is_focusable(_struct);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 bool CefViewCToCpp::IsAccessibilityFocusable() {
@@ -558,7 +547,7 @@ bool CefViewCToCpp::IsAccessibilityFocusable() {
   int _retval = _struct->is_accessibility_focusable(_struct);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 void CefViewCToCpp::RequestFocus() {
@@ -580,8 +569,7 @@ void CefViewCToCpp::SetBackgroundColor(cef_color_t color) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  _struct->set_background_color(_struct,
-      color);
+  _struct->set_background_color(_struct, color);
 }
 
 cef_color_t CefViewCToCpp::GetBackgroundColor() {
@@ -606,11 +594,10 @@ bool CefViewCToCpp::ConvertPointToScreen(CefPoint& point) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int _retval = _struct->convert_point_to_screen(_struct,
-      &point);
+  int _retval = _struct->convert_point_to_screen(_struct, &point);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 bool CefViewCToCpp::ConvertPointFromScreen(CefPoint& point) {
@@ -621,11 +608,10 @@ bool CefViewCToCpp::ConvertPointFromScreen(CefPoint& point) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int _retval = _struct->convert_point_from_screen(_struct,
-      &point);
+  int _retval = _struct->convert_point_from_screen(_struct, &point);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 bool CefViewCToCpp::ConvertPointToWindow(CefPoint& point) {
@@ -636,11 +622,10 @@ bool CefViewCToCpp::ConvertPointToWindow(CefPoint& point) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int _retval = _struct->convert_point_to_window(_struct,
-      &point);
+  int _retval = _struct->convert_point_to_window(_struct, &point);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 bool CefViewCToCpp::ConvertPointFromWindow(CefPoint& point) {
@@ -651,15 +636,14 @@ bool CefViewCToCpp::ConvertPointFromWindow(CefPoint& point) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int _retval = _struct->convert_point_from_window(_struct,
-      &point);
+  int _retval = _struct->convert_point_from_window(_struct, &point);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 bool CefViewCToCpp::ConvertPointToView(CefRefPtr<CefView> view,
-    CefPoint& point) {
+                                       CefPoint& point) {
   cef_view_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, convert_point_to_view))
     return false;
@@ -672,16 +656,15 @@ bool CefViewCToCpp::ConvertPointToView(CefRefPtr<CefView> view,
     return false;
 
   // Execute
-  int _retval = _struct->convert_point_to_view(_struct,
-      CefViewCToCpp::Unwrap(view),
-      &point);
+  int _retval = _struct->convert_point_to_view(
+      _struct, CefViewCToCpp::Unwrap(view), &point);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 bool CefViewCToCpp::ConvertPointFromView(CefRefPtr<CefView> view,
-    CefPoint& point) {
+                                         CefPoint& point) {
   cef_view_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, convert_point_from_view))
     return false;
@@ -694,62 +677,65 @@ bool CefViewCToCpp::ConvertPointFromView(CefRefPtr<CefView> view,
     return false;
 
   // Execute
-  int _retval = _struct->convert_point_from_view(_struct,
-      CefViewCToCpp::Unwrap(view),
-      &point);
+  int _retval = _struct->convert_point_from_view(
+      _struct, CefViewCToCpp::Unwrap(view), &point);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
-
 
 // CONSTRUCTOR - Do not edit by hand.
 
-CefViewCToCpp::CefViewCToCpp() {
-}
+CefViewCToCpp::CefViewCToCpp() {}
 
-template<> cef_view_t* CefCToCppRefCounted<CefViewCToCpp, CefView,
-    cef_view_t>::UnwrapDerived(CefWrapperType type, CefView* c) {
+template <>
+cef_view_t*
+CefCToCppRefCounted<CefViewCToCpp, CefView, cef_view_t>::UnwrapDerived(
+    CefWrapperType type,
+    CefView* c) {
   if (type == WT_BROWSER_VIEW) {
-    return reinterpret_cast<cef_view_t*>(CefBrowserViewCToCpp::Unwrap(
-        reinterpret_cast<CefBrowserView*>(c)));
+    return reinterpret_cast<cef_view_t*>(
+        CefBrowserViewCToCpp::Unwrap(reinterpret_cast<CefBrowserView*>(c)));
   }
   if (type == WT_BUTTON) {
-    return reinterpret_cast<cef_view_t*>(CefButtonCToCpp::Unwrap(
-        reinterpret_cast<CefButton*>(c)));
+    return reinterpret_cast<cef_view_t*>(
+        CefButtonCToCpp::Unwrap(reinterpret_cast<CefButton*>(c)));
   }
   if (type == WT_LABEL_BUTTON) {
-    return reinterpret_cast<cef_view_t*>(CefLabelButtonCToCpp::Unwrap(
-        reinterpret_cast<CefLabelButton*>(c)));
+    return reinterpret_cast<cef_view_t*>(
+        CefLabelButtonCToCpp::Unwrap(reinterpret_cast<CefLabelButton*>(c)));
   }
   if (type == WT_MENU_BUTTON) {
-    return reinterpret_cast<cef_view_t*>(CefMenuButtonCToCpp::Unwrap(
-        reinterpret_cast<CefMenuButton*>(c)));
+    return reinterpret_cast<cef_view_t*>(
+        CefMenuButtonCToCpp::Unwrap(reinterpret_cast<CefMenuButton*>(c)));
   }
   if (type == WT_PANEL) {
-    return reinterpret_cast<cef_view_t*>(CefPanelCToCpp::Unwrap(
-        reinterpret_cast<CefPanel*>(c)));
+    return reinterpret_cast<cef_view_t*>(
+        CefPanelCToCpp::Unwrap(reinterpret_cast<CefPanel*>(c)));
   }
   if (type == WT_SCROLL_VIEW) {
-    return reinterpret_cast<cef_view_t*>(CefScrollViewCToCpp::Unwrap(
-        reinterpret_cast<CefScrollView*>(c)));
+    return reinterpret_cast<cef_view_t*>(
+        CefScrollViewCToCpp::Unwrap(reinterpret_cast<CefScrollView*>(c)));
   }
   if (type == WT_TEXTFIELD) {
-    return reinterpret_cast<cef_view_t*>(CefTextfieldCToCpp::Unwrap(
-        reinterpret_cast<CefTextfield*>(c)));
+    return reinterpret_cast<cef_view_t*>(
+        CefTextfieldCToCpp::Unwrap(reinterpret_cast<CefTextfield*>(c)));
   }
   if (type == WT_WINDOW) {
-    return reinterpret_cast<cef_view_t*>(CefWindowCToCpp::Unwrap(
-        reinterpret_cast<CefWindow*>(c)));
+    return reinterpret_cast<cef_view_t*>(
+        CefWindowCToCpp::Unwrap(reinterpret_cast<CefWindow*>(c)));
   }
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCppRefCounted<CefViewCToCpp, CefView,
-    cef_view_t>::DebugObjCt = 0;
+template <>
+base::AtomicRefCount
+    CefCToCppRefCounted<CefViewCToCpp, CefView, cef_view_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCppRefCounted<CefViewCToCpp, CefView,
-    cef_view_t>::kWrapperType = WT_VIEW;
+template <>
+CefWrapperType
+    CefCToCppRefCounted<CefViewCToCpp, CefView, cef_view_t>::kWrapperType =
+        WT_VIEW;

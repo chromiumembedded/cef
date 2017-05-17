@@ -109,8 +109,8 @@ bool ClientAppRenderer::OnProcessMessageReceived(
 
   DelegateSet::iterator it = delegates_.begin();
   for (; it != delegates_.end() && !handled; ++it) {
-    handled = (*it)->OnProcessMessageReceived(this, browser, source_process,
-                                              message);
+    handled =
+        (*it)->OnProcessMessageReceived(this, browser, source_process, message);
   }
 
   return handled;

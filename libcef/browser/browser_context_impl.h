@@ -39,8 +39,7 @@ class CefBrowserContextImpl : public CefBrowserContext,
       const base::FilePath& cache_path);
 
   // Returns the underlying CefBrowserContextImpl if any.
-  static CefBrowserContextImpl* GetForContext(
-      content::BrowserContext* context);
+  static CefBrowserContextImpl* GetForContext(content::BrowserContext* context);
 
   // Returns all existing CefBrowserContextImpl.
   static std::vector<CefBrowserContextImpl*> GetAll();
@@ -72,14 +71,12 @@ class CefBrowserContextImpl : public CefBrowserContext,
   content::BackgroundSyncController* GetBackgroundSyncController() override;
   net::URLRequestContextGetter* CreateRequestContext(
       content::ProtocolHandlerMap* protocol_handlers,
-      content::URLRequestInterceptorScopedVector request_interceptors)
-      override;
+      content::URLRequestInterceptorScopedVector request_interceptors) override;
   net::URLRequestContextGetter* CreateRequestContextForStoragePartition(
       const base::FilePath& partition_path,
       bool in_memory,
       content::ProtocolHandlerMap* protocol_handlers,
-      content::URLRequestInterceptorScopedVector request_interceptors)
-      override;
+      content::URLRequestInterceptorScopedVector request_interceptors) override;
   content::StoragePartition* GetStoragePartitionProxy(
       content::BrowserContext* browser_context,
       content::StoragePartition* partition_impl) override;

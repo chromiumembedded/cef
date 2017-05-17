@@ -9,6 +9,8 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=c94cf8a41042d6b4fa77981ad89c2f687299d85d$
+//
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_BROWSER_PROCESS_HANDLER_CPPTOC_H_
 #define CEF_LIBCEF_DLL_CPPTOC_BROWSER_PROCESS_HANDLER_CPPTOC_H_
@@ -18,15 +20,16 @@
 #error This file can be included wrapper-side only
 #endif
 
-#include "include/cef_browser_process_handler.h"
 #include "include/capi/cef_browser_process_handler_capi.h"
+#include "include/cef_browser_process_handler.h"
 #include "libcef_dll/cpptoc/cpptoc_ref_counted.h"
 
 // Wrap a C++ class with a C structure.
 // This class may be instantiated and accessed wrapper-side only.
 class CefBrowserProcessHandlerCppToC
     : public CefCppToCRefCounted<CefBrowserProcessHandlerCppToC,
-        CefBrowserProcessHandler, cef_browser_process_handler_t> {
+                                 CefBrowserProcessHandler,
+                                 cef_browser_process_handler_t> {
  public:
   CefBrowserProcessHandlerCppToC();
 };

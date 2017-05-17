@@ -20,27 +20,24 @@ class CefBrowserHostImpl;
 class CefJavaScriptDialogManager : public content::JavaScriptDialogManager {
  public:
   // |runner| may be NULL if the platform doesn't implement dialogs.
-  CefJavaScriptDialogManager(
-      CefBrowserHostImpl* browser,
-      std::unique_ptr<CefJavaScriptDialogRunner> runner);
+  CefJavaScriptDialogManager(CefBrowserHostImpl* browser,
+                             std::unique_ptr<CefJavaScriptDialogRunner> runner);
   ~CefJavaScriptDialogManager() override;
 
   // Delete the runner to free any platform constructs.
   void Destroy();
 
   // JavaScriptDialogManager methods.
-  void RunJavaScriptDialog(
-      content::WebContents* web_contents,
-      const GURL& origin_url,
-      content::JavaScriptDialogType message_type,
-      const base::string16& message_text,
-      const base::string16& default_prompt_text,
-      const DialogClosedCallback& callback,
-      bool* did_suppress_message) override;
-  void RunBeforeUnloadDialog(
-      content::WebContents* web_contents,
-      bool is_reload,
-      const DialogClosedCallback& callback) override;
+  void RunJavaScriptDialog(content::WebContents* web_contents,
+                           const GURL& origin_url,
+                           content::JavaScriptDialogType message_type,
+                           const base::string16& message_text,
+                           const base::string16& default_prompt_text,
+                           const DialogClosedCallback& callback,
+                           bool* did_suppress_message) override;
+  void RunBeforeUnloadDialog(content::WebContents* web_contents,
+                             bool is_reload,
+                             const DialogClosedCallback& callback) override;
   void CancelDialogs(content::WebContents* web_contents,
                      bool reset_state) override;
 

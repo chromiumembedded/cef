@@ -22,8 +22,7 @@ void TransferVector(const std::vector<std::string>& source,
 
 CefX509CertPrincipalImpl::CefX509CertPrincipalImpl(
     const net::CertPrincipal& value)
-    : value_(value) {
-}
+    : value_(value) {}
 
 CefString CefX509CertPrincipalImpl::GetDisplayName() {
   return value_.GetDisplayName();

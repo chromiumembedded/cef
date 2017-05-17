@@ -14,9 +14,9 @@
 #include "ui/views/controls/textfield/textfield.h"
 #include "ui/views/controls/textfield/textfield_controller.h"
 
-class CefTextfieldView :
-    public CefViewView<views::Textfield, CefTextfieldDelegate>,
-    public views::TextfieldController {
+class CefTextfieldView
+    : public CefViewView<views::Textfield, CefTextfieldDelegate>,
+      public views::TextfieldController {
  public:
   typedef CefViewView<views::Textfield, CefTextfieldDelegate> ParentClass;
 

@@ -9,6 +9,8 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=a9ba57e6b76a732bbb00ff249a5e06107da56b91$
+//
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_WRITE_HANDLER_CTOCPP_H_
 #define CEF_LIBCEF_DLL_CTOCPP_WRITE_HANDLER_CTOCPP_H_
@@ -18,15 +20,15 @@
 #error This file can be included DLL-side only
 #endif
 
-#include "include/cef_stream.h"
 #include "include/capi/cef_stream_capi.h"
+#include "include/cef_stream.h"
 #include "libcef_dll/ctocpp/ctocpp_ref_counted.h"
 
 // Wrap a C structure with a C++ class.
 // This class may be instantiated and accessed DLL-side only.
-class CefWriteHandlerCToCpp
-    : public CefCToCppRefCounted<CefWriteHandlerCToCpp, CefWriteHandler,
-        cef_write_handler_t> {
+class CefWriteHandlerCToCpp : public CefCToCppRefCounted<CefWriteHandlerCToCpp,
+                                                         CefWriteHandler,
+                                                         cef_write_handler_t> {
  public:
   CefWriteHandlerCToCpp();
 

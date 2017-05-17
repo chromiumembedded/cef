@@ -56,9 +56,7 @@ class TestWindowDelegate : public CefWindowDelegate {
  private:
   TestWindowDelegate(CefRefPtr<CefBrowserView> browser_view,
                      const CefString& title)
-      : browser_view_(browser_view),
-        title_(title) {
-  }
+      : browser_view_(browser_view), title_(title) {}
 
   CefRefPtr<CefBrowserView> browser_view_;
   CefString title_;
@@ -74,14 +72,12 @@ class TestBrowserViewDelegate : public CefBrowserViewDelegate {
 
   // CefBrowserViewDelegate methods:
 
-  bool OnPopupBrowserViewCreated(
-      CefRefPtr<CefBrowserView> browser_view,
-      CefRefPtr<CefBrowserView> popup_browser_view,
-      bool is_devtools) override {
+  bool OnPopupBrowserViewCreated(CefRefPtr<CefBrowserView> browser_view,
+                                 CefRefPtr<CefBrowserView> popup_browser_view,
+                                 bool is_devtools) override {
     // Create our own Window for popups. It will show itself after creation.
-    TestWindowDelegate::CreateBrowserWindow(
-        popup_browser_view,
-        is_devtools ? "DevTools" : "Popup");
+    TestWindowDelegate::CreateBrowserWindow(popup_browser_view,
+                                            is_devtools ? "DevTools" : "Popup");
     return true;
   }
 
@@ -94,12 +90,10 @@ class TestBrowserViewDelegate : public CefBrowserViewDelegate {
 
 }  // namespace
 
-
 // TestHandler::CompletionState
 
 TestHandler::CompletionState::CompletionState(int total)
-    : total_(total),
-      count_(0) {
+    : total_(total), count_(0) {
   event_ = CefWaitableEvent::CreateWaitableEvent(true, false);
 }
 
@@ -120,7 +114,6 @@ void TestHandler::CompletionState::WaitForTests() {
   // Reset the event so the same test can be executed again.
   event_->Reset();
 }
-
 
 // TestHandler::Collection
 
@@ -152,36 +145,29 @@ void TestHandler::Collection::ExecuteTests() {
   completion_state_->WaitForTests();
 }
 
-
 // TestHandler::UIThreadHelper
 
-TestHandler::UIThreadHelper::UIThreadHelper()
-    : weak_ptr_factory_(this) {
-}
+TestHandler::UIThreadHelper::UIThreadHelper() : weak_ptr_factory_(this) {}
 
 void TestHandler::UIThreadHelper::PostTask(const base::Closure& task) {
   EXPECT_UI_THREAD();
-  CefPostTask(
-      TID_UI,
-      base::Bind(&UIThreadHelper::TaskHelper,
-                 weak_ptr_factory_.GetWeakPtr(), task));
+  CefPostTask(TID_UI, base::Bind(&UIThreadHelper::TaskHelper,
+                                 weak_ptr_factory_.GetWeakPtr(), task));
 }
 
-void TestHandler::UIThreadHelper::PostDelayedTask(
-    const base::Closure& task, int delay_ms) {
+void TestHandler::UIThreadHelper::PostDelayedTask(const base::Closure& task,
+                                                  int delay_ms) {
   EXPECT_UI_THREAD();
-  CefPostDelayedTask(
-      TID_UI,
-      base::Bind(&UIThreadHelper::TaskHelper,
-                 weak_ptr_factory_.GetWeakPtr(), task),
-      delay_ms);
+  CefPostDelayedTask(TID_UI,
+                     base::Bind(&UIThreadHelper::TaskHelper,
+                                weak_ptr_factory_.GetWeakPtr(), task),
+                     delay_ms);
 }
 
 void TestHandler::UIThreadHelper::TaskHelper(const base::Closure& task) {
   EXPECT_UI_THREAD();
   task.Run();
 }
-
 
 // TestHandler
 
@@ -245,8 +231,7 @@ void TestHandler::OnBeforeClose(CefRefPtr<CefBrowser> browser) {
     first_browser_ = NULL;
   }
 
-  if (browser_map_.empty() &&
-      signal_completion_when_all_browsers_close_) {
+  if (browser_map_.empty() && signal_completion_when_all_browsers_close_) {
     // Signal that the test is now complete.
     TestComplete();
   }
@@ -266,12 +251,12 @@ CefResponse::HeaderMap ToCefHeaderMap(
   return result;
 }
 
-} // namespace
+}  // namespace
 
 CefRefPtr<CefResourceHandler> TestHandler::GetResourceHandler(
-      CefRefPtr<CefBrowser> browser,
-      CefRefPtr<CefFrame> frame,
-      CefRefPtr<CefRequest> request) {
+    CefRefPtr<CefBrowser> browser,
+    CefRefPtr<CefFrame> frame,
+    CefRefPtr<CefRequest> request) {
   EXPECT_IO_THREAD();
 
   if (resource_map_.size() > 0) {
@@ -281,16 +266,16 @@ CefRefPtr<CefResourceHandler> TestHandler::GetResourceHandler(
     std::string urlStr = url;
     size_t idx = urlStr.find('?');
     if (idx > 0)
-       urlStr = urlStr.substr(0, idx);
+      urlStr = urlStr.substr(0, idx);
 
     ResourceMap::const_iterator it = resource_map_.find(urlStr);
     if (it != resource_map_.end()) {
       // Return the previously mapped resource
-      CefRefPtr<CefStreamReader> stream =
-          CefStreamReader::CreateForData(
-              static_cast<void*>(const_cast<char*>(it->second.content().c_str())),
-              it->second.content().length());
-      return new CefStreamResourceHandler(200, "OK", it->second.mimeType(),
+      CefRefPtr<CefStreamReader> stream = CefStreamReader::CreateForData(
+          static_cast<void*>(const_cast<char*>(it->second.content().c_str())),
+          it->second.content().length());
+      return new CefStreamResourceHandler(
+          200, "OK", it->second.mimeType(),
           ToCefHeaderMap(it->second.headerMap()), stream);
     }
   }
@@ -364,16 +349,15 @@ void TestHandler::OnTestTimeout(int timeout_ms, bool treat_as_error) {
   DestroyTest();
 }
 
-void TestHandler::CreateBrowser(
-    const CefString& url,
-    CefRefPtr<CefRequestContext> request_context) {
+void TestHandler::CreateBrowser(const CefString& url,
+                                CefRefPtr<CefRequestContext> request_context) {
 #if defined(USE_AURA)
   const bool use_views = CefCommandLine::GetGlobalCommandLine()->HasSwitch(
       client::switches::kUseViews);
   if (use_views && !CefCurrentlyOn(TID_UI)) {
     // Views classes must be accessed on the UI thread.
-    CefPostTask(TID_UI,
-        base::Bind(&TestHandler::CreateBrowser, this, url, request_context));
+    CefPostTask(TID_UI, base::Bind(&TestHandler::CreateBrowser, this, url,
+                                   request_context));
     return;
   }
 #endif  // defined(USE_AURA)
@@ -428,7 +412,7 @@ void TestHandler::AddResourceEx(const std::string& url,
                                 const ResourceContent& content) {
   if (!CefCurrentlyOn(TID_IO)) {
     CefPostTask(TID_IO,
-        base::Bind(&TestHandler::AddResourceEx, this, url, content));
+                base::Bind(&TestHandler::AddResourceEx, this, url, content));
     return;
   }
 
@@ -436,7 +420,7 @@ void TestHandler::AddResourceEx(const std::string& url,
   std::string urlStr = url;
   size_t idx = urlStr.find('?');
   if (idx > 0)
-     urlStr = urlStr.substr(0, idx);
+    urlStr = urlStr.substr(0, idx);
 
   resource_map_.insert(std::make_pair(urlStr, content));
 }
@@ -453,13 +437,12 @@ void TestHandler::ClearResources() {
 void TestHandler::SetTestTimeout(int timeout_ms, bool treat_as_error) {
   if (!CefCurrentlyOn(TID_UI)) {
     CefPostTask(TID_UI, base::Bind(&TestHandler::SetTestTimeout, this,
-                timeout_ms, treat_as_error));
+                                   timeout_ms, treat_as_error));
     return;
   }
 
-  if (treat_as_error &&
-      CefCommandLine::GetGlobalCommandLine()->HasSwitch(
-          "disable-test-timeout")) {
+  if (treat_as_error && CefCommandLine::GetGlobalCommandLine()->HasSwitch(
+                            "disable-test-timeout")) {
     return;
   }
 
@@ -490,7 +473,6 @@ TestHandler::UIThreadHelper* TestHandler::GetUIThreadHelper() {
   return ui_thread_helper_.get();
 }
 
-
 // global functions
 
 bool TestFailed() {
@@ -498,8 +480,10 @@ bool TestFailed() {
       CefCommandLine::GetGlobalCommandLine();
   if (command_line->HasSwitch("single-process")) {
     // Check for a failure on the current test only.
-    return ::testing::UnitTest::GetInstance()->current_test_info()->result()->
-        Failed();
+    return ::testing::UnitTest::GetInstance()
+        ->current_test_info()
+        ->result()
+        ->Failed();
   } else {
     // Check for any global failure.
     return ::testing::UnitTest::GetInstance()->Failed();

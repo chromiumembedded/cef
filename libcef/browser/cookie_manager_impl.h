@@ -34,9 +34,8 @@ class CefCookieManagerImpl : public CefCookieManager {
   // store object can only be accessed on, the IO thread.
   typedef base::Callback<net::CookieStore*()> CookieStoreGetter;
   typedef base::Callback<void(const CookieStoreGetter&)> CookieStoreCallback;
-  void GetCookieStore(
-      scoped_refptr<base::SingleThreadTaskRunner> task_runner,
-      const CookieStoreCallback& callback);
+  void GetCookieStore(scoped_refptr<base::SingleThreadTaskRunner> task_runner,
+                      const CookieStoreCallback& callback);
 
   // Returns the existing cookie store object. Logs an error if the cookie
   // store does not yet exist. Must be called on the IO thread.
@@ -46,7 +45,8 @@ class CefCookieManagerImpl : public CefCookieManager {
   void SetSupportedSchemes(const std::vector<CefString>& schemes,
                            CefRefPtr<CefCompletionCallback> callback) override;
   bool VisitAllCookies(CefRefPtr<CefCookieVisitor> visitor) override;
-  bool VisitUrlCookies(const CefString& url, bool includeHttpOnly,
+  bool VisitUrlCookies(const CefString& url,
+                       bool includeHttpOnly,
                        CefRefPtr<CefCookieVisitor> visitor) override;
   bool SetCookie(const CefString& url,
                  const CefCookie& cookie,
@@ -60,7 +60,8 @@ class CefCookieManagerImpl : public CefCookieManager {
   bool FlushStore(CefRefPtr<CefCompletionCallback> callback) override;
 
   static bool GetCefCookie(const net::CanonicalCookie& cc, CefCookie& cookie);
-  static bool GetCefCookie(const GURL& url, const std::string& cookie_line,
+  static bool GetCefCookie(const GURL& url,
+                           const std::string& cookie_line,
                            CefCookie& cookie);
 
   // Set the schemes supported by |cookie_monster|. Default schemes will always
@@ -93,30 +94,24 @@ class CefCookieManagerImpl : public CefCookieManager {
       const CookieStoreCallback& callback,
       scoped_refptr<CefURLRequestContextGetterImpl> request_context);
 
-  void SetSupportedSchemesInternal(
-      const std::vector<std::string>& schemes,
-      CefRefPtr<CefCompletionCallback> callback);
-  void VisitAllCookiesInternal(
-      CefRefPtr<CefCookieVisitor> visitor,
-      const CookieStoreGetter& cookie_store_getter);
-  void VisitUrlCookiesInternal(
-      const CefString& url,
-      bool includeHttpOnly,
-      CefRefPtr<CefCookieVisitor> visitor,
-      const CookieStoreGetter& cookie_store_getter);
-  void SetCookieInternal(
-      const GURL& url,
-      const CefCookie& cookie,
-      CefRefPtr<CefSetCookieCallback> callback,
-      const CookieStoreGetter& cookie_store_getter);
-  void DeleteCookiesInternal(
-      const GURL& url,
-      const CefString& cookie_name,
-      CefRefPtr<CefDeleteCookiesCallback> callback,
-      const CookieStoreGetter& cookie_store_getter);
-  void FlushStoreInternal(
-      CefRefPtr<CefCompletionCallback> callback,
-      const CookieStoreGetter& cookie_store_getter);
+  void SetSupportedSchemesInternal(const std::vector<std::string>& schemes,
+                                   CefRefPtr<CefCompletionCallback> callback);
+  void VisitAllCookiesInternal(CefRefPtr<CefCookieVisitor> visitor,
+                               const CookieStoreGetter& cookie_store_getter);
+  void VisitUrlCookiesInternal(const CefString& url,
+                               bool includeHttpOnly,
+                               CefRefPtr<CefCookieVisitor> visitor,
+                               const CookieStoreGetter& cookie_store_getter);
+  void SetCookieInternal(const GURL& url,
+                         const CefCookie& cookie,
+                         CefRefPtr<CefSetCookieCallback> callback,
+                         const CookieStoreGetter& cookie_store_getter);
+  void DeleteCookiesInternal(const GURL& url,
+                             const CefString& cookie_name,
+                             CefRefPtr<CefDeleteCookiesCallback> callback,
+                             const CookieStoreGetter& cookie_store_getter);
+  void FlushStoreInternal(CefRefPtr<CefCompletionCallback> callback,
+                          const CookieStoreGetter& cookie_store_getter);
 
   // Used for cookie monsters owned by the context.
   CefRefPtr<CefRequestContextImpl> request_context_;

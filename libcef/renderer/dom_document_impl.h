@@ -18,8 +18,7 @@ class CefBrowserImpl;
 
 class CefDOMDocumentImpl : public CefDOMDocument {
  public:
-  CefDOMDocumentImpl(CefBrowserImpl* browser,
-                     blink::WebFrame* frame);
+  CefDOMDocumentImpl(CefBrowserImpl* browser, blink::WebFrame* frame);
   ~CefDOMDocumentImpl() override;
 
   // CefDOMDocument methods.

@@ -9,6 +9,8 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=2ba29232c78f44ec672d78ced0edde92ee87c6af$
+//
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_TEST_TRANSLATOR_TEST_SCOPED_CLIENT_CPPTOC_H_
 #define CEF_LIBCEF_DLL_CPPTOC_TEST_TRANSLATOR_TEST_SCOPED_CLIENT_CPPTOC_H_
@@ -18,15 +20,16 @@
 #error This file can be included wrapper-side only
 #endif
 
-#include "include/test/cef_translator_test.h"
 #include "include/capi/test/cef_translator_test_capi.h"
+#include "include/test/cef_translator_test.h"
 #include "libcef_dll/cpptoc/cpptoc_scoped.h"
 
 // Wrap a C++ class with a C structure.
 // This class may be instantiated and accessed wrapper-side only.
 class CefTranslatorTestScopedClientCppToC
     : public CefCppToCScoped<CefTranslatorTestScopedClientCppToC,
-        CefTranslatorTestScopedClient, cef_translator_test_scoped_client_t> {
+                             CefTranslatorTestScopedClient,
+                             cef_translator_test_scoped_client_t> {
  public:
   CefTranslatorTestScopedClientCppToC();
 };

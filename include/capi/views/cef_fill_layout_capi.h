@@ -33,6 +33,8 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
+// $hash=32d7f76955b00935902e954344c76efe864eabf4$
+//
 
 #ifndef CEF_INCLUDE_CAPI_VIEWS_CEF_FILL_LAYOUT_CAPI_H_
 #define CEF_INCLUDE_CAPI_VIEWS_CEF_FILL_LAYOUT_CAPI_H_
@@ -43,7 +45,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
 
 ///
 // A simple Layout that causes the associated Panel's one child to be sized to
@@ -56,7 +57,6 @@ typedef struct _cef_fill_layout_t {
   ///
   cef_layout_t base;
 } cef_fill_layout_t;
-
 
 #ifdef __cplusplus
 }

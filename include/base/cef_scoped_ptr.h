@@ -154,7 +154,8 @@ class RefCountedThreadSafeBase;
 template <class T>
 struct DefaultDeleter {
   DefaultDeleter() {}
-  template <typename U> DefaultDeleter(const DefaultDeleter<U>& other) {
+  template <typename U>
+  DefaultDeleter(const DefaultDeleter<U>& other) {
     // IMPLEMENTATION NOTE: C++11 20.7.1.1.2p2 only provides this constructor
     // if U* is implicitly convertible to T* and U is not an array type.
     //
@@ -194,7 +195,8 @@ struct DefaultDeleter<T[]> {
   // References:
   //   C++98 [expr.delete]p3
   //   http://cplusplus.github.com/LWG/lwg-defects.html#938
-  template <typename U> void operator()(U* array) const;
+  template <typename U>
+  void operator()(U* array) const;
 };
 
 template <class T, int n>
@@ -209,18 +211,18 @@ struct DefaultDeleter<T[n]> {
 // scoped_ptr<int, base::FreeDeleter> foo_ptr(
 //     static_cast<int*>(malloc(sizeof(int))));
 struct FreeDeleter {
-  inline void operator()(void* ptr) const {
-    free(ptr);
-  }
+  inline void operator()(void* ptr) const { free(ptr); }
 };
 
 namespace cef_internal {
 
-template <typename T> struct IsNotRefCounted {
+template <typename T>
+struct IsNotRefCounted {
   enum {
-    value = !base::is_convertible<T*, base::subtle::RefCountedBase*>::value &&
-        !base::is_convertible<T*, base::subtle::RefCountedThreadSafeBase*>::
-            value
+    value =
+        !base::is_convertible<T*, base::subtle::RefCountedBase*>::value &&
+        !base::is_convertible<T*,
+                              base::subtle::RefCountedThreadSafeBase*>::value
   };
 };
 
@@ -229,7 +231,7 @@ template <typename T> struct IsNotRefCounted {
 template <class T, class D>
 class scoped_ptr_impl {
  public:
-  explicit scoped_ptr_impl(T* p) : data_(p) { }
+  explicit scoped_ptr_impl(T* p) : data_(p) {}
 
   // Initializer for deleters that have data parameters.
   scoped_ptr_impl(T* p, const D& d) : data_(p, d) {}
@@ -309,7 +311,8 @@ class scoped_ptr_impl {
 
  private:
   // Needed to allow type-converting constructor.
-  template <typename U, typename V> friend class scoped_ptr_impl;
+  template <typename U, typename V>
+  friend class scoped_ptr_impl;
 
   // Use the empty base class optimization to allow us to have a D
   // member, while avoiding any space overhead for it when D is an
@@ -346,7 +349,7 @@ class scoped_ptr_impl {
 // unique_ptr<> features. Known deficiencies include not supporting move-only
 // deleteres, function pointers as deleters, and deleters with reference
 // types.
-template <class T, class D = base::DefaultDeleter<T> >
+template <class T, class D = base::DefaultDeleter<T>>
 class scoped_ptr {
   MOVE_ONLY_TYPE_FOR_CPP_03(scoped_ptr, RValue)
 
@@ -359,13 +362,13 @@ class scoped_ptr {
   typedef D deleter_type;
 
   // Constructor.  Defaults to initializing with NULL.
-  scoped_ptr() : impl_(NULL) { }
+  scoped_ptr() : impl_(NULL) {}
 
   // Constructor.  Takes ownership of p.
-  explicit scoped_ptr(element_type* p) : impl_(p) { }
+  explicit scoped_ptr(element_type* p) : impl_(p) {}
 
   // Constructor.  Allows initialization of a stateful deleter.
-  scoped_ptr(element_type* p, const D& d) : impl_(p, d) { }
+  scoped_ptr(element_type* p, const D& d) : impl_(p, d) {}
 
   // Constructor.  Allows construction from a scoped_ptr rvalue for a
   // convertible type and deleter.
@@ -383,7 +386,7 @@ class scoped_ptr {
   }
 
   // Constructor.  Move constructor for C++03 move emulation of this type.
-  scoped_ptr(RValue rvalue) : impl_(&rvalue.object->impl_) { }
+  scoped_ptr(RValue rvalue) : impl_(&rvalue.object->impl_) {}
 
   // operator=.  Allows assignment from a scoped_ptr rvalue for a convertible
   // type and deleter.
@@ -412,7 +415,7 @@ class scoped_ptr {
     assert(impl_.get() != NULL);
     return *impl_.get();
   }
-  element_type* operator->() const  {
+  element_type* operator->() const {
     assert(impl_.get() != NULL);
     return impl_.get();
   }
@@ -443,18 +446,14 @@ class scoped_ptr {
   bool operator!=(const element_type* p) const { return impl_.get() != p; }
 
   // Swap two scoped pointers.
-  void swap(scoped_ptr& p2) {
-    impl_.swap(p2.impl_);
-  }
+  void swap(scoped_ptr& p2) { impl_.swap(p2.impl_); }
 
   // Release a pointer.
   // The return value is the current pointer held by this object.
   // If this object holds a NULL pointer, the return value is NULL.
   // After this operation, this object will hold a NULL pointer,
   // and will not own the object any more.
-  element_type* release() WARN_UNUSED_RESULT {
-    return impl_.release();
-  }
+  element_type* release() WARN_UNUSED_RESULT { return impl_.release(); }
 
   // C++98 doesn't support functions templates with default parameters which
   // makes it hard to write a PassAs() that understands converting the deleter
@@ -469,7 +468,8 @@ class scoped_ptr {
 
  private:
   // Needed to reach into |impl_| in the constructor.
-  template <typename U, typename V> friend class scoped_ptr;
+  template <typename U, typename V>
+  friend class scoped_ptr;
   base::cef_internal::scoped_ptr_impl<element_type, deleter_type> impl_;
 
   // Forbidden for API compatibility with std::unique_ptr.
@@ -479,8 +479,10 @@ class scoped_ptr {
   // doesn't make sense, and if U == T, it still doesn't make sense
   // because you should never have the same object owned by two different
   // scoped_ptrs.
-  template <class U> bool operator==(scoped_ptr<U> const& p2) const;
-  template <class U> bool operator!=(scoped_ptr<U> const& p2) const;
+  template <class U>
+  bool operator==(scoped_ptr<U> const& p2) const;
+  template <class U>
+  bool operator!=(scoped_ptr<U> const& p2) const;
 };
 
 template <class T, class D>
@@ -493,7 +495,7 @@ class scoped_ptr<T[], D> {
   typedef D deleter_type;
 
   // Constructor.  Defaults to initializing with NULL.
-  scoped_ptr() : impl_(NULL) { }
+  scoped_ptr() : impl_(NULL) {}
 
   // Constructor. Stores the given array. Note that the argument's type
   // must exactly match T*. In particular:
@@ -511,10 +513,10 @@ class scoped_ptr<T[], D> {
   //   to work around this may use implicit_cast<const T*>().
   //   However, because of the first bullet in this comment, users MUST
   //   NOT use implicit_cast<Base*>() to upcast the static type of the array.
-  explicit scoped_ptr(element_type* array) : impl_(array) { }
+  explicit scoped_ptr(element_type* array) : impl_(array) {}
 
   // Constructor.  Move constructor for C++03 move emulation of this type.
-  scoped_ptr(RValue rvalue) : impl_(&rvalue.object->impl_) { }
+  scoped_ptr(RValue rvalue) : impl_(&rvalue.object->impl_) {}
 
   // operator=.  Move operator= for C++03 move emulation of this type.
   scoped_ptr& operator=(RValue rhs) {
@@ -553,18 +555,14 @@ class scoped_ptr<T[], D> {
   bool operator!=(element_type* array) const { return impl_.get() != array; }
 
   // Swap two scoped pointers.
-  void swap(scoped_ptr& p2) {
-    impl_.swap(p2.impl_);
-  }
+  void swap(scoped_ptr& p2) { impl_.swap(p2.impl_); }
 
   // Release a pointer.
   // The return value is the current pointer held by this object.
   // If this object holds a NULL pointer, the return value is NULL.
   // After this operation, this object will hold a NULL pointer,
   // and will not own the object any more.
-  element_type* release() WARN_UNUSED_RESULT {
-    return impl_.release();
-  }
+  element_type* release() WARN_UNUSED_RESULT { return impl_.release(); }
 
  private:
   // Force element_type to be a complete type.
@@ -578,20 +576,24 @@ class scoped_ptr<T[], D> {
   // private and has no definition. This is disabled because it is not safe to
   // call delete[] on an array whose static type does not match its dynamic
   // type.
-  template <typename U> explicit scoped_ptr(U* array);
+  template <typename U>
+  explicit scoped_ptr(U* array);
   explicit scoped_ptr(int disallow_construction_from_null);
 
   // Disable reset() from any type other than element_type*, for the same
   // reasons as the constructor above.
-  template <typename U> void reset(U* array);
+  template <typename U>
+  void reset(U* array);
   void reset(int disallow_reset_from_null);
 
   // Forbid comparison of scoped_ptr types.  If U != T, it totally
   // doesn't make sense, and if U == T, it still doesn't make sense
   // because you should never have the same object owned by two different
   // scoped_ptrs.
-  template <class U> bool operator==(scoped_ptr<U> const& p2) const;
-  template <class U> bool operator!=(scoped_ptr<U> const& p2) const;
+  template <class U>
+  bool operator==(scoped_ptr<U> const& p2) const;
+  template <class U>
+  bool operator!=(scoped_ptr<U> const& p2) const;
 };
 
 // Free functions

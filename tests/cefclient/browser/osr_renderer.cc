@@ -29,10 +29,10 @@
 
 // DCHECK on gl errors.
 #if DCHECK_IS_ON()
-#define VERIFY_NO_ERROR { \
-    int _gl_error = glGetError(); \
-    DCHECK(_gl_error == GL_NO_ERROR) << \
-    "glGetError returned " << _gl_error; \
+#define VERIFY_NO_ERROR                                                      \
+  {                                                                          \
+    int _gl_error = glGetError();                                            \
+    DCHECK(_gl_error == GL_NO_ERROR) << "glGetError returned " << _gl_error; \
   }
 #else
 #define VERIFY_NO_ERROR
@@ -47,8 +47,7 @@ OsrRenderer::OsrRenderer(const Settings& settings)
       view_width_(0),
       view_height_(0),
       spin_x_(0),
-      spin_y_(0) {
-}
+      spin_y_(0) {}
 
 OsrRenderer::~OsrRenderer() {
   Cleanup();
@@ -58,30 +57,38 @@ void OsrRenderer::Initialize() {
   if (initialized_)
     return;
 
-  glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST); VERIFY_NO_ERROR;
+  glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
+  VERIFY_NO_ERROR;
 
   if (IsTransparent()) {
-    glClearColor(0.0f, 0.0f, 0.0f, 0.0f); VERIFY_NO_ERROR;
+    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+    VERIFY_NO_ERROR;
   } else {
     glClearColor(float(CefColorGetR(settings_.background_color)) / 255.0f,
                  float(CefColorGetG(settings_.background_color)) / 255.0f,
                  float(CefColorGetB(settings_.background_color)) / 255.0f,
-                 1.0f); VERIFY_NO_ERROR;
+                 1.0f);
+    VERIFY_NO_ERROR;
   }
 
   // Necessary for non-power-of-2 textures to render correctly.
-  glPixelStorei(GL_UNPACK_ALIGNMENT, 1); VERIFY_NO_ERROR;
+  glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+  VERIFY_NO_ERROR;
 
   // Create the texture.
-  glGenTextures(1, &texture_id_); VERIFY_NO_ERROR;
-  DCHECK_NE(texture_id_, 0U); VERIFY_NO_ERROR;
+  glGenTextures(1, &texture_id_);
+  VERIFY_NO_ERROR;
+  DCHECK_NE(texture_id_, 0U);
+  VERIFY_NO_ERROR;
 
-  glBindTexture(GL_TEXTURE_2D, texture_id_); VERIFY_NO_ERROR;
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
-                  GL_NEAREST); VERIFY_NO_ERROR;
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER,
-                  GL_NEAREST); VERIFY_NO_ERROR;
-  glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE); VERIFY_NO_ERROR;
+  glBindTexture(GL_TEXTURE_2D, texture_id_);
+  VERIFY_NO_ERROR;
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  VERIFY_NO_ERROR;
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  VERIFY_NO_ERROR;
+  glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+  VERIFY_NO_ERROR;
 
   initialized_ = true;
 }
@@ -100,25 +107,30 @@ void OsrRenderer::Render() {
   struct {
     float tu, tv;
     float x, y, z;
-  } static vertices[] = {
-    {0.0f, 1.0f, -1.0f, -1.0f, 0.0f},
-    {1.0f, 1.0f,  1.0f, -1.0f, 0.0f},
-    {1.0f, 0.0f,  1.0f,  1.0f, 0.0f},
-    {0.0f, 0.0f, -1.0f,  1.0f, 0.0f}
-  };
+  } static vertices[] = {{0.0f, 1.0f, -1.0f, -1.0f, 0.0f},
+                         {1.0f, 1.0f, 1.0f, -1.0f, 0.0f},
+                         {1.0f, 0.0f, 1.0f, 1.0f, 0.0f},
+                         {0.0f, 0.0f, -1.0f, 1.0f, 0.0f}};
 
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); VERIFY_NO_ERROR;
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  VERIFY_NO_ERROR;
 
-  glMatrixMode(GL_MODELVIEW); VERIFY_NO_ERROR;
-  glLoadIdentity(); VERIFY_NO_ERROR;
+  glMatrixMode(GL_MODELVIEW);
+  VERIFY_NO_ERROR;
+  glLoadIdentity();
+  VERIFY_NO_ERROR;
 
   // Match GL units to screen coordinates.
-  glViewport(0, 0, view_width_, view_height_); VERIFY_NO_ERROR;
-  glMatrixMode(GL_PROJECTION); VERIFY_NO_ERROR;
-  glLoadIdentity(); VERIFY_NO_ERROR;
+  glViewport(0, 0, view_width_, view_height_);
+  VERIFY_NO_ERROR;
+  glMatrixMode(GL_PROJECTION);
+  VERIFY_NO_ERROR;
+  glLoadIdentity();
+  VERIFY_NO_ERROR;
 
   // Draw the background gradient.
-  glPushAttrib(GL_ALL_ATTRIB_BITS); VERIFY_NO_ERROR;
+  glPushAttrib(GL_ALL_ATTRIB_BITS);
+  VERIFY_NO_ERROR;
   // Don't check for errors until glEnd().
   glBegin(GL_QUADS);
   glColor4f(1.0, 0.0, 0.0, 1.0);  // red
@@ -127,40 +139,53 @@ void OsrRenderer::Render() {
   glColor4f(0.0, 0.0, 1.0, 1.0);  // blue
   glVertex2f(1.0, 1.0);
   glVertex2f(-1.0, 1.0);
-  glEnd(); VERIFY_NO_ERROR;
-  glPopAttrib(); VERIFY_NO_ERROR;
+  glEnd();
+  VERIFY_NO_ERROR;
+  glPopAttrib();
+  VERIFY_NO_ERROR;
 
   // Rotate the view based on the mouse spin.
   if (spin_x_ != 0) {
-    glRotatef(-spin_x_, 1.0f, 0.0f, 0.0f); VERIFY_NO_ERROR;
+    glRotatef(-spin_x_, 1.0f, 0.0f, 0.0f);
+    VERIFY_NO_ERROR;
   }
   if (spin_y_ != 0) {
-    glRotatef(-spin_y_, 0.0f, 1.0f, 0.0f); VERIFY_NO_ERROR;
+    glRotatef(-spin_y_, 0.0f, 1.0f, 0.0f);
+    VERIFY_NO_ERROR;
   }
 
   if (IsTransparent()) {
     // Alpha blending style. Texture values have premultiplied alpha.
-    glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA); VERIFY_NO_ERROR;
+    glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+    VERIFY_NO_ERROR;
 
     // Enable alpha blending.
-    glEnable(GL_BLEND); VERIFY_NO_ERROR;
+    glEnable(GL_BLEND);
+    VERIFY_NO_ERROR;
   }
 
   // Enable 2D textures.
-  glEnable(GL_TEXTURE_2D); VERIFY_NO_ERROR;
+  glEnable(GL_TEXTURE_2D);
+  VERIFY_NO_ERROR;
 
   // Draw the facets with the texture.
-  DCHECK_NE(texture_id_, 0U); VERIFY_NO_ERROR;
-  glBindTexture(GL_TEXTURE_2D, texture_id_); VERIFY_NO_ERROR;
-  glInterleavedArrays(GL_T2F_V3F, 0, vertices); VERIFY_NO_ERROR;
-  glDrawArrays(GL_QUADS, 0, 4); VERIFY_NO_ERROR;
+  DCHECK_NE(texture_id_, 0U);
+  VERIFY_NO_ERROR;
+  glBindTexture(GL_TEXTURE_2D, texture_id_);
+  VERIFY_NO_ERROR;
+  glInterleavedArrays(GL_T2F_V3F, 0, vertices);
+  VERIFY_NO_ERROR;
+  glDrawArrays(GL_QUADS, 0, 4);
+  VERIFY_NO_ERROR;
 
   // Disable 2D textures.
-  glDisable(GL_TEXTURE_2D); VERIFY_NO_ERROR;
+  glDisable(GL_TEXTURE_2D);
+  VERIFY_NO_ERROR;
 
   if (IsTransparent()) {
     // Disable alpha blending.
-    glDisable(GL_BLEND); VERIFY_NO_ERROR;
+    glDisable(GL_BLEND);
+    VERIFY_NO_ERROR;
   }
 
   // Draw a rectangle around the update region.
@@ -180,30 +205,39 @@ void OsrRenderer::Render() {
     bottom -= 1;
 #endif
 
-    glPushAttrib(GL_ALL_ATTRIB_BITS); VERIFY_NO_ERROR
-    glMatrixMode(GL_PROJECTION); VERIFY_NO_ERROR;
-    glPushMatrix(); VERIFY_NO_ERROR;
-    glLoadIdentity(); VERIFY_NO_ERROR;
-    glOrtho(0, view_width_, view_height_, 0, 0, 1); VERIFY_NO_ERROR;
+    glPushAttrib(GL_ALL_ATTRIB_BITS);
+    VERIFY_NO_ERROR
+    glMatrixMode(GL_PROJECTION);
+    VERIFY_NO_ERROR;
+    glPushMatrix();
+    VERIFY_NO_ERROR;
+    glLoadIdentity();
+    VERIFY_NO_ERROR;
+    glOrtho(0, view_width_, view_height_, 0, 0, 1);
+    VERIFY_NO_ERROR;
 
-    glLineWidth(1); VERIFY_NO_ERROR;
-    glColor3f(1.0f, 0.0f, 0.0f); VERIFY_NO_ERROR;
+    glLineWidth(1);
+    VERIFY_NO_ERROR;
+    glColor3f(1.0f, 0.0f, 0.0f);
+    VERIFY_NO_ERROR;
     // Don't check for errors until glEnd().
     glBegin(GL_LINE_STRIP);
-     glVertex2i(left, top);
+    glVertex2i(left, top);
     glVertex2i(right, top);
     glVertex2i(right, bottom);
     glVertex2i(left, bottom);
     glVertex2i(left, top);
-    glEnd(); VERIFY_NO_ERROR;
+    glEnd();
+    VERIFY_NO_ERROR;
 
-    glPopMatrix(); VERIFY_NO_ERROR;
-    glPopAttrib(); VERIFY_NO_ERROR;
+    glPopMatrix();
+    VERIFY_NO_ERROR;
+    glPopAttrib();
+    VERIFY_NO_ERROR;
   }
 }
 
-void OsrRenderer::OnPopupShow(CefRefPtr<CefBrowser> browser,
-                              bool show) {
+void OsrRenderer::OnPopupShow(CefRefPtr<CefBrowser> browser, bool show) {
   if (!show) {
     // Clear the popup rectangle.
     ClearPopupRects();
@@ -246,20 +280,25 @@ void OsrRenderer::ClearPopupRects() {
 void OsrRenderer::OnPaint(CefRefPtr<CefBrowser> browser,
                           CefRenderHandler::PaintElementType type,
                           const CefRenderHandler::RectList& dirtyRects,
-                          const void* buffer, int width, int height) {
+                          const void* buffer,
+                          int width,
+                          int height) {
   if (!initialized_)
     Initialize();
 
   if (IsTransparent()) {
     // Enable alpha blending.
-    glEnable(GL_BLEND); VERIFY_NO_ERROR;
+    glEnable(GL_BLEND);
+    VERIFY_NO_ERROR;
   }
 
   // Enable 2D textures.
-  glEnable(GL_TEXTURE_2D); VERIFY_NO_ERROR;
+  glEnable(GL_TEXTURE_2D);
+  VERIFY_NO_ERROR;
 
   DCHECK_NE(texture_id_, 0U);
-  glBindTexture(GL_TEXTURE_2D, texture_id_); VERIFY_NO_ERROR;
+  glBindTexture(GL_TEXTURE_2D, texture_id_);
+  VERIFY_NO_ERROR;
 
   if (type == PET_VIEW) {
     int old_width = view_width_;
@@ -271,17 +310,20 @@ void OsrRenderer::OnPaint(CefRefPtr<CefBrowser> browser,
     if (settings_.show_update_rect)
       update_rect_ = dirtyRects[0];
 
-    glPixelStorei(GL_UNPACK_ROW_LENGTH, view_width_); VERIFY_NO_ERROR;
+    glPixelStorei(GL_UNPACK_ROW_LENGTH, view_width_);
+    VERIFY_NO_ERROR;
 
     if (old_width != view_width_ || old_height != view_height_ ||
         (dirtyRects.size() == 1 &&
          dirtyRects[0] == CefRect(0, 0, view_width_, view_height_))) {
       // Update/resize the whole texture.
-      glPixelStorei(GL_UNPACK_SKIP_PIXELS, 0); VERIFY_NO_ERROR;
-      glPixelStorei(GL_UNPACK_SKIP_ROWS, 0); VERIFY_NO_ERROR;
-      glTexImage2D(
-          GL_TEXTURE_2D, 0, GL_RGBA, view_width_, view_height_, 0,
-          GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV, buffer); VERIFY_NO_ERROR;
+      glPixelStorei(GL_UNPACK_SKIP_PIXELS, 0);
+      VERIFY_NO_ERROR;
+      glPixelStorei(GL_UNPACK_SKIP_ROWS, 0);
+      VERIFY_NO_ERROR;
+      glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, view_width_, view_height_, 0,
+                   GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV, buffer);
+      VERIFY_NO_ERROR;
     } else {
       // Update just the dirty rectangles.
       CefRenderHandler::RectList::const_iterator i = dirtyRects.begin();
@@ -289,11 +331,14 @@ void OsrRenderer::OnPaint(CefRefPtr<CefBrowser> browser,
         const CefRect& rect = *i;
         DCHECK(rect.x + rect.width <= view_width_);
         DCHECK(rect.y + rect.height <= view_height_);
-        glPixelStorei(GL_UNPACK_SKIP_PIXELS, rect.x); VERIFY_NO_ERROR;
-        glPixelStorei(GL_UNPACK_SKIP_ROWS, rect.y); VERIFY_NO_ERROR;
+        glPixelStorei(GL_UNPACK_SKIP_PIXELS, rect.x);
+        VERIFY_NO_ERROR;
+        glPixelStorei(GL_UNPACK_SKIP_ROWS, rect.y);
+        VERIFY_NO_ERROR;
         glTexSubImage2D(GL_TEXTURE_2D, 0, rect.x, rect.y, rect.width,
                         rect.height, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV,
-                        buffer); VERIFY_NO_ERROR;
+                        buffer);
+        VERIFY_NO_ERROR;
       }
     }
   } else if (type == PET_POPUP && popup_rect_.width > 0 &&
@@ -318,19 +363,25 @@ void OsrRenderer::OnPaint(CefRefPtr<CefBrowser> browser,
       h -= y + h - view_height_;
 
     // Update the popup rectangle.
-    glPixelStorei(GL_UNPACK_ROW_LENGTH, width); VERIFY_NO_ERROR;
-    glPixelStorei(GL_UNPACK_SKIP_PIXELS, skip_pixels); VERIFY_NO_ERROR;
-    glPixelStorei(GL_UNPACK_SKIP_ROWS, skip_rows); VERIFY_NO_ERROR;
+    glPixelStorei(GL_UNPACK_ROW_LENGTH, width);
+    VERIFY_NO_ERROR;
+    glPixelStorei(GL_UNPACK_SKIP_PIXELS, skip_pixels);
+    VERIFY_NO_ERROR;
+    glPixelStorei(GL_UNPACK_SKIP_ROWS, skip_rows);
+    VERIFY_NO_ERROR;
     glTexSubImage2D(GL_TEXTURE_2D, 0, x, y, w, h, GL_BGRA,
-                    GL_UNSIGNED_INT_8_8_8_8_REV, buffer); VERIFY_NO_ERROR;
+                    GL_UNSIGNED_INT_8_8_8_8_REV, buffer);
+    VERIFY_NO_ERROR;
   }
 
   // Disable 2D textures.
-  glDisable(GL_TEXTURE_2D); VERIFY_NO_ERROR;
+  glDisable(GL_TEXTURE_2D);
+  VERIFY_NO_ERROR;
 
   if (IsTransparent()) {
     // Disable alpha blending.
-    glDisable(GL_BLEND); VERIFY_NO_ERROR;
+    glDisable(GL_BLEND);
+    VERIFY_NO_ERROR;
   }
 }
 

@@ -37,7 +37,8 @@ void DeliverWidevineCdmError(const std::string& error_message,
                              CefRefPtr<CefRegisterCdmCallback> callback) {
   LOG(ERROR) << error_message;
   if (callback.get()) {
-    CEF_POST_TASK(CEF_UIT,
+    CEF_POST_TASK(
+        CEF_UIT,
         base::Bind(&CefRegisterCdmCallback::OnCdmRegistrationComplete,
                    callback.get(), CEF_CDM_REGISTRATION_ERROR_NOT_SUPPORTED,
                    error_message));
@@ -48,13 +49,11 @@ void DeliverWidevineCdmError(const std::string& error_message,
 
 }  // namespace
 
-
 // CefWebPluginInfoImpl
 
 CefWebPluginInfoImpl::CefWebPluginInfoImpl(
     const content::WebPluginInfo& plugin_info)
-    : plugin_info_(plugin_info) {
-}
+    : plugin_info_(plugin_info) {}
 
 CefString CefWebPluginInfoImpl::GetName() {
   return plugin_info_.name;
@@ -71,7 +70,6 @@ CefString CefWebPluginInfoImpl::GetVersion() {
 CefString CefWebPluginInfoImpl::GetDescription() {
   return plugin_info_.desc;
 }
-
 
 // Global functions.
 
@@ -145,9 +143,8 @@ void CefRegisterWebPluginCrash(const CefString& path) {
   }
 }
 
-void CefIsWebPluginUnstable(
-    const CefString& path,
-    CefRefPtr<CefWebPluginUnstableCallback> callback) {
+void CefIsWebPluginUnstable(const CefString& path,
+                            CefRefPtr<CefWebPluginUnstableCallback> callback) {
   // Verify that the context is in a valid state.
   if (!CONTEXT_STATE_VALID()) {
     NOTREACHED() << "context not valid";
@@ -160,9 +157,9 @@ void CefIsWebPluginUnstable(
   }
 
   if (CEF_CURRENTLY_ON_IOT()) {
-    callback->IsUnstable(path,
-        content::PluginServiceImpl::GetInstance()->IsPluginUnstable(
-            base::FilePath(path)));
+    callback->IsUnstable(
+        path, content::PluginServiceImpl::GetInstance()->IsPluginUnstable(
+                  base::FilePath(path)));
   } else {
     // Execute on the IO thread.
     CEF_POST_TASK(CEF_IOT, base::Bind(CefIsWebPluginUnstable, path, callback));

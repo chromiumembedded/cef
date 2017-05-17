@@ -59,8 +59,9 @@ void CefMenuButtonImpl::TriggerMenu() {
 
 void CefMenuButtonImpl::SetFocusable(bool focusable) {
   CEF_REQUIRE_VALID_RETURN_VOID();
-  static_cast<CefMenuButtonView*>(root_view())->SetDrawStringsFlags(
-      focusable ? gfx::Canvas::SHOW_PREFIX : gfx::Canvas::HIDE_PREFIX);
+  static_cast<CefMenuButtonView*>(root_view())
+      ->SetDrawStringsFlags(focusable ? gfx::Canvas::SHOW_PREFIX
+                                      : gfx::Canvas::HIDE_PREFIX);
   ParentClass::SetFocusable(focusable);
 }
 

@@ -51,104 +51,104 @@ class CefDownloadItem : public virtual CefBaseRefCounted {
   // function returns false.
   ///
   /*--cef()--*/
-  virtual bool IsValid() =0;
+  virtual bool IsValid() = 0;
 
   ///
   // Returns true if the download is in progress.
   ///
   /*--cef()--*/
-  virtual bool IsInProgress() =0;
+  virtual bool IsInProgress() = 0;
 
   ///
   // Returns true if the download is complete.
   ///
   /*--cef()--*/
-  virtual bool IsComplete() =0;
+  virtual bool IsComplete() = 0;
 
   ///
   // Returns true if the download has been canceled or interrupted.
   ///
   /*--cef()--*/
-  virtual bool IsCanceled() =0;
+  virtual bool IsCanceled() = 0;
 
   ///
   // Returns a simple speed estimate in bytes/s.
   ///
   /*--cef()--*/
-  virtual int64 GetCurrentSpeed() =0;
+  virtual int64 GetCurrentSpeed() = 0;
 
   ///
   // Returns the rough percent complete or -1 if the receive total size is
   // unknown.
   ///
   /*--cef()--*/
-  virtual int GetPercentComplete() =0;
+  virtual int GetPercentComplete() = 0;
 
   ///
   // Returns the total number of bytes.
   ///
   /*--cef()--*/
-  virtual int64 GetTotalBytes() =0;
+  virtual int64 GetTotalBytes() = 0;
 
   ///
   // Returns the number of received bytes.
   ///
   /*--cef()--*/
-  virtual int64 GetReceivedBytes() =0;
+  virtual int64 GetReceivedBytes() = 0;
 
   ///
   // Returns the time that the download started.
   ///
   /*--cef()--*/
-  virtual CefTime GetStartTime() =0;
+  virtual CefTime GetStartTime() = 0;
 
   ///
   // Returns the time that the download ended.
   ///
   /*--cef()--*/
-  virtual CefTime GetEndTime() =0;
+  virtual CefTime GetEndTime() = 0;
 
   ///
   // Returns the full path to the downloaded or downloading file.
   ///
   /*--cef()--*/
-  virtual CefString GetFullPath() =0;
+  virtual CefString GetFullPath() = 0;
 
   ///
   // Returns the unique identifier for this download.
   ///
   /*--cef()--*/
-  virtual uint32 GetId() =0;
+  virtual uint32 GetId() = 0;
 
   ///
   // Returns the URL.
   ///
   /*--cef()--*/
-  virtual CefString GetURL() =0;
+  virtual CefString GetURL() = 0;
 
   ///
   // Returns the original URL before any redirections.
   ///
   /*--cef()--*/
-  virtual CefString GetOriginalUrl() =0;
+  virtual CefString GetOriginalUrl() = 0;
 
   ///
   // Returns the suggested file name.
   ///
   /*--cef()--*/
-  virtual CefString GetSuggestedFileName() =0;
+  virtual CefString GetSuggestedFileName() = 0;
 
   ///
   // Returns the content disposition.
   ///
   /*--cef()--*/
-  virtual CefString GetContentDisposition() =0;
+  virtual CefString GetContentDisposition() = 0;
 
   ///
   // Returns the mime type.
   ///
   /*--cef()--*/
-  virtual CefString GetMimeType() =0;
+  virtual CefString GetMimeType() = 0;
 };
 
 #endif  // CEF_INCLUDE_CEF_DOWNLOAD_ITEM_H_

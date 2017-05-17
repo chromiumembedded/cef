@@ -7,7 +7,9 @@
 #pragma once
 
 #include <map>
+
 #include "include/cef_base.h"
+
 #include "base/threading/non_thread_safe.h"
 
 struct Cef_Response_Params;
@@ -18,13 +20,13 @@ class CefResponseManager : base::NonThreadSafe {
   // Used for handling response messages.
   class Handler : public virtual CefBaseRefCounted {
    public:
-     virtual void OnResponse(const Cef_Response_Params& params) =0;
+    virtual void OnResponse(const Cef_Response_Params& params) = 0;
   };
 
   // Used for handling response ack messages.
   class AckHandler : public virtual CefBaseRefCounted {
    public:
-     virtual void OnResponseAck() =0;
+    virtual void OnResponseAck() = 0;
   };
 
   CefResponseManager();
@@ -51,11 +53,11 @@ class CefResponseManager : base::NonThreadSafe {
   int next_request_id_;
 
   // Map of unique request ids to Handler references.
-  typedef std::map<int, CefRefPtr<Handler> > HandlerMap;
+  typedef std::map<int, CefRefPtr<Handler>> HandlerMap;
   HandlerMap handlers_;
 
   // Map of unique request ids to AckHandler references.
-  typedef std::map<int, CefRefPtr<AckHandler> > AckHandlerMap;
+  typedef std::map<int, CefRefPtr<AckHandler>> AckHandlerMap;
   AckHandlerMap ack_handlers_;
 };
 

@@ -9,14 +9,16 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=3f82b194276294c2480a3e266d0610c09b767f21$
+//
 
 #include "libcef_dll/ctocpp/register_cdm_callback_ctocpp.h"
-
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
 void CefRegisterCdmCallbackCToCpp::OnCdmRegistrationComplete(
-    cef_cdm_registration_error_t result, const CefString& error_message) {
+    cef_cdm_registration_error_t result,
+    const CefString& error_message) {
   cef_register_cdm_callback_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_cdm_registration_complete))
     return;
@@ -26,29 +28,34 @@ void CefRegisterCdmCallbackCToCpp::OnCdmRegistrationComplete(
   // Unverified params: error_message
 
   // Execute
-  _struct->on_cdm_registration_complete(_struct,
-      result,
-      error_message.GetStruct());
+  _struct->on_cdm_registration_complete(_struct, result,
+                                        error_message.GetStruct());
 }
-
 
 // CONSTRUCTOR - Do not edit by hand.
 
-CefRegisterCdmCallbackCToCpp::CefRegisterCdmCallbackCToCpp() {
-}
+CefRegisterCdmCallbackCToCpp::CefRegisterCdmCallbackCToCpp() {}
 
-template<> cef_register_cdm_callback_t* CefCToCppRefCounted<CefRegisterCdmCallbackCToCpp,
-    CefRegisterCdmCallback, cef_register_cdm_callback_t>::UnwrapDerived(
-    CefWrapperType type, CefRegisterCdmCallback* c) {
+template <>
+cef_register_cdm_callback_t* CefCToCppRefCounted<
+    CefRegisterCdmCallbackCToCpp,
+    CefRegisterCdmCallback,
+    cef_register_cdm_callback_t>::UnwrapDerived(CefWrapperType type,
+                                                CefRegisterCdmCallback* c) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCppRefCounted<CefRegisterCdmCallbackCToCpp,
-    CefRegisterCdmCallback, cef_register_cdm_callback_t>::DebugObjCt = 0;
+template <>
+base::AtomicRefCount
+    CefCToCppRefCounted<CefRegisterCdmCallbackCToCpp,
+                        CefRegisterCdmCallback,
+                        cef_register_cdm_callback_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCppRefCounted<CefRegisterCdmCallbackCToCpp,
-    CefRegisterCdmCallback, cef_register_cdm_callback_t>::kWrapperType =
+template <>
+CefWrapperType CefCToCppRefCounted<CefRegisterCdmCallbackCToCpp,
+                                   CefRegisterCdmCallback,
+                                   cef_register_cdm_callback_t>::kWrapperType =
     WT_REGISTER_CDM_CALLBACK;

@@ -21,9 +21,7 @@ class MessagePumpExternal : public base::MessagePump {
  public:
   MessagePumpExternal(float max_time_slice,
                       CefRefPtr<CefBrowserProcessHandler> handler)
-      : max_time_slice_(max_time_slice),
-        handler_(handler) {
-  }
+      : max_time_slice_(max_time_slice), handler_(handler) {}
 
   void Run(Delegate* delegate) override {
     base::TimeTicks start = base::TimeTicks::Now();
@@ -42,12 +40,9 @@ class MessagePumpExternal : public base::MessagePump {
     }
   }
 
-  void Quit() override {
-  }
+  void Quit() override {}
 
-  void ScheduleWork() override {
-    handler_->OnScheduleMessagePumpWork(0);
-  }
+  void ScheduleWork() override { handler_->OnScheduleMessagePumpWork(0); }
 
   void ScheduleDelayedWork(const base::TimeTicks& delayed_work_time) override {
     const base::TimeDelta& delta = delayed_work_time - base::TimeTicks::Now();
@@ -68,7 +63,7 @@ class MessagePumpExternal : public base::MessagePump {
     // We are using an external timer, so we don't have any action based on the
     // returned next delayed work time.
     base::TimeTicks next_time;
-    did_delayed_work =  delegate->DoDelayedWork(&next_time);
+    did_delayed_work = delegate->DoDelayedWork(&next_time);
 
     if (!did_work && !did_delayed_work) {
       did_idle_work = delegate->DoIdleWork();
@@ -103,12 +98,11 @@ std::unique_ptr<base::MessagePump> CreatePump() {
 }  // namespace
 
 CefBrowserMessageLoop::CefBrowserMessageLoop()
-  : base::MessageLoopForUI(CreatePump()) {
+    : base::MessageLoopForUI(CreatePump()) {
   BindToCurrentThread();
 }
 
-CefBrowserMessageLoop::~CefBrowserMessageLoop() {
-}
+CefBrowserMessageLoop::~CefBrowserMessageLoop() {}
 
 // static
 CefBrowserMessageLoop* CefBrowserMessageLoop::current() {

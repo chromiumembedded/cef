@@ -21,11 +21,13 @@ NSWindow* GetWindow(CefRefPtr<CefBrowser> browser) {
 
 }  // namespace
 
-WindowTestRunnerMac::WindowTestRunnerMac() {
-}
+WindowTestRunnerMac::WindowTestRunnerMac() {}
 
 void WindowTestRunnerMac::SetPos(CefRefPtr<CefBrowser> browser,
-                                 int x, int y, int width, int height) {
+                                 int x,
+                                 int y,
+                                 int width,
+                                 int height) {
   CEF_REQUIRE_UI_THREAD();
   REQUIRE_MAIN_THREAD();
 
@@ -48,8 +50,7 @@ void WindowTestRunnerMac::SetPos(CefRefPtr<CefBrowser> browser,
   CefRect display_rect(
       visibleFrame.origin.x,
       frame.size.height - visibleFrame.size.height - visibleFrame.origin.y,
-      visibleFrame.size.width,
-      visibleFrame.size.height);
+      visibleFrame.size.width, visibleFrame.size.height);
   CefRect window_rect(x, y, width, height);
   ModifyBounds(display_rect, window_rect);
 

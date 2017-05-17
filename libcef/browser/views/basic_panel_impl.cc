@@ -22,8 +22,7 @@ CefRefPtr<CefBasicPanelImpl> CefBasicPanelImpl::Create(
 }
 
 CefBasicPanelImpl::CefBasicPanelImpl(CefRefPtr<CefPanelDelegate> delegate)
-    : ParentClass(delegate) {
-}
+    : ParentClass(delegate) {}
 
 views::View* CefBasicPanelImpl::CreateRootView() {
   return new CefBasicPanelView(delegate());

@@ -61,15 +61,14 @@ class MainMessageLoop {
 };
 
 #define CURRENTLY_ON_MAIN_THREAD() \
-    client::MainMessageLoop::Get()->RunsTasksOnCurrentThread()
+  client::MainMessageLoop::Get()->RunsTasksOnCurrentThread()
 
 #define REQUIRE_MAIN_THREAD() DCHECK(CURRENTLY_ON_MAIN_THREAD())
 
-#define MAIN_POST_TASK(task) \
-    client::MainMessageLoop::Get()->PostTask(task)
+#define MAIN_POST_TASK(task) client::MainMessageLoop::Get()->PostTask(task)
 
 #define MAIN_POST_CLOSURE(closure) \
-    client::MainMessageLoop::Get()->PostClosure(closure)
+  client::MainMessageLoop::Get()->PostClosure(closure)
 
 // Use this struct in conjuction with RefCountedThreadSafe to ensure that an
 // object is deleted on the main thread. For example:
@@ -92,7 +91,7 @@ class MainMessageLoop {
 // foo = NULL;  // Deletion of |foo| will occur on the main thread.
 //
 struct DeleteOnMainThread {
-  template<typename T>
+  template <typename T>
   static void Destruct(const T* x) {
     if (CURRENTLY_ON_MAIN_THREAD()) {
       delete x;

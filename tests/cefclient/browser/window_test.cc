@@ -58,9 +58,7 @@ scoped_ptr<WindowTestRunner> CreateWindowTestRunner() {
 // Handle messages in the browser process.
 class Handler : public CefMessageRouterBrowserSide::Handler {
  public:
-  Handler()
-      : runner_(CreateWindowTestRunner()) {
-  }
+  Handler() : runner_(CreateWindowTestRunner()) {}
 
   // Called due to cefBroadcast execution in window.html.
   virtual bool OnQuery(CefRefPtr<CefBrowser> browser,

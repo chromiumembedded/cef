@@ -15,8 +15,7 @@ namespace {
 class CefXmlObjectLoader {
  public:
   explicit CefXmlObjectLoader(CefRefPtr<CefXmlObject> root_object)
-    : root_object_(root_object) {
-  }
+      : root_object_(root_object) {}
 
   bool Load(CefRefPtr<CefStreamReader> stream,
             CefXmlReader::EncodingType encodingType,
@@ -59,8 +58,8 @@ class CefXmlObjectLoader {
             } else {
               // Value following a child element is not allowed.
               std::stringstream ss;
-              ss << "Value following child element, line " <<
-                  reader->GetLineNumber();
+              ss << "Value following child element, line "
+                 << reader->GetLineNumber();
               load_error_ = ss.str();
               ret = false;
               break;
@@ -82,7 +81,7 @@ class CefXmlObjectLoader {
               // Read all object attributes.
               do {
                 new_object->SetAttributeValue(reader->GetQualifiedName(),
-                    reader->GetValue());
+                                              reader->GetValue());
               } while (reader->MoveToNextAttribute());
               reader->MoveToCarryingElement();
             }
@@ -107,9 +106,9 @@ class CefXmlObjectLoader {
             // never occur (the parser catches this error).
             NOTREACHED();
             std::stringstream ss;
-            ss << "Mismatched end tag for " <<
-                std::string(cur_object->GetName()) <<
-                ", line " << reader->GetLineNumber();
+            ss << "Mismatched end tag for "
+               << std::string(cur_object->GetName()) << ", line "
+               << reader->GetLineNumber();
             load_error_ = ss.str();
             ret = false;
             break;
@@ -129,8 +128,8 @@ class CefXmlObjectLoader {
           } else {
             // Value following a child element is not allowed.
             std::stringstream ss;
-            ss << "Value following child element, line " <<
-                reader->GetLineNumber();
+            ss << "Value following child element, line "
+               << reader->GetLineNumber();
             load_error_ = ss.str();
             ret = false;
             break;
@@ -159,15 +158,14 @@ class CefXmlObjectLoader {
 }  // namespace
 
 CefXmlObject::CefXmlObject(const CefString& name)
-  : name_(name), parent_(NULL) {
-}
+    : name_(name), parent_(NULL) {}
 
-CefXmlObject::~CefXmlObject() {
-}
+CefXmlObject::~CefXmlObject() {}
 
 bool CefXmlObject::Load(CefRefPtr<CefStreamReader> stream,
                         CefXmlReader::EncodingType encodingType,
-                        const CefString& URI, CefString* loadError) {
+                        const CefString& URI,
+                        CefString* loadError) {
   Clear();
 
   CefXmlObjectLoader loader(this);

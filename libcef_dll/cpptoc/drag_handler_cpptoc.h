@@ -9,6 +9,8 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=3c820669b7702114ed93006a231a0f01422ed629$
+//
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_DRAG_HANDLER_CPPTOC_H_
 #define CEF_LIBCEF_DLL_CPPTOC_DRAG_HANDLER_CPPTOC_H_
@@ -18,15 +20,15 @@
 #error This file can be included wrapper-side only
 #endif
 
-#include "include/cef_drag_handler.h"
 #include "include/capi/cef_drag_handler_capi.h"
+#include "include/cef_drag_handler.h"
 #include "libcef_dll/cpptoc/cpptoc_ref_counted.h"
 
 // Wrap a C++ class with a C structure.
 // This class may be instantiated and accessed wrapper-side only.
-class CefDragHandlerCppToC
-    : public CefCppToCRefCounted<CefDragHandlerCppToC, CefDragHandler,
-        cef_drag_handler_t> {
+class CefDragHandlerCppToC : public CefCppToCRefCounted<CefDragHandlerCppToC,
+                                                        CefDragHandler,
+                                                        cef_drag_handler_t> {
  public:
   CefDragHandlerCppToC();
 };

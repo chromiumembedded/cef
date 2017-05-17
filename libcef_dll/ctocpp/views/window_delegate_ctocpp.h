@@ -9,6 +9,8 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=d6154885643d45eb81ecbd3a017776983a841651$
+//
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_VIEWS_WINDOW_DELEGATE_CTOCPP_H_
 #define CEF_LIBCEF_DLL_CTOCPP_VIEWS_WINDOW_DELEGATE_CTOCPP_H_
@@ -18,17 +20,18 @@
 #error This file can be included DLL-side only
 #endif
 
-#include "include/views/cef_window_delegate.h"
+#include "include/capi/views/cef_window_capi.h"
 #include "include/capi/views/cef_window_delegate_capi.h"
 #include "include/views/cef_window.h"
-#include "include/capi/views/cef_window_capi.h"
+#include "include/views/cef_window_delegate.h"
 #include "libcef_dll/ctocpp/ctocpp_ref_counted.h"
 
 // Wrap a C structure with a C++ class.
 // This class may be instantiated and accessed DLL-side only.
 class CefWindowDelegateCToCpp
-    : public CefCToCppRefCounted<CefWindowDelegateCToCpp, CefWindowDelegate,
-        cef_window_delegate_t> {
+    : public CefCToCppRefCounted<CefWindowDelegateCToCpp,
+                                 CefWindowDelegate,
+                                 cef_window_delegate_t> {
  public:
   CefWindowDelegateCToCpp();
 
@@ -42,7 +45,7 @@ class CefWindowDelegateCToCpp
   bool CanClose(CefRefPtr<CefWindow> window) override;
   bool OnAccelerator(CefRefPtr<CefWindow> window, int command_id) override;
   bool OnKeyEvent(CefRefPtr<CefWindow> window,
-      const CefKeyEvent& event) override;
+                  const CefKeyEvent& event) override;
 
   // CefPanelDelegate methods.
 
@@ -51,10 +54,12 @@ class CefWindowDelegateCToCpp
   CefSize GetMinimumSize(CefRefPtr<CefView> view) override;
   CefSize GetMaximumSize(CefRefPtr<CefView> view) override;
   int GetHeightForWidth(CefRefPtr<CefView> view, int width) override;
-  void OnParentViewChanged(CefRefPtr<CefView> view, bool added,
-      CefRefPtr<CefView> parent) override;
-  void OnChildViewChanged(CefRefPtr<CefView> view, bool added,
-      CefRefPtr<CefView> child) override;
+  void OnParentViewChanged(CefRefPtr<CefView> view,
+                           bool added,
+                           CefRefPtr<CefView> parent) override;
+  void OnChildViewChanged(CefRefPtr<CefView> view,
+                          bool added,
+                          CefRefPtr<CefView> child) override;
   void OnFocus(CefRefPtr<CefView> view) override;
   void OnBlur(CefRefPtr<CefView> view) override;
 };

@@ -9,10 +9,11 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=8c78d1549f74bf28ef06fdfa0d4b0d897788f927$
+//
 
 #include "libcef_dll/cpptoc/response_cpptoc.h"
 #include "libcef_dll/transfer_util.h"
-
 
 // GLOBAL FUNCTIONS - Body may be edited by hand.
 
@@ -25,7 +26,6 @@ CEF_EXPORT cef_response_t* cef_response_create() {
   // Return type: refptr_same
   return CefResponseCppToC::Wrap(_retval);
 }
-
 
 namespace {
 
@@ -60,7 +60,7 @@ cef_errorcode_t CEF_CALLBACK response_get_error(struct _cef_response_t* self) {
 }
 
 void CEF_CALLBACK response_set_error(struct _cef_response_t* self,
-    cef_errorcode_t error) {
+                                     cef_errorcode_t error) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -68,8 +68,7 @@ void CEF_CALLBACK response_set_error(struct _cef_response_t* self,
     return;
 
   // Execute
-  CefResponseCppToC::Get(self)->SetError(
-      error);
+  CefResponseCppToC::Get(self)->SetError(error);
 }
 
 int CEF_CALLBACK response_get_status(struct _cef_response_t* self) {
@@ -87,7 +86,7 @@ int CEF_CALLBACK response_get_status(struct _cef_response_t* self) {
 }
 
 void CEF_CALLBACK response_set_status(struct _cef_response_t* self,
-    int status) {
+                                      int status) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -95,12 +94,11 @@ void CEF_CALLBACK response_set_status(struct _cef_response_t* self,
     return;
 
   // Execute
-  CefResponseCppToC::Get(self)->SetStatus(
-      status);
+  CefResponseCppToC::Get(self)->SetStatus(status);
 }
 
-cef_string_userfree_t CEF_CALLBACK response_get_status_text(
-    struct _cef_response_t* self) {
+cef_string_userfree_t CEF_CALLBACK
+response_get_status_text(struct _cef_response_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -115,7 +113,7 @@ cef_string_userfree_t CEF_CALLBACK response_get_status_text(
 }
 
 void CEF_CALLBACK response_set_status_text(struct _cef_response_t* self,
-    const cef_string_t* statusText) {
+                                           const cef_string_t* statusText) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -127,12 +125,11 @@ void CEF_CALLBACK response_set_status_text(struct _cef_response_t* self,
     return;
 
   // Execute
-  CefResponseCppToC::Get(self)->SetStatusText(
-      CefString(statusText));
+  CefResponseCppToC::Get(self)->SetStatusText(CefString(statusText));
 }
 
-cef_string_userfree_t CEF_CALLBACK response_get_mime_type(
-    struct _cef_response_t* self) {
+cef_string_userfree_t CEF_CALLBACK
+response_get_mime_type(struct _cef_response_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -147,7 +144,7 @@ cef_string_userfree_t CEF_CALLBACK response_get_mime_type(
 }
 
 void CEF_CALLBACK response_set_mime_type(struct _cef_response_t* self,
-    const cef_string_t* mimeType) {
+                                         const cef_string_t* mimeType) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -159,12 +156,11 @@ void CEF_CALLBACK response_set_mime_type(struct _cef_response_t* self,
     return;
 
   // Execute
-  CefResponseCppToC::Get(self)->SetMimeType(
-      CefString(mimeType));
+  CefResponseCppToC::Get(self)->SetMimeType(CefString(mimeType));
 }
 
-cef_string_userfree_t CEF_CALLBACK response_get_header(
-    struct _cef_response_t* self, const cef_string_t* name) {
+cef_string_userfree_t CEF_CALLBACK
+response_get_header(struct _cef_response_t* self, const cef_string_t* name) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -176,15 +172,14 @@ cef_string_userfree_t CEF_CALLBACK response_get_header(
     return NULL;
 
   // Execute
-  CefString _retval = CefResponseCppToC::Get(self)->GetHeader(
-      CefString(name));
+  CefString _retval = CefResponseCppToC::Get(self)->GetHeader(CefString(name));
 
   // Return type: string
   return _retval.DetachToUserFree();
 }
 
 void CEF_CALLBACK response_get_header_map(struct _cef_response_t* self,
-    cef_string_multimap_t headerMap) {
+                                          cef_string_multimap_t headerMap) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -200,8 +195,7 @@ void CEF_CALLBACK response_get_header_map(struct _cef_response_t* self,
   transfer_string_multimap_contents(headerMap, headerMapMultimap);
 
   // Execute
-  CefResponseCppToC::Get(self)->GetHeaderMap(
-      headerMapMultimap);
+  CefResponseCppToC::Get(self)->GetHeaderMap(headerMapMultimap);
 
   // Restore param: headerMap; type: string_map_multi_byref
   cef_string_multimap_clear(headerMap);
@@ -209,7 +203,7 @@ void CEF_CALLBACK response_get_header_map(struct _cef_response_t* self,
 }
 
 void CEF_CALLBACK response_set_header_map(struct _cef_response_t* self,
-    cef_string_multimap_t headerMap) {
+                                          cef_string_multimap_t headerMap) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -225,12 +219,10 @@ void CEF_CALLBACK response_set_header_map(struct _cef_response_t* self,
   transfer_string_multimap_contents(headerMap, headerMapMultimap);
 
   // Execute
-  CefResponseCppToC::Get(self)->SetHeaderMap(
-      headerMapMultimap);
+  CefResponseCppToC::Get(self)->SetHeaderMap(headerMapMultimap);
 }
 
 }  // namespace
-
 
 // CONSTRUCTOR - Do not edit by hand.
 
@@ -249,17 +241,22 @@ CefResponseCppToC::CefResponseCppToC() {
   GetStruct()->set_header_map = response_set_header_map;
 }
 
-template<> CefRefPtr<CefResponse> CefCppToCRefCounted<CefResponseCppToC,
-    CefResponse, cef_response_t>::UnwrapDerived(CefWrapperType type,
-    cef_response_t* s) {
+template <>
+CefRefPtr<CefResponse>
+CefCppToCRefCounted<CefResponseCppToC, CefResponse, cef_response_t>::
+    UnwrapDerived(CefWrapperType type, cef_response_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCppToCRefCounted<CefResponseCppToC,
-    CefResponse, cef_response_t>::DebugObjCt = 0;
+template <>
+base::AtomicRefCount CefCppToCRefCounted<CefResponseCppToC,
+                                         CefResponse,
+                                         cef_response_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCppToCRefCounted<CefResponseCppToC, CefResponse,
-    cef_response_t>::kWrapperType = WT_RESPONSE;
+template <>
+CefWrapperType CefCppToCRefCounted<CefResponseCppToC,
+                                   CefResponse,
+                                   cef_response_t>::kWrapperType = WT_RESPONSE;

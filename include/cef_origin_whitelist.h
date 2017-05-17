@@ -40,7 +40,6 @@
 
 #include "include/cef_base.h"
 
-
 ///
 // Add an entry to the cross-origin access whitelist.
 //

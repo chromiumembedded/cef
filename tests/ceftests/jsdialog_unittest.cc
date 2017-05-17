@@ -31,27 +31,33 @@ class JSDialogTestHandler : public TestHandler {
                       bool success,
                       const std::string& user_input,
                       const std::string& result)
-    : type_(type),
-      mode_(mode),
-      success_(success),
-      user_input_(user_input),
-      result_(result) {
-  }
+      : type_(type),
+        mode_(mode),
+        success_(success),
+        user_input_(user_input),
+        result_(result) {}
 
   void RunTest() override {
     std::string content = "<html><head><body>START<script>";
     if (type_ == TYPE_ALERT) {
-      content += "alert('My alert message'); "
-                 "document.location='"+std::string(kEndUrl)+"';";
+      content +=
+          "alert('My alert message'); "
+          "document.location='" +
+          std::string(kEndUrl) + "';";
     } else if (type_ == TYPE_CONFIRM) {
-      content += "var r = confirm('My confirm message')?'ok':'cancel'; "
-                 "document.location='"+std::string(kEndUrl)+"'+r;";
+      content +=
+          "var r = confirm('My confirm message')?'ok':'cancel'; "
+          "document.location='" +
+          std::string(kEndUrl) + "'+r;";
     } else if (type_ == TYPE_PROMPT) {
-      content += "var r = prompt('My prompt message','my default'); "
-                 "document.location='"+std::string(kEndUrl)+"'+r;";
+      content +=
+          "var r = prompt('My prompt message','my default'); "
+          "document.location='" +
+          std::string(kEndUrl) + "'+r;";
     } else if (type_ == TYPE_ONBEFOREUNLOAD) {
-      content += "window.onbeforeunload=function() {"
-                  " return 'My unload message'; };";
+      content +=
+          "window.onbeforeunload=function() {"
+          " return 'My unload message'; };";
     }
     content += "</script></body></html>";
 
@@ -126,7 +132,7 @@ class JSDialogTestHandler : public TestHandler {
     } else if (mode_ == MODE_RUN_DELAYED) {
       // Continue asynchronously.
       CefPostTask(TID_UI,
-          base::Bind(&JSDialogTestHandler::Continue, this, callback));
+                  base::Bind(&JSDialogTestHandler::Continue, this, callback));
     }
 
     return true;
@@ -135,8 +141,7 @@ class JSDialogTestHandler : public TestHandler {
   bool OnBeforeUnloadDialog(CefRefPtr<CefBrowser> browser,
                             const CefString& message_text,
                             bool is_reload,
-                            CefRefPtr<CefJSDialogCallback> callback)
-                            override {
+                            CefRefPtr<CefJSDialogCallback> callback) override {
     got_onbeforeunloaddialog_.yes();
 
     if (type_ == TYPE_ONBEFOREUNLOAD) {
@@ -153,7 +158,7 @@ class JSDialogTestHandler : public TestHandler {
     } else if (mode_ == MODE_RUN_DELAYED) {
       // Continue asynchronously.
       CefPostTask(TID_UI,
-          base::Bind(&JSDialogTestHandler::Continue, this, callback));
+                  base::Bind(&JSDialogTestHandler::Continue, this, callback));
     }
 
     return true;
@@ -181,12 +186,11 @@ class JSDialogTestHandler : public TestHandler {
 
 // Alert dialog with suppression.
 TEST(JSDialogTest, AlertSuppress) {
-  CefRefPtr<JSDialogTestHandler> handler =
-      new JSDialogTestHandler(JSDialogTestHandler::TYPE_ALERT,
-                              JSDialogTestHandler::MODE_SUPPRESS,
-                              true,  // success
-                              "",  // user_input
-                              "");  // result
+  CefRefPtr<JSDialogTestHandler> handler = new JSDialogTestHandler(
+      JSDialogTestHandler::TYPE_ALERT, JSDialogTestHandler::MODE_SUPPRESS,
+      true,  // success
+      "",    // user_input
+      "");   // result
   handler->ExecuteTest();
 
   EXPECT_TRUE(handler->got_onjsdialog_);
@@ -199,12 +203,11 @@ TEST(JSDialogTest, AlertSuppress) {
 
 // Alert dialog with immediate callback.
 TEST(JSDialogTest, AlertRunImmediate) {
-  CefRefPtr<JSDialogTestHandler> handler =
-      new JSDialogTestHandler(JSDialogTestHandler::TYPE_ALERT,
-                              JSDialogTestHandler::MODE_RUN_IMMEDIATE,
-                              true,  // success
-                              "",  // user_input
-                              "");  // result
+  CefRefPtr<JSDialogTestHandler> handler = new JSDialogTestHandler(
+      JSDialogTestHandler::TYPE_ALERT, JSDialogTestHandler::MODE_RUN_IMMEDIATE,
+      true,  // success
+      "",    // user_input
+      "");   // result
   handler->ExecuteTest();
 
   EXPECT_TRUE(handler->got_onjsdialog_);
@@ -217,12 +220,11 @@ TEST(JSDialogTest, AlertRunImmediate) {
 
 // Alert dialog with delayed callback.
 TEST(JSDialogTest, AlertRunDelayed) {
-  CefRefPtr<JSDialogTestHandler> handler =
-      new JSDialogTestHandler(JSDialogTestHandler::TYPE_ALERT,
-                              JSDialogTestHandler::MODE_RUN_DELAYED,
-                              true,  // success
-                              "",  // user_input
-                              "");  // result
+  CefRefPtr<JSDialogTestHandler> handler = new JSDialogTestHandler(
+      JSDialogTestHandler::TYPE_ALERT, JSDialogTestHandler::MODE_RUN_DELAYED,
+      true,  // success
+      "",    // user_input
+      "");   // result
   handler->ExecuteTest();
 
   EXPECT_TRUE(handler->got_onjsdialog_);
@@ -235,12 +237,11 @@ TEST(JSDialogTest, AlertRunDelayed) {
 
 // Confirm dialog with suppression.
 TEST(JSDialogTest, ConfirmSuppress) {
-  CefRefPtr<JSDialogTestHandler> handler =
-      new JSDialogTestHandler(JSDialogTestHandler::TYPE_CONFIRM,
-                              JSDialogTestHandler::MODE_SUPPRESS,
-                              true,  // success
-                              "",  // user_input
-                              "cancel");  // result
+  CefRefPtr<JSDialogTestHandler> handler = new JSDialogTestHandler(
+      JSDialogTestHandler::TYPE_CONFIRM, JSDialogTestHandler::MODE_SUPPRESS,
+      true,       // success
+      "",         // user_input
+      "cancel");  // result
   handler->ExecuteTest();
 
   EXPECT_TRUE(handler->got_onjsdialog_);
@@ -256,8 +257,8 @@ TEST(JSDialogTest, ConfirmRunImmediateOk) {
   CefRefPtr<JSDialogTestHandler> handler =
       new JSDialogTestHandler(JSDialogTestHandler::TYPE_CONFIRM,
                               JSDialogTestHandler::MODE_RUN_IMMEDIATE,
-                              true,  // success
-                              "",  // user_input
+                              true,   // success
+                              "",     // user_input
                               "ok");  // result
   handler->ExecuteTest();
 
@@ -274,8 +275,8 @@ TEST(JSDialogTest, ConfirmRunImmediateCancel) {
   CefRefPtr<JSDialogTestHandler> handler =
       new JSDialogTestHandler(JSDialogTestHandler::TYPE_CONFIRM,
                               JSDialogTestHandler::MODE_RUN_IMMEDIATE,
-                              false,  // success
-                              "",  // user_input
+                              false,      // success
+                              "",         // user_input
                               "cancel");  // result
   handler->ExecuteTest();
 
@@ -289,12 +290,11 @@ TEST(JSDialogTest, ConfirmRunImmediateCancel) {
 
 // Confirm dialog run delayed return OK.
 TEST(JSDialogTest, ConfirmRunDelayedOk) {
-  CefRefPtr<JSDialogTestHandler> handler =
-      new JSDialogTestHandler(JSDialogTestHandler::TYPE_CONFIRM,
-                              JSDialogTestHandler::MODE_RUN_DELAYED,
-                              true,  // success
-                              "",  // user_input
-                              "ok");  // result
+  CefRefPtr<JSDialogTestHandler> handler = new JSDialogTestHandler(
+      JSDialogTestHandler::TYPE_CONFIRM, JSDialogTestHandler::MODE_RUN_DELAYED,
+      true,   // success
+      "",     // user_input
+      "ok");  // result
   handler->ExecuteTest();
 
   EXPECT_TRUE(handler->got_onjsdialog_);
@@ -307,12 +307,11 @@ TEST(JSDialogTest, ConfirmRunDelayedOk) {
 
 // Confirm dialog run delayed return Cancel.
 TEST(JSDialogTest, ConfirmRunDelayedCancel) {
-  CefRefPtr<JSDialogTestHandler> handler =
-      new JSDialogTestHandler(JSDialogTestHandler::TYPE_CONFIRM,
-                              JSDialogTestHandler::MODE_RUN_DELAYED,
-                              false,  // success
-                              "",  // user_input
-                              "cancel");  // result
+  CefRefPtr<JSDialogTestHandler> handler = new JSDialogTestHandler(
+      JSDialogTestHandler::TYPE_CONFIRM, JSDialogTestHandler::MODE_RUN_DELAYED,
+      false,      // success
+      "",         // user_input
+      "cancel");  // result
   handler->ExecuteTest();
 
   EXPECT_TRUE(handler->got_onjsdialog_);
@@ -325,12 +324,11 @@ TEST(JSDialogTest, ConfirmRunDelayedCancel) {
 
 // Prompt dialog with suppression.
 TEST(JSDialogTest, PromptSuppress) {
-  CefRefPtr<JSDialogTestHandler> handler =
-      new JSDialogTestHandler(JSDialogTestHandler::TYPE_PROMPT,
-                              JSDialogTestHandler::MODE_SUPPRESS,
-                              true,  // success
-                              "some_value",  // user_input
-                              "null");  // result
+  CefRefPtr<JSDialogTestHandler> handler = new JSDialogTestHandler(
+      JSDialogTestHandler::TYPE_PROMPT, JSDialogTestHandler::MODE_SUPPRESS,
+      true,          // success
+      "some_value",  // user_input
+      "null");       // result
   handler->ExecuteTest();
 
   EXPECT_TRUE(handler->got_onjsdialog_);
@@ -343,12 +341,11 @@ TEST(JSDialogTest, PromptSuppress) {
 
 // Prompt dialog run immediately return OK.
 TEST(JSDialogTest, PromptRunImmediateOk) {
-  CefRefPtr<JSDialogTestHandler> handler =
-      new JSDialogTestHandler(JSDialogTestHandler::TYPE_PROMPT,
-                              JSDialogTestHandler::MODE_RUN_IMMEDIATE,
-                              true,  // success
-                              "some_value",  // user_input
-                              "some_value");  // result
+  CefRefPtr<JSDialogTestHandler> handler = new JSDialogTestHandler(
+      JSDialogTestHandler::TYPE_PROMPT, JSDialogTestHandler::MODE_RUN_IMMEDIATE,
+      true,           // success
+      "some_value",   // user_input
+      "some_value");  // result
   handler->ExecuteTest();
 
   EXPECT_TRUE(handler->got_onjsdialog_);
@@ -361,12 +358,11 @@ TEST(JSDialogTest, PromptRunImmediateOk) {
 
 // Prompt dialog run immediately return Cancel.
 TEST(JSDialogTest, PromptRunImmediateCancel) {
-  CefRefPtr<JSDialogTestHandler> handler =
-      new JSDialogTestHandler(JSDialogTestHandler::TYPE_PROMPT,
-                              JSDialogTestHandler::MODE_RUN_IMMEDIATE,
-                              false,  // success
-                              "some_value",  // user_input
-                              "null");  // result
+  CefRefPtr<JSDialogTestHandler> handler = new JSDialogTestHandler(
+      JSDialogTestHandler::TYPE_PROMPT, JSDialogTestHandler::MODE_RUN_IMMEDIATE,
+      false,         // success
+      "some_value",  // user_input
+      "null");       // result
   handler->ExecuteTest();
 
   EXPECT_TRUE(handler->got_onjsdialog_);
@@ -379,12 +375,11 @@ TEST(JSDialogTest, PromptRunImmediateCancel) {
 
 // Prompt dialog run delayed return OK.
 TEST(JSDialogTest, PromptRunDelayedOk) {
-  CefRefPtr<JSDialogTestHandler> handler =
-      new JSDialogTestHandler(JSDialogTestHandler::TYPE_PROMPT,
-                              JSDialogTestHandler::MODE_RUN_DELAYED,
-                              true,  // success
-                              "some_value",  // user_input
-                              "some_value");  // result
+  CefRefPtr<JSDialogTestHandler> handler = new JSDialogTestHandler(
+      JSDialogTestHandler::TYPE_PROMPT, JSDialogTestHandler::MODE_RUN_DELAYED,
+      true,           // success
+      "some_value",   // user_input
+      "some_value");  // result
   handler->ExecuteTest();
 
   EXPECT_TRUE(handler->got_onjsdialog_);
@@ -397,12 +392,11 @@ TEST(JSDialogTest, PromptRunDelayedOk) {
 
 // Prompt dialog run delayed return Cancel.
 TEST(JSDialogTest, PromptRunDelayedCancel) {
-  CefRefPtr<JSDialogTestHandler> handler =
-      new JSDialogTestHandler(JSDialogTestHandler::TYPE_PROMPT,
-                              JSDialogTestHandler::MODE_RUN_DELAYED,
-                              false,  // success
-                              "some_value",  // user_input
-                              "null");  // result
+  CefRefPtr<JSDialogTestHandler> handler = new JSDialogTestHandler(
+      JSDialogTestHandler::TYPE_PROMPT, JSDialogTestHandler::MODE_RUN_DELAYED,
+      false,         // success
+      "some_value",  // user_input
+      "null");       // result
   handler->ExecuteTest();
 
   EXPECT_TRUE(handler->got_onjsdialog_);
@@ -419,8 +413,8 @@ TEST(JSDialogTest, OnBeforeUnloadRunImmediate) {
       new JSDialogTestHandler(JSDialogTestHandler::TYPE_ONBEFOREUNLOAD,
                               JSDialogTestHandler::MODE_RUN_IMMEDIATE,
                               true,  // success
-                              "",  // user_input
-                              "");  // result
+                              "",    // user_input
+                              "");   // result
   handler->ExecuteTest();
 
   EXPECT_FALSE(handler->got_onjsdialog_);
@@ -437,8 +431,8 @@ TEST(JSDialogTest, OnBeforeUnloadRunDelayed) {
       new JSDialogTestHandler(JSDialogTestHandler::TYPE_ONBEFOREUNLOAD,
                               JSDialogTestHandler::MODE_RUN_DELAYED,
                               true,  // success
-                              "",  // user_input
-                              "");  // result
+                              "",    // user_input
+                              "");   // result
   handler->ExecuteTest();
 
   EXPECT_FALSE(handler->got_onjsdialog_);

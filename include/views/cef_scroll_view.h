@@ -60,43 +60,43 @@ class CefScrollView : public CefView {
   // via CefView::SetBounds or CefViewDelegate::GetPreferredSize).
   ///
   /*--cef()--*/
-  virtual void SetContentView(CefRefPtr<CefView> view) =0;
+  virtual void SetContentView(CefRefPtr<CefView> view) = 0;
 
   ///
   // Returns the content View.
   ///
   /*--cef()--*/
-  virtual CefRefPtr<CefView> GetContentView() =0;
+  virtual CefRefPtr<CefView> GetContentView() = 0;
 
   ///
   // Returns the visible region of the content View.
   ///
   /*--cef()--*/
-  virtual CefRect GetVisibleContentRect() =0;
+  virtual CefRect GetVisibleContentRect() = 0;
 
   ///
   // Returns true if the horizontal scrollbar is currently showing.
   ///
   /*--cef()--*/
-  virtual bool HasHorizontalScrollbar() =0;
+  virtual bool HasHorizontalScrollbar() = 0;
 
   ///
   // Returns the height of the horizontal scrollbar.
   ///
   /*--cef()--*/
-  virtual int GetHorizontalScrollbarHeight() =0;
+  virtual int GetHorizontalScrollbarHeight() = 0;
 
   ///
   // Returns true if the vertical scrollbar is currently showing.
   ///
   /*--cef()--*/
-  virtual bool HasVerticalScrollbar() =0;
+  virtual bool HasVerticalScrollbar() = 0;
 
   ///
   // Returns the width of the vertical scrollbar.
   ///
   /*--cef()--*/
-  virtual int GetVerticalScrollbarWidth() =0;
+  virtual int GetVerticalScrollbarWidth() = 0;
 };
 
 #endif  // CEF_INCLUDE_VIEWS_CEF_SCROLL_VIEW_H_

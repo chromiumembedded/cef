@@ -9,9 +9,10 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=039072ac0b2371a43277b274d6701b32143cfcf2$
+//
 
 #include "libcef_dll/ctocpp/test/translator_test_scoped_client_child_ctocpp.h"
-
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
@@ -44,36 +45,44 @@ int CefTranslatorTestScopedClientChildCToCpp::GetValue() {
   return _retval;
 }
 
-
 // CONSTRUCTOR - Do not edit by hand.
 
-CefTranslatorTestScopedClientChildCToCpp::CefTranslatorTestScopedClientChildCToCpp(
-    ) {
-}
+CefTranslatorTestScopedClientChildCToCpp::
+    CefTranslatorTestScopedClientChildCToCpp() {}
 
-template<> cef_translator_test_scoped_client_child_t* CefCToCppScoped<CefTranslatorTestScopedClientChildCToCpp,
-    CefTranslatorTestScopedClientChild,
-    cef_translator_test_scoped_client_child_t>::UnwrapDerivedOwn(
-    CefWrapperType type, CefOwnPtr<CefTranslatorTestScopedClientChild> c) {
+template <>
+cef_translator_test_scoped_client_child_t*
+CefCToCppScoped<CefTranslatorTestScopedClientChildCToCpp,
+                CefTranslatorTestScopedClientChild,
+                cef_translator_test_scoped_client_child_t>::
+    UnwrapDerivedOwn(CefWrapperType type,
+                     CefOwnPtr<CefTranslatorTestScopedClientChild> c) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
-template<> cef_translator_test_scoped_client_child_t* CefCToCppScoped<CefTranslatorTestScopedClientChildCToCpp,
-    CefTranslatorTestScopedClientChild,
-    cef_translator_test_scoped_client_child_t>::UnwrapDerivedRaw(
-    CefWrapperType type, CefRawPtr<CefTranslatorTestScopedClientChild> c) {
+template <>
+cef_translator_test_scoped_client_child_t*
+CefCToCppScoped<CefTranslatorTestScopedClientChildCToCpp,
+                CefTranslatorTestScopedClientChild,
+                cef_translator_test_scoped_client_child_t>::
+    UnwrapDerivedRaw(CefWrapperType type,
+                     CefRawPtr<CefTranslatorTestScopedClientChild> c) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCppScoped<CefTranslatorTestScopedClientChildCToCpp,
-    CefTranslatorTestScopedClientChild,
-    cef_translator_test_scoped_client_child_t>::DebugObjCt = 0;
+template <>
+base::AtomicRefCount
+    CefCToCppScoped<CefTranslatorTestScopedClientChildCToCpp,
+                    CefTranslatorTestScopedClientChild,
+                    cef_translator_test_scoped_client_child_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCppScoped<CefTranslatorTestScopedClientChildCToCpp,
-    CefTranslatorTestScopedClientChild,
-    cef_translator_test_scoped_client_child_t>::kWrapperType =
-    WT_TRANSLATOR_TEST_SCOPED_CLIENT_CHILD;
+template <>
+CefWrapperType
+    CefCToCppScoped<CefTranslatorTestScopedClientChildCToCpp,
+                    CefTranslatorTestScopedClientChild,
+                    cef_translator_test_scoped_client_child_t>::kWrapperType =
+        WT_TRANSLATOR_TEST_SCOPED_CLIENT_CHILD;

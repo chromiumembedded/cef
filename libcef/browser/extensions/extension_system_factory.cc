@@ -35,8 +35,7 @@ CefExtensionSystemFactory::CefExtensionSystemFactory()
   DependsOn(ExtensionRegistryFactory::GetInstance());
 }
 
-CefExtensionSystemFactory::~CefExtensionSystemFactory() {
-}
+CefExtensionSystemFactory::~CefExtensionSystemFactory() {}
 
 KeyedService* CefExtensionSystemFactory::BuildServiceInstanceFor(
     BrowserContext* context) const {

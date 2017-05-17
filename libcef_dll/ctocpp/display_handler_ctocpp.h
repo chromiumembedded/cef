@@ -9,6 +9,8 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=309e3816e3daba60c7809230fdecb59d01e41847$
+//
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_DISPLAY_HANDLER_CTOCPP_H_
 #define CEF_LIBCEF_DLL_CTOCPP_DISPLAY_HANDLER_CTOCPP_H_
@@ -19,32 +21,36 @@
 #endif
 
 #include <vector>
-#include "include/cef_display_handler.h"
 #include "include/capi/cef_display_handler_capi.h"
+#include "include/cef_display_handler.h"
 #include "libcef_dll/ctocpp/ctocpp_ref_counted.h"
 
 // Wrap a C structure with a C++ class.
 // This class may be instantiated and accessed DLL-side only.
 class CefDisplayHandlerCToCpp
-    : public CefCToCppRefCounted<CefDisplayHandlerCToCpp, CefDisplayHandler,
-        cef_display_handler_t> {
+    : public CefCToCppRefCounted<CefDisplayHandlerCToCpp,
+                                 CefDisplayHandler,
+                                 cef_display_handler_t> {
  public:
   CefDisplayHandlerCToCpp();
 
   // CefDisplayHandler methods.
-  void OnAddressChange(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame,
-      const CefString& url) override;
+  void OnAddressChange(CefRefPtr<CefBrowser> browser,
+                       CefRefPtr<CefFrame> frame,
+                       const CefString& url) override;
   void OnTitleChange(CefRefPtr<CefBrowser> browser,
-      const CefString& title) override;
+                     const CefString& title) override;
   void OnFaviconURLChange(CefRefPtr<CefBrowser> browser,
-      const std::vector<CefString>& icon_urls) override;
+                          const std::vector<CefString>& icon_urls) override;
   void OnFullscreenModeChange(CefRefPtr<CefBrowser> browser,
-      bool fullscreen) override;
+                              bool fullscreen) override;
   bool OnTooltip(CefRefPtr<CefBrowser> browser, CefString& text) override;
   void OnStatusMessage(CefRefPtr<CefBrowser> browser,
-      const CefString& value) override;
-  bool OnConsoleMessage(CefRefPtr<CefBrowser> browser, const CefString& message,
-      const CefString& source, int line) override;
+                       const CefString& value) override;
+  bool OnConsoleMessage(CefRefPtr<CefBrowser> browser,
+                        const CefString& message,
+                        const CefString& source,
+                        int line) override;
 };
 
 #endif  // CEF_LIBCEF_DLL_CTOCPP_DISPLAY_HANDLER_CTOCPP_H_

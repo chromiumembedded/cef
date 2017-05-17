@@ -85,18 +85,13 @@ TEST(CommandLineTest, Init) {
   EXPECT_TRUE(command_line.get() != NULL);
 
 #if defined(OS_WIN)
-  command_line->InitFromString("test.exe --switch1 -switch2=val2 /switch3=val3 "
-                               "-switch4=\"val 4\" arg1 \"arg 2\"");
+  command_line->InitFromString(
+      "test.exe --switch1 -switch2=val2 /switch3=val3 "
+      "-switch4=\"val 4\" arg1 \"arg 2\"");
 #else
-  const char* args[] = {
-    "test.exe",
-    "--switch1",
-    "-switch2=val2",
-    "-switch3=val3",
-    "-switch4=val 4",
-    "arg1",
-    "arg 2"
-  };
+  const char* args[] = {"test.exe",      "--switch1",      "-switch2=val2",
+                        "-switch3=val3", "-switch4=val 4", "arg1",
+                        "arg 2"};
   command_line->InitFromArgv(sizeof(args) / sizeof(char*), args);
 #endif
 

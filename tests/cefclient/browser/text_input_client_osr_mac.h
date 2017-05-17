@@ -7,8 +7,8 @@
 #pragma once
 
 #import <Cocoa/Cocoa.h>
-#include <vector>
 #include <string>
+#include <vector>
 
 #include "include/cef_browser.h"
 #include "include/cef_render_handler.h"

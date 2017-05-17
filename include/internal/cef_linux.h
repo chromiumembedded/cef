@@ -27,7 +27,6 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-
 #ifndef CEF_INCLUDE_INTERNAL_CEF_LINUX_H_
 #define CEF_INCLUDE_INTERNAL_CEF_LINUX_H_
 #pragma once
@@ -46,8 +45,9 @@ struct CefMainArgsTraits {
   static inline void init(struct_type* s) {}
   static inline void clear(struct_type* s) {}
 
-  static inline void set(const struct_type* src, struct_type* target,
-      bool copy) {
+  static inline void set(const struct_type* src,
+                         struct_type* target,
+                         bool copy) {
     target->argc = src->argc;
     target->argv = src->argv;
   }
@@ -73,8 +73,9 @@ struct CefWindowInfoTraits {
   static inline void init(struct_type* s) {}
   static inline void clear(struct_type* s) {}
 
-  static inline void set(const struct_type* src, struct_type* target,
-      bool copy) {
+  static inline void set(const struct_type* src,
+                         struct_type* target,
+                         bool copy) {
     target->x = src->x;
     target->y = src->y;
     target->width = src->width;
@@ -97,8 +98,7 @@ class CefWindowInfo : public CefStructBase<CefWindowInfoTraits> {
   ///
   // Create the browser as a child window.
   ///
-  void SetAsChild(CefWindowHandle parent,
-                  const CefRect& windowRect) {
+  void SetAsChild(CefWindowHandle parent, const CefRect& windowRect) {
     parent_window = parent;
     x = windowRect.x;
     y = windowRect.y;

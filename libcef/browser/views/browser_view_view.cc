@@ -8,8 +8,7 @@
 
 CefBrowserViewView::CefBrowserViewView(CefBrowserViewDelegate* cef_delegate,
                                        Delegate* browser_view_delegate)
-    : ParentClass(cef_delegate),
-      browser_view_delegate_(browser_view_delegate) {
+    : ParentClass(cef_delegate), browser_view_delegate_(browser_view_delegate) {
   DCHECK(browser_view_delegate_);
 }
 

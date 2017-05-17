@@ -9,6 +9,8 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=bd7eac923225a2adc32bcd7e73a8269233fc15a7$
+//
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_SCHEME_REGISTRAR_CPPTOC_H_
 #define CEF_LIBCEF_DLL_CPPTOC_SCHEME_REGISTRAR_CPPTOC_H_
@@ -18,15 +20,16 @@
 #error This file can be included DLL-side only
 #endif
 
-#include "include/cef_scheme.h"
 #include "include/capi/cef_scheme_capi.h"
+#include "include/cef_scheme.h"
 #include "libcef_dll/cpptoc/cpptoc_scoped.h"
 
 // Wrap a C++ class with a C structure.
 // This class may be instantiated and accessed DLL-side only.
 class CefSchemeRegistrarCppToC
-    : public CefCppToCScoped<CefSchemeRegistrarCppToC, CefSchemeRegistrar,
-        cef_scheme_registrar_t> {
+    : public CefCppToCScoped<CefSchemeRegistrarCppToC,
+                             CefSchemeRegistrar,
+                             cef_scheme_registrar_t> {
  public:
   CefSchemeRegistrarCppToC();
 };

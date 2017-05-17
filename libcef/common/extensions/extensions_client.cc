@@ -22,8 +22,8 @@
 #include "chrome/grit/common_resources.h"
 #include "extensions/common/api/generated_schemas.h"
 #include "extensions/common/common_manifest_handlers.h"
-#include "extensions/common/extensions_aliases.h"
 #include "extensions/common/extension_urls.h"
+#include "extensions/common/extensions_aliases.h"
 #include "extensions/common/features/json_feature_provider_source.h"
 #include "extensions/common/features/simple_feature.h"
 #include "extensions/common/manifest_handler.h"
@@ -45,12 +45,10 @@ SimpleFeature* CreateFeature() {
 }  // namespace
 
 CefExtensionsClient::CefExtensionsClient()
-  : webstore_base_url_(extension_urls::kChromeWebstoreBaseURL),
-    webstore_update_url_(extension_urls::kChromeWebstoreUpdateURL) {
-}
+    : webstore_base_url_(extension_urls::kChromeWebstoreBaseURL),
+      webstore_update_url_(extension_urls::kChromeWebstoreUpdateURL) {}
 
-CefExtensionsClient::~CefExtensionsClient() {
-}
+CefExtensionsClient::~CefExtensionsClient() {}
 
 void CefExtensionsClient::Initialize() {
   RegisterCommonManifestHandlers();
@@ -133,13 +131,12 @@ bool CefExtensionsClient::IsScriptableURL(const GURL& url,
   return true;
 }
 
-bool CefExtensionsClient::IsAPISchemaGenerated(
-    const std::string& name) const {
+bool CefExtensionsClient::IsAPISchemaGenerated(const std::string& name) const {
   // Schema for CEF-only APIs.
   // TODO(cef): Enable if/when CEF exposes its own Mojo APIs. See
   // libcef/common/extensions/api/README.txt for details.
-  //if (api::cef::CefGeneratedSchemas::IsGenerated(name))
-  //  return true;
+  // if (api::cef::CefGeneratedSchemas::IsGenerated(name))
+  //   return true;
 
   // Chrome APIs whitelisted by CEF.
   if (api::cef::ChromeGeneratedSchemas::IsGenerated(name))
@@ -157,8 +154,8 @@ base::StringPiece CefExtensionsClient::GetAPISchema(
   // Schema for CEF-only APIs.
   // TODO(cef): Enable if/when CEF exposes its own Mojo APIs. See
   // libcef/common/extensions/api/README.txt for details.
-  //if (api::cef::CefGeneratedSchemas::IsGenerated(name))
-  //  return api::cef::CefGeneratedSchemas::Get(name);
+  // if (api::cef::CefGeneratedSchemas::IsGenerated(name))
+  //   return api::cef::CefGeneratedSchemas::Get(name);
 
   // Chrome APIs whitelisted by CEF.
   if (api::cef::ChromeGeneratedSchemas::IsGenerated(name))
@@ -172,8 +169,7 @@ bool CefExtensionsClient::ShouldSuppressFatalErrors() const {
   return true;
 }
 
-void CefExtensionsClient::RecordDidSuppressFatalError() {
-}
+void CefExtensionsClient::RecordDidSuppressFatalError() {}
 
 const GURL& CefExtensionsClient::GetWebstoreBaseURL() const {
   return webstore_base_url_;

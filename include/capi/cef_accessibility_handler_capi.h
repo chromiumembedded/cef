@@ -33,6 +33,8 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
+// $hash=ade29136d75b33f63cf65db4b91de9cd66114562$
+//
 
 #ifndef CEF_INCLUDE_CAPI_CEF_ACCESSIBILITY_HANDLER_CAPI_H_
 #define CEF_INCLUDE_CAPI_CEF_ACCESSIBILITY_HANDLER_CAPI_H_
@@ -43,7 +45,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
 
 ///
 // Implement this structure to receive accessibility notification when
@@ -60,17 +61,18 @@ typedef struct _cef_accessibility_handler_t {
   // Called after renderer process sends accessibility tree changes to the
   // browser process.
   ///
-  void (CEF_CALLBACK *on_accessibility_tree_change)(
-      struct _cef_accessibility_handler_t* self, struct _cef_value_t* value);
+  void(CEF_CALLBACK* on_accessibility_tree_change)(
+      struct _cef_accessibility_handler_t* self,
+      struct _cef_value_t* value);
 
   ///
   // Called after renderer process sends accessibility location changes to the
   // browser process.
   ///
-  void (CEF_CALLBACK *on_accessibility_location_change)(
-      struct _cef_accessibility_handler_t* self, struct _cef_value_t* value);
+  void(CEF_CALLBACK* on_accessibility_location_change)(
+      struct _cef_accessibility_handler_t* self,
+      struct _cef_value_t* value);
 } cef_accessibility_handler_t;
-
 
 #ifdef __cplusplus
 }

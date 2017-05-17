@@ -18,8 +18,7 @@ namespace client {
 // GTK implementation of a top-level native window in the browser process.
 // The methods of this class must be called on the main thread unless otherwise
 // indicated.
-class RootWindowGtk : public RootWindow,
-                      public BrowserWindow::Delegate {
+class RootWindowGtk : public RootWindow, public BrowserWindow::Delegate {
  public:
   // Constructor may be called on any thread.
   RootWindowGtk();
@@ -77,7 +76,7 @@ class RootWindowGtk : public RootWindow,
   static gboolean WindowState(GtkWidget* widget,
                               GdkEventWindowState* event,
                               RootWindowGtk* self);
-  static gboolean WindowConfigure(GtkWindow* window, 
+  static gboolean WindowConfigure(GtkWindow* window,
                                   GdkEvent* event,
                                   RootWindowGtk* self);
   static void WindowDestroy(GtkWidget* widget, RootWindowGtk* self);
@@ -94,25 +93,19 @@ class RootWindowGtk : public RootWindow,
   static void MenubarSizeAllocated(GtkWidget* widget,
                                    GtkAllocation* allocation,
                                    RootWindowGtk* self);
-  static gboolean MenuItemActivated(GtkWidget* widget,
-                                    RootWindowGtk* self);
+  static gboolean MenuItemActivated(GtkWidget* widget, RootWindowGtk* self);
 
   // Signal handlers for the GTK toolbar.
   static void ToolbarSizeAllocated(GtkWidget* widget,
                                    GtkAllocation* allocation,
                                    RootWindowGtk* self);
-  static void BackButtonClicked(GtkButton* button,
-                                RootWindowGtk* self);
-  static void ForwardButtonClicked(GtkButton* button,
-                                   RootWindowGtk* self);
-  static void StopButtonClicked(GtkButton* button,
-                                RootWindowGtk* self);
-  static void ReloadButtonClicked(GtkButton* button,
-                                  RootWindowGtk* self);
+  static void BackButtonClicked(GtkButton* button, RootWindowGtk* self);
+  static void ForwardButtonClicked(GtkButton* button, RootWindowGtk* self);
+  static void StopButtonClicked(GtkButton* button, RootWindowGtk* self);
+  static void ReloadButtonClicked(GtkButton* button, RootWindowGtk* self);
 
   // Signal handlers for the GTK URL entry field.
-  static void URLEntryActivate(GtkEntry* entry,
-                               RootWindowGtk* self);
+  static void URLEntryActivate(GtkEntry* entry, RootWindowGtk* self);
   static gboolean URLEntryButtonPress(GtkWidget* widget,
                                       GdkEventButton* event,
                                       RootWindowGtk* self);

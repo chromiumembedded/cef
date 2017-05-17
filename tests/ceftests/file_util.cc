@@ -32,7 +32,8 @@ const char kPathSep = '\\';
 const char kPathSep = '/';
 #endif
 
-bool ReadFileToString(const std::string& path, std::string* contents,
+bool ReadFileToString(const std::string& path,
+                      std::string* contents,
                       size_t max_size) {
   if (!AllowFileIO())
     return false;

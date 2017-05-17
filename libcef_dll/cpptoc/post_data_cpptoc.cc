@@ -9,11 +9,12 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=c4a9a8f009c2ada8fb9756462e49f7f65f931056$
+//
 
 #include <algorithm>
 #include "libcef_dll/cpptoc/post_data_cpptoc.h"
 #include "libcef_dll/cpptoc/post_data_element_cpptoc.h"
-
 
 // GLOBAL FUNCTIONS - Body may be edited by hand.
 
@@ -26,7 +27,6 @@ CEF_EXPORT cef_post_data_t* cef_post_data_create() {
   // Return type: refptr_same
   return CefPostDataCppToC::Wrap(_retval);
 }
-
 
 namespace {
 
@@ -46,8 +46,8 @@ int CEF_CALLBACK post_data_is_read_only(struct _cef_post_data_t* self) {
   return _retval;
 }
 
-int CEF_CALLBACK post_data_has_excluded_elements(
-    struct _cef_post_data_t* self) {
+int CEF_CALLBACK
+post_data_has_excluded_elements(struct _cef_post_data_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -75,8 +75,10 @@ size_t CEF_CALLBACK post_data_get_element_count(struct _cef_post_data_t* self) {
   return _retval;
 }
 
-void CEF_CALLBACK post_data_get_elements(struct _cef_post_data_t* self,
-    size_t* elementsCount, struct _cef_post_data_element_t** elements) {
+void CEF_CALLBACK
+post_data_get_elements(struct _cef_post_data_t* self,
+                       size_t* elementsCount,
+                       struct _cef_post_data_element_t** elements) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -88,7 +90,7 @@ void CEF_CALLBACK post_data_get_elements(struct _cef_post_data_t* self,
     return;
 
   // Translate param: elements; type: refptr_vec_same_byref
-  std::vector<CefRefPtr<CefPostDataElement> > elementsList;
+  std::vector<CefRefPtr<CefPostDataElement>> elementsList;
   if (elementsCount && *elementsCount > 0 && elements) {
     for (size_t i = 0; i < *elementsCount; ++i) {
       elementsList.push_back(CefPostDataElementCppToC::Unwrap(elements[i]));
@@ -96,8 +98,7 @@ void CEF_CALLBACK post_data_get_elements(struct _cef_post_data_t* self,
   }
 
   // Execute
-  CefPostDataCppToC::Get(self)->GetElements(
-      elementsList);
+  CefPostDataCppToC::Get(self)->GetElements(elementsList);
 
   // Restore param: elements; type: refptr_vec_same_byref
   if (elementsCount && elements) {
@@ -110,8 +111,9 @@ void CEF_CALLBACK post_data_get_elements(struct _cef_post_data_t* self,
   }
 }
 
-int CEF_CALLBACK post_data_remove_element(struct _cef_post_data_t* self,
-    struct _cef_post_data_element_t* element) {
+int CEF_CALLBACK
+post_data_remove_element(struct _cef_post_data_t* self,
+                         struct _cef_post_data_element_t* element) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -130,8 +132,9 @@ int CEF_CALLBACK post_data_remove_element(struct _cef_post_data_t* self,
   return _retval;
 }
 
-int CEF_CALLBACK post_data_add_element(struct _cef_post_data_t* self,
-    struct _cef_post_data_element_t* element) {
+int CEF_CALLBACK
+post_data_add_element(struct _cef_post_data_t* self,
+                      struct _cef_post_data_element_t* element) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -163,7 +166,6 @@ void CEF_CALLBACK post_data_remove_elements(struct _cef_post_data_t* self) {
 
 }  // namespace
 
-
 // CONSTRUCTOR - Do not edit by hand.
 
 CefPostDataCppToC::CefPostDataCppToC() {
@@ -176,17 +178,23 @@ CefPostDataCppToC::CefPostDataCppToC() {
   GetStruct()->remove_elements = post_data_remove_elements;
 }
 
-template<> CefRefPtr<CefPostData> CefCppToCRefCounted<CefPostDataCppToC,
-    CefPostData, cef_post_data_t>::UnwrapDerived(CefWrapperType type,
-    cef_post_data_t* s) {
+template <>
+CefRefPtr<CefPostData>
+CefCppToCRefCounted<CefPostDataCppToC, CefPostData, cef_post_data_t>::
+    UnwrapDerived(CefWrapperType type, cef_post_data_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCppToCRefCounted<CefPostDataCppToC,
-    CefPostData, cef_post_data_t>::DebugObjCt = 0;
+template <>
+base::AtomicRefCount CefCppToCRefCounted<CefPostDataCppToC,
+                                         CefPostData,
+                                         cef_post_data_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCppToCRefCounted<CefPostDataCppToC, CefPostData,
-    cef_post_data_t>::kWrapperType = WT_POST_DATA;
+template <>
+CefWrapperType CefCppToCRefCounted<CefPostDataCppToC,
+                                   CefPostData,
+                                   cef_post_data_t>::kWrapperType =
+    WT_POST_DATA;

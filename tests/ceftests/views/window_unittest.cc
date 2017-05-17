@@ -4,8 +4,8 @@
 
 #include "include/base/cef_bind.h"
 #include "include/views/cef_box_layout.h"
-#include "include/views/cef_panel.h"
 #include "include/views/cef_layout.h"
+#include "include/views/cef_panel.h"
 #include "include/wrapper/cef_closure_task.h"
 #include "tests/ceftests/image_util.h"
 #include "tests/ceftests/thread_helper.h"
@@ -15,7 +15,7 @@
 #define WINDOW_TEST_ASYNC(name) UI_THREAD_TEST_ASYNC(ViewsWindowTest, name)
 
 #if !defined(OS_WIN)
-#define VK_MENU   0x12  // ALT key.
+#define VK_MENU 0x12  // ALT key.
 #endif
 
 namespace {
@@ -86,7 +86,7 @@ void CreateBoxLayout(CefRefPtr<CefWindow> parent) {
   panel_child2->SetBackgroundColor(CefColorSetARGB(255, 0, 255, 0));
   EXPECT_TRUE(panel_child2->IsVisible());
   EXPECT_FALSE(panel_child2->IsDrawn());
- 
+
   // Set to BoxLayout. Default layout is vertical with children stretched along
   // the horizontal axis.
   CefBoxLayoutSettings settings;
@@ -109,8 +109,8 @@ void CreateBoxLayout(CefRefPtr<CefWindow> parent) {
   parent->Layout();
 
   // The children should each take up 50% of the client area.
-  ExpectCloseRects(CefRect(0, 0, kWSize, kWSize / 2),
-                   panel_child1->GetBounds(), 1);
+  ExpectCloseRects(CefRect(0, 0, kWSize, kWSize / 2), panel_child1->GetBounds(),
+                   1);
   ExpectCloseRects(CefRect(0, kWSize / 2, kWSize, kWSize / 2),
                    panel_child2->GetBounds(), 1);
 }

@@ -9,10 +9,11 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=843bc95ef88f74f32af2d7bc9a42d6b841b052e7$
+//
 
 #include "libcef_dll/ctocpp/select_client_certificate_callback_ctocpp.h"
 #include "libcef_dll/ctocpp/x509certificate_ctocpp.h"
-
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
@@ -27,32 +28,36 @@ void CefSelectClientCertificateCallbackCToCpp::Select(
   // Unverified params: cert
 
   // Execute
-  _struct->select(_struct,
-      CefX509CertificateCToCpp::Unwrap(cert));
+  _struct->select(_struct, CefX509CertificateCToCpp::Unwrap(cert));
 }
-
 
 // CONSTRUCTOR - Do not edit by hand.
 
-CefSelectClientCertificateCallbackCToCpp::CefSelectClientCertificateCallbackCToCpp(
-    ) {
-}
+CefSelectClientCertificateCallbackCToCpp::
+    CefSelectClientCertificateCallbackCToCpp() {}
 
-template<> cef_select_client_certificate_callback_t* CefCToCppRefCounted<CefSelectClientCertificateCallbackCToCpp,
-    CefSelectClientCertificateCallback,
-    cef_select_client_certificate_callback_t>::UnwrapDerived(
-    CefWrapperType type, CefSelectClientCertificateCallback* c) {
+template <>
+cef_select_client_certificate_callback_t*
+CefCToCppRefCounted<CefSelectClientCertificateCallbackCToCpp,
+                    CefSelectClientCertificateCallback,
+                    cef_select_client_certificate_callback_t>::
+    UnwrapDerived(CefWrapperType type, CefSelectClientCertificateCallback* c) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCppRefCounted<CefSelectClientCertificateCallbackCToCpp,
-    CefSelectClientCertificateCallback,
-    cef_select_client_certificate_callback_t>::DebugObjCt = 0;
+template <>
+base::AtomicRefCount
+    CefCToCppRefCounted<CefSelectClientCertificateCallbackCToCpp,
+                        CefSelectClientCertificateCallback,
+                        cef_select_client_certificate_callback_t>::DebugObjCt =
+        0;
 #endif
 
-template<> CefWrapperType CefCToCppRefCounted<CefSelectClientCertificateCallbackCToCpp,
+template <>
+CefWrapperType CefCToCppRefCounted<
+    CefSelectClientCertificateCallbackCToCpp,
     CefSelectClientCertificateCallback,
     cef_select_client_certificate_callback_t>::kWrapperType =
     WT_SELECT_CLIENT_CERTIFICATE_CALLBACK;

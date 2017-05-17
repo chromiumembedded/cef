@@ -16,12 +16,11 @@
 // CefViewView template.
 class WebViewEx : public views::WebView {
  public:
-  WebViewEx() : views::WebView(nullptr) {
-  }
+  WebViewEx() : views::WebView(nullptr) {}
 };
 
-class CefBrowserViewView :
-    public CefViewView<WebViewEx, CefBrowserViewDelegate> {
+class CefBrowserViewView
+    : public CefViewView<WebViewEx, CefBrowserViewDelegate> {
  public:
   typedef CefViewView<WebViewEx, CefBrowserViewDelegate> ParentClass;
 

@@ -47,14 +47,12 @@ class CefBrowserContextProxy : public CefBrowserContext {
   content::BackgroundSyncController* GetBackgroundSyncController() override;
   net::URLRequestContextGetter* CreateRequestContext(
       content::ProtocolHandlerMap* protocol_handlers,
-      content::URLRequestInterceptorScopedVector request_interceptors)
-      override;
+      content::URLRequestInterceptorScopedVector request_interceptors) override;
   net::URLRequestContextGetter* CreateRequestContextForStoragePartition(
       const base::FilePath& partition_path,
       bool in_memory,
       content::ProtocolHandlerMap* protocol_handlers,
-      content::URLRequestInterceptorScopedVector request_interceptors)
-      override;
+      content::URLRequestInterceptorScopedVector request_interceptors) override;
   void RegisterInProcessServices(StaticServiceMap* services) override;
 
   // Profile methods.
@@ -69,11 +67,9 @@ class CefBrowserContextProxy : public CefBrowserContext {
   void AddVisitedURLs(const std::vector<GURL>& urls) override;
 
   content::StoragePartition* GetOrCreateStoragePartitionProxy(
-    content::StoragePartition* partition_impl);
+      content::StoragePartition* partition_impl);
 
-  CefBrowserContextImpl* parent() const {
-    return parent_;
-  }
+  CefBrowserContextImpl* parent() const { return parent_; }
 
  private:
   // Allow deletion via std::unique_ptr() only.

@@ -9,6 +9,8 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=02649b81e534fbc3ce974bad0b39077dc2611936$
+//
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_SET_COOKIE_CALLBACK_CPPTOC_H_
 #define CEF_LIBCEF_DLL_CPPTOC_SET_COOKIE_CALLBACK_CPPTOC_H_
@@ -18,15 +20,16 @@
 #error This file can be included wrapper-side only
 #endif
 
-#include "include/cef_cookie.h"
 #include "include/capi/cef_cookie_capi.h"
+#include "include/cef_cookie.h"
 #include "libcef_dll/cpptoc/cpptoc_ref_counted.h"
 
 // Wrap a C++ class with a C structure.
 // This class may be instantiated and accessed wrapper-side only.
 class CefSetCookieCallbackCppToC
     : public CefCppToCRefCounted<CefSetCookieCallbackCppToC,
-        CefSetCookieCallback, cef_set_cookie_callback_t> {
+                                 CefSetCookieCallback,
+                                 cef_set_cookie_callback_t> {
  public:
   CefSetCookieCallbackCppToC();
 };

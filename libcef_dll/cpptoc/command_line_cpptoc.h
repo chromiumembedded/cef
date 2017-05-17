@@ -9,6 +9,8 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=774d7a80d2c2d878e16319ed791472dfd49b5d1a$
+//
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_COMMAND_LINE_CPPTOC_H_
 #define CEF_LIBCEF_DLL_CPPTOC_COMMAND_LINE_CPPTOC_H_
@@ -18,15 +20,15 @@
 #error This file can be included DLL-side only
 #endif
 
-#include "include/cef_command_line.h"
 #include "include/capi/cef_command_line_capi.h"
+#include "include/cef_command_line.h"
 #include "libcef_dll/cpptoc/cpptoc_ref_counted.h"
 
 // Wrap a C++ class with a C structure.
 // This class may be instantiated and accessed DLL-side only.
-class CefCommandLineCppToC
-    : public CefCppToCRefCounted<CefCommandLineCppToC, CefCommandLine,
-        cef_command_line_t> {
+class CefCommandLineCppToC : public CefCppToCRefCounted<CefCommandLineCppToC,
+                                                        CefCommandLine,
+                                                        cef_command_line_t> {
  public:
   CefCommandLineCppToC();
 };

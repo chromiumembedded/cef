@@ -13,8 +13,7 @@ namespace client {
 ClientHandlerOsr::ClientHandlerOsr(Delegate* delegate,
                                    OsrDelegate* osr_delegate,
                                    const std::string& startup_url)
-    : ClientHandler(delegate, true, startup_url),
-      osr_delegate_(osr_delegate) {
+    : ClientHandler(delegate, true, startup_url), osr_delegate_(osr_delegate) {
   DCHECK(osr_delegate_);
 }
 
@@ -78,8 +77,7 @@ bool ClientHandlerOsr::GetScreenInfo(CefRefPtr<CefBrowser> browser,
   return osr_delegate_->GetScreenInfo(browser, screen_info);
 }
 
-void ClientHandlerOsr::OnPopupShow(CefRefPtr<CefBrowser> browser,
-                                   bool show) {
+void ClientHandlerOsr::OnPopupShow(CefRefPtr<CefBrowser> browser, bool show) {
   CEF_REQUIRE_UI_THREAD();
   if (!osr_delegate_)
     return;
@@ -106,28 +104,30 @@ void ClientHandlerOsr::OnPaint(CefRefPtr<CefBrowser> browser,
   osr_delegate_->OnPaint(browser, type, dirtyRects, buffer, width, height);
 }
 
-void ClientHandlerOsr::OnCursorChange(
-    CefRefPtr<CefBrowser> browser,
-    CefCursorHandle cursor,
-    CursorType type,
-    const CefCursorInfo& custom_cursor_info) {
+void ClientHandlerOsr::OnCursorChange(CefRefPtr<CefBrowser> browser,
+                                      CefCursorHandle cursor,
+                                      CursorType type,
+                                      const CefCursorInfo& custom_cursor_info) {
   CEF_REQUIRE_UI_THREAD();
   if (!osr_delegate_)
     return;
   osr_delegate_->OnCursorChange(browser, cursor, type, custom_cursor_info);
 }
 
-bool ClientHandlerOsr::StartDragging(CefRefPtr<CefBrowser> browser,
+bool ClientHandlerOsr::StartDragging(
+    CefRefPtr<CefBrowser> browser,
     CefRefPtr<CefDragData> drag_data,
     CefRenderHandler::DragOperationsMask allowed_ops,
-    int x, int y) {
+    int x,
+    int y) {
   CEF_REQUIRE_UI_THREAD();
   if (!osr_delegate_)
     return false;
   return osr_delegate_->StartDragging(browser, drag_data, allowed_ops, x, y);
 }
 
-void ClientHandlerOsr::UpdateDragCursor(CefRefPtr<CefBrowser> browser,
+void ClientHandlerOsr::UpdateDragCursor(
+    CefRefPtr<CefBrowser> browser,
     CefRenderHandler::DragOperation operation) {
   CEF_REQUIRE_UI_THREAD();
   if (!osr_delegate_)

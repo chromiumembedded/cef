@@ -9,6 +9,8 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=edae05f04964383ddb8eef9d16147739ce2f89b6$
+//
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_TASK_RUNNER_CTOCPP_H_
 #define CEF_LIBCEF_DLL_CTOCPP_TASK_RUNNER_CTOCPP_H_
@@ -18,15 +20,15 @@
 #error This file can be included wrapper-side only
 #endif
 
-#include "include/cef_task.h"
 #include "include/capi/cef_task_capi.h"
+#include "include/cef_task.h"
 #include "libcef_dll/ctocpp/ctocpp_ref_counted.h"
 
 // Wrap a C structure with a C++ class.
 // This class may be instantiated and accessed wrapper-side only.
-class CefTaskRunnerCToCpp
-    : public CefCToCppRefCounted<CefTaskRunnerCToCpp, CefTaskRunner,
-        cef_task_runner_t> {
+class CefTaskRunnerCToCpp : public CefCToCppRefCounted<CefTaskRunnerCToCpp,
+                                                       CefTaskRunner,
+                                                       cef_task_runner_t> {
  public:
   CefTaskRunnerCToCpp();
 

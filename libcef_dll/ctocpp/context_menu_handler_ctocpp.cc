@@ -9,6 +9,8 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=29dcaab3b72b6deeb4e6eb682287e1d25c8b21e1$
+//
 
 #include "libcef_dll/cpptoc/browser_cpptoc.h"
 #include "libcef_dll/cpptoc/context_menu_params_cpptoc.h"
@@ -17,12 +19,13 @@
 #include "libcef_dll/cpptoc/run_context_menu_callback_cpptoc.h"
 #include "libcef_dll/ctocpp/context_menu_handler_ctocpp.h"
 
-
 // VIRTUAL METHODS - Body may be edited by hand.
 
 void CefContextMenuHandlerCToCpp::OnBeforeContextMenu(
-    CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame,
-    CefRefPtr<CefContextMenuParams> params, CefRefPtr<CefMenuModel> model) {
+    CefRefPtr<CefBrowser> browser,
+    CefRefPtr<CefFrame> frame,
+    CefRefPtr<CefContextMenuParams> params,
+    CefRefPtr<CefMenuModel> model) {
   cef_context_menu_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_before_context_menu))
     return;
@@ -47,15 +50,16 @@ void CefContextMenuHandlerCToCpp::OnBeforeContextMenu(
     return;
 
   // Execute
-  _struct->on_before_context_menu(_struct,
-      CefBrowserCppToC::Wrap(browser),
-      CefFrameCppToC::Wrap(frame),
-      CefContextMenuParamsCppToC::Wrap(params),
-      CefMenuModelCppToC::Wrap(model));
+  _struct->on_before_context_menu(_struct, CefBrowserCppToC::Wrap(browser),
+                                  CefFrameCppToC::Wrap(frame),
+                                  CefContextMenuParamsCppToC::Wrap(params),
+                                  CefMenuModelCppToC::Wrap(model));
 }
 
-bool CefContextMenuHandlerCToCpp::RunContextMenu(CefRefPtr<CefBrowser> browser,
-    CefRefPtr<CefFrame> frame, CefRefPtr<CefContextMenuParams> params,
+bool CefContextMenuHandlerCToCpp::RunContextMenu(
+    CefRefPtr<CefBrowser> browser,
+    CefRefPtr<CefFrame> frame,
+    CefRefPtr<CefContextMenuParams> params,
     CefRefPtr<CefMenuModel> model,
     CefRefPtr<CefRunContextMenuCallback> callback) {
   cef_context_menu_handler_t* _struct = GetStruct();
@@ -86,20 +90,20 @@ bool CefContextMenuHandlerCToCpp::RunContextMenu(CefRefPtr<CefBrowser> browser,
     return false;
 
   // Execute
-  int _retval = _struct->run_context_menu(_struct,
-      CefBrowserCppToC::Wrap(browser),
-      CefFrameCppToC::Wrap(frame),
-      CefContextMenuParamsCppToC::Wrap(params),
-      CefMenuModelCppToC::Wrap(model),
+  int _retval = _struct->run_context_menu(
+      _struct, CefBrowserCppToC::Wrap(browser), CefFrameCppToC::Wrap(frame),
+      CefContextMenuParamsCppToC::Wrap(params), CefMenuModelCppToC::Wrap(model),
       CefRunContextMenuCallbackCppToC::Wrap(callback));
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 bool CefContextMenuHandlerCToCpp::OnContextMenuCommand(
-    CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame,
-    CefRefPtr<CefContextMenuParams> params, int command_id,
+    CefRefPtr<CefBrowser> browser,
+    CefRefPtr<CefFrame> frame,
+    CefRefPtr<CefContextMenuParams> params,
+    int command_id,
     EventFlags event_flags) {
   cef_context_menu_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_context_menu_command))
@@ -121,19 +125,17 @@ bool CefContextMenuHandlerCToCpp::OnContextMenuCommand(
     return false;
 
   // Execute
-  int _retval = _struct->on_context_menu_command(_struct,
-      CefBrowserCppToC::Wrap(browser),
-      CefFrameCppToC::Wrap(frame),
-      CefContextMenuParamsCppToC::Wrap(params),
-      command_id,
-      event_flags);
+  int _retval = _struct->on_context_menu_command(
+      _struct, CefBrowserCppToC::Wrap(browser), CefFrameCppToC::Wrap(frame),
+      CefContextMenuParamsCppToC::Wrap(params), command_id, event_flags);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 void CefContextMenuHandlerCToCpp::OnContextMenuDismissed(
-    CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame) {
+    CefRefPtr<CefBrowser> browser,
+    CefRefPtr<CefFrame> frame) {
   cef_context_menu_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_context_menu_dismissed))
     return;
@@ -150,29 +152,34 @@ void CefContextMenuHandlerCToCpp::OnContextMenuDismissed(
     return;
 
   // Execute
-  _struct->on_context_menu_dismissed(_struct,
-      CefBrowserCppToC::Wrap(browser),
-      CefFrameCppToC::Wrap(frame));
+  _struct->on_context_menu_dismissed(_struct, CefBrowserCppToC::Wrap(browser),
+                                     CefFrameCppToC::Wrap(frame));
 }
-
 
 // CONSTRUCTOR - Do not edit by hand.
 
-CefContextMenuHandlerCToCpp::CefContextMenuHandlerCToCpp() {
-}
+CefContextMenuHandlerCToCpp::CefContextMenuHandlerCToCpp() {}
 
-template<> cef_context_menu_handler_t* CefCToCppRefCounted<CefContextMenuHandlerCToCpp,
-    CefContextMenuHandler, cef_context_menu_handler_t>::UnwrapDerived(
-    CefWrapperType type, CefContextMenuHandler* c) {
+template <>
+cef_context_menu_handler_t* CefCToCppRefCounted<
+    CefContextMenuHandlerCToCpp,
+    CefContextMenuHandler,
+    cef_context_menu_handler_t>::UnwrapDerived(CefWrapperType type,
+                                               CefContextMenuHandler* c) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCppRefCounted<CefContextMenuHandlerCToCpp,
-    CefContextMenuHandler, cef_context_menu_handler_t>::DebugObjCt = 0;
+template <>
+base::AtomicRefCount
+    CefCToCppRefCounted<CefContextMenuHandlerCToCpp,
+                        CefContextMenuHandler,
+                        cef_context_menu_handler_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCppRefCounted<CefContextMenuHandlerCToCpp,
-    CefContextMenuHandler, cef_context_menu_handler_t>::kWrapperType =
+template <>
+CefWrapperType CefCToCppRefCounted<CefContextMenuHandlerCToCpp,
+                                   CefContextMenuHandler,
+                                   cef_context_menu_handler_t>::kWrapperType =
     WT_CONTEXT_MENU_HANDLER;

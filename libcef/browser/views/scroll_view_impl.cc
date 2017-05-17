@@ -80,8 +80,7 @@ void CefScrollViewImpl::GetDebugInfo(base::DictionaryValue* info,
 }
 
 CefScrollViewImpl::CefScrollViewImpl(CefRefPtr<CefViewDelegate> delegate)
-    : ParentClass(delegate) {
-}
+    : ParentClass(delegate) {}
 
 CefScrollViewView* CefScrollViewImpl::CreateRootView() {
   return new CefScrollViewView(delegate());

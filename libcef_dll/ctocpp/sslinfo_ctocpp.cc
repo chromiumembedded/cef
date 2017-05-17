@@ -9,10 +9,11 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=cacdb914520e516cc103d8a3318ae768339df314$
+//
 
 #include "libcef_dll/ctocpp/sslinfo_ctocpp.h"
 #include "libcef_dll/ctocpp/x509certificate_ctocpp.h"
-
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
@@ -44,22 +45,27 @@ CefRefPtr<CefX509Certificate> CefSSLInfoCToCpp::GetX509Certificate() {
   return CefX509CertificateCToCpp::Wrap(_retval);
 }
 
-
 // CONSTRUCTOR - Do not edit by hand.
 
-CefSSLInfoCToCpp::CefSSLInfoCToCpp() {
-}
+CefSSLInfoCToCpp::CefSSLInfoCToCpp() {}
 
-template<> cef_sslinfo_t* CefCToCppRefCounted<CefSSLInfoCToCpp, CefSSLInfo,
-    cef_sslinfo_t>::UnwrapDerived(CefWrapperType type, CefSSLInfo* c) {
+template <>
+cef_sslinfo_t*
+CefCToCppRefCounted<CefSSLInfoCToCpp, CefSSLInfo, cef_sslinfo_t>::UnwrapDerived(
+    CefWrapperType type,
+    CefSSLInfo* c) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCppRefCounted<CefSSLInfoCToCpp,
-    CefSSLInfo, cef_sslinfo_t>::DebugObjCt = 0;
+template <>
+base::AtomicRefCount CefCToCppRefCounted<CefSSLInfoCToCpp,
+                                         CefSSLInfo,
+                                         cef_sslinfo_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCppRefCounted<CefSSLInfoCToCpp, CefSSLInfo,
-    cef_sslinfo_t>::kWrapperType = WT_SSLINFO;
+template <>
+CefWrapperType CefCToCppRefCounted<CefSSLInfoCToCpp,
+                                   CefSSLInfo,
+                                   cef_sslinfo_t>::kWrapperType = WT_SSLINFO;

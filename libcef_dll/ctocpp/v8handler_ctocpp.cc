@@ -9,16 +9,19 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=581f5db624374bcc4f0bec130cf3f93b5705590b$
+//
 
 #include "libcef_dll/cpptoc/v8value_cpptoc.h"
 #include "libcef_dll/ctocpp/v8handler_ctocpp.h"
 
-
 // VIRTUAL METHODS - Body may be edited by hand.
 
 bool CefV8HandlerCToCpp::Execute(const CefString& name,
-    CefRefPtr<CefV8Value> object, const CefV8ValueList& arguments,
-    CefRefPtr<CefV8Value>& retval, CefString& exception) {
+                                 CefRefPtr<CefV8Value> object,
+                                 const CefV8ValueList& arguments,
+                                 CefRefPtr<CefV8Value>& retval,
+                                 CefString& exception) {
   cef_v8handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, execute))
     return false;
@@ -53,17 +56,13 @@ bool CefV8HandlerCToCpp::Execute(const CefString& name,
   cef_v8value_t* retvalOrig = retvalStruct;
 
   // Execute
-  int _retval = _struct->execute(_struct,
-      name.GetStruct(),
-      CefV8ValueCppToC::Wrap(object),
-      argumentsCount,
-      argumentsList,
-      &retvalStruct,
-      exception.GetWritableStruct());
+  int _retval = _struct->execute(
+      _struct, name.GetStruct(), CefV8ValueCppToC::Wrap(object), argumentsCount,
+      argumentsList, &retvalStruct, exception.GetWritableStruct());
 
   // Restore param:arguments; type: refptr_vec_diff_byref_const
   if (argumentsList)
-    delete [] argumentsList;
+    delete[] argumentsList;
   // Restore param:retval; type: refptr_diff_byref
   if (retvalStruct) {
     if (retvalStruct != retvalOrig) {
@@ -74,26 +73,30 @@ bool CefV8HandlerCToCpp::Execute(const CefString& name,
   }
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
-
 
 // CONSTRUCTOR - Do not edit by hand.
 
-CefV8HandlerCToCpp::CefV8HandlerCToCpp() {
-}
+CefV8HandlerCToCpp::CefV8HandlerCToCpp() {}
 
-template<> cef_v8handler_t* CefCToCppRefCounted<CefV8HandlerCToCpp,
-    CefV8Handler, cef_v8handler_t>::UnwrapDerived(CefWrapperType type,
-    CefV8Handler* c) {
+template <>
+cef_v8handler_t*
+CefCToCppRefCounted<CefV8HandlerCToCpp, CefV8Handler, cef_v8handler_t>::
+    UnwrapDerived(CefWrapperType type, CefV8Handler* c) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCppRefCounted<CefV8HandlerCToCpp,
-    CefV8Handler, cef_v8handler_t>::DebugObjCt = 0;
+template <>
+base::AtomicRefCount CefCToCppRefCounted<CefV8HandlerCToCpp,
+                                         CefV8Handler,
+                                         cef_v8handler_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCppRefCounted<CefV8HandlerCToCpp, CefV8Handler,
-    cef_v8handler_t>::kWrapperType = WT_V8HANDLER;
+template <>
+CefWrapperType CefCToCppRefCounted<CefV8HandlerCToCpp,
+                                   CefV8Handler,
+                                   cef_v8handler_t>::kWrapperType =
+    WT_V8HANDLER;

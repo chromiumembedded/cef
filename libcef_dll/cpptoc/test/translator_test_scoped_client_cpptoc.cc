@@ -9,10 +9,11 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=92dd8bbaed61f94cb42dd4eddcd5345b0d619dc7$
+//
 
-#include "libcef_dll/cpptoc/test/translator_test_scoped_client_cpptoc.h"
 #include "libcef_dll/cpptoc/test/translator_test_scoped_client_child_cpptoc.h"
-
+#include "libcef_dll/cpptoc/test/translator_test_scoped_client_cpptoc.h"
 
 namespace {
 
@@ -35,30 +36,36 @@ int CEF_CALLBACK translator_test_scoped_client_get_value(
 
 }  // namespace
 
-
 // CONSTRUCTOR - Do not edit by hand.
 
 CefTranslatorTestScopedClientCppToC::CefTranslatorTestScopedClientCppToC() {
   GetStruct()->get_value = translator_test_scoped_client_get_value;
 }
 
-template<> CefOwnPtr<CefTranslatorTestScopedClient> CefCppToCScoped<CefTranslatorTestScopedClientCppToC,
-    CefTranslatorTestScopedClient,
-    cef_translator_test_scoped_client_t>::UnwrapDerivedOwn(CefWrapperType type,
-    cef_translator_test_scoped_client_t* s) {
+template <>
+CefOwnPtr<CefTranslatorTestScopedClient>
+CefCppToCScoped<CefTranslatorTestScopedClientCppToC,
+                CefTranslatorTestScopedClient,
+                cef_translator_test_scoped_client_t>::
+    UnwrapDerivedOwn(CefWrapperType type,
+                     cef_translator_test_scoped_client_t* s) {
   if (type == WT_TRANSLATOR_TEST_SCOPED_CLIENT_CHILD) {
-    return OWN_RETURN_AS(CefTranslatorTestScopedClientChildCppToC::UnwrapOwn(
-        reinterpret_cast<cef_translator_test_scoped_client_child_t*>(s)),
+    return OWN_RETURN_AS(
+        CefTranslatorTestScopedClientChildCppToC::UnwrapOwn(
+            reinterpret_cast<cef_translator_test_scoped_client_child_t*>(s)),
         CefTranslatorTestScopedClient);
   }
   NOTREACHED() << "Unexpected class type: " << type;
   return CefOwnPtr<CefTranslatorTestScopedClient>();
 }
 
-template<> CefRawPtr<CefTranslatorTestScopedClient> CefCppToCScoped<CefTranslatorTestScopedClientCppToC,
-    CefTranslatorTestScopedClient,
-    cef_translator_test_scoped_client_t>::UnwrapDerivedRaw(CefWrapperType type,
-    cef_translator_test_scoped_client_t* s) {
+template <>
+CefRawPtr<CefTranslatorTestScopedClient>
+CefCppToCScoped<CefTranslatorTestScopedClientCppToC,
+                CefTranslatorTestScopedClient,
+                cef_translator_test_scoped_client_t>::
+    UnwrapDerivedRaw(CefWrapperType type,
+                     cef_translator_test_scoped_client_t* s) {
   if (type == WT_TRANSLATOR_TEST_SCOPED_CLIENT_CHILD) {
     return CefTranslatorTestScopedClientChildCppToC::UnwrapRaw(
         reinterpret_cast<cef_translator_test_scoped_client_child_t*>(s));
@@ -68,12 +75,16 @@ template<> CefRawPtr<CefTranslatorTestScopedClient> CefCppToCScoped<CefTranslato
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCppToCScoped<CefTranslatorTestScopedClientCppToC,
-    CefTranslatorTestScopedClient,
-    cef_translator_test_scoped_client_t>::DebugObjCt = 0;
+template <>
+base::AtomicRefCount
+    CefCppToCScoped<CefTranslatorTestScopedClientCppToC,
+                    CefTranslatorTestScopedClient,
+                    cef_translator_test_scoped_client_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCppToCScoped<CefTranslatorTestScopedClientCppToC,
-    CefTranslatorTestScopedClient,
-    cef_translator_test_scoped_client_t>::kWrapperType =
-    WT_TRANSLATOR_TEST_SCOPED_CLIENT;
+template <>
+CefWrapperType
+    CefCppToCScoped<CefTranslatorTestScopedClientCppToC,
+                    CefTranslatorTestScopedClient,
+                    cef_translator_test_scoped_client_t>::kWrapperType =
+        WT_TRANSLATOR_TEST_SCOPED_CLIENT;

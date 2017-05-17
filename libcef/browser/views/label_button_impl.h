@@ -59,8 +59,7 @@ CEF_LABEL_BUTTON_IMPL_T class CefLabelButtonImpl : public CEF_BUTTON_IMPL_D {
   // Always call Initialize() after creation.
   // |delegate| may be nullptr.
   explicit CefLabelButtonImpl(CefRefPtr<CefViewDelegateClass> delegate)
-      : ParentClass(delegate) {
-  }
+      : ParentClass(delegate) {}
 };
 
 CEF_LABEL_BUTTON_IMPL_T void CEF_LABEL_BUTTON_IMPL_D::SetText(
@@ -96,7 +95,8 @@ CEF_LABEL_BUTTON_IMPL_T CefRefPtr<CefImage> CEF_LABEL_BUTTON_IMPL_D::GetImage(
 }
 
 CEF_LABEL_BUTTON_IMPL_T void CEF_LABEL_BUTTON_IMPL_D::SetTextColor(
-    cef_button_state_t for_state, cef_color_t color) {
+    cef_button_state_t for_state,
+    cef_color_t color) {
   CEF_REQUIRE_VALID_RETURN_VOID();
   ParentClass::root_view()->SetTextColor(
       static_cast<views::Button::ButtonState>(for_state), color);

@@ -2,8 +2,8 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#include "libcef/common/task_runner_impl.h"
 #include "libcef/common/content_client.h"
+#include "libcef/common/task_runner_impl.h"
 #include "libcef/renderer/content_renderer_client.h"
 
 #include "base/bind.h"
@@ -37,7 +37,6 @@ CefRefPtr<CefTaskRunner> CefTaskRunner::GetForThread(CefThreadId threadId) {
   return NULL;
 }
 
-
 // CefTaskRunnerImpl
 
 CefTaskRunnerImpl::CefTaskRunnerImpl(
@@ -47,8 +46,8 @@ CefTaskRunnerImpl::CefTaskRunnerImpl(
 }
 
 // static
-scoped_refptr<base::SequencedTaskRunner>
-    CefTaskRunnerImpl::GetTaskRunner(CefThreadId threadId) {
+scoped_refptr<base::SequencedTaskRunner> CefTaskRunnerImpl::GetTaskRunner(
+    CefThreadId threadId) {
   // Render process.
   if (threadId == TID_RENDERER) {
     CefContentRendererClient* client = CefContentRendererClient::Get();
@@ -60,29 +59,29 @@ scoped_refptr<base::SequencedTaskRunner>
   // Browser process.
   int id = -1;
   switch (threadId) {
-  case TID_UI:
-    id = BrowserThread::UI;
-    break;
-  case TID_DB:
-    id = BrowserThread::DB;
-    break;
-  case TID_FILE:
-    id = BrowserThread::FILE;
-    break;
-  case TID_FILE_USER_BLOCKING:
-    id = BrowserThread::FILE_USER_BLOCKING;
-    break;
-  case TID_PROCESS_LAUNCHER:
-    id = BrowserThread::PROCESS_LAUNCHER;
-    break;
-  case TID_CACHE:
-    id = BrowserThread::CACHE;
-    break;
-  case TID_IO:
-    id = BrowserThread::IO;
-    break;
-  default:
-    break;
+    case TID_UI:
+      id = BrowserThread::UI;
+      break;
+    case TID_DB:
+      id = BrowserThread::DB;
+      break;
+    case TID_FILE:
+      id = BrowserThread::FILE;
+      break;
+    case TID_FILE_USER_BLOCKING:
+      id = BrowserThread::FILE_USER_BLOCKING;
+      break;
+    case TID_PROCESS_LAUNCHER:
+      id = BrowserThread::PROCESS_LAUNCHER;
+      break;
+    case TID_CACHE:
+      id = BrowserThread::CACHE;
+      break;
+    case TID_IO:
+      id = BrowserThread::IO;
+      break;
+    default:
+      break;
   };
 
   if (id >= 0 && CefContentClient::Get() &&
@@ -97,7 +96,7 @@ scoped_refptr<base::SequencedTaskRunner>
 
 // static
 scoped_refptr<base::SequencedTaskRunner>
-    CefTaskRunnerImpl::GetCurrentTaskRunner() {
+CefTaskRunnerImpl::GetCurrentTaskRunner() {
   scoped_refptr<base::SequencedTaskRunner> task_runner;
 
   // For named browser process threads return the same TaskRunner as
@@ -141,12 +140,12 @@ bool CefTaskRunnerImpl::BelongsToThread(CefThreadId threadId) {
 
 bool CefTaskRunnerImpl::PostTask(CefRefPtr<CefTask> task) {
   return task_runner_->PostTask(FROM_HERE,
-      base::Bind(&CefTask::Execute, task.get()));
+                                base::Bind(&CefTask::Execute, task.get()));
 }
 
 bool CefTaskRunnerImpl::PostDelayedTask(CefRefPtr<CefTask> task,
                                         int64 delay_ms) {
-  return task_runner_->PostDelayedTask(FROM_HERE,
-        base::Bind(&CefTask::Execute, task.get()),
-        base::TimeDelta::FromMilliseconds(delay_ms));
+  return task_runner_->PostDelayedTask(
+      FROM_HERE, base::Bind(&CefTask::Execute, task.get()),
+      base::TimeDelta::FromMilliseconds(delay_ms));
 }

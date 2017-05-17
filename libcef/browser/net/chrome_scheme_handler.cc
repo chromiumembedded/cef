@@ -55,31 +55,30 @@ const char kChromeUIWebUIHostsHost[] = "webui-hosts";
 // additional changes. Do not add new hosts to this list without also manually
 // testing all related functionality in CEF.
 const char* kAllowedWebUIHosts[] = {
-  content::kChromeUIAppCacheInternalsHost,
-  content::kChromeUIAccessibilityHost,
-  content::kChromeUIBlobInternalsHost,
-  chrome::kChromeUICreditsHost,
-  content::kChromeUIGpuHost,
-  content::kChromeUIHistogramHost,
-  content::kChromeUIIndexedDBInternalsHost,
-  content::kChromeUIMediaInternalsHost,
-  chrome::kChromeUINetExportHost,
-  chrome::kChromeUINetInternalsHost,
-  content::kChromeUINetworkErrorHost,
-  content::kChromeUINetworkErrorsListingHost,
-  content::kChromeUINetworkViewCacheHost,
-  content::kChromeUIResourcesHost,
-  content::kChromeUIServiceWorkerInternalsHost,
-  chrome::kChromeUISystemInfoHost,
-  content::kChromeUITracingHost,
-  content::kChromeUIWebRTCInternalsHost,
+    content::kChromeUIAppCacheInternalsHost,
+    content::kChromeUIAccessibilityHost,
+    content::kChromeUIBlobInternalsHost,
+    chrome::kChromeUICreditsHost,
+    content::kChromeUIGpuHost,
+    content::kChromeUIHistogramHost,
+    content::kChromeUIIndexedDBInternalsHost,
+    content::kChromeUIMediaInternalsHost,
+    chrome::kChromeUINetExportHost,
+    chrome::kChromeUINetInternalsHost,
+    content::kChromeUINetworkErrorHost,
+    content::kChromeUINetworkErrorsListingHost,
+    content::kChromeUINetworkViewCacheHost,
+    content::kChromeUIResourcesHost,
+    content::kChromeUIServiceWorkerInternalsHost,
+    chrome::kChromeUISystemInfoHost,
+    content::kChromeUITracingHost,
+    content::kChromeUIWebRTCInternalsHost,
 };
 
 // Hosts that don't have useful output when linked directly. They'll be excluded
 // from the "chrome://webui-hosts" listing.
 const char* kUnlistedHosts[] = {
-  content::kChromeUINetworkErrorHost,
-  content::kChromeUIResourcesHost,
+    content::kChromeUINetworkErrorHost, content::kChromeUIResourcesHost,
 };
 
 enum ChromeHostId {
@@ -94,14 +93,14 @@ const struct {
   const char* host;
   ChromeHostId host_id;
 } kAllowedCefHosts[] = {
-  { kChromeUILicenseHost, CHROME_LICENSE },
-  { chrome::kChromeUIVersionHost, CHROME_VERSION },
-  { kChromeUIWebUIHostsHost, CHROME_WEBUI_HOSTS },
+    {kChromeUILicenseHost, CHROME_LICENSE},
+    {chrome::kChromeUIVersionHost, CHROME_VERSION},
+    {kChromeUIWebUIHostsHost, CHROME_WEBUI_HOSTS},
 };
 
 ChromeHostId GetChromeHostId(const std::string& host) {
-  for (size_t i = 0;
-       i < sizeof(kAllowedCefHosts) / sizeof(kAllowedCefHosts[0]); ++i) {
+  for (size_t i = 0; i < sizeof(kAllowedCefHosts) / sizeof(kAllowedCefHosts[0]);
+       ++i) {
     if (base::EqualsCaseInsensitiveASCII(kAllowedCefHosts[i].host,
                                          host.c_str())) {
       return kAllowedCefHosts[i].host_id;
@@ -115,8 +114,8 @@ ChromeHostId GetChromeHostId(const std::string& host) {
 // crashing, etc).
 void GetAllowedHosts(std::vector<std::string>* hosts) {
   // Hosts implemented by CEF.
-  for (size_t i = 0;
-       i < sizeof(kAllowedCefHosts) / sizeof(kAllowedCefHosts[0]); ++i) {
+  for (size_t i = 0; i < sizeof(kAllowedCefHosts) / sizeof(kAllowedCefHosts[0]);
+       ++i) {
     hosts->push_back(kAllowedCefHosts[i].host);
   }
 
@@ -129,8 +128,8 @@ void GetAllowedHosts(std::vector<std::string>* hosts) {
 
 // Returns true if a host should not be listed on "chrome://webui-hosts".
 bool IsUnlistedHost(const std::string& host) {
-  for (size_t i = 0;
-       i < sizeof(kUnlistedHosts) / sizeof(kUnlistedHosts[0]); ++i) {
+  for (size_t i = 0; i < sizeof(kUnlistedHosts) / sizeof(kUnlistedHosts[0]);
+       ++i) {
     if (host == kUnlistedHosts[i])
       return true;
   }
@@ -141,9 +140,8 @@ bool IsUnlistedHost(const std::string& host) {
 bool IsAllowedWebUIHost(const std::string& host) {
   // Explicitly whitelisted WebUI hosts.
   for (size_t i = 0;
-        i < sizeof(kAllowedWebUIHosts) / sizeof(kAllowedWebUIHosts[0]); ++i) {
-    if (base::EqualsCaseInsensitiveASCII(kAllowedWebUIHosts[i],
-                                         host.c_str())) {
+       i < sizeof(kAllowedWebUIHosts) / sizeof(kAllowedWebUIHosts[0]); ++i) {
+    if (base::EqualsCaseInsensitiveASCII(kAllowedWebUIHosts[i], host.c_str())) {
       return true;
     }
   }
@@ -153,7 +151,7 @@ bool IsAllowedWebUIHost(const std::string& host) {
 
 // Additional debug URLs that are not included in chrome::kChromeDebugURLs.
 const char* kAllowedDebugURLs[] = {
-  content::kChromeUIBrowserCrashURL,
+    content::kChromeUIBrowserCrashURL,
 };
 
 // Returns true for debug URLs that receive special handling (for crashes, etc).
@@ -214,13 +212,13 @@ class CefWebUIControllerFactory : public content::WebUIControllerFactory {
     if (!AllowWebUIForURL(url))
       return controller;
 
-    controller = content::ContentWebUIControllerFactory::GetInstance()->
-        CreateWebUIControllerForURL(web_ui, url);
+    controller = content::ContentWebUIControllerFactory::GetInstance()
+                     ->CreateWebUIControllerForURL(web_ui, url);
     if (controller != nullptr)
       return controller;
 
-    controller = ChromeWebUIControllerFactory::GetInstance()->
-        CreateWebUIControllerForURL(web_ui, url);
+    controller = ChromeWebUIControllerFactory::GetInstance()
+                     ->CreateWebUIControllerForURL(web_ui, url);
     if (controller != nullptr)
       return controller;
 
@@ -266,8 +264,8 @@ class CefWebUIControllerFactory : public content::WebUIControllerFactory {
     if (!AllowWebUIForURL(url))
       return false;
 
-    if (content::ContentWebUIControllerFactory::GetInstance()->
-            UseWebUIBindingsForURL(browser_context, url) ||
+    if (content::ContentWebUIControllerFactory::GetInstance()
+            ->UseWebUIBindingsForURL(browser_context, url) ||
         ChromeWebUIControllerFactory::GetInstance()->UseWebUIBindingsForURL(
             browser_context, url)) {
       return true;
@@ -393,7 +391,6 @@ CefWebUIControllerFactory* CefWebUIControllerFactory::GetInstance() {
   return &g_web_ui_controller_factory.Get();
 }
 
-
 std::string GetOSType() {
 #if defined(OS_WIN)
   return "Windows";
@@ -441,16 +438,10 @@ std::string GetModulePath() {
 
 class TemplateParser {
  public:
-  TemplateParser()
-      : ident_start_("$$"),
-        ident_end_("$$") {
-  }
+  TemplateParser() : ident_start_("$$"), ident_end_("$$") {}
 
-  TemplateParser(const std::string& ident_start,
-                 const std::string& ident_end)
-      : ident_start_(ident_start),
-        ident_end_(ident_end) {
-  }
+  TemplateParser(const std::string& ident_start, const std::string& ident_end)
+      : ident_start_(ident_start), ident_end_(ident_end) {}
 
   void Add(const std::string& key, const std::string& value) {
     values_.insert(std::make_pair(key, value));
@@ -461,7 +452,7 @@ class TemplateParser {
     int ident_start_len = ident_start_.length();
     int ident_end_len = ident_end_.length();
 
-    while(true) {
+    while (true) {
       start_pos = tmpl->find(ident_start_, end_pos);
       if (start_pos >= 0) {
         end_pos = tmpl->find(ident_end_, start_pos + ident_start_len);
@@ -473,7 +464,7 @@ class TemplateParser {
           if (it != values_.end()) {
             // Peform the substitution.
             tmpl->replace(start_pos, end_pos + ident_end_len - start_pos,
-                it->second);
+                          it->second);
             end_pos = start_pos + it->second.length();
           } else {
             // Leave the unknown identifier in place.
@@ -481,7 +472,7 @@ class TemplateParser {
           }
 
           if (end_pos >= static_cast<int>(tmpl->length()) - ident_start_len -
-                         ident_end_len) {
+                             ident_end_len) {
             // Not enough room remaining for more identifiers.
             break;
           }
@@ -533,8 +524,8 @@ class Delegate : public InternalHandlerDelegate {
     }
 
     if (!handled && host_id != CHROME_VERSION) {
-      LOG(INFO) << "Reguest for unknown chrome resource: " <<
-          url.spec().c_str();
+      LOG(INFO) << "Reguest for unknown chrome resource: "
+                << url.spec().c_str();
 
       action->redirect_url =
           GURL(std::string(kChromeURL) + chrome::kChromeUIVersionHost);
@@ -546,7 +537,7 @@ class Delegate : public InternalHandlerDelegate {
 
   bool OnLicense(Action* action) {
     base::StringPiece piece = CefContentClient::Get()->GetDataResource(
-          IDR_CEF_LICENSE_TXT, ui::SCALE_FACTOR_NONE);
+        IDR_CEF_LICENSE_TXT, ui::SCALE_FACTOR_NONE);
     if (piece.empty()) {
       NOTREACHED() << "Failed to load license txt resource.";
       return false;
@@ -556,17 +547,16 @@ class Delegate : public InternalHandlerDelegate {
                        piece.as_string() + "</pre></body></html>";
 
     action->mime_type = "text/html";
-    action->stream =  CefStreamReader::CreateForData(
+    action->stream = CefStreamReader::CreateForData(
         const_cast<char*>(html.c_str()), html.length());
     action->stream_size = html.length();
 
     return true;
   }
 
-  bool OnVersion(CefRefPtr<CefBrowser> browser,
-                 Action* action) {
+  bool OnVersion(CefRefPtr<CefBrowser> browser, Action* action) {
     base::StringPiece piece = CefContentClient::Get()->GetDataResource(
-          IDR_CEF_VERSION_HTML, ui::SCALE_FACTOR_NONE);
+        IDR_CEF_VERSION_HTML, ui::SCALE_FACTOR_NONE);
     if (piece.empty()) {
       NOTREACHED() << "Failed to load version html resource.";
       return false;
@@ -576,11 +566,9 @@ class Delegate : public InternalHandlerDelegate {
     parser.Add("YEAR", MAKE_STRING(COPYRIGHT_YEAR));
     parser.Add("CEF", CEF_VERSION);
     parser.Add("CHROMIUM",
-        base::StringPrintf("%d.%d.%d.%d",
-            CHROME_VERSION_MAJOR,
-            CHROME_VERSION_MINOR,
-            CHROME_VERSION_BUILD,
-            CHROME_VERSION_PATCH));
+               base::StringPrintf("%d.%d.%d.%d", CHROME_VERSION_MAJOR,
+                                  CHROME_VERSION_MINOR, CHROME_VERSION_BUILD,
+                                  CHROME_VERSION_PATCH));
     parser.Add("OS", GetOSType());
     parser.Add("WEBKIT", content::GetWebKitVersion());
     parser.Add("JAVASCRIPT", v8::V8::GetVersion());
@@ -588,14 +576,16 @@ class Delegate : public InternalHandlerDelegate {
     parser.Add("USERAGENT", CefContentClient::Get()->GetUserAgent());
     parser.Add("COMMANDLINE", GetCommandLine());
     parser.Add("MODULEPATH", GetModulePath());
-    parser.Add("CACHEPATH", browser.get() ?
-                  browser->GetHost()->GetRequestContext()->GetCachePath() : "");
+    parser.Add("CACHEPATH",
+               browser.get()
+                   ? browser->GetHost()->GetRequestContext()->GetCachePath()
+                   : "");
 
     std::string tmpl = piece.as_string();
     parser.Parse(&tmpl);
 
     action->mime_type = "text/html";
-    action->stream =  CefStreamReader::CreateForData(
+    action->stream = CefStreamReader::CreateForData(
         const_cast<char*>(tmpl.c_str()), tmpl.length());
     action->stream_size = tmpl.length();
 
@@ -603,8 +593,9 @@ class Delegate : public InternalHandlerDelegate {
   }
 
   bool OnWebUIHosts(Action* action) {
-    std::string html = "<html>\n<head><title>WebUI Hosts</title></head>\n"
-                       "<body bgcolor=\"white\"><h3>WebUI Hosts</h3>\n<ul>\n";
+    std::string html =
+        "<html>\n<head><title>WebUI Hosts</title></head>\n"
+        "<body bgcolor=\"white\"><h3>WebUI Hosts</h3>\n<ul>\n";
 
     std::vector<std::string> list;
     GetAllowedHosts(&list);
@@ -614,15 +605,16 @@ class Delegate : public InternalHandlerDelegate {
       if (IsUnlistedHost(list[i]))
         continue;
 
-      html += "<li><a href=\"chrome://" + list[i] + "\">chrome://" +
-              list[i] + "</a></li>\n";
+      html += "<li><a href=\"chrome://" + list[i] + "\">chrome://" + list[i] +
+              "</a></li>\n";
     }
 
     list.clear();
     GetDebugURLs(&list);
     std::sort(list.begin(), list.end());
 
-    html += "</ul>\n<h3>For Debug</h3>\n"
+    html +=
+        "</ul>\n<h3>For Debug</h3>\n"
         "<p>The following pages are for debugging purposes only. Because they "
         "crash or hang the renderer, they're not linked directly; you can type "
         "them into the address bar if you need them.</p>\n<ul>\n";
@@ -634,7 +626,7 @@ class Delegate : public InternalHandlerDelegate {
     html += "</body>\n</html>";
 
     action->mime_type = "text/html";
-    action->stream =  CefStreamReader::CreateForData(
+    action->stream = CefStreamReader::CreateForData(
         const_cast<char*>(html.c_str()), html.length());
     action->stream_size = html.length();
 
@@ -646,12 +638,11 @@ void DidFinishChromeVersionLoad(CefRefPtr<CefFrame> frame) {
   // Retieve Flash version information and update asynchronously.
   class Visitor : public CefWebPluginInfoVisitor {
    public:
-    Visitor(CefRefPtr<CefFrame> frame)
-        : frame_(frame) {
-    }
+    Visitor(CefRefPtr<CefFrame> frame) : frame_(frame) {}
 
     bool Visit(CefRefPtr<CefWebPluginInfo> info,
-               int count, int total) override {
+               int count,
+               int total) override {
       std::string name = info->GetName();
       if (name == "Shockwave Flash") {
         if (frame_->IsValid()) {
@@ -676,9 +667,9 @@ void DidFinishChromeVersionLoad(CefRefPtr<CefFrame> frame) {
 }
 
 // Wrapper for a ChromeProtocolHandler instance from
-// content/browser/webui/url_data_manager_backend.cc. 
-class ChromeProtocolHandlerWrapper :
-    public net::URLRequestJobFactory::ProtocolHandler {
+// content/browser/webui/url_data_manager_backend.cc.
+class ChromeProtocolHandlerWrapper
+    : public net::URLRequestJobFactory::ProtocolHandler {
  public:
   ChromeProtocolHandlerWrapper(
       CefURLRequestManager* request_manager,
@@ -716,8 +707,7 @@ class ChromeProtocolHandlerWrapper :
 
 void RegisterChromeHandler(CefURLRequestManager* request_manager) {
   request_manager->AddFactory(
-      content::kChromeUIScheme,
-      std::string(),
+      content::kChromeUIScheme, std::string(),
       CreateInternalHandlerFactory(base::WrapUnique(new Delegate())));
 }
 
@@ -734,8 +724,7 @@ void BrowserURLHandlerCreated(content::BrowserURLHandler* handler) {
   CefWebUIControllerFactory::BrowserURLHandlerCreated(handler);
 }
 
-void DidFinishChromeLoad(CefRefPtr<CefFrame> frame,
-                         const GURL& validated_url) {
+void DidFinishChromeLoad(CefRefPtr<CefFrame> frame, const GURL& validated_url) {
   ChromeHostId host_id = GetChromeHostId(validated_url.host());
   switch (host_id) {
     case CHROME_VERSION:

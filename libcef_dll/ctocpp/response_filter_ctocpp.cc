@@ -9,9 +9,10 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=c162c4bbfc565459583569f4bfd0bb7d58da8ce5$
+//
 
 #include "libcef_dll/ctocpp/response_filter_ctocpp.h"
-
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
@@ -26,12 +27,16 @@ bool CefResponseFilterCToCpp::InitFilter() {
   int _retval = _struct->init_filter(_struct);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
-CefResponseFilter::FilterStatus CefResponseFilterCToCpp::Filter(void* data_in,
-    size_t data_in_size, size_t& data_in_read, void* data_out,
-    size_t data_out_size, size_t& data_out_written) {
+CefResponseFilter::FilterStatus CefResponseFilterCToCpp::Filter(
+    void* data_in,
+    size_t data_in_size,
+    size_t& data_in_read,
+    void* data_out,
+    size_t data_out_size,
+    size_t& data_out_written) {
   cef_response_filter_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, filter))
     return RESPONSE_FILTER_ERROR;
@@ -45,36 +50,37 @@ CefResponseFilter::FilterStatus CefResponseFilterCToCpp::Filter(void* data_in,
   // Unverified params: data_in
 
   // Execute
-  cef_response_filter_status_t _retval = _struct->filter(_struct,
-      data_in,
-      data_in_size,
-      &data_in_read,
-      data_out,
-      data_out_size,
-      &data_out_written);
+  cef_response_filter_status_t _retval =
+      _struct->filter(_struct, data_in, data_in_size, &data_in_read, data_out,
+                      data_out_size, &data_out_written);
 
   // Return type: simple
   return _retval;
 }
 
-
 // CONSTRUCTOR - Do not edit by hand.
 
-CefResponseFilterCToCpp::CefResponseFilterCToCpp() {
-}
+CefResponseFilterCToCpp::CefResponseFilterCToCpp() {}
 
-template<> cef_response_filter_t* CefCToCppRefCounted<CefResponseFilterCToCpp,
-    CefResponseFilter, cef_response_filter_t>::UnwrapDerived(
-    CefWrapperType type, CefResponseFilter* c) {
+template <>
+cef_response_filter_t* CefCToCppRefCounted<
+    CefResponseFilterCToCpp,
+    CefResponseFilter,
+    cef_response_filter_t>::UnwrapDerived(CefWrapperType type,
+                                          CefResponseFilter* c) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCppRefCounted<CefResponseFilterCToCpp,
-    CefResponseFilter, cef_response_filter_t>::DebugObjCt = 0;
+template <>
+base::AtomicRefCount CefCToCppRefCounted<CefResponseFilterCToCpp,
+                                         CefResponseFilter,
+                                         cef_response_filter_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCppRefCounted<CefResponseFilterCToCpp,
-    CefResponseFilter, cef_response_filter_t>::kWrapperType =
+template <>
+CefWrapperType CefCToCppRefCounted<CefResponseFilterCToCpp,
+                                   CefResponseFilter,
+                                   cef_response_filter_t>::kWrapperType =
     WT_RESPONSE_FILTER;

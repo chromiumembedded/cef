@@ -16,12 +16,12 @@ class DialogTestHandler : public TestHandler {
  public:
   struct TestConfig {
     explicit TestConfig(FileDialogMode dialog_mode)
-      : mode(dialog_mode),
-        title("Test Title"),
-        default_file_name("Test File Name"),
-        selected_accept_filter(1),  // Something other than 0 for testing.
-        callback_async(false),
-        callback_cancel(false) {
+        : mode(dialog_mode),
+          title("Test Title"),
+          default_file_name("Test File Name"),
+          selected_accept_filter(1),  // Something other than 0 for testing.
+          callback_async(false),
+          callback_cancel(false) {
       accept_types.push_back("text/*");
       accept_types.push_back(".js");
       accept_types.push_back(".css");
@@ -40,9 +40,7 @@ class DialogTestHandler : public TestHandler {
 
   class Callback : public CefRunFileDialogCallback {
    public:
-    explicit Callback(DialogTestHandler* handler)
-        : handler_(handler) {
-    }
+    explicit Callback(DialogTestHandler* handler) : handler_(handler) {}
 
     void OnFileDialogDismissed(
         int selected_accept_filter,
@@ -68,9 +66,7 @@ class DialogTestHandler : public TestHandler {
     IMPLEMENT_REFCOUNTING(Callback);
   };
 
-  explicit DialogTestHandler(const TestConfig& config)
-      : config_(config) {
-  }
+  explicit DialogTestHandler(const TestConfig& config) : config_(config) {}
 
   void RunTest() override {
     AddResource(kTestUrl, "<html><body>TEST</body></html>", "text/html");
@@ -85,12 +81,10 @@ class DialogTestHandler : public TestHandler {
   void OnLoadEnd(CefRefPtr<CefBrowser> browser,
                  CefRefPtr<CefFrame> frame,
                  int httpStatusCode) override {
-    browser->GetHost()->RunFileDialog(config_.mode,
-                                      config_.title,
-                                      config_.default_file_name,
-                                      config_.accept_types,
-                                      config_.selected_accept_filter,
-                                      new Callback(this));
+    browser->GetHost()->RunFileDialog(
+        config_.mode, config_.title, config_.default_file_name,
+        config_.accept_types, config_.selected_accept_filter,
+        new Callback(this));
   }
 
   void ExecuteCallback(CefRefPtr<CefFileDialogCallback> callback) {
@@ -102,14 +96,13 @@ class DialogTestHandler : public TestHandler {
   }
 
   // CefDialogHandler
-  bool OnFileDialog(
-      CefRefPtr<CefBrowser> browser,
-      FileDialogMode mode,
-      const CefString& title,
-      const CefString& default_file_name,
-      const std::vector<CefString>& accept_types,
-      int selected_accept_filter,
-      CefRefPtr<CefFileDialogCallback> callback) override {
+  bool OnFileDialog(CefRefPtr<CefBrowser> browser,
+                    FileDialogMode mode,
+                    const CefString& title,
+                    const CefString& default_file_name,
+                    const std::vector<CefString>& accept_types,
+                    int selected_accept_filter,
+                    CefRefPtr<CefFileDialogCallback> callback) override {
     got_onfiledialog_.yes();
 
     std::string url = browser->GetMainFrame()->GetURL();
@@ -122,8 +115,8 @@ class DialogTestHandler : public TestHandler {
     TestStringVectorEqual(config_.accept_types, accept_types);
 
     if (config_.callback_async) {
-      CefPostTask(TID_UI,
-          base::Bind(&DialogTestHandler::ExecuteCallback, this, callback));
+      CefPostTask(TID_UI, base::Bind(&DialogTestHandler::ExecuteCallback, this,
+                                     callback));
     } else {
       ExecuteCallback(callback);
     }
@@ -163,10 +156,9 @@ TEST(DialogTest, FileEmptyParams) {
 }
 
 TEST(DialogTest, FileAdditionalFlags) {
-  DialogTestHandler::TestConfig config(
-      static_cast<cef_file_dialog_mode_t>(FILE_DIALOG_OPEN |
-                                          FILE_DIALOG_HIDEREADONLY_FLAG |
-                                          FILE_DIALOG_OVERWRITEPROMPT_FLAG));
+  DialogTestHandler::TestConfig config(static_cast<cef_file_dialog_mode_t>(
+      FILE_DIALOG_OPEN | FILE_DIALOG_HIDEREADONLY_FLAG |
+      FILE_DIALOG_OVERWRITEPROMPT_FLAG));
   config.title.clear();
   config.default_file_name.clear();
   config.accept_types.clear();

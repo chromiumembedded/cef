@@ -9,6 +9,8 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=c4f9b419f68b4df50929a757a6978c9c990b54fd$
+//
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_DOMVISITOR_CTOCPP_H_
 #define CEF_LIBCEF_DLL_CTOCPP_DOMVISITOR_CTOCPP_H_
@@ -18,15 +20,15 @@
 #error This file can be included DLL-side only
 #endif
 
-#include "include/cef_dom.h"
 #include "include/capi/cef_dom_capi.h"
+#include "include/cef_dom.h"
 #include "libcef_dll/ctocpp/ctocpp_ref_counted.h"
 
 // Wrap a C structure with a C++ class.
 // This class may be instantiated and accessed DLL-side only.
-class CefDOMVisitorCToCpp
-    : public CefCToCppRefCounted<CefDOMVisitorCToCpp, CefDOMVisitor,
-        cef_domvisitor_t> {
+class CefDOMVisitorCToCpp : public CefCToCppRefCounted<CefDOMVisitorCToCpp,
+                                                       CefDOMVisitor,
+                                                       cef_domvisitor_t> {
  public:
   CefDOMVisitorCToCpp();
 

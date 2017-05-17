@@ -9,6 +9,8 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=9be34c8bb768977d5304f29565a2eb7451f596c4$
+//
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_FIND_HANDLER_CTOCPP_H_
 #define CEF_LIBCEF_DLL_CTOCPP_FIND_HANDLER_CTOCPP_H_
@@ -18,22 +20,25 @@
 #error This file can be included DLL-side only
 #endif
 
-#include "include/cef_find_handler.h"
 #include "include/capi/cef_find_handler_capi.h"
+#include "include/cef_find_handler.h"
 #include "libcef_dll/ctocpp/ctocpp_ref_counted.h"
 
 // Wrap a C structure with a C++ class.
 // This class may be instantiated and accessed DLL-side only.
-class CefFindHandlerCToCpp
-    : public CefCToCppRefCounted<CefFindHandlerCToCpp, CefFindHandler,
-        cef_find_handler_t> {
+class CefFindHandlerCToCpp : public CefCToCppRefCounted<CefFindHandlerCToCpp,
+                                                        CefFindHandler,
+                                                        cef_find_handler_t> {
  public:
   CefFindHandlerCToCpp();
 
   // CefFindHandler methods.
-  void OnFindResult(CefRefPtr<CefBrowser> browser, int identifier, int count,
-      const CefRect& selectionRect, int activeMatchOrdinal,
-      bool finalUpdate) override;
+  void OnFindResult(CefRefPtr<CefBrowser> browser,
+                    int identifier,
+                    int count,
+                    const CefRect& selectionRect,
+                    int activeMatchOrdinal,
+                    bool finalUpdate) override;
 };
 
 #endif  // CEF_LIBCEF_DLL_CTOCPP_FIND_HANDLER_CTOCPP_H_

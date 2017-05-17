@@ -9,17 +9,18 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=8e46f821396e176418b12eea00f98c94a7af9bbb$
+//
 
 #include "libcef_dll/cpptoc/x509cert_principal_cpptoc.h"
 #include "libcef_dll/transfer_util.h"
-
 
 namespace {
 
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
-cef_string_userfree_t CEF_CALLBACK x509cert_principal_get_display_name(
-    struct _cef_x509cert_principal_t* self) {
+cef_string_userfree_t CEF_CALLBACK
+x509cert_principal_get_display_name(struct _cef_x509cert_principal_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -33,8 +34,8 @@ cef_string_userfree_t CEF_CALLBACK x509cert_principal_get_display_name(
   return _retval.DetachToUserFree();
 }
 
-cef_string_userfree_t CEF_CALLBACK x509cert_principal_get_common_name(
-    struct _cef_x509cert_principal_t* self) {
+cef_string_userfree_t CEF_CALLBACK
+x509cert_principal_get_common_name(struct _cef_x509cert_principal_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -48,8 +49,8 @@ cef_string_userfree_t CEF_CALLBACK x509cert_principal_get_common_name(
   return _retval.DetachToUserFree();
 }
 
-cef_string_userfree_t CEF_CALLBACK x509cert_principal_get_locality_name(
-    struct _cef_x509cert_principal_t* self) {
+cef_string_userfree_t CEF_CALLBACK
+x509cert_principal_get_locality_name(struct _cef_x509cert_principal_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -63,7 +64,8 @@ cef_string_userfree_t CEF_CALLBACK x509cert_principal_get_locality_name(
   return _retval.DetachToUserFree();
 }
 
-cef_string_userfree_t CEF_CALLBACK x509cert_principal_get_state_or_province_name(
+cef_string_userfree_t CEF_CALLBACK
+x509cert_principal_get_state_or_province_name(
     struct _cef_x509cert_principal_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -72,15 +74,15 @@ cef_string_userfree_t CEF_CALLBACK x509cert_principal_get_state_or_province_name
     return NULL;
 
   // Execute
-  CefString _retval = CefX509CertPrincipalCppToC::Get(
-      self)->GetStateOrProvinceName();
+  CefString _retval =
+      CefX509CertPrincipalCppToC::Get(self)->GetStateOrProvinceName();
 
   // Return type: string
   return _retval.DetachToUserFree();
 }
 
-cef_string_userfree_t CEF_CALLBACK x509cert_principal_get_country_name(
-    struct _cef_x509cert_principal_t* self) {
+cef_string_userfree_t CEF_CALLBACK
+x509cert_principal_get_country_name(struct _cef_x509cert_principal_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -94,8 +96,9 @@ cef_string_userfree_t CEF_CALLBACK x509cert_principal_get_country_name(
   return _retval.DetachToUserFree();
 }
 
-void CEF_CALLBACK x509cert_principal_get_street_addresses(
-    struct _cef_x509cert_principal_t* self, cef_string_list_t addresses) {
+void CEF_CALLBACK
+x509cert_principal_get_street_addresses(struct _cef_x509cert_principal_t* self,
+                                        cef_string_list_t addresses) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -111,8 +114,7 @@ void CEF_CALLBACK x509cert_principal_get_street_addresses(
   transfer_string_list_contents(addresses, addressesList);
 
   // Execute
-  CefX509CertPrincipalCppToC::Get(self)->GetStreetAddresses(
-      addressesList);
+  CefX509CertPrincipalCppToC::Get(self)->GetStreetAddresses(addressesList);
 
   // Restore param: addresses; type: string_vec_byref
   cef_string_list_clear(addresses);
@@ -120,7 +122,8 @@ void CEF_CALLBACK x509cert_principal_get_street_addresses(
 }
 
 void CEF_CALLBACK x509cert_principal_get_organization_names(
-    struct _cef_x509cert_principal_t* self, cef_string_list_t names) {
+    struct _cef_x509cert_principal_t* self,
+    cef_string_list_t names) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -136,8 +139,7 @@ void CEF_CALLBACK x509cert_principal_get_organization_names(
   transfer_string_list_contents(names, namesList);
 
   // Execute
-  CefX509CertPrincipalCppToC::Get(self)->GetOrganizationNames(
-      namesList);
+  CefX509CertPrincipalCppToC::Get(self)->GetOrganizationNames(namesList);
 
   // Restore param: names; type: string_vec_byref
   cef_string_list_clear(names);
@@ -145,7 +147,8 @@ void CEF_CALLBACK x509cert_principal_get_organization_names(
 }
 
 void CEF_CALLBACK x509cert_principal_get_organization_unit_names(
-    struct _cef_x509cert_principal_t* self, cef_string_list_t names) {
+    struct _cef_x509cert_principal_t* self,
+    cef_string_list_t names) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -161,16 +164,16 @@ void CEF_CALLBACK x509cert_principal_get_organization_unit_names(
   transfer_string_list_contents(names, namesList);
 
   // Execute
-  CefX509CertPrincipalCppToC::Get(self)->GetOrganizationUnitNames(
-      namesList);
+  CefX509CertPrincipalCppToC::Get(self)->GetOrganizationUnitNames(namesList);
 
   // Restore param: names; type: string_vec_byref
   cef_string_list_clear(names);
   transfer_string_list_contents(namesList, names);
 }
 
-void CEF_CALLBACK x509cert_principal_get_domain_components(
-    struct _cef_x509cert_principal_t* self, cef_string_list_t components) {
+void CEF_CALLBACK
+x509cert_principal_get_domain_components(struct _cef_x509cert_principal_t* self,
+                                         cef_string_list_t components) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -186,8 +189,7 @@ void CEF_CALLBACK x509cert_principal_get_domain_components(
   transfer_string_list_contents(components, componentsList);
 
   // Execute
-  CefX509CertPrincipalCppToC::Get(self)->GetDomainComponents(
-      componentsList);
+  CefX509CertPrincipalCppToC::Get(self)->GetDomainComponents(componentsList);
 
   // Restore param: components; type: string_vec_byref
   cef_string_list_clear(components);
@@ -195,7 +197,6 @@ void CEF_CALLBACK x509cert_principal_get_domain_components(
 }
 
 }  // namespace
-
 
 // CONSTRUCTOR - Do not edit by hand.
 
@@ -214,18 +215,26 @@ CefX509CertPrincipalCppToC::CefX509CertPrincipalCppToC() {
   GetStruct()->get_domain_components = x509cert_principal_get_domain_components;
 }
 
-template<> CefRefPtr<CefX509CertPrincipal> CefCppToCRefCounted<CefX509CertPrincipalCppToC,
-    CefX509CertPrincipal, cef_x509cert_principal_t>::UnwrapDerived(
-    CefWrapperType type, cef_x509cert_principal_t* s) {
+template <>
+CefRefPtr<CefX509CertPrincipal> CefCppToCRefCounted<
+    CefX509CertPrincipalCppToC,
+    CefX509CertPrincipal,
+    cef_x509cert_principal_t>::UnwrapDerived(CefWrapperType type,
+                                             cef_x509cert_principal_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCppToCRefCounted<CefX509CertPrincipalCppToC,
-    CefX509CertPrincipal, cef_x509cert_principal_t>::DebugObjCt = 0;
+template <>
+base::AtomicRefCount CefCppToCRefCounted<CefX509CertPrincipalCppToC,
+                                         CefX509CertPrincipal,
+                                         cef_x509cert_principal_t>::DebugObjCt =
+    0;
 #endif
 
-template<> CefWrapperType CefCppToCRefCounted<CefX509CertPrincipalCppToC,
-    CefX509CertPrincipal, cef_x509cert_principal_t>::kWrapperType =
+template <>
+CefWrapperType CefCppToCRefCounted<CefX509CertPrincipalCppToC,
+                                   CefX509CertPrincipal,
+                                   cef_x509cert_principal_t>::kWrapperType =
     WT_X509CERT_PRINCIPAL;

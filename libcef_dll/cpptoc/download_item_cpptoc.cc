@@ -9,9 +9,10 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=8406edcb1d9c418e704ebbc3ccad44dc4ca84244$
+//
 
 #include "libcef_dll/cpptoc/download_item_cpptoc.h"
-
 
 namespace {
 
@@ -31,8 +32,8 @@ int CEF_CALLBACK download_item_is_valid(struct _cef_download_item_t* self) {
   return _retval;
 }
 
-int CEF_CALLBACK download_item_is_in_progress(
-    struct _cef_download_item_t* self) {
+int CEF_CALLBACK
+download_item_is_in_progress(struct _cef_download_item_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -74,8 +75,8 @@ int CEF_CALLBACK download_item_is_canceled(struct _cef_download_item_t* self) {
   return _retval;
 }
 
-int64 CEF_CALLBACK download_item_get_current_speed(
-    struct _cef_download_item_t* self) {
+int64 CEF_CALLBACK
+download_item_get_current_speed(struct _cef_download_item_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -89,8 +90,8 @@ int64 CEF_CALLBACK download_item_get_current_speed(
   return _retval;
 }
 
-int CEF_CALLBACK download_item_get_percent_complete(
-    struct _cef_download_item_t* self) {
+int CEF_CALLBACK
+download_item_get_percent_complete(struct _cef_download_item_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -104,8 +105,8 @@ int CEF_CALLBACK download_item_get_percent_complete(
   return _retval;
 }
 
-int64 CEF_CALLBACK download_item_get_total_bytes(
-    struct _cef_download_item_t* self) {
+int64 CEF_CALLBACK
+download_item_get_total_bytes(struct _cef_download_item_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -119,8 +120,8 @@ int64 CEF_CALLBACK download_item_get_total_bytes(
   return _retval;
 }
 
-int64 CEF_CALLBACK download_item_get_received_bytes(
-    struct _cef_download_item_t* self) {
+int64 CEF_CALLBACK
+download_item_get_received_bytes(struct _cef_download_item_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -134,8 +135,8 @@ int64 CEF_CALLBACK download_item_get_received_bytes(
   return _retval;
 }
 
-cef_time_t CEF_CALLBACK download_item_get_start_time(
-    struct _cef_download_item_t* self) {
+cef_time_t CEF_CALLBACK
+download_item_get_start_time(struct _cef_download_item_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -149,8 +150,8 @@ cef_time_t CEF_CALLBACK download_item_get_start_time(
   return _retval;
 }
 
-cef_time_t CEF_CALLBACK download_item_get_end_time(
-    struct _cef_download_item_t* self) {
+cef_time_t CEF_CALLBACK
+download_item_get_end_time(struct _cef_download_item_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -164,8 +165,8 @@ cef_time_t CEF_CALLBACK download_item_get_end_time(
   return _retval;
 }
 
-cef_string_userfree_t CEF_CALLBACK download_item_get_full_path(
-    struct _cef_download_item_t* self) {
+cef_string_userfree_t CEF_CALLBACK
+download_item_get_full_path(struct _cef_download_item_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -193,8 +194,8 @@ uint32 CEF_CALLBACK download_item_get_id(struct _cef_download_item_t* self) {
   return _retval;
 }
 
-cef_string_userfree_t CEF_CALLBACK download_item_get_url(
-    struct _cef_download_item_t* self) {
+cef_string_userfree_t CEF_CALLBACK
+download_item_get_url(struct _cef_download_item_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -208,8 +209,8 @@ cef_string_userfree_t CEF_CALLBACK download_item_get_url(
   return _retval.DetachToUserFree();
 }
 
-cef_string_userfree_t CEF_CALLBACK download_item_get_original_url(
-    struct _cef_download_item_t* self) {
+cef_string_userfree_t CEF_CALLBACK
+download_item_get_original_url(struct _cef_download_item_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -223,8 +224,8 @@ cef_string_userfree_t CEF_CALLBACK download_item_get_original_url(
   return _retval.DetachToUserFree();
 }
 
-cef_string_userfree_t CEF_CALLBACK download_item_get_suggested_file_name(
-    struct _cef_download_item_t* self) {
+cef_string_userfree_t CEF_CALLBACK
+download_item_get_suggested_file_name(struct _cef_download_item_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -238,8 +239,8 @@ cef_string_userfree_t CEF_CALLBACK download_item_get_suggested_file_name(
   return _retval.DetachToUserFree();
 }
 
-cef_string_userfree_t CEF_CALLBACK download_item_get_content_disposition(
-    struct _cef_download_item_t* self) {
+cef_string_userfree_t CEF_CALLBACK
+download_item_get_content_disposition(struct _cef_download_item_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -253,8 +254,8 @@ cef_string_userfree_t CEF_CALLBACK download_item_get_content_disposition(
   return _retval.DetachToUserFree();
 }
 
-cef_string_userfree_t CEF_CALLBACK download_item_get_mime_type(
-    struct _cef_download_item_t* self) {
+cef_string_userfree_t CEF_CALLBACK
+download_item_get_mime_type(struct _cef_download_item_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -269,7 +270,6 @@ cef_string_userfree_t CEF_CALLBACK download_item_get_mime_type(
 }
 
 }  // namespace
-
 
 // CONSTRUCTOR - Do not edit by hand.
 
@@ -293,17 +293,25 @@ CefDownloadItemCppToC::CefDownloadItemCppToC() {
   GetStruct()->get_mime_type = download_item_get_mime_type;
 }
 
-template<> CefRefPtr<CefDownloadItem> CefCppToCRefCounted<CefDownloadItemCppToC,
-    CefDownloadItem, cef_download_item_t>::UnwrapDerived(CefWrapperType type,
-    cef_download_item_t* s) {
+template <>
+CefRefPtr<CefDownloadItem> CefCppToCRefCounted<
+    CefDownloadItemCppToC,
+    CefDownloadItem,
+    cef_download_item_t>::UnwrapDerived(CefWrapperType type,
+                                        cef_download_item_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCppToCRefCounted<CefDownloadItemCppToC,
-    CefDownloadItem, cef_download_item_t>::DebugObjCt = 0;
+template <>
+base::AtomicRefCount CefCppToCRefCounted<CefDownloadItemCppToC,
+                                         CefDownloadItem,
+                                         cef_download_item_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCppToCRefCounted<CefDownloadItemCppToC,
-    CefDownloadItem, cef_download_item_t>::kWrapperType = WT_DOWNLOAD_ITEM;
+template <>
+CefWrapperType CefCppToCRefCounted<CefDownloadItemCppToC,
+                                   CefDownloadItem,
+                                   cef_download_item_t>::kWrapperType =
+    WT_DOWNLOAD_ITEM;

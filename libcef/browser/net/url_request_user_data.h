@@ -6,9 +6,9 @@
 #define CEF_LIBCEF_BROWSER_NET_URL_REQUEST_USER_DATA_H_
 
 #include "include/cef_base.h"
-#include "base/supports_user_data.h"
-
 #include "include/cef_urlrequest.h"
+
+#include "base/supports_user_data.h"
 
 // Used to annotate all URLRequests for which the request can be associated
 // with the CefURLRequestClient.
@@ -20,7 +20,7 @@ class CefURLRequestUserData : public base::SupportsUserData::Data {
   CefRefPtr<CefURLRequestClient> GetClient();
   static const void* kUserDataKey;
 
-private:
+ private:
   CefRefPtr<CefURLRequestClient> client_;
 };
 

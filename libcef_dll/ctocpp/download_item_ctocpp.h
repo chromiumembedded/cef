@@ -9,6 +9,8 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=cbfee67d01164f3c2f132287633a3ef4110d56b7$
+//
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_DOWNLOAD_ITEM_CTOCPP_H_
 #define CEF_LIBCEF_DLL_CTOCPP_DOWNLOAD_ITEM_CTOCPP_H_
@@ -18,15 +20,15 @@
 #error This file can be included wrapper-side only
 #endif
 
-#include "include/cef_download_item.h"
 #include "include/capi/cef_download_item_capi.h"
+#include "include/cef_download_item.h"
 #include "libcef_dll/ctocpp/ctocpp_ref_counted.h"
 
 // Wrap a C structure with a C++ class.
 // This class may be instantiated and accessed wrapper-side only.
-class CefDownloadItemCToCpp
-    : public CefCToCppRefCounted<CefDownloadItemCToCpp, CefDownloadItem,
-        cef_download_item_t> {
+class CefDownloadItemCToCpp : public CefCToCppRefCounted<CefDownloadItemCToCpp,
+                                                         CefDownloadItem,
+                                                         cef_download_item_t> {
  public:
   CefDownloadItemCToCpp();
 

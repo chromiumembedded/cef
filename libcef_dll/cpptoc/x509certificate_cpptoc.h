@@ -9,6 +9,8 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=c81df43e809135d955d8420be549362053cce12c$
+//
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_X509CERTIFICATE_CPPTOC_H_
 #define CEF_LIBCEF_DLL_CPPTOC_X509CERTIFICATE_CPPTOC_H_
@@ -18,15 +20,16 @@
 #error This file can be included DLL-side only
 #endif
 
-#include "include/cef_x509_certificate.h"
 #include "include/capi/cef_x509_certificate_capi.h"
+#include "include/cef_x509_certificate.h"
 #include "libcef_dll/cpptoc/cpptoc_ref_counted.h"
 
 // Wrap a C++ class with a C structure.
 // This class may be instantiated and accessed DLL-side only.
 class CefX509CertificateCppToC
-    : public CefCppToCRefCounted<CefX509CertificateCppToC, CefX509Certificate,
-        cef_x509certificate_t> {
+    : public CefCppToCRefCounted<CefX509CertificateCppToC,
+                                 CefX509Certificate,
+                                 cef_x509certificate_t> {
  public:
   CefX509CertificateCppToC();
 };

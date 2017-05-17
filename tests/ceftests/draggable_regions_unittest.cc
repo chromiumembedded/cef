@@ -23,8 +23,7 @@ const char kTestHTMLWithRegions[] =
     "</html>";
 
 const char kTestURLWithoutRegions[] = "http://test.com/no-regions";
-const char kTestHTMLWithoutRegions[] =
-    "<html><body>Hello World!</body></html>";
+const char kTestHTMLWithoutRegions[] = "<html><body>Hello World!</body></html>";
 
 const char kTestURLWithChangingRegions[] = "http://test.com/changing-regions";
 const char kTestHTMLWithChangingRegions[] =
@@ -50,8 +49,7 @@ const char kTestHTMLWithChangingRegions[] =
 
 class DraggableRegionsTestHandler : public TestHandler {
  public:
-  DraggableRegionsTestHandler()
-    : step_(kStepWithRegions) {}
+  DraggableRegionsTestHandler() : step_(kStepWithRegions) {}
 
   void RunTest() override {
     // Add HTML documents with and without draggable regions.
@@ -136,8 +134,9 @@ class DraggableRegionsTestHandler : public TestHandler {
         step_ = kStepWithoutRegions;
         frame->LoadURL(kTestURLWithoutRegions);
         // Needed because this test doesn't call OnDraggableRegionsChanged.
-        CefPostDelayedTask(TID_UI,
-            base::Bind(&DraggableRegionsTestHandler::DestroyTest, this), 500);
+        CefPostDelayedTask(
+            TID_UI, base::Bind(&DraggableRegionsTestHandler::DestroyTest, this),
+            500);
         break;
       case kStepWithoutRegions: {
         // Should not be reached.

@@ -9,10 +9,11 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=f5305fa3abe2638b3a079e76ab9f8c0a4d2a259d$
+//
 
 #include "libcef_dll/cpptoc/task_runner_cpptoc.h"
 #include "libcef_dll/ctocpp/task_ctocpp.h"
-
 
 // GLOBAL FUNCTIONS - Body may be edited by hand.
 
@@ -31,20 +32,18 @@ CEF_EXPORT cef_task_runner_t* cef_task_runner_get_for_thread(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  CefRefPtr<CefTaskRunner> _retval = CefTaskRunner::GetForThread(
-      threadId);
+  CefRefPtr<CefTaskRunner> _retval = CefTaskRunner::GetForThread(threadId);
 
   // Return type: refptr_same
   return CefTaskRunnerCppToC::Wrap(_retval);
 }
-
 
 namespace {
 
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
 int CEF_CALLBACK task_runner_is_same(struct _cef_task_runner_t* self,
-    struct _cef_task_runner_t* that) {
+                                     struct _cef_task_runner_t* that) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -56,15 +55,15 @@ int CEF_CALLBACK task_runner_is_same(struct _cef_task_runner_t* self,
     return 0;
 
   // Execute
-  bool _retval = CefTaskRunnerCppToC::Get(self)->IsSame(
-      CefTaskRunnerCppToC::Unwrap(that));
+  bool _retval =
+      CefTaskRunnerCppToC::Get(self)->IsSame(CefTaskRunnerCppToC::Unwrap(that));
 
   // Return type: bool
   return _retval;
 }
 
-int CEF_CALLBACK task_runner_belongs_to_current_thread(
-    struct _cef_task_runner_t* self) {
+int CEF_CALLBACK
+task_runner_belongs_to_current_thread(struct _cef_task_runner_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -79,7 +78,7 @@ int CEF_CALLBACK task_runner_belongs_to_current_thread(
 }
 
 int CEF_CALLBACK task_runner_belongs_to_thread(struct _cef_task_runner_t* self,
-    cef_thread_id_t threadId) {
+                                               cef_thread_id_t threadId) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -87,15 +86,14 @@ int CEF_CALLBACK task_runner_belongs_to_thread(struct _cef_task_runner_t* self,
     return 0;
 
   // Execute
-  bool _retval = CefTaskRunnerCppToC::Get(self)->BelongsToThread(
-      threadId);
+  bool _retval = CefTaskRunnerCppToC::Get(self)->BelongsToThread(threadId);
 
   // Return type: bool
   return _retval;
 }
 
 int CEF_CALLBACK task_runner_post_task(struct _cef_task_runner_t* self,
-    cef_task_t* task) {
+                                       cef_task_t* task) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -107,15 +105,16 @@ int CEF_CALLBACK task_runner_post_task(struct _cef_task_runner_t* self,
     return 0;
 
   // Execute
-  bool _retval = CefTaskRunnerCppToC::Get(self)->PostTask(
-      CefTaskCToCpp::Wrap(task));
+  bool _retval =
+      CefTaskRunnerCppToC::Get(self)->PostTask(CefTaskCToCpp::Wrap(task));
 
   // Return type: bool
   return _retval;
 }
 
 int CEF_CALLBACK task_runner_post_delayed_task(struct _cef_task_runner_t* self,
-    cef_task_t* task, int64 delay_ms) {
+                                               cef_task_t* task,
+                                               int64 delay_ms) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -128,15 +127,13 @@ int CEF_CALLBACK task_runner_post_delayed_task(struct _cef_task_runner_t* self,
 
   // Execute
   bool _retval = CefTaskRunnerCppToC::Get(self)->PostDelayedTask(
-      CefTaskCToCpp::Wrap(task),
-      delay_ms);
+      CefTaskCToCpp::Wrap(task), delay_ms);
 
   // Return type: bool
   return _retval;
 }
 
 }  // namespace
-
 
 // CONSTRUCTOR - Do not edit by hand.
 
@@ -149,17 +146,23 @@ CefTaskRunnerCppToC::CefTaskRunnerCppToC() {
   GetStruct()->post_delayed_task = task_runner_post_delayed_task;
 }
 
-template<> CefRefPtr<CefTaskRunner> CefCppToCRefCounted<CefTaskRunnerCppToC,
-    CefTaskRunner, cef_task_runner_t>::UnwrapDerived(CefWrapperType type,
-    cef_task_runner_t* s) {
+template <>
+CefRefPtr<CefTaskRunner>
+CefCppToCRefCounted<CefTaskRunnerCppToC, CefTaskRunner, cef_task_runner_t>::
+    UnwrapDerived(CefWrapperType type, cef_task_runner_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCppToCRefCounted<CefTaskRunnerCppToC,
-    CefTaskRunner, cef_task_runner_t>::DebugObjCt = 0;
+template <>
+base::AtomicRefCount CefCppToCRefCounted<CefTaskRunnerCppToC,
+                                         CefTaskRunner,
+                                         cef_task_runner_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCppToCRefCounted<CefTaskRunnerCppToC,
-    CefTaskRunner, cef_task_runner_t>::kWrapperType = WT_TASK_RUNNER;
+template <>
+CefWrapperType CefCppToCRefCounted<CefTaskRunnerCppToC,
+                                   CefTaskRunner,
+                                   cef_task_runner_t>::kWrapperType =
+    WT_TASK_RUNNER;

@@ -68,7 +68,8 @@ class CefExtensionsRendererClient : public ExtensionsRendererClient {
       const GURL& original_url);
 
  private:
-  std::unique_ptr<extensions::DispatcherDelegate> extension_dispatcher_delegate_;
+  std::unique_ptr<extensions::DispatcherDelegate>
+      extension_dispatcher_delegate_;
   std::unique_ptr<extensions::Dispatcher> extension_dispatcher_;
   std::unique_ptr<extensions::ExtensionsGuestViewContainerDispatcher>
       guest_view_container_dispatcher_;

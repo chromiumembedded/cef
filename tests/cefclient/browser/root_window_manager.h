@@ -28,11 +28,10 @@ class RootWindowManager : public RootWindow::Delegate {
   // If |with_osr| is true the window will use off-screen rendering.
   // If |bounds| is empty the default window size and location will be used.
   // This method can be called from anywhere to create a new top-level window.
-  scoped_refptr<RootWindow> CreateRootWindow(
-      bool with_controls,
-      bool with_osr,
-      const CefRect& bounds,
-      const std::string& url);
+  scoped_refptr<RootWindow> CreateRootWindow(bool with_controls,
+                                             bool with_osr,
+                                             const CefRect& bounds,
+                                             const std::string& url);
 
   // Create a new native popup window.
   // If |with_controls| is true the window will show controls.
@@ -76,7 +75,7 @@ class RootWindowManager : public RootWindow::Delegate {
   bool request_context_shared_cache_;
 
   // Existing root windows. Only accessed on the main thread.
-  typedef std::set<scoped_refptr<RootWindow> > RootWindowSet;
+  typedef std::set<scoped_refptr<RootWindow>> RootWindowSet;
   RootWindowSet root_windows_;
 
   // Singleton window used as the temporary parent for popup browsers.

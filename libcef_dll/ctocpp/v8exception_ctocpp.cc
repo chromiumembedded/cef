@@ -9,9 +9,10 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=e9044628b089a7405c28d4c6c91665ca11534519$
+//
 
 #include "libcef_dll/ctocpp/v8exception_ctocpp.h"
-
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
@@ -133,23 +134,27 @@ int CefV8ExceptionCToCpp::GetEndColumn() {
   return _retval;
 }
 
-
 // CONSTRUCTOR - Do not edit by hand.
 
-CefV8ExceptionCToCpp::CefV8ExceptionCToCpp() {
-}
+CefV8ExceptionCToCpp::CefV8ExceptionCToCpp() {}
 
-template<> cef_v8exception_t* CefCToCppRefCounted<CefV8ExceptionCToCpp,
-    CefV8Exception, cef_v8exception_t>::UnwrapDerived(CefWrapperType type,
-    CefV8Exception* c) {
+template <>
+cef_v8exception_t*
+CefCToCppRefCounted<CefV8ExceptionCToCpp, CefV8Exception, cef_v8exception_t>::
+    UnwrapDerived(CefWrapperType type, CefV8Exception* c) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCppRefCounted<CefV8ExceptionCToCpp,
-    CefV8Exception, cef_v8exception_t>::DebugObjCt = 0;
+template <>
+base::AtomicRefCount CefCToCppRefCounted<CefV8ExceptionCToCpp,
+                                         CefV8Exception,
+                                         cef_v8exception_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCppRefCounted<CefV8ExceptionCToCpp,
-    CefV8Exception, cef_v8exception_t>::kWrapperType = WT_V8EXCEPTION;
+template <>
+CefWrapperType CefCToCppRefCounted<CefV8ExceptionCToCpp,
+                                   CefV8Exception,
+                                   cef_v8exception_t>::kWrapperType =
+    WT_V8EXCEPTION;

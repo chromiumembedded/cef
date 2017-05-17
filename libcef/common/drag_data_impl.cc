@@ -4,20 +4,18 @@
 
 #include <string>
 
+#include "base/files/file_path.h"
 #include "libcef/browser/stream_impl.h"
 #include "libcef/common/drag_data_impl.h"
-#include "base/files/file_path.h"
 
-#define CHECK_READONLY_RETURN_VOID() \
-  if (read_only_) { \
+#define CHECK_READONLY_RETURN_VOID()       \
+  if (read_only_) {                        \
     NOTREACHED() << "object is read only"; \
-    return; \
+    return;                                \
   }
 
 CefDragDataImpl::CefDragDataImpl(const content::DropData& data)
-    : data_(data),
-      read_only_(false) {
-}
+    : data_(data), read_only_(false) {}
 
 CefDragDataImpl::CefDragDataImpl(const content::DropData& data,
                                  CefRefPtr<CefImage> image,
@@ -25,12 +23,9 @@ CefDragDataImpl::CefDragDataImpl(const content::DropData& data,
     : data_(data),
       image_(image),
       image_hotspot_(image_hotspot),
-      read_only_(false) {
-}
+      read_only_(false) {}
 
-CefDragDataImpl::CefDragDataImpl()
-    : read_only_(false) {
-}
+CefDragDataImpl::CefDragDataImpl() : read_only_(false) {}
 
 CefRefPtr<CefDragData> CefDragData::Create() {
   return new CefDragDataImpl();
@@ -128,8 +123,7 @@ bool CefDragDataImpl::GetFileNames(std::vector<CefString>& names) {
   if (data_.filenames.empty())
     return false;
 
-  std::vector<ui::FileInfo>::const_iterator it =
-      data_.filenames.begin();
+  std::vector<ui::FileInfo>::const_iterator it = data_.filenames.begin();
   for (; it != data_.filenames.end(); ++it)
     names.push_back(it->path.value());
 
@@ -185,8 +179,8 @@ void CefDragDataImpl::AddFile(const CefString& path,
                               const CefString& display_name) {
   base::AutoLock lock_scope(lock_);
   CHECK_READONLY_RETURN_VOID();
-  data_.filenames.push_back(ui::FileInfo(base::FilePath(path),
-                                         base::FilePath(display_name)));
+  data_.filenames.push_back(
+      ui::FileInfo(base::FilePath(path), base::FilePath(display_name)));
 }
 
 void CefDragDataImpl::SetReadOnly(bool read_only) {

@@ -9,6 +9,8 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=1e7369596ef3c39e73d8349601e0b5bfdb24d1ef$
+//
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_VIEWS_BROWSER_VIEW_CTOCPP_H_
 #define CEF_LIBCEF_DLL_CTOCPP_VIEWS_BROWSER_VIEW_CTOCPP_H_
@@ -18,15 +20,15 @@
 #error This file can be included wrapper-side only
 #endif
 
-#include "include/views/cef_browser_view.h"
 #include "include/capi/views/cef_browser_view_capi.h"
+#include "include/views/cef_browser_view.h"
 #include "libcef_dll/ctocpp/ctocpp_ref_counted.h"
 
 // Wrap a C structure with a C++ class.
 // This class may be instantiated and accessed wrapper-side only.
-class CefBrowserViewCToCpp
-    : public CefCToCppRefCounted<CefBrowserViewCToCpp, CefBrowserView,
-        cef_browser_view_t> {
+class CefBrowserViewCToCpp : public CefCToCppRefCounted<CefBrowserViewCToCpp,
+                                                        CefBrowserView,
+                                                        cef_browser_view_t> {
  public:
   CefBrowserViewCToCpp();
 

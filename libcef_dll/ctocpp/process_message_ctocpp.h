@@ -9,6 +9,8 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=12096d5fdfd928cef1cf8a3752f8f08c04444c97$
+//
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_PROCESS_MESSAGE_CTOCPP_H_
 #define CEF_LIBCEF_DLL_CTOCPP_PROCESS_MESSAGE_CTOCPP_H_
@@ -18,15 +20,16 @@
 #error This file can be included wrapper-side only
 #endif
 
-#include "include/cef_process_message.h"
 #include "include/capi/cef_process_message_capi.h"
+#include "include/cef_process_message.h"
 #include "libcef_dll/ctocpp/ctocpp_ref_counted.h"
 
 // Wrap a C structure with a C++ class.
 // This class may be instantiated and accessed wrapper-side only.
 class CefProcessMessageCToCpp
-    : public CefCToCppRefCounted<CefProcessMessageCToCpp, CefProcessMessage,
-        cef_process_message_t> {
+    : public CefCToCppRefCounted<CefProcessMessageCToCpp,
+                                 CefProcessMessage,
+                                 cef_process_message_t> {
  public:
   CefProcessMessageCToCpp();
 

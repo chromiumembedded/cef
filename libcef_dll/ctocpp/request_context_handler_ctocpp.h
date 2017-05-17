@@ -9,6 +9,8 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=f51e1ceef8535c2d81dd7a9918da5e3b9861376f$
+//
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_REQUEST_CONTEXT_HANDLER_CTOCPP_H_
 #define CEF_LIBCEF_DLL_CTOCPP_REQUEST_CONTEXT_HANDLER_CTOCPP_H_
@@ -18,24 +20,27 @@
 #error This file can be included DLL-side only
 #endif
 
-#include "include/cef_request_context_handler.h"
 #include "include/capi/cef_request_context_handler_capi.h"
+#include "include/cef_request_context_handler.h"
 #include "libcef_dll/ctocpp/ctocpp_ref_counted.h"
 
 // Wrap a C structure with a C++ class.
 // This class may be instantiated and accessed DLL-side only.
 class CefRequestContextHandlerCToCpp
     : public CefCToCppRefCounted<CefRequestContextHandlerCToCpp,
-        CefRequestContextHandler, cef_request_context_handler_t> {
+                                 CefRequestContextHandler,
+                                 cef_request_context_handler_t> {
  public:
   CefRequestContextHandlerCToCpp();
 
   // CefRequestContextHandler methods.
   CefRefPtr<CefCookieManager> GetCookieManager() override;
   bool OnBeforePluginLoad(const CefString& mime_type,
-      const CefString& plugin_url, bool is_main_frame,
-      const CefString& top_origin_url, CefRefPtr<CefWebPluginInfo> plugin_info,
-      PluginPolicy* plugin_policy) override;
+                          const CefString& plugin_url,
+                          bool is_main_frame,
+                          const CefString& top_origin_url,
+                          CefRefPtr<CefWebPluginInfo> plugin_info,
+                          PluginPolicy* plugin_policy) override;
 };
 
 #endif  // CEF_LIBCEF_DLL_CTOCPP_REQUEST_CONTEXT_HANDLER_CTOCPP_H_

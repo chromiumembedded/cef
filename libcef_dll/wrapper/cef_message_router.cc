@@ -35,8 +35,7 @@ const char kCanceledErrorMessage[] = "The query has been canceled";
 // Validate configuration settings.
 bool ValidateConfig(CefMessageRouterConfig& config) {
   // Must specify function names.
-  if (config.js_cancel_function.empty() ||
-      config.js_query_function.empty()) {
+  if (config.js_cancel_function.empty() || config.js_query_function.empty()) {
     return false;
   }
 
@@ -75,8 +74,7 @@ class CefMessageRouterBrowserSideImpl : public CefMessageRouterBrowserSide {
         : router_(router),
           browser_id_(browser_id),
           query_id_(query_id),
-          persistent_(persistent) {
-    }
+          persistent_(persistent) {}
     virtual ~CallbackImpl() {
       // Hitting this DCHECK means that you didn't call Success or Failure
       // on the Callback after returning true from Handler::OnQuery. You must
@@ -87,13 +85,13 @@ class CefMessageRouterBrowserSideImpl : public CefMessageRouterBrowserSide {
     virtual void Success(const CefString& response) OVERRIDE {
       if (!CefCurrentlyOn(TID_UI)) {
         // Must execute on the UI thread to access member variables.
-        CefPostTask(TID_UI,
-            base::Bind(&CallbackImpl::Success, this, response));
+        CefPostTask(TID_UI, base::Bind(&CallbackImpl::Success, this, response));
         return;
       }
 
       if (router_) {
-        CefPostTask(TID_UI,
+        CefPostTask(
+            TID_UI,
             base::Bind(&CefMessageRouterBrowserSideImpl::OnCallbackSuccess,
                        router_.get(), browser_id_, query_id_, response));
 
@@ -108,14 +106,14 @@ class CefMessageRouterBrowserSideImpl : public CefMessageRouterBrowserSide {
                          const CefString& error_message) OVERRIDE {
       if (!CefCurrentlyOn(TID_UI)) {
         // Must execute on the UI thread to access member variables.
-        CefPostTask(TID_UI,
-            base::Bind(&CallbackImpl::Failure, this,
-                       error_code, error_message));
+        CefPostTask(TID_UI, base::Bind(&CallbackImpl::Failure, this, error_code,
+                                       error_message));
         return;
       }
 
       if (router_) {
-        CefPostTask(TID_UI,
+        CefPostTask(
+            TID_UI,
             base::Bind(&CefMessageRouterBrowserSideImpl::OnCallbackFailure,
                        router_.get(), browser_id_, query_id_, error_code,
                        error_message));
@@ -141,11 +139,10 @@ class CefMessageRouterBrowserSideImpl : public CefMessageRouterBrowserSide {
 
   explicit CefMessageRouterBrowserSideImpl(const CefMessageRouterConfig& config)
       : config_(config),
-        query_message_name_(
-          config.js_query_function.ToString() + kMessageSuffix),
-        cancel_message_name_(
-          config.js_cancel_function.ToString() + kMessageSuffix) {
-  }
+        query_message_name_(config.js_query_function.ToString() +
+                            kMessageSuffix),
+        cancel_message_name_(config.js_cancel_function.ToString() +
+                             kMessageSuffix) {}
 
   virtual ~CefMessageRouterBrowserSideImpl() {
     // There should be no pending queries when the router is deleted.
@@ -155,8 +152,8 @@ class CefMessageRouterBrowserSideImpl : public CefMessageRouterBrowserSide {
   virtual bool AddHandler(Handler* handler, bool first) OVERRIDE {
     CEF_REQUIRE_UI_THREAD();
     if (handler_set_.find(handler) == handler_set_.end()) {
-      handler_set_.insert(
-          first ? handler_set_.begin() : handler_set_.end(), handler);
+      handler_set_.insert(first ? handler_set_.begin() : handler_set_.end(),
+                          handler);
       return true;
     }
     return false;
@@ -187,9 +184,7 @@ class CefMessageRouterBrowserSideImpl : public CefMessageRouterBrowserSide {
       // Need to iterate over each QueryInfo object to test the handler.
       class Visitor : public BrowserQueryInfoMap::Visitor {
        public:
-        explicit Visitor(Handler* handler)
-            : handler_(handler),
-              count_(0) {}
+        explicit Visitor(Handler* handler) : handler_(handler), count_(0) {}
 
         virtual bool OnNextInfo(int browser_id,
                                 InfoIdType info_id,
@@ -206,13 +201,12 @@ class CefMessageRouterBrowserSideImpl : public CefMessageRouterBrowserSide {
         Handler* handler_;
         int count_;
       };
-    
+
       Visitor visitor(handler);
 
       if (browser.get()) {
         // Count queries associated with the specified browser.
-        browser_query_info_map_.FindAll(
-            browser->GetIdentifier(), &visitor);
+        browser_query_info_map_.FindAll(browser->GetIdentifier(), &visitor);
       } else {
         // Count all queries for all browsers.
         browser_query_info_map_.FindAll(&visitor);
@@ -278,7 +272,7 @@ class CefMessageRouterBrowserSideImpl : public CefMessageRouterBrowserSide {
         frame = browser->GetFrame(frame_id);
       CefRefPtr<CallbackImpl> callback(
           new CallbackImpl(this, browser_id, query_id, persistent));
-    
+
       // Make a copy of the handler list in case the user adds or removes a
       // handler while we're iterating.
       HandlerSet handler_set = handler_set_;
@@ -286,8 +280,9 @@ class CefMessageRouterBrowserSideImpl : public CefMessageRouterBrowserSide {
       bool handled = false;
       HandlerSet::const_iterator it_handler = handler_set.begin();
       for (; it_handler != handler_set.end(); ++it_handler) {
-        handled = (*it_handler)->OnQuery(browser, frame, query_id, request,
-                                         persistent, callback.get());
+        handled = (*it_handler)
+                      ->OnQuery(browser, frame, query_id, request, persistent,
+                                callback.get());
         if (handled)
           break;
       }
@@ -371,8 +366,7 @@ class CefMessageRouterBrowserSideImpl : public CefMessageRouterBrowserSide {
     class Visitor : public BrowserQueryInfoMap::Visitor {
      public:
       explicit Visitor(bool always_remove)
-          : always_remove_(always_remove),
-            removed_(false) {}
+          : always_remove_(always_remove), removed_(false) {}
 
       virtual bool OnNextInfo(int browser_id,
                               InfoIdType info_id,
@@ -428,8 +422,7 @@ class CefMessageRouterBrowserSideImpl : public CefMessageRouterBrowserSide {
     }
   }
 
-  void SendQuerySuccess(QueryInfo* info,
-                        const CefString& response) {
+  void SendQuerySuccess(QueryInfo* info, const CefString& response) {
     SendQuerySuccess(info->browser, info->context_id, info->request_id,
                      response);
   }
@@ -472,11 +465,12 @@ class CefMessageRouterBrowserSideImpl : public CefMessageRouterBrowserSide {
   }
 
   // Cancel a query that has not been sent to a handler.
-  void CancelUnhandledQuery(CefRefPtr<CefBrowser> browser, int context_id,
+  void CancelUnhandledQuery(CefRefPtr<CefBrowser> browser,
+                            int context_id,
                             int request_id) {
-     SendQueryFailure(browser, context_id, request_id, kCanceledErrorCode,
-                      kCanceledErrorMessage);
-  }                   
+    SendQueryFailure(browser, context_id, request_id, kCanceledErrorCode,
+                     kCanceledErrorMessage);
+  }
 
   // Cancel a query that has already been sent to a handler.
   void CancelQuery(int64 query_id, QueryInfo* info, bool notify_renderer) {
@@ -503,8 +497,8 @@ class CefMessageRouterBrowserSideImpl : public CefMessageRouterBrowserSide {
     if (!CefCurrentlyOn(TID_UI)) {
       // Must execute on the UI thread.
       CefPostTask(TID_UI,
-          base::Bind(&CefMessageRouterBrowserSideImpl::CancelPendingFor, this,
-                     browser, handler, notify_renderer));
+                  base::Bind(&CefMessageRouterBrowserSideImpl::CancelPendingFor,
+                             this, browser, handler, notify_renderer));
       return;
     }
 
@@ -542,8 +536,7 @@ class CefMessageRouterBrowserSideImpl : public CefMessageRouterBrowserSide {
 
     if (browser.get()) {
       // Cancel all queries associated with the specified browser.
-      browser_query_info_map_.FindAll(
-          browser->GetIdentifier(), &visitor);
+      browser_query_info_map_.FindAll(browser->GetIdentifier(), &visitor);
     } else {
       // Cancel all queries for all browsers.
       browser_query_info_map_.FindAll(&visitor);
@@ -558,9 +551,7 @@ class CefMessageRouterBrowserSideImpl : public CefMessageRouterBrowserSide {
       Visitor(CefMessageRouterBrowserSideImpl* router,
               int context_id,
               int request_id)
-          : router_(router),
-            context_id_(context_id),
-            request_id_(request_id) {}
+          : router_(router), context_id_(context_id), request_id_(request_id) {}
 
       virtual bool OnNextInfo(int browser_id,
                               InfoIdType info_id,
@@ -571,7 +562,7 @@ class CefMessageRouterBrowserSideImpl : public CefMessageRouterBrowserSide {
           *remove = true;
           router_->CancelQuery(info_id, info, false);
           delete info;
-          
+
           // Stop iterating if only canceling a single request.
           return (request_id_ == kReservedId);
         }
@@ -614,13 +605,9 @@ class CefMessageRouterRendererSideImpl : public CefMessageRouterRendererSide {
  public:
   class V8HandlerImpl : public CefV8Handler {
    public:
-    V8HandlerImpl(
-        CefRefPtr<CefMessageRouterRendererSideImpl> router,
-        const CefMessageRouterConfig& config)
-        : router_(router),
-          config_(config),
-          context_id_(kReservedId) {
-    }
+    V8HandlerImpl(CefRefPtr<CefMessageRouterRendererSideImpl> router,
+                  const CefMessageRouterConfig& config)
+        : router_(router), config_(config), context_id_(kReservedId) {}
 
     virtual bool Execute(const CefString& name,
                          CefRefPtr<CefV8Value> object,
@@ -637,9 +624,9 @@ class CefMessageRouterRendererSideImpl : public CefMessageRouterRendererSide {
 
         CefRefPtr<CefV8Value> requestVal = arg->GetValue(kMemberRequest);
         if (!requestVal.get() || !requestVal->IsString()) {
-          exception = "Invalid arguments; object member '"+
-                      std::string(kMemberRequest) +"' is required and must "
-                      "have type string";
+          exception = "Invalid arguments; object member '" +
+                      std::string(kMemberRequest) +
+                      "' is required and must have type string";
           return true;
         }
 
@@ -647,9 +634,9 @@ class CefMessageRouterRendererSideImpl : public CefMessageRouterRendererSide {
         if (arg->HasValue(kMemberOnSuccess)) {
           successVal = arg->GetValue(kMemberOnSuccess);
           if (!successVal->IsFunction()) {
-            exception = "Invalid arguments; object member '"+
-                        std::string(kMemberOnSuccess) +"' must have type "
-                        "function";
+            exception = "Invalid arguments; object member '" +
+                        std::string(kMemberOnSuccess) +
+                        "' must have type function";
             return true;
           }
         }
@@ -658,9 +645,9 @@ class CefMessageRouterRendererSideImpl : public CefMessageRouterRendererSide {
         if (arg->HasValue(kMemberOnFailure)) {
           failureVal = arg->GetValue(kMemberOnFailure);
           if (!failureVal->IsFunction()) {
-            exception = "Invalid arguments; object member '"+
-                        std::string(kMemberOnFailure) +"' must have type "
-                        "function";
+            exception = "Invalid arguments; object member '" +
+                        std::string(kMemberOnFailure) +
+                        "' must have type function";
             return true;
           }
         }
@@ -669,9 +656,9 @@ class CefMessageRouterRendererSideImpl : public CefMessageRouterRendererSide {
         if (arg->HasValue(kMemberPersistent)) {
           persistentVal = arg->GetValue(kMemberPersistent);
           if (!persistentVal->IsBool()) {
-            exception = "Invalid arguments; object member '"+
-                        std::string(kMemberPersistent) +"' must have type "
-                        "boolean";
+            exception = "Invalid arguments; object member '" +
+                        std::string(kMemberPersistent) +
+                        "' must have type boolean";
             return true;
           }
         }
@@ -699,8 +686,8 @@ class CefMessageRouterRendererSideImpl : public CefMessageRouterRendererSide {
         if (request_id != kReservedId) {
           CefRefPtr<CefV8Context> context = CefV8Context::GetCurrentContext();
           const int context_id = GetIDForContext(context);
-          result = router_->SendCancel(context->GetBrowser(),
-                                       context_id, request_id);
+          result = router_->SendCancel(context->GetBrowser(), context_id,
+                                       request_id);
         }
         retval = CefV8Value::CreateBool(result);
         return true;
@@ -724,16 +711,15 @@ class CefMessageRouterRendererSideImpl : public CefMessageRouterRendererSide {
     IMPLEMENT_REFCOUNTING(V8HandlerImpl);
   };
 
-  explicit CefMessageRouterRendererSideImpl(const CefMessageRouterConfig& config)
+  explicit CefMessageRouterRendererSideImpl(
+      const CefMessageRouterConfig& config)
       : config_(config),
-        query_message_name_(
-          config.js_query_function.ToString() + kMessageSuffix),
-        cancel_message_name_(
-          config.js_cancel_function.ToString() + kMessageSuffix) {
-  }
+        query_message_name_(config.js_query_function.ToString() +
+                            kMessageSuffix),
+        cancel_message_name_(config.js_cancel_function.ToString() +
+                             kMessageSuffix) {}
 
-  virtual ~CefMessageRouterRendererSideImpl() {
-  }
+  virtual ~CefMessageRouterRendererSideImpl() {}
 
   virtual int GetPendingCount(CefRefPtr<CefBrowser> browser,
                               CefRefPtr<CefV8Context> context) OVERRIDE {
@@ -750,9 +736,7 @@ class CefMessageRouterRendererSideImpl : public CefMessageRouterRendererSide {
       // Need to iterate over each RequestInfo object to test the context.
       class Visitor : public BrowserRequestInfoMap::Visitor {
        public:
-        explicit Visitor(int context_id)
-            : context_id_(context_id),
-              count_(0) {}
+        explicit Visitor(int context_id) : context_id_(context_id), count_(0) {}
 
         virtual bool OnNextInfo(int browser_id,
                                 InfoIdType info_id,
@@ -774,8 +758,7 @@ class CefMessageRouterRendererSideImpl : public CefMessageRouterRendererSide {
 
       if (browser.get()) {
         // Count requests associated with the specified browser.
-        browser_request_info_map_.FindAll(
-            browser->GetIdentifier(), &visitor);
+        browser_request_info_map_.FindAll(browser->GetIdentifier(), &visitor);
       } else {
         // Count all requests for all browsers.
         browser_request_info_map_.FindAll(&visitor);
@@ -803,8 +786,7 @@ class CefMessageRouterRendererSideImpl : public CefMessageRouterRendererSide {
     CefRefPtr<V8HandlerImpl> handler = new V8HandlerImpl(this, config_);
     CefV8Value::PropertyAttribute attributes =
         static_cast<CefV8Value::PropertyAttribute>(
-            V8_PROPERTY_ATTRIBUTE_READONLY |
-            V8_PROPERTY_ATTRIBUTE_DONTENUM |
+            V8_PROPERTY_ATTRIBUTE_READONLY | V8_PROPERTY_ATTRIBUTE_DONTENUM |
             V8_PROPERTY_ATTRIBUTE_DONTDELETE);
 
     // Add the query function.
@@ -849,7 +831,8 @@ class CefMessageRouterRendererSideImpl : public CefMessageRouterRendererSide {
       if (is_success) {
         DCHECK_EQ(args->GetSize(), 4U);
         const CefString& response = args->GetString(3);
-        CefPostTask(TID_RENDERER,
+        CefPostTask(
+            TID_RENDERER,
             base::Bind(
                 &CefMessageRouterRendererSideImpl::ExecuteSuccessCallback, this,
                 browser->GetIdentifier(), context_id, request_id, response));
@@ -857,7 +840,8 @@ class CefMessageRouterRendererSideImpl : public CefMessageRouterRendererSide {
         DCHECK_EQ(args->GetSize(), 5U);
         int error_code = args->GetInt(3);
         const CefString& error_message = args->GetString(4);
-        CefPostTask(TID_RENDERER,
+        CefPostTask(
+            TID_RENDERER,
             base::Bind(
                 &CefMessageRouterRendererSideImpl::ExecuteFailureCallback, this,
                 browser->GetIdentifier(), context_id, request_id, error_code,
@@ -896,8 +880,7 @@ class CefMessageRouterRendererSideImpl : public CefMessageRouterRendererSide {
     class Visitor : public BrowserRequestInfoMap::Visitor {
      public:
       explicit Visitor(bool always_remove)
-          : always_remove_(always_remove),
-            removed_(false) {}
+          : always_remove_(always_remove), removed_(false) {}
 
       virtual bool OnNextInfo(int browser_id,
                               InfoIdType info_id,
@@ -915,8 +898,8 @@ class CefMessageRouterRendererSideImpl : public CefMessageRouterRendererSide {
     };
 
     Visitor visitor(always_remove);
-    RequestInfo* info = browser_request_info_map_.Find(browser_id,
-        std::make_pair(request_id, context_id), &visitor);
+    RequestInfo* info = browser_request_info_map_.Find(
+        browser_id, std::make_pair(request_id, context_id), &visitor);
     if (info)
       *removed = visitor.removed();
     return info;
@@ -940,7 +923,7 @@ class CefMessageRouterRendererSideImpl : public CefMessageRouterRendererSide {
     info->success_callback = success_callback;
     info->failure_callback = failure_callback;
     browser_request_info_map_.Add(browser->GetIdentifier(),
-        std::make_pair(context_id, request_id), info);
+                                  std::make_pair(context_id, request_id), info);
 
     CefRefPtr<CefProcessMessage> message =
         CefProcessMessage::Create(query_message_name_);
@@ -961,7 +944,7 @@ class CefMessageRouterRendererSideImpl : public CefMessageRouterRendererSide {
 
   // If |request_id| is kReservedId all requests associated with |context_id|
   // will be canceled, otherwise only the specified |request_id| will be
-  // canceled. Returns true if any request was canceled. 
+  // canceled. Returns true if any request was canceled.
   bool SendCancel(CefRefPtr<CefBrowser> browser,
                   int context_id,
                   int request_id) {
@@ -985,8 +968,7 @@ class CefMessageRouterRendererSideImpl : public CefMessageRouterRendererSide {
       class Visitor : public BrowserRequestInfoMap::Visitor {
        public:
         explicit Visitor(int context_id)
-            : context_id_(context_id),
-              cancel_count_(0) {}
+            : context_id_(context_id), cancel_count_(0) {}
 
         virtual bool OnNextInfo(int browser_id,
                                 InfoIdType info_id,
@@ -1028,7 +1010,9 @@ class CefMessageRouterRendererSideImpl : public CefMessageRouterRendererSide {
   }
 
   // Execute the onSuccess JavaScript callback.
-  void ExecuteSuccessCallback(int browser_id, int context_id, int request_id,
+  void ExecuteSuccessCallback(int browser_id,
+                              int context_id,
+                              int request_id,
                               const CefString& response) {
     CEF_REQUIRE_RENDERER_THREAD();
 
@@ -1050,8 +1034,11 @@ class CefMessageRouterRendererSideImpl : public CefMessageRouterRendererSide {
   }
 
   // Execute the onFailure JavaScript callback.
-  void ExecuteFailureCallback(int browser_id, int context_id, int request_id,
-                              int error_code, const CefString& error_message) {
+  void ExecuteFailureCallback(int browser_id,
+                              int context_id,
+                              int request_id,
+                              int error_code,
+                              const CefString& error_message) {
     CEF_REQUIRE_RENDERER_THREAD();
 
     bool removed;
@@ -1128,7 +1115,7 @@ class CefMessageRouterRendererSideImpl : public CefMessageRouterRendererSide {
   // Map of context ID to CefV8Context for existing contexts. An entry is added
   // when a bound function is executed for the first time in the context and
   // removed when the context is released.
-  typedef std::map<int, CefRefPtr<CefV8Context> > ContextMap;
+  typedef std::map<int, CefRefPtr<CefV8Context>> ContextMap;
   ContextMap context_map_;
 
   DISALLOW_COPY_AND_ASSIGN(CefMessageRouterRendererSideImpl);
@@ -1137,9 +1124,7 @@ class CefMessageRouterRendererSideImpl : public CefMessageRouterRendererSide {
 }  // namespace
 
 CefMessageRouterConfig::CefMessageRouterConfig()
-  : js_query_function("cefQuery"),
-    js_cancel_function("cefQueryCancel") {
-}
+    : js_query_function("cefQuery"), js_cancel_function("cefQueryCancel") {}
 
 // static
 CefRefPtr<CefMessageRouterBrowserSide> CefMessageRouterBrowserSide::Create(

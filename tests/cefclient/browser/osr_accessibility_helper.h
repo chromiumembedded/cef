@@ -23,21 +23,15 @@ class OsrAccessibilityHelper {
 
   void UpdateAccessibilityTree(CefRefPtr<CefValue> value);
 
-  OsrAXNode* GetRootNode() const {
-    return GetNode(root_node_id_);
-  }
+  OsrAXNode* GetRootNode() const { return GetNode(root_node_id_); }
 
-  OsrAXNode* GetFocusedNode() const {
-    return GetNode(focused_node_id_);
-  }
+  OsrAXNode* GetFocusedNode() const { return GetNode(focused_node_id_); }
 
   CefWindowHandle GetWindowHandle() const {
     return browser_->GetHost()->GetWindowHandle();
   }
 
-  CefRefPtr<CefBrowser> GetBrowser() const {
-    return browser_;
-  };
+  CefRefPtr<CefBrowser> GetBrowser() const { return browser_; };
 
   OsrAXNode* GetNode(int nodeId) const;
 

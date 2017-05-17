@@ -9,10 +9,11 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=419693bf94c043b9c88231dbe321dcefab80e83c$
+//
 
 #include "libcef_dll/cpptoc/value_cpptoc.h"
 #include "libcef_dll/ctocpp/accessibility_handler_ctocpp.h"
-
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
@@ -30,8 +31,7 @@ void CefAccessibilityHandlerCToCpp::OnAccessibilityTreeChange(
     return;
 
   // Execute
-  _struct->on_accessibility_tree_change(_struct,
-      CefValueCppToC::Wrap(value));
+  _struct->on_accessibility_tree_change(_struct, CefValueCppToC::Wrap(value));
 }
 
 void CefAccessibilityHandlerCToCpp::OnAccessibilityLocationChange(
@@ -49,27 +49,33 @@ void CefAccessibilityHandlerCToCpp::OnAccessibilityLocationChange(
 
   // Execute
   _struct->on_accessibility_location_change(_struct,
-      CefValueCppToC::Wrap(value));
+                                            CefValueCppToC::Wrap(value));
 }
-
 
 // CONSTRUCTOR - Do not edit by hand.
 
-CefAccessibilityHandlerCToCpp::CefAccessibilityHandlerCToCpp() {
-}
+CefAccessibilityHandlerCToCpp::CefAccessibilityHandlerCToCpp() {}
 
-template<> cef_accessibility_handler_t* CefCToCppRefCounted<CefAccessibilityHandlerCToCpp,
-    CefAccessibilityHandler, cef_accessibility_handler_t>::UnwrapDerived(
-    CefWrapperType type, CefAccessibilityHandler* c) {
+template <>
+cef_accessibility_handler_t* CefCToCppRefCounted<
+    CefAccessibilityHandlerCToCpp,
+    CefAccessibilityHandler,
+    cef_accessibility_handler_t>::UnwrapDerived(CefWrapperType type,
+                                                CefAccessibilityHandler* c) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCppRefCounted<CefAccessibilityHandlerCToCpp,
-    CefAccessibilityHandler, cef_accessibility_handler_t>::DebugObjCt = 0;
+template <>
+base::AtomicRefCount
+    CefCToCppRefCounted<CefAccessibilityHandlerCToCpp,
+                        CefAccessibilityHandler,
+                        cef_accessibility_handler_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCppRefCounted<CefAccessibilityHandlerCToCpp,
-    CefAccessibilityHandler, cef_accessibility_handler_t>::kWrapperType =
+template <>
+CefWrapperType CefCToCppRefCounted<CefAccessibilityHandlerCToCpp,
+                                   CefAccessibilityHandler,
+                                   cef_accessibility_handler_t>::kWrapperType =
     WT_ACCESSIBILITY_HANDLER;

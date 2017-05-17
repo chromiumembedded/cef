@@ -18,9 +18,8 @@
 
 // Helpers for template boiler-plate.
 #define CEF_VIEW_VIEW_T \
-    template <class ViewsViewClass, class CefViewDelegateClass>
-#define CEF_VIEW_VIEW_A \
-    ViewsViewClass, CefViewDelegateClass
+  template <class ViewsViewClass, class CefViewDelegateClass>
+#define CEF_VIEW_VIEW_A ViewsViewClass, CefViewDelegateClass
 #define CEF_VIEW_VIEW_D CefViewView<CEF_VIEW_VIEW_A>
 
 // Base template for implementing views::View-derived classes. The views::View-
@@ -36,8 +35,7 @@ CEF_VIEW_VIEW_T class CefViewView : public ViewsViewClass {
   // constructor as they may attempt to call back into CefViewImpl before
   // registration has been performed. |cef_delegate| may be nullptr.
   explicit CefViewView(CefViewDelegateClass* cef_delegate)
-      : cef_delegate_(cef_delegate) {
-  }
+      : cef_delegate_(cef_delegate) {}
 
   // Should be called from InitializeRootView() in the CefViewImpl-derived
   // class that created this object. This method will be called after

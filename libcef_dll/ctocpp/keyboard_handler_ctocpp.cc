@@ -9,16 +9,18 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=41649365a1d97eac029e3dbcd8c19da5e03bc341$
+//
 
 #include "libcef_dll/cpptoc/browser_cpptoc.h"
 #include "libcef_dll/ctocpp/keyboard_handler_ctocpp.h"
 
-
 // VIRTUAL METHODS - Body may be edited by hand.
 
 bool CefKeyboardHandlerCToCpp::OnPreKeyEvent(CefRefPtr<CefBrowser> browser,
-    const CefKeyEvent& event, CefEventHandle os_event,
-    bool* is_keyboard_shortcut) {
+                                             const CefKeyEvent& event,
+                                             CefEventHandle os_event,
+                                             bool* is_keyboard_shortcut) {
   cef_keyboard_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_pre_key_event))
     return false;
@@ -35,25 +37,25 @@ bool CefKeyboardHandlerCToCpp::OnPreKeyEvent(CefRefPtr<CefBrowser> browser,
     return false;
 
   // Translate param: is_keyboard_shortcut; type: bool_byaddr
-  int is_keyboard_shortcutInt = is_keyboard_shortcut?*is_keyboard_shortcut:0;
+  int is_keyboard_shortcutInt =
+      is_keyboard_shortcut ? *is_keyboard_shortcut : 0;
 
   // Execute
-  int _retval = _struct->on_pre_key_event(_struct,
-      CefBrowserCppToC::Wrap(browser),
-      &event,
-      os_event,
-      &is_keyboard_shortcutInt);
+  int _retval =
+      _struct->on_pre_key_event(_struct, CefBrowserCppToC::Wrap(browser),
+                                &event, os_event, &is_keyboard_shortcutInt);
 
   // Restore param:is_keyboard_shortcut; type: bool_byaddr
   if (is_keyboard_shortcut)
-    *is_keyboard_shortcut = is_keyboard_shortcutInt?true:false;
+    *is_keyboard_shortcut = is_keyboard_shortcutInt ? true : false;
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 bool CefKeyboardHandlerCToCpp::OnKeyEvent(CefRefPtr<CefBrowser> browser,
-    const CefKeyEvent& event, CefEventHandle os_event) {
+                                          const CefKeyEvent& event,
+                                          CefEventHandle os_event) {
   cef_keyboard_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_key_event))
     return false;
@@ -66,33 +68,37 @@ bool CefKeyboardHandlerCToCpp::OnKeyEvent(CefRefPtr<CefBrowser> browser,
     return false;
 
   // Execute
-  int _retval = _struct->on_key_event(_struct,
-      CefBrowserCppToC::Wrap(browser),
-      &event,
-      os_event);
+  int _retval = _struct->on_key_event(_struct, CefBrowserCppToC::Wrap(browser),
+                                      &event, os_event);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
-
 
 // CONSTRUCTOR - Do not edit by hand.
 
-CefKeyboardHandlerCToCpp::CefKeyboardHandlerCToCpp() {
-}
+CefKeyboardHandlerCToCpp::CefKeyboardHandlerCToCpp() {}
 
-template<> cef_keyboard_handler_t* CefCToCppRefCounted<CefKeyboardHandlerCToCpp,
-    CefKeyboardHandler, cef_keyboard_handler_t>::UnwrapDerived(
-    CefWrapperType type, CefKeyboardHandler* c) {
+template <>
+cef_keyboard_handler_t* CefCToCppRefCounted<
+    CefKeyboardHandlerCToCpp,
+    CefKeyboardHandler,
+    cef_keyboard_handler_t>::UnwrapDerived(CefWrapperType type,
+                                           CefKeyboardHandler* c) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCppRefCounted<CefKeyboardHandlerCToCpp,
-    CefKeyboardHandler, cef_keyboard_handler_t>::DebugObjCt = 0;
+template <>
+base::AtomicRefCount CefCToCppRefCounted<CefKeyboardHandlerCToCpp,
+                                         CefKeyboardHandler,
+                                         cef_keyboard_handler_t>::DebugObjCt =
+    0;
 #endif
 
-template<> CefWrapperType CefCToCppRefCounted<CefKeyboardHandlerCToCpp,
-    CefKeyboardHandler, cef_keyboard_handler_t>::kWrapperType =
+template <>
+CefWrapperType CefCToCppRefCounted<CefKeyboardHandlerCToCpp,
+                                   CefKeyboardHandler,
+                                   cef_keyboard_handler_t>::kWrapperType =
     WT_KEYBOARD_HANDLER;

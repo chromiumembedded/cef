@@ -9,9 +9,10 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=64bb21d6f7eb7214b898501824ecafb9935ba809$
+//
 
 #include "libcef_dll/ctocpp/set_cookie_callback_ctocpp.h"
-
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
@@ -23,28 +24,33 @@ void CefSetCookieCallbackCToCpp::OnComplete(bool success) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  _struct->on_complete(_struct,
-      success);
+  _struct->on_complete(_struct, success);
 }
-
 
 // CONSTRUCTOR - Do not edit by hand.
 
-CefSetCookieCallbackCToCpp::CefSetCookieCallbackCToCpp() {
-}
+CefSetCookieCallbackCToCpp::CefSetCookieCallbackCToCpp() {}
 
-template<> cef_set_cookie_callback_t* CefCToCppRefCounted<CefSetCookieCallbackCToCpp,
-    CefSetCookieCallback, cef_set_cookie_callback_t>::UnwrapDerived(
-    CefWrapperType type, CefSetCookieCallback* c) {
+template <>
+cef_set_cookie_callback_t* CefCToCppRefCounted<
+    CefSetCookieCallbackCToCpp,
+    CefSetCookieCallback,
+    cef_set_cookie_callback_t>::UnwrapDerived(CefWrapperType type,
+                                              CefSetCookieCallback* c) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCppRefCounted<CefSetCookieCallbackCToCpp,
-    CefSetCookieCallback, cef_set_cookie_callback_t>::DebugObjCt = 0;
+template <>
+base::AtomicRefCount
+    CefCToCppRefCounted<CefSetCookieCallbackCToCpp,
+                        CefSetCookieCallback,
+                        cef_set_cookie_callback_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCppRefCounted<CefSetCookieCallbackCToCpp,
-    CefSetCookieCallback, cef_set_cookie_callback_t>::kWrapperType =
+template <>
+CefWrapperType CefCToCppRefCounted<CefSetCookieCallbackCToCpp,
+                                   CefSetCookieCallback,
+                                   cef_set_cookie_callback_t>::kWrapperType =
     WT_SET_COOKIE_CALLBACK;

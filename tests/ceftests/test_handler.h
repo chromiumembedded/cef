@@ -23,26 +23,24 @@
 
 class TrackCallback {
  public:
-  TrackCallback(): gotit_(false) {}
+  TrackCallback() : gotit_(false) {}
   void yes() { gotit_ = true; }
   bool isSet() { return gotit_; }
   void reset() { gotit_ = false; }
   operator bool() const { return gotit_; }
+
  protected:
   bool gotit_;
 };
 
 class ResourceContent {
  public:
-   typedef std::multimap<std::string, std::string> HeaderMap;
+  typedef std::multimap<std::string, std::string> HeaderMap;
 
-   ResourceContent(const std::string& content,
-                   const std::string& mime_type,
-                   const HeaderMap& header_map)
-    : content_(content),
-      mime_type_(mime_type),
-      header_map_(header_map)
-  {}
+  ResourceContent(const std::string& content,
+                  const std::string& mime_type,
+                  const HeaderMap& header_map)
+      : content_(content), mime_type_(mime_type), header_map_(header_map) {}
 
   const std::string& content() const { return content_; }
   const std::string& mimeType() const { return mime_type_; }
@@ -53,7 +51,6 @@ class ResourceContent {
   std::string mime_type_;
   HeaderMap header_map_;
 };
-
 
 // Base implementation of CefClient for unit tests. Add new interfaces as needed
 // by test cases.
@@ -120,7 +117,7 @@ class TestHandler : public CefClient,
     TestHandlerList handler_list_;
   };
 
-  typedef std::map<int, CefRefPtr<CefBrowser> > BrowserMap;
+  typedef std::map<int, CefRefPtr<CefBrowser>> BrowserMap;
 
   // Helper for executing methods using WeakPtr references to TestHandler.
   class UIThreadHelper {
@@ -152,36 +149,20 @@ class TestHandler : public CefClient,
 
   // Implement this method to run the test. Call DestroyTest() once the test is
   // complete.
-  virtual void RunTest() =0;
+  virtual void RunTest() = 0;
 
   // CefClient methods. Add new methods as needed by test cases.
-  CefRefPtr<CefDialogHandler> GetDialogHandler() override {
-    return this;
-  }
-  CefRefPtr<CefDisplayHandler> GetDisplayHandler() override {
-    return this;
-  }
-  CefRefPtr<CefDownloadHandler> GetDownloadHandler() override {
-    return this;
-  }
-  CefRefPtr<CefDragHandler> GetDragHandler() override {
-    return this;
-  }
+  CefRefPtr<CefDialogHandler> GetDialogHandler() override { return this; }
+  CefRefPtr<CefDisplayHandler> GetDisplayHandler() override { return this; }
+  CefRefPtr<CefDownloadHandler> GetDownloadHandler() override { return this; }
+  CefRefPtr<CefDragHandler> GetDragHandler() override { return this; }
   CefRefPtr<CefGeolocationHandler> GetGeolocationHandler() override {
     return this;
   }
-  CefRefPtr<CefJSDialogHandler> GetJSDialogHandler() override {
-    return this;
-  }
-  CefRefPtr<CefLifeSpanHandler> GetLifeSpanHandler() override {
-    return this;
-  }
-  CefRefPtr<CefLoadHandler> GetLoadHandler() override {
-    return this;
-  }
-  CefRefPtr<CefRequestHandler> GetRequestHandler() override {
-    return this;
-  }
+  CefRefPtr<CefJSDialogHandler> GetJSDialogHandler() override { return this; }
+  CefRefPtr<CefLifeSpanHandler> GetLifeSpanHandler() override { return this; }
+  CefRefPtr<CefLoadHandler> GetLoadHandler() override { return this; }
+  CefRefPtr<CefRequestHandler> GetRequestHandler() override { return this; }
 
   // CefDownloadHandler methods
   void OnBeforeDownload(
@@ -254,8 +235,7 @@ class TestHandler : public CefClient,
 
   void CreateBrowser(const CefString& url,
                      CefRefPtr<CefRequestContext> request_context = NULL);
-  static void CloseBrowser(CefRefPtr<CefBrowser> browser,
-                           bool force_close);
+  static void CloseBrowser(CefRefPtr<CefBrowser> browser, bool force_close);
 
   void AddResource(const std::string& url,
                    const std::string& content,
@@ -306,7 +286,7 @@ class TestHandler : public CefClient,
 
   // Map of resources that can be automatically loaded. Only accessed on the
   // IO thread.
-  typedef std::map<std::string, ResourceContent > ResourceMap;
+  typedef std::map<std::string, ResourceContent> ResourceMap;
   ResourceMap resource_map_;
 
   // If true test completion will be signaled when all browsers have closed.
@@ -326,11 +306,10 @@ class TestHandler : public CefClient,
   DISALLOW_COPY_AND_ASSIGN(TestHandler);
 };
 
-
 // Release |handler| and wait for the destructor to be called.
 // This function is used to avoid test state leakage and to verify that
 // all Handler references have been released on test completion.
-template<typename T>
+template <typename T>
 void ReleaseAndWaitForDestructor(CefRefPtr<T>& handler, int delay_ms = 2000) {
   CefRefPtr<CefWaitableEvent> event =
       CefWaitableEvent::CreateWaitableEvent(true, false);
@@ -340,7 +319,7 @@ void ReleaseAndWaitForDestructor(CefRefPtr<T>& handler, int delay_ms = 2000) {
   bool handler_destructed = event->TimedWait(delay_ms);
   EXPECT_TRUE(handler_destructed);
   if (!handler_destructed) {
-   // |event| is a stack variable so clear the reference before returning.
+    // |event| is a stack variable so clear the reference before returning.
     _handler_ptr->SetDestroyEvent(NULL);
   }
 }
@@ -360,23 +339,22 @@ bool TestFailed();
 //
 // EXPECT_TRUE(VerifyVals(true, false));
 
-#define V_DECLARE() \
-    bool __verify = true; \
-    bool __result
+#define V_DECLARE()     \
+  bool __verify = true; \
+  bool __result
 
-#define V_RETURN() \
-    return __verify
+#define V_RETURN() return __verify
 
-#define V_EXPECT_TRUE(condition) \
-    __result = !!(condition); \
-    __verify &= __result; \
-    GTEST_TEST_BOOLEAN_(__result, #condition, false, true, \
-                        GTEST_NONFATAL_FAILURE_)
+#define V_EXPECT_TRUE(condition)                         \
+  __result = !!(condition);                              \
+  __verify &= __result;                                  \
+  GTEST_TEST_BOOLEAN_(__result, #condition, false, true, \
+                      GTEST_NONFATAL_FAILURE_)
 
-#define V_EXPECT_FALSE(condition) \
-    __result = !!(condition); \
-    __verify &= !__result; \
-    GTEST_TEST_BOOLEAN_(!(__result), #condition, true, false, \
-                        GTEST_NONFATAL_FAILURE_)
+#define V_EXPECT_FALSE(condition)                           \
+  __result = !!(condition);                                 \
+  __verify &= !__result;                                    \
+  GTEST_TEST_BOOLEAN_(!(__result), #condition, true, false, \
+                      GTEST_NONFATAL_FAILURE_)
 
 #endif  // CEF_TESTS_UNITTESTS_TEST_HANDLER_H_

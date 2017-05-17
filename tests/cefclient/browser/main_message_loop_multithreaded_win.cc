@@ -23,8 +23,7 @@ MainMessageLoopMultithreadedWin::MainMessageLoopMultithreadedWin()
     : thread_id_(base::PlatformThread::CurrentId()),
       task_message_id_(RegisterWindowMessage(kTaskMessageName)),
       dialog_hwnd_(NULL),
-      message_hwnd_(NULL) {
-}
+      message_hwnd_(NULL) {}
 
 MainMessageLoopMultithreadedWin::~MainMessageLoopMultithreadedWin() {
   DCHECK(RunsTasksOnCurrentThread());
@@ -123,8 +122,11 @@ HWND MainMessageLoopMultithreadedWin::CreateMessageWindow(HINSTANCE hInstance) {
 }
 
 // static
-LRESULT CALLBACK MainMessageLoopMultithreadedWin::MessageWndProc(
-    HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
+LRESULT CALLBACK
+MainMessageLoopMultithreadedWin::MessageWndProc(HWND hWnd,
+                                                UINT message,
+                                                WPARAM wParam,
+                                                LPARAM lParam) {
   MainMessageLoopMultithreadedWin* self =
       GetUserDataPtr<MainMessageLoopMultithreadedWin*>(hWnd);
 
@@ -136,11 +138,13 @@ LRESULT CALLBACK MainMessageLoopMultithreadedWin::MessageWndProc(
     // Release the reference added in PostTaskInternal. This will likely result
     // in |task| being deleted.
     task->Release();
-  } else switch (message) {
-    case WM_DESTROY:
-      // Clear the reference to |self|.
-      SetUserDataPtr(hWnd, NULL);
-      break;
+  } else {
+    switch (message) {
+      case WM_DESTROY:
+        // Clear the reference to |self|.
+        SetUserDataPtr(hWnd, NULL);
+        break;
+    }
   }
 
   return DefWindowProc(hWnd, message, wParam, lParam);

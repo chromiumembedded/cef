@@ -21,8 +21,7 @@
 
 namespace extensions {
 
-CefExtensionsAPIClient::CefExtensionsAPIClient() {
-}
+CefExtensionsAPIClient::CefExtensionsAPIClient() {}
 
 AppViewGuestDelegate* CefExtensionsAPIClient::CreateAppViewGuestDelegate()
     const {
@@ -42,9 +41,8 @@ CefExtensionsAPIClient::CreateGuestViewManagerDelegate(
   // to provide the *Impl object instead of |context| which may be a *Proxy
   // object. If we don't do this then the Delegate may attempt to access a
   // *Proxy object that has already been deleted.
-  return base::WrapUnique(
-      new extensions::ExtensionsGuestViewManagerDelegate(
-          CefBrowserContextImpl::GetForContext(context)));
+  return base::WrapUnique(new extensions::ExtensionsGuestViewManagerDelegate(
+      CefBrowserContextImpl::GetForContext(context)));
 }
 
 std::unique_ptr<MimeHandlerViewGuestDelegate>
@@ -62,9 +60,8 @@ void CefExtensionsAPIClient::AttachWebContentsHelpers(
 
   // Used by the PDF extension.
   pdf::PDFWebContentsHelper::CreateForWebContentsWithClient(
-      web_contents,
-      std::unique_ptr<pdf::PDFWebContentsHelperClient>(
-          new CefPDFWebContentsHelperClient()));
+      web_contents, std::unique_ptr<pdf::PDFWebContentsHelperClient>(
+                        new CefPDFWebContentsHelperClient()));
 
   // Used by the tabs extension API.
   SessionTabHelper::CreateForWebContents(web_contents);

@@ -21,8 +21,7 @@ namespace {
 class PopupWindowDelegate : public CefWindowDelegate {
  public:
   explicit PopupWindowDelegate(CefRefPtr<CefBrowserView> browser_view)
-      : browser_view_(browser_view) {
-  }
+      : browser_view_(browser_view) {}
 
   void OnWindowCreated(CefRefPtr<CefWindow> window) override {
     window->AddChildView(browser_view_);
@@ -118,8 +117,8 @@ views::Widget* CefBrowserPlatformDelegateViews::GetWindowWidget() const {
   return nullptr;
 }
 
-CefRefPtr<CefBrowserView>
-    CefBrowserPlatformDelegateViews::GetBrowserView() const {
+CefRefPtr<CefBrowserView> CefBrowserPlatformDelegateViews::GetBrowserView()
+    const {
   return browser_view_.get();
 }
 
@@ -238,7 +237,8 @@ void CefBrowserPlatformDelegateViews::TranslateClickEvent(
     blink::WebMouseEvent& result,
     const CefMouseEvent& mouse_event,
     CefBrowserHost::MouseButtonType type,
-    bool mouseUp, int clickCount) const {
+    bool mouseUp,
+    int clickCount) const {
   native_delegate_->TranslateClickEvent(result, mouse_event, type, mouseUp,
                                         clickCount);
 }
@@ -253,7 +253,8 @@ void CefBrowserPlatformDelegateViews::TranslateMoveEvent(
 void CefBrowserPlatformDelegateViews::TranslateWheelEvent(
     blink::WebMouseWheelEvent& result,
     const CefMouseEvent& mouse_event,
-    int deltaX, int deltaY) const {
+    int deltaX,
+    int deltaY) const {
   native_delegate_->TranslateWheelEvent(result, mouse_event, deltaX, deltaY);
 }
 
@@ -263,17 +264,17 @@ CefEventHandle CefBrowserPlatformDelegateViews::GetEventHandle(
 }
 
 std::unique_ptr<CefFileDialogRunner>
-    CefBrowserPlatformDelegateViews::CreateFileDialogRunner() {
+CefBrowserPlatformDelegateViews::CreateFileDialogRunner() {
   return native_delegate_->CreateFileDialogRunner();
 }
 
 std::unique_ptr<CefJavaScriptDialogRunner>
-    CefBrowserPlatformDelegateViews::CreateJavaScriptDialogRunner() {
+CefBrowserPlatformDelegateViews::CreateJavaScriptDialogRunner() {
   return native_delegate_->CreateJavaScriptDialogRunner();
 }
 
 std::unique_ptr<CefMenuRunner>
-    CefBrowserPlatformDelegateViews::CreateMenuRunner() {
+CefBrowserPlatformDelegateViews::CreateMenuRunner() {
   return base::WrapUnique(new CefMenuRunnerViews(browser_view_.get()));
 }
 

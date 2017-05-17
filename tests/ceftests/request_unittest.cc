@@ -142,8 +142,7 @@ void CreateRequest(CefRefPtr<CefRequest>& request) {
   CefRefPtr<CefPostData> postData(CefPostData::Create());
   EXPECT_TRUE(postData.get() != NULL);
 
-  CefRefPtr<CefPostDataElement> element1(
-      CefPostDataElement::Create());
+  CefRefPtr<CefPostDataElement> element1(CefPostDataElement::Create());
   EXPECT_TRUE(element1.get() != NULL);
   char bytes[] = "Test Bytes";
   element1->SetToBytes(sizeof(bytes), bytes);
@@ -154,9 +153,7 @@ void CreateRequest(CefRefPtr<CefRequest>& request) {
 
 class RequestSendRecvTestHandler : public TestHandler {
  public:
-  RequestSendRecvTestHandler()
-      : response_length_(0),
-        request_id_(0U) {}
+  RequestSendRecvTestHandler() : response_length_(0), request_id_(0U) {}
 
   void RunTest() override {
     // Create the test request.
@@ -319,40 +316,39 @@ const char kTypeTestOrigin[] = "http://tests-requesttt.com/";
 static struct TypeExpected {
   const char* file;
   bool browser_side;  // True if this expectation applies to the browser side.
-  bool navigation; // True if this expectation represents a navigation.
+  bool navigation;    // True if this expectation represents a navigation.
   cef_transition_type_t transition_type;
   cef_resource_type_t resource_type;
   int expected_count;
 } g_type_expected[] = {
-  // Initial main frame load due to browser creation.
-  {"main.html", true,  true, TT_EXPLICIT, RT_MAIN_FRAME,   1},
-  {"main.html", false, true, TT_EXPLICIT, RT_SUB_RESOURCE, 1},
+    // Initial main frame load due to browser creation.
+    {"main.html", true, true, TT_EXPLICIT, RT_MAIN_FRAME, 1},
+    {"main.html", false, true, TT_EXPLICIT, RT_SUB_RESOURCE, 1},
 
-  // Sub frame load.
-  {"sub.html", true,  true, TT_LINK,     RT_SUB_FRAME,    1},
-  {"sub.html", false, true, TT_EXPLICIT, RT_SUB_RESOURCE, 1},
+    // Sub frame load.
+    {"sub.html", true, true, TT_LINK, RT_SUB_FRAME, 1},
+    {"sub.html", false, true, TT_EXPLICIT, RT_SUB_RESOURCE, 1},
 
-  // Stylesheet load.
-  {"style.css", true, false, TT_LINK, RT_STYLESHEET, 1},
+    // Stylesheet load.
+    {"style.css", true, false, TT_LINK, RT_STYLESHEET, 1},
 
-  // Script load.
-  {"script.js", true, false, TT_LINK, RT_SCRIPT, 1},
+    // Script load.
+    {"script.js", true, false, TT_LINK, RT_SCRIPT, 1},
 
-  // Image load.
-  {"image.png", true, false, TT_LINK, RT_IMAGE, 1},
+    // Image load.
+    {"image.png", true, false, TT_LINK, RT_IMAGE, 1},
 
-  // Font load.
-  {"font.ttf", true, false, TT_LINK, RT_FONT_RESOURCE, 1},
+    // Font load.
+    {"font.ttf", true, false, TT_LINK, RT_FONT_RESOURCE, 1},
 
-  // XHR load.
-  {"xhr.html", true, false, TT_LINK, RT_XHR, 1},
+    // XHR load.
+    {"xhr.html", true, false, TT_LINK, RT_XHR, 1},
 };
 
 class TypeExpectations {
  public:
   TypeExpectations(bool browser_side, bool navigation)
-      : browser_side_(browser_side),
-        navigation_(navigation) {
+      : browser_side_(browser_side), navigation_(navigation) {
     // Build the map of relevant requests.
     for (int i = 0;
          i < static_cast<int>(sizeof(g_type_expected) / sizeof(TypeExpected));
@@ -372,17 +368,16 @@ class TypeExpectations {
     if (url.find(kTypeTestOrigin) != 0)
       return false;
 
-    const std::string& file = url.substr(sizeof(kTypeTestOrigin)-1);
+    const std::string& file = url.substr(sizeof(kTypeTestOrigin) - 1);
     cef_transition_type_t transition_type = request->GetTransitionType();
     cef_resource_type_t resource_type = request->GetResourceType();
 
     const int index = GetExpectedIndex(file, transition_type, resource_type);
-    EXPECT_GE(index, 0)
-        << "File: " << file.c_str()
-        << "; Browser Side: " << browser_side_
-        << "; Navigation: " << navigation_
-        << "; Transition Type: " << transition_type
-        << "; Resource Type: " << resource_type;
+    EXPECT_GE(index, 0) << "File: " << file.c_str()
+                        << "; Browser Side: " << browser_side_
+                        << "; Navigation: " << navigation_
+                        << "; Transition Type: " << transition_type
+                        << "; Resource Type: " << resource_type;
 
     RequestCount::iterator it = request_count_.find(index);
     EXPECT_TRUE(it != request_count_.end());
@@ -390,8 +385,7 @@ class TypeExpectations {
     const int actual_count = ++it->second;
     const int expected_count = g_type_expected[index].expected_count;
     EXPECT_LE(actual_count, expected_count)
-        << "File: " << file.c_str()
-        << "; Browser Side: " << browser_side_
+        << "File: " << file.c_str() << "; Browser Side: " << browser_side_
         << "; Navigation: " << navigation_
         << "; Transition Type: " << transition_type
         << "; Resource Type: " << resource_type;
@@ -455,8 +449,7 @@ class TypeExpectations {
 // Renderer side.
 class TypeRendererTest : public ClientAppRenderer::Delegate {
  public:
-  TypeRendererTest() :
-      expectations_(false, true) {}
+  TypeRendererTest() : expectations_(false, true) {}
 
   bool OnBeforeNavigation(CefRefPtr<ClientAppRenderer> app,
                           CefRefPtr<CefBrowser> browser,
@@ -492,53 +485,48 @@ class TypeRendererTest : public ClientAppRenderer::Delegate {
 // Browser side.
 class TypeTestHandler : public TestHandler {
  public:
-  TypeTestHandler() :
-      browse_expectations_(true, true),
-      load_expectations_(true, false),
-      get_expectations_(true, false),
-      completed_browser_side_(false),
-      completed_render_side_(false),
-      destroyed_(false) {}
+  TypeTestHandler()
+      : browse_expectations_(true, true),
+        load_expectations_(true, false),
+        get_expectations_(true, false),
+        completed_browser_side_(false),
+        completed_render_side_(false),
+        destroyed_(false) {}
 
   void RunTest() override {
     AddResource(std::string(kTypeTestOrigin) + "main.html",
-        "<html>"
-        "<head>"
-        "<link rel=\"stylesheet\" href=\"style.css\" type=\"text/css\">"
-        "<script type=\"text/javascript\" src=\"script.js\"></script>"
-        "</head>"
-        "<body><p>Main</p>"
-        "<script>xhr = new XMLHttpRequest();"
-        "xhr.open('GET', 'xhr.html', false);"
-        "xhr.send();</script>"
-        "<iframe src=\"sub.html\"></iframe>"
-        "<img src=\"image.png\">"
-        "</body></html>",
-        "text/html");
-    AddResource(std::string(kTypeTestOrigin) + "sub.html",
-        "<html>Sub</html>",
-        "text/html");
+                "<html>"
+                "<head>"
+                "<link rel=\"stylesheet\" href=\"style.css\" type=\"text/css\">"
+                "<script type=\"text/javascript\" src=\"script.js\"></script>"
+                "</head>"
+                "<body><p>Main</p>"
+                "<script>xhr = new XMLHttpRequest();"
+                "xhr.open('GET', 'xhr.html', false);"
+                "xhr.send();</script>"
+                "<iframe src=\"sub.html\"></iframe>"
+                "<img src=\"image.png\">"
+                "</body></html>",
+                "text/html");
+    AddResource(std::string(kTypeTestOrigin) + "sub.html", "<html>Sub</html>",
+                "text/html");
     AddResource(std::string(kTypeTestOrigin) + "style.css",
-        "@font-face {"
-        "  font-family: custom_font;"
-        "  src: url('font.ttf');"
-        "}"
-        "p {"
-        "  font-family: custom_font;"
-        "}",
-        "text/css");
-    AddResource(std::string(kTypeTestOrigin) + "script.js",
-        "<!-- -->",
-        "text/javascript");
-    AddResource(std::string(kTypeTestOrigin) + "image.png",
-        "<!-- -->",
-        "image/png");
-    AddResource(std::string(kTypeTestOrigin) + "font.ttf",
-        "<!-- -->",
-        "font/ttf");
-    AddResource(std::string(kTypeTestOrigin) + "xhr.html",
-        "<html>XHR</html>",
-        "text/html");
+                "@font-face {"
+                "  font-family: custom_font;"
+                "  src: url('font.ttf');"
+                "}"
+                "p {"
+                "  font-family: custom_font;"
+                "}",
+                "text/css");
+    AddResource(std::string(kTypeTestOrigin) + "script.js", "<!-- -->",
+                "text/javascript");
+    AddResource(std::string(kTypeTestOrigin) + "image.png", "<!-- -->",
+                "image/png");
+    AddResource(std::string(kTypeTestOrigin) + "font.ttf", "<!-- -->",
+                "font/ttf");
+    AddResource(std::string(kTypeTestOrigin) + "xhr.html", "<html>XHR</html>",
+                "text/html");
 
     CreateBrowser(std::string(kTypeTestOrigin) + "main.html");
 
@@ -561,7 +549,7 @@ class TypeTestHandler : public TestHandler {
       CefRefPtr<CefRequest> request,
       CefRefPtr<CefRequestCallback> callback) override {
     load_expectations_.GotRequest(request);
-    
+
     return RV_CONTINUE;
   }
 
@@ -574,16 +562,15 @@ class TypeTestHandler : public TestHandler {
       completed_browser_side_ = true;
       // Destroy the test on the UI thread.
       CefPostTask(TID_UI,
-          base::Bind(&TypeTestHandler::DestroyTestIfComplete, this));
+                  base::Bind(&TypeTestHandler::DestroyTestIfComplete, this));
     }
 
     return TestHandler::GetResourceHandler(browser, frame, request);
   }
 
-  bool OnProcessMessageReceived(
-      CefRefPtr<CefBrowser> browser,
-      CefProcessId source_process,
-      CefRefPtr<CefProcessMessage> message) override {
+  bool OnProcessMessageReceived(CefRefPtr<CefBrowser> browser,
+                                CefProcessId source_process,
+                                CefRefPtr<CefProcessMessage> message) override {
     const std::string& msg_name = message->GetName();
     if (msg_name == kTypeTestCompleteMsg) {
       // Test that the renderer side succeeded.
@@ -639,12 +626,10 @@ class TypeTestHandler : public TestHandler {
 
 // Verify the order of navigation-related callbacks.
 TEST(RequestTest, ResourceAndTransitionType) {
-  CefRefPtr<TypeTestHandler> handler =
-      new TypeTestHandler();
+  CefRefPtr<TypeTestHandler> handler = new TypeTestHandler();
   handler->ExecuteTest();
   ReleaseAndWaitForDestructor(handler);
 }
-
 
 // Entry point for creating request renderer test objects.
 // Called from client_app_delegates.cc.

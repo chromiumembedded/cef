@@ -57,15 +57,14 @@ class CefFileDialogCallback : public virtual CefBaseRefCounted {
   /*--cef(capi_name=cont,index_param=selected_accept_filter,
           optional_param=file_paths)--*/
   virtual void Continue(int selected_accept_filter,
-                        const std::vector<CefString>& file_paths) =0;
+                        const std::vector<CefString>& file_paths) = 0;
 
   ///
   // Cancel the file selection.
   ///
   /*--cef()--*/
-  virtual void Cancel() =0;
+  virtual void Cancel() = 0;
 };
-
 
 ///
 // Implement this interface to handle dialog events. The methods of this class

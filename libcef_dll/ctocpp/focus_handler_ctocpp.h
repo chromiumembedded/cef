@@ -9,6 +9,8 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=2a02bedc5844d6c50eed12da9506cb0f4c1d33b1$
+//
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_FOCUS_HANDLER_CTOCPP_H_
 #define CEF_LIBCEF_DLL_CTOCPP_FOCUS_HANDLER_CTOCPP_H_
@@ -18,15 +20,15 @@
 #error This file can be included DLL-side only
 #endif
 
-#include "include/cef_focus_handler.h"
 #include "include/capi/cef_focus_handler_capi.h"
+#include "include/cef_focus_handler.h"
 #include "libcef_dll/ctocpp/ctocpp_ref_counted.h"
 
 // Wrap a C structure with a C++ class.
 // This class may be instantiated and accessed DLL-side only.
-class CefFocusHandlerCToCpp
-    : public CefCToCppRefCounted<CefFocusHandlerCToCpp, CefFocusHandler,
-        cef_focus_handler_t> {
+class CefFocusHandlerCToCpp : public CefCToCppRefCounted<CefFocusHandlerCToCpp,
+                                                         CefFocusHandler,
+                                                         cef_focus_handler_t> {
  public:
   CefFocusHandlerCToCpp();
 

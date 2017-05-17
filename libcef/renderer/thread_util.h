@@ -16,31 +16,30 @@
 
 #define CEF_REQUIRE_RT() DCHECK(CEF_CURRENTLY_ON_RT())
 
-#define CEF_REQUIRE_RT_RETURN(var) \
-  if (!CEF_CURRENTLY_ON_RT()) { \
+#define CEF_REQUIRE_RT_RETURN(var)              \
+  if (!CEF_CURRENTLY_ON_RT()) {                 \
     NOTREACHED() << "called on invalid thread"; \
-    return var; \
+    return var;                                 \
   }
 
-#define CEF_REQUIRE_RT_RETURN_VOID() \
-  if (!CEF_CURRENTLY_ON_RT()) { \
+#define CEF_REQUIRE_RT_RETURN_VOID()            \
+  if (!CEF_CURRENTLY_ON_RT()) {                 \
     NOTREACHED() << "called on invalid thread"; \
-    return; \
+    return;                                     \
   }
 
 #define CEF_RENDER_LOOP() \
-    (CefContentRendererClient::Get()->render_task_runner())
+  (CefContentRendererClient::Get()->render_task_runner())
 
-#define CEF_POST_TASK_RT(task) \
-    CEF_RENDER_LOOP()->PostTask(FROM_HERE, task)
+#define CEF_POST_TASK_RT(task) CEF_RENDER_LOOP()->PostTask(FROM_HERE, task)
 #define CEF_POST_DELAYED_TASK_RT(task, delay_ms) \
-    CEF_RENDER_LOOP()->PostDelayedTask(FROM_HERE, task, \
-        base::TimeDelta::FromMilliseconds(delay_ms))
+  CEF_RENDER_LOOP()->PostDelayedTask(            \
+      FROM_HERE, task, base::TimeDelta::FromMilliseconds(delay_ms))
 
 // Use this template in conjuction with RefCountedThreadSafe when you want to
 // ensure that an object is deleted on the render thread.
 struct CefDeleteOnRenderThread {
-  template<typename T>
+  template <typename T>
   static void Destruct(const T* x) {
     if (CEF_CURRENTLY_ON_RT()) {
       delete x;

@@ -23,7 +23,7 @@
 }
 
 - (id)initHelperWithCallback:
-      (CefJavaScriptDialogRunner::DialogClosedCallback)callback;
+    (CefJavaScriptDialogRunner::DialogClosedCallback)callback;
 - (NSAlert*)alert;
 - (NSTextField*)textField;
 - (void)alertDidEnd:(NSAlert*)alert
@@ -36,7 +36,7 @@
 @implementation CefJavaScriptDialogHelper
 
 - (id)initHelperWithCallback:
-      (CefJavaScriptDialogRunner::DialogClosedCallback)callback {
+    (CefJavaScriptDialogRunner::DialogClosedCallback)callback {
   if (self = [super init])
     callback_ = callback;
 
@@ -80,8 +80,7 @@
 @end
 
 CefJavaScriptDialogRunnerMac::CefJavaScriptDialogRunnerMac()
-    : weak_ptr_factory_(this) {
-}
+    : weak_ptr_factory_(this) {}
 
 CefJavaScriptDialogRunnerMac::~CefJavaScriptDialogRunnerMac() {
   Cancel();
@@ -97,15 +96,13 @@ void CefJavaScriptDialogRunnerMac::Run(
   DCHECK(!helper_.get());
   callback_ = callback;
 
-  bool text_field =
-      message_type == content::JAVASCRIPT_DIALOG_TYPE_PROMPT;
-  bool one_button =
-      message_type == content::JAVASCRIPT_DIALOG_TYPE_ALERT;
+  bool text_field = message_type == content::JAVASCRIPT_DIALOG_TYPE_PROMPT;
+  bool one_button = message_type == content::JAVASCRIPT_DIALOG_TYPE_ALERT;
 
-  helper_.reset(
-      [[CefJavaScriptDialogHelper alloc] initHelperWithCallback:
-          base::Bind(&CefJavaScriptDialogRunnerMac::DialogClosed,
-                     weak_ptr_factory_.GetWeakPtr())]);
+  helper_.reset([[CefJavaScriptDialogHelper alloc]
+      initHelperWithCallback:base::Bind(
+                                 &CefJavaScriptDialogRunnerMac::DialogClosed,
+                                 weak_ptr_factory_.GetWeakPtr())]);
 
   // Show the modal dialog.
   NSAlert* alert = [helper_ alert];
@@ -145,11 +142,10 @@ void CefJavaScriptDialogRunnerMac::Run(
   // building with the 10.11 SDK. See http://crbug.com/383820 for related
   // discussion.
   id nilArg = nil;
-  [alert
-      beginSheetModalForWindow:nilArg  // nil here makes it app-modal
-                 modalDelegate:helper_
-                didEndSelector:@selector(alertDidEnd:returnCode:contextInfo:)
-                   contextInfo:this];
+  [alert beginSheetModalForWindow:nilArg  // nil here makes it app-modal
+                    modalDelegate:helper_
+                   didEndSelector:@selector(alertDidEnd:returnCode:contextInfo:)
+                      contextInfo:this];
 
   if ([alert accessoryView])
     [[alert window] makeFirstResponder:[alert accessoryView]];

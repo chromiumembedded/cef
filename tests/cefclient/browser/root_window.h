@@ -18,8 +18,8 @@ namespace client {
 // Represents a top-level native window in the browser process. While references
 // to this object are thread-safe the methods must be called on the main thread
 // unless otherwise indicated.
-class RootWindow :
-    public base::RefCountedThreadSafe<RootWindow, DeleteOnMainThread> {
+class RootWindow
+    : public base::RefCountedThreadSafe<RootWindow, DeleteOnMainThread> {
  public:
   // This interface is implemented by the owner of the RootWindow. The methods
   // of this class will be called on the main thread.

@@ -2,9 +2,9 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#include "libcef/browser/xml_reader_impl.h"
-#include "include/cef_stream.h"
 #include "base/logging.h"
+#include "include/cef_stream.h"
+#include "libcef/browser/xml_reader_impl.h"
 
 // Static functions
 
@@ -17,7 +17,6 @@ CefRefPtr<CefXmlReader> CefXmlReader::Create(CefRefPtr<CefStreamReader> stream,
     return NULL;
   return impl.get();
 }
-
 
 // CefXmlReaderImpl
 
@@ -33,7 +32,7 @@ namespace {
  *
  * Returns the number of bytes read or -1 in case of error
  */
-int XMLCALL xml_read_callback(void * context, char * buffer, int len) {
+int XMLCALL xml_read_callback(void* context, char* buffer, int len) {
   CefRefPtr<CefStreamReader> reader(static_cast<CefStreamReader*>(context));
   return reader->Read(buffer, 1, len);
 }
@@ -47,15 +46,16 @@ int XMLCALL xml_read_callback(void * context, char * buffer, int len) {
  *
  * Signature of an error callback from a reader parser
  */
-void XMLCALL xml_error_callback(void *arg, const char *msg,
+void XMLCALL xml_error_callback(void* arg,
+                                const char* msg,
                                 xmlParserSeverities severity,
                                 xmlTextReaderLocatorPtr locator) {
   if (!msg)
     return;
 
   std::string error_str(msg);
-  if (!error_str.empty() && error_str[error_str.length()-1] == '\n')
-    error_str.resize(error_str.length()-1);
+  if (!error_str.empty() && error_str[error_str.length() - 1] == '\n')
+    error_str.resize(error_str.length() - 1);
 
   std::stringstream ss;
   ss << error_str << ", line " << xmlTextReaderLocatorLineNumber(locator);
@@ -74,13 +74,13 @@ void XMLCALL xml_error_callback(void *arg, const char *msg,
  * Signature of the function to use when there is an error and
  * the module handles the new error reporting mechanism.
  */
-void XMLCALL xml_structured_error_callback(void *userData, xmlErrorPtr error) {
+void XMLCALL xml_structured_error_callback(void* userData, xmlErrorPtr error) {
   if (!error->message)
     return;
 
   std::string error_str(error->message);
-  if (!error_str.empty() && error_str[error_str.length()-1] == '\n')
-    error_str.resize(error_str.length()-1);
+  if (!error_str.empty() && error_str[error_str.length() - 1] == '\n')
+    error_str.resize(error_str.length() - 1);
 
   std::stringstream ss;
   ss << error_str << ", line " << error->line;
@@ -107,8 +107,7 @@ CefString xmlCharToString(const xmlChar* xmlStr, bool free) {
 }  // namespace
 
 CefXmlReaderImpl::CefXmlReaderImpl()
-  : supported_thread_id_(base::PlatformThread::CurrentId()), reader_(NULL) {
-}
+    : supported_thread_id_(base::PlatformThread::CurrentId()), reader_(NULL) {}
 
 CefXmlReaderImpl::~CefXmlReaderImpl() {
   if (reader_ != NULL) {
@@ -165,8 +164,8 @@ bool CefXmlReaderImpl::Initialize(CefRefPtr<CefStreamReader> stream,
 
   // Register the error callbacks.
   xmlTextReaderSetErrorHandler(reader_, xml_error_callback, this);
-  xmlTextReaderSetStructuredErrorHandler(reader_,
-      xml_structured_error_callback, this);
+  xmlTextReaderSetStructuredErrorHandler(reader_, xml_structured_error_callback,
+                                         this);
 
   return true;
 }
@@ -344,8 +343,9 @@ CefString CefXmlReaderImpl::GetAttribute(const CefString& qualifiedName) {
     return CefString();
 
   std::string qualifiedNameStr = qualifiedName;
-  return xmlCharToString(xmlTextReaderGetAttribute(reader_,
-      BAD_CAST qualifiedNameStr.c_str()), true);
+  return xmlCharToString(
+      xmlTextReaderGetAttribute(reader_, BAD_CAST qualifiedNameStr.c_str()),
+      true);
 }
 
 CefString CefXmlReaderImpl::GetAttribute(const CefString& localName,
@@ -355,8 +355,10 @@ CefString CefXmlReaderImpl::GetAttribute(const CefString& localName,
 
   std::string localNameStr = localName;
   std::string namespaceURIStr = namespaceURI;
-  return xmlCharToString(xmlTextReaderGetAttributeNs(reader_,
-      BAD_CAST localNameStr.c_str(), BAD_CAST namespaceURIStr.c_str()), true);
+  return xmlCharToString(
+      xmlTextReaderGetAttributeNs(reader_, BAD_CAST localNameStr.c_str(),
+                                  BAD_CAST namespaceURIStr.c_str()),
+      true);
 }
 
 CefString CefXmlReaderImpl::GetInnerXml() {
@@ -393,7 +395,9 @@ bool CefXmlReaderImpl::MoveToAttribute(const CefString& qualifiedName) {
 
   std::string qualifiedNameStr = qualifiedName;
   return xmlTextReaderMoveToAttribute(reader_,
-      BAD_CAST qualifiedNameStr.c_str()) == 1 ? true : false;
+                                      BAD_CAST qualifiedNameStr.c_str()) == 1
+             ? true
+             : false;
 }
 
 bool CefXmlReaderImpl::MoveToAttribute(const CefString& localName,
@@ -403,9 +407,10 @@ bool CefXmlReaderImpl::MoveToAttribute(const CefString& localName,
 
   std::string localNameStr = localName;
   std::string namespaceURIStr = namespaceURI;
-  return xmlTextReaderMoveToAttributeNs(reader_,
-      BAD_CAST localNameStr.c_str(), BAD_CAST namespaceURIStr.c_str()) == 1 ?
-      true : false;
+  return xmlTextReaderMoveToAttributeNs(reader_, BAD_CAST localNameStr.c_str(),
+                                        BAD_CAST namespaceURIStr.c_str()) == 1
+             ? true
+             : false;
 }
 
 bool CefXmlReaderImpl::MoveToFirstAttribute() {

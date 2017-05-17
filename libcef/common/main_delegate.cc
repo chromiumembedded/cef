@@ -2,13 +2,13 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "libcef/common/main_delegate.h"
 #include "libcef/browser/content_browser_client.h"
 #include "libcef/browser/context.h"
 #include "libcef/common/cef_switches.h"
 #include "libcef/common/command_line_impl.h"
 #include "libcef/common/crash_reporting.h"
 #include "libcef/common/extensions/extensions_util.h"
+#include "libcef/common/main_delegate.h"
 #include "libcef/renderer/content_renderer_client.h"
 #include "libcef/utility/content_utility_client.h"
 
@@ -45,20 +45,20 @@
 #define IPC_MESSAGE_MACROS_LOG_ENABLED
 #include "content/public/common/content_ipc_logging.h"
 #define IPC_LOG_TABLE_ADD_ENTRY(msg_id, logger) \
-    content::RegisterIPCLogger(msg_id, logger)
+  content::RegisterIPCLogger(msg_id, logger)
 #include "libcef/common/cef_message_generator.h"
 #endif
 
 #if defined(OS_WIN)
-#include <Objbase.h>  // NOLINT(build/include_order)
+#include <Objbase.h>
 #include "base/win/registry.h"
 #endif
 
 #if defined(OS_MACOSX)
-#include "libcef/common/util_mac.h"
 #include "base/mac/bundle_locations.h"
 #include "base/mac/foundation_util.h"
 #include "content/public/common/content_paths.h"
+#include "libcef/common/util_mac.h"
 #endif
 
 #if defined(OS_LINUX)
@@ -129,8 +129,8 @@ bool GetSystemFlashFilename(base::FilePath* out_path) {
       L"SOFTWARE\\Macromedia\\FlashPlayerPepper";
   const wchar_t kFlashPlayerPathValueName[] = L"PlayerPath";
 
-  base::win::RegKey path_key(
-      HKEY_LOCAL_MACHINE, kPepperFlashRegistryRoot, KEY_READ);
+  base::win::RegKey path_key(HKEY_LOCAL_MACHINE, kPepperFlashRegistryRoot,
+                             KEY_READ);
   base::string16 path_str;
   if (FAILED(path_key.ReadValue(kFlashPlayerPathValueName, &path_str)))
     return false;
@@ -155,7 +155,7 @@ void OverridePepperFlashSystemPluginPath() {
   if (!util_mac::GetLocalLibraryDirectory(&plugin_filename))
     return;
   plugin_filename = plugin_filename.Append(kPepperFlashSystemBaseDirectory)
-                                   .Append(chrome::kPepperFlashPluginFilename);
+                        .Append(chrome::kPepperFlashPluginFilename);
 #else
   // A system plugin is not available on other platforms.
   return;
@@ -177,10 +177,8 @@ void OverridePepperFlashSystemPluginPath() {
 // (This also helps us sidestep issues with other apps grabbing ~/.chromium .)
 bool GetDefaultUserDataDirectory(base::FilePath* result) {
   std::unique_ptr<base::Environment> env(base::Environment::Create());
-  base::FilePath config_dir(
-      base::nix::GetXDGDirectory(env.get(),
-                                 base::nix::kXdgConfigHomeEnvVar,
-                                 base::nix::kDotConfigDir));
+  base::FilePath config_dir(base::nix::GetXDGDirectory(
+      env.get(), base::nix::kXdgConfigHomeEnvVar, base::nix::kDotConfigDir));
   *result = config_dir.Append(FILE_PATH_LITERAL("cef_user_data"));
   return true;
 }
@@ -239,9 +237,8 @@ bool IsScaleFactorSupported(ui::ScaleFactor scale_factor) {
 class CefUIThread : public base::Thread {
  public:
   explicit CefUIThread(const content::MainFunctionParams& main_function_params)
-    : base::Thread("CefUIThread"),
-      main_function_params_(main_function_params) {
-  }
+      : base::Thread("CefUIThread"),
+        main_function_params_(main_function_params) {}
 
   void Init() override {
 #if defined(OS_WIN)
@@ -283,8 +280,7 @@ CefMainDelegate::CefMainDelegate(CefRefPtr<CefApp> application)
   base_impl_stub();
 }
 
-CefMainDelegate::~CefMainDelegate() {
-}
+CefMainDelegate::~CefMainDelegate() {}
 
 bool CefMainDelegate::BasicStartupComplete(int* exit_code) {
   base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
@@ -345,15 +341,15 @@ bool CefMainDelegate::BasicStartupComplete(int* exit_code) {
 
     if (settings.user_agent.length > 0) {
       command_line->AppendSwitchASCII(switches::kUserAgent,
-          CefString(&settings.user_agent));
+                                      CefString(&settings.user_agent));
     } else if (settings.product_version.length > 0) {
       command_line->AppendSwitchASCII(switches::kProductVersion,
-          CefString(&settings.product_version));
+                                      CefString(&settings.product_version));
     }
 
     if (settings.locale.length > 0) {
       command_line->AppendSwitchASCII(switches::kLang,
-          CefString(&settings.locale));
+                                      CefString(&settings.locale));
     } else if (!command_line->HasSwitch(switches::kLang)) {
       command_line->AppendSwitchASCII(switches::kLang, "en-US");
     }
@@ -400,7 +396,7 @@ bool CefMainDelegate::BasicStartupComplete(int* exit_code) {
 
     if (settings.javascript_flags.length > 0) {
       command_line->AppendSwitchASCII(switches::kJavaScriptFlags,
-          CefString(&settings.javascript_flags));
+                                      CefString(&settings.javascript_flags));
     }
 
     if (settings.pack_loading_disabled) {
@@ -425,13 +421,15 @@ bool CefMainDelegate::BasicStartupComplete(int* exit_code) {
 
     if (settings.remote_debugging_port >= 1024 &&
         settings.remote_debugging_port <= 65535) {
-      command_line->AppendSwitchASCII(switches::kRemoteDebuggingPort,
+      command_line->AppendSwitchASCII(
+          switches::kRemoteDebuggingPort,
           base::IntToString(settings.remote_debugging_port));
     }
 
     if (settings.uncaught_exception_stack_size > 0) {
-      command_line->AppendSwitchASCII(switches::kUncaughtExceptionStackSize,
-        base::IntToString(settings.uncaught_exception_stack_size));
+      command_line->AppendSwitchASCII(
+          switches::kUncaughtExceptionStackSize,
+          base::IntToString(settings.uncaught_exception_stack_size));
     }
   }
 
@@ -503,7 +501,7 @@ void CefMainDelegate::PreSandboxStartup() {
       command_line->GetSwitchValueASCII(switches::kProcessType);
 
   if (process_type.empty()) {
-    // Only override these paths when executing the main process.
+// Only override these paths when executing the main process.
 #if defined(OS_MACOSX)
     OverrideChildProcessPath();
 #endif
@@ -536,10 +534,9 @@ void CefMainDelegate::PreSandboxStartup() {
 }
 
 void CefMainDelegate::SandboxInitialized(const std::string& process_type) {
-  CefContentClient::SetPDFEntryFunctions(
-      chrome_pdf::PPP_GetInterface,
-      chrome_pdf::PPP_InitializeModule,
-      chrome_pdf::PPP_ShutdownModule);
+  CefContentClient::SetPDFEntryFunctions(chrome_pdf::PPP_GetInterface,
+                                         chrome_pdf::PPP_InitializeModule,
+                                         chrome_pdf::PPP_ShutdownModule);
 }
 
 int CefMainDelegate::RunProcess(
@@ -583,10 +580,9 @@ void CefMainDelegate::ProcessExiting(const std::string& process_type) {
 
 #if defined(OS_POSIX) && !defined(OS_ANDROID) && !defined(OS_MACOSX)
 void CefMainDelegate::ZygoteForked() {
-  base::CommandLine* command_line =
-      base::CommandLine::ForCurrentProcess();
-  const std::string& process_type = command_line->GetSwitchValueASCII(
-        switches::kProcessType);
+  base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
+  const std::string& process_type =
+      command_line->GetSwitchValueASCII(switches::kProcessType);
   // Initialize crash reporting state for the newly forked process.
   crash_reporting::ZygoteForked(command_line, process_type);
 }
@@ -597,8 +593,7 @@ content::ContentBrowserClient* CefMainDelegate::CreateContentBrowserClient() {
   return browser_client_.get();
 }
 
-content::ContentRendererClient*
-    CefMainDelegate::CreateContentRendererClient() {
+content::ContentRendererClient* CefMainDelegate::CreateContentRendererClient() {
   renderer_client_.reset(new CefContentRendererClient);
   return renderer_client_.get();
 }
@@ -624,8 +619,8 @@ void CefMainDelegate::InitializeResourceBundle() {
   const base::CommandLine* command_line =
       base::CommandLine::ForCurrentProcess();
   base::FilePath cef_pak_file, cef_100_percent_pak_file,
-                 cef_200_percent_pak_file, cef_extensions_pak_file,
-                 devtools_pak_file, locales_dir;
+      cef_200_percent_pak_file, cef_extensions_pak_file, devtools_pak_file,
+      locales_dir;
 
   base::FilePath resources_dir;
   if (command_line->HasSwitch(switches::kResourcesDirPath)) {
@@ -666,9 +661,7 @@ void CefMainDelegate::InitializeResourceBundle() {
 
   const std::string loaded_locale =
       ui::ResourceBundle::InitSharedInstanceWithLocale(
-          locale,
-          &content_client_,
-          ui::ResourceBundle::LOAD_COMMON_RESOURCES);
+          locale, &content_client_, ui::ResourceBundle::LOAD_COMMON_RESOURCES);
   if (!loaded_locale.empty() && g_browser_process)
     g_browser_process->SetApplicationLocale(loaded_locale);
 
@@ -697,8 +690,8 @@ void CefMainDelegate::InitializeResourceBundle() {
 
     if (load_100_percent) {
       if (base::PathExists(cef_100_percent_pak_file)) {
-        resource_bundle.AddDataPackFromPath(
-            cef_100_percent_pak_file, ui::SCALE_FACTOR_100P);
+        resource_bundle.AddDataPackFromPath(cef_100_percent_pak_file,
+                                            ui::SCALE_FACTOR_100P);
       } else {
         LOG(ERROR) << "Could not load cef_100_percent.pak";
       }
@@ -706,8 +699,8 @@ void CefMainDelegate::InitializeResourceBundle() {
 
     if (IsScaleFactorSupported(ui::SCALE_FACTOR_200P)) {
       if (base::PathExists(cef_200_percent_pak_file)) {
-        resource_bundle.AddDataPackFromPath(
-            cef_200_percent_pak_file, ui::SCALE_FACTOR_200P);
+        resource_bundle.AddDataPackFromPath(cef_200_percent_pak_file,
+                                            ui::SCALE_FACTOR_200P);
       } else {
         LOG(ERROR) << "Could not load cef_200_percent.pak";
       }
@@ -715,16 +708,16 @@ void CefMainDelegate::InitializeResourceBundle() {
 
     if (extensions::ExtensionsEnabled()) {
       if (base::PathExists(cef_extensions_pak_file)) {
-        resource_bundle.AddDataPackFromPath(
-            cef_extensions_pak_file, ui::SCALE_FACTOR_NONE);
+        resource_bundle.AddDataPackFromPath(cef_extensions_pak_file,
+                                            ui::SCALE_FACTOR_NONE);
       } else {
         LOG(ERROR) << "Could not load cef_extensions.pak";
       }
     }
 
     if (base::PathExists(devtools_pak_file)) {
-      resource_bundle.AddDataPackFromPath(
-          devtools_pak_file, ui::SCALE_FACTOR_NONE);
+      resource_bundle.AddDataPackFromPath(devtools_pak_file,
+                                          ui::SCALE_FACTOR_NONE);
     }
 
     content_client_.set_allow_pack_file_load(false);

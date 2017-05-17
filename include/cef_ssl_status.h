@@ -52,32 +52,32 @@ class CefSSLStatus : public virtual CefBaseRefCounted {
   // Returns true if the status is related to a secure SSL/TLS connection.
   ///
   /*--cef()--*/
-  virtual bool IsSecureConnection() =0;
+  virtual bool IsSecureConnection() = 0;
 
   ///
   // Returns a bitmask containing any and all problems verifying the server
   // certificate.
   ///
   /*--cef(default_retval=CERT_STATUS_NONE)--*/
-  virtual cef_cert_status_t GetCertStatus() =0;
+  virtual cef_cert_status_t GetCertStatus() = 0;
 
   ///
   // Returns the SSL version used for the SSL connection.
   ///
   /*--cef(default_retval=SSL_CONNECTION_VERSION_UNKNOWN)--*/
-  virtual cef_ssl_version_t GetSSLVersion() =0;
+  virtual cef_ssl_version_t GetSSLVersion() = 0;
 
   ///
   // Returns a bitmask containing the page security content status.
   ///
   /*--cef(default_retval=SSL_CONTENT_NORMAL_CONTENT)--*/
-  virtual cef_ssl_content_status_t GetContentStatus() =0;
+  virtual cef_ssl_content_status_t GetContentStatus() = 0;
 
   ///
   // Returns the X.509 certificate.
   ///
   /*--cef()--*/
-  virtual CefRefPtr<CefX509Certificate> GetX509Certificate() =0;
+  virtual CefRefPtr<CefX509Certificate> GetX509Certificate() = 0;
 };
 
 #endif  // CEF_INCLUDE_CEF_SSL_STATUS_H_

@@ -10,8 +10,7 @@
 namespace views {
 
 Menu2::Menu2(ui::MenuModel* model)
-    : model_(model),
-      wrapper_(MenuWrapper::CreateWrapper(model)) {
+    : model_(model), wrapper_(MenuWrapper::CreateWrapper(model)) {
   Rebuild();
 }
 

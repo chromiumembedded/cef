@@ -33,6 +33,8 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
+// $hash=5d20fc88dea8dad8691f05bfb7e8c1ce5cf2bbc1$
+//
 
 #ifndef CEF_INCLUDE_CAPI_CEF_RENDER_HANDLER_CAPI_H_
 #define CEF_INCLUDE_CAPI_CEF_RENDER_HANDLER_CAPI_H_
@@ -46,7 +48,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
 
 ///
 // Implement this structure to handle events when window rendering is disabled.
@@ -62,31 +63,35 @@ typedef struct _cef_render_handler_t {
   // Return the handler for accessibility notifications. If no handler is
   // provided the default implementation will be used.
   ///
-  struct _cef_accessibility_handler_t* (
-      CEF_CALLBACK *get_accessibility_handler)(
+  struct _cef_accessibility_handler_t*(CEF_CALLBACK* get_accessibility_handler)(
       struct _cef_render_handler_t* self);
 
   ///
   // Called to retrieve the root window rectangle in screen coordinates. Return
   // true (1) if the rectangle was provided.
   ///
-  int (CEF_CALLBACK *get_root_screen_rect)(struct _cef_render_handler_t* self,
-      struct _cef_browser_t* browser, cef_rect_t* rect);
+  int(CEF_CALLBACK* get_root_screen_rect)(struct _cef_render_handler_t* self,
+                                          struct _cef_browser_t* browser,
+                                          cef_rect_t* rect);
 
   ///
   // Called to retrieve the view rectangle which is relative to screen
   // coordinates. Return true (1) if the rectangle was provided.
   ///
-  int (CEF_CALLBACK *get_view_rect)(struct _cef_render_handler_t* self,
-      struct _cef_browser_t* browser, cef_rect_t* rect);
+  int(CEF_CALLBACK* get_view_rect)(struct _cef_render_handler_t* self,
+                                   struct _cef_browser_t* browser,
+                                   cef_rect_t* rect);
 
   ///
   // Called to retrieve the translation from view coordinates to actual screen
   // coordinates. Return true (1) if the screen coordinates were provided.
   ///
-  int (CEF_CALLBACK *get_screen_point)(struct _cef_render_handler_t* self,
-      struct _cef_browser_t* browser, int viewX, int viewY, int* screenX,
-      int* screenY);
+  int(CEF_CALLBACK* get_screen_point)(struct _cef_render_handler_t* self,
+                                      struct _cef_browser_t* browser,
+                                      int viewX,
+                                      int viewY,
+                                      int* screenX,
+                                      int* screenY);
 
   ///
   // Called to allow the client to fill in the CefScreenInfo object with
@@ -97,22 +102,25 @@ typedef struct _cef_render_handler_t {
   // will be used. If the rectangle is still NULL or invalid popups may not be
   // drawn correctly.
   ///
-  int (CEF_CALLBACK *get_screen_info)(struct _cef_render_handler_t* self,
-      struct _cef_browser_t* browser, struct _cef_screen_info_t* screen_info);
+  int(CEF_CALLBACK* get_screen_info)(struct _cef_render_handler_t* self,
+                                     struct _cef_browser_t* browser,
+                                     struct _cef_screen_info_t* screen_info);
 
   ///
   // Called when the browser wants to show or hide the popup widget. The popup
   // should be shown if |show| is true (1) and hidden if |show| is false (0).
   ///
-  void (CEF_CALLBACK *on_popup_show)(struct _cef_render_handler_t* self,
-      struct _cef_browser_t* browser, int show);
+  void(CEF_CALLBACK* on_popup_show)(struct _cef_render_handler_t* self,
+                                    struct _cef_browser_t* browser,
+                                    int show);
 
   ///
   // Called when the browser wants to move or resize the popup widget. |rect|
   // contains the new location and size in view coordinates.
   ///
-  void (CEF_CALLBACK *on_popup_size)(struct _cef_render_handler_t* self,
-      struct _cef_browser_t* browser, const cef_rect_t* rect);
+  void(CEF_CALLBACK* on_popup_size)(struct _cef_render_handler_t* self,
+                                    struct _cef_browser_t* browser,
+                                    const cef_rect_t* rect);
 
   ///
   // Called when an element should be painted. Pixel values passed to this
@@ -124,17 +132,23 @@ typedef struct _cef_render_handler_t {
   // be |width|*|height|*4 bytes in size and represents a BGRA image with an
   // upper-left origin.
   ///
-  void (CEF_CALLBACK *on_paint)(struct _cef_render_handler_t* self,
-      struct _cef_browser_t* browser, cef_paint_element_type_t type,
-      size_t dirtyRectsCount, cef_rect_t const* dirtyRects, const void* buffer,
-      int width, int height);
+  void(CEF_CALLBACK* on_paint)(struct _cef_render_handler_t* self,
+                               struct _cef_browser_t* browser,
+                               cef_paint_element_type_t type,
+                               size_t dirtyRectsCount,
+                               cef_rect_t const* dirtyRects,
+                               const void* buffer,
+                               int width,
+                               int height);
 
   ///
   // Called when the browser's cursor has changed. If |type| is CT_CUSTOM then
   // |custom_cursor_info| will be populated with the custom cursor information.
   ///
-  void (CEF_CALLBACK *on_cursor_change)(struct _cef_render_handler_t* self,
-      struct _cef_browser_t* browser, cef_cursor_handle_t cursor,
+  void(CEF_CALLBACK* on_cursor_change)(
+      struct _cef_render_handler_t* self,
+      struct _cef_browser_t* browser,
+      cef_cursor_handle_t cursor,
       cef_cursor_type_t type,
       const struct _cef_cursor_info_t* custom_cursor_info);
 
@@ -152,36 +166,43 @@ typedef struct _cef_render_handler_t {
   // synchronously or asynchronously to inform the web view that the drag
   // operation has ended.
   ///
-  int (CEF_CALLBACK *start_dragging)(struct _cef_render_handler_t* self,
-      struct _cef_browser_t* browser, struct _cef_drag_data_t* drag_data,
-      cef_drag_operations_mask_t allowed_ops, int x, int y);
+  int(CEF_CALLBACK* start_dragging)(struct _cef_render_handler_t* self,
+                                    struct _cef_browser_t* browser,
+                                    struct _cef_drag_data_t* drag_data,
+                                    cef_drag_operations_mask_t allowed_ops,
+                                    int x,
+                                    int y);
 
   ///
   // Called when the web view wants to update the mouse cursor during a drag &
   // drop operation. |operation| describes the allowed operation (none, move,
   // copy, link).
   ///
-  void (CEF_CALLBACK *update_drag_cursor)(struct _cef_render_handler_t* self,
-      struct _cef_browser_t* browser, cef_drag_operations_mask_t operation);
+  void(CEF_CALLBACK* update_drag_cursor)(struct _cef_render_handler_t* self,
+                                         struct _cef_browser_t* browser,
+                                         cef_drag_operations_mask_t operation);
 
   ///
   // Called when the scroll offset has changed.
   ///
-  void (CEF_CALLBACK *on_scroll_offset_changed)(
-      struct _cef_render_handler_t* self, struct _cef_browser_t* browser,
-      double x, double y);
+  void(CEF_CALLBACK* on_scroll_offset_changed)(
+      struct _cef_render_handler_t* self,
+      struct _cef_browser_t* browser,
+      double x,
+      double y);
 
   ///
   // Called when the IME composition range has changed. |selected_range| is the
   // range of characters that have been selected. |character_bounds| is the
   // bounds of each character in view coordinates.
   ///
-  void (CEF_CALLBACK *on_ime_composition_range_changed)(
-      struct _cef_render_handler_t* self, struct _cef_browser_t* browser,
-      const cef_range_t* selected_range, size_t character_boundsCount,
+  void(CEF_CALLBACK* on_ime_composition_range_changed)(
+      struct _cef_render_handler_t* self,
+      struct _cef_browser_t* browser,
+      const cef_range_t* selected_range,
+      size_t character_boundsCount,
       cef_rect_t const* character_bounds);
 } cef_render_handler_t;
-
 
 #ifdef __cplusplus
 }

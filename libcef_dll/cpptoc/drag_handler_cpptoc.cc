@@ -9,19 +9,21 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=f56cb888482bc594b34fb05729c0cab9577c306e$
+//
 
 #include "libcef_dll/cpptoc/drag_handler_cpptoc.h"
 #include "libcef_dll/ctocpp/browser_ctocpp.h"
 #include "libcef_dll/ctocpp/drag_data_ctocpp.h"
-
 
 namespace {
 
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
 int CEF_CALLBACK drag_handler_on_drag_enter(struct _cef_drag_handler_t* self,
-    cef_browser_t* browser, cef_drag_data_t* dragData,
-    cef_drag_operations_mask_t mask) {
+                                            cef_browser_t* browser,
+                                            cef_drag_data_t* dragData,
+                                            cef_drag_operations_mask_t mask) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -38,17 +40,17 @@ int CEF_CALLBACK drag_handler_on_drag_enter(struct _cef_drag_handler_t* self,
 
   // Execute
   bool _retval = CefDragHandlerCppToC::Get(self)->OnDragEnter(
-      CefBrowserCToCpp::Wrap(browser),
-      CefDragDataCToCpp::Wrap(dragData),
-      mask);
+      CefBrowserCToCpp::Wrap(browser), CefDragDataCToCpp::Wrap(dragData), mask);
 
   // Return type: bool
   return _retval;
 }
 
 void CEF_CALLBACK drag_handler_on_draggable_regions_changed(
-    struct _cef_drag_handler_t* self, cef_browser_t* browser,
-    size_t regionsCount, cef_draggable_region_t const* regions) {
+    struct _cef_drag_handler_t* self,
+    cef_browser_t* browser,
+    size_t regionsCount,
+    cef_draggable_region_t const* regions) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -64,7 +66,7 @@ void CEF_CALLBACK drag_handler_on_draggable_regions_changed(
     return;
 
   // Translate param: regions; type: simple_vec_byref_const
-  std::vector<CefDraggableRegion > regionsList;
+  std::vector<CefDraggableRegion> regionsList;
   if (regionsCount > 0) {
     for (size_t i = 0; i < regionsCount; ++i) {
       CefDraggableRegion regionsVal = regions[i];
@@ -74,12 +76,10 @@ void CEF_CALLBACK drag_handler_on_draggable_regions_changed(
 
   // Execute
   CefDragHandlerCppToC::Get(self)->OnDraggableRegionsChanged(
-      CefBrowserCToCpp::Wrap(browser),
-      regionsList);
+      CefBrowserCToCpp::Wrap(browser), regionsList);
 }
 
 }  // namespace
-
 
 // CONSTRUCTOR - Do not edit by hand.
 
@@ -89,17 +89,23 @@ CefDragHandlerCppToC::CefDragHandlerCppToC() {
       drag_handler_on_draggable_regions_changed;
 }
 
-template<> CefRefPtr<CefDragHandler> CefCppToCRefCounted<CefDragHandlerCppToC,
-    CefDragHandler, cef_drag_handler_t>::UnwrapDerived(CefWrapperType type,
-    cef_drag_handler_t* s) {
+template <>
+CefRefPtr<CefDragHandler>
+CefCppToCRefCounted<CefDragHandlerCppToC, CefDragHandler, cef_drag_handler_t>::
+    UnwrapDerived(CefWrapperType type, cef_drag_handler_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCppToCRefCounted<CefDragHandlerCppToC,
-    CefDragHandler, cef_drag_handler_t>::DebugObjCt = 0;
+template <>
+base::AtomicRefCount CefCppToCRefCounted<CefDragHandlerCppToC,
+                                         CefDragHandler,
+                                         cef_drag_handler_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCppToCRefCounted<CefDragHandlerCppToC,
-    CefDragHandler, cef_drag_handler_t>::kWrapperType = WT_DRAG_HANDLER;
+template <>
+CefWrapperType CefCppToCRefCounted<CefDragHandlerCppToC,
+                                   CefDragHandler,
+                                   cef_drag_handler_t>::kWrapperType =
+    WT_DRAG_HANDLER;

@@ -16,4 +16,4 @@ ContentSettingsType PermissionTypeToContentSetting(
 
 }  // namespace permission_util
 
-#endif // CEF_LIBCEF_BROWSER_PERMISSIONS_PERMISSION_UTIL_H_
+#endif  // CEF_LIBCEF_BROWSER_PERMISSIONS_PERMISSION_UTIL_H_

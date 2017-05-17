@@ -27,8 +27,8 @@ void BrowserWindowStdWin::CreateBrowser(
   window_info.SetAsChild(parent_handle, wnd_rect);
 
   CefBrowserHost::CreateBrowser(window_info, client_handler_,
-                                client_handler_->startup_url(),
-                                settings, request_context);
+                                client_handler_->startup_url(), settings,
+                                request_context);
 }
 
 void BrowserWindowStdWin::GetPopupConfig(CefWindowHandle temp_handle,
@@ -42,15 +42,17 @@ void BrowserWindowStdWin::GetPopupConfig(CefWindowHandle temp_handle,
 }
 
 void BrowserWindowStdWin::ShowPopup(ClientWindowHandle parent_handle,
-                                    int x, int y, size_t width, size_t height) {
+                                    int x,
+                                    int y,
+                                    size_t width,
+                                    size_t height) {
   REQUIRE_MAIN_THREAD();
 
   HWND hwnd = GetWindowHandle();
   if (hwnd) {
     SetParent(hwnd, parent_handle);
-    SetWindowPos(hwnd, NULL, x, y,
-                 static_cast<int>(width), static_cast<int>(height),
-                 SWP_NOZORDER);
+    SetWindowPos(hwnd, NULL, x, y, static_cast<int>(width),
+                 static_cast<int>(height), SWP_NOZORDER);
     ShowWindow(hwnd, SW_SHOW);
   }
 }
@@ -70,8 +72,8 @@ void BrowserWindowStdWin::Hide() {
   if (hwnd) {
     // When the frame window is minimized set the browser window size to 0x0 to
     // reduce resource usage.
-    SetWindowPos(hwnd, NULL,
-        0, 0, 0, 0, SWP_NOZORDER | SWP_NOMOVE | SWP_NOACTIVATE);
+    SetWindowPos(hwnd, NULL, 0, 0, 0, 0,
+                 SWP_NOZORDER | SWP_NOMOVE | SWP_NOACTIVATE);
   }
 }
 
@@ -81,9 +83,8 @@ void BrowserWindowStdWin::SetBounds(int x, int y, size_t width, size_t height) {
   HWND hwnd = GetWindowHandle();
   if (hwnd) {
     // Set the browser window bounds.
-    SetWindowPos(hwnd, NULL, x, y,
-                 static_cast<int>(width), static_cast<int>(height),
-                 SWP_NOZORDER);
+    SetWindowPos(hwnd, NULL, x, y, static_cast<int>(width),
+                 static_cast<int>(height), SWP_NOZORDER);
   }
 }
 
@@ -101,6 +102,5 @@ ClientWindowHandle BrowserWindowStdWin::GetWindowHandle() const {
     return browser_->GetHost()->GetWindowHandle();
   return NULL;
 }
-
 
 }  // namespace client

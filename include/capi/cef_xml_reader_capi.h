@@ -33,6 +33,8 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
+// $hash=8356c87c40363434391cc18f509b580860db4404$
+//
 
 #ifndef CEF_INCLUDE_CAPI_CEF_XML_READER_CAPI_H_
 #define CEF_INCLUDE_CAPI_CEF_XML_READER_CAPI_H_
@@ -44,7 +46,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
 
 ///
 // Structure that supports the reading of XML data via the libxml streaming API.
@@ -62,26 +63,25 @@ typedef struct _cef_xml_reader_t {
   // called at least once to set the current cursor position. Returns true (1)
   // if the cursor position was set successfully.
   ///
-  int (CEF_CALLBACK *move_to_next_node)(struct _cef_xml_reader_t* self);
+  int(CEF_CALLBACK* move_to_next_node)(struct _cef_xml_reader_t* self);
 
   ///
   // Close the document. This should be called directly to ensure that cleanup
   // occurs on the correct thread.
   ///
-  int (CEF_CALLBACK *close)(struct _cef_xml_reader_t* self);
+  int(CEF_CALLBACK* close)(struct _cef_xml_reader_t* self);
 
   ///
   // Returns true (1) if an error has been reported by the XML parser.
   ///
-  int (CEF_CALLBACK *has_error)(struct _cef_xml_reader_t* self);
+  int(CEF_CALLBACK* has_error)(struct _cef_xml_reader_t* self);
 
   ///
   // Returns the error string.
   ///
   // The resulting string must be freed by calling cef_string_userfree_free().
-  cef_string_userfree_t (CEF_CALLBACK *get_error)(
+  cef_string_userfree_t(CEF_CALLBACK* get_error)(
       struct _cef_xml_reader_t* self);
-
 
   // The below functions retrieve data for the node at the current cursor
   // position.
@@ -89,19 +89,19 @@ typedef struct _cef_xml_reader_t {
   ///
   // Returns the node type.
   ///
-  cef_xml_node_type_t (CEF_CALLBACK *get_type)(struct _cef_xml_reader_t* self);
+  cef_xml_node_type_t(CEF_CALLBACK* get_type)(struct _cef_xml_reader_t* self);
 
   ///
   // Returns the node depth. Depth starts at 0 for the root node.
   ///
-  int (CEF_CALLBACK *get_depth)(struct _cef_xml_reader_t* self);
+  int(CEF_CALLBACK* get_depth)(struct _cef_xml_reader_t* self);
 
   ///
   // Returns the local name. See http://www.w3.org/TR/REC-xml-names/#NT-
   // LocalPart for additional details.
   ///
   // The resulting string must be freed by calling cef_string_userfree_free().
-  cef_string_userfree_t (CEF_CALLBACK *get_local_name)(
+  cef_string_userfree_t(CEF_CALLBACK* get_local_name)(
       struct _cef_xml_reader_t* self);
 
   ///
@@ -109,7 +109,7 @@ typedef struct _cef_xml_reader_t {
   // additional details.
   ///
   // The resulting string must be freed by calling cef_string_userfree_free().
-  cef_string_userfree_t (CEF_CALLBACK *get_prefix)(
+  cef_string_userfree_t(CEF_CALLBACK* get_prefix)(
       struct _cef_xml_reader_t* self);
 
   ///
@@ -117,7 +117,7 @@ typedef struct _cef_xml_reader_t {
   // http://www.w3.org/TR/REC-xml-names/#ns-qualnames for additional details.
   ///
   // The resulting string must be freed by calling cef_string_userfree_free().
-  cef_string_userfree_t (CEF_CALLBACK *get_qualified_name)(
+  cef_string_userfree_t(CEF_CALLBACK* get_qualified_name)(
       struct _cef_xml_reader_t* self);
 
   ///
@@ -125,7 +125,7 @@ typedef struct _cef_xml_reader_t {
   // http://www.w3.org/TR/REC-xml-names/ for additional details.
   ///
   // The resulting string must be freed by calling cef_string_userfree_free().
-  cef_string_userfree_t (CEF_CALLBACK *get_namespace_uri)(
+  cef_string_userfree_t(CEF_CALLBACK* get_namespace_uri)(
       struct _cef_xml_reader_t* self);
 
   ///
@@ -133,7 +133,7 @@ typedef struct _cef_xml_reader_t {
   // additional details.
   ///
   // The resulting string must be freed by calling cef_string_userfree_free().
-  cef_string_userfree_t (CEF_CALLBACK *get_base_uri)(
+  cef_string_userfree_t(CEF_CALLBACK* get_base_uri)(
       struct _cef_xml_reader_t* self);
 
   ///
@@ -141,79 +141,81 @@ typedef struct _cef_xml_reader_t {
   // http://www.w3.org/TR/REC-xml/#sec-lang-tag for additional details.
   ///
   // The resulting string must be freed by calling cef_string_userfree_free().
-  cef_string_userfree_t (CEF_CALLBACK *get_xml_lang)(
+  cef_string_userfree_t(CEF_CALLBACK* get_xml_lang)(
       struct _cef_xml_reader_t* self);
 
   ///
   // Returns true (1) if the node represents an NULL element. <a/> is considered
   // NULL but <a></a> is not.
   ///
-  int (CEF_CALLBACK *is_empty_element)(struct _cef_xml_reader_t* self);
+  int(CEF_CALLBACK* is_empty_element)(struct _cef_xml_reader_t* self);
 
   ///
   // Returns true (1) if the node has a text value.
   ///
-  int (CEF_CALLBACK *has_value)(struct _cef_xml_reader_t* self);
+  int(CEF_CALLBACK* has_value)(struct _cef_xml_reader_t* self);
 
   ///
   // Returns the text value.
   ///
   // The resulting string must be freed by calling cef_string_userfree_free().
-  cef_string_userfree_t (CEF_CALLBACK *get_value)(
+  cef_string_userfree_t(CEF_CALLBACK* get_value)(
       struct _cef_xml_reader_t* self);
 
   ///
   // Returns true (1) if the node has attributes.
   ///
-  int (CEF_CALLBACK *has_attributes)(struct _cef_xml_reader_t* self);
+  int(CEF_CALLBACK* has_attributes)(struct _cef_xml_reader_t* self);
 
   ///
   // Returns the number of attributes.
   ///
-  size_t (CEF_CALLBACK *get_attribute_count)(struct _cef_xml_reader_t* self);
+  size_t(CEF_CALLBACK* get_attribute_count)(struct _cef_xml_reader_t* self);
 
   ///
   // Returns the value of the attribute at the specified 0-based index.
   ///
   // The resulting string must be freed by calling cef_string_userfree_free().
-  cef_string_userfree_t (CEF_CALLBACK *get_attribute_byindex)(
-      struct _cef_xml_reader_t* self, int index);
+  cef_string_userfree_t(CEF_CALLBACK* get_attribute_byindex)(
+      struct _cef_xml_reader_t* self,
+      int index);
 
   ///
   // Returns the value of the attribute with the specified qualified name.
   ///
   // The resulting string must be freed by calling cef_string_userfree_free().
-  cef_string_userfree_t (CEF_CALLBACK *get_attribute_byqname)(
-      struct _cef_xml_reader_t* self, const cef_string_t* qualifiedName);
+  cef_string_userfree_t(CEF_CALLBACK* get_attribute_byqname)(
+      struct _cef_xml_reader_t* self,
+      const cef_string_t* qualifiedName);
 
   ///
   // Returns the value of the attribute with the specified local name and
   // namespace URI.
   ///
   // The resulting string must be freed by calling cef_string_userfree_free().
-  cef_string_userfree_t (CEF_CALLBACK *get_attribute_bylname)(
-      struct _cef_xml_reader_t* self, const cef_string_t* localName,
+  cef_string_userfree_t(CEF_CALLBACK* get_attribute_bylname)(
+      struct _cef_xml_reader_t* self,
+      const cef_string_t* localName,
       const cef_string_t* namespaceURI);
 
   ///
   // Returns an XML representation of the current node's children.
   ///
   // The resulting string must be freed by calling cef_string_userfree_free().
-  cef_string_userfree_t (CEF_CALLBACK *get_inner_xml)(
+  cef_string_userfree_t(CEF_CALLBACK* get_inner_xml)(
       struct _cef_xml_reader_t* self);
 
   ///
   // Returns an XML representation of the current node including its children.
   ///
   // The resulting string must be freed by calling cef_string_userfree_free().
-  cef_string_userfree_t (CEF_CALLBACK *get_outer_xml)(
+  cef_string_userfree_t(CEF_CALLBACK* get_outer_xml)(
       struct _cef_xml_reader_t* self);
 
   ///
   // Returns the line number for the current node.
   ///
-  int (CEF_CALLBACK *get_line_number)(struct _cef_xml_reader_t* self);
-
+  int(CEF_CALLBACK* get_line_number)(struct _cef_xml_reader_t* self);
 
   // Attribute nodes are not traversed by default. The below functions can be
   // used to move the cursor to an attribute node. move_to_carrying_element()
@@ -224,14 +226,15 @@ typedef struct _cef_xml_reader_t {
   // Moves the cursor to the attribute at the specified 0-based index. Returns
   // true (1) if the cursor position was set successfully.
   ///
-  int (CEF_CALLBACK *move_to_attribute_byindex)(struct _cef_xml_reader_t* self,
-      int index);
+  int(CEF_CALLBACK* move_to_attribute_byindex)(struct _cef_xml_reader_t* self,
+                                               int index);
 
   ///
   // Moves the cursor to the attribute with the specified qualified name.
   // Returns true (1) if the cursor position was set successfully.
   ///
-  int (CEF_CALLBACK *move_to_attribute_byqname)(struct _cef_xml_reader_t* self,
+  int(CEF_CALLBACK* move_to_attribute_byqname)(
+      struct _cef_xml_reader_t* self,
       const cef_string_t* qualifiedName);
 
   ///
@@ -239,37 +242,38 @@ typedef struct _cef_xml_reader_t {
   // namespace URI. Returns true (1) if the cursor position was set
   // successfully.
   ///
-  int (CEF_CALLBACK *move_to_attribute_bylname)(struct _cef_xml_reader_t* self,
-      const cef_string_t* localName, const cef_string_t* namespaceURI);
+  int(CEF_CALLBACK* move_to_attribute_bylname)(
+      struct _cef_xml_reader_t* self,
+      const cef_string_t* localName,
+      const cef_string_t* namespaceURI);
 
   ///
   // Moves the cursor to the first attribute in the current element. Returns
   // true (1) if the cursor position was set successfully.
   ///
-  int (CEF_CALLBACK *move_to_first_attribute)(struct _cef_xml_reader_t* self);
+  int(CEF_CALLBACK* move_to_first_attribute)(struct _cef_xml_reader_t* self);
 
   ///
   // Moves the cursor to the next attribute in the current element. Returns true
   // (1) if the cursor position was set successfully.
   ///
-  int (CEF_CALLBACK *move_to_next_attribute)(struct _cef_xml_reader_t* self);
+  int(CEF_CALLBACK* move_to_next_attribute)(struct _cef_xml_reader_t* self);
 
   ///
   // Moves the cursor back to the carrying element. Returns true (1) if the
   // cursor position was set successfully.
   ///
-  int (CEF_CALLBACK *move_to_carrying_element)(struct _cef_xml_reader_t* self);
+  int(CEF_CALLBACK* move_to_carrying_element)(struct _cef_xml_reader_t* self);
 } cef_xml_reader_t;
-
 
 ///
 // Create a new cef_xml_reader_t object. The returned object's functions can
 // only be called from the thread that created the object.
 ///
 CEF_EXPORT cef_xml_reader_t* cef_xml_reader_create(
-    struct _cef_stream_reader_t* stream, cef_xml_encoding_type_t encodingType,
+    struct _cef_stream_reader_t* stream,
+    cef_xml_encoding_type_t encodingType,
     const cef_string_t* URI);
-
 
 #ifdef __cplusplus
 }

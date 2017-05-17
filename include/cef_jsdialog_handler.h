@@ -53,10 +53,8 @@ class CefJSDialogCallback : public virtual CefBaseRefCounted {
   // pressed. The |user_input| value should be specified for prompt dialogs.
   ///
   /*--cef(capi_name=cont,optional_param=user_input)--*/
-  virtual void Continue(bool success,
-                        const CefString& user_input) =0;
+  virtual void Continue(bool success, const CefString& user_input) = 0;
 };
-
 
 ///
 // Implement this interface to handle events related to JavaScript dialogs. The
@@ -118,7 +116,7 @@ class CefJSDialogHandler : public virtual CefBaseRefCounted {
   ///
   /*--cef()--*/
   virtual void OnResetDialogState(CefRefPtr<CefBrowser> browser) {}
-  
+
   ///
   // Called when the default implementation dialog is closed.
   ///

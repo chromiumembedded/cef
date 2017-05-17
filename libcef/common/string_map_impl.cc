@@ -3,7 +3,9 @@
 // can be found in the LICENSE file.
 
 #include <map>
+
 #include "include/internal/cef_string_map.h"
+
 #include "base/logging.h"
 
 typedef std::map<CefString, CefString> StringMap;
@@ -32,7 +34,8 @@ CEF_EXPORT int cef_string_map_find(cef_string_map_t map,
   return cef_string_set(val.c_str(), val.length(), value, true);
 }
 
-CEF_EXPORT int cef_string_map_key(cef_string_map_t map, size_t index,
+CEF_EXPORT int cef_string_map_key(cef_string_map_t map,
+                                  size_t index,
                                   cef_string_t* key) {
   DCHECK(map);
   DCHECK(key);
@@ -49,7 +52,8 @@ CEF_EXPORT int cef_string_map_key(cef_string_map_t map, size_t index,
   return 0;
 }
 
-CEF_EXPORT int cef_string_map_value(cef_string_map_t map, size_t index,
+CEF_EXPORT int cef_string_map_value(cef_string_map_t map,
+                                    size_t index,
                                     cef_string_t* value) {
   DCHECK(map);
   DCHECK(value);
@@ -62,7 +66,7 @@ CEF_EXPORT int cef_string_map_value(cef_string_map_t map, size_t index,
   for (size_t ct = 0; it != impl->end(); ++it, ct++) {
     if (ct == index) {
       return cef_string_set(it->second.c_str(), it->second.length(), value,
-          true);
+                            true);
     }
   }
   return 0;

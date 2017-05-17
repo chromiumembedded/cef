@@ -9,11 +9,10 @@
 // Helpers for CefOwnPtr<>.
 #if defined(USING_CHROMIUM_INCLUDES)
 #define OWN_PASS(p) std::move(p)
-#define OWN_RETURN_AS(p,t) (p)
+#define OWN_RETURN_AS(p, t) (p)
 #else
 #define OWN_PASS(p) (p).Pass()
-#define OWN_RETURN_AS(p,t) (p).PassAs<t>()
+#define OWN_RETURN_AS(p, t) (p).PassAs<t>()
 #endif
 
 #endif  // CEF_LIBCEF_DLL_PTR_UTIL_H_
-

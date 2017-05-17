@@ -64,7 +64,7 @@ class CefResourceBundle : public virtual CefBaseRefCounted {
   // of valid string ID values.
   ///
   /*--cef()--*/
-  virtual CefString GetLocalizedString(int string_id) =0;
+  virtual CefString GetLocalizedString(int string_id) = 0;
 
   ///
   // Retrieves the contents of the specified scale independent |resource_id|.
@@ -77,7 +77,7 @@ class CefResourceBundle : public virtual CefBaseRefCounted {
   /*--cef()--*/
   virtual bool GetDataResource(int resource_id,
                                void*& data,
-                               size_t& data_size) =0;
+                               size_t& data_size) = 0;
 
   ///
   // Retrieves the contents of the specified |resource_id| nearest the scale
@@ -93,7 +93,7 @@ class CefResourceBundle : public virtual CefBaseRefCounted {
   virtual bool GetDataResourceForScale(int resource_id,
                                        ScaleFactor scale_factor,
                                        void*& data,
-                                       size_t& data_size) =0;
+                                       size_t& data_size) = 0;
 };
 
 #endif  // CEF_INCLUDE_CEF_RESOURCE_BUNDLE_H_

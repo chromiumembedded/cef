@@ -63,32 +63,32 @@ class CefPrintSettings : public virtual CefBaseRefCounted {
   // function returns false.
   ///
   /*--cef()--*/
-  virtual bool IsValid() =0;
+  virtual bool IsValid() = 0;
 
   ///
   // Returns true if the values of this object are read-only. Some APIs may
   // expose read-only objects.
   ///
   /*--cef()--*/
-  virtual bool IsReadOnly() =0;
+  virtual bool IsReadOnly() = 0;
 
   ///
   // Returns a writable copy of this object.
   ///
   /*--cef()--*/
-  virtual CefRefPtr<CefPrintSettings> Copy() =0;
+  virtual CefRefPtr<CefPrintSettings> Copy() = 0;
 
   ///
   // Set the page orientation.
   ///
   /*--cef()--*/
-  virtual void SetOrientation(bool landscape) =0;
+  virtual void SetOrientation(bool landscape) = 0;
 
   ///
   // Returns true if the orientation is landscape.
   ///
   /*--cef()--*/
-  virtual bool IsLandscape() =0;
+  virtual bool IsLandscape() = 0;
 
   ///
   // Set the printer printable area in device units.
@@ -99,110 +99,109 @@ class CefPrintSettings : public virtual CefBaseRefCounted {
   virtual void SetPrinterPrintableArea(
       const CefSize& physical_size_device_units,
       const CefRect& printable_area_device_units,
-      bool landscape_needs_flip) =0;
+      bool landscape_needs_flip) = 0;
 
   ///
   // Set the device name.
   ///
   /*--cef(optional_param=name)--*/
-  virtual void SetDeviceName(const CefString& name) =0;
+  virtual void SetDeviceName(const CefString& name) = 0;
 
   ///
   // Get the device name.
   ///
   /*--cef()--*/
-  virtual CefString GetDeviceName() =0;
+  virtual CefString GetDeviceName() = 0;
 
   ///
   // Set the DPI (dots per inch).
   ///
   /*--cef()--*/
-  virtual void SetDPI(int dpi) =0;
+  virtual void SetDPI(int dpi) = 0;
 
   ///
   // Get the DPI (dots per inch).
   ///
   /*--cef()--*/
-  virtual int GetDPI() =0;
+  virtual int GetDPI() = 0;
 
   ///
   // Set the page ranges.
   ///
   /*--cef()--*/
-  virtual void SetPageRanges(const PageRangeList& ranges) =0;
+  virtual void SetPageRanges(const PageRangeList& ranges) = 0;
 
   ///
   // Returns the number of page ranges that currently exist.
   ///
   /*--cef()--*/
-  virtual size_t GetPageRangesCount() =0;
+  virtual size_t GetPageRangesCount() = 0;
 
   ///
   // Retrieve the page ranges.
   ///
   /*--cef(count_func=ranges:GetPageRangesCount)--*/
-  virtual void GetPageRanges(PageRangeList& ranges) =0;
+  virtual void GetPageRanges(PageRangeList& ranges) = 0;
 
   ///
   // Set whether only the selection will be printed.
   ///
   /*--cef()--*/
-  virtual void SetSelectionOnly(bool selection_only) =0;
+  virtual void SetSelectionOnly(bool selection_only) = 0;
 
   ///
   // Returns true if only the selection will be printed.
   ///
   /*--cef()--*/
-  virtual bool IsSelectionOnly() =0;
+  virtual bool IsSelectionOnly() = 0;
 
   ///
   // Set whether pages will be collated.
   ///
   /*--cef()--*/
-  virtual void SetCollate(bool collate) =0;
+  virtual void SetCollate(bool collate) = 0;
 
   ///
   // Returns true if pages will be collated.
   ///
   /*--cef()--*/
-  virtual bool WillCollate() =0;
+  virtual bool WillCollate() = 0;
 
   ///
   // Set the color model.
   ///
   /*--cef()--*/
-  virtual void SetColorModel(ColorModel model) =0;
+  virtual void SetColorModel(ColorModel model) = 0;
 
   ///
   // Get the color model.
   ///
   /*--cef(default_retval=COLOR_MODEL_UNKNOWN)--*/
-  virtual ColorModel GetColorModel() =0;
+  virtual ColorModel GetColorModel() = 0;
 
   ///
   // Set the number of copies.
   ///
   /*--cef()--*/
-  virtual void SetCopies(int copies) =0;
+  virtual void SetCopies(int copies) = 0;
 
   ///
   // Get the number of copies.
   ///
   /*--cef()--*/
-  virtual int GetCopies() =0;
+  virtual int GetCopies() = 0;
 
   ///
   // Set the duplex mode.
   ///
   /*--cef()--*/
-  virtual void SetDuplexMode(DuplexMode mode) =0;
+  virtual void SetDuplexMode(DuplexMode mode) = 0;
 
   ///
   // Get the duplex mode.
   ///
   /*--cef(default_retval=DUPLEX_MODE_UNKNOWN)--*/
-  virtual DuplexMode GetDuplexMode() =0;
+  virtual DuplexMode GetDuplexMode() = 0;
 };
 
 #endif  // CEF_INCLUDE_CEF_PRINT_SETTINGS_H_
-

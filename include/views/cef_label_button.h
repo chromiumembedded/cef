@@ -71,20 +71,20 @@ class CefLabelButton : public CefButton {
   // MenuButton.
   ///
   /*--cef()--*/
-  virtual CefRefPtr<CefMenuButton> AsMenuButton() =0;
+  virtual CefRefPtr<CefMenuButton> AsMenuButton() = 0;
 
   ///
   // Sets the text shown on the LabelButton. By default |text| will also be used
   // as the accessible name.
   ///
   /*--cef()--*/
-  virtual void SetText(const CefString& text) =0;
+  virtual void SetText(const CefString& text) = 0;
 
   ///
   // Returns the text shown on the LabelButton.
   ///
   /*--cef()--*/
-  virtual CefString GetText() =0;
+  virtual CefString GetText() = 0;
 
   ///
   // Sets the image shown for |button_state|. When this Button is drawn if no
@@ -93,26 +93,27 @@ class CefLabelButton : public CefButton {
   ///
   /*--cef(optional_param=image)--*/
   virtual void SetImage(cef_button_state_t button_state,
-                        CefRefPtr<CefImage> image) =0;
+                        CefRefPtr<CefImage> image) = 0;
 
   ///
   // Returns the image shown for |button_state|. If no image exists for that
   // state then the image for CEF_BUTTON_STATE_NORMAL will be returned.
   ///
   /*--cef()--*/
-  virtual CefRefPtr<CefImage> GetImage(cef_button_state_t button_state) =0;
+  virtual CefRefPtr<CefImage> GetImage(cef_button_state_t button_state) = 0;
 
   ///
   // Sets the text color shown for the specified button |for_state| to |color|.
   ///
   /*--cef()--*/
-  virtual void SetTextColor(cef_button_state_t for_state, cef_color_t color) =0;
+  virtual void SetTextColor(cef_button_state_t for_state,
+                            cef_color_t color) = 0;
 
   ///
   // Sets the text colors shown for the non-disabled states to |color|.
   ///
   /*--cef()--*/
-  virtual void SetEnabledTextColors(cef_color_t color) =0;
+  virtual void SetEnabledTextColors(cef_color_t color) = 0;
 
   ///
   // Sets the font list. The format is "<FONT_FAMILY_LIST>,[STYLES] <SIZE>",
@@ -127,26 +128,26 @@ class CefLabelButton : public CefButton {
   // - "Arial, 14px"
   ///
   /*--cef()--*/
-  virtual void SetFontList(const CefString& font_list) =0;
+  virtual void SetFontList(const CefString& font_list) = 0;
 
   ///
   // Sets the horizontal alignment; reversed in RTL. Default is
   // CEF_HORIZONTAL_ALIGNMENT_CENTER.
   ///
   /*--cef()--*/
-  virtual void SetHorizontalAlignment(cef_horizontal_alignment_t alignment) =0;
+  virtual void SetHorizontalAlignment(cef_horizontal_alignment_t alignment) = 0;
 
   ///
   // Reset the minimum size of this LabelButton to |size|.
   ///
   /*--cef()--*/
-  virtual void SetMinimumSize(const CefSize& size) =0;
+  virtual void SetMinimumSize(const CefSize& size) = 0;
 
   ///
   // Reset the maximum size of this LabelButton to |size|.
   ///
   /*--cef()--*/
-  virtual void SetMaximumSize(const CefSize& size) =0;
+  virtual void SetMaximumSize(const CefSize& size) = 0;
 };
 
 #endif  // CEF_INCLUDE_VIEWS_CEF_LABEL_BUTTON_H_

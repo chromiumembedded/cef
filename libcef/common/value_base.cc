@@ -4,11 +4,8 @@
 
 #include "libcef/common/value_base.h"
 
-
 CefValueController::CefValueController()
-  : owner_value_(NULL),
-    owner_object_(NULL) {
-}
+    : owner_value_(NULL), owner_object_(NULL) {}
 
 CefValueController::~CefValueController() {
   // Everything should already have been removed.

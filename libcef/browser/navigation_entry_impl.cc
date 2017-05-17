@@ -11,9 +11,12 @@
 #include "url/gurl.h"
 
 CefNavigationEntryImpl::CefNavigationEntryImpl(content::NavigationEntry* value)
-  : CefValueBase<CefNavigationEntry, content::NavigationEntry>(
-        value, NULL, kOwnerNoDelete, true,
-        new CefValueControllerNonThreadSafe()) {
+    : CefValueBase<CefNavigationEntry, content::NavigationEntry>(
+          value,
+          NULL,
+          kOwnerNoDelete,
+          true,
+          new CefValueControllerNonThreadSafe()) {
   // Indicate that this object owns the controller.
   SetOwnsController();
 }
@@ -68,4 +71,3 @@ CefRefPtr<CefSSLStatus> CefNavigationEntryImpl::GetSSLStatus() {
   CEF_VALUE_VERIFY_RETURN(false, nullptr);
   return new CefSSLStatusImpl(const_value().GetSSL());
 }
-

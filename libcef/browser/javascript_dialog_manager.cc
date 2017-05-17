@@ -21,37 +21,32 @@ class CefJSDialogCallbackImpl : public CefJSDialogCallback {
  public:
   CefJSDialogCallbackImpl(
       const content::JavaScriptDialogManager::DialogClosedCallback& callback)
-      : callback_(callback) {
-  }
+      : callback_(callback) {}
   ~CefJSDialogCallbackImpl() override {
     if (!callback_.is_null()) {
       // The callback is still pending. Cancel it now.
       if (CEF_CURRENTLY_ON_UIT()) {
         CancelNow(callback_);
       } else {
-        CEF_POST_TASK(CEF_UIT,
-            base::Bind(&CefJSDialogCallbackImpl::CancelNow, callback_));
+        CEF_POST_TASK(CEF_UIT, base::Bind(&CefJSDialogCallbackImpl::CancelNow,
+                                          callback_));
       }
     }
   }
 
-  void Continue(bool success,
-                const CefString& user_input) override {
+  void Continue(bool success, const CefString& user_input) override {
     if (CEF_CURRENTLY_ON_UIT()) {
       if (!callback_.is_null()) {
         callback_.Run(success, user_input);
         callback_.Reset();
       }
     } else {
-      CEF_POST_TASK(CEF_UIT,
-          base::Bind(&CefJSDialogCallbackImpl::Continue, this, success,
-              user_input));
+      CEF_POST_TASK(CEF_UIT, base::Bind(&CefJSDialogCallbackImpl::Continue,
+                                        this, success, user_input));
     }
   }
 
-  void Disconnect() {
-    callback_.Reset();
-  }
+  void Disconnect() { callback_.Reset(); }
 
  private:
   static void CancelNow(
@@ -67,18 +62,15 @@ class CefJSDialogCallbackImpl : public CefJSDialogCallback {
 
 }  // namespace
 
-
 CefJavaScriptDialogManager::CefJavaScriptDialogManager(
     CefBrowserHostImpl* browser,
     std::unique_ptr<CefJavaScriptDialogRunner> runner)
     : browser_(browser),
       runner_(std::move(runner)),
       dialog_running_(false),
-      weak_ptr_factory_(this) {
-}
+      weak_ptr_factory_(this) {}
 
-CefJavaScriptDialogManager::~CefJavaScriptDialogManager() {
-}
+CefJavaScriptDialogManager::~CefJavaScriptDialogManager() {}
 
 void CefJavaScriptDialogManager::Destroy() {
   if (runner_.get()) {
@@ -105,10 +97,10 @@ void CefJavaScriptDialogManager::RunJavaScriptDialog(
           new CefJSDialogCallbackImpl(callback));
 
       // Execute the user callback.
-      bool handled = handler->OnJSDialog(browser_, origin_url.spec(),
-          static_cast<cef_jsdialog_type_t>(message_type),
-          message_text, default_prompt_text, callbackPtr.get(),
-          *did_suppress_message);
+      bool handled = handler->OnJSDialog(
+          browser_, origin_url.spec(),
+          static_cast<cef_jsdialog_type_t>(message_type), message_text,
+          default_prompt_text, callbackPtr.get(), *did_suppress_message);
       if (handled) {
         // Invalid combination of values. Crash sooner rather than later.
         CHECK(!*did_suppress_message);
@@ -166,8 +158,8 @@ void CefJavaScriptDialogManager::RunBeforeUnloadDialog(
           new CefJSDialogCallbackImpl(callback));
 
       // Execute the user callback.
-      bool handled = handler->OnBeforeUnloadDialog(browser_, message_text,
-          is_reload, callbackPtr.get());
+      bool handled = handler->OnBeforeUnloadDialog(
+          browser_, message_text, is_reload, callbackPtr.get());
       if (handled)
         return;
 
@@ -186,8 +178,7 @@ void CefJavaScriptDialogManager::RunBeforeUnloadDialog(
 
   dialog_running_ = true;
 
-  runner_->Run(browser_,
-               content::JAVASCRIPT_DIALOG_TYPE_CONFIRM,
+  runner_->Run(browser_, content::JAVASCRIPT_DIALOG_TYPE_CONFIRM,
                base::string16(),  // display_url
                message_text,
                base::string16(),  // default_prompt_text

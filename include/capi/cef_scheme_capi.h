@@ -33,6 +33,8 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
+// $hash=a920e25c5ca348dcc45965d53389c16a8a29b0ed$
+//
 
 #ifndef CEF_INCLUDE_CAPI_CEF_SCHEME_CAPI_H_
 #define CEF_INCLUDE_CAPI_CEF_SCHEME_CAPI_H_
@@ -119,12 +121,15 @@ typedef struct _cef_scheme_registrar_t {
   // per unique |scheme_name| value. If |scheme_name| is already registered or
   // if an error occurs this function will return false (0).
   ///
-  int (CEF_CALLBACK *add_custom_scheme)(struct _cef_scheme_registrar_t* self,
-      const cef_string_t* scheme_name, int is_standard, int is_local,
-      int is_display_isolated, int is_secure, int is_cors_enabled,
-      int is_csp_bypassing);
+  int(CEF_CALLBACK* add_custom_scheme)(struct _cef_scheme_registrar_t* self,
+                                       const cef_string_t* scheme_name,
+                                       int is_standard,
+                                       int is_local,
+                                       int is_display_isolated,
+                                       int is_secure,
+                                       int is_cors_enabled,
+                                       int is_csp_bypassing);
 } cef_scheme_registrar_t;
-
 
 ///
 // Structure that creates cef_resource_handler_t instances for handling scheme
@@ -145,12 +150,13 @@ typedef struct _cef_scheme_handler_factory_t {
   // example, if the request came from cef_urlrequest_t). The |request| object
   // passed to this function will not contain cookie data.
   ///
-  struct _cef_resource_handler_t* (CEF_CALLBACK *create)(
+  struct _cef_resource_handler_t*(CEF_CALLBACK* create)(
       struct _cef_scheme_handler_factory_t* self,
-      struct _cef_browser_t* browser, struct _cef_frame_t* frame,
-      const cef_string_t* scheme_name, struct _cef_request_t* request);
+      struct _cef_browser_t* browser,
+      struct _cef_frame_t* frame,
+      const cef_string_t* scheme_name,
+      struct _cef_request_t* request);
 } cef_scheme_handler_factory_t;
-
 
 ///
 // Register a scheme handler factory with the global request context. An NULL
@@ -168,7 +174,8 @@ typedef struct _cef_scheme_handler_factory_t {
 // ory().
 ///
 CEF_EXPORT int cef_register_scheme_handler_factory(
-    const cef_string_t* scheme_name, const cef_string_t* domain_name,
+    const cef_string_t* scheme_name,
+    const cef_string_t* domain_name,
     cef_scheme_handler_factory_t* factory);
 
 ///

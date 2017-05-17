@@ -17,7 +17,10 @@ class WindowTestRunnerViews : public WindowTestRunner {
   WindowTestRunnerViews();
 
   void SetPos(CefRefPtr<CefBrowser> browser,
-              int x, int y, int width, int height) OVERRIDE;
+              int x,
+              int y,
+              int width,
+              int height) OVERRIDE;
   void Minimize(CefRefPtr<CefBrowser> browser) OVERRIDE;
   void Maximize(CefRefPtr<CefBrowser> browser) OVERRIDE;
   void Restore(CefRefPtr<CefBrowser> browser) OVERRIDE;

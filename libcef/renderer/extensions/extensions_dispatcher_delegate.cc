@@ -6,10 +6,8 @@
 
 namespace extensions {
 
-CefExtensionsDispatcherDelegate::CefExtensionsDispatcherDelegate() {
-}
+CefExtensionsDispatcherDelegate::CefExtensionsDispatcherDelegate() {}
 
-CefExtensionsDispatcherDelegate::~CefExtensionsDispatcherDelegate() {
-}
+CefExtensionsDispatcherDelegate::~CefExtensionsDispatcherDelegate() {}
 
 }  // namespace extensions

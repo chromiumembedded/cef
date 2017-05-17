@@ -9,9 +9,10 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=dbe3d9b43be8554f642165c6230ceb267999fb02$
+//
 
 #include "libcef_dll/ctocpp/completion_callback_ctocpp.h"
-
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
@@ -26,24 +27,30 @@ void CefCompletionCallbackCToCpp::OnComplete() {
   _struct->on_complete(_struct);
 }
 
-
 // CONSTRUCTOR - Do not edit by hand.
 
-CefCompletionCallbackCToCpp::CefCompletionCallbackCToCpp() {
-}
+CefCompletionCallbackCToCpp::CefCompletionCallbackCToCpp() {}
 
-template<> cef_completion_callback_t* CefCToCppRefCounted<CefCompletionCallbackCToCpp,
-    CefCompletionCallback, cef_completion_callback_t>::UnwrapDerived(
-    CefWrapperType type, CefCompletionCallback* c) {
+template <>
+cef_completion_callback_t* CefCToCppRefCounted<
+    CefCompletionCallbackCToCpp,
+    CefCompletionCallback,
+    cef_completion_callback_t>::UnwrapDerived(CefWrapperType type,
+                                              CefCompletionCallback* c) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCppRefCounted<CefCompletionCallbackCToCpp,
-    CefCompletionCallback, cef_completion_callback_t>::DebugObjCt = 0;
+template <>
+base::AtomicRefCount
+    CefCToCppRefCounted<CefCompletionCallbackCToCpp,
+                        CefCompletionCallback,
+                        cef_completion_callback_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCppRefCounted<CefCompletionCallbackCToCpp,
-    CefCompletionCallback, cef_completion_callback_t>::kWrapperType =
+template <>
+CefWrapperType CefCToCppRefCounted<CefCompletionCallbackCToCpp,
+                                   CefCompletionCallback,
+                                   cef_completion_callback_t>::kWrapperType =
     WT_COMPLETION_CALLBACK;

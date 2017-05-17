@@ -15,15 +15,13 @@
 // Extend views::LabelButton with a no-argument constructor as required by the
 // CefViewView template and extend views::ButtonListener as required by the
 // CefButtonView template.
-class LabelButtonEx : public views::LabelButton,
-                      public views::ButtonListener {
+class LabelButtonEx : public views::LabelButton, public views::ButtonListener {
  public:
-  LabelButtonEx() : views::LabelButton(this, base::string16()) {
-  }
+  LabelButtonEx() : views::LabelButton(this, base::string16()) {}
 };
 
-class CefBasicLabelButtonView :
-    public CefLabelButtonView<LabelButtonEx, CefButtonDelegate> {
+class CefBasicLabelButtonView
+    : public CefLabelButtonView<LabelButtonEx, CefButtonDelegate> {
  public:
   typedef CefLabelButtonView<LabelButtonEx, CefButtonDelegate> ParentClass;
 

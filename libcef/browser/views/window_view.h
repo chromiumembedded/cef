@@ -18,8 +18,8 @@ class SkRegion;
 
 // Manages the views-based root window. This object will be deleted
 // automatically when the associated root window is destroyed.
-class CefWindowView :
-    public CefPanelView<views::WidgetDelegateView, CefWindowDelegate> {
+class CefWindowView
+    : public CefPanelView<views::WidgetDelegateView, CefWindowDelegate> {
  public:
   typedef CefPanelView<views::WidgetDelegateView, CefWindowDelegate>
       ParentClass;
@@ -41,8 +41,7 @@ class CefWindowView :
 
   // |cef_delegate| may be nullptr.
   // |window_delegate| must be non-nullptr.
-  CefWindowView(CefWindowDelegate* cef_delegate,
-                Delegate* window_delegate);
+  CefWindowView(CefWindowDelegate* cef_delegate, Delegate* window_delegate);
 
   // Create the Widget.
   void CreateWidget();
@@ -94,8 +93,7 @@ class CefWindowView :
   CefRefPtr<CefImage> window_app_icon() const { return window_app_icon_; }
 
   // Set/get the draggable regions.
-  void SetDraggableRegions(
-      const std::vector<CefDraggableRegion>& regions);
+  void SetDraggableRegions(const std::vector<CefDraggableRegion>& regions);
   SkRegion* draggable_region() const { return draggable_region_.get(); }
 
   // Returns the NonClientFrameView for this Window. May be nullptr.

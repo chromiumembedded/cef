@@ -15,7 +15,6 @@
 #include "base/synchronization/lock.h"
 #include "base/threading/platform_thread.h"
 
-
 // Controller implementation base class.
 class CefValueController
     : public base::RefCountedThreadSafe<CefValueController> {
@@ -26,15 +25,14 @@ class CefValueController
     virtual ~Object() {}
 
     // Called when the value has been removed.
-    virtual void OnControlRemoved() =0;
+    virtual void OnControlRemoved() = 0;
   };
 
   // Encapsulates context locking and verification logic.
   class AutoLock {
    public:
     explicit AutoLock(CefValueController* impl)
-      : impl_(impl),
-        verified_(impl && impl->VerifyThread()) {
+        : impl_(impl), verified_(impl && impl->VerifyThread()) {
       DCHECK(impl);
       if (verified_)
         impl_->lock();
@@ -56,22 +54,22 @@ class CefValueController
   CefValueController();
 
   // Returns true if this controller is thread safe.
-  virtual bool thread_safe() =0;
+  virtual bool thread_safe() = 0;
 
   // Returns true if the current thread is allowed to access this controller.
-  virtual bool on_correct_thread() =0;
+  virtual bool on_correct_thread() = 0;
 
   // Lock the controller.
-  virtual void lock() =0;
+  virtual void lock() = 0;
 
   // Unlock the controller.
-  virtual void unlock() =0;
+  virtual void unlock() = 0;
 
   // Returns true if the controller is locked on the current thread.
-  virtual bool locked() =0;
+  virtual bool locked() = 0;
 
   // Assert that the lock has been acquired.
-  virtual void AssertLockAcquired() =0;
+  virtual void AssertLockAcquired() = 0;
 
   // Verify that the current thread is correct for accessing the controller.
   inline bool VerifyThread() {
@@ -139,8 +137,7 @@ class CefValueController
 // Thread-safe access control implementation.
 class CefValueControllerThreadSafe : public CefValueController {
  public:
-  explicit CefValueControllerThreadSafe()
-    : locked_thread_id_(0) {}
+  explicit CefValueControllerThreadSafe() : locked_thread_id_(0) {}
 
   // CefValueController methods.
   bool thread_safe() override { return true; }
@@ -156,9 +153,7 @@ class CefValueControllerThreadSafe : public CefValueController {
   bool locked() override {
     return (locked_thread_id_ == base::PlatformThread::CurrentId());
   }
-  void AssertLockAcquired() override {
-    lock_.AssertAcquired();
-  }
+  void AssertLockAcquired() override { lock_.AssertAcquired(); }
 
  private:
   base::Lock lock_;
@@ -171,7 +166,7 @@ class CefValueControllerThreadSafe : public CefValueController {
 class CefValueControllerNonThreadSafe : public CefValueController {
  public:
   explicit CefValueControllerNonThreadSafe()
-    : thread_id_(base::PlatformThread::CurrentId()) {}
+      : thread_id_(base::PlatformThread::CurrentId()) {}
 
   // CefValueController methods.
   bool thread_safe() override { return false; }
@@ -181,9 +176,7 @@ class CefValueControllerNonThreadSafe : public CefValueController {
   void lock() override {}
   void unlock() override {}
   bool locked() override { return on_correct_thread(); }
-  void AssertLockAcquired() override {
-    DCHECK(locked());
-  }
+  void AssertLockAcquired() override { DCHECK(locked()); }
 
  private:
   base::PlatformThreadId thread_id_;
@@ -191,32 +184,30 @@ class CefValueControllerNonThreadSafe : public CefValueController {
   DISALLOW_COPY_AND_ASSIGN(CefValueControllerNonThreadSafe);
 };
 
-
 // Helper macros for verifying context.
 
 #define CEF_VALUE_VERIFY_RETURN_VOID_EX(object, modify) \
-    if (!VerifyAttached()) \
-      return; \
-    AutoLock auto_lock(object, modify); \
-    if (!auto_lock.verified()) \
-      return;
+  if (!VerifyAttached())                                \
+    return;                                             \
+  AutoLock auto_lock(object, modify);                   \
+  if (!auto_lock.verified())                            \
+    return;
 
 #define CEF_VALUE_VERIFY_RETURN_VOID(modify) \
-    CEF_VALUE_VERIFY_RETURN_VOID_EX(this, modify)
+  CEF_VALUE_VERIFY_RETURN_VOID_EX(this, modify)
 
 #define CEF_VALUE_VERIFY_RETURN_EX(object, modify, error_val) \
-    if (!VerifyAttached()) \
-      return error_val; \
-    AutoLock auto_lock(object, modify); \
-    if (!auto_lock.verified()) \
-      return error_val;
+  if (!VerifyAttached())                                      \
+    return error_val;                                         \
+  AutoLock auto_lock(object, modify);                         \
+  if (!auto_lock.verified())                                  \
+    return error_val;
 
 #define CEF_VALUE_VERIFY_RETURN(modify, error_val) \
-    CEF_VALUE_VERIFY_RETURN_EX(this, modify, error_val)
-
+  CEF_VALUE_VERIFY_RETURN_EX(this, modify, error_val)
 
 // Template class for implementing CEF wrappers of other types.
-template<class CefType, class ValueType>
+template <class CefType, class ValueType>
 class CefValueBase : public CefType, public CefValueController::Object {
  public:
   // Specifies how the value will be used.
@@ -246,10 +237,10 @@ class CefValueBase : public CefType, public CefValueController::Object {
                ValueMode value_mode,
                bool read_only,
                CefValueController* controller)
-    : value_(value),
-      value_mode_(value_mode),
-      read_only_(read_only),
-      controller_(controller) {
+      : value_(value),
+        value_mode_(value_mode),
+        read_only_(read_only),
+        controller_(controller) {
     DCHECK(value_);
 
     // Specifying a parent value for a non-reference doesn't make sense.
@@ -404,7 +395,7 @@ class CefValueBase : public CefType, public CefValueController::Object {
   class AutoLock {
    public:
     explicit AutoLock(CefValueBase* impl, bool modify)
-      : auto_lock_(impl->controller()) {
+        : auto_lock_(impl->controller()) {
       verified_ = (auto_lock_.verified() && impl->VerifyAccess(modify));
     }
 
@@ -427,6 +418,5 @@ class CefValueBase : public CefType, public CefValueController::Object {
 
   DISALLOW_COPY_AND_ASSIGN(CefValueBase);
 };
-
 
 #endif  // CEF_LIBCEF_COMMON_VALUE_BASE_H_

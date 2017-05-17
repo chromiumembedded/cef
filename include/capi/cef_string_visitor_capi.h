@@ -33,6 +33,8 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
+// $hash=2e8edddfd49aea615c7adf8d0d092a4865b79229$
+//
 
 #ifndef CEF_INCLUDE_CAPI_CEF_STRING_VISITOR_CAPI_H_
 #define CEF_INCLUDE_CAPI_CEF_STRING_VISITOR_CAPI_H_
@@ -43,7 +45,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
 
 ///
 // Implement this structure to receive string values asynchronously.
@@ -57,10 +58,9 @@ typedef struct _cef_string_visitor_t {
   ///
   // Method that will be executed.
   ///
-  void (CEF_CALLBACK *visit)(struct _cef_string_visitor_t* self,
-      const cef_string_t* string);
+  void(CEF_CALLBACK* visit)(struct _cef_string_visitor_t* self,
+                            const cef_string_t* string);
 } cef_string_visitor_t;
-
 
 #ifdef __cplusplus
 }

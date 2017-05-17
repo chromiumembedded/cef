@@ -90,8 +90,8 @@ scoped_refptr<RootWindow> RootWindowManager::CreateRootWindowAsPopup(
 
   scoped_refptr<RootWindow> root_window =
       RootWindow::Create(MainContext::Get()->UseViews());
-  root_window->InitAsPopup(this, with_controls, with_osr,
-                           popupFeatures, windowInfo, client, settings);
+  root_window->InitAsPopup(this, with_controls, with_osr, popupFeatures,
+                           windowInfo, client, settings);
 
   // Store a reference to the root window on the main thread.
   OnRootWindowCreated(root_window);
@@ -115,9 +115,8 @@ scoped_refptr<RootWindow> RootWindowManager::GetWindowForBrowser(
 void RootWindowManager::CloseAllWindows(bool force) {
   if (!CURRENTLY_ON_MAIN_THREAD()) {
     // Execute this method on the main thread.
-    MAIN_POST_CLOSURE(
-        base::Bind(&RootWindowManager::CloseAllWindows, base::Unretained(this),
-                  force));
+    MAIN_POST_CLOSURE(base::Bind(&RootWindowManager::CloseAllWindows,
+                                 base::Unretained(this), force));
     return;
   }
 
@@ -133,9 +132,8 @@ void RootWindowManager::OnRootWindowCreated(
     scoped_refptr<RootWindow> root_window) {
   if (!CURRENTLY_ON_MAIN_THREAD()) {
     // Execute this method on the main thread.
-    MAIN_POST_CLOSURE(
-        base::Bind(&RootWindowManager::OnRootWindowCreated,
-                   base::Unretained(this), root_window));
+    MAIN_POST_CLOSURE(base::Bind(&RootWindowManager::OnRootWindowCreated,
+                                 base::Unretained(this), root_window));
     return;
   }
 
@@ -162,8 +160,8 @@ CefRefPtr<CefRequestContext> RootWindowManager::GetRequestContext(
         // Give each browser a unique cache path. This will create completely
         // isolated context objects.
         std::stringstream ss;
-        ss << command_line->GetSwitchValue(switches::kCachePath).ToString() <<
-            time(NULL);
+        ss << command_line->GetSwitchValue(switches::kCachePath).ToString()
+           << time(NULL);
         CefString(&settings.cache_path) = ss.str();
       }
     }
@@ -174,9 +172,8 @@ CefRefPtr<CefRequestContext> RootWindowManager::GetRequestContext(
 
   // All browsers will share the global request context.
   if (!shared_request_context_.get()) {
-    shared_request_context_ =
-        CefRequestContext::CreateContext(CefRequestContext::GetGlobalContext(),
-                                         new ClientRequestContextHandler);
+    shared_request_context_ = CefRequestContext::CreateContext(
+        CefRequestContext::GetGlobalContext(), new ClientRequestContextHandler);
   }
   return shared_request_context_;
 }

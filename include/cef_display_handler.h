@@ -91,8 +91,9 @@ class CefDisplayHandler : public virtual CefBaseRefCounted {
   // drawing tooltips and the return value is ignored.
   ///
   /*--cef(optional_param=text)--*/
-  virtual bool OnTooltip(CefRefPtr<CefBrowser> browser,
-                         CefString& text) { return false; }
+  virtual bool OnTooltip(CefRefPtr<CefBrowser> browser, CefString& text) {
+    return false;
+  }
 
   ///
   // Called when the browser receives a status message. |value| contains the
@@ -110,7 +111,9 @@ class CefDisplayHandler : public virtual CefBaseRefCounted {
   virtual bool OnConsoleMessage(CefRefPtr<CefBrowser> browser,
                                 const CefString& message,
                                 const CefString& source,
-                                int line) { return false; }
+                                int line) {
+    return false;
+  }
 };
 
 #endif  // CEF_INCLUDE_CEF_DISPLAY_HANDLER_H_

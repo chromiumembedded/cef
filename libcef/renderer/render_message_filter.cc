@@ -4,8 +4,9 @@
 // found in the LICENSE file.
 
 #include "libcef/renderer/render_message_filter.h"
-#include "libcef/renderer/thread_util.h"
+
 #include "libcef/common/cef_messages.h"
+#include "libcef/renderer/thread_util.h"
 
 #include "base/bind.h"
 #include "base/message_loop/message_loop.h"
@@ -20,12 +21,9 @@
 
 using content::BrowserThread;
 
-CefRenderMessageFilter::CefRenderMessageFilter()
-    : channel_(NULL) {
-}
+CefRenderMessageFilter::CefRenderMessageFilter() : channel_(NULL) {}
 
-CefRenderMessageFilter::~CefRenderMessageFilter() {
-}
+CefRenderMessageFilter::~CefRenderMessageFilter() {}
 
 void CefRenderMessageFilter::OnFilterAdded(IPC::Channel* channel) {
   channel_ = channel;
@@ -68,8 +66,7 @@ bool CefRenderMessageFilter::Send(IPC::Message* message) {
 
   if (!BrowserThread::CurrentlyOn(BrowserThread::IO)) {
     BrowserThread::PostTask(
-        BrowserThread::IO,
-        FROM_HERE,
+        BrowserThread::IO, FROM_HERE,
         base::Bind(base::IgnoreResult(&CefRenderMessageFilter::Send), this,
                    message));
     return true;
@@ -82,16 +79,15 @@ bool CefRenderMessageFilter::Send(IPC::Message* message) {
   return false;
 }
 
-void CefRenderMessageFilter::OnDevToolsAgentAttach(
-    const std::string& host_id, int session_id) {
+void CefRenderMessageFilter::OnDevToolsAgentAttach(const std::string& host_id,
+                                                   int session_id) {
   CEF_POST_TASK_RT(
       base::Bind(&CefRenderMessageFilter::OnDevToolsAgentAttach_RT, this));
 }
 
 void CefRenderMessageFilter::OnDevToolsAgentDetach(int32_t routing_id) {
-  CEF_POST_TASK_RT(
-      base::Bind(&CefRenderMessageFilter::OnDevToolsAgentDetach_RT, this,
-                 routing_id));
+  CEF_POST_TASK_RT(base::Bind(&CefRenderMessageFilter::OnDevToolsAgentDetach_RT,
+                              this, routing_id));
 }
 
 void CefRenderMessageFilter::OnIsCrashReportingEnabled(bool* enabled) {
@@ -117,10 +113,10 @@ void CefRenderMessageFilter::OnDevToolsAgentDetach_RT(int32_t routing_id) {
     // Try again in a bit.
     CEF_POST_DELAYED_TASK_RT(
         base::Bind(&CefRenderMessageFilter::OnDevToolsAgentDetach_RT, this,
-                   routing_id), 50);
+                   routing_id),
+        50);
     return;
   }
 
   CefContentRendererClient::Get()->DevToolsAgentDetached();
 }
-

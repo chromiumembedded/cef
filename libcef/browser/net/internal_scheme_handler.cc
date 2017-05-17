@@ -50,9 +50,7 @@ std::string GetMimeType(const std::string& filename) {
 
 class RedirectHandler : public CefResourceHandler {
  public:
-  explicit RedirectHandler(const GURL& url)
-      : url_(url) {
-  }
+  explicit RedirectHandler(const GURL& url) : url_(url) {}
 
   bool ProcessRequest(CefRefPtr<CefRequest> request,
                       CefRefPtr<CefCallback> callback) override {
@@ -74,8 +72,7 @@ class RedirectHandler : public CefResourceHandler {
     return false;
   }
 
-  void Cancel() override {
-  }
+  void Cancel() override {}
 
  private:
   GURL url_;
@@ -88,10 +85,7 @@ class InternalHandler : public CefResourceHandler {
   InternalHandler(const std::string& mime_type,
                   CefRefPtr<CefStreamReader> reader,
                   int size)
-      : mime_type_(mime_type),
-        reader_(reader),
-        size_(size) {
-  }
+      : mime_type_(mime_type), reader_(reader), size_(size) {}
 
   bool ProcessRequest(CefRefPtr<CefRequest> request,
                       CefRefPtr<CefCallback> callback) override {
@@ -116,8 +110,7 @@ class InternalHandler : public CefResourceHandler {
     return (bytes_read > 0);
   }
 
-  void Cancel() override {
-  }
+  void Cancel() override {}
 
  private:
   std::string mime_type_;
@@ -131,14 +124,12 @@ class InternalHandlerFactory : public CefSchemeHandlerFactory {
  public:
   explicit InternalHandlerFactory(
       std::unique_ptr<InternalHandlerDelegate> delegate)
-      : delegate_(std::move(delegate)) {
-  }
+      : delegate_(std::move(delegate)) {}
 
-  CefRefPtr<CefResourceHandler> Create(
-      CefRefPtr<CefBrowser> browser,
-      CefRefPtr<CefFrame> frame,
-      const CefString& scheme_name,
-      CefRefPtr<CefRequest> request) override {
+  CefRefPtr<CefResourceHandler> Create(CefRefPtr<CefBrowser> browser,
+                                       CefRefPtr<CefFrame> frame,
+                                       const CefString& scheme_name,
+                                       CefRefPtr<CefRequest> request) override {
     GURL url = GURL(request->GetURL().ToString());
 
     InternalHandlerDelegate::Action action;
@@ -153,20 +144,19 @@ class InternalHandlerFactory : public CefSchemeHandlerFactory {
         base::StringPiece piece = CefContentClient::Get()->GetDataResource(
             action.resource_id, ui::SCALE_FACTOR_NONE);
         if (!piece.empty()) {
-          action.stream =
-              CefStreamReader::CreateForData(const_cast<char*>(piece.data()),
-                                             piece.size());
+          action.stream = CefStreamReader::CreateForData(
+              const_cast<char*>(piece.data()), piece.size());
           action.stream_size = piece.size();
         } else {
-          NOTREACHED() << "Failed to load internal resource for id: " <<
-              action.resource_id << " URL: " << url.spec().c_str();
+          NOTREACHED() << "Failed to load internal resource for id: "
+                       << action.resource_id << " URL: " << url.spec().c_str();
           return NULL;
         }
       }
 
       if (action.stream.get()) {
         return new InternalHandler(action.mime_type, action.stream,
-            action.stream_size);
+                                   action.stream_size);
       }
     }
 
@@ -181,10 +171,7 @@ class InternalHandlerFactory : public CefSchemeHandlerFactory {
 
 }  // namespace
 
-InternalHandlerDelegate::Action::Action()
-    : stream_size(-1),
-      resource_id(-1) {
-}
+InternalHandlerDelegate::Action::Action() : stream_size(-1), resource_id(-1) {}
 
 CefRefPtr<CefSchemeHandlerFactory> CreateInternalHandlerFactory(
     std::unique_ptr<InternalHandlerDelegate> delegate) {

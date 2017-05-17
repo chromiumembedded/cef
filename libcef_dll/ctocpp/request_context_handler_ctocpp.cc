@@ -9,11 +9,12 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=f756067d7f727278a3e4f887a308ecc72ef8a23e$
+//
 
 #include "libcef_dll/cpptoc/cookie_manager_cpptoc.h"
 #include "libcef_dll/cpptoc/web_plugin_info_cpptoc.h"
 #include "libcef_dll/ctocpp/request_context_handler_ctocpp.h"
-
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
@@ -32,8 +33,11 @@ CefRefPtr<CefCookieManager> CefRequestContextHandlerCToCpp::GetCookieManager() {
 }
 
 bool CefRequestContextHandlerCToCpp::OnBeforePluginLoad(
-    const CefString& mime_type, const CefString& plugin_url, bool is_main_frame,
-    const CefString& top_origin_url, CefRefPtr<CefWebPluginInfo> plugin_info,
+    const CefString& mime_type,
+    const CefString& plugin_url,
+    bool is_main_frame,
+    const CefString& top_origin_url,
+    CefRefPtr<CefWebPluginInfo> plugin_info,
     PluginPolicy* plugin_policy) {
   cef_request_context_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_before_plugin_load))
@@ -56,36 +60,40 @@ bool CefRequestContextHandlerCToCpp::OnBeforePluginLoad(
   // Unverified params: plugin_url, top_origin_url
 
   // Execute
-  int _retval = _struct->on_before_plugin_load(_struct,
-      mime_type.GetStruct(),
-      plugin_url.GetStruct(),
-      is_main_frame,
-      top_origin_url.GetStruct(),
-      CefWebPluginInfoCppToC::Wrap(plugin_info),
+  int _retval = _struct->on_before_plugin_load(
+      _struct, mime_type.GetStruct(), plugin_url.GetStruct(), is_main_frame,
+      top_origin_url.GetStruct(), CefWebPluginInfoCppToC::Wrap(plugin_info),
       plugin_policy);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
-
 
 // CONSTRUCTOR - Do not edit by hand.
 
-CefRequestContextHandlerCToCpp::CefRequestContextHandlerCToCpp() {
-}
+CefRequestContextHandlerCToCpp::CefRequestContextHandlerCToCpp() {}
 
-template<> cef_request_context_handler_t* CefCToCppRefCounted<CefRequestContextHandlerCToCpp,
-    CefRequestContextHandler, cef_request_context_handler_t>::UnwrapDerived(
-    CefWrapperType type, CefRequestContextHandler* c) {
+template <>
+cef_request_context_handler_t* CefCToCppRefCounted<
+    CefRequestContextHandlerCToCpp,
+    CefRequestContextHandler,
+    cef_request_context_handler_t>::UnwrapDerived(CefWrapperType type,
+                                                  CefRequestContextHandler* c) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCppRefCounted<CefRequestContextHandlerCToCpp,
-    CefRequestContextHandler, cef_request_context_handler_t>::DebugObjCt = 0;
+template <>
+base::AtomicRefCount
+    CefCToCppRefCounted<CefRequestContextHandlerCToCpp,
+                        CefRequestContextHandler,
+                        cef_request_context_handler_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCppRefCounted<CefRequestContextHandlerCToCpp,
-    CefRequestContextHandler, cef_request_context_handler_t>::kWrapperType =
-    WT_REQUEST_CONTEXT_HANDLER;
+template <>
+CefWrapperType
+    CefCToCppRefCounted<CefRequestContextHandlerCToCpp,
+                        CefRequestContextHandler,
+                        cef_request_context_handler_t>::kWrapperType =
+        WT_REQUEST_CONTEXT_HANDLER;

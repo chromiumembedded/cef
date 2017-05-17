@@ -14,10 +14,8 @@ UploadElement::UploadElement()
       bytes_start_(NULL),
       bytes_length_(0),
       file_range_offset_(0),
-      file_range_length_(std::numeric_limits<uint64_t>::max()) {
-}
+      file_range_length_(std::numeric_limits<uint64_t>::max()) {}
 
-UploadElement::~UploadElement() {
-}
+UploadElement::~UploadElement() {}
 
 }  // namespace net

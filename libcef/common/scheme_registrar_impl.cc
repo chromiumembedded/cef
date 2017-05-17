@@ -21,20 +21,17 @@ void AppendArray(const std::vector<std::string>& source,
     return;
   target->insert(target->end(), source.begin(), source.end());
 }
-
 }
 
-CefSchemeRegistrarImpl::CefSchemeRegistrarImpl() {
-}
+CefSchemeRegistrarImpl::CefSchemeRegistrarImpl() {}
 
-bool CefSchemeRegistrarImpl::AddCustomScheme(
-    const CefString& scheme_name,
-    bool is_standard,
-    bool is_local,
-    bool is_display_isolated,
-    bool is_secure,
-    bool is_cors_enabled,
-    bool is_csp_bypassing) {
+bool CefSchemeRegistrarImpl::AddCustomScheme(const CefString& scheme_name,
+                                             bool is_standard,
+                                             bool is_local,
+                                             bool is_display_isolated,
+                                             bool is_secure,
+                                             bool is_cors_enabled,
+                                             bool is_csp_bypassing) {
   const std::string& scheme = base::ToLowerASCII(scheme_name.ToString());
   if (scheme::IsInternalHandledScheme(scheme) ||
       registered_schemes_.find(scheme) != registered_schemes_.end()) {
@@ -57,9 +54,8 @@ bool CefSchemeRegistrarImpl::AddCustomScheme(
     schemes_.csp_bypassing_schemes.push_back(scheme);
 
   CefContentClient::SchemeInfo scheme_info = {
-      scheme, is_standard, is_local, is_display_isolated, is_secure,
-      is_cors_enabled, is_csp_bypassing
-  };
+      scheme,    is_standard,     is_local,        is_display_isolated,
+      is_secure, is_cors_enabled, is_csp_bypassing};
   CefContentClient::Get()->AddCustomScheme(scheme_info);
 
   return true;

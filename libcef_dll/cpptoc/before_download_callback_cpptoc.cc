@@ -9,17 +9,19 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=a904d37178d2bce73fdd6937cefa9f70dc352038$
+//
 
 #include "libcef_dll/cpptoc/before_download_callback_cpptoc.h"
-
 
 namespace {
 
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
-void CEF_CALLBACK before_download_callback_cont(
-    struct _cef_before_download_callback_t* self,
-    const cef_string_t* download_path, int show_dialog) {
+void CEF_CALLBACK
+before_download_callback_cont(struct _cef_before_download_callback_t* self,
+                              const cef_string_t* download_path,
+                              int show_dialog) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -29,12 +31,10 @@ void CEF_CALLBACK before_download_callback_cont(
 
   // Execute
   CefBeforeDownloadCallbackCppToC::Get(self)->Continue(
-      CefString(download_path),
-      show_dialog?true:false);
+      CefString(download_path), show_dialog ? true : false);
 }
 
 }  // namespace
-
 
 // CONSTRUCTOR - Do not edit by hand.
 
@@ -42,19 +42,27 @@ CefBeforeDownloadCallbackCppToC::CefBeforeDownloadCallbackCppToC() {
   GetStruct()->cont = before_download_callback_cont;
 }
 
-template<> CefRefPtr<CefBeforeDownloadCallback> CefCppToCRefCounted<CefBeforeDownloadCallbackCppToC,
-    CefBeforeDownloadCallback, cef_before_download_callback_t>::UnwrapDerived(
-    CefWrapperType type, cef_before_download_callback_t* s) {
+template <>
+CefRefPtr<CefBeforeDownloadCallback>
+CefCppToCRefCounted<CefBeforeDownloadCallbackCppToC,
+                    CefBeforeDownloadCallback,
+                    cef_before_download_callback_t>::
+    UnwrapDerived(CefWrapperType type, cef_before_download_callback_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCppToCRefCounted<CefBeforeDownloadCallbackCppToC,
-    CefBeforeDownloadCallback, cef_before_download_callback_t>::DebugObjCt =
-    0;
+template <>
+base::AtomicRefCount
+    CefCppToCRefCounted<CefBeforeDownloadCallbackCppToC,
+                        CefBeforeDownloadCallback,
+                        cef_before_download_callback_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCppToCRefCounted<CefBeforeDownloadCallbackCppToC,
-    CefBeforeDownloadCallback, cef_before_download_callback_t>::kWrapperType =
-    WT_BEFORE_DOWNLOAD_CALLBACK;
+template <>
+CefWrapperType
+    CefCppToCRefCounted<CefBeforeDownloadCallbackCppToC,
+                        CefBeforeDownloadCallback,
+                        cef_before_download_callback_t>::kWrapperType =
+        WT_BEFORE_DOWNLOAD_CALLBACK;

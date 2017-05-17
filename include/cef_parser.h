@@ -48,8 +48,7 @@
 // Returns false if the URL is empty or invalid.
 ///
 /*--cef()--*/
-bool CefParseURL(const CefString& url,
-                 CefURLParts& parts);
+bool CefParseURL(const CefString& url, CefURLParts& parts);
 
 ///
 // Creates a URL from the specified |parts|, which must contain a non-empty
@@ -57,8 +56,7 @@ bool CefParseURL(const CefString& url,
 // Returns false if |parts| isn't initialized as described.
 ///
 /*--cef()--*/
-bool CefCreateURL(const CefURLParts& parts,
-                  CefString& url);
+bool CefCreateURL(const CefURLParts& parts, CefString& url);
 
 ///
 // This is a convenience function for formatting a URL in a concise and human-

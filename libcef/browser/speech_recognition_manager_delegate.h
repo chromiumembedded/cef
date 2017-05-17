@@ -10,7 +10,6 @@
 #include "content/public/browser/speech_recognition_event_listener.h"
 #include "content/public/browser/speech_recognition_manager_delegate.h"
 
-
 // This is CEF's implementation of the SpeechRecognitionManagerDelegate
 // interface. Based on chrome/browser/speech/
 // chrome_speech_recognition_manager_delegate.[cc|h]
@@ -31,10 +30,13 @@ class CefSpeechRecognitionManagerDelegate
   void OnAudioEnd(int session_id) override;
   void OnRecognitionEnd(int session_id) override;
   void OnRecognitionResults(
-      int session_id, const content::SpeechRecognitionResults& result) override;
+      int session_id,
+      const content::SpeechRecognitionResults& result) override;
   void OnRecognitionError(
-      int session_id, const content::SpeechRecognitionError& error) override;
-  void OnAudioLevelsChange(int session_id, float volume,
+      int session_id,
+      const content::SpeechRecognitionError& error) override;
+  void OnAudioLevelsChange(int session_id,
+                           float volume,
                            float noise_volume) override;
 
   // SpeechRecognitionManagerDelegate methods.

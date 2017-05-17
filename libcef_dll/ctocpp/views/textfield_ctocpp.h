@@ -9,6 +9,8 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=6b2021efb395846e372f8c453bac1d5a81778ad6$
+//
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_VIEWS_TEXTFIELD_CTOCPP_H_
 #define CEF_LIBCEF_DLL_CTOCPP_VIEWS_TEXTFIELD_CTOCPP_H_
@@ -18,15 +20,15 @@
 #error This file can be included wrapper-side only
 #endif
 
-#include "include/views/cef_textfield.h"
 #include "include/capi/views/cef_textfield_capi.h"
+#include "include/views/cef_textfield.h"
 #include "libcef_dll/ctocpp/ctocpp_ref_counted.h"
 
 // Wrap a C structure with a C++ class.
 // This class may be instantiated and accessed wrapper-side only.
-class CefTextfieldCToCpp
-    : public CefCToCppRefCounted<CefTextfieldCToCpp, CefTextfield,
-        cef_textfield_t> {
+class CefTextfieldCToCpp : public CefCToCppRefCounted<CefTextfieldCToCpp,
+                                                      CefTextfield,
+                                                      cef_textfield_t> {
  public:
   CefTextfieldCToCpp();
 
@@ -54,8 +56,9 @@ class CefTextfieldCToCpp
   cef_color_t GetSelectionBackgroundColor() OVERRIDE;
   void SetFontList(const CefString& font_list) OVERRIDE;
   void ApplyTextColor(cef_color_t color, const CefRange& range) OVERRIDE;
-  void ApplyTextStyle(cef_text_style_t style, bool add,
-      const CefRange& range) OVERRIDE;
+  void ApplyTextStyle(cef_text_style_t style,
+                      bool add,
+                      const CefRange& range) OVERRIDE;
   bool IsCommandEnabled(int command_id) OVERRIDE;
   void ExecuteCommand(int command_id) OVERRIDE;
   void ClearEditHistory() OVERRIDE;

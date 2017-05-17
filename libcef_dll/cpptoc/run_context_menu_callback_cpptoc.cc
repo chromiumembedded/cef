@@ -9,17 +9,19 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=11b53a9b52b929cc12d29ed4b73108b2ebab3628$
+//
 
 #include "libcef_dll/cpptoc/run_context_menu_callback_cpptoc.h"
-
 
 namespace {
 
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
-void CEF_CALLBACK run_context_menu_callback_cont(
-    struct _cef_run_context_menu_callback_t* self, int command_id,
-    cef_event_flags_t event_flags) {
+void CEF_CALLBACK
+run_context_menu_callback_cont(struct _cef_run_context_menu_callback_t* self,
+                               int command_id,
+                               cef_event_flags_t event_flags) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -27,9 +29,7 @@ void CEF_CALLBACK run_context_menu_callback_cont(
     return;
 
   // Execute
-  CefRunContextMenuCallbackCppToC::Get(self)->Continue(
-      command_id,
-      event_flags);
+  CefRunContextMenuCallbackCppToC::Get(self)->Continue(command_id, event_flags);
 }
 
 void CEF_CALLBACK run_context_menu_callback_cancel(
@@ -46,7 +46,6 @@ void CEF_CALLBACK run_context_menu_callback_cancel(
 
 }  // namespace
 
-
 // CONSTRUCTOR - Do not edit by hand.
 
 CefRunContextMenuCallbackCppToC::CefRunContextMenuCallbackCppToC() {
@@ -54,19 +53,27 @@ CefRunContextMenuCallbackCppToC::CefRunContextMenuCallbackCppToC() {
   GetStruct()->cancel = run_context_menu_callback_cancel;
 }
 
-template<> CefRefPtr<CefRunContextMenuCallback> CefCppToCRefCounted<CefRunContextMenuCallbackCppToC,
-    CefRunContextMenuCallback, cef_run_context_menu_callback_t>::UnwrapDerived(
-    CefWrapperType type, cef_run_context_menu_callback_t* s) {
+template <>
+CefRefPtr<CefRunContextMenuCallback>
+CefCppToCRefCounted<CefRunContextMenuCallbackCppToC,
+                    CefRunContextMenuCallback,
+                    cef_run_context_menu_callback_t>::
+    UnwrapDerived(CefWrapperType type, cef_run_context_menu_callback_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCppToCRefCounted<CefRunContextMenuCallbackCppToC,
-    CefRunContextMenuCallback, cef_run_context_menu_callback_t>::DebugObjCt =
-    0;
+template <>
+base::AtomicRefCount
+    CefCppToCRefCounted<CefRunContextMenuCallbackCppToC,
+                        CefRunContextMenuCallback,
+                        cef_run_context_menu_callback_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCppToCRefCounted<CefRunContextMenuCallbackCppToC,
-    CefRunContextMenuCallback, cef_run_context_menu_callback_t>::kWrapperType =
-    WT_RUN_CONTEXT_MENU_CALLBACK;
+template <>
+CefWrapperType
+    CefCppToCRefCounted<CefRunContextMenuCallbackCppToC,
+                        CefRunContextMenuCallback,
+                        cef_run_context_menu_callback_t>::kWrapperType =
+        WT_RUN_CONTEXT_MENU_CALLBACK;

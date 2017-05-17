@@ -69,7 +69,7 @@ void ClientAppBrowser::OnContextInitialized() {
 }
 
 void ClientAppBrowser::OnBeforeChildProcessLaunch(
-      CefRefPtr<CefCommandLine> command_line) {
+    CefRefPtr<CefCommandLine> command_line) {
   DelegateSet::iterator it = delegates_.begin();
   for (; it != delegates_.end(); ++it)
     (*it)->OnBeforeChildProcessLaunch(this, command_line);

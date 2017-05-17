@@ -9,6 +9,8 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=b8d1746d32c5fc771d83499123ec6920a2aa2fb2$
+//
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_RUN_FILE_DIALOG_CALLBACK_CTOCPP_H_
 #define CEF_LIBCEF_DLL_CTOCPP_RUN_FILE_DIALOG_CALLBACK_CTOCPP_H_
@@ -19,23 +21,24 @@
 #endif
 
 #include <vector>
-#include "include/cef_browser.h"
 #include "include/capi/cef_browser_capi.h"
-#include "include/cef_client.h"
 #include "include/capi/cef_client_capi.h"
+#include "include/cef_browser.h"
+#include "include/cef_client.h"
 #include "libcef_dll/ctocpp/ctocpp_ref_counted.h"
 
 // Wrap a C structure with a C++ class.
 // This class may be instantiated and accessed DLL-side only.
 class CefRunFileDialogCallbackCToCpp
     : public CefCToCppRefCounted<CefRunFileDialogCallbackCToCpp,
-        CefRunFileDialogCallback, cef_run_file_dialog_callback_t> {
+                                 CefRunFileDialogCallback,
+                                 cef_run_file_dialog_callback_t> {
  public:
   CefRunFileDialogCallbackCToCpp();
 
   // CefRunFileDialogCallback methods.
   void OnFileDialogDismissed(int selected_accept_filter,
-      const std::vector<CefString>& file_paths) override;
+                             const std::vector<CefString>& file_paths) override;
 };
 
 #endif  // CEF_LIBCEF_DLL_CTOCPP_RUN_FILE_DIALOG_CALLBACK_CTOCPP_H_

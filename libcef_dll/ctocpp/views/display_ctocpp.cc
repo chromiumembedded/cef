@@ -9,10 +9,11 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=2e6bd09f8d9e40e522cc5d1060666ebe8a295bc0$
+//
 
 #include <algorithm>
 #include "libcef_dll/ctocpp/views/display_ctocpp.h"
-
 
 // STATIC METHODS - Body may be edited by hand.
 
@@ -26,27 +27,27 @@ CefRefPtr<CefDisplay> CefDisplay::GetPrimaryDisplay() {
   return CefDisplayCToCpp::Wrap(_retval);
 }
 
-CefRefPtr<CefDisplay> CefDisplay::GetDisplayNearestPoint(const CefPoint& point,
+CefRefPtr<CefDisplay> CefDisplay::GetDisplayNearestPoint(
+    const CefPoint& point,
     bool input_pixel_coords) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  cef_display_t* _retval = cef_display_get_nearest_point(
-      &point,
-      input_pixel_coords);
+  cef_display_t* _retval =
+      cef_display_get_nearest_point(&point, input_pixel_coords);
 
   // Return type: refptr_same
   return CefDisplayCToCpp::Wrap(_retval);
 }
 
 CefRefPtr<CefDisplay> CefDisplay::GetDisplayMatchingBounds(
-    const CefRect& bounds, bool input_pixel_coords) {
+    const CefRect& bounds,
+    bool input_pixel_coords) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  cef_display_t* _retval = cef_display_get_matching_bounds(
-      &bounds,
-      input_pixel_coords);
+  cef_display_t* _retval =
+      cef_display_get_matching_bounds(&bounds, input_pixel_coords);
 
   // Return type: refptr_same
   return CefDisplayCToCpp::Wrap(_retval);
@@ -73,7 +74,7 @@ void CefDisplay::GetAllDisplays(std::vector<CefRefPtr<CefDisplay>>& displays) {
     displaysList = new cef_display_t*[displaysCount];
     DCHECK(displaysList);
     if (displaysList) {
-       memset(displaysList, 0, sizeof(cef_display_t*)*displaysCount);
+      memset(displaysList, 0, sizeof(cef_display_t*) * displaysCount);
     }
     if (displaysList && displaysSize > 0) {
       for (size_t i = 0; i < displaysSize; ++i) {
@@ -83,9 +84,7 @@ void CefDisplay::GetAllDisplays(std::vector<CefRefPtr<CefDisplay>>& displays) {
   }
 
   // Execute
-  cef_display_get_alls(
-      &displaysCount,
-      displaysList);
+  cef_display_get_alls(&displaysCount, displaysList);
 
   // Restore param:displays; type: refptr_vec_same_byref
   displays.clear();
@@ -93,10 +92,9 @@ void CefDisplay::GetAllDisplays(std::vector<CefRefPtr<CefDisplay>>& displays) {
     for (size_t i = 0; i < displaysCount; ++i) {
       displays.push_back(CefDisplayCToCpp::Wrap(displaysList[i]));
     }
-    delete [] displaysList;
+    delete[] displaysList;
   }
 }
-
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
@@ -136,8 +134,7 @@ void CefDisplayCToCpp::ConvertPointToPixels(CefPoint& point) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  _struct->convert_point_to_pixels(_struct,
-      &point);
+  _struct->convert_point_to_pixels(_struct, &point);
 }
 
 void CefDisplayCToCpp::ConvertPointFromPixels(CefPoint& point) {
@@ -148,8 +145,7 @@ void CefDisplayCToCpp::ConvertPointFromPixels(CefPoint& point) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  _struct->convert_point_from_pixels(_struct,
-      &point);
+  _struct->convert_point_from_pixels(_struct, &point);
 }
 
 CefRect CefDisplayCToCpp::GetBounds() {
@@ -194,22 +190,27 @@ int CefDisplayCToCpp::GetRotation() {
   return _retval;
 }
 
-
 // CONSTRUCTOR - Do not edit by hand.
 
-CefDisplayCToCpp::CefDisplayCToCpp() {
-}
+CefDisplayCToCpp::CefDisplayCToCpp() {}
 
-template<> cef_display_t* CefCToCppRefCounted<CefDisplayCToCpp, CefDisplay,
-    cef_display_t>::UnwrapDerived(CefWrapperType type, CefDisplay* c) {
+template <>
+cef_display_t*
+CefCToCppRefCounted<CefDisplayCToCpp, CefDisplay, cef_display_t>::UnwrapDerived(
+    CefWrapperType type,
+    CefDisplay* c) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCppRefCounted<CefDisplayCToCpp,
-    CefDisplay, cef_display_t>::DebugObjCt = 0;
+template <>
+base::AtomicRefCount CefCToCppRefCounted<CefDisplayCToCpp,
+                                         CefDisplay,
+                                         cef_display_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCppRefCounted<CefDisplayCToCpp, CefDisplay,
-    cef_display_t>::kWrapperType = WT_DISPLAY;
+template <>
+CefWrapperType CefCToCppRefCounted<CefDisplayCToCpp,
+                                   CefDisplay,
+                                   cef_display_t>::kWrapperType = WT_DISPLAY;

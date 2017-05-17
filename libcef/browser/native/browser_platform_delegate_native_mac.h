@@ -8,8 +8,8 @@
 #include "libcef/browser/native/browser_platform_delegate_native.h"
 
 // Windowed browser implementation for Mac OS X.
-class CefBrowserPlatformDelegateNativeMac :
-    public CefBrowserPlatformDelegateNative {
+class CefBrowserPlatformDelegateNativeMac
+    : public CefBrowserPlatformDelegateNative {
  public:
   CefBrowserPlatformDelegateNativeMac(const CefWindowInfo& window_info,
                                       SkColor background_color);
@@ -30,13 +30,15 @@ class CefBrowserPlatformDelegateNativeMac :
   void TranslateClickEvent(blink::WebMouseEvent& result,
                            const CefMouseEvent& mouse_event,
                            CefBrowserHost::MouseButtonType type,
-                           bool mouseUp, int clickCount) const override;
+                           bool mouseUp,
+                           int clickCount) const override;
   void TranslateMoveEvent(blink::WebMouseEvent& result,
                           const CefMouseEvent& mouse_event,
                           bool mouseLeave) const override;
   void TranslateWheelEvent(blink::WebMouseWheelEvent& result,
                            const CefMouseEvent& mouse_event,
-                           int deltaX, int deltaY) const override;
+                           int deltaX,
+                           int deltaY) const override;
   CefEventHandle GetEventHandle(
       const content::NativeWebKeyboardEvent& event) const override;
   std::unique_ptr<CefFileDialogRunner> CreateFileDialogRunner() override;

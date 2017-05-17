@@ -9,6 +9,8 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=146d1c1f362c668c9cc049309e2de3091256c70b$
+//
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_LIST_VALUE_CTOCPP_H_
 #define CEF_LIBCEF_DLL_CTOCPP_LIST_VALUE_CTOCPP_H_
@@ -18,15 +20,15 @@
 #error This file can be included wrapper-side only
 #endif
 
-#include "include/cef_values.h"
 #include "include/capi/cef_values_capi.h"
+#include "include/cef_values.h"
 #include "libcef_dll/ctocpp/ctocpp_ref_counted.h"
 
 // Wrap a C structure with a C++ class.
 // This class may be instantiated and accessed wrapper-side only.
-class CefListValueCToCpp
-    : public CefCToCppRefCounted<CefListValueCToCpp, CefListValue,
-        cef_list_value_t> {
+class CefListValueCToCpp : public CefCToCppRefCounted<CefListValueCToCpp,
+                                                      CefListValue,
+                                                      cef_list_value_t> {
  public:
   CefListValueCToCpp();
 
@@ -58,7 +60,7 @@ class CefListValueCToCpp
   bool SetString(size_t index, const CefString& value) OVERRIDE;
   bool SetBinary(size_t index, CefRefPtr<CefBinaryValue> value) OVERRIDE;
   bool SetDictionary(size_t index,
-      CefRefPtr<CefDictionaryValue> value) OVERRIDE;
+                     CefRefPtr<CefDictionaryValue> value) OVERRIDE;
   bool SetList(size_t index, CefRefPtr<CefListValue> value) OVERRIDE;
 };
 

@@ -60,38 +60,38 @@ class CefView : public CefBaseRefCounted {
   // Returns this View as a BrowserView or NULL if this is not a BrowserView.
   ///
   /*--cef()--*/
-  virtual CefRefPtr<CefBrowserView> AsBrowserView() =0;
+  virtual CefRefPtr<CefBrowserView> AsBrowserView() = 0;
 
   ///
   // Returns this View as a Button or NULL if this is not a Button.
   ///
   /*--cef()--*/
-  virtual CefRefPtr<CefButton> AsButton() =0;
+  virtual CefRefPtr<CefButton> AsButton() = 0;
 
   ///
   // Returns this View as a Panel or NULL if this is not a Panel.
   ///
   /*--cef()--*/
-  virtual CefRefPtr<CefPanel> AsPanel() =0;
+  virtual CefRefPtr<CefPanel> AsPanel() = 0;
 
   ///
   // Returns this View as a ScrollView or NULL if this is not a ScrollView.
   ///
   /*--cef()--*/
-  virtual CefRefPtr<CefScrollView> AsScrollView() =0;
+  virtual CefRefPtr<CefScrollView> AsScrollView() = 0;
 
   ///
   // Returns this View as a Textfield or NULL if this is not a Textfield.
   ///
   /*--cef()--*/
-  virtual CefRefPtr<CefTextfield> AsTextfield() =0;
+  virtual CefRefPtr<CefTextfield> AsTextfield() = 0;
 
   ///
   // Returns the type of this View as a string. Used primarily for testing
   // purposes.
   ///
   /*--cef()--*/
-  virtual CefString GetTypeString() =0;
+  virtual CefString GetTypeString() = 0;
 
   ///
   // Returns a string representation of this View which includes the type and
@@ -99,57 +99,57 @@ class CefView : public CefBaseRefCounted {
   // any child Views will also be included. Used primarily for testing purposes.
   ///
   /*--cef()--*/
-  virtual CefString ToString(bool include_children) =0;
+  virtual CefString ToString(bool include_children) = 0;
 
   ///
   // Returns true if this View is valid.
   ///
   /*--cef()--*/
-  virtual bool IsValid() =0;
+  virtual bool IsValid() = 0;
 
   ///
   // Returns true if this View is currently attached to another View. A View can
   // only be attached to one View at a time.
   ///
   /*--cef()--*/
-  virtual bool IsAttached() =0;
+  virtual bool IsAttached() = 0;
 
   ///
   // Returns true if this View is the same as |that| View.
   ///
   /*--cef()--*/
-  virtual bool IsSame(CefRefPtr<CefView> that) =0;
+  virtual bool IsSame(CefRefPtr<CefView> that) = 0;
 
   ///
   // Returns the delegate associated with this View, if any.
   ///
   /*--cef()--*/
-  virtual CefRefPtr<CefViewDelegate> GetDelegate() =0;
+  virtual CefRefPtr<CefViewDelegate> GetDelegate() = 0;
 
   ///
   // Returns the top-level Window hosting this View, if any.
   ///
   /*--cef()--*/
-  virtual CefRefPtr<CefWindow> GetWindow() =0;
+  virtual CefRefPtr<CefWindow> GetWindow() = 0;
 
   ///
   // Returns the ID for this View.
   ///
   /*--cef()--*/
-  virtual int GetID() =0;
+  virtual int GetID() = 0;
 
   ///
   // Sets the ID for this View. ID should be unique within the subtree that you
   // intend to search for it. 0 is the default ID for views.
   ///
   /*--cef()--*/
-  virtual void SetID(int id) =0;
+  virtual void SetID(int id) = 0;
 
   ///
   // Returns the group id of this View, or -1 if not set.
   ///
   /*--cef()--*/
-  virtual int GetGroupID() =0;
+  virtual int GetGroupID() = 0;
 
   ///
   // A group id is used to tag Views which are part of the same logical group.
@@ -157,13 +157,13 @@ class CefView : public CefBaseRefCounted {
   // The group id is immutable once it's set.
   ///
   /*--cef()--*/
-  virtual void SetGroupID(int group_id) =0;
+  virtual void SetGroupID(int group_id) = 0;
 
   ///
   // Returns the View that contains this View, if any.
   ///
   /*--cef()--*/
-  virtual CefRefPtr<CefView> GetParentView() =0;
+  virtual CefRefPtr<CefView> GetParentView() = 0;
 
   ///
   // Recursively descends the view tree starting at this View, and returns the
@@ -171,83 +171,83 @@ class CefView : public CefBaseRefCounted {
   // matching child view is found.
   ///
   /*--cef()--*/
-  virtual CefRefPtr<CefView> GetViewForID(int id) =0;
+  virtual CefRefPtr<CefView> GetViewForID(int id) = 0;
 
   ///
   // Sets the bounds (size and position) of this View. Position is in parent
   // coordinates.
   ///
   /*--cef()--*/
-  virtual void SetBounds(const CefRect& bounds) =0;
+  virtual void SetBounds(const CefRect& bounds) = 0;
 
   ///
   // Returns the bounds (size and position) of this View. Position is in parent
   // coordinates.
   ///
   /*--cef()--*/
-  virtual CefRect GetBounds() =0;
+  virtual CefRect GetBounds() = 0;
 
   ///
   // Returns the bounds (size and position) of this View. Position is in screen
   // coordinates.
   ///
   /*--cef()--*/
-  virtual CefRect GetBoundsInScreen() =0;
+  virtual CefRect GetBoundsInScreen() = 0;
 
   ///
   // Sets the size of this View without changing the position.
   ///
   /*--cef()--*/
-  virtual void SetSize(const CefSize& size) =0;
+  virtual void SetSize(const CefSize& size) = 0;
 
   ///
   // Returns the size of this View.
   ///
   /*--cef()--*/
-  virtual CefSize GetSize() =0;
+  virtual CefSize GetSize() = 0;
 
   ///
   // Sets the position of this View without changing the size. |position| is in
   // parent coordinates.
   ///
   /*--cef()--*/
-  virtual void SetPosition(const CefPoint& position) =0;
+  virtual void SetPosition(const CefPoint& position) = 0;
 
   ///
   // Returns the position of this View. Position is in parent coordinates.
   ///
   /*--cef()--*/
-  virtual CefPoint GetPosition() =0;
+  virtual CefPoint GetPosition() = 0;
 
   ///
   // Returns the size this View would like to be if enough space is available.
   ///
   /*--cef()--*/
-  virtual CefSize GetPreferredSize() =0;
+  virtual CefSize GetPreferredSize() = 0;
 
   ///
   // Size this View to its preferred size.
   ///
   /*--cef()--*/
-  virtual void SizeToPreferredSize() =0;
+  virtual void SizeToPreferredSize() = 0;
 
   ///
   // Returns the minimum size for this View.
   ///
   /*--cef()--*/
-  virtual CefSize GetMinimumSize() =0;
+  virtual CefSize GetMinimumSize() = 0;
 
   ///
   // Returns the maximum size for this View.
   ///
   /*--cef()--*/
-  virtual CefSize GetMaximumSize() =0;
+  virtual CefSize GetMaximumSize() = 0;
 
   ///
   // Returns the height necessary to display this View with the provided width.
   ///
   /*--cef()--*/
-  virtual int GetHeightForWidth(int width) =0;
+  virtual int GetHeightForWidth(int width) = 0;
 
   ///
   // Indicate that this View and all parent Views require a re-layout. This
@@ -255,7 +255,7 @@ class CefView : public CefBaseRefCounted {
   // bounds of parent Views do not change.
   ///
   /*--cef()--*/
-  virtual void InvalidateLayout() =0;
+  virtual void InvalidateLayout() = 0;
 
   ///
   // Sets whether this View is visible. Windows are hidden by default and other
@@ -267,7 +267,7 @@ class CefView : public CefBaseRefCounted {
   // equivalent to calling the Window Show() and Hide() methods.
   ///
   /*--cef()--*/
-  virtual void SetVisible(bool visible) =0;
+  virtual void SetVisible(bool visible) = 0;
 
   ///
   // Returns whether this View is visible. A view may be visible but still not
@@ -278,7 +278,7 @@ class CefView : public CefBaseRefCounted {
   // drawn.
   ///
   /*--cef()--*/
-  virtual bool IsVisible() =0;
+  virtual bool IsVisible() = 0;
 
   ///
   // Returns whether this View is visible and drawn in a Window. A view is drawn
@@ -288,7 +288,7 @@ class CefView : public CefBaseRefCounted {
   // IsVisible() on the Window.
   ///
   /*--cef()--*/
-  virtual bool IsDrawn() =0;
+  virtual bool IsDrawn() = 0;
 
   ///
   // Set whether this View is enabled. A disabled View does not receive keyboard
@@ -296,13 +296,13 @@ class CefView : public CefBaseRefCounted {
   // be repainted. Also, clears focus if the focused View is disabled.
   ///
   /*--cef()--*/
-  virtual void SetEnabled(bool enabled) =0;
+  virtual void SetEnabled(bool enabled) = 0;
 
   ///
   // Returns whether this View is enabled.
   ///
   /*--cef()--*/
-  virtual bool IsEnabled() =0;
+  virtual bool IsEnabled() = 0;
 
   ///
   // Sets whether this View is capable of taking focus. It will clear focus if
@@ -310,39 +310,39 @@ class CefView : public CefBaseRefCounted {
   // that a View used as a container does not get the focus.
   ///
   /*--cef()--*/
-  virtual void SetFocusable(bool focusable) =0;
+  virtual void SetFocusable(bool focusable) = 0;
 
   ///
   // Returns true if this View is focusable, enabled and drawn.
   ///
   /*--cef()--*/
-  virtual bool IsFocusable() =0;
+  virtual bool IsFocusable() = 0;
 
   ///
   // Return whether this View is focusable when the user requires full keyboard
   // access, even though it may not be normally focusable.
   ///
   /*--cef()--*/
-  virtual bool IsAccessibilityFocusable() =0;
+  virtual bool IsAccessibilityFocusable() = 0;
 
   ///
   // Request keyboard focus. If this View is focusable it will become the
   // focused View.
   ///
   /*--cef()--*/
-  virtual void RequestFocus() =0;
+  virtual void RequestFocus() = 0;
 
   ///
   // Sets the background color for this View.
   ///
   /*--cef()--*/
-  virtual void SetBackgroundColor(cef_color_t color) =0;
+  virtual void SetBackgroundColor(cef_color_t color) = 0;
 
   ///
   // Returns the background color for this View.
   ///
   /*--cef()--*/
-  virtual cef_color_t GetBackgroundColor() =0;
+  virtual cef_color_t GetBackgroundColor() = 0;
 
   ///
   // Convert |point| from this View's coordinate system to that of the screen.
@@ -352,7 +352,7 @@ class CefView : public CefBaseRefCounted {
   // conversion to display-specific pixel coordinates is desired.
   ///
   /*--cef()--*/
-  virtual bool ConvertPointToScreen(CefPoint& point) =0;
+  virtual bool ConvertPointToScreen(CefPoint& point) = 0;
 
   ///
   // Convert |point| to this View's coordinate system from that of the screen.
@@ -362,7 +362,7 @@ class CefView : public CefBaseRefCounted {
   // conversion from display-specific pixel coordinates is necessary.
   ///
   /*--cef()--*/
-  virtual bool ConvertPointFromScreen(CefPoint& point) =0;
+  virtual bool ConvertPointFromScreen(CefPoint& point) = 0;
 
   ///
   // Convert |point| from this View's coordinate system to that of the Window.
@@ -370,7 +370,7 @@ class CefView : public CefBaseRefCounted {
   // the conversion is successful or false otherwise.
   ///
   /*--cef()--*/
-  virtual bool ConvertPointToWindow(CefPoint& point) =0;
+  virtual bool ConvertPointToWindow(CefPoint& point) = 0;
 
   ///
   // Convert |point| to this View's coordinate system from that of the Window.
@@ -378,7 +378,7 @@ class CefView : public CefBaseRefCounted {
   // the conversion is successful or false otherwise.
   ///
   /*--cef()--*/
-  virtual bool ConvertPointFromWindow(CefPoint& point) =0;
+  virtual bool ConvertPointFromWindow(CefPoint& point) = 0;
 
   ///
   // Convert |point| from this View's coordinate system to that of |view|.
@@ -386,8 +386,7 @@ class CefView : public CefBaseRefCounted {
   // hierarchy. Returns true if the conversion is successful or false otherwise.
   ///
   /*--cef()--*/
-  virtual bool ConvertPointToView(CefRefPtr<CefView> view,
-                                  CefPoint& point) =0;
+  virtual bool ConvertPointToView(CefRefPtr<CefView> view, CefPoint& point) = 0;
 
   ///
   // Convert |point| to this View's coordinate system from that |view|. |view|
@@ -396,7 +395,7 @@ class CefView : public CefBaseRefCounted {
   ///
   /*--cef()--*/
   virtual bool ConvertPointFromView(CefRefPtr<CefView> view,
-                                    CefPoint& point) =0;
+                                    CefPoint& point) = 0;
 };
 
 #endif  // CEF_INCLUDE_VIEWS_CEF_VIEW_H_

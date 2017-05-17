@@ -41,24 +41,24 @@ class CefSpeechRecognitionManagerDelegate::WebContentsWatcher
       WebContentsClosedCallback;
 
   WebContentsWatcher(WebContentsClosedCallback web_contents_closed_callback,
-             BrowserThread::ID callback_thread)
+                     BrowserThread::ID callback_thread)
       : web_contents_closed_callback_(web_contents_closed_callback),
-        callback_thread_(callback_thread) {
-  }
+        callback_thread_(callback_thread) {}
 
   // Starts monitoring the WebContents corresponding to the given
   // |render_process_id|, |render_view_id| pair, invoking
   // |web_contents_closed_callback_| if closed/unloaded.
   void Watch(int render_process_id, int render_view_id) {
     if (!BrowserThread::CurrentlyOn(BrowserThread::UI)) {
-      BrowserThread::PostTask(BrowserThread::UI, FROM_HERE, base::Bind(
-          &WebContentsWatcher::Watch, this, render_process_id, render_view_id));
+      BrowserThread::PostTask(BrowserThread::UI, FROM_HERE,
+                              base::Bind(&WebContentsWatcher::Watch, this,
+                                         render_process_id, render_view_id));
       return;
     }
 
     WebContents* web_contents = NULL;
     content::RenderViewHost* render_view_host =
-      content::RenderViewHost::FromID(render_process_id, render_view_id);
+        content::RenderViewHost::FromID(render_process_id, render_view_id);
     if (render_view_host)
       web_contents = WebContents::FromRenderViewHost(render_view_host);
     DCHECK(web_contents);
@@ -74,8 +74,7 @@ class CefSpeechRecognitionManagerDelegate::WebContentsWatcher
     if (!registrar_.get())
       registrar_.reset(new content::NotificationRegistrar());
 
-    registrar_->Add(this,
-                    content::NOTIFICATION_WEB_CONTENTS_DISCONNECTED,
+    registrar_->Add(this, content::NOTIFICATION_WEB_CONTENTS_DISCONNECTED,
                     content::Source<WebContents>(web_contents));
   }
 
@@ -90,13 +89,13 @@ class CefSpeechRecognitionManagerDelegate::WebContentsWatcher
     int render_process_id = web_contents->GetRenderProcessHost()->GetID();
     int render_view_id = web_contents->GetRenderViewHost()->GetRoutingID();
 
-    registrar_->Remove(this,
-                       content::NOTIFICATION_WEB_CONTENTS_DISCONNECTED,
+    registrar_->Remove(this, content::NOTIFICATION_WEB_CONTENTS_DISCONNECTED,
                        content::Source<WebContents>(web_contents));
     registered_web_contents_.erase(web_contents);
 
-    BrowserThread::PostTask(callback_thread_, FROM_HERE, base::Bind(
-        web_contents_closed_callback_, render_process_id, render_view_id));
+    BrowserThread::PostTask(callback_thread_, FROM_HERE,
+                            base::Bind(web_contents_closed_callback_,
+                                       render_process_id, render_view_id));
   }
 
  private:
@@ -123,20 +122,18 @@ class CefSpeechRecognitionManagerDelegate::WebContentsWatcher
   DISALLOW_COPY_AND_ASSIGN(WebContentsWatcher);
 };
 
-CefSpeechRecognitionManagerDelegate
-::CefSpeechRecognitionManagerDelegate() {
+CefSpeechRecognitionManagerDelegate ::CefSpeechRecognitionManagerDelegate() {
   const base::CommandLine* command_line =
       base::CommandLine::ForCurrentProcess();
   filter_profanities_ =
       command_line->HasSwitch(switches::kEnableProfanityFilter);
 }
 
-CefSpeechRecognitionManagerDelegate
-::~CefSpeechRecognitionManagerDelegate() {
-}
+CefSpeechRecognitionManagerDelegate ::~CefSpeechRecognitionManagerDelegate() {}
 
 void CefSpeechRecognitionManagerDelegate::WebContentsClosedCallback(
-    int render_process_id, int render_view_id) {
+    int render_process_id,
+    int render_view_id) {
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::IO));
 
   SpeechRecognitionManager* manager = SpeechRecognitionManager::GetInstance();
@@ -149,8 +146,7 @@ void CefSpeechRecognitionManagerDelegate::WebContentsClosedCallback(
   manager->AbortAllSessionsForRenderView(render_process_id, render_view_id);
 }
 
-void CefSpeechRecognitionManagerDelegate::OnRecognitionStart(
-    int session_id) {
+void CefSpeechRecognitionManagerDelegate::OnRecognitionStart(int session_id) {
   const content::SpeechRecognitionSessionContext& context =
       SpeechRecognitionManager::GetInstance()->GetSessionContext(session_id);
 
@@ -167,36 +163,31 @@ void CefSpeechRecognitionManagerDelegate::OnRecognitionStart(
                                context.render_view_id);
 }
 
-void CefSpeechRecognitionManagerDelegate::OnAudioStart(int session_id) {
-}
+void CefSpeechRecognitionManagerDelegate::OnAudioStart(int session_id) {}
 
 void CefSpeechRecognitionManagerDelegate::OnEnvironmentEstimationComplete(
-    int session_id) {
-}
+    int session_id) {}
 
-void CefSpeechRecognitionManagerDelegate::OnSoundStart(int session_id) {
-}
+void CefSpeechRecognitionManagerDelegate::OnSoundStart(int session_id) {}
 
-void CefSpeechRecognitionManagerDelegate::OnSoundEnd(int session_id) {
-}
+void CefSpeechRecognitionManagerDelegate::OnSoundEnd(int session_id) {}
 
-void CefSpeechRecognitionManagerDelegate::OnAudioEnd(int session_id) {
-}
+void CefSpeechRecognitionManagerDelegate::OnAudioEnd(int session_id) {}
 
 void CefSpeechRecognitionManagerDelegate::OnRecognitionResults(
-    int session_id, const content::SpeechRecognitionResults& result) {
-}
+    int session_id,
+    const content::SpeechRecognitionResults& result) {}
 
 void CefSpeechRecognitionManagerDelegate::OnRecognitionError(
-    int session_id, const content::SpeechRecognitionError& error) {
-}
+    int session_id,
+    const content::SpeechRecognitionError& error) {}
 
 void CefSpeechRecognitionManagerDelegate::OnAudioLevelsChange(
-    int session_id, float volume, float noise_volume) {
-}
+    int session_id,
+    float volume,
+    float noise_volume) {}
 
-void CefSpeechRecognitionManagerDelegate::OnRecognitionEnd(int session_id) {
-}
+void CefSpeechRecognitionManagerDelegate::OnRecognitionEnd(int session_id) {}
 
 void CefSpeechRecognitionManagerDelegate::CheckRecognitionIsAllowed(
     int session_id,

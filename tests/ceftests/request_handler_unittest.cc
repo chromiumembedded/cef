@@ -77,13 +77,9 @@ class NetNotifyTestHandler : public TestHandler {
       return handler_->cookie_manager_;
     }
 
-    void SetURL(const std::string& url) {
-      url_ = url;
-    }
+    void SetURL(const std::string& url) { url_ = url; }
 
-    void Detach() {
-      handler_ = NULL;
-    }
+    void Detach() { handler_ = NULL; }
 
    private:
     std::string url_;
@@ -104,8 +100,8 @@ class NetNotifyTestHandler : public TestHandler {
     ss << kNetNotifyOrigin1 << "nav1.html?t=" << test_type_;
     url1_ = ss.str();
     ss.str("");
-    ss << (same_origin_ ? kNetNotifyOrigin1 : kNetNotifyOrigin2) <<
-          "nav2.html?t=" << test_type_;
+    ss << (same_origin_ ? kNetNotifyOrigin1 : kNetNotifyOrigin2)
+       << "nav2.html?t=" << test_type_;
     url2_ = ss.str();
 
     cookie_manager_ = CefCookieManager::CreateManager(CefString(), true, NULL);
@@ -179,7 +175,7 @@ class NetNotifyTestHandler : public TestHandler {
     else
       EXPECT_TRUE(false);  // Not reached
 
-    return TestHandler::GetResourceHandler(browser,  frame, request);
+    return TestHandler::GetResourceHandler(browser, frame, request);
   }
 
   void OnResourceLoadComplete(CefRefPtr<CefBrowser> browser,
@@ -268,10 +264,9 @@ class NetNotifyTestHandler : public TestHandler {
     }
   }
 
-  bool OnProcessMessageReceived(
-      CefRefPtr<CefBrowser> browser,
-      CefProcessId source_process,
-      CefRefPtr<CefProcessMessage> message) override {
+  bool OnProcessMessageReceived(CefRefPtr<CefBrowser> browser,
+                                CefProcessId source_process,
+                                CefRefPtr<CefProcessMessage> message) override {
     if (message->GetName().ToString() == kNetNotifyMsg) {
       CefRefPtr<CefListValue> args = message->GetArgumentList();
       EXPECT_TRUE(args.get());
@@ -309,16 +304,16 @@ class NetNotifyTestHandler : public TestHandler {
     // Verify that cookies were set correctly.
     class TestVisitor : public CefCookieVisitor {
      public:
-      explicit TestVisitor(NetNotifyTestHandler* handler)
-          : handler_(handler) {
-      }
+      explicit TestVisitor(NetNotifyTestHandler* handler) : handler_(handler) {}
       ~TestVisitor() override {
         // Destroy the test.
         CefPostTask(TID_UI,
-            base::Bind(&NetNotifyTestHandler::DestroyTest, handler_));
+                    base::Bind(&NetNotifyTestHandler::DestroyTest, handler_));
       }
 
-      bool Visit(const CefCookie& cookie, int count, int total,
+      bool Visit(const CefCookie& cookie,
+                 int count,
+                 int total,
                  bool& deleteCookie) override {
         const std::string& name = CefString(&cookie.name);
         const std::string& value = CefString(&cookie.value);
@@ -370,7 +365,7 @@ class NetNotifyTestHandler : public TestHandler {
     context_handler_->Detach();
     context_handler_ = NULL;
     cookie_manager_ = NULL;
-    
+
     TestHandler::DestroyTest();
   }
 
@@ -412,12 +407,10 @@ class NetNotifyTestHandler : public TestHandler {
 class NetNotifyRendererTest : public ClientAppRenderer::Delegate,
                               public CefLoadHandler {
  public:
-  NetNotifyRendererTest()
-      : run_test_(false) {}
+  NetNotifyRendererTest() : run_test_(false) {}
 
-  void OnRenderThreadCreated(
-      CefRefPtr<ClientAppRenderer> app,
-      CefRefPtr<CefListValue> extra_info) override {
+  void OnRenderThreadCreated(CefRefPtr<ClientAppRenderer> app,
+                             CefRefPtr<CefListValue> extra_info) override {
     if (!g_net_notify_test) {
       // Check that the test should be run.
       CefRefPtr<CefCommandLine> command_line =
@@ -453,11 +446,10 @@ class NetNotifyRendererTest : public ClientAppRenderer::Delegate,
     EXPECT_TRUE(browser->SendProcessMessage(PID_BROWSER, message));
   }
 
-  bool OnProcessMessageReceived(
-        CefRefPtr<ClientAppRenderer> app,
-        CefRefPtr<CefBrowser> browser,
-        CefProcessId source_process,
-        CefRefPtr<CefProcessMessage> message) override {
+  bool OnProcessMessageReceived(CefRefPtr<ClientAppRenderer> app,
+                                CefRefPtr<CefBrowser> browser,
+                                CefProcessId source_process,
+                                CefRefPtr<CefProcessMessage> message) override {
     if (message->GetName().ToString() == kNetNotifyMsg) {
       CefRefPtr<CefListValue> args = message->GetArgumentList();
       EXPECT_TRUE(args.get());
@@ -551,7 +543,6 @@ TEST(RequestHandlerTest, NotificationsCrossOriginDelayedBrowser) {
   RunNetNotifyTest(NNTT_DELAYED_BROWSER, false);
 }
 
-
 namespace {
 
 const char kResourceTestHtml[] = "http://test.com/resource.html";
@@ -565,9 +556,7 @@ class ResourceResponseTest : public TestHandler {
   };
 
   explicit ResourceResponseTest(TestMode mode)
-      : browser_id_(0),
-        main_request_id_(0U),
-        sub_request_id_(0U) {
+      : browser_id_(0), main_request_id_(0U), sub_request_id_(0U) {
     if (mode == URL)
       resource_test_.reset(new UrlResourceTest);
     else if (mode == HEADER)
@@ -624,8 +613,9 @@ class ResourceResponseTest : public TestHandler {
       EXPECT_EQ(sub_request_id_, request->GetIdentifier());
     }
 
-    return resource_test_->OnBeforeResourceLoad(browser, frame, request) ?
-        RV_CANCEL : RV_CONTINUE;
+    return resource_test_->OnBeforeResourceLoad(browser, frame, request)
+               ? RV_CANCEL
+               : RV_CONTINUE;
   }
 
   CefRefPtr<CefResourceHandler> GetResourceHandler(
@@ -723,9 +713,7 @@ class ResourceResponseTest : public TestHandler {
     html << "<html><head>";
 
     const std::string& url = resource_test_->start_url();
-    html << "<script type=\"text/javascript\" src=\""
-          << url
-          << "\"></script>";
+    html << "<script type=\"text/javascript\" src=\"" << url << "\"></script>";
 
     html << "</head><body><p>Main</p></body></html>";
     return html.str();
@@ -748,14 +736,10 @@ class ResourceResponseTest : public TestHandler {
           expected_resource_redirect_ct_(expected_resource_redirect_ct),
           resource_load_complete_ct_(0U),
           expected_resource_load_complete_ct_(
-              expected_resource_load_complete_ct) {
-    }
-    virtual ~ResourceTest() {
-    }
+              expected_resource_load_complete_ct) {}
+    virtual ~ResourceTest() {}
 
-    const std::string& start_url() const {
-      return start_url_;
-    }
+    const std::string& start_url() const { return start_url_; }
 
     virtual bool OnBeforeResourceLoad(CefRefPtr<CefBrowser> browser,
                                       CefRefPtr<CefFrame> frame,
@@ -772,9 +756,8 @@ class ResourceResponseTest : public TestHandler {
 
       const std::string& js_content = "<!-- -->";
 
-      CefRefPtr<CefStreamReader> stream =
-          CefStreamReader::CreateForData(const_cast<char*>(js_content.c_str()),
-                                         js_content.size());
+      CefRefPtr<CefStreamReader> stream = CefStreamReader::CreateForData(
+          const_cast<char*>(js_content.c_str()), js_content.size());
 
       return new CefStreamResourceHandler(200, "OK", "text/javascript",
                                           CefResponse::HeaderMap(), stream);
@@ -921,8 +904,7 @@ class ResourceResponseTest : public TestHandler {
 
   class HeaderResourceTest : public ResourceTest {
    public:
-    HeaderResourceTest()
-        : ResourceTest("http://test.com/start_header.js") {
+    HeaderResourceTest() : ResourceTest("http://test.com/start_header.js") {
       expected_headers_.insert(std::make_pair("Test-Key1", "Value1"));
       expected_headers_.insert(std::make_pair("Test-Key2", "Value2"));
     }
@@ -951,8 +933,7 @@ class ResourceResponseTest : public TestHandler {
 
   class PostResourceTest : public ResourceTest {
    public:
-    PostResourceTest()
-        : ResourceTest("http://test.com/start_post.js") {
+    PostResourceTest() : ResourceTest("http://test.com/start_post.js") {
       CefRefPtr<CefPostDataElement> elem = CefPostDataElement::Create();
       const std::string data("Test Post Data");
       elem->SetToBytes(data.size(), data.c_str());
@@ -1013,7 +994,6 @@ TEST(RequestHandlerTest, ResourceResponsePost) {
   ReleaseAndWaitForDestructor(handler);
 }
 
-
 namespace {
 
 const char kResourceTestHtml2[] = "http://test.com/resource2.html";
@@ -1028,9 +1008,7 @@ class BeforeResourceLoadTest : public TestHandler {
     CONTINUE_ASYNC,
   };
 
-  explicit BeforeResourceLoadTest(TestMode mode)
-      : test_mode_(mode) {
-  }
+  explicit BeforeResourceLoadTest(TestMode mode) : test_mode_(mode) {}
 
   void RunTest() override {
     AddResource(kResourceTestHtml, "<html><body>Test</body></html>",
@@ -1055,7 +1033,7 @@ class BeforeResourceLoadTest : public TestHandler {
       EXPECT_EQ(CANCEL_NAV, test_mode_);
       return RV_CONTINUE;
     }
-    
+
     EXPECT_FALSE(got_before_resource_load_);
     got_before_resource_load_.yes();
 
@@ -1072,8 +1050,8 @@ class BeforeResourceLoadTest : public TestHandler {
       } else {
         // Continue or cancel asynchronously.
         CefPostTask(TID_UI,
-            base::Bind(&CefRequestCallback::Continue, callback.get(),
-                       test_mode_ == CONTINUE_ASYNC));
+                    base::Bind(&CefRequestCallback::Continue, callback.get(),
+                               test_mode_ == CONTINUE_ASYNC));
       }
       return RV_CONTINUE_ASYNC;
     }
@@ -1130,7 +1108,7 @@ class BeforeResourceLoadTest : public TestHandler {
       EXPECT_FALSE(got_load_end_);
       EXPECT_TRUE(got_load_error_);
     }
-    
+
     TestHandler::DestroyTest();
   }
 
@@ -1182,7 +1160,6 @@ TEST(RequestHandlerTest, BeforeResourceLoadContinueAsync) {
   ReleaseAndWaitForDestructor(handler);
 }
 
-
 namespace {
 
 // For response filtering we need to test:
@@ -1209,9 +1186,9 @@ std::string CreateInput(const std::string& content,
   EXPECT_GE(desired_min_size, header_footer_size + content.size());
   desired_min_size -= header_footer_size;
 
-  size_t repeat_ct = static_cast<size_t>(
-      std::ceil(static_cast<double>(desired_min_size) /
-                static_cast<double>(content.size())));
+  size_t repeat_ct =
+      static_cast<size_t>(std::ceil(static_cast<double>(desired_min_size) /
+                                    static_cast<double>(content.size())));
   if (calculated_repeat_ct)
     *calculated_repeat_ct = repeat_ct;
 
@@ -1226,8 +1203,7 @@ std::string CreateInput(const std::string& content,
   return result;
 }
 
-std::string CreateOutput(const std::string& content,
-                         size_t repeat_ct) {
+std::string CreateOutput(const std::string& content, size_t repeat_ct) {
   const size_t header_footer_size =
       sizeof(kInputHeader) + sizeof(kInputFooter) - 2;
 
@@ -1245,9 +1221,7 @@ std::string CreateOutput(const std::string& content,
 // Base class for test filters.
 class ResponseFilterTestBase : public CefResponseFilter {
  public:
-  ResponseFilterTestBase()
-      : filter_count_(0U) {
-  }
+  ResponseFilterTestBase() : filter_count_(0U) {}
 
   bool InitFilter() override {
     EXPECT_FALSE(got_init_filter_);
@@ -1294,9 +1268,7 @@ class ResponseFilterTestBase : public CefResponseFilter {
 // Pass through the contents unchanged.
 class ResponseFilterPassThru : public ResponseFilterTestBase {
  public:
-  explicit ResponseFilterPassThru(bool limit_read)
-      : limit_read_(limit_read) {
-  }
+  explicit ResponseFilterPassThru(bool limit_read) : limit_read_(limit_read) {}
 
   FilterStatus Filter(void* data_in,
                       size_t data_in_size,
@@ -1368,8 +1340,7 @@ class ResponseFilterNeedMore : public ResponseFilterTestBase {
       : find_match_offset_(0U),
         replace_overflow_size_(0U),
         input_size_(0U),
-        repeat_ct_(0U) {
-  }
+        repeat_ct_(0U) {}
 
   FilterStatus Filter(void* data_in,
                       size_t data_in_size,
@@ -1438,14 +1409,14 @@ class ResponseFilterNeedMore : public ResponseFilterTestBase {
 
     // If a match is currently in-progress and input was provided then we need
     // more data. Otherwise, we're done.
-    return find_match_offset_ > 0 && data_in_size > 0 ?
-        RESPONSE_FILTER_NEED_MORE_DATA : RESPONSE_FILTER_DONE;
+    return find_match_offset_ > 0 && data_in_size > 0
+               ? RESPONSE_FILTER_NEED_MORE_DATA
+               : RESPONSE_FILTER_DONE;
   }
 
   std::string GetInput() override {
-    const std::string& input =
-        CreateInput(std::string(kFindString) + " ", kResponseBufferSize * 2U,
-                    &repeat_ct_);
+    const std::string& input = CreateInput(
+        std::string(kFindString) + " ", kResponseBufferSize * 2U, &repeat_ct_);
     input_size_ = input.size();
 
     const size_t find_size = sizeof(kFindString) - 1;
@@ -1528,8 +1499,7 @@ class ResponseFilterNeedMore : public ResponseFilterTestBase {
 // Return a filter error.
 class ResponseFilterError : public ResponseFilterTestBase {
  public:
-  ResponseFilterError() {
-  }
+  ResponseFilterError() {}
 
   FilterStatus Filter(void* data_in,
                       size_t data_in_size,
@@ -1710,7 +1680,6 @@ TEST(RequestHandlerTest, ResponseFilterError) {
   handler->ExecuteTest();
   ReleaseAndWaitForDestructor(handler);
 }
-
 
 // Entry point for creating request handler browser test objects.
 // Called from client_app_delegates.cc.

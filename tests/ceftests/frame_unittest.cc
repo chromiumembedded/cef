@@ -71,7 +71,7 @@ namespace {
 //
 // Run with the `--single-process` command-line flag to see expectation failures
 // from the renderer process.
-// 
+//
 
 // All known factory IDs.
 enum FrameNavFactoryId {
@@ -105,28 +105,31 @@ const int kMaxMultiNavNavigations = 3;
 bool g_frame_nav_test = false;
 FrameNavFactoryId g_frame_nav_factory_id = FNF_ID_INVALID;
 
-
 // Abstract base class representing expectations that result from a navigation.
 class FrameNavExpectations {
  public:
   typedef base::Callback<void(CefRefPtr<CefBrowser>)> CompletionCallback;
 
   FrameNavExpectations(int nav, bool renderer)
-    : nav_(nav),
-      renderer_(renderer) {
-  }
+      : nav_(nav), renderer_(renderer) {}
   virtual ~FrameNavExpectations() {}
 
   // Browser and renderer notifications.
   virtual bool OnLoadingStateChange(CefRefPtr<CefBrowser> browser,
-                                    bool isLoading) { return true; }
+                                    bool isLoading) {
+    return true;
+  }
   virtual bool OnLoadStart(CefRefPtr<CefBrowser> browser,
-                           CefRefPtr<CefFrame> frame) { return true; }
+                           CefRefPtr<CefFrame> frame) {
+    return true;
+  }
   virtual bool OnLoadEnd(CefRefPtr<CefBrowser> browser,
-                         CefRefPtr<CefFrame> frame) { return true; }
+                         CefRefPtr<CefFrame> frame) {
+    return true;
+  }
 
   // Final expectations check before this object is deleted.
-  virtual bool Finalize() =0;
+  virtual bool Finalize() = 0;
 
   // Signal that all expectations are completed. Should be called as a result of
   // notifications.
@@ -134,7 +137,7 @@ class FrameNavExpectations {
     if (!completion_callback_.is_null()) {
       // Execute the callback asynchronously to avoid any issues with what's
       // currently on the stack.
-      CefPostTask((renderer_ ? TID_RENDERER: TID_UI),
+      CefPostTask((renderer_ ? TID_RENDERER : TID_UI),
                   base::Bind(completion_callback_, browser));
       completion_callback_.Reset();
     }
@@ -164,12 +167,11 @@ class FrameNavExpectations {
 class FrameNavExpectationsBrowser : public FrameNavExpectations {
  public:
   explicit FrameNavExpectationsBrowser(int nav)
-    : FrameNavExpectations(nav, false) {
-  }
+      : FrameNavExpectations(nav, false) {}
 
   // Loading information.
-  virtual std::string GetMainURL() =0;
-  virtual std::string GetContentForURL(const std::string& url) =0;
+  virtual std::string GetMainURL() = 0;
+  virtual std::string GetContentForURL(const std::string& url) = 0;
 
   // Browser-only notifications.
   virtual bool OnAfterCreated(CefRefPtr<CefBrowser> browser) {
@@ -194,21 +196,21 @@ class FrameNavExpectationsBrowser : public FrameNavExpectations {
   // Called when the renderer signals completion.
   virtual bool OnRendererComplete(CefRefPtr<CefBrowser> browser,
                                   int renderer_nav,
-                                  bool renderer_result) =0;
+                                  bool renderer_result) = 0;
 };
 
 // Renderer process expectations abstract base class.
 class FrameNavExpectationsRenderer : public FrameNavExpectations {
  public:
   explicit FrameNavExpectationsRenderer(int nav)
-    : FrameNavExpectations(nav, true) {
-  }
+      : FrameNavExpectations(nav, true) {}
 
   // Renderer-only notifications.
   virtual bool OnBeforeNavigation(CefRefPtr<CefBrowser> browser,
-                                  CefRefPtr<CefFrame> frame) { return true; }
+                                  CefRefPtr<CefFrame> frame) {
+    return true;
+  }
 };
-
 
 // Abstract base class for the factory that creates expectations objects.
 class FrameNavExpectationsFactory {
@@ -217,7 +219,7 @@ class FrameNavExpectationsFactory {
   virtual ~FrameNavExpectationsFactory() {}
 
   // Returns the unique ID for this factory type.
-  virtual FrameNavFactoryId GetID() const =0;
+  virtual FrameNavFactoryId GetID() const = 0;
 };
 
 // Browser process expectations factory abstact base class.
@@ -226,15 +228,15 @@ class FrameNavExpectationsFactoryBrowser : public FrameNavExpectationsFactory {
   FrameNavExpectationsFactoryBrowser() {}
 
   // Create a new factory instance of the specified type.
-  static scoped_ptr<FrameNavExpectationsFactoryBrowser>
-      FromID(FrameNavFactoryId id);
+  static scoped_ptr<FrameNavExpectationsFactoryBrowser> FromID(
+      FrameNavFactoryId id);
 
   // Returns true if there will be more navigations in the browser process
   // handler.
-  virtual bool HasMoreNavigations() const =0;
+  virtual bool HasMoreNavigations() const = 0;
 
   // Verify final expectations results.
-  virtual bool Finalize() =0;
+  virtual bool Finalize() = 0;
 
   scoped_ptr<FrameNavExpectationsBrowser> Create(
       int nav,
@@ -247,7 +249,7 @@ class FrameNavExpectationsFactoryBrowser : public FrameNavExpectationsFactory {
 
  protected:
   // Implement in the test-specific factory instance.
-  virtual scoped_ptr<FrameNavExpectationsBrowser> Create(int nav) =0;
+  virtual scoped_ptr<FrameNavExpectationsBrowser> Create(int nav) = 0;
 };
 
 // Renderer process expectations factory abstact base class.
@@ -256,8 +258,8 @@ class FrameNavExpectationsFactoryRenderer : public FrameNavExpectationsFactory {
   FrameNavExpectationsFactoryRenderer() {}
 
   // Create a new factory instance of the specified type.
-  static scoped_ptr<FrameNavExpectationsFactoryRenderer>
-      FromID(FrameNavFactoryId id);
+  static scoped_ptr<FrameNavExpectationsFactoryRenderer> FromID(
+      FrameNavFactoryId id);
 
   scoped_ptr<FrameNavExpectationsRenderer> Create(
       int nav,
@@ -270,9 +272,8 @@ class FrameNavExpectationsFactoryRenderer : public FrameNavExpectationsFactory {
 
  protected:
   // Implement in the test-specific factory instance.
-  virtual scoped_ptr<FrameNavExpectationsRenderer> Create(int nav) =0;
+  virtual scoped_ptr<FrameNavExpectationsRenderer> Create(int nav) = 0;
 };
-
 
 // Browser side app delegate.
 class FrameNavBrowserTest : public ClientAppBrowser::Delegate {
@@ -301,13 +302,10 @@ class FrameNavBrowserTest : public ClientAppBrowser::Delegate {
 class FrameNavRendererTest : public ClientAppRenderer::Delegate,
                              public CefLoadHandler {
  public:
-  FrameNavRendererTest()
-      : run_test_(false),
-        nav_(0) {}
+  FrameNavRendererTest() : run_test_(false), nav_(0) {}
 
-  void OnRenderThreadCreated(
-      CefRefPtr<ClientAppRenderer> app,
-      CefRefPtr<CefListValue> extra_info) override {
+  void OnRenderThreadCreated(CefRefPtr<ClientAppRenderer> app,
+                             CefRefPtr<CefListValue> extra_info) override {
     // The g_* values will be set when running in single-process mode.
     if (!g_frame_nav_test) {
       // Check that the test should be run.
@@ -325,8 +323,9 @@ class FrameNavRendererTest : public ClientAppRenderer::Delegate,
           CefCommandLine::GetGlobalCommandLine();
       if (command_line->HasSwitch(kTestFactoryIdArg)) {
         factory_id = static_cast<FrameNavFactoryId>(
-            atoi(command_line->GetSwitchValue(
-                kTestFactoryIdArg).ToString().c_str()));
+            atoi(command_line->GetSwitchValue(kTestFactoryIdArg)
+                     .ToString()
+                     .c_str()));
         if (factory_id == FNF_ID_INVALID)
           return;
       }
@@ -344,13 +343,13 @@ class FrameNavRendererTest : public ClientAppRenderer::Delegate,
     return this;
   }
 
- void OnLoadingStateChange(CefRefPtr<CefBrowser> browser,
-                           bool isLoading,
-                           bool canGoBack,
-                           bool canGoForward) override {
+  void OnLoadingStateChange(CefRefPtr<CefBrowser> browser,
+                            bool isLoading,
+                            bool canGoBack,
+                            bool canGoForward) override {
     CreateExpectationsIfNecessary();
-    EXPECT_TRUE(expectations_->OnLoadingStateChange(browser, isLoading)) <<
-                "isLoading = " << isLoading << ", nav = " << nav_;
+    EXPECT_TRUE(expectations_->OnLoadingStateChange(browser, isLoading))
+        << "isLoading = " << isLoading << ", nav = " << nav_;
   }
 
   void OnLoadStart(CefRefPtr<CefBrowser> browser,
@@ -377,8 +376,8 @@ class FrameNavRendererTest : public ClientAppRenderer::Delegate,
       return false;
 
     CreateExpectationsIfNecessary();
-    EXPECT_TRUE(expectations_->OnBeforeNavigation(browser, frame)) <<
-                "nav = " << nav_;
+    EXPECT_TRUE(expectations_->OnBeforeNavigation(browser, frame))
+        << "nav = " << nav_;
     return false;
   }
 
@@ -389,8 +388,7 @@ class FrameNavRendererTest : public ClientAppRenderer::Delegate,
     if (expectations_)
       return;
     expectations_ = factory_->Create(
-        nav_,
-        base::Bind(&FrameNavRendererTest::SendTestResults, this));
+        nav_, base::Bind(&FrameNavRendererTest::SendTestResults, this));
   }
 
   // Send the test results.
@@ -444,8 +442,7 @@ class FrameNavTestHandler : public TestHandler {
   void RunTest() override {
     // Create the first expectations object.
     expectations_ = factory_->Create(
-        nav_,
-        base::Bind(&FrameNavTestHandler::RunNextNav, this));
+        nav_, base::Bind(&FrameNavTestHandler::RunNextNav, this));
 
     // Create the browser with the initial URL.
     CreateBrowser(expectations_->GetMainURL());
@@ -471,8 +468,7 @@ class FrameNavTestHandler : public TestHandler {
 
     // Create the next expectations object.
     expectations_ = factory_->Create(
-        nav_,
-        base::Bind(&FrameNavTestHandler::RunNextNav, this));
+        nav_, base::Bind(&FrameNavTestHandler::RunNextNav, this));
 
     // Load the main URL.
     browser->GetMainFrame()->LoadURL(expectations_->GetMainURL());
@@ -488,18 +484,17 @@ class FrameNavTestHandler : public TestHandler {
       CefRefPtr<CefBrowser> browser,
       CefRefPtr<CefFrame> frame,
       CefRefPtr<CefRequest> request) override {
-    EXPECT_TRUE(expectations_->GetResourceHandler(browser, frame)) <<
-                "nav = " << nav_;
+    EXPECT_TRUE(expectations_->GetResourceHandler(browser, frame))
+        << "nav = " << nav_;
 
     const std::string& url = request->GetURL();
     const std::string& content = expectations_->GetContentForURL(url);
     EXPECT_TRUE(!content.empty()) << "nav = " << nav_;
 
-    CefRefPtr<CefStreamReader> stream =
-          CefStreamReader::CreateForData(
-              static_cast<void*>(const_cast<char*>(content.c_str())),
-              content.length());
-      return new CefStreamResourceHandler("text/html", stream);
+    CefRefPtr<CefStreamReader> stream = CefStreamReader::CreateForData(
+        static_cast<void*>(const_cast<char*>(content.c_str())),
+        content.length());
+    return new CefStreamResourceHandler("text/html", stream);
   }
 
   bool OnBeforeBrowse(CefRefPtr<CefBrowser> browser,
@@ -507,8 +502,8 @@ class FrameNavTestHandler : public TestHandler {
                       CefRefPtr<CefRequest> request,
                       bool is_redirect) override {
     EXPECT_TRUE(
-        expectations_->OnBeforeBrowse(browser, frame, request->GetURL())) <<
-        "nav = " << nav_;
+        expectations_->OnBeforeBrowse(browser, frame, request->GetURL()))
+        << "nav = " << nav_;
 
     return false;
   }
@@ -517,8 +512,9 @@ class FrameNavTestHandler : public TestHandler {
                             bool isLoading,
                             bool canGoBack,
                             bool canGoForward) override {
-    EXPECT_TRUE(expectations_->OnLoadingStateChange(browser, isLoading)) <<
-                "isLoading = " << isLoading << ", nav = " << nav_;;
+    EXPECT_TRUE(expectations_->OnLoadingStateChange(browser, isLoading))
+        << "isLoading = " << isLoading << ", nav = " << nav_;
+    ;
   }
 
   void OnLoadStart(CefRefPtr<CefBrowser> browser,
@@ -533,17 +529,17 @@ class FrameNavTestHandler : public TestHandler {
     EXPECT_TRUE(expectations_->OnLoadEnd(browser, frame)) << "nav = " << nav_;
   }
 
-  bool OnProcessMessageReceived(
-      CefRefPtr<CefBrowser> browser,
-      CefProcessId source_process,
-      CefRefPtr<CefProcessMessage> message) override {
+  bool OnProcessMessageReceived(CefRefPtr<CefBrowser> browser,
+                                CefProcessId source_process,
+                                CefRefPtr<CefProcessMessage> message) override {
     if (message->GetName().ToString() == kFrameNavMsg) {
       // Test that the renderer side succeeded.
       CefRefPtr<CefListValue> args = message->GetArgumentList();
       EXPECT_TRUE(args.get());
-      
-      EXPECT_TRUE(expectations_->OnRendererComplete(browser,
-                  args->GetInt(0), args->GetBool(1))) << "nav = " << nav_;
+
+      EXPECT_TRUE(expectations_->OnRendererComplete(browser, args->GetInt(0),
+                                                    args->GetBool(1)))
+          << "nav = " << nav_;
       return true;
     }
 
@@ -575,29 +571,27 @@ class FrameNavTestHandler : public TestHandler {
 };
 
 // Helper for defining frame tests.
-#define FRAME_TEST(name, factory_id) \
-    TEST(FrameTest, name) { \
-      CefRefPtr<FrameNavTestHandler> handler = \
-          new FrameNavTestHandler(factory_id); \
-      handler->ExecuteTest(); \
-      ReleaseAndWaitForDestructor(handler); \
-    }
-
+#define FRAME_TEST(name, factory_id)         \
+  TEST(FrameTest, name) {                    \
+    CefRefPtr<FrameNavTestHandler> handler = \
+        new FrameNavTestHandler(factory_id); \
+    handler->ExecuteTest();                  \
+    ReleaseAndWaitForDestructor(handler);    \
+  }
 
 // Browser process expectations for a single navigation.
-class FrameNavExpectationsBrowserSingleNav :
-    public FrameNavExpectationsBrowser {
+class FrameNavExpectationsBrowserSingleNav
+    : public FrameNavExpectationsBrowser {
  public:
   explicit FrameNavExpectationsBrowserSingleNav(int nav)
-    : FrameNavExpectationsBrowser(nav) {
-  }
+      : FrameNavExpectationsBrowser(nav) {}
 
   ~FrameNavExpectationsBrowserSingleNav() override {
     EXPECT_TRUE(got_finalize_);
   }
 
   bool OnLoadingStateChange(CefRefPtr<CefBrowser> browser,
-                           bool isLoading) override {
+                            bool isLoading) override {
     if (isLoading) {
       EXPECT_FALSE(got_loading_state_change_start_);
       got_loading_state_change_start_.yes();
@@ -691,12 +685,11 @@ class FrameNavExpectationsBrowserSingleNav :
 };
 
 // Renderer process expectations for a single navigation.
-class FrameNavExpectationsRendererSingleNav :
-    public FrameNavExpectationsRenderer {
+class FrameNavExpectationsRendererSingleNav
+    : public FrameNavExpectationsRenderer {
  public:
   explicit FrameNavExpectationsRendererSingleNav(int nav)
-    : FrameNavExpectationsRenderer(nav) {
-  }
+      : FrameNavExpectationsRenderer(nav) {}
 
   ~FrameNavExpectationsRendererSingleNav() override {
     EXPECT_TRUE(got_finalize_);
@@ -766,14 +759,13 @@ class FrameNavExpectationsRendererSingleNav :
 };
 
 // Test that the single nav harness works.
-class FrameNavExpectationsBrowserTestSingleNavHarness :
-    public FrameNavExpectationsBrowserSingleNav {
+class FrameNavExpectationsBrowserTestSingleNavHarness
+    : public FrameNavExpectationsBrowserSingleNav {
  public:
   typedef FrameNavExpectationsBrowserSingleNav parent;
 
   explicit FrameNavExpectationsBrowserTestSingleNavHarness(int nav)
-    : parent(nav) {
-  }
+      : parent(nav) {}
 
   ~FrameNavExpectationsBrowserTestSingleNavHarness() override {
     EXPECT_TRUE(got_finalize_);
@@ -809,14 +801,13 @@ class FrameNavExpectationsBrowserTestSingleNavHarness :
   TrackCallback got_finalize_;
 };
 
-class FrameNavExpectationsRendererTestSingleNavHarness :
-    public FrameNavExpectationsRendererSingleNav {
+class FrameNavExpectationsRendererTestSingleNavHarness
+    : public FrameNavExpectationsRendererSingleNav {
  public:
   typedef FrameNavExpectationsRendererSingleNav parent;
 
   explicit FrameNavExpectationsRendererTestSingleNavHarness(int nav)
-    : parent(nav) {
-  }
+      : parent(nav) {}
 
   ~FrameNavExpectationsRendererTestSingleNavHarness() override {
     EXPECT_TRUE(got_finalize_);
@@ -832,8 +823,8 @@ class FrameNavExpectationsRendererTestSingleNavHarness :
   TrackCallback got_finalize_;
 };
 
-class FrameNavExpectationsFactoryBrowserTestSingleNavHarness :
-    public FrameNavExpectationsFactoryBrowser {
+class FrameNavExpectationsFactoryBrowserTestSingleNavHarness
+    : public FrameNavExpectationsFactoryBrowser {
  public:
   FrameNavExpectationsFactoryBrowserTestSingleNavHarness() {}
 
@@ -841,9 +832,7 @@ class FrameNavExpectationsFactoryBrowserTestSingleNavHarness :
     EXPECT_TRUE(got_finalize_);
   }
 
-  FrameNavFactoryId GetID() const override {
-    return FNF_ID_SINGLE_NAV_HARNESS;
-  }
+  FrameNavFactoryId GetID() const override { return FNF_ID_SINGLE_NAV_HARNESS; }
 
   bool HasMoreNavigations() const override {
     EXPECT_FALSE(got_get_browser_navigation_count_);
@@ -875,14 +864,12 @@ class FrameNavExpectationsFactoryBrowserTestSingleNavHarness :
   TrackCallback got_finalize_;
 };
 
-class FrameNavExpectationsFactoryRendererTestSingleNavHarness :
-    public FrameNavExpectationsFactoryRenderer {
+class FrameNavExpectationsFactoryRendererTestSingleNavHarness
+    : public FrameNavExpectationsFactoryRenderer {
  public:
   FrameNavExpectationsFactoryRendererTestSingleNavHarness() {}
 
-  FrameNavFactoryId GetID() const override {
-    return FNF_ID_SINGLE_NAV_HARNESS;
-  }
+  FrameNavFactoryId GetID() const override { return FNF_ID_SINGLE_NAV_HARNESS; }
 
  protected:
   scoped_ptr<FrameNavExpectationsRenderer> Create(int nav) override {
@@ -895,7 +882,6 @@ class FrameNavExpectationsFactoryRendererTestSingleNavHarness :
 
 // Test that the single nav harness works.
 FRAME_TEST(SingleNavHarness, FNF_ID_SINGLE_NAV_HARNESS)
-
 
 namespace {
 
@@ -920,8 +906,8 @@ bool VerifySingleBrowserFrame(CefRefPtr<CefBrowser> browser,
                 frame->GetBrowser()->GetIdentifier());
 
   const std::string& frame_url = frame->GetURL();
-  V_EXPECT_TRUE(frame_url == expected_url) << "frame_url = " << frame_url <<
-      ", expected_url = " << expected_url;
+  V_EXPECT_TRUE(frame_url == expected_url)
+      << "frame_url = " << frame_url << ", expected_url = " << expected_url;
 
   V_RETURN();
 }
@@ -935,8 +921,8 @@ bool VerifySingleBrowserFrames(CefRefPtr<CefBrowser> browser,
 
   // |frame| may be NULL for callbacks that don't specify one.
   if (frame.get()) {
-    V_EXPECT_TRUE(VerifySingleBrowserFrame(browser, frame,
-                                           frame_should_exist, expected_url));
+    V_EXPECT_TRUE(VerifySingleBrowserFrame(browser, frame, frame_should_exist,
+                                           expected_url));
   }
 
   CefRefPtr<CefFrame> main_frame = browser->GetMainFrame();
@@ -974,18 +960,14 @@ bool VerifySingleBrowserFrames(CefRefPtr<CefBrowser> browser,
 }
 
 // Test that single navigation works.
-class FrameNavExpectationsBrowserTestSingleNav :
-    public FrameNavExpectationsBrowserSingleNav {
+class FrameNavExpectationsBrowserTestSingleNav
+    : public FrameNavExpectationsBrowserSingleNav {
  public:
   typedef FrameNavExpectationsBrowserSingleNav parent;
 
-  explicit FrameNavExpectationsBrowserTestSingleNav(int nav)
-    : parent(nav) {
-  }
+  explicit FrameNavExpectationsBrowserTestSingleNav(int nav) : parent(nav) {}
 
-  std::string GetMainURL() override {
-    return kFrameNavOrigin0;
-  }
+  std::string GetMainURL() override { return kFrameNavOrigin0; }
 
   std::string GetContentForURL(const std::string& url) override {
     return "<html><body>Nav</body></html>";
@@ -996,11 +978,11 @@ class FrameNavExpectationsBrowserTestSingleNav :
     V_DECLARE();
     if (isLoading) {
       // No frame exists before the first load.
-      V_EXPECT_TRUE(VerifySingleBrowserFrames(browser, NULL, false,
-                                              std::string()));
+      V_EXPECT_TRUE(
+          VerifySingleBrowserFrames(browser, NULL, false, std::string()));
     } else {
-      V_EXPECT_TRUE(VerifySingleBrowserFrames(browser, NULL, true,
-                                              kFrameNavOrigin0));
+      V_EXPECT_TRUE(
+          VerifySingleBrowserFrames(browser, NULL, true, kFrameNavOrigin0));
     }
     V_EXPECT_TRUE(parent::OnLoadingStateChange(browser, isLoading));
     V_RETURN();
@@ -1009,8 +991,8 @@ class FrameNavExpectationsBrowserTestSingleNav :
   bool OnLoadStart(CefRefPtr<CefBrowser> browser,
                    CefRefPtr<CefFrame> frame) override {
     V_DECLARE();
-    V_EXPECT_TRUE(VerifySingleBrowserFrames(browser, frame, true,
-                                            kFrameNavOrigin0));
+    V_EXPECT_TRUE(
+        VerifySingleBrowserFrames(browser, frame, true, kFrameNavOrigin0));
     V_EXPECT_TRUE(parent::OnLoadStart(browser, frame));
     V_RETURN();
   }
@@ -1018,16 +1000,16 @@ class FrameNavExpectationsBrowserTestSingleNav :
   bool OnLoadEnd(CefRefPtr<CefBrowser> browser,
                  CefRefPtr<CefFrame> frame) override {
     V_DECLARE();
-    V_EXPECT_TRUE(VerifySingleBrowserFrames(browser, frame, true,
-                                            kFrameNavOrigin0));
+    V_EXPECT_TRUE(
+        VerifySingleBrowserFrames(browser, frame, true, kFrameNavOrigin0));
     V_EXPECT_TRUE(parent::OnLoadEnd(browser, frame));
     V_RETURN();
   }
 
   bool OnAfterCreated(CefRefPtr<CefBrowser> browser) override {
     V_DECLARE();
-    V_EXPECT_TRUE(VerifySingleBrowserFrames(browser, NULL, false,
-                                            std::string()));
+    V_EXPECT_TRUE(
+        VerifySingleBrowserFrames(browser, NULL, false, std::string()));
     V_EXPECT_TRUE(parent::OnAfterCreated(browser));
     V_RETURN();
   }
@@ -1036,8 +1018,8 @@ class FrameNavExpectationsBrowserTestSingleNav :
                       CefRefPtr<CefFrame> frame,
                       const std::string& url) override {
     V_DECLARE();
-    V_EXPECT_TRUE(VerifySingleBrowserFrames(browser, frame, true,
-                                            std::string()));
+    V_EXPECT_TRUE(
+        VerifySingleBrowserFrames(browser, frame, true, std::string()));
     V_EXPECT_TRUE(parent::OnBeforeBrowse(browser, frame, url));
     V_RETURN();
   }
@@ -1045,8 +1027,8 @@ class FrameNavExpectationsBrowserTestSingleNav :
   bool GetResourceHandler(CefRefPtr<CefBrowser> browser,
                           CefRefPtr<CefFrame> frame) override {
     V_DECLARE();
-    V_EXPECT_TRUE(VerifySingleBrowserFrames(browser, frame, true,
-                                            std::string()));
+    V_EXPECT_TRUE(
+        VerifySingleBrowserFrames(browser, frame, true, std::string()));
     V_EXPECT_TRUE(parent::GetResourceHandler(browser, frame));
     V_RETURN();
   }
@@ -1057,30 +1039,26 @@ class FrameNavExpectationsBrowserTestSingleNav :
     return parent::OnRendererComplete(browser, renderer_nav, renderer_result);
   }
 
-  bool Finalize() override {
-    return parent::Finalize();
-  }
+  bool Finalize() override { return parent::Finalize(); }
 };
 
-class FrameNavExpectationsRendererTestSingleNav :
-    public FrameNavExpectationsRendererSingleNav {
+class FrameNavExpectationsRendererTestSingleNav
+    : public FrameNavExpectationsRendererSingleNav {
  public:
   typedef FrameNavExpectationsRendererSingleNav parent;
 
-  explicit FrameNavExpectationsRendererTestSingleNav(int nav)
-    : parent(nav) {
-  }
+  explicit FrameNavExpectationsRendererTestSingleNav(int nav) : parent(nav) {}
 
   bool OnLoadingStateChange(CefRefPtr<CefBrowser> browser,
                             bool isLoading) override {
     V_DECLARE();
     // A frame should always exist in the renderer process.
     if (isLoading) {
-      V_EXPECT_TRUE(VerifySingleBrowserFrames(browser, NULL, true,
-                                              std::string()));
+      V_EXPECT_TRUE(
+          VerifySingleBrowserFrames(browser, NULL, true, std::string()));
     } else {
-      V_EXPECT_TRUE(VerifySingleBrowserFrames(browser, NULL, true,
-                                              kFrameNavOrigin0));
+      V_EXPECT_TRUE(
+          VerifySingleBrowserFrames(browser, NULL, true, kFrameNavOrigin0));
     }
     V_EXPECT_TRUE(parent::OnLoadingStateChange(browser, isLoading));
     V_RETURN();
@@ -1089,8 +1067,8 @@ class FrameNavExpectationsRendererTestSingleNav :
   bool OnLoadStart(CefRefPtr<CefBrowser> browser,
                    CefRefPtr<CefFrame> frame) override {
     V_DECLARE();
-    V_EXPECT_TRUE(VerifySingleBrowserFrames(browser, frame, true,
-                                            kFrameNavOrigin0));
+    V_EXPECT_TRUE(
+        VerifySingleBrowserFrames(browser, frame, true, kFrameNavOrigin0));
     V_EXPECT_TRUE(parent::OnLoadStart(browser, frame));
     V_RETURN();
   }
@@ -1098,33 +1076,25 @@ class FrameNavExpectationsRendererTestSingleNav :
   bool OnLoadEnd(CefRefPtr<CefBrowser> browser,
                  CefRefPtr<CefFrame> frame) override {
     V_DECLARE();
-    V_EXPECT_TRUE(VerifySingleBrowserFrames(browser, frame, true,
-                                            kFrameNavOrigin0));
+    V_EXPECT_TRUE(
+        VerifySingleBrowserFrames(browser, frame, true, kFrameNavOrigin0));
     V_EXPECT_TRUE(parent::OnLoadEnd(browser, frame));
     V_RETURN();
   }
 
-  bool Finalize() override {
-    return parent::Finalize();
-  }
+  bool Finalize() override { return parent::Finalize(); }
 };
 
-class FrameNavExpectationsFactoryBrowserTestSingleNav :
-    public FrameNavExpectationsFactoryBrowser {
+class FrameNavExpectationsFactoryBrowserTestSingleNav
+    : public FrameNavExpectationsFactoryBrowser {
  public:
   FrameNavExpectationsFactoryBrowserTestSingleNav() {}
 
-  FrameNavFactoryId GetID() const override {
-    return FNF_ID_SINGLE_NAV;
-  }
+  FrameNavFactoryId GetID() const override { return FNF_ID_SINGLE_NAV; }
 
-  bool HasMoreNavigations() const override {
-    return false;
-  }
+  bool HasMoreNavigations() const override { return false; }
 
-  bool Finalize() override {
-    return true;
-  }
+  bool Finalize() override { return true; }
 
  protected:
   scoped_ptr<FrameNavExpectationsBrowser> Create(int nav) override {
@@ -1133,14 +1103,12 @@ class FrameNavExpectationsFactoryBrowserTestSingleNav :
   }
 };
 
-class FrameNavExpectationsFactoryRendererTestSingleNav :
-    public FrameNavExpectationsFactoryRenderer {
+class FrameNavExpectationsFactoryRendererTestSingleNav
+    : public FrameNavExpectationsFactoryRenderer {
  public:
   FrameNavExpectationsFactoryRendererTestSingleNav() {}
 
-  FrameNavFactoryId GetID() const override {
-    return FNF_ID_SINGLE_NAV;
-  }
+  FrameNavFactoryId GetID() const override { return FNF_ID_SINGLE_NAV; }
 
  protected:
   scoped_ptr<FrameNavExpectationsRenderer> Create(int nav) override {
@@ -1154,23 +1122,20 @@ class FrameNavExpectationsFactoryRendererTestSingleNav :
 // Test that single navigation works.
 FRAME_TEST(SingleNav, FNF_ID_SINGLE_NAV)
 
-
 namespace {
 
 // Browser process expectations for a multiple navigations.
-class FrameNavExpectationsBrowserMultiNav :
-    public FrameNavExpectationsBrowser {
+class FrameNavExpectationsBrowserMultiNav : public FrameNavExpectationsBrowser {
  public:
   explicit FrameNavExpectationsBrowserMultiNav(int nav)
-    : FrameNavExpectationsBrowser(nav) {
-  }
+      : FrameNavExpectationsBrowser(nav) {}
 
   ~FrameNavExpectationsBrowserMultiNav() override {
     EXPECT_TRUE(got_finalize_);
   }
 
   // Returns true if all navigation is done.
-  virtual bool IsNavigationDone() const =0;
+  virtual bool IsNavigationDone() const = 0;
 
   bool OnLoadingStateChange(CefRefPtr<CefBrowser> browser,
                             bool isLoading) override {
@@ -1212,19 +1177,18 @@ class FrameNavExpectationsBrowserMultiNav :
 };
 
 // Renderer process expectations for a multiple navigations.
-class FrameNavExpectationsRendererMultiNav :
-    public FrameNavExpectationsRenderer {
+class FrameNavExpectationsRendererMultiNav
+    : public FrameNavExpectationsRenderer {
  public:
   explicit FrameNavExpectationsRendererMultiNav(int nav)
-    : FrameNavExpectationsRenderer(nav) {
-  }
+      : FrameNavExpectationsRenderer(nav) {}
 
   ~FrameNavExpectationsRendererMultiNav() override {
     EXPECT_TRUE(got_finalize_);
   }
 
   // Returns true if all navigation is done.
-  virtual bool IsNavigationDone() const =0;
+  virtual bool IsNavigationDone() const = 0;
 
   bool OnLoadingStateChange(CefRefPtr<CefBrowser> browser,
                             bool isLoading) override {
@@ -1257,7 +1221,6 @@ class FrameNavExpectationsRendererMultiNav :
   TrackCallback got_finalize_;
 };
 
-
 // Create a URL containing the nav number.
 std::string GetMultiNavURL(const std::string& origin, int nav) {
   std::stringstream ss;
@@ -1282,15 +1245,13 @@ std::string GetOriginFromMultiNavURL(const std::string& url) {
 }
 
 // Test that the multi nav harness works.
-class FrameNavExpectationsBrowserTestMultiNavHarness :
-    public FrameNavExpectationsBrowserMultiNav {
+class FrameNavExpectationsBrowserTestMultiNavHarness
+    : public FrameNavExpectationsBrowserMultiNav {
  public:
   typedef FrameNavExpectationsBrowserMultiNav parent;
 
   explicit FrameNavExpectationsBrowserTestMultiNavHarness(int nav)
-    : parent(nav),
-      navigation_done_count_(0) {
-  }
+      : parent(nav), navigation_done_count_(0) {}
 
   ~FrameNavExpectationsBrowserTestMultiNavHarness() override {
     EXPECT_TRUE(got_finalize_);
@@ -1377,15 +1338,13 @@ class FrameNavExpectationsBrowserTestMultiNavHarness :
   TrackCallback got_finalize_;
 };
 
-class FrameNavExpectationsRendererTestMultiNavHarness :
-    public FrameNavExpectationsRendererMultiNav {
+class FrameNavExpectationsRendererTestMultiNavHarness
+    : public FrameNavExpectationsRendererMultiNav {
  public:
   typedef FrameNavExpectationsRendererMultiNav parent;
 
   explicit FrameNavExpectationsRendererTestMultiNavHarness(int nav)
-    : parent(nav),
-      navigation_done_count_(0) {
-  }
+      : parent(nav), navigation_done_count_(0) {}
 
   ~FrameNavExpectationsRendererTestMultiNavHarness() override {
     EXPECT_TRUE(got_finalize_);
@@ -1431,20 +1390,17 @@ class FrameNavExpectationsRendererTestMultiNavHarness :
   TrackCallback got_finalize_;
 };
 
-class FrameNavExpectationsFactoryBrowserTestMultiNavHarness :
-    public FrameNavExpectationsFactoryBrowser {
+class FrameNavExpectationsFactoryBrowserTestMultiNavHarness
+    : public FrameNavExpectationsFactoryBrowser {
  public:
   FrameNavExpectationsFactoryBrowserTestMultiNavHarness()
-    : get_browser_navigation_count_(0),
-      create_count_(0) {}
+      : get_browser_navigation_count_(0), create_count_(0) {}
 
   ~FrameNavExpectationsFactoryBrowserTestMultiNavHarness() override {
     EXPECT_TRUE(got_finalize_);
   }
 
-  FrameNavFactoryId GetID() const override {
-    return FNF_ID_MULTI_NAV_HARNESS;
-  }
+  FrameNavFactoryId GetID() const override { return FNF_ID_MULTI_NAV_HARNESS; }
 
   bool HasMoreNavigations() const override {
     get_browser_navigation_count_++;
@@ -1474,14 +1430,12 @@ class FrameNavExpectationsFactoryBrowserTestMultiNavHarness :
   TrackCallback got_finalize_;
 };
 
-class FrameNavExpectationsFactoryRendererTestMultiNavHarness :
-    public FrameNavExpectationsFactoryRenderer {
+class FrameNavExpectationsFactoryRendererTestMultiNavHarness
+    : public FrameNavExpectationsFactoryRenderer {
  public:
   FrameNavExpectationsFactoryRendererTestMultiNavHarness() {}
 
-  FrameNavFactoryId GetID() const override {
-    return FNF_ID_MULTI_NAV_HARNESS;
-  }
+  FrameNavFactoryId GetID() const override { return FNF_ID_MULTI_NAV_HARNESS; }
 
  protected:
   scoped_ptr<FrameNavExpectationsRenderer> Create(int nav) override {
@@ -1495,18 +1449,15 @@ class FrameNavExpectationsFactoryRendererTestMultiNavHarness :
 // Test that the multiple nav harness works.
 FRAME_TEST(MultiNavHarness, FNF_ID_MULTI_NAV_HARNESS)
 
-
 namespace {
 
 // Test that multiple navigation works.
-class FrameNavExpectationsBrowserTestMultiNav :
-    public FrameNavExpectationsBrowserMultiNav {
+class FrameNavExpectationsBrowserTestMultiNav
+    : public FrameNavExpectationsBrowserMultiNav {
  public:
   typedef FrameNavExpectationsBrowserMultiNav parent;
 
-  explicit FrameNavExpectationsBrowserTestMultiNav(int nav)
-    : parent(nav) {
-  }
+  explicit FrameNavExpectationsBrowserTestMultiNav(int nav) : parent(nav) {}
 
   std::string GetMainURL() override {
     return GetMultiNavURL(kFrameNavOrigin0, nav());
@@ -1528,15 +1479,15 @@ class FrameNavExpectationsBrowserTestMultiNav :
     V_DECLARE();
     // A frame should exist in all cases except for the very first load.
     if (isLoading && nav() == 0) {
-      V_EXPECT_TRUE(VerifySingleBrowserFrames(browser, NULL, false,
-                                              std::string()));
+      V_EXPECT_TRUE(
+          VerifySingleBrowserFrames(browser, NULL, false, std::string()));
     } else if (isLoading) {
       // Expect the URL from the previous load.
-      V_EXPECT_TRUE(VerifySingleBrowserFrames(browser, NULL, true,
-                                              GetPreviousMainURL()));
+      V_EXPECT_TRUE(
+          VerifySingleBrowserFrames(browser, NULL, true, GetPreviousMainURL()));
     } else {
-      V_EXPECT_TRUE(VerifySingleBrowserFrames(browser, NULL, true,
-                                              GetMainURL()));
+      V_EXPECT_TRUE(
+          VerifySingleBrowserFrames(browser, NULL, true, GetMainURL()));
     }
     V_EXPECT_TRUE(parent::OnLoadingStateChange(browser, isLoading));
     V_RETURN();
@@ -1545,8 +1496,8 @@ class FrameNavExpectationsBrowserTestMultiNav :
   bool OnLoadStart(CefRefPtr<CefBrowser> browser,
                    CefRefPtr<CefFrame> frame) override {
     V_DECLARE();
-    V_EXPECT_TRUE(VerifySingleBrowserFrames(browser, frame, true,
-                                            GetMainURL()));
+    V_EXPECT_TRUE(
+        VerifySingleBrowserFrames(browser, frame, true, GetMainURL()));
     V_EXPECT_TRUE(parent::OnLoadStart(browser, frame));
     V_RETURN();
   }
@@ -1555,16 +1506,16 @@ class FrameNavExpectationsBrowserTestMultiNav :
                  CefRefPtr<CefFrame> frame) override {
     got_load_end_.yes();
     V_DECLARE();
-    V_EXPECT_TRUE(VerifySingleBrowserFrames(browser, frame, true,
-                                            GetMainURL()));
+    V_EXPECT_TRUE(
+        VerifySingleBrowserFrames(browser, frame, true, GetMainURL()));
     V_EXPECT_TRUE(parent::OnLoadEnd(browser, frame));
     V_RETURN();
   }
 
   bool OnAfterCreated(CefRefPtr<CefBrowser> browser) override {
     V_DECLARE();
-    V_EXPECT_TRUE(VerifySingleBrowserFrames(browser, NULL, false,
-                                            std::string()));
+    V_EXPECT_TRUE(
+        VerifySingleBrowserFrames(browser, NULL, false, std::string()));
     V_EXPECT_TRUE(parent::OnAfterCreated(browser));
     V_RETURN();
   }
@@ -1576,8 +1527,8 @@ class FrameNavExpectationsBrowserTestMultiNav :
     std::string expected_url;
     if (nav() > 0)
       expected_url = GetPreviousMainURL();
-    V_EXPECT_TRUE(VerifySingleBrowserFrames(browser, frame, true,
-                                            expected_url));
+    V_EXPECT_TRUE(
+        VerifySingleBrowserFrames(browser, frame, true, expected_url));
     V_EXPECT_TRUE(parent::OnBeforeBrowse(browser, frame, url));
     V_RETURN();
   }
@@ -1588,8 +1539,8 @@ class FrameNavExpectationsBrowserTestMultiNav :
     std::string expected_url;
     if (nav() > 0)
       expected_url = GetPreviousMainURL();
-    V_EXPECT_TRUE(VerifySingleBrowserFrames(browser, frame, true,
-                                            expected_url));
+    V_EXPECT_TRUE(
+        VerifySingleBrowserFrames(browser, frame, true, expected_url));
     V_EXPECT_TRUE(parent::GetResourceHandler(browser, frame));
     V_RETURN();
   }
@@ -1600,8 +1551,8 @@ class FrameNavExpectationsBrowserTestMultiNav :
     got_renderer_complete_.yes();
     V_DECLARE();
     V_EXPECT_TRUE(nav() == renderer_nav);
-    V_EXPECT_TRUE(parent::OnRendererComplete(browser, renderer_nav,
-                                             renderer_result));
+    V_EXPECT_TRUE(
+        parent::OnRendererComplete(browser, renderer_nav, renderer_result));
     V_RETURN();
   }
 
@@ -1626,14 +1577,12 @@ class FrameNavExpectationsBrowserTestMultiNav :
   TrackCallback got_renderer_complete_;
 };
 
-class FrameNavExpectationsRendererTestMultiNav :
-    public FrameNavExpectationsRendererMultiNav {
+class FrameNavExpectationsRendererTestMultiNav
+    : public FrameNavExpectationsRendererMultiNav {
  public:
   typedef FrameNavExpectationsRendererMultiNav parent;
 
-  explicit FrameNavExpectationsRendererTestMultiNav(int nav)
-    : parent(nav) {
-  }
+  explicit FrameNavExpectationsRendererTestMultiNav(int nav) : parent(nav) {}
 
   bool IsNavigationDone() const override {
     return got_load_state_change_done_ && got_load_end_;
@@ -1649,11 +1598,11 @@ class FrameNavExpectationsRendererTestMultiNav :
       std::string expected_url;
       if (nav() > 0)
         expected_url = GetPreviousMainURL();
-      V_EXPECT_TRUE(VerifySingleBrowserFrames(browser, NULL, true,
-                                              expected_url));
+      V_EXPECT_TRUE(
+          VerifySingleBrowserFrames(browser, NULL, true, expected_url));
     } else {
-      V_EXPECT_TRUE(VerifySingleBrowserFrames(browser, NULL, true,
-                                              GetMainURL()));
+      V_EXPECT_TRUE(
+          VerifySingleBrowserFrames(browser, NULL, true, GetMainURL()));
     }
     V_EXPECT_TRUE(parent::OnLoadingStateChange(browser, isLoading));
     V_RETURN();
@@ -1662,8 +1611,8 @@ class FrameNavExpectationsRendererTestMultiNav :
   bool OnLoadStart(CefRefPtr<CefBrowser> browser,
                    CefRefPtr<CefFrame> frame) override {
     V_DECLARE();
-    V_EXPECT_TRUE(VerifySingleBrowserFrames(browser, frame, true,
-                                            GetMainURL()));
+    V_EXPECT_TRUE(
+        VerifySingleBrowserFrames(browser, frame, true, GetMainURL()));
     V_EXPECT_TRUE(parent::OnLoadStart(browser, frame));
     V_RETURN();
   }
@@ -1672,8 +1621,8 @@ class FrameNavExpectationsRendererTestMultiNav :
                  CefRefPtr<CefFrame> frame) override {
     got_load_end_.yes();
     V_DECLARE();
-    V_EXPECT_TRUE(VerifySingleBrowserFrames(browser, frame, true,
-                                            GetMainURL()));
+    V_EXPECT_TRUE(
+        VerifySingleBrowserFrames(browser, frame, true, GetMainURL()));
     V_EXPECT_TRUE(parent::OnLoadEnd(browser, frame));
     V_RETURN();
   }
@@ -1700,15 +1649,12 @@ class FrameNavExpectationsRendererTestMultiNav :
   TrackCallback got_load_end_;
 };
 
-class FrameNavExpectationsFactoryBrowserTestMultiNav :
-    public FrameNavExpectationsFactoryBrowser {
+class FrameNavExpectationsFactoryBrowserTestMultiNav
+    : public FrameNavExpectationsFactoryBrowser {
  public:
-  FrameNavExpectationsFactoryBrowserTestMultiNav()
-    : nav_count_(0) {}
+  FrameNavExpectationsFactoryBrowserTestMultiNav() : nav_count_(0) {}
 
-  FrameNavFactoryId GetID() const override {
-    return FNF_ID_MULTI_NAV;
-  }
+  FrameNavFactoryId GetID() const override { return FNF_ID_MULTI_NAV; }
 
   bool HasMoreNavigations() const override {
     return (nav_count_ < kMaxMultiNavNavigations);
@@ -1731,14 +1677,12 @@ class FrameNavExpectationsFactoryBrowserTestMultiNav :
   int nav_count_;
 };
 
-class FrameNavExpectationsFactoryRendererTestMultiNav :
-    public FrameNavExpectationsFactoryRenderer {
+class FrameNavExpectationsFactoryRendererTestMultiNav
+    : public FrameNavExpectationsFactoryRenderer {
  public:
   FrameNavExpectationsFactoryRendererTestMultiNav() {}
 
-  FrameNavFactoryId GetID() const override {
-    return FNF_ID_MULTI_NAV;
-  }
+  FrameNavFactoryId GetID() const override { return FNF_ID_MULTI_NAV; }
 
  protected:
   scoped_ptr<FrameNavExpectationsRenderer> Create(int nav) override {
@@ -1751,7 +1695,6 @@ class FrameNavExpectationsFactoryRendererTestMultiNav :
 
 // Test that multiple navigation works.
 FRAME_TEST(MultiNav, FNF_ID_MULTI_NAV)
-
 
 namespace {
 
@@ -1799,7 +1742,7 @@ bool VerifyBrowserIframe(CefRefPtr<CefBrowser> browser,
   V_EXPECT_TRUE(frame1id > 0);
   frame2id = frame2->GetIdentifier();
   V_EXPECT_TRUE(frame2id > 0);
-  
+
   // Verify that the current frame has the correct id.
   if (frame_number == 0) {
     V_EXPECT_TRUE(frame->GetIdentifier() == frame0id);
@@ -1850,31 +1793,32 @@ bool VerifyBrowserIframe(CefRefPtr<CefBrowser> browser,
 }
 
 // Test that nested iframes work.
-class FrameNavExpectationsBrowserTestNestedIframes :
-    public FrameNavExpectationsBrowserMultiNav {
+class FrameNavExpectationsBrowserTestNestedIframes
+    : public FrameNavExpectationsBrowserMultiNav {
  public:
   typedef FrameNavExpectationsBrowserMultiNav parent;
 
   FrameNavExpectationsBrowserTestNestedIframes(int nav, bool same_origin)
-    : parent(nav),
-      same_origin_(same_origin) {
+      : parent(nav), same_origin_(same_origin) {
     // In the browser process we can rely on the |nav| value to determine the
     // origin.
     if (same_origin) {
       origin_ = kFrameNavOrigin0;
-    } else switch (nav) {
-      case 0:
-        origin_ = kFrameNavOrigin0;
-        break;
-      case 1:
-        origin_ = kFrameNavOrigin1;
-        break;
-      case 2:
-        origin_ = kFrameNavOrigin2;
-        break;
-      default:
-        EXPECT_TRUE(false);  // Not reached.
-        break;
+    } else {
+      switch (nav) {
+        case 0:
+          origin_ = kFrameNavOrigin0;
+          break;
+        case 1:
+          origin_ = kFrameNavOrigin1;
+          break;
+        case 2:
+          origin_ = kFrameNavOrigin2;
+          break;
+        default:
+          EXPECT_TRUE(false);  // Not reached.
+          break;
+      }
     }
   }
 
@@ -1888,13 +1832,11 @@ class FrameNavExpectationsBrowserTestNestedIframes :
     switch (frame_number) {
       case 0:
         // Frame 0. Contains a named iframe.
-        return "<html><body>Nav1<iframe src=\"" +
-               GetMultiNavURL(origin_, 1) +
+        return "<html><body>Nav1<iframe src=\"" + GetMultiNavURL(origin_, 1) +
                "\" name=\"nav2\"></body></html>";
       case 1:
         // Frame 1. Contains an unnamed iframe.
-        return "<html><body>Nav2<iframe src=\"" +
-               GetMultiNavURL(origin_, 2) +
+        return "<html><body>Nav2<iframe src=\"" + GetMultiNavURL(origin_, 2) +
                "\"></body></html>";
       case 2:
         // Frame 2.
@@ -1990,8 +1932,8 @@ class FrameNavExpectationsBrowserTestNestedIframes :
       V_EXPECT_TRUE(false);  // Not reached.
     }
 
-    V_EXPECT_TRUE(VerifyBrowserIframe(browser, frame, origin_, frame_number)) <<
-        "frame_number = " << frame_number;
+    V_EXPECT_TRUE(VerifyBrowserIframe(browser, frame, origin_, frame_number))
+        << "frame_number = " << frame_number;
 
     got_load_end_[frame_number].yes();
 
@@ -2012,9 +1954,9 @@ class FrameNavExpectationsBrowserTestNestedIframes :
     }
 
     got_renderer_complete_.yes();
-    
-    V_EXPECT_TRUE(parent::OnRendererComplete(browser, renderer_nav,
-                                             renderer_result));
+
+    V_EXPECT_TRUE(
+        parent::OnRendererComplete(browser, renderer_nav, renderer_result));
     V_RETURN();
   }
 
@@ -2042,20 +1984,20 @@ class FrameNavExpectationsBrowserTestNestedIframes :
   TrackCallback got_renderer_complete_;
 };
 
-class FrameNavExpectationsRendererTestNestedIframes :
-    public FrameNavExpectationsRendererMultiNav {
+class FrameNavExpectationsRendererTestNestedIframes
+    : public FrameNavExpectationsRendererMultiNav {
  public:
   typedef FrameNavExpectationsRendererMultiNav parent;
 
   FrameNavExpectationsRendererTestNestedIframes(int nav, bool same_origin)
-    : parent(nav) {
+      : parent(nav) {
     if (same_origin)
       origin_ = kFrameNavOrigin0;
   }
 
   bool IsNavigationDone() const override {
-    return got_load_state_change_done_ &&
-           got_load_end_[0] && got_load_end_[1] && got_load_end_[2];
+    return got_load_state_change_done_ && got_load_end_[0] &&
+           got_load_end_[1] && got_load_end_[2];
   }
 
   bool OnLoadingStateChange(CefRefPtr<CefBrowser> browser,
@@ -2124,8 +2066,8 @@ class FrameNavExpectationsRendererTestNestedIframes :
       V_EXPECT_FALSE(got_load_end_[1]);
     }
 
-    V_EXPECT_TRUE(VerifyBrowserIframe(browser, frame, origin_, frame_number)) <<
-        "frame_number = " << frame_number;
+    V_EXPECT_TRUE(VerifyBrowserIframe(browser, frame, origin_, frame_number))
+        << "frame_number = " << frame_number;
 
     got_load_end_[frame_number].yes();
 
@@ -2154,11 +2096,11 @@ class FrameNavExpectationsRendererTestNestedIframes :
   TrackCallback got_load_end_[3];
 };
 
-class FrameNavExpectationsFactoryBrowserTestNestedIframesSameOrigin :
-    public FrameNavExpectationsFactoryBrowser {
+class FrameNavExpectationsFactoryBrowserTestNestedIframesSameOrigin
+    : public FrameNavExpectationsFactoryBrowser {
  public:
   FrameNavExpectationsFactoryBrowserTestNestedIframesSameOrigin()
-    : create_count_(0) {}
+      : create_count_(0) {}
 
   FrameNavFactoryId GetID() const override {
     return FNF_ID_NESTED_IFRAMES_SAME_ORIGIN;
@@ -2185,8 +2127,8 @@ class FrameNavExpectationsFactoryBrowserTestNestedIframesSameOrigin :
   int create_count_;
 };
 
-class FrameNavExpectationsFactoryRendererTestNestedIframesSameOrigin :
-    public FrameNavExpectationsFactoryRenderer {
+class FrameNavExpectationsFactoryRendererTestNestedIframesSameOrigin
+    : public FrameNavExpectationsFactoryRenderer {
  public:
   FrameNavExpectationsFactoryRendererTestNestedIframesSameOrigin() {}
 
@@ -2197,7 +2139,7 @@ class FrameNavExpectationsFactoryRendererTestNestedIframesSameOrigin :
  protected:
   scoped_ptr<FrameNavExpectationsRenderer> Create(int nav) override {
     return scoped_ptr<FrameNavExpectationsRenderer>(
-        new FrameNavExpectationsRendererTestNestedIframes(nav,  true));
+        new FrameNavExpectationsRendererTestNestedIframes(nav, true));
   }
 };
 
@@ -2206,14 +2148,13 @@ class FrameNavExpectationsFactoryRendererTestNestedIframesSameOrigin :
 // Test that nested iframes work.
 FRAME_TEST(NestedIframesSameOrigin, FNF_ID_NESTED_IFRAMES_SAME_ORIGIN)
 
-
 namespace {
 
-class FrameNavExpectationsFactoryBrowserTestNestedIframesDiffOrigin :
-    public FrameNavExpectationsFactoryBrowser {
+class FrameNavExpectationsFactoryBrowserTestNestedIframesDiffOrigin
+    : public FrameNavExpectationsFactoryBrowser {
  public:
   FrameNavExpectationsFactoryBrowserTestNestedIframesDiffOrigin()
-    : create_count_(0) {}
+      : create_count_(0) {}
 
   FrameNavFactoryId GetID() const override {
     return FNF_ID_NESTED_IFRAMES_DIFF_ORIGIN;
@@ -2240,8 +2181,8 @@ class FrameNavExpectationsFactoryBrowserTestNestedIframesDiffOrigin :
   int create_count_;
 };
 
-class FrameNavExpectationsFactoryRendererTestNestedIframesDiffOrigin :
-    public FrameNavExpectationsFactoryRenderer {
+class FrameNavExpectationsFactoryRendererTestNestedIframesDiffOrigin
+    : public FrameNavExpectationsFactoryRenderer {
  public:
   FrameNavExpectationsFactoryRendererTestNestedIframesDiffOrigin() {}
 
@@ -2261,7 +2202,6 @@ class FrameNavExpectationsFactoryRendererTestNestedIframesDiffOrigin :
 // Test that nested iframes work.
 FRAME_TEST(NestedIframesDiffOrigin, FNF_ID_NESTED_IFRAMES_DIFF_ORIGIN)
 
-
 namespace {
 
 // Returns a new factory in the browser or renderer process. All factory types
@@ -2269,7 +2209,7 @@ namespace {
 
 // static
 scoped_ptr<FrameNavExpectationsFactoryBrowser>
-    FrameNavExpectationsFactoryBrowser::FromID(FrameNavFactoryId id) {
+FrameNavExpectationsFactoryBrowser::FromID(FrameNavFactoryId id) {
   scoped_ptr<FrameNavExpectationsFactoryBrowser> factory;
   switch (id) {
     case FNF_ID_SINGLE_NAV_HARNESS:
@@ -2302,7 +2242,7 @@ scoped_ptr<FrameNavExpectationsFactoryBrowser>
 
 // static
 scoped_ptr<FrameNavExpectationsFactoryRenderer>
-    FrameNavExpectationsFactoryRenderer::FromID(FrameNavFactoryId id) {
+FrameNavExpectationsFactoryRenderer::FromID(FrameNavFactoryId id) {
   scoped_ptr<FrameNavExpectationsFactoryRenderer> factory;
   switch (id) {
     case FNF_ID_SINGLE_NAV_HARNESS:
@@ -2335,7 +2275,6 @@ scoped_ptr<FrameNavExpectationsFactoryRenderer>
 }
 
 }  // namespace
-
 
 // Entry point for creating frame browser test objects.
 // Called from client_app_delegates.cc.

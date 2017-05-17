@@ -9,6 +9,8 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=53be4f879079c7799cd42536e7e16e9b9d7a81a8$
+//
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_VIEWS_VIEW_DELEGATE_CTOCPP_H_
 #define CEF_LIBCEF_DLL_CTOCPP_VIEWS_VIEW_DELEGATE_CTOCPP_H_
@@ -18,17 +20,17 @@
 #error This file can be included DLL-side only
 #endif
 
-#include "include/views/cef_view_delegate.h"
+#include "include/capi/views/cef_view_capi.h"
 #include "include/capi/views/cef_view_delegate_capi.h"
 #include "include/views/cef_view.h"
-#include "include/capi/views/cef_view_capi.h"
+#include "include/views/cef_view_delegate.h"
 #include "libcef_dll/ctocpp/ctocpp_ref_counted.h"
 
 // Wrap a C structure with a C++ class.
 // This class may be instantiated and accessed DLL-side only.
-class CefViewDelegateCToCpp
-    : public CefCToCppRefCounted<CefViewDelegateCToCpp, CefViewDelegate,
-        cef_view_delegate_t> {
+class CefViewDelegateCToCpp : public CefCToCppRefCounted<CefViewDelegateCToCpp,
+                                                         CefViewDelegate,
+                                                         cef_view_delegate_t> {
  public:
   CefViewDelegateCToCpp();
 
@@ -37,10 +39,12 @@ class CefViewDelegateCToCpp
   CefSize GetMinimumSize(CefRefPtr<CefView> view) override;
   CefSize GetMaximumSize(CefRefPtr<CefView> view) override;
   int GetHeightForWidth(CefRefPtr<CefView> view, int width) override;
-  void OnParentViewChanged(CefRefPtr<CefView> view, bool added,
-      CefRefPtr<CefView> parent) override;
-  void OnChildViewChanged(CefRefPtr<CefView> view, bool added,
-      CefRefPtr<CefView> child) override;
+  void OnParentViewChanged(CefRefPtr<CefView> view,
+                           bool added,
+                           CefRefPtr<CefView> parent) override;
+  void OnChildViewChanged(CefRefPtr<CefView> view,
+                          bool added,
+                          CefRefPtr<CefView> child) override;
   void OnFocus(CefRefPtr<CefView> view) override;
   void OnBlur(CefRefPtr<CefView> view) override;
 };

@@ -22,8 +22,8 @@ class CefDevToolsManagerDelegate : public content::DevToolsManagerDelegate {
   ~CefDevToolsManagerDelegate() override;
 
   // DevToolsManagerDelegate implementation.
-  scoped_refptr<content::DevToolsAgentHost> CreateNewTarget(const GURL& url)
-      override;
+  scoped_refptr<content::DevToolsAgentHost> CreateNewTarget(
+      const GURL& url) override;
   std::string GetDiscoveryPageHTML() override;
   std::string GetFrontendResource(const std::string& path) override;
 

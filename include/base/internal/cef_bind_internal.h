@@ -125,17 +125,13 @@ class RunnableAdapter;
 
 // Function: Arity 0.
 template <typename R>
-class RunnableAdapter<R(*)()> {
+class RunnableAdapter<R (*)()> {
  public:
-  typedef R (RunType)();
+  typedef R(RunType)();
 
-  explicit RunnableAdapter(R(*function)())
-      : function_(function) {
-  }
+  explicit RunnableAdapter(R (*function)()) : function_(function) {}
 
-  R Run() {
-    return function_();
-  }
+  R Run() { return function_(); }
 
  private:
   R (*function_)();
@@ -143,18 +139,14 @@ class RunnableAdapter<R(*)()> {
 
 // Method: Arity 0.
 template <typename R, typename T>
-class RunnableAdapter<R(T::*)()> {
+class RunnableAdapter<R (T::*)()> {
  public:
-  typedef R (RunType)(T*);
+  typedef R(RunType)(T*);
   typedef true_type IsMethod;
 
-  explicit RunnableAdapter(R(T::*method)())
-      : method_(method) {
-  }
+  explicit RunnableAdapter(R (T::*method)()) : method_(method) {}
 
-  R Run(T* object) {
-    return (object->*method_)();
-  }
+  R Run(T* object) { return (object->*method_)(); }
 
  private:
   R (T::*method_)();
@@ -162,18 +154,14 @@ class RunnableAdapter<R(T::*)()> {
 
 // Const Method: Arity 0.
 template <typename R, typename T>
-class RunnableAdapter<R(T::*)() const> {
+class RunnableAdapter<R (T::*)() const> {
  public:
-  typedef R (RunType)(const T*);
+  typedef R(RunType)(const T*);
   typedef true_type IsMethod;
 
-  explicit RunnableAdapter(R(T::*method)() const)
-      : method_(method) {
-  }
+  explicit RunnableAdapter(R (T::*method)() const) : method_(method) {}
 
-  R Run(const T* object) {
-    return (object->*method_)();
-  }
+  R Run(const T* object) { return (object->*method_)(); }
 
  private:
   R (T::*method_)() const;
@@ -181,13 +169,11 @@ class RunnableAdapter<R(T::*)() const> {
 
 // Function: Arity 1.
 template <typename R, typename A1>
-class RunnableAdapter<R(*)(A1)> {
+class RunnableAdapter<R (*)(A1)> {
  public:
-  typedef R (RunType)(A1);
+  typedef R(RunType)(A1);
 
-  explicit RunnableAdapter(R(*function)(A1))
-      : function_(function) {
-  }
+  explicit RunnableAdapter(R (*function)(A1)) : function_(function) {}
 
   R Run(typename CallbackParamTraits<A1>::ForwardType a1) {
     return function_(CallbackForward(a1));
@@ -199,14 +185,12 @@ class RunnableAdapter<R(*)(A1)> {
 
 // Method: Arity 1.
 template <typename R, typename T, typename A1>
-class RunnableAdapter<R(T::*)(A1)> {
+class RunnableAdapter<R (T::*)(A1)> {
  public:
-  typedef R (RunType)(T*, A1);
+  typedef R(RunType)(T*, A1);
   typedef true_type IsMethod;
 
-  explicit RunnableAdapter(R(T::*method)(A1))
-      : method_(method) {
-  }
+  explicit RunnableAdapter(R (T::*method)(A1)) : method_(method) {}
 
   R Run(T* object, typename CallbackParamTraits<A1>::ForwardType a1) {
     return (object->*method_)(CallbackForward(a1));
@@ -218,14 +202,12 @@ class RunnableAdapter<R(T::*)(A1)> {
 
 // Const Method: Arity 1.
 template <typename R, typename T, typename A1>
-class RunnableAdapter<R(T::*)(A1) const> {
+class RunnableAdapter<R (T::*)(A1) const> {
  public:
-  typedef R (RunType)(const T*, A1);
+  typedef R(RunType)(const T*, A1);
   typedef true_type IsMethod;
 
-  explicit RunnableAdapter(R(T::*method)(A1) const)
-      : method_(method) {
-  }
+  explicit RunnableAdapter(R (T::*method)(A1) const) : method_(method) {}
 
   R Run(const T* object, typename CallbackParamTraits<A1>::ForwardType a1) {
     return (object->*method_)(CallbackForward(a1));
@@ -237,16 +219,14 @@ class RunnableAdapter<R(T::*)(A1) const> {
 
 // Function: Arity 2.
 template <typename R, typename A1, typename A2>
-class RunnableAdapter<R(*)(A1, A2)> {
+class RunnableAdapter<R (*)(A1, A2)> {
  public:
-  typedef R (RunType)(A1, A2);
+  typedef R(RunType)(A1, A2);
 
-  explicit RunnableAdapter(R(*function)(A1, A2))
-      : function_(function) {
-  }
+  explicit RunnableAdapter(R (*function)(A1, A2)) : function_(function) {}
 
   R Run(typename CallbackParamTraits<A1>::ForwardType a1,
-      typename CallbackParamTraits<A2>::ForwardType a2) {
+        typename CallbackParamTraits<A2>::ForwardType a2) {
     return function_(CallbackForward(a1), CallbackForward(a2));
   }
 
@@ -256,17 +236,16 @@ class RunnableAdapter<R(*)(A1, A2)> {
 
 // Method: Arity 2.
 template <typename R, typename T, typename A1, typename A2>
-class RunnableAdapter<R(T::*)(A1, A2)> {
+class RunnableAdapter<R (T::*)(A1, A2)> {
  public:
-  typedef R (RunType)(T*, A1, A2);
+  typedef R(RunType)(T*, A1, A2);
   typedef true_type IsMethod;
 
-  explicit RunnableAdapter(R(T::*method)(A1, A2))
-      : method_(method) {
-  }
+  explicit RunnableAdapter(R (T::*method)(A1, A2)) : method_(method) {}
 
-  R Run(T* object, typename CallbackParamTraits<A1>::ForwardType a1,
-      typename CallbackParamTraits<A2>::ForwardType a2) {
+  R Run(T* object,
+        typename CallbackParamTraits<A1>::ForwardType a1,
+        typename CallbackParamTraits<A2>::ForwardType a2) {
     return (object->*method_)(CallbackForward(a1), CallbackForward(a2));
   }
 
@@ -276,17 +255,16 @@ class RunnableAdapter<R(T::*)(A1, A2)> {
 
 // Const Method: Arity 2.
 template <typename R, typename T, typename A1, typename A2>
-class RunnableAdapter<R(T::*)(A1, A2) const> {
+class RunnableAdapter<R (T::*)(A1, A2) const> {
  public:
-  typedef R (RunType)(const T*, A1, A2);
+  typedef R(RunType)(const T*, A1, A2);
   typedef true_type IsMethod;
 
-  explicit RunnableAdapter(R(T::*method)(A1, A2) const)
-      : method_(method) {
-  }
+  explicit RunnableAdapter(R (T::*method)(A1, A2) const) : method_(method) {}
 
-  R Run(const T* object, typename CallbackParamTraits<A1>::ForwardType a1,
-      typename CallbackParamTraits<A2>::ForwardType a2) {
+  R Run(const T* object,
+        typename CallbackParamTraits<A1>::ForwardType a1,
+        typename CallbackParamTraits<A2>::ForwardType a2) {
     return (object->*method_)(CallbackForward(a1), CallbackForward(a2));
   }
 
@@ -296,19 +274,17 @@ class RunnableAdapter<R(T::*)(A1, A2) const> {
 
 // Function: Arity 3.
 template <typename R, typename A1, typename A2, typename A3>
-class RunnableAdapter<R(*)(A1, A2, A3)> {
+class RunnableAdapter<R (*)(A1, A2, A3)> {
  public:
-  typedef R (RunType)(A1, A2, A3);
+  typedef R(RunType)(A1, A2, A3);
 
-  explicit RunnableAdapter(R(*function)(A1, A2, A3))
-      : function_(function) {
-  }
+  explicit RunnableAdapter(R (*function)(A1, A2, A3)) : function_(function) {}
 
   R Run(typename CallbackParamTraits<A1>::ForwardType a1,
-      typename CallbackParamTraits<A2>::ForwardType a2,
-      typename CallbackParamTraits<A3>::ForwardType a3) {
+        typename CallbackParamTraits<A2>::ForwardType a2,
+        typename CallbackParamTraits<A3>::ForwardType a3) {
     return function_(CallbackForward(a1), CallbackForward(a2),
-        CallbackForward(a3));
+                     CallbackForward(a3));
   }
 
  private:
@@ -317,20 +293,19 @@ class RunnableAdapter<R(*)(A1, A2, A3)> {
 
 // Method: Arity 3.
 template <typename R, typename T, typename A1, typename A2, typename A3>
-class RunnableAdapter<R(T::*)(A1, A2, A3)> {
+class RunnableAdapter<R (T::*)(A1, A2, A3)> {
  public:
-  typedef R (RunType)(T*, A1, A2, A3);
+  typedef R(RunType)(T*, A1, A2, A3);
   typedef true_type IsMethod;
 
-  explicit RunnableAdapter(R(T::*method)(A1, A2, A3))
-      : method_(method) {
-  }
+  explicit RunnableAdapter(R (T::*method)(A1, A2, A3)) : method_(method) {}
 
-  R Run(T* object, typename CallbackParamTraits<A1>::ForwardType a1,
-      typename CallbackParamTraits<A2>::ForwardType a2,
-      typename CallbackParamTraits<A3>::ForwardType a3) {
+  R Run(T* object,
+        typename CallbackParamTraits<A1>::ForwardType a1,
+        typename CallbackParamTraits<A2>::ForwardType a2,
+        typename CallbackParamTraits<A3>::ForwardType a3) {
     return (object->*method_)(CallbackForward(a1), CallbackForward(a2),
-        CallbackForward(a3));
+                              CallbackForward(a3));
   }
 
  private:
@@ -339,20 +314,20 @@ class RunnableAdapter<R(T::*)(A1, A2, A3)> {
 
 // Const Method: Arity 3.
 template <typename R, typename T, typename A1, typename A2, typename A3>
-class RunnableAdapter<R(T::*)(A1, A2, A3) const> {
+class RunnableAdapter<R (T::*)(A1, A2, A3) const> {
  public:
-  typedef R (RunType)(const T*, A1, A2, A3);
+  typedef R(RunType)(const T*, A1, A2, A3);
   typedef true_type IsMethod;
 
-  explicit RunnableAdapter(R(T::*method)(A1, A2, A3) const)
-      : method_(method) {
-  }
+  explicit RunnableAdapter(R (T::*method)(A1, A2, A3) const)
+      : method_(method) {}
 
-  R Run(const T* object, typename CallbackParamTraits<A1>::ForwardType a1,
-      typename CallbackParamTraits<A2>::ForwardType a2,
-      typename CallbackParamTraits<A3>::ForwardType a3) {
+  R Run(const T* object,
+        typename CallbackParamTraits<A1>::ForwardType a1,
+        typename CallbackParamTraits<A2>::ForwardType a2,
+        typename CallbackParamTraits<A3>::ForwardType a3) {
     return (object->*method_)(CallbackForward(a1), CallbackForward(a2),
-        CallbackForward(a3));
+                              CallbackForward(a3));
   }
 
  private:
@@ -361,20 +336,19 @@ class RunnableAdapter<R(T::*)(A1, A2, A3) const> {
 
 // Function: Arity 4.
 template <typename R, typename A1, typename A2, typename A3, typename A4>
-class RunnableAdapter<R(*)(A1, A2, A3, A4)> {
+class RunnableAdapter<R (*)(A1, A2, A3, A4)> {
  public:
-  typedef R (RunType)(A1, A2, A3, A4);
+  typedef R(RunType)(A1, A2, A3, A4);
 
-  explicit RunnableAdapter(R(*function)(A1, A2, A3, A4))
-      : function_(function) {
-  }
+  explicit RunnableAdapter(R (*function)(A1, A2, A3, A4))
+      : function_(function) {}
 
   R Run(typename CallbackParamTraits<A1>::ForwardType a1,
-      typename CallbackParamTraits<A2>::ForwardType a2,
-      typename CallbackParamTraits<A3>::ForwardType a3,
-      typename CallbackParamTraits<A4>::ForwardType a4) {
+        typename CallbackParamTraits<A2>::ForwardType a2,
+        typename CallbackParamTraits<A3>::ForwardType a3,
+        typename CallbackParamTraits<A4>::ForwardType a4) {
     return function_(CallbackForward(a1), CallbackForward(a2),
-        CallbackForward(a3), CallbackForward(a4));
+                     CallbackForward(a3), CallbackForward(a4));
   }
 
  private:
@@ -382,23 +356,26 @@ class RunnableAdapter<R(*)(A1, A2, A3, A4)> {
 };
 
 // Method: Arity 4.
-template <typename R, typename T, typename A1, typename A2, typename A3,
-    typename A4>
-class RunnableAdapter<R(T::*)(A1, A2, A3, A4)> {
+template <typename R,
+          typename T,
+          typename A1,
+          typename A2,
+          typename A3,
+          typename A4>
+class RunnableAdapter<R (T::*)(A1, A2, A3, A4)> {
  public:
-  typedef R (RunType)(T*, A1, A2, A3, A4);
+  typedef R(RunType)(T*, A1, A2, A3, A4);
   typedef true_type IsMethod;
 
-  explicit RunnableAdapter(R(T::*method)(A1, A2, A3, A4))
-      : method_(method) {
-  }
+  explicit RunnableAdapter(R (T::*method)(A1, A2, A3, A4)) : method_(method) {}
 
-  R Run(T* object, typename CallbackParamTraits<A1>::ForwardType a1,
-      typename CallbackParamTraits<A2>::ForwardType a2,
-      typename CallbackParamTraits<A3>::ForwardType a3,
-      typename CallbackParamTraits<A4>::ForwardType a4) {
+  R Run(T* object,
+        typename CallbackParamTraits<A1>::ForwardType a1,
+        typename CallbackParamTraits<A2>::ForwardType a2,
+        typename CallbackParamTraits<A3>::ForwardType a3,
+        typename CallbackParamTraits<A4>::ForwardType a4) {
     return (object->*method_)(CallbackForward(a1), CallbackForward(a2),
-        CallbackForward(a3), CallbackForward(a4));
+                              CallbackForward(a3), CallbackForward(a4));
   }
 
  private:
@@ -406,23 +383,27 @@ class RunnableAdapter<R(T::*)(A1, A2, A3, A4)> {
 };
 
 // Const Method: Arity 4.
-template <typename R, typename T, typename A1, typename A2, typename A3,
-    typename A4>
-class RunnableAdapter<R(T::*)(A1, A2, A3, A4) const> {
+template <typename R,
+          typename T,
+          typename A1,
+          typename A2,
+          typename A3,
+          typename A4>
+class RunnableAdapter<R (T::*)(A1, A2, A3, A4) const> {
  public:
-  typedef R (RunType)(const T*, A1, A2, A3, A4);
+  typedef R(RunType)(const T*, A1, A2, A3, A4);
   typedef true_type IsMethod;
 
-  explicit RunnableAdapter(R(T::*method)(A1, A2, A3, A4) const)
-      : method_(method) {
-  }
+  explicit RunnableAdapter(R (T::*method)(A1, A2, A3, A4) const)
+      : method_(method) {}
 
-  R Run(const T* object, typename CallbackParamTraits<A1>::ForwardType a1,
-      typename CallbackParamTraits<A2>::ForwardType a2,
-      typename CallbackParamTraits<A3>::ForwardType a3,
-      typename CallbackParamTraits<A4>::ForwardType a4) {
+  R Run(const T* object,
+        typename CallbackParamTraits<A1>::ForwardType a1,
+        typename CallbackParamTraits<A2>::ForwardType a2,
+        typename CallbackParamTraits<A3>::ForwardType a3,
+        typename CallbackParamTraits<A4>::ForwardType a4) {
     return (object->*method_)(CallbackForward(a1), CallbackForward(a2),
-        CallbackForward(a3), CallbackForward(a4));
+                              CallbackForward(a3), CallbackForward(a4));
   }
 
  private:
@@ -430,23 +411,27 @@ class RunnableAdapter<R(T::*)(A1, A2, A3, A4) const> {
 };
 
 // Function: Arity 5.
-template <typename R, typename A1, typename A2, typename A3, typename A4,
-    typename A5>
-class RunnableAdapter<R(*)(A1, A2, A3, A4, A5)> {
+template <typename R,
+          typename A1,
+          typename A2,
+          typename A3,
+          typename A4,
+          typename A5>
+class RunnableAdapter<R (*)(A1, A2, A3, A4, A5)> {
  public:
-  typedef R (RunType)(A1, A2, A3, A4, A5);
+  typedef R(RunType)(A1, A2, A3, A4, A5);
 
-  explicit RunnableAdapter(R(*function)(A1, A2, A3, A4, A5))
-      : function_(function) {
-  }
+  explicit RunnableAdapter(R (*function)(A1, A2, A3, A4, A5))
+      : function_(function) {}
 
   R Run(typename CallbackParamTraits<A1>::ForwardType a1,
-      typename CallbackParamTraits<A2>::ForwardType a2,
-      typename CallbackParamTraits<A3>::ForwardType a3,
-      typename CallbackParamTraits<A4>::ForwardType a4,
-      typename CallbackParamTraits<A5>::ForwardType a5) {
+        typename CallbackParamTraits<A2>::ForwardType a2,
+        typename CallbackParamTraits<A3>::ForwardType a3,
+        typename CallbackParamTraits<A4>::ForwardType a4,
+        typename CallbackParamTraits<A5>::ForwardType a5) {
     return function_(CallbackForward(a1), CallbackForward(a2),
-        CallbackForward(a3), CallbackForward(a4), CallbackForward(a5));
+                     CallbackForward(a3), CallbackForward(a4),
+                     CallbackForward(a5));
   }
 
  private:
@@ -454,24 +439,30 @@ class RunnableAdapter<R(*)(A1, A2, A3, A4, A5)> {
 };
 
 // Method: Arity 5.
-template <typename R, typename T, typename A1, typename A2, typename A3,
-    typename A4, typename A5>
-class RunnableAdapter<R(T::*)(A1, A2, A3, A4, A5)> {
+template <typename R,
+          typename T,
+          typename A1,
+          typename A2,
+          typename A3,
+          typename A4,
+          typename A5>
+class RunnableAdapter<R (T::*)(A1, A2, A3, A4, A5)> {
  public:
-  typedef R (RunType)(T*, A1, A2, A3, A4, A5);
+  typedef R(RunType)(T*, A1, A2, A3, A4, A5);
   typedef true_type IsMethod;
 
-  explicit RunnableAdapter(R(T::*method)(A1, A2, A3, A4, A5))
-      : method_(method) {
-  }
+  explicit RunnableAdapter(R (T::*method)(A1, A2, A3, A4, A5))
+      : method_(method) {}
 
-  R Run(T* object, typename CallbackParamTraits<A1>::ForwardType a1,
-      typename CallbackParamTraits<A2>::ForwardType a2,
-      typename CallbackParamTraits<A3>::ForwardType a3,
-      typename CallbackParamTraits<A4>::ForwardType a4,
-      typename CallbackParamTraits<A5>::ForwardType a5) {
+  R Run(T* object,
+        typename CallbackParamTraits<A1>::ForwardType a1,
+        typename CallbackParamTraits<A2>::ForwardType a2,
+        typename CallbackParamTraits<A3>::ForwardType a3,
+        typename CallbackParamTraits<A4>::ForwardType a4,
+        typename CallbackParamTraits<A5>::ForwardType a5) {
     return (object->*method_)(CallbackForward(a1), CallbackForward(a2),
-        CallbackForward(a3), CallbackForward(a4), CallbackForward(a5));
+                              CallbackForward(a3), CallbackForward(a4),
+                              CallbackForward(a5));
   }
 
  private:
@@ -479,24 +470,30 @@ class RunnableAdapter<R(T::*)(A1, A2, A3, A4, A5)> {
 };
 
 // Const Method: Arity 5.
-template <typename R, typename T, typename A1, typename A2, typename A3,
-    typename A4, typename A5>
-class RunnableAdapter<R(T::*)(A1, A2, A3, A4, A5) const> {
+template <typename R,
+          typename T,
+          typename A1,
+          typename A2,
+          typename A3,
+          typename A4,
+          typename A5>
+class RunnableAdapter<R (T::*)(A1, A2, A3, A4, A5) const> {
  public:
-  typedef R (RunType)(const T*, A1, A2, A3, A4, A5);
+  typedef R(RunType)(const T*, A1, A2, A3, A4, A5);
   typedef true_type IsMethod;
 
-  explicit RunnableAdapter(R(T::*method)(A1, A2, A3, A4, A5) const)
-      : method_(method) {
-  }
+  explicit RunnableAdapter(R (T::*method)(A1, A2, A3, A4, A5) const)
+      : method_(method) {}
 
-  R Run(const T* object, typename CallbackParamTraits<A1>::ForwardType a1,
-      typename CallbackParamTraits<A2>::ForwardType a2,
-      typename CallbackParamTraits<A3>::ForwardType a3,
-      typename CallbackParamTraits<A4>::ForwardType a4,
-      typename CallbackParamTraits<A5>::ForwardType a5) {
+  R Run(const T* object,
+        typename CallbackParamTraits<A1>::ForwardType a1,
+        typename CallbackParamTraits<A2>::ForwardType a2,
+        typename CallbackParamTraits<A3>::ForwardType a3,
+        typename CallbackParamTraits<A4>::ForwardType a4,
+        typename CallbackParamTraits<A5>::ForwardType a5) {
     return (object->*method_)(CallbackForward(a1), CallbackForward(a2),
-        CallbackForward(a3), CallbackForward(a4), CallbackForward(a5));
+                              CallbackForward(a3), CallbackForward(a4),
+                              CallbackForward(a5));
   }
 
  private:
@@ -504,25 +501,29 @@ class RunnableAdapter<R(T::*)(A1, A2, A3, A4, A5) const> {
 };
 
 // Function: Arity 6.
-template <typename R, typename A1, typename A2, typename A3, typename A4,
-    typename A5, typename A6>
-class RunnableAdapter<R(*)(A1, A2, A3, A4, A5, A6)> {
+template <typename R,
+          typename A1,
+          typename A2,
+          typename A3,
+          typename A4,
+          typename A5,
+          typename A6>
+class RunnableAdapter<R (*)(A1, A2, A3, A4, A5, A6)> {
  public:
-  typedef R (RunType)(A1, A2, A3, A4, A5, A6);
+  typedef R(RunType)(A1, A2, A3, A4, A5, A6);
 
-  explicit RunnableAdapter(R(*function)(A1, A2, A3, A4, A5, A6))
-      : function_(function) {
-  }
+  explicit RunnableAdapter(R (*function)(A1, A2, A3, A4, A5, A6))
+      : function_(function) {}
 
   R Run(typename CallbackParamTraits<A1>::ForwardType a1,
-      typename CallbackParamTraits<A2>::ForwardType a2,
-      typename CallbackParamTraits<A3>::ForwardType a3,
-      typename CallbackParamTraits<A4>::ForwardType a4,
-      typename CallbackParamTraits<A5>::ForwardType a5,
-      typename CallbackParamTraits<A6>::ForwardType a6) {
+        typename CallbackParamTraits<A2>::ForwardType a2,
+        typename CallbackParamTraits<A3>::ForwardType a3,
+        typename CallbackParamTraits<A4>::ForwardType a4,
+        typename CallbackParamTraits<A5>::ForwardType a5,
+        typename CallbackParamTraits<A6>::ForwardType a6) {
     return function_(CallbackForward(a1), CallbackForward(a2),
-        CallbackForward(a3), CallbackForward(a4), CallbackForward(a5),
-        CallbackForward(a6));
+                     CallbackForward(a3), CallbackForward(a4),
+                     CallbackForward(a5), CallbackForward(a6));
   }
 
  private:
@@ -530,26 +531,32 @@ class RunnableAdapter<R(*)(A1, A2, A3, A4, A5, A6)> {
 };
 
 // Method: Arity 6.
-template <typename R, typename T, typename A1, typename A2, typename A3,
-    typename A4, typename A5, typename A6>
-class RunnableAdapter<R(T::*)(A1, A2, A3, A4, A5, A6)> {
+template <typename R,
+          typename T,
+          typename A1,
+          typename A2,
+          typename A3,
+          typename A4,
+          typename A5,
+          typename A6>
+class RunnableAdapter<R (T::*)(A1, A2, A3, A4, A5, A6)> {
  public:
-  typedef R (RunType)(T*, A1, A2, A3, A4, A5, A6);
+  typedef R(RunType)(T*, A1, A2, A3, A4, A5, A6);
   typedef true_type IsMethod;
 
-  explicit RunnableAdapter(R(T::*method)(A1, A2, A3, A4, A5, A6))
-      : method_(method) {
-  }
+  explicit RunnableAdapter(R (T::*method)(A1, A2, A3, A4, A5, A6))
+      : method_(method) {}
 
-  R Run(T* object, typename CallbackParamTraits<A1>::ForwardType a1,
-      typename CallbackParamTraits<A2>::ForwardType a2,
-      typename CallbackParamTraits<A3>::ForwardType a3,
-      typename CallbackParamTraits<A4>::ForwardType a4,
-      typename CallbackParamTraits<A5>::ForwardType a5,
-      typename CallbackParamTraits<A6>::ForwardType a6) {
+  R Run(T* object,
+        typename CallbackParamTraits<A1>::ForwardType a1,
+        typename CallbackParamTraits<A2>::ForwardType a2,
+        typename CallbackParamTraits<A3>::ForwardType a3,
+        typename CallbackParamTraits<A4>::ForwardType a4,
+        typename CallbackParamTraits<A5>::ForwardType a5,
+        typename CallbackParamTraits<A6>::ForwardType a6) {
     return (object->*method_)(CallbackForward(a1), CallbackForward(a2),
-        CallbackForward(a3), CallbackForward(a4), CallbackForward(a5),
-        CallbackForward(a6));
+                              CallbackForward(a3), CallbackForward(a4),
+                              CallbackForward(a5), CallbackForward(a6));
   }
 
  private:
@@ -557,26 +564,32 @@ class RunnableAdapter<R(T::*)(A1, A2, A3, A4, A5, A6)> {
 };
 
 // Const Method: Arity 6.
-template <typename R, typename T, typename A1, typename A2, typename A3,
-    typename A4, typename A5, typename A6>
-class RunnableAdapter<R(T::*)(A1, A2, A3, A4, A5, A6) const> {
+template <typename R,
+          typename T,
+          typename A1,
+          typename A2,
+          typename A3,
+          typename A4,
+          typename A5,
+          typename A6>
+class RunnableAdapter<R (T::*)(A1, A2, A3, A4, A5, A6) const> {
  public:
-  typedef R (RunType)(const T*, A1, A2, A3, A4, A5, A6);
+  typedef R(RunType)(const T*, A1, A2, A3, A4, A5, A6);
   typedef true_type IsMethod;
 
-  explicit RunnableAdapter(R(T::*method)(A1, A2, A3, A4, A5, A6) const)
-      : method_(method) {
-  }
+  explicit RunnableAdapter(R (T::*method)(A1, A2, A3, A4, A5, A6) const)
+      : method_(method) {}
 
-  R Run(const T* object, typename CallbackParamTraits<A1>::ForwardType a1,
-      typename CallbackParamTraits<A2>::ForwardType a2,
-      typename CallbackParamTraits<A3>::ForwardType a3,
-      typename CallbackParamTraits<A4>::ForwardType a4,
-      typename CallbackParamTraits<A5>::ForwardType a5,
-      typename CallbackParamTraits<A6>::ForwardType a6) {
+  R Run(const T* object,
+        typename CallbackParamTraits<A1>::ForwardType a1,
+        typename CallbackParamTraits<A2>::ForwardType a2,
+        typename CallbackParamTraits<A3>::ForwardType a3,
+        typename CallbackParamTraits<A4>::ForwardType a4,
+        typename CallbackParamTraits<A5>::ForwardType a5,
+        typename CallbackParamTraits<A6>::ForwardType a6) {
     return (object->*method_)(CallbackForward(a1), CallbackForward(a2),
-        CallbackForward(a3), CallbackForward(a4), CallbackForward(a5),
-        CallbackForward(a6));
+                              CallbackForward(a3), CallbackForward(a4),
+                              CallbackForward(a5), CallbackForward(a6));
   }
 
  private:
@@ -584,26 +597,32 @@ class RunnableAdapter<R(T::*)(A1, A2, A3, A4, A5, A6) const> {
 };
 
 // Function: Arity 7.
-template <typename R, typename A1, typename A2, typename A3, typename A4,
-    typename A5, typename A6, typename A7>
-class RunnableAdapter<R(*)(A1, A2, A3, A4, A5, A6, A7)> {
+template <typename R,
+          typename A1,
+          typename A2,
+          typename A3,
+          typename A4,
+          typename A5,
+          typename A6,
+          typename A7>
+class RunnableAdapter<R (*)(A1, A2, A3, A4, A5, A6, A7)> {
  public:
-  typedef R (RunType)(A1, A2, A3, A4, A5, A6, A7);
+  typedef R(RunType)(A1, A2, A3, A4, A5, A6, A7);
 
-  explicit RunnableAdapter(R(*function)(A1, A2, A3, A4, A5, A6, A7))
-      : function_(function) {
-  }
+  explicit RunnableAdapter(R (*function)(A1, A2, A3, A4, A5, A6, A7))
+      : function_(function) {}
 
   R Run(typename CallbackParamTraits<A1>::ForwardType a1,
-      typename CallbackParamTraits<A2>::ForwardType a2,
-      typename CallbackParamTraits<A3>::ForwardType a3,
-      typename CallbackParamTraits<A4>::ForwardType a4,
-      typename CallbackParamTraits<A5>::ForwardType a5,
-      typename CallbackParamTraits<A6>::ForwardType a6,
-      typename CallbackParamTraits<A7>::ForwardType a7) {
+        typename CallbackParamTraits<A2>::ForwardType a2,
+        typename CallbackParamTraits<A3>::ForwardType a3,
+        typename CallbackParamTraits<A4>::ForwardType a4,
+        typename CallbackParamTraits<A5>::ForwardType a5,
+        typename CallbackParamTraits<A6>::ForwardType a6,
+        typename CallbackParamTraits<A7>::ForwardType a7) {
     return function_(CallbackForward(a1), CallbackForward(a2),
-        CallbackForward(a3), CallbackForward(a4), CallbackForward(a5),
-        CallbackForward(a6), CallbackForward(a7));
+                     CallbackForward(a3), CallbackForward(a4),
+                     CallbackForward(a5), CallbackForward(a6),
+                     CallbackForward(a7));
   }
 
  private:
@@ -611,27 +630,35 @@ class RunnableAdapter<R(*)(A1, A2, A3, A4, A5, A6, A7)> {
 };
 
 // Method: Arity 7.
-template <typename R, typename T, typename A1, typename A2, typename A3,
-    typename A4, typename A5, typename A6, typename A7>
-class RunnableAdapter<R(T::*)(A1, A2, A3, A4, A5, A6, A7)> {
+template <typename R,
+          typename T,
+          typename A1,
+          typename A2,
+          typename A3,
+          typename A4,
+          typename A5,
+          typename A6,
+          typename A7>
+class RunnableAdapter<R (T::*)(A1, A2, A3, A4, A5, A6, A7)> {
  public:
-  typedef R (RunType)(T*, A1, A2, A3, A4, A5, A6, A7);
+  typedef R(RunType)(T*, A1, A2, A3, A4, A5, A6, A7);
   typedef true_type IsMethod;
 
-  explicit RunnableAdapter(R(T::*method)(A1, A2, A3, A4, A5, A6, A7))
-      : method_(method) {
-  }
+  explicit RunnableAdapter(R (T::*method)(A1, A2, A3, A4, A5, A6, A7))
+      : method_(method) {}
 
-  R Run(T* object, typename CallbackParamTraits<A1>::ForwardType a1,
-      typename CallbackParamTraits<A2>::ForwardType a2,
-      typename CallbackParamTraits<A3>::ForwardType a3,
-      typename CallbackParamTraits<A4>::ForwardType a4,
-      typename CallbackParamTraits<A5>::ForwardType a5,
-      typename CallbackParamTraits<A6>::ForwardType a6,
-      typename CallbackParamTraits<A7>::ForwardType a7) {
+  R Run(T* object,
+        typename CallbackParamTraits<A1>::ForwardType a1,
+        typename CallbackParamTraits<A2>::ForwardType a2,
+        typename CallbackParamTraits<A3>::ForwardType a3,
+        typename CallbackParamTraits<A4>::ForwardType a4,
+        typename CallbackParamTraits<A5>::ForwardType a5,
+        typename CallbackParamTraits<A6>::ForwardType a6,
+        typename CallbackParamTraits<A7>::ForwardType a7) {
     return (object->*method_)(CallbackForward(a1), CallbackForward(a2),
-        CallbackForward(a3), CallbackForward(a4), CallbackForward(a5),
-        CallbackForward(a6), CallbackForward(a7));
+                              CallbackForward(a3), CallbackForward(a4),
+                              CallbackForward(a5), CallbackForward(a6),
+                              CallbackForward(a7));
   }
 
  private:
@@ -639,33 +666,40 @@ class RunnableAdapter<R(T::*)(A1, A2, A3, A4, A5, A6, A7)> {
 };
 
 // Const Method: Arity 7.
-template <typename R, typename T, typename A1, typename A2, typename A3,
-    typename A4, typename A5, typename A6, typename A7>
-class RunnableAdapter<R(T::*)(A1, A2, A3, A4, A5, A6, A7) const> {
+template <typename R,
+          typename T,
+          typename A1,
+          typename A2,
+          typename A3,
+          typename A4,
+          typename A5,
+          typename A6,
+          typename A7>
+class RunnableAdapter<R (T::*)(A1, A2, A3, A4, A5, A6, A7) const> {
  public:
-  typedef R (RunType)(const T*, A1, A2, A3, A4, A5, A6, A7);
+  typedef R(RunType)(const T*, A1, A2, A3, A4, A5, A6, A7);
   typedef true_type IsMethod;
 
-  explicit RunnableAdapter(R(T::*method)(A1, A2, A3, A4, A5, A6, A7) const)
-      : method_(method) {
-  }
+  explicit RunnableAdapter(R (T::*method)(A1, A2, A3, A4, A5, A6, A7) const)
+      : method_(method) {}
 
-  R Run(const T* object, typename CallbackParamTraits<A1>::ForwardType a1,
-      typename CallbackParamTraits<A2>::ForwardType a2,
-      typename CallbackParamTraits<A3>::ForwardType a3,
-      typename CallbackParamTraits<A4>::ForwardType a4,
-      typename CallbackParamTraits<A5>::ForwardType a5,
-      typename CallbackParamTraits<A6>::ForwardType a6,
-      typename CallbackParamTraits<A7>::ForwardType a7) {
+  R Run(const T* object,
+        typename CallbackParamTraits<A1>::ForwardType a1,
+        typename CallbackParamTraits<A2>::ForwardType a2,
+        typename CallbackParamTraits<A3>::ForwardType a3,
+        typename CallbackParamTraits<A4>::ForwardType a4,
+        typename CallbackParamTraits<A5>::ForwardType a5,
+        typename CallbackParamTraits<A6>::ForwardType a6,
+        typename CallbackParamTraits<A7>::ForwardType a7) {
     return (object->*method_)(CallbackForward(a1), CallbackForward(a2),
-        CallbackForward(a3), CallbackForward(a4), CallbackForward(a5),
-        CallbackForward(a6), CallbackForward(a7));
+                              CallbackForward(a3), CallbackForward(a4),
+                              CallbackForward(a5), CallbackForward(a6),
+                              CallbackForward(a7));
   }
 
  private:
   R (T::*method_)(A1, A2, A3, A4, A5, A6, A7) const;
 };
-
 
 // FunctionTraits<>
 //
@@ -708,8 +742,12 @@ struct FunctionTraits<R(A1, A2, A3, A4)> {
   typedef A4 A4Type;
 };
 
-template <typename R, typename A1, typename A2, typename A3, typename A4,
-    typename A5>
+template <typename R,
+          typename A1,
+          typename A2,
+          typename A3,
+          typename A4,
+          typename A5>
 struct FunctionTraits<R(A1, A2, A3, A4, A5)> {
   typedef R ReturnType;
   typedef A1 A1Type;
@@ -719,8 +757,13 @@ struct FunctionTraits<R(A1, A2, A3, A4, A5)> {
   typedef A5 A5Type;
 };
 
-template <typename R, typename A1, typename A2, typename A3, typename A4,
-    typename A5, typename A6>
+template <typename R,
+          typename A1,
+          typename A2,
+          typename A3,
+          typename A4,
+          typename A5,
+          typename A6>
 struct FunctionTraits<R(A1, A2, A3, A4, A5, A6)> {
   typedef R ReturnType;
   typedef A1 A1Type;
@@ -731,8 +774,14 @@ struct FunctionTraits<R(A1, A2, A3, A4, A5, A6)> {
   typedef A6 A6Type;
 };
 
-template <typename R, typename A1, typename A2, typename A3, typename A4,
-    typename A5, typename A6, typename A7>
+template <typename R,
+          typename A1,
+          typename A2,
+          typename A3,
+          typename A4,
+          typename A5,
+          typename A6,
+          typename A7>
 struct FunctionTraits<R(A1, A2, A3, A4, A5, A6, A7)> {
   typedef R ReturnType;
   typedef A1 A1Type;
@@ -743,7 +792,6 @@ struct FunctionTraits<R(A1, A2, A3, A4, A5, A6, A7)> {
   typedef A6 A6Type;
   typedef A7 A7Type;
 };
-
 
 // ForceVoidReturn<>
 //
@@ -776,24 +824,38 @@ struct ForceVoidReturn<R(A1, A2, A3, A4)> {
   typedef void(RunType)(A1, A2, A3, A4);
 };
 
-template <typename R, typename A1, typename A2, typename A3, typename A4,
-    typename A5>
+template <typename R,
+          typename A1,
+          typename A2,
+          typename A3,
+          typename A4,
+          typename A5>
 struct ForceVoidReturn<R(A1, A2, A3, A4, A5)> {
   typedef void(RunType)(A1, A2, A3, A4, A5);
 };
 
-template <typename R, typename A1, typename A2, typename A3, typename A4,
-    typename A5, typename A6>
+template <typename R,
+          typename A1,
+          typename A2,
+          typename A3,
+          typename A4,
+          typename A5,
+          typename A6>
 struct ForceVoidReturn<R(A1, A2, A3, A4, A5, A6)> {
   typedef void(RunType)(A1, A2, A3, A4, A5, A6);
 };
 
-template <typename R, typename A1, typename A2, typename A3, typename A4,
-    typename A5, typename A6, typename A7>
+template <typename R,
+          typename A1,
+          typename A2,
+          typename A3,
+          typename A4,
+          typename A5,
+          typename A6,
+          typename A7>
 struct ForceVoidReturn<R(A1, A2, A3, A4, A5, A6, A7)> {
   typedef void(RunType)(A1, A2, A3, A4, A5, A6, A7);
 };
-
 
 // FunctorTraits<>
 //
@@ -805,18 +867,17 @@ struct FunctorTraits {
 };
 
 template <typename T>
-struct FunctorTraits<IgnoreResultHelper<T> > {
+struct FunctorTraits<IgnoreResultHelper<T>> {
   typedef typename FunctorTraits<T>::RunnableType RunnableType;
-  typedef typename ForceVoidReturn<
-      typename RunnableType::RunType>::RunType RunType;
+  typedef
+      typename ForceVoidReturn<typename RunnableType::RunType>::RunType RunType;
 };
 
 template <typename T>
-struct FunctorTraits<Callback<T> > {
+struct FunctorTraits<Callback<T>> {
   typedef Callback<T> RunnableType;
   typedef typename Callback<T>::RunType RunType;
 };
-
 
 // MakeRunnable<>
 //
@@ -828,18 +889,17 @@ typename FunctorTraits<T>::RunnableType MakeRunnable(const T& t) {
 }
 
 template <typename T>
-typename FunctorTraits<T>::RunnableType
-MakeRunnable(const IgnoreResultHelper<T>& t) {
+typename FunctorTraits<T>::RunnableType MakeRunnable(
+    const IgnoreResultHelper<T>& t) {
   return MakeRunnable(t.functor_);
 }
 
 template <typename T>
-const typename FunctorTraits<Callback<T> >::RunnableType&
-MakeRunnable(const Callback<T>& t) {
+const typename FunctorTraits<Callback<T>>::RunnableType& MakeRunnable(
+    const Callback<T>& t) {
   DCHECK(!t.is_null());
   return t;
 }
-
 
 // InvokeHelper<>
 //
@@ -858,45 +918,38 @@ MakeRunnable(const Callback<T>& t) {
 //
 // WeakCalls similarly need special syntax that is applied to the first
 // argument to check if they should no-op themselves.
-template <bool IsWeakCall, typename ReturnType, typename Runnable,
+template <bool IsWeakCall,
+          typename ReturnType,
+          typename Runnable,
           typename ArgsType>
 struct InvokeHelper;
 
 template <typename ReturnType, typename Runnable>
-struct InvokeHelper<false, ReturnType, Runnable,
-    void()>  {
-  static ReturnType MakeItSo(Runnable runnable) {
-    return runnable.Run();
-  }
+struct InvokeHelper<false, ReturnType, Runnable, void()> {
+  static ReturnType MakeItSo(Runnable runnable) { return runnable.Run(); }
 };
 
 template <typename Runnable>
-struct InvokeHelper<false, void, Runnable,
-    void()>  {
-  static void MakeItSo(Runnable runnable) {
-    runnable.Run();
-  }
+struct InvokeHelper<false, void, Runnable, void()> {
+  static void MakeItSo(Runnable runnable) { runnable.Run(); }
 };
 
-template <typename ReturnType, typename Runnable,typename A1>
-struct InvokeHelper<false, ReturnType, Runnable,
-    void(A1)>  {
+template <typename ReturnType, typename Runnable, typename A1>
+struct InvokeHelper<false, ReturnType, Runnable, void(A1)> {
   static ReturnType MakeItSo(Runnable runnable, A1 a1) {
     return runnable.Run(CallbackForward(a1));
   }
 };
 
-template <typename Runnable,typename A1>
-struct InvokeHelper<false, void, Runnable,
-    void(A1)>  {
+template <typename Runnable, typename A1>
+struct InvokeHelper<false, void, Runnable, void(A1)> {
   static void MakeItSo(Runnable runnable, A1 a1) {
     runnable.Run(CallbackForward(a1));
   }
 };
 
 template <typename Runnable, typename BoundWeakPtr>
-struct InvokeHelper<true, void, Runnable,
-    void(BoundWeakPtr)>  {
+struct InvokeHelper<true, void, Runnable, void(BoundWeakPtr)> {
   static void MakeItSo(Runnable runnable, BoundWeakPtr weak_ptr) {
     if (!weak_ptr.get()) {
       return;
@@ -905,25 +958,22 @@ struct InvokeHelper<true, void, Runnable,
   }
 };
 
-template <typename ReturnType, typename Runnable,typename A1, typename A2>
-struct InvokeHelper<false, ReturnType, Runnable,
-    void(A1, A2)>  {
+template <typename ReturnType, typename Runnable, typename A1, typename A2>
+struct InvokeHelper<false, ReturnType, Runnable, void(A1, A2)> {
   static ReturnType MakeItSo(Runnable runnable, A1 a1, A2 a2) {
     return runnable.Run(CallbackForward(a1), CallbackForward(a2));
   }
 };
 
-template <typename Runnable,typename A1, typename A2>
-struct InvokeHelper<false, void, Runnable,
-    void(A1, A2)>  {
+template <typename Runnable, typename A1, typename A2>
+struct InvokeHelper<false, void, Runnable, void(A1, A2)> {
   static void MakeItSo(Runnable runnable, A1 a1, A2 a2) {
     runnable.Run(CallbackForward(a1), CallbackForward(a2));
   }
 };
 
 template <typename Runnable, typename BoundWeakPtr, typename A2>
-struct InvokeHelper<true, void, Runnable,
-    void(BoundWeakPtr, A2)>  {
+struct InvokeHelper<true, void, Runnable, void(BoundWeakPtr, A2)> {
   static void MakeItSo(Runnable runnable, BoundWeakPtr weak_ptr, A2 a2) {
     if (!weak_ptr.get()) {
       return;
@@ -932,27 +982,27 @@ struct InvokeHelper<true, void, Runnable,
   }
 };
 
-template <typename ReturnType, typename Runnable,typename A1, typename A2,
-    typename A3>
-struct InvokeHelper<false, ReturnType, Runnable,
-    void(A1, A2, A3)>  {
+template <typename ReturnType,
+          typename Runnable,
+          typename A1,
+          typename A2,
+          typename A3>
+struct InvokeHelper<false, ReturnType, Runnable, void(A1, A2, A3)> {
   static ReturnType MakeItSo(Runnable runnable, A1 a1, A2 a2, A3 a3) {
     return runnable.Run(CallbackForward(a1), CallbackForward(a2),
-        CallbackForward(a3));
+                        CallbackForward(a3));
   }
 };
 
-template <typename Runnable,typename A1, typename A2, typename A3>
-struct InvokeHelper<false, void, Runnable,
-    void(A1, A2, A3)>  {
+template <typename Runnable, typename A1, typename A2, typename A3>
+struct InvokeHelper<false, void, Runnable, void(A1, A2, A3)> {
   static void MakeItSo(Runnable runnable, A1 a1, A2 a2, A3 a3) {
     runnable.Run(CallbackForward(a1), CallbackForward(a2), CallbackForward(a3));
   }
 };
 
 template <typename Runnable, typename BoundWeakPtr, typename A2, typename A3>
-struct InvokeHelper<true, void, Runnable,
-    void(BoundWeakPtr, A2, A3)>  {
+struct InvokeHelper<true, void, Runnable, void(BoundWeakPtr, A2, A3)> {
   static void MakeItSo(Runnable runnable, BoundWeakPtr weak_ptr, A2 a2, A3 a3) {
     if (!weak_ptr.get()) {
       return;
@@ -961,147 +1011,223 @@ struct InvokeHelper<true, void, Runnable,
   }
 };
 
-template <typename ReturnType, typename Runnable,typename A1, typename A2,
-    typename A3, typename A4>
-struct InvokeHelper<false, ReturnType, Runnable,
-    void(A1, A2, A3, A4)>  {
+template <typename ReturnType,
+          typename Runnable,
+          typename A1,
+          typename A2,
+          typename A3,
+          typename A4>
+struct InvokeHelper<false, ReturnType, Runnable, void(A1, A2, A3, A4)> {
   static ReturnType MakeItSo(Runnable runnable, A1 a1, A2 a2, A3 a3, A4 a4) {
     return runnable.Run(CallbackForward(a1), CallbackForward(a2),
-        CallbackForward(a3), CallbackForward(a4));
+                        CallbackForward(a3), CallbackForward(a4));
   }
 };
 
-template <typename Runnable,typename A1, typename A2, typename A3, typename A4>
-struct InvokeHelper<false, void, Runnable,
-    void(A1, A2, A3, A4)>  {
+template <typename Runnable, typename A1, typename A2, typename A3, typename A4>
+struct InvokeHelper<false, void, Runnable, void(A1, A2, A3, A4)> {
   static void MakeItSo(Runnable runnable, A1 a1, A2 a2, A3 a3, A4 a4) {
     runnable.Run(CallbackForward(a1), CallbackForward(a2), CallbackForward(a3),
-        CallbackForward(a4));
+                 CallbackForward(a4));
   }
 };
 
-template <typename Runnable, typename BoundWeakPtr, typename A2, typename A3,
-    typename A4>
-struct InvokeHelper<true, void, Runnable,
-    void(BoundWeakPtr, A2, A3, A4)>  {
-  static void MakeItSo(Runnable runnable, BoundWeakPtr weak_ptr, A2 a2, A3 a3,
-      A4 a4) {
+template <typename Runnable,
+          typename BoundWeakPtr,
+          typename A2,
+          typename A3,
+          typename A4>
+struct InvokeHelper<true, void, Runnable, void(BoundWeakPtr, A2, A3, A4)> {
+  static void MakeItSo(Runnable runnable,
+                       BoundWeakPtr weak_ptr,
+                       A2 a2,
+                       A3 a3,
+                       A4 a4) {
     if (!weak_ptr.get()) {
       return;
     }
     runnable.Run(weak_ptr.get(), CallbackForward(a2), CallbackForward(a3),
-        CallbackForward(a4));
+                 CallbackForward(a4));
   }
 };
 
-template <typename ReturnType, typename Runnable,typename A1, typename A2,
-    typename A3, typename A4, typename A5>
-struct InvokeHelper<false, ReturnType, Runnable,
-    void(A1, A2, A3, A4, A5)>  {
-  static ReturnType MakeItSo(Runnable runnable, A1 a1, A2 a2, A3 a3, A4 a4,
-      A5 a5) {
+template <typename ReturnType,
+          typename Runnable,
+          typename A1,
+          typename A2,
+          typename A3,
+          typename A4,
+          typename A5>
+struct InvokeHelper<false, ReturnType, Runnable, void(A1, A2, A3, A4, A5)> {
+  static ReturnType MakeItSo(Runnable runnable,
+                             A1 a1,
+                             A2 a2,
+                             A3 a3,
+                             A4 a4,
+                             A5 a5) {
     return runnable.Run(CallbackForward(a1), CallbackForward(a2),
-        CallbackForward(a3), CallbackForward(a4), CallbackForward(a5));
+                        CallbackForward(a3), CallbackForward(a4),
+                        CallbackForward(a5));
   }
 };
 
-template <typename Runnable,typename A1, typename A2, typename A3, typename A4,
-    typename A5>
-struct InvokeHelper<false, void, Runnable,
-    void(A1, A2, A3, A4, A5)>  {
+template <typename Runnable,
+          typename A1,
+          typename A2,
+          typename A3,
+          typename A4,
+          typename A5>
+struct InvokeHelper<false, void, Runnable, void(A1, A2, A3, A4, A5)> {
   static void MakeItSo(Runnable runnable, A1 a1, A2 a2, A3 a3, A4 a4, A5 a5) {
     runnable.Run(CallbackForward(a1), CallbackForward(a2), CallbackForward(a3),
-        CallbackForward(a4), CallbackForward(a5));
+                 CallbackForward(a4), CallbackForward(a5));
   }
 };
 
-template <typename Runnable, typename BoundWeakPtr, typename A2, typename A3,
-    typename A4, typename A5>
-struct InvokeHelper<true, void, Runnable,
-    void(BoundWeakPtr, A2, A3, A4, A5)>  {
-  static void MakeItSo(Runnable runnable, BoundWeakPtr weak_ptr, A2 a2, A3 a3,
-      A4 a4, A5 a5) {
+template <typename Runnable,
+          typename BoundWeakPtr,
+          typename A2,
+          typename A3,
+          typename A4,
+          typename A5>
+struct InvokeHelper<true, void, Runnable, void(BoundWeakPtr, A2, A3, A4, A5)> {
+  static void MakeItSo(Runnable runnable,
+                       BoundWeakPtr weak_ptr,
+                       A2 a2,
+                       A3 a3,
+                       A4 a4,
+                       A5 a5) {
     if (!weak_ptr.get()) {
       return;
     }
     runnable.Run(weak_ptr.get(), CallbackForward(a2), CallbackForward(a3),
-        CallbackForward(a4), CallbackForward(a5));
+                 CallbackForward(a4), CallbackForward(a5));
   }
 };
 
-template <typename ReturnType, typename Runnable,typename A1, typename A2,
-    typename A3, typename A4, typename A5, typename A6>
-struct InvokeHelper<false, ReturnType, Runnable,
-    void(A1, A2, A3, A4, A5, A6)>  {
-  static ReturnType MakeItSo(Runnable runnable, A1 a1, A2 a2, A3 a3, A4 a4,
-      A5 a5, A6 a6) {
+template <typename ReturnType,
+          typename Runnable,
+          typename A1,
+          typename A2,
+          typename A3,
+          typename A4,
+          typename A5,
+          typename A6>
+struct InvokeHelper<false, ReturnType, Runnable, void(A1, A2, A3, A4, A5, A6)> {
+  static ReturnType
+  MakeItSo(Runnable runnable, A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6) {
     return runnable.Run(CallbackForward(a1), CallbackForward(a2),
-        CallbackForward(a3), CallbackForward(a4), CallbackForward(a5),
-        CallbackForward(a6));
+                        CallbackForward(a3), CallbackForward(a4),
+                        CallbackForward(a5), CallbackForward(a6));
   }
 };
 
-template <typename Runnable,typename A1, typename A2, typename A3, typename A4,
-    typename A5, typename A6>
-struct InvokeHelper<false, void, Runnable,
-    void(A1, A2, A3, A4, A5, A6)>  {
-  static void MakeItSo(Runnable runnable, A1 a1, A2 a2, A3 a3, A4 a4, A5 a5,
-      A6 a6) {
+template <typename Runnable,
+          typename A1,
+          typename A2,
+          typename A3,
+          typename A4,
+          typename A5,
+          typename A6>
+struct InvokeHelper<false, void, Runnable, void(A1, A2, A3, A4, A5, A6)> {
+  static void
+  MakeItSo(Runnable runnable, A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6) {
     runnable.Run(CallbackForward(a1), CallbackForward(a2), CallbackForward(a3),
-        CallbackForward(a4), CallbackForward(a5), CallbackForward(a6));
+                 CallbackForward(a4), CallbackForward(a5), CallbackForward(a6));
   }
 };
 
-template <typename Runnable, typename BoundWeakPtr, typename A2, typename A3,
-    typename A4, typename A5, typename A6>
-struct InvokeHelper<true, void, Runnable,
-    void(BoundWeakPtr, A2, A3, A4, A5, A6)>  {
-  static void MakeItSo(Runnable runnable, BoundWeakPtr weak_ptr, A2 a2, A3 a3,
-      A4 a4, A5 a5, A6 a6) {
+template <typename Runnable,
+          typename BoundWeakPtr,
+          typename A2,
+          typename A3,
+          typename A4,
+          typename A5,
+          typename A6>
+struct InvokeHelper<true,
+                    void,
+                    Runnable,
+                    void(BoundWeakPtr, A2, A3, A4, A5, A6)> {
+  static void MakeItSo(Runnable runnable,
+                       BoundWeakPtr weak_ptr,
+                       A2 a2,
+                       A3 a3,
+                       A4 a4,
+                       A5 a5,
+                       A6 a6) {
     if (!weak_ptr.get()) {
       return;
     }
     runnable.Run(weak_ptr.get(), CallbackForward(a2), CallbackForward(a3),
-        CallbackForward(a4), CallbackForward(a5), CallbackForward(a6));
+                 CallbackForward(a4), CallbackForward(a5), CallbackForward(a6));
   }
 };
 
-template <typename ReturnType, typename Runnable,typename A1, typename A2,
-    typename A3, typename A4, typename A5, typename A6, typename A7>
-struct InvokeHelper<false, ReturnType, Runnable,
-    void(A1, A2, A3, A4, A5, A6, A7)>  {
-  static ReturnType MakeItSo(Runnable runnable, A1 a1, A2 a2, A3 a3, A4 a4,
-      A5 a5, A6 a6, A7 a7) {
+template <typename ReturnType,
+          typename Runnable,
+          typename A1,
+          typename A2,
+          typename A3,
+          typename A4,
+          typename A5,
+          typename A6,
+          typename A7>
+struct InvokeHelper<false,
+                    ReturnType,
+                    Runnable,
+                    void(A1, A2, A3, A4, A5, A6, A7)> {
+  static ReturnType
+  MakeItSo(Runnable runnable, A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7) {
     return runnable.Run(CallbackForward(a1), CallbackForward(a2),
-        CallbackForward(a3), CallbackForward(a4), CallbackForward(a5),
-        CallbackForward(a6), CallbackForward(a7));
+                        CallbackForward(a3), CallbackForward(a4),
+                        CallbackForward(a5), CallbackForward(a6),
+                        CallbackForward(a7));
   }
 };
 
-template <typename Runnable,typename A1, typename A2, typename A3, typename A4,
-    typename A5, typename A6, typename A7>
-struct InvokeHelper<false, void, Runnable,
-    void(A1, A2, A3, A4, A5, A6, A7)>  {
-  static void MakeItSo(Runnable runnable, A1 a1, A2 a2, A3 a3, A4 a4, A5 a5,
-      A6 a6, A7 a7) {
+template <typename Runnable,
+          typename A1,
+          typename A2,
+          typename A3,
+          typename A4,
+          typename A5,
+          typename A6,
+          typename A7>
+struct InvokeHelper<false, void, Runnable, void(A1, A2, A3, A4, A5, A6, A7)> {
+  static void
+  MakeItSo(Runnable runnable, A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7) {
     runnable.Run(CallbackForward(a1), CallbackForward(a2), CallbackForward(a3),
-        CallbackForward(a4), CallbackForward(a5), CallbackForward(a6),
-        CallbackForward(a7));
+                 CallbackForward(a4), CallbackForward(a5), CallbackForward(a6),
+                 CallbackForward(a7));
   }
 };
 
-template <typename Runnable, typename BoundWeakPtr, typename A2, typename A3,
-    typename A4, typename A5, typename A6, typename A7>
-struct InvokeHelper<true, void, Runnable,
-    void(BoundWeakPtr, A2, A3, A4, A5, A6, A7)>  {
-  static void MakeItSo(Runnable runnable, BoundWeakPtr weak_ptr, A2 a2, A3 a3,
-      A4 a4, A5 a5, A6 a6, A7 a7) {
+template <typename Runnable,
+          typename BoundWeakPtr,
+          typename A2,
+          typename A3,
+          typename A4,
+          typename A5,
+          typename A6,
+          typename A7>
+struct InvokeHelper<true,
+                    void,
+                    Runnable,
+                    void(BoundWeakPtr, A2, A3, A4, A5, A6, A7)> {
+  static void MakeItSo(Runnable runnable,
+                       BoundWeakPtr weak_ptr,
+                       A2 a2,
+                       A3 a3,
+                       A4 a4,
+                       A5 a5,
+                       A6 a6,
+                       A7 a7) {
     if (!weak_ptr.get()) {
       return;
     }
     runnable.Run(weak_ptr.get(), CallbackForward(a2), CallbackForward(a3),
-        CallbackForward(a4), CallbackForward(a5), CallbackForward(a6),
-        CallbackForward(a7));
+                 CallbackForward(a4), CallbackForward(a5), CallbackForward(a6),
+                 CallbackForward(a7));
   }
 };
 
@@ -1139,22 +1265,21 @@ struct Invoker<0, StorageType, R()> {
     // InvokeHelper<>::MakeItSo() call below.
 
     return InvokeHelper<StorageType::IsWeakCall::value, R,
-           typename StorageType::RunnableType,
-           void()>
-               ::MakeItSo(storage->runnable_);
+                        typename StorageType::RunnableType,
+                        void()>::MakeItSo(storage->runnable_);
   }
 };
 
 // Arity 1 -> 1.
-template <typename StorageType, typename R,typename X1>
+template <typename StorageType, typename R, typename X1>
 struct Invoker<0, StorageType, R(X1)> {
   typedef R(RunType)(BindStateBase*,
-      typename CallbackParamTraits<X1>::ForwardType);
+                     typename CallbackParamTraits<X1>::ForwardType);
 
   typedef R(UnboundRunType)(X1);
 
   static R Run(BindStateBase* base,
-      typename CallbackParamTraits<X1>::ForwardType x1) {
+               typename CallbackParamTraits<X1>::ForwardType x1) {
     StorageType* storage = static_cast<StorageType*>(base);
 
     // Local references to make debugger stepping easier. If in a debugger,
@@ -1162,14 +1287,15 @@ struct Invoker<0, StorageType, R(X1)> {
     // InvokeHelper<>::MakeItSo() call below.
 
     return InvokeHelper<StorageType::IsWeakCall::value, R,
-           typename StorageType::RunnableType,
-           void(typename CallbackParamTraits<X1>::ForwardType x1)>
-               ::MakeItSo(storage->runnable_, CallbackForward(x1));
+                        typename StorageType::RunnableType,
+                        void(typename CallbackParamTraits<X1>::ForwardType
+                                 x1)>::MakeItSo(storage->runnable_,
+                                                CallbackForward(x1));
   }
 };
 
 // Arity 1 -> 0.
-template <typename StorageType, typename R,typename X1>
+template <typename StorageType, typename R, typename X1>
 struct Invoker<1, StorageType, R(X1)> {
   typedef R(RunType)(BindStateBase*);
 
@@ -1186,24 +1312,24 @@ struct Invoker<1, StorageType, R(X1)> {
     typename Bound1UnwrapTraits::ForwardType x1 =
         Bound1UnwrapTraits::Unwrap(storage->p1_);
     return InvokeHelper<StorageType::IsWeakCall::value, R,
-           typename StorageType::RunnableType,
-           void(typename Bound1UnwrapTraits::ForwardType)>
-               ::MakeItSo(storage->runnable_, CallbackForward(x1));
+                        typename StorageType::RunnableType,
+                        void(typename Bound1UnwrapTraits::ForwardType)>::
+        MakeItSo(storage->runnable_, CallbackForward(x1));
   }
 };
 
 // Arity 2 -> 2.
-template <typename StorageType, typename R,typename X1, typename X2>
+template <typename StorageType, typename R, typename X1, typename X2>
 struct Invoker<0, StorageType, R(X1, X2)> {
   typedef R(RunType)(BindStateBase*,
-      typename CallbackParamTraits<X1>::ForwardType,
-      typename CallbackParamTraits<X2>::ForwardType);
+                     typename CallbackParamTraits<X1>::ForwardType,
+                     typename CallbackParamTraits<X2>::ForwardType);
 
   typedef R(UnboundRunType)(X1, X2);
 
   static R Run(BindStateBase* base,
-      typename CallbackParamTraits<X1>::ForwardType x1,
-      typename CallbackParamTraits<X2>::ForwardType x2) {
+               typename CallbackParamTraits<X1>::ForwardType x1,
+               typename CallbackParamTraits<X2>::ForwardType x2) {
     StorageType* storage = static_cast<StorageType*>(base);
 
     // Local references to make debugger stepping easier. If in a debugger,
@@ -1211,24 +1337,25 @@ struct Invoker<0, StorageType, R(X1, X2)> {
     // InvokeHelper<>::MakeItSo() call below.
 
     return InvokeHelper<StorageType::IsWeakCall::value, R,
-           typename StorageType::RunnableType,
-           void(typename CallbackParamTraits<X1>::ForwardType x1,
-               typename CallbackParamTraits<X2>::ForwardType x2)>
-               ::MakeItSo(storage->runnable_, CallbackForward(x1),
-                   CallbackForward(x2));
+                        typename StorageType::RunnableType,
+                        void(typename CallbackParamTraits<X1>::ForwardType x1,
+                             typename CallbackParamTraits<X2>::ForwardType
+                                 x2)>::MakeItSo(storage->runnable_,
+                                                CallbackForward(x1),
+                                                CallbackForward(x2));
   }
 };
 
 // Arity 2 -> 1.
-template <typename StorageType, typename R,typename X1, typename X2>
+template <typename StorageType, typename R, typename X1, typename X2>
 struct Invoker<1, StorageType, R(X1, X2)> {
   typedef R(RunType)(BindStateBase*,
-      typename CallbackParamTraits<X2>::ForwardType);
+                     typename CallbackParamTraits<X2>::ForwardType);
 
   typedef R(UnboundRunType)(X2);
 
   static R Run(BindStateBase* base,
-      typename CallbackParamTraits<X2>::ForwardType x2) {
+               typename CallbackParamTraits<X2>::ForwardType x2) {
     StorageType* storage = static_cast<StorageType*>(base);
 
     // Local references to make debugger stepping easier. If in a debugger,
@@ -1239,16 +1366,17 @@ struct Invoker<1, StorageType, R(X1, X2)> {
     typename Bound1UnwrapTraits::ForwardType x1 =
         Bound1UnwrapTraits::Unwrap(storage->p1_);
     return InvokeHelper<StorageType::IsWeakCall::value, R,
-           typename StorageType::RunnableType,
-           void(typename Bound1UnwrapTraits::ForwardType,
-               typename CallbackParamTraits<X2>::ForwardType x2)>
-               ::MakeItSo(storage->runnable_, CallbackForward(x1),
-                   CallbackForward(x2));
+                        typename StorageType::RunnableType,
+                        void(typename Bound1UnwrapTraits::ForwardType,
+                             typename CallbackParamTraits<X2>::ForwardType
+                                 x2)>::MakeItSo(storage->runnable_,
+                                                CallbackForward(x1),
+                                                CallbackForward(x2));
   }
 };
 
 // Arity 2 -> 0.
-template <typename StorageType, typename R,typename X1, typename X2>
+template <typename StorageType, typename R, typename X1, typename X2>
 struct Invoker<2, StorageType, R(X1, X2)> {
   typedef R(RunType)(BindStateBase*);
 
@@ -1268,29 +1396,31 @@ struct Invoker<2, StorageType, R(X1, X2)> {
     typename Bound2UnwrapTraits::ForwardType x2 =
         Bound2UnwrapTraits::Unwrap(storage->p2_);
     return InvokeHelper<StorageType::IsWeakCall::value, R,
-           typename StorageType::RunnableType,
-           void(typename Bound1UnwrapTraits::ForwardType,
-               typename Bound2UnwrapTraits::ForwardType)>
-               ::MakeItSo(storage->runnable_, CallbackForward(x1),
-                   CallbackForward(x2));
+                        typename StorageType::RunnableType,
+                        void(typename Bound1UnwrapTraits::ForwardType,
+                             typename Bound2UnwrapTraits::ForwardType)>::
+        MakeItSo(storage->runnable_, CallbackForward(x1), CallbackForward(x2));
   }
 };
 
 // Arity 3 -> 3.
-template <typename StorageType, typename R,typename X1, typename X2,
-    typename X3>
+template <typename StorageType,
+          typename R,
+          typename X1,
+          typename X2,
+          typename X3>
 struct Invoker<0, StorageType, R(X1, X2, X3)> {
   typedef R(RunType)(BindStateBase*,
-      typename CallbackParamTraits<X1>::ForwardType,
-      typename CallbackParamTraits<X2>::ForwardType,
-      typename CallbackParamTraits<X3>::ForwardType);
+                     typename CallbackParamTraits<X1>::ForwardType,
+                     typename CallbackParamTraits<X2>::ForwardType,
+                     typename CallbackParamTraits<X3>::ForwardType);
 
   typedef R(UnboundRunType)(X1, X2, X3);
 
   static R Run(BindStateBase* base,
-      typename CallbackParamTraits<X1>::ForwardType x1,
-      typename CallbackParamTraits<X2>::ForwardType x2,
-      typename CallbackParamTraits<X3>::ForwardType x3) {
+               typename CallbackParamTraits<X1>::ForwardType x1,
+               typename CallbackParamTraits<X2>::ForwardType x2,
+               typename CallbackParamTraits<X3>::ForwardType x3) {
     StorageType* storage = static_cast<StorageType*>(base);
 
     // Local references to make debugger stepping easier. If in a debugger,
@@ -1298,28 +1428,33 @@ struct Invoker<0, StorageType, R(X1, X2, X3)> {
     // InvokeHelper<>::MakeItSo() call below.
 
     return InvokeHelper<StorageType::IsWeakCall::value, R,
-           typename StorageType::RunnableType,
-           void(typename CallbackParamTraits<X1>::ForwardType x1,
-               typename CallbackParamTraits<X2>::ForwardType x2,
-               typename CallbackParamTraits<X3>::ForwardType x3)>
-               ::MakeItSo(storage->runnable_, CallbackForward(x1),
-                   CallbackForward(x2), CallbackForward(x3));
+                        typename StorageType::RunnableType,
+                        void(typename CallbackParamTraits<X1>::ForwardType x1,
+                             typename CallbackParamTraits<X2>::ForwardType x2,
+                             typename CallbackParamTraits<X3>::ForwardType
+                                 x3)>::MakeItSo(storage->runnable_,
+                                                CallbackForward(x1),
+                                                CallbackForward(x2),
+                                                CallbackForward(x3));
   }
 };
 
 // Arity 3 -> 2.
-template <typename StorageType, typename R,typename X1, typename X2,
-    typename X3>
+template <typename StorageType,
+          typename R,
+          typename X1,
+          typename X2,
+          typename X3>
 struct Invoker<1, StorageType, R(X1, X2, X3)> {
   typedef R(RunType)(BindStateBase*,
-      typename CallbackParamTraits<X2>::ForwardType,
-      typename CallbackParamTraits<X3>::ForwardType);
+                     typename CallbackParamTraits<X2>::ForwardType,
+                     typename CallbackParamTraits<X3>::ForwardType);
 
   typedef R(UnboundRunType)(X2, X3);
 
   static R Run(BindStateBase* base,
-      typename CallbackParamTraits<X2>::ForwardType x2,
-      typename CallbackParamTraits<X3>::ForwardType x3) {
+               typename CallbackParamTraits<X2>::ForwardType x2,
+               typename CallbackParamTraits<X3>::ForwardType x3) {
     StorageType* storage = static_cast<StorageType*>(base);
 
     // Local references to make debugger stepping easier. If in a debugger,
@@ -1330,26 +1465,31 @@ struct Invoker<1, StorageType, R(X1, X2, X3)> {
     typename Bound1UnwrapTraits::ForwardType x1 =
         Bound1UnwrapTraits::Unwrap(storage->p1_);
     return InvokeHelper<StorageType::IsWeakCall::value, R,
-           typename StorageType::RunnableType,
-           void(typename Bound1UnwrapTraits::ForwardType,
-               typename CallbackParamTraits<X2>::ForwardType x2,
-               typename CallbackParamTraits<X3>::ForwardType x3)>
-               ::MakeItSo(storage->runnable_, CallbackForward(x1),
-                   CallbackForward(x2), CallbackForward(x3));
+                        typename StorageType::RunnableType,
+                        void(typename Bound1UnwrapTraits::ForwardType,
+                             typename CallbackParamTraits<X2>::ForwardType x2,
+                             typename CallbackParamTraits<X3>::ForwardType
+                                 x3)>::MakeItSo(storage->runnable_,
+                                                CallbackForward(x1),
+                                                CallbackForward(x2),
+                                                CallbackForward(x3));
   }
 };
 
 // Arity 3 -> 1.
-template <typename StorageType, typename R,typename X1, typename X2,
-    typename X3>
+template <typename StorageType,
+          typename R,
+          typename X1,
+          typename X2,
+          typename X3>
 struct Invoker<2, StorageType, R(X1, X2, X3)> {
   typedef R(RunType)(BindStateBase*,
-      typename CallbackParamTraits<X3>::ForwardType);
+                     typename CallbackParamTraits<X3>::ForwardType);
 
   typedef R(UnboundRunType)(X3);
 
   static R Run(BindStateBase* base,
-      typename CallbackParamTraits<X3>::ForwardType x3) {
+               typename CallbackParamTraits<X3>::ForwardType x3) {
     StorageType* storage = static_cast<StorageType*>(base);
 
     // Local references to make debugger stepping easier. If in a debugger,
@@ -1363,18 +1503,23 @@ struct Invoker<2, StorageType, R(X1, X2, X3)> {
     typename Bound2UnwrapTraits::ForwardType x2 =
         Bound2UnwrapTraits::Unwrap(storage->p2_);
     return InvokeHelper<StorageType::IsWeakCall::value, R,
-           typename StorageType::RunnableType,
-           void(typename Bound1UnwrapTraits::ForwardType,
-               typename Bound2UnwrapTraits::ForwardType,
-               typename CallbackParamTraits<X3>::ForwardType x3)>
-               ::MakeItSo(storage->runnable_, CallbackForward(x1),
-                   CallbackForward(x2), CallbackForward(x3));
+                        typename StorageType::RunnableType,
+                        void(typename Bound1UnwrapTraits::ForwardType,
+                             typename Bound2UnwrapTraits::ForwardType,
+                             typename CallbackParamTraits<X3>::ForwardType
+                                 x3)>::MakeItSo(storage->runnable_,
+                                                CallbackForward(x1),
+                                                CallbackForward(x2),
+                                                CallbackForward(x3));
   }
 };
 
 // Arity 3 -> 0.
-template <typename StorageType, typename R,typename X1, typename X2,
-    typename X3>
+template <typename StorageType,
+          typename R,
+          typename X1,
+          typename X2,
+          typename X3>
 struct Invoker<3, StorageType, R(X1, X2, X3)> {
   typedef R(RunType)(BindStateBase*);
 
@@ -1397,32 +1542,36 @@ struct Invoker<3, StorageType, R(X1, X2, X3)> {
     typename Bound3UnwrapTraits::ForwardType x3 =
         Bound3UnwrapTraits::Unwrap(storage->p3_);
     return InvokeHelper<StorageType::IsWeakCall::value, R,
-           typename StorageType::RunnableType,
-           void(typename Bound1UnwrapTraits::ForwardType,
-               typename Bound2UnwrapTraits::ForwardType,
-               typename Bound3UnwrapTraits::ForwardType)>
-               ::MakeItSo(storage->runnable_, CallbackForward(x1),
-                   CallbackForward(x2), CallbackForward(x3));
+                        typename StorageType::RunnableType,
+                        void(typename Bound1UnwrapTraits::ForwardType,
+                             typename Bound2UnwrapTraits::ForwardType,
+                             typename Bound3UnwrapTraits::ForwardType)>::
+        MakeItSo(storage->runnable_, CallbackForward(x1), CallbackForward(x2),
+                 CallbackForward(x3));
   }
 };
 
 // Arity 4 -> 4.
-template <typename StorageType, typename R,typename X1, typename X2,
-    typename X3, typename X4>
+template <typename StorageType,
+          typename R,
+          typename X1,
+          typename X2,
+          typename X3,
+          typename X4>
 struct Invoker<0, StorageType, R(X1, X2, X3, X4)> {
   typedef R(RunType)(BindStateBase*,
-      typename CallbackParamTraits<X1>::ForwardType,
-      typename CallbackParamTraits<X2>::ForwardType,
-      typename CallbackParamTraits<X3>::ForwardType,
-      typename CallbackParamTraits<X4>::ForwardType);
+                     typename CallbackParamTraits<X1>::ForwardType,
+                     typename CallbackParamTraits<X2>::ForwardType,
+                     typename CallbackParamTraits<X3>::ForwardType,
+                     typename CallbackParamTraits<X4>::ForwardType);
 
   typedef R(UnboundRunType)(X1, X2, X3, X4);
 
   static R Run(BindStateBase* base,
-      typename CallbackParamTraits<X1>::ForwardType x1,
-      typename CallbackParamTraits<X2>::ForwardType x2,
-      typename CallbackParamTraits<X3>::ForwardType x3,
-      typename CallbackParamTraits<X4>::ForwardType x4) {
+               typename CallbackParamTraits<X1>::ForwardType x1,
+               typename CallbackParamTraits<X2>::ForwardType x2,
+               typename CallbackParamTraits<X3>::ForwardType x3,
+               typename CallbackParamTraits<X4>::ForwardType x4) {
     StorageType* storage = static_cast<StorageType*>(base);
 
     // Local references to make debugger stepping easier. If in a debugger,
@@ -1430,32 +1579,38 @@ struct Invoker<0, StorageType, R(X1, X2, X3, X4)> {
     // InvokeHelper<>::MakeItSo() call below.
 
     return InvokeHelper<StorageType::IsWeakCall::value, R,
-           typename StorageType::RunnableType,
-           void(typename CallbackParamTraits<X1>::ForwardType x1,
-               typename CallbackParamTraits<X2>::ForwardType x2,
-               typename CallbackParamTraits<X3>::ForwardType x3,
-               typename CallbackParamTraits<X4>::ForwardType x4)>
-               ::MakeItSo(storage->runnable_, CallbackForward(x1),
-                   CallbackForward(x2), CallbackForward(x3),
-                   CallbackForward(x4));
+                        typename StorageType::RunnableType,
+                        void(typename CallbackParamTraits<X1>::ForwardType x1,
+                             typename CallbackParamTraits<X2>::ForwardType x2,
+                             typename CallbackParamTraits<X3>::ForwardType x3,
+                             typename CallbackParamTraits<X4>::ForwardType
+                                 x4)>::MakeItSo(storage->runnable_,
+                                                CallbackForward(x1),
+                                                CallbackForward(x2),
+                                                CallbackForward(x3),
+                                                CallbackForward(x4));
   }
 };
 
 // Arity 4 -> 3.
-template <typename StorageType, typename R,typename X1, typename X2,
-    typename X3, typename X4>
+template <typename StorageType,
+          typename R,
+          typename X1,
+          typename X2,
+          typename X3,
+          typename X4>
 struct Invoker<1, StorageType, R(X1, X2, X3, X4)> {
   typedef R(RunType)(BindStateBase*,
-      typename CallbackParamTraits<X2>::ForwardType,
-      typename CallbackParamTraits<X3>::ForwardType,
-      typename CallbackParamTraits<X4>::ForwardType);
+                     typename CallbackParamTraits<X2>::ForwardType,
+                     typename CallbackParamTraits<X3>::ForwardType,
+                     typename CallbackParamTraits<X4>::ForwardType);
 
   typedef R(UnboundRunType)(X2, X3, X4);
 
   static R Run(BindStateBase* base,
-      typename CallbackParamTraits<X2>::ForwardType x2,
-      typename CallbackParamTraits<X3>::ForwardType x3,
-      typename CallbackParamTraits<X4>::ForwardType x4) {
+               typename CallbackParamTraits<X2>::ForwardType x2,
+               typename CallbackParamTraits<X3>::ForwardType x3,
+               typename CallbackParamTraits<X4>::ForwardType x4) {
     StorageType* storage = static_cast<StorageType*>(base);
 
     // Local references to make debugger stepping easier. If in a debugger,
@@ -1466,30 +1621,36 @@ struct Invoker<1, StorageType, R(X1, X2, X3, X4)> {
     typename Bound1UnwrapTraits::ForwardType x1 =
         Bound1UnwrapTraits::Unwrap(storage->p1_);
     return InvokeHelper<StorageType::IsWeakCall::value, R,
-           typename StorageType::RunnableType,
-           void(typename Bound1UnwrapTraits::ForwardType,
-               typename CallbackParamTraits<X2>::ForwardType x2,
-               typename CallbackParamTraits<X3>::ForwardType x3,
-               typename CallbackParamTraits<X4>::ForwardType x4)>
-               ::MakeItSo(storage->runnable_, CallbackForward(x1),
-                   CallbackForward(x2), CallbackForward(x3),
-                   CallbackForward(x4));
+                        typename StorageType::RunnableType,
+                        void(typename Bound1UnwrapTraits::ForwardType,
+                             typename CallbackParamTraits<X2>::ForwardType x2,
+                             typename CallbackParamTraits<X3>::ForwardType x3,
+                             typename CallbackParamTraits<X4>::ForwardType
+                                 x4)>::MakeItSo(storage->runnable_,
+                                                CallbackForward(x1),
+                                                CallbackForward(x2),
+                                                CallbackForward(x3),
+                                                CallbackForward(x4));
   }
 };
 
 // Arity 4 -> 2.
-template <typename StorageType, typename R,typename X1, typename X2,
-    typename X3, typename X4>
+template <typename StorageType,
+          typename R,
+          typename X1,
+          typename X2,
+          typename X3,
+          typename X4>
 struct Invoker<2, StorageType, R(X1, X2, X3, X4)> {
   typedef R(RunType)(BindStateBase*,
-      typename CallbackParamTraits<X3>::ForwardType,
-      typename CallbackParamTraits<X4>::ForwardType);
+                     typename CallbackParamTraits<X3>::ForwardType,
+                     typename CallbackParamTraits<X4>::ForwardType);
 
   typedef R(UnboundRunType)(X3, X4);
 
   static R Run(BindStateBase* base,
-      typename CallbackParamTraits<X3>::ForwardType x3,
-      typename CallbackParamTraits<X4>::ForwardType x4) {
+               typename CallbackParamTraits<X3>::ForwardType x3,
+               typename CallbackParamTraits<X4>::ForwardType x4) {
     StorageType* storage = static_cast<StorageType*>(base);
 
     // Local references to make debugger stepping easier. If in a debugger,
@@ -1503,28 +1664,34 @@ struct Invoker<2, StorageType, R(X1, X2, X3, X4)> {
     typename Bound2UnwrapTraits::ForwardType x2 =
         Bound2UnwrapTraits::Unwrap(storage->p2_);
     return InvokeHelper<StorageType::IsWeakCall::value, R,
-           typename StorageType::RunnableType,
-           void(typename Bound1UnwrapTraits::ForwardType,
-               typename Bound2UnwrapTraits::ForwardType,
-               typename CallbackParamTraits<X3>::ForwardType x3,
-               typename CallbackParamTraits<X4>::ForwardType x4)>
-               ::MakeItSo(storage->runnable_, CallbackForward(x1),
-                   CallbackForward(x2), CallbackForward(x3),
-                   CallbackForward(x4));
+                        typename StorageType::RunnableType,
+                        void(typename Bound1UnwrapTraits::ForwardType,
+                             typename Bound2UnwrapTraits::ForwardType,
+                             typename CallbackParamTraits<X3>::ForwardType x3,
+                             typename CallbackParamTraits<X4>::ForwardType
+                                 x4)>::MakeItSo(storage->runnable_,
+                                                CallbackForward(x1),
+                                                CallbackForward(x2),
+                                                CallbackForward(x3),
+                                                CallbackForward(x4));
   }
 };
 
 // Arity 4 -> 1.
-template <typename StorageType, typename R,typename X1, typename X2,
-    typename X3, typename X4>
+template <typename StorageType,
+          typename R,
+          typename X1,
+          typename X2,
+          typename X3,
+          typename X4>
 struct Invoker<3, StorageType, R(X1, X2, X3, X4)> {
   typedef R(RunType)(BindStateBase*,
-      typename CallbackParamTraits<X4>::ForwardType);
+                     typename CallbackParamTraits<X4>::ForwardType);
 
   typedef R(UnboundRunType)(X4);
 
   static R Run(BindStateBase* base,
-      typename CallbackParamTraits<X4>::ForwardType x4) {
+               typename CallbackParamTraits<X4>::ForwardType x4) {
     StorageType* storage = static_cast<StorageType*>(base);
 
     // Local references to make debugger stepping easier. If in a debugger,
@@ -1541,20 +1708,26 @@ struct Invoker<3, StorageType, R(X1, X2, X3, X4)> {
     typename Bound3UnwrapTraits::ForwardType x3 =
         Bound3UnwrapTraits::Unwrap(storage->p3_);
     return InvokeHelper<StorageType::IsWeakCall::value, R,
-           typename StorageType::RunnableType,
-           void(typename Bound1UnwrapTraits::ForwardType,
-               typename Bound2UnwrapTraits::ForwardType,
-               typename Bound3UnwrapTraits::ForwardType,
-               typename CallbackParamTraits<X4>::ForwardType x4)>
-               ::MakeItSo(storage->runnable_, CallbackForward(x1),
-                   CallbackForward(x2), CallbackForward(x3),
-                   CallbackForward(x4));
+                        typename StorageType::RunnableType,
+                        void(typename Bound1UnwrapTraits::ForwardType,
+                             typename Bound2UnwrapTraits::ForwardType,
+                             typename Bound3UnwrapTraits::ForwardType,
+                             typename CallbackParamTraits<X4>::ForwardType
+                                 x4)>::MakeItSo(storage->runnable_,
+                                                CallbackForward(x1),
+                                                CallbackForward(x2),
+                                                CallbackForward(x3),
+                                                CallbackForward(x4));
   }
 };
 
 // Arity 4 -> 0.
-template <typename StorageType, typename R,typename X1, typename X2,
-    typename X3, typename X4>
+template <typename StorageType,
+          typename R,
+          typename X1,
+          typename X2,
+          typename X3,
+          typename X4>
 struct Invoker<4, StorageType, R(X1, X2, X3, X4)> {
   typedef R(RunType)(BindStateBase*);
 
@@ -1580,72 +1753,81 @@ struct Invoker<4, StorageType, R(X1, X2, X3, X4)> {
     typename Bound4UnwrapTraits::ForwardType x4 =
         Bound4UnwrapTraits::Unwrap(storage->p4_);
     return InvokeHelper<StorageType::IsWeakCall::value, R,
-           typename StorageType::RunnableType,
-           void(typename Bound1UnwrapTraits::ForwardType,
-               typename Bound2UnwrapTraits::ForwardType,
-               typename Bound3UnwrapTraits::ForwardType,
-               typename Bound4UnwrapTraits::ForwardType)>
-               ::MakeItSo(storage->runnable_, CallbackForward(x1),
-                   CallbackForward(x2), CallbackForward(x3),
-                   CallbackForward(x4));
+                        typename StorageType::RunnableType,
+                        void(typename Bound1UnwrapTraits::ForwardType,
+                             typename Bound2UnwrapTraits::ForwardType,
+                             typename Bound3UnwrapTraits::ForwardType,
+                             typename Bound4UnwrapTraits::ForwardType)>::
+        MakeItSo(storage->runnable_, CallbackForward(x1), CallbackForward(x2),
+                 CallbackForward(x3), CallbackForward(x4));
   }
 };
 
 // Arity 5 -> 5.
-template <typename StorageType, typename R,typename X1, typename X2,
-    typename X3, typename X4, typename X5>
+template <typename StorageType,
+          typename R,
+          typename X1,
+          typename X2,
+          typename X3,
+          typename X4,
+          typename X5>
 struct Invoker<0, StorageType, R(X1, X2, X3, X4, X5)> {
   typedef R(RunType)(BindStateBase*,
-      typename CallbackParamTraits<X1>::ForwardType,
-      typename CallbackParamTraits<X2>::ForwardType,
-      typename CallbackParamTraits<X3>::ForwardType,
-      typename CallbackParamTraits<X4>::ForwardType,
-      typename CallbackParamTraits<X5>::ForwardType);
+                     typename CallbackParamTraits<X1>::ForwardType,
+                     typename CallbackParamTraits<X2>::ForwardType,
+                     typename CallbackParamTraits<X3>::ForwardType,
+                     typename CallbackParamTraits<X4>::ForwardType,
+                     typename CallbackParamTraits<X5>::ForwardType);
 
   typedef R(UnboundRunType)(X1, X2, X3, X4, X5);
 
   static R Run(BindStateBase* base,
-      typename CallbackParamTraits<X1>::ForwardType x1,
-      typename CallbackParamTraits<X2>::ForwardType x2,
-      typename CallbackParamTraits<X3>::ForwardType x3,
-      typename CallbackParamTraits<X4>::ForwardType x4,
-      typename CallbackParamTraits<X5>::ForwardType x5) {
+               typename CallbackParamTraits<X1>::ForwardType x1,
+               typename CallbackParamTraits<X2>::ForwardType x2,
+               typename CallbackParamTraits<X3>::ForwardType x3,
+               typename CallbackParamTraits<X4>::ForwardType x4,
+               typename CallbackParamTraits<X5>::ForwardType x5) {
     StorageType* storage = static_cast<StorageType*>(base);
 
     // Local references to make debugger stepping easier. If in a debugger,
     // you really want to warp ahead and step through the
     // InvokeHelper<>::MakeItSo() call below.
 
-    return InvokeHelper<StorageType::IsWeakCall::value, R,
-           typename StorageType::RunnableType,
-           void(typename CallbackParamTraits<X1>::ForwardType x1,
-               typename CallbackParamTraits<X2>::ForwardType x2,
-               typename CallbackParamTraits<X3>::ForwardType x3,
-               typename CallbackParamTraits<X4>::ForwardType x4,
-               typename CallbackParamTraits<X5>::ForwardType x5)>
-               ::MakeItSo(storage->runnable_, CallbackForward(x1),
-                   CallbackForward(x2), CallbackForward(x3),
-                   CallbackForward(x4), CallbackForward(x5));
+    return InvokeHelper<
+        StorageType::IsWeakCall::value, R, typename StorageType::RunnableType,
+        void(typename CallbackParamTraits<X1>::ForwardType x1,
+             typename CallbackParamTraits<X2>::ForwardType x2,
+             typename CallbackParamTraits<X3>::ForwardType x3,
+             typename CallbackParamTraits<X4>::ForwardType x4,
+             typename CallbackParamTraits<X5>::ForwardType
+                 x5)>::MakeItSo(storage->runnable_, CallbackForward(x1),
+                                CallbackForward(x2), CallbackForward(x3),
+                                CallbackForward(x4), CallbackForward(x5));
   }
 };
 
 // Arity 5 -> 4.
-template <typename StorageType, typename R,typename X1, typename X2,
-    typename X3, typename X4, typename X5>
+template <typename StorageType,
+          typename R,
+          typename X1,
+          typename X2,
+          typename X3,
+          typename X4,
+          typename X5>
 struct Invoker<1, StorageType, R(X1, X2, X3, X4, X5)> {
   typedef R(RunType)(BindStateBase*,
-      typename CallbackParamTraits<X2>::ForwardType,
-      typename CallbackParamTraits<X3>::ForwardType,
-      typename CallbackParamTraits<X4>::ForwardType,
-      typename CallbackParamTraits<X5>::ForwardType);
+                     typename CallbackParamTraits<X2>::ForwardType,
+                     typename CallbackParamTraits<X3>::ForwardType,
+                     typename CallbackParamTraits<X4>::ForwardType,
+                     typename CallbackParamTraits<X5>::ForwardType);
 
   typedef R(UnboundRunType)(X2, X3, X4, X5);
 
   static R Run(BindStateBase* base,
-      typename CallbackParamTraits<X2>::ForwardType x2,
-      typename CallbackParamTraits<X3>::ForwardType x3,
-      typename CallbackParamTraits<X4>::ForwardType x4,
-      typename CallbackParamTraits<X5>::ForwardType x5) {
+               typename CallbackParamTraits<X2>::ForwardType x2,
+               typename CallbackParamTraits<X3>::ForwardType x3,
+               typename CallbackParamTraits<X4>::ForwardType x4,
+               typename CallbackParamTraits<X5>::ForwardType x5) {
     StorageType* storage = static_cast<StorageType*>(base);
 
     // Local references to make debugger stepping easier. If in a debugger,
@@ -1655,34 +1837,39 @@ struct Invoker<1, StorageType, R(X1, X2, X3, X4, X5)> {
 
     typename Bound1UnwrapTraits::ForwardType x1 =
         Bound1UnwrapTraits::Unwrap(storage->p1_);
-    return InvokeHelper<StorageType::IsWeakCall::value, R,
-           typename StorageType::RunnableType,
-           void(typename Bound1UnwrapTraits::ForwardType,
-               typename CallbackParamTraits<X2>::ForwardType x2,
-               typename CallbackParamTraits<X3>::ForwardType x3,
-               typename CallbackParamTraits<X4>::ForwardType x4,
-               typename CallbackParamTraits<X5>::ForwardType x5)>
-               ::MakeItSo(storage->runnable_, CallbackForward(x1),
-                   CallbackForward(x2), CallbackForward(x3),
-                   CallbackForward(x4), CallbackForward(x5));
+    return InvokeHelper<
+        StorageType::IsWeakCall::value, R, typename StorageType::RunnableType,
+        void(typename Bound1UnwrapTraits::ForwardType,
+             typename CallbackParamTraits<X2>::ForwardType x2,
+             typename CallbackParamTraits<X3>::ForwardType x3,
+             typename CallbackParamTraits<X4>::ForwardType x4,
+             typename CallbackParamTraits<X5>::ForwardType
+                 x5)>::MakeItSo(storage->runnable_, CallbackForward(x1),
+                                CallbackForward(x2), CallbackForward(x3),
+                                CallbackForward(x4), CallbackForward(x5));
   }
 };
 
 // Arity 5 -> 3.
-template <typename StorageType, typename R,typename X1, typename X2,
-    typename X3, typename X4, typename X5>
+template <typename StorageType,
+          typename R,
+          typename X1,
+          typename X2,
+          typename X3,
+          typename X4,
+          typename X5>
 struct Invoker<2, StorageType, R(X1, X2, X3, X4, X5)> {
   typedef R(RunType)(BindStateBase*,
-      typename CallbackParamTraits<X3>::ForwardType,
-      typename CallbackParamTraits<X4>::ForwardType,
-      typename CallbackParamTraits<X5>::ForwardType);
+                     typename CallbackParamTraits<X3>::ForwardType,
+                     typename CallbackParamTraits<X4>::ForwardType,
+                     typename CallbackParamTraits<X5>::ForwardType);
 
   typedef R(UnboundRunType)(X3, X4, X5);
 
   static R Run(BindStateBase* base,
-      typename CallbackParamTraits<X3>::ForwardType x3,
-      typename CallbackParamTraits<X4>::ForwardType x4,
-      typename CallbackParamTraits<X5>::ForwardType x5) {
+               typename CallbackParamTraits<X3>::ForwardType x3,
+               typename CallbackParamTraits<X4>::ForwardType x4,
+               typename CallbackParamTraits<X5>::ForwardType x5) {
     StorageType* storage = static_cast<StorageType*>(base);
 
     // Local references to make debugger stepping easier. If in a debugger,
@@ -1695,32 +1882,37 @@ struct Invoker<2, StorageType, R(X1, X2, X3, X4, X5)> {
         Bound1UnwrapTraits::Unwrap(storage->p1_);
     typename Bound2UnwrapTraits::ForwardType x2 =
         Bound2UnwrapTraits::Unwrap(storage->p2_);
-    return InvokeHelper<StorageType::IsWeakCall::value, R,
-           typename StorageType::RunnableType,
-           void(typename Bound1UnwrapTraits::ForwardType,
-               typename Bound2UnwrapTraits::ForwardType,
-               typename CallbackParamTraits<X3>::ForwardType x3,
-               typename CallbackParamTraits<X4>::ForwardType x4,
-               typename CallbackParamTraits<X5>::ForwardType x5)>
-               ::MakeItSo(storage->runnable_, CallbackForward(x1),
-                   CallbackForward(x2), CallbackForward(x3),
-                   CallbackForward(x4), CallbackForward(x5));
+    return InvokeHelper<
+        StorageType::IsWeakCall::value, R, typename StorageType::RunnableType,
+        void(typename Bound1UnwrapTraits::ForwardType,
+             typename Bound2UnwrapTraits::ForwardType,
+             typename CallbackParamTraits<X3>::ForwardType x3,
+             typename CallbackParamTraits<X4>::ForwardType x4,
+             typename CallbackParamTraits<X5>::ForwardType
+                 x5)>::MakeItSo(storage->runnable_, CallbackForward(x1),
+                                CallbackForward(x2), CallbackForward(x3),
+                                CallbackForward(x4), CallbackForward(x5));
   }
 };
 
 // Arity 5 -> 2.
-template <typename StorageType, typename R,typename X1, typename X2,
-    typename X3, typename X4, typename X5>
+template <typename StorageType,
+          typename R,
+          typename X1,
+          typename X2,
+          typename X3,
+          typename X4,
+          typename X5>
 struct Invoker<3, StorageType, R(X1, X2, X3, X4, X5)> {
   typedef R(RunType)(BindStateBase*,
-      typename CallbackParamTraits<X4>::ForwardType,
-      typename CallbackParamTraits<X5>::ForwardType);
+                     typename CallbackParamTraits<X4>::ForwardType,
+                     typename CallbackParamTraits<X5>::ForwardType);
 
   typedef R(UnboundRunType)(X4, X5);
 
   static R Run(BindStateBase* base,
-      typename CallbackParamTraits<X4>::ForwardType x4,
-      typename CallbackParamTraits<X5>::ForwardType x5) {
+               typename CallbackParamTraits<X4>::ForwardType x4,
+               typename CallbackParamTraits<X5>::ForwardType x5) {
     StorageType* storage = static_cast<StorageType*>(base);
 
     // Local references to make debugger stepping easier. If in a debugger,
@@ -1736,30 +1928,35 @@ struct Invoker<3, StorageType, R(X1, X2, X3, X4, X5)> {
         Bound2UnwrapTraits::Unwrap(storage->p2_);
     typename Bound3UnwrapTraits::ForwardType x3 =
         Bound3UnwrapTraits::Unwrap(storage->p3_);
-    return InvokeHelper<StorageType::IsWeakCall::value, R,
-           typename StorageType::RunnableType,
-           void(typename Bound1UnwrapTraits::ForwardType,
-               typename Bound2UnwrapTraits::ForwardType,
-               typename Bound3UnwrapTraits::ForwardType,
-               typename CallbackParamTraits<X4>::ForwardType x4,
-               typename CallbackParamTraits<X5>::ForwardType x5)>
-               ::MakeItSo(storage->runnable_, CallbackForward(x1),
-                   CallbackForward(x2), CallbackForward(x3),
-                   CallbackForward(x4), CallbackForward(x5));
+    return InvokeHelper<
+        StorageType::IsWeakCall::value, R, typename StorageType::RunnableType,
+        void(typename Bound1UnwrapTraits::ForwardType,
+             typename Bound2UnwrapTraits::ForwardType,
+             typename Bound3UnwrapTraits::ForwardType,
+             typename CallbackParamTraits<X4>::ForwardType x4,
+             typename CallbackParamTraits<X5>::ForwardType
+                 x5)>::MakeItSo(storage->runnable_, CallbackForward(x1),
+                                CallbackForward(x2), CallbackForward(x3),
+                                CallbackForward(x4), CallbackForward(x5));
   }
 };
 
 // Arity 5 -> 1.
-template <typename StorageType, typename R,typename X1, typename X2,
-    typename X3, typename X4, typename X5>
+template <typename StorageType,
+          typename R,
+          typename X1,
+          typename X2,
+          typename X3,
+          typename X4,
+          typename X5>
 struct Invoker<4, StorageType, R(X1, X2, X3, X4, X5)> {
   typedef R(RunType)(BindStateBase*,
-      typename CallbackParamTraits<X5>::ForwardType);
+                     typename CallbackParamTraits<X5>::ForwardType);
 
   typedef R(UnboundRunType)(X5);
 
   static R Run(BindStateBase* base,
-      typename CallbackParamTraits<X5>::ForwardType x5) {
+               typename CallbackParamTraits<X5>::ForwardType x5) {
     StorageType* storage = static_cast<StorageType*>(base);
 
     // Local references to make debugger stepping easier. If in a debugger,
@@ -1778,22 +1975,27 @@ struct Invoker<4, StorageType, R(X1, X2, X3, X4, X5)> {
         Bound3UnwrapTraits::Unwrap(storage->p3_);
     typename Bound4UnwrapTraits::ForwardType x4 =
         Bound4UnwrapTraits::Unwrap(storage->p4_);
-    return InvokeHelper<StorageType::IsWeakCall::value, R,
-           typename StorageType::RunnableType,
-           void(typename Bound1UnwrapTraits::ForwardType,
-               typename Bound2UnwrapTraits::ForwardType,
-               typename Bound3UnwrapTraits::ForwardType,
-               typename Bound4UnwrapTraits::ForwardType,
-               typename CallbackParamTraits<X5>::ForwardType x5)>
-               ::MakeItSo(storage->runnable_, CallbackForward(x1),
-                   CallbackForward(x2), CallbackForward(x3),
-                   CallbackForward(x4), CallbackForward(x5));
+    return InvokeHelper<
+        StorageType::IsWeakCall::value, R, typename StorageType::RunnableType,
+        void(typename Bound1UnwrapTraits::ForwardType,
+             typename Bound2UnwrapTraits::ForwardType,
+             typename Bound3UnwrapTraits::ForwardType,
+             typename Bound4UnwrapTraits::ForwardType,
+             typename CallbackParamTraits<X5>::ForwardType
+                 x5)>::MakeItSo(storage->runnable_, CallbackForward(x1),
+                                CallbackForward(x2), CallbackForward(x3),
+                                CallbackForward(x4), CallbackForward(x5));
   }
 };
 
 // Arity 5 -> 0.
-template <typename StorageType, typename R,typename X1, typename X2,
-    typename X3, typename X4, typename X5>
+template <typename StorageType,
+          typename R,
+          typename X1,
+          typename X2,
+          typename X3,
+          typename X4,
+          typename X5>
 struct Invoker<5, StorageType, R(X1, X2, X3, X4, X5)> {
   typedef R(RunType)(BindStateBase*);
 
@@ -1822,79 +2024,90 @@ struct Invoker<5, StorageType, R(X1, X2, X3, X4, X5)> {
     typename Bound5UnwrapTraits::ForwardType x5 =
         Bound5UnwrapTraits::Unwrap(storage->p5_);
     return InvokeHelper<StorageType::IsWeakCall::value, R,
-           typename StorageType::RunnableType,
-           void(typename Bound1UnwrapTraits::ForwardType,
-               typename Bound2UnwrapTraits::ForwardType,
-               typename Bound3UnwrapTraits::ForwardType,
-               typename Bound4UnwrapTraits::ForwardType,
-               typename Bound5UnwrapTraits::ForwardType)>
-               ::MakeItSo(storage->runnable_, CallbackForward(x1),
-                   CallbackForward(x2), CallbackForward(x3),
-                   CallbackForward(x4), CallbackForward(x5));
+                        typename StorageType::RunnableType,
+                        void(typename Bound1UnwrapTraits::ForwardType,
+                             typename Bound2UnwrapTraits::ForwardType,
+                             typename Bound3UnwrapTraits::ForwardType,
+                             typename Bound4UnwrapTraits::ForwardType,
+                             typename Bound5UnwrapTraits::ForwardType)>::
+        MakeItSo(storage->runnable_, CallbackForward(x1), CallbackForward(x2),
+                 CallbackForward(x3), CallbackForward(x4), CallbackForward(x5));
   }
 };
 
 // Arity 6 -> 6.
-template <typename StorageType, typename R,typename X1, typename X2,
-    typename X3, typename X4, typename X5, typename X6>
+template <typename StorageType,
+          typename R,
+          typename X1,
+          typename X2,
+          typename X3,
+          typename X4,
+          typename X5,
+          typename X6>
 struct Invoker<0, StorageType, R(X1, X2, X3, X4, X5, X6)> {
   typedef R(RunType)(BindStateBase*,
-      typename CallbackParamTraits<X1>::ForwardType,
-      typename CallbackParamTraits<X2>::ForwardType,
-      typename CallbackParamTraits<X3>::ForwardType,
-      typename CallbackParamTraits<X4>::ForwardType,
-      typename CallbackParamTraits<X5>::ForwardType,
-      typename CallbackParamTraits<X6>::ForwardType);
+                     typename CallbackParamTraits<X1>::ForwardType,
+                     typename CallbackParamTraits<X2>::ForwardType,
+                     typename CallbackParamTraits<X3>::ForwardType,
+                     typename CallbackParamTraits<X4>::ForwardType,
+                     typename CallbackParamTraits<X5>::ForwardType,
+                     typename CallbackParamTraits<X6>::ForwardType);
 
   typedef R(UnboundRunType)(X1, X2, X3, X4, X5, X6);
 
   static R Run(BindStateBase* base,
-      typename CallbackParamTraits<X1>::ForwardType x1,
-      typename CallbackParamTraits<X2>::ForwardType x2,
-      typename CallbackParamTraits<X3>::ForwardType x3,
-      typename CallbackParamTraits<X4>::ForwardType x4,
-      typename CallbackParamTraits<X5>::ForwardType x5,
-      typename CallbackParamTraits<X6>::ForwardType x6) {
+               typename CallbackParamTraits<X1>::ForwardType x1,
+               typename CallbackParamTraits<X2>::ForwardType x2,
+               typename CallbackParamTraits<X3>::ForwardType x3,
+               typename CallbackParamTraits<X4>::ForwardType x4,
+               typename CallbackParamTraits<X5>::ForwardType x5,
+               typename CallbackParamTraits<X6>::ForwardType x6) {
     StorageType* storage = static_cast<StorageType*>(base);
 
     // Local references to make debugger stepping easier. If in a debugger,
     // you really want to warp ahead and step through the
     // InvokeHelper<>::MakeItSo() call below.
 
-    return InvokeHelper<StorageType::IsWeakCall::value, R,
-           typename StorageType::RunnableType,
-           void(typename CallbackParamTraits<X1>::ForwardType x1,
-               typename CallbackParamTraits<X2>::ForwardType x2,
-               typename CallbackParamTraits<X3>::ForwardType x3,
-               typename CallbackParamTraits<X4>::ForwardType x4,
-               typename CallbackParamTraits<X5>::ForwardType x5,
-               typename CallbackParamTraits<X6>::ForwardType x6)>
-               ::MakeItSo(storage->runnable_, CallbackForward(x1),
-                   CallbackForward(x2), CallbackForward(x3),
-                   CallbackForward(x4), CallbackForward(x5),
-                   CallbackForward(x6));
+    return InvokeHelper<
+        StorageType::IsWeakCall::value, R, typename StorageType::RunnableType,
+        void(typename CallbackParamTraits<X1>::ForwardType x1,
+             typename CallbackParamTraits<X2>::ForwardType x2,
+             typename CallbackParamTraits<X3>::ForwardType x3,
+             typename CallbackParamTraits<X4>::ForwardType x4,
+             typename CallbackParamTraits<X5>::ForwardType x5,
+             typename CallbackParamTraits<X6>::ForwardType
+                 x6)>::MakeItSo(storage->runnable_, CallbackForward(x1),
+                                CallbackForward(x2), CallbackForward(x3),
+                                CallbackForward(x4), CallbackForward(x5),
+                                CallbackForward(x6));
   }
 };
 
 // Arity 6 -> 5.
-template <typename StorageType, typename R,typename X1, typename X2,
-    typename X3, typename X4, typename X5, typename X6>
+template <typename StorageType,
+          typename R,
+          typename X1,
+          typename X2,
+          typename X3,
+          typename X4,
+          typename X5,
+          typename X6>
 struct Invoker<1, StorageType, R(X1, X2, X3, X4, X5, X6)> {
   typedef R(RunType)(BindStateBase*,
-      typename CallbackParamTraits<X2>::ForwardType,
-      typename CallbackParamTraits<X3>::ForwardType,
-      typename CallbackParamTraits<X4>::ForwardType,
-      typename CallbackParamTraits<X5>::ForwardType,
-      typename CallbackParamTraits<X6>::ForwardType);
+                     typename CallbackParamTraits<X2>::ForwardType,
+                     typename CallbackParamTraits<X3>::ForwardType,
+                     typename CallbackParamTraits<X4>::ForwardType,
+                     typename CallbackParamTraits<X5>::ForwardType,
+                     typename CallbackParamTraits<X6>::ForwardType);
 
   typedef R(UnboundRunType)(X2, X3, X4, X5, X6);
 
   static R Run(BindStateBase* base,
-      typename CallbackParamTraits<X2>::ForwardType x2,
-      typename CallbackParamTraits<X3>::ForwardType x3,
-      typename CallbackParamTraits<X4>::ForwardType x4,
-      typename CallbackParamTraits<X5>::ForwardType x5,
-      typename CallbackParamTraits<X6>::ForwardType x6) {
+               typename CallbackParamTraits<X2>::ForwardType x2,
+               typename CallbackParamTraits<X3>::ForwardType x3,
+               typename CallbackParamTraits<X4>::ForwardType x4,
+               typename CallbackParamTraits<X5>::ForwardType x5,
+               typename CallbackParamTraits<X6>::ForwardType x6) {
     StorageType* storage = static_cast<StorageType*>(base);
 
     // Local references to make debugger stepping easier. If in a debugger,
@@ -1904,38 +2117,44 @@ struct Invoker<1, StorageType, R(X1, X2, X3, X4, X5, X6)> {
 
     typename Bound1UnwrapTraits::ForwardType x1 =
         Bound1UnwrapTraits::Unwrap(storage->p1_);
-    return InvokeHelper<StorageType::IsWeakCall::value, R,
-           typename StorageType::RunnableType,
-           void(typename Bound1UnwrapTraits::ForwardType,
-               typename CallbackParamTraits<X2>::ForwardType x2,
-               typename CallbackParamTraits<X3>::ForwardType x3,
-               typename CallbackParamTraits<X4>::ForwardType x4,
-               typename CallbackParamTraits<X5>::ForwardType x5,
-               typename CallbackParamTraits<X6>::ForwardType x6)>
-               ::MakeItSo(storage->runnable_, CallbackForward(x1),
-                   CallbackForward(x2), CallbackForward(x3),
-                   CallbackForward(x4), CallbackForward(x5),
-                   CallbackForward(x6));
+    return InvokeHelper<
+        StorageType::IsWeakCall::value, R, typename StorageType::RunnableType,
+        void(typename Bound1UnwrapTraits::ForwardType,
+             typename CallbackParamTraits<X2>::ForwardType x2,
+             typename CallbackParamTraits<X3>::ForwardType x3,
+             typename CallbackParamTraits<X4>::ForwardType x4,
+             typename CallbackParamTraits<X5>::ForwardType x5,
+             typename CallbackParamTraits<X6>::ForwardType
+                 x6)>::MakeItSo(storage->runnable_, CallbackForward(x1),
+                                CallbackForward(x2), CallbackForward(x3),
+                                CallbackForward(x4), CallbackForward(x5),
+                                CallbackForward(x6));
   }
 };
 
 // Arity 6 -> 4.
-template <typename StorageType, typename R,typename X1, typename X2,
-    typename X3, typename X4, typename X5, typename X6>
+template <typename StorageType,
+          typename R,
+          typename X1,
+          typename X2,
+          typename X3,
+          typename X4,
+          typename X5,
+          typename X6>
 struct Invoker<2, StorageType, R(X1, X2, X3, X4, X5, X6)> {
   typedef R(RunType)(BindStateBase*,
-      typename CallbackParamTraits<X3>::ForwardType,
-      typename CallbackParamTraits<X4>::ForwardType,
-      typename CallbackParamTraits<X5>::ForwardType,
-      typename CallbackParamTraits<X6>::ForwardType);
+                     typename CallbackParamTraits<X3>::ForwardType,
+                     typename CallbackParamTraits<X4>::ForwardType,
+                     typename CallbackParamTraits<X5>::ForwardType,
+                     typename CallbackParamTraits<X6>::ForwardType);
 
   typedef R(UnboundRunType)(X3, X4, X5, X6);
 
   static R Run(BindStateBase* base,
-      typename CallbackParamTraits<X3>::ForwardType x3,
-      typename CallbackParamTraits<X4>::ForwardType x4,
-      typename CallbackParamTraits<X5>::ForwardType x5,
-      typename CallbackParamTraits<X6>::ForwardType x6) {
+               typename CallbackParamTraits<X3>::ForwardType x3,
+               typename CallbackParamTraits<X4>::ForwardType x4,
+               typename CallbackParamTraits<X5>::ForwardType x5,
+               typename CallbackParamTraits<X6>::ForwardType x6) {
     StorageType* storage = static_cast<StorageType*>(base);
 
     // Local references to make debugger stepping easier. If in a debugger,
@@ -1948,36 +2167,42 @@ struct Invoker<2, StorageType, R(X1, X2, X3, X4, X5, X6)> {
         Bound1UnwrapTraits::Unwrap(storage->p1_);
     typename Bound2UnwrapTraits::ForwardType x2 =
         Bound2UnwrapTraits::Unwrap(storage->p2_);
-    return InvokeHelper<StorageType::IsWeakCall::value, R,
-           typename StorageType::RunnableType,
-           void(typename Bound1UnwrapTraits::ForwardType,
-               typename Bound2UnwrapTraits::ForwardType,
-               typename CallbackParamTraits<X3>::ForwardType x3,
-               typename CallbackParamTraits<X4>::ForwardType x4,
-               typename CallbackParamTraits<X5>::ForwardType x5,
-               typename CallbackParamTraits<X6>::ForwardType x6)>
-               ::MakeItSo(storage->runnable_, CallbackForward(x1),
-                   CallbackForward(x2), CallbackForward(x3),
-                   CallbackForward(x4), CallbackForward(x5),
-                   CallbackForward(x6));
+    return InvokeHelper<
+        StorageType::IsWeakCall::value, R, typename StorageType::RunnableType,
+        void(typename Bound1UnwrapTraits::ForwardType,
+             typename Bound2UnwrapTraits::ForwardType,
+             typename CallbackParamTraits<X3>::ForwardType x3,
+             typename CallbackParamTraits<X4>::ForwardType x4,
+             typename CallbackParamTraits<X5>::ForwardType x5,
+             typename CallbackParamTraits<X6>::ForwardType
+                 x6)>::MakeItSo(storage->runnable_, CallbackForward(x1),
+                                CallbackForward(x2), CallbackForward(x3),
+                                CallbackForward(x4), CallbackForward(x5),
+                                CallbackForward(x6));
   }
 };
 
 // Arity 6 -> 3.
-template <typename StorageType, typename R,typename X1, typename X2,
-    typename X3, typename X4, typename X5, typename X6>
+template <typename StorageType,
+          typename R,
+          typename X1,
+          typename X2,
+          typename X3,
+          typename X4,
+          typename X5,
+          typename X6>
 struct Invoker<3, StorageType, R(X1, X2, X3, X4, X5, X6)> {
   typedef R(RunType)(BindStateBase*,
-      typename CallbackParamTraits<X4>::ForwardType,
-      typename CallbackParamTraits<X5>::ForwardType,
-      typename CallbackParamTraits<X6>::ForwardType);
+                     typename CallbackParamTraits<X4>::ForwardType,
+                     typename CallbackParamTraits<X5>::ForwardType,
+                     typename CallbackParamTraits<X6>::ForwardType);
 
   typedef R(UnboundRunType)(X4, X5, X6);
 
   static R Run(BindStateBase* base,
-      typename CallbackParamTraits<X4>::ForwardType x4,
-      typename CallbackParamTraits<X5>::ForwardType x5,
-      typename CallbackParamTraits<X6>::ForwardType x6) {
+               typename CallbackParamTraits<X4>::ForwardType x4,
+               typename CallbackParamTraits<X5>::ForwardType x5,
+               typename CallbackParamTraits<X6>::ForwardType x6) {
     StorageType* storage = static_cast<StorageType*>(base);
 
     // Local references to make debugger stepping easier. If in a debugger,
@@ -1993,34 +2218,40 @@ struct Invoker<3, StorageType, R(X1, X2, X3, X4, X5, X6)> {
         Bound2UnwrapTraits::Unwrap(storage->p2_);
     typename Bound3UnwrapTraits::ForwardType x3 =
         Bound3UnwrapTraits::Unwrap(storage->p3_);
-    return InvokeHelper<StorageType::IsWeakCall::value, R,
-           typename StorageType::RunnableType,
-           void(typename Bound1UnwrapTraits::ForwardType,
-               typename Bound2UnwrapTraits::ForwardType,
-               typename Bound3UnwrapTraits::ForwardType,
-               typename CallbackParamTraits<X4>::ForwardType x4,
-               typename CallbackParamTraits<X5>::ForwardType x5,
-               typename CallbackParamTraits<X6>::ForwardType x6)>
-               ::MakeItSo(storage->runnable_, CallbackForward(x1),
-                   CallbackForward(x2), CallbackForward(x3),
-                   CallbackForward(x4), CallbackForward(x5),
-                   CallbackForward(x6));
+    return InvokeHelper<
+        StorageType::IsWeakCall::value, R, typename StorageType::RunnableType,
+        void(typename Bound1UnwrapTraits::ForwardType,
+             typename Bound2UnwrapTraits::ForwardType,
+             typename Bound3UnwrapTraits::ForwardType,
+             typename CallbackParamTraits<X4>::ForwardType x4,
+             typename CallbackParamTraits<X5>::ForwardType x5,
+             typename CallbackParamTraits<X6>::ForwardType
+                 x6)>::MakeItSo(storage->runnable_, CallbackForward(x1),
+                                CallbackForward(x2), CallbackForward(x3),
+                                CallbackForward(x4), CallbackForward(x5),
+                                CallbackForward(x6));
   }
 };
 
 // Arity 6 -> 2.
-template <typename StorageType, typename R,typename X1, typename X2,
-    typename X3, typename X4, typename X5, typename X6>
+template <typename StorageType,
+          typename R,
+          typename X1,
+          typename X2,
+          typename X3,
+          typename X4,
+          typename X5,
+          typename X6>
 struct Invoker<4, StorageType, R(X1, X2, X3, X4, X5, X6)> {
   typedef R(RunType)(BindStateBase*,
-      typename CallbackParamTraits<X5>::ForwardType,
-      typename CallbackParamTraits<X6>::ForwardType);
+                     typename CallbackParamTraits<X5>::ForwardType,
+                     typename CallbackParamTraits<X6>::ForwardType);
 
   typedef R(UnboundRunType)(X5, X6);
 
   static R Run(BindStateBase* base,
-      typename CallbackParamTraits<X5>::ForwardType x5,
-      typename CallbackParamTraits<X6>::ForwardType x6) {
+               typename CallbackParamTraits<X5>::ForwardType x5,
+               typename CallbackParamTraits<X6>::ForwardType x6) {
     StorageType* storage = static_cast<StorageType*>(base);
 
     // Local references to make debugger stepping easier. If in a debugger,
@@ -2039,32 +2270,38 @@ struct Invoker<4, StorageType, R(X1, X2, X3, X4, X5, X6)> {
         Bound3UnwrapTraits::Unwrap(storage->p3_);
     typename Bound4UnwrapTraits::ForwardType x4 =
         Bound4UnwrapTraits::Unwrap(storage->p4_);
-    return InvokeHelper<StorageType::IsWeakCall::value, R,
-           typename StorageType::RunnableType,
-           void(typename Bound1UnwrapTraits::ForwardType,
-               typename Bound2UnwrapTraits::ForwardType,
-               typename Bound3UnwrapTraits::ForwardType,
-               typename Bound4UnwrapTraits::ForwardType,
-               typename CallbackParamTraits<X5>::ForwardType x5,
-               typename CallbackParamTraits<X6>::ForwardType x6)>
-               ::MakeItSo(storage->runnable_, CallbackForward(x1),
-                   CallbackForward(x2), CallbackForward(x3),
-                   CallbackForward(x4), CallbackForward(x5),
-                   CallbackForward(x6));
+    return InvokeHelper<
+        StorageType::IsWeakCall::value, R, typename StorageType::RunnableType,
+        void(typename Bound1UnwrapTraits::ForwardType,
+             typename Bound2UnwrapTraits::ForwardType,
+             typename Bound3UnwrapTraits::ForwardType,
+             typename Bound4UnwrapTraits::ForwardType,
+             typename CallbackParamTraits<X5>::ForwardType x5,
+             typename CallbackParamTraits<X6>::ForwardType
+                 x6)>::MakeItSo(storage->runnable_, CallbackForward(x1),
+                                CallbackForward(x2), CallbackForward(x3),
+                                CallbackForward(x4), CallbackForward(x5),
+                                CallbackForward(x6));
   }
 };
 
 // Arity 6 -> 1.
-template <typename StorageType, typename R,typename X1, typename X2,
-    typename X3, typename X4, typename X5, typename X6>
+template <typename StorageType,
+          typename R,
+          typename X1,
+          typename X2,
+          typename X3,
+          typename X4,
+          typename X5,
+          typename X6>
 struct Invoker<5, StorageType, R(X1, X2, X3, X4, X5, X6)> {
   typedef R(RunType)(BindStateBase*,
-      typename CallbackParamTraits<X6>::ForwardType);
+                     typename CallbackParamTraits<X6>::ForwardType);
 
   typedef R(UnboundRunType)(X6);
 
   static R Run(BindStateBase* base,
-      typename CallbackParamTraits<X6>::ForwardType x6) {
+               typename CallbackParamTraits<X6>::ForwardType x6) {
     StorageType* storage = static_cast<StorageType*>(base);
 
     // Local references to make debugger stepping easier. If in a debugger,
@@ -2086,24 +2323,30 @@ struct Invoker<5, StorageType, R(X1, X2, X3, X4, X5, X6)> {
         Bound4UnwrapTraits::Unwrap(storage->p4_);
     typename Bound5UnwrapTraits::ForwardType x5 =
         Bound5UnwrapTraits::Unwrap(storage->p5_);
-    return InvokeHelper<StorageType::IsWeakCall::value, R,
-           typename StorageType::RunnableType,
-           void(typename Bound1UnwrapTraits::ForwardType,
-               typename Bound2UnwrapTraits::ForwardType,
-               typename Bound3UnwrapTraits::ForwardType,
-               typename Bound4UnwrapTraits::ForwardType,
-               typename Bound5UnwrapTraits::ForwardType,
-               typename CallbackParamTraits<X6>::ForwardType x6)>
-               ::MakeItSo(storage->runnable_, CallbackForward(x1),
-                   CallbackForward(x2), CallbackForward(x3),
-                   CallbackForward(x4), CallbackForward(x5),
-                   CallbackForward(x6));
+    return InvokeHelper<
+        StorageType::IsWeakCall::value, R, typename StorageType::RunnableType,
+        void(typename Bound1UnwrapTraits::ForwardType,
+             typename Bound2UnwrapTraits::ForwardType,
+             typename Bound3UnwrapTraits::ForwardType,
+             typename Bound4UnwrapTraits::ForwardType,
+             typename Bound5UnwrapTraits::ForwardType,
+             typename CallbackParamTraits<X6>::ForwardType
+                 x6)>::MakeItSo(storage->runnable_, CallbackForward(x1),
+                                CallbackForward(x2), CallbackForward(x3),
+                                CallbackForward(x4), CallbackForward(x5),
+                                CallbackForward(x6));
   }
 };
 
 // Arity 6 -> 0.
-template <typename StorageType, typename R,typename X1, typename X2,
-    typename X3, typename X4, typename X5, typename X6>
+template <typename StorageType,
+          typename R,
+          typename X1,
+          typename X2,
+          typename X3,
+          typename X4,
+          typename X5,
+          typename X6>
 struct Invoker<6, StorageType, R(X1, X2, X3, X4, X5, X6)> {
   typedef R(RunType)(BindStateBase*);
 
@@ -2135,86 +2378,99 @@ struct Invoker<6, StorageType, R(X1, X2, X3, X4, X5, X6)> {
     typename Bound6UnwrapTraits::ForwardType x6 =
         Bound6UnwrapTraits::Unwrap(storage->p6_);
     return InvokeHelper<StorageType::IsWeakCall::value, R,
-           typename StorageType::RunnableType,
-           void(typename Bound1UnwrapTraits::ForwardType,
-               typename Bound2UnwrapTraits::ForwardType,
-               typename Bound3UnwrapTraits::ForwardType,
-               typename Bound4UnwrapTraits::ForwardType,
-               typename Bound5UnwrapTraits::ForwardType,
-               typename Bound6UnwrapTraits::ForwardType)>
-               ::MakeItSo(storage->runnable_, CallbackForward(x1),
-                   CallbackForward(x2), CallbackForward(x3),
-                   CallbackForward(x4), CallbackForward(x5),
-                   CallbackForward(x6));
+                        typename StorageType::RunnableType,
+                        void(typename Bound1UnwrapTraits::ForwardType,
+                             typename Bound2UnwrapTraits::ForwardType,
+                             typename Bound3UnwrapTraits::ForwardType,
+                             typename Bound4UnwrapTraits::ForwardType,
+                             typename Bound5UnwrapTraits::ForwardType,
+                             typename Bound6UnwrapTraits::ForwardType)>::
+        MakeItSo(storage->runnable_, CallbackForward(x1), CallbackForward(x2),
+                 CallbackForward(x3), CallbackForward(x4), CallbackForward(x5),
+                 CallbackForward(x6));
   }
 };
 
 // Arity 7 -> 7.
-template <typename StorageType, typename R,typename X1, typename X2,
-    typename X3, typename X4, typename X5, typename X6, typename X7>
+template <typename StorageType,
+          typename R,
+          typename X1,
+          typename X2,
+          typename X3,
+          typename X4,
+          typename X5,
+          typename X6,
+          typename X7>
 struct Invoker<0, StorageType, R(X1, X2, X3, X4, X5, X6, X7)> {
   typedef R(RunType)(BindStateBase*,
-      typename CallbackParamTraits<X1>::ForwardType,
-      typename CallbackParamTraits<X2>::ForwardType,
-      typename CallbackParamTraits<X3>::ForwardType,
-      typename CallbackParamTraits<X4>::ForwardType,
-      typename CallbackParamTraits<X5>::ForwardType,
-      typename CallbackParamTraits<X6>::ForwardType,
-      typename CallbackParamTraits<X7>::ForwardType);
+                     typename CallbackParamTraits<X1>::ForwardType,
+                     typename CallbackParamTraits<X2>::ForwardType,
+                     typename CallbackParamTraits<X3>::ForwardType,
+                     typename CallbackParamTraits<X4>::ForwardType,
+                     typename CallbackParamTraits<X5>::ForwardType,
+                     typename CallbackParamTraits<X6>::ForwardType,
+                     typename CallbackParamTraits<X7>::ForwardType);
 
   typedef R(UnboundRunType)(X1, X2, X3, X4, X5, X6, X7);
 
   static R Run(BindStateBase* base,
-      typename CallbackParamTraits<X1>::ForwardType x1,
-      typename CallbackParamTraits<X2>::ForwardType x2,
-      typename CallbackParamTraits<X3>::ForwardType x3,
-      typename CallbackParamTraits<X4>::ForwardType x4,
-      typename CallbackParamTraits<X5>::ForwardType x5,
-      typename CallbackParamTraits<X6>::ForwardType x6,
-      typename CallbackParamTraits<X7>::ForwardType x7) {
+               typename CallbackParamTraits<X1>::ForwardType x1,
+               typename CallbackParamTraits<X2>::ForwardType x2,
+               typename CallbackParamTraits<X3>::ForwardType x3,
+               typename CallbackParamTraits<X4>::ForwardType x4,
+               typename CallbackParamTraits<X5>::ForwardType x5,
+               typename CallbackParamTraits<X6>::ForwardType x6,
+               typename CallbackParamTraits<X7>::ForwardType x7) {
     StorageType* storage = static_cast<StorageType*>(base);
 
     // Local references to make debugger stepping easier. If in a debugger,
     // you really want to warp ahead and step through the
     // InvokeHelper<>::MakeItSo() call below.
 
-    return InvokeHelper<StorageType::IsWeakCall::value, R,
-           typename StorageType::RunnableType,
-           void(typename CallbackParamTraits<X1>::ForwardType x1,
+    return InvokeHelper<
+        StorageType::IsWeakCall::value, R, typename StorageType::RunnableType,
+        void(typename CallbackParamTraits<X1>::ForwardType x1,
+             typename CallbackParamTraits<X2>::ForwardType x2,
+             typename CallbackParamTraits<X3>::ForwardType x3,
+             typename CallbackParamTraits<X4>::ForwardType x4,
+             typename CallbackParamTraits<X5>::ForwardType x5,
+             typename CallbackParamTraits<X6>::ForwardType x6,
+             typename CallbackParamTraits<X7>::ForwardType
+                 x7)>::MakeItSo(storage->runnable_, CallbackForward(x1),
+                                CallbackForward(x2), CallbackForward(x3),
+                                CallbackForward(x4), CallbackForward(x5),
+                                CallbackForward(x6), CallbackForward(x7));
+  }
+};
+
+// Arity 7 -> 6.
+template <typename StorageType,
+          typename R,
+          typename X1,
+          typename X2,
+          typename X3,
+          typename X4,
+          typename X5,
+          typename X6,
+          typename X7>
+struct Invoker<1, StorageType, R(X1, X2, X3, X4, X5, X6, X7)> {
+  typedef R(RunType)(BindStateBase*,
+                     typename CallbackParamTraits<X2>::ForwardType,
+                     typename CallbackParamTraits<X3>::ForwardType,
+                     typename CallbackParamTraits<X4>::ForwardType,
+                     typename CallbackParamTraits<X5>::ForwardType,
+                     typename CallbackParamTraits<X6>::ForwardType,
+                     typename CallbackParamTraits<X7>::ForwardType);
+
+  typedef R(UnboundRunType)(X2, X3, X4, X5, X6, X7);
+
+  static R Run(BindStateBase* base,
                typename CallbackParamTraits<X2>::ForwardType x2,
                typename CallbackParamTraits<X3>::ForwardType x3,
                typename CallbackParamTraits<X4>::ForwardType x4,
                typename CallbackParamTraits<X5>::ForwardType x5,
                typename CallbackParamTraits<X6>::ForwardType x6,
-               typename CallbackParamTraits<X7>::ForwardType x7)>
-               ::MakeItSo(storage->runnable_, CallbackForward(x1),
-                   CallbackForward(x2), CallbackForward(x3),
-                   CallbackForward(x4), CallbackForward(x5),
-                   CallbackForward(x6), CallbackForward(x7));
-  }
-};
-
-// Arity 7 -> 6.
-template <typename StorageType, typename R,typename X1, typename X2,
-    typename X3, typename X4, typename X5, typename X6, typename X7>
-struct Invoker<1, StorageType, R(X1, X2, X3, X4, X5, X6, X7)> {
-  typedef R(RunType)(BindStateBase*,
-      typename CallbackParamTraits<X2>::ForwardType,
-      typename CallbackParamTraits<X3>::ForwardType,
-      typename CallbackParamTraits<X4>::ForwardType,
-      typename CallbackParamTraits<X5>::ForwardType,
-      typename CallbackParamTraits<X6>::ForwardType,
-      typename CallbackParamTraits<X7>::ForwardType);
-
-  typedef R(UnboundRunType)(X2, X3, X4, X5, X6, X7);
-
-  static R Run(BindStateBase* base,
-      typename CallbackParamTraits<X2>::ForwardType x2,
-      typename CallbackParamTraits<X3>::ForwardType x3,
-      typename CallbackParamTraits<X4>::ForwardType x4,
-      typename CallbackParamTraits<X5>::ForwardType x5,
-      typename CallbackParamTraits<X6>::ForwardType x6,
-      typename CallbackParamTraits<X7>::ForwardType x7) {
+               typename CallbackParamTraits<X7>::ForwardType x7) {
     StorageType* storage = static_cast<StorageType*>(base);
 
     // Local references to make debugger stepping easier. If in a debugger,
@@ -2224,41 +2480,48 @@ struct Invoker<1, StorageType, R(X1, X2, X3, X4, X5, X6, X7)> {
 
     typename Bound1UnwrapTraits::ForwardType x1 =
         Bound1UnwrapTraits::Unwrap(storage->p1_);
-    return InvokeHelper<StorageType::IsWeakCall::value, R,
-           typename StorageType::RunnableType,
-           void(typename Bound1UnwrapTraits::ForwardType,
-               typename CallbackParamTraits<X2>::ForwardType x2,
-               typename CallbackParamTraits<X3>::ForwardType x3,
-               typename CallbackParamTraits<X4>::ForwardType x4,
-               typename CallbackParamTraits<X5>::ForwardType x5,
-               typename CallbackParamTraits<X6>::ForwardType x6,
-               typename CallbackParamTraits<X7>::ForwardType x7)>
-               ::MakeItSo(storage->runnable_, CallbackForward(x1),
-                   CallbackForward(x2), CallbackForward(x3),
-                   CallbackForward(x4), CallbackForward(x5),
-                   CallbackForward(x6), CallbackForward(x7));
+    return InvokeHelper<
+        StorageType::IsWeakCall::value, R, typename StorageType::RunnableType,
+        void(typename Bound1UnwrapTraits::ForwardType,
+             typename CallbackParamTraits<X2>::ForwardType x2,
+             typename CallbackParamTraits<X3>::ForwardType x3,
+             typename CallbackParamTraits<X4>::ForwardType x4,
+             typename CallbackParamTraits<X5>::ForwardType x5,
+             typename CallbackParamTraits<X6>::ForwardType x6,
+             typename CallbackParamTraits<X7>::ForwardType
+                 x7)>::MakeItSo(storage->runnable_, CallbackForward(x1),
+                                CallbackForward(x2), CallbackForward(x3),
+                                CallbackForward(x4), CallbackForward(x5),
+                                CallbackForward(x6), CallbackForward(x7));
   }
 };
 
 // Arity 7 -> 5.
-template <typename StorageType, typename R,typename X1, typename X2,
-    typename X3, typename X4, typename X5, typename X6, typename X7>
+template <typename StorageType,
+          typename R,
+          typename X1,
+          typename X2,
+          typename X3,
+          typename X4,
+          typename X5,
+          typename X6,
+          typename X7>
 struct Invoker<2, StorageType, R(X1, X2, X3, X4, X5, X6, X7)> {
   typedef R(RunType)(BindStateBase*,
-      typename CallbackParamTraits<X3>::ForwardType,
-      typename CallbackParamTraits<X4>::ForwardType,
-      typename CallbackParamTraits<X5>::ForwardType,
-      typename CallbackParamTraits<X6>::ForwardType,
-      typename CallbackParamTraits<X7>::ForwardType);
+                     typename CallbackParamTraits<X3>::ForwardType,
+                     typename CallbackParamTraits<X4>::ForwardType,
+                     typename CallbackParamTraits<X5>::ForwardType,
+                     typename CallbackParamTraits<X6>::ForwardType,
+                     typename CallbackParamTraits<X7>::ForwardType);
 
   typedef R(UnboundRunType)(X3, X4, X5, X6, X7);
 
   static R Run(BindStateBase* base,
-      typename CallbackParamTraits<X3>::ForwardType x3,
-      typename CallbackParamTraits<X4>::ForwardType x4,
-      typename CallbackParamTraits<X5>::ForwardType x5,
-      typename CallbackParamTraits<X6>::ForwardType x6,
-      typename CallbackParamTraits<X7>::ForwardType x7) {
+               typename CallbackParamTraits<X3>::ForwardType x3,
+               typename CallbackParamTraits<X4>::ForwardType x4,
+               typename CallbackParamTraits<X5>::ForwardType x5,
+               typename CallbackParamTraits<X6>::ForwardType x6,
+               typename CallbackParamTraits<X7>::ForwardType x7) {
     StorageType* storage = static_cast<StorageType*>(base);
 
     // Local references to make debugger stepping easier. If in a debugger,
@@ -2271,39 +2534,46 @@ struct Invoker<2, StorageType, R(X1, X2, X3, X4, X5, X6, X7)> {
         Bound1UnwrapTraits::Unwrap(storage->p1_);
     typename Bound2UnwrapTraits::ForwardType x2 =
         Bound2UnwrapTraits::Unwrap(storage->p2_);
-    return InvokeHelper<StorageType::IsWeakCall::value, R,
-           typename StorageType::RunnableType,
-           void(typename Bound1UnwrapTraits::ForwardType,
-               typename Bound2UnwrapTraits::ForwardType,
-               typename CallbackParamTraits<X3>::ForwardType x3,
-               typename CallbackParamTraits<X4>::ForwardType x4,
-               typename CallbackParamTraits<X5>::ForwardType x5,
-               typename CallbackParamTraits<X6>::ForwardType x6,
-               typename CallbackParamTraits<X7>::ForwardType x7)>
-               ::MakeItSo(storage->runnable_, CallbackForward(x1),
-                   CallbackForward(x2), CallbackForward(x3),
-                   CallbackForward(x4), CallbackForward(x5),
-                   CallbackForward(x6), CallbackForward(x7));
+    return InvokeHelper<
+        StorageType::IsWeakCall::value, R, typename StorageType::RunnableType,
+        void(typename Bound1UnwrapTraits::ForwardType,
+             typename Bound2UnwrapTraits::ForwardType,
+             typename CallbackParamTraits<X3>::ForwardType x3,
+             typename CallbackParamTraits<X4>::ForwardType x4,
+             typename CallbackParamTraits<X5>::ForwardType x5,
+             typename CallbackParamTraits<X6>::ForwardType x6,
+             typename CallbackParamTraits<X7>::ForwardType
+                 x7)>::MakeItSo(storage->runnable_, CallbackForward(x1),
+                                CallbackForward(x2), CallbackForward(x3),
+                                CallbackForward(x4), CallbackForward(x5),
+                                CallbackForward(x6), CallbackForward(x7));
   }
 };
 
 // Arity 7 -> 4.
-template <typename StorageType, typename R,typename X1, typename X2,
-    typename X3, typename X4, typename X5, typename X6, typename X7>
+template <typename StorageType,
+          typename R,
+          typename X1,
+          typename X2,
+          typename X3,
+          typename X4,
+          typename X5,
+          typename X6,
+          typename X7>
 struct Invoker<3, StorageType, R(X1, X2, X3, X4, X5, X6, X7)> {
   typedef R(RunType)(BindStateBase*,
-      typename CallbackParamTraits<X4>::ForwardType,
-      typename CallbackParamTraits<X5>::ForwardType,
-      typename CallbackParamTraits<X6>::ForwardType,
-      typename CallbackParamTraits<X7>::ForwardType);
+                     typename CallbackParamTraits<X4>::ForwardType,
+                     typename CallbackParamTraits<X5>::ForwardType,
+                     typename CallbackParamTraits<X6>::ForwardType,
+                     typename CallbackParamTraits<X7>::ForwardType);
 
   typedef R(UnboundRunType)(X4, X5, X6, X7);
 
   static R Run(BindStateBase* base,
-      typename CallbackParamTraits<X4>::ForwardType x4,
-      typename CallbackParamTraits<X5>::ForwardType x5,
-      typename CallbackParamTraits<X6>::ForwardType x6,
-      typename CallbackParamTraits<X7>::ForwardType x7) {
+               typename CallbackParamTraits<X4>::ForwardType x4,
+               typename CallbackParamTraits<X5>::ForwardType x5,
+               typename CallbackParamTraits<X6>::ForwardType x6,
+               typename CallbackParamTraits<X7>::ForwardType x7) {
     StorageType* storage = static_cast<StorageType*>(base);
 
     // Local references to make debugger stepping easier. If in a debugger,
@@ -2319,37 +2589,44 @@ struct Invoker<3, StorageType, R(X1, X2, X3, X4, X5, X6, X7)> {
         Bound2UnwrapTraits::Unwrap(storage->p2_);
     typename Bound3UnwrapTraits::ForwardType x3 =
         Bound3UnwrapTraits::Unwrap(storage->p3_);
-    return InvokeHelper<StorageType::IsWeakCall::value, R,
-           typename StorageType::RunnableType,
-           void(typename Bound1UnwrapTraits::ForwardType,
-               typename Bound2UnwrapTraits::ForwardType,
-               typename Bound3UnwrapTraits::ForwardType,
-               typename CallbackParamTraits<X4>::ForwardType x4,
-               typename CallbackParamTraits<X5>::ForwardType x5,
-               typename CallbackParamTraits<X6>::ForwardType x6,
-               typename CallbackParamTraits<X7>::ForwardType x7)>
-               ::MakeItSo(storage->runnable_, CallbackForward(x1),
-                   CallbackForward(x2), CallbackForward(x3),
-                   CallbackForward(x4), CallbackForward(x5),
-                   CallbackForward(x6), CallbackForward(x7));
+    return InvokeHelper<
+        StorageType::IsWeakCall::value, R, typename StorageType::RunnableType,
+        void(typename Bound1UnwrapTraits::ForwardType,
+             typename Bound2UnwrapTraits::ForwardType,
+             typename Bound3UnwrapTraits::ForwardType,
+             typename CallbackParamTraits<X4>::ForwardType x4,
+             typename CallbackParamTraits<X5>::ForwardType x5,
+             typename CallbackParamTraits<X6>::ForwardType x6,
+             typename CallbackParamTraits<X7>::ForwardType
+                 x7)>::MakeItSo(storage->runnable_, CallbackForward(x1),
+                                CallbackForward(x2), CallbackForward(x3),
+                                CallbackForward(x4), CallbackForward(x5),
+                                CallbackForward(x6), CallbackForward(x7));
   }
 };
 
 // Arity 7 -> 3.
-template <typename StorageType, typename R,typename X1, typename X2,
-    typename X3, typename X4, typename X5, typename X6, typename X7>
+template <typename StorageType,
+          typename R,
+          typename X1,
+          typename X2,
+          typename X3,
+          typename X4,
+          typename X5,
+          typename X6,
+          typename X7>
 struct Invoker<4, StorageType, R(X1, X2, X3, X4, X5, X6, X7)> {
   typedef R(RunType)(BindStateBase*,
-      typename CallbackParamTraits<X5>::ForwardType,
-      typename CallbackParamTraits<X6>::ForwardType,
-      typename CallbackParamTraits<X7>::ForwardType);
+                     typename CallbackParamTraits<X5>::ForwardType,
+                     typename CallbackParamTraits<X6>::ForwardType,
+                     typename CallbackParamTraits<X7>::ForwardType);
 
   typedef R(UnboundRunType)(X5, X6, X7);
 
   static R Run(BindStateBase* base,
-      typename CallbackParamTraits<X5>::ForwardType x5,
-      typename CallbackParamTraits<X6>::ForwardType x6,
-      typename CallbackParamTraits<X7>::ForwardType x7) {
+               typename CallbackParamTraits<X5>::ForwardType x5,
+               typename CallbackParamTraits<X6>::ForwardType x6,
+               typename CallbackParamTraits<X7>::ForwardType x7) {
     StorageType* storage = static_cast<StorageType*>(base);
 
     // Local references to make debugger stepping easier. If in a debugger,
@@ -2368,35 +2645,42 @@ struct Invoker<4, StorageType, R(X1, X2, X3, X4, X5, X6, X7)> {
         Bound3UnwrapTraits::Unwrap(storage->p3_);
     typename Bound4UnwrapTraits::ForwardType x4 =
         Bound4UnwrapTraits::Unwrap(storage->p4_);
-    return InvokeHelper<StorageType::IsWeakCall::value, R,
-           typename StorageType::RunnableType,
-           void(typename Bound1UnwrapTraits::ForwardType,
-               typename Bound2UnwrapTraits::ForwardType,
-               typename Bound3UnwrapTraits::ForwardType,
-               typename Bound4UnwrapTraits::ForwardType,
-               typename CallbackParamTraits<X5>::ForwardType x5,
-               typename CallbackParamTraits<X6>::ForwardType x6,
-               typename CallbackParamTraits<X7>::ForwardType x7)>
-               ::MakeItSo(storage->runnable_, CallbackForward(x1),
-                   CallbackForward(x2), CallbackForward(x3),
-                   CallbackForward(x4), CallbackForward(x5),
-                   CallbackForward(x6), CallbackForward(x7));
+    return InvokeHelper<
+        StorageType::IsWeakCall::value, R, typename StorageType::RunnableType,
+        void(typename Bound1UnwrapTraits::ForwardType,
+             typename Bound2UnwrapTraits::ForwardType,
+             typename Bound3UnwrapTraits::ForwardType,
+             typename Bound4UnwrapTraits::ForwardType,
+             typename CallbackParamTraits<X5>::ForwardType x5,
+             typename CallbackParamTraits<X6>::ForwardType x6,
+             typename CallbackParamTraits<X7>::ForwardType
+                 x7)>::MakeItSo(storage->runnable_, CallbackForward(x1),
+                                CallbackForward(x2), CallbackForward(x3),
+                                CallbackForward(x4), CallbackForward(x5),
+                                CallbackForward(x6), CallbackForward(x7));
   }
 };
 
 // Arity 7 -> 2.
-template <typename StorageType, typename R,typename X1, typename X2,
-    typename X3, typename X4, typename X5, typename X6, typename X7>
+template <typename StorageType,
+          typename R,
+          typename X1,
+          typename X2,
+          typename X3,
+          typename X4,
+          typename X5,
+          typename X6,
+          typename X7>
 struct Invoker<5, StorageType, R(X1, X2, X3, X4, X5, X6, X7)> {
   typedef R(RunType)(BindStateBase*,
-      typename CallbackParamTraits<X6>::ForwardType,
-      typename CallbackParamTraits<X7>::ForwardType);
+                     typename CallbackParamTraits<X6>::ForwardType,
+                     typename CallbackParamTraits<X7>::ForwardType);
 
   typedef R(UnboundRunType)(X6, X7);
 
   static R Run(BindStateBase* base,
-      typename CallbackParamTraits<X6>::ForwardType x6,
-      typename CallbackParamTraits<X7>::ForwardType x7) {
+               typename CallbackParamTraits<X6>::ForwardType x6,
+               typename CallbackParamTraits<X7>::ForwardType x7) {
     StorageType* storage = static_cast<StorageType*>(base);
 
     // Local references to make debugger stepping easier. If in a debugger,
@@ -2418,33 +2702,40 @@ struct Invoker<5, StorageType, R(X1, X2, X3, X4, X5, X6, X7)> {
         Bound4UnwrapTraits::Unwrap(storage->p4_);
     typename Bound5UnwrapTraits::ForwardType x5 =
         Bound5UnwrapTraits::Unwrap(storage->p5_);
-    return InvokeHelper<StorageType::IsWeakCall::value, R,
-           typename StorageType::RunnableType,
-           void(typename Bound1UnwrapTraits::ForwardType,
-               typename Bound2UnwrapTraits::ForwardType,
-               typename Bound3UnwrapTraits::ForwardType,
-               typename Bound4UnwrapTraits::ForwardType,
-               typename Bound5UnwrapTraits::ForwardType,
-               typename CallbackParamTraits<X6>::ForwardType x6,
-               typename CallbackParamTraits<X7>::ForwardType x7)>
-               ::MakeItSo(storage->runnable_, CallbackForward(x1),
-                   CallbackForward(x2), CallbackForward(x3),
-                   CallbackForward(x4), CallbackForward(x5),
-                   CallbackForward(x6), CallbackForward(x7));
+    return InvokeHelper<
+        StorageType::IsWeakCall::value, R, typename StorageType::RunnableType,
+        void(typename Bound1UnwrapTraits::ForwardType,
+             typename Bound2UnwrapTraits::ForwardType,
+             typename Bound3UnwrapTraits::ForwardType,
+             typename Bound4UnwrapTraits::ForwardType,
+             typename Bound5UnwrapTraits::ForwardType,
+             typename CallbackParamTraits<X6>::ForwardType x6,
+             typename CallbackParamTraits<X7>::ForwardType
+                 x7)>::MakeItSo(storage->runnable_, CallbackForward(x1),
+                                CallbackForward(x2), CallbackForward(x3),
+                                CallbackForward(x4), CallbackForward(x5),
+                                CallbackForward(x6), CallbackForward(x7));
   }
 };
 
 // Arity 7 -> 1.
-template <typename StorageType, typename R,typename X1, typename X2,
-    typename X3, typename X4, typename X5, typename X6, typename X7>
+template <typename StorageType,
+          typename R,
+          typename X1,
+          typename X2,
+          typename X3,
+          typename X4,
+          typename X5,
+          typename X6,
+          typename X7>
 struct Invoker<6, StorageType, R(X1, X2, X3, X4, X5, X6, X7)> {
   typedef R(RunType)(BindStateBase*,
-      typename CallbackParamTraits<X7>::ForwardType);
+                     typename CallbackParamTraits<X7>::ForwardType);
 
   typedef R(UnboundRunType)(X7);
 
   static R Run(BindStateBase* base,
-      typename CallbackParamTraits<X7>::ForwardType x7) {
+               typename CallbackParamTraits<X7>::ForwardType x7) {
     StorageType* storage = static_cast<StorageType*>(base);
 
     // Local references to make debugger stepping easier. If in a debugger,
@@ -2469,25 +2760,32 @@ struct Invoker<6, StorageType, R(X1, X2, X3, X4, X5, X6, X7)> {
         Bound5UnwrapTraits::Unwrap(storage->p5_);
     typename Bound6UnwrapTraits::ForwardType x6 =
         Bound6UnwrapTraits::Unwrap(storage->p6_);
-    return InvokeHelper<StorageType::IsWeakCall::value, R,
-           typename StorageType::RunnableType,
-           void(typename Bound1UnwrapTraits::ForwardType,
-               typename Bound2UnwrapTraits::ForwardType,
-               typename Bound3UnwrapTraits::ForwardType,
-               typename Bound4UnwrapTraits::ForwardType,
-               typename Bound5UnwrapTraits::ForwardType,
-               typename Bound6UnwrapTraits::ForwardType,
-               typename CallbackParamTraits<X7>::ForwardType x7)>
-               ::MakeItSo(storage->runnable_, CallbackForward(x1),
-                   CallbackForward(x2), CallbackForward(x3),
-                   CallbackForward(x4), CallbackForward(x5),
-                   CallbackForward(x6), CallbackForward(x7));
+    return InvokeHelper<
+        StorageType::IsWeakCall::value, R, typename StorageType::RunnableType,
+        void(typename Bound1UnwrapTraits::ForwardType,
+             typename Bound2UnwrapTraits::ForwardType,
+             typename Bound3UnwrapTraits::ForwardType,
+             typename Bound4UnwrapTraits::ForwardType,
+             typename Bound5UnwrapTraits::ForwardType,
+             typename Bound6UnwrapTraits::ForwardType,
+             typename CallbackParamTraits<X7>::ForwardType
+                 x7)>::MakeItSo(storage->runnable_, CallbackForward(x1),
+                                CallbackForward(x2), CallbackForward(x3),
+                                CallbackForward(x4), CallbackForward(x5),
+                                CallbackForward(x6), CallbackForward(x7));
   }
 };
 
 // Arity 7 -> 0.
-template <typename StorageType, typename R,typename X1, typename X2,
-    typename X3, typename X4, typename X5, typename X6, typename X7>
+template <typename StorageType,
+          typename R,
+          typename X1,
+          typename X2,
+          typename X3,
+          typename X4,
+          typename X5,
+          typename X6,
+          typename X7>
 struct Invoker<7, StorageType, R(X1, X2, X3, X4, X5, X6, X7)> {
   typedef R(RunType)(BindStateBase*);
 
@@ -2522,21 +2820,19 @@ struct Invoker<7, StorageType, R(X1, X2, X3, X4, X5, X6, X7)> {
     typename Bound7UnwrapTraits::ForwardType x7 =
         Bound7UnwrapTraits::Unwrap(storage->p7_);
     return InvokeHelper<StorageType::IsWeakCall::value, R,
-           typename StorageType::RunnableType,
-           void(typename Bound1UnwrapTraits::ForwardType,
-               typename Bound2UnwrapTraits::ForwardType,
-               typename Bound3UnwrapTraits::ForwardType,
-               typename Bound4UnwrapTraits::ForwardType,
-               typename Bound5UnwrapTraits::ForwardType,
-               typename Bound6UnwrapTraits::ForwardType,
-               typename Bound7UnwrapTraits::ForwardType)>
-               ::MakeItSo(storage->runnable_, CallbackForward(x1),
-                   CallbackForward(x2), CallbackForward(x3),
-                   CallbackForward(x4), CallbackForward(x5),
-                   CallbackForward(x6), CallbackForward(x7));
+                        typename StorageType::RunnableType,
+                        void(typename Bound1UnwrapTraits::ForwardType,
+                             typename Bound2UnwrapTraits::ForwardType,
+                             typename Bound3UnwrapTraits::ForwardType,
+                             typename Bound4UnwrapTraits::ForwardType,
+                             typename Bound5UnwrapTraits::ForwardType,
+                             typename Bound6UnwrapTraits::ForwardType,
+                             typename Bound7UnwrapTraits::ForwardType)>::
+        MakeItSo(storage->runnable_, CallbackForward(x1), CallbackForward(x2),
+                 CallbackForward(x3), CallbackForward(x4), CallbackForward(x5),
+                 CallbackForward(x6), CallbackForward(x7));
   }
 };
-
 
 // BindState<>
 //
@@ -2560,11 +2856,9 @@ struct BindState<Runnable, RunType, void()> : public BindStateBase {
   typedef Invoker<0, BindState, RunType> InvokerType;
   typedef typename InvokerType::UnboundRunType UnboundRunType;
   explicit BindState(const Runnable& runnable)
-      : BindStateBase(&Destroy),
-        runnable_(runnable) {
-  }
+      : BindStateBase(&Destroy), runnable_(runnable) {}
 
-  ~BindState() {  }
+  ~BindState() {}
 
   static void Destroy(BindStateBase* self) {
     delete static_cast<BindState*>(self);
@@ -2584,14 +2878,13 @@ struct BindState<Runnable, RunType, void(P1)> : public BindStateBase {
   typedef UnwrapTraits<P1> Bound1UnwrapTraits;
 
   BindState(const Runnable& runnable, const P1& p1)
-      : BindStateBase(&Destroy),
-        runnable_(runnable),
-        p1_(p1) {
+      : BindStateBase(&Destroy), runnable_(runnable), p1_(p1) {
     MaybeRefcount<HasIsMethodTag<Runnable>::value, P1>::AddRef(p1_);
   }
 
-  ~BindState() {    MaybeRefcount<HasIsMethodTag<Runnable>::value,
-      P1>::Release(p1_);  }
+  ~BindState() {
+    MaybeRefcount<HasIsMethodTag<Runnable>::value, P1>::Release(p1_);
+  }
 
   static void Destroy(BindStateBase* self) {
     delete static_cast<BindState*>(self);
@@ -2613,15 +2906,13 @@ struct BindState<Runnable, RunType, void(P1, P2)> : public BindStateBase {
   typedef UnwrapTraits<P2> Bound2UnwrapTraits;
 
   BindState(const Runnable& runnable, const P1& p1, const P2& p2)
-      : BindStateBase(&Destroy),
-        runnable_(runnable),
-        p1_(p1),
-        p2_(p2) {
+      : BindStateBase(&Destroy), runnable_(runnable), p1_(p1), p2_(p2) {
     MaybeRefcount<HasIsMethodTag<Runnable>::value, P1>::AddRef(p1_);
   }
 
-  ~BindState() {    MaybeRefcount<HasIsMethodTag<Runnable>::value,
-      P1>::Release(p1_);  }
+  ~BindState() {
+    MaybeRefcount<HasIsMethodTag<Runnable>::value, P1>::Release(p1_);
+  }
 
   static void Destroy(BindStateBase* self) {
     delete static_cast<BindState*>(self);
@@ -2632,10 +2923,12 @@ struct BindState<Runnable, RunType, void(P1, P2)> : public BindStateBase {
   P2 p2_;
 };
 
-template <typename Runnable, typename RunType, typename P1, typename P2,
-    typename P3>
-struct BindState<Runnable, RunType, void(P1, P2, P3)>
-    : public BindStateBase {
+template <typename Runnable,
+          typename RunType,
+          typename P1,
+          typename P2,
+          typename P3>
+struct BindState<Runnable, RunType, void(P1, P2, P3)> : public BindStateBase {
   typedef Runnable RunnableType;
   typedef IsWeakMethod<HasIsMethodTag<Runnable>::value, P1> IsWeakCall;
   typedef Invoker<3, BindState, RunType> InvokerType;
@@ -2655,8 +2948,9 @@ struct BindState<Runnable, RunType, void(P1, P2, P3)>
     MaybeRefcount<HasIsMethodTag<Runnable>::value, P1>::AddRef(p1_);
   }
 
-  ~BindState() {    MaybeRefcount<HasIsMethodTag<Runnable>::value,
-      P1>::Release(p1_);  }
+  ~BindState() {
+    MaybeRefcount<HasIsMethodTag<Runnable>::value, P1>::Release(p1_);
+  }
 
   static void Destroy(BindStateBase* self) {
     delete static_cast<BindState*>(self);
@@ -2668,8 +2962,12 @@ struct BindState<Runnable, RunType, void(P1, P2, P3)>
   P3 p3_;
 };
 
-template <typename Runnable, typename RunType, typename P1, typename P2,
-    typename P3, typename P4>
+template <typename Runnable,
+          typename RunType,
+          typename P1,
+          typename P2,
+          typename P3,
+          typename P4>
 struct BindState<Runnable, RunType, void(P1, P2, P3, P4)>
     : public BindStateBase {
   typedef Runnable RunnableType;
@@ -2683,8 +2981,11 @@ struct BindState<Runnable, RunType, void(P1, P2, P3, P4)>
   typedef UnwrapTraits<P3> Bound3UnwrapTraits;
   typedef UnwrapTraits<P4> Bound4UnwrapTraits;
 
-  BindState(const Runnable& runnable, const P1& p1, const P2& p2, const P3& p3,
-      const P4& p4)
+  BindState(const Runnable& runnable,
+            const P1& p1,
+            const P2& p2,
+            const P3& p3,
+            const P4& p4)
       : BindStateBase(&Destroy),
         runnable_(runnable),
         p1_(p1),
@@ -2694,8 +2995,9 @@ struct BindState<Runnable, RunType, void(P1, P2, P3, P4)>
     MaybeRefcount<HasIsMethodTag<Runnable>::value, P1>::AddRef(p1_);
   }
 
-  ~BindState() {    MaybeRefcount<HasIsMethodTag<Runnable>::value,
-      P1>::Release(p1_);  }
+  ~BindState() {
+    MaybeRefcount<HasIsMethodTag<Runnable>::value, P1>::Release(p1_);
+  }
 
   static void Destroy(BindStateBase* self) {
     delete static_cast<BindState*>(self);
@@ -2708,8 +3010,13 @@ struct BindState<Runnable, RunType, void(P1, P2, P3, P4)>
   P4 p4_;
 };
 
-template <typename Runnable, typename RunType, typename P1, typename P2,
-    typename P3, typename P4, typename P5>
+template <typename Runnable,
+          typename RunType,
+          typename P1,
+          typename P2,
+          typename P3,
+          typename P4,
+          typename P5>
 struct BindState<Runnable, RunType, void(P1, P2, P3, P4, P5)>
     : public BindStateBase {
   typedef Runnable RunnableType;
@@ -2724,8 +3031,12 @@ struct BindState<Runnable, RunType, void(P1, P2, P3, P4, P5)>
   typedef UnwrapTraits<P4> Bound4UnwrapTraits;
   typedef UnwrapTraits<P5> Bound5UnwrapTraits;
 
-  BindState(const Runnable& runnable, const P1& p1, const P2& p2, const P3& p3,
-      const P4& p4, const P5& p5)
+  BindState(const Runnable& runnable,
+            const P1& p1,
+            const P2& p2,
+            const P3& p3,
+            const P4& p4,
+            const P5& p5)
       : BindStateBase(&Destroy),
         runnable_(runnable),
         p1_(p1),
@@ -2736,8 +3047,9 @@ struct BindState<Runnable, RunType, void(P1, P2, P3, P4, P5)>
     MaybeRefcount<HasIsMethodTag<Runnable>::value, P1>::AddRef(p1_);
   }
 
-  ~BindState() {    MaybeRefcount<HasIsMethodTag<Runnable>::value,
-      P1>::Release(p1_);  }
+  ~BindState() {
+    MaybeRefcount<HasIsMethodTag<Runnable>::value, P1>::Release(p1_);
+  }
 
   static void Destroy(BindStateBase* self) {
     delete static_cast<BindState*>(self);
@@ -2751,8 +3063,14 @@ struct BindState<Runnable, RunType, void(P1, P2, P3, P4, P5)>
   P5 p5_;
 };
 
-template <typename Runnable, typename RunType, typename P1, typename P2,
-    typename P3, typename P4, typename P5, typename P6>
+template <typename Runnable,
+          typename RunType,
+          typename P1,
+          typename P2,
+          typename P3,
+          typename P4,
+          typename P5,
+          typename P6>
 struct BindState<Runnable, RunType, void(P1, P2, P3, P4, P5, P6)>
     : public BindStateBase {
   typedef Runnable RunnableType;
@@ -2768,8 +3086,13 @@ struct BindState<Runnable, RunType, void(P1, P2, P3, P4, P5, P6)>
   typedef UnwrapTraits<P5> Bound5UnwrapTraits;
   typedef UnwrapTraits<P6> Bound6UnwrapTraits;
 
-  BindState(const Runnable& runnable, const P1& p1, const P2& p2, const P3& p3,
-      const P4& p4, const P5& p5, const P6& p6)
+  BindState(const Runnable& runnable,
+            const P1& p1,
+            const P2& p2,
+            const P3& p3,
+            const P4& p4,
+            const P5& p5,
+            const P6& p6)
       : BindStateBase(&Destroy),
         runnable_(runnable),
         p1_(p1),
@@ -2781,8 +3104,9 @@ struct BindState<Runnable, RunType, void(P1, P2, P3, P4, P5, P6)>
     MaybeRefcount<HasIsMethodTag<Runnable>::value, P1>::AddRef(p1_);
   }
 
-  ~BindState() {    MaybeRefcount<HasIsMethodTag<Runnable>::value,
-      P1>::Release(p1_);  }
+  ~BindState() {
+    MaybeRefcount<HasIsMethodTag<Runnable>::value, P1>::Release(p1_);
+  }
 
   static void Destroy(BindStateBase* self) {
     delete static_cast<BindState*>(self);
@@ -2797,8 +3121,15 @@ struct BindState<Runnable, RunType, void(P1, P2, P3, P4, P5, P6)>
   P6 p6_;
 };
 
-template <typename Runnable, typename RunType, typename P1, typename P2,
-    typename P3, typename P4, typename P5, typename P6, typename P7>
+template <typename Runnable,
+          typename RunType,
+          typename P1,
+          typename P2,
+          typename P3,
+          typename P4,
+          typename P5,
+          typename P6,
+          typename P7>
 struct BindState<Runnable, RunType, void(P1, P2, P3, P4, P5, P6, P7)>
     : public BindStateBase {
   typedef Runnable RunnableType;
@@ -2815,8 +3146,14 @@ struct BindState<Runnable, RunType, void(P1, P2, P3, P4, P5, P6, P7)>
   typedef UnwrapTraits<P6> Bound6UnwrapTraits;
   typedef UnwrapTraits<P7> Bound7UnwrapTraits;
 
-  BindState(const Runnable& runnable, const P1& p1, const P2& p2, const P3& p3,
-      const P4& p4, const P5& p5, const P6& p6, const P7& p7)
+  BindState(const Runnable& runnable,
+            const P1& p1,
+            const P2& p2,
+            const P3& p3,
+            const P4& p4,
+            const P5& p5,
+            const P6& p6,
+            const P7& p7)
       : BindStateBase(&Destroy),
         runnable_(runnable),
         p1_(p1),
@@ -2829,8 +3166,9 @@ struct BindState<Runnable, RunType, void(P1, P2, P3, P4, P5, P6, P7)>
     MaybeRefcount<HasIsMethodTag<Runnable>::value, P1>::AddRef(p1_);
   }
 
-  ~BindState() {    MaybeRefcount<HasIsMethodTag<Runnable>::value,
-      P1>::Release(p1_);  }
+  ~BindState() {
+    MaybeRefcount<HasIsMethodTag<Runnable>::value, P1>::Release(p1_);
+  }
 
   static void Destroy(BindStateBase* self) {
     delete static_cast<BindState*>(self);

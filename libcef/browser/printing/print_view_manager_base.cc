@@ -104,13 +104,13 @@ base::string16 CefPrintViewManagerBase::RenderSourceName() {
 }
 
 void CefPrintViewManagerBase::OnDidGetPrintedPagesCount(int cookie,
-                                                     int number_pages) {
+                                                        int number_pages) {
   PrintManager::OnDidGetPrintedPagesCount(cookie, number_pages);
   OpportunisticallyCreatePrintJob(cookie);
 }
 
 void CefPrintViewManagerBase::OnDidPrintPage(
-  const PrintHostMsg_DidPrintPage_Params& params) {
+    const PrintHostMsg_DidPrintPage_Params& params) {
   if (!OpportunisticallyCreatePrintJob(params.document_cookie))
     return;
 
@@ -183,23 +183,20 @@ void CefPrintViewManagerBase::OnDidPrintPage(
       // Update : The missing letters seem to have been caused by the same
       // problem as https://crbug.com/659604 which was resolved. GDI printing
       // seems to work with the fix for this bug applied.
-      bool print_text_with_gdi = settings.print_text_with_gdi() &&
-                                 !settings.printer_is_xps() &&
-                                 base::FeatureList::IsEnabled(
-                                     features::kGdiTextPrinting);
+      bool print_text_with_gdi =
+          settings.print_text_with_gdi() && !settings.printer_is_xps() &&
+          base::FeatureList::IsEnabled(features::kGdiTextPrinting);
       print_job_->StartPdfToEmfConversion(
           bytes, params.page_size, params.content_area, print_text_with_gdi);
     }
   }
 #else
   // Update the rendered document. It will send notifications to the listener.
-  document->SetPage(params.page_number,
-                    std::move(metafile),
+  document->SetPage(params.page_number, std::move(metafile),
 #if defined(OS_WIN)
                     0.0f /* dummy shrink_factor */,
 #endif
-                    params.page_size,
-                    params.content_area);
+                    params.page_size, params.content_area);
 
   ShouldQuitFromInnerMessageLoop();
 #endif
@@ -216,8 +213,7 @@ void CefPrintViewManagerBase::OnPrintingFailed(int cookie) {
       content::NotificationService::NoDetails());
 }
 
-void CefPrintViewManagerBase::OnShowInvalidPrinterSettingsError() {
-}
+void CefPrintViewManagerBase::OnShowInvalidPrinterSettingsError() {}
 
 void CefPrintViewManagerBase::DidStartLoading() {
   UpdatePrintingEnabled();
@@ -321,8 +317,7 @@ bool CefPrintViewManagerBase::RenderAllMissingPagesNow() {
     return false;
 
   // We can't print if there is no renderer.
-  if (!web_contents() ||
-      !web_contents()->GetRenderViewHost() ||
+  if (!web_contents() || !web_contents()->GetRenderViewHost() ||
       !web_contents()->GetRenderViewHost()->IsRenderViewLive()) {
     return false;
   }
@@ -355,8 +350,7 @@ bool CefPrintViewManagerBase::RenderAllMissingPagesNow() {
 void CefPrintViewManagerBase::ShouldQuitFromInnerMessageLoop() {
   // Look at the reason.
   DCHECK(print_job_->document());
-  if (print_job_->document() &&
-      print_job_->document()->IsComplete() &&
+  if (print_job_->document() && print_job_->document()->IsComplete() &&
       inside_inner_message_loop_) {
     // We are in a message loop created by RenderAllMissingPagesNow. Quit from
     // it.
@@ -398,8 +392,7 @@ void CefPrintViewManagerBase::DisconnectFromCurrentPrintJob() {
   bool result = RenderAllMissingPagesNow();
 
   // Verify that assertion.
-  if (print_job_.get() &&
-      print_job_->document() &&
+  if (print_job_.get() && print_job_->document() &&
       !print_job_->document()->IsComplete()) {
     DCHECK(!result);
     // That failed.
@@ -549,9 +542,8 @@ void CefPrintViewManagerBase::ReleasePrinterQuery() {
   printer_query = queue_->PopPrinterQuery(cookie);
   if (!printer_query.get())
     return;
-  BrowserThread::PostTask(
-      BrowserThread::IO, FROM_HERE,
-      base::Bind(&PrinterQuery::StopWorker, printer_query));
+  BrowserThread::PostTask(BrowserThread::IO, FROM_HERE,
+                          base::Bind(&PrinterQuery::StopWorker, printer_query));
 }
 
 void CefPrintViewManagerBase::SendPrintingEnabled(

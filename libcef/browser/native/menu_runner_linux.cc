@@ -10,8 +10,7 @@
 #include "base/strings/string_util.h"
 #include "ui/gfx/geometry/point.h"
 
-CefMenuRunnerLinux::CefMenuRunnerLinux() {
-}
+CefMenuRunnerLinux::CefMenuRunnerLinux() {}
 
 bool CefMenuRunnerLinux::RunContextMenu(
     CefBrowserHostImpl* browser,
@@ -27,11 +26,9 @@ bool CefMenuRunnerLinux::RunContextMenu(
   if (!browser->IsWindowless())
     parent_widget = browser->GetWindowWidget();
 
-  views::MenuRunner::RunResult result =
-      menu_->RunMenuAt(parent_widget,
-                       NULL, gfx::Rect(screen_point, gfx::Size()),
-                       views::MENU_ANCHOR_TOPRIGHT,
-                       ui::MENU_SOURCE_NONE);
+  views::MenuRunner::RunResult result = menu_->RunMenuAt(
+      parent_widget, NULL, gfx::Rect(screen_point, gfx::Size()),
+      views::MENU_ANCHOR_TOPRIGHT, ui::MENU_SOURCE_NONE);
   ALLOW_UNUSED_LOCAL(result);
 
   return true;

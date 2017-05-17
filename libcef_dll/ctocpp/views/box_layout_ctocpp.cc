@@ -9,11 +9,12 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=c244fabd0671d80878beec9fcaa13b0251048f50$
+//
 
 #include "libcef_dll/ctocpp/views/box_layout_ctocpp.h"
 #include "libcef_dll/ctocpp/views/fill_layout_ctocpp.h"
 #include "libcef_dll/ctocpp/views/view_ctocpp.h"
-
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
@@ -30,9 +31,7 @@ void CefBoxLayoutCToCpp::SetFlexForView(CefRefPtr<CefView> view, int flex) {
     return;
 
   // Execute
-  _struct->set_flex_for_view(_struct,
-      CefViewCToCpp::Unwrap(view),
-      flex);
+  _struct->set_flex_for_view(_struct, CefViewCToCpp::Unwrap(view), flex);
 }
 
 void CefBoxLayoutCToCpp::ClearFlexForView(CefRefPtr<CefView> view) {
@@ -48,8 +47,7 @@ void CefBoxLayoutCToCpp::ClearFlexForView(CefRefPtr<CefView> view) {
     return;
 
   // Execute
-  _struct->clear_flex_for_view(_struct,
-      CefViewCToCpp::Unwrap(view));
+  _struct->clear_flex_for_view(_struct, CefViewCToCpp::Unwrap(view));
 }
 
 CefRefPtr<CefBoxLayout> CefBoxLayoutCToCpp::AsBoxLayout() {
@@ -91,26 +89,30 @@ bool CefBoxLayoutCToCpp::IsValid() {
   int _retval = _struct->is_valid(_struct);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
-
 
 // CONSTRUCTOR - Do not edit by hand.
 
-CefBoxLayoutCToCpp::CefBoxLayoutCToCpp() {
-}
+CefBoxLayoutCToCpp::CefBoxLayoutCToCpp() {}
 
-template<> cef_box_layout_t* CefCToCppRefCounted<CefBoxLayoutCToCpp,
-    CefBoxLayout, cef_box_layout_t>::UnwrapDerived(CefWrapperType type,
-    CefBoxLayout* c) {
+template <>
+cef_box_layout_t*
+CefCToCppRefCounted<CefBoxLayoutCToCpp, CefBoxLayout, cef_box_layout_t>::
+    UnwrapDerived(CefWrapperType type, CefBoxLayout* c) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCppRefCounted<CefBoxLayoutCToCpp,
-    CefBoxLayout, cef_box_layout_t>::DebugObjCt = 0;
+template <>
+base::AtomicRefCount CefCToCppRefCounted<CefBoxLayoutCToCpp,
+                                         CefBoxLayout,
+                                         cef_box_layout_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCppRefCounted<CefBoxLayoutCToCpp, CefBoxLayout,
-    cef_box_layout_t>::kWrapperType = WT_BOX_LAYOUT;
+template <>
+CefWrapperType CefCToCppRefCounted<CefBoxLayoutCToCpp,
+                                   CefBoxLayout,
+                                   cef_box_layout_t>::kWrapperType =
+    WT_BOX_LAYOUT;

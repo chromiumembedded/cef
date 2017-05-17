@@ -7,8 +7,7 @@
 namespace base {
 namespace cef_internal {
 
-ThreadCheckerImpl::ThreadCheckerImpl()
-    : valid_thread_id_() {
+ThreadCheckerImpl::ThreadCheckerImpl() : valid_thread_id_() {
   EnsureThreadIdAssigned();
 }
 

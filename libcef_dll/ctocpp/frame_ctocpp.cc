@@ -9,6 +9,8 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=41f0d92241ef955c0eb0a5a2ed0c3aafae0fb38b$
+//
 
 #include "libcef_dll/cpptoc/domvisitor_cpptoc.h"
 #include "libcef_dll/cpptoc/string_visitor_cpptoc.h"
@@ -16,7 +18,6 @@
 #include "libcef_dll/ctocpp/frame_ctocpp.h"
 #include "libcef_dll/ctocpp/request_ctocpp.h"
 #include "libcef_dll/ctocpp/v8context_ctocpp.h"
-
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
@@ -31,7 +32,7 @@ bool CefFrameCToCpp::IsValid() {
   int _retval = _struct->is_valid(_struct);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 void CefFrameCToCpp::Undo() {
@@ -135,8 +136,7 @@ void CefFrameCToCpp::GetSource(CefRefPtr<CefStringVisitor> visitor) {
     return;
 
   // Execute
-  _struct->get_source(_struct,
-      CefStringVisitorCppToC::Wrap(visitor));
+  _struct->get_source(_struct, CefStringVisitorCppToC::Wrap(visitor));
 }
 
 void CefFrameCToCpp::GetText(CefRefPtr<CefStringVisitor> visitor) {
@@ -152,8 +152,7 @@ void CefFrameCToCpp::GetText(CefRefPtr<CefStringVisitor> visitor) {
     return;
 
   // Execute
-  _struct->get_text(_struct,
-      CefStringVisitorCppToC::Wrap(visitor));
+  _struct->get_text(_struct, CefStringVisitorCppToC::Wrap(visitor));
 }
 
 void CefFrameCToCpp::LoadRequest(CefRefPtr<CefRequest> request) {
@@ -169,8 +168,7 @@ void CefFrameCToCpp::LoadRequest(CefRefPtr<CefRequest> request) {
     return;
 
   // Execute
-  _struct->load_request(_struct,
-      CefRequestCToCpp::Unwrap(request));
+  _struct->load_request(_struct, CefRequestCToCpp::Unwrap(request));
 }
 
 void CefFrameCToCpp::LoadURL(const CefString& url) {
@@ -186,12 +184,11 @@ void CefFrameCToCpp::LoadURL(const CefString& url) {
     return;
 
   // Execute
-  _struct->load_url(_struct,
-      url.GetStruct());
+  _struct->load_url(_struct, url.GetStruct());
 }
 
 void CefFrameCToCpp::LoadString(const CefString& string_val,
-    const CefString& url) {
+                                const CefString& url) {
   cef_frame_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, load_string))
     return;
@@ -208,13 +205,12 @@ void CefFrameCToCpp::LoadString(const CefString& string_val,
     return;
 
   // Execute
-  _struct->load_string(_struct,
-      string_val.GetStruct(),
-      url.GetStruct());
+  _struct->load_string(_struct, string_val.GetStruct(), url.GetStruct());
 }
 
 void CefFrameCToCpp::ExecuteJavaScript(const CefString& code,
-    const CefString& script_url, int start_line) {
+                                       const CefString& script_url,
+                                       int start_line) {
   cef_frame_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, execute_java_script))
     return;
@@ -228,10 +224,8 @@ void CefFrameCToCpp::ExecuteJavaScript(const CefString& code,
   // Unverified params: script_url
 
   // Execute
-  _struct->execute_java_script(_struct,
-      code.GetStruct(),
-      script_url.GetStruct(),
-      start_line);
+  _struct->execute_java_script(_struct, code.GetStruct(),
+                               script_url.GetStruct(), start_line);
 }
 
 bool CefFrameCToCpp::IsMain() {
@@ -245,7 +239,7 @@ bool CefFrameCToCpp::IsMain() {
   int _retval = _struct->is_main(_struct);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 bool CefFrameCToCpp::IsFocused() {
@@ -259,7 +253,7 @@ bool CefFrameCToCpp::IsFocused() {
   int _retval = _struct->is_focused(_struct);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 CefString CefFrameCToCpp::GetName() {
@@ -363,26 +357,29 @@ void CefFrameCToCpp::VisitDOM(CefRefPtr<CefDOMVisitor> visitor) {
     return;
 
   // Execute
-  _struct->visit_dom(_struct,
-      CefDOMVisitorCppToC::Wrap(visitor));
+  _struct->visit_dom(_struct, CefDOMVisitorCppToC::Wrap(visitor));
 }
-
 
 // CONSTRUCTOR - Do not edit by hand.
 
-CefFrameCToCpp::CefFrameCToCpp() {
-}
+CefFrameCToCpp::CefFrameCToCpp() {}
 
-template<> cef_frame_t* CefCToCppRefCounted<CefFrameCToCpp, CefFrame,
-    cef_frame_t>::UnwrapDerived(CefWrapperType type, CefFrame* c) {
+template <>
+cef_frame_t*
+CefCToCppRefCounted<CefFrameCToCpp, CefFrame, cef_frame_t>::UnwrapDerived(
+    CefWrapperType type,
+    CefFrame* c) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCppRefCounted<CefFrameCToCpp, CefFrame,
-    cef_frame_t>::DebugObjCt = 0;
+template <>
+base::AtomicRefCount
+    CefCToCppRefCounted<CefFrameCToCpp, CefFrame, cef_frame_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCppRefCounted<CefFrameCToCpp, CefFrame,
-    cef_frame_t>::kWrapperType = WT_FRAME;
+template <>
+CefWrapperType
+    CefCToCppRefCounted<CefFrameCToCpp, CefFrame, cef_frame_t>::kWrapperType =
+        WT_FRAME;

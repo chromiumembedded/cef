@@ -38,7 +38,6 @@ const int kIntValue = 12;
 const double kDoubleValue = 4.5432;
 const char* kStringValue = "My string value";
 
-
 // BINARY TEST HELPERS
 
 // Test a binary value.
@@ -48,24 +47,24 @@ void TestBinary(CefRefPtr<CefBinaryValue> value, char* data, size_t data_size) {
 
   EXPECT_EQ(data_size, value->GetSize());
 
-  char* buff = new char[data_size+1];
+  char* buff = new char[data_size + 1];
   char old_char;
 
   // Test full read.
-  memset(buff, 0, data_size+1);
+  memset(buff, 0, data_size + 1);
   EXPECT_EQ(data_size, value->GetData(buff, data_size, 0));
   EXPECT_TRUE(!strcmp(buff, data));
 
   // Test partial read with offset.
-  memset(buff, 0, data_size+1);
+  memset(buff, 0, data_size + 1);
   old_char = data[15];
   data[15] = 0;
   EXPECT_EQ(10U, value->GetData(buff, 10, 5));
-  EXPECT_TRUE(!strcmp(buff, data+5));
+  EXPECT_TRUE(!strcmp(buff, data + 5));
   data[15] = old_char;
 
   // Test that changes to the original data have no effect.
-  memset(buff, 0, data_size+1);
+  memset(buff, 0, data_size + 1);
   old_char = data[0];
   data[0] = '.';
   EXPECT_EQ(1U, value->GetData(buff, 1, 0));
@@ -76,20 +75,16 @@ void TestBinary(CefRefPtr<CefBinaryValue> value, char* data, size_t data_size) {
   CefRefPtr<CefBinaryValue> copy = value->Copy();
   TestBinaryEqual(copy, value);
 
-  delete [] buff;
+  delete[] buff;
 }
 
 // Used to test access of binary data on a different thread.
 class BinaryTask : public CefTask {
  public:
   BinaryTask(CefRefPtr<CefBinaryValue> value, char* data, size_t data_size)
-    : value_(value),
-      data_(data),
-      data_size_(data_size) {}
+      : value_(value), data_(data), data_size_(data_size) {}
 
-  void Execute() override {
-    TestBinary(value_, data_, data_size_);
-  }
+  void Execute() override { TestBinary(value_, data_, data_size_); }
 
  private:
   CefRefPtr<CefBinaryValue> value_;
@@ -98,7 +93,6 @@ class BinaryTask : public CefTask {
 
   IMPLEMENT_REFCOUNTING(BinaryTask);
 };
-
 
 // DICTIONARY TEST HELPERS
 
@@ -148,7 +142,8 @@ void TestDictionaryString(CefRefPtr<CefDictionaryValue> value) {
 
 // Test dictionary binary value.
 void TestDictionaryBinary(CefRefPtr<CefDictionaryValue> value,
-                          char* binary_data, size_t binary_data_size,
+                          char* binary_data,
+                          size_t binary_data_size,
                           CefRefPtr<CefBinaryValue>& binary_value) {
   binary_value = CefBinaryValue::Create(binary_data, binary_data_size);
   EXPECT_TRUE(binary_value.get());
@@ -216,7 +211,8 @@ void TestDictionaryList(CefRefPtr<CefDictionaryValue> value,
 
 // Test dictionary value.
 void TestDictionary(CefRefPtr<CefDictionaryValue> value,
-                    char* binary_data, size_t binary_data_size) {
+                    char* binary_data,
+                    size_t binary_data_size) {
   CefRefPtr<CefBinaryValue> binary_value;
   CefRefPtr<CefDictionaryValue> dictionary_value;
   CefRefPtr<CefListValue> list_value;
@@ -288,11 +284,12 @@ void TestDictionary(CefRefPtr<CefDictionaryValue> value,
 // Used to test access of dictionary data on a different thread.
 class DictionaryTask : public CefTask {
  public:
-  DictionaryTask(CefRefPtr<CefDictionaryValue> value, char* binary_data,
+  DictionaryTask(CefRefPtr<CefDictionaryValue> value,
+                 char* binary_data,
                  size_t binary_data_size)
-    : value_(value),
-      binary_data_(binary_data),
-      binary_data_size_(binary_data_size)  {}
+      : value_(value),
+        binary_data_(binary_data),
+        binary_data_size_(binary_data_size) {}
 
   void Execute() override {
     TestDictionary(value_, binary_data_, binary_data_size_);
@@ -305,7 +302,6 @@ class DictionaryTask : public CefTask {
 
   IMPLEMENT_REFCOUNTING(DictionaryTask);
 };
-
 
 // LIST TEST HELPERS
 
@@ -359,8 +355,10 @@ void TestListString(CefRefPtr<CefListValue> value, size_t index) {
 }
 
 // Test list binary value.
-void TestListBinary(CefRefPtr<CefListValue> value, size_t index,
-                    char* binary_data, size_t binary_data_size,
+void TestListBinary(CefRefPtr<CefListValue> value,
+                    size_t index,
+                    char* binary_data,
+                    size_t binary_data_size,
                     CefRefPtr<CefBinaryValue>& binary_value) {
   binary_value = CefBinaryValue::Create(binary_data, binary_data_size);
   EXPECT_TRUE(binary_value.get());
@@ -381,7 +379,8 @@ void TestListBinary(CefRefPtr<CefListValue> value, size_t index,
 }
 
 // Test list dictionary value.
-void TestListDictionary(CefRefPtr<CefListValue> value, size_t index,
+void TestListDictionary(CefRefPtr<CefListValue> value,
+                        size_t index,
                         CefRefPtr<CefDictionaryValue>& dictionary_value) {
   dictionary_value = CefDictionaryValue::Create();
   EXPECT_TRUE(dictionary_value.get());
@@ -407,7 +406,8 @@ void TestListDictionary(CefRefPtr<CefListValue> value, size_t index,
 }
 
 // Test list list value.
-void TestListList(CefRefPtr<CefListValue> value, size_t index,
+void TestListList(CefRefPtr<CefListValue> value,
+                  size_t index,
                   CefRefPtr<CefListValue>& list_value) {
   list_value = CefListValue::Create();
   EXPECT_TRUE(list_value.get());
@@ -434,7 +434,8 @@ void TestListList(CefRefPtr<CefListValue> value, size_t index,
 
 // Test list value.
 void TestList(CefRefPtr<CefListValue> value,
-              char* binary_data, size_t binary_data_size) {
+              char* binary_data,
+              size_t binary_data_size) {
   CefRefPtr<CefBinaryValue> binary_value;
   CefRefPtr<CefDictionaryValue> dictionary_value;
   CefRefPtr<CefListValue> list_value;
@@ -458,7 +459,7 @@ void TestList(CefRefPtr<CefListValue> value,
   TestListString(value, kStringIndex);
   EXPECT_EQ(VTYPE_NULL, value->GetType(kBinaryIndex));
   TestListBinary(value, kBinaryIndex, binary_data, binary_data_size,
-      binary_value);
+                 binary_value);
   EXPECT_EQ(VTYPE_NULL, value->GetType(kDictionaryIndex));
   TestListDictionary(value, kDictionaryIndex, dictionary_value);
   EXPECT_EQ(VTYPE_NULL, value->GetType(kListIndex));
@@ -553,15 +554,14 @@ void TestList(CefRefPtr<CefListValue> value,
 // Used to test access of list data on a different thread.
 class ListTask : public CefTask {
  public:
-  ListTask(CefRefPtr<CefListValue> value, char* binary_data,
-                 size_t binary_data_size)
-    : value_(value),
-      binary_data_(binary_data),
-      binary_data_size_(binary_data_size)  {}
+  ListTask(CefRefPtr<CefListValue> value,
+           char* binary_data,
+           size_t binary_data_size)
+      : value_(value),
+        binary_data_(binary_data),
+        binary_data_size_(binary_data_size) {}
 
-  void Execute() override {
-    TestList(value_, binary_data_, binary_data_size_);
-  }
+  void Execute() override { TestList(value_, binary_data_, binary_data_size_); }
 
  private:
   CefRefPtr<CefListValue> value_;
@@ -570,7 +570,6 @@ class ListTask : public CefTask {
 
   IMPLEMENT_REFCOUNTING(ListTask);
 };
-
 
 void CreateAndCompareCopy(CefRefPtr<CefValue> value) {
   CefRefPtr<CefValue> value2 = value->Copy();
@@ -625,19 +624,18 @@ CefRefPtr<CefDictionaryValue> CreateDictionaryValue() {
 
 }  // namespace
 
-
 // Test binary value access.
 TEST(ValuesTest, BinaryAccess) {
   char data[] = "This is my test data";
 
   CefRefPtr<CefBinaryValue> value =
-      CefBinaryValue::Create(data, sizeof(data)-1);
+      CefBinaryValue::Create(data, sizeof(data) - 1);
   EXPECT_TRUE(value.get());
   EXPECT_TRUE(value->IsValid());
   EXPECT_FALSE(value->IsOwned());
 
   // Test on this thread.
-  TestBinary(value, data, sizeof(data)-1);
+  TestBinary(value, data, sizeof(data) - 1);
 }
 
 // Test binary value access on a different thread.
@@ -645,13 +643,13 @@ TEST(ValuesTest, BinaryAccessOtherThread) {
   char data[] = "This is my test data";
 
   CefRefPtr<CefBinaryValue> value =
-      CefBinaryValue::Create(data, sizeof(data)-1);
+      CefBinaryValue::Create(data, sizeof(data) - 1);
   EXPECT_TRUE(value.get());
   EXPECT_TRUE(value->IsValid());
   EXPECT_FALSE(value->IsOwned());
 
   // Test on a different thread.
-  CefPostTask(TID_UI, new BinaryTask(value, data, sizeof(data)-1));
+  CefPostTask(TID_UI, new BinaryTask(value, data, sizeof(data) - 1));
   WaitForUIThread();
 }
 
@@ -666,7 +664,7 @@ TEST(ValuesTest, DictionaryAccess) {
   char binary_data[] = "This is my test data";
 
   // Test on this thread.
-  TestDictionary(value, binary_data, sizeof(binary_data)-1);
+  TestDictionary(value, binary_data, sizeof(binary_data) - 1);
 }
 
 // Test dictionary value access on a different thread.
@@ -681,7 +679,7 @@ TEST(ValuesTest, DictionaryAccessOtherThread) {
 
   // Test on a different thread.
   CefPostTask(TID_UI,
-      new DictionaryTask(value, binary_data, sizeof(binary_data)-1));
+              new DictionaryTask(value, binary_data, sizeof(binary_data) - 1));
   WaitForUIThread();
 }
 
@@ -735,7 +733,7 @@ TEST(ValuesTest, ListAccess) {
   char binary_data[] = "This is my test data";
 
   // Test on this thread.
-  TestList(value, binary_data, sizeof(binary_data)-1);
+  TestList(value, binary_data, sizeof(binary_data) - 1);
 }
 
 // Test list value access on a different thread.
@@ -749,7 +747,8 @@ TEST(ValuesTest, ListAccessOtherThread) {
   char binary_data[] = "This is my test data";
 
   // Test on a different thread.
-  CefPostTask(TID_UI, new ListTask(value, binary_data, sizeof(binary_data)-1));
+  CefPostTask(TID_UI,
+              new ListTask(value, binary_data, sizeof(binary_data) - 1));
   WaitForUIThread();
 }
 

@@ -9,11 +9,13 @@
 #include "content/public/browser/download_item.h"
 #include "url/gurl.h"
 
-
 CefDownloadItemImpl::CefDownloadItemImpl(content::DownloadItem* value)
-  : CefValueBase<CefDownloadItem, content::DownloadItem>(
-        value, NULL, kOwnerNoDelete, true,
-        new CefValueControllerNonThreadSafe()) {
+    : CefValueBase<CefDownloadItem, content::DownloadItem>(
+          value,
+          NULL,
+          kOwnerNoDelete,
+          true,
+          new CefValueControllerNonThreadSafe()) {
   // Indicate that this object owns the controller.
   SetOwnsController();
 }

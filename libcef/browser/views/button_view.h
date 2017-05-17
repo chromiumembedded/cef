@@ -29,8 +29,7 @@ CEF_BUTTON_VIEW_T class CefButtonView : public CEF_VIEW_VIEW_D {
 
   // |cef_delegate| may be nullptr.
   explicit CefButtonView(CefViewDelegateClass* cef_delegate)
-      : ParentClass(cef_delegate) {
-  }
+      : ParentClass(cef_delegate) {}
 
   // Returns the CefButton associated with this view. See comments on
   // CefViewView::GetCefView.
@@ -55,7 +54,8 @@ CEF_BUTTON_VIEW_T void CEF_BUTTON_VIEW_D::StateChanged(
 }
 
 CEF_BUTTON_VIEW_T void CEF_BUTTON_VIEW_D::ButtonPressed(
-    views::Button* sender, const ui::Event& event) {
+    views::Button* sender,
+    const ui::Event& event) {
   if (ParentClass::cef_delegate())
     ParentClass::cef_delegate()->OnButtonPressed(GetCefButton());
   if (ParentClass::ink_drop_mode() != views::CustomButton::InkDropMode::OFF &&

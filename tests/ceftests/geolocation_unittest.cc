@@ -33,10 +33,7 @@ enum TestMode {
 class GeolocationTestHandler : public TestHandler {
  public:
   GeolocationTestHandler(const TestMode& mode, bool async)
-      : mode_(mode),
-        async_(async),
-        request_id_(-1) {
-  }
+      : mode_(mode), async_(async), request_id_(-1) {}
 
   void RunTest() override {
     std::string html =
@@ -44,10 +41,13 @@ class GeolocationTestHandler : public TestHandler {
         "navigator.geolocation.getCurrentPosition("
         // Success function
         "function() {"
-            "window.location.href = '" + std::string(kTestAllowUrl) + "'; },"
+        "window.location.href = '" +
+        std::string(kTestAllowUrl) +
+        "'; },"
         // Error function
         "function() {"
-            "window.location.href = '" + std::string(kTestDenyUrl) + "';  });";
+        "window.location.href = '" +
+        std::string(kTestDenyUrl) + "';  });";
     if (mode_ == TEST_CANCEL)
       html += "window.location.href = '" + std::string(kTestCancelUrl) + "';";
     html += "</script></head><body>TEST START</body></html>";
@@ -103,16 +103,15 @@ class GeolocationTestHandler : public TestHandler {
     if (!async_) {
       ExecuteCallback(callback);
     } else {
-      CefPostTask(TID_UI,
-          base::Bind(&GeolocationTestHandler::ExecuteCallback, this, callback));
+      CefPostTask(TID_UI, base::Bind(&GeolocationTestHandler::ExecuteCallback,
+                                     this, callback));
     }
 
     return true;
   }
 
-  void OnCancelGeolocationPermission(
-      CefRefPtr<CefBrowser> browser,
-      int request_id) override {
+  void OnCancelGeolocationPermission(CefRefPtr<CefBrowser> browser,
+                                     int request_id) override {
     got_cancelgeolocationpermission_.yes();
 
     EXPECT_TRUE(CefCurrentlyOn(TID_UI));
@@ -194,14 +193,12 @@ TEST(GeolocationTest, HandlerCancel) {
   ReleaseAndWaitForDestructor(handler);
 }
 
-
 namespace {
 
 class TestGetGeolocationCallback : public CefGetGeolocationCallback {
  public:
   explicit TestGetGeolocationCallback(CefRefPtr<CefWaitableEvent> event)
-      : event_(event) {
-  }
+      : event_(event) {}
 
   void OnLocationUpdate(const CefGeoposition& position) override {
     EXPECT_TRUE(CefCurrentlyOn(TID_UI));
@@ -217,7 +214,7 @@ class TestGetGeolocationCallback : public CefGetGeolocationCallback {
     event_->Signal();
   }
 
-private:
+ private:
   CefRefPtr<CefWaitableEvent> event_;
 
   IMPLEMENT_REFCOUNTING(TestGetGeolocationCallback);

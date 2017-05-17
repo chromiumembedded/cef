@@ -23,12 +23,12 @@ namespace views {
 class Widget;
 }
 
-#define CEF_REQUIRE_VALID_RETURN(ret)  \
-  if (!ParentClass::IsValid()) \
+#define CEF_REQUIRE_VALID_RETURN(ret) \
+  if (!ParentClass::IsValid())        \
     return ret;
 
-#define CEF_REQUIRE_VALID_RETURN_VOID()  \
-  if (!ParentClass::IsValid()) \
+#define CEF_REQUIRE_VALID_RETURN_VOID() \
+  if (!ParentClass::IsValid())          \
     return;
 
 // The below functions manage the relationship between CefView and views::View
@@ -84,13 +84,11 @@ display::Display GetDisplayMatchingBounds(const gfx::Rect& bounds,
 
 // Convert |point| from pixel coordinates to density independent pixels (DIP)
 // using |device_scale_factor|.
-void ConvertPointFromPixels(gfx::Point* point,
-                            int device_scale_factor);
+void ConvertPointFromPixels(gfx::Point* point, int device_scale_factor);
 
 // Convert |point| to pixel coordinates from density independent pixels (DIP)
 // using |device_scale_factor|.
-void ConvertPointToPixels(gfx::Point* point,
-                          int device_scale_factor);
+void ConvertPointToPixels(gfx::Point* point, int device_scale_factor);
 
 // Convert |point| from |view| to screen coordinates. If |output_pixel_coords|
 // is true then |point| will be output in pixel coordinates instead of density
@@ -110,13 +108,11 @@ bool ConvertPointFromScreen(views::View* view,
 
 // Convert |point| from |view| to window (Widget) coordinates. Returns false if
 // |view| does not currently belong to a Widget.
-bool ConvertPointToWindow(views::View* view,
-                          gfx::Point* point);
+bool ConvertPointToWindow(views::View* view, gfx::Point* point);
 
 // Convert |point| from window (Widget) to |view| coordinates. Returns false if
 // |view| does not currently belong to a Widget.
-bool ConvertPointFromWindow(views::View* view,
-                            gfx::Point* point);
+bool ConvertPointFromWindow(views::View* view, gfx::Point* point);
 
 // Returns the native window handle for |widget|. May return nullptr.
 gfx::NativeWindow GetNativeWindow(views::Widget* widget);

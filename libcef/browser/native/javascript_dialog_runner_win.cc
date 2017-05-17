@@ -18,8 +18,10 @@ class CefJavaScriptDialogRunnerWin;
 HHOOK CefJavaScriptDialogRunnerWin::msg_hook_ = NULL;
 int CefJavaScriptDialogRunnerWin::msg_hook_user_count_ = 0;
 
-INT_PTR CALLBACK CefJavaScriptDialogRunnerWin::DialogProc(
-    HWND dialog, UINT message, WPARAM wparam, LPARAM lparam) {
+INT_PTR CALLBACK CefJavaScriptDialogRunnerWin::DialogProc(HWND dialog,
+                                                          UINT message,
+                                                          WPARAM wparam,
+                                                          LPARAM lparam) {
   switch (message) {
     case WM_INITDIALOG: {
       SetWindowLongPtr(dialog, DWLP_USER, static_cast<LONG_PTR>(lparam));
@@ -84,10 +86,7 @@ INT_PTR CALLBACK CefJavaScriptDialogRunnerWin::DialogProc(
 }
 
 CefJavaScriptDialogRunnerWin::CefJavaScriptDialogRunnerWin()
-    : dialog_win_(NULL),
-      parent_win_(NULL),
-      hook_installed_(false) {
-}
+    : dialog_win_(NULL), parent_win_(NULL), hook_installed_(false) {}
 
 CefJavaScriptDialogRunnerWin::~CefJavaScriptDialogRunnerWin() {
   Cancel();
@@ -129,17 +128,15 @@ void CefJavaScriptDialogRunnerWin::Run(
   DCHECK(hModule);
 
   parent_win_ = GetAncestor(browser->GetWindowHandle(), GA_ROOT);
-  dialog_win_ = CreateDialogParam(hModule,
-                                  MAKEINTRESOURCE(dialog_type),
-                                  parent_win_,
-                                  DialogProc,
-                                  reinterpret_cast<LPARAM>(this));
+  dialog_win_ =
+      CreateDialogParam(hModule, MAKEINTRESOURCE(dialog_type), parent_win_,
+                        DialogProc, reinterpret_cast<LPARAM>(this));
   DCHECK(dialog_win_);
 
   if (!display_url.empty()) {
     // Add the display URL to the window title.
     TCHAR text[64];
-    GetWindowText(dialog_win_, text, sizeof(text)/sizeof(TCHAR));
+    GetWindowText(dialog_win_, text, sizeof(text) / sizeof(TCHAR));
 
     base::string16 new_window_text =
         text + base::ASCIIToUTF16(" - ") + display_url;
@@ -181,13 +178,14 @@ void CefJavaScriptDialogRunnerWin::Cancel() {
 }
 
 // static
-LRESULT CALLBACK CefJavaScriptDialogRunnerWin::GetMsgProc(
-    int code, WPARAM wparam, LPARAM lparam) {
+LRESULT CALLBACK CefJavaScriptDialogRunnerWin::GetMsgProc(int code,
+                                                          WPARAM wparam,
+                                                          LPARAM lparam) {
   // Mostly borrowed from http://support.microsoft.com/kb/q187988/
   // and http://www.codeproject.com/KB/atl/cdialogmessagehook.aspx.
   LPMSG msg = reinterpret_cast<LPMSG>(lparam);
-  if (code >= 0 && wparam == PM_REMOVE &&
-      msg->message >= WM_KEYFIRST && msg->message <= WM_KEYLAST) {
+  if (code >= 0 && wparam == PM_REMOVE && msg->message >= WM_KEYFIRST &&
+      msg->message <= WM_KEYLAST) {
     HWND hwnd = GetActiveWindow();
     if (::IsWindow(hwnd) && ::IsDialogMessage(hwnd, msg)) {
       // The value returned from this hookproc is ignored, and it cannot
@@ -216,8 +214,7 @@ bool CefJavaScriptDialogRunnerWin::InstallMessageHook() {
 
   msg_hook_ = ::SetWindowsHookEx(WH_GETMESSAGE,
                                  &CefJavaScriptDialogRunnerWin::GetMsgProc,
-                                 NULL,
-                                 GetCurrentThreadId());
+                                 NULL, GetCurrentThreadId());
   DCHECK(msg_hook_ != NULL);
   return msg_hook_ != NULL;
 }

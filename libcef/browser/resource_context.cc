@@ -40,14 +40,12 @@ CefResourceContext::CefResourceContext(
     CefRefPtr<CefRequestContextHandler> handler)
     : parent_(nullptr),
       is_off_the_record_(is_off_the_record),
-      handler_(handler) {
-}
+      handler_(handler) {}
 
-CefResourceContext::~CefResourceContext() {
-}
+CefResourceContext::~CefResourceContext() {}
 
-base::SupportsUserData::Data* CefResourceContext::GetUserData(const void* key)
-    const {
+base::SupportsUserData::Data* CefResourceContext::GetUserData(
+    const void* key) const {
   if (parent_ && ShouldProxyUserData(key))
     return parent_->GetUserData(key);
   return content::ResourceContext::GetUserData(key);
@@ -86,7 +84,7 @@ net::URLRequestContext* CefResourceContext::GetRequestContext() {
 }
 
 std::unique_ptr<net::ClientCertStore>
-    CefResourceContext::CreateClientCertStore() {
+CefResourceContext::CreateClientCertStore() {
 #if defined(USE_NSS_CERTS)
   return std::unique_ptr<net::ClientCertStore>(new net::ClientCertStoreNSS(
       net::ClientCertStoreNSS::PasswordDelegateFactory()));
@@ -132,11 +130,10 @@ void CefResourceContext::AddPluginLoadDecision(
   DCHECK_GE(render_process_id, 0);
   DCHECK(!plugin_path.empty());
 
-  plugin_load_decision_map_.insert(
-      std::make_pair(
-          std::make_pair(std::make_pair(render_process_id, plugin_path),
-                         std::make_pair(is_main_frame, main_frame_origin)),
-          status));
+  plugin_load_decision_map_.insert(std::make_pair(
+      std::make_pair(std::make_pair(render_process_id, plugin_path),
+                     std::make_pair(is_main_frame, main_frame_origin)),
+      status));
 }
 
 bool CefResourceContext::HasPluginLoadDecision(
@@ -149,10 +146,9 @@ bool CefResourceContext::HasPluginLoadDecision(
   DCHECK_GE(render_process_id, 0);
   DCHECK(!plugin_path.empty());
 
-  PluginLoadDecisionMap::const_iterator it =
-      plugin_load_decision_map_.find(
-          std::make_pair(std::make_pair(render_process_id, plugin_path),
-                         std::make_pair(is_main_frame, main_frame_origin)));
+  PluginLoadDecisionMap::const_iterator it = plugin_load_decision_map_.find(
+      std::make_pair(std::make_pair(render_process_id, plugin_path),
+                     std::make_pair(is_main_frame, main_frame_origin)));
   if (it == plugin_load_decision_map_.end())
     return false;
 

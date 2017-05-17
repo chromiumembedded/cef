@@ -9,19 +9,23 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=60cf4242abcc2491bbff94d76da6c1683eae7821$
+//
 
 #include "libcef_dll/cpptoc/browser_cpptoc.h"
 #include "libcef_dll/cpptoc/file_dialog_callback_cpptoc.h"
 #include "libcef_dll/ctocpp/dialog_handler_ctocpp.h"
 #include "libcef_dll/transfer_util.h"
 
-
 // VIRTUAL METHODS - Body may be edited by hand.
 
-bool CefDialogHandlerCToCpp::OnFileDialog(CefRefPtr<CefBrowser> browser,
-    FileDialogMode mode, const CefString& title,
+bool CefDialogHandlerCToCpp::OnFileDialog(
+    CefRefPtr<CefBrowser> browser,
+    FileDialogMode mode,
+    const CefString& title,
     const CefString& default_file_path,
-    const std::vector<CefString>& accept_filters, int selected_accept_filter,
+    const std::vector<CefString>& accept_filters,
+    int selected_accept_filter,
     CefRefPtr<CefFileDialogCallback> callback) {
   cef_dialog_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_file_dialog))
@@ -50,13 +54,9 @@ bool CefDialogHandlerCToCpp::OnFileDialog(CefRefPtr<CefBrowser> browser,
     transfer_string_list_contents(accept_filters, accept_filtersList);
 
   // Execute
-  int _retval = _struct->on_file_dialog(_struct,
-      CefBrowserCppToC::Wrap(browser),
-      mode,
-      title.GetStruct(),
-      default_file_path.GetStruct(),
-      accept_filtersList,
-      selected_accept_filter,
+  int _retval = _struct->on_file_dialog(
+      _struct, CefBrowserCppToC::Wrap(browser), mode, title.GetStruct(),
+      default_file_path.GetStruct(), accept_filtersList, selected_accept_filter,
       CefFileDialogCallbackCppToC::Wrap(callback));
 
   // Restore param:accept_filters; type: string_vec_byref_const
@@ -64,26 +64,32 @@ bool CefDialogHandlerCToCpp::OnFileDialog(CefRefPtr<CefBrowser> browser,
     cef_string_list_free(accept_filtersList);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
-
 
 // CONSTRUCTOR - Do not edit by hand.
 
-CefDialogHandlerCToCpp::CefDialogHandlerCToCpp() {
-}
+CefDialogHandlerCToCpp::CefDialogHandlerCToCpp() {}
 
-template<> cef_dialog_handler_t* CefCToCppRefCounted<CefDialogHandlerCToCpp,
-    CefDialogHandler, cef_dialog_handler_t>::UnwrapDerived(CefWrapperType type,
-    CefDialogHandler* c) {
+template <>
+cef_dialog_handler_t*
+CefCToCppRefCounted<CefDialogHandlerCToCpp,
+                    CefDialogHandler,
+                    cef_dialog_handler_t>::UnwrapDerived(CefWrapperType type,
+                                                         CefDialogHandler* c) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCppRefCounted<CefDialogHandlerCToCpp,
-    CefDialogHandler, cef_dialog_handler_t>::DebugObjCt = 0;
+template <>
+base::AtomicRefCount CefCToCppRefCounted<CefDialogHandlerCToCpp,
+                                         CefDialogHandler,
+                                         cef_dialog_handler_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCppRefCounted<CefDialogHandlerCToCpp,
-    CefDialogHandler, cef_dialog_handler_t>::kWrapperType = WT_DIALOG_HANDLER;
+template <>
+CefWrapperType CefCToCppRefCounted<CefDialogHandlerCToCpp,
+                                   CefDialogHandler,
+                                   cef_dialog_handler_t>::kWrapperType =
+    WT_DIALOG_HANDLER;

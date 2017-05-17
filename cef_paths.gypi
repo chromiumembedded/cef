@@ -8,6 +8,8 @@
 # by hand. See the translator.README.txt file in the tools directory for
 # more information.
 #
+# $hash=9b613878ab9c9f72136f890b1df4a145d6341790$
+#
 
 {
   'variables': {

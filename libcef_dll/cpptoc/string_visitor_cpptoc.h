@@ -9,6 +9,8 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=715a5ff2dbe3aabd134a7b649daec25601ec693e$
+//
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_STRING_VISITOR_CPPTOC_H_
 #define CEF_LIBCEF_DLL_CPPTOC_STRING_VISITOR_CPPTOC_H_
@@ -18,15 +20,16 @@
 #error This file can be included wrapper-side only
 #endif
 
-#include "include/cef_string_visitor.h"
 #include "include/capi/cef_string_visitor_capi.h"
+#include "include/cef_string_visitor.h"
 #include "libcef_dll/cpptoc/cpptoc_ref_counted.h"
 
 // Wrap a C++ class with a C structure.
 // This class may be instantiated and accessed wrapper-side only.
 class CefStringVisitorCppToC
-    : public CefCppToCRefCounted<CefStringVisitorCppToC, CefStringVisitor,
-        cef_string_visitor_t> {
+    : public CefCppToCRefCounted<CefStringVisitorCppToC,
+                                 CefStringVisitor,
+                                 cef_string_visitor_t> {
  public:
   CefStringVisitorCppToC();
 };

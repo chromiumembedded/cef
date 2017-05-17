@@ -24,22 +24,20 @@ class PrintSettings;
 using printing::PrintingContextLinux;
 
 // Needs to be freed on the UI thread to clean up its member variables.
-class CefPrintDialogLinux
-    : public printing::PrintDialogGtkInterface,
-      public base::RefCountedThreadSafe<
-          CefPrintDialogLinux, content::BrowserThread::DeleteOnUIThread> {
+class CefPrintDialogLinux : public printing::PrintDialogGtkInterface,
+                            public base::RefCountedThreadSafe<
+                                CefPrintDialogLinux,
+                                content::BrowserThread::DeleteOnUIThread> {
  public:
   // Creates and returns a print dialog.
   static printing::PrintDialogGtkInterface* CreatePrintDialog(
       PrintingContextLinux* context);
 
   // Returns the paper size in device units.
-  static gfx::Size GetPdfPaperSize(
-    printing::PrintingContextLinux* context);
+  static gfx::Size GetPdfPaperSize(printing::PrintingContextLinux* context);
 
   // Notify the client when printing has started.
-  static void OnPrintStart(int render_process_id,
-                           int render_routing_id);
+  static void OnPrintStart(int render_process_id, int render_routing_id);
 
   // printing::CefPrintDialogLinuxInterface implementation.
   void UseDefaultSettings() override;
@@ -56,7 +54,8 @@ class CefPrintDialogLinux
  private:
   friend class base::DeleteHelper<CefPrintDialogLinux>;
   friend class base::RefCountedThreadSafe<
-      CefPrintDialogLinux, content::BrowserThread::DeleteOnUIThread>;
+      CefPrintDialogLinux,
+      content::BrowserThread::DeleteOnUIThread>;
   friend struct content::BrowserThread::DeleteOnThread<
       content::BrowserThread::UI>;
   friend class CefPrintDialogCallbackImpl;
@@ -68,8 +67,7 @@ class CefPrintDialogLinux
   void SetHandler();
   void ReleaseHandler();
 
-  bool UpdateSettings(printing::PrintSettings* settings,
-                      bool get_defaults);
+  bool UpdateSettings(printing::PrintSettings* settings, bool get_defaults);
 
   // Prints document named |document_name|.
   void SendDocumentToPrinter(const base::string16& document_name);

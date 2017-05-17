@@ -22,8 +22,7 @@ void transfer_string_list_contents(const StringList& fromList,
 
 // Copy contents from one map type to another.
 typedef std::map<CefString, CefString> StringMap;
-void transfer_string_map_contents(cef_string_map_t fromMap,
-                                  StringMap& toMap);
+void transfer_string_map_contents(cef_string_map_t fromMap, StringMap& toMap);
 void transfer_string_map_contents(const StringMap& fromMap,
                                   cef_string_map_t toMap);
 

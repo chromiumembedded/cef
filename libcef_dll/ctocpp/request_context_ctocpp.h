@@ -9,6 +9,8 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=007659e858fb2ce87b3974d8d304d850434bac8b$
+//
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_REQUEST_CONTEXT_CTOCPP_H_
 #define CEF_LIBCEF_DLL_CTOCPP_REQUEST_CONTEXT_CTOCPP_H_
@@ -19,17 +21,18 @@
 #endif
 
 #include <vector>
-#include "include/cef_request_context.h"
 #include "include/capi/cef_request_context_capi.h"
-#include "include/cef_scheme.h"
 #include "include/capi/cef_scheme_capi.h"
+#include "include/cef_request_context.h"
+#include "include/cef_scheme.h"
 #include "libcef_dll/ctocpp/ctocpp_ref_counted.h"
 
 // Wrap a C structure with a C++ class.
 // This class may be instantiated and accessed wrapper-side only.
 class CefRequestContextCToCpp
-    : public CefCToCppRefCounted<CefRequestContextCToCpp, CefRequestContext,
-        cef_request_context_t> {
+    : public CefCToCppRefCounted<CefRequestContextCToCpp,
+                                 CefRequestContext,
+                                 cef_request_context_t> {
  public:
   CefRequestContextCToCpp();
 
@@ -41,7 +44,8 @@ class CefRequestContextCToCpp
   CefString GetCachePath() OVERRIDE;
   CefRefPtr<CefCookieManager> GetDefaultCookieManager(
       CefRefPtr<CefCompletionCallback> callback) OVERRIDE;
-  bool RegisterSchemeHandlerFactory(const CefString& scheme_name,
+  bool RegisterSchemeHandlerFactory(
+      const CefString& scheme_name,
       const CefString& domain_name,
       CefRefPtr<CefSchemeHandlerFactory> factory) OVERRIDE;
   bool ClearSchemeHandlerFactories() OVERRIDE;
@@ -51,14 +55,16 @@ class CefRequestContextCToCpp
   CefRefPtr<CefDictionaryValue> GetAllPreferences(
       bool include_defaults) OVERRIDE;
   bool CanSetPreference(const CefString& name) OVERRIDE;
-  bool SetPreference(const CefString& name, CefRefPtr<CefValue> value,
-      CefString& error) OVERRIDE;
+  bool SetPreference(const CefString& name,
+                     CefRefPtr<CefValue> value,
+                     CefString& error) OVERRIDE;
   void ClearCertificateExceptions(
       CefRefPtr<CefCompletionCallback> callback) OVERRIDE;
   void CloseAllConnections(CefRefPtr<CefCompletionCallback> callback) OVERRIDE;
   void ResolveHost(const CefString& origin,
-      CefRefPtr<CefResolveCallback> callback) OVERRIDE;
-  cef_errorcode_t ResolveHostCached(const CefString& origin,
+                   CefRefPtr<CefResolveCallback> callback) OVERRIDE;
+  cef_errorcode_t ResolveHostCached(
+      const CefString& origin,
       std::vector<CefString>& resolved_ips) OVERRIDE;
 };
 

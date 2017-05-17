@@ -9,6 +9,8 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=13866ee027fb1146fd9a76cae4a92357634a9739$
+//
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_POST_DATA_ELEMENT_CTOCPP_H_
 #define CEF_LIBCEF_DLL_CTOCPP_POST_DATA_ELEMENT_CTOCPP_H_
@@ -18,15 +20,16 @@
 #error This file can be included wrapper-side only
 #endif
 
-#include "include/cef_request.h"
 #include "include/capi/cef_request_capi.h"
+#include "include/cef_request.h"
 #include "libcef_dll/ctocpp/ctocpp_ref_counted.h"
 
 // Wrap a C structure with a C++ class.
 // This class may be instantiated and accessed wrapper-side only.
 class CefPostDataElementCToCpp
-    : public CefCToCppRefCounted<CefPostDataElementCToCpp, CefPostDataElement,
-        cef_post_data_element_t> {
+    : public CefCToCppRefCounted<CefPostDataElementCToCpp,
+                                 CefPostDataElement,
+                                 cef_post_data_element_t> {
  public:
   CefPostDataElementCToCpp();
 

@@ -40,8 +40,7 @@ class ListValue;
 // RenderViewObserver implementation. IPC messages sent using
 // RenderViewObserver::Send() will be forwarded to the RenderView. Use
 // RenderViewObserver::routing_id() when sending IPC messages.
-class CefBrowserImpl : public CefBrowser,
-                       public content::RenderViewObserver {
+class CefBrowserImpl : public CefBrowser, public content::RenderViewObserver {
  public:
   // Returns the browser associated with the specified RenderView.
   static CefRefPtr<CefBrowserImpl> GetBrowserForView(content::RenderView* view);
@@ -70,9 +69,8 @@ class CefBrowserImpl : public CefBrowser,
   size_t GetFrameCount() override;
   void GetFrameIdentifiers(std::vector<int64>& identifiers) override;
   void GetFrameNames(std::vector<CefString>& names) override;
-  bool SendProcessMessage(
-      CefProcessId target_process,
-      CefRefPtr<CefProcessMessage> message) override;
+  bool SendProcessMessage(CefProcessId target_process,
+                          CefRefPtr<CefProcessMessage> message) override;
 
   CefBrowserImpl(content::RenderView* render_view,
                  int browser_id,
@@ -113,9 +111,8 @@ class CefBrowserImpl : public CefBrowser,
                    const blink::WebURLError& error) override;
   void DidFinishLoad(blink::WebLocalFrame* frame) override;
   void DidStartProvisionalLoad(blink::WebLocalFrame* frame) override;
-  void DidFailProvisionalLoad(
-      blink::WebLocalFrame* frame,
-      const blink::WebURLError& error) override;
+  void DidFailProvisionalLoad(blink::WebLocalFrame* frame,
+                              const blink::WebURLError& error) override;
   void DidCommitProvisionalLoad(blink::WebLocalFrame* frame,
                                 bool is_new_navigation) override;
   void FrameDetached(blink::WebFrame* frame) override;
@@ -142,12 +139,12 @@ class CefBrowserImpl : public CefBrowser,
   bool is_windowless_;
 
   // Map of unique frame ids to CefFrameImpl references.
-  typedef std::map<int64, CefRefPtr<CefFrameImpl> > FrameMap;
+  typedef std::map<int64, CefRefPtr<CefFrameImpl>> FrameMap;
   FrameMap frames_;
 
   // Map of unique frame ids to CefTrackManager objects that need to be cleaned
   // up when the frame is deleted.
-  typedef std::map<int64, CefRefPtr<CefTrackManager> > FrameObjectMap;
+  typedef std::map<int64, CefRefPtr<CefTrackManager>> FrameObjectMap;
   FrameObjectMap frame_objects_;
 
   // Manages response registrations.

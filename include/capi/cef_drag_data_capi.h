@@ -33,6 +33,8 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
+// $hash=a4b5264c1e685cad86203772631460684ee7820d$
+//
 
 #ifndef CEF_INCLUDE_CAPI_CEF_DRAG_DATA_CAPI_H_
 #define CEF_INCLUDE_CAPI_CEF_DRAG_DATA_CAPI_H_
@@ -45,7 +47,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
 
 ///
 // Structure used to represent drag data. The functions of this structure may be
@@ -60,61 +61,61 @@ typedef struct _cef_drag_data_t {
   ///
   // Returns a copy of the current object.
   ///
-  struct _cef_drag_data_t* (CEF_CALLBACK *clone)(struct _cef_drag_data_t* self);
+  struct _cef_drag_data_t*(CEF_CALLBACK* clone)(struct _cef_drag_data_t* self);
 
   ///
   // Returns true (1) if this object is read-only.
   ///
-  int (CEF_CALLBACK *is_read_only)(struct _cef_drag_data_t* self);
+  int(CEF_CALLBACK* is_read_only)(struct _cef_drag_data_t* self);
 
   ///
   // Returns true (1) if the drag data is a link.
   ///
-  int (CEF_CALLBACK *is_link)(struct _cef_drag_data_t* self);
+  int(CEF_CALLBACK* is_link)(struct _cef_drag_data_t* self);
 
   ///
   // Returns true (1) if the drag data is a text or html fragment.
   ///
-  int (CEF_CALLBACK *is_fragment)(struct _cef_drag_data_t* self);
+  int(CEF_CALLBACK* is_fragment)(struct _cef_drag_data_t* self);
 
   ///
   // Returns true (1) if the drag data is a file.
   ///
-  int (CEF_CALLBACK *is_file)(struct _cef_drag_data_t* self);
+  int(CEF_CALLBACK* is_file)(struct _cef_drag_data_t* self);
 
   ///
   // Return the link URL that is being dragged.
   ///
   // The resulting string must be freed by calling cef_string_userfree_free().
-  cef_string_userfree_t (CEF_CALLBACK *get_link_url)(
+  cef_string_userfree_t(CEF_CALLBACK* get_link_url)(
       struct _cef_drag_data_t* self);
 
   ///
   // Return the title associated with the link being dragged.
   ///
   // The resulting string must be freed by calling cef_string_userfree_free().
-  cef_string_userfree_t (CEF_CALLBACK *get_link_title)(
+  cef_string_userfree_t(CEF_CALLBACK* get_link_title)(
       struct _cef_drag_data_t* self);
 
   ///
   // Return the metadata, if any, associated with the link being dragged.
   ///
   // The resulting string must be freed by calling cef_string_userfree_free().
-  cef_string_userfree_t (CEF_CALLBACK *get_link_metadata)(
+  cef_string_userfree_t(CEF_CALLBACK* get_link_metadata)(
       struct _cef_drag_data_t* self);
 
   ///
   // Return the plain text fragment that is being dragged.
   ///
   // The resulting string must be freed by calling cef_string_userfree_free().
-  cef_string_userfree_t (CEF_CALLBACK *get_fragment_text)(
+  cef_string_userfree_t(CEF_CALLBACK* get_fragment_text)(
       struct _cef_drag_data_t* self);
 
   ///
   // Return the text/html fragment that is being dragged.
   ///
   // The resulting string must be freed by calling cef_string_userfree_free().
-  cef_string_userfree_t (CEF_CALLBACK *get_fragment_html)(
+  cef_string_userfree_t(CEF_CALLBACK* get_fragment_html)(
       struct _cef_drag_data_t* self);
 
   ///
@@ -122,14 +123,14 @@ typedef struct _cef_drag_data_t {
   // resolving relative URLs and may be NULL.
   ///
   // The resulting string must be freed by calling cef_string_userfree_free().
-  cef_string_userfree_t (CEF_CALLBACK *get_fragment_base_url)(
+  cef_string_userfree_t(CEF_CALLBACK* get_fragment_base_url)(
       struct _cef_drag_data_t* self);
 
   ///
   // Return the name of the file being dragged out of the browser window.
   ///
   // The resulting string must be freed by calling cef_string_userfree_free().
-  cef_string_userfree_t (CEF_CALLBACK *get_file_name)(
+  cef_string_userfree_t(CEF_CALLBACK* get_file_name)(
       struct _cef_drag_data_t* self);
 
   ///
@@ -138,88 +139,87 @@ typedef struct _cef_drag_data_t {
   // this function will return the size of the file contents in bytes. Call
   // get_file_name() to get a suggested name for the file.
   ///
-  size_t (CEF_CALLBACK *get_file_contents)(struct _cef_drag_data_t* self,
-      struct _cef_stream_writer_t* writer);
+  size_t(CEF_CALLBACK* get_file_contents)(struct _cef_drag_data_t* self,
+                                          struct _cef_stream_writer_t* writer);
 
   ///
   // Retrieve the list of file names that are being dragged into the browser
   // window.
   ///
-  int (CEF_CALLBACK *get_file_names)(struct _cef_drag_data_t* self,
-      cef_string_list_t names);
+  int(CEF_CALLBACK* get_file_names)(struct _cef_drag_data_t* self,
+                                    cef_string_list_t names);
 
   ///
   // Set the link URL that is being dragged.
   ///
-  void (CEF_CALLBACK *set_link_url)(struct _cef_drag_data_t* self,
-      const cef_string_t* url);
+  void(CEF_CALLBACK* set_link_url)(struct _cef_drag_data_t* self,
+                                   const cef_string_t* url);
 
   ///
   // Set the title associated with the link being dragged.
   ///
-  void (CEF_CALLBACK *set_link_title)(struct _cef_drag_data_t* self,
-      const cef_string_t* title);
+  void(CEF_CALLBACK* set_link_title)(struct _cef_drag_data_t* self,
+                                     const cef_string_t* title);
 
   ///
   // Set the metadata associated with the link being dragged.
   ///
-  void (CEF_CALLBACK *set_link_metadata)(struct _cef_drag_data_t* self,
-      const cef_string_t* data);
+  void(CEF_CALLBACK* set_link_metadata)(struct _cef_drag_data_t* self,
+                                        const cef_string_t* data);
 
   ///
   // Set the plain text fragment that is being dragged.
   ///
-  void (CEF_CALLBACK *set_fragment_text)(struct _cef_drag_data_t* self,
-      const cef_string_t* text);
+  void(CEF_CALLBACK* set_fragment_text)(struct _cef_drag_data_t* self,
+                                        const cef_string_t* text);
 
   ///
   // Set the text/html fragment that is being dragged.
   ///
-  void (CEF_CALLBACK *set_fragment_html)(struct _cef_drag_data_t* self,
-      const cef_string_t* html);
+  void(CEF_CALLBACK* set_fragment_html)(struct _cef_drag_data_t* self,
+                                        const cef_string_t* html);
 
   ///
   // Set the base URL that the fragment came from.
   ///
-  void (CEF_CALLBACK *set_fragment_base_url)(struct _cef_drag_data_t* self,
-      const cef_string_t* base_url);
+  void(CEF_CALLBACK* set_fragment_base_url)(struct _cef_drag_data_t* self,
+                                            const cef_string_t* base_url);
 
   ///
   // Reset the file contents. You should do this before calling
   // cef_browser_host_t::DragTargetDragEnter as the web view does not allow us
   // to drag in this kind of data.
   ///
-  void (CEF_CALLBACK *reset_file_contents)(struct _cef_drag_data_t* self);
+  void(CEF_CALLBACK* reset_file_contents)(struct _cef_drag_data_t* self);
 
   ///
   // Add a file that is being dragged into the webview.
   ///
-  void (CEF_CALLBACK *add_file)(struct _cef_drag_data_t* self,
-      const cef_string_t* path, const cef_string_t* display_name);
+  void(CEF_CALLBACK* add_file)(struct _cef_drag_data_t* self,
+                               const cef_string_t* path,
+                               const cef_string_t* display_name);
 
   ///
   // Get the image representation of drag data. May return NULL if no image
   // representation is available.
   ///
-  struct _cef_image_t* (CEF_CALLBACK *get_image)(struct _cef_drag_data_t* self);
+  struct _cef_image_t*(CEF_CALLBACK* get_image)(struct _cef_drag_data_t* self);
 
   ///
   // Get the image hotspot (drag start location relative to image dimensions).
   ///
-  cef_point_t (CEF_CALLBACK *get_image_hotspot)(struct _cef_drag_data_t* self);
+  cef_point_t(CEF_CALLBACK* get_image_hotspot)(struct _cef_drag_data_t* self);
 
   ///
   // Returns true (1) if an image representation of drag data is available.
   ///
-  int (CEF_CALLBACK *has_image)(struct _cef_drag_data_t* self);
+  int(CEF_CALLBACK* has_image)(struct _cef_drag_data_t* self);
 } cef_drag_data_t;
-
 
 ///
 // Create a new cef_drag_data_t object.
 ///
 CEF_EXPORT cef_drag_data_t* cef_drag_data_create();
-
 
 #ifdef __cplusplus
 }

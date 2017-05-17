@@ -33,8 +33,7 @@ class CefURLRequestManager {
                   CefRefPtr<CefSchemeHandlerFactory> factory);
 
   // Remove all factories associated with the specified |scheme| and |domain|.
-  void RemoveFactory(const std::string& scheme,
-                     const std::string& domain);
+  void RemoveFactory(const std::string& scheme, const std::string& domain);
 
   // Clear all the existing URL handlers and unregister the ProtocolFactory.
   void ClearFactories();
@@ -57,7 +56,8 @@ class CefURLRequestManager {
   // Retrieve the matching handler factory, if any. |scheme| will already be in
   // lower case.
   CefRefPtr<CefSchemeHandlerFactory> GetHandlerFactory(
-      net::URLRequest* request, const std::string& scheme);
+      net::URLRequest* request,
+      const std::string& scheme);
 
   // Create the job that will handle the request. |scheme| will already be in
   // lower case.
@@ -71,7 +71,8 @@ class CefURLRequestManager {
 
   // Map (scheme, domain) to factories.
   typedef std::map<std::pair<std::string, std::string>,
-      CefRefPtr<CefSchemeHandlerFactory> > HandlerMap;
+                   CefRefPtr<CefSchemeHandlerFactory>>
+      HandlerMap;
   HandlerMap handler_map_;
 
   DISALLOW_COPY_AND_ASSIGN(CefURLRequestManager);

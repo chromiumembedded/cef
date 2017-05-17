@@ -12,8 +12,8 @@
 #include "libcef/browser/views/scroll_view_view.h"
 #include "libcef/browser/views/view_impl.h"
 
-class CefScrollViewImpl :
-    public CefViewImpl<CefScrollViewView, CefScrollView, CefViewDelegate> {
+class CefScrollViewImpl
+    : public CefViewImpl<CefScrollViewView, CefScrollView, CefViewDelegate> {
  public:
   typedef CefViewImpl<CefScrollViewView, CefScrollView, CefViewDelegate>
       ParentClass;

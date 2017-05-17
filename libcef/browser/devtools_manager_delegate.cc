@@ -81,8 +81,8 @@ std::unique_ptr<content::DevToolsSocketFactory> CreateSocketFactory() {
     int temp_port;
     std::string port_str =
         command_line.GetSwitchValueASCII(switches::kRemoteDebuggingPort);
-    if (base::StringToInt(port_str, &temp_port) &&
-        temp_port >= 1024 && temp_port < 65535) {
+    if (base::StringToInt(port_str, &temp_port) && temp_port >= 1024 &&
+        temp_port < 65535) {
       port = static_cast<uint16_t>(temp_port);
     } else {
       DLOG(WARNING) << "Invalid http debugger port number " << temp_port;
@@ -94,7 +94,7 @@ std::unique_ptr<content::DevToolsSocketFactory> CreateSocketFactory() {
       new TCPServerSocketFactory("127.0.0.1", port));
 }
 
-} //  namespace
+}  //  namespace
 
 // CefDevToolsManagerDelegate ----------------------------------------------
 
@@ -106,12 +106,8 @@ void CefDevToolsManagerDelegate::StartHttpHandler(
   if (!socket_factory)
     return;
   content::DevToolsAgentHost::StartRemoteDebuggingServer(
-      std::move(socket_factory),
-      std::string(),
-      browser_context->GetPath(),
-      base::FilePath(),
-      std::string(),
-      CefContentClient::Get()->GetUserAgent());
+      std::move(socket_factory), std::string(), browser_context->GetPath(),
+      base::FilePath(), std::string(), CefContentClient::Get()->GetUserAgent());
 }
 
 // static
@@ -120,11 +116,9 @@ void CefDevToolsManagerDelegate::StopHttpHandler() {
   content::DevToolsAgentHost::StopRemoteDebuggingServer();
 }
 
-CefDevToolsManagerDelegate::CefDevToolsManagerDelegate() {
-}
+CefDevToolsManagerDelegate::CefDevToolsManagerDelegate() {}
 
-CefDevToolsManagerDelegate::~CefDevToolsManagerDelegate() {
-}
+CefDevToolsManagerDelegate::~CefDevToolsManagerDelegate() {}
 
 scoped_refptr<content::DevToolsAgentHost>
 CefDevToolsManagerDelegate::CreateNewTarget(const GURL& url) {
@@ -135,8 +129,9 @@ CefDevToolsManagerDelegate::CreateNewTarget(const GURL& url) {
 }
 
 std::string CefDevToolsManagerDelegate::GetDiscoveryPageHTML() {
-  return ui::ResourceBundle::GetSharedInstance().GetRawDataResource(
-      IDR_CEF_DEVTOOLS_DISCOVERY_PAGE).as_string();
+  return ui::ResourceBundle::GetSharedInstance()
+      .GetRawDataResource(IDR_CEF_DEVTOOLS_DISCOVERY_PAGE)
+      .as_string();
 }
 
 std::string CefDevToolsManagerDelegate::GetFrontendResource(

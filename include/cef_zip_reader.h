@@ -60,14 +60,14 @@ class CefZipReader : public virtual CefBaseRefCounted {
   // cursor position was set successfully.
   ///
   /*--cef()--*/
-  virtual bool MoveToFirstFile() =0;
+  virtual bool MoveToFirstFile() = 0;
 
   ///
   // Moves the cursor to the next file in the archive. Returns true if the
   // cursor position was set successfully.
   ///
   /*--cef()--*/
-  virtual bool MoveToNextFile() =0;
+  virtual bool MoveToNextFile() = 0;
 
   ///
   // Moves the cursor to the specified file in the archive. If |caseSensitive|
@@ -75,15 +75,14 @@ class CefZipReader : public virtual CefBaseRefCounted {
   // position was set successfully.
   ///
   /*--cef()--*/
-  virtual bool MoveToFile(const CefString& fileName, bool caseSensitive) =0;
+  virtual bool MoveToFile(const CefString& fileName, bool caseSensitive) = 0;
 
   ///
   // Closes the archive. This should be called directly to ensure that cleanup
   // occurs on the correct thread.
   ///
   /*--cef()--*/
-  virtual bool Close() =0;
-
+  virtual bool Close() = 0;
 
   // The below methods act on the file at the current cursor position.
 
@@ -91,51 +90,51 @@ class CefZipReader : public virtual CefBaseRefCounted {
   // Returns the name of the file.
   ///
   /*--cef()--*/
-  virtual CefString GetFileName() =0;
+  virtual CefString GetFileName() = 0;
 
   ///
   // Returns the uncompressed size of the file.
   ///
   /*--cef()--*/
-  virtual int64 GetFileSize() =0;
+  virtual int64 GetFileSize() = 0;
 
   ///
   // Returns the last modified timestamp for the file.
   ///
   /*--cef()--*/
-  virtual CefTime GetFileLastModified() =0;
+  virtual CefTime GetFileLastModified() = 0;
 
   ///
   // Opens the file for reading of uncompressed data. A read password may
   // optionally be specified.
   ///
   /*--cef(optional_param=password)--*/
-  virtual bool OpenFile(const CefString& password) =0;
+  virtual bool OpenFile(const CefString& password) = 0;
 
   ///
   // Closes the file.
   ///
   /*--cef()--*/
-  virtual bool CloseFile() =0;
+  virtual bool CloseFile() = 0;
 
   ///
   // Read uncompressed file contents into the specified buffer. Returns < 0 if
   // an error occurred, 0 if at the end of file, or the number of bytes read.
   ///
   /*--cef()--*/
-  virtual int ReadFile(void* buffer, size_t bufferSize) =0;
+  virtual int ReadFile(void* buffer, size_t bufferSize) = 0;
 
   ///
   // Returns the current offset in the uncompressed file contents.
   ///
   /*--cef()--*/
-  virtual int64 Tell() =0;
+  virtual int64 Tell() = 0;
 
   ///
   // Returns true if at end of the file contents.
   ///
   /*--cef()--*/
-  virtual bool Eof() =0;
+  virtual bool Eof() = 0;
 };
 
 #endif  // CEF_INCLUDE_CEF_ZIP_READER_H_

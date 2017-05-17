@@ -14,8 +14,7 @@ namespace HttpHeaderUtils {
 std::string GenerateHeaders(const HeaderMap& map) {
   std::string headers;
 
-  for (HeaderMap::const_iterator header = map.begin();
-       header != map.end();
+  for (HeaderMap::const_iterator header = map.begin(); header != map.end();
        ++header) {
     const CefString& key = header->first;
     const CefString& value = header->second;
@@ -34,9 +33,9 @@ std::string GenerateHeaders(const HeaderMap& map) {
 
 void ParseHeaders(const std::string& header_str, HeaderMap& map) {
   // Parse the request header values
-  for (net::HttpUtil::HeadersIterator i(header_str.begin(),
-                                        header_str.end(), "\n");
-       i.GetNext(); ) {
+  for (net::HttpUtil::HeadersIterator i(header_str.begin(), header_str.end(),
+                                        "\n");
+       i.GetNext();) {
     map.insert(std::make_pair(i.name(), i.values()));
   }
 }

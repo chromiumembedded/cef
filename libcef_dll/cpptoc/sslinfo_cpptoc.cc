@@ -9,17 +9,18 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=6b0126f9d5fcea34f38d780abeb1fe16659731b8$
+//
 
 #include "libcef_dll/cpptoc/sslinfo_cpptoc.h"
 #include "libcef_dll/cpptoc/x509certificate_cpptoc.h"
-
 
 namespace {
 
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
-cef_cert_status_t CEF_CALLBACK sslinfo_get_cert_status(
-    struct _cef_sslinfo_t* self) {
+cef_cert_status_t CEF_CALLBACK
+sslinfo_get_cert_status(struct _cef_sslinfo_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -33,8 +34,8 @@ cef_cert_status_t CEF_CALLBACK sslinfo_get_cert_status(
   return _retval;
 }
 
-struct _cef_x509certificate_t* CEF_CALLBACK sslinfo_get_x509certificate(
-    struct _cef_sslinfo_t* self) {
+struct _cef_x509certificate_t* CEF_CALLBACK
+sslinfo_get_x509certificate(struct _cef_sslinfo_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -42,15 +43,14 @@ struct _cef_x509certificate_t* CEF_CALLBACK sslinfo_get_x509certificate(
     return NULL;
 
   // Execute
-  CefRefPtr<CefX509Certificate> _retval = CefSSLInfoCppToC::Get(
-      self)->GetX509Certificate();
+  CefRefPtr<CefX509Certificate> _retval =
+      CefSSLInfoCppToC::Get(self)->GetX509Certificate();
 
   // Return type: refptr_same
   return CefX509CertificateCppToC::Wrap(_retval);
 }
 
 }  // namespace
-
 
 // CONSTRUCTOR - Do not edit by hand.
 
@@ -59,17 +59,23 @@ CefSSLInfoCppToC::CefSSLInfoCppToC() {
   GetStruct()->get_x509certificate = sslinfo_get_x509certificate;
 }
 
-template<> CefRefPtr<CefSSLInfo> CefCppToCRefCounted<CefSSLInfoCppToC,
-    CefSSLInfo, cef_sslinfo_t>::UnwrapDerived(CefWrapperType type,
+template <>
+CefRefPtr<CefSSLInfo>
+CefCppToCRefCounted<CefSSLInfoCppToC, CefSSLInfo, cef_sslinfo_t>::UnwrapDerived(
+    CefWrapperType type,
     cef_sslinfo_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCppToCRefCounted<CefSSLInfoCppToC,
-    CefSSLInfo, cef_sslinfo_t>::DebugObjCt = 0;
+template <>
+base::AtomicRefCount CefCppToCRefCounted<CefSSLInfoCppToC,
+                                         CefSSLInfo,
+                                         cef_sslinfo_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCppToCRefCounted<CefSSLInfoCppToC, CefSSLInfo,
-    cef_sslinfo_t>::kWrapperType = WT_SSLINFO;
+template <>
+CefWrapperType CefCppToCRefCounted<CefSSLInfoCppToC,
+                                   CefSSLInfo,
+                                   cef_sslinfo_t>::kWrapperType = WT_SSLINFO;

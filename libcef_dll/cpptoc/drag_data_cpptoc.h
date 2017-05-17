@@ -9,6 +9,8 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=6b2970a638285f00c7f4e8508ef012cd41fcdf34$
+//
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_DRAG_DATA_CPPTOC_H_
 #define CEF_LIBCEF_DLL_CPPTOC_DRAG_DATA_CPPTOC_H_
@@ -18,15 +20,15 @@
 #error This file can be included DLL-side only
 #endif
 
-#include "include/cef_drag_data.h"
 #include "include/capi/cef_drag_data_capi.h"
+#include "include/cef_drag_data.h"
 #include "libcef_dll/cpptoc/cpptoc_ref_counted.h"
 
 // Wrap a C++ class with a C structure.
 // This class may be instantiated and accessed DLL-side only.
-class CefDragDataCppToC
-    : public CefCppToCRefCounted<CefDragDataCppToC, CefDragData,
-        cef_drag_data_t> {
+class CefDragDataCppToC : public CefCppToCRefCounted<CefDragDataCppToC,
+                                                     CefDragData,
+                                                     cef_drag_data_t> {
  public:
   CefDragDataCppToC();
 };

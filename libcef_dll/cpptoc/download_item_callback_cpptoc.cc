@@ -9,16 +9,17 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=04aede4dd7d7d8ab90fa4d27537f1dd4c19501e7$
+//
 
 #include "libcef_dll/cpptoc/download_item_callback_cpptoc.h"
-
 
 namespace {
 
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
-void CEF_CALLBACK download_item_callback_cancel(
-    struct _cef_download_item_callback_t* self) {
+void CEF_CALLBACK
+download_item_callback_cancel(struct _cef_download_item_callback_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -29,8 +30,8 @@ void CEF_CALLBACK download_item_callback_cancel(
   CefDownloadItemCallbackCppToC::Get(self)->Cancel();
 }
 
-void CEF_CALLBACK download_item_callback_pause(
-    struct _cef_download_item_callback_t* self) {
+void CEF_CALLBACK
+download_item_callback_pause(struct _cef_download_item_callback_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -41,8 +42,8 @@ void CEF_CALLBACK download_item_callback_pause(
   CefDownloadItemCallbackCppToC::Get(self)->Pause();
 }
 
-void CEF_CALLBACK download_item_callback_resume(
-    struct _cef_download_item_callback_t* self) {
+void CEF_CALLBACK
+download_item_callback_resume(struct _cef_download_item_callback_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -55,7 +56,6 @@ void CEF_CALLBACK download_item_callback_resume(
 
 }  // namespace
 
-
 // CONSTRUCTOR - Do not edit by hand.
 
 CefDownloadItemCallbackCppToC::CefDownloadItemCallbackCppToC() {
@@ -64,18 +64,27 @@ CefDownloadItemCallbackCppToC::CefDownloadItemCallbackCppToC() {
   GetStruct()->resume = download_item_callback_resume;
 }
 
-template<> CefRefPtr<CefDownloadItemCallback> CefCppToCRefCounted<CefDownloadItemCallbackCppToC,
-    CefDownloadItemCallback, cef_download_item_callback_t>::UnwrapDerived(
-    CefWrapperType type, cef_download_item_callback_t* s) {
+template <>
+CefRefPtr<CefDownloadItemCallback> CefCppToCRefCounted<
+    CefDownloadItemCallbackCppToC,
+    CefDownloadItemCallback,
+    cef_download_item_callback_t>::UnwrapDerived(CefWrapperType type,
+                                                 cef_download_item_callback_t*
+                                                     s) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCppToCRefCounted<CefDownloadItemCallbackCppToC,
-    CefDownloadItemCallback, cef_download_item_callback_t>::DebugObjCt = 0;
+template <>
+base::AtomicRefCount
+    CefCppToCRefCounted<CefDownloadItemCallbackCppToC,
+                        CefDownloadItemCallback,
+                        cef_download_item_callback_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCppToCRefCounted<CefDownloadItemCallbackCppToC,
-    CefDownloadItemCallback, cef_download_item_callback_t>::kWrapperType =
+template <>
+CefWrapperType CefCppToCRefCounted<CefDownloadItemCallbackCppToC,
+                                   CefDownloadItemCallback,
+                                   cef_download_item_callback_t>::kWrapperType =
     WT_DOWNLOAD_ITEM_CALLBACK;

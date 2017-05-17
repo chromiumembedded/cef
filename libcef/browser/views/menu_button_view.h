@@ -28,8 +28,8 @@ class MenuButtonEx : public views::MenuButton,
   }
 };
 
-class CefMenuButtonView :
-    public CefLabelButtonView<MenuButtonEx, CefMenuButtonDelegate> {
+class CefMenuButtonView
+    : public CefLabelButtonView<MenuButtonEx, CefMenuButtonDelegate> {
  public:
   typedef CefLabelButtonView<MenuButtonEx, CefMenuButtonDelegate> ParentClass;
 

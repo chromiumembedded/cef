@@ -9,9 +9,9 @@
 #include <string>
 
 #include "include/cef_menu_model_delegate.h"
-#include "include/views/cef_button_delegate.h"
 #include "include/views/cef_browser_view.h"
 #include "include/views/cef_browser_view_delegate.h"
+#include "include/views/cef_button_delegate.h"
 #include "include/views/cef_label_button.h"
 #include "include/views/cef_menu_button.h"
 #include "include/views/cef_menu_button_delegate.h"
@@ -37,20 +37,20 @@ class ViewsWindow : public CefBrowserViewDelegate,
   class Delegate {
    public:
     // Return true if the window should show controls.
-    virtual bool WithControls() =0;
+    virtual bool WithControls() = 0;
 
     // Return the initial window bounds.
-    virtual CefRect GetWindowBounds() =0;
+    virtual CefRect GetWindowBounds() = 0;
 
     // Called when the ViewsWindow is created.
-    virtual void OnViewsWindowCreated(CefRefPtr<ViewsWindow> window) =0;
+    virtual void OnViewsWindowCreated(CefRefPtr<ViewsWindow> window) = 0;
 
     // Called when the ViewsWindow is destroyed. All references to |window|
     // should be released in this callback.
-    virtual void OnViewsWindowDestroyed(CefRefPtr<ViewsWindow> window) =0;
+    virtual void OnViewsWindowDestroyed(CefRefPtr<ViewsWindow> window) = 0;
 
     // Return the Delegate for the popup window controlled by |client|.
-    virtual Delegate* GetDelegateForPopup(CefRefPtr<CefClient> client) =0;
+    virtual Delegate* GetDelegateForPopup(CefRefPtr<CefClient> client) = 0;
 
     // Called to execute a test. See resource.h for |test_id| values.
     virtual void OnTest(int test_id) = 0;
@@ -81,18 +81,15 @@ class ViewsWindow : public CefBrowserViewDelegate,
   void SetTitle(const std::string& title);
   void SetFavicon(CefRefPtr<CefImage> image);
   void SetFullscreen(bool fullscreen);
-  void SetLoadingState(bool isLoading,
-                       bool canGoBack,
-                       bool canGoForward);
+  void SetLoadingState(bool isLoading, bool canGoBack, bool canGoForward);
   void SetDraggableRegions(const std::vector<CefDraggableRegion>& regions);
   void TakeFocus(bool next);
   void OnBeforeContextMenu(CefRefPtr<CefMenuModel> model);
 
   // CefBrowserViewDelegate methods:
-  bool OnPopupBrowserViewCreated(
-      CefRefPtr<CefBrowserView> browser_view,
-      CefRefPtr<CefBrowserView> popup_browser_view,
-      bool is_devtools) OVERRIDE;
+  bool OnPopupBrowserViewCreated(CefRefPtr<CefBrowserView> browser_view,
+                                 CefRefPtr<CefBrowserView> popup_browser_view,
+                                 bool is_devtools) OVERRIDE;
 
   // CefButtonDelegate methods:
   void OnButtonPressed(CefRefPtr<CefButton> button) OVERRIDE;
@@ -131,8 +128,7 @@ class ViewsWindow : public CefBrowserViewDelegate,
  private:
   // |delegate| is guaranteed to outlive this object.
   // |browser_view| may be NULL, in which case SetBrowserView() will be called.
-  ViewsWindow(Delegate* delegate,
-              CefRefPtr<CefBrowserView> browser_view);
+  ViewsWindow(Delegate* delegate, CefRefPtr<CefBrowserView> browser_view);
 
   void SetBrowserView(CefRefPtr<CefBrowserView> browser_view);
 

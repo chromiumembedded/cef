@@ -10,9 +10,9 @@
 #include "include/cef_browser.h"
 #include "include/cef_callback.h"
 #include "include/cef_frame.h"
+#include "include/cef_request.h"
 #include "include/cef_resource_handler.h"
 #include "include/cef_response.h"
-#include "include/cef_request.h"
 #include "include/cef_scheme.h"
 #include "include/wrapper/cef_helpers.h"
 #include "tests/cefclient/browser/test_runner.h"
@@ -29,8 +29,7 @@ class ClientSchemeHandler : public CefResourceHandler {
   ClientSchemeHandler() : offset_(0) {}
 
   virtual bool ProcessRequest(CefRefPtr<CefRequest> request,
-                              CefRefPtr<CefCallback> callback)
-                              OVERRIDE {
+                              CefRefPtr<CefCallback> callback) OVERRIDE {
     CEF_REQUIRE_IO_THREAD();
 
     bool handled = false;
@@ -38,23 +37,25 @@ class ClientSchemeHandler : public CefResourceHandler {
     std::string url = request->GetURL();
     if (strstr(url.c_str(), "handler.html") != NULL) {
       // Build the response html
-      data_ = "<html><head><title>Client Scheme Handler</title></head>"
-              "<body bgcolor=\"white\">"
-              "This contents of this page page are served by the "
-              "ClientSchemeHandler class handling the client:// protocol."
-              "<br/>You should see an image:"
-              "<br/><img src=\"client://tests/logo.png\"><pre>";
+      data_ =
+          "<html><head><title>Client Scheme Handler</title></head>"
+          "<body bgcolor=\"white\">"
+          "This contents of this page page are served by the "
+          "ClientSchemeHandler class handling the client:// protocol."
+          "<br/>You should see an image:"
+          "<br/><img src=\"client://tests/logo.png\"><pre>";
 
       // Output a string representation of the request
       const std::string& dump = test_runner::DumpRequestContents(request);
       data_.append(dump);
 
-      data_.append("</pre><br/>Try the test form:"
-                   "<form method=\"POST\" action=\"handler.html\">"
-                   "<input type=\"text\" name=\"field1\">"
-                   "<input type=\"text\" name=\"field2\">"
-                   "<input type=\"submit\">"
-                   "</form></body></html>");
+      data_.append(
+          "</pre><br/>Try the test form:"
+          "<form method=\"POST\" action=\"handler.html\">"
+          "<input type=\"text\" name=\"field1\">"
+          "<input type=\"text\" name=\"field2\">"
+          "<input type=\"submit\">"
+          "</form></body></html>");
 
       handled = true;
 
@@ -92,15 +93,12 @@ class ClientSchemeHandler : public CefResourceHandler {
     response_length = data_.length();
   }
 
-  virtual void Cancel() OVERRIDE {
-    CEF_REQUIRE_IO_THREAD();
-  }
+  virtual void Cancel() OVERRIDE { CEF_REQUIRE_IO_THREAD(); }
 
   virtual bool ReadResponse(void* data_out,
                             int bytes_to_read,
                             int& bytes_read,
-                            CefRefPtr<CefCallback> callback)
-                            OVERRIDE {
+                            CefRefPtr<CefCallback> callback) OVERRIDE {
     CEF_REQUIRE_IO_THREAD();
 
     bool has_data = false;
@@ -132,11 +130,11 @@ class ClientSchemeHandler : public CefResourceHandler {
 class ClientSchemeHandlerFactory : public CefSchemeHandlerFactory {
  public:
   // Return a new scheme handler instance to handle the request.
-  virtual CefRefPtr<CefResourceHandler> Create(CefRefPtr<CefBrowser> browser,
-                                               CefRefPtr<CefFrame> frame,
-                                               const CefString& scheme_name,
-                                               CefRefPtr<CefRequest> request)
-                                               OVERRIDE {
+  virtual CefRefPtr<CefResourceHandler> Create(
+      CefRefPtr<CefBrowser> browser,
+      CefRefPtr<CefFrame> frame,
+      const CefString& scheme_name,
+      CefRefPtr<CefRequest> request) OVERRIDE {
     CEF_REQUIRE_IO_THREAD();
     return new ClientSchemeHandler();
   }
@@ -148,7 +146,7 @@ class ClientSchemeHandlerFactory : public CefSchemeHandlerFactory {
 
 void RegisterSchemeHandlers() {
   CefRegisterSchemeHandlerFactory("client", "tests",
-      new ClientSchemeHandlerFactory());
+                                  new ClientSchemeHandlerFactory());
 }
 
 }  // namespace scheme_test

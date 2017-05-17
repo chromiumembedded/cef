@@ -50,16 +50,15 @@ void CefBoxLayoutImpl::ClearFlexForView(CefRefPtr<CefView> view) {
 }
 
 CefBoxLayoutImpl::CefBoxLayoutImpl(const CefBoxLayoutSettings& settings)
-    : settings_(settings) {
-}
+    : settings_(settings) {}
 
 views::BoxLayout* CefBoxLayoutImpl::CreateLayout() {
-  views::BoxLayout* layout = new views::BoxLayout(
-      settings_.horizontal ? views::BoxLayout::kHorizontal :
-                             views::BoxLayout::kVertical,
-      settings_.inside_border_horizontal_spacing,
-      settings_.inside_border_vertical_spacing,
-      settings_.between_child_spacing);
+  views::BoxLayout* layout =
+      new views::BoxLayout(settings_.horizontal ? views::BoxLayout::kHorizontal
+                                                : views::BoxLayout::kVertical,
+                           settings_.inside_border_horizontal_spacing,
+                           settings_.inside_border_vertical_spacing,
+                           settings_.between_child_spacing);
   layout->set_main_axis_alignment(
       static_cast<views::BoxLayout::MainAxisAlignment>(
           settings_.main_axis_alignment));
@@ -67,8 +66,7 @@ views::BoxLayout* CefBoxLayoutImpl::CreateLayout() {
       static_cast<views::BoxLayout::CrossAxisAlignment>(
           settings_.cross_axis_alignment));
   layout->set_inside_border_insets(gfx::Insets(
-      settings_.inside_border_insets.top,
-      settings_.inside_border_insets.left,
+      settings_.inside_border_insets.top, settings_.inside_border_insets.left,
       settings_.inside_border_insets.bottom,
       settings_.inside_border_insets.right));
   layout->set_minimum_cross_axis_size(settings_.minimum_cross_axis_size);

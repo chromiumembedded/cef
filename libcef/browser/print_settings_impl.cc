@@ -9,10 +9,12 @@
 CefPrintSettingsImpl::CefPrintSettingsImpl(printing::PrintSettings* value,
                                            bool will_delete,
                                            bool read_only)
-  : CefValueBase<CefPrintSettings, printing::PrintSettings>(
-        value, NULL, will_delete ? kOwnerWillDelete : kOwnerNoDelete,
-        read_only, NULL) {
-}
+    : CefValueBase<CefPrintSettings, printing::PrintSettings>(
+          value,
+          NULL,
+          will_delete ? kOwnerWillDelete : kOwnerNoDelete,
+          read_only,
+          NULL) {}
 
 bool CefPrintSettingsImpl::IsValid() {
   return !detached();
@@ -46,8 +48,7 @@ void CefPrintSettingsImpl::SetPrinterPrintableArea(
   CEF_VALUE_VERIFY_RETURN_VOID(true);
   gfx::Size size(physical_size_device_units.width,
                  physical_size_device_units.height);
-  gfx::Rect rect(printable_area_device_units.x,
-                 printable_area_device_units.y,
+  gfx::Rect rect(printable_area_device_units.x, printable_area_device_units.y,
                  printable_area_device_units.width,
                  printable_area_device_units.height);
   mutable_value()->SetPrinterPrintableArea(size, rect, landscape_needs_flip);
@@ -77,7 +78,7 @@ void CefPrintSettingsImpl::SetPageRanges(const PageRangeList& ranges) {
   CEF_VALUE_VERIFY_RETURN_VOID(true);
   printing::PageRanges page_ranges;
   PageRangeList::const_iterator it = ranges.begin();
-  for(; it != ranges.end(); ++it) {
+  for (; it != ranges.end(); ++it) {
     const CefRange& cef_range = *it;
     printing::PageRange range;
     range.from = cef_range.from;
@@ -154,12 +155,9 @@ CefPrintSettings::DuplexMode CefPrintSettingsImpl::GetDuplexMode() {
   return static_cast<DuplexMode>(const_value().duplex_mode());
 }
 
-
 // CefPrintSettings implementation.
 
 // static
 CefRefPtr<CefPrintSettings> CefPrintSettings::Create() {
-  return new CefPrintSettingsImpl(
-      new printing::PrintSettings(), true, false);
+  return new CefPrintSettingsImpl(new printing::PrintSettings(), true, false);
 }
-

@@ -9,6 +9,8 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=132e1a6331558565dfde27b14bdda39bbc4a4b30$
+//
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_NAVIGATION_ENTRY_CTOCPP_H_
 #define CEF_LIBCEF_DLL_CTOCPP_NAVIGATION_ENTRY_CTOCPP_H_
@@ -18,15 +20,16 @@
 #error This file can be included wrapper-side only
 #endif
 
-#include "include/cef_navigation_entry.h"
 #include "include/capi/cef_navigation_entry_capi.h"
+#include "include/cef_navigation_entry.h"
 #include "libcef_dll/ctocpp/ctocpp_ref_counted.h"
 
 // Wrap a C structure with a C++ class.
 // This class may be instantiated and accessed wrapper-side only.
 class CefNavigationEntryCToCpp
-    : public CefCToCppRefCounted<CefNavigationEntryCToCpp, CefNavigationEntry,
-        cef_navigation_entry_t> {
+    : public CefCToCppRefCounted<CefNavigationEntryCToCpp,
+                                 CefNavigationEntry,
+                                 cef_navigation_entry_t> {
  public:
   CefNavigationEntryCToCpp();
 

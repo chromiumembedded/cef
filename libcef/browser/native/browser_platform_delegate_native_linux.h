@@ -10,8 +10,8 @@
 class CefWindowX11;
 
 // Windowed browser implementation for Linux.
-class CefBrowserPlatformDelegateNativeLinux :
-    public CefBrowserPlatformDelegateNative {
+class CefBrowserPlatformDelegateNativeLinux
+    : public CefBrowserPlatformDelegateNative {
  public:
   CefBrowserPlatformDelegateNativeLinux(const CefWindowInfo& window_info,
                                         SkColor background_color);
@@ -35,13 +35,15 @@ class CefBrowserPlatformDelegateNativeLinux :
   void TranslateClickEvent(blink::WebMouseEvent& result,
                            const CefMouseEvent& mouse_event,
                            CefBrowserHost::MouseButtonType type,
-                           bool mouseUp, int clickCount) const override;
+                           bool mouseUp,
+                           int clickCount) const override;
   void TranslateMoveEvent(blink::WebMouseEvent& result,
                           const CefMouseEvent& mouse_event,
                           bool mouseLeave) const override;
   void TranslateWheelEvent(blink::WebMouseWheelEvent& result,
                            const CefMouseEvent& mouse_event,
-                           int deltaX, int deltaY) const override;
+                           int deltaX,
+                           int deltaY) const override;
   CefEventHandle GetEventHandle(
       const content::NativeWebKeyboardEvent& event) const override;
   std::unique_ptr<CefMenuRunner> CreateMenuRunner() override;

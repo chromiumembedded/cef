@@ -33,9 +33,8 @@ const content::MediaStreamDevice* FindDefaultDeviceWithId(
 
 }  // namespace
 
-
 CefMediaCaptureDevicesDispatcher*
-    CefMediaCaptureDevicesDispatcher::GetInstance() {
+CefMediaCaptureDevicesDispatcher::GetInstance() {
   return base::Singleton<CefMediaCaptureDevicesDispatcher>::get();
 }
 
@@ -95,11 +94,9 @@ void CefMediaCaptureDevicesDispatcher::GetRequestedDevice(
   }
 }
 
-void CefMediaCaptureDevicesDispatcher::OnAudioCaptureDevicesChanged() {
-}
+void CefMediaCaptureDevicesDispatcher::OnAudioCaptureDevicesChanged() {}
 
-void CefMediaCaptureDevicesDispatcher::OnVideoCaptureDevicesChanged() {
-}
+void CefMediaCaptureDevicesDispatcher::OnVideoCaptureDevicesChanged() {}
 
 void CefMediaCaptureDevicesDispatcher::OnMediaRequestStateChanged(
     int render_process_id,
@@ -107,21 +104,18 @@ void CefMediaCaptureDevicesDispatcher::OnMediaRequestStateChanged(
     int page_request_id,
     const GURL& security_origin,
     content::MediaStreamType stream_type,
-    content::MediaRequestState state) {
-}
+    content::MediaRequestState state) {}
 
 void CefMediaCaptureDevicesDispatcher::OnCreatingAudioStream(
     int render_process_id,
-    int render_view_id) {
-}
+    int render_view_id) {}
 
 void CefMediaCaptureDevicesDispatcher::OnSetCapturingLinkSecured(
     int render_process_id,
     int render_frame_id,
     int page_request_id,
     content::MediaStreamType stream_type,
-    bool is_secure) {
-}
+    bool is_secure) {}
 
 const MediaStreamDevices&
 CefMediaCaptureDevicesDispatcher::GetAudioCaptureDevices() {

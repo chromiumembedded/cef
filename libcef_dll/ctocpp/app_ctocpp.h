@@ -9,6 +9,8 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=b1936f48acc13afee39f0b8c5b147a6e828f83b7$
+//
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_APP_CTOCPP_H_
 #define CEF_LIBCEF_DLL_CTOCPP_APP_CTOCPP_H_
@@ -18,8 +20,8 @@
 #error This file can be included DLL-side only
 #endif
 
-#include "include/cef_app.h"
 #include "include/capi/cef_app_capi.h"
+#include "include/cef_app.h"
 #include "libcef_dll/ctocpp/ctocpp_ref_counted.h"
 
 // Wrap a C structure with a C++ class.
@@ -30,7 +32,8 @@ class CefAppCToCpp
   CefAppCToCpp();
 
   // CefApp methods.
-  void OnBeforeCommandLineProcessing(const CefString& process_type,
+  void OnBeforeCommandLineProcessing(
+      const CefString& process_type,
       CefRefPtr<CefCommandLine> command_line) override;
   void OnRegisterCustomSchemes(
       CefRawPtr<CefSchemeRegistrar> registrar) override;

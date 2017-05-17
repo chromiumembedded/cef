@@ -12,22 +12,22 @@
 #include "tests/gtest/include/gtest/gtest.h"
 
 // See ui/events/keycodes/keyboard_codes.h
-#define VKEY_UNKNOWN  0
+#define VKEY_UNKNOWN 0
 #if defined(OS_WIN)
-#define VKEY_A        'A'
-#define VKEY_SPACE    VK_SPACE
-#define VKEY_RETURN   VK_RETURN
+#define VKEY_A 'A'
+#define VKEY_SPACE VK_SPACE
+#define VKEY_RETURN VK_RETURN
 #elif defined(OS_POSIX)
-#define VKEY_A        0x41
-#define VKEY_SPACE    0x20
-#define VKEY_RETURN   0x0D
+#define VKEY_A 0x41
+#define VKEY_SPACE 0x20
+#define VKEY_RETURN 0x0D
 #else
 #error "Unsupported platform"
 #endif
 
 #define TEXTFIELD_TEST(name) UI_THREAD_TEST(ViewsTextfieldTest, name)
 #define TEXTFIELD_TEST_ASYNC(name) \
-    UI_THREAD_TEST_ASYNC(ViewsTextfieldTest, name)
+  UI_THREAD_TEST_ASYNC(ViewsTextfieldTest, name)
 
 namespace {
 
@@ -59,9 +59,9 @@ void TextfieldContentsImpl() {
 
   // Test select range.
   EXPECT_FALSE(textfield->HasSelection());
-  EXPECT_EQ(CefRange(static_cast<int>(cursor_pos),
-                     static_cast<int>(cursor_pos)),
-            textfield->GetSelectedRange());
+  EXPECT_EQ(
+      CefRange(static_cast<int>(cursor_pos), static_cast<int>(cursor_pos)),
+      textfield->GetSelectedRange());
   textfield->SelectRange(CefRange(0, static_cast<int>(cursor_pos)));
   EXPECT_TRUE(textfield->HasSelection());
   EXPECT_EQ(CefRange(0, static_cast<int>(cursor_pos)),
@@ -91,9 +91,9 @@ void TextfieldContentsImpl() {
   // Test clear selection.
   textfield->ClearSelection();
   EXPECT_FALSE(textfield->HasSelection());
-  EXPECT_EQ(CefRange(static_cast<int>(cursor_pos),
-                     static_cast<int>(cursor_pos)),
-            textfield->GetSelectedRange());
+  EXPECT_EQ(
+      CefRange(static_cast<int>(cursor_pos), static_cast<int>(cursor_pos)),
+      textfield->GetSelectedRange());
   EXPECT_EQ(cursor_pos, textfield->GetCursorPosition());
 
   // Test selection with command.
@@ -166,7 +166,6 @@ void TextfieldStyleImpl() {
 TEXTFIELD_TEST(TextfieldContents);
 TEXTFIELD_TEST(TextfieldStyle);
 
-
 namespace {
 
 const int kTextfieldID = 1;
@@ -190,8 +189,7 @@ void TranslateKey(int c, int* keycode, uint32* modifiers) {
 
 class TestTextfieldDelegate : public CefTextfieldDelegate {
  public:
-  TestTextfieldDelegate() {
-  }
+  TestTextfieldDelegate() {}
 
   bool OnKeyEvent(CefRefPtr<CefTextfield> textfield,
                   const CefKeyEvent& event) override {
@@ -201,8 +199,8 @@ class TestTextfieldDelegate : public CefTextfieldDelegate {
     if (event.type == KEYEVENT_RAWKEYDOWN &&
         event.windows_key_code == VKEY_RETURN) {
       // Got the whole string. Finish the test asynchronously.
-      CefPostTask(TID_UI,
-          base::Bind(&TestTextfieldDelegate::FinishTest, this, textfield));
+      CefPostTask(TID_UI, base::Bind(&TestTextfieldDelegate::FinishTest, this,
+                                     textfield));
       return true;
     }
 
@@ -242,8 +240,8 @@ class TestTextfieldDelegate : public CefTextfieldDelegate {
 };
 
 void RunTextfieldKeyEvent(CefRefPtr<CefWindow> window) {
-  CefRefPtr<CefTextfield> textfield = CefTextfield::CreateTextfield(
-      new TestTextfieldDelegate());
+  CefRefPtr<CefTextfield> textfield =
+      CefTextfield::CreateTextfield(new TestTextfieldDelegate());
   textfield->SetID(kTextfieldID);
 
   EXPECT_TRUE(textfield->AsTextfield());

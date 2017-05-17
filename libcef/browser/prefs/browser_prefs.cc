@@ -25,12 +25,12 @@
 #include "components/content_settings/core/browser/cookie_settings.h"
 #include "components/content_settings/core/browser/host_content_settings_map.h"
 #include "components/google/core/browser/google_url_tracker.h"
+#include "components/pref_registry/pref_registry_syncable.h"
 #include "components/prefs/json_pref_store.h"
 #include "components/prefs/pref_filter.h"
 #include "components/prefs/pref_registry_simple.h"
 #include "components/prefs/pref_service.h"
 #include "components/prefs/testing_pref_store.h"
-#include "components/pref_registry/pref_registry_syncable.h"
 #include "components/proxy_config/pref_proxy_config_tracker_impl.h"
 #include "components/proxy_config/proxy_config_dictionary.h"
 #include "components/spellcheck/browser/pref_names.h"
@@ -84,8 +84,8 @@ void RegisterLocalizedValue(PrefRegistrySimple* registry,
     }
 
     default: {
-      NOTREACHED() <<
-          "list and dictionary types cannot have default locale values";
+      NOTREACHED()
+          << "list and dictionary types cannot have default locale values";
     }
   }
   NOTREACHED();
@@ -95,11 +95,10 @@ void RegisterLocalizedValue(PrefRegistrySimple* registry,
 
 const char kUserPrefsFileName[] = "UserPrefs.json";
 
-std::unique_ptr<PrefService> CreatePrefService(
-    Profile* profile,
-    const base::FilePath& cache_path,
-    bool persist_user_preferences,
-    bool is_pre_initialization) {
+std::unique_ptr<PrefService> CreatePrefService(Profile* profile,
+                                               const base::FilePath& cache_path,
+                                               bool persist_user_preferences,
+                                               bool is_pre_initialization) {
   const base::CommandLine* command_line =
       base::CommandLine::ForCurrentProcess();
 
@@ -116,8 +115,8 @@ std::unique_ptr<PrefService> CreatePrefService(
   factory.set_command_line_prefs(command_line_pref_store);
 
   // True if preferences will be stored on disk.
-  const bool store_on_disk = !cache_path.empty() && persist_user_preferences &&
-                             !is_pre_initialization;
+  const bool store_on_disk =
+      !cache_path.empty() && persist_user_preferences && !is_pre_initialization;
 
   scoped_refptr<base::SequencedTaskRunner> sequenced_task_runner;
   if (store_on_disk) {
@@ -133,9 +132,8 @@ std::unique_ptr<PrefService> CreatePrefService(
   if (store_on_disk) {
     const base::FilePath& pref_path =
         cache_path.AppendASCII(browser_prefs::kUserPrefsFileName);
-    scoped_refptr<JsonPrefStore> json_pref_store =
-        new JsonPrefStore(pref_path, sequenced_task_runner,
-                          std::unique_ptr<PrefFilter>());
+    scoped_refptr<JsonPrefStore> json_pref_store = new JsonPrefStore(
+        pref_path, sequenced_task_runner, std::unique_ptr<PrefFilter>());
     factory.set_user_prefs(json_pref_store.get());
   } else {
     scoped_refptr<TestingPrefStore> testing_pref_store = new TestingPrefStore();
@@ -151,8 +149,8 @@ std::unique_ptr<PrefService> CreatePrefService(
         SupervisedUserSettingsServiceFactory::GetForProfile(profile);
 
     if (store_on_disk) {
-      supervised_user_settings->Init(
-          cache_path, sequenced_task_runner.get(), true);
+      supervised_user_settings->Init(cache_path, sequenced_task_runner.get(),
+                                     true);
     } else {
       scoped_refptr<TestingPrefStore> testing_pref_store =
           new TestingPrefStore();
@@ -197,10 +195,9 @@ std::unique_ptr<PrefService> CreatePrefService(
     registry->RegisterStringPref(spellcheck::prefs::kSpellCheckDictionary,
                                  spellcheck_lang);
   } else {
-    RegisterLocalizedValue(registry.get(),
-                           spellcheck::prefs::kSpellCheckDictionary,
-                           base::Value::Type::STRING,
-                           IDS_SPELLCHECK_DICTIONARY);
+    RegisterLocalizedValue(
+        registry.get(), spellcheck::prefs::kSpellCheckDictionary,
+        base::Value::Type::STRING, IDS_SPELLCHECK_DICTIONARY);
   }
   registry->RegisterBooleanPref(
       spellcheck::prefs::kSpellCheckUseSpellingService,
@@ -223,9 +220,9 @@ std::unique_ptr<PrefService> CreatePrefService(
   registry->RegisterBooleanPref(prefs::kPluginsAllowOutdated, false);
   registry->RegisterBooleanPref(prefs::kPluginsAlwaysAuthorize, false);
 
-  // Theme preferences.
-  // Based on ThemeServiceFactory::RegisterProfilePrefs.
-  // TODO(cef/chrome): Remove this once CEF supports ThemeService.
+// Theme preferences.
+// Based on ThemeServiceFactory::RegisterProfilePrefs.
+// TODO(cef/chrome): Remove this once CEF supports ThemeService.
 #if defined(USE_X11)
   registry->RegisterBooleanPref(prefs::kUsesSystemTheme, false);
 #endif

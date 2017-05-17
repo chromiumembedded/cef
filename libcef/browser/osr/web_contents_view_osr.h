@@ -62,13 +62,12 @@ class CefWebContentsViewOSR : public content::WebContentsView,
 #endif
 
   // RenderViewHostDelegateView methods.
-  void StartDragging(
-      const content::DropData& drop_data,
-      blink::WebDragOperationsMask allowed_ops,
-      const gfx::ImageSkia& image,
-      const gfx::Vector2d& image_offset,
-      const content::DragEventSourceInfo& event_info,
-      content::RenderWidgetHostImpl* source_rwh) override;
+  void StartDragging(const content::DropData& drop_data,
+                     blink::WebDragOperationsMask allowed_ops,
+                     const gfx::ImageSkia& image,
+                     const gfx::Vector2d& image_offset,
+                     const content::DragEventSourceInfo& event_info,
+                     content::RenderWidgetHostImpl* source_rwh) override;
   void UpdateDragCursor(blink::WebDragOperation operation) override;
   virtual void GotFocus() override;
   virtual void TakeFocus(bool reverse) override;

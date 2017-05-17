@@ -39,10 +39,10 @@ class CefBrowserInfo : public base::RefCountedThreadSafe<CefBrowserInfo> {
     bool is_render_view_id_match(int render_process_id,
                                  int render_routing_id) const;
     bool is_render_frame_id_match(int render_process_id,
-                                  int render_routing_id)const ;
+                                  int render_routing_id) const;
 
    private:
-    typedef std::set<std::pair<int, int> > RenderIdSet;
+    typedef std::set<std::pair<int, int>> RenderIdSet;
 
     void add_render_id(RenderIdSet* id_set,
                        int render_process_id,
@@ -81,9 +81,7 @@ class CefBrowserInfo : public base::RefCountedThreadSafe<CefBrowserInfo> {
   void set_windowless(bool windowless);
 
   // Returns the render ID manager for this browser.
-  RenderIDManager* render_id_manager() {
-    return &render_id_manager_;
-  }
+  RenderIDManager* render_id_manager() { return &render_id_manager_; }
 
   // Returns the render ID manager for guest views owned by this browser.
   RenderIDManager* guest_render_id_manager() {

@@ -9,6 +9,8 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=e6daa179971241b884282dafa19b5c8b362e7ca0$
+//
 
 #include "include/views/cef_browser_view.h"
 #include "include/views/cef_display.h"
@@ -21,11 +23,11 @@
 
 #include "base/logging.h"
 
-
 // STATIC STUB METHODS - Do not edit by hand.
 
 CefRefPtr<CefBrowserView> CefBrowserView::CreateBrowserView(
-    CefRefPtr<CefClient> client, const CefString& url,
+    CefRefPtr<CefClient> client,
+    const CefString& url,
     const CefBrowserSettings& settings,
     CefRefPtr<CefRequestContext> request_context,
     CefRefPtr<CefBrowserViewDelegate> delegate) {
@@ -44,14 +46,16 @@ CefRefPtr<CefDisplay> CefDisplay::GetPrimaryDisplay() {
   return NULL;
 }
 
-CefRefPtr<CefDisplay> CefDisplay::GetDisplayNearestPoint(const CefPoint& point,
+CefRefPtr<CefDisplay> CefDisplay::GetDisplayNearestPoint(
+    const CefPoint& point,
     bool input_pixel_coords) {
   NOTIMPLEMENTED();
   return NULL;
 }
 
 CefRefPtr<CefDisplay> CefDisplay::GetDisplayMatchingBounds(
-    const CefRect& bounds, bool input_pixel_coords) {
+    const CefRect& bounds,
+    bool input_pixel_coords) {
   NOTIMPLEMENTED();
   return NULL;
 }
@@ -66,15 +70,18 @@ void CefDisplay::GetAllDisplays(std::vector<CefRefPtr<CefDisplay>>& displays) {
 }
 
 CefRefPtr<CefLabelButton> CefLabelButton::CreateLabelButton(
-    CefRefPtr<CefButtonDelegate> delegate, const CefString& text,
+    CefRefPtr<CefButtonDelegate> delegate,
+    const CefString& text,
     bool with_frame) {
   NOTIMPLEMENTED();
   return NULL;
 }
 
 CefRefPtr<CefMenuButton> CefMenuButton::CreateMenuButton(
-    CefRefPtr<CefMenuButtonDelegate> delegate, const CefString& text,
-    bool with_frame, bool with_menu_marker) {
+    CefRefPtr<CefMenuButtonDelegate> delegate,
+    const CefString& text,
+    bool with_frame,
+    bool with_menu_marker) {
   NOTIMPLEMENTED();
   return NULL;
 }
@@ -102,4 +109,3 @@ CefRefPtr<CefWindow> CefWindow::CreateTopLevelWindow(
   NOTIMPLEMENTED();
   return NULL;
 }
-

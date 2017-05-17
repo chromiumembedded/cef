@@ -9,6 +9,8 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=983c18727fdd4116f5b98eb9d1921d58f1511c76$
+//
 
 #include "libcef_dll/cpptoc/load_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/render_process_handler_cpptoc.h"
@@ -21,7 +23,6 @@
 #include "libcef_dll/ctocpp/v8context_ctocpp.h"
 #include "libcef_dll/ctocpp/v8exception_ctocpp.h"
 #include "libcef_dll/ctocpp/v8stack_trace_ctocpp.h"
-
 
 namespace {
 
@@ -58,7 +59,8 @@ void CEF_CALLBACK render_process_handler_on_web_kit_initialized(
 }
 
 void CEF_CALLBACK render_process_handler_on_browser_created(
-    struct _cef_render_process_handler_t* self, cef_browser_t* browser) {
+    struct _cef_render_process_handler_t* self,
+    cef_browser_t* browser) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -75,7 +77,8 @@ void CEF_CALLBACK render_process_handler_on_browser_created(
 }
 
 void CEF_CALLBACK render_process_handler_on_browser_destroyed(
-    struct _cef_render_process_handler_t* self, cef_browser_t* browser) {
+    struct _cef_render_process_handler_t* self,
+    cef_browser_t* browser) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -100,17 +103,20 @@ cef_load_handler_t* CEF_CALLBACK render_process_handler_get_load_handler(
     return NULL;
 
   // Execute
-  CefRefPtr<CefLoadHandler> _retval = CefRenderProcessHandlerCppToC::Get(
-      self)->GetLoadHandler();
+  CefRefPtr<CefLoadHandler> _retval =
+      CefRenderProcessHandlerCppToC::Get(self)->GetLoadHandler();
 
   // Return type: refptr_same
   return CefLoadHandlerCppToC::Wrap(_retval);
 }
 
 int CEF_CALLBACK render_process_handler_on_before_navigation(
-    struct _cef_render_process_handler_t* self, cef_browser_t* browser,
-    cef_frame_t* frame, struct _cef_request_t* request,
-    cef_navigation_type_t navigation_type, int is_redirect) {
+    struct _cef_render_process_handler_t* self,
+    cef_browser_t* browser,
+    cef_frame_t* frame,
+    struct _cef_request_t* request,
+    cef_navigation_type_t navigation_type,
+    int is_redirect) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -131,19 +137,19 @@ int CEF_CALLBACK render_process_handler_on_before_navigation(
 
   // Execute
   bool _retval = CefRenderProcessHandlerCppToC::Get(self)->OnBeforeNavigation(
-      CefBrowserCToCpp::Wrap(browser),
-      CefFrameCToCpp::Wrap(frame),
-      CefRequestCToCpp::Wrap(request),
-      navigation_type,
-      is_redirect?true:false);
+      CefBrowserCToCpp::Wrap(browser), CefFrameCToCpp::Wrap(frame),
+      CefRequestCToCpp::Wrap(request), navigation_type,
+      is_redirect ? true : false);
 
   // Return type: bool
   return _retval;
 }
 
 void CEF_CALLBACK render_process_handler_on_context_created(
-    struct _cef_render_process_handler_t* self, cef_browser_t* browser,
-    cef_frame_t* frame, struct _cef_v8context_t* context) {
+    struct _cef_render_process_handler_t* self,
+    cef_browser_t* browser,
+    cef_frame_t* frame,
+    struct _cef_v8context_t* context) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -164,14 +170,15 @@ void CEF_CALLBACK render_process_handler_on_context_created(
 
   // Execute
   CefRenderProcessHandlerCppToC::Get(self)->OnContextCreated(
-      CefBrowserCToCpp::Wrap(browser),
-      CefFrameCToCpp::Wrap(frame),
+      CefBrowserCToCpp::Wrap(browser), CefFrameCToCpp::Wrap(frame),
       CefV8ContextCToCpp::Wrap(context));
 }
 
 void CEF_CALLBACK render_process_handler_on_context_released(
-    struct _cef_render_process_handler_t* self, cef_browser_t* browser,
-    cef_frame_t* frame, struct _cef_v8context_t* context) {
+    struct _cef_render_process_handler_t* self,
+    cef_browser_t* browser,
+    cef_frame_t* frame,
+    struct _cef_v8context_t* context) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -192,14 +199,15 @@ void CEF_CALLBACK render_process_handler_on_context_released(
 
   // Execute
   CefRenderProcessHandlerCppToC::Get(self)->OnContextReleased(
-      CefBrowserCToCpp::Wrap(browser),
-      CefFrameCToCpp::Wrap(frame),
+      CefBrowserCToCpp::Wrap(browser), CefFrameCToCpp::Wrap(frame),
       CefV8ContextCToCpp::Wrap(context));
 }
 
 void CEF_CALLBACK render_process_handler_on_uncaught_exception(
-    struct _cef_render_process_handler_t* self, cef_browser_t* browser,
-    cef_frame_t* frame, struct _cef_v8context_t* context,
+    struct _cef_render_process_handler_t* self,
+    cef_browser_t* browser,
+    cef_frame_t* frame,
+    struct _cef_v8context_t* context,
     struct _cef_v8exception_t* exception,
     struct _cef_v8stack_trace_t* stackTrace) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -230,16 +238,16 @@ void CEF_CALLBACK render_process_handler_on_uncaught_exception(
 
   // Execute
   CefRenderProcessHandlerCppToC::Get(self)->OnUncaughtException(
-      CefBrowserCToCpp::Wrap(browser),
-      CefFrameCToCpp::Wrap(frame),
-      CefV8ContextCToCpp::Wrap(context),
-      CefV8ExceptionCToCpp::Wrap(exception),
+      CefBrowserCToCpp::Wrap(browser), CefFrameCToCpp::Wrap(frame),
+      CefV8ContextCToCpp::Wrap(context), CefV8ExceptionCToCpp::Wrap(exception),
       CefV8StackTraceCToCpp::Wrap(stackTrace));
 }
 
 void CEF_CALLBACK render_process_handler_on_focused_node_changed(
-    struct _cef_render_process_handler_t* self, cef_browser_t* browser,
-    cef_frame_t* frame, cef_domnode_t* node) {
+    struct _cef_render_process_handler_t* self,
+    cef_browser_t* browser,
+    cef_frame_t* frame,
+    cef_domnode_t* node) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -253,14 +261,15 @@ void CEF_CALLBACK render_process_handler_on_focused_node_changed(
 
   // Execute
   CefRenderProcessHandlerCppToC::Get(self)->OnFocusedNodeChanged(
-      CefBrowserCToCpp::Wrap(browser),
-      CefFrameCToCpp::Wrap(frame),
+      CefBrowserCToCpp::Wrap(browser), CefFrameCToCpp::Wrap(frame),
       CefDOMNodeCToCpp::Wrap(node));
 }
 
 int CEF_CALLBACK render_process_handler_on_process_message_received(
-    struct _cef_render_process_handler_t* self, cef_browser_t* browser,
-    cef_process_id_t source_process, cef_process_message_t* message) {
+    struct _cef_render_process_handler_t* self,
+    cef_browser_t* browser,
+    cef_process_id_t source_process,
+    cef_process_message_t* message) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -276,18 +285,16 @@ int CEF_CALLBACK render_process_handler_on_process_message_received(
     return 0;
 
   // Execute
-  bool _retval = CefRenderProcessHandlerCppToC::Get(
-      self)->OnProcessMessageReceived(
-      CefBrowserCToCpp::Wrap(browser),
-      source_process,
-      CefProcessMessageCToCpp::Wrap(message));
+  bool _retval =
+      CefRenderProcessHandlerCppToC::Get(self)->OnProcessMessageReceived(
+          CefBrowserCToCpp::Wrap(browser), source_process,
+          CefProcessMessageCToCpp::Wrap(message));
 
   // Return type: bool
   return _retval;
 }
 
 }  // namespace
-
 
 // CONSTRUCTOR - Do not edit by hand.
 
@@ -312,18 +319,27 @@ CefRenderProcessHandlerCppToC::CefRenderProcessHandlerCppToC() {
       render_process_handler_on_process_message_received;
 }
 
-template<> CefRefPtr<CefRenderProcessHandler> CefCppToCRefCounted<CefRenderProcessHandlerCppToC,
-    CefRenderProcessHandler, cef_render_process_handler_t>::UnwrapDerived(
-    CefWrapperType type, cef_render_process_handler_t* s) {
+template <>
+CefRefPtr<CefRenderProcessHandler> CefCppToCRefCounted<
+    CefRenderProcessHandlerCppToC,
+    CefRenderProcessHandler,
+    cef_render_process_handler_t>::UnwrapDerived(CefWrapperType type,
+                                                 cef_render_process_handler_t*
+                                                     s) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCppToCRefCounted<CefRenderProcessHandlerCppToC,
-    CefRenderProcessHandler, cef_render_process_handler_t>::DebugObjCt = 0;
+template <>
+base::AtomicRefCount
+    CefCppToCRefCounted<CefRenderProcessHandlerCppToC,
+                        CefRenderProcessHandler,
+                        cef_render_process_handler_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCppToCRefCounted<CefRenderProcessHandlerCppToC,
-    CefRenderProcessHandler, cef_render_process_handler_t>::kWrapperType =
+template <>
+CefWrapperType CefCppToCRefCounted<CefRenderProcessHandlerCppToC,
+                                   CefRenderProcessHandler,
+                                   cef_render_process_handler_t>::kWrapperType =
     WT_RENDER_PROCESS_HANDLER;

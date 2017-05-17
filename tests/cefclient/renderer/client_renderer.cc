@@ -22,13 +22,10 @@ const char kFocusedNodeChangedMessage[] = "ClientRenderer.FocusedNodeChanged";
 
 class ClientRenderDelegate : public ClientAppRenderer::Delegate {
  public:
-  ClientRenderDelegate()
-    : last_node_is_editable_(false) {
-  }
+  ClientRenderDelegate() : last_node_is_editable_(false) {}
 
-  void OnRenderThreadCreated(
-      CefRefPtr<ClientAppRenderer> app,
-      CefRefPtr<CefListValue> extra_info) OVERRIDE {
+  void OnRenderThreadCreated(CefRefPtr<ClientAppRenderer> app,
+                             CefRefPtr<CefListValue> extra_info) OVERRIDE {
     if (CefCrashReportingEnabled()) {
       // Set some crash keys for testing purposes. Keys must be defined in the
       // "crash_reporter.cfg" file. See cef_crash_util.h for details.
@@ -48,14 +45,14 @@ class ClientRenderDelegate : public ClientAppRenderer::Delegate {
                         CefRefPtr<CefBrowser> browser,
                         CefRefPtr<CefFrame> frame,
                         CefRefPtr<CefV8Context> context) OVERRIDE {
-    message_router_->OnContextCreated(browser,  frame, context);
+    message_router_->OnContextCreated(browser, frame, context);
   }
 
   void OnContextReleased(CefRefPtr<ClientAppRenderer> app,
                          CefRefPtr<CefBrowser> browser,
                          CefRefPtr<CefFrame> frame,
                          CefRefPtr<CefV8Context> context) OVERRIDE {
-    message_router_->OnContextReleased(browser,  frame, context);
+    message_router_->OnContextReleased(browser, frame, context);
   }
 
   void OnFocusedNodeChanged(CefRefPtr<ClientAppRenderer> app,
@@ -73,13 +70,12 @@ class ClientRenderDelegate : public ClientAppRenderer::Delegate {
     }
   }
 
-  bool OnProcessMessageReceived(
-      CefRefPtr<ClientAppRenderer> app,
-      CefRefPtr<CefBrowser> browser,
-      CefProcessId source_process,
-      CefRefPtr<CefProcessMessage> message) OVERRIDE {
-    return message_router_->OnProcessMessageReceived(
-        browser, source_process, message);
+  bool OnProcessMessageReceived(CefRefPtr<ClientAppRenderer> app,
+                                CefRefPtr<CefBrowser> browser,
+                                CefProcessId source_process,
+                                CefRefPtr<CefProcessMessage> message) OVERRIDE {
+    return message_router_->OnProcessMessageReceived(browser, source_process,
+                                                     message);
   }
 
  private:

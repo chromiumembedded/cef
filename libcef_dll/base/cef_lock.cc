@@ -14,8 +14,7 @@
 namespace base {
 namespace cef_internal {
 
-Lock::Lock() : lock_() {
-}
+Lock::Lock() : lock_() {}
 
 Lock::~Lock() {
   DCHECK(owning_thread_ref_.is_null());

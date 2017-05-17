@@ -22,7 +22,8 @@ extern const char kPathSep;
 // is useful for its side effect of priming the disk cache (could be used for
 // unit tests). Calling this function on the browser process UI or IO threads is
 // not allowed.
-bool ReadFileToString(const std::string& path, std::string* contents,
+bool ReadFileToString(const std::string& path,
+                      std::string* contents,
                       size_t max_size = std::numeric_limits<size_t>::max());
 
 // Writes the given buffer into the file, overwriting any data that was

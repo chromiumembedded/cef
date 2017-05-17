@@ -9,6 +9,8 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=37ce1fd4db4480afc4d43cfc1ff16bdfdd4a232b$
+//
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_CONTEXT_MENU_PARAMS_CTOCPP_H_
 #define CEF_LIBCEF_DLL_CTOCPP_CONTEXT_MENU_PARAMS_CTOCPP_H_
@@ -19,15 +21,16 @@
 #endif
 
 #include <vector>
-#include "include/cef_context_menu_handler.h"
 #include "include/capi/cef_context_menu_handler_capi.h"
+#include "include/cef_context_menu_handler.h"
 #include "libcef_dll/ctocpp/ctocpp_ref_counted.h"
 
 // Wrap a C structure with a C++ class.
 // This class may be instantiated and accessed wrapper-side only.
 class CefContextMenuParamsCToCpp
     : public CefCToCppRefCounted<CefContextMenuParamsCToCpp,
-        CefContextMenuParams, cef_context_menu_params_t> {
+                                 CefContextMenuParams,
+                                 cef_context_menu_params_t> {
  public:
   CefContextMenuParamsCToCpp();
 

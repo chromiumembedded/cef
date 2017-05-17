@@ -115,7 +115,7 @@
 //    CefBrowserMainParts::PostMainMessageLoopRun() (*Impl). This may be delayed
 //    if other network-related objects still have a reference to it.
 // 6. CefURLRequestContext* is destroyed on the IO thread due to
-//    CefURLRequestContextGetter* destruction. 
+//    CefURLRequestContextGetter* destruction.
 */
 
 class CefRequestContextImpl;
@@ -187,9 +187,7 @@ class CefBrowserContext : public ChromeProfileStub {
     return extension_system_;
   }
 
-  bool is_proxy() const {
-    return is_proxy_;
-  }
+  bool is_proxy() const { return is_proxy_; }
 
  protected:
   ~CefBrowserContext() override;

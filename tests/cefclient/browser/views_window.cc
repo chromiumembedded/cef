@@ -8,9 +8,9 @@
 
 #include "include/base/cef_bind.h"
 #include "include/base/cef_build.h"
+#include "include/cef_app.h"
 #include "include/views/cef_box_layout.h"
 #include "include/wrapper/cef_helpers.h"
-#include "include/cef_app.h"
 #include "tests/cefclient/browser/resource.h"
 #include "tests/cefclient/browser/views_style.h"
 #include "tests/shared/browser/resource_util.h"
@@ -18,7 +18,7 @@
 
 #if !defined(OS_WIN)
 #define VK_RETURN 0x0D
-#define VK_MENU   0x12  // ALT key.
+#define VK_MENU 0x12  // ALT key.
 #endif
 
 namespace client {
@@ -41,7 +41,7 @@ enum ControlIds {
   ID_TOP_MENU_LAST = ID_TOP_MENU_FIRST + 10,
 };
 
-typedef std::vector<CefRefPtr<CefLabelButton> > LabelButtons;
+typedef std::vector<CefRefPtr<CefLabelButton>> LabelButtons;
 
 // Make all |buttons| the same size.
 void MakeButtonsSameSize(const LabelButtons& buttons) {
@@ -66,28 +66,28 @@ void MakeButtonsSameSize(const LabelButtons& buttons) {
 }
 
 void AddTestMenuItems(CefRefPtr<CefMenuModel> test_menu) {
-  test_menu->AddItem(ID_TESTS_GETSOURCE,      "Get Source");
-  test_menu->AddItem(ID_TESTS_GETTEXT,        "Get Text");
-  test_menu->AddItem(ID_TESTS_WINDOW_NEW,     "New Window");
-  test_menu->AddItem(ID_TESTS_WINDOW_POPUP,   "Popup Window");
-  test_menu->AddItem(ID_TESTS_REQUEST,        "Request");
-  test_menu->AddItem(ID_TESTS_PLUGIN_INFO,    "Plugin Info");
-  test_menu->AddItem(ID_TESTS_ZOOM_IN,        "Zoom In");
-  test_menu->AddItem(ID_TESTS_ZOOM_OUT,       "Zoom Out");
-  test_menu->AddItem(ID_TESTS_ZOOM_RESET,     "Zoom Reset");
-  test_menu->AddItem(ID_TESTS_TRACING_BEGIN,  "Begin Tracing");
-  test_menu->AddItem(ID_TESTS_TRACING_END,    "End Tracing");
-  test_menu->AddItem(ID_TESTS_PRINT,          "Print");
-  test_menu->AddItem(ID_TESTS_PRINT_TO_PDF,   "Print to PDF");
-  test_menu->AddItem(ID_TESTS_OTHER_TESTS,    "Other Tests");
+  test_menu->AddItem(ID_TESTS_GETSOURCE, "Get Source");
+  test_menu->AddItem(ID_TESTS_GETTEXT, "Get Text");
+  test_menu->AddItem(ID_TESTS_WINDOW_NEW, "New Window");
+  test_menu->AddItem(ID_TESTS_WINDOW_POPUP, "Popup Window");
+  test_menu->AddItem(ID_TESTS_REQUEST, "Request");
+  test_menu->AddItem(ID_TESTS_PLUGIN_INFO, "Plugin Info");
+  test_menu->AddItem(ID_TESTS_ZOOM_IN, "Zoom In");
+  test_menu->AddItem(ID_TESTS_ZOOM_OUT, "Zoom Out");
+  test_menu->AddItem(ID_TESTS_ZOOM_RESET, "Zoom Reset");
+  test_menu->AddItem(ID_TESTS_TRACING_BEGIN, "Begin Tracing");
+  test_menu->AddItem(ID_TESTS_TRACING_END, "End Tracing");
+  test_menu->AddItem(ID_TESTS_PRINT, "Print");
+  test_menu->AddItem(ID_TESTS_PRINT_TO_PDF, "Print to PDF");
+  test_menu->AddItem(ID_TESTS_OTHER_TESTS, "Other Tests");
 }
 
 void AddFileMenuItems(CefRefPtr<CefMenuModel> file_menu) {
   file_menu->AddItem(ID_QUIT, "E&xit");
 
   // Show the accelerator shortcut text in the menu.
-  file_menu->SetAcceleratorAt(file_menu->GetCount() - 1,
-                              'X', false, false, true);
+  file_menu->SetAcceleratorAt(file_menu->GetCount() - 1, 'X', false, false,
+                              true);
 }
 
 }  // namespace
@@ -339,8 +339,7 @@ bool ViewsWindow::OnKeyEvent(CefRefPtr<CefTextfield> textfield,
   DCHECK_EQ(ID_URL_TEXTFIELD, textfield->GetID());
 
   // Trigger when the return key is pressed.
-  if (window_ && browser_view_ &&
-      event.type == KEYEVENT_RAWKEYDOWN &&
+  if (window_ && browser_view_ && event.type == KEYEVENT_RAWKEYDOWN &&
       event.windows_key_code == VK_RETURN) {
     CefRefPtr<CefBrowser> browser = browser_view_->GetBrowser();
     if (browser) {
@@ -403,7 +402,7 @@ void ViewsWindow::OnWindowCreated(CefRefPtr<CefWindow> window) {
     // Choose a reasonable minimum window size.
     minimum_window_size_ = CefSize(100, 100);
   }
- 
+
   // Show the Window.
   window_->Show();
 
@@ -463,7 +462,7 @@ bool ViewsWindow::OnKeyEvent(CefRefPtr<CefWindow> window,
     // ALT key is pressed.
     int last_focused_view = last_focused_view_;
     bool menu_had_focus = menu_has_focus_;
-    
+
     // Toggle menu button focusable.
     SetMenuFocusable(!menu_has_focus_);
 
@@ -573,7 +572,7 @@ CefRefPtr<CefLabelButton> ViewsWindow::CreateBrowseButton(
   CefRefPtr<CefLabelButton> button =
       CefLabelButton::CreateLabelButton(this, label, with_frame);
   button->SetID(id);
-  button->SetEnabled(false);  // Disabled by default.
+  button->SetEnabled(false);    // Disabled by default.
   button->SetFocusable(false);  // Don't give focus to the button.
 
   if (!with_frame) {

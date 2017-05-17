@@ -65,136 +65,136 @@ class CefWindow : public CefPanel {
   // Show the Window.
   ///
   /*--cef()--*/
-  virtual void Show() =0;
+  virtual void Show() = 0;
 
   ///
   // Hide the Window.
   ///
   /*--cef()--*/
-  virtual void Hide() =0;
+  virtual void Hide() = 0;
 
   ///
   // Sizes the Window to |size| and centers it in the current display.
   ///
   /*--cef()--*/
-  virtual void CenterWindow(const CefSize& size) =0;
+  virtual void CenterWindow(const CefSize& size) = 0;
 
   ///
   // Close the Window.
   ///
   /*--cef()--*/
-  virtual void Close() =0;
+  virtual void Close() = 0;
 
   ///
   // Returns true if the Window has been closed.
   ///
   /*--cef()--*/
-  virtual bool IsClosed() =0;
+  virtual bool IsClosed() = 0;
 
   ///
   // Activate the Window, assuming it already exists and is visible.
   ///
   /*--cef()--*/
-  virtual void Activate() =0;
+  virtual void Activate() = 0;
 
   ///
   // Deactivate the Window, making the next Window in the Z order the active
   // Window.
   ///
   /*--cef()--*/
-  virtual void Deactivate() =0;
+  virtual void Deactivate() = 0;
 
   ///
   // Returns whether the Window is the currently active Window.
   ///
   /*--cef()--*/
-  virtual bool IsActive() =0;
+  virtual bool IsActive() = 0;
 
   ///
   // Bring this Window to the top of other Windows in the Windowing system.
   ///
   /*--cef()--*/
-  virtual void BringToTop() =0;
+  virtual void BringToTop() = 0;
 
   ///
   // Set the Window to be on top of other Windows in the Windowing system.
   ///
   /*--cef()--*/
-  virtual void SetAlwaysOnTop(bool on_top) =0;
+  virtual void SetAlwaysOnTop(bool on_top) = 0;
 
   ///
   // Returns whether the Window has been set to be on top of other Windows in
   // the Windowing system.
   ///
   /*--cef()--*/
-  virtual bool IsAlwaysOnTop() =0;
+  virtual bool IsAlwaysOnTop() = 0;
 
   ///
   // Maximize the Window.
   ///
   /*--cef()--*/
-  virtual void Maximize() =0;
+  virtual void Maximize() = 0;
 
   ///
   // Minimize the Window.
   ///
   /*--cef()--*/
-  virtual void Minimize() =0;
+  virtual void Minimize() = 0;
 
   ///
   // Restore the Window.
   ///
   /*--cef()--*/
-  virtual void Restore() =0;
+  virtual void Restore() = 0;
 
   ///
   // Set fullscreen Window state.
   ///
   /*--cef()--*/
-  virtual void SetFullscreen(bool fullscreen) =0;
-  
+  virtual void SetFullscreen(bool fullscreen) = 0;
+
   ///
   // Returns true if the Window is maximized.
   ///
   /*--cef()--*/
-  virtual bool IsMaximized() =0;
+  virtual bool IsMaximized() = 0;
 
   ///
   // Returns true if the Window is minimized.
   ///
   /*--cef()--*/
-  virtual bool IsMinimized() =0;
+  virtual bool IsMinimized() = 0;
 
   ///
   // Returns true if the Window is fullscreen.
   ///
   /*--cef()--*/
-  virtual bool IsFullscreen() =0;
+  virtual bool IsFullscreen() = 0;
 
   ///
   // Set the Window title.
   ///
   /*--cef(optional_param=title)--*/
-  virtual void SetTitle(const CefString& title) =0;
+  virtual void SetTitle(const CefString& title) = 0;
 
   ///
   // Get the Window title.
   ///
   /*--cef()--*/
-  virtual CefString GetTitle() =0;
+  virtual CefString GetTitle() = 0;
 
   ///
   // Set the Window icon. This should be a 16x16 icon suitable for use in the
   // Windows's title bar.
   ///
   /*--cef()--*/
-  virtual void SetWindowIcon(CefRefPtr<CefImage> image) =0;
+  virtual void SetWindowIcon(CefRefPtr<CefImage> image) = 0;
 
   ///
   // Get the Window icon.
   ///
   /*--cef()--*/
-  virtual CefRefPtr<CefImage> GetWindowIcon() =0;
+  virtual CefRefPtr<CefImage> GetWindowIcon() = 0;
 
   ///
   // Set the Window App icon. This should be a larger icon for use in the host
@@ -203,13 +203,13 @@ class CefWindow : public CefPanel {
   // if no Window App icon is specified.
   ///
   /*--cef()--*/
-  virtual void SetWindowAppIcon(CefRefPtr<CefImage> image) =0;
+  virtual void SetWindowAppIcon(CefRefPtr<CefImage> image) = 0;
 
   ///
   // Get the Window App icon.
   ///
   /*--cef()--*/
-  virtual CefRefPtr<CefImage> GetWindowAppIcon() =0;
+  virtual CefRefPtr<CefImage> GetWindowAppIcon() = 0;
 
   ///
   // Show a menu with contents |menu_model|. |screen_point| specifies the menu
@@ -219,27 +219,27 @@ class CefWindow : public CefPanel {
   /*--cef()--*/
   virtual void ShowMenu(CefRefPtr<CefMenuModel> menu_model,
                         const CefPoint& screen_point,
-                        cef_menu_anchor_position_t anchor_position) =0;
+                        cef_menu_anchor_position_t anchor_position) = 0;
 
   ///
   // Cancel the menu that is currently showing, if any.
   ///
   /*--cef()--*/
-  virtual void CancelMenu() =0;
+  virtual void CancelMenu() = 0;
 
   ///
   // Returns the Display that most closely intersects the bounds of this Window.
   // May return NULL if this Window is not currently displayed.
   ///
   /*--cef()--*/
-  virtual CefRefPtr<CefDisplay> GetDisplay() =0;
+  virtual CefRefPtr<CefDisplay> GetDisplay() = 0;
 
   ///
   // Returns the bounds (size and position) of this Window's client area.
   // Position is in screen coordinates.
   ///
   /*--cef()--*/
-  virtual CefRect GetClientAreaBoundsInScreen() =0;
+  virtual CefRect GetClientAreaBoundsInScreen() = 0;
 
   ///
   // Set the regions where mouse events will be intercepted by this Window to
@@ -249,13 +249,13 @@ class CefWindow : public CefPanel {
   ///
   /*--cef(optional_param=regions)--*/
   virtual void SetDraggableRegions(
-      const std::vector<CefDraggableRegion>& regions) =0;
+      const std::vector<CefDraggableRegion>& regions) = 0;
 
   ///
   // Retrieve the platform window handle for this Window.
   ///
   /*--cef()--*/
-  virtual CefWindowHandle GetWindowHandle() =0;
+  virtual CefWindowHandle GetWindowHandle() = 0;
 
   ///
   // Simulate a key press. |key_code| is the VKEY_* value from Chromium's
@@ -265,8 +265,7 @@ class CefWindow : public CefPanel {
   // primarily for testing purposes.
   ///
   /*--cef()--*/
-  virtual void SendKeyPress(int key_code,
-                            uint32 event_flags) =0;
+  virtual void SendKeyPress(int key_code, uint32 event_flags) = 0;
 
   ///
   // Simulate a mouse move. The mouse cursor will be moved to the specified
@@ -274,7 +273,7 @@ class CefWindow : public CefPanel {
   // purposes.
   ///
   /*--cef()--*/
-  virtual void SendMouseMove(int screen_x, int screen_y) =0;
+  virtual void SendMouseMove(int screen_x, int screen_y) = 0;
 
   ///
   // Simulate mouse down and/or mouse up events. |button| is the mouse button
@@ -288,7 +287,7 @@ class CefWindow : public CefPanel {
   /*--cef()--*/
   virtual void SendMouseEvents(cef_mouse_button_type_t button,
                                bool mouse_down,
-                               bool mouse_up) =0;
+                               bool mouse_up) = 0;
   ///
   // Set the keyboard accelerator for the specified |command_id|. |key_code| can
   // be any virtual key or character value. CefWindowDelegate::OnAccelerator
@@ -300,19 +299,19 @@ class CefWindow : public CefPanel {
                               int key_code,
                               bool shift_pressed,
                               bool ctrl_pressed,
-                              bool alt_pressed) =0;
+                              bool alt_pressed) = 0;
 
   ///
   // Remove the keyboard accelerator for the specified |command_id|.
   ///
   /*--cef()--*/
-  virtual void RemoveAccelerator(int command_id) =0;
+  virtual void RemoveAccelerator(int command_id) = 0;
 
   ///
   // Remove all keyboard accelerators.
   ///
   /*--cef()--*/
-  virtual void RemoveAllAccelerators() =0;
+  virtual void RemoveAllAccelerators() = 0;
 };
 
 #endif  // CEF_INCLUDE_VIEWS_CEF_WINDOW_H_

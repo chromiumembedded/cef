@@ -9,6 +9,8 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=873b1eff71d696da390c589c35d039616fc4ea47$
+//
 
 #include "libcef_dll/cpptoc/browser_cpptoc.h"
 #include "libcef_dll/cpptoc/frame_cpptoc.h"
@@ -16,12 +18,13 @@
 #include "libcef_dll/ctocpp/resource_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/scheme_handler_factory_ctocpp.h"
 
-
 // VIRTUAL METHODS - Body may be edited by hand.
 
 CefRefPtr<CefResourceHandler> CefSchemeHandlerFactoryCToCpp::Create(
-    CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame,
-    const CefString& scheme_name, CefRefPtr<CefRequest> request) {
+    CefRefPtr<CefBrowser> browser,
+    CefRefPtr<CefFrame> frame,
+    const CefString& scheme_name,
+    CefRefPtr<CefRequest> request) {
   cef_scheme_handler_factory_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, create))
     return NULL;
@@ -39,34 +42,38 @@ CefRefPtr<CefResourceHandler> CefSchemeHandlerFactoryCToCpp::Create(
   // Unverified params: browser, frame
 
   // Execute
-  cef_resource_handler_t* _retval = _struct->create(_struct,
-      CefBrowserCppToC::Wrap(browser),
-      CefFrameCppToC::Wrap(frame),
-      scheme_name.GetStruct(),
-      CefRequestCppToC::Wrap(request));
+  cef_resource_handler_t* _retval = _struct->create(
+      _struct, CefBrowserCppToC::Wrap(browser), CefFrameCppToC::Wrap(frame),
+      scheme_name.GetStruct(), CefRequestCppToC::Wrap(request));
 
   // Return type: refptr_same
   return CefResourceHandlerCToCpp::Wrap(_retval);
 }
 
-
 // CONSTRUCTOR - Do not edit by hand.
 
-CefSchemeHandlerFactoryCToCpp::CefSchemeHandlerFactoryCToCpp() {
-}
+CefSchemeHandlerFactoryCToCpp::CefSchemeHandlerFactoryCToCpp() {}
 
-template<> cef_scheme_handler_factory_t* CefCToCppRefCounted<CefSchemeHandlerFactoryCToCpp,
-    CefSchemeHandlerFactory, cef_scheme_handler_factory_t>::UnwrapDerived(
-    CefWrapperType type, CefSchemeHandlerFactory* c) {
+template <>
+cef_scheme_handler_factory_t* CefCToCppRefCounted<
+    CefSchemeHandlerFactoryCToCpp,
+    CefSchemeHandlerFactory,
+    cef_scheme_handler_factory_t>::UnwrapDerived(CefWrapperType type,
+                                                 CefSchemeHandlerFactory* c) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCppRefCounted<CefSchemeHandlerFactoryCToCpp,
-    CefSchemeHandlerFactory, cef_scheme_handler_factory_t>::DebugObjCt = 0;
+template <>
+base::AtomicRefCount
+    CefCToCppRefCounted<CefSchemeHandlerFactoryCToCpp,
+                        CefSchemeHandlerFactory,
+                        cef_scheme_handler_factory_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCppRefCounted<CefSchemeHandlerFactoryCToCpp,
-    CefSchemeHandlerFactory, cef_scheme_handler_factory_t>::kWrapperType =
+template <>
+CefWrapperType CefCToCppRefCounted<CefSchemeHandlerFactoryCToCpp,
+                                   CefSchemeHandlerFactory,
+                                   cef_scheme_handler_factory_t>::kWrapperType =
     WT_SCHEME_HANDLER_FACTORY;

@@ -49,8 +49,7 @@ class CefMenuManager : public CefMenuModelImpl::Delegate,
   bool FormatLabel(CefRefPtr<CefMenuModelImpl> source,
                    base::string16& label) override;
 
-  void ExecuteCommandCallback(int command_id,
-                              cef_event_flags_t event_flags);
+  void ExecuteCommandCallback(int command_id, cef_event_flags_t event_flags);
 
   // Create the default menu model.
   void CreateDefaultModel();

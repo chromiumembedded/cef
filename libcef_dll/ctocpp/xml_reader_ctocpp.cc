@@ -9,15 +9,17 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=ac328bf1a231e47e402b7a154a96171eec5265ec$
+//
 
 #include "libcef_dll/ctocpp/stream_reader_ctocpp.h"
 #include "libcef_dll/ctocpp/xml_reader_ctocpp.h"
 
-
 // STATIC METHODS - Body may be edited by hand.
 
 CefRefPtr<CefXmlReader> CefXmlReader::Create(CefRefPtr<CefStreamReader> stream,
-    EncodingType encodingType, const CefString& URI) {
+                                             EncodingType encodingType,
+                                             const CefString& URI) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: stream; type: refptr_same
@@ -31,14 +33,11 @@ CefRefPtr<CefXmlReader> CefXmlReader::Create(CefRefPtr<CefStreamReader> stream,
 
   // Execute
   cef_xml_reader_t* _retval = cef_xml_reader_create(
-      CefStreamReaderCToCpp::Unwrap(stream),
-      encodingType,
-      URI.GetStruct());
+      CefStreamReaderCToCpp::Unwrap(stream), encodingType, URI.GetStruct());
 
   // Return type: refptr_same
   return CefXmlReaderCToCpp::Wrap(_retval);
 }
-
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
@@ -53,7 +52,7 @@ bool CefXmlReaderCToCpp::MoveToNextNode() {
   int _retval = _struct->move_to_next_node(_struct);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 bool CefXmlReaderCToCpp::Close() {
@@ -67,7 +66,7 @@ bool CefXmlReaderCToCpp::Close() {
   int _retval = _struct->close(_struct);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 bool CefXmlReaderCToCpp::HasError() {
@@ -81,7 +80,7 @@ bool CefXmlReaderCToCpp::HasError() {
   int _retval = _struct->has_error(_struct);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 CefString CefXmlReaderCToCpp::GetError() {
@@ -235,7 +234,7 @@ bool CefXmlReaderCToCpp::IsEmptyElement() {
   int _retval = _struct->is_empty_element(_struct);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 bool CefXmlReaderCToCpp::HasValue() {
@@ -249,7 +248,7 @@ bool CefXmlReaderCToCpp::HasValue() {
   int _retval = _struct->has_value(_struct);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 CefString CefXmlReaderCToCpp::GetValue() {
@@ -279,7 +278,7 @@ bool CefXmlReaderCToCpp::HasAttributes() {
   int _retval = _struct->has_attributes(_struct);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 size_t CefXmlReaderCToCpp::GetAttributeCount() {
@@ -309,8 +308,8 @@ CefString CefXmlReaderCToCpp::GetAttribute(int index) {
     return CefString();
 
   // Execute
-  cef_string_userfree_t _retval = _struct->get_attribute_byindex(_struct,
-      index);
+  cef_string_userfree_t _retval =
+      _struct->get_attribute_byindex(_struct, index);
 
   // Return type: string
   CefString _retvalStr;
@@ -331,8 +330,8 @@ CefString CefXmlReaderCToCpp::GetAttribute(const CefString& qualifiedName) {
     return CefString();
 
   // Execute
-  cef_string_userfree_t _retval = _struct->get_attribute_byqname(_struct,
-      qualifiedName.GetStruct());
+  cef_string_userfree_t _retval =
+      _struct->get_attribute_byqname(_struct, qualifiedName.GetStruct());
 
   // Return type: string
   CefString _retvalStr;
@@ -341,7 +340,7 @@ CefString CefXmlReaderCToCpp::GetAttribute(const CefString& qualifiedName) {
 }
 
 CefString CefXmlReaderCToCpp::GetAttribute(const CefString& localName,
-    const CefString& namespaceURI) {
+                                           const CefString& namespaceURI) {
   cef_xml_reader_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_attribute_bylname))
     return CefString();
@@ -358,9 +357,8 @@ CefString CefXmlReaderCToCpp::GetAttribute(const CefString& localName,
     return CefString();
 
   // Execute
-  cef_string_userfree_t _retval = _struct->get_attribute_bylname(_struct,
-      localName.GetStruct(),
-      namespaceURI.GetStruct());
+  cef_string_userfree_t _retval = _struct->get_attribute_bylname(
+      _struct, localName.GetStruct(), namespaceURI.GetStruct());
 
   // Return type: string
   CefString _retvalStr;
@@ -427,11 +425,10 @@ bool CefXmlReaderCToCpp::MoveToAttribute(int index) {
     return false;
 
   // Execute
-  int _retval = _struct->move_to_attribute_byindex(_struct,
-      index);
+  int _retval = _struct->move_to_attribute_byindex(_struct, index);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 bool CefXmlReaderCToCpp::MoveToAttribute(const CefString& qualifiedName) {
@@ -447,15 +444,15 @@ bool CefXmlReaderCToCpp::MoveToAttribute(const CefString& qualifiedName) {
     return false;
 
   // Execute
-  int _retval = _struct->move_to_attribute_byqname(_struct,
-      qualifiedName.GetStruct());
+  int _retval =
+      _struct->move_to_attribute_byqname(_struct, qualifiedName.GetStruct());
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 bool CefXmlReaderCToCpp::MoveToAttribute(const CefString& localName,
-    const CefString& namespaceURI) {
+                                         const CefString& namespaceURI) {
   cef_xml_reader_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, move_to_attribute_bylname))
     return false;
@@ -472,12 +469,11 @@ bool CefXmlReaderCToCpp::MoveToAttribute(const CefString& localName,
     return false;
 
   // Execute
-  int _retval = _struct->move_to_attribute_bylname(_struct,
-      localName.GetStruct(),
-      namespaceURI.GetStruct());
+  int _retval = _struct->move_to_attribute_bylname(
+      _struct, localName.GetStruct(), namespaceURI.GetStruct());
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 bool CefXmlReaderCToCpp::MoveToFirstAttribute() {
@@ -491,7 +487,7 @@ bool CefXmlReaderCToCpp::MoveToFirstAttribute() {
   int _retval = _struct->move_to_first_attribute(_struct);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 bool CefXmlReaderCToCpp::MoveToNextAttribute() {
@@ -505,7 +501,7 @@ bool CefXmlReaderCToCpp::MoveToNextAttribute() {
   int _retval = _struct->move_to_next_attribute(_struct);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 bool CefXmlReaderCToCpp::MoveToCarryingElement() {
@@ -519,26 +515,30 @@ bool CefXmlReaderCToCpp::MoveToCarryingElement() {
   int _retval = _struct->move_to_carrying_element(_struct);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
-
 
 // CONSTRUCTOR - Do not edit by hand.
 
-CefXmlReaderCToCpp::CefXmlReaderCToCpp() {
-}
+CefXmlReaderCToCpp::CefXmlReaderCToCpp() {}
 
-template<> cef_xml_reader_t* CefCToCppRefCounted<CefXmlReaderCToCpp,
-    CefXmlReader, cef_xml_reader_t>::UnwrapDerived(CefWrapperType type,
-    CefXmlReader* c) {
+template <>
+cef_xml_reader_t*
+CefCToCppRefCounted<CefXmlReaderCToCpp, CefXmlReader, cef_xml_reader_t>::
+    UnwrapDerived(CefWrapperType type, CefXmlReader* c) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCppRefCounted<CefXmlReaderCToCpp,
-    CefXmlReader, cef_xml_reader_t>::DebugObjCt = 0;
+template <>
+base::AtomicRefCount CefCToCppRefCounted<CefXmlReaderCToCpp,
+                                         CefXmlReader,
+                                         cef_xml_reader_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCppRefCounted<CefXmlReaderCToCpp, CefXmlReader,
-    cef_xml_reader_t>::kWrapperType = WT_XML_READER;
+template <>
+CefWrapperType CefCToCppRefCounted<CefXmlReaderCToCpp,
+                                   CefXmlReader,
+                                   cef_xml_reader_t>::kWrapperType =
+    WT_XML_READER;

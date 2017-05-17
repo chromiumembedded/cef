@@ -44,8 +44,7 @@ CEF_BUTTON_IMPL_T class CefButtonImpl : public CEF_VIEW_IMPL_D {
   // Always call Initialize() after creation.
   // |delegate| may be nullptr.
   explicit CefButtonImpl(CefRefPtr<CefViewDelegateClass> delegate)
-      : ParentClass(delegate) {
-  }
+      : ParentClass(delegate) {}
 };
 
 CEF_BUTTON_IMPL_T void CEF_BUTTON_IMPL_D::SetState(cef_button_state_t state) {
@@ -62,8 +61,8 @@ CEF_BUTTON_IMPL_T cef_button_state_t CEF_BUTTON_IMPL_D::GetState() {
 CEF_BUTTON_IMPL_T void CEF_BUTTON_IMPL_D::SetInkDropEnabled(bool enabled) {
   CEF_REQUIRE_VALID_RETURN_VOID();
   ParentClass::root_view()->SetInkDropMode(
-      enabled ? views::InkDropHostView::InkDropMode::ON :
-                views::InkDropHostView::InkDropMode::OFF);
+      enabled ? views::InkDropHostView::InkDropMode::ON
+              : views::InkDropHostView::InkDropMode::OFF);
   if (enabled) {
     ParentClass::root_view()->set_ink_drop_base_color(
         color_utils::BlendTowardOppositeLuma(
@@ -83,8 +82,7 @@ CEF_BUTTON_IMPL_T void CEF_BUTTON_IMPL_D::SetAccessibleName(
   ParentClass::root_view()->SetAccessibleName(name);
 }
 
-CEF_BUTTON_IMPL_T void CEF_BUTTON_IMPL_D::SetFocusable(
-    bool focusable) {
+CEF_BUTTON_IMPL_T void CEF_BUTTON_IMPL_D::SetFocusable(bool focusable) {
   CEF_REQUIRE_VALID_RETURN_VOID();
   ParentClass::root_view()->set_request_focus_on_press(focusable);
   ParentClass::SetFocusable(focusable);

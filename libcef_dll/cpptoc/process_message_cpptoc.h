@@ -9,6 +9,8 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=cf208b7c561310d9a5092317085a52c39a15529a$
+//
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_PROCESS_MESSAGE_CPPTOC_H_
 #define CEF_LIBCEF_DLL_CPPTOC_PROCESS_MESSAGE_CPPTOC_H_
@@ -18,15 +20,16 @@
 #error This file can be included DLL-side only
 #endif
 
-#include "include/cef_process_message.h"
 #include "include/capi/cef_process_message_capi.h"
+#include "include/cef_process_message.h"
 #include "libcef_dll/cpptoc/cpptoc_ref_counted.h"
 
 // Wrap a C++ class with a C structure.
 // This class may be instantiated and accessed DLL-side only.
 class CefProcessMessageCppToC
-    : public CefCppToCRefCounted<CefProcessMessageCppToC, CefProcessMessage,
-        cef_process_message_t> {
+    : public CefCppToCRefCounted<CefProcessMessageCppToC,
+                                 CefProcessMessage,
+                                 cef_process_message_t> {
  public:
   CefProcessMessageCppToC();
 };

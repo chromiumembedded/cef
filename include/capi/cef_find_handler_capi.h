@@ -33,6 +33,8 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
+// $hash=975114b079fa271fecbf31ef160974941faed8a4$
+//
 
 #ifndef CEF_INCLUDE_CAPI_CEF_FIND_HANDLER_CAPI_H_
 #define CEF_INCLUDE_CAPI_CEF_FIND_HANDLER_CAPI_H_
@@ -44,7 +46,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
 
 ///
 // Implement this structure to handle events related to find results. The
@@ -64,12 +65,14 @@ typedef struct _cef_find_handler_t {
   // current position in the search results, and |finalUpdate| is true (1) if
   // this is the last find notification.
   ///
-  void (CEF_CALLBACK *on_find_result)(struct _cef_find_handler_t* self,
-      struct _cef_browser_t* browser, int identifier, int count,
-      const cef_rect_t* selectionRect, int activeMatchOrdinal,
-      int finalUpdate);
+  void(CEF_CALLBACK* on_find_result)(struct _cef_find_handler_t* self,
+                                     struct _cef_browser_t* browser,
+                                     int identifier,
+                                     int count,
+                                     const cef_rect_t* selectionRect,
+                                     int activeMatchOrdinal,
+                                     int finalUpdate);
 } cef_find_handler_t;
-
 
 #ifdef __cplusplus
 }

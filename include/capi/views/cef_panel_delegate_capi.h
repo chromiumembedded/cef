@@ -33,6 +33,8 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
+// $hash=c3aac051e19d368c3c7e415fcb160abb83060011$
+//
 
 #ifndef CEF_INCLUDE_CAPI_VIEWS_CEF_PANEL_DELEGATE_CAPI_H_
 #define CEF_INCLUDE_CAPI_VIEWS_CEF_PANEL_DELEGATE_CAPI_H_
@@ -43,7 +45,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
 
 ///
 // Implement this structure to handle Panel events. The functions of this
@@ -56,7 +57,6 @@ typedef struct _cef_panel_delegate_t {
   ///
   cef_view_delegate_t base;
 } cef_panel_delegate_t;
-
 
 #ifdef __cplusplus
 }

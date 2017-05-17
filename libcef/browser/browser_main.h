@@ -56,9 +56,7 @@ class CefBrowserMainParts : public content::BrowserMainParts {
   CefRefPtr<CefRequestContextImpl> request_context() const {
     return global_request_context_;
   }
-  CefDevToolsDelegate* devtools_delegate() const {
-    return devtools_delegate_;
-  }
+  CefDevToolsDelegate* devtools_delegate() const { return devtools_delegate_; }
 
  private:
 #if defined(OS_WIN)
@@ -70,7 +68,8 @@ class CefBrowserMainParts : public content::BrowserMainParts {
   std::unique_ptr<base::MessageLoop> message_loop_;
 
   std::unique_ptr<extensions::ExtensionsClient> extensions_client_;
-  std::unique_ptr<extensions::ExtensionsBrowserClient> extensions_browser_client_;
+  std::unique_ptr<extensions::ExtensionsBrowserClient>
+      extensions_browser_client_;
 
 #if defined(USE_AURA)
   std::unique_ptr<wm::WMState> wm_state_;

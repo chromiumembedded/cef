@@ -38,10 +38,10 @@
 #define CEF_INCLUDE_CEF_DRAG_DATA_H_
 #pragma once
 
+#include <vector>
 #include "include/cef_base.h"
 #include "include/cef_image.h"
 #include "include/cef_stream.h"
-#include <vector>
 
 ///
 // Class used to represent drag data. The methods of this class may be called
@@ -60,74 +60,74 @@ class CefDragData : public virtual CefBaseRefCounted {
   // Returns a copy of the current object.
   ///
   /*--cef()--*/
-  virtual CefRefPtr<CefDragData> Clone() =0;
+  virtual CefRefPtr<CefDragData> Clone() = 0;
 
   ///
   // Returns true if this object is read-only.
   ///
   /*--cef()--*/
-  virtual bool IsReadOnly() =0;
+  virtual bool IsReadOnly() = 0;
 
   ///
   // Returns true if the drag data is a link.
   ///
   /*--cef()--*/
-  virtual bool IsLink() =0;
+  virtual bool IsLink() = 0;
 
   ///
   // Returns true if the drag data is a text or html fragment.
   ///
   /*--cef()--*/
-  virtual bool IsFragment() =0;
+  virtual bool IsFragment() = 0;
 
   ///
   // Returns true if the drag data is a file.
   ///
   /*--cef()--*/
-  virtual bool IsFile() =0;
+  virtual bool IsFile() = 0;
 
   ///
   // Return the link URL that is being dragged.
   ///
   /*--cef()--*/
-  virtual CefString GetLinkURL() =0;
+  virtual CefString GetLinkURL() = 0;
 
   ///
   // Return the title associated with the link being dragged.
   ///
   /*--cef()--*/
-  virtual CefString GetLinkTitle() =0;
+  virtual CefString GetLinkTitle() = 0;
 
   ///
   // Return the metadata, if any, associated with the link being dragged.
   ///
   /*--cef()--*/
-  virtual CefString GetLinkMetadata() =0;
+  virtual CefString GetLinkMetadata() = 0;
 
   ///
   // Return the plain text fragment that is being dragged.
   ///
   /*--cef()--*/
-  virtual CefString GetFragmentText() =0;
+  virtual CefString GetFragmentText() = 0;
 
   ///
   // Return the text/html fragment that is being dragged.
   ///
   /*--cef()--*/
-  virtual CefString GetFragmentHtml() =0;
+  virtual CefString GetFragmentHtml() = 0;
 
   ///
   // Return the base URL that the fragment came from. This value is used for
   // resolving relative URLs and may be empty.
   ///
   /*--cef()--*/
-  virtual CefString GetFragmentBaseURL() =0;
+  virtual CefString GetFragmentBaseURL() = 0;
 
   ///
   // Return the name of the file being dragged out of the browser window.
   ///
   /*--cef()--*/
-  virtual CefString GetFileName() =0;
+  virtual CefString GetFileName() = 0;
 
   ///
   // Write the contents of the file being dragged out of the web view into
@@ -136,50 +136,50 @@ class CefDragData : public virtual CefBaseRefCounted {
   // Call GetFileName() to get a suggested name for the file.
   ///
   /*--cef(optional_param=writer)--*/
-  virtual size_t GetFileContents(CefRefPtr<CefStreamWriter> writer) =0;
+  virtual size_t GetFileContents(CefRefPtr<CefStreamWriter> writer) = 0;
 
   ///
   // Retrieve the list of file names that are being dragged into the browser
   // window.
   ///
   /*--cef()--*/
-  virtual bool GetFileNames(std::vector<CefString>& names) =0;
+  virtual bool GetFileNames(std::vector<CefString>& names) = 0;
 
   ///
   // Set the link URL that is being dragged.
   ///
   /*--cef(optional_param=url)--*/
-  virtual void SetLinkURL(const CefString& url) =0;
+  virtual void SetLinkURL(const CefString& url) = 0;
 
   ///
   // Set the title associated with the link being dragged.
   ///
   /*--cef(optional_param=title)--*/
-  virtual void SetLinkTitle(const CefString& title) =0;
+  virtual void SetLinkTitle(const CefString& title) = 0;
 
   ///
   // Set the metadata associated with the link being dragged.
   ///
   /*--cef(optional_param=data)--*/
-  virtual void SetLinkMetadata(const CefString& data) =0;
+  virtual void SetLinkMetadata(const CefString& data) = 0;
 
   ///
   // Set the plain text fragment that is being dragged.
   ///
   /*--cef(optional_param=text)--*/
-  virtual void SetFragmentText(const CefString& text) =0;
+  virtual void SetFragmentText(const CefString& text) = 0;
 
   ///
   // Set the text/html fragment that is being dragged.
   ///
   /*--cef(optional_param=html)--*/
-  virtual void SetFragmentHtml(const CefString& html) =0;
+  virtual void SetFragmentHtml(const CefString& html) = 0;
 
   ///
   // Set the base URL that the fragment came from.
   ///
   /*--cef(optional_param=base_url)--*/
-  virtual void SetFragmentBaseURL(const CefString& base_url) =0;
+  virtual void SetFragmentBaseURL(const CefString& base_url) = 0;
 
   ///
   // Reset the file contents. You should do this before calling
@@ -187,32 +187,33 @@ class CefDragData : public virtual CefBaseRefCounted {
   // drag in this kind of data.
   ///
   /*--cef()--*/
-  virtual void ResetFileContents() =0;
+  virtual void ResetFileContents() = 0;
 
   ///
   // Add a file that is being dragged into the webview.
   ///
   /*--cef(optional_param=display_name)--*/
-  virtual void AddFile(const CefString& path, const CefString& display_name) =0;
+  virtual void AddFile(const CefString& path,
+                       const CefString& display_name) = 0;
 
   ///
   // Get the image representation of drag data. May return NULL if no image
   // representation is available.
   ///
   /*--cef()--*/
-  virtual CefRefPtr<CefImage> GetImage() =0;
+  virtual CefRefPtr<CefImage> GetImage() = 0;
 
   ///
   // Get the image hotspot (drag start location relative to image dimensions).
   ///
   /*--cef()--*/
-  virtual CefPoint GetImageHotspot() =0;
+  virtual CefPoint GetImageHotspot() = 0;
 
   ///
   // Returns true if an image representation of drag data is available.
   ///
   /*--cef()--*/
-  virtual bool HasImage() =0;
+  virtual bool HasImage() = 0;
 };
 
 #endif  // CEF_INCLUDE_CEF_DRAG_DATA_H_

@@ -7,8 +7,8 @@
 #include "libcef/common/content_client.h"
 
 #include "content/public/common/url_constants.h"
-#include "net/net_features.h"
 #include "extensions/common/constants.h"
+#include "net/net_features.h"
 #include "url/url_constants.h"
 
 namespace scheme {
@@ -19,15 +19,14 @@ void AddInternalSchemes(content::ContentClient::Schemes* schemes) {
   // Access restrictions for chrome-extension: and chrome-extension-resource:
   // schemes will be applied in CefContentRendererClient::WillSendRequest().
   static CefContentClient::SchemeInfo internal_schemes[] = {
-    {
-      extensions::kExtensionScheme,
-      true,   /* is_standard */
-      false,  /* is_local */
-      false,  /* is_display_isolated */
-      true,   /* is_secure */
-      true,   /* is_cors_enabled */
-      true,   /* is_csp_bypassing */
-    },
+      {
+          extensions::kExtensionScheme, true, /* is_standard */
+          false,                              /* is_local */
+          false,                              /* is_display_isolated */
+          true,                               /* is_secure */
+          true,                               /* is_cors_enabled */
+          true,                               /* is_csp_bypassing */
+      },
   };
 
   // The |is_display_isolated| value is excluded here because it's registered

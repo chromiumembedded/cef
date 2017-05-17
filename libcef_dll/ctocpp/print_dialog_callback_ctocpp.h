@@ -9,6 +9,8 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=3b7cafc5ff0eafb1ebcd8301992f34aeb5856e69$
+//
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_PRINT_DIALOG_CALLBACK_CTOCPP_H_
 #define CEF_LIBCEF_DLL_CTOCPP_PRINT_DIALOG_CALLBACK_CTOCPP_H_
@@ -18,15 +20,16 @@
 #error This file can be included wrapper-side only
 #endif
 
-#include "include/cef_print_handler.h"
 #include "include/capi/cef_print_handler_capi.h"
+#include "include/cef_print_handler.h"
 #include "libcef_dll/ctocpp/ctocpp_ref_counted.h"
 
 // Wrap a C structure with a C++ class.
 // This class may be instantiated and accessed wrapper-side only.
 class CefPrintDialogCallbackCToCpp
     : public CefCToCppRefCounted<CefPrintDialogCallbackCToCpp,
-        CefPrintDialogCallback, cef_print_dialog_callback_t> {
+                                 CefPrintDialogCallback,
+                                 cef_print_dialog_callback_t> {
  public:
   CefPrintDialogCallbackCToCpp();
 

@@ -48,8 +48,7 @@ bool GetCefKeyEvent(const content::NativeWebKeyboardEvent& event,
   return true;
 }
 
-bool GetCefKeyEvent(const ui::KeyEvent& event,
-                    CefKeyEvent& cef_event) {
+bool GetCefKeyEvent(const ui::KeyEvent& event, CefKeyEvent& cef_event) {
   content::NativeWebKeyboardEvent native_event(event);
   return GetCefKeyEvent(native_event, cef_event);
 }

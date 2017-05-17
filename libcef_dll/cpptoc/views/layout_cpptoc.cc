@@ -9,18 +9,19 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=b6e3efc1fe708d14feafbc283fc33e6acef2cca9$
+//
 
 #include "libcef_dll/cpptoc/views/box_layout_cpptoc.h"
 #include "libcef_dll/cpptoc/views/fill_layout_cpptoc.h"
 #include "libcef_dll/cpptoc/views/layout_cpptoc.h"
 
-
 namespace {
 
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
-cef_box_layout_t* CEF_CALLBACK layout_as_box_layout(
-    struct _cef_layout_t* self) {
+cef_box_layout_t* CEF_CALLBACK
+layout_as_box_layout(struct _cef_layout_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -34,8 +35,8 @@ cef_box_layout_t* CEF_CALLBACK layout_as_box_layout(
   return CefBoxLayoutCppToC::Wrap(_retval);
 }
 
-cef_fill_layout_t* CEF_CALLBACK layout_as_fill_layout(
-    struct _cef_layout_t* self) {
+cef_fill_layout_t* CEF_CALLBACK
+layout_as_fill_layout(struct _cef_layout_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -65,7 +66,6 @@ int CEF_CALLBACK layout_is_valid(struct _cef_layout_t* self) {
 
 }  // namespace
 
-
 // CONSTRUCTOR - Do not edit by hand.
 
 CefLayoutCppToC::CefLayoutCppToC() {
@@ -74,8 +74,11 @@ CefLayoutCppToC::CefLayoutCppToC() {
   GetStruct()->is_valid = layout_is_valid;
 }
 
-template<> CefRefPtr<CefLayout> CefCppToCRefCounted<CefLayoutCppToC, CefLayout,
-    cef_layout_t>::UnwrapDerived(CefWrapperType type, cef_layout_t* s) {
+template <>
+CefRefPtr<CefLayout>
+CefCppToCRefCounted<CefLayoutCppToC, CefLayout, cef_layout_t>::UnwrapDerived(
+    CefWrapperType type,
+    cef_layout_t* s) {
   if (type == WT_BOX_LAYOUT) {
     return CefBoxLayoutCppToC::Unwrap(reinterpret_cast<cef_box_layout_t*>(s));
   }
@@ -87,9 +90,12 @@ template<> CefRefPtr<CefLayout> CefCppToCRefCounted<CefLayoutCppToC, CefLayout,
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCppToCRefCounted<CefLayoutCppToC, CefLayout,
-    cef_layout_t>::DebugObjCt = 0;
+template <>
+base::AtomicRefCount
+    CefCppToCRefCounted<CefLayoutCppToC, CefLayout, cef_layout_t>::DebugObjCt =
+        0;
 #endif
 
-template<> CefWrapperType CefCppToCRefCounted<CefLayoutCppToC, CefLayout,
-    cef_layout_t>::kWrapperType = WT_LAYOUT;
+template <>
+CefWrapperType CefCppToCRefCounted<CefLayoutCppToC, CefLayout, cef_layout_t>::
+    kWrapperType = WT_LAYOUT;

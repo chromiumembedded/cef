@@ -45,8 +45,9 @@ class OsrImeHandlerWin {
   // Retrieves the current composition status of the ongoing composition.
   // Includes composition text, underline information and selection range in the
   // composition text. IMM32 does not support char selection.
-  bool GetComposition(LPARAM lparam, CefString &composition_text,
-                      std::vector<CefCompositionUnderline> &underlines,
+  bool GetComposition(LPARAM lparam,
+                      CefString& composition_text,
+                      std::vector<CefCompositionUnderline>& underlines,
                       int& composition_start);
 
   // Enables the IME attached to the given window.
@@ -72,8 +73,9 @@ class OsrImeHandlerWin {
 
  private:
   // Retrieves the composition information.
-  void GetCompositionInfo(HIMC imm_context, LPARAM lparam,
-                          CefString &composition_text,
+  void GetCompositionInfo(HIMC imm_context,
+                          LPARAM lparam,
+                          CefString& composition_text,
                           std::vector<CefCompositionUnderline>& underlines,
                           int& composition_start);
 

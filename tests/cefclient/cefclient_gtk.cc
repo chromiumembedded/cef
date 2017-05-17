@@ -30,18 +30,18 @@
 namespace client {
 namespace {
 
-int XErrorHandlerImpl(Display *display, XErrorEvent *event) {
-  LOG(WARNING)
-        << "X error received: "
-        << "type " << event->type << ", "
-        << "serial " << event->serial << ", "
-        << "error_code " << static_cast<int>(event->error_code) << ", "
-        << "request_code " << static_cast<int>(event->request_code) << ", "
-        << "minor_code " << static_cast<int>(event->minor_code);
+int XErrorHandlerImpl(Display* display, XErrorEvent* event) {
+  LOG(WARNING) << "X error received: "
+               << "type " << event->type << ", "
+               << "serial " << event->serial << ", "
+               << "error_code " << static_cast<int>(event->error_code) << ", "
+               << "request_code " << static_cast<int>(event->request_code)
+               << ", "
+               << "minor_code " << static_cast<int>(event->minor_code);
   return 0;
 }
 
-int XIOErrorHandlerImpl(Display *display) {
+int XIOErrorHandlerImpl(Display* display) {
   return 0;
 }
 
@@ -123,8 +123,8 @@ int RunMain(int argc, char* argv[]) {
   context->GetRootWindowManager()->CreateRootWindow(
       !command_line->HasSwitch(switches::kHideControls),  // Show controls.
       settings.windowless_rendering_enabled ? true : false,
-      CefRect(),        // Use default system size.
-      std::string());   // Use default URL.
+      CefRect(),       // Use default system size.
+      std::string());  // Use default URL.
 
   // Run the message loop. This will block until Quit() is called.
   int result = message_loop->Run();
@@ -141,7 +141,6 @@ int RunMain(int argc, char* argv[]) {
 
 }  // namespace
 }  // namespace client
-
 
 // Program entry point function.
 int main(int argc, char* argv[]) {

@@ -81,11 +81,10 @@ class CefPermissionContext {
                            ContentSetting content_setting);
 
   // Store the decided permission as a content setting.
-  void UpdateContentSetting(
-      content::PermissionType permission,
-      const GURL& requesting_origin,
-      const GURL& embedding_origin,
-      ContentSetting content_setting);
+  void UpdateContentSetting(content::PermissionType permission,
+                            const GURL& requesting_origin,
+                            const GURL& embedding_origin,
+                            ContentSetting content_setting);
 
   CefBrowserContext* profile_;
 
@@ -94,4 +93,4 @@ class CefPermissionContext {
   DISALLOW_COPY_AND_ASSIGN(CefPermissionContext);
 };
 
-#endif // CEF_LIBCEF_BROWSER_PERMISSIONS_PERMISSION_CONTEXT_H_
+#endif  // CEF_LIBCEF_BROWSER_PERMISSIONS_PERMISSION_CONTEXT_H_

@@ -9,11 +9,12 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=ab6fd3ffc31f09fa60192f56e8b58a8e9de54ef2$
+//
 
 #include "libcef_dll/ctocpp/post_data_ctocpp.h"
 #include "libcef_dll/ctocpp/request_ctocpp.h"
 #include "libcef_dll/transfer_util.h"
-
 
 // STATIC METHODS - Body may be edited by hand.
 
@@ -26,7 +27,6 @@ CefRefPtr<CefRequest> CefRequest::Create() {
   // Return type: refptr_same
   return CefRequestCToCpp::Wrap(_retval);
 }
-
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
@@ -41,7 +41,7 @@ bool CefRequestCToCpp::IsReadOnly() {
   int _retval = _struct->is_read_only(_struct);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 CefString CefRequestCToCpp::GetURL() {
@@ -73,8 +73,7 @@ void CefRequestCToCpp::SetURL(const CefString& url) {
     return;
 
   // Execute
-  _struct->set_url(_struct,
-      url.GetStruct());
+  _struct->set_url(_struct, url.GetStruct());
 }
 
 CefString CefRequestCToCpp::GetMethod() {
@@ -106,12 +105,11 @@ void CefRequestCToCpp::SetMethod(const CefString& method) {
     return;
 
   // Execute
-  _struct->set_method(_struct,
-      method.GetStruct());
+  _struct->set_method(_struct, method.GetStruct());
 }
 
 void CefRequestCToCpp::SetReferrer(const CefString& referrer_url,
-    ReferrerPolicy policy) {
+                                   ReferrerPolicy policy) {
   cef_request_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, set_referrer))
     return;
@@ -124,9 +122,7 @@ void CefRequestCToCpp::SetReferrer(const CefString& referrer_url,
     return;
 
   // Execute
-  _struct->set_referrer(_struct,
-      referrer_url.GetStruct(),
-      policy);
+  _struct->set_referrer(_struct, referrer_url.GetStruct(), policy);
 }
 
 CefString CefRequestCToCpp::GetReferrerURL() {
@@ -186,8 +182,7 @@ void CefRequestCToCpp::SetPostData(CefRefPtr<CefPostData> postData) {
     return;
 
   // Execute
-  _struct->set_post_data(_struct,
-      CefPostDataCToCpp::Unwrap(postData));
+  _struct->set_post_data(_struct, CefPostDataCToCpp::Unwrap(postData));
 }
 
 void CefRequestCToCpp::GetHeaderMap(HeaderMap& headerMap) {
@@ -204,8 +199,7 @@ void CefRequestCToCpp::GetHeaderMap(HeaderMap& headerMap) {
     transfer_string_multimap_contents(headerMap, headerMapMultimap);
 
   // Execute
-  _struct->get_header_map(_struct,
-      headerMapMultimap);
+  _struct->get_header_map(_struct, headerMapMultimap);
 
   // Restore param:headerMap; type: string_map_multi_byref
   if (headerMapMultimap) {
@@ -229,16 +223,17 @@ void CefRequestCToCpp::SetHeaderMap(const HeaderMap& headerMap) {
     transfer_string_multimap_contents(headerMap, headerMapMultimap);
 
   // Execute
-  _struct->set_header_map(_struct,
-      headerMapMultimap);
+  _struct->set_header_map(_struct, headerMapMultimap);
 
   // Restore param:headerMap; type: string_map_multi_byref_const
   if (headerMapMultimap)
     cef_string_multimap_free(headerMapMultimap);
 }
 
-void CefRequestCToCpp::Set(const CefString& url, const CefString& method,
-    CefRefPtr<CefPostData> postData, const HeaderMap& headerMap) {
+void CefRequestCToCpp::Set(const CefString& url,
+                           const CefString& method,
+                           CefRefPtr<CefPostData> postData,
+                           const HeaderMap& headerMap) {
   cef_request_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, set))
     return;
@@ -262,11 +257,8 @@ void CefRequestCToCpp::Set(const CefString& url, const CefString& method,
     transfer_string_multimap_contents(headerMap, headerMapMultimap);
 
   // Execute
-  _struct->set(_struct,
-      url.GetStruct(),
-      method.GetStruct(),
-      CefPostDataCToCpp::Unwrap(postData),
-      headerMapMultimap);
+  _struct->set(_struct, url.GetStruct(), method.GetStruct(),
+               CefPostDataCToCpp::Unwrap(postData), headerMapMultimap);
 
   // Restore param:headerMap; type: string_map_multi_byref_const
   if (headerMapMultimap)
@@ -295,8 +287,7 @@ void CefRequestCToCpp::SetFlags(int flags) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  _struct->set_flags(_struct,
-      flags);
+  _struct->set_flags(_struct, flags);
 }
 
 CefString CefRequestCToCpp::GetFirstPartyForCookies() {
@@ -328,8 +319,7 @@ void CefRequestCToCpp::SetFirstPartyForCookies(const CefString& url) {
     return;
 
   // Execute
-  _struct->set_first_party_for_cookies(_struct,
-      url.GetStruct());
+  _struct->set_first_party_for_cookies(_struct, url.GetStruct());
 }
 
 CefRequest::ResourceType CefRequestCToCpp::GetResourceType() {
@@ -374,22 +364,27 @@ uint64 CefRequestCToCpp::GetIdentifier() {
   return _retval;
 }
 
-
 // CONSTRUCTOR - Do not edit by hand.
 
-CefRequestCToCpp::CefRequestCToCpp() {
-}
+CefRequestCToCpp::CefRequestCToCpp() {}
 
-template<> cef_request_t* CefCToCppRefCounted<CefRequestCToCpp, CefRequest,
-    cef_request_t>::UnwrapDerived(CefWrapperType type, CefRequest* c) {
+template <>
+cef_request_t*
+CefCToCppRefCounted<CefRequestCToCpp, CefRequest, cef_request_t>::UnwrapDerived(
+    CefWrapperType type,
+    CefRequest* c) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCppRefCounted<CefRequestCToCpp,
-    CefRequest, cef_request_t>::DebugObjCt = 0;
+template <>
+base::AtomicRefCount CefCToCppRefCounted<CefRequestCToCpp,
+                                         CefRequest,
+                                         cef_request_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCppRefCounted<CefRequestCToCpp, CefRequest,
-    cef_request_t>::kWrapperType = WT_REQUEST;
+template <>
+CefWrapperType CefCToCppRefCounted<CefRequestCToCpp,
+                                   CefRequest,
+                                   cef_request_t>::kWrapperType = WT_REQUEST;

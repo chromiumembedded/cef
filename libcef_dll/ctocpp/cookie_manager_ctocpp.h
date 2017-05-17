@@ -9,6 +9,8 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=7dcafc3a29b97d8c330e4590e9970bc3949739a4$
+//
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_COOKIE_MANAGER_CTOCPP_H_
 #define CEF_LIBCEF_DLL_CTOCPP_COOKIE_MANAGER_CTOCPP_H_
@@ -19,30 +21,35 @@
 #endif
 
 #include <vector>
-#include "include/cef_cookie.h"
 #include "include/capi/cef_cookie_capi.h"
+#include "include/cef_cookie.h"
 #include "libcef_dll/ctocpp/ctocpp_ref_counted.h"
 
 // Wrap a C structure with a C++ class.
 // This class may be instantiated and accessed wrapper-side only.
 class CefCookieManagerCToCpp
-    : public CefCToCppRefCounted<CefCookieManagerCToCpp, CefCookieManager,
-        cef_cookie_manager_t> {
+    : public CefCToCppRefCounted<CefCookieManagerCToCpp,
+                                 CefCookieManager,
+                                 cef_cookie_manager_t> {
  public:
   CefCookieManagerCToCpp();
 
   // CefCookieManager methods.
   void SetSupportedSchemes(const std::vector<CefString>& schemes,
-      CefRefPtr<CefCompletionCallback> callback) OVERRIDE;
+                           CefRefPtr<CefCompletionCallback> callback) OVERRIDE;
   bool VisitAllCookies(CefRefPtr<CefCookieVisitor> visitor) OVERRIDE;
-  bool VisitUrlCookies(const CefString& url, bool includeHttpOnly,
-      CefRefPtr<CefCookieVisitor> visitor) OVERRIDE;
-  bool SetCookie(const CefString& url, const CefCookie& cookie,
-      CefRefPtr<CefSetCookieCallback> callback) OVERRIDE;
-  bool DeleteCookies(const CefString& url, const CefString& cookie_name,
-      CefRefPtr<CefDeleteCookiesCallback> callback) OVERRIDE;
-  bool SetStoragePath(const CefString& path, bool persist_session_cookies,
-      CefRefPtr<CefCompletionCallback> callback) OVERRIDE;
+  bool VisitUrlCookies(const CefString& url,
+                       bool includeHttpOnly,
+                       CefRefPtr<CefCookieVisitor> visitor) OVERRIDE;
+  bool SetCookie(const CefString& url,
+                 const CefCookie& cookie,
+                 CefRefPtr<CefSetCookieCallback> callback) OVERRIDE;
+  bool DeleteCookies(const CefString& url,
+                     const CefString& cookie_name,
+                     CefRefPtr<CefDeleteCookiesCallback> callback) OVERRIDE;
+  bool SetStoragePath(const CefString& path,
+                      bool persist_session_cookies,
+                      CefRefPtr<CefCompletionCallback> callback) OVERRIDE;
   bool FlushStore(CefRefPtr<CefCompletionCallback> callback) OVERRIDE;
 };
 

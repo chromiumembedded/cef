@@ -27,7 +27,6 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-
 #ifndef CEF_INCLUDE_BASE_CEF_BUILD_H_
 #define CEF_INCLUDE_BASE_CEF_BUILD_H_
 #pragma once
@@ -116,12 +115,10 @@
 // Type detection for wchar_t.
 #if defined(OS_WIN)
 #define WCHAR_T_IS_UTF16
-#elif defined(OS_POSIX) && defined(COMPILER_GCC) && \
-    defined(__WCHAR_MAX__) && \
+#elif defined(OS_POSIX) && defined(COMPILER_GCC) && defined(__WCHAR_MAX__) && \
     (__WCHAR_MAX__ == 0x7fffffff || __WCHAR_MAX__ == 0xffffffff)
 #define WCHAR_T_IS_UTF32
-#elif defined(OS_POSIX) && defined(COMPILER_GCC) && \
-    defined(__WCHAR_MAX__) && \
+#elif defined(OS_POSIX) && defined(COMPILER_GCC) && defined(__WCHAR_MAX__) && \
     (__WCHAR_MAX__ == 0x7fff || __WCHAR_MAX__ == 0xffff)
 // On Posix, we'll detect short wchar_t, but projects aren't guaranteed to
 // compile in this mode (in particular, Chrome doesn't). This is intended for
@@ -181,7 +178,7 @@
 // Visual Studio 2010 and later support override.
 #define OVERRIDE override
 #elif defined(COMPILER_GCC) && __cplusplus >= 201103 && \
-      (__GNUC__ * 10000 + __GNUC_MINOR__ * 100) >= 40700
+    (__GNUC__ * 10000 + __GNUC_MINOR__ * 100) >= 40700
 // GCC 4.7 supports explicit virtual overrides when C++11 support is enabled.
 #define OVERRIDE override
 #else
@@ -191,10 +188,9 @@
 
 // Check for C++11 template alias support which was added in VS2013 and GCC4.7.
 // http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2007/n2258.pdf
-#if __cplusplus > 199711L || \
-    (defined(_MSC_VER) && _MSC_VER >= 1800) || \
-    (defined(__GNUC__) && \
-      (__GNUC__ * 10000 + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__ >= 40700))
+#if __cplusplus > 199711L || (defined(_MSC_VER) && _MSC_VER >= 1800) || \
+    (defined(__GNUC__) &&                                               \
+     (__GNUC__ * 10000 + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__ >= 40700))
 #define HAS_CPP11_TEMPLATE_ALIAS_SUPPORT
 #endif
 

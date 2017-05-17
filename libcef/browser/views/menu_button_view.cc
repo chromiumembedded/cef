@@ -7,8 +7,7 @@
 #include "ui/gfx/canvas.h"
 #include "ui/views/controls/menu/menu_config.h"
 
-CefMenuButtonView::CefMenuButtonView(
-    CefMenuButtonDelegate* cef_delegate)
+CefMenuButtonView::CefMenuButtonView(CefMenuButtonDelegate* cef_delegate)
     : ParentClass(cef_delegate) {
   DCHECK(cef_delegate);
 }
@@ -16,8 +15,8 @@ CefMenuButtonView::CefMenuButtonView(
 void CefMenuButtonView::Initialize() {
   ParentClass::Initialize();
 
-  SetDrawStringsFlags(IsFocusable() ? gfx::Canvas::SHOW_PREFIX :
-                                      gfx::Canvas::HIDE_PREFIX);
+  SetDrawStringsFlags(IsFocusable() ? gfx::Canvas::SHOW_PREFIX
+                                    : gfx::Canvas::HIDE_PREFIX);
 
   // Use the same default font as MenuItemView.
   SetFontList(views::MenuConfig::instance().font_list);

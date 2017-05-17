@@ -47,7 +47,6 @@
 
 class CefSchemeHandlerFactory;
 
-
 ///
 // Callback interface for CefRequestContext::ResolveHost.
 ///
@@ -62,9 +61,8 @@ class CefResolveCallback : public virtual CefBaseRefCounted {
   /*--cef(optional_param=resolved_ips)--*/
   virtual void OnResolveCompleted(
       cef_errorcode_t result,
-      const std::vector<CefString>& resolved_ips) =0;
+      const std::vector<CefString>& resolved_ips) = 0;
 };
-
 
 ///
 // A request context provides request handling for a set of related browser
@@ -114,13 +112,13 @@ class CefRequestContext : public virtual CefBaseRefCounted {
   // object.
   ///
   /*--cef()--*/
-  virtual bool IsSame(CefRefPtr<CefRequestContext> other) =0;
+  virtual bool IsSame(CefRefPtr<CefRequestContext> other) = 0;
 
   ///
   // Returns true if this object is sharing the same storage as |that| object.
   ///
   /*--cef()--*/
-  virtual bool IsSharingWith(CefRefPtr<CefRequestContext> other) =0;
+  virtual bool IsSharingWith(CefRefPtr<CefRequestContext> other) = 0;
 
   ///
   // Returns true if this object is the global context. The global context is
@@ -128,20 +126,20 @@ class CefRequestContext : public virtual CefBaseRefCounted {
   // argument.
   ///
   /*--cef()--*/
-  virtual bool IsGlobal() =0;
+  virtual bool IsGlobal() = 0;
 
   ///
   // Returns the handler for this context if any.
   ///
   /*--cef()--*/
-  virtual CefRefPtr<CefRequestContextHandler> GetHandler() =0;
+  virtual CefRefPtr<CefRequestContextHandler> GetHandler() = 0;
 
   ///
   // Returns the cache path for this object. If empty an "incognito mode"
   // in-memory cache is being used.
   ///
   /*--cef()--*/
-  virtual CefString GetCachePath() =0;
+  virtual CefString GetCachePath() = 0;
 
   ///
   // Returns the default cookie manager for this object. This will be the global
@@ -153,7 +151,7 @@ class CefRequestContext : public virtual CefBaseRefCounted {
   ///
   /*--cef(optional_param=callback)--*/
   virtual CefRefPtr<CefCookieManager> GetDefaultCookieManager(
-      CefRefPtr<CefCompletionCallback> callback) =0;
+      CefRefPtr<CefCompletionCallback> callback) = 0;
 
   ///
   // Register a scheme handler factory for the specified |scheme_name| and
@@ -172,14 +170,14 @@ class CefRequestContext : public virtual CefBaseRefCounted {
   virtual bool RegisterSchemeHandlerFactory(
       const CefString& scheme_name,
       const CefString& domain_name,
-      CefRefPtr<CefSchemeHandlerFactory> factory) =0;
+      CefRefPtr<CefSchemeHandlerFactory> factory) = 0;
 
   ///
   // Clear all registered scheme handler factories. Returns false on error. This
   // function may be called on any thread in the browser process.
   ///
   /*--cef()--*/
-  virtual bool ClearSchemeHandlerFactories() =0;
+  virtual bool ClearSchemeHandlerFactories() = 0;
 
   ///
   // Tells all renderer processes associated with this context to throw away
@@ -188,14 +186,14 @@ class CefRequestContext : public virtual CefBaseRefCounted {
   // be called to rebuild the plugin list cache.
   ///
   /*--cef()--*/
-  virtual void PurgePluginListCache(bool reload_pages) =0;
+  virtual void PurgePluginListCache(bool reload_pages) = 0;
 
   ///
   // Returns true if a preference with the specified |name| exists. This method
   // must be called on the browser process UI thread.
   ///
   /*--cef()--*/
-  virtual bool HasPreference(const CefString& name) =0;
+  virtual bool HasPreference(const CefString& name) = 0;
 
   ///
   // Returns the value for the preference with the specified |name|. Returns
@@ -205,7 +203,7 @@ class CefRequestContext : public virtual CefBaseRefCounted {
   // on the browser process UI thread.
   ///
   /*--cef()--*/
-  virtual CefRefPtr<CefValue> GetPreference(const CefString& name) =0;
+  virtual CefRefPtr<CefValue> GetPreference(const CefString& name) = 0;
 
   ///
   // Returns all preferences as a dictionary. If |include_defaults| is true then
@@ -217,7 +215,7 @@ class CefRequestContext : public virtual CefBaseRefCounted {
   ///
   /*--cef()--*/
   virtual CefRefPtr<CefDictionaryValue> GetAllPreferences(
-      bool include_defaults) =0;
+      bool include_defaults) = 0;
 
   ///
   // Returns true if the preference with the specified |name| can be modified
@@ -226,7 +224,7 @@ class CefRequestContext : public virtual CefBaseRefCounted {
   // process UI thread.
   ///
   /*--cef()--*/
-  virtual bool CanSetPreference(const CefString& name) =0;
+  virtual bool CanSetPreference(const CefString& name) = 0;
 
   ///
   // Set the |value| associated with preference |name|. Returns true if the
@@ -238,7 +236,7 @@ class CefRequestContext : public virtual CefBaseRefCounted {
   /*--cef(optional_param=value)--*/
   virtual bool SetPreference(const CefString& name,
                              CefRefPtr<CefValue> value,
-                             CefString& error) =0;
+                             CefString& error) = 0;
 
   ///
   // Clears all certificate exceptions that were added as part of handling
@@ -250,7 +248,7 @@ class CefRequestContext : public virtual CefBaseRefCounted {
   ///
   /*--cef(optional_param=callback)--*/
   virtual void ClearCertificateExceptions(
-      CefRefPtr<CefCompletionCallback> callback) =0;
+      CefRefPtr<CefCompletionCallback> callback) = 0;
 
   ///
   // Clears all active and idle connections that Chromium currently has.
@@ -260,16 +258,15 @@ class CefRequestContext : public virtual CefBaseRefCounted {
   ///
   /*--cef(optional_param=callback)--*/
   virtual void CloseAllConnections(
-      CefRefPtr<CefCompletionCallback> callback) =0;
+      CefRefPtr<CefCompletionCallback> callback) = 0;
 
   ///
   // Attempts to resolve |origin| to a list of associated IP addresses.
   // |callback| will be executed on the UI thread after completion.
   ///
   /*--cef()--*/
-  virtual void ResolveHost(
-      const CefString& origin,
-      CefRefPtr<CefResolveCallback> callback) =0;
+  virtual void ResolveHost(const CefString& origin,
+                           CefRefPtr<CefResolveCallback> callback) = 0;
 
   ///
   // Attempts to resolve |origin| to a list of associated IP addresses using
@@ -280,7 +277,7 @@ class CefRequestContext : public virtual CefBaseRefCounted {
   /*--cef(default_retval=ERR_FAILED)--*/
   virtual cef_errorcode_t ResolveHostCached(
       const CefString& origin,
-      std::vector<CefString>& resolved_ips) =0;
+      std::vector<CefString>& resolved_ips) = 0;
 };
 
 #endif  // CEF_INCLUDE_CEF_REQUEST_CONTEXT_H_

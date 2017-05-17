@@ -13,8 +13,7 @@
 namespace client {
 
 // Client app implementation for the browser process.
-class ClientAppBrowser : public ClientApp,
-                         public CefBrowserProcessHandler {
+class ClientAppBrowser : public ClientApp, public CefBrowserProcessHandler {
  public:
   // Interface for browser delegates. All Delegates must be returned via
   // CreateDelegates. Do not perform work in the Delegate
@@ -36,7 +35,7 @@ class ClientAppBrowser : public ClientApp,
         CefRefPtr<CefListValue> extra_info) {}
   };
 
-  typedef std::set<CefRefPtr<Delegate> > DelegateSet;
+  typedef std::set<CefRefPtr<Delegate>> DelegateSet;
 
   ClientAppBrowser();
 

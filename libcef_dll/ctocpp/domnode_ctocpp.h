@@ -9,6 +9,8 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=517c8bf7f36b294cbbcb0a52dcc9b1d1922986ce$
+//
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_DOMNODE_CTOCPP_H_
 #define CEF_LIBCEF_DLL_CTOCPP_DOMNODE_CTOCPP_H_
@@ -18,8 +20,8 @@
 #error This file can be included wrapper-side only
 #endif
 
-#include "include/cef_dom.h"
 #include "include/capi/cef_dom_capi.h"
+#include "include/cef_dom.h"
 #include "libcef_dll/ctocpp/ctocpp_ref_counted.h"
 
 // Wrap a C structure with a C++ class.
@@ -54,7 +56,7 @@ class CefDOMNodeCToCpp
   CefString GetElementAttribute(const CefString& attrName) OVERRIDE;
   void GetElementAttributes(AttributeMap& attrMap) OVERRIDE;
   bool SetElementAttribute(const CefString& attrName,
-      const CefString& value) OVERRIDE;
+                           const CefString& value) OVERRIDE;
   CefString GetElementInnerText() OVERRIDE;
   CefRect GetElementBounds() OVERRIDE;
 };

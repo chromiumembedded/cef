@@ -50,9 +50,7 @@ class CefDragDataImpl : public CefDragData {
   bool HasImage() override;
 
   // This method is not safe. Use Lock/Unlock to get mutually exclusive access.
-  content::DropData* drop_data() {
-    return &data_;
-  }
+  content::DropData* drop_data() { return &data_; }
 
   void SetReadOnly(bool read_only);
 

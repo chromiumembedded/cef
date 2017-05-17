@@ -9,18 +9,20 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=2055b8206165fb8583b6d7659366d438913f3c25$
+//
 
 #include "libcef_dll/cpptoc/resolve_callback_cpptoc.h"
 #include "libcef_dll/transfer_util.h"
-
 
 namespace {
 
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
-void CEF_CALLBACK resolve_callback_on_resolve_completed(
-    struct _cef_resolve_callback_t* self, cef_errorcode_t result,
-    cef_string_list_t resolved_ips) {
+void CEF_CALLBACK
+resolve_callback_on_resolve_completed(struct _cef_resolve_callback_t* self,
+                                      cef_errorcode_t result,
+                                      cef_string_list_t resolved_ips) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -33,13 +35,11 @@ void CEF_CALLBACK resolve_callback_on_resolve_completed(
   transfer_string_list_contents(resolved_ips, resolved_ipsList);
 
   // Execute
-  CefResolveCallbackCppToC::Get(self)->OnResolveCompleted(
-      result,
-      resolved_ipsList);
+  CefResolveCallbackCppToC::Get(self)->OnResolveCompleted(result,
+                                                          resolved_ipsList);
 }
 
 }  // namespace
-
 
 // CONSTRUCTOR - Do not edit by hand.
 
@@ -47,18 +47,26 @@ CefResolveCallbackCppToC::CefResolveCallbackCppToC() {
   GetStruct()->on_resolve_completed = resolve_callback_on_resolve_completed;
 }
 
-template<> CefRefPtr<CefResolveCallback> CefCppToCRefCounted<CefResolveCallbackCppToC,
-    CefResolveCallback, cef_resolve_callback_t>::UnwrapDerived(
-    CefWrapperType type, cef_resolve_callback_t* s) {
+template <>
+CefRefPtr<CefResolveCallback> CefCppToCRefCounted<
+    CefResolveCallbackCppToC,
+    CefResolveCallback,
+    cef_resolve_callback_t>::UnwrapDerived(CefWrapperType type,
+                                           cef_resolve_callback_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCppToCRefCounted<CefResolveCallbackCppToC,
-    CefResolveCallback, cef_resolve_callback_t>::DebugObjCt = 0;
+template <>
+base::AtomicRefCount CefCppToCRefCounted<CefResolveCallbackCppToC,
+                                         CefResolveCallback,
+                                         cef_resolve_callback_t>::DebugObjCt =
+    0;
 #endif
 
-template<> CefWrapperType CefCppToCRefCounted<CefResolveCallbackCppToC,
-    CefResolveCallback, cef_resolve_callback_t>::kWrapperType =
+template <>
+CefWrapperType CefCppToCRefCounted<CefResolveCallbackCppToC,
+                                   CefResolveCallback,
+                                   cef_resolve_callback_t>::kWrapperType =
     WT_RESOLVE_CALLBACK;

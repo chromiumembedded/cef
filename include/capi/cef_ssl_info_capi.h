@@ -33,6 +33,8 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
+// $hash=7489f3078e15407c3984f0b2393df3b0ddc045b0$
+//
 
 #ifndef CEF_INCLUDE_CAPI_CEF_SSL_INFO_CAPI_H_
 #define CEF_INCLUDE_CAPI_CEF_SSL_INFO_CAPI_H_
@@ -45,7 +47,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
 
 ///
 // Structure representing SSL information.
@@ -60,16 +61,14 @@ typedef struct _cef_sslinfo_t {
   // Returns a bitmask containing any and all problems verifying the server
   // certificate.
   ///
-  cef_cert_status_t (CEF_CALLBACK *get_cert_status)(
-      struct _cef_sslinfo_t* self);
+  cef_cert_status_t(CEF_CALLBACK* get_cert_status)(struct _cef_sslinfo_t* self);
 
   ///
   // Returns the X.509 certificate.
   ///
-  struct _cef_x509certificate_t* (CEF_CALLBACK *get_x509certificate)(
+  struct _cef_x509certificate_t*(CEF_CALLBACK* get_x509certificate)(
       struct _cef_sslinfo_t* self);
 } cef_sslinfo_t;
-
 
 ///
 // Returns true (1) if the certificate status has any error, major or minor.

@@ -64,8 +64,7 @@ RootWindowGtk::RootWindowGtk()
       menubar_height_(0),
       force_close_(false),
       window_destroyed_(false),
-      browser_destroyed_(false) {
-}
+      browser_destroyed_(false) {}
 
 RootWindowGtk::~RootWindowGtk() {
   REQUIRE_MAIN_THREAD();
@@ -133,8 +132,8 @@ void RootWindowGtk::InitAsPopup(RootWindow::Delegate* delegate,
   // The new popup is initially parented to a temporary window. The native root
   // window will be created after the browser is created and the popup window
   // will be re-parented to it at that time.
-  browser_window_->GetPopupConfig(TempWindow::GetWindowHandle(),
-                                  windowInfo, client, settings);
+  browser_window_->GetPopupConfig(TempWindow::GetWindowHandle(), windowInfo,
+                                  client, settings);
 }
 
 void RootWindowGtk::Show(ShowMode mode) {
@@ -258,7 +257,7 @@ void RootWindowGtk::CreateRootWindow(const CefBrowserSettings& settings) {
   gtk_window_set_default_size(GTK_WINDOW(window_), width, height);
   g_signal_connect(G_OBJECT(window_), "focus-in-event",
                    G_CALLBACK(&RootWindowGtk::WindowFocusIn), this);
-  g_signal_connect(G_OBJECT(window_), "window-state-event", 
+  g_signal_connect(G_OBJECT(window_), "window-state-event",
                    G_CALLBACK(&RootWindowGtk::WindowState), this);
   g_signal_connect(G_OBJECT(window_), "configure-event",
                    G_CALLBACK(&RootWindowGtk::WindowConfigure), this);
@@ -466,7 +465,7 @@ gboolean RootWindowGtk::WindowState(GtkWidget* widget,
 }
 
 // static
-gboolean RootWindowGtk::WindowConfigure(GtkWindow* window, 
+gboolean RootWindowGtk::WindowConfigure(GtkWindow* window,
                                         GdkEvent* event,
                                         RootWindowGtk* self) {
   // Called when size, position or stack order changes.
@@ -559,8 +558,7 @@ void RootWindowGtk::ToolbarSizeAllocated(GtkWidget* widget,
 }
 
 // static
-void RootWindowGtk::BackButtonClicked(GtkButton* button,
-                                      RootWindowGtk* self) {
+void RootWindowGtk::BackButtonClicked(GtkButton* button, RootWindowGtk* self) {
   CefRefPtr<CefBrowser> browser = self->GetBrowser();
   if (browser.get())
     browser->GoBack();
@@ -575,8 +573,7 @@ void RootWindowGtk::ForwardButtonClicked(GtkButton* button,
 }
 
 // static
-void RootWindowGtk::StopButtonClicked(GtkButton* button,
-                                      RootWindowGtk* self) {
+void RootWindowGtk::StopButtonClicked(GtkButton* button, RootWindowGtk* self) {
   CefRefPtr<CefBrowser> browser = self->GetBrowser();
   if (browser.get())
     browser->StopLoad();
@@ -591,8 +588,7 @@ void RootWindowGtk::ReloadButtonClicked(GtkButton* button,
 }
 
 // static
-void RootWindowGtk::URLEntryActivate(GtkEntry* entry,
-                                     RootWindowGtk* self) {
+void RootWindowGtk::URLEntryActivate(GtkEntry* entry, RootWindowGtk* self) {
   CefRefPtr<CefBrowser> browser = self->GetBrowser();
   if (browser.get()) {
     const gchar* url = gtk_entry_get_text(entry);
@@ -613,13 +609,10 @@ gboolean RootWindowGtk::URLEntryButtonPress(GtkWidget* widget,
   ::Window xwindow = GDK_WINDOW_XID(gdk_window);
 
   // Retrieve the atoms required by the below XSendEvent call.
-  const char* kAtoms[] = {
-    "WM_PROTOCOLS",
-    "WM_TAKE_FOCUS"
-  };
+  const char* kAtoms[] = {"WM_PROTOCOLS", "WM_TAKE_FOCUS"};
   Atom atoms[2];
-  int result = XInternAtoms(xdisplay, const_cast<char**>(kAtoms), 2, false,
-                            atoms);
+  int result =
+      XInternAtoms(xdisplay, const_cast<char**>(kAtoms), 2, false, atoms);
   if (!result)
     NOTREACHED();
 
@@ -645,24 +638,24 @@ GtkWidget* RootWindowGtk::CreateMenuBar() {
 
   // Create the test menu.
   GtkWidget* test_menu = CreateMenu(menu_bar, "Tests");
-  AddMenuEntry(test_menu, "Get Source",    ID_TESTS_GETSOURCE);
-  AddMenuEntry(test_menu, "Get Text",      ID_TESTS_GETTEXT);
-  AddMenuEntry(test_menu, "New Window",    ID_TESTS_WINDOW_NEW);
-  AddMenuEntry(test_menu, "Popup Window",  ID_TESTS_WINDOW_POPUP);
-  AddMenuEntry(test_menu, "Request",       ID_TESTS_REQUEST);
-  AddMenuEntry(test_menu, "Plugin Info",   ID_TESTS_PLUGIN_INFO);
-  AddMenuEntry(test_menu, "Zoom In",       ID_TESTS_ZOOM_IN);
-  AddMenuEntry(test_menu, "Zoom Out",      ID_TESTS_ZOOM_OUT);
-  AddMenuEntry(test_menu, "Zoom Reset",    ID_TESTS_ZOOM_RESET);
+  AddMenuEntry(test_menu, "Get Source", ID_TESTS_GETSOURCE);
+  AddMenuEntry(test_menu, "Get Text", ID_TESTS_GETTEXT);
+  AddMenuEntry(test_menu, "New Window", ID_TESTS_WINDOW_NEW);
+  AddMenuEntry(test_menu, "Popup Window", ID_TESTS_WINDOW_POPUP);
+  AddMenuEntry(test_menu, "Request", ID_TESTS_REQUEST);
+  AddMenuEntry(test_menu, "Plugin Info", ID_TESTS_PLUGIN_INFO);
+  AddMenuEntry(test_menu, "Zoom In", ID_TESTS_ZOOM_IN);
+  AddMenuEntry(test_menu, "Zoom Out", ID_TESTS_ZOOM_OUT);
+  AddMenuEntry(test_menu, "Zoom Reset", ID_TESTS_ZOOM_RESET);
   if (with_osr_) {
-    AddMenuEntry(test_menu, "Set FPS",          ID_TESTS_OSR_FPS);
+    AddMenuEntry(test_menu, "Set FPS", ID_TESTS_OSR_FPS);
     AddMenuEntry(test_menu, "Set Scale Factor", ID_TESTS_OSR_DSF);
   }
   AddMenuEntry(test_menu, "Begin Tracing", ID_TESTS_TRACING_BEGIN);
-  AddMenuEntry(test_menu, "End Tracing",   ID_TESTS_TRACING_END);
-  AddMenuEntry(test_menu, "Print",         ID_TESTS_PRINT);
-  AddMenuEntry(test_menu, "Print to PDF",  ID_TESTS_PRINT_TO_PDF);
-  AddMenuEntry(test_menu, "Other Tests",   ID_TESTS_OTHER_TESTS);
+  AddMenuEntry(test_menu, "End Tracing", ID_TESTS_TRACING_END);
+  AddMenuEntry(test_menu, "Print", ID_TESTS_PRINT);
+  AddMenuEntry(test_menu, "Print to PDF", ID_TESTS_PRINT_TO_PDF);
+  AddMenuEntry(test_menu, "Other Tests", ID_TESTS_OTHER_TESTS);
 
   return menu_bar;
 }

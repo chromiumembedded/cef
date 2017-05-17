@@ -33,6 +33,8 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
+// $hash=fec66a36497e467f3da1d2b86d0ae66b8cf709b7$
+//
 
 #ifndef CEF_INCLUDE_CAPI_CEF_ZIP_READER_CAPI_H_
 #define CEF_INCLUDE_CAPI_CEF_ZIP_READER_CAPI_H_
@@ -44,7 +46,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
 
 ///
 // Structure that supports the reading of zip archives via the zlib unzip API.
@@ -61,28 +62,28 @@ typedef struct _cef_zip_reader_t {
   // Moves the cursor to the first file in the archive. Returns true (1) if the
   // cursor position was set successfully.
   ///
-  int (CEF_CALLBACK *move_to_first_file)(struct _cef_zip_reader_t* self);
+  int(CEF_CALLBACK* move_to_first_file)(struct _cef_zip_reader_t* self);
 
   ///
   // Moves the cursor to the next file in the archive. Returns true (1) if the
   // cursor position was set successfully.
   ///
-  int (CEF_CALLBACK *move_to_next_file)(struct _cef_zip_reader_t* self);
+  int(CEF_CALLBACK* move_to_next_file)(struct _cef_zip_reader_t* self);
 
   ///
   // Moves the cursor to the specified file in the archive. If |caseSensitive|
   // is true (1) then the search will be case sensitive. Returns true (1) if the
   // cursor position was set successfully.
   ///
-  int (CEF_CALLBACK *move_to_file)(struct _cef_zip_reader_t* self,
-      const cef_string_t* fileName, int caseSensitive);
+  int(CEF_CALLBACK* move_to_file)(struct _cef_zip_reader_t* self,
+                                  const cef_string_t* fileName,
+                                  int caseSensitive);
 
   ///
   // Closes the archive. This should be called directly to ensure that cleanup
   // occurs on the correct thread.
   ///
-  int (CEF_CALLBACK *close)(struct _cef_zip_reader_t* self);
-
+  int(CEF_CALLBACK* close)(struct _cef_zip_reader_t* self);
 
   // The below functions act on the file at the current cursor position.
 
@@ -90,50 +91,50 @@ typedef struct _cef_zip_reader_t {
   // Returns the name of the file.
   ///
   // The resulting string must be freed by calling cef_string_userfree_free().
-  cef_string_userfree_t (CEF_CALLBACK *get_file_name)(
+  cef_string_userfree_t(CEF_CALLBACK* get_file_name)(
       struct _cef_zip_reader_t* self);
 
   ///
   // Returns the uncompressed size of the file.
   ///
-  int64 (CEF_CALLBACK *get_file_size)(struct _cef_zip_reader_t* self);
+  int64(CEF_CALLBACK* get_file_size)(struct _cef_zip_reader_t* self);
 
   ///
   // Returns the last modified timestamp for the file.
   ///
-  cef_time_t (CEF_CALLBACK *get_file_last_modified)(
+  cef_time_t(CEF_CALLBACK* get_file_last_modified)(
       struct _cef_zip_reader_t* self);
 
   ///
   // Opens the file for reading of uncompressed data. A read password may
   // optionally be specified.
   ///
-  int (CEF_CALLBACK *open_file)(struct _cef_zip_reader_t* self,
-      const cef_string_t* password);
+  int(CEF_CALLBACK* open_file)(struct _cef_zip_reader_t* self,
+                               const cef_string_t* password);
 
   ///
   // Closes the file.
   ///
-  int (CEF_CALLBACK *close_file)(struct _cef_zip_reader_t* self);
+  int(CEF_CALLBACK* close_file)(struct _cef_zip_reader_t* self);
 
   ///
   // Read uncompressed file contents into the specified buffer. Returns < 0 if
   // an error occurred, 0 if at the end of file, or the number of bytes read.
   ///
-  int (CEF_CALLBACK *read_file)(struct _cef_zip_reader_t* self, void* buffer,
-      size_t bufferSize);
+  int(CEF_CALLBACK* read_file)(struct _cef_zip_reader_t* self,
+                               void* buffer,
+                               size_t bufferSize);
 
   ///
   // Returns the current offset in the uncompressed file contents.
   ///
-  int64 (CEF_CALLBACK *tell)(struct _cef_zip_reader_t* self);
+  int64(CEF_CALLBACK* tell)(struct _cef_zip_reader_t* self);
 
   ///
   // Returns true (1) if at end of the file contents.
   ///
-  int (CEF_CALLBACK *eof)(struct _cef_zip_reader_t* self);
+  int(CEF_CALLBACK* eof)(struct _cef_zip_reader_t* self);
 } cef_zip_reader_t;
-
 
 ///
 // Create a new cef_zip_reader_t object. The returned object's functions can
@@ -141,7 +142,6 @@ typedef struct _cef_zip_reader_t {
 ///
 CEF_EXPORT cef_zip_reader_t* cef_zip_reader_create(
     struct _cef_stream_reader_t* stream);
-
 
 #ifdef __cplusplus
 }

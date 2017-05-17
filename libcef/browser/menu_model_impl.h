@@ -28,7 +28,7 @@ class CefMenuModelImpl : public CefMenuModel {
     // optional |event_flags|.
     virtual void ExecuteCommand(CefRefPtr<CefMenuModelImpl> source,
                                 int command_id,
-                                cef_event_flags_t event_flags) =0;
+                                cef_event_flags_t event_flags) = 0;
 
     // Called when the user moves the mouse outside the menu and over the owning
     // window.
@@ -43,14 +43,14 @@ class CefMenuModelImpl : public CefMenuModel {
                                        bool is_rtl) {}
 
     // Called when the menu is about to show.
-    virtual void MenuWillShow(CefRefPtr<CefMenuModelImpl> source) =0;
+    virtual void MenuWillShow(CefRefPtr<CefMenuModelImpl> source) = 0;
 
     // Called when the menu has closed.
-    virtual void MenuClosed(CefRefPtr<CefMenuModelImpl> source) =0;
+    virtual void MenuClosed(CefRefPtr<CefMenuModelImpl> source) = 0;
 
     // Allows the delegate to modify a menu item label before it's displayed.
     virtual bool FormatLabel(CefRefPtr<CefMenuModelImpl> source,
-                             base::string16& label) =0;
+                             base::string16& label) = 0;
 
    protected:
     virtual ~Delegate() {}
@@ -70,19 +70,23 @@ class CefMenuModelImpl : public CefMenuModel {
   bool AddSeparator() override;
   bool AddItem(int command_id, const CefString& label) override;
   bool AddCheckItem(int command_id, const CefString& label) override;
-  bool AddRadioItem(int command_id, const CefString& label,
-      int group_id) override;
+  bool AddRadioItem(int command_id,
+                    const CefString& label,
+                    int group_id) override;
   CefRefPtr<CefMenuModel> AddSubMenu(int command_id,
-      const CefString& label) override;
+                                     const CefString& label) override;
   bool InsertSeparatorAt(int index) override;
-  bool InsertItemAt(int index, int command_id,
-      const CefString& label) override;
-  bool InsertCheckItemAt(int index, int command_id,
-      const CefString& label) override;
-  bool InsertRadioItemAt(int index, int command_id,
-      const CefString& label, int group_id) override;
-  CefRefPtr<CefMenuModel> InsertSubMenuAt(int index, int command_id,
-      const CefString& label) override;
+  bool InsertItemAt(int index, int command_id, const CefString& label) override;
+  bool InsertCheckItemAt(int index,
+                         int command_id,
+                         const CefString& label) override;
+  bool InsertRadioItemAt(int index,
+                         int command_id,
+                         const CefString& label,
+                         int group_id) override;
+  CefRefPtr<CefMenuModel> InsertSubMenuAt(int index,
+                                          int command_id,
+                                          const CefString& label) override;
   bool Remove(int command_id) override;
   bool RemoveAt(int index) override;
   int GetIndexOf(int command_id) override;
@@ -114,16 +118,28 @@ class CefMenuModelImpl : public CefMenuModel {
   bool SetCheckedAt(int index, bool checked) override;
   bool HasAccelerator(int command_id) override;
   bool HasAcceleratorAt(int index) override;
-  bool SetAccelerator(int command_id, int key_code, bool shift_pressed,
-      bool ctrl_pressed, bool alt_pressed) override;
-  bool SetAcceleratorAt(int index, int key_code, bool shift_pressed,
-      bool ctrl_pressed, bool alt_pressed) override;
+  bool SetAccelerator(int command_id,
+                      int key_code,
+                      bool shift_pressed,
+                      bool ctrl_pressed,
+                      bool alt_pressed) override;
+  bool SetAcceleratorAt(int index,
+                        int key_code,
+                        bool shift_pressed,
+                        bool ctrl_pressed,
+                        bool alt_pressed) override;
   bool RemoveAccelerator(int command_id) override;
   bool RemoveAcceleratorAt(int index) override;
-  bool GetAccelerator(int command_id, int& key_code,
-      bool& shift_pressed, bool& ctrl_pressed, bool& alt_pressed) override;
-  bool GetAcceleratorAt(int index, int& key_code, bool& shift_pressed,
-      bool& ctrl_pressed, bool& alt_pressed) override;
+  bool GetAccelerator(int command_id,
+                      int& key_code,
+                      bool& shift_pressed,
+                      bool& ctrl_pressed,
+                      bool& alt_pressed) override;
+  bool GetAcceleratorAt(int index,
+                        int& key_code,
+                        bool& shift_pressed,
+                        bool& ctrl_pressed,
+                        bool& alt_pressed) override;
   bool SetColor(int command_id,
                 cef_menu_color_type_t color_type,
                 cef_color_t color) override;

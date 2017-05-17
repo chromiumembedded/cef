@@ -9,10 +9,11 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=6f1cfb4286ceb605bfc6ba718d0ef1b3620bb9de$
+//
 
 #include "libcef_dll/ctocpp/x509cert_principal_ctocpp.h"
 #include "libcef_dll/transfer_util.h"
-
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
@@ -111,8 +112,7 @@ void CefX509CertPrincipalCToCpp::GetStreetAddresses(
     transfer_string_list_contents(addresses, addressesList);
 
   // Execute
-  _struct->get_street_addresses(_struct,
-      addressesList);
+  _struct->get_street_addresses(_struct, addressesList);
 
   // Restore param:addresses; type: string_vec_byref
   if (addressesList) {
@@ -137,8 +137,7 @@ void CefX509CertPrincipalCToCpp::GetOrganizationNames(
     transfer_string_list_contents(names, namesList);
 
   // Execute
-  _struct->get_organization_names(_struct,
-      namesList);
+  _struct->get_organization_names(_struct, namesList);
 
   // Restore param:names; type: string_vec_byref
   if (namesList) {
@@ -163,8 +162,7 @@ void CefX509CertPrincipalCToCpp::GetOrganizationUnitNames(
     transfer_string_list_contents(names, namesList);
 
   // Execute
-  _struct->get_organization_unit_names(_struct,
-      namesList);
+  _struct->get_organization_unit_names(_struct, namesList);
 
   // Restore param:names; type: string_vec_byref
   if (namesList) {
@@ -189,8 +187,7 @@ void CefX509CertPrincipalCToCpp::GetDomainComponents(
     transfer_string_list_contents(components, componentsList);
 
   // Execute
-  _struct->get_domain_components(_struct,
-      componentsList);
+  _struct->get_domain_components(_struct, componentsList);
 
   // Restore param:components; type: string_vec_byref
   if (componentsList) {
@@ -200,24 +197,30 @@ void CefX509CertPrincipalCToCpp::GetDomainComponents(
   }
 }
 
-
 // CONSTRUCTOR - Do not edit by hand.
 
-CefX509CertPrincipalCToCpp::CefX509CertPrincipalCToCpp() {
-}
+CefX509CertPrincipalCToCpp::CefX509CertPrincipalCToCpp() {}
 
-template<> cef_x509cert_principal_t* CefCToCppRefCounted<CefX509CertPrincipalCToCpp,
-    CefX509CertPrincipal, cef_x509cert_principal_t>::UnwrapDerived(
-    CefWrapperType type, CefX509CertPrincipal* c) {
+template <>
+cef_x509cert_principal_t* CefCToCppRefCounted<
+    CefX509CertPrincipalCToCpp,
+    CefX509CertPrincipal,
+    cef_x509cert_principal_t>::UnwrapDerived(CefWrapperType type,
+                                             CefX509CertPrincipal* c) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCppRefCounted<CefX509CertPrincipalCToCpp,
-    CefX509CertPrincipal, cef_x509cert_principal_t>::DebugObjCt = 0;
+template <>
+base::AtomicRefCount CefCToCppRefCounted<CefX509CertPrincipalCToCpp,
+                                         CefX509CertPrincipal,
+                                         cef_x509cert_principal_t>::DebugObjCt =
+    0;
 #endif
 
-template<> CefWrapperType CefCToCppRefCounted<CefX509CertPrincipalCToCpp,
-    CefX509CertPrincipal, cef_x509cert_principal_t>::kWrapperType =
+template <>
+CefWrapperType CefCToCppRefCounted<CefX509CertPrincipalCToCpp,
+                                   CefX509CertPrincipal,
+                                   cef_x509cert_principal_t>::kWrapperType =
     WT_X509CERT_PRINCIPAL;

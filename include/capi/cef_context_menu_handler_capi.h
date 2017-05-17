@@ -33,6 +33,8 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
+// $hash=2e295ba277083061103147a400bc30f78e6a94f5$
+//
 
 #ifndef CEF_INCLUDE_CAPI_CEF_CONTEXT_MENU_HANDLER_CAPI_H_
 #define CEF_INCLUDE_CAPI_CEF_CONTEXT_MENU_HANDLER_CAPI_H_
@@ -62,15 +64,15 @@ typedef struct _cef_run_context_menu_callback_t {
   // Complete context menu display by selecting the specified |command_id| and
   // |event_flags|.
   ///
-  void (CEF_CALLBACK *cont)(struct _cef_run_context_menu_callback_t* self,
-      int command_id, cef_event_flags_t event_flags);
+  void(CEF_CALLBACK* cont)(struct _cef_run_context_menu_callback_t* self,
+                           int command_id,
+                           cef_event_flags_t event_flags);
 
   ///
   // Cancel context menu display.
   ///
-  void (CEF_CALLBACK *cancel)(struct _cef_run_context_menu_callback_t* self);
+  void(CEF_CALLBACK* cancel)(struct _cef_run_context_menu_callback_t* self);
 } cef_run_context_menu_callback_t;
-
 
 ///
 // Implement this structure to handle context menu events. The functions of this
@@ -89,9 +91,11 @@ typedef struct _cef_context_menu_handler_t {
   // modified to show a custom menu. Do not keep references to |params| or
   // |model| outside of this callback.
   ///
-  void (CEF_CALLBACK *on_before_context_menu)(
-      struct _cef_context_menu_handler_t* self, struct _cef_browser_t* browser,
-      struct _cef_frame_t* frame, struct _cef_context_menu_params_t* params,
+  void(CEF_CALLBACK* on_before_context_menu)(
+      struct _cef_context_menu_handler_t* self,
+      struct _cef_browser_t* browser,
+      struct _cef_frame_t* frame,
+      struct _cef_context_menu_params_t* params,
       struct _cef_menu_model_t* model);
 
   ///
@@ -102,8 +106,10 @@ typedef struct _cef_context_menu_handler_t {
   // selected command ID. For default display return false (0). Do not keep
   // references to |params| or |model| outside of this callback.
   ///
-  int (CEF_CALLBACK *run_context_menu)(struct _cef_context_menu_handler_t* self,
-      struct _cef_browser_t* browser, struct _cef_frame_t* frame,
+  int(CEF_CALLBACK* run_context_menu)(
+      struct _cef_context_menu_handler_t* self,
+      struct _cef_browser_t* browser,
+      struct _cef_frame_t* frame,
       struct _cef_context_menu_params_t* params,
       struct _cef_menu_model_t* model,
       struct _cef_run_context_menu_callback_t* callback);
@@ -117,20 +123,23 @@ typedef struct _cef_context_menu_handler_t {
   // on_before_context_menu(). Do not keep a reference to |params| outside of
   // this callback.
   ///
-  int (CEF_CALLBACK *on_context_menu_command)(
-      struct _cef_context_menu_handler_t* self, struct _cef_browser_t* browser,
-      struct _cef_frame_t* frame, struct _cef_context_menu_params_t* params,
-      int command_id, cef_event_flags_t event_flags);
+  int(CEF_CALLBACK* on_context_menu_command)(
+      struct _cef_context_menu_handler_t* self,
+      struct _cef_browser_t* browser,
+      struct _cef_frame_t* frame,
+      struct _cef_context_menu_params_t* params,
+      int command_id,
+      cef_event_flags_t event_flags);
 
   ///
   // Called when the context menu is dismissed irregardless of whether the menu
   // was NULL or a command was selected.
   ///
-  void (CEF_CALLBACK *on_context_menu_dismissed)(
-      struct _cef_context_menu_handler_t* self, struct _cef_browser_t* browser,
+  void(CEF_CALLBACK* on_context_menu_dismissed)(
+      struct _cef_context_menu_handler_t* self,
+      struct _cef_browser_t* browser,
       struct _cef_frame_t* frame);
 } cef_context_menu_handler_t;
-
 
 ///
 // Provides information about the context menu state. The ethods of this
@@ -146,19 +155,19 @@ typedef struct _cef_context_menu_params_t {
   // Returns the X coordinate of the mouse where the context menu was invoked.
   // Coords are relative to the associated RenderView's origin.
   ///
-  int (CEF_CALLBACK *get_xcoord)(struct _cef_context_menu_params_t* self);
+  int(CEF_CALLBACK* get_xcoord)(struct _cef_context_menu_params_t* self);
 
   ///
   // Returns the Y coordinate of the mouse where the context menu was invoked.
   // Coords are relative to the associated RenderView's origin.
   ///
-  int (CEF_CALLBACK *get_ycoord)(struct _cef_context_menu_params_t* self);
+  int(CEF_CALLBACK* get_ycoord)(struct _cef_context_menu_params_t* self);
 
   ///
   // Returns flags representing the type of node that the context menu was
   // invoked on.
   ///
-  cef_context_menu_type_flags_t (CEF_CALLBACK *get_type_flags)(
+  cef_context_menu_type_flags_t(CEF_CALLBACK* get_type_flags)(
       struct _cef_context_menu_params_t* self);
 
   ///
@@ -166,7 +175,7 @@ typedef struct _cef_context_menu_params_t {
   // context menu was invoked on.
   ///
   // The resulting string must be freed by calling cef_string_userfree_free().
-  cef_string_userfree_t (CEF_CALLBACK *get_link_url)(
+  cef_string_userfree_t(CEF_CALLBACK* get_link_url)(
       struct _cef_context_menu_params_t* self);
 
   ///
@@ -174,7 +183,7 @@ typedef struct _cef_context_menu_params_t {
   // don't validate this field in the frontend process.
   ///
   // The resulting string must be freed by calling cef_string_userfree_free().
-  cef_string_userfree_t (CEF_CALLBACK *get_unfiltered_link_url)(
+  cef_string_userfree_t(CEF_CALLBACK* get_unfiltered_link_url)(
       struct _cef_context_menu_params_t* self);
 
   ///
@@ -182,14 +191,14 @@ typedef struct _cef_context_menu_params_t {
   // invoked on. Example of elements with source URLs are img, audio, and video.
   ///
   // The resulting string must be freed by calling cef_string_userfree_free().
-  cef_string_userfree_t (CEF_CALLBACK *get_source_url)(
+  cef_string_userfree_t(CEF_CALLBACK* get_source_url)(
       struct _cef_context_menu_params_t* self);
 
   ///
   // Returns true (1) if the context menu was invoked on an image which has non-
   // NULL contents.
   ///
-  int (CEF_CALLBACK *has_image_contents)(
+  int(CEF_CALLBACK* has_image_contents)(
       struct _cef_context_menu_params_t* self);
 
   ///
@@ -197,21 +206,21 @@ typedef struct _cef_context_menu_params_t {
   // an image.
   ///
   // The resulting string must be freed by calling cef_string_userfree_free().
-  cef_string_userfree_t (CEF_CALLBACK *get_title_text)(
+  cef_string_userfree_t(CEF_CALLBACK* get_title_text)(
       struct _cef_context_menu_params_t* self);
 
   ///
   // Returns the URL of the top level page that the context menu was invoked on.
   ///
   // The resulting string must be freed by calling cef_string_userfree_free().
-  cef_string_userfree_t (CEF_CALLBACK *get_page_url)(
+  cef_string_userfree_t(CEF_CALLBACK* get_page_url)(
       struct _cef_context_menu_params_t* self);
 
   ///
   // Returns the URL of the subframe that the context menu was invoked on.
   ///
   // The resulting string must be freed by calling cef_string_userfree_free().
-  cef_string_userfree_t (CEF_CALLBACK *get_frame_url)(
+  cef_string_userfree_t(CEF_CALLBACK* get_frame_url)(
       struct _cef_context_menu_params_t* self);
 
   ///
@@ -219,20 +228,20 @@ typedef struct _cef_context_menu_params_t {
   // invoked on.
   ///
   // The resulting string must be freed by calling cef_string_userfree_free().
-  cef_string_userfree_t (CEF_CALLBACK *get_frame_charset)(
+  cef_string_userfree_t(CEF_CALLBACK* get_frame_charset)(
       struct _cef_context_menu_params_t* self);
 
   ///
   // Returns the type of context node that the context menu was invoked on.
   ///
-  cef_context_menu_media_type_t (CEF_CALLBACK *get_media_type)(
+  cef_context_menu_media_type_t(CEF_CALLBACK* get_media_type)(
       struct _cef_context_menu_params_t* self);
 
   ///
   // Returns flags representing the actions supported by the media element, if
   // any, that the context menu was invoked on.
   ///
-  cef_context_menu_media_state_flags_t (CEF_CALLBACK *get_media_state_flags)(
+  cef_context_menu_media_state_flags_t(CEF_CALLBACK* get_media_state_flags)(
       struct _cef_context_menu_params_t* self);
 
   ///
@@ -240,7 +249,7 @@ typedef struct _cef_context_menu_params_t {
   // invoked on.
   ///
   // The resulting string must be freed by calling cef_string_userfree_free().
-  cef_string_userfree_t (CEF_CALLBACK *get_selection_text)(
+  cef_string_userfree_t(CEF_CALLBACK* get_selection_text)(
       struct _cef_context_menu_params_t* self);
 
   ///
@@ -248,7 +257,7 @@ typedef struct _cef_context_menu_params_t {
   // invoked on.
   ///
   // The resulting string must be freed by calling cef_string_userfree_free().
-  cef_string_userfree_t (CEF_CALLBACK *get_misspelled_word)(
+  cef_string_userfree_t(CEF_CALLBACK* get_misspelled_word)(
       struct _cef_context_menu_params_t* self);
 
   ///
@@ -256,26 +265,27 @@ typedef struct _cef_context_menu_params_t {
   // |suggestions| from the spell check service for the misspelled word if there
   // is one.
   ///
-  int (CEF_CALLBACK *get_dictionary_suggestions)(
-      struct _cef_context_menu_params_t* self, cef_string_list_t suggestions);
+  int(CEF_CALLBACK* get_dictionary_suggestions)(
+      struct _cef_context_menu_params_t* self,
+      cef_string_list_t suggestions);
 
   ///
   // Returns true (1) if the context menu was invoked on an editable node.
   ///
-  int (CEF_CALLBACK *is_editable)(struct _cef_context_menu_params_t* self);
+  int(CEF_CALLBACK* is_editable)(struct _cef_context_menu_params_t* self);
 
   ///
   // Returns true (1) if the context menu was invoked on an editable node where
   // spell-check is enabled.
   ///
-  int (CEF_CALLBACK *is_spell_check_enabled)(
+  int(CEF_CALLBACK* is_spell_check_enabled)(
       struct _cef_context_menu_params_t* self);
 
   ///
   // Returns flags representing the actions supported by the editable node, if
   // any, that the context menu was invoked on.
   ///
-  cef_context_menu_edit_state_flags_t (CEF_CALLBACK *get_edit_state_flags)(
+  cef_context_menu_edit_state_flags_t(CEF_CALLBACK* get_edit_state_flags)(
       struct _cef_context_menu_params_t* self);
 
   ///
@@ -283,14 +293,13 @@ typedef struct _cef_context_menu_params_t {
   // renderer process (for example, plugin placeholder or pepper plugin menu
   // items).
   ///
-  int (CEF_CALLBACK *is_custom_menu)(struct _cef_context_menu_params_t* self);
+  int(CEF_CALLBACK* is_custom_menu)(struct _cef_context_menu_params_t* self);
 
   ///
   // Returns true (1) if the context menu was invoked from a pepper plugin.
   ///
-  int (CEF_CALLBACK *is_pepper_menu)(struct _cef_context_menu_params_t* self);
+  int(CEF_CALLBACK* is_pepper_menu)(struct _cef_context_menu_params_t* self);
 } cef_context_menu_params_t;
-
 
 #ifdef __cplusplus
 }

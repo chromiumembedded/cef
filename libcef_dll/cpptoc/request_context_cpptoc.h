@@ -9,6 +9,8 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=0f63b31ff1f742b3cbe34ea3971df87f95829dfb$
+//
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_REQUEST_CONTEXT_CPPTOC_H_
 #define CEF_LIBCEF_DLL_CPPTOC_REQUEST_CONTEXT_CPPTOC_H_
@@ -18,17 +20,18 @@
 #error This file can be included DLL-side only
 #endif
 
-#include "include/cef_request_context.h"
 #include "include/capi/cef_request_context_capi.h"
-#include "include/cef_scheme.h"
 #include "include/capi/cef_scheme_capi.h"
+#include "include/cef_request_context.h"
+#include "include/cef_scheme.h"
 #include "libcef_dll/cpptoc/cpptoc_ref_counted.h"
 
 // Wrap a C++ class with a C structure.
 // This class may be instantiated and accessed DLL-side only.
 class CefRequestContextCppToC
-    : public CefCppToCRefCounted<CefRequestContextCppToC, CefRequestContext,
-        cef_request_context_t> {
+    : public CefCppToCRefCounted<CefRequestContextCppToC,
+                                 CefRequestContext,
+                                 cef_request_context_t> {
  public:
   CefRequestContextCppToC();
 };

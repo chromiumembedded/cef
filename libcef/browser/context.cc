@@ -2,13 +2,13 @@
 // reserved. Use of this source code is governed by a BSD-style license that can
 // be found in the LICENSE file.
 
-#include "libcef/browser/context.h"
 #include "libcef/browser/browser_host_impl.h"
 #include "libcef/browser/browser_info.h"
 #include "libcef/browser/browser_info_manager.h"
 #include "libcef/browser/browser_main.h"
 #include "libcef/browser/browser_message_loop.h"
 #include "libcef/browser/chrome_browser_process_stub.h"
+#include "libcef/browser/context.h"
 #include "libcef/browser/thread_util.h"
 #include "libcef/browser/trace_subscriber.h"
 #include "libcef/common/cef_switches.h"
@@ -33,8 +33,8 @@
 #if defined(OS_WIN)
 #include "base/strings/utf_string_conversions.h"
 #include "chrome_elf/chrome_elf_main.h"
-#include "content/public/app/sandbox_helper_win.h"
 #include "components/crash/content/app/crashpad.h"
+#include "content/public/app/sandbox_helper_win.h"
 #include "sandbox/win/src/sandbox_types.h"
 #endif
 
@@ -51,9 +51,7 @@ CefContext* g_context = NULL;
 // When the process terminates check if CefShutdown() has been called.
 class CefShutdownChecker {
  public:
-  ~CefShutdownChecker() {
-    DCHECK(!g_context) << "CefShutdown was not called";
-  }
+  ~CefShutdownChecker() { DCHECK(!g_context) << "CefShutdown was not called"; }
 } g_shutdown_checker;
 #endif  // DCHECK_IS_ON()
 
@@ -97,13 +95,14 @@ int RunAsCrashpadHandler(const base::CommandLine& command_line) {
   base::CommandLine::StringVector argv = command_line.argv();
   const base::CommandLine::StringType process_type =
       FILE_PATH_LITERAL("--type=");
-  argv.erase(std::remove_if(argv.begin(), argv.end(),
-                 [&process_type](const base::CommandLine::StringType& str) {
-                   return base::StartsWith(str, process_type,
-                                           base::CompareCase::SENSITIVE) ||
-                          (!str.empty() && str[0] == L'/');
-                 }),
-             argv.end());
+  argv.erase(
+      std::remove_if(argv.begin(), argv.end(),
+                     [&process_type](const base::CommandLine::StringType& str) {
+                       return base::StartsWith(str, process_type,
+                                               base::CompareCase::SENSITIVE) ||
+                              (!str.empty() && str[0] == L'/');
+                     }),
+      argv.end());
 
 #if defined(OS_MACOSX)
   // HandlerMain on macOS uses the system version of getopt_long which expects
@@ -184,7 +183,7 @@ int CefExecuteProcess(const CefMainArgs& args,
 
   CefMainDelegate main_delegate(application);
 
-  // Execute the secondary process.
+// Execute the secondary process.
 #if defined(OS_WIN)
   sandbox::SandboxInterfaceInfo sandbox_info = {0};
   if (windows_sandbox_info == NULL) {
@@ -321,17 +320,12 @@ void CefSetOSModalLoop(bool osModalLoop) {
 #endif  // defined(OS_WIN)
 }
 
-
 // CefContext
 
 CefContext::CefContext()
-  : initialized_(false),
-    shutting_down_(false),
-    init_thread_id_(0) {
-}
+    : initialized_(false), shutting_down_(false), init_thread_id_(0) {}
 
-CefContext::~CefContext() {
-}
+CefContext::~CefContext() {}
 
 // static
 CefContext* CefContext::Get() {
@@ -390,8 +384,8 @@ bool CefContext::Initialize(const CefMainArgs& args,
   if (exit_code >= 0)
     return false;
 
-  static_cast<ChromeBrowserProcessStub*>(g_browser_process)->Initialize(
-      *base::CommandLine::ForCurrentProcess());
+  static_cast<ChromeBrowserProcessStub*>(g_browser_process)
+      ->Initialize(*base::CommandLine::ForCurrentProcess());
 
   // Run the process. Results in a call to CefMainDelegate::RunProcess() which
   // will create the browser runner and message loop without blocking.
@@ -403,8 +397,8 @@ bool CefContext::Initialize(const CefMainArgs& args,
     OnContextInitialized();
   } else {
     // Continue initialization on the UI thread.
-    CEF_POST_TASK(CEF_UIT,
-        base::Bind(&CefContext::OnContextInitialized, base::Unretained(this)));
+    CEF_POST_TASK(CEF_UIT, base::Bind(&CefContext::OnContextInitialized,
+                                      base::Unretained(this)));
   }
 
   return true;
@@ -425,9 +419,8 @@ void CefContext::Shutdown() {
 
     // Finish shutdown on the UI thread.
     CEF_POST_TASK(CEF_UIT,
-        base::Bind(&CefContext::FinishShutdownOnUIThread,
-                   base::Unretained(this),
-                   &uithread_shutdown_event));
+                  base::Bind(&CefContext::FinishShutdownOnUIThread,
+                             base::Unretained(this), &uithread_shutdown_event));
 
     /// Block until UI thread shutdown is complete.
     uithread_shutdown_event.Wait();
@@ -448,9 +441,11 @@ bool CefContext::OnInitThread() {
 SkColor CefContext::GetBackgroundColor(
     const CefBrowserSettings* browser_settings,
     cef_state_t windowless_state) const {
-  bool is_windowless = windowless_state == STATE_ENABLED ? true :
-      (windowless_state == STATE_DISABLED ? false :
-          !!settings_.windowless_rendering_enabled);
+  bool is_windowless = windowless_state == STATE_ENABLED
+                           ? true
+                           : (windowless_state == STATE_DISABLED
+                                  ? false
+                                  : !!settings_.windowless_rendering_enabled);
 
   // Default to opaque white if no acceptable color values are found.
   SkColor sk_color = SK_ColorWHITE;
@@ -495,8 +490,8 @@ void CefContext::PopulateRequestContextSettings(
 void CefContext::OnContextInitialized() {
   CEF_REQUIRE_UIT();
 
-  static_cast<ChromeBrowserProcessStub*>(g_browser_process)->
-      OnContextInitialized();
+  static_cast<ChromeBrowserProcessStub*>(g_browser_process)
+      ->OnContextInitialized();
 
 #if defined(WIDEVINE_CDM_AVAILABLE) && BUILDFLAG(ENABLE_PEPPER_CDMS)
   CefWidevineLoader::GetInstance()->OnContextInitialized();

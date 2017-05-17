@@ -34,10 +34,10 @@ std::string GetDescriptionFromMimeType(const std::string& mime_type) {
     const char* mime_type;
     const char* label;
   } kWildCardMimeTypes[] = {
-    { "audio", "Audio Files" },
-    { "image", "Image Files" },
-    { "text", "Text Files" },
-    { "video", "Video Files" },
+      {"audio", "Audio Files"},
+      {"image", "Image Files"},
+      {"text", "Text Files"},
+      {"video", "Video Files"},
   };
 
   for (size_t i = 0;
@@ -143,10 +143,7 @@ GtkWindow* GetWindow(CefRefPtr<CefBrowser> browser) {
 
 }  // namespace
 
-
-ClientDialogHandlerGtk::ClientDialogHandlerGtk()
-    : gtk_dialog_(NULL) {
-}
+ClientDialogHandlerGtk::ClientDialogHandlerGtk() : gtk_dialog_(NULL) {}
 
 bool ClientDialogHandlerGtk::OnFileDialog(
     CefRefPtr<CefBrowser> browser,
@@ -163,7 +160,7 @@ bool ClientDialogHandlerGtk::OnFileDialog(
 
   // Remove any modifier flags.
   FileDialogMode mode_type =
-     static_cast<FileDialogMode>(mode & FILE_DIALOG_TYPE_MASK);
+      static_cast<FileDialogMode>(mode & FILE_DIALOG_TYPE_MASK);
 
   if (mode_type == FILE_DIALOG_OPEN || mode_type == FILE_DIALOG_OPEN_MULTIPLE) {
     action = GTK_FILE_CHOOSER_ACTION_OPEN;
@@ -206,20 +203,15 @@ bool ClientDialogHandlerGtk::OnFileDialog(
     return false;
 
   GtkWidget* dialog = gtk_file_chooser_dialog_new(
-      title_str.c_str(),
-      GTK_WINDOW(window),
-      action,
-      GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-      accept_button, GTK_RESPONSE_ACCEPT,
-      NULL);
+      title_str.c_str(), GTK_WINDOW(window), action, GTK_STOCK_CANCEL,
+      GTK_RESPONSE_CANCEL, accept_button, GTK_RESPONSE_ACCEPT, NULL);
 
   if (mode_type == FILE_DIALOG_OPEN_MULTIPLE)
     gtk_file_chooser_set_select_multiple(GTK_FILE_CHOOSER(dialog), TRUE);
 
   if (mode_type == FILE_DIALOG_SAVE) {
     gtk_file_chooser_set_do_overwrite_confirmation(
-        GTK_FILE_CHOOSER(dialog),
-        !!(mode & FILE_DIALOG_OVERWRITEPROMPT_FLAG));
+        GTK_FILE_CHOOSER(dialog), !!(mode & FILE_DIALOG_OVERWRITEPROMPT_FLAG));
   }
 
   gtk_file_chooser_set_show_hidden(GTK_FILE_CHOOSER(dialog),
@@ -232,8 +224,7 @@ bool ClientDialogHandlerGtk::OnFileDialog(
     struct stat sb;
     if (stat(file_path.c_str(), &sb) == 0 && S_ISREG(sb.st_mode)) {
       // Use the directory and name of the existing file.
-      gtk_file_chooser_set_filename(GTK_FILE_CHOOSER(dialog),
-                                    file_path.data());
+      gtk_file_chooser_set_filename(GTK_FILE_CHOOSER(dialog), file_path.data());
       exists = true;
     }
 
@@ -300,14 +291,13 @@ bool ClientDialogHandlerGtk::OnFileDialog(
   return true;
 }
 
-bool ClientDialogHandlerGtk::OnJSDialog(
-    CefRefPtr<CefBrowser> browser,
-    const CefString& origin_url,
-    JSDialogType dialog_type,
-    const CefString& message_text,
-    const CefString& default_prompt_text,
-    CefRefPtr<CefJSDialogCallback> callback,
-    bool& suppress_message) {
+bool ClientDialogHandlerGtk::OnJSDialog(CefRefPtr<CefBrowser> browser,
+                                        const CefString& origin_url,
+                                        JSDialogType dialog_type,
+                                        const CefString& message_text,
+                                        const CefString& default_prompt_text,
+                                        CefRefPtr<CefJSDialogCallback> callback,
+                                        bool& suppress_message) {
   CEF_REQUIRE_UI_THREAD();
 
   GtkButtonsType buttons = GTK_BUTTONS_NONE;
@@ -345,22 +335,16 @@ bool ClientDialogHandlerGtk::OnJSDialog(
   if (!window)
     return false;
 
-  gtk_dialog_ = gtk_message_dialog_new(GTK_WINDOW(window),
-                                       GTK_DIALOG_MODAL,
-                                       gtk_message_type,
-                                       buttons,
-                                       "%s",
+  gtk_dialog_ = gtk_message_dialog_new(GTK_WINDOW(window), GTK_DIALOG_MODAL,
+                                       gtk_message_type, buttons, "%s",
                                        message_text.ToString().c_str());
-  g_signal_connect(gtk_dialog_,
-                   "delete-event",
-                   G_CALLBACK(gtk_widget_hide_on_delete),
-                   NULL);
+  g_signal_connect(gtk_dialog_, "delete-event",
+                   G_CALLBACK(gtk_widget_hide_on_delete), NULL);
 
   gtk_window_set_title(GTK_WINDOW(gtk_dialog_), title.c_str());
 
   GtkWidget* ok_button = gtk_dialog_add_button(GTK_DIALOG(gtk_dialog_),
-                                               GTK_STOCK_OK,
-                                               GTK_RESPONSE_OK);
+                                               GTK_STOCK_OK, GTK_RESPONSE_OK);
 
   if (dialog_type != JSDIALOGTYPE_PROMPT)
     gtk_widget_grab_focus(ok_button);
@@ -431,4 +415,3 @@ void ClientDialogHandlerGtk::OnDialogResponse(GtkDialog* dialog,
 }
 
 }  // namespace client
-

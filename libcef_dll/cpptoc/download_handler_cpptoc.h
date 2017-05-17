@@ -9,6 +9,8 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=ea474f115d17588ffd70398adbc70bea8f744949$
+//
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_DOWNLOAD_HANDLER_CPPTOC_H_
 #define CEF_LIBCEF_DLL_CPPTOC_DOWNLOAD_HANDLER_CPPTOC_H_
@@ -18,15 +20,16 @@
 #error This file can be included wrapper-side only
 #endif
 
-#include "include/cef_download_handler.h"
 #include "include/capi/cef_download_handler_capi.h"
+#include "include/cef_download_handler.h"
 #include "libcef_dll/cpptoc/cpptoc_ref_counted.h"
 
 // Wrap a C++ class with a C structure.
 // This class may be instantiated and accessed wrapper-side only.
 class CefDownloadHandlerCppToC
-    : public CefCppToCRefCounted<CefDownloadHandlerCppToC, CefDownloadHandler,
-        cef_download_handler_t> {
+    : public CefCppToCRefCounted<CefDownloadHandlerCppToC,
+                                 CefDownloadHandler,
+                                 cef_download_handler_t> {
  public:
   CefDownloadHandlerCppToC();
 };

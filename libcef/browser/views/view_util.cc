@@ -10,10 +10,10 @@
 
 #include "ui/aura/window.h"
 #include "ui/aura/window_tree_host.h"
-#include "ui/gfx/geometry/point.h"
-#include "ui/gfx/geometry/point_conversions.h"
 #include "ui/display/display.h"
 #include "ui/display/screen.h"
+#include "ui/gfx/geometry/point.h"
+#include "ui/gfx/geometry/point_conversions.h"
 #include "ui/views/widget/widget.h"
 #include "ui/views/widget/widget_delegate.h"
 #include "ui/views/window/non_client_view.h"
@@ -56,8 +56,8 @@ class UserData : public base::SupportsUserData::Data {
   // gain a ref-counted reference to the CefView and the CefView will keep an
   // unowned reference to the views::View. Destruction of the views::View will
   // release the ref-counted reference to the CefView.
-  static std::unique_ptr<views::View> PassOwnership(
-      CefRefPtr<CefView> cef_view) WARN_UNUSED_RESULT {
+  static std::unique_ptr<views::View> PassOwnership(CefRefPtr<CefView> cef_view)
+      WARN_UNUSED_RESULT {
     DCHECK(cef_view->IsValid());
     DCHECK(!cef_view->IsAttached());
 
@@ -90,8 +90,7 @@ class UserData : public base::SupportsUserData::Data {
   }
 
  private:
-  explicit UserData(CefRefPtr<CefView> cef_view)
-      : view_ref_(cef_view.get()) {
+  explicit UserData(CefRefPtr<CefView> cef_view) : view_ref_(cef_view.get()) {
     DCHECK(view_ref_);
   }
 
@@ -103,13 +102,9 @@ class UserData : public base::SupportsUserData::Data {
     }
   }
 
-  void TakeReference() {
-    view_ = view_ref_;
-  }
+  void TakeReference() { view_ = view_ref_; }
 
-  void ReleaseReference() {
-    view_ = nullptr;
-  }
+  void ReleaseReference() { view_ = nullptr; }
 
   static void* UserDataKey() {
     // We just need a unique constant. Use the address of a static that
@@ -177,7 +172,7 @@ CefRefPtr<CefWindow> GetWindowFor(views::Widget* widget) {
     // The Window should always exist if we created the views::Widget.
     DCHECK(window);
   }
-  
+
   return window;
 }
 
@@ -196,21 +191,19 @@ display::Display GetDisplayMatchingBounds(const gfx::Rect& bounds,
   gfx::Rect find_bounds = bounds;
 #if defined(OS_WIN)
   if (input_pixel_coords) {
-    find_bounds = display::win::ScreenWin::ScreenToDIPRect(nullptr,
-                                                           find_bounds);
+    find_bounds =
+        display::win::ScreenWin::ScreenToDIPRect(nullptr, find_bounds);
   }
 #endif
   return display::Screen::GetScreen()->GetDisplayMatching(find_bounds);
 }
 
-void ConvertPointFromPixels(gfx::Point* point,
-                            int device_scale_factor) {
+void ConvertPointFromPixels(gfx::Point* point, int device_scale_factor) {
   *point = gfx::ToFlooredPoint(
       gfx::ScalePoint(gfx::PointF(*point), 1.0f / device_scale_factor));
 }
 
-void ConvertPointToPixels(gfx::Point* point,
-                          int device_scale_factor) {
+void ConvertPointToPixels(gfx::Point* point, int device_scale_factor) {
   *point = gfx::ToFlooredPoint(
       gfx::ScalePoint(gfx::PointF(*point), device_scale_factor));
 }
@@ -247,8 +240,7 @@ bool ConvertPointFromScreen(views::View* view,
   return true;
 }
 
-bool ConvertPointToWindow(views::View* view,
-                          gfx::Point* point) {
+bool ConvertPointToWindow(views::View* view, gfx::Point* point) {
   views::Widget* widget = view->GetWidget();
   if (!widget)
     return false;
@@ -271,9 +263,7 @@ bool ConvertPointToWindow(views::View* view,
   return true;
 }
 
-bool ConvertPointFromWindow(views::View* view,
-                            gfx::Point* point) {
-
+bool ConvertPointFromWindow(views::View* view, gfx::Point* point) {
   views::Widget* widget = view->GetWidget();
   if (!widget)
     return false;

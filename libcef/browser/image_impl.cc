@@ -49,13 +49,12 @@ bool PNGMethod(bool with_transparency,
                std::vector<unsigned char>* compressed) {
   return gfx::PNGCodec::Encode(
       reinterpret_cast<unsigned char*>(bitmap.getPixels()),
-      bitmap.colorType() == kBGRA_8888_SkColorType ?
-          gfx::PNGCodec::FORMAT_BGRA : gfx::PNGCodec::FORMAT_RGBA,
+      bitmap.colorType() == kBGRA_8888_SkColorType ? gfx::PNGCodec::FORMAT_BGRA
+                                                   : gfx::PNGCodec::FORMAT_RGBA,
       gfx::Size(bitmap.width(), bitmap.height()),
       static_cast<int>(bitmap.rowBytes()),
       bitmap.alphaType() == kOpaque_SkAlphaType || !with_transparency,
-      std::vector<gfx::PNGCodec::Comment>(),
-      compressed);
+      std::vector<gfx::PNGCodec::Comment>(), compressed);
 }
 
 // Compress as JPEG. This internally uses JCS_EXT_RGBX or JCS_EXT_BGRX which
@@ -65,13 +64,11 @@ bool JPEGMethod(int quality,
                 std::vector<unsigned char>* compressed) {
   return gfx::JPEGCodec::Encode(
       reinterpret_cast<unsigned char*>(bitmap.getPixels()),
-      bitmap.colorType() == kBGRA_8888_SkColorType ?
-          gfx::JPEGCodec::FORMAT_BGRA : gfx::JPEGCodec::FORMAT_RGBA,
-      bitmap.width(),
-      bitmap.height(),
-      static_cast<int>(bitmap.rowBytes()),
-      quality,
-      compressed);
+      bitmap.colorType() == kBGRA_8888_SkColorType
+          ? gfx::JPEGCodec::FORMAT_BGRA
+          : gfx::JPEGCodec::FORMAT_RGBA,
+      bitmap.width(), bitmap.height(), static_cast<int>(bitmap.rowBytes()),
+      quality, compressed);
 }
 
 }  // namespace
@@ -124,7 +121,7 @@ bool CefImageImpl::AddBitmap(float scale_factor,
   CEF_REQUIRE_UIT_RETURN(false);
   const SkColorType ct = GetSkColorType(color_type);
   const SkAlphaType at = GetSkAlphaType(alpha_type);
- 
+
   // Make sure the client passed in the expected values.
   if (ct != kBGRA_8888_SkColorType && ct != kRGBA_8888_SkColorType)
     return false;
@@ -166,9 +163,8 @@ bool CefImageImpl::AddJPEG(float scale_factor,
                            size_t jpeg_data_size) {
   CEF_REQUIRE_UIT_RETURN(false);
 
-  std::unique_ptr<SkBitmap> bitmap(
-      gfx::JPEGCodec::Decode(static_cast<const unsigned char*>(jpeg_data),
-                             jpeg_data_size));
+  std::unique_ptr<SkBitmap> bitmap(gfx::JPEGCodec::Decode(
+      static_cast<const unsigned char*>(jpeg_data), jpeg_data_size));
   if (!bitmap.get())
     return false;
 
@@ -219,12 +215,11 @@ bool CefImageImpl::GetRepresentationInfo(float scale_factor,
   return true;
 }
 
-CefRefPtr<CefBinaryValue> CefImageImpl::GetAsBitmap(
-    float scale_factor,
-    cef_color_type_t color_type,
-    cef_alpha_type_t alpha_type,
-    int& pixel_width,
-    int& pixel_height) {
+CefRefPtr<CefBinaryValue> CefImageImpl::GetAsBitmap(float scale_factor,
+                                                    cef_color_type_t color_type,
+                                                    cef_alpha_type_t alpha_type,
+                                                    int& pixel_width,
+                                                    int& pixel_height) {
   CEF_REQUIRE_UIT_RETURN(nullptr);
 
   const SkColorType desired_ct = GetSkColorType(color_type);
@@ -307,8 +302,8 @@ void CefImageImpl::AddBitmaps(int32_t scale_1x_size,
 
   for (const SkBitmap& bitmap : bitmaps) {
     const int32_t size = std::max(bitmap.width(), bitmap.height());
-    const float scale_factor = static_cast<float>(size) /
-                               static_cast<float>(scale_1x_size);
+    const float scale_factor =
+        static_cast<float>(size) / static_cast<float>(scale_1x_size);
     AddBitmap(scale_factor, bitmap);
   }
 }
@@ -327,8 +322,7 @@ gfx::ImageSkia CefImageImpl::GetForced1xScaleRepresentation(
   return image_skia;
 }
 
-bool CefImageImpl::AddBitmap(float scale_factor,
-                             const SkBitmap& bitmap) {
+bool CefImageImpl::AddBitmap(float scale_factor, const SkBitmap& bitmap) {
 #if DCHECK_IS_ON()
   {
     SkAutoLockPixels bitmap_lock(bitmap);
@@ -370,9 +364,8 @@ bool CefImageImpl::ConvertBitmap(const SkBitmap& src_bitmap,
          src_bitmap.alphaType() != target_at);
   DCHECK(target_bitmap);
 
-  SkImageInfo target_info =
-        SkImageInfo::Make(src_bitmap.width(), src_bitmap.height(), target_ct,
-                          target_at);
+  SkImageInfo target_info = SkImageInfo::Make(
+      src_bitmap.width(), src_bitmap.height(), target_ct, target_at);
   if (!target_bitmap->tryAllocPixels(target_info))
     return false;
 

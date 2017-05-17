@@ -9,13 +9,14 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=0749b78aaf8f69cd706962477d4d0241c93cf333$
+//
 
 #include "libcef_dll/cpptoc/browser_cpptoc.h"
 #include "libcef_dll/cpptoc/print_dialog_callback_cpptoc.h"
 #include "libcef_dll/cpptoc/print_job_callback_cpptoc.h"
 #include "libcef_dll/cpptoc/print_settings_cpptoc.h"
 #include "libcef_dll/ctocpp/print_handler_ctocpp.h"
-
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
@@ -32,12 +33,12 @@ void CefPrintHandlerCToCpp::OnPrintStart(CefRefPtr<CefBrowser> browser) {
     return;
 
   // Execute
-  _struct->on_print_start(_struct,
-      CefBrowserCppToC::Wrap(browser));
+  _struct->on_print_start(_struct, CefBrowserCppToC::Wrap(browser));
 }
 
 void CefPrintHandlerCToCpp::OnPrintSettings(
-    CefRefPtr<CefPrintSettings> settings, bool get_defaults) {
+    CefRefPtr<CefPrintSettings> settings,
+    bool get_defaults) {
   cef_print_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_print_settings))
     return;
@@ -50,12 +51,12 @@ void CefPrintHandlerCToCpp::OnPrintSettings(
     return;
 
   // Execute
-  _struct->on_print_settings(_struct,
-      CefPrintSettingsCppToC::Wrap(settings),
-      get_defaults);
+  _struct->on_print_settings(_struct, CefPrintSettingsCppToC::Wrap(settings),
+                             get_defaults);
 }
 
-bool CefPrintHandlerCToCpp::OnPrintDialog(bool has_selection,
+bool CefPrintHandlerCToCpp::OnPrintDialog(
+    bool has_selection,
     CefRefPtr<CefPrintDialogCallback> callback) {
   cef_print_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_print_dialog))
@@ -69,16 +70,17 @@ bool CefPrintHandlerCToCpp::OnPrintDialog(bool has_selection,
     return false;
 
   // Execute
-  int _retval = _struct->on_print_dialog(_struct,
-      has_selection,
-      CefPrintDialogCallbackCppToC::Wrap(callback));
+  int _retval = _struct->on_print_dialog(
+      _struct, has_selection, CefPrintDialogCallbackCppToC::Wrap(callback));
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
-bool CefPrintHandlerCToCpp::OnPrintJob(const CefString& document_name,
-    const CefString& pdf_file_path, CefRefPtr<CefPrintJobCallback> callback) {
+bool CefPrintHandlerCToCpp::OnPrintJob(
+    const CefString& document_name,
+    const CefString& pdf_file_path,
+    CefRefPtr<CefPrintJobCallback> callback) {
   cef_print_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_print_job))
     return false;
@@ -99,13 +101,12 @@ bool CefPrintHandlerCToCpp::OnPrintJob(const CefString& document_name,
     return false;
 
   // Execute
-  int _retval = _struct->on_print_job(_struct,
-      document_name.GetStruct(),
-      pdf_file_path.GetStruct(),
+  int _retval = _struct->on_print_job(
+      _struct, document_name.GetStruct(), pdf_file_path.GetStruct(),
       CefPrintJobCallbackCppToC::Wrap(callback));
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 void CefPrintHandlerCToCpp::OnPrintReset() {
@@ -127,30 +128,36 @@ CefSize CefPrintHandlerCToCpp::GetPdfPaperSize(int device_units_per_inch) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  cef_size_t _retval = _struct->get_pdf_paper_size(_struct,
-      device_units_per_inch);
+  cef_size_t _retval =
+      _struct->get_pdf_paper_size(_struct, device_units_per_inch);
 
   // Return type: simple
   return _retval;
 }
 
-
 // CONSTRUCTOR - Do not edit by hand.
 
-CefPrintHandlerCToCpp::CefPrintHandlerCToCpp() {
-}
+CefPrintHandlerCToCpp::CefPrintHandlerCToCpp() {}
 
-template<> cef_print_handler_t* CefCToCppRefCounted<CefPrintHandlerCToCpp,
-    CefPrintHandler, cef_print_handler_t>::UnwrapDerived(CefWrapperType type,
-    CefPrintHandler* c) {
+template <>
+cef_print_handler_t*
+CefCToCppRefCounted<CefPrintHandlerCToCpp,
+                    CefPrintHandler,
+                    cef_print_handler_t>::UnwrapDerived(CefWrapperType type,
+                                                        CefPrintHandler* c) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCppRefCounted<CefPrintHandlerCToCpp,
-    CefPrintHandler, cef_print_handler_t>::DebugObjCt = 0;
+template <>
+base::AtomicRefCount CefCToCppRefCounted<CefPrintHandlerCToCpp,
+                                         CefPrintHandler,
+                                         cef_print_handler_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCppRefCounted<CefPrintHandlerCToCpp,
-    CefPrintHandler, cef_print_handler_t>::kWrapperType = WT_PRINT_HANDLER;
+template <>
+CefWrapperType CefCToCppRefCounted<CefPrintHandlerCToCpp,
+                                   CefPrintHandler,
+                                   cef_print_handler_t>::kWrapperType =
+    WT_PRINT_HANDLER;

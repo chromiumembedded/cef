@@ -30,4 +30,3 @@ class NSWindow;
 #endif  // defined OS_MACOSX
 
 #endif  // CEF_TESTS_CEFCLIENT_BROWSER_CLIENT_TYPES_H_
-
