@@ -85,9 +85,9 @@ bool CrossesExtensionExtents(blink::WebLocalFrame* frame,
     blink::WebDocument opener_document = opener_frame->GetDocument();
     blink::WebSecurityOrigin opener_origin =
         opener_document.GetSecurityOrigin();
-    bool opener_is_extension_url = !opener_origin.IsUnique() &&
-                                   extension_registry->GetExtensionOrAppByURL(
-                                       opener_document.Url()) != nullptr;
+    bool opener_is_extension_url =
+        !opener_origin.IsUnique() && extension_registry->GetExtensionOrAppByURL(
+                                         opener_document.Url()) != nullptr;
     const extensions::Extension* opener_top_extension =
         extension_registry->GetExtensionOrAppByURL(old_url);
     bool opener_is_web_store =
@@ -111,11 +111,9 @@ bool CrossesExtensionExtents(blink::WebLocalFrame* frame,
 
 }  // namespace
 
-CefExtensionsRendererClient::CefExtensionsRendererClient() {
-}
+CefExtensionsRendererClient::CefExtensionsRendererClient() {}
 
-CefExtensionsRendererClient::~CefExtensionsRendererClient() {
-}
+CefExtensionsRendererClient::~CefExtensionsRendererClient() {}
 
 bool CefExtensionsRendererClient::IsIncognitoProcess() const {
   return CefRenderThreadObserver::is_incognito_process();
@@ -135,7 +133,7 @@ void CefExtensionsRendererClient::RenderThreadStarted() {
   extension_dispatcher_.reset(
       new extensions::Dispatcher(extension_dispatcher_delegate_.get()));
   resource_request_policy_.reset(
-    new extensions::ResourceRequestPolicy(extension_dispatcher_.get()));
+      new extensions::ResourceRequestPolicy(extension_dispatcher_.get()));
   guest_view_container_dispatcher_.reset(
       new extensions::ExtensionsGuestViewContainerDispatcher());
 
@@ -238,7 +236,7 @@ bool CefExtensionsRendererClient::ShouldFork(blink::WebLocalFrame* frame,
   // for subframes, so this check only makes sense for top-level frames.
   // TODO(alexmos,nasko): Figure out how this check should work when reloading
   // subframes in --site-per-process mode.
-  if (!frame->Parent() &&  GURL(frame->GetDocument().Url()) == url) {
+  if (!frame->Parent() && GURL(frame->GetDocument().Url()) == url) {
     if (is_extension_url != IsStandaloneExtensionProcess())
       return true;
   }

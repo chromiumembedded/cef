@@ -88,8 +88,8 @@ void CefBrowserContextProxy::Initialize() {
   CefBrowserContext::PostInitialize();
 }
 
-base::SupportsUserData::Data*
-    CefBrowserContextProxy::GetUserData(const void* key) const {
+base::SupportsUserData::Data* CefBrowserContextProxy::GetUserData(
+    const void* key) const {
   if (ShouldProxyUserData(key))
     return parent_->GetUserData(key);
   return BrowserContext::GetUserData(key);
@@ -122,8 +122,8 @@ base::FilePath CefBrowserContextProxy::GetPath() const {
 }
 
 std::unique_ptr<content::ZoomLevelDelegate>
-    CefBrowserContextProxy::CreateZoomLevelDelegate(
-        const base::FilePath& partition_path) {
+CefBrowserContextProxy::CreateZoomLevelDelegate(
+    const base::FilePath& partition_path) {
   return parent_->CreateZoomLevelDelegate(partition_path);
 }
 
@@ -132,7 +132,7 @@ bool CefBrowserContextProxy::IsOffTheRecord() const {
 }
 
 content::DownloadManagerDelegate*
-    CefBrowserContextProxy::GetDownloadManagerDelegate() {
+CefBrowserContextProxy::GetDownloadManagerDelegate() {
   DCHECK(!download_manager_delegate_.get());
 
   content::DownloadManager* manager = BrowserContext::GetDownloadManager(this);
@@ -145,17 +145,17 @@ content::BrowserPluginGuestManager* CefBrowserContextProxy::GetGuestManager() {
 }
 
 storage::SpecialStoragePolicy*
-    CefBrowserContextProxy::GetSpecialStoragePolicy() {
+CefBrowserContextProxy::GetSpecialStoragePolicy() {
   return parent_->GetSpecialStoragePolicy();
 }
 
 content::PushMessagingService*
-    CefBrowserContextProxy::GetPushMessagingService() {
+CefBrowserContextProxy::GetPushMessagingService() {
   return parent_->GetPushMessagingService();
 }
 
 content::SSLHostStateDelegate*
-    CefBrowserContextProxy::GetSSLHostStateDelegate() {
+CefBrowserContextProxy::GetSSLHostStateDelegate() {
   return parent_->GetSSLHostStateDelegate();
 }
 
@@ -164,7 +164,7 @@ content::PermissionManager* CefBrowserContextProxy::GetPermissionManager() {
 }
 
 content::BackgroundSyncController*
-    CefBrowserContextProxy::GetBackgroundSyncController() {
+CefBrowserContextProxy::GetBackgroundSyncController() {
   return parent_->GetBackgroundSyncController();
 }
 
@@ -178,11 +178,11 @@ net::URLRequestContextGetter* CefBrowserContextProxy::CreateRequestContext(
 }
 
 net::URLRequestContextGetter*
-    CefBrowserContextProxy::CreateRequestContextForStoragePartition(
-        const base::FilePath& partition_path,
-        bool in_memory,
-        content::ProtocolHandlerMap* protocol_handlers,
-        content::URLRequestInterceptorScopedVector request_interceptors) {
+CefBrowserContextProxy::CreateRequestContextForStoragePartition(
+    const base::FilePath& partition_path,
+    bool in_memory,
+    content::ProtocolHandlerMap* protocol_handlers,
+    content::URLRequestInterceptorScopedVector request_interceptors) {
   return nullptr;
 }
 
@@ -231,8 +231,7 @@ CefBrowserContextProxy::GetOrCreateStoragePartitionProxy(
     resource_context()->set_url_request_context_getter(
         url_request_getter.get());
     storage_partition_proxy_.reset(
-        new CefStoragePartitionProxy(partition_impl,
-                                     url_request_getter.get()));
+        new CefStoragePartitionProxy(partition_impl, url_request_getter.get()));
 
     // Associates UserData keys with the ResourceContext.
     // Called from StoragePartitionImplMap::Get() for CefBrowserContextImpl.

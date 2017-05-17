@@ -139,24 +139,22 @@
 //   DFAKE_MUTEX(shareable_section_);
 // };
 
-
 #if DCHECK_IS_ON()
 
 // Defines a class member that acts like a mutex. It is used only as a
 // verification tool.
-#define DFAKE_MUTEX(obj) \
-     mutable base::ThreadCollisionWarner obj
+#define DFAKE_MUTEX(obj) mutable base::ThreadCollisionWarner obj
 // Asserts the call is never called simultaneously in two threads. Used at
 // member function scope.
 #define DFAKE_SCOPED_LOCK(obj) \
-     base::ThreadCollisionWarner::ScopedCheck s_check_##obj(&obj)
+  base::ThreadCollisionWarner::ScopedCheck s_check_##obj(&obj)
 // Asserts the call is never called simultaneously in two threads. Used at
 // member function scope. Same as DFAKE_SCOPED_LOCK but allows recursive locks.
 #define DFAKE_SCOPED_RECURSIVE_LOCK(obj) \
-     base::ThreadCollisionWarner::ScopedRecursiveCheck sr_check_##obj(&obj)
+  base::ThreadCollisionWarner::ScopedRecursiveCheck sr_check_##obj(&obj)
 // Asserts the code is always executed in the same thread.
 #define DFAKE_SCOPED_LOCK_THREAD_LOCKED(obj) \
-     base::ThreadCollisionWarner::Check check_##obj(&obj)
+  base::ThreadCollisionWarner::Check check_##obj(&obj)
 
 #else
 
@@ -187,13 +185,9 @@ class ThreadCollisionWarner {
  public:
   // The parameter asserter is there only for test purpose
   explicit ThreadCollisionWarner(AsserterBase* asserter = new DCheckAsserter())
-      : valid_thread_id_(0),
-        counter_(0),
-        asserter_(asserter) {}
+      : valid_thread_id_(0), counter_(0), asserter_(asserter) {}
 
-  ~ThreadCollisionWarner() {
-    delete asserter_;
-  }
+  ~ThreadCollisionWarner() { delete asserter_; }
 
   // This class is meant to be used through the macro
   // DFAKE_SCOPED_LOCK_THREAD_LOCKED
@@ -202,8 +196,7 @@ class ThreadCollisionWarner {
   // from one thread
   class Check {
    public:
-    explicit Check(ThreadCollisionWarner* warner)
-        : warner_(warner) {
+    explicit Check(ThreadCollisionWarner* warner) : warner_(warner) {
       warner_->EnterSelf();
     }
 
@@ -219,14 +212,11 @@ class ThreadCollisionWarner {
   // DFAKE_SCOPED_LOCK
   class ScopedCheck {
    public:
-    explicit ScopedCheck(ThreadCollisionWarner* warner)
-        : warner_(warner) {
+    explicit ScopedCheck(ThreadCollisionWarner* warner) : warner_(warner) {
       warner_->Enter();
     }
 
-    ~ScopedCheck() {
-      warner_->Leave();
-    }
+    ~ScopedCheck() { warner_->Leave(); }
 
    private:
     ThreadCollisionWarner* warner_;
@@ -243,9 +233,7 @@ class ThreadCollisionWarner {
       warner_->EnterSelf();
     }
 
-    ~ScopedRecursiveCheck() {
-      warner_->Leave();
-    }
+    ~ScopedRecursiveCheck() { warner_->Leave(); }
 
    private:
     ThreadCollisionWarner* warner_;

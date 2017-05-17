@@ -9,6 +9,8 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=088a4ab41b38a966febedea0fee2aadb3fcfa30d$
+//
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_ZIP_READER_CPPTOC_H_
 #define CEF_LIBCEF_DLL_CPPTOC_ZIP_READER_CPPTOC_H_
@@ -18,15 +20,15 @@
 #error This file can be included DLL-side only
 #endif
 
-#include "include/cef_zip_reader.h"
 #include "include/capi/cef_zip_reader_capi.h"
+#include "include/cef_zip_reader.h"
 #include "libcef_dll/cpptoc/cpptoc_ref_counted.h"
 
 // Wrap a C++ class with a C structure.
 // This class may be instantiated and accessed DLL-side only.
-class CefZipReaderCppToC
-    : public CefCppToCRefCounted<CefZipReaderCppToC, CefZipReader,
-        cef_zip_reader_t> {
+class CefZipReaderCppToC : public CefCppToCRefCounted<CefZipReaderCppToC,
+                                                      CefZipReader,
+                                                      cef_zip_reader_t> {
  public:
   CefZipReaderCppToC();
 };

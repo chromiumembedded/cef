@@ -4,9 +4,9 @@
 
 #include "include/views/cef_box_layout.h"
 #include "include/views/cef_fill_layout.h"
+#include "include/views/cef_layout.h"
 #include "include/views/cef_panel.h"
 #include "include/views/cef_panel_delegate.h"
-#include "include/views/cef_layout.h"
 #include "include/views/cef_window.h"
 #include "tests/ceftests/thread_helper.h"
 #include "tests/gtest/include/gtest/gtest.h"
@@ -84,7 +84,6 @@ void CreatePanelWithDelegateImpl() {
 PANEL_TEST(CreatePanelNoDelegate);
 PANEL_TEST(CreatePanelWithDelegate);
 
-
 namespace {
 
 class ParentPanelDelegate : public CefPanelDelegate {
@@ -112,21 +111,17 @@ class ParentPanelDelegate : public CefPanelDelegate {
               bool added,
               CefRefPtr<CefView> child) {
     EXPECT_LT(callback_index, static_cast<int>(changed_.size()));
-    EXPECT_TRUE(view->IsSame(changed_[callback_index].view_)) <<
-        "callback_index " << callback_index;
-    EXPECT_EQ(added, changed_[callback_index].added_) <<
-        "callback_index " << callback_index;
-    EXPECT_TRUE(child->IsSame(changed_[callback_index].child_)) <<
-        "callback_index " << callback_index;
+    EXPECT_TRUE(view->IsSame(changed_[callback_index].view_))
+        << "callback_index " << callback_index;
+    EXPECT_EQ(added, changed_[callback_index].added_)
+        << "callback_index " << callback_index;
+    EXPECT_TRUE(child->IsSame(changed_[callback_index].child_))
+        << "callback_index " << callback_index;
   }
 
-  void Reset() {
-    changed_.clear();
-  }
+  void Reset() { changed_.clear(); }
 
-  bool IsReset() const {
-    return changed_.empty();
-  }
+  bool IsReset() const { return changed_.empty(); }
 
   struct Changed {
     CefRefPtr<CefView> view_;
@@ -134,7 +129,7 @@ class ParentPanelDelegate : public CefPanelDelegate {
     CefRefPtr<CefView> child_;
   };
   std::vector<Changed> changed_;
-  
+
  private:
   IMPLEMENT_REFCOUNTING(ParentPanelDelegate);
   DISALLOW_COPY_AND_ASSIGN(ParentPanelDelegate);
@@ -142,8 +137,7 @@ class ParentPanelDelegate : public CefPanelDelegate {
 
 class ChildPanelDelegate : public CefPanelDelegate {
  public:
-  ChildPanelDelegate() {
-  }
+  ChildPanelDelegate() {}
 
   void OnParentViewChanged(CefRefPtr<CefView> view,
                            bool added,
@@ -161,9 +155,7 @@ class ChildPanelDelegate : public CefPanelDelegate {
     EXPECT_FALSE(true);  // Not reached.
   }
 
-  void Verify(CefRefPtr<CefView> view,
-              bool added,
-              CefRefPtr<CefView> parent) {
+  void Verify(CefRefPtr<CefView> view, bool added, CefRefPtr<CefView> parent) {
     EXPECT_TRUE(on_parent_view_changed_);
     EXPECT_TRUE(view->IsSame(view_));
     EXPECT_EQ(added, added_);
@@ -177,9 +169,7 @@ class ChildPanelDelegate : public CefPanelDelegate {
     parent_ = nullptr;
   }
 
-  bool IsReset() const {
-    return !on_parent_view_changed_;
-  }
+  bool IsReset() const { return !on_parent_view_changed_; }
 
   bool on_parent_view_changed_ = false;
   CefRefPtr<CefView> view_;
@@ -434,7 +424,7 @@ void ChildOrderImpl() {
   parent_delegate->Reset();
 
   EXPECT_EQ(3U, parent_panel->GetChildViewCount());
- 
+
   // ChildAddAt() will verify these results but let's check again just to make
   // sure.
   EXPECT_TRUE(child_panel3->IsSame(parent_panel->GetChildViewAt(0)));
@@ -470,7 +460,7 @@ void ChildVisibleImpl() {
   EXPECT_TRUE(parent_panel->IsVisible());
   EXPECT_TRUE(child_panel1->IsVisible());
   EXPECT_TRUE(child_panel2->IsVisible());
-  
+
   parent_panel->AddChildView(child_panel1);
   parent_panel->AddChildView(child_panel2);
 
@@ -481,28 +471,28 @@ void ChildVisibleImpl() {
   EXPECT_TRUE(parent_panel->IsVisible());
   EXPECT_TRUE(child_panel1->IsVisible());
   EXPECT_TRUE(child_panel2->IsVisible());
-  
+
   child_panel1->SetVisible(false);
 
   // Child1 not visible.
   EXPECT_TRUE(parent_panel->IsVisible());
   EXPECT_FALSE(child_panel1->IsVisible());
   EXPECT_TRUE(child_panel2->IsVisible());
-  
+
   child_panel1->SetVisible(true);
 
   // Everything visible.
   EXPECT_TRUE(parent_panel->IsVisible());
   EXPECT_TRUE(child_panel1->IsVisible());
   EXPECT_TRUE(child_panel2->IsVisible());
-  
+
   parent_panel->SetVisible(false);
 
   // Children visible.
   EXPECT_FALSE(parent_panel->IsVisible());
   EXPECT_TRUE(child_panel1->IsVisible());
   EXPECT_TRUE(child_panel2->IsVisible());
-  
+
   parent_panel->SetVisible(true);
 
   // Everything visible.
@@ -525,7 +515,7 @@ void ChildDrawnImpl() {
   EXPECT_TRUE(parent_panel->IsVisible());
   EXPECT_TRUE(child_panel1->IsVisible());
   EXPECT_TRUE(child_panel2->IsVisible());
-  
+
   parent_panel->AddChildView(child_panel1);
   parent_panel->AddChildView(child_panel2);
 
@@ -596,7 +586,6 @@ PANEL_TEST(ChildOrder);
 PANEL_TEST(ChildVisible);
 PANEL_TEST(ChildDrawn);
 
-
 namespace {
 
 class SizingPanelDelegate : public CefPanelDelegate {
@@ -642,10 +631,8 @@ class SizingPanelDelegate : public CefPanelDelegate {
   }
 
   bool IsReset() const {
-    return !got_get_preferred_size_ &&
-           !got_get_minimum_size_ &&
-           !got_get_maximum_size_ &&
-           !got_get_height_for_width_;
+    return !got_get_preferred_size_ && !got_get_minimum_size_ &&
+           !got_get_maximum_size_ && !got_get_height_for_width_;
   }
 
   CefSize preferred_size_;
@@ -757,7 +744,6 @@ void SizeWithDelegateImpl() {
 // Test sizing.
 PANEL_TEST(SizeNoDelegate);
 PANEL_TEST(SizeWithDelegate);
-
 
 namespace {
 
@@ -933,7 +919,6 @@ PANEL_TEST(FillLayoutSizeHierarchy);
 PANEL_TEST(FillLayoutSizeHierarchyFromParentWithDelegate);
 PANEL_TEST(FillLayoutSizeHierarchyFromChildWithDelegate);
 
-
 namespace {
 
 void BoxLayoutCreateImpl() {
@@ -1078,8 +1063,8 @@ void BoxLayoutSizeHierarchyVerticalStretch(bool with_delegate) {
   CefRect expected_child1_bounds(0, 0, kBLParentSize, kBLChildSize);
   CefRect expected_child2_bounds(0, kBLChildSize, kBLParentSize, kBLChildSize);
 
-  BoxLayoutSizeHierarchy(with_delegate, settings,
-                         expected_child1_bounds, expected_child2_bounds);
+  BoxLayoutSizeHierarchy(with_delegate, settings, expected_child1_bounds,
+                         expected_child2_bounds);
 }
 
 void BoxLayoutSizeHierarchyVerticalStretchImpl() {
@@ -1107,8 +1092,8 @@ void BoxLayoutSizeHierarchyHorizontalStretch(bool with_delegate) {
   CefRect expected_child1_bounds(0, 0, kBLChildSize, kBLParentSize);
   CefRect expected_child2_bounds(kBLChildSize, 0, kBLChildSize, kBLParentSize);
 
-  BoxLayoutSizeHierarchy(with_delegate, settings,
-                         expected_child1_bounds, expected_child2_bounds);
+  BoxLayoutSizeHierarchy(with_delegate, settings, expected_child1_bounds,
+                         expected_child2_bounds);
 }
 
 void BoxLayoutSizeHierarchyHorizontalStretchImpl() {
@@ -1135,11 +1120,11 @@ void BoxLayoutSizeHierarchyVerticalCenter(bool with_delegate) {
 
   int xoffset = (kBLParentSize - kBLChildSize) / 2;
   CefRect expected_child1_bounds(xoffset, 0, kBLChildSize, kBLChildSize);
-  CefRect expected_child2_bounds(xoffset, kBLChildSize,
-                                 kBLChildSize, kBLChildSize);
+  CefRect expected_child2_bounds(xoffset, kBLChildSize, kBLChildSize,
+                                 kBLChildSize);
 
-  BoxLayoutSizeHierarchy(with_delegate, settings,
-                         expected_child1_bounds, expected_child2_bounds);
+  BoxLayoutSizeHierarchy(with_delegate, settings, expected_child1_bounds,
+                         expected_child2_bounds);
 }
 
 void BoxLayoutSizeHierarchyVerticalCenterImpl() {
@@ -1167,11 +1152,11 @@ void BoxLayoutSizeHierarchyHorizontalCenter(bool with_delegate) {
 
   int yoffset = (kBLParentSize - kBLChildSize) / 2;
   CefRect expected_child1_bounds(0, yoffset, kBLChildSize, kBLChildSize);
-  CefRect expected_child2_bounds(kBLChildSize, yoffset,
-                                 kBLChildSize, kBLChildSize);
+  CefRect expected_child2_bounds(kBLChildSize, yoffset, kBLChildSize,
+                                 kBLChildSize);
 
-  BoxLayoutSizeHierarchy(with_delegate, settings,
-                         expected_child1_bounds, expected_child2_bounds);
+  BoxLayoutSizeHierarchy(with_delegate, settings, expected_child1_bounds,
+                         expected_child2_bounds);
 }
 
 void BoxLayoutSizeHierarchyHorizontalCenterImpl() {
@@ -1199,13 +1184,12 @@ void BoxLayoutSizeHierarchyVerticalCenterCenter(bool with_delegate) {
 
   int xoffset = (kBLParentSize - kBLChildSize) / 2;
   int yoffset = (kBLParentSize - (kBLChildSize * 2)) / 2;
-  CefRect expected_child1_bounds(xoffset, yoffset,
-                                 kBLChildSize, kBLChildSize);
-  CefRect expected_child2_bounds(xoffset, yoffset + kBLChildSize,
-                                 kBLChildSize, kBLChildSize);
+  CefRect expected_child1_bounds(xoffset, yoffset, kBLChildSize, kBLChildSize);
+  CefRect expected_child2_bounds(xoffset, yoffset + kBLChildSize, kBLChildSize,
+                                 kBLChildSize);
 
-  BoxLayoutSizeHierarchy(with_delegate, settings,
-                         expected_child1_bounds, expected_child2_bounds);
+  BoxLayoutSizeHierarchy(with_delegate, settings, expected_child1_bounds,
+                         expected_child2_bounds);
 }
 
 void BoxLayoutSizeHierarchyVerticalCenterCenterImpl() {
@@ -1235,13 +1219,12 @@ void BoxLayoutSizeHierarchyHorizontalCenterCenter(bool with_delegate) {
 
   int xoffset = (kBLParentSize - (kBLChildSize * 2)) / 2;
   int yoffset = (kBLParentSize - kBLChildSize) / 2;
-  CefRect expected_child1_bounds(xoffset, yoffset,
-                                 kBLChildSize, kBLChildSize);
-  CefRect expected_child2_bounds(xoffset + kBLChildSize, yoffset,
-                                 kBLChildSize, kBLChildSize);
+  CefRect expected_child1_bounds(xoffset, yoffset, kBLChildSize, kBLChildSize);
+  CefRect expected_child2_bounds(xoffset + kBLChildSize, yoffset, kBLChildSize,
+                                 kBLChildSize);
 
-  BoxLayoutSizeHierarchy(with_delegate, settings,
-                         expected_child1_bounds, expected_child2_bounds);
+  BoxLayoutSizeHierarchy(with_delegate, settings, expected_child1_bounds,
+                         expected_child2_bounds);
 }
 
 void BoxLayoutSizeHierarchyHorizontalCenterCenterImpl() {
@@ -1268,11 +1251,11 @@ void BoxLayoutSizeHierarchyVerticalStretchFlexOne(bool with_delegate) {
 
   CefRect expected_child1_bounds(0, 0, kBLParentSize,
                                  kBLParentSize - kBLChildSize);
-  CefRect expected_child2_bounds(0, kBLParentSize - kBLChildSize,
-                                 kBLParentSize, kBLChildSize);
+  CefRect expected_child2_bounds(0, kBLParentSize - kBLChildSize, kBLParentSize,
+                                 kBLChildSize);
 
-  BoxLayoutSizeHierarchy(with_delegate, settings,
-                         expected_child1_bounds, expected_child2_bounds, 1, 0);
+  BoxLayoutSizeHierarchy(with_delegate, settings, expected_child1_bounds,
+                         expected_child2_bounds, 1, 0);
 }
 
 void BoxLayoutSizeHierarchyVerticalStretchFlexOneImpl() {
@@ -1300,11 +1283,11 @@ void BoxLayoutSizeHierarchyHorizontalStretchFlexOne(bool with_delegate) {
 
   CefRect expected_child1_bounds(0, 0, kBLParentSize - kBLChildSize,
                                  kBLParentSize);
-  CefRect expected_child2_bounds(kBLParentSize - kBLChildSize, 0,
-                                 kBLChildSize, kBLParentSize);
+  CefRect expected_child2_bounds(kBLParentSize - kBLChildSize, 0, kBLChildSize,
+                                 kBLParentSize);
 
-  BoxLayoutSizeHierarchy(with_delegate, settings,
-                         expected_child1_bounds, expected_child2_bounds, 1, 0);
+  BoxLayoutSizeHierarchy(with_delegate, settings, expected_child1_bounds,
+                         expected_child2_bounds, 1, 0);
 }
 
 void BoxLayoutSizeHierarchyHorizontalStretchFlexOneImpl() {
@@ -1334,8 +1317,8 @@ void BoxLayoutSizeHierarchyVerticalStretchFlexBoth(bool with_delegate) {
   CefRect expected_child2_bounds(0, kBLParentSize / 2, kBLParentSize,
                                  kBLParentSize / 2);
 
-  BoxLayoutSizeHierarchy(with_delegate, settings,
-                         expected_child1_bounds, expected_child2_bounds, 1, 1);
+  BoxLayoutSizeHierarchy(with_delegate, settings, expected_child1_bounds,
+                         expected_child2_bounds, 1, 1);
 }
 
 void BoxLayoutSizeHierarchyVerticalStretchFlexBothImpl() {
@@ -1365,8 +1348,8 @@ void BoxLayoutSizeHierarchyHorizontalStretchFlexBoth(bool with_delegate) {
   CefRect expected_child2_bounds(kBLParentSize / 2, 0, kBLParentSize / 2,
                                  kBLParentSize);
 
-  BoxLayoutSizeHierarchy(with_delegate, settings,
-                         expected_child1_bounds, expected_child2_bounds, 1, 1);
+  BoxLayoutSizeHierarchy(with_delegate, settings, expected_child1_bounds,
+                         expected_child2_bounds, 1, 1);
 }
 
 void BoxLayoutSizeHierarchyHorizontalStretchFlexBothImpl() {

@@ -27,9 +27,8 @@ class CefBrowserHostImpl;
 class CefFileDialogManager : public content::WebContentsObserver {
  public:
   // |runner| may be NULL if the platform doesn't implement dialogs.
-  CefFileDialogManager(
-      CefBrowserHostImpl* browser,
-      std::unique_ptr<CefFileDialogRunner> runner);
+  CefFileDialogManager(CefBrowserHostImpl* browser,
+                       std::unique_ptr<CefFileDialogRunner> runner);
   ~CefFileDialogManager() override;
 
   // Delete the runner to free any platform constructs.
@@ -37,19 +36,17 @@ class CefFileDialogManager : public content::WebContentsObserver {
 
   // Called from CefBrowserHostImpl::RunFileChooser.
   // See CefBrowserHost::RunFileDialog documentation.
-  void RunFileDialog(
-      cef_file_dialog_mode_t mode,
-      const CefString& title,
-      const CefString& default_file_path,
-      const std::vector<CefString>& accept_filters,
-      int selected_accept_filter,
-      CefRefPtr<CefRunFileDialogCallback> callback);
+  void RunFileDialog(cef_file_dialog_mode_t mode,
+                     const CefString& title,
+                     const CefString& default_file_path,
+                     const std::vector<CefString>& accept_filters,
+                     int selected_accept_filter,
+                     CefRefPtr<CefRunFileDialogCallback> callback);
 
   // Called from CefBrowserHostImpl::RunFileChooser.
   // See WebContentsDelegate::RunFileChooser documentation.
-  void RunFileChooser(
-      content::RenderFrameHost* render_frame_host,
-      const content::FileChooserParams& params);
+  void RunFileChooser(content::RenderFrameHost* render_frame_host,
+                      const content::FileChooserParams& params);
 
   // Run the file chooser dialog specified by |params|. Only a single dialog may
   // be pending at any given time. |callback| will be executed asynchronously
@@ -89,8 +86,7 @@ class CefFileDialogManager : public content::WebContentsObserver {
   void Cleanup();
 
   // WebContentsObserver methods:
-  void RenderFrameDeleted(
-      content::RenderFrameHost* render_frame_host) override;
+  void RenderFrameDeleted(content::RenderFrameHost* render_frame_host) override;
 
   // CefBrowserHostImpl pointer is guaranteed to outlive this object.
   CefBrowserHostImpl* browser_;

@@ -10,8 +10,7 @@
 #include "base/message_loop/message_loop.h"
 #include "ui/gfx/geometry/point.h"
 
-CefMenuRunnerWin::CefMenuRunnerWin() {
-}
+CefMenuRunnerWin::CefMenuRunnerWin() {}
 
 bool CefMenuRunnerWin::RunContextMenu(
     CefBrowserHostImpl* browser,

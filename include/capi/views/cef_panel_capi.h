@@ -33,6 +33,8 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
+// $hash=dd5ea19f73dcec3e4f229920f44c9de6599e4f36$
+//
 
 #ifndef CEF_INCLUDE_CAPI_VIEWS_CEF_PANEL_CAPI_H_
 #define CEF_INCLUDE_CAPI_VIEWS_CEF_PANEL_CAPI_H_
@@ -64,83 +66,83 @@ typedef struct _cef_panel_t {
   ///
   // Returns this Panel as a Window or NULL if this is not a Window.
   ///
-  struct _cef_window_t* (CEF_CALLBACK *as_window)(struct _cef_panel_t* self);
+  struct _cef_window_t*(CEF_CALLBACK* as_window)(struct _cef_panel_t* self);
 
   ///
   // Set this Panel's Layout to FillLayout and return the FillLayout object.
   ///
-  struct _cef_fill_layout_t* (CEF_CALLBACK *set_to_fill_layout)(
+  struct _cef_fill_layout_t*(CEF_CALLBACK* set_to_fill_layout)(
       struct _cef_panel_t* self);
 
   ///
   // Set this Panel's Layout to BoxLayout and return the BoxLayout object.
   ///
-  struct _cef_box_layout_t* (CEF_CALLBACK *set_to_box_layout)(
+  struct _cef_box_layout_t*(CEF_CALLBACK* set_to_box_layout)(
       struct _cef_panel_t* self,
       const struct _cef_box_layout_settings_t* settings);
 
   ///
   // Get the Layout.
   ///
-  struct _cef_layout_t* (CEF_CALLBACK *get_layout)(struct _cef_panel_t* self);
+  struct _cef_layout_t*(CEF_CALLBACK* get_layout)(struct _cef_panel_t* self);
 
   ///
   // Lay out the child Views (set their bounds based on sizing heuristics
   // specific to the current Layout).
   ///
-  void (CEF_CALLBACK *layout)(struct _cef_panel_t* self);
+  void(CEF_CALLBACK* layout)(struct _cef_panel_t* self);
 
   ///
   // Add a child View.
   ///
-  void (CEF_CALLBACK *add_child_view)(struct _cef_panel_t* self,
-      struct _cef_view_t* view);
+  void(CEF_CALLBACK* add_child_view)(struct _cef_panel_t* self,
+                                     struct _cef_view_t* view);
 
   ///
   // Add a child View at the specified |index|. If |index| matches the result of
   // GetChildCount() then the View will be added at the end.
   ///
-  void (CEF_CALLBACK *add_child_view_at)(struct _cef_panel_t* self,
-      struct _cef_view_t* view, int index);
+  void(CEF_CALLBACK* add_child_view_at)(struct _cef_panel_t* self,
+                                        struct _cef_view_t* view,
+                                        int index);
 
   ///
   // Move the child View to the specified |index|. A negative value for |index|
   // will move the View to the end.
   ///
-  void (CEF_CALLBACK *reorder_child_view)(struct _cef_panel_t* self,
-      struct _cef_view_t* view, int index);
+  void(CEF_CALLBACK* reorder_child_view)(struct _cef_panel_t* self,
+                                         struct _cef_view_t* view,
+                                         int index);
 
   ///
   // Remove a child View. The View can then be added to another Panel.
   ///
-  void (CEF_CALLBACK *remove_child_view)(struct _cef_panel_t* self,
-      struct _cef_view_t* view);
+  void(CEF_CALLBACK* remove_child_view)(struct _cef_panel_t* self,
+                                        struct _cef_view_t* view);
 
   ///
   // Remove all child Views. The removed Views will be deleted if the client
   // holds no references to them.
   ///
-  void (CEF_CALLBACK *remove_all_child_views)(struct _cef_panel_t* self);
+  void(CEF_CALLBACK* remove_all_child_views)(struct _cef_panel_t* self);
 
   ///
   // Returns the number of child Views.
   ///
-  size_t (CEF_CALLBACK *get_child_view_count)(struct _cef_panel_t* self);
+  size_t(CEF_CALLBACK* get_child_view_count)(struct _cef_panel_t* self);
 
   ///
   // Returns the child View at the specified |index|.
   ///
-  struct _cef_view_t* (CEF_CALLBACK *get_child_view_at)(
-      struct _cef_panel_t* self, int index);
+  struct _cef_view_t*(
+      CEF_CALLBACK* get_child_view_at)(struct _cef_panel_t* self, int index);
 } cef_panel_t;
-
 
 ///
 // Create a new Panel.
 ///
 CEF_EXPORT cef_panel_t* cef_panel_create(
     struct _cef_panel_delegate_t* delegate);
-
 
 #ifdef __cplusplus
 }

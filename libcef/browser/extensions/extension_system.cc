@@ -64,8 +64,7 @@ std::string GenerateId(const base::DictionaryValue* manifest,
 }
 
 // Implementation based on ComponentLoader::ParseManifest.
-base::DictionaryValue* ParseManifest(
-    const std::string& manifest_contents) {
+base::DictionaryValue* ParseManifest(const std::string& manifest_contents) {
   JSONStringValueDeserializer deserializer(manifest_contents);
   std::unique_ptr<base::Value> manifest(deserializer.Deserialize(NULL, NULL));
 
@@ -86,11 +85,9 @@ CefExtensionSystem::CefExtensionSystem(BrowserContext* browser_context)
       renderer_helper_(
           extensions::RendererStartupHelperFactory::GetForBrowserContext(
               browser_context)),
-      weak_ptr_factory_(this) {
-}
+      weak_ptr_factory_(this) {}
 
-CefExtensionSystem::~CefExtensionSystem() {
-}
+CefExtensionSystem::~CefExtensionSystem() {}
 
 void CefExtensionSystem::Init() {
   DCHECK(!initialized_);
@@ -189,8 +186,7 @@ void CefExtensionSystem::RemoveExtension(const std::string& extension_id) {
   }
 }
 
-void CefExtensionSystem::Shutdown() {
-}
+void CefExtensionSystem::Shutdown() {}
 
 void CefExtensionSystem::InitForRegularProfile(bool extensions_enabled) {
   DCHECK(!initialized_);
@@ -254,14 +250,11 @@ void CefExtensionSystem::RegisterExtensionWithRequestContexts(
   // TODO(extensions): The |incognito_enabled| value should be set based on
   // manifest settings.
   BrowserThread::PostTaskAndReply(
-      BrowserThread::IO,
-      FROM_HERE,
-      base::Bind(&InfoMap::AddExtension,
-                  info_map(),
-                  base::RetainedRef(extension),
-                  base::Time::Now(),
-                  true,     // incognito_enabled
-                  false),   // notifications_disabled
+      BrowserThread::IO, FROM_HERE,
+      base::Bind(&InfoMap::AddExtension, info_map(),
+                 base::RetainedRef(extension), base::Time::Now(),
+                 true,    // incognito_enabled
+                 false),  // notifications_disabled
       callback);
 }
 
@@ -271,8 +264,7 @@ void CefExtensionSystem::UnregisterExtensionWithRequestContexts(
     const std::string& extension_id,
     const UnloadedExtensionInfo::Reason reason) {
   BrowserThread::PostTask(
-      BrowserThread::IO,
-      FROM_HERE,
+      BrowserThread::IO, FROM_HERE,
       base::Bind(&InfoMap::RemoveExtension, info_map(), extension_id, reason));
 }
 
@@ -295,11 +287,10 @@ void CefExtensionSystem::InstallUpdate(const std::string& extension_id,
   base::DeleteFile(temp_dir, true /* recursive */);
 }
 
-
 CefExtensionSystem::ComponentExtensionInfo::ComponentExtensionInfo(
-    const base::DictionaryValue* manifest, const base::FilePath& directory)
-    : manifest(manifest),
-      root_directory(directory) {
+    const base::DictionaryValue* manifest,
+    const base::FilePath& directory)
+    : manifest(manifest), root_directory(directory) {
   if (!root_directory.IsAbsolute()) {
     // This path structure is required by
     // url_request_util::MaybeCreateURLRequestResourceBundleJob.
@@ -311,16 +302,13 @@ CefExtensionSystem::ComponentExtensionInfo::ComponentExtensionInfo(
 
 // Implementation based on ComponentLoader::CreateExtension.
 scoped_refptr<const Extension> CefExtensionSystem::CreateExtension(
-    const ComponentExtensionInfo& info, std::string* utf8_error) {
+    const ComponentExtensionInfo& info,
+    std::string* utf8_error) {
   // TODO(abarth): We should REQUIRE_MODERN_MANIFEST_VERSION once we've updated
   //               our component extensions to the new manifest version.
   int flags = Extension::REQUIRE_KEY;
-  return Extension::Create(
-      info.root_directory,
-      Manifest::COMPONENT,
-      *info.manifest,
-      flags,
-      utf8_error);
+  return Extension::Create(info.root_directory, Manifest::COMPONENT,
+                           *info.manifest, flags, utf8_error);
 }
 
 // Implementation based on ComponentLoader::Load and
@@ -343,9 +331,8 @@ const Extension* CefExtensionSystem::LoadExtension(
 }
 
 // Implementation based on ExtensionService::UnloadExtension.
-void CefExtensionSystem::UnloadExtension(
-    const std::string& extension_id,
-    UnloadedExtensionInfo::Reason reason) {
+void CefExtensionSystem::UnloadExtension(const std::string& extension_id,
+                                         UnloadedExtensionInfo::Reason reason) {
   // Make sure the extension gets deleted after we return from this function.
   int include_mask =
       ExtensionRegistry::EVERYTHING & ~ExtensionRegistry::TERMINATED;
@@ -418,7 +405,7 @@ void CefExtensionSystem::NotifyExtensionLoaded(const Extension* extension) {
     info.path = base::FilePath::FromUTF8Unsafe(extension->url().spec());
 
     for (std::set<std::string>::const_iterator mime_type =
-         handler->mime_type_set().begin();
+             handler->mime_type_set().begin();
          mime_type != handler->mime_type_set().end(); ++mime_type) {
       content::WebPluginMimeType mime_type_info;
       mime_type_info.mime_type = *mime_type;

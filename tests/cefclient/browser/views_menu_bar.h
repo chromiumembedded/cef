@@ -21,8 +21,7 @@ namespace client {
 // Implements a menu bar which is composed of CefMenuButtons positioned in a
 // row with automatic switching between them via mouse/keyboard. All methods
 // must be called on the browser process UI thread.
-class ViewsMenuBar : public CefMenuButtonDelegate,
-                     public CefMenuModelDelegate {
+class ViewsMenuBar : public CefMenuButtonDelegate, public CefMenuModelDelegate {
  public:
   // Delegate methods will be called on the browser process UI thread.
   class Delegate {
@@ -30,7 +29,7 @@ class ViewsMenuBar : public CefMenuButtonDelegate,
     // Called when a menu command is selected.
     virtual void MenuBarExecuteCommand(CefRefPtr<CefMenuModel> menu_model,
                                        int command_id,
-                                       cef_event_flags_t event_flags) =0;
+                                       cef_event_flags_t event_flags) = 0;
 
    protected:
     virtual ~Delegate() {}
@@ -40,8 +39,7 @@ class ViewsMenuBar : public CefMenuButtonDelegate,
   // |menu_id_start| is the ID for the first CefMenuButton in the bar. An ID
   // range starting with |menu_id_start| and extending for a reasonable distance
   // should be reserved in the client for MenuBar usage.
-  ViewsMenuBar(Delegate* delegate,
-               int menu_id_start);
+  ViewsMenuBar(Delegate* delegate, int menu_id_start);
 
   // Returns true if |menu_id| exists in the menu bar.
   bool HasMenuId(int menu_id) const;
@@ -51,8 +49,7 @@ class ViewsMenuBar : public CefMenuButtonDelegate,
 
   // Create a new menu with the specified |label|. If |menu_id| is non-NULL it
   // will be populated with the new menu ID.
-  CefRefPtr<CefMenuModel> CreateMenuModel(const CefString& label,
-                                          int* menu_id);
+  CefRefPtr<CefMenuModel> CreateMenuModel(const CefString& label, int* menu_id);
 
   // Returns the menu with the specified |menu_id|, or NULL if no such menu
   // exists.
@@ -109,7 +106,7 @@ class ViewsMenuBar : public CefMenuButtonDelegate,
   const int id_start_;
   int id_next_;
   CefRefPtr<CefPanel> panel_;
-  std::vector<CefRefPtr<CefMenuModel> > models_;
+  std::vector<CefRefPtr<CefMenuModel>> models_;
   bool last_nav_with_keyboard_;
 
   // Map of mnemonic to MenuButton ID.

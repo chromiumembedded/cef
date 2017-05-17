@@ -6,10 +6,10 @@
 #include "libcef/browser/native/window_x11.h"
 #include "libcef/browser/thread_util.h"
 
-#include <X11/extensions/XInput2.h>
 #include <X11/Xatom.h>
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
+#include <X11/extensions/XInput2.h>
 
 #include "ui/base/x/x11_util.h"
 #include "ui/events/platform/platform_event_source.h"
@@ -28,15 +28,8 @@ const char kNetWMState[] = "_NET_WM_STATE";
 const char kXdndProxy[] = "XdndProxy";
 
 const char* kAtomsToCache[] = {
-  kAtom,
-  kWMDeleteWindow,
-  kWMProtocols,
-  kNetWMPid,
-  kNetWMPing,
-  kNetWMState,
-  kXdndProxy,
-  NULL
-};
+    kAtom,      kWMDeleteWindow, kWMProtocols, kNetWMPid,
+    kNetWMPing, kNetWMState,     kXdndProxy,   NULL};
 
 ::Window FindEventTarget(const base::NativeEvent& xev) {
   ::Window target = xev->xany.window;
@@ -93,15 +86,15 @@ CEF_EXPORT XDisplay* cef_get_xdisplay() {
 CefWindowX11::CefWindowX11(CefRefPtr<CefBrowserHostImpl> browser,
                            ::Window parent_xwindow,
                            const gfx::Rect& bounds)
-  : browser_(browser),
-    xdisplay_(gfx::GetXDisplay()),
-    parent_xwindow_(parent_xwindow),
-    xwindow_(0),
-    window_mapped_(false),
-    bounds_(bounds),
-    focus_pending_(false),
-    atom_cache_(xdisplay_, kAtomsToCache),
-    weak_ptr_factory_(this) {
+    : browser_(browser),
+      xdisplay_(gfx::GetXDisplay()),
+      parent_xwindow_(parent_xwindow),
+      xwindow_(0),
+      window_mapped_(false),
+      bounds_(bounds),
+      focus_pending_(false),
+      atom_cache_(xdisplay_, kAtomsToCache),
+      weak_ptr_factory_(this) {
   if (parent_xwindow_ == None)
     parent_xwindow_ = DefaultRootWindow(xdisplay_);
 
@@ -109,15 +102,13 @@ CefWindowX11::CefWindowX11(CefRefPtr<CefBrowserHostImpl> browser,
   memset(&swa, 0, sizeof(swa));
   swa.background_pixmap = None;
   swa.override_redirect = false;
-  xwindow_ = XCreateWindow(
-      xdisplay_, parent_xwindow_,
-      bounds.x(), bounds.y(), bounds.width(), bounds.height(),
-      0,               // border width
-      CopyFromParent,  // depth
-      InputOutput,
-      CopyFromParent,  // visual
-      CWBackPixmap | CWOverrideRedirect,
-      &swa);
+  xwindow_ = XCreateWindow(xdisplay_, parent_xwindow_, bounds.x(), bounds.y(),
+                           bounds.width(), bounds.height(),
+                           0,               // border width
+                           CopyFromParent,  // depth
+                           InputOutput,
+                           CopyFromParent,  // visual
+                           CWBackPixmap | CWOverrideRedirect, &swa);
 
   if (ui::PlatformEventSource::GetInstance())
     ui::PlatformEventSource::GetInstance()->AddPlatformEventDispatcher(this);
@@ -144,12 +135,8 @@ CefWindowX11::CefWindowX11(CefRefPtr<CefBrowserHostImpl> browser,
   static_assert(sizeof(long) >= sizeof(pid_t),
                 "pid_t should not be larger than long");
   long pid = getpid();
-  XChangeProperty(xdisplay_,
-                  xwindow_,
-                  atom_cache_.GetAtom(kNetWMPid),
-                  XA_CARDINAL,
-                  32,
-                  PropModeReplace,
+  XChangeProperty(xdisplay_, xwindow_, atom_cache_.GetAtom(kNetWMPid),
+                  XA_CARDINAL, 32, PropModeReplace,
                   reinterpret_cast<unsigned char*>(&pid), 1);
 
   // Allow subclasses to create and cache additional atoms.
@@ -213,21 +200,14 @@ void CefWindowX11::Show() {
 
       if (proxy_target != child) {
         // Set the proxy target for the top-most window.
-        XChangeProperty(xdisplay_,
-              toplevel_window,
-              atom_cache_.GetAtom(kXdndProxy),
-              XA_WINDOW,
-              32,
-              PropModeReplace,
-              reinterpret_cast<unsigned char*>(&child), 1);
+        XChangeProperty(xdisplay_, toplevel_window,
+                        atom_cache_.GetAtom(kXdndProxy), XA_WINDOW, 32,
+                        PropModeReplace,
+                        reinterpret_cast<unsigned char*>(&child), 1);
         // Do the same for the proxy target per the spec.
-        XChangeProperty(xdisplay_,
-              child,
-              atom_cache_.GetAtom(kXdndProxy),
-              XA_WINDOW,
-              32,
-              PropModeReplace,
-              reinterpret_cast<unsigned char*>(&child), 1);
+        XChangeProperty(xdisplay_, child, atom_cache_.GetAtom(kXdndProxy),
+                        XA_WINDOW, 32, PropModeReplace,
+                        reinterpret_cast<unsigned char*>(&child), 1);
       }
     }
   }
@@ -304,7 +284,7 @@ views::DesktopWindowTreeHostX11* CefWindowX11::GetHost() {
 
 bool CefWindowX11::CanDispatchEvent(const ui::PlatformEvent& event) {
   ::Window target = FindEventTarget(event);
-   return target == xwindow_;
+  return target == xwindow_;
 }
 
 uint32_t CefWindowX11::DispatchEvent(const ui::PlatformEvent& event) {
@@ -317,7 +297,7 @@ uint32_t CefWindowX11::DispatchEvent(const ui::PlatformEvent& event) {
       // than from within Aura (e.g. the X window manager can change the
       // size). Make sure the root window size is maintained properly.
       gfx::Rect bounds(xev->xconfigure.x, xev->xconfigure.y,
-          xev->xconfigure.width, xev->xconfigure.height);
+                       xev->xconfigure.width, xev->xconfigure.height);
       bounds_ = bounds;
 
       if (browser_.get()) {
@@ -348,9 +328,7 @@ uint32_t CefWindowX11::DispatchEvent(const ui::PlatformEvent& event) {
           XEvent reply_event = *xev;
           reply_event.xclient.window = parent_xwindow_;
 
-          XSendEvent(xdisplay_,
-                     reply_event.xclient.window,
-                     False,
+          XSendEvent(xdisplay_, reply_event.xclient.window, False,
                      SubstructureRedirectMask | SubstructureNotifyMask,
                      &reply_event);
           XFlush(xdisplay_);
@@ -378,9 +356,9 @@ uint32_t CefWindowX11::DispatchEvent(const ui::PlatformEvent& event) {
       if (!focus_pending_) {
         focus_pending_ = true;
         CEF_POST_DELAYED_TASK(CEF_UIT,
-            base::Bind(&CefWindowX11::ContinueFocus,
-                       weak_ptr_factory_.GetWeakPtr()),
-            100);
+                              base::Bind(&CefWindowX11::ContinueFocus,
+                                         weak_ptr_factory_.GetWeakPtr()),
+                              100);
       }
       break;
     case FocusOut:
@@ -400,20 +378,18 @@ uint32_t CefWindowX11::DispatchEvent(const ui::PlatformEvent& event) {
             // Forward the state change to the child DesktopWindowTreeHostX11
             // window so that resource usage will be reduced while the window is
             // minimized.
-            std::vector< ::Atom> atom_list;
+            std::vector<::Atom> atom_list;
             if (ui::GetAtomArrayProperty(xwindow_, kNetWMState, &atom_list) &&
                 !atom_list.empty()) {
               ui::SetAtomArrayProperty(child, kNetWMState, "ATOM", atom_list);
             } else {
               // Set an empty list of property values to pass the check in
               // DesktopWindowTreeHostX11::OnWMStateUpdated().
-              XChangeProperty(xdisplay_,
-                              child,
+              XChangeProperty(xdisplay_, child,
                               atom_cache_.GetAtom(kNetWMState),  // name
-                              atom_cache_.GetAtom(kAtom),  // type
+                              atom_cache_.GetAtom(kAtom),        // type
                               32,  // size in bits of items in 'value'
-                              PropModeReplace,
-                              NULL,
+                              PropModeReplace, NULL,
                               0);  // num items
             }
           }
@@ -433,4 +409,3 @@ void CefWindowX11::ContinueFocus() {
     browser_->SetFocus(true);
   focus_pending_ = false;
 }
-

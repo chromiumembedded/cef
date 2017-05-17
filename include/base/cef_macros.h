@@ -41,7 +41,7 @@
 // If the Chromium implementation diverges the below implementation should be
 // updated to match.
 
-#include <stddef.h>  // For size_t.
+#include <stddef.h>                  // For size_t.
 #include "include/base/cef_build.h"  // For COMPILER_MSVC
 
 #if !defined(arraysize)
@@ -126,14 +126,13 @@ char (&ArraySizeHelper(const T (&array)[N]))[N];
 namespace cef {
 
 template <bool>
-struct CompileAssert {
-};
+struct CompileAssert {};
 
 }  // namespace cef
 
-#define COMPILE_ASSERT(expr, msg) \
-  typedef cef::CompileAssert<(bool(expr))> msg[bool(expr) ? 1 : -1] \
-      ALLOW_UNUSED_TYPE
+#define COMPILE_ASSERT(expr, msg)          \
+  typedef cef::CompileAssert<(bool(expr))> \
+      msg[bool(expr) ? 1 : -1] ALLOW_UNUSED_TYPE
 
 // Implementation details of COMPILE_ASSERT:
 //
@@ -187,8 +186,8 @@ struct CompileAssert {
 
 // MSVC_PUSH_DISABLE_WARNING pushes |n| onto a stack of warnings to be disabled.
 // The warning remains disabled until popped by MSVC_POP_WARNING.
-#define MSVC_PUSH_DISABLE_WARNING(n) __pragma(warning(push)) \
-                                     __pragma(warning(disable:n))
+#define MSVC_PUSH_DISABLE_WARNING(n) \
+  __pragma(warning(push)) __pragma(warning(disable : n))
 
 // MSVC_PUSH_WARNING_LEVEL pushes |n| as the global warning level.  The level
 // remains in effect until popped by MSVC_POP_WARNING().  Use 0 to disable all
@@ -207,9 +206,9 @@ struct CompileAssert {
 //
 // Compiler warning C4355: 'this': used in base member initializer list:
 // http://msdn.microsoft.com/en-us/library/3c594ae3(VS.80).aspx
-#define ALLOW_THIS_IN_INITIALIZER_LIST(code) MSVC_PUSH_DISABLE_WARNING(4355) \
-                                             code \
-                                             MSVC_POP_WARNING()
+#define ALLOW_THIS_IN_INITIALIZER_LIST(code) \
+  MSVC_PUSH_DISABLE_WARNING(4355)            \
+  code MSVC_POP_WARNING()
 #else  // !COMPILER_MSVC
 
 #define ALLOW_THIS_IN_INITIALIZER_LIST(code) code

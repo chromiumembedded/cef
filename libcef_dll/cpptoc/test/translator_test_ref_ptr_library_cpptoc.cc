@@ -9,27 +9,26 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=4d312527991e076c9fceef16ba645c103b074d80$
+//
 
-#include "libcef_dll/cpptoc/test/translator_test_ref_ptr_library_cpptoc.h"
-#include "libcef_dll/cpptoc/test/translator_test_ref_ptr_library_child_cpptoc.h"
 #include "libcef_dll/cpptoc/test/translator_test_ref_ptr_library_child_child_cpptoc.h"
-
+#include "libcef_dll/cpptoc/test/translator_test_ref_ptr_library_child_cpptoc.h"
+#include "libcef_dll/cpptoc/test/translator_test_ref_ptr_library_cpptoc.h"
 
 // GLOBAL FUNCTIONS - Body may be edited by hand.
 
-CEF_EXPORT cef_translator_test_ref_ptr_library_t* cef_translator_test_ref_ptr_library_create(
-    int value) {
+CEF_EXPORT cef_translator_test_ref_ptr_library_t*
+cef_translator_test_ref_ptr_library_create(int value) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
   CefRefPtr<CefTranslatorTestRefPtrLibrary> _retval =
-      CefTranslatorTestRefPtrLibrary::Create(
-      value);
+      CefTranslatorTestRefPtrLibrary::Create(value);
 
   // Return type: refptr_same
   return CefTranslatorTestRefPtrLibraryCppToC::Wrap(_retval);
 }
-
 
 namespace {
 
@@ -51,7 +50,8 @@ int CEF_CALLBACK translator_test_ref_ptr_library_get_value(
 }
 
 void CEF_CALLBACK translator_test_ref_ptr_library_set_value(
-    struct _cef_translator_test_ref_ptr_library_t* self, int value) {
+    struct _cef_translator_test_ref_ptr_library_t* self,
+    int value) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -59,12 +59,10 @@ void CEF_CALLBACK translator_test_ref_ptr_library_set_value(
     return;
 
   // Execute
-  CefTranslatorTestRefPtrLibraryCppToC::Get(self)->SetValue(
-      value);
+  CefTranslatorTestRefPtrLibraryCppToC::Get(self)->SetValue(value);
 }
 
 }  // namespace
-
 
 // CONSTRUCTOR - Do not edit by hand.
 
@@ -73,10 +71,13 @@ CefTranslatorTestRefPtrLibraryCppToC::CefTranslatorTestRefPtrLibraryCppToC() {
   GetStruct()->set_value = translator_test_ref_ptr_library_set_value;
 }
 
-template<> CefRefPtr<CefTranslatorTestRefPtrLibrary> CefCppToCRefCounted<CefTranslatorTestRefPtrLibraryCppToC,
-    CefTranslatorTestRefPtrLibrary,
-    cef_translator_test_ref_ptr_library_t>::UnwrapDerived(CefWrapperType type,
-    cef_translator_test_ref_ptr_library_t* s) {
+template <>
+CefRefPtr<CefTranslatorTestRefPtrLibrary>
+CefCppToCRefCounted<CefTranslatorTestRefPtrLibraryCppToC,
+                    CefTranslatorTestRefPtrLibrary,
+                    cef_translator_test_ref_ptr_library_t>::
+    UnwrapDerived(CefWrapperType type,
+                  cef_translator_test_ref_ptr_library_t* s) {
   if (type == WT_TRANSLATOR_TEST_REF_PTR_LIBRARY_CHILD) {
     return CefTranslatorTestRefPtrLibraryChildCppToC::Unwrap(
         reinterpret_cast<cef_translator_test_ref_ptr_library_child_t*>(s));
@@ -84,19 +85,23 @@ template<> CefRefPtr<CefTranslatorTestRefPtrLibrary> CefCppToCRefCounted<CefTran
   if (type == WT_TRANSLATOR_TEST_REF_PTR_LIBRARY_CHILD_CHILD) {
     return CefTranslatorTestRefPtrLibraryChildChildCppToC::Unwrap(
         reinterpret_cast<cef_translator_test_ref_ptr_library_child_child_t*>(
-        s));
+            s));
   }
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCppToCRefCounted<CefTranslatorTestRefPtrLibraryCppToC,
-    CefTranslatorTestRefPtrLibrary,
-    cef_translator_test_ref_ptr_library_t>::DebugObjCt = 0;
+template <>
+base::AtomicRefCount
+    CefCppToCRefCounted<CefTranslatorTestRefPtrLibraryCppToC,
+                        CefTranslatorTestRefPtrLibrary,
+                        cef_translator_test_ref_ptr_library_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCppToCRefCounted<CefTranslatorTestRefPtrLibraryCppToC,
-    CefTranslatorTestRefPtrLibrary,
-    cef_translator_test_ref_ptr_library_t>::kWrapperType =
-    WT_TRANSLATOR_TEST_REF_PTR_LIBRARY;
+template <>
+CefWrapperType
+    CefCppToCRefCounted<CefTranslatorTestRefPtrLibraryCppToC,
+                        CefTranslatorTestRefPtrLibrary,
+                        cef_translator_test_ref_ptr_library_t>::kWrapperType =
+        WT_TRANSLATOR_TEST_REF_PTR_LIBRARY;

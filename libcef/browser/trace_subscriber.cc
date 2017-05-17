@@ -2,9 +2,9 @@
 // reserved. Use of this source code is governed by a BSD-style license that can
 // be found in the LICENSE file.
 
-#include "libcef/browser/trace_subscriber.h"
 #include "include/cef_trace.h"
 #include "libcef/browser/thread_util.h"
+#include "libcef/browser/trace_subscriber.h"
 
 #include "base/files/file_util.h"
 #include "base/threading/thread_task_runner_handle.h"
@@ -14,7 +14,7 @@
 namespace {
 
 // Create the temporary file and then execute |callback| on the thread
-// represented by |message_loop_proxy|. 
+// represented by |message_loop_proxy|.
 void CreateTemporaryFileOnFileThread(
     scoped_refptr<base::SequencedTaskRunner> message_loop_proxy,
     base::Callback<void(const base::FilePath&)> callback) {
@@ -30,8 +30,7 @@ class CefCompletionCallbackWrapper : public CefCompletionCallback {
  public:
   explicit CefCompletionCallbackWrapper(
       CefRefPtr<CefCompletionCallback> callback)
-      : callback_(callback) {
-  }
+      : callback_(callback) {}
 
   void OnComplete() override {
     if (callback_) {
@@ -52,8 +51,7 @@ class CefCompletionCallbackWrapper : public CefCompletionCallback {
 using content::TracingController;
 
 CefTraceSubscriber::CefTraceSubscriber()
-    : collecting_trace_data_(false),
-      weak_factory_(this) {
+    : collecting_trace_data_(false), weak_factory_(this) {
   CEF_REQUIRE_UIT();
 }
 
@@ -83,14 +81,12 @@ bool CefTraceSubscriber::BeginTracing(
   }
 
   TracingController::GetInstance()->StartTracing(
-      base::trace_event::TraceConfig(categories, ""),
-      done_callback);
+      base::trace_event::TraceConfig(categories, ""), done_callback);
   return true;
 }
 
-bool CefTraceSubscriber::EndTracing(
-    const base::FilePath& tracing_file,
-    CefRefPtr<CefEndTracingCallback> callback) {
+bool CefTraceSubscriber::EndTracing(const base::FilePath& tracing_file,
+                                    CefRefPtr<CefEndTracingCallback> callback) {
   CEF_REQUIRE_UIT();
 
   if (!collecting_trace_data_)
@@ -106,10 +102,10 @@ bool CefTraceSubscriber::EndTracing(
   if (tracing_file.empty()) {
     // Create a new temporary file path on the FILE thread, then continue.
     CEF_POST_TASK(CEF_FILET,
-        base::Bind(CreateTemporaryFileOnFileThread,
-            base::ThreadTaskRunnerHandle::Get(),
-            base::Bind(&CefTraceSubscriber::ContinueEndTracing,
-                       weak_factory_.GetWeakPtr(), callback)));
+                  base::Bind(CreateTemporaryFileOnFileThread,
+                             base::ThreadTaskRunnerHandle::Get(),
+                             base::Bind(&CefTraceSubscriber::ContinueEndTracing,
+                                        weak_factory_.GetWeakPtr(), callback)));
     return true;
   }
 

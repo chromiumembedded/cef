@@ -9,6 +9,8 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=82c81038e8e9697ae8c02aef3aa00fb012b947f5$
+//
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_BROWSER_CTOCPP_H_
 #define CEF_LIBCEF_DLL_CTOCPP_BROWSER_CTOCPP_H_
@@ -19,10 +21,10 @@
 #endif
 
 #include <vector>
-#include "include/cef_browser.h"
 #include "include/capi/cef_browser_capi.h"
-#include "include/cef_client.h"
 #include "include/capi/cef_client_capi.h"
+#include "include/cef_browser.h"
+#include "include/cef_client.h"
 #include "libcef_dll/ctocpp/ctocpp_ref_counted.h"
 
 // Wrap a C structure with a C++ class.
@@ -54,7 +56,7 @@ class CefBrowserCToCpp
   void GetFrameIdentifiers(std::vector<int64>& identifiers) OVERRIDE;
   void GetFrameNames(std::vector<CefString>& names) OVERRIDE;
   bool SendProcessMessage(CefProcessId target_process,
-      CefRefPtr<CefProcessMessage> message) OVERRIDE;
+                          CefRefPtr<CefProcessMessage> message) OVERRIDE;
 };
 
 #endif  // CEF_LIBCEF_DLL_CTOCPP_BROWSER_CTOCPP_H_

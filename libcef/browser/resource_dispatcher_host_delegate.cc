@@ -75,20 +75,19 @@ void SendExecuteMimeTypeHandlerEvent(
 
 }  // namespace
 
-CefResourceDispatcherHostDelegate::CefResourceDispatcherHostDelegate() {
-}
+CefResourceDispatcherHostDelegate::CefResourceDispatcherHostDelegate() {}
 
-CefResourceDispatcherHostDelegate::~CefResourceDispatcherHostDelegate() {
-}
+CefResourceDispatcherHostDelegate::~CefResourceDispatcherHostDelegate() {}
 
 bool CefResourceDispatcherHostDelegate::HandleExternalProtocol(
     const GURL& url,
     content::ResourceRequestInfo* info) {
-  CEF_POST_TASK(CEF_UIT,
+  CEF_POST_TASK(
+      CEF_UIT,
       base::Bind(base::IgnoreResult(&CefResourceDispatcherHostDelegate::
-                      HandleExternalProtocolOnUIThread),
-                  base::Unretained(this), url,
-                  info->GetWebContentsGetterForRequest()));
+                                        HandleExternalProtocolOnUIThread),
+                 base::Unretained(this), url,
+                 info->GetWebContentsGetterForRequest()));
   return false;
 }
 
@@ -119,9 +118,8 @@ bool CefResourceDispatcherHostDelegate::ShouldInterceptResourceAsStream(
         extension_info_map->extensions().GetByID(extension_id);
     // The white-listed extension may not be installed, so we have to NULL check
     // |extension|.
-    if (!extension ||
-        (profile_is_off_the_record &&
-         !extension_info_map->IsIncognitoEnabled(extension_id))) {
+    if (!extension || (profile_is_off_the_record &&
+                       !extension_info_map->IsIncognitoEnabled(extension_id))) {
       continue;
     }
 
@@ -170,7 +168,8 @@ void CefResourceDispatcherHostDelegate::OnStreamCreated(
       stream_target_info_.find(request);
   CHECK(ix != stream_target_info_.end());
   bool embedded = info->GetResourceType() != content::RESOURCE_TYPE_MAIN_FRAME;
-  CEF_POST_TASK(CEF_UIT,
+  CEF_POST_TASK(
+      CEF_UIT,
       base::Bind(&SendExecuteMimeTypeHandlerEvent, base::Passed(&stream),
                  request->GetExpectedContentSize(), ix->second.extension_id,
                  ix->second.view_id, embedded, info->GetFrameTreeNodeId(),
@@ -191,17 +190,18 @@ void CefResourceDispatcherHostDelegate::OnRequestRedirected(
       response->head.headers = new net::HttpResponseHeaders(std::string());
 
     // Add CORS headers to support XMLHttpRequest redirects.
-    response->head.headers->AddHeader("Access-Control-Allow-Origin: " +
-        active_url.scheme() + "://" + active_url.host());
+    response->head.headers->AddHeader(
+        "Access-Control-Allow-Origin: " + active_url.scheme() + "://" +
+        active_url.host());
     response->head.headers->AddHeader("Access-Control-Allow-Credentials: true");
   }
 }
 
 std::unique_ptr<net::ClientCertStore>
-    CefResourceDispatcherHostDelegate::CreateClientCertStore(
-        content::ResourceContext* resource_context) {
-  return static_cast<CefResourceContext*>(resource_context)->
-      CreateClientCertStore();
+CefResourceDispatcherHostDelegate::CreateClientCertStore(
+    content::ResourceContext* resource_context) {
+  return static_cast<CefResourceContext*>(resource_context)
+      ->CreateClientCertStore();
 }
 
 void CefResourceDispatcherHostDelegate::HandleExternalProtocolOnUIThread(

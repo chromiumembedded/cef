@@ -9,12 +9,14 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=6ad7bcb4afded09f312d3ec082bb4df35da9beec$
+//
 
 #include "libcef_dll/cpptoc/views/button_delegate_cpptoc.h"
 #include "libcef_dll/cpptoc/views/view_delegate_cpptoc.h"
+#include "libcef_dll/ctocpp/image_ctocpp.h"
 #include "libcef_dll/ctocpp/views/browser_view_ctocpp.h"
 #include "libcef_dll/ctocpp/views/button_ctocpp.h"
-#include "libcef_dll/ctocpp/image_ctocpp.h"
 #include "libcef_dll/ctocpp/views/label_button_ctocpp.h"
 #include "libcef_dll/ctocpp/views/menu_button_ctocpp.h"
 #include "libcef_dll/ctocpp/views/panel_ctocpp.h"
@@ -23,11 +25,11 @@
 #include "libcef_dll/ctocpp/views/view_ctocpp.h"
 #include "libcef_dll/ctocpp/views/window_ctocpp.h"
 
-
 // STATIC METHODS - Body may be edited by hand.
 
 CefRefPtr<CefLabelButton> CefLabelButton::CreateLabelButton(
-    CefRefPtr<CefButtonDelegate> delegate, const CefString& text,
+    CefRefPtr<CefButtonDelegate> delegate,
+    const CefString& text,
     bool with_frame) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -39,14 +41,11 @@ CefRefPtr<CefLabelButton> CefLabelButton::CreateLabelButton(
 
   // Execute
   cef_label_button_t* _retval = cef_label_button_create(
-      CefButtonDelegateCppToC::Wrap(delegate),
-      text.GetStruct(),
-      with_frame);
+      CefButtonDelegateCppToC::Wrap(delegate), text.GetStruct(), with_frame);
 
   // Return type: refptr_same
   return CefLabelButtonCToCpp::Wrap(_retval);
 }
-
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
@@ -77,8 +76,7 @@ void CefLabelButtonCToCpp::SetText(const CefString& text) {
     return;
 
   // Execute
-  _struct->set_text(_struct,
-      text.GetStruct());
+  _struct->set_text(_struct, text.GetStruct());
 }
 
 CefString CefLabelButtonCToCpp::GetText() {
@@ -98,7 +96,7 @@ CefString CefLabelButtonCToCpp::GetText() {
 }
 
 void CefLabelButtonCToCpp::SetImage(cef_button_state_t button_state,
-    CefRefPtr<CefImage> image) {
+                                    CefRefPtr<CefImage> image) {
   cef_label_button_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, set_image))
     return;
@@ -108,9 +106,7 @@ void CefLabelButtonCToCpp::SetImage(cef_button_state_t button_state,
   // Unverified params: image
 
   // Execute
-  _struct->set_image(_struct,
-      button_state,
-      CefImageCToCpp::Unwrap(image));
+  _struct->set_image(_struct, button_state, CefImageCToCpp::Unwrap(image));
 }
 
 CefRefPtr<CefImage> CefLabelButtonCToCpp::GetImage(
@@ -122,15 +118,14 @@ CefRefPtr<CefImage> CefLabelButtonCToCpp::GetImage(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  cef_image_t* _retval = _struct->get_image(_struct,
-      button_state);
+  cef_image_t* _retval = _struct->get_image(_struct, button_state);
 
   // Return type: refptr_same
   return CefImageCToCpp::Wrap(_retval);
 }
 
 void CefLabelButtonCToCpp::SetTextColor(cef_button_state_t for_state,
-    cef_color_t color) {
+                                        cef_color_t color) {
   cef_label_button_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, set_text_color))
     return;
@@ -138,9 +133,7 @@ void CefLabelButtonCToCpp::SetTextColor(cef_button_state_t for_state,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  _struct->set_text_color(_struct,
-      for_state,
-      color);
+  _struct->set_text_color(_struct, for_state, color);
 }
 
 void CefLabelButtonCToCpp::SetEnabledTextColors(cef_color_t color) {
@@ -151,8 +144,7 @@ void CefLabelButtonCToCpp::SetEnabledTextColors(cef_color_t color) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  _struct->set_enabled_text_colors(_struct,
-      color);
+  _struct->set_enabled_text_colors(_struct, color);
 }
 
 void CefLabelButtonCToCpp::SetFontList(const CefString& font_list) {
@@ -168,8 +160,7 @@ void CefLabelButtonCToCpp::SetFontList(const CefString& font_list) {
     return;
 
   // Execute
-  _struct->set_font_list(_struct,
-      font_list.GetStruct());
+  _struct->set_font_list(_struct, font_list.GetStruct());
 }
 
 void CefLabelButtonCToCpp::SetHorizontalAlignment(
@@ -181,8 +172,7 @@ void CefLabelButtonCToCpp::SetHorizontalAlignment(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  _struct->set_horizontal_alignment(_struct,
-      alignment);
+  _struct->set_horizontal_alignment(_struct, alignment);
 }
 
 void CefLabelButtonCToCpp::SetMinimumSize(const CefSize& size) {
@@ -193,8 +183,7 @@ void CefLabelButtonCToCpp::SetMinimumSize(const CefSize& size) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  _struct->set_minimum_size(_struct,
-      &size);
+  _struct->set_minimum_size(_struct, &size);
 }
 
 void CefLabelButtonCToCpp::SetMaximumSize(const CefSize& size) {
@@ -205,8 +194,7 @@ void CefLabelButtonCToCpp::SetMaximumSize(const CefSize& size) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  _struct->set_maximum_size(_struct,
-      &size);
+  _struct->set_maximum_size(_struct, &size);
 }
 
 CefRefPtr<CefLabelButton> CefLabelButtonCToCpp::AsLabelButton() {
@@ -231,8 +219,7 @@ void CefLabelButtonCToCpp::SetState(cef_button_state_t state) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  _struct->set_state(_struct,
-      state);
+  _struct->set_state(_struct, state);
 }
 
 cef_button_state_t CefLabelButtonCToCpp::GetState() {
@@ -257,8 +244,7 @@ void CefLabelButtonCToCpp::SetInkDropEnabled(bool enabled) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  _struct->set_ink_drop_enabled(_struct,
-      enabled);
+  _struct->set_ink_drop_enabled(_struct, enabled);
 }
 
 void CefLabelButtonCToCpp::SetTooltipText(const CefString& tooltip_text) {
@@ -274,8 +260,7 @@ void CefLabelButtonCToCpp::SetTooltipText(const CefString& tooltip_text) {
     return;
 
   // Execute
-  _struct->set_tooltip_text(_struct,
-      tooltip_text.GetStruct());
+  _struct->set_tooltip_text(_struct, tooltip_text.GetStruct());
 }
 
 void CefLabelButtonCToCpp::SetAccessibleName(const CefString& name) {
@@ -291,8 +276,7 @@ void CefLabelButtonCToCpp::SetAccessibleName(const CefString& name) {
     return;
 
   // Execute
-  _struct->set_accessible_name(_struct,
-      name.GetStruct());
+  _struct->set_accessible_name(_struct, name.GetStruct());
 }
 
 CefRefPtr<CefBrowserView> CefLabelButtonCToCpp::AsBrowserView() {
@@ -389,8 +373,7 @@ CefString CefLabelButtonCToCpp::ToString(bool include_children) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  cef_string_userfree_t _retval = _struct->to_string(_struct,
-      include_children);
+  cef_string_userfree_t _retval = _struct->to_string(_struct, include_children);
 
   // Return type: string
   CefString _retvalStr;
@@ -409,7 +392,7 @@ bool CefLabelButtonCToCpp::IsValid() {
   int _retval = _struct->is_valid(_struct);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 bool CefLabelButtonCToCpp::IsAttached() {
@@ -423,7 +406,7 @@ bool CefLabelButtonCToCpp::IsAttached() {
   int _retval = _struct->is_attached(_struct);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 bool CefLabelButtonCToCpp::IsSame(CefRefPtr<CefView> that) {
@@ -439,11 +422,10 @@ bool CefLabelButtonCToCpp::IsSame(CefRefPtr<CefView> that) {
     return false;
 
   // Execute
-  int _retval = _struct->is_same(_struct,
-      CefViewCToCpp::Unwrap(that));
+  int _retval = _struct->is_same(_struct, CefViewCToCpp::Unwrap(that));
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 CefRefPtr<CefViewDelegate> CefLabelButtonCToCpp::GetDelegate() {
@@ -496,8 +478,7 @@ void CefLabelButtonCToCpp::SetID(int id) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  _struct->set_id(_struct,
-      id);
+  _struct->set_id(_struct, id);
 }
 
 int CefLabelButtonCToCpp::GetGroupID() {
@@ -522,8 +503,7 @@ void CefLabelButtonCToCpp::SetGroupID(int group_id) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  _struct->set_group_id(_struct,
-      group_id);
+  _struct->set_group_id(_struct, group_id);
 }
 
 CefRefPtr<CefView> CefLabelButtonCToCpp::GetParentView() {
@@ -548,8 +528,7 @@ CefRefPtr<CefView> CefLabelButtonCToCpp::GetViewForID(int id) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  cef_view_t* _retval = _struct->get_view_for_id(_struct,
-      id);
+  cef_view_t* _retval = _struct->get_view_for_id(_struct, id);
 
   // Return type: refptr_same
   return CefViewCToCpp::Wrap(_retval);
@@ -563,8 +542,7 @@ void CefLabelButtonCToCpp::SetBounds(const CefRect& bounds) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  _struct->set_bounds(_struct,
-      &bounds);
+  _struct->set_bounds(_struct, &bounds);
 }
 
 CefRect CefLabelButtonCToCpp::GetBounds() {
@@ -603,8 +581,7 @@ void CefLabelButtonCToCpp::SetSize(const CefSize& size) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  _struct->set_size(_struct,
-      &size);
+  _struct->set_size(_struct, &size);
 }
 
 CefSize CefLabelButtonCToCpp::GetSize() {
@@ -629,8 +606,7 @@ void CefLabelButtonCToCpp::SetPosition(const CefPoint& position) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  _struct->set_position(_struct,
-      &position);
+  _struct->set_position(_struct, &position);
 }
 
 CefPoint CefLabelButtonCToCpp::GetPosition() {
@@ -708,8 +684,7 @@ int CefLabelButtonCToCpp::GetHeightForWidth(int width) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int _retval = _struct->get_height_for_width(_struct,
-      width);
+  int _retval = _struct->get_height_for_width(_struct, width);
 
   // Return type: simple
   return _retval;
@@ -734,8 +709,7 @@ void CefLabelButtonCToCpp::SetVisible(bool visible) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  _struct->set_visible(_struct,
-      visible);
+  _struct->set_visible(_struct, visible);
 }
 
 bool CefLabelButtonCToCpp::IsVisible() {
@@ -749,7 +723,7 @@ bool CefLabelButtonCToCpp::IsVisible() {
   int _retval = _struct->is_visible(_struct);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 bool CefLabelButtonCToCpp::IsDrawn() {
@@ -763,7 +737,7 @@ bool CefLabelButtonCToCpp::IsDrawn() {
   int _retval = _struct->is_drawn(_struct);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 void CefLabelButtonCToCpp::SetEnabled(bool enabled) {
@@ -774,8 +748,7 @@ void CefLabelButtonCToCpp::SetEnabled(bool enabled) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  _struct->set_enabled(_struct,
-      enabled);
+  _struct->set_enabled(_struct, enabled);
 }
 
 bool CefLabelButtonCToCpp::IsEnabled() {
@@ -789,7 +762,7 @@ bool CefLabelButtonCToCpp::IsEnabled() {
   int _retval = _struct->is_enabled(_struct);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 void CefLabelButtonCToCpp::SetFocusable(bool focusable) {
@@ -800,8 +773,7 @@ void CefLabelButtonCToCpp::SetFocusable(bool focusable) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  _struct->set_focusable(_struct,
-      focusable);
+  _struct->set_focusable(_struct, focusable);
 }
 
 bool CefLabelButtonCToCpp::IsFocusable() {
@@ -815,7 +787,7 @@ bool CefLabelButtonCToCpp::IsFocusable() {
   int _retval = _struct->is_focusable(_struct);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 bool CefLabelButtonCToCpp::IsAccessibilityFocusable() {
@@ -829,7 +801,7 @@ bool CefLabelButtonCToCpp::IsAccessibilityFocusable() {
   int _retval = _struct->is_accessibility_focusable(_struct);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 void CefLabelButtonCToCpp::RequestFocus() {
@@ -851,8 +823,7 @@ void CefLabelButtonCToCpp::SetBackgroundColor(cef_color_t color) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  _struct->set_background_color(_struct,
-      color);
+  _struct->set_background_color(_struct, color);
 }
 
 cef_color_t CefLabelButtonCToCpp::GetBackgroundColor() {
@@ -877,11 +848,10 @@ bool CefLabelButtonCToCpp::ConvertPointToScreen(CefPoint& point) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int _retval = _struct->convert_point_to_screen(_struct,
-      &point);
+  int _retval = _struct->convert_point_to_screen(_struct, &point);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 bool CefLabelButtonCToCpp::ConvertPointFromScreen(CefPoint& point) {
@@ -892,11 +862,10 @@ bool CefLabelButtonCToCpp::ConvertPointFromScreen(CefPoint& point) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int _retval = _struct->convert_point_from_screen(_struct,
-      &point);
+  int _retval = _struct->convert_point_from_screen(_struct, &point);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 bool CefLabelButtonCToCpp::ConvertPointToWindow(CefPoint& point) {
@@ -907,11 +876,10 @@ bool CefLabelButtonCToCpp::ConvertPointToWindow(CefPoint& point) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int _retval = _struct->convert_point_to_window(_struct,
-      &point);
+  int _retval = _struct->convert_point_to_window(_struct, &point);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 bool CefLabelButtonCToCpp::ConvertPointFromWindow(CefPoint& point) {
@@ -922,15 +890,14 @@ bool CefLabelButtonCToCpp::ConvertPointFromWindow(CefPoint& point) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int _retval = _struct->convert_point_from_window(_struct,
-      &point);
+  int _retval = _struct->convert_point_from_window(_struct, &point);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 bool CefLabelButtonCToCpp::ConvertPointToView(CefRefPtr<CefView> view,
-    CefPoint& point) {
+                                              CefPoint& point) {
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, convert_point_to_view))
     return false;
@@ -943,16 +910,15 @@ bool CefLabelButtonCToCpp::ConvertPointToView(CefRefPtr<CefView> view,
     return false;
 
   // Execute
-  int _retval = _struct->convert_point_to_view(_struct,
-      CefViewCToCpp::Unwrap(view),
-      &point);
+  int _retval = _struct->convert_point_to_view(
+      _struct, CefViewCToCpp::Unwrap(view), &point);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 bool CefLabelButtonCToCpp::ConvertPointFromView(CefRefPtr<CefView> view,
-    CefPoint& point) {
+                                                CefPoint& point) {
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, convert_point_from_view))
     return false;
@@ -965,35 +931,38 @@ bool CefLabelButtonCToCpp::ConvertPointFromView(CefRefPtr<CefView> view,
     return false;
 
   // Execute
-  int _retval = _struct->convert_point_from_view(_struct,
-      CefViewCToCpp::Unwrap(view),
-      &point);
+  int _retval = _struct->convert_point_from_view(
+      _struct, CefViewCToCpp::Unwrap(view), &point);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
-
 
 // CONSTRUCTOR - Do not edit by hand.
 
-CefLabelButtonCToCpp::CefLabelButtonCToCpp() {
-}
+CefLabelButtonCToCpp::CefLabelButtonCToCpp() {}
 
-template<> cef_label_button_t* CefCToCppRefCounted<CefLabelButtonCToCpp,
-    CefLabelButton, cef_label_button_t>::UnwrapDerived(CefWrapperType type,
-    CefLabelButton* c) {
+template <>
+cef_label_button_t*
+CefCToCppRefCounted<CefLabelButtonCToCpp, CefLabelButton, cef_label_button_t>::
+    UnwrapDerived(CefWrapperType type, CefLabelButton* c) {
   if (type == WT_MENU_BUTTON) {
-    return reinterpret_cast<cef_label_button_t*>(CefMenuButtonCToCpp::Unwrap(
-        reinterpret_cast<CefMenuButton*>(c)));
+    return reinterpret_cast<cef_label_button_t*>(
+        CefMenuButtonCToCpp::Unwrap(reinterpret_cast<CefMenuButton*>(c)));
   }
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCppRefCounted<CefLabelButtonCToCpp,
-    CefLabelButton, cef_label_button_t>::DebugObjCt = 0;
+template <>
+base::AtomicRefCount CefCToCppRefCounted<CefLabelButtonCToCpp,
+                                         CefLabelButton,
+                                         cef_label_button_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCppRefCounted<CefLabelButtonCToCpp,
-    CefLabelButton, cef_label_button_t>::kWrapperType = WT_LABEL_BUTTON;
+template <>
+CefWrapperType CefCToCppRefCounted<CefLabelButtonCToCpp,
+                                   CefLabelButton,
+                                   cef_label_button_t>::kWrapperType =
+    WT_LABEL_BUTTON;

@@ -41,14 +41,14 @@ struct CefNavigateParams;
 class CefRequestImpl : public CefRequest {
  public:
   enum Changes {
-    kChangedNone =                  0,
-    kChangedUrl =                   1 << 0,
-    kChangedMethod =                1 << 1,
-    kChangedReferrer =              1 << 2,
-    kChangedPostData =              1 << 3,
-    kChangedHeaderMap =             1 << 4,
-    kChangedFlags =                 1 << 5,
-    kChangedFirstPartyForCookies =  1 << 6,
+    kChangedNone = 0,
+    kChangedUrl = 1 << 0,
+    kChangedMethod = 1 << 1,
+    kChangedReferrer = 1 << 2,
+    kChangedPostData = 1 << 3,
+    kChangedHeaderMap = 1 << 4,
+    kChangedFlags = 1 << 5,
+    kChangedFirstPartyForCookies = 1 << 6,
   };
 
   CefRequestImpl();

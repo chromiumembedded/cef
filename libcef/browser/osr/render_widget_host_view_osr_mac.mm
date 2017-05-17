@@ -18,13 +18,10 @@
 #include "content/common/view_messages.h"
 #include "ui/accelerated_widget_mac/accelerated_widget_mac.h"
 
-class MacHelper :
-  public content::BrowserCompositorMacClient,
-  public ui::AcceleratedWidgetMacNSView {
+class MacHelper : public content::BrowserCompositorMacClient,
+                  public ui::AcceleratedWidgetMacNSView {
  public:
-  explicit MacHelper(CefRenderWidgetHostViewOSR* view)
-    : view_(view) {
-  }
+  explicit MacHelper(CefRenderWidgetHostViewOSR* view) : view_(view) {}
   virtual ~MacHelper() {}
 
   // BrowserCompositorMacClient methods:
@@ -49,9 +46,8 @@ class MacHelper :
 
   void BrowserCompositorMacSendBeginFrame(
       const cc::BeginFrameArgs& args) override {
-    view_->render_widget_host()->Send(
-      new ViewMsg_BeginFrame(view_->render_widget_host()->GetRoutingID(),
-                             args));
+    view_->render_widget_host()->Send(new ViewMsg_BeginFrame(
+        view_->render_widget_host()->GetRoutingID(), args));
   }
 
   // AcceleratedWidgetMacNSView methods:
@@ -61,13 +57,13 @@ class MacHelper :
   }
 
   void AcceleratedWidgetGetVSyncParameters(
-      base::TimeTicks* timebase, base::TimeDelta* interval) const override {
+      base::TimeTicks* timebase,
+      base::TimeDelta* interval) const override {
     *timebase = base::TimeTicks();
     *interval = base::TimeDelta();
   }
 
-  void AcceleratedWidgetSwapCompleted() override {
-  }
+  void AcceleratedWidgetSwapCompleted() override {}
 
  private:
   // Guaranteed to outlive this object.
@@ -76,7 +72,6 @@ class MacHelper :
   DISALLOW_COPY_AND_ASSIGN(MacHelper);
 };
 
-
 ui::AcceleratedWidgetMac* CefRenderWidgetHostViewOSR::GetAcceleratedWidgetMac()
     const {
   if (browser_compositor_)
@@ -84,25 +79,21 @@ ui::AcceleratedWidgetMac* CefRenderWidgetHostViewOSR::GetAcceleratedWidgetMac()
   return nullptr;
 }
 
-void CefRenderWidgetHostViewOSR::SetActive(bool active) {
-}
+void CefRenderWidgetHostViewOSR::SetActive(bool active) {}
 
-void CefRenderWidgetHostViewOSR::ShowDefinitionForSelection() {
-}
+void CefRenderWidgetHostViewOSR::ShowDefinitionForSelection() {}
 
 bool CefRenderWidgetHostViewOSR::SupportsSpeech() const {
   return false;
 }
 
-void CefRenderWidgetHostViewOSR::SpeakSelection() {
-}
+void CefRenderWidgetHostViewOSR::SpeakSelection() {}
 
 bool CefRenderWidgetHostViewOSR::IsSpeaking() const {
   return false;
 }
 
-void CefRenderWidgetHostViewOSR::StopSpeaking() {
-}
+void CefRenderWidgetHostViewOSR::StopSpeaking() {}
 
 ui::Compositor* CefRenderWidgetHostViewOSR::GetCompositor() const {
   return browser_compositor_->GetCompositor();
@@ -138,8 +129,8 @@ void CefRenderWidgetHostViewOSR::PlatformCreateCompositorWidget(
       AllocateFrameSinkId(is_guest_view_hack)));
 }
 
-void CefRenderWidgetHostViewOSR::PlatformResizeCompositorWidget(const gfx::Size&) {
-}
+void CefRenderWidgetHostViewOSR::PlatformResizeCompositorWidget(
+    const gfx::Size&) {}
 
 void CefRenderWidgetHostViewOSR::PlatformDestroyCompositorWidget() {
   DCHECK(window_);

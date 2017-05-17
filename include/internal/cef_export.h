@@ -46,7 +46,7 @@
 
 #elif defined(COMPILER_GCC)
 
-#define CEF_EXPORT __attribute__ ((visibility("default")))
+#define CEF_EXPORT __attribute__((visibility("default")))
 
 #endif  // COMPILER_GCC
 

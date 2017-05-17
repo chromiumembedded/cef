@@ -24,53 +24,48 @@
 #define CEF_REQUIRE_IOT() CEF_REQUIRE(CEF_IOT)
 #define CEF_REQUIRE_FILET() CEF_REQUIRE(CEF_FILET)
 
-#define CEF_REQUIRE_RETURN(id, var) \
-  if (!CEF_CURRENTLY_ON(id)) { \
+#define CEF_REQUIRE_RETURN(id, var)             \
+  if (!CEF_CURRENTLY_ON(id)) {                  \
     NOTREACHED() << "called on invalid thread"; \
-    return var; \
+    return var;                                 \
   }
 #define CEF_REQUIRE_UIT_RETURN(var) CEF_REQUIRE_RETURN(CEF_UIT, var)
 #define CEF_REQUIRE_IOT_RETURN(var) CEF_REQUIRE_RETURN(CEF_IOT, var)
 
-#define CEF_REQUIRE_RETURN_VOID(id) \
-  if (!CEF_CURRENTLY_ON(id)) { \
+#define CEF_REQUIRE_RETURN_VOID(id)             \
+  if (!CEF_CURRENTLY_ON(id)) {                  \
     NOTREACHED() << "called on invalid thread"; \
-    return; \
+    return;                                     \
   }
 #define CEF_REQUIRE_UIT_RETURN_VOID() CEF_REQUIRE_RETURN_VOID(CEF_UIT)
 #define CEF_REQUIRE_IOT_RETURN_VOID() CEF_REQUIRE_RETURN_VOID(CEF_IOT)
 
 #define CEF_POST_TASK(id, task) \
-    content::BrowserThread::PostTask(id, FROM_HERE, task)
+  content::BrowserThread::PostTask(id, FROM_HERE, task)
 #define CEF_POST_DELAYED_TASK(id, task, delay_ms) \
-    content::BrowserThread::PostDelayedTask(id, FROM_HERE, task, \
-        base::TimeDelta::FromMilliseconds(delay_ms))
+  content::BrowserThread::PostDelayedTask(        \
+      id, FROM_HERE, task, base::TimeDelta::FromMilliseconds(delay_ms))
 
 // Same as IMPLEMENT_REFCOUNTING() but using the specified Destructor.
-#define IMPLEMENT_REFCOUNTING_EX(ClassName, Destructor) \
-  public:                                               \
-    void AddRef() const OVERRIDE {                      \
-      ref_count_.AddRef();                              \
-    }                                                   \
-    bool Release() const OVERRIDE {                     \
-      if (ref_count_.Release()) {                       \
-        Destructor::Destruct(this);                     \
-        return true;                                    \
-      }                                                 \
-      return false;                                     \
-    }                                                   \
-    bool HasOneRef() const OVERRIDE {                   \
-      return ref_count_.HasOneRef();                    \
-    }                                                   \
-  private:                                              \
-    CefRefCount ref_count_;
+#define IMPLEMENT_REFCOUNTING_EX(ClassName, Destructor)              \
+ public:                                                             \
+  void AddRef() const OVERRIDE { ref_count_.AddRef(); }              \
+  bool Release() const OVERRIDE {                                    \
+    if (ref_count_.Release()) {                                      \
+      Destructor::Destruct(this);                                    \
+      return true;                                                   \
+    }                                                                \
+    return false;                                                    \
+  }                                                                  \
+  bool HasOneRef() const OVERRIDE { return ref_count_.HasOneRef(); } \
+                                                                     \
+ private:                                                            \
+  CefRefCount ref_count_;
 
-#define IMPLEMENT_REFCOUNTING_DELETE_ON_UIT(ClassName)                \
-    IMPLEMENT_REFCOUNTING_EX(ClassName,                               \
-                             content::BrowserThread::DeleteOnUIThread)
+#define IMPLEMENT_REFCOUNTING_DELETE_ON_UIT(ClassName) \
+  IMPLEMENT_REFCOUNTING_EX(ClassName, content::BrowserThread::DeleteOnUIThread)
 
-#define IMPLEMENT_REFCOUNTING_DELETE_ON_IOT(ClassName)                \
-    IMPLEMENT_REFCOUNTING_EX(ClassName,                               \
-                             content::BrowserThread::DeleteOnIOThread)
+#define IMPLEMENT_REFCOUNTING_DELETE_ON_IOT(ClassName) \
+  IMPLEMENT_REFCOUNTING_EX(ClassName, content::BrowserThread::DeleteOnIOThread)
 
 #endif  // CEF_LIBCEF_BROWSER_THREAD_UTIL_H_

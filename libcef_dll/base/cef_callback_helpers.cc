@@ -8,12 +8,10 @@
 
 namespace base {
 
-ScopedClosureRunner::ScopedClosureRunner() {
-}
+ScopedClosureRunner::ScopedClosureRunner() {}
 
 ScopedClosureRunner::ScopedClosureRunner(const Closure& closure)
-    : closure_(closure) {
-}
+    : closure_(closure) {}
 
 ScopedClosureRunner::~ScopedClosureRunner() {
   if (!closure_.is_null())

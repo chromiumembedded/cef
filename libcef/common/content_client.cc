@@ -17,10 +17,10 @@
 #include "libcef/common/scheme_registrar_impl.h"
 
 #include "base/command_line.h"
-#include "base/logging.h"
-#include "base/path_service.h"
 #include "base/files/file_util.h"
 #include "base/json/json_reader.h"
+#include "base/logging.h"
+#include "base/path_service.h"
 #include "base/strings/string_piece.h"
 #include "base/strings/string_split.h"
 #include "base/strings/string_util.h"
@@ -50,10 +50,9 @@ CefContentClient* g_content_client = NULL;
 
 const char kPDFPluginExtension[] = "pdf";
 const char kPDFPluginDescription[] = "Portable Document Format";
-const char kPDFPluginOutOfProcessMimeType[] =
-    "application/x-google-chrome-pdf";
-const uint32_t kPDFPluginPermissions = ppapi::PERMISSION_PRIVATE |
-                                       ppapi::PERMISSION_DEV;
+const char kPDFPluginOutOfProcessMimeType[] = "application/x-google-chrome-pdf";
+const uint32_t kPDFPluginPermissions =
+    ppapi::PERMISSION_PRIVATE | ppapi::PERMISSION_DEV;
 
 content::PepperPluginInfo::GetInterfaceFunc g_pdf_get_interface;
 content::PepperPluginInfo::PPP_InitializeModuleFunc g_pdf_initialize_module;
@@ -73,10 +72,9 @@ void ComputeBuiltInPlugins(std::vector<content::PepperPluginInfo>* plugins) {
     pdf_info.description = kPDFPluginDescription;
     pdf_info.path =
         base::FilePath::FromUTF8Unsafe(CefContentClient::kPDFPluginPath);
-    content::WebPluginMimeType pdf_mime_type(
-        kPDFPluginOutOfProcessMimeType,
-        kPDFPluginExtension,
-        kPDFPluginDescription);
+    content::WebPluginMimeType pdf_mime_type(kPDFPluginOutOfProcessMimeType,
+                                             kPDFPluginExtension,
+                                             kPDFPluginDescription);
     pdf_info.mime_types.push_back(pdf_mime_type);
     pdf_info.internal_entry_points.get_interface = g_pdf_get_interface;
     pdf_info.internal_entry_points.initialize_module = g_pdf_initialize_module;
@@ -107,7 +105,8 @@ content::PepperPluginInfo CreatePepperFlashInfo(const base::FilePath& path,
     flash_version_numbers.push_back("999");
   // E.g., "Shockwave Flash 10.2 r154":
   plugin.description = plugin.name + " " + flash_version_numbers[0] + "." +
-      flash_version_numbers[1] + " r" + flash_version_numbers[2];
+                       flash_version_numbers[1] + " r" +
+                       flash_version_numbers[2];
   plugin.version = base::JoinString(flash_version_numbers, ".");
   content::WebPluginMimeType swf_mime_type(content::kFlashPluginSwfMimeType,
                                            content::kFlashPluginSwfExtension,
@@ -242,9 +241,9 @@ std::string CefContentClient::GetUserAgent() const {
     product_version =
         command_line->GetSwitchValueASCII(switches::kProductVersion);
   } else {
-    product_version = base::StringPrintf("Chrome/%d.%d.%d.%d",
-        CHROME_VERSION_MAJOR, CHROME_VERSION_MINOR, CHROME_VERSION_BUILD,
-        CHROME_VERSION_PATCH);
+    product_version = base::StringPrintf(
+        "Chrome/%d.%d.%d.%d", CHROME_VERSION_MAJOR, CHROME_VERSION_MINOR,
+        CHROME_VERSION_BUILD, CHROME_VERSION_PATCH);
   }
 
   return content::BuildUserAgentFromProduct(product_version);
@@ -371,8 +370,8 @@ bool CefContentClient::GetRawDataResource(int resource_id,
       size_t data_size = 0;
       if (scale_factor != ui::SCALE_FACTOR_NONE) {
         if (handler->GetDataResourceForScale(
-              resource_id, static_cast<cef_scale_factor_t>(scale_factor), data,
-              data_size)) {
+                resource_id, static_cast<cef_scale_factor_t>(scale_factor),
+                data, data_size)) {
           *value = base::StringPiece(static_cast<char*>(data), data_size);
         }
       } else if (handler->GetDataResource(resource_id, data, data_size)) {

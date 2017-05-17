@@ -9,6 +9,8 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=1a5e4dcfa2ffdc3755bd9ea45c928e2bb0e17540$
+//
 
 #include "libcef_dll/cpptoc/browser_cpptoc.h"
 #include "libcef_dll/cpptoc/process_message_cpptoc.h"
@@ -28,7 +30,6 @@
 #include "libcef_dll/ctocpp/render_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/request_handler_ctocpp.h"
 
-
 // VIRTUAL METHODS - Body may be edited by hand.
 
 CefRefPtr<CefContextMenuHandler> CefClientCToCpp::GetContextMenuHandler() {
@@ -39,8 +40,8 @@ CefRefPtr<CefContextMenuHandler> CefClientCToCpp::GetContextMenuHandler() {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  cef_context_menu_handler_t* _retval = _struct->get_context_menu_handler(
-      _struct);
+  cef_context_menu_handler_t* _retval =
+      _struct->get_context_menu_handler(_struct);
 
   // Return type: refptr_same
   return CefContextMenuHandlerCToCpp::Wrap(_retval);
@@ -138,8 +139,8 @@ CefRefPtr<CefGeolocationHandler> CefClientCToCpp::GetGeolocationHandler() {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  cef_geolocation_handler_t* _retval = _struct->get_geolocation_handler(
-      _struct);
+  cef_geolocation_handler_t* _retval =
+      _struct->get_geolocation_handler(_struct);
 
   // Return type: refptr_same
   return CefGeolocationHandlerCToCpp::Wrap(_retval);
@@ -229,8 +230,10 @@ CefRefPtr<CefRequestHandler> CefClientCToCpp::GetRequestHandler() {
   return CefRequestHandlerCToCpp::Wrap(_retval);
 }
 
-bool CefClientCToCpp::OnProcessMessageReceived(CefRefPtr<CefBrowser> browser,
-    CefProcessId source_process, CefRefPtr<CefProcessMessage> message) {
+bool CefClientCToCpp::OnProcessMessageReceived(
+    CefRefPtr<CefBrowser> browser,
+    CefProcessId source_process,
+    CefRefPtr<CefProcessMessage> message) {
   cef_client_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_process_message_received))
     return false;
@@ -247,31 +250,34 @@ bool CefClientCToCpp::OnProcessMessageReceived(CefRefPtr<CefBrowser> browser,
     return false;
 
   // Execute
-  int _retval = _struct->on_process_message_received(_struct,
-      CefBrowserCppToC::Wrap(browser),
-      source_process,
+  int _retval = _struct->on_process_message_received(
+      _struct, CefBrowserCppToC::Wrap(browser), source_process,
       CefProcessMessageCppToC::Wrap(message));
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
-
 
 // CONSTRUCTOR - Do not edit by hand.
 
-CefClientCToCpp::CefClientCToCpp() {
-}
+CefClientCToCpp::CefClientCToCpp() {}
 
-template<> cef_client_t* CefCToCppRefCounted<CefClientCToCpp, CefClient,
-    cef_client_t>::UnwrapDerived(CefWrapperType type, CefClient* c) {
+template <>
+cef_client_t*
+CefCToCppRefCounted<CefClientCToCpp, CefClient, cef_client_t>::UnwrapDerived(
+    CefWrapperType type,
+    CefClient* c) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCppRefCounted<CefClientCToCpp, CefClient,
-    cef_client_t>::DebugObjCt = 0;
+template <>
+base::AtomicRefCount
+    CefCToCppRefCounted<CefClientCToCpp, CefClient, cef_client_t>::DebugObjCt =
+        0;
 #endif
 
-template<> CefWrapperType CefCToCppRefCounted<CefClientCToCpp, CefClient,
-    cef_client_t>::kWrapperType = WT_CLIENT;
+template <>
+CefWrapperType CefCToCppRefCounted<CefClientCToCpp, CefClient, cef_client_t>::
+    kWrapperType = WT_CLIENT;

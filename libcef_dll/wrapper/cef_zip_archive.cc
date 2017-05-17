@@ -47,9 +47,8 @@ class CefZipFile : public CefZipArchive::File {
   virtual size_t GetDataSize() const OVERRIDE { return data_size_; }
 
   virtual CefRefPtr<CefStreamReader> GetStreamReader() const OVERRIDE {
-    CefRefPtr<CefReadHandler> handler(
-        new CefByteReadHandler(data_.get(), data_size_,
-                               const_cast<CefZipFile*>(this)));
+    CefRefPtr<CefReadHandler> handler(new CefByteReadHandler(
+        data_.get(), data_size_, const_cast<CefZipFile*>(this)));
     return CefStreamReader::CreateForHandler(handler);
   }
 
@@ -67,11 +66,9 @@ class CefZipFile : public CefZipArchive::File {
 
 // CefZipArchive implementation
 
-CefZipArchive::CefZipArchive() {
-}
+CefZipArchive::CefZipArchive() {}
 
-CefZipArchive::~CefZipArchive() {
-}
+CefZipArchive::~CefZipArchive() {}
 
 size_t CefZipArchive::Load(CefRefPtr<CefStreamReader> stream,
                            const CefString& password,
@@ -116,7 +113,7 @@ size_t CefZipArchive::Load(CefRefPtr<CefStreamReader> stream,
 
     // Read the file contents.
     do {
-     offset += reader->ReadFile(data + offset, size - offset);
+      offset += reader->ReadFile(data + offset, size - offset);
     } while (offset < size && !reader->Eof());
 
     DCHECK(offset == size);

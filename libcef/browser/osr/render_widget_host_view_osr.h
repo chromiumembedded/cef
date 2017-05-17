@@ -82,12 +82,12 @@ class CefWindowX11;
 class MacHelper;
 #endif
 
-class CefRenderWidgetHostViewOSR
-    : public content::RenderWidgetHostViewBase,
-      public ui::CompositorDelegate
+class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
+                                   public ui::CompositorDelegate
 #if !defined(OS_MACOSX)
-      , public content::DelegatedFrameHostClient,
-      public content::CompositorResizeLockClient
+                                   ,
+                                   public content::DelegatedFrameHostClient,
+                                   public content::CompositorResizeLockClient
 #endif
 {
  public:
@@ -129,8 +129,8 @@ class CefRenderWidgetHostViewOSR
 
   // RenderWidgetHostViewBase implementation.
   void DidCreateNewRendererCompositorFrameSink(
-      cc::mojom::MojoCompositorFrameSinkClient*
-          renderer_compositor_frame_sink) override;
+      cc::mojom::MojoCompositorFrameSinkClient* renderer_compositor_frame_sink)
+      override;
   void SubmitCompositorFrame(const cc::LocalSurfaceId& local_surface_id,
                              cc::CompositorFrame frame) override;
   void ClearCompositorFrame() override;
@@ -149,11 +149,10 @@ class CefRenderWidgetHostViewOSR
 
   gfx::Size GetRequestedRendererSize() const override;
   gfx::Size GetPhysicalBackingSize() const override;
-  void CopyFromSurface(
-      const gfx::Rect& src_subrect,
-      const gfx::Size& dst_size,
-      const content::ReadbackRequestCallback& callback,
-      const SkColorType color_type) override;
+  void CopyFromSurface(const gfx::Rect& src_subrect,
+                       const gfx::Size& dst_size,
+                       const content::ReadbackRequestCallback& callback,
+                       const SkColorType color_type) override;
   void CopyFromSurfaceToVideoFrame(
       const gfx::Rect& src_subrect,
       scoped_refptr<media::VideoFrame> target,
@@ -164,10 +163,9 @@ class CefRenderWidgetHostViewOSR
   void EndFrameSubscription() override;
   bool HasAcceleratedSurface(const gfx::Size& desired_size) override;
   gfx::Rect GetBoundsInRootWindow() override;
-  content::BrowserAccessibilityManager*
-      CreateBrowserAccessibilityManager(
-          content::BrowserAccessibilityDelegate* delegate,
-          bool for_root_frame) override;
+  content::BrowserAccessibilityManager* CreateBrowserAccessibilityManager(
+      content::BrowserAccessibilityDelegate* delegate,
+      bool for_root_frame) override;
 
 #if defined(TOOLKIT_VIEWS) || defined(USE_AURA)
   void ShowDisambiguationPopup(const gfx::Rect& rect_pixels,
@@ -179,10 +177,9 @@ class CefRenderWidgetHostViewOSR
 
   void SetNeedsBeginFrames(bool enabled) override;
 
-  bool TransformPointToLocalCoordSpace(
-      const gfx::Point& point,
-      const cc::SurfaceId& original_surface,
-      gfx::Point* transformed_point) override;
+  bool TransformPointToLocalCoordSpace(const gfx::Point& point,
+                                       const cc::SurfaceId& original_surface,
+                                       gfx::Point* transformed_point) override;
   bool TransformPointToCoordSpaceForView(
       const gfx::Point& point,
       RenderWidgetHostViewBase* target_view,
@@ -200,7 +197,7 @@ class CefRenderWidgetHostViewOSR
   gfx::Size DelegatedFrameHostDesiredSizeInDIP() const override;
   bool DelegatedFrameCanCreateResizeLock() const override;
   std::unique_ptr<content::CompositorResizeLock>
-      DelegatedFrameHostCreateResizeLock() override;
+  DelegatedFrameHostCreateResizeLock() override;
   void OnBeginFrame(const cc::BeginFrameArgs& args) override;
   bool IsAutoResizeEnabled() const override;
 
@@ -230,15 +227,12 @@ class CefRenderWidgetHostViewOSR
                int bitmap_height,
                void* bitmap_pixels);
 
-  bool IsPopupWidget() const {
-    return popup_type_ != blink::kWebPopupTypeNone;
-  }
+  bool IsPopupWidget() const { return popup_type_ != blink::kWebPopupTypeNone; }
 
-  void ImeSetComposition(
-      const CefString& text,
-      const std::vector<CefCompositionUnderline>& underlines,
-      const CefRange& replacement_range,
-      const CefRange& selection_range);
+  void ImeSetComposition(const CefString& text,
+                         const std::vector<CefCompositionUnderline>& underlines,
+                         const CefRange& replacement_range,
+                         const CefRange& selection_range);
   void ImeCommitText(const CefString& text,
                      const CefRange& replacement_range,
                      int relative_cursor_pos);
@@ -258,8 +252,9 @@ class CefRenderWidgetHostViewOSR
   }
 
   ui::Compositor* GetCompositor() const;
-  content::RenderWidgetHostImpl* render_widget_host() const
-      { return render_widget_host_; }
+  content::RenderWidgetHostImpl* render_widget_host() const {
+    return render_widget_host_;
+  }
   ui::Layer* GetRootLayer() const;
 
  private:
@@ -271,8 +266,7 @@ class CefRenderWidgetHostViewOSR
 
   // Called by CefBeginFrameTimer to send a BeginFrame request.
   void OnBeginFrameTimerTick();
-  void SendBeginFrame(base::TimeTicks frame_time,
-                      base::TimeDelta vsync_period);
+  void SendBeginFrame(base::TimeTicks frame_time, base::TimeDelta vsync_period);
 
   void CancelWidget();
 
@@ -383,4 +377,3 @@ class CefRenderWidgetHostViewOSR
 };
 
 #endif  // CEF_LIBCEF_BROWSER_OSR_RENDER_WIDGET_HOST_VIEW_OSR_H_
-

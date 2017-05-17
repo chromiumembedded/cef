@@ -43,8 +43,9 @@ bool GetTabById(int tab_id,
   // BrowserContext.
   Profile* profile = Profile::FromBrowserContext(browser_context);
   Profile* incognito_profile =
-      include_incognito && profile->HasOffTheRecordProfile() ?
-          profile->GetOffTheRecordProfile() : NULL;
+      include_incognito && profile->HasOffTheRecordProfile()
+          ? profile->GetOffTheRecordProfile()
+          : NULL;
 
   CefBrowserInfoManager::BrowserInfoList list;
   CefBrowserInfoManager::GetInstance()->GetBrowserInfoList(list);
@@ -65,8 +66,7 @@ bool GetTabById(int tab_id,
     if (!browser_context)
       continue;
 
-    if (browser_context == profile ||
-        browser_context == incognito_profile) {
+    if (browser_context == profile || browser_context == incognito_profile) {
       content::WebContents* web_contents = cef_browser->web_contents();
       if (SessionTabHelper::IdForTab(web_contents) == tab_id) {
         if (browser)
@@ -94,8 +94,8 @@ bool GetTabById(int tab_id,
   }
 
   if (error_message) {
-    *error_message = ErrorUtils::FormatErrorMessage(
-        keys::kTabNotFoundError, base::IntToString(tab_id));
+    *error_message = ErrorUtils::FormatErrorMessage(keys::kTabNotFoundError,
+                                                    base::IntToString(tab_id));
   }
 
   return false;
@@ -134,11 +134,8 @@ content::WebContents* ZoomAPIFunction::GetWebContents(int tab_id) {
   content::WebContents* web_contents = NULL;
   if (tab_id != -1) {
     // We assume this call leaves web_contents unchanged if it is unsuccessful.
-    GetTabById(tab_id,
-               context_,
-               include_incognito(),
-               NULL /* ignore CefBrowserHostImpl* output */,
-               &web_contents,
+    GetTabById(tab_id, context_, include_incognito(),
+               NULL /* ignore CefBrowserHostImpl* output */, &web_contents,
                &error_);
   } else {
     // Use the sender as the default.

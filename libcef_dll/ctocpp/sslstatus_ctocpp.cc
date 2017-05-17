@@ -9,10 +9,11 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=7c600e4c245f2a601a4d9664f1661f963b5fe714$
+//
 
 #include "libcef_dll/ctocpp/sslstatus_ctocpp.h"
 #include "libcef_dll/ctocpp/x509certificate_ctocpp.h"
-
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
@@ -27,7 +28,7 @@ bool CefSSLStatusCToCpp::IsSecureConnection() {
   int _retval = _struct->is_secure_connection(_struct);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 cef_cert_status_t CefSSLStatusCToCpp::GetCertStatus() {
@@ -86,23 +87,27 @@ CefRefPtr<CefX509Certificate> CefSSLStatusCToCpp::GetX509Certificate() {
   return CefX509CertificateCToCpp::Wrap(_retval);
 }
 
-
 // CONSTRUCTOR - Do not edit by hand.
 
-CefSSLStatusCToCpp::CefSSLStatusCToCpp() {
-}
+CefSSLStatusCToCpp::CefSSLStatusCToCpp() {}
 
-template<> cef_sslstatus_t* CefCToCppRefCounted<CefSSLStatusCToCpp,
-    CefSSLStatus, cef_sslstatus_t>::UnwrapDerived(CefWrapperType type,
-    CefSSLStatus* c) {
+template <>
+cef_sslstatus_t*
+CefCToCppRefCounted<CefSSLStatusCToCpp, CefSSLStatus, cef_sslstatus_t>::
+    UnwrapDerived(CefWrapperType type, CefSSLStatus* c) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCppRefCounted<CefSSLStatusCToCpp,
-    CefSSLStatus, cef_sslstatus_t>::DebugObjCt = 0;
+template <>
+base::AtomicRefCount CefCToCppRefCounted<CefSSLStatusCToCpp,
+                                         CefSSLStatus,
+                                         cef_sslstatus_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCppRefCounted<CefSSLStatusCToCpp, CefSSLStatus,
-    cef_sslstatus_t>::kWrapperType = WT_SSLSTATUS;
+template <>
+CefWrapperType CefCToCppRefCounted<CefSSLStatusCToCpp,
+                                   CefSSLStatus,
+                                   cef_sslstatus_t>::kWrapperType =
+    WT_SSLSTATUS;

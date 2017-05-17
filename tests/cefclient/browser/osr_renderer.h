@@ -34,15 +34,15 @@ class OsrRenderer {
   void Render();
 
   // Forwarded from CefRenderHandler callbacks.
-  void OnPopupShow(CefRefPtr<CefBrowser> browser,
-                   bool show);
+  void OnPopupShow(CefRefPtr<CefBrowser> browser, bool show);
   // |rect| must be in pixel coordinates.
-  void OnPopupSize(CefRefPtr<CefBrowser> browser,
-                   const CefRect& rect);
+  void OnPopupSize(CefRefPtr<CefBrowser> browser, const CefRect& rect);
   void OnPaint(CefRefPtr<CefBrowser> browser,
                CefRenderHandler::PaintElementType type,
                const CefRenderHandler::RectList& dirtyRects,
-               const void* buffer, int width, int height);
+               const void* buffer,
+               int width,
+               int height);
 
   // Apply spin.
   void SetSpin(float spinX, float spinY);
@@ -79,4 +79,3 @@ class OsrRenderer {
 }  // namespace client
 
 #endif  // CEF_TESTS_CEFCLIENT_BROWSER_OSR_RENDERER_H_
-

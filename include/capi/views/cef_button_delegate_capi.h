@@ -33,6 +33,8 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
+// $hash=eb5e428e07fbad33c7da94735969b0ff4dd6fb9f$
+//
 
 #ifndef CEF_INCLUDE_CAPI_VIEWS_CEF_BUTTON_DELEGATE_CAPI_H_
 #define CEF_INCLUDE_CAPI_VIEWS_CEF_BUTTON_DELEGATE_CAPI_H_
@@ -60,16 +62,16 @@ typedef struct _cef_button_delegate_t {
   ///
   // Called when |button| is pressed.
   ///
-  void (CEF_CALLBACK *on_button_pressed)(struct _cef_button_delegate_t* self,
-      struct _cef_button_t* button);
+  void(CEF_CALLBACK* on_button_pressed)(struct _cef_button_delegate_t* self,
+                                        struct _cef_button_t* button);
 
   ///
   // Called when the state of |button| changes.
   ///
-  void (CEF_CALLBACK *on_button_state_changed)(
-      struct _cef_button_delegate_t* self, struct _cef_button_t* button);
+  void(CEF_CALLBACK* on_button_state_changed)(
+      struct _cef_button_delegate_t* self,
+      struct _cef_button_t* button);
 } cef_button_delegate_t;
-
 
 #ifdef __cplusplus
 }

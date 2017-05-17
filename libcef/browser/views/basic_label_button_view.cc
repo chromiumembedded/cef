@@ -6,5 +6,4 @@
 
 CefBasicLabelButtonView::CefBasicLabelButtonView(
     CefButtonDelegate* cef_delegate)
-    : ParentClass(cef_delegate) {
-}
+    : ParentClass(cef_delegate) {}

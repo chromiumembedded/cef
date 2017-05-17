@@ -9,17 +9,18 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=621ee97874f724bf57e27cfcfd4731c161d0b353$
+//
 
 #include "libcef_dll/cpptoc/navigation_entry_cpptoc.h"
 #include "libcef_dll/cpptoc/sslstatus_cpptoc.h"
-
 
 namespace {
 
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
-int CEF_CALLBACK navigation_entry_is_valid(
-    struct _cef_navigation_entry_t* self) {
+int CEF_CALLBACK
+navigation_entry_is_valid(struct _cef_navigation_entry_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -33,8 +34,8 @@ int CEF_CALLBACK navigation_entry_is_valid(
   return _retval;
 }
 
-cef_string_userfree_t CEF_CALLBACK navigation_entry_get_url(
-    struct _cef_navigation_entry_t* self) {
+cef_string_userfree_t CEF_CALLBACK
+navigation_entry_get_url(struct _cef_navigation_entry_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -48,8 +49,8 @@ cef_string_userfree_t CEF_CALLBACK navigation_entry_get_url(
   return _retval.DetachToUserFree();
 }
 
-cef_string_userfree_t CEF_CALLBACK navigation_entry_get_display_url(
-    struct _cef_navigation_entry_t* self) {
+cef_string_userfree_t CEF_CALLBACK
+navigation_entry_get_display_url(struct _cef_navigation_entry_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -63,8 +64,8 @@ cef_string_userfree_t CEF_CALLBACK navigation_entry_get_display_url(
   return _retval.DetachToUserFree();
 }
 
-cef_string_userfree_t CEF_CALLBACK navigation_entry_get_original_url(
-    struct _cef_navigation_entry_t* self) {
+cef_string_userfree_t CEF_CALLBACK
+navigation_entry_get_original_url(struct _cef_navigation_entry_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -78,8 +79,8 @@ cef_string_userfree_t CEF_CALLBACK navigation_entry_get_original_url(
   return _retval.DetachToUserFree();
 }
 
-cef_string_userfree_t CEF_CALLBACK navigation_entry_get_title(
-    struct _cef_navigation_entry_t* self) {
+cef_string_userfree_t CEF_CALLBACK
+navigation_entry_get_title(struct _cef_navigation_entry_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -93,8 +94,8 @@ cef_string_userfree_t CEF_CALLBACK navigation_entry_get_title(
   return _retval.DetachToUserFree();
 }
 
-cef_transition_type_t CEF_CALLBACK navigation_entry_get_transition_type(
-    struct _cef_navigation_entry_t* self) {
+cef_transition_type_t CEF_CALLBACK
+navigation_entry_get_transition_type(struct _cef_navigation_entry_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -102,15 +103,15 @@ cef_transition_type_t CEF_CALLBACK navigation_entry_get_transition_type(
     return TT_EXPLICIT;
 
   // Execute
-  cef_transition_type_t _retval = CefNavigationEntryCppToC::Get(
-      self)->GetTransitionType();
+  cef_transition_type_t _retval =
+      CefNavigationEntryCppToC::Get(self)->GetTransitionType();
 
   // Return type: simple
   return _retval;
 }
 
-int CEF_CALLBACK navigation_entry_has_post_data(
-    struct _cef_navigation_entry_t* self) {
+int CEF_CALLBACK
+navigation_entry_has_post_data(struct _cef_navigation_entry_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -124,8 +125,8 @@ int CEF_CALLBACK navigation_entry_has_post_data(
   return _retval;
 }
 
-cef_time_t CEF_CALLBACK navigation_entry_get_completion_time(
-    struct _cef_navigation_entry_t* self) {
+cef_time_t CEF_CALLBACK
+navigation_entry_get_completion_time(struct _cef_navigation_entry_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -139,8 +140,8 @@ cef_time_t CEF_CALLBACK navigation_entry_get_completion_time(
   return _retval;
 }
 
-int CEF_CALLBACK navigation_entry_get_http_status_code(
-    struct _cef_navigation_entry_t* self) {
+int CEF_CALLBACK
+navigation_entry_get_http_status_code(struct _cef_navigation_entry_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -154,8 +155,8 @@ int CEF_CALLBACK navigation_entry_get_http_status_code(
   return _retval;
 }
 
-struct _cef_sslstatus_t* CEF_CALLBACK navigation_entry_get_sslstatus(
-    struct _cef_navigation_entry_t* self) {
+struct _cef_sslstatus_t* CEF_CALLBACK
+navigation_entry_get_sslstatus(struct _cef_navigation_entry_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -163,15 +164,14 @@ struct _cef_sslstatus_t* CEF_CALLBACK navigation_entry_get_sslstatus(
     return NULL;
 
   // Execute
-  CefRefPtr<CefSSLStatus> _retval = CefNavigationEntryCppToC::Get(
-      self)->GetSSLStatus();
+  CefRefPtr<CefSSLStatus> _retval =
+      CefNavigationEntryCppToC::Get(self)->GetSSLStatus();
 
   // Return type: refptr_same
   return CefSSLStatusCppToC::Wrap(_retval);
 }
 
 }  // namespace
-
 
 // CONSTRUCTOR - Do not edit by hand.
 
@@ -188,18 +188,26 @@ CefNavigationEntryCppToC::CefNavigationEntryCppToC() {
   GetStruct()->get_sslstatus = navigation_entry_get_sslstatus;
 }
 
-template<> CefRefPtr<CefNavigationEntry> CefCppToCRefCounted<CefNavigationEntryCppToC,
-    CefNavigationEntry, cef_navigation_entry_t>::UnwrapDerived(
-    CefWrapperType type, cef_navigation_entry_t* s) {
+template <>
+CefRefPtr<CefNavigationEntry> CefCppToCRefCounted<
+    CefNavigationEntryCppToC,
+    CefNavigationEntry,
+    cef_navigation_entry_t>::UnwrapDerived(CefWrapperType type,
+                                           cef_navigation_entry_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCppToCRefCounted<CefNavigationEntryCppToC,
-    CefNavigationEntry, cef_navigation_entry_t>::DebugObjCt = 0;
+template <>
+base::AtomicRefCount CefCppToCRefCounted<CefNavigationEntryCppToC,
+                                         CefNavigationEntry,
+                                         cef_navigation_entry_t>::DebugObjCt =
+    0;
 #endif
 
-template<> CefWrapperType CefCppToCRefCounted<CefNavigationEntryCppToC,
-    CefNavigationEntry, cef_navigation_entry_t>::kWrapperType =
+template <>
+CefWrapperType CefCppToCRefCounted<CefNavigationEntryCppToC,
+                                   CefNavigationEntry,
+                                   cef_navigation_entry_t>::kWrapperType =
     WT_NAVIGATION_ENTRY;

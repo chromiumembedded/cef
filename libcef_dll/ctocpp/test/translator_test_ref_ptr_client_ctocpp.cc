@@ -9,10 +9,11 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=07881bece2c4f3ec1becec5d12d51d909a122d13$
+//
 
-#include "libcef_dll/ctocpp/test/translator_test_ref_ptr_client_ctocpp.h"
 #include "libcef_dll/ctocpp/test/translator_test_ref_ptr_client_child_ctocpp.h"
-
+#include "libcef_dll/ctocpp/test/translator_test_ref_ptr_client_ctocpp.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
@@ -30,32 +31,36 @@ int CefTranslatorTestRefPtrClientCToCpp::GetValue() {
   return _retval;
 }
 
-
 // CONSTRUCTOR - Do not edit by hand.
 
-CefTranslatorTestRefPtrClientCToCpp::CefTranslatorTestRefPtrClientCToCpp() {
-}
+CefTranslatorTestRefPtrClientCToCpp::CefTranslatorTestRefPtrClientCToCpp() {}
 
-template<> cef_translator_test_ref_ptr_client_t* CefCToCppRefCounted<CefTranslatorTestRefPtrClientCToCpp,
-    CefTranslatorTestRefPtrClient,
-    cef_translator_test_ref_ptr_client_t>::UnwrapDerived(CefWrapperType type,
-    CefTranslatorTestRefPtrClient* c) {
+template <>
+cef_translator_test_ref_ptr_client_t*
+CefCToCppRefCounted<CefTranslatorTestRefPtrClientCToCpp,
+                    CefTranslatorTestRefPtrClient,
+                    cef_translator_test_ref_ptr_client_t>::
+    UnwrapDerived(CefWrapperType type, CefTranslatorTestRefPtrClient* c) {
   if (type == WT_TRANSLATOR_TEST_REF_PTR_CLIENT_CHILD) {
     return reinterpret_cast<cef_translator_test_ref_ptr_client_t*>(
         CefTranslatorTestRefPtrClientChildCToCpp::Unwrap(
-        reinterpret_cast<CefTranslatorTestRefPtrClientChild*>(c)));
+            reinterpret_cast<CefTranslatorTestRefPtrClientChild*>(c)));
   }
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCppRefCounted<CefTranslatorTestRefPtrClientCToCpp,
-    CefTranslatorTestRefPtrClient,
-    cef_translator_test_ref_ptr_client_t>::DebugObjCt = 0;
+template <>
+base::AtomicRefCount
+    CefCToCppRefCounted<CefTranslatorTestRefPtrClientCToCpp,
+                        CefTranslatorTestRefPtrClient,
+                        cef_translator_test_ref_ptr_client_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCppRefCounted<CefTranslatorTestRefPtrClientCToCpp,
-    CefTranslatorTestRefPtrClient,
-    cef_translator_test_ref_ptr_client_t>::kWrapperType =
-    WT_TRANSLATOR_TEST_REF_PTR_CLIENT;
+template <>
+CefWrapperType
+    CefCToCppRefCounted<CefTranslatorTestRefPtrClientCToCpp,
+                        CefTranslatorTestRefPtrClient,
+                        cef_translator_test_ref_ptr_client_t>::kWrapperType =
+        WT_TRANSLATOR_TEST_REF_PTR_CLIENT;

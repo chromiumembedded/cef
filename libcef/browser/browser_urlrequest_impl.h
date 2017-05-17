@@ -6,6 +6,7 @@
 #define CEF_LIBCEF_BROWSER_BROWSER_URLREQUEST_IMPL_H_
 
 #include "include/cef_urlrequest.h"
+
 #include "base/memory/ref_counted.h"
 
 class CefBrowserURLRequest : public CefURLRequest {

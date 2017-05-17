@@ -22,29 +22,26 @@ class CefCookieStoreProxy : public net::CookieStore {
   ~CefCookieStoreProxy() override;
 
   // net::CookieStore methods.
-  void SetCookieWithOptionsAsync(
-      const GURL& url,
-      const std::string& cookie_line,
-      const net::CookieOptions& options,
-      const SetCookiesCallback& callback) override;
-  void SetCookieWithDetailsAsync(
-      const GURL& url,
-      const std::string& name,
-      const std::string& value,
-      const std::string& domain,
-      const std::string& path,
-      base::Time creation_time,
-      base::Time expiration_time,
-      base::Time last_access_time,
-      bool secure,
-      bool http_only,
-      net::CookieSameSite same_site,
-      net::CookiePriority priority,
-      const SetCookiesCallback& callback) override;
-  void GetCookiesWithOptionsAsync(
-      const GURL& url,
-      const net::CookieOptions& options,
-      const GetCookiesCallback& callback) override;
+  void SetCookieWithOptionsAsync(const GURL& url,
+                                 const std::string& cookie_line,
+                                 const net::CookieOptions& options,
+                                 const SetCookiesCallback& callback) override;
+  void SetCookieWithDetailsAsync(const GURL& url,
+                                 const std::string& name,
+                                 const std::string& value,
+                                 const std::string& domain,
+                                 const std::string& path,
+                                 base::Time creation_time,
+                                 base::Time expiration_time,
+                                 base::Time last_access_time,
+                                 bool secure,
+                                 bool http_only,
+                                 net::CookieSameSite same_site,
+                                 net::CookiePriority priority,
+                                 const SetCookiesCallback& callback) override;
+  void GetCookiesWithOptionsAsync(const GURL& url,
+                                  const net::CookieOptions& options,
+                                  const GetCookiesCallback& callback) override;
   void GetCookieListWithOptionsAsync(
       const GURL& url,
       const net::CookieOptions& options,

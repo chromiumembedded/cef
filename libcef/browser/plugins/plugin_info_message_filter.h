@@ -53,11 +53,10 @@ class CefPluginInfoMessageFilter : public content::BrowserMessageFilter {
     ~Context();
     void ShutdownOnUIThread();
 
-    void DecidePluginStatus(
-        const GetPluginInfo_Params& params,
-        const content::WebPluginInfo& plugin,
-        const PluginMetadata* plugin_metadata,
-        CefViewHostMsg_GetPluginInfo_Status* status) const;
+    void DecidePluginStatus(const GetPluginInfo_Params& params,
+                            const content::WebPluginInfo& plugin,
+                            const PluginMetadata* plugin_metadata,
+                            CefViewHostMsg_GetPluginInfo_Status* status) const;
     bool FindEnabledPlugin(
         const GetPluginInfo_Params& params,
         CefViewHostMsg_GetPluginInfo_Status* status,
@@ -85,8 +84,7 @@ class CefPluginInfoMessageFilter : public content::BrowserMessageFilter {
     BooleanPrefMember always_authorize_plugins_;
   };
 
-  CefPluginInfoMessageFilter(int render_process_id,
-                             CefBrowserContext* profile);
+  CefPluginInfoMessageFilter(int render_process_id, CefBrowserContext* profile);
 
   // content::BrowserMessageFilter methods:
   bool OnMessageReceived(const IPC::Message& message) override;

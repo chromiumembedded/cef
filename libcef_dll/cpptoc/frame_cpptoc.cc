@@ -9,6 +9,8 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=de121cd59bc925b4b2adb03d97965fe19a22223f$
+//
 
 #include "libcef_dll/cpptoc/browser_cpptoc.h"
 #include "libcef_dll/cpptoc/frame_cpptoc.h"
@@ -16,7 +18,6 @@
 #include "libcef_dll/cpptoc/v8context_cpptoc.h"
 #include "libcef_dll/ctocpp/domvisitor_ctocpp.h"
 #include "libcef_dll/ctocpp/string_visitor_ctocpp.h"
-
 
 namespace {
 
@@ -125,7 +126,7 @@ void CEF_CALLBACK frame_view_source(struct _cef_frame_t* self) {
 }
 
 void CEF_CALLBACK frame_get_source(struct _cef_frame_t* self,
-    struct _cef_string_visitor_t* visitor) {
+                                   struct _cef_string_visitor_t* visitor) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -137,12 +138,11 @@ void CEF_CALLBACK frame_get_source(struct _cef_frame_t* self,
     return;
 
   // Execute
-  CefFrameCppToC::Get(self)->GetSource(
-      CefStringVisitorCToCpp::Wrap(visitor));
+  CefFrameCppToC::Get(self)->GetSource(CefStringVisitorCToCpp::Wrap(visitor));
 }
 
 void CEF_CALLBACK frame_get_text(struct _cef_frame_t* self,
-    struct _cef_string_visitor_t* visitor) {
+                                 struct _cef_string_visitor_t* visitor) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -154,12 +154,11 @@ void CEF_CALLBACK frame_get_text(struct _cef_frame_t* self,
     return;
 
   // Execute
-  CefFrameCppToC::Get(self)->GetText(
-      CefStringVisitorCToCpp::Wrap(visitor));
+  CefFrameCppToC::Get(self)->GetText(CefStringVisitorCToCpp::Wrap(visitor));
 }
 
 void CEF_CALLBACK frame_load_request(struct _cef_frame_t* self,
-    struct _cef_request_t* request) {
+                                     struct _cef_request_t* request) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -171,12 +170,11 @@ void CEF_CALLBACK frame_load_request(struct _cef_frame_t* self,
     return;
 
   // Execute
-  CefFrameCppToC::Get(self)->LoadRequest(
-      CefRequestCppToC::Unwrap(request));
+  CefFrameCppToC::Get(self)->LoadRequest(CefRequestCppToC::Unwrap(request));
 }
 
 void CEF_CALLBACK frame_load_url(struct _cef_frame_t* self,
-    const cef_string_t* url) {
+                                 const cef_string_t* url) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -188,12 +186,12 @@ void CEF_CALLBACK frame_load_url(struct _cef_frame_t* self,
     return;
 
   // Execute
-  CefFrameCppToC::Get(self)->LoadURL(
-      CefString(url));
+  CefFrameCppToC::Get(self)->LoadURL(CefString(url));
 }
 
 void CEF_CALLBACK frame_load_string(struct _cef_frame_t* self,
-    const cef_string_t* string_val, const cef_string_t* url) {
+                                    const cef_string_t* string_val,
+                                    const cef_string_t* url) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -209,14 +207,13 @@ void CEF_CALLBACK frame_load_string(struct _cef_frame_t* self,
     return;
 
   // Execute
-  CefFrameCppToC::Get(self)->LoadString(
-      CefString(string_val),
-      CefString(url));
+  CefFrameCppToC::Get(self)->LoadString(CefString(string_val), CefString(url));
 }
 
 void CEF_CALLBACK frame_execute_java_script(struct _cef_frame_t* self,
-    const cef_string_t* code, const cef_string_t* script_url,
-    int start_line) {
+                                            const cef_string_t* code,
+                                            const cef_string_t* script_url,
+                                            int start_line) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -230,9 +227,7 @@ void CEF_CALLBACK frame_execute_java_script(struct _cef_frame_t* self,
 
   // Execute
   CefFrameCppToC::Get(self)->ExecuteJavaScript(
-      CefString(code),
-      CefString(script_url),
-      start_line);
+      CefString(code), CefString(script_url), start_line);
 }
 
 int CEF_CALLBACK frame_is_main(struct _cef_frame_t* self) {
@@ -333,8 +328,8 @@ cef_browser_t* CEF_CALLBACK frame_get_browser(struct _cef_frame_t* self) {
   return CefBrowserCppToC::Wrap(_retval);
 }
 
-struct _cef_v8context_t* CEF_CALLBACK frame_get_v8context(
-    struct _cef_frame_t* self) {
+struct _cef_v8context_t* CEF_CALLBACK
+frame_get_v8context(struct _cef_frame_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -349,7 +344,7 @@ struct _cef_v8context_t* CEF_CALLBACK frame_get_v8context(
 }
 
 void CEF_CALLBACK frame_visit_dom(struct _cef_frame_t* self,
-    cef_domvisitor_t* visitor) {
+                                  cef_domvisitor_t* visitor) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -361,12 +356,10 @@ void CEF_CALLBACK frame_visit_dom(struct _cef_frame_t* self,
     return;
 
   // Execute
-  CefFrameCppToC::Get(self)->VisitDOM(
-      CefDOMVisitorCToCpp::Wrap(visitor));
+  CefFrameCppToC::Get(self)->VisitDOM(CefDOMVisitorCToCpp::Wrap(visitor));
 }
 
 }  // namespace
-
 
 // CONSTRUCTOR - Do not edit by hand.
 
@@ -397,16 +390,22 @@ CefFrameCppToC::CefFrameCppToC() {
   GetStruct()->visit_dom = frame_visit_dom;
 }
 
-template<> CefRefPtr<CefFrame> CefCppToCRefCounted<CefFrameCppToC, CefFrame,
-    cef_frame_t>::UnwrapDerived(CefWrapperType type, cef_frame_t* s) {
+template <>
+CefRefPtr<CefFrame>
+CefCppToCRefCounted<CefFrameCppToC, CefFrame, cef_frame_t>::UnwrapDerived(
+    CefWrapperType type,
+    cef_frame_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCppToCRefCounted<CefFrameCppToC, CefFrame,
-    cef_frame_t>::DebugObjCt = 0;
+template <>
+base::AtomicRefCount
+    CefCppToCRefCounted<CefFrameCppToC, CefFrame, cef_frame_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCppToCRefCounted<CefFrameCppToC, CefFrame,
-    cef_frame_t>::kWrapperType = WT_FRAME;
+template <>
+CefWrapperType
+    CefCppToCRefCounted<CefFrameCppToC, CefFrame, cef_frame_t>::kWrapperType =
+        WT_FRAME;

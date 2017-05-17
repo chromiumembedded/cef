@@ -9,9 +9,10 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=e6cce9479e55e626246b278bc40c43bbdebd4746$
+//
 
 #include "libcef_dll/ctocpp/read_handler_ctocpp.h"
-
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
@@ -28,10 +29,7 @@ size_t CefReadHandlerCToCpp::Read(void* ptr, size_t size, size_t n) {
     return 0;
 
   // Execute
-  size_t _retval = _struct->read(_struct,
-      ptr,
-      size,
-      n);
+  size_t _retval = _struct->read(_struct, ptr, size, n);
 
   // Return type: simple
   return _retval;
@@ -45,9 +43,7 @@ int CefReadHandlerCToCpp::Seek(int64 offset, int whence) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int _retval = _struct->seek(_struct,
-      offset,
-      whence);
+  int _retval = _struct->seek(_struct, offset, whence);
 
   // Return type: simple
   return _retval;
@@ -92,26 +88,30 @@ bool CefReadHandlerCToCpp::MayBlock() {
   int _retval = _struct->may_block(_struct);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
-
 
 // CONSTRUCTOR - Do not edit by hand.
 
-CefReadHandlerCToCpp::CefReadHandlerCToCpp() {
-}
+CefReadHandlerCToCpp::CefReadHandlerCToCpp() {}
 
-template<> cef_read_handler_t* CefCToCppRefCounted<CefReadHandlerCToCpp,
-    CefReadHandler, cef_read_handler_t>::UnwrapDerived(CefWrapperType type,
-    CefReadHandler* c) {
+template <>
+cef_read_handler_t*
+CefCToCppRefCounted<CefReadHandlerCToCpp, CefReadHandler, cef_read_handler_t>::
+    UnwrapDerived(CefWrapperType type, CefReadHandler* c) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCppRefCounted<CefReadHandlerCToCpp,
-    CefReadHandler, cef_read_handler_t>::DebugObjCt = 0;
+template <>
+base::AtomicRefCount CefCToCppRefCounted<CefReadHandlerCToCpp,
+                                         CefReadHandler,
+                                         cef_read_handler_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCppRefCounted<CefReadHandlerCToCpp,
-    CefReadHandler, cef_read_handler_t>::kWrapperType = WT_READ_HANDLER;
+template <>
+CefWrapperType CefCToCppRefCounted<CefReadHandlerCToCpp,
+                                   CefReadHandler,
+                                   cef_read_handler_t>::kWrapperType =
+    WT_READ_HANDLER;

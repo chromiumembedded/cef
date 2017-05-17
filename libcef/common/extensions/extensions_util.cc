@@ -19,9 +19,8 @@ bool ExtensionsEnabled() {
 
 bool PdfExtensionEnabled() {
   static bool enabled =
-      ExtensionsEnabled() &&
-      !base::CommandLine::ForCurrentProcess()->HasSwitch(
-          switches::kDisablePdfExtension);
+      ExtensionsEnabled() && !base::CommandLine::ForCurrentProcess()->HasSwitch(
+                                 switches::kDisablePdfExtension);
   return enabled;
 }
 

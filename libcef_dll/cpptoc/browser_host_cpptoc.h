@@ -9,6 +9,8 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=a6ac38f2fd5622e382f6dbfc91d10f71c81f6ae9$
+//
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_BROWSER_HOST_CPPTOC_H_
 #define CEF_LIBCEF_DLL_CPPTOC_BROWSER_HOST_CPPTOC_H_
@@ -18,17 +20,17 @@
 #error This file can be included DLL-side only
 #endif
 
-#include "include/cef_browser.h"
 #include "include/capi/cef_browser_capi.h"
-#include "include/cef_client.h"
 #include "include/capi/cef_client_capi.h"
+#include "include/cef_browser.h"
+#include "include/cef_client.h"
 #include "libcef_dll/cpptoc/cpptoc_ref_counted.h"
 
 // Wrap a C++ class with a C structure.
 // This class may be instantiated and accessed DLL-side only.
-class CefBrowserHostCppToC
-    : public CefCppToCRefCounted<CefBrowserHostCppToC, CefBrowserHost,
-        cef_browser_host_t> {
+class CefBrowserHostCppToC : public CefCppToCRefCounted<CefBrowserHostCppToC,
+                                                        CefBrowserHost,
+                                                        cef_browser_host_t> {
  public:
   CefBrowserHostCppToC();
 };

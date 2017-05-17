@@ -8,8 +8,8 @@
 
 #include <string>
 
-#include "libcef/common/content_client.h"
 #include "include/cef_app.h"
+#include "libcef/common/content_client.h"
 
 #include "base/compiler_specific.h"
 #include "content/public/app/content_main_delegate.h"
@@ -43,8 +43,7 @@ class CefMainDelegate : public content::ContentMainDelegate {
   void ZygoteForked() override;
 #endif
   content::ContentBrowserClient* CreateContentBrowserClient() override;
-  content::ContentRendererClient*
-      CreateContentRendererClient() override;
+  content::ContentRendererClient* CreateContentRendererClient() override;
   content::ContentUtilityClient* CreateContentUtilityClient() override;
 
   // Shut down the browser runner.

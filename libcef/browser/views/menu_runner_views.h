@@ -10,7 +10,7 @@
 
 class CefBrowserViewImpl;
 
-class CefMenuRunnerViews: public CefMenuRunner {
+class CefMenuRunnerViews : public CefMenuRunner {
  public:
   // |browser_view| is guaranteed to outlive this object.
   explicit CefMenuRunnerViews(CefBrowserViewImpl* browser_view);

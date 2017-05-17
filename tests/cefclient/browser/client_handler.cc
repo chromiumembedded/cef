@@ -35,7 +35,7 @@ namespace {
 
 // Custom menu command Ids.
 enum client_menu_ids {
-  CLIENT_ID_SHOW_DEVTOOLS   = MENU_ID_USER_FIRST,
+  CLIENT_ID_SHOW_DEVTOOLS = MENU_ID_USER_FIRST,
   CLIENT_ID_CLOSE_DEVTOOLS,
   CLIENT_ID_INSPECT_ELEMENT,
   CLIENT_ID_SHOW_SSL_INFO,
@@ -54,9 +54,8 @@ std::string GetTimeString(const CefTime& value) {
     return "Unspecified";
 
   static const char* kMonths[] = {
-    "January", "February", "March", "April", "May", "June", "July", "August",
-    "September", "October", "November", "December"
-  };
+      "January", "February", "March",     "April",   "May",      "June",
+      "July",    "August",   "September", "October", "November", "December"};
   std::string month;
   if (value.month >= 1 && value.month <= 12)
     month = kMonths[value.month - 1];
@@ -64,10 +63,10 @@ std::string GetTimeString(const CefTime& value) {
     month = "Invalid";
 
   std::stringstream ss;
-  ss << month << " " << value.day_of_month << ", " << value.year << " " <<
-      std::setfill('0') << std::setw(2) << value.hour << ":" <<
-      std::setfill('0') << std::setw(2) << value.minute << ":" <<
-      std::setfill('0') << std::setw(2) << value.second;
+  ss << month << " " << value.day_of_month << ", " << value.year << " "
+     << std::setfill('0') << std::setw(2) << value.hour << ":"
+     << std::setfill('0') << std::setw(2) << value.minute << ":"
+     << std::setfill('0') << std::setw(2) << value.second;
   return ss.str();
 }
 
@@ -85,8 +84,15 @@ std::string GetBinaryString(CefRefPtr<CefBinaryValue> value) {
   return CefBase64Encode(src.data(), src.size());
 }
 
-#define FLAG(flag) if (status & flag) result += std::string(#flag) + "<br/>"
-#define VALUE(val,def) if (val == def) return std::string(#def)
+#define FLAG(flag)                          \
+  if (status & flag) {                      \
+    result += std::string(#flag) + "<br/>"; \
+  }
+
+#define VALUE(val, def)       \
+  if (val == def) {           \
+    return std::string(#def); \
+  }
 
 std::string GetCertStatusString(cef_cert_status_t status) {
   std::string result;
@@ -146,9 +152,10 @@ void LoadErrorPage(CefRefPtr<CefFrame> frame,
   ss << "<html><head><title>Page failed to load</title></head>"
         "<body bgcolor=\"white\">"
         "<h3>Page failed to load.</h3>"
-        "URL: <a href=\"" << failed_url << "\">"<< failed_url << "</a>"
-        "<br/>Error: " << test_runner::GetErrorString(error_code) <<
-        " (" << error_code << ")";
+        "URL: <a href=\""
+     << failed_url << "\">" << failed_url
+     << "</a><br/>Error: " << test_runner::GetErrorString(error_code) << " ("
+     << error_code << ")";
 
   if (!other_info.empty())
     ss << "<br/>" << other_info;
@@ -159,7 +166,7 @@ void LoadErrorPage(CefRefPtr<CefFrame> frame,
 
 // Return HTML string with information about a certificate.
 std::string GetCertificateInformation(CefRefPtr<CefX509Certificate> cert,
-    cef_cert_status_t certstatus) {
+                                      cef_cert_status_t certstatus) {
   CefRefPtr<CefX509CertPrincipal> subject = cert->GetSubject();
   CefRefPtr<CefX509CertPrincipal> issuer = cert->GetIssuer();
 
@@ -170,22 +177,22 @@ std::string GetCertificateInformation(CefRefPtr<CefX509Certificate> cert,
         "<table border=1><tr><th>Field</th><th>Value</th></tr>";
 
   if (certstatus != CERT_STATUS_NONE) {
-    ss << "<tr><td>Status</td><td>" <<
-              GetCertStatusString(certstatus) << "</td></tr>";
+    ss << "<tr><td>Status</td><td>" << GetCertStatusString(certstatus)
+       << "</td></tr>";
   }
 
-  ss << "<tr><td>Subject</td><td>" <<
-            (subject.get() ? subject->GetDisplayName().ToString() : "&nbsp;") <<
-            "</td></tr>"
-        "<tr><td>Issuer</td><td>" <<
-            (issuer.get() ? issuer->GetDisplayName().ToString() : "&nbsp;") <<
-            "</td></tr>"
-        "<tr><td>Serial #*</td><td>" <<
-            GetBinaryString(cert->GetSerialNumber()) << "</td></tr>" <<
-        "<tr><td>Valid Start</td><td>" <<
-            GetTimeString(cert->GetValidStart()) << "</td></tr>"
-        "<tr><td>Valid Expiry</td><td>" <<
-            GetTimeString(cert->GetValidExpiry()) << "</td></tr>";
+  ss << "<tr><td>Subject</td><td>"
+     << (subject.get() ? subject->GetDisplayName().ToString() : "&nbsp;")
+     << "</td></tr>"
+        "<tr><td>Issuer</td><td>"
+     << (issuer.get() ? issuer->GetDisplayName().ToString() : "&nbsp;")
+     << "</td></tr>"
+        "<tr><td>Serial #*</td><td>"
+     << GetBinaryString(cert->GetSerialNumber()) << "</td></tr>"
+     << "<tr><td>Valid Start</td><td>" << GetTimeString(cert->GetValidStart())
+     << "</td></tr>"
+        "<tr><td>Valid Expiry</td><td>"
+     << GetTimeString(cert->GetValidExpiry()) << "</td></tr>";
 
   CefX509Certificate::IssuerChainBinaryList der_chain_list;
   CefX509Certificate::IssuerChainBinaryList pem_chain_list;
@@ -198,11 +205,12 @@ std::string GetCertificateInformation(CefRefPtr<CefX509Certificate> cert,
 
   for (size_t i = 0U; i < der_chain_list.size(); ++i) {
     ss << "<tr><td>DER Encoded*</td>"
-          "<td style=\"max-width:800px;overflow:scroll;\">" <<
-              GetBinaryString(der_chain_list[i]) << "</td></tr>"
+          "<td style=\"max-width:800px;overflow:scroll;\">"
+       << GetBinaryString(der_chain_list[i])
+       << "</td></tr>"
           "<tr><td>PEM Encoded*</td>"
-          "<td style=\"max-width:800px;overflow:scroll;\">" <<
-              GetBinaryString(pem_chain_list[i]) << "</td></tr>";
+          "<td style=\"max-width:800px;overflow:scroll;\">"
+       << GetBinaryString(pem_chain_list[i]) << "</td></tr>";
   }
 
   ss << "</table> * Displayed value is base64 encoded.";
@@ -211,18 +219,14 @@ std::string GetCertificateInformation(CefRefPtr<CefX509Certificate> cert,
 
 }  // namespace
 
-
 class ClientDownloadImageCallback : public CefDownloadImageCallback {
  public:
-  explicit ClientDownloadImageCallback(
-      CefRefPtr<ClientHandler> client_handler)
-      : client_handler_(client_handler) {
-  }
+  explicit ClientDownloadImageCallback(CefRefPtr<ClientHandler> client_handler)
+      : client_handler_(client_handler) {}
 
-  void OnDownloadImageFinished(
-      const CefString& image_url,
-      int http_status_code,
-      CefRefPtr<CefImage> image) OVERRIDE {
+  void OnDownloadImageFinished(const CefString& image_url,
+                               int http_status_code,
+                               CefRefPtr<CefImage> image) OVERRIDE {
     if (image)
       client_handler_->NotifyFavicon(image);
   }
@@ -234,18 +238,17 @@ class ClientDownloadImageCallback : public CefDownloadImageCallback {
   DISALLOW_COPY_AND_ASSIGN(ClientDownloadImageCallback);
 };
 
-
 ClientHandler::ClientHandler(Delegate* delegate,
                              bool is_osr,
                              const std::string& startup_url)
-  : is_osr_(is_osr),
-    startup_url_(startup_url),
-    download_favicon_images_(false),
-    delegate_(delegate),
-    browser_count_(0),
-    console_log_file_(MainContext::Get()->GetConsoleLogPath()),
-    first_console_message_(true),
-    focus_on_editable_field_(false) {
+    : is_osr_(is_osr),
+      startup_url_(startup_url),
+      download_favicon_images_(false),
+      delegate_(delegate),
+      browser_count_(0),
+      console_log_file_(MainContext::Get()->GetConsoleLogPath()),
+      first_console_message_(true),
+      focus_on_editable_field_(false) {
   DCHECK(!console_log_file_.empty());
 
 #if defined(OS_LINUX)
@@ -299,11 +302,10 @@ bool ClientHandler::OnProcessMessageReceived(
   return false;
 }
 
-void ClientHandler::OnBeforeContextMenu(
-    CefRefPtr<CefBrowser> browser,
-    CefRefPtr<CefFrame> frame,
-    CefRefPtr<CefContextMenuParams> params,
-    CefRefPtr<CefMenuModel> model) {
+void ClientHandler::OnBeforeContextMenu(CefRefPtr<CefBrowser> browser,
+                                        CefRefPtr<CefFrame> frame,
+                                        CefRefPtr<CefContextMenuParams> params,
+                                        CefRefPtr<CefMenuModel> model) {
   CEF_REQUIRE_UI_THREAD();
 
   if ((params->GetTypeFlags() & (CM_TYPEFLAG_PAGE | CM_TYPEFLAG_FRAME)) != 0) {
@@ -330,12 +332,11 @@ void ClientHandler::OnBeforeContextMenu(
     delegate_->OnBeforeContextMenu(model);
 }
 
-bool ClientHandler::OnContextMenuCommand(
-    CefRefPtr<CefBrowser> browser,
-    CefRefPtr<CefFrame> frame,
-    CefRefPtr<CefContextMenuParams> params,
-    int command_id,
-    EventFlags event_flags) {
+bool ClientHandler::OnContextMenuCommand(CefRefPtr<CefBrowser> browser,
+                                         CefRefPtr<CefFrame> frame,
+                                         CefRefPtr<CefContextMenuParams> params,
+                                         int command_id,
+                                         EventFlags event_flags) {
   CEF_REQUIRE_UI_THREAD();
 
   switch (command_id) {
@@ -400,10 +401,9 @@ bool ClientHandler::OnConsoleMessage(CefRefPtr<CefBrowser> browser,
   FILE* file = fopen(console_log_file_.c_str(), "a");
   if (file) {
     std::stringstream ss;
-    ss << "Message: " << message.ToString() << NEWLINE <<
-          "Source: " << source.ToString() << NEWLINE <<
-          "Line: " << line << NEWLINE <<
-          "-----------------------" << NEWLINE;
+    ss << "Message: " << message.ToString() << NEWLINE
+       << "Source: " << source.ToString() << NEWLINE << "Line: " << line
+       << NEWLINE << "-----------------------" << NEWLINE;
     fputs(ss.str().c_str(), file);
     fclose(file);
 
@@ -435,10 +435,9 @@ void ClientHandler::OnDownloadUpdated(
   CEF_REQUIRE_UI_THREAD();
 
   if (download_item->IsComplete()) {
-    test_runner::Alert(
-        browser,
-        "File \"" + download_item->GetFullPath().ToString() +
-        "\" downloaded successfully.");
+    test_runner::Alert(browser, "File \"" +
+                                    download_item->GetFullPath().ToString() +
+                                    "\" downloaded successfully.");
   }
 }
 
@@ -449,8 +448,7 @@ bool ClientHandler::OnDragEnter(CefRefPtr<CefBrowser> browser,
 
   // Forbid dragging of URLs and files.
   if ((mask & DRAG_OPERATION_LINK) && !dragData->IsFragment()) {
-    test_runner::Alert(
-        browser, "cefclient blocks dragging of URLs and files");
+    test_runner::Alert(browser, "cefclient blocks dragging of URLs and files");
     return true;
   }
 
@@ -472,10 +470,10 @@ void ClientHandler::OnTakeFocus(CefRefPtr<CefBrowser> browser, bool next) {
 }
 
 bool ClientHandler::OnRequestGeolocationPermission(
-      CefRefPtr<CefBrowser> browser,
-      const CefString& requesting_url,
-      int request_id,
-      CefRefPtr<CefGeolocationCallback> callback) {
+    CefRefPtr<CefBrowser> browser,
+    const CefString& requesting_url,
+    int request_id,
+    CefRefPtr<CefGeolocationCallback> callback) {
   CEF_REQUIRE_UI_THREAD();
 
   // Allow geolocation access from all websites.
@@ -561,8 +559,7 @@ void ClientHandler::OnBeforeClose(CefRefPtr<CefBrowser> browser) {
 
   if (--browser_count_ == 0) {
     // Remove and delete message router handlers.
-    MessageHandlerSet::const_iterator it =
-        message_handler_set_.begin();
+    MessageHandlerSet::const_iterator it = message_handler_set_.begin();
     for (; it != message_handler_set_.end(); ++it) {
       message_router_->RemoveHandler(*(it));
       delete *(it);
@@ -636,10 +633,10 @@ bool ClientHandler::OnOpenURLFromTab(
 }
 
 cef_return_value_t ClientHandler::OnBeforeResourceLoad(
-      CefRefPtr<CefBrowser> browser,
-      CefRefPtr<CefFrame> frame,
-      CefRefPtr<CefRequest> request,
-      CefRefPtr<CefRequestCallback> callback) {
+    CefRefPtr<CefBrowser> browser,
+    CefRefPtr<CefFrame> frame,
+    CefRefPtr<CefRequest> request,
+    CefRefPtr<CefRequestCallback> callback) {
   CEF_REQUIRE_IO_THREAD();
 
   return resource_manager_->OnBeforeResourceLoad(browser, frame, request,
@@ -691,12 +688,11 @@ void ClientHandler::OnProtocolExecution(CefRefPtr<CefBrowser> browser,
     allow_os_execution = true;
 }
 
-bool ClientHandler::OnCertificateError(
-    CefRefPtr<CefBrowser> browser,
-    ErrorCode cert_error,
-    const CefString& request_url,
-    CefRefPtr<CefSSLInfo> ssl_info,
-    CefRefPtr<CefRequestCallback> callback) {
+bool ClientHandler::OnCertificateError(CefRefPtr<CefBrowser> browser,
+                                       ErrorCode cert_error,
+                                       const CefString& request_url,
+                                       CefRefPtr<CefSSLInfo> ssl_info,
+                                       CefRefPtr<CefRequestCallback> callback) {
   CEF_REQUIRE_UI_THREAD();
 
   CefRefPtr<CefX509Certificate> cert = ssl_info->GetX509Certificate();
@@ -732,7 +728,7 @@ bool ClientHandler::OnSelectClientCertificate(
     return true;
   }
 
-  std::vector<CefRefPtr<CefX509Certificate> >::const_iterator it =
+  std::vector<CefRefPtr<CefX509Certificate>>::const_iterator it =
       certificates.begin();
   for (; it != certificates.end(); ++it) {
     CefString subject((*it)->GetSubject()->GetDisplayName());
@@ -839,8 +835,8 @@ void ClientHandler::ShowSSLInformation(CefRefPtr<CefBrowser> browser) {
 
   ss << "<html><head><title>SSL Information</title></head>"
         "<body bgcolor=\"white\">"
-        "<h3>SSL Connection</h3>" <<
-        "<table border=1><tr><th>Field</th><th>Value</th></tr>";
+        "<h3>SSL Connection</h3>"
+     << "<table border=1><tr><th>Field</th><th>Value</th></tr>";
 
   CefURLParts urlparts;
   if (CefParseURL(nav->GetURL(), urlparts)) {
@@ -851,10 +847,10 @@ void ClientHandler::ShowSSLInformation(CefRefPtr<CefBrowser> browser) {
     ss << "</td></tr>";
   }
 
-  ss << "<tr><td>SSL Version</td><td>" <<
-            GetSSLVersionString(ssl->GetSSLVersion()) << "</td></tr>";
-  ss << "<tr><td>Content Status</td><td>" <<
-            GetContentStatusString(ssl->GetContentStatus()) << "</td></tr>";
+  ss << "<tr><td>SSL Version</td><td>"
+     << GetSSLVersionString(ssl->GetSSLVersion()) << "</td></tr>";
+  ss << "<tr><td>Content Status</td><td>"
+     << GetContentStatusString(ssl->GetContentStatus()) << "</td></tr>";
 
   ss << "</table>";
 
@@ -869,13 +865,12 @@ void ClientHandler::ShowSSLInformation(CefRefPtr<CefBrowser> browser) {
       test_runner::GetDataURI(ss.str(), "text/html"));
 }
 
-bool ClientHandler::CreatePopupWindow(
-    CefRefPtr<CefBrowser> browser,
-    bool is_devtools,
-    const CefPopupFeatures& popupFeatures,
-    CefWindowInfo& windowInfo,
-    CefRefPtr<CefClient>& client,
-    CefBrowserSettings& settings) {
+bool ClientHandler::CreatePopupWindow(CefRefPtr<CefBrowser> browser,
+                                      bool is_devtools,
+                                      const CefPopupFeatures& popupFeatures,
+                                      CefWindowInfo& windowInfo,
+                                      CefRefPtr<CefClient>& client,
+                                      CefBrowserSettings& settings) {
   // Note: This method will be called on multiple threads.
 
   // The popup browser will be parented to a new native window.
@@ -885,7 +880,6 @@ bool ClientHandler::CreatePopupWindow(
 
   return true;
 }
-
 
 void ClientHandler::NotifyBrowserCreated(CefRefPtr<CefBrowser> browser) {
   if (!CURRENTLY_ON_MAIN_THREAD()) {
@@ -926,8 +920,7 @@ void ClientHandler::NotifyBrowserClosed(CefRefPtr<CefBrowser> browser) {
 void ClientHandler::NotifyAddress(const CefString& url) {
   if (!CURRENTLY_ON_MAIN_THREAD()) {
     // Execute this method on the main thread.
-    MAIN_POST_CLOSURE(
-        base::Bind(&ClientHandler::NotifyAddress, this, url));
+    MAIN_POST_CLOSURE(base::Bind(&ClientHandler::NotifyAddress, this, url));
     return;
   }
 
@@ -938,8 +931,7 @@ void ClientHandler::NotifyAddress(const CefString& url) {
 void ClientHandler::NotifyTitle(const CefString& title) {
   if (!CURRENTLY_ON_MAIN_THREAD()) {
     // Execute this method on the main thread.
-    MAIN_POST_CLOSURE(
-        base::Bind(&ClientHandler::NotifyTitle, this, title));
+    MAIN_POST_CLOSURE(base::Bind(&ClientHandler::NotifyTitle, this, title));
     return;
   }
 
@@ -950,8 +942,7 @@ void ClientHandler::NotifyTitle(const CefString& title) {
 void ClientHandler::NotifyFavicon(CefRefPtr<CefImage> image) {
   if (!CURRENTLY_ON_MAIN_THREAD()) {
     // Execute this method on the main thread.
-    MAIN_POST_CLOSURE(
-        base::Bind(&ClientHandler::NotifyFavicon, this, image));
+    MAIN_POST_CLOSURE(base::Bind(&ClientHandler::NotifyFavicon, this, image));
     return;
   }
 
@@ -976,9 +967,8 @@ void ClientHandler::NotifyLoadingState(bool isLoading,
                                        bool canGoForward) {
   if (!CURRENTLY_ON_MAIN_THREAD()) {
     // Execute this method on the main thread.
-    MAIN_POST_CLOSURE(
-        base::Bind(&ClientHandler::NotifyLoadingState, this,
-                   isLoading, canGoBack, canGoForward));
+    MAIN_POST_CLOSURE(base::Bind(&ClientHandler::NotifyLoadingState, this,
+                                 isLoading, canGoBack, canGoForward));
     return;
   }
 
@@ -1002,8 +992,7 @@ void ClientHandler::NotifyDraggableRegions(
 void ClientHandler::NotifyTakeFocus(bool next) {
   if (!CURRENTLY_ON_MAIN_THREAD()) {
     // Execute this method on the main thread.
-    MAIN_POST_CLOSURE(
-        base::Bind(&ClientHandler::NotifyTakeFocus, this, next));
+    MAIN_POST_CLOSURE(base::Bind(&ClientHandler::NotifyTakeFocus, this, next));
     return;
   }
 

@@ -35,15 +35,14 @@ class ClientDialogHandlerGtk : public CefDialogHandler,
                   const CefString& default_prompt_text,
                   CefRefPtr<CefJSDialogCallback> callback,
                   bool& suppress_message) OVERRIDE;
-  bool OnBeforeUnloadDialog(
-      CefRefPtr<CefBrowser> browser,
-      const CefString& message_text,
-      bool is_reload,
-      CefRefPtr<CefJSDialogCallback> callback) OVERRIDE;
+  bool OnBeforeUnloadDialog(CefRefPtr<CefBrowser> browser,
+                            const CefString& message_text,
+                            bool is_reload,
+                            CefRefPtr<CefJSDialogCallback> callback) OVERRIDE;
   void OnResetDialogState(CefRefPtr<CefBrowser> browser) OVERRIDE;
 
  private:
-  static void OnDialogResponse(GtkDialog *dialog,
+  static void OnDialogResponse(GtkDialog* dialog,
                                gint response_id,
                                ClientDialogHandlerGtk* handler);
 

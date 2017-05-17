@@ -19,15 +19,18 @@ TEST(FileUtil, JoinPath) {
 
   // Should always be 1 kPathSep character between paths.
   EXPECT_STREQ(expected.c_str(), file_util::JoinPath("path1", "path2").c_str());
+  EXPECT_STREQ(
+      expected.c_str(),
+      file_util::JoinPath(std::string("path1") + file_util::kPathSep, "path2")
+          .c_str());
+  EXPECT_STREQ(
+      expected.c_str(),
+      file_util::JoinPath("path1", file_util::kPathSep + std::string("path2"))
+          .c_str());
   EXPECT_STREQ(expected.c_str(),
-      file_util::JoinPath(std::string("path1") + file_util::kPathSep,
-                          "path2").c_str());
-  EXPECT_STREQ(expected.c_str(),
-      file_util::JoinPath("path1",
-                          file_util::kPathSep + std::string("path2")).c_str());
-  EXPECT_STREQ(expected.c_str(),
-      file_util::JoinPath(std::string("path1") + file_util::kPathSep,
-                          file_util::kPathSep + std::string("path2")).c_str());
+               file_util::JoinPath(std::string("path1") + file_util::kPathSep,
+                                   file_util::kPathSep + std::string("path2"))
+                   .c_str());
 }
 
 TEST(FileUtil, WriteAndReadFile) {

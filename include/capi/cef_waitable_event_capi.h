@@ -33,6 +33,8 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
+// $hash=a8fdbd327fff7769353b0aba47c74cba61333144$
+//
 
 #ifndef CEF_INCLUDE_CAPI_CEF_WAITABLE_EVENT_CAPI_H_
 #define CEF_INCLUDE_CAPI_CEF_WAITABLE_EVENT_CAPI_H_
@@ -43,7 +45,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
 
 ///
 // WaitableEvent is a thread synchronization tool that allows one thread to wait
@@ -65,27 +66,27 @@ typedef struct _cef_waitable_event_t {
   ///
   // Put the event in the un-signaled state.
   ///
-  void (CEF_CALLBACK *reset)(struct _cef_waitable_event_t* self);
+  void(CEF_CALLBACK* reset)(struct _cef_waitable_event_t* self);
 
   ///
   // Put the event in the signaled state. This causes any thread blocked on Wait
   // to be woken up.
   ///
-  void (CEF_CALLBACK *signal)(struct _cef_waitable_event_t* self);
+  void(CEF_CALLBACK* signal)(struct _cef_waitable_event_t* self);
 
   ///
   // Returns true (1) if the event is in the signaled state, else false (0). If
   // the event was created with |automatic_reset| set to true (1) then calling
   // this function will also cause a reset.
   ///
-  int (CEF_CALLBACK *is_signaled)(struct _cef_waitable_event_t* self);
+  int(CEF_CALLBACK* is_signaled)(struct _cef_waitable_event_t* self);
 
   ///
   // Wait indefinitely for the event to be signaled. This function will not
   // return until after the call to signal() has completed. This function cannot
   // be called on the browser process UI or IO threads.
   ///
-  void (CEF_CALLBACK *wait)(struct _cef_waitable_event_t* self);
+  void(CEF_CALLBACK* wait)(struct _cef_waitable_event_t* self);
 
   ///
   // Wait up to |max_ms| milliseconds for the event to be signaled. Returns true
@@ -94,10 +95,9 @@ typedef struct _cef_waitable_event_t {
   // until after the call to signal() has completed. This function cannot be
   // called on the browser process UI or IO threads.
   ///
-  int (CEF_CALLBACK *timed_wait)(struct _cef_waitable_event_t* self,
-      int64 max_ms);
+  int(CEF_CALLBACK* timed_wait)(struct _cef_waitable_event_t* self,
+                                int64 max_ms);
 } cef_waitable_event_t;
-
 
 ///
 // Create a new waitable event. If |automatic_reset| is true (1) then the event
@@ -106,9 +106,9 @@ typedef struct _cef_waitable_event_t {
 // manually. If |initially_signaled| is true (1) then the event will start in
 // the signaled state.
 ///
-CEF_EXPORT cef_waitable_event_t* cef_waitable_event_create(int automatic_reset,
+CEF_EXPORT cef_waitable_event_t* cef_waitable_event_create(
+    int automatic_reset,
     int initially_signaled);
-
 
 #ifdef __cplusplus
 }

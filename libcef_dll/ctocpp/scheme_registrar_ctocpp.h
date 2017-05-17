@@ -9,6 +9,8 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=3d8b5e8cd8b2775fa63accc1896ac660d112d3a6$
+//
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_SCHEME_REGISTRAR_CTOCPP_H_
 #define CEF_LIBCEF_DLL_CTOCPP_SCHEME_REGISTRAR_CTOCPP_H_
@@ -18,22 +20,27 @@
 #error This file can be included wrapper-side only
 #endif
 
-#include "include/cef_scheme.h"
 #include "include/capi/cef_scheme_capi.h"
+#include "include/cef_scheme.h"
 #include "libcef_dll/ctocpp/ctocpp_scoped.h"
 
 // Wrap a C structure with a C++ class.
 // This class may be instantiated and accessed wrapper-side only.
 class CefSchemeRegistrarCToCpp
-    : public CefCToCppScoped<CefSchemeRegistrarCToCpp, CefSchemeRegistrar,
-        cef_scheme_registrar_t> {
+    : public CefCToCppScoped<CefSchemeRegistrarCToCpp,
+                             CefSchemeRegistrar,
+                             cef_scheme_registrar_t> {
  public:
   CefSchemeRegistrarCToCpp();
 
   // CefSchemeRegistrar methods.
-  bool AddCustomScheme(const CefString& scheme_name, bool is_standard,
-      bool is_local, bool is_display_isolated, bool is_secure,
-      bool is_cors_enabled, bool is_csp_bypassing) OVERRIDE;
+  bool AddCustomScheme(const CefString& scheme_name,
+                       bool is_standard,
+                       bool is_local,
+                       bool is_display_isolated,
+                       bool is_secure,
+                       bool is_cors_enabled,
+                       bool is_csp_bypassing) OVERRIDE;
 };
 
 #endif  // CEF_LIBCEF_DLL_CTOCPP_SCHEME_REGISTRAR_CTOCPP_H_

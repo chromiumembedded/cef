@@ -11,14 +11,11 @@
 #include "ui/views/widget/widget.h"
 
 CefWindowDelegateView::CefWindowDelegateView(SkColor background_color)
-  : background_color_(background_color),
-    web_view_(NULL) {
-}
+    : background_color_(background_color), web_view_(NULL) {}
 
-void CefWindowDelegateView::Init(
-    gfx::AcceleratedWidget parent_widget,
-    content::WebContents* web_contents,
-    const gfx::Rect& bounds) {
+void CefWindowDelegateView::Init(gfx::AcceleratedWidget parent_widget,
+                                 content::WebContents* web_contents,
+                                 const gfx::Rect& bounds) {
   DCHECK(!web_view_);
   web_view_ = new views::WebView(web_contents->GetBrowserContext());
   web_view_->SetWebContents(web_contents);
@@ -67,4 +64,3 @@ void CefWindowDelegateView::ViewHierarchyChanged(
   if (details.is_add && details.child == this)
     InitContent();
 }
-

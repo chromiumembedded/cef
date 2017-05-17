@@ -10,9 +10,9 @@
 
 #if defined(CEF_USE_ATL)
 
-#include <string>
 #include <atlbase.h>
 #include <oleacc.h>
+#include <string>
 
 #include "tests/cefclient/browser/osr_accessibility_helper.h"
 
@@ -29,8 +29,8 @@ namespace {
 // coordinates.
 void ClientToScreen(HWND hwnd, LPRECT lpRect) {
   if (lpRect) {
-    POINT ptTL = { lpRect->left, lpRect->top };
-    POINT ptBR = { lpRect->right, lpRect->bottom };
+    POINT ptTL = {lpRect->left, lpRect->top};
+    POINT ptBR = {lpRect->right, lpRect->bottom};
     // Win32 API only provides the call for a point.
     ClientToScreen(hwnd, &ptTL);
     ClientToScreen(hwnd, &ptBR);
@@ -135,8 +135,11 @@ struct CefIAccessible : public IAccessible {
   STDMETHODIMP accDoDefaultAction(VARIANT var_id) override;
 
   // Retrieves the specified object's current screen location.
-  STDMETHODIMP accLocation(LONG* x_left, LONG* y_top, LONG* width,
-                           LONG* height, VARIANT var_id) override;
+  STDMETHODIMP accLocation(LONG* x_left,
+                           LONG* y_top,
+                           LONG* width,
+                           LONG* height,
+                           VARIANT var_id) override;
 
   // Traverses to another UI element and retrieves the object.
   STDMETHODIMP accNavigate(LONG nav_dir, VARIANT start, VARIANT* end) override;
@@ -185,29 +188,35 @@ struct CefIAccessible : public IAccessible {
   // IAccessible methods not implemented.
   STDMETHODIMP get_accSelection(VARIANT* selected) override;
   STDMETHODIMP accSelect(LONG flags_sel, VARIANT var_id) override;
-  STDMETHODIMP get_accHelpTopic(BSTR* help_file, VARIANT var_id,
+  STDMETHODIMP get_accHelpTopic(BSTR* help_file,
+                                VARIANT var_id,
                                 LONG* topic_id) override;
   STDMETHODIMP put_accName(VARIANT var_id, BSTR put_name) override;
 
   // Implement IDispatch
   STDMETHODIMP GetTypeInfoCount(unsigned int FAR* pctinfo);
-  STDMETHODIMP GetTypeInfo(unsigned int iTInfo, LCID lcid,
+  STDMETHODIMP GetTypeInfo(unsigned int iTInfo,
+                           LCID lcid,
                            ITypeInfo FAR* FAR* ppTInfo);
-  STDMETHODIMP GetIDsOfNames(REFIID riid, OLECHAR FAR* FAR* rgszNames,
-                             unsigned int cNames, LCID lcid,
+  STDMETHODIMP GetIDsOfNames(REFIID riid,
+                             OLECHAR FAR* FAR* rgszNames,
+                             unsigned int cNames,
+                             LCID lcid,
                              DISPID FAR* rgDispId);
-  STDMETHODIMP Invoke(DISPID dispIdMember, REFIID riid, LCID lcid, WORD wFlags,
-                      DISPPARAMS FAR* pDispParams, VARIANT FAR* pVarResult,
-                      EXCEPINFO FAR* pExcepInfo, unsigned int FAR* puArgErr);
+  STDMETHODIMP Invoke(DISPID dispIdMember,
+                      REFIID riid,
+                      LCID lcid,
+                      WORD wFlags,
+                      DISPPARAMS FAR* pDispParams,
+                      VARIANT FAR* pVarResult,
+                      EXCEPINFO FAR* pExcepInfo,
+                      unsigned int FAR* puArgErr);
 
-  CefIAccessible(OsrAXNode* node) : node_(node), ref_count_(0) {
-  }
+  CefIAccessible(OsrAXNode* node) : node_(node), ref_count_(0) {}
 
   // Remove the node reference when OsrAXNode is destroyed, so that
   // MSAA clients get  CO_E_OBJNOTCONNECTED
-  void MarkDestroyed() {
-    node_ = NULL;
-  }
+  void MarkDestroyed() { node_ = NULL; }
 
  protected:
   // Ref Count
@@ -258,7 +267,7 @@ STDMETHODIMP_(ULONG) CefIAccessible::Release() {
 // *********************
 
 // Returns the parent IAccessible in the form of an IDispatch interface.
-STDMETHODIMP CefIAccessible::get_accParent(IDispatch **ppdispParent) {
+STDMETHODIMP CefIAccessible::get_accParent(IDispatch** ppdispParent) {
   HRESULT retCode = DATACHECK(node_);
   if (SUCCEEDED(retCode)) {
     if (ppdispParent) {
@@ -268,8 +277,8 @@ STDMETHODIMP CefIAccessible::get_accParent(IDispatch **ppdispParent) {
         HWND hWnd = ::GetParent(node_->GetWindowHandle());
         // if we have a window attempt to get its IAccessible pointer
         if (hWnd) {
-          AccessibleObjectFromWindow(hWnd, (DWORD)OBJID_CLIENT,
-                                     IID_IAccessible, (void**)(&parent));
+          AccessibleObjectFromWindow(hWnd, (DWORD)OBJID_CLIENT, IID_IAccessible,
+                                     (void**)(&parent));
         }
       }
 
@@ -278,15 +287,14 @@ STDMETHODIMP CefIAccessible::get_accParent(IDispatch **ppdispParent) {
       *ppdispParent = parent;
       retCode = (*ppdispParent) ? S_OK : S_FALSE;
     }
-  }
-  else {
+  } else {
     retCode = E_INVALIDARG;
   }
   return retCode;
 }
 
 // Returns the number of children we have for this element.
-STDMETHODIMP CefIAccessible::get_accChildCount(long *pcountChildren) {
+STDMETHODIMP CefIAccessible::get_accChildCount(long* pcountChildren) {
   HRESULT retCode = DATACHECK(node_);
   if (SUCCEEDED(retCode) && pcountChildren) {
     // Get Child node count for this from Accessibility tree
@@ -299,7 +307,7 @@ STDMETHODIMP CefIAccessible::get_accChildCount(long *pcountChildren) {
 
 // Returns a child IAccessible object.
 STDMETHODIMP CefIAccessible::get_accChild(VARIANT varChild,
-                                          IDispatch **ppdispChild) {
+                                          IDispatch** ppdispChild) {
   HRESULT retCode = DATACHECK(node_);
   if (SUCCEEDED(retCode)) {
     int numChilds = node_->GetChildCount();
@@ -331,7 +339,7 @@ STDMETHODIMP CefIAccessible::get_accChild(VARIANT varChild,
 }
 
 // Check and returns the accessible name for element from accessibility tree
-STDMETHODIMP CefIAccessible::get_accName(VARIANT varChild, BSTR *pszName) {
+STDMETHODIMP CefIAccessible::get_accName(VARIANT varChild, BSTR* pszName) {
   HRESULT retCode = DATACHECK(node_);
   if (SUCCEEDED(retCode)) {
     if (pszName && VALID_CHILDID(varChild)) {
@@ -339,14 +347,14 @@ STDMETHODIMP CefIAccessible::get_accName(VARIANT varChild, BSTR *pszName) {
       CComBSTR bstrResult(name.c_str());
       *pszName = bstrResult.Detach();
     }
-  } else  {
+  } else {
     retCode = E_INVALIDARG;
   }
   return retCode;
 }
 
 // Check and returns the value for element from accessibility tree
-STDMETHODIMP CefIAccessible::get_accValue(VARIANT varChild, BSTR *pszValue) {
+STDMETHODIMP CefIAccessible::get_accValue(VARIANT varChild, BSTR* pszValue) {
   HRESULT retCode = DATACHECK(node_);
   if (SUCCEEDED(retCode)) {
     if (pszValue && VALID_CHILDID(varChild)) {
@@ -354,7 +362,7 @@ STDMETHODIMP CefIAccessible::get_accValue(VARIANT varChild, BSTR *pszValue) {
       CComBSTR bstrResult(name.c_str());
       *pszValue = bstrResult.Detach();
     }
-  } else  {
+  } else {
     retCode = E_INVALIDARG;
   }
   return retCode;
@@ -370,14 +378,14 @@ STDMETHODIMP CefIAccessible::get_accDescription(VARIANT varChild,
       CComBSTR bstrResult(name.c_str());
       *pszDescription = bstrResult.Detach();
     }
-  } else  {
+  } else {
     retCode = E_INVALIDARG;
   }
   return retCode;
 }
 
 // Check and returns the MSAA Role for element from accessibility tree
-STDMETHODIMP CefIAccessible::get_accRole(VARIANT varChild, VARIANT *pvarRole) {
+STDMETHODIMP CefIAccessible::get_accRole(VARIANT varChild, VARIANT* pvarRole) {
   HRESULT retCode = DATACHECK(node_);
   if (SUCCEEDED(retCode)) {
     // Get the accessibilty role and Map to MSAA Role
@@ -393,23 +401,23 @@ STDMETHODIMP CefIAccessible::get_accRole(VARIANT varChild, VARIANT *pvarRole) {
 
 // Check and returns Accessibility State for element from accessibility tree
 STDMETHODIMP CefIAccessible::get_accState(VARIANT varChild,
-                                          VARIANT *pvarState) {
+                                          VARIANT* pvarState) {
   HRESULT retCode = DATACHECK(node_);
   if (SUCCEEDED(retCode)) {
     if (pvarState) {
       pvarState->vt = VT_I4;
-      pvarState->lVal = (GetFocus() == node_->GetWindowHandle()) ?
-                        STATE_SYSTEM_FOCUSED : 0;
+      pvarState->lVal =
+          (GetFocus() == node_->GetWindowHandle()) ? STATE_SYSTEM_FOCUSED : 0;
       pvarState->lVal |= STATE_SYSTEM_PRESSED;
       pvarState->lVal |= STATE_SYSTEM_FOCUSABLE;
 
       // For child
       if (varChild.lVal == CHILDID_SELF) {
         DWORD dwStyle = GetWindowLong(node_->GetWindowHandle(), GWL_STYLE);
-        pvarState->lVal |= ((dwStyle & WS_VISIBLE) == 0) ?
-                            STATE_SYSTEM_INVISIBLE : 0;
-        pvarState->lVal |= ((dwStyle & WS_DISABLED) > 0) ?
-                            STATE_SYSTEM_UNAVAILABLE : 0;
+        pvarState->lVal |=
+            ((dwStyle & WS_VISIBLE) == 0) ? STATE_SYSTEM_INVISIBLE : 0;
+        pvarState->lVal |=
+            ((dwStyle & WS_DISABLED) > 0) ? STATE_SYSTEM_UNAVAILABLE : 0;
       }
     } else {
       retCode = E_INVALIDARG;
@@ -419,7 +427,8 @@ STDMETHODIMP CefIAccessible::get_accState(VARIANT varChild,
 }
 
 // Check and returns Accessibility Shortcut if any for element
-STDMETHODIMP CefIAccessible::get_accKeyboardShortcut(VARIANT varChild,
+STDMETHODIMP CefIAccessible::get_accKeyboardShortcut(
+    VARIANT varChild,
     BSTR* pszKeyboardShortcut) {
   HRESULT retCode = DATACHECK(node_);
   if (SUCCEEDED(retCode)) {
@@ -432,7 +441,7 @@ STDMETHODIMP CefIAccessible::get_accKeyboardShortcut(VARIANT varChild,
 }
 
 // Return focused element from the accessibility tree
-STDMETHODIMP CefIAccessible::get_accFocus(VARIANT *pFocusChild) {
+STDMETHODIMP CefIAccessible::get_accFocus(VARIANT* pFocusChild) {
   HRESULT retCode = DATACHECK(node_);
   if (SUCCEEDED(retCode)) {
     OsrAXNode* focusedNode = node_->GetAccessibilityHelper()->GetFocusedNode();
@@ -444,8 +453,7 @@ STDMETHODIMP CefIAccessible::get_accFocus(VARIANT *pFocusChild) {
       if (nativeObj == this) {
         pFocusChild->vt = VT_I4;
         pFocusChild->lVal = CHILDID_SELF;
-      }
-      else {
+      } else {
         pFocusChild->vt = VT_DISPATCH;
         pFocusChild->pdispVal = nativeObj;
         pFocusChild->pdispVal->AddRef();
@@ -458,7 +466,7 @@ STDMETHODIMP CefIAccessible::get_accFocus(VARIANT *pFocusChild) {
 }
 
 // Return a selection list for multiple selection items.
-STDMETHODIMP CefIAccessible::get_accSelection(VARIANT *pvarChildren) {
+STDMETHODIMP CefIAccessible::get_accSelection(VARIANT* pvarChildren) {
   HRESULT retCode = DATACHECK(node_);
   if (SUCCEEDED(retCode)) {
     if (pvarChildren)
@@ -505,14 +513,16 @@ STDMETHODIMP CefIAccessible::accSelect(long flagsSelect, VARIANT varChild) {
 }
 
 // Returns back the screen coordinates of our element or one of its childs
-STDMETHODIMP CefIAccessible::accLocation(long* pxLeft, long* pyTop,
-                                         long* pcxWidth, long* pcyHeight,
+STDMETHODIMP CefIAccessible::accLocation(long* pxLeft,
+                                         long* pyTop,
+                                         long* pcxWidth,
+                                         long* pcyHeight,
                                          VARIANT varChild) {
   HRESULT retCode = DATACHECK(node_);
   if (SUCCEEDED(retCode)) {
     if (pxLeft && pyTop && pcxWidth && pcyHeight && VALID_CHILDID(varChild)) {
       CefRect loc = node_->AxLocation();
-      RECT rcItem = { loc.x, loc.y, loc.x + loc.width, loc.y + loc.height };
+      RECT rcItem = {loc.x, loc.y, loc.x + loc.width, loc.y + loc.height};
       HWND hwnd = node_->GetWindowHandle();
       ClientToScreen(hwnd, &rcItem);
 
@@ -529,22 +539,24 @@ STDMETHODIMP CefIAccessible::accLocation(long* pxLeft, long* pyTop,
 
 // Allow clients to move the keyboard focus within the control
 // Deprecated
-STDMETHODIMP CefIAccessible::accNavigate(long navDir, VARIANT varStart,
+STDMETHODIMP CefIAccessible::accNavigate(long navDir,
+                                         VARIANT varStart,
                                          VARIANT* pvarEndUpAt) {
   return E_NOTIMPL;
 }
 
 // Check if the coordinates provided are within our element or child items.
-STDMETHODIMP CefIAccessible::accHitTest(long xLeft, long yTop,
-                                        VARIANT *pvarChild) {
+STDMETHODIMP CefIAccessible::accHitTest(long xLeft,
+                                        long yTop,
+                                        VARIANT* pvarChild) {
   HRESULT retCode = DATACHECK(node_);
   if (SUCCEEDED(retCode)) {
     if (pvarChild) {
       pvarChild->vt = VT_EMPTY;
 
       CefRect loc = node_->AxLocation();
-      RECT rcItem = { loc.x, loc.y, loc.x + loc.width, loc.y + loc.height };
-      POINT pt = { xLeft, yTop };
+      RECT rcItem = {loc.x, loc.y, loc.x + loc.width, loc.y + loc.height};
+      POINT pt = {xLeft, yTop};
 
       ClientToScreen(node_->GetWindowHandle(), &rcItem);
 
@@ -594,11 +606,11 @@ STDMETHODIMP CefIAccessible::put_accValue(VARIANT varChild, BSTR szValue) {
 }
 
 // Return E_NOTIMPL as no help file/ topic
-STDMETHODIMP CefIAccessible::get_accHelp(VARIANT varChild, BSTR *pszHelp) {
+STDMETHODIMP CefIAccessible::get_accHelp(VARIANT varChild, BSTR* pszHelp) {
   return E_NOTIMPL;
 }
 
-STDMETHODIMP CefIAccessible::get_accHelpTopic(BSTR *pszHelpFile,
+STDMETHODIMP CefIAccessible::get_accHelpTopic(BSTR* pszHelpFile,
                                               VARIANT varChild,
                                               long* pidTopic) {
   return E_NOTIMPL;
@@ -610,7 +622,8 @@ STDMETHODIMP CefIAccessible::GetTypeInfoCount(unsigned int FAR* pctinfo) {
   return E_NOTIMPL;
 }
 
-STDMETHODIMP CefIAccessible::GetTypeInfo(unsigned int iTInfo, LCID lcid,
+STDMETHODIMP CefIAccessible::GetTypeInfo(unsigned int iTInfo,
+                                         LCID lcid,
                                          ITypeInfo FAR* FAR* ppTInfo) {
   return E_NOTIMPL;
 }
@@ -623,8 +636,11 @@ STDMETHODIMP CefIAccessible::GetIDsOfNames(REFIID riid,
   return E_NOTIMPL;
 }
 
-STDMETHODIMP CefIAccessible::Invoke(DISPID dispIdMember, REFIID riid, LCID lcid,
-                                    WORD wFlags, DISPPARAMS FAR* pDispParams,
+STDMETHODIMP CefIAccessible::Invoke(DISPID dispIdMember,
+                                    REFIID riid,
+                                    LCID lcid,
+                                    WORD wFlags,
+                                    DISPPARAMS FAR* pDispParams,
                                     VARIANT FAR* pVarResult,
                                     EXCEPINFO FAR* pExcepInfo,
                                     unsigned int FAR* puArgErr) {
@@ -662,8 +678,7 @@ CefNativeAccessible* OsrAXNode::GetNativeAccessibleObject(OsrAXNode* parent) {
 
 namespace client {
 
-void OsrAXNode::Destroy() {
-}
+void OsrAXNode::Destroy() {}
 
 CefNativeAccessible* OsrAXNode::GetNativeAccessibleObject(OsrAXNode* parent) {
   return NULL;

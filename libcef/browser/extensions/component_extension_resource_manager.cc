@@ -12,9 +12,8 @@
 namespace extensions {
 
 CefComponentExtensionResourceManager::CefComponentExtensionResourceManager() {
-  AddComponentResourceEntries(
-      kComponentExtensionResources,
-      kComponentExtensionResourcesSize);
+  AddComponentResourceEntries(kComponentExtensionResources,
+                              kComponentExtensionResourcesSize);
 }
 
 CefComponentExtensionResourceManager::~CefComponentExtensionResourceManager() {}
@@ -45,12 +44,12 @@ void CefComponentExtensionResourceManager::AddComponentResourceEntries(
     const GritResourceMap* entries,
     size_t size) {
   for (size_t i = 0; i < size; ++i) {
-    base::FilePath resource_path = base::FilePath().AppendASCII(
-        entries[i].name);
+    base::FilePath resource_path =
+        base::FilePath().AppendASCII(entries[i].name);
     resource_path = resource_path.NormalizePathSeparators();
 
     DCHECK(path_to_resource_id_.find(resource_path) ==
-        path_to_resource_id_.end());
+           path_to_resource_id_.end());
     path_to_resource_id_[resource_path] = entries[i].value;
   }
 }

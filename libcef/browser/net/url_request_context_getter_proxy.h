@@ -10,7 +10,6 @@
 #include "libcef/browser/net/url_request_context_getter.h"
 #include "libcef/browser/net/url_request_context_getter_impl.h"
 
-
 class CefURLRequestContextProxy;
 
 // URLRequestContextGetter implementation for a particular CefRequestContext.
@@ -29,8 +28,8 @@ class CefURLRequestContextGetterProxy : public CefURLRequestContextGetter {
 
   // net::URLRequestContextGetter implementation.
   net::URLRequestContext* GetURLRequestContext() override;
-  scoped_refptr<base::SingleThreadTaskRunner>
-      GetNetworkTaskRunner() const override;
+  scoped_refptr<base::SingleThreadTaskRunner> GetNetworkTaskRunner()
+      const override;
 
   // CefURLRequestContextGetter implementation.
   net::HostResolver* GetHostResolver() const override;

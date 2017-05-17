@@ -6,8 +6,8 @@
 #define CEF_LIBCEF_BROWSER_WEB_PLUGIN_IMPL_H_
 #pragma once
 
-#include "include/cef_web_plugin.h"
 #include "content/public/common/webplugininfo.h"
+#include "include/cef_web_plugin.h"
 
 class CefWebPluginInfoImpl : public CefWebPluginInfo {
  public:

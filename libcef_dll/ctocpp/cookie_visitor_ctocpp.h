@@ -9,6 +9,8 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=f1c2340ad3a079ba3d095c7cc1542aeb73366752$
+//
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_COOKIE_VISITOR_CTOCPP_H_
 #define CEF_LIBCEF_DLL_CTOCPP_COOKIE_VISITOR_CTOCPP_H_
@@ -18,21 +20,24 @@
 #error This file can be included DLL-side only
 #endif
 
-#include "include/cef_cookie.h"
 #include "include/capi/cef_cookie_capi.h"
+#include "include/cef_cookie.h"
 #include "libcef_dll/ctocpp/ctocpp_ref_counted.h"
 
 // Wrap a C structure with a C++ class.
 // This class may be instantiated and accessed DLL-side only.
 class CefCookieVisitorCToCpp
-    : public CefCToCppRefCounted<CefCookieVisitorCToCpp, CefCookieVisitor,
-        cef_cookie_visitor_t> {
+    : public CefCToCppRefCounted<CefCookieVisitorCToCpp,
+                                 CefCookieVisitor,
+                                 cef_cookie_visitor_t> {
  public:
   CefCookieVisitorCToCpp();
 
   // CefCookieVisitor methods.
-  bool Visit(const CefCookie& cookie, int count, int total,
-      bool& deleteCookie) override;
+  bool Visit(const CefCookie& cookie,
+             int count,
+             int total,
+             bool& deleteCookie) override;
 };
 
 #endif  // CEF_LIBCEF_DLL_CTOCPP_COOKIE_VISITOR_CTOCPP_H_

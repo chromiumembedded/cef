@@ -9,6 +9,8 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=61202c134f84e17a57c8eb07cef35db1d79056f5$
+//
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_RESOURCE_HANDLER_CTOCPP_H_
 #define CEF_LIBCEF_DLL_CTOCPP_RESOURCE_HANDLER_CTOCPP_H_
@@ -18,25 +20,29 @@
 #error This file can be included DLL-side only
 #endif
 
-#include "include/cef_resource_handler.h"
 #include "include/capi/cef_resource_handler_capi.h"
+#include "include/cef_resource_handler.h"
 #include "libcef_dll/ctocpp/ctocpp_ref_counted.h"
 
 // Wrap a C structure with a C++ class.
 // This class may be instantiated and accessed DLL-side only.
 class CefResourceHandlerCToCpp
-    : public CefCToCppRefCounted<CefResourceHandlerCToCpp, CefResourceHandler,
-        cef_resource_handler_t> {
+    : public CefCToCppRefCounted<CefResourceHandlerCToCpp,
+                                 CefResourceHandler,
+                                 cef_resource_handler_t> {
  public:
   CefResourceHandlerCToCpp();
 
   // CefResourceHandler methods.
   bool ProcessRequest(CefRefPtr<CefRequest> request,
-      CefRefPtr<CefCallback> callback) override;
+                      CefRefPtr<CefCallback> callback) override;
   void GetResponseHeaders(CefRefPtr<CefResponse> response,
-      int64& response_length, CefString& redirectUrl) override;
-  bool ReadResponse(void* data_out, int bytes_to_read, int& bytes_read,
-      CefRefPtr<CefCallback> callback) override;
+                          int64& response_length,
+                          CefString& redirectUrl) override;
+  bool ReadResponse(void* data_out,
+                    int bytes_to_read,
+                    int& bytes_read,
+                    CefRefPtr<CefCallback> callback) override;
   bool CanGetCookie(const CefCookie& cookie) override;
   bool CanSetCookie(const CefCookie& cookie) override;
   void Cancel() override;

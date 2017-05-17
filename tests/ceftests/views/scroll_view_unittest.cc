@@ -13,7 +13,7 @@
 #include "tests/gtest/include/gtest/gtest.h"
 
 #define SCROLL_VIEW_TEST_ASYNC(name) \
-    UI_THREAD_TEST_ASYNC(ViewsScrollViewTest, name)
+  UI_THREAD_TEST_ASYNC(ViewsScrollViewTest, name)
 
 namespace {
 
@@ -25,8 +25,7 @@ const int kContentPanelSize = TestWindowDelegate::kWSize + 200;
 
 class TestScrollViewDelegate : public CefViewDelegate {
  public:
-  TestScrollViewDelegate() {
-  }
+  TestScrollViewDelegate() {}
 
   CefSize GetPreferredSize(CefRefPtr<CefView> view) override {
     EXPECT_EQ(kScrollViewID, view->GetID());
@@ -43,8 +42,7 @@ class TestScrollViewDelegate : public CefViewDelegate {
 
 class TestPanelDelegate : public CefPanelDelegate {
  public:
-  TestPanelDelegate() {
-  }
+  TestPanelDelegate() {}
 
   CefSize GetPreferredSize(CefRefPtr<CefView> view) override {
     EXPECT_EQ(kContentPanelID, view->GetID());
@@ -59,8 +57,7 @@ class TestPanelDelegate : public CefPanelDelegate {
   DISALLOW_COPY_AND_ASSIGN(TestPanelDelegate);
 };
 
-void RunScrollViewLayout(bool with_delegate,
-                         CefRefPtr<CefWindow> window) {
+void RunScrollViewLayout(bool with_delegate, CefRefPtr<CefWindow> window) {
   CefRefPtr<TestScrollViewDelegate> scroll_view_delegate;
   CefRefPtr<TestPanelDelegate> panel_delegate;
   if (with_delegate) {
@@ -128,11 +125,11 @@ void RunScrollViewLayout(bool with_delegate,
   // Verify visible content panel region.
   const CefRect& visible_rect = scroll_view->GetVisibleContentRect();
   EXPECT_EQ(CefRect(0, 0, scroll_view_bounds.width - sb_width,
-                    scroll_view_bounds.height - sb_height), visible_rect);
+                    scroll_view_bounds.height - sb_height),
+            visible_rect);
 }
 
-void ScrollViewLayout(CefRefPtr<CefWaitableEvent> event,
-                      bool with_delegate) {
+void ScrollViewLayout(CefRefPtr<CefWaitableEvent> event, bool with_delegate) {
   TestWindowDelegate::Config config;
   config.on_window_created = base::Bind(RunScrollViewLayout, with_delegate);
   TestWindowDelegate::RunTest(event, config);

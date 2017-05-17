@@ -9,9 +9,10 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=190878db3c35559a52669c437c3e4392fddfd07f$
+//
 
 #include "libcef_dll/ctocpp/v8stack_frame_ctocpp.h"
-
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
@@ -26,7 +27,7 @@ bool CefV8StackFrameCToCpp::IsValid() {
   int _retval = _struct->is_valid(_struct);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 CefString CefV8StackFrameCToCpp::GetScriptName() {
@@ -53,8 +54,8 @@ CefString CefV8StackFrameCToCpp::GetScriptNameOrSourceURL() {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  cef_string_userfree_t _retval = _struct->get_script_name_or_source_url(
-      _struct);
+  cef_string_userfree_t _retval =
+      _struct->get_script_name_or_source_url(_struct);
 
   // Return type: string
   CefString _retvalStr;
@@ -117,7 +118,7 @@ bool CefV8StackFrameCToCpp::IsEval() {
   int _retval = _struct->is_eval(_struct);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 bool CefV8StackFrameCToCpp::IsConstructor() {
@@ -131,26 +132,32 @@ bool CefV8StackFrameCToCpp::IsConstructor() {
   int _retval = _struct->is_constructor(_struct);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
-
 
 // CONSTRUCTOR - Do not edit by hand.
 
-CefV8StackFrameCToCpp::CefV8StackFrameCToCpp() {
-}
+CefV8StackFrameCToCpp::CefV8StackFrameCToCpp() {}
 
-template<> cef_v8stack_frame_t* CefCToCppRefCounted<CefV8StackFrameCToCpp,
-    CefV8StackFrame, cef_v8stack_frame_t>::UnwrapDerived(CefWrapperType type,
-    CefV8StackFrame* c) {
+template <>
+cef_v8stack_frame_t*
+CefCToCppRefCounted<CefV8StackFrameCToCpp,
+                    CefV8StackFrame,
+                    cef_v8stack_frame_t>::UnwrapDerived(CefWrapperType type,
+                                                        CefV8StackFrame* c) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCppRefCounted<CefV8StackFrameCToCpp,
-    CefV8StackFrame, cef_v8stack_frame_t>::DebugObjCt = 0;
+template <>
+base::AtomicRefCount CefCToCppRefCounted<CefV8StackFrameCToCpp,
+                                         CefV8StackFrame,
+                                         cef_v8stack_frame_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCppRefCounted<CefV8StackFrameCToCpp,
-    CefV8StackFrame, cef_v8stack_frame_t>::kWrapperType = WT_V8STACK_FRAME;
+template <>
+CefWrapperType CefCToCppRefCounted<CefV8StackFrameCToCpp,
+                                   CefV8StackFrame,
+                                   cef_v8stack_frame_t>::kWrapperType =
+    WT_V8STACK_FRAME;

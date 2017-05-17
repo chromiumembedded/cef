@@ -23,8 +23,8 @@ CefRefPtr<CefTextfieldImpl> CefTextfieldImpl::Create(
 
 void CefTextfieldImpl::SetPasswordInput(bool password_input) {
   CEF_REQUIRE_VALID_RETURN_VOID();
-  root_view()->SetTextInputType(password_input ? ui::TEXT_INPUT_TYPE_PASSWORD :
-                                                 ui::TEXT_INPUT_TYPE_TEXT);
+  root_view()->SetTextInputType(password_input ? ui::TEXT_INPUT_TYPE_PASSWORD
+                                               : ui::TEXT_INPUT_TYPE_TEXT);
 }
 
 bool CefTextfieldImpl::IsPasswordInput() {
@@ -201,8 +201,7 @@ void CefTextfieldImpl::SetAccessibleName(const CefString& name) {
 }
 
 CefTextfieldImpl::CefTextfieldImpl(CefRefPtr<CefTextfieldDelegate> delegate)
-    : ParentClass(delegate) {
-}
+    : ParentClass(delegate) {}
 
 CefTextfieldView* CefTextfieldImpl::CreateRootView() {
   return new CefTextfieldView(delegate());

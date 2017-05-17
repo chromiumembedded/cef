@@ -68,7 +68,10 @@ class BrowserWindow : public ClientHandler::Delegate {
 
   // Show the popup window with correct parent and bounds in parent coordinates.
   virtual void ShowPopup(ClientWindowHandle parent_handle,
-                         int x, int y, size_t width, size_t height) = 0;
+                         int x,
+                         int y,
+                         size_t width,
+                         size_t height) = 0;
 
   // Show the window.
   virtual void Show() = 0;

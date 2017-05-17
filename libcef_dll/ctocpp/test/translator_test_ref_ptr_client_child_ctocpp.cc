@@ -9,9 +9,10 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=a8637d9865fe06a6d46a5a8f7c7427e44c52c7a9$
+//
 
 #include "libcef_dll/ctocpp/test/translator_test_ref_ptr_client_child_ctocpp.h"
-
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
@@ -44,28 +45,32 @@ int CefTranslatorTestRefPtrClientChildCToCpp::GetValue() {
   return _retval;
 }
 
-
 // CONSTRUCTOR - Do not edit by hand.
 
-CefTranslatorTestRefPtrClientChildCToCpp::CefTranslatorTestRefPtrClientChildCToCpp(
-    ) {
-}
+CefTranslatorTestRefPtrClientChildCToCpp::
+    CefTranslatorTestRefPtrClientChildCToCpp() {}
 
-template<> cef_translator_test_ref_ptr_client_child_t* CefCToCppRefCounted<CefTranslatorTestRefPtrClientChildCToCpp,
-    CefTranslatorTestRefPtrClientChild,
-    cef_translator_test_ref_ptr_client_child_t>::UnwrapDerived(
-    CefWrapperType type, CefTranslatorTestRefPtrClientChild* c) {
+template <>
+cef_translator_test_ref_ptr_client_child_t*
+CefCToCppRefCounted<CefTranslatorTestRefPtrClientChildCToCpp,
+                    CefTranslatorTestRefPtrClientChild,
+                    cef_translator_test_ref_ptr_client_child_t>::
+    UnwrapDerived(CefWrapperType type, CefTranslatorTestRefPtrClientChild* c) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCppRefCounted<CefTranslatorTestRefPtrClientChildCToCpp,
+template <>
+base::AtomicRefCount CefCToCppRefCounted<
+    CefTranslatorTestRefPtrClientChildCToCpp,
     CefTranslatorTestRefPtrClientChild,
     cef_translator_test_ref_ptr_client_child_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCppRefCounted<CefTranslatorTestRefPtrClientChildCToCpp,
+template <>
+CefWrapperType CefCToCppRefCounted<
+    CefTranslatorTestRefPtrClientChildCToCpp,
     CefTranslatorTestRefPtrClientChild,
     cef_translator_test_ref_ptr_client_child_t>::kWrapperType =
     WT_TRANSLATOR_TEST_REF_PTR_CLIENT_CHILD;

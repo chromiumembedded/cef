@@ -80,7 +80,7 @@ class CefBrowserHostImpl : public CefBrowserHost,
   // Used for handling the response to command messages.
   class CommandResponseHandler : public virtual CefBaseRefCounted {
    public:
-     virtual void OnResponse(const std::string& response) =0;
+    virtual void OnResponse(const std::string& response) = 0;
   };
 
   // Interface to implement for observers that wish to be informed of changes
@@ -89,7 +89,7 @@ class CefBrowserHostImpl : public CefBrowserHost,
    public:
     // Called before |browser| is destroyed. Any references to |browser| should
     // be cleared when this method is called.
-    virtual void OnBrowserDestroyed(CefBrowserHostImpl* browser) =0;
+    virtual void OnBrowserDestroyed(CefBrowserHostImpl* browser) = 0;
 
    protected:
     virtual ~Observer() {}
@@ -142,11 +142,12 @@ class CefBrowserHostImpl : public CefBrowserHost,
   static CefRefPtr<CefBrowserHostImpl> GetBrowserForRequest(
       const net::URLRequest* request);
   // Returns the browser associated with the specified view routing IDs.
-  static CefRefPtr<CefBrowserHostImpl> GetBrowserForView(
-      int render_process_id, int render_routing_id);
+  static CefRefPtr<CefBrowserHostImpl> GetBrowserForView(int render_process_id,
+                                                         int render_routing_id);
   // Returns the browser associated with the specified frame routing IDs.
   static CefRefPtr<CefBrowserHostImpl> GetBrowserForFrame(
-      int render_process_id, int render_routing_id);
+      int render_process_id,
+      int render_routing_id);
 
   // CefBrowserHost methods.
   CefRefPtr<CefBrowser> GetBrowser() override;
@@ -160,13 +161,12 @@ class CefBrowserHostImpl : public CefBrowserHost,
   CefRefPtr<CefRequestContext> GetRequestContext() override;
   double GetZoomLevel() override;
   void SetZoomLevel(double zoomLevel) override;
-  void RunFileDialog(
-      FileDialogMode mode,
-      const CefString& title,
-      const CefString& default_file_path,
-      const std::vector<CefString>& accept_filters,
-      int selected_accept_filter,
-      CefRefPtr<CefRunFileDialogCallback> callback) override;
+  void RunFileDialog(FileDialogMode mode,
+                     const CefString& title,
+                     const CefString& default_file_path,
+                     const std::vector<CefString>& accept_filters,
+                     int selected_accept_filter,
+                     CefRefPtr<CefRunFileDialogCallback> callback) override;
   void StartDownload(const CefString& url) override;
   void DownloadImage(const CefString& image_url,
                      bool is_favicon,
@@ -177,8 +177,11 @@ class CefBrowserHostImpl : public CefBrowserHost,
   void PrintToPDF(const CefString& path,
                   const CefPdfPrintSettings& settings,
                   CefRefPtr<CefPdfPrintCallback> callback) override;
-  void Find(int identifier, const CefString& searchText,
-            bool forward, bool matchCase, bool findNext) override;
+  void Find(int identifier,
+            const CefString& searchText,
+            bool forward,
+            bool matchCase,
+            bool findNext) override;
   void StopFinding(bool clearSelection) override;
   void ShowDevTools(const CefWindowInfo& windowInfo,
                     CefRefPtr<CefClient> client,
@@ -186,9 +189,8 @@ class CefBrowserHostImpl : public CefBrowserHost,
                     const CefPoint& inspect_element_at) override;
   void CloseDevTools() override;
   bool HasDevTools() override;
-  void GetNavigationEntries(
-      CefRefPtr<CefNavigationEntryVisitor> visitor,
-      bool current_only) override;
+  void GetNavigationEntries(CefRefPtr<CefNavigationEntryVisitor> visitor,
+                            bool current_only) override;
   void SetMouseCursorChangeDisabled(bool disabled) override;
   bool IsMouseCursorChangeDisabled() override;
   bool IsWindowRenderingDisabled() override;
@@ -201,11 +203,12 @@ class CefBrowserHostImpl : public CefBrowserHost,
   void SendKeyEvent(const CefKeyEvent& event) override;
   void SendMouseClickEvent(const CefMouseEvent& event,
                            MouseButtonType type,
-                           bool mouseUp, int clickCount) override;
-  void SendMouseMoveEvent(const CefMouseEvent& event,
-                          bool mouseLeave) override;
+                           bool mouseUp,
+                           int clickCount) override;
+  void SendMouseMoveEvent(const CefMouseEvent& event, bool mouseLeave) override;
   void SendMouseWheelEvent(const CefMouseEvent& event,
-                           int deltaX, int deltaY) override;
+                           int deltaX,
+                           int deltaY) override;
   void SendFocusEvent(bool setFocus) override;
   void SendCaptureLostEvent() override;
   void NotifyMoveOrResizeStarted() override;
@@ -215,7 +218,8 @@ class CefBrowserHostImpl : public CefBrowserHost,
                          const std::vector<CefCompositionUnderline>& underlines,
                          const CefRange& replacement_range,
                          const CefRange& selection_range) override;
-  void ImeCommitText(const CefString& text, const CefRange& replacement_range,
+  void ImeCommitText(const CefString& text,
+                     const CefRange& replacement_range,
                      int relative_cursor_pos) override;
   void ImeFinishComposingText(bool keep_selection) override;
   void ImeCancelComposition() override;
@@ -252,9 +256,8 @@ class CefBrowserHostImpl : public CefBrowserHost,
   size_t GetFrameCount() override;
   void GetFrameIdentifiers(std::vector<int64>& identifiers) override;
   void GetFrameNames(std::vector<CefString>& names) override;
-  bool SendProcessMessage(
-      CefProcessId target_process,
-      CefRefPtr<CefProcessMessage> message) override;
+  bool SendProcessMessage(CefProcessId target_process,
+                          CefRefPtr<CefProcessMessage> message) override;
 
   // Returns true if windowless rendering is enabled.
   bool IsWindowless() const;
@@ -299,16 +302,21 @@ class CefBrowserHostImpl : public CefBrowserHost,
                const std::string& extra_headers);
 
   // Load the specified string.
-  void LoadString(int64 frame_id, const std::string& string,
+  void LoadString(int64 frame_id,
+                  const std::string& string,
                   const std::string& url);
 
   // Send a command to the renderer for execution.
-  void SendCommand(int64 frame_id, const std::string& command,
+  void SendCommand(int64 frame_id,
+                   const std::string& command,
                    CefRefPtr<CefResponseManager::Handler> responseHandler);
 
   // Send code to the renderer for execution.
-  void SendCode(int64 frame_id, bool is_javascript, const std::string& code,
-                const std::string& script_url, int script_start_line,
+  void SendCode(int64 frame_id,
+                bool is_javascript,
+                const std::string& code,
+                const std::string& script_url,
+                int script_start_line,
                 CefRefPtr<CefResponseManager::Handler> responseHandler);
 
   bool SendProcessMessage(CefProcessId target_process,
@@ -329,13 +337,12 @@ class CefBrowserHostImpl : public CefBrowserHost,
   // scaling will be applied to the result.
   gfx::Point GetScreenPoint(const gfx::Point& view) const;
 
-  void StartDragging(
-      const content::DropData& drop_data,
-      blink::WebDragOperationsMask allowed_ops,
-      const gfx::ImageSkia& image,
-      const gfx::Vector2d& image_offset,
-      const content::DragEventSourceInfo& event_info,
-      content::RenderWidgetHostImpl* source_rwh);
+  void StartDragging(const content::DropData& drop_data,
+                     blink::WebDragOperationsMask allowed_ops,
+                     const gfx::ImageSkia& image,
+                     const gfx::Vector2d& image_offset,
+                     const content::DragEventSourceInfo& event_info,
+                     content::RenderWidgetHostImpl* source_rwh);
   void UpdateDragCursor(blink::WebDragOperation operation);
 
   // Thread safe accessors.
@@ -354,9 +361,8 @@ class CefBrowserHostImpl : public CefBrowserHost,
       const CefFileDialogRunner::FileChooserParams& params,
       const CefFileDialogRunner::RunFileChooserCallback& callback);
 
-  bool HandleContextMenu(
-      content::WebContents* web_contents,
-      const content::ContextMenuParams& params);
+  bool HandleContextMenu(content::WebContents* web_contents,
+                         const content::ContextMenuParams& params);
 
   // Returns the WebContents most likely to handle an action. If extensions are
   // enabled and this browser has a full-page guest (for example, a full-page
@@ -379,8 +385,7 @@ class CefBrowserHostImpl : public CefBrowserHost,
   void LoadingStateChanged(content::WebContents* source,
                            bool to_different_document) override;
   void CloseContents(content::WebContents* source) override;
-  void UpdateTargetURL(content::WebContents* source,
-                       const GURL& url) override;
+  void UpdateTargetURL(content::WebContents* source, const GURL& url) override;
   bool DidAddMessageToConsole(content::WebContents* source,
                               int32_t level,
                               const base::string16& message,
@@ -389,20 +394,17 @@ class CefBrowserHostImpl : public CefBrowserHost,
   void BeforeUnloadFired(content::WebContents* source,
                          bool proceed,
                          bool* proceed_to_fire_unload) override;
-  bool TakeFocus(content::WebContents* source,
-                 bool reverse) override;
-  bool HandleContextMenu(
-      const content::ContextMenuParams& params) override;
+  bool TakeFocus(content::WebContents* source, bool reverse) override;
+  bool HandleContextMenu(const content::ContextMenuParams& params) override;
   content::KeyboardEventProcessingResult PreHandleKeyboardEvent(
       content::WebContents* source,
       const content::NativeWebKeyboardEvent& event) override;
   void HandleKeyboardEvent(
       content::WebContents* source,
       const content::NativeWebKeyboardEvent& event) override;
-  bool CanDragEnter(
-      content::WebContents* source,
-      const content::DropData& data,
-      blink::WebDragOperationsMask operations_allowed) override;
+  bool CanDragEnter(content::WebContents* source,
+                    const content::DropData& data,
+                    blink::WebDragOperationsMask operations_allowed) override;
   void GetCustomWebContentsView(
       content::WebContents* web_contents,
       const GURL& target_url,
@@ -420,9 +422,8 @@ class CefBrowserHostImpl : public CefBrowserHost,
       content::WebContents* web_contents) override;
   content::JavaScriptDialogManager* GetJavaScriptDialogManager(
       content::WebContents* source) override;
-  void RunFileChooser(
-      content::RenderFrameHost* render_frame_host,
-      const content::FileChooserParams& params) override;
+  void RunFileChooser(content::RenderFrameHost* render_frame_host,
+                      const content::FileChooserParams& params) override;
   bool EmbedsFullscreenWidget() const override;
   void EnterFullscreenModeForTab(content::WebContents* web_contents,
                                  const GURL& origin) override;
@@ -431,13 +432,12 @@ class CefBrowserHostImpl : public CefBrowserHost,
       const content::WebContents* web_contents) const override;
   blink::WebDisplayMode GetDisplayMode(
       const content::WebContents* web_contents) const override;
-  void FindReply(
-      content::WebContents* web_contents,
-      int request_id,
-      int number_of_matches,
-      const gfx::Rect& selection_rect,
-      int active_match_ordinal,
-      bool final_update) override;
+  void FindReply(content::WebContents* web_contents,
+                 int request_id,
+                 int number_of_matches,
+                 const gfx::Rect& selection_rect,
+                 int active_match_ordinal,
+                 bool final_update) override;
   void UpdatePreferredSize(content::WebContents* source,
                            const gfx::Size& pref_size) override;
   void RequestMediaAccessPermission(
@@ -507,11 +507,10 @@ class CefBrowserHostImpl : public CefBrowserHost,
   void OnFrameIdentified(int64 frame_id,
                          int64 parent_frame_id,
                          base::string16 name);
-  void OnDidFinishLoad(
-      int64 frame_id,
-      const GURL& validated_url,
-      bool is_main_frame,
-      int http_status_code);
+  void OnDidFinishLoad(int64 frame_id,
+                       const GURL& validated_url,
+                       bool is_main_frame,
+                       int http_status_code);
   void OnUpdateDraggableRegions(
       const std::vector<Cef_DraggableRegion_Params>& regions);
   void OnRequest(const Cef_Request_Params& params);
@@ -520,16 +519,17 @@ class CefBrowserHostImpl : public CefBrowserHost,
 
   // content::NotificationObserver methods.
   void Observe(int type,
-              const content::NotificationSource& source,
-              const content::NotificationDetails& details) override;
+               const content::NotificationSource& source,
+               const content::NotificationDetails& details) override;
 
-  CefBrowserHostImpl(const CefBrowserSettings& settings,
-                     CefRefPtr<CefClient> client,
-                     content::WebContents* web_contents,
-                     scoped_refptr<CefBrowserInfo> browser_info,
-                     CefRefPtr<CefBrowserHostImpl> opener,
-                     CefRefPtr<CefRequestContext> request_context,
-                     std::unique_ptr<CefBrowserPlatformDelegate> platform_delegate);
+  CefBrowserHostImpl(
+      const CefBrowserSettings& settings,
+      CefRefPtr<CefClient> client,
+      content::WebContents* web_contents,
+      scoped_refptr<CefBrowserInfo> browser_info,
+      CefRefPtr<CefBrowserHostImpl> opener,
+      CefRefPtr<CefRequestContext> request_context,
+      std::unique_ptr<CefBrowserPlatformDelegate> platform_delegate);
 
   // Give the platform delegate an opportunity to create the host window.
   bool CreateHostWindow();
@@ -544,13 +544,10 @@ class CefBrowserHostImpl : public CefBrowserHost,
   // Remove the references to all frames and mark them as detached.
   void DetachAllFrames();
 
-  void OnAddressChange(CefRefPtr<CefFrame> frame,
-                       const GURL& url);
+  void OnAddressChange(CefRefPtr<CefFrame> frame, const GURL& url);
   void OnLoadStart(CefRefPtr<CefFrame> frame,
                    ui::PageTransition transition_type);
-  void OnLoadError(CefRefPtr<CefFrame> frame,
-                   const GURL& url,
-                   int error_code);
+  void OnLoadError(CefRefPtr<CefFrame> frame, const GURL& url, int error_code);
   void OnLoadEnd(CefRefPtr<CefFrame> frame,
                  const GURL& url,
                  int http_status_code);
@@ -588,7 +585,7 @@ class CefBrowserHostImpl : public CefBrowserHost,
   bool queue_messages_;
 
   // Map of unique frame ids to CefFrameHostImpl references.
-  typedef std::map<int64, CefRefPtr<CefFrameHostImpl> > FrameMap;
+  typedef std::map<int64, CefRefPtr<CefFrameHostImpl>> FrameMap;
   FrameMap frames_;
   // The unique frame id currently identified as the main frame.
   int64 main_frame_id_;

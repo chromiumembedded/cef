@@ -6,7 +6,6 @@
 #define CEF_LIBCEF_COMMON_RESOURCE_BUNDLE_IMPL_H_
 #pragma once
 
-
 #include "include/cef_resource_bundle.h"
 
 class CefResourceBundleImpl : public CefResourceBundle {

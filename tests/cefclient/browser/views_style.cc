@@ -28,16 +28,15 @@ void MaybeInitialize() {
   g_background_color = MainContext::Get()->GetBackgroundColor();
   if (g_background_color != 0) {
     // Use a slightly modified shade of the background color for hover.
-    g_background_hover_color = CefColorSetARGB(255,
-        GetShade(CefColorGetR(g_background_color)),
-        GetShade(CefColorGetG(g_background_color)),
-        GetShade(CefColorGetB(g_background_color)));
+    g_background_hover_color =
+        CefColorSetARGB(255, GetShade(CefColorGetR(g_background_color)),
+                        GetShade(CefColorGetG(g_background_color)),
+                        GetShade(CefColorGetB(g_background_color)));
 
     // Invert the background color for text.
-    g_text_color =  CefColorSetARGB(255,
-        255 - CefColorGetR(g_background_color),
-        255 - CefColorGetG(g_background_color),
-        255 - CefColorGetB(g_background_color));
+    g_text_color = CefColorSetARGB(255, 255 - CefColorGetR(g_background_color),
+                                   255 - CefColorGetG(g_background_color),
+                                   255 - CefColorGetB(g_background_color));
   }
 
   initialized = true;

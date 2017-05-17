@@ -9,6 +9,8 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=e47f062a6fd7366b38f2f02b71415ced089445d1$
+//
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_RESPONSE_CTOCPP_H_
 #define CEF_LIBCEF_DLL_CTOCPP_RESPONSE_CTOCPP_H_
@@ -18,15 +20,15 @@
 #error This file can be included wrapper-side only
 #endif
 
-#include "include/cef_response.h"
 #include "include/capi/cef_response_capi.h"
+#include "include/cef_response.h"
 #include "libcef_dll/ctocpp/ctocpp_ref_counted.h"
 
 // Wrap a C structure with a C++ class.
 // This class may be instantiated and accessed wrapper-side only.
-class CefResponseCToCpp
-    : public CefCToCppRefCounted<CefResponseCToCpp, CefResponse,
-        cef_response_t> {
+class CefResponseCToCpp : public CefCToCppRefCounted<CefResponseCToCpp,
+                                                     CefResponse,
+                                                     cef_response_t> {
  public:
   CefResponseCToCpp();
 

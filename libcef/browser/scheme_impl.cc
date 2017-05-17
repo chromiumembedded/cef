@@ -17,8 +17,8 @@ bool CefRegisterSchemeHandlerFactory(
     return false;
   }
 
-  return CefRequestContext::GetGlobalContext()->
-      RegisterSchemeHandlerFactory(scheme_name, domain_name, factory);
+  return CefRequestContext::GetGlobalContext()->RegisterSchemeHandlerFactory(
+      scheme_name, domain_name, factory);
 }
 
 bool CefClearSchemeHandlerFactories() {
@@ -28,6 +28,5 @@ bool CefClearSchemeHandlerFactories() {
     return false;
   }
 
-  return CefRequestContext::GetGlobalContext()->
-      ClearSchemeHandlerFactories();
+  return CefRequestContext::GetGlobalContext()->ClearSchemeHandlerFactories();
 }

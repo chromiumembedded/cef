@@ -19,7 +19,7 @@
 #include "media/media_features.h"
 #include "ppapi/features/features.h"
 
-#include "widevine_cdm_version.h" // In SHARED_INTERMEDIATE_DIR.
+#include "widevine_cdm_version.h"  // In SHARED_INTERMEDIATE_DIR.
 
 // The following must be after widevine_cdm_version.h.
 
@@ -41,9 +41,7 @@ bool IsPepperCdmAvailable(
   bool is_available = false;
   content::RenderThread::Get()->Send(
       new CefViewHostMsg_IsInternalPluginAvailableForMimeType(
-          pepper_type,
-          &is_available,
-          additional_param_names,
+          pepper_type, &is_available, additional_param_names,
           additional_param_values));
 
   return is_available;
@@ -64,8 +62,7 @@ void GetSupportedCodecsForPepperCdm(
         base::ASCIIToUTF16(kCdmSupportedCodecsParamName)) {
       const base::string16& codecs_string16 = additional_param_values[i];
       std::string codecs_string;
-      if (!base::UTF16ToUTF8(codecs_string16.c_str(),
-                             codecs_string16.length(),
+      if (!base::UTF16ToUTF8(codecs_string16.c_str(), codecs_string16.length(),
                              &codecs_string)) {
         DLOG(WARNING) << "Non-UTF-8 codecs string.";
         // Continue using the best effort conversion.
@@ -89,8 +86,7 @@ void AddPepperBasedWidevine(
 
   std::vector<base::string16> additional_param_names;
   std::vector<base::string16> additional_param_values;
-  if (!IsPepperCdmAvailable(kWidevineCdmPluginMimeType,
-                            &additional_param_names,
+  if (!IsPepperCdmAvailable(kWidevineCdmPluginMimeType, &additional_param_names,
                             &additional_param_values)) {
     DVLOG(1) << "Widevine CDM is not currently available.";
     return;
@@ -98,8 +94,7 @@ void AddPepperBasedWidevine(
 
   std::vector<std::string> codecs;
   GetSupportedCodecsForPepperCdm(additional_param_names,
-                                 additional_param_values,
-                                 &codecs);
+                                 additional_param_values, &codecs);
 
   SupportedCodecs supported_codecs = media::EME_CODEC_NONE;
 

@@ -9,6 +9,8 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=2d4b60447f6e9e1ccc04b5e76f1635ffd3484075$
+//
 
 #include "libcef_dll/cpptoc/views/box_layout_cpptoc.h"
 #include "libcef_dll/cpptoc/views/browser_view_cpptoc.h"
@@ -23,7 +25,6 @@
 #include "libcef_dll/ctocpp/views/panel_delegate_ctocpp.h"
 #include "libcef_dll/ctocpp/views/view_delegate_ctocpp.h"
 
-
 // GLOBAL FUNCTIONS - Body may be edited by hand.
 
 CEF_EXPORT cef_panel_t* cef_panel_create(cef_panel_delegate_t* delegate) {
@@ -32,13 +33,12 @@ CEF_EXPORT cef_panel_t* cef_panel_create(cef_panel_delegate_t* delegate) {
   // Unverified params: delegate
 
   // Execute
-  CefRefPtr<CefPanel> _retval = CefPanel::CreatePanel(
-      CefPanelDelegateCToCpp::Wrap(delegate));
+  CefRefPtr<CefPanel> _retval =
+      CefPanel::CreatePanel(CefPanelDelegateCToCpp::Wrap(delegate));
 
   // Return type: refptr_same
   return CefPanelCppToC::Wrap(_retval);
 }
-
 
 namespace {
 
@@ -58,8 +58,8 @@ struct _cef_window_t* CEF_CALLBACK panel_as_window(struct _cef_panel_t* self) {
   return CefWindowCppToC::Wrap(_retval);
 }
 
-cef_fill_layout_t* CEF_CALLBACK panel_set_to_fill_layout(
-    struct _cef_panel_t* self) {
+cef_fill_layout_t* CEF_CALLBACK
+panel_set_to_fill_layout(struct _cef_panel_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -67,16 +67,16 @@ cef_fill_layout_t* CEF_CALLBACK panel_set_to_fill_layout(
     return NULL;
 
   // Execute
-  CefRefPtr<CefFillLayout> _retval = CefPanelCppToC::Get(self)->SetToFillLayout(
-      );
+  CefRefPtr<CefFillLayout> _retval =
+      CefPanelCppToC::Get(self)->SetToFillLayout();
 
   // Return type: refptr_same
   return CefFillLayoutCppToC::Wrap(_retval);
 }
 
-cef_box_layout_t* CEF_CALLBACK panel_set_to_box_layout(
-    struct _cef_panel_t* self,
-    const struct _cef_box_layout_settings_t* settings) {
+cef_box_layout_t* CEF_CALLBACK
+panel_set_to_box_layout(struct _cef_panel_t* self,
+                        const struct _cef_box_layout_settings_t* settings) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -93,8 +93,8 @@ cef_box_layout_t* CEF_CALLBACK panel_set_to_box_layout(
     settingsObj.Set(*settings, false);
 
   // Execute
-  CefRefPtr<CefBoxLayout> _retval = CefPanelCppToC::Get(self)->SetToBoxLayout(
-      settingsObj);
+  CefRefPtr<CefBoxLayout> _retval =
+      CefPanelCppToC::Get(self)->SetToBoxLayout(settingsObj);
 
   // Return type: refptr_same
   return CefBoxLayoutCppToC::Wrap(_retval);
@@ -126,7 +126,7 @@ void CEF_CALLBACK panel_layout(struct _cef_panel_t* self) {
 }
 
 void CEF_CALLBACK panel_add_child_view(struct _cef_panel_t* self,
-    struct _cef_view_t* view) {
+                                       struct _cef_view_t* view) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -138,12 +138,12 @@ void CEF_CALLBACK panel_add_child_view(struct _cef_panel_t* self,
     return;
 
   // Execute
-  CefPanelCppToC::Get(self)->AddChildView(
-      CefViewCppToC::Unwrap(view));
+  CefPanelCppToC::Get(self)->AddChildView(CefViewCppToC::Unwrap(view));
 }
 
 void CEF_CALLBACK panel_add_child_view_at(struct _cef_panel_t* self,
-    struct _cef_view_t* view, int index) {
+                                          struct _cef_view_t* view,
+                                          int index) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -159,13 +159,12 @@ void CEF_CALLBACK panel_add_child_view_at(struct _cef_panel_t* self,
     return;
 
   // Execute
-  CefPanelCppToC::Get(self)->AddChildViewAt(
-      CefViewCppToC::Unwrap(view),
-      index);
+  CefPanelCppToC::Get(self)->AddChildViewAt(CefViewCppToC::Unwrap(view), index);
 }
 
 void CEF_CALLBACK panel_reorder_child_view(struct _cef_panel_t* self,
-    struct _cef_view_t* view, int index) {
+                                           struct _cef_view_t* view,
+                                           int index) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -177,13 +176,12 @@ void CEF_CALLBACK panel_reorder_child_view(struct _cef_panel_t* self,
     return;
 
   // Execute
-  CefPanelCppToC::Get(self)->ReorderChildView(
-      CefViewCppToC::Unwrap(view),
-      index);
+  CefPanelCppToC::Get(self)->ReorderChildView(CefViewCppToC::Unwrap(view),
+                                              index);
 }
 
 void CEF_CALLBACK panel_remove_child_view(struct _cef_panel_t* self,
-    struct _cef_view_t* view) {
+                                          struct _cef_view_t* view) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -195,8 +193,7 @@ void CEF_CALLBACK panel_remove_child_view(struct _cef_panel_t* self,
     return;
 
   // Execute
-  CefPanelCppToC::Get(self)->RemoveChildView(
-      CefViewCppToC::Unwrap(view));
+  CefPanelCppToC::Get(self)->RemoveChildView(CefViewCppToC::Unwrap(view));
 }
 
 void CEF_CALLBACK panel_remove_all_child_views(struct _cef_panel_t* self) {
@@ -224,8 +221,8 @@ size_t CEF_CALLBACK panel_get_child_view_count(struct _cef_panel_t* self) {
   return _retval;
 }
 
-struct _cef_view_t* CEF_CALLBACK panel_get_child_view_at(
-    struct _cef_panel_t* self, int index) {
+struct _cef_view_t* CEF_CALLBACK
+panel_get_child_view_at(struct _cef_panel_t* self, int index) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -237,15 +234,14 @@ struct _cef_view_t* CEF_CALLBACK panel_get_child_view_at(
     return NULL;
 
   // Execute
-  CefRefPtr<CefView> _retval = CefPanelCppToC::Get(self)->GetChildViewAt(
-      index);
+  CefRefPtr<CefView> _retval = CefPanelCppToC::Get(self)->GetChildViewAt(index);
 
   // Return type: refptr_same
   return CefViewCppToC::Wrap(_retval);
 }
 
-cef_browser_view_t* CEF_CALLBACK panel_as_browser_view(
-    struct _cef_view_t* self) {
+cef_browser_view_t* CEF_CALLBACK
+panel_as_browser_view(struct _cef_view_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -253,8 +249,9 @@ cef_browser_view_t* CEF_CALLBACK panel_as_browser_view(
     return NULL;
 
   // Execute
-  CefRefPtr<CefBrowserView> _retval = CefPanelCppToC::Get(
-      reinterpret_cast<cef_panel_t*>(self))->AsBrowserView();
+  CefRefPtr<CefBrowserView> _retval =
+      CefPanelCppToC::Get(reinterpret_cast<cef_panel_t*>(self))
+          ->AsBrowserView();
 
   // Return type: refptr_same
   return CefBrowserViewCppToC::Wrap(_retval);
@@ -268,8 +265,8 @@ cef_button_t* CEF_CALLBACK panel_as_button(struct _cef_view_t* self) {
     return NULL;
 
   // Execute
-  CefRefPtr<CefButton> _retval = CefPanelCppToC::Get(
-      reinterpret_cast<cef_panel_t*>(self))->AsButton();
+  CefRefPtr<CefButton> _retval =
+      CefPanelCppToC::Get(reinterpret_cast<cef_panel_t*>(self))->AsButton();
 
   // Return type: refptr_same
   return CefButtonCppToC::Wrap(_retval);
@@ -283,8 +280,8 @@ cef_panel_t* CEF_CALLBACK panel_as_panel(struct _cef_view_t* self) {
     return NULL;
 
   // Execute
-  CefRefPtr<CefPanel> _retval = CefPanelCppToC::Get(
-      reinterpret_cast<cef_panel_t*>(self))->AsPanel();
+  CefRefPtr<CefPanel> _retval =
+      CefPanelCppToC::Get(reinterpret_cast<cef_panel_t*>(self))->AsPanel();
 
   // Return type: refptr_same
   return CefPanelCppToC::Wrap(_retval);
@@ -298,8 +295,8 @@ cef_scroll_view_t* CEF_CALLBACK panel_as_scroll_view(struct _cef_view_t* self) {
     return NULL;
 
   // Execute
-  CefRefPtr<CefScrollView> _retval = CefPanelCppToC::Get(
-      reinterpret_cast<cef_panel_t*>(self))->AsScrollView();
+  CefRefPtr<CefScrollView> _retval =
+      CefPanelCppToC::Get(reinterpret_cast<cef_panel_t*>(self))->AsScrollView();
 
   // Return type: refptr_same
   return CefScrollViewCppToC::Wrap(_retval);
@@ -313,15 +310,15 @@ cef_textfield_t* CEF_CALLBACK panel_as_textfield(struct _cef_view_t* self) {
     return NULL;
 
   // Execute
-  CefRefPtr<CefTextfield> _retval = CefPanelCppToC::Get(
-      reinterpret_cast<cef_panel_t*>(self))->AsTextfield();
+  CefRefPtr<CefTextfield> _retval =
+      CefPanelCppToC::Get(reinterpret_cast<cef_panel_t*>(self))->AsTextfield();
 
   // Return type: refptr_same
   return CefTextfieldCppToC::Wrap(_retval);
 }
 
-cef_string_userfree_t CEF_CALLBACK panel_get_type_string(
-    struct _cef_view_t* self) {
+cef_string_userfree_t CEF_CALLBACK
+panel_get_type_string(struct _cef_view_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -329,15 +326,15 @@ cef_string_userfree_t CEF_CALLBACK panel_get_type_string(
     return NULL;
 
   // Execute
-  CefString _retval = CefPanelCppToC::Get(reinterpret_cast<cef_panel_t*>(
-      self))->GetTypeString();
+  CefString _retval = CefPanelCppToC::Get(reinterpret_cast<cef_panel_t*>(self))
+                          ->GetTypeString();
 
   // Return type: string
   return _retval.DetachToUserFree();
 }
 
 cef_string_userfree_t CEF_CALLBACK panel_to_string(struct _cef_view_t* self,
-    int include_children) {
+                                                   int include_children) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -345,9 +342,8 @@ cef_string_userfree_t CEF_CALLBACK panel_to_string(struct _cef_view_t* self,
     return NULL;
 
   // Execute
-  CefString _retval = CefPanelCppToC::Get(reinterpret_cast<cef_panel_t*>(
-      self))->ToString(
-      include_children?true:false);
+  CefString _retval = CefPanelCppToC::Get(reinterpret_cast<cef_panel_t*>(self))
+                          ->ToString(include_children ? true : false);
 
   // Return type: string
   return _retval.DetachToUserFree();
@@ -361,8 +357,8 @@ int CEF_CALLBACK panel_is_valid(struct _cef_view_t* self) {
     return 0;
 
   // Execute
-  bool _retval = CefPanelCppToC::Get(reinterpret_cast<cef_panel_t*>(
-      self))->IsValid();
+  bool _retval =
+      CefPanelCppToC::Get(reinterpret_cast<cef_panel_t*>(self))->IsValid();
 
   // Return type: bool
   return _retval;
@@ -376,15 +372,15 @@ int CEF_CALLBACK panel_is_attached(struct _cef_view_t* self) {
     return 0;
 
   // Execute
-  bool _retval = CefPanelCppToC::Get(reinterpret_cast<cef_panel_t*>(
-      self))->IsAttached();
+  bool _retval =
+      CefPanelCppToC::Get(reinterpret_cast<cef_panel_t*>(self))->IsAttached();
 
   // Return type: bool
   return _retval;
 }
 
 int CEF_CALLBACK panel_is_same(struct _cef_view_t* self,
-    struct _cef_view_t* that) {
+                               struct _cef_view_t* that) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -396,16 +392,15 @@ int CEF_CALLBACK panel_is_same(struct _cef_view_t* self,
     return 0;
 
   // Execute
-  bool _retval = CefPanelCppToC::Get(reinterpret_cast<cef_panel_t*>(
-      self))->IsSame(
-      CefViewCppToC::Unwrap(that));
+  bool _retval = CefPanelCppToC::Get(reinterpret_cast<cef_panel_t*>(self))
+                     ->IsSame(CefViewCppToC::Unwrap(that));
 
   // Return type: bool
   return _retval;
 }
 
-struct _cef_view_delegate_t* CEF_CALLBACK panel_get_delegate(
-    struct _cef_view_t* self) {
+struct _cef_view_delegate_t* CEF_CALLBACK
+panel_get_delegate(struct _cef_view_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -413,8 +408,8 @@ struct _cef_view_delegate_t* CEF_CALLBACK panel_get_delegate(
     return NULL;
 
   // Execute
-  CefRefPtr<CefViewDelegate> _retval = CefPanelCppToC::Get(
-      reinterpret_cast<cef_panel_t*>(self))->GetDelegate();
+  CefRefPtr<CefViewDelegate> _retval =
+      CefPanelCppToC::Get(reinterpret_cast<cef_panel_t*>(self))->GetDelegate();
 
   // Return type: refptr_diff
   return CefViewDelegateCToCpp::Unwrap(_retval);
@@ -428,8 +423,8 @@ struct _cef_window_t* CEF_CALLBACK panel_get_window(struct _cef_view_t* self) {
     return NULL;
 
   // Execute
-  CefRefPtr<CefWindow> _retval = CefPanelCppToC::Get(
-      reinterpret_cast<cef_panel_t*>(self))->GetWindow();
+  CefRefPtr<CefWindow> _retval =
+      CefPanelCppToC::Get(reinterpret_cast<cef_panel_t*>(self))->GetWindow();
 
   // Return type: refptr_same
   return CefWindowCppToC::Wrap(_retval);
@@ -443,8 +438,8 @@ int CEF_CALLBACK panel_get_id(struct _cef_view_t* self) {
     return 0;
 
   // Execute
-  int _retval = CefPanelCppToC::Get(reinterpret_cast<cef_panel_t*>(
-      self))->GetID();
+  int _retval =
+      CefPanelCppToC::Get(reinterpret_cast<cef_panel_t*>(self))->GetID();
 
   // Return type: simple
   return _retval;
@@ -458,8 +453,7 @@ void CEF_CALLBACK panel_set_id(struct _cef_view_t* self, int id) {
     return;
 
   // Execute
-  CefPanelCppToC::Get(reinterpret_cast<cef_panel_t*>(self))->SetID(
-      id);
+  CefPanelCppToC::Get(reinterpret_cast<cef_panel_t*>(self))->SetID(id);
 }
 
 int CEF_CALLBACK panel_get_group_id(struct _cef_view_t* self) {
@@ -470,8 +464,8 @@ int CEF_CALLBACK panel_get_group_id(struct _cef_view_t* self) {
     return 0;
 
   // Execute
-  int _retval = CefPanelCppToC::Get(reinterpret_cast<cef_panel_t*>(
-      self))->GetGroupID();
+  int _retval =
+      CefPanelCppToC::Get(reinterpret_cast<cef_panel_t*>(self))->GetGroupID();
 
   // Return type: simple
   return _retval;
@@ -485,12 +479,12 @@ void CEF_CALLBACK panel_set_group_id(struct _cef_view_t* self, int group_id) {
     return;
 
   // Execute
-  CefPanelCppToC::Get(reinterpret_cast<cef_panel_t*>(self))->SetGroupID(
-      group_id);
+  CefPanelCppToC::Get(reinterpret_cast<cef_panel_t*>(self))
+      ->SetGroupID(group_id);
 }
 
-struct _cef_view_t* CEF_CALLBACK panel_get_parent_view(
-    struct _cef_view_t* self) {
+struct _cef_view_t* CEF_CALLBACK
+panel_get_parent_view(struct _cef_view_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -498,15 +492,16 @@ struct _cef_view_t* CEF_CALLBACK panel_get_parent_view(
     return NULL;
 
   // Execute
-  CefRefPtr<CefView> _retval = CefPanelCppToC::Get(
-      reinterpret_cast<cef_panel_t*>(self))->GetParentView();
+  CefRefPtr<CefView> _retval =
+      CefPanelCppToC::Get(reinterpret_cast<cef_panel_t*>(self))
+          ->GetParentView();
 
   // Return type: refptr_same
   return CefViewCppToC::Wrap(_retval);
 }
 
 struct _cef_view_t* CEF_CALLBACK panel_get_view_for_id(struct _cef_view_t* self,
-    int id) {
+                                                       int id) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -514,16 +509,16 @@ struct _cef_view_t* CEF_CALLBACK panel_get_view_for_id(struct _cef_view_t* self,
     return NULL;
 
   // Execute
-  CefRefPtr<CefView> _retval = CefPanelCppToC::Get(
-      reinterpret_cast<cef_panel_t*>(self))->GetViewForID(
-      id);
+  CefRefPtr<CefView> _retval =
+      CefPanelCppToC::Get(reinterpret_cast<cef_panel_t*>(self))
+          ->GetViewForID(id);
 
   // Return type: refptr_same
   return CefViewCppToC::Wrap(_retval);
 }
 
 void CEF_CALLBACK panel_set_bounds(struct _cef_view_t* self,
-    const cef_rect_t* bounds) {
+                                   const cef_rect_t* bounds) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -535,11 +530,11 @@ void CEF_CALLBACK panel_set_bounds(struct _cef_view_t* self,
     return;
 
   // Translate param: bounds; type: simple_byref_const
-  CefRect boundsVal = bounds?*bounds:CefRect();
+  CefRect boundsVal = bounds ? *bounds : CefRect();
 
   // Execute
-  CefPanelCppToC::Get(reinterpret_cast<cef_panel_t*>(self))->SetBounds(
-      boundsVal);
+  CefPanelCppToC::Get(reinterpret_cast<cef_panel_t*>(self))
+      ->SetBounds(boundsVal);
 }
 
 cef_rect_t CEF_CALLBACK panel_get_bounds(struct _cef_view_t* self) {
@@ -550,8 +545,8 @@ cef_rect_t CEF_CALLBACK panel_get_bounds(struct _cef_view_t* self) {
     return CefRect();
 
   // Execute
-  cef_rect_t _retval = CefPanelCppToC::Get(reinterpret_cast<cef_panel_t*>(
-      self))->GetBounds();
+  cef_rect_t _retval =
+      CefPanelCppToC::Get(reinterpret_cast<cef_panel_t*>(self))->GetBounds();
 
   // Return type: simple
   return _retval;
@@ -565,15 +560,15 @@ cef_rect_t CEF_CALLBACK panel_get_bounds_in_screen(struct _cef_view_t* self) {
     return CefRect();
 
   // Execute
-  cef_rect_t _retval = CefPanelCppToC::Get(reinterpret_cast<cef_panel_t*>(
-      self))->GetBoundsInScreen();
+  cef_rect_t _retval = CefPanelCppToC::Get(reinterpret_cast<cef_panel_t*>(self))
+                           ->GetBoundsInScreen();
 
   // Return type: simple
   return _retval;
 }
 
 void CEF_CALLBACK panel_set_size(struct _cef_view_t* self,
-    const cef_size_t* size) {
+                                 const cef_size_t* size) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -585,11 +580,10 @@ void CEF_CALLBACK panel_set_size(struct _cef_view_t* self,
     return;
 
   // Translate param: size; type: simple_byref_const
-  CefSize sizeVal = size?*size:CefSize();
+  CefSize sizeVal = size ? *size : CefSize();
 
   // Execute
-  CefPanelCppToC::Get(reinterpret_cast<cef_panel_t*>(self))->SetSize(
-      sizeVal);
+  CefPanelCppToC::Get(reinterpret_cast<cef_panel_t*>(self))->SetSize(sizeVal);
 }
 
 cef_size_t CEF_CALLBACK panel_get_size(struct _cef_view_t* self) {
@@ -600,15 +594,15 @@ cef_size_t CEF_CALLBACK panel_get_size(struct _cef_view_t* self) {
     return CefSize();
 
   // Execute
-  cef_size_t _retval = CefPanelCppToC::Get(reinterpret_cast<cef_panel_t*>(
-      self))->GetSize();
+  cef_size_t _retval =
+      CefPanelCppToC::Get(reinterpret_cast<cef_panel_t*>(self))->GetSize();
 
   // Return type: simple
   return _retval;
 }
 
 void CEF_CALLBACK panel_set_position(struct _cef_view_t* self,
-    const cef_point_t* position) {
+                                     const cef_point_t* position) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -620,11 +614,11 @@ void CEF_CALLBACK panel_set_position(struct _cef_view_t* self,
     return;
 
   // Translate param: position; type: simple_byref_const
-  CefPoint positionVal = position?*position:CefPoint();
+  CefPoint positionVal = position ? *position : CefPoint();
 
   // Execute
-  CefPanelCppToC::Get(reinterpret_cast<cef_panel_t*>(self))->SetPosition(
-      positionVal);
+  CefPanelCppToC::Get(reinterpret_cast<cef_panel_t*>(self))
+      ->SetPosition(positionVal);
 }
 
 cef_point_t CEF_CALLBACK panel_get_position(struct _cef_view_t* self) {
@@ -635,8 +629,8 @@ cef_point_t CEF_CALLBACK panel_get_position(struct _cef_view_t* self) {
     return CefPoint();
 
   // Execute
-  cef_point_t _retval = CefPanelCppToC::Get(reinterpret_cast<cef_panel_t*>(
-      self))->GetPosition();
+  cef_point_t _retval =
+      CefPanelCppToC::Get(reinterpret_cast<cef_panel_t*>(self))->GetPosition();
 
   // Return type: simple
   return _retval;
@@ -650,8 +644,8 @@ cef_size_t CEF_CALLBACK panel_get_preferred_size(struct _cef_view_t* self) {
     return CefSize();
 
   // Execute
-  cef_size_t _retval = CefPanelCppToC::Get(reinterpret_cast<cef_panel_t*>(
-      self))->GetPreferredSize();
+  cef_size_t _retval = CefPanelCppToC::Get(reinterpret_cast<cef_panel_t*>(self))
+                           ->GetPreferredSize();
 
   // Return type: simple
   return _retval;
@@ -665,8 +659,8 @@ void CEF_CALLBACK panel_size_to_preferred_size(struct _cef_view_t* self) {
     return;
 
   // Execute
-  CefPanelCppToC::Get(reinterpret_cast<cef_panel_t*>(
-      self))->SizeToPreferredSize();
+  CefPanelCppToC::Get(reinterpret_cast<cef_panel_t*>(self))
+      ->SizeToPreferredSize();
 }
 
 cef_size_t CEF_CALLBACK panel_get_minimum_size(struct _cef_view_t* self) {
@@ -677,8 +671,8 @@ cef_size_t CEF_CALLBACK panel_get_minimum_size(struct _cef_view_t* self) {
     return CefSize();
 
   // Execute
-  cef_size_t _retval = CefPanelCppToC::Get(reinterpret_cast<cef_panel_t*>(
-      self))->GetMinimumSize();
+  cef_size_t _retval = CefPanelCppToC::Get(reinterpret_cast<cef_panel_t*>(self))
+                           ->GetMinimumSize();
 
   // Return type: simple
   return _retval;
@@ -692,15 +686,15 @@ cef_size_t CEF_CALLBACK panel_get_maximum_size(struct _cef_view_t* self) {
     return CefSize();
 
   // Execute
-  cef_size_t _retval = CefPanelCppToC::Get(reinterpret_cast<cef_panel_t*>(
-      self))->GetMaximumSize();
+  cef_size_t _retval = CefPanelCppToC::Get(reinterpret_cast<cef_panel_t*>(self))
+                           ->GetMaximumSize();
 
   // Return type: simple
   return _retval;
 }
 
 int CEF_CALLBACK panel_get_height_for_width(struct _cef_view_t* self,
-    int width) {
+                                            int width) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -708,9 +702,8 @@ int CEF_CALLBACK panel_get_height_for_width(struct _cef_view_t* self,
     return 0;
 
   // Execute
-  int _retval = CefPanelCppToC::Get(reinterpret_cast<cef_panel_t*>(
-      self))->GetHeightForWidth(
-      width);
+  int _retval = CefPanelCppToC::Get(reinterpret_cast<cef_panel_t*>(self))
+                    ->GetHeightForWidth(width);
 
   // Return type: simple
   return _retval;
@@ -735,8 +728,8 @@ void CEF_CALLBACK panel_set_visible(struct _cef_view_t* self, int visible) {
     return;
 
   // Execute
-  CefPanelCppToC::Get(reinterpret_cast<cef_panel_t*>(self))->SetVisible(
-      visible?true:false);
+  CefPanelCppToC::Get(reinterpret_cast<cef_panel_t*>(self))
+      ->SetVisible(visible ? true : false);
 }
 
 int CEF_CALLBACK panel_is_visible(struct _cef_view_t* self) {
@@ -747,8 +740,8 @@ int CEF_CALLBACK panel_is_visible(struct _cef_view_t* self) {
     return 0;
 
   // Execute
-  bool _retval = CefPanelCppToC::Get(reinterpret_cast<cef_panel_t*>(
-      self))->IsVisible();
+  bool _retval =
+      CefPanelCppToC::Get(reinterpret_cast<cef_panel_t*>(self))->IsVisible();
 
   // Return type: bool
   return _retval;
@@ -762,8 +755,8 @@ int CEF_CALLBACK panel_is_drawn(struct _cef_view_t* self) {
     return 0;
 
   // Execute
-  bool _retval = CefPanelCppToC::Get(reinterpret_cast<cef_panel_t*>(
-      self))->IsDrawn();
+  bool _retval =
+      CefPanelCppToC::Get(reinterpret_cast<cef_panel_t*>(self))->IsDrawn();
 
   // Return type: bool
   return _retval;
@@ -777,8 +770,8 @@ void CEF_CALLBACK panel_set_enabled(struct _cef_view_t* self, int enabled) {
     return;
 
   // Execute
-  CefPanelCppToC::Get(reinterpret_cast<cef_panel_t*>(self))->SetEnabled(
-      enabled?true:false);
+  CefPanelCppToC::Get(reinterpret_cast<cef_panel_t*>(self))
+      ->SetEnabled(enabled ? true : false);
 }
 
 int CEF_CALLBACK panel_is_enabled(struct _cef_view_t* self) {
@@ -789,8 +782,8 @@ int CEF_CALLBACK panel_is_enabled(struct _cef_view_t* self) {
     return 0;
 
   // Execute
-  bool _retval = CefPanelCppToC::Get(reinterpret_cast<cef_panel_t*>(
-      self))->IsEnabled();
+  bool _retval =
+      CefPanelCppToC::Get(reinterpret_cast<cef_panel_t*>(self))->IsEnabled();
 
   // Return type: bool
   return _retval;
@@ -804,8 +797,8 @@ void CEF_CALLBACK panel_set_focusable(struct _cef_view_t* self, int focusable) {
     return;
 
   // Execute
-  CefPanelCppToC::Get(reinterpret_cast<cef_panel_t*>(self))->SetFocusable(
-      focusable?true:false);
+  CefPanelCppToC::Get(reinterpret_cast<cef_panel_t*>(self))
+      ->SetFocusable(focusable ? true : false);
 }
 
 int CEF_CALLBACK panel_is_focusable(struct _cef_view_t* self) {
@@ -816,8 +809,8 @@ int CEF_CALLBACK panel_is_focusable(struct _cef_view_t* self) {
     return 0;
 
   // Execute
-  bool _retval = CefPanelCppToC::Get(reinterpret_cast<cef_panel_t*>(
-      self))->IsFocusable();
+  bool _retval =
+      CefPanelCppToC::Get(reinterpret_cast<cef_panel_t*>(self))->IsFocusable();
 
   // Return type: bool
   return _retval;
@@ -831,8 +824,8 @@ int CEF_CALLBACK panel_is_accessibility_focusable(struct _cef_view_t* self) {
     return 0;
 
   // Execute
-  bool _retval = CefPanelCppToC::Get(reinterpret_cast<cef_panel_t*>(
-      self))->IsAccessibilityFocusable();
+  bool _retval = CefPanelCppToC::Get(reinterpret_cast<cef_panel_t*>(self))
+                     ->IsAccessibilityFocusable();
 
   // Return type: bool
   return _retval;
@@ -850,7 +843,7 @@ void CEF_CALLBACK panel_request_focus(struct _cef_view_t* self) {
 }
 
 void CEF_CALLBACK panel_set_background_color(struct _cef_view_t* self,
-    cef_color_t color) {
+                                             cef_color_t color) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -858,8 +851,8 @@ void CEF_CALLBACK panel_set_background_color(struct _cef_view_t* self,
     return;
 
   // Execute
-  CefPanelCppToC::Get(reinterpret_cast<cef_panel_t*>(self))->SetBackgroundColor(
-      color);
+  CefPanelCppToC::Get(reinterpret_cast<cef_panel_t*>(self))
+      ->SetBackgroundColor(color);
 }
 
 cef_color_t CEF_CALLBACK panel_get_background_color(struct _cef_view_t* self) {
@@ -870,15 +863,16 @@ cef_color_t CEF_CALLBACK panel_get_background_color(struct _cef_view_t* self) {
     return 0;
 
   // Execute
-  cef_color_t _retval = CefPanelCppToC::Get(reinterpret_cast<cef_panel_t*>(
-      self))->GetBackgroundColor();
+  cef_color_t _retval =
+      CefPanelCppToC::Get(reinterpret_cast<cef_panel_t*>(self))
+          ->GetBackgroundColor();
 
   // Return type: simple
   return _retval;
 }
 
 int CEF_CALLBACK panel_convert_point_to_screen(struct _cef_view_t* self,
-    cef_point_t* point) {
+                                               cef_point_t* point) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -890,12 +884,11 @@ int CEF_CALLBACK panel_convert_point_to_screen(struct _cef_view_t* self,
     return 0;
 
   // Translate param: point; type: simple_byref
-  CefPoint pointVal = point?*point:CefPoint();
+  CefPoint pointVal = point ? *point : CefPoint();
 
   // Execute
-  bool _retval = CefPanelCppToC::Get(reinterpret_cast<cef_panel_t*>(
-      self))->ConvertPointToScreen(
-      pointVal);
+  bool _retval = CefPanelCppToC::Get(reinterpret_cast<cef_panel_t*>(self))
+                     ->ConvertPointToScreen(pointVal);
 
   // Restore param: point; type: simple_byref
   if (point)
@@ -906,7 +899,7 @@ int CEF_CALLBACK panel_convert_point_to_screen(struct _cef_view_t* self,
 }
 
 int CEF_CALLBACK panel_convert_point_from_screen(struct _cef_view_t* self,
-    cef_point_t* point) {
+                                                 cef_point_t* point) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -918,12 +911,11 @@ int CEF_CALLBACK panel_convert_point_from_screen(struct _cef_view_t* self,
     return 0;
 
   // Translate param: point; type: simple_byref
-  CefPoint pointVal = point?*point:CefPoint();
+  CefPoint pointVal = point ? *point : CefPoint();
 
   // Execute
-  bool _retval = CefPanelCppToC::Get(reinterpret_cast<cef_panel_t*>(
-      self))->ConvertPointFromScreen(
-      pointVal);
+  bool _retval = CefPanelCppToC::Get(reinterpret_cast<cef_panel_t*>(self))
+                     ->ConvertPointFromScreen(pointVal);
 
   // Restore param: point; type: simple_byref
   if (point)
@@ -934,7 +926,7 @@ int CEF_CALLBACK panel_convert_point_from_screen(struct _cef_view_t* self,
 }
 
 int CEF_CALLBACK panel_convert_point_to_window(struct _cef_view_t* self,
-    cef_point_t* point) {
+                                               cef_point_t* point) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -946,12 +938,11 @@ int CEF_CALLBACK panel_convert_point_to_window(struct _cef_view_t* self,
     return 0;
 
   // Translate param: point; type: simple_byref
-  CefPoint pointVal = point?*point:CefPoint();
+  CefPoint pointVal = point ? *point : CefPoint();
 
   // Execute
-  bool _retval = CefPanelCppToC::Get(reinterpret_cast<cef_panel_t*>(
-      self))->ConvertPointToWindow(
-      pointVal);
+  bool _retval = CefPanelCppToC::Get(reinterpret_cast<cef_panel_t*>(self))
+                     ->ConvertPointToWindow(pointVal);
 
   // Restore param: point; type: simple_byref
   if (point)
@@ -962,7 +953,7 @@ int CEF_CALLBACK panel_convert_point_to_window(struct _cef_view_t* self,
 }
 
 int CEF_CALLBACK panel_convert_point_from_window(struct _cef_view_t* self,
-    cef_point_t* point) {
+                                                 cef_point_t* point) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -974,12 +965,11 @@ int CEF_CALLBACK panel_convert_point_from_window(struct _cef_view_t* self,
     return 0;
 
   // Translate param: point; type: simple_byref
-  CefPoint pointVal = point?*point:CefPoint();
+  CefPoint pointVal = point ? *point : CefPoint();
 
   // Execute
-  bool _retval = CefPanelCppToC::Get(reinterpret_cast<cef_panel_t*>(
-      self))->ConvertPointFromWindow(
-      pointVal);
+  bool _retval = CefPanelCppToC::Get(reinterpret_cast<cef_panel_t*>(self))
+                     ->ConvertPointFromWindow(pointVal);
 
   // Restore param: point; type: simple_byref
   if (point)
@@ -990,7 +980,8 @@ int CEF_CALLBACK panel_convert_point_from_window(struct _cef_view_t* self,
 }
 
 int CEF_CALLBACK panel_convert_point_to_view(struct _cef_view_t* self,
-    struct _cef_view_t* view, cef_point_t* point) {
+                                             struct _cef_view_t* view,
+                                             cef_point_t* point) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -1006,13 +997,12 @@ int CEF_CALLBACK panel_convert_point_to_view(struct _cef_view_t* self,
     return 0;
 
   // Translate param: point; type: simple_byref
-  CefPoint pointVal = point?*point:CefPoint();
+  CefPoint pointVal = point ? *point : CefPoint();
 
   // Execute
-  bool _retval = CefPanelCppToC::Get(reinterpret_cast<cef_panel_t*>(
-      self))->ConvertPointToView(
-      CefViewCppToC::Unwrap(view),
-      pointVal);
+  bool _retval =
+      CefPanelCppToC::Get(reinterpret_cast<cef_panel_t*>(self))
+          ->ConvertPointToView(CefViewCppToC::Unwrap(view), pointVal);
 
   // Restore param: point; type: simple_byref
   if (point)
@@ -1023,7 +1013,8 @@ int CEF_CALLBACK panel_convert_point_to_view(struct _cef_view_t* self,
 }
 
 int CEF_CALLBACK panel_convert_point_from_view(struct _cef_view_t* self,
-    struct _cef_view_t* view, cef_point_t* point) {
+                                               struct _cef_view_t* view,
+                                               cef_point_t* point) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -1039,13 +1030,12 @@ int CEF_CALLBACK panel_convert_point_from_view(struct _cef_view_t* self,
     return 0;
 
   // Translate param: point; type: simple_byref
-  CefPoint pointVal = point?*point:CefPoint();
+  CefPoint pointVal = point ? *point : CefPoint();
 
   // Execute
-  bool _retval = CefPanelCppToC::Get(reinterpret_cast<cef_panel_t*>(
-      self))->ConvertPointFromView(
-      CefViewCppToC::Unwrap(view),
-      pointVal);
+  bool _retval =
+      CefPanelCppToC::Get(reinterpret_cast<cef_panel_t*>(self))
+          ->ConvertPointFromView(CefViewCppToC::Unwrap(view), pointVal);
 
   // Restore param: point; type: simple_byref
   if (point)
@@ -1056,7 +1046,6 @@ int CEF_CALLBACK panel_convert_point_from_view(struct _cef_view_t* self,
 }
 
 }  // namespace
-
 
 // CONSTRUCTOR - Do not edit by hand.
 
@@ -1124,8 +1113,11 @@ CefPanelCppToC::CefPanelCppToC() {
   GetStruct()->base.convert_point_from_view = panel_convert_point_from_view;
 }
 
-template<> CefRefPtr<CefPanel> CefCppToCRefCounted<CefPanelCppToC, CefPanel,
-    cef_panel_t>::UnwrapDerived(CefWrapperType type, cef_panel_t* s) {
+template <>
+CefRefPtr<CefPanel>
+CefCppToCRefCounted<CefPanelCppToC, CefPanel, cef_panel_t>::UnwrapDerived(
+    CefWrapperType type,
+    cef_panel_t* s) {
   if (type == WT_WINDOW) {
     return CefWindowCppToC::Unwrap(reinterpret_cast<cef_window_t*>(s));
   }
@@ -1134,9 +1126,12 @@ template<> CefRefPtr<CefPanel> CefCppToCRefCounted<CefPanelCppToC, CefPanel,
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCppToCRefCounted<CefPanelCppToC, CefPanel,
-    cef_panel_t>::DebugObjCt = 0;
+template <>
+base::AtomicRefCount
+    CefCppToCRefCounted<CefPanelCppToC, CefPanel, cef_panel_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCppToCRefCounted<CefPanelCppToC, CefPanel,
-    cef_panel_t>::kWrapperType = WT_PANEL;
+template <>
+CefWrapperType
+    CefCppToCRefCounted<CefPanelCppToC, CefPanel, cef_panel_t>::kWrapperType =
+        WT_PANEL;

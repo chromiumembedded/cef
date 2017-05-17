@@ -17,9 +17,7 @@ CefSoftwareOutputDeviceOSR::CefSoftwareOutputDeviceOSR(
     ui::Compositor* compositor,
     bool transparent,
     const OnPaintCallback& callback)
-    : transparent_(transparent),
-      callback_(callback),
-      active_(false) {
+    : transparent_(transparent), callback_(callback), active_(false) {
   CEF_REQUIRE_UIT();
   DCHECK(!callback_.is_null());
 }
@@ -40,8 +38,7 @@ void CefSoftwareOutputDeviceOSR::Resize(const gfx::Size& viewport_pixel_size,
   canvas_.reset(NULL);
   bitmap_.reset(new SkBitmap);
   bitmap_->allocN32Pixels(viewport_pixel_size.width(),
-                          viewport_pixel_size.height(),
-                          !transparent_);
+                          viewport_pixel_size.height(), !transparent_);
   if (bitmap_->drawsNothing()) {
     NOTREACHED();
     bitmap_.reset(NULL);

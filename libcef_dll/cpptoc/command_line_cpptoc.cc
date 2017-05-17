@@ -9,10 +9,11 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=b8f85a07998ec47d97910a04b0e68b34700a55ea$
+//
 
 #include "libcef_dll/cpptoc/command_line_cpptoc.h"
 #include "libcef_dll/transfer_util.h"
-
 
 // GLOBAL FUNCTIONS - Body may be edited by hand.
 
@@ -35,7 +36,6 @@ CEF_EXPORT cef_command_line_t* cef_command_line_get_global() {
   // Return type: refptr_same
   return CefCommandLineCppToC::Wrap(_retval);
 }
-
 
 namespace {
 
@@ -69,8 +69,8 @@ int CEF_CALLBACK command_line_is_read_only(struct _cef_command_line_t* self) {
   return _retval;
 }
 
-struct _cef_command_line_t* CEF_CALLBACK command_line_copy(
-    struct _cef_command_line_t* self) {
+struct _cef_command_line_t* CEF_CALLBACK
+command_line_copy(struct _cef_command_line_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -85,7 +85,8 @@ struct _cef_command_line_t* CEF_CALLBACK command_line_copy(
 }
 
 void CEF_CALLBACK command_line_init_from_argv(struct _cef_command_line_t* self,
-    int argc, const char* const* argv) {
+                                              int argc,
+                                              const char* const* argv) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -97,13 +98,12 @@ void CEF_CALLBACK command_line_init_from_argv(struct _cef_command_line_t* self,
     return;
 
   // Execute
-  CefCommandLineCppToC::Get(self)->InitFromArgv(
-      argc,
-      argv);
+  CefCommandLineCppToC::Get(self)->InitFromArgv(argc, argv);
 }
 
-void CEF_CALLBACK command_line_init_from_string(
-    struct _cef_command_line_t* self, const cef_string_t* command_line) {
+void CEF_CALLBACK
+command_line_init_from_string(struct _cef_command_line_t* self,
+                              const cef_string_t* command_line) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -115,8 +115,7 @@ void CEF_CALLBACK command_line_init_from_string(
     return;
 
   // Execute
-  CefCommandLineCppToC::Get(self)->InitFromString(
-      CefString(command_line));
+  CefCommandLineCppToC::Get(self)->InitFromString(CefString(command_line));
 }
 
 void CEF_CALLBACK command_line_reset(struct _cef_command_line_t* self) {
@@ -131,7 +130,7 @@ void CEF_CALLBACK command_line_reset(struct _cef_command_line_t* self) {
 }
 
 void CEF_CALLBACK command_line_get_argv(struct _cef_command_line_t* self,
-    cef_string_list_t argv) {
+                                        cef_string_list_t argv) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -147,16 +146,15 @@ void CEF_CALLBACK command_line_get_argv(struct _cef_command_line_t* self,
   transfer_string_list_contents(argv, argvList);
 
   // Execute
-  CefCommandLineCppToC::Get(self)->GetArgv(
-      argvList);
+  CefCommandLineCppToC::Get(self)->GetArgv(argvList);
 
   // Restore param: argv; type: string_vec_byref
   cef_string_list_clear(argv);
   transfer_string_list_contents(argvList, argv);
 }
 
-cef_string_userfree_t CEF_CALLBACK command_line_get_command_line_string(
-    struct _cef_command_line_t* self) {
+cef_string_userfree_t CEF_CALLBACK
+command_line_get_command_line_string(struct _cef_command_line_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -170,8 +168,8 @@ cef_string_userfree_t CEF_CALLBACK command_line_get_command_line_string(
   return _retval.DetachToUserFree();
 }
 
-cef_string_userfree_t CEF_CALLBACK command_line_get_program(
-    struct _cef_command_line_t* self) {
+cef_string_userfree_t CEF_CALLBACK
+command_line_get_program(struct _cef_command_line_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -186,7 +184,7 @@ cef_string_userfree_t CEF_CALLBACK command_line_get_program(
 }
 
 void CEF_CALLBACK command_line_set_program(struct _cef_command_line_t* self,
-    const cef_string_t* program) {
+                                           const cef_string_t* program) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -198,8 +196,7 @@ void CEF_CALLBACK command_line_set_program(struct _cef_command_line_t* self,
     return;
 
   // Execute
-  CefCommandLineCppToC::Get(self)->SetProgram(
-      CefString(program));
+  CefCommandLineCppToC::Get(self)->SetProgram(CefString(program));
 }
 
 int CEF_CALLBACK command_line_has_switches(struct _cef_command_line_t* self) {
@@ -217,7 +214,7 @@ int CEF_CALLBACK command_line_has_switches(struct _cef_command_line_t* self) {
 }
 
 int CEF_CALLBACK command_line_has_switch(struct _cef_command_line_t* self,
-    const cef_string_t* name) {
+                                         const cef_string_t* name) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -229,15 +226,15 @@ int CEF_CALLBACK command_line_has_switch(struct _cef_command_line_t* self,
     return 0;
 
   // Execute
-  bool _retval = CefCommandLineCppToC::Get(self)->HasSwitch(
-      CefString(name));
+  bool _retval = CefCommandLineCppToC::Get(self)->HasSwitch(CefString(name));
 
   // Return type: bool
   return _retval;
 }
 
-cef_string_userfree_t CEF_CALLBACK command_line_get_switch_value(
-    struct _cef_command_line_t* self, const cef_string_t* name) {
+cef_string_userfree_t CEF_CALLBACK
+command_line_get_switch_value(struct _cef_command_line_t* self,
+                              const cef_string_t* name) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -249,15 +246,15 @@ cef_string_userfree_t CEF_CALLBACK command_line_get_switch_value(
     return NULL;
 
   // Execute
-  CefString _retval = CefCommandLineCppToC::Get(self)->GetSwitchValue(
-      CefString(name));
+  CefString _retval =
+      CefCommandLineCppToC::Get(self)->GetSwitchValue(CefString(name));
 
   // Return type: string
   return _retval.DetachToUserFree();
 }
 
 void CEF_CALLBACK command_line_get_switches(struct _cef_command_line_t* self,
-    cef_string_map_t switches) {
+                                            cef_string_map_t switches) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -273,8 +270,7 @@ void CEF_CALLBACK command_line_get_switches(struct _cef_command_line_t* self,
   transfer_string_map_contents(switches, switchesMap);
 
   // Execute
-  CefCommandLineCppToC::Get(self)->GetSwitches(
-      switchesMap);
+  CefCommandLineCppToC::Get(self)->GetSwitches(switchesMap);
 
   // Restore param: switches; type: string_map_single_byref
   cef_string_map_clear(switches);
@@ -282,7 +278,7 @@ void CEF_CALLBACK command_line_get_switches(struct _cef_command_line_t* self,
 }
 
 void CEF_CALLBACK command_line_append_switch(struct _cef_command_line_t* self,
-    const cef_string_t* name) {
+                                             const cef_string_t* name) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -294,13 +290,13 @@ void CEF_CALLBACK command_line_append_switch(struct _cef_command_line_t* self,
     return;
 
   // Execute
-  CefCommandLineCppToC::Get(self)->AppendSwitch(
-      CefString(name));
+  CefCommandLineCppToC::Get(self)->AppendSwitch(CefString(name));
 }
 
-void CEF_CALLBACK command_line_append_switch_with_value(
-    struct _cef_command_line_t* self, const cef_string_t* name,
-    const cef_string_t* value) {
+void CEF_CALLBACK
+command_line_append_switch_with_value(struct _cef_command_line_t* self,
+                                      const cef_string_t* name,
+                                      const cef_string_t* value) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -316,9 +312,8 @@ void CEF_CALLBACK command_line_append_switch_with_value(
     return;
 
   // Execute
-  CefCommandLineCppToC::Get(self)->AppendSwitchWithValue(
-      CefString(name),
-      CefString(value));
+  CefCommandLineCppToC::Get(self)->AppendSwitchWithValue(CefString(name),
+                                                         CefString(value));
 }
 
 int CEF_CALLBACK command_line_has_arguments(struct _cef_command_line_t* self) {
@@ -336,7 +331,7 @@ int CEF_CALLBACK command_line_has_arguments(struct _cef_command_line_t* self) {
 }
 
 void CEF_CALLBACK command_line_get_arguments(struct _cef_command_line_t* self,
-    cef_string_list_t arguments) {
+                                             cef_string_list_t arguments) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -352,8 +347,7 @@ void CEF_CALLBACK command_line_get_arguments(struct _cef_command_line_t* self,
   transfer_string_list_contents(arguments, argumentsList);
 
   // Execute
-  CefCommandLineCppToC::Get(self)->GetArguments(
-      argumentsList);
+  CefCommandLineCppToC::Get(self)->GetArguments(argumentsList);
 
   // Restore param: arguments; type: string_vec_byref
   cef_string_list_clear(arguments);
@@ -361,7 +355,7 @@ void CEF_CALLBACK command_line_get_arguments(struct _cef_command_line_t* self,
 }
 
 void CEF_CALLBACK command_line_append_argument(struct _cef_command_line_t* self,
-    const cef_string_t* argument) {
+                                               const cef_string_t* argument) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -373,12 +367,11 @@ void CEF_CALLBACK command_line_append_argument(struct _cef_command_line_t* self,
     return;
 
   // Execute
-  CefCommandLineCppToC::Get(self)->AppendArgument(
-      CefString(argument));
+  CefCommandLineCppToC::Get(self)->AppendArgument(CefString(argument));
 }
 
 void CEF_CALLBACK command_line_prepend_wrapper(struct _cef_command_line_t* self,
-    const cef_string_t* wrapper) {
+                                               const cef_string_t* wrapper) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -390,12 +383,10 @@ void CEF_CALLBACK command_line_prepend_wrapper(struct _cef_command_line_t* self,
     return;
 
   // Execute
-  CefCommandLineCppToC::Get(self)->PrependWrapper(
-      CefString(wrapper));
+  CefCommandLineCppToC::Get(self)->PrependWrapper(CefString(wrapper));
 }
 
 }  // namespace
-
 
 // CONSTRUCTOR - Do not edit by hand.
 
@@ -422,17 +413,23 @@ CefCommandLineCppToC::CefCommandLineCppToC() {
   GetStruct()->prepend_wrapper = command_line_prepend_wrapper;
 }
 
-template<> CefRefPtr<CefCommandLine> CefCppToCRefCounted<CefCommandLineCppToC,
-    CefCommandLine, cef_command_line_t>::UnwrapDerived(CefWrapperType type,
-    cef_command_line_t* s) {
+template <>
+CefRefPtr<CefCommandLine>
+CefCppToCRefCounted<CefCommandLineCppToC, CefCommandLine, cef_command_line_t>::
+    UnwrapDerived(CefWrapperType type, cef_command_line_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCppToCRefCounted<CefCommandLineCppToC,
-    CefCommandLine, cef_command_line_t>::DebugObjCt = 0;
+template <>
+base::AtomicRefCount CefCppToCRefCounted<CefCommandLineCppToC,
+                                         CefCommandLine,
+                                         cef_command_line_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCppToCRefCounted<CefCommandLineCppToC,
-    CefCommandLine, cef_command_line_t>::kWrapperType = WT_COMMAND_LINE;
+template <>
+CefWrapperType CefCppToCRefCounted<CefCommandLineCppToC,
+                                   CefCommandLine,
+                                   cef_command_line_t>::kWrapperType =
+    WT_COMMAND_LINE;

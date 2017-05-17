@@ -38,8 +38,8 @@
 #define CEF_INCLUDE_VIEWS_CEF_TEXTFIELD_H_
 #pragma once
 
-#include "include/views/cef_view.h"
 #include "include/views/cef_textfield_delegate.h"
+#include "include/views/cef_view.h"
 
 ///
 // A Textfield supports editing of text. This control is custom rendered with no
@@ -60,62 +60,62 @@ class CefTextfield : public CefView {
   // Sets whether the text will be displayed as asterisks.
   ///
   /*--cef()--*/
-  virtual void SetPasswordInput(bool password_input) =0;
+  virtual void SetPasswordInput(bool password_input) = 0;
 
   ///
   // Returns true if the text will be displayed as asterisks.
   ///
   /*--cef()--*/
-  virtual bool IsPasswordInput() =0;
+  virtual bool IsPasswordInput() = 0;
 
   ///
   // Sets whether the text will read-only.
   ///
   /*--cef()--*/
-  virtual void SetReadOnly(bool read_only) =0;
+  virtual void SetReadOnly(bool read_only) = 0;
 
   ///
   // Returns true if the text is read-only.
   ///
   /*--cef()--*/
-  virtual bool IsReadOnly() =0;
+  virtual bool IsReadOnly() = 0;
 
   ///
   // Returns the currently displayed text.
   ///
   /*--cef()--*/
-  virtual CefString GetText() =0;
+  virtual CefString GetText() = 0;
 
   ///
   // Sets the contents to |text|. The cursor will be moved to end of the text if
   // the current position is outside of the text range.
   ///
   /*--cef()--*/
-  virtual void SetText(const CefString& text) =0;
+  virtual void SetText(const CefString& text) = 0;
 
   ///
   // Appends |text| to the previously-existing text.
   ///
   /*--cef()--*/
-  virtual void AppendText(const CefString& text) =0;
+  virtual void AppendText(const CefString& text) = 0;
 
   ///
   // Inserts |text| at the current cursor position replacing any selected text.
   ///
   /*--cef()--*/
-  virtual void InsertOrReplaceText(const CefString& text) =0;
+  virtual void InsertOrReplaceText(const CefString& text) = 0;
 
   ///
   // Returns true if there is any selected text.
   ///
   /*--cef()--*/
-  virtual bool HasSelection() =0;
+  virtual bool HasSelection() = 0;
 
   ///
   // Returns the currently selected text.
   ///
   /*--cef()--*/
-  virtual CefString GetSelectedText() =0;
+  virtual CefString GetSelectedText() = 0;
 
   ///
   // Selects all text. If |reversed| is true the range will end at the logical
@@ -123,67 +123,67 @@ class CefTextfield : public CefView {
   // that overflows its display area.
   ///
   /*--cef()--*/
-  virtual void SelectAll(bool reversed) =0;
-  
+  virtual void SelectAll(bool reversed) = 0;
+
   ///
   // Clears the text selection and sets the caret to the end.
   ///
   /*--cef()--*/
-  virtual void ClearSelection() =0;
+  virtual void ClearSelection() = 0;
 
   ///
   // Returns the selected logical text range.
   ///
   /*--cef()--*/
-  virtual CefRange GetSelectedRange() =0;
-  
+  virtual CefRange GetSelectedRange() = 0;
+
   ///
   // Selects the specified logical text range.
   ///
   /*--cef()--*/
-  virtual void SelectRange(const CefRange& range) =0;
-  
+  virtual void SelectRange(const CefRange& range) = 0;
+
   ///
   // Returns the current cursor position.
   ///
   /*--cef()--*/
-  virtual size_t GetCursorPosition() =0;
+  virtual size_t GetCursorPosition() = 0;
 
   ///
   // Sets the text color.
   ///
   /*--cef()--*/
-  virtual void SetTextColor(cef_color_t color) =0;
+  virtual void SetTextColor(cef_color_t color) = 0;
 
   ///
   // Returns the text color.
   ///
   /*--cef()--*/
-  virtual cef_color_t GetTextColor() =0;
+  virtual cef_color_t GetTextColor() = 0;
 
   ///
   // Sets the selection text color.
   ///
   /*--cef()--*/
-  virtual void SetSelectionTextColor(cef_color_t color) =0;
+  virtual void SetSelectionTextColor(cef_color_t color) = 0;
 
   ///
   // Returns the selection text color.
   ///
   /*--cef()--*/
-  virtual cef_color_t GetSelectionTextColor() =0;
+  virtual cef_color_t GetSelectionTextColor() = 0;
 
   ///
   // Sets the selection background color.
   ///
   /*--cef()--*/
-  virtual void SetSelectionBackgroundColor(cef_color_t color) =0;
+  virtual void SetSelectionBackgroundColor(cef_color_t color) = 0;
 
   ///
   // Returns the selection background color.
   ///
   /*--cef()--*/
-  virtual cef_color_t GetSelectionBackgroundColor() =0;
+  virtual cef_color_t GetSelectionBackgroundColor() = 0;
 
   ///
   // Sets the font list. The format is "<FONT_FAMILY_LIST>,[STYLES] <SIZE>",
@@ -198,7 +198,7 @@ class CefTextfield : public CefView {
   // - "Arial, 14px"
   ///
   /*--cef()--*/
-  virtual void SetFontList(const CefString& font_list) =0;
+  virtual void SetFontList(const CefString& font_list) = 0;
 
   ///
   // Applies |color| to the specified |range| without changing the default
@@ -206,8 +206,7 @@ class CefTextfield : public CefView {
   // contents.
   ///
   /*--cef()--*/
-  virtual void ApplyTextColor(cef_color_t color,
-                              const CefRange& range) =0;
+  virtual void ApplyTextColor(cef_color_t color, const CefRange& range) = 0;
 
   ///
   // Applies |style| to the specified |range| without changing the default
@@ -218,14 +217,14 @@ class CefTextfield : public CefView {
   /*--cef()--*/
   virtual void ApplyTextStyle(cef_text_style_t style,
                               bool add,
-                              const CefRange& range) =0;
+                              const CefRange& range) = 0;
 
   ///
   // Returns true if the action associated with the specified command id is
   // enabled. See additional comments on ExecuteCommand().
   ///
   /*--cef()--*/
-  virtual bool IsCommandEnabled(int command_id) =0;
+  virtual bool IsCommandEnabled(int command_id) = 0;
 
   ///
   // Performs the action associated with the specified command id. Valid values
@@ -234,39 +233,39 @@ class CefTextfield : public CefView {
   // IDS_MOVE_*. See include/cef_pack_strings.h for definitions.
   ///
   /*--cef()--*/
-  virtual void ExecuteCommand(int command_id) =0;
-  
+  virtual void ExecuteCommand(int command_id) = 0;
+
   ///
   // Clears Edit history.
   ///
   /*--cef()--*/
-  virtual void ClearEditHistory() =0;
+  virtual void ClearEditHistory() = 0;
 
   ///
   // Sets the placeholder text that will be displayed when the Textfield is
   // empty.
   ///
   /*--cef()--*/
-  virtual void SetPlaceholderText(const CefString& text) =0;
+  virtual void SetPlaceholderText(const CefString& text) = 0;
 
   ///
   // Returns the placeholder text that will be displayed when the Textfield is
   // empty.
   ///
   /*--cef()--*/
-  virtual CefString GetPlaceholderText() =0;
+  virtual CefString GetPlaceholderText() = 0;
 
   ///
   // Sets the placeholder text color.
   ///
   /*--cef()--*/
-  virtual void SetPlaceholderTextColor(cef_color_t color) =0;
+  virtual void SetPlaceholderTextColor(cef_color_t color) = 0;
 
   ///
   // Set the accessible name that will be exposed to assistive technology (AT).
   ///
   /*--cef()--*/
-  virtual void SetAccessibleName(const CefString& name) =0;
+  virtual void SetAccessibleName(const CefString& name) = 0;
 };
 
 #endif  // CEF_INCLUDE_VIEWS_CEF_TEXTFIELD_H_

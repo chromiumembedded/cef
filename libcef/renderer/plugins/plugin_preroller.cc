@@ -67,10 +67,9 @@ void CefPluginPreroller::OnThrottleStateChange() {
   power_saver_info.poster_attribute = keyframe_data_url_.spec();
   power_saver_info.custom_poster_size = throttler_->GetSize();
 
-  CefPluginPlaceholder* placeholder =
-      CefPluginPlaceholder::CreateBlockedPlugin(
-          render_frame(), frame_, params_, info_, identifier_, name_,
-          IDR_PLUGIN_POSTER_HTML, message_, power_saver_info);
+  CefPluginPlaceholder* placeholder = CefPluginPlaceholder::CreateBlockedPlugin(
+      render_frame(), frame_, params_, info_, identifier_, name_,
+      IDR_PLUGIN_POSTER_HTML, message_, power_saver_info);
   placeholder->SetPremadePlugin(throttler_);
   placeholder->set_power_saver_enabled(true);
   placeholder->AllowLoading();

@@ -47,8 +47,7 @@ class PreferenceBrowserTest : public client::ClientAppBrowser::Delegate {
   IMPLEMENT_REFCOUNTING(PreferenceBrowserTest);
 };
 
-void ValidateReset(CefRefPtr<CefRequestContext> context,
-                   const char* name) {
+void ValidateReset(CefRefPtr<CefRequestContext> context, const char* name) {
   EXPECT_TRUE(context->HasPreference(name));
   EXPECT_TRUE(context->CanSetPreference(name));
 
@@ -398,7 +397,6 @@ class TestRequestContextHandler : public CefRequestContextHandler {
 
 }  // namespace
 
-
 // Verify default preference values on the global context.
 TEST(PreferenceTest, GlobalDefaults) {
   CefRefPtr<CefWaitableEvent> event =
@@ -545,7 +543,6 @@ TEST(PreferenceTest, CustomSetGetShared) {
   ValidateDefaults(context, true, event);
   event->Wait();
 }
-
 
 // Entry point for creating preference browser test objects.
 // Called from client_app_delegates.cc.

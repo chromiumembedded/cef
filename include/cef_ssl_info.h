@@ -54,15 +54,14 @@ class CefSSLInfo : public virtual CefBaseRefCounted {
   // certificate.
   ///
   /*--cef(default_retval=CERT_STATUS_NONE)--*/
-  virtual cef_cert_status_t GetCertStatus() =0;
+  virtual cef_cert_status_t GetCertStatus() = 0;
 
   ///
   // Returns the X.509 certificate.
   ///
   /*--cef()--*/
-  virtual CefRefPtr<CefX509Certificate> GetX509Certificate() =0;
+  virtual CefRefPtr<CefX509Certificate> GetX509Certificate() = 0;
 };
-
 
 ///
 // Returns true if the certificate status has any error, major or minor.

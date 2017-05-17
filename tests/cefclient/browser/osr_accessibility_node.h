@@ -51,39 +51,27 @@ class OsrAXNode {
   CefNativeAccessible* GetNativeAccessibleObject(OsrAXNode* parent);
 
   CefNativeAccessible* GetParentAccessibleObject() const {
-    return parent_? parent_->platform_accessibility_ : NULL;
+    return parent_ ? parent_->platform_accessibility_ : NULL;
   }
 
   OsrAccessibilityHelper* GetAccessibilityHelper() const {
     return accessibility_helper_;
   };
 
-  int GetChildCount() const {
-    return static_cast<int>(child_ids_.size());
-  }
+  int GetChildCount() const { return static_cast<int>(child_ids_.size()); }
 
   // Return the Child at the specified index
   OsrAXNode* ChildAtIndex(int index) const;
 
-  const CefString& AxRole() const {
-    return role_;
-  }
+  const CefString& AxRole() const { return role_; }
 
-  int OsrAXNodeId() const {
-    return node_id_;
-  }
+  int OsrAXNodeId() const { return node_id_; }
 
-  const CefString& AxValue() const {
-    return value_;
-  }
+  const CefString& AxValue() const { return value_; }
 
-  const CefString& AxName() const {
-    return name_;
-  }
+  const CefString& AxName() const { return name_; }
 
-  const CefString& AxDescription() const {
-    return description_;
-  }
+  const CefString& AxDescription() const { return description_; }
 
   CefRect AxLocation() const;
 

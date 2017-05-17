@@ -34,11 +34,10 @@ const cef_event_flags_t kEmptyEventFlags = static_cast<cef_event_flags_t>(0);
 
 class CefRunContextMenuCallbackImpl : public CefRunContextMenuCallback {
  public:
-  typedef base::Callback<void(int,cef_event_flags_t)> Callback;
+  typedef base::Callback<void(int, cef_event_flags_t)> Callback;
 
   explicit CefRunContextMenuCallbackImpl(const Callback& callback)
-      : callback_(callback) {
-  }
+      : callback_(callback) {}
 
   ~CefRunContextMenuCallbackImpl() {
     if (!callback_.is_null()) {
@@ -46,7 +45,8 @@ class CefRunContextMenuCallbackImpl : public CefRunContextMenuCallback {
       if (CEF_CURRENTLY_ON_UIT()) {
         RunNow(callback_, kInvalidCommandId, kEmptyEventFlags);
       } else {
-        CEF_POST_TASK(CEF_UIT,
+        CEF_POST_TASK(
+            CEF_UIT,
             base::Bind(&CefRunContextMenuCallbackImpl::RunNow, callback_,
                        kInvalidCommandId, kEmptyEventFlags));
       }
@@ -61,18 +61,14 @@ class CefRunContextMenuCallbackImpl : public CefRunContextMenuCallback {
       }
     } else {
       CEF_POST_TASK(CEF_UIT,
-          base::Bind(&CefRunContextMenuCallbackImpl::Continue, this,
-                     command_id, event_flags));
+                    base::Bind(&CefRunContextMenuCallbackImpl::Continue, this,
+                               command_id, event_flags));
     }
   }
 
-  void Cancel() override {
-    Continue(kInvalidCommandId, kEmptyEventFlags);
-  }
+  void Cancel() override { Continue(kInvalidCommandId, kEmptyEventFlags); }
 
-  void Disconnect() {
-    callback_.Reset();
-  }
+  void Disconnect() { callback_.Reset(); }
 
  private:
   static void RunNow(const Callback& callback,
@@ -92,11 +88,11 @@ class CefRunContextMenuCallbackImpl : public CefRunContextMenuCallback {
 
 CefMenuManager::CefMenuManager(CefBrowserHostImpl* browser,
                                std::unique_ptr<CefMenuRunner> runner)
-  : content::WebContentsObserver(browser->web_contents()),
-    browser_(browser),
-    runner_(std::move(runner)),
-    custom_menu_callback_(NULL),
-    weak_ptr_factory_(this) {
+    : content::WebContentsObserver(browser->web_contents()),
+      browser_(browser),
+      runner_(std::move(runner)),
+      custom_menu_callback_(NULL),
+      weak_ptr_factory_(this) {
   DCHECK(web_contents());
   DCHECK(runner_.get());
   model_ = new CefMenuModelImpl(this, nullptr, false);
@@ -145,17 +141,14 @@ bool CefMenuManager::CreateContextMenu(
   // Give the client a chance to modify the model.
   CefRefPtr<CefClient> client = browser_->GetClient();
   if (client.get()) {
-    CefRefPtr<CefContextMenuHandler> handler =
-        client->GetContextMenuHandler();
+    CefRefPtr<CefContextMenuHandler> handler = client->GetContextMenuHandler();
     if (handler.get()) {
       CefRefPtr<CefContextMenuParamsImpl> paramsPtr(
           new CefContextMenuParamsImpl(&params_));
       CefRefPtr<CefFrame> frame = browser_->GetFocusedFrame();
 
-      handler->OnBeforeContextMenu(browser_,
-                                    frame,
-                                    paramsPtr.get(),
-                                    model_.get());
+      handler->OnBeforeContextMenu(browser_, frame, paramsPtr.get(),
+                                   model_.get());
 
       MenuWillShow(model_);
 
@@ -163,17 +156,14 @@ bool CefMenuManager::CreateContextMenu(
         CefRefPtr<CefRunContextMenuCallbackImpl> callbackImpl(
             new CefRunContextMenuCallbackImpl(
                 base::Bind(&CefMenuManager::ExecuteCommandCallback,
-                            weak_ptr_factory_.GetWeakPtr())));
+                           weak_ptr_factory_.GetWeakPtr())));
 
         // This reference will be cleared when the callback is executed or
         // the callback object is deleted.
         custom_menu_callback_ = callbackImpl.get();
 
-        if (handler->RunContextMenu(browser_,
-                                    frame,
-                                    paramsPtr.get(),
-                                    model_.get(),
-                                    callbackImpl.get())) {
+        if (handler->RunContextMenu(browser_, frame, paramsPtr.get(),
+                                    model_.get(), callbackImpl.get())) {
           custom_menu = true;
         } else {
           // Callback should not be executed if the handler returns false.
@@ -216,17 +206,13 @@ void CefMenuManager::ExecuteCommand(CefRefPtr<CefMenuModelImpl> source,
   // Give the client a chance to handle the command.
   CefRefPtr<CefClient> client = browser_->GetClient();
   if (client.get()) {
-    CefRefPtr<CefContextMenuHandler> handler =
-        client->GetContextMenuHandler();
+    CefRefPtr<CefContextMenuHandler> handler = client->GetContextMenuHandler();
     if (handler.get()) {
       CefRefPtr<CefContextMenuParamsImpl> paramsPtr(
           new CefContextMenuParamsImpl(&params_));
 
       bool handled = handler->OnContextMenuCommand(
-          browser_,
-          browser_->GetFocusedFrame(),
-          paramsPtr.get(),
-          command_id,
+          browser_, browser_->GetFocusedFrame(), paramsPtr.get(), command_id,
           event_flags);
 
       // Do not keep references to the parameters in the callback.
@@ -274,8 +260,7 @@ void CefMenuManager::MenuClosed(CefRefPtr<CefMenuModelImpl> source) {
   // Notify the client.
   CefRefPtr<CefClient> client = browser_->GetClient();
   if (client.get()) {
-    CefRefPtr<CefContextMenuHandler> handler =
-        client->GetContextMenuHandler();
+    CefRefPtr<CefContextMenuHandler> handler = client->GetContextMenuHandler();
     if (handler.get()) {
       handler->OnContextMenuDismissed(browser_, browser_->GetFocusedFrame());
     }
@@ -347,34 +332,31 @@ void CefMenuManager::CreateDefaultModel() {
     if (!(params_.edit_flags & CM_EDITFLAG_CAN_SELECT_ALL))
       model_->SetEnabled(MENU_ID_SELECT_ALL, false);
 
-    if(!params_.misspelled_word.empty()) {
+    if (!params_.misspelled_word.empty()) {
       // Always add a separator before the list of dictionary suggestions or
       // "No spelling suggestions".
       model_->AddSeparator();
 
       if (!params_.dictionary_suggestions.empty()) {
-        for (size_t i = 0;
-             i < params_.dictionary_suggestions.size() &&
-                 MENU_ID_SPELLCHECK_SUGGESTION_0 + i <=
-                    MENU_ID_SPELLCHECK_SUGGESTION_LAST;
+        for (size_t i = 0; i < params_.dictionary_suggestions.size() &&
+                           MENU_ID_SPELLCHECK_SUGGESTION_0 + i <=
+                               MENU_ID_SPELLCHECK_SUGGESTION_LAST;
              ++i) {
           model_->AddItem(MENU_ID_SPELLCHECK_SUGGESTION_0 + static_cast<int>(i),
-              params_.dictionary_suggestions[i].c_str());
+                          params_.dictionary_suggestions[i].c_str());
         }
 
         // When there are dictionary suggestions add a separator before "Add to
         // dictionary".
         model_->AddSeparator();
       } else {
-        model_->AddItem(
-            MENU_ID_NO_SPELLING_SUGGESTIONS,
-            GetLabel(IDS_CONTENT_CONTEXT_NO_SPELLING_SUGGESTIONS));
+        model_->AddItem(MENU_ID_NO_SPELLING_SUGGESTIONS,
+                        GetLabel(IDS_CONTENT_CONTEXT_NO_SPELLING_SUGGESTIONS));
         model_->SetEnabled(MENU_ID_NO_SPELLING_SUGGESTIONS, false);
       }
 
-      model_->AddItem(
-            MENU_ID_ADD_TO_DICTIONARY,
-            GetLabel(IDS_CONTENT_CONTEXT_ADD_TO_DICTIONARY));
+      model_->AddItem(MENU_ID_ADD_TO_DICTIONARY,
+                      GetLabel(IDS_CONTENT_CONTEXT_ADD_TO_DICTIONARY));
     }
   } else if (!params_.selection_text.empty()) {
     // Something is selected.
@@ -418,65 +400,65 @@ void CefMenuManager::ExecuteDefaultCommand(int command_id) {
   }
 
   switch (command_id) {
-  // Navigation.
-  case MENU_ID_BACK:
-    browser_->GoBack();
-    break;
-  case MENU_ID_FORWARD:
-    browser_->GoForward();
-    break;
-  case MENU_ID_RELOAD:
-    browser_->Reload();
-    break;
-  case MENU_ID_RELOAD_NOCACHE:
-    browser_->ReloadIgnoreCache();
-    break;
-  case MENU_ID_STOPLOAD:
-    browser_->StopLoad();
-    break;
+    // Navigation.
+    case MENU_ID_BACK:
+      browser_->GoBack();
+      break;
+    case MENU_ID_FORWARD:
+      browser_->GoForward();
+      break;
+    case MENU_ID_RELOAD:
+      browser_->Reload();
+      break;
+    case MENU_ID_RELOAD_NOCACHE:
+      browser_->ReloadIgnoreCache();
+      break;
+    case MENU_ID_STOPLOAD:
+      browser_->StopLoad();
+      break;
 
-  // Editing.
-  case MENU_ID_UNDO:
-    browser_->GetFocusedFrame()->Undo();
-    break;
-  case MENU_ID_REDO:
-    browser_->GetFocusedFrame()->Redo();
-    break;
-  case MENU_ID_CUT:
-    browser_->GetFocusedFrame()->Cut();
-    break;
-  case MENU_ID_COPY:
-    browser_->GetFocusedFrame()->Copy();
-    break;
-  case MENU_ID_PASTE:
-    browser_->GetFocusedFrame()->Paste();
-    break;
-  case MENU_ID_DELETE:
-    browser_->GetFocusedFrame()->Delete();
-    break;
-  case MENU_ID_SELECT_ALL:
-    browser_->GetFocusedFrame()->SelectAll();
-    break;
+    // Editing.
+    case MENU_ID_UNDO:
+      browser_->GetFocusedFrame()->Undo();
+      break;
+    case MENU_ID_REDO:
+      browser_->GetFocusedFrame()->Redo();
+      break;
+    case MENU_ID_CUT:
+      browser_->GetFocusedFrame()->Cut();
+      break;
+    case MENU_ID_COPY:
+      browser_->GetFocusedFrame()->Copy();
+      break;
+    case MENU_ID_PASTE:
+      browser_->GetFocusedFrame()->Paste();
+      break;
+    case MENU_ID_DELETE:
+      browser_->GetFocusedFrame()->Delete();
+      break;
+    case MENU_ID_SELECT_ALL:
+      browser_->GetFocusedFrame()->SelectAll();
+      break;
 
-  // Miscellaneous.
-  case MENU_ID_FIND:
-    // TODO(cef): Implement.
-    NOTIMPLEMENTED();
-    break;
-  case MENU_ID_PRINT:
-    browser_->Print();
-    break;
-  case MENU_ID_VIEW_SOURCE:
-    browser_->GetFocusedFrame()->ViewSource();
-    break;
+    // Miscellaneous.
+    case MENU_ID_FIND:
+      // TODO(cef): Implement.
+      NOTIMPLEMENTED();
+      break;
+    case MENU_ID_PRINT:
+      browser_->Print();
+      break;
+    case MENU_ID_VIEW_SOURCE:
+      browser_->GetFocusedFrame()->ViewSource();
+      break;
 
-  // Spell checking.
-  case MENU_ID_ADD_TO_DICTIONARY:
-    browser_->GetHost()->AddWordToDictionary(params_.misspelled_word);
-    break;
+    // Spell checking.
+    case MENU_ID_ADD_TO_DICTIONARY:
+      browser_->GetHost()->AddWordToDictionary(params_.misspelled_word);
+      break;
 
-  default:
-    break;
+    default:
+      break;
   }
 }
 

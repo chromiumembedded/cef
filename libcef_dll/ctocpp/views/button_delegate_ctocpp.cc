@@ -9,12 +9,13 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=2777421fafeccaca2d573bce9b42f28fa0407fb0$
+//
 
 #include "libcef_dll/cpptoc/views/button_cpptoc.h"
 #include "libcef_dll/cpptoc/views/view_cpptoc.h"
 #include "libcef_dll/ctocpp/views/button_delegate_ctocpp.h"
 #include "libcef_dll/ctocpp/views/menu_button_delegate_ctocpp.h"
-
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
@@ -31,8 +32,7 @@ void CefButtonDelegateCToCpp::OnButtonPressed(CefRefPtr<CefButton> button) {
     return;
 
   // Execute
-  _struct->on_button_pressed(_struct,
-      CefButtonCppToC::Wrap(button));
+  _struct->on_button_pressed(_struct, CefButtonCppToC::Wrap(button));
 }
 
 void CefButtonDelegateCToCpp::OnButtonStateChanged(
@@ -49,13 +49,12 @@ void CefButtonDelegateCToCpp::OnButtonStateChanged(
     return;
 
   // Execute
-  _struct->on_button_state_changed(_struct,
-      CefButtonCppToC::Wrap(button));
+  _struct->on_button_state_changed(_struct, CefButtonCppToC::Wrap(button));
 }
 
 CefSize CefButtonDelegateCToCpp::GetPreferredSize(CefRefPtr<CefView> view) {
-  cef_view_delegate_t* _struct = reinterpret_cast<cef_view_delegate_t*>(
-      GetStruct());
+  cef_view_delegate_t* _struct =
+      reinterpret_cast<cef_view_delegate_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, get_preferred_size))
     return CefSize();
 
@@ -67,16 +66,16 @@ CefSize CefButtonDelegateCToCpp::GetPreferredSize(CefRefPtr<CefView> view) {
     return CefSize();
 
   // Execute
-  cef_size_t _retval = _struct->get_preferred_size(_struct,
-      CefViewCppToC::Wrap(view));
+  cef_size_t _retval =
+      _struct->get_preferred_size(_struct, CefViewCppToC::Wrap(view));
 
   // Return type: simple
   return _retval;
 }
 
 CefSize CefButtonDelegateCToCpp::GetMinimumSize(CefRefPtr<CefView> view) {
-  cef_view_delegate_t* _struct = reinterpret_cast<cef_view_delegate_t*>(
-      GetStruct());
+  cef_view_delegate_t* _struct =
+      reinterpret_cast<cef_view_delegate_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, get_minimum_size))
     return CefSize();
 
@@ -88,16 +87,16 @@ CefSize CefButtonDelegateCToCpp::GetMinimumSize(CefRefPtr<CefView> view) {
     return CefSize();
 
   // Execute
-  cef_size_t _retval = _struct->get_minimum_size(_struct,
-      CefViewCppToC::Wrap(view));
+  cef_size_t _retval =
+      _struct->get_minimum_size(_struct, CefViewCppToC::Wrap(view));
 
   // Return type: simple
   return _retval;
 }
 
 CefSize CefButtonDelegateCToCpp::GetMaximumSize(CefRefPtr<CefView> view) {
-  cef_view_delegate_t* _struct = reinterpret_cast<cef_view_delegate_t*>(
-      GetStruct());
+  cef_view_delegate_t* _struct =
+      reinterpret_cast<cef_view_delegate_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, get_maximum_size))
     return CefSize();
 
@@ -109,17 +108,17 @@ CefSize CefButtonDelegateCToCpp::GetMaximumSize(CefRefPtr<CefView> view) {
     return CefSize();
 
   // Execute
-  cef_size_t _retval = _struct->get_maximum_size(_struct,
-      CefViewCppToC::Wrap(view));
+  cef_size_t _retval =
+      _struct->get_maximum_size(_struct, CefViewCppToC::Wrap(view));
 
   // Return type: simple
   return _retval;
 }
 
 int CefButtonDelegateCToCpp::GetHeightForWidth(CefRefPtr<CefView> view,
-    int width) {
-  cef_view_delegate_t* _struct = reinterpret_cast<cef_view_delegate_t*>(
-      GetStruct());
+                                               int width) {
+  cef_view_delegate_t* _struct =
+      reinterpret_cast<cef_view_delegate_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, get_height_for_width))
     return 0;
 
@@ -131,18 +130,18 @@ int CefButtonDelegateCToCpp::GetHeightForWidth(CefRefPtr<CefView> view,
     return 0;
 
   // Execute
-  int _retval = _struct->get_height_for_width(_struct,
-      CefViewCppToC::Wrap(view),
-      width);
+  int _retval =
+      _struct->get_height_for_width(_struct, CefViewCppToC::Wrap(view), width);
 
   // Return type: simple
   return _retval;
 }
 
 void CefButtonDelegateCToCpp::OnParentViewChanged(CefRefPtr<CefView> view,
-    bool added, CefRefPtr<CefView> parent) {
-  cef_view_delegate_t* _struct = reinterpret_cast<cef_view_delegate_t*>(
-      GetStruct());
+                                                  bool added,
+                                                  CefRefPtr<CefView> parent) {
+  cef_view_delegate_t* _struct =
+      reinterpret_cast<cef_view_delegate_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, on_parent_view_changed))
     return;
 
@@ -158,16 +157,15 @@ void CefButtonDelegateCToCpp::OnParentViewChanged(CefRefPtr<CefView> view,
     return;
 
   // Execute
-  _struct->on_parent_view_changed(_struct,
-      CefViewCppToC::Wrap(view),
-      added,
-      CefViewCppToC::Wrap(parent));
+  _struct->on_parent_view_changed(_struct, CefViewCppToC::Wrap(view), added,
+                                  CefViewCppToC::Wrap(parent));
 }
 
 void CefButtonDelegateCToCpp::OnChildViewChanged(CefRefPtr<CefView> view,
-    bool added, CefRefPtr<CefView> child) {
-  cef_view_delegate_t* _struct = reinterpret_cast<cef_view_delegate_t*>(
-      GetStruct());
+                                                 bool added,
+                                                 CefRefPtr<CefView> child) {
+  cef_view_delegate_t* _struct =
+      reinterpret_cast<cef_view_delegate_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, on_child_view_changed))
     return;
 
@@ -183,15 +181,13 @@ void CefButtonDelegateCToCpp::OnChildViewChanged(CefRefPtr<CefView> view,
     return;
 
   // Execute
-  _struct->on_child_view_changed(_struct,
-      CefViewCppToC::Wrap(view),
-      added,
-      CefViewCppToC::Wrap(child));
+  _struct->on_child_view_changed(_struct, CefViewCppToC::Wrap(view), added,
+                                 CefViewCppToC::Wrap(child));
 }
 
 void CefButtonDelegateCToCpp::OnFocus(CefRefPtr<CefView> view) {
-  cef_view_delegate_t* _struct = reinterpret_cast<cef_view_delegate_t*>(
-      GetStruct());
+  cef_view_delegate_t* _struct =
+      reinterpret_cast<cef_view_delegate_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, on_focus))
     return;
 
@@ -203,13 +199,12 @@ void CefButtonDelegateCToCpp::OnFocus(CefRefPtr<CefView> view) {
     return;
 
   // Execute
-  _struct->on_focus(_struct,
-      CefViewCppToC::Wrap(view));
+  _struct->on_focus(_struct, CefViewCppToC::Wrap(view));
 }
 
 void CefButtonDelegateCToCpp::OnBlur(CefRefPtr<CefView> view) {
-  cef_view_delegate_t* _struct = reinterpret_cast<cef_view_delegate_t*>(
-      GetStruct());
+  cef_view_delegate_t* _struct =
+      reinterpret_cast<cef_view_delegate_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, on_blur))
     return;
 
@@ -221,33 +216,37 @@ void CefButtonDelegateCToCpp::OnBlur(CefRefPtr<CefView> view) {
     return;
 
   // Execute
-  _struct->on_blur(_struct,
-      CefViewCppToC::Wrap(view));
+  _struct->on_blur(_struct, CefViewCppToC::Wrap(view));
 }
-
 
 // CONSTRUCTOR - Do not edit by hand.
 
-CefButtonDelegateCToCpp::CefButtonDelegateCToCpp() {
-}
+CefButtonDelegateCToCpp::CefButtonDelegateCToCpp() {}
 
-template<> cef_button_delegate_t* CefCToCppRefCounted<CefButtonDelegateCToCpp,
-    CefButtonDelegate, cef_button_delegate_t>::UnwrapDerived(
-    CefWrapperType type, CefButtonDelegate* c) {
+template <>
+cef_button_delegate_t* CefCToCppRefCounted<
+    CefButtonDelegateCToCpp,
+    CefButtonDelegate,
+    cef_button_delegate_t>::UnwrapDerived(CefWrapperType type,
+                                          CefButtonDelegate* c) {
   if (type == WT_MENU_BUTTON_DELEGATE) {
     return reinterpret_cast<cef_button_delegate_t*>(
         CefMenuButtonDelegateCToCpp::Unwrap(
-        reinterpret_cast<CefMenuButtonDelegate*>(c)));
+            reinterpret_cast<CefMenuButtonDelegate*>(c)));
   }
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCppRefCounted<CefButtonDelegateCToCpp,
-    CefButtonDelegate, cef_button_delegate_t>::DebugObjCt = 0;
+template <>
+base::AtomicRefCount CefCToCppRefCounted<CefButtonDelegateCToCpp,
+                                         CefButtonDelegate,
+                                         cef_button_delegate_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCppRefCounted<CefButtonDelegateCToCpp,
-    CefButtonDelegate, cef_button_delegate_t>::kWrapperType =
+template <>
+CefWrapperType CefCToCppRefCounted<CefButtonDelegateCToCpp,
+                                   CefButtonDelegate,
+                                   cef_button_delegate_t>::kWrapperType =
     WT_BUTTON_DELEGATE;

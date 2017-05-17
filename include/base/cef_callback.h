@@ -45,9 +45,9 @@
 // If the Chromium implementation diverges the below implementation should be
 // updated to match.
 
-#include "include/base/internal/cef_callback_internal.h"
 #include "include/base/cef_callback_forward.h"
 #include "include/base/cef_template_util.h"
+#include "include/base/internal/cef_callback_internal.h"
 
 // NOTE: Header files that do not require the full definition of Callback or
 // Closure should #include "base/cef_callback_forward.h" instead of this file.
@@ -407,21 +407,20 @@ class Callback<R(void)> : public cef_internal::CallbackBase {
  public:
   typedef R(RunType)();
 
-  Callback() : CallbackBase(NULL) { }
+  Callback() : CallbackBase(NULL) {}
 
   // Note that this constructor CANNOT be explicit, and that Bind() CANNOT
   // return the exact Callback<> type.  See base/bind.h for details.
   template <typename Runnable, typename BindRunType, typename BoundArgsType>
-  Callback(cef_internal::BindState<Runnable, BindRunType,
-           BoundArgsType>* bind_state)
+  Callback(
+      cef_internal::BindState<Runnable, BindRunType, BoundArgsType>* bind_state)
       : CallbackBase(bind_state) {
-
     // Force the assignment to a local variable of PolymorphicInvoke
     // so the compiler will typecheck that the passed in Run() method has
     // the correct type.
     PolymorphicInvoke invoke_func =
-        &cef_internal::BindState<Runnable, BindRunType, BoundArgsType>
-            ::InvokerType::Run;
+        &cef_internal::BindState<Runnable, BindRunType,
+                                 BoundArgsType>::InvokerType::Run;
     polymorphic_invoke_ = reinterpret_cast<InvokeFuncStorage>(invoke_func);
   }
 
@@ -437,9 +436,7 @@ class Callback<R(void)> : public cef_internal::CallbackBase {
   }
 
  private:
-  typedef R(*PolymorphicInvoke)(
-      cef_internal::BindStateBase*);
-
+  typedef R (*PolymorphicInvoke)(cef_internal::BindStateBase*);
 };
 
 template <typename R, typename A1>
@@ -447,21 +444,20 @@ class Callback<R(A1)> : public cef_internal::CallbackBase {
  public:
   typedef R(RunType)(A1);
 
-  Callback() : CallbackBase(NULL) { }
+  Callback() : CallbackBase(NULL) {}
 
   // Note that this constructor CANNOT be explicit, and that Bind() CANNOT
   // return the exact Callback<> type.  See base/bind.h for details.
   template <typename Runnable, typename BindRunType, typename BoundArgsType>
-  Callback(cef_internal::BindState<Runnable, BindRunType,
-           BoundArgsType>* bind_state)
+  Callback(
+      cef_internal::BindState<Runnable, BindRunType, BoundArgsType>* bind_state)
       : CallbackBase(bind_state) {
-
     // Force the assignment to a local variable of PolymorphicInvoke
     // so the compiler will typecheck that the passed in Run() method has
     // the correct type.
     PolymorphicInvoke invoke_func =
-        &cef_internal::BindState<Runnable, BindRunType, BoundArgsType>
-            ::InvokerType::Run;
+        &cef_internal::BindState<Runnable, BindRunType,
+                                 BoundArgsType>::InvokerType::Run;
     polymorphic_invoke_ = reinterpret_cast<InvokeFuncStorage>(invoke_func);
   }
 
@@ -477,10 +473,9 @@ class Callback<R(A1)> : public cef_internal::CallbackBase {
   }
 
  private:
-  typedef R(*PolymorphicInvoke)(
+  typedef R (*PolymorphicInvoke)(
       cef_internal::BindStateBase*,
-          typename cef_internal::CallbackParamTraits<A1>::ForwardType);
-
+      typename cef_internal::CallbackParamTraits<A1>::ForwardType);
 };
 
 template <typename R, typename A1, typename A2>
@@ -488,21 +483,20 @@ class Callback<R(A1, A2)> : public cef_internal::CallbackBase {
  public:
   typedef R(RunType)(A1, A2);
 
-  Callback() : CallbackBase(NULL) { }
+  Callback() : CallbackBase(NULL) {}
 
   // Note that this constructor CANNOT be explicit, and that Bind() CANNOT
   // return the exact Callback<> type.  See base/bind.h for details.
   template <typename Runnable, typename BindRunType, typename BoundArgsType>
-  Callback(cef_internal::BindState<Runnable, BindRunType,
-           BoundArgsType>* bind_state)
+  Callback(
+      cef_internal::BindState<Runnable, BindRunType, BoundArgsType>* bind_state)
       : CallbackBase(bind_state) {
-
     // Force the assignment to a local variable of PolymorphicInvoke
     // so the compiler will typecheck that the passed in Run() method has
     // the correct type.
     PolymorphicInvoke invoke_func =
-        &cef_internal::BindState<Runnable, BindRunType, BoundArgsType>
-            ::InvokerType::Run;
+        &cef_internal::BindState<Runnable, BindRunType,
+                                 BoundArgsType>::InvokerType::Run;
     polymorphic_invoke_ = reinterpret_cast<InvokeFuncStorage>(invoke_func);
   }
 
@@ -520,11 +514,10 @@ class Callback<R(A1, A2)> : public cef_internal::CallbackBase {
   }
 
  private:
-  typedef R(*PolymorphicInvoke)(
+  typedef R (*PolymorphicInvoke)(
       cef_internal::BindStateBase*,
-          typename cef_internal::CallbackParamTraits<A1>::ForwardType,
-          typename cef_internal::CallbackParamTraits<A2>::ForwardType);
-
+      typename cef_internal::CallbackParamTraits<A1>::ForwardType,
+      typename cef_internal::CallbackParamTraits<A2>::ForwardType);
 };
 
 template <typename R, typename A1, typename A2, typename A3>
@@ -532,21 +525,20 @@ class Callback<R(A1, A2, A3)> : public cef_internal::CallbackBase {
  public:
   typedef R(RunType)(A1, A2, A3);
 
-  Callback() : CallbackBase(NULL) { }
+  Callback() : CallbackBase(NULL) {}
 
   // Note that this constructor CANNOT be explicit, and that Bind() CANNOT
   // return the exact Callback<> type.  See base/bind.h for details.
   template <typename Runnable, typename BindRunType, typename BoundArgsType>
-  Callback(cef_internal::BindState<Runnable, BindRunType,
-           BoundArgsType>* bind_state)
+  Callback(
+      cef_internal::BindState<Runnable, BindRunType, BoundArgsType>* bind_state)
       : CallbackBase(bind_state) {
-
     // Force the assignment to a local variable of PolymorphicInvoke
     // so the compiler will typecheck that the passed in Run() method has
     // the correct type.
     PolymorphicInvoke invoke_func =
-        &cef_internal::BindState<Runnable, BindRunType, BoundArgsType>
-            ::InvokerType::Run;
+        &cef_internal::BindState<Runnable, BindRunType,
+                                 BoundArgsType>::InvokerType::Run;
     polymorphic_invoke_ = reinterpret_cast<InvokeFuncStorage>(invoke_func);
   }
 
@@ -566,12 +558,11 @@ class Callback<R(A1, A2, A3)> : public cef_internal::CallbackBase {
   }
 
  private:
-  typedef R(*PolymorphicInvoke)(
+  typedef R (*PolymorphicInvoke)(
       cef_internal::BindStateBase*,
-          typename cef_internal::CallbackParamTraits<A1>::ForwardType,
-          typename cef_internal::CallbackParamTraits<A2>::ForwardType,
-          typename cef_internal::CallbackParamTraits<A3>::ForwardType);
-
+      typename cef_internal::CallbackParamTraits<A1>::ForwardType,
+      typename cef_internal::CallbackParamTraits<A2>::ForwardType,
+      typename cef_internal::CallbackParamTraits<A3>::ForwardType);
 };
 
 template <typename R, typename A1, typename A2, typename A3, typename A4>
@@ -579,21 +570,20 @@ class Callback<R(A1, A2, A3, A4)> : public cef_internal::CallbackBase {
  public:
   typedef R(RunType)(A1, A2, A3, A4);
 
-  Callback() : CallbackBase(NULL) { }
+  Callback() : CallbackBase(NULL) {}
 
   // Note that this constructor CANNOT be explicit, and that Bind() CANNOT
   // return the exact Callback<> type.  See base/bind.h for details.
   template <typename Runnable, typename BindRunType, typename BoundArgsType>
-  Callback(cef_internal::BindState<Runnable, BindRunType,
-           BoundArgsType>* bind_state)
+  Callback(
+      cef_internal::BindState<Runnable, BindRunType, BoundArgsType>* bind_state)
       : CallbackBase(bind_state) {
-
     // Force the assignment to a local variable of PolymorphicInvoke
     // so the compiler will typecheck that the passed in Run() method has
     // the correct type.
     PolymorphicInvoke invoke_func =
-        &cef_internal::BindState<Runnable, BindRunType, BoundArgsType>
-            ::InvokerType::Run;
+        &cef_internal::BindState<Runnable, BindRunType,
+                                 BoundArgsType>::InvokerType::Run;
     polymorphic_invoke_ = reinterpret_cast<InvokeFuncStorage>(invoke_func);
   }
 
@@ -615,36 +605,38 @@ class Callback<R(A1, A2, A3, A4)> : public cef_internal::CallbackBase {
   }
 
  private:
-  typedef R(*PolymorphicInvoke)(
+  typedef R (*PolymorphicInvoke)(
       cef_internal::BindStateBase*,
-          typename cef_internal::CallbackParamTraits<A1>::ForwardType,
-          typename cef_internal::CallbackParamTraits<A2>::ForwardType,
-          typename cef_internal::CallbackParamTraits<A3>::ForwardType,
-          typename cef_internal::CallbackParamTraits<A4>::ForwardType);
-
+      typename cef_internal::CallbackParamTraits<A1>::ForwardType,
+      typename cef_internal::CallbackParamTraits<A2>::ForwardType,
+      typename cef_internal::CallbackParamTraits<A3>::ForwardType,
+      typename cef_internal::CallbackParamTraits<A4>::ForwardType);
 };
 
-template <typename R, typename A1, typename A2, typename A3, typename A4,
-    typename A5>
+template <typename R,
+          typename A1,
+          typename A2,
+          typename A3,
+          typename A4,
+          typename A5>
 class Callback<R(A1, A2, A3, A4, A5)> : public cef_internal::CallbackBase {
  public:
   typedef R(RunType)(A1, A2, A3, A4, A5);
 
-  Callback() : CallbackBase(NULL) { }
+  Callback() : CallbackBase(NULL) {}
 
   // Note that this constructor CANNOT be explicit, and that Bind() CANNOT
   // return the exact Callback<> type.  See base/bind.h for details.
   template <typename Runnable, typename BindRunType, typename BoundArgsType>
-  Callback(cef_internal::BindState<Runnable, BindRunType,
-           BoundArgsType>* bind_state)
+  Callback(
+      cef_internal::BindState<Runnable, BindRunType, BoundArgsType>* bind_state)
       : CallbackBase(bind_state) {
-
     // Force the assignment to a local variable of PolymorphicInvoke
     // so the compiler will typecheck that the passed in Run() method has
     // the correct type.
     PolymorphicInvoke invoke_func =
-        &cef_internal::BindState<Runnable, BindRunType, BoundArgsType>
-            ::InvokerType::Run;
+        &cef_internal::BindState<Runnable, BindRunType,
+                                 BoundArgsType>::InvokerType::Run;
     polymorphic_invoke_ = reinterpret_cast<InvokeFuncStorage>(invoke_func);
   }
 
@@ -660,45 +652,47 @@ class Callback<R(A1, A2, A3, A4, A5)> : public cef_internal::CallbackBase {
     PolymorphicInvoke f =
         reinterpret_cast<PolymorphicInvoke>(polymorphic_invoke_);
 
-    return f(bind_state_.get(), cef_internal::CallbackForward(a1),
-             cef_internal::CallbackForward(a2),
-             cef_internal::CallbackForward(a3),
-             cef_internal::CallbackForward(a4),
-             cef_internal::CallbackForward(a5));
+    return f(
+        bind_state_.get(), cef_internal::CallbackForward(a1),
+        cef_internal::CallbackForward(a2), cef_internal::CallbackForward(a3),
+        cef_internal::CallbackForward(a4), cef_internal::CallbackForward(a5));
   }
 
  private:
-  typedef R(*PolymorphicInvoke)(
+  typedef R (*PolymorphicInvoke)(
       cef_internal::BindStateBase*,
-          typename cef_internal::CallbackParamTraits<A1>::ForwardType,
-          typename cef_internal::CallbackParamTraits<A2>::ForwardType,
-          typename cef_internal::CallbackParamTraits<A3>::ForwardType,
-          typename cef_internal::CallbackParamTraits<A4>::ForwardType,
-          typename cef_internal::CallbackParamTraits<A5>::ForwardType);
-
+      typename cef_internal::CallbackParamTraits<A1>::ForwardType,
+      typename cef_internal::CallbackParamTraits<A2>::ForwardType,
+      typename cef_internal::CallbackParamTraits<A3>::ForwardType,
+      typename cef_internal::CallbackParamTraits<A4>::ForwardType,
+      typename cef_internal::CallbackParamTraits<A5>::ForwardType);
 };
 
-template <typename R, typename A1, typename A2, typename A3, typename A4,
-    typename A5, typename A6>
+template <typename R,
+          typename A1,
+          typename A2,
+          typename A3,
+          typename A4,
+          typename A5,
+          typename A6>
 class Callback<R(A1, A2, A3, A4, A5, A6)> : public cef_internal::CallbackBase {
  public:
   typedef R(RunType)(A1, A2, A3, A4, A5, A6);
 
-  Callback() : CallbackBase(NULL) { }
+  Callback() : CallbackBase(NULL) {}
 
   // Note that this constructor CANNOT be explicit, and that Bind() CANNOT
   // return the exact Callback<> type.  See base/bind.h for details.
   template <typename Runnable, typename BindRunType, typename BoundArgsType>
-  Callback(cef_internal::BindState<Runnable, BindRunType,
-           BoundArgsType>* bind_state)
+  Callback(
+      cef_internal::BindState<Runnable, BindRunType, BoundArgsType>* bind_state)
       : CallbackBase(bind_state) {
-
     // Force the assignment to a local variable of PolymorphicInvoke
     // so the compiler will typecheck that the passed in Run() method has
     // the correct type.
     PolymorphicInvoke invoke_func =
-        &cef_internal::BindState<Runnable, BindRunType, BoundArgsType>
-            ::InvokerType::Run;
+        &cef_internal::BindState<Runnable, BindRunType,
+                                 BoundArgsType>::InvokerType::Run;
     polymorphic_invoke_ = reinterpret_cast<InvokeFuncStorage>(invoke_func);
   }
 
@@ -715,47 +709,51 @@ class Callback<R(A1, A2, A3, A4, A5, A6)> : public cef_internal::CallbackBase {
     PolymorphicInvoke f =
         reinterpret_cast<PolymorphicInvoke>(polymorphic_invoke_);
 
-    return f(bind_state_.get(), cef_internal::CallbackForward(a1),
-             cef_internal::CallbackForward(a2),
-             cef_internal::CallbackForward(a3),
-             cef_internal::CallbackForward(a4),
-             cef_internal::CallbackForward(a5),
-             cef_internal::CallbackForward(a6));
+    return f(
+        bind_state_.get(), cef_internal::CallbackForward(a1),
+        cef_internal::CallbackForward(a2), cef_internal::CallbackForward(a3),
+        cef_internal::CallbackForward(a4), cef_internal::CallbackForward(a5),
+        cef_internal::CallbackForward(a6));
   }
 
  private:
-  typedef R(*PolymorphicInvoke)(
+  typedef R (*PolymorphicInvoke)(
       cef_internal::BindStateBase*,
-          typename cef_internal::CallbackParamTraits<A1>::ForwardType,
-          typename cef_internal::CallbackParamTraits<A2>::ForwardType,
-          typename cef_internal::CallbackParamTraits<A3>::ForwardType,
-          typename cef_internal::CallbackParamTraits<A4>::ForwardType,
-          typename cef_internal::CallbackParamTraits<A5>::ForwardType,
-          typename cef_internal::CallbackParamTraits<A6>::ForwardType);
-
+      typename cef_internal::CallbackParamTraits<A1>::ForwardType,
+      typename cef_internal::CallbackParamTraits<A2>::ForwardType,
+      typename cef_internal::CallbackParamTraits<A3>::ForwardType,
+      typename cef_internal::CallbackParamTraits<A4>::ForwardType,
+      typename cef_internal::CallbackParamTraits<A5>::ForwardType,
+      typename cef_internal::CallbackParamTraits<A6>::ForwardType);
 };
 
-template <typename R, typename A1, typename A2, typename A3, typename A4,
-    typename A5, typename A6, typename A7>
-class Callback<R(A1, A2, A3, A4, A5, A6, A7)> : public cef_internal::CallbackBase {
+template <typename R,
+          typename A1,
+          typename A2,
+          typename A3,
+          typename A4,
+          typename A5,
+          typename A6,
+          typename A7>
+class Callback<R(A1, A2, A3, A4, A5, A6, A7)>
+    : public cef_internal::CallbackBase {
  public:
   typedef R(RunType)(A1, A2, A3, A4, A5, A6, A7);
 
-  Callback() : CallbackBase(NULL) { }
+  Callback() : CallbackBase(NULL) {}
 
   // Note that this constructor CANNOT be explicit, and that Bind() CANNOT
   // return the exact Callback<> type.  See base/bind.h for details.
   template <typename Runnable, typename BindRunType, typename BoundArgsType>
-  Callback(cef_internal::BindState<Runnable, BindRunType,
-           BoundArgsType>* bind_state)
+  Callback(
+      cef_internal::BindState<Runnable, BindRunType, BoundArgsType>* bind_state)
       : CallbackBase(bind_state) {
-
     // Force the assignment to a local variable of PolymorphicInvoke
     // so the compiler will typecheck that the passed in Run() method has
     // the correct type.
     PolymorphicInvoke invoke_func =
-        &cef_internal::BindState<Runnable, BindRunType, BoundArgsType>
-            ::InvokerType::Run;
+        &cef_internal::BindState<Runnable, BindRunType,
+                                 BoundArgsType>::InvokerType::Run;
     polymorphic_invoke_ = reinterpret_cast<InvokeFuncStorage>(invoke_func);
   }
 
@@ -773,28 +771,24 @@ class Callback<R(A1, A2, A3, A4, A5, A6, A7)> : public cef_internal::CallbackBas
     PolymorphicInvoke f =
         reinterpret_cast<PolymorphicInvoke>(polymorphic_invoke_);
 
-    return f(bind_state_.get(), cef_internal::CallbackForward(a1),
-             cef_internal::CallbackForward(a2),
-             cef_internal::CallbackForward(a3),
-             cef_internal::CallbackForward(a4),
-             cef_internal::CallbackForward(a5),
-             cef_internal::CallbackForward(a6),
-             cef_internal::CallbackForward(a7));
+    return f(
+        bind_state_.get(), cef_internal::CallbackForward(a1),
+        cef_internal::CallbackForward(a2), cef_internal::CallbackForward(a3),
+        cef_internal::CallbackForward(a4), cef_internal::CallbackForward(a5),
+        cef_internal::CallbackForward(a6), cef_internal::CallbackForward(a7));
   }
 
  private:
-  typedef R(*PolymorphicInvoke)(
+  typedef R (*PolymorphicInvoke)(
       cef_internal::BindStateBase*,
-          typename cef_internal::CallbackParamTraits<A1>::ForwardType,
-          typename cef_internal::CallbackParamTraits<A2>::ForwardType,
-          typename cef_internal::CallbackParamTraits<A3>::ForwardType,
-          typename cef_internal::CallbackParamTraits<A4>::ForwardType,
-          typename cef_internal::CallbackParamTraits<A5>::ForwardType,
-          typename cef_internal::CallbackParamTraits<A6>::ForwardType,
-          typename cef_internal::CallbackParamTraits<A7>::ForwardType);
-
+      typename cef_internal::CallbackParamTraits<A1>::ForwardType,
+      typename cef_internal::CallbackParamTraits<A2>::ForwardType,
+      typename cef_internal::CallbackParamTraits<A3>::ForwardType,
+      typename cef_internal::CallbackParamTraits<A4>::ForwardType,
+      typename cef_internal::CallbackParamTraits<A5>::ForwardType,
+      typename cef_internal::CallbackParamTraits<A6>::ForwardType,
+      typename cef_internal::CallbackParamTraits<A7>::ForwardType);
 };
-
 
 // Syntactic sugar to make Callbacks<void(void)> easier to declare since it
 // will be used in a lot of APIs with delayed execution.

@@ -9,9 +9,10 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=8693984af64ea36db2fb82d397f7e0b482cccb99$
+//
 
 #include "libcef_dll/ctocpp/task_ctocpp.h"
-
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
@@ -26,22 +27,26 @@ void CefTaskCToCpp::Execute() {
   _struct->execute(_struct);
 }
 
-
 // CONSTRUCTOR - Do not edit by hand.
 
-CefTaskCToCpp::CefTaskCToCpp() {
-}
+CefTaskCToCpp::CefTaskCToCpp() {}
 
-template<> cef_task_t* CefCToCppRefCounted<CefTaskCToCpp, CefTask,
-    cef_task_t>::UnwrapDerived(CefWrapperType type, CefTask* c) {
+template <>
+cef_task_t*
+CefCToCppRefCounted<CefTaskCToCpp, CefTask, cef_task_t>::UnwrapDerived(
+    CefWrapperType type,
+    CefTask* c) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCppRefCounted<CefTaskCToCpp, CefTask,
-    cef_task_t>::DebugObjCt = 0;
+template <>
+base::AtomicRefCount
+    CefCToCppRefCounted<CefTaskCToCpp, CefTask, cef_task_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCppRefCounted<CefTaskCToCpp, CefTask,
-    cef_task_t>::kWrapperType = WT_TASK;
+template <>
+CefWrapperType
+    CefCToCppRefCounted<CefTaskCToCpp, CefTask, cef_task_t>::kWrapperType =
+        WT_TASK;

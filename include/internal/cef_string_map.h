@@ -63,13 +63,15 @@ CEF_EXPORT int cef_string_map_find(cef_string_map_t map,
 ///
 // Return the key at the specified zero-based string map index.
 ///
-CEF_EXPORT int cef_string_map_key(cef_string_map_t map, size_t index,
+CEF_EXPORT int cef_string_map_key(cef_string_map_t map,
+                                  size_t index,
                                   cef_string_t* key);
 
 ///
 // Return the value at the specified zero-based string map index.
 ///
-CEF_EXPORT int cef_string_map_value(cef_string_map_t map, size_t index,
+CEF_EXPORT int cef_string_map_value(cef_string_map_t map,
+                                    size_t index,
                                     cef_string_t* value);
 
 ///
@@ -88,7 +90,6 @@ CEF_EXPORT void cef_string_map_clear(cef_string_map_t map);
 // Free the string map.
 ///
 CEF_EXPORT void cef_string_map_free(cef_string_map_t map);
-
 
 #ifdef __cplusplus
 }

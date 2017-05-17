@@ -9,6 +9,8 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=248c96d294c4c35ac2310d1231202e0d6f12d133$
+//
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_V8INTERCEPTOR_CPPTOC_H_
 #define CEF_LIBCEF_DLL_CPPTOC_V8INTERCEPTOR_CPPTOC_H_
@@ -18,15 +20,16 @@
 #error This file can be included wrapper-side only
 #endif
 
-#include "include/cef_v8.h"
 #include "include/capi/cef_v8_capi.h"
+#include "include/cef_v8.h"
 #include "libcef_dll/cpptoc/cpptoc_ref_counted.h"
 
 // Wrap a C++ class with a C structure.
 // This class may be instantiated and accessed wrapper-side only.
 class CefV8InterceptorCppToC
-    : public CefCppToCRefCounted<CefV8InterceptorCppToC, CefV8Interceptor,
-        cef_v8interceptor_t> {
+    : public CefCppToCRefCounted<CefV8InterceptorCppToC,
+                                 CefV8Interceptor,
+                                 cef_v8interceptor_t> {
  public:
   CefV8InterceptorCppToC();
 };

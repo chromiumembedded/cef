@@ -62,7 +62,8 @@ class UploadElement {
   // change. Also note that the granularity for comparison is time_t, not
   // the full precision.
   void SetToFilePathRange(const base::FilePath& path,
-                          uint64_t offset, uint64_t length,
+                          uint64_t offset,
+                          uint64_t length,
                           const base::Time& expected_modification_time) {
     type_ = TYPE_FILE;
     file_path_ = path;
@@ -85,8 +86,7 @@ class UploadElement {
 };
 
 #if defined(UNIT_TEST)
-inline bool operator==(const UploadElement& a,
-                       const UploadElement& b) {
+inline bool operator==(const UploadElement& a, const UploadElement& b) {
   if (a.type() != b.type())
     return false;
   if (a.type() == UploadElement::TYPE_BYTES)
@@ -97,13 +97,12 @@ inline bool operator==(const UploadElement& a,
            a.file_range_offset() == b.file_range_offset() &&
            a.file_range_length() == b.file_range_length() &&
            a.expected_file_modification_time() ==
-              b.expected_file_modification_time();
+               b.expected_file_modification_time();
   }
   return false;
 }
 
-inline bool operator!=(const UploadElement& a,
-                       const UploadElement& b) {
+inline bool operator!=(const UploadElement& a, const UploadElement& b) {
   return !(a == b);
 }
 #endif  // defined(UNIT_TEST)

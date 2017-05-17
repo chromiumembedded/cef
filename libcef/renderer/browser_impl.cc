@@ -61,7 +61,6 @@ CefRefPtr<CefBrowserImpl> CefBrowserImpl::GetBrowserForMainFrame(
   return CefContentRendererClient::Get()->GetBrowserForMainFrame(frame);
 }
 
-
 // CefBrowser methods.
 // -----------------------------------------------------------------------------
 
@@ -188,8 +187,8 @@ CefRefPtr<CefFrame> CefBrowserImpl::GetFrame(const CefString& name) {
   if (web_view) {
     const blink::WebString& frame_name = blink::WebString::FromUTF16(name);
     // Search by assigned frame name (Frame::name).
-    WebFrame* frame = web_view->FindFrameByName(frame_name,
-                                                web_view->MainFrame());
+    WebFrame* frame =
+        web_view->FindFrameByName(frame_name, web_view->MainFrame());
     if (!frame) {
       // Search by unique frame name (Frame::uniqueName).
       const std::string& searchname = name;
@@ -264,7 +263,6 @@ bool CefBrowserImpl::SendProcessMessage(CefProcessId target_process,
   return false;
 }
 
-
 // CefBrowserImpl public methods.
 // -----------------------------------------------------------------------------
 
@@ -279,8 +277,7 @@ CefBrowserImpl::CefBrowserImpl(content::RenderView* render_view,
   response_manager_.reset(new CefResponseManager);
 }
 
-CefBrowserImpl::~CefBrowserImpl() {
-}
+CefBrowserImpl::~CefBrowserImpl() {}
 
 void CefBrowserImpl::LoadRequest(const CefMsg_LoadRequest_Params& params) {
   CefRefPtr<CefFrameImpl> framePtr = GetWebFrameImpl(params.frame_id);
@@ -327,9 +324,9 @@ CefRefPtr<CefFrameImpl> CefBrowserImpl::GetWebFrameImpl(
   CefRefPtr<CefFrameImpl> framePtr(new CefFrameImpl(this, frame));
   frames_.insert(std::make_pair(frame_id, framePtr));
 
-  const int64_t parent_id = frame->Parent() == NULL ?
-      webkit_glue::kInvalidFrameId :
-      webkit_glue::GetIdentifier(frame->Parent());
+  const int64_t parent_id = frame->Parent() == NULL
+                                ? webkit_glue::kInvalidFrameId
+                                : webkit_glue::GetIdentifier(frame->Parent());
   const base::string16& name =
       base::UTF8ToUTF16(webkit_glue::GetUniqueName(frame));
 
@@ -387,7 +384,6 @@ bool CefBrowserImpl::is_swapped_out() const {
   return (!render_view_impl || render_view_impl->is_swapped_out());
 }
 
-
 // RenderViewObserver methods.
 // -----------------------------------------------------------------------------
 
@@ -395,8 +391,7 @@ void CefBrowserImpl::OnDestruct() {
   // Notify that the browser window has been destroyed.
   CefRefPtr<CefApp> app = CefContentClient::Get()->application();
   if (app.get()) {
-    CefRefPtr<CefRenderProcessHandler> handler =
-        app->GetRenderProcessHandler();
+    CefRefPtr<CefRenderProcessHandler> handler = app->GetRenderProcessHandler();
     if (handler.get())
       handler->OnBrowserDestroyed(this);
   }
@@ -414,20 +409,17 @@ void CefBrowserImpl::DidStopLoading() {
   OnLoadingStateChange(false);
 }
 
-void CefBrowserImpl::DidFailLoad(
-    blink::WebLocalFrame* frame,
-    const blink::WebURLError& error) {
+void CefBrowserImpl::DidFailLoad(blink::WebLocalFrame* frame,
+                                 const blink::WebURLError& error) {
   OnLoadError(frame, error);
   OnLoadEnd(frame);
 }
 
 void CefBrowserImpl::DidFinishLoad(blink::WebLocalFrame* frame) {
   blink::WebDataSource* ds = frame->DataSource();
-  Send(new CefHostMsg_DidFinishLoad(routing_id(),
-                                    webkit_glue::GetIdentifier(frame),
-                                    ds->GetRequest().Url(),
-                                    !frame->Parent(),
-                                    ds->GetResponse().HttpStatusCode()));
+  Send(new CefHostMsg_DidFinishLoad(
+      routing_id(), webkit_glue::GetIdentifier(frame), ds->GetRequest().Url(),
+      !frame->Parent(), ds->GetResponse().HttpStatusCode()));
   OnLoadEnd(frame);
 }
 
@@ -436,9 +428,8 @@ void CefBrowserImpl::DidStartProvisionalLoad(blink::WebLocalFrame* frame) {
   GetWebFrameImpl(frame);
 }
 
-void CefBrowserImpl::DidFailProvisionalLoad(
-    blink::WebLocalFrame* frame,
-    const blink::WebURLError& error) {
+void CefBrowserImpl::DidFailProvisionalLoad(blink::WebLocalFrame* frame,
+                                            const blink::WebURLError& error) {
   OnLoadError(frame, error);
 }
 
@@ -471,8 +462,7 @@ void CefBrowserImpl::FocusedNodeChanged(const blink::WebNode& node) {
   // Notify the handler.
   CefRefPtr<CefApp> app = CefContentClient::Get()->application();
   if (app.get()) {
-    CefRefPtr<CefRenderProcessHandler> handler =
-        app->GetRenderProcessHandler();
+    CefRefPtr<CefRenderProcessHandler> handler = app->GetRenderProcessHandler();
     if (handler.get()) {
       if (node.IsNull()) {
         handler->OnFocusedNodeChanged(this, GetFocusedFrame(), NULL);
@@ -482,9 +472,8 @@ void CefBrowserImpl::FocusedNodeChanged(const blink::WebNode& node) {
           blink::WebFrame* frame = document.GetFrame();
           CefRefPtr<CefDOMDocumentImpl> documentImpl =
               new CefDOMDocumentImpl(this, frame);
-          handler->OnFocusedNodeChanged(this,
-              GetWebFrameImpl(frame).get(),
-              documentImpl->GetOrCreateNode(node));
+          handler->OnFocusedNodeChanged(this, GetWebFrameImpl(frame).get(),
+                                        documentImpl->GetOrCreateNode(node));
           documentImpl->Detach();
         }
       }
@@ -519,7 +508,6 @@ bool CefBrowserImpl::OnMessageReceived(const IPC::Message& message) {
   return handled;
 }
 
-
 // RenderViewObserver::OnMessageReceived message handlers.
 // -----------------------------------------------------------------------------
 
@@ -528,9 +516,9 @@ void CefBrowserImpl::OnRequest(const Cef_Request_Params& params) {
   std::string response;
   bool expect_response_ack = false;
 
-  TRACE_EVENT2("libcef", "CefBrowserImpl::OnRequest",
-               "request_id", params.request_id,
-               "expect_response", params.expect_response ? 1 : 0);
+  TRACE_EVENT2("libcef", "CefBrowserImpl::OnRequest", "request_id",
+               params.request_id, "expect_response",
+               params.expect_response ? 1 : 0);
 
   if (params.user_initiated) {
     // Give the user a chance to handle the request.
@@ -539,11 +527,10 @@ void CefBrowserImpl::OnRequest(const Cef_Request_Params& params) {
       CefRefPtr<CefRenderProcessHandler> handler =
           app->GetRenderProcessHandler();
       if (handler.get()) {
-        CefRefPtr<CefProcessMessageImpl> message(
-            new CefProcessMessageImpl(const_cast<Cef_Request_Params*>(&params),
-                                      false, true));
-        success = handler->OnProcessMessageReceived(this, PID_BROWSER,
-                                                    message.get());
+        CefRefPtr<CefProcessMessageImpl> message(new CefProcessMessageImpl(
+            const_cast<Cef_Request_Params*>(&params), false, true));
+        success =
+            handler->OnProcessMessageReceived(this, PID_BROWSER, message.get());
         message->Detach(nullptr);
       }
     }
@@ -569,8 +556,7 @@ void CefBrowserImpl::OnRequest(const Cef_Request_Params& params) {
         if (is_javascript) {
           web_frame->ExecuteScript(
               WebScriptSource(blink::WebString::FromUTF8(code),
-                              GURL(script_url),
-                              script_start_line));
+                              GURL(script_url), script_start_line));
           success = true;
         } else {
           // TODO(cef): implement support for CSS code.
@@ -594,7 +580,8 @@ void CefBrowserImpl::OnRequest(const Cef_Request_Params& params) {
         if (base::LowerCaseEqualsASCII(command, "getsource")) {
           if (web_frame->IsWebLocalFrame()) {
             response = blink::WebFrameContentDumper::DumpAsMarkup(
-                web_frame->ToWebLocalFrame()).Utf8();
+                           web_frame->ToWebLocalFrame())
+                           .Utf8();
             success = true;
           }
         } else if (base::LowerCaseEqualsASCII(command, "gettext")) {
@@ -602,7 +589,7 @@ void CefBrowserImpl::OnRequest(const Cef_Request_Params& params) {
           success = true;
         } else if (web_frame->IsWebLocalFrame() &&
                    web_frame->ToWebLocalFrame()->ExecuteCommand(
-                      blink::WebString::FromUTF8(command))) {
+                       blink::WebString::FromUTF8(command))) {
           success = true;
         }
       }
@@ -657,8 +644,7 @@ void CefBrowserImpl::OnLoadingStateChange(bool isLoading) {
 
   CefRefPtr<CefApp> app = CefContentClient::Get()->application();
   if (app.get()) {
-    CefRefPtr<CefRenderProcessHandler> handler =
-        app->GetRenderProcessHandler();
+    CefRefPtr<CefRenderProcessHandler> handler = app->GetRenderProcessHandler();
     if (handler.get()) {
       CefRefPtr<CefLoadHandler> load_handler = handler->GetLoadHandler();
       if (load_handler.get()) {
@@ -679,8 +665,7 @@ void CefBrowserImpl::OnLoadStart(blink::WebLocalFrame* frame) {
 
   CefRefPtr<CefApp> app = CefContentClient::Get()->application();
   if (app.get()) {
-    CefRefPtr<CefRenderProcessHandler> handler =
-        app->GetRenderProcessHandler();
+    CefRefPtr<CefRenderProcessHandler> handler = app->GetRenderProcessHandler();
     if (handler.get()) {
       CefRefPtr<CefLoadHandler> load_handler = handler->GetLoadHandler();
       if (load_handler.get()) {
@@ -697,8 +682,7 @@ void CefBrowserImpl::OnLoadEnd(blink::WebLocalFrame* frame) {
 
   CefRefPtr<CefApp> app = CefContentClient::Get()->application();
   if (app.get()) {
-    CefRefPtr<CefRenderProcessHandler> handler =
-        app->GetRenderProcessHandler();
+    CefRefPtr<CefRenderProcessHandler> handler = app->GetRenderProcessHandler();
     if (handler.get()) {
       CefRefPtr<CefLoadHandler> load_handler = handler->GetLoadHandler();
       if (load_handler.get()) {
@@ -718,8 +702,7 @@ void CefBrowserImpl::OnLoadError(blink::WebLocalFrame* frame,
 
   CefRefPtr<CefApp> app = CefContentClient::Get()->application();
   if (app.get()) {
-    CefRefPtr<CefRenderProcessHandler> handler =
-        app->GetRenderProcessHandler();
+    CefRefPtr<CefRenderProcessHandler> handler = app->GetRenderProcessHandler();
     if (handler.get()) {
       CefRefPtr<CefLoadHandler> load_handler = handler->GetLoadHandler();
       if (load_handler.get()) {

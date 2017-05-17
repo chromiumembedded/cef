@@ -9,6 +9,8 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=5063e25fd11e6ecb5376c1bf0824ccb6e595f34c$
+//
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_PDF_PRINT_CALLBACK_CTOCPP_H_
 #define CEF_LIBCEF_DLL_CTOCPP_PDF_PRINT_CALLBACK_CTOCPP_H_
@@ -18,17 +20,18 @@
 #error This file can be included DLL-side only
 #endif
 
-#include "include/cef_browser.h"
 #include "include/capi/cef_browser_capi.h"
-#include "include/cef_client.h"
 #include "include/capi/cef_client_capi.h"
+#include "include/cef_browser.h"
+#include "include/cef_client.h"
 #include "libcef_dll/ctocpp/ctocpp_ref_counted.h"
 
 // Wrap a C structure with a C++ class.
 // This class may be instantiated and accessed DLL-side only.
 class CefPdfPrintCallbackCToCpp
-    : public CefCToCppRefCounted<CefPdfPrintCallbackCToCpp, CefPdfPrintCallback,
-        cef_pdf_print_callback_t> {
+    : public CefCToCppRefCounted<CefPdfPrintCallbackCToCpp,
+                                 CefPdfPrintCallback,
+                                 cef_pdf_print_callback_t> {
  public:
   CefPdfPrintCallbackCToCpp();
 

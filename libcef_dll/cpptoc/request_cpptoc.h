@@ -9,6 +9,8 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=35a29e0f83ca38db4f2bcf58fc3a48560cac21da$
+//
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_REQUEST_CPPTOC_H_
 #define CEF_LIBCEF_DLL_CPPTOC_REQUEST_CPPTOC_H_
@@ -18,8 +20,8 @@
 #error This file can be included DLL-side only
 #endif
 
-#include "include/cef_request.h"
 #include "include/capi/cef_request_capi.h"
+#include "include/cef_request.h"
 #include "libcef_dll/cpptoc/cpptoc_ref_counted.h"
 
 // Wrap a C++ class with a C structure.

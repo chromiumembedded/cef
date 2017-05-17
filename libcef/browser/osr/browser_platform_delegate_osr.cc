@@ -19,8 +19,7 @@
 
 CefBrowserPlatformDelegateOsr::CefBrowserPlatformDelegateOsr(
     std::unique_ptr<CefBrowserPlatformDelegateNative> native_delegate)
-    : native_delegate_(std::move(native_delegate)),
-      view_osr_(nullptr) {
+    : native_delegate_(std::move(native_delegate)), view_osr_(nullptr) {
   native_delegate_->set_windowless_handler(this);
 }
 
@@ -111,8 +110,8 @@ gfx::Point CefBrowserPlatformDelegateOsr::GetScreenPoint(
   CefRefPtr<CefRenderHandler> handler = browser_->client()->GetRenderHandler();
   if (handler.get()) {
     int screenX = 0, screenY = 0;
-    if (handler->GetScreenPoint(browser_, view.x(), view.y(),
-                                screenX, screenY)) {
+    if (handler->GetScreenPoint(browser_, view.x(), view.y(), screenX,
+                                screenY)) {
       return gfx::Point(screenX, screenY);
     }
   }
@@ -142,7 +141,8 @@ void CefBrowserPlatformDelegateOsr::TranslateClickEvent(
     blink::WebMouseEvent& result,
     const CefMouseEvent& mouse_event,
     CefBrowserHost::MouseButtonType type,
-    bool mouseUp, int clickCount) const {
+    bool mouseUp,
+    int clickCount) const {
   native_delegate_->TranslateClickEvent(result, mouse_event, type, mouseUp,
                                         clickCount);
 }
@@ -157,7 +157,8 @@ void CefBrowserPlatformDelegateOsr::TranslateMoveEvent(
 void CefBrowserPlatformDelegateOsr::TranslateWheelEvent(
     blink::WebMouseWheelEvent& result,
     const CefMouseEvent& mouse_event,
-    int deltaX, int deltaY) const {
+    int deltaX,
+    int deltaY) const {
   native_delegate_->TranslateWheelEvent(result, mouse_event, deltaX, deltaY);
 }
 
@@ -167,12 +168,12 @@ CefEventHandle CefBrowserPlatformDelegateOsr::GetEventHandle(
 }
 
 std::unique_ptr<CefFileDialogRunner>
-    CefBrowserPlatformDelegateOsr::CreateFileDialogRunner() {
+CefBrowserPlatformDelegateOsr::CreateFileDialogRunner() {
   return native_delegate_->CreateFileDialogRunner();
 }
 
 std::unique_ptr<CefJavaScriptDialogRunner>
-    CefBrowserPlatformDelegateOsr::CreateJavaScriptDialogRunner() {
+CefBrowserPlatformDelegateOsr::CreateJavaScriptDialogRunner() {
   return native_delegate_->CreateJavaScriptDialogRunner();
 }
 
@@ -224,8 +225,8 @@ void CefBrowserPlatformDelegateOsr::ImeSetComposition(
     const CefRange& selection_range) {
   CefRenderWidgetHostViewOSR* view = GetOSRHostView();
   if (view) {
-    view->ImeSetComposition(text, underlines,
-                            replacement_range, selection_range);
+    view->ImeSetComposition(text, underlines, replacement_range,
+                            selection_range);
   }
 }
 
@@ -266,9 +267,11 @@ void CefBrowserPlatformDelegateOsr::DragTargetDragEnter(
   const gfx::Point client_pt(event.x, event.y);
   gfx::Point transformed_pt;
   current_rwh_for_drag_ =
-      web_contents->GetInputEventRouter()->GetRenderWidgetHostAtPoint(
-          web_contents->GetRenderViewHost()->GetWidget()->GetView(),
-          client_pt, &transformed_pt)->GetWeakPtr();
+      web_contents->GetInputEventRouter()
+          ->GetRenderWidgetHostAtPoint(
+              web_contents->GetRenderViewHost()->GetWidget()->GetView(),
+              client_pt, &transformed_pt)
+          ->GetWeakPtr();
   current_rvh_for_drag_ = web_contents->GetRenderViewHost();
 
   drag_data_ = drag_data;
@@ -285,15 +288,14 @@ void CefBrowserPlatformDelegateOsr::DragTargetDragEnter(
   current_rwh_for_drag_->FilterDropData(drop_data);
 
   // Give the delegate an opportunity to cancel the drag.
-  if (web_contents->GetDelegate() &&
-      !web_contents->GetDelegate()->CanDragEnter(
-          web_contents, *drop_data, ops)) {
+  if (web_contents->GetDelegate() && !web_contents->GetDelegate()->CanDragEnter(
+                                         web_contents, *drop_data, ops)) {
     drag_data_ = nullptr;
     return;
   }
 
-  current_rwh_for_drag_->DragTargetDragEnter(
-      *drop_data, transformed_pt, screen_pt, ops, modifiers);
+  current_rwh_for_drag_->DragTargetDragEnter(*drop_data, transformed_pt,
+                                             screen_pt, ops, modifiers);
 }
 
 void CefBrowserPlatformDelegateOsr::DragTargetDragOver(
@@ -313,8 +315,8 @@ void CefBrowserPlatformDelegateOsr::DragTargetDragOver(
   gfx::Point transformed_pt;
   content::RenderWidgetHostImpl* target_rwh =
       web_contents->GetInputEventRouter()->GetRenderWidgetHostAtPoint(
-          web_contents->GetRenderViewHost()->GetWidget()->GetView(),
-          client_pt, &transformed_pt);
+          web_contents->GetRenderViewHost()->GetWidget()->GetView(), client_pt,
+          &transformed_pt);
 
   if (target_rwh != current_rwh_for_drag_.get()) {
     if (current_rwh_for_drag_) {
@@ -379,8 +381,8 @@ void CefBrowserPlatformDelegateOsr::DragTargetDrop(const CefMouseEvent& event) {
   gfx::Point transformed_pt;
   content::RenderWidgetHostImpl* target_rwh =
       web_contents->GetInputEventRouter()->GetRenderWidgetHostAtPoint(
-          web_contents->GetRenderViewHost()->GetWidget()->GetView(),
-          client_pt, &transformed_pt);
+          web_contents->GetRenderViewHost()->GetWidget()->GetView(), client_pt,
+          &transformed_pt);
 
   if (target_rwh != current_rwh_for_drag_.get()) {
     if (current_rwh_for_drag_) {
@@ -439,18 +441,15 @@ void CefBrowserPlatformDelegateOsr::StartDragging(
   if (handler.get()) {
     CefRefPtr<CefImage> cef_image(new CefImageImpl(image));
     CefPoint cef_image_pos(image_offset.x(), image_offset.y());
-    CefRefPtr<CefDragDataImpl> drag_data(new CefDragDataImpl(drop_data,
-                                                             cef_image,
-                                                             cef_image_pos));
+    CefRefPtr<CefDragDataImpl> drag_data(
+        new CefDragDataImpl(drop_data, cef_image, cef_image_pos));
     drag_data->SetReadOnly(true);
     base::MessageLoop::ScopedNestableTaskAllower allow(
         base::MessageLoop::current());
     handled = handler->StartDragging(
-        browser_,
-        drag_data.get(),
+        browser_, drag_data.get(),
         static_cast<CefRenderHandler::DragOperationsMask>(allowed_ops),
-        event_info.event_location.x(),
-        event_info.event_location.y());
+        event_info.event_location.x(), event_info.event_location.y());
   }
 
   if (!handled)
@@ -468,7 +467,8 @@ void CefBrowserPlatformDelegateOsr::UpdateDragCursor(
 }
 
 void CefBrowserPlatformDelegateOsr::DragSourceEndedAt(
-    int x, int y,
+    int x,
+    int y,
     cef_drag_operations_mask_t op) {
   if (!drag_start_rwh_)
     return;
@@ -560,8 +560,8 @@ gfx::Point CefBrowserPlatformDelegateOsr::GetParentScreenPoint(
   return GetScreenPoint(view);
 }
 
-CefRenderWidgetHostViewOSR*
-    CefBrowserPlatformDelegateOsr::GetOSRHostView() const {
+CefRenderWidgetHostViewOSR* CefBrowserPlatformDelegateOsr::GetOSRHostView()
+    const {
   content::WebContents* web_contents = browser_->web_contents();
   CefRenderWidgetHostViewOSR* fs_view =
       static_cast<CefRenderWidgetHostViewOSR*>(

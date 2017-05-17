@@ -14,18 +14,18 @@ int GetResourceId(const char* resource_name) {
     char* name;
     int id;
   } resource_map[] = {
-    {"osr_test.html", IDS_OSRTEST_HTML},
-    {"pdf.html", IDS_PDF_HTML},
-    {"pdf.pdf", IDS_PDF_PDF},
-    {"window_icon.1x.png", IDS_WINDOW_ICON_1X_PNG},
-    {"window_icon.2x.png", IDS_WINDOW_ICON_2X_PNG},
+      {"osr_test.html", IDS_OSRTEST_HTML},
+      {"pdf.html", IDS_PDF_HTML},
+      {"pdf.pdf", IDS_PDF_PDF},
+      {"window_icon.1x.png", IDS_WINDOW_ICON_1X_PNG},
+      {"window_icon.2x.png", IDS_WINDOW_ICON_2X_PNG},
   };
 
-  for (int i = 0; i < sizeof(resource_map)/sizeof(_resource_map); ++i) {
+  for (int i = 0; i < sizeof(resource_map) / sizeof(_resource_map); ++i) {
     if (!strcmp(resource_map[i].name, resource_name))
       return resource_map[i].id;
   }
-  
+
   return 0;
 }
 

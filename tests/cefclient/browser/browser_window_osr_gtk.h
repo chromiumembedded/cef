@@ -34,7 +34,10 @@ class BrowserWindowOsrGtk : public BrowserWindow,
                       CefRefPtr<CefClient>& client,
                       CefBrowserSettings& settings) OVERRIDE;
   void ShowPopup(ClientWindowHandle parent_handle,
-                 int x, int y, size_t width, size_t height) OVERRIDE;
+                 int x,
+                 int y,
+                 size_t width,
+                 size_t height) OVERRIDE;
   void Show() OVERRIDE;
   void Hide() OVERRIDE;
   void SetBounds(int x, int y, size_t width, size_t height) OVERRIDE;
@@ -46,10 +49,8 @@ class BrowserWindowOsrGtk : public BrowserWindow,
   // ClientHandlerOsr::OsrDelegate methods.
   void OnAfterCreated(CefRefPtr<CefBrowser> browser) OVERRIDE;
   void OnBeforeClose(CefRefPtr<CefBrowser> browser) OVERRIDE;
-  bool GetRootScreenRect(CefRefPtr<CefBrowser> browser,
-                         CefRect& rect) OVERRIDE;
-  bool GetViewRect(CefRefPtr<CefBrowser> browser,
-                   CefRect& rect) OVERRIDE;
+  bool GetRootScreenRect(CefRefPtr<CefBrowser> browser, CefRect& rect) OVERRIDE;
+  bool GetViewRect(CefRefPtr<CefBrowser> browser, CefRect& rect) OVERRIDE;
   bool GetScreenPoint(CefRefPtr<CefBrowser> browser,
                       int viewX,
                       int viewY,
@@ -58,8 +59,7 @@ class BrowserWindowOsrGtk : public BrowserWindow,
   bool GetScreenInfo(CefRefPtr<CefBrowser> browser,
                      CefScreenInfo& screen_info) OVERRIDE;
   void OnPopupShow(CefRefPtr<CefBrowser> browser, bool show) OVERRIDE;
-  void OnPopupSize(CefRefPtr<CefBrowser> browser,
-                   const CefRect& rect) OVERRIDE;
+  void OnPopupSize(CefRefPtr<CefBrowser> browser, const CefRect& rect) OVERRIDE;
   void OnPaint(CefRefPtr<CefBrowser> browser,
                CefRenderHandler::PaintElementType type,
                const CefRenderHandler::RectList& dirtyRects,
@@ -73,7 +73,8 @@ class BrowserWindowOsrGtk : public BrowserWindow,
   bool StartDragging(CefRefPtr<CefBrowser> browser,
                      CefRefPtr<CefDragData> drag_data,
                      CefRenderHandler::DragOperationsMask allowed_ops,
-                     int x, int y) OVERRIDE;
+                     int x,
+                     int y) OVERRIDE;
   void UpdateDragCursor(CefRefPtr<CefBrowser> browser,
                         CefRenderHandler::DragOperation operation) OVERRIDE;
   void OnImeCompositionRangeChanged(

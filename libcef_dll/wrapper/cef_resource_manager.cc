@@ -20,7 +20,7 @@ namespace {
 #else
 #define PATH_SEP '/'
 #endif
-  
+
 // Returns |url| without the query or fragment components, if any.
 std::string GetUrlWithoutQueryOrFragment(const std::string& url) {
   // Find the first instance of '?' or '#'.
@@ -49,16 +49,13 @@ std::string GetFilteredUrl(const std::string& url) {
   return url;
 }
 
-
 // Provider of fixed contents.
 class ContentProvider : public CefResourceManager::Provider {
  public:
   ContentProvider(const std::string& url,
                   const std::string& content,
                   const std::string& mime_type)
-    : url_(url),
-      content_(content),
-      mime_type_(mime_type) {
+      : url_(url), content_(content), mime_type_(mime_type) {
     DCHECK(!url.empty());
     DCHECK(!content.empty());
   }
@@ -72,10 +69,9 @@ class ContentProvider : public CefResourceManager::Provider {
       return false;
     }
 
-    CefRefPtr<CefStreamReader> stream =
-        CefStreamReader::CreateForData(
-            static_cast<void*>(const_cast<char*>(content_.data())),
-            content_.length());
+    CefRefPtr<CefStreamReader> stream = CefStreamReader::CreateForData(
+        static_cast<void*>(const_cast<char*>(content_.data())),
+        content_.length());
 
     // Determine the mime type a single time if it isn't already set.
     if (mime_type_.empty())
@@ -93,14 +89,12 @@ class ContentProvider : public CefResourceManager::Provider {
   DISALLOW_COPY_AND_ASSIGN(ContentProvider);
 };
 
-
 // Provider of contents loaded from a directory on the file system.
 class DirectoryProvider : public CefResourceManager::Provider {
  public:
   DirectoryProvider(const std::string& url_path,
                     const std::string& directory_path)
-    : url_path_(url_path),
-      directory_path_(directory_path) {
+      : url_path_(url_path), directory_path_(directory_path) {
     DCHECK(!url_path_.empty());
     DCHECK(!directory_path_.empty());
 
@@ -122,8 +116,8 @@ class DirectoryProvider : public CefResourceManager::Provider {
     const std::string& file_path = GetFilePath(url);
 
     // Open |file_path| on the FILE thread.
-    CefPostTask(TID_FILE,
-        base::Bind(&DirectoryProvider::OpenOnFileThread, file_path, request));
+    CefPostTask(TID_FILE, base::Bind(&DirectoryProvider::OpenOnFileThread,
+                                     file_path, request));
 
     return true;
   }
@@ -146,9 +140,8 @@ class DirectoryProvider : public CefResourceManager::Provider {
         CefStreamReader::CreateForFile(file_path);
 
     // Continue loading on the IO thread.
-    CefPostTask(TID_IO,
-        base::Bind(&DirectoryProvider::ContinueOpenOnIOThread, request,
-                   stream));
+    CefPostTask(TID_IO, base::Bind(&DirectoryProvider::ContinueOpenOnIOThread,
+                                   request, stream));
   }
 
   static void ContinueOpenOnIOThread(
@@ -159,8 +152,7 @@ class DirectoryProvider : public CefResourceManager::Provider {
     CefRefPtr<CefStreamResourceHandler> handler;
     if (stream.get()) {
       handler = new CefStreamResourceHandler(
-          request->mime_type_resolver().Run(request->url()),
-          stream);
+          request->mime_type_resolver().Run(request->url()), stream);
     }
     request->Continue(handler);
   }
@@ -171,19 +163,18 @@ class DirectoryProvider : public CefResourceManager::Provider {
   DISALLOW_COPY_AND_ASSIGN(DirectoryProvider);
 };
 
-
 // Provider of contents loaded from an archive file.
 class ArchiveProvider : public CefResourceManager::Provider {
  public:
   ArchiveProvider(const std::string& url_path,
                   const std::string& archive_path,
                   const std::string& password)
-    : url_path_(url_path),
-      archive_path_(archive_path),
-      password_(password),
-      archive_load_started_(false),
-      archive_load_ended_(false),
-      ALLOW_THIS_IN_INITIALIZER_LIST(weak_ptr_factory_(this)) {
+      : url_path_(url_path),
+        archive_path_(archive_path),
+        password_(password),
+        archive_load_started_(false),
+        archive_load_ended_(false),
+        ALLOW_THIS_IN_INITIALIZER_LIST(weak_ptr_factory_(this)) {
     DCHECK(!url_path_.empty());
     DCHECK(!archive_path_.empty());
 
@@ -207,9 +198,9 @@ class ArchiveProvider : public CefResourceManager::Provider {
       pending_requests_.push_back(request);
 
       // Load the archive file on the FILE thread.
-      CefPostTask(TID_FILE,
-          base::Bind(&ArchiveProvider::LoadOnFileThread,
-                     weak_ptr_factory_.GetWeakPtr(), archive_path_, password_));
+      CefPostTask(TID_FILE, base::Bind(&ArchiveProvider::LoadOnFileThread,
+                                       weak_ptr_factory_.GetWeakPtr(),
+                                       archive_path_, password_));
       return true;
     }
 
@@ -244,7 +235,7 @@ class ArchiveProvider : public CefResourceManager::Provider {
     }
 
     CefPostTask(TID_IO,
-        base::Bind(&ArchiveProvider::ContinueOnIOThread, ptr, archive));
+                base::Bind(&ArchiveProvider::ContinueOnIOThread, ptr, archive));
   }
 
   void ContinueOnIOThread(CefRefPtr<CefZipArchive> archive) {
@@ -272,8 +263,7 @@ class ArchiveProvider : public CefResourceManager::Provider {
       CefRefPtr<CefZipArchive::File> file = archive_->GetFile(relative_path);
       if (file.get()) {
         handler = new CefStreamResourceHandler(
-            request->mime_type_resolver().Run(url),
-            file->GetStreamReader());
+            request->mime_type_resolver().Run(url), file->GetStreamReader());
       }
     }
 
@@ -293,7 +283,7 @@ class ArchiveProvider : public CefResourceManager::Provider {
   CefRefPtr<CefZipArchive> archive_;
 
   // List of requests that are pending while the archive is being loaded.
-  typedef std::vector<scoped_refptr<CefResourceManager::Request> >
+  typedef std::vector<scoped_refptr<CefResourceManager::Request>>
       PendingRequests;
   PendingRequests pending_requests_;
 
@@ -305,18 +295,14 @@ class ArchiveProvider : public CefResourceManager::Provider {
 
 }  // namespace
 
-
 // CefResourceManager::ProviderEntry implementation.
 
 struct CefResourceManager::ProviderEntry {
-  ProviderEntry(Provider* provider,
-                int order,
-                const std::string& identifier)
-    : provider_(provider),
-      order_(order),
-      identifier_(identifier),
-      deletion_pending_(false) {
-  }
+  ProviderEntry(Provider* provider, int order, const std::string& identifier)
+      : provider_(provider),
+        order_(order),
+        identifier_(identifier),
+        deletion_pending_(false) {}
 
   scoped_ptr<Provider> provider_;
   int order_;
@@ -329,7 +315,6 @@ struct CefResourceManager::ProviderEntry {
   bool deletion_pending_;
 };
 
-
 // CefResourceManager::RequestState implementation.
 
 CefResourceManager::RequestState::~RequestState() {
@@ -338,14 +323,13 @@ CefResourceManager::RequestState::~RequestState() {
     callback_->Continue(true);
 }
 
-
 // CefResourceManager::Request implementation.
 
 void CefResourceManager::Request::Continue(
     CefRefPtr<CefResourceHandler> handler) {
   if (!CefCurrentlyOn(TID_IO)) {
-    CefPostTask(TID_IO,
-        base::Bind(&CefResourceManager::Request::Continue, this, handler));
+    CefPostTask(TID_IO, base::Bind(&CefResourceManager::Request::Continue, this,
+                                   handler));
     return;
   }
 
@@ -356,14 +340,13 @@ void CefResourceManager::Request::Continue(
   // not called unexpectedly if Provider::OnRequest calls this method and then
   // calls CefResourceManager::Remove*.
   CefPostTask(TID_IO,
-      base::Bind(&CefResourceManager::Request::ContinueOnIOThread,
-                 base::Passed(&state_), handler));
+              base::Bind(&CefResourceManager::Request::ContinueOnIOThread,
+                         base::Passed(&state_), handler));
 }
 
 void CefResourceManager::Request::Stop() {
   if (!CefCurrentlyOn(TID_IO)) {
-    CefPostTask(TID_IO,
-        base::Bind(&CefResourceManager::Request::Stop, this));
+    CefPostTask(TID_IO, base::Bind(&CefResourceManager::Request::Stop, this));
     return;
   }
 
@@ -373,14 +356,12 @@ void CefResourceManager::Request::Stop() {
   // Disassociate |state_| immediately so that Provider::OnRequestCanceled is
   // not called unexpectedly if Provider::OnRequest calls this method and then
   // calls CefResourceManager::Remove*.
-  CefPostTask(TID_IO,
-      base::Bind(&CefResourceManager::Request::StopOnIOThread,
-                 base::Passed(&state_)));
+  CefPostTask(TID_IO, base::Bind(&CefResourceManager::Request::StopOnIOThread,
+                                 base::Passed(&state_)));
 }
 
 CefResourceManager::Request::Request(scoped_ptr<RequestState> state)
-    : state_(state.Pass()),
-      params_(state_->params_) {
+    : state_(state.Pass()), params_(state_->params_) {
   CEF_REQUIRE_IO_THREAD();
 
   ProviderEntry* entry = *(state_->current_entry_pos_);
@@ -397,7 +378,7 @@ CefResourceManager::Request::Request(scoped_ptr<RequestState> state)
 // executes a callback before returning, in which case execution will continue
 // asynchronously in any case.
 scoped_ptr<CefResourceManager::RequestState>
-    CefResourceManager::Request::SendRequest() {
+CefResourceManager::Request::SendRequest() {
   CEF_REQUIRE_IO_THREAD();
   Provider* provider = (*state_->current_entry_pos_)->provider_.get();
   if (!provider->OnRequest(this))
@@ -431,13 +412,11 @@ void CefResourceManager::Request::StopOnIOThread(
     manager->StopRequest(state.Pass());
 }
 
-
 // CefResourceManager implementation.
 
 CefResourceManager::CefResourceManager()
     : url_filter_(base::Bind(GetFilteredUrl)),
-      mime_type_resolver_(base::Bind(GetMimeType)) {
-}
+      mime_type_resolver_(base::Bind(GetMimeType)) {}
 
 CefResourceManager::~CefResourceManager() {
   CEF_REQUIRE_IO_THREAD();
@@ -461,22 +440,21 @@ void CefResourceManager::AddContentProvider(const std::string& url,
   AddProvider(new ContentProvider(url, content, mime_type), order, identifier);
 }
 
-void CefResourceManager::AddDirectoryProvider(
-    const std::string& url_path,
-    const std::string& directory_path,
-    int order,
-    const std::string& identifier) {
-  AddProvider(new DirectoryProvider(url_path, directory_path),
-              order, identifier);
+void CefResourceManager::AddDirectoryProvider(const std::string& url_path,
+                                              const std::string& directory_path,
+                                              int order,
+                                              const std::string& identifier) {
+  AddProvider(new DirectoryProvider(url_path, directory_path), order,
+              identifier);
 }
-                    
+
 void CefResourceManager::AddArchiveProvider(const std::string& url_path,
                                             const std::string& archive_path,
                                             const std::string& password,
                                             int order,
                                             const std::string& identifier) {
-  AddProvider(new ArchiveProvider(url_path, archive_path, password),
-              order, identifier);
+  AddProvider(new ArchiveProvider(url_path, archive_path, password), order,
+              identifier);
 }
 
 void CefResourceManager::AddProvider(Provider* provider,
@@ -487,9 +465,8 @@ void CefResourceManager::AddProvider(Provider* provider,
     return;
 
   if (!CefCurrentlyOn(TID_IO)) {
-    CefPostTask(TID_IO,
-        base::Bind(&CefResourceManager::AddProvider, this, provider, order,
-                   identifier));
+    CefPostTask(TID_IO, base::Bind(&CefResourceManager::AddProvider, this,
+                                   provider, order, identifier));
     return;
   }
 
@@ -513,8 +490,8 @@ void CefResourceManager::AddProvider(Provider* provider,
 
 void CefResourceManager::RemoveProviders(const std::string& identifier) {
   if (!CefCurrentlyOn(TID_IO)) {
-    CefPostTask(TID_IO,
-        base::Bind(&CefResourceManager::RemoveProviders, this, identifier));
+    CefPostTask(TID_IO, base::Bind(&CefResourceManager::RemoveProviders, this,
+                                   identifier));
     return;
   }
 
@@ -533,7 +510,7 @@ void CefResourceManager::RemoveProviders(const std::string& identifier) {
 void CefResourceManager::RemoveAllProviders() {
   if (!CefCurrentlyOn(TID_IO)) {
     CefPostTask(TID_IO,
-        base::Bind(&CefResourceManager::RemoveAllProviders, this));
+                base::Bind(&CefResourceManager::RemoveAllProviders, this));
     return;
   }
 
@@ -547,8 +524,8 @@ void CefResourceManager::RemoveAllProviders() {
 
 void CefResourceManager::SetMimeTypeResolver(const MimeTypeResolver& resolver) {
   if (!CefCurrentlyOn(TID_IO)) {
-    CefPostTask(TID_IO,
-        base::Bind(&CefResourceManager::SetMimeTypeResolver, this, resolver));
+    CefPostTask(TID_IO, base::Bind(&CefResourceManager::SetMimeTypeResolver,
+                                   this, resolver));
     return;
   }
 
@@ -561,7 +538,7 @@ void CefResourceManager::SetMimeTypeResolver(const MimeTypeResolver& resolver) {
 void CefResourceManager::SetUrlFilter(const UrlFilter& filter) {
   if (!CefCurrentlyOn(TID_IO)) {
     CefPostTask(TID_IO,
-        base::Bind(&CefResourceManager::SetUrlFilter, this, filter));
+                base::Bind(&CefResourceManager::SetUrlFilter, this, filter));
     return;
   }
 
@@ -581,7 +558,7 @@ cef_return_value_t CefResourceManager::OnBeforeResourceLoad(
   // Find the first provider that is not pending deletion.
   ProviderEntryList::iterator current_entry_pos = providers_.begin();
   GetNextValidProvider(current_entry_pos);
- 
+
   if (current_entry_pos == providers_.end()) {
     // No providers so continue the request immediately.
     return RV_CONTINUE;
@@ -712,8 +689,7 @@ bool CefResourceManager::IncrementProvider(RequestState* state) {
 void CefResourceManager::DetachRequestFromProvider(RequestState* state) {
   if (state->current_entry_pos_ != providers_.end()) {
     // Remove the association from the current provider entry.
-    ProviderEntryList::iterator current_entry_pos =
-        state->current_entry_pos_;
+    ProviderEntryList::iterator current_entry_pos = state->current_entry_pos_;
     ProviderEntry* current_entry = *(current_entry_pos);
     current_entry->pending_requests_.erase(state->current_request_pos_);
 

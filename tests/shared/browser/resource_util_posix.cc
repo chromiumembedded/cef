@@ -49,7 +49,7 @@ bool LoadBinaryResource(const char* resource_name, std::string& resource_data) {
 
 CefRefPtr<CefStreamReader> GetBinaryResourceReader(const char* resource_name) {
   std::string path;
-  if  (!GetResourceDir(path))
+  if (!GetResourceDir(path))
     return NULL;
 
   path.append("/");

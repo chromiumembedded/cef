@@ -115,14 +115,11 @@ class V8BrowserTest : public ClientAppBrowser::Delegate {
   IMPLEMENT_REFCOUNTING(V8BrowserTest);
 };
 
-
 // Renderer side.
 class V8RendererTest : public ClientAppRenderer::Delegate,
                        public CefLoadHandler {
  public:
-  V8RendererTest()
-      : test_mode_(V8TEST_NONE) {
-  }
+  V8RendererTest() : test_mode_(V8TEST_NONE) {}
 
   // Run a test when the process message is received from the browser.
   void RunTest() {
@@ -663,12 +660,12 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
     EXPECT_FALSE(object->HasValue(kName));
 
     EXPECT_TRUE(object->SetValue(kName, V8_ACCESS_CONTROL_DEFAULT,
-        V8_PROPERTY_ATTRIBUTE_NONE));
+                                 V8_PROPERTY_ATTRIBUTE_NONE));
     EXPECT_FALSE(object->HasException());
     EXPECT_TRUE(object->HasValue(kName));
 
     EXPECT_TRUE(object->SetValue(kName, CefV8Value::CreateInt(kValue),
-        V8_PROPERTY_ATTRIBUTE_NONE));
+                                 V8_PROPERTY_ATTRIBUTE_NONE));
     EXPECT_FALSE(object->HasException());
     EXPECT_TRUE(accessor->got_set_);
     EXPECT_EQ(kValue, accessor->value_);
@@ -737,12 +734,12 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
     EXPECT_FALSE(object->HasValue(kName));
 
     EXPECT_TRUE(object->SetValue(kName, V8_ACCESS_CONTROL_DEFAULT,
-        V8_PROPERTY_ATTRIBUTE_NONE));
+                                 V8_PROPERTY_ATTRIBUTE_NONE));
     EXPECT_FALSE(object->HasException());
     EXPECT_TRUE(object->HasValue(kName));
 
     EXPECT_FALSE(object->SetValue(kName, CefV8Value::CreateInt(1),
-        V8_PROPERTY_ATTRIBUTE_NONE));
+                                  V8_PROPERTY_ATTRIBUTE_NONE));
     EXPECT_TRUE(object->HasException());
     EXPECT_TRUE(accessor->got_set_);
     exception = object->GetException();
@@ -809,12 +806,12 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
     EXPECT_FALSE(object->HasValue(kName));
 
     EXPECT_TRUE(object->SetValue(kName, V8_ACCESS_CONTROL_DEFAULT,
-        V8_PROPERTY_ATTRIBUTE_NONE));
+                                 V8_PROPERTY_ATTRIBUTE_NONE));
     EXPECT_FALSE(object->HasException());
     EXPECT_TRUE(object->HasValue(kName));
 
     EXPECT_TRUE(object->SetValue(kName, CefV8Value::CreateInt(1),
-        V8_PROPERTY_ATTRIBUTE_NONE));
+                                 V8_PROPERTY_ATTRIBUTE_NONE));
     EXPECT_FALSE(object->HasException());
     EXPECT_TRUE(accessor->got_set_);
 
@@ -873,12 +870,12 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
     EXPECT_FALSE(object->HasValue(kName));
 
     EXPECT_TRUE(object->SetValue(kName, V8_ACCESS_CONTROL_DEFAULT,
-        V8_PROPERTY_ATTRIBUTE_READONLY));
+                                 V8_PROPERTY_ATTRIBUTE_READONLY));
     EXPECT_FALSE(object->HasException());
     EXPECT_TRUE(object->HasValue(kName));
 
     EXPECT_TRUE(object->SetValue(kName, CefV8Value::CreateInt(1),
-        V8_PROPERTY_ATTRIBUTE_NONE));
+                                 V8_PROPERTY_ATTRIBUTE_NONE));
     EXPECT_FALSE(object->HasException());
     EXPECT_FALSE(accessor->got_set_);
 
@@ -894,612 +891,609 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
     DestroyTest();
   }
 
- void RunObjectInterceptorTest() {
-   CefRefPtr<CefV8Context> context = GetContext();
-
-   static const char* kName1 = "val1";
-   static const char* kName2 = "val2";
-   static const char* kName3 = "val3";
-
-   static const int kValue1 = 20;
-   static const uint32 kValue2 = 30u;
-   static const char* kValue3 = "40";
-
-   static const int kArray[] = {50, 60, 70};
-
-   class Interceptor : public CefV8Interceptor {
-    public:
-     Interceptor() : value1_(0), value2_(0u), array_() {}
-     virtual bool Get(const CefString& name,
-                      const CefRefPtr<CefV8Value> object,
-                      CefRefPtr<CefV8Value>& retval,
-                      CefString& exception) OVERRIDE {
-       EXPECT_TRUE(name.ToString() == kName1 ||
-                   name.ToString() == kName2 ||
-                   name.ToString() == kName3);
-
-       EXPECT_TRUE(object.get());
-       EXPECT_TRUE(object->IsSame(object_));
-
-       EXPECT_FALSE(retval.get());
-       EXPECT_TRUE(exception.empty());
-
-       got_get_byname_.yes();
-       if (name.ToString() == kName1) {
-         retval = CefV8Value::CreateInt(value1_);
-         EXPECT_EQ(kValue1, retval->GetIntValue());
-       } else if (name.ToString() == kName2) {
-         retval = CefV8Value::CreateUInt(value2_);
-         EXPECT_EQ(kValue2, retval->GetUIntValue());
-       } else if (name.ToString() == kName3) {
-         retval = CefV8Value::CreateString(value3_);
-         EXPECT_STREQ(kValue3, retval->GetStringValue().ToString().c_str());
-       }
-       return true;
-     }
-
-     virtual bool Get(int index,
-                      const CefRefPtr<CefV8Value> object,
-                      CefRefPtr<CefV8Value>& retval,
-                      CefString& exception) OVERRIDE {
-       EXPECT_TRUE(index >= 0 && index < 3);
-
-       EXPECT_TRUE(object.get());
-       EXPECT_TRUE(object->IsSame(object_));
-
-       EXPECT_FALSE(retval.get());
-       EXPECT_TRUE(exception.empty());
-
-       got_get_byindex_.yes();
-       retval = CefV8Value::CreateInt(array_[index]);
-       EXPECT_EQ(kArray[index], retval->GetIntValue());
-       return true;
-     }
-
-     virtual bool Set(const CefString& name,
-                      const CefRefPtr<CefV8Value> object,
-                      const CefRefPtr<CefV8Value> value,
-                      CefString& exception) OVERRIDE {
-       EXPECT_TRUE(name.ToString() == kName1 ||
-                   name.ToString() == kName2 ||
-                   name.ToString() == kName3);
-
-       EXPECT_TRUE(object.get());
-       EXPECT_TRUE(object->IsSame(object_));
-
-       EXPECT_TRUE(value.get());
-       EXPECT_TRUE(exception.empty());
-
-       got_set_byname_.yes();
-       if (name.ToString() == kName1) {
-         value1_ = value->GetIntValue();
-         EXPECT_EQ(kValue1, value1_);
-       } else if (name.ToString() == kName2) {
-         value2_ = value->GetUIntValue();
-         EXPECT_EQ(kValue2, value2_);
-       } else if (name.ToString() == kName3) {
-         value3_ = value->GetStringValue();
-         EXPECT_STREQ(kValue3, value3_.ToString().c_str());
-       }
-       return true;
-     }
-
-     virtual bool Set(int index,
-                      const CefRefPtr<CefV8Value> object,
-                      const CefRefPtr<CefV8Value> value,
-                      CefString& exception) OVERRIDE {
-       EXPECT_TRUE(index >= 0 && index < 3);
-
-       EXPECT_TRUE(object.get());
-       EXPECT_TRUE(object->IsSame(object_));
-
-       EXPECT_TRUE(value.get());
-       EXPECT_TRUE(exception.empty());
-
-       got_set_byindex_.yes();
-       array_[index] = value->GetIntValue();
-       EXPECT_EQ(array_[index], kArray[index]);
-       return true;
-     }
-
-     CefRefPtr<CefV8Value> object_;
-     int value1_;
-     unsigned int value2_;
-     CefString value3_;
-     int array_[3];
-
-     TrackCallback got_get_byname_;
-     TrackCallback got_get_byindex_;
-     TrackCallback got_set_byname_;
-     TrackCallback got_set_byindex_;
-
-     IMPLEMENT_REFCOUNTING(Interceptor);
-   };
-
-   // Enter the V8 context.
-   EXPECT_TRUE(context->Enter());
-
-   Interceptor* interceptor = new Interceptor;
-   CefRefPtr<CefV8Interceptor> interceptorPtr(interceptor);
-
-   CefRefPtr<CefV8Value> object = CefV8Value::CreateObject(NULL, interceptor);
-   EXPECT_TRUE(object.get());
-   interceptor->object_ = object;
-
-   EXPECT_FALSE(object->HasException());
-
-   EXPECT_TRUE(object->SetValue(kName1, CefV8Value::CreateInt(kValue1),
-                                V8_PROPERTY_ATTRIBUTE_NONE));
-   EXPECT_FALSE(object->HasException());
-   EXPECT_TRUE(interceptor->got_set_byname_);
-   interceptor->got_set_byname_.reset();
-
-   EXPECT_TRUE(object->SetValue(kName2, CefV8Value::CreateUInt(kValue2),
-                                V8_PROPERTY_ATTRIBUTE_NONE));
-   EXPECT_FALSE(object->HasException());
-   EXPECT_TRUE(interceptor->got_set_byname_);
-   interceptor->got_set_byname_.reset();
-
-   EXPECT_TRUE(object->SetValue(kName3, CefV8Value::CreateString(kValue3),
-                                V8_PROPERTY_ATTRIBUTE_NONE));
-   EXPECT_FALSE(object->HasException());
-   EXPECT_TRUE(interceptor->got_set_byname_);
-   interceptor->got_set_byname_.reset();
-
-   EXPECT_EQ(kValue1, interceptor->value1_);
-   EXPECT_EQ(kValue2, interceptor->value2_);
-   EXPECT_STREQ(kValue3, interceptor->value3_.ToString().c_str());
-
-   for (int i=0; i<3; ++i) {
-     EXPECT_TRUE(object->SetValue(i, CefV8Value::CreateInt(kArray[i])));
-     EXPECT_FALSE(object->HasException());
-     EXPECT_TRUE(interceptor->got_set_byindex_);
-     interceptor->got_set_byindex_.reset();
-     EXPECT_EQ(kArray[i], interceptor->array_[i]);
-   }
-
-   CefRefPtr<CefV8Value> val1 = object->GetValue(kName1);
-   EXPECT_FALSE(object->HasException());
-   EXPECT_TRUE(val1.get());
-   EXPECT_TRUE(interceptor->got_get_byname_);
-   interceptor->got_get_byname_.reset();
-   EXPECT_TRUE(val1->IsInt());
-   EXPECT_EQ(kValue1, val1->GetIntValue());
-
-   CefRefPtr<CefV8Value> val2 = object->GetValue(kName2);
-   EXPECT_FALSE(object->HasException());
-   EXPECT_TRUE(val2.get());
-   EXPECT_TRUE(interceptor->got_get_byname_);
-   interceptor->got_get_byname_.reset();
-   EXPECT_TRUE(val2->IsUInt());
-   EXPECT_EQ(kValue2, val2->GetUIntValue());
-
-   CefRefPtr<CefV8Value> val3 = object->GetValue(kName3);
-   EXPECT_FALSE(object->HasException());
-   EXPECT_TRUE(val3.get());
-   EXPECT_TRUE(interceptor->got_get_byname_);
-   interceptor->got_get_byname_.reset();
-   EXPECT_TRUE(val3->IsString());
-   EXPECT_STREQ(kValue3, val3->GetStringValue().ToString().c_str());
-
-   for (int i=0; i<3; ++i) {
-     CefRefPtr<CefV8Value> val = object->GetValue(i);
-     EXPECT_FALSE(object->HasException());
-     EXPECT_TRUE(val.get());
-     EXPECT_TRUE(interceptor->got_get_byindex_);
-     interceptor->got_get_byname_.reset();
-     EXPECT_EQ(kArray[i], val->GetIntValue());
-   }
-
-   interceptor->object_ = NULL;
-
-   // Exit the V8 context.
-   EXPECT_TRUE(context->Exit());
-
-   DestroyTest();
- }
-
- void RunObjectInterceptorFailTest() {
-   CefRefPtr<CefV8Context> context = GetContext();
-
-   static const char* kName = "val";
-   static const int kIndex = 0;
-   static const int kValue1 = 20;
-   static const int kValue2 = 30;
-
-   class Interceptor : public CefV8Interceptor {
-     typedef std::map<int, int> IntMap;
-     typedef std::map<std::string, int> StringMap;
-    public:
-     Interceptor() {}
-     virtual bool Get(const CefString& name,
-                      const CefRefPtr<CefV8Value> object,
-                      CefRefPtr<CefV8Value>& retval,
-                      CefString& exception) OVERRIDE {
-       got_get_byname_.yes();
-       StringMap::iterator it = string_map_.find(name.ToString());
-       if(it != string_map_.end()) {
-         retval = CefV8Value::CreateInt(it->second);
-       }
-       return true;
-     }
-
-     virtual bool Get(int index,
-                      const CefRefPtr<CefV8Value> object,
-                      CefRefPtr<CefV8Value>& retval,
-                      CefString& exception) OVERRIDE {
-       got_get_byindex_.yes();
-       IntMap::iterator it = int_map_.find(index);
-       if(it != int_map_.end()) {
-         retval = CefV8Value::CreateInt(it->second);
-       }
-       return true;
-     }
-
-     virtual bool Set(const CefString& name,
-                      const CefRefPtr<CefV8Value> object,
-                      const CefRefPtr<CefV8Value> value,
-                      CefString& exception) OVERRIDE {
-       EXPECT_TRUE(value->IsInt());
-       got_set_byname_.yes();
-       string_map_[name.ToString()] = value->GetIntValue();
-       return true;
-     }
-
-     virtual bool Set(int index,
-                      const CefRefPtr<CefV8Value> object,
-                      const CefRefPtr<CefV8Value> value,
-                      CefString& exception) OVERRIDE {
-       EXPECT_TRUE(value->IsInt());
-       got_set_byindex_.yes();
-       int_map_[index] = value->GetIntValue();
-       return true;
-     }
-
-     IntMap int_map_;
-     StringMap string_map_;
-
-     TrackCallback got_get_byname_;
-     TrackCallback got_get_byindex_;
-     TrackCallback got_set_byname_;
-     TrackCallback got_set_byindex_;
-
-     IMPLEMENT_REFCOUNTING(Interceptor);
-   };
-
-   // Enter the V8 context.
-   EXPECT_TRUE(context->Enter());
-
-   Interceptor* interceptor = new Interceptor;
-   CefRefPtr<CefV8Interceptor> interceptorPtr(interceptor);
-
-   CefRefPtr<CefV8Value> object = CefV8Value::CreateObject(NULL, interceptor);
-   EXPECT_TRUE(object.get());
-
-   EXPECT_FALSE(object->HasValue(kName));
-   EXPECT_FALSE(object->HasException());
-   EXPECT_TRUE(interceptor->got_get_byname_);
-   interceptor->got_get_byname_.reset();
-
-   CefRefPtr<CefV8Value> val1 = object->GetValue(kName);
-   EXPECT_TRUE(val1.get());
-   EXPECT_FALSE(object->HasException());
-   EXPECT_TRUE(interceptor->got_get_byname_);
-   EXPECT_TRUE(val1->IsUndefined());
-   interceptor->got_get_byname_.reset();
-
-   EXPECT_TRUE(object->SetValue(
-                kName,
-                CefV8Value::CreateInt(kValue1), V8_PROPERTY_ATTRIBUTE_NONE));
-   EXPECT_FALSE(object->HasException());
-   EXPECT_TRUE(interceptor->got_set_byname_);
-
-   val1 = object->GetValue(kName);
-   EXPECT_TRUE(val1.get());
-   EXPECT_FALSE(object->HasException());
-   EXPECT_TRUE(interceptor->got_get_byname_);
-   EXPECT_EQ(kValue1, val1->GetIntValue());
-
-   EXPECT_FALSE(object->HasValue(kIndex));
-   EXPECT_FALSE(object->HasException());
-   EXPECT_TRUE(interceptor->got_get_byindex_);
-   interceptor->got_get_byindex_.reset();
-
-   CefRefPtr<CefV8Value> val2 = object->GetValue(kIndex);
-   EXPECT_TRUE(val2.get());
-   EXPECT_FALSE(object->HasException());
-   EXPECT_TRUE(interceptor->got_get_byindex_);
-   EXPECT_TRUE(val2->IsUndefined());
-   interceptor->got_get_byindex_.reset();
-
-   EXPECT_TRUE(object->SetValue(kIndex, CefV8Value::CreateInt(kValue2)));
-   EXPECT_FALSE(object->HasException());
-   EXPECT_TRUE(interceptor->got_set_byindex_);
-
-   val2 = object->GetValue(kIndex);
-   EXPECT_TRUE(val2.get());
-   EXPECT_FALSE(object->HasException());
-   EXPECT_TRUE(interceptor->got_get_byindex_);
-   EXPECT_EQ(kValue2, val2->GetIntValue());
-
-   // Exit the V8 context.
-   EXPECT_TRUE(context->Exit());
-
-   DestroyTest();
- }
-
- void RunObjectInterceptorExceptionTest() {
-   CefRefPtr<CefV8Context> context = GetContext();
-   static const char* kName = "val";
-   static const int kIndex = 1;
-
-   static const char* kGetByNameException = "My get_byname exception";
-   static const char* kGetByIndexException = "My get_byindex exception";
-   static const char* kSetByNameException = "My set_byname exception";
-   static const char* kSetByIndexException = "My set_byindex exception";
-
-   static const char* kGetByNameExceptionMsg =
-       "Uncaught Error: My get_byname exception";
-   static const char* kGetByIndexExceptionMsg =
-       "Uncaught Error: My get_byindex exception";
-   static const char* kSetByNameExceptionMsg =
-       "Uncaught Error: My set_byname exception";
-   static const char* kSetByIndexExceptionMsg =
-       "Uncaught Error: My set_byindex exception";
-
-   class Interceptor : public CefV8Interceptor {
-    public:
-     Interceptor() {}
-     virtual bool Get(const CefString& name,
-                      const CefRefPtr<CefV8Value> object,
-                      CefRefPtr<CefV8Value>& retval,
-                      CefString& exception) OVERRIDE {
-       got_get_byname_.yes();
-       exception = kGetByNameException;
-       return true;
-     }
-
-     virtual bool Get(int index,
-                      const CefRefPtr<CefV8Value> object,
-                      CefRefPtr<CefV8Value>& retval,
-                      CefString& exception) OVERRIDE {
-       got_get_byindex_.yes();
-       exception = kGetByIndexException;
-       return true;
-     }
-
-     virtual bool Set(const CefString& name,
-                      const CefRefPtr<CefV8Value> object,
-                      const CefRefPtr<CefV8Value> value,
-                      CefString& exception) OVERRIDE {
-       got_set_byname_.yes();
-       exception = kSetByNameException;
-       return true;
-     }
-
-     virtual bool Set(int index,
-                      const CefRefPtr<CefV8Value> object,
-                      const CefRefPtr<CefV8Value> value,
-                      CefString& exception) OVERRIDE {
-       got_set_byindex_.yes();
-       exception = kSetByIndexException;
-       return true;
-     }
-
-     TrackCallback got_get_byname_;
-     TrackCallback got_get_byindex_;
-     TrackCallback got_set_byname_;
-     TrackCallback got_set_byindex_;
-
-     IMPLEMENT_REFCOUNTING(Interceptor);
-   };
-
-   // Enter the V8 context.
-   EXPECT_TRUE(context->Enter());
-
-   CefRefPtr<CefV8Exception> exception;
-   Interceptor* interceptor = new Interceptor;
-   CefRefPtr<CefV8Interceptor> interceptorPtr(interceptor);
-
-   CefRefPtr<CefV8Value> object = CefV8Value::CreateObject(NULL,
-                                                           interceptor);
-   EXPECT_TRUE(object.get());
-
-   EXPECT_FALSE(object->SetValue(kName, CefV8Value::CreateInt(1),
+  void RunObjectInterceptorTest() {
+    CefRefPtr<CefV8Context> context = GetContext();
+
+    static const char* kName1 = "val1";
+    static const char* kName2 = "val2";
+    static const char* kName3 = "val3";
+
+    static const int kValue1 = 20;
+    static const uint32 kValue2 = 30u;
+    static const char* kValue3 = "40";
+
+    static const int kArray[] = {50, 60, 70};
+
+    class Interceptor : public CefV8Interceptor {
+     public:
+      Interceptor() : value1_(0), value2_(0u), array_() {}
+      virtual bool Get(const CefString& name,
+                       const CefRefPtr<CefV8Value> object,
+                       CefRefPtr<CefV8Value>& retval,
+                       CefString& exception) OVERRIDE {
+        EXPECT_TRUE(name.ToString() == kName1 || name.ToString() == kName2 ||
+                    name.ToString() == kName3);
+
+        EXPECT_TRUE(object.get());
+        EXPECT_TRUE(object->IsSame(object_));
+
+        EXPECT_FALSE(retval.get());
+        EXPECT_TRUE(exception.empty());
+
+        got_get_byname_.yes();
+        if (name.ToString() == kName1) {
+          retval = CefV8Value::CreateInt(value1_);
+          EXPECT_EQ(kValue1, retval->GetIntValue());
+        } else if (name.ToString() == kName2) {
+          retval = CefV8Value::CreateUInt(value2_);
+          EXPECT_EQ(kValue2, retval->GetUIntValue());
+        } else if (name.ToString() == kName3) {
+          retval = CefV8Value::CreateString(value3_);
+          EXPECT_STREQ(kValue3, retval->GetStringValue().ToString().c_str());
+        }
+        return true;
+      }
+
+      virtual bool Get(int index,
+                       const CefRefPtr<CefV8Value> object,
+                       CefRefPtr<CefV8Value>& retval,
+                       CefString& exception) OVERRIDE {
+        EXPECT_TRUE(index >= 0 && index < 3);
+
+        EXPECT_TRUE(object.get());
+        EXPECT_TRUE(object->IsSame(object_));
+
+        EXPECT_FALSE(retval.get());
+        EXPECT_TRUE(exception.empty());
+
+        got_get_byindex_.yes();
+        retval = CefV8Value::CreateInt(array_[index]);
+        EXPECT_EQ(kArray[index], retval->GetIntValue());
+        return true;
+      }
+
+      virtual bool Set(const CefString& name,
+                       const CefRefPtr<CefV8Value> object,
+                       const CefRefPtr<CefV8Value> value,
+                       CefString& exception) OVERRIDE {
+        EXPECT_TRUE(name.ToString() == kName1 || name.ToString() == kName2 ||
+                    name.ToString() == kName3);
+
+        EXPECT_TRUE(object.get());
+        EXPECT_TRUE(object->IsSame(object_));
+
+        EXPECT_TRUE(value.get());
+        EXPECT_TRUE(exception.empty());
+
+        got_set_byname_.yes();
+        if (name.ToString() == kName1) {
+          value1_ = value->GetIntValue();
+          EXPECT_EQ(kValue1, value1_);
+        } else if (name.ToString() == kName2) {
+          value2_ = value->GetUIntValue();
+          EXPECT_EQ(kValue2, value2_);
+        } else if (name.ToString() == kName3) {
+          value3_ = value->GetStringValue();
+          EXPECT_STREQ(kValue3, value3_.ToString().c_str());
+        }
+        return true;
+      }
+
+      virtual bool Set(int index,
+                       const CefRefPtr<CefV8Value> object,
+                       const CefRefPtr<CefV8Value> value,
+                       CefString& exception) OVERRIDE {
+        EXPECT_TRUE(index >= 0 && index < 3);
+
+        EXPECT_TRUE(object.get());
+        EXPECT_TRUE(object->IsSame(object_));
+
+        EXPECT_TRUE(value.get());
+        EXPECT_TRUE(exception.empty());
+
+        got_set_byindex_.yes();
+        array_[index] = value->GetIntValue();
+        EXPECT_EQ(array_[index], kArray[index]);
+        return true;
+      }
+
+      CefRefPtr<CefV8Value> object_;
+      int value1_;
+      unsigned int value2_;
+      CefString value3_;
+      int array_[3];
+
+      TrackCallback got_get_byname_;
+      TrackCallback got_get_byindex_;
+      TrackCallback got_set_byname_;
+      TrackCallback got_set_byindex_;
+
+      IMPLEMENT_REFCOUNTING(Interceptor);
+    };
+
+    // Enter the V8 context.
+    EXPECT_TRUE(context->Enter());
+
+    Interceptor* interceptor = new Interceptor;
+    CefRefPtr<CefV8Interceptor> interceptorPtr(interceptor);
+
+    CefRefPtr<CefV8Value> object = CefV8Value::CreateObject(NULL, interceptor);
+    EXPECT_TRUE(object.get());
+    interceptor->object_ = object;
+
+    EXPECT_FALSE(object->HasException());
+
+    EXPECT_TRUE(object->SetValue(kName1, CefV8Value::CreateInt(kValue1),
                                  V8_PROPERTY_ATTRIBUTE_NONE));
-   EXPECT_TRUE(object->HasException());
-   EXPECT_TRUE(interceptor->got_set_byname_);
-   exception = object->GetException();
-   EXPECT_TRUE(exception.get());
-   EXPECT_STREQ(kSetByNameExceptionMsg,
-                exception->GetMessage().ToString().c_str());
+    EXPECT_FALSE(object->HasException());
+    EXPECT_TRUE(interceptor->got_set_byname_);
+    interceptor->got_set_byname_.reset();
 
-   EXPECT_TRUE(object->ClearException());
-   EXPECT_FALSE(object->HasException());
+    EXPECT_TRUE(object->SetValue(kName2, CefV8Value::CreateUInt(kValue2),
+                                 V8_PROPERTY_ATTRIBUTE_NONE));
+    EXPECT_FALSE(object->HasException());
+    EXPECT_TRUE(interceptor->got_set_byname_);
+    interceptor->got_set_byname_.reset();
 
-   CefRefPtr<CefV8Value> val1 = object->GetValue(kName);
-   EXPECT_FALSE(val1.get());
-   EXPECT_TRUE(object->HasException());
-   EXPECT_TRUE(interceptor->got_get_byname_);
-   exception = object->GetException();
-   EXPECT_TRUE(exception.get());
-   EXPECT_STREQ(kGetByNameExceptionMsg,
-                exception->GetMessage().ToString().c_str());
+    EXPECT_TRUE(object->SetValue(kName3, CefV8Value::CreateString(kValue3),
+                                 V8_PROPERTY_ATTRIBUTE_NONE));
+    EXPECT_FALSE(object->HasException());
+    EXPECT_TRUE(interceptor->got_set_byname_);
+    interceptor->got_set_byname_.reset();
 
-   EXPECT_TRUE(object->ClearException());
-   EXPECT_FALSE(object->HasException());
+    EXPECT_EQ(kValue1, interceptor->value1_);
+    EXPECT_EQ(kValue2, interceptor->value2_);
+    EXPECT_STREQ(kValue3, interceptor->value3_.ToString().c_str());
 
-   EXPECT_FALSE(object->SetValue(kIndex, CefV8Value::CreateInt(1)));
-   EXPECT_TRUE(object->HasException());
-   EXPECT_TRUE(interceptor->got_set_byindex_);
-   exception = object->GetException();
-   EXPECT_TRUE(exception.get());
-   EXPECT_STREQ(kSetByIndexExceptionMsg,
-                exception->GetMessage().ToString().c_str());
+    for (int i = 0; i < 3; ++i) {
+      EXPECT_TRUE(object->SetValue(i, CefV8Value::CreateInt(kArray[i])));
+      EXPECT_FALSE(object->HasException());
+      EXPECT_TRUE(interceptor->got_set_byindex_);
+      interceptor->got_set_byindex_.reset();
+      EXPECT_EQ(kArray[i], interceptor->array_[i]);
+    }
 
-   EXPECT_TRUE(object->ClearException());
-   EXPECT_FALSE(object->HasException());
+    CefRefPtr<CefV8Value> val1 = object->GetValue(kName1);
+    EXPECT_FALSE(object->HasException());
+    EXPECT_TRUE(val1.get());
+    EXPECT_TRUE(interceptor->got_get_byname_);
+    interceptor->got_get_byname_.reset();
+    EXPECT_TRUE(val1->IsInt());
+    EXPECT_EQ(kValue1, val1->GetIntValue());
 
-   CefRefPtr<CefV8Value> val2 = object->GetValue(kIndex);
-   EXPECT_FALSE(val2.get());
-   EXPECT_TRUE(object->HasException());
-   EXPECT_TRUE(interceptor->got_get_byindex_);
-   exception = object->GetException();
-   EXPECT_TRUE(exception.get());
-   EXPECT_STREQ(kGetByIndexExceptionMsg,
-                exception->GetMessage().ToString().c_str());
+    CefRefPtr<CefV8Value> val2 = object->GetValue(kName2);
+    EXPECT_FALSE(object->HasException());
+    EXPECT_TRUE(val2.get());
+    EXPECT_TRUE(interceptor->got_get_byname_);
+    interceptor->got_get_byname_.reset();
+    EXPECT_TRUE(val2->IsUInt());
+    EXPECT_EQ(kValue2, val2->GetUIntValue());
 
-   // Exit the V8 context.
-   EXPECT_TRUE(context->Exit());
+    CefRefPtr<CefV8Value> val3 = object->GetValue(kName3);
+    EXPECT_FALSE(object->HasException());
+    EXPECT_TRUE(val3.get());
+    EXPECT_TRUE(interceptor->got_get_byname_);
+    interceptor->got_get_byname_.reset();
+    EXPECT_TRUE(val3->IsString());
+    EXPECT_STREQ(kValue3, val3->GetStringValue().ToString().c_str());
 
-   DestroyTest();
- }
+    for (int i = 0; i < 3; ++i) {
+      CefRefPtr<CefV8Value> val = object->GetValue(i);
+      EXPECT_FALSE(object->HasException());
+      EXPECT_TRUE(val.get());
+      EXPECT_TRUE(interceptor->got_get_byindex_);
+      interceptor->got_get_byname_.reset();
+      EXPECT_EQ(kArray[i], val->GetIntValue());
+    }
 
- void RunObjectInterceptorAndAccessorTest() {
-   CefRefPtr<CefV8Context> context = GetContext();
-   static const char* kInterceptorName = "val1";
-   static const char* kAccessorName = "val2";
+    interceptor->object_ = NULL;
 
-   static const int kInterceptorValue = 20;
-   static const int kAccessorValue = 30;
+    // Exit the V8 context.
+    EXPECT_TRUE(context->Exit());
 
-   class Interceptor : public CefV8Interceptor {
-    public:
-     Interceptor() {}
-     virtual bool Get(const CefString& name,
-                      const CefRefPtr<CefV8Value> object,
-                      CefRefPtr<CefV8Value>& retval,
-                      CefString& exception) OVERRIDE {
-       EXPECT_FALSE(retval.get());
-       got_get_byname_.yes();
-       if (name.ToString() == kInterceptorName) {
-         retval = CefV8Value::CreateInt(kInterceptorValue);
-       }
-       return true;
-     }
+    DestroyTest();
+  }
 
-     virtual bool Get(int index,
-                      const CefRefPtr<CefV8Value> object,
-                      CefRefPtr<CefV8Value>& retval,
-                      CefString& exception) OVERRIDE {
-       got_get_byindex_.yes();
-       return true;
-     }
+  void RunObjectInterceptorFailTest() {
+    CefRefPtr<CefV8Context> context = GetContext();
 
-     virtual bool Set(const CefString& name,
-                      const CefRefPtr<CefV8Value> object,
-                      const CefRefPtr<CefV8Value> value,
-                      CefString& exception) OVERRIDE {
-       got_set_byname_.yes();
-       return true;
-     }
+    static const char* kName = "val";
+    static const int kIndex = 0;
+    static const int kValue1 = 20;
+    static const int kValue2 = 30;
 
-     virtual bool Set(int index,
-                      const CefRefPtr<CefV8Value> object,
-                      const CefRefPtr<CefV8Value> value,
-                      CefString& exception) OVERRIDE {
-       got_set_byindex_.yes();
-       return true;
-     }
+    class Interceptor : public CefV8Interceptor {
+      typedef std::map<int, int> IntMap;
+      typedef std::map<std::string, int> StringMap;
 
-     TrackCallback got_get_byname_;
-     TrackCallback got_get_byindex_;
-     TrackCallback got_set_byname_;
-     TrackCallback got_set_byindex_;
+     public:
+      Interceptor() {}
+      virtual bool Get(const CefString& name,
+                       const CefRefPtr<CefV8Value> object,
+                       CefRefPtr<CefV8Value>& retval,
+                       CefString& exception) OVERRIDE {
+        got_get_byname_.yes();
+        StringMap::iterator it = string_map_.find(name.ToString());
+        if (it != string_map_.end()) {
+          retval = CefV8Value::CreateInt(it->second);
+        }
+        return true;
+      }
 
-     IMPLEMENT_REFCOUNTING(Interceptor);
-   };
+      virtual bool Get(int index,
+                       const CefRefPtr<CefV8Value> object,
+                       CefRefPtr<CefV8Value>& retval,
+                       CefString& exception) OVERRIDE {
+        got_get_byindex_.yes();
+        IntMap::iterator it = int_map_.find(index);
+        if (it != int_map_.end()) {
+          retval = CefV8Value::CreateInt(it->second);
+        }
+        return true;
+      }
 
-   class Accessor : public CefV8Accessor {
-    public:
-     Accessor() {}
-     virtual bool Get(const CefString& name,
-                      const CefRefPtr<CefV8Value> object,
-                      CefRefPtr<CefV8Value>& retval,
-                      CefString& exception) OVERRIDE {
-       got_get_.yes();
-       retval = CefV8Value::CreateInt(kAccessorValue);
-       return true;
-     }
+      virtual bool Set(const CefString& name,
+                       const CefRefPtr<CefV8Value> object,
+                       const CefRefPtr<CefV8Value> value,
+                       CefString& exception) OVERRIDE {
+        EXPECT_TRUE(value->IsInt());
+        got_set_byname_.yes();
+        string_map_[name.ToString()] = value->GetIntValue();
+        return true;
+      }
 
-     virtual bool Set(const CefString& name,
-                      const CefRefPtr<CefV8Value> object,
-                      const CefRefPtr<CefV8Value> value,
-                      CefString& exception) OVERRIDE {
-       got_set_.yes();
-       return true;
-     }
+      virtual bool Set(int index,
+                       const CefRefPtr<CefV8Value> object,
+                       const CefRefPtr<CefV8Value> value,
+                       CefString& exception) OVERRIDE {
+        EXPECT_TRUE(value->IsInt());
+        got_set_byindex_.yes();
+        int_map_[index] = value->GetIntValue();
+        return true;
+      }
 
-     TrackCallback got_get_;
-     TrackCallback got_set_;
+      IntMap int_map_;
+      StringMap string_map_;
 
-     IMPLEMENT_REFCOUNTING(Accessor);
-   };
+      TrackCallback got_get_byname_;
+      TrackCallback got_get_byindex_;
+      TrackCallback got_set_byname_;
+      TrackCallback got_set_byindex_;
 
-   // Enter the V8 context.
-   EXPECT_TRUE(context->Enter());
+      IMPLEMENT_REFCOUNTING(Interceptor);
+    };
 
-   Interceptor* interceptor = new Interceptor;
-   CefRefPtr<CefV8Interceptor> interceptorPtr(interceptor);
+    // Enter the V8 context.
+    EXPECT_TRUE(context->Enter());
 
-   Accessor* accessor = new Accessor;
-   CefRefPtr<CefV8Accessor> accessorPtr(accessor);
+    Interceptor* interceptor = new Interceptor;
+    CefRefPtr<CefV8Interceptor> interceptorPtr(interceptor);
 
-   CefRefPtr<CefV8Value> object = CefV8Value::CreateObject(
-                                      accessor, interceptor);
-   EXPECT_TRUE(object.get());
+    CefRefPtr<CefV8Value> object = CefV8Value::CreateObject(NULL, interceptor);
+    EXPECT_TRUE(object.get());
 
-   // We register both names for accessor.
-   EXPECT_TRUE(object->SetValue(kAccessorName, V8_ACCESS_CONTROL_DEFAULT,
-                                V8_PROPERTY_ATTRIBUTE_NONE));
-   EXPECT_FALSE(object->HasException());
+    EXPECT_FALSE(object->HasValue(kName));
+    EXPECT_FALSE(object->HasException());
+    EXPECT_TRUE(interceptor->got_get_byname_);
+    interceptor->got_get_byname_.reset();
 
-   EXPECT_TRUE(object->SetValue(kInterceptorName, V8_ACCESS_CONTROL_DEFAULT,
-                                V8_PROPERTY_ATTRIBUTE_NONE));
-   EXPECT_FALSE(object->HasException());
+    CefRefPtr<CefV8Value> val1 = object->GetValue(kName);
+    EXPECT_TRUE(val1.get());
+    EXPECT_FALSE(object->HasException());
+    EXPECT_TRUE(interceptor->got_get_byname_);
+    EXPECT_TRUE(val1->IsUndefined());
+    interceptor->got_get_byname_.reset();
 
-   EXPECT_TRUE(object->SetValue(kAccessorName,
-                                CefV8Value::CreateInt(kAccessorValue),
-                                V8_PROPERTY_ATTRIBUTE_NONE));
-   EXPECT_FALSE(object->HasException());
-   EXPECT_TRUE(accessor->got_set_);
-   accessor->got_set_.reset();
-   EXPECT_TRUE(interceptor->got_set_byname_);
-   interceptor->got_set_byname_.reset();
+    EXPECT_TRUE(object->SetValue(kName, CefV8Value::CreateInt(kValue1),
+                                 V8_PROPERTY_ATTRIBUTE_NONE));
+    EXPECT_FALSE(object->HasException());
+    EXPECT_TRUE(interceptor->got_set_byname_);
 
-   EXPECT_TRUE(object->SetValue(kInterceptorName,
-                                CefV8Value::CreateInt(kInterceptorValue),
-                                V8_PROPERTY_ATTRIBUTE_NONE));
-   EXPECT_FALSE(object->HasException());
-   EXPECT_TRUE(accessor->got_set_);
-   accessor->got_set_.reset();
-   EXPECT_TRUE(interceptor->got_set_byname_);
-   interceptor->got_set_byname_.reset();
+    val1 = object->GetValue(kName);
+    EXPECT_TRUE(val1.get());
+    EXPECT_FALSE(object->HasException());
+    EXPECT_TRUE(interceptor->got_get_byname_);
+    EXPECT_EQ(kValue1, val1->GetIntValue());
 
-   // When interceptor returns nothing, accessor's getter is called.
-   CefRefPtr<CefV8Value> val1 = object->GetValue(kAccessorName);
-   EXPECT_TRUE(val1.get());
-   EXPECT_TRUE(interceptor->got_get_byname_);
-   interceptor->got_get_byname_.reset();
-   EXPECT_TRUE(accessor->got_get_);
-   accessor->got_get_.reset();
-   EXPECT_EQ(kAccessorValue, val1->GetIntValue());
+    EXPECT_FALSE(object->HasValue(kIndex));
+    EXPECT_FALSE(object->HasException());
+    EXPECT_TRUE(interceptor->got_get_byindex_);
+    interceptor->got_get_byindex_.reset();
 
-   // When interceptor returns value, accessor's getter is not called.
-   CefRefPtr<CefV8Value> val2 = object->GetValue(kInterceptorName);
-   EXPECT_TRUE(val2.get());
-   EXPECT_TRUE(interceptor->got_get_byname_);
-   EXPECT_FALSE(accessor->got_get_);
-   EXPECT_EQ(kInterceptorValue, val2->GetIntValue());
+    CefRefPtr<CefV8Value> val2 = object->GetValue(kIndex);
+    EXPECT_TRUE(val2.get());
+    EXPECT_FALSE(object->HasException());
+    EXPECT_TRUE(interceptor->got_get_byindex_);
+    EXPECT_TRUE(val2->IsUndefined());
+    interceptor->got_get_byindex_.reset();
 
-   EXPECT_FALSE(interceptor->got_get_byindex_);
-   EXPECT_FALSE(interceptor->got_set_byindex_);
+    EXPECT_TRUE(object->SetValue(kIndex, CefV8Value::CreateInt(kValue2)));
+    EXPECT_FALSE(object->HasException());
+    EXPECT_TRUE(interceptor->got_set_byindex_);
 
-   // Exit the V8 context.
-   EXPECT_TRUE(context->Exit());
+    val2 = object->GetValue(kIndex);
+    EXPECT_TRUE(val2.get());
+    EXPECT_FALSE(object->HasException());
+    EXPECT_TRUE(interceptor->got_get_byindex_);
+    EXPECT_EQ(kValue2, val2->GetIntValue());
 
-   DestroyTest();
- }
+    // Exit the V8 context.
+    EXPECT_TRUE(context->Exit());
+
+    DestroyTest();
+  }
+
+  void RunObjectInterceptorExceptionTest() {
+    CefRefPtr<CefV8Context> context = GetContext();
+    static const char* kName = "val";
+    static const int kIndex = 1;
+
+    static const char* kGetByNameException = "My get_byname exception";
+    static const char* kGetByIndexException = "My get_byindex exception";
+    static const char* kSetByNameException = "My set_byname exception";
+    static const char* kSetByIndexException = "My set_byindex exception";
+
+    static const char* kGetByNameExceptionMsg =
+        "Uncaught Error: My get_byname exception";
+    static const char* kGetByIndexExceptionMsg =
+        "Uncaught Error: My get_byindex exception";
+    static const char* kSetByNameExceptionMsg =
+        "Uncaught Error: My set_byname exception";
+    static const char* kSetByIndexExceptionMsg =
+        "Uncaught Error: My set_byindex exception";
+
+    class Interceptor : public CefV8Interceptor {
+     public:
+      Interceptor() {}
+      virtual bool Get(const CefString& name,
+                       const CefRefPtr<CefV8Value> object,
+                       CefRefPtr<CefV8Value>& retval,
+                       CefString& exception) OVERRIDE {
+        got_get_byname_.yes();
+        exception = kGetByNameException;
+        return true;
+      }
+
+      virtual bool Get(int index,
+                       const CefRefPtr<CefV8Value> object,
+                       CefRefPtr<CefV8Value>& retval,
+                       CefString& exception) OVERRIDE {
+        got_get_byindex_.yes();
+        exception = kGetByIndexException;
+        return true;
+      }
+
+      virtual bool Set(const CefString& name,
+                       const CefRefPtr<CefV8Value> object,
+                       const CefRefPtr<CefV8Value> value,
+                       CefString& exception) OVERRIDE {
+        got_set_byname_.yes();
+        exception = kSetByNameException;
+        return true;
+      }
+
+      virtual bool Set(int index,
+                       const CefRefPtr<CefV8Value> object,
+                       const CefRefPtr<CefV8Value> value,
+                       CefString& exception) OVERRIDE {
+        got_set_byindex_.yes();
+        exception = kSetByIndexException;
+        return true;
+      }
+
+      TrackCallback got_get_byname_;
+      TrackCallback got_get_byindex_;
+      TrackCallback got_set_byname_;
+      TrackCallback got_set_byindex_;
+
+      IMPLEMENT_REFCOUNTING(Interceptor);
+    };
+
+    // Enter the V8 context.
+    EXPECT_TRUE(context->Enter());
+
+    CefRefPtr<CefV8Exception> exception;
+    Interceptor* interceptor = new Interceptor;
+    CefRefPtr<CefV8Interceptor> interceptorPtr(interceptor);
+
+    CefRefPtr<CefV8Value> object = CefV8Value::CreateObject(NULL, interceptor);
+    EXPECT_TRUE(object.get());
+
+    EXPECT_FALSE(object->SetValue(kName, CefV8Value::CreateInt(1),
+                                  V8_PROPERTY_ATTRIBUTE_NONE));
+    EXPECT_TRUE(object->HasException());
+    EXPECT_TRUE(interceptor->got_set_byname_);
+    exception = object->GetException();
+    EXPECT_TRUE(exception.get());
+    EXPECT_STREQ(kSetByNameExceptionMsg,
+                 exception->GetMessage().ToString().c_str());
+
+    EXPECT_TRUE(object->ClearException());
+    EXPECT_FALSE(object->HasException());
+
+    CefRefPtr<CefV8Value> val1 = object->GetValue(kName);
+    EXPECT_FALSE(val1.get());
+    EXPECT_TRUE(object->HasException());
+    EXPECT_TRUE(interceptor->got_get_byname_);
+    exception = object->GetException();
+    EXPECT_TRUE(exception.get());
+    EXPECT_STREQ(kGetByNameExceptionMsg,
+                 exception->GetMessage().ToString().c_str());
+
+    EXPECT_TRUE(object->ClearException());
+    EXPECT_FALSE(object->HasException());
+
+    EXPECT_FALSE(object->SetValue(kIndex, CefV8Value::CreateInt(1)));
+    EXPECT_TRUE(object->HasException());
+    EXPECT_TRUE(interceptor->got_set_byindex_);
+    exception = object->GetException();
+    EXPECT_TRUE(exception.get());
+    EXPECT_STREQ(kSetByIndexExceptionMsg,
+                 exception->GetMessage().ToString().c_str());
+
+    EXPECT_TRUE(object->ClearException());
+    EXPECT_FALSE(object->HasException());
+
+    CefRefPtr<CefV8Value> val2 = object->GetValue(kIndex);
+    EXPECT_FALSE(val2.get());
+    EXPECT_TRUE(object->HasException());
+    EXPECT_TRUE(interceptor->got_get_byindex_);
+    exception = object->GetException();
+    EXPECT_TRUE(exception.get());
+    EXPECT_STREQ(kGetByIndexExceptionMsg,
+                 exception->GetMessage().ToString().c_str());
+
+    // Exit the V8 context.
+    EXPECT_TRUE(context->Exit());
+
+    DestroyTest();
+  }
+
+  void RunObjectInterceptorAndAccessorTest() {
+    CefRefPtr<CefV8Context> context = GetContext();
+    static const char* kInterceptorName = "val1";
+    static const char* kAccessorName = "val2";
+
+    static const int kInterceptorValue = 20;
+    static const int kAccessorValue = 30;
+
+    class Interceptor : public CefV8Interceptor {
+     public:
+      Interceptor() {}
+      virtual bool Get(const CefString& name,
+                       const CefRefPtr<CefV8Value> object,
+                       CefRefPtr<CefV8Value>& retval,
+                       CefString& exception) OVERRIDE {
+        EXPECT_FALSE(retval.get());
+        got_get_byname_.yes();
+        if (name.ToString() == kInterceptorName) {
+          retval = CefV8Value::CreateInt(kInterceptorValue);
+        }
+        return true;
+      }
+
+      virtual bool Get(int index,
+                       const CefRefPtr<CefV8Value> object,
+                       CefRefPtr<CefV8Value>& retval,
+                       CefString& exception) OVERRIDE {
+        got_get_byindex_.yes();
+        return true;
+      }
+
+      virtual bool Set(const CefString& name,
+                       const CefRefPtr<CefV8Value> object,
+                       const CefRefPtr<CefV8Value> value,
+                       CefString& exception) OVERRIDE {
+        got_set_byname_.yes();
+        return true;
+      }
+
+      virtual bool Set(int index,
+                       const CefRefPtr<CefV8Value> object,
+                       const CefRefPtr<CefV8Value> value,
+                       CefString& exception) OVERRIDE {
+        got_set_byindex_.yes();
+        return true;
+      }
+
+      TrackCallback got_get_byname_;
+      TrackCallback got_get_byindex_;
+      TrackCallback got_set_byname_;
+      TrackCallback got_set_byindex_;
+
+      IMPLEMENT_REFCOUNTING(Interceptor);
+    };
+
+    class Accessor : public CefV8Accessor {
+     public:
+      Accessor() {}
+      virtual bool Get(const CefString& name,
+                       const CefRefPtr<CefV8Value> object,
+                       CefRefPtr<CefV8Value>& retval,
+                       CefString& exception) OVERRIDE {
+        got_get_.yes();
+        retval = CefV8Value::CreateInt(kAccessorValue);
+        return true;
+      }
+
+      virtual bool Set(const CefString& name,
+                       const CefRefPtr<CefV8Value> object,
+                       const CefRefPtr<CefV8Value> value,
+                       CefString& exception) OVERRIDE {
+        got_set_.yes();
+        return true;
+      }
+
+      TrackCallback got_get_;
+      TrackCallback got_set_;
+
+      IMPLEMENT_REFCOUNTING(Accessor);
+    };
+
+    // Enter the V8 context.
+    EXPECT_TRUE(context->Enter());
+
+    Interceptor* interceptor = new Interceptor;
+    CefRefPtr<CefV8Interceptor> interceptorPtr(interceptor);
+
+    Accessor* accessor = new Accessor;
+    CefRefPtr<CefV8Accessor> accessorPtr(accessor);
+
+    CefRefPtr<CefV8Value> object =
+        CefV8Value::CreateObject(accessor, interceptor);
+    EXPECT_TRUE(object.get());
+
+    // We register both names for accessor.
+    EXPECT_TRUE(object->SetValue(kAccessorName, V8_ACCESS_CONTROL_DEFAULT,
+                                 V8_PROPERTY_ATTRIBUTE_NONE));
+    EXPECT_FALSE(object->HasException());
+
+    EXPECT_TRUE(object->SetValue(kInterceptorName, V8_ACCESS_CONTROL_DEFAULT,
+                                 V8_PROPERTY_ATTRIBUTE_NONE));
+    EXPECT_FALSE(object->HasException());
+
+    EXPECT_TRUE(object->SetValue(kAccessorName,
+                                 CefV8Value::CreateInt(kAccessorValue),
+                                 V8_PROPERTY_ATTRIBUTE_NONE));
+    EXPECT_FALSE(object->HasException());
+    EXPECT_TRUE(accessor->got_set_);
+    accessor->got_set_.reset();
+    EXPECT_TRUE(interceptor->got_set_byname_);
+    interceptor->got_set_byname_.reset();
+
+    EXPECT_TRUE(object->SetValue(kInterceptorName,
+                                 CefV8Value::CreateInt(kInterceptorValue),
+                                 V8_PROPERTY_ATTRIBUTE_NONE));
+    EXPECT_FALSE(object->HasException());
+    EXPECT_TRUE(accessor->got_set_);
+    accessor->got_set_.reset();
+    EXPECT_TRUE(interceptor->got_set_byname_);
+    interceptor->got_set_byname_.reset();
+
+    // When interceptor returns nothing, accessor's getter is called.
+    CefRefPtr<CefV8Value> val1 = object->GetValue(kAccessorName);
+    EXPECT_TRUE(val1.get());
+    EXPECT_TRUE(interceptor->got_get_byname_);
+    interceptor->got_get_byname_.reset();
+    EXPECT_TRUE(accessor->got_get_);
+    accessor->got_get_.reset();
+    EXPECT_EQ(kAccessorValue, val1->GetIntValue());
+
+    // When interceptor returns value, accessor's getter is not called.
+    CefRefPtr<CefV8Value> val2 = object->GetValue(kInterceptorName);
+    EXPECT_TRUE(val2.get());
+    EXPECT_TRUE(interceptor->got_get_byname_);
+    EXPECT_FALSE(accessor->got_get_);
+    EXPECT_EQ(kInterceptorValue, val2->GetIntValue());
+
+    EXPECT_FALSE(interceptor->got_get_byindex_);
+    EXPECT_FALSE(interceptor->got_set_byindex_);
+
+    // Exit the V8 context.
+    EXPECT_TRUE(context->Exit());
+
+    DestroyTest();
+  }
 
   void RunObjectValueTest() {
     CefRefPtr<CefV8Context> context = GetContext();
@@ -1515,12 +1509,11 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
     EXPECT_TRUE(object.get());
 
     object->SetValue(kName, CefV8Value::CreateInt(kVal1),
-        V8_PROPERTY_ATTRIBUTE_NONE);
+                     V8_PROPERTY_ATTRIBUTE_NONE);
 
     std::stringstream test;
-    test <<
-        "if (window." << kName << " != " << kVal1 << ") throw 'Fail';\n" <<
-        "window." << kName << " = " << kVal2 << ";";
+    test << "if (window." << kName << " != " << kVal1 << ") throw 'Fail';\n"
+         << "window." << kName << " = " << kVal2 << ";";
 
     CefRefPtr<CefV8Value> retval;
     CefRefPtr<CefV8Exception> exception;
@@ -1554,12 +1547,11 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
     EXPECT_TRUE(object.get());
 
     object->SetValue(kName, CefV8Value::CreateInt(kVal1),
-        V8_PROPERTY_ATTRIBUTE_READONLY);
+                     V8_PROPERTY_ATTRIBUTE_READONLY);
 
     std::stringstream test;
-    test <<
-        "if (window." << kName << " != " << kVal1 << ") throw 'Fail';\n" <<
-        "window." << kName << " = " << kVal2 << ";";
+    test << "if (window." << kName << " != " << kVal1 << ") throw 'Fail';\n"
+         << "window." << kName << " = " << kVal2 << ";";
 
     CefRefPtr<CefV8Value> retval;
     CefRefPtr<CefV8Exception> exception;
@@ -1595,13 +1587,15 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
     object->SetValue(kObjName, obj1, V8_PROPERTY_ATTRIBUTE_NONE);
 
     obj1->SetValue(kArgName, CefV8Value::CreateInt(0),
-        V8_PROPERTY_ATTRIBUTE_NONE);
+                   V8_PROPERTY_ATTRIBUTE_NONE);
 
     std::stringstream test;
-    test <<
-        "for (var i in window." << kObjName << ") {\n"
-        "window." << kObjName << "[i]++;\n"
-        "}";
+    test << "for (var i in window." << kObjName
+         << ") {\n"
+            "window."
+         << kObjName
+         << "[i]++;\n"
+            "}";
 
     CefRefPtr<CefV8Value> retval;
     CefRefPtr<CefV8Exception> exception;
@@ -1637,13 +1631,15 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
     object->SetValue(kObjName, obj1, V8_PROPERTY_ATTRIBUTE_NONE);
 
     obj1->SetValue(kArgName, CefV8Value::CreateInt(0),
-        V8_PROPERTY_ATTRIBUTE_DONTENUM);
+                   V8_PROPERTY_ATTRIBUTE_DONTENUM);
 
     std::stringstream test;
-    test <<
-        "for (var i in window." << kObjName << ") {\n"
-        "window." << kObjName << "[i]++;\n"
-        "}";
+    test << "for (var i in window." << kObjName
+         << ") {\n"
+            "window."
+         << kObjName
+         << "[i]++;\n"
+            "}";
 
     CefRefPtr<CefV8Value> retval;
     CefRefPtr<CefV8Exception> exception;
@@ -1677,13 +1673,14 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
     EXPECT_TRUE(object.get());
 
     object->SetValue(kName, CefV8Value::CreateInt(kVal1),
-        V8_PROPERTY_ATTRIBUTE_NONE);
+                     V8_PROPERTY_ATTRIBUTE_NONE);
 
     std::stringstream test;
-    test <<
-        "if (window." << kName << " != " << kVal1 << ") throw 'Fail';\n" <<
-        "window." << kName << " = " << kVal2 << ";\n"
-        "delete window." << kName << ";";
+    test << "if (window." << kName << " != " << kVal1 << ") throw 'Fail';\n"
+         << "window." << kName << " = " << kVal2
+         << ";\n"
+            "delete window."
+         << kName << ";";
 
     CefRefPtr<CefV8Value> retval;
     CefRefPtr<CefV8Exception> exception;
@@ -1717,13 +1714,14 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
     EXPECT_TRUE(object.get());
 
     object->SetValue(kName, CefV8Value::CreateInt(kVal1),
-        V8_PROPERTY_ATTRIBUTE_DONTDELETE);
+                     V8_PROPERTY_ATTRIBUTE_DONTDELETE);
 
     std::stringstream test;
-    test <<
-        "if (window." << kName << " != " << kVal1 << ") throw 'Fail';\n" <<
-        "window." << kName << " = " << kVal2 << ";\n"
-        "delete window." << kName << ";";
+    test << "if (window." << kName << " != " << kVal1 << ") throw 'Fail';\n"
+         << "window." << kName << " = " << kVal2
+         << ";\n"
+            "delete window."
+         << kName << ";";
 
     CefRefPtr<CefV8Value> retval;
     CefRefPtr<CefV8Exception> exception;
@@ -1758,7 +1756,7 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
     EXPECT_FALSE(object->HasValue(kName));
 
     object->SetValue(kName, CefV8Value::CreateInt(kVal),
-        V8_PROPERTY_ATTRIBUTE_NONE);
+                     V8_PROPERTY_ATTRIBUTE_NONE);
     EXPECT_TRUE(object->HasValue(kName));
 
     CefRefPtr<CefV8Value> newval = object->GetValue(kName);
@@ -1785,7 +1783,9 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
                    CefRefPtr<CefV8Value> object,
                    const CefV8ValueList& arguments,
                    CefRefPtr<CefV8Value>& retval,
-                   CefString& exception) override { return false; }
+                   CefString& exception) override {
+        return false;
+      }
       IMPLEMENT_REFCOUNTING(Handler);
     };
 
@@ -1861,8 +1861,7 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
     Handler* handler = new Handler;
     CefRefPtr<CefV8Handler> handlerPtr(handler);
 
-    CefRefPtr<CefV8Value> func =
-        CefV8Value::CreateFunction(kFuncName, handler);
+    CefRefPtr<CefV8Value> func = CefV8Value::CreateFunction(kFuncName, handler);
     EXPECT_TRUE(func.get());
 
     CefRefPtr<CefV8Value> obj = CefV8Value::CreateObject(NULL, NULL);
@@ -1918,8 +1917,7 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
     Handler* handler = new Handler;
     CefRefPtr<CefV8Handler> handlerPtr(handler);
 
-    CefRefPtr<CefV8Value> func =
-        CefV8Value::CreateFunction("myfunc", handler);
+    CefRefPtr<CefV8Value> func = CefV8Value::CreateFunction("myfunc", handler);
     EXPECT_TRUE(func.get());
 
     CefV8ValueList args;
@@ -1964,8 +1962,7 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
     Handler* handler = new Handler;
     CefRefPtr<CefV8Handler> handlerPtr(handler);
 
-    CefRefPtr<CefV8Value> func =
-        CefV8Value::CreateFunction("myfunc", handler);
+    CefRefPtr<CefV8Value> func = CefV8Value::CreateFunction("myfunc", handler);
     EXPECT_TRUE(func.get());
 
     CefV8ValueList args;
@@ -2015,8 +2012,7 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
     Handler* handler = new Handler;
     CefRefPtr<CefV8Handler> handlerPtr(handler);
 
-    CefRefPtr<CefV8Value> func =
-        CefV8Value::CreateFunction("myfunc", handler);
+    CefRefPtr<CefV8Value> func = CefV8Value::CreateFunction("myfunc", handler);
     EXPECT_TRUE(func.get());
 
     CefV8ValueList args;
@@ -2063,8 +2059,7 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
     CefRefPtr<CefV8Handler> handlerPtr(handler);
     handler->context_ = context;
 
-    CefRefPtr<CefV8Value> func =
-        CefV8Value::CreateFunction("myfunc", handler);
+    CefRefPtr<CefV8Value> func = CefV8Value::CreateFunction("myfunc", handler);
     EXPECT_TRUE(func.get());
 
     // Exit the V8 context.
@@ -2122,8 +2117,7 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
     Handler* handler = new Handler;
     CefRefPtr<CefV8Handler> handlerPtr(handler);
 
-    CefRefPtr<CefV8Value> func =
-        CefV8Value::CreateFunction("myfunc", handler);
+    CefRefPtr<CefV8Value> func = CefV8Value::CreateFunction("myfunc", handler);
     EXPECT_TRUE(func.get());
 
     CefV8ValueList args;
@@ -2133,7 +2127,7 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
     EXPECT_TRUE(handler->got_execute_);
     EXPECT_TRUE(retval.get());
     EXPECT_FALSE(func->HasException());
-    
+
     EXPECT_TRUE(retval->IsString());
     EXPECT_STREQ("", retval->GetStringValue().ToString().c_str());
 
@@ -2164,7 +2158,8 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
     CefRefPtr<CefV8Value> retval;
     CefRefPtr<CefV8Exception> exception;
 
-    EXPECT_FALSE(context->Eval("\n\n\n1+foo", CefString(), 0, retval, exception));
+    EXPECT_FALSE(
+        context->Eval("\n\n\n1+foo", CefString(), 0, retval, exception));
     EXPECT_FALSE(retval.get());
     EXPECT_TRUE(exception.get());
     EXPECT_EQ(4, exception->GetLineNumber());
@@ -2178,9 +2173,9 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
     CefRefPtr<CefV8Value> retval;
     CefRefPtr<CefV8Exception> exception;
 
-    bool success = context->Eval(
-        "(document.getElementById('result').innerHTML)",
-        CefString(), 0, retval, exception);
+    bool success =
+        context->Eval("(document.getElementById('result').innerHTML)",
+                      CefString(), 0, retval, exception);
     if (exception.get()) {
       ADD_FAILURE() << exception->GetMessage().c_str();
       EXPECT_FALSE(success);
@@ -2202,9 +2197,9 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
     CefRefPtr<CefV8Value> retval;
     CefRefPtr<CefV8Exception> exception;
 
-    bool success = context->Eval(
-        "(document.getElementById('result').innerHTML)",
-        CefString(), 0, retval, exception);
+    bool success =
+        context->Eval("(document.getElementById('result').innerHTML)",
+                      CefString(), 0, retval, exception);
     if (exception.get()) {
       ADD_FAILURE() << exception->GetMessage().c_str();
       EXPECT_FALSE(success);
@@ -2295,8 +2290,7 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
     Handler* handler = new Handler;
     CefRefPtr<CefV8Handler> handlerPtr(handler);
 
-    CefRefPtr<CefV8Value> func =
-        CefV8Value::CreateFunction(kFuncName, handler);
+    CefRefPtr<CefV8Value> func = CefV8Value::CreateFunction(kFuncName, handler);
     EXPECT_TRUE(func.get());
     CefRefPtr<CefV8Value> obj = context->GetGlobal();
     EXPECT_TRUE(obj.get());
@@ -2305,10 +2299,10 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
     CefRefPtr<CefV8Value> retval;
     CefRefPtr<CefV8Exception> exception;
 
-    EXPECT_TRUE(context->Eval(
-        "function jsfunc() { return window.myfunc(); }\n"
-        "jsfunc();",
-        CefString(), 0, retval, exception));
+    EXPECT_TRUE(
+        context->Eval("function jsfunc() { return window.myfunc(); }\n"
+                      "jsfunc();",
+                      CefString(), 0, retval, exception));
     EXPECT_TRUE(retval.get());
     EXPECT_TRUE(retval->IsInt());
     EXPECT_EQ(3, retval->GetIntValue());
@@ -2346,22 +2340,20 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
   }
 
   void RunOnUncaughtExceptionTest() {
-    test_context_ =
-        browser_->GetMainFrame()->GetV8Context();
+    test_context_ = browser_->GetMainFrame()->GetV8Context();
     browser_->GetMainFrame()->ExecuteJavaScript(
         "window.setTimeout(test, 0)", browser_->GetMainFrame()->GetURL(), 0);
   }
 
   // Test execution of a native function when the extension is loaded.
   void RunExtensionTest() {
-    std::string code = "native function v8_extension_test();"
-                       "v8_extension_test();";
+    std::string code =
+        "native function v8_extension_test();"
+        "v8_extension_test();";
 
     class Handler : public CefV8Handler {
      public:
-      Handler(TrackCallback* callback)
-          : callback_(callback) {
-      }
+      Handler(TrackCallback* callback) : callback_(callback) {}
 
       bool Execute(const CefString& name,
                    CefRefPtr<CefV8Value> object,
@@ -2444,10 +2436,10 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
        public:
         Handler() {}
         bool Execute(const CefString& name,
-                   CefRefPtr<CefV8Value> object,
-                   const CefV8ValueList& arguments,
-                   CefRefPtr<CefV8Value>& retval,
-                   CefString& exception) override {
+                     CefRefPtr<CefV8Value> object,
+                     const CefV8ValueList& arguments,
+                     CefRefPtr<CefV8Value>& retval,
+                     CefString& exception) override {
           // context for the sub-frame
           CefRefPtr<CefV8Context> context = CefV8Context::GetCurrentContext();
           EXPECT_TRUE(context.get());
@@ -2480,7 +2472,7 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
       CefRefPtr<CefV8Value> object = context->GetGlobal();
       EXPECT_TRUE(object.get());
       EXPECT_TRUE(object->SetValue("v8_context_entered_test", func,
-          V8_PROPERTY_ATTRIBUTE_NONE));
+                                   V8_PROPERTY_ATTRIBUTE_NONE));
     } else if (url == kV8ContextParentTestUrl) {
       // For V8TEST_CONTEXT_ENTERED. Do nothing.
       return;
@@ -2488,9 +2480,8 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
       // For V8TEST_BINDING
       CefRefPtr<CefV8Value> object = context->GetGlobal();
       EXPECT_TRUE(object.get());
-      EXPECT_TRUE(object->SetValue("v8_binding_test",
-          CefV8Value::CreateInt(12),
-          V8_PROPERTY_ATTRIBUTE_NONE));
+      EXPECT_TRUE(object->SetValue("v8_binding_test", CefV8Value::CreateInt(12),
+                                   V8_PROPERTY_ATTRIBUTE_NONE));
     }
   }
 
@@ -2503,8 +2494,7 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
 
     if (test_mode_ == V8TEST_CONTEXT_INVALID &&
         frame->GetURL().ToString() == kV8TestUrl) {
-      test_context_ =
-          browser_->GetMainFrame()->GetV8Context();
+      test_context_ = browser_->GetMainFrame()->GetV8Context();
       test_object_ = CefV8Value::CreateArray(10);
       CefPostTask(TID_RENDERER, base::Bind(&V8RendererTest::DestroyTest, this));
     }
@@ -2523,13 +2513,15 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
         test_mode_ == V8TEST_ON_UNCAUGHT_EXCEPTION_DEV_TOOLS) {
       EXPECT_TRUE(test_context_->IsSame(context));
       EXPECT_STREQ("Uncaught ReferenceError: asd is not defined",
-        exception->GetMessage().ToString().c_str());
+                   exception->GetMessage().ToString().c_str());
       std::ostringstream stackFormatted;
       for (int i = 0; i < stackTrace->GetFrameCount(); ++i) {
         stackFormatted << "at "
-            << stackTrace->GetFrame(i)->GetFunctionName().ToString()
-            << "() in " << stackTrace->GetFrame(i)->GetScriptName().ToString()
-            << " on line " << stackTrace->GetFrame(i)->GetLineNumber() << "\n";
+                       << stackTrace->GetFrame(i)->GetFunctionName().ToString()
+                       << "() in "
+                       << stackTrace->GetFrame(i)->GetScriptName().ToString()
+                       << " on line "
+                       << stackTrace->GetFrame(i)->GetLineNumber() << "\n";
       }
       const char* stackFormattedShouldBe =
           "at test2() in http://tests/V8Test.OnUncaughtException on line 3\n"
@@ -2569,15 +2561,15 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
                    const CefV8ValueList& arguments,
                    CefRefPtr<CefV8Value>& retval,
                    CefString& exception) override {
-          EXPECT_STREQ(kFuncName, name.ToString().c_str());
-          if (name == kFuncName) {
-            EXPECT_TRUE(exception.empty());
-            retval = CefV8Value::CreateNull();
-            EXPECT_TRUE(retval.get());
-            renderer_test_->DevToolsLoaded(browser_);
-            return true;
-          }
-          return false;
+        EXPECT_STREQ(kFuncName, name.ToString().c_str());
+        if (name == kFuncName) {
+          EXPECT_TRUE(exception.empty());
+          retval = CefV8Value::CreateNull();
+          EXPECT_TRUE(retval.get());
+          renderer_test_->DevToolsLoaded(browser_);
+          return true;
+        }
+        return false;
       }
       CefRefPtr<V8RendererTest> renderer_test_;
       CefRefPtr<CefBrowser> browser_;
@@ -2589,17 +2581,17 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
     handler->renderer_test_ = this;
     handler->browser_ = browser;
     CefRefPtr<CefV8Handler> handlerPtr(handler);
-    CefRefPtr<CefV8Value> func =
-      CefV8Value::CreateFunction(kFuncName, handler);
+    CefRefPtr<CefV8Value> func = CefV8Value::CreateFunction(kFuncName, handler);
     EXPECT_TRUE(func.get());
-    EXPECT_TRUE(context->GetGlobal()->SetValue(
-        kFuncName, func, V8_PROPERTY_ATTRIBUTE_NONE));
+    EXPECT_TRUE(context->GetGlobal()->SetValue(kFuncName, func,
+                                               V8_PROPERTY_ATTRIBUTE_NONE));
     EXPECT_TRUE(context->Exit());
 
     // Dismiss the DevTools window after 500ms. It would be better to hook the
     // DevTools JS to receive notification of when loading is complete but that
     // is no longer possible.
-    CefPostDelayedTask(TID_RENDERER, 
+    CefPostDelayedTask(
+        TID_RENDERER,
         base::Bind(&CefFrame::ExecuteJavaScript, frame.get(),
                    "window.DevToolsLoaded()", frame->GetURL(), 0),
         500);
@@ -2672,9 +2664,7 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
 class V8TestHandler : public TestHandler {
  public:
   V8TestHandler(V8TestMode test_mode, const char* test_url)
-    : test_mode_(test_mode),
-      test_url_(test_url) {
-  }
+      : test_mode_(test_mode), test_url_(test_url) {}
 
   void RunTest() override {
     // Nested script tag forces creation of the V8 context.
@@ -2693,35 +2683,43 @@ class V8TestHandler : public TestHandler {
       } else {
         NOTREACHED();
       }
-      AddResource(url, "<html><body>"
-        + url +
-        "<p id='result' style='display:none'>CSP_BYPASSED</p>"
-        "</body></html>", "text/html", headers);
+      AddResource(url,
+                  "<html><body>" + url +
+                      "<p id='result' style='display:none'>CSP_BYPASSED</p>"
+                      "</body></html>",
+                  "text/html", headers);
       CreateBrowser(test_url_);
     } else if (test_mode_ == V8TEST_CONTEXT_ENTERED) {
-      AddResource(kV8ContextParentTestUrl, "<html><body>"
-          "<script>var i = 0;</script><iframe src=\"" +
-          std::string(kV8ContextChildTestUrl) + "\" id=\"f\"></iframe></body>"
-          "</html>", "text/html");
-      AddResource(kV8ContextChildTestUrl, "<html><body>"
-          "<script>var i = 0;</script>CHILD</body></html>",
-          "text/html");
+      AddResource(kV8ContextParentTestUrl,
+                  "<html><body>"
+                  "<script>var i = 0;</script><iframe src=\"" +
+                      std::string(kV8ContextChildTestUrl) +
+                      "\" id=\"f\"></iframe></body>"
+                      "</html>",
+                  "text/html");
+      AddResource(kV8ContextChildTestUrl,
+                  "<html><body>"
+                  "<script>var i = 0;</script>CHILD</body></html>",
+                  "text/html");
       CreateBrowser(kV8ContextParentTestUrl);
     } else if (test_mode_ == V8TEST_ON_UNCAUGHT_EXCEPTION ||
                test_mode_ == V8TEST_ON_UNCAUGHT_EXCEPTION_DEV_TOOLS) {
-      AddResource(kV8OnUncaughtExceptionTestUrl, "<html><body>"
-          "<h1>OnUncaughtException</h1>"
-          "<script>\n"
-          "function test(){ test2(); }\n"
-          "function test2(){ asd(); }\n"
-          "</script>\n"
-          "</body></html>\n",
-          "text/html");
+      AddResource(kV8OnUncaughtExceptionTestUrl,
+                  "<html><body>"
+                  "<h1>OnUncaughtException</h1>"
+                  "<script>\n"
+                  "function test(){ test2(); }\n"
+                  "function test2(){ asd(); }\n"
+                  "</script>\n"
+                  "</body></html>\n",
+                  "text/html");
       CreateBrowser(kV8OnUncaughtExceptionTestUrl);
     } else {
       EXPECT_TRUE(test_url_ != NULL);
-      AddResource(test_url_, "<html><body>"
-          "<script>var i = 0;</script>TEST</body></html>", "text/html");
+      AddResource(test_url_,
+                  "<html><body>"
+                  "<script>var i = 0;</script>TEST</body></html>",
+                  "text/html");
       CreateBrowser(test_url_);
     }
 
@@ -2753,7 +2751,8 @@ class V8TestHandler : public TestHandler {
         CefBrowserSettings settings;
 
 #if defined(OS_WIN)
-        windowInfo.SetAsPopup(browser->GetHost()->GetWindowHandle(), "DevTools");
+        windowInfo.SetAsPopup(browser->GetHost()->GetWindowHandle(),
+                              "DevTools");
 #endif
 
         browser->GetHost()->ShowDevTools(windowInfo, this, settings,
@@ -2767,15 +2766,14 @@ class V8TestHandler : public TestHandler {
         url.find("http://tests/") != std::string::npos) {
       // Run the test.
       CefRefPtr<CefProcessMessage> return_msg =
-            CefProcessMessage::Create(kV8RunTestMsg);
+          CefProcessMessage::Create(kV8RunTestMsg);
       EXPECT_TRUE(browser->SendProcessMessage(PID_RENDERER, return_msg));
     }
   }
 
-  bool OnProcessMessageReceived(
-      CefRefPtr<CefBrowser> browser,
-      CefProcessId source_process,
-      CefRefPtr<CefProcessMessage> message) override {
+  bool OnProcessMessageReceived(CefRefPtr<CefBrowser> browser,
+                                CefProcessId source_process,
+                                CefRefPtr<CefProcessMessage> message) override {
     EXPECT_TRUE(browser.get());
     EXPECT_EQ(PID_RENDERER, source_process);
     EXPECT_TRUE(message.get());
@@ -2805,7 +2803,6 @@ class V8TestHandler : public TestHandler {
 
 }  // namespace
 
-
 // Entry point for creating V8 browser test objects.
 // Called from client_app_delegates.cc.
 void CreateV8BrowserTests(ClientAppBrowser::DelegateSet& delegates) {
@@ -2818,23 +2815,19 @@ void CreateV8RendererTests(ClientAppRenderer::DelegateSet& delegates) {
   delegates.insert(new V8RendererTest);
 }
 
-
 // Helpers for defining V8 tests.
-#define V8_TEST_EX(name, test_mode, test_url) \
-  TEST(V8Test, name) { \
-    g_current_test_mode = test_mode; \
-    CefRefPtr<V8TestHandler> handler = \
-        new V8TestHandler(test_mode, test_url); \
-    handler->ExecuteTest(); \
-    EXPECT_TRUE(handler->got_message_); \
-    EXPECT_TRUE(handler->got_success_); \
-    g_current_test_mode = V8TEST_NONE; \
-    ReleaseAndWaitForDestructor(handler); \
+#define V8_TEST_EX(name, test_mode, test_url)                                  \
+  TEST(V8Test, name) {                                                         \
+    g_current_test_mode = test_mode;                                           \
+    CefRefPtr<V8TestHandler> handler = new V8TestHandler(test_mode, test_url); \
+    handler->ExecuteTest();                                                    \
+    EXPECT_TRUE(handler->got_message_);                                        \
+    EXPECT_TRUE(handler->got_success_);                                        \
+    g_current_test_mode = V8TEST_NONE;                                         \
+    ReleaseAndWaitForDestructor(handler);                                      \
   }
 
-#define V8_TEST(name, test_mode) \
-  V8_TEST_EX(name, test_mode, kV8TestUrl)
-
+#define V8_TEST(name, test_mode) V8_TEST_EX(name, test_mode, kV8TestUrl)
 
 // Define the tests.
 V8_TEST(NullCreate, V8TEST_NULL_CREATE);
@@ -2874,11 +2867,11 @@ V8_TEST(FunctionHandlerEmptyString, V8TEST_FUNCTION_HANDLER_EMPTY_STRING);
 V8_TEST(ContextEval, V8TEST_CONTEXT_EVAL);
 V8_TEST(ContextEvalException, V8TEST_CONTEXT_EVAL_EXCEPTION);
 V8_TEST_EX(ContextEvalCspBypassUnsafeEval,
-    V8TEST_CONTEXT_EVAL_CSP_BYPASS_UNSAFE_EVAL,
-    kV8ContextEvalCspBypassUnsafeEval);
+           V8TEST_CONTEXT_EVAL_CSP_BYPASS_UNSAFE_EVAL,
+           kV8ContextEvalCspBypassUnsafeEval);
 V8_TEST_EX(ContextEvalCspBypassSandbox,
-    V8TEST_CONTEXT_EVAL_CSP_BYPASS_SANDBOX,
-    kV8ContextEvalCspBypassSandbox);
+           V8TEST_CONTEXT_EVAL_CSP_BYPASS_SANDBOX,
+           kV8ContextEvalCspBypassSandbox);
 V8_TEST_EX(ContextEntered, V8TEST_CONTEXT_ENTERED, NULL);
 V8_TEST(ContextInvalid, V8TEST_CONTEXT_INVALID);
 V8_TEST_EX(Binding, V8TEST_BINDING, kV8BindingTestUrl);

@@ -9,6 +9,8 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=f773bb5e319e3a5fa70227e7ca265a43cda1ee3b$
+//
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_DRAG_DATA_CTOCPP_H_
 #define CEF_LIBCEF_DLL_CTOCPP_DRAG_DATA_CTOCPP_H_
@@ -19,15 +21,15 @@
 #endif
 
 #include <vector>
-#include "include/cef_drag_data.h"
 #include "include/capi/cef_drag_data_capi.h"
+#include "include/cef_drag_data.h"
 #include "libcef_dll/ctocpp/ctocpp_ref_counted.h"
 
 // Wrap a C structure with a C++ class.
 // This class may be instantiated and accessed wrapper-side only.
-class CefDragDataCToCpp
-    : public CefCToCppRefCounted<CefDragDataCToCpp, CefDragData,
-        cef_drag_data_t> {
+class CefDragDataCToCpp : public CefCToCppRefCounted<CefDragDataCToCpp,
+                                                     CefDragData,
+                                                     cef_drag_data_t> {
  public:
   CefDragDataCToCpp();
 

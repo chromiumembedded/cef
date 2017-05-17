@@ -9,16 +9,18 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=4a2ec304178530684d11e8b97ea2cfbd209d2f1e$
+//
 
 #include "libcef_dll/cpptoc/set_cookie_callback_cpptoc.h"
-
 
 namespace {
 
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
-void CEF_CALLBACK set_cookie_callback_on_complete(
-    struct _cef_set_cookie_callback_t* self, int success) {
+void CEF_CALLBACK
+set_cookie_callback_on_complete(struct _cef_set_cookie_callback_t* self,
+                                int success) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -26,12 +28,10 @@ void CEF_CALLBACK set_cookie_callback_on_complete(
     return;
 
   // Execute
-  CefSetCookieCallbackCppToC::Get(self)->OnComplete(
-      success?true:false);
+  CefSetCookieCallbackCppToC::Get(self)->OnComplete(success ? true : false);
 }
 
 }  // namespace
-
 
 // CONSTRUCTOR - Do not edit by hand.
 
@@ -39,18 +39,26 @@ CefSetCookieCallbackCppToC::CefSetCookieCallbackCppToC() {
   GetStruct()->on_complete = set_cookie_callback_on_complete;
 }
 
-template<> CefRefPtr<CefSetCookieCallback> CefCppToCRefCounted<CefSetCookieCallbackCppToC,
-    CefSetCookieCallback, cef_set_cookie_callback_t>::UnwrapDerived(
-    CefWrapperType type, cef_set_cookie_callback_t* s) {
+template <>
+CefRefPtr<CefSetCookieCallback> CefCppToCRefCounted<
+    CefSetCookieCallbackCppToC,
+    CefSetCookieCallback,
+    cef_set_cookie_callback_t>::UnwrapDerived(CefWrapperType type,
+                                              cef_set_cookie_callback_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCppToCRefCounted<CefSetCookieCallbackCppToC,
-    CefSetCookieCallback, cef_set_cookie_callback_t>::DebugObjCt = 0;
+template <>
+base::AtomicRefCount
+    CefCppToCRefCounted<CefSetCookieCallbackCppToC,
+                        CefSetCookieCallback,
+                        cef_set_cookie_callback_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCppToCRefCounted<CefSetCookieCallbackCppToC,
-    CefSetCookieCallback, cef_set_cookie_callback_t>::kWrapperType =
+template <>
+CefWrapperType CefCppToCRefCounted<CefSetCookieCallbackCppToC,
+                                   CefSetCookieCallback,
+                                   cef_set_cookie_callback_t>::kWrapperType =
     WT_SET_COOKIE_CALLBACK;

@@ -16,8 +16,8 @@ class TestWindowDelegate : public CefWindowDelegate {
   // Test execution callback.
   typedef base::Callback<void(CefRefPtr<CefWindow>)> OnWindowCreatedCallback;
   typedef base::Callback<void(CefRefPtr<CefWindow>)> OnWindowDestroyedCallback;
-  typedef base::Callback<bool(CefRefPtr<CefWindow>,int)> OnAcceleratorCallback;
-  typedef base::Callback<bool(CefRefPtr<CefWindow>,const CefKeyEvent&)>
+  typedef base::Callback<bool(CefRefPtr<CefWindow>, int)> OnAcceleratorCallback;
+  typedef base::Callback<bool(CefRefPtr<CefWindow>, const CefKeyEvent&)>
       OnKeyEventCallback;
 
   struct Config {
@@ -36,8 +36,7 @@ class TestWindowDelegate : public CefWindowDelegate {
   // without a frame. If |close_window| is true the Window will be closed
   // immediately after |window_test| returns. Otherwise, the caller is
   // responsible for closing the Window passed to |window_test|.
-  static void RunTest(CefRefPtr<CefWaitableEvent> event,
-                      const Config& config);
+  static void RunTest(CefRefPtr<CefWaitableEvent> event, const Config& config);
 
   // CefWindowDelegate methods:
   void OnWindowCreated(CefRefPtr<CefWindow> window) override;
@@ -49,8 +48,7 @@ class TestWindowDelegate : public CefWindowDelegate {
                   const CefKeyEvent& event) override;
 
  private:
-  TestWindowDelegate(CefRefPtr<CefWaitableEvent> event,
-                     const Config& config);
+  TestWindowDelegate(CefRefPtr<CefWaitableEvent> event, const Config& config);
   ~TestWindowDelegate() override;
 
   void OnCloseWindow();

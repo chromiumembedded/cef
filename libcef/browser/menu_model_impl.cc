@@ -30,34 +30,28 @@ class CefSimpleMenuModel : public ui::MenuModel {
   // The Delegate can be NULL, though if it is items can't be checked or
   // disabled.
   explicit CefSimpleMenuModel(CefMenuModelImpl* impl)
-      : impl_(impl),
-        menu_model_delegate_(NULL) {
-  }
+      : impl_(impl), menu_model_delegate_(NULL) {}
 
   // MenuModel methods.
-  bool HasIcons() const override {
-    return false;
-  }
+  bool HasIcons() const override { return false; }
 
-  int GetItemCount() const override {
-    return impl_->GetCount();
-  }
+  int GetItemCount() const override { return impl_->GetCount(); }
 
   ItemType GetTypeAt(int index) const override {
     switch (impl_->GetTypeAt(index)) {
-    case MENUITEMTYPE_COMMAND:
-      return TYPE_COMMAND;
-    case MENUITEMTYPE_CHECK:
-      return TYPE_CHECK;
-    case MENUITEMTYPE_RADIO:
-      return TYPE_RADIO;
-    case MENUITEMTYPE_SEPARATOR:
-      return TYPE_SEPARATOR;
-    case MENUITEMTYPE_SUBMENU:
-      return TYPE_SUBMENU;
-    default:
-      NOTREACHED();
-      return TYPE_COMMAND;
+      case MENUITEMTYPE_COMMAND:
+        return TYPE_COMMAND;
+      case MENUITEMTYPE_CHECK:
+        return TYPE_CHECK;
+      case MENUITEMTYPE_RADIO:
+        return TYPE_RADIO;
+      case MENUITEMTYPE_SEPARATOR:
+        return TYPE_SEPARATOR;
+      case MENUITEMTYPE_SUBMENU:
+        return TYPE_SUBMENU;
+      default:
+        NOTREACHED();
+        return TYPE_COMMAND;
     }
   }
 
@@ -73,9 +67,7 @@ class CefSimpleMenuModel : public ui::MenuModel {
     return impl_->GetFormattedLabelAt(index);
   }
 
-  bool IsItemDynamicAt(int index) const override {
-    return false;
-  }
+  bool IsItemDynamicAt(int index) const override { return false; }
 
   const gfx::FontList* GetLabelFontListAt(int index) const override {
     return impl_->GetLabelFontListAt(index);
@@ -97,8 +89,8 @@ class CefSimpleMenuModel : public ui::MenuModel {
       if (alt_pressed)
         modifiers |= ui::EF_ALT_DOWN;
 
-      *accelerator = ui::Accelerator(static_cast<ui::KeyboardCode>(key_code),
-                                     modifiers);
+      *accelerator =
+          ui::Accelerator(static_cast<ui::KeyboardCode>(key_code), modifiers);
       return true;
     }
     return false;
@@ -112,12 +104,9 @@ class CefSimpleMenuModel : public ui::MenuModel {
     return impl_->GetGroupIdAt(index);
   }
 
-  bool GetIconAt(int index, gfx::Image* icon) override {
-    return false;
-  }
+  bool GetIconAt(int index, gfx::Image* icon) override { return false; }
 
-  ui::ButtonMenuItemModel* GetButtonMenuItemAt(
-      int index) const override {
+  ui::ButtonMenuItemModel* GetButtonMenuItemAt(int index) const override {
     return NULL;
   }
 
@@ -129,12 +118,9 @@ class CefSimpleMenuModel : public ui::MenuModel {
     return impl_->IsVisibleAt(index);
   }
 
-  void HighlightChangedTo(int index) override {
-  }
+  void HighlightChangedTo(int index) override {}
 
-  void ActivatedAt(int index) override {
-    ActivatedAt(index, 0);
-  }
+  void ActivatedAt(int index) override { ActivatedAt(index, 0); }
 
   void ActivatedAt(int index, int event_flags) override {
     impl_->ActivatedAt(index, static_cast<cef_event_flags_t>(event_flags));
@@ -172,13 +158,9 @@ class CefSimpleMenuModel : public ui::MenuModel {
     return impl_->GetBackgroundColor(index, is_hovered, override_color);
   }
 
-  void MenuWillShow() override {
-    impl_->MenuWillShow();
-  }
+  void MenuWillShow() override { impl_->MenuWillShow(); }
 
-  void MenuWillClose() override {
-    impl_->MenuWillClose();
-  }
+  void MenuWillClose() override { impl_->MenuWillClose(); }
 
   void SetMenuModelDelegate(
       ui::MenuModelDelegate* menu_model_delegate) override {
@@ -201,15 +183,15 @@ cef_menu_color_type_t GetMenuColorType(bool is_text,
                                        bool is_hovered) {
   if (is_text) {
     if (is_accelerator) {
-      return is_hovered ? CEF_MENU_COLOR_TEXT_ACCELERATOR_HOVERED :
-                          CEF_MENU_COLOR_TEXT_ACCELERATOR;
+      return is_hovered ? CEF_MENU_COLOR_TEXT_ACCELERATOR_HOVERED
+                        : CEF_MENU_COLOR_TEXT_ACCELERATOR;
     }
     return is_hovered ? CEF_MENU_COLOR_TEXT_HOVERED : CEF_MENU_COLOR_TEXT;
   }
-  
+
   DCHECK(!is_accelerator);
-  return is_hovered ? CEF_MENU_COLOR_BACKGROUND_HOVERED :
-                      CEF_MENU_COLOR_BACKGROUND;
+  return is_hovered ? CEF_MENU_COLOR_BACKGROUND_HOVERED
+                    : CEF_MENU_COLOR_BACKGROUND;
 }
 
 }  // namespace
@@ -235,8 +217,7 @@ struct CefMenuModelImpl::Item {
       : type_(type),
         command_id_(command_id),
         label_(label),
-        group_id_(group_id) {
-  }
+        group_id_(group_id) {}
 
   // Basic information.
   cef_menu_item_type_t type_;
@@ -262,7 +243,6 @@ struct CefMenuModelImpl::Item {
   bool has_font_list_ = false;
 };
 
-
 CefMenuModelImpl::CefMenuModelImpl(
     Delegate* delegate,
     CefRefPtr<CefMenuModelDelegate> menu_model_delegate,
@@ -275,8 +255,7 @@ CefMenuModelImpl::CefMenuModelImpl(
   model_.reset(new CefSimpleMenuModel(this));
 }
 
-CefMenuModelImpl::~CefMenuModelImpl() {
-}
+CefMenuModelImpl::~CefMenuModelImpl() {}
 
 bool CefMenuModelImpl::IsSubMenu() {
   if (!VerifyContext())
@@ -303,8 +282,8 @@ bool CefMenuModelImpl::AddSeparator() {
   if (!VerifyContext())
     return false;
 
-  AppendItem(Item(MENUITEMTYPE_SEPARATOR, kSeparatorId, CefString(),
-                  kInvalidGroupId));
+  AppendItem(
+      Item(MENUITEMTYPE_SEPARATOR, kSeparatorId, CefString(), kInvalidGroupId));
   return true;
 }
 
@@ -312,8 +291,7 @@ bool CefMenuModelImpl::AddItem(int command_id, const CefString& label) {
   if (!VerifyContext())
     return false;
 
-  AppendItem(Item(MENUITEMTYPE_COMMAND, command_id, label,
-                  kInvalidGroupId));
+  AppendItem(Item(MENUITEMTYPE_COMMAND, command_id, label, kInvalidGroupId));
   return true;
 }
 
@@ -325,7 +303,8 @@ bool CefMenuModelImpl::AddCheckItem(int command_id, const CefString& label) {
   return true;
 }
 
-bool CefMenuModelImpl::AddRadioItem(int command_id, const CefString& label,
+bool CefMenuModelImpl::AddRadioItem(int command_id,
+                                    const CefString& label,
                                     int group_id) {
   if (!VerifyContext())
     return false;
@@ -349,13 +328,14 @@ bool CefMenuModelImpl::InsertSeparatorAt(int index) {
   if (!VerifyContext())
     return false;
 
-  InsertItemAt(Item(MENUITEMTYPE_SEPARATOR, kSeparatorId, CefString(),
-                    kInvalidGroupId),
-               index);
+  InsertItemAt(
+      Item(MENUITEMTYPE_SEPARATOR, kSeparatorId, CefString(), kInvalidGroupId),
+      index);
   return true;
 }
 
-bool CefMenuModelImpl::InsertItemAt(int index, int command_id,
+bool CefMenuModelImpl::InsertItemAt(int index,
+                                    int command_id,
                                     const CefString& label) {
   if (!VerifyContext())
     return false;
@@ -365,8 +345,9 @@ bool CefMenuModelImpl::InsertItemAt(int index, int command_id,
   return true;
 }
 
-bool CefMenuModelImpl::InsertCheckItemAt(int index, int command_id,
-    const CefString& label) {
+bool CefMenuModelImpl::InsertCheckItemAt(int index,
+                                         int command_id,
+                                         const CefString& label) {
   if (!VerifyContext())
     return false;
 
@@ -375,8 +356,10 @@ bool CefMenuModelImpl::InsertCheckItemAt(int index, int command_id,
   return true;
 }
 
-bool CefMenuModelImpl::InsertRadioItemAt(int index, int command_id,
-                                         const CefString& label, int group_id) {
+bool CefMenuModelImpl::InsertRadioItemAt(int index,
+                                         int command_id,
+                                         const CefString& label,
+                                         int group_id) {
   if (!VerifyContext())
     return false;
 
@@ -385,7 +368,9 @@ bool CefMenuModelImpl::InsertRadioItemAt(int index, int command_id,
 }
 
 CefRefPtr<CefMenuModel> CefMenuModelImpl::InsertSubMenuAt(
-    int index, int command_id, const CefString& label) {
+    int index,
+    int command_id,
+    const CefString& label) {
   if (!VerifyContext())
     return NULL;
 
@@ -404,7 +389,7 @@ bool CefMenuModelImpl::RemoveAt(int index) {
     return false;
 
   if (index >= 0 && index < static_cast<int>(items_.size())) {
-    items_.erase(items_.begin()+index);
+    items_.erase(items_.begin() + index);
     return true;
   }
   return false;
@@ -621,15 +606,19 @@ bool CefMenuModelImpl::HasAcceleratorAt(int index) {
   return false;
 }
 
-bool CefMenuModelImpl::SetAccelerator(int command_id, int key_code,
-                                      bool shift_pressed, bool ctrl_pressed,
+bool CefMenuModelImpl::SetAccelerator(int command_id,
+                                      int key_code,
+                                      bool shift_pressed,
+                                      bool ctrl_pressed,
                                       bool alt_pressed) {
   return SetAcceleratorAt(GetIndexOf(command_id), key_code, shift_pressed,
                           ctrl_pressed, alt_pressed);
 }
 
-bool CefMenuModelImpl::SetAcceleratorAt(int index, int key_code,
-                                        bool shift_pressed, bool ctrl_pressed,
+bool CefMenuModelImpl::SetAcceleratorAt(int index,
+                                        int key_code,
+                                        bool shift_pressed,
+                                        bool ctrl_pressed,
                                         bool alt_pressed) {
   if (!VerifyContext())
     return false;
@@ -668,15 +657,19 @@ bool CefMenuModelImpl::RemoveAcceleratorAt(int index) {
   return false;
 }
 
-bool CefMenuModelImpl::GetAccelerator(int command_id, int& key_code,
-                                      bool& shift_pressed, bool& ctrl_pressed,
+bool CefMenuModelImpl::GetAccelerator(int command_id,
+                                      int& key_code,
+                                      bool& shift_pressed,
+                                      bool& ctrl_pressed,
                                       bool& alt_pressed) {
   return GetAcceleratorAt(GetIndexOf(command_id), key_code, shift_pressed,
                           ctrl_pressed, alt_pressed);
 }
 
-bool CefMenuModelImpl::GetAcceleratorAt(int index, int& key_code,
-                                        bool& shift_pressed, bool& ctrl_pressed,
+bool CefMenuModelImpl::GetAcceleratorAt(int index,
+                                        int& key_code,
+                                        bool& shift_pressed,
+                                        bool& ctrl_pressed,
                                         bool& alt_pressed) {
   if (!VerifyContext())
     return false;
@@ -786,7 +779,7 @@ bool CefMenuModelImpl::SetFontListAt(int index, const CefString& font_list) {
 void CefMenuModelImpl::ActivatedAt(int index, cef_event_flags_t event_flags) {
   if (!VerifyContext())
     return;
-  
+
   const int command_id = GetCommandIdAt(index);
   if (delegate_)
     delegate_->ExecuteCommand(this, command_id, event_flags);
@@ -881,7 +874,7 @@ bool CefMenuModelImpl::GetBackgroundColor(int index,
 void CefMenuModelImpl::MenuWillShow() {
   if (!VerifyContext())
     return;
-  
+
   if (delegate_)
     delegate_->MenuWillShow(this);
   if (menu_model_delegate_)
@@ -899,8 +892,7 @@ void CefMenuModelImpl::MenuWillClose() {
   // called after this.  It's more convenient for the delegate to be called
   // afterwards, though, so post a task.
   base::MessageLoop::current()->task_runner()->PostTask(
-      FROM_HERE,
-      base::Bind(&CefMenuModelImpl::OnMenuClosed, this));
+      FROM_HERE, base::Bind(&CefMenuModelImpl::OnMenuClosed, this));
 }
 
 base::string16 CefMenuModelImpl::GetFormattedLabelAt(int index) {
@@ -1014,8 +1006,8 @@ void CefMenuModelImpl::OnMouseOutsideMenu(const gfx::Point& screen_point) {
   if (delegate_)
     delegate_->MouseOutsideMenu(this, screen_point);
   if (menu_model_delegate_) {
-    menu_model_delegate_->MouseOutsideMenu(this,
-        CefPoint(screen_point.x(), screen_point.y()));
+    menu_model_delegate_->MouseOutsideMenu(
+        this, CefPoint(screen_point.x(), screen_point.y()));
   }
 }
 

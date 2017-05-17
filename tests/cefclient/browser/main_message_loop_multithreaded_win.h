@@ -36,7 +36,9 @@ class MainMessageLoopMultithreadedWin : public MainMessageLoop {
   static HWND CreateMessageWindow(HINSTANCE hInstance);
 
   // Window procedure for the message window.
-  static LRESULT CALLBACK MessageWndProc(HWND hWnd, UINT message, WPARAM wParam,
+  static LRESULT CALLBACK MessageWndProc(HWND hWnd,
+                                         UINT message,
+                                         WPARAM wParam,
                                          LPARAM lParam);
 
   void PostTaskInternal(CefRefPtr<CefTask> task);
@@ -51,7 +53,7 @@ class MainMessageLoopMultithreadedWin : public MainMessageLoop {
 
   // Must be protected by |lock_|.
   HWND message_hwnd_;
-  std::queue<CefRefPtr<CefTask> > queued_tasks_;
+  std::queue<CefRefPtr<CefTask>> queued_tasks_;
 
   DISALLOW_COPY_AND_ASSIGN(MainMessageLoopMultithreadedWin);
 };

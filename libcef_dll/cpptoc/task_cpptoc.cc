@@ -9,9 +9,10 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=208bb3fedcf86b782a03fd64c527abcf05f7b297$
+//
 
 #include "libcef_dll/cpptoc/task_cpptoc.h"
-
 
 namespace {
 
@@ -30,23 +31,28 @@ void CEF_CALLBACK task_execute(struct _cef_task_t* self) {
 
 }  // namespace
 
-
 // CONSTRUCTOR - Do not edit by hand.
 
 CefTaskCppToC::CefTaskCppToC() {
   GetStruct()->execute = task_execute;
 }
 
-template<> CefRefPtr<CefTask> CefCppToCRefCounted<CefTaskCppToC, CefTask,
-    cef_task_t>::UnwrapDerived(CefWrapperType type, cef_task_t* s) {
+template <>
+CefRefPtr<CefTask>
+CefCppToCRefCounted<CefTaskCppToC, CefTask, cef_task_t>::UnwrapDerived(
+    CefWrapperType type,
+    cef_task_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCppToCRefCounted<CefTaskCppToC, CefTask,
-    cef_task_t>::DebugObjCt = 0;
+template <>
+base::AtomicRefCount
+    CefCppToCRefCounted<CefTaskCppToC, CefTask, cef_task_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCppToCRefCounted<CefTaskCppToC, CefTask,
-    cef_task_t>::kWrapperType = WT_TASK;
+template <>
+CefWrapperType
+    CefCppToCRefCounted<CefTaskCppToC, CefTask, cef_task_t>::kWrapperType =
+        WT_TASK;

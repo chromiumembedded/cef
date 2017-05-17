@@ -9,10 +9,11 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=47935fef33a2eb69943e8ff9d26a76f1c25861c0$
+//
 
 #include "libcef_dll/cpptoc/stream_reader_cpptoc.h"
 #include "libcef_dll/ctocpp/read_handler_ctocpp.h"
-
 
 // GLOBAL FUNCTIONS - Body may be edited by hand.
 
@@ -26,15 +27,15 @@ CEF_EXPORT cef_stream_reader_t* cef_stream_reader_create_for_file(
     return NULL;
 
   // Execute
-  CefRefPtr<CefStreamReader> _retval = CefStreamReader::CreateForFile(
-      CefString(fileName));
+  CefRefPtr<CefStreamReader> _retval =
+      CefStreamReader::CreateForFile(CefString(fileName));
 
   // Return type: refptr_same
   return CefStreamReaderCppToC::Wrap(_retval);
 }
 
 CEF_EXPORT cef_stream_reader_t* cef_stream_reader_create_for_data(void* data,
-    size_t size) {
+                                                                  size_t size) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: data; type: simple_byaddr
@@ -43,9 +44,8 @@ CEF_EXPORT cef_stream_reader_t* cef_stream_reader_create_for_data(void* data,
     return NULL;
 
   // Execute
-  CefRefPtr<CefStreamReader> _retval = CefStreamReader::CreateForData(
-      data,
-      size);
+  CefRefPtr<CefStreamReader> _retval =
+      CefStreamReader::CreateForData(data, size);
 
   // Return type: refptr_same
   return CefStreamReaderCppToC::Wrap(_retval);
@@ -61,20 +61,21 @@ CEF_EXPORT cef_stream_reader_t* cef_stream_reader_create_for_handler(
     return NULL;
 
   // Execute
-  CefRefPtr<CefStreamReader> _retval = CefStreamReader::CreateForHandler(
-      CefReadHandlerCToCpp::Wrap(handler));
+  CefRefPtr<CefStreamReader> _retval =
+      CefStreamReader::CreateForHandler(CefReadHandlerCToCpp::Wrap(handler));
 
   // Return type: refptr_same
   return CefStreamReaderCppToC::Wrap(_retval);
 }
-
 
 namespace {
 
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
 size_t CEF_CALLBACK stream_reader_read(struct _cef_stream_reader_t* self,
-    void* ptr, size_t size, size_t n) {
+                                       void* ptr,
+                                       size_t size,
+                                       size_t n) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -86,17 +87,15 @@ size_t CEF_CALLBACK stream_reader_read(struct _cef_stream_reader_t* self,
     return 0;
 
   // Execute
-  size_t _retval = CefStreamReaderCppToC::Get(self)->Read(
-      ptr,
-      size,
-      n);
+  size_t _retval = CefStreamReaderCppToC::Get(self)->Read(ptr, size, n);
 
   // Return type: simple
   return _retval;
 }
 
 int CEF_CALLBACK stream_reader_seek(struct _cef_stream_reader_t* self,
-    int64 offset, int whence) {
+                                    int64 offset,
+                                    int whence) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -104,9 +103,7 @@ int CEF_CALLBACK stream_reader_seek(struct _cef_stream_reader_t* self,
     return 0;
 
   // Execute
-  int _retval = CefStreamReaderCppToC::Get(self)->Seek(
-      offset,
-      whence);
+  int _retval = CefStreamReaderCppToC::Get(self)->Seek(offset, whence);
 
   // Return type: simple
   return _retval;
@@ -156,7 +153,6 @@ int CEF_CALLBACK stream_reader_may_block(struct _cef_stream_reader_t* self) {
 
 }  // namespace
 
-
 // CONSTRUCTOR - Do not edit by hand.
 
 CefStreamReaderCppToC::CefStreamReaderCppToC() {
@@ -167,17 +163,25 @@ CefStreamReaderCppToC::CefStreamReaderCppToC() {
   GetStruct()->may_block = stream_reader_may_block;
 }
 
-template<> CefRefPtr<CefStreamReader> CefCppToCRefCounted<CefStreamReaderCppToC,
-    CefStreamReader, cef_stream_reader_t>::UnwrapDerived(CefWrapperType type,
-    cef_stream_reader_t* s) {
+template <>
+CefRefPtr<CefStreamReader> CefCppToCRefCounted<
+    CefStreamReaderCppToC,
+    CefStreamReader,
+    cef_stream_reader_t>::UnwrapDerived(CefWrapperType type,
+                                        cef_stream_reader_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCppToCRefCounted<CefStreamReaderCppToC,
-    CefStreamReader, cef_stream_reader_t>::DebugObjCt = 0;
+template <>
+base::AtomicRefCount CefCppToCRefCounted<CefStreamReaderCppToC,
+                                         CefStreamReader,
+                                         cef_stream_reader_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCppToCRefCounted<CefStreamReaderCppToC,
-    CefStreamReader, cef_stream_reader_t>::kWrapperType = WT_STREAM_READER;
+template <>
+CefWrapperType CefCppToCRefCounted<CefStreamReaderCppToC,
+                                   CefStreamReader,
+                                   cef_stream_reader_t>::kWrapperType =
+    WT_STREAM_READER;

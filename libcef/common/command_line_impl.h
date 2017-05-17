@@ -12,8 +12,8 @@
 #include "base/command_line.h"
 
 // CefCommandLine implementation
-class CefCommandLineImpl :
-    public CefValueBase<CefCommandLine, base::CommandLine> {
+class CefCommandLineImpl
+    : public CefValueBase<CefCommandLine, base::CommandLine> {
  public:
   CefCommandLineImpl(base::CommandLine* value,
                      bool will_delete,

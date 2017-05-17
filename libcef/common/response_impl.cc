@@ -15,13 +15,11 @@
 #include "third_party/WebKit/public/platform/WebString.h"
 #include "third_party/WebKit/public/platform/WebURLResponse.h"
 
-
-#define CHECK_READONLY_RETURN_VOID() \
-  if (read_only_) { \
+#define CHECK_READONLY_RETURN_VOID()       \
+  if (read_only_) {                        \
     NOTREACHED() << "object is read only"; \
-    return; \
+    return;                                \
   }
-
 
 // CefResponse ----------------------------------------------------------------
 
@@ -31,14 +29,10 @@ CefRefPtr<CefResponse> CefResponse::Create() {
   return response;
 }
 
-
 // CefResponseImpl ------------------------------------------------------------
 
 CefResponseImpl::CefResponseImpl()
-  : error_code_(ERR_NONE),
-    status_code_(0),
-    read_only_(false) {
-}
+    : error_code_(ERR_NONE), status_code_(0), read_only_(false) {}
 
 bool CefResponseImpl::IsReadOnly() {
   base::AutoLock lock_scope(lock_);
@@ -122,14 +116,13 @@ net::HttpResponseHeaders* CefResponseImpl::GetResponseHeaders() {
   if (!status_text_.empty())
     status_text = status_text_;
   else
-    status_text = (status_code_ == 200)?"OK":"ERROR";
+    status_text = (status_code_ == 200) ? "OK" : "ERROR";
 
   base::SStringPrintf(&response, "HTTP/1.1 %d %s", status_code_,
                       status_text.c_str());
   if (header_map_.size() > 0) {
     for (HeaderMap::const_iterator header = header_map_.begin();
-        header != header_map_.end();
-        ++header) {
+         header != header_map_.end(); ++header) {
       const CefString& key = header->first;
       const CefString& value = header->second;
 
@@ -156,7 +149,8 @@ net::HttpResponseHeaders* CefResponseImpl::GetResponseHeaders() {
       mime_type = "text/html";
 
     base::StringAppendF(&response, "%c%s: %s", '\0',
-        net::HttpRequestHeaders::kContentType, mime_type.c_str());
+                        net::HttpRequestHeaders::kContentType,
+                        mime_type.c_str());
   }
 
   return new net::HttpResponseHeaders(response);

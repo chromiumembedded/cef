@@ -11,14 +11,13 @@
 #include "include/cef_values.h"
 #include "libcef/common/value_base.h"
 
-#include "base/values.h"
 #include "base/threading/platform_thread.h"
-
+#include "base/values.h"
 
 // CefValue implementation
 class CefValueImpl : public CefValue {
  public:
-   // Get or create a reference to a complex value or copy a simple value.
+  // Get or create a reference to a complex value or copy a simple value.
   static CefRefPtr<CefValue> GetOrCreateRefOrCopy(
       base::Value* value,
       void* parent_value,
@@ -83,17 +82,12 @@ class CefValueImpl : public CefValue {
   // object.
   class ScopedLockedValue {
    public:
-    explicit ScopedLockedValue(CefRefPtr<CefValueImpl> impl)
-      : impl_(impl) {
+    explicit ScopedLockedValue(CefRefPtr<CefValueImpl> impl) : impl_(impl) {
       impl_->AcquireLock();
     }
-    ~ScopedLockedValue() {
-      impl_->ReleaseLock();
-    }
+    ~ScopedLockedValue() { impl_->ReleaseLock(); }
 
-    base::Value* value() const {
-      return impl_->GetValueUnsafe();
-    }
+    base::Value* value() const { return impl_->GetValueUnsafe(); }
 
    private:
     CefRefPtr<CefValueImpl> impl_;
@@ -125,10 +119,8 @@ class CefValueImpl : public CefValue {
   DISALLOW_COPY_AND_ASSIGN(CefValueImpl);
 };
 
-
 // CefBinaryValue implementation
-class CefBinaryValueImpl
-    : public CefValueBase<CefBinaryValue, base::Value> {
+class CefBinaryValueImpl : public CefValueBase<CefBinaryValue, base::Value> {
  public:
   // Get or create a reference value.
   static CefRefPtr<CefBinaryValue> GetOrCreateRef(
@@ -142,12 +134,10 @@ class CefBinaryValueImpl
   // longer valid. Use GetOrCreateRef instead of this constructor if |value| is
   // owned by some other object and you do not plan to explicitly call
   // Detach(NULL).
-  CefBinaryValueImpl(base::Value* value,
-                     bool will_delete);
+  CefBinaryValueImpl(base::Value* value, bool will_delete);
 
   // The data will always be copied.
-  CefBinaryValueImpl(char* data,
-                     size_t data_size);
+  CefBinaryValueImpl(char* data, size_t data_size);
 
   // Return a copy of the value.
   base::Value* CopyValue();
@@ -170,9 +160,7 @@ class CefBinaryValueImpl
   bool IsEqual(CefRefPtr<CefBinaryValue> that) override;
   CefRefPtr<CefBinaryValue> Copy() override;
   size_t GetSize() override;
-  size_t GetData(void* buffer,
-                 size_t buffer_size,
-                 size_t data_offset) override;
+  size_t GetData(void* buffer, size_t buffer_size, size_t data_offset) override;
 
  private:
   // See the CefValueBase constructor for usage. Binary values are always
@@ -184,7 +172,6 @@ class CefBinaryValueImpl
 
   DISALLOW_COPY_AND_ASSIGN(CefBinaryValueImpl);
 };
-
 
 // CefDictionaryValue implementation
 class CefDictionaryValueImpl
@@ -227,8 +214,7 @@ class CefDictionaryValueImpl
   bool IsReadOnly() override;
   bool IsSame(CefRefPtr<CefDictionaryValue> that) override;
   bool IsEqual(CefRefPtr<CefDictionaryValue> that) override;
-  CefRefPtr<CefDictionaryValue> Copy(
-      bool exclude_empty_children) override;
+  CefRefPtr<CefDictionaryValue> Copy(bool exclude_empty_children) override;
   size_t GetSize() override;
   bool Clear() override;
   bool HasKey(const CefString& key) override;
@@ -241,22 +227,19 @@ class CefDictionaryValueImpl
   double GetDouble(const CefString& key) override;
   CefString GetString(const CefString& key) override;
   CefRefPtr<CefBinaryValue> GetBinary(const CefString& key) override;
-  CefRefPtr<CefDictionaryValue> GetDictionary(
-      const CefString& key) override;
+  CefRefPtr<CefDictionaryValue> GetDictionary(const CefString& key) override;
   CefRefPtr<CefListValue> GetList(const CefString& key) override;
   bool SetValue(const CefString& key, CefRefPtr<CefValue> value) override;
   bool SetNull(const CefString& key) override;
   bool SetBool(const CefString& key, bool value) override;
   bool SetInt(const CefString& key, int value) override;
   bool SetDouble(const CefString& key, double value) override;
-  bool SetString(const CefString& key,
-                 const CefString& value) override;
+  bool SetString(const CefString& key, const CefString& value) override;
   bool SetBinary(const CefString& key,
-      CefRefPtr<CefBinaryValue> value) override;
+                 CefRefPtr<CefBinaryValue> value) override;
   bool SetDictionary(const CefString& key,
                      CefRefPtr<CefDictionaryValue> value) override;
-  bool SetList(const CefString& key,
-               CefRefPtr<CefListValue> value) override;
+  bool SetList(const CefString& key, CefRefPtr<CefListValue> value) override;
 
  private:
   // See the CefValueBase constructor for usage.
@@ -272,17 +255,14 @@ class CefDictionaryValueImpl
   DISALLOW_COPY_AND_ASSIGN(CefDictionaryValueImpl);
 };
 
-
 // CefListValue implementation
-class CefListValueImpl
-    : public CefValueBase<CefListValue, base::ListValue> {
+class CefListValueImpl : public CefValueBase<CefListValue, base::ListValue> {
  public:
   // Get or create a reference value.
-  static CefRefPtr<CefListValue> GetOrCreateRef(
-      base::ListValue* value,
-      void* parent_value,
-      bool read_only,
-      CefValueController* controller);
+  static CefRefPtr<CefListValue> GetOrCreateRef(base::ListValue* value,
+                                                void* parent_value,
+                                                bool read_only,
+                                                CefValueController* controller);
 
   // Reference an existing value (set |will_delete| to false) or take ownership
   // of an existing value (set |will_delete| to true). When referencing an
@@ -290,9 +270,7 @@ class CefListValueImpl
   // longer valid. Use GetOrCreateRef instead of this constructor if |value| is
   // owned by some other object and you do not plan to explicitly call
   // Detach(NULL).
-  CefListValueImpl(base::ListValue* value,
-                   bool will_delete,
-                   bool read_only);
+  CefListValueImpl(base::ListValue* value, bool will_delete, bool read_only);
 
   // Return a copy of the value.
   base::ListValue* CopyValue();
@@ -352,6 +330,5 @@ class CefListValueImpl
 
   DISALLOW_COPY_AND_ASSIGN(CefListValueImpl);
 };
-
 
 #endif  // CEF_LIBCEF_COMMON_VALUES_IMPL_H_

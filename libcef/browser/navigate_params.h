@@ -19,8 +19,7 @@
 
 // Parameters that tell CefBrowserHostImpl::Navigate() what to do.
 struct CefNavigateParams {
-  CefNavigateParams(const GURL& a_url,
-                    ui::PageTransition a_transition);
+  CefNavigateParams(const GURL& a_url, ui::PageTransition a_transition);
   ~CefNavigateParams();
 
   // The following parameters are sent to the renderer via CefMsg_LoadRequest.
@@ -51,7 +50,6 @@ struct CefNavigateParams {
 
   // Upload data (may be NULL).
   scoped_refptr<net::UploadData> upload_data;
-
 
   // The following parameters are used to define browser behavior when servicing
   // the navigation request.

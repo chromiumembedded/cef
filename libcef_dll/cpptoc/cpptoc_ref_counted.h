@@ -8,8 +8,8 @@
 
 #include "include/base/cef_logging.h"
 #include "include/base/cef_macros.h"
-#include "include/cef_base.h"
 #include "include/capi/cef_base_capi.h"
+#include "include/cef_base.h"
 #include "libcef_dll/wrapper_types.h"
 
 // Wrap a C++ class with a C structure.  This is used when the class
@@ -91,7 +91,7 @@ class CefCppToCRefCounted : public CefBaseRefCounted {
 
 #if DCHECK_IS_ON()
   // Simple tracking of allocated objects.
-  static base::AtomicRefCount DebugObjCt;  // NOLINT(runtime/int)
+  static base::AtomicRefCount DebugObjCt;
 #endif
 
  protected:
@@ -141,12 +141,8 @@ class CefCppToCRefCounted : public CefBaseRefCounted {
   static CefRefPtr<BaseName> UnwrapDerived(CefWrapperType type, StructName* s);
 
   // Increment/decrement reference counts on only the underlying class.
-  void UnderlyingAddRef() const {
-    wrapper_struct_.object_->AddRef();
-  }
-  bool UnderlyingRelease() const {
-    return wrapper_struct_.object_->Release();
-  }
+  void UnderlyingAddRef() const { wrapper_struct_.object_->AddRef(); }
+  bool UnderlyingRelease() const { return wrapper_struct_.object_->Release(); }
   bool UnderlyingHasOneRef() const {
     return wrapper_struct_.object_->HasOneRef();
   }

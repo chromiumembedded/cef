@@ -23,22 +23,17 @@ class CefCompositorHostWin : public gfx::WindowImpl {
     Init(NULL, gfx::Rect(0, 0, 1, 1));
   }
 
-  ~CefCompositorHostWin() override {
-    DestroyWindow(hwnd());
-  }
+  ~CefCompositorHostWin() override { DestroyWindow(hwnd()); }
 
  private:
   CR_BEGIN_MSG_MAP_EX(CompositorHostWin)
     CR_MSG_WM_PAINT(OnPaint)
   CR_END_MSG_MAP()
 
-  void OnPaint(HDC dc) {
-    ValidateRect(hwnd(), NULL);
-  }
+  void OnPaint(HDC dc) { ValidateRect(hwnd(), NULL); }
 
   DISALLOW_COPY_AND_ASSIGN(CefCompositorHostWin);
 };
-
 
 // From content/common/cursors/webcursor_win.cc.
 
@@ -167,8 +162,8 @@ ui::PlatformCursor CefRenderWidgetHostViewOSR::GetPlatformCursor(
   HMODULE module_handle = NULL;
   const wchar_t* cursor_id = ToCursorID(type);
   if (!IsSystemCursorID(cursor_id)) {
-    module_handle = ::GetModuleHandle(
-        CefContentBrowserClient::Get()->GetResourceDllName());
+    module_handle =
+        ::GetModuleHandle(CefContentBrowserClient::Get()->GetResourceDllName());
     if (!module_handle)
       module_handle = ::GetModuleHandle(NULL);
   }

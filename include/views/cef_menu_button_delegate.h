@@ -56,7 +56,7 @@ class CefMenuButtonDelegate : public CefButtonDelegate {
   ///
   /*--cef()--*/
   virtual void OnMenuButtonPressed(CefRefPtr<CefMenuButton> menu_button,
-                                   const CefPoint& screen_point) =0;
+                                   const CefPoint& screen_point) = 0;
 };
 
 #endif  // CEF_INCLUDE_VIEWS_CEF_MENU_BUTTON_DELEGATE_H_

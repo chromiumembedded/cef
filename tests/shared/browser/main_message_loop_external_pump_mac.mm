@@ -4,8 +4,8 @@
 
 #include "tests/shared/browser/main_message_loop_external_pump.h"
 
-#import <Foundation/Foundation.h>
 #import <AppKit/AppKit.h>
+#import <Foundation/Foundation.h>
 
 #include "include/cef_app.h"
 
@@ -82,8 +82,7 @@ class MainMessageLoopExternalPumpMac : public MainMessageLoopExternalPump {
 namespace client {
 
 MainMessageLoopExternalPumpMac::MainMessageLoopExternalPumpMac()
-  : owner_thread_([[NSThread currentThread] retain]),
-    timer_(nil) {
+    : owner_thread_([[NSThread currentThread] retain]), timer_(nil) {
   event_handler_ = [[[EventHandler alloc] initWithPump:this] retain];
 }
 
@@ -111,9 +110,9 @@ int MainMessageLoopExternalPumpMac::Run() {
 
     // Do some work.
     CefDoMessageLoopWork();
-    
+
     // Sleep to allow the CEF proc to do work.
-    [NSThread sleepForTimeInterval: 0.05];
+    [NSThread sleepForTimeInterval:0.05];
   }
 
   return 0;
@@ -141,16 +140,16 @@ void MainMessageLoopExternalPumpMac::SetTimer(int64 delay_ms) {
   DCHECK(!timer_);
 
   const double delay_s = static_cast<double>(delay_ms) / 1000.0;
-  timer_ = [[NSTimer timerWithTimeInterval: delay_s
-                                    target: event_handler_
-                                  selector: @selector(timerTimeout:)
-                                  userInfo: nil
-                                   repeats: NO] retain];
+  timer_ = [[NSTimer timerWithTimeInterval:delay_s
+                                    target:event_handler_
+                                  selector:@selector(timerTimeout:)
+                                  userInfo:nil
+                                   repeats:NO] retain];
 
   // Add the timer to default and tracking runloop modes.
   NSRunLoop* owner_runloop = [NSRunLoop currentRunLoop];
-  [owner_runloop addTimer: timer_ forMode: NSRunLoopCommonModes];
-  [owner_runloop addTimer: timer_ forMode: NSEventTrackingRunLoopMode];
+  [owner_runloop addTimer:timer_ forMode:NSRunLoopCommonModes];
+  [owner_runloop addTimer:timer_ forMode:NSEventTrackingRunLoopMode];
 }
 
 void MainMessageLoopExternalPumpMac::KillTimer() {
@@ -162,8 +161,7 @@ void MainMessageLoopExternalPumpMac::KillTimer() {
 }
 
 // static
-scoped_ptr<MainMessageLoopExternalPump>
-MainMessageLoopExternalPump::Create() {
+scoped_ptr<MainMessageLoopExternalPump> MainMessageLoopExternalPump::Create() {
   return scoped_ptr<MainMessageLoopExternalPump>(
       new MainMessageLoopExternalPumpMac());
 }

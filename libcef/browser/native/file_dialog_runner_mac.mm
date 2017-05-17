@@ -31,10 +31,10 @@ base::string16 GetDescriptionFromMimeType(const std::string& mime_type) {
     const char* mime_type;
     int string_id;
   } kWildCardMimeTypes[] = {
-    { "audio", IDS_AUDIO_FILES },
-    { "image", IDS_IMAGE_FILES },
-    { "text", IDS_TEXT_FILES },
-    { "video", IDS_VIDEO_FILES },
+      {"audio", IDS_AUDIO_FILES},
+      {"image", IDS_IMAGE_FILES},
+      {"text", IDS_TEXT_FILES},
+      {"video", IDS_VIDEO_FILES},
   };
 
   for (size_t i = 0; i < arraysize(kWildCardMimeTypes); ++i) {
@@ -45,10 +45,10 @@ base::string16 GetDescriptionFromMimeType(const std::string& mime_type) {
   return base::string16();
 }
 
-void AddFilters(NSPopUpButton *button,
+void AddFilters(NSPopUpButton* button,
                 const std::vector<base::string16>& accept_filters,
                 bool include_all_files,
-                std::vector<std::vector<base::string16> >* all_extensions) {
+                std::vector<std::vector<base::string16>>* all_extensions) {
   for (size_t i = 0; i < accept_filters.size(); ++i) {
     const base::string16& filter = accept_filters[i];
     if (filter.empty())
@@ -62,11 +62,9 @@ void AddFilters(NSPopUpButton *button,
       // Treat as a filter of the form "Filter Name|.ext1;.ext2;.ext3".
       description = filter.substr(0, sep_index);
 
-      const std::vector<base::string16>& ext =
-          base::SplitString(filter.substr(sep_index + 1),
-                            base::ASCIIToUTF16(";"),
-                            base::TRIM_WHITESPACE,
-                            base::SPLIT_WANT_NONEMPTY);
+      const std::vector<base::string16>& ext = base::SplitString(
+          filter.substr(sep_index + 1), base::ASCIIToUTF16(";"),
+          base::TRIM_WHITESPACE, base::SPLIT_WANT_NONEMPTY);
       for (size_t x = 0; x < ext.size(); ++x) {
         const base::string16& file_ext = ext[x];
         if (!file_ext.empty() && file_ext[0] == '.')
@@ -131,12 +129,12 @@ void AddFilters(NSPopUpButton *button,
 @interface CefFilterDelegate : NSObject {
  @private
   NSSavePanel* panel_;
-  std::vector<std::vector<base::string16> > extensions_;
+  std::vector<std::vector<base::string16>> extensions_;
   int selected_index_;
 }
 - (id)initWithPanel:(NSSavePanel*)panel
-   andAcceptFilters:(const std::vector<base::string16>&)accept_filters
-     andFilterIndex:(int)index;
+    andAcceptFilters:(const std::vector<base::string16>&)accept_filters
+      andFilterIndex:(int)index;
 - (void)setFilter:(int)index;
 - (int)filter;
 - (void)filterSelectionChanged:(id)sender;
@@ -146,14 +144,14 @@ void AddFilters(NSPopUpButton *button,
 @implementation CefFilterDelegate
 
 - (id)initWithPanel:(NSSavePanel*)panel
-   andAcceptFilters:(const std::vector<base::string16>&)accept_filters
-     andFilterIndex:(int)index {
+    andAcceptFilters:(const std::vector<base::string16>&)accept_filters
+      andFilterIndex:(int)index {
   if (self = [super init]) {
     DCHECK(panel);
     panel_ = panel;
     selected_index_ = 0;
 
-    NSPopUpButton *button = [[NSPopUpButton alloc] init];
+    NSPopUpButton* button = [[NSPopUpButton alloc] init];
     AddFilters(button, accept_filters, true, &extensions_);
     [button sizeToFit];
     [button setTarget:self];
@@ -181,8 +179,8 @@ void AddFilters(NSPopUpButton *button,
   if (!extensions_[index].empty()) {
     acceptArray = [[NSMutableArray alloc] init];
     for (size_t i = 0; i < extensions_[index].size(); ++i) {
-      [acceptArray addObject:
-          base::SysUTF16ToNSString(extensions_[index][i].substr(1))];
+      [acceptArray
+          addObject:base::SysUTF16ToNSString(extensions_[index][i].substr(1))];
     }
   }
   [panel_ setAllowedFileTypes:acceptArray];
@@ -200,7 +198,7 @@ void AddFilters(NSPopUpButton *button,
 
 // Called when the selected filter is changed via the NSPopUpButton.
 - (void)filterSelectionChanged:(id)sender {
-  NSPopUpButton *button = (NSPopUpButton*)sender;
+  NSPopUpButton* button = (NSPopUpButton*)sender;
   [self setFilter:[button indexOfSelectedItem]];
 }
 
@@ -233,11 +231,10 @@ void AddFilters(NSPopUpButton *button,
 
 namespace {
 
-void RunOpenFileDialog(
-    const CefFileDialogRunner::FileChooserParams& params,
-    NSView* view,
-    int filter_index,
-    CefFileDialogRunner::RunFileChooserCallback callback) {
+void RunOpenFileDialog(const CefFileDialogRunner::FileChooserParams& params,
+                       NSView* view,
+                       int filter_index,
+                       CefFileDialogRunner::RunFileChooserCallback callback) {
   NSOpenPanel* openPanel = [NSOpenPanel openPanel];
 
   base::string16 title;
@@ -245,10 +242,11 @@ void RunOpenFileDialog(
     title = params.title;
   } else {
     title = l10n_util::GetStringUTF16(
-        params.mode == content::FileChooserParams::Open ?
-            IDS_OPEN_FILE_DIALOG_TITLE :
-            (params.mode == content::FileChooserParams::OpenMultiple ?
-                IDS_OPEN_FILES_DIALOG_TITLE : IDS_SELECT_FOLDER_DIALOG_TITLE));
+        params.mode == content::FileChooserParams::Open
+            ? IDS_OPEN_FILE_DIALOG_TITLE
+            : (params.mode == content::FileChooserParams::OpenMultiple
+                   ? IDS_OPEN_FILES_DIALOG_TITLE
+                   : IDS_SELECT_FOLDER_DIALOG_TITLE));
   }
   [openPanel setTitle:base::SysUTF16ToNSString(title)];
 
@@ -268,8 +266,8 @@ void RunOpenFileDialog(
     [openPanel setNameFieldStringValue:base::SysUTF8ToNSString(filename)];
   }
   if (!directory.empty()) {
-    [openPanel setDirectoryURL:
-        [NSURL fileURLWithPath:base::SysUTF8ToNSString(directory)]];
+    [openPanel setDirectoryURL:[NSURL fileURLWithPath:base::SysUTF8ToNSString(
+                                                          directory)]];
   }
 
   CefFilterDelegate* filter_delegate = nil;
@@ -284,38 +282,42 @@ void RunOpenFileDialog(
 
   // Further panel configuration.
   [openPanel setAllowsOtherFileTypes:YES];
-  [openPanel setAllowsMultipleSelection:
-      (params.mode == content::FileChooserParams::OpenMultiple)];
-  [openPanel setCanChooseFiles:
-      (params.mode != content::FileChooserParams::UploadFolder)];
-  [openPanel setCanChooseDirectories:
-      (params.mode == content::FileChooserParams::UploadFolder)];
+  [openPanel
+      setAllowsMultipleSelection:(params.mode ==
+                                  content::FileChooserParams::OpenMultiple)];
+  [openPanel setCanChooseFiles:(params.mode !=
+                                content::FileChooserParams::UploadFolder)];
+  [openPanel
+      setCanChooseDirectories:(params.mode ==
+                               content::FileChooserParams::UploadFolder)];
   [openPanel setShowsHiddenFiles:!params.hidereadonly];
 
   // Show panel.
-  [openPanel beginSheetModalForWindow:[view window]
-                    completionHandler:^(NSInteger returnCode) {
-    int filter_index_to_use =
-        (filter_delegate != nil) ? [filter_delegate filter] : filter_index;
-    if (returnCode == NSFileHandlingPanelOKButton) {
-      std::vector<base::FilePath> files;
-      files.reserve(openPanel.URLs.count);
-      for (NSURL* url in openPanel.URLs) {
-        if (url.isFileURL)
-          files.push_back(base::FilePath(url.path.UTF8String));
-      }
-      callback.Run(filter_index_to_use, files);
-    } else {
-      callback.Run(filter_index_to_use, std::vector<base::FilePath>());
-    }
-  }];
+  [openPanel
+      beginSheetModalForWindow:[view window]
+             completionHandler:^(NSInteger returnCode) {
+               int filter_index_to_use = (filter_delegate != nil)
+                                             ? [filter_delegate filter]
+                                             : filter_index;
+               if (returnCode == NSFileHandlingPanelOKButton) {
+                 std::vector<base::FilePath> files;
+                 files.reserve(openPanel.URLs.count);
+                 for (NSURL* url in openPanel.URLs) {
+                   if (url.isFileURL)
+                     files.push_back(base::FilePath(url.path.UTF8String));
+                 }
+                 callback.Run(filter_index_to_use, files);
+               } else {
+                 callback.Run(filter_index_to_use,
+                              std::vector<base::FilePath>());
+               }
+             }];
 }
 
-void RunSaveFileDialog(
-    const CefFileDialogRunner::FileChooserParams& params,
-    NSView* view,
-    int filter_index,
-    CefFileDialogRunner::RunFileChooserCallback callback) {
+void RunSaveFileDialog(const CefFileDialogRunner::FileChooserParams& params,
+                       NSView* view,
+                       int filter_index,
+                       CefFileDialogRunner::RunFileChooserCallback callback) {
   NSSavePanel* savePanel = [NSSavePanel savePanel];
 
   base::string16 title;
@@ -340,8 +342,8 @@ void RunSaveFileDialog(
     [savePanel setNameFieldStringValue:base::SysUTF8ToNSString(filename)];
   }
   if (!directory.empty()) {
-    [savePanel setDirectoryURL:
-        [NSURL fileURLWithPath:base::SysUTF8ToNSString(directory)]];
+    [savePanel setDirectoryURL:[NSURL fileURLWithPath:base::SysUTF8ToNSString(
+                                                          directory)]];
   }
 
   CefFilterDelegate* filter_delegate = nil;
@@ -357,25 +359,27 @@ void RunSaveFileDialog(
   [savePanel setShowsHiddenFiles:!params.hidereadonly];
 
   // Show panel.
-  [savePanel beginSheetModalForWindow:view.window
-                    completionHandler:^(NSInteger resultCode) {
-    int filter_index_to_use =
-        (filter_delegate != nil) ? [filter_delegate filter] : filter_index;
-    if (resultCode == NSFileHandlingPanelOKButton) {
-      NSURL* url = savePanel.URL;
-      const char* path = url.path.UTF8String;
-      std::vector<base::FilePath> files(1, base::FilePath(path));
-      callback.Run(filter_index_to_use, files);
-    } else {
-      callback.Run(filter_index_to_use, std::vector<base::FilePath>());
-    }
-  }];
+  [savePanel
+      beginSheetModalForWindow:view.window
+             completionHandler:^(NSInteger resultCode) {
+               int filter_index_to_use = (filter_delegate != nil)
+                                             ? [filter_delegate filter]
+                                             : filter_index;
+               if (resultCode == NSFileHandlingPanelOKButton) {
+                 NSURL* url = savePanel.URL;
+                 const char* path = url.path.UTF8String;
+                 std::vector<base::FilePath> files(1, base::FilePath(path));
+                 callback.Run(filter_index_to_use, files);
+               } else {
+                 callback.Run(filter_index_to_use,
+                              std::vector<base::FilePath>());
+               }
+             }];
 }
 
 }  // namespace
 
-CefFileDialogRunnerMac::CefFileDialogRunnerMac() {
-}
+CefFileDialogRunnerMac::CefFileDialogRunnerMac() {}
 
 void CefFileDialogRunnerMac::Run(CefBrowserHostImpl* browser,
                                  const FileChooserParams& params,
@@ -389,7 +393,7 @@ void CefFileDialogRunnerMac::Run(CefBrowserHostImpl* browser,
     RunOpenFileDialog(params, owner, filter_index, callback);
   } else if (params.mode == content::FileChooserParams::Save) {
     RunSaveFileDialog(params, owner, filter_index, callback);
-  }  else {
+  } else {
     NOTIMPLEMENTED();
   }
 }

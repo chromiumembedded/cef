@@ -9,16 +9,17 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=7f23d6a5af6381c210dad9505f4fd2b36bb27b9a$
+//
 
 #include "libcef_dll/cpptoc/request_callback_cpptoc.h"
-
 
 namespace {
 
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
 void CEF_CALLBACK request_callback_cont(struct _cef_request_callback_t* self,
-    int allow) {
+                                        int allow) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -26,12 +27,11 @@ void CEF_CALLBACK request_callback_cont(struct _cef_request_callback_t* self,
     return;
 
   // Execute
-  CefRequestCallbackCppToC::Get(self)->Continue(
-      allow?true:false);
+  CefRequestCallbackCppToC::Get(self)->Continue(allow ? true : false);
 }
 
-void CEF_CALLBACK request_callback_cancel(
-    struct _cef_request_callback_t* self) {
+void CEF_CALLBACK
+request_callback_cancel(struct _cef_request_callback_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -44,7 +44,6 @@ void CEF_CALLBACK request_callback_cancel(
 
 }  // namespace
 
-
 // CONSTRUCTOR - Do not edit by hand.
 
 CefRequestCallbackCppToC::CefRequestCallbackCppToC() {
@@ -52,18 +51,26 @@ CefRequestCallbackCppToC::CefRequestCallbackCppToC() {
   GetStruct()->cancel = request_callback_cancel;
 }
 
-template<> CefRefPtr<CefRequestCallback> CefCppToCRefCounted<CefRequestCallbackCppToC,
-    CefRequestCallback, cef_request_callback_t>::UnwrapDerived(
-    CefWrapperType type, cef_request_callback_t* s) {
+template <>
+CefRefPtr<CefRequestCallback> CefCppToCRefCounted<
+    CefRequestCallbackCppToC,
+    CefRequestCallback,
+    cef_request_callback_t>::UnwrapDerived(CefWrapperType type,
+                                           cef_request_callback_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCppToCRefCounted<CefRequestCallbackCppToC,
-    CefRequestCallback, cef_request_callback_t>::DebugObjCt = 0;
+template <>
+base::AtomicRefCount CefCppToCRefCounted<CefRequestCallbackCppToC,
+                                         CefRequestCallback,
+                                         cef_request_callback_t>::DebugObjCt =
+    0;
 #endif
 
-template<> CefWrapperType CefCppToCRefCounted<CefRequestCallbackCppToC,
-    CefRequestCallback, cef_request_callback_t>::kWrapperType =
+template <>
+CefWrapperType CefCppToCRefCounted<CefRequestCallbackCppToC,
+                                   CefRequestCallback,
+                                   cef_request_callback_t>::kWrapperType =
     WT_REQUEST_CALLBACK;

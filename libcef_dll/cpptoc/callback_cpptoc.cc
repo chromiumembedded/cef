@@ -9,9 +9,10 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=7d4c882910cd07c9659eefe6eb579e4096cd760c$
+//
 
 #include "libcef_dll/cpptoc/callback_cpptoc.h"
-
 
 namespace {
 
@@ -41,7 +42,6 @@ void CEF_CALLBACK callback_cancel(struct _cef_callback_t* self) {
 
 }  // namespace
 
-
 // CONSTRUCTOR - Do not edit by hand.
 
 CefCallbackCppToC::CefCallbackCppToC() {
@@ -49,17 +49,22 @@ CefCallbackCppToC::CefCallbackCppToC() {
   GetStruct()->cancel = callback_cancel;
 }
 
-template<> CefRefPtr<CefCallback> CefCppToCRefCounted<CefCallbackCppToC,
-    CefCallback, cef_callback_t>::UnwrapDerived(CefWrapperType type,
-    cef_callback_t* s) {
+template <>
+CefRefPtr<CefCallback>
+CefCppToCRefCounted<CefCallbackCppToC, CefCallback, cef_callback_t>::
+    UnwrapDerived(CefWrapperType type, cef_callback_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCppToCRefCounted<CefCallbackCppToC,
-    CefCallback, cef_callback_t>::DebugObjCt = 0;
+template <>
+base::AtomicRefCount CefCppToCRefCounted<CefCallbackCppToC,
+                                         CefCallback,
+                                         cef_callback_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCppToCRefCounted<CefCallbackCppToC, CefCallback,
-    cef_callback_t>::kWrapperType = WT_CALLBACK;
+template <>
+CefWrapperType CefCppToCRefCounted<CefCallbackCppToC,
+                                   CefCallback,
+                                   cef_callback_t>::kWrapperType = WT_CALLBACK;

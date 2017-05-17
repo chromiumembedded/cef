@@ -33,6 +33,8 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
+// $hash=52ce63b881a6e3d2d13a39b81ad2626f366fc130$
+//
 
 #ifndef CEF_INCLUDE_CAPI_CEF_APP_CAPI_H_
 #define CEF_INCLUDE_CAPI_CEF_APP_CAPI_H_
@@ -72,8 +74,9 @@ typedef struct _cef_app_t {
   // modify command-line arguments for non-browser processes as this may result
   // in undefined behavior including crashes.
   ///
-  void (CEF_CALLBACK *on_before_command_line_processing)(
-      struct _cef_app_t* self, const cef_string_t* process_type,
+  void(CEF_CALLBACK* on_before_command_line_processing)(
+      struct _cef_app_t* self,
+      const cef_string_t* process_type,
       struct _cef_command_line_t* command_line);
 
   ///
@@ -82,7 +85,8 @@ typedef struct _cef_app_t {
   // each process and the registered schemes should be the same across all
   // processes.
   ///
-  void (CEF_CALLBACK *on_register_custom_schemes)(struct _cef_app_t* self,
+  void(CEF_CALLBACK* on_register_custom_schemes)(
+      struct _cef_app_t* self,
       struct _cef_scheme_registrar_t* registrar);
 
   ///
@@ -91,24 +95,23 @@ typedef struct _cef_app_t {
   // If no handler is returned resources will be loaded from pack files. This
   // function is called by the browser and render processes on multiple threads.
   ///
-  struct _cef_resource_bundle_handler_t* (
-      CEF_CALLBACK *get_resource_bundle_handler)(struct _cef_app_t* self);
+  struct _cef_resource_bundle_handler_t*(
+      CEF_CALLBACK* get_resource_bundle_handler)(struct _cef_app_t* self);
 
   ///
   // Return the handler for functionality specific to the browser process. This
   // function is called on multiple threads in the browser process.
   ///
-  struct _cef_browser_process_handler_t* (
-      CEF_CALLBACK *get_browser_process_handler)(struct _cef_app_t* self);
+  struct _cef_browser_process_handler_t*(
+      CEF_CALLBACK* get_browser_process_handler)(struct _cef_app_t* self);
 
   ///
   // Return the handler for functionality specific to the render process. This
   // function is called on the render process main thread.
   ///
-  struct _cef_render_process_handler_t* (
-      CEF_CALLBACK *get_render_process_handler)(struct _cef_app_t* self);
+  struct _cef_render_process_handler_t*(
+      CEF_CALLBACK* get_render_process_handler)(struct _cef_app_t* self);
 } cef_app_t;
-
 
 ///
 // This function should be called from the application entry point function to
@@ -123,7 +126,8 @@ typedef struct _cef_app_t {
 // cef_sandbox_win.h for details).
 ///
 CEF_EXPORT int cef_execute_process(const struct _cef_main_args_t* args,
-    cef_app_t* application, void* windows_sandbox_info);
+                                   cef_app_t* application,
+                                   void* windows_sandbox_info);
 
 ///
 // This function should be called on the main application thread to initialize
@@ -133,8 +137,9 @@ CEF_EXPORT int cef_execute_process(const struct _cef_main_args_t* args,
 // be NULL (see cef_sandbox_win.h for details).
 ///
 CEF_EXPORT int cef_initialize(const struct _cef_main_args_t* args,
-    const struct _cef_settings_t* settings, cef_app_t* application,
-    void* windows_sandbox_info);
+                              const struct _cef_settings_t* settings,
+                              cef_app_t* application,
+                              void* windows_sandbox_info);
 
 ///
 // This function should be called on the main application thread to shut down

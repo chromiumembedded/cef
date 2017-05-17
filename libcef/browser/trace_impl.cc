@@ -3,9 +3,9 @@
 // be found in the LICENSE file.
 
 #include "include/cef_trace.h"
-#include "libcef/browser/trace_subscriber.h"
 #include "libcef/browser/context.h"
 #include "libcef/browser/thread_util.h"
+#include "libcef/browser/trace_subscriber.h"
 
 #include "base/time/time.h"
 

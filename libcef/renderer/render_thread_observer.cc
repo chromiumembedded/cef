@@ -4,6 +4,7 @@
 // found in the LICENSE file.
 
 #include "libcef/renderer/render_thread_observer.h"
+
 #include "libcef/common/cef_messages.h"
 #include "libcef/common/net/net_resource_provider.h"
 #include "libcef/renderer/content_renderer_client.h"
@@ -19,7 +20,7 @@
 bool CefRenderThreadObserver::is_incognito_process_ = false;
 
 CefRenderThreadObserver::CefRenderThreadObserver()
-  : visited_link_slave_(new visitedlink::VisitedLinkSlave) {
+    : visited_link_slave_(new visitedlink::VisitedLinkSlave) {
   net::NetModule::SetResourceProvider(NetResourceProvider);
 
   content::RenderThread* thread = content::RenderThread::Get();
@@ -27,8 +28,7 @@ CefRenderThreadObserver::CefRenderThreadObserver()
       visited_link_slave_->GetBindCallback());
 }
 
-CefRenderThreadObserver::~CefRenderThreadObserver() {
-}
+CefRenderThreadObserver::~CefRenderThreadObserver() {}
 
 bool CefRenderThreadObserver::OnControlMessageReceived(
     const IPC::Message& message) {
@@ -61,14 +61,12 @@ void CefRenderThreadObserver::OnModifyCrossOriginWhitelistEntry(
   GURL gurl = GURL(params.source_origin);
   if (add) {
     blink::WebSecurityPolicy::AddOriginAccessWhitelistEntry(
-        gurl,
-        blink::WebString::FromUTF8(params.target_protocol),
+        gurl, blink::WebString::FromUTF8(params.target_protocol),
         blink::WebString::FromUTF8(params.target_domain),
         params.allow_target_subdomains);
   } else {
     blink::WebSecurityPolicy::RemoveOriginAccessWhitelistEntry(
-        gurl,
-        blink::WebString::FromUTF8(params.target_protocol),
+        gurl, blink::WebString::FromUTF8(params.target_protocol),
         blink::WebString::FromUTF8(params.target_domain),
         params.allow_target_subdomains);
   }

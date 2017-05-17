@@ -40,9 +40,7 @@ class Handler : public CefMessageRouterBrowserSide::Handler {
  public:
   typedef std::vector<std::string> NameVector;
 
-  Handler() {
-    CEF_REQUIRE_UI_THREAD();
-  }
+  Handler() { CEF_REQUIRE_UI_THREAD(); }
 
   // Called due to cefQuery execution in preferences.html.
   bool OnQuery(CefRefPtr<CefBrowser> browser,
@@ -138,15 +136,14 @@ class Handler : public CefMessageRouterBrowserSide::Handler {
     NameVector changed_names;
 
     // Apply preferences. This may result in errors.
-    const bool success = ApplyPrefs(context, std::string(), value, error,
-                                    changed_names);
+    const bool success =
+        ApplyPrefs(context, std::string(), value, error, changed_names);
 
     // Create a message that accurately represents the result.
     std::string message;
     if (!changed_names.empty()) {
       std::stringstream ss;
-      ss << "Successfully changed " << changed_names.size() <<
-            " preferences; ";
+      ss << "Successfully changed " << changed_names.size() << " preferences; ";
       for (size_t i = 0; i < changed_names.size(); ++i) {
         ss << changed_names[i];
         if (i < changed_names.size() - 1)
@@ -186,20 +183,20 @@ class Handler : public CefMessageRouterBrowserSide::Handler {
     // If spell checking is disabled via the command-line then it cannot be
     // enabled via preferences.
     dict->SetBool("spellcheck_disabled",
-        command_line->HasSwitch("disable-spell-checking"));
+                  command_line->HasSwitch("disable-spell-checking"));
 
     // If proxy settings are configured via the command-line then they cannot
     // be modified via preferences.
     dict->SetBool("proxy_configured",
-        command_line->HasSwitch("no-proxy-server") ||
-        command_line->HasSwitch("proxy-auto-detect") ||
-        command_line->HasSwitch("proxy-pac-url") ||
-        command_line->HasSwitch("proxy-server"));
+                  command_line->HasSwitch("no-proxy-server") ||
+                      command_line->HasSwitch("proxy-auto-detect") ||
+                      command_line->HasSwitch("proxy-pac-url") ||
+                      command_line->HasSwitch("proxy-server"));
 
     // If allow running insecure content is enabled via the command-line then it
     // cannot be enabled via preferences.
     dict->SetBool("allow_running_insecure_content",
-        command_line->HasSwitch("allow-running-insecure-content"));
+                  command_line->HasSwitch("allow-running-insecure-content"));
 
     // Serialize the state to JSON and return to the JavaScript caller.
     callback->Success(GetJSON(dict));
@@ -227,9 +224,9 @@ class Handler : public CefMessageRouterBrowserSide::Handler {
                         cef_value_type_t value_type,
                         CefRefPtr<Callback> callback) {
     if (!dictionary->HasKey(key) || dictionary->GetType(key) != value_type) {
-      callback->Failure(kMessageFormatError,
-                        "Missing or incorrectly formatted message key: " +
-                        std::string(key));
+      callback->Failure(
+          kMessageFormatError,
+          "Missing or incorrectly formatted message key: " + std::string(key));
       return false;
     }
     return true;
@@ -257,8 +254,7 @@ class Handler : public CefMessageRouterBrowserSide::Handler {
       dict->GetKeys(keys);
       for (size_t i = 0; i < keys.size(); ++i) {
         const std::string& key = keys[i];
-        const std::string& current_name =
-            name.empty() ? key : name + "." + key;
+        const std::string& current_name = name.empty() ? key : name + "." + key;
         if (!ApplyPrefs(context, current_name, dict->GetValue(key), error,
                         changed_names)) {
           return false;

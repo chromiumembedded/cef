@@ -6,8 +6,8 @@
 #define CEF_LIBCEF_DLL_CTOCPP_BASE_SCOPED_CTOCPP_H_
 #pragma once
 
-#include "include/cef_base.h"
 #include "include/capi/cef_base_capi.h"
+#include "include/cef_base.h"
 #include "libcef_dll/ctocpp/ctocpp_scoped.h"
 
 #if !defined(BUILDING_CEF_SHARED)
@@ -15,9 +15,9 @@
 #endif
 
 // Wrap a C structure with a C++ class.
-class CefBaseScopedCToCpp
-    : public CefCToCppScoped<CefBaseScopedCToCpp, CefBaseScoped,
-                             cef_base_scoped_t> {
+class CefBaseScopedCToCpp : public CefCToCppScoped<CefBaseScopedCToCpp,
+                                                   CefBaseScoped,
+                                                   cef_base_scoped_t> {
  public:
   CefBaseScopedCToCpp();
 };

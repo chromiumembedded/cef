@@ -9,6 +9,8 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=7f9dc4c67e92b5f5aeb4409aa103b2d4d097e9b3$
+//
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_X509CERTIFICATE_CTOCPP_H_
 #define CEF_LIBCEF_DLL_CTOCPP_X509CERTIFICATE_CTOCPP_H_
@@ -18,15 +20,16 @@
 #error This file can be included wrapper-side only
 #endif
 
-#include "include/cef_x509_certificate.h"
 #include "include/capi/cef_x509_certificate_capi.h"
+#include "include/cef_x509_certificate.h"
 #include "libcef_dll/ctocpp/ctocpp_ref_counted.h"
 
 // Wrap a C structure with a C++ class.
 // This class may be instantiated and accessed wrapper-side only.
 class CefX509CertificateCToCpp
-    : public CefCToCppRefCounted<CefX509CertificateCToCpp, CefX509Certificate,
-        cef_x509certificate_t> {
+    : public CefCToCppRefCounted<CefX509CertificateCToCpp,
+                                 CefX509Certificate,
+                                 cef_x509certificate_t> {
  public:
   CefX509CertificateCToCpp();
 

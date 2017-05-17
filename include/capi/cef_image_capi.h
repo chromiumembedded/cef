@@ -33,6 +33,8 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
+// $hash=60f904f2f77ce6d89f9fceeeda0050273a3c9e6d$
+//
 
 #ifndef CEF_INCLUDE_CAPI_CEF_IMAGE_CAPI_H_
 #define CEF_INCLUDE_CAPI_CEF_IMAGE_CAPI_H_
@@ -44,7 +46,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
 
 ///
 // Container for a single image represented at different scale factors. All
@@ -63,14 +64,14 @@ typedef struct _cef_image_t {
   ///
   // Returns true (1) if this Image is NULL.
   ///
-  int (CEF_CALLBACK *is_empty)(struct _cef_image_t* self);
+  int(CEF_CALLBACK* is_empty)(struct _cef_image_t* self);
 
   ///
   // Returns true (1) if this Image and |that| Image share the same underlying
   // storage. Will also return true (1) if both images are NULL.
   ///
-  int (CEF_CALLBACK *is_same)(struct _cef_image_t* self,
-      struct _cef_image_t* that);
+  int(CEF_CALLBACK* is_same)(struct _cef_image_t* self,
+                             struct _cef_image_t* that);
 
   ///
   // Add a bitmap image representation for |scale_factor|. Only 32-bit RGBA/BGRA
@@ -79,49 +80,57 @@ typedef struct _cef_image_t {
   // pixel data and should be |pixel_width| x |pixel_height| x 4 bytes in size.
   // |color_type| and |alpha_type| values specify the pixel format.
   ///
-  int (CEF_CALLBACK *add_bitmap)(struct _cef_image_t* self, float scale_factor,
-      int pixel_width, int pixel_height, cef_color_type_t color_type,
-      cef_alpha_type_t alpha_type, const void* pixel_data,
-      size_t pixel_data_size);
+  int(CEF_CALLBACK* add_bitmap)(struct _cef_image_t* self,
+                                float scale_factor,
+                                int pixel_width,
+                                int pixel_height,
+                                cef_color_type_t color_type,
+                                cef_alpha_type_t alpha_type,
+                                const void* pixel_data,
+                                size_t pixel_data_size);
 
   ///
   // Add a PNG image representation for |scale_factor|. |png_data| is the image
   // data of size |png_data_size|. Any alpha transparency in the PNG data will
   // be maintained.
   ///
-  int (CEF_CALLBACK *add_png)(struct _cef_image_t* self, float scale_factor,
-      const void* png_data, size_t png_data_size);
+  int(CEF_CALLBACK* add_png)(struct _cef_image_t* self,
+                             float scale_factor,
+                             const void* png_data,
+                             size_t png_data_size);
 
   ///
   // Create a JPEG image representation for |scale_factor|. |jpeg_data| is the
   // image data of size |jpeg_data_size|. The JPEG format does not support
   // transparency so the alpha byte will be set to 0xFF for all pixels.
   ///
-  int (CEF_CALLBACK *add_jpeg)(struct _cef_image_t* self, float scale_factor,
-      const void* jpeg_data, size_t jpeg_data_size);
+  int(CEF_CALLBACK* add_jpeg)(struct _cef_image_t* self,
+                              float scale_factor,
+                              const void* jpeg_data,
+                              size_t jpeg_data_size);
 
   ///
   // Returns the image width in density independent pixel (DIP) units.
   ///
-  size_t (CEF_CALLBACK *get_width)(struct _cef_image_t* self);
+  size_t(CEF_CALLBACK* get_width)(struct _cef_image_t* self);
 
   ///
   // Returns the image height in density independent pixel (DIP) units.
   ///
-  size_t (CEF_CALLBACK *get_height)(struct _cef_image_t* self);
+  size_t(CEF_CALLBACK* get_height)(struct _cef_image_t* self);
 
   ///
   // Returns true (1) if this image contains a representation for
   // |scale_factor|.
   ///
-  int (CEF_CALLBACK *has_representation)(struct _cef_image_t* self,
-      float scale_factor);
+  int(CEF_CALLBACK* has_representation)(struct _cef_image_t* self,
+                                        float scale_factor);
 
   ///
   // Removes the representation for |scale_factor|. Returns true (1) on success.
   ///
-  int (CEF_CALLBACK *remove_representation)(struct _cef_image_t* self,
-      float scale_factor);
+  int(CEF_CALLBACK* remove_representation)(struct _cef_image_t* self,
+                                           float scale_factor);
 
   ///
   // Returns information for the representation that most closely matches
@@ -129,9 +138,11 @@ typedef struct _cef_image_t {
   // representation. |pixel_width| and |pixel_height| are the representation
   // size in pixel coordinates. Returns true (1) on success.
   ///
-  int (CEF_CALLBACK *get_representation_info)(struct _cef_image_t* self,
-      float scale_factor, float* actual_scale_factor, int* pixel_width,
-      int* pixel_height);
+  int(CEF_CALLBACK* get_representation_info)(struct _cef_image_t* self,
+                                             float scale_factor,
+                                             float* actual_scale_factor,
+                                             int* pixel_width,
+                                             int* pixel_height);
 
   ///
   // Returns the bitmap representation that most closely matches |scale_factor|.
@@ -141,10 +152,13 @@ typedef struct _cef_image_t {
   // Returns a cef_binary_value_t containing the pixel data on success or NULL
   // on failure.
   ///
-  struct _cef_binary_value_t* (CEF_CALLBACK *get_as_bitmap)(
-      struct _cef_image_t* self, float scale_factor,
-      cef_color_type_t color_type, cef_alpha_type_t alpha_type,
-      int* pixel_width, int* pixel_height);
+  struct _cef_binary_value_t*(CEF_CALLBACK* get_as_bitmap)(
+      struct _cef_image_t* self,
+      float scale_factor,
+      cef_color_type_t color_type,
+      cef_alpha_type_t alpha_type,
+      int* pixel_width,
+      int* pixel_height);
 
   ///
   // Returns the PNG representation that most closely matches |scale_factor|. If
@@ -154,9 +168,12 @@ typedef struct _cef_image_t {
   // cef_binary_value_t containing the PNG image data on success or NULL on
   // failure.
   ///
-  struct _cef_binary_value_t* (CEF_CALLBACK *get_as_png)(
-      struct _cef_image_t* self, float scale_factor, int with_transparency,
-      int* pixel_width, int* pixel_height);
+  struct _cef_binary_value_t*(CEF_CALLBACK* get_as_png)(
+      struct _cef_image_t* self,
+      float scale_factor,
+      int with_transparency,
+      int* pixel_width,
+      int* pixel_height);
 
   ///
   // Returns the JPEG representation that most closely matches |scale_factor|.
@@ -167,18 +184,19 @@ typedef struct _cef_image_t {
   // cef_binary_value_t containing the JPEG image data on success or NULL on
   // failure.
   ///
-  struct _cef_binary_value_t* (CEF_CALLBACK *get_as_jpeg)(
-      struct _cef_image_t* self, float scale_factor, int quality,
-      int* pixel_width, int* pixel_height);
+  struct _cef_binary_value_t*(CEF_CALLBACK* get_as_jpeg)(
+      struct _cef_image_t* self,
+      float scale_factor,
+      int quality,
+      int* pixel_width,
+      int* pixel_height);
 } cef_image_t;
-
 
 ///
 // Create a new cef_image_t. It will initially be NULL. Use the Add*() functions
 // to add representations at different scale factors.
 ///
 CEF_EXPORT cef_image_t* cef_image_create();
-
 
 #ifdef __cplusplus
 }

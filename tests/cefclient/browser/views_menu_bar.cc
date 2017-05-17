@@ -42,12 +42,11 @@ base::char16 GetMnemonic(const base::string16& title) {
 
 }  // namespace
 
-ViewsMenuBar::ViewsMenuBar(Delegate* delegate,
-                           int menu_id_start)
-  : delegate_(delegate),
-    id_start_(menu_id_start),
-    id_next_(menu_id_start),
-    last_nav_with_keyboard_(false) {
+ViewsMenuBar::ViewsMenuBar(Delegate* delegate, int menu_id_start)
+    : delegate_(delegate),
+      id_start_(menu_id_start),
+      id_next_(menu_id_start),
+      last_nav_with_keyboard_(false) {
   DCHECK(delegate_);
   DCHECK_GT(id_start_, 0);
 }
@@ -93,7 +92,7 @@ CefRefPtr<CefMenuModel> ViewsMenuBar::CreateMenuModel(const CefString& label,
   base::char16 mnemonic = GetMnemonic(label);
   if (mnemonic != 0)
     mnemonics_.insert(std::make_pair(mnemonic, new_menu_id));
- 
+
   return model;
 }
 

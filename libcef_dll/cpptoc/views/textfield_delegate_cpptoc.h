@@ -9,6 +9,8 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=aa068445cd816a13b8f6dcc92814f1e4a784ec6a$
+//
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_VIEWS_TEXTFIELD_DELEGATE_CPPTOC_H_
 #define CEF_LIBCEF_DLL_CPPTOC_VIEWS_TEXTFIELD_DELEGATE_CPPTOC_H_
@@ -18,17 +20,18 @@
 #error This file can be included wrapper-side only
 #endif
 
-#include "include/views/cef_textfield_delegate.h"
+#include "include/capi/views/cef_textfield_capi.h"
 #include "include/capi/views/cef_textfield_delegate_capi.h"
 #include "include/views/cef_textfield.h"
-#include "include/capi/views/cef_textfield_capi.h"
+#include "include/views/cef_textfield_delegate.h"
 #include "libcef_dll/cpptoc/cpptoc_ref_counted.h"
 
 // Wrap a C++ class with a C structure.
 // This class may be instantiated and accessed wrapper-side only.
 class CefTextfieldDelegateCppToC
     : public CefCppToCRefCounted<CefTextfieldDelegateCppToC,
-        CefTextfieldDelegate, cef_textfield_delegate_t> {
+                                 CefTextfieldDelegate,
+                                 cef_textfield_delegate_t> {
  public:
   CefTextfieldDelegateCppToC();
 };

@@ -44,8 +44,8 @@ class CefPermissionManager : public KeyedService,
       content::RenderFrameHost* render_frame_host,
       const GURL& requesting_origin,
       bool user_gesture,
-      const base::Callback<void(
-          const std::vector<blink::mojom::PermissionStatus>&)>& callback)
+      const base::Callback<
+          void(const std::vector<blink::mojom::PermissionStatus>&)>& callback)
       override;
   void CancelPermissionRequest(int request_id) override;
   void ResetPermission(content::PermissionType permission,
@@ -97,4 +97,4 @@ class CefPermissionManager : public KeyedService,
   DISALLOW_COPY_AND_ASSIGN(CefPermissionManager);
 };
 
-#endif // CEF_LIBCEF_BROWSER_PERMISSIONS_PERMISSION_MANAGER_H_
+#endif  // CEF_LIBCEF_BROWSER_PERMISSIONS_PERMISSION_MANAGER_H_

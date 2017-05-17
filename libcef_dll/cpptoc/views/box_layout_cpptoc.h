@@ -9,6 +9,8 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=85078c8660e652f2063ead3252b0f3d114aa587c$
+//
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_VIEWS_BOX_LAYOUT_CPPTOC_H_
 #define CEF_LIBCEF_DLL_CPPTOC_VIEWS_BOX_LAYOUT_CPPTOC_H_
@@ -18,17 +20,17 @@
 #error This file can be included DLL-side only
 #endif
 
-#include "include/views/cef_box_layout.h"
 #include "include/capi/views/cef_box_layout_capi.h"
-#include "include/views/cef_view.h"
 #include "include/capi/views/cef_view_capi.h"
+#include "include/views/cef_box_layout.h"
+#include "include/views/cef_view.h"
 #include "libcef_dll/cpptoc/cpptoc_ref_counted.h"
 
 // Wrap a C++ class with a C structure.
 // This class may be instantiated and accessed DLL-side only.
-class CefBoxLayoutCppToC
-    : public CefCppToCRefCounted<CefBoxLayoutCppToC, CefBoxLayout,
-        cef_box_layout_t> {
+class CefBoxLayoutCppToC : public CefCppToCRefCounted<CefBoxLayoutCppToC,
+                                                      CefBoxLayout,
+                                                      cef_box_layout_t> {
  public:
   CefBoxLayoutCppToC();
 };

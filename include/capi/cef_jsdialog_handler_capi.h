@@ -33,6 +33,8 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
+// $hash=351cff5a52f29b54d1854d5dfbb1733c8a62797d$
+//
 
 #ifndef CEF_INCLUDE_CAPI_CEF_JSDIALOG_HANDLER_CAPI_H_
 #define CEF_INCLUDE_CAPI_CEF_JSDIALOG_HANDLER_CAPI_H_
@@ -44,7 +46,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
 
 ///
 // Callback structure used for asynchronous continuation of JavaScript dialog
@@ -60,10 +61,10 @@ typedef struct _cef_jsdialog_callback_t {
   // Continue the JS dialog request. Set |success| to true (1) if the OK button
   // was pressed. The |user_input| value should be specified for prompt dialogs.
   ///
-  void (CEF_CALLBACK *cont)(struct _cef_jsdialog_callback_t* self, int success,
-      const cef_string_t* user_input);
+  void(CEF_CALLBACK* cont)(struct _cef_jsdialog_callback_t* self,
+                           int success,
+                           const cef_string_t* user_input);
 } cef_jsdialog_callback_t;
-
 
 ///
 // Implement this structure to handle events related to JavaScript dialogs. The
@@ -92,11 +93,14 @@ typedef struct _cef_jsdialog_handler_t {
   // the application must execute |callback| once the custom dialog is
   // dismissed.
   ///
-  int (CEF_CALLBACK *on_jsdialog)(struct _cef_jsdialog_handler_t* self,
-      struct _cef_browser_t* browser, const cef_string_t* origin_url,
-      cef_jsdialog_type_t dialog_type, const cef_string_t* message_text,
-      const cef_string_t* default_prompt_text,
-      struct _cef_jsdialog_callback_t* callback, int* suppress_message);
+  int(CEF_CALLBACK* on_jsdialog)(struct _cef_jsdialog_handler_t* self,
+                                 struct _cef_browser_t* browser,
+                                 const cef_string_t* origin_url,
+                                 cef_jsdialog_type_t dialog_type,
+                                 const cef_string_t* message_text,
+                                 const cef_string_t* default_prompt_text,
+                                 struct _cef_jsdialog_callback_t* callback,
+                                 int* suppress_message);
 
   ///
   // Called to run a dialog asking the user if they want to leave a page. Return
@@ -106,9 +110,11 @@ typedef struct _cef_jsdialog_handler_t {
   // dialog is used the application must execute |callback| once the custom
   // dialog is dismissed.
   ///
-  int (CEF_CALLBACK *on_before_unload_dialog)(
-      struct _cef_jsdialog_handler_t* self, struct _cef_browser_t* browser,
-      const cef_string_t* message_text, int is_reload,
+  int(CEF_CALLBACK* on_before_unload_dialog)(
+      struct _cef_jsdialog_handler_t* self,
+      struct _cef_browser_t* browser,
+      const cef_string_t* message_text,
+      int is_reload,
       struct _cef_jsdialog_callback_t* callback);
 
   ///
@@ -116,16 +122,16 @@ typedef struct _cef_jsdialog_handler_t {
   // be called due to events like page navigation irregardless of whether any
   // dialogs are currently pending.
   ///
-  void (CEF_CALLBACK *on_reset_dialog_state)(
-      struct _cef_jsdialog_handler_t* self, struct _cef_browser_t* browser);
+  void(CEF_CALLBACK* on_reset_dialog_state)(
+      struct _cef_jsdialog_handler_t* self,
+      struct _cef_browser_t* browser);
 
   ///
   // Called when the default implementation dialog is closed.
   ///
-  void (CEF_CALLBACK *on_dialog_closed)(struct _cef_jsdialog_handler_t* self,
-      struct _cef_browser_t* browser);
+  void(CEF_CALLBACK* on_dialog_closed)(struct _cef_jsdialog_handler_t* self,
+                                       struct _cef_browser_t* browser);
 } cef_jsdialog_handler_t;
-
 
 #ifdef __cplusplus
 }

@@ -43,11 +43,10 @@ class SendRecvRendererTest : public ClientAppRenderer::Delegate {
  public:
   SendRecvRendererTest() {}
 
-  bool OnProcessMessageReceived(
-      CefRefPtr<ClientAppRenderer> app,
-      CefRefPtr<CefBrowser> browser,
-      CefProcessId source_process,
-      CefRefPtr<CefProcessMessage> message) override {
+  bool OnProcessMessageReceived(CefRefPtr<ClientAppRenderer> app,
+                                CefRefPtr<CefBrowser> browser,
+                                CefProcessId source_process,
+                                CefRefPtr<CefProcessMessage> message) override {
     if (message->GetName() == kSendRecvMsg) {
       EXPECT_TRUE(browser.get());
       EXPECT_EQ(PID_BROWSER, source_process);
@@ -71,8 +70,7 @@ class SendRecvRendererTest : public ClientAppRenderer::Delegate {
 // Browser side.
 class SendRecvTestHandler : public TestHandler {
  public:
-  SendRecvTestHandler() {
-  }
+  SendRecvTestHandler() {}
 
   void RunTest() override {
     message_ = CreateTestMessage();
@@ -91,15 +89,14 @@ class SendRecvTestHandler : public TestHandler {
     EXPECT_TRUE(browser->SendProcessMessage(PID_RENDERER, message_));
   }
 
-  bool OnProcessMessageReceived(
-      CefRefPtr<CefBrowser> browser,
-      CefProcessId source_process,
-      CefRefPtr<CefProcessMessage> message) override {
+  bool OnProcessMessageReceived(CefRefPtr<CefBrowser> browser,
+                                CefProcessId source_process,
+                                CefRefPtr<CefProcessMessage> message) override {
     EXPECT_TRUE(browser.get());
     EXPECT_EQ(PID_RENDERER, source_process);
     EXPECT_TRUE(message.get());
     EXPECT_TRUE(message->IsReadOnly());
-    
+
     // Verify that the recieved message is the same as the sent message.
     TestProcessMessageEqual(message_, message);
 
@@ -151,7 +148,6 @@ TEST(ProcessMessageTest, Copy) {
   CefRefPtr<CefProcessMessage> message2 = message->Copy();
   TestProcessMessageEqual(message, message2);
 }
-
 
 // Entry point for creating process message renderer test objects.
 // Called from client_app_delegates.cc.

@@ -10,7 +10,6 @@
 
 #include "libcef/browser/native/native_menu_win.h"
 
-
 class CefMenuRunnerWin : public CefMenuRunner {
  public:
   CefMenuRunnerWin();

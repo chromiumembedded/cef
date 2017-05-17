@@ -23,8 +23,7 @@ bool GetCefKeyEvent(const content::NativeWebKeyboardEvent& event,
                     CefKeyEvent& cef_event);
 
 // Convert a ui::KeyEvent to a CefKeyEvent.
-bool GetCefKeyEvent(const ui::KeyEvent& event,
-                    CefKeyEvent& cef_event);
+bool GetCefKeyEvent(const ui::KeyEvent& event, CefKeyEvent& cef_event);
 
 }  // namespace browser_util
 

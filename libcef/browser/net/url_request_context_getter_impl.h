@@ -62,8 +62,8 @@ class CefURLRequestContextGetterImpl : public CefURLRequestContextGetter {
 
   // net::URLRequestContextGetter implementation.
   net::URLRequestContext* GetURLRequestContext() override;
-  scoped_refptr<base::SingleThreadTaskRunner>
-      GetNetworkTaskRunner() const override;
+  scoped_refptr<base::SingleThreadTaskRunner> GetNetworkTaskRunner()
+      const override;
 
   // CefURLRequestContextGetter implementation.
   net::HostResolver* GetHostResolver() const override;
@@ -118,7 +118,7 @@ class CefURLRequestContextGetterImpl : public CefURLRequestContextGetter {
     base::FilePath cookie_store_path_;
     std::vector<std::string> cookie_supported_schemes_;
 
-    std::vector<CefRefPtr<CefRequestContextHandler> > handler_list_;
+    std::vector<CefRefPtr<CefRequestContextHandler>> handler_list_;
   };
   std::unique_ptr<IOState> io_state_;
 

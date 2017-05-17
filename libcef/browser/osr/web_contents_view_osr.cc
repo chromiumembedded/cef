@@ -16,12 +16,9 @@
 #include "content/public/browser/render_widget_host.h"
 
 CefWebContentsViewOSR::CefWebContentsViewOSR(SkColor background_color)
-    : background_color_(background_color),
-      web_contents_(NULL) {
-}
+    : background_color_(background_color), web_contents_(NULL) {}
 
-CefWebContentsViewOSR::~CefWebContentsViewOSR() {
-}
+CefWebContentsViewOSR::~CefWebContentsViewOSR() {}
 
 void CefWebContentsViewOSR::WebContentsCreated(
     content::WebContents* web_contents) {
@@ -56,20 +53,15 @@ void CefWebContentsViewOSR::GetContainerBounds(gfx::Rect* out) const {
   *out = GetViewBounds();
 }
 
-void CefWebContentsViewOSR::SizeContents(const gfx::Size& size) {
-}
+void CefWebContentsViewOSR::SizeContents(const gfx::Size& size) {}
 
-void CefWebContentsViewOSR::Focus() {
-}
+void CefWebContentsViewOSR::Focus() {}
 
-void CefWebContentsViewOSR::SetInitialFocus() {
-}
+void CefWebContentsViewOSR::SetInitialFocus() {}
 
-void CefWebContentsViewOSR::StoreFocus() {
-}
+void CefWebContentsViewOSR::StoreFocus() {}
 
-void CefWebContentsViewOSR::RestoreFocus() {
-}
+void CefWebContentsViewOSR::RestoreFocus() {}
 
 void CefWebContentsViewOSR::GotFocus() {
   if (web_contents_) {
@@ -95,8 +87,7 @@ gfx::Rect CefWebContentsViewOSR::GetViewBounds() const {
 }
 
 void CefWebContentsViewOSR::CreateView(const gfx::Size& initial_size,
-                                       gfx::NativeView context) {
-}
+                                       gfx::NativeView context) {}
 
 content::RenderWidgetHostViewBase* CefWebContentsViewOSR::CreateViewForWidget(
     content::RenderWidgetHost* render_widget_host,
@@ -119,7 +110,7 @@ content::RenderWidgetHostViewBase* CefWebContentsViewOSR::CreateViewForWidget(
 
 // Called for popup and fullscreen widgets.
 content::RenderWidgetHostViewBase*
-    CefWebContentsViewOSR::CreateViewForPopupWidget(
+CefWebContentsViewOSR::CreateViewForPopupWidget(
     content::RenderWidgetHost* render_widget_host) {
   CefRenderWidgetHostViewOSR* view = GetView();
   CHECK(view);
@@ -128,8 +119,7 @@ content::RenderWidgetHostViewBase*
                                         view, false);
 }
 
-void CefWebContentsViewOSR::SetPageTitle(const base::string16& title) {
-}
+void CefWebContentsViewOSR::SetPageTitle(const base::string16& title) {}
 
 void CefWebContentsViewOSR::RenderViewCreated(content::RenderViewHost* host) {
   // |view| will be nullptr the first time this method is called for popup
@@ -139,16 +129,13 @@ void CefWebContentsViewOSR::RenderViewCreated(content::RenderViewHost* host) {
     view->InstallTransparency();
 }
 
-void CefWebContentsViewOSR::RenderViewSwappedIn(
-    content::RenderViewHost* host) {
+void CefWebContentsViewOSR::RenderViewSwappedIn(content::RenderViewHost* host) {
 }
 
-void CefWebContentsViewOSR::SetOverscrollControllerEnabled(bool enabled) {
-}
+void CefWebContentsViewOSR::SetOverscrollControllerEnabled(bool enabled) {}
 
 #if defined(OS_MACOSX)
-void CefWebContentsViewOSR::SetAllowOtherViews(bool allow) {
-}
+void CefWebContentsViewOSR::SetAllowOtherViews(bool allow) {}
 
 bool CefWebContentsViewOSR::GetAllowOtherViews() const {
   return false;
@@ -158,8 +145,7 @@ bool CefWebContentsViewOSR::IsEventTracking() const {
   return false;
 }
 
-void CefWebContentsViewOSR::CloseTabAfterEventTracking() {
-}
+void CefWebContentsViewOSR::CloseTabAfterEventTracking() {}
 #endif  // defined(OS_MACOSX)
 
 void CefWebContentsViewOSR::StartDragging(

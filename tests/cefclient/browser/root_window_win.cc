@@ -18,17 +18,19 @@
 #include "tests/shared/browser/util_win.h"
 #include "tests/shared/common/client_switches.h"
 
-#define MAX_URL_LENGTH  255
-#define BUTTON_WIDTH    72
-#define URLBAR_HEIGHT   24
+#define MAX_URL_LENGTH 255
+#define BUTTON_WIDTH 72
+#define URLBAR_HEIGHT 24
 
 namespace client {
 
 namespace {
 
 // Message handler for the About box.
-INT_PTR CALLBACK AboutWndProc(HWND hDlg, UINT message,
-                              WPARAM wParam, LPARAM lParam) {
+INT_PTR CALLBACK AboutWndProc(HWND hDlg,
+                              UINT message,
+                              WPARAM wParam,
+                              LPARAM lParam) {
   UNREFERENCED_PARAMETER(lParam);
   switch (message) {
     case WM_INITDIALOG:
@@ -173,8 +175,8 @@ void RootWindowWin::InitAsPopup(RootWindow::Delegate* delegate,
   // The new popup is initially parented to a temporary window. The native root
   // window will be created after the browser is created and the popup window
   // will be re-parented to it at that time.
-  browser_window_->GetPopupConfig(TempWindow::GetWindowHandle(),
-                                  windowInfo, client, settings);
+  browser_window_->GetPopupConfig(TempWindow::GetWindowHandle(), windowInfo,
+                                  client, settings);
 }
 
 void RootWindowWin::Show(ShowMode mode) {
@@ -210,9 +212,8 @@ void RootWindowWin::SetBounds(int x, int y, size_t width, size_t height) {
   REQUIRE_MAIN_THREAD();
 
   if (hwnd_) {
-    SetWindowPos(hwnd_, NULL,
-                 x, y, static_cast<int>(width), static_cast<int>(height),
-                 SWP_NOZORDER);
+    SetWindowPos(hwnd_, NULL, x, y, static_cast<int>(width),
+                 static_cast<int>(height), SWP_NOZORDER);
   }
 }
 
@@ -277,8 +278,7 @@ void RootWindowWin::CreateRootWindow(const CefBrowserSettings& settings) {
 
   const cef_color_t background_color = MainContext::Get()->GetBackgroundColor();
   const HBRUSH background_brush = CreateSolidBrush(
-      RGB(CefColorGetR(background_color),
-          CefColorGetG(background_color),
+      RGB(CefColorGetR(background_color), CefColorGetG(background_color),
           CefColorGetB(background_color)));
 
   // Register the window class.
@@ -308,10 +308,8 @@ void RootWindowWin::CreateRootWindow(const CefBrowserSettings& settings) {
   }
 
   // Create the main window initially hidden.
-  hwnd_ = CreateWindow(window_class.c_str(), window_title.c_str(),
-                       dwStyle,
-                       x, y, width, height,
-                       NULL, NULL, hInstance, NULL);
+  hwnd_ = CreateWindow(window_class.c_str(), window_title.c_str(), dwStyle, x,
+                       y, width, height, NULL, NULL, hInstance, NULL);
   CHECK(hwnd_);
 
   // Associate |this| with the main window.
@@ -326,59 +324,55 @@ void RootWindowWin::CreateRootWindow(const CefBrowserSettings& settings) {
 
     const int button_width = GetButtonWidth();
     const int urlbar_height = GetURLBarHeight();
-    const int font_height =
-        LogicalToDevice(14, client::GetDeviceScaleFactor());
+    const int font_height = LogicalToDevice(14, client::GetDeviceScaleFactor());
 
     // Create a scaled font.
-    font_ = ::CreateFont(
-        -font_height, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE,
-        DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS,
-        DEFAULT_QUALITY, DEFAULT_PITCH | FF_DONTCARE, L"Arial");
+    font_ =
+        ::CreateFont(-font_height, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE,
+                     DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS,
+                     DEFAULT_QUALITY, DEFAULT_PITCH | FF_DONTCARE, L"Arial");
 
     back_hwnd_ = CreateWindow(
-        L"BUTTON", L"Back",
-        WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON | WS_DISABLED,
-        x_offset, 0, button_width, urlbar_height,
-        hwnd_, reinterpret_cast<HMENU>(IDC_NAV_BACK), hInstance, 0);
+        L"BUTTON", L"Back", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON | WS_DISABLED,
+        x_offset, 0, button_width, urlbar_height, hwnd_,
+        reinterpret_cast<HMENU>(IDC_NAV_BACK), hInstance, 0);
     CHECK(back_hwnd_);
     SendMessage(back_hwnd_, WM_SETFONT, reinterpret_cast<WPARAM>(font_), TRUE);
     x_offset += button_width;
 
-    forward_hwnd_ = CreateWindow(
-        L"BUTTON", L"Forward",
-        WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON | WS_DISABLED,
-        x_offset, 0, button_width, urlbar_height,
-        hwnd_, reinterpret_cast<HMENU>(IDC_NAV_FORWARD), hInstance, 0);
+    forward_hwnd_ =
+        CreateWindow(L"BUTTON", L"Forward",
+                     WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON | WS_DISABLED,
+                     x_offset, 0, button_width, urlbar_height, hwnd_,
+                     reinterpret_cast<HMENU>(IDC_NAV_FORWARD), hInstance, 0);
     CHECK(forward_hwnd_);
-    SendMessage(forward_hwnd_, WM_SETFONT,
-                reinterpret_cast<WPARAM>(font_), TRUE);
+    SendMessage(forward_hwnd_, WM_SETFONT, reinterpret_cast<WPARAM>(font_),
+                TRUE);
     x_offset += button_width;
 
-    reload_hwnd_ = CreateWindow(
-        L"BUTTON", L"Reload",
-        WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON| WS_DISABLED,
-        x_offset, 0, button_width, urlbar_height,
-        hwnd_, reinterpret_cast<HMENU>(IDC_NAV_RELOAD), hInstance, 0);
+    reload_hwnd_ =
+        CreateWindow(L"BUTTON", L"Reload",
+                     WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON | WS_DISABLED,
+                     x_offset, 0, button_width, urlbar_height, hwnd_,
+                     reinterpret_cast<HMENU>(IDC_NAV_RELOAD), hInstance, 0);
     CHECK(reload_hwnd_);
-    SendMessage(reload_hwnd_, WM_SETFONT,
-                reinterpret_cast<WPARAM>(font_), TRUE);
+    SendMessage(reload_hwnd_, WM_SETFONT, reinterpret_cast<WPARAM>(font_),
+                TRUE);
     x_offset += button_width;
 
     stop_hwnd_ = CreateWindow(
-        L"BUTTON", L"Stop",
-        WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON | WS_DISABLED,
-        x_offset, 0, button_width, urlbar_height,
-        hwnd_, reinterpret_cast<HMENU>(IDC_NAV_STOP), hInstance, 0);
+        L"BUTTON", L"Stop", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON | WS_DISABLED,
+        x_offset, 0, button_width, urlbar_height, hwnd_,
+        reinterpret_cast<HMENU>(IDC_NAV_STOP), hInstance, 0);
     CHECK(stop_hwnd_);
     SendMessage(stop_hwnd_, WM_SETFONT, reinterpret_cast<WPARAM>(font_), TRUE);
     x_offset += button_width;
 
-    edit_hwnd_ = CreateWindow(
-        L"EDIT", 0,
-        WS_CHILD | WS_VISIBLE | WS_BORDER | ES_LEFT | ES_AUTOVSCROLL |
-        ES_AUTOHSCROLL| WS_DISABLED,
-        x_offset, 0, rect.right - button_width * 4, urlbar_height,
-        hwnd_, 0, hInstance, 0);
+    edit_hwnd_ = CreateWindow(L"EDIT", 0,
+                              WS_CHILD | WS_VISIBLE | WS_BORDER | ES_LEFT |
+                                  ES_AUTOVSCROLL | ES_AUTOHSCROLL | WS_DISABLED,
+                              x_offset, 0, rect.right - button_width * 4,
+                              urlbar_height, hwnd_, 0, hInstance, 0);
     SendMessage(edit_hwnd_, WM_SETFONT, reinterpret_cast<WPARAM>(font_), TRUE);
     CHECK(edit_hwnd_);
 
@@ -408,18 +402,15 @@ void RootWindowWin::CreateRootWindow(const CefBrowserSettings& settings) {
 
   if (!is_popup_) {
     // Create the browser window.
-    CefRect cef_rect(rect.left, rect.top,
-                     rect.right - rect.left,
+    CefRect cef_rect(rect.left, rect.top, rect.right - rect.left,
                      rect.bottom - rect.top);
     browser_window_->CreateBrowser(hwnd_, cef_rect, settings,
                                    delegate_->GetRequestContext(this));
   } else {
     // With popups we already have a browser window. Parent the browser window
     // to the root window and show it in the correct location.
-    browser_window_->ShowPopup(hwnd_,
-                               rect.left, rect.top,
-                               rect.right - rect.left,
-                               rect.bottom - rect.top);
+    browser_window_->ShowPopup(hwnd_, rect.left, rect.top,
+                               rect.right - rect.left, rect.bottom - rect.top);
   }
 
   // Show this window.
@@ -440,24 +431,26 @@ void RootWindowWin::RegisterRootClass(HINSTANCE hInstance,
 
   wcex.cbSize = sizeof(WNDCLASSEX);
 
-  wcex.style         = CS_HREDRAW | CS_VREDRAW;
-  wcex.lpfnWndProc   = RootWndProc;
-  wcex.cbClsExtra    = 0;
-  wcex.cbWndExtra    = 0;
-  wcex.hInstance     = hInstance;
-  wcex.hIcon         = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_CEFCLIENT));
-  wcex.hCursor       = LoadCursor(NULL, IDC_ARROW);
+  wcex.style = CS_HREDRAW | CS_VREDRAW;
+  wcex.lpfnWndProc = RootWndProc;
+  wcex.cbClsExtra = 0;
+  wcex.cbWndExtra = 0;
+  wcex.hInstance = hInstance;
+  wcex.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_CEFCLIENT));
+  wcex.hCursor = LoadCursor(NULL, IDC_ARROW);
   wcex.hbrBackground = background_brush;
-  wcex.lpszMenuName  = MAKEINTRESOURCE(IDC_CEFCLIENT);
+  wcex.lpszMenuName = MAKEINTRESOURCE(IDC_CEFCLIENT);
   wcex.lpszClassName = window_class.c_str();
-  wcex.hIconSm       = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
+  wcex.hIconSm = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
 
   RegisterClassEx(&wcex);
 }
 
 // static
-LRESULT CALLBACK RootWindowWin::EditWndProc(HWND hWnd, UINT message,
-                                            WPARAM wParam, LPARAM lParam) {
+LRESULT CALLBACK RootWindowWin::EditWndProc(HWND hWnd,
+                                            UINT message,
+                                            WPARAM wParam,
+                                            LPARAM lParam) {
   REQUIRE_MAIN_THREAD();
 
   RootWindowWin* self = GetUserDataPtr<RootWindowWin*>(hWnd);
@@ -470,7 +463,7 @@ LRESULT CALLBACK RootWindowWin::EditWndProc(HWND hWnd, UINT message,
         // When the user hits the enter key load the URL.
         CefRefPtr<CefBrowser> browser = self->GetBrowser();
         if (browser) {
-          wchar_t strPtr[MAX_URL_LENGTH+1] = {0};
+          wchar_t strPtr[MAX_URL_LENGTH + 1] = {0};
           *((LPWORD)strPtr) = MAX_URL_LENGTH;
           LRESULT strLen = SendMessage(hWnd, EM_GETLINE, 0, (LPARAM)strPtr);
           if (strLen > 0) {
@@ -492,8 +485,10 @@ LRESULT CALLBACK RootWindowWin::EditWndProc(HWND hWnd, UINT message,
 }
 
 // static
-LRESULT CALLBACK RootWindowWin::FindWndProc(HWND hWnd, UINT message,
-                                            WPARAM wParam, LPARAM lParam) {
+LRESULT CALLBACK RootWindowWin::FindWndProc(HWND hWnd,
+                                            UINT message,
+                                            WPARAM wParam,
+                                            LPARAM lParam) {
   REQUIRE_MAIN_THREAD();
 
   RootWindowWin* self = GetUserDataPtr<RootWindowWin*>(hWnd);
@@ -503,8 +498,8 @@ LRESULT CALLBACK RootWindowWin::FindWndProc(HWND hWnd, UINT message,
   switch (message) {
     case WM_ACTIVATE:
       // Set this dialog as current when activated.
-      MainMessageLoop::Get()->SetCurrentModelessDialog(
-          wParam == 0 ? NULL : hWnd);
+      MainMessageLoop::Get()->SetCurrentModelessDialog(wParam == 0 ? NULL
+                                                                   : hWnd);
       return FALSE;
     case WM_NCDESTROY:
       // Clear the reference to |self|.
@@ -517,8 +512,10 @@ LRESULT CALLBACK RootWindowWin::FindWndProc(HWND hWnd, UINT message,
 }
 
 // static
-LRESULT CALLBACK RootWindowWin::RootWndProc(HWND hWnd, UINT message,
-                                            WPARAM wParam, LPARAM lParam) {
+LRESULT CALLBACK RootWindowWin::RootWndProc(HWND hWnd,
+                                            UINT message,
+                                            WPARAM wParam,
+                                            LPARAM lParam) {
   REQUIRE_MAIN_THREAD();
 
   RootWindowWin* self = GetUserDataPtr<RootWindowWin*>(hWnd);
@@ -599,7 +596,7 @@ LRESULT CALLBACK RootWindowWin::RootWndProc(HWND hWnd, UINT message,
       LRESULT hit = DefWindowProc(hWnd, message, wParam, lParam);
       if (hit == HTCLIENT) {
         POINTS points = MAKEPOINTS(lParam);
-        POINT point = { points.x, points.y };
+        POINT point = {points.x, points.y};
         ::ScreenToClient(hWnd, &point);
         if (::PtInRegion(self->draggable_region_, point.x, point.y)) {
           // If cursor is inside a draggable region return HTCAPTION to allow
@@ -663,18 +660,19 @@ void RootWindowWin::OnSize(bool minimized) {
     if (browser_hwnd) {
       // Resize both the browser and the URL edit field.
       HDWP hdwp = BeginDeferWindowPos(2);
-      hdwp = DeferWindowPos(hdwp, edit_hwnd_, NULL, urloffset,
-          0, rect.right - urloffset, urlbar_height, SWP_NOZORDER);
-      hdwp = DeferWindowPos(hdwp, browser_hwnd, NULL,
-          rect.left, rect.top, rect.right - rect.left,
-          rect.bottom - rect.top, SWP_NOZORDER);
+      hdwp =
+          DeferWindowPos(hdwp, edit_hwnd_, NULL, urloffset, 0,
+                         rect.right - urloffset, urlbar_height, SWP_NOZORDER);
+      hdwp = DeferWindowPos(hdwp, browser_hwnd, NULL, rect.left, rect.top,
+                            rect.right - rect.left, rect.bottom - rect.top,
+                            SWP_NOZORDER);
       BOOL result = EndDeferWindowPos(hdwp);
       ALLOW_UNUSED_LOCAL(result);
       DCHECK(result);
     } else {
       // Resize just the URL edit field.
-      SetWindowPos(edit_hwnd_, NULL, urloffset,
-          0, rect.right - urloffset, urlbar_height, SWP_NOZORDER);
+      SetWindowPos(edit_hwnd_, NULL, urloffset, 0, rect.right - urloffset,
+                   urlbar_height, SWP_NOZORDER);
     }
   } else if (browser_window_) {
     // Size the browser window to the whole client area.
@@ -711,7 +709,7 @@ bool RootWindowWin::OnCommand(UINT id) {
     case ID_FIND:
       OnFind();
       return true;
-    case IDC_NAV_BACK:   // Back button
+    case IDC_NAV_BACK:  // Back button
       if (CefRefPtr<CefBrowser> browser = GetBrowser())
         browser->GoBack();
       return true;
@@ -768,7 +766,7 @@ void RootWindowWin::OnFindEvent() {
       find_what_last_.clear();
       find_next_ = false;
     }
-  } else if ((find_state_.Flags & FR_FINDNEXT) && browser)  {
+  } else if ((find_state_.Flags & FR_FINDNEXT) && browser) {
     // Search for the requested string.
     bool match_case = ((find_state_.Flags & FR_MATCHCASE) ? true : false);
     const std::wstring& find_what = find_buff_;
@@ -895,19 +893,19 @@ namespace {
 LPCWSTR kParentWndProc = L"CefParentWndProc";
 LPCWSTR kDraggableRegion = L"CefDraggableRegion";
 
-LRESULT CALLBACK SubclassedWindowProc(
-    HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
-  WNDPROC hParentWndProc = reinterpret_cast<WNDPROC>(
-      ::GetPropW(hWnd, kParentWndProc));
-  HRGN hRegion = reinterpret_cast<HRGN>(
-      ::GetPropW(hWnd, kDraggableRegion));
+LRESULT CALLBACK SubclassedWindowProc(HWND hWnd,
+                                      UINT message,
+                                      WPARAM wParam,
+                                      LPARAM lParam) {
+  WNDPROC hParentWndProc =
+      reinterpret_cast<WNDPROC>(::GetPropW(hWnd, kParentWndProc));
+  HRGN hRegion = reinterpret_cast<HRGN>(::GetPropW(hWnd, kDraggableRegion));
 
   if (message == WM_NCHITTEST) {
-    LRESULT hit = CallWindowProc(
-        hParentWndProc, hWnd, message, wParam, lParam);
+    LRESULT hit = CallWindowProc(hParentWndProc, hWnd, message, wParam, lParam);
     if (hit == HTCLIENT) {
       POINTS points = MAKEPOINTS(lParam);
-      POINT point = { points.x, points.y };
+      POINT point = {points.x, points.y};
       ::ScreenToClient(hWnd, &point);
       if (::PtInRegion(hRegion, point.x, point.y)) {
         // Let the parent window handle WM_NCHITTEST by returning HTTRANSPARENT
@@ -939,14 +937,14 @@ void SubclassWindow(HWND hWnd, HRGN hRegion) {
 }
 
 void UnSubclassWindow(HWND hWnd) {
-  LONG_PTR hParentWndProc = reinterpret_cast<LONG_PTR>(
-    ::GetPropW(hWnd, kParentWndProc));
+  LONG_PTR hParentWndProc =
+      reinterpret_cast<LONG_PTR>(::GetPropW(hWnd, kParentWndProc));
   if (hParentWndProc) {
-      LONG_PTR hPreviousWndProc =
-          SetWindowLongPtr(hWnd, GWLP_WNDPROC, hParentWndProc);
-      ALLOW_UNUSED_LOCAL(hPreviousWndProc);
-      DCHECK_EQ(hPreviousWndProc,
-                reinterpret_cast<LONG_PTR>(SubclassedWindowProc));
+    LONG_PTR hPreviousWndProc =
+        SetWindowLongPtr(hWnd, GWLP_WNDPROC, hParentWndProc);
+    ALLOW_UNUSED_LOCAL(hPreviousWndProc);
+    DCHECK_EQ(hPreviousWndProc,
+              reinterpret_cast<LONG_PTR>(SubclassedWindowProc));
   }
 
   ::RemovePropW(hWnd, kParentWndProc);
@@ -974,24 +972,22 @@ void RootWindowWin::OnSetDraggableRegions(
 
   // Determine new draggable region.
   std::vector<CefDraggableRegion>::const_iterator it = regions.begin();
-  for (;it != regions.end(); ++it) {
-    HRGN region = ::CreateRectRgn(
-        it->bounds.x, it->bounds.y,
-        it->bounds.x + it->bounds.width,
-        it->bounds.y + it->bounds.height);
-    ::CombineRgn(
-        draggable_region_, draggable_region_, region,
-        it->draggable ? RGN_OR : RGN_DIFF);
+  for (; it != regions.end(); ++it) {
+    HRGN region = ::CreateRectRgn(it->bounds.x, it->bounds.y,
+                                  it->bounds.x + it->bounds.width,
+                                  it->bounds.y + it->bounds.height);
+    ::CombineRgn(draggable_region_, draggable_region_, region,
+                 it->draggable ? RGN_OR : RGN_DIFF);
     ::DeleteObject(region);
   }
 
   // Subclass child window procedures in order to do hit-testing.
   // This will be a no-op, if it is already subclassed.
   if (hwnd_) {
-    WNDENUMPROC proc = !regions.empty() ?
-        SubclassWindowsProc : UnSubclassWindowsProc;
-    ::EnumChildWindows(
-        hwnd_, proc, reinterpret_cast<LPARAM>(draggable_region_));
+    WNDENUMPROC proc =
+        !regions.empty() ? SubclassWindowsProc : UnSubclassWindowsProc;
+    ::EnumChildWindows(hwnd_, proc,
+                       reinterpret_cast<LPARAM>(draggable_region_));
   }
 }
 

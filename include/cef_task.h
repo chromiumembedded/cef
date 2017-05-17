@@ -56,7 +56,7 @@ class CefTask : public virtual CefBaseRefCounted {
   // Method that will be executed on the target thread.
   ///
   /*--cef()--*/
-  virtual void Execute() =0;
+  virtual void Execute() = 0;
 };
 
 ///
@@ -90,26 +90,26 @@ class CefTaskRunner : public virtual CefBaseRefCounted {
   // object.
   ///
   /*--cef()--*/
-  virtual bool IsSame(CefRefPtr<CefTaskRunner> that) =0;
+  virtual bool IsSame(CefRefPtr<CefTaskRunner> that) = 0;
 
   ///
   // Returns true if this task runner belongs to the current thread.
   ///
   /*--cef()--*/
-  virtual bool BelongsToCurrentThread() =0;
+  virtual bool BelongsToCurrentThread() = 0;
 
   ///
   // Returns true if this task runner is for the specified CEF thread.
   ///
   /*--cef()--*/
-  virtual bool BelongsToThread(CefThreadId threadId) =0;
+  virtual bool BelongsToThread(CefThreadId threadId) = 0;
 
   ///
   // Post a task for execution on the thread associated with this task runner.
   // Execution will occur asynchronously.
   ///
   /*--cef()--*/
-  virtual bool PostTask(CefRefPtr<CefTask> task) =0;
+  virtual bool PostTask(CefRefPtr<CefTask> task) = 0;
 
   ///
   // Post a task for delayed execution on the thread associated with this task
@@ -118,9 +118,8 @@ class CefTaskRunner : public virtual CefBaseRefCounted {
   // specified delay.
   ///
   /*--cef()--*/
-  virtual bool PostDelayedTask(CefRefPtr<CefTask> task, int64 delay_ms) =0;
+  virtual bool PostDelayedTask(CefRefPtr<CefTask> task, int64 delay_ms) = 0;
 };
-
 
 ///
 // Returns true if called on the specified thread. Equivalent to using
@@ -141,8 +140,8 @@ bool CefPostTask(CefThreadId threadId, CefRefPtr<CefTask> task);
 // using CefTaskRunner::GetForThread(threadId)->PostDelayedTask(task, delay_ms).
 ///
 /*--cef()--*/
-bool CefPostDelayedTask(CefThreadId threadId, CefRefPtr<CefTask> task,
+bool CefPostDelayedTask(CefThreadId threadId,
+                        CefRefPtr<CefTask> task,
                         int64 delay_ms);
-
 
 #endif  // CEF_INCLUDE_CEF_TASK_H_

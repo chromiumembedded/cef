@@ -102,8 +102,9 @@ class CefWindowDelegate : public CefPanelDelegate {
   // handled or false otherwise.
   ///
   /*--cef()--*/
-  virtual bool OnAccelerator(CefRefPtr<CefWindow> window,
-                             int command_id) { return false; }
+  virtual bool OnAccelerator(CefRefPtr<CefWindow> window, int command_id) {
+    return false;
+  }
 
   ///
   // Called after all other controls in the window have had a chance to
@@ -112,8 +113,9 @@ class CefWindowDelegate : public CefPanelDelegate {
   ///
   /*--cef()--*/
   virtual bool OnKeyEvent(CefRefPtr<CefWindow> window,
-                          const CefKeyEvent& event) { return false; }
-
+                          const CefKeyEvent& event) {
+    return false;
+  }
 };
 
 #endif  // CEF_INCLUDE_VIEWS_CEF_WINDOW_DELEGATE_H_

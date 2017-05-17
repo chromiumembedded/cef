@@ -5,11 +5,9 @@
 
 #include "libcef/browser/chrome_profile_stub.h"
 
-ChromeProfileStub::ChromeProfileStub() {
-}
+ChromeProfileStub::ChromeProfileStub() {}
 
-ChromeProfileStub::~ChromeProfileStub() {
-}
+ChromeProfileStub::~ChromeProfileStub() {}
 
 scoped_refptr<base::SequencedTaskRunner> ChromeProfileStub::GetIOTaskRunner() {
   NOTREACHED();
@@ -57,7 +55,7 @@ bool ChromeProfileStub::IsLegacySupervised() const {
 }
 
 ExtensionSpecialStoragePolicy*
-    ChromeProfileStub::GetExtensionSpecialStoragePolicy() {
+ChromeProfileStub::GetExtensionSpecialStoragePolicy() {
   NOTREACHED();
   return NULL;
 }
@@ -68,7 +66,7 @@ PrefService* ChromeProfileStub::GetOffTheRecordPrefs() {
 }
 
 net::URLRequestContextGetter*
-    ChromeProfileStub::GetRequestContextForExtensions() {
+ChromeProfileStub::GetRequestContextForExtensions() {
   // TODO(cef): Consider creating a separate context for extensions to match
   // Chrome behavior.
   return GetRequestContext();
@@ -110,7 +108,7 @@ chrome_browser_net::Predictor* ChromeProfileStub::GetNetworkPredictor() {
 }
 
 DevToolsNetworkControllerHandle*
-    ChromeProfileStub::GetDevToolsNetworkControllerHandle() {
+ChromeProfileStub::GetDevToolsNetworkControllerHandle() {
   NOTREACHED();
   return NULL;
 }
@@ -126,8 +124,7 @@ GURL ChromeProfileStub::GetHomePage() {
   return GURL();
 }
 
-bool ChromeProfileStub::WasCreatedByVersionOrLater(
-    const std::string& version) {
+bool ChromeProfileStub::WasCreatedByVersionOrLater(const std::string& version) {
   NOTREACHED();
   return false;
 }

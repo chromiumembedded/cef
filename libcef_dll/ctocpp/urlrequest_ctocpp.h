@@ -9,6 +9,8 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=0a4434a7eb2de42fb593870977e176948361c63f$
+//
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_URLREQUEST_CTOCPP_H_
 #define CEF_LIBCEF_DLL_CTOCPP_URLREQUEST_CTOCPP_H_
@@ -18,15 +20,15 @@
 #error This file can be included wrapper-side only
 #endif
 
-#include "include/cef_urlrequest.h"
 #include "include/capi/cef_urlrequest_capi.h"
+#include "include/cef_urlrequest.h"
 #include "libcef_dll/ctocpp/ctocpp_ref_counted.h"
 
 // Wrap a C structure with a C++ class.
 // This class may be instantiated and accessed wrapper-side only.
-class CefURLRequestCToCpp
-    : public CefCToCppRefCounted<CefURLRequestCToCpp, CefURLRequest,
-        cef_urlrequest_t> {
+class CefURLRequestCToCpp : public CefCToCppRefCounted<CefURLRequestCToCpp,
+                                                       CefURLRequest,
+                                                       cef_urlrequest_t> {
  public:
   CefURLRequestCToCpp();
 

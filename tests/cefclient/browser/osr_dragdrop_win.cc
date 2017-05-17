@@ -46,14 +46,13 @@ CefRenderHandler::DragOperationsMask DropEffectToDragOperation(DWORD effect) {
 
 CefMouseEvent ToMouseEvent(POINTL p, DWORD key_state, HWND hWnd) {
   CefMouseEvent ev;
-  POINT screen_point = { p.x, p.y };
+  POINT screen_point = {p.x, p.y};
   ScreenToClient(hWnd, &screen_point);
   ev.x = screen_point.x;
   ev.y = screen_point.y;
   ev.modifiers = GetCefMouseModifiers(key_state);
   return ev;
 }
-
 
 void GetStorageForBytes(STGMEDIUM* storage, const void* data, size_t bytes) {
   HANDLE handle = GlobalAlloc(GPTR, static_cast<int>(bytes));
@@ -68,7 +67,8 @@ void GetStorageForBytes(STGMEDIUM* storage, const void* data, size_t bytes) {
 
 template <typename T>
 void GetStorageForString(STGMEDIUM* stgmed, const std::basic_string<T>& data) {
-  GetStorageForBytes(stgmed, data.c_str(),
+  GetStorageForBytes(
+      stgmed, data.c_str(),
       (data.size() + 1) * sizeof(std::basic_string<T>::value_type));
 }
 
@@ -82,7 +82,7 @@ void GetStorageForFileDescriptor(STGMEDIUM* storage,
   descriptor->cItems = 1;
   descriptor->fgd[0].dwFlags = FD_LINKUI;
   wcsncpy_s(descriptor->fgd[0].cFileName, MAX_PATH, file_name.c_str(),
-      std::min(file_name.size(), static_cast<size_t>(MAX_PATH - 1u)));
+            std::min(file_name.size(), static_cast<size_t>(MAX_PATH - 1u)));
 
   storage->tymed = TYMED_HGLOBAL;
   storage->hGlobal = hdata;
@@ -101,33 +101,33 @@ std::string HtmlToCFHtml(const std::string& html, const std::string& base_url) {
 #define MAKE_NUMBER_FORMAT_2(digits) "%0" #digits "u"
 #define NUMBER_FORMAT MAKE_NUMBER_FORMAT_1(MAX_DIGITS)
 
-  static const char* header = "Version:0.9\r\n"
-                              "StartHTML:" NUMBER_FORMAT "\r\n"
-                              "EndHTML:" NUMBER_FORMAT "\r\n"
-                              "StartFragment:" NUMBER_FORMAT "\r\n"
-                              "EndFragment:" NUMBER_FORMAT "\r\n";
+  static const char* header =
+      "Version:0.9\r\n"
+      "StartHTML:" NUMBER_FORMAT
+      "\r\n"
+      "EndHTML:" NUMBER_FORMAT
+      "\r\n"
+      "StartFragment:" NUMBER_FORMAT
+      "\r\n"
+      "EndFragment:" NUMBER_FORMAT "\r\n";
   static const char* source_url_prefix = "SourceURL:";
 
   static const char* start_markup = "<html>\r\n<body>\r\n<!--StartFragment-->";
   static const char* end_markup = "<!--EndFragment-->\r\n</body>\r\n</html>";
 
   // Calculate offsets
-  size_t start_html_offset = strlen(header) - strlen(NUMBER_FORMAT) * 4 +
-      MAX_DIGITS * 4;
+  size_t start_html_offset =
+      strlen(header) - strlen(NUMBER_FORMAT) * 4 + MAX_DIGITS * 4;
   if (!base_url.empty()) {
-    start_html_offset += strlen(source_url_prefix) + base_url.length()
-        + 2;  // Add 2 for \r\n.
+    start_html_offset +=
+        strlen(source_url_prefix) + base_url.length() + 2;  // Add 2 for \r\n.
   }
   size_t start_fragment_offset = start_html_offset + strlen(start_markup);
   size_t end_fragment_offset = start_fragment_offset + html.length();
   size_t end_html_offset = end_fragment_offset + strlen(end_markup);
   char raw_result[1024];
-  _snprintf(raw_result, sizeof(1024),
-      header,
-      start_html_offset,
-      end_html_offset,
-      start_fragment_offset,
-      end_fragment_offset);
+  _snprintf(raw_result, sizeof(1024), header, start_html_offset,
+            end_html_offset, start_fragment_offset, end_fragment_offset);
   std::string result = raw_result;
   if (!base_url.empty()) {
     result.append(source_url_prefix);
@@ -178,15 +178,16 @@ void CFHtmlExtractMetadata(const std::string& cf_html,
     static std::string start_fragment_str("StartFragment:");
     size_t start_fragment_start = cf_html.find(start_fragment_str);
     if (start_fragment_start != std::string::npos) {
-      *fragment_start = static_cast<size_t>(atoi(cf_html.c_str() +
-        start_fragment_start + start_fragment_str.length()));
+      *fragment_start =
+          static_cast<size_t>(atoi(cf_html.c_str() + start_fragment_start +
+                                   start_fragment_str.length()));
     }
 
     static std::string end_fragment_str("EndFragment:");
     size_t end_fragment_start = cf_html.find(end_fragment_str);
     if (end_fragment_start != std::string::npos) {
-      *fragment_end = static_cast<size_t>(atoi(cf_html.c_str() +
-        end_fragment_start + end_fragment_str.length()));
+      *fragment_end = static_cast<size_t>(atoi(
+          cf_html.c_str() + end_fragment_start + end_fragment_str.length()));
     }
   } else {
     *fragment_start = cf_html.find('>', tag_start) + 1;
@@ -211,8 +212,7 @@ void CFHtmlToHtml(const std::string& cf_html,
 
 const DWORD moz_url_format = ::RegisterClipboardFormat(L"text/x-moz-url");
 const DWORD html_format = ::RegisterClipboardFormat(L"HTML Format");
-const DWORD file_desc_format =
-    ::RegisterClipboardFormat(CFSTR_FILEDESCRIPTOR);
+const DWORD file_desc_format = ::RegisterClipboardFormat(CFSTR_FILEDESCRIPTOR);
 const DWORD file_contents_format =
     ::RegisterClipboardFormat(CFSTR_FILECONTENTS);
 
@@ -221,7 +221,7 @@ bool DragDataToDataObject(CefRefPtr<CefDragData> drag_data,
   const int kMaxDataObjects = 10;
   FORMATETC fmtetcs[kMaxDataObjects];
   STGMEDIUM stgmeds[kMaxDataObjects];
-  FORMATETC fmtetc = { 0, NULL, DVASPECT_CONTENT, -1, TYMED_HGLOBAL };
+  FORMATETC fmtetc = {0, NULL, DVASPECT_CONTENT, -1, TYMED_HGLOBAL};
   int curr_index = 0;
   CefString text = drag_data->GetFragmentText();
   if (!text.empty()) {
@@ -262,7 +262,7 @@ bool DragDataToDataObject(CefRefPtr<CefDragData> drag_data,
     fmtetcs[curr_index] = fmtetc;
     curr_index++;
     GetStorageForBytes(&stgmeds[curr_index], handler->GetData(),
-        handler->GetDataSize());
+                       handler->GetDataSize());
     fmtetc.cfFormat = file_contents_format;
     fmtetcs[curr_index] = fmtetc;
     curr_index++;
@@ -291,12 +291,10 @@ CefRefPtr<CefDragData> DataObjectToDragData(IDataObject* data_object) {
     res = enumFormats->Next(kCelt, rgelt, &celtFetched);
     for (unsigned i = 0; i < celtFetched; i++) {
       CLIPFORMAT format = rgelt[i].cfFormat;
-      if (!(format == CF_UNICODETEXT ||
-          format == CF_TEXT ||
-          format == moz_url_format ||
-          format == html_format ||
-          format == CF_HDROP)
-          || rgelt[i].tymed != TYMED_HGLOBAL)
+      if (!(format == CF_UNICODETEXT || format == CF_TEXT ||
+            format == moz_url_format || format == html_format ||
+            format == CF_HDROP) ||
+          rgelt[i].tymed != TYMED_HGLOBAL)
         continue;
       STGMEDIUM medium;
       if (data_object->GetData(&rgelt[i], &medium) == S_OK) {
@@ -359,7 +357,6 @@ CefRefPtr<CefDragData> DataObjectToDragData(IDataObject* data_object) {
 
 }  // namespace
 
-
 CComPtr<DropTargetWin> DropTargetWin::Create(OsrDragEvents* callback,
                                              HWND hWnd) {
   return CComPtr<DropTargetWin>(new DropTargetWin(callback, hWnd));
@@ -387,7 +384,8 @@ CefBrowserHost::DragOperationsMask DropTargetWin::StartDragging(
     CefRefPtr<CefBrowser> browser,
     CefRefPtr<CefDragData> drag_data,
     CefRenderHandler::DragOperationsMask allowed_ops,
-    int x, int y) {
+    int x,
+    int y) {
   CComPtr<IDataObject> dataObject;
   DWORD resEffect = DROPEFFECT_NONE;
   if (DragDataToDataObject(drag_data, &dataObject)) {
@@ -456,7 +454,8 @@ HRESULT DropSourceWin::QueryContinueDrag(BOOL fEscapePressed,
   return S_OK;
 }
 
-HRESULT DragEnumFormatEtc::CreateEnumFormatEtc(UINT cfmt,
+HRESULT DragEnumFormatEtc::CreateEnumFormatEtc(
+    UINT cfmt,
     FORMATETC* afmt,
     IEnumFORMATETC** ppEnumFormatEtc) {
   if (cfmt == 0 || afmt == 0 || ppEnumFormatEtc == 0)
@@ -581,14 +580,14 @@ HRESULT DataObjectWin::DUnadvise(DWORD dwConnection) {
   return E_NOTIMPL;
 }
 
-HRESULT DataObjectWin::EnumDAdvise(IEnumSTATDATA **ppEnumAdvise) {
+HRESULT DataObjectWin::EnumDAdvise(IEnumSTATDATA** ppEnumAdvise) {
   return E_NOTIMPL;
 }
 
 HRESULT DataObjectWin::EnumFormatEtc(DWORD dwDirection,
                                      IEnumFORMATETC** ppEnumFormatEtc) {
   return DragEnumFormatEtc::CreateEnumFormatEtc(m_nNumFormats, m_pFormatEtc,
-      ppEnumFormatEtc);
+                                                ppEnumFormatEtc);
 }
 
 HRESULT DataObjectWin::GetData(FORMATETC* pFormatEtc, STGMEDIUM* pMedium) {
@@ -604,20 +603,20 @@ HRESULT DataObjectWin::GetData(FORMATETC* pFormatEtc, STGMEDIUM* pMedium) {
 
   // copy the data into the caller's storage medium
   switch (m_pFormatEtc[idx].tymed) {
-  case TYMED_HGLOBAL:
-    pMedium->hGlobal = DupGlobalMem(m_pStgMedium[idx].hGlobal);
-    break;
+    case TYMED_HGLOBAL:
+      pMedium->hGlobal = DupGlobalMem(m_pStgMedium[idx].hGlobal);
+      break;
 
-  default:
-    return DV_E_FORMATETC;
+    default:
+      return DV_E_FORMATETC;
   }
   return S_OK;
 }
 
 HGLOBAL DataObjectWin::DupGlobalMem(HGLOBAL hMem) {
-  DWORD   len = GlobalSize(hMem);
-  PVOID   source = GlobalLock(hMem);
-  PVOID   dest = GlobalAlloc(GMEM_FIXED, len);
+  DWORD len = GlobalSize(hMem);
+  PVOID source = GlobalLock(hMem);
+  PVOID dest = GlobalAlloc(GMEM_FIXED, len);
 
   memcpy(dest, source, len);
   GlobalUnlock(hMem);
@@ -627,9 +626,9 @@ HGLOBAL DataObjectWin::DupGlobalMem(HGLOBAL hMem) {
 int DataObjectWin::LookupFormatEtc(FORMATETC* pFormatEtc) {
   // check each of our formats in turn to see if one matches
   for (int i = 0; i < m_nNumFormats; i++) {
-    if ((m_pFormatEtc[i].tymed    &  pFormatEtc->tymed) &&
-      m_pFormatEtc[i].cfFormat == pFormatEtc->cfFormat &&
-      m_pFormatEtc[i].dwAspect == pFormatEtc->dwAspect) {
+    if ((m_pFormatEtc[i].tymed & pFormatEtc->tymed) &&
+        m_pFormatEtc[i].cfFormat == pFormatEtc->cfFormat &&
+        m_pFormatEtc[i].dwAspect == pFormatEtc->dwAspect) {
       // return index of stored format
       return i;
     }

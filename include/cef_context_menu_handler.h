@@ -45,7 +45,6 @@
 
 class CefContextMenuParams;
 
-
 ///
 // Callback interface used for continuation of custom context menu display.
 ///
@@ -59,15 +58,14 @@ class CefRunContextMenuCallback : public virtual CefBaseRefCounted {
   // |event_flags|.
   ///
   /*--cef(capi_name=cont)--*/
-  virtual void Continue(int command_id, EventFlags event_flags) =0;
+  virtual void Continue(int command_id, EventFlags event_flags) = 0;
 
   ///
   // Cancel context menu display.
   ///
   /*--cef()--*/
-  virtual void Cancel() =0;
+  virtual void Cancel() = 0;
 };
-
 
 ///
 // Implement this interface to handle context menu events. The methods of this
@@ -122,7 +120,9 @@ class CefContextMenuHandler : public virtual CefBaseRefCounted {
                                     CefRefPtr<CefFrame> frame,
                                     CefRefPtr<CefContextMenuParams> params,
                                     int command_id,
-                                    EventFlags event_flags) { return false; }
+                                    EventFlags event_flags) {
+    return false;
+  }
 
   ///
   // Called when the context menu is dismissed irregardless of whether the menu
@@ -132,7 +132,6 @@ class CefContextMenuHandler : public virtual CefBaseRefCounted {
   virtual void OnContextMenuDismissed(CefRefPtr<CefBrowser> browser,
                                       CefRefPtr<CefFrame> frame) {}
 };
-
 
 ///
 // Provides information about the context menu state. The ethods of this class
@@ -151,49 +150,49 @@ class CefContextMenuParams : public virtual CefBaseRefCounted {
   // Coords are relative to the associated RenderView's origin.
   ///
   /*--cef()--*/
-  virtual int GetXCoord() =0;
+  virtual int GetXCoord() = 0;
 
   ///
   // Returns the Y coordinate of the mouse where the context menu was invoked.
   // Coords are relative to the associated RenderView's origin.
   ///
   /*--cef()--*/
-  virtual int GetYCoord() =0;
+  virtual int GetYCoord() = 0;
 
   ///
   // Returns flags representing the type of node that the context menu was
   // invoked on.
   ///
   /*--cef(default_retval=CM_TYPEFLAG_NONE)--*/
-  virtual TypeFlags GetTypeFlags() =0;
+  virtual TypeFlags GetTypeFlags() = 0;
 
   ///
   // Returns the URL of the link, if any, that encloses the node that the
   // context menu was invoked on.
   ///
   /*--cef()--*/
-  virtual CefString GetLinkUrl() =0;
+  virtual CefString GetLinkUrl() = 0;
 
   ///
   // Returns the link URL, if any, to be used ONLY for "copy link address". We
   // don't validate this field in the frontend process.
   ///
   /*--cef()--*/
-  virtual CefString GetUnfilteredLinkUrl() =0;
+  virtual CefString GetUnfilteredLinkUrl() = 0;
 
   ///
   // Returns the source URL, if any, for the element that the context menu was
   // invoked on. Example of elements with source URLs are img, audio, and video.
   ///
   /*--cef()--*/
-  virtual CefString GetSourceUrl() =0;
+  virtual CefString GetSourceUrl() = 0;
 
   ///
   // Returns true if the context menu was invoked on an image which has
   // non-empty contents.
   ///
   /*--cef()--*/
-  virtual bool HasImageContents() =0;
+  virtual bool HasImageContents() = 0;
 
   ///
   // Returns the title text or the alt text if the context menu was invoked on
@@ -206,87 +205,88 @@ class CefContextMenuParams : public virtual CefBaseRefCounted {
   // Returns the URL of the top level page that the context menu was invoked on.
   ///
   /*--cef()--*/
-  virtual CefString GetPageUrl() =0;
+  virtual CefString GetPageUrl() = 0;
 
   ///
   // Returns the URL of the subframe that the context menu was invoked on.
   ///
   /*--cef()--*/
-  virtual CefString GetFrameUrl() =0;
+  virtual CefString GetFrameUrl() = 0;
 
   ///
   // Returns the character encoding of the subframe that the context menu was
   // invoked on.
   ///
   /*--cef()--*/
-  virtual CefString GetFrameCharset() =0;
+  virtual CefString GetFrameCharset() = 0;
 
   ///
   // Returns the type of context node that the context menu was invoked on.
   ///
   /*--cef(default_retval=CM_MEDIATYPE_NONE)--*/
-  virtual MediaType GetMediaType() =0;
+  virtual MediaType GetMediaType() = 0;
 
   ///
   // Returns flags representing the actions supported by the media element, if
   // any, that the context menu was invoked on.
   ///
   /*--cef(default_retval=CM_MEDIAFLAG_NONE)--*/
-  virtual MediaStateFlags GetMediaStateFlags() =0;
+  virtual MediaStateFlags GetMediaStateFlags() = 0;
 
   ///
   // Returns the text of the selection, if any, that the context menu was
   // invoked on.
   ///
   /*--cef()--*/
-  virtual CefString GetSelectionText() =0;
+  virtual CefString GetSelectionText() = 0;
 
   ///
   // Returns the text of the misspelled word, if any, that the context menu was
   // invoked on.
   ///
   /*--cef()--*/
-  virtual CefString GetMisspelledWord() =0;
+  virtual CefString GetMisspelledWord() = 0;
 
   ///
   // Returns true if suggestions exist, false otherwise. Fills in |suggestions|
   // from the spell check service for the misspelled word if there is one.
   ///
   /*--cef()--*/
-  virtual bool GetDictionarySuggestions(std::vector<CefString>& suggestions) =0;
+  virtual bool GetDictionarySuggestions(
+      std::vector<CefString>& suggestions) = 0;
 
   ///
   // Returns true if the context menu was invoked on an editable node.
   ///
   /*--cef()--*/
-  virtual bool IsEditable() =0;
+  virtual bool IsEditable() = 0;
 
   ///
   // Returns true if the context menu was invoked on an editable node where
   // spell-check is enabled.
   ///
   /*--cef()--*/
-  virtual bool IsSpellCheckEnabled() =0;
+  virtual bool IsSpellCheckEnabled() = 0;
 
   ///
   // Returns flags representing the actions supported by the editable node, if
   // any, that the context menu was invoked on.
   ///
   /*--cef(default_retval=CM_EDITFLAG_NONE)--*/
-  virtual EditStateFlags GetEditStateFlags() =0;
+  virtual EditStateFlags GetEditStateFlags() = 0;
 
   ///
   // Returns true if the context menu contains items specified by the renderer
   // process (for example, plugin placeholder or pepper plugin menu items).
   ///
   /*--cef()--*/
-  virtual bool IsCustomMenu() =0;
+  virtual bool IsCustomMenu() = 0;
 
   ///
   // Returns true if the context menu was invoked from a pepper plugin.
   ///
   /*--cef()--*/
-  virtual bool IsPepperMenu() =0;
+  virtual bool IsPepperMenu() = 0;
 };
 
 #endif  // CEF_INCLUDE_CEF_CONTEXT_MENU_HANDLER_H_

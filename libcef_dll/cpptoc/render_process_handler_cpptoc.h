@@ -9,6 +9,8 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=74a6f5349310ca62096c5abf5ecba45ae34604ae$
+//
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_RENDER_PROCESS_HANDLER_CPPTOC_H_
 #define CEF_LIBCEF_DLL_CPPTOC_RENDER_PROCESS_HANDLER_CPPTOC_H_
@@ -18,15 +20,16 @@
 #error This file can be included wrapper-side only
 #endif
 
-#include "include/cef_render_process_handler.h"
 #include "include/capi/cef_render_process_handler_capi.h"
+#include "include/cef_render_process_handler.h"
 #include "libcef_dll/cpptoc/cpptoc_ref_counted.h"
 
 // Wrap a C++ class with a C structure.
 // This class may be instantiated and accessed wrapper-side only.
 class CefRenderProcessHandlerCppToC
     : public CefCppToCRefCounted<CefRenderProcessHandlerCppToC,
-        CefRenderProcessHandler, cef_render_process_handler_t> {
+                                 CefRenderProcessHandler,
+                                 cef_render_process_handler_t> {
  public:
   CefRenderProcessHandlerCppToC();
 };

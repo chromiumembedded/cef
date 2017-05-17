@@ -13,10 +13,10 @@ namespace client {
 
 namespace {
 
-bool LoadBinaryResource(int binaryId, DWORD &dwSize, LPBYTE &pBytes) {
+bool LoadBinaryResource(int binaryId, DWORD& dwSize, LPBYTE& pBytes) {
   HINSTANCE hInst = GetModuleHandle(NULL);
-  HRSRC hRes = FindResource(hInst, MAKEINTRESOURCE(binaryId),
-                            MAKEINTRESOURCE(256));
+  HRSRC hRes =
+      FindResource(hInst, MAKEINTRESOURCE(binaryId), MAKEINTRESOURCE(256));
   if (hRes) {
     HGLOBAL hGlob = LoadResource(hInst, hRes);
     if (hGlob) {
@@ -34,7 +34,7 @@ bool LoadBinaryResource(int binaryId, DWORD &dwSize, LPBYTE &pBytes) {
 class BinaryResourceProvider : public CefResourceManager::Provider {
  public:
   explicit BinaryResourceProvider(const std::string& url_path)
-    : url_path_(url_path) {
+      : url_path_(url_path) {
     DCHECK(!url_path.empty());
   }
 
@@ -55,8 +55,7 @@ class BinaryResourceProvider : public CefResourceManager::Provider {
           GetBinaryResourceReader(relative_path.data());
       if (stream.get()) {
         handler = new CefStreamResourceHandler(
-            request->mime_type_resolver().Run(url),
-            stream);
+            request->mime_type_resolver().Run(url), stream);
       }
     }
 

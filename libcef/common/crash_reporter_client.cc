@@ -12,10 +12,10 @@
 
 #include "base/logging.h"
 #include "base/strings/string16.h"
-#include "base/strings/stringprintf.h"
 #include "base/strings/string_number_conversions.h"
 #include "base/strings/string_split.h"
 #include "base/strings/string_util.h"
+#include "base/strings/stringprintf.h"
 #include "base/strings/utf_string_conversions.h"
 #include "chrome/common/crash_keys.h"
 
@@ -104,7 +104,7 @@ const char kInvalidFileChars[] = "<>:\"/\\|?*";
 bool isInvalidFileCharacter(unsigned char c) {
   if (c < ' ' || c == 0x7F)
     return true;
-  for(size_t i = 0; i < sizeof(kInvalidFileChars); ++i) {
+  for (size_t i = 0; i < sizeof(kInvalidFileChars); ++i) {
     if (c == kInvalidFileChars[i])
       return true;
   }
@@ -191,7 +191,7 @@ std::string sanitizePath(const std::string& s) {
     std::string part = parts[i];
     if (part != "." && part != "..")
       part = sanitizePathComponent(part);
-    if (!result.empty() && result[result.length()-1] != kPathSep)
+    if (!result.empty() && result[result.length() - 1] != kPathSep)
       result += kPathSep;
     result += part;
   }
@@ -221,7 +221,6 @@ std::string joinPath(const std::string& s1, const std::string& s2) {
     result += s2;
   return result;
 }
-
 
 // This will only be non-nullptr in the chrome_elf address space.
 CefCrashReporterClient* g_crash_reporter_client = nullptr;
@@ -253,7 +252,6 @@ bool __declspec(dllexport) __cdecl GetCrashKeyImpl(size_t index,
 
 }  // extern "C"
 
-
 // The below functions were deleted from chrome/install_static/install_util.cc
 // in https://crbug.com/565446#c17.
 
@@ -262,9 +260,8 @@ constexpr wchar_t kUserDataDirname[] = L"User Data";
 // Populates |result| with the default User Data directory for the current
 // user.This may be overidden by a command line option. Returns false if all
 // attempts at locating a User Data directory fail.
-bool GetDefaultUserDataDirectory(
-    std::wstring* result,
-    const std::wstring& install_sub_directory) {
+bool GetDefaultUserDataDirectory(std::wstring* result,
+                                 const std::wstring& install_sub_directory) {
   // This environment variable should be set on Windows Vista and later
   // (https://msdn.microsoft.com/library/windows/desktop/dd378457.aspx).
   std::wstring user_data_dir =
@@ -293,9 +290,8 @@ bool GetDefaultUserDataDirectory(
 
 // Populates |crash_dir| with the default crash dump location regardless of
 // whether DIR_USER_DATA or DIR_CRASH_DUMPS has been overridden.
-bool GetDefaultCrashDumpLocation(
-    std::wstring* crash_dir,
-    const std::wstring& install_sub_directory) {
+bool GetDefaultCrashDumpLocation(std::wstring* crash_dir,
+                                 const std::wstring& install_sub_directory) {
   // In order to be able to start crash handling very early, we do not rely on
   // chrome's PathService entries (for DIR_CRASH_DUMPS) being available on
   // Windows. See https://crbug.com/564398.
@@ -525,9 +521,8 @@ bool CefCrashReporterClient::GetCrashMetricsLocation(
 
 #elif defined(OS_POSIX)
 
-void CefCrashReporterClient::GetProductNameAndVersion(
-    const char** product_name,
-    const char** version) {
+void CefCrashReporterClient::GetProductNameAndVersion(const char** product_name,
+                                                      const char** version) {
   *product_name = product_name_.c_str();
   *version = product_version_.c_str();
 }
@@ -631,18 +626,18 @@ void CefCrashReporterClient::GetCrashOptionalArguments(
     arguments->push_back(std::string("--no-rate-limit"));
 
   if (max_uploads_ > 0) {
-    arguments->push_back(
-        std::string("--max-uploads=") + base::IntToString(max_uploads_));
+    arguments->push_back(std::string("--max-uploads=") +
+                         base::IntToString(max_uploads_));
   }
 
   if (max_db_size_ > 0) {
-    arguments->push_back(
-        std::string("--max-db-size=") + base::IntToString(max_db_size_));
+    arguments->push_back(std::string("--max-db-size=") +
+                         base::IntToString(max_db_size_));
   }
 
   if (max_db_age_ > 0) {
-    arguments->push_back(
-        std::string("--max-db-age=") + base::IntToString(max_db_age_));
+    arguments->push_back(std::string("--max-db-age=") +
+                         base::IntToString(max_db_age_));
   }
 }
 

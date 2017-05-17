@@ -23,10 +23,10 @@
 #include "chrome/browser/ui/prefs/prefs_tab_helper.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/pref_names.h"
+#include "components/pref_registry/pref_registry_syncable.h"
 #include "components/prefs/command_line_pref_store.h"
 #include "components/prefs/pref_service.h"
 #include "components/prefs/pref_store.h"
-#include "components/pref_registry/pref_registry_syncable.h"
 #include "content/public/browser/render_process_host.h"
 #include "content/public/browser/render_view_host.h"
 #include "content/public/browser/site_instance.h"
@@ -55,7 +55,7 @@ void SetDefaultPrefs(content::WebPreferences& web) {
       !command_line->HasSwitch(switches::kDisableJavascriptAccessClipboard);
   web.allow_universal_access_from_file_urls =
       command_line->HasSwitch(switches::kAllowUniversalAccessFromFileUrls);
-    web.shrinks_standalone_images_to_fit =
+  web.shrinks_standalone_images_to_fit =
       command_line->HasSwitch(switches::kImageShrinkStandaloneToFit);
   web.text_areas_are_resizable =
       !command_line->HasSwitch(switches::kDisableTextAreaResize);
@@ -63,19 +63,16 @@ void SetDefaultPrefs(content::WebPreferences& web) {
 
 // Chrome preferences.
 // Should match ChromeContentBrowserClient::OverrideWebkitPrefs.
-void SetChromePrefs(CefBrowserContext* profile,
-                    content::WebPreferences& web) {
+void SetChromePrefs(CefBrowserContext* profile, content::WebPreferences& web) {
   PrefService* prefs = profile->GetPrefs();
 
   // Fill per-script font preferences.
   FontFamilyCache::FillFontFamilyMap(profile,
                                      prefs::kWebKitStandardFontFamilyMap,
                                      &web.standard_font_family_map);
-  FontFamilyCache::FillFontFamilyMap(profile,
-                                     prefs::kWebKitFixedFontFamilyMap,
+  FontFamilyCache::FillFontFamilyMap(profile, prefs::kWebKitFixedFontFamilyMap,
                                      &web.fixed_font_family_map);
-  FontFamilyCache::FillFontFamilyMap(profile,
-                                     prefs::kWebKitSerifFontFamilyMap,
+  FontFamilyCache::FillFontFamilyMap(profile, prefs::kWebKitSerifFontFamilyMap,
                                      &web.serif_font_family_map);
   FontFamilyCache::FillFontFamilyMap(profile,
                                      prefs::kWebKitSansSerifFontFamilyMap,
@@ -90,12 +87,10 @@ void SetChromePrefs(CefBrowserContext* profile,
                                      prefs::kWebKitPictographFontFamilyMap,
                                      &web.pictograph_font_family_map);
 
-  web.default_font_size =
-      prefs->GetInteger(prefs::kWebKitDefaultFontSize);
+  web.default_font_size = prefs->GetInteger(prefs::kWebKitDefaultFontSize);
   web.default_fixed_font_size =
       prefs->GetInteger(prefs::kWebKitDefaultFixedFontSize);
-  web.minimum_font_size =
-      prefs->GetInteger(prefs::kWebKitMinimumFontSize);
+  web.minimum_font_size = prefs->GetInteger(prefs::kWebKitMinimumFontSize);
   web.minimum_logical_font_size =
       prefs->GetInteger(prefs::kWebKitMinimumLogicalFontSize);
 
@@ -103,8 +98,7 @@ void SetChromePrefs(CefBrowserContext* profile,
 
   web.javascript_can_open_windows_automatically =
       prefs->GetBoolean(prefs::kWebKitJavascriptCanOpenWindowsAutomatically);
-  web.dom_paste_enabled =
-      prefs->GetBoolean(prefs::kWebKitDomPasteEnabled);
+  web.dom_paste_enabled = prefs->GetBoolean(prefs::kWebKitDomPasteEnabled);
   web.tabs_to_links = prefs->GetBoolean(prefs::kWebkitTabsToLinks);
 
   if (!prefs->GetBoolean(prefs::kWebKitJavascriptEnabled))
@@ -133,8 +127,7 @@ void SetChromePrefs(CefBrowserContext* profile,
     std::string image_animation_policy =
         prefs->GetString(prefs::kAnimationPolicy);
     if (image_animation_policy == kAnimationPolicyOnce)
-      web.animation_policy =
-          content::IMAGE_ANIMATION_POLICY_ANIMATION_ONCE;
+      web.animation_policy = content::IMAGE_ANIMATION_POLICY_ANIMATION_ONCE;
     else if (image_animation_policy == kAnimationPolicyNone)
       web.animation_policy = content::IMAGE_ANIMATION_POLICY_NO_ANIMATION;
     else
@@ -142,8 +135,8 @@ void SetChromePrefs(CefBrowserContext* profile,
   }
 
   // Make sure we will set the default_encoding with canonical encoding name.
-  web.default_encoding = base::GetCanonicalEncodingNameByAliasName(
-      web.default_encoding);
+  web.default_encoding =
+      base::GetCanonicalEncodingNameByAliasName(web.default_encoding);
   if (web.default_encoding.empty()) {
     prefs->ClearPref(prefs::kDefaultCharset);
     web.default_encoding = prefs->GetString(prefs::kDefaultCharset);
@@ -192,15 +185,14 @@ void SetExtensionPrefs(content::RenderViewHost* rvh,
 
 // Helper macro for setting a WebPreferences variable based on the value of a
 // CefBrowserSettings variable.
-#define SET_STATE(cef_var, web_var) \
-    if (cef_var == STATE_ENABLED) \
-      web_var = true; \
-    else if (cef_var == STATE_DISABLED) \
-      web_var = false;
+#define SET_STATE(cef_var, web_var)   \
+  if (cef_var == STATE_ENABLED)       \
+    web_var = true;                   \
+  else if (cef_var == STATE_DISABLED) \
+    web_var = false;
 
 // Set preferences based on CefBrowserSettings.
-void SetCefPrefs(const CefBrowserSettings& cef,
-                 content::WebPreferences& web) {
+void SetCefPrefs(const CefBrowserSettings& cef, content::WebPreferences& web) {
   if (cef.standard_font_family.length > 0) {
     web.standard_font_family_map[content::kCommonScript] =
         CefString(&cef.standard_font_family);
@@ -241,20 +233,20 @@ void SetCefPrefs(const CefBrowserSettings& cef,
   SET_STATE(cef.remote_fonts, web.remote_fonts_enabled);
   SET_STATE(cef.javascript, web.javascript_enabled);
   SET_STATE(cef.javascript_open_windows,
-      web.javascript_can_open_windows_automatically);
+            web.javascript_can_open_windows_automatically);
   SET_STATE(cef.javascript_close_windows, web.allow_scripts_to_close_windows);
   SET_STATE(cef.javascript_access_clipboard,
-      web.javascript_can_access_clipboard);
+            web.javascript_can_access_clipboard);
   SET_STATE(cef.javascript_dom_paste, web.dom_paste_enabled);
   SET_STATE(cef.plugins, web.plugins_enabled);
   SET_STATE(cef.universal_access_from_file_urls,
-      web.allow_universal_access_from_file_urls);
+            web.allow_universal_access_from_file_urls);
   SET_STATE(cef.file_access_from_file_urls,
-      web.allow_file_access_from_file_urls);
+            web.allow_file_access_from_file_urls);
   SET_STATE(cef.web_security, web.web_security_enabled);
   SET_STATE(cef.image_loading, web.loads_images_automatically);
   SET_STATE(cef.image_shrink_standalone_to_fit,
-      web.shrinks_standalone_images_to_fit);
+            web.shrinks_standalone_images_to_fit);
   SET_STATE(cef.text_area_resize, web.text_areas_are_resizable);
   SET_STATE(cef.tab_to_links, web.tabs_to_links);
   SET_STATE(cef.local_storage, web.local_storage_enabled);
@@ -270,18 +262,13 @@ void SetCefPrefs(const CefBrowserSettings& cef,
 void SetString(CommandLinePrefStore* prefs,
                const std::string& key,
                const std::string& value) {
-  prefs->SetValue(
-      key,
-      base::WrapUnique(new base::Value(value)),
-      WriteablePrefStore::DEFAULT_PREF_WRITE_FLAGS);
+  prefs->SetValue(key, base::WrapUnique(new base::Value(value)),
+                  WriteablePrefStore::DEFAULT_PREF_WRITE_FLAGS);
 }
 
-void SetBool(CommandLinePrefStore* prefs,
-             const std::string& key,
-             bool value) {
-  prefs->SetValue(key,
-      base::WrapUnique(new base::Value(value)),
-      WriteablePrefStore::DEFAULT_PREF_WRITE_FLAGS);
+void SetBool(CommandLinePrefStore* prefs, const std::string& key, bool value) {
+  prefs->SetValue(key, base::WrapUnique(new base::Value(value)),
+                  WriteablePrefStore::DEFAULT_PREF_WRITE_FLAGS);
 }
 
 }  // namespace
@@ -311,8 +298,7 @@ void RegisterProfilePrefs(user_prefs::PrefRegistrySyncable* registry) {
 
   // From chrome::RegisterBrowserUserPrefs.
   registry->RegisterBooleanPref(
-      prefs::kEnableDoNotTrack,
-      false,
+      prefs::kEnableDoNotTrack, false,
       user_prefs::PrefRegistrySyncable::SYNCABLE_PREF);
 
 #if BUILDFLAG(ENABLE_WEBRTC)
@@ -347,9 +333,8 @@ void PopulateWebPreferences(content::RenderViewHost* rvh,
 
   // Set preferences based on the context's PrefService.
   if (browser) {
-    CefBrowserContext* profile =
-        static_cast<CefBrowserContext*>(
-            browser->web_contents()->GetBrowserContext());
+    CefBrowserContext* profile = static_cast<CefBrowserContext*>(
+        browser->web_contents()->GetBrowserContext());
     SetChromePrefs(profile, web);
   }
 

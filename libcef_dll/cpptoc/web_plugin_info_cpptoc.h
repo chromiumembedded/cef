@@ -9,6 +9,8 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=cfb39aa7ef3fdfc92f7dd273cef2007ca8a3c2b8$
+//
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_WEB_PLUGIN_INFO_CPPTOC_H_
 #define CEF_LIBCEF_DLL_CPPTOC_WEB_PLUGIN_INFO_CPPTOC_H_
@@ -18,17 +20,18 @@
 #error This file can be included DLL-side only
 #endif
 
-#include "include/cef_web_plugin.h"
+#include "include/capi/cef_browser_capi.h"
 #include "include/capi/cef_web_plugin_capi.h"
 #include "include/cef_browser.h"
-#include "include/capi/cef_browser_capi.h"
+#include "include/cef_web_plugin.h"
 #include "libcef_dll/cpptoc/cpptoc_ref_counted.h"
 
 // Wrap a C++ class with a C structure.
 // This class may be instantiated and accessed DLL-side only.
 class CefWebPluginInfoCppToC
-    : public CefCppToCRefCounted<CefWebPluginInfoCppToC, CefWebPluginInfo,
-        cef_web_plugin_info_t> {
+    : public CefCppToCRefCounted<CefWebPluginInfoCppToC,
+                                 CefWebPluginInfo,
+                                 cef_web_plugin_info_t> {
  public:
   CefWebPluginInfoCppToC();
 };

@@ -40,7 +40,7 @@ size_t CefDisplay::GetDisplayCount() {
 }
 
 // static
-void CefDisplay::GetAllDisplays(std::vector<CefRefPtr<CefDisplay> >& displays) {
+void CefDisplay::GetAllDisplays(std::vector<CefRefPtr<CefDisplay>>& displays) {
   CEF_REQUIRE_UIT_RETURN_VOID();
 
   displays.clear();
@@ -87,15 +87,15 @@ void CefDisplayImpl::ConvertPointFromPixels(CefPoint& point) {
 CefRect CefDisplayImpl::GetBounds() {
   CEF_REQUIRE_UIT_RETURN(CefRect());
   const gfx::Rect& gfx_rect = display_.bounds();
-  return CefRect(gfx_rect.x(), gfx_rect.y(),
-                 gfx_rect.width(), gfx_rect.height());
+  return CefRect(gfx_rect.x(), gfx_rect.y(), gfx_rect.width(),
+                 gfx_rect.height());
 }
 
 CefRect CefDisplayImpl::GetWorkArea() {
   CEF_REQUIRE_UIT_RETURN(CefRect());
   const gfx::Rect& gfx_rect = display_.work_area();
-  return CefRect(gfx_rect.x(), gfx_rect.y(),
-                 gfx_rect.width(), gfx_rect.height());
+  return CefRect(gfx_rect.x(), gfx_rect.y(), gfx_rect.width(),
+                 gfx_rect.height());
 }
 
 int CefDisplayImpl::GetRotation() {

@@ -8,7 +8,6 @@
 
 namespace client {
 
-ClientAppOther::ClientAppOther() {
-}
+ClientAppOther::ClientAppOther() {}
 
 }  // namespace client

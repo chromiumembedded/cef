@@ -89,14 +89,14 @@ class CefThread : public CefBaseRefCounted {
   // loop. This method is safe to call from any thread.
   ///
   /*--cef()--*/
-  virtual CefRefPtr<CefTaskRunner> GetTaskRunner() =0;
+  virtual CefRefPtr<CefTaskRunner> GetTaskRunner() = 0;
 
   ///
   // Returns the platform thread ID. It will return the same value after Stop()
   // is called. This method is safe to call from any thread.
   ///
   /*--cef(default_retval=kInvalidPlatformThreadId)--*/
-  virtual cef_platform_thread_id_t GetPlatformThreadId() =0;
+  virtual cef_platform_thread_id_t GetPlatformThreadId() = 0;
 
   ///
   // Stop and join the thread. This method must be called from the same thread
@@ -104,14 +104,14 @@ class CefThread : public CefBaseRefCounted {
   // called with a |stoppable| value of false.
   ///
   /*--cef()--*/
-  virtual void Stop() =0;
+  virtual void Stop() = 0;
 
   ///
   // Returns true if the thread is currently running. This method must be called
   // from the same thread that called CreateThread().
   ///
   /*--cef()--*/
-  virtual bool IsRunning() =0;
+  virtual bool IsRunning() = 0;
 };
 
 #endif  // CEF_INCLUDE_CEF_THREAD_H_

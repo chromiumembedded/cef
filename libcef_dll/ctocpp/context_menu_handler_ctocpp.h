@@ -9,6 +9,8 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=82cd962cacde83e1df7af319f1da07f5402a1936$
+//
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_CONTEXT_MENU_HANDLER_CTOCPP_H_
 #define CEF_LIBCEF_DLL_CTOCPP_CONTEXT_MENU_HANDLER_CTOCPP_H_
@@ -18,30 +20,36 @@
 #error This file can be included DLL-side only
 #endif
 
-#include "include/cef_context_menu_handler.h"
 #include "include/capi/cef_context_menu_handler_capi.h"
+#include "include/cef_context_menu_handler.h"
 #include "libcef_dll/ctocpp/ctocpp_ref_counted.h"
 
 // Wrap a C structure with a C++ class.
 // This class may be instantiated and accessed DLL-side only.
 class CefContextMenuHandlerCToCpp
     : public CefCToCppRefCounted<CefContextMenuHandlerCToCpp,
-        CefContextMenuHandler, cef_context_menu_handler_t> {
+                                 CefContextMenuHandler,
+                                 cef_context_menu_handler_t> {
  public:
   CefContextMenuHandlerCToCpp();
 
   // CefContextMenuHandler methods.
   void OnBeforeContextMenu(CefRefPtr<CefBrowser> browser,
-      CefRefPtr<CefFrame> frame, CefRefPtr<CefContextMenuParams> params,
-      CefRefPtr<CefMenuModel> model) override;
-  bool RunContextMenu(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame,
-      CefRefPtr<CefContextMenuParams> params, CefRefPtr<CefMenuModel> model,
-      CefRefPtr<CefRunContextMenuCallback> callback) override;
+                           CefRefPtr<CefFrame> frame,
+                           CefRefPtr<CefContextMenuParams> params,
+                           CefRefPtr<CefMenuModel> model) override;
+  bool RunContextMenu(CefRefPtr<CefBrowser> browser,
+                      CefRefPtr<CefFrame> frame,
+                      CefRefPtr<CefContextMenuParams> params,
+                      CefRefPtr<CefMenuModel> model,
+                      CefRefPtr<CefRunContextMenuCallback> callback) override;
   bool OnContextMenuCommand(CefRefPtr<CefBrowser> browser,
-      CefRefPtr<CefFrame> frame, CefRefPtr<CefContextMenuParams> params,
-      int command_id, EventFlags event_flags) override;
+                            CefRefPtr<CefFrame> frame,
+                            CefRefPtr<CefContextMenuParams> params,
+                            int command_id,
+                            EventFlags event_flags) override;
   void OnContextMenuDismissed(CefRefPtr<CefBrowser> browser,
-      CefRefPtr<CefFrame> frame) override;
+                              CefRefPtr<CefFrame> frame) override;
 };
 
 #endif  // CEF_LIBCEF_DLL_CTOCPP_CONTEXT_MENU_HANDLER_CTOCPP_H_

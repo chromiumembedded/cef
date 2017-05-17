@@ -33,6 +33,8 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
+// $hash=acbfe00533fba6a55e9a0d0d0c6a317f54dbf887$
+//
 
 #ifndef CEF_INCLUDE_CAPI_VIEWS_CEF_BOX_LAYOUT_CAPI_H_
 #define CEF_INCLUDE_CAPI_VIEWS_CEF_BOX_LAYOUT_CAPI_H_
@@ -67,17 +69,17 @@ typedef struct _cef_box_layout_t {
   // space is subtracted in these ratios. A flex of 0 means this view is not
   // resized. Flex values must not be negative.
   ///
-  void (CEF_CALLBACK *set_flex_for_view)(struct _cef_box_layout_t* self,
-      struct _cef_view_t* view, int flex);
+  void(CEF_CALLBACK* set_flex_for_view)(struct _cef_box_layout_t* self,
+                                        struct _cef_view_t* view,
+                                        int flex);
 
   ///
   // Clears the flex for the given |view|, causing it to use the default flex
   // specified via cef_box_layout_tSettings.default_flex.
   ///
-  void (CEF_CALLBACK *clear_flex_for_view)(struct _cef_box_layout_t* self,
-      struct _cef_view_t* view);
+  void(CEF_CALLBACK* clear_flex_for_view)(struct _cef_box_layout_t* self,
+                                          struct _cef_view_t* view);
 } cef_box_layout_t;
-
 
 #ifdef __cplusplus
 }

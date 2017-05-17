@@ -16,9 +16,7 @@
 #include "content/public/browser/storage_partition.h"
 
 CefBrowserContext::CefBrowserContext(bool is_proxy)
-    : is_proxy_(is_proxy),
-      extension_system_(NULL) {
-}
+    : is_proxy_(is_proxy), extension_system_(NULL) {}
 
 CefBrowserContext::~CefBrowserContext() {
   // Should be cleared in Shutdown().
@@ -89,8 +87,8 @@ void CefBrowserContext::Shutdown() {
   if (resource_context_.get()) {
     // Destruction of the ResourceContext will trigger destruction of all
     // associated URLRequests.
-    content::BrowserThread::DeleteSoon(
-        content::BrowserThread::IO, FROM_HERE, resource_context_.release());
+    content::BrowserThread::DeleteSoon(content::BrowserThread::IO, FROM_HERE,
+                                       resource_context_.release());
   }
 }
 
@@ -108,7 +106,7 @@ net::URLRequestContextGetter* CefBrowserContext::CreateMediaRequestContext() {
 }
 
 net::URLRequestContextGetter*
-    CefBrowserContext::CreateMediaRequestContextForStoragePartition(
+CefBrowserContext::CreateMediaRequestContextForStoragePartition(
     const base::FilePath& partition_path,
     bool in_memory) {
   return nullptr;
@@ -130,9 +128,9 @@ void CefBrowserContext::OnRenderFrameDeleted(int render_process_id,
     // deletion of |resource_context_| will execute on the IO thread, and this
     // callback will be executed first.
     CEF_POST_TASK(CEF_IOT,
-        base::Bind(&CefResourceContext::ClearPluginLoadDecision,
-                   base::Unretained(resource_context_.get()),
-                   render_process_id));
+                  base::Bind(&CefResourceContext::ClearPluginLoadDecision,
+                             base::Unretained(resource_context_.get()),
+                             render_process_id));
   }
 }
 
@@ -143,7 +141,7 @@ void CefBrowserContext::OnPurgePluginListCache() {
     // deletion of |resource_context_| will execute on the IO thread, and this
     // callback will be executed first.
     CEF_POST_TASK(CEF_IOT,
-        base::Bind(&CefResourceContext::ClearPluginLoadDecision,
-                   base::Unretained(resource_context_.get()), -1));
+                  base::Bind(&CefResourceContext::ClearPluginLoadDecision,
+                             base::Unretained(resource_context_.get()), -1));
   }
 }

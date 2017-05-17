@@ -5,8 +5,8 @@
 #include <algorithm>
 
 #include "include/base/cef_bind.h"
-#include "include/cef_origin_whitelist.h"
 #include "include/cef_callback.h"
+#include "include/cef_origin_whitelist.h"
 #include "include/cef_scheme.h"
 #include "include/wrapper/cef_closure_task.h"
 #include "tests/ceftests/test_handler.h"
@@ -16,11 +16,7 @@ namespace {
 
 class TestResults {
  public:
-  TestResults()
-    : status_code(0),
-      sub_status_code(0),
-      delay(0) {
-  }
+  TestResults() : status_code(0), sub_status_code(0), delay(0) {}
 
   void reset() {
     url.clear();
@@ -72,16 +68,8 @@ class TestResults {
   // Delay for returning scheme handler results.
   int delay;
 
-  TrackCallback
-      got_request,
-      got_read,
-      got_output,
-      got_redirect,
-      got_error,
-      got_sub_redirect,
-      got_sub_request,
-      got_sub_read,
-      got_sub_success;
+  TrackCallback got_request, got_read, got_output, got_redirect, got_error,
+      got_sub_redirect, got_sub_request, got_sub_read, got_sub_success;
 };
 
 // Current scheme handler object. Used when destroying the test from
@@ -91,8 +79,7 @@ TestSchemeHandler* g_current_handler = NULL;
 
 class TestSchemeHandler : public TestHandler {
  public:
-  explicit TestSchemeHandler(TestResults* tr)
-    : test_results_(tr) {
+  explicit TestSchemeHandler(TestResults* tr) : test_results_(tr) {
     g_current_handler = this;
   }
 
@@ -112,9 +99,7 @@ class TestSchemeHandler : public TestHandler {
 
   // Necessary to make the method public in order to destroy the test from
   // ClientSchemeHandler::ProcessRequest().
-  void DestroyTest() override {
-    TestHandler::DestroyTest();
-  }
+  void DestroyTest() override { TestHandler::DestroyTest(); }
 
   cef_return_value_t OnBeforeResourceLoad(
       CefRefPtr<CefBrowser> browser,
@@ -186,11 +171,7 @@ class TestSchemeHandler : public TestHandler {
 class ClientSchemeHandler : public CefResourceHandler {
  public:
   explicit ClientSchemeHandler(TestResults* tr)
-    : test_results_(tr),
-      offset_(0),
-      is_sub_(false),
-      has_delayed_(false) {
-  }
+      : test_results_(tr), offset_(0), is_sub_(false), has_delayed_(false) {}
 
   bool ProcessRequest(CefRefPtr<CefRequest> request,
                       CefRefPtr<CefCallback> callback) override {
@@ -199,8 +180,8 @@ class ClientSchemeHandler : public CefResourceHandler {
     bool handled = false;
 
     std::string url = request->GetURL();
-    is_sub_ = (!test_results_->sub_url.empty() &&
-               test_results_->sub_url == url);
+    is_sub_ =
+        (!test_results_->sub_url.empty() && test_results_->sub_url == url);
 
     if (is_sub_) {
       test_results_->got_sub_request.yes();
@@ -233,16 +214,15 @@ class ClientSchemeHandler : public CefResourceHandler {
     } else {
       // Value from CefSettings.accept_language set in
       // CefTestSuite::GetSettings().
-      EXPECT_STREQ(CEF_SETTINGS_ACCEPT_LANGUAGE,
-                   accept_language.data());
+      EXPECT_STREQ(CEF_SETTINGS_ACCEPT_LANGUAGE, accept_language.data());
     }
 
     if (handled) {
       if (test_results_->delay > 0) {
         // Continue after the delay.
         CefPostDelayedTask(TID_IO,
-            base::Bind(&CefCallback::Continue, callback.get()),
-            test_results_->delay);
+                           base::Bind(&CefCallback::Continue, callback.get()),
+                           test_results_->delay);
       } else {
         // Continue immediately.
         callback->Continue();
@@ -293,9 +273,7 @@ class ClientSchemeHandler : public CefResourceHandler {
     }
   }
 
-  void Cancel() override {
-    EXPECT_TRUE(CefCurrentlyOn(TID_IO));
-  }
+  void Cancel() override { EXPECT_TRUE(CefCurrentlyOn(TID_IO)); }
 
   bool ReadResponse(void* data_out,
                     int bytes_to_read,
@@ -307,11 +285,11 @@ class ClientSchemeHandler : public CefResourceHandler {
       if (!has_delayed_) {
         // Continue after a delay.
         CefPostDelayedTask(TID_IO,
-            base::Bind(&ClientSchemeHandler::ContinueAfterDelay,
-                       this, callback),
-            test_results_->delay);
-         bytes_read = 0;
-         return true;
+                           base::Bind(&ClientSchemeHandler::ContinueAfterDelay,
+                                      this, callback),
+                           test_results_->delay);
+        bytes_read = 0;
+        return true;
       }
 
       has_delayed_ = false;
@@ -360,15 +338,12 @@ class ClientSchemeHandler : public CefResourceHandler {
 
 class ClientSchemeHandlerFactory : public CefSchemeHandlerFactory {
  public:
-  explicit ClientSchemeHandlerFactory(TestResults* tr)
-    : test_results_(tr) {
-  }
+  explicit ClientSchemeHandlerFactory(TestResults* tr) : test_results_(tr) {}
 
-  CefRefPtr<CefResourceHandler> Create(
-      CefRefPtr<CefBrowser> browser,
-      CefRefPtr<CefFrame> frame,
-      const CefString& scheme_name,
-      CefRefPtr<CefRequest> request) override {
+  CefRefPtr<CefResourceHandler> Create(CefRefPtr<CefBrowser> browser,
+                                       CefRefPtr<CefFrame> frame,
+                                       const CefString& scheme_name,
+                                       CefRefPtr<CefRequest> request) override {
     EXPECT_TRUE(CefCurrentlyOn(TID_IO));
     return new ClientSchemeHandler(test_results_);
   }
@@ -385,8 +360,8 @@ TestResults g_TestResults;
 void RegisterTestScheme(const std::string& scheme, const std::string& domain) {
   g_TestResults.reset();
 
-  EXPECT_TRUE(CefRegisterSchemeHandlerFactory(scheme, domain,
-      new ClientSchemeHandlerFactory(&g_TestResults)));
+  EXPECT_TRUE(CefRegisterSchemeHandlerFactory(
+      scheme, domain, new ClientSchemeHandlerFactory(&g_TestResults)));
   WaitForIOThread();
 }
 
@@ -396,8 +371,7 @@ void ClearTestSchemes() {
 }
 
 struct XHRTestSettings {
-  XHRTestSettings() 
-      : synchronous(true) {}
+  XHRTestSettings() : synchronous(true) {}
 
   std::string url;
   std::string sub_url;
@@ -431,20 +405,25 @@ void SetUpXHR(const XHRTestSettings& settings) {
     ss << "var result = 'FAILURE';"
           "try {"
           "  xhr = new XMLHttpRequest();"
-          "  xhr.open(\"GET\", \"" << request_url.c_str() << "\", false);"
+          "  xhr.open(\"GET\", \""
+       << request_url.c_str()
+       << "\", false);"
           "  xhr.send();"
           "  result = xhr.responseText;"
           "} catch(e) {}"
           "onResult(result)";
   } else {
     ss << "xhr = new XMLHttpRequest();"
-          "xhr.open(\"GET\", \"" << request_url.c_str() << "\", true);"
+          "xhr.open(\"GET\", \""
+       << request_url.c_str()
+       << "\", true);"
           "xhr.onload = function(e) {"
           "  if (xhr.readyState === 4) {"
           "    if (xhr.status === 200) {"
           "      onResult(xhr.responseText);"
           "    } else {"
-          "      console.log('XMLHttpRequest failed with status ' + xhr.status);"
+          "      console.log('XMLHttpRequest failed with status ' + "
+          "xhr.status);"
           "      onResult('FAILURE');"
           "    }"
           "  }"
@@ -466,7 +445,8 @@ void SetUpXHR(const XHRTestSettings& settings) {
   g_TestResults.exit_url = "http://tests/exit";
 }
 
-void SetUpXSS(const std::string& url, const std::string& sub_url,
+void SetUpXSS(const std::string& url,
+              const std::string& sub_url,
               const std::string& domain = std::string()) {
   // 1. Load |url| which contains an iframe.
   // 2. The iframe loads |xss_url|.
@@ -480,8 +460,9 @@ void SetUpXSS(const std::string& url, const std::string& sub_url,
 
   g_TestResults.sub_url = sub_url;
   ss << "<html><head>"
-        "<script language=\"JavaScript\">" << domain_line <<
-        "function getResult() {"
+        "<script language=\"JavaScript\">"
+     << domain_line
+     << "function getResult() {"
         "  return 'SUCCESS';"
         "}"
         "function execXSSRequest() {"
@@ -501,7 +482,9 @@ void SetUpXSS(const std::string& url, const std::string& sub_url,
   g_TestResults.url = url;
   ss.str("");
   ss << "<html><head>"
-        "<script language=\"JavaScript\">" << domain_line << ""
+        "<script language=\"JavaScript\">"
+     << domain_line
+     << ""
         "function getResult() {"
         "  try {"
         "    return document.getElementById('s').contentWindow.getResult();"
@@ -510,7 +493,9 @@ void SetUpXSS(const std::string& url, const std::string& sub_url,
         "}"
         "</script>"
         "</head><body>"
-        "<iframe src=\"" << sub_url.c_str() << "\" id=\"s\">"
+        "<iframe src=\""
+     << sub_url.c_str()
+     << "\" id=\"s\">"
         "</body></html>";
   g_TestResults.html = ss.str();
   g_TestResults.status_code = 200;
@@ -551,8 +536,8 @@ TEST(SchemeHandlerTest, Registration) {
   EXPECT_FALSE(g_TestResults.got_output);
 
   // Re-register the handler.
-  EXPECT_TRUE(CefRegisterSchemeHandlerFactory("customstd", "test",
-      new ClientSchemeHandlerFactory(&g_TestResults)));
+  EXPECT_TRUE(CefRegisterSchemeHandlerFactory(
+      "customstd", "test", new ClientSchemeHandlerFactory(&g_TestResults)));
   WaitForIOThread();
 
   g_TestResults.got_error.reset();
@@ -632,8 +617,7 @@ TEST(SchemeHandlerTest, CustomNonStandardNormalResponse) {
 TEST(SchemeHandlerTest, CustomStandardErrorResponse) {
   RegisterTestScheme("customstd", "test");
   g_TestResults.url = "customstd://test/run.html";
-  g_TestResults.html =
-      "<html><head></head><body><h1>404</h1></body></html>";
+  g_TestResults.html = "<html><head></head><body><h1>404</h1></body></html>";
   g_TestResults.status_code = 404;
 
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
@@ -647,7 +631,8 @@ TEST(SchemeHandlerTest, CustomStandardErrorResponse) {
   ClearTestSchemes();
 }
 
-// Test that a custom standard scheme can return a CEF error code in the response.
+// Test that a custom standard scheme can return a CEF error code in the
+// response.
 TEST(SchemeHandlerTest, CustomStandardErrorCodeResponse) {
   RegisterTestScheme("customstd", "test");
   g_TestResults.url = "customstd://test/run.html";
@@ -670,8 +655,7 @@ TEST(SchemeHandlerTest, CustomStandardErrorCodeResponse) {
 TEST(SchemeHandlerTest, CustomNonStandardErrorResponse) {
   RegisterTestScheme("customnonstd", std::string());
   g_TestResults.url = "customnonstd:some%20value";
-  g_TestResults.html =
-      "<html><head></head><body><h1>404</h1></body></html>";
+  g_TestResults.html = "<html><head></head><body><h1>404</h1></body></html>";
   g_TestResults.status_code = 404;
 
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
@@ -887,7 +871,7 @@ TEST(SchemeHandlerTest, CustomNonStandardXHRSameOriginSync) {
 // Test that a custom nonstandard scheme can generate same origin XHR requests.
 TEST(SchemeHandlerTest, CustomNonStandardXHRSameOriginAsync) {
   RegisterTestScheme("customnonstd", std::string());
-  
+
   XHRTestSettings settings;
   settings.url = "customnonstd:some%20value";
   settings.sub_url = "customnonstd:xhr%20value";
@@ -911,8 +895,7 @@ TEST(SchemeHandlerTest, CustomNonStandardXHRSameOriginAsync) {
 // Test that a custom standard scheme can generate same origin XSS requests.
 TEST(SchemeHandlerTest, CustomStandardXSSSameOrigin) {
   RegisterTestScheme("customstd", "test");
-  SetUpXSS("customstd://test/run.html",
-           "customstd://test/iframe.html");
+  SetUpXSS("customstd://test/run.html", "customstd://test/iframe.html");
 
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
   handler->ExecuteTest();
@@ -931,8 +914,7 @@ TEST(SchemeHandlerTest, CustomStandardXSSSameOrigin) {
 // Test that a custom nonstandard scheme can generate same origin XSS requests.
 TEST(SchemeHandlerTest, CustomNonStandardXSSSameOrigin) {
   RegisterTestScheme("customnonstd", std::string());
-  SetUpXSS("customnonstd:some%20value",
-           "customnonstd:xhr%20value");
+  SetUpXSS("customnonstd:some%20value", "customnonstd:xhr%20value");
 
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
   handler->ExecuteTest();
@@ -1004,8 +986,7 @@ TEST(SchemeHandlerTest, CustomStandardXHRDifferentOriginAsync) {
 TEST(SchemeHandlerTest, CustomStandardXSSDifferentOrigin) {
   RegisterTestScheme("customstd", "test1");
   RegisterTestScheme("customstd", "test2");
-  SetUpXSS("customstd://test1/run.html",
-           "customstd://test2/iframe.html");
+  SetUpXSS("customstd://test1/run.html", "customstd://test2/iframe.html");
 
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
   handler->ExecuteTest();
@@ -1077,8 +1058,7 @@ TEST(SchemeHandlerTest, HttpXHRDifferentOriginAsync) {
 TEST(SchemeHandlerTest, HttpXSSDifferentOrigin) {
   RegisterTestScheme("http", "test1");
   RegisterTestScheme("http", "test2");
-  SetUpXSS("http://test1/run.html",
-           "http://test2/xss.html");
+  SetUpXSS("http://test1/run.html", "http://test2/xss.html");
 
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
   handler->ExecuteTest();
@@ -1100,7 +1080,7 @@ TEST(SchemeHandlerTest, HttpXSSDifferentOrigin) {
 TEST(SchemeHandlerTest, CustomStandardXHRDifferentOriginWithHeaderSync) {
   RegisterTestScheme("customstd", "test1");
   RegisterTestScheme("customstd", "test2");
-  
+
   XHRTestSettings settings;
   settings.url = "customstd://test1/run.html";
   settings.sub_url = "customstd://test2/xhr.html";
@@ -1127,7 +1107,7 @@ TEST(SchemeHandlerTest, CustomStandardXHRDifferentOriginWithHeaderSync) {
 TEST(SchemeHandlerTest, CustomStandardXHRDifferentOriginWithHeaderAsync) {
   RegisterTestScheme("customstd", "test1");
   RegisterTestScheme("customstd", "test2");
-  
+
   XHRTestSettings settings;
   settings.url = "customstd://test1/run.html";
   settings.sub_url = "customstd://test2/xhr.html";
@@ -1154,14 +1134,14 @@ TEST(SchemeHandlerTest, CustomStandardXHRDifferentOriginWithHeaderAsync) {
 TEST(SchemeHandlerTest, CustomStandardXHRDifferentOriginWithWhitelistSync1) {
   RegisterTestScheme("customstd", "test1");
   RegisterTestScheme("customstd", "test2");
-  
+
   XHRTestSettings settings;
   settings.url = "customstd://test1/run.html";
   settings.sub_url = "customstd://test2/xhr.html";
   SetUpXHR(settings);
 
   EXPECT_TRUE(CefAddCrossOriginWhitelistEntry("customstd://test1", "customstd",
-      "test2", false));
+                                              "test2", false));
   WaitForUIThread();
 
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
@@ -1185,14 +1165,14 @@ TEST(SchemeHandlerTest, CustomStandardXHRDifferentOriginWithWhitelistSync1) {
 TEST(SchemeHandlerTest, CustomStandardXHRDifferentOriginWithWhitelistSync2) {
   RegisterTestScheme("customstd", "test1");
   RegisterTestScheme("customstd", "test2");
-  
+
   XHRTestSettings settings;
   settings.url = "customstd://test1/run.html";
   settings.sub_url = "customstd://test2/xhr.html";
   SetUpXHR(settings);
 
   EXPECT_TRUE(CefAddCrossOriginWhitelistEntry("customstd://test1", "customstd",
-      CefString(), true));
+                                              CefString(), true));
   WaitForUIThread();
 
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
@@ -1216,14 +1196,14 @@ TEST(SchemeHandlerTest, CustomStandardXHRDifferentOriginWithWhitelistSync2) {
 TEST(SchemeHandlerTest, CustomStandardXHRDifferentOriginWithWhitelistSync3) {
   RegisterTestScheme("customstd", "test1");
   RegisterTestScheme("customstd", "a.test2.foo");
-  
+
   XHRTestSettings settings;
   settings.url = "customstd://test1/run.html";
   settings.sub_url = "customstd://a.test2.foo/xhr.html";
   SetUpXHR(settings);
 
   EXPECT_TRUE(CefAddCrossOriginWhitelistEntry("customstd://test1", "customstd",
-      "test2.foo", true));
+                                              "test2.foo", true));
   WaitForUIThread();
 
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
@@ -1248,7 +1228,7 @@ TEST(SchemeHandlerTest, CustomStandardXHRDifferentOriginWithWhitelistSync3) {
 TEST(SchemeHandlerTest, CustomStandardXHRDifferentOriginWithWhitelistAsync1) {
   RegisterTestScheme("customstd", "test1");
   RegisterTestScheme("customstd", "test2");
-  
+
   XHRTestSettings settings;
   settings.url = "customstd://test1/run.html";
   settings.sub_url = "customstd://test2/xhr.html";
@@ -1256,7 +1236,7 @@ TEST(SchemeHandlerTest, CustomStandardXHRDifferentOriginWithWhitelistAsync1) {
   SetUpXHR(settings);
 
   EXPECT_TRUE(CefAddCrossOriginWhitelistEntry("customstd://test1", "customstd",
-      "test2", false));
+                                              "test2", false));
   WaitForUIThread();
 
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
@@ -1280,7 +1260,7 @@ TEST(SchemeHandlerTest, CustomStandardXHRDifferentOriginWithWhitelistAsync1) {
 TEST(SchemeHandlerTest, CustomStandardXHRDifferentOriginWithWhitelistAsync2) {
   RegisterTestScheme("customstd", "test1");
   RegisterTestScheme("customstd", "test2");
-  
+
   XHRTestSettings settings;
   settings.url = "customstd://test1/run.html";
   settings.sub_url = "customstd://test2/xhr.html";
@@ -1288,7 +1268,7 @@ TEST(SchemeHandlerTest, CustomStandardXHRDifferentOriginWithWhitelistAsync2) {
   SetUpXHR(settings);
 
   EXPECT_TRUE(CefAddCrossOriginWhitelistEntry("customstd://test1", "customstd",
-      CefString(), true));
+                                              CefString(), true));
   WaitForUIThread();
 
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
@@ -1312,7 +1292,7 @@ TEST(SchemeHandlerTest, CustomStandardXHRDifferentOriginWithWhitelistAsync2) {
 TEST(SchemeHandlerTest, CustomStandardXHRDifferentOriginWithWhitelistAsync3) {
   RegisterTestScheme("customstd", "test1");
   RegisterTestScheme("customstd", "a.test2.foo");
-  
+
   XHRTestSettings settings;
   settings.url = "customstd://test1/run.html";
   settings.sub_url = "customstd://a.test2.foo/xhr.html";
@@ -1320,7 +1300,7 @@ TEST(SchemeHandlerTest, CustomStandardXHRDifferentOriginWithWhitelistAsync3) {
   SetUpXHR(settings);
 
   EXPECT_TRUE(CefAddCrossOriginWhitelistEntry("customstd://test1", "customstd",
-      "test2.foo", true));
+                                              "test2.foo", true));
   WaitForUIThread();
 
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
@@ -1399,8 +1379,7 @@ TEST(SchemeHandlerTest, CustomStandardXSSDifferentOriginWithDomain) {
   RegisterTestScheme("customstd", "a.test.com");
   RegisterTestScheme("customstd", "b.test.com");
   SetUpXSS("customstd://a.test.com/run.html",
-           "customstd://b.test.com/iframe.html",
-           "test.com");
+           "customstd://b.test.com/iframe.html", "test.com");
 
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
   handler->ExecuteTest();
@@ -1421,8 +1400,7 @@ TEST(SchemeHandlerTest, CustomStandardXSSDifferentOriginWithDomain) {
 TEST(SchemeHandlerTest, HttpXSSDifferentOriginWithDomain) {
   RegisterTestScheme("http", "a.test.com");
   RegisterTestScheme("http", "b.test.com");
-  SetUpXSS("http://a.test.com/run.html",
-           "http://b.test.com/iframe.html",
+  SetUpXSS("http://a.test.com/run.html", "http://b.test.com/iframe.html",
            "test.com");
 
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
@@ -1510,7 +1488,7 @@ TEST(SchemeHandlerTest,
   SetUpXHR(settings);
 
   EXPECT_TRUE(CefAddCrossOriginWhitelistEntry("customstd://test1", "customstd",
-      "test2", false));
+                                              "test2", false));
   WaitForUIThread();
 
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
@@ -1549,7 +1527,7 @@ TEST(SchemeHandlerTest,
   SetUpXHR(settings);
 
   EXPECT_TRUE(CefAddCrossOriginWhitelistEntry("customstd://test1", "customstd",
-      "test2", false));
+                                              "test2", false));
   WaitForUIThread();
 
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
@@ -1584,7 +1562,7 @@ TEST(SchemeHandlerTest,
   SetUpXHR(settings);
 
   EXPECT_TRUE(CefAddCrossOriginWhitelistEntry("customstd://test1", "customstd",
-      CefString(), true));
+                                              CefString(), true));
   WaitForUIThread();
 
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
@@ -1619,7 +1597,7 @@ TEST(SchemeHandlerTest,
   SetUpXHR(settings);
 
   EXPECT_TRUE(CefAddCrossOriginWhitelistEntry("customstd://test1", "customstd",
-      "test2.foo", true));
+                                              "test2.foo", true));
   WaitForUIThread();
 
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
@@ -1663,12 +1641,11 @@ TEST(SchemeHandlerTest, AcceptLanguage) {
   ClearTestSchemes();
 }
 
-
 // Entry point for registering custom schemes.
 // Called from client_app_delegates.cc.
 void RegisterSchemeHandlerCustomSchemes(
-      CefRawPtr<CefSchemeRegistrar> registrar,
-      std::vector<CefString>& cookiable_schemes) {
+    CefRawPtr<CefSchemeRegistrar> registrar,
+    std::vector<CefString>& cookiable_schemes) {
   // Add a custom standard scheme.
   registrar->AddCustomScheme("customstd", true, false, false, false, true,
                              false);

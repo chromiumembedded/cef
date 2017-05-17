@@ -53,9 +53,7 @@ class MainContextImpl : public MainContext {
 
   // Returns true if the context is in a valid state (initialized and not yet
   // shut down).
-  bool InValidState() const {
-    return initialized_ && !shutdown_;
-  }
+  bool InValidState() const { return initialized_ && !shutdown_; }
 
   CefRefPtr<CefCommandLine> command_line_;
   const bool terminate_when_all_windows_closed_;

@@ -17,8 +17,7 @@ class CefExtensionWebContentsObserver
  private:
   friend class content::WebContentsUserData<CefExtensionWebContentsObserver>;
 
-  explicit CefExtensionWebContentsObserver(
-      content::WebContents* web_contents);
+  explicit CefExtensionWebContentsObserver(content::WebContents* web_contents);
   ~CefExtensionWebContentsObserver() override;
 
   // content::WebContentsObserver overrides.

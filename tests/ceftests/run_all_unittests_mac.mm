@@ -10,7 +10,7 @@ static NSAutoreleasePool* g_autopool = nil;
 
 // Provide the CefAppProtocol implementation required by CEF.
 @interface TestApplication : NSApplication<CefAppProtocol> {
-@private
+ @private
   BOOL handlingSendEvent_;
 }
 @end
@@ -33,7 +33,7 @@ static NSAutoreleasePool* g_autopool = nil;
 void PlatformInit() {
   // Initialize the AutoRelease pool.
   g_autopool = [[NSAutoreleasePool alloc] init];
-  
+
   // Initialize the TestApplication instance.
   [TestApplication sharedApplication];
 }
@@ -42,4 +42,3 @@ void PlatformCleanup() {
   // Release the AutoRelease pool.
   [g_autopool release];
 }
-

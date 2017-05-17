@@ -2,11 +2,11 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#include "libcef/browser/stream_impl.h"
 #include <stdlib.h>
 #include "base/files/file_util.h"
 #include "base/logging.h"
 #include "base/threading/thread_restrictions.h"
+#include "libcef/browser/stream_impl.h"
 
 // Static functions
 
@@ -27,7 +27,7 @@ CefRefPtr<CefStreamReader> CefStreamReader::CreateForFile(
 CefRefPtr<CefStreamReader> CefStreamReader::CreateForData(void* data,
                                                           size_t size) {
   DCHECK(data != NULL);
-  DCHECK(size > 0);  // NOLINT(readability/check)
+  DCHECK(size > 0);
   CefRefPtr<CefStreamReader> reader;
   if (data && size > 0)
     reader = new CefBytesReader(data, size, true);
@@ -66,12 +66,10 @@ CefRefPtr<CefStreamWriter> CefStreamWriter::CreateForHandler(
   return writer;
 }
 
-
 // CefFileReader
 
 CefFileReader::CefFileReader(FILE* file, bool close)
-  : close_(close), file_(file) {
-}
+    : close_(close), file_(file) {}
 
 CefFileReader::~CefFileReader() {
   base::AutoLock lock_scope(lock_);
@@ -107,13 +105,10 @@ int CefFileReader::Eof() {
   return feof(file_);
 }
 
-
 // CefFileWriter
 
 CefFileWriter::CefFileWriter(FILE* file, bool close)
-  : file_(file),
-    close_(close) {
-}
+    : file_(file), close_(close) {}
 
 CefFileWriter::~CefFileWriter() {
   base::AutoLock lock_scope(lock_);
@@ -141,14 +136,10 @@ int CefFileWriter::Flush() {
   return fflush(file_);
 }
 
-
 // CefBytesReader
 
 CefBytesReader::CefBytesReader(void* data, int64 datasize, bool copy)
-  : data_(NULL),
-    datasize_(0),
-    copy_(false),
-    offset_(0) {
+    : data_(NULL), datasize_(0), copy_(false), offset_(0) {
   SetData(data, datasize, copy);
 }
 
@@ -169,26 +160,26 @@ int CefBytesReader::Seek(int64 offset, int whence) {
   int rv = -1L;
   base::AutoLock lock_scope(lock_);
   switch (whence) {
-  case SEEK_CUR:
-    if (offset_ + offset > datasize_ || offset_ + offset < 0)
+    case SEEK_CUR:
+      if (offset_ + offset > datasize_ || offset_ + offset < 0)
+        break;
+      offset_ += offset;
+      rv = 0;
       break;
-    offset_ += offset;
-    rv = 0;
-    break;
-  case SEEK_END: {
-    int64 offset_abs = std::abs(offset);
-    if (offset_abs > datasize_)
+    case SEEK_END: {
+      int64 offset_abs = std::abs(offset);
+      if (offset_abs > datasize_)
+        break;
+      offset_ = datasize_ - offset_abs;
+      rv = 0;
       break;
-    offset_ = datasize_ - offset_abs;
-    rv = 0;
-    break;
-  }
-  case SEEK_SET:
-    if (offset > datasize_ || offset < 0)
+    }
+    case SEEK_SET:
+      if (offset > datasize_ || offset < 0)
+        break;
+      offset_ = offset;
+      rv = 0;
       break;
-    offset_ = offset;
-    rv = 0;
-    break;
   }
 
   return rv;
@@ -223,14 +214,11 @@ void CefBytesReader::SetData(void* data, int64 datasize, bool copy) {
   }
 }
 
-
 // CefBytesWriter
 
 CefBytesWriter::CefBytesWriter(size_t grow)
-  : grow_(grow),
-    datasize_(grow),
-    offset_(0) {
-  DCHECK(grow > 0);  // NOLINT(readability/check)
+    : grow_(grow), datasize_(grow), offset_(0) {
+  DCHECK(grow > 0);
   data_ = malloc(grow);
   DCHECK(data_ != NULL);
 }
@@ -260,26 +248,26 @@ int CefBytesWriter::Seek(int64 offset, int whence) {
   int rv = -1L;
   base::AutoLock lock_scope(lock_);
   switch (whence) {
-  case SEEK_CUR:
-    if (offset_ + offset > datasize_ || offset_ + offset < 0)
+    case SEEK_CUR:
+      if (offset_ + offset > datasize_ || offset_ + offset < 0)
+        break;
+      offset_ += offset;
+      rv = 0;
       break;
-    offset_ += offset;
-    rv = 0;
-    break;
-  case SEEK_END: {
-    int64 offset_abs = std::abs(offset);
-    if (offset_abs > datasize_)
+    case SEEK_END: {
+      int64 offset_abs = std::abs(offset);
+      if (offset_abs > datasize_)
+        break;
+      offset_ = datasize_ - offset_abs;
+      rv = 0;
       break;
-    offset_ = datasize_ - offset_abs;
-    rv = 0;
-    break;
-  }
-  case SEEK_SET:
-    if (offset > datasize_ || offset < 0)
+    }
+    case SEEK_SET:
+      if (offset > datasize_ || offset < 0)
+        break;
+      offset_ = offset;
+      rv = 0;
       break;
-    offset_ = offset;
-    rv = 0;
-    break;
   }
 
   return rv;

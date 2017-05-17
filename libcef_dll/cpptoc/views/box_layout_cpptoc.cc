@@ -9,18 +9,20 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=7af9db791a4b3c2a6f93326731c9959e891148ed$
+//
 
 #include "libcef_dll/cpptoc/views/box_layout_cpptoc.h"
 #include "libcef_dll/cpptoc/views/fill_layout_cpptoc.h"
 #include "libcef_dll/cpptoc/views/view_cpptoc.h"
-
 
 namespace {
 
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
 void CEF_CALLBACK box_layout_set_flex_for_view(struct _cef_box_layout_t* self,
-    struct _cef_view_t* view, int flex) {
+                                               struct _cef_view_t* view,
+                                               int flex) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -32,13 +34,12 @@ void CEF_CALLBACK box_layout_set_flex_for_view(struct _cef_box_layout_t* self,
     return;
 
   // Execute
-  CefBoxLayoutCppToC::Get(self)->SetFlexForView(
-      CefViewCppToC::Unwrap(view),
-      flex);
+  CefBoxLayoutCppToC::Get(self)->SetFlexForView(CefViewCppToC::Unwrap(view),
+                                                flex);
 }
 
 void CEF_CALLBACK box_layout_clear_flex_for_view(struct _cef_box_layout_t* self,
-    struct _cef_view_t* view) {
+                                                 struct _cef_view_t* view) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -50,12 +51,11 @@ void CEF_CALLBACK box_layout_clear_flex_for_view(struct _cef_box_layout_t* self,
     return;
 
   // Execute
-  CefBoxLayoutCppToC::Get(self)->ClearFlexForView(
-      CefViewCppToC::Unwrap(view));
+  CefBoxLayoutCppToC::Get(self)->ClearFlexForView(CefViewCppToC::Unwrap(view));
 }
 
-cef_box_layout_t* CEF_CALLBACK box_layout_as_box_layout(
-    struct _cef_layout_t* self) {
+cef_box_layout_t* CEF_CALLBACK
+box_layout_as_box_layout(struct _cef_layout_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -63,15 +63,16 @@ cef_box_layout_t* CEF_CALLBACK box_layout_as_box_layout(
     return NULL;
 
   // Execute
-  CefRefPtr<CefBoxLayout> _retval = CefBoxLayoutCppToC::Get(
-      reinterpret_cast<cef_box_layout_t*>(self))->AsBoxLayout();
+  CefRefPtr<CefBoxLayout> _retval =
+      CefBoxLayoutCppToC::Get(reinterpret_cast<cef_box_layout_t*>(self))
+          ->AsBoxLayout();
 
   // Return type: refptr_same
   return CefBoxLayoutCppToC::Wrap(_retval);
 }
 
-cef_fill_layout_t* CEF_CALLBACK box_layout_as_fill_layout(
-    struct _cef_layout_t* self) {
+cef_fill_layout_t* CEF_CALLBACK
+box_layout_as_fill_layout(struct _cef_layout_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -79,8 +80,9 @@ cef_fill_layout_t* CEF_CALLBACK box_layout_as_fill_layout(
     return NULL;
 
   // Execute
-  CefRefPtr<CefFillLayout> _retval = CefBoxLayoutCppToC::Get(
-      reinterpret_cast<cef_box_layout_t*>(self))->AsFillLayout();
+  CefRefPtr<CefFillLayout> _retval =
+      CefBoxLayoutCppToC::Get(reinterpret_cast<cef_box_layout_t*>(self))
+          ->AsFillLayout();
 
   // Return type: refptr_same
   return CefFillLayoutCppToC::Wrap(_retval);
@@ -94,15 +96,15 @@ int CEF_CALLBACK box_layout_is_valid(struct _cef_layout_t* self) {
     return 0;
 
   // Execute
-  bool _retval = CefBoxLayoutCppToC::Get(reinterpret_cast<cef_box_layout_t*>(
-      self))->IsValid();
+  bool _retval =
+      CefBoxLayoutCppToC::Get(reinterpret_cast<cef_box_layout_t*>(self))
+          ->IsValid();
 
   // Return type: bool
   return _retval;
 }
 
 }  // namespace
-
 
 // CONSTRUCTOR - Do not edit by hand.
 
@@ -114,17 +116,23 @@ CefBoxLayoutCppToC::CefBoxLayoutCppToC() {
   GetStruct()->base.is_valid = box_layout_is_valid;
 }
 
-template<> CefRefPtr<CefBoxLayout> CefCppToCRefCounted<CefBoxLayoutCppToC,
-    CefBoxLayout, cef_box_layout_t>::UnwrapDerived(CefWrapperType type,
-    cef_box_layout_t* s) {
+template <>
+CefRefPtr<CefBoxLayout>
+CefCppToCRefCounted<CefBoxLayoutCppToC, CefBoxLayout, cef_box_layout_t>::
+    UnwrapDerived(CefWrapperType type, cef_box_layout_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCppToCRefCounted<CefBoxLayoutCppToC,
-    CefBoxLayout, cef_box_layout_t>::DebugObjCt = 0;
+template <>
+base::AtomicRefCount CefCppToCRefCounted<CefBoxLayoutCppToC,
+                                         CefBoxLayout,
+                                         cef_box_layout_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCppToCRefCounted<CefBoxLayoutCppToC, CefBoxLayout,
-    cef_box_layout_t>::kWrapperType = WT_BOX_LAYOUT;
+template <>
+CefWrapperType CefCppToCRefCounted<CefBoxLayoutCppToC,
+                                   CefBoxLayout,
+                                   cef_box_layout_t>::kWrapperType =
+    WT_BOX_LAYOUT;

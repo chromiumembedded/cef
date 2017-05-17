@@ -9,10 +9,10 @@
 namespace osr_unittests {
 
 CefWindowHandle GetFakeView() {
-    NSScreen *mainScreen = [NSScreen mainScreen];
-    NSRect screenRect = [mainScreen visibleFrame];
-    NSView* fakeView = [[NSView alloc] initWithFrame: screenRect];
-    return fakeView;
+  NSScreen* mainScreen = [NSScreen mainScreen];
+  NSRect screenRect = [mainScreen visibleFrame];
+  NSView* fakeView = [[NSView alloc] initWithFrame:screenRect];
+  return fakeView;
 }
 
 }  // namespace osr_unittests

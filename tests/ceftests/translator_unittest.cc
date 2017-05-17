@@ -29,7 +29,7 @@ TEST(TranslatorTest, Primitive) {
 // Test getting/setting primitive list types.
 TEST(TranslatorTest, PrimitiveList) {
   CefRefPtr<CefTranslatorTest> obj = CefTranslatorTest::Create();
-  
+
   std::vector<int> list;
   list.push_back(TEST_INT_VAL);
   list.push_back(TEST_INT_VAL2);
@@ -62,7 +62,7 @@ TEST(TranslatorTest, String) {
 // Test getting/setting string list types.
 TEST(TranslatorTest, StringList) {
   CefRefPtr<CefTranslatorTest> obj = CefTranslatorTest::Create();
-  
+
   std::vector<CefString> list;
   list.push_back(TEST_STRING_VAL);
   list.push_back(TEST_STRING_VAL2);
@@ -83,7 +83,7 @@ TEST(TranslatorTest, StringList) {
 // Test getting/setting string map types.
 TEST(TranslatorTest, StringMap) {
   CefRefPtr<CefTranslatorTest> obj = CefTranslatorTest::Create();
-  
+
   CefTranslatorTest::StringMap map;
   map.insert(std::make_pair(TEST_STRING_KEY, TEST_STRING_VAL));
   map.insert(std::make_pair(TEST_STRING_KEY2, TEST_STRING_VAL2));
@@ -110,7 +110,7 @@ TEST(TranslatorTest, StringMap) {
 // Test getting/setting string multimap types.
 TEST(TranslatorTest, StringMultimap) {
   CefRefPtr<CefTranslatorTest> obj = CefTranslatorTest::Create();
-  
+
   CefTranslatorTest::StringMultimap map;
   map.insert(std::make_pair(TEST_STRING_KEY, TEST_STRING_VAL));
   map.insert(std::make_pair(TEST_STRING_KEY2, TEST_STRING_VAL2));
@@ -153,7 +153,7 @@ TEST(TranslatorTest, Struct) {
 // Test getting/setting struct list types.
 TEST(TranslatorTest, StructList) {
   CefRefPtr<CefTranslatorTest> obj = CefTranslatorTest::Create();
-  
+
   std::vector<CefPoint> list;
   list.push_back(CefPoint(TEST_X_VAL, TEST_Y_VAL));
   list.push_back(CefPoint(TEST_X_VAL2, TEST_Y_VAL2));
@@ -172,7 +172,7 @@ TEST(TranslatorTest, StructList) {
 // Test getting/setting library-side RefPtr types.
 TEST(TranslatorTest, RefPtrLibrary) {
   CefRefPtr<CefTranslatorTest> obj = CefTranslatorTest::Create();
-  
+
   const int kTestVal = 12;
   CefRefPtr<CefTranslatorTestRefPtrLibrary> test_obj =
       CefTranslatorTestRefPtrLibrary::Create(kTestVal);
@@ -180,7 +180,7 @@ TEST(TranslatorTest, RefPtrLibrary) {
   int retval = obj->SetRefPtrLibrary(test_obj);
   EXPECT_EQ(kTestVal, retval);
   EXPECT_EQ(kTestVal, test_obj->GetValue());
-  
+
   const int kTestVal2 = 30;
   CefRefPtr<CefTranslatorTestRefPtrLibrary> test_obj2 =
       obj->GetRefPtrLibrary(kTestVal2);
@@ -198,7 +198,7 @@ TEST(TranslatorTest, RefPtrLibrary) {
 // Test getting/setting inherited library-side RefPtr types.
 TEST(TranslatorTest, RefPtrLibraryInherit) {
   CefRefPtr<CefTranslatorTest> obj = CefTranslatorTest::Create();
-  
+
   const int kTestVal = 12;
   const int kTestVal2 = 40;
   CefRefPtr<CefTranslatorTestRefPtrLibraryChild> test_obj =
@@ -213,7 +213,7 @@ TEST(TranslatorTest, RefPtrLibraryInherit) {
   EXPECT_EQ(kTestVal, obj->SetChildRefPtrLibrary(test_obj));
   EXPECT_EQ(kTestVal,
             obj->SetChildRefPtrLibraryAndReturnParent(test_obj)->GetValue());
-  
+
   const int kTestVal3 = 100;
   CefRefPtr<CefTranslatorTestRefPtrLibraryChildChild> test_obj2 =
       CefTranslatorTestRefPtrLibraryChildChild::Create(kTestVal, kTestVal2,
@@ -240,7 +240,7 @@ TEST(TranslatorTest, RefPtrLibraryInherit) {
 // Test getting/setting library-side RefPtr list types.
 TEST(TranslatorTest, RefPtrLibraryList) {
   CefRefPtr<CefTranslatorTest> obj = CefTranslatorTest::Create();
-  
+
   const int kVal1 = 34;
   const int kVal2 = 10;
 
@@ -249,7 +249,7 @@ TEST(TranslatorTest, RefPtrLibraryList) {
   CefRefPtr<CefTranslatorTestRefPtrLibrary> val2 =
       CefTranslatorTestRefPtrLibraryChild::Create(kVal2, 0);
 
-  std::vector<CefRefPtr<CefTranslatorTestRefPtrLibrary> > list;
+  std::vector<CefRefPtr<CefTranslatorTestRefPtrLibrary>> list;
   list.push_back(val1);
   list.push_back(val2);
   EXPECT_TRUE(obj->SetRefPtrLibraryList(list, kVal1, kVal2));
@@ -272,13 +272,9 @@ namespace {
 
 class TranslatorTestRefPtrClient : public CefTranslatorTestRefPtrClient {
  public:
-  explicit TranslatorTestRefPtrClient(const int val)
-    : val_(val) {
-  }
+  explicit TranslatorTestRefPtrClient(const int val) : val_(val) {}
 
-  virtual int GetValue() override {
-    return val_;
-  }
+  virtual int GetValue() override { return val_; }
 
  private:
   const int val_;
@@ -287,22 +283,15 @@ class TranslatorTestRefPtrClient : public CefTranslatorTestRefPtrClient {
   DISALLOW_COPY_AND_ASSIGN(TranslatorTestRefPtrClient);
 };
 
-class TranslatorTestRefPtrClientChild :
-    public CefTranslatorTestRefPtrClientChild {
+class TranslatorTestRefPtrClientChild
+    : public CefTranslatorTestRefPtrClientChild {
  public:
-  TranslatorTestRefPtrClientChild(const int val,
-                             const int other_val)
-    : val_(val),
-      other_val_(other_val) {
-  }
+  TranslatorTestRefPtrClientChild(const int val, const int other_val)
+      : val_(val), other_val_(other_val) {}
 
-  virtual int GetValue() override {
-    return val_;
-  }
+  virtual int GetValue() override { return val_; }
 
-  virtual int GetOtherValue() override {
-    return other_val_;
-  }
+  virtual int GetOtherValue() override { return other_val_; }
 
  private:
   const int val_;
@@ -317,7 +306,7 @@ class TranslatorTestRefPtrClientChild :
 // Test getting/setting client-side RefPtr types.
 TEST(TranslatorTest, RefPtrClient) {
   CefRefPtr<CefTranslatorTest> obj = CefTranslatorTest::Create();
-  
+
   const int kTestVal = 12;
 
   CefRefPtr<TranslatorTestRefPtrClient> test_obj =
@@ -338,7 +327,7 @@ TEST(TranslatorTest, RefPtrClient) {
 // Test getting/setting inherited client-side RefPtr types.
 TEST(TranslatorTest, RefPtrClientInherit) {
   CefRefPtr<CefTranslatorTest> obj = CefTranslatorTest::Create();
-  
+
   const int kTestVal = 12;
   const int kTestVal2 = 86;
 
@@ -366,7 +355,7 @@ TEST(TranslatorTest, RefPtrClientInherit) {
 // Test getting/setting client-side RefPtr list types.
 TEST(TranslatorTest, RefPtrClientList) {
   CefRefPtr<CefTranslatorTest> obj = CefTranslatorTest::Create();
-  
+
   const int kVal1 = 34;
   const int kVal2 = 10;
 
@@ -375,7 +364,7 @@ TEST(TranslatorTest, RefPtrClientList) {
   CefRefPtr<CefTranslatorTestRefPtrClient> val2 =
       new TranslatorTestRefPtrClientChild(kVal2, 0);
 
-  std::vector<CefRefPtr<CefTranslatorTestRefPtrClient> > list;
+  std::vector<CefRefPtr<CefTranslatorTestRefPtrClient>> list;
   list.push_back(val1);
   list.push_back(val2);
   EXPECT_TRUE(obj->SetRefPtrClientList(list, kVal1, kVal2));
@@ -396,11 +385,10 @@ TEST(TranslatorTest, RefPtrClientList) {
   EXPECT_TRUE(val2->HasOneRef());
 }
 
-
 // Test getting/setting library-side OwnPtr types.
 TEST(TranslatorTest, OwnPtrLibrary) {
   CefRefPtr<CefTranslatorTest> obj = CefTranslatorTest::Create();
-  
+
   const int kTestVal = 12;
   CefOwnPtr<CefTranslatorTestScopedLibrary> test_obj =
       CefTranslatorTestScopedLibrary::Create(kTestVal);
@@ -409,7 +397,7 @@ TEST(TranslatorTest, OwnPtrLibrary) {
   int retval = obj->SetOwnPtrLibrary(test_obj.Pass());
   EXPECT_EQ(kTestVal, retval);
   EXPECT_FALSE(test_obj.get());
-  
+
   const int kTestVal2 = 30;
   CefOwnPtr<CefTranslatorTestScopedLibrary> test_obj2 =
       obj->GetOwnPtrLibrary(kTestVal2);
@@ -426,7 +414,7 @@ TEST(TranslatorTest, OwnPtrLibrary) {
 // Test getting/setting inherited library-side OwnPtr types.
 TEST(TranslatorTest, OwnPtrLibraryInherit) {
   CefRefPtr<CefTranslatorTest> obj = CefTranslatorTest::Create();
-  
+
   const int kTestVal = 12;
   const int kTestVal2 = 40;
   CefOwnPtr<CefTranslatorTestScopedLibraryChild> test_obj =
@@ -434,8 +422,8 @@ TEST(TranslatorTest, OwnPtrLibraryInherit) {
   EXPECT_TRUE(test_obj.get());
   EXPECT_EQ(kTestVal, test_obj->GetValue());
   EXPECT_EQ(kTestVal2, test_obj->GetOtherValue());
-  int retval = obj->SetOwnPtrLibrary(
-      test_obj.PassAs<CefTranslatorTestScopedLibrary>());
+  int retval =
+      obj->SetOwnPtrLibrary(test_obj.PassAs<CefTranslatorTestScopedLibrary>());
   EXPECT_EQ(kTestVal, retval);
   EXPECT_FALSE(test_obj.get());
 
@@ -460,15 +448,16 @@ TEST(TranslatorTest, OwnPtrLibraryInherit) {
   EXPECT_EQ(kTestVal, test_obj2->GetValue());
   EXPECT_EQ(kTestVal2, test_obj2->GetOtherValue());
   EXPECT_EQ(kTestVal3, test_obj2->GetOtherOtherValue());
-  int retval2 = obj->SetOwnPtrLibrary(
-      test_obj2.PassAs<CefTranslatorTestScopedLibrary>());
+  int retval2 =
+      obj->SetOwnPtrLibrary(test_obj2.PassAs<CefTranslatorTestScopedLibrary>());
   EXPECT_EQ(kTestVal, retval2);
   EXPECT_FALSE(test_obj2.get());
 
   test_obj2 = CefTranslatorTestScopedLibraryChildChild::Create(
       kTestVal, kTestVal2, kTestVal3);
-  EXPECT_EQ(kTestVal, obj->SetChildOwnPtrLibrary(
-      test_obj2.PassAs<CefTranslatorTestScopedLibraryChild>()));
+  EXPECT_EQ(kTestVal,
+            obj->SetChildOwnPtrLibrary(
+                test_obj2.PassAs<CefTranslatorTestScopedLibraryChild>()));
   EXPECT_FALSE(test_obj2.get());
 
   test_obj2 = CefTranslatorTestScopedLibraryChildChild::Create(
@@ -488,18 +477,11 @@ namespace {
 
 class TranslatorTestScopedClient : public CefTranslatorTestScopedClient {
  public:
-  TranslatorTestScopedClient(const int val,
-                             TrackCallback* got_delete)
-    : val_(val),
-      got_delete_(got_delete) {
-  }
-  ~TranslatorTestScopedClient() override {
-    got_delete_->yes();
-  }
+  TranslatorTestScopedClient(const int val, TrackCallback* got_delete)
+      : val_(val), got_delete_(got_delete) {}
+  ~TranslatorTestScopedClient() override { got_delete_->yes(); }
 
-  virtual int GetValue() override {
-    return val_;
-  }
+  virtual int GetValue() override { return val_; }
 
  private:
   const int val_;
@@ -508,27 +490,18 @@ class TranslatorTestScopedClient : public CefTranslatorTestScopedClient {
   DISALLOW_COPY_AND_ASSIGN(TranslatorTestScopedClient);
 };
 
-class TranslatorTestScopedClientChild :
-    public CefTranslatorTestScopedClientChild {
+class TranslatorTestScopedClientChild
+    : public CefTranslatorTestScopedClientChild {
  public:
   TranslatorTestScopedClientChild(const int val,
                                   const int other_val,
                                   TrackCallback* got_delete)
-    : val_(val),
-      other_val_(other_val),
-      got_delete_(got_delete) {
-  }
-  ~TranslatorTestScopedClientChild() override {
-    got_delete_->yes();
-  }
+      : val_(val), other_val_(other_val), got_delete_(got_delete) {}
+  ~TranslatorTestScopedClientChild() override { got_delete_->yes(); }
 
-  virtual int GetValue() override {
-    return val_;
-  }
+  virtual int GetValue() override { return val_; }
 
-  virtual int GetOtherValue() override {
-    return other_val_;
-  }
+  virtual int GetOtherValue() override { return other_val_; }
 
  private:
   const int val_;
@@ -543,7 +516,7 @@ class TranslatorTestScopedClientChild :
 // Test getting/setting client-side OwnPtr types.
 TEST(TranslatorTest, OwnPtrClient) {
   CefRefPtr<CefTranslatorTest> obj = CefTranslatorTest::Create();
-  
+
   const int kTestVal = 12;
   TrackCallback got_delete;
 
@@ -572,7 +545,7 @@ TEST(TranslatorTest, OwnPtrClient) {
 // Test getting/setting inherited client-side OwnPtr types.
 TEST(TranslatorTest, OwnPtrClientInherit) {
   CefRefPtr<CefTranslatorTest> obj = CefTranslatorTest::Create();
-  
+
   const int kTestVal = 12;
   const int kTestVal2 = 86;
   TrackCallback got_delete;
@@ -582,7 +555,7 @@ TEST(TranslatorTest, OwnPtrClientInherit) {
   EXPECT_EQ(kTestVal, test_obj->GetValue());
   EXPECT_EQ(kTestVal2, test_obj->GetOtherValue());
   EXPECT_EQ(kTestVal, obj->SetOwnPtrClient(
-      test_obj.PassAs<CefTranslatorTestScopedClient>()));
+                          test_obj.PassAs<CefTranslatorTestScopedClient>()));
   EXPECT_FALSE(test_obj.get());
   EXPECT_TRUE(got_delete);
 
@@ -611,7 +584,7 @@ TEST(TranslatorTest, OwnPtrClientInherit) {
 // Test getting/setting library-side RawPtr types.
 TEST(TranslatorTest, RawPtrLibrary) {
   CefRefPtr<CefTranslatorTest> obj = CefTranslatorTest::Create();
-  
+
   const int kTestVal = 12;
   CefOwnPtr<CefTranslatorTestScopedLibrary> test_obj(
       CefTranslatorTestScopedLibrary::Create(kTestVal));
@@ -635,7 +608,7 @@ TEST(TranslatorTest, RawPtrLibrary) {
 // Test getting/setting inherited library-side RawPtr types.
 TEST(TranslatorTest, RawPtrLibraryInherit) {
   CefRefPtr<CefTranslatorTest> obj = CefTranslatorTest::Create();
-  
+
   const int kTestVal = 12;
   const int kTestVal2 = 40;
   CefOwnPtr<CefTranslatorTestScopedLibraryChild> test_obj(
@@ -648,7 +621,7 @@ TEST(TranslatorTest, RawPtrLibraryInherit) {
   EXPECT_EQ(kTestVal2, test_obj->GetOtherValue());
 
   EXPECT_EQ(kTestVal, obj->SetChildRawPtrLibrary(test_obj.get()));
-  
+
   const int kTestVal3 = 100;
   CefOwnPtr<CefTranslatorTestScopedLibraryChildChild> test_obj2(
       CefTranslatorTestScopedLibraryChildChild::Create(kTestVal, kTestVal2,
@@ -671,7 +644,7 @@ TEST(TranslatorTest, RawPtrLibraryInherit) {
 // Test getting/setting library-side RawPtr list types.
 TEST(TranslatorTest, RawPtrLibraryList) {
   CefRefPtr<CefTranslatorTest> obj = CefTranslatorTest::Create();
-  
+
   const int kVal1 = 34;
   const int kVal2 = 10;
 
@@ -680,7 +653,7 @@ TEST(TranslatorTest, RawPtrLibraryList) {
   CefOwnPtr<CefTranslatorTestScopedLibraryChild> val2(
       CefTranslatorTestScopedLibraryChild::Create(kVal2, 0));
 
-  std::vector<CefRawPtr<CefTranslatorTestScopedLibrary> > list;
+  std::vector<CefRawPtr<CefTranslatorTestScopedLibrary>> list;
   list.push_back(val1.get());
   list.push_back(val2.get());
   EXPECT_TRUE(obj->SetRawPtrLibraryList(list, kVal1, kVal2));
@@ -693,7 +666,7 @@ TEST(TranslatorTest, RawPtrLibraryList) {
 // Test getting/setting client-side RawPtr types.
 TEST(TranslatorTest, RawPtrClient) {
   CefRefPtr<CefTranslatorTest> obj = CefTranslatorTest::Create();
-  
+
   const int kTestVal = 12;
   TrackCallback got_delete;
 
@@ -712,7 +685,7 @@ TEST(TranslatorTest, RawPtrClient) {
 // Test getting/setting inherited client-side RawPtr types.
 TEST(TranslatorTest, RawPtrClientInherit) {
   CefRefPtr<CefTranslatorTest> obj = CefTranslatorTest::Create();
-  
+
   const int kTestVal = 12;
   const int kTestVal2 = 86;
   TrackCallback got_delete;
@@ -739,7 +712,7 @@ TEST(TranslatorTest, RawPtrClientInherit) {
 // Test getting/setting client-side RawPtr list types.
 TEST(TranslatorTest, RawPtrClientList) {
   CefRefPtr<CefTranslatorTest> obj = CefTranslatorTest::Create();
-  
+
   const int kVal1 = 34;
   const int kVal2 = 10;
   TrackCallback got_delete1, got_delete2;
@@ -749,7 +722,7 @@ TEST(TranslatorTest, RawPtrClientList) {
   CefOwnPtr<CefTranslatorTestScopedClient> val2(
       new TranslatorTestScopedClientChild(kVal2, 0, &got_delete2));
 
-  std::vector<CefRawPtr<CefTranslatorTestScopedClient> > list;
+  std::vector<CefRawPtr<CefTranslatorTestScopedClient>> list;
   list.push_back(val1.get());
   list.push_back(val2.get());
   EXPECT_TRUE(obj->SetRawPtrClientList(list, kVal1, kVal2));

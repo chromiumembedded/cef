@@ -34,11 +34,9 @@ CefContentUtilityClient::CefContentUtilityClient() {
 #endif
 }
 
-CefContentUtilityClient::~CefContentUtilityClient() {
-}
+CefContentUtilityClient::~CefContentUtilityClient() {}
 
-bool CefContentUtilityClient::OnMessageReceived(
-    const IPC::Message& message) {
+bool CefContentUtilityClient::OnMessageReceived(const IPC::Message& message) {
   bool handled = false;
 
   for (Handlers::iterator it = handlers_.begin();

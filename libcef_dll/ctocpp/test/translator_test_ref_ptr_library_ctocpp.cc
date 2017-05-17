@@ -9,27 +9,26 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=8378563b430352b25a0ae9400c3c181798dec565$
+//
 
-#include "libcef_dll/ctocpp/test/translator_test_ref_ptr_library_ctocpp.h"
-#include "libcef_dll/ctocpp/test/translator_test_ref_ptr_library_child_ctocpp.h"
 #include "libcef_dll/ctocpp/test/translator_test_ref_ptr_library_child_child_ctocpp.h"
-
+#include "libcef_dll/ctocpp/test/translator_test_ref_ptr_library_child_ctocpp.h"
+#include "libcef_dll/ctocpp/test/translator_test_ref_ptr_library_ctocpp.h"
 
 // STATIC METHODS - Body may be edited by hand.
 
-CefRefPtr<CefTranslatorTestRefPtrLibrary> CefTranslatorTestRefPtrLibrary::Create(
-    int value) {
+CefRefPtr<CefTranslatorTestRefPtrLibrary>
+CefTranslatorTestRefPtrLibrary::Create(int value) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
   cef_translator_test_ref_ptr_library_t* _retval =
-      cef_translator_test_ref_ptr_library_create(
-      value);
+      cef_translator_test_ref_ptr_library_create(value);
 
   // Return type: refptr_same
   return CefTranslatorTestRefPtrLibraryCToCpp::Wrap(_retval);
 }
-
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
@@ -55,41 +54,44 @@ void CefTranslatorTestRefPtrLibraryCToCpp::SetValue(int value) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  _struct->set_value(_struct,
-      value);
+  _struct->set_value(_struct, value);
 }
-
 
 // CONSTRUCTOR - Do not edit by hand.
 
-CefTranslatorTestRefPtrLibraryCToCpp::CefTranslatorTestRefPtrLibraryCToCpp() {
-}
+CefTranslatorTestRefPtrLibraryCToCpp::CefTranslatorTestRefPtrLibraryCToCpp() {}
 
-template<> cef_translator_test_ref_ptr_library_t* CefCToCppRefCounted<CefTranslatorTestRefPtrLibraryCToCpp,
-    CefTranslatorTestRefPtrLibrary,
-    cef_translator_test_ref_ptr_library_t>::UnwrapDerived(CefWrapperType type,
-    CefTranslatorTestRefPtrLibrary* c) {
+template <>
+cef_translator_test_ref_ptr_library_t*
+CefCToCppRefCounted<CefTranslatorTestRefPtrLibraryCToCpp,
+                    CefTranslatorTestRefPtrLibrary,
+                    cef_translator_test_ref_ptr_library_t>::
+    UnwrapDerived(CefWrapperType type, CefTranslatorTestRefPtrLibrary* c) {
   if (type == WT_TRANSLATOR_TEST_REF_PTR_LIBRARY_CHILD) {
     return reinterpret_cast<cef_translator_test_ref_ptr_library_t*>(
         CefTranslatorTestRefPtrLibraryChildCToCpp::Unwrap(
-        reinterpret_cast<CefTranslatorTestRefPtrLibraryChild*>(c)));
+            reinterpret_cast<CefTranslatorTestRefPtrLibraryChild*>(c)));
   }
   if (type == WT_TRANSLATOR_TEST_REF_PTR_LIBRARY_CHILD_CHILD) {
     return reinterpret_cast<cef_translator_test_ref_ptr_library_t*>(
         CefTranslatorTestRefPtrLibraryChildChildCToCpp::Unwrap(
-        reinterpret_cast<CefTranslatorTestRefPtrLibraryChildChild*>(c)));
+            reinterpret_cast<CefTranslatorTestRefPtrLibraryChildChild*>(c)));
   }
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCppRefCounted<CefTranslatorTestRefPtrLibraryCToCpp,
-    CefTranslatorTestRefPtrLibrary,
-    cef_translator_test_ref_ptr_library_t>::DebugObjCt = 0;
+template <>
+base::AtomicRefCount
+    CefCToCppRefCounted<CefTranslatorTestRefPtrLibraryCToCpp,
+                        CefTranslatorTestRefPtrLibrary,
+                        cef_translator_test_ref_ptr_library_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCppRefCounted<CefTranslatorTestRefPtrLibraryCToCpp,
-    CefTranslatorTestRefPtrLibrary,
-    cef_translator_test_ref_ptr_library_t>::kWrapperType =
-    WT_TRANSLATOR_TEST_REF_PTR_LIBRARY;
+template <>
+CefWrapperType
+    CefCToCppRefCounted<CefTranslatorTestRefPtrLibraryCToCpp,
+                        CefTranslatorTestRefPtrLibrary,
+                        cef_translator_test_ref_ptr_library_t>::kWrapperType =
+        WT_TRANSLATOR_TEST_REF_PTR_LIBRARY;

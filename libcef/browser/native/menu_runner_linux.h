@@ -10,7 +10,7 @@
 
 #include "ui/views/controls/menu/menu_runner.h"
 
-class CefMenuRunnerLinux: public CefMenuRunner {
+class CefMenuRunnerLinux : public CefMenuRunner {
  public:
   CefMenuRunnerLinux();
 

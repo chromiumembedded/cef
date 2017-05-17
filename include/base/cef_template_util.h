@@ -53,70 +53,92 @@ namespace base {
 
 // template definitions from tr1
 
-template<class T, T v>
+template <class T, T v>
 struct integral_constant {
   static const T value = v;
   typedef T value_type;
   typedef integral_constant<T, v> type;
 };
 
-template <class T, T v> const T integral_constant<T, v>::value;
+template <class T, T v>
+const T integral_constant<T, v>::value;
 
 typedef integral_constant<bool, true> true_type;
 typedef integral_constant<bool, false> false_type;
 
-template <class T> struct is_pointer : false_type {};
-template <class T> struct is_pointer<T*> : true_type {};
+template <class T>
+struct is_pointer : false_type {};
+template <class T>
+struct is_pointer<T*> : true_type {};
 
 // Member function pointer detection up to four params. Add more as needed
 // below. This is built-in to C++ 11, and we can remove this when we switch.
-template<typename T>
+template <typename T>
 struct is_member_function_pointer : false_type {};
 
 template <typename R, typename Z>
-struct is_member_function_pointer<R(Z::*)()> : true_type {};
+struct is_member_function_pointer<R (Z::*)()> : true_type {};
 template <typename R, typename Z>
-struct is_member_function_pointer<R(Z::*)() const> : true_type {};
+struct is_member_function_pointer<R (Z::*)() const> : true_type {};
 
 template <typename R, typename Z, typename A>
-struct is_member_function_pointer<R(Z::*)(A)> : true_type {};
+struct is_member_function_pointer<R (Z::*)(A)> : true_type {};
 template <typename R, typename Z, typename A>
-struct is_member_function_pointer<R(Z::*)(A) const> : true_type {};
+struct is_member_function_pointer<R (Z::*)(A) const> : true_type {};
 
 template <typename R, typename Z, typename A, typename B>
-struct is_member_function_pointer<R(Z::*)(A, B)> : true_type {};
+struct is_member_function_pointer<R (Z::*)(A, B)> : true_type {};
 template <typename R, typename Z, typename A, typename B>
-struct is_member_function_pointer<R(Z::*)(A, B) const> : true_type {};
+struct is_member_function_pointer<R (Z::*)(A, B) const> : true_type {};
 
 template <typename R, typename Z, typename A, typename B, typename C>
-struct is_member_function_pointer<R(Z::*)(A, B, C)> : true_type {};
+struct is_member_function_pointer<R (Z::*)(A, B, C)> : true_type {};
 template <typename R, typename Z, typename A, typename B, typename C>
-struct is_member_function_pointer<R(Z::*)(A, B, C) const> : true_type {};
+struct is_member_function_pointer<R (Z::*)(A, B, C) const> : true_type {};
 
-template <typename R, typename Z, typename A, typename B, typename C,
+template <typename R,
+          typename Z,
+          typename A,
+          typename B,
+          typename C,
           typename D>
-struct is_member_function_pointer<R(Z::*)(A, B, C, D)> : true_type {};
-template <typename R, typename Z, typename A, typename B, typename C,
+struct is_member_function_pointer<R (Z::*)(A, B, C, D)> : true_type {};
+template <typename R,
+          typename Z,
+          typename A,
+          typename B,
+          typename C,
           typename D>
-struct is_member_function_pointer<R(Z::*)(A, B, C, D) const> : true_type {};
+struct is_member_function_pointer<R (Z::*)(A, B, C, D) const> : true_type {};
 
+template <class T, class U>
+struct is_same : public false_type {};
+template <class T>
+struct is_same<T, T> : true_type {};
 
-template <class T, class U> struct is_same : public false_type {};
-template <class T> struct is_same<T,T> : true_type {};
+template <class>
+struct is_array : public false_type {};
+template <class T, size_t n>
+struct is_array<T[n]> : public true_type {};
+template <class T>
+struct is_array<T[]> : public true_type {};
 
-template<class> struct is_array : public false_type {};
-template<class T, size_t n> struct is_array<T[n]> : public true_type {};
-template<class T> struct is_array<T[]> : public true_type {};
+template <class T>
+struct is_non_const_reference : false_type {};
+template <class T>
+struct is_non_const_reference<T&> : true_type {};
+template <class T>
+struct is_non_const_reference<const T&> : false_type {};
 
-template <class T> struct is_non_const_reference : false_type {};
-template <class T> struct is_non_const_reference<T&> : true_type {};
-template <class T> struct is_non_const_reference<const T&> : false_type {};
+template <class T>
+struct is_const : false_type {};
+template <class T>
+struct is_const<const T> : true_type {};
 
-template <class T> struct is_const : false_type {};
-template <class T> struct is_const<const T> : true_type {};
-
-template <class T> struct is_void : false_type {};
-template <> struct is_void<void> : true_type {};
+template <class T>
+struct is_void : false_type {};
+template <>
+struct is_void<void> : true_type {};
 
 namespace cef_internal {
 
@@ -152,7 +174,7 @@ struct ConvertHelper {
 // is_class type_trait implementation.
 struct IsClassHelper {
   template <typename C>
-  static YesType Test(void(C::*)(void));
+  static YesType Test(void (C::*)(void));
 
   template <typename C>
   static NoType Test(...);
@@ -168,22 +190,22 @@ template <typename From, typename To>
 struct is_convertible
     : integral_constant<bool,
                         sizeof(cef_internal::ConvertHelper::Test<To>(
-                                   cef_internal::ConvertHelper::Create<From>())) ==
-                        sizeof(cef_internal::YesType)> {
-};
+                            cef_internal::ConvertHelper::Create<From>())) ==
+                            sizeof(cef_internal::YesType)> {};
 
 template <typename T>
 struct is_class
     : integral_constant<bool,
                         sizeof(cef_internal::IsClassHelper::Test<T>(0)) ==
-                            sizeof(cef_internal::YesType)> {
-};
+                            sizeof(cef_internal::YesType)> {};
 
-template<bool B, class T = void>
+template <bool B, class T = void>
 struct enable_if {};
 
-template<class T>
-struct enable_if<true, T> { typedef T type; };
+template <class T>
+struct enable_if<true, T> {
+  typedef T type;
+};
 
 }  // namespace base
 

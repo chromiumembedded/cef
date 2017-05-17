@@ -33,6 +33,8 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
+// $hash=2e5afff3277384ea9f3f74ef509c018f6d307dc4$
+//
 
 #ifndef CEF_INCLUDE_CAPI_CEF_ORIGIN_WHITELIST_CAPI_H_
 #define CEF_INCLUDE_CAPI_CEF_ORIGIN_WHITELIST_CAPI_H_
@@ -43,7 +45,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
 
 ///
 // Add an entry to the cross-origin access whitelist.
@@ -82,16 +83,20 @@ extern "C" {
 // |source_origin| is invalid or the whitelist cannot be accessed.
 ///
 CEF_EXPORT int cef_add_cross_origin_whitelist_entry(
-    const cef_string_t* source_origin, const cef_string_t* target_protocol,
-    const cef_string_t* target_domain, int allow_target_subdomains);
+    const cef_string_t* source_origin,
+    const cef_string_t* target_protocol,
+    const cef_string_t* target_domain,
+    int allow_target_subdomains);
 
 ///
 // Remove an entry from the cross-origin access whitelist. Returns false (0) if
 // |source_origin| is invalid or the whitelist cannot be accessed.
 ///
 CEF_EXPORT int cef_remove_cross_origin_whitelist_entry(
-    const cef_string_t* source_origin, const cef_string_t* target_protocol,
-    const cef_string_t* target_domain, int allow_target_subdomains);
+    const cef_string_t* source_origin,
+    const cef_string_t* target_protocol,
+    const cef_string_t* target_domain,
+    int allow_target_subdomains);
 
 ///
 // Remove all entries from the cross-origin access whitelist. Returns false (0)

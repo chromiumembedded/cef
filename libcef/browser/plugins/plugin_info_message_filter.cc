@@ -67,15 +67,14 @@ class ShutdownNotifierFactory
 
   ShutdownNotifierFactory()
       : BrowserContextKeyedServiceShutdownNotifierFactory(
-            "CefPluginInfoMessageFilter") {
-  }
+            "CefPluginInfoMessageFilter") {}
   ~ShutdownNotifierFactory() override {}
 
   DISALLOW_COPY_AND_ASSIGN(ShutdownNotifierFactory);
 };
 
-base::LazyInstance<ShutdownNotifierFactory>::Leaky
-    g_shutdown_notifier_factory = LAZY_INSTANCE_INITIALIZER;
+base::LazyInstance<ShutdownNotifierFactory>::Leaky g_shutdown_notifier_factory =
+    LAZY_INSTANCE_INITIALIZER;
 
 // static
 ShutdownNotifierFactory* ShutdownNotifierFactory::GetInstance() {
@@ -122,8 +121,8 @@ static void SendPluginAvailabilityUMA(const std::string& mime_type,
   if (mime_type != kWidevineCdmPluginMimeType)
     return;
 
-  UMA_HISTOGRAM_ENUMERATION("Plugin.AvailabilityStatus.WidevineCdm",
-                            status, PLUGIN_AVAILABILITY_STATUS_MAX);
+  UMA_HISTOGRAM_ENUMERATION("Plugin.AvailabilityStatus.WidevineCdm", status,
+                            PLUGIN_AVAILABILITY_STATUS_MAX);
 #endif  // defined(WIDEVINE_CDM_AVAILABLE)
 }
 
@@ -131,8 +130,7 @@ static void SendPluginAvailabilityUMA(const std::string& mime_type,
 
 void ReportMetrics(const std::string& mime_type,
                    const GURL& url,
-                   const url::Origin& main_frame_origin) {
-}
+                   const url::Origin& main_frame_origin) {}
 
 #if BUILDFLAG(ENABLE_EXTENSIONS)
 // Returns whether a request from a plugin to load |resource| from a renderer
@@ -154,7 +152,7 @@ bool IsPluginLoadingAccessibleResourceInWebView(
   const extensions::Extension* extension = extension_registry->GetExtensionById(
       extension_id, extensions::ExtensionRegistry::ENABLED);
   if (!extension || !extensions::WebviewInfo::IsResourceWebviewAccessible(
-          extension, partition_id, resource.path())) {
+                        extension, partition_id, resource.path())) {
     return false;
   }
 
@@ -168,9 +166,8 @@ bool IsPluginLoadingAccessibleResourceInWebView(
 
 }  // namespace
 
-CefPluginInfoMessageFilter::Context::Context(
-    int render_process_id,
-    CefBrowserContext* profile)
+CefPluginInfoMessageFilter::Context::Context(int render_process_id,
+                                             CefBrowserContext* profile)
     : render_process_id_(render_process_id),
       resource_context_(
           static_cast<CefResourceContext*>(profile->GetResourceContext())),
@@ -192,8 +189,7 @@ CefPluginInfoMessageFilter::Context::Context(
           content::BrowserThread::IO));
 }
 
-CefPluginInfoMessageFilter::Context::~Context() {
-}
+CefPluginInfoMessageFilter::Context::~Context() {}
 
 void CefPluginInfoMessageFilter::Context::ShutdownOnUIThread() {
   DCHECK_CURRENTLY_ON(content::BrowserThread::UI);
@@ -210,8 +206,8 @@ CefPluginInfoMessageFilter::CefPluginInfoMessageFilter(
       weak_ptr_factory_(this) {
   shutdown_notifier_ =
       ShutdownNotifierFactory::GetInstance()->Get(profile)->Subscribe(
-           base::Bind(&CefPluginInfoMessageFilter::ShutdownOnUIThread,
-                      base::Unretained(this)));
+          base::Bind(&CefPluginInfoMessageFilter::ShutdownOnUIThread,
+                     base::Unretained(this)));
 }
 
 void CefPluginInfoMessageFilter::ShutdownOnUIThread() {
@@ -226,9 +222,8 @@ bool CefPluginInfoMessageFilter::OnMessageReceived(
     IPC_MESSAGE_HANDLER_DELAY_REPLY(CefViewHostMsg_GetPluginInfo,
                                     OnGetPluginInfo)
 #if BUILDFLAG(ENABLE_PEPPER_CDMS)
-    IPC_MESSAGE_HANDLER(
-        CefViewHostMsg_IsInternalPluginAvailableForMimeType,
-        OnIsInternalPluginAvailableForMimeType)
+    IPC_MESSAGE_HANDLER(CefViewHostMsg_IsInternalPluginAvailableForMimeType,
+                        OnIsInternalPluginAvailableForMimeType)
 #endif
     IPC_MESSAGE_UNHANDLED(return false)
   IPC_END_MESSAGE_MAP()
@@ -236,8 +231,8 @@ bool CefPluginInfoMessageFilter::OnMessageReceived(
 }
 
 void CefPluginInfoMessageFilter::OnDestruct() const {
-  const_cast<CefPluginInfoMessageFilter*>(this)->
-      weak_ptr_factory_.InvalidateWeakPtrs();
+  const_cast<CefPluginInfoMessageFilter*>(this)
+      ->weak_ptr_factory_.InvalidateWeakPtrs();
 
   // Destroy on the UI thread because we contain a |PrefMember|.
   content::BrowserThread::DeleteOnUIThread::Destruct(this);
@@ -260,17 +255,11 @@ void CefPluginInfoMessageFilter::OnGetPluginInfo(
     const url::Origin& main_frame_origin,
     const std::string& mime_type,
     IPC::Message* reply_msg) {
-  GetPluginInfo_Params params = {
-    render_frame_id,
-    url,
-    is_main_frame,
-    main_frame_origin,
-    mime_type
-  };
+  GetPluginInfo_Params params = {render_frame_id, url, is_main_frame,
+                                 main_frame_origin, mime_type};
   PluginService::GetInstance()->GetPlugins(
       base::Bind(&CefPluginInfoMessageFilter::PluginsLoaded,
-                 weak_ptr_factory_.GetWeakPtr(),
-                 params, reply_msg));
+                 weak_ptr_factory_.GetWeakPtr(), params, reply_msg));
 }
 
 void CefPluginInfoMessageFilter::PluginsLoaded(
@@ -281,10 +270,8 @@ void CefPluginInfoMessageFilter::PluginsLoaded(
 
   // This also fills in |actual_mime_type|.
   std::unique_ptr<PluginMetadata> plugin_metadata;
-  context_.FindEnabledPlugin(params,
-                             &output.status, &output.plugin,
-                             &output.actual_mime_type,
-                             &plugin_metadata);
+  context_.FindEnabledPlugin(params, &output.status, &output.plugin,
+                             &output.actual_mime_type, &plugin_metadata);
 
   if (plugin_metadata) {
     output.group_identifier = plugin_metadata->identifier();
@@ -293,8 +280,7 @@ void CefPluginInfoMessageFilter::PluginsLoaded(
 
   CefViewHostMsg_GetPluginInfo::WriteReplyParams(reply_msg, output);
   Send(reply_msg);
-  if (output.status !=
-      CefViewHostMsg_GetPluginInfo_Status::kNotFound) {
+  if (output.status != CefViewHostMsg_GetPluginInfo_Status::kNotFound) {
     main_thread_task_runner_->PostTask(
         FROM_HERE, base::Bind(&ReportMetrics, output.actual_mime_type,
                               params.url, params.main_frame_origin));
@@ -337,7 +323,7 @@ void CefPluginInfoMessageFilter::OnIsInternalPluginAvailableForMimeType(
       mime_type, is_plugin_disabled ? PLUGIN_DISABLED : PLUGIN_NOT_REGISTERED);
 }
 
-#endif // BUILDFLAG(ENABLE_PEPPER_CDMS)
+#endif  // BUILDFLAG(ENABLE_PEPPER_CDMS)
 
 void CefPluginInfoMessageFilter::Context::DecidePluginStatus(
     const GetPluginInfo_Params& params,
@@ -373,8 +359,7 @@ void CefPluginInfoMessageFilter::Context::DecidePluginStatus(
   // Check if the plugin is crashing too much.
   if (PluginService::GetInstance()->IsPluginUnstable(plugin.path) &&
       !always_authorize_plugins_.GetValue() &&
-      plugin_setting != CONTENT_SETTING_BLOCK &&
-      uses_default_content_setting) {
+      plugin_setting != CONTENT_SETTING_BLOCK && uses_default_content_setting) {
     *status = CefViewHostMsg_GetPluginInfo_Status::kUnauthorized;
     return;
   }
@@ -409,8 +394,7 @@ void CefPluginInfoMessageFilter::Context::DecidePluginStatus(
   // embedder.
   if (*status == CefViewHostMsg_GetPluginInfo_Status::kAllowed ||
       *status == CefViewHostMsg_GetPluginInfo_Status::kBlocked ||
-      *status ==
-          CefViewHostMsg_GetPluginInfo_Status::kPlayImportantContent) {
+      *status == CefViewHostMsg_GetPluginInfo_Status::kPlayImportantContent) {
     if (extensions::WebViewRendererState::GetInstance()->IsGuest(
             render_process_id_)) {
       *status = CefViewHostMsg_GetPluginInfo_Status::kUnauthorized;
@@ -451,13 +435,9 @@ bool CefPluginInfoMessageFilter::Context::FindEnabledPlugin(
     *plugin_metadata = PluginFinder::GetInstance()->GetPluginMetadata(*plugin);
 
     DecidePluginStatus(params, *plugin, (*plugin_metadata).get(), status);
-    if (filter->IsPluginAvailable(render_process_id_,
-                                  resource_context_,
-                                  params.url,
-                                  params.is_main_frame,
-                                  params.main_frame_origin,
-                                  plugin,
-                                  status)) {
+    if (filter->IsPluginAvailable(render_process_id_, resource_context_,
+                                  params.url, params.is_main_frame,
+                                  params.main_frame_origin, plugin, status)) {
       break;
     }
 
@@ -492,28 +472,19 @@ void CefPluginInfoMessageFilter::Context::GetPluginContentSetting(
   bool uses_plugin_specific_setting = false;
   if (ShouldUseJavaScriptSettingForPlugin(plugin)) {
     value = host_content_settings_map_->GetWebsiteSetting(
-        policy_url,
-        policy_url,
-        CONTENT_SETTINGS_TYPE_JAVASCRIPT,
-        std::string(),
+        policy_url, policy_url, CONTENT_SETTINGS_TYPE_JAVASCRIPT, std::string(),
         &info);
   } else {
     content_settings::SettingInfo specific_info;
     std::unique_ptr<base::Value> specific_setting =
         host_content_settings_map_->GetWebsiteSetting(
-            policy_url,
-            plugin_url,
-            CONTENT_SETTINGS_TYPE_PLUGINS,
-            resource,
+            policy_url, plugin_url, CONTENT_SETTINGS_TYPE_PLUGINS, resource,
             &specific_info);
     content_settings::SettingInfo general_info;
     std::unique_ptr<base::Value> general_setting =
         host_content_settings_map_->GetWebsiteSetting(
-            policy_url,
-            plugin_url,
-            CONTENT_SETTINGS_TYPE_PLUGINS,
-            std::string(),
-            &general_info);
+            policy_url, plugin_url, CONTENT_SETTINGS_TYPE_PLUGINS,
+            std::string(), &general_info);
 
     // If there is a plugin-specific setting, we use it, unless the general
     // setting was set by policy, in which case it takes precedence.

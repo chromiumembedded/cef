@@ -9,9 +9,10 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=34bc8098c254fc94e374b5ff47f6ffc065c87336$
+//
 
 #include "libcef_dll/cpptoc/post_data_element_cpptoc.h"
-
 
 // GLOBAL FUNCTIONS - Body may be edited by hand.
 
@@ -25,13 +26,12 @@ CEF_EXPORT cef_post_data_element_t* cef_post_data_element_create() {
   return CefPostDataElementCppToC::Wrap(_retval);
 }
 
-
 namespace {
 
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
-int CEF_CALLBACK post_data_element_is_read_only(
-    struct _cef_post_data_element_t* self) {
+int CEF_CALLBACK
+post_data_element_is_read_only(struct _cef_post_data_element_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -45,8 +45,8 @@ int CEF_CALLBACK post_data_element_is_read_only(
   return _retval;
 }
 
-void CEF_CALLBACK post_data_element_set_to_empty(
-    struct _cef_post_data_element_t* self) {
+void CEF_CALLBACK
+post_data_element_set_to_empty(struct _cef_post_data_element_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -57,8 +57,9 @@ void CEF_CALLBACK post_data_element_set_to_empty(
   CefPostDataElementCppToC::Get(self)->SetToEmpty();
 }
 
-void CEF_CALLBACK post_data_element_set_to_file(
-    struct _cef_post_data_element_t* self, const cef_string_t* fileName) {
+void CEF_CALLBACK
+post_data_element_set_to_file(struct _cef_post_data_element_t* self,
+                              const cef_string_t* fileName) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -70,12 +71,13 @@ void CEF_CALLBACK post_data_element_set_to_file(
     return;
 
   // Execute
-  CefPostDataElementCppToC::Get(self)->SetToFile(
-      CefString(fileName));
+  CefPostDataElementCppToC::Get(self)->SetToFile(CefString(fileName));
 }
 
-void CEF_CALLBACK post_data_element_set_to_bytes(
-    struct _cef_post_data_element_t* self, size_t size, const void* bytes) {
+void CEF_CALLBACK
+post_data_element_set_to_bytes(struct _cef_post_data_element_t* self,
+                               size_t size,
+                               const void* bytes) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -87,13 +89,11 @@ void CEF_CALLBACK post_data_element_set_to_bytes(
     return;
 
   // Execute
-  CefPostDataElementCppToC::Get(self)->SetToBytes(
-      size,
-      bytes);
+  CefPostDataElementCppToC::Get(self)->SetToBytes(size, bytes);
 }
 
-cef_postdataelement_type_t CEF_CALLBACK post_data_element_get_type(
-    struct _cef_post_data_element_t* self) {
+cef_postdataelement_type_t CEF_CALLBACK
+post_data_element_get_type(struct _cef_post_data_element_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -101,15 +101,15 @@ cef_postdataelement_type_t CEF_CALLBACK post_data_element_get_type(
     return PDE_TYPE_EMPTY;
 
   // Execute
-  cef_postdataelement_type_t _retval = CefPostDataElementCppToC::Get(
-      self)->GetType();
+  cef_postdataelement_type_t _retval =
+      CefPostDataElementCppToC::Get(self)->GetType();
 
   // Return type: simple
   return _retval;
 }
 
-cef_string_userfree_t CEF_CALLBACK post_data_element_get_file(
-    struct _cef_post_data_element_t* self) {
+cef_string_userfree_t CEF_CALLBACK
+post_data_element_get_file(struct _cef_post_data_element_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -123,8 +123,8 @@ cef_string_userfree_t CEF_CALLBACK post_data_element_get_file(
   return _retval.DetachToUserFree();
 }
 
-size_t CEF_CALLBACK post_data_element_get_bytes_count(
-    struct _cef_post_data_element_t* self) {
+size_t CEF_CALLBACK
+post_data_element_get_bytes_count(struct _cef_post_data_element_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -138,8 +138,10 @@ size_t CEF_CALLBACK post_data_element_get_bytes_count(
   return _retval;
 }
 
-size_t CEF_CALLBACK post_data_element_get_bytes(
-    struct _cef_post_data_element_t* self, size_t size, void* bytes) {
+size_t CEF_CALLBACK
+post_data_element_get_bytes(struct _cef_post_data_element_t* self,
+                            size_t size,
+                            void* bytes) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -151,16 +153,13 @@ size_t CEF_CALLBACK post_data_element_get_bytes(
     return 0;
 
   // Execute
-  size_t _retval = CefPostDataElementCppToC::Get(self)->GetBytes(
-      size,
-      bytes);
+  size_t _retval = CefPostDataElementCppToC::Get(self)->GetBytes(size, bytes);
 
   // Return type: simple
   return _retval;
 }
 
 }  // namespace
-
 
 // CONSTRUCTOR - Do not edit by hand.
 
@@ -175,18 +174,26 @@ CefPostDataElementCppToC::CefPostDataElementCppToC() {
   GetStruct()->get_bytes = post_data_element_get_bytes;
 }
 
-template<> CefRefPtr<CefPostDataElement> CefCppToCRefCounted<CefPostDataElementCppToC,
-    CefPostDataElement, cef_post_data_element_t>::UnwrapDerived(
-    CefWrapperType type, cef_post_data_element_t* s) {
+template <>
+CefRefPtr<CefPostDataElement> CefCppToCRefCounted<
+    CefPostDataElementCppToC,
+    CefPostDataElement,
+    cef_post_data_element_t>::UnwrapDerived(CefWrapperType type,
+                                            cef_post_data_element_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCppToCRefCounted<CefPostDataElementCppToC,
-    CefPostDataElement, cef_post_data_element_t>::DebugObjCt = 0;
+template <>
+base::AtomicRefCount CefCppToCRefCounted<CefPostDataElementCppToC,
+                                         CefPostDataElement,
+                                         cef_post_data_element_t>::DebugObjCt =
+    0;
 #endif
 
-template<> CefWrapperType CefCppToCRefCounted<CefPostDataElementCppToC,
-    CefPostDataElement, cef_post_data_element_t>::kWrapperType =
+template <>
+CefWrapperType CefCppToCRefCounted<CefPostDataElementCppToC,
+                                   CefPostDataElement,
+                                   cef_post_data_element_t>::kWrapperType =
     WT_POST_DATA_ELEMENT;

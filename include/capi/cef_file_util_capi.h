@@ -33,6 +33,8 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
+// $hash=4601edefadfafea031f2c5df498262fc2142252b$
+//
 
 #ifndef CEF_INCLUDE_CAPI_CEF_FILE_UTIL_CAPI_H_
 #define CEF_INCLUDE_CAPI_CEF_FILE_UTIL_CAPI_H_
@@ -43,7 +45,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
 
 ///
 // Creates a directory and all parent directories if they don't already exist.
@@ -71,7 +72,7 @@ CEF_EXPORT int cef_get_temp_directory(cef_string_t* temp_dir);
 // browser process UI or IO threads is not allowed.
 ///
 CEF_EXPORT int cef_create_new_temp_directory(const cef_string_t* prefix,
-    cef_string_t* new_temp_path);
+                                             cef_string_t* new_temp_path);
 
 ///
 // Creates a directory within another directory. Extra characters will be
@@ -82,7 +83,8 @@ CEF_EXPORT int cef_create_new_temp_directory(const cef_string_t* prefix,
 // or IO threads is not allowed.
 ///
 CEF_EXPORT int cef_create_temp_directory_in_directory(
-    const cef_string_t* base_dir, const cef_string_t* prefix,
+    const cef_string_t* base_dir,
+    const cef_string_t* prefix,
     cef_string_t* new_dir);
 
 ///
@@ -109,7 +111,8 @@ CEF_EXPORT int cef_delete_file(const cef_string_t* path, int recursive);
 // or IO threads is not allowed.
 ///
 CEF_EXPORT int cef_zip_directory(const cef_string_t* src_dir,
-    const cef_string_t* dest_file, int include_hidden_files);
+                                 const cef_string_t* dest_file,
+                                 int include_hidden_files);
 
 #ifdef __cplusplus
 }

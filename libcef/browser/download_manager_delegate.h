@@ -16,11 +16,10 @@
 #include "content/public/browser/download_manager.h"
 #include "content/public/browser/download_manager_delegate.h"
 
-class CefDownloadManagerDelegate
-    : public content::DownloadItem::Observer,
-      public content::DownloadManager::Observer,
-      public content::DownloadManagerDelegate,
-      public CefBrowserHostImpl::Observer {
+class CefDownloadManagerDelegate : public content::DownloadItem::Observer,
+                                   public content::DownloadManager::Observer,
+                                   public content::DownloadManagerDelegate,
+                                   public CefBrowserHostImpl::Observer {
  public:
   explicit CefDownloadManagerDelegate(content::DownloadManager* manager);
   ~CefDownloadManagerDelegate() override;
@@ -52,7 +51,7 @@ class CefDownloadManagerDelegate
   // Map of DownloadItem to originating CefBrowserHostImpl. Maintaining this
   // map is necessary because DownloadItem::GetWebContents() may return NULL if
   // the browser navigates while the download is in progress.
-  typedef std::map<content::DownloadItem*, CefBrowserHostImpl* > ItemBrowserMap;
+  typedef std::map<content::DownloadItem*, CefBrowserHostImpl*> ItemBrowserMap;
   ItemBrowserMap item_browser_map_;
 
   DISALLOW_COPY_AND_ASSIGN(CefDownloadManagerDelegate);

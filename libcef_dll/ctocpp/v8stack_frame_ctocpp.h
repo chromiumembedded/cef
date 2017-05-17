@@ -9,6 +9,8 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=19b69ac6bbdafeea89591fce2acd1f0402db53b1$
+//
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_V8STACK_FRAME_CTOCPP_H_
 #define CEF_LIBCEF_DLL_CTOCPP_V8STACK_FRAME_CTOCPP_H_
@@ -18,15 +20,15 @@
 #error This file can be included wrapper-side only
 #endif
 
-#include "include/cef_v8.h"
 #include "include/capi/cef_v8_capi.h"
+#include "include/cef_v8.h"
 #include "libcef_dll/ctocpp/ctocpp_ref_counted.h"
 
 // Wrap a C structure with a C++ class.
 // This class may be instantiated and accessed wrapper-side only.
-class CefV8StackFrameCToCpp
-    : public CefCToCppRefCounted<CefV8StackFrameCToCpp, CefV8StackFrame,
-        cef_v8stack_frame_t> {
+class CefV8StackFrameCToCpp : public CefCToCppRefCounted<CefV8StackFrameCToCpp,
+                                                         CefV8StackFrame,
+                                                         cef_v8stack_frame_t> {
  public:
   CefV8StackFrameCToCpp();
 

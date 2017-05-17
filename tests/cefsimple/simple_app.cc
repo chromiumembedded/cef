@@ -6,12 +6,12 @@
 
 #include <string>
 
-#include "tests/cefsimple/simple_handler.h"
 #include "include/cef_browser.h"
 #include "include/cef_command_line.h"
 #include "include/views/cef_browser_view.h"
 #include "include/views/cef_window.h"
 #include "include/wrapper/cef_helpers.h"
+#include "tests/cefsimple/simple_handler.h"
 
 namespace {
 
@@ -20,8 +20,7 @@ namespace {
 class SimpleWindowDelegate : public CefWindowDelegate {
  public:
   explicit SimpleWindowDelegate(CefRefPtr<CefBrowserView> browser_view)
-      : browser_view_(browser_view) {
-  }
+      : browser_view_(browser_view) {}
 
   void OnWindowCreated(CefRefPtr<CefWindow> window) OVERRIDE {
     // Add the browser view and show the window.
@@ -53,8 +52,7 @@ class SimpleWindowDelegate : public CefWindowDelegate {
 
 }  // namespace
 
-SimpleApp::SimpleApp() {
-}
+SimpleApp::SimpleApp() {}
 
 void SimpleApp::OnContextInitialized() {
   CEF_REQUIRE_UI_THREAD();

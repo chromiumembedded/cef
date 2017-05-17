@@ -73,8 +73,8 @@ class CefStreamReader;
 ///
 class CefXmlObject : public base::RefCountedThreadSafe<CefXmlObject> {
  public:
-  typedef std::vector<CefRefPtr<CefXmlObject> > ObjectVector;
-  typedef std::map<CefString, CefString > AttributeMap;
+  typedef std::vector<CefRefPtr<CefXmlObject>> ObjectVector;
+  typedef std::map<CefString, CefString> AttributeMap;
 
   ///
   // Create a new object with the specified name. An object name must always be
@@ -88,7 +88,8 @@ class CefXmlObject : public base::RefCountedThreadSafe<CefXmlObject> {
   ///
   bool Load(CefRefPtr<CefStreamReader> stream,
             CefXmlReader::EncodingType encodingType,
-            const CefString& URI, CefString* loadError);
+            const CefString& URI,
+            CefString* loadError);
 
   ///
   // Set the name, children and attributes of this object to a duplicate of the

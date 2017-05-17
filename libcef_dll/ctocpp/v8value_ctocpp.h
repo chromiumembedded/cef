@@ -9,6 +9,8 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=b811aad20b2d74c0c8e028354163a5e68f52517e$
+//
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_V8VALUE_CTOCPP_H_
 #define CEF_LIBCEF_DLL_CTOCPP_V8VALUE_CTOCPP_H_
@@ -19,8 +21,8 @@
 #endif
 
 #include <vector>
-#include "include/cef_v8.h"
 #include "include/capi/cef_v8_capi.h"
+#include "include/cef_v8.h"
 #include "libcef_dll/ctocpp/ctocpp_ref_counted.h"
 
 // Wrap a C structure with a C++ class.
@@ -62,11 +64,13 @@ class CefV8ValueCToCpp
   bool DeleteValue(int index) OVERRIDE;
   CefRefPtr<CefV8Value> GetValue(const CefString& key) OVERRIDE;
   CefRefPtr<CefV8Value> GetValue(int index) OVERRIDE;
-  bool SetValue(const CefString& key, CefRefPtr<CefV8Value> value,
-      PropertyAttribute attribute) OVERRIDE;
+  bool SetValue(const CefString& key,
+                CefRefPtr<CefV8Value> value,
+                PropertyAttribute attribute) OVERRIDE;
   bool SetValue(int index, CefRefPtr<CefV8Value> value) OVERRIDE;
-  bool SetValue(const CefString& key, AccessControl settings,
-      PropertyAttribute attribute) OVERRIDE;
+  bool SetValue(const CefString& key,
+                AccessControl settings,
+                PropertyAttribute attribute) OVERRIDE;
   bool GetKeys(std::vector<CefString>& keys) OVERRIDE;
   bool SetUserData(CefRefPtr<CefBaseRefCounted> user_data) OVERRIDE;
   CefRefPtr<CefBaseRefCounted> GetUserData() OVERRIDE;
@@ -75,10 +79,12 @@ class CefV8ValueCToCpp
   int GetArrayLength() OVERRIDE;
   CefString GetFunctionName() OVERRIDE;
   CefRefPtr<CefV8Handler> GetFunctionHandler() OVERRIDE;
-  CefRefPtr<CefV8Value> ExecuteFunction(CefRefPtr<CefV8Value> object,
+  CefRefPtr<CefV8Value> ExecuteFunction(
+      CefRefPtr<CefV8Value> object,
       const CefV8ValueList& arguments) OVERRIDE;
   CefRefPtr<CefV8Value> ExecuteFunctionWithContext(
-      CefRefPtr<CefV8Context> context, CefRefPtr<CefV8Value> object,
+      CefRefPtr<CefV8Context> context,
+      CefRefPtr<CefV8Value> object,
       const CefV8ValueList& arguments) OVERRIDE;
 };
 

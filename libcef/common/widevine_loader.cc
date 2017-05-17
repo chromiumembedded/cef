@@ -30,7 +30,6 @@ namespace {
 base::LazyInstance<CefWidevineLoader>::Leaky g_widevine_loader =
     LAZY_INSTANCE_INITIALIZER;
 
-
 // Based on chrome/browser/component_updater/widevine_cdm_component_installer.cc
 
 // Name of the Widevine CDM OS in the component manifest.
@@ -140,8 +139,8 @@ bool CheckForCompatibleVersion(const base::DictionaryValue& manifest,
   }
 
   std::stringstream ss;
-  ss << "Manifest has no supported " << version_name << " in '" <<
-        versions_string << "'";
+  ss << "Manifest has no supported " << version_name << " in '"
+     << versions_string << "'";
   *error_message = ss.str();
   return false;
 }
@@ -154,16 +153,13 @@ bool IsCompatibleWithChrome(const base::DictionaryValue& manifest,
              kWidevineCdmOs &&
          GetManifestValue(manifest, kCdmArchName, error_message) ==
              kWidevineCdmArch &&
-         CheckForCompatibleVersion(manifest,
-                                   kCdmModuleVersionsName,
+         CheckForCompatibleVersion(manifest, kCdmModuleVersionsName,
                                    media::IsSupportedCdmModuleVersion,
                                    error_message) &&
-         CheckForCompatibleVersion(manifest,
-                                   kCdmInterfaceVersionsName,
+         CheckForCompatibleVersion(manifest, kCdmInterfaceVersionsName,
                                    media::IsSupportedCdmInterfaceVersion,
                                    error_message) &&
-         CheckForCompatibleVersion(manifest,
-                                   kCdmHostVersionsName,
+         CheckForCompatibleVersion(manifest, kCdmHostVersionsName,
                                    media::IsSupportedCdmHostVersion,
                                    error_message);
 }
@@ -177,13 +173,11 @@ void GetPluginInfo(const base::FilePath& cdm_adapter_path,
   widevine_cdm->is_out_of_process = true;
   widevine_cdm->path = cdm_adapter_path;
   widevine_cdm->name = kWidevineCdmDisplayName;
-  widevine_cdm->description = kWidevineCdmDescription +
-                              std::string(" (version: ") +
-                              cdm_version + ")";
+  widevine_cdm->description =
+      kWidevineCdmDescription + std::string(" (version: ") + cdm_version + ")";
   widevine_cdm->version = cdm_version;
   content::WebPluginMimeType widevine_cdm_mime_type(
-      kWidevineCdmPluginMimeType,
-      kWidevineCdmPluginExtension,
+      kWidevineCdmPluginMimeType, kWidevineCdmPluginExtension,
       kWidevineCdmPluginMimeTypeDescription);
 
   widevine_cdm_mime_type.additional_param_names.push_back(
@@ -261,12 +255,11 @@ void DeliverWidevineCdmCallback(cef_cdm_registration_error_t result,
     callback->OnCdmRegistrationComplete(result, error_message);
 }
 
-void RegisterWidevineCdmOnUIThread(
-    const base::FilePath& cdm_adapter_path,
-    const base::FilePath& cdm_path,
-    const std::string& cdm_version,
-    const std::string& cdm_codecs,
-    CefRefPtr<CefRegisterCdmCallback> callback) {
+void RegisterWidevineCdmOnUIThread(const base::FilePath& cdm_adapter_path,
+                                   const base::FilePath& cdm_path,
+                                   const std::string& cdm_version,
+                                   const std::string& cdm_codecs,
+                                   CefRefPtr<CefRegisterCdmCallback> callback) {
   CEF_REQUIRE_UIT();
 
   content::PepperPluginInfo widevine_cdm;
@@ -313,8 +306,8 @@ void LoadWidevineCdmInfoOnFileThread(
 
   // Continue execution on the UI thread.
   CEF_POST_TASK(CEF_UIT,
-      base::Bind(RegisterWidevineCdmOnUIThread, cdm_adapter_path, cdm_path,
-                 cdm_version, cdm_codecs, callback));
+                base::Bind(RegisterWidevineCdmOnUIThread, cdm_adapter_path,
+                           cdm_path, cdm_version, cdm_codecs, callback));
 }
 
 }  // namespace
@@ -337,7 +330,7 @@ void CefWidevineLoader::LoadWidevineCdm(
 
   // Continue execution on the FILE thread.
   CEF_POST_TASK(CEF_FILET,
-      base::Bind(LoadWidevineCdmInfoOnFileThread, path, callback));
+                base::Bind(LoadWidevineCdmInfoOnFileThread, path, callback));
 }
 
 void CefWidevineLoader::OnContextInitialized() {
@@ -369,8 +362,8 @@ void CefWidevineLoader::AddPepperPlugins(
 
   // The Widevine CDM path is passed to the zygote process via
   // CefContentBrowserClient::AppendExtraCommandLineSwitches.
-  const base::FilePath& base_path = command_line.GetSwitchValuePath(
-      switches::kWidevineCdmPath);
+  const base::FilePath& base_path =
+      command_line.GetSwitchValuePath(switches::kWidevineCdmPath);
   if (base_path.empty())
     return;
 
@@ -397,10 +390,8 @@ void CefWidevineLoader::AddPepperPlugins(
 
 #endif  // defined(OS_LINUX)
 
-CefWidevineLoader::CefWidevineLoader() {
-}
+CefWidevineLoader::CefWidevineLoader() {}
 
-CefWidevineLoader::~CefWidevineLoader() {
-}
+CefWidevineLoader::~CefWidevineLoader() {}
 
 #endif  // defined(WIDEVINE_CDM_AVAILABLE) && BUILDFLAG(ENABLE_PEPPER_CDMS)

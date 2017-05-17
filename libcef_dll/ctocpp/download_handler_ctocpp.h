@@ -9,6 +9,8 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=45e2e44008510cb55383cc4a206813265d3b8432$
+//
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_DOWNLOAD_HANDLER_CTOCPP_H_
 #define CEF_LIBCEF_DLL_CTOCPP_DOWNLOAD_HANDLER_CTOCPP_H_
@@ -18,26 +20,27 @@
 #error This file can be included DLL-side only
 #endif
 
-#include "include/cef_download_handler.h"
 #include "include/capi/cef_download_handler_capi.h"
+#include "include/cef_download_handler.h"
 #include "libcef_dll/ctocpp/ctocpp_ref_counted.h"
 
 // Wrap a C structure with a C++ class.
 // This class may be instantiated and accessed DLL-side only.
 class CefDownloadHandlerCToCpp
-    : public CefCToCppRefCounted<CefDownloadHandlerCToCpp, CefDownloadHandler,
-        cef_download_handler_t> {
+    : public CefCToCppRefCounted<CefDownloadHandlerCToCpp,
+                                 CefDownloadHandler,
+                                 cef_download_handler_t> {
  public:
   CefDownloadHandlerCToCpp();
 
   // CefDownloadHandler methods.
   void OnBeforeDownload(CefRefPtr<CefBrowser> browser,
-      CefRefPtr<CefDownloadItem> download_item,
-      const CefString& suggested_name,
-      CefRefPtr<CefBeforeDownloadCallback> callback) override;
+                        CefRefPtr<CefDownloadItem> download_item,
+                        const CefString& suggested_name,
+                        CefRefPtr<CefBeforeDownloadCallback> callback) override;
   void OnDownloadUpdated(CefRefPtr<CefBrowser> browser,
-      CefRefPtr<CefDownloadItem> download_item,
-      CefRefPtr<CefDownloadItemCallback> callback) override;
+                         CefRefPtr<CefDownloadItem> download_item,
+                         CefRefPtr<CefDownloadItemCallback> callback) override;
 };
 
 #endif  // CEF_LIBCEF_DLL_CTOCPP_DOWNLOAD_HANDLER_CTOCPP_H_

@@ -41,16 +41,15 @@ CefRefPtr<CefThread> CefThread::CreateThread(
   return thread_impl;
 }
 
-CefThreadImpl::CefThreadImpl()
-  : thread_id_(kInvalidPlatformThreadId) {
-}
+CefThreadImpl::CefThreadImpl() : thread_id_(kInvalidPlatformThreadId) {}
 
 CefThreadImpl::~CefThreadImpl() {
   if (thread_.get()) {
     if (!owner_task_runner_->RunsTasksOnCurrentThread()) {
       // Delete |thread_| on the correct thread.
-      owner_task_runner_->PostTask(FROM_HERE,
-         base::Bind(StopAndDestroy, base::Unretained(thread_.release())));
+      owner_task_runner_->PostTask(
+          FROM_HERE,
+          base::Bind(StopAndDestroy, base::Unretained(thread_.release())));
     } else {
       StopAndDestroy(thread_.release());
     }

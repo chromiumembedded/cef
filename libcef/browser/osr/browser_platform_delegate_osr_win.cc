@@ -10,8 +10,7 @@
 
 CefBrowserPlatformDelegateOsrWin::CefBrowserPlatformDelegateOsrWin(
     std::unique_ptr<CefBrowserPlatformDelegateNative> native_delegate)
-    : CefBrowserPlatformDelegateOsr(std::move(native_delegate)) {
-}
+    : CefBrowserPlatformDelegateOsr(std::move(native_delegate)) {}
 
 CefWindowHandle CefBrowserPlatformDelegateOsrWin::GetHostWindowHandle() const {
   return native_delegate_->window_info().parent_window;

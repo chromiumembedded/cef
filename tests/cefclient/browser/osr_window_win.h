@@ -23,11 +23,12 @@ class OsrImeHandlerWin;
 // Represents the native parent window for an off-screen browser. This object
 // must live on the CEF UI thread in order to handle CefRenderHandler callbacks.
 // The methods of this class are thread-safe unless otherwise indicated.
-class OsrWindowWin :
-    public base::RefCountedThreadSafe<OsrWindowWin, CefDeleteOnUIThread>,
-    public ClientHandlerOsr::OsrDelegate
+class OsrWindowWin
+    : public base::RefCountedThreadSafe<OsrWindowWin, CefDeleteOnUIThread>,
+      public ClientHandlerOsr::OsrDelegate
 #if defined(CEF_USE_ATL)
-    , public OsrDragEvents
+      ,
+      public OsrDragEvents
 #endif
 {
  public:
@@ -43,8 +44,7 @@ class OsrWindowWin :
   };
 
   // |delegate| must outlive this object.
-  OsrWindowWin(Delegate* delegate,
-               const OsrRenderer::Settings& settings);
+  OsrWindowWin(Delegate* delegate, const OsrRenderer::Settings& settings);
 
   // Create a new browser and native window.
   void CreateBrowser(HWND parent_hwnd,
@@ -84,9 +84,10 @@ class OsrWindowWin :
 
   void NotifyNativeWindowCreated(HWND hwnd);
 
-  static void RegisterOsrClass(HINSTANCE hInstance,
-                               HBRUSH background_brush);
-  static LRESULT CALLBACK OsrWndProc(HWND hWnd, UINT message, WPARAM wParam,
+  static void RegisterOsrClass(HINSTANCE hInstance, HBRUSH background_brush);
+  static LRESULT CALLBACK OsrWndProc(HWND hWnd,
+                                     UINT message,
+                                     WPARAM wParam,
                                      LPARAM lParam);
 
   // WndProc message handlers.
@@ -112,10 +113,8 @@ class OsrWindowWin :
   // ClientHandlerOsr::OsrDelegate methods.
   void OnAfterCreated(CefRefPtr<CefBrowser> browser) OVERRIDE;
   void OnBeforeClose(CefRefPtr<CefBrowser> browser) OVERRIDE;
-  bool GetRootScreenRect(CefRefPtr<CefBrowser> browser,
-                         CefRect& rect) OVERRIDE;
-  bool GetViewRect(CefRefPtr<CefBrowser> browser,
-                   CefRect& rect) OVERRIDE;
+  bool GetRootScreenRect(CefRefPtr<CefBrowser> browser, CefRect& rect) OVERRIDE;
+  bool GetViewRect(CefRefPtr<CefBrowser> browser, CefRect& rect) OVERRIDE;
   bool GetScreenPoint(CefRefPtr<CefBrowser> browser,
                       int viewX,
                       int viewY,
@@ -124,8 +123,7 @@ class OsrWindowWin :
   bool GetScreenInfo(CefRefPtr<CefBrowser> browser,
                      CefScreenInfo& screen_info) OVERRIDE;
   void OnPopupShow(CefRefPtr<CefBrowser> browser, bool show) OVERRIDE;
-  void OnPopupSize(CefRefPtr<CefBrowser> browser,
-                   const CefRect& rect) OVERRIDE;
+  void OnPopupSize(CefRefPtr<CefBrowser> browser, const CefRect& rect) OVERRIDE;
   void OnPaint(CefRefPtr<CefBrowser> browser,
                CefRenderHandler::PaintElementType type,
                const CefRenderHandler::RectList& dirtyRects,
@@ -139,7 +137,8 @@ class OsrWindowWin :
   bool StartDragging(CefRefPtr<CefBrowser> browser,
                      CefRefPtr<CefDragData> drag_data,
                      CefRenderHandler::DragOperationsMask allowed_ops,
-                     int x, int y) OVERRIDE;
+                     int x,
+                     int y) OVERRIDE;
   void UpdateDragCursor(CefRefPtr<CefBrowser> browser,
                         CefRenderHandler::DragOperation operation) OVERRIDE;
   void OnImeCompositionRangeChanged(
@@ -155,10 +154,12 @@ class OsrWindowWin :
       CefRefPtr<CefDragData> drag_data,
       CefMouseEvent ev,
       CefBrowserHost::DragOperationsMask effect) OVERRIDE;
-  CefBrowserHost::DragOperationsMask OnDragOver(CefMouseEvent ev,
+  CefBrowserHost::DragOperationsMask OnDragOver(
+      CefMouseEvent ev,
       CefBrowserHost::DragOperationsMask effect) OVERRIDE;
   void OnDragLeave() OVERRIDE;
-  CefBrowserHost::DragOperationsMask OnDrop(CefMouseEvent ev,
+  CefBrowserHost::DragOperationsMask OnDrop(
+      CefMouseEvent ev,
       CefBrowserHost::DragOperationsMask effect) OVERRIDE;
 #endif  // defined(CEF_USE_ATL)
 

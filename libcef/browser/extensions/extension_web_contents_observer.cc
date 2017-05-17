@@ -15,11 +15,9 @@ namespace extensions {
 
 CefExtensionWebContentsObserver::CefExtensionWebContentsObserver(
     content::WebContents* web_contents)
-    : ExtensionWebContentsObserver(web_contents) {
-}
+    : ExtensionWebContentsObserver(web_contents) {}
 
-CefExtensionWebContentsObserver::~CefExtensionWebContentsObserver() {
-}
+CefExtensionWebContentsObserver::~CefExtensionWebContentsObserver() {}
 
 void CefExtensionWebContentsObserver::RenderViewCreated(
     content::RenderViewHost* render_view_host) {

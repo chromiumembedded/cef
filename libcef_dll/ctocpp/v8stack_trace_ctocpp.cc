@@ -9,10 +9,11 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=0d5501d1df13b04f9f52443df3f76a9d3de5b8b8$
+//
 
 #include "libcef_dll/ctocpp/v8stack_frame_ctocpp.h"
 #include "libcef_dll/ctocpp/v8stack_trace_ctocpp.h"
-
 
 // STATIC METHODS - Body may be edited by hand.
 
@@ -20,13 +21,11 @@ CefRefPtr<CefV8StackTrace> CefV8StackTrace::GetCurrent(int frame_limit) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  cef_v8stack_trace_t* _retval = cef_v8stack_trace_get_current(
-      frame_limit);
+  cef_v8stack_trace_t* _retval = cef_v8stack_trace_get_current(frame_limit);
 
   // Return type: refptr_same
   return CefV8StackTraceCToCpp::Wrap(_retval);
 }
-
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
@@ -41,7 +40,7 @@ bool CefV8StackTraceCToCpp::IsValid() {
   int _retval = _struct->is_valid(_struct);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 int CefV8StackTraceCToCpp::GetFrameCount() {
@@ -66,30 +65,35 @@ CefRefPtr<CefV8StackFrame> CefV8StackTraceCToCpp::GetFrame(int index) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  cef_v8stack_frame_t* _retval = _struct->get_frame(_struct,
-      index);
+  cef_v8stack_frame_t* _retval = _struct->get_frame(_struct, index);
 
   // Return type: refptr_same
   return CefV8StackFrameCToCpp::Wrap(_retval);
 }
 
-
 // CONSTRUCTOR - Do not edit by hand.
 
-CefV8StackTraceCToCpp::CefV8StackTraceCToCpp() {
-}
+CefV8StackTraceCToCpp::CefV8StackTraceCToCpp() {}
 
-template<> cef_v8stack_trace_t* CefCToCppRefCounted<CefV8StackTraceCToCpp,
-    CefV8StackTrace, cef_v8stack_trace_t>::UnwrapDerived(CefWrapperType type,
-    CefV8StackTrace* c) {
+template <>
+cef_v8stack_trace_t*
+CefCToCppRefCounted<CefV8StackTraceCToCpp,
+                    CefV8StackTrace,
+                    cef_v8stack_trace_t>::UnwrapDerived(CefWrapperType type,
+                                                        CefV8StackTrace* c) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCppRefCounted<CefV8StackTraceCToCpp,
-    CefV8StackTrace, cef_v8stack_trace_t>::DebugObjCt = 0;
+template <>
+base::AtomicRefCount CefCToCppRefCounted<CefV8StackTraceCToCpp,
+                                         CefV8StackTrace,
+                                         cef_v8stack_trace_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCppRefCounted<CefV8StackTraceCToCpp,
-    CefV8StackTrace, cef_v8stack_trace_t>::kWrapperType = WT_V8STACK_TRACE;
+template <>
+CefWrapperType CefCToCppRefCounted<CefV8StackTraceCToCpp,
+                                   CefV8StackTrace,
+                                   cef_v8stack_trace_t>::kWrapperType =
+    WT_V8STACK_TRACE;

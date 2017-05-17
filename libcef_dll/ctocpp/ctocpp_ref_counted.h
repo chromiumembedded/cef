@@ -8,8 +8,8 @@
 
 #include "include/base/cef_logging.h"
 #include "include/base/cef_macros.h"
-#include "include/cef_base.h"
 #include "include/capi/cef_base_capi.h"
+#include "include/cef_base.h"
 #include "libcef_dll/wrapper_types.h"
 
 // Wrap a C structure with a C++ class. This is used when the implementation
@@ -37,7 +37,7 @@ class CefCToCppRefCounted : public BaseName {
 
 #if DCHECK_IS_ON()
   // Simple tracking of allocated objects.
-  static base::AtomicRefCount DebugObjCt;  // NOLINT(runtime/int)
+  static base::AtomicRefCount DebugObjCt;
 #endif
 
  protected:
@@ -103,15 +103,15 @@ class CefCToCppRefCounted : public BaseName {
 };
 
 template <class ClassName, class BaseName, class StructName>
-struct CefCToCppRefCounted<ClassName,BaseName,StructName>::WrapperStruct {
+struct CefCToCppRefCounted<ClassName, BaseName, StructName>::WrapperStruct {
   CefWrapperType type_;
   StructName* struct_;
   ClassName wrapper_;
 };
 
 template <class ClassName, class BaseName, class StructName>
-CefRefPtr<BaseName>
-    CefCToCppRefCounted<ClassName, BaseName, StructName>::Wrap(StructName* s) {
+CefRefPtr<BaseName> CefCToCppRefCounted<ClassName, BaseName, StructName>::Wrap(
+    StructName* s) {
   if (!s)
     return NULL;
 
@@ -164,8 +164,8 @@ bool CefCToCppRefCounted<ClassName, BaseName, StructName>::Release() const {
 
 template <class ClassName, class BaseName, class StructName>
 typename CefCToCppRefCounted<ClassName, BaseName, StructName>::WrapperStruct*
-    CefCToCppRefCounted<ClassName, BaseName, StructName>::GetWrapperStruct(
-        const BaseName* obj) {
+CefCToCppRefCounted<ClassName, BaseName, StructName>::GetWrapperStruct(
+    const BaseName* obj) {
   // Offset using the WrapperStruct size instead of individual member sizes to
   // avoid problems due to platform/compiler differences in structure padding.
   return reinterpret_cast<WrapperStruct*>(

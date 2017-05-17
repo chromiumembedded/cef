@@ -31,10 +31,7 @@ class Menu2 {
  public:
   // How the menu is aligned relative to the point it is shown at.
   // The alignment is reversed by menu if text direction is right to left.
-  enum Alignment {
-    ALIGN_TOPLEFT,
-    ALIGN_TOPRIGHT
-  };
+  enum Alignment { ALIGN_TOPLEFT, ALIGN_TOPRIGHT };
 
   // Creates a new menu populated with the contents of |model|.
   // WARNING: this populates the menu on construction by invoking methods on
@@ -83,7 +80,6 @@ class Menu2 {
   void SetMinimumWidth(int width);
 
  private:
-
   ui::MenuModel* model_;
 
   // The object that actually implements the menu.

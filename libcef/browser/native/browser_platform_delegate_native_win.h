@@ -10,8 +10,8 @@
 #include "libcef/browser/native/browser_platform_delegate_native.h"
 
 // Windowed browser implementation for Windows.
-class CefBrowserPlatformDelegateNativeWin :
-    public CefBrowserPlatformDelegateNative {
+class CefBrowserPlatformDelegateNativeWin
+    : public CefBrowserPlatformDelegateNative {
  public:
   CefBrowserPlatformDelegateNativeWin(const CefWindowInfo& window_info,
                                       SkColor background_color);
@@ -35,17 +35,20 @@ class CefBrowserPlatformDelegateNativeWin :
   void TranslateClickEvent(blink::WebMouseEvent& result,
                            const CefMouseEvent& mouse_event,
                            CefBrowserHost::MouseButtonType type,
-                           bool mouseUp, int clickCount) const override;
+                           bool mouseUp,
+                           int clickCount) const override;
   void TranslateMoveEvent(blink::WebMouseEvent& result,
                           const CefMouseEvent& mouse_event,
                           bool mouseLeave) const override;
   void TranslateWheelEvent(blink::WebMouseWheelEvent& result,
                            const CefMouseEvent& mouse_event,
-                           int deltaX, int deltaY) const override;
+                           int deltaX,
+                           int deltaY) const override;
   CefEventHandle GetEventHandle(
       const content::NativeWebKeyboardEvent& event) const override;
   std::unique_ptr<CefFileDialogRunner> CreateFileDialogRunner() override;
-  std::unique_ptr<CefJavaScriptDialogRunner> CreateJavaScriptDialogRunner() override;
+  std::unique_ptr<CefJavaScriptDialogRunner> CreateJavaScriptDialogRunner()
+      override;
   std::unique_ptr<CefMenuRunner> CreateMenuRunner() override;
 
  private:
@@ -54,8 +57,10 @@ class CefBrowserPlatformDelegateNativeWin :
 
   static void RegisterWindowClass();
   static LPCTSTR GetWndClass();
-  static LRESULT CALLBACK WndProc(HWND hwnd, UINT message,
-                                  WPARAM wParam, LPARAM lParam);
+  static LRESULT CALLBACK WndProc(HWND hwnd,
+                                  UINT message,
+                                  WPARAM wParam,
+                                  LPARAM lParam);
 
   // True if the host window has been created.
   bool host_window_created_;

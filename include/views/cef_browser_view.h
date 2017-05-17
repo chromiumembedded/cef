@@ -73,7 +73,7 @@ class CefBrowserView : public CefView {
   // browser has not yet been created or has already been destroyed.
   ///
   /*--cef()--*/
-  virtual CefRefPtr<CefBrowser> GetBrowser() =0;
+  virtual CefRefPtr<CefBrowser> GetBrowser() = 0;
 
   ///
   // Sets whether accelerators registered with CefWindow::SetAccelerator are
@@ -85,7 +85,7 @@ class CefBrowserView : public CefView {
   // CefKeyboardHandler. The default value is false.
   ///
   /*--cef()--*/
-  virtual void SetPreferAccelerators(bool prefer_accelerators) =0;
+  virtual void SetPreferAccelerators(bool prefer_accelerators) = 0;
 };
 
 #endif  // CEF_INCLUDE_VIEWS_CEF_BROWSER_VIEW_H_

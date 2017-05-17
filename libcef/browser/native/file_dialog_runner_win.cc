@@ -66,8 +66,8 @@ std::wstring FormatFilterForExtensions(
     bool include_all_files) {
   const std::wstring all_ext = L"*.*";
   const std::wstring all_desc =
-      l10n_util::GetStringUTF16(IDS_APP_SAVEAS_ALL_FILES) +
-      L" (" + all_ext + L")";
+      l10n_util::GetStringUTF16(IDS_APP_SAVEAS_ALL_FILES) + L" (" + all_ext +
+      L")";
 
   DCHECK(file_ext.size() >= ext_desc.size());
 
@@ -132,10 +132,10 @@ std::wstring GetDescriptionFromMimeType(const std::string& mime_type) {
     const char* mime_type;
     int string_id;
   } kWildCardMimeTypes[] = {
-    { "audio", IDS_AUDIO_FILES },
-    { "image", IDS_IMAGE_FILES },
-    { "text", IDS_TEXT_FILES },
-    { "video", IDS_VIDEO_FILES },
+      {"audio", IDS_AUDIO_FILES},
+      {"image", IDS_IMAGE_FILES},
+      {"text", IDS_TEXT_FILES},
+      {"video", IDS_VIDEO_FILES},
   };
 
   for (size_t i = 0; i < arraysize(kWildCardMimeTypes); ++i) {
@@ -160,11 +160,9 @@ std::wstring GetFilterString(
     if (sep_index != base::string16::npos) {
       // Treat as a filter of the form "Filter Name|.ext1;.ext2;.ext3".
       const base::string16& desc = filter.substr(0, sep_index);
-      const std::vector<base::string16>& ext =
-          base::SplitString(filter.substr(sep_index + 1),
-                            base::ASCIIToUTF16(";"),
-                            base::TRIM_WHITESPACE,
-                            base::SPLIT_WANT_NONEMPTY);
+      const std::vector<base::string16>& ext = base::SplitString(
+          filter.substr(sep_index + 1), base::ASCIIToUTF16(";"),
+          base::TRIM_WHITESPACE, base::SPLIT_WANT_NONEMPTY);
       std::wstring ext_str;
       for (size_t x = 0; x < ext.size(); ++x) {
         const base::string16& file_ext = ext[x];
@@ -205,11 +203,10 @@ std::wstring GetFilterString(
 
 // From chrome/browser/views/shell_dialogs_win.cc
 
-bool RunOpenFileDialog(
-    const CefFileDialogRunner::FileChooserParams& params,
-    HWND owner,
-    int* filter_index,
-    base::FilePath* path) {
+bool RunOpenFileDialog(const CefFileDialogRunner::FileChooserParams& params,
+                       HWND owner,
+                       int* filter_index,
+                       base::FilePath* path) {
   OPENFILENAME ofn;
 
   // We must do this otherwise the ofn's FlagsEx may be initialized to random
@@ -231,7 +228,7 @@ bool RunOpenFileDialog(
     } else {
       // The value is a file name and possibly a directory.
       base::wcslcpy(filename, params.default_file_name.value().c_str(),
-          arraysize(filename));
+                    arraysize(filename));
       directory = params.default_file_name.DirName().value();
     }
   }
@@ -248,8 +245,8 @@ bool RunOpenFileDialog(
 
   // We use OFN_NOCHANGEDIR so that the user can rename or delete the directory
   // without having to close Chrome first.
-  ofn.Flags = OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR | OFN_EXPLORER |
-              OFN_ENABLESIZING;
+  ofn.Flags =
+      OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR | OFN_EXPLORER | OFN_ENABLESIZING;
   if (params.hidereadonly)
     ofn.Flags |= OFN_HIDEREADONLY;
 
@@ -358,8 +355,7 @@ bool RunOpenMultiFileDialog(
 int CALLBACK BrowseCallbackProc(HWND window,
                                 UINT message,
                                 LPARAM parameter,
-                                LPARAM data)
-{
+                                LPARAM data) {
   if (message == BFFM_INITIALIZED) {
     // WParam is TRUE since passing a path.
     // data lParam member of the BROWSEINFO structure.
@@ -368,10 +364,9 @@ int CALLBACK BrowseCallbackProc(HWND window,
   return 0;
 }
 
-bool RunOpenFolderDialog(
-    const CefFileDialogRunner::FileChooserParams& params,
-    HWND owner,
-    base::FilePath* path) {
+bool RunOpenFolderDialog(const CefFileDialogRunner::FileChooserParams& params,
+                         HWND owner,
+                         base::FilePath* path) {
   wchar_t dir_buffer[MAX_PATH + 1] = {0};
 
   bool result = false;
@@ -423,11 +418,10 @@ bool RunOpenFolderDialog(
   return result;
 }
 
-bool RunSaveFileDialog(
-    const CefFileDialogRunner::FileChooserParams& params,
-    HWND owner,
-    int* filter_index,
-    base::FilePath* path) {
+bool RunSaveFileDialog(const CefFileDialogRunner::FileChooserParams& params,
+                       HWND owner,
+                       int* filter_index,
+                       base::FilePath* path) {
   OPENFILENAME ofn;
 
   // We must do this otherwise the ofn's FlagsEx may be initialized to random
@@ -449,7 +443,7 @@ bool RunSaveFileDialog(
     } else {
       // The value is a file name and possibly a directory.
       base::wcslcpy(filename, params.default_file_name.value().c_str(),
-          arraysize(filename));
+                    arraysize(filename));
       directory = params.default_file_name.DirName().value();
     }
   }
@@ -466,8 +460,8 @@ bool RunSaveFileDialog(
 
   // We use OFN_NOCHANGEDIR so that the user can rename or delete the directory
   // without having to close Chrome first.
-  ofn.Flags = OFN_EXPLORER | OFN_ENABLESIZING | OFN_NOCHANGEDIR |
-              OFN_PATHMUSTEXIST;
+  ofn.Flags =
+      OFN_EXPLORER | OFN_ENABLESIZING | OFN_NOCHANGEDIR | OFN_PATHMUSTEXIST;
   if (params.hidereadonly)
     ofn.Flags |= OFN_HIDEREADONLY;
   if (params.overwriteprompt)
@@ -493,8 +487,7 @@ bool RunSaveFileDialog(
 
 }  // namespace
 
-CefFileDialogRunnerWin::CefFileDialogRunnerWin() {
-}
+CefFileDialogRunnerWin::CefFileDialogRunnerWin() {}
 
 void CefFileDialogRunnerWin::Run(CefBrowserHostImpl* browser,
                                  const FileChooserParams& params,

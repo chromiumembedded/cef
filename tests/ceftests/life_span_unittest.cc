@@ -18,10 +18,10 @@ class LifeSpanTestHandler : public RoutingTestHandler {
  public:
   struct Settings {
     Settings()
-      : force_close(false),
-        add_onunload_handler(false),
-        allow_do_close(true),
-        accept_before_unload_dialog(true) {}
+        : force_close(false),
+          add_onunload_handler(false),
+          allow_do_close(true),
+          accept_before_unload_dialog(true) {}
 
     bool force_close;
     bool add_onunload_handler;
@@ -30,8 +30,7 @@ class LifeSpanTestHandler : public RoutingTestHandler {
   };
 
   explicit LifeSpanTestHandler(const Settings& settings)
-      : settings_(settings),
-        executing_delay_close_(false) {
+      : settings_(settings), executing_delay_close_(false) {
     // By default no LifeSpan tests call DestroyTest().
     SetDestroyTestExpected(false);
   }
@@ -41,7 +40,7 @@ class LifeSpanTestHandler : public RoutingTestHandler {
     std::string page = "<html><script>";
 
     page += "window.onunload = function() { window.testQuery({request:'" +
-        std::string(kUnloadMsg) + "'}); };";
+            std::string(kUnloadMsg) + "'}); };";
 
     if (settings_.add_onunload_handler) {
       page += "window.onbeforeunload = function() { return '" +
@@ -87,11 +86,10 @@ class LifeSpanTestHandler : public RoutingTestHandler {
     RoutingTestHandler::OnBeforeClose(browser);
   }
 
-  bool OnBeforeUnloadDialog(
-      CefRefPtr<CefBrowser> browser,
-      const CefString& message_text,
-      bool is_reload,
-      CefRefPtr<CefJSDialogCallback> callback) override {
+  bool OnBeforeUnloadDialog(CefRefPtr<CefBrowser> browser,
+                            const CefString& message_text,
+                            bool is_reload,
+                            CefRefPtr<CefJSDialogCallback> callback) override {
     if (executing_delay_close_) {
       callback->Continue(true, CefString());
       return true;
@@ -157,7 +155,7 @@ class LifeSpanTestHandler : public RoutingTestHandler {
     SetDestroyTestExpected(true);
 
     CefPostDelayedTask(TID_UI,
-        base::Bind(&LifeSpanTestHandler::DelayClose, this), 100);
+                       base::Bind(&LifeSpanTestHandler::DelayClose, this), 100);
   }
 
   void DelayClose() {

@@ -43,8 +43,7 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
   // ContentBrowserClient implementation.
   content::BrowserMainParts* CreateBrowserMainParts(
       const content::MainFunctionParams& parameters) override;
-  void RenderProcessWillLaunch(
-      content::RenderProcessHost* host) override;
+  void RenderProcessWillLaunch(content::RenderProcessHost* host) override;
   bool ShouldUseProcessPerSite(content::BrowserContext* browser_context,
                                const GURL& effective_url) override;
   bool IsHandledURL(const GURL& url) override;
@@ -53,16 +52,15 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
   std::unique_ptr<base::Value> GetServiceManifestOverlay(
       base::StringPiece name) override;
   void AppendExtraCommandLineSwitches(base::CommandLine* command_line,
-                                              int child_process_id) override;
-  content::QuotaPermissionContext*
-      CreateQuotaPermissionContext() override;
+                                      int child_process_id) override;
+  content::QuotaPermissionContext* CreateQuotaPermissionContext() override;
   void GetQuotaSettings(
       content::BrowserContext* context,
       content::StoragePartition* partition,
       const storage::OptionalQuotaSettingsCallback& callback) override;
   content::MediaObserver* GetMediaObserver() override;
   content::SpeechRecognitionManagerDelegate*
-      CreateSpeechRecognitionManagerDelegate() override;
+  CreateSpeechRecognitionManagerDelegate() override;
   void AllowCertificateError(
       content::WebContents* web_contents,
       int cert_error,
@@ -72,8 +70,8 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
       bool overridable,
       bool strict_enforcement,
       bool expired_previous_decision,
-      const base::Callback<
-          void(content::CertificateRequestResultType)>& callback) override;
+      const base::Callback<void(content::CertificateRequestResultType)>&
+          callback) override;
   void SelectClientCertificate(
       content::WebContents* web_contents,
       net::SSLCertRequestInfo* cert_request_info,
@@ -96,12 +94,10 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
   void ResourceDispatcherHostCreated() override;
   void OverrideWebkitPrefs(content::RenderViewHost* rvh,
                            content::WebPreferences* prefs) override;
-  void BrowserURLHandlerCreated(
-      content::BrowserURLHandler* handler) override;
+  void BrowserURLHandlerCreated(content::BrowserURLHandler* handler) override;
   std::string GetDefaultDownloadName() override;
   void DidCreatePpapiPlugin(content::BrowserPpapiHost* browser_host) override;
-  content::DevToolsManagerDelegate* GetDevToolsManagerDelegate()
-      override;
+  content::DevToolsManagerDelegate* GetDevToolsManagerDelegate() override;
   std::vector<std::unique_ptr<content::NavigationThrottle>>
   CreateThrottlesForNavigation(
       content::NavigationHandle* navigation_handle) override;

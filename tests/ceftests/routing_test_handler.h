@@ -12,33 +12,29 @@
 // Extends TestHandler to provide message routing functionality. The
 // RoutingTestHandler implementation must be called from subclass
 // overrides unless otherwise indicated.
-class RoutingTestHandler :
-    public TestHandler,
-    public CefMessageRouterBrowserSide::Handler {
+class RoutingTestHandler : public TestHandler,
+                           public CefMessageRouterBrowserSide::Handler {
  public:
   RoutingTestHandler();
 
   void OnAfterCreated(CefRefPtr<CefBrowser> browser) override;
   void OnBeforeClose(CefRefPtr<CefBrowser> browser) override;
-  void OnRenderProcessTerminated(
-      CefRefPtr<CefBrowser> browser,
-      TerminationStatus status) override;
+  void OnRenderProcessTerminated(CefRefPtr<CefBrowser> browser,
+                                 TerminationStatus status) override;
 
   // Only call this method if the navigation isn't canceled.
   bool OnBeforeBrowse(CefRefPtr<CefBrowser> browser,
                       CefRefPtr<CefFrame> frame,
                       CefRefPtr<CefRequest> request,
-                     bool is_redirect) override;
+                      bool is_redirect) override;
 
   // Returns true if the router handled the navigation.
-  bool OnProcessMessageReceived(
-      CefRefPtr<CefBrowser> browser,
-      CefProcessId source_process,
-      CefRefPtr<CefProcessMessage> message) override;
+  bool OnProcessMessageReceived(CefRefPtr<CefBrowser> browser,
+                                CefProcessId source_process,
+                                CefRefPtr<CefProcessMessage> message) override;
 
  private:
   CefRefPtr<CefMessageRouterBrowserSide> message_router_;
 };
-
 
 #endif  // CEF_TESTS_UNITTESTS_ROUTING_TEST_HANDLER_H_

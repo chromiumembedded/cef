@@ -70,14 +70,14 @@ class CefWaitableEvent : public CefBaseRefCounted {
   // Put the event in the un-signaled state.
   ///
   /*--cef()--*/
-  virtual void Reset() =0;
+  virtual void Reset() = 0;
 
   ///
   // Put the event in the signaled state. This causes any thread blocked on Wait
   // to be woken up.
   ///
   /*--cef()--*/
-  virtual void Signal() =0;
+  virtual void Signal() = 0;
 
   ///
   // Returns true if the event is in the signaled state, else false. If the
@@ -85,7 +85,7 @@ class CefWaitableEvent : public CefBaseRefCounted {
   // method will also cause a reset.
   ///
   /*--cef()--*/
-  virtual bool IsSignaled() =0;
+  virtual bool IsSignaled() = 0;
 
   ///
   // Wait indefinitely for the event to be signaled. This method will not return
@@ -93,7 +93,7 @@ class CefWaitableEvent : public CefBaseRefCounted {
   // called on the browser process UI or IO threads.
   ///
   /*--cef()--*/
-  virtual void Wait() =0;
+  virtual void Wait() = 0;
 
   ///
   // Wait up to |max_ms| milliseconds for the event to be signaled. Returns true
@@ -103,7 +103,7 @@ class CefWaitableEvent : public CefBaseRefCounted {
   // browser process UI or IO threads.
   ///
   /*--cef()--*/
-  virtual bool TimedWait(int64 max_ms) =0;
+  virtual bool TimedWait(int64 max_ms) = 0;
 };
 
 #endif  // CEF_INCLUDE_CEF_WAITABLE_EVENT_H_

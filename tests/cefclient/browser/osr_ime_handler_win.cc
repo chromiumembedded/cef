@@ -4,20 +4,20 @@
 
 // Implementation based on ui/base/ime/win/imm32_manager.cc from Chromium.
 
-#include <windowsx.h>
 #include <msctf.h>
+#include <windowsx.h>
 
 #include "include/base/cef_build.h"
-#include "tests/cefclient/browser/resource.h"
 #include "tests/cefclient/browser/osr_ime_handler_win.h"
+#include "tests/cefclient/browser/resource.h"
 #include "tests/shared/browser/geometry_util.h"
 #include "tests/shared/browser/main_message_loop.h"
 #include "tests/shared/browser/util_win.h"
 
-#define ColorUNDERLINE  0xFF000000    // Black SkColor value for underline,
-                                      // same as Blink.
-#define ColorBKCOLOR    0x00000000    // White SkColor value for background,
-                                      // same as Blink.
+#define ColorUNDERLINE 0xFF000000  // Black SkColor value for underline,
+                                   // same as Blink.
+#define ColorBKCOLOR 0x00000000    // White SkColor value for background,
+                                   // same as Blink.
 
 namespace client {
 
@@ -32,7 +32,8 @@ bool IsSelectionAttribute(char attribute) {
 // Helper function for OsrImeHandlerWin::GetCompositionInfo() method,
 // to get the target range that's selected by the user in the current
 // composition string.
-void GetCompositionSelectionRange(HIMC imc, int* target_start,
+void GetCompositionSelectionRange(HIMC imc,
+                                  int* target_start,
                                   int* target_end) {
   int attribute_size = ::ImmGetCompositionString(imc, GCS_COMPATTR, NULL, 0);
   if (attribute_size > 0) {
@@ -62,14 +63,14 @@ void GetCompositionUnderlines(
     HIMC imc,
     int target_start,
     int target_end,
-    std::vector<CefCompositionUnderline> &underlines) {
+    std::vector<CefCompositionUnderline>& underlines) {
   int clause_size = ::ImmGetCompositionString(imc, GCS_COMPCLAUSE, NULL, 0);
   int clause_length = clause_size / sizeof(uint32);
   if (clause_length) {
     std::vector<uint32> clause_data(clause_length);
 
-    ::ImmGetCompositionString(imc, GCS_COMPCLAUSE,
-                              &clause_data[0], clause_size);
+    ::ImmGetCompositionString(imc, GCS_COMPCLAUSE, &clause_data[0],
+                              clause_size);
     for (int i = 0; i < clause_length - 1; ++i) {
       cef_composition_underline_t underline;
       underline.range.from = clause_data[i];
@@ -91,13 +92,13 @@ void GetCompositionUnderlines(
 }  // namespace
 
 OsrImeHandlerWin::OsrImeHandlerWin(HWND hwnd)
-  : ime_status_(false),
-    hwnd_(hwnd),
-    input_language_id_(LANG_USER_DEFAULT),
-    is_composing_(false),
-    cursor_index_(-1),
-    system_caret_(false) {
-  ime_rect_ = { -1, -1, 0, 0 };
+    : ime_status_(false),
+      hwnd_(hwnd),
+      input_language_id_(LANG_USER_DEFAULT),
+      is_composing_(false),
+      cursor_index_(-1),
+      system_caret_(false) {
+  ime_rect_ = {-1, -1, 0, 0};
 }
 
 OsrImeHandlerWin::~OsrImeHandlerWin() {
@@ -180,8 +181,7 @@ void OsrImeHandlerWin::MoveImeWindow() {
       // Therefore, we do not only call ::ImmSetCandidateWindow() but also
       // set the positions of the temporary system caret if it exists.
       CANDIDATEFORM candidate_position = {
-        0, CFS_CANDIDATEPOS, { rc.x, rc.y }, { 0, 0, 0, 0 }
-      };
+          0, CFS_CANDIDATEPOS, {rc.x, rc.y}, {0, 0, 0, 0}};
       ::ImmSetCandidateWindow(imc, &candidate_position);
     }
     if (system_caret_) {
@@ -205,9 +205,10 @@ void OsrImeHandlerWin::MoveImeWindow() {
     // ::ImmSetCandidateWindow() with its 'dwStyle' parameter CFS_EXCLUDE
     // Therefore, we also set this parameter here.
     CANDIDATEFORM exclude_rectangle = {
-      0, CFS_EXCLUDE, { rc.x, rc.y },
-      { rc.x, rc.y, rc.x + rc.width, rc.y + rc.height }
-    };
+        0,
+        CFS_EXCLUDE,
+        {rc.x, rc.y},
+        {rc.x, rc.y, rc.x + rc.width, rc.y + rc.height}};
     ::ImmSetCandidateWindow(imc, &exclude_rectangle);
 
     ::ImmReleaseContext(hwnd_, imc);
@@ -234,12 +235,11 @@ void OsrImeHandlerWin::ResetComposition() {
   cursor_index_ = -1;
 }
 
-
 void OsrImeHandlerWin::GetCompositionInfo(
     HIMC imc,
     LPARAM lparam,
-    CefString &composition_text,
-    std::vector<CefCompositionUnderline> &underlines,
+    CefString& composition_text,
+    std::vector<CefCompositionUnderline>& underlines,
     int& composition_start) {
   // We only care about GCS_COMPATTR, GCS_COMPCLAUSE and GCS_CURSORPOS, and
   // convert them into underlines and selection range respectively.
@@ -299,7 +299,9 @@ void OsrImeHandlerWin::GetCompositionInfo(
   }
 }
 
-bool OsrImeHandlerWin::GetString(HIMC imc, WPARAM lparam, int type,
+bool OsrImeHandlerWin::GetString(HIMC imc,
+                                 WPARAM lparam,
+                                 int type,
                                  CefString& result) {
   if (!(lparam & type))
     return false;
@@ -328,8 +330,8 @@ bool OsrImeHandlerWin::GetResult(LPARAM lparam, CefString& result) {
 
 bool OsrImeHandlerWin::GetComposition(
     LPARAM lparam,
-    CefString &composition_text,
-    std::vector<CefCompositionUnderline> &underlines,
+    CefString& composition_text,
+    std::vector<CefCompositionUnderline>& underlines,
     int& composition_start) {
   bool ret = false;
   HIMC imc = ::ImmGetContext(hwnd_);

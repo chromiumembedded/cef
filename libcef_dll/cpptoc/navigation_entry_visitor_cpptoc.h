@@ -9,6 +9,8 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=c17008976e7d41af34c2b4aebb9f0fe15b37cbf7$
+//
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_NAVIGATION_ENTRY_VISITOR_CPPTOC_H_
 #define CEF_LIBCEF_DLL_CPPTOC_NAVIGATION_ENTRY_VISITOR_CPPTOC_H_
@@ -18,17 +20,18 @@
 #error This file can be included wrapper-side only
 #endif
 
-#include "include/cef_browser.h"
 #include "include/capi/cef_browser_capi.h"
-#include "include/cef_client.h"
 #include "include/capi/cef_client_capi.h"
+#include "include/cef_browser.h"
+#include "include/cef_client.h"
 #include "libcef_dll/cpptoc/cpptoc_ref_counted.h"
 
 // Wrap a C++ class with a C structure.
 // This class may be instantiated and accessed wrapper-side only.
 class CefNavigationEntryVisitorCppToC
     : public CefCppToCRefCounted<CefNavigationEntryVisitorCppToC,
-        CefNavigationEntryVisitor, cef_navigation_entry_visitor_t> {
+                                 CefNavigationEntryVisitor,
+                                 cef_navigation_entry_visitor_t> {
  public:
   CefNavigationEntryVisitorCppToC();
 };

@@ -42,8 +42,7 @@ class MRRenderDelegate : public ClientAppRenderer::Delegate {
   class V8HandlerImpl : public CefV8Handler {
    public:
     explicit V8HandlerImpl(CefRefPtr<MRRenderDelegate> delegate)
-        : delegate_(delegate) {
-    }
+        : delegate_(delegate) {}
 
     bool Execute(const CefString& name,
                  CefRefPtr<CefV8Value> object,
@@ -94,8 +93,8 @@ class MRRenderDelegate : public ClientAppRenderer::Delegate {
 
         if (expected_count != actual_count) {
           std::stringstream ss;
-          ss << message_name << " failed; expected " << expected_count <<
-                ", got " << actual_count;
+          ss << message_name << " failed; expected " << expected_count
+             << ", got " << actual_count;
           exception = ss.str();
         }
       }
@@ -126,7 +125,7 @@ class MRRenderDelegate : public ClientAppRenderer::Delegate {
     if (url.find(kTestDomainRoot) != 0)
       return;
 
-    message_router_->OnContextCreated(browser,  frame, context);
+    message_router_->OnContextCreated(browser, frame, context);
 
     // Register function handlers with the 'window' object.
     CefRefPtr<CefV8Value> window = context->GetGlobal();
@@ -134,8 +133,7 @@ class MRRenderDelegate : public ClientAppRenderer::Delegate {
     CefRefPtr<V8HandlerImpl> handler = new V8HandlerImpl(this);
     CefV8Value::PropertyAttribute attributes =
         static_cast<CefV8Value::PropertyAttribute>(
-            V8_PROPERTY_ATTRIBUTE_READONLY |
-            V8_PROPERTY_ATTRIBUTE_DONTENUM |
+            V8_PROPERTY_ATTRIBUTE_READONLY | V8_PROPERTY_ATTRIBUTE_DONTENUM |
             V8_PROPERTY_ATTRIBUTE_DONTDELETE);
 
     CefRefPtr<CefV8Value> notify_func =
@@ -163,20 +161,19 @@ class MRRenderDelegate : public ClientAppRenderer::Delegate {
     if (url.find(kTestDomainRoot) != 0)
       return;
 
-    message_router_->OnContextReleased(browser,  frame, context);
+    message_router_->OnContextReleased(browser, frame, context);
   }
 
-  bool OnProcessMessageReceived(
-      CefRefPtr<ClientAppRenderer> app,
-      CefRefPtr<CefBrowser> browser,
-      CefProcessId source_process,
-      CefRefPtr<CefProcessMessage> message) override {
+  bool OnProcessMessageReceived(CefRefPtr<ClientAppRenderer> app,
+                                CefRefPtr<CefBrowser> browser,
+                                CefProcessId source_process,
+                                CefRefPtr<CefProcessMessage> message) override {
     const std::string& url = browser->GetMainFrame()->GetURL();
     if (url.find(kTestDomainRoot) != 0)
       return false;
 
-    return message_router_->OnProcessMessageReceived(
-        browser, source_process, message);
+    return message_router_->OnProcessMessageReceived(browser, source_process,
+                                                     message);
   }
 
  private:
@@ -194,13 +191,11 @@ void CreateMessageRouterRendererTests(
   delegates.insert(new MRRenderDelegate);
 }
 
-
 namespace {
 
 class MRTestHandler : public TestHandler {
  public:
-  MRTestHandler() {
-  }
+  MRTestHandler() {}
 
   void RunTest() override {
     RunMRTest();
@@ -220,14 +215,13 @@ class MRTestHandler : public TestHandler {
     TestHandler::OnAfterCreated(browser);
   }
 
-  void OnBeforeClose(CefRefPtr<CefBrowser> browser) override{
+  void OnBeforeClose(CefRefPtr<CefBrowser> browser) override {
     message_router_->OnBeforeClose(browser);
     TestHandler::OnBeforeClose(browser);
   }
 
-  void OnRenderProcessTerminated(
-      CefRefPtr<CefBrowser> browser,
-      TerminationStatus status) override{
+  void OnRenderProcessTerminated(CefRefPtr<CefBrowser> browser,
+                                 TerminationStatus status) override {
     message_router_->OnRenderProcessTerminated(browser);
   }
 
@@ -235,16 +229,15 @@ class MRTestHandler : public TestHandler {
   bool OnBeforeBrowse(CefRefPtr<CefBrowser> browser,
                       CefRefPtr<CefFrame> frame,
                       CefRefPtr<CefRequest> request,
-                      bool is_redirect) override{
+                      bool is_redirect) override {
     message_router_->OnBeforeBrowse(browser, frame);
     return false;
   }
 
   // Returns true if the router handled the navigation.
-  bool OnProcessMessageReceived(
-      CefRefPtr<CefBrowser> browser,
-      CefProcessId source_process,
-      CefRefPtr<CefProcessMessage> message) override{
+  bool OnProcessMessageReceived(CefRefPtr<CefBrowser> browser,
+                                CefProcessId source_process,
+                                CefRefPtr<CefProcessMessage> message) override {
     const std::string& message_name = message->GetName();
     if (message_name == kDoneMessageName) {
       CefRefPtr<CefListValue> args = message->GetArgumentList();
@@ -267,8 +260,8 @@ class MRTestHandler : public TestHandler {
       return true;
     }
 
-    return message_router_->OnProcessMessageReceived(
-        browser, source_process,  message);
+    return message_router_->OnProcessMessageReceived(browser, source_process,
+                                                     message);
   }
 
   CefRefPtr<CefMessageRouterBrowserSide> GetRouter() const {
@@ -276,14 +269,14 @@ class MRTestHandler : public TestHandler {
   };
 
  protected:
-  virtual void RunMRTest() =0;
+  virtual void RunMRTest() = 0;
 
   virtual void AddHandlers(
-      CefRefPtr<CefMessageRouterBrowserSide> message_router) =0;
+      CefRefPtr<CefMessageRouterBrowserSide> message_router) = 0;
 
   virtual void OnNotify(CefRefPtr<CefBrowser> browser,
                         CefRefPtr<CefFrame> frame,
-                        const std::string& message) =0;
+                        const std::string& message) = 0;
 
   bool AssertQueryCount(CefRefPtr<CefBrowser> browser,
                         CefMessageRouterBrowserSide::Handler* handler,
@@ -304,11 +297,9 @@ class MRTestHandler : public TestHandler {
   IMPLEMENT_REFCOUNTING(MRTestHandler);
 };
 
-
 // Implementation of MRTestHandler that loads a single page.
-class SingleLoadTestHandler :
-    public MRTestHandler,
-    public CefMessageRouterBrowserSide::Handler {
+class SingleLoadTestHandler : public MRTestHandler,
+                              public CefMessageRouterBrowserSide::Handler {
  public:
   SingleLoadTestHandler()
       : main_url_(std::string(kTestDomain1) + "main.html") {}
@@ -328,10 +319,9 @@ class SingleLoadTestHandler :
     message_router->AddHandler(this, false);
   }
 
-  virtual void AddOtherResources() {
-  }
+  virtual void AddOtherResources() {}
 
-  virtual std::string GetMainHTML() =0;
+  virtual std::string GetMainHTML() = 0;
 
   void AssertMainFrame(CefRefPtr<CefFrame> frame) {
     EXPECT_TRUE(frame.get());
@@ -346,8 +336,7 @@ class SingleLoadTestHandler :
 // Used to verify that the test harness (bound functions) behave correctly.
 class HarnessTestHandler : public SingleLoadTestHandler {
  public:
-  HarnessTestHandler(bool test_success)
-    : test_success_(test_success) {}
+  HarnessTestHandler(bool test_success) : test_success_(test_success) {}
 
   std::string GetMainHTML() override {
     std::string html;
@@ -412,7 +401,6 @@ TEST(MessageRouterTest, HarnessFailure) {
   ReleaseAndWaitForDestructor(handler);
 }
 
-
 namespace {
 
 const char kSingleQueryRequest[] = "request_context";
@@ -430,9 +418,7 @@ class SingleQueryTestHandler : public SingleLoadTestHandler {
   };
 
   SingleQueryTestHandler(TestType type, bool sync_callback)
-      : test_type_(type),
-        sync_callback_(sync_callback),
-        query_id_(0) {}
+      : test_type_(type), sync_callback_(sync_callback), query_id_(0) {}
 
   std::string GetMainHTML() override {
     std::string html;
@@ -441,50 +427,57 @@ class SingleQueryTestHandler : public SingleLoadTestHandler {
     ss << kSingleQueryErrorCode;
     const std::string& errorCodeStr = ss.str();
 
-    html = "<html><body><script>\n"
-           // No requests should exist.
-           "window.mrtAssertTotalCount(0);\n"
-           "window.mrtAssertBrowserCount(0);\n"
-           "window.mrtAssertContextCount(0);\n"
-           // Send the query.
-           "var request_id = window.mrtQuery({\n"
-           "  request: '" + std::string(kSingleQueryRequest) + "',\n"
-           "  persistent: false,\n"
-           "  onSuccess: function(response) {\n"
-                // Request should be removed before callback is executed.
-           "    window.mrtAssertTotalCount(0);\n"
-           "    window.mrtAssertBrowserCount(0);\n"
-           "    window.mrtAssertContextCount(0);\n"
-           "    if (response == '" + std::string(kSingleQueryResponse) + "')\n"
-           "      window.mrtNotify('success');\n"
-           "    else\n"
-           "      window.mrtNotify('error-onSuccess');\n"
-           "  },\n"
-           "  onFailure: function(error_code, error_message) {\n"
-                // Request should be removed before callback is executed.
-           "    window.mrtAssertTotalCount(0);\n"
-           "    window.mrtAssertBrowserCount(0);\n"
-           "    window.mrtAssertContextCount(0);\n"
-           "    if (error_code == " + errorCodeStr +
-                    " && error_message == '" +
-                    std::string(kSingleQueryErrorMessage) + "')\n"
-           "      window.mrtNotify('failure');\n"
-           "    else\n"
-           "      window.mrtNotify('error-onFailure');\n"
-           "  }\n"
-           "});\n"
-           // Request should exist.
-           "window.mrtAssertTotalCount(1);\n"
-           "window.mrtAssertBrowserCount(1);\n"
-           "window.mrtAssertContextCount(1);\n";
+    html =
+        "<html><body><script>\n"
+        // No requests should exist.
+        "window.mrtAssertTotalCount(0);\n"
+        "window.mrtAssertBrowserCount(0);\n"
+        "window.mrtAssertContextCount(0);\n"
+        // Send the query.
+        "var request_id = window.mrtQuery({\n"
+        "  request: '" +
+        std::string(kSingleQueryRequest) +
+        "',\n"
+        "  persistent: false,\n"
+        "  onSuccess: function(response) {\n"
+        // Request should be removed before callback is executed.
+        "    window.mrtAssertTotalCount(0);\n"
+        "    window.mrtAssertBrowserCount(0);\n"
+        "    window.mrtAssertContextCount(0);\n"
+        "    if (response == '" +
+        std::string(kSingleQueryResponse) +
+        "')\n"
+        "      window.mrtNotify('success');\n"
+        "    else\n"
+        "      window.mrtNotify('error-onSuccess');\n"
+        "  },\n"
+        "  onFailure: function(error_code, error_message) {\n"
+        // Request should be removed before callback is executed.
+        "    window.mrtAssertTotalCount(0);\n"
+        "    window.mrtAssertBrowserCount(0);\n"
+        "    window.mrtAssertContextCount(0);\n"
+        "    if (error_code == " +
+        errorCodeStr + " && error_message == '" +
+        std::string(kSingleQueryErrorMessage) +
+        "')\n"
+        "      window.mrtNotify('failure');\n"
+        "    else\n"
+        "      window.mrtNotify('error-onFailure');\n"
+        "  }\n"
+        "});\n"
+        // Request should exist.
+        "window.mrtAssertTotalCount(1);\n"
+        "window.mrtAssertBrowserCount(1);\n"
+        "window.mrtAssertContextCount(1);\n";
 
     if (test_type_ == CANCEL) {
-      html += "window.mrtQueryCancel(request_id);\n"
-              // Request should be removed immediately.
-              "window.mrtAssertTotalCount(0);\n"
-              "window.mrtAssertBrowserCount(0);\n"
-              "window.mrtAssertContextCount(0);\n"
-              "window.mrtNotify('cancel');\n";
+      html +=
+          "window.mrtQueryCancel(request_id);\n"
+          // Request should be removed immediately.
+          "window.mrtAssertTotalCount(0);\n"
+          "window.mrtAssertBrowserCount(0);\n"
+          "window.mrtAssertContextCount(0);\n"
+          "window.mrtNotify('cancel');\n";
     }
 
     html += "</script></body></html>";
@@ -546,7 +539,7 @@ class SingleQueryTestHandler : public SingleLoadTestHandler {
         ExecuteCallback();
       } else {
         CefPostTask(TID_UI,
-            base::Bind(&SingleQueryTestHandler::ExecuteCallback, this));
+                    base::Bind(&SingleQueryTestHandler::ExecuteCallback, this));
       }
     }
 
@@ -646,7 +639,6 @@ TEST(MessageRouterTest, SingleQueryCancel) {
   ReleaseAndWaitForDestructor(handler);
 }
 
-
 namespace {
 
 const int kSinglePersistentQueryResponseCount = 10;
@@ -660,9 +652,7 @@ class SinglePersistentQueryTestHandler : public SingleLoadTestHandler {
   };
 
   SinglePersistentQueryTestHandler(TestType test_type, bool sync_callback)
-      : test_type_(test_type),
-        sync_callback_(sync_callback),
-        query_id_(0) {}
+      : test_type_(test_type), sync_callback_(sync_callback), query_id_(0) {}
 
   std::string GetMainHTML() override {
     std::string html;
@@ -674,53 +664,61 @@ class SinglePersistentQueryTestHandler : public SingleLoadTestHandler {
     ss << kSingleQueryErrorCode;
     const std::string& errorCodeStr = ss.str();
 
-    html = "<html><body><script>\n"
-           // No requests should exist.
-           "window.mrtAssertTotalCount(0);\n"
-           "window.mrtAssertBrowserCount(0);\n"
-           "window.mrtAssertContextCount(0);\n"
-           // Keep track of the number of responses.
-           "var count = 0;\n"
-           // Send the query.
-           "var request_id = window.mrtQuery({\n"
-           "  request: '" + std::string(kSingleQueryRequest) + "',\n"
-           "  persistent: true,\n"
-           "  onSuccess: function(response) {\n"
-                // Request should not be removed.
-           "    window.mrtAssertTotalCount(1);\n"
-           "    window.mrtAssertBrowserCount(1);\n"
-           "    window.mrtAssertContextCount(1);\n"
-           "    if (response == '" + std::string(kSingleQueryResponse) + "') {\n"
-           "      if (++count == " + responseCountStr + ") {\n"
-           "        window.mrtNotify('success');\n"
-           "        window.mrtQueryCancel(request_id);\n"
-                    // Request should be removed immediately.
-           "        window.mrtAssertTotalCount(0);\n"
-           "        window.mrtAssertBrowserCount(0);\n"
-           "        window.mrtAssertContextCount(0);\n"
-           "      }\n"
-           "    } else {\n"
-           "      window.mrtNotify('error-onSuccess');\n"
-           "    }\n"
-           "  },\n"
-           "  onFailure: function(error_code, error_message) {\n"
-                // Request should be removed before callback is executed.
-           "    window.mrtAssertTotalCount(0);\n"
-           "    window.mrtAssertBrowserCount(0);\n"
-           "    window.mrtAssertContextCount(0);\n"
-           "    if (error_code == " + errorCodeStr +
-                    " && error_message == '" +
-                    std::string(kSingleQueryErrorMessage) + "') {\n"
-           "      window.mrtNotify('failure');\n"
-           "    } else {\n"
-           "      window.mrtNotify('error-onFailure');\n"
-           "    }\n"
-           "  }\n"
-           "});\n"
-           // Request should exist.
-           "window.mrtAssertTotalCount(1);\n"
-           "window.mrtAssertBrowserCount(1);\n"
-           "window.mrtAssertContextCount(1);\n";
+    html =
+        "<html><body><script>\n"
+        // No requests should exist.
+        "window.mrtAssertTotalCount(0);\n"
+        "window.mrtAssertBrowserCount(0);\n"
+        "window.mrtAssertContextCount(0);\n"
+        // Keep track of the number of responses.
+        "var count = 0;\n"
+        // Send the query.
+        "var request_id = window.mrtQuery({\n"
+        "  request: '" +
+        std::string(kSingleQueryRequest) +
+        "',\n"
+        "  persistent: true,\n"
+        "  onSuccess: function(response) {\n"
+        // Request should not be removed.
+        "    window.mrtAssertTotalCount(1);\n"
+        "    window.mrtAssertBrowserCount(1);\n"
+        "    window.mrtAssertContextCount(1);\n"
+        "    if (response == '" +
+        std::string(kSingleQueryResponse) +
+        "') {\n"
+        "      if (++count == " +
+        responseCountStr +
+        ") {\n"
+        "        window.mrtNotify('success');\n"
+        "        window.mrtQueryCancel(request_id);\n"
+        // Request should be removed immediately.
+        "        window.mrtAssertTotalCount(0);\n"
+        "        window.mrtAssertBrowserCount(0);\n"
+        "        window.mrtAssertContextCount(0);\n"
+        "      }\n"
+        "    } else {\n"
+        "      window.mrtNotify('error-onSuccess');\n"
+        "    }\n"
+        "  },\n"
+        "  onFailure: function(error_code, error_message) {\n"
+        // Request should be removed before callback is executed.
+        "    window.mrtAssertTotalCount(0);\n"
+        "    window.mrtAssertBrowserCount(0);\n"
+        "    window.mrtAssertContextCount(0);\n"
+        "    if (error_code == " +
+        errorCodeStr + " && error_message == '" +
+        std::string(kSingleQueryErrorMessage) +
+        "') {\n"
+        "      window.mrtNotify('failure');\n"
+        "    } else {\n"
+        "      window.mrtNotify('error-onFailure');\n"
+        "    }\n"
+        "  }\n"
+        "});\n"
+        // Request should exist.
+        "window.mrtAssertTotalCount(1);\n"
+        "window.mrtAssertBrowserCount(1);\n"
+        "window.mrtAssertContextCount(1);\n";
 
     html += "</script></body></html>";
     return html;
@@ -776,7 +774,8 @@ class SinglePersistentQueryTestHandler : public SingleLoadTestHandler {
       if (sync_callback_) {
         ExecuteCallback();
       } else {
-        CefPostTask(TID_UI,
+        CefPostTask(
+            TID_UI,
             base::Bind(&SinglePersistentQueryTestHandler::ExecuteCallback,
                        this));
       }
@@ -876,7 +875,6 @@ TEST(MessageRouterTest, SinglePersistentQueryFailureAsyncCallback) {
   ReleaseAndWaitForDestructor(handler);
 }
 
-
 namespace {
 
 // Test a single unhandled query in a single page load.
@@ -887,37 +885,40 @@ class SingleUnhandledQueryTestHandler : public SingleLoadTestHandler {
   std::string GetMainHTML() override {
     std::string html;
 
-    html = "<html><body><script>\n"
-           // No requests should exist.
-           "window.mrtAssertTotalCount(0);\n"
-           "window.mrtAssertBrowserCount(0);\n"
-           "window.mrtAssertContextCount(0);\n"
-           // Keep track of the number of responses.
-           "var count = 0;\n"
-           // Send the query.
-           "var request_id = window.mrtQuery({\n"
-           "  request: '" + std::string(kSingleQueryRequest) + "',\n"
-           "  persistent: false,\n"
-           "  onSuccess: function(response) {\n"
-           "    window.mrtNotify('error-onSuccess');\n"
-           "  },\n"
-           "  onFailure: function(error_code, error_message) {\n"
-                // Request should be removed before callback is executed.
-           "    window.mrtAssertTotalCount(0);\n"
-           "    window.mrtAssertBrowserCount(0);\n"
-           "    window.mrtAssertContextCount(0);\n"
-           "    if (error_code == -1 && "
-                    "error_message == 'The query has been canceled') {\n"
-           "      window.mrtNotify('failure');\n"
-           "    } else {\n"
-           "      window.mrtNotify('error-onFailure');\n"
-           "    }\n"
-           "  }\n"
-           "});\n"
-           // Request should exist.
-           "window.mrtAssertTotalCount(1);\n"
-           "window.mrtAssertBrowserCount(1);\n"
-           "window.mrtAssertContextCount(1);\n";
+    html =
+        "<html><body><script>\n"
+        // No requests should exist.
+        "window.mrtAssertTotalCount(0);\n"
+        "window.mrtAssertBrowserCount(0);\n"
+        "window.mrtAssertContextCount(0);\n"
+        // Keep track of the number of responses.
+        "var count = 0;\n"
+        // Send the query.
+        "var request_id = window.mrtQuery({\n"
+        "  request: '" +
+        std::string(kSingleQueryRequest) +
+        "',\n"
+        "  persistent: false,\n"
+        "  onSuccess: function(response) {\n"
+        "    window.mrtNotify('error-onSuccess');\n"
+        "  },\n"
+        "  onFailure: function(error_code, error_message) {\n"
+        // Request should be removed before callback is executed.
+        "    window.mrtAssertTotalCount(0);\n"
+        "    window.mrtAssertBrowserCount(0);\n"
+        "    window.mrtAssertContextCount(0);\n"
+        "    if (error_code == -1 && "
+        "error_message == 'The query has been canceled') {\n"
+        "      window.mrtNotify('failure');\n"
+        "    } else {\n"
+        "      window.mrtNotify('error-onFailure');\n"
+        "    }\n"
+        "  }\n"
+        "});\n"
+        // Request should exist.
+        "window.mrtAssertTotalCount(1);\n"
+        "window.mrtAssertBrowserCount(1);\n"
+        "window.mrtAssertContextCount(1);\n";
 
     html += "</script></body></html>";
     return html;
@@ -980,7 +981,6 @@ TEST(MessageRouterTest, SingleUnhandledQuery) {
   ReleaseAndWaitForDestructor(handler);
 }
 
-
 namespace {
 
 const char kMultiQueryRequestId[] = "request_id";
@@ -1003,11 +1003,11 @@ class MultiQueryManager : public CefMessageRouterBrowserSide::Handler {
     // Initiates a non-persistent query with a failure response.
     // OnQuery and OnNotify will be called.
     FAILURE,
-    
+
     // Initiates a persistent query with multiple successful responses.
     // OnQuery, OnNotify and OnQueryCanceled will be called.
     PERSISTENT_SUCCESS,
-    
+
     // Initiates a persistent query with multiple successful responses and one
     // failure response.
     // OnQuery and OnNotify will be called.
@@ -1036,6 +1036,7 @@ class MultiQueryManager : public CefMessageRouterBrowserSide::Handler {
 
     // Called when all queries are complete.
     virtual void OnAllQueriesCompleted(MultiQueryManager* manager) {}
+
    protected:
     virtual ~Observer() {}
   };
@@ -1053,8 +1054,7 @@ class MultiQueryManager : public CefMessageRouterBrowserSide::Handler {
         manual_complete_count_(0),
         auto_complete_count_(0),
         will_cancel_by_removing_handler_(false),
-        weak_ptr_factory_(this) {
-  }
+        weak_ptr_factory_(this) {}
 
   virtual ~MultiQueryManager() {}
 
@@ -1163,9 +1163,12 @@ class MultiQueryManager : public CefMessageRouterBrowserSide::Handler {
           // Cancel the query asynchronously with a 10ms delay.
           const std::string& request_id_var =
               GetIDString(kMultiQueryRequestId, index);
-          html += "  window.setTimeout(function() {\n"
-                  "    window.mrtQueryCancel(" + request_id_var + ");\n"
-                  "  }, 1);\n";
+          html +=
+              "  window.setTimeout(function() {\n"
+              "    window.mrtQueryCancel(" +
+              request_id_var +
+              ");\n"
+              "  }, 1);\n";
         }
 
         html += "\n}, " + delay_val + ");\n";
@@ -1223,7 +1226,7 @@ class MultiQueryManager : public CefMessageRouterBrowserSide::Handler {
       EXPECT_TRUE(query.got_query) << index;
       EXPECT_FALSE(query.got_query_canceled) << index;
       EXPECT_FALSE(query.got_success) << index;
-    
+
       query.got_success.yes();
 
       // PERSISTENT_AUTOCANCEL doesn't call OnReceiveCompleted from OnQuery.
@@ -1292,7 +1295,7 @@ class MultiQueryManager : public CefMessageRouterBrowserSide::Handler {
       // Send the single failure response.
       callback->Failure(index, GetIDString(kMultiQueryErrorMessage, index));
     }
-    
+
     if (WillCancel(query.type)) {
       // Hold onto the callback until the query is canceled.
       query.query_id = query_id;
@@ -1425,11 +1428,11 @@ class MultiQueryManager : public CefMessageRouterBrowserSide::Handler {
  private:
   struct TestQuery {
     explicit TestQuery(TestType test_type)
-      : type(test_type),
-        browser_id(0),
-        frame_id(0),
-        is_main_frame(false),
-        query_id(0) {}
+        : type(test_type),
+          browser_id(0),
+          frame_id(0),
+          is_main_frame(false),
+          query_id(0) {}
 
     TestType type;
 
@@ -1441,7 +1444,7 @@ class MultiQueryManager : public CefMessageRouterBrowserSide::Handler {
     // Used when a query is canceled.
     int64 query_id;
     CefRefPtr<Callback> callback;
-    
+
     TrackCallback got_query;
     TrackCallback got_query_canceled;
     TrackCallback got_success;
@@ -1450,10 +1453,8 @@ class MultiQueryManager : public CefMessageRouterBrowserSide::Handler {
 
   class NotifyTask : public CefTask {
    public:
-    NotifyTask(base::WeakPtr<MultiQueryManager> weak_ptr,
-               bool notify_all)
-        : weak_ptr_(weak_ptr),
-          notify_all_(notify_all) {}
+    NotifyTask(base::WeakPtr<MultiQueryManager> weak_ptr, bool notify_all)
+        : weak_ptr_(weak_ptr), notify_all_(notify_all) {}
 
     void Execute() override {
       if (weak_ptr_) {
@@ -1472,34 +1473,26 @@ class MultiQueryManager : public CefMessageRouterBrowserSide::Handler {
   };
 
   static bool IsAuto(TestType type) {
-    return (type == AUTOCANCEL ||
-            type == PERSISTENT_AUTOCANCEL);
+    return (type == AUTOCANCEL || type == PERSISTENT_AUTOCANCEL);
   }
 
   static bool IsPersistent(TestType type) {
-    return (type == PERSISTENT_SUCCESS ||
-            type == PERSISTENT_FAILURE ||
+    return (type == PERSISTENT_SUCCESS || type == PERSISTENT_FAILURE ||
             type == PERSISTENT_AUTOCANCEL);
   }
 
   static bool WillFail(TestType type) {
-    return (type == FAILURE ||
-            type == PERSISTENT_FAILURE);
+    return (type == FAILURE || type == PERSISTENT_FAILURE);
   }
 
   static bool WillCancel(TestType type) {
-    return (type == PERSISTENT_SUCCESS ||
-            type == CANCEL ||
-            type == AUTOCANCEL ||
-            type == PERSISTENT_AUTOCANCEL);
+    return (type == PERSISTENT_SUCCESS || type == CANCEL ||
+            type == AUTOCANCEL || type == PERSISTENT_AUTOCANCEL);
   }
 
   static bool WillNotify(TestType type) {
-    return (type == SUCCESS ||
-            type == PERSISTENT_SUCCESS ||
-            type == FAILURE ||
-            type == PERSISTENT_FAILURE ||
-            type == PERSISTENT_AUTOCANCEL);
+    return (type == SUCCESS || type == PERSISTENT_SUCCESS || type == FAILURE ||
+            type == PERSISTENT_FAILURE || type == PERSISTENT_AUTOCANCEL);
   }
 
   void OnReceiveCompleted(TestType type) {
@@ -1507,7 +1500,7 @@ class MultiQueryManager : public CefMessageRouterBrowserSide::Handler {
     if (++received_count_ == total_count && manual_total_ == 0) {
       // There aren't any manual queries so notify here.
       CefPostTask(TID_UI,
-          new NotifyTask(weak_ptr_factory_.GetWeakPtr(), false));
+                  new NotifyTask(weak_ptr_factory_.GetWeakPtr(), false));
     }
   }
 
@@ -1521,20 +1514,19 @@ class MultiQueryManager : public CefMessageRouterBrowserSide::Handler {
       auto_complete_count_++;
     else if (++manual_complete_count_ == manual_total_) {
       CefPostTask(TID_UI,
-          new NotifyTask(weak_ptr_factory_.GetWeakPtr(), false));
+                  new NotifyTask(weak_ptr_factory_.GetWeakPtr(), false));
     }
 
     if (auto_complete_count_ + manual_complete_count_ == total_count) {
       running_ = false;
-      CefPostTask(TID_UI,
-          new NotifyTask(weak_ptr_factory_.GetWeakPtr(), true));
+      CefPostTask(TID_UI, new NotifyTask(weak_ptr_factory_.GetWeakPtr(), true));
     }
   }
 
   void NotifyManualQueriesCompleted() {
     if (observer_set_.empty())
       return;
-    
+
     // Use a copy of the set in case an Observer is removed while we're
     // iterating.
     ObserverSet observer_set = observer_set_;
@@ -1548,7 +1540,7 @@ class MultiQueryManager : public CefMessageRouterBrowserSide::Handler {
   void NotifyAllQueriesCompleted() {
     if (observer_set_.empty())
       return;
-    
+
     // Use a copy of the set in case an Observer is removed while we're
     // iterating.
     ObserverSet observer_set = observer_set_;
@@ -1576,65 +1568,95 @@ class MultiQueryManager : public CefMessageRouterBrowserSide::Handler {
 
     if (persistent)
       html += "var " + repeat_ct_var + " = 0;\n";
-    
-    html += "var " + request_id_var + " = window.mrtQuery({\n"
-            "  request: '" + request_val + "',\n"
-            "  persistent: " + (persistent ? "true" : "false") + ",\n";
+
+    html += "var " + request_id_var +
+            " = window.mrtQuery({\n"
+            "  request: '" +
+            request_val +
+            "',\n"
+            "  persistent: " +
+            (persistent ? "true" : "false") + ",\n";
 
     if (query.type == SUCCESS) {
-      const std::string& response_val =
-          GetIDString(kMultiQueryResponse, index);
-      
-      html += "  onSuccess: function(response) {\n"
-              "    if (response == '" + response_val + "')\n"
-              "      window.mrtNotify('" + success_val + "');\n"
-              "    else\n"
-              "      window.mrtNotify('" + error_val + "');\n"
-              "  },\n"
-              "  onFailure: function(error_code, error_message) {\n"
-              "    window.mrtNotify('" + error_val + "');\n"
-              "  }\n";
+      const std::string& response_val = GetIDString(kMultiQueryResponse, index);
+
+      html +=
+          "  onSuccess: function(response) {\n"
+          "    if (response == '" +
+          response_val +
+          "')\n"
+          "      window.mrtNotify('" +
+          success_val +
+          "');\n"
+          "    else\n"
+          "      window.mrtNotify('" +
+          error_val +
+          "');\n"
+          "  },\n"
+          "  onFailure: function(error_code, error_message) {\n"
+          "    window.mrtNotify('" +
+          error_val +
+          "');\n"
+          "  }\n";
     } else if (query.type == FAILURE) {
       const std::string& error_code_val = GetIntString(index);
       const std::string& error_message_val =
           GetIDString(kMultiQueryErrorMessage, index);
 
-      html += "  onSuccess: function(response) {\n"
-              "    window.mrtNotify('" + error_val + "');\n"
-              "  },\n"
-              "  onFailure: function(error_code, error_message) {\n"
-              "    if (error_code == " + error_code_val +
-                      " && error_message == '" + error_message_val + "')\n"
-              "      window.mrtNotify('" + success_val + "');\n"
-              "    else\n"
-              "      window.mrtNotify('" + error_val + "');\n"
-              "  }\n";
+      html +=
+          "  onSuccess: function(response) {\n"
+          "    window.mrtNotify('" +
+          error_val +
+          "');\n"
+          "  },\n"
+          "  onFailure: function(error_code, error_message) {\n"
+          "    if (error_code == " +
+          error_code_val + " && error_message == '" + error_message_val +
+          "')\n"
+          "      window.mrtNotify('" +
+          success_val +
+          "');\n"
+          "    else\n"
+          "      window.mrtNotify('" +
+          error_val +
+          "');\n"
+          "  }\n";
     } else if (query.type == PERSISTENT_SUCCESS ||
                query.type == PERSISTENT_AUTOCANCEL) {
-      const std::string& response_val =
-          GetIDString(kMultiQueryResponse, index);
+      const std::string& response_val = GetIDString(kMultiQueryResponse, index);
       const std::string& repeat_ct =
           GetIntString(kMultiQueryPersistentResponseCount);
-      
-      html += "  onSuccess: function(response) {\n"
-              "    if (response == '" + response_val + "') {\n"
-                     // Should get repeat_ct number of successful responses.
-              "      if (++" + repeat_ct_var + " == " + repeat_ct + ") {\n"
-              "        window.mrtNotify('" + success_val + "');\n";
+
+      html +=
+          "  onSuccess: function(response) {\n"
+          "    if (response == '" +
+          response_val +
+          "') {\n"
+          // Should get repeat_ct number of successful responses.
+          "      if (++" +
+          repeat_ct_var + " == " + repeat_ct +
+          ") {\n"
+          "        window.mrtNotify('" +
+          success_val + "');\n";
 
       if (query.type == PERSISTENT_SUCCESS) {
         // Manually cancel the request.
         html += "        window.mrtQueryCancel(" + request_id_var + ");\n";
       }
 
-      html += "      }\n"
-              "    } else {\n"
-              "      window.mrtNotify('" + error_val + "');\n"
-              "    }\n"
-              "  },\n"
-              "  onFailure: function(error_code, error_message) {\n"
-              "    window.mrtNotify('" + error_val + "');\n"
-              "  }\n";
+      html +=
+          "      }\n"
+          "    } else {\n"
+          "      window.mrtNotify('" +
+          error_val +
+          "');\n"
+          "    }\n"
+          "  },\n"
+          "  onFailure: function(error_code, error_message) {\n"
+          "    window.mrtNotify('" +
+          error_val +
+          "');\n"
+          "  }\n";
     } else if (query.type == PERSISTENT_FAILURE) {
       const std::string& error_code_val = GetIntString(index);
       const std::string& error_message_val =
@@ -1642,27 +1664,44 @@ class MultiQueryManager : public CefMessageRouterBrowserSide::Handler {
       const std::string& repeat_ct =
           GetIntString(kMultiQueryPersistentResponseCount);
 
-      html += "  onSuccess: function(response) {\n"
-                   // Should get some successful responses before failure.
-              "    if (++" + repeat_ct_var + " > " + repeat_ct + ") {\n"
-              "      window.mrtNotify('" + error_val + "');\n"
-              "    }\n"
-              "  },\n"
-              "  onFailure: function(error_code, error_message) {\n"
-              "    if (error_code == " + error_code_val +
-                      " && error_message == '" + error_message_val + "'"
-                      " && " + repeat_ct_var + " == " + repeat_ct + ")\n"
-              "      window.mrtNotify('" + success_val + "');\n"
-              "    else\n"
-              "      window.mrtNotify('" + error_val + "');\n"
-              "  }\n";
+      html +=
+          "  onSuccess: function(response) {\n"
+          // Should get some successful responses before failure.
+          "    if (++" +
+          repeat_ct_var + " > " + repeat_ct +
+          ") {\n"
+          "      window.mrtNotify('" +
+          error_val +
+          "');\n"
+          "    }\n"
+          "  },\n"
+          "  onFailure: function(error_code, error_message) {\n"
+          "    if (error_code == " +
+          error_code_val + " && error_message == '" + error_message_val +
+          "'"
+          " && " +
+          repeat_ct_var + " == " + repeat_ct +
+          ")\n"
+          "      window.mrtNotify('" +
+          success_val +
+          "');\n"
+          "    else\n"
+          "      window.mrtNotify('" +
+          error_val +
+          "');\n"
+          "  }\n";
     } else if (query.type == CANCEL || query.type == AUTOCANCEL) {
-      html += "  onSuccess: function(response) {\n"
-              "    window.mrtNotify('" + error_val + "');\n"
-              "  },\n"
-              "  onFailure: function(error_code, error_message) {\n"
-              "    window.mrtNotify('" + error_val + "');\n"
-              "  }\n";
+      html +=
+          "  onSuccess: function(response) {\n"
+          "    window.mrtNotify('" +
+          error_val +
+          "');\n"
+          "  },\n"
+          "  onFailure: function(error_code, error_message) {\n"
+          "    window.mrtNotify('" +
+          error_val +
+          "');\n"
+          "  }\n";
     }
 
     html += "});\n";
@@ -1671,7 +1710,8 @@ class MultiQueryManager : public CefMessageRouterBrowserSide::Handler {
   }
 
   std::string GetCancelHTML(const int index, const TestQuery& query) const {
-    const std::string& request_id_var = GetIDString(kMultiQueryRequestId, index);
+    const std::string& request_id_var =
+        GetIDString(kMultiQueryRequestId, index);
     return "window.mrtQueryCancel(" + request_id_var + ");\n";
   }
 
@@ -1683,11 +1723,12 @@ class MultiQueryManager : public CefMessageRouterBrowserSide::Handler {
   }
 
   bool SplitIDString(const std::string& str,
-                     std::string* value, int* index) const {
+                     std::string* value,
+                     int* index) const {
     size_t pos = str.find(':');
     if (pos != std::string::npos) {
       *value = str.substr(0, pos);
-      *index = GetIndexFromID(atoi(str.substr(pos+1).c_str()));
+      *index = GetIndexFromID(atoi(str.substr(pos + 1).c_str()));
       return (*index >= 0 &&
               *index < static_cast<int>(test_query_vector_.size()));
     }
@@ -1737,7 +1778,8 @@ class MultiQueryManager : public CefMessageRouterBrowserSide::Handler {
   base::WeakPtrFactory<MultiQueryManager> weak_ptr_factory_;
 };
 
-void MakeTestQueries(MultiQueryManager* manager, bool some,
+void MakeTestQueries(MultiQueryManager* manager,
+                     bool some,
                      int many_count = 200) {
   if (some) {
     // Test some queries of arbitrary types.
@@ -1795,9 +1837,8 @@ void MakeTestQueries(MultiQueryManager* manager, bool some,
 }
 
 // Test multiple queries in a single page load with a single frame.
-class MultiQuerySingleFrameTestHandler :
-    public SingleLoadTestHandler,
-    public MultiQueryManager::Observer {
+class MultiQuerySingleFrameTestHandler : public SingleLoadTestHandler,
+                                         public MultiQueryManager::Observer {
  public:
   enum CancelType {
     CANCEL_BY_NAVIGATION,
@@ -1808,14 +1849,11 @@ class MultiQuerySingleFrameTestHandler :
   MultiQuerySingleFrameTestHandler(
       bool synchronous,
       CancelType cancel_type = CANCEL_BY_NAVIGATION)
-      : manager_(std::string(), synchronous),
-        cancel_type_(cancel_type) {
+      : manager_(std::string(), synchronous), cancel_type_(cancel_type) {
     manager_.AddObserver(this);
   }
 
-  std::string GetMainHTML() override {
-    return manager_.GetHTML(true, true);
-  }
+  std::string GetMainHTML() override { return manager_.GetHTML(true, true); }
 
   void OnNotify(CefRefPtr<CefBrowser> browser,
                 CefRefPtr<CefFrame> frame,
@@ -1853,8 +1891,8 @@ class MultiQuerySingleFrameTestHandler :
     if (manager_.HasAutoQueries()) {
       if (cancel_type_ == CANCEL_BY_NAVIGATION) {
         // Navigate somewhere else to terminate the auto queries.
-        GetBrowser()->GetMainFrame()->LoadURL(
-            std::string(kTestDomain1) + "cancel.html");
+        GetBrowser()->GetMainFrame()->LoadURL(std::string(kTestDomain1) +
+                                              "cancel.html");
       } else if (cancel_type_ == CANCEL_BY_REMOVING_HANDLER) {
         // Change the expected behavior in the manager.
         manager_.WillCancelByRemovingHandler();
@@ -1879,7 +1917,8 @@ class MultiQuerySingleFrameTestHandler :
 
     if (!SignalCompletionWhenAllBrowsersClose()) {
       // Complete asynchronously so the call stack has a chance to unwind.
-      CefPostTask(TID_UI,
+      CefPostTask(
+          TID_UI,
           base::Bind(&MultiQuerySingleFrameTestHandler::TestComplete, this));
     }
   }
@@ -1899,39 +1938,48 @@ class MultiQuerySingleFrameTestHandler :
 }  // namespace
 
 #define MULTI_QUERY_SINGLE_FRAME_TYPE_TEST(name, type, synchronous) \
-  TEST(MessageRouterTest, name) { \
-    CefRefPtr<MultiQuerySingleFrameTestHandler> handler = \
-        new MultiQuerySingleFrameTestHandler(synchronous); \
-    MultiQueryManager* manager = handler->GetManager(); \
-    manager->AddTestQuery(MultiQueryManager::type); \
-    manager->Finalize(); \
-    handler->ExecuteTest(); \
-    ReleaseAndWaitForDestructor(handler); \
+  TEST(MessageRouterTest, name) {                                   \
+    CefRefPtr<MultiQuerySingleFrameTestHandler> handler =           \
+        new MultiQuerySingleFrameTestHandler(synchronous);          \
+    MultiQueryManager* manager = handler->GetManager();             \
+    manager->AddTestQuery(MultiQueryManager::type);                 \
+    manager->Finalize();                                            \
+    handler->ExecuteTest();                                         \
+    ReleaseAndWaitForDestructor(handler);                           \
   }
 
 // Test the query types individually.
-MULTI_QUERY_SINGLE_FRAME_TYPE_TEST(
-    MultiQuerySingleFrameSyncSuccess, SUCCESS, true);
-MULTI_QUERY_SINGLE_FRAME_TYPE_TEST(
-    MultiQuerySingleFrameAsyncSuccess, SUCCESS, false);
-MULTI_QUERY_SINGLE_FRAME_TYPE_TEST(
-    MultiQuerySingleFrameSyncFailure, FAILURE, true);
-MULTI_QUERY_SINGLE_FRAME_TYPE_TEST(
-    MultiQuerySingleFrameAsyncFailure, FAILURE, false);
-MULTI_QUERY_SINGLE_FRAME_TYPE_TEST(
-    MultiQuerySingleFrameSyncPersistentSuccess, PERSISTENT_SUCCESS, true);
-MULTI_QUERY_SINGLE_FRAME_TYPE_TEST(
-    MultiQuerySingleFrameAsyncPersistentSuccess, PERSISTENT_SUCCESS, false);
-MULTI_QUERY_SINGLE_FRAME_TYPE_TEST(
-    MultiQuerySingleFrameSyncPersistentFailure, PERSISTENT_FAILURE, true);
-MULTI_QUERY_SINGLE_FRAME_TYPE_TEST(
-    MultiQuerySingleFrameAsyncPersistentFailure, PERSISTENT_FAILURE, false);
-MULTI_QUERY_SINGLE_FRAME_TYPE_TEST(
-    MultiQuerySingleFrameCancel, CANCEL, true);
-MULTI_QUERY_SINGLE_FRAME_TYPE_TEST(
-    MultiQuerySingleFrameAutoCancel, AUTOCANCEL, true);
-MULTI_QUERY_SINGLE_FRAME_TYPE_TEST(
-    MultiQuerySingleFramePersistentAutoCancel, PERSISTENT_AUTOCANCEL, true);
+MULTI_QUERY_SINGLE_FRAME_TYPE_TEST(MultiQuerySingleFrameSyncSuccess,
+                                   SUCCESS,
+                                   true);
+MULTI_QUERY_SINGLE_FRAME_TYPE_TEST(MultiQuerySingleFrameAsyncSuccess,
+                                   SUCCESS,
+                                   false);
+MULTI_QUERY_SINGLE_FRAME_TYPE_TEST(MultiQuerySingleFrameSyncFailure,
+                                   FAILURE,
+                                   true);
+MULTI_QUERY_SINGLE_FRAME_TYPE_TEST(MultiQuerySingleFrameAsyncFailure,
+                                   FAILURE,
+                                   false);
+MULTI_QUERY_SINGLE_FRAME_TYPE_TEST(MultiQuerySingleFrameSyncPersistentSuccess,
+                                   PERSISTENT_SUCCESS,
+                                   true);
+MULTI_QUERY_SINGLE_FRAME_TYPE_TEST(MultiQuerySingleFrameAsyncPersistentSuccess,
+                                   PERSISTENT_SUCCESS,
+                                   false);
+MULTI_QUERY_SINGLE_FRAME_TYPE_TEST(MultiQuerySingleFrameSyncPersistentFailure,
+                                   PERSISTENT_FAILURE,
+                                   true);
+MULTI_QUERY_SINGLE_FRAME_TYPE_TEST(MultiQuerySingleFrameAsyncPersistentFailure,
+                                   PERSISTENT_FAILURE,
+                                   false);
+MULTI_QUERY_SINGLE_FRAME_TYPE_TEST(MultiQuerySingleFrameCancel, CANCEL, true);
+MULTI_QUERY_SINGLE_FRAME_TYPE_TEST(MultiQuerySingleFrameAutoCancel,
+                                   AUTOCANCEL,
+                                   true);
+MULTI_QUERY_SINGLE_FRAME_TYPE_TEST(MultiQuerySingleFramePersistentAutoCancel,
+                                   PERSISTENT_AUTOCANCEL,
+                                   true);
 
 // Test that one frame can run some queries successfully in a synchronous
 // manner.
@@ -1976,8 +2024,8 @@ TEST(MessageRouterTest, MultiQuerySingleFrameAsyncMany) {
 // Test that pending queries can be canceled by removing the handler.
 TEST(MessageRouterTest, MultiQuerySingleFrameCancelByRemovingHandler) {
   CefRefPtr<MultiQuerySingleFrameTestHandler> handler =
-      new MultiQuerySingleFrameTestHandler(false,
-          MultiQuerySingleFrameTestHandler::CANCEL_BY_REMOVING_HANDLER);
+      new MultiQuerySingleFrameTestHandler(
+          false, MultiQuerySingleFrameTestHandler::CANCEL_BY_REMOVING_HANDLER);
   MakeTestQueries(handler->GetManager(), false);
   handler->ExecuteTest();
   ReleaseAndWaitForDestructor(handler);
@@ -1986,29 +2034,23 @@ TEST(MessageRouterTest, MultiQuerySingleFrameCancelByRemovingHandler) {
 // Test that pending queries can be canceled by closing the browser.
 TEST(MessageRouterTest, MultiQuerySingleFrameCancelByClosingBrowser) {
   CefRefPtr<MultiQuerySingleFrameTestHandler> handler =
-      new MultiQuerySingleFrameTestHandler(false,
-          MultiQuerySingleFrameTestHandler::CANCEL_BY_CLOSING_BROWSER);
+      new MultiQuerySingleFrameTestHandler(
+          false, MultiQuerySingleFrameTestHandler::CANCEL_BY_CLOSING_BROWSER);
   MakeTestQueries(handler->GetManager(), false);
   handler->ExecuteTest();
   ReleaseAndWaitForDestructor(handler);
 }
 
-
 namespace {
 
 // Test multiple handlers.
-class MultiQueryMultiHandlerTestHandler :
-    public SingleLoadTestHandler,
-    public MultiQueryManager::Observer {
+class MultiQueryMultiHandlerTestHandler : public SingleLoadTestHandler,
+                                          public MultiQueryManager::Observer {
  public:
   class Handler : public CefMessageRouterBrowserSide::Handler {
    public:
-    Handler(MultiQueryMultiHandlerTestHandler* test_handler,
-            int index)
-        : test_handler_(test_handler),
-          index_(index),
-          query_id_(0) {
-    }
+    Handler(MultiQueryMultiHandlerTestHandler* test_handler, int index)
+        : test_handler_(test_handler), index_(index), query_id_(0) {}
 
     bool OnQuery(CefRefPtr<CefBrowser> browser,
                  CefRefPtr<CefFrame> frame,
@@ -2077,11 +2119,11 @@ class MultiQueryMultiHandlerTestHandler :
 
   MultiQueryMultiHandlerTestHandler(bool synchronous,
                                     bool cancel_by_removing_handler)
-     : manager_(std::string(), synchronous, 0),
-       handler0_(this, 0),
-       handler1_(this, 1),
-       handler2_(this, 2),
-       cancel_by_removing_handler_(cancel_by_removing_handler) {
+      : manager_(std::string(), synchronous, 0),
+        handler0_(this, 0),
+        handler1_(this, 1),
+        handler2_(this, 2),
+        cancel_by_removing_handler_(cancel_by_removing_handler) {
     manager_.AddObserver(this);
 
     // Each handler will handle one of the queries.
@@ -2091,9 +2133,7 @@ class MultiQueryMultiHandlerTestHandler :
     manager_.Finalize();
   }
 
-  std::string GetMainHTML() override {
-    return manager_.GetHTML(true, true);
-  }
+  std::string GetMainHTML() override { return manager_.GetHTML(true, true); }
 
   void OnNotify(CefRefPtr<CefBrowser> browser,
                 CefRefPtr<CefFrame> frame,
@@ -2139,7 +2179,7 @@ class MultiQueryMultiHandlerTestHandler :
     EXPECT_TRUE(manager_.HasAutoQueries());
 
     CefRefPtr<CefMessageRouterBrowserSide> router = GetRouter();
-    
+
     // Remove one handler to cancel a query.
 
     if (cancel_by_removing_handler_) {
@@ -2158,8 +2198,8 @@ class MultiQueryMultiHandlerTestHandler :
       EXPECT_TRUE(router->RemoveHandler(&handler0_));
       EXPECT_TRUE(got_query_canceled0_);
     } else {
-      GetBrowser()->GetMainFrame()->LoadURL(
-          std::string(kTestDomain1) + "cancel.html");
+      GetBrowser()->GetMainFrame()->LoadURL(std::string(kTestDomain1) +
+                                            "cancel.html");
     }
   }
 
@@ -2233,13 +2273,11 @@ TEST(MessageRouterTest, MultiQueryMultiHandlerCancelByRemovingHandler) {
   ReleaseAndWaitForDestructor(handler);
 }
 
-
 namespace {
 
 // Map of managers on a per-URL basis.
-class MultiQueryManagerMap :
-    public CefMessageRouterBrowserSide::Handler,
-    public MultiQueryManager::Observer {
+class MultiQueryManagerMap : public CefMessageRouterBrowserSide::Handler,
+                             public MultiQueryManager::Observer {
  public:
   class Observer {
    public:
@@ -2248,6 +2286,7 @@ class MultiQueryManagerMap :
 
     // Called when all queries are complete.
     virtual void OnMapAllQueriesCompleted(MultiQueryManagerMap* map) {}
+
    protected:
     virtual ~Observer() {}
   };
@@ -2256,12 +2295,9 @@ class MultiQueryManagerMap :
       : finalized_(false),
         running_(false),
         manual_complete_count_(0),
-        total_complete_count_(0) {
-  }
+        total_complete_count_(0) {}
 
-  virtual ~MultiQueryManagerMap() {
-    RemoveAllManagers();
-  }
+  virtual ~MultiQueryManagerMap() { RemoveAllManagers(); }
 
   void AddObserver(Observer* observer) {
     EXPECT_FALSE(running_);
@@ -2276,9 +2312,8 @@ class MultiQueryManagerMap :
   MultiQueryManager* CreateManager(const std::string& url, bool synchronous) {
     EXPECT_FALSE(finalized_);
 
-    MultiQueryManager* manager =
-        new MultiQueryManager(url, synchronous,
-            static_cast<int>(manager_map_.size()) * 1000);
+    MultiQueryManager* manager = new MultiQueryManager(
+        url, synchronous, static_cast<int>(manager_map_.size()) * 1000);
     manager->AddObserver(this);
     all_managers_.push_back(manager);
     pending_managers_.push_back(manager);
@@ -2413,8 +2448,7 @@ class MultiQueryManagerMap :
     return false;
   }
 
-  void OnLoadStart(CefRefPtr<CefBrowser> browser,
-                   CefRefPtr<CefFrame> frame) {
+  void OnLoadStart(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame) {
     if (pending_managers_.empty())
       return;
 
@@ -2457,8 +2491,8 @@ class MultiQueryManagerMap :
     // Find the manager in the active map.
     ManagerMap::const_iterator it =
         manager_map_.find(std::make_pair(browser_id, frame_id));
-    EXPECT_NE(it, manager_map_.end()) <<
-        "browser_id = " << browser_id << ", frame_id = " << frame_id;
+    EXPECT_NE(it, manager_map_.end())
+        << "browser_id = " << browser_id << ", frame_id = " << frame_id;
     return it->second;
   }
 
@@ -2508,13 +2542,11 @@ class MultiQueryManagerMap :
 };
 
 // Test multiple queries in a single page load with multiple frames.
-class MultiQueryMultiFrameTestHandler :
-    public SingleLoadTestHandler,
-    public MultiQueryManagerMap::Observer {
+class MultiQueryMultiFrameTestHandler : public SingleLoadTestHandler,
+                                        public MultiQueryManagerMap::Observer {
  public:
   MultiQueryMultiFrameTestHandler(bool synchronous, bool cancel_with_subnav)
-      : synchronous_(synchronous),
-        cancel_with_subnav_(cancel_with_subnav) {
+      : synchronous_(synchronous), cancel_with_subnav_(cancel_with_subnav) {
     manager_map_.AddObserver(this);
   }
 
@@ -2530,9 +2562,7 @@ class MultiQueryMultiFrameTestHandler :
     }
   }
 
-  std::string GetMainHTML() override {
-    return manager_map_.GetMainHTML();
-  }
+  std::string GetMainHTML() override { return manager_map_.GetMainHTML(); }
 
   void OnLoadStart(CefRefPtr<CefBrowser> browser,
                    CefRefPtr<CefFrame> frame,
@@ -2581,10 +2611,14 @@ class MultiQueryMultiFrameTestHandler :
       // Navigate somewhere else to terminate the auto queries.
       if (cancel_with_subnav_) {
         // Navigate each subframe individually.
-        const std::string js =
-            "document.getElementById('sub1').src = '" + cancel_url_ + "';"
-            "document.getElementById('sub2').src = '" + cancel_url_ + "';"
-            "document.getElementById('sub3').src = '" + cancel_url_ + "';";
+        const std::string js = "document.getElementById('sub1').src = '" +
+                               cancel_url_ +
+                               "';"
+                               "document.getElementById('sub2').src = '" +
+                               cancel_url_ +
+                               "';"
+                               "document.getElementById('sub3').src = '" +
+                               cancel_url_ + "';";
 
         frame->ExecuteJavaScript(js, frame->GetURL(), 0);
       } else {
@@ -2661,20 +2695,18 @@ TEST(MessageRouterTest, MultiQueryMultiFrameAsyncSubnavCancel) {
   ReleaseAndWaitForDestructor(handler);
 }
 
-
 namespace {
 
 // Implementation of MRTestHandler that loads multiple pages and/or browsers and
 // executes multiple queries.
-class MultiQueryMultiLoadTestHandler :
-    public MRTestHandler,
-    public CefMessageRouterBrowserSide::Handler,
-    public MultiQueryManagerMap::Observer,
-    public MultiQueryManager::Observer {
+class MultiQueryMultiLoadTestHandler
+    : public MRTestHandler,
+      public CefMessageRouterBrowserSide::Handler,
+      public MultiQueryManagerMap::Observer,
+      public MultiQueryManager::Observer {
  public:
   MultiQueryMultiLoadTestHandler(bool some, bool synchronous)
-      : some_(some),
-        synchronous_(synchronous) {
+      : some_(some), synchronous_(synchronous) {
     manager_map_.AddObserver(this);
   }
 
@@ -2766,12 +2798,12 @@ class MultiQueryMultiLoadTestHandler :
 };
 
 // Test multiple browsers that send queries at the same time.
-class MultiQueryMultiBrowserTestHandler : public MultiQueryMultiLoadTestHandler {
+class MultiQueryMultiBrowserTestHandler
+    : public MultiQueryMultiLoadTestHandler {
  public:
   MultiQueryMultiBrowserTestHandler(bool synchronous, bool same_origin)
       : MultiQueryMultiLoadTestHandler(false, synchronous),
-        same_origin_(same_origin) {
-  }
+        same_origin_(same_origin) {}
 
  protected:
   void RunMRTest() override {
@@ -2832,16 +2864,15 @@ TEST(MessageRouterTest, MultiQueryMultiBrowserDifferentOriginAsync) {
   ReleaseAndWaitForDestructor(handler);
 }
 
-
 namespace {
 
 // Test multiple navigations that send queries sequentially.
-class MultiQueryMultiNavigateTestHandler : public MultiQueryMultiLoadTestHandler {
+class MultiQueryMultiNavigateTestHandler
+    : public MultiQueryMultiLoadTestHandler {
  public:
   MultiQueryMultiNavigateTestHandler(bool synchronous, bool same_origin)
       : MultiQueryMultiLoadTestHandler(false, synchronous),
-        same_origin_(same_origin) {
-  }
+        same_origin_(same_origin) {}
 
   void OnManualQueriesCompleted(MultiQueryManager* manager) override {
     const std::string& url = manager->label();
@@ -2858,7 +2889,7 @@ class MultiQueryMultiNavigateTestHandler : public MultiQueryMultiLoadTestHandler
             "browser2.html";
     url3_ = std::string(same_origin_ ? kTestDomain1 : kTestDomain3) +
             "browser3.html";
-    
+
     AddManagedResource(url1_, true, true);
     AddManagedResource(url2_, true, true);
     AddManagedResource(url3_, true, true);

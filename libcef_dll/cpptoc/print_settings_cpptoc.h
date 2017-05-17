@@ -9,6 +9,8 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=c2d367550f84b283f161435785090c6b40d99678$
+//
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_PRINT_SETTINGS_CPPTOC_H_
 #define CEF_LIBCEF_DLL_CPPTOC_PRINT_SETTINGS_CPPTOC_H_
@@ -18,15 +20,16 @@
 #error This file can be included DLL-side only
 #endif
 
-#include "include/cef_print_settings.h"
 #include "include/capi/cef_print_settings_capi.h"
+#include "include/cef_print_settings.h"
 #include "libcef_dll/cpptoc/cpptoc_ref_counted.h"
 
 // Wrap a C++ class with a C structure.
 // This class may be instantiated and accessed DLL-side only.
 class CefPrintSettingsCppToC
-    : public CefCppToCRefCounted<CefPrintSettingsCppToC, CefPrintSettings,
-        cef_print_settings_t> {
+    : public CefCppToCRefCounted<CefPrintSettingsCppToC,
+                                 CefPrintSettings,
+                                 cef_print_settings_t> {
  public:
   CefPrintSettingsCppToC();
 };

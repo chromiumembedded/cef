@@ -11,8 +11,7 @@
 #include "libcef/browser/views/layout_impl.h"
 #include "ui/views/layout/box_layout.h"
 
-class CefBoxLayoutImpl :
-    public CefLayoutImpl<views::BoxLayout, CefBoxLayout> {
+class CefBoxLayoutImpl : public CefLayoutImpl<views::BoxLayout, CefBoxLayout> {
  public:
   // Necessary for the CEF_REQUIRE_VALID_*() macros to compile.
   typedef CefLayoutImpl<views::BoxLayout, CefBoxLayout> ParentClass;

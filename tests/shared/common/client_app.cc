@@ -19,9 +19,7 @@ const char kZygoteProcess[] = "zygote";
 
 }  // namespace
 
-
-ClientApp::ClientApp() {
-}
+ClientApp::ClientApp() {}
 
 // static
 ClientApp::ProcessType ClientApp::GetProcessType(

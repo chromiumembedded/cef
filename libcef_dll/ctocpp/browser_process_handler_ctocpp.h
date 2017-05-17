@@ -9,6 +9,8 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=c1cec19dbdd2c4cee35413cbb97073ec244309e5$
+//
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_BROWSER_PROCESS_HANDLER_CTOCPP_H_
 #define CEF_LIBCEF_DLL_CTOCPP_BROWSER_PROCESS_HANDLER_CTOCPP_H_
@@ -18,15 +20,16 @@
 #error This file can be included DLL-side only
 #endif
 
-#include "include/cef_browser_process_handler.h"
 #include "include/capi/cef_browser_process_handler_capi.h"
+#include "include/cef_browser_process_handler.h"
 #include "libcef_dll/ctocpp/ctocpp_ref_counted.h"
 
 // Wrap a C structure with a C++ class.
 // This class may be instantiated and accessed DLL-side only.
 class CefBrowserProcessHandlerCToCpp
     : public CefCToCppRefCounted<CefBrowserProcessHandlerCToCpp,
-        CefBrowserProcessHandler, cef_browser_process_handler_t> {
+                                 CefBrowserProcessHandler,
+                                 cef_browser_process_handler_t> {
  public:
   CefBrowserProcessHandlerCToCpp();
 

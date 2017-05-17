@@ -22,8 +22,8 @@ class CefExtensionsAPIClient : public ExtensionsAPIClient {
   std::unique_ptr<MimeHandlerViewGuestDelegate>
   CreateMimeHandlerViewGuestDelegate(
       MimeHandlerViewGuest* guest) const override;
-  void AttachWebContentsHelpers(content::WebContents* web_contents) const
-     override;
+  void AttachWebContentsHelpers(
+      content::WebContents* web_contents) const override;
 };
 
 }  // namespace extensions

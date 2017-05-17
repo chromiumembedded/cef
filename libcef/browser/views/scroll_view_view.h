@@ -12,8 +12,8 @@
 
 #include "ui/views/controls/scroll_view.h"
 
-class CefScrollViewView :
-    public CefViewView<views::ScrollView, CefViewDelegate> {
+class CefScrollViewView
+    : public CefViewView<views::ScrollView, CefViewDelegate> {
  public:
   typedef CefViewView<views::ScrollView, CefViewDelegate> ParentClass;
 

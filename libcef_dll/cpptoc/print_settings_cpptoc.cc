@@ -9,10 +9,11 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=4a7de54e64d113db827af72ab032fe3803773e1a$
+//
 
 #include <algorithm>
 #include "libcef_dll/cpptoc/print_settings_cpptoc.h"
-
 
 // GLOBAL FUNCTIONS - Body may be edited by hand.
 
@@ -25,7 +26,6 @@ CEF_EXPORT cef_print_settings_t* cef_print_settings_create() {
   // Return type: refptr_same
   return CefPrintSettingsCppToC::Wrap(_retval);
 }
-
 
 namespace {
 
@@ -45,8 +45,8 @@ int CEF_CALLBACK print_settings_is_valid(struct _cef_print_settings_t* self) {
   return _retval;
 }
 
-int CEF_CALLBACK print_settings_is_read_only(
-    struct _cef_print_settings_t* self) {
+int CEF_CALLBACK
+print_settings_is_read_only(struct _cef_print_settings_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -60,8 +60,8 @@ int CEF_CALLBACK print_settings_is_read_only(
   return _retval;
 }
 
-struct _cef_print_settings_t* CEF_CALLBACK print_settings_copy(
-    struct _cef_print_settings_t* self) {
+struct _cef_print_settings_t* CEF_CALLBACK
+print_settings_copy(struct _cef_print_settings_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -69,15 +69,16 @@ struct _cef_print_settings_t* CEF_CALLBACK print_settings_copy(
     return NULL;
 
   // Execute
-  CefRefPtr<CefPrintSettings> _retval = CefPrintSettingsCppToC::Get(self)->Copy(
-      );
+  CefRefPtr<CefPrintSettings> _retval =
+      CefPrintSettingsCppToC::Get(self)->Copy();
 
   // Return type: refptr_same
   return CefPrintSettingsCppToC::Wrap(_retval);
 }
 
-void CEF_CALLBACK print_settings_set_orientation(
-    struct _cef_print_settings_t* self, int landscape) {
+void CEF_CALLBACK
+print_settings_set_orientation(struct _cef_print_settings_t* self,
+                               int landscape) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -85,12 +86,11 @@ void CEF_CALLBACK print_settings_set_orientation(
     return;
 
   // Execute
-  CefPrintSettingsCppToC::Get(self)->SetOrientation(
-      landscape?true:false);
+  CefPrintSettingsCppToC::Get(self)->SetOrientation(landscape ? true : false);
 }
 
-int CEF_CALLBACK print_settings_is_landscape(
-    struct _cef_print_settings_t* self) {
+int CEF_CALLBACK
+print_settings_is_landscape(struct _cef_print_settings_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -107,7 +107,8 @@ int CEF_CALLBACK print_settings_is_landscape(
 void CEF_CALLBACK print_settings_set_printer_printable_area(
     struct _cef_print_settings_t* self,
     const cef_size_t* physical_size_device_units,
-    const cef_rect_t* printable_area_device_units, int landscape_needs_flip) {
+    const cef_rect_t* printable_area_device_units,
+    int landscape_needs_flip) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -124,20 +125,20 @@ void CEF_CALLBACK print_settings_set_printer_printable_area(
 
   // Translate param: physical_size_device_units; type: simple_byref_const
   CefSize physical_size_device_unitsVal =
-      physical_size_device_units?*physical_size_device_units:CefSize();
+      physical_size_device_units ? *physical_size_device_units : CefSize();
   // Translate param: printable_area_device_units; type: simple_byref_const
   CefRect printable_area_device_unitsVal =
-      printable_area_device_units?*printable_area_device_units:CefRect();
+      printable_area_device_units ? *printable_area_device_units : CefRect();
 
   // Execute
   CefPrintSettingsCppToC::Get(self)->SetPrinterPrintableArea(
-      physical_size_device_unitsVal,
-      printable_area_device_unitsVal,
-      landscape_needs_flip?true:false);
+      physical_size_device_unitsVal, printable_area_device_unitsVal,
+      landscape_needs_flip ? true : false);
 }
 
-void CEF_CALLBACK print_settings_set_device_name(
-    struct _cef_print_settings_t* self, const cef_string_t* name) {
+void CEF_CALLBACK
+print_settings_set_device_name(struct _cef_print_settings_t* self,
+                               const cef_string_t* name) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -146,12 +147,11 @@ void CEF_CALLBACK print_settings_set_device_name(
   // Unverified params: name
 
   // Execute
-  CefPrintSettingsCppToC::Get(self)->SetDeviceName(
-      CefString(name));
+  CefPrintSettingsCppToC::Get(self)->SetDeviceName(CefString(name));
 }
 
-cef_string_userfree_t CEF_CALLBACK print_settings_get_device_name(
-    struct _cef_print_settings_t* self) {
+cef_string_userfree_t CEF_CALLBACK
+print_settings_get_device_name(struct _cef_print_settings_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -166,7 +166,7 @@ cef_string_userfree_t CEF_CALLBACK print_settings_get_device_name(
 }
 
 void CEF_CALLBACK print_settings_set_dpi(struct _cef_print_settings_t* self,
-    int dpi) {
+                                         int dpi) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -174,8 +174,7 @@ void CEF_CALLBACK print_settings_set_dpi(struct _cef_print_settings_t* self,
     return;
 
   // Execute
-  CefPrintSettingsCppToC::Get(self)->SetDPI(
-      dpi);
+  CefPrintSettingsCppToC::Get(self)->SetDPI(dpi);
 }
 
 int CEF_CALLBACK print_settings_get_dpi(struct _cef_print_settings_t* self) {
@@ -192,9 +191,10 @@ int CEF_CALLBACK print_settings_get_dpi(struct _cef_print_settings_t* self) {
   return _retval;
 }
 
-void CEF_CALLBACK print_settings_set_page_ranges(
-    struct _cef_print_settings_t* self, size_t rangesCount,
-    cef_range_t const* ranges) {
+void CEF_CALLBACK
+print_settings_set_page_ranges(struct _cef_print_settings_t* self,
+                               size_t rangesCount,
+                               cef_range_t const* ranges) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -206,7 +206,7 @@ void CEF_CALLBACK print_settings_set_page_ranges(
     return;
 
   // Translate param: ranges; type: simple_vec_byref_const
-  std::vector<CefRange > rangesList;
+  std::vector<CefRange> rangesList;
   if (rangesCount > 0) {
     for (size_t i = 0; i < rangesCount; ++i) {
       CefRange rangesVal = ranges[i];
@@ -215,12 +215,11 @@ void CEF_CALLBACK print_settings_set_page_ranges(
   }
 
   // Execute
-  CefPrintSettingsCppToC::Get(self)->SetPageRanges(
-      rangesList);
+  CefPrintSettingsCppToC::Get(self)->SetPageRanges(rangesList);
 }
 
-size_t CEF_CALLBACK print_settings_get_page_ranges_count(
-    struct _cef_print_settings_t* self) {
+size_t CEF_CALLBACK
+print_settings_get_page_ranges_count(struct _cef_print_settings_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -234,9 +233,10 @@ size_t CEF_CALLBACK print_settings_get_page_ranges_count(
   return _retval;
 }
 
-void CEF_CALLBACK print_settings_get_page_ranges(
-    struct _cef_print_settings_t* self, size_t* rangesCount,
-    cef_range_t* ranges) {
+void CEF_CALLBACK
+print_settings_get_page_ranges(struct _cef_print_settings_t* self,
+                               size_t* rangesCount,
+                               cef_range_t* ranges) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -248,7 +248,7 @@ void CEF_CALLBACK print_settings_get_page_ranges(
     return;
 
   // Translate param: ranges; type: simple_vec_byref
-  std::vector<CefRange > rangesList;
+  std::vector<CefRange> rangesList;
   if (rangesCount && *rangesCount > 0 && ranges) {
     for (size_t i = 0; i < *rangesCount; ++i) {
       rangesList.push_back(ranges[i]);
@@ -256,8 +256,7 @@ void CEF_CALLBACK print_settings_get_page_ranges(
   }
 
   // Execute
-  CefPrintSettingsCppToC::Get(self)->GetPageRanges(
-      rangesList);
+  CefPrintSettingsCppToC::Get(self)->GetPageRanges(rangesList);
 
   // Restore param: ranges; type: simple_vec_byref
   if (rangesCount && ranges) {
@@ -270,8 +269,9 @@ void CEF_CALLBACK print_settings_get_page_ranges(
   }
 }
 
-void CEF_CALLBACK print_settings_set_selection_only(
-    struct _cef_print_settings_t* self, int selection_only) {
+void CEF_CALLBACK
+print_settings_set_selection_only(struct _cef_print_settings_t* self,
+                                  int selection_only) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -279,12 +279,12 @@ void CEF_CALLBACK print_settings_set_selection_only(
     return;
 
   // Execute
-  CefPrintSettingsCppToC::Get(self)->SetSelectionOnly(
-      selection_only?true:false);
+  CefPrintSettingsCppToC::Get(self)->SetSelectionOnly(selection_only ? true
+                                                                     : false);
 }
 
-int CEF_CALLBACK print_settings_is_selection_only(
-    struct _cef_print_settings_t* self) {
+int CEF_CALLBACK
+print_settings_is_selection_only(struct _cef_print_settings_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -299,7 +299,7 @@ int CEF_CALLBACK print_settings_is_selection_only(
 }
 
 void CEF_CALLBACK print_settings_set_collate(struct _cef_print_settings_t* self,
-    int collate) {
+                                             int collate) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -307,12 +307,11 @@ void CEF_CALLBACK print_settings_set_collate(struct _cef_print_settings_t* self,
     return;
 
   // Execute
-  CefPrintSettingsCppToC::Get(self)->SetCollate(
-      collate?true:false);
+  CefPrintSettingsCppToC::Get(self)->SetCollate(collate ? true : false);
 }
 
-int CEF_CALLBACK print_settings_will_collate(
-    struct _cef_print_settings_t* self) {
+int CEF_CALLBACK
+print_settings_will_collate(struct _cef_print_settings_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -326,8 +325,9 @@ int CEF_CALLBACK print_settings_will_collate(
   return _retval;
 }
 
-void CEF_CALLBACK print_settings_set_color_model(
-    struct _cef_print_settings_t* self, cef_color_model_t model) {
+void CEF_CALLBACK
+print_settings_set_color_model(struct _cef_print_settings_t* self,
+                               cef_color_model_t model) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -335,12 +335,11 @@ void CEF_CALLBACK print_settings_set_color_model(
     return;
 
   // Execute
-  CefPrintSettingsCppToC::Get(self)->SetColorModel(
-      model);
+  CefPrintSettingsCppToC::Get(self)->SetColorModel(model);
 }
 
-cef_color_model_t CEF_CALLBACK print_settings_get_color_model(
-    struct _cef_print_settings_t* self) {
+cef_color_model_t CEF_CALLBACK
+print_settings_get_color_model(struct _cef_print_settings_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -348,15 +347,15 @@ cef_color_model_t CEF_CALLBACK print_settings_get_color_model(
     return COLOR_MODEL_UNKNOWN;
 
   // Execute
-  cef_color_model_t _retval = CefPrintSettingsCppToC::Get(self)->GetColorModel(
-      );
+  cef_color_model_t _retval =
+      CefPrintSettingsCppToC::Get(self)->GetColorModel();
 
   // Return type: simple
   return _retval;
 }
 
 void CEF_CALLBACK print_settings_set_copies(struct _cef_print_settings_t* self,
-    int copies) {
+                                            int copies) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -364,8 +363,7 @@ void CEF_CALLBACK print_settings_set_copies(struct _cef_print_settings_t* self,
     return;
 
   // Execute
-  CefPrintSettingsCppToC::Get(self)->SetCopies(
-      copies);
+  CefPrintSettingsCppToC::Get(self)->SetCopies(copies);
 }
 
 int CEF_CALLBACK print_settings_get_copies(struct _cef_print_settings_t* self) {
@@ -382,8 +380,9 @@ int CEF_CALLBACK print_settings_get_copies(struct _cef_print_settings_t* self) {
   return _retval;
 }
 
-void CEF_CALLBACK print_settings_set_duplex_mode(
-    struct _cef_print_settings_t* self, cef_duplex_mode_t mode) {
+void CEF_CALLBACK
+print_settings_set_duplex_mode(struct _cef_print_settings_t* self,
+                               cef_duplex_mode_t mode) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -391,12 +390,11 @@ void CEF_CALLBACK print_settings_set_duplex_mode(
     return;
 
   // Execute
-  CefPrintSettingsCppToC::Get(self)->SetDuplexMode(
-      mode);
+  CefPrintSettingsCppToC::Get(self)->SetDuplexMode(mode);
 }
 
-cef_duplex_mode_t CEF_CALLBACK print_settings_get_duplex_mode(
-    struct _cef_print_settings_t* self) {
+cef_duplex_mode_t CEF_CALLBACK
+print_settings_get_duplex_mode(struct _cef_print_settings_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -404,15 +402,14 @@ cef_duplex_mode_t CEF_CALLBACK print_settings_get_duplex_mode(
     return DUPLEX_MODE_UNKNOWN;
 
   // Execute
-  cef_duplex_mode_t _retval = CefPrintSettingsCppToC::Get(self)->GetDuplexMode(
-      );
+  cef_duplex_mode_t _retval =
+      CefPrintSettingsCppToC::Get(self)->GetDuplexMode();
 
   // Return type: simple
   return _retval;
 }
 
 }  // namespace
-
 
 // CONSTRUCTOR - Do not edit by hand.
 
@@ -443,17 +440,25 @@ CefPrintSettingsCppToC::CefPrintSettingsCppToC() {
   GetStruct()->get_duplex_mode = print_settings_get_duplex_mode;
 }
 
-template<> CefRefPtr<CefPrintSettings> CefCppToCRefCounted<CefPrintSettingsCppToC,
-    CefPrintSettings, cef_print_settings_t>::UnwrapDerived(CefWrapperType type,
-    cef_print_settings_t* s) {
+template <>
+CefRefPtr<CefPrintSettings> CefCppToCRefCounted<
+    CefPrintSettingsCppToC,
+    CefPrintSettings,
+    cef_print_settings_t>::UnwrapDerived(CefWrapperType type,
+                                         cef_print_settings_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCppToCRefCounted<CefPrintSettingsCppToC,
-    CefPrintSettings, cef_print_settings_t>::DebugObjCt = 0;
+template <>
+base::AtomicRefCount CefCppToCRefCounted<CefPrintSettingsCppToC,
+                                         CefPrintSettings,
+                                         cef_print_settings_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCppToCRefCounted<CefPrintSettingsCppToC,
-    CefPrintSettings, cef_print_settings_t>::kWrapperType = WT_PRINT_SETTINGS;
+template <>
+CefWrapperType CefCppToCRefCounted<CefPrintSettingsCppToC,
+                                   CefPrintSettings,
+                                   cef_print_settings_t>::kWrapperType =
+    WT_PRINT_SETTINGS;

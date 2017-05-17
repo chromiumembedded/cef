@@ -9,11 +9,11 @@
 #include "include/views/cef_textfield.h"
 #include "include/views/cef_textfield_delegate.h"
 
-#include "libcef/browser/views/view_impl.h"
 #include "libcef/browser/views/textfield_view.h"
+#include "libcef/browser/views/view_impl.h"
 
-class CefTextfieldImpl :
-    public CefViewImpl<CefTextfieldView, CefTextfield, CefTextfieldDelegate> {
+class CefTextfieldImpl
+    : public CefViewImpl<CefTextfieldView, CefTextfield, CefTextfieldDelegate> {
  public:
   typedef CefViewImpl<CefTextfieldView, CefTextfield, CefTextfieldDelegate>
       ParentClass;
@@ -45,8 +45,7 @@ class CefTextfieldImpl :
   void SetSelectionBackgroundColor(cef_color_t color) override;
   cef_color_t GetSelectionBackgroundColor() override;
   void SetFontList(const CefString& font_list) override;
-  void ApplyTextColor(cef_color_t color,
-                      const CefRange& range) override;
+  void ApplyTextColor(cef_color_t color, const CefRange& range) override;
   void ApplyTextStyle(cef_text_style_t style,
                       bool add,
                       const CefRange& range) override;

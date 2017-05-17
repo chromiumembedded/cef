@@ -33,6 +33,8 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
+// $hash=344ba415349b4cc305f51cb9e22563b232433e25$
+//
 
 #ifndef CEF_INCLUDE_CAPI_CEF_TASK_CAPI_H_
 #define CEF_INCLUDE_CAPI_CEF_TASK_CAPI_H_
@@ -43,7 +45,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
 
 ///
 // Implement this structure for asynchronous task execution. If the task is
@@ -62,9 +63,8 @@ typedef struct _cef_task_t {
   ///
   // Method that will be executed on the target thread.
   ///
-  void (CEF_CALLBACK *execute)(struct _cef_task_t* self);
+  void(CEF_CALLBACK* execute)(struct _cef_task_t* self);
 } cef_task_t;
-
 
 ///
 // Structure that asynchronously executes tasks on the associated thread. It is
@@ -85,27 +85,26 @@ typedef struct _cef_task_runner_t {
   // Returns true (1) if this object is pointing to the same task runner as
   // |that| object.
   ///
-  int (CEF_CALLBACK *is_same)(struct _cef_task_runner_t* self,
-      struct _cef_task_runner_t* that);
+  int(CEF_CALLBACK* is_same)(struct _cef_task_runner_t* self,
+                             struct _cef_task_runner_t* that);
 
   ///
   // Returns true (1) if this task runner belongs to the current thread.
   ///
-  int (CEF_CALLBACK *belongs_to_current_thread)(
-      struct _cef_task_runner_t* self);
+  int(CEF_CALLBACK* belongs_to_current_thread)(struct _cef_task_runner_t* self);
 
   ///
   // Returns true (1) if this task runner is for the specified CEF thread.
   ///
-  int (CEF_CALLBACK *belongs_to_thread)(struct _cef_task_runner_t* self,
-      cef_thread_id_t threadId);
+  int(CEF_CALLBACK* belongs_to_thread)(struct _cef_task_runner_t* self,
+                                       cef_thread_id_t threadId);
 
   ///
   // Post a task for execution on the thread associated with this task runner.
   // Execution will occur asynchronously.
   ///
-  int (CEF_CALLBACK *post_task)(struct _cef_task_runner_t* self,
-      struct _cef_task_t* task);
+  int(CEF_CALLBACK* post_task)(struct _cef_task_runner_t* self,
+                               struct _cef_task_t* task);
 
   ///
   // Post a task for delayed execution on the thread associated with this task
@@ -113,10 +112,10 @@ typedef struct _cef_task_runner_t {
   // supported on V8 WebWorker threads and will be executed without the
   // specified delay.
   ///
-  int (CEF_CALLBACK *post_delayed_task)(struct _cef_task_runner_t* self,
-      struct _cef_task_t* task, int64 delay_ms);
+  int(CEF_CALLBACK* post_delayed_task)(struct _cef_task_runner_t* self,
+                                       struct _cef_task_t* task,
+                                       int64 delay_ms);
 } cef_task_runner_t;
-
 
 ///
 // Returns the task runner for the current thread. Only CEF threads will have
@@ -130,7 +129,6 @@ CEF_EXPORT cef_task_runner_t* cef_task_runner_get_for_current_thread();
 ///
 CEF_EXPORT cef_task_runner_t* cef_task_runner_get_for_thread(
     cef_thread_id_t threadId);
-
 
 ///
 // Returns true (1) if called on the specified thread. Equivalent to using
@@ -149,8 +147,9 @@ CEF_EXPORT int cef_post_task(cef_thread_id_t threadId, cef_task_t* task);
 // using cef_task_tRunner::GetForThread(threadId)->PostDelayedTask(task,
 // delay_ms).
 ///
-CEF_EXPORT int cef_post_delayed_task(cef_thread_id_t threadId, cef_task_t* task,
-    int64 delay_ms);
+CEF_EXPORT int cef_post_delayed_task(cef_thread_id_t threadId,
+                                     cef_task_t* task,
+                                     int64 delay_ms);
 
 #ifdef __cplusplus
 }

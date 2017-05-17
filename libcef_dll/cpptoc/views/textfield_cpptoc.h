@@ -9,6 +9,8 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=0f231714ec7d08370d93b5b88d08cdcd7ef929f6$
+//
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_VIEWS_TEXTFIELD_CPPTOC_H_
 #define CEF_LIBCEF_DLL_CPPTOC_VIEWS_TEXTFIELD_CPPTOC_H_
@@ -18,15 +20,15 @@
 #error This file can be included DLL-side only
 #endif
 
-#include "include/views/cef_textfield.h"
 #include "include/capi/views/cef_textfield_capi.h"
+#include "include/views/cef_textfield.h"
 #include "libcef_dll/cpptoc/cpptoc_ref_counted.h"
 
 // Wrap a C++ class with a C structure.
 // This class may be instantiated and accessed DLL-side only.
-class CefTextfieldCppToC
-    : public CefCppToCRefCounted<CefTextfieldCppToC, CefTextfield,
-        cef_textfield_t> {
+class CefTextfieldCppToC : public CefCppToCRefCounted<CefTextfieldCppToC,
+                                                      CefTextfield,
+                                                      cef_textfield_t> {
  public:
   CefTextfieldCppToC();
 };

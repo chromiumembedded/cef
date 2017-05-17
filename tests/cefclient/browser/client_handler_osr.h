@@ -27,8 +27,7 @@ class ClientHandlerOsr : public ClientHandler,
     // These methods match the CefRenderHandler interface.
     virtual bool GetRootScreenRect(CefRefPtr<CefBrowser> browser,
                                    CefRect& rect) = 0;
-    virtual bool GetViewRect(CefRefPtr<CefBrowser> browser,
-                             CefRect& rect) = 0;
+    virtual bool GetViewRect(CefRefPtr<CefBrowser> browser, CefRect& rect) = 0;
     virtual bool GetScreenPoint(CefRefPtr<CefBrowser> browser,
                                 int viewX,
                                 int viewY,
@@ -45,15 +44,15 @@ class ClientHandlerOsr : public ClientHandler,
                          const void* buffer,
                          int width,
                          int height) = 0;
-    virtual void OnCursorChange(
-        CefRefPtr<CefBrowser> browser,
-        CefCursorHandle cursor,
-        CefRenderHandler::CursorType type,
-        const CefCursorInfo& custom_cursor_info) = 0;
+    virtual void OnCursorChange(CefRefPtr<CefBrowser> browser,
+                                CefCursorHandle cursor,
+                                CefRenderHandler::CursorType type,
+                                const CefCursorInfo& custom_cursor_info) = 0;
     virtual bool StartDragging(CefRefPtr<CefBrowser> browser,
                                CefRefPtr<CefDragData> drag_data,
                                CefRenderHandler::DragOperationsMask allowed_ops,
-                               int x, int y) = 0;
+                               int x,
+                               int y) = 0;
     virtual void UpdateDragCursor(
         CefRefPtr<CefBrowser> browser,
         CefRenderHandler::DragOperation operation) = 0;
@@ -77,9 +76,7 @@ class ClientHandlerOsr : public ClientHandler,
   void DetachOsrDelegate();
 
   // CefClient methods.
-  CefRefPtr<CefRenderHandler> GetRenderHandler() OVERRIDE {
-    return this;
-  }
+  CefRefPtr<CefRenderHandler> GetRenderHandler() OVERRIDE { return this; }
   CefRefPtr<CefAccessibilityHandler> GetAccessibilityHandler() OVERRIDE {
     return this;
   }
@@ -89,10 +86,8 @@ class ClientHandlerOsr : public ClientHandler,
   void OnBeforeClose(CefRefPtr<CefBrowser> browser) OVERRIDE;
 
   // CefRenderHandler methods.
-  bool GetRootScreenRect(CefRefPtr<CefBrowser> browser,
-                         CefRect& rect) OVERRIDE;
-  bool GetViewRect(CefRefPtr<CefBrowser> browser,
-                   CefRect& rect) OVERRIDE;
+  bool GetRootScreenRect(CefRefPtr<CefBrowser> browser, CefRect& rect) OVERRIDE;
+  bool GetViewRect(CefRefPtr<CefBrowser> browser, CefRect& rect) OVERRIDE;
   bool GetScreenPoint(CefRefPtr<CefBrowser> browser,
                       int viewX,
                       int viewY,
@@ -101,8 +96,7 @@ class ClientHandlerOsr : public ClientHandler,
   bool GetScreenInfo(CefRefPtr<CefBrowser> browser,
                      CefScreenInfo& screen_info) OVERRIDE;
   void OnPopupShow(CefRefPtr<CefBrowser> browser, bool show) OVERRIDE;
-  void OnPopupSize(CefRefPtr<CefBrowser> browser,
-                   const CefRect& rect) OVERRIDE;
+  void OnPopupSize(CefRefPtr<CefBrowser> browser, const CefRect& rect) OVERRIDE;
   void OnPaint(CefRefPtr<CefBrowser> browser,
                CefRenderHandler::PaintElementType type,
                const CefRenderHandler::RectList& dirtyRects,
@@ -116,7 +110,8 @@ class ClientHandlerOsr : public ClientHandler,
   bool StartDragging(CefRefPtr<CefBrowser> browser,
                      CefRefPtr<CefDragData> drag_data,
                      CefRenderHandler::DragOperationsMask allowed_ops,
-                     int x, int y) OVERRIDE;
+                     int x,
+                     int y) OVERRIDE;
   void UpdateDragCursor(CefRefPtr<CefBrowser> browser,
                         CefRenderHandler::DragOperation operation) OVERRIDE;
   void OnImeCompositionRangeChanged(

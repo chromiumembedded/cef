@@ -77,14 +77,14 @@ class CefMenuButton : public CefLabelButton {
   /*--cef()--*/
   virtual void ShowMenu(CefRefPtr<CefMenuModel> menu_model,
                         const CefPoint& screen_point,
-                        cef_menu_anchor_position_t anchor_position) =0;
+                        cef_menu_anchor_position_t anchor_position) = 0;
 
   ///
   // Show the menu for this button. Results in a call to
   // CefMenuButtonDelegate::OnMenuButtonPressed().
   ///
   /*--cef()--*/
-  virtual void TriggerMenu() =0;
+  virtual void TriggerMenu() = 0;
 };
 
 #endif  // CEF_INCLUDE_VIEWS_CEF_MENU_BUTTON_H_

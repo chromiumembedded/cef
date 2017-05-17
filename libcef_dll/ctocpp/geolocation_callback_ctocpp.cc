@@ -9,9 +9,10 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=fad66d22e436870bec7d0d8fd41020aee409199a$
+//
 
 #include "libcef_dll/ctocpp/geolocation_callback_ctocpp.h"
-
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
@@ -23,28 +24,33 @@ void CefGeolocationCallbackCToCpp::Continue(bool allow) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  _struct->cont(_struct,
-      allow);
+  _struct->cont(_struct, allow);
 }
-
 
 // CONSTRUCTOR - Do not edit by hand.
 
-CefGeolocationCallbackCToCpp::CefGeolocationCallbackCToCpp() {
-}
+CefGeolocationCallbackCToCpp::CefGeolocationCallbackCToCpp() {}
 
-template<> cef_geolocation_callback_t* CefCToCppRefCounted<CefGeolocationCallbackCToCpp,
-    CefGeolocationCallback, cef_geolocation_callback_t>::UnwrapDerived(
-    CefWrapperType type, CefGeolocationCallback* c) {
+template <>
+cef_geolocation_callback_t* CefCToCppRefCounted<
+    CefGeolocationCallbackCToCpp,
+    CefGeolocationCallback,
+    cef_geolocation_callback_t>::UnwrapDerived(CefWrapperType type,
+                                               CefGeolocationCallback* c) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCppRefCounted<CefGeolocationCallbackCToCpp,
-    CefGeolocationCallback, cef_geolocation_callback_t>::DebugObjCt = 0;
+template <>
+base::AtomicRefCount
+    CefCToCppRefCounted<CefGeolocationCallbackCToCpp,
+                        CefGeolocationCallback,
+                        cef_geolocation_callback_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCppRefCounted<CefGeolocationCallbackCToCpp,
-    CefGeolocationCallback, cef_geolocation_callback_t>::kWrapperType =
+template <>
+CefWrapperType CefCToCppRefCounted<CefGeolocationCallbackCToCpp,
+                                   CefGeolocationCallback,
+                                   cef_geolocation_callback_t>::kWrapperType =
     WT_GEOLOCATION_CALLBACK;

@@ -9,9 +9,10 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=a3c3922ab75506acb378690f3275e26cb834efba$
+//
 
 #include "libcef_dll/ctocpp/end_tracing_callback_ctocpp.h"
-
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
@@ -29,28 +30,33 @@ void CefEndTracingCallbackCToCpp::OnEndTracingComplete(
     return;
 
   // Execute
-  _struct->on_end_tracing_complete(_struct,
-      tracing_file.GetStruct());
+  _struct->on_end_tracing_complete(_struct, tracing_file.GetStruct());
 }
-
 
 // CONSTRUCTOR - Do not edit by hand.
 
-CefEndTracingCallbackCToCpp::CefEndTracingCallbackCToCpp() {
-}
+CefEndTracingCallbackCToCpp::CefEndTracingCallbackCToCpp() {}
 
-template<> cef_end_tracing_callback_t* CefCToCppRefCounted<CefEndTracingCallbackCToCpp,
-    CefEndTracingCallback, cef_end_tracing_callback_t>::UnwrapDerived(
-    CefWrapperType type, CefEndTracingCallback* c) {
+template <>
+cef_end_tracing_callback_t* CefCToCppRefCounted<
+    CefEndTracingCallbackCToCpp,
+    CefEndTracingCallback,
+    cef_end_tracing_callback_t>::UnwrapDerived(CefWrapperType type,
+                                               CefEndTracingCallback* c) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCppRefCounted<CefEndTracingCallbackCToCpp,
-    CefEndTracingCallback, cef_end_tracing_callback_t>::DebugObjCt = 0;
+template <>
+base::AtomicRefCount
+    CefCToCppRefCounted<CefEndTracingCallbackCToCpp,
+                        CefEndTracingCallback,
+                        cef_end_tracing_callback_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCppRefCounted<CefEndTracingCallbackCToCpp,
-    CefEndTracingCallback, cef_end_tracing_callback_t>::kWrapperType =
+template <>
+CefWrapperType CefCToCppRefCounted<CefEndTracingCallbackCToCpp,
+                                   CefEndTracingCallback,
+                                   cef_end_tracing_callback_t>::kWrapperType =
     WT_END_TRACING_CALLBACK;

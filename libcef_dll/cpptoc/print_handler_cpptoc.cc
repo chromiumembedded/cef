@@ -9,6 +9,8 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=e2a9910119dcf81b74624588d222c7781e3fdc9a$
+//
 
 #include "libcef_dll/cpptoc/print_handler_cpptoc.h"
 #include "libcef_dll/ctocpp/browser_ctocpp.h"
@@ -16,13 +18,13 @@
 #include "libcef_dll/ctocpp/print_job_callback_ctocpp.h"
 #include "libcef_dll/ctocpp/print_settings_ctocpp.h"
 
-
 namespace {
 
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
-void CEF_CALLBACK print_handler_on_print_start(
-    struct _cef_print_handler_t* self, cef_browser_t* browser) {
+void CEF_CALLBACK
+print_handler_on_print_start(struct _cef_print_handler_t* self,
+                             cef_browser_t* browser) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -38,9 +40,10 @@ void CEF_CALLBACK print_handler_on_print_start(
       CefBrowserCToCpp::Wrap(browser));
 }
 
-void CEF_CALLBACK print_handler_on_print_settings(
-    struct _cef_print_handler_t* self, struct _cef_print_settings_t* settings,
-    int get_defaults) {
+void CEF_CALLBACK
+print_handler_on_print_settings(struct _cef_print_handler_t* self,
+                                struct _cef_print_settings_t* settings,
+                                int get_defaults) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -53,13 +56,13 @@ void CEF_CALLBACK print_handler_on_print_settings(
 
   // Execute
   CefPrintHandlerCppToC::Get(self)->OnPrintSettings(
-      CefPrintSettingsCToCpp::Wrap(settings),
-      get_defaults?true:false);
+      CefPrintSettingsCToCpp::Wrap(settings), get_defaults ? true : false);
 }
 
-int CEF_CALLBACK print_handler_on_print_dialog(
-    struct _cef_print_handler_t* self, int has_selection,
-    cef_print_dialog_callback_t* callback) {
+int CEF_CALLBACK
+print_handler_on_print_dialog(struct _cef_print_handler_t* self,
+                              int has_selection,
+                              cef_print_dialog_callback_t* callback) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -72,16 +75,18 @@ int CEF_CALLBACK print_handler_on_print_dialog(
 
   // Execute
   bool _retval = CefPrintHandlerCppToC::Get(self)->OnPrintDialog(
-      has_selection?true:false,
+      has_selection ? true : false,
       CefPrintDialogCallbackCToCpp::Wrap(callback));
 
   // Return type: bool
   return _retval;
 }
 
-int CEF_CALLBACK print_handler_on_print_job(struct _cef_print_handler_t* self,
-    const cef_string_t* document_name, const cef_string_t* pdf_file_path,
-    cef_print_job_callback_t* callback) {
+int CEF_CALLBACK
+print_handler_on_print_job(struct _cef_print_handler_t* self,
+                           const cef_string_t* document_name,
+                           const cef_string_t* pdf_file_path,
+                           cef_print_job_callback_t* callback) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -102,16 +107,15 @@ int CEF_CALLBACK print_handler_on_print_job(struct _cef_print_handler_t* self,
 
   // Execute
   bool _retval = CefPrintHandlerCppToC::Get(self)->OnPrintJob(
-      CefString(document_name),
-      CefString(pdf_file_path),
+      CefString(document_name), CefString(pdf_file_path),
       CefPrintJobCallbackCToCpp::Wrap(callback));
 
   // Return type: bool
   return _retval;
 }
 
-void CEF_CALLBACK print_handler_on_print_reset(
-    struct _cef_print_handler_t* self) {
+void CEF_CALLBACK
+print_handler_on_print_reset(struct _cef_print_handler_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -122,8 +126,9 @@ void CEF_CALLBACK print_handler_on_print_reset(
   CefPrintHandlerCppToC::Get(self)->OnPrintReset();
 }
 
-cef_size_t CEF_CALLBACK print_handler_get_pdf_paper_size(
-    struct _cef_print_handler_t* self, int device_units_per_inch) {
+cef_size_t CEF_CALLBACK
+print_handler_get_pdf_paper_size(struct _cef_print_handler_t* self,
+                                 int device_units_per_inch) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -131,15 +136,14 @@ cef_size_t CEF_CALLBACK print_handler_get_pdf_paper_size(
     return CefSize();
 
   // Execute
-  cef_size_t _retval = CefPrintHandlerCppToC::Get(self)->GetPdfPaperSize(
-      device_units_per_inch);
+  cef_size_t _retval =
+      CefPrintHandlerCppToC::Get(self)->GetPdfPaperSize(device_units_per_inch);
 
   // Return type: simple
   return _retval;
 }
 
 }  // namespace
-
 
 // CONSTRUCTOR - Do not edit by hand.
 
@@ -152,17 +156,25 @@ CefPrintHandlerCppToC::CefPrintHandlerCppToC() {
   GetStruct()->get_pdf_paper_size = print_handler_get_pdf_paper_size;
 }
 
-template<> CefRefPtr<CefPrintHandler> CefCppToCRefCounted<CefPrintHandlerCppToC,
-    CefPrintHandler, cef_print_handler_t>::UnwrapDerived(CefWrapperType type,
-    cef_print_handler_t* s) {
+template <>
+CefRefPtr<CefPrintHandler> CefCppToCRefCounted<
+    CefPrintHandlerCppToC,
+    CefPrintHandler,
+    cef_print_handler_t>::UnwrapDerived(CefWrapperType type,
+                                        cef_print_handler_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCppToCRefCounted<CefPrintHandlerCppToC,
-    CefPrintHandler, cef_print_handler_t>::DebugObjCt = 0;
+template <>
+base::AtomicRefCount CefCppToCRefCounted<CefPrintHandlerCppToC,
+                                         CefPrintHandler,
+                                         cef_print_handler_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCppToCRefCounted<CefPrintHandlerCppToC,
-    CefPrintHandler, cef_print_handler_t>::kWrapperType = WT_PRINT_HANDLER;
+template <>
+CefWrapperType CefCppToCRefCounted<CefPrintHandlerCppToC,
+                                   CefPrintHandler,
+                                   cef_print_handler_t>::kWrapperType =
+    WT_PRINT_HANDLER;

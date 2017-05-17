@@ -6,8 +6,8 @@
 #define CEF_LIBCEF_DLL_CPPTOC_BASE_REF_COUNTED_CPPTOC_H_
 #pragma once
 
-#include "include/cef_base.h"
 #include "include/capi/cef_base_capi.h"
+#include "include/cef_base.h"
 #include "libcef_dll/cpptoc/cpptoc_ref_counted.h"
 
 #if !defined(WRAPPING_CEF_SHARED)
@@ -16,7 +16,8 @@
 
 // Wrap a C++ class with a C structure.
 class CefBaseRefCountedCppToC
-    : public CefCppToCRefCounted<CefBaseRefCountedCppToC, CefBaseRefCounted,
+    : public CefCppToCRefCounted<CefBaseRefCountedCppToC,
+                                 CefBaseRefCounted,
                                  cef_base_ref_counted_t> {
  public:
   CefBaseRefCountedCppToC();

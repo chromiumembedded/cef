@@ -14,8 +14,7 @@
 CefCookieStoreProxy::CefCookieStoreProxy(
     CefURLRequestContextImpl* parent,
     CefRefPtr<CefRequestContextHandler> handler)
-    : parent_(parent),
-      handler_(handler) {
+    : parent_(parent), handler_(handler) {
   CEF_REQUIRE_IOT();
   DCHECK(parent_);
   DCHECK(handler_.get());
@@ -53,10 +52,9 @@ void CefCookieStoreProxy::SetCookieWithDetailsAsync(
     const SetCookiesCallback& callback) {
   net::CookieStore* cookie_store = GetCookieStore();
   if (cookie_store) {
-    cookie_store->SetCookieWithDetailsAsync(url, name, value, domain, path,
-                                            creation_time, expiration_time,
-                                            last_access_time, secure, http_only,
-                                            same_site, priority, callback);
+    cookie_store->SetCookieWithDetailsAsync(
+        url, name, value, domain, path, creation_time, expiration_time,
+        last_access_time, secure, http_only, same_site, priority, callback);
   }
 }
 
@@ -85,10 +83,9 @@ void CefCookieStoreProxy::GetAllCookiesAsync(
     cookie_store->GetAllCookiesAsync(callback);
 }
 
-void CefCookieStoreProxy::DeleteCookieAsync(
-    const GURL& url,
-    const std::string& cookie_name,
-    const base::Closure& callback) {
+void CefCookieStoreProxy::DeleteCookieAsync(const GURL& url,
+                                            const std::string& cookie_name,
+                                            const base::Closure& callback) {
   net::CookieStore* cookie_store = GetCookieStore();
   if (cookie_store)
     cookie_store->DeleteCookieAsync(url, cookie_name, callback);
@@ -164,8 +161,8 @@ net::CookieStore* CefCookieStoreProxy::GetCookieStore() {
   CefRefPtr<CefCookieManager> manager = handler_->GetCookieManager();
   if (manager.get()) {
     // Use the cookie store provided by the manager.
-    cookie_store = reinterpret_cast<CefCookieManagerImpl*>(manager.get())->
-        GetExistingCookieStore();
+    cookie_store = reinterpret_cast<CefCookieManagerImpl*>(manager.get())
+                       ->GetExistingCookieStore();
     DCHECK(cookie_store);
     return cookie_store;
   }

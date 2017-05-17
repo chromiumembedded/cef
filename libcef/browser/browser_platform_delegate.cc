@@ -12,9 +12,7 @@
 #include "content/public/browser/render_view_host.h"
 #include "content/public/browser/render_widget_host.h"
 
-CefBrowserPlatformDelegate::CefBrowserPlatformDelegate()
-    : browser_(nullptr) {
-}
+CefBrowserPlatformDelegate::CefBrowserPlatformDelegate() : browser_(nullptr) {}
 
 CefBrowserPlatformDelegate::~CefBrowserPlatformDelegate() {
   DCHECK(!browser_);
@@ -27,8 +25,7 @@ void CefBrowserPlatformDelegate::CreateViewForWebContents(
 }
 
 void CefBrowserPlatformDelegate::WebContentsCreated(
-    content::WebContents* web_contents) {
-}
+    content::WebContents* web_contents) {}
 
 void CefBrowserPlatformDelegate::RenderViewCreated(
     content::RenderViewHost* render_view_host) {
@@ -43,11 +40,9 @@ void CefBrowserPlatformDelegate::BrowserCreated(CefBrowserHostImpl* browser) {
   browser_ = browser;
 }
 
-void CefBrowserPlatformDelegate::NotifyBrowserCreated() {
-}
+void CefBrowserPlatformDelegate::NotifyBrowserCreated() {}
 
-void CefBrowserPlatformDelegate::NotifyBrowserDestroyed() {
-}
+void CefBrowserPlatformDelegate::NotifyBrowserDestroyed() {}
 
 void CefBrowserPlatformDelegate::BrowserDestroyed(CefBrowserHostImpl* browser) {
   DCHECK(browser_ && browser_ == browser);
@@ -80,18 +75,15 @@ void CefBrowserPlatformDelegate::PopupWebContentsCreated(
     CefRefPtr<CefClient> client,
     content::WebContents* new_web_contents,
     CefBrowserPlatformDelegate* new_platform_delegate,
-    bool is_devtools) {
-}
+    bool is_devtools) {}
 
 void CefBrowserPlatformDelegate::PopupBrowserCreated(
     CefBrowserHostImpl* new_browser,
-    bool is_devtools) {
-}
+    bool is_devtools) {}
 
 void CefBrowserPlatformDelegate::SendCaptureLostEvent() {
-  content::RenderWidgetHostImpl* widget =
-      content::RenderWidgetHostImpl::From(
-          browser_->web_contents()->GetRenderViewHost()->GetWidget());
+  content::RenderWidgetHostImpl* widget = content::RenderWidgetHostImpl::From(
+      browser_->web_contents()->GetRenderViewHost()->GetWidget());
   if (widget)
     widget->LostCapture();
 }
@@ -104,17 +96,16 @@ void CefBrowserPlatformDelegate::NotifyMoveOrResizeStarted() {
     host->NotifyMoveOrResizeStarted();
 }
 
-void CefBrowserPlatformDelegate::SizeTo(int width, int height) {
-}
+void CefBrowserPlatformDelegate::SizeTo(int width, int height) {}
 #endif
 
 std::unique_ptr<CefFileDialogRunner>
-    CefBrowserPlatformDelegate::CreateFileDialogRunner() {
+CefBrowserPlatformDelegate::CreateFileDialogRunner() {
   return nullptr;
 }
 
 std::unique_ptr<CefJavaScriptDialogRunner>
-    CefBrowserPlatformDelegate::CreateJavaScriptDialogRunner() {
+CefBrowserPlatformDelegate::CreateJavaScriptDialogRunner() {
   return nullptr;
 }
 
@@ -134,7 +125,8 @@ void CefBrowserPlatformDelegate::SetWindowlessFrameRate(int frame_rate) {
   NOTREACHED();
 }
 
-void CefBrowserPlatformDelegate::ImeSetComposition(const CefString& text,
+void CefBrowserPlatformDelegate::ImeSetComposition(
+    const CefString& text,
     const std::vector<CefCompositionUnderline>& underlines,
     const CefRange& replacement_range,
     const CefRange& selection_range) {
@@ -193,7 +185,8 @@ void CefBrowserPlatformDelegate::UpdateDragCursor(
 }
 
 void CefBrowserPlatformDelegate::DragSourceEndedAt(
-    int x, int y,
+    int x,
+    int y,
     cef_drag_operations_mask_t op) {
   NOTREACHED();
 }

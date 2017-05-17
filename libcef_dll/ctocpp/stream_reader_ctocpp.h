@@ -9,6 +9,8 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=604f97b3cd8cf3dbd1a603e596daba809ccb104f$
+//
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_STREAM_READER_CTOCPP_H_
 #define CEF_LIBCEF_DLL_CTOCPP_STREAM_READER_CTOCPP_H_
@@ -18,15 +20,15 @@
 #error This file can be included wrapper-side only
 #endif
 
-#include "include/cef_stream.h"
 #include "include/capi/cef_stream_capi.h"
+#include "include/cef_stream.h"
 #include "libcef_dll/ctocpp/ctocpp_ref_counted.h"
 
 // Wrap a C structure with a C++ class.
 // This class may be instantiated and accessed wrapper-side only.
-class CefStreamReaderCToCpp
-    : public CefCToCppRefCounted<CefStreamReaderCToCpp, CefStreamReader,
-        cef_stream_reader_t> {
+class CefStreamReaderCToCpp : public CefCToCppRefCounted<CefStreamReaderCToCpp,
+                                                         CefStreamReader,
+                                                         cef_stream_reader_t> {
  public:
   CefStreamReaderCToCpp();
 

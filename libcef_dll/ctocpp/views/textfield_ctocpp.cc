@@ -9,6 +9,8 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=5b2c763a6d31b66c7310b67d5d7424676cd9c85c$
+//
 
 #include "libcef_dll/cpptoc/views/textfield_delegate_cpptoc.h"
 #include "libcef_dll/cpptoc/views/view_delegate_cpptoc.h"
@@ -20,7 +22,6 @@
 #include "libcef_dll/ctocpp/views/view_ctocpp.h"
 #include "libcef_dll/ctocpp/views/window_ctocpp.h"
 
-
 // STATIC METHODS - Body may be edited by hand.
 
 CefRefPtr<CefTextfield> CefTextfield::CreateTextfield(
@@ -30,13 +31,12 @@ CefRefPtr<CefTextfield> CefTextfield::CreateTextfield(
   // Unverified params: delegate
 
   // Execute
-  cef_textfield_t* _retval = cef_textfield_create(
-      CefTextfieldDelegateCppToC::Wrap(delegate));
+  cef_textfield_t* _retval =
+      cef_textfield_create(CefTextfieldDelegateCppToC::Wrap(delegate));
 
   // Return type: refptr_same
   return CefTextfieldCToCpp::Wrap(_retval);
 }
-
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
@@ -48,8 +48,7 @@ void CefTextfieldCToCpp::SetPasswordInput(bool password_input) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  _struct->set_password_input(_struct,
-      password_input);
+  _struct->set_password_input(_struct, password_input);
 }
 
 bool CefTextfieldCToCpp::IsPasswordInput() {
@@ -63,7 +62,7 @@ bool CefTextfieldCToCpp::IsPasswordInput() {
   int _retval = _struct->is_password_input(_struct);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 void CefTextfieldCToCpp::SetReadOnly(bool read_only) {
@@ -74,8 +73,7 @@ void CefTextfieldCToCpp::SetReadOnly(bool read_only) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  _struct->set_read_only(_struct,
-      read_only);
+  _struct->set_read_only(_struct, read_only);
 }
 
 bool CefTextfieldCToCpp::IsReadOnly() {
@@ -89,7 +87,7 @@ bool CefTextfieldCToCpp::IsReadOnly() {
   int _retval = _struct->is_read_only(_struct);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 CefString CefTextfieldCToCpp::GetText() {
@@ -121,8 +119,7 @@ void CefTextfieldCToCpp::SetText(const CefString& text) {
     return;
 
   // Execute
-  _struct->set_text(_struct,
-      text.GetStruct());
+  _struct->set_text(_struct, text.GetStruct());
 }
 
 void CefTextfieldCToCpp::AppendText(const CefString& text) {
@@ -138,8 +135,7 @@ void CefTextfieldCToCpp::AppendText(const CefString& text) {
     return;
 
   // Execute
-  _struct->append_text(_struct,
-      text.GetStruct());
+  _struct->append_text(_struct, text.GetStruct());
 }
 
 void CefTextfieldCToCpp::InsertOrReplaceText(const CefString& text) {
@@ -155,8 +151,7 @@ void CefTextfieldCToCpp::InsertOrReplaceText(const CefString& text) {
     return;
 
   // Execute
-  _struct->insert_or_replace_text(_struct,
-      text.GetStruct());
+  _struct->insert_or_replace_text(_struct, text.GetStruct());
 }
 
 bool CefTextfieldCToCpp::HasSelection() {
@@ -170,7 +165,7 @@ bool CefTextfieldCToCpp::HasSelection() {
   int _retval = _struct->has_selection(_struct);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 CefString CefTextfieldCToCpp::GetSelectedText() {
@@ -197,8 +192,7 @@ void CefTextfieldCToCpp::SelectAll(bool reversed) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  _struct->select_all(_struct,
-      reversed);
+  _struct->select_all(_struct, reversed);
 }
 
 void CefTextfieldCToCpp::ClearSelection() {
@@ -234,8 +228,7 @@ void CefTextfieldCToCpp::SelectRange(const CefRange& range) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  _struct->select_range(_struct,
-      &range);
+  _struct->select_range(_struct, &range);
 }
 
 size_t CefTextfieldCToCpp::GetCursorPosition() {
@@ -260,8 +253,7 @@ void CefTextfieldCToCpp::SetTextColor(cef_color_t color) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  _struct->set_text_color(_struct,
-      color);
+  _struct->set_text_color(_struct, color);
 }
 
 cef_color_t CefTextfieldCToCpp::GetTextColor() {
@@ -286,8 +278,7 @@ void CefTextfieldCToCpp::SetSelectionTextColor(cef_color_t color) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  _struct->set_selection_text_color(_struct,
-      color);
+  _struct->set_selection_text_color(_struct, color);
 }
 
 cef_color_t CefTextfieldCToCpp::GetSelectionTextColor() {
@@ -312,8 +303,7 @@ void CefTextfieldCToCpp::SetSelectionBackgroundColor(cef_color_t color) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  _struct->set_selection_background_color(_struct,
-      color);
+  _struct->set_selection_background_color(_struct, color);
 }
 
 cef_color_t CefTextfieldCToCpp::GetSelectionBackgroundColor() {
@@ -343,12 +333,11 @@ void CefTextfieldCToCpp::SetFontList(const CefString& font_list) {
     return;
 
   // Execute
-  _struct->set_font_list(_struct,
-      font_list.GetStruct());
+  _struct->set_font_list(_struct, font_list.GetStruct());
 }
 
 void CefTextfieldCToCpp::ApplyTextColor(cef_color_t color,
-    const CefRange& range) {
+                                        const CefRange& range) {
   cef_textfield_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, apply_text_color))
     return;
@@ -356,13 +345,12 @@ void CefTextfieldCToCpp::ApplyTextColor(cef_color_t color,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  _struct->apply_text_color(_struct,
-      color,
-      &range);
+  _struct->apply_text_color(_struct, color, &range);
 }
 
-void CefTextfieldCToCpp::ApplyTextStyle(cef_text_style_t style, bool add,
-    const CefRange& range) {
+void CefTextfieldCToCpp::ApplyTextStyle(cef_text_style_t style,
+                                        bool add,
+                                        const CefRange& range) {
   cef_textfield_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, apply_text_style))
     return;
@@ -370,10 +358,7 @@ void CefTextfieldCToCpp::ApplyTextStyle(cef_text_style_t style, bool add,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  _struct->apply_text_style(_struct,
-      style,
-      add,
-      &range);
+  _struct->apply_text_style(_struct, style, add, &range);
 }
 
 bool CefTextfieldCToCpp::IsCommandEnabled(int command_id) {
@@ -384,11 +369,10 @@ bool CefTextfieldCToCpp::IsCommandEnabled(int command_id) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int _retval = _struct->is_command_enabled(_struct,
-      command_id);
+  int _retval = _struct->is_command_enabled(_struct, command_id);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 void CefTextfieldCToCpp::ExecuteCommand(int command_id) {
@@ -399,8 +383,7 @@ void CefTextfieldCToCpp::ExecuteCommand(int command_id) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  _struct->execute_command(_struct,
-      command_id);
+  _struct->execute_command(_struct, command_id);
 }
 
 void CefTextfieldCToCpp::ClearEditHistory() {
@@ -427,8 +410,7 @@ void CefTextfieldCToCpp::SetPlaceholderText(const CefString& text) {
     return;
 
   // Execute
-  _struct->set_placeholder_text(_struct,
-      text.GetStruct());
+  _struct->set_placeholder_text(_struct, text.GetStruct());
 }
 
 CefString CefTextfieldCToCpp::GetPlaceholderText() {
@@ -455,8 +437,7 @@ void CefTextfieldCToCpp::SetPlaceholderTextColor(cef_color_t color) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  _struct->set_placeholder_text_color(_struct,
-      color);
+  _struct->set_placeholder_text_color(_struct, color);
 }
 
 void CefTextfieldCToCpp::SetAccessibleName(const CefString& name) {
@@ -472,8 +453,7 @@ void CefTextfieldCToCpp::SetAccessibleName(const CefString& name) {
     return;
 
   // Execute
-  _struct->set_accessible_name(_struct,
-      name.GetStruct());
+  _struct->set_accessible_name(_struct, name.GetStruct());
 }
 
 CefRefPtr<CefBrowserView> CefTextfieldCToCpp::AsBrowserView() {
@@ -570,8 +550,7 @@ CefString CefTextfieldCToCpp::ToString(bool include_children) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  cef_string_userfree_t _retval = _struct->to_string(_struct,
-      include_children);
+  cef_string_userfree_t _retval = _struct->to_string(_struct, include_children);
 
   // Return type: string
   CefString _retvalStr;
@@ -590,7 +569,7 @@ bool CefTextfieldCToCpp::IsValid() {
   int _retval = _struct->is_valid(_struct);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 bool CefTextfieldCToCpp::IsAttached() {
@@ -604,7 +583,7 @@ bool CefTextfieldCToCpp::IsAttached() {
   int _retval = _struct->is_attached(_struct);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 bool CefTextfieldCToCpp::IsSame(CefRefPtr<CefView> that) {
@@ -620,11 +599,10 @@ bool CefTextfieldCToCpp::IsSame(CefRefPtr<CefView> that) {
     return false;
 
   // Execute
-  int _retval = _struct->is_same(_struct,
-      CefViewCToCpp::Unwrap(that));
+  int _retval = _struct->is_same(_struct, CefViewCToCpp::Unwrap(that));
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 CefRefPtr<CefViewDelegate> CefTextfieldCToCpp::GetDelegate() {
@@ -677,8 +655,7 @@ void CefTextfieldCToCpp::SetID(int id) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  _struct->set_id(_struct,
-      id);
+  _struct->set_id(_struct, id);
 }
 
 int CefTextfieldCToCpp::GetGroupID() {
@@ -703,8 +680,7 @@ void CefTextfieldCToCpp::SetGroupID(int group_id) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  _struct->set_group_id(_struct,
-      group_id);
+  _struct->set_group_id(_struct, group_id);
 }
 
 CefRefPtr<CefView> CefTextfieldCToCpp::GetParentView() {
@@ -729,8 +705,7 @@ CefRefPtr<CefView> CefTextfieldCToCpp::GetViewForID(int id) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  cef_view_t* _retval = _struct->get_view_for_id(_struct,
-      id);
+  cef_view_t* _retval = _struct->get_view_for_id(_struct, id);
 
   // Return type: refptr_same
   return CefViewCToCpp::Wrap(_retval);
@@ -744,8 +719,7 @@ void CefTextfieldCToCpp::SetBounds(const CefRect& bounds) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  _struct->set_bounds(_struct,
-      &bounds);
+  _struct->set_bounds(_struct, &bounds);
 }
 
 CefRect CefTextfieldCToCpp::GetBounds() {
@@ -784,8 +758,7 @@ void CefTextfieldCToCpp::SetSize(const CefSize& size) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  _struct->set_size(_struct,
-      &size);
+  _struct->set_size(_struct, &size);
 }
 
 CefSize CefTextfieldCToCpp::GetSize() {
@@ -810,8 +783,7 @@ void CefTextfieldCToCpp::SetPosition(const CefPoint& position) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  _struct->set_position(_struct,
-      &position);
+  _struct->set_position(_struct, &position);
 }
 
 CefPoint CefTextfieldCToCpp::GetPosition() {
@@ -889,8 +861,7 @@ int CefTextfieldCToCpp::GetHeightForWidth(int width) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int _retval = _struct->get_height_for_width(_struct,
-      width);
+  int _retval = _struct->get_height_for_width(_struct, width);
 
   // Return type: simple
   return _retval;
@@ -915,8 +886,7 @@ void CefTextfieldCToCpp::SetVisible(bool visible) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  _struct->set_visible(_struct,
-      visible);
+  _struct->set_visible(_struct, visible);
 }
 
 bool CefTextfieldCToCpp::IsVisible() {
@@ -930,7 +900,7 @@ bool CefTextfieldCToCpp::IsVisible() {
   int _retval = _struct->is_visible(_struct);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 bool CefTextfieldCToCpp::IsDrawn() {
@@ -944,7 +914,7 @@ bool CefTextfieldCToCpp::IsDrawn() {
   int _retval = _struct->is_drawn(_struct);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 void CefTextfieldCToCpp::SetEnabled(bool enabled) {
@@ -955,8 +925,7 @@ void CefTextfieldCToCpp::SetEnabled(bool enabled) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  _struct->set_enabled(_struct,
-      enabled);
+  _struct->set_enabled(_struct, enabled);
 }
 
 bool CefTextfieldCToCpp::IsEnabled() {
@@ -970,7 +939,7 @@ bool CefTextfieldCToCpp::IsEnabled() {
   int _retval = _struct->is_enabled(_struct);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 void CefTextfieldCToCpp::SetFocusable(bool focusable) {
@@ -981,8 +950,7 @@ void CefTextfieldCToCpp::SetFocusable(bool focusable) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  _struct->set_focusable(_struct,
-      focusable);
+  _struct->set_focusable(_struct, focusable);
 }
 
 bool CefTextfieldCToCpp::IsFocusable() {
@@ -996,7 +964,7 @@ bool CefTextfieldCToCpp::IsFocusable() {
   int _retval = _struct->is_focusable(_struct);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 bool CefTextfieldCToCpp::IsAccessibilityFocusable() {
@@ -1010,7 +978,7 @@ bool CefTextfieldCToCpp::IsAccessibilityFocusable() {
   int _retval = _struct->is_accessibility_focusable(_struct);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 void CefTextfieldCToCpp::RequestFocus() {
@@ -1032,8 +1000,7 @@ void CefTextfieldCToCpp::SetBackgroundColor(cef_color_t color) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  _struct->set_background_color(_struct,
-      color);
+  _struct->set_background_color(_struct, color);
 }
 
 cef_color_t CefTextfieldCToCpp::GetBackgroundColor() {
@@ -1058,11 +1025,10 @@ bool CefTextfieldCToCpp::ConvertPointToScreen(CefPoint& point) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int _retval = _struct->convert_point_to_screen(_struct,
-      &point);
+  int _retval = _struct->convert_point_to_screen(_struct, &point);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 bool CefTextfieldCToCpp::ConvertPointFromScreen(CefPoint& point) {
@@ -1073,11 +1039,10 @@ bool CefTextfieldCToCpp::ConvertPointFromScreen(CefPoint& point) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int _retval = _struct->convert_point_from_screen(_struct,
-      &point);
+  int _retval = _struct->convert_point_from_screen(_struct, &point);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 bool CefTextfieldCToCpp::ConvertPointToWindow(CefPoint& point) {
@@ -1088,11 +1053,10 @@ bool CefTextfieldCToCpp::ConvertPointToWindow(CefPoint& point) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int _retval = _struct->convert_point_to_window(_struct,
-      &point);
+  int _retval = _struct->convert_point_to_window(_struct, &point);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 bool CefTextfieldCToCpp::ConvertPointFromWindow(CefPoint& point) {
@@ -1103,15 +1067,14 @@ bool CefTextfieldCToCpp::ConvertPointFromWindow(CefPoint& point) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int _retval = _struct->convert_point_from_window(_struct,
-      &point);
+  int _retval = _struct->convert_point_from_window(_struct, &point);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 bool CefTextfieldCToCpp::ConvertPointToView(CefRefPtr<CefView> view,
-    CefPoint& point) {
+                                            CefPoint& point) {
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, convert_point_to_view))
     return false;
@@ -1124,16 +1087,15 @@ bool CefTextfieldCToCpp::ConvertPointToView(CefRefPtr<CefView> view,
     return false;
 
   // Execute
-  int _retval = _struct->convert_point_to_view(_struct,
-      CefViewCToCpp::Unwrap(view),
-      &point);
+  int _retval = _struct->convert_point_to_view(
+      _struct, CefViewCToCpp::Unwrap(view), &point);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 bool CefTextfieldCToCpp::ConvertPointFromView(CefRefPtr<CefView> view,
-    CefPoint& point) {
+                                              CefPoint& point) {
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, convert_point_from_view))
     return false;
@@ -1146,31 +1108,34 @@ bool CefTextfieldCToCpp::ConvertPointFromView(CefRefPtr<CefView> view,
     return false;
 
   // Execute
-  int _retval = _struct->convert_point_from_view(_struct,
-      CefViewCToCpp::Unwrap(view),
-      &point);
+  int _retval = _struct->convert_point_from_view(
+      _struct, CefViewCToCpp::Unwrap(view), &point);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
-
 
 // CONSTRUCTOR - Do not edit by hand.
 
-CefTextfieldCToCpp::CefTextfieldCToCpp() {
-}
+CefTextfieldCToCpp::CefTextfieldCToCpp() {}
 
-template<> cef_textfield_t* CefCToCppRefCounted<CefTextfieldCToCpp,
-    CefTextfield, cef_textfield_t>::UnwrapDerived(CefWrapperType type,
-    CefTextfield* c) {
+template <>
+cef_textfield_t*
+CefCToCppRefCounted<CefTextfieldCToCpp, CefTextfield, cef_textfield_t>::
+    UnwrapDerived(CefWrapperType type, CefTextfield* c) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCppRefCounted<CefTextfieldCToCpp,
-    CefTextfield, cef_textfield_t>::DebugObjCt = 0;
+template <>
+base::AtomicRefCount CefCToCppRefCounted<CefTextfieldCToCpp,
+                                         CefTextfield,
+                                         cef_textfield_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCppRefCounted<CefTextfieldCToCpp, CefTextfield,
-    cef_textfield_t>::kWrapperType = WT_TEXTFIELD;
+template <>
+CefWrapperType CefCToCppRefCounted<CefTextfieldCToCpp,
+                                   CefTextfield,
+                                   cef_textfield_t>::kWrapperType =
+    WT_TEXTFIELD;

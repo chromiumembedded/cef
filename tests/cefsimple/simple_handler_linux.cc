@@ -24,23 +24,15 @@ void SimpleHandler::PlatformTitleChange(CefRefPtr<CefBrowser> browser,
   DCHECK(window != kNullWindowHandle);
 
   // Retrieve the atoms required by the below XChangeProperty call.
-  const char* kAtoms[] = {
-    "_NET_WM_NAME",
-    "UTF8_STRING"
-  };
+  const char* kAtoms[] = {"_NET_WM_NAME", "UTF8_STRING"};
   Atom atoms[2];
-  int result = XInternAtoms(display, const_cast<char**>(kAtoms), 2, false,
-                            atoms);
+  int result =
+      XInternAtoms(display, const_cast<char**>(kAtoms), 2, false, atoms);
   if (!result)
     NOTREACHED();
 
   // Set the window title.
-  XChangeProperty(display,
-                  window,
-                  atoms[0],
-                  atoms[1],
-                  8,
-                  PropModeReplace,
+  XChangeProperty(display, window, atoms[0], atoms[1], 8, PropModeReplace,
                   reinterpret_cast<const unsigned char*>(titleStr.c_str()),
                   titleStr.size());
 
@@ -50,4 +42,3 @@ void SimpleHandler::PlatformTitleChange(CefRefPtr<CefBrowser> browser,
   // fallback to the UTF8 property above.
   XStoreName(display, browser->GetHost()->GetWindowHandle(), titleStr.c_str());
 }
-

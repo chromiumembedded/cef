@@ -9,6 +9,8 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=2babe5bd3069d25994beb6d122d59b0038c5a2bb$
+//
 
 #include "libcef_dll/cpptoc/views/browser_view_cpptoc.h"
 #include "libcef_dll/cpptoc/views/button_cpptoc.h"
@@ -19,7 +21,6 @@
 #include "libcef_dll/cpptoc/views/window_cpptoc.h"
 #include "libcef_dll/ctocpp/views/view_delegate_ctocpp.h"
 
-
 // GLOBAL FUNCTIONS - Body may be edited by hand.
 
 CEF_EXPORT cef_scroll_view_t* cef_scroll_view_create(
@@ -29,20 +30,19 @@ CEF_EXPORT cef_scroll_view_t* cef_scroll_view_create(
   // Unverified params: delegate
 
   // Execute
-  CefRefPtr<CefScrollView> _retval = CefScrollView::CreateScrollView(
-      CefViewDelegateCToCpp::Wrap(delegate));
+  CefRefPtr<CefScrollView> _retval =
+      CefScrollView::CreateScrollView(CefViewDelegateCToCpp::Wrap(delegate));
 
   // Return type: refptr_same
   return CefScrollViewCppToC::Wrap(_retval);
 }
-
 
 namespace {
 
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
 void CEF_CALLBACK scroll_view_set_content_view(struct _cef_scroll_view_t* self,
-    struct _cef_view_t* view) {
+                                               struct _cef_view_t* view) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -54,12 +54,11 @@ void CEF_CALLBACK scroll_view_set_content_view(struct _cef_scroll_view_t* self,
     return;
 
   // Execute
-  CefScrollViewCppToC::Get(self)->SetContentView(
-      CefViewCppToC::Unwrap(view));
+  CefScrollViewCppToC::Get(self)->SetContentView(CefViewCppToC::Unwrap(view));
 }
 
-struct _cef_view_t* CEF_CALLBACK scroll_view_get_content_view(
-    struct _cef_scroll_view_t* self) {
+struct _cef_view_t* CEF_CALLBACK
+scroll_view_get_content_view(struct _cef_scroll_view_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -73,8 +72,8 @@ struct _cef_view_t* CEF_CALLBACK scroll_view_get_content_view(
   return CefViewCppToC::Wrap(_retval);
 }
 
-cef_rect_t CEF_CALLBACK scroll_view_get_visible_content_rect(
-    struct _cef_scroll_view_t* self) {
+cef_rect_t CEF_CALLBACK
+scroll_view_get_visible_content_rect(struct _cef_scroll_view_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -88,8 +87,8 @@ cef_rect_t CEF_CALLBACK scroll_view_get_visible_content_rect(
   return _retval;
 }
 
-int CEF_CALLBACK scroll_view_has_horizontal_scrollbar(
-    struct _cef_scroll_view_t* self) {
+int CEF_CALLBACK
+scroll_view_has_horizontal_scrollbar(struct _cef_scroll_view_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -103,8 +102,8 @@ int CEF_CALLBACK scroll_view_has_horizontal_scrollbar(
   return _retval;
 }
 
-int CEF_CALLBACK scroll_view_get_horizontal_scrollbar_height(
-    struct _cef_scroll_view_t* self) {
+int CEF_CALLBACK
+scroll_view_get_horizontal_scrollbar_height(struct _cef_scroll_view_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -118,8 +117,8 @@ int CEF_CALLBACK scroll_view_get_horizontal_scrollbar_height(
   return _retval;
 }
 
-int CEF_CALLBACK scroll_view_has_vertical_scrollbar(
-    struct _cef_scroll_view_t* self) {
+int CEF_CALLBACK
+scroll_view_has_vertical_scrollbar(struct _cef_scroll_view_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -133,8 +132,8 @@ int CEF_CALLBACK scroll_view_has_vertical_scrollbar(
   return _retval;
 }
 
-int CEF_CALLBACK scroll_view_get_vertical_scrollbar_width(
-    struct _cef_scroll_view_t* self) {
+int CEF_CALLBACK
+scroll_view_get_vertical_scrollbar_width(struct _cef_scroll_view_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -148,8 +147,8 @@ int CEF_CALLBACK scroll_view_get_vertical_scrollbar_width(
   return _retval;
 }
 
-cef_browser_view_t* CEF_CALLBACK scroll_view_as_browser_view(
-    struct _cef_view_t* self) {
+cef_browser_view_t* CEF_CALLBACK
+scroll_view_as_browser_view(struct _cef_view_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -157,8 +156,9 @@ cef_browser_view_t* CEF_CALLBACK scroll_view_as_browser_view(
     return NULL;
 
   // Execute
-  CefRefPtr<CefBrowserView> _retval = CefScrollViewCppToC::Get(
-      reinterpret_cast<cef_scroll_view_t*>(self))->AsBrowserView();
+  CefRefPtr<CefBrowserView> _retval =
+      CefScrollViewCppToC::Get(reinterpret_cast<cef_scroll_view_t*>(self))
+          ->AsBrowserView();
 
   // Return type: refptr_same
   return CefBrowserViewCppToC::Wrap(_retval);
@@ -172,8 +172,9 @@ cef_button_t* CEF_CALLBACK scroll_view_as_button(struct _cef_view_t* self) {
     return NULL;
 
   // Execute
-  CefRefPtr<CefButton> _retval = CefScrollViewCppToC::Get(
-      reinterpret_cast<cef_scroll_view_t*>(self))->AsButton();
+  CefRefPtr<CefButton> _retval =
+      CefScrollViewCppToC::Get(reinterpret_cast<cef_scroll_view_t*>(self))
+          ->AsButton();
 
   // Return type: refptr_same
   return CefButtonCppToC::Wrap(_retval);
@@ -187,15 +188,16 @@ cef_panel_t* CEF_CALLBACK scroll_view_as_panel(struct _cef_view_t* self) {
     return NULL;
 
   // Execute
-  CefRefPtr<CefPanel> _retval = CefScrollViewCppToC::Get(
-      reinterpret_cast<cef_scroll_view_t*>(self))->AsPanel();
+  CefRefPtr<CefPanel> _retval =
+      CefScrollViewCppToC::Get(reinterpret_cast<cef_scroll_view_t*>(self))
+          ->AsPanel();
 
   // Return type: refptr_same
   return CefPanelCppToC::Wrap(_retval);
 }
 
-cef_scroll_view_t* CEF_CALLBACK scroll_view_as_scroll_view(
-    struct _cef_view_t* self) {
+cef_scroll_view_t* CEF_CALLBACK
+scroll_view_as_scroll_view(struct _cef_view_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -203,15 +205,16 @@ cef_scroll_view_t* CEF_CALLBACK scroll_view_as_scroll_view(
     return NULL;
 
   // Execute
-  CefRefPtr<CefScrollView> _retval = CefScrollViewCppToC::Get(
-      reinterpret_cast<cef_scroll_view_t*>(self))->AsScrollView();
+  CefRefPtr<CefScrollView> _retval =
+      CefScrollViewCppToC::Get(reinterpret_cast<cef_scroll_view_t*>(self))
+          ->AsScrollView();
 
   // Return type: refptr_same
   return CefScrollViewCppToC::Wrap(_retval);
 }
 
-cef_textfield_t* CEF_CALLBACK scroll_view_as_textfield(
-    struct _cef_view_t* self) {
+cef_textfield_t* CEF_CALLBACK
+scroll_view_as_textfield(struct _cef_view_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -219,15 +222,16 @@ cef_textfield_t* CEF_CALLBACK scroll_view_as_textfield(
     return NULL;
 
   // Execute
-  CefRefPtr<CefTextfield> _retval = CefScrollViewCppToC::Get(
-      reinterpret_cast<cef_scroll_view_t*>(self))->AsTextfield();
+  CefRefPtr<CefTextfield> _retval =
+      CefScrollViewCppToC::Get(reinterpret_cast<cef_scroll_view_t*>(self))
+          ->AsTextfield();
 
   // Return type: refptr_same
   return CefTextfieldCppToC::Wrap(_retval);
 }
 
-cef_string_userfree_t CEF_CALLBACK scroll_view_get_type_string(
-    struct _cef_view_t* self) {
+cef_string_userfree_t CEF_CALLBACK
+scroll_view_get_type_string(struct _cef_view_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -235,15 +239,16 @@ cef_string_userfree_t CEF_CALLBACK scroll_view_get_type_string(
     return NULL;
 
   // Execute
-  CefString _retval = CefScrollViewCppToC::Get(
-      reinterpret_cast<cef_scroll_view_t*>(self))->GetTypeString();
+  CefString _retval =
+      CefScrollViewCppToC::Get(reinterpret_cast<cef_scroll_view_t*>(self))
+          ->GetTypeString();
 
   // Return type: string
   return _retval.DetachToUserFree();
 }
 
-cef_string_userfree_t CEF_CALLBACK scroll_view_to_string(
-    struct _cef_view_t* self, int include_children) {
+cef_string_userfree_t CEF_CALLBACK
+scroll_view_to_string(struct _cef_view_t* self, int include_children) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -251,9 +256,9 @@ cef_string_userfree_t CEF_CALLBACK scroll_view_to_string(
     return NULL;
 
   // Execute
-  CefString _retval = CefScrollViewCppToC::Get(
-      reinterpret_cast<cef_scroll_view_t*>(self))->ToString(
-      include_children?true:false);
+  CefString _retval =
+      CefScrollViewCppToC::Get(reinterpret_cast<cef_scroll_view_t*>(self))
+          ->ToString(include_children ? true : false);
 
   // Return type: string
   return _retval.DetachToUserFree();
@@ -267,8 +272,9 @@ int CEF_CALLBACK scroll_view_is_valid(struct _cef_view_t* self) {
     return 0;
 
   // Execute
-  bool _retval = CefScrollViewCppToC::Get(reinterpret_cast<cef_scroll_view_t*>(
-      self))->IsValid();
+  bool _retval =
+      CefScrollViewCppToC::Get(reinterpret_cast<cef_scroll_view_t*>(self))
+          ->IsValid();
 
   // Return type: bool
   return _retval;
@@ -282,15 +288,16 @@ int CEF_CALLBACK scroll_view_is_attached(struct _cef_view_t* self) {
     return 0;
 
   // Execute
-  bool _retval = CefScrollViewCppToC::Get(reinterpret_cast<cef_scroll_view_t*>(
-      self))->IsAttached();
+  bool _retval =
+      CefScrollViewCppToC::Get(reinterpret_cast<cef_scroll_view_t*>(self))
+          ->IsAttached();
 
   // Return type: bool
   return _retval;
 }
 
 int CEF_CALLBACK scroll_view_is_same(struct _cef_view_t* self,
-    struct _cef_view_t* that) {
+                                     struct _cef_view_t* that) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -302,16 +309,16 @@ int CEF_CALLBACK scroll_view_is_same(struct _cef_view_t* self,
     return 0;
 
   // Execute
-  bool _retval = CefScrollViewCppToC::Get(reinterpret_cast<cef_scroll_view_t*>(
-      self))->IsSame(
-      CefViewCppToC::Unwrap(that));
+  bool _retval =
+      CefScrollViewCppToC::Get(reinterpret_cast<cef_scroll_view_t*>(self))
+          ->IsSame(CefViewCppToC::Unwrap(that));
 
   // Return type: bool
   return _retval;
 }
 
-struct _cef_view_delegate_t* CEF_CALLBACK scroll_view_get_delegate(
-    struct _cef_view_t* self) {
+struct _cef_view_delegate_t* CEF_CALLBACK
+scroll_view_get_delegate(struct _cef_view_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -319,15 +326,16 @@ struct _cef_view_delegate_t* CEF_CALLBACK scroll_view_get_delegate(
     return NULL;
 
   // Execute
-  CefRefPtr<CefViewDelegate> _retval = CefScrollViewCppToC::Get(
-      reinterpret_cast<cef_scroll_view_t*>(self))->GetDelegate();
+  CefRefPtr<CefViewDelegate> _retval =
+      CefScrollViewCppToC::Get(reinterpret_cast<cef_scroll_view_t*>(self))
+          ->GetDelegate();
 
   // Return type: refptr_diff
   return CefViewDelegateCToCpp::Unwrap(_retval);
 }
 
-struct _cef_window_t* CEF_CALLBACK scroll_view_get_window(
-    struct _cef_view_t* self) {
+struct _cef_window_t* CEF_CALLBACK
+scroll_view_get_window(struct _cef_view_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -335,8 +343,9 @@ struct _cef_window_t* CEF_CALLBACK scroll_view_get_window(
     return NULL;
 
   // Execute
-  CefRefPtr<CefWindow> _retval = CefScrollViewCppToC::Get(
-      reinterpret_cast<cef_scroll_view_t*>(self))->GetWindow();
+  CefRefPtr<CefWindow> _retval =
+      CefScrollViewCppToC::Get(reinterpret_cast<cef_scroll_view_t*>(self))
+          ->GetWindow();
 
   // Return type: refptr_same
   return CefWindowCppToC::Wrap(_retval);
@@ -350,8 +359,9 @@ int CEF_CALLBACK scroll_view_get_id(struct _cef_view_t* self) {
     return 0;
 
   // Execute
-  int _retval = CefScrollViewCppToC::Get(reinterpret_cast<cef_scroll_view_t*>(
-      self))->GetID();
+  int _retval =
+      CefScrollViewCppToC::Get(reinterpret_cast<cef_scroll_view_t*>(self))
+          ->GetID();
 
   // Return type: simple
   return _retval;
@@ -365,8 +375,8 @@ void CEF_CALLBACK scroll_view_set_id(struct _cef_view_t* self, int id) {
     return;
 
   // Execute
-  CefScrollViewCppToC::Get(reinterpret_cast<cef_scroll_view_t*>(self))->SetID(
-      id);
+  CefScrollViewCppToC::Get(reinterpret_cast<cef_scroll_view_t*>(self))
+      ->SetID(id);
 }
 
 int CEF_CALLBACK scroll_view_get_group_id(struct _cef_view_t* self) {
@@ -377,15 +387,16 @@ int CEF_CALLBACK scroll_view_get_group_id(struct _cef_view_t* self) {
     return 0;
 
   // Execute
-  int _retval = CefScrollViewCppToC::Get(reinterpret_cast<cef_scroll_view_t*>(
-      self))->GetGroupID();
+  int _retval =
+      CefScrollViewCppToC::Get(reinterpret_cast<cef_scroll_view_t*>(self))
+          ->GetGroupID();
 
   // Return type: simple
   return _retval;
 }
 
 void CEF_CALLBACK scroll_view_set_group_id(struct _cef_view_t* self,
-    int group_id) {
+                                           int group_id) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -393,13 +404,12 @@ void CEF_CALLBACK scroll_view_set_group_id(struct _cef_view_t* self,
     return;
 
   // Execute
-  CefScrollViewCppToC::Get(reinterpret_cast<cef_scroll_view_t*>(
-      self))->SetGroupID(
-      group_id);
+  CefScrollViewCppToC::Get(reinterpret_cast<cef_scroll_view_t*>(self))
+      ->SetGroupID(group_id);
 }
 
-struct _cef_view_t* CEF_CALLBACK scroll_view_get_parent_view(
-    struct _cef_view_t* self) {
+struct _cef_view_t* CEF_CALLBACK
+scroll_view_get_parent_view(struct _cef_view_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -407,15 +417,16 @@ struct _cef_view_t* CEF_CALLBACK scroll_view_get_parent_view(
     return NULL;
 
   // Execute
-  CefRefPtr<CefView> _retval = CefScrollViewCppToC::Get(
-      reinterpret_cast<cef_scroll_view_t*>(self))->GetParentView();
+  CefRefPtr<CefView> _retval =
+      CefScrollViewCppToC::Get(reinterpret_cast<cef_scroll_view_t*>(self))
+          ->GetParentView();
 
   // Return type: refptr_same
   return CefViewCppToC::Wrap(_retval);
 }
 
-struct _cef_view_t* CEF_CALLBACK scroll_view_get_view_for_id(
-    struct _cef_view_t* self, int id) {
+struct _cef_view_t* CEF_CALLBACK
+scroll_view_get_view_for_id(struct _cef_view_t* self, int id) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -423,16 +434,16 @@ struct _cef_view_t* CEF_CALLBACK scroll_view_get_view_for_id(
     return NULL;
 
   // Execute
-  CefRefPtr<CefView> _retval = CefScrollViewCppToC::Get(
-      reinterpret_cast<cef_scroll_view_t*>(self))->GetViewForID(
-      id);
+  CefRefPtr<CefView> _retval =
+      CefScrollViewCppToC::Get(reinterpret_cast<cef_scroll_view_t*>(self))
+          ->GetViewForID(id);
 
   // Return type: refptr_same
   return CefViewCppToC::Wrap(_retval);
 }
 
 void CEF_CALLBACK scroll_view_set_bounds(struct _cef_view_t* self,
-    const cef_rect_t* bounds) {
+                                         const cef_rect_t* bounds) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -444,12 +455,11 @@ void CEF_CALLBACK scroll_view_set_bounds(struct _cef_view_t* self,
     return;
 
   // Translate param: bounds; type: simple_byref_const
-  CefRect boundsVal = bounds?*bounds:CefRect();
+  CefRect boundsVal = bounds ? *bounds : CefRect();
 
   // Execute
-  CefScrollViewCppToC::Get(reinterpret_cast<cef_scroll_view_t*>(
-      self))->SetBounds(
-      boundsVal);
+  CefScrollViewCppToC::Get(reinterpret_cast<cef_scroll_view_t*>(self))
+      ->SetBounds(boundsVal);
 }
 
 cef_rect_t CEF_CALLBACK scroll_view_get_bounds(struct _cef_view_t* self) {
@@ -460,15 +470,16 @@ cef_rect_t CEF_CALLBACK scroll_view_get_bounds(struct _cef_view_t* self) {
     return CefRect();
 
   // Execute
-  cef_rect_t _retval = CefScrollViewCppToC::Get(
-      reinterpret_cast<cef_scroll_view_t*>(self))->GetBounds();
+  cef_rect_t _retval =
+      CefScrollViewCppToC::Get(reinterpret_cast<cef_scroll_view_t*>(self))
+          ->GetBounds();
 
   // Return type: simple
   return _retval;
 }
 
-cef_rect_t CEF_CALLBACK scroll_view_get_bounds_in_screen(
-    struct _cef_view_t* self) {
+cef_rect_t CEF_CALLBACK
+scroll_view_get_bounds_in_screen(struct _cef_view_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -476,15 +487,16 @@ cef_rect_t CEF_CALLBACK scroll_view_get_bounds_in_screen(
     return CefRect();
 
   // Execute
-  cef_rect_t _retval = CefScrollViewCppToC::Get(
-      reinterpret_cast<cef_scroll_view_t*>(self))->GetBoundsInScreen();
+  cef_rect_t _retval =
+      CefScrollViewCppToC::Get(reinterpret_cast<cef_scroll_view_t*>(self))
+          ->GetBoundsInScreen();
 
   // Return type: simple
   return _retval;
 }
 
 void CEF_CALLBACK scroll_view_set_size(struct _cef_view_t* self,
-    const cef_size_t* size) {
+                                       const cef_size_t* size) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -496,11 +508,11 @@ void CEF_CALLBACK scroll_view_set_size(struct _cef_view_t* self,
     return;
 
   // Translate param: size; type: simple_byref_const
-  CefSize sizeVal = size?*size:CefSize();
+  CefSize sizeVal = size ? *size : CefSize();
 
   // Execute
-  CefScrollViewCppToC::Get(reinterpret_cast<cef_scroll_view_t*>(self))->SetSize(
-      sizeVal);
+  CefScrollViewCppToC::Get(reinterpret_cast<cef_scroll_view_t*>(self))
+      ->SetSize(sizeVal);
 }
 
 cef_size_t CEF_CALLBACK scroll_view_get_size(struct _cef_view_t* self) {
@@ -511,15 +523,16 @@ cef_size_t CEF_CALLBACK scroll_view_get_size(struct _cef_view_t* self) {
     return CefSize();
 
   // Execute
-  cef_size_t _retval = CefScrollViewCppToC::Get(
-      reinterpret_cast<cef_scroll_view_t*>(self))->GetSize();
+  cef_size_t _retval =
+      CefScrollViewCppToC::Get(reinterpret_cast<cef_scroll_view_t*>(self))
+          ->GetSize();
 
   // Return type: simple
   return _retval;
 }
 
 void CEF_CALLBACK scroll_view_set_position(struct _cef_view_t* self,
-    const cef_point_t* position) {
+                                           const cef_point_t* position) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -531,12 +544,11 @@ void CEF_CALLBACK scroll_view_set_position(struct _cef_view_t* self,
     return;
 
   // Translate param: position; type: simple_byref_const
-  CefPoint positionVal = position?*position:CefPoint();
+  CefPoint positionVal = position ? *position : CefPoint();
 
   // Execute
-  CefScrollViewCppToC::Get(reinterpret_cast<cef_scroll_view_t*>(
-      self))->SetPosition(
-      positionVal);
+  CefScrollViewCppToC::Get(reinterpret_cast<cef_scroll_view_t*>(self))
+      ->SetPosition(positionVal);
 }
 
 cef_point_t CEF_CALLBACK scroll_view_get_position(struct _cef_view_t* self) {
@@ -547,15 +559,16 @@ cef_point_t CEF_CALLBACK scroll_view_get_position(struct _cef_view_t* self) {
     return CefPoint();
 
   // Execute
-  cef_point_t _retval = CefScrollViewCppToC::Get(
-      reinterpret_cast<cef_scroll_view_t*>(self))->GetPosition();
+  cef_point_t _retval =
+      CefScrollViewCppToC::Get(reinterpret_cast<cef_scroll_view_t*>(self))
+          ->GetPosition();
 
   // Return type: simple
   return _retval;
 }
 
-cef_size_t CEF_CALLBACK scroll_view_get_preferred_size(
-    struct _cef_view_t* self) {
+cef_size_t CEF_CALLBACK
+scroll_view_get_preferred_size(struct _cef_view_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -563,8 +576,9 @@ cef_size_t CEF_CALLBACK scroll_view_get_preferred_size(
     return CefSize();
 
   // Execute
-  cef_size_t _retval = CefScrollViewCppToC::Get(
-      reinterpret_cast<cef_scroll_view_t*>(self))->GetPreferredSize();
+  cef_size_t _retval =
+      CefScrollViewCppToC::Get(reinterpret_cast<cef_scroll_view_t*>(self))
+          ->GetPreferredSize();
 
   // Return type: simple
   return _retval;
@@ -578,8 +592,8 @@ void CEF_CALLBACK scroll_view_size_to_preferred_size(struct _cef_view_t* self) {
     return;
 
   // Execute
-  CefScrollViewCppToC::Get(reinterpret_cast<cef_scroll_view_t*>(
-      self))->SizeToPreferredSize();
+  CefScrollViewCppToC::Get(reinterpret_cast<cef_scroll_view_t*>(self))
+      ->SizeToPreferredSize();
 }
 
 cef_size_t CEF_CALLBACK scroll_view_get_minimum_size(struct _cef_view_t* self) {
@@ -590,8 +604,9 @@ cef_size_t CEF_CALLBACK scroll_view_get_minimum_size(struct _cef_view_t* self) {
     return CefSize();
 
   // Execute
-  cef_size_t _retval = CefScrollViewCppToC::Get(
-      reinterpret_cast<cef_scroll_view_t*>(self))->GetMinimumSize();
+  cef_size_t _retval =
+      CefScrollViewCppToC::Get(reinterpret_cast<cef_scroll_view_t*>(self))
+          ->GetMinimumSize();
 
   // Return type: simple
   return _retval;
@@ -605,15 +620,16 @@ cef_size_t CEF_CALLBACK scroll_view_get_maximum_size(struct _cef_view_t* self) {
     return CefSize();
 
   // Execute
-  cef_size_t _retval = CefScrollViewCppToC::Get(
-      reinterpret_cast<cef_scroll_view_t*>(self))->GetMaximumSize();
+  cef_size_t _retval =
+      CefScrollViewCppToC::Get(reinterpret_cast<cef_scroll_view_t*>(self))
+          ->GetMaximumSize();
 
   // Return type: simple
   return _retval;
 }
 
 int CEF_CALLBACK scroll_view_get_height_for_width(struct _cef_view_t* self,
-    int width) {
+                                                  int width) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -621,9 +637,9 @@ int CEF_CALLBACK scroll_view_get_height_for_width(struct _cef_view_t* self,
     return 0;
 
   // Execute
-  int _retval = CefScrollViewCppToC::Get(reinterpret_cast<cef_scroll_view_t*>(
-      self))->GetHeightForWidth(
-      width);
+  int _retval =
+      CefScrollViewCppToC::Get(reinterpret_cast<cef_scroll_view_t*>(self))
+          ->GetHeightForWidth(width);
 
   // Return type: simple
   return _retval;
@@ -637,12 +653,12 @@ void CEF_CALLBACK scroll_view_invalidate_layout(struct _cef_view_t* self) {
     return;
 
   // Execute
-  CefScrollViewCppToC::Get(reinterpret_cast<cef_scroll_view_t*>(
-      self))->InvalidateLayout();
+  CefScrollViewCppToC::Get(reinterpret_cast<cef_scroll_view_t*>(self))
+      ->InvalidateLayout();
 }
 
 void CEF_CALLBACK scroll_view_set_visible(struct _cef_view_t* self,
-    int visible) {
+                                          int visible) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -650,9 +666,8 @@ void CEF_CALLBACK scroll_view_set_visible(struct _cef_view_t* self,
     return;
 
   // Execute
-  CefScrollViewCppToC::Get(reinterpret_cast<cef_scroll_view_t*>(
-      self))->SetVisible(
-      visible?true:false);
+  CefScrollViewCppToC::Get(reinterpret_cast<cef_scroll_view_t*>(self))
+      ->SetVisible(visible ? true : false);
 }
 
 int CEF_CALLBACK scroll_view_is_visible(struct _cef_view_t* self) {
@@ -663,8 +678,9 @@ int CEF_CALLBACK scroll_view_is_visible(struct _cef_view_t* self) {
     return 0;
 
   // Execute
-  bool _retval = CefScrollViewCppToC::Get(reinterpret_cast<cef_scroll_view_t*>(
-      self))->IsVisible();
+  bool _retval =
+      CefScrollViewCppToC::Get(reinterpret_cast<cef_scroll_view_t*>(self))
+          ->IsVisible();
 
   // Return type: bool
   return _retval;
@@ -678,15 +694,16 @@ int CEF_CALLBACK scroll_view_is_drawn(struct _cef_view_t* self) {
     return 0;
 
   // Execute
-  bool _retval = CefScrollViewCppToC::Get(reinterpret_cast<cef_scroll_view_t*>(
-      self))->IsDrawn();
+  bool _retval =
+      CefScrollViewCppToC::Get(reinterpret_cast<cef_scroll_view_t*>(self))
+          ->IsDrawn();
 
   // Return type: bool
   return _retval;
 }
 
 void CEF_CALLBACK scroll_view_set_enabled(struct _cef_view_t* self,
-    int enabled) {
+                                          int enabled) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -694,9 +711,8 @@ void CEF_CALLBACK scroll_view_set_enabled(struct _cef_view_t* self,
     return;
 
   // Execute
-  CefScrollViewCppToC::Get(reinterpret_cast<cef_scroll_view_t*>(
-      self))->SetEnabled(
-      enabled?true:false);
+  CefScrollViewCppToC::Get(reinterpret_cast<cef_scroll_view_t*>(self))
+      ->SetEnabled(enabled ? true : false);
 }
 
 int CEF_CALLBACK scroll_view_is_enabled(struct _cef_view_t* self) {
@@ -707,15 +723,16 @@ int CEF_CALLBACK scroll_view_is_enabled(struct _cef_view_t* self) {
     return 0;
 
   // Execute
-  bool _retval = CefScrollViewCppToC::Get(reinterpret_cast<cef_scroll_view_t*>(
-      self))->IsEnabled();
+  bool _retval =
+      CefScrollViewCppToC::Get(reinterpret_cast<cef_scroll_view_t*>(self))
+          ->IsEnabled();
 
   // Return type: bool
   return _retval;
 }
 
 void CEF_CALLBACK scroll_view_set_focusable(struct _cef_view_t* self,
-    int focusable) {
+                                            int focusable) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -723,9 +740,8 @@ void CEF_CALLBACK scroll_view_set_focusable(struct _cef_view_t* self,
     return;
 
   // Execute
-  CefScrollViewCppToC::Get(reinterpret_cast<cef_scroll_view_t*>(
-      self))->SetFocusable(
-      focusable?true:false);
+  CefScrollViewCppToC::Get(reinterpret_cast<cef_scroll_view_t*>(self))
+      ->SetFocusable(focusable ? true : false);
 }
 
 int CEF_CALLBACK scroll_view_is_focusable(struct _cef_view_t* self) {
@@ -736,15 +752,16 @@ int CEF_CALLBACK scroll_view_is_focusable(struct _cef_view_t* self) {
     return 0;
 
   // Execute
-  bool _retval = CefScrollViewCppToC::Get(reinterpret_cast<cef_scroll_view_t*>(
-      self))->IsFocusable();
+  bool _retval =
+      CefScrollViewCppToC::Get(reinterpret_cast<cef_scroll_view_t*>(self))
+          ->IsFocusable();
 
   // Return type: bool
   return _retval;
 }
 
-int CEF_CALLBACK scroll_view_is_accessibility_focusable(
-    struct _cef_view_t* self) {
+int CEF_CALLBACK
+scroll_view_is_accessibility_focusable(struct _cef_view_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -752,8 +769,9 @@ int CEF_CALLBACK scroll_view_is_accessibility_focusable(
     return 0;
 
   // Execute
-  bool _retval = CefScrollViewCppToC::Get(reinterpret_cast<cef_scroll_view_t*>(
-      self))->IsAccessibilityFocusable();
+  bool _retval =
+      CefScrollViewCppToC::Get(reinterpret_cast<cef_scroll_view_t*>(self))
+          ->IsAccessibilityFocusable();
 
   // Return type: bool
   return _retval;
@@ -767,12 +785,12 @@ void CEF_CALLBACK scroll_view_request_focus(struct _cef_view_t* self) {
     return;
 
   // Execute
-  CefScrollViewCppToC::Get(reinterpret_cast<cef_scroll_view_t*>(
-      self))->RequestFocus();
+  CefScrollViewCppToC::Get(reinterpret_cast<cef_scroll_view_t*>(self))
+      ->RequestFocus();
 }
 
 void CEF_CALLBACK scroll_view_set_background_color(struct _cef_view_t* self,
-    cef_color_t color) {
+                                                   cef_color_t color) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -780,13 +798,12 @@ void CEF_CALLBACK scroll_view_set_background_color(struct _cef_view_t* self,
     return;
 
   // Execute
-  CefScrollViewCppToC::Get(reinterpret_cast<cef_scroll_view_t*>(
-      self))->SetBackgroundColor(
-      color);
+  CefScrollViewCppToC::Get(reinterpret_cast<cef_scroll_view_t*>(self))
+      ->SetBackgroundColor(color);
 }
 
-cef_color_t CEF_CALLBACK scroll_view_get_background_color(
-    struct _cef_view_t* self) {
+cef_color_t CEF_CALLBACK
+scroll_view_get_background_color(struct _cef_view_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -794,15 +811,16 @@ cef_color_t CEF_CALLBACK scroll_view_get_background_color(
     return 0;
 
   // Execute
-  cef_color_t _retval = CefScrollViewCppToC::Get(
-      reinterpret_cast<cef_scroll_view_t*>(self))->GetBackgroundColor();
+  cef_color_t _retval =
+      CefScrollViewCppToC::Get(reinterpret_cast<cef_scroll_view_t*>(self))
+          ->GetBackgroundColor();
 
   // Return type: simple
   return _retval;
 }
 
 int CEF_CALLBACK scroll_view_convert_point_to_screen(struct _cef_view_t* self,
-    cef_point_t* point) {
+                                                     cef_point_t* point) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -814,12 +832,12 @@ int CEF_CALLBACK scroll_view_convert_point_to_screen(struct _cef_view_t* self,
     return 0;
 
   // Translate param: point; type: simple_byref
-  CefPoint pointVal = point?*point:CefPoint();
+  CefPoint pointVal = point ? *point : CefPoint();
 
   // Execute
-  bool _retval = CefScrollViewCppToC::Get(reinterpret_cast<cef_scroll_view_t*>(
-      self))->ConvertPointToScreen(
-      pointVal);
+  bool _retval =
+      CefScrollViewCppToC::Get(reinterpret_cast<cef_scroll_view_t*>(self))
+          ->ConvertPointToScreen(pointVal);
 
   // Restore param: point; type: simple_byref
   if (point)
@@ -830,7 +848,7 @@ int CEF_CALLBACK scroll_view_convert_point_to_screen(struct _cef_view_t* self,
 }
 
 int CEF_CALLBACK scroll_view_convert_point_from_screen(struct _cef_view_t* self,
-    cef_point_t* point) {
+                                                       cef_point_t* point) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -842,12 +860,12 @@ int CEF_CALLBACK scroll_view_convert_point_from_screen(struct _cef_view_t* self,
     return 0;
 
   // Translate param: point; type: simple_byref
-  CefPoint pointVal = point?*point:CefPoint();
+  CefPoint pointVal = point ? *point : CefPoint();
 
   // Execute
-  bool _retval = CefScrollViewCppToC::Get(reinterpret_cast<cef_scroll_view_t*>(
-      self))->ConvertPointFromScreen(
-      pointVal);
+  bool _retval =
+      CefScrollViewCppToC::Get(reinterpret_cast<cef_scroll_view_t*>(self))
+          ->ConvertPointFromScreen(pointVal);
 
   // Restore param: point; type: simple_byref
   if (point)
@@ -858,7 +876,7 @@ int CEF_CALLBACK scroll_view_convert_point_from_screen(struct _cef_view_t* self,
 }
 
 int CEF_CALLBACK scroll_view_convert_point_to_window(struct _cef_view_t* self,
-    cef_point_t* point) {
+                                                     cef_point_t* point) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -870,12 +888,12 @@ int CEF_CALLBACK scroll_view_convert_point_to_window(struct _cef_view_t* self,
     return 0;
 
   // Translate param: point; type: simple_byref
-  CefPoint pointVal = point?*point:CefPoint();
+  CefPoint pointVal = point ? *point : CefPoint();
 
   // Execute
-  bool _retval = CefScrollViewCppToC::Get(reinterpret_cast<cef_scroll_view_t*>(
-      self))->ConvertPointToWindow(
-      pointVal);
+  bool _retval =
+      CefScrollViewCppToC::Get(reinterpret_cast<cef_scroll_view_t*>(self))
+          ->ConvertPointToWindow(pointVal);
 
   // Restore param: point; type: simple_byref
   if (point)
@@ -886,7 +904,7 @@ int CEF_CALLBACK scroll_view_convert_point_to_window(struct _cef_view_t* self,
 }
 
 int CEF_CALLBACK scroll_view_convert_point_from_window(struct _cef_view_t* self,
-    cef_point_t* point) {
+                                                       cef_point_t* point) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -898,12 +916,12 @@ int CEF_CALLBACK scroll_view_convert_point_from_window(struct _cef_view_t* self,
     return 0;
 
   // Translate param: point; type: simple_byref
-  CefPoint pointVal = point?*point:CefPoint();
+  CefPoint pointVal = point ? *point : CefPoint();
 
   // Execute
-  bool _retval = CefScrollViewCppToC::Get(reinterpret_cast<cef_scroll_view_t*>(
-      self))->ConvertPointFromWindow(
-      pointVal);
+  bool _retval =
+      CefScrollViewCppToC::Get(reinterpret_cast<cef_scroll_view_t*>(self))
+          ->ConvertPointFromWindow(pointVal);
 
   // Restore param: point; type: simple_byref
   if (point)
@@ -914,7 +932,8 @@ int CEF_CALLBACK scroll_view_convert_point_from_window(struct _cef_view_t* self,
 }
 
 int CEF_CALLBACK scroll_view_convert_point_to_view(struct _cef_view_t* self,
-    struct _cef_view_t* view, cef_point_t* point) {
+                                                   struct _cef_view_t* view,
+                                                   cef_point_t* point) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -930,13 +949,12 @@ int CEF_CALLBACK scroll_view_convert_point_to_view(struct _cef_view_t* self,
     return 0;
 
   // Translate param: point; type: simple_byref
-  CefPoint pointVal = point?*point:CefPoint();
+  CefPoint pointVal = point ? *point : CefPoint();
 
   // Execute
-  bool _retval = CefScrollViewCppToC::Get(reinterpret_cast<cef_scroll_view_t*>(
-      self))->ConvertPointToView(
-      CefViewCppToC::Unwrap(view),
-      pointVal);
+  bool _retval =
+      CefScrollViewCppToC::Get(reinterpret_cast<cef_scroll_view_t*>(self))
+          ->ConvertPointToView(CefViewCppToC::Unwrap(view), pointVal);
 
   // Restore param: point; type: simple_byref
   if (point)
@@ -947,7 +965,8 @@ int CEF_CALLBACK scroll_view_convert_point_to_view(struct _cef_view_t* self,
 }
 
 int CEF_CALLBACK scroll_view_convert_point_from_view(struct _cef_view_t* self,
-    struct _cef_view_t* view, cef_point_t* point) {
+                                                     struct _cef_view_t* view,
+                                                     cef_point_t* point) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -963,13 +982,12 @@ int CEF_CALLBACK scroll_view_convert_point_from_view(struct _cef_view_t* self,
     return 0;
 
   // Translate param: point; type: simple_byref
-  CefPoint pointVal = point?*point:CefPoint();
+  CefPoint pointVal = point ? *point : CefPoint();
 
   // Execute
-  bool _retval = CefScrollViewCppToC::Get(reinterpret_cast<cef_scroll_view_t*>(
-      self))->ConvertPointFromView(
-      CefViewCppToC::Unwrap(view),
-      pointVal);
+  bool _retval =
+      CefScrollViewCppToC::Get(reinterpret_cast<cef_scroll_view_t*>(self))
+          ->ConvertPointFromView(CefViewCppToC::Unwrap(view), pointVal);
 
   // Restore param: point; type: simple_byref
   if (point)
@@ -980,7 +998,6 @@ int CEF_CALLBACK scroll_view_convert_point_from_view(struct _cef_view_t* self,
 }
 
 }  // namespace
-
 
 // CONSTRUCTOR - Do not edit by hand.
 
@@ -1050,17 +1067,23 @@ CefScrollViewCppToC::CefScrollViewCppToC() {
       scroll_view_convert_point_from_view;
 }
 
-template<> CefRefPtr<CefScrollView> CefCppToCRefCounted<CefScrollViewCppToC,
-    CefScrollView, cef_scroll_view_t>::UnwrapDerived(CefWrapperType type,
-    cef_scroll_view_t* s) {
+template <>
+CefRefPtr<CefScrollView>
+CefCppToCRefCounted<CefScrollViewCppToC, CefScrollView, cef_scroll_view_t>::
+    UnwrapDerived(CefWrapperType type, cef_scroll_view_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCppToCRefCounted<CefScrollViewCppToC,
-    CefScrollView, cef_scroll_view_t>::DebugObjCt = 0;
+template <>
+base::AtomicRefCount CefCppToCRefCounted<CefScrollViewCppToC,
+                                         CefScrollView,
+                                         cef_scroll_view_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCppToCRefCounted<CefScrollViewCppToC,
-    CefScrollView, cef_scroll_view_t>::kWrapperType = WT_SCROLL_VIEW;
+template <>
+CefWrapperType CefCppToCRefCounted<CefScrollViewCppToC,
+                                   CefScrollView,
+                                   cef_scroll_view_t>::kWrapperType =
+    WT_SCROLL_VIEW;

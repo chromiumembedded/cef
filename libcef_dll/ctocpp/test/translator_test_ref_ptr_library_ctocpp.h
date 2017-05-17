@@ -9,6 +9,8 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=0b3741e17039b85b3fda09f552304b911c5905b1$
+//
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_TEST_TRANSLATOR_TEST_REF_PTR_LIBRARY_CTOCPP_H_
 #define CEF_LIBCEF_DLL_CTOCPP_TEST_TRANSLATOR_TEST_REF_PTR_LIBRARY_CTOCPP_H_
@@ -18,16 +20,16 @@
 #error This file can be included wrapper-side only
 #endif
 
-#include "include/test/cef_translator_test.h"
 #include "include/capi/test/cef_translator_test_capi.h"
+#include "include/test/cef_translator_test.h"
 #include "libcef_dll/ctocpp/ctocpp_ref_counted.h"
 
 // Wrap a C structure with a C++ class.
 // This class may be instantiated and accessed wrapper-side only.
 class CefTranslatorTestRefPtrLibraryCToCpp
     : public CefCToCppRefCounted<CefTranslatorTestRefPtrLibraryCToCpp,
-        CefTranslatorTestRefPtrLibrary,
-        cef_translator_test_ref_ptr_library_t> {
+                                 CefTranslatorTestRefPtrLibrary,
+                                 cef_translator_test_ref_ptr_library_t> {
  public:
   CefTranslatorTestRefPtrLibraryCToCpp();
 

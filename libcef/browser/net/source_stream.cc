@@ -10,13 +10,11 @@
 
 // Use TYPE_INVALID so that URLRequestJob::NotifyHeadersComplete() doesn't
 // assume that the "content-length" header is accurate.
-CefSourceStream::CefSourceStream(
-    CefRefPtr<CefResponseFilter> cef_filter,
-    std::unique_ptr<net::SourceStream> upstream)
-  : net::FilterSourceStream(net::SourceStream::TYPE_INVALID,
-                            std::move(upstream)),
-    cef_filter_(cef_filter) {
-}
+CefSourceStream::CefSourceStream(CefRefPtr<CefResponseFilter> cef_filter,
+                                 std::unique_ptr<net::SourceStream> upstream)
+    : net::FilterSourceStream(net::SourceStream::TYPE_INVALID,
+                              std::move(upstream)),
+      cef_filter_(cef_filter) {}
 
 int CefSourceStream::FilterData(net::IOBuffer* output_buffer,
                                 int output_buffer_size,
@@ -40,9 +38,8 @@ int CefSourceStream::FilterData(net::IOBuffer* output_buffer,
   size_t data_out_written = 0;
 
   last_status_ = cef_filter_->Filter(
-      data_in_size > 0 ? input_buffer->data() : nullptr,
-      data_in_size, data_in_read,
-      output_buffer->data(), data_out_size, data_out_written);
+      data_in_size > 0 ? input_buffer->data() : nullptr, data_in_size,
+      data_in_read, output_buffer->data(), data_out_size, data_out_written);
 
   // Return early if there's an error.
   if (last_status_ == RESPONSE_FILTER_ERROR)

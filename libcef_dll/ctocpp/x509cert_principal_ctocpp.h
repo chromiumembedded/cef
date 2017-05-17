@@ -9,6 +9,8 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=0df26d8e3e24a565188269937ea52f88be24b4d5$
+//
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_X509CERT_PRINCIPAL_CTOCPP_H_
 #define CEF_LIBCEF_DLL_CTOCPP_X509CERT_PRINCIPAL_CTOCPP_H_
@@ -19,15 +21,16 @@
 #endif
 
 #include <vector>
-#include "include/cef_x509_certificate.h"
 #include "include/capi/cef_x509_certificate_capi.h"
+#include "include/cef_x509_certificate.h"
 #include "libcef_dll/ctocpp/ctocpp_ref_counted.h"
 
 // Wrap a C structure with a C++ class.
 // This class may be instantiated and accessed wrapper-side only.
 class CefX509CertPrincipalCToCpp
     : public CefCToCppRefCounted<CefX509CertPrincipalCToCpp,
-        CefX509CertPrincipal, cef_x509cert_principal_t> {
+                                 CefX509CertPrincipal,
+                                 cef_x509cert_principal_t> {
  public:
   CefX509CertPrincipalCToCpp();
 

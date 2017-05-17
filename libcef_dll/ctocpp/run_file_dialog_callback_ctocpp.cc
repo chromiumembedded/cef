@@ -9,15 +9,17 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=c7f630a2e2b926950107a50d8bbe428d5954e1c6$
+//
 
 #include "libcef_dll/ctocpp/run_file_dialog_callback_ctocpp.h"
 #include "libcef_dll/transfer_util.h"
 
-
 // VIRTUAL METHODS - Body may be edited by hand.
 
 void CefRunFileDialogCallbackCToCpp::OnFileDialogDismissed(
-    int selected_accept_filter, const std::vector<CefString>& file_paths) {
+    int selected_accept_filter,
+    const std::vector<CefString>& file_paths) {
   cef_run_file_dialog_callback_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_file_dialog_dismissed))
     return;
@@ -37,33 +39,40 @@ void CefRunFileDialogCallbackCToCpp::OnFileDialogDismissed(
     transfer_string_list_contents(file_paths, file_pathsList);
 
   // Execute
-  _struct->on_file_dialog_dismissed(_struct,
-      selected_accept_filter,
-      file_pathsList);
+  _struct->on_file_dialog_dismissed(_struct, selected_accept_filter,
+                                    file_pathsList);
 
   // Restore param:file_paths; type: string_vec_byref_const
   if (file_pathsList)
     cef_string_list_free(file_pathsList);
 }
 
-
 // CONSTRUCTOR - Do not edit by hand.
 
-CefRunFileDialogCallbackCToCpp::CefRunFileDialogCallbackCToCpp() {
-}
+CefRunFileDialogCallbackCToCpp::CefRunFileDialogCallbackCToCpp() {}
 
-template<> cef_run_file_dialog_callback_t* CefCToCppRefCounted<CefRunFileDialogCallbackCToCpp,
-    CefRunFileDialogCallback, cef_run_file_dialog_callback_t>::UnwrapDerived(
-    CefWrapperType type, CefRunFileDialogCallback* c) {
+template <>
+cef_run_file_dialog_callback_t* CefCToCppRefCounted<
+    CefRunFileDialogCallbackCToCpp,
+    CefRunFileDialogCallback,
+    cef_run_file_dialog_callback_t>::UnwrapDerived(CefWrapperType type,
+                                                   CefRunFileDialogCallback*
+                                                       c) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCppRefCounted<CefRunFileDialogCallbackCToCpp,
-    CefRunFileDialogCallback, cef_run_file_dialog_callback_t>::DebugObjCt = 0;
+template <>
+base::AtomicRefCount
+    CefCToCppRefCounted<CefRunFileDialogCallbackCToCpp,
+                        CefRunFileDialogCallback,
+                        cef_run_file_dialog_callback_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCppRefCounted<CefRunFileDialogCallbackCToCpp,
-    CefRunFileDialogCallback, cef_run_file_dialog_callback_t>::kWrapperType =
-    WT_RUN_FILE_DIALOG_CALLBACK;
+template <>
+CefWrapperType
+    CefCToCppRefCounted<CefRunFileDialogCallbackCToCpp,
+                        CefRunFileDialogCallback,
+                        cef_run_file_dialog_callback_t>::kWrapperType =
+        WT_RUN_FILE_DIALOG_CALLBACK;

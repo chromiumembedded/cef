@@ -17,8 +17,7 @@ TempWindowMac* g_temp_window = NULL;
 
 }  // namespace
 
-TempWindowMac::TempWindowMac()
-    : window_(nil) {
+TempWindowMac::TempWindowMac() : window_(nil) {
   DCHECK(!g_temp_window);
   g_temp_window = this;
 

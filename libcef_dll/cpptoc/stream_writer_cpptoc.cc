@@ -9,10 +9,11 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=17030768bc7b301f326cfd2a9c4b065408c8fd63$
+//
 
 #include "libcef_dll/cpptoc/stream_writer_cpptoc.h"
 #include "libcef_dll/ctocpp/write_handler_ctocpp.h"
-
 
 // GLOBAL FUNCTIONS - Body may be edited by hand.
 
@@ -26,8 +27,8 @@ CEF_EXPORT cef_stream_writer_t* cef_stream_writer_create_for_file(
     return NULL;
 
   // Execute
-  CefRefPtr<CefStreamWriter> _retval = CefStreamWriter::CreateForFile(
-      CefString(fileName));
+  CefRefPtr<CefStreamWriter> _retval =
+      CefStreamWriter::CreateForFile(CefString(fileName));
 
   // Return type: refptr_same
   return CefStreamWriterCppToC::Wrap(_retval);
@@ -43,20 +44,21 @@ CEF_EXPORT cef_stream_writer_t* cef_stream_writer_create_for_handler(
     return NULL;
 
   // Execute
-  CefRefPtr<CefStreamWriter> _retval = CefStreamWriter::CreateForHandler(
-      CefWriteHandlerCToCpp::Wrap(handler));
+  CefRefPtr<CefStreamWriter> _retval =
+      CefStreamWriter::CreateForHandler(CefWriteHandlerCToCpp::Wrap(handler));
 
   // Return type: refptr_same
   return CefStreamWriterCppToC::Wrap(_retval);
 }
-
 
 namespace {
 
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
 size_t CEF_CALLBACK stream_writer_write(struct _cef_stream_writer_t* self,
-    const void* ptr, size_t size, size_t n) {
+                                        const void* ptr,
+                                        size_t size,
+                                        size_t n) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -68,17 +70,15 @@ size_t CEF_CALLBACK stream_writer_write(struct _cef_stream_writer_t* self,
     return 0;
 
   // Execute
-  size_t _retval = CefStreamWriterCppToC::Get(self)->Write(
-      ptr,
-      size,
-      n);
+  size_t _retval = CefStreamWriterCppToC::Get(self)->Write(ptr, size, n);
 
   // Return type: simple
   return _retval;
 }
 
 int CEF_CALLBACK stream_writer_seek(struct _cef_stream_writer_t* self,
-    int64 offset, int whence) {
+                                    int64 offset,
+                                    int whence) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -86,9 +86,7 @@ int CEF_CALLBACK stream_writer_seek(struct _cef_stream_writer_t* self,
     return 0;
 
   // Execute
-  int _retval = CefStreamWriterCppToC::Get(self)->Seek(
-      offset,
-      whence);
+  int _retval = CefStreamWriterCppToC::Get(self)->Seek(offset, whence);
 
   // Return type: simple
   return _retval;
@@ -138,7 +136,6 @@ int CEF_CALLBACK stream_writer_may_block(struct _cef_stream_writer_t* self) {
 
 }  // namespace
 
-
 // CONSTRUCTOR - Do not edit by hand.
 
 CefStreamWriterCppToC::CefStreamWriterCppToC() {
@@ -149,17 +146,25 @@ CefStreamWriterCppToC::CefStreamWriterCppToC() {
   GetStruct()->may_block = stream_writer_may_block;
 }
 
-template<> CefRefPtr<CefStreamWriter> CefCppToCRefCounted<CefStreamWriterCppToC,
-    CefStreamWriter, cef_stream_writer_t>::UnwrapDerived(CefWrapperType type,
-    cef_stream_writer_t* s) {
+template <>
+CefRefPtr<CefStreamWriter> CefCppToCRefCounted<
+    CefStreamWriterCppToC,
+    CefStreamWriter,
+    cef_stream_writer_t>::UnwrapDerived(CefWrapperType type,
+                                        cef_stream_writer_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCppToCRefCounted<CefStreamWriterCppToC,
-    CefStreamWriter, cef_stream_writer_t>::DebugObjCt = 0;
+template <>
+base::AtomicRefCount CefCppToCRefCounted<CefStreamWriterCppToC,
+                                         CefStreamWriter,
+                                         cef_stream_writer_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCppToCRefCounted<CefStreamWriterCppToC,
-    CefStreamWriter, cef_stream_writer_t>::kWrapperType = WT_STREAM_WRITER;
+template <>
+CefWrapperType CefCppToCRefCounted<CefStreamWriterCppToC,
+                                   CefStreamWriter,
+                                   cef_stream_writer_t>::kWrapperType =
+    WT_STREAM_WRITER;

@@ -26,8 +26,7 @@ const char kWidevineCdmPathKey[] = "widevine_cdm_path";
 class CdmCallback : public CefRegisterCdmCallback {
  public:
   CdmCallback(CefRefPtr<CefMessageRouterBrowserSide::Callback> callback)
-    : callback_(callback) {
-  }
+      : callback_(callback) {}
 
   void OnCdmRegistrationComplete(cef_cdm_registration_error_t result,
                                  const CefString& error_message) OVERRIDE {
@@ -101,9 +100,9 @@ class Handler : public CefMessageRouterBrowserSide::Handler {
                         cef_value_type_t value_type,
                         CefRefPtr<Callback> callback) {
     if (!dictionary->HasKey(key) || dictionary->GetType(key) != value_type) {
-      callback->Failure(kMessageFormatError,
-                        "Missing or incorrectly formatted message key: " +
-                        std::string(key));
+      callback->Failure(
+          kMessageFormatError,
+          "Missing or incorrectly formatted message key: " + std::string(key));
       return false;
     }
     return true;

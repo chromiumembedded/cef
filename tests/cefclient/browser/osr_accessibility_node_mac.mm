@@ -7,8 +7,8 @@
 
 #include "tests/cefclient/browser/osr_accessibility_node.h"
 
-#import <Cocoa/Cocoa.h>
 #import <AppKit/NSAccessibility.h>
+#import <Cocoa/Cocoa.h>
 
 #include "tests/cefclient/browser/osr_accessibility_helper.h"
 
@@ -248,10 +248,9 @@ inline int MiddleY(const CefRect& rect) {
   CefNativeAccessible* parent_;
 }
 
-- (id) init:(client::OsrAXNode*) node;
-+ (OsrAXNodeObject *) elementWithNode:(client::OsrAXNode*) node;
+- (id)init:(client::OsrAXNode*)node;
++ (OsrAXNodeObject*)elementWithNode:(client::OsrAXNode*)node;
 @end
-
 
 @implementation OsrAXNodeObject
 - (id)init:(client::OsrAXNode*)node {
@@ -263,7 +262,7 @@ inline int MiddleY(const CefRect& rect) {
   return self;
 }
 
-+ (OsrAXNodeObject *)elementWithNode:(client::OsrAXNode*)node {
++ (OsrAXNodeObject*)elementWithNode:(client::OsrAXNode*)node {
   // We manage the release ourself
   return [[OsrAXNodeObject alloc] init:node];
 }
@@ -279,27 +278,27 @@ inline int MiddleY(const CefRect& rect) {
 
 // Utility methods to map AX information received from renderer
 // to platform properties
-- (NSString*) axRole {
+- (NSString*)axRole {
   // Get the Role from CefAccessibilityHelper and Map to NSRole
   return AxRoleToNSAxRole(node_->AxRole());
 }
 
-- (NSString*) axDescription {
+- (NSString*)axDescription {
   std::string desc = node_->AxDescription();
   return [NSString stringWithUTF8String:desc.c_str()];
 }
 
-- (NSString*) axName {
+- (NSString*)axName {
   std::string desc = node_->AxName();
   return [NSString stringWithUTF8String:desc.c_str()];
 }
 
-- (NSString*) axValue {
+- (NSString*)axValue {
   std::string desc = node_->AxValue();
   return [NSString stringWithUTF8String:desc.c_str()];
 }
 
-- (void)doMouseClick: (cef_mouse_button_type_t)type {
+- (void)doMouseClick:(cef_mouse_button_type_t)type {
   CefRefPtr<CefBrowser> browser = node_->GetBrowser();
   if (browser) {
     CefMouseEvent mouse_event;
@@ -313,20 +312,20 @@ inline int MiddleY(const CefRect& rect) {
   }
 }
 
-- (NSMutableArray *) getKids {
+- (NSMutableArray*)getKids {
   int numChilds = node_->GetChildCount();
   if (numChilds > 0) {
     NSMutableArray* kids = [NSMutableArray arrayWithCapacity:numChilds];
-    for(int index = 0; index<numChilds; index++) {
+    for (int index = 0; index < numChilds; index++) {
       client::OsrAXNode* child = node_->ChildAtIndex(index);
-      [kids addObject: child ? child->GetNativeAccessibleObject(node_) : nil];
+      [kids addObject:child ? child->GetNativeAccessibleObject(node_) : nil];
     }
     return kids;
   }
   return nil;
 }
 
-- (NSPoint) position {
+- (NSPoint)position {
   CefRect cef_rect = node_->AxLocation();
   NSPoint origin = NSMakePoint(cef_rect.x, cef_rect.y);
   NSSize size = NSMakeSize(cef_rect.width, cef_rect.height);
@@ -336,19 +335,19 @@ inline int MiddleY(const CefRect& rect) {
   NSPoint originInWindow = [view convertPoint:origin toView:nil];
 
   NSRect point_rect = NSMakeRect(originInWindow.x, originInWindow.y, 0, 0);
-  NSPoint originInScreen = [[view window]
-                            convertRectToScreen:point_rect].origin;
+  NSPoint originInScreen =
+      [[view window] convertRectToScreen:point_rect].origin;
 
   originInScreen.y = originInScreen.y - size.height;
   return originInScreen;
 }
 
-- (NSSize) size {
+- (NSSize)size {
   CefRect cef_rect = node_->AxLocation();
-  NSRect rect = NSMakeRect(cef_rect.x, cef_rect.y,
-                           cef_rect.width, cef_rect.height);
+  NSRect rect =
+      NSMakeRect(cef_rect.x, cef_rect.y, cef_rect.width, cef_rect.height);
   NSView* view = node_->GetWindowHandle();
-  rect = [[view window]convertRectToScreen: rect];
+  rect = [[view window] convertRectToScreen:rect];
   return rect.size;
 }
 
@@ -362,39 +361,38 @@ inline int MiddleY(const CefRect& rect) {
   return NO;
 }
 
-- (NSArray *)accessibilityAttributeNames {
+- (NSArray*)accessibilityAttributeNames {
   static NSArray* attributes = nil;
   if (attributes == nil) {
-    attributes = [[NSArray alloc] initWithObjects:
-                  NSAccessibilityRoleAttribute,
-                  NSAccessibilityRoleDescriptionAttribute,
-                  NSAccessibilityChildrenAttribute,
-                  NSAccessibilityValueAttribute,
-                  NSAccessibilityTitleAttribute,
-                  NSAccessibilityDescriptionAttribute,
-                  NSAccessibilityFocusedAttribute,
-                  NSAccessibilityParentAttribute,
-                  NSAccessibilityWindowAttribute,
-                  NSAccessibilityTopLevelUIElementAttribute,
-                  NSAccessibilityPositionAttribute,
-                  NSAccessibilitySizeAttribute,
-                  nil];
+    attributes = [[NSArray alloc]
+        initWithObjects:NSAccessibilityRoleAttribute,
+                        NSAccessibilityRoleDescriptionAttribute,
+                        NSAccessibilityChildrenAttribute,
+                        NSAccessibilityValueAttribute,
+                        NSAccessibilityTitleAttribute,
+                        NSAccessibilityDescriptionAttribute,
+                        NSAccessibilityFocusedAttribute,
+                        NSAccessibilityParentAttribute,
+                        NSAccessibilityWindowAttribute,
+                        NSAccessibilityTopLevelUIElementAttribute,
+                        NSAccessibilityPositionAttribute,
+                        NSAccessibilitySizeAttribute, nil];
   }
   return attributes;
 }
 
-- (id)accessibilityAttributeValue:(NSString *)attribute {
+- (id)accessibilityAttributeValue:(NSString*)attribute {
   if (!node_)
     return nil;
   if ([attribute isEqualToString:NSAccessibilityRoleAttribute]) {
     return [self axRole];
-  } else if ([attribute isEqualToString:
-              NSAccessibilityRoleDescriptionAttribute]) {
+  } else if ([attribute
+                 isEqualToString:NSAccessibilityRoleDescriptionAttribute]) {
     return NSAccessibilityRoleDescription([self axRole], nil);
   } else if ([attribute isEqualToString:NSAccessibilityFocusedAttribute]) {
     // Just check if the app thinks we're focused.
-    id focusedElement = [NSApp accessibilityAttributeValue:
-                         NSAccessibilityFocusedUIElementAttribute];
+    id focusedElement = [NSApp
+        accessibilityAttributeValue:NSAccessibilityFocusedUIElementAttribute];
     return [NSNumber numberWithBool:[focusedElement isEqual:self]];
   } else if ([attribute isEqualToString:NSAccessibilityParentAttribute]) {
     return NSAccessibilityUnignoredAncestor(parent_);
@@ -402,17 +400,16 @@ inline int MiddleY(const CefRect& rect) {
     return NSAccessibilityUnignoredChildren([self getKids]);
   } else if ([attribute isEqualToString:NSAccessibilityWindowAttribute]) {
     // We're in the same window as our parent.
-    return [parent_
-            accessibilityAttributeValue:NSAccessibilityWindowAttribute];
-  } else if ([attribute isEqualToString:
-              NSAccessibilityTopLevelUIElementAttribute]) {
+    return [parent_ accessibilityAttributeValue:NSAccessibilityWindowAttribute];
+  } else if ([attribute
+                 isEqualToString:NSAccessibilityTopLevelUIElementAttribute]) {
     // We're in the same top level element as our parent.
-    return [parent_ accessibilityAttributeValue:
-            NSAccessibilityTopLevelUIElementAttribute];
+    return [parent_
+        accessibilityAttributeValue:NSAccessibilityTopLevelUIElementAttribute];
   } else if ([attribute isEqualToString:NSAccessibilityPositionAttribute]) {
-    return  [NSValue valueWithPoint:[self position]];
+    return [NSValue valueWithPoint:[self position]];
   } else if ([attribute isEqualToString:NSAccessibilitySizeAttribute]) {
-    return  [NSValue valueWithSize:[self size]];
+    return [NSValue valueWithSize:[self size]];
   } else if ([attribute isEqualToString:NSAccessibilityDescriptionAttribute]) {
     return [self axDescription];
   } else if ([attribute isEqualToString:NSAccessibilityValueAttribute]) {
@@ -427,15 +424,15 @@ inline int MiddleY(const CefRect& rect) {
   return NSAccessibilityUnignoredAncestor(self);
 }
 
-- (NSArray *)accessibilityActionNames {
+- (NSArray*)accessibilityActionNames {
   return [NSArray arrayWithObject:NSAccessibilityPressAction];
 }
 
-- (NSString *)accessibilityActionDescription:(NSString *)action {
+- (NSString*)accessibilityActionDescription:(NSString*)action {
   return NSAccessibilityActionDescription(action);
 }
 
-- (void)accessibilityPerformAction:(NSString *)action {
+- (void)accessibilityPerformAction:(NSString*)action {
   if ([action isEqualToString:NSAccessibilityPressAction]) {
     // Do Click on Default action
     [self doMouseClick:MBT_LEFT];
@@ -462,12 +459,12 @@ namespace client {
 
 void OsrAXNode::NotifyAccessibilityEvent(std::string event_type) const {
   if (event_type == "focus") {
-    NSAccessibilityPostNotification(GetWindowHandle(),
-        NSAccessibilityFocusedUIElementChangedNotification);
+    NSAccessibilityPostNotification(
+        GetWindowHandle(), NSAccessibilityFocusedUIElementChangedNotification);
   } else if (event_type == "textChanged") {
     NSAccessibilityPostNotification(GetWindowHandle(),
                                     NSAccessibilityTitleChangedNotification);
-  } else if (event_type == "valueChanged"){
+  } else if (event_type == "valueChanged") {
     NSAccessibilityPostNotification(GetWindowHandle(),
                                     NSAccessibilityValueChangedNotification);
   } else if (event_type == "textSelectionChanged") {
@@ -478,8 +475,8 @@ void OsrAXNode::NotifyAccessibilityEvent(std::string event_type) const {
 
 void OsrAXNode::Destroy() {
   if (platform_accessibility_) {
-    NSAccessibilityPostNotification(platform_accessibility_,
-        NSAccessibilityUIElementDestroyedNotification);
+    NSAccessibilityPostNotification(
+        platform_accessibility_, NSAccessibilityUIElementDestroyedNotification);
   }
 
   delete this;

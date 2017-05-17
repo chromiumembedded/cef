@@ -58,7 +58,8 @@ CEF_EXPORT size_t cef_string_list_size(cef_string_list_t list);
 // true (1) if the value was successfully retrieved.
 ///
 CEF_EXPORT int cef_string_list_value(cef_string_list_t list,
-                                     size_t index, cef_string_t* value);
+                                     size_t index,
+                                     cef_string_t* value);
 
 ///
 // Append a new value at the end of the string list.

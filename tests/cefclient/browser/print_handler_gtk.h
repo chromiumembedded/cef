@@ -22,9 +22,8 @@ class ClientPrintHandlerGtk : public CefPrintHandler {
   void OnPrintStart(CefRefPtr<CefBrowser> browser) OVERRIDE;
   void OnPrintSettings(CefRefPtr<CefPrintSettings> settings,
                        bool get_defaults) OVERRIDE;
-  bool OnPrintDialog(
-      bool has_selection,
-      CefRefPtr<CefPrintDialogCallback> callback) OVERRIDE;
+  bool OnPrintDialog(bool has_selection,
+                     CefRefPtr<CefPrintDialogCallback> callback) OVERRIDE;
   bool OnPrintJob(const CefString& document_name,
                   const CefString& pdf_file_path,
                   CefRefPtr<CefPrintJobCallback> callback) OVERRIDE;
@@ -32,12 +31,10 @@ class ClientPrintHandlerGtk : public CefPrintHandler {
   CefSize GetPdfPaperSize(int device_units_per_inch) OVERRIDE;
 
  private:
-  void OnDialogResponse(GtkDialog *dialog,
-                        gint response_id);
-  void OnJobCompleted(GtkPrintJob* print_job,
-                      GError* error);
+  void OnDialogResponse(GtkDialog* dialog, gint response_id);
+  void OnJobCompleted(GtkPrintJob* print_job, GError* error);
 
-  static void OnDialogResponseThunk(GtkDialog *dialog,
+  static void OnDialogResponseThunk(GtkDialog* dialog,
                                     gint response_id,
                                     ClientPrintHandlerGtk* handler) {
     handler->OnDialogResponse(dialog, response_id);
@@ -45,8 +42,8 @@ class ClientPrintHandlerGtk : public CefPrintHandler {
   static void OnJobCompletedThunk(GtkPrintJob* print_job,
                                   void* handler,
                                   GError* error) {
-    static_cast<ClientPrintHandlerGtk*>(handler)->
-        OnJobCompleted(print_job, error);
+    static_cast<ClientPrintHandlerGtk*>(handler)->OnJobCompleted(print_job,
+                                                                 error);
   }
 
   // Print dialog settings. ClientPrintHandlerGtk owns |dialog_| and holds

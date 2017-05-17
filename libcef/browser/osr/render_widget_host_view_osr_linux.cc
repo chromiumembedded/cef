@@ -5,8 +5,8 @@
 
 #include "libcef/browser/osr/render_widget_host_view_osr.h"
 
-#include <X11/cursorfont.h>
 #include <X11/Xlib.h>
+#include <X11/cursorfont.h>
 #undef Status  // Avoid conflicts with url_request_status.h
 
 #include "libcef/browser/native/window_x11.h"
@@ -122,15 +122,13 @@ int ToCursorID(WebCursorInfo::Type type) {
 class XCursorCache {
  public:
   XCursorCache() {}
-  ~XCursorCache() {
-    Clear();
-  }
+  ~XCursorCache() { Clear(); }
 
   ::Cursor GetCursor(int cursor_shape) {
     // Lookup cursor by attempting to insert a null value, which avoids
     // a second pass through the map after a cache miss.
-    std::pair<std::map<int, ::Cursor>::iterator, bool> it = cache_.insert(
-        std::make_pair(cursor_shape, 0));
+    std::pair<std::map<int, ::Cursor>::iterator, bool> it =
+        cache_.insert(std::make_pair(cursor_shape, 0));
     if (it.second) {
       XDisplay* display = gfx::GetXDisplay();
       it.first->second = XCreateFontCursor(display, cursor_shape);
@@ -140,8 +138,8 @@ class XCursorCache {
 
   void Clear() {
     XDisplay* display = gfx::GetXDisplay();
-    for (std::map<int, ::Cursor>::iterator it =
-        cache_.begin(); it != cache_.end(); ++it) {
+    for (std::map<int, ::Cursor>::iterator it = cache_.begin();
+         it != cache_.end(); ++it) {
       XFreeCursor(display, it->second);
     }
     cache_.clear();
@@ -174,8 +172,7 @@ void CefRenderWidgetHostViewOSR::PlatformCreateCompositorWidget(
 }
 
 void CefRenderWidgetHostViewOSR::PlatformResizeCompositorWidget(
-    const gfx::Size&) {
-}
+    const gfx::Size&) {}
 
 void CefRenderWidgetHostViewOSR::PlatformDestroyCompositorWidget() {
   DCHECK(window_);
@@ -187,9 +184,8 @@ ui::PlatformCursor CefRenderWidgetHostViewOSR::GetPlatformCursor(
     blink::WebCursorInfo::Type type) {
   if (type == WebCursorInfo::kTypeNone) {
     if (!invisible_cursor_) {
-      invisible_cursor_.reset(
-          new ui::XScopedCursor(ui::CreateInvisibleCursor(),
-                                gfx::GetXDisplay()));
+      invisible_cursor_.reset(new ui::XScopedCursor(ui::CreateInvisibleCursor(),
+                                                    gfx::GetXDisplay()));
     }
     return invisible_cursor_->get();
   } else {

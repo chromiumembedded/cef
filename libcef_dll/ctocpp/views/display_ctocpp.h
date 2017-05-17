@@ -9,6 +9,8 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=aa269f6a4dd9e01cb41f345ed926f8ea48f4e3a2$
+//
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_VIEWS_DISPLAY_CTOCPP_H_
 #define CEF_LIBCEF_DLL_CTOCPP_VIEWS_DISPLAY_CTOCPP_H_
@@ -18,8 +20,8 @@
 #error This file can be included wrapper-side only
 #endif
 
-#include "include/views/cef_display.h"
 #include "include/capi/views/cef_display_capi.h"
+#include "include/views/cef_display.h"
 #include "libcef_dll/ctocpp/ctocpp_ref_counted.h"
 
 // Wrap a C structure with a C++ class.

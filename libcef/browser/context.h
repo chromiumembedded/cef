@@ -34,7 +34,7 @@ class CefTraceSubscriber;
 
 class CefContext {
  public:
-  typedef std::list<CefRefPtr<CefBrowserHostImpl> > BrowserList;
+  typedef std::list<CefRefPtr<CefBrowserHostImpl>> BrowserList;
 
   CefContext();
   ~CefContext();
@@ -104,8 +104,8 @@ class CefContext {
 };
 
 // Helper macro that returns true if the global context is in a valid state.
-#define CONTEXT_STATE_VALID() \
-    (CefContext::Get() && CefContext::Get()->initialized() && \
-     !CefContext::Get()->shutting_down())
+#define CONTEXT_STATE_VALID()                               \
+  (CefContext::Get() && CefContext::Get()->initialized() && \
+   !CefContext::Get()->shutting_down())
 
 #endif  // CEF_LIBCEF_BROWSER_CONTEXT_H_

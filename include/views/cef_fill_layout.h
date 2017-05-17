@@ -46,7 +46,6 @@
 // UI thread unless otherwise indicated.
 ///
 /*--cef(source=library)--*/
-class CefFillLayout : public CefLayout {
-};
+class CefFillLayout : public CefLayout {};
 
 #endif  // CEF_INCLUDE_VIEWS_CEF_FILL_LAYOUT_H_

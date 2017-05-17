@@ -34,22 +34,20 @@
 // tools directory for more information.
 //
 
-
 #ifndef CEF_INCLUDE_CEF_V8_H_
 #define CEF_INCLUDE_CEF_V8_H_
 #pragma once
 
+#include <vector>
 #include "include/cef_base.h"
 #include "include/cef_browser.h"
 #include "include/cef_frame.h"
 #include "include/cef_task.h"
-#include <vector>
 
 class CefV8Exception;
 class CefV8Handler;
 class CefV8StackFrame;
 class CefV8Value;
-
 
 ///
 // Register a new V8 extension with the specified JavaScript extension code and
@@ -115,7 +113,6 @@ bool CefRegisterExtension(const CefString& extension_name,
                           const CefString& javascript_code,
                           CefRefPtr<CefV8Handler> handler);
 
-
 ///
 // Class representing a V8 context handle. V8 handles can only be accessed from
 // the thread on which they are created. Valid threads for creating a V8 handle
@@ -150,7 +147,7 @@ class CefV8Context : public virtual CefBaseRefCounted {
   // called on any render process thread.
   ///
   /*--cef()--*/
-  virtual CefRefPtr<CefTaskRunner> GetTaskRunner() =0;
+  virtual CefRefPtr<CefTaskRunner> GetTaskRunner() = 0;
 
   ///
   // Returns true if the underlying handle is valid and it can be accessed on
@@ -158,28 +155,28 @@ class CefV8Context : public virtual CefBaseRefCounted {
   // false.
   ///
   /*--cef()--*/
-  virtual bool IsValid() =0;
+  virtual bool IsValid() = 0;
 
   ///
   // Returns the browser for this context. This method will return an empty
   // reference for WebWorker contexts.
   ///
   /*--cef()--*/
-  virtual CefRefPtr<CefBrowser> GetBrowser() =0;
+  virtual CefRefPtr<CefBrowser> GetBrowser() = 0;
 
   ///
   // Returns the frame for this context. This method will return an empty
   // reference for WebWorker contexts.
   ///
   /*--cef()--*/
-  virtual CefRefPtr<CefFrame> GetFrame() =0;
+  virtual CefRefPtr<CefFrame> GetFrame() = 0;
 
   ///
   // Returns the global object for this context. The context must be entered
   // before calling this method.
   ///
   /*--cef()--*/
-  virtual CefRefPtr<CefV8Value> GetGlobal() =0;
+  virtual CefRefPtr<CefV8Value> GetGlobal() = 0;
 
   ///
   // Enter this context. A context must be explicitly entered before creating a
@@ -189,21 +186,21 @@ class CefV8Context : public virtual CefBaseRefCounted {
   // the scope was entered successfully.
   ///
   /*--cef()--*/
-  virtual bool Enter() =0;
+  virtual bool Enter() = 0;
 
   ///
   // Exit this context. Call this method only after calling Enter(). Returns
   // true if the scope was exited successfully.
   ///
   /*--cef()--*/
-  virtual bool Exit() =0;
+  virtual bool Exit() = 0;
 
   ///
   // Returns true if this object is pointing to the same handle as |that|
   // object.
   ///
   /*--cef()--*/
-  virtual bool IsSame(CefRefPtr<CefV8Context> that) =0;
+  virtual bool IsSame(CefRefPtr<CefV8Context> that) = 0;
 
   ///
   // Execute a string of JavaScript code in this V8 context. The |script_url|
@@ -218,11 +215,10 @@ class CefV8Context : public virtual CefBaseRefCounted {
                     const CefString& script_url,
                     int start_line,
                     CefRefPtr<CefV8Value>& retval,
-                    CefRefPtr<CefV8Exception>& exception) =0;
+                    CefRefPtr<CefV8Exception>& exception) = 0;
 };
 
-
-typedef std::vector<CefRefPtr<CefV8Value> > CefV8ValueList;
+typedef std::vector<CefRefPtr<CefV8Value>> CefV8ValueList;
 
 ///
 // Interface that should be implemented to handle V8 function calls. The methods
@@ -243,7 +239,7 @@ class CefV8Handler : public virtual CefBaseRefCounted {
                        CefRefPtr<CefV8Value> object,
                        const CefV8ValueList& arguments,
                        CefRefPtr<CefV8Value>& retval,
-                       CefString& exception) =0;
+                       CefString& exception) = 0;
 };
 
 ///
@@ -265,7 +261,7 @@ class CefV8Accessor : public virtual CefBaseRefCounted {
   virtual bool Get(const CefString& name,
                    const CefRefPtr<CefV8Value> object,
                    CefRefPtr<CefV8Value>& retval,
-                   CefString& exception) =0;
+                   CefString& exception) = 0;
 
   ///
   // Handle assignment of the accessor value identified by |name|. |object| is
@@ -278,7 +274,7 @@ class CefV8Accessor : public virtual CefBaseRefCounted {
   virtual bool Set(const CefString& name,
                    const CefRefPtr<CefV8Value> object,
                    const CefRefPtr<CefV8Value> value,
-                   CefString& exception) =0;
+                   CefString& exception) = 0;
 };
 
 ///
@@ -291,7 +287,7 @@ class CefV8Accessor : public virtual CefBaseRefCounted {
 ///
 /*--cef(source=client)--*/
 class CefV8Interceptor : public virtual CefBaseRefCounted {
-public:
+ public:
   ///
   // Handle retrieval of the interceptor value identified by |name|. |object| is
   // the receiver ('this' object) of the interceptor. If retrieval succeeds, set
@@ -305,7 +301,7 @@ public:
   virtual bool Get(const CefString& name,
                    const CefRefPtr<CefV8Value> object,
                    CefRefPtr<CefV8Value>& retval,
-                   CefString& exception) =0;
+                   CefString& exception) = 0;
 
   ///
   // Handle retrieval of the interceptor value identified by |index|. |object|
@@ -319,7 +315,7 @@ public:
   virtual bool Get(int index,
                    const CefRefPtr<CefV8Value> object,
                    CefRefPtr<CefV8Value>& retval,
-                   CefString& exception) =0;
+                   CefString& exception) = 0;
 
   ///
   // Handle assignment of the interceptor value identified by |name|. |object|
@@ -333,7 +329,7 @@ public:
   virtual bool Set(const CefString& name,
                    const CefRefPtr<CefV8Value> object,
                    const CefRefPtr<CefV8Value> value,
-                   CefString& exception) =0;
+                   CefString& exception) = 0;
 
   ///
   // Handle assignment of the interceptor value identified by |index|. |object|
@@ -346,7 +342,7 @@ public:
   virtual bool Set(int index,
                    const CefRefPtr<CefV8Value> object,
                    const CefRefPtr<CefV8Value> value,
-                   CefString& exception) =0;
+                   CefString& exception) = 0;
 };
 
 ///
@@ -360,55 +356,55 @@ class CefV8Exception : public virtual CefBaseRefCounted {
   // Returns the exception message.
   ///
   /*--cef()--*/
-  virtual CefString GetMessage() =0;
+  virtual CefString GetMessage() = 0;
 
   ///
   // Returns the line of source code that the exception occurred within.
   ///
   /*--cef()--*/
-  virtual CefString GetSourceLine() =0;
+  virtual CefString GetSourceLine() = 0;
 
   ///
   // Returns the resource name for the script from where the function causing
   // the error originates.
   ///
   /*--cef()--*/
-  virtual CefString GetScriptResourceName() =0;
+  virtual CefString GetScriptResourceName() = 0;
 
   ///
   // Returns the 1-based number of the line where the error occurred or 0 if the
   // line number is unknown.
   ///
   /*--cef()--*/
-  virtual int GetLineNumber() =0;
+  virtual int GetLineNumber() = 0;
 
   ///
   // Returns the index within the script of the first character where the error
   // occurred.
   ///
   /*--cef()--*/
-  virtual int GetStartPosition() =0;
+  virtual int GetStartPosition() = 0;
 
   ///
   // Returns the index within the script of the last character where the error
   // occurred.
   ///
   /*--cef()--*/
-  virtual int GetEndPosition() =0;
+  virtual int GetEndPosition() = 0;
 
   ///
   // Returns the index within the line of the first character where the error
   // occurred.
   ///
   /*--cef()--*/
-  virtual int GetStartColumn() =0;
+  virtual int GetStartColumn() = 0;
 
   ///
   // Returns the index within the line of the last character where the error
   // occurred.
   ///
   /*--cef()--*/
-  virtual int GetEndColumn() =0;
+  virtual int GetEndColumn() = 0;
 };
 
 ///
@@ -513,117 +509,116 @@ class CefV8Value : public virtual CefBaseRefCounted {
   // false.
   ///
   /*--cef()--*/
-  virtual bool IsValid() =0;
+  virtual bool IsValid() = 0;
 
   ///
   // True if the value type is undefined.
   ///
   /*--cef()--*/
-  virtual bool IsUndefined() =0;
+  virtual bool IsUndefined() = 0;
 
   ///
   // True if the value type is null.
   ///
   /*--cef()--*/
-  virtual bool IsNull() =0;
+  virtual bool IsNull() = 0;
 
   ///
   // True if the value type is bool.
   ///
   /*--cef()--*/
-  virtual bool IsBool() =0;
+  virtual bool IsBool() = 0;
 
   ///
   // True if the value type is int.
   ///
   /*--cef()--*/
-  virtual bool IsInt() =0;
+  virtual bool IsInt() = 0;
 
   ///
   // True if the value type is unsigned int.
   ///
   /*--cef()--*/
-  virtual bool IsUInt() =0;
+  virtual bool IsUInt() = 0;
 
   ///
   // True if the value type is double.
   ///
   /*--cef()--*/
-  virtual bool IsDouble() =0;
+  virtual bool IsDouble() = 0;
 
   ///
   // True if the value type is Date.
   ///
   /*--cef()--*/
-  virtual bool IsDate() =0;
+  virtual bool IsDate() = 0;
 
   ///
   // True if the value type is string.
   ///
   /*--cef()--*/
-  virtual bool IsString() =0;
+  virtual bool IsString() = 0;
 
   ///
   // True if the value type is object.
   ///
   /*--cef()--*/
-  virtual bool IsObject() =0;
+  virtual bool IsObject() = 0;
 
   ///
   // True if the value type is array.
   ///
   /*--cef()--*/
-  virtual bool IsArray() =0;
+  virtual bool IsArray() = 0;
 
   ///
   // True if the value type is function.
   ///
   /*--cef()--*/
-  virtual bool IsFunction() =0;
+  virtual bool IsFunction() = 0;
 
   ///
   // Returns true if this object is pointing to the same handle as |that|
   // object.
   ///
   /*--cef()--*/
-  virtual bool IsSame(CefRefPtr<CefV8Value> that) =0;
+  virtual bool IsSame(CefRefPtr<CefV8Value> that) = 0;
 
   ///
   // Return a bool value.
   ///
   /*--cef()--*/
-  virtual bool GetBoolValue() =0;
+  virtual bool GetBoolValue() = 0;
 
   ///
   // Return an int value.
   ///
   /*--cef()--*/
-  virtual int32 GetIntValue() =0;
+  virtual int32 GetIntValue() = 0;
 
   ///
   // Return an unsigned int value.
   ///
   /*--cef()--*/
-  virtual uint32 GetUIntValue() =0;
+  virtual uint32 GetUIntValue() = 0;
 
   ///
   // Return a double value.
   ///
   /*--cef()--*/
-  virtual double GetDoubleValue() =0;
+  virtual double GetDoubleValue() = 0;
 
   ///
   // Return a Date value.
   ///
   /*--cef()--*/
-  virtual CefTime GetDateValue() =0;
+  virtual CefTime GetDateValue() = 0;
 
   ///
   // Return a string value.
   ///
   /*--cef()--*/
-  virtual CefString GetStringValue() =0;
-
+  virtual CefString GetStringValue() = 0;
 
   // OBJECT METHODS - These methods are only available on objects. Arrays and
   // functions are also objects. String- and integer-based keys can be used
@@ -633,34 +628,34 @@ class CefV8Value : public virtual CefBaseRefCounted {
   // Returns true if this is a user created object.
   ///
   /*--cef()--*/
-  virtual bool IsUserCreated() =0;
+  virtual bool IsUserCreated() = 0;
 
   ///
   // Returns true if the last method call resulted in an exception. This
   // attribute exists only in the scope of the current CEF value object.
   ///
   /*--cef()--*/
-  virtual bool HasException() =0;
+  virtual bool HasException() = 0;
 
   ///
   // Returns the exception resulting from the last method call. This attribute
   // exists only in the scope of the current CEF value object.
   ///
   /*--cef()--*/
-  virtual CefRefPtr<CefV8Exception> GetException() =0;
+  virtual CefRefPtr<CefV8Exception> GetException() = 0;
 
   ///
   // Clears the last exception and returns true on success.
   ///
   /*--cef()--*/
-  virtual bool ClearException() =0;
+  virtual bool ClearException() = 0;
 
   ///
   // Returns true if this object will re-throw future exceptions. This attribute
   // exists only in the scope of the current CEF value object.
   ///
   /*--cef()--*/
-  virtual bool WillRethrowExceptions() =0;
+  virtual bool WillRethrowExceptions() = 0;
 
   ///
   // Set whether this object will re-throw future exceptions. By default
@@ -670,19 +665,19 @@ class CefV8Value : public virtual CefBaseRefCounted {
   // only in the scope of the current CEF value object.
   ///
   /*--cef()--*/
-  virtual bool SetRethrowExceptions(bool rethrow) =0;
+  virtual bool SetRethrowExceptions(bool rethrow) = 0;
 
   ///
   // Returns true if the object has a value with the specified identifier.
   ///
   /*--cef(capi_name=has_value_bykey,optional_param=key)--*/
-  virtual bool HasValue(const CefString& key) =0;
+  virtual bool HasValue(const CefString& key) = 0;
 
   ///
   // Returns true if the object has a value with the specified identifier.
   ///
   /*--cef(capi_name=has_value_byindex,index_param=index)--*/
-  virtual bool HasValue(int index) =0;
+  virtual bool HasValue(int index) = 0;
 
   ///
   // Deletes the value with the specified identifier and returns true on
@@ -691,7 +686,7 @@ class CefV8Value : public virtual CefBaseRefCounted {
   // true even though deletion failed.
   ///
   /*--cef(capi_name=delete_value_bykey,optional_param=key)--*/
-  virtual bool DeleteValue(const CefString& key) =0;
+  virtual bool DeleteValue(const CefString& key) = 0;
 
   ///
   // Deletes the value with the specified identifier and returns true on
@@ -700,21 +695,21 @@ class CefV8Value : public virtual CefBaseRefCounted {
   // method will return true even though deletion failed.
   ///
   /*--cef(capi_name=delete_value_byindex,index_param=index)--*/
-  virtual bool DeleteValue(int index) =0;
+  virtual bool DeleteValue(int index) = 0;
 
   ///
   // Returns the value with the specified identifier on success. Returns NULL
   // if this method is called incorrectly or an exception is thrown.
   ///
   /*--cef(capi_name=get_value_bykey,optional_param=key)--*/
-  virtual CefRefPtr<CefV8Value> GetValue(const CefString& key) =0;
+  virtual CefRefPtr<CefV8Value> GetValue(const CefString& key) = 0;
 
   ///
   // Returns the value with the specified identifier on success. Returns NULL
   // if this method is called incorrectly or an exception is thrown.
   ///
   /*--cef(capi_name=get_value_byindex,index_param=index)--*/
-  virtual CefRefPtr<CefV8Value> GetValue(int index) =0;
+  virtual CefRefPtr<CefV8Value> GetValue(int index) = 0;
 
   ///
   // Associates a value with the specified identifier and returns true on
@@ -723,8 +718,9 @@ class CefV8Value : public virtual CefBaseRefCounted {
   // assignment failed.
   ///
   /*--cef(capi_name=set_value_bykey,optional_param=key)--*/
-  virtual bool SetValue(const CefString& key, CefRefPtr<CefV8Value> value,
-                        PropertyAttribute attribute) =0;
+  virtual bool SetValue(const CefString& key,
+                        CefRefPtr<CefV8Value> value,
+                        PropertyAttribute attribute) = 0;
 
   ///
   // Associates a value with the specified identifier and returns true on
@@ -733,7 +729,7 @@ class CefV8Value : public virtual CefBaseRefCounted {
   // assignment failed.
   ///
   /*--cef(capi_name=set_value_byindex,index_param=index)--*/
-  virtual bool SetValue(int index, CefRefPtr<CefV8Value> value) =0;
+  virtual bool SetValue(int index, CefRefPtr<CefV8Value> value) = 0;
 
   ///
   // Registers an identifier and returns true on success. Access to the
@@ -743,15 +739,16 @@ class CefV8Value : public virtual CefBaseRefCounted {
   // will return true even though assignment failed.
   ///
   /*--cef(capi_name=set_value_byaccessor,optional_param=key)--*/
-  virtual bool SetValue(const CefString& key, AccessControl settings,
-                        PropertyAttribute attribute) =0;
+  virtual bool SetValue(const CefString& key,
+                        AccessControl settings,
+                        PropertyAttribute attribute) = 0;
 
   ///
   // Read the keys for the object's values into the specified vector. Integer-
   // based keys will also be returned as strings.
   ///
   /*--cef()--*/
-  virtual bool GetKeys(std::vector<CefString>& keys) =0;
+  virtual bool GetKeys(std::vector<CefString>& keys) = 0;
 
   ///
   // Sets the user data for this object and returns true on success. Returns
@@ -759,20 +756,20 @@ class CefV8Value : public virtual CefBaseRefCounted {
   // on user created objects.
   ///
   /*--cef(optional_param=user_data)--*/
-  virtual bool SetUserData(CefRefPtr<CefBaseRefCounted> user_data) =0;
+  virtual bool SetUserData(CefRefPtr<CefBaseRefCounted> user_data) = 0;
 
   ///
   // Returns the user data, if any, assigned to this object.
   ///
   /*--cef()--*/
-  virtual CefRefPtr<CefBaseRefCounted> GetUserData() =0;
+  virtual CefRefPtr<CefBaseRefCounted> GetUserData() = 0;
 
   ///
   // Returns the amount of externally allocated memory registered for the
   // object.
   ///
   /*--cef()--*/
-  virtual int GetExternallyAllocatedMemory() =0;
+  virtual int GetExternallyAllocatedMemory() = 0;
 
   ///
   // Adjusts the amount of registered external memory for the object. Used to
@@ -786,8 +783,7 @@ class CefV8Value : public virtual CefBaseRefCounted {
   // only be called on user created objects.
   ///
   /*--cef()--*/
-  virtual int AdjustExternallyAllocatedMemory(int change_in_bytes) =0;
-
+  virtual int AdjustExternallyAllocatedMemory(int change_in_bytes) = 0;
 
   // ARRAY METHODS - These methods are only available on arrays.
 
@@ -795,8 +791,7 @@ class CefV8Value : public virtual CefBaseRefCounted {
   // Returns the number of elements in the array.
   ///
   /*--cef()--*/
-  virtual int GetArrayLength() =0;
-
+  virtual int GetArrayLength() = 0;
 
   // FUNCTION METHODS - These methods are only available on functions.
 
@@ -804,13 +799,13 @@ class CefV8Value : public virtual CefBaseRefCounted {
   // Returns the function name.
   ///
   /*--cef()--*/
-  virtual CefString GetFunctionName() =0;
+  virtual CefString GetFunctionName() = 0;
 
   ///
   // Returns the function handler or NULL if not a CEF-created function.
   ///
   /*--cef()--*/
-  virtual CefRefPtr<CefV8Handler> GetFunctionHandler() =0;
+  virtual CefRefPtr<CefV8Handler> GetFunctionHandler() = 0;
 
   ///
   // Execute the function using the current V8 context. This method should only
@@ -825,7 +820,7 @@ class CefV8Value : public virtual CefBaseRefCounted {
   /*--cef(optional_param=object)--*/
   virtual CefRefPtr<CefV8Value> ExecuteFunction(
       CefRefPtr<CefV8Value> object,
-      const CefV8ValueList& arguments) =0;
+      const CefV8ValueList& arguments) = 0;
 
   ///
   // Execute the function using the specified V8 context. |object| is the
@@ -839,7 +834,7 @@ class CefV8Value : public virtual CefBaseRefCounted {
   virtual CefRefPtr<CefV8Value> ExecuteFunctionWithContext(
       CefRefPtr<CefV8Context> context,
       CefRefPtr<CefV8Value> object,
-      const CefV8ValueList& arguments) =0;
+      const CefV8ValueList& arguments) = 0;
 };
 
 ///
@@ -865,19 +860,19 @@ class CefV8StackTrace : public virtual CefBaseRefCounted {
   // false.
   ///
   /*--cef()--*/
-  virtual bool IsValid() =0;
+  virtual bool IsValid() = 0;
 
   ///
   // Returns the number of stack frames.
   ///
   /*--cef()--*/
-  virtual int GetFrameCount() =0;
+  virtual int GetFrameCount() = 0;
 
   ///
   // Returns the stack frame at the specified 0-based index.
   ///
   /*--cef()--*/
-  virtual CefRefPtr<CefV8StackFrame> GetFrame(int index) =0;
+  virtual CefRefPtr<CefV8StackFrame> GetFrame(int index) = 0;
 };
 
 ///
@@ -896,13 +891,13 @@ class CefV8StackFrame : public virtual CefBaseRefCounted {
   // false.
   ///
   /*--cef()--*/
-  virtual bool IsValid() =0;
+  virtual bool IsValid() = 0;
 
   ///
   // Returns the name of the resource script that contains the function.
   ///
   /*--cef()--*/
-  virtual CefString GetScriptName() =0;
+  virtual CefString GetScriptName() = 0;
 
   ///
   // Returns the name of the resource script that contains the function or the
@@ -910,38 +905,38 @@ class CefV8StackFrame : public virtual CefBaseRefCounted {
   // a "//@ sourceURL=..." string.
   ///
   /*--cef()--*/
-  virtual CefString GetScriptNameOrSourceURL() =0;
+  virtual CefString GetScriptNameOrSourceURL() = 0;
 
   ///
   // Returns the name of the function.
   ///
   /*--cef()--*/
-  virtual CefString GetFunctionName() =0;
+  virtual CefString GetFunctionName() = 0;
 
   ///
   // Returns the 1-based line number for the function call or 0 if unknown.
   ///
   /*--cef()--*/
-  virtual int GetLineNumber() =0;
+  virtual int GetLineNumber() = 0;
 
   ///
   // Returns the 1-based column offset on the line for the function call or 0 if
   // unknown.
   ///
   /*--cef()--*/
-  virtual int GetColumn() =0;
+  virtual int GetColumn() = 0;
 
   ///
   // Returns true if the function was compiled using eval().
   ///
   /*--cef()--*/
-  virtual bool IsEval() =0;
+  virtual bool IsEval() = 0;
 
   ///
   // Returns true if the function was called as a constructor via "new".
   ///
   /*--cef()--*/
-  virtual bool IsConstructor() =0;
+  virtual bool IsConstructor() = 0;
 };
 
 #endif  // CEF_INCLUDE_CEF_V8_H_

@@ -35,9 +35,7 @@ class VisitCookiesCallback : public base::RefCounted<VisitCookiesCallback> {
   explicit VisitCookiesCallback(
       const CefCookieManagerImpl::CookieStoreGetter& cookie_store_getter,
       CefRefPtr<CefCookieVisitor> visitor)
-    : cookie_store_getter_(cookie_store_getter),
-      visitor_(visitor) {
-  }
+      : cookie_store_getter_(cookie_store_getter), visitor_(visitor) {}
 
   void Run(const net::CookieList& list) {
     CEF_REQUIRE_IOT();
@@ -55,8 +53,8 @@ class VisitCookiesCallback : public base::RefCounted<VisitCookiesCallback> {
       if (deleteCookie) {
         net::CookieStore* cookie_store = cookie_store_getter_.Run();
         if (cookie_store) {
-          cookie_store->DeleteCanonicalCookieAsync(cc,
-              net::CookieMonster::DeleteCallback());
+          cookie_store->DeleteCanonicalCookieAsync(
+              cc, net::CookieMonster::DeleteCallback());
         }
       }
       if (!keepLooping)
@@ -73,7 +71,6 @@ class VisitCookiesCallback : public base::RefCounted<VisitCookiesCallback> {
   CefRefPtr<CefCookieVisitor> visitor_;
 };
 
-
 // Methods extracted from net/cookies/cookie_store.cc
 
 // Determine the cookie domain to use for setting the specified cookie.
@@ -84,7 +81,7 @@ bool GetCookieDomain(const GURL& url,
   if (pc.HasDomain())
     domain_string = pc.Domain();
   return net::cookie_util::GetCookieDomainWithString(url, domain_string,
-      result);
+                                                     result);
 }
 
 // Always execute the callback asynchronously.
@@ -92,7 +89,7 @@ void RunAsyncCompletionOnIOThread(CefRefPtr<CefCompletionCallback> callback) {
   if (!callback.get())
     return;
   CEF_POST_TASK(CEF_IOT,
-      base::Bind(&CefCompletionCallback::OnComplete, callback.get()));
+                base::Bind(&CefCompletionCallback::OnComplete, callback.get()));
 }
 
 // Always execute the callback asynchronously.
@@ -100,9 +97,8 @@ void DeleteCookiesCallbackImpl(CefRefPtr<CefDeleteCookiesCallback> callback,
                                int num_deleted) {
   if (!callback.get())
     return;
-  CEF_POST_TASK(CEF_IOT,
-      base::Bind(&CefDeleteCookiesCallback::OnComplete, callback.get(),
-                 num_deleted));
+  CEF_POST_TASK(CEF_IOT, base::Bind(&CefDeleteCookiesCallback::OnComplete,
+                                    callback.get(), num_deleted));
 }
 
 // Always execute the callback asynchronously.
@@ -110,8 +106,8 @@ void SetCookieCallbackImpl(CefRefPtr<CefSetCookieCallback> callback,
                            bool success) {
   if (!callback.get())
     return;
-  CEF_POST_TASK(CEF_IOT,
-      base::Bind(&CefSetCookieCallback::OnComplete, callback.get(), success));
+  CEF_POST_TASK(CEF_IOT, base::Bind(&CefSetCookieCallback::OnComplete,
+                                    callback.get(), success));
 }
 
 net::CookieStore* GetExistingCookieStoreHelper(
@@ -123,10 +119,7 @@ net::CookieStore* GetExistingCookieStoreHelper(
 
 }  // namespace
 
-
-CefCookieManagerImpl::CefCookieManagerImpl()
-    : weak_ptr_factory_(this) {
-}
+CefCookieManagerImpl::CefCookieManagerImpl() : weak_ptr_factory_(this) {}
 
 CefCookieManagerImpl::~CefCookieManagerImpl() {
   CEF_REQUIRE_IOT();
@@ -154,9 +147,8 @@ void CefCookieManagerImpl::GetCookieStore(
     task_runner = base::MessageLoop::current()->task_runner();
 
   if (!CEF_CURRENTLY_ON_IOT()) {
-    CEF_POST_TASK(CEF_IOT,
-        base::Bind(&CefCookieManagerImpl::GetCookieStore, this, task_runner,
-                   callback));
+    CEF_POST_TASK(CEF_IOT, base::Bind(&CefCookieManagerImpl::GetCookieStore,
+                                      this, task_runner, callback));
     return;
   }
 
@@ -177,16 +169,14 @@ void CefCookieManagerImpl::GetCookieStore(
   // that case, the CookieStoreGetter will return nullptr instead of keeping
   // the CefCookieManagerImpl alive (see issue #1882).
   const CookieStoreGetter& cookie_store_getter =
-      base::Bind(GetExistingCookieStoreHelper,
-                 weak_ptr_factory_.GetWeakPtr());
+      base::Bind(GetExistingCookieStoreHelper, weak_ptr_factory_.GetWeakPtr());
 
   if (task_runner->BelongsToCurrentThread()) {
     // Execute the callback immediately.
     callback.Run(cookie_store_getter);
   } else {
     // Execute the callback on the target thread.
-    task_runner->PostTask(FROM_HERE,
-        base::Bind(callback, cookie_store_getter));
+    task_runner->PostTask(FROM_HERE, base::Bind(callback, cookie_store_getter));
   }
 }
 
@@ -210,8 +200,8 @@ void CefCookieManagerImpl::SetSupportedSchemes(
     CefRefPtr<CefCompletionCallback> callback) {
   if (!CEF_CURRENTLY_ON_IOT()) {
     CEF_POST_TASK(CEF_IOT,
-        base::Bind(&CefCookieManagerImpl::SetSupportedSchemes, this, schemes,
-                   callback));
+                  base::Bind(&CefCookieManagerImpl::SetSupportedSchemes, this,
+                             schemes, callback));
     return;
   }
 
@@ -225,10 +215,9 @@ void CefCookieManagerImpl::SetSupportedSchemes(
 
 bool CefCookieManagerImpl::VisitAllCookies(
     CefRefPtr<CefCookieVisitor> visitor) {
-  GetCookieStore(
-      BrowserThread::GetTaskRunnerForThread(BrowserThread::IO),
-      base::Bind(&CefCookieManagerImpl::VisitAllCookiesInternal, this,
-                 visitor));
+  GetCookieStore(BrowserThread::GetTaskRunnerForThread(BrowserThread::IO),
+                 base::Bind(&CefCookieManagerImpl::VisitAllCookiesInternal,
+                            this, visitor));
   return true;
 }
 
@@ -236,25 +225,22 @@ bool CefCookieManagerImpl::VisitUrlCookies(
     const CefString& url,
     bool includeHttpOnly,
     CefRefPtr<CefCookieVisitor> visitor) {
-  GetCookieStore(
-      BrowserThread::GetTaskRunnerForThread(BrowserThread::IO),
-      base::Bind(&CefCookieManagerImpl::VisitUrlCookiesInternal, this, url,
-                 includeHttpOnly, visitor));
+  GetCookieStore(BrowserThread::GetTaskRunnerForThread(BrowserThread::IO),
+                 base::Bind(&CefCookieManagerImpl::VisitUrlCookiesInternal,
+                            this, url, includeHttpOnly, visitor));
   return true;
 }
 
-bool CefCookieManagerImpl::SetCookie(
-    const CefString& url,
-    const CefCookie& cookie,
-    CefRefPtr<CefSetCookieCallback> callback) {
+bool CefCookieManagerImpl::SetCookie(const CefString& url,
+                                     const CefCookie& cookie,
+                                     CefRefPtr<CefSetCookieCallback> callback) {
   GURL gurl = GURL(url.ToString());
   if (!gurl.is_valid())
     return false;
 
-  GetCookieStore(
-      BrowserThread::GetTaskRunnerForThread(BrowserThread::IO),
-      base::Bind(&CefCookieManagerImpl::SetCookieInternal, this, gurl, cookie,
-                 callback));
+  GetCookieStore(BrowserThread::GetTaskRunnerForThread(BrowserThread::IO),
+                 base::Bind(&CefCookieManagerImpl::SetCookieInternal, this,
+                            gurl, cookie, callback));
   return true;
 }
 
@@ -267,10 +253,9 @@ bool CefCookieManagerImpl::DeleteCookies(
   if (!gurl.is_empty() && !gurl.is_valid())
     return false;
 
-  GetCookieStore(
-      BrowserThread::GetTaskRunnerForThread(BrowserThread::IO),
-      base::Bind(&CefCookieManagerImpl::DeleteCookiesInternal, this, gurl,
-                 cookie_name, callback));
+  GetCookieStore(BrowserThread::GetTaskRunnerForThread(BrowserThread::IO),
+                 base::Bind(&CefCookieManagerImpl::DeleteCookiesInternal, this,
+                            gurl, cookie_name, callback));
   return true;
 }
 
@@ -279,7 +264,8 @@ bool CefCookieManagerImpl::SetStoragePath(
     bool persist_session_cookies,
     CefRefPtr<CefCompletionCallback> callback) {
   if (!CEF_CURRENTLY_ON_IOT()) {
-    CEF_POST_TASK(CEF_IOT,
+    CEF_POST_TASK(
+        CEF_IOT,
         base::Bind(base::IgnoreResult(&CefCookieManagerImpl::SetStoragePath),
                    this, path, persist_session_cookies, callback));
     return true;
@@ -296,8 +282,8 @@ bool CefCookieManagerImpl::SetStoragePath(
   if (!path.empty())
     new_path = base::FilePath(path);
 
-  if (cookie_store_.get() && ((storage_path_.empty() && path.empty()) ||
-                                storage_path_ == new_path)) {
+  if (cookie_store_.get() &&
+      ((storage_path_.empty() && path.empty()) || storage_path_ == new_path)) {
     // The path has not changed so don't do anything.
     RunAsyncCompletionOnIOThread(callback);
     return true;
@@ -308,16 +294,12 @@ bool CefCookieManagerImpl::SetStoragePath(
     // TODO(cef): Move directory creation to the blocking pool instead of
     // allowing file IO on this thread.
     base::ThreadRestrictions::ScopedAllowIO allow_io;
-    if (base::DirectoryExists(new_path) ||
-        base::CreateDirectory(new_path)) {
+    if (base::DirectoryExists(new_path) || base::CreateDirectory(new_path)) {
       const base::FilePath& cookie_path = new_path.AppendASCII("Cookies");
-      persistent_store =
-          new net::SQLitePersistentCookieStore(
-              cookie_path,
-              BrowserThread::GetTaskRunnerForThread(BrowserThread::IO),
-              BrowserThread::GetTaskRunnerForThread(BrowserThread::DB),
-              persist_session_cookies,
-              NULL);
+      persistent_store = new net::SQLitePersistentCookieStore(
+          cookie_path, BrowserThread::GetTaskRunnerForThread(BrowserThread::IO),
+          BrowserThread::GetTaskRunnerForThread(BrowserThread::DB),
+          persist_session_cookies, NULL);
     } else {
       NOTREACHED() << "The cookie storage directory could not be created";
       storage_path_.clear();
@@ -427,8 +409,7 @@ void CefCookieManagerImpl::RunMethodWithContext(
   } else if (request_context_.get()) {
     // Try again after the request context is initialized.
     request_context_->GetRequestContextImpl(
-        BrowserThread::GetTaskRunnerForThread(BrowserThread::IO),
-        method);
+        BrowserThread::GetTaskRunnerForThread(BrowserThread::IO), method);
   } else {
     NOTREACHED();
   }
@@ -485,9 +466,8 @@ void CefCookieManagerImpl::GetCookieStoreWithContext(
   CEF_REQUIRE_IOT();
   DCHECK(request_context->GetExistingCookieStore());
 
-  const CookieStoreGetter& cookie_store_getter =
-      base::Bind(&CefURLRequestContextGetterImpl::GetExistingCookieStore,
-                 request_context);
+  const CookieStoreGetter& cookie_store_getter = base::Bind(
+      &CefURLRequestContextGetterImpl::GetExistingCookieStore, request_context);
 
   if (task_runner->BelongsToCurrentThread()) {
     // Execute the callback immediately.
@@ -555,8 +535,8 @@ void CefCookieManagerImpl::VisitUrlCookiesInternal(
       new VisitCookiesCallback(cookie_store_getter, visitor));
 
   GURL gurl = GURL(url.ToString());
-  cookie_store->GetCookieListWithOptionsAsync(gurl, options,
-      base::Bind(&VisitCookiesCallback::Run, callback.get()));
+  cookie_store->GetCookieListWithOptionsAsync(
+      gurl, options, base::Bind(&VisitCookiesCallback::Run, callback.get()));
 }
 
 void CefCookieManagerImpl::SetCookieInternal(
@@ -584,10 +564,8 @@ void CefCookieManagerImpl::SetCookieInternal(
       base::Time(),  // Creation time.
       expiration_time,
       base::Time(),  // Last access time.
-      cookie.secure ? true : false,
-      cookie.httponly ? true : false,
-      net::CookieSameSite::DEFAULT_MODE,
-      net::COOKIE_PRIORITY_DEFAULT,
+      cookie.secure ? true : false, cookie.httponly ? true : false,
+      net::CookieSameSite::DEFAULT_MODE, net::COOKIE_PRIORITY_DEFAULT,
       base::Bind(SetCookieCallbackImpl, callback));
 }
 
@@ -614,8 +592,8 @@ void CefCookieManagerImpl::DeleteCookiesInternal(
         base::Bind(DeleteCookiesCallbackImpl, callback));
   } else {
     // Delete all matching host and domain cookies.
-    cookie_store->DeleteCookieAsync(url, cookie_name,
-        base::Bind(DeleteCookiesCallbackImpl, callback, -1));
+    cookie_store->DeleteCookieAsync(
+        url, cookie_name, base::Bind(DeleteCookiesCallbackImpl, callback, -1));
   }
 }
 
@@ -628,8 +606,7 @@ void CefCookieManagerImpl::FlushStoreInternal(
   if (!cookie_store)
     return;
 
-  cookie_store->FlushStore(
-      base::Bind(RunAsyncCompletionOnIOThread, callback));
+  cookie_store->FlushStore(base::Bind(RunAsyncCompletionOnIOThread, callback));
 }
 
 // CefCookieManager methods ----------------------------------------------------

@@ -9,16 +9,20 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=d881d2602682ff4510ff88f297aea7b2420f9499$
+//
 
 #include "libcef_dll/cpptoc/browser_cpptoc.h"
 #include "libcef_dll/ctocpp/find_handler_ctocpp.h"
 
-
 // VIRTUAL METHODS - Body may be edited by hand.
 
 void CefFindHandlerCToCpp::OnFindResult(CefRefPtr<CefBrowser> browser,
-    int identifier, int count, const CefRect& selectionRect,
-    int activeMatchOrdinal, bool finalUpdate) {
+                                        int identifier,
+                                        int count,
+                                        const CefRect& selectionRect,
+                                        int activeMatchOrdinal,
+                                        bool finalUpdate) {
   cef_find_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_find_result))
     return;
@@ -31,32 +35,32 @@ void CefFindHandlerCToCpp::OnFindResult(CefRefPtr<CefBrowser> browser,
     return;
 
   // Execute
-  _struct->on_find_result(_struct,
-      CefBrowserCppToC::Wrap(browser),
-      identifier,
-      count,
-      &selectionRect,
-      activeMatchOrdinal,
-      finalUpdate);
+  _struct->on_find_result(_struct, CefBrowserCppToC::Wrap(browser), identifier,
+                          count, &selectionRect, activeMatchOrdinal,
+                          finalUpdate);
 }
-
 
 // CONSTRUCTOR - Do not edit by hand.
 
-CefFindHandlerCToCpp::CefFindHandlerCToCpp() {
-}
+CefFindHandlerCToCpp::CefFindHandlerCToCpp() {}
 
-template<> cef_find_handler_t* CefCToCppRefCounted<CefFindHandlerCToCpp,
-    CefFindHandler, cef_find_handler_t>::UnwrapDerived(CefWrapperType type,
-    CefFindHandler* c) {
+template <>
+cef_find_handler_t*
+CefCToCppRefCounted<CefFindHandlerCToCpp, CefFindHandler, cef_find_handler_t>::
+    UnwrapDerived(CefWrapperType type, CefFindHandler* c) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCppRefCounted<CefFindHandlerCToCpp,
-    CefFindHandler, cef_find_handler_t>::DebugObjCt = 0;
+template <>
+base::AtomicRefCount CefCToCppRefCounted<CefFindHandlerCToCpp,
+                                         CefFindHandler,
+                                         cef_find_handler_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCppRefCounted<CefFindHandlerCToCpp,
-    CefFindHandler, cef_find_handler_t>::kWrapperType = WT_FIND_HANDLER;
+template <>
+CefWrapperType CefCToCppRefCounted<CefFindHandlerCToCpp,
+                                   CefFindHandler,
+                                   cef_find_handler_t>::kWrapperType =
+    WT_FIND_HANDLER;

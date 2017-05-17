@@ -35,22 +35,20 @@ class CefGeolocationCallbackImpl : public CefGeolocationCallback {
     if (CEF_CURRENTLY_ON_UIT()) {
       if (!callback_.is_null()) {
         if (allow) {
-          device::GeolocationProvider::GetInstance()->
-              UserDidOptIntoLocationServices();
+          device::GeolocationProvider::GetInstance()
+              ->UserDidOptIntoLocationServices();
         }
 
         callback_.Run(allow ? CONTENT_SETTING_ALLOW : CONTENT_SETTING_BLOCK);
         callback_.Reset();
       }
     } else {
-      CEF_POST_TASK(CEF_UIT,
-          base::Bind(&CefGeolocationCallbackImpl::Continue, this, allow));
+      CEF_POST_TASK(CEF_UIT, base::Bind(&CefGeolocationCallbackImpl::Continue,
+                                        this, allow));
     }
   }
 
-  void Disconnect() {
-    callback_.Reset();
-  }
+  void Disconnect() { callback_.Reset(); }
 
  private:
   CallbackType callback_;
@@ -62,9 +60,7 @@ class CefGeolocationCallbackImpl : public CefGeolocationCallback {
 }  // namespace
 
 CefPermissionContext::CefPermissionContext(CefBrowserContext* profile)
-    : profile_(profile),
-      weak_ptr_factory_(this) {
-}
+    : profile_(profile), weak_ptr_factory_(this) {}
 
 bool CefPermissionContext::SupportsPermission(
     content::PermissionType permission) {
@@ -80,12 +76,8 @@ void CefPermissionContext::RequestPermission(
     const BrowserPermissionCallback& callback) {
   DCHECK_CURRENTLY_ON(content::BrowserThread::UI);
 
-  DecidePermission(permission,
-                   web_contents,
-                   id,
-                   requesting_frame.GetOrigin(),
-                   web_contents->GetLastCommittedURL().GetOrigin(),
-                   callback);
+  DecidePermission(permission, web_contents, id, requesting_frame.GetOrigin(),
+                   web_contents->GetLastCommittedURL().GetOrigin(), callback);
 }
 
 void CefPermissionContext::CancelPermissionRequest(
@@ -108,16 +100,14 @@ void CefPermissionContext::CancelPermissionRequest(
   }
 }
 
-void CefPermissionContext::ResetPermission(
-    content::PermissionType permission,
-    const GURL& requesting_origin,
-    const GURL& embedding_origin) {
+void CefPermissionContext::ResetPermission(content::PermissionType permission,
+                                           const GURL& requesting_origin,
+                                           const GURL& embedding_origin) {
   profile_->GetHostContentSettingsMap()->SetContentSettingCustomScope(
       ContentSettingsPattern::FromURLNoWildcard(requesting_origin),
       ContentSettingsPattern::FromURLNoWildcard(embedding_origin),
       permission_util::PermissionTypeToContentSetting(permission),
-      std::string(),
-      CONTENT_SETTING_DEFAULT);
+      std::string(), CONTENT_SETTING_DEFAULT);
 }
 
 ContentSetting CefPermissionContext::GetPermissionStatus(
@@ -130,8 +120,7 @@ ContentSetting CefPermissionContext::GetPermissionStatus(
   }
 
   return profile_->GetHostContentSettingsMap()->GetContentSetting(
-      requesting_origin,
-      embedding_origin,
+      requesting_origin, embedding_origin,
       permission_util::PermissionTypeToContentSetting(permission),
       std::string());
 }
@@ -160,8 +149,7 @@ void CefPermissionContext::DecidePermission(
 
   ContentSetting content_setting =
       profile_->GetHostContentSettingsMap()->GetContentSetting(
-          requesting_origin,
-          embedding_origin,
+          requesting_origin, embedding_origin,
           permission_util::PermissionTypeToContentSetting(permission),
           std::string());
 
@@ -172,12 +160,11 @@ void CefPermissionContext::DecidePermission(
     return;
   }
 
-  QueryPermission(
-      permission, id, requesting_origin, embedding_origin,
-      base::Bind(&CefPermissionContext::NotifyPermissionSet,
-                 weak_ptr_factory_.GetWeakPtr(), permission, id,
-                 requesting_origin, embedding_origin, callback,
-                 false /* persist */));
+  QueryPermission(permission, id, requesting_origin, embedding_origin,
+                  base::Bind(&CefPermissionContext::NotifyPermissionSet,
+                             weak_ptr_factory_.GetWeakPtr(), permission, id,
+                             requesting_origin, embedding_origin, callback,
+                             false /* persist */));
 }
 
 void CefPermissionContext::QueryPermission(
@@ -259,6 +246,5 @@ void CefPermissionContext::UpdateContentSetting(
       ContentSettingsPattern::FromURLNoWildcard(requesting_origin),
       ContentSettingsPattern::FromURLNoWildcard(embedding_origin),
       permission_util::PermissionTypeToContentSetting(permission),
-      std::string(),
-      content_setting);
+      std::string(), content_setting);
 }

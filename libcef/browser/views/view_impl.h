@@ -39,7 +39,7 @@
 //   CefBasicPanelView.
 //
 // Example 2: In some cases an intermediary type is required to meet CEF
-// template requirements (e.g. CefViewView requires a no-argument constructor). 
+// template requirements (e.g. CefViewView requires a no-argument constructor).
 // The CefBasicLabelButtonImpl object created via
 // CefLabelButton::CreateLabelButton() has the following object hierarchy:
 //
@@ -179,7 +179,7 @@
 //        /*--cef(optional_param=delegate)--*/
 //        static CefRefPtr<CefFooBar> CreateFooBar(
 //            CefRefPtr<CefFooBarDelegate> delegate);
-// 
+//
 //        ///
 //        // Do a task.
 //        ///
@@ -303,17 +303,15 @@
 #include "ui/views/view.h"
 
 // Helpers for template boiler-plate.
-#define CEF_VIEW_IMPL_T \
-    template <class ViewsViewClass, class CefViewClass, \
-              class CefViewDelegateClass>
-#define CEF_VIEW_IMPL_A \
-    ViewsViewClass, CefViewClass, CefViewDelegateClass
+#define CEF_VIEW_IMPL_T                               \
+  template <class ViewsViewClass, class CefViewClass, \
+            class CefViewDelegateClass>
+#define CEF_VIEW_IMPL_A ViewsViewClass, CefViewClass, CefViewDelegateClass
 #define CEF_VIEW_IMPL_D CefViewImpl<CEF_VIEW_IMPL_A>
 
 // Base template for implementing CefView-derived classes. See above comments
 // for a usage overview.
-CEF_VIEW_IMPL_T class CefViewImpl : public CefViewAdapter,
-                                    public CefViewClass {
+CEF_VIEW_IMPL_T class CefViewImpl : public CefViewAdapter, public CefViewClass {
  public:
   // Necessary for the CEF_REQUIRE_VALID_*() macros to compile.
   typedef CEF_VIEW_IMPL_D ParentClass;
@@ -329,9 +327,7 @@ CEF_VIEW_IMPL_T class CefViewImpl : public CefViewAdapter,
   ViewsViewClass* root_view() const { return root_view_ref_; }
 
   // CefViewAdapter methods:
-  views::View* Get() const override {
-    return root_view();
-  }
+  views::View* Get() const override { return root_view(); }
   std::unique_ptr<views::View> PassOwnership() override {
     DCHECK(root_view_);
     return std::move(root_view_);
@@ -353,7 +349,8 @@ CEF_VIEW_IMPL_T class CefViewImpl : public CefViewAdapter,
 
     // Use GetBounds() because some subclasses (like CefWindowImpl) override it.
     const CefRect& bounds = GetBounds();
-    std::unique_ptr<base::DictionaryValue> bounds_value(new base::DictionaryValue());
+    std::unique_ptr<base::DictionaryValue> bounds_value(
+        new base::DictionaryValue());
     bounds_value->SetInteger("x", bounds.x);
     bounds_value->SetInteger("y", bounds.y);
     bounds_value->SetInteger("width", bounds.width);
@@ -400,7 +397,7 @@ CEF_VIEW_IMPL_T class CefViewImpl : public CefViewAdapter,
   void SetEnabled(bool enabled) override;
   bool IsEnabled() override;
   void SetFocusable(bool focusable) override;
-  bool IsFocusable() override;;
+  bool IsFocusable() override;
   bool IsAccessibilityFocusable() override;
   void RequestFocus() override;
   void SetBackgroundColor(cef_color_t color) override;
@@ -409,19 +406,15 @@ CEF_VIEW_IMPL_T class CefViewImpl : public CefViewAdapter,
   bool ConvertPointFromScreen(CefPoint& point) override;
   bool ConvertPointToWindow(CefPoint& point) override;
   bool ConvertPointFromWindow(CefPoint& point) override;
-  bool ConvertPointToView(CefRefPtr<CefView> view,
-                          CefPoint& point) override;
-  bool ConvertPointFromView(CefRefPtr<CefView> view,
-                            CefPoint& point) override;
+  bool ConvertPointToView(CefRefPtr<CefView> view, CefPoint& point) override;
+  bool ConvertPointFromView(CefRefPtr<CefView> view, CefPoint& point) override;
 
  protected:
   // Create a new implementation object.
   // Always call Initialize() after creation.
   // |delegate| may be nullptr.
   explicit CefViewImpl(CefRefPtr<CefViewDelegateClass> delegate)
-      : delegate_(delegate),
-        root_view_ref_(nullptr) {
-  }
+      : delegate_(delegate), root_view_ref_(nullptr) {}
 
   // Initialize this object.
   virtual void Initialize() {
@@ -471,7 +464,7 @@ CEF_VIEW_IMPL_T CefString CEF_VIEW_IMPL_D::ToString(bool include_children) {
 
 CEF_VIEW_IMPL_T bool CEF_VIEW_IMPL_D::IsValid() {
   CEF_REQUIRE_UIT_RETURN(false);
-  return !!root_view_ref_; 
+  return !!root_view_ref_;
 }
 
 CEF_VIEW_IMPL_T bool CEF_VIEW_IMPL_D::IsAttached() {
@@ -508,7 +501,6 @@ CEF_VIEW_IMPL_T void CEF_VIEW_IMPL_D::SetID(int id) {
   CEF_REQUIRE_VALID_RETURN_VOID();
   root_view()->set_id(id);
 }
-
 
 CEF_VIEW_IMPL_T int CEF_VIEW_IMPL_D::GetGroupID() {
   CEF_REQUIRE_VALID_RETURN(0);
@@ -640,8 +632,8 @@ CEF_VIEW_IMPL_T bool CEF_VIEW_IMPL_D::IsEnabled() {
 
 CEF_VIEW_IMPL_T void CEF_VIEW_IMPL_D::SetFocusable(bool focusable) {
   CEF_REQUIRE_VALID_RETURN_VOID();
-  root_view()->SetFocusBehavior(focusable ? views::View::FocusBehavior::ALWAYS :
-                                            views::View::FocusBehavior::NEVER);
+  root_view()->SetFocusBehavior(focusable ? views::View::FocusBehavior::ALWAYS
+                                          : views::View::FocusBehavior::NEVER);
 }
 
 CEF_VIEW_IMPL_T bool CEF_VIEW_IMPL_D::IsFocusable() {

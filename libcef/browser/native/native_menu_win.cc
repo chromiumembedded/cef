@@ -57,7 +57,10 @@ namespace {
 // HDC to back the canvas if one doesn't already exist, tearing it down
 // before returning. If |src_rect| is null, copies the entire canvas.
 // Deleted from skia/ext/platform_canvas.h in https://crbug.com/675977#c13
-void DrawToNativeContext(SkCanvas* canvas, HDC destination_hdc, int x, int y,
+void DrawToNativeContext(SkCanvas* canvas,
+                         HDC destination_hdc,
+                         int x,
+                         int y,
                          const RECT* src_rect) {
   RECT temp_rect;
   if (!src_rect) {
@@ -111,9 +114,7 @@ class CefNativeMenuWin::MenuHostWindow {
     gfx::SetWindowUserData(hwnd_, this);
   }
 
-  ~MenuHostWindow() {
-    DestroyWindow(hwnd_);
-  }
+  ~MenuHostWindow() { DestroyWindow(hwnd_); }
 
   HWND hwnd() const { return hwnd_; }
 
@@ -127,17 +128,9 @@ class CefNativeMenuWin::MenuHostWindow {
 
     WNDCLASSEX window_class;
     base::win::InitializeWindowClass(
-        kWindowClassName,
-        &base::win::WrappedWindowProc<MenuHostWindowProc>,
-        CS_DBLCLKS,
-        0,
-        0,
-        NULL,
-        reinterpret_cast<HBRUSH>(COLOR_WINDOW+1),
-        NULL,
-        NULL,
-        NULL,
-        &window_class);
+        kWindowClassName, &base::win::WrappedWindowProc<MenuHostWindowProc>,
+        CS_DBLCLKS, 0, 0, NULL, reinterpret_cast<HBRUSH>(COLOR_WINDOW + 1),
+        NULL, NULL, NULL, &window_class);
     ATOM clazz = RegisterClassEx(&window_class);
     CHECK(clazz);
     registered = true;
@@ -201,8 +194,8 @@ class CefNativeMenuWin::MenuHostWindow {
     if (data) {
       gfx::FontList font_list;
       measure_item_struct->itemWidth =
-          gfx::GetStringWidth(data->label, font_list) +
-          kIconWidth + kItemLeftMargin + views::kItemLabelSpacing -
+          gfx::GetStringWidth(data->label, font_list) + kIconWidth +
+          kItemLeftMargin + views::kItemLabelSpacing -
           GetSystemMetrics(SM_CXMENUCHECK);
       if (data->submenu.get())
         measure_item_struct->itemWidth += kArrowWidth;
@@ -275,8 +268,8 @@ class CefNativeMenuWin::MenuHostWindow {
                  static_cast<int>(label.size()), &rect, format | DT_LEFT, NULL);
       if (!accel.empty())
         DrawTextEx(dc, const_cast<wchar_t*>(accel.data()),
-                   static_cast<int>(accel.size()), &rect,
-                   format | DT_RIGHT, NULL);
+                   static_cast<int>(accel.size()), &rect, format | DT_RIGHT,
+                   NULL);
       SelectObject(dc, old_font);
 
       ui::MenuModel::ItemType type =
@@ -293,10 +286,12 @@ class CefNativeMenuWin::MenuHostWindow {
             skia_icon.width(), skia_icon.height(), false);
         canvas->drawBitmap(*skia_icon.bitmap(), 0, 0);
         DrawToNativeContext(
-            canvas.get(), dc,
-            draw_item_struct->rcItem.left + kItemLeftMargin,
-            draw_item_struct->rcItem.top + (draw_item_struct->rcItem.bottom -
-                draw_item_struct->rcItem.top - skia_icon.height()) / 2, NULL);
+            canvas.get(), dc, draw_item_struct->rcItem.left + kItemLeftMargin,
+            draw_item_struct->rcItem.top +
+                (draw_item_struct->rcItem.bottom -
+                 draw_item_struct->rcItem.top - skia_icon.height()) /
+                    2,
+            NULL);
       } else if (type == ui::MenuModel::TYPE_CHECK &&
                  data->native_menu_win->model_->IsItemCheckedAt(
                      data->model_index)) {
@@ -306,8 +301,9 @@ class CefNativeMenuWin::MenuHostWindow {
         if (draw_item_struct->itemState & ODS_DISABLED) {
           state = NativeTheme::kDisabled;
         } else {
-          state = draw_item_struct->itemState & ODS_SELECTED ?
-              NativeTheme::kHovered : NativeTheme::kNormal;
+          state = draw_item_struct->itemState & ODS_SELECTED
+                      ? NativeTheme::kHovered
+                      : NativeTheme::kNormal;
         }
 
         std::unique_ptr<SkCanvas> canvas = skia::CreatePlatformCanvas(
@@ -321,17 +317,19 @@ class CefNativeMenuWin::MenuHostWindow {
         // Draw the background and the check.
         ui::NativeTheme* native_theme =
             ui::NativeTheme::GetInstanceForNativeUi();
-        native_theme->Paint(
-            &paint_canvas, NativeTheme::kMenuCheckBackground,
-            state, bounds, extra);
-        native_theme->Paint(
-            &paint_canvas, NativeTheme::kMenuCheck, state, bounds, extra);
+        native_theme->Paint(&paint_canvas, NativeTheme::kMenuCheckBackground,
+                            state, bounds, extra);
+        native_theme->Paint(&paint_canvas, NativeTheme::kMenuCheck, state,
+                            bounds, extra);
 
         // Draw checkbox to menu.
-        DrawToNativeContext(canvas.get(), dc,
-            draw_item_struct->rcItem.left + kItemLeftMargin,
-            draw_item_struct->rcItem.top + (draw_item_struct->rcItem.bottom -
-                draw_item_struct->rcItem.top - config.check_height) / 2, NULL);
+        DrawToNativeContext(
+            canvas.get(), dc, draw_item_struct->rcItem.left + kItemLeftMargin,
+            draw_item_struct->rcItem.top +
+                (draw_item_struct->rcItem.bottom -
+                 draw_item_struct->rcItem.top - config.check_height) /
+                    2,
+            NULL);
       }
 
     } else {
@@ -367,7 +365,7 @@ class CefNativeMenuWin::MenuHostWindow {
         OnDrawItem(w_param, reinterpret_cast<DRAWITEMSTRUCT*>(l_param));
         *l_result = 0;
         return true;
-      // TODO(beng): bring over owner draw from old menu system.
+        // TODO(beng): bring over owner draw from old menu system.
     }
     return false;
   }
@@ -395,11 +393,7 @@ class CefNativeMenuWin::MenuHostWindow {
 
 struct CefNativeMenuWin::HighlightedMenuItemInfo {
   HighlightedMenuItemInfo()
-      : has_parent(false),
-        has_submenu(false),
-        menu(NULL),
-        position(-1) {
-  }
+      : has_parent(false), has_submenu(false), menu(NULL), position(-1) {}
 
   bool has_parent;
   bool has_submenu;
@@ -428,8 +422,7 @@ CefNativeMenuWin::CefNativeMenuWin(ui::MenuModel* model, HWND system_menu_for)
       position_to_select_(-1),
       parent_(NULL),
       destroyed_flag_(NULL),
-      menu_to_select_factory_(this) {
-}
+      menu_to_select_factory_(this) {}
 
 CefNativeMenuWin::~CefNativeMenuWin() {
   if (destroyed_flag_)
@@ -481,9 +474,8 @@ void CefNativeMenuWin::RunMenuAt(const gfx::Point& point, int alignment) {
     // does.
     menu_to_select_factory_.InvalidateWeakPtrs();
     base::ThreadTaskRunnerHandle::Get()->PostTask(
-        FROM_HERE,
-        base::Bind(&CefNativeMenuWin::DelayedSelect,
-                   menu_to_select_factory_.GetWeakPtr()));
+        FROM_HERE, base::Bind(&CefNativeMenuWin::DelayedSelect,
+                              menu_to_select_factory_.GetWeakPtr()));
     menu_action_ = MENU_ACTION_SELECTED;
   }
   // Send MenuWillClose after we schedule the select, otherwise MenuWillClose is
@@ -502,7 +494,7 @@ void CefNativeMenuWin::Rebuild(MenuInsertionDelegateWin* delegate) {
   owner_draw_ = model_->HasIcons() || owner_draw_;
   first_item_index_ = delegate ? delegate->GetInsertionIndex(menu_) : 0;
   for (int menu_index = first_item_index_;
-        menu_index < first_item_index_ + model_->GetItemCount(); ++menu_index) {
+       menu_index < first_item_index_ + model_->GetItemCount(); ++menu_index) {
     int model_index = menu_index - first_item_index_;
     if (model_->GetTypeAt(model_index) == ui::MenuModel::TYPE_SEPARATOR)
       AddSeparatorItemAt(menu_index, model_index);
@@ -585,8 +577,9 @@ bool CefNativeMenuWin::GetHighlightedMenuItemInfo(
 }
 
 // static
-LRESULT CALLBACK CefNativeMenuWin::MenuMessageHook(
-    int n_code, WPARAM w_param, LPARAM l_param) {
+LRESULT CALLBACK CefNativeMenuWin::MenuMessageHook(int n_code,
+                                                   WPARAM w_param,
+                                                   LPARAM l_param) {
   LRESULT result = CallNextHookEx(NULL, n_code, w_param, l_param);
 
   CefNativeMenuWin* this_ptr = open_native_menu_win_;
@@ -685,8 +678,10 @@ void CefNativeMenuWin::AddSeparatorItemAt(int menu_index, int model_index) {
   InsertMenuItem(menu_, menu_index, TRUE, &mii);
 }
 
-void CefNativeMenuWin::SetMenuItemState(
-    int menu_index, bool enabled, bool checked, bool is_default) {
+void CefNativeMenuWin::SetMenuItemState(int menu_index,
+                                        bool enabled,
+                                        bool checked,
+                                        bool is_default) {
   if (IsSeparatorItemAt(menu_index))
     return;
 
@@ -704,8 +699,8 @@ void CefNativeMenuWin::SetMenuItemState(
 }
 
 void CefNativeMenuWin::SetMenuItemLabel(int menu_index,
-                                     int model_index,
-                                     const base::string16& label) {
+                                        int model_index,
+                                        const base::string16& label) {
   if (IsSeparatorItemAt(menu_index))
     return;
 
@@ -715,9 +710,10 @@ void CefNativeMenuWin::SetMenuItemLabel(int menu_index,
   SetMenuItemInfo(menu_, menu_index, MF_BYPOSITION, &mii);
 }
 
-void CefNativeMenuWin::UpdateMenuItemInfoForString(MENUITEMINFO* mii,
-                                                int model_index,
-                                                const base::string16& label) {
+void CefNativeMenuWin::UpdateMenuItemInfoForString(
+    MENUITEMINFO* mii,
+    int model_index,
+    const base::string16& label) {
   base::string16 formatted = label;
   ui::MenuModel::ItemType type = model_->GetTypeAt(model_index);
   // Strip out any tabs, otherwise they get interpreted as accelerators and can
@@ -738,8 +734,7 @@ void CefNativeMenuWin::UpdateMenuItemInfoForString(MENUITEMINFO* mii,
 
   // Give Windows a pointer to the label string.
   mii->fMask |= MIIM_STRING;
-  mii->dwTypeData =
-      const_cast<wchar_t*>(items_[model_index]->label.c_str());
+  mii->dwTypeData = const_cast<wchar_t*>(items_[model_index]->label.c_str());
 }
 
 UINT CefNativeMenuWin::GetAlignmentFlags(int alignment) const {

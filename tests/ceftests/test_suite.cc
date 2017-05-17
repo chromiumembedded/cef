@@ -81,9 +81,7 @@ void RouteStdioToConsole(bool create_console_if_not_found) {
 }  // namespace
 
 CefTestSuite::CefTestSuite(int argc, char** argv)
-  : argc_(argc),
-    argv_(argc, argv),
-    retval_(0) {
+    : argc_(argc), argv_(argc, argv), retval_(0) {
   g_test_suite = this;
 
   // Keep a representation of the original command-line.
@@ -183,11 +181,10 @@ void CefTestSuite::PreInitialize() {
   // Don't add additional code to this function. Instead add it to Initialize().
 }
 
- void CefTestSuite::Initialize() {
+void CefTestSuite::Initialize() {
 #if defined(OS_WIN)
   RouteStdioToConsole(true);
 #endif  // defined(OS_WIN)
- }
+}
 
- void CefTestSuite::Shutdown() {
- }
+void CefTestSuite::Shutdown() {}

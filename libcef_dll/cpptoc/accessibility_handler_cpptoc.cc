@@ -9,17 +9,19 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=fa03e8ba9a443a9028246fe21a8995d8a7bdb7d5$
+//
 
 #include "libcef_dll/cpptoc/accessibility_handler_cpptoc.h"
 #include "libcef_dll/ctocpp/value_ctocpp.h"
-
 
 namespace {
 
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
 void CEF_CALLBACK accessibility_handler_on_accessibility_tree_change(
-    struct _cef_accessibility_handler_t* self, struct _cef_value_t* value) {
+    struct _cef_accessibility_handler_t* self,
+    struct _cef_value_t* value) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -36,7 +38,8 @@ void CEF_CALLBACK accessibility_handler_on_accessibility_tree_change(
 }
 
 void CEF_CALLBACK accessibility_handler_on_accessibility_location_change(
-    struct _cef_accessibility_handler_t* self, struct _cef_value_t* value) {
+    struct _cef_accessibility_handler_t* self,
+    struct _cef_value_t* value) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -54,7 +57,6 @@ void CEF_CALLBACK accessibility_handler_on_accessibility_location_change(
 
 }  // namespace
 
-
 // CONSTRUCTOR - Do not edit by hand.
 
 CefAccessibilityHandlerCppToC::CefAccessibilityHandlerCppToC() {
@@ -64,18 +66,27 @@ CefAccessibilityHandlerCppToC::CefAccessibilityHandlerCppToC() {
       accessibility_handler_on_accessibility_location_change;
 }
 
-template<> CefRefPtr<CefAccessibilityHandler> CefCppToCRefCounted<CefAccessibilityHandlerCppToC,
-    CefAccessibilityHandler, cef_accessibility_handler_t>::UnwrapDerived(
-    CefWrapperType type, cef_accessibility_handler_t* s) {
+template <>
+CefRefPtr<CefAccessibilityHandler> CefCppToCRefCounted<
+    CefAccessibilityHandlerCppToC,
+    CefAccessibilityHandler,
+    cef_accessibility_handler_t>::UnwrapDerived(CefWrapperType type,
+                                                cef_accessibility_handler_t*
+                                                    s) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCppToCRefCounted<CefAccessibilityHandlerCppToC,
-    CefAccessibilityHandler, cef_accessibility_handler_t>::DebugObjCt = 0;
+template <>
+base::AtomicRefCount
+    CefCppToCRefCounted<CefAccessibilityHandlerCppToC,
+                        CefAccessibilityHandler,
+                        cef_accessibility_handler_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCppToCRefCounted<CefAccessibilityHandlerCppToC,
-    CefAccessibilityHandler, cef_accessibility_handler_t>::kWrapperType =
+template <>
+CefWrapperType CefCppToCRefCounted<CefAccessibilityHandlerCppToC,
+                                   CefAccessibilityHandler,
+                                   cef_accessibility_handler_t>::kWrapperType =
     WT_ACCESSIBILITY_HANDLER;

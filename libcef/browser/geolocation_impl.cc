@@ -6,14 +6,15 @@
 #include "libcef/browser/context.h"
 #include "libcef/browser/thread_util.h"
 #include "libcef/common/time_util.h"
+
 #include "base/logging.h"
 #include "device/geolocation/geolocation_provider.h"
 #include "device/geolocation/geoposition.h"
 
 namespace {
 
-class CefLocationRequest :
-    public base::RefCountedThreadSafe<CefLocationRequest> {
+class CefLocationRequest
+    : public base::RefCountedThreadSafe<CefLocationRequest> {
  public:
   explicit CefLocationRequest(CefRefPtr<CefGetGeolocationCallback> callback)
       : callback_(callback) {
@@ -99,7 +100,7 @@ bool CefGetGeolocation(CefRefPtr<CefGetGeolocationCallback> callback) {
     return false;
   } else {
     CEF_POST_TASK(CEF_UIT,
-        base::Bind(base::IgnoreResult(CefGetGeolocation), callback));
+                  base::Bind(base::IgnoreResult(CefGetGeolocation), callback));
     return true;
   }
 }

@@ -36,16 +36,14 @@ class CefBrowserMessageFilter : public IPC::MessageFilter {
   // Message handlers.
   void OnGetNewRenderThreadInfo(
       CefProcessHostMsg_GetNewRenderThreadInfo_Params* params);
-  void OnGetNewBrowserInfo(
-      int render_view_routing_id,
-      int render_frame_routing_id,
-      IPC::Message* reply_msg);
+  void OnGetNewBrowserInfo(int render_view_routing_id,
+                           int render_frame_routing_id,
+                           IPC::Message* reply_msg);
   void OnFrameFocused(int32_t render_frame_routing_id);
 
   int render_process_id_;
 
   DISALLOW_COPY_AND_ASSIGN(CefBrowserMessageFilter);
 };
-
 
 #endif  // CEF_LIBCEF_BROWSER_BROWSER_MESSAGE_FILTER_H_

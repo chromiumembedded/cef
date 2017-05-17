@@ -31,13 +31,11 @@ bool CallbackBase::Equals(const CallbackBase& other) const {
 }
 
 CallbackBase::CallbackBase(BindStateBase* bind_state)
-    : bind_state_(bind_state),
-      polymorphic_invoke_(NULL) {
+    : bind_state_(bind_state), polymorphic_invoke_(NULL) {
   DCHECK(!bind_state_.get() || bind_state_->ref_count_ == 1);
 }
 
-CallbackBase::~CallbackBase() {
-}
+CallbackBase::~CallbackBase() {}
 
 }  // namespace cef_internal
 }  // namespace base

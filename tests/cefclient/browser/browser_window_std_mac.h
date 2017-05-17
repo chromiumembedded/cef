@@ -17,8 +17,7 @@ class BrowserWindowStdMac : public BrowserWindow {
  public:
   // Constructor may be called on any thread.
   // |delegate| must outlive this object.
-  BrowserWindowStdMac(Delegate* delegate,
-                      const std::string& startup_url);
+  BrowserWindowStdMac(Delegate* delegate, const std::string& startup_url);
 
   // BrowserWindow methods.
   void CreateBrowser(ClientWindowHandle parent_handle,
@@ -30,7 +29,10 @@ class BrowserWindowStdMac : public BrowserWindow {
                       CefRefPtr<CefClient>& client,
                       CefBrowserSettings& settings) OVERRIDE;
   void ShowPopup(ClientWindowHandle parent_handle,
-                 int x, int y, size_t width, size_t height) OVERRIDE;
+                 int x,
+                 int y,
+                 size_t width,
+                 size_t height) OVERRIDE;
   void Show() OVERRIDE;
   void Hide() OVERRIDE;
   void SetBounds(int x, int y, size_t width, size_t height) OVERRIDE;

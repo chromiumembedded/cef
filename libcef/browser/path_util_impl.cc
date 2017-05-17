@@ -11,7 +11,7 @@
 
 bool CefGetPath(PathKey key, CefString& path) {
   int pref_key = base::PATH_START;
-  switch(key) {
+  switch (key) {
     case PK_DIR_CURRENT:
       pref_key = base::DIR_CURRENT;
       break;

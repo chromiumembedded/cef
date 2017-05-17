@@ -96,8 +96,7 @@ void VerifyMenuButtonStyle(CefRefPtr<CefMenuButton> button) {
 
 class EmptyMenuButtonDelegate : public CefMenuButtonDelegate {
  public:
-  EmptyMenuButtonDelegate() {
-  }
+  EmptyMenuButtonDelegate() {}
 
   void OnMenuButtonPressed(CefRefPtr<CefMenuButton> menu_button,
                            const CefPoint& screen_point) override {
@@ -114,9 +113,8 @@ class EmptyMenuButtonDelegate : public CefMenuButtonDelegate {
 };
 
 void LabelButtonStyle(bool with_frame) {
-  CefRefPtr<CefLabelButton> button =
-      CefLabelButton::CreateLabelButton(new EmptyMenuButtonDelegate(),
-                                        kButtonText, with_frame);
+  CefRefPtr<CefLabelButton> button = CefLabelButton::CreateLabelButton(
+      new EmptyMenuButtonDelegate(), kButtonText, with_frame);
   VerifyLabelButtonStyle(button);
 }
 
@@ -129,10 +127,8 @@ void LabelButtonStyleFramelessImpl() {
 }
 
 void MenuButtonStyle(bool with_frame, bool with_menu_marker) {
-  CefRefPtr<CefMenuButton> button =
-      CefMenuButton::CreateMenuButton(new EmptyMenuButtonDelegate(),
-                                      kButtonText, with_frame,
-                                      with_menu_marker);
+  CefRefPtr<CefMenuButton> button = CefMenuButton::CreateMenuButton(
+      new EmptyMenuButtonDelegate(), kButtonText, with_frame, with_menu_marker);
   VerifyMenuButtonStyle(button);
 }
 
@@ -162,7 +158,6 @@ BUTTON_TEST(MenuButtonStyleFramedNoMarker);
 BUTTON_TEST(MenuButtonStyleFramelessWithMarker);
 BUTTON_TEST(MenuButtonStyleFramelessNoMarker);
 
-
 namespace {
 
 // Mouse click delay in MS.
@@ -172,8 +167,7 @@ const int kButtonID = 1;
 
 class TestButtonDelegate : public CefButtonDelegate {
  public:
-  TestButtonDelegate() {
-  }
+  TestButtonDelegate() {}
 
   void OnButtonPressed(CefRefPtr<CefButton> button) override {
     EXPECT_TRUE(button.get());
@@ -194,8 +188,8 @@ void ClickButton(CefRefPtr<CefWindow> window, int button_id) {
 
   // Determine the middle of the button in screen coordinates.
   const CefRect& bounds = button->GetBoundsInScreen();
-  const CefPoint& click_point = CefPoint(bounds.x + bounds.width / 2,
-                                         bounds.y + bounds.height / 2);
+  const CefPoint& click_point =
+      CefPoint(bounds.x + bounds.width / 2, bounds.y + bounds.height / 2);
 
   // Click the button.
   window->SendMouseMove(click_point.x, click_point.y);
@@ -251,9 +245,8 @@ void LabelButtonClick(CefRefPtr<CefWaitableEvent> event,
                       bool with_button_image,
                       bool with_window_frame) {
   TestWindowDelegate::Config config;
-  config.on_window_created =
-      base::Bind(RunLabelButtonClick, with_button_frame, with_button_text,
-                 with_button_image);
+  config.on_window_created = base::Bind(RunLabelButtonClick, with_button_frame,
+                                        with_button_text, with_button_image);
   config.frameless = !with_window_frame;
   config.close_window = false;
   TestWindowDelegate::RunTest(event, config);
@@ -361,7 +354,6 @@ BUTTON_TEST_ASYNC(LabelButtonClickFramelessNoTextNoImageFramedWindow);
 BUTTON_TEST_ASYNC(LabelButtonClickFramelessNoTextWithImageFramelessWindow);
 BUTTON_TEST_ASYNC(LabelButtonClickFramelessNoTextNoImageFramelessWindow);
 
-
 namespace {
 
 const int kMenuItemID = 2;
@@ -371,8 +363,8 @@ void ClickMenuItem(CefRefPtr<CefMenuButton> menu_button) {
   // Determine the lower-right corner of the menu button, then offset a bit to
   // hit the first menu item.
   const CefRect& bounds = menu_button->GetBoundsInScreen();
-  const CefPoint& click_point = CefPoint(bounds.x + bounds.width + 10,
-                                         bounds.y + bounds.height + 10);
+  const CefPoint& click_point =
+      CefPoint(bounds.x + bounds.width + 10, bounds.y + bounds.height + 10);
 
   // Click the menu item.
   CefRefPtr<CefWindow> window = menu_button->GetWindow();
@@ -383,8 +375,7 @@ void ClickMenuItem(CefRefPtr<CefMenuButton> menu_button) {
 class TestMenuButtonDelegate : public CefMenuButtonDelegate,
                                public CefMenuModelDelegate {
  public:
-  TestMenuButtonDelegate() {
-  }
+  TestMenuButtonDelegate() {}
 
   void OnMenuButtonPressed(CefRefPtr<CefMenuButton> menu_button,
                            const CefPoint& screen_point) override {
@@ -473,8 +464,7 @@ class TestMenuButtonDelegate : public CefMenuButtonDelegate,
     menu_button->ShowMenu(model, screen_point, CEF_MENU_ANCHOR_TOPLEFT);
   }
 
-  void OnButtonPressed(CefRefPtr<CefButton> button) override {
-  }
+  void OnButtonPressed(CefRefPtr<CefButton> button) override {}
 
   void ExecuteCommand(CefRefPtr<CefMenuModel> menu_model,
                       int command_id,
@@ -515,7 +505,7 @@ void RunMenuButtonClick(bool with_frame,
     EXPECT_STREQ(kButtonText, button->GetText().ToString().c_str());
   else
     EXPECT_TRUE(button->GetText().empty());
- 
+
   if (with_image)
     AddImage(button);
 

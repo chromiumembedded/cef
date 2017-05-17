@@ -21,8 +21,7 @@
 // Base template for implementing CefLayout-derived classes. See comments in
 // view_impl.h for a usage overview.
 template <class ViewsLayoutClass, class CefLayoutClass>
-class CefLayoutImpl : public CefLayoutAdapter,
-                      public CefLayoutClass {
+class CefLayoutImpl : public CefLayoutAdapter, public CefLayoutClass {
  public:
   // Returns the underlying views::LayoutManager object as the derived type.
   // Does not transfer ownership.
@@ -32,9 +31,7 @@ class CefLayoutImpl : public CefLayoutAdapter,
   views::View* owner_view() const { return owner_view_; }
 
   // CefLayoutAdapter methods:
-  views::LayoutManager* Get() const override {
-    return layout();
-  }
+  views::LayoutManager* Get() const override { return layout(); }
   void Detach() override {
     owner_view_ = nullptr;
     layout_ref_ = nullptr;
@@ -46,16 +43,13 @@ class CefLayoutImpl : public CefLayoutAdapter,
   CefRefPtr<CefFillLayout> AsFillLayout() override { return nullptr; }
   bool IsValid() override {
     CEF_REQUIRE_UIT_RETURN(false);
-    return !!layout_ref_; 
+    return !!layout_ref_;
   }
 
  protected:
   // Create a new implementation object.
   // Always call Initialize() after creation.
-  CefLayoutImpl()
-      : layout_ref_(nullptr),
-        owner_view_(nullptr) {
-  }
+  CefLayoutImpl() : layout_ref_(nullptr), owner_view_(nullptr) {}
 
   // Initialize this object and assign ownership to |owner_view|.
   void Initialize(views::View* owner_view) {

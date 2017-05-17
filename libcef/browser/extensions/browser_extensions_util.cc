@@ -77,10 +77,10 @@ CefRefPtr<CefBrowserHostImpl> GetOwnerBrowserForFrame(int render_process_id,
     if (info.get()) {
       CefRefPtr<CefBrowserHostImpl> browser = info->browser();
       if (!browser.get()) {
-        LOG(WARNING) << "Found browser id " << info->browser_id() <<
-                        " but no browser object matching view process id " <<
-                        render_process_id << " and frame routing id " <<
-                        render_routing_id;
+        LOG(WARNING) << "Found browser id " << info->browser_id()
+                     << " but no browser object matching view process id "
+                     << render_process_id << " and frame routing id "
+                     << render_routing_id;
       }
       return browser;
     }

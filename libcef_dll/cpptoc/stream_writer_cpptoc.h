@@ -9,6 +9,8 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=35eada18cb6104f9aeb9d3d428e1de79596987df$
+//
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_STREAM_WRITER_CPPTOC_H_
 #define CEF_LIBCEF_DLL_CPPTOC_STREAM_WRITER_CPPTOC_H_
@@ -18,15 +20,15 @@
 #error This file can be included DLL-side only
 #endif
 
-#include "include/cef_stream.h"
 #include "include/capi/cef_stream_capi.h"
+#include "include/cef_stream.h"
 #include "libcef_dll/cpptoc/cpptoc_ref_counted.h"
 
 // Wrap a C++ class with a C structure.
 // This class may be instantiated and accessed DLL-side only.
-class CefStreamWriterCppToC
-    : public CefCppToCRefCounted<CefStreamWriterCppToC, CefStreamWriter,
-        cef_stream_writer_t> {
+class CefStreamWriterCppToC : public CefCppToCRefCounted<CefStreamWriterCppToC,
+                                                         CefStreamWriter,
+                                                         cef_stream_writer_t> {
  public:
   CefStreamWriterCppToC();
 };

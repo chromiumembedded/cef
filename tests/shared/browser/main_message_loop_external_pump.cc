@@ -24,11 +24,10 @@ const int64 kMaxTimerDelay = 1000 / 30;  // 30fps
 
 client::MainMessageLoopExternalPump* g_external_message_pump = NULL;
 
-} // namespace
+}  // namespace
 
 MainMessageLoopExternalPump::MainMessageLoopExternalPump()
-  : is_active_(false),
-    reentrancy_detected_(false) {
+    : is_active_(false), reentrancy_detected_(false) {
   DCHECK(!g_external_message_pump);
   g_external_message_pump = this;
 }

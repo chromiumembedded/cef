@@ -2,14 +2,12 @@
 // reserved. Use of this source code is governed by a BSD-style license that can
 // be found in the LICENSE file.
 
-#include "libcef/common/response_manager.h"
 #include "libcef/common/cef_messages.h"
+#include "libcef/common/response_manager.h"
 
 #include "base/logging.h"
 
-CefResponseManager::CefResponseManager()
-    : next_request_id_(0) {
-}
+CefResponseManager::CefResponseManager() : next_request_id_(0) {}
 
 int CefResponseManager::GetNextRequestId() {
   DCHECK(CalledOnValidThread());
@@ -19,7 +17,8 @@ int CefResponseManager::GetNextRequestId() {
 int CefResponseManager::RegisterHandler(CefRefPtr<Handler> handler) {
   DCHECK(CalledOnValidThread());
   int request_id = GetNextRequestId();
-  TRACE_EVENT_ASYNC_BEGIN1("libcef", "CefResponseManager::Handler", request_id, "request_id", request_id);
+  TRACE_EVENT_ASYNC_BEGIN1("libcef", "CefResponseManager::Handler", request_id,
+                           "request_id", request_id);
   handlers_.insert(std::make_pair(request_id, handler));
   return request_id;
 }
@@ -32,10 +31,12 @@ bool CefResponseManager::RunHandler(const Cef_Response_Params& params) {
     TRACE_EVENT0("libcef", "CefResponseManager::RunHandler");
     it->second->OnResponse(params);
     handlers_.erase(it);
-    TRACE_EVENT_ASYNC_END1("libcef", "CefResponseManager::Handler", params.request_id, "success", 1);
+    TRACE_EVENT_ASYNC_END1("libcef", "CefResponseManager::Handler",
+                           params.request_id, "success", 1);
     return true;
   }
-  TRACE_EVENT_ASYNC_END1("libcef", "CefResponseManager::Handler", params.request_id, "success", 0);
+  TRACE_EVENT_ASYNC_END1("libcef", "CefResponseManager::Handler",
+                         params.request_id, "success", 0);
   return false;
 }
 

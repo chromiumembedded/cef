@@ -33,6 +33,8 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
+// $hash=cd9c4ed153ad4425ff43d640a81693e3c83817d2$
+//
 
 #ifndef CEF_INCLUDE_CAPI_CEF_RESOURCE_HANDLER_CAPI_H_
 #define CEF_INCLUDE_CAPI_CEF_RESOURCE_HANDLER_CAPI_H_
@@ -48,7 +50,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
 
 ///
 // Structure used to implement a custom request handler structure. The functions
@@ -67,8 +68,9 @@ typedef struct _cef_resource_handler_t {
   // function if header information is available immediately). To cancel the
   // request return false (0).
   ///
-  int (CEF_CALLBACK *process_request)(struct _cef_resource_handler_t* self,
-      struct _cef_request_t* request, struct _cef_callback_t* callback);
+  int(CEF_CALLBACK* process_request)(struct _cef_resource_handler_t* self,
+                                     struct _cef_request_t* request,
+                                     struct _cef_callback_t* callback);
 
   ///
   // Retrieve response header information. If the response length is not known
@@ -81,9 +83,10 @@ typedef struct _cef_resource_handler_t {
   // URL. If an error occured while setting up the request you can call
   // set_error() on |response| to indicate the error condition.
   ///
-  void (CEF_CALLBACK *get_response_headers)(
-      struct _cef_resource_handler_t* self, struct _cef_response_t* response,
-      int64* response_length, cef_string_t* redirectUrl);
+  void(CEF_CALLBACK* get_response_headers)(struct _cef_resource_handler_t* self,
+                                           struct _cef_response_t* response,
+                                           int64* response_length,
+                                           cef_string_t* redirectUrl);
 
   ///
   // Read response data. If data is available immediately copy up to
@@ -92,31 +95,32 @@ typedef struct _cef_resource_handler_t {
   // |bytes_read| to 0, return true (1) and call cef_callback_t::cont() when the
   // data is available. To indicate response completion return false (0).
   ///
-  int (CEF_CALLBACK *read_response)(struct _cef_resource_handler_t* self,
-      void* data_out, int bytes_to_read, int* bytes_read,
-      struct _cef_callback_t* callback);
+  int(CEF_CALLBACK* read_response)(struct _cef_resource_handler_t* self,
+                                   void* data_out,
+                                   int bytes_to_read,
+                                   int* bytes_read,
+                                   struct _cef_callback_t* callback);
 
   ///
   // Return true (1) if the specified cookie can be sent with the request or
   // false (0) otherwise. If false (0) is returned for any cookie then no
   // cookies will be sent with the request.
   ///
-  int (CEF_CALLBACK *can_get_cookie)(struct _cef_resource_handler_t* self,
-      const struct _cef_cookie_t* cookie);
+  int(CEF_CALLBACK* can_get_cookie)(struct _cef_resource_handler_t* self,
+                                    const struct _cef_cookie_t* cookie);
 
   ///
   // Return true (1) if the specified cookie returned with the response can be
   // set or false (0) otherwise.
   ///
-  int (CEF_CALLBACK *can_set_cookie)(struct _cef_resource_handler_t* self,
-      const struct _cef_cookie_t* cookie);
+  int(CEF_CALLBACK* can_set_cookie)(struct _cef_resource_handler_t* self,
+                                    const struct _cef_cookie_t* cookie);
 
   ///
   // Request processing has been canceled.
   ///
-  void (CEF_CALLBACK *cancel)(struct _cef_resource_handler_t* self);
+  void(CEF_CALLBACK* cancel)(struct _cef_resource_handler_t* self);
 } cef_resource_handler_t;
-
 
 #ifdef __cplusplus
 }

@@ -69,8 +69,8 @@ MainContextImpl::MainContextImpl(CefRefPtr<CefCommandLine> command_line,
   use_views_ = command_line_->HasSwitch(switches::kUseViews);
 
   if (use_windowless_rendering_ && use_views_) {
-    LOG(ERROR) <<
-        "Windowless rendering is not supported by the Views framework.";
+    LOG(ERROR)
+        << "Windowless rendering is not supported by the Views framework.";
     use_views_ = false;
   }
 
@@ -157,8 +157,10 @@ void MainContextImpl::PopulateSettings(CefSettings* settings) {
 
 void MainContextImpl::PopulateBrowserSettings(CefBrowserSettings* settings) {
   if (command_line_->HasSwitch(switches::kOffScreenFrameRate)) {
-    settings->windowless_frame_rate = atoi(command_line_->
-        GetSwitchValue(switches::kOffScreenFrameRate).ToString().c_str());
+    settings->windowless_frame_rate =
+        atoi(command_line_->GetSwitchValue(switches::kOffScreenFrameRate)
+                 .ToString()
+                 .c_str());
   }
 
   if (browser_background_color_ != 0)

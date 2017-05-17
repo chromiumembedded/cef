@@ -52,9 +52,8 @@ class CefGeolocationCallback : public virtual CefBaseRefCounted {
   // Call to allow or deny geolocation access.
   ///
   /*--cef(capi_name=cont)--*/
-  virtual void Continue(bool allow) =0;
+  virtual void Continue(bool allow) = 0;
 };
-
 
 ///
 // Implement this interface to handle events related to geolocation permission
@@ -86,10 +85,8 @@ class CefGeolocationHandler : public virtual CefBaseRefCounted {
   // unique ID for the permission request.
   ///
   /*--cef()--*/
-  virtual void OnCancelGeolocationPermission(
-      CefRefPtr<CefBrowser> browser,
-      int request_id) {
-  }
+  virtual void OnCancelGeolocationPermission(CefRefPtr<CefBrowser> browser,
+                                             int request_id) {}
 };
 
 #endif  // CEF_INCLUDE_CEF_GEOLOCATION_HANDLER_H_

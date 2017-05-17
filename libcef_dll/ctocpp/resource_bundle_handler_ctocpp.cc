@@ -9,14 +9,15 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=2cc1b07e08cab179b9bd5943df8a523bba9be20b$
+//
 
 #include "libcef_dll/ctocpp/resource_bundle_handler_ctocpp.h"
-
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
 bool CefResourceBundleHandlerCToCpp::GetLocalizedString(int string_id,
-    CefString& string) {
+                                                        CefString& string) {
   cef_resource_bundle_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_localized_string))
     return false;
@@ -24,16 +25,16 @@ bool CefResourceBundleHandlerCToCpp::GetLocalizedString(int string_id,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int _retval = _struct->get_localized_string(_struct,
-      string_id,
-      string.GetWritableStruct());
+  int _retval = _struct->get_localized_string(_struct, string_id,
+                                              string.GetWritableStruct());
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 bool CefResourceBundleHandlerCToCpp::GetDataResource(int resource_id,
-    void*& data, size_t& data_size) {
+                                                     void*& data,
+                                                     size_t& data_size) {
   cef_resource_bundle_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_data_resource))
     return false;
@@ -41,17 +42,18 @@ bool CefResourceBundleHandlerCToCpp::GetDataResource(int resource_id,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int _retval = _struct->get_data_resource(_struct,
-      resource_id,
-      &data,
-      &data_size);
+  int _retval =
+      _struct->get_data_resource(_struct, resource_id, &data, &data_size);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
-bool CefResourceBundleHandlerCToCpp::GetDataResourceForScale(int resource_id,
-    ScaleFactor scale_factor, void*& data, size_t& data_size) {
+bool CefResourceBundleHandlerCToCpp::GetDataResourceForScale(
+    int resource_id,
+    ScaleFactor scale_factor,
+    void*& data,
+    size_t& data_size) {
   cef_resource_bundle_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_data_resource_for_scale))
     return false;
@@ -59,34 +61,38 @@ bool CefResourceBundleHandlerCToCpp::GetDataResourceForScale(int resource_id,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int _retval = _struct->get_data_resource_for_scale(_struct,
-      resource_id,
-      scale_factor,
-      &data,
-      &data_size);
+  int _retval = _struct->get_data_resource_for_scale(
+      _struct, resource_id, scale_factor, &data, &data_size);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
-
 
 // CONSTRUCTOR - Do not edit by hand.
 
-CefResourceBundleHandlerCToCpp::CefResourceBundleHandlerCToCpp() {
-}
+CefResourceBundleHandlerCToCpp::CefResourceBundleHandlerCToCpp() {}
 
-template<> cef_resource_bundle_handler_t* CefCToCppRefCounted<CefResourceBundleHandlerCToCpp,
-    CefResourceBundleHandler, cef_resource_bundle_handler_t>::UnwrapDerived(
-    CefWrapperType type, CefResourceBundleHandler* c) {
+template <>
+cef_resource_bundle_handler_t* CefCToCppRefCounted<
+    CefResourceBundleHandlerCToCpp,
+    CefResourceBundleHandler,
+    cef_resource_bundle_handler_t>::UnwrapDerived(CefWrapperType type,
+                                                  CefResourceBundleHandler* c) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCppRefCounted<CefResourceBundleHandlerCToCpp,
-    CefResourceBundleHandler, cef_resource_bundle_handler_t>::DebugObjCt = 0;
+template <>
+base::AtomicRefCount
+    CefCToCppRefCounted<CefResourceBundleHandlerCToCpp,
+                        CefResourceBundleHandler,
+                        cef_resource_bundle_handler_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCppRefCounted<CefResourceBundleHandlerCToCpp,
-    CefResourceBundleHandler, cef_resource_bundle_handler_t>::kWrapperType =
-    WT_RESOURCE_BUNDLE_HANDLER;
+template <>
+CefWrapperType
+    CefCToCppRefCounted<CefResourceBundleHandlerCToCpp,
+                        CefResourceBundleHandler,
+                        cef_resource_bundle_handler_t>::kWrapperType =
+        WT_RESOURCE_BUNDLE_HANDLER;

@@ -50,13 +50,13 @@ class CefCallback : public virtual CefBaseRefCounted {
   // Continue processing.
   ///
   /*--cef(capi_name=cont)--*/
-  virtual void Continue() =0;
+  virtual void Continue() = 0;
 
   ///
   // Cancel processing.
   ///
   /*--cef()--*/
-  virtual void Cancel() =0;
+  virtual void Cancel() = 0;
 };
 
 ///
@@ -69,7 +69,7 @@ class CefCompletionCallback : public virtual CefBaseRefCounted {
   // Method that will be called once the task is complete.
   ///
   /*--cef()--*/
-  virtual void OnComplete() =0;
+  virtual void OnComplete() = 0;
 };
 
 #endif  // CEF_INCLUDE_CEF_CALLBACK_H_

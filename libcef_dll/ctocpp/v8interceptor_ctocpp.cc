@@ -9,16 +9,18 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=5296e3d09e1c1773e2fc0234e2cb51e5438c7381$
+//
 
 #include "libcef_dll/cpptoc/v8value_cpptoc.h"
 #include "libcef_dll/ctocpp/v8interceptor_ctocpp.h"
 
-
 // VIRTUAL METHODS - Body may be edited by hand.
 
 bool CefV8InterceptorCToCpp::Get(const CefString& name,
-    const CefRefPtr<CefV8Value> object, CefRefPtr<CefV8Value>& retval,
-    CefString& exception) {
+                                 const CefRefPtr<CefV8Value> object,
+                                 CefRefPtr<CefV8Value>& retval,
+                                 CefString& exception) {
   cef_v8interceptor_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_byname))
     return false;
@@ -41,10 +43,8 @@ bool CefV8InterceptorCToCpp::Get(const CefString& name,
   cef_v8value_t* retvalOrig = retvalStruct;
 
   // Execute
-  int _retval = _struct->get_byname(_struct,
-      name.GetStruct(),
-      CefV8ValueCppToC::Wrap(object),
-      &retvalStruct,
+  int _retval = _struct->get_byname(
+      _struct, name.GetStruct(), CefV8ValueCppToC::Wrap(object), &retvalStruct,
       exception.GetWritableStruct());
 
   // Restore param:retval; type: refptr_diff_byref
@@ -57,11 +57,13 @@ bool CefV8InterceptorCToCpp::Get(const CefString& name,
   }
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
-bool CefV8InterceptorCToCpp::Get(int index, const CefRefPtr<CefV8Value> object,
-    CefRefPtr<CefV8Value>& retval, CefString& exception) {
+bool CefV8InterceptorCToCpp::Get(int index,
+                                 const CefRefPtr<CefV8Value> object,
+                                 CefRefPtr<CefV8Value>& retval,
+                                 CefString& exception) {
   cef_v8interceptor_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_byindex))
     return false;
@@ -84,11 +86,9 @@ bool CefV8InterceptorCToCpp::Get(int index, const CefRefPtr<CefV8Value> object,
   cef_v8value_t* retvalOrig = retvalStruct;
 
   // Execute
-  int _retval = _struct->get_byindex(_struct,
-      index,
-      CefV8ValueCppToC::Wrap(object),
-      &retvalStruct,
-      exception.GetWritableStruct());
+  int _retval =
+      _struct->get_byindex(_struct, index, CefV8ValueCppToC::Wrap(object),
+                           &retvalStruct, exception.GetWritableStruct());
 
   // Restore param:retval; type: refptr_diff_byref
   if (retvalStruct) {
@@ -100,12 +100,13 @@ bool CefV8InterceptorCToCpp::Get(int index, const CefRefPtr<CefV8Value> object,
   }
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 bool CefV8InterceptorCToCpp::Set(const CefString& name,
-    const CefRefPtr<CefV8Value> object, const CefRefPtr<CefV8Value> value,
-    CefString& exception) {
+                                 const CefRefPtr<CefV8Value> object,
+                                 const CefRefPtr<CefV8Value> value,
+                                 CefString& exception) {
   cef_v8interceptor_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, set_byname))
     return false;
@@ -126,18 +127,18 @@ bool CefV8InterceptorCToCpp::Set(const CefString& name,
     return false;
 
   // Execute
-  int _retval = _struct->set_byname(_struct,
-      name.GetStruct(),
-      CefV8ValueCppToC::Wrap(object),
-      CefV8ValueCppToC::Wrap(value),
-      exception.GetWritableStruct());
+  int _retval = _struct->set_byname(
+      _struct, name.GetStruct(), CefV8ValueCppToC::Wrap(object),
+      CefV8ValueCppToC::Wrap(value), exception.GetWritableStruct());
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
-bool CefV8InterceptorCToCpp::Set(int index, const CefRefPtr<CefV8Value> object,
-    const CefRefPtr<CefV8Value> value, CefString& exception) {
+bool CefV8InterceptorCToCpp::Set(int index,
+                                 const CefRefPtr<CefV8Value> object,
+                                 const CefRefPtr<CefV8Value> value,
+                                 CefString& exception) {
   cef_v8interceptor_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, set_byindex))
     return false;
@@ -158,33 +159,37 @@ bool CefV8InterceptorCToCpp::Set(int index, const CefRefPtr<CefV8Value> object,
     return false;
 
   // Execute
-  int _retval = _struct->set_byindex(_struct,
-      index,
-      CefV8ValueCppToC::Wrap(object),
-      CefV8ValueCppToC::Wrap(value),
-      exception.GetWritableStruct());
+  int _retval = _struct->set_byindex(
+      _struct, index, CefV8ValueCppToC::Wrap(object),
+      CefV8ValueCppToC::Wrap(value), exception.GetWritableStruct());
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
-
 
 // CONSTRUCTOR - Do not edit by hand.
 
-CefV8InterceptorCToCpp::CefV8InterceptorCToCpp() {
-}
+CefV8InterceptorCToCpp::CefV8InterceptorCToCpp() {}
 
-template<> cef_v8interceptor_t* CefCToCppRefCounted<CefV8InterceptorCToCpp,
-    CefV8Interceptor, cef_v8interceptor_t>::UnwrapDerived(CefWrapperType type,
-    CefV8Interceptor* c) {
+template <>
+cef_v8interceptor_t*
+CefCToCppRefCounted<CefV8InterceptorCToCpp,
+                    CefV8Interceptor,
+                    cef_v8interceptor_t>::UnwrapDerived(CefWrapperType type,
+                                                        CefV8Interceptor* c) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCppRefCounted<CefV8InterceptorCToCpp,
-    CefV8Interceptor, cef_v8interceptor_t>::DebugObjCt = 0;
+template <>
+base::AtomicRefCount CefCToCppRefCounted<CefV8InterceptorCToCpp,
+                                         CefV8Interceptor,
+                                         cef_v8interceptor_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCppRefCounted<CefV8InterceptorCToCpp,
-    CefV8Interceptor, cef_v8interceptor_t>::kWrapperType = WT_V8INTERCEPTOR;
+template <>
+CefWrapperType CefCToCppRefCounted<CefV8InterceptorCToCpp,
+                                   CefV8Interceptor,
+                                   cef_v8interceptor_t>::kWrapperType =
+    WT_V8INTERCEPTOR;

@@ -30,8 +30,7 @@ class ChromeProfileStub : public Profile {
   bool IsSupervised() const override;
   bool IsChild() const override;
   bool IsLegacySupervised() const override;
-  ExtensionSpecialStoragePolicy*
-      GetExtensionSpecialStoragePolicy() override;
+  ExtensionSpecialStoragePolicy* GetExtensionSpecialStoragePolicy() override;
   PrefService* GetOffTheRecordPrefs() override;
   net::URLRequestContextGetter* GetRequestContextForExtensions() override;
   net::SSLConfigService* GetSSLConfigService() override;
@@ -41,8 +40,8 @@ class ChromeProfileStub : public Profile {
   void set_last_selected_directory(const base::FilePath& path) override;
   PrefProxyConfigTracker* GetProxyConfigTracker() override;
   chrome_browser_net::Predictor* GetNetworkPredictor() override;
-  DevToolsNetworkControllerHandle*
-      GetDevToolsNetworkControllerHandle() override;
+  DevToolsNetworkControllerHandle* GetDevToolsNetworkControllerHandle()
+      override;
   void ClearNetworkingHistorySince(base::Time time,
                                    const base::Closure& completion) override;
   GURL GetHomePage() override;

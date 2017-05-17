@@ -26,18 +26,15 @@ HWND CreateTempWindow() {
   RegisterClassEx(&wc);
 
   // Create a 1x1 pixel hidden window.
-  return CreateWindow(kWndClass, 0,
-                      WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN,
-                      0, 0, 1, 1,
-                      NULL, NULL, hInstance, NULL);
+  return CreateWindow(kWndClass, 0, WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN, 0, 0,
+                      1, 1, NULL, NULL, hInstance, NULL);
 }
 
 TempWindowWin* g_temp_window = NULL;
 
 }  // namespace
 
-TempWindowWin::TempWindowWin()
-    : hwnd_(NULL) {
+TempWindowWin::TempWindowWin() : hwnd_(NULL) {
   DCHECK(!g_temp_window);
   g_temp_window = this;
 

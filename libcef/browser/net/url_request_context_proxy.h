@@ -9,7 +9,6 @@
 #include "include/cef_request_context_handler.h"
 #include "libcef/browser/net/url_request_context.h"
 
-
 class CefBrowserHostImpl;
 class CefCookieStoreProxy;
 class CefURLRequestContextImpl;

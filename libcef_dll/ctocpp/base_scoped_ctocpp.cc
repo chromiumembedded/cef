@@ -4,17 +4,18 @@
 
 #include "libcef_dll/ctocpp/base_scoped_ctocpp.h"
 
-CefBaseScopedCToCpp::CefBaseScopedCToCpp() {
-}
+CefBaseScopedCToCpp::CefBaseScopedCToCpp() {}
 
-template<> cef_base_scoped_t*
+template <>
+cef_base_scoped_t*
 CefCToCppScoped<CefBaseScopedCToCpp, CefBaseScoped, cef_base_scoped_t>::
     UnwrapDerivedOwn(CefWrapperType type, CefOwnPtr<CefBaseScoped> c) {
   NOTREACHED();
   return NULL;
 }
 
-template<> cef_base_scoped_t*
+template <>
+cef_base_scoped_t*
 CefCToCppScoped<CefBaseScopedCToCpp, CefBaseScoped, cef_base_scoped_t>::
     UnwrapDerivedRaw(CefWrapperType type, CefRawPtr<CefBaseScoped> c) {
   NOTREACHED();
@@ -22,9 +23,14 @@ CefCToCppScoped<CefBaseScopedCToCpp, CefBaseScoped, cef_base_scoped_t>::
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCppScoped<CefBaseScopedCToCpp,
-    CefBaseScoped, cef_base_scoped_t>::DebugObjCt = 0;
+template <>
+base::AtomicRefCount CefCToCppScoped<CefBaseScopedCToCpp,
+                                     CefBaseScoped,
+                                     cef_base_scoped_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCppScoped<CefBaseScopedCToCpp,
-    CefBaseScoped, cef_base_scoped_t>::kWrapperType = WT_BASE_SCOPED;
+template <>
+CefWrapperType CefCToCppScoped<CefBaseScopedCToCpp,
+                               CefBaseScoped,
+                               cef_base_scoped_t>::kWrapperType =
+    WT_BASE_SCOPED;

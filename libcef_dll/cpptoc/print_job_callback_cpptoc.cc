@@ -9,16 +9,17 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=a19e32f4c64b0b5f641fec8a31de96f91b7bd982$
+//
 
 #include "libcef_dll/cpptoc/print_job_callback_cpptoc.h"
-
 
 namespace {
 
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
-void CEF_CALLBACK print_job_callback_cont(
-    struct _cef_print_job_callback_t* self) {
+void CEF_CALLBACK
+print_job_callback_cont(struct _cef_print_job_callback_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -31,25 +32,32 @@ void CEF_CALLBACK print_job_callback_cont(
 
 }  // namespace
 
-
 // CONSTRUCTOR - Do not edit by hand.
 
 CefPrintJobCallbackCppToC::CefPrintJobCallbackCppToC() {
   GetStruct()->cont = print_job_callback_cont;
 }
 
-template<> CefRefPtr<CefPrintJobCallback> CefCppToCRefCounted<CefPrintJobCallbackCppToC,
-    CefPrintJobCallback, cef_print_job_callback_t>::UnwrapDerived(
-    CefWrapperType type, cef_print_job_callback_t* s) {
+template <>
+CefRefPtr<CefPrintJobCallback> CefCppToCRefCounted<
+    CefPrintJobCallbackCppToC,
+    CefPrintJobCallback,
+    cef_print_job_callback_t>::UnwrapDerived(CefWrapperType type,
+                                             cef_print_job_callback_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCppToCRefCounted<CefPrintJobCallbackCppToC,
-    CefPrintJobCallback, cef_print_job_callback_t>::DebugObjCt = 0;
+template <>
+base::AtomicRefCount CefCppToCRefCounted<CefPrintJobCallbackCppToC,
+                                         CefPrintJobCallback,
+                                         cef_print_job_callback_t>::DebugObjCt =
+    0;
 #endif
 
-template<> CefWrapperType CefCppToCRefCounted<CefPrintJobCallbackCppToC,
-    CefPrintJobCallback, cef_print_job_callback_t>::kWrapperType =
+template <>
+CefWrapperType CefCppToCRefCounted<CefPrintJobCallbackCppToC,
+                                   CefPrintJobCallback,
+                                   cef_print_job_callback_t>::kWrapperType =
     WT_PRINT_JOB_CALLBACK;

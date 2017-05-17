@@ -6,23 +6,17 @@
 
 namespace extensions {
 
-CefPDFWebContentsHelperClient::CefPDFWebContentsHelperClient() {
-}
+CefPDFWebContentsHelperClient::CefPDFWebContentsHelperClient() {}
 
-CefPDFWebContentsHelperClient::~CefPDFWebContentsHelperClient() {
-}
+CefPDFWebContentsHelperClient::~CefPDFWebContentsHelperClient() {}
 
 void CefPDFWebContentsHelperClient::UpdateContentRestrictions(
     content::WebContents* contents,
-    int content_restrictions) {
-}
+    int content_restrictions) {}
 
 void CefPDFWebContentsHelperClient::OnPDFHasUnsupportedFeature(
-    content::WebContents* contents) {
-}
+    content::WebContents* contents) {}
 
-void CefPDFWebContentsHelperClient::OnSaveURL(
-    content::WebContents* contents) {
-}
+void CefPDFWebContentsHelperClient::OnSaveURL(content::WebContents* contents) {}
 
 }  // namespace extensions

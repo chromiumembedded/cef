@@ -33,6 +33,8 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
+// $hash=3f0ed89d2320677780c2fd526be7fe6312580cd8$
+//
 
 #ifndef CEF_INCLUDE_CAPI_CEF_RESPONSE_CAPI_H_
 #define CEF_INCLUDE_CAPI_CEF_RESPONSE_CAPI_H_
@@ -43,7 +45,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
 
 ///
 // Structure used to represent a web response. The functions of this structure
@@ -58,82 +59,80 @@ typedef struct _cef_response_t {
   ///
   // Returns true (1) if this object is read-only.
   ///
-  int (CEF_CALLBACK *is_read_only)(struct _cef_response_t* self);
+  int(CEF_CALLBACK* is_read_only)(struct _cef_response_t* self);
 
   ///
   // Get the response error code. Returns ERR_NONE if there was no error.
   ///
-  cef_errorcode_t (CEF_CALLBACK *get_error)(struct _cef_response_t* self);
+  cef_errorcode_t(CEF_CALLBACK* get_error)(struct _cef_response_t* self);
 
   ///
   // Set the response error code. This can be used by custom scheme handlers to
   // return errors during initial request processing.
   ///
-  void (CEF_CALLBACK *set_error)(struct _cef_response_t* self,
-      cef_errorcode_t error);
+  void(CEF_CALLBACK* set_error)(struct _cef_response_t* self,
+                                cef_errorcode_t error);
 
   ///
   // Get the response status code.
   ///
-  int (CEF_CALLBACK *get_status)(struct _cef_response_t* self);
+  int(CEF_CALLBACK* get_status)(struct _cef_response_t* self);
 
   ///
   // Set the response status code.
   ///
-  void (CEF_CALLBACK *set_status)(struct _cef_response_t* self, int status);
+  void(CEF_CALLBACK* set_status)(struct _cef_response_t* self, int status);
 
   ///
   // Get the response status text.
   ///
   // The resulting string must be freed by calling cef_string_userfree_free().
-  cef_string_userfree_t (CEF_CALLBACK *get_status_text)(
+  cef_string_userfree_t(CEF_CALLBACK* get_status_text)(
       struct _cef_response_t* self);
 
   ///
   // Set the response status text.
   ///
-  void (CEF_CALLBACK *set_status_text)(struct _cef_response_t* self,
-      const cef_string_t* statusText);
+  void(CEF_CALLBACK* set_status_text)(struct _cef_response_t* self,
+                                      const cef_string_t* statusText);
 
   ///
   // Get the response mime type.
   ///
   // The resulting string must be freed by calling cef_string_userfree_free().
-  cef_string_userfree_t (CEF_CALLBACK *get_mime_type)(
+  cef_string_userfree_t(CEF_CALLBACK* get_mime_type)(
       struct _cef_response_t* self);
 
   ///
   // Set the response mime type.
   ///
-  void (CEF_CALLBACK *set_mime_type)(struct _cef_response_t* self,
-      const cef_string_t* mimeType);
+  void(CEF_CALLBACK* set_mime_type)(struct _cef_response_t* self,
+                                    const cef_string_t* mimeType);
 
   ///
   // Get the value for the specified response header field.
   ///
   // The resulting string must be freed by calling cef_string_userfree_free().
-  cef_string_userfree_t (CEF_CALLBACK *get_header)(struct _cef_response_t* self,
-      const cef_string_t* name);
+  cef_string_userfree_t(CEF_CALLBACK* get_header)(struct _cef_response_t* self,
+                                                  const cef_string_t* name);
 
   ///
   // Get all response header fields.
   ///
-  void (CEF_CALLBACK *get_header_map)(struct _cef_response_t* self,
-      cef_string_multimap_t headerMap);
+  void(CEF_CALLBACK* get_header_map)(struct _cef_response_t* self,
+                                     cef_string_multimap_t headerMap);
 
   ///
   // Set all response header fields.
   ///
-  void (CEF_CALLBACK *set_header_map)(struct _cef_response_t* self,
-      cef_string_multimap_t headerMap);
+  void(CEF_CALLBACK* set_header_map)(struct _cef_response_t* self,
+                                     cef_string_multimap_t headerMap);
 } cef_response_t;
-
 
 ///
 // Create a new cef_response_t object.
 ///
 CEF_EXPORT cef_response_t* cef_response_create();
-
 
 #ifdef __cplusplus
 }

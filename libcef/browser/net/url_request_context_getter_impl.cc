@@ -41,8 +41,8 @@
 #include "net/cert/ct_policy_enforcer.h"
 #include "net/cert/multi_log_ct_verifier.h"
 #include "net/cookies/cookie_monster.h"
-#include "net/extras/sqlite/sqlite_persistent_cookie_store.h"
 #include "net/dns/host_resolver.h"
+#include "net/extras/sqlite/sqlite_persistent_cookie_store.h"
 #include "net/ftp/ftp_network_layer.h"
 #include "net/http/http_auth_handler_factory.h"
 #include "net/http/http_auth_preferences.h"
@@ -52,7 +52,6 @@
 #include "net/http/transport_security_state.h"
 #include "net/proxy/proxy_service.h"
 #include "net/ssl/ssl_config_service_defaults.h"
-#include "url/url_constants.h"
 #include "net/url_request/http_user_agent_settings.h"
 #include "net/url_request/url_request.h"
 #include "net/url_request/url_request_context.h"
@@ -60,6 +59,7 @@
 #include "net/url_request/url_request_intercepting_job_factory.h"
 #include "net/url_request/url_request_job_factory_impl.h"
 #include "net/url_request/url_request_job_manager.h"
+#include "url/url_constants.h"
 
 #if defined(OS_WIN)
 #include <winhttp.h>
@@ -83,8 +83,8 @@ namespace {
 class CefHttpUserAgentSettings : public net::HttpUserAgentSettings {
  public:
   explicit CefHttpUserAgentSettings(const std::string& raw_language_list)
-      : http_accept_language_(net::HttpUtil::GenerateAcceptLanguageHeader(
-            raw_language_list)) {
+      : http_accept_language_(
+            net::HttpUtil::GenerateAcceptLanguageHeader(raw_language_list)) {
     CEF_REQUIRE_IOT();
   }
 
@@ -115,8 +115,7 @@ CefURLRequestContextGetterImpl::CefURLRequestContextGetterImpl(
     content::ProtocolHandlerMap* protocol_handlers,
     std::unique_ptr<net::ProxyConfigService> proxy_config_service,
     content::URLRequestInterceptorScopedVector request_interceptors)
-    : settings_(settings),
-      io_state_(base::MakeUnique<IOState>()) {
+    : settings_(settings), io_state_(base::MakeUnique<IOState>()) {
   // Must first be created on the UI thread.
   CEF_REQUIRE_UIT();
 
@@ -150,13 +149,13 @@ CefURLRequestContextGetterImpl::CefURLRequestContextGetterImpl(
   auth_server_whitelist_.Init(
       prefs::kAuthServerWhitelist, pref_service,
       base::Bind(&CefURLRequestContextGetterImpl::UpdateServerWhitelist,
-      base::Unretained(this)));
+                 base::Unretained(this)));
   auth_server_whitelist_.MoveToThread(io_thread_proxy);
 
   auth_negotiate_delegate_whitelist_.Init(
       prefs::kAuthNegotiateDelegateWhitelist, pref_service,
       base::Bind(&CefURLRequestContextGetterImpl::UpdateDelegateWhitelist,
-      base::Unretained(this)));
+                 base::Unretained(this)));
   auth_negotiate_delegate_whitelist_.MoveToThread(io_thread_proxy);
 }
 
@@ -169,7 +168,7 @@ CefURLRequestContextGetterImpl::~CefURLRequestContextGetterImpl() {
 // static
 void CefURLRequestContextGetterImpl::RegisterPrefs(
     PrefRegistrySimple* registry) {
-  // Based on IOThread::RegisterPrefs.
+// Based on IOThread::RegisterPrefs.
 #if defined(OS_POSIX) && !defined(OS_ANDROID)
   registry->RegisterStringPref(prefs::kGSSAPILibraryName, std::string());
 #endif
@@ -188,7 +187,8 @@ void CefURLRequestContextGetterImpl::ShutdownOnUIThread() {
   auth_server_whitelist_.Destroy();
   auth_negotiate_delegate_whitelist_.Destroy();
 
-  CEF_POST_TASK(CEF_IOT,
+  CEF_POST_TASK(
+      CEF_IOT,
       base::Bind(&CefURLRequestContextGetterImpl::ShutdownOnIOThread, this));
 }
 
@@ -235,10 +235,11 @@ net::URLRequestContext* CefURLRequestContextGetterImpl::GetURLRequestContext() {
     io_state_->storage_->set_network_delegate(std::move(network_delegate));
 
     const std::string& accept_language =
-        settings_.accept_language_list.length > 0 ?
-            CefString(&settings_.accept_language_list): "en-US,en";
-    io_state_->storage_->set_http_user_agent_settings(base::WrapUnique(
-        new CefHttpUserAgentSettings(accept_language)));
+        settings_.accept_language_list.length > 0
+            ? CefString(&settings_.accept_language_list)
+            : "en-US,en";
+    io_state_->storage_->set_http_user_agent_settings(
+        base::WrapUnique(new CefHttpUserAgentSettings(accept_language)));
 
     io_state_->storage_->set_host_resolver(
         net::HostResolver::CreateDefaultResolver(io_state_->net_log_));
@@ -266,11 +267,9 @@ net::URLRequestContext* CefURLRequestContextGetterImpl::GetURLRequestContext() {
 
     std::unique_ptr<net::ProxyService> system_proxy_service =
         ProxyServiceFactory::CreateProxyService(
-            io_state_->net_log_,
-            io_state_->url_request_context_.get(),
+            io_state_->net_log_, io_state_->url_request_context_.get(),
             io_state_->url_request_context_->network_delegate(),
-            std::move(io_state_->proxy_config_service_),
-            *command_line,
+            std::move(io_state_->proxy_config_service_), *command_line,
             quick_check_enabled_.GetValue(),
             pac_https_url_stripping_enabled_.GetValue());
     io_state_->storage_->set_proxy_service(std::move(system_proxy_service));
@@ -284,10 +283,11 @@ net::URLRequestContext* CefURLRequestContextGetterImpl::GetURLRequestContext() {
     supported_schemes.push_back("ntlm");
     supported_schemes.push_back("negotiate");
 
-    io_state_->http_auth_preferences_.reset(
-        new net::HttpAuthPreferences(supported_schemes
+    io_state_->http_auth_preferences_.reset(new net::HttpAuthPreferences(
+        supported_schemes
 #if defined(OS_POSIX) && !defined(OS_ANDROID)
-                                     , io_state_->gsapi_library_name_
+        ,
+        io_state_->gsapi_library_name_
 #endif
         ));
 
@@ -295,8 +295,8 @@ net::URLRequestContext* CefURLRequestContextGetterImpl::GetURLRequestContext() {
         net::HttpAuthHandlerRegistryFactory::Create(
             io_state_->http_auth_preferences_.get(),
             io_state_->url_request_context_->host_resolver()));
-    io_state_->storage_->set_http_server_properties(base::WrapUnique(
-        new net::HttpServerPropertiesImpl));
+    io_state_->storage_->set_http_server_properties(
+        base::WrapUnique(new net::HttpServerPropertiesImpl));
 
     base::FilePath http_cache_path;
     if (!cache_path.empty())
@@ -308,11 +308,8 @@ net::URLRequestContext* CefURLRequestContextGetterImpl::GetURLRequestContext() {
     std::unique_ptr<net::HttpCache::DefaultBackend> main_backend(
         new net::HttpCache::DefaultBackend(
             cache_path.empty() ? net::MEMORY_CACHE : net::DISK_CACHE,
-            net::CACHE_BACKEND_DEFAULT,
-            http_cache_path,
-            0,
-            BrowserThread::GetTaskRunnerForThread(
-                BrowserThread::CACHE)));
+            net::CACHE_BACKEND_DEFAULT, http_cache_path, 0,
+            BrowserThread::GetTaskRunnerForThread(BrowserThread::CACHE)));
 
     net::HttpNetworkSession::Params network_session_params;
     network_session_params.host_resolver =
@@ -339,10 +336,10 @@ net::URLRequestContext* CefURLRequestContextGetterImpl::GetURLRequestContext() {
 
     io_state_->storage_->set_http_network_session(
         base::WrapUnique(new net::HttpNetworkSession(network_session_params)));
-    io_state_->storage_->set_http_transaction_factory(base::WrapUnique(
-        new net::HttpCache(io_state_->storage_->http_network_session(),
-                           std::move(main_backend),
-                           true /* set_up_quic_server_info */)));
+    io_state_->storage_->set_http_transaction_factory(
+        base::WrapUnique(new net::HttpCache(
+            io_state_->storage_->http_network_session(),
+            std::move(main_backend), true /* set_up_quic_server_info */)));
 
     std::unique_ptr<net::URLRequestJobFactoryImpl> job_factory(
         new net::URLRequestJobFactoryImpl());
@@ -351,10 +348,8 @@ net::URLRequestContext* CefURLRequestContextGetterImpl::GetURLRequestContext() {
 
     // Install internal scheme handlers that cannot be overridden.
     scheme::InstallInternalProtectedHandlers(
-        job_factory.get(),
-        io_state_->url_request_manager_.get(),
-        &io_state_->protocol_handlers_,
-        network_session_params.host_resolver);
+        job_factory.get(), io_state_->url_request_manager_.get(),
+        &io_state_->protocol_handlers_, network_session_params.host_resolver);
     io_state_->protocol_handlers_.clear();
 
     // Register internal scheme handlers that can be overridden.
@@ -390,7 +385,7 @@ net::URLRequestContext* CefURLRequestContextGetterImpl::GetURLRequestContext() {
 }
 
 scoped_refptr<base::SingleThreadTaskRunner>
-    CefURLRequestContextGetterImpl::GetNetworkTaskRunner() const {
+CefURLRequestContextGetterImpl::GetNetworkTaskRunner() const {
   return BrowserThread::GetTaskRunnerForThread(CEF_IOT);
 }
 
@@ -415,16 +410,12 @@ void CefURLRequestContextGetterImpl::SetCookieStoragePath(
     // TODO(cef): Move directory creation to the blocking pool instead of
     // allowing file IO on this thread.
     base::ThreadRestrictions::ScopedAllowIO allow_io;
-    if (base::DirectoryExists(path) ||
-        base::CreateDirectory(path)) {
+    if (base::DirectoryExists(path) || base::CreateDirectory(path)) {
       const base::FilePath& cookie_path = path.AppendASCII("Cookies");
-      persistent_store =
-          new net::SQLitePersistentCookieStore(
-              cookie_path,
-              BrowserThread::GetTaskRunnerForThread(BrowserThread::IO),
-              BrowserThread::GetTaskRunnerForThread(BrowserThread::DB),
-              persist_session_cookies,
-              NULL);
+      persistent_store = new net::SQLitePersistentCookieStore(
+          cookie_path, BrowserThread::GetTaskRunnerForThread(BrowserThread::IO),
+          BrowserThread::GetTaskRunnerForThread(BrowserThread::DB),
+          persist_session_cookies, NULL);
     } else {
       NOTREACHED() << "The cookie storage directory could not be created";
     }
@@ -436,7 +427,7 @@ void CefURLRequestContextGetterImpl::SetCookieStoragePath(
   std::unique_ptr<net::CookieMonster> cookie_monster(
       new net::CookieMonster(persistent_store.get(), NULL));
   if (persistent_store.get() && persist_session_cookies)
-      cookie_monster->SetPersistSessionCookies(true);
+    cookie_monster->SetPersistSessionCookies(true);
   io_state_->cookie_store_path_ = path;
 
   // Restore the previously supported schemes.
@@ -459,15 +450,16 @@ void CefURLRequestContextGetterImpl::SetCookieSupportedSchemes(
 void CefURLRequestContextGetterImpl::AddHandler(
     CefRefPtr<CefRequestContextHandler> handler) {
   if (!CEF_CURRENTLY_ON_IOT()) {
-    CEF_POST_TASK(CEF_IOT,
+    CEF_POST_TASK(
+        CEF_IOT,
         base::Bind(&CefURLRequestContextGetterImpl::AddHandler, this, handler));
     return;
   }
   io_state_->handler_list_.push_back(handler);
 }
 
-net::CookieStore*
-    CefURLRequestContextGetterImpl::GetExistingCookieStore() const {
+net::CookieStore* CefURLRequestContextGetterImpl::GetExistingCookieStore()
+    const {
   CEF_REQUIRE_IOT();
   if (io_state_->url_request_context_ &&
       io_state_->url_request_context_->cookie_store()) {

@@ -9,13 +9,14 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=b88a478ed6bd8ba50348a76691f4c36994bca20e$
+//
 
 #include "libcef_dll/ctocpp/binary_value_ctocpp.h"
 #include "libcef_dll/ctocpp/dictionary_value_ctocpp.h"
 #include "libcef_dll/ctocpp/list_value_ctocpp.h"
 #include "libcef_dll/ctocpp/value_ctocpp.h"
 #include "libcef_dll/transfer_util.h"
-
 
 // STATIC METHODS - Body may be edited by hand.
 
@@ -28,7 +29,6 @@ CefRefPtr<CefDictionaryValue> CefDictionaryValue::Create() {
   // Return type: refptr_same
   return CefDictionaryValueCToCpp::Wrap(_retval);
 }
-
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
@@ -43,7 +43,7 @@ bool CefDictionaryValueCToCpp::IsValid() {
   int _retval = _struct->is_valid(_struct);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 bool CefDictionaryValueCToCpp::IsOwned() {
@@ -57,7 +57,7 @@ bool CefDictionaryValueCToCpp::IsOwned() {
   int _retval = _struct->is_owned(_struct);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 bool CefDictionaryValueCToCpp::IsReadOnly() {
@@ -71,7 +71,7 @@ bool CefDictionaryValueCToCpp::IsReadOnly() {
   int _retval = _struct->is_read_only(_struct);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 bool CefDictionaryValueCToCpp::IsSame(CefRefPtr<CefDictionaryValue> that) {
@@ -87,11 +87,11 @@ bool CefDictionaryValueCToCpp::IsSame(CefRefPtr<CefDictionaryValue> that) {
     return false;
 
   // Execute
-  int _retval = _struct->is_same(_struct,
-      CefDictionaryValueCToCpp::Unwrap(that));
+  int _retval =
+      _struct->is_same(_struct, CefDictionaryValueCToCpp::Unwrap(that));
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 bool CefDictionaryValueCToCpp::IsEqual(CefRefPtr<CefDictionaryValue> that) {
@@ -107,11 +107,11 @@ bool CefDictionaryValueCToCpp::IsEqual(CefRefPtr<CefDictionaryValue> that) {
     return false;
 
   // Execute
-  int _retval = _struct->is_equal(_struct,
-      CefDictionaryValueCToCpp::Unwrap(that));
+  int _retval =
+      _struct->is_equal(_struct, CefDictionaryValueCToCpp::Unwrap(that));
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 CefRefPtr<CefDictionaryValue> CefDictionaryValueCToCpp::Copy(
@@ -123,8 +123,8 @@ CefRefPtr<CefDictionaryValue> CefDictionaryValueCToCpp::Copy(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  cef_dictionary_value_t* _retval = _struct->copy(_struct,
-      exclude_empty_children);
+  cef_dictionary_value_t* _retval =
+      _struct->copy(_struct, exclude_empty_children);
 
   // Return type: refptr_same
   return CefDictionaryValueCToCpp::Wrap(_retval);
@@ -155,7 +155,7 @@ bool CefDictionaryValueCToCpp::Clear() {
   int _retval = _struct->clear(_struct);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 bool CefDictionaryValueCToCpp::HasKey(const CefString& key) {
@@ -171,11 +171,10 @@ bool CefDictionaryValueCToCpp::HasKey(const CefString& key) {
     return false;
 
   // Execute
-  int _retval = _struct->has_key(_struct,
-      key.GetStruct());
+  int _retval = _struct->has_key(_struct, key.GetStruct());
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 bool CefDictionaryValueCToCpp::GetKeys(KeyList& keys) {
@@ -192,8 +191,7 @@ bool CefDictionaryValueCToCpp::GetKeys(KeyList& keys) {
     transfer_string_list_contents(keys, keysList);
 
   // Execute
-  int _retval = _struct->get_keys(_struct,
-      keysList);
+  int _retval = _struct->get_keys(_struct, keysList);
 
   // Restore param:keys; type: string_vec_byref
   if (keysList) {
@@ -203,7 +201,7 @@ bool CefDictionaryValueCToCpp::GetKeys(KeyList& keys) {
   }
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 bool CefDictionaryValueCToCpp::Remove(const CefString& key) {
@@ -219,11 +217,10 @@ bool CefDictionaryValueCToCpp::Remove(const CefString& key) {
     return false;
 
   // Execute
-  int _retval = _struct->remove(_struct,
-      key.GetStruct());
+  int _retval = _struct->remove(_struct, key.GetStruct());
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 CefValueType CefDictionaryValueCToCpp::GetType(const CefString& key) {
@@ -239,8 +236,7 @@ CefValueType CefDictionaryValueCToCpp::GetType(const CefString& key) {
     return VTYPE_INVALID;
 
   // Execute
-  cef_value_type_t _retval = _struct->get_type(_struct,
-      key.GetStruct());
+  cef_value_type_t _retval = _struct->get_type(_struct, key.GetStruct());
 
   // Return type: simple
   return _retval;
@@ -259,8 +255,7 @@ CefRefPtr<CefValue> CefDictionaryValueCToCpp::GetValue(const CefString& key) {
     return NULL;
 
   // Execute
-  cef_value_t* _retval = _struct->get_value(_struct,
-      key.GetStruct());
+  cef_value_t* _retval = _struct->get_value(_struct, key.GetStruct());
 
   // Return type: refptr_same
   return CefValueCToCpp::Wrap(_retval);
@@ -279,11 +274,10 @@ bool CefDictionaryValueCToCpp::GetBool(const CefString& key) {
     return false;
 
   // Execute
-  int _retval = _struct->get_bool(_struct,
-      key.GetStruct());
+  int _retval = _struct->get_bool(_struct, key.GetStruct());
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 int CefDictionaryValueCToCpp::GetInt(const CefString& key) {
@@ -299,8 +293,7 @@ int CefDictionaryValueCToCpp::GetInt(const CefString& key) {
     return 0;
 
   // Execute
-  int _retval = _struct->get_int(_struct,
-      key.GetStruct());
+  int _retval = _struct->get_int(_struct, key.GetStruct());
 
   // Return type: simple
   return _retval;
@@ -319,8 +312,7 @@ double CefDictionaryValueCToCpp::GetDouble(const CefString& key) {
     return 0;
 
   // Execute
-  double _retval = _struct->get_double(_struct,
-      key.GetStruct());
+  double _retval = _struct->get_double(_struct, key.GetStruct());
 
   // Return type: simple
   return _retval;
@@ -339,8 +331,7 @@ CefString CefDictionaryValueCToCpp::GetString(const CefString& key) {
     return CefString();
 
   // Execute
-  cef_string_userfree_t _retval = _struct->get_string(_struct,
-      key.GetStruct());
+  cef_string_userfree_t _retval = _struct->get_string(_struct, key.GetStruct());
 
   // Return type: string
   CefString _retvalStr;
@@ -362,8 +353,7 @@ CefRefPtr<CefBinaryValue> CefDictionaryValueCToCpp::GetBinary(
     return NULL;
 
   // Execute
-  cef_binary_value_t* _retval = _struct->get_binary(_struct,
-      key.GetStruct());
+  cef_binary_value_t* _retval = _struct->get_binary(_struct, key.GetStruct());
 
   // Return type: refptr_same
   return CefBinaryValueCToCpp::Wrap(_retval);
@@ -383,8 +373,8 @@ CefRefPtr<CefDictionaryValue> CefDictionaryValueCToCpp::GetDictionary(
     return NULL;
 
   // Execute
-  cef_dictionary_value_t* _retval = _struct->get_dictionary(_struct,
-      key.GetStruct());
+  cef_dictionary_value_t* _retval =
+      _struct->get_dictionary(_struct, key.GetStruct());
 
   // Return type: refptr_same
   return CefDictionaryValueCToCpp::Wrap(_retval);
@@ -404,15 +394,14 @@ CefRefPtr<CefListValue> CefDictionaryValueCToCpp::GetList(
     return NULL;
 
   // Execute
-  cef_list_value_t* _retval = _struct->get_list(_struct,
-      key.GetStruct());
+  cef_list_value_t* _retval = _struct->get_list(_struct, key.GetStruct());
 
   // Return type: refptr_same
   return CefListValueCToCpp::Wrap(_retval);
 }
 
 bool CefDictionaryValueCToCpp::SetValue(const CefString& key,
-    CefRefPtr<CefValue> value) {
+                                        CefRefPtr<CefValue> value) {
   cef_dictionary_value_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, set_value))
     return false;
@@ -429,12 +418,11 @@ bool CefDictionaryValueCToCpp::SetValue(const CefString& key,
     return false;
 
   // Execute
-  int _retval = _struct->set_value(_struct,
-      key.GetStruct(),
-      CefValueCToCpp::Unwrap(value));
+  int _retval = _struct->set_value(_struct, key.GetStruct(),
+                                   CefValueCToCpp::Unwrap(value));
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 bool CefDictionaryValueCToCpp::SetNull(const CefString& key) {
@@ -450,11 +438,10 @@ bool CefDictionaryValueCToCpp::SetNull(const CefString& key) {
     return false;
 
   // Execute
-  int _retval = _struct->set_null(_struct,
-      key.GetStruct());
+  int _retval = _struct->set_null(_struct, key.GetStruct());
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 bool CefDictionaryValueCToCpp::SetBool(const CefString& key, bool value) {
@@ -470,12 +457,10 @@ bool CefDictionaryValueCToCpp::SetBool(const CefString& key, bool value) {
     return false;
 
   // Execute
-  int _retval = _struct->set_bool(_struct,
-      key.GetStruct(),
-      value);
+  int _retval = _struct->set_bool(_struct, key.GetStruct(), value);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 bool CefDictionaryValueCToCpp::SetInt(const CefString& key, int value) {
@@ -491,12 +476,10 @@ bool CefDictionaryValueCToCpp::SetInt(const CefString& key, int value) {
     return false;
 
   // Execute
-  int _retval = _struct->set_int(_struct,
-      key.GetStruct(),
-      value);
+  int _retval = _struct->set_int(_struct, key.GetStruct(), value);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 bool CefDictionaryValueCToCpp::SetDouble(const CefString& key, double value) {
@@ -512,16 +495,14 @@ bool CefDictionaryValueCToCpp::SetDouble(const CefString& key, double value) {
     return false;
 
   // Execute
-  int _retval = _struct->set_double(_struct,
-      key.GetStruct(),
-      value);
+  int _retval = _struct->set_double(_struct, key.GetStruct(), value);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 bool CefDictionaryValueCToCpp::SetString(const CefString& key,
-    const CefString& value) {
+                                         const CefString& value) {
   cef_dictionary_value_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, set_string))
     return false;
@@ -535,16 +516,15 @@ bool CefDictionaryValueCToCpp::SetString(const CefString& key,
   // Unverified params: value
 
   // Execute
-  int _retval = _struct->set_string(_struct,
-      key.GetStruct(),
-      value.GetStruct());
+  int _retval =
+      _struct->set_string(_struct, key.GetStruct(), value.GetStruct());
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 bool CefDictionaryValueCToCpp::SetBinary(const CefString& key,
-    CefRefPtr<CefBinaryValue> value) {
+                                         CefRefPtr<CefBinaryValue> value) {
   cef_dictionary_value_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, set_binary))
     return false;
@@ -561,15 +541,15 @@ bool CefDictionaryValueCToCpp::SetBinary(const CefString& key,
     return false;
 
   // Execute
-  int _retval = _struct->set_binary(_struct,
-      key.GetStruct(),
-      CefBinaryValueCToCpp::Unwrap(value));
+  int _retval = _struct->set_binary(_struct, key.GetStruct(),
+                                    CefBinaryValueCToCpp::Unwrap(value));
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
-bool CefDictionaryValueCToCpp::SetDictionary(const CefString& key,
+bool CefDictionaryValueCToCpp::SetDictionary(
+    const CefString& key,
     CefRefPtr<CefDictionaryValue> value) {
   cef_dictionary_value_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, set_dictionary))
@@ -587,16 +567,15 @@ bool CefDictionaryValueCToCpp::SetDictionary(const CefString& key,
     return false;
 
   // Execute
-  int _retval = _struct->set_dictionary(_struct,
-      key.GetStruct(),
-      CefDictionaryValueCToCpp::Unwrap(value));
+  int _retval = _struct->set_dictionary(
+      _struct, key.GetStruct(), CefDictionaryValueCToCpp::Unwrap(value));
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 bool CefDictionaryValueCToCpp::SetList(const CefString& key,
-    CefRefPtr<CefListValue> value) {
+                                       CefRefPtr<CefListValue> value) {
   cef_dictionary_value_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, set_list))
     return false;
@@ -613,32 +592,37 @@ bool CefDictionaryValueCToCpp::SetList(const CefString& key,
     return false;
 
   // Execute
-  int _retval = _struct->set_list(_struct,
-      key.GetStruct(),
-      CefListValueCToCpp::Unwrap(value));
+  int _retval = _struct->set_list(_struct, key.GetStruct(),
+                                  CefListValueCToCpp::Unwrap(value));
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
-
 
 // CONSTRUCTOR - Do not edit by hand.
 
-CefDictionaryValueCToCpp::CefDictionaryValueCToCpp() {
-}
+CefDictionaryValueCToCpp::CefDictionaryValueCToCpp() {}
 
-template<> cef_dictionary_value_t* CefCToCppRefCounted<CefDictionaryValueCToCpp,
-    CefDictionaryValue, cef_dictionary_value_t>::UnwrapDerived(
-    CefWrapperType type, CefDictionaryValue* c) {
+template <>
+cef_dictionary_value_t* CefCToCppRefCounted<
+    CefDictionaryValueCToCpp,
+    CefDictionaryValue,
+    cef_dictionary_value_t>::UnwrapDerived(CefWrapperType type,
+                                           CefDictionaryValue* c) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCppRefCounted<CefDictionaryValueCToCpp,
-    CefDictionaryValue, cef_dictionary_value_t>::DebugObjCt = 0;
+template <>
+base::AtomicRefCount CefCToCppRefCounted<CefDictionaryValueCToCpp,
+                                         CefDictionaryValue,
+                                         cef_dictionary_value_t>::DebugObjCt =
+    0;
 #endif
 
-template<> CefWrapperType CefCToCppRefCounted<CefDictionaryValueCToCpp,
-    CefDictionaryValue, cef_dictionary_value_t>::kWrapperType =
+template <>
+CefWrapperType CefCToCppRefCounted<CefDictionaryValueCToCpp,
+                                   CefDictionaryValue,
+                                   cef_dictionary_value_t>::kWrapperType =
     WT_DICTIONARY_VALUE;

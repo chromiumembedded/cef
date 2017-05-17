@@ -52,7 +52,7 @@ class CefGetGeolocationCallback : public virtual CefBaseRefCounted {
   // update failed, with error information.
   ///
   /*--cef()--*/
-  virtual void OnLocationUpdate(const CefGeoposition& position) =0;
+  virtual void OnLocationUpdate(const CefGeoposition& position) = 0;
 };
 
 ///

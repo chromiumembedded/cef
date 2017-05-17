@@ -12,41 +12,45 @@
 // CefBrowserInfo::RenderIDManager
 
 CefBrowserInfo::RenderIDManager::RenderIDManager(base::Lock* lock)
-  : lock_(lock) {
+    : lock_(lock) {
   DCHECK(lock);
 }
 
 void CefBrowserInfo::RenderIDManager::add_render_view_id(
-    int render_process_id, int render_routing_id) {
+    int render_process_id,
+    int render_routing_id) {
   add_render_id(&render_view_id_set_, render_process_id, render_routing_id);
 }
 
 void CefBrowserInfo::RenderIDManager::add_render_frame_id(
-    int render_process_id, int render_routing_id) {
+    int render_process_id,
+    int render_routing_id) {
   add_render_id(&render_frame_id_set_, render_process_id, render_routing_id);
 }
 
 void CefBrowserInfo::RenderIDManager::remove_render_view_id(
-    int render_process_id, int render_routing_id) {
+    int render_process_id,
+    int render_routing_id) {
   remove_render_id(&render_view_id_set_, render_process_id, render_routing_id);
 }
 
 void CefBrowserInfo::RenderIDManager::remove_render_frame_id(
-    int render_process_id, int render_routing_id) {
+    int render_process_id,
+    int render_routing_id) {
   remove_render_id(&render_frame_id_set_, render_process_id, render_routing_id);
 }
 
 bool CefBrowserInfo::RenderIDManager::is_render_view_id_match(
-    int render_process_id, int render_routing_id) const {
-  return is_render_id_match(&render_view_id_set_,
-                            render_process_id,
+    int render_process_id,
+    int render_routing_id) const {
+  return is_render_id_match(&render_view_id_set_, render_process_id,
                             render_routing_id);
 }
 
 bool CefBrowserInfo::RenderIDManager::is_render_frame_id_match(
-    int render_process_id, int render_routing_id) const {
-  return is_render_id_match(&render_frame_id_set_,
-                            render_process_id,
+    int render_process_id,
+    int render_routing_id) const {
+  return is_render_id_match(&render_frame_id_set_, render_process_id,
                             render_routing_id);
 }
 
@@ -80,8 +84,8 @@ void CefBrowserInfo::RenderIDManager::remove_render_id(RenderIdSet* id_set,
   if (id_set->empty())
     return;
 
-  bool erased = id_set->erase(
-      std::make_pair(render_process_id, render_routing_id)) != 0;
+  bool erased =
+      id_set->erase(std::make_pair(render_process_id, render_routing_id)) != 0;
   DCHECK(erased);
 }
 
@@ -99,7 +103,6 @@ bool CefBrowserInfo::RenderIDManager::is_render_id_match(
   return (it != id_set->end());
 }
 
-
 // CefBrowserInfo
 
 CefBrowserInfo::CefBrowserInfo(int browser_id, bool is_popup)
@@ -111,8 +114,7 @@ CefBrowserInfo::CefBrowserInfo(int browser_id, bool is_popup)
   DCHECK_GT(browser_id, 0);
 }
 
-CefBrowserInfo::~CefBrowserInfo() {
-}
+CefBrowserInfo::~CefBrowserInfo() {}
 
 void CefBrowserInfo::set_windowless(bool windowless) {
   is_windowless_ = windowless;

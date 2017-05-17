@@ -9,10 +9,11 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=6cb42b7225acbf15f3a90243cb7d0edf55cf4f46$
+//
 
 #include "libcef_dll/ctocpp/print_dialog_callback_ctocpp.h"
 #include "libcef_dll/ctocpp/print_settings_ctocpp.h"
-
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
@@ -30,8 +31,7 @@ void CefPrintDialogCallbackCToCpp::Continue(
     return;
 
   // Execute
-  _struct->cont(_struct,
-      CefPrintSettingsCToCpp::Unwrap(settings));
+  _struct->cont(_struct, CefPrintSettingsCToCpp::Unwrap(settings));
 }
 
 void CefPrintDialogCallbackCToCpp::Cancel() {
@@ -45,24 +45,30 @@ void CefPrintDialogCallbackCToCpp::Cancel() {
   _struct->cancel(_struct);
 }
 
-
 // CONSTRUCTOR - Do not edit by hand.
 
-CefPrintDialogCallbackCToCpp::CefPrintDialogCallbackCToCpp() {
-}
+CefPrintDialogCallbackCToCpp::CefPrintDialogCallbackCToCpp() {}
 
-template<> cef_print_dialog_callback_t* CefCToCppRefCounted<CefPrintDialogCallbackCToCpp,
-    CefPrintDialogCallback, cef_print_dialog_callback_t>::UnwrapDerived(
-    CefWrapperType type, CefPrintDialogCallback* c) {
+template <>
+cef_print_dialog_callback_t* CefCToCppRefCounted<
+    CefPrintDialogCallbackCToCpp,
+    CefPrintDialogCallback,
+    cef_print_dialog_callback_t>::UnwrapDerived(CefWrapperType type,
+                                                CefPrintDialogCallback* c) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCppRefCounted<CefPrintDialogCallbackCToCpp,
-    CefPrintDialogCallback, cef_print_dialog_callback_t>::DebugObjCt = 0;
+template <>
+base::AtomicRefCount
+    CefCToCppRefCounted<CefPrintDialogCallbackCToCpp,
+                        CefPrintDialogCallback,
+                        cef_print_dialog_callback_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCppRefCounted<CefPrintDialogCallbackCToCpp,
-    CefPrintDialogCallback, cef_print_dialog_callback_t>::kWrapperType =
+template <>
+CefWrapperType CefCToCppRefCounted<CefPrintDialogCallbackCToCpp,
+                                   CefPrintDialogCallback,
+                                   cef_print_dialog_callback_t>::kWrapperType =
     WT_PRINT_DIALOG_CALLBACK;

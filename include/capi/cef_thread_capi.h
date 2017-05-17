@@ -33,6 +33,8 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
+// $hash=d844086fc675680bfae12c3fa12a6886cc804816$
+//
 
 #ifndef CEF_INCLUDE_CAPI_CEF_THREAD_CAPI_H_
 #define CEF_INCLUDE_CAPI_CEF_THREAD_CAPI_H_
@@ -44,7 +46,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
 
 ///
 // A simple thread abstraction that establishes a message loop on a new thread.
@@ -67,14 +68,14 @@ typedef struct _cef_thread_t {
   // Returns the cef_task_tRunner that will execute code on this thread's
   // message loop. This function is safe to call from any thread.
   ///
-  struct _cef_task_runner_t* (CEF_CALLBACK *get_task_runner)(
+  struct _cef_task_runner_t*(CEF_CALLBACK* get_task_runner)(
       struct _cef_thread_t* self);
 
   ///
   // Returns the platform thread ID. It will return the same value after stop()
   // is called. This function is safe to call from any thread.
   ///
-  cef_platform_thread_id_t (CEF_CALLBACK *get_platform_thread_id)(
+  cef_platform_thread_id_t(CEF_CALLBACK* get_platform_thread_id)(
       struct _cef_thread_t* self);
 
   ///
@@ -82,15 +83,14 @@ typedef struct _cef_thread_t {
   // that called cef_thread_create(). Do not call this function if
   // cef_thread_create() was called with a |stoppable| value of false (0).
   ///
-  void (CEF_CALLBACK *stop)(struct _cef_thread_t* self);
+  void(CEF_CALLBACK* stop)(struct _cef_thread_t* self);
 
   ///
   // Returns true (1) if the thread is currently running. This function must be
   // called from the same thread that called cef_thread_create().
   ///
-  int (CEF_CALLBACK *is_running)(struct _cef_thread_t* self);
+  int(CEF_CALLBACK* is_running)(struct _cef_thread_t* self);
 } cef_thread_t;
-
 
 ///
 // Create and start a new thread. This function does not block waiting for the
@@ -103,10 +103,12 @@ typedef struct _cef_thread_t {
 // specifies how COM will be initialized for the thread. If |com_init_mode| is
 // set to COM_INIT_MODE_STA then |message_loop_type| must be set to ML_TYPE_UI.
 ///
-CEF_EXPORT cef_thread_t* cef_thread_create(const cef_string_t* display_name,
-    cef_thread_priority_t priority, cef_message_loop_type_t message_loop_type,
-    int stoppable, cef_com_init_mode_t com_init_mode);
-
+CEF_EXPORT cef_thread_t* cef_thread_create(
+    const cef_string_t* display_name,
+    cef_thread_priority_t priority,
+    cef_message_loop_type_t message_loop_type,
+    int stoppable,
+    cef_com_init_mode_t com_init_mode);
 
 #ifdef __cplusplus
 }

@@ -62,17 +62,13 @@ class CefViewDelegate : public virtual CefBaseRefCounted {
   // Return the minimum size for |view|.
   ///
   /*--cef()--*/
-  virtual CefSize GetMinimumSize(CefRefPtr<CefView> view) {
-    return CefSize();
-  }
+  virtual CefSize GetMinimumSize(CefRefPtr<CefView> view) { return CefSize(); }
 
   ///
   // Return the maximum size for |view|.
   ///
   /*--cef()--*/
-  virtual CefSize GetMaximumSize(CefRefPtr<CefView> view) {
-    return CefSize();
-  }
+  virtual CefSize GetMaximumSize(CefRefPtr<CefView> view) { return CefSize(); }
 
   ///
   // Return the height necessary to display |view| with the provided |width|.

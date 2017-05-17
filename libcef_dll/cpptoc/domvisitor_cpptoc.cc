@@ -9,17 +9,18 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=de24c7c2b66d08aff8d9fc36cc35419345503840$
+//
 
 #include "libcef_dll/cpptoc/domvisitor_cpptoc.h"
 #include "libcef_dll/ctocpp/domdocument_ctocpp.h"
-
 
 namespace {
 
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
 void CEF_CALLBACK domvisitor_visit(struct _cef_domvisitor_t* self,
-    struct _cef_domdocument_t* document) {
+                                   struct _cef_domdocument_t* document) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -31,12 +32,10 @@ void CEF_CALLBACK domvisitor_visit(struct _cef_domvisitor_t* self,
     return;
 
   // Execute
-  CefDOMVisitorCppToC::Get(self)->Visit(
-      CefDOMDocumentCToCpp::Wrap(document));
+  CefDOMVisitorCppToC::Get(self)->Visit(CefDOMDocumentCToCpp::Wrap(document));
 }
 
 }  // namespace
-
 
 // CONSTRUCTOR - Do not edit by hand.
 
@@ -44,17 +43,23 @@ CefDOMVisitorCppToC::CefDOMVisitorCppToC() {
   GetStruct()->visit = domvisitor_visit;
 }
 
-template<> CefRefPtr<CefDOMVisitor> CefCppToCRefCounted<CefDOMVisitorCppToC,
-    CefDOMVisitor, cef_domvisitor_t>::UnwrapDerived(CefWrapperType type,
-    cef_domvisitor_t* s) {
+template <>
+CefRefPtr<CefDOMVisitor>
+CefCppToCRefCounted<CefDOMVisitorCppToC, CefDOMVisitor, cef_domvisitor_t>::
+    UnwrapDerived(CefWrapperType type, cef_domvisitor_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCppToCRefCounted<CefDOMVisitorCppToC,
-    CefDOMVisitor, cef_domvisitor_t>::DebugObjCt = 0;
+template <>
+base::AtomicRefCount CefCppToCRefCounted<CefDOMVisitorCppToC,
+                                         CefDOMVisitor,
+                                         cef_domvisitor_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCppToCRefCounted<CefDOMVisitorCppToC,
-    CefDOMVisitor, cef_domvisitor_t>::kWrapperType = WT_DOMVISITOR;
+template <>
+CefWrapperType CefCppToCRefCounted<CefDOMVisitorCppToC,
+                                   CefDOMVisitor,
+                                   cef_domvisitor_t>::kWrapperType =
+    WT_DOMVISITOR;

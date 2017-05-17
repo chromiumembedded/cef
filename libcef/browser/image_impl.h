@@ -67,8 +67,7 @@ class CefImageImpl : public CefImage {
   // |scale_1x_size| is the size in pixels of the 1x factor image. If
   // |scale_1x_size| is 0 the smallest image size in pixels will be used as the
   // 1x factor size.
-  void AddBitmaps(int32_t scale_1x_size,
-                  const std::vector<SkBitmap>& bitmaps);
+  void AddBitmaps(int32_t scale_1x_size, const std::vector<SkBitmap>& bitmaps);
 
   // Return a representation of this Image that contains only the bitmap nearest
   // |scale_factor| as the 1x scale representation. Conceptually this is an
@@ -81,8 +80,7 @@ class CefImageImpl : public CefImage {
 
  private:
   // Add a bitmap.
-  bool AddBitmap(float scale_factor,
-                 const SkBitmap& bitmap);
+  bool AddBitmap(float scale_factor, const SkBitmap& bitmap);
 
   // Returns the bitmap that most closely matches |scale_factor| or nullptr if
   // one doesn't exist.

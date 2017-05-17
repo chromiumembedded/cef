@@ -8,8 +8,8 @@
 
 #include "include/base/cef_logging.h"
 #include "include/base/cef_macros.h"
-#include "include/cef_base.h"
 #include "include/capi/cef_base_capi.h"
+#include "include/cef_base.h"
 #include "libcef_dll/ptr_util.h"
 #include "libcef_dll/wrapper_types.h"
 
@@ -69,7 +69,7 @@ class CefCToCppScoped : public BaseName {
 
 #if DCHECK_IS_ON()
   // Simple tracking of allocated objects.
-  static base::AtomicRefCount DebugObjCt;  // NOLINT(runtime/int)
+  static base::AtomicRefCount DebugObjCt;
 #endif
 
  protected:
@@ -112,7 +112,7 @@ class CefCToCppScoped : public BaseName {
 };
 
 template <class ClassName, class BaseName, class StructName>
-struct CefCToCppScoped<ClassName,BaseName,StructName>::WrapperStruct {
+struct CefCToCppScoped<ClassName, BaseName, StructName>::WrapperStruct {
   CefWrapperType type_;
   StructName* struct_;
   ClassName wrapper_;
@@ -201,8 +201,8 @@ void CefCToCppScoped<ClassName, BaseName, StructName>::operator delete(
 
 template <class ClassName, class BaseName, class StructName>
 typename CefCToCppScoped<ClassName, BaseName, StructName>::WrapperStruct*
-    CefCToCppScoped<ClassName, BaseName, StructName>::GetWrapperStruct(
-        const BaseName* obj) {
+CefCToCppScoped<ClassName, BaseName, StructName>::GetWrapperStruct(
+    const BaseName* obj) {
   // Offset using the WrapperStruct size instead of individual member sizes to
   // avoid problems due to platform/compiler differences in structure padding.
   return reinterpret_cast<WrapperStruct*>(

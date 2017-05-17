@@ -28,21 +28,20 @@ const char kTitleStr3[] = "Title 3";
 class TitleTestHandler : public TestHandler {
  public:
   TitleTestHandler()
-      : step_(0),
-        got_title_change_(false),
-        got_loading_state_change_(false) {}
+      : step_(0), got_title_change_(false), got_loading_state_change_(false) {}
 
   void RunTest() override {
     // Add the resources that we will navigate to/from.
     AddResource(kTitleUrl1,
-        "<html><head><title>" + std::string(kTitleStr1) +
-        "</title></head>Nav1</html>", "text/html");
+                "<html><head><title>" + std::string(kTitleStr1) +
+                    "</title></head>Nav1</html>",
+                "text/html");
     AddResource(kTitleUrl2,
-        "<html><head><title>" + std::string(kTitleStr2) +
-        "</title></head>Nav2" +
-        "<script>function setTitle() { window.document.title = '" +
-        std::string(kTitleStr3) + "'; }</script>" +
-        "</html>", "text/html");
+                "<html><head><title>" + std::string(kTitleStr2) +
+                    "</title></head>Nav2" +
+                    "<script>function setTitle() { window.document.title = '" +
+                    std::string(kTitleStr3) + "'; }</script>" + "</html>",
+                "text/html");
 
     // Create the browser.
     CreateBrowser(kTitleUrl1);
@@ -115,7 +114,7 @@ class TitleTestHandler : public TestHandler {
         browser->GetMainFrame()->ExecuteJavaScript("setTitle()", kTitleUrl2, 0);
         break;
       default:
-        EXPECT_TRUE(false); // Not reached.
+        EXPECT_TRUE(false);  // Not reached.
     }
   }
 

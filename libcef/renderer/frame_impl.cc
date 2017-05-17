@@ -9,7 +9,7 @@
 // Enable deprecation warnings for MSVC. See http://crbug.com/585142.
 #if defined(OS_WIN)
 #pragma warning(push)
-#pragma warning(default:4996)
+#pragma warning(default : 4996)
 #endif
 
 #include "libcef/common/cef_messages.h"
@@ -29,20 +29,17 @@
 #include "third_party/WebKit/public/web/WebFrameContentDumper.h"
 #include "third_party/WebKit/public/web/WebKit.h"
 #include "third_party/WebKit/public/web/WebLocalFrame.h"
-#include "third_party/WebKit/public/web/WebView.h"
 #include "third_party/WebKit/public/web/WebScriptSource.h"
+#include "third_party/WebKit/public/web/WebView.h"
 
 using blink::WebString;
 
-CefFrameImpl::CefFrameImpl(CefBrowserImpl* browser,
-                           blink::WebFrame* frame)
-  : browser_(browser),
-    frame_(frame),
-    frame_id_(webkit_glue::GetIdentifier(frame)) {
-}
+CefFrameImpl::CefFrameImpl(CefBrowserImpl* browser, blink::WebFrame* frame)
+    : browser_(browser),
+      frame_(frame),
+      frame_id_(webkit_glue::GetIdentifier(frame)) {}
 
-CefFrameImpl::~CefFrameImpl() {
-}
+CefFrameImpl::~CefFrameImpl() {}
 
 bool CefFrameImpl::IsValid() {
   CEF_REQUIRE_RT_RETURN(false);
@@ -85,9 +82,9 @@ void CefFrameImpl::ViewSource() {
 void CefFrameImpl::GetSource(CefRefPtr<CefStringVisitor> visitor) {
   CEF_REQUIRE_RT_RETURN_VOID();
   if (frame_ && frame_->IsWebLocalFrame()) {
-    const CefString& content =
-        std::string(blink::WebFrameContentDumper::DumpAsMarkup(
-            frame_->ToWebLocalFrame()).Utf8());
+    const CefString& content = std::string(
+        blink::WebFrameContentDumper::DumpAsMarkup(frame_->ToWebLocalFrame())
+            .Utf8());
     visitor->Visit(content);
   }
 }
@@ -141,12 +138,11 @@ void CefFrameImpl::LoadURL(const CefString& url) {
   params.url = GURL(url.ToString());
   params.method = "GET";
   params.frame_id = frame_id_;
-  
+
   browser_->LoadRequest(params);
 }
 
-void CefFrameImpl::LoadString(const CefString& string,
-                              const CefString& url) {
+void CefFrameImpl::LoadString(const CefString& string, const CefString& url) {
   CEF_REQUIRE_RT_RETURN_VOID();
 
   if (frame_) {
@@ -167,9 +163,8 @@ void CefFrameImpl::ExecuteJavaScript(const CefString& jsCode,
 
   if (frame_) {
     GURL gurl = GURL(scriptUrl.ToString());
-    frame_->ExecuteScript(
-        blink::WebScriptSource(WebString::FromUTF16(jsCode.ToString16()), gurl,
-                               startLine));
+    frame_->ExecuteScript(blink::WebScriptSource(
+        WebString::FromUTF16(jsCode.ToString16()), gurl, startLine));
   }
 }
 
@@ -274,7 +269,6 @@ void CefFrameImpl::ExecuteCommand(const std::string& command) {
   if (frame_ && frame_->IsWebLocalFrame())
     frame_->ToWebLocalFrame()->ExecuteCommand(WebString::FromUTF8(command));
 }
-
 
 // Enable deprecation warnings for MSVC. See http://crbug.com/585142.
 #if defined(OS_WIN)

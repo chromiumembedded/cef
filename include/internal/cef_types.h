@@ -27,7 +27,6 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-
 #ifndef CEF_INCLUDE_INTERNAL_CEF_TYPES_H_
 #define CEF_INCLUDE_INTERNAL_CEF_TYPES_H_
 #pragma once
@@ -48,36 +47,34 @@
 
 // 32-bit ARGB color value, not premultiplied. The color components are always
 // in a known order. Equivalent to the SkColor type.
-typedef uint32              cef_color_t;
+typedef uint32 cef_color_t;
 
 // Return the alpha byte from a cef_color_t value.
-#define CefColorGetA(color)      (((color) >> 24) & 0xFF)
+#define CefColorGetA(color) (((color) >> 24) & 0xFF)
 // Return the red byte from a cef_color_t value.
-#define CefColorGetR(color)      (((color) >> 16) & 0xFF)
+#define CefColorGetR(color) (((color) >> 16) & 0xFF)
 // Return the green byte from a cef_color_t value.
-#define CefColorGetG(color)      (((color) >>  8) & 0xFF)
+#define CefColorGetG(color) (((color) >> 8) & 0xFF)
 // Return the blue byte from a cef_color_t value.
-#define CefColorGetB(color)      (((color) >>  0) & 0xFF)
+#define CefColorGetB(color) (((color) >> 0) & 0xFF)
 
 // Return an cef_color_t value with the specified byte component values.
-#define CefColorSetARGB(a, r, g, b) \
-    static_cast<cef_color_t>( \
-        (static_cast<unsigned>(a) << 24) | \
-        (static_cast<unsigned>(r) << 16) | \
-        (static_cast<unsigned>(g) << 8) | \
-        (static_cast<unsigned>(b) << 0))
+#define CefColorSetARGB(a, r, g, b)                                         \
+  static_cast<cef_color_t>(                                                 \
+      (static_cast<unsigned>(a) << 24) | (static_cast<unsigned>(r) << 16) | \
+      (static_cast<unsigned>(g) << 8) | (static_cast<unsigned>(b) << 0))
 
 // Return an int64 value with the specified low and high int32 component values.
-#define CefInt64Set(int32_low, int32_high) \
-    static_cast<int64>((static_cast<uint32>(int32_low)) | \
-        (static_cast<int64>(static_cast<int32>(int32_high))) << 32)
+#define CefInt64Set(int32_low, int32_high)                                \
+  static_cast<int64>((static_cast<uint32>(int32_low)) |                   \
+                     (static_cast<int64>(static_cast<int32>(int32_high))) \
+                         << 32)
 
 // Return the low int32 value from an int64 value.
 #define CefInt64GetLow(int64_val) static_cast<int32>(int64_val)
 // Return the high int32 value from an int64 value.
 #define CefInt64GetHigh(int64_val) \
-    static_cast<int32>((static_cast<int64>(int64_val) >> 32) & 0xFFFFFFFFL)
-
+  static_cast<int32>((static_cast<int64>(int64_val) >> 32) & 0xFFFFFFFFL)
 
 #ifdef __cplusplus
 extern "C" {
@@ -979,23 +976,23 @@ typedef enum {
 // DragActions.h and should not be renumbered.
 ///
 typedef enum {
-    DRAG_OPERATION_NONE    = 0,
-    DRAG_OPERATION_COPY    = 1,
-    DRAG_OPERATION_LINK    = 2,
-    DRAG_OPERATION_GENERIC = 4,
-    DRAG_OPERATION_PRIVATE = 8,
-    DRAG_OPERATION_MOVE    = 16,
-    DRAG_OPERATION_DELETE  = 32,
-    DRAG_OPERATION_EVERY   = UINT_MAX
+  DRAG_OPERATION_NONE = 0,
+  DRAG_OPERATION_COPY = 1,
+  DRAG_OPERATION_LINK = 2,
+  DRAG_OPERATION_GENERIC = 4,
+  DRAG_OPERATION_PRIVATE = 8,
+  DRAG_OPERATION_MOVE = 16,
+  DRAG_OPERATION_DELETE = 32,
+  DRAG_OPERATION_EVERY = UINT_MAX
 } cef_drag_operations_mask_t;
 
 ///
 // V8 access control values.
 ///
 typedef enum {
-  V8_ACCESS_CONTROL_DEFAULT               = 0,
-  V8_ACCESS_CONTROL_ALL_CAN_READ          = 1,
-  V8_ACCESS_CONTROL_ALL_CAN_WRITE         = 1 << 1,
+  V8_ACCESS_CONTROL_DEFAULT = 0,
+  V8_ACCESS_CONTROL_ALL_CAN_READ = 1,
+  V8_ACCESS_CONTROL_ALL_CAN_WRITE = 1 << 1,
   V8_ACCESS_CONTROL_PROHIBITS_OVERWRITING = 1 << 2
 } cef_v8_accesscontrol_t;
 
@@ -1003,18 +1000,18 @@ typedef enum {
 // V8 property attribute values.
 ///
 typedef enum {
-  V8_PROPERTY_ATTRIBUTE_NONE       = 0,       // Writeable, Enumerable,
-                                              //   Configurable
-  V8_PROPERTY_ATTRIBUTE_READONLY   = 1 << 0,  // Not writeable
-  V8_PROPERTY_ATTRIBUTE_DONTENUM   = 1 << 1,  // Not enumerable
-  V8_PROPERTY_ATTRIBUTE_DONTDELETE = 1 << 2   // Not configurable
+  V8_PROPERTY_ATTRIBUTE_NONE = 0,            // Writeable, Enumerable,
+                                             //   Configurable
+  V8_PROPERTY_ATTRIBUTE_READONLY = 1 << 0,   // Not writeable
+  V8_PROPERTY_ATTRIBUTE_DONTENUM = 1 << 1,   // Not enumerable
+  V8_PROPERTY_ATTRIBUTE_DONTDELETE = 1 << 2  // Not configurable
 } cef_v8_propertyattribute_t;
 
 ///
 // Post data elements may represent either bytes or files.
 ///
 typedef enum {
-  PDE_TYPE_EMPTY  = 0,
+  PDE_TYPE_EMPTY = 0,
   PDE_TYPE_BYTES,
   PDE_TYPE_FILE,
 } cef_postdataelement_type_t;
@@ -1223,35 +1220,35 @@ typedef enum {
   ///
   // Default behavior.
   ///
-  UR_FLAG_NONE                      = 0,
+  UR_FLAG_NONE = 0,
 
   ///
   // If set the cache will be skipped when handling the request.
   ///
-  UR_FLAG_SKIP_CACHE                = 1 << 0,
+  UR_FLAG_SKIP_CACHE = 1 << 0,
 
   ///
   // If set user name, password, and cookies may be sent with the request, and
   // cookies may be saved from the response.
   ///
-  UR_FLAG_ALLOW_CACHED_CREDENTIALS  = 1 << 1,
+  UR_FLAG_ALLOW_CACHED_CREDENTIALS = 1 << 1,
 
   ///
   // If set upload progress events will be generated when a request has a body.
   ///
-  UR_FLAG_REPORT_UPLOAD_PROGRESS    = 1 << 3,
+  UR_FLAG_REPORT_UPLOAD_PROGRESS = 1 << 3,
 
   ///
   // If set the CefURLRequestClient::OnDownloadData method will not be called.
   ///
-  UR_FLAG_NO_DOWNLOAD_DATA          = 1 << 6,
+  UR_FLAG_NO_DOWNLOAD_DATA = 1 << 6,
 
   ///
   // If set 5XX redirect errors will be propagated to the observer instead of
   // automatically re-tried. This currently only applies for requests
   // originated in the browser process.
   ///
-  UR_FLAG_NO_RETRY_ON_5XX           = 1 << 7,
+  UR_FLAG_NO_RETRY_ON_5XX = 1 << 7,
 } cef_urlrequest_flags_t;
 
 ///
@@ -1362,7 +1359,7 @@ typedef enum {
 // Existing thread IDs.
 ///
 typedef enum {
-// BROWSER PROCESS THREADS -- Only available in the browser process.
+  // BROWSER PROCESS THREADS -- Only available in the browser process.
 
   ///
   // The main thread in the browser. This will be the same as the main
@@ -1402,7 +1399,7 @@ typedef enum {
   ///
   TID_IO,
 
-// RENDER PROCESS THREADS -- Only available in the render process.
+  // RENDER PROCESS THREADS -- Only available in the render process.
 
   ///
   // The main thread in the renderer. Used for all WebKit and V8 interaction.
@@ -1563,53 +1560,53 @@ typedef struct _cef_screen_info_t {
 ///
 typedef enum {
   // Navigation.
-  MENU_ID_BACK                = 100,
-  MENU_ID_FORWARD             = 101,
-  MENU_ID_RELOAD              = 102,
-  MENU_ID_RELOAD_NOCACHE      = 103,
-  MENU_ID_STOPLOAD            = 104,
+  MENU_ID_BACK = 100,
+  MENU_ID_FORWARD = 101,
+  MENU_ID_RELOAD = 102,
+  MENU_ID_RELOAD_NOCACHE = 103,
+  MENU_ID_STOPLOAD = 104,
 
   // Editing.
-  MENU_ID_UNDO                = 110,
-  MENU_ID_REDO                = 111,
-  MENU_ID_CUT                 = 112,
-  MENU_ID_COPY                = 113,
-  MENU_ID_PASTE               = 114,
-  MENU_ID_DELETE              = 115,
-  MENU_ID_SELECT_ALL          = 116,
+  MENU_ID_UNDO = 110,
+  MENU_ID_REDO = 111,
+  MENU_ID_CUT = 112,
+  MENU_ID_COPY = 113,
+  MENU_ID_PASTE = 114,
+  MENU_ID_DELETE = 115,
+  MENU_ID_SELECT_ALL = 116,
 
   // Miscellaneous.
-  MENU_ID_FIND                = 130,
-  MENU_ID_PRINT               = 131,
-  MENU_ID_VIEW_SOURCE         = 132,
+  MENU_ID_FIND = 130,
+  MENU_ID_PRINT = 131,
+  MENU_ID_VIEW_SOURCE = 132,
 
   // Spell checking word correction suggestions.
-  MENU_ID_SPELLCHECK_SUGGESTION_0        = 200,
-  MENU_ID_SPELLCHECK_SUGGESTION_1        = 201,
-  MENU_ID_SPELLCHECK_SUGGESTION_2        = 202,
-  MENU_ID_SPELLCHECK_SUGGESTION_3        = 203,
-  MENU_ID_SPELLCHECK_SUGGESTION_4        = 204,
-  MENU_ID_SPELLCHECK_SUGGESTION_LAST     = 204,
-  MENU_ID_NO_SPELLING_SUGGESTIONS        = 205,
-  MENU_ID_ADD_TO_DICTIONARY              = 206,
+  MENU_ID_SPELLCHECK_SUGGESTION_0 = 200,
+  MENU_ID_SPELLCHECK_SUGGESTION_1 = 201,
+  MENU_ID_SPELLCHECK_SUGGESTION_2 = 202,
+  MENU_ID_SPELLCHECK_SUGGESTION_3 = 203,
+  MENU_ID_SPELLCHECK_SUGGESTION_4 = 204,
+  MENU_ID_SPELLCHECK_SUGGESTION_LAST = 204,
+  MENU_ID_NO_SPELLING_SUGGESTIONS = 205,
+  MENU_ID_ADD_TO_DICTIONARY = 206,
 
   // Custom menu items originating from the renderer process. For example,
   // plugin placeholder menu items or Flash menu items.
-  MENU_ID_CUSTOM_FIRST        = 220,
-  MENU_ID_CUSTOM_LAST         = 250,
+  MENU_ID_CUSTOM_FIRST = 220,
+  MENU_ID_CUSTOM_LAST = 250,
 
   // All user-defined menu IDs should come between MENU_ID_USER_FIRST and
   // MENU_ID_USER_LAST to avoid overlapping the Chromium and CEF ID ranges
   // defined in the tools/gritsettings/resource_ids file.
-  MENU_ID_USER_FIRST          = 26500,
-  MENU_ID_USER_LAST           = 28500,
+  MENU_ID_USER_FIRST = 26500,
+  MENU_ID_USER_LAST = 28500,
 } cef_menu_id_t;
 
 ///
 // Mouse button types.
 ///
 typedef enum {
-  MBT_LEFT   = 0,
+  MBT_LEFT = 0,
   MBT_MIDDLE,
   MBT_RIGHT,
 } cef_mouse_button_type_t;
@@ -1639,7 +1636,7 @@ typedef struct _cef_mouse_event_t {
 // Paint element types.
 ///
 typedef enum {
-  PET_VIEW  = 0,
+  PET_VIEW = 0,
   PET_POPUP,
 } cef_paint_element_type_t;
 
@@ -1647,20 +1644,20 @@ typedef enum {
 // Supported event bit flags.
 ///
 typedef enum {
-  EVENTFLAG_NONE                = 0,
-  EVENTFLAG_CAPS_LOCK_ON        = 1 << 0,
-  EVENTFLAG_SHIFT_DOWN          = 1 << 1,
-  EVENTFLAG_CONTROL_DOWN        = 1 << 2,
-  EVENTFLAG_ALT_DOWN            = 1 << 3,
-  EVENTFLAG_LEFT_MOUSE_BUTTON   = 1 << 4,
+  EVENTFLAG_NONE = 0,
+  EVENTFLAG_CAPS_LOCK_ON = 1 << 0,
+  EVENTFLAG_SHIFT_DOWN = 1 << 1,
+  EVENTFLAG_CONTROL_DOWN = 1 << 2,
+  EVENTFLAG_ALT_DOWN = 1 << 3,
+  EVENTFLAG_LEFT_MOUSE_BUTTON = 1 << 4,
   EVENTFLAG_MIDDLE_MOUSE_BUTTON = 1 << 5,
-  EVENTFLAG_RIGHT_MOUSE_BUTTON  = 1 << 6,
+  EVENTFLAG_RIGHT_MOUSE_BUTTON = 1 << 6,
   // Mac OS-X command key.
-  EVENTFLAG_COMMAND_DOWN        = 1 << 7,
-  EVENTFLAG_NUM_LOCK_ON         = 1 << 8,
-  EVENTFLAG_IS_KEY_PAD          = 1 << 9,
-  EVENTFLAG_IS_LEFT             = 1 << 10,
-  EVENTFLAG_IS_RIGHT            = 1 << 11,
+  EVENTFLAG_COMMAND_DOWN = 1 << 7,
+  EVENTFLAG_NUM_LOCK_ON = 1 << 8,
+  EVENTFLAG_IS_KEY_PAD = 1 << 9,
+  EVENTFLAG_IS_LEFT = 1 << 10,
+  EVENTFLAG_IS_RIGHT = 1 << 11,
 } cef_event_flags_t;
 
 ///
@@ -1682,31 +1679,31 @@ typedef enum {
   ///
   // No node is selected.
   ///
-  CM_TYPEFLAG_NONE        = 0,
+  CM_TYPEFLAG_NONE = 0,
   ///
   // The top page is selected.
   ///
-  CM_TYPEFLAG_PAGE        = 1 << 0,
+  CM_TYPEFLAG_PAGE = 1 << 0,
   ///
   // A subframe page is selected.
   ///
-  CM_TYPEFLAG_FRAME       = 1 << 1,
+  CM_TYPEFLAG_FRAME = 1 << 1,
   ///
   // A link is selected.
   ///
-  CM_TYPEFLAG_LINK        = 1 << 2,
+  CM_TYPEFLAG_LINK = 1 << 2,
   ///
   // A media node is selected.
   ///
-  CM_TYPEFLAG_MEDIA       = 1 << 3,
+  CM_TYPEFLAG_MEDIA = 1 << 3,
   ///
   // There is a textual or mixed selection that is selected.
   ///
-  CM_TYPEFLAG_SELECTION   = 1 << 4,
+  CM_TYPEFLAG_SELECTION = 1 << 4,
   ///
   // An editable element is selected.
   ///
-  CM_TYPEFLAG_EDITABLE    = 1 << 5,
+  CM_TYPEFLAG_EDITABLE = 1 << 5,
 } cef_context_menu_type_flags_t;
 
 ///
@@ -1743,32 +1740,32 @@ typedef enum {
 // Supported context menu media state bit flags.
 ///
 typedef enum {
-  CM_MEDIAFLAG_NONE                  = 0,
-  CM_MEDIAFLAG_ERROR                 = 1 << 0,
-  CM_MEDIAFLAG_PAUSED                = 1 << 1,
-  CM_MEDIAFLAG_MUTED                 = 1 << 2,
-  CM_MEDIAFLAG_LOOP                  = 1 << 3,
-  CM_MEDIAFLAG_CAN_SAVE              = 1 << 4,
-  CM_MEDIAFLAG_HAS_AUDIO             = 1 << 5,
-  CM_MEDIAFLAG_HAS_VIDEO             = 1 << 6,
-  CM_MEDIAFLAG_CONTROL_ROOT_ELEMENT  = 1 << 7,
-  CM_MEDIAFLAG_CAN_PRINT             = 1 << 8,
-  CM_MEDIAFLAG_CAN_ROTATE            = 1 << 9,
+  CM_MEDIAFLAG_NONE = 0,
+  CM_MEDIAFLAG_ERROR = 1 << 0,
+  CM_MEDIAFLAG_PAUSED = 1 << 1,
+  CM_MEDIAFLAG_MUTED = 1 << 2,
+  CM_MEDIAFLAG_LOOP = 1 << 3,
+  CM_MEDIAFLAG_CAN_SAVE = 1 << 4,
+  CM_MEDIAFLAG_HAS_AUDIO = 1 << 5,
+  CM_MEDIAFLAG_HAS_VIDEO = 1 << 6,
+  CM_MEDIAFLAG_CONTROL_ROOT_ELEMENT = 1 << 7,
+  CM_MEDIAFLAG_CAN_PRINT = 1 << 8,
+  CM_MEDIAFLAG_CAN_ROTATE = 1 << 9,
 } cef_context_menu_media_state_flags_t;
 
 ///
 // Supported context menu edit state bit flags.
 ///
 typedef enum {
-  CM_EDITFLAG_NONE            = 0,
-  CM_EDITFLAG_CAN_UNDO        = 1 << 0,
-  CM_EDITFLAG_CAN_REDO        = 1 << 1,
-  CM_EDITFLAG_CAN_CUT         = 1 << 2,
-  CM_EDITFLAG_CAN_COPY        = 1 << 3,
-  CM_EDITFLAG_CAN_PASTE       = 1 << 4,
-  CM_EDITFLAG_CAN_DELETE      = 1 << 5,
-  CM_EDITFLAG_CAN_SELECT_ALL  = 1 << 6,
-  CM_EDITFLAG_CAN_TRANSLATE   = 1 << 7,
+  CM_EDITFLAG_NONE = 0,
+  CM_EDITFLAG_CAN_UNDO = 1 << 0,
+  CM_EDITFLAG_CAN_REDO = 1 << 1,
+  CM_EDITFLAG_CAN_CUT = 1 << 2,
+  CM_EDITFLAG_CAN_COPY = 1 << 3,
+  CM_EDITFLAG_CAN_PASTE = 1 << 4,
+  CM_EDITFLAG_CAN_DELETE = 1 << 5,
+  CM_EDITFLAG_CAN_SELECT_ALL = 1 << 6,
+  CM_EDITFLAG_CAN_TRANSLATE = 1 << 7,
 } cef_context_menu_edit_state_flags_t;
 
 ///
@@ -2123,15 +2120,15 @@ typedef enum {
   COLOR_MODEL_RGB,
   COLOR_MODEL_RGB16,
   COLOR_MODEL_RGBA,
-  COLOR_MODEL_COLORMODE_COLOR,  // Used in samsung printer ppds.
-  COLOR_MODEL_COLORMODE_MONOCHROME,  // Used in samsung printer ppds.
-  COLOR_MODEL_HP_COLOR_COLOR,  // Used in HP color printer ppds.
-  COLOR_MODEL_HP_COLOR_BLACK,  // Used in HP color printer ppds.
-  COLOR_MODEL_PRINTOUTMODE_NORMAL,  // Used in foomatic ppds.
-  COLOR_MODEL_PRINTOUTMODE_NORMAL_GRAY,  // Used in foomatic ppds.
-  COLOR_MODEL_PROCESSCOLORMODEL_CMYK,  // Used in canon printer ppds.
+  COLOR_MODEL_COLORMODE_COLOR,              // Used in samsung printer ppds.
+  COLOR_MODEL_COLORMODE_MONOCHROME,         // Used in samsung printer ppds.
+  COLOR_MODEL_HP_COLOR_COLOR,               // Used in HP color printer ppds.
+  COLOR_MODEL_HP_COLOR_BLACK,               // Used in HP color printer ppds.
+  COLOR_MODEL_PRINTOUTMODE_NORMAL,          // Used in foomatic ppds.
+  COLOR_MODEL_PRINTOUTMODE_NORMAL_GRAY,     // Used in foomatic ppds.
+  COLOR_MODEL_PROCESSCOLORMODEL_CMYK,       // Used in canon printer ppds.
   COLOR_MODEL_PROCESSCOLORMODEL_GREYSCALE,  // Used in canon printer ppds.
-  COLOR_MODEL_PROCESSCOLORMODEL_RGB,  // Used in canon printer ppds
+  COLOR_MODEL_PROCESSCOLORMODEL_RGB,        // Used in canon printer ppds
 } cef_color_model_t;
 
 ///
@@ -2561,7 +2558,7 @@ typedef enum {
   // Transparency with pre-multiplied alpha component.
   ///
   CEF_ALPHA_TYPE_PREMULTIPLIED,
-  
+
   ///
   // Transparency with post-multiplied alpha component.
   ///

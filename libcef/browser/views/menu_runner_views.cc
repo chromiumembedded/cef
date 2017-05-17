@@ -8,8 +8,7 @@
 #include "libcef/browser/views/browser_view_impl.h"
 
 CefMenuRunnerViews::CefMenuRunnerViews(CefBrowserViewImpl* browser_view)
-    : browser_view_(browser_view) {
-}
+    : browser_view_(browser_view) {}
 
 bool CefMenuRunnerViews::RunContextMenu(
     CefBrowserHostImpl* browser,

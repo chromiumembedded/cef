@@ -9,18 +9,21 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=b77922c7e347a9371ebdba47213b23fcd62d98a8$
+//
 
 #include "libcef_dll/cpptoc/v8interceptor_cpptoc.h"
 #include "libcef_dll/ctocpp/v8value_ctocpp.h"
-
 
 namespace {
 
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
 int CEF_CALLBACK v8interceptor_get_byname(struct _cef_v8interceptor_t* self,
-    const cef_string_t* name, struct _cef_v8value_t* object,
-    struct _cef_v8value_t** retval, cef_string_t* exception) {
+                                          const cef_string_t* name,
+                                          struct _cef_v8value_t* object,
+                                          struct _cef_v8value_t** retval,
+                                          cef_string_t* exception) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -53,10 +56,7 @@ int CEF_CALLBACK v8interceptor_get_byname(struct _cef_v8interceptor_t* self,
 
   // Execute
   bool _retval = CefV8InterceptorCppToC::Get(self)->Get(
-      CefString(name),
-      CefV8ValueCToCpp::Wrap(object),
-      retvalPtr,
-      exceptionStr);
+      CefString(name), CefV8ValueCToCpp::Wrap(object), retvalPtr, exceptionStr);
 
   // Restore param: retval; type: refptr_diff_byref
   if (retval) {
@@ -74,8 +74,10 @@ int CEF_CALLBACK v8interceptor_get_byname(struct _cef_v8interceptor_t* self,
 }
 
 int CEF_CALLBACK v8interceptor_get_byindex(struct _cef_v8interceptor_t* self,
-    int index, struct _cef_v8value_t* object, struct _cef_v8value_t** retval,
-    cef_string_t* exception) {
+                                           int index,
+                                           struct _cef_v8value_t* object,
+                                           struct _cef_v8value_t** retval,
+                                           cef_string_t* exception) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -108,10 +110,7 @@ int CEF_CALLBACK v8interceptor_get_byindex(struct _cef_v8interceptor_t* self,
 
   // Execute
   bool _retval = CefV8InterceptorCppToC::Get(self)->Get(
-      index,
-      CefV8ValueCToCpp::Wrap(object),
-      retvalPtr,
-      exceptionStr);
+      index, CefV8ValueCToCpp::Wrap(object), retvalPtr, exceptionStr);
 
   // Restore param: retval; type: refptr_diff_byref
   if (retval) {
@@ -129,8 +128,10 @@ int CEF_CALLBACK v8interceptor_get_byindex(struct _cef_v8interceptor_t* self,
 }
 
 int CEF_CALLBACK v8interceptor_set_byname(struct _cef_v8interceptor_t* self,
-    const cef_string_t* name, struct _cef_v8value_t* object,
-    struct _cef_v8value_t* value, cef_string_t* exception) {
+                                          const cef_string_t* name,
+                                          struct _cef_v8value_t* object,
+                                          struct _cef_v8value_t* value,
+                                          cef_string_t* exception) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -158,18 +159,18 @@ int CEF_CALLBACK v8interceptor_set_byname(struct _cef_v8interceptor_t* self,
 
   // Execute
   bool _retval = CefV8InterceptorCppToC::Get(self)->Set(
-      CefString(name),
-      CefV8ValueCToCpp::Wrap(object),
-      CefV8ValueCToCpp::Wrap(value),
-      exceptionStr);
+      CefString(name), CefV8ValueCToCpp::Wrap(object),
+      CefV8ValueCToCpp::Wrap(value), exceptionStr);
 
   // Return type: bool
   return _retval;
 }
 
 int CEF_CALLBACK v8interceptor_set_byindex(struct _cef_v8interceptor_t* self,
-    int index, struct _cef_v8value_t* object, struct _cef_v8value_t* value,
-    cef_string_t* exception) {
+                                           int index,
+                                           struct _cef_v8value_t* object,
+                                           struct _cef_v8value_t* value,
+                                           cef_string_t* exception) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -197,9 +198,7 @@ int CEF_CALLBACK v8interceptor_set_byindex(struct _cef_v8interceptor_t* self,
 
   // Execute
   bool _retval = CefV8InterceptorCppToC::Get(self)->Set(
-      index,
-      CefV8ValueCToCpp::Wrap(object),
-      CefV8ValueCToCpp::Wrap(value),
+      index, CefV8ValueCToCpp::Wrap(object), CefV8ValueCToCpp::Wrap(value),
       exceptionStr);
 
   // Return type: bool
@@ -207,7 +206,6 @@ int CEF_CALLBACK v8interceptor_set_byindex(struct _cef_v8interceptor_t* self,
 }
 
 }  // namespace
-
 
 // CONSTRUCTOR - Do not edit by hand.
 
@@ -218,17 +216,25 @@ CefV8InterceptorCppToC::CefV8InterceptorCppToC() {
   GetStruct()->set_byindex = v8interceptor_set_byindex;
 }
 
-template<> CefRefPtr<CefV8Interceptor> CefCppToCRefCounted<CefV8InterceptorCppToC,
-    CefV8Interceptor, cef_v8interceptor_t>::UnwrapDerived(CefWrapperType type,
-    cef_v8interceptor_t* s) {
+template <>
+CefRefPtr<CefV8Interceptor> CefCppToCRefCounted<
+    CefV8InterceptorCppToC,
+    CefV8Interceptor,
+    cef_v8interceptor_t>::UnwrapDerived(CefWrapperType type,
+                                        cef_v8interceptor_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCppToCRefCounted<CefV8InterceptorCppToC,
-    CefV8Interceptor, cef_v8interceptor_t>::DebugObjCt = 0;
+template <>
+base::AtomicRefCount CefCppToCRefCounted<CefV8InterceptorCppToC,
+                                         CefV8Interceptor,
+                                         cef_v8interceptor_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCppToCRefCounted<CefV8InterceptorCppToC,
-    CefV8Interceptor, cef_v8interceptor_t>::kWrapperType = WT_V8INTERCEPTOR;
+template <>
+CefWrapperType CefCppToCRefCounted<CefV8InterceptorCppToC,
+                                   CefV8Interceptor,
+                                   cef_v8interceptor_t>::kWrapperType =
+    WT_V8INTERCEPTOR;

@@ -42,15 +42,13 @@ bool GetCrashKeyTrampoline(size_t index,
   static GetCrashKey get_crash_key = []() {
     HMODULE elf_module = GetModuleHandle(chrome::kChromeElfDllName);
     return reinterpret_cast<GetCrashKey>(
-        elf_module ? GetProcAddress(elf_module, "GetCrashKeyImpl")
-                   : nullptr);
+        elf_module ? GetProcAddress(elf_module, "GetCrashKeyImpl") : nullptr);
   }();
   if (get_crash_key) {
     return (get_crash_key)(index, key_name, max_length);
   }
   return false;
 }
-
 
 // From chrome/common/child_process_logging_win.cc:
 

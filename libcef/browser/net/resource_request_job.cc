@@ -32,7 +32,7 @@ bool SetHeaderIfMissing(CefRequest::HeaderMap& headerMap,
                         const std::string& value) {
   if (value.empty())
     return false;
-                              
+
   CefRequest::HeaderMap::const_iterator it = headerMap.find(name);
   if (it == headerMap.end()) {
     headerMap.insert(std::make_pair(name, value));
@@ -53,20 +53,19 @@ class CefResourceRequestJobCallback : public CefCallback {
   };
 
   explicit CefResourceRequestJobCallback(CefResourceRequestJob* job, Type type)
-      : job_(job),
-        type_(type),
-        dest_(NULL),
-        dest_size_(0) {}
+      : job_(job), type_(type), dest_(NULL), dest_size_(0) {}
 
   void Continue() override {
     // Continue asynchronously.
-    CEF_POST_TASK(CEF_IOT,
+    CEF_POST_TASK(
+        CEF_IOT,
         base::Bind(&CefResourceRequestJobCallback::ContinueOnIOThread, this));
   }
 
   void Cancel() override {
     // Cancel asynchronously.
-    CEF_POST_TASK(CEF_IOT,
+    CEF_POST_TASK(
+        CEF_IOT,
         base::Bind(&CefResourceRequestJobCallback::CancelOnIOThread, this));
   }
 
@@ -103,8 +102,7 @@ class CefResourceRequestJobCallback : public CefCallback {
       Detach();
     } else if (type_ == BYTES_AVAILABLE) {
       // Callback for bytes available.
-      if (job_->has_response_started() &&
-          job_->GetStatus().is_io_pending()) {
+      if (job_->has_response_started() && job_->GetStatus().is_io_pending()) {
         // Read the bytes. They should be available but, if not, wait again.
         int bytes_read = job_->ReadRawData(dest_, dest_size_);
         if (bytes_read == net::ERR_IO_PENDING) {
@@ -155,11 +153,9 @@ CefResourceRequestJob::CefResourceRequestJob(
       remaining_bytes_(0),
       sent_bytes_(0),
       response_cookies_save_index_(0),
-      weak_factory_(this) {
-}
+      weak_factory_(this) {}
 
-CefResourceRequestJob::~CefResourceRequestJob() {
-}
+CefResourceRequestJob::~CefResourceRequestJob() {}
 
 void CefResourceRequestJob::Start() {
   CEF_REQUIRE_IOT();
@@ -186,8 +182,7 @@ void CefResourceRequestJob::Start() {
         changed = true;
       }
 
-      if (SetHeaderIfMissing(headerMap,
-                             net::HttpRequestHeaders::kUserAgent,
+      if (SetHeaderIfMissing(headerMap, net::HttpRequestHeaders::kUserAgent,
                              ua_settings->GetUserAgent())) {
         changed = true;
       }
@@ -239,8 +234,8 @@ int CefResourceRequestJob::ReadRawData(net::IOBuffer* dest, int dest_size) {
   if (!callback_.get()) {
     // Create the bytes available callback that will be used until the request
     // is completed.
-    callback_ = new CefResourceRequestJobCallback(this,
-        CefResourceRequestJobCallback::BYTES_AVAILABLE);
+    callback_ = new CefResourceRequestJobCallback(
+        this, CefResourceRequestJobCallback::BYTES_AVAILABLE);
   }
 
   // Read response data from the handler.
@@ -306,10 +301,10 @@ bool CefResourceRequestJob::IsRedirectResponse(GURL* location,
       response_->GetHeaderMap(headerMap);
       CefRequest::HeaderMap::iterator iter = headerMap.find("Location");
       if (iter != headerMap.end()) {
-          GURL new_url = GURL(std::string(iter->second));
-          *http_status_code = status;
-          location->Swap(&new_url);
-          return true;
+        GURL new_url = GURL(std::string(iter->second));
+        *http_status_code = status;
+        location->Swap(&new_url);
+        return true;
       }
     }
   }
@@ -391,7 +386,7 @@ void CefResourceRequestJob::AddCookieHeaderAndStart() {
     cookie_store->GetAllCookiesForURLAsync(
         request_->url(),
         base::Bind(&CefResourceRequestJob::CheckCookiePolicyAndLoad,
-                    weak_factory_.GetWeakPtr()));
+                   weak_factory_.GetWeakPtr()));
   } else {
     DoStartTransaction();
   }
@@ -450,8 +445,8 @@ void CefResourceRequestJob::DoStartTransaction() {
 void CefResourceRequestJob::StartTransaction() {
   // Create the callback that will be used to notify when header information is
   // available.
-  callback_ = new CefResourceRequestJobCallback(this,
-      CefResourceRequestJobCallback::HEADERS_AVAILABLE);
+  callback_ = new CefResourceRequestJobCallback(
+      this, CefResourceRequestJobCallback::HEADERS_AVAILABLE);
 
   // Protect against deletion of this object.
   base::WeakPtr<CefResourceRequestJob> weak_ptr(weak_factory_.GetWeakPtr());
@@ -499,12 +494,13 @@ void CefResourceRequestJob::SaveNextCookie() {
 
   net::CookieOptions options;
   options.set_include_httponly();
-  bool can_set_cookie = CanSetCookie(
-      response_cookies_[response_cookies_save_index_], &options);
+  bool can_set_cookie =
+      CanSetCookie(response_cookies_[response_cookies_save_index_], &options);
   if (can_set_cookie) {
     CefCookie cookie;
-    if (CefCookieManagerImpl::GetCefCookie(request_->url(),
-            response_cookies_[response_cookies_save_index_], cookie)) {
+    if (CefCookieManagerImpl::GetCefCookie(
+            request_->url(), response_cookies_[response_cookies_save_index_],
+            cookie)) {
       can_set_cookie = handler_->CanSetCookie(cookie);
     } else {
       can_set_cookie = false;
@@ -514,8 +510,9 @@ void CefResourceRequestJob::SaveNextCookie() {
   if (can_set_cookie) {
     request_->context()->cookie_store()->SetCookieWithOptionsAsync(
         request_->url(), response_cookies_[response_cookies_save_index_],
-        options, base::Bind(&CefResourceRequestJob::OnCookieSaved,
-                            weak_factory_.GetWeakPtr()));
+        options,
+        base::Bind(&CefResourceRequestJob::OnCookieSaved,
+                   weak_factory_.GetWeakPtr()));
     return;
   }
 

@@ -73,12 +73,8 @@ void cef_sandbox_info_destroy(void* sandbox_info);
 ///
 class CefScopedSandboxInfo {
  public:
-  CefScopedSandboxInfo() {
-    sandbox_info_ = cef_sandbox_info_create();
-  }
-  ~CefScopedSandboxInfo() {
-    cef_sandbox_info_destroy(sandbox_info_);
-  }
+  CefScopedSandboxInfo() { sandbox_info_ = cef_sandbox_info_create(); }
+  ~CefScopedSandboxInfo() { cef_sandbox_info_destroy(sandbox_info_); }
 
   void* sandbox_info() const { return sandbox_info_; }
 

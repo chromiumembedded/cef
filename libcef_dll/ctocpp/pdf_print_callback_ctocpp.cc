@@ -9,14 +9,15 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=d7aae81d3552e76b0fed3fdbd467fc1a89df7e97$
+//
 
 #include "libcef_dll/ctocpp/pdf_print_callback_ctocpp.h"
-
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
 void CefPdfPrintCallbackCToCpp::OnPdfPrintFinished(const CefString& path,
-    bool ok) {
+                                                   bool ok) {
   cef_pdf_print_callback_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_pdf_print_finished))
     return;
@@ -29,29 +30,33 @@ void CefPdfPrintCallbackCToCpp::OnPdfPrintFinished(const CefString& path,
     return;
 
   // Execute
-  _struct->on_pdf_print_finished(_struct,
-      path.GetStruct(),
-      ok);
+  _struct->on_pdf_print_finished(_struct, path.GetStruct(), ok);
 }
-
 
 // CONSTRUCTOR - Do not edit by hand.
 
-CefPdfPrintCallbackCToCpp::CefPdfPrintCallbackCToCpp() {
-}
+CefPdfPrintCallbackCToCpp::CefPdfPrintCallbackCToCpp() {}
 
-template<> cef_pdf_print_callback_t* CefCToCppRefCounted<CefPdfPrintCallbackCToCpp,
-    CefPdfPrintCallback, cef_pdf_print_callback_t>::UnwrapDerived(
-    CefWrapperType type, CefPdfPrintCallback* c) {
+template <>
+cef_pdf_print_callback_t* CefCToCppRefCounted<
+    CefPdfPrintCallbackCToCpp,
+    CefPdfPrintCallback,
+    cef_pdf_print_callback_t>::UnwrapDerived(CefWrapperType type,
+                                             CefPdfPrintCallback* c) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCppRefCounted<CefPdfPrintCallbackCToCpp,
-    CefPdfPrintCallback, cef_pdf_print_callback_t>::DebugObjCt = 0;
+template <>
+base::AtomicRefCount CefCToCppRefCounted<CefPdfPrintCallbackCToCpp,
+                                         CefPdfPrintCallback,
+                                         cef_pdf_print_callback_t>::DebugObjCt =
+    0;
 #endif
 
-template<> CefWrapperType CefCToCppRefCounted<CefPdfPrintCallbackCToCpp,
-    CefPdfPrintCallback, cef_pdf_print_callback_t>::kWrapperType =
+template <>
+CefWrapperType CefCToCppRefCounted<CefPdfPrintCallbackCToCpp,
+                                   CefPdfPrintCallback,
+                                   cef_pdf_print_callback_t>::kWrapperType =
     WT_PDF_PRINT_CALLBACK;

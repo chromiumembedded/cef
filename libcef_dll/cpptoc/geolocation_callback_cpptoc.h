@@ -9,6 +9,8 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=63af8731a223066d8a4f2cc17366757dca66f7fd$
+//
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_GEOLOCATION_CALLBACK_CPPTOC_H_
 #define CEF_LIBCEF_DLL_CPPTOC_GEOLOCATION_CALLBACK_CPPTOC_H_
@@ -18,15 +20,16 @@
 #error This file can be included DLL-side only
 #endif
 
-#include "include/cef_geolocation_handler.h"
 #include "include/capi/cef_geolocation_handler_capi.h"
+#include "include/cef_geolocation_handler.h"
 #include "libcef_dll/cpptoc/cpptoc_ref_counted.h"
 
 // Wrap a C++ class with a C structure.
 // This class may be instantiated and accessed DLL-side only.
 class CefGeolocationCallbackCppToC
     : public CefCppToCRefCounted<CefGeolocationCallbackCppToC,
-        CefGeolocationCallback, cef_geolocation_callback_t> {
+                                 CefGeolocationCallback,
+                                 cef_geolocation_callback_t> {
  public:
   CefGeolocationCallbackCppToC();
 };

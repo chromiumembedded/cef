@@ -9,9 +9,10 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=5609fad7a14bad55ece61758326b8fdb8a20ac2c$
+//
 
 #include "libcef_dll/cpptoc/get_geolocation_callback_cpptoc.h"
-
 
 namespace {
 
@@ -36,12 +37,10 @@ void CEF_CALLBACK get_geolocation_callback_on_location_update(
     positionObj.Set(*position, false);
 
   // Execute
-  CefGetGeolocationCallbackCppToC::Get(self)->OnLocationUpdate(
-      positionObj);
+  CefGetGeolocationCallbackCppToC::Get(self)->OnLocationUpdate(positionObj);
 }
 
 }  // namespace
-
 
 // CONSTRUCTOR - Do not edit by hand.
 
@@ -49,19 +48,27 @@ CefGetGeolocationCallbackCppToC::CefGetGeolocationCallbackCppToC() {
   GetStruct()->on_location_update = get_geolocation_callback_on_location_update;
 }
 
-template<> CefRefPtr<CefGetGeolocationCallback> CefCppToCRefCounted<CefGetGeolocationCallbackCppToC,
-    CefGetGeolocationCallback, cef_get_geolocation_callback_t>::UnwrapDerived(
-    CefWrapperType type, cef_get_geolocation_callback_t* s) {
+template <>
+CefRefPtr<CefGetGeolocationCallback>
+CefCppToCRefCounted<CefGetGeolocationCallbackCppToC,
+                    CefGetGeolocationCallback,
+                    cef_get_geolocation_callback_t>::
+    UnwrapDerived(CefWrapperType type, cef_get_geolocation_callback_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCppToCRefCounted<CefGetGeolocationCallbackCppToC,
-    CefGetGeolocationCallback, cef_get_geolocation_callback_t>::DebugObjCt =
-    0;
+template <>
+base::AtomicRefCount
+    CefCppToCRefCounted<CefGetGeolocationCallbackCppToC,
+                        CefGetGeolocationCallback,
+                        cef_get_geolocation_callback_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCppToCRefCounted<CefGetGeolocationCallbackCppToC,
-    CefGetGeolocationCallback, cef_get_geolocation_callback_t>::kWrapperType =
-    WT_GET_GEOLOCATION_CALLBACK;
+template <>
+CefWrapperType
+    CefCppToCRefCounted<CefGetGeolocationCallbackCppToC,
+                        CefGetGeolocationCallback,
+                        cef_get_geolocation_callback_t>::kWrapperType =
+        WT_GET_GEOLOCATION_CALLBACK;

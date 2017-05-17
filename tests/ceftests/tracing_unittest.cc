@@ -74,8 +74,7 @@ class TracingTestHandler : public CefEndTracingCallback,
                            public CefCompletionCallback {
  public:
   TracingTestHandler(TracingTestType type, const char* trace_type)
-      : trace_type_(trace_type),
-        type_(type) {
+      : trace_type_(trace_type), type_(type) {
     completion_event_ = CefWaitableEvent::CreateWaitableEvent(true, false);
   }
 
@@ -92,8 +91,8 @@ class TracingTestHandler : public CefEndTracingCallback,
   void OnEndTracingComplete(const CefString& tracing_file) override {
     EXPECT_UI_THREAD();
 
-    CefPostTask(TID_FILE,
-        base::Bind(&TracingTestHandler::ReadTracingFile, this, tracing_file));
+    CefPostTask(TID_FILE, base::Bind(&TracingTestHandler::ReadTracingFile, this,
+                                     tracing_file));
   }
 
   void RunTracing() {
@@ -109,17 +108,16 @@ class TracingTestHandler : public CefEndTracingCallback,
     switch (type_) {
       case TT_TRACE_EVENT0: {
         TRACE_EVENT0(kTraceTestCategory, "TT_TRACE_EVENT0");
-        } break;
+      } break;
       case TT_TRACE_EVENT1: {
         TRACE_EVENT1(kTraceTestCategory, "TT_TRACE_EVENT1", "arg1", 1);
-        } break;
+      } break;
       case TT_TRACE_EVENT2: {
-        TRACE_EVENT2(kTraceTestCategory, "TT_TRACE_EVENT2", "arg1", 1,
-                     "arg2", 2);
-        } break;
+        TRACE_EVENT2(kTraceTestCategory, "TT_TRACE_EVENT2", "arg1", 1, "arg2",
+                     2);
+      } break;
       case TT_TRACE_EVENT_INSTANT0:
-        TRACE_EVENT_INSTANT0(kTraceTestCategory,
-                             "TT_TRACE_EVENT_INSTANT0");
+        TRACE_EVENT_INSTANT0(kTraceTestCategory, "TT_TRACE_EVENT_INSTANT0");
         break;
       case TT_TRACE_EVENT_INSTANT1:
         TRACE_EVENT_INSTANT1(kTraceTestCategory, "TT_TRACE_EVENT_INSTANT1",
@@ -135,24 +133,23 @@ class TracingTestHandler : public CefEndTracingCallback,
         break;
       case TT_TRACE_EVENT_COPY_INSTANT1:
         TRACE_EVENT_COPY_INSTANT1(kTraceTestCategory,
-                                  "TT_TRACE_EVENT_COPY_INSTANT1",
-                                  "arg1", 1);
+                                  "TT_TRACE_EVENT_COPY_INSTANT1", "arg1", 1);
         break;
       case TT_TRACE_EVENT_COPY_INSTANT2:
         TRACE_EVENT_COPY_INSTANT2(kTraceTestCategory,
-                                  "TT_TRACE_EVENT_COPY_INSTANT2",
-                                  "arg1", 1, "arg2", 2);
+                                  "TT_TRACE_EVENT_COPY_INSTANT2", "arg1", 1,
+                                  "arg2", 2);
         break;
       case TT_TRACE_EVENT_BEGIN0:
         TRACE_EVENT_BEGIN0(kTraceTestCategory, "TT_TRACE_EVENT_BEGIN0");
         break;
       case TT_TRACE_EVENT_BEGIN1:
-        TRACE_EVENT_BEGIN1(kTraceTestCategory, "TT_TRACE_EVENT_BEGIN1",
-                           "arg1", 1);
+        TRACE_EVENT_BEGIN1(kTraceTestCategory, "TT_TRACE_EVENT_BEGIN1", "arg1",
+                           1);
         break;
       case TT_TRACE_EVENT_BEGIN2:
-        TRACE_EVENT_BEGIN2(kTraceTestCategory, "TT_TRACE_EVENT_BEGIN2",
-                           "arg1", 1, "arg2", 2);
+        TRACE_EVENT_BEGIN2(kTraceTestCategory, "TT_TRACE_EVENT_BEGIN2", "arg1",
+                           1, "arg2", 2);
         break;
       case TT_TRACE_EVENT_COPY_BEGIN0:
         TRACE_EVENT_COPY_BEGIN0(kTraceTestCategory,
@@ -160,36 +157,33 @@ class TracingTestHandler : public CefEndTracingCallback,
         break;
       case TT_TRACE_EVENT_COPY_BEGIN1:
         TRACE_EVENT_COPY_BEGIN1(kTraceTestCategory,
-                                "TT_TRACE_EVENT_COPY_BEGIN1",
-                                "arg1", 1);
+                                "TT_TRACE_EVENT_COPY_BEGIN1", "arg1", 1);
         break;
       case TT_TRACE_EVENT_COPY_BEGIN2:
         TRACE_EVENT_COPY_BEGIN2(kTraceTestCategory,
-                                "TT_TRACE_EVENT_COPY_BEGIN2",
-                                "arg1", 1, "arg2", 2);
+                                "TT_TRACE_EVENT_COPY_BEGIN2", "arg1", 1, "arg2",
+                                2);
         break;
       case TT_TRACE_EVENT_END0:
         TRACE_EVENT_END0(kTraceTestCategory, "TT_TRACE_EVENT_END0");
         break;
       case TT_TRACE_EVENT_END1:
-        TRACE_EVENT_END1(kTraceTestCategory, "TT_TRACE_EVENT_END1",
-                             "arg1", 1);
+        TRACE_EVENT_END1(kTraceTestCategory, "TT_TRACE_EVENT_END1", "arg1", 1);
         break;
       case TT_TRACE_EVENT_END2:
-        TRACE_EVENT_END2(kTraceTestCategory, "TT_TRACE_EVENT_END2",
-                         "arg1", 1, "arg2", 2);
+        TRACE_EVENT_END2(kTraceTestCategory, "TT_TRACE_EVENT_END2", "arg1", 1,
+                         "arg2", 2);
         break;
       case TT_TRACE_EVENT_COPY_END0:
-        TRACE_EVENT_COPY_END0(kTraceTestCategory,
-                              "TT_TRACE_EVENT_COPY_END0");
+        TRACE_EVENT_COPY_END0(kTraceTestCategory, "TT_TRACE_EVENT_COPY_END0");
         break;
       case TT_TRACE_EVENT_COPY_END1:
-        TRACE_EVENT_COPY_END1(kTraceTestCategory,
-                              "TT_TRACE_EVENT_COPY_END1", "arg1", 1);
+        TRACE_EVENT_COPY_END1(kTraceTestCategory, "TT_TRACE_EVENT_COPY_END1",
+                              "arg1", 1);
         break;
       case TT_TRACE_EVENT_COPY_END2:
-        TRACE_EVENT_COPY_END2(kTraceTestCategory,
-                              "TT_TRACE_EVENT_COPY_END2", "arg1", 1, "arg2", 2);
+        TRACE_EVENT_COPY_END2(kTraceTestCategory, "TT_TRACE_EVENT_COPY_END2",
+                              "arg1", 1, "arg2", 2);
         break;
       case TT_TRACE_COUNTER1:
         TRACE_COUNTER1(kTraceTestCategory, "TT_TRACE_COUNTER1", 5);
@@ -209,17 +203,16 @@ class TracingTestHandler : public CefEndTracingCallback,
         TRACE_COUNTER_ID1(kTraceTestCategory, "TT_TRACE_COUNTER_ID1", 100, 5);
         break;
       case TT_TRACE_COPY_COUNTER_ID1:
-        TRACE_COPY_COUNTER_ID1(kTraceTestCategory,
-                               "TT_TRACE_COPY_COUNTER_ID1", 100, 5);
+        TRACE_COPY_COUNTER_ID1(kTraceTestCategory, "TT_TRACE_COPY_COUNTER_ID1",
+                               100, 5);
         break;
       case TT_TRACE_COUNTER_ID2:
         TRACE_COUNTER_ID2(kTraceTestCategory, "TT_TRACE_COUNTER_ID2", 100,
                           "val1", 5, "val2", 10);
         break;
       case TT_TRACE_COPY_COUNTER_ID2:
-        TRACE_COPY_COUNTER_ID2(kTraceTestCategory,
-                               "TT_TRACE_COPY_COUNTER_ID2", 100,
-                               "val1", 5, "val2", 10);
+        TRACE_COPY_COUNTER_ID2(kTraceTestCategory, "TT_TRACE_COPY_COUNTER_ID2",
+                               100, "val1", 5, "val2", 10);
         break;
       case TT_TRACE_EVENT_ASYNC_BEGIN0:
         TRACE_EVENT_ASYNC_BEGIN0(kTraceTestCategory,
@@ -231,32 +224,31 @@ class TracingTestHandler : public CefEndTracingCallback,
         break;
       case TT_TRACE_EVENT_ASYNC_BEGIN2:
         TRACE_EVENT_ASYNC_BEGIN2(kTraceTestCategory,
-                                 "TT_TRACE_EVENT_ASYNC_BEGIN2",
-                                 100, "arg1", 1, "arg2", 2);
+                                 "TT_TRACE_EVENT_ASYNC_BEGIN2", 100, "arg1", 1,
+                                 "arg2", 2);
         break;
       case TT_TRACE_EVENT_COPY_ASYNC_BEGIN0:
         TRACE_EVENT_COPY_ASYNC_BEGIN0(kTraceTestCategory,
-                                      "TT_TRACE_EVENT_COPY_ASYNC_BEGIN0",
-                                      100);
+                                      "TT_TRACE_EVENT_COPY_ASYNC_BEGIN0", 100);
         break;
       case TT_TRACE_EVENT_COPY_ASYNC_BEGIN1:
         TRACE_EVENT_COPY_ASYNC_BEGIN1(kTraceTestCategory,
-                                      "TT_TRACE_EVENT_COPY_ASYNC_BEGIN1",
-                                      100, "arg1", 1);
+                                      "TT_TRACE_EVENT_COPY_ASYNC_BEGIN1", 100,
+                                      "arg1", 1);
         break;
       case TT_TRACE_EVENT_COPY_ASYNC_BEGIN2:
         TRACE_EVENT_COPY_ASYNC_BEGIN2(kTraceTestCategory,
-                                      "TT_TRACE_EVENT_COPY_ASYNC_BEGIN2",
-                                      100, "arg1", 1, "arg2", 2);
+                                      "TT_TRACE_EVENT_COPY_ASYNC_BEGIN2", 100,
+                                      "arg1", 1, "arg2", 2);
         break;
       case TT_TRACE_EVENT_ASYNC_STEP_INTO0:
         TRACE_EVENT_ASYNC_STEP_INTO0(
             kTraceTestCategory, "TT_TRACE_EVENT_ASYNC_STEP_INTO0", 100, 1000);
         break;
       case TT_TRACE_EVENT_ASYNC_STEP_INTO1:
-        TRACE_EVENT_ASYNC_STEP_INTO1(
-            kTraceTestCategory, "TT_TRACE_EVENT_ASYNC_STEP_INTO1", 100, 1000,
-            "arg1", 1);
+        TRACE_EVENT_ASYNC_STEP_INTO1(kTraceTestCategory,
+                                     "TT_TRACE_EVENT_ASYNC_STEP_INTO1", 100,
+                                     1000, "arg1", 1);
         break;
       case TT_TRACE_EVENT_COPY_ASYNC_STEP_INTO0:
         TRACE_EVENT_COPY_ASYNC_STEP_INTO0(
@@ -273,9 +265,9 @@ class TracingTestHandler : public CefEndTracingCallback,
             kTraceTestCategory, "TT_TRACE_EVENT_ASYNC_STEP_PAST0", 100, 1000);
         break;
       case TT_TRACE_EVENT_ASYNC_STEP_PAST1:
-        TRACE_EVENT_ASYNC_STEP_PAST1(
-            kTraceTestCategory, "TT_TRACE_EVENT_ASYNC_STEP_PAST1", 100, 1000,
-            "arg1", 1);
+        TRACE_EVENT_ASYNC_STEP_PAST1(kTraceTestCategory,
+                                     "TT_TRACE_EVENT_ASYNC_STEP_PAST1", 100,
+                                     1000, "arg1", 1);
         break;
       case TT_TRACE_EVENT_COPY_ASYNC_STEP_PAST0:
         TRACE_EVENT_COPY_ASYNC_STEP_PAST0(
@@ -288,32 +280,29 @@ class TracingTestHandler : public CefEndTracingCallback,
             1000, "arg1", 1);
         break;
       case TT_TRACE_EVENT_ASYNC_END0:
-        TRACE_EVENT_ASYNC_END0(kTraceTestCategory,
-                               "TT_TRACE_EVENT_ASYNC_END0", 100);
+        TRACE_EVENT_ASYNC_END0(kTraceTestCategory, "TT_TRACE_EVENT_ASYNC_END0",
+                               100);
         break;
       case TT_TRACE_EVENT_ASYNC_END1:
-        TRACE_EVENT_ASYNC_END1(kTraceTestCategory,
-                               "TT_TRACE_EVENT_ASYNC_END1", 100,
-                               "arg1", 1);
+        TRACE_EVENT_ASYNC_END1(kTraceTestCategory, "TT_TRACE_EVENT_ASYNC_END1",
+                               100, "arg1", 1);
         break;
       case TT_TRACE_EVENT_ASYNC_END2:
-        TRACE_EVENT_ASYNC_END2(kTraceTestCategory,
-                               "TT_TRACE_EVENT_ASYNC_END2", 100,
-                               "arg1", 1, "arg2", 2);
+        TRACE_EVENT_ASYNC_END2(kTraceTestCategory, "TT_TRACE_EVENT_ASYNC_END2",
+                               100, "arg1", 1, "arg2", 2);
       case TT_TRACE_EVENT_COPY_ASYNC_END0:
         TRACE_EVENT_COPY_ASYNC_END0(kTraceTestCategory,
-                                    "TT_TRACE_EVENT_COPY_ASYNC_END0",
-                                    100);
+                                    "TT_TRACE_EVENT_COPY_ASYNC_END0", 100);
         break;
       case TT_TRACE_EVENT_COPY_ASYNC_END1:
         TRACE_EVENT_COPY_ASYNC_END1(kTraceTestCategory,
-                                    "TT_TRACE_EVENT_COPY_ASYNC_END1",
-                                    100, "arg1", 1);
+                                    "TT_TRACE_EVENT_COPY_ASYNC_END1", 100,
+                                    "arg1", 1);
         break;
       case TT_TRACE_EVENT_COPY_ASYNC_END2:
         TRACE_EVENT_COPY_ASYNC_END2(kTraceTestCategory,
-                                    "TT_TRACE_EVENT_COPY_ASYNC_END2",
-                                    100, "arg1", 1, "arg2", 2);
+                                    "TT_TRACE_EVENT_COPY_ASYNC_END2", 100,
+                                    "arg1", 1, "arg2", 2);
         break;
     }
 
@@ -348,12 +337,12 @@ class TracingTestHandler : public CefEndTracingCallback,
 };
 
 // Helper for defining tracing tests.
-#define TRACING_TEST(name, test_type) \
-    TEST(TracingTest, name) { \
-      CefRefPtr<TracingTestHandler> handler = \
-          new TracingTestHandler(test_type, #test_type); \
-      handler->ExecuteTest(); \
-    }
+#define TRACING_TEST(name, test_type)                  \
+  TEST(TracingTest, name) {                            \
+    CefRefPtr<TracingTestHandler> handler =            \
+        new TracingTestHandler(test_type, #test_type); \
+    handler->ExecuteTest();                            \
+  }
 
 // Define the tests.
 TRACING_TEST(TraceEvent0, TT_TRACE_EVENT0);
@@ -388,24 +377,17 @@ TRACING_TEST(TraceCopyCounterId2, TT_TRACE_COPY_COUNTER_ID1);
 TRACING_TEST(TraceEventAsyncBegin0, TT_TRACE_EVENT_ASYNC_BEGIN0);
 TRACING_TEST(TraceEventAsyncBegin1, TT_TRACE_EVENT_ASYNC_BEGIN1);
 TRACING_TEST(TraceEventAsyncBegin2, TT_TRACE_EVENT_ASYNC_BEGIN2);
-TRACING_TEST(TraceEventCopyAsyncBegin0,
-             TT_TRACE_EVENT_COPY_ASYNC_BEGIN0);
-TRACING_TEST(TraceEventCopyAsyncBegin1,
-             TT_TRACE_EVENT_COPY_ASYNC_BEGIN1);
-TRACING_TEST(TraceEventCopyAsyncBegin2,
-             TT_TRACE_EVENT_COPY_ASYNC_BEGIN2);
-TRACING_TEST(TraceEventAsyncStepInto0,
-             TT_TRACE_EVENT_ASYNC_STEP_INTO0);
-TRACING_TEST(TraceEventAsyncStepInto1,
-             TT_TRACE_EVENT_ASYNC_STEP_INTO1);
+TRACING_TEST(TraceEventCopyAsyncBegin0, TT_TRACE_EVENT_COPY_ASYNC_BEGIN0);
+TRACING_TEST(TraceEventCopyAsyncBegin1, TT_TRACE_EVENT_COPY_ASYNC_BEGIN1);
+TRACING_TEST(TraceEventCopyAsyncBegin2, TT_TRACE_EVENT_COPY_ASYNC_BEGIN2);
+TRACING_TEST(TraceEventAsyncStepInto0, TT_TRACE_EVENT_ASYNC_STEP_INTO0);
+TRACING_TEST(TraceEventAsyncStepInto1, TT_TRACE_EVENT_ASYNC_STEP_INTO1);
 TRACING_TEST(TraceEventCopyAsyncStepInto0,
              TT_TRACE_EVENT_COPY_ASYNC_STEP_INTO0);
 TRACING_TEST(TraceEventCopyAsyncStepInto1,
              TT_TRACE_EVENT_COPY_ASYNC_STEP_INTO1);
-TRACING_TEST(TraceEventAsyncStepPast0,
-             TT_TRACE_EVENT_ASYNC_STEP_PAST0);
-TRACING_TEST(TraceEventAsyncStepPast1,
-             TT_TRACE_EVENT_ASYNC_STEP_PAST1);
+TRACING_TEST(TraceEventAsyncStepPast0, TT_TRACE_EVENT_ASYNC_STEP_PAST0);
+TRACING_TEST(TraceEventAsyncStepPast1, TT_TRACE_EVENT_ASYNC_STEP_PAST1);
 TRACING_TEST(TraceEventCopyAsyncStepPast0,
              TT_TRACE_EVENT_COPY_ASYNC_STEP_PAST0);
 TRACING_TEST(TraceEventCopyAsyncStepPast1,
@@ -414,7 +396,6 @@ TRACING_TEST(TraceEventAsyncEnd0, TT_TRACE_EVENT_ASYNC_END0);
 TRACING_TEST(TraceEventAsyncEnd1, TT_TRACE_EVENT_ASYNC_END1);
 TRACING_TEST(TraceEventAsyncEnd2, TT_TRACE_EVENT_ASYNC_END2);
 TRACING_TEST(TraceEventCopyAsyncEnd0, TT_TRACE_EVENT_COPY_ASYNC_END0);
-
 
 TEST(TracingTest, NowFromSystemTraceTime) {
   int64 val = CefNowFromSystemTraceTime();

@@ -15,7 +15,7 @@ bool GetResourceDir(std::string& dir) {
   char buff[1024];
 
   // Retrieve the executable path.
-  ssize_t len = readlink("/proc/self/exe", buff, sizeof(buff)-1);
+  ssize_t len = readlink("/proc/self/exe", buff, sizeof(buff) - 1);
   if (len == -1)
     return false;
 
@@ -27,10 +27,9 @@ bool GetResourceDir(std::string& dir) {
     return false;
 
   // Add "ceftests_files" to the path.
-  strcpy(pos+1, "ceftests_files");  // NOLINT(runtime/printf)
+  strcpy(pos + 1, "ceftests_files");
   dir = std::string(buff);
   return true;
 }
 
 }  // namespace client
-

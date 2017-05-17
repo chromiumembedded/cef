@@ -11,18 +11,20 @@
 #include "include/views/cef_browser_view_delegate.h"
 
 #include "libcef/browser/browser_host_impl.h"
-#include "libcef/browser/views/view_impl.h"
 #include "libcef/browser/views/browser_view_view.h"
+#include "libcef/browser/views/view_impl.h"
 
 #include "ui/views/controls/webview/unhandled_keyboard_event_handler.h"
 
-class CefBrowserViewImpl :
-    public CefViewImpl<CefBrowserViewView, CefBrowserView,
-                       CefBrowserViewDelegate>,
-    public CefBrowserViewView::Delegate {
+class CefBrowserViewImpl : public CefViewImpl<CefBrowserViewView,
+                                              CefBrowserView,
+                                              CefBrowserViewDelegate>,
+                           public CefBrowserViewView::Delegate {
  public:
-  typedef CefViewImpl<CefBrowserViewView, CefBrowserView,
-                      CefBrowserViewDelegate> ParentClass;
+  typedef CefViewImpl<CefBrowserViewView,
+                      CefBrowserView,
+                      CefBrowserViewDelegate>
+      ParentClass;
 
   // Create a new CefBrowserView instance. |delegate| may be nullptr.
   static CefRefPtr<CefBrowserViewImpl> Create(

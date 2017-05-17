@@ -5,8 +5,8 @@
 #ifndef CEF_LIBCEF_COMMON_CRASH_REPORTER_CLIENT_H_
 #define CEF_LIBCEF_COMMON_CRASH_REPORTER_CLIENT_H_
 
-#include <vector>
 #include <string>
+#include <vector>
 
 #include "include/cef_version.h"
 
@@ -89,7 +89,7 @@ class CefCrashReporterClient : public crash_reporter::CrashReporterClient {
   bool EnableBrowserCrashForwarding() override;
 #endif
 
-private:
+ private:
   bool has_crash_config_file_ = false;
 
   // Values that will persist until the end of the program.

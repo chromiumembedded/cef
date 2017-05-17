@@ -82,7 +82,7 @@ void InitCrashReporter(const base::CommandLine& command_line,
   }
 
   g_crash_reporting_enabled = true;
-#else  // !defined(OS_MACOSX)
+#else   // !defined(OS_MACOSX)
   breakpad::SetCrashServerURL(crash_client->GetCrashServerURL());
 
   if (process_type != switches::kZygoteProcess) {
@@ -102,14 +102,12 @@ bool IsBoringCEFSwitch(const std::string& flag) {
     return true;
 
   static const char* const kIgnoreSwitches[] = {
-    // CEF internals.
-    switches::kLogFile,
+      // CEF internals.
+      switches::kLogFile,
 
-    // Chromium internals.
-    "content-image-texture-target",
-    "mojo-platform-channel-handle",
-    "primordial-pipe-token",
-    "service-request-channel-token",
+      // Chromium internals.
+      "content-image-texture-target", "mojo-platform-channel-handle",
+      "primordial-pipe-token", "service-request-channel-token",
   };
 
   if (!base::StartsWith(flag, "--", base::CompareCase::SENSITIVE))
@@ -156,8 +154,8 @@ void PreSandboxStartup(const base::CommandLine& command_line,
 #endif
 
   if (g_crash_reporting_enabled) {
-    LOG(INFO) << "Crash reporting enabled for process: " <<
-                 (process_type.empty() ? "browser" : process_type.c_str());
+    LOG(INFO) << "Crash reporting enabled for process: "
+              << (process_type.empty() ? "browser" : process_type.c_str());
   }
 
   // After platform crash reporting have been initialized, store the command

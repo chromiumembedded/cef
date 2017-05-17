@@ -4,9 +4,9 @@
 
 #include "tests/cefclient/browser/browser_window_std_gtk.h"
 
-#include <gtk/gtk.h>
 #include <gdk/gdk.h>
 #include <gdk/gdkx.h>
+#include <gtk/gtk.h>
 
 #include <X11/Xlib.h>
 #undef Success     // Definition conflicts with cef_message_router.h
@@ -31,14 +31,10 @@ void SetXWindowVisible(::Window xwindow, bool visible) {
   ::Display* xdisplay = cef_get_xdisplay();
 
   // Retrieve the atoms required by the below XChangeProperty call.
-  const char* kAtoms[] = {
-    "_NET_WM_STATE",
-    "ATOM",
-    "_NET_WM_STATE_HIDDEN"
-  };
+  const char* kAtoms[] = {"_NET_WM_STATE", "ATOM", "_NET_WM_STATE_HIDDEN"};
   Atom atoms[3];
-  int result = XInternAtoms(xdisplay, const_cast<char**>(kAtoms), 3, false,
-                            atoms);
+  int result =
+      XInternAtoms(xdisplay, const_cast<char**>(kAtoms), 3, false, atoms);
   if (!result)
     NOTREACHED();
 
@@ -47,37 +43,36 @@ void SetXWindowVisible(::Window xwindow, bool visible) {
     scoped_ptr<Atom[]> data(new Atom[1]);
     data[0] = atoms[2];
 
-    XChangeProperty(xdisplay,
-                    xwindow,
+    XChangeProperty(xdisplay, xwindow,
                     atoms[0],  // name
                     atoms[1],  // type
-                    32,  // size in bits of items in 'value'
+                    32,        // size in bits of items in 'value'
                     PropModeReplace,
                     reinterpret_cast<const unsigned char*>(data.get()),
                     1);  // num items
   } else {
     // Set an empty array of property state values.
-    XChangeProperty(xdisplay,
-                    xwindow,
+    XChangeProperty(xdisplay, xwindow,
                     atoms[0],  // name
                     atoms[1],  // type
-                    32,  // size in bits of items in 'value'
-                    PropModeReplace,
-                    NULL,
+                    32,        // size in bits of items in 'value'
+                    PropModeReplace, NULL,
                     0);  // num items
   }
 }
 
 void SetXWindowBounds(::Window xwindow,
-                      int x, int y, size_t width, size_t height) {
+                      int x,
+                      int y,
+                      size_t width,
+                      size_t height) {
   ::Display* xdisplay = cef_get_xdisplay();
   XWindowChanges changes = {0};
   changes.x = x;
   changes.y = y;
   changes.width = static_cast<int>(width);
   changes.height = static_cast<int>(height);
-  XConfigureWindow(xdisplay, xwindow,
-                   CWX | CWY | CWHeight | CWWidth, &changes);
+  XConfigureWindow(xdisplay, xwindow, CWX | CWY | CWHeight | CWWidth, &changes);
 }
 
 }  // namespace
@@ -99,8 +94,8 @@ void BrowserWindowStdGtk::CreateBrowser(
   window_info.SetAsChild(GetXWindowForWidget(parent_handle), rect);
 
   CefBrowserHost::CreateBrowser(window_info, client_handler_,
-                                client_handler_->startup_url(),
-                                settings, request_context);
+                                client_handler_->startup_url(), settings,
+                                request_context);
 }
 
 void BrowserWindowStdGtk::GetPopupConfig(CefWindowHandle temp_handle,
@@ -114,7 +109,10 @@ void BrowserWindowStdGtk::GetPopupConfig(CefWindowHandle temp_handle,
 }
 
 void BrowserWindowStdGtk::ShowPopup(ClientWindowHandle parent_handle,
-                                    int x, int y, size_t width, size_t height) {
+                                    int x,
+                                    int y,
+                                    size_t width,
+                                    size_t height) {
   REQUIRE_MAIN_THREAD();
 
   if (browser_) {
@@ -124,7 +122,7 @@ void BrowserWindowStdGtk::ShowPopup(ClientWindowHandle parent_handle,
     DCHECK(xwindow);
 
     XReparentWindow(xdisplay, xwindow, parent_xwindow, x, y);
-    
+
     SetXWindowBounds(xwindow, x, y, width, height);
     SetXWindowVisible(xwindow, true);
   }
@@ -174,6 +172,5 @@ ClientWindowHandle BrowserWindowStdGtk::GetWindowHandle() const {
   NOTREACHED();
   return NULL;
 }
-
 
 }  // namespace client

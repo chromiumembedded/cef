@@ -9,14 +9,15 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=f44993cacfbd7d02a1eef80d0a0331734d0639f8$
+//
 
 #include "libcef_dll/ctocpp/web_plugin_unstable_callback_ctocpp.h"
-
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
 void CefWebPluginUnstableCallbackCToCpp::IsUnstable(const CefString& path,
-    bool unstable) {
+                                                    bool unstable) {
   cef_web_plugin_unstable_callback_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, is_unstable))
     return;
@@ -29,32 +30,34 @@ void CefWebPluginUnstableCallbackCToCpp::IsUnstable(const CefString& path,
     return;
 
   // Execute
-  _struct->is_unstable(_struct,
-      path.GetStruct(),
-      unstable);
+  _struct->is_unstable(_struct, path.GetStruct(), unstable);
 }
-
 
 // CONSTRUCTOR - Do not edit by hand.
 
-CefWebPluginUnstableCallbackCToCpp::CefWebPluginUnstableCallbackCToCpp() {
-}
+CefWebPluginUnstableCallbackCToCpp::CefWebPluginUnstableCallbackCToCpp() {}
 
-template<> cef_web_plugin_unstable_callback_t* CefCToCppRefCounted<CefWebPluginUnstableCallbackCToCpp,
-    CefWebPluginUnstableCallback,
-    cef_web_plugin_unstable_callback_t>::UnwrapDerived(CefWrapperType type,
-    CefWebPluginUnstableCallback* c) {
+template <>
+cef_web_plugin_unstable_callback_t*
+CefCToCppRefCounted<CefWebPluginUnstableCallbackCToCpp,
+                    CefWebPluginUnstableCallback,
+                    cef_web_plugin_unstable_callback_t>::
+    UnwrapDerived(CefWrapperType type, CefWebPluginUnstableCallback* c) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCppRefCounted<CefWebPluginUnstableCallbackCToCpp,
-    CefWebPluginUnstableCallback,
-    cef_web_plugin_unstable_callback_t>::DebugObjCt = 0;
+template <>
+base::AtomicRefCount
+    CefCToCppRefCounted<CefWebPluginUnstableCallbackCToCpp,
+                        CefWebPluginUnstableCallback,
+                        cef_web_plugin_unstable_callback_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCppRefCounted<CefWebPluginUnstableCallbackCToCpp,
-    CefWebPluginUnstableCallback,
-    cef_web_plugin_unstable_callback_t>::kWrapperType =
-    WT_WEB_PLUGIN_UNSTABLE_CALLBACK;
+template <>
+CefWrapperType
+    CefCToCppRefCounted<CefWebPluginUnstableCallbackCToCpp,
+                        CefWebPluginUnstableCallback,
+                        cef_web_plugin_unstable_callback_t>::kWrapperType =
+        WT_WEB_PLUGIN_UNSTABLE_CALLBACK;

@@ -9,6 +9,8 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=a3b83c6f6147f67affbd076d6eb6cb65119a9159$
+//
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_ACCESSIBILITY_HANDLER_CPPTOC_H_
 #define CEF_LIBCEF_DLL_CPPTOC_ACCESSIBILITY_HANDLER_CPPTOC_H_
@@ -18,15 +20,16 @@
 #error This file can be included wrapper-side only
 #endif
 
-#include "include/cef_accessibility_handler.h"
 #include "include/capi/cef_accessibility_handler_capi.h"
+#include "include/cef_accessibility_handler.h"
 #include "libcef_dll/cpptoc/cpptoc_ref_counted.h"
 
 // Wrap a C++ class with a C structure.
 // This class may be instantiated and accessed wrapper-side only.
 class CefAccessibilityHandlerCppToC
     : public CefCppToCRefCounted<CefAccessibilityHandlerCppToC,
-        CefAccessibilityHandler, cef_accessibility_handler_t> {
+                                 CefAccessibilityHandler,
+                                 cef_accessibility_handler_t> {
  public:
   CefAccessibilityHandlerCppToC();
 };

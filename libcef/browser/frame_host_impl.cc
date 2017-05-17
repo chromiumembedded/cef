@@ -2,12 +2,12 @@
 // reserved. Use of this source code is governed by a BSD-style license that can
 // be found in the LICENSE file.
 
-#include "libcef/browser/frame_host_impl.h"
 #include "include/cef_request.h"
 #include "include/cef_stream.h"
 #include "include/cef_v8.h"
-#include "libcef/common/cef_messages.h"
 #include "libcef/browser/browser_host_impl.h"
+#include "libcef/browser/frame_host_impl.h"
+#include "libcef/common/cef_messages.h"
 
 namespace {
 
@@ -15,11 +15,11 @@ namespace {
 class StringVisitHandler : public CefResponseManager::Handler {
  public:
   explicit StringVisitHandler(CefRefPtr<CefStringVisitor> visitor)
-      : visitor_(visitor) {
-  }
+      : visitor_(visitor) {}
   void OnResponse(const Cef_Response_Params& params) override {
     visitor_->Visit(params.response);
   }
+
  private:
   CefRefPtr<CefStringVisitor> visitor_;
 
@@ -29,16 +29,15 @@ class StringVisitHandler : public CefResponseManager::Handler {
 // Implementation of CommandResponseHandler for calling ViewText().
 class ViewTextHandler : public CefResponseManager::Handler {
  public:
-  explicit ViewTextHandler(CefRefPtr<CefFrameHostImpl> frame)
-      : frame_(frame) {
-  }
+  explicit ViewTextHandler(CefRefPtr<CefFrameHostImpl> frame) : frame_(frame) {}
   void OnResponse(const Cef_Response_Params& params) override {
     CefRefPtr<CefBrowser> browser = frame_->GetBrowser();
     if (browser.get()) {
-      static_cast<CefBrowserHostImpl*>(browser.get())->ViewText(
-          params.response);
+      static_cast<CefBrowserHostImpl*>(browser.get())
+          ->ViewText(params.response);
     }
   }
+
  private:
   CefRefPtr<CefFrameHostImpl> frame_;
 
@@ -59,12 +58,11 @@ CefFrameHostImpl::CefFrameHostImpl(CefBrowserHostImpl* browser,
       is_focused_(is_main_frame_),  // The main frame always starts focused.
       url_(url),
       name_(name),
-      parent_frame_id_(parent_frame_id == kUnspecifiedFrameId ?
-                       kInvalidFrameId : parent_frame_id) {
-}
+      parent_frame_id_(parent_frame_id == kUnspecifiedFrameId
+                           ? kInvalidFrameId
+                           : parent_frame_id) {}
 
-CefFrameHostImpl::~CefFrameHostImpl() {
-}
+CefFrameHostImpl::~CefFrameHostImpl() {}
 
 bool CefFrameHostImpl::IsValid() {
   base::AutoLock lock_scope(state_lock_);
@@ -234,10 +232,9 @@ void CefFrameHostImpl::VisitDOM(CefRefPtr<CefDOMVisitor> visitor) {
   NOTREACHED() << "VisitDOM cannot be called from the browser process";
 }
 
-void CefFrameHostImpl::SendJavaScript(
-    const std::string& jsCode,
-    const std::string& scriptUrl,
-    int startLine) {
+void CefFrameHostImpl::SendJavaScript(const std::string& jsCode,
+                                      const std::string& scriptUrl,
+                                      int startLine) {
   if (jsCode.empty())
     return;
   if (startLine <= 0) {

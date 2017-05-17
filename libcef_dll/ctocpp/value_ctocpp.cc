@@ -9,12 +9,13 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=dce21cc429320a9d24fd80ad2bc1347b03f82808$
+//
 
 #include "libcef_dll/ctocpp/binary_value_ctocpp.h"
 #include "libcef_dll/ctocpp/dictionary_value_ctocpp.h"
 #include "libcef_dll/ctocpp/list_value_ctocpp.h"
 #include "libcef_dll/ctocpp/value_ctocpp.h"
-
 
 // STATIC METHODS - Body may be edited by hand.
 
@@ -27,7 +28,6 @@ CefRefPtr<CefValue> CefValue::Create() {
   // Return type: refptr_same
   return CefValueCToCpp::Wrap(_retval);
 }
-
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
@@ -42,7 +42,7 @@ bool CefValueCToCpp::IsValid() {
   int _retval = _struct->is_valid(_struct);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 bool CefValueCToCpp::IsOwned() {
@@ -56,7 +56,7 @@ bool CefValueCToCpp::IsOwned() {
   int _retval = _struct->is_owned(_struct);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 bool CefValueCToCpp::IsReadOnly() {
@@ -70,7 +70,7 @@ bool CefValueCToCpp::IsReadOnly() {
   int _retval = _struct->is_read_only(_struct);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 bool CefValueCToCpp::IsSame(CefRefPtr<CefValue> that) {
@@ -86,11 +86,10 @@ bool CefValueCToCpp::IsSame(CefRefPtr<CefValue> that) {
     return false;
 
   // Execute
-  int _retval = _struct->is_same(_struct,
-      CefValueCToCpp::Unwrap(that));
+  int _retval = _struct->is_same(_struct, CefValueCToCpp::Unwrap(that));
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 bool CefValueCToCpp::IsEqual(CefRefPtr<CefValue> that) {
@@ -106,11 +105,10 @@ bool CefValueCToCpp::IsEqual(CefRefPtr<CefValue> that) {
     return false;
 
   // Execute
-  int _retval = _struct->is_equal(_struct,
-      CefValueCToCpp::Unwrap(that));
+  int _retval = _struct->is_equal(_struct, CefValueCToCpp::Unwrap(that));
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 CefRefPtr<CefValue> CefValueCToCpp::Copy() {
@@ -152,7 +150,7 @@ bool CefValueCToCpp::GetBool() {
   int _retval = _struct->get_bool(_struct);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 int CefValueCToCpp::GetInt() {
@@ -252,7 +250,7 @@ bool CefValueCToCpp::SetNull() {
   int _retval = _struct->set_null(_struct);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 bool CefValueCToCpp::SetBool(bool value) {
@@ -263,11 +261,10 @@ bool CefValueCToCpp::SetBool(bool value) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int _retval = _struct->set_bool(_struct,
-      value);
+  int _retval = _struct->set_bool(_struct, value);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 bool CefValueCToCpp::SetInt(int value) {
@@ -278,11 +275,10 @@ bool CefValueCToCpp::SetInt(int value) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int _retval = _struct->set_int(_struct,
-      value);
+  int _retval = _struct->set_int(_struct, value);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 bool CefValueCToCpp::SetDouble(double value) {
@@ -293,11 +289,10 @@ bool CefValueCToCpp::SetDouble(double value) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int _retval = _struct->set_double(_struct,
-      value);
+  int _retval = _struct->set_double(_struct, value);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 bool CefValueCToCpp::SetString(const CefString& value) {
@@ -310,11 +305,10 @@ bool CefValueCToCpp::SetString(const CefString& value) {
   // Unverified params: value
 
   // Execute
-  int _retval = _struct->set_string(_struct,
-      value.GetStruct());
+  int _retval = _struct->set_string(_struct, value.GetStruct());
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 bool CefValueCToCpp::SetBinary(CefRefPtr<CefBinaryValue> value) {
@@ -330,11 +324,11 @@ bool CefValueCToCpp::SetBinary(CefRefPtr<CefBinaryValue> value) {
     return false;
 
   // Execute
-  int _retval = _struct->set_binary(_struct,
-      CefBinaryValueCToCpp::Unwrap(value));
+  int _retval =
+      _struct->set_binary(_struct, CefBinaryValueCToCpp::Unwrap(value));
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 bool CefValueCToCpp::SetDictionary(CefRefPtr<CefDictionaryValue> value) {
@@ -350,11 +344,11 @@ bool CefValueCToCpp::SetDictionary(CefRefPtr<CefDictionaryValue> value) {
     return false;
 
   // Execute
-  int _retval = _struct->set_dictionary(_struct,
-      CefDictionaryValueCToCpp::Unwrap(value));
+  int _retval =
+      _struct->set_dictionary(_struct, CefDictionaryValueCToCpp::Unwrap(value));
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 bool CefValueCToCpp::SetList(CefRefPtr<CefListValue> value) {
@@ -370,29 +364,32 @@ bool CefValueCToCpp::SetList(CefRefPtr<CefListValue> value) {
     return false;
 
   // Execute
-  int _retval = _struct->set_list(_struct,
-      CefListValueCToCpp::Unwrap(value));
+  int _retval = _struct->set_list(_struct, CefListValueCToCpp::Unwrap(value));
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
-
 
 // CONSTRUCTOR - Do not edit by hand.
 
-CefValueCToCpp::CefValueCToCpp() {
-}
+CefValueCToCpp::CefValueCToCpp() {}
 
-template<> cef_value_t* CefCToCppRefCounted<CefValueCToCpp, CefValue,
-    cef_value_t>::UnwrapDerived(CefWrapperType type, CefValue* c) {
+template <>
+cef_value_t*
+CefCToCppRefCounted<CefValueCToCpp, CefValue, cef_value_t>::UnwrapDerived(
+    CefWrapperType type,
+    CefValue* c) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCppRefCounted<CefValueCToCpp, CefValue,
-    cef_value_t>::DebugObjCt = 0;
+template <>
+base::AtomicRefCount
+    CefCToCppRefCounted<CefValueCToCpp, CefValue, cef_value_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCppRefCounted<CefValueCToCpp, CefValue,
-    cef_value_t>::kWrapperType = WT_VALUE;
+template <>
+CefWrapperType
+    CefCToCppRefCounted<CefValueCToCpp, CefValue, cef_value_t>::kWrapperType =
+        WT_VALUE;

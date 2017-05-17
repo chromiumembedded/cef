@@ -9,9 +9,10 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=86438f3cde8e41dc13fc150496886715b8896c22$
+//
 
 #include "libcef_dll/cpptoc/v8stack_frame_cpptoc.h"
-
 
 namespace {
 
@@ -31,8 +32,8 @@ int CEF_CALLBACK v8stack_frame_is_valid(struct _cef_v8stack_frame_t* self) {
   return _retval;
 }
 
-cef_string_userfree_t CEF_CALLBACK v8stack_frame_get_script_name(
-    struct _cef_v8stack_frame_t* self) {
+cef_string_userfree_t CEF_CALLBACK
+v8stack_frame_get_script_name(struct _cef_v8stack_frame_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -46,8 +47,8 @@ cef_string_userfree_t CEF_CALLBACK v8stack_frame_get_script_name(
   return _retval.DetachToUserFree();
 }
 
-cef_string_userfree_t CEF_CALLBACK v8stack_frame_get_script_name_or_source_url(
-    struct _cef_v8stack_frame_t* self) {
+cef_string_userfree_t CEF_CALLBACK
+v8stack_frame_get_script_name_or_source_url(struct _cef_v8stack_frame_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -55,15 +56,15 @@ cef_string_userfree_t CEF_CALLBACK v8stack_frame_get_script_name_or_source_url(
     return NULL;
 
   // Execute
-  CefString _retval = CefV8StackFrameCppToC::Get(
-      self)->GetScriptNameOrSourceURL();
+  CefString _retval =
+      CefV8StackFrameCppToC::Get(self)->GetScriptNameOrSourceURL();
 
   // Return type: string
   return _retval.DetachToUserFree();
 }
 
-cef_string_userfree_t CEF_CALLBACK v8stack_frame_get_function_name(
-    struct _cef_v8stack_frame_t* self) {
+cef_string_userfree_t CEF_CALLBACK
+v8stack_frame_get_function_name(struct _cef_v8stack_frame_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -77,8 +78,8 @@ cef_string_userfree_t CEF_CALLBACK v8stack_frame_get_function_name(
   return _retval.DetachToUserFree();
 }
 
-int CEF_CALLBACK v8stack_frame_get_line_number(
-    struct _cef_v8stack_frame_t* self) {
+int CEF_CALLBACK
+v8stack_frame_get_line_number(struct _cef_v8stack_frame_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -120,8 +121,8 @@ int CEF_CALLBACK v8stack_frame_is_eval(struct _cef_v8stack_frame_t* self) {
   return _retval;
 }
 
-int CEF_CALLBACK v8stack_frame_is_constructor(
-    struct _cef_v8stack_frame_t* self) {
+int CEF_CALLBACK
+v8stack_frame_is_constructor(struct _cef_v8stack_frame_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -137,7 +138,6 @@ int CEF_CALLBACK v8stack_frame_is_constructor(
 
 }  // namespace
 
-
 // CONSTRUCTOR - Do not edit by hand.
 
 CefV8StackFrameCppToC::CefV8StackFrameCppToC() {
@@ -152,17 +152,25 @@ CefV8StackFrameCppToC::CefV8StackFrameCppToC() {
   GetStruct()->is_constructor = v8stack_frame_is_constructor;
 }
 
-template<> CefRefPtr<CefV8StackFrame> CefCppToCRefCounted<CefV8StackFrameCppToC,
-    CefV8StackFrame, cef_v8stack_frame_t>::UnwrapDerived(CefWrapperType type,
-    cef_v8stack_frame_t* s) {
+template <>
+CefRefPtr<CefV8StackFrame> CefCppToCRefCounted<
+    CefV8StackFrameCppToC,
+    CefV8StackFrame,
+    cef_v8stack_frame_t>::UnwrapDerived(CefWrapperType type,
+                                        cef_v8stack_frame_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCppToCRefCounted<CefV8StackFrameCppToC,
-    CefV8StackFrame, cef_v8stack_frame_t>::DebugObjCt = 0;
+template <>
+base::AtomicRefCount CefCppToCRefCounted<CefV8StackFrameCppToC,
+                                         CefV8StackFrame,
+                                         cef_v8stack_frame_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCppToCRefCounted<CefV8StackFrameCppToC,
-    CefV8StackFrame, cef_v8stack_frame_t>::kWrapperType = WT_V8STACK_FRAME;
+template <>
+CefWrapperType CefCppToCRefCounted<CefV8StackFrameCppToC,
+                                   CefV8StackFrame,
+                                   cef_v8stack_frame_t>::kWrapperType =
+    WT_V8STACK_FRAME;

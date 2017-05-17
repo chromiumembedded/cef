@@ -25,10 +25,9 @@ class CefPrintSettingsImpl
   CefRefPtr<CefPrintSettings> Copy() override;
   void SetOrientation(bool landscape) override;
   bool IsLandscape() override;
-  void SetPrinterPrintableArea(
-      const CefSize& physical_size_device_units,
-      const CefRect& printable_area_device_units,
-      bool landscape_needs_flip) override;
+  void SetPrinterPrintableArea(const CefSize& physical_size_device_units,
+                               const CefRect& printable_area_device_units,
+                               bool landscape_needs_flip) override;
   void SetDeviceName(const CefString& name) override;
   CefString GetDeviceName() override;
   void SetDPI(int dpi) override;

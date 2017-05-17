@@ -59,15 +59,14 @@ enum ContextTestMode {
 
 struct RequestRunSettings {
   RequestRunSettings()
-    : expect_upload_progress(false),
-      expect_download_progress(true),
-      expect_download_data(true),
-      expected_status(UR_SUCCESS),
-      expected_error_code(ERR_NONE),
-      expect_send_cookie(false),
-      expect_save_cookie(false),
-      expect_follow_redirect(true) {
-  }
+      : expect_upload_progress(false),
+        expect_download_progress(true),
+        expect_download_data(true),
+        expected_status(UR_SUCCESS),
+        expected_error_code(ERR_NONE),
+        expect_send_cookie(false),
+        expect_save_cookie(false),
+        expect_follow_redirect(true) {}
 
   // Request that will be sent.
   CefRefPtr<CefRequest> request;
@@ -107,8 +106,7 @@ struct RequestRunSettings {
   bool expect_follow_redirect;
 };
 
-void SetUploadData(CefRefPtr<CefRequest> request,
-                   const std::string& data) {
+void SetUploadData(CefRefPtr<CefRequest> request, const std::string& data) {
   CefRefPtr<CefPostData> postData = CefPostData::Create();
   CefRefPtr<CefPostDataElement> element = CefPostDataElement::Create();
   element->SetToBytes(data.size(), data.c_str());
@@ -116,8 +114,7 @@ void SetUploadData(CefRefPtr<CefRequest> request,
   request->SetPostData(postData);
 }
 
-void SetUploadFile(CefRefPtr<CefRequest> request,
-                   const std::string& file) {
+void SetUploadFile(CefRefPtr<CefRequest> request, const std::string& file) {
   CefRefPtr<CefPostData> postData = CefPostData::Create();
   CefRefPtr<CefPostDataElement> element = CefPostDataElement::Create();
   element->SetToFile(file);
@@ -125,8 +122,7 @@ void SetUploadFile(CefRefPtr<CefRequest> request,
   request->SetPostData(postData);
 }
 
-void GetUploadData(CefRefPtr<CefRequest> request,
-                   std::string& data) {
+void GetUploadData(CefRefPtr<CefRequest> request, std::string& data) {
   CefRefPtr<CefPostData> postData = request->GetPostData();
   EXPECT_TRUE(postData.get());
   CefPostData::ElementVector elements;
@@ -148,8 +144,7 @@ void SetTestCookie(CefRefPtr<CefRequestContext> request_context) {
 
   class Callback : public CefSetCookieCallback {
    public:
-    explicit Callback(CefRefPtr<CefWaitableEvent> event)
-      : event_(event) {
+    explicit Callback(CefRefPtr<CefWaitableEvent> event) : event_(event) {
       EXPECT_TRUE(event_);
     }
 
@@ -191,16 +186,15 @@ void GetTestCookie(CefRefPtr<CefRequestContext> request_context,
   class Visitor : public CefCookieVisitor {
    public:
     Visitor(CefRefPtr<CefWaitableEvent> event, bool* cookie_exists)
-      : event_(event),
-        cookie_exists_(cookie_exists) {
+        : event_(event), cookie_exists_(cookie_exists) {
       EXPECT_TRUE(event_);
     }
-    ~Visitor() override {
-      event_->Signal();
-    }
+    ~Visitor() override { event_->Signal(); }
 
-    bool Visit(const CefCookie& cookie, int count, int total,
-                bool& deleteCookie) override {
+    bool Visit(const CefCookie& cookie,
+               int count,
+               int total,
+               bool& deleteCookie) override {
       std::string cookie_name = CefString(&cookie.name);
       if (cookie_name == kRequestSaveCookieName) {
         *cookie_exists_ = true;
@@ -222,22 +216,19 @@ void GetTestCookie(CefRefPtr<CefRequestContext> request_context,
 
   CefRefPtr<CefCookieManager> cookie_manager =
       request_context->GetDefaultCookieManager(NULL);
-  cookie_manager->VisitUrlCookies(
-      kRequestOrigin, true, new Visitor(event, cookie_exists));
+  cookie_manager->VisitUrlCookies(kRequestOrigin, true,
+                                  new Visitor(event, cookie_exists));
 
   // Wait for the Visitor.
   event->TimedWait(2000);
   EXPECT_TRUE(event->IsSignaled());
 }
 
-
 // Serves request responses.
 class RequestSchemeHandler : public CefResourceHandler {
  public:
   explicit RequestSchemeHandler(const RequestRunSettings& settings)
-    : settings_(settings),
-      offset_(0) {
-  }
+      : settings_(settings), offset_(0) {}
 
   bool ProcessRequest(CefRefPtr<CefRequest> request,
                       CefRefPtr<CefCallback> callback) override {
@@ -302,7 +293,8 @@ class RequestSchemeHandler : public CefResourceHandler {
 
     if (settings_.expect_save_cookie) {
       std::stringstream ss;
-      ss << kRequestSaveCookieName << "=" << "save-cookie-value";
+      ss << kRequestSaveCookieName << "="
+         << "save-cookie-value";
       headerMap.insert(std::make_pair("Set-Cookie", ss.str()));
     }
 
@@ -324,8 +316,7 @@ class RequestSchemeHandler : public CefResourceHandler {
     if (offset_ < size) {
       int transfer_size =
           std::min(bytes_to_read, static_cast<int>(size - offset_));
-      memcpy(response_data_out,
-             settings_.response_data.c_str() + offset_,
+      memcpy(response_data_out, settings_.response_data.c_str() + offset_,
              transfer_size);
       offset_ += transfer_size;
 
@@ -336,9 +327,7 @@ class RequestSchemeHandler : public CefResourceHandler {
     return has_data;
   }
 
-  void Cancel() override {
-    EXPECT_TRUE(CefCurrentlyOn(TID_IO));
-  }
+  void Cancel() override { EXPECT_TRUE(CefCurrentlyOn(TID_IO)); }
 
  private:
   RequestRunSettings settings_;
@@ -352,9 +341,7 @@ class RequestRedirectSchemeHandler : public CefResourceHandler {
  public:
   explicit RequestRedirectSchemeHandler(CefRefPtr<CefRequest> request,
                                         CefRefPtr<CefResponse> response)
-    : request_(request),
-      response_(response) {
-  }
+      : request_(request), response_(response) {}
 
   bool ProcessRequest(CefRefPtr<CefRequest> request,
                       CefRefPtr<CefCallback> callback) override {
@@ -393,9 +380,7 @@ class RequestRedirectSchemeHandler : public CefResourceHandler {
     return false;
   }
 
-  void Cancel() override {
-    EXPECT_TRUE(CefCurrentlyOn(TID_IO));
-  }
+  void Cancel() override { EXPECT_TRUE(CefCurrentlyOn(TID_IO)); }
 
  private:
   CefRefPtr<CefRequest> request_;
@@ -404,20 +389,17 @@ class RequestRedirectSchemeHandler : public CefResourceHandler {
   IMPLEMENT_REFCOUNTING(RequestRedirectSchemeHandler);
 };
 
-
 class RequestSchemeHandlerFactory : public CefSchemeHandlerFactory {
  public:
-  RequestSchemeHandlerFactory() {
-  }
+  RequestSchemeHandlerFactory() {}
 
-  CefRefPtr<CefResourceHandler> Create(
-      CefRefPtr<CefBrowser> browser,
-      CefRefPtr<CefFrame> frame,
-      const CefString& scheme_name,
-      CefRefPtr<CefRequest> request) override {
+  CefRefPtr<CefResourceHandler> Create(CefRefPtr<CefBrowser> browser,
+                                       CefRefPtr<CefFrame> frame,
+                                       const CefString& scheme_name,
+                                       CefRefPtr<CefRequest> request) override {
     EXPECT_TRUE(CefCurrentlyOn(TID_IO));
     std::string url = request->GetURL();
-    
+
     // Try to find a test match.
     {
       HandlerMap::const_iterator it = handler_map_.find(url);
@@ -453,9 +435,8 @@ class RequestSchemeHandlerFactory : public CefSchemeHandlerFactory {
     std::string url = redirect_request->GetURL();
     EXPECT_EQ((unsigned long)0, url.find(kRequestScheme));
 
-    redirect_handler_map_.insert(
-        std::make_pair(url,
-            std::make_pair(redirect_request, redirect_response)));
+    redirect_handler_map_.insert(std::make_pair(
+        url, std::make_pair(redirect_request, redirect_response)));
   }
 
  private:
@@ -463,13 +444,12 @@ class RequestSchemeHandlerFactory : public CefSchemeHandlerFactory {
   HandlerMap handler_map_;
 
   typedef std::map<std::string,
-                  std::pair<CefRefPtr<CefRequest>, CefRefPtr<CefResponse> > >
-                  RedirectHandlerMap;
+                   std::pair<CefRefPtr<CefRequest>, CefRefPtr<CefResponse>>>
+      RedirectHandlerMap;
   RedirectHandlerMap redirect_handler_map_;
 
   IMPLEMENT_REFCOUNTING(RequestSchemeHandlerFactory);
 };
-
 
 // Implementation of CefURLRequestClient that stores response information.
 class RequestClient : public CefURLRequestClient {
@@ -477,20 +457,20 @@ class RequestClient : public CefURLRequestClient {
   class Delegate {
    public:
     // Used to notify the handler when the request has completed.
-    virtual void OnRequestComplete(CefRefPtr<RequestClient> client) =0;
+    virtual void OnRequestComplete(CefRefPtr<RequestClient> client) = 0;
+
    protected:
     virtual ~Delegate() {}
   };
 
   explicit RequestClient(Delegate* delegate)
-    : delegate_(delegate),
-      request_complete_ct_(0),
-      upload_progress_ct_(0),
-      download_progress_ct_(0),
-      download_data_ct_(0),
-      upload_total_(0),
-      download_total_(0) {
-  }
+      : delegate_(delegate),
+        request_complete_ct_(0),
+        upload_progress_ct_(0),
+        download_progress_ct_(0),
+        download_data_ct_(0),
+        upload_total_(0),
+        download_total_(0) {}
 
   void OnRequestComplete(CefRefPtr<CefURLRequest> request) override {
     request_complete_ct_++;
@@ -533,14 +513,14 @@ class RequestClient : public CefURLRequestClient {
     download_data_ += std::string(static_cast<const char*>(data), data_length);
   }
 
-   bool GetAuthCredentials(bool isProxy,
-                           const CefString& host,
-                           int port,
-                           const CefString& realm,
-                           const CefString& scheme,
-                           CefRefPtr<CefAuthCallback> callback) override {
-     return false;
-   }
+  bool GetAuthCredentials(bool isProxy,
+                          const CefString& host,
+                          int port,
+                          const CefString& realm,
+                          const CefString& scheme,
+                          CefRefPtr<CefAuthCallback> callback) override {
+    return false;
+  }
 
  private:
   Delegate* delegate_;
@@ -563,7 +543,6 @@ class RequestClient : public CefURLRequestClient {
   IMPLEMENT_REFCOUNTING(RequestClient);
 };
 
-
 // Executes the tests.
 class RequestTestRunner : public base::RefCountedThreadSafe<RequestTestRunner> {
  public:
@@ -574,28 +553,25 @@ class RequestTestRunner : public base::RefCountedThreadSafe<RequestTestRunner> {
   class Delegate {
    public:
     // Setup has completed.
-    virtual void OnRunnerSetupComplete() =0;
+    virtual void OnRunnerSetupComplete() = 0;
 
     // Run has completed.
-    virtual void OnRunnerRunComplete() =0;
+    virtual void OnRunnerRunComplete() = 0;
 
    protected:
     virtual ~Delegate() {}
   };
 
-  RequestTestRunner(Delegate* delegate,
-                    bool is_browser_process)
-    : delegate_(delegate),
-      is_browser_process_(is_browser_process) {
+  RequestTestRunner(Delegate* delegate, bool is_browser_process)
+      : delegate_(delegate), is_browser_process_(is_browser_process) {
     owner_task_runner_ = CefTaskRunner::GetForCurrentThread();
     EXPECT_TRUE(owner_task_runner_.get());
     EXPECT_TRUE(owner_task_runner_->BelongsToCurrentThread());
 
-    // Helper macro for registering test callbacks.
-    #define REGISTER_TEST(test_mode, setup_method, run_method) \
-        RegisterTest(test_mode, \
-                     base::Bind(&RequestTestRunner::setup_method, this), \
-                     base::Bind(&RequestTestRunner::run_method, this));
+// Helper macro for registering test callbacks.
+#define REGISTER_TEST(test_mode, setup_method, run_method)                    \
+  RegisterTest(test_mode, base::Bind(&RequestTestRunner::setup_method, this), \
+               base::Bind(&RequestTestRunner::run_method, this));
 
     // Register the test callbacks.
     REGISTER_TEST(REQTEST_GET, SetupGetTest, GenericRunTest);
@@ -633,9 +609,8 @@ class RequestTestRunner : public base::RefCountedThreadSafe<RequestTestRunner> {
         base::Bind(&RequestTestRunner::SetupComplete, this);
     TestMap::const_iterator it = test_map_.find(test_mode);
     if (it != test_map_.end()) {
-      it->second.setup.Run(
-          base::Bind(&RequestTestRunner::SetupContinue, this,
-                     complete_callback));
+      it->second.setup.Run(base::Bind(&RequestTestRunner::SetupContinue, this,
+                                      complete_callback));
     } else {
       // Unknown test.
       ADD_FAILURE();
@@ -663,9 +638,8 @@ class RequestTestRunner : public base::RefCountedThreadSafe<RequestTestRunner> {
   // Continued after |settings_| is populated for the test.
   void SetupContinue(const base::Closure& complete_callback) {
     if (!owner_task_runner_->BelongsToCurrentThread()) {
-      owner_task_runner_->PostTask(CefCreateClosureTask(
-          base::Bind(&RequestTestRunner::SetupContinue, this,
-                     complete_callback)));
+      owner_task_runner_->PostTask(CefCreateClosureTask(base::Bind(
+          &RequestTestRunner::SetupContinue, this, complete_callback)));
       return;
     }
 
@@ -746,9 +720,8 @@ class RequestTestRunner : public base::RefCountedThreadSafe<RequestTestRunner> {
 
     // The referrer URL must be HTTP or HTTPS. This is enforced by
     // GURL::GetAsReferrer() called from URLRequest::SetReferrer().
-    settings_.request->SetReferrer(
-        "http://tests.com/referrer.html",
-        REFERRER_POLICY_NO_REFERRER_WHEN_DOWNGRADE);
+    settings_.request->SetReferrer("http://tests.com/referrer.html",
+                                   REFERRER_POLICY_NO_REFERRER_WHEN_DOWNGRADE);
 
     settings_.response = CefResponse::Create();
     settings_.response->SetMimeType("text/html");
@@ -795,8 +768,8 @@ class RequestTestRunner : public base::RefCountedThreadSafe<RequestTestRunner> {
     settings_.response_data = "POST TEST SUCCESS";
 
     CefPostTask(TID_FILE,
-        base::Bind(&RequestTestRunner::SetupPostFileTestContinue, this,
-                   complete_callback));
+                base::Bind(&RequestTestRunner::SetupPostFileTestContinue, this,
+                           complete_callback));
   }
 
   void SetupPostFileTestContinue(const base::Closure& complete_callback) {
@@ -850,8 +823,7 @@ class RequestTestRunner : public base::RefCountedThreadSafe<RequestTestRunner> {
      public:
       Test(const RequestRunSettings& settings,
            const base::Closure& complete_callback)
-        : settings_(settings),
-          complete_callback_(complete_callback) {
+          : settings_(settings), complete_callback_(complete_callback) {
         EXPECT_FALSE(complete_callback_.is_null());
       }
 
@@ -872,7 +844,7 @@ class RequestTestRunner : public base::RefCountedThreadSafe<RequestTestRunner> {
         } else {
           expected_response = settings_.response;
         }
-        
+
         TestRequestEqual(expected_request, client->request_, false);
 
         EXPECT_EQ(settings_.expected_status, client->status_);
@@ -894,8 +866,7 @@ class RequestTestRunner : public base::RefCountedThreadSafe<RequestTestRunner> {
 
         if (settings_.expect_download_progress) {
           EXPECT_LE(1, client->download_progress_ct_);
-          EXPECT_EQ(settings_.response_data.size(),
-                    client->download_total_);
+          EXPECT_EQ(settings_.response_data.size(), client->download_total_);
         } else {
           EXPECT_EQ(0, client->download_progress_ct_);
           EXPECT_EQ((uint64)0, client->download_total_);
@@ -954,7 +925,8 @@ class RequestTestRunner : public base::RefCountedThreadSafe<RequestTestRunner> {
   void RunComplete() {
     if (!post_file_tmpdir_.IsEmpty()) {
       EXPECT_TRUE(is_browser_process_);
-      CefPostTask(TID_FILE,
+      CefPostTask(
+          TID_FILE,
           base::Bind(&RequestTestRunner::RunCompleteDeleteTempDirectory, this));
       return;
     }
@@ -984,8 +956,8 @@ class RequestTestRunner : public base::RefCountedThreadSafe<RequestTestRunner> {
       EXPECT_TRUE(is_browser_process_);
 
       // Remove the factory registration.
-      request_context_->RegisterSchemeHandlerFactory(
-          kRequestScheme, kRequestHost, NULL);
+      request_context_->RegisterSchemeHandlerFactory(kRequestScheme,
+                                                     kRequestHost, NULL);
       scheme_factory_ = NULL;
     }
 
@@ -1052,14 +1024,12 @@ class RequestTestRunner : public base::RefCountedThreadSafe<RequestTestRunner> {
 class RequestRendererTest : public ClientAppRenderer::Delegate,
                             public RequestTestRunner::Delegate {
  public:
-  RequestRendererTest() {
-  }
+  RequestRendererTest() {}
 
-  bool OnProcessMessageReceived(
-      CefRefPtr<ClientAppRenderer> app,
-      CefRefPtr<CefBrowser> browser,
-      CefProcessId source_process,
-      CefRefPtr<CefProcessMessage> message) override {
+  bool OnProcessMessageReceived(CefRefPtr<ClientAppRenderer> app,
+                                CefRefPtr<CefBrowser> browser,
+                                CefProcessId source_process,
+                                CefRefPtr<CefProcessMessage> message) override {
     if (message->GetName() == kRequestTestMsg) {
       EXPECT_TRUE(CefCurrentlyOn(TID_RENDERER));
 
@@ -1124,11 +1094,10 @@ class RequestTestHandler : public TestHandler,
                      ContextTestMode context_mode,
                      bool test_in_browser,
                      const char* test_url)
-    : test_mode_(test_mode),
-      context_mode_(context_mode),
-      test_in_browser_(test_in_browser),
-      test_url_(test_url) {
-  }
+      : test_mode_(test_mode),
+        context_mode_(context_mode),
+        test_in_browser_(test_in_browser),
+        test_url_(test_url) {}
 
   void RunTest() override {
     // Time out the test after a reasonable period of time.
@@ -1140,7 +1109,7 @@ class RequestTestHandler : public TestHandler,
 
   void PreSetupStart() {
     CefPostTask(TID_FILE,
-        base::Bind(&RequestTestHandler::PreSetupFileTasks, this));
+                base::Bind(&RequestTestHandler::PreSetupFileTasks, this));
   }
 
   void PreSetupFileTasks() {
@@ -1153,7 +1122,7 @@ class RequestTestHandler : public TestHandler,
     }
 
     CefPostTask(TID_UI,
-        base::Bind(&RequestTestHandler::PreSetupContinue, this));
+                base::Bind(&RequestTestHandler::PreSetupContinue, this));
   }
 
   void PreSetupContinue() {
@@ -1194,16 +1163,15 @@ class RequestTestHandler : public TestHandler,
 
       // Continue the test once supported schemes has been set.
       request_context->GetDefaultCookieManager(NULL)->SetSupportedSchemes(
-          supported_schemes,
-          new SupportedSchemesCompletionCallback(
-              base::Bind(&RequestTestHandler::PreSetupComplete, this)));
+          supported_schemes, new SupportedSchemesCompletionCallback(base::Bind(
+                                 &RequestTestHandler::PreSetupComplete, this)));
     }
   }
 
   void PreSetupComplete() {
     if (!CefCurrentlyOn(TID_UI)) {
       CefPostTask(TID_UI,
-          base::Bind(&RequestTestHandler::PreSetupComplete, this));
+                  base::Bind(&RequestTestHandler::PreSetupComplete, this));
       return;
     }
 
@@ -1220,7 +1188,7 @@ class RequestTestHandler : public TestHandler,
 
   void PostSetupStart() {
     CefPostTask(TID_FILE,
-        base::Bind(&RequestTestHandler::PostSetupFileTasks, this));
+                base::Bind(&RequestTestHandler::PostSetupFileTasks, this));
   }
 
   void PostSetupFileTasks() {
@@ -1230,7 +1198,7 @@ class RequestTestHandler : public TestHandler,
     SetTestCookie(test_runner_->GetRequestContext());
 
     CefPostTask(TID_UI,
-        base::Bind(&RequestTestHandler::PostSetupComplete, this));
+                base::Bind(&RequestTestHandler::PostSetupComplete, this));
   }
 
   void PostSetupComplete() {
@@ -1262,10 +1230,9 @@ class RequestTestHandler : public TestHandler,
     }
   }
 
-  bool OnProcessMessageReceived(
-      CefRefPtr<CefBrowser> browser,
-      CefProcessId source_process,
-      CefRefPtr<CefProcessMessage> message) override {
+  bool OnProcessMessageReceived(CefRefPtr<CefBrowser> browser,
+                                CefProcessId source_process,
+                                CefRefPtr<CefProcessMessage> message) override {
     EXPECT_TRUE(browser.get());
     EXPECT_EQ(PID_RENDERER, source_process);
     EXPECT_TRUE(message.get());
@@ -1284,13 +1251,11 @@ class RequestTestHandler : public TestHandler,
   }
 
   // Browser process test is complete.
-  void OnRunnerRunComplete() override {
-    PostRunStart();
-  }
+  void OnRunnerRunComplete() override { PostRunStart(); }
 
   void PostRunStart() {
     CefPostTask(TID_FILE,
-        base::Bind(&RequestTestHandler::PostRunFileTasks, this));
+                base::Bind(&RequestTestHandler::PostRunFileTasks, this));
   }
 
   void PostRunFileTasks() {
@@ -1330,16 +1295,17 @@ class RequestTestHandler : public TestHandler,
   void OnTestComplete() {
     if (!CefCurrentlyOn(TID_UI)) {
       CefPostTask(TID_UI,
-          base::Bind(&RequestTestHandler::OnTestComplete, this));
+                  base::Bind(&RequestTestHandler::OnTestComplete, this));
       return;
     }
 
     if (!context_tmpdir_.IsEmpty()) {
       // Wait a bit for cache file handles to close after browser or request
       // context destruction.
-      CefPostDelayedTask(TID_FILE,
+      CefPostDelayedTask(
+          TID_FILE,
           base::Bind(&RequestTestHandler::PostTestCompleteFileTasks, this),
-                     100);
+          100);
     } else {
       TestComplete();
     }
@@ -1360,11 +1326,8 @@ class RequestTestHandler : public TestHandler,
   class RequestContextHandler : public CefRequestContextHandler {
    public:
     explicit RequestContextHandler(CefRefPtr<RequestTestHandler> test_handler)
-        : test_handler_(test_handler) {
-    }
-    ~RequestContextHandler() override {
-      test_handler_->OnTestComplete();
-    }
+        : test_handler_(test_handler) {}
+    ~RequestContextHandler() override { test_handler_->OnTestComplete(); }
 
    private:
     CefRefPtr<RequestTestHandler> test_handler_;
@@ -1412,7 +1375,6 @@ class RequestTestHandler : public TestHandler,
 
 }  // namespace
 
-
 // Entry point for creating URLRequest renderer test objects.
 // Called from client_app_delegates.cc.
 void CreateURLRequestRendererTests(ClientAppRenderer::DelegateSet& delegates) {
@@ -1422,59 +1384,56 @@ void CreateURLRequestRendererTests(ClientAppRenderer::DelegateSet& delegates) {
 // Entry point for registering custom schemes.
 // Called from client_app_delegates.cc.
 void RegisterURLRequestCustomSchemes(
-      CefRawPtr<CefSchemeRegistrar> registrar,
-      std::vector<CefString>& cookiable_schemes) {
+    CefRawPtr<CefSchemeRegistrar> registrar,
+    std::vector<CefString>& cookiable_schemes) {
   registrar->AddCustomScheme(kRequestScheme, true, false, false, false, true,
                              false);
   cookiable_schemes.push_back(kRequestScheme);
 }
 
-
 // Helpers for defining URLRequest tests.
 #define REQ_TEST_EX(name, test_mode, context_mode, test_in_browser, test_url) \
-  TEST(URLRequestTest, name) { \
-    CefRefPtr<RequestTestHandler> handler = \
-        new RequestTestHandler(test_mode, context_mode, test_in_browser, \
-                               test_url); \
-    handler->ExecuteTest(); \
-    if (!test_in_browser) { \
-      EXPECT_TRUE(handler->got_message_); \
-      EXPECT_TRUE(handler->got_success_); \
-    } \
-    ReleaseAndWaitForDestructor(handler); \
+  TEST(URLRequestTest, name) {                                                \
+    CefRefPtr<RequestTestHandler> handler = new RequestTestHandler(           \
+        test_mode, context_mode, test_in_browser, test_url);                  \
+    handler->ExecuteTest();                                                   \
+    if (!test_in_browser) {                                                   \
+      EXPECT_TRUE(handler->got_message_);                                     \
+      EXPECT_TRUE(handler->got_success_);                                     \
+    }                                                                         \
+    ReleaseAndWaitForDestructor(handler);                                     \
   }
 
 #define REQ_TEST(name, test_mode, context_mode, test_in_browser) \
   REQ_TEST_EX(name, test_mode, context_mode, test_in_browser, kRequestTestUrl)
 
-
 // Define the tests.
-#define REQ_TEST_SET(suffix, context_mode) \
-  REQ_TEST(BrowserGET##suffix, REQTEST_GET, context_mode, true); \
+#define REQ_TEST_SET(suffix, context_mode)                                    \
+  REQ_TEST(BrowserGET##suffix, REQTEST_GET, context_mode, true);              \
   REQ_TEST(BrowserGETNoData##suffix, REQTEST_GET_NODATA, context_mode, true); \
-  REQ_TEST(BrowserGETAllowCookies##suffix, \
-           REQTEST_GET_ALLOWCOOKIES, context_mode, true); \
-  REQ_TEST(BrowserGETRedirect##suffix, \
-           REQTEST_GET_REDIRECT, context_mode, true); \
-  REQ_TEST(BrowserGETReferrer##suffix, \
-           REQTEST_GET_REFERRER, context_mode, true); \
-  REQ_TEST(BrowserPOST##suffix, REQTEST_POST, context_mode, true); \
-  REQ_TEST(BrowserPOSTFile##suffix, REQTEST_POST_FILE, context_mode, true); \
-  REQ_TEST(BrowserPOSTWithProgress##suffix, \
-           REQTEST_POST_WITHPROGRESS, context_mode, true); \
-  REQ_TEST(BrowserHEAD##suffix, REQTEST_HEAD, context_mode, true); \
-  REQ_TEST(RendererGET##suffix, REQTEST_GET, context_mode, false); \
-  REQ_TEST(RendererGETNoData##suffix, \
-           REQTEST_GET_NODATA, context_mode, false); \
-  REQ_TEST(RendererGETAllowCookies##suffix, \
-           REQTEST_GET_ALLOWCOOKIES, context_mode, false); \
-  REQ_TEST(RendererGETRedirect##suffix, \
-           REQTEST_GET_REDIRECT, context_mode, false); \
-  REQ_TEST(RendererGETReferrer##suffix, \
-           REQTEST_GET_REFERRER, context_mode, false); \
-  REQ_TEST(RendererPOST##suffix, REQTEST_POST, context_mode, false); \
-  REQ_TEST(RendererPOSTWithProgress##suffix, \
-           REQTEST_POST_WITHPROGRESS, context_mode, false); \
+  REQ_TEST(BrowserGETAllowCookies##suffix, REQTEST_GET_ALLOWCOOKIES,          \
+           context_mode, true);                                               \
+  REQ_TEST(BrowserGETRedirect##suffix, REQTEST_GET_REDIRECT, context_mode,    \
+           true);                                                             \
+  REQ_TEST(BrowserGETReferrer##suffix, REQTEST_GET_REFERRER, context_mode,    \
+           true);                                                             \
+  REQ_TEST(BrowserPOST##suffix, REQTEST_POST, context_mode, true);            \
+  REQ_TEST(BrowserPOSTFile##suffix, REQTEST_POST_FILE, context_mode, true);   \
+  REQ_TEST(BrowserPOSTWithProgress##suffix, REQTEST_POST_WITHPROGRESS,        \
+           context_mode, true);                                               \
+  REQ_TEST(BrowserHEAD##suffix, REQTEST_HEAD, context_mode, true);            \
+  REQ_TEST(RendererGET##suffix, REQTEST_GET, context_mode, false);            \
+  REQ_TEST(RendererGETNoData##suffix, REQTEST_GET_NODATA, context_mode,       \
+           false);                                                            \
+  REQ_TEST(RendererGETAllowCookies##suffix, REQTEST_GET_ALLOWCOOKIES,         \
+           context_mode, false);                                              \
+  REQ_TEST(RendererGETRedirect##suffix, REQTEST_GET_REDIRECT, context_mode,   \
+           false);                                                            \
+  REQ_TEST(RendererGETReferrer##suffix, REQTEST_GET_REFERRER, context_mode,   \
+           false);                                                            \
+  REQ_TEST(RendererPOST##suffix, REQTEST_POST, context_mode, false);          \
+  REQ_TEST(RendererPOSTWithProgress##suffix, REQTEST_POST_WITHPROGRESS,       \
+           context_mode, false);                                              \
   REQ_TEST(RendererHEAD##suffix, REQTEST_HEAD, context_mode, false)
 
 REQ_TEST_SET(ContextGlobal, CONTEXT_GLOBAL);
@@ -1501,7 +1460,7 @@ class InvalidURLTestClient : public CefURLRequestClient {
 
     // Let the call stack unwind before signaling completion.
     CefPostTask(TID_UI,
-        base::Bind(&InvalidURLTestClient::CompleteOnUIThread, this));
+                base::Bind(&InvalidURLTestClient::CompleteOnUIThread, this));
   }
 
   void OnUploadProgress(CefRefPtr<CefURLRequest> request,
@@ -1522,13 +1481,12 @@ class InvalidURLTestClient : public CefURLRequestClient {
     EXPECT_TRUE(false);  // Not reached.
   }
 
-  bool GetAuthCredentials(
-      bool isProxy,
-      const CefString& host,
-      int port,
-      const CefString& realm,
-      const CefString& scheme,
-      CefRefPtr<CefAuthCallback> callback) override {
+  bool GetAuthCredentials(bool isProxy,
+                          const CefString& host,
+                          int port,
+                          const CefString& realm,
+                          const CefString& scheme,
+                          CefRefPtr<CefAuthCallback> callback) override {
     EXPECT_TRUE(false);  // Not reached.
     return false;
   }
@@ -1557,7 +1515,7 @@ class InvalidURLTestClient : public CefURLRequestClient {
 }  // namespace
 
 // Verify that failed requests do not leak references.
-TEST(URLRequestTest, BrowserInvalidURL) { 
+TEST(URLRequestTest, BrowserInvalidURL) {
   CefRefPtr<InvalidURLTestClient> client = new InvalidURLTestClient();
   client->RunTest();
 

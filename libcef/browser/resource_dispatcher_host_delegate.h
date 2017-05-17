@@ -21,9 +21,8 @@ class CefResourceDispatcherHostDelegate
   ~CefResourceDispatcherHostDelegate() override;
 
   // ResourceDispatcherHostDelegate methods.
-  bool HandleExternalProtocol(
-      const GURL& url,
-      content::ResourceRequestInfo* info) override;
+  bool HandleExternalProtocol(const GURL& url,
+                              content::ResourceRequestInfo* info) override;
   bool ShouldInterceptResourceAsStream(net::URLRequest* request,
                                        const base::FilePath& plugin_path,
                                        const std::string& mime_type,
@@ -31,11 +30,10 @@ class CefResourceDispatcherHostDelegate
                                        std::string* payload) override;
   void OnStreamCreated(net::URLRequest* request,
                        std::unique_ptr<content::StreamInfo> stream) override;
-  void OnRequestRedirected(
-      const GURL& redirect_url,
-      net::URLRequest* request,
-      content::ResourceContext* resource_context,
-      content::ResourceResponse* response) override;
+  void OnRequestRedirected(const GURL& redirect_url,
+                           net::URLRequest* request,
+                           content::ResourceContext* resource_context,
+                           content::ResourceResponse* response) override;
   std::unique_ptr<net::ClientCertStore> CreateClientCertStore(
       content::ResourceContext* resource_context) override;
 
@@ -43,7 +41,7 @@ class CefResourceDispatcherHostDelegate
   void HandleExternalProtocolOnUIThread(
       const GURL& url,
       const content::ResourceRequestInfo::WebContentsGetter&
-            web_contents_getter);
+          web_contents_getter);
 
   struct StreamTargetInfo {
     std::string extension_id;

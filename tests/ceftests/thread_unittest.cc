@@ -123,7 +123,6 @@ TEST(ThreadTest, Create) {
   thread_test = nullptr;
 }
 
-
 namespace {
 
 // Simple implementation of ThreadTest that creates a thread, executes tasks
@@ -133,11 +132,11 @@ class SimpleThreadTest : public ThreadTest {
   SimpleThreadTest(size_t expected_task_count,
                    const base::Closure& task_callback,
                    const base::Closure& done_callback)
-    : expected_task_count_(expected_task_count),
-      task_callback_(task_callback),
-      done_callback_(done_callback),
-      got_task_count_(0U),
-      got_done_count_(0U) {}
+      : expected_task_count_(expected_task_count),
+        task_callback_(task_callback),
+        done_callback_(done_callback),
+        got_task_count_(0U),
+        got_done_count_(0U) {}
 
   void RunTest() {
     // Create the test thread.
@@ -145,9 +144,9 @@ class SimpleThreadTest : public ThreadTest {
 
     for (size_t i = 0U; i < expected_task_count_; ++i) {
       // Execute Task() on the test thread and then call Done() on this thread.
-      PostOnTestThreadAndCallback(
-          base::Bind(&SimpleThreadTest::Task, this), owner_task_runner(),
-          base::Bind(&SimpleThreadTest::Done, this));
+      PostOnTestThreadAndCallback(base::Bind(&SimpleThreadTest::Task, this),
+                                  owner_task_runner(),
+                                  base::Bind(&SimpleThreadTest::Done, this));
     }
   }
 
@@ -183,7 +182,6 @@ class SimpleThreadTest : public ThreadTest {
   DISALLOW_COPY_AND_ASSIGN(SimpleThreadTest);
 };
 
-
 // Test creation/execution of threads in the browser process.
 
 const char kBrowserThreadTestHtml[] = "http://test.com/browserthread.html";
@@ -192,7 +190,7 @@ const char kBrowserThreadTestHtml[] = "http://test.com/browserthread.html";
 class BrowserThreadTestHandler : public TestHandler {
  public:
   explicit BrowserThreadTestHandler(CefThreadId owner_thread_id)
-    : owner_thread_id_(owner_thread_id) {}
+      : owner_thread_id_(owner_thread_id) {}
 
   void RunTest() override {
     AddResource(kBrowserThreadTestHtml, "<html><body>Test</body></html>",
@@ -207,7 +205,8 @@ class BrowserThreadTestHandler : public TestHandler {
   void RunThreadTestOnOwnerThread() {
     if (!CefCurrentlyOn(owner_thread_id_)) {
       // Run the test on the desired owner thread.
-      CefPostTask(owner_thread_id_,
+      CefPostTask(
+          owner_thread_id_,
           base::Bind(&BrowserThreadTestHandler::RunThreadTestOnOwnerThread,
                      this));
       return;
@@ -222,7 +221,8 @@ class BrowserThreadTestHandler : public TestHandler {
 
   void DoneOnOwnerThread() {
     // Let the call stack unwind before destroying |thread_test_|.
-    CefPostTask(owner_thread_id_,
+    CefPostTask(
+        owner_thread_id_,
         base::Bind(&BrowserThreadTestHandler::DestroyTestOnOwnerThread, this));
   }
 
@@ -239,7 +239,7 @@ class BrowserThreadTestHandler : public TestHandler {
 
     // Call DestroyTest() on the UI thread.
     CefPostTask(TID_UI,
-        base::Bind(&BrowserThreadTestHandler::DestroyTest, this));
+                base::Bind(&BrowserThreadTestHandler::DestroyTest, this));
   }
 
   void OnLoadingStateChange(CefRefPtr<CefBrowser> browser,
@@ -293,7 +293,6 @@ TEST(ThreadTest, CreateFromBrowserFILEThread) {
   ReleaseAndWaitForDestructor(handler);
 }
 
-
 namespace {
 
 // Test creation/execution of threads in the render process.
@@ -328,10 +327,9 @@ class RenderThreadTestHandler : public TestHandler {
     }
   }
 
-  bool OnProcessMessageReceived(
-      CefRefPtr<CefBrowser> browser,
-      CefProcessId source_process,
-      CefRefPtr<CefProcessMessage> message) override {
+  bool OnProcessMessageReceived(CefRefPtr<CefBrowser> browser,
+                                CefProcessId source_process,
+                                CefRefPtr<CefProcessMessage> message) override {
     EXPECT_TRUE(browser.get());
     EXPECT_EQ(PID_RENDERER, source_process);
     EXPECT_TRUE(message.get());
@@ -371,11 +369,10 @@ class RenderThreadRendererTest : public ClientAppRenderer::Delegate {
  public:
   RenderThreadRendererTest() {}
 
-  bool OnProcessMessageReceived(
-      CefRefPtr<ClientAppRenderer> app,
-      CefRefPtr<CefBrowser> browser,
-      CefProcessId source_process,
-      CefRefPtr<CefProcessMessage> message) override {
+  bool OnProcessMessageReceived(CefRefPtr<ClientAppRenderer> app,
+                                CefRefPtr<CefBrowser> browser,
+                                CefProcessId source_process,
+                                CefRefPtr<CefProcessMessage> message) override {
     if (message->GetName().ToString() == kRenderThreadTestMsg) {
       browser_ = browser;
       EXPECT_FALSE(thread_test_.get());
@@ -394,7 +391,7 @@ class RenderThreadRendererTest : public ClientAppRenderer::Delegate {
   void Done() {
     // Let the call stack unwind before destroying |thread_test_|.
     CefPostTask(TID_RENDERER,
-        base::Bind(&RenderThreadRendererTest::DestroyTest, this));
+                base::Bind(&RenderThreadRendererTest::DestroyTest, this));
   }
 
   void DestroyTest() {
@@ -431,10 +428,8 @@ TEST(ThreadTest, CreateFromRenderThread) {
   ReleaseAndWaitForDestructor(handler);
 }
 
-
 // Entry point for creating request handler renderer test objects.
 // Called from client_app_delegates.cc.
-void CreateThreadRendererTests(
-    ClientAppRenderer::DelegateSet& delegates) {
+void CreateThreadRendererTests(ClientAppRenderer::DelegateSet& delegates) {
   delegates.insert(new RenderThreadRendererTest);
 }

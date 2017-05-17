@@ -38,9 +38,9 @@
 #define CEF_INCLUDE_CEF_COMMAND_LINE_H_
 #pragma once
 
-#include "include/cef_base.h"
 #include <map>
 #include <vector>
+#include "include/cef_base.h"
 
 ///
 // Class used to create and/or parse command line arguments. Arguments with
@@ -76,20 +76,20 @@ class CefCommandLine : public virtual CefBaseRefCounted {
   // function returns false.
   ///
   /*--cef()--*/
-  virtual bool IsValid() =0;
+  virtual bool IsValid() = 0;
 
   ///
   // Returns true if the values of this object are read-only. Some APIs may
   // expose read-only objects.
   ///
   /*--cef()--*/
-  virtual bool IsReadOnly() =0;
+  virtual bool IsReadOnly() = 0;
 
   ///
   // Returns a writable copy of this object.
   ///
   /*--cef()--*/
-  virtual CefRefPtr<CefCommandLine> Copy() =0;
+  virtual CefRefPtr<CefCommandLine> Copy() = 0;
 
   ///
   // Initialize the command line with the specified |argc| and |argv| values.
@@ -97,112 +97,112 @@ class CefCommandLine : public virtual CefBaseRefCounted {
   // supported on non-Windows platforms.
   ///
   /*--cef()--*/
-  virtual void InitFromArgv(int argc, const char* const* argv) =0;
+  virtual void InitFromArgv(int argc, const char* const* argv) = 0;
 
   ///
   // Initialize the command line with the string returned by calling
   // GetCommandLineW(). This method is only supported on Windows.
   ///
   /*--cef()--*/
-  virtual void InitFromString(const CefString& command_line) =0;
+  virtual void InitFromString(const CefString& command_line) = 0;
 
   ///
   // Reset the command-line switches and arguments but leave the program
   // component unchanged.
   ///
   /*--cef()--*/
-  virtual void Reset() =0;
+  virtual void Reset() = 0;
 
   ///
   // Retrieve the original command line string as a vector of strings.
   // The argv array: { program, [(--|-|/)switch[=value]]*, [--], [argument]* }
   ///
   /*--cef()--*/
-  virtual void GetArgv(std::vector<CefString>& argv) =0;
+  virtual void GetArgv(std::vector<CefString>& argv) = 0;
 
   ///
   // Constructs and returns the represented command line string. Use this method
   // cautiously because quoting behavior is unclear.
   ///
   /*--cef()--*/
-  virtual CefString GetCommandLineString() =0;
+  virtual CefString GetCommandLineString() = 0;
 
   ///
   // Get the program part of the command line string (the first item).
   ///
   /*--cef()--*/
-  virtual CefString GetProgram() =0;
+  virtual CefString GetProgram() = 0;
 
   ///
   // Set the program part of the command line string (the first item).
   ///
   /*--cef()--*/
-  virtual void SetProgram(const CefString& program) =0;
+  virtual void SetProgram(const CefString& program) = 0;
 
   ///
   // Returns true if the command line has switches.
   ///
   /*--cef()--*/
-  virtual bool HasSwitches() =0;
+  virtual bool HasSwitches() = 0;
 
   ///
   // Returns true if the command line contains the given switch.
   ///
   /*--cef()--*/
-  virtual bool HasSwitch(const CefString& name) =0;
+  virtual bool HasSwitch(const CefString& name) = 0;
 
   ///
   // Returns the value associated with the given switch. If the switch has no
   // value or isn't present this method returns the empty string.
   ///
   /*--cef()--*/
-  virtual CefString GetSwitchValue(const CefString& name) =0;
+  virtual CefString GetSwitchValue(const CefString& name) = 0;
 
   ///
   // Returns the map of switch names and values. If a switch has no value an
   // empty string is returned.
   ///
   /*--cef()--*/
-  virtual void GetSwitches(SwitchMap& switches) =0;
+  virtual void GetSwitches(SwitchMap& switches) = 0;
 
   ///
   // Add a switch to the end of the command line. If the switch has no value
   // pass an empty value string.
   ///
   /*--cef()--*/
-  virtual void AppendSwitch(const CefString& name) =0;
+  virtual void AppendSwitch(const CefString& name) = 0;
 
   ///
   // Add a switch with the specified value to the end of the command line.
   ///
   /*--cef()--*/
   virtual void AppendSwitchWithValue(const CefString& name,
-                                     const CefString& value) =0;
+                                     const CefString& value) = 0;
 
   ///
   // True if there are remaining command line arguments.
   ///
   /*--cef()--*/
-  virtual bool HasArguments() =0;
+  virtual bool HasArguments() = 0;
 
   ///
   // Get the remaining command line arguments.
   ///
   /*--cef()--*/
-  virtual void GetArguments(ArgumentList& arguments) =0;
+  virtual void GetArguments(ArgumentList& arguments) = 0;
 
   ///
   // Add an argument to the end of the command line.
   ///
   /*--cef()--*/
-  virtual void AppendArgument(const CefString& argument) =0;
+  virtual void AppendArgument(const CefString& argument) = 0;
 
   ///
   // Insert a command before the current command.
   // Common for debuggers, like "valgrind" or "gdb --args".
   ///
   /*--cef()--*/
-  virtual void PrependWrapper(const CefString& wrapper) =0;
+  virtual void PrependWrapper(const CefString& wrapper) = 0;
 };
 
 #endif  // CEF_INCLUDE_CEF_COMMAND_LINE_H_

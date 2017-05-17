@@ -26,12 +26,12 @@ void BrowserWindowStdMac::CreateBrowser(
   REQUIRE_MAIN_THREAD();
 
   CefWindowInfo window_info;
-  window_info.SetAsChild(parent_handle,
-                         rect.x, rect.y, rect.width, rect.height);
+  window_info.SetAsChild(parent_handle, rect.x, rect.y, rect.width,
+                         rect.height);
 
   CefBrowserHost::CreateBrowser(window_info, client_handler_,
-                                client_handler_->startup_url(),
-                                settings, request_context);
+                                client_handler_->startup_url(), settings,
+                                request_context);
 }
 
 void BrowserWindowStdMac::GetPopupConfig(CefWindowHandle temp_handle,
@@ -45,7 +45,10 @@ void BrowserWindowStdMac::GetPopupConfig(CefWindowHandle temp_handle,
 }
 
 void BrowserWindowStdMac::ShowPopup(ClientWindowHandle parent_handle,
-                                    int x, int y, size_t width, size_t height) {
+                                    int x,
+                                    int y,
+                                    size_t width,
+                                    size_t height) {
   REQUIRE_MAIN_THREAD();
 
   NSView* browser_view = GetWindowHandle();

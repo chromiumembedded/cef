@@ -57,15 +57,12 @@ const float kLetterHeightInch = 11.0f;
 
 class StickyPrintSettingGtk {
  public:
-  StickyPrintSettingGtk() : last_used_settings_(gtk_print_settings_new()) {
-  }
+  StickyPrintSettingGtk() : last_used_settings_(gtk_print_settings_new()) {}
   ~StickyPrintSettingGtk() {
     NOTREACHED();  // The instance is intentionally leaked.
   }
 
-  GtkPrintSettings* settings() {
-    return last_used_settings_;
-  }
+  GtkPrintSettings* settings() { return last_used_settings_; }
 
   void SetLastUsedSettings(GtkPrintSettings* settings) {
     DCHECK(last_used_settings_);
@@ -103,9 +100,7 @@ class GtkPrinterList {
 
   // Can return NULL if there's no default printer. E.g. Printer on a laptop
   // is "home_printer", but the laptop is at work.
-  GtkPrinter* default_printer() {
-    return default_printer_;
-  }
+  GtkPrinter* default_printer() { return default_printer_; }
 
   // Can return NULL if the printer cannot be found due to:
   // - Printer list out of sync with printer dialog UI.
@@ -245,9 +240,8 @@ void InitPrintSettings(GtkPrintSettings* settings,
     dpi = kPixelsPerInch;
     double page_width_in_pixel = kLetterWidthInch * dpi;
     double page_height_in_pixel = kLetterHeightInch * dpi;
-    physical_size_device_units.Set(
-        static_cast<int>(page_width_in_pixel),
-        static_cast<int>(page_height_in_pixel));
+    physical_size_device_units.Set(static_cast<int>(page_width_in_pixel),
+                                   static_cast<int>(page_height_in_pixel));
     printable_area_device_units.Set(
         static_cast<int>(kLeftMarginInInch * dpi),
         static_cast<int>(kTopMarginInInch * dpi),
@@ -268,22 +262,15 @@ void InitPrintSettings(GtkPrintSettings* settings,
   // Set before SetPrinterPrintableArea to make it flip area if necessary.
   print_settings->SetOrientation(orientation == GTK_PAGE_ORIENTATION_LANDSCAPE);
   print_settings->SetPrinterPrintableArea(physical_size_device_units,
-                                          printable_area_device_units,
-                                          true);
+                                          printable_area_device_units, true);
 }
 
 }  // namespace
 
-
 ClientPrintHandlerGtk::ClientPrintHandlerGtk()
-    : dialog_(NULL),
-      gtk_settings_(NULL),
-      page_setup_(NULL),
-      printer_(NULL) {
-}
+    : dialog_(NULL), gtk_settings_(NULL), page_setup_(NULL), printer_(NULL) {}
 
-void ClientPrintHandlerGtk::OnPrintStart(CefRefPtr<CefBrowser> browser) {
-}
+void ClientPrintHandlerGtk::OnPrintStart(CefRefPtr<CefBrowser> browser) {}
 
 void ClientPrintHandlerGtk::OnPrintSettings(
     CefRefPtr<CefPrintSettings> settings,
@@ -293,8 +280,7 @@ void ClientPrintHandlerGtk::OnPrintSettings(
     DCHECK(!printer_);
 
     // |gtk_settings_| is a new copy.
-    gtk_settings_ =
-        gtk_print_settings_copy(GetLastUsedSettings()->settings());
+    gtk_settings_ = gtk_print_settings_copy(GetLastUsedSettings()->settings());
     page_setup_ = gtk_page_setup_new();
   } else {
     if (!gtk_settings_) {
@@ -346,9 +332,8 @@ void ClientPrintHandlerGtk::OnPrintSettings(
       page_setup_ = gtk_page_setup_new();
 
     gtk_print_settings_set_orientation(
-        gtk_settings_,
-        settings->IsLandscape() ? GTK_PAGE_ORIENTATION_LANDSCAPE :
-                                  GTK_PAGE_ORIENTATION_PORTRAIT);
+        gtk_settings_, settings->IsLandscape() ? GTK_PAGE_ORIENTATION_LANDSCAPE
+                                               : GTK_PAGE_ORIENTATION_PORTRAIT);
 
     delete printer_list;
   }
@@ -368,17 +353,14 @@ bool ClientPrintHandlerGtk::OnPrintDialog(
   g_signal_connect(dialog_, "delete-event",
                    G_CALLBACK(gtk_widget_hide_on_delete), NULL);
 
-
   // Set modal so user cannot focus the same tab and press print again.
   gtk_window_set_modal(GTK_WINDOW(dialog_), TRUE);
 
   // Since we only generate PDF, only show printers that support PDF.
   // TODO(thestig) Add more capabilities to support?
   GtkPrintCapabilities cap = static_cast<GtkPrintCapabilities>(
-      GTK_PRINT_CAPABILITY_GENERATE_PDF |
-      GTK_PRINT_CAPABILITY_PAGE_SET |
-      GTK_PRINT_CAPABILITY_COPIES |
-      GTK_PRINT_CAPABILITY_COLLATE |
+      GTK_PRINT_CAPABILITY_GENERATE_PDF | GTK_PRINT_CAPABILITY_PAGE_SET |
+      GTK_PRINT_CAPABILITY_COPIES | GTK_PRINT_CAPABILITY_COLLATE |
       GTK_PRINT_CAPABILITY_REVERSE);
   gtk_print_unix_dialog_set_manual_capabilities(GTK_PRINT_UNIX_DIALOG(dialog_),
                                                 cap);
@@ -412,12 +394,8 @@ bool ClientPrintHandlerGtk::OnPrintJob(
   GetLastUsedSettings()->SetLastUsedSettings(gtk_settings_);
 
   GtkPrintJob* print_job = gtk_print_job_new(
-      document_name.ToString().c_str(),
-      printer_,
-      gtk_settings_,
-      page_setup_);
-  gtk_print_job_set_source_file(print_job,
-                                pdf_file_path.ToString().c_str(),
+      document_name.ToString().c_str(), printer_, gtk_settings_, page_setup_);
+  gtk_print_job_set_source_file(print_job, pdf_file_path.ToString().c_str(),
                                 NULL);
   gtk_print_job_send(print_job, OnJobCompletedThunk, this, NULL);
 
@@ -454,7 +432,7 @@ CefSize ClientPrintHandlerGtk::GetPdfPaperSize(int device_units_per_inch) {
   return CefSize(width * device_units_per_inch, height * device_units_per_inch);
 }
 
-void ClientPrintHandlerGtk::OnDialogResponse(GtkDialog *dialog,
+void ClientPrintHandlerGtk::OnDialogResponse(GtkDialog* dialog,
                                              gint response_id) {
   int num_matched_handlers = g_signal_handlers_disconnect_by_func(
       dialog_, reinterpret_cast<gpointer>(&OnDialogResponseThunk), this);
@@ -466,8 +444,8 @@ void ClientPrintHandlerGtk::OnDialogResponse(GtkDialog *dialog,
     case GTK_RESPONSE_OK: {
       if (gtk_settings_)
         g_object_unref(gtk_settings_);
-      gtk_settings_ = gtk_print_unix_dialog_get_settings(
-          GTK_PRINT_UNIX_DIALOG(dialog_));
+      gtk_settings_ =
+          gtk_print_unix_dialog_get_settings(GTK_PRINT_UNIX_DIALOG(dialog_));
 
       if (printer_)
         g_object_unref(printer_);
@@ -477,8 +455,8 @@ void ClientPrintHandlerGtk::OnDialogResponse(GtkDialog *dialog,
 
       if (page_setup_)
         g_object_unref(page_setup_);
-      page_setup_ = gtk_print_unix_dialog_get_page_setup(
-          GTK_PRINT_UNIX_DIALOG(dialog_));
+      page_setup_ =
+          gtk_print_unix_dialog_get_page_setup(GTK_PRINT_UNIX_DIALOG(dialog_));
       g_object_ref(page_setup_);
 
       // Handle page ranges.
@@ -525,9 +503,7 @@ void ClientPrintHandlerGtk::OnDialogResponse(GtkDialog *dialog,
       return;
     }
     case GTK_RESPONSE_APPLY:
-    default: {
-      NOTREACHED();
-    }
+    default: { NOTREACHED(); }
   }
 }
 

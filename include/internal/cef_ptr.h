@@ -27,7 +27,6 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-
 #ifndef CEF_INCLUDE_INTERNAL_CEF_PTR_H_
 #define CEF_INCLUDE_INTERNAL_CEF_PTR_H_
 #pragma once
@@ -159,7 +158,6 @@ using CefRefPtr = scoped_refptr<T>;
 #define CefRefPtr scoped_refptr
 #endif
 
-
 ///
 // A CefOwnPtr<T> is like a T*, except that the destructor of CefOwnPtr<T>
 // automatically deletes the pointer it holds (if any). That is, CefOwnPtr<T>
@@ -180,7 +178,6 @@ using CefOwnPtr = scoped_ptr<T, D>;
 // because it's otherwise hard to get the constructors to behave correctly.
 #define CefOwnPtr scoped_ptr
 #endif
-
 
 ///
 // A CefRawPtr<T> is the same as T*
@@ -218,9 +215,7 @@ class CefRawPtr {
     return *this;
   }
 
-  CefRawPtr<T>& operator=(const CefRawPtr<T>& r) {
-    return *this = r.ptr_;
-  }
+  CefRawPtr<T>& operator=(const CefRawPtr<T>& r) { return *this = r.ptr_; }
 
   template <typename U>
   CefRawPtr<T>& operator=(const CefRawPtr<U>& r) {

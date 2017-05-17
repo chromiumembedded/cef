@@ -13,8 +13,7 @@
 namespace client {
 
 // Client app implementation for the renderer process.
-class ClientAppRenderer : public ClientApp,
-                          public CefRenderProcessHandler {
+class ClientAppRenderer : public ClientApp, public CefRenderProcessHandler {
  public:
   // Interface for renderer delegates. All Delegates must be returned via
   // CreateDelegates. Do not perform work in the Delegate
@@ -81,7 +80,7 @@ class ClientAppRenderer : public ClientApp,
     }
   };
 
-  typedef std::set<CefRefPtr<Delegate> > DelegateSet;
+  typedef std::set<CefRefPtr<Delegate>> DelegateSet;
 
   ClientAppRenderer();
 
@@ -120,10 +119,9 @@ class ClientAppRenderer : public ClientApp,
   void OnFocusedNodeChanged(CefRefPtr<CefBrowser> browser,
                             CefRefPtr<CefFrame> frame,
                             CefRefPtr<CefDOMNode> node) OVERRIDE;
-  bool OnProcessMessageReceived(
-      CefRefPtr<CefBrowser> browser,
-      CefProcessId source_process,
-      CefRefPtr<CefProcessMessage> message) OVERRIDE;
+  bool OnProcessMessageReceived(CefRefPtr<CefBrowser> browser,
+                                CefProcessId source_process,
+                                CefRefPtr<CefProcessMessage> message) OVERRIDE;
 
  private:
   // Set of supported Delegates.

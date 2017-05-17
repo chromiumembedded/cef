@@ -9,16 +9,14 @@ namespace client {
 
 OsrAccessibilityHelper::OsrAccessibilityHelper(CefRefPtr<CefValue> value,
                                                CefRefPtr<CefBrowser> browser)
-  : root_node_id_(-1),
-    focused_node_id_(-1),
-    browser_(browser) {
+    : root_node_id_(-1), focused_node_id_(-1), browser_(browser) {
   UpdateAccessibilityTree(value);
 }
 
 void OsrAccessibilityHelper::UpdateAccessibilityTree(
     CefRefPtr<CefValue> value) {
   if (value && value->GetType() == VTYPE_LIST) {
-    CefRefPtr<CefListValue > list = value->GetList();
+    CefRefPtr<CefListValue> list = value->GetList();
     size_t numEvents = list->GetSize();
     if (numEvents > 0) {
       for (size_t i = 0; i < numEvents; i++) {
@@ -55,7 +53,7 @@ void OsrAccessibilityHelper::UpdateLayout(
       // reset root node if that is to be cleared
       if (node_id_to_clear == root_node_id_)
         root_node_id_ = -1;
-      OsrAXNode *node = GetNode(node_id_to_clear);
+      OsrAXNode* node = GetNode(node_id_to_clear);
       DestroyNode(node);
     }
 

@@ -27,7 +27,6 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-
 #ifndef CEF_INCLUDE_INTERNAL_CEF_TYPES_WIN_H_
 #define CEF_INCLUDE_INTERNAL_CEF_TYPES_WIN_H_
 #pragma once
@@ -54,9 +53,7 @@ extern "C" {
 ///
 // Structure representing CefExecuteProcess arguments.
 ///
-typedef struct _cef_main_args_t {
-  HINSTANCE instance;
-} cef_main_args_t;
+typedef struct _cef_main_args_t { HINSTANCE instance; } cef_main_args_t;
 
 ///
 // Structure representing window information.

@@ -26,16 +26,16 @@ namespace cefimpl = extensions::cef;
 // static
 bool ChromeFunctionRegistry::IsSupported(const std::string& name) {
   static const char* const supported_apis[] = {
-    "resourcesPrivate",
-    EXTENSION_FUNCTION_NAME(ResourcesPrivateGetStringsFunction),
-    "streamsPrivate",
-    EXTENSION_FUNCTION_NAME(StreamsPrivateAbortFunction),
-    "tabs",
-    EXTENSION_FUNCTION_NAME(cefimpl::TabsGetFunction),
-    EXTENSION_FUNCTION_NAME(cefimpl::TabsSetZoomFunction),
-    EXTENSION_FUNCTION_NAME(cefimpl::TabsGetZoomFunction),
-    EXTENSION_FUNCTION_NAME(cefimpl::TabsSetZoomSettingsFunction),
-    EXTENSION_FUNCTION_NAME(cefimpl::TabsGetZoomSettingsFunction),
+      "resourcesPrivate",
+      EXTENSION_FUNCTION_NAME(ResourcesPrivateGetStringsFunction),
+      "streamsPrivate",
+      EXTENSION_FUNCTION_NAME(StreamsPrivateAbortFunction),
+      "tabs",
+      EXTENSION_FUNCTION_NAME(cefimpl::TabsGetFunction),
+      EXTENSION_FUNCTION_NAME(cefimpl::TabsSetZoomFunction),
+      EXTENSION_FUNCTION_NAME(cefimpl::TabsGetZoomFunction),
+      EXTENSION_FUNCTION_NAME(cefimpl::TabsSetZoomSettingsFunction),
+      EXTENSION_FUNCTION_NAME(cefimpl::TabsGetZoomSettingsFunction),
   };
   for (size_t i = 0; i < arraysize(supported_apis); ++i) {
     if (name == supported_apis[i])

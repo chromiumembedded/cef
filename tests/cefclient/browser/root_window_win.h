@@ -7,6 +7,7 @@
 #pragma once
 
 #include <windows.h>
+
 #include <commdlg.h>
 
 #include <string>
@@ -20,8 +21,7 @@ namespace client {
 // Windows implementation of a top-level native window in the browser process.
 // The methods of this class must be called on the main thread unless otherwise
 // indicated.
-class RootWindowWin : public RootWindow,
-                      public BrowserWindow::Delegate {
+class RootWindowWin : public RootWindow, public BrowserWindow::Delegate {
  public:
   // Constructor may be called on any thread.
   RootWindowWin();
@@ -60,15 +60,21 @@ class RootWindowWin : public RootWindow,
                                 HBRUSH background_brush);
 
   // Window procedure for the edit field.
-  static LRESULT CALLBACK EditWndProc(HWND hWnd, UINT message, WPARAM wParam,
+  static LRESULT CALLBACK EditWndProc(HWND hWnd,
+                                      UINT message,
+                                      WPARAM wParam,
                                       LPARAM lParam);
 
   // Window procedure for the find dialog.
-  static LRESULT CALLBACK FindWndProc(HWND hWnd, UINT message, WPARAM wParam,
+  static LRESULT CALLBACK FindWndProc(HWND hWnd,
+                                      UINT message,
+                                      WPARAM wParam,
                                       LPARAM lParam);
 
   // Window procedure for the root window.
-  static LRESULT CALLBACK RootWndProc(HWND hWnd, UINT message, WPARAM wParam,
+  static LRESULT CALLBACK RootWndProc(HWND hWnd,
+                                      UINT message,
+                                      WPARAM wParam,
                                       LPARAM lParam);
 
   // Event handlers.

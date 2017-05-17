@@ -29,11 +29,13 @@ CefRefPtr<CefWindow> GetWindow(CefRefPtr<CefBrowser> browser) {
 
 }  // namespace
 
-WindowTestRunnerViews::WindowTestRunnerViews() {
-}
+WindowTestRunnerViews::WindowTestRunnerViews() {}
 
 void WindowTestRunnerViews::SetPos(CefRefPtr<CefBrowser> browser,
-                                   int x, int y, int width, int height) {
+                                   int x,
+                                   int y,
+                                   int width,
+                                   int height) {
   CefRefPtr<CefWindow> window = GetWindow(browser);
 
   CefRect window_bounds(x, y, width, height);

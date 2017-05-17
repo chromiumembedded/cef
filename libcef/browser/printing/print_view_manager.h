@@ -21,9 +21,9 @@ struct PrintHostMsg_RequestPrintPreview_Params;
 namespace printing {
 
 // Manages the print commands for a WebContents.
-class CefPrintViewManager :
-    public CefPrintViewManagerBase,
-    public content::WebContentsUserData<CefPrintViewManager> {
+class CefPrintViewManager
+    : public CefPrintViewManagerBase,
+      public content::WebContentsUserData<CefPrintViewManager> {
  public:
   ~CefPrintViewManager() override;
 

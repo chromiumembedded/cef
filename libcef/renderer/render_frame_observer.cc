@@ -2,7 +2,6 @@
 // Use of this source code is governed by a BSD-style license that can be found
 // in the LICENSE file.
 
-
 #include "base/compiler_specific.h"
 
 MSVC_PUSH_WARNING_LEVEL(0);
@@ -12,7 +11,7 @@ MSVC_POP_WARNING();
 // Enable deprecation warnings for MSVC. See http://crbug.com/585142.
 #if defined(OS_WIN)
 #pragma warning(push)
-#pragma warning(default:4996)
+#pragma warning(default : 4996)
 #endif
 
 #include "libcef/renderer/render_frame_observer.h"
@@ -22,16 +21,14 @@ MSVC_POP_WARNING();
 #include "libcef/renderer/v8_impl.h"
 
 #include "content/public/renderer/render_frame.h"
-#include "third_party/WebKit/public/web/WebLocalFrame.h"
 #include "third_party/WebKit/public/web/WebKit.h"
+#include "third_party/WebKit/public/web/WebLocalFrame.h"
 
 CefRenderFrameObserver::CefRenderFrameObserver(
     content::RenderFrame* render_frame)
-    : content::RenderFrameObserver(render_frame) {
-}
+    : content::RenderFrameObserver(render_frame) {}
 
-CefRenderFrameObserver::~CefRenderFrameObserver() {
-}
+CefRenderFrameObserver::~CefRenderFrameObserver() {}
 
 void CefRenderFrameObserver::DidCreateScriptContext(
     v8::Handle<v8::Context> context,
@@ -101,7 +98,6 @@ void CefRenderFrameObserver::WillReleaseScriptContext(
 void CefRenderFrameObserver::OnDestruct() {
   delete this;
 }
-
 
 // Enable deprecation warnings for MSVC. See http://crbug.com/585142.
 #if defined(OS_WIN)

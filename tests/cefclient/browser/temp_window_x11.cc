@@ -13,25 +13,21 @@ namespace client {
 
 namespace {
 
-
 // Create the temp window.
 ::Window CreateTempWindow() {
   ::Display* xdisplay = cef_get_xdisplay();
   ::Window parent_xwindow = DefaultRootWindow(xdisplay);
-  
+
   XSetWindowAttributes swa;
   memset(&swa, 0, sizeof(swa));
   swa.background_pixmap = None;
   swa.override_redirect = false;
-  return XCreateWindow(
-      xdisplay, parent_xwindow,
-      0, 0, 1, 1,      // size (1x1px)
-      0,               // border width
-      CopyFromParent,  // depth
-      InputOutput,
-      CopyFromParent,  // visual
-      CWBackPixmap | CWOverrideRedirect,
-      &swa);
+  return XCreateWindow(xdisplay, parent_xwindow, 0, 0, 1, 1,  // size (1x1px)
+                       0,                                     // border width
+                       CopyFromParent,                        // depth
+                       InputOutput,
+                       CopyFromParent,  // visual
+                       CWBackPixmap | CWOverrideRedirect, &swa);
 }
 
 // Close the temp window.
@@ -44,8 +40,7 @@ TempWindowX11* g_temp_window = NULL;
 
 }  // namespace
 
-TempWindowX11::TempWindowX11()
-    : xwindow_(kNullWindowHandle) {
+TempWindowX11::TempWindowX11() : xwindow_(kNullWindowHandle) {
   DCHECK(!g_temp_window);
   g_temp_window = this;
 
@@ -56,7 +51,7 @@ TempWindowX11::TempWindowX11()
 TempWindowX11::~TempWindowX11() {
   g_temp_window = NULL;
   DCHECK(xwindow_);
-  
+
   CloseTempWindow(xwindow_);
 }
 

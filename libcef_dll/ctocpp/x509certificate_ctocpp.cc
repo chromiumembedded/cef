@@ -9,12 +9,13 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=e6992d1ee8d86f4289cb51e155bce1990879e4db$
+//
 
 #include <algorithm>
 #include "libcef_dll/ctocpp/binary_value_ctocpp.h"
 #include "libcef_dll/ctocpp/x509cert_principal_ctocpp.h"
 #include "libcef_dll/ctocpp/x509certificate_ctocpp.h"
-
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
@@ -146,7 +147,7 @@ void CefX509CertificateCToCpp::GetDEREncodedIssuerChain(
     chainList = new cef_binary_value_t*[chainCount];
     DCHECK(chainList);
     if (chainList) {
-       memset(chainList, 0, sizeof(cef_binary_value_t*)*chainCount);
+      memset(chainList, 0, sizeof(cef_binary_value_t*) * chainCount);
     }
     if (chainList && chainSize > 0) {
       for (size_t i = 0; i < chainSize; ++i) {
@@ -156,9 +157,7 @@ void CefX509CertificateCToCpp::GetDEREncodedIssuerChain(
   }
 
   // Execute
-  _struct->get_derencoded_issuer_chain(_struct,
-      &chainCount,
-      chainList);
+  _struct->get_derencoded_issuer_chain(_struct, &chainCount, chainList);
 
   // Restore param:chain; type: refptr_vec_same_byref
   chain.clear();
@@ -166,7 +165,7 @@ void CefX509CertificateCToCpp::GetDEREncodedIssuerChain(
     for (size_t i = 0; i < chainCount; ++i) {
       chain.push_back(CefBinaryValueCToCpp::Wrap(chainList[i]));
     }
-    delete [] chainList;
+    delete[] chainList;
   }
 }
 
@@ -186,7 +185,7 @@ void CefX509CertificateCToCpp::GetPEMEncodedIssuerChain(
     chainList = new cef_binary_value_t*[chainCount];
     DCHECK(chainList);
     if (chainList) {
-       memset(chainList, 0, sizeof(cef_binary_value_t*)*chainCount);
+      memset(chainList, 0, sizeof(cef_binary_value_t*) * chainCount);
     }
     if (chainList && chainSize > 0) {
       for (size_t i = 0; i < chainSize; ++i) {
@@ -196,9 +195,7 @@ void CefX509CertificateCToCpp::GetPEMEncodedIssuerChain(
   }
 
   // Execute
-  _struct->get_pemencoded_issuer_chain(_struct,
-      &chainCount,
-      chainList);
+  _struct->get_pemencoded_issuer_chain(_struct, &chainCount, chainList);
 
   // Restore param:chain; type: refptr_vec_same_byref
   chain.clear();
@@ -206,28 +203,33 @@ void CefX509CertificateCToCpp::GetPEMEncodedIssuerChain(
     for (size_t i = 0; i < chainCount; ++i) {
       chain.push_back(CefBinaryValueCToCpp::Wrap(chainList[i]));
     }
-    delete [] chainList;
+    delete[] chainList;
   }
 }
 
-
 // CONSTRUCTOR - Do not edit by hand.
 
-CefX509CertificateCToCpp::CefX509CertificateCToCpp() {
-}
+CefX509CertificateCToCpp::CefX509CertificateCToCpp() {}
 
-template<> cef_x509certificate_t* CefCToCppRefCounted<CefX509CertificateCToCpp,
-    CefX509Certificate, cef_x509certificate_t>::UnwrapDerived(
-    CefWrapperType type, CefX509Certificate* c) {
+template <>
+cef_x509certificate_t* CefCToCppRefCounted<
+    CefX509CertificateCToCpp,
+    CefX509Certificate,
+    cef_x509certificate_t>::UnwrapDerived(CefWrapperType type,
+                                          CefX509Certificate* c) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCppRefCounted<CefX509CertificateCToCpp,
-    CefX509Certificate, cef_x509certificate_t>::DebugObjCt = 0;
+template <>
+base::AtomicRefCount CefCToCppRefCounted<CefX509CertificateCToCpp,
+                                         CefX509Certificate,
+                                         cef_x509certificate_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCppRefCounted<CefX509CertificateCToCpp,
-    CefX509Certificate, cef_x509certificate_t>::kWrapperType =
+template <>
+CefWrapperType CefCToCppRefCounted<CefX509CertificateCToCpp,
+                                   CefX509Certificate,
+                                   cef_x509certificate_t>::kWrapperType =
     WT_X509CERTIFICATE;

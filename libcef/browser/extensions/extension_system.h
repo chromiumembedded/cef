@@ -97,23 +97,22 @@ class CefExtensionSystem : public ExtensionSystem {
   };
 
   scoped_refptr<const Extension> CreateExtension(
-      const ComponentExtensionInfo& info, std::string* utf8_error);
+      const ComponentExtensionInfo& info,
+      std::string* utf8_error);
 
   // Loads a registered component extension.
   const Extension* LoadExtension(const ComponentExtensionInfo& info);
 
   // Unload the specified extension.
-  void UnloadExtension(
-      const std::string& extension_id,
-      extensions::UnloadedExtensionInfo::Reason reason);
+  void UnloadExtension(const std::string& extension_id,
+                       extensions::UnloadedExtensionInfo::Reason reason);
 
   // Handles sending notification that |extension| was loaded.
   void NotifyExtensionLoaded(const Extension* extension);
 
   // Handles sending notification that |extension| was unloaded.
-  void NotifyExtensionUnloaded(
-      const Extension* extension,
-      UnloadedExtensionInfo::Reason reason);
+  void NotifyExtensionUnloaded(const Extension* extension,
+                               UnloadedExtensionInfo::Reason reason);
 
   // Completes extension loading after URLRequestContexts have been updated
   // on the IO thread.

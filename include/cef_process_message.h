@@ -60,32 +60,32 @@ class CefProcessMessage : public virtual CefBaseRefCounted {
   // function returns false.
   ///
   /*--cef()--*/
-  virtual bool IsValid() =0;
+  virtual bool IsValid() = 0;
 
   ///
   // Returns true if the values of this object are read-only. Some APIs may
   // expose read-only objects.
   ///
   /*--cef()--*/
-  virtual bool IsReadOnly() =0;
+  virtual bool IsReadOnly() = 0;
 
   ///
   // Returns a writable copy of this object.
   ///
   /*--cef()--*/
-  virtual CefRefPtr<CefProcessMessage> Copy() =0;
+  virtual CefRefPtr<CefProcessMessage> Copy() = 0;
 
   ///
   // Returns the message name.
   ///
   /*--cef()--*/
-  virtual CefString GetName() =0;
+  virtual CefString GetName() = 0;
 
   ///
   // Returns the list of arguments.
   ///
   /*--cef()--*/
-  virtual CefRefPtr<CefListValue> GetArgumentList() =0;
+  virtual CefRefPtr<CefListValue> GetArgumentList() = 0;
 };
 
 #endif  // CEF_INCLUDE_CEF_MESSAGE_H_

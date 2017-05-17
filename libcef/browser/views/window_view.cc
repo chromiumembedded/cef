@@ -30,14 +30,12 @@ class ClientViewEx : public views::ClientView {
   ClientViewEx(views::Widget* widget,
                views::View* contents_view,
                CefWindowView::Delegate* window_delegate)
-    : views::ClientView(widget, contents_view),
-      window_delegate_(window_delegate) {
+      : views::ClientView(widget, contents_view),
+        window_delegate_(window_delegate) {
     DCHECK(window_delegate_);
   }
 
-  bool CanClose() override {
-    return window_delegate_->CanWidgetClose();
-  }
+  bool CanClose() override { return window_delegate_->CanWidgetClose(); }
 
  private:
   CefWindowView::Delegate* window_delegate_;  // Not owned by this object.
@@ -48,12 +46,8 @@ class ClientViewEx : public views::ClientView {
 // Extend NativeFrameView with draggable region handling.
 class NativeFrameViewEx : public views::NativeFrameView {
  public:
-  NativeFrameViewEx(views::Widget* widget,
-                    CefWindowView* view)
-    : views::NativeFrameView(widget),
-      widget_(widget),
-      view_(view) {
-  }
+  NativeFrameViewEx(views::Widget* widget, CefWindowView* view)
+      : views::NativeFrameView(widget), widget_(widget), view_(view) {}
 
   gfx::Rect GetWindowBoundsForClientBounds(
       const gfx::Rect& client_bounds) const override {
@@ -65,8 +59,7 @@ class NativeFrameViewEx : public views::NativeFrameView {
         display::Screen::GetScreen()->DIPToScreenRectInWindow(
             view_util::GetNativeWindow(widget_), client_bounds);
     pixel_bounds = views::GetWindowBoundsForClientBounds(
-        static_cast<View*>(const_cast<NativeFrameViewEx*>(this)),
-        pixel_bounds);
+        static_cast<View*>(const_cast<NativeFrameViewEx*>(this)), pixel_bounds);
     return display::Screen::GetScreen()->ScreenToDIPRectInWindow(
         view_util::GetNativeWindow(widget_), pixel_bounds);
 #else
@@ -108,11 +101,8 @@ const int kResizeAreaCornerSize = 16;
 // with a resizable border. Based on AppWindowFrameView and CustomFrameView.
 class CaptionlessFrameView : public views::NonClientFrameView {
  public:
-  CaptionlessFrameView(views::Widget* widget,
-                       CefWindowView* view)
-    : widget_(widget),
-      view_(view) {
-  }
+  CaptionlessFrameView(views::Widget* widget, CefWindowView* view)
+      : widget_(widget), view_(view) {}
 
   gfx::Rect GetBoundsForClientView() const override {
     return client_view_bounds_;
@@ -139,12 +129,9 @@ class CaptionlessFrameView : public views::NonClientFrameView {
     // Don't allow overlapping resize handles when the window is maximized or
     // fullscreen, as it can't be resized in those states.
     int resize_border_thickness = ResizeBorderThickness();
-    int frame_component = GetHTComponentForFrame(point,
-                                                 resize_border_thickness,
-                                                 resize_border_thickness,
-                                                 kResizeAreaCornerSize,
-                                                 kResizeAreaCornerSize,
-                                                 can_ever_resize);
+    int frame_component = GetHTComponentForFrame(
+        point, resize_border_thickness, resize_border_thickness,
+        kResizeAreaCornerSize, kResizeAreaCornerSize, can_ever_resize);
     if (frame_component != HTNOWHERE)
       return frame_component;
 
@@ -190,28 +177,34 @@ class CaptionlessFrameView : public views::NonClientFrameView {
   }
 
   gfx::Size GetPreferredSize() const override {
-    return widget_->non_client_view()->GetWindowBoundsForClientBounds(
-      gfx::Rect(widget_->client_view()->GetPreferredSize())).size();
+    return widget_->non_client_view()
+        ->GetWindowBoundsForClientBounds(
+            gfx::Rect(widget_->client_view()->GetPreferredSize()))
+        .size();
   }
 
   gfx::Size GetMinimumSize() const override {
-    return widget_->non_client_view()->GetWindowBoundsForClientBounds(
-      gfx::Rect(widget_->client_view()->GetMinimumSize())).size();
+    return widget_->non_client_view()
+        ->GetWindowBoundsForClientBounds(
+            gfx::Rect(widget_->client_view()->GetMinimumSize()))
+        .size();
   }
 
   gfx::Size GetMaximumSize() const override {
     gfx::Size max_size = widget_->client_view()->GetMaximumSize();
     gfx::Size converted_size =
-        widget_->non_client_view()->GetWindowBoundsForClientBounds(
-            gfx::Rect(max_size)).size();
+        widget_->non_client_view()
+            ->GetWindowBoundsForClientBounds(gfx::Rect(max_size))
+            .size();
     return gfx::Size(max_size.width() == 0 ? 0 : converted_size.width(),
                      max_size.height() == 0 ? 0 : converted_size.height());
   }
 
  private:
   int ResizeBorderThickness() const {
-    return (widget_->IsMaximized() || widget_->IsFullscreen() ?
-        0 : kResizeBorderThickness);
+    return (widget_->IsMaximized() || widget_->IsFullscreen()
+                ? 0
+                : kResizeBorderThickness);
   }
 
   // Not owned by this object.
@@ -225,8 +218,8 @@ class CaptionlessFrameView : public views::NonClientFrameView {
 };
 
 bool IsWindowBorderHit(int code) {
-  // On Windows HTLEFT = 10 and HTBORDER = 18. Values are not ordered the same
-  // in base/hit_test.h for non-Windows platforms.
+// On Windows HTLEFT = 10 and HTBORDER = 18. Values are not ordered the same
+// in base/hit_test.h for non-Windows platforms.
 #if defined(OS_WIN)
   return code >= HTLEFT && code <= HTBORDER;
 #else
@@ -240,9 +233,9 @@ bool IsWindowBorderHit(int code) {
 
 CefWindowView::CefWindowView(CefWindowDelegate* cef_delegate,
                              Delegate* window_delegate)
-  : ParentClass(cef_delegate),
-    window_delegate_(window_delegate),
-    is_frameless_(false) {
+    : ParentClass(cef_delegate),
+      window_delegate_(window_delegate),
+      is_frameless_(false) {
   DCHECK(window_delegate_);
 }
 
@@ -295,7 +288,7 @@ void CefWindowView::CreateWidget() {
     };
     enum {
       MWM_HINTS_FUNCTIONS = (1L << 0),
-      MWM_HINTS_DECORATIONS =  (1L << 1),
+      MWM_HINTS_DECORATIONS = (1L << 1),
 
       MWM_FUNC_ALL = (1L << 0),
       MWM_FUNC_RESIZE = (1L << 1),
@@ -310,7 +303,7 @@ void CefWindowView::CreateWidget() {
     hints.flags = MWM_HINTS_DECORATIONS;
     hints.decorations = 0;
     XChangeProperty(display, window, mwmHintsProperty, mwmHintsProperty, 32,
-                    PropModeReplace, (unsigned char *)&hints, 5);
+                    PropModeReplace, (unsigned char*)&hints, 5);
   }
 #endif  // defined(OS_LINUX)
 }
@@ -357,15 +350,15 @@ base::string16 CefWindowView::GetWindowTitle() const {
 gfx::ImageSkia CefWindowView::GetWindowIcon() {
   if (!window_icon_)
     return ParentClass::GetWindowIcon();
-  return static_cast<CefImageImpl*>(window_icon_.get())->
-      GetForced1xScaleRepresentation(GetDisplay().device_scale_factor());
+  return static_cast<CefImageImpl*>(window_icon_.get())
+      ->GetForced1xScaleRepresentation(GetDisplay().device_scale_factor());
 }
 
 gfx::ImageSkia CefWindowView::GetWindowAppIcon() {
   if (!window_app_icon_)
     return ParentClass::GetWindowAppIcon();
-  return static_cast<CefImageImpl*>(window_app_icon_.get())->
-      GetForced1xScaleRepresentation(GetDisplay().device_scale_factor());
+  return static_cast<CefImageImpl*>(window_app_icon_.get())
+      ->GetForced1xScaleRepresentation(GetDisplay().device_scale_factor());
 }
 
 void CefWindowView::WindowClosing() {
@@ -383,7 +376,7 @@ views::ClientView* CefWindowView::CreateClientView(views::Widget* widget) {
 }
 
 views::NonClientFrameView* CefWindowView::CreateNonClientFrameView(
-      views::Widget* widget) {
+    views::Widget* widget) {
   if (is_frameless_) {
     // Custom frame type that doesn't render a caption.
     return new CaptionlessFrameView(widget, this);
@@ -477,9 +470,7 @@ void CefWindowView::SetDraggableRegions(
   draggable_region_.reset(new SkRegion);
   for (const CefDraggableRegion& region : regions) {
     draggable_region_->op(
-        region.bounds.x,
-        region.bounds.y,
-        region.bounds.x + region.bounds.width,
+        region.bounds.x, region.bounds.y, region.bounds.x + region.bounds.width,
         region.bounds.y + region.bounds.height,
         region.draggable ? SkRegion::kUnion_Op : SkRegion::kDifference_Op);
   }

@@ -9,13 +9,14 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=a70d01195a3849949d5046432f91e572dd2570d0$
+//
 
 #include "libcef_dll/cpptoc/binary_value_cpptoc.h"
 #include "libcef_dll/cpptoc/dictionary_value_cpptoc.h"
 #include "libcef_dll/cpptoc/list_value_cpptoc.h"
 #include "libcef_dll/cpptoc/value_cpptoc.h"
 #include "libcef_dll/transfer_util.h"
-
 
 // GLOBAL FUNCTIONS - Body may be edited by hand.
 
@@ -29,13 +30,12 @@ CEF_EXPORT cef_dictionary_value_t* cef_dictionary_value_create() {
   return CefDictionaryValueCppToC::Wrap(_retval);
 }
 
-
 namespace {
 
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
-int CEF_CALLBACK dictionary_value_is_valid(
-    struct _cef_dictionary_value_t* self) {
+int CEF_CALLBACK
+dictionary_value_is_valid(struct _cef_dictionary_value_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -49,8 +49,8 @@ int CEF_CALLBACK dictionary_value_is_valid(
   return _retval;
 }
 
-int CEF_CALLBACK dictionary_value_is_owned(
-    struct _cef_dictionary_value_t* self) {
+int CEF_CALLBACK
+dictionary_value_is_owned(struct _cef_dictionary_value_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -64,8 +64,8 @@ int CEF_CALLBACK dictionary_value_is_owned(
   return _retval;
 }
 
-int CEF_CALLBACK dictionary_value_is_read_only(
-    struct _cef_dictionary_value_t* self) {
+int CEF_CALLBACK
+dictionary_value_is_read_only(struct _cef_dictionary_value_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -79,8 +79,9 @@ int CEF_CALLBACK dictionary_value_is_read_only(
   return _retval;
 }
 
-int CEF_CALLBACK dictionary_value_is_same(struct _cef_dictionary_value_t* self,
-    struct _cef_dictionary_value_t* that) {
+int CEF_CALLBACK
+dictionary_value_is_same(struct _cef_dictionary_value_t* self,
+                         struct _cef_dictionary_value_t* that) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -99,8 +100,9 @@ int CEF_CALLBACK dictionary_value_is_same(struct _cef_dictionary_value_t* self,
   return _retval;
 }
 
-int CEF_CALLBACK dictionary_value_is_equal(struct _cef_dictionary_value_t* self,
-    struct _cef_dictionary_value_t* that) {
+int CEF_CALLBACK
+dictionary_value_is_equal(struct _cef_dictionary_value_t* self,
+                          struct _cef_dictionary_value_t* that) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -119,8 +121,9 @@ int CEF_CALLBACK dictionary_value_is_equal(struct _cef_dictionary_value_t* self,
   return _retval;
 }
 
-struct _cef_dictionary_value_t* CEF_CALLBACK dictionary_value_copy(
-    struct _cef_dictionary_value_t* self, int exclude_empty_children) {
+struct _cef_dictionary_value_t* CEF_CALLBACK
+dictionary_value_copy(struct _cef_dictionary_value_t* self,
+                      int exclude_empty_children) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -128,16 +131,16 @@ struct _cef_dictionary_value_t* CEF_CALLBACK dictionary_value_copy(
     return NULL;
 
   // Execute
-  CefRefPtr<CefDictionaryValue> _retval = CefDictionaryValueCppToC::Get(
-      self)->Copy(
-      exclude_empty_children?true:false);
+  CefRefPtr<CefDictionaryValue> _retval =
+      CefDictionaryValueCppToC::Get(self)->Copy(exclude_empty_children ? true
+                                                                       : false);
 
   // Return type: refptr_same
   return CefDictionaryValueCppToC::Wrap(_retval);
 }
 
-size_t CEF_CALLBACK dictionary_value_get_size(
-    struct _cef_dictionary_value_t* self) {
+size_t CEF_CALLBACK
+dictionary_value_get_size(struct _cef_dictionary_value_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -166,7 +169,7 @@ int CEF_CALLBACK dictionary_value_clear(struct _cef_dictionary_value_t* self) {
 }
 
 int CEF_CALLBACK dictionary_value_has_key(struct _cef_dictionary_value_t* self,
-    const cef_string_t* key) {
+                                          const cef_string_t* key) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -178,15 +181,14 @@ int CEF_CALLBACK dictionary_value_has_key(struct _cef_dictionary_value_t* self,
     return 0;
 
   // Execute
-  bool _retval = CefDictionaryValueCppToC::Get(self)->HasKey(
-      CefString(key));
+  bool _retval = CefDictionaryValueCppToC::Get(self)->HasKey(CefString(key));
 
   // Return type: bool
   return _retval;
 }
 
 int CEF_CALLBACK dictionary_value_get_keys(struct _cef_dictionary_value_t* self,
-    cef_string_list_t keys) {
+                                           cef_string_list_t keys) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -202,8 +204,7 @@ int CEF_CALLBACK dictionary_value_get_keys(struct _cef_dictionary_value_t* self,
   transfer_string_list_contents(keys, keysList);
 
   // Execute
-  bool _retval = CefDictionaryValueCppToC::Get(self)->GetKeys(
-      keysList);
+  bool _retval = CefDictionaryValueCppToC::Get(self)->GetKeys(keysList);
 
   // Restore param: keys; type: string_vec_byref
   cef_string_list_clear(keys);
@@ -214,7 +215,7 @@ int CEF_CALLBACK dictionary_value_get_keys(struct _cef_dictionary_value_t* self,
 }
 
 int CEF_CALLBACK dictionary_value_remove(struct _cef_dictionary_value_t* self,
-    const cef_string_t* key) {
+                                         const cef_string_t* key) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -226,15 +227,15 @@ int CEF_CALLBACK dictionary_value_remove(struct _cef_dictionary_value_t* self,
     return 0;
 
   // Execute
-  bool _retval = CefDictionaryValueCppToC::Get(self)->Remove(
-      CefString(key));
+  bool _retval = CefDictionaryValueCppToC::Get(self)->Remove(CefString(key));
 
   // Return type: bool
   return _retval;
 }
 
-cef_value_type_t CEF_CALLBACK dictionary_value_get_type(
-    struct _cef_dictionary_value_t* self, const cef_string_t* key) {
+cef_value_type_t CEF_CALLBACK
+dictionary_value_get_type(struct _cef_dictionary_value_t* self,
+                          const cef_string_t* key) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -246,15 +247,16 @@ cef_value_type_t CEF_CALLBACK dictionary_value_get_type(
     return VTYPE_INVALID;
 
   // Execute
-  cef_value_type_t _retval = CefDictionaryValueCppToC::Get(self)->GetType(
-      CefString(key));
+  cef_value_type_t _retval =
+      CefDictionaryValueCppToC::Get(self)->GetType(CefString(key));
 
   // Return type: simple
   return _retval;
 }
 
-cef_value_t* CEF_CALLBACK dictionary_value_get_value(
-    struct _cef_dictionary_value_t* self, const cef_string_t* key) {
+cef_value_t* CEF_CALLBACK
+dictionary_value_get_value(struct _cef_dictionary_value_t* self,
+                           const cef_string_t* key) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -266,15 +268,15 @@ cef_value_t* CEF_CALLBACK dictionary_value_get_value(
     return NULL;
 
   // Execute
-  CefRefPtr<CefValue> _retval = CefDictionaryValueCppToC::Get(self)->GetValue(
-      CefString(key));
+  CefRefPtr<CefValue> _retval =
+      CefDictionaryValueCppToC::Get(self)->GetValue(CefString(key));
 
   // Return type: refptr_same
   return CefValueCppToC::Wrap(_retval);
 }
 
 int CEF_CALLBACK dictionary_value_get_bool(struct _cef_dictionary_value_t* self,
-    const cef_string_t* key) {
+                                           const cef_string_t* key) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -286,15 +288,14 @@ int CEF_CALLBACK dictionary_value_get_bool(struct _cef_dictionary_value_t* self,
     return 0;
 
   // Execute
-  bool _retval = CefDictionaryValueCppToC::Get(self)->GetBool(
-      CefString(key));
+  bool _retval = CefDictionaryValueCppToC::Get(self)->GetBool(CefString(key));
 
   // Return type: bool
   return _retval;
 }
 
 int CEF_CALLBACK dictionary_value_get_int(struct _cef_dictionary_value_t* self,
-    const cef_string_t* key) {
+                                          const cef_string_t* key) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -306,15 +307,15 @@ int CEF_CALLBACK dictionary_value_get_int(struct _cef_dictionary_value_t* self,
     return 0;
 
   // Execute
-  int _retval = CefDictionaryValueCppToC::Get(self)->GetInt(
-      CefString(key));
+  int _retval = CefDictionaryValueCppToC::Get(self)->GetInt(CefString(key));
 
   // Return type: simple
   return _retval;
 }
 
-double CEF_CALLBACK dictionary_value_get_double(
-    struct _cef_dictionary_value_t* self, const cef_string_t* key) {
+double CEF_CALLBACK
+dictionary_value_get_double(struct _cef_dictionary_value_t* self,
+                            const cef_string_t* key) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -326,15 +327,16 @@ double CEF_CALLBACK dictionary_value_get_double(
     return 0;
 
   // Execute
-  double _retval = CefDictionaryValueCppToC::Get(self)->GetDouble(
-      CefString(key));
+  double _retval =
+      CefDictionaryValueCppToC::Get(self)->GetDouble(CefString(key));
 
   // Return type: simple
   return _retval;
 }
 
-cef_string_userfree_t CEF_CALLBACK dictionary_value_get_string(
-    struct _cef_dictionary_value_t* self, const cef_string_t* key) {
+cef_string_userfree_t CEF_CALLBACK
+dictionary_value_get_string(struct _cef_dictionary_value_t* self,
+                            const cef_string_t* key) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -346,15 +348,16 @@ cef_string_userfree_t CEF_CALLBACK dictionary_value_get_string(
     return NULL;
 
   // Execute
-  CefString _retval = CefDictionaryValueCppToC::Get(self)->GetString(
-      CefString(key));
+  CefString _retval =
+      CefDictionaryValueCppToC::Get(self)->GetString(CefString(key));
 
   // Return type: string
   return _retval.DetachToUserFree();
 }
 
-cef_binary_value_t* CEF_CALLBACK dictionary_value_get_binary(
-    struct _cef_dictionary_value_t* self, const cef_string_t* key) {
+cef_binary_value_t* CEF_CALLBACK
+dictionary_value_get_binary(struct _cef_dictionary_value_t* self,
+                            const cef_string_t* key) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -366,16 +369,16 @@ cef_binary_value_t* CEF_CALLBACK dictionary_value_get_binary(
     return NULL;
 
   // Execute
-  CefRefPtr<CefBinaryValue> _retval = CefDictionaryValueCppToC::Get(
-      self)->GetBinary(
-      CefString(key));
+  CefRefPtr<CefBinaryValue> _retval =
+      CefDictionaryValueCppToC::Get(self)->GetBinary(CefString(key));
 
   // Return type: refptr_same
   return CefBinaryValueCppToC::Wrap(_retval);
 }
 
-struct _cef_dictionary_value_t* CEF_CALLBACK dictionary_value_get_dictionary(
-    struct _cef_dictionary_value_t* self, const cef_string_t* key) {
+struct _cef_dictionary_value_t* CEF_CALLBACK
+dictionary_value_get_dictionary(struct _cef_dictionary_value_t* self,
+                                const cef_string_t* key) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -387,16 +390,16 @@ struct _cef_dictionary_value_t* CEF_CALLBACK dictionary_value_get_dictionary(
     return NULL;
 
   // Execute
-  CefRefPtr<CefDictionaryValue> _retval = CefDictionaryValueCppToC::Get(
-      self)->GetDictionary(
-      CefString(key));
+  CefRefPtr<CefDictionaryValue> _retval =
+      CefDictionaryValueCppToC::Get(self)->GetDictionary(CefString(key));
 
   // Return type: refptr_same
   return CefDictionaryValueCppToC::Wrap(_retval);
 }
 
-struct _cef_list_value_t* CEF_CALLBACK dictionary_value_get_list(
-    struct _cef_dictionary_value_t* self, const cef_string_t* key) {
+struct _cef_list_value_t* CEF_CALLBACK
+dictionary_value_get_list(struct _cef_dictionary_value_t* self,
+                          const cef_string_t* key) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -408,17 +411,17 @@ struct _cef_list_value_t* CEF_CALLBACK dictionary_value_get_list(
     return NULL;
 
   // Execute
-  CefRefPtr<CefListValue> _retval = CefDictionaryValueCppToC::Get(
-      self)->GetList(
-      CefString(key));
+  CefRefPtr<CefListValue> _retval =
+      CefDictionaryValueCppToC::Get(self)->GetList(CefString(key));
 
   // Return type: refptr_same
   return CefListValueCppToC::Wrap(_retval);
 }
 
-int CEF_CALLBACK dictionary_value_set_value(
-    struct _cef_dictionary_value_t* self, const cef_string_t* key,
-    cef_value_t* value) {
+int CEF_CALLBACK
+dictionary_value_set_value(struct _cef_dictionary_value_t* self,
+                           const cef_string_t* key,
+                           cef_value_t* value) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -435,15 +438,14 @@ int CEF_CALLBACK dictionary_value_set_value(
 
   // Execute
   bool _retval = CefDictionaryValueCppToC::Get(self)->SetValue(
-      CefString(key),
-      CefValueCppToC::Unwrap(value));
+      CefString(key), CefValueCppToC::Unwrap(value));
 
   // Return type: bool
   return _retval;
 }
 
 int CEF_CALLBACK dictionary_value_set_null(struct _cef_dictionary_value_t* self,
-    const cef_string_t* key) {
+                                           const cef_string_t* key) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -455,15 +457,15 @@ int CEF_CALLBACK dictionary_value_set_null(struct _cef_dictionary_value_t* self,
     return 0;
 
   // Execute
-  bool _retval = CefDictionaryValueCppToC::Get(self)->SetNull(
-      CefString(key));
+  bool _retval = CefDictionaryValueCppToC::Get(self)->SetNull(CefString(key));
 
   // Return type: bool
   return _retval;
 }
 
 int CEF_CALLBACK dictionary_value_set_bool(struct _cef_dictionary_value_t* self,
-    const cef_string_t* key, int value) {
+                                           const cef_string_t* key,
+                                           int value) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -476,15 +478,15 @@ int CEF_CALLBACK dictionary_value_set_bool(struct _cef_dictionary_value_t* self,
 
   // Execute
   bool _retval = CefDictionaryValueCppToC::Get(self)->SetBool(
-      CefString(key),
-      value?true:false);
+      CefString(key), value ? true : false);
 
   // Return type: bool
   return _retval;
 }
 
 int CEF_CALLBACK dictionary_value_set_int(struct _cef_dictionary_value_t* self,
-    const cef_string_t* key, int value) {
+                                          const cef_string_t* key,
+                                          int value) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -496,17 +498,17 @@ int CEF_CALLBACK dictionary_value_set_int(struct _cef_dictionary_value_t* self,
     return 0;
 
   // Execute
-  bool _retval = CefDictionaryValueCppToC::Get(self)->SetInt(
-      CefString(key),
-      value);
+  bool _retval =
+      CefDictionaryValueCppToC::Get(self)->SetInt(CefString(key), value);
 
   // Return type: bool
   return _retval;
 }
 
-int CEF_CALLBACK dictionary_value_set_double(
-    struct _cef_dictionary_value_t* self, const cef_string_t* key,
-    double value) {
+int CEF_CALLBACK
+dictionary_value_set_double(struct _cef_dictionary_value_t* self,
+                            const cef_string_t* key,
+                            double value) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -518,17 +520,17 @@ int CEF_CALLBACK dictionary_value_set_double(
     return 0;
 
   // Execute
-  bool _retval = CefDictionaryValueCppToC::Get(self)->SetDouble(
-      CefString(key),
-      value);
+  bool _retval =
+      CefDictionaryValueCppToC::Get(self)->SetDouble(CefString(key), value);
 
   // Return type: bool
   return _retval;
 }
 
-int CEF_CALLBACK dictionary_value_set_string(
-    struct _cef_dictionary_value_t* self, const cef_string_t* key,
-    const cef_string_t* value) {
+int CEF_CALLBACK
+dictionary_value_set_string(struct _cef_dictionary_value_t* self,
+                            const cef_string_t* key,
+                            const cef_string_t* value) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -542,16 +544,16 @@ int CEF_CALLBACK dictionary_value_set_string(
 
   // Execute
   bool _retval = CefDictionaryValueCppToC::Get(self)->SetString(
-      CefString(key),
-      CefString(value));
+      CefString(key), CefString(value));
 
   // Return type: bool
   return _retval;
 }
 
-int CEF_CALLBACK dictionary_value_set_binary(
-    struct _cef_dictionary_value_t* self, const cef_string_t* key,
-    cef_binary_value_t* value) {
+int CEF_CALLBACK
+dictionary_value_set_binary(struct _cef_dictionary_value_t* self,
+                            const cef_string_t* key,
+                            cef_binary_value_t* value) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -568,16 +570,16 @@ int CEF_CALLBACK dictionary_value_set_binary(
 
   // Execute
   bool _retval = CefDictionaryValueCppToC::Get(self)->SetBinary(
-      CefString(key),
-      CefBinaryValueCppToC::Unwrap(value));
+      CefString(key), CefBinaryValueCppToC::Unwrap(value));
 
   // Return type: bool
   return _retval;
 }
 
-int CEF_CALLBACK dictionary_value_set_dictionary(
-    struct _cef_dictionary_value_t* self, const cef_string_t* key,
-    struct _cef_dictionary_value_t* value) {
+int CEF_CALLBACK
+dictionary_value_set_dictionary(struct _cef_dictionary_value_t* self,
+                                const cef_string_t* key,
+                                struct _cef_dictionary_value_t* value) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -594,15 +596,15 @@ int CEF_CALLBACK dictionary_value_set_dictionary(
 
   // Execute
   bool _retval = CefDictionaryValueCppToC::Get(self)->SetDictionary(
-      CefString(key),
-      CefDictionaryValueCppToC::Unwrap(value));
+      CefString(key), CefDictionaryValueCppToC::Unwrap(value));
 
   // Return type: bool
   return _retval;
 }
 
 int CEF_CALLBACK dictionary_value_set_list(struct _cef_dictionary_value_t* self,
-    const cef_string_t* key, struct _cef_list_value_t* value) {
+                                           const cef_string_t* key,
+                                           struct _cef_list_value_t* value) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -619,15 +621,13 @@ int CEF_CALLBACK dictionary_value_set_list(struct _cef_dictionary_value_t* self,
 
   // Execute
   bool _retval = CefDictionaryValueCppToC::Get(self)->SetList(
-      CefString(key),
-      CefListValueCppToC::Unwrap(value));
+      CefString(key), CefListValueCppToC::Unwrap(value));
 
   // Return type: bool
   return _retval;
 }
 
 }  // namespace
-
 
 // CONSTRUCTOR - Do not edit by hand.
 
@@ -663,18 +663,26 @@ CefDictionaryValueCppToC::CefDictionaryValueCppToC() {
   GetStruct()->set_list = dictionary_value_set_list;
 }
 
-template<> CefRefPtr<CefDictionaryValue> CefCppToCRefCounted<CefDictionaryValueCppToC,
-    CefDictionaryValue, cef_dictionary_value_t>::UnwrapDerived(
-    CefWrapperType type, cef_dictionary_value_t* s) {
+template <>
+CefRefPtr<CefDictionaryValue> CefCppToCRefCounted<
+    CefDictionaryValueCppToC,
+    CefDictionaryValue,
+    cef_dictionary_value_t>::UnwrapDerived(CefWrapperType type,
+                                           cef_dictionary_value_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCppToCRefCounted<CefDictionaryValueCppToC,
-    CefDictionaryValue, cef_dictionary_value_t>::DebugObjCt = 0;
+template <>
+base::AtomicRefCount CefCppToCRefCounted<CefDictionaryValueCppToC,
+                                         CefDictionaryValue,
+                                         cef_dictionary_value_t>::DebugObjCt =
+    0;
 #endif
 
-template<> CefWrapperType CefCppToCRefCounted<CefDictionaryValueCppToC,
-    CefDictionaryValue, cef_dictionary_value_t>::kWrapperType =
+template <>
+CefWrapperType CefCppToCRefCounted<CefDictionaryValueCppToC,
+                                   CefDictionaryValue,
+                                   cef_dictionary_value_t>::kWrapperType =
     WT_DICTIONARY_VALUE;

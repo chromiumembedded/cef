@@ -26,10 +26,10 @@ class RequestClient : public CefURLRequestClient {
  public:
   // Callback to be executed on request completion.
   typedef base::Callback<void(CefURLRequest::ErrorCode /*error_code*/,
-                              const std::string& /*download_data*/)> Callback;
+                              const std::string& /*download_data*/)>
+      Callback;
 
-  explicit RequestClient(const Callback& callback)
-      : callback_(callback) {
+  explicit RequestClient(const Callback& callback) : callback_(callback) {
     CEF_REQUIRE_UI_THREAD();
     DCHECK(!callback_.is_null());
   }
@@ -50,13 +50,11 @@ class RequestClient : public CefURLRequestClient {
 
   void OnUploadProgress(CefRefPtr<CefURLRequest> request,
                         int64 current,
-                        int64 total) OVERRIDE {
-  }
+                        int64 total) OVERRIDE {}
 
   void OnDownloadProgress(CefRefPtr<CefURLRequest> request,
                           int64 current,
-                          int64 total) OVERRIDE {
-  }
+                          int64 total) OVERRIDE {}
 
   void OnDownloadData(CefRefPtr<CefURLRequest> request,
                       const void* data,
@@ -65,14 +63,14 @@ class RequestClient : public CefURLRequestClient {
     download_data_ += std::string(static_cast<const char*>(data), data_length);
   }
 
-   bool GetAuthCredentials(bool isProxy,
-                           const CefString& host,
-                           int port,
-                           const CefString& realm,
-                           const CefString& scheme,
-                           CefRefPtr<CefAuthCallback> callback) OVERRIDE {
-     return false;
-   }
+  bool GetAuthCredentials(bool isProxy,
+                          const CefString& host,
+                          int port,
+                          const CefString& realm,
+                          const CefString& scheme,
+                          CefRefPtr<CefAuthCallback> callback) OVERRIDE {
+    return false;
+  }
 
  private:
   Callback callback_;
@@ -85,13 +83,9 @@ class RequestClient : public CefURLRequestClient {
 // Handle messages in the browser process. Only accessed on the UI thread.
 class Handler : public CefMessageRouterBrowserSide::Handler {
  public:
-  Handler() {
-    CEF_REQUIRE_UI_THREAD();
-  }
+  Handler() { CEF_REQUIRE_UI_THREAD(); }
 
-  ~Handler() {
-    CancelPendingRequest();
-  }
+  ~Handler() { CancelPendingRequest(); }
 
   // Called due to cefQuery execution in urlrequest.html.
   bool OnQuery(CefRefPtr<CefBrowser> browser,
@@ -131,9 +125,8 @@ class Handler : public CefMessageRouterBrowserSide::Handler {
           base::Bind(&Handler::OnRequestComplete, base::Unretained(this));
 
       // Create and start the new CefURLRequest.
-      urlrequest_ = CefURLRequest::Create(cef_request,
-                                          new RequestClient(request_callback),
-                                          NULL);
+      urlrequest_ = CefURLRequest::Create(
+          cef_request, new RequestClient(request_callback), NULL);
 
       return true;
     }
@@ -164,7 +157,7 @@ class Handler : public CefMessageRouterBrowserSide::Handler {
   void OnRequestComplete(CefURLRequest::ErrorCode error_code,
                          const std::string& download_data) {
     CEF_REQUIRE_UI_THREAD();
-    
+
     if (error_code == ERR_NONE)
       callback_->Success(download_data);
     else

@@ -35,8 +35,8 @@
 #include "components/visitedlink/browser/visitedlink_event_listener.h"
 #include "components/visitedlink/browser/visitedlink_master.h"
 #include "components/zoom/zoom_event_manager.h"
-#include "content/public/browser/download_manager.h"
 #include "content/public/browser/browser_thread.h"
+#include "content/public/browser/download_manager.h"
 #include "content/public/browser/storage_partition.h"
 #include "extensions/browser/extension_protocols.h"
 #include "extensions/common/constants.h"
@@ -149,8 +149,7 @@ class ImplManager {
 base::LazyInstance<ImplManager>::DestructorAtExit g_manager =
     LAZY_INSTANCE_INITIALIZER;
 #else
-base::LazyInstance<ImplManager>::Leaky g_manager =
-    LAZY_INSTANCE_INITIALIZER;
+base::LazyInstance<ImplManager>::Leaky g_manager = LAZY_INSTANCE_INITIALIZER;
 #endif
 
 }  // namespace
@@ -159,9 +158,7 @@ base::LazyInstance<ImplManager>::Leaky g_manager =
 // CefBrowserContext sharing the same VisitedLinkMaster.
 class CefVisitedLinkListener : public visitedlink::VisitedLinkMaster::Listener {
  public:
-  CefVisitedLinkListener() {
-    DCHECK(listener_map_.empty());
-  }
+  CefVisitedLinkListener() { DCHECK(listener_map_.empty()); }
 
   void CreateListenerForContext(const CefBrowserContext* context) {
     CEF_REQUIRE_UIT();
@@ -203,7 +200,7 @@ class CefVisitedLinkListener : public visitedlink::VisitedLinkMaster::Listener {
  private:
   // Map of CefBrowserContext to the associated VisitedLinkEventListener.
   typedef std::map<const CefBrowserContext*,
-                   std::unique_ptr<visitedlink::VisitedLinkEventListener> >
+                   std::unique_ptr<visitedlink::VisitedLinkEventListener>>
       ListenerMap;
   ListenerMap listener_map_;
 
@@ -212,8 +209,7 @@ class CefVisitedLinkListener : public visitedlink::VisitedLinkMaster::Listener {
 
 CefBrowserContextImpl::CefBrowserContextImpl(
     const CefRequestContextSettings& settings)
-    : CefBrowserContext(false),
-      settings_(settings) {
+    : CefBrowserContext(false), settings_(settings) {
   g_manager.Get().AddImpl(this);
 }
 
@@ -253,8 +249,8 @@ void CefBrowserContextImpl::Initialize() {
     base::ThreadRestrictions::ScopedAllowIO allow_io;
     if (!base::DirectoryExists(cache_path_) &&
         !base::CreateDirectory(cache_path_)) {
-      LOG(ERROR) << "The cache_path directory could not be created: " <<
-          cache_path_.value();
+      LOG(ERROR) << "The cache_path directory could not be created: "
+                 << cache_path_.value();
       cache_path_ = base::FilePath();
       CefString(&settings_.cache_path).clear();
     }
@@ -271,8 +267,8 @@ void CefBrowserContextImpl::Initialize() {
 
   // Initialize a temporary PrefService object that may be referenced during
   // BrowserContextServices initialization.
-  pref_service_ = browser_prefs::CreatePrefService(
-      this, base::FilePath(), false, true);
+  pref_service_ =
+      browser_prefs::CreatePrefService(this, base::FilePath(), false, true);
 
   CefBrowserContext::Initialize();
 
@@ -283,12 +279,11 @@ void CefBrowserContextImpl::Initialize() {
   // Initialize visited links management.
   base::FilePath visited_link_path;
   if (!cache_path_.empty())
-     visited_link_path = cache_path_.Append(FILE_PATH_LITERAL("Visited Links"));
+    visited_link_path = cache_path_.Append(FILE_PATH_LITERAL("Visited Links"));
   visitedlink_listener_ = new CefVisitedLinkListener;
-  visitedlink_master_.reset(
-      new visitedlink::VisitedLinkMaster(visitedlink_listener_, this,
-                                         !visited_link_path.empty(), false,
-                                         visited_link_path, 0));
+  visitedlink_master_.reset(new visitedlink::VisitedLinkMaster(
+      visitedlink_listener_, this, !visited_link_path.empty(), false,
+      visited_link_path, 0));
   visitedlink_listener_->CreateListenerForContext(this);
   visitedlink_master_->Init();
 
@@ -376,8 +371,8 @@ base::FilePath CefBrowserContextImpl::GetPath() const {
 }
 
 std::unique_ptr<content::ZoomLevelDelegate>
-    CefBrowserContextImpl::CreateZoomLevelDelegate(
-        const base::FilePath& partition_path) {
+CefBrowserContextImpl::CreateZoomLevelDelegate(
+    const base::FilePath& partition_path) {
   if (cache_path_.empty())
     return std::unique_ptr<content::ZoomLevelDelegate>();
 
@@ -391,7 +386,7 @@ bool CefBrowserContextImpl::IsOffTheRecord() const {
 }
 
 content::DownloadManagerDelegate*
-    CefBrowserContextImpl::GetDownloadManagerDelegate() {
+CefBrowserContextImpl::GetDownloadManagerDelegate() {
   DCHECK(!download_manager_delegate_.get());
 
   content::DownloadManager* manager = BrowserContext::GetDownloadManager(this);
@@ -405,17 +400,17 @@ content::BrowserPluginGuestManager* CefBrowserContextImpl::GetGuestManager() {
 }
 
 storage::SpecialStoragePolicy*
-    CefBrowserContextImpl::GetSpecialStoragePolicy() {
+CefBrowserContextImpl::GetSpecialStoragePolicy() {
   return NULL;
 }
 
 content::PushMessagingService*
-    CefBrowserContextImpl::GetPushMessagingService() {
+CefBrowserContextImpl::GetPushMessagingService() {
   return NULL;
 }
 
 content::SSLHostStateDelegate*
-    CefBrowserContextImpl::GetSSLHostStateDelegate() {
+CefBrowserContextImpl::GetSSLHostStateDelegate() {
   if (!ssl_host_state_delegate_.get())
     ssl_host_state_delegate_.reset(new CefSSLHostStateDelegate());
   return ssl_host_state_delegate_.get();
@@ -428,7 +423,7 @@ content::PermissionManager* CefBrowserContextImpl::GetPermissionManager() {
 }
 
 content::BackgroundSyncController*
-    CefBrowserContextImpl::GetBackgroundSyncController() {
+CefBrowserContextImpl::GetBackgroundSyncController() {
   return nullptr;
 }
 
@@ -447,32 +442,30 @@ net::URLRequestContextGetter* CefBrowserContextImpl::CreateRequestContext(
     // Handle only chrome-extension:// requests. CEF does not support
     // chrome-extension-resource:// requests (it does not store shared extension
     // data in its installation directory).
-    extensions::InfoMap* extension_info_map =
-        extension_system()->info_map();
+    extensions::InfoMap* extension_info_map = extension_system()->info_map();
     (*protocol_handlers)[extensions::kExtensionScheme] =
         linked_ptr<net::URLRequestJobFactory::ProtocolHandler>(
-            extensions::CreateExtensionProtocolHandler(
-                IsOffTheRecord(), extension_info_map).release());
+            extensions::CreateExtensionProtocolHandler(IsOffTheRecord(),
+                                                       extension_info_map)
+                .release());
   }
 
   url_request_getter_ = new CefURLRequestContextGetterImpl(
-      settings_,
-      GetPrefs(),
+      settings_, GetPrefs(),
       BrowserThread::GetTaskRunnerForThread(BrowserThread::IO),
       BrowserThread::GetTaskRunnerForThread(BrowserThread::FILE),
-      protocol_handlers,
-      std::move(proxy_config_service),
+      protocol_handlers, std::move(proxy_config_service),
       std::move(request_interceptors));
   resource_context()->set_url_request_context_getter(url_request_getter_.get());
   return url_request_getter_.get();
 }
 
 net::URLRequestContextGetter*
-    CefBrowserContextImpl::CreateRequestContextForStoragePartition(
-        const base::FilePath& partition_path,
-        bool in_memory,
-        content::ProtocolHandlerMap* protocol_handlers,
-        content::URLRequestInterceptorScopedVector request_interceptors) {
+CefBrowserContextImpl::CreateRequestContextForStoragePartition(
+    const base::FilePath& partition_path,
+    bool in_memory,
+    content::ProtocolHandlerMap* protocol_handlers,
+    content::URLRequestInterceptorScopedVector request_interceptors) {
   return nullptr;
 }
 
@@ -518,7 +511,7 @@ HostContentSettingsMap* CefBrowserContextImpl::GetHostContentSettingsMap() {
     const base::CommandLine* command_line =
         base::CommandLine::ForCurrentProcess();
     const std::string& plugin_policy_str =
-      command_line->GetSwitchValueASCII(switches::kPluginPolicy);
+        command_line->GetSwitchValueASCII(switches::kPluginPolicy);
     if (!plugin_policy_str.empty()) {
       ContentSetting plugin_policy = CONTENT_SETTING_ALLOW;
       if (base::LowerCaseEqualsASCII(plugin_policy_str,

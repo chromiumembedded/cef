@@ -9,19 +9,20 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=ecc954784a8061eb04b71933bb657368ef120dfa$
+//
 
 #include <algorithm>
 #include "libcef_dll/cpptoc/binary_value_cpptoc.h"
 #include "libcef_dll/cpptoc/x509cert_principal_cpptoc.h"
 #include "libcef_dll/cpptoc/x509certificate_cpptoc.h"
 
-
 namespace {
 
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
-cef_x509cert_principal_t* CEF_CALLBACK x509certificate_get_subject(
-    struct _cef_x509certificate_t* self) {
+cef_x509cert_principal_t* CEF_CALLBACK
+x509certificate_get_subject(struct _cef_x509certificate_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -29,15 +30,15 @@ cef_x509cert_principal_t* CEF_CALLBACK x509certificate_get_subject(
     return NULL;
 
   // Execute
-  CefRefPtr<CefX509CertPrincipal> _retval = CefX509CertificateCppToC::Get(
-      self)->GetSubject();
+  CefRefPtr<CefX509CertPrincipal> _retval =
+      CefX509CertificateCppToC::Get(self)->GetSubject();
 
   // Return type: refptr_same
   return CefX509CertPrincipalCppToC::Wrap(_retval);
 }
 
-cef_x509cert_principal_t* CEF_CALLBACK x509certificate_get_issuer(
-    struct _cef_x509certificate_t* self) {
+cef_x509cert_principal_t* CEF_CALLBACK
+x509certificate_get_issuer(struct _cef_x509certificate_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -45,15 +46,15 @@ cef_x509cert_principal_t* CEF_CALLBACK x509certificate_get_issuer(
     return NULL;
 
   // Execute
-  CefRefPtr<CefX509CertPrincipal> _retval = CefX509CertificateCppToC::Get(
-      self)->GetIssuer();
+  CefRefPtr<CefX509CertPrincipal> _retval =
+      CefX509CertificateCppToC::Get(self)->GetIssuer();
 
   // Return type: refptr_same
   return CefX509CertPrincipalCppToC::Wrap(_retval);
 }
 
-cef_binary_value_t* CEF_CALLBACK x509certificate_get_serial_number(
-    struct _cef_x509certificate_t* self) {
+cef_binary_value_t* CEF_CALLBACK
+x509certificate_get_serial_number(struct _cef_x509certificate_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -61,15 +62,15 @@ cef_binary_value_t* CEF_CALLBACK x509certificate_get_serial_number(
     return NULL;
 
   // Execute
-  CefRefPtr<CefBinaryValue> _retval = CefX509CertificateCppToC::Get(
-      self)->GetSerialNumber();
+  CefRefPtr<CefBinaryValue> _retval =
+      CefX509CertificateCppToC::Get(self)->GetSerialNumber();
 
   // Return type: refptr_same
   return CefBinaryValueCppToC::Wrap(_retval);
 }
 
-cef_time_t CEF_CALLBACK x509certificate_get_valid_start(
-    struct _cef_x509certificate_t* self) {
+cef_time_t CEF_CALLBACK
+x509certificate_get_valid_start(struct _cef_x509certificate_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -83,8 +84,8 @@ cef_time_t CEF_CALLBACK x509certificate_get_valid_start(
   return _retval;
 }
 
-cef_time_t CEF_CALLBACK x509certificate_get_valid_expiry(
-    struct _cef_x509certificate_t* self) {
+cef_time_t CEF_CALLBACK
+x509certificate_get_valid_expiry(struct _cef_x509certificate_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -98,8 +99,8 @@ cef_time_t CEF_CALLBACK x509certificate_get_valid_expiry(
   return _retval;
 }
 
-cef_binary_value_t* CEF_CALLBACK x509certificate_get_derencoded(
-    struct _cef_x509certificate_t* self) {
+cef_binary_value_t* CEF_CALLBACK
+x509certificate_get_derencoded(struct _cef_x509certificate_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -107,15 +108,15 @@ cef_binary_value_t* CEF_CALLBACK x509certificate_get_derencoded(
     return NULL;
 
   // Execute
-  CefRefPtr<CefBinaryValue> _retval = CefX509CertificateCppToC::Get(
-      self)->GetDEREncoded();
+  CefRefPtr<CefBinaryValue> _retval =
+      CefX509CertificateCppToC::Get(self)->GetDEREncoded();
 
   // Return type: refptr_same
   return CefBinaryValueCppToC::Wrap(_retval);
 }
 
-cef_binary_value_t* CEF_CALLBACK x509certificate_get_pemencoded(
-    struct _cef_x509certificate_t* self) {
+cef_binary_value_t* CEF_CALLBACK
+x509certificate_get_pemencoded(struct _cef_x509certificate_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -123,15 +124,15 @@ cef_binary_value_t* CEF_CALLBACK x509certificate_get_pemencoded(
     return NULL;
 
   // Execute
-  CefRefPtr<CefBinaryValue> _retval = CefX509CertificateCppToC::Get(
-      self)->GetPEMEncoded();
+  CefRefPtr<CefBinaryValue> _retval =
+      CefX509CertificateCppToC::Get(self)->GetPEMEncoded();
 
   // Return type: refptr_same
   return CefBinaryValueCppToC::Wrap(_retval);
 }
 
-size_t CEF_CALLBACK x509certificate_get_issuer_chain_size(
-    struct _cef_x509certificate_t* self) {
+size_t CEF_CALLBACK
+x509certificate_get_issuer_chain_size(struct _cef_x509certificate_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -145,9 +146,10 @@ size_t CEF_CALLBACK x509certificate_get_issuer_chain_size(
   return _retval;
 }
 
-void CEF_CALLBACK x509certificate_get_derencoded_issuer_chain(
-    struct _cef_x509certificate_t* self, size_t* chainCount,
-    cef_binary_value_t** chain) {
+void CEF_CALLBACK
+x509certificate_get_derencoded_issuer_chain(struct _cef_x509certificate_t* self,
+                                            size_t* chainCount,
+                                            cef_binary_value_t** chain) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -159,7 +161,7 @@ void CEF_CALLBACK x509certificate_get_derencoded_issuer_chain(
     return;
 
   // Translate param: chain; type: refptr_vec_same_byref
-  std::vector<CefRefPtr<CefBinaryValue> > chainList;
+  std::vector<CefRefPtr<CefBinaryValue>> chainList;
   if (chainCount && *chainCount > 0 && chain) {
     for (size_t i = 0; i < *chainCount; ++i) {
       chainList.push_back(CefBinaryValueCppToC::Unwrap(chain[i]));
@@ -167,8 +169,7 @@ void CEF_CALLBACK x509certificate_get_derencoded_issuer_chain(
   }
 
   // Execute
-  CefX509CertificateCppToC::Get(self)->GetDEREncodedIssuerChain(
-      chainList);
+  CefX509CertificateCppToC::Get(self)->GetDEREncodedIssuerChain(chainList);
 
   // Restore param: chain; type: refptr_vec_same_byref
   if (chainCount && chain) {
@@ -181,9 +182,10 @@ void CEF_CALLBACK x509certificate_get_derencoded_issuer_chain(
   }
 }
 
-void CEF_CALLBACK x509certificate_get_pemencoded_issuer_chain(
-    struct _cef_x509certificate_t* self, size_t* chainCount,
-    cef_binary_value_t** chain) {
+void CEF_CALLBACK
+x509certificate_get_pemencoded_issuer_chain(struct _cef_x509certificate_t* self,
+                                            size_t* chainCount,
+                                            cef_binary_value_t** chain) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -195,7 +197,7 @@ void CEF_CALLBACK x509certificate_get_pemencoded_issuer_chain(
     return;
 
   // Translate param: chain; type: refptr_vec_same_byref
-  std::vector<CefRefPtr<CefBinaryValue> > chainList;
+  std::vector<CefRefPtr<CefBinaryValue>> chainList;
   if (chainCount && *chainCount > 0 && chain) {
     for (size_t i = 0; i < *chainCount; ++i) {
       chainList.push_back(CefBinaryValueCppToC::Unwrap(chain[i]));
@@ -203,8 +205,7 @@ void CEF_CALLBACK x509certificate_get_pemencoded_issuer_chain(
   }
 
   // Execute
-  CefX509CertificateCppToC::Get(self)->GetPEMEncodedIssuerChain(
-      chainList);
+  CefX509CertificateCppToC::Get(self)->GetPEMEncodedIssuerChain(chainList);
 
   // Restore param: chain; type: refptr_vec_same_byref
   if (chainCount && chain) {
@@ -218,7 +219,6 @@ void CEF_CALLBACK x509certificate_get_pemencoded_issuer_chain(
 }
 
 }  // namespace
-
 
 // CONSTRUCTOR - Do not edit by hand.
 
@@ -237,18 +237,25 @@ CefX509CertificateCppToC::CefX509CertificateCppToC() {
       x509certificate_get_pemencoded_issuer_chain;
 }
 
-template<> CefRefPtr<CefX509Certificate> CefCppToCRefCounted<CefX509CertificateCppToC,
-    CefX509Certificate, cef_x509certificate_t>::UnwrapDerived(
-    CefWrapperType type, cef_x509certificate_t* s) {
+template <>
+CefRefPtr<CefX509Certificate> CefCppToCRefCounted<
+    CefX509CertificateCppToC,
+    CefX509Certificate,
+    cef_x509certificate_t>::UnwrapDerived(CefWrapperType type,
+                                          cef_x509certificate_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCppToCRefCounted<CefX509CertificateCppToC,
-    CefX509Certificate, cef_x509certificate_t>::DebugObjCt = 0;
+template <>
+base::AtomicRefCount CefCppToCRefCounted<CefX509CertificateCppToC,
+                                         CefX509Certificate,
+                                         cef_x509certificate_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCppToCRefCounted<CefX509CertificateCppToC,
-    CefX509Certificate, cef_x509certificate_t>::kWrapperType =
+template <>
+CefWrapperType CefCppToCRefCounted<CefX509CertificateCppToC,
+                                   CefX509Certificate,
+                                   cef_x509certificate_t>::kWrapperType =
     WT_X509CERTIFICATE;

@@ -14,18 +14,16 @@
 #include "libcef/common/content_client.h"
 #include "libcef/common/values_impl.h"
 
-#include "base/compiler_specific.h"
 #include "base/bind.h"
+#include "base/compiler_specific.h"
 #include "content/common/frame_messages.h"
 #include "content/public/browser/render_process_host.h"
 #include "content/public/common/child_process_host.h"
 
 CefBrowserMessageFilter::CefBrowserMessageFilter(int render_process_id)
-    : render_process_id_(render_process_id) {
-}
+    : render_process_id_(render_process_id) {}
 
-CefBrowserMessageFilter::~CefBrowserMessageFilter() {
-}
+CefBrowserMessageFilter::~CefBrowserMessageFilter() {}
 
 void CefBrowserMessageFilter::OnFilterRemoved() {
   render_process_id_ = content::ChildProcessHost::kInvalidUniqueID;
@@ -53,8 +51,8 @@ bool CefBrowserMessageFilter::OnMessageReceived(const IPC::Message& message) {
 bool CefBrowserMessageFilter::Send(IPC::Message* message) {
   if (!CEF_CURRENTLY_ON_UIT()) {
     CEF_POST_TASK(CEF_UIT,
-        base::Bind(base::IgnoreResult(&CefBrowserMessageFilter::Send), this,
-                   message));
+                  base::Bind(base::IgnoreResult(&CefBrowserMessageFilter::Send),
+                             this, message));
     return true;
   }
 
@@ -78,22 +76,19 @@ void CefBrowserMessageFilter::OnGetNewRenderThreadInfo(
         app->GetBrowserProcessHandler();
     if (handler.get()) {
       CefRefPtr<CefListValueImpl> listValuePtr(
-        new CefListValueImpl(&params->extra_info, false, false));
+          new CefListValueImpl(&params->extra_info, false, false));
       handler->OnRenderProcessThreadCreated(listValuePtr.get());
       listValuePtr->Detach(NULL);
     }
   }
 }
 
-void CefBrowserMessageFilter::OnGetNewBrowserInfo(
-    int render_view_routing_id,
-    int render_frame_routing_id,
-    IPC::Message* reply_msg) {
+void CefBrowserMessageFilter::OnGetNewBrowserInfo(int render_view_routing_id,
+                                                  int render_frame_routing_id,
+                                                  IPC::Message* reply_msg) {
   if (render_process_id_ != content::ChildProcessHost::kInvalidUniqueID) {
     CefBrowserInfoManager::GetInstance()->OnGetNewBrowserInfo(
-        render_process_id_,
-        render_view_routing_id,
-        render_frame_routing_id,
+        render_process_id_, render_view_routing_id, render_frame_routing_id,
         reply_msg);
   } else {
     delete reply_msg;
@@ -102,9 +97,8 @@ void CefBrowserMessageFilter::OnGetNewBrowserInfo(
 
 void CefBrowserMessageFilter::OnFrameFocused(int32_t render_frame_routing_id) {
   if (!CEF_CURRENTLY_ON_UIT()) {
-    CEF_POST_TASK(CEF_UIT,
-        base::Bind(&CefBrowserMessageFilter::OnFrameFocused, this,
-                   render_frame_routing_id));
+    CEF_POST_TASK(CEF_UIT, base::Bind(&CefBrowserMessageFilter::OnFrameFocused,
+                                      this, render_frame_routing_id));
     return;
   }
 

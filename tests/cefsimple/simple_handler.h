@@ -27,9 +27,7 @@ class SimpleHandler : public CefClient,
   virtual CefRefPtr<CefLifeSpanHandler> GetLifeSpanHandler() OVERRIDE {
     return this;
   }
-  virtual CefRefPtr<CefLoadHandler> GetLoadHandler() OVERRIDE {
-    return this;
-  }
+  virtual CefRefPtr<CefLoadHandler> GetLoadHandler() OVERRIDE { return this; }
 
   // CefDisplayHandler methods:
   virtual void OnTitleChange(CefRefPtr<CefBrowser> browser,
@@ -61,7 +59,7 @@ class SimpleHandler : public CefClient,
   const bool use_views_;
 
   // List of existing browser windows. Only accessed on the CEF UI thread.
-  typedef std::list<CefRefPtr<CefBrowser> > BrowserList;
+  typedef std::list<CefRefPtr<CefBrowser>> BrowserList;
   BrowserList browser_list_;
 
   bool is_closing_;

@@ -9,6 +9,8 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=2afed9701ec6418e3162142e022b5dfce8fece17$
+//
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_URLREQUEST_CPPTOC_H_
 #define CEF_LIBCEF_DLL_CPPTOC_URLREQUEST_CPPTOC_H_
@@ -18,15 +20,15 @@
 #error This file can be included DLL-side only
 #endif
 
-#include "include/cef_urlrequest.h"
 #include "include/capi/cef_urlrequest_capi.h"
+#include "include/cef_urlrequest.h"
 #include "libcef_dll/cpptoc/cpptoc_ref_counted.h"
 
 // Wrap a C++ class with a C structure.
 // This class may be instantiated and accessed DLL-side only.
-class CefURLRequestCppToC
-    : public CefCppToCRefCounted<CefURLRequestCppToC, CefURLRequest,
-        cef_urlrequest_t> {
+class CefURLRequestCppToC : public CefCppToCRefCounted<CefURLRequestCppToC,
+                                                       CefURLRequest,
+                                                       cef_urlrequest_t> {
  public:
   CefURLRequestCppToC();
 };

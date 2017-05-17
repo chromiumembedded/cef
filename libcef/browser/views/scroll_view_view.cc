@@ -5,5 +5,4 @@
 #include "libcef/browser/views/scroll_view_view.h"
 
 CefScrollViewView::CefScrollViewView(CefViewDelegate* cef_delegate)
-    : ParentClass(cef_delegate) {
-}
+    : ParentClass(cef_delegate) {}

@@ -48,8 +48,7 @@ class Delegate : public InternalHandlerDelegate {
 
 void RegisterChromeDevToolsHandler(CefURLRequestManager* request_manager) {
   request_manager->AddFactory(
-      content::kChromeDevToolsScheme,
-      kChromeDevToolsHost,
+      content::kChromeDevToolsScheme, kChromeDevToolsHost,
       CreateInternalHandlerFactory(base::WrapUnique(new Delegate())));
 }
 

@@ -23,7 +23,6 @@ MainContext* MainContext::Get() {
 MainContext::MainContext() {
   DCHECK(!g_main_context);
   g_main_context = this;
-
 }
 
 MainContext::~MainContext() {

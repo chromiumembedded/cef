@@ -9,6 +9,8 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=087dfd8003478f7e1c145b5fa478eb55c5fbfccd$
+//
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_SSLSTATUS_CTOCPP_H_
 #define CEF_LIBCEF_DLL_CTOCPP_SSLSTATUS_CTOCPP_H_
@@ -18,15 +20,15 @@
 #error This file can be included wrapper-side only
 #endif
 
-#include "include/cef_ssl_status.h"
 #include "include/capi/cef_ssl_status_capi.h"
+#include "include/cef_ssl_status.h"
 #include "libcef_dll/ctocpp/ctocpp_ref_counted.h"
 
 // Wrap a C structure with a C++ class.
 // This class may be instantiated and accessed wrapper-side only.
-class CefSSLStatusCToCpp
-    : public CefCToCppRefCounted<CefSSLStatusCToCpp, CefSSLStatus,
-        cef_sslstatus_t> {
+class CefSSLStatusCToCpp : public CefCToCppRefCounted<CefSSLStatusCToCpp,
+                                                      CefSSLStatus,
+                                                      cef_sslstatus_t> {
  public:
   CefSSLStatusCToCpp();
 

@@ -17,8 +17,7 @@ void InitializeSandboxInfo(sandbox::SandboxInterfaceInfo* info) {
   } else {
     // Ensure the proper mitigations are enforced for the browser process.
     sandbox::ApplyProcessMitigationsToCurrentProcess(
-        sandbox::MITIGATION_DEP |
-        sandbox::MITIGATION_DEP_NO_ATL_THUNK);
+        sandbox::MITIGATION_DEP | sandbox::MITIGATION_DEP_NO_ATL_THUNK);
   }
 }
 

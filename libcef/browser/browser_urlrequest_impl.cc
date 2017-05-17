@@ -45,7 +45,8 @@ class CefURLFetcherDelegate : public net::URLFetcherDelegate {
                                   int64 total,
                                   int64_t current_network_bytes) override;
   void OnURLFetchUploadProgress(const net::URLFetcher* source,
-                                int64 current, int64 total) override;
+                                int64 current,
+                                int64 total) override;
 
  private:
   // The context_ pointer will outlive this object.
@@ -53,15 +54,12 @@ class CefURLFetcherDelegate : public net::URLFetcherDelegate {
   int request_flags_;
 };
 
-class NET_EXPORT CefURLFetcherResponseWriter :
-    public net::URLFetcherResponseWriter {
+class CefURLFetcherResponseWriter : public net::URLFetcherResponseWriter {
  public:
   CefURLFetcherResponseWriter(
       CefRefPtr<CefBrowserURLRequest> url_request,
       scoped_refptr<base::SequencedTaskRunner> task_runner)
-      : url_request_(url_request),
-        task_runner_(task_runner) {
-  }
+      : url_request_(url_request), task_runner_(task_runner) {}
 
   // net::URLFetcherResponseWriter methods.
   int Initialize(const net::CompletionCallback& callback) override {
@@ -72,7 +70,8 @@ class NET_EXPORT CefURLFetcherResponseWriter :
             int num_bytes,
             const net::CompletionCallback& callback) override {
     if (url_request_.get()) {
-      task_runner_->PostTask(FROM_HERE,
+      task_runner_->PostTask(
+          FROM_HERE,
           base::Bind(&CefURLFetcherResponseWriter::WriteOnClientThread,
                      url_request_, scoped_refptr<net::IOBuffer>(buffer),
                      num_bytes, callback,
@@ -99,14 +98,14 @@ class NET_EXPORT CefURLFetcherResponseWriter :
     if (client.get())
       client->OnDownloadData(url_request.get(), buffer->data(), num_bytes);
 
-    source_message_loop_proxy->PostTask(FROM_HERE,
+    source_message_loop_proxy->PostTask(
+        FROM_HERE,
         base::Bind(&CefURLFetcherResponseWriter::ContinueOnSourceThread,
                    num_bytes, callback));
   }
 
-  static void ContinueOnSourceThread(
-      int num_bytes,
-      const net::CompletionCallback& callback) {
+  static void ContinueOnSourceThread(int num_bytes,
+                                     const net::CompletionCallback& callback) {
     callback.Run(num_bytes);
   }
 
@@ -123,7 +122,6 @@ base::SupportsUserData::Data* CreateURLRequestUserData(
 
 }  // namespace
 
-
 // CefBrowserURLRequest::Context ----------------------------------------------
 
 class CefBrowserURLRequest::Context
@@ -133,15 +131,15 @@ class CefBrowserURLRequest::Context
           CefRefPtr<CefRequest> request,
           CefRefPtr<CefURLRequestClient> client,
           CefRefPtr<CefRequestContext> request_context)
-    : url_request_(url_request),
-      request_(request),
-      client_(client),
-      request_context_(request_context),
-      task_runner_(base::MessageLoop::current()->task_runner()),
-    status_(UR_IO_PENDING),
-    error_code_(ERR_NONE),
-    upload_data_size_(0),
-    got_upload_progress_complete_(false) {
+      : url_request_(url_request),
+        request_(request),
+        client_(client),
+        request_context_(request_context),
+        task_runner_(base::MessageLoop::current()->task_runner()),
+        status_(UR_IO_PENDING),
+        error_code_(ERR_NONE),
+        upload_data_size_(0),
+        got_upload_progress_complete_(false) {
     // Mark the request as read-only.
     static_cast<CefRequestImpl*>(request_.get())->SetReadOnly(true);
   }
@@ -175,12 +173,11 @@ class CefBrowserURLRequest::Context
     }
 
     BrowserThread::PostTaskAndReply(
-      BrowserThread::UI,
-      FROM_HERE,
-      base::Bind(&CefBrowserURLRequest::Context::GetRequestContextOnUIThread,
-                 this),
-      base::Bind(&CefBrowserURLRequest::Context::ContinueOnOriginatingThread,
-                 this, url, request_type));
+        BrowserThread::UI, FROM_HERE,
+        base::Bind(&CefBrowserURLRequest::Context::GetRequestContextOnUIThread,
+                   this),
+        base::Bind(&CefBrowserURLRequest::Context::ContinueOnOriginatingThread,
+                   this, url, request_type));
 
     return true;
   }
@@ -211,14 +208,14 @@ class CefBrowserURLRequest::Context
     int request_flags = request_->GetFlags();
 
     fetcher_delegate_.reset(new CefURLFetcherDelegate(this, request_flags));
-    fetcher_ = net::URLFetcher::Create(url, request_type,
-                                       fetcher_delegate_.get());
+    fetcher_ =
+        net::URLFetcher::Create(url, request_type, fetcher_delegate_.get());
 
     DCHECK(url_request_getter_.get());
     fetcher_->SetRequestContext(url_request_getter_.get());
 
-    static_cast<CefRequestImpl*>(request_.get())->Get(*fetcher_,
-                                                      upload_data_size_);
+    static_cast<CefRequestImpl*>(request_.get())
+        ->Get(*fetcher_, upload_data_size_);
 
     fetcher_->SetURLRequestUserData(
         CefURLRequestUserData::kUserDataKey,
@@ -277,7 +274,7 @@ class CefBrowserURLRequest::Context
 
       error_code_ = static_cast<CefURLRequest::ErrorCode>(status.error());
 
-      if(!response_.get())
+      if (!response_.get())
         OnResponse();
     }
 
@@ -295,7 +292,7 @@ class CefBrowserURLRequest::Context
     DCHECK(CalledOnValidThread());
     DCHECK(url_request_.get());
 
-    if(!response_.get())
+    if (!response_.get())
       OnResponse();
 
     NotifyUploadProgressIfNecessary();
@@ -307,11 +304,11 @@ class CefBrowserURLRequest::Context
     DCHECK(CalledOnValidThread());
     DCHECK(url_request_.get());
 
-    if(!response_.get())
+    if (!response_.get())
       OnResponse();
 
     client_->OnDownloadData(url_request_.get(), download_data->c_str(),
-        download_data->length());
+                            download_data->length());
   }
 
   void OnUploadProgress(int64 current, int64 total) {
@@ -350,7 +347,7 @@ class CefBrowserURLRequest::Context
   }
 
   void OnResponse() {
-    if (fetcher_.get()) {  
+    if (fetcher_.get()) {
       response_ = new CefResponseImpl();
       CefResponseImpl* responseImpl =
           static_cast<CefResponseImpl*>(response_.get());
@@ -380,25 +377,22 @@ class CefBrowserURLRequest::Context
   scoped_refptr<net::URLRequestContextGetter> url_request_getter_;
 };
 
-
 // CefURLFetcherDelegate ------------------------------------------------------
 
 namespace {
 
 CefURLFetcherDelegate::CefURLFetcherDelegate(
-    CefBrowserURLRequest::Context* context, int request_flags)
-  : context_(context),
-    request_flags_(request_flags) {
-}
+    CefBrowserURLRequest::Context* context,
+    int request_flags)
+    : context_(context), request_flags_(request_flags) {}
 
-CefURLFetcherDelegate::~CefURLFetcherDelegate() {
-}
+CefURLFetcherDelegate::~CefURLFetcherDelegate() {}
 
-void CefURLFetcherDelegate::OnURLFetchComplete(
-    const net::URLFetcher* source) {
+void CefURLFetcherDelegate::OnURLFetchComplete(const net::URLFetcher* source) {
   // Complete asynchronously so as not to delete the URLFetcher while it's still
   // in the call stack.
-  base::MessageLoop::current()->task_runner()->PostTask(FROM_HERE,
+  base::MessageLoop::current()->task_runner()->PostTask(
+      FROM_HERE,
       base::Bind(&CefBrowserURLRequest::Context::OnComplete, context_));
 }
 
@@ -412,13 +406,13 @@ void CefURLFetcherDelegate::OnURLFetchDownloadProgress(
 
 void CefURLFetcherDelegate::OnURLFetchUploadProgress(
     const net::URLFetcher* source,
-    int64 current, int64 total) {
+    int64 current,
+    int64 total) {
   if (request_flags_ & UR_FLAG_REPORT_UPLOAD_PROGRESS)
     context_->OnUploadProgress(current, total);
 }
 
 }  // namespace
-
 
 // CefBrowserURLRequest -------------------------------------------------------
 
@@ -429,8 +423,7 @@ CefBrowserURLRequest::CefBrowserURLRequest(
   context_ = new Context(this, request, client, request_context);
 }
 
-CefBrowserURLRequest::~CefBrowserURLRequest() {
-}
+CefBrowserURLRequest::~CefBrowserURLRequest() {}
 
 bool CefBrowserURLRequest::Start() {
   if (!VerifyContext())

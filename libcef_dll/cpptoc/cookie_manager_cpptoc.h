@@ -9,6 +9,8 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=9c3a4998e5d65d301465a3447f2777c000d78a2c$
+//
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_COOKIE_MANAGER_CPPTOC_H_
 #define CEF_LIBCEF_DLL_CPPTOC_COOKIE_MANAGER_CPPTOC_H_
@@ -18,15 +20,16 @@
 #error This file can be included DLL-side only
 #endif
 
-#include "include/cef_cookie.h"
 #include "include/capi/cef_cookie_capi.h"
+#include "include/cef_cookie.h"
 #include "libcef_dll/cpptoc/cpptoc_ref_counted.h"
 
 // Wrap a C++ class with a C structure.
 // This class may be instantiated and accessed DLL-side only.
 class CefCookieManagerCppToC
-    : public CefCppToCRefCounted<CefCookieManagerCppToC, CefCookieManager,
-        cef_cookie_manager_t> {
+    : public CefCppToCRefCounted<CefCookieManagerCppToC,
+                                 CefCookieManager,
+                                 cef_cookie_manager_t> {
  public:
   CefCookieManagerCppToC();
 };

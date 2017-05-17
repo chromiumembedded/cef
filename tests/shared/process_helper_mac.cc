@@ -30,7 +30,6 @@ int RunMain(int argc, char* argv[]) {
 
 }  // namespace client
 
-
 // Process entry point.
 int main(int argc, char* argv[]) {
   return client::RunMain(argc, argv);

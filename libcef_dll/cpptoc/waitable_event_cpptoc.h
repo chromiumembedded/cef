@@ -9,6 +9,8 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=d402d9e109017d1b3abe5a119eb713db750f50ab$
+//
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_WAITABLE_EVENT_CPPTOC_H_
 #define CEF_LIBCEF_DLL_CPPTOC_WAITABLE_EVENT_CPPTOC_H_
@@ -18,15 +20,16 @@
 #error This file can be included DLL-side only
 #endif
 
-#include "include/cef_waitable_event.h"
 #include "include/capi/cef_waitable_event_capi.h"
+#include "include/cef_waitable_event.h"
 #include "libcef_dll/cpptoc/cpptoc_ref_counted.h"
 
 // Wrap a C++ class with a C structure.
 // This class may be instantiated and accessed DLL-side only.
 class CefWaitableEventCppToC
-    : public CefCppToCRefCounted<CefWaitableEventCppToC, CefWaitableEvent,
-        cef_waitable_event_t> {
+    : public CefCppToCRefCounted<CefWaitableEventCppToC,
+                                 CefWaitableEvent,
+                                 cef_waitable_event_t> {
  public:
   CefWaitableEventCppToC();
 };

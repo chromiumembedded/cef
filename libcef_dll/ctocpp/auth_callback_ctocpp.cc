@@ -9,14 +9,15 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=4eadd6cf6e4016537a2dbb9a041f6189801d085a$
+//
 
 #include "libcef_dll/ctocpp/auth_callback_ctocpp.h"
-
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
 void CefAuthCallbackCToCpp::Continue(const CefString& username,
-    const CefString& password) {
+                                     const CefString& password) {
   cef_auth_callback_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, cont))
     return;
@@ -30,9 +31,7 @@ void CefAuthCallbackCToCpp::Continue(const CefString& username,
   // Unverified params: password
 
   // Execute
-  _struct->cont(_struct,
-      username.GetStruct(),
-      password.GetStruct());
+  _struct->cont(_struct, username.GetStruct(), password.GetStruct());
 }
 
 void CefAuthCallbackCToCpp::Cancel() {
@@ -46,23 +45,29 @@ void CefAuthCallbackCToCpp::Cancel() {
   _struct->cancel(_struct);
 }
 
-
 // CONSTRUCTOR - Do not edit by hand.
 
-CefAuthCallbackCToCpp::CefAuthCallbackCToCpp() {
-}
+CefAuthCallbackCToCpp::CefAuthCallbackCToCpp() {}
 
-template<> cef_auth_callback_t* CefCToCppRefCounted<CefAuthCallbackCToCpp,
-    CefAuthCallback, cef_auth_callback_t>::UnwrapDerived(CefWrapperType type,
-    CefAuthCallback* c) {
+template <>
+cef_auth_callback_t*
+CefCToCppRefCounted<CefAuthCallbackCToCpp,
+                    CefAuthCallback,
+                    cef_auth_callback_t>::UnwrapDerived(CefWrapperType type,
+                                                        CefAuthCallback* c) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCppRefCounted<CefAuthCallbackCToCpp,
-    CefAuthCallback, cef_auth_callback_t>::DebugObjCt = 0;
+template <>
+base::AtomicRefCount CefCToCppRefCounted<CefAuthCallbackCToCpp,
+                                         CefAuthCallback,
+                                         cef_auth_callback_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCppRefCounted<CefAuthCallbackCToCpp,
-    CefAuthCallback, cef_auth_callback_t>::kWrapperType = WT_AUTH_CALLBACK;
+template <>
+CefWrapperType CefCToCppRefCounted<CefAuthCallbackCToCpp,
+                                   CefAuthCallback,
+                                   cef_auth_callback_t>::kWrapperType =
+    WT_AUTH_CALLBACK;

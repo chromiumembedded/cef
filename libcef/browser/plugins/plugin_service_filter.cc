@@ -14,8 +14,7 @@
 
 #include "extensions/common/constants.h"
 
-CefPluginServiceFilter::CefPluginServiceFilter() {
-}
+CefPluginServiceFilter::CefPluginServiceFilter() {}
 
 bool CefPluginServiceFilter::IsPluginAvailable(
     int render_process_id,
@@ -97,9 +96,9 @@ bool CefPluginServiceFilter::IsPluginAvailable(
   }
 
   // Check for a cached plugin load decision.
-  if (resource_context->HasPluginLoadDecision(
-          render_process_id, plugin->path,
-          is_main_frame, main_frame_origin, status)) {
+  if (resource_context->HasPluginLoadDecision(render_process_id, plugin->path,
+                                              is_main_frame, main_frame_origin,
+                                              status)) {
     return *status != CefViewHostMsg_GetPluginInfo_Status::kDisabled;
   }
 
@@ -129,11 +128,9 @@ bool CefPluginServiceFilter::IsPluginAvailable(
   }
 
   if (handler->OnBeforePluginLoad(plugin->mime_types[0].mime_type,
-                                  url.possibly_invalid_spec(),
-                                  is_main_frame,
+                                  url.possibly_invalid_spec(), is_main_frame,
                                   policy_url.possibly_invalid_spec(),
-                                  pluginInfo.get(),
-                                  &plugin_policy)) {
+                                  pluginInfo.get(), &plugin_policy)) {
     switch (plugin_policy) {
       case PLUGIN_POLICY_ALLOW:
         *status = CefViewHostMsg_GetPluginInfo_Status::kAllowed;
@@ -151,9 +148,9 @@ bool CefPluginServiceFilter::IsPluginAvailable(
   }
 
   // Cache the plugin load decision.
-  resource_context->AddPluginLoadDecision(
-      render_process_id, plugin->path,
-      is_main_frame, main_frame_origin, *status);
+  resource_context->AddPluginLoadDecision(render_process_id, plugin->path,
+                                          is_main_frame, main_frame_origin,
+                                          *status);
 
   return *status != CefViewHostMsg_GetPluginInfo_Status::kDisabled;
 }

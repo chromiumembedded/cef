@@ -22,9 +22,7 @@ enum DOMTestType {
 class TestDOMVisitor : public CefDOMVisitor {
  public:
   explicit TestDOMVisitor(CefRefPtr<CefBrowser> browser, DOMTestType test_type)
-      : browser_(browser),
-        test_type_(test_type) {
-  }
+      : browser_(browser), test_type_(test_type) {}
 
   void TestHeadNodeStructure(CefRefPtr<CefDOMNode> headNode) {
     EXPECT_TRUE(headNode.get());
@@ -186,8 +184,8 @@ class TestDOMVisitor : public CefDOMVisitor {
     CefRefPtr<CefDOMNode> h1Node = bodyNode->GetFirstChild();
 
     ASSERT_EQ(h1Node->GetAsMarkup(),
-        "<h1>Hello From<br class=\"some_class\" id=\"some_id\">"
-        "Main Frame</h1>");
+              "<h1>Hello From<br class=\"some_class\" id=\"some_id\">"
+              "Main Frame</h1>");
 
     CefRefPtr<CefDOMNode> textNode = h1Node->GetFirstChild();
     ASSERT_EQ(textNode->GetValue(), "Hello From");
@@ -200,8 +198,8 @@ class TestDOMVisitor : public CefDOMVisitor {
     EXPECT_EQ(brNode->GetElementAttribute("class"), "a_different_class");
 
     ASSERT_EQ(h1Node->GetAsMarkup(),
-        "<h1>A Different Message From<br class=\"a_different_class\" "
-        "id=\"some_id\">Main Frame</h1>");
+              "<h1>A Different Message From<br class=\"a_different_class\" "
+              "id=\"some_id\">Main Frame</h1>");
 
     ASSERT_FALSE(h1Node->SetValue("Something Different"));
   }
@@ -237,14 +235,12 @@ class TestDOMVisitor : public CefDOMVisitor {
 // Used in the render process.
 class DOMRendererTest : public ClientAppRenderer::Delegate {
  public:
-  DOMRendererTest() {
-  }
+  DOMRendererTest() {}
 
-  bool OnProcessMessageReceived(
-      CefRefPtr<ClientAppRenderer> app,
-      CefRefPtr<CefBrowser> browser,
-      CefProcessId source_process,
-      CefRefPtr<CefProcessMessage> message) override {
+  bool OnProcessMessageReceived(CefRefPtr<ClientAppRenderer> app,
+                                CefRefPtr<CefBrowser> browser,
+                                CefProcessId source_process,
+                                CefRefPtr<CefProcessMessage> message) override {
     if (message->GetName() == kTestMessage) {
       EXPECT_EQ(message->GetArgumentList()->GetSize(), (size_t)1);
       int test_type = message->GetArgumentList()->GetInt(0);
@@ -263,21 +259,19 @@ class DOMRendererTest : public ClientAppRenderer::Delegate {
 // Used in the browser process.
 class TestDOMHandler : public TestHandler {
  public:
-  explicit TestDOMHandler(DOMTestType test)
-      : test_type_(test) {
-  }
+  explicit TestDOMHandler(DOMTestType test) : test_type_(test) {}
 
   void RunTest() override {
     std::stringstream mainHtml;
-    mainHtml <<
-        "<html>"
-        "<head><title>The Title</title></head>"
-        "<body>"
-        "<h1>Hello From<br class=\"some_class\"/ id=\"some_id\"/>"
-        "Main Frame</h1>"
-        "<div id=\"sized_element\" style=\"width: 50px; height: 25px; position: fixed; top: 100px; left: 150px;\"/>"
-        "</body>"
-        "</html>";
+    mainHtml << "<html>"
+                "<head><title>The Title</title></head>"
+                "<body>"
+                "<h1>Hello From<br class=\"some_class\"/ id=\"some_id\"/>"
+                "Main Frame</h1>"
+                "<div id=\"sized_element\" style=\"width: 50px; height: 25px; "
+                "position: fixed; top: 100px; left: 150px;\"/>"
+                "</body>"
+                "</html>";
 
     AddResource(kTestUrl, mainHtml.str(), "text/html");
     CreateBrowser(kTestUrl);
@@ -298,12 +292,11 @@ class TestDOMHandler : public TestHandler {
     }
   }
 
-  bool OnProcessMessageReceived(
-      CefRefPtr<CefBrowser> browser,
-      CefProcessId source_process,
-      CefRefPtr<CefProcessMessage> message) override {
+  bool OnProcessMessageReceived(CefRefPtr<CefBrowser> browser,
+                                CefProcessId source_process,
+                                CefRefPtr<CefProcessMessage> message) override {
     EXPECT_STREQ(message->GetName().ToString().c_str(), kTestMessage);
-        
+
     got_message_.yes();
 
     if (message->GetArgumentList()->GetBool(0))
@@ -326,8 +319,7 @@ class TestDOMHandler : public TestHandler {
 
 // Test DOM structure reading.
 TEST(DOMTest, Read) {
-  CefRefPtr<TestDOMHandler> handler =
-      new TestDOMHandler(DOM_TEST_STRUCTURE);
+  CefRefPtr<TestDOMHandler> handler = new TestDOMHandler(DOM_TEST_STRUCTURE);
   handler->ExecuteTest();
 
   EXPECT_TRUE(handler->got_message_);
@@ -338,8 +330,7 @@ TEST(DOMTest, Read) {
 
 // Test DOM modifications.
 TEST(DOMTest, Modify) {
-  CefRefPtr<TestDOMHandler> handler =
-      new TestDOMHandler(DOM_TEST_MODIFY);
+  CefRefPtr<TestDOMHandler> handler = new TestDOMHandler(DOM_TEST_MODIFY);
   handler->ExecuteTest();
 
   EXPECT_TRUE(handler->got_message_);

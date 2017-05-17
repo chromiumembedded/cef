@@ -9,11 +9,12 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=9388706ef42ddd5675e32501ee217f31ec8a5917$
+//
 
 #include "libcef_dll/cpptoc/auth_callback_cpptoc.h"
 #include "libcef_dll/cpptoc/urlrequest_cpptoc.h"
 #include "libcef_dll/ctocpp/urlrequest_client_ctocpp.h"
-
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
@@ -31,12 +32,13 @@ void CefURLRequestClientCToCpp::OnRequestComplete(
     return;
 
   // Execute
-  _struct->on_request_complete(_struct,
-      CefURLRequestCppToC::Wrap(request));
+  _struct->on_request_complete(_struct, CefURLRequestCppToC::Wrap(request));
 }
 
 void CefURLRequestClientCToCpp::OnUploadProgress(
-    CefRefPtr<CefURLRequest> request, int64 current, int64 total) {
+    CefRefPtr<CefURLRequest> request,
+    int64 current,
+    int64 total) {
   cef_urlrequest_client_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_upload_progress))
     return;
@@ -49,14 +51,14 @@ void CefURLRequestClientCToCpp::OnUploadProgress(
     return;
 
   // Execute
-  _struct->on_upload_progress(_struct,
-      CefURLRequestCppToC::Wrap(request),
-      current,
-      total);
+  _struct->on_upload_progress(_struct, CefURLRequestCppToC::Wrap(request),
+                              current, total);
 }
 
 void CefURLRequestClientCToCpp::OnDownloadProgress(
-    CefRefPtr<CefURLRequest> request, int64 current, int64 total) {
+    CefRefPtr<CefURLRequest> request,
+    int64 current,
+    int64 total) {
   cef_urlrequest_client_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_download_progress))
     return;
@@ -69,14 +71,13 @@ void CefURLRequestClientCToCpp::OnDownloadProgress(
     return;
 
   // Execute
-  _struct->on_download_progress(_struct,
-      CefURLRequestCppToC::Wrap(request),
-      current,
-      total);
+  _struct->on_download_progress(_struct, CefURLRequestCppToC::Wrap(request),
+                                current, total);
 }
 
 void CefURLRequestClientCToCpp::OnDownloadData(CefRefPtr<CefURLRequest> request,
-    const void* data, size_t data_length) {
+                                               const void* data,
+                                               size_t data_length) {
   cef_urlrequest_client_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_download_data))
     return;
@@ -93,15 +94,17 @@ void CefURLRequestClientCToCpp::OnDownloadData(CefRefPtr<CefURLRequest> request,
     return;
 
   // Execute
-  _struct->on_download_data(_struct,
-      CefURLRequestCppToC::Wrap(request),
-      data,
-      data_length);
+  _struct->on_download_data(_struct, CefURLRequestCppToC::Wrap(request), data,
+                            data_length);
 }
 
-bool CefURLRequestClientCToCpp::GetAuthCredentials(bool isProxy,
-    const CefString& host, int port, const CefString& realm,
-    const CefString& scheme, CefRefPtr<CefAuthCallback> callback) {
+bool CefURLRequestClientCToCpp::GetAuthCredentials(
+    bool isProxy,
+    const CefString& host,
+    int port,
+    const CefString& realm,
+    const CefString& scheme,
+    CefRefPtr<CefAuthCallback> callback) {
   cef_urlrequest_client_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_auth_credentials))
     return false;
@@ -123,36 +126,38 @@ bool CefURLRequestClientCToCpp::GetAuthCredentials(bool isProxy,
   // Unverified params: realm
 
   // Execute
-  int _retval = _struct->get_auth_credentials(_struct,
-      isProxy,
-      host.GetStruct(),
-      port,
-      realm.GetStruct(),
-      scheme.GetStruct(),
-      CefAuthCallbackCppToC::Wrap(callback));
+  int _retval = _struct->get_auth_credentials(
+      _struct, isProxy, host.GetStruct(), port, realm.GetStruct(),
+      scheme.GetStruct(), CefAuthCallbackCppToC::Wrap(callback));
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
-
 
 // CONSTRUCTOR - Do not edit by hand.
 
-CefURLRequestClientCToCpp::CefURLRequestClientCToCpp() {
-}
+CefURLRequestClientCToCpp::CefURLRequestClientCToCpp() {}
 
-template<> cef_urlrequest_client_t* CefCToCppRefCounted<CefURLRequestClientCToCpp,
-    CefURLRequestClient, cef_urlrequest_client_t>::UnwrapDerived(
-    CefWrapperType type, CefURLRequestClient* c) {
+template <>
+cef_urlrequest_client_t* CefCToCppRefCounted<
+    CefURLRequestClientCToCpp,
+    CefURLRequestClient,
+    cef_urlrequest_client_t>::UnwrapDerived(CefWrapperType type,
+                                            CefURLRequestClient* c) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCppRefCounted<CefURLRequestClientCToCpp,
-    CefURLRequestClient, cef_urlrequest_client_t>::DebugObjCt = 0;
+template <>
+base::AtomicRefCount CefCToCppRefCounted<CefURLRequestClientCToCpp,
+                                         CefURLRequestClient,
+                                         cef_urlrequest_client_t>::DebugObjCt =
+    0;
 #endif
 
-template<> CefWrapperType CefCToCppRefCounted<CefURLRequestClientCToCpp,
-    CefURLRequestClient, cef_urlrequest_client_t>::kWrapperType =
+template <>
+CefWrapperType CefCToCppRefCounted<CefURLRequestClientCToCpp,
+                                   CefURLRequestClient,
+                                   cef_urlrequest_client_t>::kWrapperType =
     WT_URLREQUEST_CLIENT;

@@ -30,9 +30,7 @@ const char kFileSaveMessageName[] = "DialogTest.FileSave";
 class DialogState : public base::RefCountedThreadSafe<DialogState> {
  public:
   DialogState()
-    : mode_(FILE_DIALOG_OPEN),
-      last_selected_filter_(0),
-      pending_(false) {}
+      : mode_(FILE_DIALOG_OPEN), last_selected_filter_(0), pending_(false) {}
 
   cef_file_dialog_mode_t mode_;
   int last_selected_filter_;
@@ -48,9 +46,7 @@ class DialogCallback : public CefRunFileDialogCallback {
   DialogCallback(
       CefRefPtr<CefMessageRouterBrowserSide::Callback> router_callback,
       scoped_refptr<DialogState> dialog_state)
-      : router_callback_(router_callback),
-        dialog_state_(dialog_state) {
-  }
+      : router_callback_(router_callback), dialog_state_(dialog_state) {}
 
   virtual void OnFileDialogDismissed(
       int last_selected_filter,
@@ -147,7 +143,7 @@ class Handler : public CefMessageRouterBrowserSide::Handler {
     if (dialog_state_->mode_ != FILE_DIALOG_OPEN_FOLDER) {
       // Build filters based on mime time.
       accept_filters.push_back("text/*");
-    
+
       // Build filters based on file extension.
       accept_filters.push_back(".log");
       accept_filters.push_back(".patch");
@@ -161,10 +157,7 @@ class Handler : public CefMessageRouterBrowserSide::Handler {
     dialog_state_->pending_ = true;
 
     browser->GetHost()->RunFileDialog(
-        dialog_state_->mode_,
-        title,
-        dialog_state_->last_file_,
-        accept_filters,
+        dialog_state_->mode_, title, dialog_state_->last_file_, accept_filters,
         dialog_state_->last_selected_filter_,
         new DialogCallback(callback, dialog_state_));
 

@@ -9,9 +9,10 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=ceb1d8ea37c7815a778f7f51e68f0160ecd972ee$
+//
 
 #include "libcef_dll/ctocpp/write_handler_ctocpp.h"
-
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
@@ -28,10 +29,7 @@ size_t CefWriteHandlerCToCpp::Write(const void* ptr, size_t size, size_t n) {
     return 0;
 
   // Execute
-  size_t _retval = _struct->write(_struct,
-      ptr,
-      size,
-      n);
+  size_t _retval = _struct->write(_struct, ptr, size, n);
 
   // Return type: simple
   return _retval;
@@ -45,9 +43,7 @@ int CefWriteHandlerCToCpp::Seek(int64 offset, int whence) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int _retval = _struct->seek(_struct,
-      offset,
-      whence);
+  int _retval = _struct->seek(_struct, offset, whence);
 
   // Return type: simple
   return _retval;
@@ -92,26 +88,32 @@ bool CefWriteHandlerCToCpp::MayBlock() {
   int _retval = _struct->may_block(_struct);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
-
 
 // CONSTRUCTOR - Do not edit by hand.
 
-CefWriteHandlerCToCpp::CefWriteHandlerCToCpp() {
-}
+CefWriteHandlerCToCpp::CefWriteHandlerCToCpp() {}
 
-template<> cef_write_handler_t* CefCToCppRefCounted<CefWriteHandlerCToCpp,
-    CefWriteHandler, cef_write_handler_t>::UnwrapDerived(CefWrapperType type,
-    CefWriteHandler* c) {
+template <>
+cef_write_handler_t*
+CefCToCppRefCounted<CefWriteHandlerCToCpp,
+                    CefWriteHandler,
+                    cef_write_handler_t>::UnwrapDerived(CefWrapperType type,
+                                                        CefWriteHandler* c) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCppRefCounted<CefWriteHandlerCToCpp,
-    CefWriteHandler, cef_write_handler_t>::DebugObjCt = 0;
+template <>
+base::AtomicRefCount CefCToCppRefCounted<CefWriteHandlerCToCpp,
+                                         CefWriteHandler,
+                                         cef_write_handler_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCppRefCounted<CefWriteHandlerCToCpp,
-    CefWriteHandler, cef_write_handler_t>::kWrapperType = WT_WRITE_HANDLER;
+template <>
+CefWrapperType CefCToCppRefCounted<CefWriteHandlerCToCpp,
+                                   CefWriteHandler,
+                                   cef_write_handler_t>::kWrapperType =
+    WT_WRITE_HANDLER;

@@ -9,6 +9,8 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=259b6a14e0f63f28e71cea91c1899a57e4478d01$
+//
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_VIEWS_BROWSER_VIEW_DELEGATE_CTOCPP_H_
 #define CEF_LIBCEF_DLL_CTOCPP_VIEWS_BROWSER_VIEW_DELEGATE_CTOCPP_H_
@@ -18,44 +20,48 @@
 #error This file can be included DLL-side only
 #endif
 
-#include "include/views/cef_browser_view_delegate.h"
+#include "include/capi/cef_browser_capi.h"
+#include "include/capi/views/cef_browser_view_capi.h"
 #include "include/capi/views/cef_browser_view_delegate_capi.h"
 #include "include/cef_browser.h"
-#include "include/capi/cef_browser_capi.h"
 #include "include/views/cef_browser_view.h"
-#include "include/capi/views/cef_browser_view_capi.h"
+#include "include/views/cef_browser_view_delegate.h"
 #include "libcef_dll/ctocpp/ctocpp_ref_counted.h"
 
 // Wrap a C structure with a C++ class.
 // This class may be instantiated and accessed DLL-side only.
 class CefBrowserViewDelegateCToCpp
     : public CefCToCppRefCounted<CefBrowserViewDelegateCToCpp,
-        CefBrowserViewDelegate, cef_browser_view_delegate_t> {
+                                 CefBrowserViewDelegate,
+                                 cef_browser_view_delegate_t> {
  public:
   CefBrowserViewDelegateCToCpp();
 
   // CefBrowserViewDelegate methods.
   void OnBrowserCreated(CefRefPtr<CefBrowserView> browser_view,
-      CefRefPtr<CefBrowser> browser) override;
+                        CefRefPtr<CefBrowser> browser) override;
   void OnBrowserDestroyed(CefRefPtr<CefBrowserView> browser_view,
-      CefRefPtr<CefBrowser> browser) override;
+                          CefRefPtr<CefBrowser> browser) override;
   CefRefPtr<CefBrowserViewDelegate> GetDelegateForPopupBrowserView(
       CefRefPtr<CefBrowserView> browser_view,
-      const CefBrowserSettings& settings, CefRefPtr<CefClient> client,
+      const CefBrowserSettings& settings,
+      CefRefPtr<CefClient> client,
       bool is_devtools) override;
   bool OnPopupBrowserViewCreated(CefRefPtr<CefBrowserView> browser_view,
-      CefRefPtr<CefBrowserView> popup_browser_view,
-      bool is_devtools) override;
+                                 CefRefPtr<CefBrowserView> popup_browser_view,
+                                 bool is_devtools) override;
 
   // CefViewDelegate methods.
   CefSize GetPreferredSize(CefRefPtr<CefView> view) override;
   CefSize GetMinimumSize(CefRefPtr<CefView> view) override;
   CefSize GetMaximumSize(CefRefPtr<CefView> view) override;
   int GetHeightForWidth(CefRefPtr<CefView> view, int width) override;
-  void OnParentViewChanged(CefRefPtr<CefView> view, bool added,
-      CefRefPtr<CefView> parent) override;
-  void OnChildViewChanged(CefRefPtr<CefView> view, bool added,
-      CefRefPtr<CefView> child) override;
+  void OnParentViewChanged(CefRefPtr<CefView> view,
+                           bool added,
+                           CefRefPtr<CefView> parent) override;
+  void OnChildViewChanged(CefRefPtr<CefView> view,
+                          bool added,
+                          CefRefPtr<CefView> child) override;
   void OnFocus(CefRefPtr<CefView> view) override;
   void OnBlur(CefRefPtr<CefView> view) override;
 };

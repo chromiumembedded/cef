@@ -40,5 +40,4 @@ class CefRenderMessageFilter : public IPC::MessageFilter {
   DISALLOW_COPY_AND_ASSIGN(CefRenderMessageFilter);
 };
 
-
 #endif  // CEF_LIBCEF_RENDERER_RENDER_MESSAGE_FILTER_H_

@@ -9,6 +9,8 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=256892a4f1a26b461dd5149e5ba4bcafdb6a47a5$
+//
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_CALLBACK_CTOCPP_H_
 #define CEF_LIBCEF_DLL_CTOCPP_CALLBACK_CTOCPP_H_
@@ -18,15 +20,15 @@
 #error This file can be included wrapper-side only
 #endif
 
-#include "include/cef_callback.h"
 #include "include/capi/cef_callback_capi.h"
+#include "include/cef_callback.h"
 #include "libcef_dll/ctocpp/ctocpp_ref_counted.h"
 
 // Wrap a C structure with a C++ class.
 // This class may be instantiated and accessed wrapper-side only.
-class CefCallbackCToCpp
-    : public CefCToCppRefCounted<CefCallbackCToCpp, CefCallback,
-        cef_callback_t> {
+class CefCallbackCToCpp : public CefCToCppRefCounted<CefCallbackCToCpp,
+                                                     CefCallback,
+                                                     cef_callback_t> {
  public:
   CefCallbackCToCpp();
 

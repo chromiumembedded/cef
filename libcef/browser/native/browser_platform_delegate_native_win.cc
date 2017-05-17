@@ -73,9 +73,9 @@ bool HasExternalHandler(const std::string& scheme) {
     DWORD size = 0;
     key.ReadValue(NULL, NULL, &size, NULL);
     if (size > 2) {
-       // ShellExecute crashes the process when the command is empty.
-       // We check for "2" because it always returns the trailing NULL.
-       return true;
+      // ShellExecute crashes the process when the command is empty.
+      // We check for "2" because it always returns the trailing NULL.
+      return true;
     }
   }
 
@@ -119,8 +119,7 @@ CefBrowserPlatformDelegateNativeWin::CefBrowserPlatformDelegateNativeWin(
     SkColor background_color)
     : CefBrowserPlatformDelegateNative(window_info, background_color),
       host_window_created_(false),
-      window_widget_(nullptr) {
-}
+      window_widget_(nullptr) {}
 
 void CefBrowserPlatformDelegateNativeWin::BrowserDestroyed(
     CefBrowserHostImpl* browser) {
@@ -138,9 +137,9 @@ bool CefBrowserPlatformDelegateNativeWin::CreateHostWindow() {
   std::wstring windowName(CefString(&window_info_.window_name));
 
   // Create the new browser window.
-  window_info_.window = CreateWindowEx(window_info_.ex_style,
-      GetWndClass(), windowName.c_str(), window_info_.style,
-      window_info_.x, window_info_.y, window_info_.width,
+  window_info_.window = CreateWindowEx(
+      window_info_.ex_style, GetWndClass(), windowName.c_str(),
+      window_info_.style, window_info_.x, window_info_.y, window_info_.width,
       window_info_.height, window_info_.parent_window, window_info_.menu,
       ::GetModuleHandle(NULL), NULL);
 
@@ -166,15 +165,15 @@ bool CefBrowserPlatformDelegateNativeWin::CreateHostWindow() {
 
   // Adjust for potential display scaling.
   gfx::Point point = gfx::Point(cr.right, cr.bottom);
-  float scale = display::Screen::GetScreen()->
-      GetDisplayNearestPoint(point).device_scale_factor();
-  point = gfx::ToFlooredPoint(
-      gfx::ScalePoint(gfx::PointF(point), 1.0f / scale));
+  float scale = display::Screen::GetScreen()
+                    ->GetDisplayNearestPoint(point)
+                    .device_scale_factor();
+  point =
+      gfx::ToFlooredPoint(gfx::ScalePoint(gfx::PointF(point), 1.0f / scale));
 
   CefWindowDelegateView* delegate_view =
       new CefWindowDelegateView(GetBackgroundColor());
-  delegate_view->Init(window_info_.window,
-                      browser_->web_contents(),
+  delegate_view->Init(window_info_.window, browser_->web_contents(),
                       gfx::Rect(0, 0, point.x(), point.y()));
 
   window_widget_ = delegate_view->GetWidget();
@@ -190,8 +189,8 @@ void CefBrowserPlatformDelegateNativeWin::CloseHostWindow() {
   }
 }
 
-CefWindowHandle
-    CefBrowserPlatformDelegateNativeWin::GetHostWindowHandle() const {
+CefWindowHandle CefBrowserPlatformDelegateNativeWin::GetHostWindowHandle()
+    const {
   if (windowless_handler_)
     return windowless_handler_->GetParentWindowHandle();
   return window_info_.window;
@@ -278,8 +277,8 @@ void CefBrowserPlatformDelegateNativeWin::SizeTo(int width, int height) {
   AdjustWindowRectEx(&rect, style, has_menu, ex_style);
 
   // Size the window.
-  SetWindowPos(window, NULL, 0, 0, rect.right,
-               rect.bottom, SWP_NOZORDER | SWP_NOMOVE | SWP_NOACTIVATE);
+  SetWindowPos(window, NULL, 0, 0, rect.right, rect.bottom,
+               SWP_NOZORDER | SWP_NOMOVE | SWP_NOACTIVATE);
 }
 
 gfx::Point CefBrowserPlatformDelegateNativeWin::GetScreenPoint(
@@ -296,10 +295,10 @@ gfx::Point CefBrowserPlatformDelegateNativeWin::GetScreenPoint(
                                               bounds_in_screen.y() + view.y());
 
   // Adjust for potential display scaling.
-  float scale = display::Screen::GetScreen()->
-      GetDisplayNearestPoint(screen_point).device_scale_factor();
-  return gfx::ToFlooredPoint(
-      gfx::ScalePoint(gfx::PointF(screen_point), scale));
+  float scale = display::Screen::GetScreen()
+                    ->GetDisplayNearestPoint(screen_point)
+                    .device_scale_factor();
+  return gfx::ToFlooredPoint(gfx::ScalePoint(gfx::PointF(screen_point), scale));
 }
 
 void CefBrowserPlatformDelegateNativeWin::ViewText(const std::string& text) {
@@ -331,7 +330,7 @@ void CefBrowserPlatformDelegateNativeWin::HandleKeyboardEvent(
         msg.message = event.is_system_key ? WM_SYSKEYUP : WM_KEYUP;
         break;
       case blink::WebInputEvent::kChar:
-        msg.message = event.is_system_key ? WM_SYSCHAR: WM_CHAR;
+        msg.message = event.is_system_key ? WM_SYSCHAR : WM_CHAR;
         break;
       default:
         NOTREACHED();
@@ -342,7 +341,7 @@ void CefBrowserPlatformDelegateNativeWin::HandleKeyboardEvent(
 
     UINT scan_code = ::MapVirtualKeyW(event.windows_key_code, MAPVK_VK_TO_VSC);
     msg.lParam = (scan_code << 16) |  // key scan code
-                                  1;  // key repeat count
+                 1;                   // key repeat count
     if (event.GetModifiers() & content::NativeWebKeyboardEvent::kAltKey)
       msg.lParam |= (1 << 29);
 
@@ -353,8 +352,7 @@ void CefBrowserPlatformDelegateNativeWin::HandleKeyboardEvent(
 void CefBrowserPlatformDelegateNativeWin::HandleExternalProtocol(
     const GURL& url) {
   // Execute on the FILE thread.
-  CEF_POST_TASK(CEF_FILET,
-      base::Bind(ExecuteExternalProtocol, url));
+  CEF_POST_TASK(CEF_FILET, base::Bind(ExecuteExternalProtocol, url));
 }
 
 void CefBrowserPlatformDelegateNativeWin::TranslateKeyEvent(
@@ -364,25 +362,24 @@ void CefBrowserPlatformDelegateNativeWin::TranslateKeyEvent(
   result.native_key_code = key_event.native_key_code;
   result.is_system_key = key_event.is_system_key ? 1 : 0;
   switch (key_event.type) {
-  case KEYEVENT_RAWKEYDOWN:
-  case KEYEVENT_KEYDOWN:
-    result.SetType(blink::WebInputEvent::kRawKeyDown);
-    break;
-  case KEYEVENT_KEYUP:
-    result.SetType(blink::WebInputEvent::kKeyUp);
-    break;
-  case KEYEVENT_CHAR:
-    result.SetType(blink::WebInputEvent::kChar);
-    break;
-  default:
-    NOTREACHED();
+    case KEYEVENT_RAWKEYDOWN:
+    case KEYEVENT_KEYDOWN:
+      result.SetType(blink::WebInputEvent::kRawKeyDown);
+      break;
+    case KEYEVENT_KEYUP:
+      result.SetType(blink::WebInputEvent::kKeyUp);
+      break;
+    case KEYEVENT_CHAR:
+      result.SetType(blink::WebInputEvent::kChar);
+      break;
+    default:
+      NOTREACHED();
   }
 
   // Populate DOM values that will be passed to JavaScript handlers via
   // KeyboardEvent.
-  result.dom_code =
-      static_cast<int>(ui::KeycodeConverter::NativeKeycodeToDomCode(
-            key_event.native_key_code));
+  result.dom_code = static_cast<int>(
+      ui::KeycodeConverter::NativeKeycodeToDomCode(key_event.native_key_code));
   if (result.GetType() == blink::WebInputEvent::kChar) {
     result.dom_key = ui::DomKey::FromCharacter(key_event.windows_key_code);
   } else {
@@ -399,35 +396,36 @@ void CefBrowserPlatformDelegateNativeWin::TranslateKeyEvent(
     result.unmodified_text[0] = result.windows_key_code;
   }
 
-  result.SetModifiers(
-      result.GetModifiers() | TranslateModifiers(key_event.modifiers));
+  result.SetModifiers(result.GetModifiers() |
+                      TranslateModifiers(key_event.modifiers));
 }
 
 void CefBrowserPlatformDelegateNativeWin::TranslateClickEvent(
     blink::WebMouseEvent& result,
     const CefMouseEvent& mouse_event,
     CefBrowserHost::MouseButtonType type,
-    bool mouseUp, int clickCount) const {
+    bool mouseUp,
+    int clickCount) const {
   TranslateMouseEvent(result, mouse_event);
 
   switch (type) {
-  case MBT_LEFT:
-    result.SetType(mouseUp ? blink::WebInputEvent::kMouseUp :
-                             blink::WebInputEvent::kMouseDown);
-    result.button = blink::WebMouseEvent::Button::kLeft;
-    break;
-  case MBT_MIDDLE:
-    result.SetType(mouseUp ? blink::WebInputEvent::kMouseUp :
-                             blink::WebInputEvent::kMouseDown);
-    result.button = blink::WebMouseEvent::Button::kMiddle;
-    break;
-  case MBT_RIGHT:
-    result.SetType(mouseUp ? blink::WebInputEvent::kMouseUp :
-                             blink::WebInputEvent::kMouseDown);
-    result.button = blink::WebMouseEvent::Button::kRight;
-    break;
-  default:
-    NOTREACHED();
+    case MBT_LEFT:
+      result.SetType(mouseUp ? blink::WebInputEvent::kMouseUp
+                             : blink::WebInputEvent::kMouseDown);
+      result.button = blink::WebMouseEvent::Button::kLeft;
+      break;
+    case MBT_MIDDLE:
+      result.SetType(mouseUp ? blink::WebInputEvent::kMouseUp
+                             : blink::WebInputEvent::kMouseDown);
+      result.button = blink::WebMouseEvent::Button::kMiddle;
+      break;
+    case MBT_RIGHT:
+      result.SetType(mouseUp ? blink::WebInputEvent::kMouseUp
+                             : blink::WebInputEvent::kMouseDown);
+      result.button = blink::WebMouseEvent::Button::kRight;
+      break;
+    default:
+      NOTREACHED();
   }
 
   result.click_count = clickCount;
@@ -460,7 +458,8 @@ void CefBrowserPlatformDelegateNativeWin::TranslateMoveEvent(
 void CefBrowserPlatformDelegateNativeWin::TranslateWheelEvent(
     blink::WebMouseWheelEvent& result,
     const CefMouseEvent& mouse_event,
-    int deltaX, int deltaY) const {
+    int deltaX,
+    int deltaY) const {
   TranslateMouseEvent(result, mouse_event);
 
   result.SetType(blink::WebInputEvent::kMouseWheel);
@@ -510,17 +509,17 @@ CefEventHandle CefBrowserPlatformDelegateNativeWin::GetEventHandle(
 }
 
 std::unique_ptr<CefFileDialogRunner>
-    CefBrowserPlatformDelegateNativeWin::CreateFileDialogRunner() {
+CefBrowserPlatformDelegateNativeWin::CreateFileDialogRunner() {
   return base::WrapUnique(new CefFileDialogRunnerWin);
 }
 
 std::unique_ptr<CefJavaScriptDialogRunner>
-    CefBrowserPlatformDelegateNativeWin::CreateJavaScriptDialogRunner() {
+CefBrowserPlatformDelegateNativeWin::CreateJavaScriptDialogRunner() {
   return base::WrapUnique(new CefJavaScriptDialogRunnerWin);
 }
 
 std::unique_ptr<CefMenuRunner>
-    CefBrowserPlatformDelegateNativeWin::CreateMenuRunner() {
+CefBrowserPlatformDelegateNativeWin::CreateMenuRunner() {
   return base::WrapUnique(new CefMenuRunnerWin);
 }
 
@@ -535,8 +534,8 @@ void CefBrowserPlatformDelegateNativeWin::TranslateMouseEvent(
   result.SetPositionInScreen(screen_pt.x(), screen_pt.y());
 
   // modifiers
-  result.SetModifiers(
-      result.GetModifiers() | TranslateModifiers(mouse_event.modifiers));
+  result.SetModifiers(result.GetModifiers() |
+                      TranslateModifiers(mouse_event.modifiers));
 
   // timestamp
   result.SetTimeStampSeconds(GetMessageTime() / 1000.0);
@@ -550,18 +549,18 @@ void CefBrowserPlatformDelegateNativeWin::RegisterWindowClass() {
 
   // Register the window class
   WNDCLASSEX wcex = {
-    /* cbSize = */ sizeof(WNDCLASSEX),
-    /* style = */ CS_HREDRAW | CS_VREDRAW,
-    /* lpfnWndProc = */ CefBrowserPlatformDelegateNativeWin::WndProc,
-    /* cbClsExtra = */ 0,
-    /* cbWndExtra = */ 0,
-    /* hInstance = */ ::GetModuleHandle(NULL),
-    /* hIcon = */ NULL,
-    /* hCursor = */ LoadCursor(NULL, IDC_ARROW),
-    /* hbrBackground = */ 0,
-    /* lpszMenuName = */ NULL,
-    /* lpszClassName = */ CefBrowserPlatformDelegateNativeWin::GetWndClass(),
-    /* hIconSm = */ NULL,
+      /* cbSize = */ sizeof(WNDCLASSEX),
+      /* style = */ CS_HREDRAW | CS_VREDRAW,
+      /* lpfnWndProc = */ CefBrowserPlatformDelegateNativeWin::WndProc,
+      /* cbClsExtra = */ 0,
+      /* cbWndExtra = */ 0,
+      /* hInstance = */ ::GetModuleHandle(NULL),
+      /* hIcon = */ NULL,
+      /* hCursor = */ LoadCursor(NULL, IDC_ARROW),
+      /* hbrBackground = */ 0,
+      /* lpszMenuName = */ NULL,
+      /* lpszClassName = */ CefBrowserPlatformDelegateNativeWin::GetWndClass(),
+      /* hIconSm = */ NULL,
   };
   RegisterClassEx(&wcex);
 
@@ -574,64 +573,65 @@ LPCTSTR CefBrowserPlatformDelegateNativeWin::GetWndClass() {
 }
 
 // static
-LRESULT CALLBACK CefBrowserPlatformDelegateNativeWin::WndProc(
-    HWND hwnd, UINT message,
-    WPARAM wParam, LPARAM lParam) {
+LRESULT CALLBACK CefBrowserPlatformDelegateNativeWin::WndProc(HWND hwnd,
+                                                              UINT message,
+                                                              WPARAM wParam,
+                                                              LPARAM lParam) {
   CefBrowserPlatformDelegateNativeWin* platform_delegate =
       static_cast<CefBrowserPlatformDelegateNativeWin*>(
           gfx::GetWindowUserData(hwnd));
   CefBrowserHostImpl* browser = nullptr;
   if (platform_delegate)
-      browser = platform_delegate->browser_;
+    browser = platform_delegate->browser_;
 
   switch (message) {
-  case WM_CLOSE:
-    if (browser && !browser->TryCloseBrowser()) {
-      // Cancel the close.
+    case WM_CLOSE:
+      if (browser && !browser->TryCloseBrowser()) {
+        // Cancel the close.
+        return 0;
+      }
+
+      // Allow the close.
+      break;
+
+    case WM_DESTROY:
+      if (platform_delegate) {
+        // Clear the user data pointer.
+        gfx::SetWindowUserData(hwnd, NULL);
+
+        // Force the browser to be destroyed. This will result in a call to
+        // BrowserDestroyed() that will release the reference added in
+        // CreateHostWindow().
+        browser->WindowDestroyed();
+      }
       return 0;
-    }
 
-    // Allow the close.
-    break;
+    case WM_SIZE:
+      if (platform_delegate && platform_delegate->window_widget_) {
+        // Pass window resize events to the HWND for the DesktopNativeWidgetAura
+        // root window. Passing size 0x0 (wParam == SIZE_MINIMIZED, for example)
+        // will cause the widget to be hidden which reduces resource usage.
+        RECT rc;
+        GetClientRect(hwnd, &rc);
+        SetWindowPos(HWNDForWidget(platform_delegate->window_widget_), NULL,
+                     rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top,
+                     SWP_NOZORDER);
+      }
+      return 0;
 
-  case WM_DESTROY:
-    if (platform_delegate) {
-      // Clear the user data pointer.
-      gfx::SetWindowUserData(hwnd, NULL);
+    case WM_MOVING:
+    case WM_MOVE:
+      if (browser)
+        browser->NotifyMoveOrResizeStarted();
+      return 0;
 
-      // Force the browser to be destroyed. This will result in a call to
-      // BrowserDestroyed() that will release the reference added in
-      // CreateHostWindow().
-      browser->WindowDestroyed();
-    }
-    return 0;
+    case WM_SETFOCUS:
+      if (browser)
+        browser->SetFocus(true);
+      return 0;
 
-  case WM_SIZE:
-    if (platform_delegate && platform_delegate->window_widget_) {
-      // Pass window resize events to the HWND for the DesktopNativeWidgetAura
-      // root window. Passing size 0x0 (wParam == SIZE_MINIMIZED, for example)
-      // will cause the widget to be hidden which reduces resource usage.
-      RECT rc;
-      GetClientRect(hwnd, &rc);
-      SetWindowPos(HWNDForWidget(platform_delegate->window_widget_), NULL,
-            rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top,
-            SWP_NOZORDER);
-    }
-    return 0;
-
-  case WM_MOVING:
-  case WM_MOVE:
-    if (browser)
-      browser->NotifyMoveOrResizeStarted();
-    return 0;
-
-  case WM_SETFOCUS:
-    if (browser)
-      browser->SetFocus(true);
-    return 0;
-
-  case WM_ERASEBKGND:
-    return 0;
+    case WM_ERASEBKGND:
+      return 0;
   }
 
   return DefWindowProc(hwnd, message, wParam, lParam);

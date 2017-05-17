@@ -42,7 +42,10 @@ void BrowserWindowOsrWin::GetPopupConfig(CefWindowHandle temp_handle,
 }
 
 void BrowserWindowOsrWin::ShowPopup(ClientWindowHandle parent_handle,
-                                    int x, int y, size_t width, size_t height) {
+                                    int x,
+                                    int y,
+                                    size_t width,
+                                    size_t height) {
   REQUIRE_MAIN_THREAD();
   if (osr_window_)
     osr_window_->ShowPopup(parent_handle, x, y, width, height);

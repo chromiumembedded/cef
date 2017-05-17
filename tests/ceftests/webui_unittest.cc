@@ -16,9 +16,7 @@ typedef std::vector<std::string> UrlList;
 class WebUITestHandler : public TestHandler {
  public:
   explicit WebUITestHandler(const UrlList& url_list)
-    : url_list_(url_list),
-      url_index_(0U),
-      expected_error_code_(ERR_NONE) {
+      : url_list_(url_list), url_index_(0U), expected_error_code_(ERR_NONE) {
     CHECK(!url_list_.empty());
   }
 
@@ -44,8 +42,8 @@ class WebUITestHandler : public TestHandler {
     if (++url_index_ == url_list_.size()) {
       next_action = base::Bind(&WebUITestHandler::DestroyTest, this);
     } else {
-      next_action = base::Bind(&WebUITestHandler::LoadURL, this,
-                               url_list_[url_index_]);
+      next_action =
+          base::Bind(&WebUITestHandler::LoadURL, this, url_list_[url_index_]);
     }
 
     // Wait a bit for the WebUI content to finish loading before performing the
@@ -79,8 +77,8 @@ class WebUITestHandler : public TestHandler {
                    const CefString& errorText,
                    const CefString& failedUrl) override {
     got_load_error_.yes();
-    EXPECT_EQ(expected_error_code_, errorCode) <<
-        "failedUrl = " << failedUrl.ToString();
+    EXPECT_EQ(expected_error_code_, errorCode)
+        << "failedUrl = " << failedUrl.ToString();
   }
 
   void DestroyTest() override {
@@ -104,7 +102,6 @@ class WebUITestHandler : public TestHandler {
 };
 
 }  // namespace
-
 
 // Test hosts with special behaviors.
 
@@ -140,7 +137,6 @@ TEST(WebUITest, network_error) {
   ReleaseAndWaitForDestructor(handler);
 }
 
-
 // Test hosts with a single URL.
 
 namespace {
@@ -159,11 +155,11 @@ void RunWebUITest(const std::string& url) {
 
 }  // namespace
 
-#define WEBUI_TEST(name) \
-  TEST(WebUITest, name) { \
-    std::string name_str = #name; \
+#define WEBUI_TEST(name)                                      \
+  TEST(WebUITest, name) {                                     \
+    std::string name_str = #name;                             \
     std::replace(name_str.begin(), name_str.end(), '_', '-'); \
-    RunWebUITest("chrome://" + name_str + "/"); \
+    RunWebUITest("chrome://" + name_str + "/");               \
   }
 
 WEBUI_TEST(appcache_internals);
@@ -184,7 +180,6 @@ WEBUI_TEST(version);
 WEBUI_TEST(view_http_cache);
 WEBUI_TEST(webrtc_internals);
 WEBUI_TEST(webui_hosts);
-
 
 // Test hosts with multiple URLs.
 

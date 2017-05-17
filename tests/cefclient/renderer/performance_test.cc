@@ -29,8 +29,7 @@ const char kPerfTestReturnValue[] = "PerfTestReturnValue";
 
 class V8Handler : public CefV8Handler {
  public:
-  V8Handler() {
-  }
+  V8Handler() {}
 
   virtual bool Execute(const CefString& name,
                        CefRefPtr<CefV8Value> object,
@@ -129,8 +128,7 @@ class V8Handler : public CefV8Handler {
 // Handle bindings in the render process.
 class RenderDelegate : public ClientAppRenderer::Delegate {
  public:
-  RenderDelegate() {
-  }
+  RenderDelegate() {}
 
   virtual void OnContextCreated(CefRefPtr<ClientAppRenderer> app,
                                 CefRefPtr<CefBrowser> browser,
@@ -142,14 +140,14 @@ class RenderDelegate : public ClientAppRenderer::Delegate {
 
     // Bind test functions.
     object->SetValue(kGetPerfTests,
-        CefV8Value::CreateFunction(kGetPerfTests, handler),
-            V8_PROPERTY_ATTRIBUTE_READONLY);
+                     CefV8Value::CreateFunction(kGetPerfTests, handler),
+                     V8_PROPERTY_ATTRIBUTE_READONLY);
     object->SetValue(kRunPerfTest,
-        CefV8Value::CreateFunction(kRunPerfTest, handler),
-            V8_PROPERTY_ATTRIBUTE_READONLY);
+                     CefV8Value::CreateFunction(kRunPerfTest, handler),
+                     V8_PROPERTY_ATTRIBUTE_READONLY);
     object->SetValue(kPerfTestReturnValue,
-        CefV8Value::CreateFunction(kPerfTestReturnValue, handler),
-            V8_PROPERTY_ATTRIBUTE_READONLY);
+                     CefV8Value::CreateFunction(kPerfTestReturnValue, handler),
+                     V8_PROPERTY_ATTRIBUTE_READONLY);
   }
 
  private:

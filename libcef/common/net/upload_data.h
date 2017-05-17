@@ -30,16 +30,16 @@ namespace net {
 // Until there is a more abstract class for this, this one derives from
 // SupportsUserData to allow users to stash random data by
 // key and ensure its destruction when UploadData is finally deleted.
-class UploadData
-    : public base::RefCounted<UploadData>,
-      public base::SupportsUserData {
+class UploadData : public base::RefCounted<UploadData>,
+                   public base::SupportsUserData {
  public:
   UploadData();
 
   void AppendBytes(const char* bytes, int bytes_len);
 
   void AppendFileRange(const base::FilePath& file_path,
-                       uint64_t offset, uint64_t length,
+                       uint64_t offset,
+                       uint64_t length,
                        const base::Time& expected_modification_time);
 
   // Initializes the object to send chunks of upload data over time rather
@@ -53,17 +53,11 @@ class UploadData
 
   using ElementsVector = std::vector<std::unique_ptr<UploadElement>>;
 
-  const ElementsVector& elements() const {
-    return elements_;
-  }
+  const ElementsVector& elements() const { return elements_; }
 
-  ElementsVector* elements_mutable() {
-    return &elements_;
-  }
+  ElementsVector* elements_mutable() { return &elements_; }
 
-  void swap_elements(ElementsVector* elements) {
-    elements_.swap(*elements);
-  }
+  void swap_elements(ElementsVector* elements) { elements_.swap(*elements); }
 
   // Identifies a particular upload instance, which is used by the cache to
   // formulate a cache key.  This value should be unique across browser

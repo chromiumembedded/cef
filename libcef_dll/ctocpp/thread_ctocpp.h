@@ -9,6 +9,8 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=0f4a81621659efd51fcc1f985fe11a47edc66920$
+//
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_THREAD_CTOCPP_H_
 #define CEF_LIBCEF_DLL_CTOCPP_THREAD_CTOCPP_H_
@@ -18,8 +20,8 @@
 #error This file can be included wrapper-side only
 #endif
 
-#include "include/cef_thread.h"
 #include "include/capi/cef_thread_capi.h"
+#include "include/cef_thread.h"
 #include "libcef_dll/ctocpp/ctocpp_ref_counted.h"
 
 // Wrap a C structure with a C++ class.

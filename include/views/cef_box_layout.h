@@ -61,14 +61,14 @@ class CefBoxLayout : public CefLayout {
   // not resized. Flex values must not be negative.
   ///
   /*--cef()--*/
-  virtual void SetFlexForView(CefRefPtr<CefView> view, int flex) =0;
+  virtual void SetFlexForView(CefRefPtr<CefView> view, int flex) = 0;
 
   ///
   // Clears the flex for the given |view|, causing it to use the default flex
   // specified via CefBoxLayoutSettings.default_flex.
   ///
   /*--cef()--*/
-  virtual void ClearFlexForView(CefRefPtr<CefView> view) =0;
+  virtual void ClearFlexForView(CefRefPtr<CefView> view) = 0;
 };
 
 #endif  // CEF_INCLUDE_VIEWS_CEF_BOX_LAYOUT_H_

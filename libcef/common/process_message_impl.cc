@@ -2,16 +2,15 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#include "libcef/common/process_message_impl.h"
 #include "libcef/common/cef_messages.h"
+#include "libcef/common/process_message_impl.h"
 #include "libcef/common/values_impl.h"
 
 #include "base/logging.h"
 
 namespace {
 
-void CopyValue(const Cef_Request_Params& source,
-               Cef_Request_Params& target) {
+void CopyValue(const Cef_Request_Params& source, Cef_Request_Params& target) {
   target.name = source.name;
   auto copy = source.arguments.CreateDeepCopy();
   target.arguments.Swap(copy.get());
@@ -29,10 +28,12 @@ CefRefPtr<CefProcessMessage> CefProcessMessage::Create(const CefString& name) {
 CefProcessMessageImpl::CefProcessMessageImpl(Cef_Request_Params* value,
                                              bool will_delete,
                                              bool read_only)
-  : CefValueBase<CefProcessMessage, Cef_Request_Params>(
-        value, NULL, will_delete ? kOwnerWillDelete : kOwnerNoDelete,
-        read_only, NULL) {
-}
+    : CefValueBase<CefProcessMessage, Cef_Request_Params>(
+          value,
+          NULL,
+          will_delete ? kOwnerWillDelete : kOwnerNoDelete,
+          read_only,
+          NULL) {}
 
 bool CefProcessMessageImpl::CopyTo(Cef_Request_Params& target) {
   CEF_VALUE_VERIFY_RETURN(false, false);
@@ -63,8 +64,7 @@ CefString CefProcessMessageImpl::GetName() {
 CefRefPtr<CefListValue> CefProcessMessageImpl::GetArgumentList() {
   CEF_VALUE_VERIFY_RETURN(false, NULL);
   return CefListValueImpl::GetOrCreateRef(
-        const_cast<base::ListValue*>(&(const_value().arguments)),
-        const_cast<Cef_Request_Params*>(&const_value()),
-        read_only(),
-        controller());
+      const_cast<base::ListValue*>(&(const_value().arguments)),
+      const_cast<Cef_Request_Params*>(&const_value()), read_only(),
+      controller());
 }

@@ -58,11 +58,10 @@ void InitializeUITesting() {
 // CefBrowserViewImpl::HandleKeyboardEvent.
 class CefUnhandledKeyEventHandler : public ui::EventHandler {
  public:
-  CefUnhandledKeyEventHandler(CefWindowImpl* window_impl,
-                              views::Widget* widget)
-    : window_impl_(window_impl),
-      widget_(widget),
-      window_(widget->GetNativeWindow()) {
+  CefUnhandledKeyEventHandler(CefWindowImpl* window_impl, views::Widget* widget)
+      : window_impl_(window_impl),
+        widget_(widget),
+        window_(widget->GetNativeWindow()) {
     DCHECK(window_);
     window_->AddPostTargetHandler(this);
   }
@@ -159,7 +158,7 @@ void CefWindowImpl::Activate() {
 
 void CefWindowImpl::Deactivate() {
   CEF_REQUIRE_VALID_RETURN_VOID();
-  if (widget_&& widget_->CanActivate() && widget_->IsActive())
+  if (widget_ && widget_->CanActivate() && widget_->IsActive())
     widget_->Deactivate();
 }
 
@@ -419,7 +418,7 @@ void CefWindowImpl::ShowMenu(views::MenuButton* menu_button,
 
   if (!widget_)
     return;
-  
+
   CefMenuModelImpl* menu_model_impl =
       static_cast<CefMenuModelImpl*>(menu_model.get());
   if (!menu_model_impl || !menu_model_impl->model())
@@ -433,13 +432,12 @@ void CefWindowImpl::ShowMenu(views::MenuButton* menu_button,
   menu_runner_.reset(
       new views::MenuRunner(menu_model_impl->model(),
                             views::MenuRunner::ASYNC |
-                            (menu_button ? views::MenuRunner::HAS_MNEMONICS :
-                                           views::MenuRunner::CONTEXT_MENU),
+                                (menu_button ? views::MenuRunner::HAS_MNEMONICS
+                                             : views::MenuRunner::CONTEXT_MENU),
                             base::Bind(&CefWindowImpl::MenuClosed, this)));
 
   views::MenuRunner::RunResult result = menu_runner_->RunMenuAt(
-      widget_,
-      menu_button,
+      widget_, menu_button,
       gfx::Rect(gfx::Point(screen_point.x, screen_point.y), gfx::Size()),
       static_cast<views::MenuAnchorPosition>(anchor_position),
       ui::MENU_SOURCE_NONE);
@@ -504,8 +502,7 @@ CefWindowHandle CefWindowImpl::GetWindowHandle() {
   return view_util::GetWindowHandle(widget_);
 }
 
-void CefWindowImpl::SendKeyPress(int key_code,
-                                 uint32 event_flags) {
+void CefWindowImpl::SendKeyPress(int key_code, uint32 event_flags) {
   CEF_REQUIRE_VALID_RETURN_VOID();
   InitializeUITesting();
 
@@ -620,10 +617,7 @@ void CefWindowImpl::RemoveAllAccelerators() {
 }
 
 CefWindowImpl::CefWindowImpl(CefRefPtr<CefWindowDelegate> delegate)
-    : ParentClass(delegate),
-      widget_(nullptr),
-      destroyed_(false) {
-}
+    : ParentClass(delegate), widget_(nullptr), destroyed_(false) {}
 
 CefWindowView* CefWindowImpl::CreateRootView() {
   return new CefWindowView(delegate(), this);

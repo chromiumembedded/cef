@@ -85,9 +85,9 @@ inline void MemoryBarrier() {
 // variant of the target architecture is being used. This tests against
 // any known ARMv6 or ARMv7 variant, where it is possible to directly
 // use ldrex/strex instructions to implement fast atomic operations.
-#if defined(__ARM_ARCH_7__) || defined(__ARM_ARCH_7A__) || \
+#if defined(__ARM_ARCH_7__) || defined(__ARM_ARCH_7A__) ||  \
     defined(__ARM_ARCH_7R__) || defined(__ARM_ARCH_7M__) || \
-    defined(__ARM_ARCH_6__) || defined(__ARM_ARCH_6J__) || \
+    defined(__ARM_ARCH_6__) || defined(__ARM_ARCH_6J__) ||  \
     defined(__ARM_ARCH_6K__) || defined(__ARM_ARCH_6Z__) || \
     defined(__ARM_ARCH_6ZK__) || defined(__ARM_ARCH_6T2__)
 
@@ -103,16 +103,17 @@ inline Atomic32 NoBarrier_CompareAndSwap(volatile Atomic32* ptr,
     //   reloop = 0
     //   if (prev_value != old_value)
     //      reloop = STREX(ptr, new_value)
-    __asm__ __volatile__("    ldrex %0, [%3]\n"
-                         "    mov %1, #0\n"
-                         "    cmp %0, %4\n"
+    __asm__ __volatile__(
+        "    ldrex %0, [%3]\n"
+        "    mov %1, #0\n"
+        "    cmp %0, %4\n"
 #ifdef __thumb2__
-                         "    it eq\n"
+        "    it eq\n"
 #endif
-                         "    strexeq %1, %5, [%3]\n"
-                         : "=&r"(prev_value), "=&r"(reloop), "+m"(*ptr)
-                         : "r"(ptr), "r"(old_value), "r"(new_value)
-                         : "cc", "memory");
+        "    strexeq %1, %5, [%3]\n"
+        : "=&r"(prev_value), "=&r"(reloop), "+m"(*ptr)
+        : "r"(ptr), "r"(old_value), "r"(new_value)
+        : "cc", "memory");
   } while (reloop != 0);
   return prev_value;
 }
@@ -143,12 +144,13 @@ inline Atomic32 NoBarrier_AtomicIncrement(volatile Atomic32* ptr,
     //  value += increment
     //  reloop = STREX(ptr, value)
     //
-    __asm__ __volatile__("    ldrex %0, [%3]\n"
-                         "    add %0, %0, %4\n"
-                         "    strex %1, %0, [%3]\n"
-                         : "=&r"(value), "=&r"(reloop), "+m"(*ptr)
-                         : "r"(ptr), "r"(increment)
-                         : "cc", "memory");
+    __asm__ __volatile__(
+        "    ldrex %0, [%3]\n"
+        "    add %0, %0, %4\n"
+        "    strex %1, %0, [%3]\n"
+        : "=&r"(value), "=&r"(reloop), "+m"(*ptr)
+        : "r"(ptr), "r"(increment)
+        : "cc", "memory");
   } while (reloop);
   return value;
 }
@@ -171,18 +173,19 @@ inline Atomic32 NoBarrier_AtomicExchange(volatile Atomic32* ptr,
   do {
     // old_value = LDREX(ptr)
     // reloop = STREX(ptr, new_value)
-    __asm__ __volatile__("   ldrex %0, [%3]\n"
-                         "   strex %1, %4, [%3]\n"
-                         : "=&r"(old_value), "=&r"(reloop), "+m"(*ptr)
-                         : "r"(ptr), "r"(new_value)
-                         : "cc", "memory");
+    __asm__ __volatile__(
+        "   ldrex %0, [%3]\n"
+        "   strex %1, %4, [%3]\n"
+        : "=&r"(old_value), "=&r"(reloop), "+m"(*ptr)
+        : "r"(ptr), "r"(new_value)
+        : "cc", "memory");
   } while (reloop != 0);
   return old_value;
 }
 
 // This tests against any known ARMv5 variant.
 #elif defined(__ARM_ARCH_5__) || defined(__ARM_ARCH_5T__) || \
-      defined(__ARM_ARCH_5TE__) || defined(__ARM_ARCH_5TEJ__)
+    defined(__ARM_ARCH_5TE__) || defined(__ARM_ARCH_5TEJ__)
 
 // The kernel also provides a helper function to perform an atomic
 // compare-and-swap operation at the hard-wired address 0xffff0fc0.
@@ -281,7 +284,7 @@ inline Atomic32 Release_CompareAndSwap(volatile Atomic32* ptr,
 }
 
 #else
-#  error "Your CPU's ARM architecture is not supported yet"
+#error "Your CPU's ARM architecture is not supported yet"
 #endif
 
 // NOTE: Atomicity of the following load and store operations is only
@@ -301,7 +304,9 @@ inline void Release_Store(volatile Atomic32* ptr, Atomic32 value) {
   *ptr = value;
 }
 
-inline Atomic32 NoBarrier_Load(volatile const Atomic32* ptr) { return *ptr; }
+inline Atomic32 NoBarrier_Load(volatile const Atomic32* ptr) {
+  return *ptr;
+}
 
 inline Atomic32 Acquire_Load(volatile const Atomic32* ptr) {
   Atomic32 value = *ptr;

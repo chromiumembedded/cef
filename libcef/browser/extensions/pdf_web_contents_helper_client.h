@@ -10,8 +10,7 @@
 
 namespace extensions {
 
-class CefPDFWebContentsHelperClient
-    : public pdf::PDFWebContentsHelperClient {
+class CefPDFWebContentsHelperClient : public pdf::PDFWebContentsHelperClient {
  public:
   CefPDFWebContentsHelperClient();
   ~CefPDFWebContentsHelperClient() override;

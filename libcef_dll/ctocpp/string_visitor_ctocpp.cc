@@ -9,9 +9,10 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=1df4d5e3bf537c2a8668df657dc8eabe55bdb5ff$
+//
 
 #include "libcef_dll/ctocpp/string_visitor_ctocpp.h"
-
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
@@ -25,27 +26,32 @@ void CefStringVisitorCToCpp::Visit(const CefString& string) {
   // Unverified params: string
 
   // Execute
-  _struct->visit(_struct,
-      string.GetStruct());
+  _struct->visit(_struct, string.GetStruct());
 }
-
 
 // CONSTRUCTOR - Do not edit by hand.
 
-CefStringVisitorCToCpp::CefStringVisitorCToCpp() {
-}
+CefStringVisitorCToCpp::CefStringVisitorCToCpp() {}
 
-template<> cef_string_visitor_t* CefCToCppRefCounted<CefStringVisitorCToCpp,
-    CefStringVisitor, cef_string_visitor_t>::UnwrapDerived(CefWrapperType type,
-    CefStringVisitor* c) {
+template <>
+cef_string_visitor_t*
+CefCToCppRefCounted<CefStringVisitorCToCpp,
+                    CefStringVisitor,
+                    cef_string_visitor_t>::UnwrapDerived(CefWrapperType type,
+                                                         CefStringVisitor* c) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCppRefCounted<CefStringVisitorCToCpp,
-    CefStringVisitor, cef_string_visitor_t>::DebugObjCt = 0;
+template <>
+base::AtomicRefCount CefCToCppRefCounted<CefStringVisitorCToCpp,
+                                         CefStringVisitor,
+                                         cef_string_visitor_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCppRefCounted<CefStringVisitorCToCpp,
-    CefStringVisitor, cef_string_visitor_t>::kWrapperType = WT_STRING_VISITOR;
+template <>
+CefWrapperType CefCToCppRefCounted<CefStringVisitorCToCpp,
+                                   CefStringVisitor,
+                                   cef_string_visitor_t>::kWrapperType =
+    WT_STRING_VISITOR;

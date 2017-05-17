@@ -39,8 +39,7 @@ void RegisterWebUIControllerFactory();
 void BrowserURLHandlerCreated(content::BrowserURLHandler* handler);
 
 // Used to fire any asynchronous content updates.
-void DidFinishChromeLoad(CefRefPtr<CefFrame> frame,
-                         const GURL& validated_url);
+void DidFinishChromeLoad(CefRefPtr<CefFrame> frame, const GURL& validated_url);
 
 // Create a new ProtocolHandler that will filter the URLs passed to the default
 // "chrome" protocol handler and forward the rest to CEF's handler.

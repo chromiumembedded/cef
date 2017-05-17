@@ -24,11 +24,8 @@ using blink::WebRange;
 using blink::WebString;
 using blink::WebURL;
 
-
-CefDOMDocumentImpl::CefDOMDocumentImpl(CefBrowserImpl* browser,
-                                       WebFrame* frame)
-    : browser_(browser),
-      frame_(frame) {
+CefDOMDocumentImpl::CefDOMDocumentImpl(CefBrowserImpl* browser, WebFrame* frame)
+    : browser_(browser), frame_(frame) {
   const WebDocument& document = frame_->GetDocument();
   DCHECK(!document.IsNull());
 }

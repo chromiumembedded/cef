@@ -9,6 +9,8 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=a1320a64f63df47ffc59cdc4cf5859f1b877a0a7$
+//
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_PRINT_SETTINGS_CTOCPP_H_
 #define CEF_LIBCEF_DLL_CTOCPP_PRINT_SETTINGS_CTOCPP_H_
@@ -18,15 +20,16 @@
 #error This file can be included wrapper-side only
 #endif
 
-#include "include/cef_print_settings.h"
 #include "include/capi/cef_print_settings_capi.h"
+#include "include/cef_print_settings.h"
 #include "libcef_dll/ctocpp/ctocpp_ref_counted.h"
 
 // Wrap a C structure with a C++ class.
 // This class may be instantiated and accessed wrapper-side only.
 class CefPrintSettingsCToCpp
-    : public CefCToCppRefCounted<CefPrintSettingsCToCpp, CefPrintSettings,
-        cef_print_settings_t> {
+    : public CefCToCppRefCounted<CefPrintSettingsCToCpp,
+                                 CefPrintSettings,
+                                 cef_print_settings_t> {
  public:
   CefPrintSettingsCToCpp();
 
@@ -37,8 +40,8 @@ class CefPrintSettingsCToCpp
   void SetOrientation(bool landscape) OVERRIDE;
   bool IsLandscape() OVERRIDE;
   void SetPrinterPrintableArea(const CefSize& physical_size_device_units,
-      const CefRect& printable_area_device_units,
-      bool landscape_needs_flip) OVERRIDE;
+                               const CefRect& printable_area_device_units,
+                               bool landscape_needs_flip) OVERRIDE;
   void SetDeviceName(const CefString& name) OVERRIDE;
   CefString GetDeviceName() OVERRIDE;
   void SetDPI(int dpi) OVERRIDE;

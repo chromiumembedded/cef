@@ -61,13 +61,16 @@ void FillInDictionaryFromPdfPrintSettings(
                             !!pdf_settings.backgrounds_enabled);
   print_settings.SetBoolean(kSettingHeaderFooterEnabled,
                             !!pdf_settings.header_footer_enabled);
-  print_settings.SetInteger(kSettingScaleFactor,
-      pdf_settings.scale_factor > 0 ? pdf_settings.scale_factor : 100);
+  print_settings.SetInteger(kSettingScaleFactor, pdf_settings.scale_factor > 0
+                                                     ? pdf_settings.scale_factor
+                                                     : 100);
 
   if (pdf_settings.header_footer_enabled) {
-    print_settings.SetString(kSettingHeaderFooterTitle,
+    print_settings.SetString(
+        kSettingHeaderFooterTitle,
         CefString(&pdf_settings.header_footer_title).ToString16());
-    print_settings.SetString(kSettingHeaderFooterURL,
+    print_settings.SetString(
+        kSettingHeaderFooterURL,
         CefString(&pdf_settings.header_footer_url).ToString16());
   }
 
@@ -117,14 +120,15 @@ void StopWorker(int document_cookie) {
   scoped_refptr<PrinterQuery> printer_query =
       queue->PopPrinterQuery(document_cookie);
   if (printer_query.get()) {
-    BrowserThread::PostTask(BrowserThread::IO, FROM_HERE,
-                            base::Bind(&PrinterQuery::StopWorker,
-                                       printer_query));
+    BrowserThread::PostTask(
+        BrowserThread::IO, FROM_HERE,
+        base::Bind(&PrinterQuery::StopWorker, printer_query));
   }
 }
 
-scoped_refptr<base::RefCountedBytes>
-    GetDataFromHandle(base::SharedMemoryHandle handle, uint32_t data_size) {
+scoped_refptr<base::RefCountedBytes> GetDataFromHandle(
+    base::SharedMemoryHandle handle,
+    uint32_t data_size) {
   std::unique_ptr<base::SharedMemory> shared_buf =
       base::MakeUnique<base::SharedMemory>(handle, true);
 
@@ -153,8 +157,7 @@ void SavePdfFile(scoped_refptr<base::RefCountedBytes> data,
   bool ok = file.IsValid() && metafile.SaveTo(&file);
 
   if (!callback.is_null()) {
-    BrowserThread::PostTask(BrowserThread::UI,
-                            FROM_HERE,
+    BrowserThread::PostTask(BrowserThread::UI, FROM_HERE,
                             base::Bind(callback, ok));
   }
 }
@@ -169,8 +172,7 @@ struct CefPrintViewManager::PdfPrintState {
 };
 
 CefPrintViewManager::CefPrintViewManager(content::WebContents* web_contents)
-    : CefPrintViewManagerBase(web_contents) {
-}
+    : CefPrintViewManagerBase(web_contents) {}
 
 CefPrintViewManager::~CefPrintViewManager() {
   TerminatePdfPrintJob();
@@ -197,8 +199,7 @@ bool CefPrintViewManager::PrintToPDF(content::RenderFrameHost* rfh,
   pdf_print_state_->output_path_ = path;
   pdf_print_state_->callback_ = callback;
 
-  FillInDictionaryFromPdfPrintSettings(settings,
-                                       ++next_pdf_request_id_,
+  FillInDictionaryFromPdfPrintSettings(settings, ++next_pdf_request_id_,
                                        pdf_print_state_->settings_);
 
   rfh->Send(new PrintMsg_InitiatePrintPreview(rfh->GetRoutingID(),
@@ -233,8 +234,7 @@ bool CefPrintViewManager::OnMessageReceived(
   IPC_BEGIN_MESSAGE_MAP_WITH_PARAM(CefPrintViewManager, message,
                                    render_frame_host)
     IPC_MESSAGE_HANDLER(PrintHostMsg_DidShowPrintDialog, OnDidShowPrintDialog)
-    IPC_MESSAGE_HANDLER(PrintHostMsg_RequestPrintPreview,
-                        OnRequestPrintPreview)
+    IPC_MESSAGE_HANDLER(PrintHostMsg_RequestPrintPreview, OnRequestPrintPreview)
     IPC_MESSAGE_HANDLER(PrintHostMsg_MetafileReadyForPrinting,
                         OnMetafileReadyForPrinting)
     IPC_MESSAGE_UNHANDLED(handled = false)
@@ -244,8 +244,7 @@ bool CefPrintViewManager::OnMessageReceived(
          CefPrintViewManagerBase::OnMessageReceived(message, render_frame_host);
 }
 
-void CefPrintViewManager::OnDidShowPrintDialog(content::RenderFrameHost* rfh) {
-}
+void CefPrintViewManager::OnDidShowPrintDialog(content::RenderFrameHost* rfh) {}
 
 void CefPrintViewManager::OnRequestPrintPreview(
     const PrintHostMsg_RequestPrintPreview_Params&) {
@@ -253,9 +252,9 @@ void CefPrintViewManager::OnRequestPrintPreview(
   if (!pdf_print_state_)
     return;
 
-  pdf_print_state_->printing_rfh_->Send(new PrintMsg_PrintPreview(
-      pdf_print_state_->printing_rfh_->GetRoutingID(),
-      pdf_print_state_->settings_));
+  pdf_print_state_->printing_rfh_->Send(
+      new PrintMsg_PrintPreview(pdf_print_state_->printing_rfh_->GetRoutingID(),
+                                pdf_print_state_->settings_));
 }
 
 void CefPrintViewManager::OnMetafileReadyForPrinting(
@@ -280,8 +279,8 @@ void CefPrintViewManager::OnMetafileReadyForPrinting(
   pdf_print_state_.reset();
 
   // Save the PDF file to disk and then execute the callback.
-  BrowserThread::PostTask(BrowserThread::FILE,
-      FROM_HERE,
+  BrowserThread::PostTask(
+      BrowserThread::FILE, FROM_HERE,
       base::Bind(&SavePdfFile, data_bytes, output_path, print_callback));
 }
 
@@ -292,9 +291,8 @@ void CefPrintViewManager::TerminatePdfPrintJob() {
 
   if (!pdf_print_state_->callback_.is_null()) {
     // Execute the callback.
-    BrowserThread::PostTask(BrowserThread::UI,
-        FROM_HERE,
-        base::Bind(pdf_print_state_->callback_, false));
+    BrowserThread::PostTask(BrowserThread::UI, FROM_HERE,
+                            base::Bind(pdf_print_state_->callback_, false));
   }
 
   // Reset state information.

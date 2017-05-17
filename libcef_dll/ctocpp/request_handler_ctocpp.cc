@@ -9,26 +9,28 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=03df0b0112a7f9f6cdce88b34a972ec27042b92f$
+//
 
 #include "libcef_dll/cpptoc/auth_callback_cpptoc.h"
 #include "libcef_dll/cpptoc/browser_cpptoc.h"
 #include "libcef_dll/cpptoc/frame_cpptoc.h"
-#include "libcef_dll/cpptoc/request_cpptoc.h"
 #include "libcef_dll/cpptoc/request_callback_cpptoc.h"
+#include "libcef_dll/cpptoc/request_cpptoc.h"
 #include "libcef_dll/cpptoc/response_cpptoc.h"
-#include "libcef_dll/cpptoc/sslinfo_cpptoc.h"
 #include "libcef_dll/cpptoc/select_client_certificate_callback_cpptoc.h"
+#include "libcef_dll/cpptoc/sslinfo_cpptoc.h"
 #include "libcef_dll/cpptoc/x509certificate_cpptoc.h"
 #include "libcef_dll/ctocpp/request_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/resource_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/response_filter_ctocpp.h"
 
-
 // VIRTUAL METHODS - Body may be edited by hand.
 
 bool CefRequestHandlerCToCpp::OnBeforeBrowse(CefRefPtr<CefBrowser> browser,
-    CefRefPtr<CefFrame> frame, CefRefPtr<CefRequest> request,
-    bool is_redirect) {
+                                             CefRefPtr<CefFrame> frame,
+                                             CefRefPtr<CefRequest> request,
+                                             bool is_redirect) {
   cef_request_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_before_browse))
     return false;
@@ -49,19 +51,20 @@ bool CefRequestHandlerCToCpp::OnBeforeBrowse(CefRefPtr<CefBrowser> browser,
     return false;
 
   // Execute
-  int _retval = _struct->on_before_browse(_struct,
-      CefBrowserCppToC::Wrap(browser),
-      CefFrameCppToC::Wrap(frame),
-      CefRequestCppToC::Wrap(request),
-      is_redirect);
+  int _retval = _struct->on_before_browse(
+      _struct, CefBrowserCppToC::Wrap(browser), CefFrameCppToC::Wrap(frame),
+      CefRequestCppToC::Wrap(request), is_redirect);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
-bool CefRequestHandlerCToCpp::OnOpenURLFromTab(CefRefPtr<CefBrowser> browser,
-    CefRefPtr<CefFrame> frame, const CefString& target_url,
-    WindowOpenDisposition target_disposition, bool user_gesture) {
+bool CefRequestHandlerCToCpp::OnOpenURLFromTab(
+    CefRefPtr<CefBrowser> browser,
+    CefRefPtr<CefFrame> frame,
+    const CefString& target_url,
+    WindowOpenDisposition target_disposition,
+    bool user_gesture) {
   cef_request_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_open_urlfrom_tab))
     return false;
@@ -82,20 +85,19 @@ bool CefRequestHandlerCToCpp::OnOpenURLFromTab(CefRefPtr<CefBrowser> browser,
     return false;
 
   // Execute
-  int _retval = _struct->on_open_urlfrom_tab(_struct,
-      CefBrowserCppToC::Wrap(browser),
-      CefFrameCppToC::Wrap(frame),
-      target_url.GetStruct(),
-      target_disposition,
-      user_gesture);
+  int _retval = _struct->on_open_urlfrom_tab(
+      _struct, CefBrowserCppToC::Wrap(browser), CefFrameCppToC::Wrap(frame),
+      target_url.GetStruct(), target_disposition, user_gesture);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 CefRequestHandler::ReturnValue CefRequestHandlerCToCpp::OnBeforeResourceLoad(
-    CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame,
-    CefRefPtr<CefRequest> request, CefRefPtr<CefRequestCallback> callback) {
+    CefRefPtr<CefBrowser> browser,
+    CefRefPtr<CefFrame> frame,
+    CefRefPtr<CefRequest> request,
+    CefRefPtr<CefRequestCallback> callback) {
   cef_request_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_before_resource_load))
     return RV_CONTINUE;
@@ -120,9 +122,8 @@ CefRequestHandler::ReturnValue CefRequestHandlerCToCpp::OnBeforeResourceLoad(
     return RV_CONTINUE;
 
   // Execute
-  cef_return_value_t _retval = _struct->on_before_resource_load(_struct,
-      CefBrowserCppToC::Wrap(browser),
-      CefFrameCppToC::Wrap(frame),
+  cef_return_value_t _retval = _struct->on_before_resource_load(
+      _struct, CefBrowserCppToC::Wrap(browser), CefFrameCppToC::Wrap(frame),
       CefRequestCppToC::Wrap(request),
       CefRequestCallbackCppToC::Wrap(callback));
 
@@ -131,7 +132,8 @@ CefRequestHandler::ReturnValue CefRequestHandlerCToCpp::OnBeforeResourceLoad(
 }
 
 CefRefPtr<CefResourceHandler> CefRequestHandlerCToCpp::GetResourceHandler(
-    CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame,
+    CefRefPtr<CefBrowser> browser,
+    CefRefPtr<CefFrame> frame,
     CefRefPtr<CefRequest> request) {
   cef_request_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_resource_handler))
@@ -153,18 +155,20 @@ CefRefPtr<CefResourceHandler> CefRequestHandlerCToCpp::GetResourceHandler(
     return NULL;
 
   // Execute
-  cef_resource_handler_t* _retval = _struct->get_resource_handler(_struct,
-      CefBrowserCppToC::Wrap(browser),
-      CefFrameCppToC::Wrap(frame),
+  cef_resource_handler_t* _retval = _struct->get_resource_handler(
+      _struct, CefBrowserCppToC::Wrap(browser), CefFrameCppToC::Wrap(frame),
       CefRequestCppToC::Wrap(request));
 
   // Return type: refptr_same
   return CefResourceHandlerCToCpp::Wrap(_retval);
 }
 
-void CefRequestHandlerCToCpp::OnResourceRedirect(CefRefPtr<CefBrowser> browser,
-    CefRefPtr<CefFrame> frame, CefRefPtr<CefRequest> request,
-    CefRefPtr<CefResponse> response, CefString& new_url) {
+void CefRequestHandlerCToCpp::OnResourceRedirect(
+    CefRefPtr<CefBrowser> browser,
+    CefRefPtr<CefFrame> frame,
+    CefRefPtr<CefRequest> request,
+    CefRefPtr<CefResponse> response,
+    CefString& new_url) {
   cef_request_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_resource_redirect))
     return;
@@ -189,16 +193,16 @@ void CefRequestHandlerCToCpp::OnResourceRedirect(CefRefPtr<CefBrowser> browser,
     return;
 
   // Execute
-  _struct->on_resource_redirect(_struct,
-      CefBrowserCppToC::Wrap(browser),
-      CefFrameCppToC::Wrap(frame),
-      CefRequestCppToC::Wrap(request),
-      CefResponseCppToC::Wrap(response),
+  _struct->on_resource_redirect(
+      _struct, CefBrowserCppToC::Wrap(browser), CefFrameCppToC::Wrap(frame),
+      CefRequestCppToC::Wrap(request), CefResponseCppToC::Wrap(response),
       new_url.GetWritableStruct());
 }
 
-bool CefRequestHandlerCToCpp::OnResourceResponse(CefRefPtr<CefBrowser> browser,
-    CefRefPtr<CefFrame> frame, CefRefPtr<CefRequest> request,
+bool CefRequestHandlerCToCpp::OnResourceResponse(
+    CefRefPtr<CefBrowser> browser,
+    CefRefPtr<CefFrame> frame,
+    CefRefPtr<CefRequest> request,
     CefRefPtr<CefResponse> response) {
   cef_request_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_resource_response))
@@ -224,19 +228,19 @@ bool CefRequestHandlerCToCpp::OnResourceResponse(CefRefPtr<CefBrowser> browser,
     return false;
 
   // Execute
-  int _retval = _struct->on_resource_response(_struct,
-      CefBrowserCppToC::Wrap(browser),
-      CefFrameCppToC::Wrap(frame),
-      CefRequestCppToC::Wrap(request),
-      CefResponseCppToC::Wrap(response));
+  int _retval = _struct->on_resource_response(
+      _struct, CefBrowserCppToC::Wrap(browser), CefFrameCppToC::Wrap(frame),
+      CefRequestCppToC::Wrap(request), CefResponseCppToC::Wrap(response));
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 CefRefPtr<CefResponseFilter> CefRequestHandlerCToCpp::GetResourceResponseFilter(
-    CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame,
-    CefRefPtr<CefRequest> request, CefRefPtr<CefResponse> response) {
+    CefRefPtr<CefBrowser> browser,
+    CefRefPtr<CefFrame> frame,
+    CefRefPtr<CefRequest> request,
+    CefRefPtr<CefResponse> response) {
   cef_request_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_resource_response_filter))
     return NULL;
@@ -262,20 +266,20 @@ CefRefPtr<CefResponseFilter> CefRequestHandlerCToCpp::GetResourceResponseFilter(
 
   // Execute
   cef_response_filter_t* _retval = _struct->get_resource_response_filter(
-      _struct,
-      CefBrowserCppToC::Wrap(browser),
-      CefFrameCppToC::Wrap(frame),
-      CefRequestCppToC::Wrap(request),
-      CefResponseCppToC::Wrap(response));
+      _struct, CefBrowserCppToC::Wrap(browser), CefFrameCppToC::Wrap(frame),
+      CefRequestCppToC::Wrap(request), CefResponseCppToC::Wrap(response));
 
   // Return type: refptr_same
   return CefResponseFilterCToCpp::Wrap(_retval);
 }
 
 void CefRequestHandlerCToCpp::OnResourceLoadComplete(
-    CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame,
-    CefRefPtr<CefRequest> request, CefRefPtr<CefResponse> response,
-    URLRequestStatus status, int64 received_content_length) {
+    CefRefPtr<CefBrowser> browser,
+    CefRefPtr<CefFrame> frame,
+    CefRefPtr<CefRequest> request,
+    CefRefPtr<CefResponse> response,
+    URLRequestStatus status,
+    int64 received_content_length) {
   cef_request_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_resource_load_complete))
     return;
@@ -300,18 +304,20 @@ void CefRequestHandlerCToCpp::OnResourceLoadComplete(
     return;
 
   // Execute
-  _struct->on_resource_load_complete(_struct,
-      CefBrowserCppToC::Wrap(browser),
-      CefFrameCppToC::Wrap(frame),
-      CefRequestCppToC::Wrap(request),
-      CefResponseCppToC::Wrap(response),
-      status,
-      received_content_length);
+  _struct->on_resource_load_complete(
+      _struct, CefBrowserCppToC::Wrap(browser), CefFrameCppToC::Wrap(frame),
+      CefRequestCppToC::Wrap(request), CefResponseCppToC::Wrap(response),
+      status, received_content_length);
 }
 
-bool CefRequestHandlerCToCpp::GetAuthCredentials(CefRefPtr<CefBrowser> browser,
-    CefRefPtr<CefFrame> frame, bool isProxy, const CefString& host, int port,
-    const CefString& realm, const CefString& scheme,
+bool CefRequestHandlerCToCpp::GetAuthCredentials(
+    CefRefPtr<CefBrowser> browser,
+    CefRefPtr<CefFrame> frame,
+    bool isProxy,
+    const CefString& host,
+    int port,
+    const CefString& realm,
+    const CefString& scheme,
     CefRefPtr<CefAuthCallback> callback) {
   cef_request_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_auth_credentials))
@@ -338,22 +344,19 @@ bool CefRequestHandlerCToCpp::GetAuthCredentials(CefRefPtr<CefBrowser> browser,
   // Unverified params: realm, scheme
 
   // Execute
-  int _retval = _struct->get_auth_credentials(_struct,
-      CefBrowserCppToC::Wrap(browser),
-      CefFrameCppToC::Wrap(frame),
-      isProxy,
-      host.GetStruct(),
-      port,
-      realm.GetStruct(),
-      scheme.GetStruct(),
+  int _retval = _struct->get_auth_credentials(
+      _struct, CefBrowserCppToC::Wrap(browser), CefFrameCppToC::Wrap(frame),
+      isProxy, host.GetStruct(), port, realm.GetStruct(), scheme.GetStruct(),
       CefAuthCallbackCppToC::Wrap(callback));
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
-bool CefRequestHandlerCToCpp::OnQuotaRequest(CefRefPtr<CefBrowser> browser,
-    const CefString& origin_url, int64 new_size,
+bool CefRequestHandlerCToCpp::OnQuotaRequest(
+    CefRefPtr<CefBrowser> browser,
+    const CefString& origin_url,
+    int64 new_size,
     CefRefPtr<CefRequestCallback> callback) {
   cef_request_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_quota_request))
@@ -375,18 +378,17 @@ bool CefRequestHandlerCToCpp::OnQuotaRequest(CefRefPtr<CefBrowser> browser,
     return false;
 
   // Execute
-  int _retval = _struct->on_quota_request(_struct,
-      CefBrowserCppToC::Wrap(browser),
-      origin_url.GetStruct(),
-      new_size,
-      CefRequestCallbackCppToC::Wrap(callback));
+  int _retval = _struct->on_quota_request(
+      _struct, CefBrowserCppToC::Wrap(browser), origin_url.GetStruct(),
+      new_size, CefRequestCallbackCppToC::Wrap(callback));
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 void CefRequestHandlerCToCpp::OnProtocolExecution(CefRefPtr<CefBrowser> browser,
-    const CefString& url, bool& allow_os_execution) {
+                                                  const CefString& url,
+                                                  bool& allow_os_execution) {
   cef_request_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_protocol_execution))
     return;
@@ -406,18 +408,19 @@ void CefRequestHandlerCToCpp::OnProtocolExecution(CefRefPtr<CefBrowser> browser,
   int allow_os_executionInt = allow_os_execution;
 
   // Execute
-  _struct->on_protocol_execution(_struct,
-      CefBrowserCppToC::Wrap(browser),
-      url.GetStruct(),
-      &allow_os_executionInt);
+  _struct->on_protocol_execution(_struct, CefBrowserCppToC::Wrap(browser),
+                                 url.GetStruct(), &allow_os_executionInt);
 
   // Restore param:allow_os_execution; type: bool_byref
-  allow_os_execution = allow_os_executionInt?true:false;
+  allow_os_execution = allow_os_executionInt ? true : false;
 }
 
-bool CefRequestHandlerCToCpp::OnCertificateError(CefRefPtr<CefBrowser> browser,
-    cef_errorcode_t cert_error, const CefString& request_url,
-    CefRefPtr<CefSSLInfo> ssl_info, CefRefPtr<CefRequestCallback> callback) {
+bool CefRequestHandlerCToCpp::OnCertificateError(
+    CefRefPtr<CefBrowser> browser,
+    cef_errorcode_t cert_error,
+    const CefString& request_url,
+    CefRefPtr<CefSSLInfo> ssl_info,
+    CefRefPtr<CefRequestCallback> callback) {
   cef_request_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_certificate_error))
     return false;
@@ -442,20 +445,21 @@ bool CefRequestHandlerCToCpp::OnCertificateError(CefRefPtr<CefBrowser> browser,
     return false;
 
   // Execute
-  int _retval = _struct->on_certificate_error(_struct,
-      CefBrowserCppToC::Wrap(browser),
-      cert_error,
-      request_url.GetStruct(),
-      CefSSLInfoCppToC::Wrap(ssl_info),
+  int _retval = _struct->on_certificate_error(
+      _struct, CefBrowserCppToC::Wrap(browser), cert_error,
+      request_url.GetStruct(), CefSSLInfoCppToC::Wrap(ssl_info),
       CefRequestCallbackCppToC::Wrap(callback));
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 bool CefRequestHandlerCToCpp::OnSelectClientCertificate(
-    CefRefPtr<CefBrowser> browser, bool isProxy, const CefString& host,
-    int port, const X509CertificateList& certificates,
+    CefRefPtr<CefBrowser> browser,
+    bool isProxy,
+    const CefString& host,
+    int port,
+    const X509CertificateList& certificates,
     CefRefPtr<CefSelectClientCertificateCallback> callback) {
   cef_request_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_select_client_certificate))
@@ -490,25 +494,21 @@ bool CefRequestHandlerCToCpp::OnSelectClientCertificate(
   }
 
   // Execute
-  int _retval = _struct->on_select_client_certificate(_struct,
-      CefBrowserCppToC::Wrap(browser),
-      isProxy,
-      host.GetStruct(),
-      port,
-      certificatesCount,
-      certificatesList,
+  int _retval = _struct->on_select_client_certificate(
+      _struct, CefBrowserCppToC::Wrap(browser), isProxy, host.GetStruct(), port,
+      certificatesCount, certificatesList,
       CefSelectClientCertificateCallbackCppToC::Wrap(callback));
 
   // Restore param:certificates; type: refptr_vec_diff_byref_const
   if (certificatesList)
-    delete [] certificatesList;
+    delete[] certificatesList;
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 void CefRequestHandlerCToCpp::OnPluginCrashed(CefRefPtr<CefBrowser> browser,
-    const CefString& plugin_path) {
+                                              const CefString& plugin_path) {
   cef_request_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_plugin_crashed))
     return;
@@ -525,9 +525,8 @@ void CefRequestHandlerCToCpp::OnPluginCrashed(CefRefPtr<CefBrowser> browser,
     return;
 
   // Execute
-  _struct->on_plugin_crashed(_struct,
-      CefBrowserCppToC::Wrap(browser),
-      plugin_path.GetStruct());
+  _struct->on_plugin_crashed(_struct, CefBrowserCppToC::Wrap(browser),
+                             plugin_path.GetStruct());
 }
 
 void CefRequestHandlerCToCpp::OnRenderViewReady(CefRefPtr<CefBrowser> browser) {
@@ -543,12 +542,12 @@ void CefRequestHandlerCToCpp::OnRenderViewReady(CefRefPtr<CefBrowser> browser) {
     return;
 
   // Execute
-  _struct->on_render_view_ready(_struct,
-      CefBrowserCppToC::Wrap(browser));
+  _struct->on_render_view_ready(_struct, CefBrowserCppToC::Wrap(browser));
 }
 
 void CefRequestHandlerCToCpp::OnRenderProcessTerminated(
-    CefRefPtr<CefBrowser> browser, TerminationStatus status) {
+    CefRefPtr<CefBrowser> browser,
+    TerminationStatus status) {
   cef_request_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_render_process_terminated))
     return;
@@ -561,29 +560,33 @@ void CefRequestHandlerCToCpp::OnRenderProcessTerminated(
     return;
 
   // Execute
-  _struct->on_render_process_terminated(_struct,
-      CefBrowserCppToC::Wrap(browser),
-      status);
+  _struct->on_render_process_terminated(
+      _struct, CefBrowserCppToC::Wrap(browser), status);
 }
-
 
 // CONSTRUCTOR - Do not edit by hand.
 
-CefRequestHandlerCToCpp::CefRequestHandlerCToCpp() {
-}
+CefRequestHandlerCToCpp::CefRequestHandlerCToCpp() {}
 
-template<> cef_request_handler_t* CefCToCppRefCounted<CefRequestHandlerCToCpp,
-    CefRequestHandler, cef_request_handler_t>::UnwrapDerived(
-    CefWrapperType type, CefRequestHandler* c) {
+template <>
+cef_request_handler_t* CefCToCppRefCounted<
+    CefRequestHandlerCToCpp,
+    CefRequestHandler,
+    cef_request_handler_t>::UnwrapDerived(CefWrapperType type,
+                                          CefRequestHandler* c) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCppRefCounted<CefRequestHandlerCToCpp,
-    CefRequestHandler, cef_request_handler_t>::DebugObjCt = 0;
+template <>
+base::AtomicRefCount CefCToCppRefCounted<CefRequestHandlerCToCpp,
+                                         CefRequestHandler,
+                                         cef_request_handler_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCppRefCounted<CefRequestHandlerCToCpp,
-    CefRequestHandler, cef_request_handler_t>::kWrapperType =
+template <>
+CefWrapperType CefCToCppRefCounted<CefRequestHandlerCToCpp,
+                                   CefRequestHandler,
+                                   cef_request_handler_t>::kWrapperType =
     WT_REQUEST_HANDLER;

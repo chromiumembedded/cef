@@ -9,8 +9,8 @@
 #include <libxml/xmlreader.h>
 #include <sstream>
 
-#include "include/cef_xml_reader.h"
 #include "base/threading/platform_thread.h"
+#include "include/cef_xml_reader.h"
 
 // Implementation of CefXmlReader
 class CefXmlReaderImpl : public CefXmlReader {
@@ -20,7 +20,8 @@ class CefXmlReaderImpl : public CefXmlReader {
 
   // Initialize the reader context.
   bool Initialize(CefRefPtr<CefStreamReader> stream,
-                  EncodingType encodingType, const CefString& URI);
+                  EncodingType encodingType,
+                  const CefString& URI);
 
   bool MoveToNextNode() override;
   bool Close() override;
