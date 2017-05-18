@@ -181,8 +181,7 @@ struct CompileAssert {};
 
 #endif  // !USING_CHROMIUM_INCLUDES
 
-#if !defined(ALLOW_THIS_IN_INITIALIZER_LIST)
-#if defined(COMPILER_MSVC)
+#if !defined(MSVC_PUSH_DISABLE_WARNING) && defined(COMPILER_MSVC)
 
 // MSVC_PUSH_DISABLE_WARNING pushes |n| onto a stack of warnings to be disabled.
 // The warning remains disabled until popped by MSVC_POP_WARNING.
@@ -197,6 +196,10 @@ struct CompileAssert {};
 // Pop effects of innermost MSVC_PUSH_* macro.
 #define MSVC_POP_WARNING() __pragma(warning(pop))
 
+#endif  // !defined(MSVC_PUSH_DISABLE_WARNING) && defined(COMPILER_MSVC)
+
+#if !defined(ALLOW_THIS_IN_INITIALIZER_LIST)
+#if defined(COMPILER_MSVC)
 // Allows |this| to be passed as an argument in constructor initializer lists.
 // This uses push/pop instead of the seemingly simpler suppress feature to avoid
 // having the warning be disabled for more than just |code|.
@@ -210,9 +213,7 @@ struct CompileAssert {};
   MSVC_PUSH_DISABLE_WARNING(4355)            \
   code MSVC_POP_WARNING()
 #else  // !COMPILER_MSVC
-
 #define ALLOW_THIS_IN_INITIALIZER_LIST(code) code
-
 #endif  // !COMPILER_MSVC
 #endif  // !ALLOW_THIS_IN_INITIALIZER_LIST
 
