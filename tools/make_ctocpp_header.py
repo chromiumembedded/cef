@@ -119,31 +119,17 @@ def make_ctocpp_header(header, clsname):
 
     result += '#endif  // CEF_LIBCEF_DLL_CTOCPP_'+defname+'_CTOCPP_H_'
 
-    return wrap_code(result)
+    return result
 
 
-def write_ctocpp_header(header, clsname, dir, backup):
+def write_ctocpp_header(header, clsname, dir):
     # give the output file the same directory offset as the input file
     cls = header.get_class(clsname)
     dir = os.path.dirname(os.path.join(dir, cls.get_file_name()))
     file = os.path.join(dir, get_capi_name(clsname[3:], False)+'_ctocpp.h')
 
-    if path_exists(file):
-        oldcontents = read_file(file)
-    else:
-        oldcontents = ''
-
     newcontents = make_ctocpp_header(header, clsname)
-    if newcontents != oldcontents:
-        if backup and oldcontents != '':
-            backup_file(file)
-        file_dir = os.path.split(file)[0]
-        if not os.path.isdir(file_dir):
-            make_dir(file_dir)
-        write_file(file, newcontents)
-        return True
-
-    return False
+    return (file, newcontents)
 
 
 # test the module

@@ -23,9 +23,7 @@ def make_cpptoc_function_impl_existing(cls, name, func, impl, defined_names):
     if len(changes) > 0:
         notify(name+' prototype changed')
 
-    return wrap_code(make_cpptoc_impl_proto(name, func, parts))+'{'+ \
-           changes+impl['body']+'\n}\n'
-    return result
+    return make_cpptoc_impl_proto(name, func, parts)+'{'+changes+impl['body']+'\n}\n\n'
 
 def make_cpptoc_function_impl_new(cls, name, func, defined_names):
     # retrieve the C API prototype parts
@@ -62,7 +60,7 @@ def make_cpptoc_function_impl_new(cls, name, func, defined_names):
         result += '\n  #pragma message("Warning: "__FILE__": '+name+' is not implemented")'
         result += '\n  // END DELETE BEFORE MODIFYING'
         result += '\n}\n\n'
-        return wrap_code(result)
+        return result
 
     result += '\n  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING\n'
 
@@ -454,8 +452,8 @@ def make_cpptoc_function_impl_new(cls, name, func, defined_names):
     if len(result) != result_len:
         result += '\n'
 
-    result += '}\n'
-    return wrap_code(result)
+    result += '}\n\n'
+    return result
 
 def make_cpptoc_function_impl(cls, funcs, existing, prefixname, defined_names):
     impl = ''
@@ -633,7 +631,7 @@ def make_cpptoc_class_impl(header, clsname, impl):
              '#endif\n\n'+ \
              'template<> CefWrapperType '+parent_sig+'::kWrapperType = '+get_wrapper_type_enum(clsname)+';'
 
-    result += '\n\n'+wrap_code(const)
+    result += '\n\n'+const
 
     return result
 
@@ -671,7 +669,7 @@ def make_cpptoc_global_impl(header, impl):
 
     return result
 
-def write_cpptoc_impl(header, clsname, dir, backup):
+def write_cpptoc_impl(header, clsname, dir):
     if clsname is None:
         # global file
         file = dir
@@ -691,16 +689,7 @@ def write_cpptoc_impl(header, clsname, dir, backup):
         newcontents = make_cpptoc_global_impl(header, oldcontents)
     else:
         newcontents = make_cpptoc_class_impl(header, clsname, oldcontents)
-    if newcontents != oldcontents:
-        if backup and oldcontents != '':
-            backup_file(file)
-        file_dir = os.path.split(file)[0]
-        if not os.path.isdir(file_dir):
-            make_dir(file_dir)
-        write_file(file, newcontents)
-        return True
-
-    return False
+    return (file, newcontents)
 
 
 # test the module

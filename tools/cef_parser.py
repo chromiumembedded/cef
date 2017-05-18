@@ -27,73 +27,6 @@ def wrap_text(text, indent = '', maxchars = 80):
         result += indent+line+'\n'
     return result
 
-def wrap_code(code, indent = '    ', maxchars = 80, splitchars = '(=,'):
-    """ Wrap the code lines to the specified number of characters. If
-    necessary a line will be broken and wrapped after one of the split
-    characters.
-    """
-    output = ''
-
-    # normalize line endings
-    code = code.replace("\r\n", "\n")
-
-    # break the code chunk into lines
-    lines = string.split(code, '\n')
-    for line in lines:
-        if len(line) <= maxchars:
-            # line is short enough that it doesn't need to be wrapped
-            output += line + '\n'
-            continue
-
-        # retrieve the whitespace at the beginning of the line for later use
-        # as padding
-        ws = ''
-        for char in line:
-            if char.isspace():
-                ws += char
-            else:
-                break
-
-        # iterate over all characters in the string keeping track of where the
-        # last valid break character was found and wrapping the line
-        # accordingly
-        lastsplit = 0
-        nextsplit = -1
-        splitct = 0
-        pos = 0
-        for char in line:
-            if splitchars.find(char) >= 0:
-                # a new split position has been found
-                nextsplit = pos
-            size = pos - lastsplit + 1
-            if splitct > 0:
-                size += len(ws) + len(indent)
-            if size >= maxchars:
-                # the line is too long
-                section = line[lastsplit:nextsplit+1]
-                if len(section) > 0:
-                    # output the line portion between the last split and the
-                    # next split
-                    if splitct > 0:
-                        # start a new line and trim the line section
-                        output += '\n'+ws+indent
-                        section = string.strip(section)
-                    output += section
-                    lastsplit = nextsplit + 1
-                    splitct += 1
-            pos += 1
-        if len(line) - lastsplit > 0:
-            # output the remainder of the line
-            section = line[lastsplit:]
-            if splitct > 0:
-                # start a new line and trim the line section
-                output += '\n'+ws+indent
-                section = string.strip(section)
-            output += section
-        output += '\n'
-
-    return output
-
 def is_base_class(clsname):
     """ Returns true if |clsname| is a known base (root) class in the object
         hierarchy.
@@ -392,8 +325,8 @@ _cre_retval = '([A-Za-z0-9_<>:,\*\&]{1,})'
 _cre_typedef = '([A-Za-z0-9_<>:,\*\&\s]{1,})'
 # regex for matching function return value and name combination
 _cre_func   = '([A-Za-z][A-Za-z0-9_<>:,\*\&\s]{1,})'
-# regex for matching virtual function modifiers
-_cre_vfmod  = '([A-Za-z0-9_]{0,})'
+# regex for matching virtual function modifiers + arbitrary whitespace
+_cre_vfmod  = '([\sA-Za-z0-9_]{0,})'
 # regex for matching arbitrary whitespace
 _cre_space  = '[\s]{1,}'
 # regex for matching optional virtual keyword
@@ -502,6 +435,8 @@ def get_copyright():
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=$$HASH$$$
+//
 
 """
     # add the copyright year
@@ -598,10 +533,34 @@ class obj_header:
 
             # build the class objects
             for attrib, name, parent_name, body in list:
+                # Style may place the ':' on the next line.
                 comment = get_comment(data, name+' :')
+                if len(comment) == 0:
+                  comment = get_comment(data, name+"\n")
                 validate_comment(filename, name, comment)
                 self.classes.append(
                     obj_class(self, filename, attrib, name, parent_name, body,
+                              comment, includes, forward_declares))
+
+        # extract empty classes
+        p = re.compile('\n'+_cre_attrib+
+                       '\nclass'+_cre_space+_cre_cfname+_cre_space+
+                       ':'+_cre_space+'public'+_cre_virtual+
+                       _cre_space+_cre_cfname+_cre_space+
+                       '{};', re.MULTILINE | re.DOTALL)
+        list = p.findall(data)
+        if len(list) > 0:
+            added = True
+
+            # build the class objects
+            for attrib, name, parent_name in list:
+                # Style may place the ':' on the next line.
+                comment = get_comment(data, name+' :')
+                if len(comment) == 0:
+                  comment = get_comment(data, name+"\n")
+                validate_comment(filename, name, comment)
+                self.classes.append(
+                    obj_class(self, filename, attrib, name, parent_name, "",
                               comment, includes, forward_declares))
 
         if added:
@@ -800,7 +759,7 @@ class obj_class:
 
         # extract virtual functions
         p = re.compile('\n'+_cre_space+_cre_attrib+'\n'+_cre_space+'virtual'+
-                       _cre_space+_cre_func+'\((.*?)\)'+_cre_space+_cre_vfmod,
+                       _cre_space+_cre_func+'\((.*?)\)'+_cre_vfmod,
                        re.MULTILINE | re.DOTALL)
         list = p.findall(body)
 
@@ -811,7 +770,7 @@ class obj_class:
             validate_comment(filename, retval, comment)
             self.virtualfuncs.append(
                 obj_function_virtual(self, attrib, retval, argval, comment,
-                                     vfmod))
+                                     vfmod.strip()))
 
     def __repr__(self):
         result = '/* '+dict_to_str(self.attribs)+' */ class '+self.name+"\n{"
@@ -2038,7 +1997,7 @@ if __name__ == "__main__":
     sys.stdout.write('\n')
 
     # output the parsed C++ data
-    sys.stdout.write(wrap_code(str(header), '\t'))
+    sys.stdout.write(str(header))
 
     # output the C API formatted data
     defined_names = header.get_defined_structs()
@@ -2069,4 +2028,4 @@ if __name__ == "__main__":
             for func in funcs:
                 result += func.get_capi_proto(defined_names)+';\n'
             result += '\n'
-    sys.stdout.write(wrap_code(result, '\t'))
+    sys.stdout.write(result)

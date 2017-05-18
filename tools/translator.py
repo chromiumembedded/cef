@@ -4,6 +4,9 @@
 
 import sys
 from cef_parser import *
+from clang_util import clang_format
+from file_util import *
+import hashlib
 from make_capi_header import *
 from make_cpptoc_header import *
 from make_cpptoc_impl import *
@@ -32,6 +35,9 @@ parser.add_option('--root-dir', dest='rootdir', metavar='DIR',
 parser.add_option('--backup',
                   action='store_true', dest='backup', default=False,
                   help='create a backup of modified files')
+parser.add_option('--force',
+                  action='store_true', dest='force', default=False,
+                  help='force rewrite of the file')
 parser.add_option('-c', '--classes', dest='classes', action='append',
                   help='only translate the specified classes')
 parser.add_option('-q', '--quiet',
@@ -76,24 +82,80 @@ header.add_directory(cpp_header_dir, excluded_files)
 header.add_directory(cpp_header_test_dir)
 header.add_directory(cpp_header_views_dir)
 
+
+# Track the number of files that were written.
 writect = 0
 
-#output the C API header
+def update_file(file, newcontents):
+    """ Replaces the contents of |file| with |newcontents| if necessary. """
+    oldcontents = ''
+    oldhash = ''
+
+    if newcontents[-1:] != "\n":
+        # Add newline at end of file.
+        newcontents += "\n"
+
+    # clang-format is slow so we don't want to apply it if the pre-formatted
+    # content hasn't changed. To check for changes we embed a hash of the pre-
+    # formatted content in the resulting file.
+    hash_start = "$hash="
+    hash_end = "$"
+    hash_token = "$$HASH$$"
+
+    if not options.force and path_exists(file):
+        oldcontents = read_file(file)
+
+        # Extract the existing hash.
+        start = oldcontents.find(hash_start)
+        if start > 0:
+            end = oldcontents.find(hash_end, start + len(hash_start))
+            if end > 0:
+                oldhash = oldcontents[start + len(hash_start):end]
+
+    # Compute the new hash.
+    rev = hashlib.sha1(newcontents).digest();
+    newhash = ''.join(format(ord(i),'0>2x') for i in rev)
+
+    if oldhash == newhash:
+        # Pre-formatted contents have not changed.
+        return
+
+    newcontents = newcontents.replace(hash_token, newhash, 1)
+
+    # Apply clang-format for C/C++ files.
+    if os.path.splitext(file)[1][1:] in ('cc', 'cpp', 'h'):
+        result = clang_format(newcontents)
+        if result != None:
+            newcontents = result
+        else:
+            raise Exception("Call to clang-format failed")
+
+    if options.backup and oldcontents != '':
+        backup_file(file)
+
+    filedir = os.path.split(file)[0]
+    if not os.path.isdir(filedir):
+        make_dir(filedir)
+
+    write_file(file, newcontents)
+
+    global writect
+    writect += 1
+
+
+# output the C API header
 if not options.quiet:
     sys.stdout.write('In C API header directory '+capi_header_dir+'...\n')
 filenames = sorted(header.get_file_names())
 for filename in filenames:
     if not options.quiet:
         sys.stdout.write('Generating '+filename+' C API header...\n')
-    writect += write_capi_header(header, capi_header_dir, filename,
-                                 options.backup)
+    update_file(*write_capi_header(header, capi_header_dir, filename))
 
 # output the wrapper types header
 if not options.quiet:
     sys.stdout.write('Generating wrapper types header...\n')
-writect += write_wrapper_types_header(header,
-                                      wrapper_types_header,
-                                      options.backup)
+update_file(*write_wrapper_types_header(header, wrapper_types_header))
 
 # build the list of classes to parse
 allclasses = header.get_class_names()
@@ -111,12 +173,12 @@ classes = sorted(classes)
 # output CppToC global file
 if not options.quiet:
     sys.stdout.write('Generating CppToC global implementation...\n')
-writect += write_cpptoc_impl(header, None, cpptoc_global_impl, options.backup)
+update_file(*write_cpptoc_impl(header, None, cpptoc_global_impl))
 
 # output CToCpp global file
 if not options.quiet:
     sys.stdout.write('Generating CToCpp global implementation...\n')
-writect += write_ctocpp_impl(header, None, ctocpp_global_impl, options.backup)
+update_file(*write_ctocpp_impl(header, None, ctocpp_global_impl))
 
 # output CppToC class files
 if not options.quiet:
@@ -124,10 +186,10 @@ if not options.quiet:
 for cls in classes:
     if not options.quiet:
         sys.stdout.write('Generating '+cls+'CppToC class header...\n')
-    writect += write_cpptoc_header(header, cls, cpptoc_dir, options.backup)
+    update_file(*write_cpptoc_header(header, cls, cpptoc_dir))
     if not options.quiet:
         sys.stdout.write('Generating '+cls+'CppToC class implementation...\n')
-    writect += write_cpptoc_impl(header, cls, cpptoc_dir, options.backup)
+    update_file(*write_cpptoc_impl(header, cls, cpptoc_dir))
 
 # output CppToC class files
 if not options.quiet:
@@ -135,20 +197,20 @@ if not options.quiet:
 for cls in classes:
     if not options.quiet:
         sys.stdout.write('Generating '+cls+'CToCpp class header...\n')
-    writect += write_ctocpp_header(header, cls, ctocpp_dir, options.backup)
+    update_file(*write_ctocpp_header(header, cls, ctocpp_dir))
     if not options.quiet:
         sys.stdout.write('Generating '+cls+'CToCpp class implementation...\n')
-    writect += write_ctocpp_impl(header, cls, ctocpp_dir, options.backup)
+    update_file(*write_ctocpp_impl(header, cls, ctocpp_dir))
 
 # output the gypi file
 if not options.quiet:
     sys.stdout.write('Generating '+gypi_file+' file...\n')
-writect += write_gypi_file(header, gypi_file, options.backup)
+update_file(*write_gypi_file(header, gypi_file))
 
 # output the views stub file
 if not options.quiet:
     sys.stdout.write('Generating '+views_stub_impl+' file...\n')
-writect += write_views_stub_impl(header, views_stub_impl, options.backup)
+update_file(*write_views_stub_impl(header, views_stub_impl))
 
 if not options.quiet:
     sys.stdout.write('Done - Wrote '+str(writect)+' files.\n')
