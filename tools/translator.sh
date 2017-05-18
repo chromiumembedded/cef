@@ -1,2 +1,2 @@
 #!/bin/sh
-python translator.py --root-dir ..
+python translator.py --root-dir .. $@

@@ -17,6 +17,8 @@ def make_gypi_file(header):
 # by hand. See the translator.README.txt file in the tools directory for
 # more information.
 #
+# $hash=$$HASH$$$
+#
 
 {
   'variables': {
@@ -81,20 +83,9 @@ def make_gypi_file(header):
 
     return result
 
-def write_gypi_file(header, file, backup):
-    if path_exists(file):
-        oldcontents = read_file(file)
-    else:
-        oldcontents = ''
-    
+def write_gypi_file(header, file):
     newcontents = make_gypi_file(header)
-    if newcontents != oldcontents:
-        if backup and oldcontents != '':
-            backup_file(file)
-        write_file(file, newcontents)
-        return True
-    
-    return False
+    return (file, newcontents)
 
 
 # test the module

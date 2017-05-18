@@ -31,8 +31,8 @@ def make_ctocpp_function_impl_existing(clsname, name, func, impl):
     if len(changes) > 0:
         notify(name+' prototype changed')
 
-    return wrap_code(make_ctocpp_impl_proto(clsname, name, func, parts))+'{'+ \
-           changes+impl['body']+'\n}\n'
+    return make_ctocpp_impl_proto(clsname, name, func, parts)+'{'+ \
+           changes+impl['body']+'\n}\n\n'
 
 def make_ctocpp_function_impl_new(clsname, name, func):
     # build the C++ prototype
@@ -91,7 +91,7 @@ def make_ctocpp_function_impl_new(clsname, name, func):
         result += '\n  #pragma message("Warning: "__FILE__": '+name+' is not implemented")'
         result += '\n  // END DELETE BEFORE MODIFYING'
         result += '\n}\n\n'
-        return wrap_code(result)
+        return result
 
     result += '\n  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING\n'
 
@@ -493,8 +493,8 @@ def make_ctocpp_function_impl_new(clsname, name, func):
     if len(result) != result_len:
         result += '\n'
 
-    result += '}\n'
-    return wrap_code(result)
+    result += '}\n\n'
+    return result
 
 def make_ctocpp_function_impl(clsname, funcs, existing):
     impl = ''
@@ -634,7 +634,7 @@ def make_ctocpp_class_impl(header, clsname, impl):
              '#endif\n\n'+ \
              'template<> CefWrapperType '+parent_sig+'::kWrapperType = '+get_wrapper_type_enum(clsname)+';'
 
-    result += wrap_code(const)
+    result += const
 
     return result
 
@@ -669,7 +669,7 @@ def make_ctocpp_global_impl(header, impl):
 
     return result
 
-def write_ctocpp_impl(header, clsname, dir, backup):
+def write_ctocpp_impl(header, clsname, dir):
     if clsname is None:
         # global file
         file = dir
@@ -689,16 +689,7 @@ def write_ctocpp_impl(header, clsname, dir, backup):
         newcontents = make_ctocpp_global_impl(header, oldcontents)
     else:
         newcontents = make_ctocpp_class_impl(header, clsname, oldcontents)
-    if newcontents != oldcontents:
-        if backup and oldcontents != '':
-            backup_file(file)
-        file_dir = os.path.split(file)[0]
-        if not os.path.isdir(file_dir):
-            make_dir(file_dir)
-        write_file(file, newcontents)
-        return True
-
-    return False
+    return (file, newcontents)
 
 
 # test the module

@@ -40,9 +40,21 @@ def get_commit_number(path = '.', branch = 'HEAD'):
     return result['out'].strip()
   return '0'
 
-def get_changed_files(path = '.'):
+def get_changed_files(path, hash):
   """ Retrieves the list of changed files. """
-  # not implemented
+  if hash == 'unstaged':
+    cmd = "%s diff --name-only" % git_exe
+  elif hash == 'staged':
+    cmd = "%s diff --name-only --cached" % git_exe
+  else:
+    cmd = "%s diff-tree --no-commit-id --name-only -r %s" % (git_exe, hash)
+  result = exec_cmd(cmd, path)
+  if result['out'] != '':
+    files = result['out']
+    if sys.platform == 'win32':
+      # Convert to Unix line endings.
+      files = files.replace('\r\n', '\n')
+    return files.strip().split("\n")
   return []
 
 def write_indented_output(output):

@@ -28,9 +28,9 @@ def make_views_function_stub_impl(clsname, func):
     if retval_default != '':
       result += '\n  return ' + retval_default + ';'
 
-    result += '\n}\n'
+    result += '\n}\n\n'
 
-    return wrap_code(result)
+    return result
 
 def make_views_class_stub_impl(header, cls):
     impl = ''
@@ -64,23 +64,9 @@ def make_views_stub_impl(header):
     result += impl
     return result
 
-def write_views_stub_impl(header, file, backup):
-    if path_exists(file):
-        oldcontents = read_file(file)
-    else:
-        oldcontents = ''
-
+def write_views_stub_impl(header, file):
     newcontents = make_views_stub_impl(header)
-    if newcontents != oldcontents:
-        if backup and oldcontents != '':
-            backup_file(file)
-        file_dir = os.path.split(file)[0]
-        if not os.path.isdir(file_dir):
-            make_dir(file_dir)
-        write_file(file, newcontents)
-        return True
-
-    return False
+    return (file, newcontents)
 
 # Test the module.
 if __name__ == "__main__":

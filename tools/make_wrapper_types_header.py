@@ -21,23 +21,12 @@ def make_wrapper_types_header(header):
     result += '};\n\n' + \
               '#endif  // CEF_LIBCEF_DLL_WRAPPER_TYPES_H_'
 
-    return wrap_code(result)
+    return result
 
 
-def write_wrapper_types_header(header, file, backup):
-    if path_exists(file):
-        oldcontents = read_file(file)
-    else:
-        oldcontents = ''
-
+def write_wrapper_types_header(header, file):
     newcontents = make_wrapper_types_header(header)
-    if newcontents != oldcontents:
-        if backup and oldcontents != '':
-            backup_file(file)
-        write_file(file, newcontents)
-        return True
-
-    return False
+    return (file, newcontents)
 
 
 # test the module

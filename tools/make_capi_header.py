@@ -14,8 +14,7 @@ def make_capi_global_funcs(funcs, defined_names, translate_map, indent):
             result += '\n'+format_comment(comment, indent, translate_map);
         if func.get_retval().get_type().is_result_string():
             result += indent+'// The resulting string must be freed by calling cef_string_userfree_free().\n'
-        result += wrap_code(indent+'CEF_EXPORT '+
-                            func.get_capi_proto(defined_names)+';')
+        result += indent+'CEF_EXPORT '+func.get_capi_proto(defined_names)+';\n'
         if first:
             first = False
     return result
@@ -30,9 +29,8 @@ def make_capi_member_funcs(funcs, defined_names, translate_map, indent):
         if func.get_retval().get_type().is_result_string():
             result += indent+'// The resulting string must be freed by calling cef_string_userfree_free().\n'
         parts = func.get_capi_parts()
-        result += wrap_code(indent+parts['retval']+' (CEF_CALLBACK *'+
-                            parts['name']+')('+
-                            string.join(parts['args'], ', ')+');')
+        result += indent+parts['retval']+' (CEF_CALLBACK *'+parts['name']+ \
+                  ')('+string.join(parts['args'], ', ')+');\n'
         if first:
             first = False
     return result
@@ -81,6 +79,8 @@ def make_capi_header(header, filename):
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
+// $hash=$$HASH$$$
+//
 
 #ifndef $GUARD$
 #define $GUARD$
@@ -118,7 +118,10 @@ def make_capi_header(header, filename):
                 translated_includes.add(include)
         declares = cls.get_forward_declares()
         for declare in declares:
-            all_declares.add(header.get_class(declare).get_capi_name())
+            declare_cls = header.get_class(declare)
+            if declare_cls is None:
+              raise Exception('Unknown class: %s' % declare)
+            all_declares.add(declare_cls.get_capi_name())
 
     # output translated includes
     if len(translated_includes) > 0:
@@ -195,24 +198,10 @@ extern "C" {
     return result
 
 
-def write_capi_header(header, header_dir, filename, backup):
-    capi_path = get_capi_file_name(os.path.join(header_dir, filename))
-    if path_exists(capi_path):
-        oldcontents = read_file(capi_path)
-    else:
-        oldcontents = ''
-
+def write_capi_header(header, header_dir, filename):
+    file = get_capi_file_name(os.path.join(header_dir, filename))
     newcontents = make_capi_header(header, filename)
-    if newcontents != oldcontents:
-        if backup and oldcontents != '':
-            backup_file(capi_path)
-        capi_dir = os.path.split(capi_path)[0]
-        if not os.path.isdir(capi_dir):
-            make_dir(capi_dir)
-        write_file(capi_path, newcontents)
-        return True
-
-    return False
+    return (file, newcontents)
 
 
 # test the module
