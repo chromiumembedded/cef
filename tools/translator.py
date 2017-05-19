@@ -124,7 +124,7 @@ def update_file(file, newcontents):
 
     # Apply clang-format for C/C++ files.
     if os.path.splitext(file)[1][1:] in ('cc', 'cpp', 'h'):
-        result = clang_format(newcontents)
+        result = clang_format(file, newcontents)
         if result != None:
             newcontents = result
         else:
