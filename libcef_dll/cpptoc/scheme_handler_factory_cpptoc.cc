@@ -12,8 +12,8 @@
 // $hash=815287a25120b02a67c6a04cd84132cf7f746f92$
 //
 
-#include "libcef_dll/cpptoc/resource_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/scheme_handler_factory_cpptoc.h"
+#include "libcef_dll/cpptoc/resource_handler_cpptoc.h"
 #include "libcef_dll/ctocpp/browser_ctocpp.h"
 #include "libcef_dll/ctocpp/frame_ctocpp.h"
 #include "libcef_dll/ctocpp/request_ctocpp.h"

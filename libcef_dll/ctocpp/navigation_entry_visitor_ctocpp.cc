@@ -12,8 +12,8 @@
 // $hash=18f54750f071fa94a3397dedaf2b90c3d4fe3f4b$
 //
 
-#include "libcef_dll/cpptoc/navigation_entry_cpptoc.h"
 #include "libcef_dll/ctocpp/navigation_entry_visitor_ctocpp.h"
+#include "libcef_dll/cpptoc/navigation_entry_cpptoc.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
 

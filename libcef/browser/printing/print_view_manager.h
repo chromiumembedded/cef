@@ -5,6 +5,7 @@
 #ifndef CEF_LIBCEF_BROWSER_PRINTING_PRINT_VIEW_MANAGER_H_
 #define CEF_LIBCEF_BROWSER_PRINTING_PRINT_VIEW_MANAGER_H_
 
+#include "include/internal/cef_types_wrappers.h"
 #include "libcef/browser/printing/print_view_manager_base.h"
 
 #include "base/macros.h"

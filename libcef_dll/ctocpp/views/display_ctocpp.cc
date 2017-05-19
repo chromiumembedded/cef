@@ -12,8 +12,8 @@
 // $hash=2e6bd09f8d9e40e522cc5d1060666ebe8a295bc0$
 //
 
-#include <algorithm>
 #include "libcef_dll/ctocpp/views/display_ctocpp.h"
+#include <algorithm>
 
 // STATIC METHODS - Body may be edited by hand.
 

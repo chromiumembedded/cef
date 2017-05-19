@@ -12,12 +12,12 @@
 // $hash=abbba0b09a8c13d342b51a2b8cfbc363fde99ca2$
 //
 
+#include "libcef_dll/ctocpp/test/translator_test_ctocpp.h"
 #include <algorithm>
 #include "libcef_dll/cpptoc/test/translator_test_ref_ptr_client_child_cpptoc.h"
 #include "libcef_dll/cpptoc/test/translator_test_ref_ptr_client_cpptoc.h"
 #include "libcef_dll/cpptoc/test/translator_test_scoped_client_child_cpptoc.h"
 #include "libcef_dll/cpptoc/test/translator_test_scoped_client_cpptoc.h"
-#include "libcef_dll/ctocpp/test/translator_test_ctocpp.h"
 #include "libcef_dll/ctocpp/test/translator_test_ref_ptr_library_child_ctocpp.h"
 #include "libcef_dll/ctocpp/test/translator_test_ref_ptr_library_ctocpp.h"
 #include "libcef_dll/ctocpp/test/translator_test_scoped_library_child_ctocpp.h"

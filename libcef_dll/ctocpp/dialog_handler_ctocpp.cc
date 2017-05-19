@@ -12,9 +12,9 @@
 // $hash=60cf4242abcc2491bbff94d76da6c1683eae7821$
 //
 
+#include "libcef_dll/ctocpp/dialog_handler_ctocpp.h"
 #include "libcef_dll/cpptoc/browser_cpptoc.h"
 #include "libcef_dll/cpptoc/file_dialog_callback_cpptoc.h"
-#include "libcef_dll/ctocpp/dialog_handler_ctocpp.h"
 #include "libcef_dll/transfer_util.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.

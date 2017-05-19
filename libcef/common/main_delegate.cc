@@ -2,13 +2,13 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "libcef/common/main_delegate.h"
 #include "libcef/browser/content_browser_client.h"
 #include "libcef/browser/context.h"
 #include "libcef/common/cef_switches.h"
 #include "libcef/common/command_line_impl.h"
 #include "libcef/common/crash_reporting.h"
 #include "libcef/common/extensions/extensions_util.h"
-#include "libcef/common/main_delegate.h"
 #include "libcef/renderer/content_renderer_client.h"
 #include "libcef/utility/content_utility_client.h"
 

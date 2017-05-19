@@ -12,6 +12,7 @@
 // $hash=1e38a9d2747c2f2d38371e544a3daf8117612480$
 //
 
+#include "libcef_dll/cpptoc/views/window_cpptoc.h"
 #include "libcef_dll/cpptoc/image_cpptoc.h"
 #include "libcef_dll/cpptoc/menu_model_cpptoc.h"
 #include "libcef_dll/cpptoc/views/box_layout_cpptoc.h"
@@ -24,7 +25,6 @@
 #include "libcef_dll/cpptoc/views/scroll_view_cpptoc.h"
 #include "libcef_dll/cpptoc/views/textfield_cpptoc.h"
 #include "libcef_dll/cpptoc/views/view_cpptoc.h"
-#include "libcef_dll/cpptoc/views/window_cpptoc.h"
 #include "libcef_dll/ctocpp/views/view_delegate_ctocpp.h"
 #include "libcef_dll/ctocpp/views/window_delegate_ctocpp.h"
 

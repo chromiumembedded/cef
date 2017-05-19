@@ -12,11 +12,11 @@
 // $hash=b2141197beb4b7a706c82c5dffbfe5338667d2a2$
 //
 
+#include "libcef_dll/ctocpp/download_handler_ctocpp.h"
 #include "libcef_dll/cpptoc/before_download_callback_cpptoc.h"
 #include "libcef_dll/cpptoc/browser_cpptoc.h"
 #include "libcef_dll/cpptoc/download_item_callback_cpptoc.h"
 #include "libcef_dll/cpptoc/download_item_cpptoc.h"
-#include "libcef_dll/ctocpp/download_handler_ctocpp.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
 

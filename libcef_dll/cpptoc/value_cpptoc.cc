@@ -12,10 +12,10 @@
 // $hash=06fc95c6ffcd865041be1579f7392bc4b36a65eb$
 //
 
+#include "libcef_dll/cpptoc/value_cpptoc.h"
 #include "libcef_dll/cpptoc/binary_value_cpptoc.h"
 #include "libcef_dll/cpptoc/dictionary_value_cpptoc.h"
 #include "libcef_dll/cpptoc/list_value_cpptoc.h"
-#include "libcef_dll/cpptoc/value_cpptoc.h"
 
 // GLOBAL FUNCTIONS - Body may be edited by hand.
 

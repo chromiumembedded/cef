@@ -12,9 +12,9 @@
 // $hash=b428b0f15ba1b1661a5ce951a659975028f368c8$
 //
 
+#include "libcef_dll/ctocpp/jsdialog_handler_ctocpp.h"
 #include "libcef_dll/cpptoc/browser_cpptoc.h"
 #include "libcef_dll/cpptoc/jsdialog_callback_cpptoc.h"
-#include "libcef_dll/ctocpp/jsdialog_handler_ctocpp.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
 

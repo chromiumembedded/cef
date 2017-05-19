@@ -12,8 +12,8 @@
 // $hash=9622ef1a85aabf6aa381b49f199db5473271b67a$
 //
 
-#include "libcef_dll/cpptoc/browser_cpptoc.h"
 #include "libcef_dll/ctocpp/focus_handler_ctocpp.h"
+#include "libcef_dll/cpptoc/browser_cpptoc.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
 

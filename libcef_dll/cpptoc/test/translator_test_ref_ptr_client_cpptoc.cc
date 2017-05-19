@@ -12,8 +12,8 @@
 // $hash=b04a2cadf7325090a53b435cf777173216802ec1$
 //
 
-#include "libcef_dll/cpptoc/test/translator_test_ref_ptr_client_child_cpptoc.h"
 #include "libcef_dll/cpptoc/test/translator_test_ref_ptr_client_cpptoc.h"
+#include "libcef_dll/cpptoc/test/translator_test_ref_ptr_client_child_cpptoc.h"
 
 namespace {
 

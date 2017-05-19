@@ -12,8 +12,8 @@
 // $hash=8695b6dab7c2fe666f99f1229549b89f50301301$
 //
 
-#include "libcef_dll/ctocpp/test/translator_test_scoped_client_child_ctocpp.h"
 #include "libcef_dll/ctocpp/test/translator_test_scoped_client_ctocpp.h"
+#include "libcef_dll/ctocpp/test/translator_test_scoped_client_child_ctocpp.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
 

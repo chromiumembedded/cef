@@ -12,8 +12,8 @@
 // $hash=349630df161107399c7de224db24d618df00e49d$
 //
 
-#include "libcef_dll/cpptoc/v8stack_frame_cpptoc.h"
 #include "libcef_dll/cpptoc/v8stack_trace_cpptoc.h"
+#include "libcef_dll/cpptoc/v8stack_frame_cpptoc.h"
 
 // GLOBAL FUNCTIONS - Body may be edited by hand.
 

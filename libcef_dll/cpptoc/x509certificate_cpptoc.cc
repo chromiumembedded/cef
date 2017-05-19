@@ -12,10 +12,10 @@
 // $hash=ecc954784a8061eb04b71933bb657368ef120dfa$
 //
 
+#include "libcef_dll/cpptoc/x509certificate_cpptoc.h"
 #include <algorithm>
 #include "libcef_dll/cpptoc/binary_value_cpptoc.h"
 #include "libcef_dll/cpptoc/x509cert_principal_cpptoc.h"
-#include "libcef_dll/cpptoc/x509certificate_cpptoc.h"
 
 namespace {
 

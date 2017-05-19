@@ -12,8 +12,8 @@
 // $hash=af1af3527892457a1c2f98673d68d1a0e96db53a$
 //
 
-#include "libcef_dll/cpptoc/web_plugin_info_cpptoc.h"
 #include "libcef_dll/ctocpp/web_plugin_info_visitor_ctocpp.h"
+#include "libcef_dll/cpptoc/web_plugin_info_cpptoc.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
 

@@ -12,6 +12,7 @@
 // $hash=7d48e623cbf70be51e4809e2fd1b08341d5dd620$
 //
 
+#include "libcef_dll/ctocpp/views/view_ctocpp.h"
 #include "libcef_dll/cpptoc/views/view_delegate_cpptoc.h"
 #include "libcef_dll/ctocpp/views/browser_view_ctocpp.h"
 #include "libcef_dll/ctocpp/views/button_ctocpp.h"
@@ -20,7 +21,6 @@
 #include "libcef_dll/ctocpp/views/panel_ctocpp.h"
 #include "libcef_dll/ctocpp/views/scroll_view_ctocpp.h"
 #include "libcef_dll/ctocpp/views/textfield_ctocpp.h"
-#include "libcef_dll/ctocpp/views/view_ctocpp.h"
 #include "libcef_dll/ctocpp/views/window_ctocpp.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.

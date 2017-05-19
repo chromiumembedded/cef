@@ -12,8 +12,8 @@
 // $hash=9f702354dd9771258d66cec721eba3e2ab0cd046$
 //
 
-#include <algorithm>
 #include "libcef_dll/ctocpp/browser_ctocpp.h"
+#include <algorithm>
 #include "libcef_dll/ctocpp/browser_host_ctocpp.h"
 #include "libcef_dll/ctocpp/frame_ctocpp.h"
 #include "libcef_dll/ctocpp/process_message_ctocpp.h"

@@ -12,9 +12,9 @@
 // $hash=8d879b5ba21a991aa60cdde72667473158676056$
 //
 
+#include "libcef_dll/cpptoc/views/browser_view_cpptoc.h"
 #include "libcef_dll/cpptoc/browser_cpptoc.h"
 #include "libcef_dll/cpptoc/request_context_cpptoc.h"
-#include "libcef_dll/cpptoc/views/browser_view_cpptoc.h"
 #include "libcef_dll/cpptoc/views/button_cpptoc.h"
 #include "libcef_dll/cpptoc/views/panel_cpptoc.h"
 #include "libcef_dll/cpptoc/views/scroll_view_cpptoc.h"

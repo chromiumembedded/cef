@@ -12,8 +12,8 @@
 // $hash=55a9aa1a0d6cf32067a80b6885c7c79b9289eea1$
 //
 
-#include "libcef_dll/cpptoc/stream_reader_cpptoc.h"
 #include "libcef_dll/cpptoc/xml_reader_cpptoc.h"
+#include "libcef_dll/cpptoc/stream_reader_cpptoc.h"
 
 // GLOBAL FUNCTIONS - Body may be edited by hand.
 

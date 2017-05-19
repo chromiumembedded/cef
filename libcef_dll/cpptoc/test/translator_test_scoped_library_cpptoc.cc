@@ -12,9 +12,9 @@
 // $hash=33161851f6d712f15b49b70bb0fc0f06afda83bc$
 //
 
+#include "libcef_dll/cpptoc/test/translator_test_scoped_library_cpptoc.h"
 #include "libcef_dll/cpptoc/test/translator_test_scoped_library_child_child_cpptoc.h"
 #include "libcef_dll/cpptoc/test/translator_test_scoped_library_child_cpptoc.h"
-#include "libcef_dll/cpptoc/test/translator_test_scoped_library_cpptoc.h"
 
 // GLOBAL FUNCTIONS - Body may be edited by hand.
 

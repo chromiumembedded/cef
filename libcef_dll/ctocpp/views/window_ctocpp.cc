@@ -12,6 +12,7 @@
 // $hash=89793d32af95e19caecc99078e0465e2b467ee6a$
 //
 
+#include "libcef_dll/ctocpp/views/window_ctocpp.h"
 #include "libcef_dll/cpptoc/views/view_delegate_cpptoc.h"
 #include "libcef_dll/cpptoc/views/window_delegate_cpptoc.h"
 #include "libcef_dll/ctocpp/image_ctocpp.h"
@@ -26,7 +27,6 @@
 #include "libcef_dll/ctocpp/views/scroll_view_ctocpp.h"
 #include "libcef_dll/ctocpp/views/textfield_ctocpp.h"
 #include "libcef_dll/ctocpp/views/view_ctocpp.h"
-#include "libcef_dll/ctocpp/views/window_ctocpp.h"
 
 // STATIC METHODS - Body may be edited by hand.
 

@@ -12,10 +12,10 @@
 // $hash=1fc3388d5e22b38460cfbbdbbca15a10f19320c7$
 //
 
+#include "libcef_dll/ctocpp/life_span_handler_ctocpp.h"
 #include "libcef_dll/cpptoc/browser_cpptoc.h"
 #include "libcef_dll/cpptoc/frame_cpptoc.h"
 #include "libcef_dll/ctocpp/client_ctocpp.h"
-#include "libcef_dll/ctocpp/life_span_handler_ctocpp.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
 

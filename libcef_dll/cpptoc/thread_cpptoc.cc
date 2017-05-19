@@ -12,8 +12,8 @@
 // $hash=f1b350a92e8fe8cd6d8b81d807e0da11691b3167$
 //
 
-#include "libcef_dll/cpptoc/task_runner_cpptoc.h"
 #include "libcef_dll/cpptoc/thread_cpptoc.h"
+#include "libcef_dll/cpptoc/task_runner_cpptoc.h"
 
 // GLOBAL FUNCTIONS - Body may be edited by hand.
 

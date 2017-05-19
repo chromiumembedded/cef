@@ -12,8 +12,8 @@
 // $hash=e789b2428bc059a5ccce8ce1a9cc756986fbcad0$
 //
 
-#include "libcef_dll/cpptoc/menu_model_cpptoc.h"
 #include "libcef_dll/ctocpp/menu_model_delegate_ctocpp.h"
+#include "libcef_dll/cpptoc/menu_model_cpptoc.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
 

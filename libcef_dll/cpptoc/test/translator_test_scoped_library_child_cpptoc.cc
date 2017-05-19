@@ -12,8 +12,8 @@
 // $hash=40623df7ec62d989294f7c575e50bc3cd78285d7$
 //
 
-#include "libcef_dll/cpptoc/test/translator_test_scoped_library_child_child_cpptoc.h"
 #include "libcef_dll/cpptoc/test/translator_test_scoped_library_child_cpptoc.h"
+#include "libcef_dll/cpptoc/test/translator_test_scoped_library_child_child_cpptoc.h"
 
 // GLOBAL FUNCTIONS - Body may be edited by hand.
 

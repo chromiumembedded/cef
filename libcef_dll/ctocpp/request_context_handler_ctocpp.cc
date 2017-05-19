@@ -12,9 +12,9 @@
 // $hash=f756067d7f727278a3e4f887a308ecc72ef8a23e$
 //
 
+#include "libcef_dll/ctocpp/request_context_handler_ctocpp.h"
 #include "libcef_dll/cpptoc/cookie_manager_cpptoc.h"
 #include "libcef_dll/cpptoc/web_plugin_info_cpptoc.h"
-#include "libcef_dll/ctocpp/request_context_handler_ctocpp.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
 

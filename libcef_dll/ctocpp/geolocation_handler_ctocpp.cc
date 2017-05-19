@@ -12,9 +12,9 @@
 // $hash=e6b3335f4fa9f8f04ac24c5b66e49923ab7e6e5c$
 //
 
+#include "libcef_dll/ctocpp/geolocation_handler_ctocpp.h"
 #include "libcef_dll/cpptoc/browser_cpptoc.h"
 #include "libcef_dll/cpptoc/geolocation_callback_cpptoc.h"
-#include "libcef_dll/ctocpp/geolocation_handler_ctocpp.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
