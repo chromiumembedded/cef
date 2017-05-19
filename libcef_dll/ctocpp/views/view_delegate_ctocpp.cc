@@ -12,13 +12,13 @@
 // $hash=89d54d92898217240204511d1f90da18890f04ee$
 //
 
+#include "libcef_dll/ctocpp/views/view_delegate_ctocpp.h"
 #include "libcef_dll/cpptoc/views/view_cpptoc.h"
 #include "libcef_dll/ctocpp/views/browser_view_delegate_ctocpp.h"
 #include "libcef_dll/ctocpp/views/button_delegate_ctocpp.h"
 #include "libcef_dll/ctocpp/views/menu_button_delegate_ctocpp.h"
 #include "libcef_dll/ctocpp/views/panel_delegate_ctocpp.h"
 #include "libcef_dll/ctocpp/views/textfield_delegate_ctocpp.h"
-#include "libcef_dll/ctocpp/views/view_delegate_ctocpp.h"
 #include "libcef_dll/ctocpp/views/window_delegate_ctocpp.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.

@@ -2,9 +2,9 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
+#include "libcef/browser/xml_reader_impl.h"
 #include "base/logging.h"
 #include "include/cef_stream.h"
-#include "libcef/browser/xml_reader_impl.h"
 
 // Static functions
 

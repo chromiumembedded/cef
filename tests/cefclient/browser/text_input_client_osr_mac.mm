@@ -5,8 +5,8 @@
 // Implementation based on
 // content/browser/renderer_host/render_widget_host_view_mac.mm from Chromium.
 
-#include "include/cef_client.h"
 #include "text_input_client_osr_mac.h"
+#include "include/cef_client.h"
 
 #define ColorBLACK 0xFF000000  // Same as Blink SKColor.
 

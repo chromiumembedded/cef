@@ -12,11 +12,11 @@
 // $hash=873b1eff71d696da390c589c35d039616fc4ea47$
 //
 
+#include "libcef_dll/ctocpp/scheme_handler_factory_ctocpp.h"
 #include "libcef_dll/cpptoc/browser_cpptoc.h"
 #include "libcef_dll/cpptoc/frame_cpptoc.h"
 #include "libcef_dll/cpptoc/request_cpptoc.h"
 #include "libcef_dll/ctocpp/resource_handler_ctocpp.h"
-#include "libcef_dll/ctocpp/scheme_handler_factory_ctocpp.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
 

@@ -12,11 +12,11 @@
 // $hash=029e88d2ce63882c56cf0ac4c22772fe149dcfb4$
 //
 
+#include "libcef_dll/ctocpp/cookie_manager_ctocpp.h"
 #include "libcef_dll/cpptoc/completion_callback_cpptoc.h"
 #include "libcef_dll/cpptoc/cookie_visitor_cpptoc.h"
 #include "libcef_dll/cpptoc/delete_cookies_callback_cpptoc.h"
 #include "libcef_dll/cpptoc/set_cookie_callback_cpptoc.h"
-#include "libcef_dll/ctocpp/cookie_manager_ctocpp.h"
 #include "libcef_dll/transfer_util.h"
 
 // STATIC METHODS - Body may be edited by hand.

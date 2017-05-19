@@ -12,12 +12,12 @@
 // $hash=6ad7bcb4afded09f312d3ec082bb4df35da9beec$
 //
 
+#include "libcef_dll/ctocpp/views/label_button_ctocpp.h"
 #include "libcef_dll/cpptoc/views/button_delegate_cpptoc.h"
 #include "libcef_dll/cpptoc/views/view_delegate_cpptoc.h"
 #include "libcef_dll/ctocpp/image_ctocpp.h"
 #include "libcef_dll/ctocpp/views/browser_view_ctocpp.h"
 #include "libcef_dll/ctocpp/views/button_ctocpp.h"
-#include "libcef_dll/ctocpp/views/label_button_ctocpp.h"
 #include "libcef_dll/ctocpp/views/menu_button_ctocpp.h"
 #include "libcef_dll/ctocpp/views/panel_ctocpp.h"
 #include "libcef_dll/ctocpp/views/scroll_view_ctocpp.h"

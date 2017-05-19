@@ -12,10 +12,10 @@
 // $hash=dce21cc429320a9d24fd80ad2bc1347b03f82808$
 //
 
+#include "libcef_dll/ctocpp/value_ctocpp.h"
 #include "libcef_dll/ctocpp/binary_value_ctocpp.h"
 #include "libcef_dll/ctocpp/dictionary_value_ctocpp.h"
 #include "libcef_dll/ctocpp/list_value_ctocpp.h"
-#include "libcef_dll/ctocpp/value_ctocpp.h"
 
 // STATIC METHODS - Body may be edited by hand.
 

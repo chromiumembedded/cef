@@ -12,8 +12,8 @@
 // $hash=9a19ca77c7dad9e0c8ddd5a1f3f2c1a2073fdd84$
 //
 
-#include "libcef_dll/cpptoc/client_cpptoc.h"
 #include "libcef_dll/cpptoc/views/browser_view_delegate_cpptoc.h"
+#include "libcef_dll/cpptoc/client_cpptoc.h"
 #include "libcef_dll/ctocpp/browser_ctocpp.h"
 #include "libcef_dll/ctocpp/views/browser_view_ctocpp.h"
 #include "libcef_dll/ctocpp/views/view_ctocpp.h"

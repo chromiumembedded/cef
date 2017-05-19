@@ -12,6 +12,7 @@
 // $hash=03df0b0112a7f9f6cdce88b34a972ec27042b92f$
 //
 
+#include "libcef_dll/ctocpp/request_handler_ctocpp.h"
 #include "libcef_dll/cpptoc/auth_callback_cpptoc.h"
 #include "libcef_dll/cpptoc/browser_cpptoc.h"
 #include "libcef_dll/cpptoc/frame_cpptoc.h"
@@ -21,7 +22,6 @@
 #include "libcef_dll/cpptoc/select_client_certificate_callback_cpptoc.h"
 #include "libcef_dll/cpptoc/sslinfo_cpptoc.h"
 #include "libcef_dll/cpptoc/x509certificate_cpptoc.h"
-#include "libcef_dll/ctocpp/request_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/resource_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/response_filter_ctocpp.h"
 

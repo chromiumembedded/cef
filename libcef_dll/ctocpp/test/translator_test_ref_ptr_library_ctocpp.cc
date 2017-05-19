@@ -12,9 +12,9 @@
 // $hash=8378563b430352b25a0ae9400c3c181798dec565$
 //
 
+#include "libcef_dll/ctocpp/test/translator_test_ref_ptr_library_ctocpp.h"
 #include "libcef_dll/ctocpp/test/translator_test_ref_ptr_library_child_child_ctocpp.h"
 #include "libcef_dll/ctocpp/test/translator_test_ref_ptr_library_child_ctocpp.h"
-#include "libcef_dll/ctocpp/test/translator_test_ref_ptr_library_ctocpp.h"
 
 // STATIC METHODS - Body may be edited by hand.
 

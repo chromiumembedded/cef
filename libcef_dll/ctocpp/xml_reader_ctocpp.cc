@@ -12,8 +12,8 @@
 // $hash=ac328bf1a231e47e402b7a154a96171eec5265ec$
 //
 
-#include "libcef_dll/ctocpp/stream_reader_ctocpp.h"
 #include "libcef_dll/ctocpp/xml_reader_ctocpp.h"
+#include "libcef_dll/ctocpp/stream_reader_ctocpp.h"
 
 // STATIC METHODS - Body may be edited by hand.
 

@@ -12,10 +12,10 @@
 // $hash=855d24c5bb0627952e9a7549e98d023488d5fcd5$
 //
 
+#include "libcef_dll/cpptoc/views/label_button_cpptoc.h"
 #include "libcef_dll/cpptoc/image_cpptoc.h"
 #include "libcef_dll/cpptoc/views/browser_view_cpptoc.h"
 #include "libcef_dll/cpptoc/views/button_cpptoc.h"
-#include "libcef_dll/cpptoc/views/label_button_cpptoc.h"
 #include "libcef_dll/cpptoc/views/menu_button_cpptoc.h"
 #include "libcef_dll/cpptoc/views/panel_cpptoc.h"
 #include "libcef_dll/cpptoc/views/scroll_view_cpptoc.h"

@@ -12,8 +12,8 @@
 // $hash=0d5501d1df13b04f9f52443df3f76a9d3de5b8b8$
 //
 
-#include "libcef_dll/ctocpp/v8stack_frame_ctocpp.h"
 #include "libcef_dll/ctocpp/v8stack_trace_ctocpp.h"
+#include "libcef_dll/ctocpp/v8stack_frame_ctocpp.h"
 
 // STATIC METHODS - Body may be edited by hand.
 

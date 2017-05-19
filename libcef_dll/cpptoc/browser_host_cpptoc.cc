@@ -12,8 +12,8 @@
 // $hash=63aa1967a233a66852969c1e72ecd0c12e69105b$
 //
 
-#include "libcef_dll/cpptoc/browser_cpptoc.h"
 #include "libcef_dll/cpptoc/browser_host_cpptoc.h"
+#include "libcef_dll/cpptoc/browser_cpptoc.h"
 #include "libcef_dll/cpptoc/drag_data_cpptoc.h"
 #include "libcef_dll/cpptoc/navigation_entry_cpptoc.h"
 #include "libcef_dll/cpptoc/request_context_cpptoc.h"

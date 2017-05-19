@@ -12,10 +12,10 @@
 // $hash=8745295d751a800ecf0a19fb93839e07c978f3a8$
 //
 
+#include "libcef_dll/ctocpp/resource_handler_ctocpp.h"
 #include "libcef_dll/cpptoc/callback_cpptoc.h"
 #include "libcef_dll/cpptoc/request_cpptoc.h"
 #include "libcef_dll/cpptoc/response_cpptoc.h"
-#include "libcef_dll/ctocpp/resource_handler_ctocpp.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
 

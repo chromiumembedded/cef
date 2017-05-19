@@ -12,11 +12,11 @@
 // $hash=0eb6f0608c15cba18640c52aa8a3fd0ed73cce15$
 //
 
+#include "libcef_dll/ctocpp/views/browser_view_delegate_ctocpp.h"
 #include "libcef_dll/cpptoc/browser_cpptoc.h"
 #include "libcef_dll/cpptoc/views/browser_view_cpptoc.h"
 #include "libcef_dll/cpptoc/views/view_cpptoc.h"
 #include "libcef_dll/ctocpp/client_ctocpp.h"
-#include "libcef_dll/ctocpp/views/browser_view_delegate_ctocpp.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
 

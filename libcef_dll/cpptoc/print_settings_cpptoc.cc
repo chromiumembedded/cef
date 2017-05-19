@@ -12,8 +12,8 @@
 // $hash=4a7de54e64d113db827af72ab032fe3803773e1a$
 //
 
-#include <algorithm>
 #include "libcef_dll/cpptoc/print_settings_cpptoc.h"
+#include <algorithm>
 
 // GLOBAL FUNCTIONS - Body may be edited by hand.
 

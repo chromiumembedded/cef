@@ -12,8 +12,8 @@
 // $hash=a5b87e4e7e656c8643febf4afb3d1bd3f06c7ac0$
 //
 
-#include <algorithm>
 #include "libcef_dll/cpptoc/browser_cpptoc.h"
+#include <algorithm>
 #include "libcef_dll/cpptoc/browser_host_cpptoc.h"
 #include "libcef_dll/cpptoc/frame_cpptoc.h"
 #include "libcef_dll/cpptoc/process_message_cpptoc.h"

@@ -12,6 +12,7 @@
 // $hash=84ab086050d93dfdca7f82f454f833a7e73ab7e0$
 //
 
+#include "libcef_dll/cpptoc/views/view_cpptoc.h"
 #include "libcef_dll/cpptoc/views/browser_view_cpptoc.h"
 #include "libcef_dll/cpptoc/views/button_cpptoc.h"
 #include "libcef_dll/cpptoc/views/label_button_cpptoc.h"
@@ -19,7 +20,6 @@
 #include "libcef_dll/cpptoc/views/panel_cpptoc.h"
 #include "libcef_dll/cpptoc/views/scroll_view_cpptoc.h"
 #include "libcef_dll/cpptoc/views/textfield_cpptoc.h"
-#include "libcef_dll/cpptoc/views/view_cpptoc.h"
 #include "libcef_dll/cpptoc/views/window_cpptoc.h"
 #include "libcef_dll/ctocpp/views/view_delegate_ctocpp.h"
 

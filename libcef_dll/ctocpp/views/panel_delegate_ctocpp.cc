@@ -12,8 +12,8 @@
 // $hash=85c20ac96c3594ba48eeba93a5be33f53223f2ab$
 //
 
-#include "libcef_dll/cpptoc/views/view_cpptoc.h"
 #include "libcef_dll/ctocpp/views/panel_delegate_ctocpp.h"
+#include "libcef_dll/cpptoc/views/view_cpptoc.h"
 #include "libcef_dll/ctocpp/views/window_delegate_ctocpp.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
