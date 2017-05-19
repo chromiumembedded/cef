@@ -34,7 +34,7 @@ def update_file(filename):
     msg(filename, "empty")
     return;
 
-  newcontents = clang_format(oldcontents)
+  newcontents = clang_format(filename, oldcontents)
   if newcontents is None:
     raise Exception("Failed to process %s" % filename)
 
