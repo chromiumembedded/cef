@@ -5,45 +5,48 @@
 from cef_parser import *
 from date_util import *
 
+
 def make_capi_global_funcs(funcs, defined_names, translate_map, indent):
-    result = ''
-    first = True
-    for func in funcs:
-        comment = func.get_comment()
-        if first or len(comment) > 0:
-            result += '\n'+format_comment(comment, indent, translate_map);
-        if func.get_retval().get_type().is_result_string():
-            result += indent+'// The resulting string must be freed by calling cef_string_userfree_free().\n'
-        result += indent+'CEF_EXPORT '+func.get_capi_proto(defined_names)+';\n'
-        if first:
-            first = False
-    return result
+  result = ''
+  first = True
+  for func in funcs:
+    comment = func.get_comment()
+    if first or len(comment) > 0:
+      result += '\n' + format_comment(comment, indent, translate_map)
+    if func.get_retval().get_type().is_result_string():
+      result += indent + '// The resulting string must be freed by calling cef_string_userfree_free().\n'
+    result += indent + 'CEF_EXPORT ' + func.get_capi_proto(defined_names) + ';\n'
+    if first:
+      first = False
+  return result
+
 
 def make_capi_member_funcs(funcs, defined_names, translate_map, indent):
-    result = ''
-    first = True
-    for func in funcs:
-        comment = func.get_comment()
-        if first or len(comment) > 0:
-            result += '\n'+format_comment(comment, indent, translate_map)
-        if func.get_retval().get_type().is_result_string():
-            result += indent+'// The resulting string must be freed by calling cef_string_userfree_free().\n'
-        parts = func.get_capi_parts()
-        result += indent+parts['retval']+' (CEF_CALLBACK *'+parts['name']+ \
-                  ')('+string.join(parts['args'], ', ')+');\n'
-        if first:
-            first = False
-    return result
+  result = ''
+  first = True
+  for func in funcs:
+    comment = func.get_comment()
+    if first or len(comment) > 0:
+      result += '\n' + format_comment(comment, indent, translate_map)
+    if func.get_retval().get_type().is_result_string():
+      result += indent + '// The resulting string must be freed by calling cef_string_userfree_free().\n'
+    parts = func.get_capi_parts()
+    result += indent+parts['retval']+' (CEF_CALLBACK *'+parts['name']+ \
+              ')('+string.join(parts['args'], ', ')+');\n'
+    if first:
+      first = False
+  return result
+
 
 def make_capi_header(header, filename):
-    # structure names that have already been defined
-    defined_names = header.get_defined_structs()
+  # structure names that have already been defined
+  defined_names = header.get_defined_structs()
 
-    # map of strings that will be changed in C++ comments
-    translate_map = header.get_capi_translations()
+  # map of strings that will be changed in C++ comments
+  translate_map = header.get_capi_translations()
 
-    # header string
-    result = \
+  # header string
+  result = \
 """// Copyright (c) $YEAR$ Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -88,9 +91,9 @@ def make_capi_header(header, filename):
 
 """
 
-    # Protect against incorrect use of test headers.
-    if filename.startswith('test/'):
-      result += \
+  # Protect against incorrect use of test headers.
+  if filename.startswith('test/'):
+    result += \
 """#if !defined(BUILDING_CEF_SHARED) && !defined(WRAPPING_CEF_SHARED) && \\
     !defined(UNIT_TEST)
 #error This file can be included for unit tests only
@@ -98,46 +101,47 @@ def make_capi_header(header, filename):
 
 """
 
-    classes = header.get_classes(filename)
+  classes = header.get_classes(filename)
 
-    # identify all includes and forward declarations
-    translated_includes = set([])
-    internal_includes = set([])
-    all_declares = set([])
-    for cls in classes:
-        includes = cls.get_includes()
-        for include in includes:
-            if include.startswith('base/'):
-                # base/ headers are C++. They should not be included by
-                # translated CEF API headers.
-                raise Exception('Disallowed include of %s.h from %s' % (include, filename))
-            elif include.startswith('internal/'):
-                # internal/ headers may be C or C++. Include them as-is.
-                internal_includes.add(include)
-            else:
-                translated_includes.add(include)
-        declares = cls.get_forward_declares()
-        for declare in declares:
-            declare_cls = header.get_class(declare)
-            if declare_cls is None:
-              raise Exception('Unknown class: %s' % declare)
-            all_declares.add(declare_cls.get_capi_name())
+  # identify all includes and forward declarations
+  translated_includes = set([])
+  internal_includes = set([])
+  all_declares = set([])
+  for cls in classes:
+    includes = cls.get_includes()
+    for include in includes:
+      if include.startswith('base/'):
+        # base/ headers are C++. They should not be included by
+        # translated CEF API headers.
+        raise Exception('Disallowed include of %s.h from %s' % (include,
+                                                                filename))
+      elif include.startswith('internal/'):
+        # internal/ headers may be C or C++. Include them as-is.
+        internal_includes.add(include)
+      else:
+        translated_includes.add(include)
+    declares = cls.get_forward_declares()
+    for declare in declares:
+      declare_cls = header.get_class(declare)
+      if declare_cls is None:
+        raise Exception('Unknown class: %s' % declare)
+      all_declares.add(declare_cls.get_capi_name())
 
-    # output translated includes
-    if len(translated_includes) > 0:
-        sorted_includes = sorted(translated_includes)
-        for include in sorted_includes:
-            result += '#include "include/capi/' + include + '_capi.h"\n'
-    else:
-        result += '#include "include/capi/cef_base_capi.h"\n'
+  # output translated includes
+  if len(translated_includes) > 0:
+    sorted_includes = sorted(translated_includes)
+    for include in sorted_includes:
+      result += '#include "include/capi/' + include + '_capi.h"\n'
+  else:
+    result += '#include "include/capi/cef_base_capi.h"\n'
 
-    # output internal includes
-    if len(internal_includes) > 0:
-        sorted_includes = sorted(internal_includes)
-        for include in sorted_includes:
-            result += '#include "include/' + include + '.h"\n'
+  # output internal includes
+  if len(internal_includes) > 0:
+    sorted_includes = sorted(internal_includes)
+    for include in sorted_includes:
+      result += '#include "include/' + include + '.h"\n'
 
-    result += \
+  result += \
 """
 #ifdef __cplusplus
 extern "C" {
@@ -145,42 +149,41 @@ extern "C" {
 
 """
 
-    # output forward declarations
-    if len(all_declares) > 0:
-        sorted_declares = sorted(all_declares)
-        for declare in sorted_declares:
-            result += 'struct _' + declare + ';\n'
+  # output forward declarations
+  if len(all_declares) > 0:
+    sorted_declares = sorted(all_declares)
+    for declare in sorted_declares:
+      result += 'struct _' + declare + ';\n'
 
-    # output classes
-    for cls in classes:
-        # virtual functions are inside the structure
-        classname = cls.get_capi_name()
-        result += '\n'+format_comment(cls.get_comment(), '', translate_map);
-        result += 'typedef struct _'+classname+' {\n'+\
-                  '  ///\n'+\
-                  '  // Base structure.\n'+\
-                  '  ///\n'+\
-                  '  '+cls.get_parent_capi_name()+' base;\n'
-        funcs = cls.get_virtual_funcs()
-        result += make_capi_member_funcs(funcs, defined_names,
-                                         translate_map, '  ')
-        result += '} '+classname+';\n\n'
+  # output classes
+  for cls in classes:
+    # virtual functions are inside the structure
+    classname = cls.get_capi_name()
+    result += '\n' + format_comment(cls.get_comment(), '', translate_map)
+    result += 'typedef struct _'+classname+' {\n'+\
+              '  ///\n'+\
+              '  // Base structure.\n'+\
+              '  ///\n'+\
+              '  '+cls.get_parent_capi_name()+' base;\n'
+    funcs = cls.get_virtual_funcs()
+    result += make_capi_member_funcs(funcs, defined_names, translate_map, '  ')
+    result += '} ' + classname + ';\n\n'
 
-        defined_names.append(cls.get_capi_name())
+    defined_names.append(cls.get_capi_name())
 
-        # static functions become global
-        funcs = cls.get_static_funcs()
-        if len(funcs) > 0:
-            result += make_capi_global_funcs(funcs, defined_names,
-                                             translate_map, '')+'\n'
-
-    # output global functions
-    funcs = header.get_funcs(filename)
+    # static functions become global
+    funcs = cls.get_static_funcs()
     if len(funcs) > 0:
-        result += make_capi_global_funcs(funcs, defined_names, translate_map, '')
+      result += make_capi_global_funcs(funcs, defined_names, translate_map,
+                                       '') + '\n'
 
-    # footer string
-    result += \
+  # output global functions
+  funcs = header.get_funcs(filename)
+  if len(funcs) > 0:
+    result += make_capi_global_funcs(funcs, defined_names, translate_map, '')
+
+  # footer string
+  result += \
 """
 #ifdef __cplusplus
 }
@@ -189,34 +192,35 @@ extern "C" {
 #endif  // $GUARD$
 """
 
-    # add the copyright year
-    result = result.replace('$YEAR$', get_year())
-    # add the guard string
-    guard = 'CEF_INCLUDE_CAPI_'+string.upper(filename.replace('/', '_').replace('.', '_capi_'))+'_'
-    result = result.replace('$GUARD$', guard)
+  # add the copyright year
+  result = result.replace('$YEAR$', get_year())
+  # add the guard string
+  guard = 'CEF_INCLUDE_CAPI_' + string.upper(
+      filename.replace('/', '_').replace('.', '_capi_')) + '_'
+  result = result.replace('$GUARD$', guard)
 
-    return result
+  return result
 
 
 def write_capi_header(header, header_dir, filename):
-    file = get_capi_file_name(os.path.join(header_dir, filename))
-    newcontents = make_capi_header(header, filename)
-    return (file, newcontents)
+  file = get_capi_file_name(os.path.join(header_dir, filename))
+  newcontents = make_capi_header(header, filename)
+  return (file, newcontents)
 
 
 # test the module
 if __name__ == "__main__":
-    import sys
+  import sys
 
-    # verify that the correct number of command-line arguments are provided
-    if len(sys.argv) < 2:
-        sys.stderr.write('Usage: '+sys.argv[0]+' <infile>')
-        sys.exit()
+  # verify that the correct number of command-line arguments are provided
+  if len(sys.argv) < 2:
+    sys.stderr.write('Usage: ' + sys.argv[0] + ' <infile>')
+    sys.exit()
 
-    # create the header object
-    header = obj_header()
-    header.add_file(sys.argv[1])
+  # create the header object
+  header = obj_header()
+  header.add_file(sys.argv[1])
 
-    # dump the result to stdout
-    filename = os.path.split(sys.argv[1])[1]
-    sys.stdout.write(make_capi_header(header, filename))
+  # dump the result to stdout
+  filename = os.path.split(sys.argv[1])[1]
+  sys.stdout.write(make_capi_header(header, filename))

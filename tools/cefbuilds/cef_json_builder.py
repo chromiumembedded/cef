@@ -43,11 +43,14 @@ import urllib
 # directory listings.
 _CEF_DATE_FORMAT = "%Y-%m-%dT%H:%M:%S.%fZ"
 
+
 def parse_date(date):
   return datetime.datetime.strptime(date, _CEF_DATE_FORMAT)
 
+
 def format_date(date):
   return date.strftime(_CEF_DATE_FORMAT)
+
 
 # Helpers to format datetime values on JSON read/write.
 def cef_from_json(json_object):
@@ -55,7 +58,9 @@ def cef_from_json(json_object):
     json_object['last_modified'] = parse_date(json_object['last_modified'])
   return json_object
 
+
 class cef_json_encoder(json.JSONEncoder):
+
   def default(self, o):
     if isinstance(o, datetime.datetime):
       return format_date(o)
@@ -75,7 +80,8 @@ class cef_json_builder:
   @staticmethod
   def get_platforms():
     """ Returns the list of supported platforms. """
-    return ('linux32', 'linux64', 'linuxarm', 'macosx64', 'windows32', 'windows64')
+    return ('linux32', 'linux64', 'linuxarm', 'macosx64', 'windows32',
+            'windows64')
 
   @staticmethod
   def get_distrib_types():
@@ -85,7 +91,8 @@ class cef_json_builder:
   @staticmethod
   def is_valid_version(version):
     """ Returns true if the specified CEF version is fully qualified and valid. """
-    return bool(re.compile('^3.[0-9]{4,5}.[0-9]{4,5}.g[0-9a-f]{7}$').match(version))
+    return bool(
+        re.compile('^3.[0-9]{4,5}.[0-9]{4,5}.g[0-9a-f]{7}$').match(version))
 
   @staticmethod
   def is_valid_chromium_version(version):
@@ -117,8 +124,12 @@ class cef_json_builder:
     # Return a string representation of this object.
     self._sort_versions()
     if self._prettyprint:
-      return json.dumps(self._data, cls=cef_json_encoder, sort_keys=True,
-                        indent=2, separators=(',', ': '))
+      return json.dumps(
+          self._data,
+          cls=cef_json_encoder,
+          sort_keys=True,
+          indent=2,
+          separators=(',', ': '))
     else:
       return json.dumps(self._data, cls=cef_json_encoder, sort_keys=True)
 
@@ -197,7 +208,7 @@ class cef_json_builder:
 
     self._fatalerrors = fatalerrors
 
-    new_data = json.JSONDecoder(object_hook = cef_from_json).decode(json_string)
+    new_data = json.JSONDecoder(object_hook=cef_from_json).decode(json_string)
 
     # Validate the new data's structure.
     for platform in self._data.keys():
@@ -224,34 +235,41 @@ class cef_json_builder:
               not 'size' in file or \
               not 'last_modified' in file or \
               not 'sha1' in file:
-            self._print('load: Missing file key(s) for %s %s' % (platform, version['cef_version']))
+            self._print('load: Missing file key(s) for %s %s' %
+                        (platform, version['cef_version']))
             continue
-          (expected_platform, expected_version, expected_type) = self._parse_name(file['name'])
+          (expected_platform, expected_version,
+           expected_type) = self._parse_name(file['name'])
           if expected_platform != platform or \
               expected_version != version['cef_version'] or \
               expected_type != file['type']:
             self._print('load: File name/attribute mismatch for %s %s %s' %
-                (platform, version['cef_version'], file['name']))
+                        (platform, version['cef_version'], file['name']))
             continue
           self._validate_args(platform, version['cef_version'], file['type'],
                               file['size'], file['last_modified'], file['sha1'])
           if file['type'] in found_types:
-            self._print('load: Duplicate %s type for %s %s' % (file['type'], platform, version['cef_version']))
+            self._print('load: Duplicate %s type for %s %s' %
+                        (file['type'], platform, version['cef_version']))
             continue
           found_types.append(file['type'])
           valid_files.append({
-            'type': file['type'],
-            'name': file['name'],
-            'size': file['size'],
-            'last_modified': file['last_modified'],
-            'sha1': file['sha1'],
+              'type': file['type'],
+              'name': file['name'],
+              'size': file['size'],
+              'last_modified': file['last_modified'],
+              'sha1': file['sha1'],
           })
 
         if len(valid_files) > 0:
           valid_versions.append({
-            'cef_version': version['cef_version'],
-            'chromium_version': self.set_chromium_version(version['cef_version'], version['chromium_version']),
-            'files': self._sort_files(valid_files)
+              'cef_version':
+                  version['cef_version'],
+              'chromium_version':
+                  self.set_chromium_version(version['cef_version'],
+                                            version['chromium_version']),
+              'files':
+                  self._sort_files(valid_files)
           })
 
       if len(valid_versions) > 0:
@@ -280,7 +298,8 @@ class cef_json_builder:
     if name_no_ext[-4:] == '.tar':
       name_no_ext = name_no_ext[:-4]
     name_parts = name_no_ext.split('_')
-    if len(name_parts) < 4 or name_parts[0] != 'cef' or name_parts[1] != 'binary':
+    if len(
+        name_parts) < 4 or name_parts[0] != 'cef' or name_parts[1] != 'binary':
       raise Exception('Invalid filename: %s' % name)
 
     # Remove 'cef' and 'binary'.
@@ -356,7 +375,7 @@ class cef_json_builder:
     self._validate_args(platform, version, type, size, last_modified, sha1)
 
     # Find the existing version record.
-    version_idx = -1;
+    version_idx = -1
     for i in range(0, len(self._data[platform]['versions'])):
       if self._data[platform]['versions'][i]['cef_version'] == version:
         # Check the version record.
@@ -368,17 +387,20 @@ class cef_json_builder:
       # Add a new version record.
       self._print('add_file: Add %s %s' % (platform, version))
       self._data[platform]['versions'].append({
-        'cef_version': version,
-        'chromium_version': self.get_chromium_version(version),
-        'files': []
+          'cef_version': version,
+          'chromium_version': self.get_chromium_version(version),
+          'files': []
       })
       version_idx = len(self._data[platform]['versions']) - 1
 
     # Find the existing file record with matching type.
     file_changed = True
-    for i in range(0, len(self._data[platform]['versions'][version_idx]['files'])):
-      if self._data[platform]['versions'][version_idx]['files'][i]['type'] == type:
-        existing_sha1 = self._data[platform]['versions'][version_idx]['files'][i]['sha1']
+    for i in range(0,
+                   len(self._data[platform]['versions'][version_idx]['files'])):
+      if self._data[platform]['versions'][version_idx]['files'][i][
+          'type'] == type:
+        existing_sha1 = self._data[platform]['versions'][version_idx]['files'][
+            i]['sha1']
         if existing_sha1 != sha1:
           # Remove the existing file record.
           self._print('  Remove %s %s' % (name, existing_sha1))
@@ -391,11 +413,11 @@ class cef_json_builder:
       # Add a new file record.
       self._print('  Add %s %s' % (name, sha1))
       self._data[platform]['versions'][version_idx]['files'].append({
-        'type': type,
-        'name': name,
-        'size': size,
-        'last_modified': last_modified,
-        'sha1': sha1
+          'type': type,
+          'name': name,
+          'size': size,
+          'last_modified': last_modified,
+          'sha1': sha1
       })
 
       # Sort file records by last_modified.
@@ -420,7 +442,7 @@ class cef_json_builder:
         if version is None or version_obj['cef_version'].find(version) == 0:
           for file_obj in version_obj['files']:
             if type is None or type == file_obj['type']:
-              result_obj = file_obj;
+              result_obj = file_obj
               # Add additional metadata.
               result_obj['platform'] = platform
               result_obj['cef_version'] = version_obj['cef_version']

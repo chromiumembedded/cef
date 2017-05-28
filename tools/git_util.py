@@ -12,11 +12,13 @@ if sys.platform == 'win32':
 else:
   git_exe = 'git'
 
+
 def is_checkout(path):
   """ Returns true if the path represents a git checkout. """
   return os.path.isdir(os.path.join(path, '.git'))
 
-def get_hash(path = '.', branch = 'HEAD'):
+
+def get_hash(path='.', branch='HEAD'):
   """ Returns the git hash for the specified branch/tag/hash. """
   cmd = "%s rev-parse %s" % (git_exe, branch)
   result = exec_cmd(cmd, path)
@@ -24,7 +26,8 @@ def get_hash(path = '.', branch = 'HEAD'):
     return result['out'].strip()
   return 'Unknown'
 
-def get_url(path = '.'):
+
+def get_url(path='.'):
   """ Returns the origin url for the specified path. """
   cmd = "%s config --get remote.origin.url" % git_exe
   result = exec_cmd(cmd, path)
@@ -32,13 +35,15 @@ def get_url(path = '.'):
     return result['out'].strip()
   return 'Unknown'
 
-def get_commit_number(path = '.', branch = 'HEAD'):
+
+def get_commit_number(path='.', branch='HEAD'):
   """ Returns the number of commits in the specified branch/tag/hash. """
   cmd = "%s rev-list --count %s" % (git_exe, branch)
   result = exec_cmd(cmd, path)
   if result['out'] != '':
     return result['out'].strip()
   return '0'
+
 
 def get_changed_files(path, hash):
   """ Retrieves the list of changed files. """
@@ -57,6 +62,7 @@ def get_changed_files(path, hash):
     return files.strip().split("\n")
   return []
 
+
 def write_indented_output(output):
   """ Apply a fixed amount of intent to lines before printing. """
   if output == '':
@@ -66,6 +72,7 @@ def write_indented_output(output):
     if len(line) == 0:
       continue
     sys.stdout.write('\t%s\n' % line)
+
 
 def git_apply_patch_file(patch_path, patch_dir):
   """ Apply |patch_path| to files in |patch_dir|. """

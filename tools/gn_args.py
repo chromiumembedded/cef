@@ -80,8 +80,10 @@ else:
   print 'Unknown operating system platform'
   sys.exit()
 
+
 def msg(msg):
   print 'NOTE: ' + msg
+
 
 def NameValueListToDict(name_value_list):
   """
@@ -89,7 +91,7 @@ def NameValueListToDict(name_value_list):
   of the pairs. If a string is simply NAME, then the value in the dictionary
   is set to True. If VALUE can be converted to a boolean or integer, it is.
   """
-  result = { }
+  result = {}
   for item in name_value_list:
     tokens = item.split('=', 1)
     if len(tokens) == 2:
@@ -111,6 +113,7 @@ def NameValueListToDict(name_value_list):
       result[tokens[0]] = True
   return result
 
+
 def ShlexEnv(env_name):
   """
   Split an environment variable using shell-like syntax.
@@ -119,6 +122,7 @@ def ShlexEnv(env_name):
   if flags:
     flags = shlex.split(flags)
   return flags
+
 
 def MergeDicts(*dict_args):
   """
@@ -129,6 +133,7 @@ def MergeDicts(*dict_args):
   for dictionary in dict_args:
     result.update(dictionary)
   return result
+
 
 def GetValueString(val):
   """
@@ -143,6 +148,7 @@ def GetValueString(val):
       return 'false'
   return val
 
+
 def GetChromiumDefaultArgs():
   """
   Return default GN args. These must match the Chromium defaults.
@@ -152,11 +158,11 @@ def GetChromiumDefaultArgs():
   # the defaults.
 
   defaults = {
-    'dcheck_always_on': False,
-    'is_asan': False,
-    'is_debug': True,
-    'is_official_build': False,
-    'target_cpu': 'x64',
+      'dcheck_always_on': False,
+      'is_asan': False,
+      'is_debug': True,
+      'is_official_build': False,
+      'target_cpu': 'x64',
   }
 
   if platform == 'linux':
@@ -171,6 +177,7 @@ def GetChromiumDefaultArgs():
 
   return defaults
 
+
 def GetArgValue(args, key):
   """
   Return an existing GN arg value or the Chromium default.
@@ -178,6 +185,7 @@ def GetArgValue(args, key):
   defaults = GetChromiumDefaultArgs()
   assert key in defaults, "No default Chromium value specified for %s" % key
   return args.get(key, defaults[key])
+
 
 def GetRecommendedDefaultArgs():
   """
@@ -187,8 +195,8 @@ def GetRecommendedDefaultArgs():
   # the defaults.
 
   result = {
-    # Enable NaCL. Default is true. False is recommended for faster builds.
-    'enable_nacl': False,
+      # Enable NaCL. Default is true. False is recommended for faster builds.
+      'enable_nacl': False,
   }
 
   if platform == 'linux':
@@ -209,27 +217,29 @@ def GetRecommendedDefaultArgs():
 
   return result
 
+
 def GetGNEnvArgs():
   """
   Return GN args specified via the GN_DEFINES env variable.
   """
   return NameValueListToDict(ShlexEnv('GN_DEFINES'))
 
+
 def GetRequiredArgs():
   """
   Return required GN args. Also enforced by assert() in //cef/BUILD.gn.
   """
   result = {
-    # Set ENABLE_PRINTING=1 ENABLE_BASIC_PRINTING=1.
-    'enable_basic_printing': True,
-    'enable_print_preview': False,
+      # Set ENABLE_PRINTING=1 ENABLE_BASIC_PRINTING=1.
+      'enable_basic_printing': True,
+      'enable_print_preview': False,
 
-    # Enable support for Widevine CDM.
-    'enable_widevine': True,
+      # Enable support for Widevine CDM.
+      'enable_widevine': True,
 
-    # CEF does not currently support component builds. See
-    # https://bitbucket.org/chromiumembedded/cef/issues/1617
-    'is_component_build': False,
+      # CEF does not currently support component builds. See
+      # https://bitbucket.org/chromiumembedded/cef/issues/1617
+      'is_component_build': False,
   }
 
   if platform == 'linux' or platform == 'macosx':
@@ -242,6 +252,7 @@ def GetRequiredArgs():
     result['enable_dsyms'] = True
 
   return result
+
 
 def GetMergedArgs(build_args):
   """
@@ -257,6 +268,7 @@ def GetMergedArgs(build_args):
           "%s=%s is required" % (key, GetValueString(required[key]))
 
   return MergeDicts(dict, required)
+
 
 def ValidateArgs(args):
   """
@@ -288,7 +300,8 @@ def ValidateArgs(args):
   elif platform == 'windows':
     assert target_cpu in ('x86', 'x64'), 'target_cpu must be "x86" or "x64"'
   elif platform == 'linux':
-    assert target_cpu in ('x86', 'x64', 'arm'), 'target_cpu must be "x86", "x64" or "arm"'
+    assert target_cpu in ('x86', 'x64',
+                          'arm'), 'target_cpu must be "x86", "x64" or "arm"'
 
   if platform == 'linux':
     if target_cpu == 'x86':
@@ -313,7 +326,8 @@ def ValidateArgs(args):
 
     # Non-official debug builds should use /DEBUG:FASTLINK.
     if not is_official_build and is_debug and not is_win_fastlink:
-        msg('is_official_build=false + is_debug=true recommends is_win_fastlink=true')
+      msg('is_official_build=false + is_debug=true recommends is_win_fastlink=true'
+         )
 
     # Windows custom toolchain requirements.
     #
@@ -374,6 +388,7 @@ def ValidateArgs(args):
       if (os.path.exists(vcvars_path)):
         msg('INCLUDE/LIB/PATH values will be derived from %s' % vcvars_path)
 
+
 def GetConfigArgs(args, is_debug, cpu):
   """
   Return merged GN args for the configuration and validate.
@@ -390,8 +405,8 @@ def GetConfigArgs(args, is_debug, cpu):
     add_args['dcheck_always_on'] = True
 
   result = MergeDicts(args, add_args, {
-    'is_debug': is_debug,
-    'target_cpu': cpu,
+      'is_debug': is_debug,
+      'target_cpu': cpu,
   })
 
   if platform == 'linux' and cpu != 'arm':
@@ -402,6 +417,7 @@ def GetConfigArgs(args, is_debug, cpu):
 
   ValidateArgs(result)
   return result
+
 
 def LinuxSysrootExists(cpu):
   """
@@ -420,6 +436,7 @@ def LinuxSysrootExists(cpu):
     raise Exception('Unrecognized sysroot CPU: %s' % cpu)
 
   return os.path.isdir(os.path.join(sysroot_root, sysroot_name))
+
 
 def GetAllPlatformConfigs(build_args):
   """
@@ -447,7 +464,8 @@ def GetAllPlatformConfigs(build_args):
         if LinuxSysrootExists(cpu):
           supported_cpus.append(cpu)
         else:
-          msg('Not generating %s configuration due to missing sysroot directory' % cpu)
+          msg('Not generating %s configuration due to missing sysroot directory'
+              % cpu)
     else:
       supported_cpus = ['x64']
   elif platform == 'windows':
@@ -464,6 +482,7 @@ def GetAllPlatformConfigs(build_args):
 
   return result
 
+
 def GetConfigFileContents(args):
   """
   Generate config file contents for the arguments.
@@ -472,6 +491,7 @@ def GetConfigFileContents(args):
   for k in sorted(args.keys()):
     pairs.append("%s=%s" % (k, GetValueString(args[k])))
   return "\n".join(pairs)
+
 
 # Program entry point.
 if __name__ == '__main__':

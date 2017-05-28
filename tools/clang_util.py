@@ -16,6 +16,7 @@ if sys.platform == 'win32':
 else:
   clang_format_exe = 'clang-format'
 
+
 def clang_format(file_name, file_contents):
   # -assume-filename is necessary to find the .clang-format file and determine
   # the language when specifying contents via stdin.

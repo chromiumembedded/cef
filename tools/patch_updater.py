@@ -9,15 +9,18 @@ import sys
 from exec_util import exec_cmd
 import git_util as git
 
+
 def msg(message):
   """ Output a message. """
   sys.stdout.write('--> ' + message + "\n")
+
 
 def warn(message):
   """ Output a warning. """
   sys.stdout.write('-' * 80 + "\n")
   sys.stdout.write('!!!! WARNING: ' + message + "\n")
   sys.stdout.write('-' * 80 + "\n")
+
 
 def extract_paths(file):
   """ Extract the list of modified paths from the patch file. """
@@ -32,6 +35,7 @@ def extract_paths(file):
     paths.append(match.group(1).strip())
   return paths
 
+
 # Cannot be loaded as a module.
 if __name__ != "__main__":
   sys.stderr.write('This file cannot be loaded as a module!')
@@ -41,6 +45,7 @@ if __name__ != "__main__":
 disc = """
 This utility updates existing patch files.
 """
+
 
 # Support options with multiple arguments.
 class MultipleOption(Option):
@@ -55,17 +60,27 @@ class MultipleOption(Option):
     else:
       Option.take_action(self, action, dest, opt, value, values, parser)
 
-parser = OptionParser(option_class=MultipleOption,
-                      description=disc)
-parser.add_option('--resave',
-                  action='store_true', dest='resave', default=False,
-                  help='re-save existing patch files to pick up manual changes')
-parser.add_option('--revert',
-                  action='store_true', dest='revert', default=False,
-                  help='revert all changes from existing patch files')
-parser.add_option('--patch',
-                  action='extend', dest='patch', type='string', default=[],
-                  help='optional patch name to process (multiples allowed)')
+
+parser = OptionParser(option_class=MultipleOption, description=disc)
+parser.add_option(
+    '--resave',
+    action='store_true',
+    dest='resave',
+    default=False,
+    help='re-save existing patch files to pick up manual changes')
+parser.add_option(
+    '--revert',
+    action='store_true',
+    dest='revert',
+    default=False,
+    help='revert all changes from existing patch files')
+parser.add_option(
+    '--patch',
+    action='extend',
+    dest='patch',
+    type='string',
+    default=[],
+    help='optional patch name to process (multiples allowed)')
 (options, args) = parser.parse_args()
 
 if options.resave and options.revert:
@@ -100,7 +115,7 @@ for patch in patches:
     continue
 
   sys.stdout.write('\n')
-  patch_file = os.path.join(patches_dir, patch['name']+'.patch')
+  patch_file = os.path.join(patches_dir, patch['name'] + '.patch')
 
   if os.path.isfile(patch_file):
     msg('Reading patch file %s' % patch_file)

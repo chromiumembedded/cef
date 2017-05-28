@@ -19,11 +19,13 @@ cef_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
 cef_patch_dir = os.path.join(cef_dir, 'patch')
 src_dir = os.path.abspath(os.path.join(cef_dir, os.pardir))
 
+
 def write_note(type, note):
   separator = '-' * 79 + '\n'
   sys.stdout.write(separator)
   sys.stdout.write('!!!! %s: %s\n' % (type, note))
   sys.stdout.write(separator)
+
 
 def apply_patch_file(patch_file, patch_dir):
   ''' Apply a specific patch file in optional patch directory. '''
@@ -39,8 +41,10 @@ def apply_patch_file(patch_file, patch_dir):
 
   result = git_apply_patch_file(patch_path, patch_dir)
   if result == 'fail':
-    write_note('ERROR', 'This patch failed to apply. Your build will not be correct.')
+    write_note('ERROR',
+               'This patch failed to apply. Your build will not be correct.')
   return result
+
 
 def apply_patch_config():
   ''' Apply patch files based on a configuration file. '''
@@ -66,7 +70,8 @@ def apply_patch_config():
         dopatch = False
 
     if dopatch:
-      result = apply_patch_file(patch_file, patch['path'] if 'path' in patch else None)
+      result = apply_patch_file(patch_file, patch['path']
+                                if 'path' in patch else None)
       results[result] += 1
 
       if 'note' in patch:
@@ -79,8 +84,13 @@ def apply_patch_config():
 
   if results['fail'] > 0:
     sys.stdout.write('\n')
-    write_note('ERROR', '%d patches failed to apply. Your build will not be correct.' % results['fail'])
-    raise Exception('%d patches failed to apply. Your build will not be correct.' % results['fail'])
+    write_note('ERROR',
+               '%d patches failed to apply. Your build will not be correct.' %
+               results['fail'])
+    raise Exception(
+        '%d patches failed to apply. Your build will not be correct.' %
+        results['fail'])
+
 
 # Parse command-line options.
 disc = """
@@ -88,10 +98,13 @@ This utility applies patch files.
 """
 
 parser = OptionParser(description=disc)
-parser.add_option('--patch-file', dest='patchfile', metavar='FILE',
-                  help='patch source file')
-parser.add_option('--patch-dir', dest='patchdir', metavar='DIR',
-                  help='patch target directory')
+parser.add_option(
+    '--patch-file', dest='patchfile', metavar='FILE', help='patch source file')
+parser.add_option(
+    '--patch-dir',
+    dest='patchdir',
+    metavar='DIR',
+    help='patch target directory')
 (options, args) = parser.parse_args()
 
 if not options.patchfile is None:

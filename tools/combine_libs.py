@@ -4,7 +4,6 @@
 # found in the LICENSE file.
 
 # TODO(slightlyoff): move to using shared version of this script.
-
 '''This script makes it easy to combine libs and object files to a new lib,
 optionally removing some of the object files in the input libs by regular
 expression matching.
@@ -19,10 +18,8 @@ import sys
 
 def Shell(*args):
   '''Runs the program and args in args, returns the output from the program.'''
-  process = subprocess.Popen(args,
-                             stdin = None,
-                             stdout = subprocess.PIPE,
-                             stderr = subprocess.STDOUT)
+  process = subprocess.Popen(
+      args, stdin=None, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
   output = process.stdout.readlines()
   process.wait()
   retcode = process.returncode
@@ -69,13 +66,17 @@ any object file (in the input libraries) that matches a given regular
 expression.
 '''
 
+
 def GetOptionParser():
   parser = optparse.OptionParser(USAGE)
-  parser.add_option('-o', '--output', dest = 'output',
-                    help = 'write to this output library')
-  parser.add_option('-r', '--remove', dest = 'remove',
-                    help = 'object files matching this regexp will be removed '
-                            'from the output library')
+  parser.add_option(
+      '-o', '--output', dest='output', help='write to this output library')
+  parser.add_option(
+      '-r',
+      '--remove',
+      dest='remove',
+      help='object files matching this regexp will be removed '
+      'from the output library')
   return parser
 
 
