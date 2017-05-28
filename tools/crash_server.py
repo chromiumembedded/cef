@@ -2,7 +2,6 @@
 # Copyright 2017 The Chromium Embedded Framework Authors. All rights reserved.
 # Use of this source code is governed by a BSD-style license that can be found
 # in the LICENSE file.
-
 """
 This script implements a simple HTTP server for receiving crash report uploads
 from a Breakpad/Crashpad client (any CEF-based application). This script is
@@ -120,16 +119,20 @@ import sys
 import uuid
 import zlib
 
+
 def print_msg(msg):
   """ Write |msg| to stdout and flush. """
   timestr = datetime.datetime.now().strftime("%m/%d/%Y %H:%M:%S")
   sys.stdout.write("%s: %s\n" % (timestr, msg))
   sys.stdout.flush()
 
+
 # Key identifying the minidump file.
 minidump_key = 'upload_file_minidump'
 
+
 class CrashHTTPRequestHandler(BaseHTTPRequestHandler):
+
   def __init__(self, dump_directory, *args):
     self._dump_directory = dump_directory
     BaseHTTPRequestHandler.__init__(self, *args)
@@ -146,12 +149,12 @@ class CrashHTTPRequestHandler(BaseHTTPRequestHandler):
     if self.command != 'POST':
       return None
     return cgi.FieldStorage(
-      fp = cStringIO.StringIO(data),
-      headers = self.headers,
-      environ = {
-        'REQUEST_METHOD': 'POST',
-        'CONTENT_TYPE': self.headers['Content-Type'],
-    })
+        fp=cStringIO.StringIO(data),
+        headers=self.headers,
+        environ={
+            'REQUEST_METHOD': 'POST',
+            'CONTENT_TYPE': self.headers['Content-Type'],
+        })
 
   def _get_chunk_size(self):
     # Read to the next "\r\n".
@@ -173,7 +176,7 @@ class CrashHTTPRequestHandler(BaseHTTPRequestHandler):
   def _unchunk_request(self, compressed):
     """ Read a chunked request body. Optionally decompress the result. """
     if compressed:
-      d = zlib.decompressobj(16+zlib.MAX_WBITS)
+      d = zlib.decompressobj(16 + zlib.MAX_WBITS)
 
     # Chunked format is: <size>\r\n<bytes>\r\n<size>\r\n<bytes>\r\n0\r\n
     unchunked = b""
@@ -251,13 +254,14 @@ class CrashHTTPRequestHandler(BaseHTTPRequestHandler):
     if chunked:
       request_body = self._unchunk_request(compressed)
     else:
-      content_length = int(self.headers['Content-Length']) if 'Content-Length' in self.headers else 0
+      content_length = int(self.headers[
+          'Content-Length']) if 'Content-Length' in self.headers else 0
       if content_length > 0:
         request_body = self.rfile.read(content_length)
       else:
         request_body = self.rfile.read()
       if compressed:
-        request_body = zlib.decompress(request_body, 16+zlib.MAX_WBITS)
+        request_body = zlib.decompress(request_body, 16 + zlib.MAX_WBITS)
 
     # Parse the multi-part request.
     form_data = self._parse_post_data(request_body)
@@ -284,14 +288,17 @@ class CrashHTTPRequestHandler(BaseHTTPRequestHandler):
     with open(meta_file, 'w') as fp:
       json.dump(metadata, fp)
 
+
 def HandleRequestsUsing(dump_store):
   return lambda *args: CrashHTTPRequestHandler(dump_directory, *args)
+
 
 def RunCrashServer(port, dump_directory):
   """ Run the crash handler HTTP server. """
   httpd = HTTPServer(('', port), HandleRequestsUsing(dump_directory))
   print_msg('Starting httpd on port %d' % port)
   httpd.serve_forever()
+
 
 # Program entry point.
 if __name__ == "__main__":
@@ -307,4 +314,3 @@ if __name__ == "__main__":
     raise Exception('Directory does not exist: %s' % dump_directory)
 
   RunCrashServer(int(sys.argv[1]), dump_directory)
-

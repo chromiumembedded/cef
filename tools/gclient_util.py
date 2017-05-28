@@ -10,7 +10,7 @@ try:
   import gclient_utils
 except ImportError, e:
   # Search the PATH environment variable to find the depot_tools folder.
-  depot_tools = None;
+  depot_tools = None
   paths = os.environ.get('PATH').split(os.pathsep)
   for path in paths:
     if os.path.exists(os.path.join(path, 'gclient_utils.py')):
@@ -25,6 +25,7 @@ except ImportError, e:
   sys.path.append(depot_tools)
   import gclient_utils
 
+
 # Copied from gclient.py python code.
 def RunAction(dir, command):
   """Runs the action."""
@@ -35,8 +36,7 @@ def RunAction(dir, command):
     command[0] = sys.executable
 
   try:
-    gclient_utils.CheckCallAndFilterAndHeader(
-        command, cwd=dir, always=True)
+    gclient_utils.CheckCallAndFilterAndHeader(command, cwd=dir, always=True)
   except gclient_utils.Error, e:
     # Use a discrete exit status code of 2 to indicate that a hook action
     # failed.  Users of this script may wish to treat hook action failures

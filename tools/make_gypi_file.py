@@ -4,9 +4,10 @@
 
 from cef_parser import *
 
+
 def make_gypi_file(header):
-    # header string
-    result = \
+  # header string
+  result = \
 """# Copyright (c) $YEAR$ The Chromium Embedded Framework Authors. All rights
 # reserved. Use of this source code is governed by a BSD-style license that
 # can be found in the LICENSE file.
@@ -23,83 +24,84 @@ def make_gypi_file(header):
 {
   'variables': {
 """
-    
-    filenames = sorted(header.get_file_names())
-    
-    # cpp includes
-    result += "    'autogen_cpp_includes': [\n"
-    for filename in filenames:
-        result += "      'include/"+filename+"',\n"
-    result += "    ],\n"
-    
-    # capi includes
-    result += "    'autogen_capi_includes': [\n"
-    for filename in filenames:
-        result += "      'include/capi/"+get_capi_file_name(filename)+"',\n"
-    result += "    ],\n"
-    
-    classes = sorted(header.get_class_names())
-    
-    # library side includes
-    result += "    'autogen_library_side': [\n"
-    for clsname in classes:
-        cls = header.get_class(clsname)
-        filename = get_capi_name(clsname[3:], False)
-        dir = cls.get_file_directory()
-        if not dir is None:
-            filename = dir+'/'+filename
-        if cls.is_library_side():
-            result += "      'libcef_dll/cpptoc/"+filename+"_cpptoc.cc',\n" \
-                      "      'libcef_dll/cpptoc/"+filename+"_cpptoc.h',\n"
-        else:
-            result += "      'libcef_dll/ctocpp/"+filename+"_ctocpp.cc',\n" \
-                      "      'libcef_dll/ctocpp/"+filename+"_ctocpp.h',\n"  
-    result += "    ],\n"    
-    
-    # client side includes
-    result += "    'autogen_client_side': [\n"
-    for clsname in classes:
-        cls = header.get_class(clsname)
-        filename = get_capi_name(clsname[3:], False)
-        dir = cls.get_file_directory()
-        if not dir is None:
-            filename = dir+'/'+filename
-        if cls.is_library_side():
-            result += "      'libcef_dll/ctocpp/"+filename+"_ctocpp.cc',\n" \
-                      "      'libcef_dll/ctocpp/"+filename+"_ctocpp.h',\n"  
-        else:
-            result += "      'libcef_dll/cpptoc/"+filename+"_cpptoc.cc',\n" \
-                      "      'libcef_dll/cpptoc/"+filename+"_cpptoc.h',\n"
-    result += "    ],\n"    
-    
-    # footer string
-    result += \
+
+  filenames = sorted(header.get_file_names())
+
+  # cpp includes
+  result += "    'autogen_cpp_includes': [\n"
+  for filename in filenames:
+    result += "      'include/" + filename + "',\n"
+  result += "    ],\n"
+
+  # capi includes
+  result += "    'autogen_capi_includes': [\n"
+  for filename in filenames:
+    result += "      'include/capi/" + get_capi_file_name(filename) + "',\n"
+  result += "    ],\n"
+
+  classes = sorted(header.get_class_names())
+
+  # library side includes
+  result += "    'autogen_library_side': [\n"
+  for clsname in classes:
+    cls = header.get_class(clsname)
+    filename = get_capi_name(clsname[3:], False)
+    dir = cls.get_file_directory()
+    if not dir is None:
+      filename = dir + '/' + filename
+    if cls.is_library_side():
+      result += "      'libcef_dll/cpptoc/"+filename+"_cpptoc.cc',\n" \
+                "      'libcef_dll/cpptoc/"+filename+"_cpptoc.h',\n"
+    else:
+      result += "      'libcef_dll/ctocpp/"+filename+"_ctocpp.cc',\n" \
+                "      'libcef_dll/ctocpp/"+filename+"_ctocpp.h',\n"
+  result += "    ],\n"
+
+  # client side includes
+  result += "    'autogen_client_side': [\n"
+  for clsname in classes:
+    cls = header.get_class(clsname)
+    filename = get_capi_name(clsname[3:], False)
+    dir = cls.get_file_directory()
+    if not dir is None:
+      filename = dir + '/' + filename
+    if cls.is_library_side():
+      result += "      'libcef_dll/ctocpp/"+filename+"_ctocpp.cc',\n" \
+                "      'libcef_dll/ctocpp/"+filename+"_ctocpp.h',\n"
+    else:
+      result += "      'libcef_dll/cpptoc/"+filename+"_cpptoc.cc',\n" \
+                "      'libcef_dll/cpptoc/"+filename+"_cpptoc.h',\n"
+  result += "    ],\n"
+
+  # footer string
+  result += \
 """  },
 }
 """
-    
-    # add the copyright year
-    result = result.replace('$YEAR$', get_year())
 
-    return result
+  # add the copyright year
+  result = result.replace('$YEAR$', get_year())
+
+  return result
+
 
 def write_gypi_file(header, file):
-    newcontents = make_gypi_file(header)
-    return (file, newcontents)
+  newcontents = make_gypi_file(header)
+  return (file, newcontents)
 
 
 # test the module
 if __name__ == "__main__":
-    import sys
-    
-    # verify that the correct number of command-line arguments are provided
-    if len(sys.argv) < 2:
-        sys.stderr.write('Usage: '+sys.argv[0]+' <infile>')
-        sys.exit()
-        
-    # create the header object
-    header = obj_header()
-    header.add_file(sys.argv[1])
-    
-    # dump the result to stdout
-    sys.stdout.write(make_gypi_file(header))
+  import sys
+
+  # verify that the correct number of command-line arguments are provided
+  if len(sys.argv) < 2:
+    sys.stderr.write('Usage: ' + sys.argv[0] + ' <infile>')
+    sys.exit()
+
+  # create the header object
+  header = obj_header()
+  header.add_file(sys.argv[1])
+
+  # dump the result to stdout
+  sys.stdout.write(make_gypi_file(header))

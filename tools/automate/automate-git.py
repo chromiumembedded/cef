@@ -21,7 +21,6 @@ depot_tools_archive_url = 'https://storage.googleapis.com/chrome-infra/depot_too
 
 cef_git_url = 'https://bitbucket.org/chromiumembedded/cef.git'
 
-
 ##
 # Global system variables.
 ##
@@ -29,21 +28,22 @@ cef_git_url = 'https://bitbucket.org/chromiumembedded/cef.git'
 # Script directory.
 script_dir = os.path.dirname(__file__)
 
-
 ##
 # Helper functions.
 ##
 
+
 def msg(message):
   """ Output a message. """
   sys.stdout.write('--> ' + message + "\n")
+
 
 def run(command_line, working_dir, depot_tools_dir=None, output_file=None):
   """ Runs the specified command. """
   # add depot_tools to the path
   env = os.environ
   if not depot_tools_dir is None:
-    env['PATH'] = depot_tools_dir+os.pathsep+env['PATH']
+    env['PATH'] = depot_tools_dir + os.pathsep + env['PATH']
 
   sys.stdout.write('-------- Running "'+command_line+'" in "'+\
                    working_dir+'"...'+"\n")
@@ -51,26 +51,33 @@ def run(command_line, working_dir, depot_tools_dir=None, output_file=None):
     args = shlex.split(command_line.replace('\\', '\\\\'))
 
     if not output_file:
-      return subprocess.check_call(args, cwd=working_dir, env=env,
-                                 shell=(sys.platform == 'win32'))
+      return subprocess.check_call(
+          args, cwd=working_dir, env=env, shell=(sys.platform == 'win32'))
     with open(output_file, "w") as f:
-      return subprocess.check_call(args, cwd=working_dir, env=env,
-                                 shell=(sys.platform == 'win32'),
-                                 stderr=subprocess.STDOUT, stdout=f)
+      return subprocess.check_call(
+          args,
+          cwd=working_dir,
+          env=env,
+          shell=(sys.platform == 'win32'),
+          stderr=subprocess.STDOUT,
+          stdout=f)
+
 
 def create_directory(path):
   """ Creates a directory if it doesn't already exist. """
   if not os.path.exists(path):
-    msg("Creating directory %s" % (path));
+    msg("Creating directory %s" % (path))
     if not options.dryrun:
       os.makedirs(path)
+
 
 def delete_directory(path):
   """ Removes an existing directory. """
   if os.path.exists(path):
-    msg("Removing directory %s" % (path));
+    msg("Removing directory %s" % (path))
     if not options.dryrun:
       shutil.rmtree(path, onerror=onerror)
+
 
 def copy_directory(source, target, allow_overwrite=False):
   """ Copies a directory from source to target. """
@@ -79,9 +86,10 @@ def copy_directory(source, target, allow_overwrite=False):
       raise Exception("Directory %s already exists" % (target))
     remove_directory(target)
   if os.path.exists(source):
-    msg("Copying directory %s to %s" % (source, target));
+    msg("Copying directory %s to %s" % (source, target))
     if not options.dryrun:
       shutil.copytree(source, target)
+
 
 def move_directory(source, target, allow_overwrite=False):
   """ Copies a directory from source to target. """
@@ -90,13 +98,15 @@ def move_directory(source, target, allow_overwrite=False):
       raise Exception("Directory %s already exists" % (target))
     remove_directory(target)
   if os.path.exists(source):
-    msg("Moving directory %s to %s" % (source, target));
+    msg("Moving directory %s to %s" % (source, target))
     if not options.dryrun:
       shutil.move(source, target)
+
 
 def is_git_checkout(path):
   """ Returns true if the path represents a git checkout. """
   return os.path.exists(os.path.join(path, '.git'))
+
 
 def exec_cmd(cmd, path):
   """ Execute the specified command and return the result. """
@@ -105,16 +115,19 @@ def exec_cmd(cmd, path):
   sys.stdout.write("-------- Running \"%s\" in \"%s\"...\n" % (cmd, path))
   parts = cmd.split()
   try:
-    process = subprocess.Popen(parts, cwd=path,
-                               stdout=subprocess.PIPE,
-                               stderr=subprocess.PIPE,
-                               shell=(sys.platform == 'win32'))
+    process = subprocess.Popen(
+        parts,
+        cwd=path,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        shell=(sys.platform == 'win32'))
     out, err = process.communicate()
   except IOError, (errno, strerror):
     raise
   except:
     raise
   return {'out': out, 'err': err}
+
 
 def get_git_hash(path, branch):
   """ Returns the git hash for the specified branch/tag/hash. """
@@ -124,6 +137,7 @@ def get_git_hash(path, branch):
     return result['out'].strip()
   return 'Unknown'
 
+
 def get_git_url(path):
   """ Returns the origin url for the specified path. """
   cmd = "%s config --get remote.origin.url" % (git_exe)
@@ -131,6 +145,7 @@ def get_git_url(path):
   if result['out'] != '':
     return result['out'].strip()
   return 'Unknown'
+
 
 def download_and_extract(src, target):
   """ Extracts the contents of src, which may be a URL or local file, to the
@@ -143,7 +158,7 @@ def download_and_extract(src, target):
     response = opener.open(src)
 
     temporary = True
-    handle, archive_path = tempfile.mkstemp(suffix = '.zip')
+    handle, archive_path = tempfile.mkstemp(suffix='.zip')
     os.write(handle, response.read())
     os.close(handle)
   elif os.path.exists(src):
@@ -169,6 +184,7 @@ def download_and_extract(src, target):
   if temporary and os.path.exists(archive_path):
     os.remove(archive_path)
 
+
 def read_file(path):
   """ Read a file. """
   if os.path.exists(path):
@@ -179,10 +195,12 @@ def read_file(path):
   else:
     raise Exception("Path does not exist: %s" % (path))
 
+
 def read_config_file(path):
   """ Read a configuration file. """
   # Parse the contents.
   return eval(read_file(path), {'__builtins__': None}, None)
+
 
 def write_config_file(path, contents):
   """ Write a configuration file. """
@@ -195,6 +213,7 @@ def write_config_file(path, contents):
     fp.write("}\n")
     fp.close()
 
+
 def read_branch_config_file(path):
   """ Read the CEF branch from the specified path. """
   config_file = os.path.join(path, 'cef.branch')
@@ -204,11 +223,13 @@ def read_branch_config_file(path):
       return contents['branch']
   return ''
 
+
 def write_branch_config_file(path, branch):
   """ Write the CEF branch to the specified path. """
   config_file = os.path.join(path, 'cef.branch')
   if not os.path.isfile(config_file):
     write_config_file(config_file, {'branch': branch})
+
 
 def remove_deps_entry(path, entry):
   """ Remove an entry from the Chromium DEPS file at the specified path. """
@@ -233,6 +254,7 @@ def remove_deps_entry(path, entry):
       fp.write(line)
     fp.close()
 
+
 def apply_deps_patch():
   """ Patch the Chromium DEPS file if necessary. """
   # Starting with 43.0.2357.126 the DEPS file is now 100% Git and the .DEPS.git
@@ -251,8 +273,8 @@ def apply_deps_patch():
       # Attempt to apply the DEPS patch file that may exist with newer branches.
       patch_tool = os.path.join(cef_dir, 'tools', 'patcher.py')
       run('%s %s --patch-file "%s" --patch-dir "%s"' %
-              (python_exe, patch_tool, patch_file, chromium_src_dir),
-          chromium_src_dir, depot_tools_dir)
+          (python_exe, patch_tool, patch_file,
+           chromium_src_dir), chromium_src_dir, depot_tools_dir)
     elif cef_branch != 'trunk' and int(cef_branch) <= 1916:
       # Release branch DEPS files older than 37.0.2007.0 may include a 'src'
       # entry. This entry needs to be removed otherwise `gclient sync` will
@@ -260,6 +282,7 @@ def apply_deps_patch():
       remove_deps_entry(deps_path, "'src'")
   else:
     raise Exception("Path does not exist: %s" % (deps_path))
+
 
 def onerror(func, path, exc_info):
   """
@@ -299,10 +322,17 @@ distribution of CEF.
 parser = OptionParser(description=disc)
 
 # Setup options.
-parser.add_option('--download-dir', dest='downloaddir', metavar='DIR',
-                  help='Download directory with no spaces [required].')
-parser.add_option('--depot-tools-dir', dest='depottoolsdir', metavar='DIR',
-                  help='Download directory for depot_tools.', default='')
+parser.add_option(
+    '--download-dir',
+    dest='downloaddir',
+    metavar='DIR',
+    help='Download directory with no spaces [required].')
+parser.add_option(
+    '--depot-tools-dir',
+    dest='depottoolsdir',
+    metavar='DIR',
+    help='Download directory for depot_tools.',
+    default='')
 parser.add_option('--depot-tools-archive', dest='depottoolsarchive',
                   help='Zip archive file that contains a single top-level '+\
                        'depot_tools directory.', default='')
@@ -331,9 +361,12 @@ parser.add_option('--chromium-checkout', dest='chromiumcheckout',
                   default='')
 
 # Miscellaneous options.
-parser.add_option('--force-config',
-                  action='store_true', dest='forceconfig', default=False,
-                  help='Force creation of a new gclient config file.')
+parser.add_option(
+    '--force-config',
+    action='store_true',
+    dest='forceconfig',
+    default=False,
+    help='Force creation of a new gclient config file.')
 parser.add_option('--force-clean',
                   action='store_true', dest='forceclean', default=False,
                   help='Force a clean checkout of Chromium and CEF. This will'+\
@@ -342,9 +375,12 @@ parser.add_option('--force-clean-deps',
                   action='store_true', dest='forcecleandeps', default=False,
                   help='Force a clean checkout of Chromium dependencies. Used'+\
                        ' in combination with --force-clean.')
-parser.add_option('--dry-run',
-                  action='store_true', dest='dryrun', default=False,
-                  help="Output commands without executing them.")
+parser.add_option(
+    '--dry-run',
+    action='store_true',
+    dest='dryrun',
+    default=False,
+    help="Output commands without executing them.")
 parser.add_option('--dry-run-platform', dest='dryrunplatform', default=None,
                   help='Simulate a dry run on the specified platform '+\
                        '(windows, macosx, linux). Must be used in combination'+\
@@ -365,12 +401,18 @@ parser.add_option('--no-cef-update',
                   help='Do not update CEF. Pass --force-build or '+\
                        '--force-distrib if you desire a new build or '+\
                        'distribution.')
-parser.add_option('--no-chromium-update',
-                  action='store_true', dest='nochromiumupdate', default=False,
-                  help='Do not update Chromium.')
-parser.add_option('--no-depot-tools-update',
-                  action='store_true', dest='nodepottoolsupdate', default=False,
-                  help='Do not update depot_tools.')
+parser.add_option(
+    '--no-chromium-update',
+    action='store_true',
+    dest='nochromiumupdate',
+    default=False,
+    help='Do not update Chromium.')
+parser.add_option(
+    '--no-depot-tools-update',
+    action='store_true',
+    dest='nodepottoolsupdate',
+    default=False,
+    help='Do not update depot_tools.')
 
 # Build-related options.
 parser.add_option('--force-build',
@@ -378,63 +420,114 @@ parser.add_option('--force-build',
                   help='Force CEF debug and release builds. This builds '+\
                        '[build-target] on all platforms and chrome_sandbox '+\
                        'on Linux.')
-parser.add_option('--no-build',
-                  action='store_true', dest='nobuild', default=False,
-                  help='Do not build CEF.')
-parser.add_option('--build-target', dest='buildtarget', default='cefclient',
-                  help='Target name(s) to build (defaults to "cefclient").')
-parser.add_option('--build-tests',
-                  action='store_true', dest='buildtests', default=False,
-                  help='Also build the ceftests target.')
-parser.add_option('--no-debug-build',
-                  action='store_true', dest='nodebugbuild', default=False,
-                  help="Don't perform the CEF debug build.")
-parser.add_option('--no-release-build',
-                  action='store_true', dest='noreleasebuild', default=False,
-                  help="Don't perform the CEF release build.")
-parser.add_option('--verbose-build',
-                  action='store_true', dest='verbosebuild', default=False,
-                  help='Show all command lines while building.')
+parser.add_option(
+    '--no-build',
+    action='store_true',
+    dest='nobuild',
+    default=False,
+    help='Do not build CEF.')
+parser.add_option(
+    '--build-target',
+    dest='buildtarget',
+    default='cefclient',
+    help='Target name(s) to build (defaults to "cefclient").')
+parser.add_option(
+    '--build-tests',
+    action='store_true',
+    dest='buildtests',
+    default=False,
+    help='Also build the ceftests target.')
+parser.add_option(
+    '--no-debug-build',
+    action='store_true',
+    dest='nodebugbuild',
+    default=False,
+    help="Don't perform the CEF debug build.")
+parser.add_option(
+    '--no-release-build',
+    action='store_true',
+    dest='noreleasebuild',
+    default=False,
+    help="Don't perform the CEF release build.")
+parser.add_option(
+    '--verbose-build',
+    action='store_true',
+    dest='verbosebuild',
+    default=False,
+    help='Show all command lines while building.')
 parser.add_option('--build-log-file',
                   action='store_true', dest='buildlogfile', default=False,
                   help='Write build logs to file. The file will be named '+\
                        '"build-[branch]-[debug|release].log" in the download '+\
                        'directory.')
-parser.add_option('--x64-build',
-                  action='store_true', dest='x64build', default=False,
-                  help='Create a 64-bit build.')
-parser.add_option('--arm-build',
-                  action='store_true', dest='armbuild', default=False,
-                  help='Create an ARM build.')
+parser.add_option(
+    '--x64-build',
+    action='store_true',
+    dest='x64build',
+    default=False,
+    help='Create a 64-bit build.')
+parser.add_option(
+    '--arm-build',
+    action='store_true',
+    dest='armbuild',
+    default=False,
+    help='Create an ARM build.')
 
 # Distribution-related options.
-parser.add_option('--force-distrib',
-                  action='store_true', dest='forcedistrib', default=False,
-                  help='Force creation of a CEF binary distribution.')
-parser.add_option('--no-distrib',
-                  action='store_true', dest='nodistrib', default=False,
-                  help="Don't create a CEF binary distribution.")
-parser.add_option('--minimal-distrib',
-                  action='store_true', dest='minimaldistrib', default=False,
-                  help='Create a minimal CEF binary distribution.')
-parser.add_option('--minimal-distrib-only',
-                  action='store_true', dest='minimaldistribonly', default=False,
-                  help='Create a minimal CEF binary distribution only.')
-parser.add_option('--client-distrib',
-                  action='store_true', dest='clientdistrib', default=False,
-                  help='Create a client CEF binary distribution.')
-parser.add_option('--client-distrib-only',
-                  action='store_true', dest='clientdistribonly', default=False,
-                  help='Create a client CEF binary distribution only.')
-parser.add_option('--no-distrib-docs',
-                  action='store_true', dest='nodistribdocs', default=False,
-                  help="Don't create CEF documentation.")
-parser.add_option('--no-distrib-archive',
-                  action='store_true', dest='nodistribarchive', default=False,
-                  help="Don't create archives for output directories.")
-parser.add_option('--clean-artifacts',
-                  action='store_true', dest='cleanartifacts', default=False,
-                  help='Clean the artifacts output directory.')
+parser.add_option(
+    '--force-distrib',
+    action='store_true',
+    dest='forcedistrib',
+    default=False,
+    help='Force creation of a CEF binary distribution.')
+parser.add_option(
+    '--no-distrib',
+    action='store_true',
+    dest='nodistrib',
+    default=False,
+    help="Don't create a CEF binary distribution.")
+parser.add_option(
+    '--minimal-distrib',
+    action='store_true',
+    dest='minimaldistrib',
+    default=False,
+    help='Create a minimal CEF binary distribution.')
+parser.add_option(
+    '--minimal-distrib-only',
+    action='store_true',
+    dest='minimaldistribonly',
+    default=False,
+    help='Create a minimal CEF binary distribution only.')
+parser.add_option(
+    '--client-distrib',
+    action='store_true',
+    dest='clientdistrib',
+    default=False,
+    help='Create a client CEF binary distribution.')
+parser.add_option(
+    '--client-distrib-only',
+    action='store_true',
+    dest='clientdistribonly',
+    default=False,
+    help='Create a client CEF binary distribution only.')
+parser.add_option(
+    '--no-distrib-docs',
+    action='store_true',
+    dest='nodistribdocs',
+    default=False,
+    help="Don't create CEF documentation.")
+parser.add_option(
+    '--no-distrib-archive',
+    action='store_true',
+    dest='nodistribarchive',
+    default=False,
+    help="Don't create archives for output directories.")
+parser.add_option(
+    '--clean-artifacts',
+    action='store_true',
+    dest='cleanartifacts',
+    default=False,
+    help='Clean the artifacts output directory.')
 parser.add_option('--distrib-subdir', dest='distribsubdir',
                   help='CEF distrib dir name, child of '+\
                        'chromium/src/cef/binary_distrib',
@@ -584,7 +677,6 @@ if platform == 'windows':
   # Avoid errors when the "vs_toolchain.py update" Chromium hook runs.
   os.environ['DEPOT_TOOLS_WIN_TOOLCHAIN'] = '0'
 
-
 ##
 # Manage the download directory.
 ##
@@ -594,7 +686,6 @@ download_dir = os.path.abspath(options.downloaddir)
 create_directory(download_dir)
 
 msg("Download Directory: %s" % (download_dir))
-
 
 ##
 # Manage the depot_tools directory.
@@ -622,16 +713,16 @@ if not os.path.exists(depot_tools_dir):
       download_and_extract(options.depottoolsarchive, depot_tools_dir)
   else:
     # On Linux and OS X check out depot_tools using Git.
-    run('git clone '+depot_tools_url+' '+depot_tools_dir, download_dir)
+    run('git clone ' + depot_tools_url + ' ' + depot_tools_dir, download_dir)
 
 if not options.nodepottoolsupdate:
   # Update depot_tools.
   # On Windows this will download required python and git binaries.
   msg('Updating depot_tools')
   if platform == 'windows':
-    run('update_depot_tools.bat', depot_tools_dir, depot_tools_dir);
+    run('update_depot_tools.bat', depot_tools_dir, depot_tools_dir)
   else:
-    run('update_depot_tools', depot_tools_dir, depot_tools_dir);
+    run('update_depot_tools', depot_tools_dir, depot_tools_dir)
 
 # Determine the executables to use.
 if platform == 'windows':
@@ -647,7 +738,6 @@ if platform == 'windows':
 else:
   git_exe = 'git'
   python_exe = 'python'
-
 
 ##
 # Manage the cef directory.
@@ -722,7 +812,6 @@ if not options.nocefupdate and os.path.exists(cef_dir):
 else:
   cef_checkout_changed = False
 
-
 ##
 # Manage the out directory.
 ##
@@ -734,7 +823,6 @@ if options.forceclean and os.path.exists(out_dir):
   delete_directory(out_dir)
 
 msg("CEF Output Directory: %s" % (out_dir))
-
 
 ##
 # Manage the chromium directory.
@@ -749,7 +837,7 @@ cef_src_dir = os.path.join(chromium_src_dir, 'cef')
 out_src_dir = os.path.join(chromium_src_dir, 'out')
 
 if options.chromiumurl != '':
-  chromium_url = options.chromiumurl;
+  chromium_url = options.chromiumurl
 else:
   chromium_url = 'https://chromium.googlesource.com/chromium/src.git'
 
@@ -830,7 +918,7 @@ else:
 # Delete the existing src/cef directory. It will be re-copied from the download
 # directory later.
 if cef_checkout_changed and os.path.exists(cef_src_dir):
-  delete_directory(cef_src_dir)  
+  delete_directory(cef_src_dir)
 
 # Delete the existing src/out directory if requested.
 if options.forceclean and os.path.exists(out_src_dir):
@@ -899,7 +987,6 @@ elif not out_src_dir_exists:
 # Write the config file for identifying the branch.
 write_branch_config_file(out_src_dir, cef_branch)
 
-
 ##
 # Build CEF.
 ##
@@ -938,7 +1025,7 @@ if not options.nobuild and (chromium_checkout_changed or \
       msg('%s=%s' % (key, os.environ[key]))
 
   # Run the cef_create_projects script to generate project files.
-  path = os.path.join(cef_src_dir, 'cef_create_projects'+script_ext)
+  path = os.path.join(cef_src_dir, 'cef_create_projects' + script_ext)
   run(path, cef_src_dir, depot_tools_dir)
 
   # Build using Ninja.
@@ -995,7 +1082,6 @@ elif not options.nobuild:
   msg('Not building. The source hashes have not changed and ' +
       'the output folder "%s" already exists' % (out_src_dir))
 
-
 ##
 # Create the CEF binary distribution.
 ##
@@ -1025,7 +1111,7 @@ if not options.nodistrib and (chromium_checkout_changed or \
   # Create the requested distribution types.
   first_type = True
   for type in distrib_types:
-    path = os.path.join(cef_tools_dir, 'make_distrib'+script_ext)
+    path = os.path.join(cef_tools_dir, 'make_distrib' + script_ext)
     if options.nodebugbuild or options.noreleasebuild or type != 'standard':
       path = path + ' --allow-partial'
     path = path + ' --ninja-build'

@@ -8,8 +8,8 @@ import sys
 
 # cannot be loaded as a module
 if __name__ != "__main__":
-    sys.stderr.write('This file cannot be loaded as a module!')
-    sys.exit()
+  sys.stderr.write('This file cannot be loaded as a module!')
+  sys.exit()
 
 if len(sys.argv) < 2:
   raise Exception('Path expected on command-line')

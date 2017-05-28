@@ -2,7 +2,6 @@
 # Copyright (c) 2012 The Chromium Embedded Framework Authors. All rights
 # reserved. Use of this source code is governed by a BSD-style license
 # that can be found in the LICENSE file.
-
 """
 A simple utility function to merge pack resource files into a single resource file.
 """
@@ -95,7 +94,7 @@ def MakeFile(output, input):
   result = result.replace('$YEAR$', get_year())
   # add the guard string
   filename = os.path.split(output)[1]
-  guard = 'CEF_INCLUDE_'+string.upper(filename.replace('.', '_'))+'_'
+  guard = 'CEF_INCLUDE_' + string.upper(filename.replace('.', '_')) + '_'
   result = result.replace('$GUARD$', guard)
 
   if path_exists(output):
@@ -105,14 +104,15 @@ def MakeFile(output, input):
 
   if (result != old_contents):
     write_file(output, result)
-    sys.stdout.write('File '+output+' updated.\n')
+    sys.stdout.write('File ' + output + ' updated.\n')
   else:
-    sys.stdout.write('File '+output+' is already up to date.\n')
+    sys.stdout.write('File ' + output + ' is already up to date.\n')
+
 
 def main(argv):
   if len(argv) < 3:
-    print ("Usage:\n  %s <output_filename> <input_file1> [input_file2] ... " %
-           argv[0])
+    print("Usage:\n  %s <output_filename> <input_file1> [input_file2] ... " %
+          argv[0])
     sys.exit(-1)
   MakeFile(argv[1], argv[2:])
 

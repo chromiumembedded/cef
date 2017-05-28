@@ -25,17 +25,16 @@ else:
   print 'Unknown operating system platform'
   sys.exit()
 
-
 print "\nGenerating CEF version header file..."
-cmd = [ 'python', 'tools/make_version_header.py',
-        '--header', 'include/cef_version.h',
-        '--cef_version', 'VERSION',
-        '--chrome_version', '../chrome/VERSION',
-        '--cpp_header_dir', 'include' ]
+cmd = [
+    'python', 'tools/make_version_header.py', '--header',
+    'include/cef_version.h', '--cef_version', 'VERSION', '--chrome_version',
+    '../chrome/VERSION', '--cpp_header_dir', 'include'
+]
 RunAction(cef_dir, cmd)
 
 print "\nPatching build configuration and source files for CEF..."
-cmd = [ 'python', 'tools/patcher.py' ]
+cmd = ['python', 'tools/patcher.py']
 RunAction(cef_dir, cmd)
 
 print "\nGenerating CEF project files..."
@@ -99,14 +98,14 @@ if platform == 'windows':
   #
   if bool(int(os.environ.get('WIN_CUSTOM_TOOLCHAIN', '0'))):
     required_vars = [
-      'CEF_VCVARS',
-      'GYP_MSVS_OVERRIDE_PATH',
-      'GYP_MSVS_VERSION',
-      'VS_CRT_ROOT',
-      'SDK_ROOT',
-      'INCLUDE',
-      'LIB',
-      'PATH',
+        'CEF_VCVARS',
+        'GYP_MSVS_OVERRIDE_PATH',
+        'GYP_MSVS_VERSION',
+        'VS_CRT_ROOT',
+        'SDK_ROOT',
+        'INCLUDE',
+        'LIB',
+        'PATH',
     ]
     for var in required_vars:
       if not var in os.environ.keys():
@@ -128,7 +127,7 @@ for dir, config in configs.items():
   write_file(args_gn_path, args_gn_contents)
 
   # Generate the Ninja config.
-  cmd = [ 'gn', 'gen', os.path.join('out', dir) ]
+  cmd = ['gn', 'gen', os.path.join('out', dir)]
   if 'GN_ARGUMENTS' in os.environ.keys():
     cmd.extend(os.environ['GN_ARGUMENTS'].split(' '))
   RunAction(src_dir, cmd)

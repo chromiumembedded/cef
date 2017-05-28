@@ -23,22 +23,31 @@ import random
 import string
 import sys
 
+
 # Create a fake sha1 checksum value.
 def make_fake_sha1():
-  return ''.join(random.SystemRandom().choice('abcdef' + string.digits) for _ in range(40))
+  return ''.join(random.SystemRandom().choice('abcdef' + string.digits)
+                 for _ in range(40))
+
 
 # Create a fake file size value.
 def make_fake_size():
   return random.randint(30000000, 60000000)
 
+
 # Create fake file info based on |platform| and |version|.
 def make_fake_file_info(platform, version, type):
   return {
-    'name': cef_json_builder.get_file_name(version, platform, type) + '.tar.gz',
-    'size': make_fake_size(),
-    'lastModified': datetime.datetime.now(),
-    'sha1': make_fake_sha1()
+      'name':
+          cef_json_builder.get_file_name(version, platform, type) + '.tar.gz',
+      'size':
+          make_fake_size(),
+      'lastModified':
+          datetime.datetime.now(),
+      'sha1':
+          make_fake_sha1()
   }
+
 
 # Returns a list of fake files based on |platform| and |version|.
 def create_fake_files(platform, version):
@@ -61,7 +70,8 @@ def create_fake_files(platform, version):
 if __name__ == '__main__':
   # Verify command-line arguments.
   if len(sys.argv) < 5 or sys.argv[1] != 'add':
-    sys.stderr.write('Usage: %s add <platform> <cef_version> <chromium_version>' % sys.argv[0])
+    sys.stderr.write('Usage: %s add <platform> <cef_version> <chromium_version>'
+                     % sys.argv[0])
     sys.exit()
 
   # Requested platform.
@@ -124,7 +134,8 @@ if __name__ == '__main__':
   # Add new files to the builder.
   changed_files = []
   for file in new_files:
-    if builder.add_file(file['name'], file['size'], file['lastModified'], file['sha1']):
+    if builder.add_file(file['name'], file['size'], file['lastModified'],
+                        file['sha1']):
       changed_files.append(file)
 
   if len(changed_files) > 0:

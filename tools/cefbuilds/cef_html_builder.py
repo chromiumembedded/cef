@@ -36,6 +36,7 @@ import sys
 # - Some global variables like "$year$" will be replaced in the whole template
 #   before further parsing occurs.
 
+
 class cef_html_builder:
   """ Class used to build the cefbuilds HTML file. """
 
@@ -47,7 +48,7 @@ class cef_html_builder:
   def clear(self):
     """ Clear the contents of this object. """
     self._parts = {}
-    return;
+    return
 
   @staticmethod
   def _token(key):
@@ -87,7 +88,9 @@ class cef_html_builder:
     top = str[:start_pos]
     middle = str[start_pos + len(start_tag):end_pos]
     bottom = str[end_pos + len(end_tag):]
-    return (top + cef_html_builder._token(cef_html_builder._section_key(section)) + bottom, middle)
+    return (
+        top + cef_html_builder._token(cef_html_builder._section_key(section)) +
+        bottom, middle)
 
   def load(self, html_template):
     """ Load the specified |html_template| string. """
@@ -107,32 +110,32 @@ class cef_html_builder:
     (version, file) = self._extract(version, 'file')
 
     self._parts = {
-      'root': root,
-      'platform_link': platform_link,
-      'platform': platform,
-      'version': version,
-      'file': file
+        'root': root,
+        'platform_link': platform_link,
+        'platform': platform,
+        'version': version,
+        'file': file
     }
 
   @staticmethod
   def _get_platform_name(platform):
     return {
-      'linux32': 'Linux 32-bit',
-      'linux64': 'Linux 64-bit',
-      'linuxarm': 'Linux ARM',
-      'macosx64': 'Mac OS X 64-bit',
-      'windows32': 'Windows 32-bit',
-      'windows64': 'Windows 64-bit'
+        'linux32': 'Linux 32-bit',
+        'linux64': 'Linux 64-bit',
+        'linuxarm': 'Linux ARM',
+        'macosx64': 'Mac OS X 64-bit',
+        'windows32': 'Windows 32-bit',
+        'windows64': 'Windows 64-bit'
     }[platform]
 
   @staticmethod
   def _get_type_name(type):
     return {
-      'standard': 'Standard Distribution',
-      'minimal': 'Minimal Distribution',
-      'client': 'Sample Application',
-      'debug_symbols': 'Debug Symbols',
-      'release_symbols': 'Release Symbols'
+        'standard': 'Standard Distribution',
+        'minimal': 'Minimal Distribution',
+        'client': 'Sample Application',
+        'debug_symbols': 'Debug Symbols',
+        'release_symbols': 'Release Symbols'
     }[type]
 
   @staticmethod
@@ -146,7 +149,7 @@ class cef_html_builder:
     size_name = ('B', 'KB', 'MB', 'GB')
     i = int(math.floor(math.log(size, 1024)))
     p = math.pow(1024, i)
-    s = round(size/p, 2)
+    s = round(size / p, 2)
     return '%.2f %s' % (s, size_name[i])
 
   @staticmethod
@@ -175,11 +178,17 @@ class cef_html_builder:
     else:
       sample_app = 'cefclient'
     return {
-      'standard': 'Standard binary distribution. Includes header files, libcef_dll_wrapper source code, binary files, CMake configuration files and source code for the cefclient and cefsimple sample applications. See the included README.txt file for usage and build requirements.',
-      'minimal': 'Minimal binary distribution. Includes header files, libcef_dll_wrapper source code, Release build binary files and CMake configuration files. Does not include Debug build binary files or sample application source code. See the included README.txt file for usage and build requirements.',
-      'client': 'Release build of the ' + sample_app + ' sample application. See the included README.txt file for usage requirements.',
-      'debug_symbols': 'Debug build symbols. Must be extracted and placed next to the CEF Debug binary file with the same name and version.',
-      'release_symbols': 'Release build symbols. Must be extracted and placed next to the CEF Release binary file with the same name and version.'
+        'standard':
+            'Standard binary distribution. Includes header files, libcef_dll_wrapper source code, binary files, CMake configuration files and source code for the cefclient and cefsimple sample applications. See the included README.txt file for usage and build requirements.',
+        'minimal':
+            'Minimal binary distribution. Includes header files, libcef_dll_wrapper source code, Release build binary files and CMake configuration files. Does not include Debug build binary files or sample application source code. See the included README.txt file for usage and build requirements.',
+        'client':
+            'Release build of the ' + sample_app +
+            ' sample application. See the included README.txt file for usage requirements.',
+        'debug_symbols':
+            'Debug build symbols. Must be extracted and placed next to the CEF Debug binary file with the same name and version.',
+        'release_symbols':
+            'Release build symbols. Must be extracted and placed next to the CEF Release binary file with the same name and version.'
     }[file['type']]
 
   def generate(self, json_builder):
@@ -189,8 +198,8 @@ class cef_html_builder:
 
     # Substitution values are augmented at each nesting level.
     subs = {
-      'year': '2016',
-      'branding': self._branding,
+        'year': '2016',
+        'branding': self._branding,
     }
 
     # Substitute variables.
@@ -210,9 +219,12 @@ class cef_html_builder:
       for version in json_builder.get_versions(platform):
         subs['cef_version'] = version['cef_version']
         subs['chromium_version'] = version['chromium_version']
-        subs['last_modified'] = self._get_date(version['files'][0]['last_modified'])
-        subs['cef_source_url'] = self._get_cef_source_url(version['cef_version'])
-        subs['chromium_source_url'] = self._get_chromium_source_url(version['chromium_version'])
+        subs['last_modified'] = self._get_date(
+            version['files'][0]['last_modified'])
+        subs['cef_source_url'] = self._get_cef_source_url(
+            version['cef_version'])
+        subs['chromium_source_url'] = self._get_chromium_source_url(
+            version['chromium_version'])
 
         # Substitute variables.
         version_str = self._replace_all(self._parts['version'], subs)
@@ -225,9 +237,12 @@ class cef_html_builder:
           subs['size'] = self._get_file_size(file['size'])
           subs['type'] = file['type']
           subs['type_name'] = self._get_type_name(file['type'])
-          subs['file_url'] = self._get_file_url(platform, version['cef_version'], file)
-          subs['sha1_url'] = self._get_sha1_url(platform, version['cef_version'], file)
-          subs['tooltip_text'] = self._get_tooltip_text(platform, version['cef_version'], file)
+          subs['file_url'] = self._get_file_url(platform,
+                                                version['cef_version'], file)
+          subs['sha1_url'] = self._get_sha1_url(platform,
+                                                version['cef_version'], file)
+          subs['tooltip_text'] = self._get_tooltip_text(
+              platform, version['cef_version'], file)
 
           # Substitute variables.
           file_str = self._replace_all(self._parts['file'], subs)
@@ -236,25 +251,35 @@ class cef_html_builder:
         if len(file_strs) > 0:
           # Always output file types in the same order.
           file_out = ''
-          type_order = ['standard', 'minimal', 'client', 'debug_symbols', 'release_symbols']
+          type_order = [
+              'standard', 'minimal', 'client', 'debug_symbols',
+              'release_symbols'
+          ]
           for type in type_order:
             if type in file_strs:
               file_out = file_out + file_strs[type]
 
           # Insert files.
-          version_str = self._replace(version_str, self._section_key('file'), file_out)
+          version_str = self._replace(version_str,
+                                      self._section_key('file'), file_out)
           version_strs.append(version_str)
 
       if len(version_strs) > 0:
         # Insert versions.
-        platform_str = self._replace(platform_str, self._section_key('version'), "".join(version_strs))
+        platform_str = self._replace(platform_str,
+                                     self._section_key('version'),
+                                     "".join(version_strs))
         platform_strs.append(platform_str)
         platform_link_strs.append(platform_link_str)
 
     if len(platform_strs) > 0:
       # Insert platforms.
-      root_str = self._replace(root_str, self._section_key('platform_link'), "".join(platform_link_strs))
-      root_str = self._replace(root_str, self._section_key('platform'), "".join(platform_strs))
+      root_str = self._replace(root_str,
+                               self._section_key('platform_link'),
+                               "".join(platform_link_strs))
+      root_str = self._replace(root_str,
+                               self._section_key('platform'),
+                               "".join(platform_strs))
 
     return root_str
 
@@ -263,7 +288,8 @@ class cef_html_builder:
 if __name__ == '__main__':
   # Verify command-line arguments.
   if len(sys.argv) < 4:
-    sys.stderr.write('Usage: %s <json_file_in> <html_file_in> <html_file_out>' % sys.argv[0])
+    sys.stderr.write(
+        'Usage: %s <json_file_in> <html_file_in> <html_file_out>' % sys.argv[0])
     sys.exit()
 
   json_file_in = sys.argv[1]

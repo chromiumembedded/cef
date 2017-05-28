@@ -6,6 +6,7 @@ from cef_json_builder import cef_json_builder
 import datetime
 import unittest
 
+
 class TestCefJSONBuilder(unittest.TestCase):
 
   # Write builder contents to string and then read in.
@@ -16,33 +17,35 @@ class TestCefJSONBuilder(unittest.TestCase):
     self.assertEqual(output, str(builder2))
 
   # Add a file record for testing purposes.
-  def _add_test_file(self, builder, platform='linux32', version='3.2704.1414.g185cd6c',
-                     type='standard', attrib_idx=0, shouldfail=False):
+  def _add_test_file(self,
+                     builder,
+                     platform='linux32',
+                     version='3.2704.1414.g185cd6c',
+                     type='standard',
+                     attrib_idx=0,
+                     shouldfail=False):
     name = cef_json_builder.get_file_name(version, platform, type) + '.tar.gz'
 
     # Some random attribute information. sha1 must be different to trigger replacement.
-    attribs = [
-      {
+    attribs = [{
         'date_str': '2016-05-18T22:42:15.487Z',
         'date_val': datetime.datetime(2016, 5, 18, 22, 42, 15, 487000),
         'sha1': '2d48ee05ea6385c8fe80879c98c5dd505ad4b100',
         'size': 48395610
-      },
-      {
+    }, {
         'date_str': '2016-05-14T22:42:15.487Z',
         'date_val': datetime.datetime(2016, 5, 14, 22, 42, 15, 487000),
         'sha1': '2d48ee05ea6385c8fe80879c98c5dd505ad4b200',
         'size': 48395620
-      }
-    ]
+    }]
 
     # Populate the Chromium version to avoid queries.
     chromium_version = '49.0.2705.50'
-    self.assertEqual(chromium_version, builder.set_chromium_version(version, chromium_version))
+    self.assertEqual(chromium_version,
+                     builder.set_chromium_version(version, chromium_version))
     self.assertEqual(0, builder.get_query_count())
 
-    result = builder.add_file(name,
-                              attribs[attrib_idx]['size'],
+    result = builder.add_file(name, attribs[attrib_idx]['size'],
                               attribs[attrib_idx]['date_str'],
                               attribs[attrib_idx]['sha1'])
     # Failure should be expected when adding the same file multiple times with the same sha1.
@@ -50,14 +53,14 @@ class TestCefJSONBuilder(unittest.TestCase):
 
     # Return the result expected from get_files().
     return {
-      'chromium_version': chromium_version,
-      'sha1': attribs[attrib_idx]['sha1'],
-      'name': name,
-      'platform': platform,
-      'last_modified': attribs[attrib_idx]['date_val'],
-      'cef_version': version,
-      'type': type,
-      'size': attribs[attrib_idx]['size']
+        'chromium_version': chromium_version,
+        'sha1': attribs[attrib_idx]['sha1'],
+        'name': name,
+        'platform': platform,
+        'last_modified': attribs[attrib_idx]['date_val'],
+        'cef_version': version,
+        'type': type,
+        'size': attribs[attrib_idx]['size']
     }
 
   # Test with no file contents.
@@ -105,8 +108,11 @@ class TestCefJSONBuilder(unittest.TestCase):
     builder = cef_json_builder()
 
     # Specify all values just in case the defaults change.
-    expected = self._add_test_file(builder,
-        platform='linux32', version='3.2704.1414.g185cd6c', type='standard')
+    expected = self._add_test_file(
+        builder,
+        platform='linux32',
+        version='3.2704.1414.g185cd6c',
+        type='standard')
 
     # No filter.
     files = builder.get_files()
@@ -140,14 +146,18 @@ class TestCefJSONBuilder(unittest.TestCase):
     self.assertEqual(len(files), 0)
 
     # All filters.
-    files = builder.get_files(platform='linux32', version='3.2704', type='standard')
+    files = builder.get_files(
+        platform='linux32', version='3.2704', type='standard')
     self.assertEqual(len(files), 1)
     self.assertEqual(expected, files[0])
-    files = builder.get_files(platform='linux32', version='3.2704', type='minimal')
+    files = builder.get_files(
+        platform='linux32', version='3.2704', type='minimal')
     self.assertEqual(len(files), 0)
-    files = builder.get_files(platform='linux32', version='3.2623', type='standard')
+    files = builder.get_files(
+        platform='linux32', version='3.2623', type='standard')
     self.assertEqual(len(files), 0)
-    files = builder.get_files(platform='linux64', version='3.2704', type='standard')
+    files = builder.get_files(
+        platform='linux64', version='3.2704', type='standard')
     self.assertEqual(len(files), 0)
 
   # Test add/get of multiple files.
@@ -162,7 +172,9 @@ class TestCefJSONBuilder(unittest.TestCase):
     for platform in platforms:
       for version in versions:
         for type in types:
-          expected.append(self._add_test_file(builder, platform=platform, type=type, version=version))
+          expected.append(
+              self._add_test_file(
+                  builder, platform=platform, type=type, version=version))
 
     self._verify_write_read(builder)
 
@@ -187,7 +199,8 @@ class TestCefJSONBuilder(unittest.TestCase):
     for platform in platforms:
       for version in versions:
         for type in types:
-          files = builder.get_files(platform=platform, type=type, version=version)
+          files = builder.get_files(
+              platform=platform, type=type, version=version)
           self.assertEqual(len(files), 1)
           self.assertEqual(expected[idx], files[0])
           idx = idx + 1
@@ -203,7 +216,8 @@ class TestCefJSONBuilder(unittest.TestCase):
     # Initial file versions.
     for platform in platforms:
       for type in types:
-        self._add_test_file(builder, platform=platform, type=type, version=version)
+        self._add_test_file(
+            builder, platform=platform, type=type, version=version)
 
     # No filter.
     files = builder.get_files()
@@ -214,8 +228,13 @@ class TestCefJSONBuilder(unittest.TestCase):
     # Replace all file versions (due to new sha1).
     for platform in platforms:
       for type in types:
-        expected.append(self._add_test_file(builder,
-            platform=platform, type=type, version=version, attrib_idx=1))
+        expected.append(
+            self._add_test_file(
+                builder,
+                platform=platform,
+                type=type,
+                version=version,
+                attrib_idx=1))
 
     # No filter.
     files = builder.get_files()
@@ -241,7 +260,8 @@ class TestCefJSONBuilder(unittest.TestCase):
     # Initial file versions.
     for platform in platforms:
       for type in types:
-        self._add_test_file(builder, platform=platform, type=type, version=version)
+        self._add_test_file(
+            builder, platform=platform, type=type, version=version)
 
     # No filter.
     files = builder.get_files()
@@ -252,8 +272,13 @@ class TestCefJSONBuilder(unittest.TestCase):
     # Replace no file versions (due to same sha1).
     for platform in platforms:
       for type in types:
-        expected.append(self._add_test_file(builder,
-            platform=platform, type=type, version=version, shouldfail=True))
+        expected.append(
+            self._add_test_file(
+                builder,
+                platform=platform,
+                type=type,
+                version=version,
+                shouldfail=True))
 
     # No filter.
     files = builder.get_files()
@@ -283,12 +308,10 @@ class TestCefJSONBuilder(unittest.TestCase):
     self.assertFalse(builder.is_valid_chromium_version('foobar'))
 
     # The Git hashes must exist but the rest of the CEF version can be fake.
-    versions = (
-      ('3.2704.1414.g185cd6c', '51.0.2704.47'),
-      ('3.2623.9999.gb90a3be', '49.0.2623.110'),
-      ('3.2623.9999.g2a6491b', '49.0.2623.87'),
-      ('3.9999.9999.gab2636b', 'master'),
-    )
+    versions = (('3.2704.1414.g185cd6c',
+                 '51.0.2704.47'), ('3.2623.9999.gb90a3be', '49.0.2623.110'),
+                ('3.2623.9999.g2a6491b',
+                 '49.0.2623.87'), ('3.9999.9999.gab2636b', 'master'),)
 
     # Test with no query.
     for (cef, chromium) in versions:
