@@ -1,0 +1,14 @@
+Name: yapf
+Short Name: yapf
+URL: https://github.com/google/yapf
+Date: 28 May 2017
+Version: 0.16.2
+Revision: 9f168a12
+License: Apache 2.0
+License File: LICENSE
+
+Description:
+A formatter for Python files.
+
+Local Modifications:
+None
