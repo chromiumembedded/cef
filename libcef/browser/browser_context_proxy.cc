@@ -95,13 +95,6 @@ base::SupportsUserData::Data* CefBrowserContextProxy::GetUserData(
   return BrowserContext::GetUserData(key);
 }
 
-void CefBrowserContextProxy::SetUserData(const void* key, Data* data) {
-  if (ShouldProxyUserData(key))
-    parent_->SetUserData(key, data);
-  else
-    BrowserContext::SetUserData(key, data);
-}
-
 void CefBrowserContextProxy::SetUserData(const void* key,
                                          std::unique_ptr<Data> data) {
   if (ShouldProxyUserData(key))

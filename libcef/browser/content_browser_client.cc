@@ -46,8 +46,10 @@
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/spellchecker/spellcheck_message_filter.h"
 #include "chrome/common/chrome_switches.h"
+#include "chrome/grit/browser_resources.h"
 #include "components/navigation_interception/intercept_navigation_throttle.h"
 #include "components/navigation_interception/navigation_params.h"
+#include "components/printing/service/public/interfaces/pdf_compositor.mojom.h"
 #include "content/browser/frame_host/navigation_handle_impl.h"
 #include "content/browser/frame_host/render_frame_host_impl.h"
 #include "content/browser/plugin_service_impl.h"
@@ -452,7 +454,7 @@ void CefContentBrowserClient::RenderProcessWillLaunch(
   const int id = host->GetID();
   Profile* profile = Profile::FromBrowserContext(host->GetBrowserContext());
 
-  host->GetChannel()->AddFilter(new CefBrowserMessageFilter(id));
+  host->AddFilter(new CefBrowserMessageFilter(id));
   host->AddFilter(new printing::CefPrintingMessageFilter(id, profile));
 
   if (!command_line->HasSwitch(switches::kDisableSpellChecking)) {
@@ -574,6 +576,12 @@ void CefContentBrowserClient::SiteInstanceDeleting(
                           site_instance->GetId()));
 }
 
+void CefContentBrowserClient::RegisterOutOfProcessServices(
+    OutOfProcessServiceMap* services) {
+  services->emplace(printing::mojom::kServiceName,
+                    base::ASCIIToUTF16("PDF Compositor Service"));
+}
+
 std::unique_ptr<base::Value> CefContentBrowserClient::GetServiceManifestOverlay(
     base::StringPiece name) {
   int id = -1;
@@ -590,6 +598,13 @@ std::unique_ptr<base::Value> CefContentBrowserClient::GetServiceManifestOverlay(
       ui::ResourceBundle::GetSharedInstance().GetRawDataResourceForScale(
           id, ui::ScaleFactor::SCALE_FACTOR_NONE);
   return base::JSONReader::Read(manifest_contents);
+}
+
+std::vector<content::ContentBrowserClient::ServiceManifestInfo>
+CefContentBrowserClient::GetExtraServiceManifests() {
+  return std::vector<ServiceManifestInfo>({
+      {printing::mojom::kServiceName, IDR_PDF_COMPOSITOR_MANIFEST},
+  });
 }
 
 void CefContentBrowserClient::AppendExtraCommandLineSwitches(
@@ -768,6 +783,7 @@ void CefContentBrowserClient::AllowCertificateError(
 void CefContentBrowserClient::SelectClientCertificate(
     content::WebContents* web_contents,
     net::SSLCertRequestInfo* cert_request_info,
+    net::CertificateList client_certs,
     std::unique_ptr<content::ClientCertificateDelegate> delegate) {
   CEF_REQUIRE_UIT();
 
@@ -787,8 +803,8 @@ void CefContentBrowserClient::SelectClientCertificate(
 
   CefRequestHandler::X509CertificateList certs;
   for (std::vector<scoped_refptr<net::X509Certificate>>::iterator iter =
-           cert_request_info->client_certs.begin();
-       iter != cert_request_info->client_certs.end(); iter++) {
+           client_certs.begin();
+       iter != client_certs.end(); iter++) {
     certs.push_back(new CefX509CertificateImpl(*iter));
   }
 
@@ -806,8 +822,7 @@ void CefContentBrowserClient::SelectClientCertificate(
 }
 
 bool CefContentBrowserClient::CanCreateWindow(
-    int opener_render_process_id,
-    int opener_render_frame_id,
+    content::RenderFrameHost* opener,
     const GURL& opener_url,
     const GURL& opener_top_level_frame_url,
     const GURL& source_origin,
@@ -819,15 +834,13 @@ bool CefContentBrowserClient::CanCreateWindow(
     const blink::mojom::WindowFeatures& features,
     bool user_gesture,
     bool opener_suppressed,
-    content::ResourceContext* context,
     bool* no_javascript_access) {
-  CEF_REQUIRE_IOT();
+  CEF_REQUIRE_UIT();
   *no_javascript_access = false;
 
   return CefBrowserInfoManager::GetInstance()->CanCreateWindow(
-      target_url, referrer, frame_name, disposition, features, user_gesture,
-      opener_suppressed, opener_render_process_id, opener_render_frame_id,
-      no_javascript_access);
+      opener, target_url, referrer, frame_name, disposition, features,
+      user_gesture, opener_suppressed, no_javascript_access);
 }
 
 void CefContentBrowserClient::ResourceDispatcherHostCreated() {

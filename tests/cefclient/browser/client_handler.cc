@@ -513,7 +513,7 @@ bool ClientHandler::OnBeforePopup(
     CefRefPtr<CefClient>& client,
     CefBrowserSettings& settings,
     bool* no_javascript_access) {
-  CEF_REQUIRE_IO_THREAD();
+  CEF_REQUIRE_UI_THREAD();
 
   // Return true to cancel the popup window.
   return !CreatePopupWindow(browser, false, popupFeatures, windowInfo, client,
@@ -871,7 +871,7 @@ bool ClientHandler::CreatePopupWindow(CefRefPtr<CefBrowser> browser,
                                       CefWindowInfo& windowInfo,
                                       CefRefPtr<CefClient>& client,
                                       CefBrowserSettings& settings) {
-  // Note: This method will be called on multiple threads.
+  CEF_REQUIRE_UI_THREAD();
 
   // The popup browser will be parented to a new native window.
   // Don't show URL bar and navigation buttons on DevTools windows.

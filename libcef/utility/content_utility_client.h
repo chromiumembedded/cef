@@ -16,9 +16,9 @@ class CefContentUtilityClient : public content::ContentUtilityClient {
   CefContentUtilityClient();
   ~CefContentUtilityClient() override;
 
+  void UtilityThreadStarted() override;
   bool OnMessageReceived(const IPC::Message& message) override;
-  void ExposeInterfacesToBrowser(
-      service_manager::InterfaceRegistry* registry) override;
+  void RegisterServices(StaticServiceMap* services) override;
 
  private:
   typedef ScopedVector<UtilityMessageHandler> Handlers;

@@ -51,13 +51,6 @@ base::SupportsUserData::Data* CefResourceContext::GetUserData(
   return content::ResourceContext::GetUserData(key);
 }
 
-void CefResourceContext::SetUserData(const void* key, Data* data) {
-  if (parent_ && ShouldProxyUserData(key))
-    parent_->SetUserData(key, data);
-  else
-    content::ResourceContext::SetUserData(key, data);
-}
-
 void CefResourceContext::SetUserData(const void* key,
                                      std::unique_ptr<Data> data) {
   if (parent_ && ShouldProxyUserData(key))

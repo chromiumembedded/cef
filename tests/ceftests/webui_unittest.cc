@@ -186,7 +186,6 @@ WEBUI_TEST(webui_hosts);
 TEST(WebUITest, net_internals) {
   UrlList url_list;
   url_list.push_back("chrome://net-internals/#capture");
-  url_list.push_back("chrome://net-internals/#export");
   url_list.push_back("chrome://net-internals/#import");
   url_list.push_back("chrome://net-internals/#proxy");
   url_list.push_back("chrome://net-internals/#events");

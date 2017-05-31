@@ -1,5 +1,5 @@
 diff --git build/secondary/third_party/crashpad/crashpad/handler/BUILD.gn build/secondary/third_party/crashpad/crashpad/handler/BUILD.gn
-index c4ca09c..40b981e 100644
+index 4d385dd..1b51f2d 100644
 --- build/secondary/third_party/crashpad/crashpad/handler/BUILD.gn
 +++ build/secondary/third_party/crashpad/crashpad/handler/BUILD.gn
 @@ -2,6 +2,8 @@
@@ -11,7 +11,7 @@ index c4ca09c..40b981e 100644
  static_library("handler_lib") {
    sources = [
      "crash_report_upload_thread.cc",
-@@ -28,8 +30,18 @@ static_library("handler_lib") {
+@@ -30,8 +32,18 @@ static_library("handler_lib") {
      "../snapshot",
      "../tools:tool_support",
      "//base",
@@ -31,7 +31,7 @@ index c4ca09c..40b981e 100644
      cflags = [ "/wd4201" ]
    }
 diff --git chrome/common/crash_keys.cc chrome/common/crash_keys.cc
-index 78b04f4..abf9c98 100644
+index e9578be..2561824 100644
 --- chrome/common/crash_keys.cc
 +++ chrome/common/crash_keys.cc
 @@ -4,6 +4,8 @@
@@ -43,7 +43,7 @@ index 78b04f4..abf9c98 100644
  #include "base/base_switches.h"
  #include "base/command_line.h"
  #include "base/format_macros.h"
-@@ -88,7 +90,7 @@ const char kViewCount[] = "view-count";
+@@ -86,7 +88,7 @@ const char kViewCount[] = "view-count";
  
  const char kZeroEncodeDetails[] = "zero-encode-details";
  
@@ -52,7 +52,7 @@ index 78b04f4..abf9c98 100644
    // The following keys may be chunked by the underlying crash logging system,
    // but ultimately constitute a single key-value pair.
    //
-@@ -254,10 +256,16 @@ size_t RegisterChromeCrashKeys() {
+@@ -226,10 +228,16 @@ size_t RegisterChromeCrashKeys() {
  
    // This dynamic set of keys is used for sets of key value pairs when gathering
    // a collection of data, like command line switches or extension IDs.
@@ -71,7 +71,7 @@ index 78b04f4..abf9c98 100644
  
    // Register the extension IDs.
    {
-@@ -291,7 +299,7 @@ size_t RegisterChromeCrashKeys() {
+@@ -263,7 +271,7 @@ size_t RegisterChromeCrashKeys() {
    return base::debug::InitCrashKeys(&keys.at(0), keys.size(), kChunkMaxLength);
  }
  
@@ -80,7 +80,7 @@ index 78b04f4..abf9c98 100644
    static const char* const kIgnoreSwitches[] = {
      switches::kEnableLogging,
      switches::kFlagSwitchesBegin,
-@@ -347,7 +355,7 @@ static bool IsBoringSwitch(const std::string& flag) {
+@@ -319,7 +327,7 @@ static bool IsBoringSwitch(const std::string& flag) {
  }
  
  void SetCrashKeysFromCommandLine(const base::CommandLine& command_line) {
@@ -90,7 +90,7 @@ index 78b04f4..abf9c98 100644
  
  void SetActiveExtensions(const std::set<std::string>& extensions) {
 diff --git chrome/common/crash_keys.h chrome/common/crash_keys.h
-index 7abe208..424a2a4 100644
+index 93fb0b0..3e543d2 100644
 --- chrome/common/crash_keys.h
 +++ chrome/common/crash_keys.h
 @@ -22,10 +22,18 @@ class CommandLine;
@@ -113,7 +113,7 @@ index 7abe208..424a2a4 100644
  // on the given |command_line|.
  void SetCrashKeysFromCommandLine(const base::CommandLine& command_line);
 diff --git chrome_elf/BUILD.gn chrome_elf/BUILD.gn
-index 40f611f..b5e7d64 100644
+index c8197e9..21ad726 100644
 --- chrome_elf/BUILD.gn
 +++ chrome_elf/BUILD.gn
 @@ -7,6 +7,7 @@
@@ -423,10 +423,10 @@ index 9f69c19..2abaee00 100644
  
  }  // namespace crash_reporter
 diff --git components/crash/content/app/crashpad.cc components/crash/content/app/crashpad.cc
-index dcec346..6272df6 100644
+index ba04da1..aa3f21a 100644
 --- components/crash/content/app/crashpad.cc
 +++ components/crash/content/app/crashpad.cc
-@@ -142,7 +142,8 @@ void InitializeCrashpadImpl(bool initial_client,
+@@ -143,7 +143,8 @@ void InitializeCrashpadImpl(bool initial_client,
    // fallback. Forwarding is turned off for debug-mode builds even for the
    // browser process, because the system's crash reporter can take a very long
    // time to chew on symbols.
@@ -437,7 +437,7 @@ index dcec346..6272df6 100644
          crashpad::TriState::kDisabled);
    }
 diff --git components/crash/content/app/crashpad_mac.mm components/crash/content/app/crashpad_mac.mm
-index 3bae07e..12b0a16 100644
+index 485c2b4..3b5f3ea 100644
 --- components/crash/content/app/crashpad_mac.mm
 +++ components/crash/content/app/crashpad_mac.mm
 @@ -16,11 +16,14 @@
@@ -455,7 +455,7 @@ index 3bae07e..12b0a16 100644
  #include "third_party/crashpad/crashpad/client/crash_report_database.h"
  #include "third_party/crashpad/crashpad/client/crashpad_client.h"
  #include "third_party/crashpad/crashpad/client/crashpad_info.h"
-@@ -40,9 +43,10 @@ base::FilePath PlatformCrashpadInitialization(bool initial_client,
+@@ -42,9 +45,10 @@ base::FilePath PlatformCrashpadInitialization(
  
    if (initial_client) {
      @autoreleasepool {
@@ -469,7 +469,7 @@ index 3bae07e..12b0a16 100644
  
        // Is there a way to recover if this fails?
        CrashReporterClient* crash_reporter_client = GetCrashReporterClient();
-@@ -54,16 +58,27 @@ base::FilePath PlatformCrashpadInitialization(bool initial_client,
+@@ -56,16 +60,27 @@ base::FilePath PlatformCrashpadInitialization(
        // crash server won't have symbols for any other build types.
        std::string url = "https://clients2.google.com/cr/report";
  #else
@@ -502,7 +502,7 @@ index 3bae07e..12b0a16 100644
  
  #if defined(GOOGLE_CHROME_BUILD)
        // Empty means stable.
-@@ -79,12 +94,16 @@ base::FilePath PlatformCrashpadInitialization(bool initial_client,
+@@ -81,12 +96,16 @@ base::FilePath PlatformCrashpadInitialization(
          process_annotations["channel"] = "";
        }
  
@@ -524,21 +524,21 @@ index 3bae07e..12b0a16 100644
  
        std::vector<std::string> arguments;
  
-@@ -105,6 +124,12 @@ base::FilePath PlatformCrashpadInitialization(bool initial_client,
-         arguments.push_back(
+@@ -108,6 +127,12 @@ base::FilePath PlatformCrashpadInitialization(
              "--reset-own-crash-exception-port-to-system-default");
        }
-+
+ 
 +      // Since we're using the same subprocess helper exe we must specify the
 +      // process type.
 +      arguments.push_back(std::string("--type=") + switches::kCrashpadHandler);
 +
 +      crash_reporter_client->GetCrashOptionalArguments(&arguments);
- 
++
        bool result = GetCrashpadClient().StartHandler(
            handler_path, database_path, metrics_path, url, process_annotations,
+           arguments, true, false);
 diff --git components/crash/content/app/crashpad_win.cc components/crash/content/app/crashpad_win.cc
-index 94a350f..61667a8 100644
+index 6fdfd83..1d5a2a9 100644
 --- components/crash/content/app/crashpad_win.cc
 +++ components/crash/content/app/crashpad_win.cc
 @@ -33,8 +33,8 @@ void GetPlatformCrashpadAnnotations(
@@ -564,7 +564,7 @@ index 94a350f..61667a8 100644
  #endif
  }
  
-@@ -80,7 +80,7 @@ base::FilePath PlatformCrashpadInitialization(bool initial_client,
+@@ -82,7 +82,7 @@ base::FilePath PlatformCrashpadInitialization(
  #if defined(GOOGLE_CHROME_BUILD)
      std::string url = "https://clients2.google.com/cr/report";
  #else
@@ -573,7 +573,7 @@ index 94a350f..61667a8 100644
  #endif
  
      // Allow the crash server to be overridden for testing. If the variable
-@@ -100,22 +100,26 @@ base::FilePath PlatformCrashpadInitialization(bool initial_client,
+@@ -102,13 +102,14 @@ base::FilePath PlatformCrashpadInitialization(
                crashpad::TriState::kEnabled, kIndirectMemoryLimit);
      }
  
@@ -590,9 +590,10 @@ index 94a350f..61667a8 100644
      if (embedded_handler) {
 -      start_arguments.push_back(std::string("--type=") +
 -                                switches::kCrashpadHandler);
-       // The prefetch argument added here has to be documented in
-       // chrome_switches.cc, below the kPrefetchArgument* constants. A constant
-       // can't be used here because crashpad can't depend on Chrome.
+       if (!user_data_dir.empty()) {
+         start_arguments.push_back(std::string("--user-data-dir=") +
+                                   user_data_dir);
+@@ -119,9 +120,12 @@ base::FilePath PlatformCrashpadInitialization(
        start_arguments.push_back("/prefetch:7");
      } else {
        base::FilePath exe_dir = exe_file.DirName();

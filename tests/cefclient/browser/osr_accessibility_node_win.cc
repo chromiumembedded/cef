@@ -54,6 +54,8 @@ int AxRoleToMSAARole(const std::string& role_string) {
     return ROLE_SYSTEM_COMBOBOX;
   if (role_string == "dialog")
     return ROLE_SYSTEM_DIALOG;
+  if (role_string == "genericContainer")
+    return ROLE_SYSTEM_GROUPING;
   if (role_string == "group")
     return ROLE_SYSTEM_GROUPING;
   if (role_string == "image")

@@ -12,6 +12,7 @@
 #include "base/strings/string_number_conversions.h"
 #include "base/strings/stringprintf.h"
 #include "content/public/browser/ax_event_notification_details.h"
+#include "ui/accessibility/ax_enums.h"
 #include "ui/accessibility/ax_text_utils.h"
 #include "ui/accessibility/ax_tree_update.h"
 #include "ui/gfx/transform.h"
@@ -36,27 +37,11 @@ CefRefPtr<CefListValue> ToCefValue<int>(const std::vector<int>& vecData) {
 CefRefPtr<CefListValue> ToCefValue(uint32_t state) {
   CefRefPtr<CefListValue> value = CefListValue::Create();
 
-  static ui::AXState state_arr[] = {
-      ui::AX_STATE_NONE,       ui::AX_STATE_BUSY,
-      ui::AX_STATE_CHECKED,    ui::AX_STATE_COLLAPSED,
-      ui::AX_STATE_DEFAULT,    ui::AX_STATE_DISABLED,
-      ui::AX_STATE_EDITABLE,   ui::AX_STATE_EXPANDED,
-      ui::AX_STATE_FOCUSABLE,  ui::AX_STATE_HASPOPUP,
-      ui::AX_STATE_HORIZONTAL, ui::AX_STATE_HOVERED,
-      ui::AX_STATE_INVISIBLE,  ui::AX_STATE_LINKED,
-      ui::AX_STATE_MULTILINE,  ui::AX_STATE_MULTISELECTABLE,
-      ui::AX_STATE_OFFSCREEN,  ui::AX_STATE_PRESSED,
-      ui::AX_STATE_PROTECTED,  ui::AX_STATE_READ_ONLY,
-      ui::AX_STATE_REQUIRED,   ui::AX_STATE_RICHLY_EDITABLE,
-      ui::AX_STATE_SELECTABLE, ui::AX_STATE_SELECTED,
-      ui::AX_STATE_VERTICAL,   ui::AX_STATE_VISITED,
-      ui::AX_STATE_LAST};
-
   int index = 0;
   // Iterate and find which states are set.
-  for (unsigned i = 0; i < arraysize(state_arr); i++) {
-    if (state & (1 << state_arr[i]))
-      value->SetString(index++, ToString(state_arr[i]));
+  for (unsigned i = ui::AX_STATE_NONE; i <= ui::AX_STATE_LAST; i++) {
+    if (state & (1 << i))
+      value->SetString(index++, ToString(static_cast<ui::AXState>(i)));
   }
   return value;
 }
@@ -96,10 +81,10 @@ struct PopulateAxNodeAttributes {
       case ui::AX_ATTR_HIERARCHICAL_LEVEL:
       case ui::AX_ATTR_TEXT_SEL_START:
       case ui::AX_ATTR_TEXT_SEL_END:
-      case ui::AX_ATTR_ARIA_COL_COUNT:
-      case ui::AX_ATTR_ARIA_COL_INDEX:
+      case ui::AX_ATTR_ARIA_COLUMN_COUNT:
+      case ui::AX_ATTR_ARIA_CELL_COLUMN_INDEX:
       case ui::AX_ATTR_ARIA_ROW_COUNT:
-      case ui::AX_ATTR_ARIA_ROW_INDEX:
+      case ui::AX_ATTR_ARIA_CELL_ROW_INDEX:
       case ui::AX_ATTR_TABLE_ROW_COUNT:
       case ui::AX_ATTR_TABLE_COLUMN_COUNT:
       case ui::AX_ATTR_TABLE_CELL_COLUMN_INDEX:
@@ -122,17 +107,24 @@ struct PopulateAxNodeAttributes {
       case ui::AX_ATTR_POS_IN_SET:
         attributes->SetInt(ToString(attr.first), attr.second);
         break;
-      case ui::AX_ATTR_ACTION:
+      case ui::AX_ATTR_DEFAULT_ACTION_VERB:
         attributes->SetString(
             ToString(attr.first),
-            ui::ActionToUnlocalizedString(
-                static_cast<ui::AXSupportedAction>(attr.second)));
+            ui::ActionVerbToUnlocalizedString(
+                static_cast<ui::AXDefaultActionVerb>(attr.second)));
         break;
       case ui::AX_ATTR_INVALID_STATE:
         if (ui::AX_INVALID_STATE_NONE != attr.second) {
           attributes->SetString(
               ToString(attr.first),
               ToString(static_cast<ui::AXInvalidState>(attr.second)));
+        }
+        break;
+      case ui::AX_ATTR_CHECKED_STATE:
+        if (ui::AX_CHECKED_STATE_NONE != attr.second) {
+          attributes->SetString(
+              ToString(attr.first),
+              ToString(static_cast<ui::AXCheckedState>(attr.second)));
         }
         break;
       case ui::AX_ATTR_SORT_DIRECTION:
@@ -264,6 +256,20 @@ CefRefPtr<CefDictionaryValue> ToCefValue(const ui::AXNodeData& node) {
 
   if (!node.child_ids.empty())
     value->SetList("child_ids", ToCefValue(node.child_ids));
+
+  CefRefPtr<CefListValue> actions_strings;
+  size_t actions_idx = 0;
+  for (int action_index = ui::AX_ACTION_NONE + 1;
+       action_index <= ui::AX_ACTION_LAST; ++action_index) {
+    auto action = static_cast<ui::AXAction>(action_index);
+    if (node.HasAction(action)) {
+      if (!actions_strings)
+        actions_strings = CefListValue::Create();
+      actions_strings->SetString(actions_idx++, ToString(action));
+    }
+  }
+  if (actions_strings)
+    value->SetList("actions", actions_strings);
 
   CefRefPtr<CefDictionaryValue> attributes = CefDictionaryValue::Create();
   PopulateAxNodeAttributes func(attributes);

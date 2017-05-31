@@ -10,9 +10,14 @@
 #include "build/build_config.h"
 #include "chrome/common/chrome_utility_messages.h"
 #include "chrome/utility/utility_message_handler.h"
+#include "components/printing/service/public/cpp/pdf_compositor_service_factory.h"
+#include "components/printing/service/public/interfaces/pdf_compositor.mojom.h"
+#include "content/public/child/child_thread.h"
+#include "content/public/common/service_manager_connection.h"
+#include "content/public/common/simple_connection_filter.h"
 #include "mojo/public/cpp/bindings/strong_binding.h"
 #include "net/proxy/mojo_proxy_resolver_factory_impl.h"
-#include "services/service_manager/public/cpp/interface_registry.h"
+#include "services/service_manager/public/cpp/binder_registry.h"
 
 #if defined(OS_WIN)
 #include "chrome/utility/printing_handler.h"
@@ -21,6 +26,7 @@
 namespace {
 
 void CreateProxyResolverFactory(
+    const service_manager::BindSourceInfo& source_info,
     net::interfaces::ProxyResolverFactoryRequest request) {
   mojo::MakeStrongBinding(base::MakeUnique<net::MojoProxyResolverFactoryImpl>(),
                           std::move(request));
@@ -36,6 +42,25 @@ CefContentUtilityClient::CefContentUtilityClient() {
 
 CefContentUtilityClient::~CefContentUtilityClient() {}
 
+void CefContentUtilityClient::UtilityThreadStarted() {
+  content::ServiceManagerConnection* connection =
+      content::ChildThread::Get()->GetServiceManagerConnection();
+
+  // NOTE: Some utility process instances are not connected to the Service
+  // Manager. Nothing left to do in that case.
+  if (!connection)
+    return;
+
+  auto registry = base::MakeUnique<service_manager::BinderRegistry>();
+
+  registry->AddInterface<net::interfaces::ProxyResolverFactory>(
+      base::Bind(CreateProxyResolverFactory),
+      base::ThreadTaskRunnerHandle::Get());
+
+  connection->AddConnectionFilter(
+      base::MakeUnique<content::SimpleConnectionFilter>(std::move(registry)));
+}
+
 bool CefContentUtilityClient::OnMessageReceived(const IPC::Message& message) {
   bool handled = false;
 
@@ -47,8 +72,9 @@ bool CefContentUtilityClient::OnMessageReceived(const IPC::Message& message) {
   return handled;
 }
 
-void CefContentUtilityClient::ExposeInterfacesToBrowser(
-    service_manager::InterfaceRegistry* registry) {
-  registry->AddInterface<net::interfaces::ProxyResolverFactory>(
-      base::Bind(CreateProxyResolverFactory));
+void CefContentUtilityClient::RegisterServices(StaticServiceMap* services) {
+  content::ServiceInfo pdf_compositor_info;
+  pdf_compositor_info.factory =
+      base::Bind(&printing::CreatePdfCompositorService, std::string());
+  services->emplace(printing::mojom::kServiceName, pdf_compositor_info);
 }

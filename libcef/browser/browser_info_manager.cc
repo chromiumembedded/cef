@@ -128,6 +128,7 @@ scoped_refptr<CefBrowserInfo> CefBrowserInfoManager::CreatePopupBrowserInfo(
 }
 
 bool CefBrowserInfoManager::CanCreateWindow(
+    content::RenderFrameHost* opener,
     const GURL& target_url,
     const content::Referrer& referrer,
     const std::string& frame_name,
@@ -135,16 +136,12 @@ bool CefBrowserInfoManager::CanCreateWindow(
     const blink::mojom::WindowFeatures& features,
     bool user_gesture,
     bool opener_suppressed,
-    int opener_render_process_id,
-    int opener_render_frame_id,
     bool* no_javascript_access) {
-  DCHECK_NE(opener_render_process_id,
-            content::ChildProcessHost::kInvalidUniqueID);
-  DCHECK_GT(opener_render_frame_id, 0);
+  CEF_REQUIRE_UIT();
 
   bool is_guest_view = false;
-  CefRefPtr<CefBrowserHostImpl> browser = extensions::GetOwnerBrowserForFrame(
-      opener_render_process_id, opener_render_frame_id, &is_guest_view);
+  CefRefPtr<CefBrowserHostImpl> browser =
+      extensions::GetOwnerBrowserForHost(opener, &is_guest_view);
   DCHECK(browser.get());
   if (!browser.get()) {
     // Cancel the popup.
@@ -177,8 +174,8 @@ bool CefBrowserInfoManager::CanCreateWindow(
 
   auto pending_popup = base::MakeUnique<CefBrowserInfoManager::PendingPopup>();
   pending_popup->step = CefBrowserInfoManager::PendingPopup::CAN_CREATE_WINDOW;
-  pending_popup->opener_process_id = opener_render_process_id;
-  pending_popup->opener_frame_id = opener_render_frame_id;
+  pending_popup->opener_process_id = opener->GetProcess()->GetID();
+  pending_popup->opener_frame_id = opener->GetRoutingID();
   pending_popup->target_url = target_url;
   pending_popup->target_frame_name = frame_name;
 
@@ -229,10 +226,14 @@ bool CefBrowserInfoManager::CanCreateWindow(
         CefBrowserPlatformDelegate::Create(create_params);
     CHECK(pending_popup->platform_delegate.get());
 
-    // Filtering needs to be done on the UI thread.
-    CEF_POST_TASK(CEF_UIT,
-                  base::Bind(FilterPendingPopupURL, opener_render_process_id,
-                             base::Passed(&pending_popup)));
+    // Between the calls to CanCreateWindow and GetCustomWebContentsView
+    // RenderViewHostImpl::CreateNewWindow() will call
+    // RenderProcessHostImpl::FilterURL() which, in the case of "javascript:"
+    // URIs, rewrites the URL to "about:blank". We need to apply the same filter
+    // otherwise GetCustomWebContentsView will fail to retrieve the PopupInfo.
+    opener->GetProcess()->FilterURL(false, &pending_popup->target_url);
+
+    PushPendingPopup(std::move(pending_popup));
   }
 
   return allow;
@@ -244,6 +245,8 @@ void CefBrowserInfoManager::GetCustomWebContentsView(
     int opener_render_frame_id,
     content::WebContentsView** view,
     content::RenderViewHostDelegateView** delegate_view) {
+  CEF_REQUIRE_UIT();
+
   std::unique_ptr<CefBrowserInfoManager::PendingPopup> pending_popup =
       PopPendingPopup(CefBrowserInfoManager::PendingPopup::CAN_CREATE_WINDOW,
                       opener_render_process_id, opener_render_frame_id,
@@ -268,6 +271,8 @@ void CefBrowserInfoManager::WebContentsCreated(
     CefBrowserSettings& settings,
     CefRefPtr<CefClient>& client,
     std::unique_ptr<CefBrowserPlatformDelegate>& platform_delegate) {
+  CEF_REQUIRE_UIT();
+
   std::unique_ptr<CefBrowserInfoManager::PendingPopup> pending_popup =
       PopPendingPopup(
           CefBrowserInfoManager::PendingPopup::GET_CUSTOM_WEB_CONTENTS_VIEW,
@@ -399,6 +404,8 @@ void CefBrowserInfoManager::GetBrowserInfoList(BrowserInfoList& list) {
 
 void CefBrowserInfoManager::RenderProcessHostDestroyed(
     content::RenderProcessHost* host) {
+  CEF_REQUIRE_UIT();
+
   const int render_process_id = host->GetID();
   DCHECK_GT(render_process_id, 0);
 
@@ -419,8 +426,6 @@ void CefBrowserInfoManager::RenderProcessHostDestroyed(
 
   // Remove all pending popups that reference the destroyed host as the opener.
   {
-    base::AutoLock lock_scope(pending_popup_lock_);
-
     PendingPopupList::iterator it = pending_popup_list_.begin();
     while (it != pending_popup_list_.end()) {
       PendingPopup* popup = *it;
@@ -433,22 +438,9 @@ void CefBrowserInfoManager::RenderProcessHostDestroyed(
   }
 }
 
-void CefBrowserInfoManager::FilterPendingPopupURL(
-    int opener_process_id,
-    std::unique_ptr<CefBrowserInfoManager::PendingPopup> pending_popup) {
-  // |host| may be nullptr if the parent browser is destroyed while the popup is
-  // pending.
-  content::RenderProcessHost* host =
-      content::RenderProcessHost::FromID(opener_process_id);
-  if (host) {
-    host->FilterURL(false, &pending_popup->target_url);
-    GetInstance()->PushPendingPopup(std::move(pending_popup));
-  }
-}
-
 void CefBrowserInfoManager::PushPendingPopup(
     std::unique_ptr<PendingPopup> popup) {
-  base::AutoLock lock_scope(pending_popup_lock_);
+  CEF_REQUIRE_UIT();
   pending_popup_list_.push_back(std::move(popup));
 }
 
@@ -457,10 +449,9 @@ CefBrowserInfoManager::PopPendingPopup(PendingPopup::Step step,
                                        int opener_process_id,
                                        int opener_frame_id,
                                        const GURL& target_url) {
+  CEF_REQUIRE_UIT();
   DCHECK_GT(opener_process_id, 0);
   DCHECK_GT(opener_frame_id, 0);
-
-  base::AutoLock lock_scope(pending_popup_lock_);
 
   PendingPopupList::iterator it = pending_popup_list_.begin();
   for (; it != pending_popup_list_.end(); ++it) {

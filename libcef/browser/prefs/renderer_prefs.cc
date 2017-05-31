@@ -96,8 +96,6 @@ void SetChromePrefs(CefBrowserContext* profile, content::WebPreferences& web) {
 
   web.default_encoding = prefs->GetString(prefs::kDefaultCharset);
 
-  web.javascript_can_open_windows_automatically =
-      prefs->GetBoolean(prefs::kWebKitJavascriptCanOpenWindowsAutomatically);
   web.dom_paste_enabled = prefs->GetBoolean(prefs::kWebKitDomPasteEnabled);
   web.tabs_to_links = prefs->GetBoolean(prefs::kWebkitTabsToLinks);
 
@@ -232,8 +230,6 @@ void SetCefPrefs(const CefBrowserSettings& cef, content::WebPreferences& web) {
 
   SET_STATE(cef.remote_fonts, web.remote_fonts_enabled);
   SET_STATE(cef.javascript, web.javascript_enabled);
-  SET_STATE(cef.javascript_open_windows,
-            web.javascript_can_open_windows_automatically);
   SET_STATE(cef.javascript_close_windows, web.allow_scripts_to_close_windows);
   SET_STATE(cef.javascript_access_clipboard,
             web.javascript_can_access_clipboard);
@@ -282,8 +278,6 @@ void SetCommandLinePrefDefaults(CommandLinePrefStore* prefs) {
               command_line->GetSwitchValueASCII(switches::kDefaultEncoding));
   }
 
-  if (command_line->HasSwitch(switches::kDisableJavascriptOpenWindows))
-    SetBool(prefs, prefs::kWebKitJavascriptCanOpenWindowsAutomatically, false);
   if (command_line->HasSwitch(switches::kDisableJavascriptDomPaste))
     SetBool(prefs, prefs::kWebKitDomPasteEnabled, false);
   if (command_line->HasSwitch(switches::kDisableImageLoading))

@@ -10,18 +10,13 @@
 
 #include <string>
 
-#include "ipc/ipc_channel_proxy.h"
-#include "ipc/message_filter.h"
-
-namespace content {
-class RenderProcessHost;
-}
+#include "content/public/browser/browser_message_filter.h"
 
 struct CefProcessHostMsg_GetNewBrowserInfo_Params;
 struct CefProcessHostMsg_GetNewRenderThreadInfo_Params;
 
 // This class sends and receives control messages on the browser process.
-class CefBrowserMessageFilter : public IPC::MessageFilter {
+class CefBrowserMessageFilter : public content::BrowserMessageFilter {
  public:
   explicit CefBrowserMessageFilter(int render_process_id);
   ~CefBrowserMessageFilter() override;
@@ -30,8 +25,6 @@ class CefBrowserMessageFilter : public IPC::MessageFilter {
   void OnFilterRemoved() override;
   bool OnMessageReceived(const IPC::Message& message) override;
 
-  bool Send(IPC::Message* message);
-
  private:
   // Message handlers.
   void OnGetNewRenderThreadInfo(
@@ -39,7 +32,6 @@ class CefBrowserMessageFilter : public IPC::MessageFilter {
   void OnGetNewBrowserInfo(int render_view_routing_id,
                            int render_frame_routing_id,
                            IPC::Message* reply_msg);
-  void OnFrameFocused(int32_t render_frame_routing_id);
 
   int render_process_id_;
 

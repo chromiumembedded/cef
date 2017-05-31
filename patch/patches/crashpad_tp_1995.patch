@@ -146,28 +146,28 @@ index b64f74f..0c3c22e 100644
    struct Data;
  
 diff --git third_party/crashpad/crashpad/handler/crash_report_upload_thread.h third_party/crashpad/crashpad/handler/crash_report_upload_thread.h
-index 14debac..c25c653 100644
+index c769efe..daec6cd 100644
 --- third_party/crashpad/crashpad/handler/crash_report_upload_thread.h
 +++ third_party/crashpad/crashpad/handler/crash_report_upload_thread.h
-@@ -78,7 +78,7 @@ class CrashReportUploadThread : public WorkerThread::Delegate {
+@@ -89,7 +89,7 @@ class CrashReportUploadThread : public WorkerThread::Delegate {
    //! This method may be called from any thread.
-   void ReportPending();
+   void ReportPending(const UUID& report_uuid);
  
 - private:
 + protected:
    //! \brief The result code from UploadReport().
    enum class UploadResult {
      //! \brief The crash report was uploaded successfully.
-@@ -101,7 +101,7 @@ class CrashReportUploadThread : public WorkerThread::Delegate {
- 
-   //! \brief Obtains all pending reports from the database, and calls
-   //!     ProcessPendingReport() to process each one.
+@@ -117,7 +117,7 @@ class CrashReportUploadThread : public WorkerThread::Delegate {
+   //! object was constructed with \a watch_pending_reports, it will also scan
+   //! the crash report database for other pending reports, and process those as
+   //! well.
 -  void ProcessPendingReports();
 +  virtual void ProcessPendingReports();
  
    //! \brief Processes a single pending report from the database.
    //!
-@@ -115,7 +115,7 @@ class CrashReportUploadThread : public WorkerThread::Delegate {
+@@ -131,7 +131,7 @@ class CrashReportUploadThread : public WorkerThread::Delegate {
    //! remain in the “pending” state. If the upload fails and no more retries are
    //! desired, or report upload is disabled, it will be marked as “completed” in
    //! the database without ever having been uploaded.
@@ -177,7 +177,7 @@ index 14debac..c25c653 100644
    //! \brief Attempts to upload a crash report.
    //!
 diff --git third_party/crashpad/crashpad/handler/handler_main.cc third_party/crashpad/crashpad/handler/handler_main.cc
-index 641bf0f..3a86eb3 100644
+index e6d05e2..93e5eb1 100644
 --- third_party/crashpad/crashpad/handler/handler_main.cc
 +++ third_party/crashpad/crashpad/handler/handler_main.cc
 @@ -35,8 +35,10 @@
@@ -191,7 +191,7 @@ index 641bf0f..3a86eb3 100644
  #include "client/crash_report_database.h"
  #include "client/crashpad_client.h"
  #include "client/crashpad_info.h"
-@@ -75,6 +77,10 @@
+@@ -76,6 +78,10 @@
  #include "util/win/session_end_watcher.h"
  #endif  // OS_MACOSX
  
@@ -202,8 +202,8 @@ index 641bf0f..3a86eb3 100644
  namespace crashpad {
  
  namespace {
-@@ -144,6 +150,9 @@ struct Options {
-   bool monitor_self;
+@@ -147,6 +153,9 @@ struct Options {
+   bool periodic_tasks;
    bool rate_limit;
    bool upload_gzip;
 +  int max_uploads;
@@ -212,7 +212,7 @@ index 641bf0f..3a86eb3 100644
  };
  
  // Splits |key_value| on '=' and inserts the resulting key and value into |map|.
-@@ -425,6 +434,9 @@ int HandlerMain(int argc,
+@@ -430,6 +439,9 @@ int HandlerMain(int argc,
      kOptionResetOwnCrashExceptionPortToSystemDefault,
  #endif  // OS_MACOSX
      kOptionURL,
@@ -222,7 +222,7 @@ index 641bf0f..3a86eb3 100644
  
      // Standard options.
      kOptionHelp = -2,
-@@ -470,6 +482,9 @@ int HandlerMain(int argc,
+@@ -476,6 +488,9 @@ int HandlerMain(int argc,
      {"url", required_argument, nullptr, kOptionURL},
      {"help", no_argument, nullptr, kOptionHelp},
      {"version", no_argument, nullptr, kOptionVersion},
@@ -232,7 +232,7 @@ index 641bf0f..3a86eb3 100644
      {nullptr, 0, nullptr, 0},
    };
  
-@@ -564,6 +579,27 @@ int HandlerMain(int argc,
+@@ -575,6 +590,27 @@ int HandlerMain(int argc,
          options.url = optarg;
          break;
        }
@@ -260,24 +260,32 @@ index 641bf0f..3a86eb3 100644
        case kOptionHelp: {
          Usage(me);
          MetricsRecordExit(Metrics::LifetimeMilestone::kExitedEarly);
-@@ -721,12 +757,19 @@ int HandlerMain(int argc,
+@@ -734,17 +770,27 @@ int HandlerMain(int argc,
    // TODO(scottmg): options.rate_limit should be removed when we have a
    // configurable database setting to control upload limiting.
    // See https://crashpad.chromium.org/bug/23.
 +#if BUILDFLAG(ENABLE_CEF)
-+  CefCrashReportUploadThread upload_thread(
-+      database.get(), options.url, options.rate_limit, options.upload_gzip,
-+      options.max_uploads);
++  CefCrashReportUploadThread upload_thread(database.get(),
++                                           options.url,
++                                           options.periodic_tasks,
++                                           options.rate_limit,
++                                           options.upload_gzip,
++                                           options.max_uploads);
 +#else
-   CrashReportUploadThread upload_thread(
-       database.get(), options.url, options.rate_limit, options.upload_gzip);
+   CrashReportUploadThread upload_thread(database.get(),
+                                         options.url,
+                                         options.periodic_tasks,
+                                         options.rate_limit,
+                                         options.upload_gzip);
 +#endif
    upload_thread.Start();
  
-   PruneCrashReportThread prune_thread(database.get(),
--                                      PruneCondition::GetDefault());
-+      PruneCondition::GetDefault(options.max_database_size,
-+                                 options.max_database_age));
-   prune_thread.Start();
+   std::unique_ptr<PruneCrashReportThread> prune_thread;
+   if (options.periodic_tasks) {
+     prune_thread.reset(new PruneCrashReportThread(
+-        database.get(), PruneCondition::GetDefault()));
++        database.get(), PruneCondition::GetDefault(options.max_database_size,
++                                                   options.max_database_age)));
+     prune_thread->Start();
+   }
  
-   CrashReportExceptionHandler exception_handler(database.get(),

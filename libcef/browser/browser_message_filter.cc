@@ -5,37 +5,28 @@
 
 #include "libcef/browser/browser_message_filter.h"
 
-#include "libcef/browser/browser_host_impl.h"
 #include "libcef/browser/browser_info_manager.h"
-#include "libcef/browser/context.h"
 #include "libcef/browser/origin_whitelist_impl.h"
-#include "libcef/browser/thread_util.h"
 #include "libcef/common/cef_messages.h"
 #include "libcef/common/content_client.h"
 #include "libcef/common/values_impl.h"
 
 #include "base/bind.h"
 #include "base/compiler_specific.h"
-#include "content/common/frame_messages.h"
-#include "content/public/browser/render_process_host.h"
 #include "content/public/common/child_process_host.h"
 
 CefBrowserMessageFilter::CefBrowserMessageFilter(int render_process_id)
-    : render_process_id_(render_process_id) {}
+    : content::BrowserMessageFilter(ExtensionMsgStart),
+      render_process_id_(render_process_id) {}
 
 CefBrowserMessageFilter::~CefBrowserMessageFilter() {}
 
 void CefBrowserMessageFilter::OnFilterRemoved() {
   render_process_id_ = content::ChildProcessHost::kInvalidUniqueID;
+  content::BrowserMessageFilter::OnFilterRemoved();
 }
 
 bool CefBrowserMessageFilter::OnMessageReceived(const IPC::Message& message) {
-  if (message.type() == FrameHostMsg_FrameFocused::ID) {
-    // Observe but don't handle this message.
-    OnFrameFocused(message.routing_id());
-    return false;
-  }
-
   bool handled = true;
 
   IPC_BEGIN_MESSAGE_MAP(CefBrowserMessageFilter, message)
@@ -46,24 +37,6 @@ bool CefBrowserMessageFilter::OnMessageReceived(const IPC::Message& message) {
     IPC_MESSAGE_UNHANDLED(handled = false)
   IPC_END_MESSAGE_MAP()
   return handled;
-}
-
-bool CefBrowserMessageFilter::Send(IPC::Message* message) {
-  if (!CEF_CURRENTLY_ON_UIT()) {
-    CEF_POST_TASK(CEF_UIT,
-                  base::Bind(base::IgnoreResult(&CefBrowserMessageFilter::Send),
-                             this, message));
-    return true;
-  }
-
-  content::RenderProcessHost* host =
-      content::RenderProcessHost::FromID(render_process_id_);
-  if (!host) {
-    delete message;
-    return false;
-  }
-
-  return host->Send(message);
 }
 
 void CefBrowserMessageFilter::OnGetNewRenderThreadInfo(
@@ -93,21 +66,4 @@ void CefBrowserMessageFilter::OnGetNewBrowserInfo(int render_view_routing_id,
   } else {
     delete reply_msg;
   }
-}
-
-void CefBrowserMessageFilter::OnFrameFocused(int32_t render_frame_routing_id) {
-  if (!CEF_CURRENTLY_ON_UIT()) {
-    CEF_POST_TASK(CEF_UIT, base::Bind(&CefBrowserMessageFilter::OnFrameFocused,
-                                      this, render_frame_routing_id));
-    return;
-  }
-
-  if (render_process_id_ == content::ChildProcessHost::kInvalidUniqueID)
-    return;
-
-  CefRefPtr<CefBrowserHostImpl> browser =
-      CefBrowserHostImpl::GetBrowserForFrame(render_process_id_,
-                                             render_frame_routing_id);
-  if (browser.get())
-    browser->SetFocusedFrame(render_frame_routing_id);
 }

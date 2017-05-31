@@ -319,6 +319,9 @@ class CefBrowserHostImpl : public CefBrowserHost,
                 int script_start_line,
                 CefRefPtr<CefResponseManager::Handler> responseHandler);
 
+  void ExecuteJavaScriptWithUserGestureForTests(int64 frame_id,
+                                                const CefString& javascript);
+
   bool SendProcessMessage(CefProcessId target_process,
                           const std::string& name,
                           base::ListValue* arguments,
@@ -329,9 +332,6 @@ class CefBrowserHostImpl : public CefBrowserHost,
 
   // Handler for URLs involving external protocols.
   void HandleExternalProtocol(const GURL& url);
-
-  // Set the frame that currently has focus.
-  void SetFocusedFrame(int64 frame_id);
 
   // Convert from view coordinates to screen coordinates. Potential display
   // scaling will be applied to the result.
@@ -412,12 +412,15 @@ class CefBrowserHostImpl : public CefBrowserHost,
       int opener_render_frame_id,
       content::WebContentsView** view,
       content::RenderViewHostDelegateView** delegate_view) override;
-  void WebContentsCreated(content::WebContents* source_contents,
-                          int opener_render_process_id,
-                          int opener_render_frame_id,
-                          const std::string& frame_name,
-                          const GURL& target_url,
-                          content::WebContents* new_contents) override;
+  void WebContentsCreated(
+      content::WebContents* source_contents,
+      int opener_render_process_id,
+      int opener_render_frame_id,
+      const std::string& frame_name,
+      const GURL& target_url,
+      content::WebContents* new_contents,
+      const base::Optional<content::WebContents::CreateParams>& create_params)
+      override;
   void DidNavigateMainFramePostCommit(
       content::WebContents* web_contents) override;
   content::JavaScriptDialogManager* GetJavaScriptDialogManager(
@@ -472,6 +475,8 @@ class CefBrowserHostImpl : public CefBrowserHost,
   void DidUpdateFaviconURL(
       const std::vector<content::FaviconURL>& candidates) override;
   bool OnMessageReceived(const IPC::Message& message) override;
+  bool OnMessageReceived(const IPC::Message& message,
+                         content::RenderFrameHost* render_frame_host) override;
   void AccessibilityEventReceived(
       const std::vector<content::AXEventNotificationDetails>& eventData)
       override;
@@ -507,6 +512,7 @@ class CefBrowserHostImpl : public CefBrowserHost,
   void OnFrameIdentified(int64 frame_id,
                          int64 parent_frame_id,
                          base::string16 name);
+  void OnFrameFocused(content::RenderFrameHost* render_frame_host);
   void OnDidFinishLoad(int64 frame_id,
                        const GURL& validated_url,
                        bool is_main_frame,

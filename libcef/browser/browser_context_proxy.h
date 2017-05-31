@@ -29,7 +29,6 @@ class CefBrowserContextProxy : public CefBrowserContext {
 
   // SupportsUserData methods.
   Data* GetUserData(const void* key) const override;
-  void SetUserData(const void* key, Data* data) override;
   void SetUserData(const void* key, std::unique_ptr<Data> data) override;
   void RemoveUserData(const void* key) override;
 

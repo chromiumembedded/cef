@@ -8,7 +8,7 @@
 # by hand. See the translator.README.txt file in the tools directory for
 # more information.
 #
-# $hash=9b613878ab9c9f72136f890b1df4a145d6341790$
+# $hash=20588ad142633d169a929c7631888e287ab66b9a$
 #
 
 {
@@ -80,6 +80,7 @@
       'include/cef_x509_certificate.h',
       'include/cef_xml_reader.h',
       'include/cef_zip_reader.h',
+      'include/test/cef_test_helpers.h',
       'include/test/cef_translator_test.h',
       'include/views/cef_box_layout.h',
       'include/views/cef_browser_view.h',
@@ -169,6 +170,7 @@
       'include/capi/cef_x509_certificate_capi.h',
       'include/capi/cef_xml_reader_capi.h',
       'include/capi/cef_zip_reader_capi.h',
+      'include/capi/test/cef_test_helpers_capi.h',
       'include/capi/test/cef_translator_test_capi.h',
       'include/capi/views/cef_box_layout_capi.h',
       'include/capi/views/cef_browser_view_capi.h',

@@ -409,12 +409,6 @@ void CefBrowserImpl::DidStopLoading() {
   OnLoadingStateChange(false);
 }
 
-void CefBrowserImpl::DidFailLoad(blink::WebLocalFrame* frame,
-                                 const blink::WebURLError& error) {
-  OnLoadError(frame, error);
-  OnLoadEnd(frame);
-}
-
 void CefBrowserImpl::DidFinishLoad(blink::WebLocalFrame* frame) {
   blink::WebDataSource* ds = frame->DataSource();
   Send(new CefHostMsg_DidFinishLoad(

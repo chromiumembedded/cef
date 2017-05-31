@@ -359,7 +359,11 @@ bool CefCookieManagerImpl::GetCefCookie(const GURL& url,
   if (!GetCookieDomain(url, pc, &cookie_domain))
     return false;
 
-  std::string cookie_path = net::CanonicalCookie::CanonPath(url, pc);
+  std::string path_string;
+  if (pc.HasPath())
+    path_string = pc.Path();
+  std::string cookie_path =
+      net::CanonicalCookie::CanonPathWithString(url, path_string);
   base::Time creation_time = base::Time::Now();
   base::Time cookie_expires =
       net::CanonicalCookie::CanonExpiration(pc, creation_time, creation_time);

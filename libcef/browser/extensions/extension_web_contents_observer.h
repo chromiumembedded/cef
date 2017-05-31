@@ -14,11 +14,13 @@ namespace extensions {
 class CefExtensionWebContentsObserver
     : public ExtensionWebContentsObserver,
       public content::WebContentsUserData<CefExtensionWebContentsObserver> {
+ public:
+  ~CefExtensionWebContentsObserver() override;
+
  private:
   friend class content::WebContentsUserData<CefExtensionWebContentsObserver>;
 
   explicit CefExtensionWebContentsObserver(content::WebContents* web_contents);
-  ~CefExtensionWebContentsObserver() override;
 
   // content::WebContentsObserver overrides.
   void RenderViewCreated(content::RenderViewHost* render_view_host) override;

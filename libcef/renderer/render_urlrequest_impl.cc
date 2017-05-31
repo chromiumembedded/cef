@@ -44,12 +44,14 @@ class CefWebURLLoaderClient : public blink::WebURLLoaderClient {
   void DidDownloadData(int dataLength, int encodedDataLength) override;
   void DidReceiveData(const char* data, int dataLength) override;
   void DidReceiveCachedMetadata(const char* data, int dataLength) override;
-  void DidFinishLoading(double finishTime,
-                        int64_t totalEncodedDataLength,
-                        int64_t totalEncodedBodyLength) override;
-  void DidFail(const WebURLError& error,
-               int64_t totalEncodedDataLength,
-               int64_t totalEncodedBodyLength) override;
+  void DidFinishLoading(double finish_time,
+                        int64_t total_encoded_data_length,
+                        int64_t total_encoded_body_length,
+                        int64_t total_decoded_body_length) override;
+  void DidFail(const WebURLError&,
+               int64_t total_encoded_data_length,
+               int64_t total_encoded_body_length,
+               int64_t total_decoded_body_length) override;
 
  protected:
   // The context_ pointer will outlive this object.
@@ -92,7 +94,7 @@ class CefRenderURLRequest::Context
     if (!url.is_valid())
       return false;
 
-    loader_.reset(blink::Platform::Current()->CreateURLLoader());
+    loader_ = blink::Platform::Current()->CreateURLLoader();
     url_client_.reset(new CefWebURLLoaderClient(this, request_->GetFlags()));
 
     WebURLRequest urlRequest;
@@ -261,15 +263,18 @@ void CefWebURLLoaderClient::DidReceiveData(const char* data, int dataLength) {
 void CefWebURLLoaderClient::DidReceiveCachedMetadata(const char* data,
                                                      int dataLength) {}
 
-void CefWebURLLoaderClient::DidFinishLoading(double finishTime,
-                                             int64_t totalEncodedDataLength,
-                                             int64_t totalEncodedBodyLength) {
+void CefWebURLLoaderClient::DidFinishLoading(
+    double finishTime,
+    int64_t total_encoded_data_length,
+    int64_t total_encoded_body_length,
+    int64_t total_decoded_body_length) {
   context_->OnComplete();
 }
 
 void CefWebURLLoaderClient::DidFail(const WebURLError& error,
-                                    int64_t totalEncodedDataLength,
-                                    int64_t totalEncodedBodyLength) {
+                                    int64_t total_encoded_data_length,
+                                    int64_t total_encoded_body_length,
+                                    int64_t total_decoded_body_length) {
   context_->OnError(error);
 }
 

@@ -43,10 +43,15 @@ class CallRecordUploadAttempt {
 CefCrashReportUploadThread::CefCrashReportUploadThread(
     CrashReportDatabase* database,
     const std::string& url,
+    bool watch_pending_reports,
     bool rate_limit,
     bool upload_gzip,
     int max_uploads)
-    : CrashReportUploadThread(database, url, rate_limit, upload_gzip),
+    : CrashReportUploadThread(database,
+                              url,
+                              watch_pending_reports,
+                              rate_limit,
+                              upload_gzip),
       max_uploads_(max_uploads) {}
 
 CefCrashReportUploadThread::~CefCrashReportUploadThread() {}

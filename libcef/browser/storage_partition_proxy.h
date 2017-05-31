@@ -68,6 +68,9 @@ class CefStoragePartitionProxy : public content::StoragePartition {
       const base::Closure& callback) override;
   void Flush() override;
   void ClearBluetoothAllowedDevicesMapForTesting() override;
+  content::mojom::NetworkContext* network_context() override;
+  content::URLLoaderFactoryGetter* url_loader_factory_getter() override;
+  content::BrowserContext* browser_context() const override;
   void Bind(mojo::InterfaceRequest<content::mojom::StoragePartitionService>
                 request) override;
 

@@ -10,9 +10,12 @@
 #include "libcef/renderer/content_renderer_client.h"
 
 #include "components/visitedlink/renderer/visitedlink_slave.h"
+#include "content/public/child/child_thread.h"
+#include "content/public/common/service_manager_connection.h"
+#include "content/public/common/simple_connection_filter.h"
 #include "content/public/renderer/render_thread.h"
 #include "net/base/net_module.h"
-#include "services/service_manager/public/cpp/interface_registry.h"
+#include "services/service_manager/public/cpp/binder_registry.h"
 #include "third_party/WebKit/public/platform/WebString.h"
 #include "third_party/WebKit/public/platform/WebURL.h"
 #include "third_party/WebKit/public/web/WebSecurityPolicy.h"
@@ -23,9 +26,15 @@ CefRenderThreadObserver::CefRenderThreadObserver()
     : visited_link_slave_(new visitedlink::VisitedLinkSlave) {
   net::NetModule::SetResourceProvider(NetResourceProvider);
 
-  content::RenderThread* thread = content::RenderThread::Get();
-  thread->GetInterfaceRegistry()->AddInterface(
-      visited_link_slave_->GetBindCallback());
+  auto registry = base::MakeUnique<service_manager::BinderRegistry>();
+  registry->AddInterface(visited_link_slave_->GetBindCallback(),
+                         base::ThreadTaskRunnerHandle::Get());
+  if (content::ChildThread::Get()) {
+    content::ChildThread::Get()
+        ->GetServiceManagerConnection()
+        ->AddConnectionFilter(base::MakeUnique<content::SimpleConnectionFilter>(
+            std::move(registry)));
+  }
 }
 
 CefRenderThreadObserver::~CefRenderThreadObserver() {}

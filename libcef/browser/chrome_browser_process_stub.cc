@@ -103,16 +103,16 @@ rappor::RapporServiceImpl* ChromeBrowserProcessStub::rappor_service() {
   return NULL;
 }
 
+ukm::UkmRecorder* ChromeBrowserProcessStub::ukm_recorder() {
+  NOTREACHED();
+  return NULL;
+}
+
 IOThread* ChromeBrowserProcessStub::io_thread() {
   return NULL;
 }
 
 WatchDogThread* ChromeBrowserProcessStub::watchdog_thread() {
-  NOTREACHED();
-  return NULL;
-}
-
-ukm::UkmService* ChromeBrowserProcessStub::ukm_service() {
   NOTREACHED();
   return NULL;
 }

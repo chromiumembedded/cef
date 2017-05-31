@@ -534,7 +534,7 @@ CefRefPtr<CefBinaryValue> CefBinaryValueImpl::Copy() {
 
 size_t CefBinaryValueImpl::GetSize() {
   CEF_VALUE_VERIFY_RETURN(false, 0);
-  return const_value().GetSize();
+  return const_value().GetBlob().size();
 }
 
 size_t CefBinaryValueImpl::GetData(void* buffer,
@@ -547,13 +547,13 @@ size_t CefBinaryValueImpl::GetData(void* buffer,
 
   CEF_VALUE_VERIFY_RETURN(false, 0);
 
-  size_t size = const_value().GetSize();
+  size_t size = const_value().GetBlob().size();
   DCHECK_LT(data_offset, size);
   if (data_offset >= size)
     return 0;
 
   size = std::min(buffer_size, size - data_offset);
-  const char* data = const_value().GetBuffer();
+  const char* data = const_value().GetBlob().data();
   memcpy(buffer, data + data_offset, size);
   return size;
 }
@@ -974,7 +974,8 @@ base::Value* CefDictionaryValueImpl::SetInternal(const CefString& key,
                                                  base::Value* value) {
   DCHECK(value);
   RemoveInternal(key);
-  mutable_value()->SetWithoutPathExpansion(base::StringPiece(key), value);
+  mutable_value()->SetWithoutPathExpansion(
+      base::StringPiece(key), base::WrapUnique<base::Value>(value));
   return value;
 }
 

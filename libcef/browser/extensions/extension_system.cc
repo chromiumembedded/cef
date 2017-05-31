@@ -179,7 +179,7 @@ const Extension* CefExtensionSystem::AddExtension(
 void CefExtensionSystem::RemoveExtension(const std::string& extension_id) {
   scoped_refptr<const Extension> extension(
       registry_->enabled_extensions().GetByID(extension_id));
-  UnloadExtension(extension_id, UnloadedExtensionInfo::REASON_UNINSTALL);
+  UnloadExtension(extension_id, UnloadedExtensionReason::UNINSTALL);
   if (extension.get()) {
     registry_->TriggerOnUninstalled(
         extension.get(), extensions::UNINSTALL_REASON_COMPONENT_REMOVED);
@@ -262,7 +262,7 @@ void CefExtensionSystem::RegisterExtensionWithRequestContexts(
 // ExtensionSystemImpl::UnregisterExtensionWithRequestContexts.
 void CefExtensionSystem::UnregisterExtensionWithRequestContexts(
     const std::string& extension_id,
-    const UnloadedExtensionInfo::Reason reason) {
+    const UnloadedExtensionReason reason) {
   BrowserThread::PostTask(
       BrowserThread::IO, FROM_HERE,
       base::Bind(&InfoMap::RemoveExtension, info_map(), extension_id, reason));
@@ -332,7 +332,7 @@ const Extension* CefExtensionSystem::LoadExtension(
 
 // Implementation based on ExtensionService::UnloadExtension.
 void CefExtensionSystem::UnloadExtension(const std::string& extension_id,
-                                         UnloadedExtensionInfo::Reason reason) {
+                                         UnloadedExtensionReason reason) {
   // Make sure the extension gets deleted after we return from this function.
   int include_mask =
       ExtensionRegistry::EVERYTHING & ~ExtensionRegistry::TERMINATED;
@@ -385,14 +385,13 @@ void CefExtensionSystem::NotifyExtensionLoaded(const Extension* extension) {
   // Tell renderers about the loaded extension.
   renderer_helper_->OnExtensionLoaded(*extension);
 
-  // Tell subsystems that use the EXTENSION_LOADED notification about the new
-  // extension.
+  // Tell subsystems that use the ExtensionRegistryObserver::OnExtensionLoaded
+  // about the new extension.
   //
   // NOTE: It is important that this happen after notifying the renderers about
   // the new extensions so that if we navigate to an extension URL in
-  // ExtensionRegistryObserver::OnLoaded or
-  // NOTIFICATION_EXTENSION_LOADED_DEPRECATED, the
-  // renderer is guaranteed to know about it.
+  // ExtensionRegistryObserver::OnExtensionLoaded the renderer is guaranteed to
+  // know about it.
   registry_->TriggerOnLoaded(extension);
 
   // Register plugins included with the extension.
@@ -421,11 +420,6 @@ void CefExtensionSystem::NotifyExtensionLoaded(const Extension* extension) {
     plugin_service->RefreshPlugins();
     plugin_service->RegisterInternalPlugin(info, true);
   }
-
-  content::NotificationService::current()->Notify(
-      extensions::NOTIFICATION_EXTENSION_LOADED_DEPRECATED,
-      content::Source<content::BrowserContext>(browser_context_),
-      content::Details<const Extension>(extension));
 }
 
 void CefExtensionSystem::OnExtensionRegisteredWithRequestContexts(
@@ -438,9 +432,7 @@ void CefExtensionSystem::OnExtensionRegisteredWithRequestContexts(
 // Implementation based on ExtensionService::NotifyExtensionUnloaded.
 void CefExtensionSystem::NotifyExtensionUnloaded(
     const Extension* extension,
-    UnloadedExtensionInfo::Reason reason) {
-  UnloadedExtensionInfo details(extension, reason);
-
+    UnloadedExtensionReason reason) {
   // Unregister plugins included with the extension.
   // Implementation based on PluginManager::OnExtensionUnloaded.
   const MimeTypesHandler* handler = MimeTypesHandler::GetHandler(extension);
@@ -454,11 +446,6 @@ void CefExtensionSystem::NotifyExtensionUnloaded(
   }
 
   registry_->TriggerOnUnloaded(extension, reason);
-
-  content::NotificationService::current()->Notify(
-      extensions::NOTIFICATION_EXTENSION_UNLOADED_DEPRECATED,
-      content::Source<content::BrowserContext>(browser_context_),
-      content::Details<UnloadedExtensionInfo>(&details));
 
   // Tell renderers about the unloaded extension.
   renderer_helper_->OnExtensionUnloaded(*extension);

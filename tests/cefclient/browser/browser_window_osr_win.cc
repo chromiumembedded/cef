@@ -36,7 +36,8 @@ void BrowserWindowOsrWin::GetPopupConfig(CefWindowHandle temp_handle,
                                          CefWindowInfo& windowInfo,
                                          CefRefPtr<CefClient>& client,
                                          CefBrowserSettings& settings) {
-  // Note: This method may be called on any thread.
+  CEF_REQUIRE_UI_THREAD();
+
   windowInfo.SetAsWindowless(temp_handle);
   client = client_handler_;
 }

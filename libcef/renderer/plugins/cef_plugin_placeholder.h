@@ -24,7 +24,6 @@ class CefPluginPlaceholder final : public plugins::LoadablePluginPlaceholder,
 
   static CefPluginPlaceholder* CreateBlockedPlugin(
       content::RenderFrame* render_frame,
-      blink::WebLocalFrame* frame,
       const blink::WebPluginParams& params,
       const content::WebPluginInfo& info,
       const std::string& identifier,
@@ -36,14 +35,12 @@ class CefPluginPlaceholder final : public plugins::LoadablePluginPlaceholder,
   // Creates a new WebViewPlugin with a MissingPlugin as a delegate.
   static CefPluginPlaceholder* CreateLoadableMissingPlugin(
       content::RenderFrame* render_frame,
-      blink::WebLocalFrame* frame,
       const blink::WebPluginParams& params);
 
   void SetStatus(CefViewHostMsg_GetPluginInfo_Status status);
 
  private:
   CefPluginPlaceholder(content::RenderFrame* render_frame,
-                       blink::WebLocalFrame* frame,
                        const blink::WebPluginParams& params,
                        const std::string& html_data,
                        const base::string16& title);

@@ -41,7 +41,7 @@ class UserData : public base::SupportsUserData::Data {
     // The CefView should not already be registered.
     DCHECK(!view->GetUserData(UserDataKey()));
 
-    view->SetUserData(UserDataKey(), new UserData(cef_view));
+    view->SetUserData(UserDataKey(), base::WrapUnique(new UserData(cef_view)));
   }
 
   static CefRefPtr<CefView> GetFor(const views::View* view) {
@@ -90,6 +90,8 @@ class UserData : public base::SupportsUserData::Data {
   }
 
  private:
+  friend std::default_delete<UserData>;
+
   explicit UserData(CefRefPtr<CefView> cef_view) : view_ref_(cef_view.get()) {
     DCHECK(view_ref_);
   }

@@ -364,11 +364,10 @@ CefRefPtr<CefDictionaryValue> CefRequestContextImpl::GetAllPreferences(
 
   PrefService* pref_service = browser_context()->GetPrefs();
 
-  std::unique_ptr<base::DictionaryValue> values;
-  if (include_defaults)
-    values = pref_service->GetPreferenceValues();
-  else
-    values = pref_service->GetPreferenceValuesOmitDefaults();
+  std::unique_ptr<base::DictionaryValue> values =
+      pref_service->GetPreferenceValues(include_defaults
+                                            ? PrefService::INCLUDE_DEFAULTS
+                                            : PrefService::EXCLUDE_DEFAULTS);
 
   // CefDictionaryValueImpl takes ownership of |values|.
   return new CefDictionaryValueImpl(values.release(), true, false);

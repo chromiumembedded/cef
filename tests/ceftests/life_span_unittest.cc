@@ -3,6 +3,7 @@
 // can be found in the LICENSE file.
 
 #include "include/base/cef_bind.h"
+#include "include/test/cef_test_helpers.h"
 #include "include/wrapper/cef_closure_task.h"
 #include "tests/ceftests/routing_test_handler.h"
 #include "tests/gtest/include/gtest/gtest.h"
@@ -120,6 +121,12 @@ class LifeSpanTestHandler : public RoutingTestHandler {
                  int httpStatusCode) override {
     got_load_end_.yes();
     EXPECT_TRUE(browser->IsSame(GetBrowser()));
+
+    if (settings_.add_onunload_handler) {
+      // Send the page a user gesture to enable firing of the onbefureunload
+      // handler. See https://crbug.com/707007.
+      CefExecuteJavaScriptWithUserGestureForTests(frame, CefString());
+    }
 
     // Attempt to close the browser.
     CloseBrowser(browser, settings_.force_close);

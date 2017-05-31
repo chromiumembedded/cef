@@ -1,5 +1,12 @@
 {
-  "display_name": "Chrome Render Process",
+  "name": "content_renderer",
   "interface_provider_specs": {
+    "service_manager:connector": {
+      "provides": {
+        "browser": [
+          "spellcheck::mojom::SpellChecker"
+        ]
+      }
+    }
   }
 }

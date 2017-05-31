@@ -86,6 +86,8 @@ scoped_refptr<RootWindow> RootWindowManager::CreateRootWindowAsPopup(
     CefWindowInfo& windowInfo,
     CefRefPtr<CefClient>& client,
     CefBrowserSettings& settings) {
+  CEF_REQUIRE_UI_THREAD();
+
   MainContext::Get()->PopulateBrowserSettings(&settings);
 
   scoped_refptr<RootWindow> root_window =

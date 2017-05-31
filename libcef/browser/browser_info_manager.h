@@ -25,6 +25,7 @@ struct WebWindowFeatures;
 
 namespace content {
 struct Referrer;
+class RenderFrameHost;
 class RenderViewHostDelegateView;
 class WebContents;
 class WebContentsView;
@@ -60,15 +61,14 @@ class CefBrowserInfoManager : public content::RenderProcessHostObserver {
 
   // Called from CefContentBrowserClient::CanCreateWindow. See comments on
   // PendingPopup for more information.
-  bool CanCreateWindow(const GURL& target_url,
+  bool CanCreateWindow(content::RenderFrameHost* opener,
+                       const GURL& target_url,
                        const content::Referrer& referrer,
                        const std::string& frame_name,
                        WindowOpenDisposition disposition,
                        const blink::mojom::WindowFeatures& features,
                        bool user_gesture,
                        bool opener_suppressed,
-                       int opener_render_process_id,
-                       int opener_render_frame_id,
                        bool* no_javascript_access);
 
   // Called from CefBrowserHostImpl::GetCustomWebContentsView. See comments on
@@ -131,7 +131,7 @@ class CefBrowserInfoManager : public content::RenderProcessHostObserver {
   void RenderProcessHostDestroyed(content::RenderProcessHost* host) override;
 
   // Store state information about pending popups. Call order is:
-  // - CefContentBrowserClient::CanCreateWindow (IOT)
+  // - CefContentBrowserClient::CanCreateWindow (UIT)
   //   Provides an opportunity to cancel the popup (calls OnBeforePopup) and
   //   creates the new platform delegate for the popup. If the popup owner is
   //   an extension guest view then the popup is canceled and
@@ -168,16 +168,7 @@ class CefBrowserInfoManager : public content::RenderProcessHostObserver {
     std::unique_ptr<CefBrowserPlatformDelegate> platform_delegate;
   };
 
-  // Between the calls to CanCreateWindow and GetCustomWebContentsView
-  // RenderViewHostImpl::CreateNewWindow() will call
-  // RenderProcessHostImpl::FilterURL() which, in the case of "javascript:"
-  // URIs, rewrites the URL to "about:blank". We need to apply the same filter
-  // otherwise GetCustomWebContentsView will fail to retrieve the PopupInfo.
-  static void FilterPendingPopupURL(
-      int opener_process_id,
-      std::unique_ptr<PendingPopup> pending_popup);
-
-  // Manage pending popups.
+  // Manage pending popups. Only called on the UI thread.
   void PushPendingPopup(std::unique_ptr<PendingPopup> popup);
   std::unique_ptr<PendingPopup> PopPendingPopup(PendingPopup::Step step,
                                                 int opener_process_id,
@@ -216,10 +207,7 @@ class CefBrowserInfoManager : public content::RenderProcessHostObserver {
   typedef ScopedVector<PendingNewBrowserInfo> PendingNewBrowserInfoList;
   PendingNewBrowserInfoList pending_new_browser_info_list_;
 
-  base::Lock pending_popup_lock_;
-
-  // Access to the below members must be protected by |pending_popup_lock_|.
-
+  // Only accessed on the UI thread.
   typedef ScopedVector<PendingPopup> PendingPopupList;
   PendingPopupList pending_popup_list_;
 

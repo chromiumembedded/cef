@@ -79,7 +79,7 @@ class RootWindow
   // will be created and shown once the browser is available. This method may be
   // called on any thread. |delegate| must be non-NULL and outlive this object.
   // Use RootWindowManager::CreateRootWindowAsPopup() instead of calling this
-  // method directly.
+  // method directly. Called on the UI thread.
   virtual void InitAsPopup(RootWindow::Delegate* delegate,
                            bool with_controls,
                            bool with_osr,

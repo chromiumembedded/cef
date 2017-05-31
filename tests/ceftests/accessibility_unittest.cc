@@ -335,7 +335,7 @@ class AccessibilityTestHandler : public TestHandler,
     CefRefPtr<CefDictionaryValue> group;
     for (size_t index = 0; index < nodes->GetSize(); index++) {
       CefRefPtr<CefDictionaryValue> node = nodes->GetDictionary(index);
-      if (node->GetString("role").ToString() == "group") {
+      if (node->GetString("role").ToString() == "genericContainer") {
         group = node;
         break;
       }

@@ -26,13 +26,13 @@ MSVC_PUSH_WARNING_LEVEL(0);
 
 #include "third_party/WebKit/Source/bindings/core/v8/ScriptController.h"
 #include "third_party/WebKit/Source/bindings/core/v8/ScriptSourceCode.h"
-#include "third_party/WebKit/Source/bindings/core/v8/V8Binding.h"
 #include "third_party/WebKit/Source/core/dom/Document.h"
 #include "third_party/WebKit/Source/core/dom/Element.h"
 #include "third_party/WebKit/Source/core/dom/Node.h"
 #include "third_party/WebKit/Source/core/editing/serializers/Serialization.h"
 #include "third_party/WebKit/Source/core/frame/LocalFrame.h"
 #include "third_party/WebKit/Source/core/frame/Settings.h"
+#include "third_party/WebKit/Source/platform/bindings/V8Binding.h"
 #include "third_party/WebKit/Source/platform/weborigin/SchemeRegistry.h"
 #include "third_party/WebKit/Source/web/WebLocalFrameImpl.h"
 #include "third_party/WebKit/Source/web/WebViewImpl.h"
@@ -200,25 +200,23 @@ v8::MaybeLocal<v8::Value> ExecuteV8ScriptAndReturnValue(
   v8::MaybeLocal<v8::Value> result;
 
   blink::LocalFrame* frame = blink::ToLocalFrameIfNotDetached(context);
-  DCHECK(frame);
+  if (!frame)
+    return result;
 
-  if (frame) {
-    blink::V8CacheOptions v8CacheOptions(blink::kV8CacheOptionsDefault);
-    if (frame && frame->GetSettings())
-      v8CacheOptions = frame->GetSettings()->GetV8CacheOptions();
+  blink::V8CacheOptions v8CacheOptions(blink::kV8CacheOptionsDefault);
+  if (frame && frame->GetSettings())
+    v8CacheOptions = frame->GetSettings()->GetV8CacheOptions();
 
-    v8::Local<v8::Script> script;
-    if (!blink::V8Call(blink::V8ScriptRunner::CompileScript(
-                           ssc, isolate, accessControlStatus, v8CacheOptions),
-                       script, tryCatch)) {
-      return result;
-    }
-
-    result = blink::V8ScriptRunner::RunCompiledScript(
-        isolate, script, blink::ToExecutionContext(context));
+  v8::Local<v8::Script> script;
+  if (!blink::V8ScriptRunner::CompileScript(ssc, isolate, accessControlStatus,
+                                            v8CacheOptions)
+           .ToLocal(&script)) {
+    DCHECK(tryCatch.HasCaught());
+    return result;
   }
 
-  return result;
+  return blink::V8ScriptRunner::RunCompiledScript(
+      isolate, script, blink::ToExecutionContext(context));
 }
 
 bool IsScriptForbidden() {

@@ -1,8 +1,8 @@
 diff --git chrome/browser/ui/webui/net_internals/net_internals_ui.cc chrome/browser/ui/webui/net_internals/net_internals_ui.cc
-index 3a72ef9..303258b 100644
+index 2fa6e2a..f7bb035 100644
 --- chrome/browser/ui/webui/net_internals/net_internals_ui.cc
 +++ chrome/browser/ui/webui/net_internals/net_internals_ui.cc
-@@ -531,8 +531,7 @@ void NetInternalsMessageHandler::OnGetSessionNetworkStats(
+@@ -526,8 +526,7 @@ void NetInternalsMessageHandler::OnGetSessionNetworkStats(
      const base::ListValue* list) {
    DCHECK_CURRENTLY_ON(BrowserThread::UI);
    SendJavascriptCommand(
@@ -12,7 +12,7 @@ index 3a72ef9..303258b 100644
  }
  
  void NetInternalsMessageHandler::OnGetExtensionInfo(
-@@ -628,9 +627,17 @@ void NetInternalsMessageHandler::IOThreadImpl::OnRendererReady(
+@@ -623,9 +622,17 @@ void NetInternalsMessageHandler::IOThreadImpl::OnRendererReady(
  
    PrePopulateEventList();
  
@@ -33,7 +33,7 @@ index 3a72ef9..303258b 100644
  }
  
  void NetInternalsMessageHandler::IOThreadImpl::OnGetNetInfo(
-@@ -1032,8 +1039,10 @@ void NetInternalsMessageHandler::IOThreadImpl::PrePopulateEventList() {
+@@ -1027,8 +1034,10 @@ void NetInternalsMessageHandler::IOThreadImpl::PrePopulateEventList() {
    std::set<net::URLRequestContext*> contexts;
    for (const auto& getter : context_getters_)
      contexts.insert(getter->GetURLRequestContext());
@@ -47,10 +47,10 @@ index 3a72ef9..303258b 100644
    // Add entries for ongoing network objects.
    CreateNetLogEntriesForActiveObjects(contexts, this);
 diff --git content/browser/resource_context_impl.cc content/browser/resource_context_impl.cc
-index 93e2890..67a1029 100644
+index 141a083..b16b4d6 100644
 --- content/browser/resource_context_impl.cc
 +++ content/browser/resource_context_impl.cc
-@@ -74,6 +74,10 @@ URLDataManagerBackend* GetURLDataManagerForResourceContext(
+@@ -58,6 +58,10 @@ URLDataManagerBackend* GetURLDataManagerForResourceContext(
        context->GetUserData(kURLDataManagerBackendKeyName));
  }
  
@@ -75,10 +75,10 @@ index 903cc54..56ee4ea 100644
  CONTENT_EXPORT void InitializeResourceContext(BrowserContext* browser_context);
  
 diff --git content/browser/webui/url_data_manager.cc content/browser/webui/url_data_manager.cc
-index 0a482ad..c707073 100644
+index 5681ff5..7d96c24 100644
 --- content/browser/webui/url_data_manager.cc
 +++ content/browser/webui/url_data_manager.cc
-@@ -151,6 +151,11 @@ void URLDataManager::UpdateWebUIDataSource(
+@@ -153,6 +153,11 @@ void URLDataManager::UpdateWebUIDataSource(
  }
  
  // static

@@ -103,7 +103,6 @@ void CefSoftwareOutputDeviceOSR::OnPaint(const gfx::Rect& damage_rect) {
   if (rect.IsEmpty())
     return;
 
-  SkAutoLockPixels bitmap_pixels_lock(*bitmap_.get());
   callback_.Run(rect, bitmap_->width(), bitmap_->height(),
                 bitmap_->getPixels());
 }

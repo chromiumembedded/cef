@@ -3,6 +3,7 @@
 // can be found in the LICENSE file.
 
 #include "include/base/cef_bind.h"
+#include "include/test/cef_test_helpers.h"
 #include "include/wrapper/cef_closure_task.h"
 #include "tests/ceftests/test_handler.h"
 #include "tests/gtest/include/gtest/gtest.h"
@@ -86,6 +87,10 @@ class JSDialogTestHandler : public TestHandler {
 
       DestroyTest();
     } else if (type_ == TYPE_ONBEFOREUNLOAD) {
+      // Send the page a user gesture to enable firing of the onbefureunload
+      // handler. See https://crbug.com/707007.
+      CefExecuteJavaScriptWithUserGestureForTests(frame, CefString());
+
       // Trigger the onunload handler.
       frame->LoadURL(kEndUrl);
     }

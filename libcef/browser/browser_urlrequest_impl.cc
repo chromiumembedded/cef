@@ -115,9 +115,9 @@ class CefURLFetcherResponseWriter : public net::URLFetcherResponseWriter {
   DISALLOW_COPY_AND_ASSIGN(CefURLFetcherResponseWriter);
 };
 
-base::SupportsUserData::Data* CreateURLRequestUserData(
+std::unique_ptr<base::SupportsUserData::Data> CreateURLRequestUserData(
     CefRefPtr<CefURLRequestClient> client) {
-  return new CefURLRequestUserData(client);
+  return base::WrapUnique(new CefURLRequestUserData(client));
 }
 
 }  // namespace

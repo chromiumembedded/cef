@@ -20,7 +20,7 @@
 #include "cc/base/switches.h"
 #include "cc/output/copy_output_request.h"
 #include "cc/scheduler/delay_based_time_source.h"
-#include "components/display_compositor/gl_helper.h"
+#include "components/viz/display_compositor/gl_helper.h"
 #include "content/browser/bad_message.h"
 #include "content/browser/compositor/image_transport_factory.h"
 #include "content/browser/frame_host/render_widget_host_view_guest.h"
@@ -181,12 +181,10 @@ class CefCopyFrameGenerator {
 
     content::ImageTransportFactory* factory =
         content::ImageTransportFactory::GetInstance();
-    display_compositor::GLHelper* gl_helper = factory->GetGLHelper();
+    viz::GLHelper* gl_helper = factory->GetGLHelper();
     if (!gl_helper)
       return;
 
-    std::unique_ptr<SkAutoLockPixels> bitmap_pixels_lock(
-        new SkAutoLockPixels(*bitmap_));
     uint8_t* pixels = static_cast<uint8_t*>(bitmap_->getPixels());
 
     cc::TextureMailbox texture_mailbox;
@@ -204,9 +202,8 @@ class CefCopyFrameGenerator {
         base::Bind(
             &CefCopyFrameGenerator::CopyFromCompositingSurfaceFinishedProxy,
             weak_ptr_factory_.GetWeakPtr(), base::Passed(&release_callback),
-            damage_rect, base::Passed(&bitmap_),
-            base::Passed(&bitmap_pixels_lock)),
-        display_compositor::GLHelper::SCALER_QUALITY_FAST);
+            damage_rect, base::Passed(&bitmap_)),
+        viz::GLHelper::SCALER_QUALITY_FAST);
   }
 
   static void CopyFromCompositingSurfaceFinishedProxy(
@@ -214,12 +211,11 @@ class CefCopyFrameGenerator {
       std::unique_ptr<cc::SingleReleaseCallback> release_callback,
       const gfx::Rect& damage_rect,
       std::unique_ptr<SkBitmap> bitmap,
-      std::unique_ptr<SkAutoLockPixels> bitmap_pixels_lock,
       bool result) {
     // This method may be called after the view has been deleted.
     gpu::SyncToken sync_token;
     if (result) {
-      display_compositor::GLHelper* gl_helper =
+      viz::GLHelper* gl_helper =
           content::ImageTransportFactory::GetInstance()->GetGLHelper();
       if (gl_helper)
         gl_helper->GenerateSyncToken(&sync_token);
@@ -228,29 +224,23 @@ class CefCopyFrameGenerator {
     release_callback->Run(sync_token, lost_resource);
 
     if (generator) {
-      generator->CopyFromCompositingSurfaceFinished(
-          damage_rect, std::move(bitmap), std::move(bitmap_pixels_lock),
-          result);
+      generator->CopyFromCompositingSurfaceFinished(damage_rect,
+                                                    std::move(bitmap), result);
     } else {
-      bitmap_pixels_lock.reset();
       bitmap.reset();
     }
   }
 
-  void CopyFromCompositingSurfaceFinished(
-      const gfx::Rect& damage_rect,
-      std::unique_ptr<SkBitmap> bitmap,
-      std::unique_ptr<SkAutoLockPixels> bitmap_pixels_lock,
-      bool result) {
+  void CopyFromCompositingSurfaceFinished(const gfx::Rect& damage_rect,
+                                          std::unique_ptr<SkBitmap> bitmap,
+                                          bool result) {
     // Restore ownership of the bitmap to the view.
     DCHECK(!bitmap_);
     bitmap_ = std::move(bitmap);
 
     if (result) {
-      OnCopyFrameCaptureSuccess(damage_rect, *bitmap_,
-                                std::move(bitmap_pixels_lock));
+      OnCopyFrameCaptureSuccess(damage_rect, *bitmap_);
     } else {
-      bitmap_pixels_lock.reset();
       OnCopyFrameCaptureFailure(damage_rect);
     }
   }
@@ -262,10 +252,7 @@ class CefCopyFrameGenerator {
     std::unique_ptr<SkBitmap> source = result->TakeBitmap();
     DCHECK(source);
     if (source) {
-      std::unique_ptr<SkAutoLockPixels> bitmap_pixels_lock(
-          new SkAutoLockPixels(*source));
-      OnCopyFrameCaptureSuccess(damage_rect, *source,
-                                std::move(bitmap_pixels_lock));
+      OnCopyFrameCaptureSuccess(damage_rect, *source);
     } else {
       OnCopyFrameCaptureFailure(damage_rect);
     }
@@ -279,13 +266,10 @@ class CefCopyFrameGenerator {
     OnCopyFrameCaptureCompletion(force_frame);
   }
 
-  void OnCopyFrameCaptureSuccess(
-      const gfx::Rect& damage_rect,
-      const SkBitmap& bitmap,
-      std::unique_ptr<SkAutoLockPixels> bitmap_pixels_lock) {
+  void OnCopyFrameCaptureSuccess(const gfx::Rect& damage_rect,
+                                 const SkBitmap& bitmap) {
     view_->OnPaint(damage_rect, bitmap.width(), bitmap.height(),
                    bitmap.getPixels());
-    bitmap_pixels_lock.reset();
 
     // Reset the frame retry count on successful frame generation.
     if (frame_retry_count_ > 0)

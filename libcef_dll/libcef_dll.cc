@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=1713327e819a8a3e44808a4415926326886efdf7$
+// $hash=2ff7a51013987b111a12b700a0e018eb0bb08edc$
 //
 
 #include "include/capi/cef_app_capi.h"
@@ -26,6 +26,7 @@
 #include "include/capi/cef_trace_capi.h"
 #include "include/capi/cef_v8_capi.h"
 #include "include/capi/cef_web_plugin_capi.h"
+#include "include/capi/test/cef_test_helpers_capi.h"
 #include "include/cef_app.h"
 #include "include/cef_crash_util.h"
 #include "include/cef_file_util.h"
@@ -40,6 +41,7 @@
 #include "include/cef_trace.h"
 #include "include/cef_v8.h"
 #include "include/cef_web_plugin.h"
+#include "include/test/cef_test_helpers.h"
 #include "libcef_dll/cpptoc/auth_callback_cpptoc.h"
 #include "libcef_dll/cpptoc/before_download_callback_cpptoc.h"
 #include "libcef_dll/cpptoc/binary_value_cpptoc.h"
@@ -1179,4 +1181,20 @@ CEF_EXPORT void cef_register_widevine_cdm(
   // Execute
   CefRegisterWidevineCdm(CefString(path),
                          CefRegisterCdmCallbackCToCpp::Wrap(callback));
+}
+
+CEF_EXPORT void cef_execute_java_script_with_user_gesture_for_tests(
+    struct _cef_frame_t* frame,
+    const cef_string_t* javascript) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: frame; type: refptr_same
+  DCHECK(frame);
+  if (!frame)
+    return;
+  // Unverified params: javascript
+
+  // Execute
+  CefExecuteJavaScriptWithUserGestureForTests(CefFrameCppToC::Unwrap(frame),
+                                              CefString(javascript));
 }

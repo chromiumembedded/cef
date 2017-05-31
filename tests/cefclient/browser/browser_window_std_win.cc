@@ -35,7 +35,8 @@ void BrowserWindowStdWin::GetPopupConfig(CefWindowHandle temp_handle,
                                          CefWindowInfo& windowInfo,
                                          CefRefPtr<CefClient>& client,
                                          CefBrowserSettings& settings) {
-  // Note: This method may be called on any thread.
+  CEF_REQUIRE_UI_THREAD();
+
   // The window will be properly sized after the browser is created.
   windowInfo.SetAsChild(temp_handle, RECT());
   client = client_handler_;

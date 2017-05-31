@@ -135,11 +135,7 @@ bool CefImageImpl::AddBitmap(float scale_factor,
   }
 
   DCHECK_EQ(pixel_data_size, bitmap.getSize());
-
-  {
-    SkAutoLockPixels bitmap_lock(bitmap);
-    memcpy(bitmap.getPixels(), pixel_data, pixel_data_size);
-  }
+  memcpy(bitmap.getPixels(), pixel_data, pixel_data_size);
 
   return AddBitmap(scale_factor, bitmap);
 }
@@ -229,7 +225,6 @@ CefRefPtr<CefBinaryValue> CefImageImpl::GetAsBitmap(float scale_factor,
   if (!bitmap)
     return nullptr;
 
-  SkAutoLockPixels bitmap_lock(*bitmap);
   DCHECK(bitmap->readyToDraw());
 
   pixel_width = bitmap->width();
@@ -242,7 +237,6 @@ CefRefPtr<CefBinaryValue> CefImageImpl::GetAsBitmap(float scale_factor,
     SkBitmap desired_bitmap;
     if (!ConvertBitmap(*bitmap, &desired_bitmap, desired_ct, desired_at))
       return nullptr;
-    SkAutoLockPixels bitmap_lock(desired_bitmap);
     DCHECK(desired_bitmap.readyToDraw());
     return CefBinaryValue::Create(desired_bitmap.getPixels(),
                                   desired_bitmap.getSize());
@@ -324,10 +318,7 @@ gfx::ImageSkia CefImageImpl::GetForced1xScaleRepresentation(
 
 bool CefImageImpl::AddBitmap(float scale_factor, const SkBitmap& bitmap) {
 #if DCHECK_IS_ON()
-  {
-    SkAutoLockPixels bitmap_lock(bitmap);
-    DCHECK(bitmap.readyToDraw());
-  }
+  DCHECK(bitmap.readyToDraw());
 #endif
   DCHECK(bitmap.colorType() == kBGRA_8888_SkColorType ||
          bitmap.colorType() == kRGBA_8888_SkColorType);
@@ -369,7 +360,6 @@ bool CefImageImpl::ConvertBitmap(const SkBitmap& src_bitmap,
   if (!target_bitmap->tryAllocPixels(target_info))
     return false;
 
-  SkAutoLockPixels bitmap_lock(*target_bitmap);
   if (!src_bitmap.readPixels(target_info, target_bitmap->getPixels(),
                              target_bitmap->rowBytes(), 0, 0)) {
     return false;
@@ -387,7 +377,6 @@ bool CefImageImpl::WriteCompressedFormat(const SkBitmap& bitmap,
   SkBitmap bitmap_postalpha;
   if (bitmap.alphaType() == kPremul_SkAlphaType) {
     // Compression methods require post-multiplied alpha values.
-    SkAutoLockPixels bitmap_lock(bitmap);
     if (!ConvertBitmap(bitmap, &bitmap_postalpha, bitmap.colorType(),
                        kUnpremul_SkAlphaType)) {
       return false;
@@ -397,7 +386,6 @@ bool CefImageImpl::WriteCompressedFormat(const SkBitmap& bitmap,
     bitmap_ptr = &bitmap;
   }
 
-  SkAutoLockPixels bitmap_lock(*bitmap_ptr);
   DCHECK(bitmap_ptr->readyToDraw());
   DCHECK(bitmap_ptr->colorType() == kBGRA_8888_SkColorType ||
          bitmap_ptr->colorType() == kRGBA_8888_SkColorType);

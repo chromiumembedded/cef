@@ -1,8 +1,8 @@
 diff --git BUILD.gn BUILD.gn
-index 1d8f353..419c18d 100644
+index 5802752..94c247e 100644
 --- BUILD.gn
 +++ BUILD.gn
-@@ -220,6 +220,10 @@ static_library("pdfium") {
+@@ -222,6 +222,10 @@ static_library("pdfium") {
    if (pdf_is_complete_lib) {
      complete_static_lib = true
    }
@@ -14,10 +14,10 @@ index 1d8f353..419c18d 100644
  
  static_library("test_support") {
 diff --git fpdfsdk/fpdfview.cpp fpdfsdk/fpdfview.cpp
-index 5010c17..ffc81fd 100644
+index f20e8ab..bc34b85 100644
 --- fpdfsdk/fpdfview.cpp
 +++ fpdfsdk/fpdfview.cpp
-@@ -31,6 +31,7 @@
+@@ -35,6 +35,7 @@
  #include "fpdfsdk/fsdk_define.h"
  #include "fpdfsdk/fsdk_pauseadapter.h"
  #include "fpdfsdk/javascript/ijs_runtime.h"
@@ -25,11 +25,11 @@ index 5010c17..ffc81fd 100644
  #include "public/fpdf_ext.h"
  #include "public/fpdf_progressive.h"
  #include "third_party/base/allocator/partition_allocator/partition_alloc.h"
-@@ -421,6 +422,7 @@ DLLEXPORT void STDCALL FPDF_DestroyLibrary() {
+@@ -382,6 +383,7 @@ DLLEXPORT void STDCALL FPDF_DestroyLibrary() {
  
    CPDF_ModuleMgr::Destroy();
    CFX_GEModule::Destroy();
 +  FXJS_Release();
  
-   delete g_pCodecModule;
-   g_pCodecModule = nullptr;
+   IJS_Runtime::Destroy();
+ 

@@ -62,22 +62,14 @@ bool CrossesExtensionExtents(blink::WebLocalFrame* frame,
   // If old_url is still empty and this is an initial navigation, then this is
   // a window.open operation.  We should look at the opener URL.  Note that the
   // opener is a local frame in this case.
-  if (is_initial_navigation && old_url.is_empty() && frame->Opener() &&
-      frame->Opener()->IsWebLocalFrame()) {
+  if (is_initial_navigation && old_url.is_empty() && frame->Opener()) {
     blink::WebLocalFrame* opener_frame = frame->Opener()->ToWebLocalFrame();
 
-    // We usually want to compare against the URL that determines the type of
-    // process.  In default Chrome, that's the URL of the opener's top frame and
-    // not the opener frame itself.  In --site-per-process, we can use the
-    // opener frame itself.
-    // TODO(nick): Either wire this up to SiteIsolationPolicy, or to state on
-    // |opener_frame|/its ancestors.
-    if (base::CommandLine::ForCurrentProcess()->HasSwitch(
-            ::switches::kSitePerProcess) ||
-        extensions::IsIsolateExtensionsEnabled())
-      old_url = opener_frame->GetDocument().Url();
-    else
-      old_url = opener_frame->Top()->GetDocument().Url();
+    // We want to compare against the URL that determines the type of
+    // process.  Use the URL of the opener's local frame root, which will
+    // correctly handle any site isolation modes (e.g. --site-per-process).
+    blink::WebLocalFrame* local_root = opener_frame->LocalRoot();
+    old_url = local_root->GetDocument().Url();
 
     // If we're about to open a normal web page from a same-origin opener stuck
     // in an extension process (other than the Chrome Web Store), we want to
@@ -88,7 +80,7 @@ bool CrossesExtensionExtents(blink::WebLocalFrame* frame,
     bool opener_is_extension_url =
         !opener_origin.IsUnique() && extension_registry->GetExtensionOrAppByURL(
                                          opener_document.Url()) != nullptr;
-    const extensions::Extension* opener_top_extension =
+    const Extension* opener_top_extension =
         extension_registry->GetExtensionOrAppByURL(old_url);
     bool opener_is_web_store =
         opener_top_extension &&

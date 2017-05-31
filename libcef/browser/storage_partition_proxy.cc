@@ -153,6 +153,19 @@ void CefStoragePartitionProxy::ClearBluetoothAllowedDevicesMapForTesting() {
   parent_->ClearBluetoothAllowedDevicesMapForTesting();
 }
 
+content::mojom::NetworkContext* CefStoragePartitionProxy::network_context() {
+  return parent_->network_context();
+}
+
+content::URLLoaderFactoryGetter*
+CefStoragePartitionProxy::url_loader_factory_getter() {
+  return parent_->url_loader_factory_getter();
+}
+
+content::BrowserContext* CefStoragePartitionProxy::browser_context() const {
+  return parent_->browser_context();
+}
+
 void CefStoragePartitionProxy::Bind(
     mojo::InterfaceRequest<content::mojom::StoragePartitionService> request) {
   parent_->Bind(std::move(request));

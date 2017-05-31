@@ -1,8 +1,8 @@
 diff --git third_party/WebKit/Source/core/dom/DOMImplementation.cpp third_party/WebKit/Source/core/dom/DOMImplementation.cpp
-index 8aab9bb..e3286f6 100644
+index 372b21d..78107f3 100644
 --- third_party/WebKit/Source/core/dom/DOMImplementation.cpp
 +++ third_party/WebKit/Source/core/dom/DOMImplementation.cpp
-@@ -241,10 +241,11 @@ Document* DOMImplementation::createDocument(const String& type,
+@@ -242,10 +242,11 @@ Document* DOMImplementation::createDocument(const String& type,
      // For that reason, the origin must be retrieved directly from init.url().
      if (init.GetFrame()->IsMainFrame()) {
        RefPtr<SecurityOrigin> origin = SecurityOrigin::Create(init.Url());
@@ -15,22 +15,22 @@ index 8aab9bb..e3286f6 100644
 +          init.GetFrame()->GetPage()->GetPluginData(false, init.GetFrame()
                                                          ->Tree()
                                                          .Top()
-                                                         ->GetSecurityContext()
+                                                         .GetSecurityContext()
 diff --git third_party/WebKit/Source/core/frame/LocalFrame.cpp third_party/WebKit/Source/core/frame/LocalFrame.cpp
-index b64d75d..869b45d 100644
+index 9c6d497..6296f53 100644
 --- third_party/WebKit/Source/core/frame/LocalFrame.cpp
 +++ third_party/WebKit/Source/core/frame/LocalFrame.cpp
-@@ -927,7 +927,7 @@ ContentSettingsClient* LocalFrame::GetContentSettingsClient() {
+@@ -930,7 +930,7 @@ ContentSettingsClient* LocalFrame::GetContentSettingsClient() {
  PluginData* LocalFrame::GetPluginData() const {
    if (!Loader().AllowPlugins(kNotAboutToInstantiatePlugin))
      return nullptr;
 -  return GetPage()->GetPluginData(
 +  return GetPage()->GetPluginData(IsMainFrame(),
-       Tree().Top()->GetSecurityContext()->GetSecurityOrigin());
+       Tree().Top().GetSecurityContext()->GetSecurityOrigin());
  }
  
 diff --git third_party/WebKit/Source/core/page/Page.cpp third_party/WebKit/Source/core/page/Page.cpp
-index 941a30c..2c5764c 100644
+index 6dc4b21..41d56b5 100644
 --- third_party/WebKit/Source/core/page/Page.cpp
 +++ third_party/WebKit/Source/core/page/Page.cpp
 @@ -289,16 +289,30 @@ void Page::RefreshPlugins() {
@@ -157,10 +157,10 @@ index cdf3381..671f17c 100644
  };
  
 diff --git third_party/WebKit/public/platform/Platform.h third_party/WebKit/public/platform/Platform.h
-index eab1ca5..6657878 100644
+index f7360bf6..f7599cc 100644
 --- third_party/WebKit/public/platform/Platform.h
 +++ third_party/WebKit/public/platform/Platform.h
-@@ -365,6 +365,7 @@ class BLINK_PLATFORM_EXPORT Platform {
+@@ -363,6 +363,7 @@ class BLINK_PLATFORM_EXPORT Platform {
    // satisfy this call. mainFrameOrigin is used by the browser process to
    // filter plugins from the plugin list based on content settings.
    virtual void GetPluginList(bool refresh,

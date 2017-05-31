@@ -31,6 +31,10 @@ namespace base {
 class ListValue;
 }
 
+namespace blink {
+class WebNode;
+}
+
 // Renderer plumbing for CEF features. There is a one-to-one relationship
 // between RenderView on the renderer side and RenderViewHost on the browser
 // side.
@@ -102,24 +106,24 @@ class CefBrowserImpl : public CefBrowser, public content::RenderViewObserver {
 
   bool is_swapped_out() const;
 
- private:
   // RenderViewObserver methods.
   void OnDestruct() override;
   void DidStartLoading() override;
   void DidStopLoading() override;
-  void DidFailLoad(blink::WebLocalFrame* frame,
-                   const blink::WebURLError& error) override;
-  void DidFinishLoad(blink::WebLocalFrame* frame) override;
-  void DidStartProvisionalLoad(blink::WebLocalFrame* frame) override;
   void DidFailProvisionalLoad(blink::WebLocalFrame* frame,
                               const blink::WebURLError& error) override;
   void DidCommitProvisionalLoad(blink::WebLocalFrame* frame,
                                 bool is_new_navigation) override;
-  void FrameDetached(blink::WebFrame* frame) override;
-  void FocusedNodeChanged(const blink::WebNode& node) override;
   void DraggableRegionsChanged(blink::WebFrame* frame) override;
   bool OnMessageReceived(const IPC::Message& message) override;
 
+  // Forwarded from CefRenderFrameObserver.
+  void DidFinishLoad(blink::WebLocalFrame* frame);
+  void DidStartProvisionalLoad(blink::WebLocalFrame* frame);
+  void FrameDetached(blink::WebFrame* frame);
+  void FocusedNodeChanged(const blink::WebNode& node);
+
+ private:
   // RenderViewObserver::OnMessageReceived message handlers.
   void OnRequest(const Cef_Request_Params& params);
   void OnResponse(const Cef_Response_Params& params);

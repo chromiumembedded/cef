@@ -96,7 +96,7 @@ class WebContentsUserDataAdapter : public base::SupportsUserData::Data {
 
  private:
   WebContentsUserDataAdapter(CefBrowserHostImpl* browser) : browser_(browser) {
-    browser->web_contents()->SetUserData(UserDataKey(), this);
+    browser->web_contents()->SetUserData(UserDataKey(), base::WrapUnique(this));
   }
 
   static void* UserDataKey() {
@@ -1692,6 +1692,35 @@ void CefBrowserHostImpl::SendCode(
   }
 }
 
+void CefBrowserHostImpl::ExecuteJavaScriptWithUserGestureForTests(
+    int64 frame_id,
+    const CefString& javascript) {
+  DCHECK(frame_id >= CefFrameHostImpl::kMainFrameId);
+
+  if (!CEF_CURRENTLY_ON_UIT()) {
+    CEF_POST_TASK(
+        CEF_UIT,
+        base::Bind(
+            &CefBrowserHostImpl::ExecuteJavaScriptWithUserGestureForTests, this,
+            frame_id, javascript));
+    return;
+  }
+
+  if (!web_contents())
+    return;
+
+  content::RenderFrameHost* rfh;
+  if (frame_id == CefFrameHostImpl::kMainFrameId) {
+    rfh = web_contents()->GetMainFrame();
+  } else {
+    rfh = content::RenderFrameHost::FromID(
+        web_contents()->GetRenderProcessHost()->GetID(), frame_id);
+  }
+
+  if (rfh)
+    rfh->ExecuteJavaScriptWithUserGestureForTests(javascript);
+}
+
 bool CefBrowserHostImpl::SendProcessMessage(CefProcessId target_process,
                                             const std::string& name,
                                             base::ListValue* arguments,
@@ -2276,7 +2305,8 @@ void CefBrowserHostImpl::WebContentsCreated(
     int opener_render_frame_id,
     const std::string& frame_name,
     const GURL& target_url,
-    content::WebContents* new_contents) {
+    content::WebContents* new_contents,
+    const base::Optional<content::WebContents::CreateParams>& create_params) {
   CefBrowserSettings settings;
   CefRefPtr<CefClient> client;
   std::unique_ptr<CefBrowserPlatformDelegate> platform_delegate;
@@ -2672,6 +2702,18 @@ bool CefBrowserHostImpl::OnMessageReceived(const IPC::Message& message) {
   return handled;
 }
 
+bool CefBrowserHostImpl::OnMessageReceived(
+    const IPC::Message& message,
+    content::RenderFrameHost* render_frame_host) {
+  bool handled = true;
+  IPC_BEGIN_MESSAGE_MAP_WITH_PARAM(CefBrowserHostImpl, message,
+                                   render_frame_host)
+    IPC_MESSAGE_HANDLER(CefHostMsg_FrameFocused, OnFrameFocused)
+    IPC_MESSAGE_UNHANDLED(handled = false)
+  IPC_END_MESSAGE_MAP()
+  return handled;
+}
+
 void CefBrowserHostImpl::AccessibilityEventReceived(
     const std::vector<content::AXEventNotificationDetails>& eventData) {
   // Only needed in windowless mode.
@@ -2741,6 +2783,38 @@ void CefBrowserHostImpl::OnFrameIdentified(int64 frame_id,
                                            base::string16 name) {
   bool is_main_frame = (parent_frame_id == CefFrameHostImpl::kMainFrameId);
   GetOrCreateFrame(frame_id, parent_frame_id, is_main_frame, name, GURL());
+}
+
+void CefBrowserHostImpl::OnFrameFocused(
+    content::RenderFrameHost* render_frame_host) {
+  const int64 frame_id = render_frame_host->GetRoutingID();
+
+  CefRefPtr<CefFrameHostImpl> unfocused_frame;
+  CefRefPtr<CefFrameHostImpl> focused_frame;
+
+  {
+    base::AutoLock lock_scope(state_lock_);
+
+    if (focused_frame_id_ != CefFrameHostImpl::kInvalidFrameId) {
+      // Unfocus the previously focused frame.
+      FrameMap::const_iterator it = frames_.find(frame_id);
+      if (it != frames_.end())
+        unfocused_frame = it->second;
+    }
+
+    // Focus the newly focused frame.
+    FrameMap::iterator it = frames_.find(frame_id);
+    if (it != frames_.end())
+      focused_frame = it->second;
+
+    focused_frame_id_ =
+        focused_frame.get() ? frame_id : CefFrameHostImpl::kInvalidFrameId;
+  }
+
+  if (unfocused_frame.get())
+    unfocused_frame->SetFocused(false);
+  if (focused_frame.get())
+    focused_frame->SetFocused(true);
 }
 
 void CefBrowserHostImpl::OnDidFinishLoad(int64 frame_id,
@@ -3014,37 +3088,6 @@ void CefBrowserHostImpl::DetachAllFrames() {
   FrameMap::const_iterator it = frames.begin();
   for (; it != frames.end(); ++it)
     it->second->Detach();
-}
-
-void CefBrowserHostImpl::SetFocusedFrame(int64 frame_id) {
-  CefRefPtr<CefFrameHostImpl> unfocused_frame;
-  CefRefPtr<CefFrameHostImpl> focused_frame;
-
-  {
-    base::AutoLock lock_scope(state_lock_);
-
-    if (focused_frame_id_ != CefFrameHostImpl::kInvalidFrameId) {
-      // Unfocus the previously focused frame.
-      FrameMap::const_iterator it = frames_.find(frame_id);
-      if (it != frames_.end())
-        unfocused_frame = it->second;
-    }
-
-    if (frame_id != CefFrameHostImpl::kInvalidFrameId) {
-      // Focus the newly focused frame.
-      FrameMap::iterator it = frames_.find(frame_id);
-      if (it != frames_.end())
-        focused_frame = it->second;
-    }
-
-    focused_frame_id_ =
-        focused_frame.get() ? frame_id : CefFrameHostImpl::kInvalidFrameId;
-  }
-
-  if (unfocused_frame.get())
-    unfocused_frame->SetFocused(false);
-  if (focused_frame.get())
-    focused_frame->SetFocused(true);
 }
 
 gfx::Point CefBrowserHostImpl::GetScreenPoint(const gfx::Point& view) const {

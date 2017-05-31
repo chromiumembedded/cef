@@ -32,6 +32,7 @@
 #include "net/base/io_buffer.h"
 #include "net/base/net_errors.h"
 #include "net/http/http_response_headers.h"
+#include "net/traffic_annotation/network_traffic_annotation.h"
 #include "net/url_request/url_fetcher.h"
 #include "net/url_request/url_fetcher_response_writer.h"
 
@@ -281,8 +282,35 @@ void CefDevToolsFrontend::HandleMessageFromDevToolsFrontend(
       return;
     }
 
+    net::NetworkTrafficAnnotationTag traffic_annotation =
+        net::DefineNetworkTrafficAnnotation(
+            "devtools_handle_front_end_messages", R"(
+            semantics {
+              sender: "Developer Tools"
+              description:
+                "When user opens Developer Tools, the browser may fetch "
+                "additional resources from the network to enrich the debugging "
+                "experience (e.g. source map resources)."
+              trigger: "User opens Developer Tools to debug a web page."
+              data: "Any resources requested by Developer Tools."
+              destination: OTHER
+            }
+            policy {
+              cookies_allowed: true
+              cookies_store: "user"
+              setting:
+                "It's not possible to disable this feature from settings."
+              chrome_policy {
+                DeveloperToolsDisabled {
+                  policy_options {mode: MANDATORY}
+                  DeveloperToolsDisabled: true
+                }
+              }
+            })");
     net::URLFetcher* fetcher =
-        net::URLFetcher::Create(gurl, net::URLFetcher::GET, this).release();
+        net::URLFetcher::Create(gurl, net::URLFetcher::GET, this,
+                                traffic_annotation)
+            .release();
     pending_requests_[fetcher] = request_id;
     fetcher->SetRequestContext(
         content::BrowserContext::GetDefaultStoragePartition(

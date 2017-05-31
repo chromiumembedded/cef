@@ -46,7 +46,8 @@ class CefBeforeResourceLoadCallbackImpl : public CefRequestCallback {
     DCHECK(url_request_);
 
     // Add an association between the URLRequest and this object.
-    url_request_->SetUserData(UserDataKey(), new Disconnector(this));
+    url_request_->SetUserData(UserDataKey(),
+                              base::WrapUnique(new Disconnector(this)));
   }
 
   ~CefBeforeResourceLoadCallbackImpl() {

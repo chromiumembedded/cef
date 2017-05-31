@@ -679,7 +679,6 @@ struct CefBrowserSettingsTraits {
 
     target->remote_fonts = src->remote_fonts;
     target->javascript = src->javascript;
-    target->javascript_open_windows = src->javascript_open_windows;
     target->javascript_close_windows = src->javascript_close_windows;
     target->javascript_access_clipboard = src->javascript_access_clipboard;
     target->javascript_dom_paste = src->javascript_dom_paste;

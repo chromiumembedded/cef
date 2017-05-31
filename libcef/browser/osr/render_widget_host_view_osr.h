@@ -146,6 +146,7 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
                          int error_code) override;
   void Destroy() override;
   void SetTooltipText(const base::string16& tooltip_text) override;
+  void OnSetNeedsFlushInput() override {}
 
   gfx::Size GetRequestedRendererSize() const override;
   gfx::Size GetPhysicalBackingSize() const override;

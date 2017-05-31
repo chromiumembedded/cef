@@ -85,6 +85,8 @@ NSString* AxRoleToNSAxRole(const std::string& role_string) {
     return NSAccessibilityGroupRole;
   if (role_string == "form")
     return NSAccessibilityGroupRole;
+  if (role_string == "genericContainer")
+    return NSAccessibilityGroupRole;
   if (role_string == "grid")
     return NSAccessibilityGroupRole;
   if (role_string == "group")

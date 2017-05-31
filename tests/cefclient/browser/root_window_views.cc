@@ -51,6 +51,8 @@ void RootWindowViews::InitAsPopup(RootWindow::Delegate* delegate,
                                   CefWindowInfo& windowInfo,
                                   CefRefPtr<CefClient>& client,
                                   CefBrowserSettings& settings) {
+  CEF_REQUIRE_UI_THREAD();
+
   DCHECK(delegate);
   DCHECK(!with_osr);  // Windowless rendering is not supported.
   DCHECK(!initialized_);

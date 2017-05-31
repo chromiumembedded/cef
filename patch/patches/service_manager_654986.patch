@@ -1,16 +1,31 @@
 diff --git services/service_manager/embedder/main.cc services/service_manager/embedder/main.cc
-index 0debd91780b5..34c770b08ac2 100644
+index e661492..8a282fd 100644
 --- services/service_manager/embedder/main.cc
 +++ services/service_manager/embedder/main.cc
-@@ -29,7 +29,6 @@
- #endif
+@@ -325,13 +325,30 @@ int RunService(MainDelegate* delegate) {
+   return exit_code;
+ }
  
- #if defined(OS_MACOSX)
--#include "base/mac/scoped_nsautorelease_pool.h"
- #include "services/service_manager/embedder/mac_init.h"
++ProcessType GetProcessType(MainDelegate* delegate,
++                           const base::CommandLine& command_line) {
++  ProcessType process_type = delegate->OverrideProcessType();
++  if (process_type == ProcessType::kDefault) {
++    const std::string& type_switch =
++        command_line.GetSwitchValueASCII(switches::kProcessType);
++    if (type_switch == switches::kProcessTypeServiceManager) {
++      process_type = ProcessType::kServiceManager;
++    } else if (type_switch == switches::kProcessTypeService) {
++      process_type = ProcessType::kService;
++    } else {
++      process_type = ProcessType::kEmbedder;
++    }
++  }
++  return process_type;
++}
++
+ }  // namespace
  
- #if BUILDFLAG(USE_EXPERIMENTAL_ALLOCATOR_SHIM)
-@@ -98,7 +97,7 @@ MainParams::MainParams(MainDelegate* delegate) : delegate(delegate) {}
+ MainParams::MainParams(MainDelegate* delegate) : delegate(delegate) {}
  
  MainParams::~MainParams() {}
  
@@ -19,7 +34,7 @@ index 0debd91780b5..34c770b08ac2 100644
    MainDelegate* delegate = params.delegate;
    DCHECK(delegate);
  
-@@ -151,13 +150,7 @@ int Main(const MainParams& params) {
+@@ -399,30 +416,14 @@ int Main(const MainParams& params) {
    MainDelegate::InitializeParams init_params;
  
  #if defined(OS_MACOSX)
@@ -34,45 +49,75 @@ index 0debd91780b5..34c770b08ac2 100644
    InitializeMac();
  #endif
  
-@@ -173,10 +166,17 @@ int Main(const MainParams& params) {
-           base::debug::GlobalActivityTracker::PROCESS_LAUNCH_FAILED);
-       tracker->process_data().SetInt("exit-code", exit_code);
-     }
--    return exit_code;
+   mojo::edk::Configuration mojo_config;
+-  ProcessType process_type = delegate->OverrideProcessType();
+-  if (process_type == ProcessType::kDefault) {
+-    std::string type_switch =
+-        command_line.GetSwitchValueASCII(switches::kProcessType);
+-    if (type_switch == switches::kProcessTypeServiceManager) {
+-      mojo_config.is_broker_process = true;
+-      process_type = ProcessType::kServiceManager;
+-    } else if (type_switch == switches::kProcessTypeService) {
+-      process_type = ProcessType::kService;
+-    } else {
+-      process_type = ProcessType::kEmbedder;
+-    }
+-  }
++  const ProcessType process_type = GetProcessType(delegate, command_line);
++  if (process_type == ProcessType::kServiceManager)
++    mojo_config.is_broker_process = true;
+   mojo_config.max_message_num_bytes = kMaximumMojoMessageSize;
+   delegate->OverrideMojoConfiguration(&mojo_config);
+   mojo::edk::Init(mojo_config);
+@@ -449,6 +450,16 @@ int Main(const MainParams& params) {
+         trace_config, base::trace_event::TraceLog::RECORDING_MODE);
    }
+ 
 +  return exit_code;
 +}
 +
 +int MainRun(MainParams& params) {
 +  MainDelegate* delegate = params.delegate;
 +  DCHECK(delegate);
++
++  int exit_code = 0;
++  const ProcessType process_type =
++      GetProcessType(delegate, *base::CommandLine::ForCurrentProcess());
+   switch (process_type) {
+     case ProcessType::kDefault:
+       NOTREACHED();
+@@ -470,6 +481,8 @@ int Main(const MainParams& params) {
+       break;
+   }
  
--  exit_code = delegate->Run();
 +  base::debug::GlobalActivityTracker* tracker =
 +      base::debug::GlobalActivityTracker::Get();
-+  int exit_code = delegate->Run();
    if (tracker) {
      if (exit_code == 0) {
        tracker->SetProcessPhaseIfEnabled(
-@@ -187,13 +187,35 @@ int Main(const MainParams& params) {
-       tracker->process_data().SetInt("exit-code", exit_code);
+@@ -481,14 +494,39 @@ int Main(const MainParams& params) {
      }
    }
+ 
 +  return exit_code;
 +}
 +
 +void MainShutdown(MainParams& params) {
 +  MainDelegate* delegate = params.delegate;
 +  DCHECK(delegate);
- 
++
  #if defined(OS_MACOSX)
 -  autorelease_pool.reset();
 +  params.autorelease_pool.reset();
  #endif
  
-   delegate->ShutDown();
++  const ProcessType process_type =
++      GetProcessType(delegate, *base::CommandLine::ForCurrentProcess());
+   if (process_type == ProcessType::kEmbedder)
+     delegate->ShutDownEmbedderProcess();
 +}
-+
+ 
+-  return exit_code;
 +int Main(MainParams& params) {
 +#if defined(OS_MACOSX)
 +  // We need this pool for all the objects created before we get to the event
@@ -82,17 +127,18 @@ index 0debd91780b5..34c770b08ac2 100644
 +  params.autorelease_pool =
 +      base::MakeUnique<base::mac::ScopedNSAutoreleasePool>();
 +#endif
- 
++ 
 +  int exit_code = MainInitialize(params);
 +  if (exit_code >= 0)
 +    return exit_code;
 +  exit_code = MainRun(params);
 +  MainShutdown(params);
-   return exit_code;
++  return exit_code;
  }
  
+ }  // namespace service_manager
 diff --git services/service_manager/embedder/main.h services/service_manager/embedder/main.h
-index e86697a26d0f..771acd80a3e1 100644
+index e86697a..771acd8 100644
 --- services/service_manager/embedder/main.h
 +++ services/service_manager/embedder/main.h
 @@ -5,9 +5,15 @@
@@ -134,7 +180,7 @@ index e86697a26d0f..771acd80a3e1 100644
  }  // namespace service_manager
  
 diff --git services/service_manager/embedder/set_process_title.cc services/service_manager/embedder/set_process_title.cc
-index 80b9a0ab2ffc..5162354006b0 100644
+index 80b9a0a..5162354 100644
 --- services/service_manager/embedder/set_process_title.cc
 +++ services/service_manager/embedder/set_process_title.cc
 @@ -44,7 +44,7 @@ void SetProcessTitleFromCommandLine(const char** main_argv) {

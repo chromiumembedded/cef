@@ -70,7 +70,7 @@ class CefExtensionSystem : public ExtensionSystem {
       const base::Closure& callback) override;
   void UnregisterExtensionWithRequestContexts(
       const std::string& extension_id,
-      const UnloadedExtensionInfo::Reason reason) override;
+      const UnloadedExtensionReason reason) override;
   const OneShotEvent& ready() const override;
   ContentVerifier* content_verifier() override;
   std::unique_ptr<ExtensionSet> GetDependentExtensions(
@@ -105,14 +105,14 @@ class CefExtensionSystem : public ExtensionSystem {
 
   // Unload the specified extension.
   void UnloadExtension(const std::string& extension_id,
-                       extensions::UnloadedExtensionInfo::Reason reason);
+                       extensions::UnloadedExtensionReason reason);
 
   // Handles sending notification that |extension| was loaded.
   void NotifyExtensionLoaded(const Extension* extension);
 
   // Handles sending notification that |extension| was unloaded.
   void NotifyExtensionUnloaded(const Extension* extension,
-                               UnloadedExtensionInfo::Reason reason);
+                               UnloadedExtensionReason reason);
 
   // Completes extension loading after URLRequestContexts have been updated
   // on the IO thread.

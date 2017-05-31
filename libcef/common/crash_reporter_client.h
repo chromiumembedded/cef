@@ -8,6 +8,9 @@
 #include <string>
 #include <vector>
 
+// Include this first to avoid compiler errors.
+#include "base/compiler_specific.h"
+
 #include "include/cef_version.h"
 
 #include "base/macros.h"

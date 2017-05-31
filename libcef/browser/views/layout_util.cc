@@ -38,10 +38,13 @@ class UserData : public base::SupportsUserData::Data {
 
     // The CefLayout previously associated with |owner_view|, if any, will be
     // destroyed by this call.
-    owner_view->SetUserData(UserDataKey(), new UserData(cef_layout));
+    owner_view->SetUserData(UserDataKey(),
+                            base::WrapUnique(new UserData(cef_layout)));
   }
 
  private:
+  friend std::default_delete<UserData>;
+
   explicit UserData(CefRefPtr<CefLayout> cef_layout) : layout_(cef_layout) {
     DCHECK(layout_);
   }

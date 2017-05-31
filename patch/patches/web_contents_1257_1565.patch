@@ -1,8 +1,8 @@
 diff --git content/browser/web_contents/web_contents_impl.cc content/browser/web_contents/web_contents_impl.cc
-index 6c9c358..fe5df86 100644
+index 627a0e5..21c6210 100644
 --- content/browser/web_contents/web_contents_impl.cc
 +++ content/browser/web_contents/web_contents_impl.cc
-@@ -1581,6 +1581,12 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
+@@ -1692,6 +1692,12 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
    std::string unique_name;
    frame_tree_.root()->SetFrameName(params.main_frame_name, unique_name);
  
@@ -15,7 +15,7 @@ index 6c9c358..fe5df86 100644
    WebContentsViewDelegate* delegate =
        GetContentClient()->browser()->GetWebContentsViewDelegate(this);
  
-@@ -1591,6 +1597,7 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
+@@ -1702,6 +1708,7 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
      view_.reset(CreateWebContentsView(this, delegate,
                                        &render_view_host_delegate_view_));
    }
@@ -23,7 +23,7 @@ index 6c9c358..fe5df86 100644
  
    if (browser_plugin_guest_ && !GuestMode::IsCrossProcessFrameGuest(this)) {
      view_.reset(new WebContentsViewGuest(this, browser_plugin_guest_.get(),
-@@ -2127,6 +2134,15 @@ void WebContentsImpl::CreateNewWindow(
+@@ -2259,6 +2266,15 @@ void WebContentsImpl::CreateNewWindow(
    create_params.renderer_initiated_creation =
        main_frame_route_id != MSG_ROUTING_NONE;
  
@@ -31,7 +31,7 @@ index 6c9c358..fe5df86 100644
 +    delegate_->GetCustomWebContentsView(this,
 +                                        params.target_url,
 +                                        render_process_id,
-+                                        params.opener_render_frame_id,
++                                        opener->GetRoutingID(),
 +                                        &create_params.view,
 +                                        &create_params.delegate_view);
 +  }
@@ -39,7 +39,7 @@ index 6c9c358..fe5df86 100644
    WebContentsImpl* new_contents = NULL;
    if (!is_guest) {
      create_params.context = view_->GetNativeView();
-@@ -2156,7 +2172,7 @@ void WebContentsImpl::CreateNewWindow(
+@@ -2288,7 +2304,7 @@ void WebContentsImpl::CreateNewWindow(
        // TODO(brettw): It seems bogus that we have to call this function on the
        // newly created object and give it one of its own member variables.
        new_view->CreateViewForWidget(
@@ -48,7 +48,7 @@ index 6c9c358..fe5df86 100644
      }
      // Save the created window associated with the route so we can show it
      // later.
-@@ -5029,7 +5045,7 @@ NavigationEntry*
+@@ -5182,7 +5198,7 @@ NavigationEntry*
  void WebContentsImpl::CreateRenderWidgetHostViewForRenderManager(
      RenderViewHost* render_view_host) {
    RenderWidgetHostViewBase* rwh_view =
@@ -73,10 +73,10 @@ index fa0afb5..d677b31 100644
  
  WebContents::CreateParams::CreateParams(const CreateParams& other) = default;
 diff --git content/public/browser/web_contents.h content/public/browser/web_contents.h
-index f968ca2..ee6f060 100644
+index ebd18a0..549329f 100644
 --- content/public/browser/web_contents.h
 +++ content/public/browser/web_contents.h
-@@ -60,9 +60,11 @@ class PageState;
+@@ -67,9 +67,11 @@ class PageState;
  class RenderFrameHost;
  class RenderProcessHost;
  class RenderViewHost;
@@ -88,7 +88,7 @@ index f968ca2..ee6f060 100644
  struct CustomContextMenuContext;
  struct DropData;
  struct Manifest;
-@@ -163,6 +165,10 @@ class WebContents : public PageNavigator,
+@@ -170,6 +172,10 @@ class WebContents : public PageNavigator,
      // Note that the pre-created renderer process may not be used if the first
      // navigation requires a dedicated or privileged process, such as a WebUI.
      bool initialize_renderer;
@@ -100,10 +100,10 @@ index f968ca2..ee6f060 100644
  
    // Creates a new WebContents.
 diff --git content/public/browser/web_contents_delegate.h content/public/browser/web_contents_delegate.h
-index 232d3a9..6622768 100644
+index 9176c4b..7d73b9d 100644
 --- content/public/browser/web_contents_delegate.h
 +++ content/public/browser/web_contents_delegate.h
-@@ -42,11 +42,13 @@ class ColorChooser;
+@@ -43,10 +43,12 @@ class ColorChooser;
  class JavaScriptDialogManager;
  class PageState;
  class RenderFrameHost;
@@ -111,7 +111,6 @@ index 232d3a9..6622768 100644
  class RenderWidgetHost;
  class SessionStorageNamespace;
  class SiteInstance;
- class WebContents;
  class WebContentsImpl;
 +class WebContentsView;
  struct ColorSuggestion;
@@ -131,4 +130,4 @@ index 232d3a9..6622768 100644
 +
    // Notifies the delegate about the creation of a new WebContents. This
    // typically happens when popups are created.
-   virtual void WebContentsCreated(WebContents* source_contents,
+   virtual void WebContentsCreated(

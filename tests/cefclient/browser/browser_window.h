@@ -59,8 +59,8 @@ class BrowserWindow : public ClientHandler::Delegate {
   // Retrieve the configuration that will be used when creating a popup window.
   // The popup browser will initially be parented to |temp_handle| which should
   // be a pre-existing hidden window. The native window will be created later
-  // after the browser has been created. This method may be called on any
-  // thread.
+  // after the browser has been created. This method will be called on the
+  // browser process UI thread.
   virtual void GetPopupConfig(CefWindowHandle temp_handle,
                               CefWindowInfo& windowInfo,
                               CefRefPtr<CefClient>& client,

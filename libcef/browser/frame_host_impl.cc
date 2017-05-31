@@ -6,6 +6,7 @@
 #include "include/cef_request.h"
 #include "include/cef_stream.h"
 #include "include/cef_v8.h"
+#include "include/test/cef_test_helpers.h"
 #include "libcef/browser/browser_host_impl.h"
 #include "libcef/common/cef_messages.h"
 
@@ -257,6 +258,21 @@ void CefFrameHostImpl::SendJavaScript(const std::string& jsCode,
     browser->SendCode(frame_id, true, jsCode, scriptUrl, startLine, NULL);
 }
 
+void CefFrameHostImpl::ExecuteJavaScriptWithUserGestureForTests(
+    const CefString& javascript) {
+  CefRefPtr<CefBrowserHostImpl> browser;
+  int64 frame_id;
+
+  {
+    base::AutoLock lock_scope(state_lock_);
+    browser = browser_;
+    frame_id = (is_main_frame_ ? kMainFrameId : frame_id_);
+  }
+
+  if (browser.get() && frame_id != kInvalidFrameId)
+    browser->ExecuteJavaScriptWithUserGestureForTests(frame_id, javascript);
+}
+
 void CefFrameHostImpl::Detach() {
   base::AutoLock lock_scope(state_lock_);
   browser_ = NULL;
@@ -277,4 +293,10 @@ void CefFrameHostImpl::SendCommand(
 
   if (browser.get() && frame_id != kInvalidFrameId)
     browser->SendCommand(frame_id, command, responseHandler);
+}
+
+void CefExecuteJavaScriptWithUserGestureForTests(CefRefPtr<CefFrame> frame,
+                                                 const CefString& javascript) {
+  CefFrameHostImpl* impl = static_cast<CefFrameHostImpl*>(frame.get());
+  impl->ExecuteJavaScriptWithUserGestureForTests(javascript);
 }

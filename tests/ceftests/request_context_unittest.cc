@@ -679,7 +679,7 @@ class PopupNavTestHandler : public TestHandler {
     EXPECT_FALSE(got_on_before_popup_);
     got_on_before_popup_.yes();
 
-    EXPECT_TRUE(CefCurrentlyOn(TID_IO));
+    EXPECT_TRUE(CefCurrentlyOn(TID_UI));
     EXPECT_EQ(GetBrowserId(), browser->GetIdentifier());
     EXPECT_STREQ(kPopupNavPageUrl, frame->GetURL().ToString().c_str());
     EXPECT_STREQ(kPopupNavPopupUrl, target_url.ToString().c_str());

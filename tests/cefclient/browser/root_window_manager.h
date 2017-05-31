@@ -37,7 +37,7 @@ class RootWindowManager : public RootWindow::Delegate {
   // If |with_controls| is true the window will show controls.
   // If |with_osr| is true the window will use off-screen rendering.
   // This method is called from ClientHandler::CreatePopupWindow() to
-  // create a new popup or DevTools window.
+  // create a new popup or DevTools window. Must be called on the UI thread.
   scoped_refptr<RootWindow> CreateRootWindowAsPopup(
       bool with_controls,
       bool with_osr,

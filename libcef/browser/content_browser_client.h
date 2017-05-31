@@ -49,8 +49,10 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
   bool IsHandledURL(const GURL& url) override;
   void SiteInstanceGotProcess(content::SiteInstance* site_instance) override;
   void SiteInstanceDeleting(content::SiteInstance* site_instance) override;
+  void RegisterOutOfProcessServices(OutOfProcessServiceMap* services) override;
   std::unique_ptr<base::Value> GetServiceManifestOverlay(
       base::StringPiece name) override;
+  std::vector<ServiceManifestInfo> GetExtraServiceManifests() override;
   void AppendExtraCommandLineSwitches(base::CommandLine* command_line,
                                       int child_process_id) override;
   content::QuotaPermissionContext* CreateQuotaPermissionContext() override;
@@ -75,9 +77,9 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
   void SelectClientCertificate(
       content::WebContents* web_contents,
       net::SSLCertRequestInfo* cert_request_info,
+      net::CertificateList client_certs,
       std::unique_ptr<content::ClientCertificateDelegate> delegate) override;
-  bool CanCreateWindow(int opener_render_process_id,
-                       int opener_render_frame_id,
+  bool CanCreateWindow(content::RenderFrameHost* opener,
                        const GURL& opener_url,
                        const GURL& opener_top_level_frame_url,
                        const GURL& source_origin,
@@ -89,7 +91,6 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
                        const blink::mojom::WindowFeatures& features,
                        bool user_gesture,
                        bool opener_suppressed,
-                       content::ResourceContext* context,
                        bool* no_javascript_access) override;
   void ResourceDispatcherHostCreated() override;
   void OverrideWebkitPrefs(content::RenderViewHost* rvh,

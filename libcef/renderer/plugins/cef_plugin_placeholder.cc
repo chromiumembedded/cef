@@ -48,14 +48,10 @@ const CefPluginPlaceholder* g_last_active_menu = NULL;
 gin::WrapperInfo CefPluginPlaceholder::kWrapperInfo = {gin::kEmbedderNativeGin};
 
 CefPluginPlaceholder::CefPluginPlaceholder(content::RenderFrame* render_frame,
-                                           blink::WebLocalFrame* frame,
                                            const blink::WebPluginParams& params,
                                            const std::string& html_data,
                                            const base::string16& title)
-    : plugins::LoadablePluginPlaceholder(render_frame,
-                                         frame,
-                                         params,
-                                         html_data),
+    : plugins::LoadablePluginPlaceholder(render_frame, params, html_data),
       status_(CefViewHostMsg_GetPluginInfo_Status::kAllowed),
       title_(title),
       context_menu_request_id_(0),
@@ -72,7 +68,6 @@ CefPluginPlaceholder::~CefPluginPlaceholder() {
 // static
 CefPluginPlaceholder* CefPluginPlaceholder::CreateLoadableMissingPlugin(
     content::RenderFrame* render_frame,
-    blink::WebLocalFrame* frame,
     const blink::WebPluginParams& params) {
   const base::StringPiece template_html(
       ResourceBundle::GetSharedInstance().GetRawDataResource(
@@ -85,14 +80,13 @@ CefPluginPlaceholder* CefPluginPlaceholder::CreateLoadableMissingPlugin(
   std::string html_data = webui::GetI18nTemplateHtml(template_html, &values);
 
   // Will destroy itself when its WebViewPlugin is going away.
-  return new CefPluginPlaceholder(render_frame, frame, params, html_data,
+  return new CefPluginPlaceholder(render_frame, params, html_data,
                                   params.mime_type.Utf16());
 }
 
 // static
 CefPluginPlaceholder* CefPluginPlaceholder::CreateBlockedPlugin(
     content::RenderFrame* render_frame,
-    blink::WebLocalFrame* frame,
     const blink::WebPluginParams& params,
     const content::WebPluginInfo& info,
     const std::string& identifier,
@@ -106,8 +100,8 @@ CefPluginPlaceholder* CefPluginPlaceholder::CreateBlockedPlugin(
   values.SetString("hide", l10n_util::GetStringUTF8(IDS_PLUGIN_HIDE));
   values.SetString(
       "pluginType",
-      frame->View()->MainFrame()->IsWebLocalFrame() &&
-              frame->View()->MainFrame()->GetDocument().IsPluginDocument()
+      render_frame->IsMainFrame() &&
+              render_frame->GetWebFrame()->GetDocument().IsPluginDocument()
           ? "document"
           : "embedded");
 
@@ -116,8 +110,8 @@ CefPluginPlaceholder* CefPluginPlaceholder::CreateBlockedPlugin(
     values.SetString("baseurl", power_saver_info.base_url.spec());
 
     if (!power_saver_info.custom_poster_size.IsEmpty()) {
-      float zoom_factor =
-          blink::WebView::ZoomLevelToZoomFactor(frame->View()->ZoomLevel());
+      float zoom_factor = blink::WebView::ZoomLevelToZoomFactor(
+          render_frame->GetWebFrame()->View()->ZoomLevel());
       int width =
           roundf(power_saver_info.custom_poster_size.width() / zoom_factor);
       int height =
@@ -136,7 +130,7 @@ CefPluginPlaceholder* CefPluginPlaceholder::CreateBlockedPlugin(
 
   // |blocked_plugin| will destroy itself when its WebViewPlugin is going away.
   CefPluginPlaceholder* blocked_plugin =
-      new CefPluginPlaceholder(render_frame, frame, params, html_data, name);
+      new CefPluginPlaceholder(render_frame, params, html_data, name);
 
   if (!power_saver_info.poster_attribute.empty())
     blocked_plugin->BlockForPowerSaverPoster();
@@ -172,22 +166,22 @@ void CefPluginPlaceholder::ShowPermissionBubbleCallback() {
 }
 
 void CefPluginPlaceholder::PluginListChanged() {
-  if (!GetFrame() || !plugin())
+  if (!render_frame() || !plugin())
     return;
-  blink::WebDocument document = GetFrame()->Top()->GetDocument();
+  blink::WebLocalFrame* web_frame = render_frame()->GetWebFrame();
+  blink::WebDocument document = web_frame->Top()->GetDocument();
   if (document.IsNull())
     return;
 
   CefViewHostMsg_GetPluginInfo_Output output;
   std::string mime_type(GetPluginParams().mime_type.Utf8());
   render_frame()->Send(new CefViewHostMsg_GetPluginInfo(
-      routing_id(), GURL(GetPluginParams().url),
-      GetFrame()->Parent() == nullptr, GetFrame()->Top()->GetSecurityOrigin(),
-      mime_type, &output));
+      routing_id(), GURL(GetPluginParams().url), web_frame->Parent() == nullptr,
+      web_frame->Top()->GetSecurityOrigin(), mime_type, &output));
   if (output.status == status_)
     return;
   blink::WebPlugin* new_plugin = CefContentRendererClient::CreatePlugin(
-      render_frame(), GetFrame(), GetPluginParams(), output);
+      render_frame(), GetPluginParams(), output);
   ReplacePlugin(new_plugin);
 }
 
@@ -225,6 +219,8 @@ v8::Local<v8::Value> CefPluginPlaceholder::GetV8Handle(v8::Isolate* isolate) {
 void CefPluginPlaceholder::ShowContextMenu(const blink::WebMouseEvent& event) {
   if (context_menu_request_id_)
     return;  // Don't allow nested context menu requests.
+  if (!render_frame())
+    return;
 
   content::ContextMenuParams params;
 
@@ -250,8 +246,8 @@ void CefPluginPlaceholder::ShowContextMenu(const blink::WebMouseEvent& event) {
   content::MenuItem hide_item;
   hide_item.action = chrome::MENU_COMMAND_PLUGIN_HIDE;
   bool is_main_frame_plugin_document =
-      GetFrame()->View()->MainFrame()->IsWebLocalFrame() &&
-      GetFrame()->View()->MainFrame()->GetDocument().IsPluginDocument();
+      render_frame()->IsMainFrame() &&
+      render_frame()->GetWebFrame()->GetDocument().IsPluginDocument();
   hide_item.enabled = !is_main_frame_plugin_document;
   hide_item.label = l10n_util::GetStringUTF16(IDS_CONTENT_CONTEXT_PLUGIN_HIDE);
   params.custom_items.push_back(hide_item);
@@ -276,16 +272,16 @@ blink::WebPlugin* CefPluginPlaceholder::CreatePlugin() {
         content::RenderFrame::DONT_RECORD_DECISION);
     // PluginPreroller manages its own lifetime.
     new CefPluginPreroller(
-        render_frame(), GetFrame(), GetPluginParams(), GetPluginInfo(),
-        GetIdentifier(), title_,
-        l10n_util::GetStringFUTF16(IDS_PLUGIN_BLOCKED, title_),
+        render_frame(), GetPluginParams(), GetPluginInfo(), GetIdentifier(),
+        title_, l10n_util::GetStringFUTF16(IDS_PLUGIN_BLOCKED, title_),
         throttler.get());
   }
-  return render_frame()->CreatePlugin(GetFrame(), GetPluginInfo(),
-                                      GetPluginParams(), std::move(throttler));
+  return render_frame()->CreatePlugin(GetPluginInfo(), GetPluginParams(),
+                                      std::move(throttler));
 }
 
 void CefPluginPlaceholder::OnBlockedTinyContent() {
+  DCHECK(render_frame());
   if (did_send_blocked_content_notification_)
     return;
   did_send_blocked_content_notification_ = true;

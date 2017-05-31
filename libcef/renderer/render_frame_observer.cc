@@ -16,6 +16,7 @@ MSVC_POP_WARNING();
 
 #include "libcef/renderer/render_frame_observer.h"
 
+#include "libcef/common/cef_messages.h"
 #include "libcef/common/content_client.h"
 #include "libcef/renderer/content_renderer_client.h"
 #include "libcef/renderer/v8_impl.h"
@@ -30,11 +31,55 @@ CefRenderFrameObserver::CefRenderFrameObserver(
 
 CefRenderFrameObserver::~CefRenderFrameObserver() {}
 
+void CefRenderFrameObserver::DidStartProvisionalLoad(
+    blink::WebDataSource* data_source) {
+  blink::WebLocalFrame* frame = render_frame()->GetWebFrame();
+  CefRefPtr<CefBrowserImpl> browserPtr =
+      CefBrowserImpl::GetBrowserForMainFrame(frame->Top());
+  if (!browserPtr.get())
+    return;
+
+  browserPtr->DidStartProvisionalLoad(frame);
+}
+
+void CefRenderFrameObserver::DidFinishLoad() {
+  blink::WebLocalFrame* frame = render_frame()->GetWebFrame();
+  CefRefPtr<CefBrowserImpl> browserPtr =
+      CefBrowserImpl::GetBrowserForMainFrame(frame->Top());
+  if (!browserPtr.get())
+    return;
+
+  browserPtr->DidFinishLoad(frame);
+}
+
+void CefRenderFrameObserver::FrameDetached() {
+  blink::WebLocalFrame* frame = render_frame()->GetWebFrame();
+  CefRefPtr<CefBrowserImpl> browserPtr =
+      CefBrowserImpl::GetBrowserForMainFrame(frame->Top());
+  if (!browserPtr.get())
+    return;
+
+  browserPtr->FrameDetached(frame);
+}
+
+void CefRenderFrameObserver::FrameFocused() {
+  Send(new CefHostMsg_FrameFocused(render_frame()->GetRoutingID()));
+}
+
+void CefRenderFrameObserver::FocusedNodeChanged(const blink::WebNode& node) {
+  blink::WebLocalFrame* frame = render_frame()->GetWebFrame();
+  CefRefPtr<CefBrowserImpl> browserPtr =
+      CefBrowserImpl::GetBrowserForMainFrame(frame->Top());
+  if (!browserPtr.get())
+    return;
+
+  browserPtr->FocusedNodeChanged(node);
+}
+
 void CefRenderFrameObserver::DidCreateScriptContext(
     v8::Handle<v8::Context> context,
     int world_id) {
   blink::WebLocalFrame* frame = render_frame()->GetWebFrame();
-
   CefRefPtr<CefBrowserImpl> browserPtr =
       CefBrowserImpl::GetBrowserForMainFrame(frame->Top());
   if (!browserPtr.get())
@@ -64,7 +109,6 @@ void CefRenderFrameObserver::WillReleaseScriptContext(
     v8::Handle<v8::Context> context,
     int world_id) {
   blink::WebLocalFrame* frame = render_frame()->GetWebFrame();
-
   CefRefPtr<CefBrowserImpl> browserPtr =
       CefBrowserImpl::GetBrowserForMainFrame(frame->Top());
   if (browserPtr.get()) {

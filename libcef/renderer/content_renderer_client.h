@@ -90,10 +90,10 @@ class CefContentRendererClient : public content::ContentRendererClient,
 
   // ContentRendererClient implementation.
   void RenderThreadStarted() override;
+  void RenderThreadConnected() override;
   void RenderFrameCreated(content::RenderFrame* render_frame) override;
   void RenderViewCreated(content::RenderView* render_view) override;
   bool OverrideCreatePlugin(content::RenderFrame* render_frame,
-                            blink::WebLocalFrame* frame,
                             const blink::WebPluginParams& params,
                             blink::WebPlugin** plugin) override;
   bool HandleNavigation(content::RenderFrame* render_frame,
@@ -133,7 +133,6 @@ class CefContentRendererClient : public content::ContentRendererClient,
 
   static blink::WebPlugin* CreatePlugin(
       content::RenderFrame* render_frame,
-      blink::WebLocalFrame* frame,
       const blink::WebPluginParams& params,
       const CefViewHostMsg_GetPluginInfo_Output& output);
 

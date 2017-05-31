@@ -252,6 +252,9 @@ IPC_MESSAGE_ROUTED3(CefHostMsg_FrameIdentified,
                     int64_t /* parent_frame_id */,
                     base::string16 /* frame_name */)
 
+// Sent by the renderer when the frame becomes focused.
+IPC_MESSAGE_ROUTED0(CefHostMsg_FrameFocused)
+
 // Sent when a frame has finished loading. Based on ViewHostMsg_DidFinishLoad.
 IPC_MESSAGE_ROUTED4(CefHostMsg_DidFinishLoad,
                     int64_t /* frame_id */,

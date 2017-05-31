@@ -405,6 +405,8 @@ static_library("libcef_static") {
     "libcef/browser/plugins/plugin_service_filter.h",
     "libcef/browser/prefs/browser_prefs.cc",
     "libcef/browser/prefs/browser_prefs.h",
+    "libcef/browser/prefs/pref_store.cc",
+    "libcef/browser/prefs/pref_store.h",
     "libcef/browser/prefs/renderer_prefs.cc",
     "libcef/browser/prefs/renderer_prefs.h",
     "libcef/browser/print_settings_impl.cc",
@@ -568,10 +570,6 @@ static_library("libcef_static") {
     # with enable_print_preview=0.
     "//chrome/renderer/pepper/chrome_pdf_print_client.cc",
     "//chrome/renderer/pepper/chrome_pdf_print_client.h",
-
-    # Part of //components/prefs:test_support which is testingonly.
-    "//components/prefs/testing_pref_store.cc",
-    "//components/prefs/testing_pref_store.h",
   ]
 
   configs += [
@@ -641,6 +639,9 @@ static_library("libcef_static") {
     "//components/printing/browser",
     "//components/printing/common",
     "//components/printing/renderer",
+    "//components/printing/service:pdf_compositor_manifest",
+    "//components/printing/service/public/cpp:factory",
+    "//components/printing/service/public/interfaces",
     "//components/proxy_config",
     "//components/ssl_config",
     "//components/update_client",
@@ -653,6 +654,7 @@ static_library("libcef_static") {
     "//components/web_cache/renderer",
     "//content/public/app:both",
     "//content/public/browser",
+    "//content/public/child",
     "//content/public/common",
     "//content/public/gpu",
     "//content/public/renderer",
@@ -1713,7 +1715,7 @@ if (is_mac) {
     deps = [
       ":libcef",
       ":libcef_dll_wrapper",
-      "//build/config/sanitizers:deps",
+      "//build/config:exe_and_shlib_deps",
     ]
 
     if (is_win) {
@@ -1789,7 +1791,7 @@ if (is_mac) {
     deps = [
       ":libcef",
       ":libcef_dll_wrapper",
-      "//build/config/sanitizers:deps",
+      "//build/config:exe_and_shlib_deps",
     ]
 
     if (is_win) {
@@ -1858,7 +1860,7 @@ if (is_mac) {
     deps = [
       ":libcef",
       ":libcef_dll_wrapper",
-      "//build/config/sanitizers:deps",
+      "//build/config:exe_and_shlib_deps",
       "//testing/gtest",
     ]
 

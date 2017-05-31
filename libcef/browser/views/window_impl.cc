@@ -431,17 +431,15 @@ void CefWindowImpl::ShowMenu(views::MenuButton* menu_button,
 
   menu_runner_.reset(
       new views::MenuRunner(menu_model_impl->model(),
-                            views::MenuRunner::ASYNC |
-                                (menu_button ? views::MenuRunner::HAS_MNEMONICS
-                                             : views::MenuRunner::CONTEXT_MENU),
+                            menu_button ? views::MenuRunner::HAS_MNEMONICS
+                                        : views::MenuRunner::CONTEXT_MENU,
                             base::Bind(&CefWindowImpl::MenuClosed, this)));
 
-  views::MenuRunner::RunResult result = menu_runner_->RunMenuAt(
+  menu_runner_->RunMenuAt(
       widget_, menu_button,
       gfx::Rect(gfx::Point(screen_point.x, screen_point.y), gfx::Size()),
       static_cast<views::MenuAnchorPosition>(anchor_position),
       ui::MENU_SOURCE_NONE);
-  ALLOW_UNUSED_LOCAL(result);
 }
 
 void CefWindowImpl::MenuClosed() {

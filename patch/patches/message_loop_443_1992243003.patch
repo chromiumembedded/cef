@@ -1,35 +1,8 @@
-diff --git base/message_loop/message_loop.cc base/message_loop/message_loop.cc
-index 3d55920..721aca1 100644
---- base/message_loop/message_loop.cc
-+++ base/message_loop/message_loop.cc
-@@ -96,12 +96,6 @@ MessageLoop::~MessageLoop() {
-   // may be current.
-   DCHECK((pump_ && current() == this) || (!pump_ && current() != this));
- 
--  // iOS just attaches to the loop, it doesn't Run it.
--  // TODO(stuartmorgan): Consider wiring up a Detach().
--#if !defined(OS_IOS)
--  DCHECK(!run_loop_);
--#endif
--
- #if defined(OS_WIN)
-   if (in_high_res_mode_)
-     Time::ActivateHighResolutionTimer(false);
-@@ -319,6 +313,9 @@ MessageLoop::MessageLoop(Type type, MessagePumpFactoryCallback pump_factory)
-       in_high_res_mode_(false),
- #endif
-       nestable_tasks_allowed_(true),
-+#if defined(OS_WIN)
-+      os_modal_loop_(false),
-+#endif  // OS_WIN
-       pump_factory_(pump_factory),
-       run_loop_(nullptr),
-       current_pending_task_(nullptr),
 diff --git base/message_loop/message_loop.h base/message_loop/message_loop.h
-index 2ef4537..9c657f8 100644
+index fa25e78..cd62826 100644
 --- base/message_loop/message_loop.h
 +++ base/message_loop/message_loop.h
-@@ -303,6 +303,16 @@ class BASE_EXPORT MessageLoop : public MessagePump::Delegate {
+@@ -288,6 +288,16 @@ class BASE_EXPORT MessageLoop : public MessagePump::Delegate,
    void AddTaskObserver(TaskObserver* task_observer);
    void RemoveTaskObserver(TaskObserver* task_observer);
  
@@ -43,24 +16,24 @@ index 2ef4537..9c657f8 100644
 +  }
 +#endif  // OS_WIN
 +
-   // Can only be called from the thread that owns the MessageLoop.
-   bool is_running() const;
- 
-@@ -444,6 +454,12 @@ class BASE_EXPORT MessageLoop : public MessagePump::Delegate {
+   // Returns true if the message loop has high resolution timers enabled.
+   // Provided for testing.
+   bool HasHighResolutionTasks();
+@@ -416,6 +426,12 @@ class BASE_EXPORT MessageLoop : public MessagePump::Delegate,
    // insider a (accidentally induced?) nested message pump.
    bool nestable_tasks_allowed_;
  
 +#if defined(OS_WIN)
 +  // Should be set to true before calling Windows APIs like TrackPopupMenu, etc.
 +  // which enter a modal message loop.
-+  bool os_modal_loop_;
++  bool os_modal_loop_ = false;
 +#endif
 +
    // pump_factory_.Run() is called to create a message pump for this loop
    // if type_ is TYPE_CUSTOM and pump_ is null.
    MessagePumpFactoryCallback pump_factory_;
 diff --git base/message_loop/message_pump_win.cc base/message_loop/message_pump_win.cc
-index d52c785..a43b5b3 100644
+index 6f48da1..e427941 100644
 --- base/message_loop/message_pump_win.cc
 +++ base/message_loop/message_pump_win.cc
 @@ -366,20 +366,28 @@ bool MessagePumpForUI::ProcessMessageHelper(const MSG& msg) {

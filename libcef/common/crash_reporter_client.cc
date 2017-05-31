@@ -476,7 +476,8 @@ void CefCrashReporterClient::InitializeCrashReportingForProcess() {
         !g_crash_reporter_client->HasCrashExternalHandler();
     if (embedded_handler) {
       crash_reporter::InitializeCrashpadWithEmbeddedHandler(
-          process_type.empty(), install_static::UTF16ToUTF8(process_type));
+          process_type.empty(), install_static::UTF16ToUTF8(process_type),
+          std::string());
     } else {
       crash_reporter::InitializeCrashpad(
           process_type.empty(), install_static::UTF16ToUTF8(process_type));

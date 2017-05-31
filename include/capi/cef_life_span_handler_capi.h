@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=7894d507f337ebe5f9296770e10773a4e6458f00$
+// $hash=fe38af40efe76e5d6babf0644d7d4af679a4ca6f$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_LIFE_SPAN_HANDLER_CAPI_H_
@@ -61,7 +61,7 @@ typedef struct _cef_life_span_handler_t {
   cef_base_ref_counted_t base;
 
   ///
-  // Called on the IO thread before a new popup browser is created. The
+  // Called on the UI thread before a new popup browser is created. The
   // |browser| and |frame| values represent the source of the popup request. The
   // |target_url| and |target_frame_name| values indicate where the popup
   // browser should navigate and may be NULL if not specified with the request.

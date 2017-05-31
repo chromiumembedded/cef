@@ -66,6 +66,8 @@ class CefFrameHostImpl : public CefFrame {
                       const std::string& scriptUrl,
                       int startLine);
 
+  void ExecuteJavaScriptWithUserGestureForTests(const CefString& javascript);
+
   // Detach the frame from the browser.
   void Detach();
 

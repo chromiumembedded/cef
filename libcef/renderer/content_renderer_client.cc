@@ -81,6 +81,7 @@
 #include "printing/print_settings.h"
 #include "third_party/WebKit/public/platform/URLConversion.h"
 #include "third_party/WebKit/public/platform/WebPrerenderingSupport.h"
+#include "third_party/WebKit/public/platform/WebRuntimeFeatures.h"
 #include "third_party/WebKit/public/platform/WebString.h"
 #include "third_party/WebKit/public/platform/WebURL.h"
 #include "third_party/WebKit/public/web/WebConsoleMessage.h"
@@ -88,7 +89,6 @@
 #include "third_party/WebKit/public/web/WebFrame.h"
 #include "third_party/WebKit/public/web/WebLocalFrame.h"
 #include "third_party/WebKit/public/web/WebPrerendererClient.h"
-#include "third_party/WebKit/public/web/WebRuntimeFeatures.h"
 #include "third_party/WebKit/public/web/WebSecurityPolicy.h"
 #include "third_party/WebKit/public/web/WebView.h"
 #include "ui/base/l10n/l10n_util.h"
@@ -407,13 +407,6 @@ void CefContentRendererClient::RenderThreadStarted() {
 
   blink::WebPrerenderingSupport::Initialize(new CefPrerenderingSupport());
 
-  // Retrieve the new render thread information synchronously.
-  CefProcessHostMsg_GetNewRenderThreadInfo_Params params;
-  thread->Send(new CefProcessHostMsg_GetNewRenderThreadInfo(&params));
-
-  // Cross-origin entries need to be added after WebKit is initialized.
-  cross_origin_whitelist_entries_ = params.cross_origin_whitelist_entries;
-
 #if defined(OS_MACOSX)
   {
     base::ScopedCFTypeRef<CFStringRef> key(
@@ -438,6 +431,17 @@ void CefContentRendererClient::RenderThreadStarted() {
 
   if (extensions::ExtensionsEnabled())
     extensions_renderer_client_->RenderThreadStarted();
+}
+
+void CefContentRendererClient::RenderThreadConnected() {
+  content::RenderThread* thread = content::RenderThread::Get();
+
+  // Retrieve the new render thread information synchronously.
+  CefProcessHostMsg_GetNewRenderThreadInfo_Params params;
+  thread->Send(new CefProcessHostMsg_GetNewRenderThreadInfo(&params));
+
+  // Cross-origin entries need to be added after WebKit is initialized.
+  cross_origin_whitelist_entries_ = params.cross_origin_whitelist_entries;
 
   // Notify the render process handler.
   CefRefPtr<CefApp> application = CefContentClient::Get()->application();
@@ -502,7 +506,6 @@ void CefContentRendererClient::RenderViewCreated(
 
 bool CefContentRendererClient::OverrideCreatePlugin(
     content::RenderFrame* render_frame,
-    blink::WebLocalFrame* frame,
     const blink::WebPluginParams& params,
     blink::WebPlugin** plugin) {
   std::string orig_mime_type = params.mime_type.Utf8();
@@ -515,10 +518,11 @@ bool CefContentRendererClient::OverrideCreatePlugin(
   GURL url(params.url);
   CefViewHostMsg_GetPluginInfo_Output output;
   render_frame->Send(new CefViewHostMsg_GetPluginInfo(
-      render_frame->GetRoutingID(), url, render_frame->IsMainFrame(),
-      frame->Top()->GetSecurityOrigin(), orig_mime_type, &output));
-
-  *plugin = CreatePlugin(render_frame, frame, params, output);
+      render_frame->GetRoutingID(), url,
+      render_frame->GetWebFrame()->Parent() == nullptr,
+      render_frame->GetWebFrame()->Top()->GetSecurityOrigin(), orig_mime_type,
+      &output));
+  *plugin = CreatePlugin(render_frame, params, output);
   return true;
 }
 
@@ -668,7 +672,6 @@ void CefContentRendererClient::WillDestroyCurrentMessageLoop() {
 // static
 blink::WebPlugin* CefContentRendererClient::CreatePlugin(
     content::RenderFrame* render_frame,
-    blink::WebLocalFrame* frame,
     const blink::WebPluginParams& original_params,
     const CefViewHostMsg_GetPluginInfo_Output& output) {
   const content::WebPluginInfo& info = output.plugin;
@@ -686,15 +689,15 @@ blink::WebPlugin* CefContentRendererClient::CreatePlugin(
   if (status == CefViewHostMsg_GetPluginInfo_Status::kNotFound ||
       orig_mime_type == content::kBrowserPluginMimeType) {
     placeholder = CefPluginPlaceholder::CreateLoadableMissingPlugin(
-        render_frame, frame, original_params);
+        render_frame, original_params);
   } else {
     // TODO(bauerb): This should be in content/.
     blink::WebPluginParams params(original_params);
-    for (size_t i = 0; i < info.mime_types.size(); ++i) {
-      if (info.mime_types[i].mime_type == actual_mime_type) {
-        AppendParams(info.mime_types[i].additional_param_names,
-                     info.mime_types[i].additional_param_values,
-                     &params.attribute_names, &params.attribute_values);
+    for (const auto& mime_type : info.mime_types) {
+      if (mime_type.mime_type == actual_mime_type) {
+        AppendParams(mime_type.additional_param_names,
+                     mime_type.additional_param_values, &params.attribute_names,
+                     &params.attribute_values);
         break;
       }
     }
@@ -706,13 +709,14 @@ blink::WebPlugin* CefContentRendererClient::CreatePlugin(
       params.mime_type = blink::WebString::FromUTF8(actual_mime_type);
     }
 
-    auto create_blocked_plugin =
-        [&render_frame, &frame, &params, &info, &identifier, &group_name](
-            int template_id, const base::string16& message) {
-          return CefPluginPlaceholder::CreateBlockedPlugin(
-              render_frame, frame, params, info, identifier, group_name,
-              template_id, message, PowerSaverInfo());
-        };
+    auto create_blocked_plugin = [&render_frame, &params, &info, &identifier,
+                                  &group_name](int template_id,
+                                               const base::string16& message) {
+      return CefPluginPlaceholder::CreateBlockedPlugin(
+          render_frame, params, info, identifier, group_name, template_id,
+          message, PowerSaverInfo());
+    };
+    blink::WebLocalFrame* frame = render_frame->GetWebFrame();
     switch (status) {
       case CefViewHostMsg_GetPluginInfo_Status::kNotFound: {
         NOTREACHED();
@@ -735,7 +739,7 @@ blink::WebPlugin* CefContentRendererClient::CreatePlugin(
         if (power_saver_info.blocked_for_background_tab || is_prerendering ||
             !power_saver_info.poster_attribute.empty()) {
           placeholder = CefPluginPlaceholder::CreateBlockedPlugin(
-              render_frame, frame, params, info, identifier, group_name,
+              render_frame, params, info, identifier, group_name,
               power_saver_info.poster_attribute.empty()
                   ? IDR_BLOCKED_PLUGIN_HTML
                   : IDR_PLUGIN_POSTER_HTML,
@@ -752,13 +756,12 @@ blink::WebPlugin* CefContentRendererClient::CreatePlugin(
               content::RenderFrame::DONT_RECORD_DECISION);
           // PluginPreroller manages its own lifetime.
           new CefPluginPreroller(
-              render_frame, frame, params, info, identifier, group_name,
+              render_frame, params, info, identifier, group_name,
               l10n_util::GetStringFUTF16(IDS_PLUGIN_BLOCKED, group_name),
               throttler.get());
         }
 
-        return render_frame->CreatePlugin(frame, info, params,
-                                          std::move(throttler));
+        return render_frame->CreatePlugin(info, params, std::move(throttler));
       }
       case CefViewHostMsg_GetPluginInfo_Status::kDisabled: {
         // Intentionally using the blocked plugin resources instead of the

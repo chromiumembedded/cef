@@ -6,6 +6,7 @@
 
 #include "libcef/browser/media_capture_devices_dispatcher.h"
 #include "libcef/browser/net/url_request_context_getter_impl.h"
+#include "libcef/browser/prefs/pref_store.h"
 #include "libcef/browser/prefs/renderer_prefs.h"
 #include "libcef/common/cef_switches.h"
 
@@ -30,7 +31,6 @@
 #include "components/prefs/pref_filter.h"
 #include "components/prefs/pref_registry_simple.h"
 #include "components/prefs/pref_service.h"
-#include "components/prefs/testing_pref_store.h"
 #include "components/proxy_config/pref_proxy_config_tracker_impl.h"
 #include "components/proxy_config/proxy_config_dictionary.h"
 #include "components/spellcheck/browser/pref_names.h"
@@ -136,9 +136,9 @@ std::unique_ptr<PrefService> CreatePrefService(Profile* profile,
         pref_path, sequenced_task_runner, std::unique_ptr<PrefFilter>());
     factory.set_user_prefs(json_pref_store.get());
   } else {
-    scoped_refptr<TestingPrefStore> testing_pref_store = new TestingPrefStore();
-    testing_pref_store->SetInitializationCompleted();
-    factory.set_user_prefs(testing_pref_store.get());
+    scoped_refptr<CefPrefStore> cef_pref_store = new CefPrefStore();
+    cef_pref_store->SetInitializationCompleted();
+    factory.set_user_prefs(cef_pref_store.get());
   }
 
 #if BUILDFLAG(ENABLE_SUPERVISED_USERS)
@@ -152,10 +152,9 @@ std::unique_ptr<PrefService> CreatePrefService(Profile* profile,
       supervised_user_settings->Init(cache_path, sequenced_task_runner.get(),
                                      true);
     } else {
-      scoped_refptr<TestingPrefStore> testing_pref_store =
-          new TestingPrefStore();
-      testing_pref_store->SetInitializationCompleted();
-      supervised_user_settings->Init(testing_pref_store);
+      scoped_refptr<CefPrefStore> cef_pref_store = new CefPrefStore();
+      cef_pref_store->SetInitializationCompleted();
+      supervised_user_settings->Init(cef_pref_store);
     }
 
     scoped_refptr<PrefStore> supervised_user_prefs = make_scoped_refptr(

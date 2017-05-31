@@ -12,10 +12,6 @@
 #include "third_party/WebKit/public/web/WebPluginParams.h"
 #include "url/gurl.h"
 
-namespace blink {
-class WebLocalFrame;
-}
-
 class SkBitmap;
 
 // This class manages a plugin briefly for the purposes of keyframe extraction.
@@ -25,9 +21,8 @@ class SkBitmap;
 class CefPluginPreroller : public content::PluginInstanceThrottler::Observer,
                            public content::RenderFrameObserver {
  public:
-  // Does not take ownership of either |plugin| or |throttler|.
+  // Does not take ownership of |render_frame| or |throttler|.
   CefPluginPreroller(content::RenderFrame* render_frame,
-                     blink::WebLocalFrame* frame,
                      const blink::WebPluginParams& params,
                      const content::WebPluginInfo& info,
                      const std::string& identifier,
@@ -46,7 +41,6 @@ class CefPluginPreroller : public content::PluginInstanceThrottler::Observer,
   // content::RenderFrameObserver implementation.
   void OnDestruct() override;
 
-  blink::WebLocalFrame* frame_;
   blink::WebPluginParams params_;
   content::WebPluginInfo info_;
   std::string identifier_;

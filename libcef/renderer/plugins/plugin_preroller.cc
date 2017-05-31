@@ -18,7 +18,6 @@
 
 CefPluginPreroller::CefPluginPreroller(
     content::RenderFrame* render_frame,
-    blink::WebLocalFrame* frame,
     const blink::WebPluginParams& params,
     const content::WebPluginInfo& info,
     const std::string& identifier,
@@ -26,7 +25,6 @@ CefPluginPreroller::CefPluginPreroller(
     const base::string16& message,
     content::PluginInstanceThrottler* throttler)
     : RenderFrameObserver(render_frame),
-      frame_(frame),
       params_(params),
       info_(info),
       identifier_(identifier),
@@ -68,7 +66,7 @@ void CefPluginPreroller::OnThrottleStateChange() {
   power_saver_info.custom_poster_size = throttler_->GetSize();
 
   CefPluginPlaceholder* placeholder = CefPluginPlaceholder::CreateBlockedPlugin(
-      render_frame(), frame_, params_, info_, identifier_, name_,
+      render_frame(), params_, info_, identifier_, name_,
       IDR_PLUGIN_POSTER_HTML, message_, power_saver_info);
   placeholder->SetPremadePlugin(throttler_);
   placeholder->set_power_saver_enabled(true);
