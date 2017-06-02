@@ -31,7 +31,7 @@ index c4ca09c..40b981e 100644
      cflags = [ "/wd4201" ]
    }
 diff --git chrome/common/crash_keys.cc chrome/common/crash_keys.cc
-index 78b04f4..abf9c98 100644
+index 1e332ab..0290e49 100644
 --- chrome/common/crash_keys.cc
 +++ chrome/common/crash_keys.cc
 @@ -4,6 +4,8 @@
@@ -52,7 +52,7 @@ index 78b04f4..abf9c98 100644
    // The following keys may be chunked by the underlying crash logging system,
    // but ultimately constitute a single key-value pair.
    //
-@@ -254,10 +256,16 @@ size_t RegisterChromeCrashKeys() {
+@@ -233,10 +235,16 @@ size_t RegisterChromeCrashKeys() {
  
    // This dynamic set of keys is used for sets of key value pairs when gathering
    // a collection of data, like command line switches or extension IDs.
@@ -71,7 +71,7 @@ index 78b04f4..abf9c98 100644
  
    // Register the extension IDs.
    {
-@@ -291,7 +299,7 @@ size_t RegisterChromeCrashKeys() {
+@@ -270,7 +278,7 @@ size_t RegisterChromeCrashKeys() {
    return base::debug::InitCrashKeys(&keys.at(0), keys.size(), kChunkMaxLength);
  }
  
@@ -80,7 +80,7 @@ index 78b04f4..abf9c98 100644
    static const char* const kIgnoreSwitches[] = {
      switches::kEnableLogging,
      switches::kFlagSwitchesBegin,
-@@ -347,7 +355,7 @@ static bool IsBoringSwitch(const std::string& flag) {
+@@ -326,7 +334,7 @@ static bool IsBoringSwitch(const std::string& flag) {
  }
  
  void SetCrashKeysFromCommandLine(const base::CommandLine& command_line) {
@@ -437,7 +437,7 @@ index dcec346..6272df6 100644
          crashpad::TriState::kDisabled);
    }
 diff --git components/crash/content/app/crashpad_mac.mm components/crash/content/app/crashpad_mac.mm
-index 3bae07e..12b0a16 100644
+index 3bae07e..b2bee0e 100644
 --- components/crash/content/app/crashpad_mac.mm
 +++ components/crash/content/app/crashpad_mac.mm
 @@ -16,11 +16,14 @@
@@ -524,21 +524,21 @@ index 3bae07e..12b0a16 100644
  
        std::vector<std::string> arguments;
  
-@@ -105,6 +124,12 @@ base::FilePath PlatformCrashpadInitialization(bool initial_client,
-         arguments.push_back(
+@@ -106,6 +125,12 @@ base::FilePath PlatformCrashpadInitialization(bool initial_client,
              "--reset-own-crash-exception-port-to-system-default");
        }
-+
+ 
 +      // Since we're using the same subprocess helper exe we must specify the
 +      // process type.
 +      arguments.push_back(std::string("--type=") + switches::kCrashpadHandler);
 +
 +      crash_reporter_client->GetCrashOptionalArguments(&arguments);
- 
++
        bool result = GetCrashpadClient().StartHandler(
            handler_path, database_path, metrics_path, url, process_annotations,
+           arguments, true, false);
 diff --git components/crash/content/app/crashpad_win.cc components/crash/content/app/crashpad_win.cc
-index 94a350f..61667a8 100644
+index 94a350f..4de2228 100644
 --- components/crash/content/app/crashpad_win.cc
 +++ components/crash/content/app/crashpad_win.cc
 @@ -33,8 +33,8 @@ void GetPlatformCrashpadAnnotations(

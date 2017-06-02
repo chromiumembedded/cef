@@ -17,10 +17,10 @@ index 8aab9bb..e3286f6 100644
                                                          .Top()
                                                          ->GetSecurityContext()
 diff --git third_party/WebKit/Source/core/frame/LocalFrame.cpp third_party/WebKit/Source/core/frame/LocalFrame.cpp
-index b64d75d..869b45d 100644
+index f53bfff..7268eff 100644
 --- third_party/WebKit/Source/core/frame/LocalFrame.cpp
 +++ third_party/WebKit/Source/core/frame/LocalFrame.cpp
-@@ -927,7 +927,7 @@ ContentSettingsClient* LocalFrame::GetContentSettingsClient() {
+@@ -930,7 +930,7 @@ ContentSettingsClient* LocalFrame::GetContentSettingsClient() {
  PluginData* LocalFrame::GetPluginData() const {
    if (!Loader().AllowPlugins(kNotAboutToInstantiatePlugin))
      return nullptr;

@@ -1,5 +1,5 @@
 diff --git content/browser/renderer_host/render_widget_host_view_base.cc content/browser/renderer_host/render_widget_host_view_base.cc
-index 4dd0e59..d9394c7 100644
+index 8c862b6..d9394c7 100644
 --- content/browser/renderer_host/render_widget_host_view_base.cc
 +++ content/browser/renderer_host/render_widget_host_view_base.cc
 @@ -40,6 +40,7 @@ RenderWidgetHostViewBase::RenderWidgetHostViewBase()
@@ -10,15 +10,7 @@ index 4dd0e59..d9394c7 100644
        renderer_frame_number_(0),
        weak_factory_(this) {}
  
-@@ -138,7 +139,6 @@ void RenderWidgetHostViewBase::SetIsInVR(bool is_in_vr) {
- }
- 
- bool RenderWidgetHostViewBase::IsInVR() const {
--  NOTIMPLEMENTED();
-   return false;
- }
- 
-@@ -310,6 +310,14 @@ void RenderWidgetHostViewBase::FocusedNodeTouched(
+@@ -309,6 +310,14 @@ void RenderWidgetHostViewBase::FocusedNodeTouched(
    DVLOG(1) << "FocusedNodeTouched: " << editable;
  }
  
@@ -141,7 +133,7 @@ index f772f64..7d13f9f 100644
    return host ? host->GetAcceleratedWidget() : NULL;
  }
 diff --git ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc
-index fd25fc6..80b8093 100644
+index c2e63e9..6448b34 100644
 --- ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc
 +++ ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc
 @@ -85,6 +85,7 @@ DesktopWindowTreeHostWin::DesktopWindowTreeHostWin(
@@ -380,10 +372,10 @@ index 36b86ea..9a39084 100644
      // the NativeWidget may specify a default size. If the parent is specified,
      // |bounds| is in the parent's coordinate system. If the parent is not
 diff --git ui/views/win/hwnd_message_handler.cc ui/views/win/hwnd_message_handler.cc
-index 7590741..0e06a35 100644
+index 4fc34c7..fe81671 100644
 --- ui/views/win/hwnd_message_handler.cc
 +++ ui/views/win/hwnd_message_handler.cc
-@@ -2664,8 +2664,12 @@ LRESULT HWNDMessageHandler::HandleMouseEventInternal(UINT message,
+@@ -2665,8 +2665,12 @@ LRESULT HWNDMessageHandler::HandleMouseEventInternal(UINT message,
      active_mouse_tracking_flags_ = 0;
    } else if (event.type() == ui::ET_MOUSEWHEEL) {
      // Reroute the mouse wheel to the window under the pointer if applicable.

@@ -95,7 +95,7 @@ index 8dca644..d60c069 100644
  }
  
 diff --git content/browser/frame_host/render_frame_host_impl.cc content/browser/frame_host/render_frame_host_impl.cc
-index ccd8ee7..cc52a93 100644
+index 585a523..2ea3aa6 100644
 --- content/browser/frame_host/render_frame_host_impl.cc
 +++ content/browser/frame_host/render_frame_host_impl.cc
 @@ -814,10 +814,8 @@ bool RenderFrameHostImpl::OnMessageReceived(const IPC::Message &msg) {
@@ -133,7 +133,7 @@ index ccd8ee7..cc52a93 100644
  void RenderFrameHostImpl::OnShowCreatedWindow(int pending_widget_routing_id,
                                                WindowOpenDisposition disposition,
 diff --git content/browser/frame_host/render_frame_host_impl.h content/browser/frame_host/render_frame_host_impl.h
-index 7d13f01..9b2d494 100644
+index caf341b..f94da4c 100644
 --- content/browser/frame_host/render_frame_host_impl.h
 +++ content/browser/frame_host/render_frame_host_impl.h
 @@ -783,8 +783,8 @@ class CONTENT_EXPORT RenderFrameHostImpl
@@ -317,10 +317,10 @@ index b8be34e..db85a84 100644
  // Adding a new message? Stick to the sort order above: first platform
  // independent FrameMsg, then ifdefs for platform specific FrameMsg, then
 diff --git content/ppapi_plugin/ppapi_blink_platform_impl.cc content/ppapi_plugin/ppapi_blink_platform_impl.cc
-index 6c24359..279edb2 100644
+index bf0088e..e70677e 100644
 --- content/ppapi_plugin/ppapi_blink_platform_impl.cc
 +++ content/ppapi_plugin/ppapi_blink_platform_impl.cc
-@@ -211,6 +211,7 @@ blink::WebURLLoader* PpapiBlinkPlatformImpl::CreateURLLoader() {
+@@ -212,6 +212,7 @@ blink::WebURLLoader* PpapiBlinkPlatformImpl::CreateURLLoader() {
  
  void PpapiBlinkPlatformImpl::GetPluginList(
      bool refresh,
@@ -405,10 +405,10 @@ index d544fb7..260079c 100644
    // built in media player for the given |url|. Defaults to false.
    virtual bool ShouldUseMediaPlayerForURL(const GURL& url);
 diff --git content/renderer/render_frame_impl.cc content/renderer/render_frame_impl.cc
-index 32ad5da..39fbe72 100644
+index ffb4d51..adfb515 100644
 --- content/renderer/render_frame_impl.cc
 +++ content/renderer/render_frame_impl.cc
-@@ -2795,7 +2795,8 @@ blink::WebPlugin* RenderFrameImpl::CreatePlugin(
+@@ -2788,7 +2788,8 @@ blink::WebPlugin* RenderFrameImpl::CreatePlugin(
    std::string mime_type;
    bool found = false;
    Send(new FrameHostMsg_GetPluginInfo(
@@ -418,7 +418,7 @@ index 32ad5da..39fbe72 100644
        params.mime_type.Utf8(), &found, &info, &mime_type));
    if (!found)
      return NULL;
-@@ -5362,9 +5363,8 @@ WebNavigationPolicy RenderFrameImpl::DecidePolicyForNavigation(
+@@ -5337,9 +5338,8 @@ WebNavigationPolicy RenderFrameImpl::DecidePolicyForNavigation(
         (!IsBrowserSideNavigationEnabled() ||
          url != pending_navigation_params_->request_params.redirects[0]));
  
@@ -430,7 +430,7 @@ index 32ad5da..39fbe72 100644
    // The handlenavigation API is deprecated and will be removed once
    // crbug.com/325351 is resolved.
    if (GetContentClient()->renderer()->HandleNavigation(
-@@ -5377,7 +5377,6 @@ WebNavigationPolicy RenderFrameImpl::DecidePolicyForNavigation(
+@@ -5352,7 +5352,6 @@ WebNavigationPolicy RenderFrameImpl::DecidePolicyForNavigation(
      }
      return blink::kWebNavigationPolicyIgnore;
    }
