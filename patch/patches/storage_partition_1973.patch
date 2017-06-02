@@ -152,7 +152,7 @@ index 73f3cba..55d488b 100644
    BrowserThread::PostTask(
        BrowserThread::IO, FROM_HERE,
 diff --git content/browser/renderer_host/render_process_host_impl.cc content/browser/renderer_host/render_process_host_impl.cc
-index ec0d400..49261d1 100644
+index cbd667c..c0158c9 100644
 --- content/browser/renderer_host/render_process_host_impl.cc
 +++ content/browser/renderer_host/render_process_host_impl.cc
 @@ -482,7 +482,7 @@ class DefaultSubframeProcessHostHolder : public base::SupportsUserData::Data,
@@ -346,7 +346,7 @@ index ec0d400..49261d1 100644
    if (!GetWorkerRefCount())
      return;
    service_worker_ref_count_ = 0;
-@@ -3064,8 +3083,8 @@ RenderProcessHost* RenderProcessHostImpl::GetProcessHostForSiteInstance(
+@@ -3065,8 +3084,8 @@ RenderProcessHost* RenderProcessHostImpl::GetProcessHostForSiteInstance(
            g_render_process_host_factory_->CreateRenderProcessHost(
                browser_context, site_instance);
      } else {

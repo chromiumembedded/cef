@@ -55,11 +55,11 @@ index 7111970..f751d6c 100644
  
  }  // namespace net
 diff --git net/http/transport_security_state.cc net/http/transport_security_state.cc
-index e838cbe..d2f6f0f 100644
+index 3971eb3..fa4df80 100644
 --- net/http/transport_security_state.cc
 +++ net/http/transport_security_state.cc
-@@ -1537,8 +1537,10 @@ void TransportSecurityState::ClearReportCachesForTesting() {
-   sent_expect_ct_reports_cache_.Clear();
+@@ -1504,8 +1504,10 @@ void TransportSecurityState::SetShouldRequireCTForTesting(bool* required) {
+   g_ct_required_for_testing = *required ? 1 : -1;
  }
  
 -// static
@@ -72,12 +72,12 @@ index e838cbe..d2f6f0f 100644
    // We consider built-in information to be timely for 10 weeks.
    return (base::Time::Now() - build_time).InDays() < 70 /* 10 weeks */;
 diff --git net/http/transport_security_state.h net/http/transport_security_state.h
-index 19ba839..a0b9810 100644
+index 7ce883a..80b1ae0 100644
 --- net/http/transport_security_state.h
 +++ net/http/transport_security_state.h
-@@ -576,6 +576,10 @@ class NET_EXPORT TransportSecurityState
-   // Expect-CT reports.
-   void ClearReportCachesForTesting();
+@@ -572,6 +572,10 @@ class NET_EXPORT TransportSecurityState
+   // unless a RequireCTDelegate overrides). Set to nullptr to reset.
+   static void SetShouldRequireCTForTesting(bool* required);
  
 +  void set_enforce_net_security_expiration(bool enforce) {
 +    enforce_net_security_expiration_ = enforce;
@@ -86,7 +86,7 @@ index 19ba839..a0b9810 100644
   private:
    friend class TransportSecurityStateTest;
    friend class TransportSecurityStateStaticFuzzer;
-@@ -596,7 +600,7 @@ class NET_EXPORT TransportSecurityState
+@@ -587,7 +591,7 @@ class NET_EXPORT TransportSecurityState
    // IsBuildTimely returns true if the current build is new enough ensure that
    // built in security information (i.e. HSTS preloading and pinning
    // information) is timely.
@@ -95,7 +95,7 @@ index 19ba839..a0b9810 100644
  
    // Helper method for actually checking pins.
    PKPStatus CheckPublicKeyPinsImpl(
-@@ -704,6 +708,8 @@ class NET_EXPORT TransportSecurityState
+@@ -687,6 +691,8 @@ class NET_EXPORT TransportSecurityState
    // True if public key pinning bypass is enabled for local trust anchors.
    bool enable_pkp_bypass_for_local_trust_anchors_;
  

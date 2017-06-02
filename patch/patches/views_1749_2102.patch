@@ -115,10 +115,10 @@ index 68e5b60..3861921 100644
    class InkDropGestureHandler;
    friend class InkDropGestureHandler;
 diff --git ui/views/controls/button/label_button.cc ui/views/controls/button/label_button.cc
-index aa8dae7..05c89b3 100644
+index f049ca8..23bc0bd 100644
 --- ui/views/controls/button/label_button.cc
 +++ ui/views/controls/button/label_button.cc
-@@ -192,6 +192,7 @@ gfx::Size LabelButton::GetPreferredSize() const {
+@@ -192,6 +192,7 @@ gfx::Size LabelButton::CalculatePreferredSize() const {
    Label label(GetText(), {label_->font_list()});
    label.SetLineHeight(label_->line_height());
    label.SetShadows(label_->shadows());
@@ -139,7 +139,7 @@ index aa8dae7..05c89b3 100644
    const gfx::Size previous_image_size(image_->GetPreferredSize());
    UpdateImage();
 diff --git ui/views/controls/button/label_button.h ui/views/controls/button/label_button.h
-index 8495c43..da7997e 100644
+index a608594..fadd999 100644
 --- ui/views/controls/button/label_button.h
 +++ ui/views/controls/button/label_button.h
 @@ -109,6 +109,9 @@ class VIEWS_EXPORT LabelButton : public CustomButton,
@@ -153,12 +153,12 @@ index 8495c43..da7997e 100644
    ImageView* image() const { return image_; }
    Label* label() const { return label_; }
 diff --git ui/views/controls/button/menu_button.cc ui/views/controls/button/menu_button.cc
-index 33740d8..42c4cbc 100644
+index 74188e4..541397e 100644
 --- ui/views/controls/button/menu_button.cc
 +++ ui/views/controls/button/menu_button.cc
 @@ -194,7 +194,7 @@ void MenuButton::OnPaint(gfx::Canvas* canvas) {
- gfx::Size MenuButton::GetPreferredSize() const {
-   gfx::Size prefsize = LabelButton::GetPreferredSize();
+ gfx::Size MenuButton::CalculatePreferredSize() const {
+   gfx::Size prefsize = LabelButton::CalculatePreferredSize();
    if (show_menu_marker_) {
 -    prefsize.Enlarge(menu_marker_->width() + kMenuMarkerPaddingLeft +
 +    prefsize.Enlarge(menu_marker_->width() + GetMarkerPaddingLeft() +
@@ -186,7 +186,7 @@ index 33740d8..42c4cbc 100644
 +
  }  // namespace views
 diff --git ui/views/controls/button/menu_button.h ui/views/controls/button/menu_button.h
-index 0d87c31..bcaa1ec 100644
+index 0d4af71..6c70762 100644
 --- ui/views/controls/button/menu_button.h
 +++ ui/views/controls/button/menu_button.h
 @@ -57,6 +57,9 @@ class VIEWS_EXPORT MenuButton : public LabelButton {
@@ -210,7 +210,7 @@ index 0d87c31..bcaa1ec 100644
    // The time is used for simulating menu behavior for the menu button; that
    // is, if the menu is shown and the button is pressed, we need to close the
 diff --git ui/views/controls/label.cc ui/views/controls/label.cc
-index 2523f9a..ef64aac 100644
+index c5e3fc5..753bbf5 100644
 --- ui/views/controls/label.cc
 +++ ui/views/controls/label.cc
 @@ -26,6 +26,7 @@
@@ -280,7 +280,7 @@ index 2523f9a..ef64aac 100644
  }
  
 diff --git ui/views/controls/label.h ui/views/controls/label.h
-index 0fa4db8..6d48a9b 100644
+index 0881558..be413f3 100644
 --- ui/views/controls/label.h
 +++ ui/views/controls/label.h
 @@ -144,6 +144,10 @@ class VIEWS_EXPORT Label : public View,
@@ -381,7 +381,7 @@ index 4dea63f..ef50b71 100644
    virtual int GetMaxWidthForMenu(MenuItemView* menu);
  
 diff --git ui/views/controls/menu/menu_item_view.cc ui/views/controls/menu/menu_item_view.cc
-index c2d98e2..8d12a05 100644
+index 5b15552..5c0fdbe 100644
 --- ui/views/controls/menu/menu_item_view.cc
 +++ ui/views/controls/menu/menu_item_view.cc
 @@ -761,7 +761,12 @@ void MenuItemView::PaintButton(gfx::Canvas* canvas, PaintButtonMode mode) {
@@ -520,7 +520,7 @@ index 0ac493c..741769e 100644
    void WillHideMenu(MenuItemView* menu) override;
    void OnMenuClosed(MenuItemView* menu) override;
 diff --git ui/views/controls/menu/menu_scroll_view_container.cc ui/views/controls/menu/menu_scroll_view_container.cc
-index 124442a..c5cfe8b 100644
+index a0a74eb..cf2044b 100644
 --- ui/views/controls/menu/menu_scroll_view_container.cc
 +++ ui/views/controls/menu/menu_scroll_view_container.cc
 @@ -184,6 +184,11 @@ MenuScrollViewContainer::MenuScrollViewContainer(SubmenuView* content_view)
@@ -551,7 +551,7 @@ index 117a268..6065c73 100644
        // Move the cursor because EnterNotify/LeaveNotify are generated with the
        // current mouse position as a result of XGrabPointer()
 diff --git ui/views/view.h ui/views/view.h
-index 410e2a5..0ba4765 100644
+index 9c78e19..8e03434 100644
 --- ui/views/view.h
 +++ ui/views/view.h
 @@ -18,6 +18,7 @@

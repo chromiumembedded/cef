@@ -95,7 +95,7 @@ index 7563fdf..d4e0a38 100644
  }
  
 diff --git content/browser/frame_host/render_frame_host_impl.cc content/browser/frame_host/render_frame_host_impl.cc
-index 2bdb04d..b28722e 100644
+index 55f8a8b..5020178 100644
 --- content/browser/frame_host/render_frame_host_impl.cc
 +++ content/browser/frame_host/render_frame_host_impl.cc
 @@ -865,10 +865,8 @@ bool RenderFrameHostImpl::OnMessageReceived(const IPC::Message &msg) {
@@ -117,7 +117,7 @@ index 2bdb04d..b28722e 100644
    }
  
    frame_tree_node_->navigator()->DidFailProvisionalLoadWithError(this, params);
-@@ -2573,14 +2572,12 @@ void RenderFrameHostImpl::OnHidePopup() {
+@@ -2578,14 +2577,12 @@ void RenderFrameHostImpl::OnHidePopup() {
  }
  #endif
  

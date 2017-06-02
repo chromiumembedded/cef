@@ -25,10 +25,10 @@ index 2a35f2c..dded520 100644
  
    DCHECK(RuntimeEnabledFeatures::pagePopupEnabled());
 diff --git third_party/WebKit/Source/web/WebViewImpl.cpp third_party/WebKit/Source/web/WebViewImpl.cpp
-index dccdd58..a2a7ab9 100644
+index a8985f8..2cf5913 100644
 --- third_party/WebKit/Source/web/WebViewImpl.cpp
 +++ third_party/WebKit/Source/web/WebViewImpl.cpp
-@@ -355,6 +355,7 @@ WebViewImpl::WebViewImpl(WebViewClient* client,
+@@ -353,6 +353,7 @@ WebViewImpl::WebViewImpl(WebViewClient* client,
        enable_fake_page_scale_animation_for_testing_(false),
        fake_page_scale_animation_page_scale_factor_(0),
        fake_page_scale_animation_use_anchor_(false),
@@ -36,7 +36,7 @@ index dccdd58..a2a7ab9 100644
        compositor_device_scale_factor_override_(0),
        suppress_next_keypress_event_(false),
        ime_accept_events_(true),
-@@ -3693,12 +3694,13 @@ void WebViewImpl::MainFrameScrollOffsetChanged() {
+@@ -3689,12 +3690,13 @@ void WebViewImpl::MainFrameScrollOffsetChanged() {
    dev_tools_emulator_->MainFrameScrollOrScaleChanged();
  }
  
@@ -55,7 +55,7 @@ index dccdd58..a2a7ab9 100644
  
  void WebViewImpl::SetBackgroundColorOverride(WebColor color) {
 diff --git third_party/WebKit/Source/web/WebViewImpl.h third_party/WebKit/Source/web/WebViewImpl.h
-index ba65d8f..490e451 100644
+index 591da9f..df2c787 100644
 --- third_party/WebKit/Source/web/WebViewImpl.h
 +++ third_party/WebKit/Source/web/WebViewImpl.h
 @@ -357,7 +357,8 @@ class WEB_EXPORT WebViewImpl final
@@ -78,10 +78,10 @@ index ba65d8f..490e451 100644
    TransformationMatrix device_emulation_transform_;
  
 diff --git third_party/WebKit/public/web/WebView.h third_party/WebKit/public/web/WebView.h
-index c55118b..56d8896 100644
+index e790df6..4e57f29 100644
 --- third_party/WebKit/public/web/WebView.h
 +++ third_party/WebKit/public/web/WebView.h
-@@ -399,6 +399,7 @@ class WebView : protected WebWidget {
+@@ -398,6 +398,7 @@ class WebView : protected WebWidget {
  
    // Sets whether select popup menus should be rendered by the browser.
    BLINK_EXPORT static void SetUseExternalPopupMenus(bool);

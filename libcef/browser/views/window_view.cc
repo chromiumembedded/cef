@@ -176,7 +176,7 @@ class CaptionlessFrameView : public views::NonClientFrameView {
     client_view_bounds_.SetRect(0, 0, width(), height());
   }
 
-  gfx::Size GetPreferredSize() const override {
+  gfx::Size CalculatePreferredSize() const override {
     return widget_->non_client_view()
         ->GetWindowBoundsForClientBounds(
             gfx::Rect(widget_->client_view()->GetPreferredSize()))

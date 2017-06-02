@@ -1,8 +1,8 @@
 diff --git content/browser/renderer_host/render_widget_host_view_base.cc content/browser/renderer_host/render_widget_host_view_base.cc
-index 527e5ea..de52a1e 100644
+index 98460d7..ffbfa04f 100644
 --- content/browser/renderer_host/render_widget_host_view_base.cc
 +++ content/browser/renderer_host/render_widget_host_view_base.cc
-@@ -299,6 +299,14 @@ void RenderWidgetHostViewBase::FocusedNodeTouched(
+@@ -298,6 +298,14 @@ void RenderWidgetHostViewBase::FocusedNodeTouched(
    DVLOG(1) << "FocusedNodeTouched: " << editable;
  }
  
