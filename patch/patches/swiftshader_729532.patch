@@ -1,0 +1,17 @@
+diff --git BUILD.gn BUILD.gn
+index bfd68e2..1eb7568 100644
+--- BUILD.gn
++++ BUILD.gn
+@@ -88,6 +88,12 @@ config("swiftshader_config") {
+         "-Wl,--hash-style=both",
+         "-Wl,--gc-sections",
+       ]
++      # A bug in the gold linker prevents using ICF on 32-bit (crbug.com/729532)
++      if (use_gold && target_cpu == "x86") {
++        ldflags += [
++          "-Wl,--icf=none",
++        ]
++      }
+     }
+   }
+ }
