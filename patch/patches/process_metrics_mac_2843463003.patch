@@ -1,0 +1,19 @@
+diff --git base/process/process_metrics_mac.cc base/process/process_metrics_mac.cc
+index 19428fa..5eda0d0 100644
+--- base/process/process_metrics_mac.cc
++++ base/process/process_metrics_mac.cc
+@@ -50,12 +50,11 @@ struct ChromeTaskVMInfo {
+   mach_vm_size_t compressed_lifetime;
+   mach_vm_size_t phys_footprint;
+ };
+-mach_msg_type_number_t ChromeTaskVMInfoCount =
+-    sizeof(ChromeTaskVMInfo) / sizeof(natural_t);
+ #else
+ using ChromeTaskVMInfo = task_vm_info;
+-mach_msg_type_number_t ChromeTaskVMInfoCount = TASK_VM_INFO_REV1_COUNT;
+ #endif  // MAC_OS_X_VERSION_10_11
++mach_msg_type_number_t ChromeTaskVMInfoCount =
++    sizeof(ChromeTaskVMInfo) / sizeof(natural_t);
+ 
+ bool GetTaskInfo(mach_port_t task, task_basic_info_64* task_info_data) {
+   if (task == MACH_PORT_NULL)
