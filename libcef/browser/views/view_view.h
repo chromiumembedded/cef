@@ -142,7 +142,7 @@ CEF_VIEW_VIEW_T int CEF_VIEW_VIEW_D::GetHeightForWidth(int w) const {
     // Some layouts like FillLayout will ignore the preferred size if this view
     // has no children. We want to use the preferred size if not otherwise
     // specified.
-    result = GetPreferredSize().height();
+    result = ParentClass::GetPreferredSize().height();
   }
   return result;
 }
