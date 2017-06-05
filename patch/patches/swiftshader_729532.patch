@@ -1,8 +1,17 @@
 diff --git BUILD.gn BUILD.gn
-index bfd68e2..1eb7568 100644
+index bfd68e2..6557d38 100644
 --- BUILD.gn
 +++ BUILD.gn
-@@ -88,6 +88,12 @@ config("swiftshader_config") {
+@@ -12,6 +12,8 @@
+ # See the License for the specific language governing permissions and
+ # limitations under the License.
+ 
++import("//build/config/compiler/compiler.gni")
++
+ config("swiftshader_config") {
+   defines = [ "STRICT_CONFORMANCE" ]  # Disables OpenGL ES 3.0
+ 
+@@ -88,6 +90,12 @@ config("swiftshader_config") {
          "-Wl,--hash-style=both",
          "-Wl,--gc-sections",
        ]
