@@ -7,7 +7,7 @@ Description:
 Fuzed (single header/source file) version of GoogleTest. Generated from the
 Chromium source checkout with the following command:
 
-cd /path/to/chromium/src/testing/gtest/scripts
+cd /path/to/chromium/src/third_party/googletest/src/googletest/scripts
 ./fuse_gtest_files.py <out_directory>
 
 Local Modifications:

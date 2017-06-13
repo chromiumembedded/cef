@@ -160,7 +160,8 @@ def create_readme():
 
 def create_fuzed_gtest(tests_dir):
   """ Generate a fuzed version of gtest and build the expected directory structure. """
-  src_gtest_dir = os.path.join(src_dir, 'testing', 'gtest')
+  src_gtest_dir = os.path.join(src_dir, 'third_party', 'googletest', 'src',
+                               'googletest')
   run('%s fuse_gtest_files.py \"%s\"' % (sys.executable, tests_dir),
       os.path.join(src_gtest_dir, 'scripts'))
 
