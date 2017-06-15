@@ -7,8 +7,7 @@
 #define CEF_TESTS_CEFCLIENT_BROWSER_PRINT_HANDLER_GTK_H_
 #pragma once
 
-#include <gtk/gtk.h>
-#include <gtk/gtkunixprint.h>
+#include <map>
 
 #include "include/cef_print_handler.h"
 
@@ -17,44 +16,32 @@ namespace client {
 class ClientPrintHandlerGtk : public CefPrintHandler {
  public:
   ClientPrintHandlerGtk();
+  virtual ~ClientPrintHandlerGtk();
 
   // CefPrintHandler methods.
   void OnPrintStart(CefRefPtr<CefBrowser> browser) OVERRIDE;
-  void OnPrintSettings(CefRefPtr<CefPrintSettings> settings,
+  void OnPrintSettings(CefRefPtr<CefBrowser> browser,
+                       CefRefPtr<CefPrintSettings> settings,
                        bool get_defaults) OVERRIDE;
-  bool OnPrintDialog(bool has_selection,
+  bool OnPrintDialog(CefRefPtr<CefBrowser> browser,
+                     bool has_selection,
                      CefRefPtr<CefPrintDialogCallback> callback) OVERRIDE;
-  bool OnPrintJob(const CefString& document_name,
+  bool OnPrintJob(CefRefPtr<CefBrowser> browser,
+                  const CefString& document_name,
                   const CefString& pdf_file_path,
                   CefRefPtr<CefPrintJobCallback> callback) OVERRIDE;
-  void OnPrintReset() OVERRIDE;
-  CefSize GetPdfPaperSize(int device_units_per_inch) OVERRIDE;
+  void OnPrintReset(CefRefPtr<CefBrowser> browser) OVERRIDE;
+  CefSize GetPdfPaperSize(CefRefPtr<CefBrowser> browser,
+                          int device_units_per_inch) OVERRIDE;
 
  private:
-  void OnDialogResponse(GtkDialog* dialog, gint response_id);
-  void OnJobCompleted(GtkPrintJob* print_job, GError* error);
+  // Print handler.
+  struct PrintHandler;
+  PrintHandler* GetPrintHandler(CefRefPtr<CefBrowser> browser);
 
-  static void OnDialogResponseThunk(GtkDialog* dialog,
-                                    gint response_id,
-                                    ClientPrintHandlerGtk* handler) {
-    handler->OnDialogResponse(dialog, response_id);
-  }
-  static void OnJobCompletedThunk(GtkPrintJob* print_job,
-                                  void* handler,
-                                  GError* error) {
-    static_cast<ClientPrintHandlerGtk*>(handler)->OnJobCompleted(print_job,
-                                                                 error);
-  }
-
-  // Print dialog settings. ClientPrintHandlerGtk owns |dialog_| and holds
-  // references to the other objects.
-  GtkWidget* dialog_;
-  GtkPrintSettings* gtk_settings_;
-  GtkPageSetup* page_setup_;
-  GtkPrinter* printer_;
-
-  CefRefPtr<CefPrintDialogCallback> dialog_callback_;
-  CefRefPtr<CefPrintJobCallback> job_callback_;
+  // Map of browser ID to print handler.
+  typedef std::map<int, PrintHandler*> PrintHandlerMap;
+  PrintHandlerMap print_handler_map_;
 
   IMPLEMENT_REFCOUNTING(ClientPrintHandlerGtk);
   DISALLOW_COPY_AND_ASSIGN(ClientPrintHandlerGtk);

@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=e8f6bdc822cf4f5c32b22ba8b5cacb25823d8971$
+// $hash=ed78ca41d62dfc0cdb52828dcf795617c4e231a7$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_PRINT_HANDLER_CAPI_H_
@@ -85,8 +85,9 @@ typedef struct _cef_print_job_callback_t {
 } cef_print_job_callback_t;
 
 ///
-// Implement this structure to handle printing on Linux. The functions of this
-// structure will be called on the browser process UI thread.
+// Implement this structure to handle printing on Linux. Each browser will have
+// only one print job in progress at a time. The functions of this structure
+// will be called on the browser process UI thread.
 ///
 typedef struct _cef_print_handler_t {
   ///
@@ -109,6 +110,7 @@ typedef struct _cef_print_handler_t {
   // reference to |settings| outside of this callback.
   ///
   void(CEF_CALLBACK* on_print_settings)(struct _cef_print_handler_t* self,
+                                        struct _cef_browser_t* browser,
                                         struct _cef_print_settings_t* settings,
                                         int get_defaults);
 
@@ -119,6 +121,7 @@ typedef struct _cef_print_handler_t {
   ///
   int(CEF_CALLBACK* on_print_dialog)(
       struct _cef_print_handler_t* self,
+      struct _cef_browser_t* browser,
       int has_selection,
       struct _cef_print_dialog_callback_t* callback);
 
@@ -128,6 +131,7 @@ typedef struct _cef_print_handler_t {
   // the job immediately.
   ///
   int(CEF_CALLBACK* on_print_job)(struct _cef_print_handler_t* self,
+                                  struct _cef_browser_t* browser,
                                   const cef_string_t* document_name,
                                   const cef_string_t* pdf_file_path,
                                   struct _cef_print_job_callback_t* callback);
@@ -135,7 +139,8 @@ typedef struct _cef_print_handler_t {
   ///
   // Reset client state related to printing.
   ///
-  void(CEF_CALLBACK* on_print_reset)(struct _cef_print_handler_t* self);
+  void(CEF_CALLBACK* on_print_reset)(struct _cef_print_handler_t* self,
+                                     struct _cef_browser_t* browser);
 
   ///
   // Return the PDF paper size in device units. Used in combination with
@@ -143,6 +148,7 @@ typedef struct _cef_print_handler_t {
   ///
   cef_size_t(CEF_CALLBACK* get_pdf_paper_size)(
       struct _cef_print_handler_t* self,
+      struct _cef_browser_t* browser,
       int device_units_per_inch);
 } cef_print_handler_t;
 
