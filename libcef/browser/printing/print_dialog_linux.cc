@@ -113,9 +113,12 @@ gfx::Size CefPrintDialogLinux::GetPdfPaperSize(
     if (browser_handler.get()) {
       CefRefPtr<CefPrintHandler> handler = browser_handler->GetPrintHandler();
       if (handler.get()) {
+        CefRefPtr<CefBrowserHostImpl> browser =
+            extensions::GetOwnerBrowserForFrame(
+                context->render_process_id(), context->render_frame_id(), NULL);
         const printing::PrintSettings& settings = context->settings();
-        CefSize cef_size =
-            handler->GetPdfPaperSize(settings.device_units_per_inch());
+        CefSize cef_size = handler->GetPdfPaperSize(
+            browser.get(), settings.device_units_per_inch());
         size.SetSize(cef_size.width, cef_size.height);
       }
     }
@@ -187,10 +190,14 @@ void CefPrintDialogLinux::ShowDialog(
 
   callback_ = callback;
 
+  CefRefPtr<CefBrowserHostImpl> browser = extensions::GetOwnerBrowserForFrame(
+      context_->render_process_id(), context_->render_frame_id(), NULL);
+
   CefRefPtr<CefPrintDialogCallbackImpl> callback_impl(
       new CefPrintDialogCallbackImpl(this));
 
-  if (!handler_->OnPrintDialog(has_selection, callback_impl.get())) {
+  if (!handler_->OnPrintDialog(browser.get(), has_selection,
+                               callback_impl.get())) {
     callback_impl->Disconnect();
     OnPrintCancel();
   }
@@ -253,7 +260,10 @@ void CefPrintDialogLinux::SetHandler() {
 
 void CefPrintDialogLinux::ReleaseHandler() {
   if (handler_.get()) {
-    handler_->OnPrintReset();
+    CefRefPtr<CefBrowserHostImpl> browser = extensions::GetOwnerBrowserForFrame(
+        context_->render_process_id(), context_->render_frame_id(), NULL);
+
+    handler_->OnPrintReset(browser.get());
     handler_ = NULL;
   }
 }
@@ -266,9 +276,12 @@ bool CefPrintDialogLinux::UpdateSettings(printing::PrintSettings* settings,
   if (!handler_.get())
     return false;
 
+  CefRefPtr<CefBrowserHostImpl> browser = extensions::GetOwnerBrowserForFrame(
+      context_->render_process_id(), context_->render_frame_id(), NULL);
+
   CefRefPtr<CefPrintSettingsImpl> settings_impl(
       new CefPrintSettingsImpl(settings, false, false));
-  handler_->OnPrintSettings(settings_impl.get(), get_defaults);
+  handler_->OnPrintSettings(browser.get(), settings_impl.get(), get_defaults);
   settings_impl->Detach(NULL);
 
   context_->InitWithSettings(*settings);
@@ -284,10 +297,13 @@ void CefPrintDialogLinux::SendDocumentToPrinter(
     return;
   }
 
+  CefRefPtr<CefBrowserHostImpl> browser = extensions::GetOwnerBrowserForFrame(
+      context_->render_process_id(), context_->render_frame_id(), NULL);
+
   CefRefPtr<CefPrintJobCallbackImpl> callback_impl(
       new CefPrintJobCallbackImpl(this));
 
-  if (!handler_->OnPrintJob(document_name, path_to_pdf_.value(),
+  if (!handler_->OnPrintJob(browser.get(), document_name, path_to_pdf_.value(),
                             callback_impl.get())) {
     callback_impl->Disconnect();
     OnJobCompleted();

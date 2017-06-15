@@ -75,8 +75,9 @@ class CefPrintJobCallback : public virtual CefBaseRefCounted {
 };
 
 ///
-// Implement this interface to handle printing on Linux. The methods of this
-// class will be called on the browser process UI thread.
+// Implement this interface to handle printing on Linux. Each browser will have
+// only one print job in progress at a time. The methods of this class will be
+// called on the browser process UI thread.
 ///
 /*--cef(source=client)--*/
 class CefPrintHandler : public virtual CefBaseRefCounted {
@@ -96,7 +97,8 @@ class CefPrintHandler : public virtual CefBaseRefCounted {
   // reference to |settings| outside of this callback.
   ///
   /*--cef()--*/
-  virtual void OnPrintSettings(CefRefPtr<CefPrintSettings> settings,
+  virtual void OnPrintSettings(CefRefPtr<CefBrowser> browser,
+                               CefRefPtr<CefPrintSettings> settings,
                                bool get_defaults) = 0;
 
   ///
@@ -105,7 +107,8 @@ class CefPrintHandler : public virtual CefBaseRefCounted {
   // printing immediately.
   ///
   /*--cef()--*/
-  virtual bool OnPrintDialog(bool has_selection,
+  virtual bool OnPrintDialog(CefRefPtr<CefBrowser> browser,
+                             bool has_selection,
                              CefRefPtr<CefPrintDialogCallback> callback) = 0;
 
   ///
@@ -114,7 +117,8 @@ class CefPrintHandler : public virtual CefBaseRefCounted {
   // immediately.
   ///
   /*--cef()--*/
-  virtual bool OnPrintJob(const CefString& document_name,
+  virtual bool OnPrintJob(CefRefPtr<CefBrowser> browser,
+                          const CefString& document_name,
                           const CefString& pdf_file_path,
                           CefRefPtr<CefPrintJobCallback> callback) = 0;
 
@@ -122,14 +126,15 @@ class CefPrintHandler : public virtual CefBaseRefCounted {
   // Reset client state related to printing.
   ///
   /*--cef()--*/
-  virtual void OnPrintReset() = 0;
+  virtual void OnPrintReset(CefRefPtr<CefBrowser> browser) = 0;
 
   ///
   // Return the PDF paper size in device units. Used in combination with
   // CefBrowserHost::PrintToPDF().
   ///
   /*--cef()--*/
-  virtual CefSize GetPdfPaperSize(int device_units_per_inch) {
+  virtual CefSize GetPdfPaperSize(CefRefPtr<CefBrowser> browser,
+                                  int device_units_per_inch) {
     return CefSize();
   }
 };

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=e2a9910119dcf81b74624588d222c7781e3fdc9a$
+// $hash=80fc869800987a74f4c6e4eb202f0f5201126a76$
 //
 
 #include "libcef_dll/cpptoc/print_handler_cpptoc.h"
@@ -42,12 +42,17 @@ print_handler_on_print_start(struct _cef_print_handler_t* self,
 
 void CEF_CALLBACK
 print_handler_on_print_settings(struct _cef_print_handler_t* self,
+                                cef_browser_t* browser,
                                 struct _cef_print_settings_t* settings,
                                 int get_defaults) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
   if (!self)
+    return;
+  // Verify param: browser; type: refptr_diff
+  DCHECK(browser);
+  if (!browser)
     return;
   // Verify param: settings; type: refptr_diff
   DCHECK(settings);
@@ -56,17 +61,23 @@ print_handler_on_print_settings(struct _cef_print_handler_t* self,
 
   // Execute
   CefPrintHandlerCppToC::Get(self)->OnPrintSettings(
-      CefPrintSettingsCToCpp::Wrap(settings), get_defaults ? true : false);
+      CefBrowserCToCpp::Wrap(browser), CefPrintSettingsCToCpp::Wrap(settings),
+      get_defaults ? true : false);
 }
 
 int CEF_CALLBACK
 print_handler_on_print_dialog(struct _cef_print_handler_t* self,
+                              cef_browser_t* browser,
                               int has_selection,
                               cef_print_dialog_callback_t* callback) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
   if (!self)
+    return 0;
+  // Verify param: browser; type: refptr_diff
+  DCHECK(browser);
+  if (!browser)
     return 0;
   // Verify param: callback; type: refptr_diff
   DCHECK(callback);
@@ -75,7 +86,7 @@ print_handler_on_print_dialog(struct _cef_print_handler_t* self,
 
   // Execute
   bool _retval = CefPrintHandlerCppToC::Get(self)->OnPrintDialog(
-      has_selection ? true : false,
+      CefBrowserCToCpp::Wrap(browser), has_selection ? true : false,
       CefPrintDialogCallbackCToCpp::Wrap(callback));
 
   // Return type: bool
@@ -84,6 +95,7 @@ print_handler_on_print_dialog(struct _cef_print_handler_t* self,
 
 int CEF_CALLBACK
 print_handler_on_print_job(struct _cef_print_handler_t* self,
+                           cef_browser_t* browser,
                            const cef_string_t* document_name,
                            const cef_string_t* pdf_file_path,
                            cef_print_job_callback_t* callback) {
@@ -91,6 +103,10 @@ print_handler_on_print_job(struct _cef_print_handler_t* self,
 
   DCHECK(self);
   if (!self)
+    return 0;
+  // Verify param: browser; type: refptr_diff
+  DCHECK(browser);
+  if (!browser)
     return 0;
   // Verify param: document_name; type: string_byref_const
   DCHECK(document_name);
@@ -107,37 +123,48 @@ print_handler_on_print_job(struct _cef_print_handler_t* self,
 
   // Execute
   bool _retval = CefPrintHandlerCppToC::Get(self)->OnPrintJob(
-      CefString(document_name), CefString(pdf_file_path),
-      CefPrintJobCallbackCToCpp::Wrap(callback));
+      CefBrowserCToCpp::Wrap(browser), CefString(document_name),
+      CefString(pdf_file_path), CefPrintJobCallbackCToCpp::Wrap(callback));
 
   // Return type: bool
   return _retval;
 }
 
 void CEF_CALLBACK
-print_handler_on_print_reset(struct _cef_print_handler_t* self) {
+print_handler_on_print_reset(struct _cef_print_handler_t* self,
+                             cef_browser_t* browser) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
   if (!self)
     return;
+  // Verify param: browser; type: refptr_diff
+  DCHECK(browser);
+  if (!browser)
+    return;
 
   // Execute
-  CefPrintHandlerCppToC::Get(self)->OnPrintReset();
+  CefPrintHandlerCppToC::Get(self)->OnPrintReset(
+      CefBrowserCToCpp::Wrap(browser));
 }
 
 cef_size_t CEF_CALLBACK
 print_handler_get_pdf_paper_size(struct _cef_print_handler_t* self,
+                                 cef_browser_t* browser,
                                  int device_units_per_inch) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
   if (!self)
     return CefSize();
+  // Verify param: browser; type: refptr_diff
+  DCHECK(browser);
+  if (!browser)
+    return CefSize();
 
   // Execute
-  cef_size_t _retval =
-      CefPrintHandlerCppToC::Get(self)->GetPdfPaperSize(device_units_per_inch);
+  cef_size_t _retval = CefPrintHandlerCppToC::Get(self)->GetPdfPaperSize(
+      CefBrowserCToCpp::Wrap(browser), device_units_per_inch);
 
   // Return type: simple
   return _retval;
