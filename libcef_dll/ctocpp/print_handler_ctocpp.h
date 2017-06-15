@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=104e754c5019270e7bd700c6b979891f1275f9a7$
+// $hash=1a2adb6e9cbbe96253cc997312e60ca330dc4de6$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_PRINT_HANDLER_CTOCPP_H_
@@ -34,15 +34,19 @@ class CefPrintHandlerCToCpp : public CefCToCppRefCounted<CefPrintHandlerCToCpp,
 
   // CefPrintHandler methods.
   void OnPrintStart(CefRefPtr<CefBrowser> browser) override;
-  void OnPrintSettings(CefRefPtr<CefPrintSettings> settings,
+  void OnPrintSettings(CefRefPtr<CefBrowser> browser,
+                       CefRefPtr<CefPrintSettings> settings,
                        bool get_defaults) override;
-  bool OnPrintDialog(bool has_selection,
+  bool OnPrintDialog(CefRefPtr<CefBrowser> browser,
+                     bool has_selection,
                      CefRefPtr<CefPrintDialogCallback> callback) override;
-  bool OnPrintJob(const CefString& document_name,
+  bool OnPrintJob(CefRefPtr<CefBrowser> browser,
+                  const CefString& document_name,
                   const CefString& pdf_file_path,
                   CefRefPtr<CefPrintJobCallback> callback) override;
-  void OnPrintReset() override;
-  CefSize GetPdfPaperSize(int device_units_per_inch) override;
+  void OnPrintReset(CefRefPtr<CefBrowser> browser) override;
+  CefSize GetPdfPaperSize(CefRefPtr<CefBrowser> browser,
+                          int device_units_per_inch) override;
 };
 
 #endif  // CEF_LIBCEF_DLL_CTOCPP_PRINT_HANDLER_CTOCPP_H_
