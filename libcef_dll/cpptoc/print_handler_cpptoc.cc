@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=80fc869800987a74f4c6e4eb202f0f5201126a76$
+// $hash=eba15f068169c3d986c5b44ed55aa472f47a9081$
 //
 
 #include "libcef_dll/cpptoc/print_handler_cpptoc.h"
@@ -150,21 +150,16 @@ print_handler_on_print_reset(struct _cef_print_handler_t* self,
 
 cef_size_t CEF_CALLBACK
 print_handler_get_pdf_paper_size(struct _cef_print_handler_t* self,
-                                 cef_browser_t* browser,
                                  int device_units_per_inch) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
   if (!self)
     return CefSize();
-  // Verify param: browser; type: refptr_diff
-  DCHECK(browser);
-  if (!browser)
-    return CefSize();
 
   // Execute
-  cef_size_t _retval = CefPrintHandlerCppToC::Get(self)->GetPdfPaperSize(
-      CefBrowserCToCpp::Wrap(browser), device_units_per_inch);
+  cef_size_t _retval =
+      CefPrintHandlerCppToC::Get(self)->GetPdfPaperSize(device_units_per_inch);
 
   // Return type: simple
   return _retval;

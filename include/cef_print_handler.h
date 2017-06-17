@@ -133,8 +133,7 @@ class CefPrintHandler : public virtual CefBaseRefCounted {
   // CefBrowserHost::PrintToPDF().
   ///
   /*--cef()--*/
-  virtual CefSize GetPdfPaperSize(CefRefPtr<CefBrowser> browser,
-                                  int device_units_per_inch) {
+  virtual CefSize GetPdfPaperSize(int device_units_per_inch) {
     return CefSize();
   }
 };

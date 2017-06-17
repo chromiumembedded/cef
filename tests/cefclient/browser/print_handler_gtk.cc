@@ -547,6 +547,8 @@ ClientPrintHandlerGtk::~ClientPrintHandlerGtk() {
 }
 
 void ClientPrintHandlerGtk::OnPrintStart(CefRefPtr<CefBrowser> browser) {
+  CEF_REQUIRE_UI_THREAD();
+
   const int browser_id = browser->GetIdentifier();
 
 #ifndef _NDEBUG
@@ -564,6 +566,8 @@ void ClientPrintHandlerGtk::OnPrintSettings(
     CefRefPtr<CefBrowser> browser,
     CefRefPtr<CefPrintSettings> settings,
     bool get_defaults) {
+  CEF_REQUIRE_UI_THREAD();
+
   GetPrintHandler(browser)->OnPrintSettings(settings, get_defaults);
 }
 
@@ -571,6 +575,8 @@ bool ClientPrintHandlerGtk::OnPrintDialog(
     CefRefPtr<CefBrowser> browser,
     bool has_selection,
     CefRefPtr<CefPrintDialogCallback> callback) {
+  CEF_REQUIRE_UI_THREAD();
+
   return GetPrintHandler(browser)->OnPrintDialog(has_selection, callback);
 }
 
@@ -579,11 +585,15 @@ bool ClientPrintHandlerGtk::OnPrintJob(
     const CefString& document_name,
     const CefString& pdf_file_path,
     CefRefPtr<CefPrintJobCallback> callback) {
+  CEF_REQUIRE_UI_THREAD();
+
   return GetPrintHandler(browser)->OnPrintJob(document_name, pdf_file_path,
                                               callback);
 }
 
 void ClientPrintHandlerGtk::OnPrintReset(CefRefPtr<CefBrowser> browser) {
+  CEF_REQUIRE_UI_THREAD();
+
   // Delete the print handler.
   PrintHandlerMap::iterator it =
       print_handler_map_.find(browser->GetIdentifier());
@@ -592,8 +602,9 @@ void ClientPrintHandlerGtk::OnPrintReset(CefRefPtr<CefBrowser> browser) {
   print_handler_map_.erase(it);
 }
 
-CefSize ClientPrintHandlerGtk::GetPdfPaperSize(CefRefPtr<CefBrowser> browser,
-                                               int device_units_per_inch) {
+CefSize ClientPrintHandlerGtk::GetPdfPaperSize(int device_units_per_inch) {
+  CEF_REQUIRE_UI_THREAD();
+
   GtkPageSetup* page_setup = gtk_page_setup_new();
 
   float width = gtk_page_setup_get_paper_width(page_setup, GTK_UNIT_INCH);
