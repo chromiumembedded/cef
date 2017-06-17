@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=80679bfc067e7564eadb691876081c4176b04c4f$
+// $hash=81ba68d1a06a25947aa4533d2c50fff945c54fd0$
 //
 
 #include "libcef_dll/ctocpp/print_handler_ctocpp.h"
@@ -142,22 +142,16 @@ void CefPrintHandlerCToCpp::OnPrintReset(CefRefPtr<CefBrowser> browser) {
   _struct->on_print_reset(_struct, CefBrowserCppToC::Wrap(browser));
 }
 
-CefSize CefPrintHandlerCToCpp::GetPdfPaperSize(CefRefPtr<CefBrowser> browser,
-                                               int device_units_per_inch) {
+CefSize CefPrintHandlerCToCpp::GetPdfPaperSize(int device_units_per_inch) {
   cef_print_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_pdf_paper_size))
     return CefSize();
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
-  // Verify param: browser; type: refptr_diff
-  DCHECK(browser.get());
-  if (!browser.get())
-    return CefSize();
-
   // Execute
-  cef_size_t _retval = _struct->get_pdf_paper_size(
-      _struct, CefBrowserCppToC::Wrap(browser), device_units_per_inch);
+  cef_size_t _retval =
+      _struct->get_pdf_paper_size(_struct, device_units_per_inch);
 
   // Return type: simple
   return _retval;

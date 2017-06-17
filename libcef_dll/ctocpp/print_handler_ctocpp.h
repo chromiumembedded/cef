@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=1a2adb6e9cbbe96253cc997312e60ca330dc4de6$
+// $hash=4a628ee393964285a7ad6f2a6c64cff8a88c3b20$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_PRINT_HANDLER_CTOCPP_H_
@@ -45,8 +45,7 @@ class CefPrintHandlerCToCpp : public CefCToCppRefCounted<CefPrintHandlerCToCpp,
                   const CefString& pdf_file_path,
                   CefRefPtr<CefPrintJobCallback> callback) override;
   void OnPrintReset(CefRefPtr<CefBrowser> browser) override;
-  CefSize GetPdfPaperSize(CefRefPtr<CefBrowser> browser,
-                          int device_units_per_inch) override;
+  CefSize GetPdfPaperSize(int device_units_per_inch) override;
 };
 
 #endif  // CEF_LIBCEF_DLL_CTOCPP_PRINT_HANDLER_CTOCPP_H_
