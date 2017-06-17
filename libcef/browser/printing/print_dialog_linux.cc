@@ -113,12 +113,9 @@ gfx::Size CefPrintDialogLinux::GetPdfPaperSize(
     if (browser_handler.get()) {
       CefRefPtr<CefPrintHandler> handler = browser_handler->GetPrintHandler();
       if (handler.get()) {
-        CefRefPtr<CefBrowserHostImpl> browser =
-            extensions::GetOwnerBrowserForFrame(
-                context->render_process_id(), context->render_frame_id(), NULL);
         const printing::PrintSettings& settings = context->settings();
-        CefSize cef_size = handler->GetPdfPaperSize(
-            browser.get(), settings.device_units_per_inch());
+        CefSize cef_size =
+            handler->GetPdfPaperSize(settings.device_units_per_inch());
         size.SetSize(cef_size.width, cef_size.height);
       }
     }
