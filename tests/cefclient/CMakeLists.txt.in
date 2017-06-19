@@ -249,6 +249,11 @@ if(OS_WINDOWS)
   add_dependencies(${CEF_TARGET} libcef_dll_wrapper)
   target_link_libraries(${CEF_TARGET} libcef_lib libcef_dll_wrapper ${CEF_STANDARD_LIBS} glu32.lib imm32.lib opengl32.lib)
 
+  if(USE_ATL)
+    # Required by VS2013 to link accessibility API functions.
+    target_link_libraries(${CEF_TARGET} oleacc.lib)
+  endif()
+
   if(USE_SANDBOX)
     # Logical target used to link the cef_sandbox library.
     ADD_LOGICAL_TARGET("cef_sandbox_lib" "${CEF_SANDBOX_LIB_DEBUG}" "${CEF_SANDBOX_LIB_RELEASE}")

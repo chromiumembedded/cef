@@ -680,6 +680,9 @@ CefNativeAccessible* OsrAXNode::GetNativeAccessibleObject(OsrAXNode* parent) {
 
 namespace client {
 
+void OsrAXNode::NotifyAccessibilityEvent(std::string event_type) const {
+}
+
 void OsrAXNode::Destroy() {}
 
 CefNativeAccessible* OsrAXNode::GetNativeAccessibleObject(OsrAXNode* parent) {
