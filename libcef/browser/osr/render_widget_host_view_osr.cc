@@ -346,7 +346,6 @@ CefRenderWidgetHostViewOSR::CefRenderWidgetHostViewOSR(
     CefRenderWidgetHostViewOSR* parent_host_view,
     bool is_guest_view_hack)
     : background_color_(background_color),
-      scale_factor_(kDefaultScaleFactor),
       frame_rate_threshold_ms_(0),
 #if !defined(OS_MACOSX)
       compositor_widget_(gfx::kNullAcceleratedWidget),
@@ -365,6 +364,8 @@ CefRenderWidgetHostViewOSR::CefRenderWidgetHostViewOSR(
       weak_ptr_factory_(this) {
   DCHECK(render_widget_host_);
   DCHECK(!render_widget_host_->GetView());
+
+  current_device_scale_factor_ = kDefaultScaleFactor;
 
   if (parent_host_view_) {
     browser_impl_ = parent_host_view_->browser_impl();
@@ -760,8 +761,14 @@ void CefRenderWidgetHostViewOSR::Destroy() {
         popup_host_view_->CancelWidget();
       if (child_host_view_)
         child_host_view_->CancelWidget();
-      for (auto guest_host_view : guest_host_views_)
-        guest_host_view->CancelWidget();
+      if (!guest_host_views_.empty()) {
+        // Guest RWHVs will be destroyed when the associated RWHVGuest is
+        // destroyed. This parent RWHV may be destroyed first, so disassociate
+        // the guest RWHVs here without destroying them.
+        for (auto guest_host_view : guest_host_views_)
+          guest_host_view->parent_host_view_ = nullptr;
+        guest_host_views_.clear();
+      }
       Hide();
     }
   }
@@ -787,7 +794,8 @@ gfx::Size CefRenderWidgetHostViewOSR::GetRequestedRendererSize() const {
 }
 
 gfx::Size CefRenderWidgetHostViewOSR::GetPhysicalBackingSize() const {
-  return gfx::ConvertSizeToPixel(scale_factor_, GetRequestedRendererSize());
+  return gfx::ConvertSizeToPixel(current_device_scale_factor_,
+                                 GetRequestedRendererSize());
 }
 
 void CefRenderWidgetHostViewOSR::CopyFromSurface(
@@ -927,20 +935,45 @@ void CefRenderWidgetHostViewOSR::SetNeedsBeginFrames(bool enabled) {
   }
 }
 
+void CefRenderWidgetHostViewOSR::ProcessMouseEvent(
+    const blink::WebMouseEvent& event,
+    const ui::LatencyInfo& latency) {
+  render_widget_host_->ForwardMouseEventWithLatencyInfo(event, latency);
+}
+
+void CefRenderWidgetHostViewOSR::ProcessMouseWheelEvent(
+    const blink::WebMouseWheelEvent& event,
+    const ui::LatencyInfo& latency) {
+  render_widget_host_->ForwardWheelEventWithLatencyInfo(event, latency);
+}
+
+void CefRenderWidgetHostViewOSR::ProcessTouchEvent(
+    const blink::WebTouchEvent& event,
+    const ui::LatencyInfo& latency) {
+  render_widget_host_->ForwardTouchEventWithLatencyInfo(event, latency);
+}
+
+void CefRenderWidgetHostViewOSR::ProcessGestureEvent(
+    const blink::WebGestureEvent& event,
+    const ui::LatencyInfo& latency) {
+  render_widget_host_->ForwardGestureEventWithLatencyInfo(event, latency);
+}
+
 bool CefRenderWidgetHostViewOSR::TransformPointToLocalCoordSpace(
     const gfx::Point& point,
     const cc::SurfaceId& original_surface,
     gfx::Point* transformed_point) {
   // Transformations use physical pixels rather than DIP, so conversion
   // is necessary.
-  gfx::Point point_in_pixels = gfx::ConvertPointToPixel(scale_factor_, point);
+  gfx::Point point_in_pixels =
+      gfx::ConvertPointToPixel(current_device_scale_factor_, point);
   if (!GetDelegatedFrameHost()->TransformPointToLocalCoordSpace(
           point_in_pixels, original_surface, transformed_point)) {
     return false;
   }
 
   *transformed_point =
-      gfx::ConvertPointToDIP(scale_factor_, *transformed_point);
+      gfx::ConvertPointToDIP(current_device_scale_factor_, *transformed_point);
   return true;
 }
 
@@ -1140,23 +1173,48 @@ void CefRenderWidgetHostViewOSR::SendMouseEvent(
       browser_impl_->CancelContextMenu();
     }
 
-    if (popup_host_view_ &&
-        popup_host_view_->popup_position_.Contains(
-            event.PositionInWidget().x, event.PositionInWidget().y)) {
-      blink::WebMouseEvent popup_event(event);
-      popup_event.SetPositionInWidget(
-          event.PositionInWidget().x - popup_host_view_->popup_position_.x(),
-          event.PositionInWidget().y - popup_host_view_->popup_position_.y());
-      popup_event.SetPositionInScreen(popup_event.PositionInWidget().x,
-                                      popup_event.PositionInWidget().y);
+    if (popup_host_view_) {
+      if (popup_host_view_->popup_position_.Contains(
+              event.PositionInWidget().x, event.PositionInWidget().y)) {
+        blink::WebMouseEvent popup_event(event);
+        popup_event.SetPositionInWidget(
+            event.PositionInWidget().x - popup_host_view_->popup_position_.x(),
+            event.PositionInWidget().y - popup_host_view_->popup_position_.y());
+        popup_event.SetPositionInScreen(popup_event.PositionInWidget().x,
+                                        popup_event.PositionInWidget().y);
 
-      popup_host_view_->SendMouseEvent(popup_event);
-      return;
+        popup_host_view_->SendMouseEvent(popup_event);
+        return;
+      }
+    } else if (!guest_host_views_.empty()) {
+      for (auto guest_host_view : guest_host_views_) {
+        if (!guest_host_view->render_widget_host_ ||
+            !guest_host_view->render_widget_host_->GetView()) {
+          continue;
+        }
+        const gfx::Rect& guest_bounds =
+            guest_host_view->render_widget_host_->GetView()->GetViewBounds();
+        if (guest_bounds.Contains(event.PositionInWidget().x,
+                                  event.PositionInWidget().y)) {
+          blink::WebMouseEvent guest_event(event);
+          guest_event.SetPositionInWidget(
+              event.PositionInWidget().x - guest_bounds.x(),
+              event.PositionInWidget().y - guest_bounds.y());
+          guest_event.SetPositionInScreen(guest_event.PositionInWidget().x,
+                                          guest_event.PositionInWidget().y);
+
+          guest_host_view->SendMouseEvent(guest_event);
+          return;
+        }
+      }
     }
   }
-  if (!render_widget_host_)
-    return;
-  render_widget_host_->ForwardMouseEvent(event);
+
+  if (render_widget_host_ && render_widget_host_->GetView()) {
+    // Direct routing requires that mouse events go directly to the View.
+    render_widget_host_->GetView()->ProcessMouseEvent(
+        event, ui::LatencyInfo(ui::SourceEventType::OTHER));
+  }
 }
 
 void CefRenderWidgetHostViewOSR::SendMouseWheelEvent(
@@ -1187,11 +1245,35 @@ void CefRenderWidgetHostViewOSR::SendMouseWheelEvent(
             base::Bind(&CefRenderWidgetHostViewOSR::CancelWidget,
                        popup_host_view_->weak_ptr_factory_.GetWeakPtr()));
       }
+    } else if (!guest_host_views_.empty()) {
+      for (auto guest_host_view : guest_host_views_) {
+        if (!guest_host_view->render_widget_host_ ||
+            !guest_host_view->render_widget_host_->GetView()) {
+          continue;
+        }
+        const gfx::Rect& guest_bounds =
+            guest_host_view->render_widget_host_->GetView()->GetViewBounds();
+        if (guest_bounds.Contains(event.PositionInWidget().x,
+                                  event.PositionInWidget().y)) {
+          blink::WebMouseWheelEvent guest_event(event);
+          guest_event.SetPositionInWidget(
+              event.PositionInWidget().x - guest_bounds.x(),
+              event.PositionInWidget().y - guest_bounds.y());
+          guest_event.SetPositionInScreen(guest_event.PositionInWidget().x,
+                                          guest_event.PositionInWidget().y);
+
+          guest_host_view->SendMouseWheelEvent(guest_event);
+          return;
+        }
+      }
     }
   }
-  if (!render_widget_host_)
-    return;
-  render_widget_host_->ForwardWheelEvent(event);
+
+  if (render_widget_host_ && render_widget_host_->GetView()) {
+    // Direct routing requires that mouse events go directly to the View.
+    render_widget_host_->GetView()->ProcessMouseWheelEvent(
+        event, ui::LatencyInfo(ui::SourceEventType::WHEEL));
+  }
 }
 
 void CefRenderWidgetHostViewOSR::SendFocusEvent(bool focus) {
@@ -1333,7 +1415,7 @@ void CefRenderWidgetHostViewOSR::SetDeviceScaleFactor() {
     }
   }
 
-  scale_factor_ = new_scale_factor;
+  current_device_scale_factor_ = new_scale_factor;
 
   if (render_widget_host_ && render_widget_host_->delegate())
     render_widget_host_->delegate()->UpdateDeviceScaleFactor(new_scale_factor);
@@ -1352,9 +1434,10 @@ void CefRenderWidgetHostViewOSR::SetDeviceScaleFactor() {
 void CefRenderWidgetHostViewOSR::ResizeRootLayer() {
   SetFrameRate();
 
-  const float orgScaleFactor = scale_factor_;
+  const float orgScaleFactor = current_device_scale_factor_;
   SetDeviceScaleFactor();
-  const bool scaleFactorDidChange = (orgScaleFactor != scale_factor_);
+  const bool scaleFactorDidChange =
+      (orgScaleFactor != current_device_scale_factor_);
 
   gfx::Size size;
   if (!IsPopupWidget())
@@ -1366,10 +1449,11 @@ void CefRenderWidgetHostViewOSR::ResizeRootLayer() {
     return;
 
   const gfx::Size& size_in_pixels =
-      gfx::ConvertSizeToPixel(scale_factor_, size);
+      gfx::ConvertSizeToPixel(current_device_scale_factor_, size);
 
   GetRootLayer()->SetBounds(gfx::Rect(size));
-  GetCompositor()->SetScaleAndSize(scale_factor_, size_in_pixels);
+  GetCompositor()->SetScaleAndSize(current_device_scale_factor_,
+                                   size_in_pixels);
   PlatformResizeCompositorWidget(size_in_pixels);
 }
 
@@ -1435,8 +1519,13 @@ void CefRenderWidgetHostViewOSR::CancelWidget() {
 
   if (render_widget_host_ && !is_destroyed_) {
     is_destroyed_ = true;
+
+    // Don't delete the RWHI manually while owned by a scoped_ptr in RVHI. This
+    // matches a CHECK() in RenderWidgetHostImpl::Destroy().
+    const bool also_delete = !render_widget_host_->owner_delegate();
+
     // Results in a call to Destroy().
-    render_widget_host_->ShutdownAndDestroyWidget(true);
+    render_widget_host_->ShutdownAndDestroyWidget(also_delete);
   }
 }
 
@@ -1473,8 +1562,8 @@ void CefRenderWidgetHostViewOSR::RegisterGuestViewFrameSwappedCallback(
 
 void CefRenderWidgetHostViewOSR::OnGuestViewFrameSwapped(
     content::RenderWidgetHostViewGuest* guest_host_view) {
-  InvalidateInternal(
-      gfx::ConvertRectToPixel(scale_factor_, guest_host_view->GetViewBounds()));
+  InvalidateInternal(gfx::ConvertRectToPixel(current_device_scale_factor_,
+                                             guest_host_view->GetViewBounds()));
 
   RegisterGuestViewFrameSwappedCallback(guest_host_view);
 }

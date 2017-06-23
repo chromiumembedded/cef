@@ -178,6 +178,14 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
 
   void SetNeedsBeginFrames(bool enabled) override;
 
+  void ProcessMouseEvent(const blink::WebMouseEvent& event,
+                         const ui::LatencyInfo& latency) override;
+  void ProcessMouseWheelEvent(const blink::WebMouseWheelEvent& event,
+                              const ui::LatencyInfo& latency) override;
+  void ProcessTouchEvent(const blink::WebTouchEvent& event,
+                         const ui::LatencyInfo& latency) override;
+  void ProcessGestureEvent(const blink::WebGestureEvent& event,
+                           const ui::LatencyInfo& latency) override;
   bool TransformPointToLocalCoordSpace(const gfx::Point& point,
                                        const cc::SurfaceId& original_surface,
                                        gfx::Point* transformed_point) override;
@@ -308,7 +316,6 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
   // The background color of the web content.
   SkColor background_color_;
 
-  float scale_factor_;
   int frame_rate_threshold_ms_;
 
 #if !defined(OS_MACOSX)
