@@ -1,8 +1,8 @@
 diff --git content/public/common/common_param_traits_macros.h content/public/common/common_param_traits_macros.h
-index 3220d59..f0fa24c 100644
+index e0f025b..b691251 100644
 --- content/public/common/common_param_traits_macros.h
 +++ content/public/common/common_param_traits_macros.h
-@@ -206,6 +206,7 @@ IPC_STRUCT_TRAITS_BEGIN(content::WebPreferences)
+@@ -207,6 +207,7 @@ IPC_STRUCT_TRAITS_BEGIN(content::WebPreferences)
    IPC_STRUCT_TRAITS_MEMBER(main_frame_resizes_are_orientation_changes)
    IPC_STRUCT_TRAITS_MEMBER(initialize_at_minimum_page_scale)
    IPC_STRUCT_TRAITS_MEMBER(smart_insert_delete_enabled)
@@ -35,7 +35,7 @@ index 41f7a69..d04e476 100644
    bool inert_visual_viewport;
    bool record_whole_document;
 diff --git content/renderer/render_view_impl.cc content/renderer/render_view_impl.cc
-index 48b7bc0..f4d9b48 100644
+index af998d3..56a4cf9 100644
 --- content/renderer/render_view_impl.cc
 +++ content/renderer/render_view_impl.cc
 @@ -1399,6 +1399,8 @@ void RenderViewImpl::ApplyWebPreferencesInternal(

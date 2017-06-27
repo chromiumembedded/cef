@@ -17,7 +17,7 @@ index 372b21d..78107f3 100644
                                                          .Top()
                                                          .GetSecurityContext()
 diff --git third_party/WebKit/Source/core/frame/LocalFrame.cpp third_party/WebKit/Source/core/frame/LocalFrame.cpp
-index 9c6d497..6296f53 100644
+index 97a5393..21da4ee 100644
 --- third_party/WebKit/Source/core/frame/LocalFrame.cpp
 +++ third_party/WebKit/Source/core/frame/LocalFrame.cpp
 @@ -930,7 +930,7 @@ ContentSettingsClient* LocalFrame::GetContentSettingsClient() {

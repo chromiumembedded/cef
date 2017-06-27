@@ -36,7 +36,7 @@ index 1f985ec..47bf303 100644
    }
  
 diff --git content/browser/frame_host/interstitial_page_impl.cc content/browser/frame_host/interstitial_page_impl.cc
-index d890e64..1965603 100644
+index 90e4de3..5311193 100644
 --- content/browser/frame_host/interstitial_page_impl.cc
 +++ content/browser/frame_host/interstitial_page_impl.cc
 @@ -605,7 +605,7 @@ WebContentsView* InterstitialPageImpl::CreateWebContentsView() {

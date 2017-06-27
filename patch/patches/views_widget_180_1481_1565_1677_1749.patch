@@ -18,7 +18,7 @@ index 98460d7..ffbfa04f 100644
    return renderer_frame_number_;
  }
 diff --git content/browser/renderer_host/render_widget_host_view_base.h content/browser/renderer_host/render_widget_host_view_base.h
-index 904897a..38f6e28 100644
+index fd1e999..c4dad6d 100644
 --- content/browser/renderer_host/render_widget_host_view_base.h
 +++ content/browser/renderer_host/render_widget_host_view_base.h
 @@ -72,6 +72,7 @@ class BrowserAccessibilityDelegate;
@@ -38,7 +38,7 @@ index 904897a..38f6e28 100644
  
    // This only needs to be overridden by RenderWidgetHostViewBase subclasses
    // that handle content embedded within other RenderWidgetHostViews.
-@@ -355,6 +358,12 @@ class CONTENT_EXPORT RenderWidgetHostViewBase : public RenderWidgetHostView,
+@@ -359,6 +362,12 @@ class CONTENT_EXPORT RenderWidgetHostViewBase : public RenderWidgetHostView,
    // helps to position the full screen widget on the correct monitor.
    virtual void InitAsFullscreen(RenderWidgetHostView* reference_host_view) = 0;
  
@@ -51,7 +51,7 @@ index 904897a..38f6e28 100644
    // Sets the cursor to the one associated with the specified cursor_type
    virtual void UpdateCursor(const WebCursor& cursor) = 0;
  
-@@ -469,6 +478,10 @@ class CONTENT_EXPORT RenderWidgetHostViewBase : public RenderWidgetHostView,
+@@ -473,6 +482,10 @@ class CONTENT_EXPORT RenderWidgetHostViewBase : public RenderWidgetHostView,
  
    const bool wheel_scroll_latching_enabled_;
  

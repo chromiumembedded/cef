@@ -1,5 +1,5 @@
 diff --git content/browser/web_contents/web_contents_impl.cc content/browser/web_contents/web_contents_impl.cc
-index 627a0e5..21c6210 100644
+index 7f4a8b0..f6a2840 100644
 --- content/browser/web_contents/web_contents_impl.cc
 +++ content/browser/web_contents/web_contents_impl.cc
 @@ -1692,6 +1692,12 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
@@ -48,7 +48,7 @@ index 627a0e5..21c6210 100644
      }
      // Save the created window associated with the route so we can show it
      // later.
-@@ -5182,7 +5198,7 @@ NavigationEntry*
+@@ -5204,7 +5220,7 @@ NavigationEntry*
  void WebContentsImpl::CreateRenderWidgetHostViewForRenderManager(
      RenderViewHost* render_view_host) {
    RenderWidgetHostViewBase* rwh_view =
