@@ -935,6 +935,12 @@ void CefRenderWidgetHostViewOSR::SetNeedsBeginFrames(bool enabled) {
   }
 }
 
+void CefRenderWidgetHostViewOSR::ProcessKeyboardEvent(
+    const content::NativeWebKeyboardEvent& event,
+    const ui::LatencyInfo& latency) {
+  render_widget_host_->ForwardKeyboardEventWithLatencyInfo(event, latency);
+}
+
 void CefRenderWidgetHostViewOSR::ProcessMouseEvent(
     const blink::WebMouseEvent& event,
     const ui::LatencyInfo& latency) {
@@ -1159,9 +1165,15 @@ void CefRenderWidgetHostViewOSR::Invalidate(
 void CefRenderWidgetHostViewOSR::SendKeyEvent(
     const content::NativeWebKeyboardEvent& event) {
   TRACE_EVENT0("libcef", "CefRenderWidgetHostViewOSR::SendKeyEvent");
-  if (!render_widget_host_)
-    return;
-  render_widget_host_->ForwardKeyboardEvent(event);
+  if (render_widget_host_ && render_widget_host_->GetView()) {
+    // Direct routing requires that events go directly to the View.
+    render_widget_host_->GetView()->ProcessKeyboardEvent(
+        event, ui::LatencyInfo(event.GetType() == blink::WebInputEvent::kChar ||
+                                       event.GetType() ==
+                                           blink::WebInputEvent::kRawKeyDown
+                                   ? ui::SourceEventType::KEY_PRESS
+                                   : ui::SourceEventType::OTHER));
+  }
 }
 
 void CefRenderWidgetHostViewOSR::SendMouseEvent(
@@ -1422,12 +1434,13 @@ void CefRenderWidgetHostViewOSR::SetDeviceScaleFactor() {
 
   // Notify the guest hosts if any.
   for (auto guest_host_view : guest_host_views_) {
-    if (guest_host_view->render_widget_host() &&
-        guest_host_view->render_widget_host()->delegate()) {
-      guest_host_view->render_widget_host()
-          ->delegate()
-          ->UpdateDeviceScaleFactor(new_scale_factor);
-    }
+    content::RenderWidgetHostImpl* rwhi = guest_host_view->render_widget_host();
+    if (!rwhi)
+      continue;
+    if (rwhi->delegate())
+      rwhi->delegate()->UpdateDeviceScaleFactor(new_scale_factor);
+    if (rwhi->GetView())
+      rwhi->GetView()->set_current_device_scale_factor(new_scale_factor);
   }
 }
 
@@ -1558,6 +1571,8 @@ void CefRenderWidgetHostViewOSR::RegisterGuestViewFrameSwappedCallback(
       base::MakeUnique<base::Closure>(base::Bind(
           &CefRenderWidgetHostViewOSR::OnGuestViewFrameSwapped,
           weak_ptr_factory_.GetWeakPtr(), base::Unretained(guest_host_view))));
+  guest_host_view->set_current_device_scale_factor(
+      current_device_scale_factor_);
 }
 
 void CefRenderWidgetHostViewOSR::OnGuestViewFrameSwapped(
