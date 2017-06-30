@@ -178,6 +178,8 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
 
   void SetNeedsBeginFrames(bool enabled) override;
 
+  void ProcessKeyboardEvent(const content::NativeWebKeyboardEvent& event,
+                            const ui::LatencyInfo& latency) override;
   void ProcessMouseEvent(const blink::WebMouseEvent& event,
                          const ui::LatencyInfo& latency) override;
   void ProcessMouseWheelEvent(const blink::WebMouseWheelEvent& event,

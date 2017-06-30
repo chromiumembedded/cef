@@ -18,7 +18,7 @@ index 527e5ea..de52a1e 100644
    return renderer_frame_number_;
  }
 diff --git content/browser/renderer_host/render_widget_host_view_base.h content/browser/renderer_host/render_widget_host_view_base.h
-index 904897a..38f6e28 100644
+index 904897a..4454205 100644
 --- content/browser/renderer_host/render_widget_host_view_base.h
 +++ content/browser/renderer_host/render_widget_host_view_base.h
 @@ -72,6 +72,7 @@ class BrowserAccessibilityDelegate;
@@ -29,7 +29,17 @@ index 904897a..38f6e28 100644
  class SyntheticGestureTarget;
  class TextInputManager;
  class TouchSelectionControllerClientManager;
-@@ -119,6 +120,8 @@ class CONTENT_EXPORT RenderWidgetHostViewBase : public RenderWidgetHostView,
+@@ -88,6 +89,9 @@ class CONTENT_EXPORT RenderWidgetHostViewBase : public RenderWidgetHostView,
+   float current_device_scale_factor() const {
+     return current_device_scale_factor_;
+   }
++  void set_current_device_scale_factor(float scale_factor) {
++    current_device_scale_factor_ = scale_factor;
++  }
+ 
+   // Returns the focused RenderWidgetHost inside this |view|'s RWH.
+   RenderWidgetHostImpl* GetFocusedWidget() const;
+@@ -119,6 +123,8 @@ class CONTENT_EXPORT RenderWidgetHostViewBase : public RenderWidgetHostView,
    void EndFrameSubscription() override;
    void FocusedNodeTouched(const gfx::Point& location_dips_screen,
                            bool editable) override;
@@ -38,7 +48,7 @@ index 904897a..38f6e28 100644
  
    // This only needs to be overridden by RenderWidgetHostViewBase subclasses
    // that handle content embedded within other RenderWidgetHostViews.
-@@ -355,6 +358,12 @@ class CONTENT_EXPORT RenderWidgetHostViewBase : public RenderWidgetHostView,
+@@ -355,6 +361,12 @@ class CONTENT_EXPORT RenderWidgetHostViewBase : public RenderWidgetHostView,
    // helps to position the full screen widget on the correct monitor.
    virtual void InitAsFullscreen(RenderWidgetHostView* reference_host_view) = 0;
  
@@ -51,7 +61,7 @@ index 904897a..38f6e28 100644
    // Sets the cursor to the one associated with the specified cursor_type
    virtual void UpdateCursor(const WebCursor& cursor) = 0;
  
-@@ -469,6 +478,10 @@ class CONTENT_EXPORT RenderWidgetHostViewBase : public RenderWidgetHostView,
+@@ -469,6 +481,10 @@ class CONTENT_EXPORT RenderWidgetHostViewBase : public RenderWidgetHostView,
  
    const bool wheel_scroll_latching_enabled_;
  
