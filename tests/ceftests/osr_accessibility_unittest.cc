@@ -16,17 +16,17 @@ namespace {
 const char kTestUrl[] = "https://tests/AccessibilityTestHandler";
 const char kTipText[] = "Also known as User ID";
 
-// default osr widget size
+// Default OSR widget size.
 const int kOsrWidth = 600;
 const int kOsrHeight = 400;
 
-// test type
+// Test type.
 enum AccessibilityTestType {
   // Enabling Accessibility should trigger the AccessibilityHandler callback
   // with Accessibility tree details
-  TEST_ENABLE_ACCESSIBILITY,
+  TEST_ENABLE,
   // Disabling Accessibility should disable accessibility notification changes
-  TEST_DISABLE_ACCESSIBILITY,
+  TEST_DISABLE,
   // Focus change on element should trigger Accessibility focus event
   TEST_FOCUS_CHANGE,
   // Hide/Show etc should trigger Location Change callbacks
@@ -44,10 +44,10 @@ class AccessibilityTestHandler : public TestHandler,
     return this;
   }
 
-  CefRefPtr<CefRenderHandler> GetRenderHandler() OVERRIDE { return this; }
+  CefRefPtr<CefRenderHandler> GetRenderHandler() override { return this; }
 
   // Cef Renderer Handler Methods
-  bool GetViewRect(CefRefPtr<CefBrowser> browser, CefRect& rect) OVERRIDE {
+  bool GetViewRect(CefRefPtr<CefBrowser> browser, CefRect& rect) override {
     rect = CefRect(0, 0, kOsrWidth, kOsrHeight);
     return true;
   }
@@ -64,25 +64,8 @@ class AccessibilityTestHandler : public TestHandler,
                const CefRenderHandler::RectList& dirtyRects,
                const void* buffer,
                int width,
-               int height) OVERRIDE {
+               int height) override {
     // Do nothing.
-  }
-
-  // OSRTestHandler functions
-  void CreateOSRBrowser(const CefString& url) {
-    CefWindowInfo windowInfo;
-    CefBrowserSettings settings;
-
-#if defined(OS_WIN)
-    windowInfo.SetAsWindowless(GetDesktopWindow());
-#elif defined(OS_MACOSX)
-    windowInfo.SetAsWindowless(kNullWindowHandle);
-#elif defined(OS_LINUX)
-    windowInfo.SetAsWindowless(kNullWindowHandle);
-#else
-#error "Unsupported platform"
-#endif
-    CefBrowserHost::CreateBrowser(windowInfo, this, url, settings, NULL);
   }
 
   void RunTest() override {
@@ -111,11 +94,11 @@ class AccessibilityTestHandler : public TestHandler,
     // Enable Accessibility
     browser->GetHost()->SetAccessibilityState(STATE_ENABLED);
     switch (test_type_) {
-      case TEST_ENABLE_ACCESSIBILITY: {
+      case TEST_ENABLE: {
         // This should trigger OnAccessibilityTreeChange
         // And update will be validated
       } break;
-      case TEST_DISABLE_ACCESSIBILITY: {
+      case TEST_DISABLE: {
         // Post a delayed task to disable Accessibility
         CefPostDelayedTask(
             TID_UI,
@@ -131,12 +114,12 @@ class AccessibilityTestHandler : public TestHandler,
     }
   }
 
-  void OnAccessibilityTreeChange(CefRefPtr<CefValue> value) OVERRIDE {
+  void OnAccessibilityTreeChange(CefRefPtr<CefValue> value) override {
     switch (test_type_) {
-      case TEST_ENABLE_ACCESSIBILITY: {
+      case TEST_ENABLE: {
         TestEnableAccessibilityUpdate(value);
       } break;
-      case TEST_DISABLE_ACCESSIBILITY: {
+      case TEST_DISABLE: {
         // Once Accessibility is disabled in the delayed Task
         // We should not reach here
         EXPECT_FALSE(accessibility_disabled_);
@@ -217,7 +200,7 @@ class AccessibilityTestHandler : public TestHandler,
     }
   }
 
-  void OnAccessibilityLocationChange(CefRefPtr<CefValue> value) OVERRIDE {
+  void OnAccessibilityLocationChange(CefRefPtr<CefValue> value) override {
     if (test_type_ == TEST_LOCATION_CHANGE) {
       EXPECT_TRUE(edit_box_id_ != -1);
       EXPECT_TRUE(value.get());
@@ -259,6 +242,22 @@ class AccessibilityTestHandler : public TestHandler,
   }
 
  private:
+  void CreateOSRBrowser(const CefString& url) {
+    CefWindowInfo windowInfo;
+    CefBrowserSettings settings;
+
+#if defined(OS_WIN)
+    windowInfo.SetAsWindowless(GetDesktopWindow());
+#elif defined(OS_MACOSX)
+    windowInfo.SetAsWindowless(kNullWindowHandle);
+#elif defined(OS_LINUX)
+    windowInfo.SetAsWindowless(kNullWindowHandle);
+#else
+#error "Unsupported platform"
+#endif
+    CefBrowserHost::CreateBrowser(windowInfo, this, url, settings, NULL);
+  }
+
   void HideEditBox(CefRefPtr<CefBrowser> browser) {
     // Set focus on edit box
     // This should trigger Location update if enabled
@@ -426,34 +425,30 @@ class AccessibilityTestHandler : public TestHandler,
 
 }  // namespace
 
-TEST(AccessibilityTest, EnableAccessibility) {
+TEST(OSRTest, AccessibilityEnable) {
   CefRefPtr<AccessibilityTestHandler> handler =
-      new AccessibilityTestHandler(TEST_ENABLE_ACCESSIBILITY);
+      new AccessibilityTestHandler(TEST_ENABLE);
   handler->ExecuteTest();
-  EXPECT_TRUE(true);
   ReleaseAndWaitForDestructor(handler);
 }
 
-TEST(AccessibilityTest, DisableAccessibility) {
+TEST(OSRTest, AccessibilityDisable) {
   CefRefPtr<AccessibilityTestHandler> handler =
-      new AccessibilityTestHandler(TEST_DISABLE_ACCESSIBILITY);
+      new AccessibilityTestHandler(TEST_DISABLE);
   handler->ExecuteTest();
-  EXPECT_TRUE(true);
   ReleaseAndWaitForDestructor(handler);
 }
 
-TEST(AccessibilityTest, FocusChange) {
+TEST(OSRTest, AccessibilityFocusChange) {
   CefRefPtr<AccessibilityTestHandler> handler =
       new AccessibilityTestHandler(TEST_FOCUS_CHANGE);
   handler->ExecuteTest();
-  EXPECT_TRUE(true);
   ReleaseAndWaitForDestructor(handler);
 }
 
-TEST(AccessibilityTest, LocationChange) {
+TEST(OSRTest, AccessibilityLocationChange) {
   CefRefPtr<AccessibilityTestHandler> handler =
       new AccessibilityTestHandler(TEST_LOCATION_CHANGE);
   handler->ExecuteTest();
-  EXPECT_TRUE(true);
   ReleaseAndWaitForDestructor(handler);
 }
