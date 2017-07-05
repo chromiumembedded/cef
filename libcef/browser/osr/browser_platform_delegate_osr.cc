@@ -198,6 +198,16 @@ void CefBrowserPlatformDelegateOsr::WasHidden(bool hidden) {
     else
       view->Show();
   }
+
+  // Also notify the WebContentsImpl for consistency.
+  content::WebContentsImpl* web_contents =
+      static_cast<content::WebContentsImpl*>(browser_->web_contents());
+  if (web_contents) {
+    if (hidden)
+      web_contents->WasHidden();
+    else
+      web_contents->WasShown();
+  }
 }
 
 void CefBrowserPlatformDelegateOsr::NotifyScreenInfoChanged() {
