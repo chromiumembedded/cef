@@ -409,7 +409,6 @@
       'tests/cefsimple/simple_handler_linux.cc',
     ],
     'ceftests_sources_common': [
-      'tests/ceftests/accessibility_unittest.cc',
       'tests/ceftests/browser_info_map_unittest.cc',
       'tests/ceftests/command_line_unittest.cc',
       'tests/ceftests/cookie_unittest.cc',
@@ -431,6 +430,8 @@
       'tests/ceftests/message_router_unittest.cc',
       'tests/ceftests/navigation_unittest.cc',
       'tests/ceftests/os_rendering_unittest.cc',
+      'tests/ceftests/osr_accessibility_unittest.cc',
+      'tests/ceftests/osr_display_unittest.cc',
       'tests/ceftests/parser_unittest.cc',
       'tests/ceftests/plugin_unittest.cc',
       'tests/ceftests/preference_unittest.cc',
