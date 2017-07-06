@@ -8,10 +8,13 @@
 
 #include <stdint.h>
 
+#include <memory>
 #include <string>
 
 #include "include/internal/cef_types.h"
+
 #include "third_party/WebKit/Source/platform/loader/fetch/AccessControlStatus.h"
+#include "third_party/WebKit/public/platform/WebCommon.h"
 #include "v8/include/v8.h"
 
 namespace blink {
@@ -24,35 +27,34 @@ class WebView;
 
 namespace webkit_glue {
 
-extern const int64_t kInvalidFrameId;
+BLINK_EXPORT extern const int64_t kInvalidFrameId;
 
-bool CanGoBack(blink::WebView* view);
-bool CanGoForward(blink::WebView* view);
-void GoBack(blink::WebView* view);
-void GoForward(blink::WebView* view);
+BLINK_EXPORT bool CanGoBack(blink::WebView* view);
+BLINK_EXPORT bool CanGoForward(blink::WebView* view);
+BLINK_EXPORT void GoBack(blink::WebView* view);
+BLINK_EXPORT void GoForward(blink::WebView* view);
 
 // Returns the text of the document element.
-std::string DumpDocumentText(blink::WebFrame* frame);
+BLINK_EXPORT std::string DumpDocumentText(blink::WebFrame* frame);
 
 // Expose additional actions on WebNode.
-cef_dom_node_type_t GetNodeType(const blink::WebNode& node);
-blink::WebString GetNodeName(const blink::WebNode& node);
-blink::WebString CreateNodeMarkup(const blink::WebNode& node);
-bool SetNodeValue(blink::WebNode& node, const blink::WebString& value);
+BLINK_EXPORT cef_dom_node_type_t GetNodeType(const blink::WebNode& node);
+BLINK_EXPORT blink::WebString GetNodeName(const blink::WebNode& node);
+BLINK_EXPORT blink::WebString CreateNodeMarkup(const blink::WebNode& node);
+BLINK_EXPORT bool SetNodeValue(blink::WebNode& node,
+                               const blink::WebString& value);
 
-int64_t GetIdentifier(blink::WebFrame* frame);
-std::string GetUniqueName(blink::WebFrame* frame);
+BLINK_EXPORT bool IsTextControlElement(const blink::WebElement& element);
 
-bool IsTextControlElement(const blink::WebElement& element);
+BLINK_EXPORT v8::MaybeLocal<v8::Value> CallV8Function(
+    v8::Local<v8::Context> context,
+    v8::Local<v8::Function> function,
+    v8::Local<v8::Object> receiver,
+    int argc,
+    v8::Local<v8::Value> args[],
+    v8::Isolate* isolate);
 
-v8::MaybeLocal<v8::Value> CallV8Function(v8::Local<v8::Context> context,
-                                         v8::Local<v8::Function> function,
-                                         v8::Local<v8::Object> receiver,
-                                         int argc,
-                                         v8::Local<v8::Value> args[],
-                                         v8::Isolate* isolate);
-
-v8::MaybeLocal<v8::Value> ExecuteV8ScriptAndReturnValue(
+BLINK_EXPORT v8::MaybeLocal<v8::Value> ExecuteV8ScriptAndReturnValue(
     const blink::WebString& source,
     const blink::WebString& source_url,
     int start_line,
@@ -61,11 +63,25 @@ v8::MaybeLocal<v8::Value> ExecuteV8ScriptAndReturnValue(
     v8::TryCatch& tryCatch,
     blink::AccessControlStatus accessControlStatus);
 
-bool IsScriptForbidden();
+BLINK_EXPORT bool IsScriptForbidden();
 
-void RegisterURLSchemeAsLocal(const blink::WebString& scheme);
-void RegisterURLSchemeAsSecure(const blink::WebString& scheme);
-void RegisterURLSchemeAsCORSEnabled(const blink::WebString& scheme);
+BLINK_EXPORT void RegisterURLSchemeAsLocal(const blink::WebString& scheme);
+BLINK_EXPORT void RegisterURLSchemeAsSecure(const blink::WebString& scheme);
+BLINK_EXPORT void RegisterURLSchemeAsCORSEnabled(
+    const blink::WebString& scheme);
+
+// Wrapper for blink::ScriptForbiddenScope.
+class BLINK_EXPORT CefScriptForbiddenScope final {
+ public:
+  CefScriptForbiddenScope();
+  ~CefScriptForbiddenScope();
+
+ private:
+  struct Impl;
+  std::unique_ptr<Impl> impl_;
+
+  DISALLOW_COPY_AND_ASSIGN(CefScriptForbiddenScope);
+};
 
 }  // webkit_glue
 

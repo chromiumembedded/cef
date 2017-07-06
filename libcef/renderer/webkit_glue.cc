@@ -3,16 +3,6 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-// MSVC++ requires this to be set before any other includes to get M_PI.
-// Otherwise there will be compile errors in wtf/MathExtras.h.
-#define _USE_MATH_DEFINES
-
-// Defines required to access Blink internals (unwrap WebNode).
-#undef BLINK_IMPLEMENTATION
-#define BLINK_IMPLEMENTATION 1
-#undef INSIDE_BLINK
-#define INSIDE_BLINK 1
-
 #include "libcef/renderer/webkit_glue.h"
 
 #include "base/compiler_specific.h"
@@ -32,6 +22,7 @@ MSVC_PUSH_WARNING_LEVEL(0);
 #include "third_party/WebKit/Source/core/editing/serializers/Serialization.h"
 #include "third_party/WebKit/Source/core/frame/LocalFrame.h"
 #include "third_party/WebKit/Source/core/frame/Settings.h"
+#include "third_party/WebKit/Source/platform/ScriptForbiddenScope.h"
 #include "third_party/WebKit/Source/platform/bindings/V8Binding.h"
 #include "third_party/WebKit/Source/platform/weborigin/SchemeRegistry.h"
 #include "third_party/WebKit/Source/web/WebLocalFrameImpl.h"
@@ -40,7 +31,6 @@ MSVC_POP_WARNING();
 #undef LOG
 
 #include "base/logging.h"
-#include "content/renderer/render_frame_impl.h"
 
 namespace webkit_glue {
 
@@ -126,26 +116,6 @@ bool SetNodeValue(blink::WebNode& node, const blink::WebString& value) {
   blink::Node* web_node = node.Unwrap<blink::Node>();
   web_node->setNodeValue(value);
   return true;
-}
-
-int64_t GetIdentifier(blink::WebFrame* frame) {
-  // Each WebFrame will have an associated RenderFrame. The RenderFrame
-  // routing IDs are unique within a given renderer process.
-  content::RenderFrame* render_frame =
-      content::RenderFrame::FromWebFrame(frame);
-  DCHECK(render_frame);
-  if (render_frame)
-    return render_frame->GetRoutingID();
-  return kInvalidFrameId;
-}
-
-std::string GetUniqueName(blink::WebFrame* frame) {
-  content::RenderFrameImpl* render_frame =
-      content::RenderFrameImpl::FromWebFrame(frame);
-  DCHECK(render_frame);
-  if (render_frame)
-    return render_frame->unique_name();
-  return std::string();
 }
 
 v8::MaybeLocal<v8::Value> CallV8Function(v8::Local<v8::Context> context,
@@ -234,5 +204,13 @@ void RegisterURLSchemeAsSecure(const blink::WebString& scheme) {
 void RegisterURLSchemeAsCORSEnabled(const blink::WebString& scheme) {
   blink::SchemeRegistry::RegisterURLSchemeAsCORSEnabled(scheme);
 }
+
+struct CefScriptForbiddenScope::Impl {
+  blink::ScriptForbiddenScope scope_;
+};
+
+CefScriptForbiddenScope::CefScriptForbiddenScope() : impl_(new Impl()) {}
+
+CefScriptForbiddenScope::~CefScriptForbiddenScope() {}
 
 }  // webkit_glue

@@ -7,7 +7,10 @@
 #pragma once
 
 #include <string>
+
 #include "include/cef_scheme.h"
+
+#include "base/strings/string_piece.h"
 #include "url/gurl.h"
 
 namespace scheme {
@@ -28,11 +31,13 @@ class InternalHandlerDelegate {
     CefRefPtr<CefStreamReader> stream;
     int stream_size;
 
-    // Option 2: Specify a resource id to load static content. May include an
-    // optional encoding type.
+    // Option 2: Provide a base::StringPiece for the resource contents.
+    base::StringPiece string_piece;
+
+    // Option 3: Specify a resource id to load static content.
     int resource_id;
 
-    // Option 3: Redirect to the specified URL.
+    // Option 4: Redirect to the specified URL.
     GURL redirect_url;
   };
 

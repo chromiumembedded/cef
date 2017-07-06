@@ -4,10 +4,6 @@
 
 #include "base/compiler_specific.h"
 
-MSVC_PUSH_WARNING_LEVEL(0);
-#include "platform/ScriptForbiddenScope.h"
-MSVC_POP_WARNING();
-
 // Enable deprecation warnings for MSVC. See http://crbug.com/585142.
 #if defined(OS_WIN)
 #pragma warning(push)
@@ -20,6 +16,7 @@ MSVC_POP_WARNING();
 #include "libcef/common/content_client.h"
 #include "libcef/renderer/content_renderer_client.h"
 #include "libcef/renderer/v8_impl.h"
+#include "libcef/renderer/webkit_glue.h"
 
 #include "content/public/renderer/render_frame.h"
 #include "third_party/WebKit/public/web/WebKit.h"
@@ -125,7 +122,7 @@ void CefRenderFrameObserver::WillReleaseScriptContext(
         // The released context should not be used for script execution.
         // Depending on how the context is released this may or may not already
         // be set.
-        blink::ScriptForbiddenScope forbidScript;
+        webkit_glue::CefScriptForbiddenScope forbidScript;
 
         CefRefPtr<CefV8Context> contextPtr(
             new CefV8ContextImpl(isolate, context));

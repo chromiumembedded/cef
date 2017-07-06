@@ -25,6 +25,7 @@
 #include "libcef/common/task_runner_impl.h"
 #include "libcef/common/tracker.h"
 #include "libcef/renderer/browser_impl.h"
+#include "libcef/renderer/render_frame_util.h"
 #include "libcef/renderer/thread_util.h"
 #include "libcef/renderer/webkit_glue.h"
 
@@ -897,7 +898,7 @@ CefRefPtr<CefFrame> CefV8ContextImpl::GetFrame() {
   if (webframe) {
     CefRefPtr<CefBrowserImpl> browser =
         CefBrowserImpl::GetBrowserForMainFrame(webframe->Top());
-    frame = browser->GetFrame(webkit_glue::GetIdentifier(webframe));
+    frame = browser->GetFrame(render_frame_util::GetIdentifier(webframe));
   }
 
   return frame;

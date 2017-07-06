@@ -113,7 +113,7 @@ index 93fb0b0..3e543d2 100644
  // on the given |command_line|.
  void SetCrashKeysFromCommandLine(const base::CommandLine& command_line);
 diff --git chrome_elf/BUILD.gn chrome_elf/BUILD.gn
-index c8197e9..21ad726 100644
+index c8197e9..06adc24 100644
 --- chrome_elf/BUILD.gn
 +++ chrome_elf/BUILD.gn
 @@ -7,6 +7,7 @@
@@ -124,7 +124,7 @@ index c8197e9..21ad726 100644
  import("//chrome/process_version_rc_template.gni")
  import("//testing/test.gni")
  
-@@ -137,16 +138,40 @@ static_library("blacklist") {
+@@ -137,16 +138,15 @@ static_library("blacklist") {
  
  static_library("crash") {
    sources = [
@@ -135,31 +135,6 @@ index c8197e9..21ad726 100644
      "crash/crash_helper.h",
    ]
 +
-+  if (enable_cef) {
-+    sources += [
-+      "//cef/libcef/common/crash_reporter_client.cc",
-+      "//cef/libcef/common/crash_reporter_client.h",
-+
-+      # Required for crash_keys::GetChromeCrashKeys.
-+      # Otherwise we need to copy this array into CEF, which would be difficult
-+      # to maintain.
-+      "//chrome/common/crash_keys.cc",
-+      "//chrome/common/chrome_switches.cc",
-+      "//components/flags_ui/flags_ui_switches.cc",
-+      "//content/public/common/content_switches.cc",
-+      "//gpu/config/gpu_crash_keys.cc",
-+    ]
-+    include_dirs = [
-+      "//cef",
-+    ]
-+  } else {
-+    sources += [
-+      "//chrome/app/chrome_crash_reporter_client_win.cc",
-+      "//chrome/app/chrome_crash_reporter_client_win.h",
-+      "//chrome/common/chrome_result_codes.h",
-+    ]
-+  }
-+
    deps = [
      ":hook_util",
      "//base:base",  # This needs to go.  DEP of app, crash_keys, client.
@@ -168,6 +143,24 @@ index c8197e9..21ad726 100644
      "//chrome/install_static:install_static_util",
      "//components/crash/content/app:app",
      "//components/crash/core/common",  # crash_keys
+@@ -154,6 +154,17 @@ static_library("crash") {
+     "//content/public/common:result_codes",
+     "//third_party/crashpad/crashpad/client:client",  # DumpWithoutCrash
+   ]
++
++  if (enable_cef) {
++    deps += [ "//cef:chrome_elf_set" ]
++    include_dirs = [ "//cef" ]
++  } else {
++    sources += [
++      "//chrome/app/chrome_crash_reporter_client_win.cc",
++      "//chrome/app/chrome_crash_reporter_client_win.h",
++      "//chrome/common/chrome_result_codes.h",
++    ]
++  }
+ }
+ 
+ static_library("hook_util") {
 diff --git chrome_elf/crash/crash_helper.cc chrome_elf/crash/crash_helper.cc
 index c658fa9..8c4a145 100644
 --- chrome_elf/crash/crash_helper.cc

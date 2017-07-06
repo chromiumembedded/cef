@@ -17,6 +17,7 @@
 #include "libcef/common/request_impl.h"
 #include "libcef/renderer/browser_impl.h"
 #include "libcef/renderer/dom_document_impl.h"
+#include "libcef/renderer/render_frame_util.h"
 #include "libcef/renderer/thread_util.h"
 #include "libcef/renderer/v8_impl.h"
 #include "libcef/renderer/webkit_glue.h"
@@ -37,7 +38,7 @@ using blink::WebString;
 CefFrameImpl::CefFrameImpl(CefBrowserImpl* browser, blink::WebFrame* frame)
     : browser_(browser),
       frame_(frame),
-      frame_id_(webkit_glue::GetIdentifier(frame)) {}
+      frame_id_(render_frame_util::GetIdentifier(frame)) {}
 
 CefFrameImpl::~CefFrameImpl() {}
 
@@ -189,7 +190,7 @@ CefString CefFrameImpl::GetName() {
   CEF_REQUIRE_RT_RETURN(name);
 
   if (frame_)
-    name = webkit_glue::GetUniqueName(frame_);
+    name = render_frame_util::GetUniqueName(frame_);
   return name;
 }
 

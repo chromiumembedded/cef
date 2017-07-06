@@ -11,7 +11,7 @@
 
 #include "base/memory/ptr_util.h"
 #include "base/strings/string_util.h"
-#include "content/browser/devtools/grit/devtools_resources_map.h"
+#include "content/public/browser/devtools_frontend_host.h"
 #include "content/public/common/url_constants.h"
 
 namespace scheme {
@@ -32,15 +32,9 @@ class Delegate : public InternalHandlerDelegate {
     if (path.length() > 0)
       path = path.substr(1);
 
-    for (size_t i = 0; i < kDevtoolsResourcesSize; ++i) {
-      if (base::EqualsCaseInsensitiveASCII(kDevtoolsResources[i].name,
-                                           path.c_str())) {
-        action->resource_id = kDevtoolsResources[i].value;
-        return true;
-      }
-    }
-
-    return false;
+    action->string_piece =
+        content::DevToolsFrontendHost::GetFrontendResource(path);
+    return !action->string_piece.empty();
   }
 };
 

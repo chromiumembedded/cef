@@ -140,18 +140,21 @@ class InternalHandlerFactory : public CefSchemeHandlerFactory {
       if (action.mime_type.empty())
         action.mime_type = GetMimeType(url.path());
 
-      if (action.resource_id >= 0) {
-        base::StringPiece piece = CefContentClient::Get()->GetDataResource(
+      if (action.string_piece.empty() && action.resource_id >= 0) {
+        action.string_piece = CefContentClient::Get()->GetDataResource(
             action.resource_id, ui::SCALE_FACTOR_NONE);
-        if (!piece.empty()) {
-          action.stream = CefStreamReader::CreateForData(
-              const_cast<char*>(piece.data()), piece.size());
-          action.stream_size = piece.size();
-        } else {
+        if (action.string_piece.empty()) {
           NOTREACHED() << "Failed to load internal resource for id: "
                        << action.resource_id << " URL: " << url.spec().c_str();
           return NULL;
         }
+      }
+
+      if (!action.string_piece.empty()) {
+        action.stream = CefStreamReader::CreateForData(
+            const_cast<char*>(action.string_piece.data()),
+            action.string_piece.size());
+        action.stream_size = action.string_piece.size();
       }
 
       if (action.stream.get()) {

@@ -145,10 +145,6 @@ if (is_clang) {
   assert(!clang_use_chrome_plugins)
 }
 
-# CEF does not currently support component builds. See
-# https://bitbucket.org/chromiumembedded/cef/issues/1617
-assert(!is_component_build)
-
 if (is_mac) {
   # Always generate dSYM files. The make_distrib script will fail if
   # enable_dsyms=true is not explicitly set when is_official_build=false.
@@ -242,6 +238,84 @@ config("libcef_static_config") {
     "BUILDING_CEF_SHARED",
     "USING_CHROMIUM_INCLUDES",
   ]
+}
+
+# Target for building code that accesses Blink internals. Included from the
+# //third_party/WebKit/Source/web target.
+source_set("webkit_set") {
+  sources = [
+    "libcef/renderer/webkit_glue.cc",
+    "libcef/renderer/webkit_glue.h",
+  ]
+
+  configs += [
+    ":libcef_static_config",
+    "//build/config:precompiled_headers",
+
+    # Blink-internal include paths.
+    "//third_party/WebKit/Source/core:core_include_dirs",
+  ]
+
+  include_dirs = [
+    # Blink code uses paths relative to these directories. We need them because
+    # we include Blink headers.
+    "//third_party/WebKit",
+    "//third_party/WebKit/public/platform",
+    "//third_party/WebKit/public/web",
+    "//third_party/WebKit/Source",
+    "$root_gen_dir/blink",
+    "$root_gen_dir/third_party/WebKit",
+  ]
+
+  defines = [
+    # Blink-internal defines.
+    "BLINK_IMPLEMENTATION=1",
+    "BLINK_WEB_IMPLEMENTATION=1",
+    "INSIDE_BLINK",
+  ]
+
+  deps = [
+    "//skia",
+    "//third_party/icu",
+    "//v8",
+  ]
+}
+
+if (is_win) {
+  # Target for building code that accesses chrome_elf internals. Included from
+  # the //chrome_elf:crash target. Defined as a static_library instead of a
+  # source_set because (a) the source files don't export any symbols and (b)
+  # *_switches.cc duplication otherwise causes linker errors.
+  static_library("chrome_elf_set") {
+    sources = [
+      "libcef/common/crash_reporter_client.cc",
+      "libcef/common/crash_reporter_client.h",
+
+      # Required for crash_keys::GetChromeCrashKeys.
+      # Otherwise we need to copy this array into CEF, which would be difficult
+      # to maintain.
+      "//chrome/common/crash_keys.cc",
+      "//chrome/common/chrome_switches.cc",
+      "//components/flags_ui/flags_ui_switches.cc",
+      "//content/public/common/content_switches.cc",
+    ]
+
+    configs += [
+      ":libcef_static_config",
+      "//build/config:precompiled_headers",
+    ]
+
+    if (is_component_build) {
+      # Avoid linker errors with content_switches.cc in component build by not
+      # defining CONTENT_EXPORT.
+      defines = ["COMPILE_CONTENT_STATICALLY"]
+    }
+
+    deps = [
+      "//components/crash/core/common",  # crash_keys
+      "//gpu/config:crash_keys",
+    ]
+  }
 }
 
 static_library("libcef_static") {
@@ -552,6 +626,8 @@ static_library("libcef_static") {
     "libcef/renderer/plugins/plugin_preroller.h",
     "libcef/renderer/render_frame_observer.cc",
     "libcef/renderer/render_frame_observer.h",
+    "libcef/renderer/render_frame_util.cc",
+    "libcef/renderer/render_frame_util.h",
     "libcef/renderer/render_message_filter.cc",
     "libcef/renderer/render_message_filter.h",
     "libcef/renderer/render_thread_observer.cc",
@@ -561,8 +637,6 @@ static_library("libcef_static") {
     "libcef/renderer/thread_util.h",
     "libcef/renderer/v8_impl.cc",
     "libcef/renderer/v8_impl.h",
-    "libcef/renderer/webkit_glue.cc",
-    "libcef/renderer/webkit_glue.h",
     "libcef/utility/content_utility_client.cc",
     "libcef/utility/content_utility_client.h",
 
@@ -578,9 +652,6 @@ static_library("libcef_static") {
 
     # TODO(jschuh): crbug.com/167187 fix size_t to int truncations.
     "//build/config/compiler:no_size_t_to_int_warning",
-
-    # Blink-internal include paths.
-    "//third_party/WebKit/Source/core:core_include_dirs",
   ]
 
   public_configs = [
@@ -588,11 +659,6 @@ static_library("libcef_static") {
   ]
 
   include_dirs = [
-    # Blink code uses paths relative to these directories. We need them because
-    # we include Blink headers.
-    "//third_party/WebKit/public/platform",
-    "//third_party/WebKit/public/web",
-
     # Crashpad code uses paths relative to this directory.
     "//third_party/crashpad/crashpad",
   ]
@@ -651,6 +717,7 @@ static_library("libcef_static") {
     "//components/visitedlink/browser",
     "//components/visitedlink/common",
     "//components/visitedlink/renderer",
+    "//components/viz/display_compositor",
     "//components/web_cache/renderer",
     "//content/public/app:both",
     "//content/public/browser",
@@ -680,6 +747,9 @@ static_library("libcef_static") {
     "//pdf",
     "//ppapi/features",
     "//printing/features",
+    "//services/service_manager/embedder",
+    "//services/service_manager/public/interfaces",
+    "//services/service_manager/runner/common",
     "//skia",
     "//storage/browser",
     "//third_party/brotli:dec",
@@ -738,6 +808,14 @@ static_library("libcef_static") {
 
     deps += [
       "//chrome_elf",
+    ]
+
+    if (is_component_build) {
+      deps += [ "//content:sandbox_helper_win" ]
+    }
+
+    libs = [
+      "comctl32.lib",
     ]
   }
 

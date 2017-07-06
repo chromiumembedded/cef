@@ -62,14 +62,14 @@ index 141a083..b16b4d6 100644
    ResourceContext* resource_context = browser_context->GetResourceContext();
  
 diff --git content/browser/resource_context_impl.h content/browser/resource_context_impl.h
-index 903cc54..56ee4ea 100644
+index 903cc54..5bd30ae 100644
 --- content/browser/resource_context_impl.h
 +++ content/browser/resource_context_impl.h
 @@ -28,6 +28,8 @@ CONTENT_EXPORT StreamContext* GetStreamContextForResourceContext(
  URLDataManagerBackend* GetURLDataManagerForResourceContext(
      ResourceContext* context);
  
-+const void* GetURLDataManagerBackendUserDataKey();
++CONTENT_EXPORT const void* GetURLDataManagerBackendUserDataKey();
 +
  // Initialize the above data on the ResourceContext from a given BrowserContext.
  CONTENT_EXPORT void InitializeResourceContext(BrowserContext* browser_context);

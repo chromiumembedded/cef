@@ -15,6 +15,7 @@
 #include "libcef/common/response_manager.h"
 #include "libcef/renderer/content_renderer_client.h"
 #include "libcef/renderer/dom_document_impl.h"
+#include "libcef/renderer/render_frame_util.h"
 #include "libcef/renderer/thread_util.h"
 #include "libcef/renderer/webkit_glue.h"
 
@@ -194,7 +195,7 @@ CefRefPtr<CefFrame> CefBrowserImpl::GetFrame(const CefString& name) {
       const std::string& searchname = name;
       for (WebFrame* cur_frame = web_view->MainFrame(); cur_frame;
            cur_frame = cur_frame->TraverseNext()) {
-        if (webkit_glue::GetUniqueName(cur_frame) == searchname) {
+        if (render_frame_util::GetUniqueName(cur_frame) == searchname) {
           frame = cur_frame;
           break;
         }
@@ -231,7 +232,7 @@ void CefBrowserImpl::GetFrameIdentifiers(std::vector<int64>& identifiers) {
   if (render_view()->GetWebView()) {
     for (WebFrame* frame = render_view()->GetWebView()->MainFrame(); frame;
          frame = frame->TraverseNext()) {
-      identifiers.push_back(webkit_glue::GetIdentifier(frame));
+      identifiers.push_back(render_frame_util::GetIdentifier(frame));
     }
   }
 }
@@ -245,7 +246,7 @@ void CefBrowserImpl::GetFrameNames(std::vector<CefString>& names) {
   if (render_view()->GetWebView()) {
     for (WebFrame* frame = render_view()->GetWebView()->MainFrame(); frame;
          frame = frame->TraverseNext()) {
-      names.push_back(webkit_glue::GetUniqueName(frame));
+      names.push_back(render_frame_util::GetUniqueName(frame));
     }
   }
 }
@@ -314,7 +315,7 @@ bool CefBrowserImpl::SendProcessMessage(CefProcessId target_process,
 CefRefPtr<CefFrameImpl> CefBrowserImpl::GetWebFrameImpl(
     blink::WebFrame* frame) {
   DCHECK(frame);
-  int64_t frame_id = webkit_glue::GetIdentifier(frame);
+  int64_t frame_id = render_frame_util::GetIdentifier(frame);
 
   // Frames are re-used between page loads. Only add the frame to the map once.
   FrameMap::const_iterator it = frames_.find(frame_id);
@@ -324,11 +325,12 @@ CefRefPtr<CefFrameImpl> CefBrowserImpl::GetWebFrameImpl(
   CefRefPtr<CefFrameImpl> framePtr(new CefFrameImpl(this, frame));
   frames_.insert(std::make_pair(frame_id, framePtr));
 
-  const int64_t parent_id = frame->Parent() == NULL
-                                ? webkit_glue::kInvalidFrameId
-                                : webkit_glue::GetIdentifier(frame->Parent());
+  const int64_t parent_id =
+      frame->Parent() == NULL
+          ? webkit_glue::kInvalidFrameId
+          : render_frame_util::GetIdentifier(frame->Parent());
   const base::string16& name =
-      base::UTF8ToUTF16(webkit_glue::GetUniqueName(frame));
+      base::UTF8ToUTF16(render_frame_util::GetUniqueName(frame));
 
   // Notify the browser that the frame has been identified.
   Send(new CefHostMsg_FrameIdentified(routing_id(), frame_id, parent_id, name));
@@ -352,7 +354,7 @@ CefRefPtr<CefFrameImpl> CefBrowserImpl::GetWebFrameImpl(int64_t frame_id) {
     // Check if the frame exists but we don't know about it yet.
     for (WebFrame* frame = render_view()->GetWebView()->MainFrame(); frame;
          frame = frame->TraverseNext()) {
-      if (webkit_glue::GetIdentifier(frame) == frame_id)
+      if (render_frame_util::GetIdentifier(frame) == frame_id)
         return GetWebFrameImpl(frame);
     }
   }
@@ -411,9 +413,10 @@ void CefBrowserImpl::DidStopLoading() {
 
 void CefBrowserImpl::DidFinishLoad(blink::WebLocalFrame* frame) {
   blink::WebDataSource* ds = frame->DataSource();
-  Send(new CefHostMsg_DidFinishLoad(
-      routing_id(), webkit_glue::GetIdentifier(frame), ds->GetRequest().Url(),
-      !frame->Parent(), ds->GetResponse().HttpStatusCode()));
+  Send(new CefHostMsg_DidFinishLoad(routing_id(),
+                                    render_frame_util::GetIdentifier(frame),
+                                    ds->GetRequest().Url(), !frame->Parent(),
+                                    ds->GetResponse().HttpStatusCode()));
   OnLoadEnd(frame);
 }
 
@@ -433,7 +436,7 @@ void CefBrowserImpl::DidCommitProvisionalLoad(blink::WebLocalFrame* frame,
 }
 
 void CefBrowserImpl::FrameDetached(WebFrame* frame) {
-  int64_t frame_id = webkit_glue::GetIdentifier(frame);
+  int64_t frame_id = render_frame_util::GetIdentifier(frame);
 
   if (!frames_.empty()) {
     // Remove the frame from the map.

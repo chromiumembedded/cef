@@ -197,6 +197,11 @@ def GetRecommendedDefaultArgs():
   result = {
       # Enable NaCL. Default is true. False is recommended for faster builds.
       'enable_nacl': False,
+
+      # Disable component builds. Default depends on the platform. True results
+      # in faster local builds but False is required to create a CEF binary
+      # distribution.
+      'is_component_build': False,
   }
 
   if platform == 'linux':
@@ -236,10 +241,6 @@ def GetRequiredArgs():
 
       # Enable support for Widevine CDM.
       'enable_widevine': True,
-
-      # CEF does not currently support component builds. See
-      # https://bitbucket.org/chromiumembedded/cef/issues/1617
-      'is_component_build': False,
   }
 
   if platform == 'linux' or platform == 'macosx':
