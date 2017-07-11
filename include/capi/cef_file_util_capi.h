@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=4601edefadfafea031f2c5df498262fc2142252b$
+// $hash=1c02b57893a3f78c436bc2ab66c63753edfb174a$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_FILE_UTIL_CAPI_H_
@@ -113,6 +113,16 @@ CEF_EXPORT int cef_delete_file(const cef_string_t* path, int recursive);
 CEF_EXPORT int cef_zip_directory(const cef_string_t* src_dir,
                                  const cef_string_t* dest_file,
                                  int include_hidden_files);
+
+///
+// Loads the existing "Certificate Revocation Lists" file that is managed by
+// Google Chrome. This file can generally be found in Chrome's User Data
+// directory (e.g. "C:\Users\[User]\AppData\Local\Google\Chrome\User Data\" on
+// Windows) and is updated periodically by Chrome's component updater service.
+// Must be called in the browser process after the context has been initialized.
+// See https://dev.chromium.org/Home/chromium-security/crlsets for background.
+///
+CEF_EXPORT void cef_load_crlsets_file(const cef_string_t* path);
 
 #ifdef __cplusplus
 }
