@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=62ad3894d1548a39b032798d25a7a9b157f8a7bc$
+// $hash=b9a497935b8b0378d130ba55a92d188025df7350$
 //
 
 #include "include/capi/cef_app_capi.h"
@@ -549,6 +549,18 @@ CEF_GLOBAL bool CefZipDirectory(const CefString& src_dir,
 
   // Return type: bool
   return _retval ? true : false;
+}
+
+CEF_GLOBAL void CefLoadCRLSetsFile(const CefString& path) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: path; type: string_byref_const
+  DCHECK(!path.empty());
+  if (path.empty())
+    return;
+
+  // Execute
+  cef_load_crlsets_file(path.GetStruct());
 }
 
 CEF_GLOBAL bool CefGetGeolocation(

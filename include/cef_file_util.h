@@ -115,4 +115,15 @@ bool CefZipDirectory(const CefString& src_dir,
                      const CefString& dest_file,
                      bool include_hidden_files);
 
+///
+// Loads the existing "Certificate Revocation Lists" file that is managed by
+// Google Chrome. This file can generally be found in Chrome's User Data
+// directory (e.g. "C:\Users\[User]\AppData\Local\Google\Chrome\User Data\" on
+// Windows) and is updated periodically by Chrome's component updater service.
+// Must be called in the browser process after the context has been initialized.
+// See https://dev.chromium.org/Home/chromium-security/crlsets for background.
+///
+/*--cef()--*/
+void CefLoadCRLSetsFile(const CefString& path);
+
 #endif  // CEF_INCLUDE_CEF_FILE_UTIL_H_
