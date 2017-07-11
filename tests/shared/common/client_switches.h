@@ -31,6 +31,7 @@ extern const char kHideControls[];
 extern const char kHideTopMenu[];
 extern const char kWidevineCdmPath[];
 extern const char kSslClientCertificate[];
+extern const char kCRLSetsPath[];
 
 }  // namespace switches
 }  // namespace client

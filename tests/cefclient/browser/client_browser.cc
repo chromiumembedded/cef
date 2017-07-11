@@ -4,7 +4,10 @@
 
 #include "tests/cefclient/browser/client_browser.h"
 
+#include "include/cef_command_line.h"
 #include "include/cef_crash_util.h"
+#include "include/cef_file_util.h"
+#include "tests/shared/common/client_switches.h"
 
 namespace client {
 namespace browser {
@@ -22,6 +25,14 @@ class ClientBrowserDelegate : public ClientAppBrowser::Delegate {
       CefSetCrashKeyValue("testkey1", "value1_browser");
       CefSetCrashKeyValue("testkey2", "value2_browser");
       CefSetCrashKeyValue("testkey3", "value3_browser");
+    }
+
+    const std::string& crl_sets_path =
+        CefCommandLine::GetGlobalCommandLine()->GetSwitchValue(
+            switches::kCRLSetsPath);
+    if (!crl_sets_path.empty()) {
+      // Load the CRLSets file from the specified path.
+      CefLoadCRLSetsFile(crl_sets_path);
     }
   }
 
