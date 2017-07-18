@@ -896,8 +896,8 @@ if not os.path.exists(gclient_file) or options.forceconfig:
 # Initial Chromium checkout.
 if not options.nochromiumupdate and not os.path.exists(chromium_src_dir):
   chromium_checkout_new = True
-  run("gclient sync --nohooks --with_branch_heads --jobs 16", chromium_dir, \
-      depot_tools_dir)
+  run("gclient sync --nohooks --with_branch_heads --disable-syntax-validation --jobs 16", \
+      chromium_dir, depot_tools_dir)
 else:
   chromium_checkout_new = False
 
@@ -981,7 +981,7 @@ if chromium_checkout_changed:
   os.environ['GYP_CHROMIUM_NO_ACTION'] = '1'
 
   # Update third-party dependencies including branch/tag information.
-  run("gclient sync %s--with_branch_heads --jobs 16" % \
+  run("gclient sync %s--with_branch_heads --disable-syntax-validation --jobs 16" % \
       (('--reset ' if options.forceclean else '')), \
       chromium_dir, depot_tools_dir)
 
