@@ -379,6 +379,11 @@ bool CefContext::Initialize(const CefMainArgs& args,
   sm_main_params_.reset(
       new service_manager::MainParams(sm_main_delegate_.get()));
 
+#if defined(OS_POSIX) && !defined(OS_ANDROID)
+  sm_main_params_->argc = params.argc;
+  sm_main_params_->argv = params.argv;
+#endif
+
   exit_code = service_manager::MainInitialize(*sm_main_params_);
   DCHECK_LT(exit_code, 0);
   if (exit_code >= 0)
