@@ -112,7 +112,10 @@ def create_readme():
   footer_data = get_readme_component('footer')
 
   # format the file
-  data = header_data + '\n\n' + mode_data + '\n\n' + redistrib_data + '\n\n' + footer_data
+  data = header_data + '\n\n' + mode_data
+  if mode != 'sandbox':
+    data += '\n\n' + redistrib_data
+  data += '\n\n' + footer_data
   data = data.replace('$CEF_URL$', cef_url)
   data = data.replace('$CEF_REV$', cef_rev)
   data = data.replace('$CEF_VER$', cef_ver)
@@ -149,6 +152,10 @@ def create_readme():
     distrib_desc = 'This distribution contains a release build of the ' + client_app + ' sample application\n' \
                    'for the ' + platform_str + ' platform. Please see the LICENSING section of this document for\n' \
                    'licensing terms and conditions.'
+  elif mode == 'sandbox':
+    distrib_type = 'Sandbox'
+    distrib_desc = 'This distribution contains only the cef_sandbox static library. Please see\n' \
+                   'the LICENSING section of this document for licensing terms and conditions.'
 
   data = data.replace('$DISTRIB_TYPE$', distrib_type)
   data = data.replace('$DISTRIB_DESC$', distrib_desc)
@@ -342,7 +349,7 @@ parser.add_option(
     action='store_true',
     dest='armbuild',
     default=False,
-    help='create an ARM binary distribution')
+    help='create an ARM binary distribution (Linux only)')
 parser.add_option(
     '--minimal',
     action='store_true',
@@ -355,6 +362,12 @@ parser.add_option(
     dest='client',
     default=False,
     help='include only the sample application')
+parser.add_option(
+    '--sandbox',
+    action='store_true',
+    dest='sandbox',
+    default=False,
+    help='include only the cef_sandbox static library (Windows only)')
 parser.add_option(
     '-q',
     '--quiet',
@@ -390,6 +403,10 @@ if options.x64build and options.armbuild:
 
 if options.armbuild and platform != 'linux':
   print '--arm-build is only supported on Linux.'
+  sys.exit()
+
+if options.sandbox and platform != 'windows':
+  print '--sandbox is only supported on Windows.'
   sys.exit()
 
 if not options.ninjabuild:
@@ -455,6 +472,9 @@ if options.minimal:
 elif options.client:
   mode = 'client'
   output_dir_name = output_dir_name + '_client'
+elif options.sandbox:
+  mode = 'sandbox'
+  output_dir_name = output_dir_name + '_sandbox'
 else:
   mode = 'standard'
 
@@ -644,14 +664,30 @@ if platform == 'windows':
   ]
 
   libcef_dll_file = 'libcef.dll.lib'
+  cef_sandbox_lib = 'obj\\cef\\cef_sandbox.lib'
   sandbox_libs = [
-      'obj\\base\\allocator\\unified_allocator_shim\\*.obj',
       'obj\\base\\base.lib',
       'obj\\base\\base_static.lib',
       'obj\\base\\third_party\\dynamic_annotations\\dynamic_annotations.lib',
-      'obj\\cef\\cef_sandbox.lib',
+      cef_sandbox_lib,
       'obj\\sandbox\\win\\sandbox.lib',
   ]
+
+  # Generate the cef_sandbox.lib merged library. A separate *_sandbox build
+  # should exist when GN is_official_build=true.
+  if mode in ('standard', 'minimal', 'sandbox'):
+    dirs = {
+        'Debug': (build_dir_debug + '_sandbox', build_dir_debug),
+        'Release': (build_dir_release + '_sandbox', build_dir_release)
+    }
+    for dir_name in dirs.keys():
+      for src_dir in dirs[dir_name]:
+        if path_exists(os.path.join(src_dir, cef_sandbox_lib)):
+          dst_dir = os.path.join(output_dir, dir_name)
+          make_dir(dst_dir, options.quiet)
+          combine_libs(src_dir, sandbox_libs,
+                       os.path.join(dst_dir, 'cef_sandbox.lib'))
+          break
 
   valid_build_dir = None
 
@@ -671,8 +707,6 @@ if platform == 'windows':
             os.path.join(dst_dir, os.path.basename(binary)), options.quiet)
       copy_file(os.path.join(build_dir, libcef_dll_file), os.path.join(dst_dir, 'libcef.lib'), \
                 options.quiet)
-      combine_libs(build_dir, sandbox_libs,
-                   os.path.join(dst_dir, 'cef_sandbox.lib'))
 
       if not options.nosymbols:
         # create the symbol output directory
@@ -685,39 +719,38 @@ if platform == 'windows':
     else:
       sys.stderr.write("No Debug build files.\n")
 
-  # transfer Release files
-  build_dir = build_dir_release
-  if not options.allowpartial or path_exists(
-      os.path.join(build_dir, 'libcef.dll')):
-    valid_build_dir = build_dir
-    dst_dir = os.path.join(output_dir, 'Release')
-    make_dir(dst_dir, options.quiet)
-    copy_files(
-        os.path.join(script_dir, 'distrib/win/*.dll'), dst_dir, options.quiet)
-    for binary in binaries:
-      copy_file(
-          os.path.join(build_dir, binary),
-          os.path.join(dst_dir, os.path.basename(binary)), options.quiet)
+  if mode != 'sandbox':
+    # transfer Release files
+    build_dir = build_dir_release
+    if not options.allowpartial or path_exists(
+        os.path.join(build_dir, 'libcef.dll')):
+      valid_build_dir = build_dir
+      dst_dir = os.path.join(output_dir, 'Release')
+      make_dir(dst_dir, options.quiet)
+      copy_files(
+          os.path.join(script_dir, 'distrib/win/*.dll'), dst_dir, options.quiet)
+      for binary in binaries:
+        copy_file(
+            os.path.join(build_dir, binary),
+            os.path.join(dst_dir, os.path.basename(binary)), options.quiet)
 
-    if mode != 'client':
-      copy_file(os.path.join(build_dir, libcef_dll_file), os.path.join(dst_dir, 'libcef.lib'), \
-          options.quiet)
-      combine_libs(build_dir, sandbox_libs,
-                   os.path.join(dst_dir, 'cef_sandbox.lib'))
+      if mode != 'client':
+        copy_file(os.path.join(build_dir, libcef_dll_file), os.path.join(dst_dir, 'libcef.lib'), \
+            options.quiet)
+      else:
+        copy_file(
+            os.path.join(build_dir, 'cefclient.exe'), dst_dir, options.quiet)
+
+      if not options.nosymbols:
+        # create the symbol output directory
+        symbol_output_dir = create_output_dir(
+            output_dir_name + '_release_symbols', options.outputdir)
+        # transfer contents
+        copy_file(
+            os.path.join(build_dir, 'libcef.dll.pdb'), symbol_output_dir,
+            options.quiet)
     else:
-      copy_file(
-          os.path.join(build_dir, 'cefclient.exe'), dst_dir, options.quiet)
-
-    if not options.nosymbols:
-      # create the symbol output directory
-      symbol_output_dir = create_output_dir(
-          output_dir_name + '_release_symbols', options.outputdir)
-      # transfer contents
-      copy_file(
-          os.path.join(build_dir, 'libcef.dll.pdb'), symbol_output_dir,
-          options.quiet)
-  else:
-    sys.stderr.write("No Release build files.\n")
+      sys.stderr.write("No Release build files.\n")
 
   if not valid_build_dir is None:
     # transfer resource files

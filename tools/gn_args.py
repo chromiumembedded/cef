@@ -419,6 +419,28 @@ def GetConfigArgs(args, is_debug, cpu):
   return result
 
 
+def WinGetConfigArgsSandbox(args, is_debug, cpu):
+  """
+  Return merged GN args for the Windows cef_sandbox.lib configuration and
+  validate.
+  """
+  add_args = {
+      # Avoid libucrt.lib linker errors.
+      'use_experimental_allocator_shim': False,
+
+      # Avoid /LTCG linker warnings and generate smaller lib files.
+      'is_official_build': False
+  }
+
+  result = MergeDicts(args, add_args, {
+      'is_debug': is_debug,
+      'target_cpu': cpu,
+  })
+
+  ValidateArgs(result)
+  return result
+
+
 def LinuxSysrootExists(cpu):
   """
   Returns true if the sysroot for the specified |cpu| architecture exists.
@@ -480,6 +502,14 @@ def GetAllPlatformConfigs(build_args):
     if create_debug:
       result['Debug_GN_' + cpu] = GetConfigArgs(args, True, cpu)
     result['Release_GN_' + cpu] = GetConfigArgs(args, False, cpu)
+
+    if platform == 'windows' and GetArgValue(args, 'is_official_build'):
+      # Build cef_sandbox.lib with a different configuration.
+      if create_debug:
+        result['Debug_GN_' + cpu + '_sandbox'] = WinGetConfigArgsSandbox(
+            args, True, cpu)
+      result['Release_GN_' + cpu + '_sandbox'] = WinGetConfigArgsSandbox(
+          args, False, cpu)
 
   return result
 
