@@ -511,6 +511,18 @@ parser.add_option(
     default=False,
     help='Create a client CEF binary distribution only.')
 parser.add_option(
+    '--sandbox-distrib',
+    action='store_true',
+    dest='sandboxdistrib',
+    default=False,
+    help='Create a cef_sandbox static library distribution.')
+parser.add_option(
+    '--sandbox-distrib-only',
+    action='store_true',
+    dest='sandboxdistribonly',
+    default=False,
+    help='Create a cef_sandbox static library distribution only.')
+parser.add_option(
     '--no-distrib-docs',
     action='store_true',
     dest='nodistribdocs',
@@ -557,7 +569,7 @@ if (options.nochromiumupdate and options.forceupdate) or \
 if (options.noreleasebuild and \
      (options.minimaldistrib or options.minimaldistribonly or \
       options.clientdistrib or options.clientdistribonly)) or \
-   (options.minimaldistribonly and options.clientdistribonly):
+   (options.minimaldistribonly + options.clientdistribonly + options.sandboxdistribonly > 1):
   print 'Invalid combination of options.'
   parser.print_help(sys.stderr)
   sys.exit()
@@ -600,13 +612,20 @@ if options.clientdistrib or options.clientdistribonly:
     parser.print_help(sys.stderr)
     sys.exit()
 
+if platform != 'windows' and (options.sandboxdistrib or
+                              options.sandboxdistribonly):
+  print 'The sandbox distribution is only supported on Windows.'
+  sys.exit()
+
 # CEF branch.
 if options.branch != 'trunk' and not options.branch.isdigit():
   print 'Invalid branch value: %s' % (options.branch)
+  sys.exit()
+
 cef_branch = options.branch
 
 if cef_branch != 'trunk' and int(cef_branch) <= 1453:
-  print 'The requested branch is too old to build using this tool'
+  print 'The requested branch is too old to build using this tool.'
   sys.exit()
 
 # True if the requested branch is 2272 or newer.
@@ -1054,29 +1073,50 @@ if not options.nobuild and (chromium_checkout_changed or \
     if platform == 'windows' and options.x64build:
       build_dir_suffix = '_x64'
 
+  # Make a CEF Debug build.
   if not options.nodebugbuild:
     build_path = os.path.join('out', 'Debug' + build_dir_suffix)
     if use_gn:
       args_path = os.path.join(chromium_src_dir, build_path, 'args.gn')
-      if os.path.exists(args_path):
-        msg(args_path + ' contents:\n' + read_file(args_path))
+      msg(args_path + ' contents:\n' + read_file(args_path))
 
-    # Make a CEF Debug build.
     run(command + build_path + target, chromium_src_dir, depot_tools_dir,
         os.path.join(download_dir, 'build-%s-debug.log' % (cef_branch)) \
           if options.buildlogfile else None)
 
+    if use_gn and platform == 'windows':
+      # Make the separate cef_sandbox.lib build when GN is_official_build=true.
+      build_path = os.path.join('out', 'Debug' + build_dir_suffix + '_sandbox')
+      if os.path.exists(os.path.join(chromium_src_dir, build_path)):
+        args_path = os.path.join(chromium_src_dir, build_path, 'args.gn')
+        msg(args_path + ' contents:\n' + read_file(args_path))
+
+        run(command + build_path + ' cef_sandbox', chromium_src_dir, depot_tools_dir,
+            os.path.join(download_dir, 'build-%s-debug-sandbox.log' % (cef_branch)) \
+              if options.buildlogfile else None)
+
+  # Make a CEF Release build.
   if not options.noreleasebuild:
     build_path = os.path.join('out', 'Release' + build_dir_suffix)
     if use_gn:
       args_path = os.path.join(chromium_src_dir, build_path, 'args.gn')
-      if os.path.exists(args_path):
-        msg(args_path + ' contents:\n' + read_file(args_path))
+      msg(args_path + ' contents:\n' + read_file(args_path))
 
-    # Make a CEF Release build.
     run(command + build_path + target, chromium_src_dir, depot_tools_dir,
         os.path.join(download_dir, 'build-%s-release.log' % (cef_branch)) \
           if options.buildlogfile else None)
+
+    if use_gn and platform == 'windows':
+      # Make the separate cef_sandbox.lib build when GN is_official_build=true.
+      build_path = os.path.join('out',
+                                'Release' + build_dir_suffix + '_sandbox')
+      if os.path.exists(os.path.join(chromium_src_dir, build_path)):
+        args_path = os.path.join(chromium_src_dir, build_path, 'args.gn')
+        msg(args_path + ' contents:\n' + read_file(args_path))
+
+        run(command + build_path + ' cef_sandbox', chromium_src_dir, depot_tools_dir,
+            os.path.join(download_dir, 'build-%s-release-sandbox.log' % (cef_branch)) \
+              if options.buildlogfile else None)
 
 elif not options.nobuild:
   msg('Not building. The source hashes have not changed and ' +
@@ -1099,12 +1139,16 @@ if not options.nodistrib and (chromium_checkout_changed or \
     distrib_types.append('minimal')
   elif options.clientdistribonly:
     distrib_types.append('client')
+  elif options.sandboxdistribonly:
+    distrib_types.append('sandbox')
   else:
     distrib_types.append('standard')
     if options.minimaldistrib:
       distrib_types.append('minimal')
     if options.clientdistrib:
       distrib_types.append('client')
+    if options.sandboxdistrib:
+      distrib_types.append('sandbox')
 
   cef_tools_dir = os.path.join(cef_src_dir, 'tools')
 
@@ -1124,6 +1168,8 @@ if not options.nodistrib and (chromium_checkout_changed or \
       path = path + ' --minimal'
     elif type == 'client':
       path = path + ' --client'
+    elif type == 'sandbox':
+      path = path + ' --sandbox'
 
     if first_type:
       if options.nodistribdocs:

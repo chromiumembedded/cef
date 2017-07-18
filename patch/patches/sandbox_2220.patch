@@ -1,0 +1,14 @@
+diff --git base/allocator/BUILD.gn base/allocator/BUILD.gn
+index 6ebbc11..b667064 100644
+--- base/allocator/BUILD.gn
++++ base/allocator/BUILD.gn
+@@ -15,8 +15,7 @@ declare_args() {
+ 
+ # The Windows-only allocator shim is only enabled for Release static builds, and
+ # is mutually exclusive with the generalized shim.
+-win_use_allocator_shim = is_win && !is_component_build && !is_debug &&
+-                         !use_allocator_shim && !is_asan
++win_use_allocator_shim = false
+ 
+ # This "allocator" meta-target will forward to the default allocator according
+ # to the build settings.
