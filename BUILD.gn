@@ -314,6 +314,11 @@ if (is_win) {
     deps = [
       "//components/crash/core/common",  # crash_keys
       "//gpu/config:crash_keys",
+
+      # Required by chrome_switches.cc
+      "//chrome/common:features",
+      "//ppapi/features:features",
+      "//printing/features:features",
     ]
   }
 }
