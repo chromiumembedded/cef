@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=a0931ea5dc8d42995b5e114974a8e389d3e58e96$
+// $hash=244606e20e814745606c05061a14d4e79fc782d1$
 //
 
 #include "libcef_dll/ctocpp/get_geolocation_callback_ctocpp.h"
@@ -45,10 +45,10 @@ cef_get_geolocation_callback_t* CefCToCppRefCounted<
 
 #if DCHECK_IS_ON()
 template <>
-base::AtomicRefCount
-    CefCToCppRefCounted<CefGetGeolocationCallbackCToCpp,
-                        CefGetGeolocationCallback,
-                        cef_get_geolocation_callback_t>::DebugObjCt = 0;
+base::AtomicRefCount CefCToCppRefCounted<
+    CefGetGeolocationCallbackCToCpp,
+    CefGetGeolocationCallback,
+    cef_get_geolocation_callback_t>::DebugObjCt ATOMIC_DECLARATION;
 #endif
 
 template <>

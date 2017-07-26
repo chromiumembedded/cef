@@ -5,17 +5,17 @@
 #include "libcef/browser/net/url_request_context.h"
 
 #if DCHECK_IS_ON()
-base::AtomicRefCount CefURLRequestContext::DebugObjCt = 0;
+base::AtomicRefCount CefURLRequestContext::DebugObjCt;
 #endif
 
 CefURLRequestContext::CefURLRequestContext() {
 #if DCHECK_IS_ON()
-  base::AtomicRefCountInc(&DebugObjCt);
+  DebugObjCt.Increment();
 #endif
 }
 
 CefURLRequestContext::~CefURLRequestContext() {
 #if DCHECK_IS_ON()
-  base::AtomicRefCountDec(&DebugObjCt);
+  DebugObjCt.Decrement();
 #endif
 }

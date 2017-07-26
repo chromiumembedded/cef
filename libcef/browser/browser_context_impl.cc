@@ -427,6 +427,11 @@ CefBrowserContextImpl::GetBackgroundSyncController() {
   return nullptr;
 }
 
+content::BrowsingDataRemoverDelegate*
+CefBrowserContextImpl::GetBrowsingDataRemoverDelegate() {
+  return nullptr;
+}
+
 net::URLRequestContextGetter* CefBrowserContextImpl::CreateRequestContext(
     content::ProtocolHandlerMap* protocol_handlers,
     content::URLRequestInterceptorScopedVector request_interceptors) {
@@ -453,7 +458,6 @@ net::URLRequestContextGetter* CefBrowserContextImpl::CreateRequestContext(
   url_request_getter_ = new CefURLRequestContextGetterImpl(
       settings_, GetPrefs(),
       BrowserThread::GetTaskRunnerForThread(BrowserThread::IO),
-      BrowserThread::GetTaskRunnerForThread(BrowserThread::FILE),
       protocol_handlers, std::move(proxy_config_service),
       std::move(request_interceptors));
   resource_context()->set_url_request_context_getter(url_request_getter_.get());

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=2b2e211c650612103fc46dc368fe2fa60492e6ea$
+// $hash=3d60233df1edf4d3afba07d63a5e56cddc791430$
 //
 
 #include "libcef_dll/ctocpp/scheme_registrar_ctocpp.h"
@@ -71,7 +71,8 @@ cef_scheme_registrar_t* CefCToCppScoped<
 template <>
 base::AtomicRefCount CefCToCppScoped<CefSchemeRegistrarCToCpp,
                                      CefSchemeRegistrar,
-                                     cef_scheme_registrar_t>::DebugObjCt = 0;
+                                     cef_scheme_registrar_t>::DebugObjCt
+    ATOMIC_DECLARATION;
 #endif
 
 template <>

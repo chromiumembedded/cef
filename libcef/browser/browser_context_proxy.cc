@@ -161,6 +161,11 @@ CefBrowserContextProxy::GetBackgroundSyncController() {
   return parent_->GetBackgroundSyncController();
 }
 
+content::BrowsingDataRemoverDelegate*
+CefBrowserContextProxy::GetBrowsingDataRemoverDelegate() {
+  return parent_->GetBrowsingDataRemoverDelegate();
+}
+
 net::URLRequestContextGetter* CefBrowserContextProxy::CreateRequestContext(
     content::ProtocolHandlerMap* protocol_handlers,
     content::URLRequestInterceptorScopedVector request_interceptors) {

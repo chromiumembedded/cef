@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=7af9db791a4b3c2a6f93326731c9959e891148ed$
+// $hash=11b73e56d3e0fe295ea358ce4baa397912540166$
 //
 
 #include "libcef_dll/cpptoc/views/box_layout_cpptoc.h"
@@ -126,9 +126,9 @@ CefCppToCRefCounted<CefBoxLayoutCppToC, CefBoxLayout, cef_box_layout_t>::
 
 #if DCHECK_IS_ON()
 template <>
-base::AtomicRefCount CefCppToCRefCounted<CefBoxLayoutCppToC,
-                                         CefBoxLayout,
-                                         cef_box_layout_t>::DebugObjCt = 0;
+base::AtomicRefCount
+    CefCppToCRefCounted<CefBoxLayoutCppToC, CefBoxLayout, cef_box_layout_t>::
+        DebugObjCt ATOMIC_DECLARATION;
 #endif
 
 template <>

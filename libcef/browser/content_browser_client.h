@@ -26,7 +26,7 @@ class CefResourceDispatcherHostDelegate;
 namespace content {
 class PluginServiceFilter;
 class SiteInstance;
-}
+}  // namespace content
 
 namespace extensions {
 class Extension;
@@ -59,7 +59,7 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
   void GetQuotaSettings(
       content::BrowserContext* context,
       content::StoragePartition* partition,
-      const storage::OptionalQuotaSettingsCallback& callback) override;
+      storage::OptionalQuotaSettingsCallback callback) override;
   content::MediaObserver* GetMediaObserver() override;
   content::SpeechRecognitionManagerDelegate*
   CreateSpeechRecognitionManagerDelegate() override;
@@ -77,7 +77,7 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
   void SelectClientCertificate(
       content::WebContents* web_contents,
       net::SSLCertRequestInfo* cert_request_info,
-      net::CertificateList client_certs,
+      net::ClientCertIdentityList client_certs,
       std::unique_ptr<content::ClientCertificateDelegate> delegate) override;
   bool CanCreateWindow(content::RenderFrameHost* opener,
                        const GURL& opener_url,
@@ -114,6 +114,11 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
   const wchar_t* GetResourceDllName();
   bool PreSpawnRenderer(sandbox::TargetPolicy* policy) override;
 #endif
+
+  void ExposeInterfacesToRenderer(
+      service_manager::BinderRegistry* registry,
+      content::AssociatedInterfaceRegistry* associated_registry,
+      content::RenderProcessHost* render_process_host) override;
 
   // Perform browser process registration for the custom scheme.
   void RegisterCustomScheme(const std::string& scheme);

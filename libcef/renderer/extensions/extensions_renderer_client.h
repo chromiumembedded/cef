@@ -19,13 +19,13 @@ class WebFrame;
 class WebLocalFrame;
 struct WebPluginParams;
 class WebURL;
-}
+}  // namespace blink
 
 namespace content {
 class BrowserPluginDelegate;
 class RenderFrame;
 class RenderView;
-}
+}  // namespace content
 
 namespace extensions {
 
@@ -42,6 +42,10 @@ class CefExtensionsRendererClient : public ExtensionsRendererClient {
   // ExtensionsRendererClient implementation.
   bool IsIncognitoProcess() const override;
   int GetLowestIsolatedWorldId() const override;
+  extensions::Dispatcher* GetDispatcher() override;
+  void OnExtensionLoaded(const extensions::Extension& extension) override;
+  void OnExtensionUnloaded(
+      const extensions::ExtensionId& extension_id) override;
 
   // See CefContentRendererClient methods with the same names.
   void RenderThreadStarted();

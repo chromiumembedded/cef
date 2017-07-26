@@ -22,6 +22,7 @@
 #include "base/debug/debugger.h"
 #include "base/files/file_util.h"
 #include "base/synchronization/waitable_event.h"
+#include "components/network_session_configurator/common/network_switches.h"
 #include "content/app/content_service_manager_main_delegate.h"
 #include "content/public/browser/notification_service.h"
 #include "content/public/browser/notification_types.h"

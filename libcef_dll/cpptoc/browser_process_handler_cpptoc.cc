@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=81332687e151af6933a729c1456dd4b3a64f82df$
+// $hash=dc92a1083681b1f0b2c2bf42470f5421d256391c$
 //
 
 #include "libcef_dll/cpptoc/browser_process_handler_cpptoc.h"
@@ -129,10 +129,10 @@ CefRefPtr<CefBrowserProcessHandler> CefCppToCRefCounted<
 
 #if DCHECK_IS_ON()
 template <>
-base::AtomicRefCount
-    CefCppToCRefCounted<CefBrowserProcessHandlerCppToC,
-                        CefBrowserProcessHandler,
-                        cef_browser_process_handler_t>::DebugObjCt = 0;
+base::AtomicRefCount CefCppToCRefCounted<
+    CefBrowserProcessHandlerCppToC,
+    CefBrowserProcessHandler,
+    cef_browser_process_handler_t>::DebugObjCt ATOMIC_DECLARATION;
 #endif
 
 template <>

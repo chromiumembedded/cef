@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=8213d4426eef64d20c16ae466f5c03c1cae911dd$
+// $hash=32dd6c84d31a8affb55a3ceff6d242cca11db831$
 //
 
 #include "libcef_dll/ctocpp/print_job_callback_ctocpp.h"
@@ -45,8 +45,8 @@ cef_print_job_callback_t* CefCToCppRefCounted<
 template <>
 base::AtomicRefCount CefCToCppRefCounted<CefPrintJobCallbackCToCpp,
                                          CefPrintJobCallback,
-                                         cef_print_job_callback_t>::DebugObjCt =
-    0;
+                                         cef_print_job_callback_t>::DebugObjCt
+    ATOMIC_DECLARATION;
 #endif
 
 template <>

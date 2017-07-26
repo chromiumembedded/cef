@@ -94,7 +94,7 @@ void RunAsyncCompletionOnIOThread(CefRefPtr<CefCompletionCallback> callback) {
 
 // Always execute the callback asynchronously.
 void DeleteCookiesCallbackImpl(CefRefPtr<CefDeleteCookiesCallback> callback,
-                               int num_deleted) {
+                               uint32_t num_deleted) {
   if (!callback.get())
     return;
   CEF_POST_TASK(CEF_IOT, base::Bind(&CefDeleteCookiesCallback::OnComplete,

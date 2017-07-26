@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=f17a9939eba29ab59060b3198e6041ff582a42a8$
+// $hash=f06ecbd1e962a29bb0191b05a5545cbc0e190742$
 //
 
 #include "libcef_dll/cpptoc/delete_cookies_callback_cpptoc.h"
@@ -52,10 +52,10 @@ CefRefPtr<CefDeleteCookiesCallback> CefCppToCRefCounted<
 
 #if DCHECK_IS_ON()
 template <>
-base::AtomicRefCount
-    CefCppToCRefCounted<CefDeleteCookiesCallbackCppToC,
-                        CefDeleteCookiesCallback,
-                        cef_delete_cookies_callback_t>::DebugObjCt = 0;
+base::AtomicRefCount CefCppToCRefCounted<
+    CefDeleteCookiesCallbackCppToC,
+    CefDeleteCookiesCallback,
+    cef_delete_cookies_callback_t>::DebugObjCt ATOMIC_DECLARATION;
 #endif
 
 template <>

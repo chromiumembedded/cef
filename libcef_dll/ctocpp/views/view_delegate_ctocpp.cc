@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=89d54d92898217240204511d1f90da18890f04ee$
+// $hash=805387f973b3e0caddd76510d9a09dce17076a73$
 //
 
 #include "libcef_dll/ctocpp/views/view_delegate_ctocpp.h"
@@ -229,7 +229,8 @@ CefCToCppRefCounted<CefViewDelegateCToCpp,
 template <>
 base::AtomicRefCount CefCToCppRefCounted<CefViewDelegateCToCpp,
                                          CefViewDelegate,
-                                         cef_view_delegate_t>::DebugObjCt = 0;
+                                         cef_view_delegate_t>::DebugObjCt
+    ATOMIC_DECLARATION;
 #endif
 
 template <>

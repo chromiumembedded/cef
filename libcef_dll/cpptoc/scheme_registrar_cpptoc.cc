@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=0eb1f2d2f28463f3ca3b38b4bdfea425c2a1d4c9$
+// $hash=c1c56c92c4dc4700e774f8fbec9f635440ea9e6c$
 //
 
 #include "libcef_dll/cpptoc/scheme_registrar_cpptoc.h"
@@ -80,7 +80,8 @@ CefRawPtr<CefSchemeRegistrar> CefCppToCScoped<
 template <>
 base::AtomicRefCount CefCppToCScoped<CefSchemeRegistrarCppToC,
                                      CefSchemeRegistrar,
-                                     cef_scheme_registrar_t>::DebugObjCt = 0;
+                                     cef_scheme_registrar_t>::DebugObjCt
+    ATOMIC_DECLARATION;
 #endif
 
 template <>

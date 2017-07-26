@@ -62,13 +62,7 @@ bool PNGMethod(bool with_transparency,
 bool JPEGMethod(int quality,
                 const SkBitmap& bitmap,
                 std::vector<unsigned char>* compressed) {
-  return gfx::JPEGCodec::Encode(
-      reinterpret_cast<unsigned char*>(bitmap.getPixels()),
-      bitmap.colorType() == kBGRA_8888_SkColorType
-          ? gfx::JPEGCodec::FORMAT_BGRA
-          : gfx::JPEGCodec::FORMAT_RGBA,
-      bitmap.width(), bitmap.height(), static_cast<int>(bitmap.rowBytes()),
-      quality, compressed);
+  return gfx::JPEGCodec::Encode(bitmap, quality, compressed);
 }
 
 }  // namespace

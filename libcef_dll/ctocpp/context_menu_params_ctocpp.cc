@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=393260edeabe88e52ab45caee677d59fbfb3270f$
+// $hash=614ebbb5e56b86e3b8bf43d9d5d711a99a86a2cc$
 //
 
 #include "libcef_dll/ctocpp/context_menu_params_ctocpp.h"
@@ -363,10 +363,10 @@ cef_context_menu_params_t* CefCToCppRefCounted<
 
 #if DCHECK_IS_ON()
 template <>
-base::AtomicRefCount
-    CefCToCppRefCounted<CefContextMenuParamsCToCpp,
-                        CefContextMenuParams,
-                        cef_context_menu_params_t>::DebugObjCt = 0;
+base::AtomicRefCount CefCToCppRefCounted<CefContextMenuParamsCToCpp,
+                                         CefContextMenuParams,
+                                         cef_context_menu_params_t>::DebugObjCt
+    ATOMIC_DECLARATION;
 #endif
 
 template <>

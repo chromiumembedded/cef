@@ -73,6 +73,16 @@ void CefRenderFrameObserver::FocusedNodeChanged(const blink::WebNode& node) {
   browserPtr->FocusedNodeChanged(node);
 }
 
+void CefRenderFrameObserver::DraggableRegionsChanged() {
+  blink::WebLocalFrame* frame = render_frame()->GetWebFrame();
+  CefRefPtr<CefBrowserImpl> browserPtr =
+      CefBrowserImpl::GetBrowserForMainFrame(frame->Top());
+  if (!browserPtr.get())
+    return;
+
+  browserPtr->DraggableRegionsChanged(frame);
+}
+
 void CefRenderFrameObserver::DidCreateScriptContext(
     v8::Handle<v8::Context> context,
     int world_id) {

@@ -65,6 +65,7 @@
 #include "content/public/browser/render_view_host.h"
 #include "content/public/browser/render_widget_host.h"
 #include "content/public/browser/resource_request_info.h"
+#include "content/public/common/favicon_url.h"
 #include "net/base/net_errors.h"
 #include "third_party/WebKit/public/web/WebFindOptions.h"
 #include "ui/events/base_event_utils.h"
@@ -700,7 +701,7 @@ void CefBrowserHostImpl::StartDownload(const CefString& url) {
 
   std::unique_ptr<content::DownloadUrlParameters> params(
       content::DownloadUrlParameters::CreateForWebContentsMainFrame(
-          web_contents(), gurl));
+          web_contents(), gurl, NO_TRAFFIC_ANNOTATION_YET));
   manager->DownloadUrl(std::move(params));
 }
 
@@ -1526,7 +1527,9 @@ void CefBrowserHostImpl::Navigate(const CefNavigateParams& params) {
 
   request.method = params.method;
   request.referrer = params.referrer.url;
-  request.referrer_policy = params.referrer.policy;
+  request.referrer_policy =
+      CefRequestImpl::BlinkReferrerPolicyToNetReferrerPolicy(
+          params.referrer.policy);
   request.frame_id = params.frame_id;
   request.first_party_for_cookies = params.first_party_for_cookies;
   request.headers = params.headers;
@@ -2305,8 +2308,7 @@ void CefBrowserHostImpl::WebContentsCreated(
     int opener_render_frame_id,
     const std::string& frame_name,
     const GURL& target_url,
-    content::WebContents* new_contents,
-    const base::Optional<content::WebContents::CreateParams>& create_params) {
+    content::WebContents* new_contents) {
   CefBrowserSettings settings;
   CefRefPtr<CefClient> client;
   std::unique_ptr<CefBrowserPlatformDelegate> platform_delegate;
@@ -2673,7 +2675,7 @@ void CefBrowserHostImpl::DidUpdateFaviconURL(
       std::vector<CefString> icon_urls;
       std::vector<content::FaviconURL>::const_iterator it = candidates.begin();
       for (; it != candidates.end(); ++it) {
-        if (it->icon_type == content::FaviconURL::FAVICON)
+        if (it->icon_type == content::FaviconURL::IconType::kFavicon)
           icon_urls.push_back(it->icon_url.spec());
       }
       if (!icon_urls.empty())
@@ -2736,7 +2738,8 @@ void CefBrowserHostImpl::AccessibilityLocationChangesReceived(
   }
 }
 
-void CefBrowserHostImpl::OnWebContentsFocused() {
+void CefBrowserHostImpl::OnWebContentsFocused(
+    content::RenderWidgetHost* render_widget_host) {
   if (client_.get()) {
     CefRefPtr<CefFocusHandler> handler = client_->GetFocusHandler();
     if (handler.get())

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=ab912d3ba520a44af12ce5d8a1c359c29f850c87$
+// $hash=7ea387303c315f48e2a596bca0c549f47da8aa81$
 //
 
 #include "libcef_dll/cpptoc/keyboard_handler_cpptoc.h"
@@ -119,8 +119,8 @@ CefRefPtr<CefKeyboardHandler> CefCppToCRefCounted<
 template <>
 base::AtomicRefCount CefCppToCRefCounted<CefKeyboardHandlerCppToC,
                                          CefKeyboardHandler,
-                                         cef_keyboard_handler_t>::DebugObjCt =
-    0;
+                                         cef_keyboard_handler_t>::DebugObjCt
+    ATOMIC_DECLARATION;
 #endif
 
 template <>

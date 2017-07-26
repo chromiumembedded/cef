@@ -245,6 +245,11 @@ KioskDelegate* CefExtensionsBrowserClient::GetKioskDelegate() {
   return NULL;
 }
 
+bool CefExtensionsBrowserClient::IsLockScreenContext(
+    content::BrowserContext* context) {
+  return false;
+}
+
 void CefExtensionsBrowserClient::SetAPIClientForTest(
     ExtensionsAPIClient* api_client) {
   api_client_.reset(api_client);

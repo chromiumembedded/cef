@@ -1,8 +1,8 @@
 diff --git base/message_loop/message_loop.h base/message_loop/message_loop.h
-index fa25e78..cd62826 100644
+index 83c3191..c4c1290a 100644
 --- base/message_loop/message_loop.h
 +++ base/message_loop/message_loop.h
-@@ -288,6 +288,16 @@ class BASE_EXPORT MessageLoop : public MessagePump::Delegate,
+@@ -291,6 +291,16 @@ class BASE_EXPORT MessageLoop : public MessagePump::Delegate,
    void AddTaskObserver(TaskObserver* task_observer);
    void RemoveTaskObserver(TaskObserver* task_observer);
  
@@ -19,7 +19,7 @@ index fa25e78..cd62826 100644
    // Returns true if the message loop has high resolution timers enabled.
    // Provided for testing.
    bool HasHighResolutionTasks();
-@@ -416,6 +426,12 @@ class BASE_EXPORT MessageLoop : public MessagePump::Delegate,
+@@ -427,6 +437,12 @@ class BASE_EXPORT MessageLoop : public MessagePump::Delegate,
    // insider a (accidentally induced?) nested message pump.
    bool nestable_tasks_allowed_;
  

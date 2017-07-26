@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=1fc3388d5e22b38460cfbbdbbca15a10f19320c7$
+// $hash=f15fe0b9fa2f4687550cb93a612e01778f07c53e$
 //
 
 #include "libcef_dll/ctocpp/life_span_handler_ctocpp.h"
@@ -152,8 +152,8 @@ cef_life_span_handler_t* CefCToCppRefCounted<
 template <>
 base::AtomicRefCount CefCToCppRefCounted<CefLifeSpanHandlerCToCpp,
                                          CefLifeSpanHandler,
-                                         cef_life_span_handler_t>::DebugObjCt =
-    0;
+                                         cef_life_span_handler_t>::DebugObjCt
+    ATOMIC_DECLARATION;
 #endif
 
 template <>

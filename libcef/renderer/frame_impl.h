@@ -13,7 +13,7 @@
 class CefBrowserImpl;
 
 namespace blink {
-class WebFrame;
+class WebLocalFrame;
 }
 
 // Implementation of CefFrame. CefFrameImpl objects are owned by the
@@ -21,7 +21,7 @@ class WebFrame;
 // associated renderer WebFrame will close.
 class CefFrameImpl : public CefFrame {
  public:
-  CefFrameImpl(CefBrowserImpl* browser, blink::WebFrame* frame);
+  CefFrameImpl(CefBrowserImpl* browser, blink::WebLocalFrame* frame);
   ~CefFrameImpl() override;
 
   // CefFrame implementation.
@@ -54,13 +54,13 @@ class CefFrameImpl : public CefFrame {
 
   void Detach();
 
-  blink::WebFrame* web_frame() const { return frame_; }
+  blink::WebLocalFrame* web_frame() const { return frame_; }
 
  private:
   void ExecuteCommand(const std::string& command);
 
   CefBrowserImpl* browser_;
-  blink::WebFrame* frame_;
+  blink::WebLocalFrame* frame_;
   int64 frame_id_;
 
   IMPLEMENT_REFCOUNTING(CefFrameImpl);

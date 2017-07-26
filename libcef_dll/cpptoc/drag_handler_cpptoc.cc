@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=f56cb888482bc594b34fb05729c0cab9577c306e$
+// $hash=8b77d3c2c5f135905b2623b9b931e5fbbdc2533a$
 //
 
 #include "libcef_dll/cpptoc/drag_handler_cpptoc.h"
@@ -101,7 +101,8 @@ CefCppToCRefCounted<CefDragHandlerCppToC, CefDragHandler, cef_drag_handler_t>::
 template <>
 base::AtomicRefCount CefCppToCRefCounted<CefDragHandlerCppToC,
                                          CefDragHandler,
-                                         cef_drag_handler_t>::DebugObjCt = 0;
+                                         cef_drag_handler_t>::DebugObjCt
+    ATOMIC_DECLARATION;
 #endif
 
 template <>

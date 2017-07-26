@@ -10,12 +10,12 @@
 CefResponseManager::CefResponseManager() : next_request_id_(0) {}
 
 int CefResponseManager::GetNextRequestId() {
-  DCHECK(CalledOnValidThread());
+  DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
   return ++next_request_id_;
 }
 
 int CefResponseManager::RegisterHandler(CefRefPtr<Handler> handler) {
-  DCHECK(CalledOnValidThread());
+  DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
   int request_id = GetNextRequestId();
   TRACE_EVENT_ASYNC_BEGIN1("libcef", "CefResponseManager::Handler", request_id,
                            "request_id", request_id);
@@ -24,7 +24,7 @@ int CefResponseManager::RegisterHandler(CefRefPtr<Handler> handler) {
 }
 
 bool CefResponseManager::RunHandler(const Cef_Response_Params& params) {
-  DCHECK(CalledOnValidThread());
+  DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
   DCHECK_GT(params.request_id, 0);
   HandlerMap::iterator it = handlers_.find(params.request_id);
   if (it != handlers_.end()) {
@@ -42,12 +42,12 @@ bool CefResponseManager::RunHandler(const Cef_Response_Params& params) {
 
 void CefResponseManager::RegisterAckHandler(int request_id,
                                             CefRefPtr<AckHandler> handler) {
-  DCHECK(CalledOnValidThread());
+  DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
   ack_handlers_.insert(std::make_pair(request_id, handler));
 }
 
 bool CefResponseManager::RunAckHandler(int request_id) {
-  DCHECK(CalledOnValidThread());
+  DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
   DCHECK_GT(request_id, 0);
   AckHandlerMap::iterator it = ack_handlers_.find(request_id);
   if (it != ack_handlers_.end()) {

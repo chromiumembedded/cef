@@ -42,6 +42,8 @@ class CefStoragePartitionProxy : public content::StoragePartition {
   content::PaymentAppContextImpl* GetPaymentAppContext() override;
   content::BroadcastChannelProvider* GetBroadcastChannelProvider() override;
   content::BluetoothAllowedDevicesMap* GetBluetoothAllowedDevicesMap() override;
+  content::BlobURLLoaderFactory* GetBlobURLLoaderFactory() override;
+  content::BlobRegistryWrapper* GetBlobRegistry() override;
   void ClearDataForOrigin(uint32_t remove_mask,
                           uint32_t quota_storage_remove_mask,
                           const GURL& storage_origin,

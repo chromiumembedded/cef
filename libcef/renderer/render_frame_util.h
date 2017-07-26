@@ -11,14 +11,14 @@
 #include <string>
 
 namespace blink {
-class WebFrame;
+class WebLocalFrame;
 }
 
 namespace render_frame_util {
 
-int64_t GetIdentifier(blink::WebFrame* frame);
-std::string GetUniqueName(blink::WebFrame* frame);
+int64_t GetIdentifier(blink::WebLocalFrame* frame);
+std::string GetUniqueName(blink::WebLocalFrame* frame);
 
-}  // render_frame_util
+}  // namespace render_frame_util
 
 #endif  // CEF_LIBCEF_RENDERER_RENDER_FRAME_UTIL_H_

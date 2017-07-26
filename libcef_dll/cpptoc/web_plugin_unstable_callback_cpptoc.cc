@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=52bc768586692e9e780fefc07e789f3cfdc032fa$
+// $hash=b519fe405b48bf01449b0f8656d3088ebc80951a$
 //
 
 #include "libcef_dll/cpptoc/web_plugin_unstable_callback_cpptoc.h"
@@ -57,10 +57,10 @@ CefCppToCRefCounted<CefWebPluginUnstableCallbackCppToC,
 
 #if DCHECK_IS_ON()
 template <>
-base::AtomicRefCount
-    CefCppToCRefCounted<CefWebPluginUnstableCallbackCppToC,
-                        CefWebPluginUnstableCallback,
-                        cef_web_plugin_unstable_callback_t>::DebugObjCt = 0;
+base::AtomicRefCount CefCppToCRefCounted<
+    CefWebPluginUnstableCallbackCppToC,
+    CefWebPluginUnstableCallback,
+    cef_web_plugin_unstable_callback_t>::DebugObjCt ATOMIC_DECLARATION;
 #endif
 
 template <>

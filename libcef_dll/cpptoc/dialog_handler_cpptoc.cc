@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=2905826a83c8afbda57e2a6868bb447f8f22b58b$
+// $hash=170d331ab7043203f4f0af870145bd4a52f4a409$
 //
 
 #include "libcef_dll/cpptoc/dialog_handler_cpptoc.h"
@@ -85,7 +85,8 @@ CefRefPtr<CefDialogHandler> CefCppToCRefCounted<
 template <>
 base::AtomicRefCount CefCppToCRefCounted<CefDialogHandlerCppToC,
                                          CefDialogHandler,
-                                         cef_dialog_handler_t>::DebugObjCt = 0;
+                                         cef_dialog_handler_t>::DebugObjCt
+    ATOMIC_DECLARATION;
 #endif
 
 template <>

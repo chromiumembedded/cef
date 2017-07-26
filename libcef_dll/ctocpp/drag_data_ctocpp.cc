@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=543054b6b4e606ea5c571ca48d2108f8ed6674ab$
+// $hash=421034f458510f8528ffd3ef8fb6c87a95896c77$
 //
 
 #include "libcef_dll/ctocpp/drag_data_ctocpp.h"
@@ -420,9 +420,9 @@ CefCToCppRefCounted<CefDragDataCToCpp, CefDragData, cef_drag_data_t>::
 
 #if DCHECK_IS_ON()
 template <>
-base::AtomicRefCount CefCToCppRefCounted<CefDragDataCToCpp,
-                                         CefDragData,
-                                         cef_drag_data_t>::DebugObjCt = 0;
+base::AtomicRefCount
+    CefCToCppRefCounted<CefDragDataCToCpp, CefDragData, cef_drag_data_t>::
+        DebugObjCt ATOMIC_DECLARATION;
 #endif
 
 template <>

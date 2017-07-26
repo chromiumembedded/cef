@@ -282,8 +282,6 @@ void CefContentRendererClient::WebKitInitialized() {
         blink::WebSecurityPolicy::RegisterURLSchemeAsDisplayIsolated(scheme);
       if (info.is_secure)
         webkit_glue::RegisterURLSchemeAsSecure(scheme);
-      if (info.is_cors_enabled)
-        webkit_glue::RegisterURLSchemeAsCORSEnabled(scheme);
     }
   }
 
@@ -535,6 +533,9 @@ bool CefContentRendererClient::HandleNavigation(
     blink::WebNavigationType type,
     blink::WebNavigationPolicy default_policy,
     bool is_redirect) {
+  if (!frame->IsWebLocalFrame())
+    return false;
+
   CefRefPtr<CefApp> application = CefContentClient::Get()->application();
   if (application.get()) {
     CefRefPtr<CefRenderProcessHandler> handler =
@@ -543,7 +544,8 @@ bool CefContentRendererClient::HandleNavigation(
       CefRefPtr<CefBrowserImpl> browserPtr =
           CefBrowserImpl::GetBrowserForMainFrame(frame->Top());
       if (browserPtr.get()) {
-        CefRefPtr<CefFrameImpl> framePtr = browserPtr->GetWebFrameImpl(frame);
+        CefRefPtr<CefFrameImpl> framePtr =
+            browserPtr->GetWebFrameImpl(frame->ToWebLocalFrame());
         CefRefPtr<CefRequest> requestPtr(CefRequest::Create());
         CefRequestImpl* requestImpl =
             static_cast<CefRequestImpl*>(requestPtr.get());
@@ -611,6 +613,7 @@ bool CefContentRendererClient::WillSendRequest(
     blink::WebLocalFrame* frame,
     ui::PageTransition transition_type,
     const blink::WebURL& url,
+    std::vector<std::unique_ptr<content::URLLoaderThrottle>>* throttles,
     GURL* new_url) {
   if (extensions::ExtensionsEnabled()) {
     return extensions_renderer_client_->WillSendRequest(frame, transition_type,

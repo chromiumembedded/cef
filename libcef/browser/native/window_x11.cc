@@ -27,10 +27,6 @@ const char kNetWMPing[] = "_NET_WM_PING";
 const char kNetWMState[] = "_NET_WM_STATE";
 const char kXdndProxy[] = "XdndProxy";
 
-const char* kAtomsToCache[] = {
-    kAtom,      kWMDeleteWindow, kWMProtocols, kNetWMPid,
-    kNetWMPing, kNetWMState,     kXdndProxy,   NULL};
-
 ::Window FindEventTarget(const base::NativeEvent& xev) {
   ::Window target = xev->xany.window;
   if (xev->type == GenericEvent)
@@ -75,6 +71,7 @@ const char* kAtomsToCache[] = {
   }
   return top_level_window;
 }
+
 }  // namespace
 
 CEF_EXPORT XDisplay* cef_get_xdisplay() {
@@ -93,7 +90,6 @@ CefWindowX11::CefWindowX11(CefRefPtr<CefBrowserHostImpl> browser,
       window_mapped_(false),
       bounds_(bounds),
       focus_pending_(false),
-      atom_cache_(xdisplay_, kAtomsToCache),
       weak_ptr_factory_(this) {
   if (parent_xwindow_ == None)
     parent_xwindow_ = DefaultRootWindow(xdisplay_);
@@ -121,8 +117,8 @@ CefWindowX11::CefWindowX11(CefRefPtr<CefBrowserHostImpl> browser,
   // should listen for activation events and anything else that GTK+ listens
   // for, and do something useful.
   ::Atom protocols[2];
-  protocols[0] = atom_cache_.GetAtom(kWMDeleteWindow);
-  protocols[1] = atom_cache_.GetAtom(kNetWMPing);
+  protocols[0] = gfx::GetAtom(kWMDeleteWindow);
+  protocols[1] = gfx::GetAtom(kNetWMPing);
   XSetWMProtocols(xdisplay_, xwindow_, protocols, 2);
 
   // We need a WM_CLIENT_MACHINE and WM_LOCALE_NAME value so we integrate with
@@ -135,12 +131,8 @@ CefWindowX11::CefWindowX11(CefRefPtr<CefBrowserHostImpl> browser,
   static_assert(sizeof(long) >= sizeof(pid_t),
                 "pid_t should not be larger than long");
   long pid = getpid();
-  XChangeProperty(xdisplay_, xwindow_, atom_cache_.GetAtom(kNetWMPid),
-                  XA_CARDINAL, 32, PropModeReplace,
-                  reinterpret_cast<unsigned char*>(&pid), 1);
-
-  // Allow subclasses to create and cache additional atoms.
-  atom_cache_.allow_uncached_atoms();
+  XChangeProperty(xdisplay_, xwindow_, gfx::GetAtom(kNetWMPid), XA_CARDINAL, 32,
+                  PropModeReplace, reinterpret_cast<unsigned char*>(&pid), 1);
 }
 
 CefWindowX11::~CefWindowX11() {
@@ -153,9 +145,9 @@ void CefWindowX11::Close() {
   XEvent ev = {0};
   ev.xclient.type = ClientMessage;
   ev.xclient.window = xwindow_;
-  ev.xclient.message_type = atom_cache_.GetAtom(kWMProtocols);
+  ev.xclient.message_type = gfx::GetAtom(kWMProtocols);
   ev.xclient.format = 32;
-  ev.xclient.data.l[0] = atom_cache_.GetAtom(kWMDeleteWindow);
+  ev.xclient.data.l[0] = gfx::GetAtom(kWMDeleteWindow);
   ev.xclient.data.l[1] = CurrentTime;
   XSendEvent(xdisplay_, xwindow_, False, NoEventMask, &ev);
 }
@@ -200,13 +192,12 @@ void CefWindowX11::Show() {
 
       if (proxy_target != child) {
         // Set the proxy target for the top-most window.
-        XChangeProperty(xdisplay_, toplevel_window,
-                        atom_cache_.GetAtom(kXdndProxy), XA_WINDOW, 32,
-                        PropModeReplace,
+        XChangeProperty(xdisplay_, toplevel_window, gfx::GetAtom(kXdndProxy),
+                        XA_WINDOW, 32, PropModeReplace,
                         reinterpret_cast<unsigned char*>(&child), 1);
         // Do the same for the proxy target per the spec.
-        XChangeProperty(xdisplay_, child, atom_cache_.GetAtom(kXdndProxy),
-                        XA_WINDOW, 32, PropModeReplace,
+        XChangeProperty(xdisplay_, child, gfx::GetAtom(kXdndProxy), XA_WINDOW,
+                        32, PropModeReplace,
                         reinterpret_cast<unsigned char*>(&child), 1);
       }
     }
@@ -316,15 +307,15 @@ uint32_t CefWindowX11::DispatchEvent(const ui::PlatformEvent& event) {
     }
     case ClientMessage: {
       Atom message_type = xev->xclient.message_type;
-      if (message_type == atom_cache_.GetAtom(kWMProtocols)) {
+      if (message_type == gfx::GetAtom(kWMProtocols)) {
         Atom protocol = static_cast<Atom>(xev->xclient.data.l[0]);
-        if (protocol == atom_cache_.GetAtom(kWMDeleteWindow)) {
+        if (protocol == gfx::GetAtom(kWMDeleteWindow)) {
           // We have received a close message from the window manager.
           if (!browser_ || browser_->TryCloseBrowser()) {
             // Allow the close.
             XDestroyWindow(xdisplay_, xwindow_);
           }
-        } else if (protocol == atom_cache_.GetAtom(kNetWMPing)) {
+        } else if (protocol == gfx::GetAtom(kNetWMPing)) {
           XEvent reply_event = *xev;
           reply_event.xclient.window = parent_xwindow_;
 
@@ -370,7 +361,7 @@ uint32_t CefWindowX11::DispatchEvent(const ui::PlatformEvent& event) {
       break;
     case PropertyNotify: {
       ::Atom changed_atom = xev->xproperty.atom;
-      if (changed_atom == atom_cache_.GetAtom(kNetWMState)) {
+      if (changed_atom == gfx::GetAtom(kNetWMState)) {
         // State change event like minimize/maximize.
         if (browser_.get()) {
           ::Window child = FindChild(xdisplay_, xwindow_);
@@ -386,8 +377,8 @@ uint32_t CefWindowX11::DispatchEvent(const ui::PlatformEvent& event) {
               // Set an empty list of property values to pass the check in
               // DesktopWindowTreeHostX11::OnWMStateUpdated().
               XChangeProperty(xdisplay_, child,
-                              atom_cache_.GetAtom(kNetWMState),  // name
-                              atom_cache_.GetAtom(kAtom),        // type
+                              gfx::GetAtom(kNetWMState),  // name
+                              gfx::GetAtom(kAtom),        // type
                               32,  // size in bits of items in 'value'
                               PropModeReplace, NULL,
                               0);  // num items

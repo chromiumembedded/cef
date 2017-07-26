@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=874b9373e3311b3f0828c5c47d88500d268d4825$
+// $hash=1ed6d4078f88b50d14a585338c31379116c925a3$
 //
 
 #include "libcef_dll/ctocpp/response_ctocpp.h"
@@ -238,9 +238,9 @@ CefCToCppRefCounted<CefResponseCToCpp, CefResponse, cef_response_t>::
 
 #if DCHECK_IS_ON()
 template <>
-base::AtomicRefCount CefCToCppRefCounted<CefResponseCToCpp,
-                                         CefResponse,
-                                         cef_response_t>::DebugObjCt = 0;
+base::AtomicRefCount
+    CefCToCppRefCounted<CefResponseCToCpp, CefResponse, cef_response_t>::
+        DebugObjCt ATOMIC_DECLARATION;
 #endif
 
 template <>

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=e6cce9479e55e626246b278bc40c43bbdebd4746$
+// $hash=47f510069d12fe6f7b6ff01e49b9f559bd96ef3e$
 //
 
 #include "libcef_dll/ctocpp/read_handler_ctocpp.h"
@@ -107,7 +107,8 @@ CefCToCppRefCounted<CefReadHandlerCToCpp, CefReadHandler, cef_read_handler_t>::
 template <>
 base::AtomicRefCount CefCToCppRefCounted<CefReadHandlerCToCpp,
                                          CefReadHandler,
-                                         cef_read_handler_t>::DebugObjCt = 0;
+                                         cef_read_handler_t>::DebugObjCt
+    ATOMIC_DECLARATION;
 #endif
 
 template <>

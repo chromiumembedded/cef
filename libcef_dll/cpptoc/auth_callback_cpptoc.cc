@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=bffdd556dc95e464816b9aa0c8b46e7fadd89e5d$
+// $hash=59c6739c35bb63b28d66cc94109583eb5bd615f6$
 //
 
 #include "libcef_dll/cpptoc/auth_callback_cpptoc.h"
@@ -71,7 +71,8 @@ CefRefPtr<CefAuthCallback> CefCppToCRefCounted<
 template <>
 base::AtomicRefCount CefCppToCRefCounted<CefAuthCallbackCppToC,
                                          CefAuthCallback,
-                                         cef_auth_callback_t>::DebugObjCt = 0;
+                                         cef_auth_callback_t>::DebugObjCt
+    ATOMIC_DECLARATION;
 #endif
 
 template <>

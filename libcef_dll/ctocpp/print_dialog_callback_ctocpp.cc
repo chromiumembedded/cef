@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=6cb42b7225acbf15f3a90243cb7d0edf55cf4f46$
+// $hash=cdb630c6778da3e9e270cc6885a4e40f9f2e73f9$
 //
 
 #include "libcef_dll/ctocpp/print_dialog_callback_ctocpp.h"
@@ -61,10 +61,10 @@ cef_print_dialog_callback_t* CefCToCppRefCounted<
 
 #if DCHECK_IS_ON()
 template <>
-base::AtomicRefCount
-    CefCToCppRefCounted<CefPrintDialogCallbackCToCpp,
-                        CefPrintDialogCallback,
-                        cef_print_dialog_callback_t>::DebugObjCt = 0;
+base::AtomicRefCount CefCToCppRefCounted<
+    CefPrintDialogCallbackCToCpp,
+    CefPrintDialogCallback,
+    cef_print_dialog_callback_t>::DebugObjCt ATOMIC_DECLARATION;
 #endif
 
 template <>

@@ -43,8 +43,8 @@ CEF_VIEW_VIEW_T class CefViewView : public ViewsViewClass {
   // views::View-derived methods here.
   virtual void Initialize() {
     // Use our defaults instead of the Views framework defaults.
-    ParentClass::set_background(views::Background::CreateSolidBackground(
-        view_util::kDefaultBackgroundColor));
+    ParentClass::SetBackground(
+        views::CreateSolidBackground(view_util::kDefaultBackgroundColor));
   }
 
   // Returns the CefViewDelegate-derived delegate associated with this view.
@@ -63,7 +63,7 @@ CEF_VIEW_VIEW_T class CefViewView : public ViewsViewClass {
   }
 
   // views::View methods:
-  gfx::Size GetPreferredSize() const override;
+  gfx::Size CalculatePreferredSize() const override;
   gfx::Size GetMinimumSize() const override;
   gfx::Size GetMaximumSize() const override;
   int GetHeightForWidth(int w) const override;
@@ -87,7 +87,7 @@ CEF_VIEW_VIEW_T class CefViewView : public ViewsViewClass {
   CefViewDelegateClass* cef_delegate_;
 };
 
-CEF_VIEW_VIEW_T gfx::Size CEF_VIEW_VIEW_D::GetPreferredSize() const {
+CEF_VIEW_VIEW_T gfx::Size CEF_VIEW_VIEW_D::CalculatePreferredSize() const {
   gfx::Size result;
   if (cef_delegate()) {
     CefSize cef_size = cef_delegate()->GetPreferredSize(GetCefView());
@@ -95,7 +95,7 @@ CEF_VIEW_VIEW_T gfx::Size CEF_VIEW_VIEW_D::GetPreferredSize() const {
       result = gfx::Size(cef_size.width, cef_size.height);
   }
   if (result.IsEmpty())
-    result = ParentClass::GetPreferredSize();
+    result = ParentClass::CalculatePreferredSize();
   if (result.IsEmpty()) {
     // Some layouts like BoxLayout expect the preferred size to be non-empty.
     // The user may have set the size explicitly. Therefore return the current
@@ -142,7 +142,7 @@ CEF_VIEW_VIEW_T int CEF_VIEW_VIEW_D::GetHeightForWidth(int w) const {
     // Some layouts like FillLayout will ignore the preferred size if this view
     // has no children. We want to use the preferred size if not otherwise
     // specified.
-    result = GetPreferredSize().height();
+    result = ParentClass::GetPreferredSize().height();
   }
   return result;
 }

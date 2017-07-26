@@ -1,5 +1,5 @@
 diff --git content/public/common/common_param_traits_macros.h content/public/common/common_param_traits_macros.h
-index 5ff2bb0..a1a62f2 100644
+index 95656cd..35f26f1 100644
 --- content/public/common/common_param_traits_macros.h
 +++ content/public/common/common_param_traits_macros.h
 @@ -205,6 +205,7 @@ IPC_STRUCT_TRAITS_BEGIN(content::WebPreferences)
@@ -11,7 +11,7 @@ index 5ff2bb0..a1a62f2 100644
    IPC_STRUCT_TRAITS_MEMBER(navigate_on_drag_drop)
    IPC_STRUCT_TRAITS_MEMBER(spatial_navigation_enabled)
 diff --git content/public/common/web_preferences.cc content/public/common/web_preferences.cc
-index 1e00ba5..d829b4f 100644
+index 767e91c..34f59fe 100644
 --- content/public/common/web_preferences.cc
 +++ content/public/common/web_preferences.cc
 @@ -171,6 +171,7 @@ WebPreferences::WebPreferences()
@@ -20,25 +20,25 @@ index 1e00ba5..d829b4f 100644
        navigate_on_drag_drop(true),
 +      base_background_color(0xFFFFFFFF),  // Color::white
        v8_cache_options(V8_CACHE_OPTIONS_DEFAULT),
-       inert_visual_viewport(false),
        record_whole_document(false),
+       cookie_enabled(true),
 diff --git content/public/common/web_preferences.h content/public/common/web_preferences.h
-index 80816ae..46de601 100644
+index 5012952..ed17a57 100644
 --- content/public/common/web_preferences.h
 +++ content/public/common/web_preferences.h
-@@ -190,6 +190,7 @@ struct CONTENT_EXPORT WebPreferences {
+@@ -191,6 +191,7 @@ struct CONTENT_EXPORT WebPreferences {
    bool spatial_navigation_enabled;
    bool use_solid_color_scrollbars;
    bool navigate_on_drag_drop;
 +  uint32_t base_background_color;
    V8CacheOptions v8_cache_options;
-   bool inert_visual_viewport;
    bool record_whole_document;
+ 
 diff --git content/renderer/render_view_impl.cc content/renderer/render_view_impl.cc
-index de3e891..d703c8e 100644
+index f26cc78..fab85a3 100644
 --- content/renderer/render_view_impl.cc
 +++ content/renderer/render_view_impl.cc
-@@ -1396,6 +1396,8 @@ void RenderViewImpl::ApplyWebPreferencesInternal(
+@@ -1317,6 +1317,8 @@ void RenderViewImpl::ApplyWebPreferencesInternal(
      blink::WebView* web_view,
      CompositorDependencies* compositor_deps) {
    ApplyWebPreferences(prefs, web_view);

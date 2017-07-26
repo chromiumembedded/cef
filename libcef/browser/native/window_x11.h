@@ -70,8 +70,6 @@ class CefWindowX11 : public ui::PlatformEventDispatcher {
 
   bool focus_pending_;
 
-  ui::X11AtomCache atom_cache_;
-
   // Must always be the last member.
   base::WeakPtrFactory<CefWindowX11> weak_ptr_factory_;
 

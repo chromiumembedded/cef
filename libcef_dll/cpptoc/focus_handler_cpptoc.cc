@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=d3d4fbf680412ca26d5803ffd269dea1e06ed388$
+// $hash=5e9bcff341867aa58f89af0d53223402929b6a4d$
 //
 
 #include "libcef_dll/cpptoc/focus_handler_cpptoc.h"
@@ -98,7 +98,8 @@ CefRefPtr<CefFocusHandler> CefCppToCRefCounted<
 template <>
 base::AtomicRefCount CefCppToCRefCounted<CefFocusHandlerCppToC,
                                          CefFocusHandler,
-                                         cef_focus_handler_t>::DebugObjCt = 0;
+                                         cef_focus_handler_t>::DebugObjCt
+    ATOMIC_DECLARATION;
 #endif
 
 template <>

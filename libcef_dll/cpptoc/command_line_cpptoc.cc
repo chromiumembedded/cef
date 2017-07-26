@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=b8f85a07998ec47d97910a04b0e68b34700a55ea$
+// $hash=e1f9cd96b87ed70f777a4b1b894137a0667b254d$
 //
 
 #include "libcef_dll/cpptoc/command_line_cpptoc.h"
@@ -425,7 +425,8 @@ CefCppToCRefCounted<CefCommandLineCppToC, CefCommandLine, cef_command_line_t>::
 template <>
 base::AtomicRefCount CefCppToCRefCounted<CefCommandLineCppToC,
                                          CefCommandLine,
-                                         cef_command_line_t>::DebugObjCt = 0;
+                                         cef_command_line_t>::DebugObjCt
+    ATOMIC_DECLARATION;
 #endif
 
 template <>

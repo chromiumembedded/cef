@@ -426,8 +426,10 @@ net::NetworkDelegate::AuthRequiredResponse CefNetworkDelegate::OnAuthRequired(
   return AUTH_REQUIRED_RESPONSE_NO_ACTION;
 }
 
-bool CefNetworkDelegate::OnCanAccessFile(const net::URLRequest& request,
-                                         const base::FilePath& path) const {
+bool CefNetworkDelegate::OnCanAccessFile(
+    const net::URLRequest& request,
+    const base::FilePath& original_path,
+    const base::FilePath& absolute_path) const {
   return true;
 }
 

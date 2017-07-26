@@ -6,7 +6,9 @@
 #ifndef LIBCEF_UTILITY_CONTENT_UTILITY_CLIENT_H_
 #define LIBCEF_UTILITY_CONTENT_UTILITY_CLIENT_H_
 
-#include "base/memory/scoped_vector.h"
+#include <memory>
+#include <vector>
+
 #include "content/public/utility/content_utility_client.h"
 
 class UtilityMessageHandler;
@@ -21,7 +23,7 @@ class CefContentUtilityClient : public content::ContentUtilityClient {
   void RegisterServices(StaticServiceMap* services) override;
 
  private:
-  typedef ScopedVector<UtilityMessageHandler> Handlers;
+  using Handlers = std::vector<std::unique_ptr<UtilityMessageHandler>>;
   Handlers handlers_;
 
   DISALLOW_COPY_AND_ASSIGN(CefContentUtilityClient);

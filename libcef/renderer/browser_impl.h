@@ -32,8 +32,9 @@ class ListValue;
 }
 
 namespace blink {
+class WebFrame;
 class WebNode;
-}
+}  // namespace blink
 
 // Renderer plumbing for CEF features. There is a one-to-one relationship
 // between RenderView on the renderer side and RenderViewHost on the browser
@@ -91,7 +92,7 @@ class CefBrowserImpl : public CefBrowser, public content::RenderViewObserver {
                           bool user_initiated);
 
   // Returns the matching CefFrameImpl reference or creates a new one.
-  CefRefPtr<CefFrameImpl> GetWebFrameImpl(blink::WebFrame* frame);
+  CefRefPtr<CefFrameImpl> GetWebFrameImpl(blink::WebLocalFrame* frame);
   CefRefPtr<CefFrameImpl> GetWebFrameImpl(int64_t frame_id);
 
   // Frame objects will be deleted immediately before the frame is closed.
@@ -114,14 +115,14 @@ class CefBrowserImpl : public CefBrowser, public content::RenderViewObserver {
                               const blink::WebURLError& error) override;
   void DidCommitProvisionalLoad(blink::WebLocalFrame* frame,
                                 bool is_new_navigation) override;
-  void DraggableRegionsChanged(blink::WebFrame* frame) override;
   bool OnMessageReceived(const IPC::Message& message) override;
 
   // Forwarded from CefRenderFrameObserver.
   void DidFinishLoad(blink::WebLocalFrame* frame);
   void DidStartProvisionalLoad(blink::WebLocalFrame* frame);
-  void FrameDetached(blink::WebFrame* frame);
+  void FrameDetached(blink::WebLocalFrame* frame);
   void FocusedNodeChanged(const blink::WebNode& node);
+  void DraggableRegionsChanged(blink::WebLocalFrame* frame);
 
  private:
   // RenderViewObserver::OnMessageReceived message handlers.

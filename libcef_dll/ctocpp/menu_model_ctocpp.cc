@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=be685c43e83d5b570606ed3708ce83d9e6bad0c8$
+// $hash=5e3c716f25ba54a3d277d13612b8d90f68518638$
 //
 
 #include "libcef_dll/ctocpp/menu_model_ctocpp.h"
@@ -972,9 +972,9 @@ CefCToCppRefCounted<CefMenuModelCToCpp, CefMenuModel, cef_menu_model_t>::
 
 #if DCHECK_IS_ON()
 template <>
-base::AtomicRefCount CefCToCppRefCounted<CefMenuModelCToCpp,
-                                         CefMenuModel,
-                                         cef_menu_model_t>::DebugObjCt = 0;
+base::AtomicRefCount
+    CefCToCppRefCounted<CefMenuModelCToCpp, CefMenuModel, cef_menu_model_t>::
+        DebugObjCt ATOMIC_DECLARATION;
 #endif
 
 template <>

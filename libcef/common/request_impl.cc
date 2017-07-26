@@ -90,42 +90,6 @@ class FileElementReader : public net::UploadFileElementReader {
   DISALLOW_COPY_AND_ASSIGN(FileElementReader);
 };
 
-// GetURLRequestReferrerPolicy() and GetURLRequestReferrer() are based on
-// SetReferrerForRequest() from
-// content/browser/loader/resource_dispatcher_host_impl.cc
-
-net::URLRequest::ReferrerPolicy GetURLRequestReferrerPolicy(
-    cef_referrer_policy_t policy) {
-  base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
-  net::URLRequest::ReferrerPolicy net_referrer_policy =
-      net::URLRequest::CLEAR_REFERRER_ON_TRANSITION_FROM_SECURE_TO_INSECURE;
-  switch (static_cast<blink::WebReferrerPolicy>(policy)) {
-    case blink::kWebReferrerPolicyAlways:
-    case blink::kWebReferrerPolicyNever:
-    case blink::kWebReferrerPolicyOrigin:
-      net_referrer_policy = net::URLRequest::NEVER_CLEAR_REFERRER;
-      break;
-    case blink::kWebReferrerPolicyNoReferrerWhenDowngrade:
-      net_referrer_policy =
-          net::URLRequest::CLEAR_REFERRER_ON_TRANSITION_FROM_SECURE_TO_INSECURE;
-      break;
-    case blink::kWebReferrerPolicyOriginWhenCrossOrigin:
-      net_referrer_policy =
-          net::URLRequest::ORIGIN_ONLY_ON_TRANSITION_CROSS_ORIGIN;
-      break;
-    case blink::kWebReferrerPolicyDefault:
-    default:
-      net_referrer_policy =
-          command_line->HasSwitch(switches::kReducedReferrerGranularity)
-              ? net::URLRequest::
-                    REDUCE_REFERRER_GRANULARITY_ON_TRANSITION_CROSS_ORIGIN
-              : net::URLRequest::
-                    CLEAR_REFERRER_ON_TRANSITION_FROM_SECURE_TO_INSECURE;
-      break;
-  }
-  return net_referrer_policy;
-}
-
 std::string GetURLRequestReferrer(const GURL& referrer_url) {
   base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
   if (!referrer_url.is_valid() ||
@@ -251,6 +215,11 @@ CefRefPtr<CefRequest> CefRequest::Create() {
 // CefRequestImpl -------------------------------------------------------------
 
 CefRequestImpl::CefRequestImpl() : read_only_(false), track_changes_(false) {
+  // Verify that our enum matches Chromium's values.
+  static_assert(
+      REFERRER_POLICY_LAST_VALUE == net::URLRequest::MAX_REFERRER_POLICY,
+      "enum mismatch");
+
   base::AutoLock lock_scope(lock_);
   Reset();
 }
@@ -422,30 +391,8 @@ void CefRequestImpl::Set(net::URLRequest* request) {
   // instance WebCore::FrameLoader::HideReferrer.
   if (referrer.is_valid()) {
     referrer_url_ = referrer;
-    switch (request->referrer_policy()) {
-      case net::URLRequest::
-          CLEAR_REFERRER_ON_TRANSITION_FROM_SECURE_TO_INSECURE:
-        referrer_policy_ = REFERRER_POLICY_NO_REFERRER_WHEN_DOWNGRADE;
-        break;
-      case net::URLRequest::
-          REDUCE_REFERRER_GRANULARITY_ON_TRANSITION_CROSS_ORIGIN:
-        referrer_policy_ = REFERRER_POLICY_ORIGIN_WHEN_CROSS_ORIGIN;
-        break;
-      case net::URLRequest::ORIGIN_ONLY_ON_TRANSITION_CROSS_ORIGIN:
-        referrer_policy_ = REFERRER_POLICY_ORIGIN_WHEN_CROSS_ORIGIN;
-        break;
-      case net::URLRequest::NEVER_CLEAR_REFERRER:
-        referrer_policy_ = REFERRER_POLICY_ALWAYS;
-        break;
-      case net::URLRequest::ORIGIN:
-        referrer_policy_ = REFERRER_POLICY_ORIGIN;
-        break;
-      case net::URLRequest::NO_REFERRER:
-        referrer_policy_ = REFERRER_POLICY_NEVER;
-        break;
-      case net::URLRequest::MAX_REFERRER_POLICY:
-        break;
-    }
+    referrer_policy_ =
+        static_cast<cef_referrer_policy_t>(request->referrer_policy());
   }
 
   // Transfer request headers.
@@ -477,7 +424,8 @@ void CefRequestImpl::Get(net::URLRequest* request, bool changed_only) const {
 
   if (ShouldSet(kChangedReferrer, changed_only)) {
     request->SetReferrer(GetURLRequestReferrer(referrer_url_));
-    request->set_referrer_policy(GetURLRequestReferrerPolicy(referrer_policy_));
+    request->set_referrer_policy(
+        static_cast<net::URLRequest::ReferrerPolicy>(referrer_policy_));
   }
 
   if (ShouldSet(kChangedHeaderMap, changed_only)) {
@@ -516,7 +464,7 @@ void CefRequestImpl::Set(
       content::Referrer::SanitizeForRequest(params.url(), params.referrer());
   referrer_url_ = sanitized_referrer.url;
   referrer_policy_ =
-      static_cast<cef_referrer_policy_t>(sanitized_referrer.policy);
+      BlinkReferrerPolicyToNetReferrerPolicy(sanitized_referrer.policy);
 
   resource_type_ = is_main_frame ? RT_MAIN_FRAME : RT_SUB_FRAME;
   transition_type_ =
@@ -536,7 +484,7 @@ void CefRequestImpl::Set(const blink::WebURLRequest& request) {
 
   ::GetHeaderMap(request, headermap_, referrer_url_);
   referrer_policy_ =
-      static_cast<cef_referrer_policy_t>(request.GetReferrerPolicy());
+      BlinkReferrerPolicyToNetReferrerPolicy(request.GetReferrerPolicy());
 
   const blink::WebHTTPBody& body = request.HttpBody();
   if (!body.IsNull()) {
@@ -565,11 +513,11 @@ void CefRequestImpl::Get(blink::WebURLRequest& request,
   if (!referrer_url_.is_empty()) {
     const blink::WebString& referrer =
         blink::WebSecurityPolicy::GenerateReferrerHeader(
-            static_cast<blink::WebReferrerPolicy>(referrer_policy_), url_,
+            NetReferrerPolicyToBlinkReferrerPolicy(referrer_policy_), url_,
             blink::WebString::FromUTF8(referrer_url_.spec()));
     if (!referrer.IsEmpty()) {
       request.SetHTTPReferrer(
-          referrer, static_cast<blink::WebReferrerPolicy>(referrer_policy_));
+          referrer, NetReferrerPolicyToBlinkReferrerPolicy(referrer_policy_));
     }
   }
 
@@ -616,11 +564,14 @@ void CefRequestImpl::Get(const CefMsg_LoadRequest_Params& params,
   if (params.referrer.is_valid()) {
     const blink::WebString& referrer =
         blink::WebSecurityPolicy::GenerateReferrerHeader(
-            static_cast<blink::WebReferrerPolicy>(params.referrer_policy),
+            NetReferrerPolicyToBlinkReferrerPolicy(
+                static_cast<cef_referrer_policy_t>(params.referrer_policy)),
             params.url, blink::WebString::FromUTF8(params.referrer.spec()));
     if (!referrer.IsEmpty()) {
-      request.SetHTTPReferrer(referrer, static_cast<blink::WebReferrerPolicy>(
-                                            params.referrer_policy));
+      request.SetHTTPReferrer(
+          referrer,
+          NetReferrerPolicyToBlinkReferrerPolicy(
+              static_cast<cef_referrer_policy_t>(params.referrer_policy)));
     }
   }
 
@@ -691,7 +642,7 @@ void CefRequestImpl::Get(CefNavigateParams& params) const {
   // Referrer policy will be applied later in the request pipeline.
   params.referrer.url = referrer_url_;
   params.referrer.policy =
-      static_cast<blink::WebReferrerPolicy>(referrer_policy_);
+      NetReferrerPolicyToBlinkReferrerPolicy(referrer_policy_);
 
   if (!headermap_.empty())
     params.headers = HttpHeaderUtils::GenerateHeaders(headermap_);
@@ -712,7 +663,8 @@ void CefRequestImpl::Get(net::URLFetcher& fetcher,
 
   if (!referrer_url_.is_empty()) {
     fetcher.SetReferrer(GetURLRequestReferrer(referrer_url_));
-    fetcher.SetReferrerPolicy(GetURLRequestReferrerPolicy(referrer_policy_));
+    fetcher.SetReferrerPolicy(
+        static_cast<net::URLRequest::ReferrerPolicy>(referrer_policy_));
   }
 
   CefRequest::HeaderMap headerMap = headermap_;
@@ -824,6 +776,63 @@ uint8_t CefRequestImpl::GetChanges() const {
     changes |= kChangedPostData;
   }
   return changes;
+}
+
+// From content/child/web_url_loader_impl.cc
+// static
+blink::WebReferrerPolicy CefRequestImpl::NetReferrerPolicyToBlinkReferrerPolicy(
+    cef_referrer_policy_t net_policy) {
+  switch (net_policy) {
+    case REFERRER_POLICY_CLEAR_REFERRER_ON_TRANSITION_FROM_SECURE_TO_INSECURE:
+      return blink::kWebReferrerPolicyNoReferrerWhenDowngrade;
+    case REFERRER_POLICY_REDUCE_REFERRER_GRANULARITY_ON_TRANSITION_CROSS_ORIGIN:
+      return blink::
+          kWebReferrerPolicyNoReferrerWhenDowngradeOriginWhenCrossOrigin;
+    case REFERRER_POLICY_ORIGIN_ONLY_ON_TRANSITION_CROSS_ORIGIN:
+      return blink::kWebReferrerPolicyOriginWhenCrossOrigin;
+    case REFERRER_POLICY_NEVER_CLEAR_REFERRER:
+      return blink::kWebReferrerPolicyAlways;
+    case REFERRER_POLICY_ORIGIN:
+      return blink::kWebReferrerPolicyOrigin;
+    case REFERRER_POLICY_CLEAR_REFERRER_ON_TRANSITION_CROSS_ORIGIN:
+      return blink::kWebReferrerPolicySameOrigin;
+    case REFERRER_POLICY_ORIGIN_CLEAR_ON_TRANSITION_FROM_SECURE_TO_INSECURE:
+      return blink::kWebReferrerPolicyStrictOrigin;
+    case REFERRER_POLICY_NO_REFERRER:
+      return blink::kWebReferrerPolicyNever;
+    case REFERRER_POLICY_LAST_VALUE:
+      NOTREACHED();
+      return blink::kWebReferrerPolicyDefault;
+  }
+  NOTREACHED();
+  return blink::kWebReferrerPolicyDefault;
+}
+
+// static
+cef_referrer_policy_t CefRequestImpl::BlinkReferrerPolicyToNetReferrerPolicy(
+    blink::WebReferrerPolicy blink_policy) {
+  switch (blink_policy) {
+    case blink::kWebReferrerPolicyNoReferrerWhenDowngrade:
+      return REFERRER_POLICY_CLEAR_REFERRER_ON_TRANSITION_FROM_SECURE_TO_INSECURE;
+    case blink::kWebReferrerPolicyNoReferrerWhenDowngradeOriginWhenCrossOrigin:
+      return REFERRER_POLICY_REDUCE_REFERRER_GRANULARITY_ON_TRANSITION_CROSS_ORIGIN;
+    case blink::kWebReferrerPolicyOriginWhenCrossOrigin:
+      return REFERRER_POLICY_ORIGIN_ONLY_ON_TRANSITION_CROSS_ORIGIN;
+    case blink::kWebReferrerPolicyAlways:
+      return REFERRER_POLICY_NEVER_CLEAR_REFERRER;
+    case blink::kWebReferrerPolicyOrigin:
+      return REFERRER_POLICY_ORIGIN;
+    case blink::kWebReferrerPolicySameOrigin:
+      return REFERRER_POLICY_CLEAR_REFERRER_ON_TRANSITION_CROSS_ORIGIN;
+    case blink::kWebReferrerPolicyStrictOrigin:
+      return REFERRER_POLICY_ORIGIN_CLEAR_ON_TRANSITION_FROM_SECURE_TO_INSECURE;
+    case blink::kWebReferrerPolicyNever:
+      return REFERRER_POLICY_NO_REFERRER;
+    case blink::kWebReferrerPolicyDefault:
+      return REFERRER_POLICY_DEFAULT;
+  }
+  NOTREACHED();
+  return REFERRER_POLICY_DEFAULT;
 }
 
 void CefRequestImpl::Changed(uint8_t changes) {

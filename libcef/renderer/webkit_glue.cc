@@ -66,7 +66,7 @@ void GoForward(blink::WebView* view) {
     impl->Client()->NavigateBackForwardSoon(1);
 }
 
-std::string DumpDocumentText(blink::WebFrame* frame) {
+std::string DumpDocumentText(blink::WebLocalFrame* frame) {
   // We use the document element's text instead of the body text here because
   // not all documents have a body, such as XML documents.
   blink::WebElement document_element = frame->GetDocument().DocumentElement();
@@ -201,10 +201,6 @@ void RegisterURLSchemeAsSecure(const blink::WebString& scheme) {
   blink::SchemeRegistry::RegisterURLSchemeAsSecure(scheme);
 }
 
-void RegisterURLSchemeAsCORSEnabled(const blink::WebString& scheme) {
-  blink::SchemeRegistry::RegisterURLSchemeAsCORSEnabled(scheme);
-}
-
 struct CefScriptForbiddenScope::Impl {
   blink::ScriptForbiddenScope scope_;
 };
@@ -213,4 +209,4 @@ CefScriptForbiddenScope::CefScriptForbiddenScope() : impl_(new Impl()) {}
 
 CefScriptForbiddenScope::~CefScriptForbiddenScope() {}
 
-}  // webkit_glue
+}  // namespace webkit_glue

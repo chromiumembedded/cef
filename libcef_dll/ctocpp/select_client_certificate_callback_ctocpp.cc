@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=843bc95ef88f74f32af2d7bc9a42d6b841b052e7$
+// $hash=8601f86f6803d80f7f657e759bf1663f3ffe2365$
 //
 
 #include "libcef_dll/ctocpp/select_client_certificate_callback_ctocpp.h"
@@ -48,11 +48,10 @@ CefCToCppRefCounted<CefSelectClientCertificateCallbackCToCpp,
 
 #if DCHECK_IS_ON()
 template <>
-base::AtomicRefCount
-    CefCToCppRefCounted<CefSelectClientCertificateCallbackCToCpp,
-                        CefSelectClientCertificateCallback,
-                        cef_select_client_certificate_callback_t>::DebugObjCt =
-        0;
+base::AtomicRefCount CefCToCppRefCounted<
+    CefSelectClientCertificateCallbackCToCpp,
+    CefSelectClientCertificateCallback,
+    cef_select_client_certificate_callback_t>::DebugObjCt ATOMIC_DECLARATION;
 #endif
 
 template <>

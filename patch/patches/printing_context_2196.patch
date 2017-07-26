@@ -1,8 +1,8 @@
 diff --git chrome/browser/printing/print_job_worker.cc chrome/browser/printing/print_job_worker.cc
-index d06b61a..f41f848 100644
+index 5616013..6d3737d 100644
 --- chrome/browser/printing/print_job_worker.cc
 +++ chrome/browser/printing/print_job_worker.cc
-@@ -121,6 +121,7 @@ PrintJobWorker::PrintJobWorker(int render_process_id,
+@@ -125,6 +125,7 @@ PrintJobWorker::PrintJobWorker(int render_process_id,
    printing_context_delegate_ = base::MakeUnique<PrintingContextDelegate>(
        render_process_id, render_frame_id);
    printing_context_ = PrintingContext::Create(printing_context_delegate_.get());

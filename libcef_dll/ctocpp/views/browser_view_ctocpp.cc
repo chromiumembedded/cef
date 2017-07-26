@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=db4176c64eb45165a67d1495aa9222169c6f4c89$
+// $hash=2a05b31a5319076dd78e9cf7769ba33f7cdb808b$
 //
 
 #include "libcef_dll/ctocpp/views/browser_view_ctocpp.h"
@@ -766,7 +766,8 @@ CefCToCppRefCounted<CefBrowserViewCToCpp, CefBrowserView, cef_browser_view_t>::
 template <>
 base::AtomicRefCount CefCToCppRefCounted<CefBrowserViewCToCpp,
                                          CefBrowserView,
-                                         cef_browser_view_t>::DebugObjCt = 0;
+                                         cef_browser_view_t>::DebugObjCt
+    ATOMIC_DECLARATION;
 #endif
 
 template <>

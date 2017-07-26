@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=c918146a8bbbc5f3e93e6471f9dbab9ca74785a9$
+// $hash=15d4c929e3597024c17b90ccfba019413d758b9b$
 //
 
 #include "libcef_dll/cpptoc/views/panel_delegate_cpptoc.h"
@@ -228,7 +228,8 @@ CefRefPtr<CefPanelDelegate> CefCppToCRefCounted<
 template <>
 base::AtomicRefCount CefCppToCRefCounted<CefPanelDelegateCppToC,
                                          CefPanelDelegate,
-                                         cef_panel_delegate_t>::DebugObjCt = 0;
+                                         cef_panel_delegate_t>::DebugObjCt
+    ATOMIC_DECLARATION;
 #endif
 
 template <>

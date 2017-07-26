@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=2bc0696da2c14f967c6b16e3f78e1e4479ed50d1$
+// $hash=9f8701b130114d4d36b9df1045dc65b899f7141c$
 //
 
 #include "libcef_dll/cpptoc/request_context_handler_cpptoc.h"
@@ -96,10 +96,10 @@ CefRefPtr<CefRequestContextHandler> CefCppToCRefCounted<
 
 #if DCHECK_IS_ON()
 template <>
-base::AtomicRefCount
-    CefCppToCRefCounted<CefRequestContextHandlerCppToC,
-                        CefRequestContextHandler,
-                        cef_request_context_handler_t>::DebugObjCt = 0;
+base::AtomicRefCount CefCppToCRefCounted<
+    CefRequestContextHandlerCppToC,
+    CefRequestContextHandler,
+    cef_request_context_handler_t>::DebugObjCt ATOMIC_DECLARATION;
 #endif
 
 template <>

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=349630df161107399c7de224db24d618df00e49d$
+// $hash=bd5e0a21a483546f203af9b6526ce175eab8b669$
 //
 
 #include "libcef_dll/cpptoc/v8stack_trace_cpptoc.h"
@@ -100,7 +100,8 @@ CefRefPtr<CefV8StackTrace> CefCppToCRefCounted<
 template <>
 base::AtomicRefCount CefCppToCRefCounted<CefV8StackTraceCppToC,
                                          CefV8StackTrace,
-                                         cef_v8stack_trace_t>::DebugObjCt = 0;
+                                         cef_v8stack_trace_t>::DebugObjCt
+    ATOMIC_DECLARATION;
 #endif
 
 template <>

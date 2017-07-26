@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=55a9aa1a0d6cf32067a80b6885c7c79b9289eea1$
+// $hash=f725b8ec07b64d7374594b5661d9fddb094f0a7c$
 //
 
 #include "libcef_dll/cpptoc/xml_reader_cpptoc.h"
@@ -560,9 +560,9 @@ CefCppToCRefCounted<CefXmlReaderCppToC, CefXmlReader, cef_xml_reader_t>::
 
 #if DCHECK_IS_ON()
 template <>
-base::AtomicRefCount CefCppToCRefCounted<CefXmlReaderCppToC,
-                                         CefXmlReader,
-                                         cef_xml_reader_t>::DebugObjCt = 0;
+base::AtomicRefCount
+    CefCppToCRefCounted<CefXmlReaderCppToC, CefXmlReader, cef_xml_reader_t>::
+        DebugObjCt ATOMIC_DECLARATION;
 #endif
 
 template <>

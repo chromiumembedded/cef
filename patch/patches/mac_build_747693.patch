@@ -1,0 +1,118 @@
+diff --git chrome/browser/ui/cocoa/autofill/autofill_popup_view_cocoa.h chrome/browser/ui/cocoa/autofill/autofill_popup_view_cocoa.h
+index 18755d494cf3..3605076be5d1 100644
+--- chrome/browser/ui/cocoa/autofill/autofill_popup_view_cocoa.h
++++ chrome/browser/ui/cocoa/autofill/autofill_popup_view_cocoa.h
+@@ -8,6 +8,7 @@
+ #import <Cocoa/Cocoa.h>
+ #include <stddef.h>
+ 
++#include "base/mac/availability.h"
+ #import "chrome/browser/ui/cocoa/autofill/autofill_popup_base_view_cocoa.h"
+ #import "ui/base/cocoa/touch_bar_forward_declarations.h"
+ 
+@@ -38,7 +39,7 @@ class AutofillPopupViewCocoaDelegate;
+ - (void)invalidateRow:(NSInteger)row;
+ 
+ // Creates and returns a touch bar if the popup is for credit cards.
+-- (NSTouchBar*)makeTouchBar;
++- (NSTouchBar*)makeTouchBar API_AVAILABLE(macos(10.12.2));
+ 
+ @end
+ 
+diff --git chrome/browser/ui/cocoa/autofill/autofill_popup_view_cocoa.mm chrome/browser/ui/cocoa/autofill/autofill_popup_view_cocoa.mm
+index 46733a165a31..2d71d4446a36 100644
+--- chrome/browser/ui/cocoa/autofill/autofill_popup_view_cocoa.mm
++++ chrome/browser/ui/cocoa/autofill/autofill_popup_view_cocoa.mm
+@@ -178,7 +178,8 @@ - (void)drawRect:(NSRect)dirtyRect {
+ #pragma mark NSTouchBarDelegate implementation:
+ 
+ - (NSTouchBarItem*)touchBar:(NSTouchBar*)touchBar
+-      makeItemForIdentifier:(NSTouchBarItemIdentifier)identifier {
++      makeItemForIdentifier:(NSTouchBarItemIdentifier)identifier
++    API_AVAILABLE(macos(10.12.2)) {
+   if (![identifier hasSuffix:kCreditCardItemsTouchId])
+     return nil;
+ 
+diff --git chrome/browser/ui/cocoa/autofill/autofill_popup_view_cocoa_unittest.mm chrome/browser/ui/cocoa/autofill/autofill_popup_view_cocoa_unittest.mm
+index aebb22367472..2e6d6be61b5f 100644
+--- chrome/browser/ui/cocoa/autofill/autofill_popup_view_cocoa_unittest.mm
++++ chrome/browser/ui/cocoa/autofill/autofill_popup_view_cocoa_unittest.mm
+@@ -110,31 +110,27 @@ void SetLineCount(int line_count) {
+ 
+ // Tests to check if the touch bar shows up properly.
+ TEST_F(AutofillPopupViewCocoaUnitTest, CreditCardAutofillTouchBar) {
+-  if (!base::mac::IsAtLeastOS10_12())
+-    return;
+-
+-  // Touch bar shouldn't appear if the popup is not for credit cards.
+-  autofill_popup_controller_.SetIsCreditCardField(false);
+-  EXPECT_FALSE([view_ makeTouchBar]);
+-
+-  // Touch bar shouldn't appear if the popup is empty.
+-  autofill_popup_controller_.SetIsCreditCardField(true);
+-  SetLineCount(0);
+-  EXPECT_FALSE([view_ makeTouchBar]);
+-
+-  autofill_popup_controller_.SetIsCreditCardField(true);
+-  SetLineCount(3);
+-  NSTouchBar* touch_bar = [view_ makeTouchBar];
+-  EXPECT_TRUE(touch_bar);
+-  EXPECT_TRUE([[touch_bar customizationIdentifier]
+-      isEqual:ui::GetTouchBarId(kCreditCardAutofillTouchBarId)]);
++  if (@available(macOS 10.12.2, *)) {
++    // Touch bar shouldn't appear if the popup is not for credit cards.
++    autofill_popup_controller_.SetIsCreditCardField(false);
++    EXPECT_FALSE([view_ makeTouchBar]);
++
++    // Touch bar shouldn't appear if the popup is empty.
++    autofill_popup_controller_.SetIsCreditCardField(true);
++    SetLineCount(0);
++    EXPECT_FALSE([view_ makeTouchBar]);
++
++    autofill_popup_controller_.SetIsCreditCardField(true);
++    SetLineCount(3);
++    NSTouchBar* touch_bar = [view_ makeTouchBar];
++    EXPECT_TRUE(touch_bar);
++    EXPECT_TRUE([[touch_bar customizationIdentifier]
++        isEqual:ui::GetTouchBarId(kCreditCardAutofillTouchBarId)]);
++  }
+ }
+ 
+-// Tests that the touch bar logs into the histogram correctly.
++// Tests that the touch bar histogram is logged correctly.
+ TEST_F(AutofillPopupViewCocoaUnitTest, CreditCardAutofillTouchBarMetric) {
+-  if (!base::mac::IsAtLeastOS10_12())
+-    return;
+-
+   {
+     base::HistogramTester histogram_tester;
+     [view_ acceptCreditCard:nil];
+diff --git chrome/browser/ui/cocoa/tab_contents/tab_contents_controller.mm chrome/browser/ui/cocoa/tab_contents/tab_contents_controller.mm
+index 5378abc9cc2a..f0e7d9e8c86c 100644
+--- chrome/browser/ui/cocoa/tab_contents/tab_contents_controller.mm
++++ chrome/browser/ui/cocoa/tab_contents/tab_contents_controller.mm
+@@ -235,7 +235,10 @@ - (void)loadView {
+ }
+ 
+ - (NSTouchBar*)makeTouchBar {
+-  return [touchBarController_ makeTouchBar];
++  if (@available(macOS 10.12.2, *))
++    return [touchBarController_ makeTouchBar];
++
++  return nil;
+ }
+ 
+ - (void)ensureContentsVisibleInSuperview:(NSView*)superview {
+diff --git chrome/browser/ui/cocoa/web_textfield_touch_bar_controller.h chrome/browser/ui/cocoa/web_textfield_touch_bar_controller.h
+index c3dc305aa48e..d50a2689d9de 100644
+--- chrome/browser/ui/cocoa/web_textfield_touch_bar_controller.h
++++ chrome/browser/ui/cocoa/web_textfield_touch_bar_controller.h
+@@ -28,7 +28,7 @@
+ - (void)showCreditCardAutofillForPopupView:(AutofillPopupViewCocoa*)popupView;
+ 
+ // Creates and returns a touch bar.
+-- (NSTouchBar*)makeTouchBar;
++- (NSTouchBar*)makeTouchBar API_AVAILABLE(macos(10.12.2));
+ 
+ @end
+ 

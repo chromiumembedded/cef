@@ -1,8 +1,8 @@
 diff --git net/cert/ct_policy_enforcer.cc net/cert/ct_policy_enforcer.cc
-index 42f631e..b02edb0 100644
+index 0dd6a0d..8bc6502d 100644
 --- net/cert/ct_policy_enforcer.cc
 +++ net/cert/ct_policy_enforcer.cc
-@@ -36,15 +36,6 @@ namespace net {
+@@ -35,15 +35,6 @@ namespace net {
  
  namespace {
  
@@ -18,8 +18,8 @@ index 42f631e..b02edb0 100644
  // Returns a rounded-down months difference of |start| and |end|,
  // together with an indication of whether the last month was
  // a full month, because the range starts specified in the policy
-@@ -459,4 +450,13 @@ ct::EVPolicyCompliance CTPolicyEnforcer::DoesConformToCTEVPolicy(
-   return details.status;
+@@ -296,4 +287,13 @@ ct::CertPolicyCompliance CTPolicyEnforcer::DoesConformToCertPolicy(
+   return compliance;
  }
  
 +bool CTPolicyEnforcer::IsBuildTimely() const {
@@ -33,11 +33,11 @@ index 42f631e..b02edb0 100644
 +
  }  // namespace net
 diff --git net/cert/ct_policy_enforcer.h net/cert/ct_policy_enforcer.h
-index 7111970..f751d6c 100644
+index b594cba..285eae8 100644
 --- net/cert/ct_policy_enforcer.h
 +++ net/cert/ct_policy_enforcer.h
-@@ -101,6 +101,17 @@ class NET_EXPORT CTPolicyEnforcer {
-       const ct::EVCertsWhitelist* ev_whitelist,
+@@ -42,6 +42,17 @@ class NET_EXPORT CTPolicyEnforcer {
+       X509Certificate* cert,
        const SCTList& verified_scts,
        const NetLogWithSource& net_log);
 +
@@ -55,10 +55,10 @@ index 7111970..f751d6c 100644
  
  }  // namespace net
 diff --git net/http/transport_security_state.cc net/http/transport_security_state.cc
-index e838cbe..d2f6f0f 100644
+index 4ffe9e8..013cea5 100644
 --- net/http/transport_security_state.cc
 +++ net/http/transport_security_state.cc
-@@ -1537,8 +1537,10 @@ void TransportSecurityState::ClearReportCachesForTesting() {
+@@ -1550,8 +1550,10 @@ void TransportSecurityState::ClearReportCachesForTesting() {
    sent_expect_ct_reports_cache_.Clear();
  }
  
@@ -72,10 +72,10 @@ index e838cbe..d2f6f0f 100644
    // We consider built-in information to be timely for 10 weeks.
    return (base::Time::Now() - build_time).InDays() < 70 /* 10 weeks */;
 diff --git net/http/transport_security_state.h net/http/transport_security_state.h
-index 19ba839..a0b9810 100644
+index 5e75551..1d1ca02 100644
 --- net/http/transport_security_state.h
 +++ net/http/transport_security_state.h
-@@ -576,6 +576,10 @@ class NET_EXPORT TransportSecurityState
+@@ -574,6 +574,10 @@ class NET_EXPORT TransportSecurityState {
    // Expect-CT reports.
    void ClearReportCachesForTesting();
  
@@ -86,7 +86,7 @@ index 19ba839..a0b9810 100644
   private:
    friend class TransportSecurityStateTest;
    friend class TransportSecurityStateStaticFuzzer;
-@@ -596,7 +600,7 @@ class NET_EXPORT TransportSecurityState
+@@ -594,7 +598,7 @@ class NET_EXPORT TransportSecurityState {
    // IsBuildTimely returns true if the current build is new enough ensure that
    // built in security information (i.e. HSTS preloading and pinning
    // information) is timely.
@@ -95,7 +95,7 @@ index 19ba839..a0b9810 100644
  
    // Helper method for actually checking pins.
    PKPStatus CheckPublicKeyPinsImpl(
-@@ -704,6 +708,8 @@ class NET_EXPORT TransportSecurityState
+@@ -703,6 +707,8 @@ class NET_EXPORT TransportSecurityState {
    // True if public key pinning bypass is enabled for local trust anchors.
    bool enable_pkp_bypass_for_local_trust_anchors_;
  

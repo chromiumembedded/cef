@@ -18,7 +18,6 @@
 #include "third_party/WebKit/public/web/WebDocument.h"
 #include "third_party/WebKit/public/web/WebElement.h"
 #include "third_party/WebKit/public/web/WebFormControlElement.h"
-#include "third_party/WebKit/public/web/WebFrame.h"
 #include "third_party/WebKit/public/web/WebInputElement.h"
 #include "third_party/WebKit/public/web/WebNode.h"
 #include "third_party/WebKit/public/web/WebSelectElement.h"
@@ -26,7 +25,6 @@
 using blink::WebDocument;
 using blink::WebDOMEvent;
 using blink::WebElement;
-using blink::WebFrame;
 using blink::WebFormControlElement;
 using blink::WebInputElement;
 using blink::WebNode;

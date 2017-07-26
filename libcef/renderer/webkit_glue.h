@@ -19,11 +19,11 @@
 
 namespace blink {
 class WebElement;
-class WebFrame;
+class WebLocalFrame;
 class WebNode;
 class WebString;
 class WebView;
-}
+}  // namespace blink
 
 namespace webkit_glue {
 
@@ -35,7 +35,7 @@ BLINK_EXPORT void GoBack(blink::WebView* view);
 BLINK_EXPORT void GoForward(blink::WebView* view);
 
 // Returns the text of the document element.
-BLINK_EXPORT std::string DumpDocumentText(blink::WebFrame* frame);
+BLINK_EXPORT std::string DumpDocumentText(blink::WebLocalFrame* frame);
 
 // Expose additional actions on WebNode.
 BLINK_EXPORT cef_dom_node_type_t GetNodeType(const blink::WebNode& node);
@@ -67,8 +67,6 @@ BLINK_EXPORT bool IsScriptForbidden();
 
 BLINK_EXPORT void RegisterURLSchemeAsLocal(const blink::WebString& scheme);
 BLINK_EXPORT void RegisterURLSchemeAsSecure(const blink::WebString& scheme);
-BLINK_EXPORT void RegisterURLSchemeAsCORSEnabled(
-    const blink::WebString& scheme);
 
 // Wrapper for blink::ScriptForbiddenScope.
 class BLINK_EXPORT CefScriptForbiddenScope final {
@@ -83,6 +81,6 @@ class BLINK_EXPORT CefScriptForbiddenScope final {
   DISALLOW_COPY_AND_ASSIGN(CefScriptForbiddenScope);
 };
 
-}  // webkit_glue
+}  // namespace webkit_glue
 
 #endif  // CEF_LIBCEF_RENDERER_WEBKIT_GLUE_H_

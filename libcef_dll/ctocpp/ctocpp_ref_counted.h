@@ -6,6 +6,7 @@
 #define CEF_LIBCEF_DLL_CTOCPP_CTOCPP_REF_COUNTED_H_
 #pragma once
 
+#include "include/base/cef_atomic_ref_count.h"
 #include "include/base/cef_logging.h"
 #include "include/base/cef_macros.h"
 #include "include/capi/cef_base_capi.h"

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=96b7f6c626b0153930f9687c6cb5845ac4af2443$
+// $hash=3d9e2266ac75c057313efa394287207897101686$
 //
 
 #include "libcef_dll/ctocpp/app_ctocpp.h"
@@ -123,7 +123,8 @@ cef_app_t* CefCToCppRefCounted<CefAppCToCpp, CefApp, cef_app_t>::UnwrapDerived(
 #if DCHECK_IS_ON()
 template <>
 base::AtomicRefCount
-    CefCToCppRefCounted<CefAppCToCpp, CefApp, cef_app_t>::DebugObjCt = 0;
+    CefCToCppRefCounted<CefAppCToCpp, CefApp, cef_app_t>::DebugObjCt
+        ATOMIC_DECLARATION;
 #endif
 
 template <>

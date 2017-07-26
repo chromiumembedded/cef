@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=5e273b65a19f371ad2fa5073c38dd6ad7a2c40d5$
+// $hash=eb7605c00ee71d056306cd6b9d0e7eb55112927a$
 //
 
 #include "libcef_dll/ctocpp/request_context_ctocpp.h"
@@ -428,7 +428,8 @@ cef_request_context_t* CefCToCppRefCounted<
 template <>
 base::AtomicRefCount CefCToCppRefCounted<CefRequestContextCToCpp,
                                          CefRequestContext,
-                                         cef_request_context_t>::DebugObjCt = 0;
+                                         cef_request_context_t>::DebugObjCt
+    ATOMIC_DECLARATION;
 #endif
 
 template <>

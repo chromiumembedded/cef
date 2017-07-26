@@ -1,8 +1,8 @@
 diff --git chrome/browser/ui/webui/net_internals/net_internals_ui.cc chrome/browser/ui/webui/net_internals/net_internals_ui.cc
-index 2fa6e2a..f7bb035 100644
+index 028eff9..b8390d2 100644
 --- chrome/browser/ui/webui/net_internals/net_internals_ui.cc
 +++ chrome/browser/ui/webui/net_internals/net_internals_ui.cc
-@@ -526,8 +526,7 @@ void NetInternalsMessageHandler::OnGetSessionNetworkStats(
+@@ -525,8 +525,7 @@ void NetInternalsMessageHandler::OnGetSessionNetworkStats(
      const base::ListValue* list) {
    DCHECK_CURRENTLY_ON(BrowserThread::UI);
    SendJavascriptCommand(
@@ -12,12 +12,12 @@ index 2fa6e2a..f7bb035 100644
  }
  
  void NetInternalsMessageHandler::OnGetExtensionInfo(
-@@ -623,9 +622,17 @@ void NetInternalsMessageHandler::IOThreadImpl::OnRendererReady(
+@@ -622,9 +621,17 @@ void NetInternalsMessageHandler::IOThreadImpl::OnRendererReady(
  
    PrePopulateEventList();
  
 -  // Register with network stack to observe events.
--  io_thread_->net_log()->DeprecatedAddObserver(
+-  io_thread_->net_log()->AddObserver(
 -      this, net::NetLogCaptureMode::IncludeCookiesAndCredentials());
 +  net::NetLog* net_log = nullptr;
 +  if (io_thread_)
@@ -27,22 +27,19 @@ index 2fa6e2a..f7bb035 100644
 +
 +  if (net_log) {
 +    // Register with network stack to observe events.
-+    net_log->DeprecatedAddObserver(
++    net_log->AddObserver(
 +        this, net::NetLogCaptureMode::IncludeCookiesAndCredentials());
 +  }
  }
  
  void NetInternalsMessageHandler::IOThreadImpl::OnGetNetInfo(
-@@ -1027,8 +1034,10 @@ void NetInternalsMessageHandler::IOThreadImpl::PrePopulateEventList() {
+@@ -1026,7 +1033,8 @@ void NetInternalsMessageHandler::IOThreadImpl::PrePopulateEventList() {
    std::set<net::URLRequestContext*> contexts;
    for (const auto& getter : context_getters_)
      contexts.insert(getter->GetURLRequestContext());
--  contexts.insert(io_thread_->globals()->proxy_script_fetcher_context.get());
--  contexts.insert(io_thread_->globals()->system_request_context.get());
-+  if (io_thread_) {
-+    contexts.insert(io_thread_->globals()->proxy_script_fetcher_context.get());
-+    contexts.insert(io_thread_->globals()->system_request_context.get());
-+  }
+-  contexts.insert(io_thread_->globals()->system_request_context);
++  if (io_thread_)
++    contexts.insert(io_thread_->globals()->system_request_context);
  
    // Add entries for ongoing network objects.
    CreateNetLogEntriesForActiveObjects(contexts, this);

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=8745295d751a800ecf0a19fb93839e07c978f3a8$
+// $hash=f27f0068e287436b3e603c41e2541dbd20c9c523$
 //
 
 #include "libcef_dll/ctocpp/resource_handler_ctocpp.h"
@@ -151,8 +151,8 @@ cef_resource_handler_t* CefCToCppRefCounted<
 template <>
 base::AtomicRefCount CefCToCppRefCounted<CefResourceHandlerCToCpp,
                                          CefResourceHandler,
-                                         cef_resource_handler_t>::DebugObjCt =
-    0;
+                                         cef_resource_handler_t>::DebugObjCt
+    ATOMIC_DECLARATION;
 #endif
 
 template <>

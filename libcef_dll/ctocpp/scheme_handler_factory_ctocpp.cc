@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=873b1eff71d696da390c589c35d039616fc4ea47$
+// $hash=4ffd3be212a4832de3ec928a196532cfb2b8f45c$
 //
 
 #include "libcef_dll/ctocpp/scheme_handler_factory_ctocpp.h"
@@ -66,10 +66,10 @@ cef_scheme_handler_factory_t* CefCToCppRefCounted<
 
 #if DCHECK_IS_ON()
 template <>
-base::AtomicRefCount
-    CefCToCppRefCounted<CefSchemeHandlerFactoryCToCpp,
-                        CefSchemeHandlerFactory,
-                        cef_scheme_handler_factory_t>::DebugObjCt = 0;
+base::AtomicRefCount CefCToCppRefCounted<
+    CefSchemeHandlerFactoryCToCpp,
+    CefSchemeHandlerFactory,
+    cef_scheme_handler_factory_t>::DebugObjCt ATOMIC_DECLARATION;
 #endif
 
 template <>

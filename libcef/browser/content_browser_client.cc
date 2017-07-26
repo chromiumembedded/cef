@@ -44,7 +44,7 @@
 #include "base/path_service.h"
 #include "cef/grit/cef_resources.h"
 #include "chrome/browser/profiles/profile.h"
-#include "chrome/browser/spellchecker/spellcheck_message_filter.h"
+#include "chrome/browser/spellchecker/spell_check_host_impl.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/grit/browser_resources.h"
 #include "components/navigation_interception/intercept_navigation_throttle.h"
@@ -246,14 +246,32 @@ class CefSelectClientCertificateCallbackImpl
       CefRefPtr<CefX509Certificate> cert) {
     CEF_REQUIRE_UIT();
 
-    scoped_refptr<net::X509Certificate> x509cert = NULL;
     if (cert) {
       CefX509CertificateImpl* certImpl =
           static_cast<CefX509CertificateImpl*>(cert.get());
-      x509cert = certImpl->GetInternalCertObject();
+      certImpl->AcquirePrivateKey(
+          base::Bind(&CefSelectClientCertificateCallbackImpl::RunWithPrivateKey,
+                     base::Passed(std::move(delegate)), cert));
+      return;
     }
 
-    delegate->ContinueWithCertificate(x509cert.get());
+    delegate->ContinueWithCertificate(nullptr, nullptr);
+  }
+
+  static void RunWithPrivateKey(
+      std::unique_ptr<content::ClientCertificateDelegate> delegate,
+      CefRefPtr<CefX509Certificate> cert,
+      scoped_refptr<net::SSLPrivateKey> key) {
+    CEF_REQUIRE_UIT();
+    DCHECK(cert);
+
+    if (key) {
+      CefX509CertificateImpl* certImpl =
+          static_cast<CefX509CertificateImpl*>(cert.get());
+      delegate->ContinueWithCertificate(certImpl->GetInternalCertObject(), key);
+    } else {
+      delegate->ContinueWithCertificate(nullptr, nullptr);
+    }
   }
 
   std::unique_ptr<content::ClientCertificateDelegate> delegate_;
@@ -449,20 +467,19 @@ content::BrowserMainParts* CefContentBrowserClient::CreateBrowserMainParts(
 
 void CefContentBrowserClient::RenderProcessWillLaunch(
     content::RenderProcessHost* host) {
-  const base::CommandLine* command_line =
-      base::CommandLine::ForCurrentProcess();
   const int id = host->GetID();
   Profile* profile = Profile::FromBrowserContext(host->GetBrowserContext());
 
   host->AddFilter(new CefBrowserMessageFilter(id));
   host->AddFilter(new printing::CefPrintingMessageFilter(id, profile));
 
-  if (!command_line->HasSwitch(switches::kDisableSpellChecking)) {
-    host->AddFilter(new SpellCheckMessageFilter(id));
 #if defined(OS_MACOSX)
+  const base::CommandLine* command_line =
+      base::CommandLine::ForCurrentProcess();
+  if (!command_line->HasSwitch(switches::kDisableSpellChecking)) {
     host->AddFilter(new SpellCheckMessageFilterPlatform(id));
-#endif
   }
+#endif
 
   host->AddFilter(new CefPluginInfoMessageFilter(
       id, static_cast<CefBrowserContext*>(profile)));
@@ -578,8 +595,9 @@ void CefContentBrowserClient::SiteInstanceDeleting(
 
 void CefContentBrowserClient::RegisterOutOfProcessServices(
     OutOfProcessServiceMap* services) {
-  services->emplace(printing::mojom::kServiceName,
-                    base::ASCIIToUTF16("PDF Compositor Service"));
+  (*services)[printing::mojom::kServiceName] = {
+      base::ASCIIToUTF16("PDF Compositor Service"),
+      content::SANDBOX_TYPE_UTILITY};
 }
 
 std::unique_ptr<base::Value> CefContentBrowserClient::GetServiceManifestOverlay(
@@ -712,12 +730,9 @@ CefContentBrowserClient::CreateQuotaPermissionContext() {
 void CefContentBrowserClient::GetQuotaSettings(
     content::BrowserContext* context,
     content::StoragePartition* partition,
-    const storage::OptionalQuotaSettingsCallback& callback) {
-  content::BrowserThread::PostTaskAndReplyWithResult(
-      content::BrowserThread::FILE, FROM_HERE,
-      base::Bind(&storage::CalculateNominalDynamicSettings,
-                 partition->GetPath(), context->IsOffTheRecord()),
-      callback);
+    storage::OptionalQuotaSettingsCallback callback) {
+  storage::GetNominalDynamicSettings(
+      partition->GetPath(), context->IsOffTheRecord(), std::move(callback));
 }
 
 content::MediaObserver* CefContentBrowserClient::GetMediaObserver() {
@@ -783,7 +798,7 @@ void CefContentBrowserClient::AllowCertificateError(
 void CefContentBrowserClient::SelectClientCertificate(
     content::WebContents* web_contents,
     net::SSLCertRequestInfo* cert_request_info,
-    net::CertificateList client_certs,
+    net::ClientCertIdentityList client_certs,
     std::unique_ptr<content::ClientCertificateDelegate> delegate) {
   CEF_REQUIRE_UIT();
 
@@ -797,15 +812,14 @@ void CefContentBrowserClient::SelectClientCertificate(
   }
 
   if (!handler.get()) {
-    delegate->ContinueWithCertificate(NULL);
+    delegate->ContinueWithCertificate(nullptr, nullptr);
     return;
   }
 
   CefRequestHandler::X509CertificateList certs;
-  for (std::vector<scoped_refptr<net::X509Certificate>>::iterator iter =
-           client_certs.begin();
+  for (net::ClientCertIdentityList::iterator iter = client_certs.begin();
        iter != client_certs.end(); iter++) {
-    certs.push_back(new CefX509CertificateImpl(*iter));
+    certs.push_back(new CefX509CertificateImpl(std::move(*iter)));
   }
 
   CefRefPtr<CefSelectClientCertificateCallbackImpl> callbackImpl(
@@ -921,10 +935,8 @@ CefContentBrowserClient::CreateThrottlesForNavigation(
 
   std::unique_ptr<content::NavigationThrottle> throttle =
       base::MakeUnique<navigation_interception::InterceptNavigationThrottle>(
-          navigation_handle,
-          base::Bind(&NavigationOnUIThread, is_main_frame, frame_id,
-                     parent_frame_id),
-          true);
+          navigation_handle, base::Bind(&NavigationOnUIThread, is_main_frame,
+                                        frame_id, parent_frame_id));
   throttles.push_back(std::move(throttle));
 
   return throttles;
@@ -963,6 +975,22 @@ bool CefContentBrowserClient::PreSpawnRenderer(sandbox::TargetPolicy* policy) {
   return true;
 }
 #endif  // defined(OS_WIN)
+
+void CefContentBrowserClient::ExposeInterfacesToRenderer(
+    service_manager::BinderRegistry* registry,
+    content::AssociatedInterfaceRegistry* associated_registry,
+    content::RenderProcessHost* render_process_host) {
+  const base::CommandLine* command_line =
+      base::CommandLine::ForCurrentProcess();
+  scoped_refptr<base::SingleThreadTaskRunner> ui_task_runner =
+      content::BrowserThread::GetTaskRunnerForThread(
+          content::BrowserThread::UI);
+  if (!command_line->HasSwitch(switches::kDisableSpellChecking)) {
+    registry->AddInterface(
+        base::Bind(&SpellCheckHostImpl::Create, render_process_host->GetID()),
+        ui_task_runner);
+  }
+}
 
 void CefContentBrowserClient::RegisterCustomScheme(const std::string& scheme) {
   // Register as a Web-safe scheme so that requests for the scheme from a

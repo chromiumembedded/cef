@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=86e0b6a1e669437f51917386ce57d4111178fe59$
+// $hash=add253ed8b10b0894c57c9459720a39699afe34d$
 //
 
 #include "libcef_dll/cpptoc/response_filter_cpptoc.h"
@@ -105,7 +105,8 @@ CefRefPtr<CefResponseFilter> CefCppToCRefCounted<
 template <>
 base::AtomicRefCount CefCppToCRefCounted<CefResponseFilterCppToC,
                                          CefResponseFilter,
-                                         cef_response_filter_t>::DebugObjCt = 0;
+                                         cef_response_filter_t>::DebugObjCt
+    ATOMIC_DECLARATION;
 #endif
 
 template <>

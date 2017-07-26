@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=c4a791057449122f888535d07ccd6ac32757de8b$
+// $hash=74da32f189e4458a4f4b264e2010db3d53f43ce9$
 //
 
 #include "libcef_dll/cpptoc/views/textfield_delegate_cpptoc.h"
@@ -280,8 +280,8 @@ CefRefPtr<CefTextfieldDelegate> CefCppToCRefCounted<
 template <>
 base::AtomicRefCount CefCppToCRefCounted<CefTextfieldDelegateCppToC,
                                          CefTextfieldDelegate,
-                                         cef_textfield_delegate_t>::DebugObjCt =
-    0;
+                                         cef_textfield_delegate_t>::DebugObjCt
+    ATOMIC_DECLARATION;
 #endif
 
 template <>

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=6ad7bcb4afded09f312d3ec082bb4df35da9beec$
+// $hash=4b577a1917ad36e47f35ddfb682435e414e8da8d$
 //
 
 #include "libcef_dll/ctocpp/views/label_button_ctocpp.h"
@@ -958,7 +958,8 @@ CefCToCppRefCounted<CefLabelButtonCToCpp, CefLabelButton, cef_label_button_t>::
 template <>
 base::AtomicRefCount CefCToCppRefCounted<CefLabelButtonCToCpp,
                                          CefLabelButton,
-                                         cef_label_button_t>::DebugObjCt = 0;
+                                         cef_label_button_t>::DebugObjCt
+    ATOMIC_DECLARATION;
 #endif
 
 template <>

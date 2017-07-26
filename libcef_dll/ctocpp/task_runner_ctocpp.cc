@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=1c3649a0a566198686f496673b77f9bd74865581$
+// $hash=ab43e8f427ff95c95333f71c45637dcaf0591311$
 //
 
 #include "libcef_dll/ctocpp/task_runner_ctocpp.h"
@@ -140,9 +140,9 @@ CefCToCppRefCounted<CefTaskRunnerCToCpp, CefTaskRunner, cef_task_runner_t>::
 
 #if DCHECK_IS_ON()
 template <>
-base::AtomicRefCount CefCToCppRefCounted<CefTaskRunnerCToCpp,
-                                         CefTaskRunner,
-                                         cef_task_runner_t>::DebugObjCt = 0;
+base::AtomicRefCount
+    CefCToCppRefCounted<CefTaskRunnerCToCpp, CefTaskRunner, cef_task_runner_t>::
+        DebugObjCt ATOMIC_DECLARATION;
 #endif
 
 template <>

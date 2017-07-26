@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=6ca2f1e0e45645a486603e812aeaffa2de275268$
+// $hash=3326b8685ef95a87e31c06ed4b2b7c1072e8dda2$
 //
 
 #include "libcef_dll/ctocpp/display_handler_ctocpp.h"
@@ -198,7 +198,8 @@ cef_display_handler_t* CefCToCppRefCounted<
 template <>
 base::AtomicRefCount CefCToCppRefCounted<CefDisplayHandlerCToCpp,
                                          CefDisplayHandler,
-                                         cef_display_handler_t>::DebugObjCt = 0;
+                                         cef_display_handler_t>::DebugObjCt
+    ATOMIC_DECLARATION;
 #endif
 
 template <>

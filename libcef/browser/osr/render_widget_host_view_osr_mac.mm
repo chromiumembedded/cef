@@ -44,11 +44,7 @@ class MacHelper : public content::BrowserCompositorMacClient,
     return color;
   }
 
-  void BrowserCompositorMacSendBeginFrame(
-      const cc::BeginFrameArgs& args) override {
-    view_->render_widget_host()->Send(new ViewMsg_BeginFrame(
-        view_->render_widget_host()->GetRoutingID(), args));
-  }
+  void BrowserCompositorMacOnBeginFrame() override {}
 
   // AcceleratedWidgetMacNSView methods:
 

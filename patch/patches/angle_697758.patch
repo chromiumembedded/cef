@@ -1,0 +1,22 @@
+diff --git src/libGLESv2.gypi src/libGLESv2.gypi
+index e0167d7..937dda0 100644
+--- src/libGLESv2.gypi
++++ src/libGLESv2.gypi
+@@ -36,8 +36,6 @@
+             'common/third_party/base/anglebase/sha1.cc',
+             'common/third_party/base/anglebase/sha1.h',
+             'common/third_party/base/anglebase/sys_byteorder.h',
+-            'common/third_party/murmurhash/MurmurHash3.cpp',
+-            'common/third_party/murmurhash/MurmurHash3.h',
+             'common/tls.cpp',
+             'common/tls.h',
+             'common/utilities.cpp',
+@@ -123,6 +121,8 @@
+         [
+             'common/event_tracer.cpp',
+             'common/event_tracer.h',
++            'common/third_party/murmurhash/MurmurHash3.cpp',
++            'common/third_party/murmurhash/MurmurHash3.h',
+             'libANGLE/AttributeMap.cpp',
+             'libANGLE/AttributeMap.h',
+             'libANGLE/BinaryStream.h',

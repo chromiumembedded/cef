@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=5e40116321512494caef88ecd4bf6b6185073382$
+// $hash=36fb36578579c66789bc788c599636a94db5856f$
 //
 
 #include "libcef_dll/ctocpp/image_ctocpp.h"
@@ -280,7 +280,8 @@ CefCToCppRefCounted<CefImageCToCpp, CefImage, cef_image_t>::UnwrapDerived(
 #if DCHECK_IS_ON()
 template <>
 base::AtomicRefCount
-    CefCToCppRefCounted<CefImageCToCpp, CefImage, cef_image_t>::DebugObjCt = 0;
+    CefCToCppRefCounted<CefImageCToCpp, CefImage, cef_image_t>::DebugObjCt
+        ATOMIC_DECLARATION;
 #endif
 
 template <>

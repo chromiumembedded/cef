@@ -653,8 +653,7 @@ CEF_VIEW_IMPL_T void CEF_VIEW_IMPL_D::RequestFocus() {
 
 CEF_VIEW_IMPL_T void CEF_VIEW_IMPL_D::SetBackgroundColor(cef_color_t color) {
   CEF_REQUIRE_VALID_RETURN_VOID();
-  content_view()->set_background(
-      views::Background::CreateSolidBackground(color));
+  content_view()->SetBackground(views::CreateSolidBackground(color));
 }
 
 CEF_VIEW_IMPL_T cef_color_t CEF_VIEW_IMPL_D::GetBackgroundColor() {

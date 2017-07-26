@@ -123,7 +123,7 @@ IPC_STRUCT_BEGIN(CefMsg_LoadRequest_Params)
   // The URL to send in the "Referer" header field. Can be empty if there is
   // no referrer.
   IPC_STRUCT_MEMBER(GURL, referrer)
-  // One of the blink::WebReferrerPolicy values.
+  // One of the cef_referrer_policy_t values.
   IPC_STRUCT_MEMBER(int, referrer_policy)
 
   // Identifies the frame within the RenderView that sent the request.

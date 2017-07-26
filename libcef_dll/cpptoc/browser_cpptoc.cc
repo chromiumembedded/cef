@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=a5b87e4e7e656c8643febf4afb3d1bd3f06c7ac0$
+// $hash=28cdec0f8fd53a117bc9d4ea51d3bf9102ad239a$
 //
 
 #include "libcef_dll/cpptoc/browser_cpptoc.h"
@@ -394,9 +394,9 @@ CefCppToCRefCounted<CefBrowserCppToC, CefBrowser, cef_browser_t>::UnwrapDerived(
 
 #if DCHECK_IS_ON()
 template <>
-base::AtomicRefCount CefCppToCRefCounted<CefBrowserCppToC,
-                                         CefBrowser,
-                                         cef_browser_t>::DebugObjCt = 0;
+base::AtomicRefCount
+    CefCppToCRefCounted<CefBrowserCppToC, CefBrowser, cef_browser_t>::DebugObjCt
+        ATOMIC_DECLARATION;
 #endif
 
 template <>

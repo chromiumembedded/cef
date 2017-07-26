@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=d881d2602682ff4510ff88f297aea7b2420f9499$
+// $hash=02e7b6d24615b66d38e7f8102fa1061ad4f4204d$
 //
 
 #include "libcef_dll/ctocpp/find_handler_ctocpp.h"
@@ -56,7 +56,8 @@ CefCToCppRefCounted<CefFindHandlerCToCpp, CefFindHandler, cef_find_handler_t>::
 template <>
 base::AtomicRefCount CefCToCppRefCounted<CefFindHandlerCToCpp,
                                          CefFindHandler,
-                                         cef_find_handler_t>::DebugObjCt = 0;
+                                         cef_find_handler_t>::DebugObjCt
+    ATOMIC_DECLARATION;
 #endif
 
 template <>

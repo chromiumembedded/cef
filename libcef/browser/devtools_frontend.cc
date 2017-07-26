@@ -6,14 +6,18 @@
 
 #include <stddef.h>
 
+#include <utility>
+
 #include "libcef/browser/browser_context.h"
 #include "libcef/browser/devtools_manager_delegate.h"
 #include "libcef/browser/net/devtools_scheme_handler.h"
 
+#include "base/guid.h"
 #include "base/json/json_reader.h"
 #include "base/json/json_writer.h"
 #include "base/json/string_escape.h"
 #include "base/macros.h"
+#include "base/memory/ptr_util.h"
 #include "base/strings/string_number_conversions.h"
 #include "base/strings/stringprintf.h"
 #include "base/strings/utf_string_conversions.h"
@@ -22,6 +26,7 @@
 #include "components/prefs/scoped_user_pref_update.h"
 #include "content/public/browser/browser_context.h"
 #include "content/public/browser/browser_thread.h"
+#include "content/public/browser/navigation_handle.h"
 #include "content/public/browser/render_frame_host.h"
 #include "content/public/browser/render_view_host.h"
 #include "content/public/browser/storage_partition.h"
@@ -189,14 +194,24 @@ CefDevToolsFrontend::~CefDevToolsFrontend() {
     delete pair.first;
 }
 
-void CefDevToolsFrontend::RenderViewCreated(
-    content::RenderViewHost* render_view_host) {
-  if (!frontend_host_) {
+void CefDevToolsFrontend::ReadyToCommitNavigation(
+    content::NavigationHandle* navigation_handle) {
+  content::RenderFrameHost* frame = navigation_handle->GetRenderFrameHost();
+  if (navigation_handle->IsInMainFrame()) {
     frontend_host_.reset(content::DevToolsFrontendHost::Create(
-        web_contents()->GetMainFrame(),
+        frame,
         base::Bind(&CefDevToolsFrontend::HandleMessageFromDevToolsFrontend,
                    base::Unretained(this))));
+    return;
   }
+
+  std::string origin = navigation_handle->GetURL().GetOrigin().spec();
+  auto it = extensions_api_.find(origin);
+  if (it == extensions_api_.end())
+    return;
+  std::string script = base::StringPrintf("%s(\"%s\")", it->second.c_str(),
+                                          base::GenerateGUID().c_str());
+  content::DevToolsFrontendHost::SetupExtensionsAPI(frame, script);
 }
 
 void CefDevToolsFrontend::DocumentAvailableInMainFrame() {
@@ -296,7 +311,7 @@ void CefDevToolsFrontend::HandleMessageFromDevToolsFrontend(
               destination: OTHER
             }
             policy {
-              cookies_allowed: true
+              cookies_allowed: YES
               cookies_store: "user"
               setting:
                 "It's not possible to disable this feature from settings."
@@ -346,6 +361,12 @@ void CefDevToolsFrontend::HandleMessageFromDevToolsFrontend(
   } else if (method == "reattach") {
     agent_host_->DetachClient(this);
     agent_host_->AttachClient(this);
+  } else if (method == "registerExtensionsAPI") {
+    std::string origin;
+    std::string script;
+    if (!params->GetString(0, &origin) || !params->GetString(1, &script))
+      return;
+    extensions_api_[origin + "/"] = script;
   } else {
     return;
   }
@@ -386,16 +407,16 @@ void CefDevToolsFrontend::OnURLFetchComplete(const net::URLFetcher* source) {
   DCHECK(it != pending_requests_.end());
 
   base::DictionaryValue response;
-  base::DictionaryValue* headers = new base::DictionaryValue();
+  auto headers = base::MakeUnique<base::DictionaryValue>();
   net::HttpResponseHeaders* rh = source->GetResponseHeaders();
   response.SetInteger("statusCode", rh ? rh->response_code() : 200);
-  response.Set("headers", headers);
 
   size_t iterator = 0;
   std::string name;
   std::string value;
   while (rh && rh->EnumerateHeaderLines(&iterator, &name, &value))
     headers->SetString(name, value);
+  response.Set("headers", std::move(headers));
 
   SendMessageAck(it->second, &response);
   pending_requests_.erase(it);

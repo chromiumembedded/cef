@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=05be760ce7d3e0aaba329f7cfe3b83b7d6b94699$
+// $hash=74e47f4c0f6feef34d2ea5721d4714e91b9b3789$
 //
 
 #include "libcef_dll/cpptoc/jsdialog_callback_cpptoc.h"
@@ -55,8 +55,8 @@ CefRefPtr<CefJSDialogCallback> CefCppToCRefCounted<
 template <>
 base::AtomicRefCount CefCppToCRefCounted<CefJSDialogCallbackCppToC,
                                          CefJSDialogCallback,
-                                         cef_jsdialog_callback_t>::DebugObjCt =
-    0;
+                                         cef_jsdialog_callback_t>::DebugObjCt
+    ATOMIC_DECLARATION;
 #endif
 
 template <>

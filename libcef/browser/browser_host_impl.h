@@ -35,7 +35,7 @@
 namespace content {
 struct DragEventSourceInfo;
 class RenderWidgetHostImpl;
-}
+}  // namespace content
 
 namespace net {
 class URLRequest;
@@ -412,15 +412,12 @@ class CefBrowserHostImpl : public CefBrowserHost,
       int opener_render_frame_id,
       content::WebContentsView** view,
       content::RenderViewHostDelegateView** delegate_view) override;
-  void WebContentsCreated(
-      content::WebContents* source_contents,
-      int opener_render_process_id,
-      int opener_render_frame_id,
-      const std::string& frame_name,
-      const GURL& target_url,
-      content::WebContents* new_contents,
-      const base::Optional<content::WebContents::CreateParams>& create_params)
-      override;
+  void WebContentsCreated(content::WebContents* source_contents,
+                          int opener_render_process_id,
+                          int opener_render_frame_id,
+                          const std::string& frame_name,
+                          const GURL& target_url,
+                          content::WebContents* new_contents) override;
   void DidNavigateMainFramePostCommit(
       content::WebContents* web_contents) override;
   content::JavaScriptDialogManager* GetJavaScriptDialogManager(
@@ -484,7 +481,8 @@ class CefBrowserHostImpl : public CefBrowserHost,
       const std::vector<content::AXLocationChangeNotificationDetails>& locData)
       override;
 
-  void OnWebContentsFocused() override;
+  void OnWebContentsFocused(
+      content::RenderWidgetHost* render_widget_host) override;
   // Override to provide a thread safe implementation.
   bool Send(IPC::Message* message) override;
 

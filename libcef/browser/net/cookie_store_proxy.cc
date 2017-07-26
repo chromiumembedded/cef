@@ -28,11 +28,11 @@ void CefCookieStoreProxy::SetCookieWithOptionsAsync(
     const GURL& url,
     const std::string& cookie_line,
     const net::CookieOptions& options,
-    const SetCookiesCallback& callback) {
+    SetCookiesCallback callback) {
   net::CookieStore* cookie_store = GetCookieStore();
   if (cookie_store) {
     cookie_store->SetCookieWithOptionsAsync(url, cookie_line, options,
-                                            callback);
+                                            std::move(callback));
   }
 }
 
@@ -49,64 +49,78 @@ void CefCookieStoreProxy::SetCookieWithDetailsAsync(
     bool http_only,
     net::CookieSameSite same_site,
     net::CookiePriority priority,
-    const SetCookiesCallback& callback) {
+    SetCookiesCallback callback) {
   net::CookieStore* cookie_store = GetCookieStore();
   if (cookie_store) {
     cookie_store->SetCookieWithDetailsAsync(
         url, name, value, domain, path, creation_time, expiration_time,
-        last_access_time, secure, http_only, same_site, priority, callback);
+        last_access_time, secure, http_only, same_site, priority,
+        std::move(callback));
+  }
+}
+
+void CefCookieStoreProxy::SetCanonicalCookieAsync(
+    std::unique_ptr<net::CanonicalCookie> cookie,
+    bool secure_source,
+    bool modify_http_only,
+    SetCookiesCallback callback) {
+  net::CookieStore* cookie_store = GetCookieStore();
+  if (cookie_store) {
+    cookie_store->SetCanonicalCookieAsync(std::move(cookie), secure_source,
+                                          modify_http_only,
+                                          std::move(callback));
   }
 }
 
 void CefCookieStoreProxy::GetCookiesWithOptionsAsync(
     const GURL& url,
     const net::CookieOptions& options,
-    const GetCookiesCallback& callback) {
+    GetCookiesCallback callback) {
   net::CookieStore* cookie_store = GetCookieStore();
   if (cookie_store)
-    cookie_store->GetCookiesWithOptionsAsync(url, options, callback);
+    cookie_store->GetCookiesWithOptionsAsync(url, options, std::move(callback));
 }
 
 void CefCookieStoreProxy::GetCookieListWithOptionsAsync(
     const GURL& url,
     const net::CookieOptions& options,
-    const GetCookieListCallback& callback) {
+    GetCookieListCallback callback) {
   net::CookieStore* cookie_store = GetCookieStore();
   if (cookie_store)
-    cookie_store->GetCookieListWithOptionsAsync(url, options, callback);
+    cookie_store->GetCookieListWithOptionsAsync(url, options,
+                                                std::move(callback));
 }
 
-void CefCookieStoreProxy::GetAllCookiesAsync(
-    const GetCookieListCallback& callback) {
+void CefCookieStoreProxy::GetAllCookiesAsync(GetCookieListCallback callback) {
   net::CookieStore* cookie_store = GetCookieStore();
   if (cookie_store)
-    cookie_store->GetAllCookiesAsync(callback);
+    cookie_store->GetAllCookiesAsync(std::move(callback));
 }
 
 void CefCookieStoreProxy::DeleteCookieAsync(const GURL& url,
                                             const std::string& cookie_name,
-                                            const base::Closure& callback) {
+                                            base::OnceClosure callback) {
   net::CookieStore* cookie_store = GetCookieStore();
   if (cookie_store)
-    cookie_store->DeleteCookieAsync(url, cookie_name, callback);
+    cookie_store->DeleteCookieAsync(url, cookie_name, std::move(callback));
 }
 
 void CefCookieStoreProxy::DeleteCanonicalCookieAsync(
     const net::CanonicalCookie& cookie,
-    const DeleteCallback& callback) {
+    DeleteCallback callback) {
   net::CookieStore* cookie_store = GetCookieStore();
   if (cookie_store)
-    cookie_store->DeleteCanonicalCookieAsync(cookie, callback);
+    cookie_store->DeleteCanonicalCookieAsync(cookie, std::move(callback));
 }
 
 void CefCookieStoreProxy::DeleteAllCreatedBetweenAsync(
     const base::Time& delete_begin,
     const base::Time& delete_end,
-    const DeleteCallback& callback) {
+    DeleteCallback callback) {
   net::CookieStore* cookie_store = GetCookieStore();
   if (cookie_store) {
     cookie_store->DeleteAllCreatedBetweenAsync(delete_begin, delete_end,
-                                               callback);
+                                               std::move(callback));
   }
 }
 
@@ -114,25 +128,24 @@ void CefCookieStoreProxy::DeleteAllCreatedBetweenWithPredicateAsync(
     const base::Time& delete_begin,
     const base::Time& delete_end,
     const CookiePredicate& predicate,
-    const DeleteCallback& callback) {
+    DeleteCallback callback) {
   net::CookieStore* cookie_store = GetCookieStore();
   if (cookie_store) {
     cookie_store->DeleteAllCreatedBetweenWithPredicateAsync(
-        delete_begin, delete_end, predicate, callback);
+        delete_begin, delete_end, predicate, std::move(callback));
   }
 }
 
-void CefCookieStoreProxy::DeleteSessionCookiesAsync(
-    const DeleteCallback& callback) {
+void CefCookieStoreProxy::DeleteSessionCookiesAsync(DeleteCallback callback) {
   net::CookieStore* cookie_store = GetCookieStore();
   if (cookie_store)
-    cookie_store->DeleteSessionCookiesAsync(callback);
+    cookie_store->DeleteSessionCookiesAsync(std::move(callback));
 }
 
-void CefCookieStoreProxy::FlushStore(const base::Closure& callback) {
+void CefCookieStoreProxy::FlushStore(base::OnceClosure callback) {
   net::CookieStore* cookie_store = GetCookieStore();
   if (cookie_store)
-    cookie_store->FlushStore(callback);
+    cookie_store->FlushStore(std::move(callback));
 }
 
 std::unique_ptr<net::CookieStore::CookieChangedSubscription>

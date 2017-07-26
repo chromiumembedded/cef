@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=419a1382826b28236d1489946915172ab944e081$
+// $hash=cb484f32ef70644cbc2aad396f5930135742300c$
 //
 
 #include "libcef_dll/cpptoc/views/display_cpptoc.h"
@@ -256,9 +256,9 @@ CefCppToCRefCounted<CefDisplayCppToC, CefDisplay, cef_display_t>::UnwrapDerived(
 
 #if DCHECK_IS_ON()
 template <>
-base::AtomicRefCount CefCppToCRefCounted<CefDisplayCppToC,
-                                         CefDisplay,
-                                         cef_display_t>::DebugObjCt = 0;
+base::AtomicRefCount
+    CefCppToCRefCounted<CefDisplayCppToC, CefDisplay, cef_display_t>::DebugObjCt
+        ATOMIC_DECLARATION;
 #endif
 
 template <>

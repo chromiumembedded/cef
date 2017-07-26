@@ -169,7 +169,10 @@ void CefPluginPlaceholder::PluginListChanged() {
   if (!render_frame() || !plugin())
     return;
   blink::WebLocalFrame* web_frame = render_frame()->GetWebFrame();
-  blink::WebDocument document = web_frame->Top()->GetDocument();
+  if (!web_frame->Top()->IsWebLocalFrame())
+    return;
+  blink::WebDocument document =
+      web_frame->Top()->ToWebLocalFrame()->GetDocument();
   if (document.IsNull())
     return;
 

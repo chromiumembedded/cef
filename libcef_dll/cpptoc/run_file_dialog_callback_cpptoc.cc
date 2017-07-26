@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=1522ca444b68114d64bc346d784639544f400f8f$
+// $hash=83fcf9fdedeee9ae48661c128b95bbd382fbbc82$
 //
 
 #include "libcef_dll/cpptoc/run_file_dialog_callback_cpptoc.h"
@@ -64,10 +64,10 @@ CefCppToCRefCounted<CefRunFileDialogCallbackCppToC,
 
 #if DCHECK_IS_ON()
 template <>
-base::AtomicRefCount
-    CefCppToCRefCounted<CefRunFileDialogCallbackCppToC,
-                        CefRunFileDialogCallback,
-                        cef_run_file_dialog_callback_t>::DebugObjCt = 0;
+base::AtomicRefCount CefCppToCRefCounted<
+    CefRunFileDialogCallbackCppToC,
+    CefRunFileDialogCallback,
+    cef_run_file_dialog_callback_t>::DebugObjCt ATOMIC_DECLARATION;
 #endif
 
 template <>

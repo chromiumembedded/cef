@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=5af91636e08968269d7630c7af4a4c43510cffac$
+// $hash=5af88a6e6b261ddc2a754bffc8c6b1d9bd13bf73$
 //
 
 #include "libcef_dll/ctocpp/test/translator_test_scoped_library_child_ctocpp.h"
@@ -126,10 +126,10 @@ CefCToCppScoped<CefTranslatorTestScopedLibraryChildCToCpp,
 
 #if DCHECK_IS_ON()
 template <>
-base::AtomicRefCount
-    CefCToCppScoped<CefTranslatorTestScopedLibraryChildCToCpp,
-                    CefTranslatorTestScopedLibraryChild,
-                    cef_translator_test_scoped_library_child_t>::DebugObjCt = 0;
+base::AtomicRefCount CefCToCppScoped<
+    CefTranslatorTestScopedLibraryChildCToCpp,
+    CefTranslatorTestScopedLibraryChild,
+    cef_translator_test_scoped_library_child_t>::DebugObjCt ATOMIC_DECLARATION;
 #endif
 
 template <>

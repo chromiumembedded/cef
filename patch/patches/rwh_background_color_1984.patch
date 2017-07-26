@@ -1,8 +1,8 @@
 diff --git content/browser/renderer_host/render_widget_host_view_aura.cc content/browser/renderer_host/render_widget_host_view_aura.cc
-index e327836..17f65e1 100644
+index 91e326b..8f22548 100644
 --- content/browser/renderer_host/render_widget_host_view_aura.cc
 +++ content/browser/renderer_host/render_widget_host_view_aura.cc
-@@ -747,8 +747,10 @@ void RenderWidgetHostViewAura::UpdateBackgroundColorFromRenderer(
+@@ -740,8 +740,10 @@ void RenderWidgetHostViewAura::UpdateBackgroundColorFromRenderer(
    background_color_ = color;
  
    bool opaque = SkColorGetA(color) == SK_AlphaOPAQUE;

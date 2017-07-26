@@ -1,5 +1,5 @@
 diff --git chrome/browser/spellchecker/spellcheck_factory.cc chrome/browser/spellchecker/spellcheck_factory.cc
-index 9d94c21..990046f 100644
+index a866993..520e2d9 100644
 --- chrome/browser/spellchecker/spellcheck_factory.cc
 +++ chrome/browser/spellchecker/spellcheck_factory.cc
 @@ -17,6 +17,13 @@
@@ -97,7 +97,7 @@ index 2907619..f941fba 100644
  
    SupervisedUserSettingsServiceFactory();
 diff --git chrome/browser/ui/prefs/prefs_tab_helper.cc chrome/browser/ui/prefs/prefs_tab_helper.cc
-index 175e4db..e5361c5 100644
+index 4d4fd0e..e5bb39ad 100644
 --- chrome/browser/ui/prefs/prefs_tab_helper.cc
 +++ chrome/browser/ui/prefs/prefs_tab_helper.cc
 @@ -11,8 +11,8 @@
@@ -110,7 +110,7 @@ index 175e4db..e5361c5 100644
  #include "base/strings/string_number_conversions.h"
  #include "base/strings/string_util.h"
  #include "base/strings/stringprintf.h"
-@@ -438,12 +438,10 @@ class PrefWatcherFactory : public BrowserContextKeyedServiceFactory {
+@@ -432,12 +432,10 @@ class PrefWatcherFactory : public BrowserContextKeyedServiceFactory {
          GetInstance()->GetServiceForBrowserContext(profile, true));
    }
  
@@ -125,7 +125,7 @@ index 175e4db..e5361c5 100644
  
    PrefWatcherFactory() : BrowserContextKeyedServiceFactory(
        "PrefWatcher",
-@@ -464,6 +462,18 @@ class PrefWatcherFactory : public BrowserContextKeyedServiceFactory {
+@@ -458,6 +456,18 @@ class PrefWatcherFactory : public BrowserContextKeyedServiceFactory {
    }
  };
  

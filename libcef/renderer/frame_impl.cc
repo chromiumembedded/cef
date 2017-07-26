@@ -26,7 +26,6 @@
 #include "third_party/WebKit/public/platform/WebString.h"
 #include "third_party/WebKit/public/platform/WebURL.h"
 #include "third_party/WebKit/public/web/WebDocument.h"
-#include "third_party/WebKit/public/web/WebFrame.h"
 #include "third_party/WebKit/public/web/WebFrameContentDumper.h"
 #include "third_party/WebKit/public/web/WebKit.h"
 #include "third_party/WebKit/public/web/WebLocalFrame.h"
@@ -35,7 +34,7 @@
 
 using blink::WebString;
 
-CefFrameImpl::CefFrameImpl(CefBrowserImpl* browser, blink::WebFrame* frame)
+CefFrameImpl::CefFrameImpl(CefBrowserImpl* browser, blink::WebLocalFrame* frame)
     : browser_(browser),
       frame_(frame),
       frame_id_(render_frame_util::GetIdentifier(frame)) {}
@@ -82,10 +81,9 @@ void CefFrameImpl::ViewSource() {
 
 void CefFrameImpl::GetSource(CefRefPtr<CefStringVisitor> visitor) {
   CEF_REQUIRE_RT_RETURN_VOID();
-  if (frame_ && frame_->IsWebLocalFrame()) {
-    const CefString& content = std::string(
-        blink::WebFrameContentDumper::DumpAsMarkup(frame_->ToWebLocalFrame())
-            .Utf8());
+  if (frame_) {
+    const CefString& content =
+        std::string(blink::WebFrameContentDumper::DumpAsMarkup(frame_).Utf8());
     visitor->Visit(content);
   }
 }
@@ -205,8 +203,8 @@ CefRefPtr<CefFrame> CefFrameImpl::GetParent() {
 
   if (frame_) {
     blink::WebFrame* parent = frame_->Parent();
-    if (parent)
-      return browser_->GetWebFrameImpl(parent).get();
+    if (parent && parent->IsWebLocalFrame())
+      return browser_->GetWebFrameImpl(parent->ToWebLocalFrame()).get();
   }
 
   return NULL;
@@ -267,8 +265,8 @@ void CefFrameImpl::Detach() {
 
 void CefFrameImpl::ExecuteCommand(const std::string& command) {
   CEF_REQUIRE_RT_RETURN_VOID();
-  if (frame_ && frame_->IsWebLocalFrame())
-    frame_->ToWebLocalFrame()->ExecuteCommand(WebString::FromUTF8(command));
+  if (frame_)
+    frame_->ExecuteCommand(WebString::FromUTF8(command));
 }
 
 // Enable deprecation warnings for MSVC. See http://crbug.com/585142.

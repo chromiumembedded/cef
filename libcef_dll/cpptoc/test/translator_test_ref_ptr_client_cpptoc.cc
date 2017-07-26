@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=b04a2cadf7325090a53b435cf777173216802ec1$
+// $hash=2150a6685059667ef3e6b870d9400b1b3e2d679b$
 //
 
 #include "libcef_dll/cpptoc/test/translator_test_ref_ptr_client_cpptoc.h"
@@ -59,10 +59,10 @@ CefCppToCRefCounted<CefTranslatorTestRefPtrClientCppToC,
 
 #if DCHECK_IS_ON()
 template <>
-base::AtomicRefCount
-    CefCppToCRefCounted<CefTranslatorTestRefPtrClientCppToC,
-                        CefTranslatorTestRefPtrClient,
-                        cef_translator_test_ref_ptr_client_t>::DebugObjCt = 0;
+base::AtomicRefCount CefCppToCRefCounted<
+    CefTranslatorTestRefPtrClientCppToC,
+    CefTranslatorTestRefPtrClient,
+    cef_translator_test_ref_ptr_client_t>::DebugObjCt ATOMIC_DECLARATION;
 #endif
 
 template <>

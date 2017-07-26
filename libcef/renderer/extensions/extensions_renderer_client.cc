@@ -117,6 +117,20 @@ int CefExtensionsRendererClient::GetLowestIsolatedWorldId() const {
   return 1;
 }
 
+extensions::Dispatcher* CefExtensionsRendererClient::GetDispatcher() {
+  return extension_dispatcher_.get();
+}
+
+void CefExtensionsRendererClient::OnExtensionLoaded(
+    const extensions::Extension& extension) {
+  resource_request_policy_->OnExtensionLoaded(extension);
+}
+
+void CefExtensionsRendererClient::OnExtensionUnloaded(
+    const extensions::ExtensionId& extension_id) {
+  resource_request_policy_->OnExtensionUnloaded(extension_id);
+}
+
 void CefExtensionsRendererClient::RenderThreadStarted() {
   content::RenderThread* thread = content::RenderThread::Get();
 

@@ -191,7 +191,7 @@ void CefSpeechRecognitionManagerDelegate::OnRecognitionEnd(int session_id) {}
 
 void CefSpeechRecognitionManagerDelegate::CheckRecognitionIsAllowed(
     int session_id,
-    base::Callback<void(bool ask_user, bool is_allowed)> callback) {
+    base::OnceCallback<void(bool ask_user, bool is_allowed)> callback) {
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::IO));
 
   const content::SpeechRecognitionSessionContext& context =
@@ -200,7 +200,8 @@ void CefSpeechRecognitionManagerDelegate::CheckRecognitionIsAllowed(
   // Make sure that initiators properly set the |render_process_id| field.
   DCHECK_NE(context.render_process_id, 0);
 
-  callback.Run(false, true);
+  BrowserThread::PostTask(BrowserThread::IO, FROM_HERE,
+                          base::BindOnce(std::move(callback), false, true));
 }
 
 content::SpeechRecognitionEventListener*

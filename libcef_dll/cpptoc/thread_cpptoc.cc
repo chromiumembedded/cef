@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=f1b350a92e8fe8cd6d8b81d807e0da11691b3167$
+// $hash=015e42fff08d1608e37742507742111f361e7294$
 //
 
 #include "libcef_dll/cpptoc/thread_cpptoc.h"
@@ -120,8 +120,8 @@ CefCppToCRefCounted<CefThreadCppToC, CefThread, cef_thread_t>::UnwrapDerived(
 #if DCHECK_IS_ON()
 template <>
 base::AtomicRefCount
-    CefCppToCRefCounted<CefThreadCppToC, CefThread, cef_thread_t>::DebugObjCt =
-        0;
+    CefCppToCRefCounted<CefThreadCppToC, CefThread, cef_thread_t>::DebugObjCt
+        ATOMIC_DECLARATION;
 #endif
 
 template <>

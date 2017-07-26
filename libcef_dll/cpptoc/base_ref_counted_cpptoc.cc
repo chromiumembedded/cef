@@ -20,8 +20,8 @@ CefRefPtr<CefBaseRefCounted> CefCppToCRefCounted<
 template <>
 base::AtomicRefCount CefCppToCRefCounted<CefBaseRefCountedCppToC,
                                          CefBaseRefCounted,
-                                         cef_base_ref_counted_t>::DebugObjCt =
-    0;
+                                         cef_base_ref_counted_t>::DebugObjCt
+    ATOMIC_DECLARATION;
 #endif
 
 template <>

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=eba15f068169c3d986c5b44ed55aa472f47a9081$
+// $hash=ebac323b529f8e17a25744c15795a8951658360c$
 //
 
 #include "libcef_dll/cpptoc/print_handler_cpptoc.h"
@@ -192,7 +192,8 @@ CefRefPtr<CefPrintHandler> CefCppToCRefCounted<
 template <>
 base::AtomicRefCount CefCppToCRefCounted<CefPrintHandlerCppToC,
                                          CefPrintHandler,
-                                         cef_print_handler_t>::DebugObjCt = 0;
+                                         cef_print_handler_t>::DebugObjCt
+    ATOMIC_DECLARATION;
 #endif
 
 template <>

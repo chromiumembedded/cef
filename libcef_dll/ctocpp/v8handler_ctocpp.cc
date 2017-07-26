@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=581f5db624374bcc4f0bec130cf3f93b5705590b$
+// $hash=adf64a12c173b3d25672d87a141b6d7d48fc0527$
 //
 
 #include "libcef_dll/ctocpp/v8handler_ctocpp.h"
@@ -90,9 +90,9 @@ CefCToCppRefCounted<CefV8HandlerCToCpp, CefV8Handler, cef_v8handler_t>::
 
 #if DCHECK_IS_ON()
 template <>
-base::AtomicRefCount CefCToCppRefCounted<CefV8HandlerCToCpp,
-                                         CefV8Handler,
-                                         cef_v8handler_t>::DebugObjCt = 0;
+base::AtomicRefCount
+    CefCToCppRefCounted<CefV8HandlerCToCpp, CefV8Handler, cef_v8handler_t>::
+        DebugObjCt ATOMIC_DECLARATION;
 #endif
 
 template <>

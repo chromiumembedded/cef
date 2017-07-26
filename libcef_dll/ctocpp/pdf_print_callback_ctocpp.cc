@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=d7aae81d3552e76b0fed3fdbd467fc1a89df7e97$
+// $hash=8ee134711d9d71acd08c0a0146494a4f1b76f58b$
 //
 
 #include "libcef_dll/ctocpp/pdf_print_callback_ctocpp.h"
@@ -51,8 +51,8 @@ cef_pdf_print_callback_t* CefCToCppRefCounted<
 template <>
 base::AtomicRefCount CefCToCppRefCounted<CefPdfPrintCallbackCToCpp,
                                          CefPdfPrintCallback,
-                                         cef_pdf_print_callback_t>::DebugObjCt =
-    0;
+                                         cef_pdf_print_callback_t>::DebugObjCt
+    ATOMIC_DECLARATION;
 #endif
 
 template <>

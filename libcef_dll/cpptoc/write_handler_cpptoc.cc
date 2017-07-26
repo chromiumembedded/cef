@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=0474e29257b82b777a1f7d2ba4a8fcdb5297d9a6$
+// $hash=8e55451fcdabc0cf875fc530982e7abeec82ca17$
 //
 
 #include "libcef_dll/cpptoc/write_handler_cpptoc.h"
@@ -123,7 +123,8 @@ CefRefPtr<CefWriteHandler> CefCppToCRefCounted<
 template <>
 base::AtomicRefCount CefCppToCRefCounted<CefWriteHandlerCppToC,
                                          CefWriteHandler,
-                                         cef_write_handler_t>::DebugObjCt = 0;
+                                         cef_write_handler_t>::DebugObjCt
+    ATOMIC_DECLARATION;
 #endif
 
 template <>

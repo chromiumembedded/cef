@@ -8,7 +8,6 @@
 #include <utility>
 
 #include "build/build_config.h"
-#include "chrome/common/chrome_utility_messages.h"
 #include "chrome/utility/utility_message_handler.h"
 #include "components/printing/service/public/cpp/pdf_compositor_service_factory.h"
 #include "components/printing/service/public/interfaces/pdf_compositor.mojom.h"
@@ -26,7 +25,6 @@
 namespace {
 
 void CreateProxyResolverFactory(
-    const service_manager::BindSourceInfo& source_info,
     net::interfaces::ProxyResolverFactoryRequest request) {
   mojo::MakeStrongBinding(base::MakeUnique<net::MojoProxyResolverFactoryImpl>(),
                           std::move(request));
@@ -36,7 +34,7 @@ void CreateProxyResolverFactory(
 
 CefContentUtilityClient::CefContentUtilityClient() {
 #if defined(OS_WIN)
-  handlers_.push_back(new printing::PrintingHandler());
+  handlers_.push_back(base::MakeUnique<printing::PrintingHandler>());
 #endif
 }
 
@@ -73,7 +71,7 @@ bool CefContentUtilityClient::OnMessageReceived(const IPC::Message& message) {
 }
 
 void CefContentUtilityClient::RegisterServices(StaticServiceMap* services) {
-  content::ServiceInfo pdf_compositor_info;
+  service_manager::EmbeddedServiceInfo pdf_compositor_info;
   pdf_compositor_info.factory =
       base::Bind(&printing::CreatePdfCompositorService, std::string());
   services->emplace(printing::mojom::kServiceName, pdf_compositor_info);

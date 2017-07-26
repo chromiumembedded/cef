@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=4eadd6cf6e4016537a2dbb9a041f6189801d085a$
+// $hash=7ee7e6684f3703ede9b5dcfb40170923a9d5242e$
 //
 
 #include "libcef_dll/ctocpp/auth_callback_ctocpp.h"
@@ -63,7 +63,8 @@ CefCToCppRefCounted<CefAuthCallbackCToCpp,
 template <>
 base::AtomicRefCount CefCToCppRefCounted<CefAuthCallbackCToCpp,
                                          CefAuthCallback,
-                                         cef_auth_callback_t>::DebugObjCt = 0;
+                                         cef_auth_callback_t>::DebugObjCt
+    ATOMIC_DECLARATION;
 #endif
 
 template <>

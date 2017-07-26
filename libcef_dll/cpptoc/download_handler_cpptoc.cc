@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=34d34f4a980b476678152ac69842f7d0b3a95a36$
+// $hash=a36db895d27ac61f54843952c99c7f34880980db$
 //
 
 #include "libcef_dll/cpptoc/download_handler_cpptoc.h"
@@ -110,8 +110,8 @@ CefRefPtr<CefDownloadHandler> CefCppToCRefCounted<
 template <>
 base::AtomicRefCount CefCppToCRefCounted<CefDownloadHandlerCppToC,
                                          CefDownloadHandler,
-                                         cef_download_handler_t>::DebugObjCt =
-    0;
+                                         cef_download_handler_t>::DebugObjCt
+    ATOMIC_DECLARATION;
 #endif
 
 template <>

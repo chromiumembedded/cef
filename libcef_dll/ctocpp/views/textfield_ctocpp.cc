@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=5b2c763a6d31b66c7310b67d5d7424676cd9c85c$
+// $hash=181a9fa9d977205038ab682b3e36e5589059e0ca$
 //
 
 #include "libcef_dll/ctocpp/views/textfield_ctocpp.h"
@@ -1129,9 +1129,9 @@ CefCToCppRefCounted<CefTextfieldCToCpp, CefTextfield, cef_textfield_t>::
 
 #if DCHECK_IS_ON()
 template <>
-base::AtomicRefCount CefCToCppRefCounted<CefTextfieldCToCpp,
-                                         CefTextfield,
-                                         cef_textfield_t>::DebugObjCt = 0;
+base::AtomicRefCount
+    CefCToCppRefCounted<CefTextfieldCToCpp, CefTextfield, cef_textfield_t>::
+        DebugObjCt ATOMIC_DECLARATION;
 #endif
 
 template <>

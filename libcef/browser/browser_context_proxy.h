@@ -44,6 +44,8 @@ class CefBrowserContextProxy : public CefBrowserContext {
   content::SSLHostStateDelegate* GetSSLHostStateDelegate() override;
   content::PermissionManager* GetPermissionManager() override;
   content::BackgroundSyncController* GetBackgroundSyncController() override;
+  content::BrowsingDataRemoverDelegate* GetBrowsingDataRemoverDelegate()
+      override;
   net::URLRequestContextGetter* CreateRequestContext(
       content::ProtocolHandlerMap* protocol_handlers,
       content::URLRequestInterceptorScopedVector request_interceptors) override;

@@ -53,12 +53,12 @@ CefBoxLayoutImpl::CefBoxLayoutImpl(const CefBoxLayoutSettings& settings)
     : settings_(settings) {}
 
 views::BoxLayout* CefBoxLayoutImpl::CreateLayout() {
-  views::BoxLayout* layout =
-      new views::BoxLayout(settings_.horizontal ? views::BoxLayout::kHorizontal
-                                                : views::BoxLayout::kVertical,
-                           settings_.inside_border_horizontal_spacing,
-                           settings_.inside_border_vertical_spacing,
-                           settings_.between_child_spacing);
+  views::BoxLayout* layout = new views::BoxLayout(
+      settings_.horizontal ? views::BoxLayout::kHorizontal
+                           : views::BoxLayout::kVertical,
+      gfx::Insets(settings_.inside_border_vertical_spacing,
+                  settings_.inside_border_horizontal_spacing),
+      settings_.between_child_spacing);
   layout->set_main_axis_alignment(
       static_cast<views::BoxLayout::MainAxisAlignment>(
           settings_.main_axis_alignment));

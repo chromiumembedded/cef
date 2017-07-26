@@ -22,7 +22,7 @@
 #include "chrome/browser/plugins/plugins_field_trial.h"
 #include "chrome/common/features.h"
 #include "chrome/common/pref_names.h"
-#include "components/content_settings/core/browser/content_settings_utils.h"
+#include "components/content_settings/core/common/content_settings_utils.h"
 #include "components/keyed_service/content/browser_context_keyed_service_shutdown_notifier_factory.h"
 #include "content/public/browser/browser_context.h"
 #include "content/public/browser/browser_thread.h"

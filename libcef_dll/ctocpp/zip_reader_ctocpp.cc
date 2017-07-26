@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=11321ae1cfc63ec2688da39afd83b866dfd4a497$
+// $hash=d4f8db738611b945b0519dd94884e3ebeb7bb497$
 //
 
 #include "libcef_dll/ctocpp/zip_reader_ctocpp.h"
@@ -234,9 +234,9 @@ CefCToCppRefCounted<CefZipReaderCToCpp, CefZipReader, cef_zip_reader_t>::
 
 #if DCHECK_IS_ON()
 template <>
-base::AtomicRefCount CefCToCppRefCounted<CefZipReaderCToCpp,
-                                         CefZipReader,
-                                         cef_zip_reader_t>::DebugObjCt = 0;
+base::AtomicRefCount
+    CefCToCppRefCounted<CefZipReaderCToCpp, CefZipReader, cef_zip_reader_t>::
+        DebugObjCt ATOMIC_DECLARATION;
 #endif
 
 template <>

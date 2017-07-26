@@ -112,9 +112,7 @@ void CefMenuManager::Destroy() {
 bool CefMenuManager::IsShowingContextMenu() {
   if (!web_contents())
     return false;
-  content::RenderWidgetHostView* view =
-      web_contents()->GetRenderWidgetHostView();
-  return (view && view->IsShowingContextMenu());
+  return web_contents()->IsShowingContextMenu();
 }
 
 bool CefMenuManager::CreateContextMenu(
@@ -241,10 +239,7 @@ void CefMenuManager::MenuWillShow(CefRefPtr<CefMenuModelImpl> source) {
     return;
 
   // Notify the host before showing the context menu.
-  content::RenderWidgetHostView* view =
-      web_contents()->GetRenderWidgetHostView();
-  if (view)
-    view->SetShowingContextMenu(true);
+  web_contents()->SetShowingContextMenu(true);
 }
 
 void CefMenuManager::MenuClosed(CefRefPtr<CefMenuModelImpl> source) {
@@ -267,10 +262,7 @@ void CefMenuManager::MenuClosed(CefRefPtr<CefMenuModelImpl> source) {
   }
 
   // Notify the host after closing the context menu.
-  content::RenderWidgetHostView* view =
-      web_contents()->GetRenderWidgetHostView();
-  if (view)
-    view->SetShowingContextMenu(false);
+  web_contents()->SetShowingContextMenu(false);
   web_contents()->NotifyContextMenuClosed(params_.custom_context);
 }
 

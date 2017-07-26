@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=3f82b194276294c2480a3e266d0610c09b767f21$
+// $hash=5ce31cf6f77f388bc6ddd272baf01bbc5071082d$
 //
 
 #include "libcef_dll/ctocpp/register_cdm_callback_ctocpp.h"
@@ -48,10 +48,10 @@ cef_register_cdm_callback_t* CefCToCppRefCounted<
 
 #if DCHECK_IS_ON()
 template <>
-base::AtomicRefCount
-    CefCToCppRefCounted<CefRegisterCdmCallbackCToCpp,
-                        CefRegisterCdmCallback,
-                        cef_register_cdm_callback_t>::DebugObjCt = 0;
+base::AtomicRefCount CefCToCppRefCounted<
+    CefRegisterCdmCallbackCToCpp,
+    CefRegisterCdmCallback,
+    cef_register_cdm_callback_t>::DebugObjCt ATOMIC_DECLARATION;
 #endif
 
 template <>

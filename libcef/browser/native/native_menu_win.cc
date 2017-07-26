@@ -32,7 +32,6 @@
 #include "ui/views/controls/menu/menu_config.h"
 #include "ui/views/controls/menu/menu_insertion_delegate_win.h"
 #include "ui/views/controls/menu/menu_listener.h"
-#include "ui/views/layout/layout_constants.h"
 
 using ui::NativeTheme;
 
@@ -49,6 +48,10 @@ static const int kItemBottomMargin = 4;
 static const int kItemLeftMargin = 4;
 // The width for displaying the sub-menu arrow.
 static const int kArrowWidth = 10;
+
+// Horizontal spacing between the end of an item (i.e. an icon or a checkbox)
+// and the start of its corresponding text.
+constexpr int kItemLabelSpacing = 10;
 
 namespace {
 
@@ -195,7 +198,7 @@ class CefNativeMenuWin::MenuHostWindow {
       gfx::FontList font_list;
       measure_item_struct->itemWidth =
           gfx::GetStringWidth(data->label, font_list) + kIconWidth +
-          kItemLeftMargin + views::kItemLabelSpacing -
+          kItemLeftMargin + kItemLabelSpacing -
           GetSystemMetrics(SM_CXMENUCHECK);
       if (data->submenu.get())
         measure_item_struct->itemWidth += kArrowWidth;
@@ -241,7 +244,7 @@ class CefNativeMenuWin::MenuHostWindow {
       rect.top += kItemTopMargin;
       // Should we add kIconWidth only when icon.width() != 0 ?
       rect.left += kItemLeftMargin + kIconWidth;
-      rect.right -= views::kItemLabelSpacing;
+      rect.right -= kItemLabelSpacing;
       UINT format = DT_TOP | DT_SINGLELINE;
       // Check whether the mnemonics should be underlined.
       BOOL underline_mnemonics;

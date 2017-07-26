@@ -21,7 +21,7 @@ class CefTrackNode;
 class GURL;
 
 namespace blink {
-class WebFrame;
+class WebLocalFrame;
 };
 
 // Call after a V8 Isolate has been created and entered for the first time.
@@ -177,7 +177,7 @@ class CefV8ContextImpl : public CefV8Context {
             CefRefPtr<CefV8Exception>& exception) override;
 
   v8::Local<v8::Context> GetV8Context();
-  blink::WebFrame* GetWebFrame();
+  blink::WebLocalFrame* GetWebFrame();
 
  private:
   typedef CefV8Handle<v8::Context> Handle;

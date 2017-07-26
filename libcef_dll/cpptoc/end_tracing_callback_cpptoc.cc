@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=9a1b77364fd21f18c0bdbdec1b7abca0f6867323$
+// $hash=0edd074e9e43719ec791d94129c098081da2375b$
 //
 
 #include "libcef_dll/cpptoc/end_tracing_callback_cpptoc.h"
@@ -57,10 +57,10 @@ CefRefPtr<CefEndTracingCallback> CefCppToCRefCounted<
 
 #if DCHECK_IS_ON()
 template <>
-base::AtomicRefCount
-    CefCppToCRefCounted<CefEndTracingCallbackCppToC,
-                        CefEndTracingCallback,
-                        cef_end_tracing_callback_t>::DebugObjCt = 0;
+base::AtomicRefCount CefCppToCRefCounted<CefEndTracingCallbackCppToC,
+                                         CefEndTracingCallback,
+                                         cef_end_tracing_callback_t>::DebugObjCt
+    ATOMIC_DECLARATION;
 #endif
 
 template <>

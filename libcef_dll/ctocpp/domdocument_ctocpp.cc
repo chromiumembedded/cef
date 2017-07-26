@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=8f474a766fbe4a540f7d11ba76775b8de495e774$
+// $hash=5b6bd94aebe436d85e66fbc939e49b2e30c2b43e$
 //
 
 #include "libcef_dll/ctocpp/domdocument_ctocpp.h"
@@ -251,7 +251,8 @@ CefCToCppRefCounted<CefDOMDocumentCToCpp, CefDOMDocument, cef_domdocument_t>::
 template <>
 base::AtomicRefCount CefCToCppRefCounted<CefDOMDocumentCToCpp,
                                          CefDOMDocument,
-                                         cef_domdocument_t>::DebugObjCt = 0;
+                                         cef_domdocument_t>::DebugObjCt
+    ATOMIC_DECLARATION;
 #endif
 
 template <>

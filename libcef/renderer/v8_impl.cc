@@ -883,7 +883,7 @@ CefRefPtr<CefBrowser> CefV8ContextImpl::GetBrowser() {
   CefRefPtr<CefBrowser> browser;
   CEF_V8_REQUIRE_VALID_HANDLE_RETURN(browser);
 
-  blink::WebFrame* webframe = GetWebFrame();
+  blink::WebLocalFrame* webframe = GetWebFrame();
   if (webframe)
     browser = CefBrowserImpl::GetBrowserForMainFrame(webframe->Top());
 
@@ -894,7 +894,7 @@ CefRefPtr<CefFrame> CefV8ContextImpl::GetFrame() {
   CefRefPtr<CefFrame> frame;
   CEF_V8_REQUIRE_VALID_HANDLE_RETURN(frame);
 
-  blink::WebFrame* webframe = GetWebFrame();
+  blink::WebLocalFrame* webframe = GetWebFrame();
   if (webframe) {
     CefRefPtr<CefBrowserImpl> browser =
         CefBrowserImpl::GetBrowserForMainFrame(webframe->Top());
@@ -1023,7 +1023,7 @@ v8::Local<v8::Context> CefV8ContextImpl::GetV8Context() {
   return handle_->GetNewV8Handle();
 }
 
-blink::WebFrame* CefV8ContextImpl::GetWebFrame() {
+blink::WebLocalFrame* CefV8ContextImpl::GetWebFrame() {
   CEF_REQUIRE_RT();
 
   if (webkit_glue::IsScriptForbidden())

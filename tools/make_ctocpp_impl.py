@@ -646,7 +646,7 @@ def make_ctocpp_class_impl(header, clsname, impl):
              '}\n\n'
 
   const += '#if DCHECK_IS_ON()\n'+ \
-           'template<> base::AtomicRefCount '+parent_sig+'::DebugObjCt = 0;\n'+ \
+           'template<> base::AtomicRefCount '+parent_sig+'::DebugObjCt ATOMIC_DECLARATION;\n'+ \
            '#endif\n\n'+ \
            'template<> CefWrapperType '+parent_sig+'::kWrapperType = '+get_wrapper_type_enum(clsname)+';'
 

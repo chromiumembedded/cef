@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=06fc95c6ffcd865041be1579f7392bc4b36a65eb$
+// $hash=e2476d89fbe9e3ae0bbadc07f415cc542db7834d$
 //
 
 #include "libcef_dll/cpptoc/value_cpptoc.h"
@@ -418,7 +418,8 @@ CefCppToCRefCounted<CefValueCppToC, CefValue, cef_value_t>::UnwrapDerived(
 #if DCHECK_IS_ON()
 template <>
 base::AtomicRefCount
-    CefCppToCRefCounted<CefValueCppToC, CefValue, cef_value_t>::DebugObjCt = 0;
+    CefCppToCRefCounted<CefValueCppToC, CefValue, cef_value_t>::DebugObjCt
+        ATOMIC_DECLARATION;
 #endif
 
 template <>

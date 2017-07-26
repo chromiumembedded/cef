@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=cacdb914520e516cc103d8a3318ae768339df314$
+// $hash=e76a677539f236df515f6fbd09366d7c9bcba686$
 //
 
 #include "libcef_dll/ctocpp/sslinfo_ctocpp.h"
@@ -60,9 +60,9 @@ CefCToCppRefCounted<CefSSLInfoCToCpp, CefSSLInfo, cef_sslinfo_t>::UnwrapDerived(
 
 #if DCHECK_IS_ON()
 template <>
-base::AtomicRefCount CefCToCppRefCounted<CefSSLInfoCToCpp,
-                                         CefSSLInfo,
-                                         cef_sslinfo_t>::DebugObjCt = 0;
+base::AtomicRefCount
+    CefCToCppRefCounted<CefSSLInfoCToCpp, CefSSLInfo, cef_sslinfo_t>::DebugObjCt
+        ATOMIC_DECLARATION;
 #endif
 
 template <>

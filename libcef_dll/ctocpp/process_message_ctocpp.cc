@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=8d022d9bff90419f3c199e1ee0068945cf6329f1$
+// $hash=0b993dfde493bc6a973bf806392a28c220ec3daa$
 //
 
 #include "libcef_dll/ctocpp/process_message_ctocpp.h"
@@ -124,7 +124,8 @@ cef_process_message_t* CefCToCppRefCounted<
 template <>
 base::AtomicRefCount CefCToCppRefCounted<CefProcessMessageCToCpp,
                                          CefProcessMessage,
-                                         cef_process_message_t>::DebugObjCt = 0;
+                                         cef_process_message_t>::DebugObjCt
+    ATOMIC_DECLARATION;
 #endif
 
 template <>

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=6537359783dd7ee8c7dbacaffad85eb5f73c77aa$
+// $hash=f39e71d81c44c75381187cf01e874625ce5fe6b0$
 //
 
 #include "libcef_dll/cpptoc/views/button_cpptoc.h"
@@ -1014,8 +1014,8 @@ CefCppToCRefCounted<CefButtonCppToC, CefButton, cef_button_t>::UnwrapDerived(
 #if DCHECK_IS_ON()
 template <>
 base::AtomicRefCount
-    CefCppToCRefCounted<CefButtonCppToC, CefButton, cef_button_t>::DebugObjCt =
-        0;
+    CefCppToCRefCounted<CefButtonCppToC, CefButton, cef_button_t>::DebugObjCt
+        ATOMIC_DECLARATION;
 #endif
 
 template <>

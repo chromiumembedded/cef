@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=4a7de54e64d113db827af72ab032fe3803773e1a$
+// $hash=ee173ed1052a341604fe422e6ab8efc5d3c1f2c4$
 //
 
 #include "libcef_dll/cpptoc/print_settings_cpptoc.h"
@@ -454,7 +454,8 @@ CefRefPtr<CefPrintSettings> CefCppToCRefCounted<
 template <>
 base::AtomicRefCount CefCppToCRefCounted<CefPrintSettingsCppToC,
                                          CefPrintSettings,
-                                         cef_print_settings_t>::DebugObjCt = 0;
+                                         cef_print_settings_t>::DebugObjCt
+    ATOMIC_DECLARATION;
 #endif
 
 template <>

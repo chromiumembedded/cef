@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=ceb1d8ea37c7815a778f7f51e68f0160ecd972ee$
+// $hash=119a1b32a2f312cc0c1ac1122e2a13e6fd865aac$
 //
 
 #include "libcef_dll/ctocpp/write_handler_ctocpp.h"
@@ -109,7 +109,8 @@ CefCToCppRefCounted<CefWriteHandlerCToCpp,
 template <>
 base::AtomicRefCount CefCToCppRefCounted<CefWriteHandlerCToCpp,
                                          CefWriteHandler,
-                                         cef_write_handler_t>::DebugObjCt = 0;
+                                         cef_write_handler_t>::DebugObjCt
+    ATOMIC_DECLARATION;
 #endif
 
 template <>

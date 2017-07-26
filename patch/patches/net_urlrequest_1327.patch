@@ -1,8 +1,8 @@
 diff --git net/url_request/url_request.h net/url_request/url_request.h
-index 95a2667..68d7bfb 100644
+index e529c37..9039974 100644
 --- net/url_request/url_request.h
 +++ net/url_request/url_request.h
-@@ -657,10 +657,10 @@ class NET_EXPORT URLRequest : NON_EXPORTED_BASE(public base::NonThreadSafe),
+@@ -667,10 +667,10 @@ class NET_EXPORT URLRequest : public base::SupportsUserData {
      return traffic_annotation_;
    }
  

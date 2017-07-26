@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=7d4c882910cd07c9659eefe6eb579e4096cd760c$
+// $hash=296c8446b991c25a64b1404978e1f9a61caa6807$
 //
 
 #include "libcef_dll/cpptoc/callback_cpptoc.h"
@@ -59,9 +59,9 @@ CefCppToCRefCounted<CefCallbackCppToC, CefCallback, cef_callback_t>::
 
 #if DCHECK_IS_ON()
 template <>
-base::AtomicRefCount CefCppToCRefCounted<CefCallbackCppToC,
-                                         CefCallback,
-                                         cef_callback_t>::DebugObjCt = 0;
+base::AtomicRefCount
+    CefCppToCRefCounted<CefCallbackCppToC, CefCallback, cef_callback_t>::
+        DebugObjCt ATOMIC_DECLARATION;
 #endif
 
 template <>

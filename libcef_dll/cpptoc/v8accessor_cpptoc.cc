@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=a2504c28284997e735a95538b98931c6bece1e38$
+// $hash=82c92e62eb4c2ae2f1a6d17f11f1202ec9435c18$
 //
 
 #include "libcef_dll/cpptoc/v8accessor_cpptoc.h"
@@ -131,9 +131,9 @@ CefCppToCRefCounted<CefV8AccessorCppToC, CefV8Accessor, cef_v8accessor_t>::
 
 #if DCHECK_IS_ON()
 template <>
-base::AtomicRefCount CefCppToCRefCounted<CefV8AccessorCppToC,
-                                         CefV8Accessor,
-                                         cef_v8accessor_t>::DebugObjCt = 0;
+base::AtomicRefCount
+    CefCppToCRefCounted<CefV8AccessorCppToC, CefV8Accessor, cef_v8accessor_t>::
+        DebugObjCt ATOMIC_DECLARATION;
 #endif
 
 template <>

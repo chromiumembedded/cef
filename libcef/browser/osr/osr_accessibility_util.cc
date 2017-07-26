@@ -99,6 +99,7 @@ struct PopulateAxNodeAttributes {
       case ui::AX_ATTR_ACTIVEDESCENDANT_ID:
       case ui::AX_ATTR_IN_PAGE_LINK_TARGET_ID:
       case ui::AX_ATTR_ERRORMESSAGE_ID:
+      case ui::AX_ATTR_DETAILS_ID:
       case ui::AX_ATTR_MEMBER_OF_ID:
       case ui::AX_ATTR_NEXT_ON_LINE_ID:
       case ui::AX_ATTR_PREVIOUS_ON_LINE_ID:
@@ -126,6 +127,11 @@ struct PopulateAxNodeAttributes {
               ToString(attr.first),
               ToString(static_cast<ui::AXCheckedState>(attr.second)));
         }
+        break;
+      case ui::AX_ATTR_RESTRICTION:
+        attributes->SetString(
+            ToString(attr.first),
+            ToString(static_cast<ui::AXRestriction>(attr.second)));
         break;
       case ui::AX_ATTR_SORT_DIRECTION:
         if (ui::AX_SORT_DIRECTION_NONE != attr.second) {

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=208bb3fedcf86b782a03fd64c527abcf05f7b297$
+// $hash=ec98bad79e77666c59f2745c54375eefb0c568b5$
 //
 
 #include "libcef_dll/cpptoc/task_cpptoc.h"
@@ -49,7 +49,8 @@ CefCppToCRefCounted<CefTaskCppToC, CefTask, cef_task_t>::UnwrapDerived(
 #if DCHECK_IS_ON()
 template <>
 base::AtomicRefCount
-    CefCppToCRefCounted<CefTaskCppToC, CefTask, cef_task_t>::DebugObjCt = 0;
+    CefCppToCRefCounted<CefTaskCppToC, CefTask, cef_task_t>::DebugObjCt
+        ATOMIC_DECLARATION;
 #endif
 
 template <>

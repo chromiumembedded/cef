@@ -488,9 +488,7 @@ struct CefPopupFeaturesTraits {
     s->menuBarVisible = true;
     s->statusBarVisible = true;
     s->toolBarVisible = true;
-    s->locationBarVisible = true;
     s->scrollbarsVisible = true;
-    s->resizable = true;
   }
 
   static inline void clear(struct_type* s) {}
@@ -509,11 +507,7 @@ struct CefPopupFeaturesTraits {
     target->menuBarVisible = src->menuBarVisible;
     target->statusBarVisible = src->statusBarVisible;
     target->toolBarVisible = src->toolBarVisible;
-    target->locationBarVisible = src->locationBarVisible;
     target->scrollbarsVisible = src->scrollbarsVisible;
-    target->resizable = src->resizable;
-    target->fullscreen = src->fullscreen;
-    target->dialog = src->dialog;
   }
 };
 

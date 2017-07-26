@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=b88a478ed6bd8ba50348a76691f4c36994bca20e$
+// $hash=9da71f972c1979ea23e8122d3fcfffa49791320c$
 //
 
 #include "libcef_dll/ctocpp/dictionary_value_ctocpp.h"
@@ -617,8 +617,8 @@ cef_dictionary_value_t* CefCToCppRefCounted<
 template <>
 base::AtomicRefCount CefCToCppRefCounted<CefDictionaryValueCToCpp,
                                          CefDictionaryValue,
-                                         cef_dictionary_value_t>::DebugObjCt =
-    0;
+                                         cef_dictionary_value_t>::DebugObjCt
+    ATOMIC_DECLARATION;
 #endif
 
 template <>

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=b77922c7e347a9371ebdba47213b23fcd62d98a8$
+// $hash=273f3770a20a3176b1c90853827cc92006f68af8$
 //
 
 #include "libcef_dll/cpptoc/v8interceptor_cpptoc.h"
@@ -230,7 +230,8 @@ CefRefPtr<CefV8Interceptor> CefCppToCRefCounted<
 template <>
 base::AtomicRefCount CefCppToCRefCounted<CefV8InterceptorCppToC,
                                          CefV8Interceptor,
-                                         cef_v8interceptor_t>::DebugObjCt = 0;
+                                         cef_v8interceptor_t>::DebugObjCt
+    ATOMIC_DECLARATION;
 #endif
 
 template <>

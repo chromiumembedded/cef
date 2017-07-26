@@ -39,10 +39,10 @@ index 0755f27..0322b8c 100644
    virtual void MenuWillShow() {}
  
 diff --git ui/gfx/render_text.cc ui/gfx/render_text.cc
-index 97b6c8f..84b9387 100644
+index 041c9f2..4b8beb4 100644
 --- ui/gfx/render_text.cc
 +++ ui/gfx/render_text.cc
-@@ -567,6 +567,14 @@ void RenderText::SetElideBehavior(ElideBehavior elide_behavior) {
+@@ -486,6 +486,14 @@ void RenderText::SetElideBehavior(ElideBehavior elide_behavior) {
    }
  }
  
@@ -57,7 +57,7 @@ index 97b6c8f..84b9387 100644
  void RenderText::SetDisplayRect(const Rect& r) {
    if (r != display_rect_) {
      display_rect_ = r;
-@@ -1466,6 +1474,19 @@ void RenderText::OnTextAttributeChanged() {
+@@ -1386,6 +1394,19 @@ void RenderText::OnTextAttributeChanged() {
    if (!multiline_ && replace_newline_chars_with_symbols_)
      base::ReplaceChars(layout_text_, kNewline, kNewlineSymbol, &layout_text_);
  
@@ -78,10 +78,10 @@ index 97b6c8f..84b9387 100644
  }
  
 diff --git ui/gfx/render_text.h ui/gfx/render_text.h
-index 00fe00c..bc4fd59 100644
+index 24ea3d4..4554f12 100644
 --- ui/gfx/render_text.h
 +++ ui/gfx/render_text.h
-@@ -312,6 +312,10 @@ class GFX_EXPORT RenderText {
+@@ -275,6 +275,10 @@ class GFX_EXPORT RenderText {
    void SetElideBehavior(ElideBehavior elide_behavior);
    ElideBehavior elide_behavior() const { return elide_behavior_; }
  
@@ -92,9 +92,9 @@ index 00fe00c..bc4fd59 100644
    const Rect& display_rect() const { return display_rect_; }
    void SetDisplayRect(const Rect& r);
  
-@@ -858,6 +862,8 @@ class GFX_EXPORT RenderText {
-   // OnLayoutTextAttributeChanged and OnDisplayTextAttributeChanged calls.
-   std::vector<internal::Line> lines_;
+@@ -827,6 +831,8 @@ class GFX_EXPORT RenderText {
+   // The ratio of strike-through line thickness to text height.
+   SkScalar strike_thickness_factor_;
  
 +  int draw_strings_flags_ = 0;
 +
@@ -102,10 +102,10 @@ index 00fe00c..bc4fd59 100644
  };
  
 diff --git ui/views/animation/ink_drop_host_view.h ui/views/animation/ink_drop_host_view.h
-index 68e5b60..3861921 100644
+index 8ac475f..d052dec 100644
 --- ui/views/animation/ink_drop_host_view.h
 +++ ui/views/animation/ink_drop_host_view.h
-@@ -130,6 +130,8 @@ class VIEWS_EXPORT InkDropHostView : public View, public InkDropHost {
+@@ -136,6 +136,8 @@ class VIEWS_EXPORT InkDropHostView : public View, public InkDropHost {
    // of CreateInkDrop() delegates to this function.
    std::unique_ptr<InkDropImpl> CreateDefaultInkDropImpl();
  
@@ -115,10 +115,10 @@ index 68e5b60..3861921 100644
    class InkDropGestureHandler;
    friend class InkDropGestureHandler;
 diff --git ui/views/controls/button/label_button.cc ui/views/controls/button/label_button.cc
-index aa8dae7..05c89b3 100644
+index 1d9e7b8..683d680 100644
 --- ui/views/controls/button/label_button.cc
 +++ ui/views/controls/button/label_button.cc
-@@ -192,6 +192,7 @@ gfx::Size LabelButton::GetPreferredSize() const {
+@@ -188,6 +188,7 @@ gfx::Size LabelButton::CalculatePreferredSize() const {
    Label label(GetText(), {label_->font_list()});
    label.SetLineHeight(label_->line_height());
    label.SetShadows(label_->shadows());
@@ -126,7 +126,7 @@ index aa8dae7..05c89b3 100644
  
    if (style_ == STYLE_BUTTON && PlatformStyle::kDefaultLabelButtonHasBoldFont) {
      // Some text appears wider when rendered normally than when rendered bold.
-@@ -404,6 +405,11 @@ std::unique_ptr<views::InkDropHighlight> LabelButton::CreateInkDropHighlight()
+@@ -399,6 +400,11 @@ std::unique_ptr<views::InkDropHighlight> LabelButton::CreateInkDropHighlight()
                     gfx::RectF(image()->GetMirroredBounds()).CenterPoint());
  }
  
@@ -139,10 +139,10 @@ index aa8dae7..05c89b3 100644
    const gfx::Size previous_image_size(image_->GetPreferredSize());
    UpdateImage();
 diff --git ui/views/controls/button/label_button.h ui/views/controls/button/label_button.h
-index 8495c43..da7997e 100644
+index 0fb0337..38397cd 100644
 --- ui/views/controls/button/label_button.h
 +++ ui/views/controls/button/label_button.h
-@@ -109,6 +109,9 @@ class VIEWS_EXPORT LabelButton : public CustomButton,
+@@ -106,6 +106,9 @@ class VIEWS_EXPORT LabelButton : public CustomButton,
    std::unique_ptr<InkDropRipple> CreateInkDropRipple() const override;
    std::unique_ptr<InkDropHighlight> CreateInkDropHighlight() const override;
  
@@ -151,21 +151,21 @@ index 8495c43..da7997e 100644
 +
   protected:
    ImageView* image() const { return image_; }
-   Label* label() const { return label_; }
+   Label* label() const;
 diff --git ui/views/controls/button/menu_button.cc ui/views/controls/button/menu_button.cc
-index 33740d8..42c4cbc 100644
+index 0e4194e..736e2c3 100644
 --- ui/views/controls/button/menu_button.cc
 +++ ui/views/controls/button/menu_button.cc
-@@ -194,7 +194,7 @@ void MenuButton::OnPaint(gfx::Canvas* canvas) {
- gfx::Size MenuButton::GetPreferredSize() const {
-   gfx::Size prefsize = LabelButton::GetPreferredSize();
+@@ -186,7 +186,7 @@ bool MenuButton::IsTriggerableEventType(const ui::Event& event) {
+ gfx::Size MenuButton::CalculatePreferredSize() const {
+   gfx::Size prefsize = LabelButton::CalculatePreferredSize();
    if (show_menu_marker_) {
 -    prefsize.Enlarge(menu_marker_->width() + kMenuMarkerPaddingLeft +
 +    prefsize.Enlarge(menu_marker_->width() + GetMarkerPaddingLeft() +
                           kMenuMarkerPaddingRight,
                       0);
    }
-@@ -324,7 +324,7 @@ gfx::Rect MenuButton::GetChildAreaBounds() {
+@@ -316,7 +316,7 @@ gfx::Rect MenuButton::GetChildAreaBounds() {
    gfx::Size s = size();
  
    if (show_menu_marker_) {
@@ -174,7 +174,7 @@ index 33740d8..42c4cbc 100644
                  kMenuMarkerPaddingRight);
    }
  
-@@ -416,4 +416,10 @@ int MenuButton::GetMaximumScreenXCoordinate() {
+@@ -413,4 +413,10 @@ int MenuButton::GetMaximumScreenXCoordinate() {
    return monitor_bounds.right() - 1;
  }
  
@@ -186,7 +186,7 @@ index 33740d8..42c4cbc 100644
 +
  }  // namespace views
 diff --git ui/views/controls/button/menu_button.h ui/views/controls/button/menu_button.h
-index 0d87c31..bcaa1ec 100644
+index 9adbee9..1b5151a 100644
 --- ui/views/controls/button/menu_button.h
 +++ ui/views/controls/button/menu_button.h
 @@ -57,6 +57,9 @@ class VIEWS_EXPORT MenuButton : public LabelButton {
@@ -210,7 +210,7 @@ index 0d87c31..bcaa1ec 100644
    // The time is used for simulating menu behavior for the menu button; that
    // is, if the menu is shown and the button is pressed, we need to close the
 diff --git ui/views/controls/label.cc ui/views/controls/label.cc
-index 2523f9a..ef64aac 100644
+index 05c9338..3d64177 100644
 --- ui/views/controls/label.cc
 +++ ui/views/controls/label.cc
 @@ -26,6 +26,7 @@
@@ -242,7 +242,7 @@ index 2523f9a..ef64aac 100644
  }  // namespace
  
  const char Label::kViewClassName[] = "Label";
-@@ -221,6 +236,15 @@ void Label::SetElideBehavior(gfx::ElideBehavior elide_behavior) {
+@@ -219,6 +234,15 @@ void Label::SetElideBehavior(gfx::ElideBehavior elide_behavior) {
    ResetLayout();
  }
  
@@ -258,7 +258,7 @@ index 2523f9a..ef64aac 100644
  void Label::SetTooltipText(const base::string16& tooltip_text) {
    DCHECK(handles_tooltips_);
    tooltip_text_ = tooltip_text;
-@@ -446,7 +470,19 @@ std::unique_ptr<gfx::RenderText> Label::CreateRenderText(
+@@ -438,7 +462,19 @@ std::unique_ptr<gfx::RenderText> Label::CreateRenderText(
    render_text->SetFontList(font_list());
    render_text->set_shadows(shadows());
    render_text->SetCursorEnabled(false);
@@ -280,10 +280,10 @@ index 2523f9a..ef64aac 100644
  }
  
 diff --git ui/views/controls/label.h ui/views/controls/label.h
-index 0fa4db8..6d48a9b 100644
+index 38eb5f3..1298fc6 100644
 --- ui/views/controls/label.h
 +++ ui/views/controls/label.h
-@@ -144,6 +144,10 @@ class VIEWS_EXPORT Label : public View,
+@@ -146,6 +146,10 @@ class VIEWS_EXPORT Label : public View,
    void SetElideBehavior(gfx::ElideBehavior elide_behavior);
    gfx::ElideBehavior elide_behavior() const { return elide_behavior_; }
  
@@ -303,10 +303,10 @@ index 0fa4db8..6d48a9b 100644
    // TODO(ckocagil): Remove is_first_paint_text_ before crbug.com/441028 is
    // closed.
 diff --git ui/views/controls/menu/menu_controller.cc ui/views/controls/menu/menu_controller.cc
-index 7c44dd17..2da694b 100644
+index e9125d6..e0849a7 100644
 --- ui/views/controls/menu/menu_controller.cc
 +++ ui/views/controls/menu/menu_controller.cc
-@@ -2259,8 +2259,13 @@ MenuItemView* MenuController::FindNextSelectableMenuItem(
+@@ -2267,8 +2267,13 @@ MenuItemView* MenuController::FindNextSelectableMenuItem(
  
  void MenuController::OpenSubmenuChangeSelectionIfCan() {
    MenuItemView* item = pending_state_.item;
@@ -321,7 +321,7 @@ index 7c44dd17..2da694b 100644
    MenuItemView* to_select = NULL;
    if (item->GetSubmenu()->GetMenuItemCount() > 0)
      to_select = FindInitialSelectableMenuItem(item, INCREMENT_SELECTION_DOWN);
-@@ -2275,8 +2280,10 @@ void MenuController::OpenSubmenuChangeSelectionIfCan() {
+@@ -2283,8 +2288,10 @@ void MenuController::OpenSubmenuChangeSelectionIfCan() {
  void MenuController::CloseSubmenu() {
    MenuItemView* item = state_.item;
    DCHECK(item);
@@ -330,7 +330,7 @@ index 7c44dd17..2da694b 100644
 +    item->GetDelegate()->OnUnhandledCloseSubmenu(item, base::i18n::IsRTL());
      return;
 +  }
-   if (item->HasSubmenu() && item->GetSubmenu()->IsShowing())
+   if (item->SubmenuIsShowing())
      SetSelection(item, SELECTION_UPDATE_IMMEDIATELY);
    else if (item->GetParentMenuItem()->GetParentMenuItem())
 diff --git ui/views/controls/menu/menu_delegate.h ui/views/controls/menu/menu_delegate.h
@@ -381,10 +381,10 @@ index 4dea63f..ef50b71 100644
    virtual int GetMaxWidthForMenu(MenuItemView* menu);
  
 diff --git ui/views/controls/menu/menu_item_view.cc ui/views/controls/menu/menu_item_view.cc
-index c2d98e2..8d12a05 100644
+index 905690f..333148c 100644
 --- ui/views/controls/menu/menu_item_view.cc
 +++ ui/views/controls/menu/menu_item_view.cc
-@@ -761,7 +761,12 @@ void MenuItemView::PaintButton(gfx::Canvas* canvas, PaintButtonMode mode) {
+@@ -763,7 +763,12 @@ void MenuItemView::PaintButton(gfx::Canvas* canvas, PaintButtonMode mode) {
    // only need the background when we want it to look different, as when we're
    // selected.
    ui::NativeTheme* native_theme = GetNativeTheme();
@@ -398,7 +398,7 @@ index c2d98e2..8d12a05 100644
      gfx::Rect item_bounds(0, 0, width(), height());
      AdjustBoundsForRTLUI(&item_bounds);
  
-@@ -873,6 +878,13 @@ void MenuItemView::PaintMinorText(gfx::Canvas* canvas, SkColor color) {
+@@ -875,6 +880,13 @@ void MenuItemView::PaintMinorText(gfx::Canvas* canvas, SkColor color) {
  SkColor MenuItemView::GetTextColor(bool minor,
                                     bool render_selection,
                                     bool emphasized) const {
@@ -520,7 +520,7 @@ index 0ac493c..741769e 100644
    void WillHideMenu(MenuItemView* menu) override;
    void OnMenuClosed(MenuItemView* menu) override;
 diff --git ui/views/controls/menu/menu_scroll_view_container.cc ui/views/controls/menu/menu_scroll_view_container.cc
-index 124442a..c5cfe8b 100644
+index 08ba198..595b375 100644
 --- ui/views/controls/menu/menu_scroll_view_container.cc
 +++ ui/views/controls/menu/menu_scroll_view_container.cc
 @@ -184,6 +184,11 @@ MenuScrollViewContainer::MenuScrollViewContainer(SubmenuView* content_view)
@@ -530,16 +530,16 @@ index 124442a..c5cfe8b 100644
 +  SkColor override_color;
 +  MenuDelegate* delegate = content_view_->GetMenuItem()->GetDelegate();
 +  if (delegate && delegate->GetBackgroundColor(-1, false, &override_color))
-+    set_background(views::Background::CreateSolidBackground(override_color));
++    SetBackground(views::CreateSolidBackground(override_color));
 +
    arrow_ = BubbleBorderTypeFromAnchor(
        content_view_->GetMenuItem()->GetMenuController()->GetAnchorPosition());
  
 diff --git ui/views/test/ui_controls_factory_desktop_aurax11.cc ui/views/test/ui_controls_factory_desktop_aurax11.cc
-index 117a268..6065c73 100644
+index 534e0c4..974d82d 100644
 --- ui/views/test/ui_controls_factory_desktop_aurax11.cc
 +++ ui/views/test/ui_controls_factory_desktop_aurax11.cc
-@@ -146,10 +146,6 @@ class UIControlsDesktopX11 : public UIControlsAura {
+@@ -147,10 +147,6 @@ class UIControlsDesktopX11 : public UIControlsAura {
          aura::test::QueryLatestMousePositionRequestInHost(host);
      host->ConvertPixelsToDIP(&root_current_location);
  
@@ -551,7 +551,7 @@ index 117a268..6065c73 100644
        // Move the cursor because EnterNotify/LeaveNotify are generated with the
        // current mouse position as a result of XGrabPointer()
 diff --git ui/views/view.h ui/views/view.h
-index 410e2a5..0ba4765 100644
+index 7a8a7b3..e712ef7 100644
 --- ui/views/view.h
 +++ ui/views/view.h
 @@ -18,6 +18,7 @@
@@ -562,12 +562,12 @@ index 410e2a5..0ba4765 100644
  #include "build/build_config.h"
  #include "ui/accessibility/ax_enums.h"
  #include "ui/base/accelerators/accelerator.h"
-@@ -115,7 +116,8 @@ class VIEWS_EXPORT View : public ui::LayerDelegate,
-                           public ui::LayerOwner,
+@@ -117,7 +118,8 @@ class VIEWS_EXPORT View : public ui::LayerDelegate,
                            public ui::AcceleratorTarget,
                            public ui::EventTarget,
--                          public ui::EventHandler {
-+                          public ui::EventHandler,
+                           public ui::EventHandler,
+-                          public ui::PropertyHandler {
++                          public ui::PropertyHandler,
 +                          public base::SupportsUserData {
   public:
    using Views = std::vector<View*>;

@@ -28,7 +28,7 @@ CefRefPtr<CefThread> CefThread::CreateThread(
     cef_message_loop_type_t message_loop_type,
     bool stoppable,
     cef_com_init_mode_t com_init_mode) {
-  if (!base::MessageLoop::current()) {
+  if (!CefTaskRunnerImpl::GetCurrentTaskRunner()) {
     NOTREACHED() << "called on invalid thread";
     return nullptr;
   }

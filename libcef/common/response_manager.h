@@ -10,12 +10,12 @@
 
 #include "include/cef_base.h"
 
-#include "base/threading/non_thread_safe.h"
+#include "base/sequence_checker.h"
 
 struct Cef_Response_Params;
 
 // This class is not thread-safe.
-class CefResponseManager : base::NonThreadSafe {
+class CefResponseManager {
  public:
   // Used for handling response messages.
   class Handler : public virtual CefBaseRefCounted {
@@ -59,6 +59,8 @@ class CefResponseManager : base::NonThreadSafe {
   // Map of unique request ids to AckHandler references.
   typedef std::map<int, CefRefPtr<AckHandler>> AckHandlerMap;
   AckHandlerMap ack_handlers_;
+
+  SEQUENCE_CHECKER(sequence_checker_);
 };
 
 #endif  // CEF_LIBCEF_COMMON_RESPONSE_MANAGER_H_

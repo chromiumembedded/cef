@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=983c18727fdd4116f5b98eb9d1921d58f1511c76$
+// $hash=05966899fc7edb30c70adcf7c04e03ef69ea47cc$
 //
 
 #include "libcef_dll/cpptoc/render_process_handler_cpptoc.h"
@@ -332,10 +332,10 @@ CefRefPtr<CefRenderProcessHandler> CefCppToCRefCounted<
 
 #if DCHECK_IS_ON()
 template <>
-base::AtomicRefCount
-    CefCppToCRefCounted<CefRenderProcessHandlerCppToC,
-                        CefRenderProcessHandler,
-                        cef_render_process_handler_t>::DebugObjCt = 0;
+base::AtomicRefCount CefCppToCRefCounted<
+    CefRenderProcessHandlerCppToC,
+    CefRenderProcessHandler,
+    cef_render_process_handler_t>::DebugObjCt ATOMIC_DECLARATION;
 #endif
 
 template <>

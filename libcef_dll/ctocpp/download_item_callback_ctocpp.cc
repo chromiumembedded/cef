@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=d9215ae02910dd9116d40e31163cf7eea491012f$
+// $hash=158b19fa3b7bec818b76834d487844acf7434273$
 //
 
 #include "libcef_dll/ctocpp/download_item_callback_ctocpp.h"
@@ -65,10 +65,10 @@ cef_download_item_callback_t* CefCToCppRefCounted<
 
 #if DCHECK_IS_ON()
 template <>
-base::AtomicRefCount
-    CefCToCppRefCounted<CefDownloadItemCallbackCToCpp,
-                        CefDownloadItemCallback,
-                        cef_download_item_callback_t>::DebugObjCt = 0;
+base::AtomicRefCount CefCToCppRefCounted<
+    CefDownloadItemCallbackCToCpp,
+    CefDownloadItemCallback,
+    cef_download_item_callback_t>::DebugObjCt ATOMIC_DECLARATION;
 #endif
 
 template <>

@@ -1,8 +1,8 @@
 diff --git services/service_manager/embedder/main.cc services/service_manager/embedder/main.cc
-index e661492..8a282fd 100644
+index 7acf0e4..b5c0efa 100644
 --- services/service_manager/embedder/main.cc
 +++ services/service_manager/embedder/main.cc
-@@ -325,13 +325,30 @@ int RunService(MainDelegate* delegate) {
+@@ -317,13 +317,30 @@ int RunService(MainDelegate* delegate) {
    return exit_code;
  }
  
@@ -34,7 +34,7 @@ index e661492..8a282fd 100644
    MainDelegate* delegate = params.delegate;
    DCHECK(delegate);
  
-@@ -399,30 +416,14 @@ int Main(const MainParams& params) {
+@@ -391,30 +408,14 @@ int Main(const MainParams& params) {
    MainDelegate::InitializeParams init_params;
  
  #if defined(OS_MACOSX)
@@ -95,7 +95,7 @@ index e661492..8a282fd 100644
    if (tracker) {
      if (exit_code == 0) {
        tracker->SetProcessPhaseIfEnabled(
-@@ -481,14 +494,39 @@ int Main(const MainParams& params) {
+@@ -481,13 +494,38 @@ int Main(const MainParams& params) {
      }
    }
  
@@ -117,7 +117,6 @@ index e661492..8a282fd 100644
      delegate->ShutDownEmbedderProcess();
 +}
  
--  return exit_code;
 +int Main(MainParams& params) {
 +#if defined(OS_MACOSX)
 +  // We need this pool for all the objects created before we get to the event
@@ -133,10 +132,9 @@ index e661492..8a282fd 100644
 +    return exit_code;
 +  exit_code = MainRun(params);
 +  MainShutdown(params);
-+  return exit_code;
+   return exit_code;
  }
  
- }  // namespace service_manager
 diff --git services/service_manager/embedder/main.h services/service_manager/embedder/main.h
 index e86697a..771acd8 100644
 --- services/service_manager/embedder/main.h

@@ -54,7 +54,7 @@ void CefWindowDelegateView::Init(gfx::AcceleratedWidget parent_widget,
 }
 
 void CefWindowDelegateView::InitContent() {
-  set_background(views::Background::CreateSolidBackground(background_color_));
+  SetBackground(views::CreateSolidBackground(background_color_));
   SetLayoutManager(new views::FillLayout());
   AddChildView(web_view_);
 }

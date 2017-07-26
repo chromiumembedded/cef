@@ -103,6 +103,15 @@ CefStoragePartitionProxy::GetBluetoothAllowedDevicesMap() {
   return parent_->GetBluetoothAllowedDevicesMap();
 }
 
+content::BlobURLLoaderFactory*
+CefStoragePartitionProxy::GetBlobURLLoaderFactory() {
+  return parent_->GetBlobURLLoaderFactory();
+}
+
+content::BlobRegistryWrapper* CefStoragePartitionProxy::GetBlobRegistry() {
+  return parent_->GetBlobRegistry();
+}
+
 void CefStoragePartitionProxy::ClearDataForOrigin(
     uint32_t remove_mask,
     uint32_t quota_storage_remove_mask,

@@ -37,12 +37,7 @@ void TranslatePopupFeatures(const blink::mojom::WindowFeatures& webKitFeatures,
   features.menuBarVisible = webKitFeatures.menu_bar_visible;
   features.statusBarVisible = webKitFeatures.status_bar_visible;
   features.toolBarVisible = webKitFeatures.tool_bar_visible;
-  features.locationBarVisible = webKitFeatures.location_bar_visible;
   features.scrollbarsVisible = webKitFeatures.scrollbars_visible;
-  features.resizable = webKitFeatures.resizable;
-
-  features.fullscreen = webKitFeatures.fullscreen;
-  features.dialog = webKitFeatures.dialog;
 }
 
 CefBrowserInfoManager* g_info_manager = nullptr;
@@ -112,11 +107,11 @@ scoped_refptr<CefBrowserInfo> CefBrowserInfoManager::CreatePopupBrowserInfo(
   PendingNewBrowserInfoList::iterator it =
       pending_new_browser_info_list_.begin();
   for (; it != pending_new_browser_info_list_.end(); ++it) {
-    PendingNewBrowserInfo* info = *it;
+    PendingNewBrowserInfo* info = it->get();
     if (info->render_process_id == render_process_id &&
         info->render_view_routing_id == render_view_routing_id &&
         info->render_frame_routing_id == render_frame_routing_id) {
-      SendNewBrowserInfoResponse(render_process_id, browser_info.get(), false,
+      SendNewBrowserInfoResponse(render_process_id, browser_info, false,
                                  info->reply_msg);
 
       pending_new_browser_info_list_.erase(it);
@@ -304,8 +299,8 @@ void CefBrowserInfoManager::OnGetNewBrowserInfo(int render_process_id,
 
   if (browser_info.get()) {
     // Send the response immediately.
-    SendNewBrowserInfoResponse(render_process_id, browser_info.get(),
-                               is_guest_view, reply_msg);
+    SendNewBrowserInfoResponse(render_process_id, browser_info, is_guest_view,
+                               reply_msg);
     return;
   }
 
@@ -315,7 +310,7 @@ void CefBrowserInfoManager::OnGetNewBrowserInfo(int render_process_id,
     PendingNewBrowserInfoList::const_iterator it =
         pending_new_browser_info_list_.begin();
     for (; it != pending_new_browser_info_list_.end(); ++it) {
-      PendingNewBrowserInfo* info = *it;
+      PendingNewBrowserInfo* info = it->get();
       if (info->render_process_id == render_process_id &&
           info->render_view_routing_id == render_view_routing_id &&
           info->render_frame_routing_id == render_frame_routing_id) {
@@ -416,7 +411,7 @@ void CefBrowserInfoManager::RenderProcessHostDestroyed(
     PendingNewBrowserInfoList::iterator it =
         pending_new_browser_info_list_.begin();
     while (it != pending_new_browser_info_list_.end()) {
-      PendingNewBrowserInfo* info = *it;
+      PendingNewBrowserInfo* info = it->get();
       if (info->render_process_id == render_process_id)
         it = pending_new_browser_info_list_.erase(it);
       else
@@ -428,7 +423,7 @@ void CefBrowserInfoManager::RenderProcessHostDestroyed(
   {
     PendingPopupList::iterator it = pending_popup_list_.begin();
     while (it != pending_popup_list_.end()) {
-      PendingPopup* popup = *it;
+      PendingPopup* popup = it->get();
       if (popup->opener_process_id == render_process_id) {
         it = pending_popup_list_.erase(it);
       } else {
@@ -455,11 +450,13 @@ CefBrowserInfoManager::PopPendingPopup(PendingPopup::Step step,
 
   PendingPopupList::iterator it = pending_popup_list_.begin();
   for (; it != pending_popup_list_.end(); ++it) {
-    PendingPopup* popup = *it;
+    PendingPopup* popup = it->get();
     if (popup->step == step && popup->opener_process_id == opener_process_id &&
         popup->opener_frame_id == opener_frame_id &&
         popup->target_url == target_url) {
-      pending_popup_list_.weak_erase(it);
+      // Transfer ownership of the pointer.
+      it->release();
+      pending_popup_list_.erase(it);
       return base::WrapUnique(popup);
     }
   }
@@ -525,7 +522,7 @@ scoped_refptr<CefBrowserInfo> CefBrowserInfoManager::GetBrowserInfo(
 // static
 void CefBrowserInfoManager::SendNewBrowserInfoResponse(
     int render_process_id,
-    CefBrowserInfo* browser_info,
+    scoped_refptr<CefBrowserInfo> browser_info,
     bool is_guest_view,
     IPC::Message* reply_msg) {
   if (!CEF_CURRENTLY_ON_UIT()) {

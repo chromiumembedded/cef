@@ -31,7 +31,7 @@ index 4d385dd..1b51f2d 100644
      cflags = [ "/wd4201" ]
    }
 diff --git chrome/common/crash_keys.cc chrome/common/crash_keys.cc
-index e9578be..2561824 100644
+index effec5c..1cd8f58 100644
 --- chrome/common/crash_keys.cc
 +++ chrome/common/crash_keys.cc
 @@ -4,6 +4,8 @@
@@ -43,16 +43,16 @@ index e9578be..2561824 100644
  #include "base/base_switches.h"
  #include "base/command_line.h"
  #include "base/format_macros.h"
-@@ -86,7 +88,7 @@ const char kViewCount[] = "view-count";
- 
- const char kZeroEncodeDetails[] = "zero-encode-details";
+@@ -89,7 +91,7 @@ const char kZeroEncodeDetails[] = "zero-encode-details";
+ const char kUserCloudPolicyManagerConnectTrace[] =
+     "user-cloud-policy-manager-connect-trace";
  
 -size_t RegisterChromeCrashKeys() {
 +void GetChromeCrashKeys(std::vector<base::debug::CrashKey>& keys) {
    // The following keys may be chunked by the underlying crash logging system,
    // but ultimately constitute a single key-value pair.
    //
-@@ -226,10 +228,16 @@ size_t RegisterChromeCrashKeys() {
+@@ -229,10 +231,16 @@ size_t RegisterChromeCrashKeys() {
  
    // This dynamic set of keys is used for sets of key value pairs when gathering
    // a collection of data, like command line switches or extension IDs.
@@ -71,7 +71,7 @@ index e9578be..2561824 100644
  
    // Register the extension IDs.
    {
-@@ -263,7 +271,7 @@ size_t RegisterChromeCrashKeys() {
+@@ -266,7 +274,7 @@ size_t RegisterChromeCrashKeys() {
    return base::debug::InitCrashKeys(&keys.at(0), keys.size(), kChunkMaxLength);
  }
  
@@ -80,7 +80,7 @@ index e9578be..2561824 100644
    static const char* const kIgnoreSwitches[] = {
      switches::kEnableLogging,
      switches::kFlagSwitchesBegin,
-@@ -319,7 +327,7 @@ static bool IsBoringSwitch(const std::string& flag) {
+@@ -322,7 +330,7 @@ static bool IsBoringSwitch(const std::string& flag) {
  }
  
  void SetCrashKeysFromCommandLine(const base::CommandLine& command_line) {
@@ -90,7 +90,7 @@ index e9578be..2561824 100644
  
  void SetActiveExtensions(const std::set<std::string>& extensions) {
 diff --git chrome/common/crash_keys.h chrome/common/crash_keys.h
-index 93fb0b0..3e543d2 100644
+index 687146e..b1b73d6 100644
 --- chrome/common/crash_keys.h
 +++ chrome/common/crash_keys.h
 @@ -22,10 +22,18 @@ class CommandLine;
@@ -113,7 +113,7 @@ index 93fb0b0..3e543d2 100644
  // on the given |command_line|.
  void SetCrashKeysFromCommandLine(const base::CommandLine& command_line);
 diff --git chrome_elf/BUILD.gn chrome_elf/BUILD.gn
-index c8197e9..06adc24 100644
+index 8ae2c85..cea4a3d 100644
 --- chrome_elf/BUILD.gn
 +++ chrome_elf/BUILD.gn
 @@ -7,6 +7,7 @@
@@ -143,8 +143,8 @@ index c8197e9..06adc24 100644
      "//chrome/install_static:install_static_util",
      "//components/crash/content/app:app",
      "//components/crash/core/common",  # crash_keys
-@@ -154,6 +154,17 @@ static_library("crash") {
-     "//content/public/common:result_codes",
+@@ -155,6 +155,17 @@ static_library("crash") {
+     "//gpu/config:crash_keys",
      "//third_party/crashpad/crashpad/client:client",  # DumpWithoutCrash
    ]
 +
@@ -162,7 +162,7 @@ index c8197e9..06adc24 100644
  
  static_library("hook_util") {
 diff --git chrome_elf/crash/crash_helper.cc chrome_elf/crash/crash_helper.cc
-index c658fa9..8c4a145 100644
+index 31ed150..aacbb02 100644
 --- chrome_elf/crash/crash_helper.cc
 +++ chrome_elf/crash/crash_helper.cc
 @@ -11,12 +11,17 @@
@@ -196,7 +196,7 @@ index c658fa9..8c4a145 100644
    g_crash_helper_enabled = true;
    return true;
 diff --git components/crash/content/app/breakpad_linux.cc components/crash/content/app/breakpad_linux.cc
-index 0d3de65..a1b8b09 100644
+index 2199920..e6e8f58 100644
 --- components/crash/content/app/breakpad_linux.cc
 +++ components/crash/content/app/breakpad_linux.cc
 @@ -29,6 +29,7 @@
@@ -255,7 +255,7 @@ index 0d3de65..a1b8b09 100644
      if (info.pid > 0) {
        char pid_value_buf[kUint64StringSize];
        uint64_t pid_value_len = my_uint64_len(info.pid);
-@@ -2004,6 +2015,17 @@ void InitCrashReporter(const std::string& process_type) {
+@@ -2011,6 +2022,17 @@ void InitCrashReporter(const std::string& process_type) {
    PostEnableBreakpadInitialization();
  }
  
@@ -274,7 +274,7 @@ index 0d3de65..a1b8b09 100644
  void InitNonBrowserCrashReporterForAndroid(const std::string& process_type) {
    SanitizationInfo sanitization_info;
 diff --git components/crash/content/app/breakpad_linux.h components/crash/content/app/breakpad_linux.h
-index 0160f62..b732498 100644
+index 4a2a429..70f3adb 100644
 --- components/crash/content/app/breakpad_linux.h
 +++ components/crash/content/app/breakpad_linux.h
 @@ -16,6 +16,9 @@ namespace breakpad {
@@ -416,10 +416,10 @@ index 9f69c19..2abaee00 100644
  
  }  // namespace crash_reporter
 diff --git components/crash/content/app/crashpad.cc components/crash/content/app/crashpad.cc
-index ba04da1..aa3f21a 100644
+index ede08d7..d7caf4d 100644
 --- components/crash/content/app/crashpad.cc
 +++ components/crash/content/app/crashpad.cc
-@@ -143,7 +143,8 @@ void InitializeCrashpadImpl(bool initial_client,
+@@ -139,7 +139,8 @@ void InitializeCrashpadImpl(bool initial_client,
    // fallback. Forwarding is turned off for debug-mode builds even for the
    // browser process, because the system's crash reporter can take a very long
    // time to chew on symbols.
@@ -531,7 +531,7 @@ index 485c2b4..3b5f3ea 100644
            handler_path, database_path, metrics_path, url, process_annotations,
            arguments, true, false);
 diff --git components/crash/content/app/crashpad_win.cc components/crash/content/app/crashpad_win.cc
-index 6fdfd83..1d5a2a9 100644
+index 3946d2a..175fb2e 100644
 --- components/crash/content/app/crashpad_win.cc
 +++ components/crash/content/app/crashpad_win.cc
 @@ -33,8 +33,8 @@ void GetPlatformCrashpadAnnotations(

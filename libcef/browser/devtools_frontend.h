@@ -24,9 +24,10 @@ class Value;
 }
 
 namespace content {
+class NavigationHandle;
 class RenderViewHost;
 class WebContents;
-}
+}  // namespace content
 
 class PrefService;
 
@@ -73,7 +74,8 @@ class CefDevToolsFrontend : public content::WebContentsObserver,
 
  private:
   // WebContentsObserver overrides
-  void RenderViewCreated(content::RenderViewHost* render_view_host) override;
+  void ReadyToCommitNavigation(
+      content::NavigationHandle* navigation_handle) override;
   void DocumentAvailableInMainFrame() override;
   void WebContentsDestroyed() override;
 
@@ -91,6 +93,8 @@ class CefDevToolsFrontend : public content::WebContentsObserver,
   std::unique_ptr<content::DevToolsFrontendHost> frontend_host_;
   using PendingRequestsMap = std::map<const net::URLFetcher*, int>;
   PendingRequestsMap pending_requests_;
+  using ExtensionsAPIs = std::map<std::string, std::string>;
+  ExtensionsAPIs extensions_api_;
   base::WeakPtrFactory<CefDevToolsFrontend> weak_factory_;
 
   DISALLOW_COPY_AND_ASSIGN(CefDevToolsFrontend);

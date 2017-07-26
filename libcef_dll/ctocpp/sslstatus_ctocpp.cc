@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=7c600e4c245f2a601a4d9664f1661f963b5fe714$
+// $hash=f887df57dfc145b107991b7a93a32ba42dd745f0$
 //
 
 #include "libcef_dll/ctocpp/sslstatus_ctocpp.h"
@@ -101,9 +101,9 @@ CefCToCppRefCounted<CefSSLStatusCToCpp, CefSSLStatus, cef_sslstatus_t>::
 
 #if DCHECK_IS_ON()
 template <>
-base::AtomicRefCount CefCToCppRefCounted<CefSSLStatusCToCpp,
-                                         CefSSLStatus,
-                                         cef_sslstatus_t>::DebugObjCt = 0;
+base::AtomicRefCount
+    CefCToCppRefCounted<CefSSLStatusCToCpp, CefSSLStatus, cef_sslstatus_t>::
+        DebugObjCt ATOMIC_DECLARATION;
 #endif
 
 template <>

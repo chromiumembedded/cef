@@ -80,6 +80,7 @@ class CefExtensionsBrowserClient : public ExtensionsBrowserClient {
   ExtensionWebContentsObserver* GetExtensionWebContentsObserver(
       content::WebContents* web_contents) override;
   KioskDelegate* GetKioskDelegate() override;
+  bool IsLockScreenContext(content::BrowserContext* context) override;
 
   // Sets the API client.
   void SetAPIClientForTest(ExtensionsAPIClient* api_client);

@@ -277,6 +277,7 @@ source_set("webkit_set") {
   deps = [
     "//skia",
     "//third_party/icu",
+    "//third_party/boringssl",
     "//v8",
   ]
 }
@@ -704,6 +705,7 @@ static_library("libcef_static") {
     "//components/keyed_service/content:content",
     "//components/keyed_service/core:core",
     "//components/navigation_interception",
+    "//components/network_session_configurator/common",
     "//components/pdf/browser",
     "//components/pdf/renderer",
     "//components/plugins/renderer",
@@ -723,7 +725,7 @@ static_library("libcef_static") {
     "//components/visitedlink/browser",
     "//components/visitedlink/common",
     "//components/visitedlink/renderer",
-    "//components/viz/display_compositor",
+    "//components/viz/service",
     "//components/web_cache/renderer",
     "//content/public/app:both",
     "//content/public/browser",
@@ -842,7 +844,7 @@ static_library("libcef_static") {
 
     deps += [
       "//build/config/freetype",
-      "//build/linux:fontconfig",
+      "//third_party/fontconfig",
     ]
   }
 
@@ -957,6 +959,7 @@ static_library("libcef_static") {
       "//ui/events",
       "//ui/strings",
       "//ui/wm",
+      "//ui/wm/public",
     ]
 
     if (toolkit_views) {

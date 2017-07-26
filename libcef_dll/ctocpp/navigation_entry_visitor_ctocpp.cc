@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=18f54750f071fa94a3397dedaf2b90c3d4fe3f4b$
+// $hash=2dced8653b36f1ac5cacc16225b615c9d2146dde$
 //
 
 #include "libcef_dll/ctocpp/navigation_entry_visitor_ctocpp.h"
@@ -57,10 +57,10 @@ cef_navigation_entry_visitor_t* CefCToCppRefCounted<
 
 #if DCHECK_IS_ON()
 template <>
-base::AtomicRefCount
-    CefCToCppRefCounted<CefNavigationEntryVisitorCToCpp,
-                        CefNavigationEntryVisitor,
-                        cef_navigation_entry_visitor_t>::DebugObjCt = 0;
+base::AtomicRefCount CefCToCppRefCounted<
+    CefNavigationEntryVisitorCToCpp,
+    CefNavigationEntryVisitor,
+    cef_navigation_entry_visitor_t>::DebugObjCt ATOMIC_DECLARATION;
 #endif
 
 template <>

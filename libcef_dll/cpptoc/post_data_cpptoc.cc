@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=c4a9a8f009c2ada8fb9756462e49f7f65f931056$
+// $hash=4b3926cc6e0211a6d1ba061e2e3788ee79afcc27$
 //
 
 #include "libcef_dll/cpptoc/post_data_cpptoc.h"
@@ -188,9 +188,9 @@ CefCppToCRefCounted<CefPostDataCppToC, CefPostData, cef_post_data_t>::
 
 #if DCHECK_IS_ON()
 template <>
-base::AtomicRefCount CefCppToCRefCounted<CefPostDataCppToC,
-                                         CefPostData,
-                                         cef_post_data_t>::DebugObjCt = 0;
+base::AtomicRefCount
+    CefCppToCRefCounted<CefPostDataCppToC, CefPostData, cef_post_data_t>::
+        DebugObjCt ATOMIC_DECLARATION;
 #endif
 
 template <>

@@ -26,7 +26,8 @@
 #include "base/threading/worker_pool.h"
 #include "build/build_config.h"
 #include "chrome/browser/browser_process.h"
-#include "chrome/browser/net/proxy_service_factory.h"
+#include "chrome/browser/net/chrome_mojo_proxy_resolver_factory.h"
+#include "chrome/common/chrome_switches.h"
 #include "chrome/common/pref_names.h"
 #include "components/net_log/chrome_net_log.h"
 #include "components/prefs/pref_registry_simple.h"
@@ -50,7 +51,10 @@
 #include "net/http/http_server_properties_impl.h"
 #include "net/http/http_util.h"
 #include "net/http/transport_security_state.h"
+#include "net/proxy/dhcp_proxy_script_fetcher_factory.h"
+#include "net/proxy/proxy_script_fetcher_impl.h"
 #include "net/proxy/proxy_service.h"
+#include "net/proxy/proxy_service_mojo.h"
 #include "net/ssl/ssl_config_service_defaults.h"
 #include "net/url_request/http_user_agent_settings.h"
 #include "net/url_request/url_request.h"
@@ -105,13 +109,58 @@ class CefHttpUserAgentSettings : public net::HttpUserAgentSettings {
   DISALLOW_COPY_AND_ASSIGN(CefHttpUserAgentSettings);
 };
 
+// Based on ProxyServiceFactory::CreateProxyService which was deleted in
+// http://crrev.com/1c261ff4.
+std::unique_ptr<net::ProxyService> CreateProxyService(
+    net::NetLog* net_log,
+    net::URLRequestContext* context,
+    net::NetworkDelegate* network_delegate,
+    std::unique_ptr<net::ProxyConfigService> proxy_config_service,
+    const base::CommandLine& command_line,
+    bool quick_check_enabled,
+    bool pac_https_url_stripping_enabled) {
+  DCHECK_CURRENTLY_ON(BrowserThread::IO);
+  bool use_v8 = !command_line.HasSwitch(switches::kWinHttpProxyResolver);
+  // TODO(eroman): Figure out why this doesn't work in single-process mode.
+  // Should be possible now that a private isolate is used.
+  // http://crbug.com/474654
+  if (use_v8 && command_line.HasSwitch(switches::kSingleProcess)) {
+    LOG(ERROR) << "Cannot use V8 Proxy resolver in single process mode.";
+    use_v8 = false;  // Fallback to non-v8 implementation.
+  }
+
+  std::unique_ptr<net::ProxyService> proxy_service;
+  if (use_v8) {
+    std::unique_ptr<net::DhcpProxyScriptFetcher> dhcp_proxy_script_fetcher;
+    net::DhcpProxyScriptFetcherFactory dhcp_factory;
+    dhcp_proxy_script_fetcher = dhcp_factory.Create(context);
+
+    proxy_service = net::CreateProxyServiceUsingMojoFactory(
+        ChromeMojoProxyResolverFactory::GetInstance(),
+        std::move(proxy_config_service),
+        new net::ProxyScriptFetcherImpl(context),
+        std::move(dhcp_proxy_script_fetcher), context->host_resolver(), net_log,
+        network_delegate);
+  } else {
+    proxy_service = net::ProxyService::CreateUsingSystemProxyResolver(
+        std::move(proxy_config_service), net_log);
+  }
+
+  proxy_service->set_quick_check_enabled(quick_check_enabled);
+  proxy_service->set_sanitize_url_policy(
+      pac_https_url_stripping_enabled
+          ? net::ProxyService::SanitizeUrlPolicy::SAFE
+          : net::ProxyService::SanitizeUrlPolicy::UNSAFE);
+
+  return proxy_service;
+}
+
 }  // namespace
 
 CefURLRequestContextGetterImpl::CefURLRequestContextGetterImpl(
     const CefRequestContextSettings& settings,
     PrefService* pref_service,
     scoped_refptr<base::SingleThreadTaskRunner> io_task_runner,
-    scoped_refptr<base::SingleThreadTaskRunner> file_task_runner,
     content::ProtocolHandlerMap* protocol_handlers,
     std::unique_ptr<net::ProxyConfigService> proxy_config_service,
     content::URLRequestInterceptorScopedVector request_interceptors)
@@ -122,7 +171,6 @@ CefURLRequestContextGetterImpl::CefURLRequestContextGetterImpl(
   io_state_->net_log_ = g_browser_process->net_log(),
   DCHECK(io_state_->net_log_);
   io_state_->io_task_runner_ = std::move(io_task_runner);
-  io_state_->file_task_runner_ = std::move(file_task_runner);
   io_state_->proxy_config_service_ = std::move(proxy_config_service);
   io_state_->request_interceptors_ = std::move(request_interceptors);
 
@@ -266,12 +314,12 @@ net::URLRequestContext* CefURLRequestContextGetterImpl::GetURLRequestContext() {
     io_state_->storage_->set_ct_policy_enforcer(std::move(ct_policy_enforcer));
 
     std::unique_ptr<net::ProxyService> system_proxy_service =
-        ProxyServiceFactory::CreateProxyService(
-            io_state_->net_log_, io_state_->url_request_context_.get(),
-            io_state_->url_request_context_->network_delegate(),
-            std::move(io_state_->proxy_config_service_), *command_line,
-            quick_check_enabled_.GetValue(),
-            pac_https_url_stripping_enabled_.GetValue());
+        CreateProxyService(io_state_->net_log_,
+                           io_state_->url_request_context_.get(),
+                           io_state_->url_request_context_->network_delegate(),
+                           std::move(io_state_->proxy_config_service_),
+                           *command_line, quick_check_enabled_.GetValue(),
+                           pac_https_url_stripping_enabled_.GetValue());
     io_state_->storage_->set_proxy_service(std::move(system_proxy_service));
 
     io_state_->storage_->set_ssl_config_service(
@@ -311,31 +359,34 @@ net::URLRequestContext* CefURLRequestContextGetterImpl::GetURLRequestContext() {
             net::CACHE_BACKEND_DEFAULT, http_cache_path, 0,
             BrowserThread::GetTaskRunnerForThread(BrowserThread::CACHE)));
 
-    net::HttpNetworkSession::Params network_session_params;
-    network_session_params.host_resolver =
+    net::HttpNetworkSession::Context network_session_context;
+    network_session_context.host_resolver =
         io_state_->url_request_context_->host_resolver();
-    network_session_params.cert_verifier =
+    network_session_context.cert_verifier =
         io_state_->url_request_context_->cert_verifier();
-    network_session_params.transport_security_state =
+    network_session_context.transport_security_state =
         io_state_->url_request_context_->transport_security_state();
-    network_session_params.cert_transparency_verifier =
+    network_session_context.cert_transparency_verifier =
         io_state_->url_request_context_->cert_transparency_verifier();
-    network_session_params.ct_policy_enforcer =
+    network_session_context.ct_policy_enforcer =
         io_state_->url_request_context_->ct_policy_enforcer();
-    network_session_params.proxy_service =
+    network_session_context.proxy_service =
         io_state_->url_request_context_->proxy_service();
-    network_session_params.ssl_config_service =
+    network_session_context.ssl_config_service =
         io_state_->url_request_context_->ssl_config_service();
-    network_session_params.http_auth_handler_factory =
+    network_session_context.http_auth_handler_factory =
         io_state_->url_request_context_->http_auth_handler_factory();
-    network_session_params.http_server_properties =
+    network_session_context.http_server_properties =
         io_state_->url_request_context_->http_server_properties();
+    network_session_context.net_log = io_state_->net_log_;
+
+    net::HttpNetworkSession::Params network_session_params;
     network_session_params.ignore_certificate_errors =
         settings_.ignore_certificate_errors ? true : false;
-    network_session_params.net_log = io_state_->net_log_;
 
     io_state_->storage_->set_http_network_session(
-        base::WrapUnique(new net::HttpNetworkSession(network_session_params)));
+        base::WrapUnique(new net::HttpNetworkSession(network_session_params,
+                                                     network_session_context)));
     io_state_->storage_->set_http_transaction_factory(
         base::WrapUnique(new net::HttpCache(
             io_state_->storage_->http_network_session(),
@@ -349,7 +400,7 @@ net::URLRequestContext* CefURLRequestContextGetterImpl::GetURLRequestContext() {
     // Install internal scheme handlers that cannot be overridden.
     scheme::InstallInternalProtectedHandlers(
         job_factory.get(), io_state_->url_request_manager_.get(),
-        &io_state_->protocol_handlers_, network_session_params.host_resolver);
+        &io_state_->protocol_handlers_, network_session_context.host_resolver);
     io_state_->protocol_handlers_.clear();
 
     // Register internal scheme handlers that can be overridden.
@@ -476,7 +527,7 @@ void CefURLRequestContextGetterImpl::CreateProxyConfigService() {
 
   io_state_->proxy_config_service_ =
       net::ProxyService::CreateSystemProxyConfigService(
-          io_state_->io_task_runner_, io_state_->file_task_runner_);
+          io_state_->io_task_runner_);
 }
 
 void CefURLRequestContextGetterImpl::UpdateServerWhitelist() {

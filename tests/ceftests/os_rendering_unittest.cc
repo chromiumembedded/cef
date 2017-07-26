@@ -472,7 +472,11 @@ class OSRTestHandler : public RoutingTestHandler,
           EXPECT_EQ(dirtyRects.size(), 1U);
           EXPECT_TRUE(IsFullRepaint(dirtyRects[0], GetScaledInt(kOsrWidth),
                                     GetScaledInt(kOsrHeight)));
+#if defined(OS_MACOSX)
+          EXPECT_EQ(0xfffd8081U, *(reinterpret_cast<const uint32*>(buffer)));
+#else
           EXPECT_EQ(0xffff7f7fU, *(reinterpret_cast<const uint32*>(buffer)));
+#endif
           DestroySucceededTestSoon();
         }
         break;
@@ -482,7 +486,11 @@ class OSRTestHandler : public RoutingTestHandler,
           EXPECT_EQ(dirtyRects.size(), 1U);
           EXPECT_TRUE(IsFullRepaint(dirtyRects[0], GetScaledInt(kOsrWidth),
                                     GetScaledInt(kOsrHeight)));
+#if defined(OS_MACOSX)
+          EXPECT_EQ(0x807e0308U, *(reinterpret_cast<const uint32*>(buffer)));
+#else
           EXPECT_EQ(0x80800000U, *(reinterpret_cast<const uint32*>(buffer)));
+#endif
           DestroySucceededTestSoon();
         }
         break;
@@ -724,11 +732,9 @@ class OSRTestHandler : public RoutingTestHandler,
 // first pixel of border
 
 #if defined(OS_MACOSX)
-          EXPECT_EQ(0xff5d99d6, *(reinterpret_cast<const uint32*>(buffer)));
-#elif defined(OS_LINUX) || defined(OS_WIN)
-          EXPECT_EQ(0xff6497ea, *(reinterpret_cast<const uint32*>(buffer)));
+          EXPECT_EQ(0xff609ad4U, *(reinterpret_cast<const uint32*>(buffer)));
 #else
-#error "Unsupported platform"
+          EXPECT_EQ(0xff6497eaU, *(reinterpret_cast<const uint32*>(buffer)));
 #endif
           if (ExpectComputedPopupSize()) {
             EXPECT_EQ(expanded_select_rect.width, width);
@@ -1013,10 +1019,15 @@ class OSRTestHandler : public RoutingTestHandler,
       if (image.get()) {
         // Drag image height seems to always be + 1px greater than the drag rect
         // on Linux. Therefore allow it to be +/- 1px.
+#if defined(OS_MACOSX)
+        EXPECT_NEAR(static_cast<int>(image->GetWidth()), GetScaledInt(15), 1);
+        EXPECT_NEAR(static_cast<int>(image->GetHeight()), GetScaledInt(15), 1);
+#else
         EXPECT_NEAR(static_cast<int>(image->GetWidth()),
                     GetScaledInt(kDragDivRect.width), 1);
         EXPECT_NEAR(static_cast<int>(image->GetHeight()),
                     GetScaledInt(kDragDivRect.height), 1);
+#endif
       }
       // During testing hotspot (x, y) was (15, 23) at 1x scale and (15, 18) at
       // 2x scale. Since the mechanism for determining this position is unclear

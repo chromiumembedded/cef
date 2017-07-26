@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=6e7fee65b06841fd683275211fd2091a08e43473$
+// $hash=a31c59b55268b2fcf3c337a521ead51eca6faac6$
 //
 
 #include "libcef_dll/cpptoc/web_plugin_info_cpptoc.h"
@@ -103,7 +103,8 @@ CefRefPtr<CefWebPluginInfo> CefCppToCRefCounted<
 template <>
 base::AtomicRefCount CefCppToCRefCounted<CefWebPluginInfoCppToC,
                                          CefWebPluginInfo,
-                                         cef_web_plugin_info_t>::DebugObjCt = 0;
+                                         cef_web_plugin_info_t>::DebugObjCt
+    ATOMIC_DECLARATION;
 #endif
 
 template <>

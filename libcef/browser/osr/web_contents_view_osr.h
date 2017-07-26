@@ -14,7 +14,7 @@ namespace content {
 class BrowserPluginGuest;
 class WebContents;
 class WebContentsViewDelegate;
-}
+}  // namespace content
 
 class CefBrowserHostImpl;
 class CefRenderWidgetHostViewOSR;
@@ -69,7 +69,10 @@ class CefWebContentsViewOSR : public content::WebContentsView,
                      const content::DragEventSourceInfo& event_info,
                      content::RenderWidgetHostImpl* source_rwh) override;
   void UpdateDragCursor(blink::WebDragOperation operation) override;
-  virtual void GotFocus() override;
+  virtual void GotFocus(
+      content::RenderWidgetHostImpl* render_widget_host) override;
+  virtual void LostFocus(
+      content::RenderWidgetHostImpl* render_widget_host) override;
   virtual void TakeFocus(bool reverse) override;
 
  private:

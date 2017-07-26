@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=0eb6f0608c15cba18640c52aa8a3fd0ed73cce15$
+// $hash=396df0db5788f77df337b9dddd5d2a0f6b163898$
 //
 
 #include "libcef_dll/ctocpp/views/browser_view_delegate_ctocpp.h"
@@ -312,10 +312,10 @@ cef_browser_view_delegate_t* CefCToCppRefCounted<
 
 #if DCHECK_IS_ON()
 template <>
-base::AtomicRefCount
-    CefCToCppRefCounted<CefBrowserViewDelegateCToCpp,
-                        CefBrowserViewDelegate,
-                        cef_browser_view_delegate_t>::DebugObjCt = 0;
+base::AtomicRefCount CefCToCppRefCounted<
+    CefBrowserViewDelegateCToCpp,
+    CefBrowserViewDelegate,
+    cef_browser_view_delegate_t>::DebugObjCt ATOMIC_DECLARATION;
 #endif
 
 template <>

@@ -695,6 +695,13 @@ bool ClientHandler::OnCertificateError(CefRefPtr<CefBrowser> browser,
                                        CefRefPtr<CefRequestCallback> callback) {
   CEF_REQUIRE_UI_THREAD();
 
+  if (cert_error == ERR_CERT_AUTHORITY_INVALID &&
+      request_url.ToString().find("https://www.magpcss.org/") == 0U) {
+    // Allow the CEF Forum to load. It has a self-signed certificate.
+    callback->Continue(true);
+    return true;
+  }
+
   CefRefPtr<CefX509Certificate> cert = ssl_info->GetX509Certificate();
   if (cert.get()) {
     // Load the error page.

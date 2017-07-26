@@ -1,8 +1,8 @@
 diff --git .gn .gn
-index c91f911..bd906bc 100644
+index 441b8ac..c3fe3b1 100644
 --- .gn
 +++ .gn
-@@ -261,6 +261,8 @@ exec_script_whitelist =
+@@ -271,6 +271,8 @@ exec_script_whitelist =
        # in the Chromium repo outside of //build.
        "//build_overrides/build.gni",
  
@@ -12,10 +12,10 @@ index c91f911..bd906bc 100644
        # https://crbug.com/474506.
        "//clank/java/BUILD.gn",
 diff --git BUILD.gn BUILD.gn
-index 9429718..1f8c486 100644
+index d274819..191ea00 100644
 --- BUILD.gn
 +++ BUILD.gn
-@@ -154,6 +154,7 @@ group("gn_all") {
+@@ -170,6 +170,7 @@ group("gn_all") {
    if (!is_ios && !is_fuchsia) {
      deps += [
        "//cc:cc_unittests",
@@ -56,10 +56,10 @@ index 982fbe8..e757be46 100644
 +         "studio path")
  }
 diff --git build/toolchain/win/setup_toolchain.py build/toolchain/win/setup_toolchain.py
-index e8b0849..0bfc676 100644
+index 8150d3a..39441ef 100644
 --- build/toolchain/win/setup_toolchain.py
 +++ build/toolchain/win/setup_toolchain.py
-@@ -132,18 +132,20 @@ def _LoadToolchainEnv(cpu, sdk_dir):
+@@ -132,17 +132,21 @@ def _LoadToolchainEnv(cpu, sdk_dir):
        # variable.
        if 'VSINSTALLDIR' in os.environ:
          del os.environ['VSINSTALLDIR']
@@ -71,10 +71,9 @@ index e8b0849..0bfc676 100644
 -        raise Exception('%s is missing - make sure VC++ tools are installed.' %
 -                        script_path)
 -      script_path = other_path
--    # Chromium requires the 10.0.14393.0 SDK. Previous versions don't have all
--    # of the required declarations, and 10.0.15063.0 is buggy.
--    args = [script_path, 'amd64_x86' if cpu == 'x86' else 'amd64',
--            '10.0.14393.0']
+-    # Chromium requires the 10.0.14393.0 SDK or higher - previous versions don't
+-    # have all of the required declarations.
+-    args = [script_path, 'amd64_x86' if cpu == 'x86' else 'amd64']
 -    variables = _LoadEnvFromBat(args)
 +    if os.path.exists(script_path):
 +      # Chromium requires the 10.0.14393.0 SDK. Previous versions don't have all
@@ -87,11 +86,12 @@ index e8b0849..0bfc676 100644
 +      for k in sorted(os.environ.keys()):
 +        variables.append('%s=%s' % (str(k), str(os.environ[k])))
 +      variables = '\n'.join(variables)
++
    return _ExtractImportantEnvironment(variables)
  
  
 diff --git build/vs_toolchain.py build/vs_toolchain.py
-index bb8f96c..6902237 100755
+index 3b2c727..60e4984 100755
 --- build/vs_toolchain.py
 +++ build/vs_toolchain.py
 @@ -79,11 +79,18 @@ def SetEnvironmentAndGetRuntimeDllDirs():
@@ -114,18 +114,18 @@ index bb8f96c..6902237 100755
      # directory in order to run binaries locally, but they are needed in order
      # to create isolates or the mini_installer. Copying them to the output
 diff --git chrome/chrome_paks.gni chrome/chrome_paks.gni
-index 1f9a1fc..aa69e8c 100644
+index a7778f9..5e3eb75a 100644
 --- chrome/chrome_paks.gni
 +++ chrome/chrome_paks.gni
-@@ -245,7 +245,7 @@ template("chrome_paks") {
-                              ])
-   
-       input_locales = locales
--      output_dir = "${invoker.output_dir}/locales"
-+      output_dir = "${invoker.output_dir}/chrome/locales"
-   
-       if (is_mac) {
-         output_locales = locales_as_mac_outputs
+@@ -252,7 +252,7 @@ template("chrome_paks") {
+     }
+ 
+     input_locales = locales
+-    output_dir = "${invoker.output_dir}/locales"
++    output_dir = "${invoker.output_dir}/chrome/locales"
+ 
+     if (is_mac) {
+       output_locales = locales_as_mac_outputs
 diff --git chrome/installer/mini_installer/BUILD.gn chrome/installer/mini_installer/BUILD.gn
 index 2afab1a..c8791ea 100644
 --- chrome/installer/mini_installer/BUILD.gn

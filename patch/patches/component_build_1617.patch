@@ -1,5 +1,5 @@
 diff --git content/app/content_service_manager_main_delegate.h content/app/content_service_manager_main_delegate.h
-index c0fd31d..9e95dbb 100644
+index 7563ce4..6c59474 100644
 --- content/app/content_service_manager_main_delegate.h
 +++ content/app/content_service_manager_main_delegate.h
 @@ -16,7 +16,8 @@ namespace content {
@@ -12,29 +12,8 @@ index c0fd31d..9e95dbb 100644
   public:
    explicit ContentServiceManagerMainDelegate(const ContentMainParams& params);
    ~ContentServiceManagerMainDelegate() override;
-diff --git content/browser/frame_host/debug_urls.h content/browser/frame_host/debug_urls.h
-index 413cd0f..bab8a6d 100644
---- content/browser/frame_host/debug_urls.h
-+++ content/browser/frame_host/debug_urls.h
-@@ -5,6 +5,7 @@
- #ifndef CONTENT_BROWSER_FRAME_HOST_DEBUG_URLS_H_
- #define CONTENT_BROWSER_FRAME_HOST_DEBUG_URLS_H_
- 
-+#include "content/common/content_export.h"
- #include "ui/base/page_transition_types.h"
- 
- class GURL;
-@@ -19,7 +20,7 @@ bool HandleDebugURL(const GURL& url, ui::PageTransition transition);
- // renderer process, such as one that crashes or hangs the renderer, or a
- // javascript: URL that operates on the current page in the renderer.  Such URLs
- // do not represent actual navigations and can be loaded in any SiteInstance.
--bool IsRendererDebugURL(const GURL& url);
-+CONTENT_EXPORT bool IsRendererDebugURL(const GURL& url);
- 
- }  // namespace content
- 
 diff --git third_party/WebKit/Source/web/BUILD.gn third_party/WebKit/Source/web/BUILD.gn
-index 4424844..f72486f 100644
+index 148b260..b08bb89 100644
 --- third_party/WebKit/Source/web/BUILD.gn
 +++ third_party/WebKit/Source/web/BUILD.gn
 @@ -15,6 +15,7 @@ component("web") {

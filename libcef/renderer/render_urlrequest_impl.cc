@@ -94,13 +94,19 @@ class CefRenderURLRequest::Context
     if (!url.is_valid())
       return false;
 
-    loader_ = blink::Platform::Current()->CreateURLLoader();
     url_client_.reset(new CefWebURLLoaderClient(this, request_->GetFlags()));
 
     WebURLRequest urlRequest;
     static_cast<CefRequestImpl*>(request_.get())
         ->Get(urlRequest, upload_data_size_);
 
+    // Set the origin to match the request. The requirement for an origin is
+    // DCHECK'd in ResourceDispatcherHostImpl::ContinuePendingBeginRequest.
+    urlRequest.SetRequestorOrigin(
+        blink::WebSecurityOrigin::Create(urlRequest.Url()));
+
+    loader_ = blink::Platform::Current()->CreateURLLoader(urlRequest,
+                                                          task_runner_.get());
     loader_->LoadAsynchronously(urlRequest, url_client_.get());
     return true;
   }
@@ -211,7 +217,7 @@ class CefRenderURLRequest::Context
   CefRefPtr<CefRenderURLRequest> url_request_;
   CefRefPtr<CefRequest> request_;
   CefRefPtr<CefURLRequestClient> client_;
-  scoped_refptr<base::SequencedTaskRunner> task_runner_;
+  scoped_refptr<base::SingleThreadTaskRunner> task_runner_;
   CefURLRequest::Status status_;
   CefURLRequest::ErrorCode error_code_;
   CefRefPtr<CefResponse> response_;

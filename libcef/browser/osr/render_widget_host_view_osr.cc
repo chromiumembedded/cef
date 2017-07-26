@@ -20,7 +20,7 @@
 #include "cc/base/switches.h"
 #include "cc/output/copy_output_request.h"
 #include "cc/scheduler/delay_based_time_source.h"
-#include "components/viz/display_compositor/gl_helper.h"
+#include "components/viz/common/gl_helper.h"
 #include "content/browser/bad_message.h"
 #include "content/browser/compositor/image_transport_factory.h"
 #include "content/browser/frame_host/render_widget_host_view_guest.h"
@@ -187,7 +187,7 @@ class CefCopyFrameGenerator {
 
     uint8_t* pixels = static_cast<uint8_t*>(bitmap_->getPixels());
 
-    cc::TextureMailbox texture_mailbox;
+    viz::TextureMailbox texture_mailbox;
     std::unique_ptr<cc::SingleReleaseCallback> release_callback;
     result->TakeTexture(&texture_mailbox, &release_callback);
     DCHECK(texture_mailbox.IsTexture());
@@ -398,7 +398,8 @@ CefRenderWidgetHostViewOSR::CefRenderWidgetHostViewOSR(
   compositor_.reset(
       new ui::Compositor(context_factory_private->AllocateFrameSinkId(),
                          content::GetContextFactory(), context_factory_private,
-                         base::ThreadTaskRunnerHandle::Get()));
+                         base::ThreadTaskRunnerHandle::Get(),
+                         false /* enable_surface_synchronization */));
   compositor_->SetAcceleratedWidget(compositor_widget_);
   compositor_->SetDelegate(this);
   compositor_->SetRootLayer(root_layer_.get());
@@ -571,7 +572,7 @@ bool CefRenderWidgetHostViewOSR::LockMouse() {
 void CefRenderWidgetHostViewOSR::UnlockMouse() {}
 
 void CefRenderWidgetHostViewOSR::DidCreateNewRendererCompositorFrameSink(
-    cc::mojom::MojoCompositorFrameSinkClient* renderer_compositor_frame_sink) {
+    cc::mojom::CompositorFrameSinkClient* renderer_compositor_frame_sink) {
   renderer_compositor_frame_sink_ = renderer_compositor_frame_sink;
   if (GetDelegatedFrameHost()) {
     GetDelegatedFrameHost()->DidCreateNewRendererCompositorFrameSink(
@@ -580,7 +581,7 @@ void CefRenderWidgetHostViewOSR::DidCreateNewRendererCompositorFrameSink(
 }
 
 void CefRenderWidgetHostViewOSR::SubmitCompositorFrame(
-    const cc::LocalSurfaceId& local_surface_id,
+    const viz::LocalSurfaceId& local_surface_id,
     cc::CompositorFrame frame) {
   TRACE_EVENT0("libcef", "CefRenderWidgetHostViewOSR::OnSwapCompositorFrame");
 
@@ -842,7 +843,7 @@ gfx::Rect CefRenderWidgetHostViewOSR::GetBoundsInRootWindow() {
       browser_impl_->client()->GetRenderHandler();
   if (handler.get() && handler->GetRootScreenRect(browser_impl_.get(), rc))
     return gfx::Rect(rc.x, rc.y, rc.width, rc.height);
-  return gfx::Rect();
+  return GetViewBounds();
 }
 
 content::BrowserAccessibilityManager*
@@ -867,10 +868,10 @@ void CefRenderWidgetHostViewOSR::ImeSetComposition(
   if (!render_widget_host_)
     return;
 
-  std::vector<blink::WebCompositionUnderline> web_underlines;
+  std::vector<ui::CompositionUnderline> web_underlines;
   web_underlines.reserve(underlines.size());
   for (const CefCompositionUnderline& line : underlines) {
-    web_underlines.push_back(blink::WebCompositionUnderline(
+    web_underlines.push_back(ui::CompositionUnderline(
         line.range.from, line.range.to, line.color, line.thick ? true : false,
         line.background_color));
   }
@@ -892,9 +893,9 @@ void CefRenderWidgetHostViewOSR::ImeCommitText(
     return;
 
   gfx::Range range(replacement_range.from, replacement_range.to);
-  render_widget_host_->ImeCommitText(
-      text, std::vector<blink::WebCompositionUnderline>(), range,
-      relative_cursor_pos);
+  render_widget_host_->ImeCommitText(text,
+                                     std::vector<ui::CompositionUnderline>(),
+                                     range, relative_cursor_pos);
 
   // Stop Monitoring for composition updates after we are done.
   RequestImeCompositionUpdate(false);
@@ -967,7 +968,7 @@ void CefRenderWidgetHostViewOSR::ProcessGestureEvent(
 
 bool CefRenderWidgetHostViewOSR::TransformPointToLocalCoordSpace(
     const gfx::Point& point,
-    const cc::SurfaceId& original_surface,
+    const viz::SurfaceId& original_surface,
     gfx::Point* transformed_point) {
   // Transformations use physical pixels rather than DIP, so conversion
   // is necessary.
@@ -1051,7 +1052,7 @@ CefRenderWidgetHostViewOSR::DelegatedFrameHostCreateResizeLock() {
   return base::MakeUnique<content::CompositorResizeLock>(this, desired_size);
 }
 
-void CefRenderWidgetHostViewOSR::OnBeginFrame(const cc::BeginFrameArgs& args) {
+void CefRenderWidgetHostViewOSR::OnBeginFrame() {
   // TODO(cef): Maybe we can use this method in combination with
   // OnSetNeedsBeginFrames() instead of using CefBeginFrameTimer.
   // See https://codereview.chromium.org/1841083007.
@@ -1302,7 +1303,7 @@ void CefRenderWidgetHostViewOSR::SendFocusEvent(bool focus) {
       browser_impl_->CancelContextMenu();
 
     widget->SetActive(false);
-    widget->Blur();
+    widget->LostFocus();
   }
 }
 
@@ -1498,8 +1499,8 @@ void CefRenderWidgetHostViewOSR::SendBeginFrame(base::TimeTicks frame_time,
   DCHECK(begin_frame_args.IsValid());
   begin_frame_number_++;
 
-  render_widget_host_->Send(new ViewMsg_BeginFrame(
-      render_widget_host_->GetRoutingID(), begin_frame_args));
+  if (renderer_compositor_frame_sink_)
+    renderer_compositor_frame_sink_->OnBeginFrame(begin_frame_args);
 }
 
 void CefRenderWidgetHostViewOSR::CancelWidget() {
@@ -1621,7 +1622,7 @@ void CefRenderWidgetHostViewOSR::ImeCompositionRangeChanged(
   }
 }
 
-cc::FrameSinkId CefRenderWidgetHostViewOSR::AllocateFrameSinkId(
+viz::FrameSinkId CefRenderWidgetHostViewOSR::AllocateFrameSinkId(
     bool is_guest_view_hack) {
   // GuestViews have two RenderWidgetHostViews and so we need to make sure
   // we don't have FrameSinkId collisions.
@@ -1631,10 +1632,10 @@ cc::FrameSinkId CefRenderWidgetHostViewOSR::AllocateFrameSinkId(
       content::ImageTransportFactory::GetInstance();
   return is_guest_view_hack
              ? factory->GetContextFactoryPrivate()->AllocateFrameSinkId()
-             : cc::FrameSinkId(base::checked_cast<uint32_t>(
-                                   render_widget_host_->GetProcess()->GetID()),
-                               base::checked_cast<uint32_t>(
-                                   render_widget_host_->GetRoutingID()));
+             : viz::FrameSinkId(base::checked_cast<uint32_t>(
+                                    render_widget_host_->GetProcess()->GetID()),
+                                base::checked_cast<uint32_t>(
+                                    render_widget_host_->GetRoutingID()));
 }
 
 void CefRenderWidgetHostViewOSR::UpdateBackgroundColorFromRenderer(

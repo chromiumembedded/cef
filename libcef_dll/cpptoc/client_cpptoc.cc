@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=4ddb855e437a437ac87a894769d7e8c6cf208988$
+// $hash=01e33f9b6a75ddf67f1b04e2b58414ca3cf7489b$
 //
 
 #include "libcef_dll/cpptoc/client_cpptoc.h"
@@ -320,8 +320,8 @@ CefCppToCRefCounted<CefClientCppToC, CefClient, cef_client_t>::UnwrapDerived(
 #if DCHECK_IS_ON()
 template <>
 base::AtomicRefCount
-    CefCppToCRefCounted<CefClientCppToC, CefClient, cef_client_t>::DebugObjCt =
-        0;
+    CefCppToCRefCounted<CefClientCppToC, CefClient, cef_client_t>::DebugObjCt
+        ATOMIC_DECLARATION;
 #endif
 
 template <>

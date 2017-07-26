@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=b3f68b08525a2336833f6449763044ad22788e39$
+// $hash=ed34abf9237f2bcc947c49dc5177f824529888d1$
 //
 
 #include "libcef_dll/ctocpp/domvisitor_ctocpp.h"
@@ -47,9 +47,9 @@ CefCToCppRefCounted<CefDOMVisitorCToCpp, CefDOMVisitor, cef_domvisitor_t>::
 
 #if DCHECK_IS_ON()
 template <>
-base::AtomicRefCount CefCToCppRefCounted<CefDOMVisitorCToCpp,
-                                         CefDOMVisitor,
-                                         cef_domvisitor_t>::DebugObjCt = 0;
+base::AtomicRefCount
+    CefCToCppRefCounted<CefDOMVisitorCToCpp, CefDOMVisitor, cef_domvisitor_t>::
+        DebugObjCt ATOMIC_DECLARATION;
 #endif
 
 template <>

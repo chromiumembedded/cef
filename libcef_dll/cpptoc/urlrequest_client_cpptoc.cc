@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=3e172d59ae9f9743527b0bce8c29dc7e14c48033$
+// $hash=1cf4b573aaa820063dbaf38377c6af7405ffc662$
 //
 
 #include "libcef_dll/cpptoc/urlrequest_client_cpptoc.h"
@@ -164,8 +164,8 @@ CefRefPtr<CefURLRequestClient> CefCppToCRefCounted<
 template <>
 base::AtomicRefCount CefCppToCRefCounted<CefURLRequestClientCppToC,
                                          CefURLRequestClient,
-                                         cef_urlrequest_client_t>::DebugObjCt =
-    0;
+                                         cef_urlrequest_client_t>::DebugObjCt
+    ATOMIC_DECLARATION;
 #endif
 
 template <>

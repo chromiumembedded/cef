@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=4b9ebfdb62673c673fb1628c8f24bb50754cb869$
+// $hash=8ff1b23597bf206aa0d65c02e101728bfaf5b084$
 //
 
 #include "libcef_dll/ctocpp/browser_process_handler_ctocpp.h"
@@ -107,10 +107,10 @@ cef_browser_process_handler_t* CefCToCppRefCounted<
 
 #if DCHECK_IS_ON()
 template <>
-base::AtomicRefCount
-    CefCToCppRefCounted<CefBrowserProcessHandlerCToCpp,
-                        CefBrowserProcessHandler,
-                        cef_browser_process_handler_t>::DebugObjCt = 0;
+base::AtomicRefCount CefCToCppRefCounted<
+    CefBrowserProcessHandlerCToCpp,
+    CefBrowserProcessHandler,
+    cef_browser_process_handler_t>::DebugObjCt ATOMIC_DECLARATION;
 #endif
 
 template <>

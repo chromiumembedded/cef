@@ -8,12 +8,18 @@
 
 #include "include/cef_x509_certificate.h"
 
-#include "net/cert/x509_certificate.h"
+#include <memory>
+
+#include "net/ssl/client_cert_identity.h"
 
 // CefX509Certificate implementation
 class CefX509CertificateImpl : public CefX509Certificate {
  public:
   explicit CefX509CertificateImpl(scoped_refptr<net::X509Certificate> cert);
+
+  // Used with CefContentBrowserClient::SelectClientCertificate only.
+  explicit CefX509CertificateImpl(
+      std::unique_ptr<net::ClientCertIdentity> identity);
 
   // CefX509Certificate methods.
   CefRefPtr<CefX509CertPrincipal> GetSubject() override;
@@ -28,10 +34,14 @@ class CefX509CertificateImpl : public CefX509Certificate {
   void GetPEMEncodedIssuerChain(IssuerChainBinaryList& chain) override;
 
   scoped_refptr<net::X509Certificate> GetInternalCertObject() { return cert_; }
+  void AcquirePrivateKey(
+      const base::Callback<void(scoped_refptr<net::SSLPrivateKey>)>&
+          private_key_callback);
 
  private:
   void GetEncodedIssuerChain(IssuerChainBinaryList& chain, bool der);
 
+  std::unique_ptr<net::ClientCertIdentity> identity_;
   scoped_refptr<net::X509Certificate> cert_;
   IssuerChainBinaryList pem_encoded_issuer_chain_;
   IssuerChainBinaryList der_encoded_issuer_chain_;

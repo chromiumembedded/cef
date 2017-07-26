@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=5fb2df4d0f1e5e3eae470c6808edee2a9cf1d52a$
+// $hash=782642e65456b32ab0fab59db2b9442783b7f574$
 //
 
 #include "libcef_dll/cpptoc/views/menu_button_delegate_cpptoc.h"
@@ -302,10 +302,10 @@ CefRefPtr<CefMenuButtonDelegate> CefCppToCRefCounted<
 
 #if DCHECK_IS_ON()
 template <>
-base::AtomicRefCount
-    CefCppToCRefCounted<CefMenuButtonDelegateCppToC,
-                        CefMenuButtonDelegate,
-                        cef_menu_button_delegate_t>::DebugObjCt = 0;
+base::AtomicRefCount CefCppToCRefCounted<CefMenuButtonDelegateCppToC,
+                                         CefMenuButtonDelegate,
+                                         cef_menu_button_delegate_t>::DebugObjCt
+    ATOMIC_DECLARATION;
 #endif
 
 template <>

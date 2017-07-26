@@ -39,14 +39,49 @@
 #define CEF_INCLUDE_BASE_CEF_ATOMIC_REF_COUNT_H_
 #pragma once
 
-#if defined(BASE_ATOMIC_REF_COUNT_H_)
-// Do nothing if the Chromium header has already been included.
-// This can happen in cases where Chromium code is used directly by the
-// client application. When using Chromium code directly always include
-// the Chromium header first to avoid type conflicts.
-#elif defined(USING_CHROMIUM_INCLUDES)
+#if defined(USING_CHROMIUM_INCLUDES)
 // When building CEF include the Chromium header directly.
 #include "base/atomic_ref_count.h"
+
+// Used when declaring a base::AtomicRefCount value. This is an object type with
+// Chromium headers.
+#define ATOMIC_DECLARATION (0)
+
+// Maintaining compatibility with AtompicRefCount* functions that were removed
+// from Chromium in http://crrev.com/ee96d561.
+namespace base {
+
+// Increment a reference count by 1.
+inline void AtomicRefCountInc(volatile AtomicRefCount* ptr) {
+  const_cast<AtomicRefCount*>(ptr)->Increment();
+}
+
+// Decrement a reference count by 1 and return whether the result is non-zero.
+// Insert barriers to ensure that state written before the reference count
+// became zero will be visible to a thread that has just made the count zero.
+inline bool AtomicRefCountDec(volatile AtomicRefCount* ptr) {
+  return const_cast<AtomicRefCount*>(ptr)->Decrement();
+}
+
+// Return whether the reference count is one.  If the reference count is used
+// in the conventional way, a refrerence count of 1 implies that the current
+// thread owns the reference and no other thread shares it.  This call performs
+// the test for a reference count of one, and performs the memory barrier
+// needed for the owning thread to act on the object, knowing that it has
+// exclusive access to the object.
+inline bool AtomicRefCountIsOne(volatile AtomicRefCount* ptr) {
+  return const_cast<AtomicRefCount*>(ptr)->IsOne();
+}
+
+// Return whether the reference count is zero.  With conventional object
+// referencing counting, the object will be destroyed, so the reference count
+// should never be zero.  Hence this is generally used for a debug check.
+inline bool AtomicRefCountIsZero(volatile AtomicRefCount* ptr) {
+  return const_cast<AtomicRefCount*>(ptr)->IsZero();
+}
+
+}  // namespace base
+
 #else  // !USING_CHROMIUM_INCLUDES
 // The following is substantially similar to the Chromium implementation.
 // If the Chromium implementation diverges the below implementation should be
@@ -57,6 +92,10 @@
 // Annotations are not currently supported.
 #define ANNOTATE_HAPPENS_BEFORE(obj) /* empty */
 #define ANNOTATE_HAPPENS_AFTER(obj)  /* empty */
+
+// Used when declaring a base::AtomicRefCount value. This is an integer/ptr type
+// with CEF headers.
+#define ATOMIC_DECLARATION = 0
 
 namespace base {
 

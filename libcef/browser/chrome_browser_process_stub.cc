@@ -37,12 +37,13 @@ void ChromeBrowserProcessStub::Initialize(
   DCHECK(!context_initialized_);
   DCHECK(!shutdown_);
 
-  base::FilePath net_log_path;
-  if (command_line.HasSwitch(switches::kLogNetLog))
-    net_log_path = command_line.GetSwitchValuePath(switches::kLogNetLog);
-  net_log_.reset(new net_log::ChromeNetLog(
-      net_log_path, GetNetCaptureModeFromCommandLine(command_line),
-      command_line.GetCommandLineString(), std::string()));
+  net_log_ = base::MakeUnique<net_log::ChromeNetLog>();
+  if (command_line.HasSwitch(switches::kLogNetLog)) {
+    net_log_->StartWritingToFile(
+        command_line.GetSwitchValuePath(switches::kLogNetLog),
+        GetNetCaptureModeFromCommandLine(command_line),
+        command_line.GetCommandLineString(), std::string());
+  }
 
   initialized_ = true;
 }
@@ -349,13 +350,19 @@ ChromeBrowserProcessStub::CachedDefaultWebClientState() {
   return shell_integration::UNKNOWN_DEFAULT;
 }
 
-memory::TabManager* ChromeBrowserProcessStub::GetTabManager() {
+resource_coordinator::TabManager* ChromeBrowserProcessStub::GetTabManager() {
   NOTREACHED();
   return NULL;
 }
 
 physical_web::PhysicalWebDataSource*
 ChromeBrowserProcessStub::GetPhysicalWebDataSource() {
+  NOTREACHED();
+  return NULL;
+}
+
+prefs::InProcessPrefServiceFactory*
+ChromeBrowserProcessStub::pref_service_factory() const {
   NOTREACHED();
   return NULL;
 }

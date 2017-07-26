@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=ac4acfafda72e57c9bd261be73e8d47fd30ebc0e$
+// $hash=c82eeaa3703fd56e40a4d4c0afbe1abd71920c46$
 //
 
 #include "libcef_dll/ctocpp/thread_ctocpp.h"
@@ -107,8 +107,8 @@ CefCToCppRefCounted<CefThreadCToCpp, CefThread, cef_thread_t>::UnwrapDerived(
 #if DCHECK_IS_ON()
 template <>
 base::AtomicRefCount
-    CefCToCppRefCounted<CefThreadCToCpp, CefThread, cef_thread_t>::DebugObjCt =
-        0;
+    CefCToCppRefCounted<CefThreadCToCpp, CefThread, cef_thread_t>::DebugObjCt
+        ATOMIC_DECLARATION;
 #endif
 
 template <>

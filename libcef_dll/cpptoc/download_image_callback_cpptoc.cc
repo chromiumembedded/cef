@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=14b41457d2b33e31d9be5815c704c28420ec6b24$
+// $hash=63e1b0a0910dd98821c2ecea2bd70b4e09ebe5e6$
 //
 
 #include "libcef_dll/cpptoc/download_image_callback_cpptoc.h"
@@ -62,10 +62,10 @@ CefRefPtr<CefDownloadImageCallback> CefCppToCRefCounted<
 
 #if DCHECK_IS_ON()
 template <>
-base::AtomicRefCount
-    CefCppToCRefCounted<CefDownloadImageCallbackCppToC,
-                        CefDownloadImageCallback,
-                        cef_download_image_callback_t>::DebugObjCt = 0;
+base::AtomicRefCount CefCppToCRefCounted<
+    CefDownloadImageCallbackCppToC,
+    CefDownloadImageCallback,
+    cef_download_image_callback_t>::DebugObjCt ATOMIC_DECLARATION;
 #endif
 
 template <>

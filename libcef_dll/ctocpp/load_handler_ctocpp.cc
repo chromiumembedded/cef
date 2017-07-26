@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=bbb850a48e96714faf6f4772b517bd748a1d36e2$
+// $hash=3cdb8874a933875c72b33a8237e84223f18c6dbd$
 //
 
 #include "libcef_dll/ctocpp/load_handler_ctocpp.h"
@@ -131,7 +131,8 @@ CefCToCppRefCounted<CefLoadHandlerCToCpp, CefLoadHandler, cef_load_handler_t>::
 template <>
 base::AtomicRefCount CefCToCppRefCounted<CefLoadHandlerCToCpp,
                                          CefLoadHandler,
-                                         cef_load_handler_t>::DebugObjCt = 0;
+                                         cef_load_handler_t>::DebugObjCt
+    ATOMIC_DECLARATION;
 #endif
 
 template <>

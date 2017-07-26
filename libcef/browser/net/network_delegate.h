@@ -43,7 +43,8 @@ class CefNetworkDelegate : public net::NetworkDelegateImpl {
       net::AuthCredentials* credentials) override;
   void OnCompleted(net::URLRequest* request, bool started) override;
   bool OnCanAccessFile(const net::URLRequest& request,
-                       const base::FilePath& path) const override;
+                       const base::FilePath& original_path,
+                       const base::FilePath& absolute_path) const override;
   bool OnAreExperimentalCookieFeaturesEnabled() const override;
 
   // Weak, owned by our owner (CefURLRequestContextGetterImpl).

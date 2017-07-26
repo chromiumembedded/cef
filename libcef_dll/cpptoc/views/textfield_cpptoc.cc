@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=6fb57aee9c6bdbdfbbb93fd99d1ffb5c95675cfc$
+// $hash=49c2b2f64b29ed59760d4975d065002e54b0a382$
 //
 
 #include "libcef_dll/cpptoc/views/textfield_cpptoc.h"
@@ -1447,9 +1447,9 @@ CefCppToCRefCounted<CefTextfieldCppToC, CefTextfield, cef_textfield_t>::
 
 #if DCHECK_IS_ON()
 template <>
-base::AtomicRefCount CefCppToCRefCounted<CefTextfieldCppToC,
-                                         CefTextfield,
-                                         cef_textfield_t>::DebugObjCt = 0;
+base::AtomicRefCount
+    CefCppToCRefCounted<CefTextfieldCppToC, CefTextfield, cef_textfield_t>::
+        DebugObjCt ATOMIC_DECLARATION;
 #endif
 
 template <>

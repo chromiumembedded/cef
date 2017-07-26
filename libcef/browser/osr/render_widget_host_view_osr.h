@@ -38,7 +38,7 @@ class RenderWidgetHost;
 class RenderWidgetHostImpl;
 class RenderWidgetHostViewGuest;
 class BackingStore;
-}
+}  // namespace content
 
 class CefBeginFrameTimer;
 class CefBrowserHostImpl;
@@ -85,7 +85,7 @@ class MacHelper;
 class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
                                    public ui::CompositorDelegate
 #if !defined(OS_MACOSX)
-                                   ,
+    ,
                                    public content::DelegatedFrameHostClient,
                                    public content::CompositorResizeLockClient
 #endif
@@ -129,9 +129,9 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
 
   // RenderWidgetHostViewBase implementation.
   void DidCreateNewRendererCompositorFrameSink(
-      cc::mojom::MojoCompositorFrameSinkClient* renderer_compositor_frame_sink)
+      cc::mojom::CompositorFrameSinkClient* renderer_compositor_frame_sink)
       override;
-  void SubmitCompositorFrame(const cc::LocalSurfaceId& local_surface_id,
+  void SubmitCompositorFrame(const viz::LocalSurfaceId& local_surface_id,
                              cc::CompositorFrame frame) override;
   void ClearCompositorFrame() override;
   void InitAsPopup(content::RenderWidgetHostView* parent_host_view,
@@ -146,7 +146,6 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
                          int error_code) override;
   void Destroy() override;
   void SetTooltipText(const base::string16& tooltip_text) override;
-  void OnSetNeedsFlushInput() override {}
 
   gfx::Size GetRequestedRendererSize() const override;
   gfx::Size GetPhysicalBackingSize() const override;
@@ -189,7 +188,7 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
   void ProcessGestureEvent(const blink::WebGestureEvent& event,
                            const ui::LatencyInfo& latency) override;
   bool TransformPointToLocalCoordSpace(const gfx::Point& point,
-                                       const cc::SurfaceId& original_surface,
+                                       const viz::SurfaceId& original_surface,
                                        gfx::Point* transformed_point) override;
   bool TransformPointToCoordSpaceForView(
       const gfx::Point& point,
@@ -209,7 +208,7 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
   bool DelegatedFrameCanCreateResizeLock() const override;
   std::unique_ptr<content::CompositorResizeLock>
   DelegatedFrameHostCreateResizeLock() override;
-  void OnBeginFrame(const cc::BeginFrameArgs& args) override;
+  void OnBeginFrame() override;
   bool IsAutoResizeEnabled() const override;
 
   // CompositorResizeLockClient implementation.
@@ -298,7 +297,7 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
 
   void RequestImeCompositionUpdate(bool start_monitoring);
 
-  cc::FrameSinkId AllocateFrameSinkId(bool is_guest_view_hack);
+  viz::FrameSinkId AllocateFrameSinkId(bool is_guest_view_hack);
 
   // Applies background color without notifying the RenderWidget about
   // opaqueness changes.
@@ -378,7 +377,7 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
   gfx::Vector2dF last_scroll_offset_;
   bool is_scroll_offset_changed_pending_;
 
-  cc::mojom::MojoCompositorFrameSinkClient* renderer_compositor_frame_sink_ =
+  cc::mojom::CompositorFrameSinkClient* renderer_compositor_frame_sink_ =
       nullptr;
 
   base::WeakPtrFactory<CefRenderWidgetHostViewOSR> weak_ptr_factory_;

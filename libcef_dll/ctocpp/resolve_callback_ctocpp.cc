@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=0e6164c03fe22c9849bdecb957011e7d6d3c80e6$
+// $hash=3dc96b6e8479a7e5fb45d079bbd34696ee517562$
 //
 
 #include "libcef_dll/ctocpp/resolve_callback_ctocpp.h"
@@ -60,8 +60,8 @@ cef_resolve_callback_t* CefCToCppRefCounted<
 template <>
 base::AtomicRefCount CefCToCppRefCounted<CefResolveCallbackCToCpp,
                                          CefResolveCallback,
-                                         cef_resolve_callback_t>::DebugObjCt =
-    0;
+                                         cef_resolve_callback_t>::DebugObjCt
+    ATOMIC_DECLARATION;
 #endif
 
 template <>

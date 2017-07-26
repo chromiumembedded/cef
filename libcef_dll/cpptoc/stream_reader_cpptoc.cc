@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=47935fef33a2eb69943e8ff9d26a76f1c25861c0$
+// $hash=7a5bfeae879918806bfa4e131d547140c0e7608a$
 //
 
 #include "libcef_dll/cpptoc/stream_reader_cpptoc.h"
@@ -177,7 +177,8 @@ CefRefPtr<CefStreamReader> CefCppToCRefCounted<
 template <>
 base::AtomicRefCount CefCppToCRefCounted<CefStreamReaderCppToC,
                                          CefStreamReader,
-                                         cef_stream_reader_t>::DebugObjCt = 0;
+                                         cef_stream_reader_t>::DebugObjCt
+    ATOMIC_DECLARATION;
 #endif
 
 template <>

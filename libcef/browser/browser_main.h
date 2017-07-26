@@ -10,7 +10,6 @@
 #include "libcef/browser/request_context_impl.h"
 
 #include "base/macros.h"
-#include "base/memory/scoped_vector.h"
 #include "base/strings/string_piece.h"
 #include "build/build_config.h"
 #include "components/prefs/pref_service.h"
@@ -20,7 +19,7 @@
 namespace base {
 class MessageLoop;
 class Thread;
-}
+}  // namespace base
 
 namespace content {
 struct MainFunctionParams;
@@ -29,7 +28,7 @@ struct MainFunctionParams;
 namespace extensions {
 class ExtensionsBrowserClient;
 class ExtensionsClient;
-}
+}  // namespace extensions
 
 #if defined(USE_AURA)
 namespace wm {

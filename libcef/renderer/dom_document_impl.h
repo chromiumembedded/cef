@@ -10,15 +10,15 @@
 #include "include/cef_dom.h"
 
 namespace blink {
-class WebFrame;
+class WebLocalFrame;
 class WebNode;
-};
+};  // namespace blink
 
 class CefBrowserImpl;
 
 class CefDOMDocumentImpl : public CefDOMDocument {
  public:
-  CefDOMDocumentImpl(CefBrowserImpl* browser, blink::WebFrame* frame);
+  CefDOMDocumentImpl(CefBrowserImpl* browser, blink::WebLocalFrame* frame);
   ~CefDOMDocumentImpl() override;
 
   // CefDOMDocument methods.
@@ -38,7 +38,7 @@ class CefDOMDocumentImpl : public CefDOMDocument {
   CefString GetCompleteURL(const CefString& partialURL) override;
 
   CefBrowserImpl* GetBrowser() { return browser_; }
-  blink::WebFrame* GetFrame() { return frame_; }
+  blink::WebLocalFrame* GetFrame() { return frame_; }
 
   // The document maintains a map of all existing node objects.
   CefRefPtr<CefDOMNode> GetOrCreateNode(const blink::WebNode& node);
@@ -52,7 +52,7 @@ class CefDOMDocumentImpl : public CefDOMDocument {
 
  protected:
   CefBrowserImpl* browser_;
-  blink::WebFrame* frame_;
+  blink::WebLocalFrame* frame_;
 
   typedef std::map<blink::WebNode, CefDOMNode*> NodeMap;
   NodeMap node_map_;

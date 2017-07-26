@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=fa03e8ba9a443a9028246fe21a8995d8a7bdb7d5$
+// $hash=a62c6931d085746acf26926662f2b8497bd61186$
 //
 
 #include "libcef_dll/cpptoc/accessibility_handler_cpptoc.h"
@@ -79,10 +79,10 @@ CefRefPtr<CefAccessibilityHandler> CefCppToCRefCounted<
 
 #if DCHECK_IS_ON()
 template <>
-base::AtomicRefCount
-    CefCppToCRefCounted<CefAccessibilityHandlerCppToC,
-                        CefAccessibilityHandler,
-                        cef_accessibility_handler_t>::DebugObjCt = 0;
+base::AtomicRefCount CefCppToCRefCounted<
+    CefAccessibilityHandlerCppToC,
+    CefAccessibilityHandler,
+    cef_accessibility_handler_t>::DebugObjCt ATOMIC_DECLARATION;
 #endif
 
 template <>

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=bbf880e622f6de542a35ea2b0dbd0b874ef2c512$
+// $hash=cb0d263d6a1c801f1ca75c743bc8d2e5078c46c9$
 //
 
 #include "libcef_dll/ctocpp/binary_value_ctocpp.h"
@@ -165,7 +165,8 @@ CefCToCppRefCounted<CefBinaryValueCToCpp, CefBinaryValue, cef_binary_value_t>::
 template <>
 base::AtomicRefCount CefCToCppRefCounted<CefBinaryValueCToCpp,
                                          CefBinaryValue,
-                                         cef_binary_value_t>::DebugObjCt = 0;
+                                         cef_binary_value_t>::DebugObjCt
+    ATOMIC_DECLARATION;
 #endif
 
 template <>

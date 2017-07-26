@@ -3,8 +3,11 @@
 // can be found in the LICENSE file.
 
 #include "libcef/browser/x509_certificate_impl.h"
+
 #include "libcef/browser/x509_cert_principal_impl.h"
 #include "libcef/common/time_util.h"
+
+#include "net/ssl/ssl_private_key.h"
 
 namespace {
 
@@ -23,6 +26,10 @@ CefRefPtr<CefBinaryValue> EncodeCertificate(
 }
 
 }  // namespace
+
+CefX509CertificateImpl::CefX509CertificateImpl(
+    std::unique_ptr<net::ClientCertIdentity> identity)
+    : identity_(std::move(identity)), cert_(identity_->certificate()) {}
 
 CefX509CertificateImpl::CefX509CertificateImpl(
     scoped_refptr<net::X509Certificate> cert)
@@ -90,6 +97,15 @@ size_t CefX509CertificateImpl::GetIssuerChainSize() {
   if (cert_)
     return cert_->GetIntermediateCertificates().size();
   return 0;
+}
+
+void CefX509CertificateImpl::AcquirePrivateKey(
+    const base::Callback<void(scoped_refptr<net::SSLPrivateKey>)>&
+        private_key_callback) {
+  if (identity_)
+    identity_->AcquirePrivateKey(private_key_callback);
+  else
+    private_key_callback.Run(nullptr);
 }
 
 void CefX509CertificateImpl::GetEncodedIssuerChain(

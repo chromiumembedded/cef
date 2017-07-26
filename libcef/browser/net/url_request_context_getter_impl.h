@@ -36,7 +36,7 @@ class ProxyConfigService;
 class URLRequestContextStorage;
 class URLRequestJobFactory;
 class URLRequestJobFactoryImpl;
-}
+}  // namespace net
 
 // Isolated URLRequestContextGetter implementation. Life span is primarily
 // controlled by CefResourceContext and (for the global context)
@@ -48,7 +48,6 @@ class CefURLRequestContextGetterImpl : public CefURLRequestContextGetter {
       const CefRequestContextSettings& settings,
       PrefService* pref_service,
       scoped_refptr<base::SingleThreadTaskRunner> io_task_runner,
-      scoped_refptr<base::SingleThreadTaskRunner> file_task_runner,
       content::ProtocolHandlerMap* protocol_handlers,
       std::unique_ptr<net::ProxyConfigService> proxy_config_service,
       content::URLRequestInterceptorScopedVector request_interceptors);
@@ -101,7 +100,6 @@ class CefURLRequestContextGetterImpl : public CefURLRequestContextGetter {
     net::NetLog* net_log_ = nullptr;  // Guaranteed to outlive this object.
 
     scoped_refptr<base::SingleThreadTaskRunner> io_task_runner_;
-    scoped_refptr<base::SingleThreadTaskRunner> file_task_runner_;
 
 #if defined(OS_POSIX) && !defined(OS_ANDROID)
     std::string gsapi_library_name_;

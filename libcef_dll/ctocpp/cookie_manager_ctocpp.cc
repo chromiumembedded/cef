@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=029e88d2ce63882c56cf0ac4c22772fe149dcfb4$
+// $hash=1b9460a910eefbb7c238fee39d1a7461c238d5eb$
 //
 
 #include "libcef_dll/ctocpp/cookie_manager_ctocpp.h"
@@ -231,7 +231,8 @@ CefCToCppRefCounted<CefCookieManagerCToCpp,
 template <>
 base::AtomicRefCount CefCToCppRefCounted<CefCookieManagerCToCpp,
                                          CefCookieManager,
-                                         cef_cookie_manager_t>::DebugObjCt = 0;
+                                         cef_cookie_manager_t>::DebugObjCt
+    ATOMIC_DECLARATION;
 #endif
 
 template <>

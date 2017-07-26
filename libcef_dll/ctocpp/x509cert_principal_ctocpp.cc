@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=6f1cfb4286ceb605bfc6ba718d0ef1b3620bb9de$
+// $hash=894bf599d661a7014fd8106d8cccbaff20b9d7ac$
 //
 
 #include "libcef_dll/ctocpp/x509cert_principal_ctocpp.h"
@@ -215,8 +215,8 @@ cef_x509cert_principal_t* CefCToCppRefCounted<
 template <>
 base::AtomicRefCount CefCToCppRefCounted<CefX509CertPrincipalCToCpp,
                                          CefX509CertPrincipal,
-                                         cef_x509cert_principal_t>::DebugObjCt =
-    0;
+                                         cef_x509cert_principal_t>::DebugObjCt
+    ATOMIC_DECLARATION;
 #endif
 
 template <>

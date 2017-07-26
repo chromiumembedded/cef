@@ -9,10 +9,11 @@
 #include "include/cef_client.h"
 
 #include <list>
+#include <memory>
+#include <vector>
 
 #include "libcef/browser/browser_info.h"
 
-#include "base/memory/scoped_vector.h"
 #include "base/synchronization/lock.h"
 #include "content/public/browser/render_process_host_observer.h"
 #include "third_party/WebKit/public/web/window_features.mojom.h"
@@ -29,7 +30,7 @@ class RenderFrameHost;
 class RenderViewHostDelegateView;
 class WebContents;
 class WebContentsView;
-}
+}  // namespace content
 
 namespace IPC {
 class Message;
@@ -184,10 +185,11 @@ class CefBrowserInfoManager : public content::RenderProcessHostObserver {
                                                bool* is_guest_view);
 
   // Send the response for a pending OnGetNewBrowserInfo request.
-  static void SendNewBrowserInfoResponse(int render_process_id,
-                                         CefBrowserInfo* browser_info,
-                                         bool is_guest_view,
-                                         IPC::Message* reply_msg);
+  static void SendNewBrowserInfoResponse(
+      int render_process_id,
+      scoped_refptr<CefBrowserInfo> browser_info,
+      bool is_guest_view,
+      IPC::Message* reply_msg);
 
   // Pending request for OnGetNewBrowserInfo.
   struct PendingNewBrowserInfo {
@@ -204,11 +206,12 @@ class CefBrowserInfoManager : public content::RenderProcessHostObserver {
   BrowserInfoList browser_info_list_;
   int next_browser_id_;
 
-  typedef ScopedVector<PendingNewBrowserInfo> PendingNewBrowserInfoList;
+  using PendingNewBrowserInfoList =
+      std::vector<std::unique_ptr<PendingNewBrowserInfo>>;
   PendingNewBrowserInfoList pending_new_browser_info_list_;
 
   // Only accessed on the UI thread.
-  typedef ScopedVector<PendingPopup> PendingPopupList;
+  using PendingPopupList = std::vector<std::unique_ptr<PendingPopup>>;
   PendingPopupList pending_popup_list_;
 
   DISALLOW_COPY_AND_ASSIGN(CefBrowserInfoManager);

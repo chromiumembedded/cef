@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=e8834bbf6ab6cb2575f73e3f62e70709f9b36322$
+// $hash=a954d7ff4b0fce54eadccea60baf321a47effd6f$
 //
 
 #include "libcef_dll/ctocpp/cookie_visitor_ctocpp.h"
@@ -58,7 +58,8 @@ CefCToCppRefCounted<CefCookieVisitorCToCpp,
 template <>
 base::AtomicRefCount CefCToCppRefCounted<CefCookieVisitorCToCpp,
                                          CefCookieVisitor,
-                                         cef_cookie_visitor_t>::DebugObjCt = 0;
+                                         cef_cookie_visitor_t>::DebugObjCt
+    ATOMIC_DECLARATION;
 #endif
 
 template <>

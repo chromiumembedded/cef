@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=ac1dfcde986921cadaa0086dc9206913a7ca91f3$
+// $hash=909f533ecdf6af2dca40e96d39c538c47b38f0bf$
 //
 
 #include "libcef_dll/ctocpp/waitable_event_ctocpp.h"
@@ -110,7 +110,8 @@ CefCToCppRefCounted<CefWaitableEventCToCpp,
 template <>
 base::AtomicRefCount CefCToCppRefCounted<CefWaitableEventCToCpp,
                                          CefWaitableEvent,
-                                         cef_waitable_event_t>::DebugObjCt = 0;
+                                         cef_waitable_event_t>::DebugObjCt
+    ATOMIC_DECLARATION;
 #endif
 
 template <>

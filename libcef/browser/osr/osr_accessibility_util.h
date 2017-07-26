@@ -12,7 +12,7 @@
 namespace content {
 struct AXEventNotificationDetails;
 struct AXLocationChangeNotificationDetails;
-}
+}  // namespace content
 
 namespace osr_accessibility_util {
 

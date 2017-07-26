@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=c778771a654d82fde17dd52d7885f647945dba8f$
+// $hash=90d60ea4d8a4674cac8c3086ee7383bb5c19ec18$
 //
 
 #include "libcef_dll/cpptoc/string_visitor_cpptoc.h"
@@ -53,7 +53,8 @@ CefRefPtr<CefStringVisitor> CefCppToCRefCounted<
 template <>
 base::AtomicRefCount CefCppToCRefCounted<CefStringVisitorCppToC,
                                          CefStringVisitor,
-                                         cef_string_visitor_t>::DebugObjCt = 0;
+                                         cef_string_visitor_t>::DebugObjCt
+    ATOMIC_DECLARATION;
 #endif
 
 template <>

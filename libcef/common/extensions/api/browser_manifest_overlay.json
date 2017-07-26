@@ -2,9 +2,21 @@
   "name": "content_browser",
   "display_name": "CEF",
   "interface_provider_specs": {
+    "service_manager:connector": {
+      "provides": {
+        "renderer": [
+          "blink::mojom::BudgetService",
+          "metrics::mojom::LeakDetector",
+          "mojom::ModuleEventSink",
+          "spellcheck::mojom::SpellCheckHost",
+          "startup_metric_utils::mojom::StartupMetricHost"
+        ]
+      }
+    },
     "navigation:frame": {
       "provides": {
         "renderer": [
+          "blink::mojom::BudgetService",
           "extensions::KeepAlive",
           "extensions::mime_handler::MimeHandlerService"
         ]

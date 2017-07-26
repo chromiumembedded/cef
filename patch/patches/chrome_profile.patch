@@ -62,11 +62,24 @@ index 4b43013..169ca47 100644
  // Returns the original browser context even for Incognito contexts.
  content::BrowserContext* GetBrowserContextRedirectedInIncognito(
      content::BrowserContext* context);
+diff --git chrome/browser/profiles/profile_manager.cc chrome/browser/profiles/profile_manager.cc
+index 00635b8..d15278e 100644
+--- chrome/browser/profiles/profile_manager.cc
++++ chrome/browser/profiles/profile_manager.cc
+@@ -375,7 +375,7 @@ ProfileManager::ProfileManager(const base::FilePath& user_data_dir)
+       chrome::NOTIFICATION_BROWSER_CLOSE_CANCELLED,
+       content::NotificationService::AllSources());
+
+-  if (ProfileShortcutManager::IsFeatureEnabled() && !user_data_dir_.empty())
++  if (!user_data_dir_.empty() && ProfileShortcutManager::IsFeatureEnabled())
+     profile_shortcut_manager_.reset(ProfileShortcutManager::Create(
+                                     this));
+ }
 diff --git chrome/browser/profiles/profile_manager.h chrome/browser/profiles/profile_manager.h
-index 385f9c3..3d126bd 100644
+index b3fa180..81adaea 100644
 --- chrome/browser/profiles/profile_manager.h
 +++ chrome/browser/profiles/profile_manager.h
-@@ -89,7 +89,7 @@ class ProfileManager : public base::NonThreadSafe,
+@@ -94,7 +94,7 @@ class ProfileManager : public content::NotificationObserver,
    // acceptable. Returns null if creation of the new profile fails.
    // TODO(bauerb): Migrate calls from other code to GetProfileByPath(), then
    // make this method private.
@@ -75,7 +88,7 @@ index 385f9c3..3d126bd 100644
  
    // Returns total number of profiles available on this machine.
    size_t GetNumberOfProfiles();
-@@ -117,7 +117,7 @@ class ProfileManager : public base::NonThreadSafe,
+@@ -125,7 +125,7 @@ class ProfileManager : public content::NotificationObserver,
  
    // Returns true if the profile pointer is known to point to an existing
    // profile.
@@ -84,7 +97,7 @@ index 385f9c3..3d126bd 100644
  
    // Returns the directory where the first created profile is stored,
    // relative to the user data directory currently in use.
-@@ -126,7 +126,7 @@ class ProfileManager : public base::NonThreadSafe,
+@@ -134,7 +134,7 @@ class ProfileManager : public content::NotificationObserver,
    // Get the Profile last used (the Profile to which owns the most recently
    // focused window) with this Chrome build. If no signed profile has been
    // stored in Local State, hand back the Default profile.

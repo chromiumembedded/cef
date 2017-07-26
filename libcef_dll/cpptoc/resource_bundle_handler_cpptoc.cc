@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=47339f94c600cd510238e5994ac25684fe82fc14$
+// $hash=14757f24d9cb1ca95739bfb942e1c011d1bc92a9$
 //
 
 #include "libcef_dll/cpptoc/resource_bundle_handler_cpptoc.h"
@@ -148,10 +148,10 @@ CefRefPtr<CefResourceBundleHandler> CefCppToCRefCounted<
 
 #if DCHECK_IS_ON()
 template <>
-base::AtomicRefCount
-    CefCppToCRefCounted<CefResourceBundleHandlerCppToC,
-                        CefResourceBundleHandler,
-                        cef_resource_bundle_handler_t>::DebugObjCt = 0;
+base::AtomicRefCount CefCppToCRefCounted<
+    CefResourceBundleHandlerCppToC,
+    CefResourceBundleHandler,
+    cef_resource_bundle_handler_t>::DebugObjCt ATOMIC_DECLARATION;
 #endif
 
 template <>

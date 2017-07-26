@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=5296e3d09e1c1773e2fc0234e2cb51e5438c7381$
+// $hash=8fc5f6920b3dbb1fa6aaa0b220041ccfacc9bdfe$
 //
 
 #include "libcef_dll/ctocpp/v8interceptor_ctocpp.h"
@@ -185,7 +185,8 @@ CefCToCppRefCounted<CefV8InterceptorCToCpp,
 template <>
 base::AtomicRefCount CefCToCppRefCounted<CefV8InterceptorCToCpp,
                                          CefV8Interceptor,
-                                         cef_v8interceptor_t>::DebugObjCt = 0;
+                                         cef_v8interceptor_t>::DebugObjCt
+    ATOMIC_DECLARATION;
 #endif
 
 template <>

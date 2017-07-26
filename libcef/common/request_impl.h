@@ -14,6 +14,7 @@
 
 #include "base/synchronization/lock.h"
 #include "third_party/WebKit/public/platform/WebHTTPBody.h"
+#include "third_party/WebKit/public/platform/WebReferrerPolicy.h"
 #include "url/gurl.h"
 
 namespace navigation_interception {
@@ -28,11 +29,11 @@ class UploadElement;
 class UploadElementReader;
 class URLFetcher;
 class URLRequest;
-};
+};  // namespace net
 
 namespace blink {
 class WebURLRequest;
-}
+}  // namespace blink
 
 struct CefMsg_LoadRequest_Params;
 struct CefNavigateParams;
@@ -117,6 +118,11 @@ class CefRequestImpl : public CefRequest {
 
   void SetTrackChanges(bool track_changes);
   uint8_t GetChanges() const;
+
+  static blink::WebReferrerPolicy NetReferrerPolicyToBlinkReferrerPolicy(
+      cef_referrer_policy_t net_policy);
+  static cef_referrer_policy_t BlinkReferrerPolicyToNetReferrerPolicy(
+      blink::WebReferrerPolicy blink_policy);
 
  private:
   void Changed(uint8_t changes);

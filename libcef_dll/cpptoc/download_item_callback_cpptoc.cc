@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=04aede4dd7d7d8ab90fa4d27537f1dd4c19501e7$
+// $hash=0530e913a8935e43d7b073e4c020f9d7b0ddfd53$
 //
 
 #include "libcef_dll/cpptoc/download_item_callback_cpptoc.h"
@@ -77,10 +77,10 @@ CefRefPtr<CefDownloadItemCallback> CefCppToCRefCounted<
 
 #if DCHECK_IS_ON()
 template <>
-base::AtomicRefCount
-    CefCppToCRefCounted<CefDownloadItemCallbackCppToC,
-                        CefDownloadItemCallback,
-                        cef_download_item_callback_t>::DebugObjCt = 0;
+base::AtomicRefCount CefCppToCRefCounted<
+    CefDownloadItemCallbackCppToC,
+    CefDownloadItemCallback,
+    cef_download_item_callback_t>::DebugObjCt ATOMIC_DECLARATION;
 #endif
 
 template <>

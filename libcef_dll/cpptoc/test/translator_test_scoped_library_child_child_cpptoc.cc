@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=5c83a33a42a843767e80850f18908237db7754ce$
+// $hash=1e6fb66a15d8ffb7cfc044a5703d1728d8bb95a6$
 //
 
 #include "libcef_dll/cpptoc/test/translator_test_scoped_library_child_child_cpptoc.h"
@@ -183,7 +183,8 @@ template <>
 base::AtomicRefCount CefCppToCScoped<
     CefTranslatorTestScopedLibraryChildChildCppToC,
     CefTranslatorTestScopedLibraryChildChild,
-    cef_translator_test_scoped_library_child_child_t>::DebugObjCt = 0;
+    cef_translator_test_scoped_library_child_child_t>::DebugObjCt
+    ATOMIC_DECLARATION;
 #endif
 
 template <>

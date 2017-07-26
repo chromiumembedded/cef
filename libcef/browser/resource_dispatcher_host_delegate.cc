@@ -16,7 +16,6 @@
 #include "libcef/common/extensions/extensions_util.h"
 
 #include "base/guid.h"
-#include "base/memory/scoped_vector.h"
 #include "build/build_config.h"
 #include "chrome/browser/extensions/api/streams_private/streams_private_api.h"
 #include "content/public/browser/plugin_service.h"

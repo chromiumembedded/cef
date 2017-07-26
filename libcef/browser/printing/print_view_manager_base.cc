@@ -173,8 +173,11 @@ void CefPrintViewManagerBase::OnDidPrintPage(
     document->DebugDumpData(bytes.get(), FILE_PATH_LITERAL(".pdf"));
 
     const auto& settings = document->settings();
-    if ((settings.printer_is_ps2() || settings.printer_is_ps3()) &&
-        !base::FeatureList::IsEnabled(features::kDisablePostScriptPrinting)) {
+    if (settings.printer_is_textonly()) {
+      print_job_->StartPdfToTextConversion(bytes, params.page_size);
+    } else if ((settings.printer_is_ps2() || settings.printer_is_ps3()) &&
+               !base::FeatureList::IsEnabled(
+                   features::kDisablePostScriptPrinting)) {
       print_job_->StartPdfToPostScriptConversion(bytes, params.content_area,
                                                  params.physical_offsets,
                                                  settings.printer_is_ps2());

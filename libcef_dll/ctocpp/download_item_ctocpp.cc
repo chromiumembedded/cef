@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=8d42b80fd9a45dc0d59127e1b72ec9900d5e1679$
+// $hash=2f4ecf2b7fdac27491dc8641d406af12121394ab$
 //
 
 #include "libcef_dll/ctocpp/download_item_ctocpp.h"
@@ -284,7 +284,8 @@ CefCToCppRefCounted<CefDownloadItemCToCpp,
 template <>
 base::AtomicRefCount CefCToCppRefCounted<CefDownloadItemCToCpp,
                                          CefDownloadItem,
-                                         cef_download_item_t>::DebugObjCt = 0;
+                                         cef_download_item_t>::DebugObjCt
+    ATOMIC_DECLARATION;
 #endif
 
 template <>

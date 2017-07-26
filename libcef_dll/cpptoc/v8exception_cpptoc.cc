@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=b7e861d09ab59b636e98e56a191e68a0869b5412$
+// $hash=d9574f2c1903f51f72e942d839cf38b5b544ca5a$
 //
 
 #include "libcef_dll/cpptoc/v8exception_cpptoc.h"
@@ -161,7 +161,8 @@ CefCppToCRefCounted<CefV8ExceptionCppToC, CefV8Exception, cef_v8exception_t>::
 template <>
 base::AtomicRefCount CefCppToCRefCounted<CefV8ExceptionCppToC,
                                          CefV8Exception,
-                                         cef_v8exception_t>::DebugObjCt = 0;
+                                         cef_v8exception_t>::DebugObjCt
+    ATOMIC_DECLARATION;
 #endif
 
 template <>

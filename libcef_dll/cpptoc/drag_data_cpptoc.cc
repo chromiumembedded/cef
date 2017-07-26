@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=99a670d8fc60380f091a97bc9e8bb35d0e1e9c02$
+// $hash=7074cbfd68d6772e8ad944ed2ca857e70099b73c$
 //
 
 #include "libcef_dll/cpptoc/drag_data_cpptoc.h"
@@ -449,9 +449,9 @@ CefCppToCRefCounted<CefDragDataCppToC, CefDragData, cef_drag_data_t>::
 
 #if DCHECK_IS_ON()
 template <>
-base::AtomicRefCount CefCppToCRefCounted<CefDragDataCppToC,
-                                         CefDragData,
-                                         cef_drag_data_t>::DebugObjCt = 0;
+base::AtomicRefCount
+    CefCppToCRefCounted<CefDragDataCppToC, CefDragData, cef_drag_data_t>::
+        DebugObjCt ATOMIC_DECLARATION;
 #endif
 
 template <>

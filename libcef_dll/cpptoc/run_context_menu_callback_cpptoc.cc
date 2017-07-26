@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=11b53a9b52b929cc12d29ed4b73108b2ebab3628$
+// $hash=176a131e18d8eaa802a723d60b54ca47ceab07b7$
 //
 
 #include "libcef_dll/cpptoc/run_context_menu_callback_cpptoc.h"
@@ -65,10 +65,10 @@ CefCppToCRefCounted<CefRunContextMenuCallbackCppToC,
 
 #if DCHECK_IS_ON()
 template <>
-base::AtomicRefCount
-    CefCppToCRefCounted<CefRunContextMenuCallbackCppToC,
-                        CefRunContextMenuCallback,
-                        cef_run_context_menu_callback_t>::DebugObjCt = 0;
+base::AtomicRefCount CefCppToCRefCounted<
+    CefRunContextMenuCallbackCppToC,
+    CefRunContextMenuCallback,
+    cef_run_context_menu_callback_t>::DebugObjCt ATOMIC_DECLARATION;
 #endif
 
 template <>

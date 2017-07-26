@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=2babe5bd3069d25994beb6d122d59b0038c5a2bb$
+// $hash=322a19963f74b2e1d2038ee223085a9a00c14b4f$
 //
 
 #include "libcef_dll/cpptoc/views/scroll_view_cpptoc.h"
@@ -1077,9 +1077,9 @@ CefCppToCRefCounted<CefScrollViewCppToC, CefScrollView, cef_scroll_view_t>::
 
 #if DCHECK_IS_ON()
 template <>
-base::AtomicRefCount CefCppToCRefCounted<CefScrollViewCppToC,
-                                         CefScrollView,
-                                         cef_scroll_view_t>::DebugObjCt = 0;
+base::AtomicRefCount
+    CefCppToCRefCounted<CefScrollViewCppToC, CefScrollView, cef_scroll_view_t>::
+        DebugObjCt ATOMIC_DECLARATION;
 #endif
 
 template <>

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=dce21cc429320a9d24fd80ad2bc1347b03f82808$
+// $hash=dd087257a67ceecf0d50d9c61dbee2571408740e$
 //
 
 #include "libcef_dll/ctocpp/value_ctocpp.h"
@@ -386,7 +386,8 @@ CefCToCppRefCounted<CefValueCToCpp, CefValue, cef_value_t>::UnwrapDerived(
 #if DCHECK_IS_ON()
 template <>
 base::AtomicRefCount
-    CefCToCppRefCounted<CefValueCToCpp, CefValue, cef_value_t>::DebugObjCt = 0;
+    CefCToCppRefCounted<CefValueCToCpp, CefValue, cef_value_t>::DebugObjCt
+        ATOMIC_DECLARATION;
 #endif
 
 template <>

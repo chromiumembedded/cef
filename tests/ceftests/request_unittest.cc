@@ -131,8 +131,7 @@ void CreateRequest(CefRefPtr<CefRequest>& request) {
   request->SetURL(kTestUrl);
   request->SetMethod("POST");
 
-  request->SetReferrer("http://tests.com/main.html",
-                       REFERRER_POLICY_NO_REFERRER_WHEN_DOWNGRADE);
+  request->SetReferrer("http://tests.com/main.html", REFERRER_POLICY_DEFAULT);
 
   CefRequest::HeaderMap headers;
   headers.insert(std::make_pair("HeaderA", "ValueA"));

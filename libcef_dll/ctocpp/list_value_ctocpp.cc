@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=a9ba4a22361c5f7d2de811f12348633bd2515f43$
+// $hash=fa19a227c490dd51d34485e9c27090c3052e2621$
 //
 
 #include "libcef_dll/ctocpp/list_value_ctocpp.h"
@@ -477,9 +477,9 @@ CefCToCppRefCounted<CefListValueCToCpp, CefListValue, cef_list_value_t>::
 
 #if DCHECK_IS_ON()
 template <>
-base::AtomicRefCount CefCToCppRefCounted<CefListValueCToCpp,
-                                         CefListValue,
-                                         cef_list_value_t>::DebugObjCt = 0;
+base::AtomicRefCount
+    CefCToCppRefCounted<CefListValueCToCpp, CefListValue, cef_list_value_t>::
+        DebugObjCt ATOMIC_DECLARATION;
 #endif
 
 template <>

@@ -12,7 +12,7 @@
 
 namespace render_frame_util {
 
-int64_t GetIdentifier(blink::WebFrame* frame) {
+int64_t GetIdentifier(blink::WebLocalFrame* frame) {
   // Each WebFrame will have an associated RenderFrame. The RenderFrame
   // routing IDs are unique within a given renderer process.
   content::RenderFrame* render_frame =
@@ -23,7 +23,7 @@ int64_t GetIdentifier(blink::WebFrame* frame) {
   return webkit_glue::kInvalidFrameId;
 }
 
-std::string GetUniqueName(blink::WebFrame* frame) {
+std::string GetUniqueName(blink::WebLocalFrame* frame) {
   content::RenderFrameImpl* render_frame =
       content::RenderFrameImpl::FromWebFrame(frame);
   DCHECK(render_frame);
@@ -32,4 +32,4 @@ std::string GetUniqueName(blink::WebFrame* frame) {
   return std::string();
 }
 
-}  // render_frame_util
+}  // namespace render_frame_util

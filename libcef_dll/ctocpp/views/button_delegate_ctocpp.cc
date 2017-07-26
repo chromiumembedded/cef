@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=2777421fafeccaca2d573bce9b42f28fa0407fb0$
+// $hash=2d33c3a83fe82728034a86001e935856a079e9ca$
 //
 
 #include "libcef_dll/ctocpp/views/button_delegate_ctocpp.h"
@@ -242,7 +242,8 @@ cef_button_delegate_t* CefCToCppRefCounted<
 template <>
 base::AtomicRefCount CefCToCppRefCounted<CefButtonDelegateCToCpp,
                                          CefButtonDelegate,
-                                         cef_button_delegate_t>::DebugObjCt = 0;
+                                         cef_button_delegate_t>::DebugObjCt
+    ATOMIC_DECLARATION;
 #endif
 
 template <>
