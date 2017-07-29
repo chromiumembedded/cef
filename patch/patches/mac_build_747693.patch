@@ -1,5 +1,5 @@
 diff --git chrome/browser/ui/cocoa/autofill/autofill_popup_view_cocoa.h chrome/browser/ui/cocoa/autofill/autofill_popup_view_cocoa.h
-index 18755d494cf3..3605076be5d1 100644
+index 18755d4..3605076 100644
 --- chrome/browser/ui/cocoa/autofill/autofill_popup_view_cocoa.h
 +++ chrome/browser/ui/cocoa/autofill/autofill_popup_view_cocoa.h
 @@ -8,6 +8,7 @@
@@ -20,10 +20,10 @@ index 18755d494cf3..3605076be5d1 100644
  @end
  
 diff --git chrome/browser/ui/cocoa/autofill/autofill_popup_view_cocoa.mm chrome/browser/ui/cocoa/autofill/autofill_popup_view_cocoa.mm
-index 46733a165a31..2d71d4446a36 100644
+index 46733a1..2d71d44 100644
 --- chrome/browser/ui/cocoa/autofill/autofill_popup_view_cocoa.mm
 +++ chrome/browser/ui/cocoa/autofill/autofill_popup_view_cocoa.mm
-@@ -178,7 +178,8 @@ - (void)drawRect:(NSRect)dirtyRect {
+@@ -178,7 +178,8 @@ NSImage* GetCreditCardTouchBarImage(int iconId) {
  #pragma mark NSTouchBarDelegate implementation:
  
  - (NSTouchBarItem*)touchBar:(NSTouchBar*)touchBar
@@ -34,10 +34,10 @@ index 46733a165a31..2d71d4446a36 100644
      return nil;
  
 diff --git chrome/browser/ui/cocoa/autofill/autofill_popup_view_cocoa_unittest.mm chrome/browser/ui/cocoa/autofill/autofill_popup_view_cocoa_unittest.mm
-index aebb22367472..2e6d6be61b5f 100644
+index aebb223..2e6d6be 100644
 --- chrome/browser/ui/cocoa/autofill/autofill_popup_view_cocoa_unittest.mm
 +++ chrome/browser/ui/cocoa/autofill/autofill_popup_view_cocoa_unittest.mm
-@@ -110,31 +110,27 @@ void SetLineCount(int line_count) {
+@@ -110,31 +110,27 @@ class AutofillPopupViewCocoaUnitTest : public CocoaTest {
  
  // Tests to check if the touch bar shows up properly.
  TEST_F(AutofillPopupViewCocoaUnitTest, CreditCardAutofillTouchBar) {
@@ -88,10 +88,10 @@ index aebb22367472..2e6d6be61b5f 100644
      base::HistogramTester histogram_tester;
      [view_ acceptCreditCard:nil];
 diff --git chrome/browser/ui/cocoa/tab_contents/tab_contents_controller.mm chrome/browser/ui/cocoa/tab_contents/tab_contents_controller.mm
-index 5378abc9cc2a..f0e7d9e8c86c 100644
+index 5378abc..f0e7d9e8 100644
 --- chrome/browser/ui/cocoa/tab_contents/tab_contents_controller.mm
 +++ chrome/browser/ui/cocoa/tab_contents/tab_contents_controller.mm
-@@ -235,7 +235,10 @@ - (void)loadView {
+@@ -235,7 +235,10 @@ class FullscreenObserver : public WebContentsObserver {
  }
  
  - (NSTouchBar*)makeTouchBar {
@@ -104,7 +104,7 @@ index 5378abc9cc2a..f0e7d9e8c86c 100644
  
  - (void)ensureContentsVisibleInSuperview:(NSView*)superview {
 diff --git chrome/browser/ui/cocoa/web_textfield_touch_bar_controller.h chrome/browser/ui/cocoa/web_textfield_touch_bar_controller.h
-index c3dc305aa48e..d50a2689d9de 100644
+index c3dc305..d50a268 100644
 --- chrome/browser/ui/cocoa/web_textfield_touch_bar_controller.h
 +++ chrome/browser/ui/cocoa/web_textfield_touch_bar_controller.h
 @@ -28,7 +28,7 @@
