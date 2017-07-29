@@ -1,5 +1,5 @@
 diff --git services/service_manager/embedder/main.cc services/service_manager/embedder/main.cc
-index e661492..b3c0296 100644
+index 8667ae7..8418e52 100644
 --- services/service_manager/embedder/main.cc
 +++ services/service_manager/embedder/main.cc
 @@ -325,13 +325,30 @@ int RunService(MainDelegate* delegate) {

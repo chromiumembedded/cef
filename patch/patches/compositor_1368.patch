@@ -1,5 +1,5 @@
 diff --git content/browser/compositor/gpu_process_transport_factory.cc content/browser/compositor/gpu_process_transport_factory.cc
-index 409df10..e1df182 100644
+index 409df107..e1df182 100644
 --- content/browser/compositor/gpu_process_transport_factory.cc
 +++ content/browser/compositor/gpu_process_transport_factory.cc
 @@ -240,6 +240,13 @@ GpuProcessTransportFactory::~GpuProcessTransportFactory() {

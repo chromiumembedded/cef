@@ -95,10 +95,10 @@ index 578c05b..b2d2687 100644
  }
  
 diff --git content/browser/frame_host/render_frame_host_impl.cc content/browser/frame_host/render_frame_host_impl.cc
-index cee576c..e3a7dd5 100644
+index 747f19a..642a86d 100644
 --- content/browser/frame_host/render_frame_host_impl.cc
 +++ content/browser/frame_host/render_frame_host_impl.cc
-@@ -865,10 +865,8 @@ bool RenderFrameHostImpl::OnMessageReceived(const IPC::Message &msg) {
+@@ -881,10 +881,8 @@ bool RenderFrameHostImpl::OnMessageReceived(const IPC::Message &msg) {
      IPC_MESSAGE_HANDLER(FrameHostMsg_ShowPopup, OnShowPopup)
      IPC_MESSAGE_HANDLER(FrameHostMsg_HidePopup, OnHidePopup)
  #endif
@@ -109,7 +109,7 @@ index cee576c..e3a7dd5 100644
      IPC_MESSAGE_HANDLER(FrameHostMsg_RequestOverlayRoutingToken,
                          OnRequestOverlayRoutingToken)
      IPC_MESSAGE_HANDLER(FrameHostMsg_ShowCreatedWindow, OnShowCreatedWindow)
-@@ -1329,6 +1327,7 @@ void RenderFrameHostImpl::OnDidFailProvisionalLoadWithError(
+@@ -1347,6 +1345,7 @@ void RenderFrameHostImpl::OnDidFailProvisionalLoadWithError(
    if (navigation_handle_) {
      navigation_handle_->set_net_error_code(
          static_cast<net::Error>(params.error_code));
@@ -117,7 +117,7 @@ index cee576c..e3a7dd5 100644
    }
  
    frame_tree_node_->navigator()->DidFailProvisionalLoadWithError(this, params);
-@@ -2584,14 +2583,12 @@ void RenderFrameHostImpl::OnHidePopup() {
+@@ -2602,14 +2601,12 @@ void RenderFrameHostImpl::OnHidePopup() {
  }
  #endif
  
@@ -429,7 +429,7 @@ index ebf4cd4..27a9df4 100644
    virtual void FocusedNodeChanged(const blink::WebNode& node) {}
  
 diff --git content/renderer/render_frame_impl.cc content/renderer/render_frame_impl.cc
-index 7e2ea09..799a0d2 100644
+index 2fd389c..8aa049b6 100644
 --- content/renderer/render_frame_impl.cc
 +++ content/renderer/render_frame_impl.cc
 @@ -2902,7 +2902,8 @@ blink::WebPlugin* RenderFrameImpl::CreatePlugin(
@@ -451,7 +451,7 @@ index 7e2ea09..799a0d2 100644
  }
  
  void RenderFrameImpl::WillCommitProvisionalLoad() {
-@@ -5502,9 +5505,8 @@ WebNavigationPolicy RenderFrameImpl::DecidePolicyForNavigation(
+@@ -5509,9 +5512,8 @@ WebNavigationPolicy RenderFrameImpl::DecidePolicyForNavigation(
         (!IsBrowserSideNavigationEnabled() ||
          url != pending_navigation_params_->request_params.redirects[0]));
  
@@ -463,7 +463,7 @@ index 7e2ea09..799a0d2 100644
    // The handlenavigation API is deprecated and will be removed once
    // crbug.com/325351 is resolved.
    if (GetContentClient()->renderer()->HandleNavigation(
-@@ -5517,7 +5519,6 @@ WebNavigationPolicy RenderFrameImpl::DecidePolicyForNavigation(
+@@ -5524,7 +5526,6 @@ WebNavigationPolicy RenderFrameImpl::DecidePolicyForNavigation(
      }
      return blink::kWebNavigationPolicyIgnore;
    }
@@ -472,10 +472,10 @@ index 7e2ea09..799a0d2 100644
    Referrer referrer(
        RenderViewImpl::GetReferrerFromRequest(frame_, info.url_request));
 diff --git content/renderer/render_thread_impl.cc content/renderer/render_thread_impl.cc
-index d7a0de4..8d1e96e 100644
+index 574acb3..924d6cf 100644
 --- content/renderer/render_thread_impl.cc
 +++ content/renderer/render_thread_impl.cc
-@@ -754,6 +754,8 @@ void RenderThreadImpl::Init(
+@@ -756,6 +756,8 @@ void RenderThreadImpl::Init(
  
    StartServiceManagerConnection();
  
