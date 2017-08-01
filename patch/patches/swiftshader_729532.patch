@@ -1,0 +1,26 @@
+diff --git BUILD.gn BUILD.gn
+index 694942a..52a78e8 100644
+--- BUILD.gn
++++ BUILD.gn
+@@ -12,6 +12,8 @@
+ # See the License for the specific language governing permissions and
+ # limitations under the License.
+ 
++import("//build/config/compiler/compiler.gni")
++
+ config("swiftshader_config") {
+   defines = [ "STRICT_CONFORMANCE" ]  # Disables OpenGL ES 3.0
+ 
+@@ -87,6 +89,12 @@ config("swiftshader_config") {
+         "-Wl,--hash-style=both",
+         "-Wl,--gc-sections",
+       ]
++      # A bug in the gold linker prevents using ICF on 32-bit (crbug.com/729532)
++      if (use_gold && target_cpu == "x86") {
++        ldflags += [
++          "-Wl,--icf=none",
++        ]
++      }
+     }
+   }
+ }
