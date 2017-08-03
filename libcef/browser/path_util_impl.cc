@@ -38,6 +38,9 @@ bool CefGetPath(PathKey key, CefString& path) {
     case PK_USER_DATA:
       pref_key = chrome::DIR_USER_DATA;
       break;
+    case PK_DIR_RESOURCES:
+      pref_key = chrome::DIR_RESOURCES;
+      break;
     default:
       NOTREACHED() << "invalid argument";
       return false;

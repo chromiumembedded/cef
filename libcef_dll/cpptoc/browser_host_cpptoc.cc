@@ -9,12 +9,13 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=1c14ea52e06cca6ef0ad5e82797b9b1cda7141b4$
+// $hash=e2d8f32f84e5995d892da25cf13e09c194d5b6a5$
 //
 
 #include "libcef_dll/cpptoc/browser_host_cpptoc.h"
 #include "libcef_dll/cpptoc/browser_cpptoc.h"
 #include "libcef_dll/cpptoc/drag_data_cpptoc.h"
+#include "libcef_dll/cpptoc/extension_cpptoc.h"
 #include "libcef_dll/cpptoc/navigation_entry_cpptoc.h"
 #include "libcef_dll/cpptoc/request_context_cpptoc.h"
 #include "libcef_dll/ctocpp/client_ctocpp.h"
@@ -1010,6 +1011,66 @@ browser_host_set_accessibility_state(struct _cef_browser_host_t* self,
   CefBrowserHostCppToC::Get(self)->SetAccessibilityState(accessibility_state);
 }
 
+void CEF_CALLBACK
+browser_host_set_auto_resize_enabled(struct _cef_browser_host_t* self,
+                                     int enabled,
+                                     const cef_size_t* min_size,
+                                     const cef_size_t* max_size) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return;
+  // Verify param: min_size; type: simple_byref_const
+  DCHECK(min_size);
+  if (!min_size)
+    return;
+  // Verify param: max_size; type: simple_byref_const
+  DCHECK(max_size);
+  if (!max_size)
+    return;
+
+  // Translate param: min_size; type: simple_byref_const
+  CefSize min_sizeVal = min_size ? *min_size : CefSize();
+  // Translate param: max_size; type: simple_byref_const
+  CefSize max_sizeVal = max_size ? *max_size : CefSize();
+
+  // Execute
+  CefBrowserHostCppToC::Get(self)->SetAutoResizeEnabled(
+      enabled ? true : false, min_sizeVal, max_sizeVal);
+}
+
+struct _cef_extension_t* CEF_CALLBACK
+browser_host_get_extension(struct _cef_browser_host_t* self) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return NULL;
+
+  // Execute
+  CefRefPtr<CefExtension> _retval =
+      CefBrowserHostCppToC::Get(self)->GetExtension();
+
+  // Return type: refptr_same
+  return CefExtensionCppToC::Wrap(_retval);
+}
+
+int CEF_CALLBACK
+browser_host_is_background_host(struct _cef_browser_host_t* self) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return 0;
+
+  // Execute
+  bool _retval = CefBrowserHostCppToC::Get(self)->IsBackgroundHost();
+
+  // Return type: bool
+  return _retval;
+}
+
 }  // namespace
 
 // CONSTRUCTOR - Do not edit by hand.
@@ -1077,6 +1138,9 @@ CefBrowserHostCppToC::CefBrowserHostCppToC() {
   GetStruct()->get_visible_navigation_entry =
       browser_host_get_visible_navigation_entry;
   GetStruct()->set_accessibility_state = browser_host_set_accessibility_state;
+  GetStruct()->set_auto_resize_enabled = browser_host_set_auto_resize_enabled;
+  GetStruct()->get_extension = browser_host_get_extension;
+  GetStruct()->is_background_host = browser_host_is_background_host;
 }
 
 template <>

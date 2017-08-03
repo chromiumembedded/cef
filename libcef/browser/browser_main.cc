@@ -210,6 +210,9 @@ void CefBrowserMainParts::PostMainMessageLoopRun() {
   // NOTE: Destroy objects in reverse order of creation.
   CefDevToolsManagerDelegate::StopHttpHandler();
 
+  // There should be no additional references to the global CefRequestContext
+  // during shutdown. Did you forget to release a CefBrowser reference?
+  DCHECK(global_request_context_->HasOneRef());
   global_request_context_ = NULL;
 
   if (extensions::ExtensionsEnabled()) {

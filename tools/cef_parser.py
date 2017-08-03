@@ -99,7 +99,8 @@ def get_comment(body, name):
     if len(line) == 0:
       # check if the next previous line is a comment
       prevdata = get_prev_line(body, pos)
-      if string.strip(prevdata['line'])[0:2] == '//':
+      prevline = string.strip(prevdata['line'])
+      if prevline[0:2] == '//' and prevline[0:3] != '///':
         result.append(None)
       else:
         break
@@ -538,26 +539,6 @@ class obj_header:
     p = re.compile('\nclass' + _cre_space + _cre_cfname + ';')
     forward_declares = p.findall(data)
 
-    # extract classes
-    p = re.compile('\n' + _cre_attrib + '\nclass' + _cre_space + _cre_cfname +
-                   _cre_space + ':' + _cre_space + 'public' + _cre_virtual +
-                   _cre_space + _cre_cfname + _cre_space + '{(.*?)\n};',
-                   re.MULTILINE | re.DOTALL)
-    list = p.findall(data)
-    if len(list) > 0:
-      added = True
-
-      # build the class objects
-      for attrib, name, parent_name, body in list:
-        # Style may place the ':' on the next line.
-        comment = get_comment(data, name + ' :')
-        if len(comment) == 0:
-          comment = get_comment(data, name + "\n")
-        validate_comment(filename, name, comment)
-        self.classes.append(
-            obj_class(self, filename, attrib, name, parent_name, body, comment,
-                      includes, forward_declares))
-
     # extract empty classes
     p = re.compile('\n' + _cre_attrib + '\nclass' + _cre_space + _cre_cfname +
                    _cre_space + ':' + _cre_space + 'public' + _cre_virtual +
@@ -576,6 +557,30 @@ class obj_header:
         validate_comment(filename, name, comment)
         self.classes.append(
             obj_class(self, filename, attrib, name, parent_name, "", comment,
+                      includes, forward_declares))
+
+      # Remove empty classes from |data| so we don't mess up the non-empty
+      # class search that follows.
+      data = p.sub('', data)
+
+    # extract classes
+    p = re.compile('\n' + _cre_attrib + '\nclass' + _cre_space + _cre_cfname +
+                   _cre_space + ':' + _cre_space + 'public' + _cre_virtual +
+                   _cre_space + _cre_cfname + _cre_space + '{(.*?)\n};',
+                   re.MULTILINE | re.DOTALL)
+    list = p.findall(data)
+    if len(list) > 0:
+      added = True
+
+      # build the class objects
+      for attrib, name, parent_name, body in list:
+        # Style may place the ':' on the next line.
+        comment = get_comment(data, name + ' :')
+        if len(comment) == 0:
+          comment = get_comment(data, name + "\n")
+        validate_comment(filename, name, comment)
+        self.classes.append(
+            obj_class(self, filename, attrib, name, parent_name, body, comment,
                       includes, forward_declares))
 
     if added:

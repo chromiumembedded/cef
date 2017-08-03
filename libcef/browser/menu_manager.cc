@@ -94,7 +94,6 @@ CefMenuManager::CefMenuManager(CefBrowserHostImpl* browser,
       custom_menu_callback_(NULL),
       weak_ptr_factory_(this) {
   DCHECK(web_contents());
-  DCHECK(runner_.get());
   model_ = new CefMenuModelImpl(this, nullptr, false);
 }
 
@@ -106,7 +105,8 @@ CefMenuManager::~CefMenuManager() {
 
 void CefMenuManager::Destroy() {
   CancelContextMenu();
-  runner_.reset(NULL);
+  if (runner_)
+    runner_.reset(NULL);
 }
 
 bool CefMenuManager::IsShowingContextMenu() {
@@ -184,7 +184,7 @@ bool CefMenuManager::CreateContextMenu(
     }
   }
 
-  if (custom_menu)
+  if (custom_menu || !runner_)
     return true;
   return runner_->RunContextMenu(browser_, model_.get(), params_);
 }
@@ -193,7 +193,7 @@ void CefMenuManager::CancelContextMenu() {
   if (IsShowingContextMenu()) {
     if (custom_menu_callback_)
       custom_menu_callback_->Cancel();
-    else
+    else if (runner_)
       runner_->CancelContextMenu();
   }
 }
@@ -268,6 +268,8 @@ void CefMenuManager::MenuClosed(CefRefPtr<CefMenuModelImpl> source) {
 
 bool CefMenuManager::FormatLabel(CefRefPtr<CefMenuModelImpl> source,
                                  base::string16& label) {
+  if (!runner_)
+    return false;
   return runner_->FormatLabel(label);
 }
 

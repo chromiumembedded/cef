@@ -18,6 +18,10 @@
 #include "libcef/browser/devtools_frontend.h"
 #include "libcef/browser/devtools_manager_delegate.h"
 #include "libcef/browser/extensions/browser_extensions_util.h"
+#include "libcef/browser/extensions/extension_background_host.h"
+#include "libcef/browser/extensions/extension_system.h"
+#include "libcef/browser/extensions/extension_view_host.h"
+#include "libcef/browser/extensions/extension_web_contents_observer.h"
 #include "libcef/browser/image_impl.h"
 #include "libcef/browser/media_capture_devices_dispatcher.h"
 #include "libcef/browser/navigate_params.h"
@@ -35,11 +39,11 @@
 #include "libcef/common/main_delegate.h"
 #include "libcef/common/process_message_impl.h"
 #include "libcef/common/request_impl.h"
+#include "libcef/common/values_impl.h"
 
 #include "base/bind.h"
 #include "base/bind_helpers.h"
 #include "base/command_line.h"
-#include "chrome/browser/sessions/session_tab_helper.h"
 #include "chrome/browser/spellchecker/spellcheck_factory.h"
 #include "chrome/browser/spellchecker/spellcheck_service.h"
 #include "chrome/browser/ui/prefs/prefs_tab_helper.h"
@@ -66,6 +70,7 @@
 #include "content/public/browser/render_widget_host.h"
 #include "content/public/browser/resource_request_info.h"
 #include "content/public/common/favicon_url.h"
+#include "extensions/browser/process_manager.h"
 #include "net/base/net_errors.h"
 #include "third_party/WebKit/public/web/WebFindOptions.h"
 #include "ui/events/base_event_utils.h"
@@ -259,7 +264,7 @@ CefRefPtr<CefBrowser> CefBrowserHost::CreateBrowserSync(
   CefBrowserHostImpl::CreateParams create_params;
   create_params.window_info.reset(new CefWindowInfo(windowInfo));
   create_params.client = client;
-  create_params.url = url;
+  create_params.url = GURL(url.ToString());
   create_params.settings = settings;
   create_params.request_context = request_context;
 
@@ -303,7 +308,40 @@ CefRefPtr<CefBrowserHostImpl> CefBrowserHostImpl::Create(
     create_params.request_context = request_context_impl.get();
   }
 
-  content::WebContents::CreateParams wc_create_params(browser_context);
+  CefRefPtr<CefExtension> cef_extension;
+  scoped_refptr<content::SiteInstance> site_instance;
+  if (extensions::ExtensionsEnabled() && !create_params.url.is_empty()) {
+    if (!create_params.extension) {
+      // We might be loading an extension app view where the extension URL is
+      // provided by the client.
+      create_params.extension =
+          extensions::GetExtensionForUrl(browser_context, create_params.url);
+    }
+    if (create_params.extension) {
+      cef_extension = browser_context->extension_system()->GetExtension(
+          create_params.extension->id());
+      DCHECK(cef_extension);
+
+      if (create_params.extension_host_type == extensions::VIEW_TYPE_INVALID) {
+        // Default to dialog behavior.
+        create_params.extension_host_type =
+            extensions::VIEW_TYPE_EXTENSION_DIALOG;
+      }
+
+      // Extension resources will fail to load if we don't use a SiteInstance
+      // associated with the extension.
+      // (CefContentBrowserClient::SiteInstanceGotProcess won't find the
+      // extension to register with InfoMap, and AllowExtensionResourceLoad in
+      // ExtensionProtocolHandler::MaybeCreateJob will return false resulting in
+      // ERR_BLOCKED_BY_CLIENT).
+      site_instance = extensions::ProcessManager::Get(browser_context)
+                          ->GetSiteInstanceForURL(create_params.url);
+      DCHECK(site_instance);
+    }
+  }
+
+  content::WebContents::CreateParams wc_create_params(browser_context,
+                                                      site_instance);
 
   if (platform_delegate->IsWindowless()) {
     // Create the OSR view for the WebContents.
@@ -318,12 +356,21 @@ CefRefPtr<CefBrowserHostImpl> CefBrowserHostImpl::Create(
   CefRefPtr<CefBrowserHostImpl> browser = CefBrowserHostImpl::CreateInternal(
       create_params.settings, create_params.client, web_contents, info,
       create_params.devtools_opener, is_devtools_popup,
-      create_params.request_context, std::move(platform_delegate));
-  if (browser.get() && !create_params.url.empty()) {
-    browser->LoadURL(CefFrameHostImpl::kMainFrameId, create_params.url,
+      create_params.request_context, std::move(platform_delegate),
+      cef_extension);
+  if (!browser)
+    return nullptr;
+
+  if (create_params.extension) {
+    browser->CreateExtensionHost(create_params.extension, browser_context,
+                                 web_contents, create_params.url,
+                                 create_params.extension_host_type);
+  } else if (!create_params.url.is_empty()) {
+    browser->LoadURL(CefFrameHostImpl::kMainFrameId, create_params.url.spec(),
                      content::Referrer(), ui::PAGE_TRANSITION_TYPED,
                      std::string());
   }
+
   return browser.get();
 }
 
@@ -336,7 +383,8 @@ CefRefPtr<CefBrowserHostImpl> CefBrowserHostImpl::CreateInternal(
     CefRefPtr<CefBrowserHostImpl> opener,
     bool is_devtools_popup,
     CefRefPtr<CefRequestContext> request_context,
-    std::unique_ptr<CefBrowserPlatformDelegate> platform_delegate) {
+    std::unique_ptr<CefBrowserPlatformDelegate> platform_delegate,
+    CefRefPtr<CefExtension> extension) {
   CEF_REQUIRE_UIT();
   DCHECK(web_contents);
   DCHECK(browser_info);
@@ -363,7 +411,7 @@ CefRefPtr<CefBrowserHostImpl> CefBrowserHostImpl::CreateInternal(
 
   CefRefPtr<CefBrowserHostImpl> browser = new CefBrowserHostImpl(
       settings, client, web_contents, browser_info, opener, request_context,
-      std::move(platform_delegate));
+      std::move(platform_delegate), extension);
   if (!browser->CreateHostWindow())
     return nullptr;
 
@@ -947,6 +995,35 @@ void CefBrowserHostImpl::SetAccessibilityState(
   web_contents_impl->SetAccessibilityMode(accMode);
 }
 
+void CefBrowserHostImpl::SetAutoResizeEnabled(bool enabled,
+                                              const CefSize& min_size,
+                                              const CefSize& max_size) {
+  if (!CEF_CURRENTLY_ON_UIT()) {
+    CEF_POST_TASK(CEF_UIT, base::Bind(&CefBrowserHostImpl::SetAutoResizeEnabled,
+                                      this, enabled, min_size, max_size));
+    return;
+  }
+
+  if (!web_contents() || !web_contents()->GetRenderViewHost())
+    return;
+
+  if (enabled) {
+    web_contents()->GetRenderViewHost()->EnableAutoResize(
+        gfx::Size(min_size.width, min_size.height),
+        gfx::Size(max_size.width, max_size.height));
+  } else {
+    web_contents()->GetRenderViewHost()->DisableAutoResize(gfx::Size());
+  }
+}
+
+CefRefPtr<CefExtension> CefBrowserHostImpl::GetExtension() {
+  return extension_;
+}
+
+bool CefBrowserHostImpl::IsBackgroundHost() {
+  return is_background_host_;
+}
+
 void CefBrowserHostImpl::SetMouseCursorChangeDisabled(bool disabled) {
   base::AutoLock lock_scope(state_lock_);
   mouse_cursor_change_disabled_ = disabled;
@@ -1446,6 +1523,7 @@ void CefBrowserHostImpl::DestroyBrowser() {
     javascript_dialog_manager_->Destroy();
   if (menu_manager_.get())
     menu_manager_->Destroy();
+  DestroyExtensionHost();
 
   // Notify any observers that may have state associated with this browser.
   for (auto& observer : observers_)
@@ -1783,6 +1861,13 @@ int CefBrowserHostImpl::browser_id() const {
   return browser_info_->browser_id();
 }
 
+content::BrowserContext* CefBrowserHostImpl::GetBrowserContext() {
+  CEF_REQUIRE_UIT();
+  if (web_contents_)
+    return web_contents_->GetBrowserContext();
+  return nullptr;
+}
+
 void CefBrowserHostImpl::OnSetFocus(cef_focus_source_t source) {
   if (CEF_CURRENTLY_ON_UIT()) {
     // SetFocus() might be called while inside the OnSetFocus() callback. If so,
@@ -2098,6 +2183,26 @@ content::WebContents* CefBrowserHostImpl::OpenURLFromTab(
   return nullptr;
 }
 
+bool CefBrowserHostImpl::ShouldTransferNavigation(
+    bool is_main_frame_navigation) {
+  if (extension_host_) {
+    return extension_host_->ShouldTransferNavigation(is_main_frame_navigation);
+  }
+  return true;
+}
+
+void CefBrowserHostImpl::AddNewContents(content::WebContents* source,
+                                        content::WebContents* new_contents,
+                                        WindowOpenDisposition disposition,
+                                        const gfx::Rect& initial_rect,
+                                        bool user_gesture,
+                                        bool* was_blocked) {
+  if (extension_host_) {
+    extension_host_->AddNewContents(source, new_contents, disposition,
+                                    initial_rect, user_gesture, was_blocked);
+  }
+}
+
 void CefBrowserHostImpl::LoadingStateChanged(content::WebContents* source,
                                              bool to_different_document) {
   int current_index =
@@ -2274,6 +2379,14 @@ void CefBrowserHostImpl::HandleKeyboardEvent(
   platform_delegate_->HandleKeyboardEvent(event);
 }
 
+bool CefBrowserHostImpl::PreHandleGestureEvent(
+    content::WebContents* source,
+    const blink::WebGestureEvent& event) {
+  if (extension_host_)
+    return extension_host_->PreHandleGestureEvent(source, event);
+  return false;
+}
+
 bool CefBrowserHostImpl::CanDragEnter(content::WebContents* source,
                                       const content::DropData& data,
                                       blink::WebDragOperationsMask mask) {
@@ -2334,7 +2447,8 @@ void CefBrowserHostImpl::WebContentsCreated(
 
   CefRefPtr<CefBrowserHostImpl> browser = CefBrowserHostImpl::CreateInternal(
       settings, client, new_contents, info, opener, false,
-      browser_context->GetCefRequestContext(), std::move(platform_delegate));
+      browser_context->GetCefRequestContext(), std::move(platform_delegate),
+      nullptr);
 }
 
 void CefBrowserHostImpl::DidNavigateMainFramePostCommit(
@@ -2377,6 +2491,21 @@ void CefBrowserHostImpl::UpdatePreferredSize(content::WebContents* source,
   if (platform_delegate_)
     platform_delegate_->SizeTo(pref_size.width(), pref_size.height());
 #endif
+}
+
+void CefBrowserHostImpl::ResizeDueToAutoResize(content::WebContents* source,
+                                               const gfx::Size& new_size) {
+  CEF_REQUIRE_UIT();
+
+  if (client_) {
+    CefRefPtr<CefDisplayHandler> handler = client_->GetDisplayHandler();
+    if (handler && handler->OnAutoResize(
+                       this, CefSize(new_size.width(), new_size.height()))) {
+      return;
+    }
+  }
+
+  UpdatePreferredSize(source, new_size);
 }
 
 void CefBrowserHostImpl::RequestMediaAccessPermission(
@@ -2442,6 +2571,12 @@ bool CefBrowserHostImpl::CheckMediaAccessPermission(
   const base::CommandLine* command_line =
       base::CommandLine::ForCurrentProcess();
   return command_line->HasSwitch(switches::kEnableMediaStream);
+}
+
+bool CefBrowserHostImpl::IsNeverVisible(content::WebContents* web_contents) {
+  if (extension_host_)
+    return extension_host_->IsNeverVisible(web_contents);
+  return false;
 }
 
 // content::WebContentsObserver methods.
@@ -2924,7 +3059,8 @@ CefBrowserHostImpl::CefBrowserHostImpl(
     scoped_refptr<CefBrowserInfo> browser_info,
     CefRefPtr<CefBrowserHostImpl> opener,
     CefRefPtr<CefRequestContext> request_context,
-    std::unique_ptr<CefBrowserPlatformDelegate> platform_delegate)
+    std::unique_ptr<CefBrowserPlatformDelegate> platform_delegate,
+    CefRefPtr<CefExtension> extension)
     : content::WebContentsObserver(web_contents),
       settings_(settings),
       client_(client),
@@ -2949,7 +3085,8 @@ CefBrowserHostImpl::CefBrowserHostImpl(
       is_in_onsetfocus_(false),
       focus_on_editable_field_(false),
       mouse_cursor_change_disabled_(false),
-      devtools_frontend_(NULL) {
+      devtools_frontend_(NULL),
+      extension_(extension) {
   if (opener.get() && !platform_delegate_->IsViewsHosted()) {
     // GetOpenerWindowHandle() only returns a value for non-views-hosted
     // popup browsers.
@@ -2986,8 +3123,10 @@ CefBrowserHostImpl::CefBrowserHostImpl(
   printing::CefPrintViewManager::CreateForWebContents(web_contents_.get());
 
   if (extensions::ExtensionsEnabled()) {
+    extensions::CefExtensionWebContentsObserver::CreateForWebContents(
+        web_contents_.get());
+
     // Used by the tabs extension API.
-    SessionTabHelper::CreateForWebContents(web_contents_.get());
     zoom::ZoomController::CreateForWebContents(web_contents_.get());
   }
 
@@ -3007,6 +3146,63 @@ bool CefBrowserHostImpl::CreateHostWindow() {
   if (success && !IsViewsHosted())
     host_window_handle_ = platform_delegate_->GetHostWindowHandle();
   return success;
+}
+
+void CefBrowserHostImpl::CreateExtensionHost(
+    const extensions::Extension* extension,
+    content::BrowserContext* browser_context,
+    content::WebContents* host_contents,
+    const GURL& url,
+    extensions::ViewType host_type) {
+  DCHECK(!extension_host_);
+
+  // Use the *Impl context because ProcessManager expects it for notification
+  // registration.
+  CefBrowserContextImpl* impl_context =
+      CefBrowserContextImpl::GetForContext(browser_context);
+
+  if (host_type == extensions::VIEW_TYPE_EXTENSION_DIALOG ||
+      host_type == extensions::VIEW_TYPE_EXTENSION_POPUP) {
+    // Create an extension host that we own.
+    extension_host_ = new extensions::CefExtensionViewHost(
+        this, extension, impl_context, host_contents, url, host_type);
+    // Trigger load of the extension URL.
+    extension_host_->CreateRenderViewSoon();
+  } else if (host_type == extensions::VIEW_TYPE_EXTENSION_BACKGROUND_PAGE) {
+    is_background_host_ = true;
+    // Create an extension host that will be owned by ProcessManager.
+    extension_host_ = new extensions::CefExtensionBackgroundHost(
+        this, base::BindOnce(&CefBrowserHostImpl::OnExtensionHostDeleted, this),
+        extension, impl_context, host_contents, url, host_type);
+    // Load will be triggered by ProcessManager::CreateBackgroundHost.
+  } else {
+    NOTREACHED() << " Unsupported extension host type: " << host_type;
+  }
+}
+
+void CefBrowserHostImpl::DestroyExtensionHost() {
+  if (!extension_host_)
+    return;
+  if (extension_host_->extension_host_type() ==
+      extensions::VIEW_TYPE_EXTENSION_BACKGROUND_PAGE) {
+    DCHECK(is_background_host_);
+    // Close notification for background pages arrives via CloseContents.
+    // The extension host will be deleted by
+    // ProcessManager::CloseBackgroundHost and OnExtensionHostDeleted will be
+    // called to notify us.
+    extension_host_->Close();
+  } else {
+    DCHECK(!is_background_host_);
+    // We own the extension host and must delete it.
+    delete extension_host_;
+    extension_host_ = nullptr;
+  }
+}
+
+void CefBrowserHostImpl::OnExtensionHostDeleted() {
+  DCHECK(is_background_host_);
+  DCHECK(extension_host_);
+  extension_host_ = nullptr;
 }
 
 CefRefPtr<CefFrame> CefBrowserHostImpl::GetOrCreateFrame(

@@ -30,14 +30,9 @@ CefRefPtr<CefStreamReader> GetBinaryResourceReader(const char* resource_name);
 #if defined(OS_WIN)
 // Create a new provider for loading binary resources.
 CefResourceManager::Provider* CreateBinaryResourceProvider(
-    const std::string& url_path);
+    const std::string& url_path,
+    const std::string& resource_path_prefix);
 #endif
-
-// Load an image icon at different scale factors. The image representations are
-// expected to be 16 DIP in size. For example, if |icon_name| is "image" then
-// the expected file names are "image.1x.png" for the 1x scale image (16 pixels)
-// and "image.2x.png" for the 2x scale image (32 pixels).
-CefRefPtr<CefImage> LoadImageIcon(const char* icon_name);
 
 }  // namespace client
 

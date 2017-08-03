@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=e4957abc4c3b80b9f324d74d2c8c6aa2632c52d9$
+// $hash=5664bec47eefda37f8adb7bd153620559116f4a9$
 //
 
 #ifndef CEF_INCLUDE_CAPI_VIEWS_CEF_WINDOW_DELEGATE_CAPI_H_
@@ -72,6 +72,20 @@ typedef struct _cef_window_delegate_t {
   ///
   void(CEF_CALLBACK* on_window_destroyed)(struct _cef_window_delegate_t* self,
                                           struct _cef_window_t* window);
+
+  ///
+  // Return the parent for |window| or NULL if the |window| does not have a
+  // parent. Windows with parents will not get a taskbar button. Set |is_menu|
+  // to true (1) if |window| will be displayed as a menu, in which case it will
+  // not be clipped to the parent window bounds. Set |can_activate_menu| to
+  // false (0) if |is_menu| is true (1) and |window| should not be activated
+  // (given keyboard focus) when displayed.
+  ///
+  struct _cef_window_t*(CEF_CALLBACK* get_parent_window)(
+      struct _cef_window_delegate_t* self,
+      struct _cef_window_t* window,
+      int* is_menu,
+      int* can_activate_menu);
 
   ///
   // Return true (1) if |window| should be created without a frame or title bar.

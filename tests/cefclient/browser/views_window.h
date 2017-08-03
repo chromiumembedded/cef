@@ -6,8 +6,11 @@
 #define CEF_TESTS_CEFCLIENT_BROWSER_VIEWS_WINDOW_H_
 #pragma once
 
+#include <set>
 #include <string>
+#include <vector>
 
+#include "include/base/cef_callback_forward.h"
 #include "include/cef_menu_model_delegate.h"
 #include "include/views/cef_browser_view.h"
 #include "include/views/cef_browser_view_delegate.h"
@@ -19,9 +22,12 @@
 #include "include/views/cef_textfield_delegate.h"
 #include "include/views/cef_window.h"
 #include "include/views/cef_window_delegate.h"
+#include "tests/cefclient/browser/image_cache.h"
 #include "tests/cefclient/browser/views_menu_bar.h"
 
 namespace client {
+
+typedef std::set<CefRefPtr<CefExtension>> ExtensionSet;
 
 // Implements a CefWindow that hosts a single CefBrowserView and optional
 // Views-based controls. All methods must be called on the browser process UI
@@ -39,8 +45,20 @@ class ViewsWindow : public CefBrowserViewDelegate,
     // Return true if the window should show controls.
     virtual bool WithControls() = 0;
 
+    // Return true if the window is hosting an extension.
+    virtual bool WithExtension() = 0;
+
+    // Return true if the window should be created initially hidden.
+    virtual bool InitiallyHidden() = 0;
+
+    // Returns the parent for this window.
+    virtual CefRefPtr<CefWindow> GetParentWindow() = 0;
+
     // Return the initial window bounds.
     virtual CefRect GetWindowBounds() = 0;
+
+    // Returns the ImageCache.
+    virtual scoped_refptr<ImageCache> GetImageCache() = 0;
 
     // Called when the ViewsWindow is created.
     virtual void OnViewsWindowCreated(CefRefPtr<ViewsWindow> window) = 0;
@@ -49,8 +67,18 @@ class ViewsWindow : public CefBrowserViewDelegate,
     // should be released in this callback.
     virtual void OnViewsWindowDestroyed(CefRefPtr<ViewsWindow> window) = 0;
 
+    // Called when the ViewsWindow is activated (becomes the foreground window).
+    virtual void OnViewsWindowActivated(CefRefPtr<ViewsWindow> window) = 0;
+
     // Return the Delegate for the popup window controlled by |client|.
     virtual Delegate* GetDelegateForPopup(CefRefPtr<CefClient> client) = 0;
+
+    // Create a window for |extension|. |source_bounds| are the bounds of the
+    // UI element, like a button, that triggered the extension.
+    virtual void CreateExtensionWindow(CefRefPtr<CefExtension> extension,
+                                       const CefRect& source_bounds,
+                                       CefRefPtr<CefWindow> parent_window,
+                                       const base::Closure& close_callback) = 0;
 
     // Called to execute a test. See resource.h for |test_id| values.
     virtual void OnTest(int test_id) = 0;
@@ -76,6 +104,9 @@ class ViewsWindow : public CefBrowserViewDelegate,
   void Minimize();
   void Maximize();
   void SetBounds(const CefRect& bounds);
+  void SetBrowserSize(const CefSize& size,
+                      bool has_position,
+                      const CefPoint& position);
   void Close(bool force);
   void SetAddress(const std::string& url);
   void SetTitle(const std::string& title);
@@ -85,8 +116,14 @@ class ViewsWindow : public CefBrowserViewDelegate,
   void SetDraggableRegions(const std::vector<CefDraggableRegion>& regions);
   void TakeFocus(bool next);
   void OnBeforeContextMenu(CefRefPtr<CefMenuModel> model);
+  void OnExtensionsChanged(const ExtensionSet& extensions);
 
   // CefBrowserViewDelegate methods:
+  CefRefPtr<CefBrowserViewDelegate> GetDelegateForPopupBrowserView(
+      CefRefPtr<CefBrowserView> browser_view,
+      const CefBrowserSettings& settings,
+      CefRefPtr<CefClient> client,
+      bool is_devtools) OVERRIDE;
   bool OnPopupBrowserViewCreated(CefRefPtr<CefBrowserView> browser_view,
                                  CefRefPtr<CefBrowserView> popup_browser_view,
                                  bool is_devtools) OVERRIDE;
@@ -95,8 +132,10 @@ class ViewsWindow : public CefBrowserViewDelegate,
   void OnButtonPressed(CefRefPtr<CefButton> button) OVERRIDE;
 
   // CefMenuButtonDelegate methods:
-  void OnMenuButtonPressed(CefRefPtr<CefMenuButton> menu_button,
-                           const CefPoint& screen_point) OVERRIDE;
+  void OnMenuButtonPressed(
+      CefRefPtr<CefMenuButton> menu_button,
+      const CefPoint& screen_point,
+      CefRefPtr<CefMenuButtonPressedLock> button_pressed_lock) OVERRIDE;
 
   // CefMenuModelDelegate methods:
   void ExecuteCommand(CefRefPtr<CefMenuModel> menu_model,
@@ -110,7 +149,11 @@ class ViewsWindow : public CefBrowserViewDelegate,
   // CefWindowDelegate methods:
   void OnWindowCreated(CefRefPtr<CefWindow> window) OVERRIDE;
   void OnWindowDestroyed(CefRefPtr<CefWindow> window) OVERRIDE;
+  CefRefPtr<CefWindow> GetParentWindow(CefRefPtr<CefWindow> window,
+                                       bool* is_menu,
+                                       bool* can_activate_menu) OVERRIDE;
   bool IsFrameless(CefRefPtr<CefWindow> window) OVERRIDE;
+  bool CanResize(CefRefPtr<CefWindow> window) OVERRIDE;
   bool CanClose(CefRefPtr<CefWindow> window) OVERRIDE;
   bool OnAccelerator(CefRefPtr<CefWindow> window, int command_id) OVERRIDE;
   bool OnKeyEvent(CefRefPtr<CefWindow> window,
@@ -119,6 +162,7 @@ class ViewsWindow : public CefBrowserViewDelegate,
   // CefViewDelegate methods:
   CefSize GetMinimumSize(CefRefPtr<CefView> view) OVERRIDE;
   void OnFocus(CefRefPtr<CefView> view) OVERRIDE;
+  void OnBlur(CefRefPtr<CefView> view) OVERRIDE;
 
   // ViewsMenuBar::Delegate methods:
   void MenuBarExecuteCommand(CefRefPtr<CefMenuModel> menu_model,
@@ -152,6 +196,13 @@ class ViewsWindow : public CefBrowserViewDelegate,
   // Show/hide top controls on the Window.
   void ShowTopControls(bool show);
 
+  // Update extension controls on the Window.
+  void UpdateExtensionControls();
+
+  void OnExtensionIconsLoaded(const ExtensionSet& extensions,
+                              const ImageCache::ImageSet& images);
+  void OnExtensionWindowClosed();
+
   Delegate* delegate_;  // Not owned by this object.
   CefRefPtr<CefBrowserView> browser_view_;
   bool frameless_;
@@ -164,6 +215,20 @@ class ViewsWindow : public CefBrowserViewDelegate,
   int last_focused_view_;
 
   CefSize minimum_window_size_;
+
+  // Structure representing an extension.
+  struct ExtensionInfo {
+    ExtensionInfo(CefRefPtr<CefExtension> extension, CefRefPtr<CefImage> image)
+        : extension_(extension), image_(image) {}
+
+    CefRefPtr<CefExtension> extension_;
+    CefRefPtr<CefImage> image_;
+  };
+  typedef std::vector<ExtensionInfo> ExtensionInfoSet;
+
+  ExtensionInfoSet extensions_;
+  CefRefPtr<CefPanel> extensions_panel_;
+  CefRefPtr<CefMenuButtonPressedLock> extension_button_pressed_lock_;
 
   IMPLEMENT_REFCOUNTING(ViewsWindow);
   DISALLOW_COPY_AND_ASSIGN(ViewsWindow);

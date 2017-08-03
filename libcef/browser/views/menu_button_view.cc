@@ -4,8 +4,26 @@
 
 #include "libcef/browser/views/menu_button_view.h"
 
+#include "libcef/browser/thread_util.h"
+
 #include "ui/gfx/canvas.h"
 #include "ui/views/controls/menu/menu_config.h"
+
+namespace {
+
+class ButtonPressedLock : public CefMenuButtonPressedLock {
+ public:
+  explicit ButtonPressedLock(views::MenuButton* menu_button)
+      : pressed_lock_(menu_button) {}
+
+ private:
+  views::MenuButton::PressedLock pressed_lock_;
+
+  IMPLEMENT_REFCOUNTING_DELETE_ON_UIT(ButtonPressedLock);
+  DISALLOW_COPY_AND_ASSIGN(ButtonPressedLock);
+};
+
+}  // namespace
 
 CefMenuButtonView::CefMenuButtonView(CefMenuButtonDelegate* cef_delegate)
     : ParentClass(cef_delegate) {
@@ -36,5 +54,6 @@ void CefMenuButtonView::OnMenuButtonClicked(views::MenuButton* source,
                                             const gfx::Point& point,
                                             const ui::Event* event) {
   cef_delegate()->OnMenuButtonPressed(GetCefMenuButton(),
-                                      CefPoint(point.x(), point.y()));
+                                      CefPoint(point.x(), point.y()),
+                                      new ButtonPressedLock(source));
 }

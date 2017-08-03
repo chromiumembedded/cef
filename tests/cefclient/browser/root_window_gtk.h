@@ -26,11 +26,8 @@ class RootWindowGtk : public RootWindow, public BrowserWindow::Delegate {
 
   // RootWindow methods.
   void Init(RootWindow::Delegate* delegate,
-            bool with_controls,
-            bool with_osr,
-            const CefRect& rect,
-            const CefBrowserSettings& settings,
-            const std::string& url) OVERRIDE;
+            const RootWindowConfig& config,
+            const CefBrowserSettings& settings) OVERRIDE;
   void InitAsPopup(RootWindow::Delegate* delegate,
                    bool with_controls,
                    bool with_osr,
@@ -46,10 +43,13 @@ class RootWindowGtk : public RootWindow, public BrowserWindow::Delegate {
   float GetDeviceScaleFactor() const OVERRIDE;
   CefRefPtr<CefBrowser> GetBrowser() const OVERRIDE;
   ClientWindowHandle GetWindowHandle() const OVERRIDE;
+  bool WithWindowlessRendering() const OVERRIDE;
+  bool WithExtension() const OVERRIDE;
 
  private:
   void CreateBrowserWindow(const std::string& startup_url);
-  void CreateRootWindow(const CefBrowserSettings& settings);
+  void CreateRootWindow(const CefBrowserSettings& settings,
+                        bool initially_hidden);
 
   // BrowserWindow::Delegate methods.
   void OnBrowserCreated(CefRefPtr<CefBrowser> browser) OVERRIDE;
@@ -57,6 +57,7 @@ class RootWindowGtk : public RootWindow, public BrowserWindow::Delegate {
   void OnSetAddress(const std::string& url) OVERRIDE;
   void OnSetTitle(const std::string& title) OVERRIDE;
   void OnSetFullscreen(bool fullscreen) OVERRIDE;
+  void OnAutoResize(const CefSize& new_size) OVERRIDE;
   void OnSetLoadingState(bool isLoading,
                          bool canGoBack,
                          bool canGoForward) OVERRIDE;
@@ -112,9 +113,9 @@ class RootWindowGtk : public RootWindow, public BrowserWindow::Delegate {
 
   // After initialization all members are only accessed on the main thread.
   // Members set during initialization.
-  RootWindow::Delegate* delegate_;
   bool with_controls_;
   bool with_osr_;
+  bool with_extension_;
   bool is_popup_;
   CefRect start_rect_;
   scoped_ptr<BrowserWindow> browser_window_;

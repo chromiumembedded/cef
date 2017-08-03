@@ -9,14 +9,33 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=06dd198c1341ffa14ae98b3937df025322ed5510$
+// $hash=aeb8be6019f69c4271ae0e35c4a6759dc46cc33d$
 //
 
 #include "libcef_dll/ctocpp/request_context_handler_ctocpp.h"
 #include "libcef_dll/cpptoc/cookie_manager_cpptoc.h"
+#include "libcef_dll/cpptoc/request_context_cpptoc.h"
 #include "libcef_dll/cpptoc/web_plugin_info_cpptoc.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
+
+void CefRequestContextHandlerCToCpp::OnRequestContextInitialized(
+    CefRefPtr<CefRequestContext> request_context) {
+  cef_request_context_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, on_request_context_initialized))
+    return;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: request_context; type: refptr_diff
+  DCHECK(request_context.get());
+  if (!request_context.get())
+    return;
+
+  // Execute
+  _struct->on_request_context_initialized(
+      _struct, CefRequestContextCppToC::Wrap(request_context));
+}
 
 CefRefPtr<CefCookieManager> CefRequestContextHandlerCToCpp::GetCookieManager() {
   cef_request_context_handler_t* _struct = GetStruct();

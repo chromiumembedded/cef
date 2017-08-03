@@ -6,6 +6,7 @@
 #define CEF_LIBCEF_BROWSER_NET_URL_REQUEST_CONTEXT_GETTER_PROXY_H_
 #pragma once
 
+#include "include/cef_request_context.h"
 #include "include/cef_request_context_handler.h"
 #include "libcef/browser/net/url_request_context_getter.h"
 #include "libcef/browser/net/url_request_context_getter_impl.h"

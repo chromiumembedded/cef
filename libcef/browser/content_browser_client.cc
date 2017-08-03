@@ -7,7 +7,7 @@
 #include <algorithm>
 #include <utility>
 
-#include "libcef/browser/browser_context.h"
+#include "libcef/browser/browser_context_impl.h"
 #include "libcef/browser/browser_host_impl.h"
 #include "libcef/browser/browser_info.h"
 #include "libcef/browser/browser_info_manager.h"
@@ -574,6 +574,10 @@ void CefContentBrowserClient::SiteInstanceDeleting(
   if (!extensions::ExtensionsBrowserClient::Get())
     return;
 
+  // May be NULL during shutdown.
+  if (!site_instance->HasProcess())
+    return;
+
   // If this isn't an extension renderer there's nothing to do.
   const extensions::Extension* extension = GetExtension(site_instance);
   if (!extension)
@@ -623,6 +627,13 @@ CefContentBrowserClient::GetExtraServiceManifests() {
   return std::vector<ServiceManifestInfo>({
       {printing::mojom::kServiceName, IDR_PDF_COMPOSITOR_MANIFEST},
   });
+}
+
+bool CefContentBrowserClient::IsSameBrowserContext(
+    content::BrowserContext* context1,
+    content::BrowserContext* context2) {
+  return CefBrowserContextImpl::GetForContext(context1) ==
+         CefBrowserContextImpl::GetForContext(context2);
 }
 
 void CefContentBrowserClient::AppendExtraCommandLineSwitches(
@@ -731,8 +742,9 @@ void CefContentBrowserClient::GetQuotaSettings(
     content::BrowserContext* context,
     content::StoragePartition* partition,
     storage::OptionalQuotaSettingsCallback callback) {
-  storage::GetNominalDynamicSettings(
-      partition->GetPath(), context->IsOffTheRecord(), std::move(callback));
+  const base::FilePath& cache_path = partition->GetPath();
+  storage::GetNominalDynamicSettings(cache_path, !cache_path.empty(),
+                                     std::move(callback));
 }
 
 content::MediaObserver* CefContentBrowserClient::GetMediaObserver() {
@@ -1015,6 +1027,8 @@ const extensions::Extension* CefContentBrowserClient::GetExtension(
     content::SiteInstance* site_instance) {
   extensions::ExtensionRegistry* registry =
       extensions::ExtensionRegistry::Get(site_instance->GetBrowserContext());
+  if (!registry)
+    return nullptr;
   return registry->enabled_extensions().GetExtensionOrAppByURL(
       site_instance->GetSiteURL());
 }

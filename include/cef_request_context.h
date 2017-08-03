@@ -42,6 +42,8 @@
 
 #include "include/cef_callback.h"
 #include "include/cef_cookie.h"
+#include "include/cef_extension.h"
+#include "include/cef_extension_handler.h"
 #include "include/cef_request_context_handler.h"
 #include "include/cef_values.h"
 
@@ -54,9 +56,9 @@ class CefSchemeHandlerFactory;
 class CefResolveCallback : public virtual CefBaseRefCounted {
  public:
   ///
-  // Called after the ResolveHost request has completed. |result| will be the
-  // result code. |resolved_ips| will be the list of resolved IP addresses or
-  // empty if the resolution failed.
+  // Called on the UI thread after the ResolveHost request has completed.
+  // |result| will be the result code. |resolved_ips| will be the list of
+  // resolved IP addresses or empty if the resolution failed.
   ///
   /*--cef(optional_param=resolved_ips)--*/
   virtual void OnResolveCompleted(
@@ -278,6 +280,92 @@ class CefRequestContext : public virtual CefBaseRefCounted {
   virtual cef_errorcode_t ResolveHostCached(
       const CefString& origin,
       std::vector<CefString>& resolved_ips) = 0;
+
+  ///
+  // Load an extension.
+  //
+  // If extension resources will be read from disk using the default load
+  // implementation then |root_directory| should be the absolute path to the
+  // extension resources directory and |manifest| should be NULL. If extension
+  // resources will be provided by the client (e.g. via CefRequestHandler and/or
+  // CefExtensionHandler) then |root_directory| should be a path component
+  // unique to the extension (if not absolute this will be internally prefixed
+  // with the PK_DIR_RESOURCES path) and |manifest| should contain the contents
+  // that would otherwise be read from the "manifest.json" file on disk.
+  //
+  // The loaded extension will be accessible in all contexts sharing the same
+  // storage (HasExtension returns true). However, only the context on which
+  // this method was called is considered the loader (DidLoadExtension returns
+  // true) and only the loader will receive CefRequestContextHandler callbacks
+  // for the extension.
+  //
+  // CefExtensionHandler::OnExtensionLoaded will be called on load success or
+  // CefExtensionHandler::OnExtensionLoadFailed will be called on load failure.
+  //
+  // If the extension specifies a background script via the "background"
+  // manifest key then CefExtensionHandler::OnBeforeBackgroundBrowser will be
+  // called to create the background browser. See that method for additional
+  // information about background scripts.
+  //
+  // For visible extension views the client application should evaluate the
+  // manifest to determine the correct extension URL to load and then pass that
+  // URL to the CefBrowserHost::CreateBrowser* function after the extension has
+  // loaded. For example, the client can look for the "browser_action" manifest
+  // key as documented at https://developer.chrome.com/extensions/browserAction.
+  // Extension URLs take the form "chrome-extension://<extension_id>/<path>".
+  //
+  // Browsers that host extensions differ from normal browsers as follows:
+  //  - Can access chrome.* JavaScript APIs if allowed by the manifest. Visit
+  //    chrome://extensions-support for the list of extension APIs currently
+  //    supported by CEF.
+  //  - Main frame navigation to non-extension content is blocked.
+  //  - Pinch-zooming is disabled.
+  //  - CefBrowserHost::GetExtension returns the hosted extension.
+  //  - CefBrowserHost::IsBackgroundHost returns true for background hosts.
+  //
+  // See https://developer.chrome.com/extensions for extension implementation
+  // and usage documentation.
+  ///
+  /*--cef(optional_param=manifest,optional_param=handler)--*/
+  virtual void LoadExtension(const CefString& root_directory,
+                             CefRefPtr<CefDictionaryValue> manifest,
+                             CefRefPtr<CefExtensionHandler> handler) = 0;
+
+  ///
+  // Returns true if this context was used to load the extension identified by
+  // |extension_id|. Other contexts sharing the same storage will also have
+  // access to the extension (see HasExtension). This method must be called on
+  // the browser process UI thread.
+  ///
+  /*--cef()--*/
+  virtual bool DidLoadExtension(const CefString& extension_id) = 0;
+
+  ///
+  // Returns true if this context has access to the extension identified by
+  // |extension_id|. This may not be the context that was used to load the
+  // extension (see DidLoadExtension). This method must be called on the browser
+  // process UI thread.
+  ///
+  /*--cef()--*/
+  virtual bool HasExtension(const CefString& extension_id) = 0;
+
+  ///
+  // Retrieve the list of all extensions that this context has access to (see
+  // HasExtension). |extension_ids| will be populated with the list of extension
+  // ID values. Returns true on success. This method must be called on the
+  // browser process UI thread.
+  ///
+  /*--cef()--*/
+  virtual bool GetExtensions(std::vector<CefString>& extension_ids) = 0;
+
+  ///
+  // Returns the extension matching |extension_id| or NULL if no matching
+  // extension is accessible in this context (see HasExtension). This method
+  // must be called on the browser process UI thread.
+  ///
+  /*--cef()--*/
+  virtual CefRefPtr<CefExtension> GetExtension(
+      const CefString& extension_id) = 0;
 };
 
 #endif  // CEF_INCLUDE_CEF_REQUEST_CONTEXT_H_

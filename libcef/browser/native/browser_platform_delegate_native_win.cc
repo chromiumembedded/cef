@@ -276,8 +276,9 @@ void CefBrowserPlatformDelegateNativeWin::SizeTo(int width, int height) {
   // based on the current style.
   AdjustWindowRectEx(&rect, style, has_menu, ex_style);
 
-  // Size the window.
-  SetWindowPos(window, NULL, 0, 0, rect.right, rect.bottom,
+  // Size the window. The left/top values may be negative.
+  SetWindowPos(window, NULL, 0, 0, rect.right - rect.left,
+               rect.bottom - rect.top,
                SWP_NOZORDER | SWP_NOMOVE | SWP_NOACTIVATE);
 }
 

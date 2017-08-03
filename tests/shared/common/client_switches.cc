@@ -38,6 +38,7 @@ const char kHideTopMenu[] = "hide-top-menu";
 const char kWidevineCdmPath[] = "widevine-cdm-path";
 const char kSslClientCertificate[] = "ssl-client-certificate";
 const char kCRLSetsPath[] = "crl-sets-path";
+const char kLoadExtension[] = "load-extension";
 
 }  // namespace switches
 }  // namespace client

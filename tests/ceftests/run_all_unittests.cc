@@ -201,6 +201,8 @@ int main(int argc, char* argv[]) {
   // Shut down CEF.
   CefShutdown();
 
+  test_suite.DeleteTempDirectories();
+
   // Destroy the MessageLoop.
   message_loop.reset(nullptr);
 

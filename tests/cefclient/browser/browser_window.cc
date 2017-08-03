@@ -73,6 +73,11 @@ void BrowserWindow::OnSetFullscreen(bool fullscreen) {
   delegate_->OnSetFullscreen(fullscreen);
 }
 
+void BrowserWindow::OnAutoResize(const CefSize& new_size) {
+  REQUIRE_MAIN_THREAD();
+  delegate_->OnAutoResize(new_size);
+}
+
 void BrowserWindow::OnSetLoadingState(bool isLoading,
                                       bool canGoBack,
                                       bool canGoForward) {

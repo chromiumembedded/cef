@@ -147,8 +147,10 @@ void ViewsMenuBar::Reset() {
   id_next_ = id_start_;
 }
 
-void ViewsMenuBar::OnMenuButtonPressed(CefRefPtr<CefMenuButton> menu_button,
-                                       const CefPoint& screen_point) {
+void ViewsMenuBar::OnMenuButtonPressed(
+    CefRefPtr<CefMenuButton> menu_button,
+    const CefPoint& screen_point,
+    CefRefPtr<CefMenuButtonPressedLock> button_pressed_lock) {
   CefRefPtr<CefMenuModel> menu_model = GetMenuModel(menu_button->GetID());
 
   // Adjust menu position left by button width.

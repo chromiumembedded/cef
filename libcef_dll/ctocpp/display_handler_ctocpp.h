@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=309e3816e3daba60c7809230fdecb59d01e41847$
+// $hash=6d8ab7f2086373de52eb178cc640d2d553d43c58$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_DISPLAY_HANDLER_CTOCPP_H_
@@ -51,6 +51,8 @@ class CefDisplayHandlerCToCpp
                         const CefString& message,
                         const CefString& source,
                         int line) override;
+  bool OnAutoResize(CefRefPtr<CefBrowser> browser,
+                    const CefSize& new_size) override;
 };
 
 #endif  // CEF_LIBCEF_DLL_CTOCPP_DISPLAY_HANDLER_CTOCPP_H_

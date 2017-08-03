@@ -73,8 +73,10 @@ class ViewsMenuBar : public CefMenuButtonDelegate, public CefMenuModelDelegate {
   void OnButtonPressed(CefRefPtr<CefButton> button) OVERRIDE {}
 
   // CefMenuButtonDelegate methods:
-  void OnMenuButtonPressed(CefRefPtr<CefMenuButton> menu_button,
-                           const CefPoint& screen_point) OVERRIDE;
+  void OnMenuButtonPressed(
+      CefRefPtr<CefMenuButton> menu_button,
+      const CefPoint& screen_point,
+      CefRefPtr<CefMenuButtonPressedLock> button_pressed_lock) OVERRIDE;
 
   // CefMenuModelDelegate methods:
   void ExecuteCommand(CefRefPtr<CefMenuModel> menu_model,

@@ -37,6 +37,9 @@ class BrowserWindow : public ClientHandler::Delegate {
     // Set fullscreen mode.
     virtual void OnSetFullscreen(bool fullscreen) = 0;
 
+    // Auto-resize contents.
+    virtual void OnAutoResize(const CefSize& new_size) = 0;
+
     // Set the loading state.
     virtual void OnSetLoadingState(bool isLoading,
                                    bool canGoBack,
@@ -117,6 +120,7 @@ class BrowserWindow : public ClientHandler::Delegate {
   void OnSetAddress(const std::string& url) OVERRIDE;
   void OnSetTitle(const std::string& title) OVERRIDE;
   void OnSetFullscreen(bool fullscreen) OVERRIDE;
+  void OnAutoResize(const CefSize& new_size) OVERRIDE;
   void OnSetLoadingState(bool isLoading,
                          bool canGoBack,
                          bool canGoForward) OVERRIDE;

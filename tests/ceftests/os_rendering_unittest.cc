@@ -969,14 +969,14 @@ class OSRTestHandler : public RoutingTestHandler,
     return false;
   }
 
-  void OnTakeFocus(CefRefPtr<CefBrowser> browser, bool next) {
+  void OnTakeFocus(CefRefPtr<CefBrowser> browser, bool next) override {
     if (test_type_ == OSR_TEST_TAKE_FOCUS) {
       EXPECT_TRUE(true);
       DestroySucceededTestSoon();
     }
   }
 
-  void OnGotFocus(CefRefPtr<CefBrowser> browser) {
+  void OnGotFocus(CefRefPtr<CefBrowser> browser) override {
     if (test_type_ == OSR_TEST_GOT_FOCUS) {
       EXPECT_TRUE(true);
       DestroySucceededTestSoon();

@@ -8,7 +8,9 @@
 #include "libcef/browser/content_browser_client.h"
 #include "libcef/browser/context.h"
 #include "libcef/browser/cookie_manager_impl.h"
+#include "libcef/browser/extensions/extension_system.h"
 #include "libcef/browser/thread_util.h"
+#include "libcef/common/extensions/extensions_util.h"
 #include "libcef/common/values_impl.h"
 
 #include "base/atomic_sequence_num.h"
@@ -132,6 +134,8 @@ CefRefPtr<CefRequestContext> CefRequestContext::CreateContext(
 // CefRequestContextImpl
 
 CefRequestContextImpl::~CefRequestContextImpl() {
+  CEF_REQUIRE_UIT();
+
   // Delete the proxy first because it also references |browser_context_impl_|.
   if (browser_context_proxy_)
     browser_context_proxy_.reset(nullptr);
@@ -501,6 +505,80 @@ cef_errorcode_t CefRequestContextImpl::ResolveHostCached(
   return static_cast<cef_errorcode_t>(retval);
 }
 
+void CefRequestContextImpl::LoadExtension(
+    const CefString& root_directory,
+    CefRefPtr<CefDictionaryValue> manifest,
+    CefRefPtr<CefExtensionHandler> handler) {
+  if (!CEF_CURRENTLY_ON_UIT()) {
+    CEF_POST_TASK(CEF_UIT,
+                  base::BindOnce(&CefRequestContextImpl::LoadExtension, this,
+                                 root_directory, manifest, handler));
+    return;
+  }
+
+  if (!extensions::ExtensionsEnabled()) {
+    if (handler)
+      handler->OnExtensionLoadFailed(ERR_ABORTED);
+    return;
+  }
+
+  if (manifest && manifest->GetSize() > 0) {
+    CefDictionaryValueImpl* value_impl =
+        static_cast<CefDictionaryValueImpl*>(manifest.get());
+    GetBrowserContext()->extension_system()->LoadExtension(
+        base::WrapUnique(value_impl->CopyValue()), root_directory,
+        false /* builtin */, this, handler);
+  } else {
+    GetBrowserContext()->extension_system()->LoadExtension(
+        root_directory, false /* builtin */, this, handler);
+  }
+}
+
+bool CefRequestContextImpl::DidLoadExtension(const CefString& extension_id) {
+  CefRefPtr<CefExtension> extension = GetExtension(extension_id);
+  // GetLoaderContext() will return NULL for internal extensions.
+  return extension && IsSame(extension->GetLoaderContext());
+}
+
+bool CefRequestContextImpl::HasExtension(const CefString& extension_id) {
+  return !!GetExtension(extension_id);
+}
+
+bool CefRequestContextImpl::GetExtensions(
+    std::vector<CefString>& extension_ids) {
+  extension_ids.clear();
+
+  if (!CEF_CURRENTLY_ON_UIT()) {
+    NOTREACHED() << "called on invalid thread";
+    return false;
+  }
+
+  if (!extensions::ExtensionsEnabled())
+    return false;
+
+  extensions::CefExtensionSystem::ExtensionMap extension_map =
+      GetBrowserContext()->extension_system()->GetExtensions();
+  extensions::CefExtensionSystem::ExtensionMap::const_iterator it =
+      extension_map.begin();
+  for (; it != extension_map.end(); ++it)
+    extension_ids.push_back(it->second->GetIdentifier());
+
+  return true;
+}
+
+CefRefPtr<CefExtension> CefRequestContextImpl::GetExtension(
+    const CefString& extension_id) {
+  if (!CEF_CURRENTLY_ON_UIT()) {
+    NOTREACHED() << "called on invalid thread";
+    return nullptr;
+  }
+
+  if (!extensions::ExtensionsEnabled())
+    return nullptr;
+
+  return GetBrowserContext()->extension_system()->GetExtension(extension_id);
+}
+
 // static
 CefRefPtr<CefRequestContextImpl>
 CefRequestContextImpl::GetOrCreateRequestContext(const Config& config) {
@@ -581,9 +659,13 @@ void CefRequestContextImpl::Initialize() {
     // IsSharedWith().
     config_.other = NULL;
   }
+
+  if (config_.handler)
+    config_.handler->OnRequestContextInitialized(this);
 }
 
 void CefRequestContextImpl::EnsureBrowserContext() {
+  CEF_REQUIRE_UIT();
   if (!browser_context())
     Initialize();
   DCHECK(browser_context());

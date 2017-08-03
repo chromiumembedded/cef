@@ -12,6 +12,7 @@
 
 #include "include/cef_version.h"
 #include "include/cef_web_plugin.h"
+#include "libcef/browser/extensions/chrome_api_registration.h"
 #include "libcef/browser/frame_host_impl.h"
 #include "libcef/browser/net/internal_scheme_handler.h"
 #include "libcef/browser/net/url_request_manager.h"
@@ -41,12 +42,15 @@
 #include "net/url_request/url_request.h"
 #include "v8/include/v8.h"
 
+using extensions::api::cef::kSupportedAPIs;
+
 namespace scheme {
 
 const char kChromeURL[] = "chrome://";
 
 namespace {
 
+const char kChromeUIExtensionsSupportHost[] = "extensions-support";
 const char kChromeUILicenseHost[] = "license";
 const char kChromeUIWebUIHostsHost[] = "webui-hosts";
 
@@ -83,6 +87,7 @@ const char* kUnlistedHosts[] = {
 
 enum ChromeHostId {
   CHROME_UNKNOWN = 0,
+  CHROME_EXTENSIONS_SUPPORT,
   CHROME_LICENSE,
   CHROME_VERSION,
   CHROME_WEBUI_HOSTS,
@@ -93,6 +98,7 @@ const struct {
   const char* host;
   ChromeHostId host_id;
 } kAllowedCefHosts[] = {
+    {kChromeUIExtensionsSupportHost, CHROME_EXTENSIONS_SUPPORT},
     {kChromeUILicenseHost, CHROME_LICENSE},
     {chrome::kChromeUIVersionHost, CHROME_VERSION},
     {kChromeUIWebUIHostsHost, CHROME_WEBUI_HOSTS},
@@ -510,6 +516,9 @@ class Delegate : public InternalHandlerDelegate {
 
     ChromeHostId host_id = GetChromeHostId(url.host());
     switch (host_id) {
+      case CHROME_EXTENSIONS_SUPPORT:
+        handled = OnExtensionsSupport(action);
+        break;
       case CHROME_LICENSE:
         handled = OnLicense(action);
         break;
@@ -533,6 +542,61 @@ class Delegate : public InternalHandlerDelegate {
     }
 
     return handled;
+  }
+
+  bool OnExtensionsSupport(Action* action) {
+    static const char kDevURL[] = "https://developer.chrome.com/extensions/";
+
+    std::string html =
+        "<html>\n<head><title>Extensions Support</title></head>\n"
+        "<body bgcolor=\"white\"><h3>Supported Chrome Extensions "
+        "APIs</h3>\nFollow <a "
+        "href=\"https://bitbucket.org/chromiumembedded/cef/issues/1947\" "
+        "target=\"new\">issue #1947</a> for development progress.\n<ul>\n";
+
+    bool has_top_level_name = false;
+    for (size_t i = 0; kSupportedAPIs[i] != nullptr; ++i) {
+      const std::string& api_name = kSupportedAPIs[i];
+      if (api_name.find("Private") != std::string::npos) {
+        // Don't list private APIs.
+        continue;
+      }
+
+      const size_t dot_pos = api_name.find('.');
+      if (dot_pos == std::string::npos) {
+        if (has_top_level_name) {
+          // End the previous top-level API entry.
+          html += "</ul></li>\n";
+        } else {
+          has_top_level_name = true;
+        }
+
+        // Start a new top-level API entry.
+        html += "<li><a href=\"" + std::string(kDevURL) + api_name +
+                "\" target=\"new\">" + api_name + "</a><ul>\n";
+      } else {
+        // Function name.
+        const std::string& group_name = api_name.substr(0, dot_pos);
+        const std::string& function_name = api_name.substr(dot_pos + 1);
+        html += "\t<li><a href=\"" + std::string(kDevURL) + group_name +
+                "#method-" + function_name + "\" target=\"new\">" + api_name +
+                "</a></li>\n";
+      }
+    }
+
+    if (has_top_level_name) {
+      // End the last top-level API entry.
+      html += "</ul></li>\n";
+    }
+
+    html += "</ul>\n</body>\n</html>";
+
+    action->mime_type = "text/html";
+    action->stream = CefStreamReader::CreateForData(
+        const_cast<char*>(html.c_str()), html.length());
+    action->stream_size = html.length();
+
+    return true;
   }
 
   bool OnLicense(Action* action) {

@@ -58,10 +58,13 @@ class ClientHandler : public CefClient,
     virtual void OnSetTitle(const std::string& title) = 0;
 
     // Set the Favicon image.
-    virtual void OnSetFavicon(CefRefPtr<CefImage> image){};
+    virtual void OnSetFavicon(CefRefPtr<CefImage> image) {}
 
     // Set fullscreen mode.
     virtual void OnSetFullscreen(bool fullscreen) = 0;
+
+    // Auto-resize contents.
+    virtual void OnAutoResize(const CefSize& new_size) = 0;
 
     // Set the loading state.
     virtual void OnSetLoadingState(bool isLoading,
@@ -147,6 +150,8 @@ class ClientHandler : public CefClient,
                         const CefString& message,
                         const CefString& source,
                         int line) OVERRIDE;
+  bool OnAutoResize(CefRefPtr<CefBrowser> browser,
+                    const CefSize& new_size) OVERRIDE;
 
   // CefDownloadHandler methods
   void OnBeforeDownload(CefRefPtr<CefBrowser> browser,
@@ -311,6 +316,7 @@ class ClientHandler : public CefClient,
   void NotifyTitle(const CefString& title);
   void NotifyFavicon(CefRefPtr<CefImage> image);
   void NotifyFullscreen(bool fullscreen);
+  void NotifyAutoResize(const CefSize& new_size);
   void NotifyLoadingState(bool isLoading, bool canGoBack, bool canGoForward);
   void NotifyDraggableRegions(const std::vector<CefDraggableRegion>& regions);
   void NotifyTakeFocus(bool next);

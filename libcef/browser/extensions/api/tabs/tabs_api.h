@@ -5,7 +5,10 @@
 #ifndef CEF_LIBCEF_BROWSER_EXTENSIONS_API_TABS_TABS_API_H_
 #define CEF_LIBCEF_BROWSER_EXTENSIONS_API_TABS_TABS_API_H_
 
+#include "libcef/browser/extensions/extension_function_details.h"
+
 #include "chrome/common/extensions/api/tabs.h"
+#include "extensions/browser/api/execute_code_function.h"
 #include "extensions/browser/extension_function.h"
 
 // The contents of this file are extracted from
@@ -26,17 +29,72 @@ class TabsGetFunction : public UIThreadExtensionFunction {
   DECLARE_EXTENSION_FUNCTION("tabs.get", TABS_GET)
 };
 
+// Implement API call tabs.executeScript and tabs.insertCSS.
+class ExecuteCodeInTabFunction : public ExecuteCodeFunction {
+ public:
+  ExecuteCodeInTabFunction();
+
+ protected:
+  ~ExecuteCodeInTabFunction() override;
+
+  // ExtensionFunction:
+  bool HasPermission() override;
+
+  // Initializes |execute_tab_id_| and |details_|.
+  InitResult Init() override;
+  bool CanExecuteScriptOnPage() override;
+  ScriptExecutor* GetScriptExecutor() override;
+  bool IsWebView() const override;
+  const GURL& GetWebViewSrc() const override;
+  bool LoadFile(const std::string& file) override;
+
+ private:
+  const CefExtensionFunctionDetails cef_details_;
+
+  void LoadFileComplete(const std::string& file,
+                        std::unique_ptr<std::string> data);
+
+  // Id of tab which executes code.
+  int execute_tab_id_;
+};
+
+class TabsExecuteScriptFunction : public ExecuteCodeInTabFunction {
+ protected:
+  bool ShouldInsertCSS() const override;
+
+ private:
+  ~TabsExecuteScriptFunction() override {}
+
+  void OnExecuteCodeFinished(const std::string& error,
+                             const GURL& on_url,
+                             const base::ListValue& script_result) override;
+
+  DECLARE_EXTENSION_FUNCTION("tabs.executeScript", TABS_EXECUTESCRIPT)
+};
+
+class TabsInsertCSSFunction : public ExecuteCodeInTabFunction {
+ private:
+  ~TabsInsertCSSFunction() override {}
+
+  bool ShouldInsertCSS() const override;
+
+  DECLARE_EXTENSION_FUNCTION("tabs.insertCSS", TABS_INSERTCSS)
+};
+
 class ZoomAPIFunction : public AsyncExtensionFunction {
+ public:
+  ZoomAPIFunction();
+
  protected:
   ~ZoomAPIFunction() override {}
 
   // Gets the WebContents for |tab_id| if it is specified. Otherwise get the
   // WebContents for the active tab in the current window. Calling this function
   // may set error_.
-  //
-  // TODO(...) many other tabs API functions use similar behavior. There should
-  // be a way to share this implementation somehow.
   content::WebContents* GetWebContents(int tab_id);
+
+ private:
+  const CefExtensionFunctionDetails cef_details_;
 };
 
 class TabsSetZoomFunction : public ZoomAPIFunction {

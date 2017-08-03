@@ -613,9 +613,15 @@ def make_cpptoc_class_impl(header, clsname, impl):
   # any derived classes can be unwrapped
   unwrapderived = make_cpptoc_unwrap_derived(header, cls, base_scoped)
 
+  const =  '// CONSTRUCTOR - Do not edit by hand.\n\n'+ \
+           clsname+'CppToC::'+clsname+'CppToC() {\n'
+  const += make_cpptoc_virtual_function_assignment(header, cls, prefixname,
+                                                   defined_names)
+  const += '}\n\n'
+
   # determine what includes are required by identifying what translation
   # classes are being used
-  includes = format_translation_includes(header, resultingimpl +
+  includes = format_translation_includes(header, const + resultingimpl +
                                          (unwrapderived[0]
                                           if base_scoped else unwrapderived))
 
@@ -625,12 +631,6 @@ def make_cpptoc_class_impl(header, clsname, impl):
   result += includes + '\n' + resultingimpl + '\n'
 
   parent_sig = template_class + '<' + clsname + 'CppToC, ' + clsname + ', ' + capiname + '>'
-
-  const =  '// CONSTRUCTOR - Do not edit by hand.\n\n'+ \
-           clsname+'CppToC::'+clsname+'CppToC() {\n'
-  const += make_cpptoc_virtual_function_assignment(header, cls, prefixname,
-                                                   defined_names)
-  const += '}\n\n'
 
   if base_scoped:
     const += 'template<> CefOwnPtr<'+clsname+'> '+parent_sig+'::UnwrapDerivedOwn(CefWrapperType type, '+capiname+'* s) {\n' + \

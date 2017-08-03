@@ -1,21 +1,20 @@
-// Copyright (c) 2012 The Chromium Authors. All rights reserved.
-// Use of this source code is governed by a BSD-style license that can be
-// found in the LICENSE file.
+// Copyright 2017 The Chromium Embedded Framework Authors. Portions copyright
+// 2012 The Chromium Authors. All rights reserved. Use of this source code is
+// governed by a BSD-style license that can be found in the LICENSE file.
 
 #include "libcef/browser/extensions/api/tabs/tabs_api.h"
 
-#include "libcef/browser/browser_host_impl.h"
-#include "libcef/browser/browser_info_manager.h"
-#include "libcef/browser/request_context_impl.h"
+#include "libcef/browser/extensions/extension_web_contents_observer.h"
 
 #include "base/strings/string_number_conversions.h"
 #include "chrome/browser/extensions/api/tabs/tabs_constants.h"
-#include "chrome/browser/profiles/profile.h"
-#include "chrome/browser/sessions/session_tab_helper.h"
 #include "components/zoom/zoom_controller.h"
+#include "content/public/browser/render_frame_host.h"
 #include "content/public/common/page_zoom.h"
+#include "extensions/browser/extension_api_frame_id_map.h"
 #include "extensions/browser/extension_zoom_request_client.h"
 #include "extensions/common/error_utils.h"
+#include "extensions/common/manifest_constants.h"
 #include "extensions/common/permissions/permissions_data.h"
 
 namespace extensions {
@@ -24,82 +23,11 @@ namespace cef {
 namespace keys = extensions::tabs_constants;
 namespace tabs = api::tabs;
 
+using api::extension_types::InjectDetails;
+
 namespace {
 
 const char kNotImplementedError[] = "Not implemented";
-
-// Any out parameter (|browser|, |contents|, & |tab_index|) may be NULL and will
-// not be set within the function.
-// Based on ExtensionTabUtil::GetTabById().
-bool GetTabById(int tab_id,
-                content::BrowserContext* browser_context,
-                bool include_incognito,
-                CefRefPtr<CefBrowserHostImpl>* browser,
-                content::WebContents** contents) {
-  if (tab_id == api::tabs::TAB_ID_NONE)
-    return false;
-
-  // As an extra security check make sure we're operating in the same
-  // BrowserContext.
-  Profile* profile = Profile::FromBrowserContext(browser_context);
-  Profile* incognito_profile =
-      include_incognito && profile->HasOffTheRecordProfile()
-          ? profile->GetOffTheRecordProfile()
-          : NULL;
-
-  CefBrowserInfoManager::BrowserInfoList list;
-  CefBrowserInfoManager::GetInstance()->GetBrowserInfoList(list);
-  for (auto browser_info : list) {
-    CefRefPtr<CefBrowserHostImpl> cef_browser = browser_info->browser();
-    if (!cef_browser)
-      continue;
-    CefRefPtr<CefRequestContext> request_context =
-        cef_browser->GetRequestContext();
-    if (!request_context)
-      continue;
-    CefRefPtr<CefRequestContextImpl> request_context_impl =
-        CefRequestContextImpl::GetOrCreateForRequestContext(request_context);
-    if (!request_context_impl)
-      continue;
-    CefBrowserContext* browser_context =
-        request_context_impl->GetBrowserContext();
-    if (!browser_context)
-      continue;
-
-    if (browser_context == profile || browser_context == incognito_profile) {
-      content::WebContents* web_contents = cef_browser->web_contents();
-      if (SessionTabHelper::IdForTab(web_contents) == tab_id) {
-        if (browser)
-          *browser = cef_browser;
-        if (contents)
-          *contents = web_contents;
-        return true;
-      }
-    }
-  }
-  return false;
-}
-
-// |error_message| can optionally be passed in and will be set with an
-// appropriate message if the tab cannot be found by id.
-bool GetTabById(int tab_id,
-                content::BrowserContext* browser_context,
-                bool include_incognito,
-                CefRefPtr<CefBrowserHostImpl>* browser,
-                content::WebContents** contents,
-                std::string* error_message) {
-  if (GetTabById(tab_id, browser_context, include_incognito, browser,
-                 contents)) {
-    return true;
-  }
-
-  if (error_message) {
-    *error_message = ErrorUtils::FormatErrorMessage(keys::kTabNotFoundError,
-                                                    base::IntToString(tab_id));
-  }
-
-  return false;
-}
 
 void ZoomModeToZoomSettings(zoom::ZoomController::ZoomMode zoom_mode,
                             api::tabs::ZoomSettings* zoom_settings) {
@@ -130,18 +58,172 @@ ExtensionFunction::ResponseAction TabsGetFunction::Run() {
   return RespondNow(Error(kNotImplementedError));
 }
 
-content::WebContents* ZoomAPIFunction::GetWebContents(int tab_id) {
-  content::WebContents* web_contents = NULL;
-  if (tab_id != -1) {
-    // We assume this call leaves web_contents unchanged if it is unsuccessful.
-    GetTabById(tab_id, context_, include_incognito(),
-               NULL /* ignore CefBrowserHostImpl* output */, &web_contents,
-               &error_);
-  } else {
-    // Use the sender as the default.
-    web_contents = GetSenderWebContents();
+ExecuteCodeInTabFunction::ExecuteCodeInTabFunction()
+    : cef_details_(this), execute_tab_id_(-1) {}
+
+ExecuteCodeInTabFunction::~ExecuteCodeInTabFunction() {}
+
+bool ExecuteCodeInTabFunction::HasPermission() {
+  if (Init() == SUCCESS &&
+      // TODO(devlin/lazyboy): Consider removing the following check as it isn't
+      // doing anything. The fallback to ExtensionFunction::HasPermission()
+      // below dictates what this function returns.
+      extension_->permissions_data()->HasAPIPermissionForTab(
+          execute_tab_id_, APIPermission::kTab)) {
+    return true;
   }
-  return web_contents;
+  return ExtensionFunction::HasPermission();
+}
+
+ExecuteCodeFunction::InitResult ExecuteCodeInTabFunction::Init() {
+  if (init_result_)
+    return init_result_.value();
+
+  // |tab_id| is optional so it's ok if it's not there.
+  int tab_id = -1;
+  if (args_->GetInteger(0, &tab_id) && tab_id < 0)
+    return set_init_result(VALIDATION_FAILURE);
+
+  // |details| are not optional.
+  base::DictionaryValue* details_value = NULL;
+  if (!args_->GetDictionary(1, &details_value))
+    return set_init_result(VALIDATION_FAILURE);
+  std::unique_ptr<InjectDetails> details(new InjectDetails());
+  if (!InjectDetails::Populate(*details_value, details.get()))
+    return set_init_result(VALIDATION_FAILURE);
+
+  // Find a browser that we can access, or fail with error.
+  std::string error;
+  CefRefPtr<CefBrowserHostImpl> browser =
+      cef_details_.GetBrowserForTabIdFirstTime(tab_id, &error);
+  if (!browser)
+    return set_init_result_error(error);
+
+  execute_tab_id_ = browser->GetIdentifier();
+  details_ = std::move(details);
+  set_host_id(HostID(HostID::EXTENSIONS, extension()->id()));
+  return set_init_result(SUCCESS);
+}
+
+bool ExecuteCodeInTabFunction::CanExecuteScriptOnPage() {
+  CHECK_GE(execute_tab_id_, 0);
+
+  CefRefPtr<CefBrowserHostImpl> browser =
+      cef_details_.GetBrowserForTabIdAgain(execute_tab_id_, &error_);
+  if (!browser)
+    return false;
+
+  int frame_id = details_->frame_id ? *details_->frame_id
+                                    : ExtensionApiFrameIdMap::kTopFrameId;
+  content::RenderFrameHost* rfh =
+      ExtensionApiFrameIdMap::GetRenderFrameHostById(browser->web_contents(),
+                                                     frame_id);
+  if (!rfh) {
+    error_ = ErrorUtils::FormatErrorMessage(keys::kFrameNotFoundError,
+                                            base::IntToString(frame_id),
+                                            base::IntToString(execute_tab_id_));
+    return false;
+  }
+
+  // Content scripts declared in manifest.json can access frames at about:-URLs
+  // if the extension has permission to access the frame's origin, so also allow
+  // programmatic content scripts at about:-URLs for allowed origins.
+  GURL effective_document_url(rfh->GetLastCommittedURL());
+  bool is_about_url = effective_document_url.SchemeIs(url::kAboutScheme);
+  if (is_about_url && details_->match_about_blank &&
+      *details_->match_about_blank) {
+    effective_document_url = GURL(rfh->GetLastCommittedOrigin().Serialize());
+  }
+
+  if (!effective_document_url.is_valid()) {
+    // Unknown URL, e.g. because no load was committed yet. Allow for now, the
+    // renderer will check again and fail the injection if needed.
+    return true;
+  }
+
+  // NOTE: This can give the wrong answer due to race conditions, but it is OK,
+  // we check again in the renderer.
+  if (!extension()->permissions_data()->CanAccessPage(
+          extension(), effective_document_url, execute_tab_id_, &error_)) {
+    if (is_about_url &&
+        extension()->permissions_data()->active_permissions().HasAPIPermission(
+            APIPermission::kTab)) {
+      error_ = ErrorUtils::FormatErrorMessage(
+          manifest_errors::kCannotAccessAboutUrl,
+          rfh->GetLastCommittedURL().spec(),
+          rfh->GetLastCommittedOrigin().Serialize());
+    }
+    return false;
+  }
+
+  return true;
+}
+
+ScriptExecutor* ExecuteCodeInTabFunction::GetScriptExecutor() {
+  CHECK_GE(execute_tab_id_, 0);
+
+  CefRefPtr<CefBrowserHostImpl> browser =
+      cef_details_.GetBrowserForTabIdAgain(execute_tab_id_, &error_);
+  if (!browser)
+    return nullptr;
+
+  return CefExtensionWebContentsObserver::FromWebContents(
+             browser->web_contents())
+      ->script_executor();
+}
+
+bool ExecuteCodeInTabFunction::IsWebView() const {
+  return false;
+}
+
+const GURL& ExecuteCodeInTabFunction::GetWebViewSrc() const {
+  return GURL::EmptyGURL();
+}
+
+bool ExecuteCodeInTabFunction::LoadFile(const std::string& file) {
+  if (cef_details_.LoadFile(
+          file, base::BindOnce(&ExecuteCodeInTabFunction::LoadFileComplete,
+                               this, file))) {
+    return true;
+  }
+
+  // Default handling.
+  return ExecuteCodeFunction::LoadFile(file);
+}
+
+void ExecuteCodeInTabFunction::LoadFileComplete(
+    const std::string& file,
+    std::unique_ptr<std::string> data) {
+  DidLoadAndLocalizeFile(file, !!data.get(), std::move(data));
+}
+
+bool TabsExecuteScriptFunction::ShouldInsertCSS() const {
+  return false;
+}
+
+void TabsExecuteScriptFunction::OnExecuteCodeFinished(
+    const std::string& error,
+    const GURL& on_url,
+    const base::ListValue& result) {
+  if (error.empty())
+    SetResult(result.CreateDeepCopy());
+  ExecuteCodeInTabFunction::OnExecuteCodeFinished(error, on_url, result);
+}
+
+bool TabsInsertCSSFunction::ShouldInsertCSS() const {
+  return true;
+}
+
+ZoomAPIFunction::ZoomAPIFunction() : cef_details_(this) {}
+
+content::WebContents* ZoomAPIFunction::GetWebContents(int tab_id) {
+  // Find a browser that we can access, or set |error_| and return nullptr.
+  CefRefPtr<CefBrowserHostImpl> browser =
+      cef_details_.GetBrowserForTabIdFirstTime(tab_id, &error_);
+  if (!browser)
+    return nullptr;
+
+  return browser->web_contents();
 }
 
 bool TabsSetZoomFunction::RunAsync() {

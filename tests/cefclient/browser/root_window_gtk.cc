@@ -49,9 +49,9 @@ void MaximizeWindow(GtkWindow* window) {
 }  // namespace
 
 RootWindowGtk::RootWindowGtk()
-    : delegate_(NULL),
-      with_controls_(false),
+    : with_controls_(false),
       with_osr_(false),
+      with_extension_(false),
       is_popup_(false),
       initialized_(false),
       window_(NULL),
@@ -75,29 +75,27 @@ RootWindowGtk::~RootWindowGtk() {
 }
 
 void RootWindowGtk::Init(RootWindow::Delegate* delegate,
-                         bool with_controls,
-                         bool with_osr,
-                         const CefRect& bounds,
-                         const CefBrowserSettings& settings,
-                         const std::string& url) {
+                         const RootWindowConfig& config,
+                         const CefBrowserSettings& settings) {
   DCHECK(delegate);
   DCHECK(!initialized_);
 
   delegate_ = delegate;
-  with_controls_ = with_controls;
-  with_osr_ = with_osr;
-  start_rect_ = bounds;
+  with_controls_ = config.with_controls;
+  with_osr_ = config.with_osr;
+  with_extension_ = config.with_extension;
+  start_rect_ = config.bounds;
 
-  CreateBrowserWindow(url);
+  CreateBrowserWindow(config.url);
 
   initialized_ = true;
 
   // Create the native root window on the main thread.
   if (CURRENTLY_ON_MAIN_THREAD()) {
-    CreateRootWindow(settings);
+    CreateRootWindow(settings, config.initially_hidden);
   } else {
-    MAIN_POST_CLOSURE(
-        base::Bind(&RootWindowGtk::CreateRootWindow, this, settings));
+    MAIN_POST_CLOSURE(base::Bind(&RootWindowGtk::CreateRootWindow, this,
+                                 settings, config.initially_hidden));
   }
 }
 
@@ -179,13 +177,7 @@ void RootWindowGtk::SetBounds(int x, int y, size_t width, size_t height) {
   else
     gtk_window_present(window);
 
-  // Retrieve information about the display that contains the window.
-  GdkScreen* screen = gdk_screen_get_default();
-  const gint monitor = gdk_screen_get_monitor_at_window(screen, gdk_window);
-  GdkRectangle rect;
-  gdk_screen_get_monitor_geometry(screen, monitor, &rect);
-
-  gdk_window_move_resize(gdk_window, rect.x, rect.y, rect.width, rect.height);
+  gdk_window_move_resize(gdk_window, x, y, width, height);
 }
 
 void RootWindowGtk::Close(bool force) {
@@ -200,16 +192,18 @@ void RootWindowGtk::Close(bool force) {
 void RootWindowGtk::SetDeviceScaleFactor(float device_scale_factor) {
   REQUIRE_MAIN_THREAD();
 
-  if (browser_window_)
+  if (browser_window_ && with_osr_)
     browser_window_->SetDeviceScaleFactor(device_scale_factor);
 }
 
 float RootWindowGtk::GetDeviceScaleFactor() const {
   REQUIRE_MAIN_THREAD();
 
-  if (browser_window_)
+  if (browser_window_ && with_osr_)
     return browser_window_->GetDeviceScaleFactor();
-  return 1.0f;
+
+  NOTREACHED();
+  return 0.0f;
 }
 
 CefRefPtr<CefBrowser> RootWindowGtk::GetBrowser() const {
@@ -225,6 +219,16 @@ ClientWindowHandle RootWindowGtk::GetWindowHandle() const {
   return window_;
 }
 
+bool RootWindowGtk::WithWindowlessRendering() const {
+  REQUIRE_MAIN_THREAD();
+  return with_osr_;
+}
+
+bool RootWindowGtk::WithExtension() const {
+  REQUIRE_MAIN_THREAD();
+  return with_extension_;
+}
+
 void RootWindowGtk::CreateBrowserWindow(const std::string& startup_url) {
   if (with_osr_) {
     OsrRenderer::Settings settings = {};
@@ -235,7 +239,8 @@ void RootWindowGtk::CreateBrowserWindow(const std::string& startup_url) {
   }
 }
 
-void RootWindowGtk::CreateRootWindow(const CefBrowserSettings& settings) {
+void RootWindowGtk::CreateRootWindow(const CefBrowserSettings& settings,
+                                     bool initially_hidden) {
   REQUIRE_MAIN_THREAD();
   DCHECK(!window_);
 
@@ -358,7 +363,9 @@ void RootWindowGtk::OnBrowserCreated(CefRefPtr<CefBrowser> browser) {
   // For popup browsers create the root window once the browser has been
   // created.
   if (is_popup_)
-    CreateRootWindow(CefBrowserSettings());
+    CreateRootWindow(CefBrowserSettings(), false);
+
+  delegate_->OnBrowserCreated(this, browser);
 }
 
 void RootWindowGtk::OnBrowserWindowDestroyed() {
@@ -409,6 +416,24 @@ void RootWindowGtk::OnSetFullscreen(bool fullscreen) {
   }
 }
 
+void RootWindowGtk::OnAutoResize(const CefSize& new_size) {
+  REQUIRE_MAIN_THREAD();
+
+  if (!window_)
+    return;
+
+  GtkWindow* window = GTK_WINDOW(window_);
+  GdkWindow* gdk_window = gtk_widget_get_window(window_);
+
+  // Make sure the window isn't minimized or maximized.
+  if (IsWindowMaximized(window))
+    gtk_window_unmaximize(window);
+  else
+    gtk_window_present(window);
+
+  gdk_window_resize(gdk_window, new_size.width, new_size.height);
+}
+
 void RootWindowGtk::OnSetLoadingState(bool isLoading,
                                       bool canGoBack,
                                       bool canGoForward) {
@@ -440,6 +465,7 @@ gboolean RootWindowGtk::WindowFocusIn(GtkWidget* widget,
                                       RootWindowGtk* self) {
   if (event->in && self->browser_window_.get()) {
     self->browser_window_->SetFocus(true);
+    self->delegate_->OnRootWindowActivated(self);
     // Return true for a windowed browser so that focus is not passed to GTK.
     return self->with_osr_ ? FALSE : TRUE;
   }

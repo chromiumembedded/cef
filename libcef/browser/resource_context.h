@@ -6,6 +6,7 @@
 #define CEF_LIBCEF_BROWSER_RESOURCE_CONTEXT_H_
 #pragma once
 
+#include "include/cef_request_context.h"
 #include "include/cef_request_context_handler.h"
 
 #include "base/files/file_path.h"

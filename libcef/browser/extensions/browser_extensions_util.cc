@@ -4,6 +4,7 @@
 
 #include "libcef/browser/extensions/browser_extensions_util.h"
 
+#include "libcef/browser/browser_context_impl.h"
 #include "libcef/browser/browser_info_manager.h"
 #include "libcef/browser/thread_util.h"
 #include "libcef/common/extensions/extensions_util.h"
@@ -13,6 +14,7 @@
 #include "content/browser/web_contents/web_contents_impl.h"
 #include "content/public/browser/browser_context.h"
 #include "content/public/browser/browser_plugin_guest_manager.h"
+#include "extensions/browser/extension_registry.h"
 
 namespace extensions {
 
@@ -128,6 +130,47 @@ CefRefPtr<CefBrowserHostImpl> GetOwnerBrowserForHost(
     }
   }
   return browser;
+}
+
+CefRefPtr<CefBrowserHostImpl> GetBrowserForTabId(
+    int tab_id,
+    content::BrowserContext* browser_context) {
+  CEF_REQUIRE_UIT();
+  DCHECK(browser_context);
+  if (tab_id == -1 || !browser_context)
+    return nullptr;
+
+  CefBrowserContextImpl* browser_context_impl =
+      CefBrowserContextImpl::GetForContext(browser_context);
+
+  CefBrowserInfoManager::BrowserInfoList list;
+  CefBrowserInfoManager::GetInstance()->GetBrowserInfoList(list);
+  for (auto browser_info : list) {
+    CefRefPtr<CefBrowserHostImpl> current_browser = browser_info->browser();
+    if (current_browser && current_browser->GetIdentifier() == tab_id) {
+      // Make sure we're operating in the same BrowserContextImpl.
+      if (CefBrowserContextImpl::GetForContext(
+              current_browser->GetBrowserContext()) == browser_context_impl) {
+        return current_browser;
+      } else {
+        LOG(WARNING) << "Browser with tabId " << tab_id
+                     << " cannot be accessed because is uses a different "
+                        "CefRequestContext";
+        break;
+      }
+    }
+  }
+
+  return nullptr;
+}
+
+const Extension* GetExtensionForUrl(content::BrowserContext* browser_context,
+                                    const GURL& url) {
+  ExtensionRegistry* registry = ExtensionRegistry::Get(browser_context);
+  if (!registry)
+    return nullptr;
+  std::string extension_id = url.host();
+  return registry->enabled_extensions().GetByID(extension_id);
 }
 
 }  // namespace extensions

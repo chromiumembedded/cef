@@ -374,12 +374,16 @@ static_library("libcef_static") {
     "libcef/browser/download_item_impl.h",
     "libcef/browser/download_manager_delegate.cc",
     "libcef/browser/download_manager_delegate.h",
+    "libcef/browser/extension_impl.cc",
+    "libcef/browser/extension_impl.h",
     "libcef/browser/extensions/api/tabs/tabs_api.cc",
     "libcef/browser/extensions/api/tabs/tabs_api.h",
     "libcef/browser/extensions/browser_context_keyed_service_factories.cc",
     "libcef/browser/extensions/browser_context_keyed_service_factories.h",
     "libcef/browser/extensions/browser_extensions_util.cc",
     "libcef/browser/extensions/browser_extensions_util.h",
+    "libcef/browser/extensions/browser_platform_delegate_background.cc",
+    "libcef/browser/extensions/browser_platform_delegate_background.h",
     "libcef/browser/extensions/chrome_api_registration.cc",
     "libcef/browser/extensions/chrome_api_registration.h",
     "libcef/browser/extensions/component_extension_resource_manager.cc",
@@ -388,10 +392,18 @@ static_library("libcef_static") {
     "libcef/browser/extensions/extensions_api_client.h",
     "libcef/browser/extensions/extensions_browser_client.cc",
     "libcef/browser/extensions/extensions_browser_client.h",
+    "libcef/browser/extensions/extension_background_host.cc",
+    "libcef/browser/extensions/extension_background_host.h",
+    "libcef/browser/extensions/extension_function_details.cc",
+    "libcef/browser/extensions/extension_function_details.h",
+    "libcef/browser/extensions/extension_host_delegate.cc",
+    "libcef/browser/extensions/extension_host_delegate.h",
     "libcef/browser/extensions/extension_system.cc",
     "libcef/browser/extensions/extension_system.h",
     "libcef/browser/extensions/extension_system_factory.cc",
     "libcef/browser/extensions/extension_system_factory.h",
+    "libcef/browser/extensions/extension_view_host.cc",
+    "libcef/browser/extensions/extension_view_host.h",
     "libcef/browser/extensions/extension_web_contents_observer.cc",
     "libcef/browser/extensions/extension_web_contents_observer.h",
     "libcef/browser/extensions/mime_handler_view_guest_delegate.cc",
@@ -1578,6 +1590,13 @@ if (is_mac) {
     ]
   }
 
+  bundle_data("cefclient_resources_bundle_data_extensions_set_page_color") {
+    sources = gypi_paths2.cefclient_sources_resources_extensions_set_page_color
+    outputs = [
+      "{{bundle_resources_dir}}/extensions/set_page_color/{{source_file_part}}",
+    ]
+  }
+
   bundle_data("cefclient_resources_bundle_data_english") {
     sources = [
       "tests/cefclient/resources/mac/English.lproj/InfoPlist.strings",
@@ -1622,6 +1641,7 @@ if (is_mac) {
               gypi_paths2.cefclient_sources_mac
     deps = [
       ":cefclient_resources_bundle_data",
+      ":cefclient_resources_bundle_data_extensions_set_page_color",
       ":cefclient_resources_bundle_data_english",
       ":cefclient_xibs",
       ":libcef_dll_wrapper",
@@ -1785,6 +1805,11 @@ if (is_mac) {
                 gypi_paths2.cefclient_sources_resources
       outputs = [ "${root_out_dir}/cefclient_files/{{source_file_part}}" ]
     }
+
+    copy("copy_cefclient_files_extensions_set_page_color") {
+      sources = gypi_paths2.cefclient_sources_resources_extensions_set_page_color
+      outputs = [ "${root_out_dir}/cefclient_files/extensions/set_page_color/{{source_file_part}}" ]
+    }
   }
 
   executable("cefclient") {
@@ -1797,7 +1822,8 @@ if (is_mac) {
               gypi_paths2.cefclient_sources_browser +
               gypi_paths2.cefclient_sources_common +
               gypi_paths2.cefclient_sources_renderer +
-              gypi_paths2.cefclient_sources_resources
+              gypi_paths2.cefclient_sources_resources +
+              gypi_paths2.cefclient_sources_resources_extensions_set_page_color
 
     deps = [
       ":libcef",
@@ -1845,6 +1871,7 @@ if (is_mac) {
 
       deps += [
         ":copy_cefclient_files",
+        ":copy_cefclient_files_extensions_set_page_color",
       ]
 
       libs = [

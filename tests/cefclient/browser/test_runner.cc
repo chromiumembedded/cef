@@ -119,11 +119,10 @@ void RunRequestTest(CefRefPtr<CefBrowser> browser) {
 }
 
 void RunNewWindowTest(CefRefPtr<CefBrowser> browser) {
-  MainContext::Get()->GetRootWindowManager()->CreateRootWindow(
-      true,  // Show controls.
-      browser->GetHost()->IsWindowRenderingDisabled(),
-      CefRect(),       // Use default system size.
-      std::string());  // Use default URL.
+  RootWindowConfig config;
+  config.with_controls = true;
+  config.with_osr = browser->GetHost()->IsWindowRenderingDisabled();
+  MainContext::Get()->GetRootWindowManager()->CreateRootWindow(config);
 }
 
 void RunPopupWindowTest(CefRefPtr<CefBrowser> browser) {
@@ -680,8 +679,9 @@ void SetupResourceManager(CefRefPtr<CefResourceManager> resource_manager) {
 // Add provider for bundled resource files.
 #if defined(OS_WIN)
   // Read resources from the binary.
-  resource_manager->AddProvider(CreateBinaryResourceProvider(test_origin), 100,
-                                std::string());
+  resource_manager->AddProvider(
+      CreateBinaryResourceProvider(test_origin, std::string()), 100,
+      std::string());
 #elif defined(OS_POSIX)
   // Read resources from a directory on disk.
   std::string resource_dir;
@@ -693,6 +693,14 @@ void SetupResourceManager(CefRefPtr<CefResourceManager> resource_manager) {
 }
 
 void Alert(CefRefPtr<CefBrowser> browser, const std::string& message) {
+  if (browser->GetHost()->GetExtension()) {
+    // Alerts originating from extension hosts should instead be displayed in
+    // the active browser.
+    browser = MainContext::Get()->GetRootWindowManager()->GetActiveBrowser();
+    if (!browser)
+      return;
+  }
+
   // Escape special characters in the message.
   std::string msg = StringReplace(message, "\\", "\\\\");
   msg = StringReplace(msg, "'", "\\'");

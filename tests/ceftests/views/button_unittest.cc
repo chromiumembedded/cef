@@ -10,6 +10,7 @@
 #include "include/views/cef_menu_button_delegate.h"
 #include "include/wrapper/cef_closure_task.h"
 #include "tests/ceftests/image_util.h"
+#include "tests/ceftests/test_handler.h"
 #include "tests/ceftests/thread_helper.h"
 #include "tests/ceftests/views/test_window_delegate.h"
 #include "tests/gtest/include/gtest/gtest.h"
@@ -98,8 +99,10 @@ class EmptyMenuButtonDelegate : public CefMenuButtonDelegate {
  public:
   EmptyMenuButtonDelegate() {}
 
-  void OnMenuButtonPressed(CefRefPtr<CefMenuButton> menu_button,
-                           const CefPoint& screen_point) override {
+  void OnMenuButtonPressed(
+      CefRefPtr<CefMenuButton> menu_button,
+      const CefPoint& screen_point,
+      CefRefPtr<CefMenuButtonPressedLock> button_pressed_lock) override {
     EXPECT_TRUE(false);  // Not reached.
   }
 
@@ -377,8 +380,10 @@ class TestMenuButtonDelegate : public CefMenuButtonDelegate,
  public:
   TestMenuButtonDelegate() {}
 
-  void OnMenuButtonPressed(CefRefPtr<CefMenuButton> menu_button,
-                           const CefPoint& screen_point) override {
+  void OnMenuButtonPressed(
+      CefRefPtr<CefMenuButton> menu_button,
+      const CefPoint& screen_point,
+      CefRefPtr<CefMenuButtonPressedLock> button_pressed_lock) override {
     window_ = menu_button->GetWindow();
 
     CefRefPtr<CefMenuModel> model = CefMenuModel::CreateMenuModel(this);
@@ -752,3 +757,123 @@ BUTTON_TEST_ASYNC(
 BUTTON_TEST_ASYNC(MenuButtonClickFramelessNoTextNoMarkerNoImageFramelessWindow);
 BUTTON_TEST_ASYNC(
     MenuButtonClickFramelessNoTextWithMarkerNoImageFramelessWindow);
+
+namespace {
+
+class TestMenuButtonCustomPopupDelegate : public CefMenuButtonDelegate,
+                                          public CefWindowDelegate {
+ public:
+  explicit TestMenuButtonCustomPopupDelegate(bool can_activate)
+      : can_activate_(can_activate) {}
+
+  void OnMenuButtonPressed(
+      CefRefPtr<CefMenuButton> menu_button,
+      const CefPoint& screen_point,
+      CefRefPtr<CefMenuButtonPressedLock> button_pressed_lock) override {
+    parent_window_ = menu_button->GetWindow();
+    button_pressed_lock_ = button_pressed_lock;
+
+    popup_window_ = CefWindow::CreateTopLevelWindow(this);
+    popup_window_->SetBounds(CefRect(screen_point.x, screen_point.y, 100, 100));
+
+    CefRefPtr<CefLabelButton> button =
+        CefLabelButton::CreateLabelButton(this, "Button", true);
+    button->SetFocusable(can_activate_);
+    popup_window_->AddChildView(button);
+
+    popup_window_->Show();
+
+    // Wait a bit before trying to click the popup button.
+    CefPostDelayedTask(TID_UI, base::Bind(ClickMenuItem, menu_button),
+                       kClickDelayMS);
+  }
+
+  void OnButtonPressed(CefRefPtr<CefButton> button) override {
+    EXPECT_TRUE(button->GetWindow()->IsSame(popup_window_));
+    popup_window_->Close();
+    popup_window_ = nullptr;
+    button_pressed_lock_ = nullptr;
+  }
+
+  CefRefPtr<CefWindow> GetParentWindow(CefRefPtr<CefWindow> window,
+                                       bool* is_menu,
+                                       bool* can_activate_menu) override {
+    EXPECT_TRUE(parent_window_);
+    *is_menu = true;
+    *can_activate_menu = can_activate_;
+    return parent_window_;
+  }
+
+  bool IsFrameless(CefRefPtr<CefWindow> window) override {
+    return true;
+  }
+
+  void OnFocus(CefRefPtr<CefView> view) override {
+    if (popup_window_ && view->GetWindow()->IsSame(popup_window_)) {
+      EXPECT_TRUE(can_activate_);
+      got_focus_.yes();
+    }
+  }
+
+  void OnWindowDestroyed(CefRefPtr<CefWindow> window) override {
+    if (can_activate_)
+      EXPECT_TRUE(got_focus_);
+    else
+      EXPECT_FALSE(got_focus_);
+
+    // Complete the test by closing the parent window.
+    parent_window_->Close();
+    parent_window_ = nullptr;
+  }
+
+ private:
+  const bool can_activate_;
+
+  CefRefPtr<CefWindow> parent_window_;
+  CefRefPtr<CefWindow> popup_window_;
+  CefRefPtr<CefMenuButtonPressedLock> button_pressed_lock_;
+
+  TrackCallback got_focus_;
+
+  IMPLEMENT_REFCOUNTING(TestMenuButtonCustomPopupDelegate);
+  DISALLOW_COPY_AND_ASSIGN(TestMenuButtonCustomPopupDelegate);
+};
+
+void RunMenuButtonCustomPopupClick(bool can_activate,
+                                   CefRefPtr<CefWindow> window) {
+  CefRefPtr<CefMenuButton> button = CefMenuButton::CreateMenuButton(
+      new TestMenuButtonCustomPopupDelegate(can_activate), "Custom", true,
+      false);
+  button->SetID(kButtonID);
+
+  window->AddChildView(button);
+  window->Layout();
+
+  window->Show();
+
+  // Wait a bit before trying to click the button.
+  CefPostDelayedTask(TID_UI, base::Bind(ClickButton, window, kButtonID),
+                     kClickDelayMS);
+}
+
+void MenuButtonCustomPopupClick(CefRefPtr<CefWaitableEvent> event,
+                                bool can_activate) {
+  TestWindowDelegate::Config config;
+  config.on_window_created =
+      base::Bind(RunMenuButtonCustomPopupClick, can_activate);
+  config.close_window = false;
+  TestWindowDelegate::RunTest(event, config);
+}
+
+void MenuButtonCustomPopupActivateImpl(CefRefPtr<CefWaitableEvent> event) {
+  MenuButtonCustomPopupClick(event, true);
+}
+
+void MenuButtonCustomPopupNoActivateImpl(CefRefPtr<CefWaitableEvent> event) {
+  MenuButtonCustomPopupClick(event, false);
+}
+
+}  // namespace
+
+BUTTON_TEST_ASYNC(MenuButtonCustomPopupActivate);
+BUTTON_TEST_ASYNC(MenuButtonCustomPopupNoActivate);

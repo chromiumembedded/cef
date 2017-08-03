@@ -12,10 +12,19 @@
 
 namespace client {
 
+namespace {
+
+// Images that are loaded early and cached.
+static const char* kDefaultImageCache[] = {"menu_icon", "window_icon"};
+
+}  // namespace
+
 RootWindowViews::RootWindowViews()
-    : delegate_(NULL),
-      with_controls_(false),
+    : with_controls_(false),
+      with_extension_(false),
+      initially_hidden_(false),
       is_popup_(false),
+      position_on_resize_(false),
       initialized_(false),
       window_destroyed_(false),
       browser_destroyed_(false) {}
@@ -25,23 +34,31 @@ RootWindowViews::~RootWindowViews() {
 }
 
 void RootWindowViews::Init(RootWindow::Delegate* delegate,
-                           bool with_controls,
-                           bool with_osr,
-                           const CefRect& bounds,
-                           const CefBrowserSettings& settings,
-                           const std::string& url) {
+                           const RootWindowConfig& config,
+                           const CefBrowserSettings& settings) {
   DCHECK(delegate);
-  DCHECK(!with_osr);  // Windowless rendering is not supported.
+  DCHECK(!config.with_osr);  // Windowless rendering is not supported.
   DCHECK(!initialized_);
 
   delegate_ = delegate;
-  with_controls_ = with_controls;
-  initial_bounds_ = bounds;
-  CreateClientHandler(url);
+  with_controls_ = config.with_controls;
+  with_extension_ = config.with_extension;
+  initially_hidden_ = config.initially_hidden;
+  if (initially_hidden_ && !config.source_bounds.IsEmpty()) {
+    // The window will be sized and positioned in OnAutoResize().
+    initial_bounds_ = config.source_bounds;
+    position_on_resize_ = true;
+  } else {
+    initial_bounds_ = config.bounds;
+  }
+  parent_window_ = config.parent_window;
+  close_callback_ = config.close_callback;
+
+  CreateClientHandler(config.url);
   initialized_ = true;
 
   // Continue initialization on the main thread.
-  InitOnMainThread(settings, url);
+  InitOnMainThread(settings, config.url);
 }
 
 void RootWindowViews::InitAsPopup(RootWindow::Delegate* delegate,
@@ -167,9 +184,45 @@ ClientWindowHandle RootWindowViews::GetWindowHandle() const {
 #endif
 }
 
+bool RootWindowViews::WithExtension() const {
+  REQUIRE_MAIN_THREAD();
+  return with_extension_;
+}
+
 bool RootWindowViews::WithControls() {
   CEF_REQUIRE_UI_THREAD();
   return with_controls_;
+}
+
+bool RootWindowViews::WithExtension() {
+  REQUIRE_MAIN_THREAD();
+  return with_extension_;
+}
+
+void RootWindowViews::OnExtensionsChanged(const ExtensionSet& extensions) {
+  if (!CefCurrentlyOn(TID_UI)) {
+    // Execute this method on the UI thread.
+    CefPostTask(TID_UI, base::Bind(&RootWindowViews::OnExtensionsChanged, this,
+                                   extensions));
+    return;
+  }
+
+  if (window_) {
+    window_->OnExtensionsChanged(extensions);
+  } else {
+    // Window may not exist yet for popups.
+    pending_extensions_ = extensions;
+  }
+}
+
+bool RootWindowViews::InitiallyHidden() {
+  CEF_REQUIRE_UI_THREAD();
+  return initially_hidden_;
+}
+
+CefRefPtr<CefWindow> RootWindowViews::GetParentWindow() {
+  CEF_REQUIRE_UI_THREAD();
+  return parent_window_;
 }
 
 CefRect RootWindowViews::GetWindowBounds() {
@@ -177,10 +230,20 @@ CefRect RootWindowViews::GetWindowBounds() {
   return initial_bounds_;
 }
 
+scoped_refptr<ImageCache> RootWindowViews::GetImageCache() {
+  CEF_REQUIRE_UI_THREAD();
+  return image_cache_;
+}
+
 void RootWindowViews::OnViewsWindowCreated(CefRefPtr<ViewsWindow> window) {
   CEF_REQUIRE_UI_THREAD();
   DCHECK(!window_);
   window_ = window;
+
+  if (!pending_extensions_.empty()) {
+    window_->OnExtensionsChanged(pending_extensions_);
+    pending_extensions_.clear();
+  }
 }
 
 void RootWindowViews::OnViewsWindowDestroyed(CefRefPtr<ViewsWindow> window) {
@@ -192,6 +255,14 @@ void RootWindowViews::OnViewsWindowDestroyed(CefRefPtr<ViewsWindow> window) {
       base::Bind(&RootWindowViews::NotifyViewsWindowDestroyed, this));
 }
 
+void RootWindowViews::OnViewsWindowActivated(CefRefPtr<ViewsWindow> window) {
+  CEF_REQUIRE_UI_THREAD();
+
+  // Continue on the main thread.
+  MAIN_POST_CLOSURE(
+      base::Bind(&RootWindowViews::NotifyViewsWindowActivated, this));
+}
+
 ViewsWindow::Delegate* RootWindowViews::GetDelegateForPopup(
     CefRefPtr<CefClient> client) {
   CEF_REQUIRE_UI_THREAD();
@@ -199,7 +270,28 @@ ViewsWindow::Delegate* RootWindowViews::GetDelegateForPopup(
   ClientHandlerStd* handler = static_cast<ClientHandlerStd*>(client.get());
   RootWindowViews* root_window =
       static_cast<RootWindowViews*>(handler->delegate());
+
+  // Transfer some state to the child RootWindowViews.
+  root_window->image_cache_ = image_cache_;
+
   return root_window;
+}
+
+void RootWindowViews::CreateExtensionWindow(
+    CefRefPtr<CefExtension> extension,
+    const CefRect& source_bounds,
+    CefRefPtr<CefWindow> parent_window,
+    const base::Closure& close_callback) {
+  if (!CURRENTLY_ON_MAIN_THREAD()) {
+    // Execute this method on the main thread.
+    MAIN_POST_CLOSURE(base::Bind(&RootWindowViews::CreateExtensionWindow, this,
+                                 extension, source_bounds, parent_window,
+                                 close_callback));
+    return;
+  }
+
+  delegate_->CreateExtensionWindow(extension, source_bounds, parent_window,
+                                   close_callback, false);
 }
 
 void RootWindowViews::OnTest(int test_id) {
@@ -226,6 +318,7 @@ void RootWindowViews::OnBrowserCreated(CefRefPtr<CefBrowser> browser) {
   REQUIRE_MAIN_THREAD();
   DCHECK(!browser_);
   browser_ = browser;
+  delegate_->OnBrowserCreated(this, browser);
 }
 
 void RootWindowViews::OnBrowserClosing(CefRefPtr<CefBrowser> browser) {
@@ -293,6 +386,33 @@ void RootWindowViews::OnSetFullscreen(bool fullscreen) {
     window_->SetFullscreen(fullscreen);
 }
 
+void RootWindowViews::OnAutoResize(const CefSize& new_size) {
+  if (!CefCurrentlyOn(TID_UI)) {
+    // Execute this method on the UI thread.
+    CefPostTask(TID_UI,
+                base::Bind(&RootWindowViews::OnAutoResize, this, new_size));
+    return;
+  }
+
+  bool has_position = false;
+  CefPoint position;
+  if (position_on_resize_) {
+    // Position the window centered on and immediately below the source.
+    const int x_offset = (initial_bounds_.width - new_size.width) / 2;
+    position.Set(initial_bounds_.x + x_offset,
+                 initial_bounds_.y + initial_bounds_.height);
+    has_position = true;
+
+    // Don't change the window position on future resizes.
+    position_on_resize_ = false;
+  }
+
+  if (window_) {
+    window_->SetBrowserSize(new_size, has_position, position);
+    window_->Show();
+  }
+}
+
 void RootWindowViews::OnSetLoadingState(bool isLoading,
                                         bool canGoBack,
                                         bool canGoForward) {
@@ -309,7 +429,8 @@ void RootWindowViews::OnSetLoadingState(bool isLoading,
 
     if (isLoading) {
       // Reset to the default window icon when loading begins.
-      window_->SetFavicon(delegate_->GetDefaultWindowIcon());
+      window_->SetFavicon(
+          delegate_->GetImageCache()->GetCachedImage("window_icon"));
     }
   }
 }
@@ -360,21 +481,33 @@ void RootWindowViews::InitOnMainThread(const CefBrowserSettings& settings,
     return;
   }
 
-  CreateViewsWindow(settings, startup_url, delegate_->GetRequestContext(this));
+  image_cache_ = delegate_->GetImageCache();
+
+  // Populate the default image cache.
+  ImageCache::ImageInfoSet image_set;
+  for (size_t i = 0U; i < arraysize(kDefaultImageCache); ++i)
+    image_set.push_back(ImageCache::ImageInfo::Create2x(kDefaultImageCache[i]));
+
+  image_cache_->LoadImages(
+      image_set, base::Bind(&RootWindowViews::CreateViewsWindow, this, settings,
+                            startup_url, delegate_->GetRequestContext(this)));
 }
 
 void RootWindowViews::CreateViewsWindow(
     const CefBrowserSettings& settings,
     const std::string& startup_url,
-    CefRefPtr<CefRequestContext> request_context) {
-  if (!CefCurrentlyOn(TID_UI)) {
-    // Execute this method on the UI thread.
-    CefPostTask(TID_UI, base::Bind(&RootWindowViews::CreateViewsWindow, this,
-                                   settings, startup_url, request_context));
-    return;
-  }
-
+    CefRefPtr<CefRequestContext> request_context,
+    const ImageCache::ImageSet& images) {
+  CEF_REQUIRE_UI_THREAD();
   DCHECK(!window_);
+
+#ifndef NDEBUG
+  // Make sure the default images loaded successfully.
+  DCHECK_EQ(images.size(), arraysize(kDefaultImageCache));
+  for (size_t i = 0U; i < arraysize(kDefaultImageCache); ++i) {
+    DCHECK(images[i]) << "Default image " << i << " failed to load";
+  }
+#endif
 
   // Create the ViewsWindow. It will show itself after creation.
   ViewsWindow::Create(this, client_handler_, startup_url, settings,
@@ -387,10 +520,18 @@ void RootWindowViews::NotifyViewsWindowDestroyed() {
   NotifyDestroyedIfDone();
 }
 
+void RootWindowViews::NotifyViewsWindowActivated() {
+  REQUIRE_MAIN_THREAD();
+  delegate_->OnRootWindowActivated(this);
+}
+
 void RootWindowViews::NotifyDestroyedIfDone() {
   // Notify once both the window and the browser have been destroyed.
-  if (window_destroyed_ && browser_destroyed_)
+  if (window_destroyed_ && browser_destroyed_) {
     delegate_->OnRootWindowDestroyed(this);
+    if (!close_callback_.is_null())
+      close_callback_.Run();
+  }
 }
 
 }  // namespace client

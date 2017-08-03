@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=c2256192e44464a7c89f2e43619a92049d1c080c$
+// $hash=8c1a14a8634516a37f562c6b295c30fe3f30c179$
 //
 
 #include "libcef_dll/ctocpp/views/window_delegate_ctocpp.h"
@@ -48,6 +48,50 @@ void CefWindowDelegateCToCpp::OnWindowDestroyed(CefRefPtr<CefWindow> window) {
 
   // Execute
   _struct->on_window_destroyed(_struct, CefWindowCppToC::Wrap(window));
+}
+
+CefRefPtr<CefWindow> CefWindowDelegateCToCpp::GetParentWindow(
+    CefRefPtr<CefWindow> window,
+    bool* is_menu,
+    bool* can_activate_menu) {
+  cef_window_delegate_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_parent_window))
+    return NULL;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: window; type: refptr_diff
+  DCHECK(window.get());
+  if (!window.get())
+    return NULL;
+  // Verify param: is_menu; type: bool_byaddr
+  DCHECK(is_menu);
+  if (!is_menu)
+    return NULL;
+  // Verify param: can_activate_menu; type: bool_byaddr
+  DCHECK(can_activate_menu);
+  if (!can_activate_menu)
+    return NULL;
+
+  // Translate param: is_menu; type: bool_byaddr
+  int is_menuInt = is_menu ? *is_menu : 0;
+  // Translate param: can_activate_menu; type: bool_byaddr
+  int can_activate_menuInt = can_activate_menu ? *can_activate_menu : 0;
+
+  // Execute
+  cef_window_t* _retval =
+      _struct->get_parent_window(_struct, CefWindowCppToC::Wrap(window),
+                                 &is_menuInt, &can_activate_menuInt);
+
+  // Restore param:is_menu; type: bool_byaddr
+  if (is_menu)
+    *is_menu = is_menuInt ? true : false;
+  // Restore param:can_activate_menu; type: bool_byaddr
+  if (can_activate_menu)
+    *can_activate_menu = can_activate_menuInt ? true : false;
+
+  // Return type: refptr_diff
+  return CefWindowCppToC::Unwrap(_retval);
 }
 
 bool CefWindowDelegateCToCpp::IsFrameless(CefRefPtr<CefWindow> window) {

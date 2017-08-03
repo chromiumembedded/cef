@@ -11,6 +11,7 @@
 
 namespace extensions {
 
+class ExtensionHostQueue;
 class ExtensionsAPIClient;
 
 // An ExtensionsBrowserClient that supports a single content::BrowserContent
@@ -19,6 +20,9 @@ class CefExtensionsBrowserClient : public ExtensionsBrowserClient {
  public:
   CefExtensionsBrowserClient();
   ~CefExtensionsBrowserClient() override;
+
+  // Returns the singleton CefExtensionsBrowserClient instance.
+  static CefExtensionsBrowserClient* Get();
 
   // ExtensionsBrowserClient overrides:
   bool IsShuttingDown() override;
@@ -31,6 +35,8 @@ class CefExtensionsBrowserClient : public ExtensionsBrowserClient {
   content::BrowserContext* GetOffTheRecordContext(
       content::BrowserContext* context) override;
   content::BrowserContext* GetOriginalContext(
+      content::BrowserContext* context) override;
+  content::BrowserContext* GetCefImplContext(
       content::BrowserContext* context) override;
   bool IsGuestSession(content::BrowserContext* context) const override;
   bool IsExtensionIncognitoEnabled(
@@ -56,6 +62,10 @@ class CefExtensionsBrowserClient : public ExtensionsBrowserClient {
       std::vector<ExtensionPrefsObserver*>* observers) const override;
   ProcessManagerDelegate* GetProcessManagerDelegate() const override;
   std::unique_ptr<ExtensionHostDelegate> CreateExtensionHostDelegate() override;
+  bool CreateBackgroundExtensionHost(const Extension* extension,
+                                     content::BrowserContext* browser_context,
+                                     const GURL& url,
+                                     ExtensionHost** host) override;
   bool DidVersionUpdate(content::BrowserContext* context) override;
   void PermitExternalProtocolHandler() override;
   bool IsRunningInForcedAppMode() override;
@@ -82,8 +92,7 @@ class CefExtensionsBrowserClient : public ExtensionsBrowserClient {
   KioskDelegate* GetKioskDelegate() override;
   bool IsLockScreenContext(content::BrowserContext* context) override;
 
-  // Sets the API client.
-  void SetAPIClientForTest(ExtensionsAPIClient* api_client);
+  ExtensionHostQueue* GetExtensionHostQueue();
 
  private:
   // Support for extension APIs.
@@ -91,6 +100,9 @@ class CefExtensionsBrowserClient : public ExtensionsBrowserClient {
 
   // Resource manager used to supply resources from pak files.
   std::unique_ptr<ComponentExtensionResourceManager> resource_manager_;
+
+  // Used to create deferred RenderViews for extensions.
+  std::unique_ptr<ExtensionHostQueue> extension_host_queue_;
 
   DISALLOW_COPY_AND_ASSIGN(CefExtensionsBrowserClient);
 };

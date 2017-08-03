@@ -49,8 +49,25 @@ CEF_BUTTON_IMPL_T class CefButtonImpl : public CEF_VIEW_IMPL_D {
 
 CEF_BUTTON_IMPL_T void CEF_BUTTON_IMPL_D::SetState(cef_button_state_t state) {
   CEF_REQUIRE_VALID_RETURN_VOID();
-  ParentClass::root_view()->SetState(
-      static_cast<views::Button::ButtonState>(state));
+  views::Button::ButtonState old_state = ParentClass::root_view()->state();
+  views::Button::ButtonState new_state =
+      static_cast<views::Button::ButtonState>(state);
+
+  if (ParentClass::root_view()->ink_drop_mode() !=
+          views::CustomButton::InkDropMode::OFF &&
+      !ParentClass::root_view()->IsFocusable()) {
+    // Ink drop state does not get set properly on state change when the button
+    // is non-focusable.
+    views::InkDropState ink_state = views::InkDropState::HIDDEN;
+    if (new_state == views::Button::STATE_PRESSED) {
+      ink_state = views::InkDropState::ACTIVATED;
+    } else if (old_state == views::Button::STATE_PRESSED) {
+      ink_state = views::InkDropState::DEACTIVATED;
+    }
+    ParentClass::root_view()->AnimateInkDrop(ink_state, nullptr);
+  }
+
+  ParentClass::root_view()->SetState(new_state);
 }
 
 CEF_BUTTON_IMPL_T cef_button_state_t CEF_BUTTON_IMPL_D::GetState() {

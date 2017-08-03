@@ -14,6 +14,7 @@
 #include "components/user_prefs/user_prefs.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/storage_partition.h"
+#include "extensions/browser/process_manager.h"
 
 CefBrowserContext::CefBrowserContext(bool is_proxy)
     : is_proxy_(is_proxy), extension_system_(NULL) {}
@@ -49,6 +50,11 @@ void CefBrowserContext::Initialize() {
       extension_system_->InitForRegularProfile(true);
     }
     resource_context_->set_extensions_info_map(extension_system_->info_map());
+
+    // Make sure the ProcessManager is created so that it receives extension
+    // load notifications. This is necessary for the proper initialization of
+    // background/event pages.
+    extensions::ProcessManager::Get(this);
   }
 }
 

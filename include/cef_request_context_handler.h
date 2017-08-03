@@ -42,6 +42,8 @@
 #include "include/cef_cookie.h"
 #include "include/cef_web_plugin.h"
 
+class CefRequestContext;
+
 ///
 // Implement this interface to provide handler implementations. The handler
 // instance will not be released until all objects related to the context have
@@ -51,6 +53,14 @@
 class CefRequestContextHandler : public virtual CefBaseRefCounted {
  public:
   typedef cef_plugin_policy_t PluginPolicy;
+
+  ///
+  // Called on the browser process UI thread immediately after the request
+  // context has been initialized.
+  ///
+  /*--cef()--*/
+  virtual void OnRequestContextInitialized(
+      CefRefPtr<CefRequestContext> request_context) {}
 
   ///
   // Called on the browser process IO thread to retrieve the cookie manager. If

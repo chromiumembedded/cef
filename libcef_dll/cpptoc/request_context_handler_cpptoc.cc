@@ -9,16 +9,35 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=9f8701b130114d4d36b9df1045dc65b899f7141c$
+// $hash=fef1959b9f8b96573de134769406f9eed4eeefc5$
 //
 
 #include "libcef_dll/cpptoc/request_context_handler_cpptoc.h"
 #include "libcef_dll/ctocpp/cookie_manager_ctocpp.h"
+#include "libcef_dll/ctocpp/request_context_ctocpp.h"
 #include "libcef_dll/ctocpp/web_plugin_info_ctocpp.h"
 
 namespace {
 
 // MEMBER FUNCTIONS - Body may be edited by hand.
+
+void CEF_CALLBACK request_context_handler_on_request_context_initialized(
+    struct _cef_request_context_handler_t* self,
+    cef_request_context_t* request_context) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return;
+  // Verify param: request_context; type: refptr_diff
+  DCHECK(request_context);
+  if (!request_context)
+    return;
+
+  // Execute
+  CefRequestContextHandlerCppToC::Get(self)->OnRequestContextInitialized(
+      CefRequestContextCToCpp::Wrap(request_context));
+}
 
 cef_cookie_manager_t* CEF_CALLBACK request_context_handler_get_cookie_manager(
     struct _cef_request_context_handler_t* self) {
@@ -78,6 +97,8 @@ int CEF_CALLBACK request_context_handler_on_before_plugin_load(
 // CONSTRUCTOR - Do not edit by hand.
 
 CefRequestContextHandlerCppToC::CefRequestContextHandlerCppToC() {
+  GetStruct()->on_request_context_initialized =
+      request_context_handler_on_request_context_initialized;
   GetStruct()->get_cookie_manager = request_context_handler_get_cookie_manager;
   GetStruct()->on_before_plugin_load =
       request_context_handler_on_before_plugin_load;

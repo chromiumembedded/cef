@@ -9,12 +9,17 @@
 
 #include "libcef/browser/browser_host_impl.h"
 
+#include "url/gurl.h"
+
 namespace content {
+class BrowserContext;
 class RenderViewHost;
 class WebContents;
-}
+}  // namespace content
 
 namespace extensions {
+
+class Extension;
 
 // Returns the full-page guest WebContents for the specified |owner|, if any.
 content::WebContents* GetFullPageGuestForOwnerContents(
@@ -46,6 +51,18 @@ CefRefPtr<CefBrowserHostImpl> GetOwnerBrowserForHost(
 CefRefPtr<CefBrowserHostImpl> GetOwnerBrowserForHost(
     content::RenderFrameHost* host,
     bool* is_guest_view);
+
+// Returns the browser matching |tab_id| and |browser_context|. Returns false if
+// |tab_id| is -1 or a matching browser cannot be found within
+// |browser_context|. Similar in concept to ExtensionTabUtil::GetTabById.
+CefRefPtr<CefBrowserHostImpl> GetBrowserForTabId(
+    int tab_id,
+    content::BrowserContext* browser_context);
+
+// Returns the extension associated with |url| in |profile|. Returns nullptr
+// if the extension does not exist.
+const Extension* GetExtensionForUrl(content::BrowserContext* browser_context,
+                                    const GURL& url);
 
 }  // namespace extensions
 

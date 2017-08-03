@@ -194,7 +194,7 @@ index 3f1c7bf..2658da5 100644
    // a reference.
    corewm::TooltipWin* tooltip_;
 diff --git ui/views/widget/desktop_aura/desktop_window_tree_host_x11.cc ui/views/widget/desktop_aura/desktop_window_tree_host_x11.cc
-index e8a7a79..1c1057f 100644
+index e8a7a79..a5f4d0e 100644
 --- ui/views/widget/desktop_aura/desktop_window_tree_host_x11.cc
 +++ ui/views/widget/desktop_aura/desktop_window_tree_host_x11.cc
 @@ -152,6 +152,7 @@ DesktopWindowTreeHostX11::DesktopWindowTreeHostX11(
@@ -250,7 +250,15 @@ index e8a7a79..1c1057f 100644
    return bounds_in_pixels_.origin();
  }
  
-@@ -1391,9 +1400,15 @@ void DesktopWindowTreeHostX11::InitX11Window(
+@@ -1335,7 +1344,6 @@ void DesktopWindowTreeHostX11::InitX11Window(
+   ::Atom window_type;
+   switch (params.type) {
+     case Widget::InitParams::TYPE_MENU:
+-      swa.override_redirect = True;
+       window_type = gfx::GetAtom("_NET_WM_WINDOW_TYPE_MENU");
+       break;
+     case Widget::InitParams::TYPE_TOOLTIP:
+@@ -1391,9 +1399,15 @@ void DesktopWindowTreeHostX11::InitX11Window(
    attribute_mask |= CWBorderPixel;
    swa.border_pixel = 0;
  
@@ -267,7 +275,7 @@ index e8a7a79..1c1057f 100644
                             bounds_in_pixels_.y(), bounds_in_pixels_.width(),
                             bounds_in_pixels_.height(),
                             0,  // border width
-@@ -1998,6 +2013,10 @@ uint32_t DesktopWindowTreeHostX11::DispatchEvent(
+@@ -1998,6 +2012,10 @@ uint32_t DesktopWindowTreeHostX11::DispatchEvent(
        }
        break;
      }
@@ -373,6 +381,19 @@ index 63fcb9d..7237ae6 100644
      // Specifies the initial bounds of the Widget. Default is empty, which means
      // the NativeWidget may specify a default size. If the parent is specified,
      // |bounds| is in the parent's coordinate system. If the parent is not
+diff --git ui/views/widget/widget_hwnd_utils.cc ui/views/widget/widget_hwnd_utils.cc
+index 163e4b5..58f594db 100644
+--- ui/views/widget/widget_hwnd_utils.cc
++++ ui/views/widget/widget_hwnd_utils.cc
+@@ -73,7 +73,7 @@ void CalculateWindowStylesFromInitParams(
+       if (!widget_delegate->CanResize())
+         *style &= ~(WS_THICKFRAME | WS_MAXIMIZEBOX);
+       if (params.remove_standard_frame)
+-        *style &= ~(WS_MINIMIZEBOX | WS_MAXIMIZEBOX);
++        *style &= ~(WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_CAPTION | WS_SYSMENU);
+ 
+       if (native_widget_delegate->IsDialogBox()) {
+         *style |= DS_MODALFRAME;
 diff --git ui/views/win/hwnd_message_handler.cc ui/views/win/hwnd_message_handler.cc
 index 559f968..f679144 100644
 --- ui/views/win/hwnd_message_handler.cc

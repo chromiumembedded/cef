@@ -5,6 +5,7 @@
 #include "libcef/browser/views/window_view.h"
 
 #include "libcef/browser/image_impl.h"
+#include "libcef/browser/views/window_impl.h"
 
 #include "third_party/skia/include/core/SkRegion.h"
 #include "ui/aura/window.h"
@@ -249,9 +250,29 @@ void CefWindowView::CreateWidget() {
   views::Widget::InitParams params;
   params.delegate = this;
   params.type = views::Widget::InitParams::TYPE_WINDOW;
+  bool can_activate = true;
 
-  if (cef_delegate())
-    is_frameless_ = cef_delegate()->IsFrameless(GetCefWindow());
+  if (cef_delegate()) {
+    CefRefPtr<CefWindow> cef_window = GetCefWindow();
+    is_frameless_ = cef_delegate()->IsFrameless(cef_window);
+
+    bool is_menu = false;
+    bool can_activate_menu = true;
+    CefRefPtr<CefWindow> parent_window = cef_delegate()->GetParentWindow(
+        cef_window, &is_menu, &can_activate_menu);
+    if (parent_window && !parent_window->IsSame(cef_window)) {
+      CefWindowImpl* parent_window_impl =
+          static_cast<CefWindowImpl*>(parent_window.get());
+      params.parent = view_util::GetNativeWindow(parent_window_impl->widget());
+      if (is_menu) {
+        // Don't clip the window to parent bounds.
+        params.type = views::Widget::InitParams::TYPE_MENU;
+        can_activate = can_activate_menu;
+        if (can_activate_menu)
+          params.activatable = views::Widget::InitParams::ACTIVATABLE_YES;
+      }
+    }
+  }
 
 #if defined(OS_WIN)
   if (is_frameless_) {
@@ -267,8 +288,11 @@ void CefWindowView::CreateWidget() {
   DCHECK_EQ(widget, GetWidget());
   // |widget| must be top-level for focus handling to work correctly.
   DCHECK(widget->is_top_level());
-  // |widget| must be activatable for focus handling to work correctly.
-  DCHECK(widget->widget_delegate()->CanActivate());
+
+  if (can_activate) {
+    // |widget| must be activatable for focus handling to work correctly.
+    DCHECK(widget->widget_delegate()->CanActivate());
+  }
 
 #if defined(OS_LINUX)
   if (is_frameless_) {

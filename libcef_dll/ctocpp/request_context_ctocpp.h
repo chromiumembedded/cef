@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=007659e858fb2ce87b3974d8d304d850434bac8b$
+// $hash=4e86aeaf1eea5a2357e094952219ec6dd8f956bb$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_REQUEST_CONTEXT_CTOCPP_H_
@@ -66,6 +66,13 @@ class CefRequestContextCToCpp
   cef_errorcode_t ResolveHostCached(
       const CefString& origin,
       std::vector<CefString>& resolved_ips) OVERRIDE;
+  void LoadExtension(const CefString& root_directory,
+                     CefRefPtr<CefDictionaryValue> manifest,
+                     CefRefPtr<CefExtensionHandler> handler) OVERRIDE;
+  bool DidLoadExtension(const CefString& extension_id) OVERRIDE;
+  bool HasExtension(const CefString& extension_id) OVERRIDE;
+  bool GetExtensions(std::vector<CefString>& extension_ids) OVERRIDE;
+  CefRefPtr<CefExtension> GetExtension(const CefString& extension_id) OVERRIDE;
 };
 
 #endif  // CEF_LIBCEF_DLL_CTOCPP_REQUEST_CONTEXT_CTOCPP_H_

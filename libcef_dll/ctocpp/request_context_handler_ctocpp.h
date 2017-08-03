@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=f51e1ceef8535c2d81dd7a9918da5e3b9861376f$
+// $hash=e2ff660c7baffdce4c00f6ae132a770e13bd9358$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_REQUEST_CONTEXT_HANDLER_CTOCPP_H_
@@ -20,7 +20,9 @@
 #error This file can be included DLL-side only
 #endif
 
+#include "include/capi/cef_request_context_capi.h"
 #include "include/capi/cef_request_context_handler_capi.h"
+#include "include/cef_request_context.h"
 #include "include/cef_request_context_handler.h"
 #include "libcef_dll/ctocpp/ctocpp_ref_counted.h"
 
@@ -34,6 +36,8 @@ class CefRequestContextHandlerCToCpp
   CefRequestContextHandlerCToCpp();
 
   // CefRequestContextHandler methods.
+  void OnRequestContextInitialized(
+      CefRefPtr<CefRequestContext> request_context) override;
   CefRefPtr<CefCookieManager> GetCookieManager() override;
   bool OnBeforePluginLoad(const CefString& mime_type,
                           const CefString& plugin_url,

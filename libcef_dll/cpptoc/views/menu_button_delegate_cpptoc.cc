@@ -9,12 +9,13 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=782642e65456b32ab0fab59db2b9442783b7f574$
+// $hash=ce23c8ba14803b0a15b9b2899632f2c03d6b3a97$
 //
 
 #include "libcef_dll/cpptoc/views/menu_button_delegate_cpptoc.h"
 #include "libcef_dll/ctocpp/views/button_ctocpp.h"
 #include "libcef_dll/ctocpp/views/menu_button_ctocpp.h"
+#include "libcef_dll/ctocpp/views/menu_button_pressed_lock_ctocpp.h"
 #include "libcef_dll/ctocpp/views/view_ctocpp.h"
 
 namespace {
@@ -24,7 +25,8 @@ namespace {
 void CEF_CALLBACK menu_button_delegate_on_menu_button_pressed(
     struct _cef_menu_button_delegate_t* self,
     cef_menu_button_t* menu_button,
-    const cef_point_t* screen_point) {
+    const cef_point_t* screen_point,
+    cef_menu_button_pressed_lock_t* button_pressed_lock) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -38,13 +40,18 @@ void CEF_CALLBACK menu_button_delegate_on_menu_button_pressed(
   DCHECK(screen_point);
   if (!screen_point)
     return;
+  // Verify param: button_pressed_lock; type: refptr_diff
+  DCHECK(button_pressed_lock);
+  if (!button_pressed_lock)
+    return;
 
   // Translate param: screen_point; type: simple_byref_const
   CefPoint screen_pointVal = screen_point ? *screen_point : CefPoint();
 
   // Execute
   CefMenuButtonDelegateCppToC::Get(self)->OnMenuButtonPressed(
-      CefMenuButtonCToCpp::Wrap(menu_button), screen_pointVal);
+      CefMenuButtonCToCpp::Wrap(menu_button), screen_pointVal,
+      CefMenuButtonPressedLockCToCpp::Wrap(button_pressed_lock));
 }
 
 void CEF_CALLBACK

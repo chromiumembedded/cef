@@ -12,11 +12,11 @@
 #include "include/cef_waitable_event.h"
 #include "include/wrapper/cef_closure_task.h"
 #include "include/wrapper/cef_scoped_temp_dir.h"
-#include "tests/ceftests/file_util.h"
 #include "tests/ceftests/test_handler.h"
 #include "tests/ceftests/test_suite.h"
 #include "tests/ceftests/test_util.h"
 #include "tests/gtest/include/gtest/gtest.h"
+#include "tests/shared/browser/file_util.h"
 #include "tests/shared/renderer/client_app_renderer.h"
 
 using client::ClientAppRenderer;
@@ -777,9 +777,10 @@ class RequestTestRunner : public base::RefCountedThreadSafe<RequestTestRunner> {
 
     EXPECT_TRUE(post_file_tmpdir_.CreateUniqueTempDir());
     const std::string& path =
-        file_util::JoinPath(post_file_tmpdir_.GetPath(), "example.txt");
+        client::file_util::JoinPath(post_file_tmpdir_.GetPath(), "example.txt");
     const char content[] = "HELLO FRIEND!";
-    int write_ct = file_util::WriteFile(path, content, sizeof(content) - 1);
+    int write_ct =
+        client::file_util::WriteFile(path, content, sizeof(content) - 1);
     EXPECT_EQ(static_cast<int>(sizeof(content) - 1), write_ct);
     SetUploadFile(settings_.request, path);
 

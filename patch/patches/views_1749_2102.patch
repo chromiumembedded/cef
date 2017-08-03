@@ -102,18 +102,18 @@ index 24ea3d4..4554f12 100644
  };
  
 diff --git ui/views/animation/ink_drop_host_view.h ui/views/animation/ink_drop_host_view.h
-index 8ac475f..d052dec 100644
+index 8ac475f..ec58c2b 100644
 --- ui/views/animation/ink_drop_host_view.h
 +++ ui/views/animation/ink_drop_host_view.h
-@@ -136,6 +136,8 @@ class VIEWS_EXPORT InkDropHostView : public View, public InkDropHost {
-   // of CreateInkDrop() delegates to this function.
-   std::unique_ptr<InkDropImpl> CreateDefaultInkDropImpl();
+@@ -67,6 +67,8 @@ class VIEWS_EXPORT InkDropHostView : public View, public InkDropHost {
+   // them.
+   void AnimateInkDrop(InkDropState state, const ui::LocatedEvent* event);
  
 +  InkDropMode ink_drop_mode() const { return ink_drop_mode_; }
 +
-  private:
-   class InkDropGestureHandler;
-   friend class InkDropGestureHandler;
+  protected:
+   static constexpr int kInkDropSmallCornerRadius = 2;
+   static constexpr int kInkDropLargeCornerRadius = 4;
 diff --git ui/views/controls/button/label_button.cc ui/views/controls/button/label_button.cc
 index 1d9e7b8..671d578 100644
 --- ui/views/controls/button/label_button.cc

@@ -2,13 +2,14 @@
 // 2012 The Chromium Authors. All rights reserved. Use of this source code is
 // governed by a BSD-style license that can be found in the LICENSE file.
 
-#ifndef CEF_TESTS_UNITTESTS_FILE_UTIL_H_
-#define CEF_TESTS_UNITTESTS_FILE_UTIL_H_
+#ifndef CEF_TESTS_SHARED_BROWSER_FILE_UTIL_H_
+#define CEF_TESTS_SHARED_BROWSER_FILE_UTIL_H_
 #pragma once
 
 #include <limits>
 #include <string>
 
+namespace client {
 namespace file_util {
 
 // Platform-specific path separator.
@@ -35,6 +36,10 @@ int WriteFile(const std::string& path, const char* data, int size);
 // separator.
 std::string JoinPath(const std::string& path1, const std::string& path2);
 
-}  // namespace file_util
+// Extracts the file extension from |path|.
+std::string GetFileExtension(const std::string& path);
 
-#endif  // CEF_TESTS_UNITTESTS_FILE_UTIL_H_
+}  // namespace file_util
+}  // namespace client
+
+#endif  // CEF_TESTS_SHARED_BROWSER_FILE_UTIL_H_

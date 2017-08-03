@@ -10,9 +10,9 @@
 #include "include/wrapper/cef_resource_manager.h"
 #include "include/wrapper/cef_scoped_temp_dir.h"
 #include "include/wrapper/cef_stream_resource_handler.h"
-#include "tests/ceftests/file_util.h"
 #include "tests/ceftests/routing_test_handler.h"
 #include "tests/gtest/include/gtest/gtest.h"
+#include "tests/shared/browser/file_util.h"
 
 namespace {
 
@@ -32,7 +32,8 @@ std::string CreateContents(const std::string& message) {
 
 void WriteFile(const std::string& path, const std::string& contents) {
   int contents_size = static_cast<int>(contents.size());
-  int write_ct = file_util::WriteFile(path, contents.data(), contents_size);
+  int write_ct =
+      client::file_util::WriteFile(path, contents.data(), contents_size);
   EXPECT_EQ(contents_size, write_ct);
 }
 
@@ -682,15 +683,15 @@ TEST(ResourceManagerTest, DirectoryProvider) {
 
   // Write the files to disk.
   const std::string& temp_dir = scoped_dir.GetPath();
-  WriteFile(file_util::JoinPath(temp_dir, kFile1),
+  WriteFile(client::file_util::JoinPath(temp_dir, kFile1),
             CreateContents(success1_message));
-  WriteFile(file_util::JoinPath(temp_dir, kFile2),
+  WriteFile(client::file_util::JoinPath(temp_dir, kFile2),
             CreateContents(success2_message));
 
   // Also include a subdirectory.
-  const std::string& sub_dir = file_util::JoinPath(temp_dir, "sub");
+  const std::string& sub_dir = client::file_util::JoinPath(temp_dir, "sub");
   EXPECT_TRUE(CefCreateDirectory(sub_dir));
-  WriteFile(file_util::JoinPath(sub_dir, kFile3),
+  WriteFile(client::file_util::JoinPath(sub_dir, kFile3),
             CreateContents(success3_message));
 
   state.manager_->AddDirectoryProvider(kUrlBase, temp_dir, 0, std::string());
@@ -742,21 +743,21 @@ TEST(ResourceManagerTest, ArchiveProvider) {
   const std::string& temp_dir = scoped_dir.GetPath();
 
   // Write the files to disk.
-  const std::string& file_dir = file_util::JoinPath(temp_dir, "files");
+  const std::string& file_dir = client::file_util::JoinPath(temp_dir, "files");
   EXPECT_TRUE(CefCreateDirectory(file_dir));
-  WriteFile(file_util::JoinPath(file_dir, kFile1),
+  WriteFile(client::file_util::JoinPath(file_dir, kFile1),
             CreateContents(success1_message));
-  WriteFile(file_util::JoinPath(file_dir, kFile2),
+  WriteFile(client::file_util::JoinPath(file_dir, kFile2),
             CreateContents(success2_message));
 
   // Also include a subdirectory.
-  const std::string& sub_dir = file_util::JoinPath(file_dir, "sub");
+  const std::string& sub_dir = client::file_util::JoinPath(file_dir, "sub");
   EXPECT_TRUE(CefCreateDirectory(sub_dir));
-  WriteFile(file_util::JoinPath(sub_dir, kFile3),
+  WriteFile(client::file_util::JoinPath(sub_dir, kFile3),
             CreateContents(success3_message));
 
   const std::string& archive_path =
-      file_util::JoinPath(temp_dir, "archive.zip");
+      client::file_util::JoinPath(temp_dir, "archive.zip");
 
   // Create the archive file.
   EXPECT_TRUE(CefZipDirectory(file_dir, archive_path, false));

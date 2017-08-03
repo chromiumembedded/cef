@@ -118,6 +118,7 @@
   client::BrowserWindow* browser_window = root_window_->browser_window();
   if (browser_window)
     browser_window->SetFocus(true);
+  root_window_->delegate()->OnRootWindowActivated(root_window_);
 }
 
 // Called when we are deactivated (when we lose focus).
@@ -236,8 +237,7 @@ NSRect GetScreenRectForWindow(NSWindow* window) {
 }  // namespace
 
 RootWindowMac::RootWindowMac()
-    : delegate_(NULL),
-      with_controls_(false),
+    : with_controls_(false),
       with_osr_(false),
       is_popup_(false),
       initialized_(false),
@@ -259,29 +259,27 @@ RootWindowMac::~RootWindowMac() {
 }
 
 void RootWindowMac::Init(RootWindow::Delegate* delegate,
-                         bool with_controls,
-                         bool with_osr,
-                         const CefRect& bounds,
-                         const CefBrowserSettings& settings,
-                         const std::string& url) {
+                         const RootWindowConfig& config,
+                         const CefBrowserSettings& settings) {
   DCHECK(delegate);
   DCHECK(!initialized_);
 
   delegate_ = delegate;
-  with_controls_ = with_controls;
-  with_osr_ = with_osr;
-  start_rect_ = bounds;
+  with_controls_ = config.with_controls;
+  with_osr_ = config.with_osr;
+  with_extension_ = config.with_extension;
+  start_rect_ = config.bounds;
 
-  CreateBrowserWindow(url);
+  CreateBrowserWindow(config.url);
 
   initialized_ = true;
 
   // Create the native root window on the main thread.
   if (CURRENTLY_ON_MAIN_THREAD()) {
-    CreateRootWindow(settings);
+    CreateRootWindow(settings, config.initially_hidden);
   } else {
-    MAIN_POST_CLOSURE(
-        base::Bind(&RootWindowMac::CreateRootWindow, this, settings));
+    MAIN_POST_CLOSURE(base::Bind(&RootWindowMac::CreateRootWindow, this,
+                                 settings, config.initially_hidden));
   }
 }
 
@@ -402,16 +400,18 @@ void RootWindowMac::Close(bool force) {
 void RootWindowMac::SetDeviceScaleFactor(float device_scale_factor) {
   REQUIRE_MAIN_THREAD();
 
-  if (browser_window_)
+  if (browser_window_ && with_osr_)
     browser_window_->SetDeviceScaleFactor(device_scale_factor);
 }
 
 float RootWindowMac::GetDeviceScaleFactor() const {
   REQUIRE_MAIN_THREAD();
 
-  if (browser_window_)
+  if (browser_window_ && with_osr_)
     return browser_window_->GetDeviceScaleFactor();
-  return 1.0f;
+
+  NOTREACHED();
+  return 0.0f;
 }
 
 CefRefPtr<CefBrowser> RootWindowMac::GetBrowser() const {
@@ -425,6 +425,16 @@ CefRefPtr<CefBrowser> RootWindowMac::GetBrowser() const {
 ClientWindowHandle RootWindowMac::GetWindowHandle() const {
   REQUIRE_MAIN_THREAD();
   return [window_ contentView];
+}
+
+bool RootWindowMac::WithWindowlessRendering() const {
+  REQUIRE_MAIN_THREAD();
+  return with_osr_;
+}
+
+bool RootWindowMac::WithExtension() const {
+  REQUIRE_MAIN_THREAD();
+  return with_extension_;
 }
 
 void RootWindowMac::WindowDestroyed() {
@@ -443,7 +453,8 @@ void RootWindowMac::CreateBrowserWindow(const std::string& startup_url) {
   }
 }
 
-void RootWindowMac::CreateRootWindow(const CefBrowserSettings& settings) {
+void RootWindowMac::CreateRootWindow(const CefBrowserSettings& settings,
+                                     bool initially_hidden) {
   REQUIRE_MAIN_THREAD();
   DCHECK(!window_);
 
@@ -566,11 +577,13 @@ void RootWindowMac::CreateRootWindow(const CefBrowserSettings& settings) {
                                contentBounds.size.height);
   }
 
-  // Show the window.
-  Show(ShowNormal);
+  if (!initially_hidden) {
+    // Show the window.
+    Show(ShowNormal);
 
-  // Size the window.
-  SetBounds(x, y, width, height);
+    // Size the window.
+    SetBounds(x, y, width, height);
+  }
 }
 
 void RootWindowMac::OnBrowserCreated(CefRefPtr<CefBrowser> browser) {
@@ -579,7 +592,9 @@ void RootWindowMac::OnBrowserCreated(CefRefPtr<CefBrowser> browser) {
   // For popup browsers create the root window once the browser has been
   // created.
   if (is_popup_)
-    CreateRootWindow(CefBrowserSettings());
+    CreateRootWindow(CefBrowserSettings(), false);
+
+  delegate_->OnBrowserCreated(this, browser);
 }
 
 void RootWindowMac::OnBrowserWindowDestroyed() {
@@ -636,6 +651,29 @@ void RootWindowMac::OnSetFullscreen(bool fullscreen) {
     else
       test_runner->Restore(browser);
   }
+}
+
+void RootWindowMac::OnAutoResize(const CefSize& new_size) {
+  REQUIRE_MAIN_THREAD();
+
+  if (!window_)
+    return;
+
+  // Desired content rectangle.
+  NSRect content_rect;
+  content_rect.size.width = static_cast<int>(new_size.width);
+  content_rect.size.height =
+      static_cast<int>(new_size.height) + (with_controls_ ? URLBAR_HEIGHT : 0);
+
+  // Convert to a frame rectangle.
+  NSRect frame_rect = [window_ frameRectForContentRect:content_rect];
+  // Don't change the origin.
+  frame_rect.origin = window_.frame.origin;
+
+  [window_ setFrame:frame_rect display:YES];
+
+  // Make sure the window is visible.
+  Show(ShowNormal);
 }
 
 void RootWindowMac::OnSetLoadingState(bool isLoading,

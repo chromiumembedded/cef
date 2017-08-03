@@ -115,7 +115,8 @@ class CefBrowser : public virtual CefBaseRefCounted {
   virtual void StopLoad() = 0;
 
   ///
-  // Returns the globally unique identifier for this browser.
+  // Returns the globally unique identifier for this browser. This value is also
+  // used as the tabId for extension APIs.
   ///
   /*--cef()--*/
   virtual int GetIdentifier() = 0;
@@ -832,6 +833,31 @@ class CefBrowserHost : public virtual CefBaseRefCounted {
   ///
   /*--cef()--*/
   virtual void SetAccessibilityState(cef_state_t accessibility_state) = 0;
+
+  ///
+  // Enable notifications of auto resize via CefDisplayHandler::OnAutoResize.
+  // Notifications are disabled by default. |min_size| and |max_size| define the
+  // range of allowed sizes.
+  ///
+  /*--cef()--*/
+  virtual void SetAutoResizeEnabled(bool enabled,
+                                    const CefSize& min_size,
+                                    const CefSize& max_size) = 0;
+
+  ///
+  // Returns the extension hosted in this browser or NULL if no extension is
+  // hosted. See CefRequestContext::LoadExtension for details.
+  ///
+  /*--cef()--*/
+  virtual CefRefPtr<CefExtension> GetExtension() = 0;
+
+  ///
+  // Returns true if this browser is hosting an extension background script.
+  // Background hosts do not have a window and are not displayable. See
+  // CefRequestContext::LoadExtension for details.
+  ///
+  /*--cef()--*/
+  virtual bool IsBackgroundHost() = 0;
 };
 
 #endif  // CEF_INCLUDE_CEF_BROWSER_H_

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=3326b8685ef95a87e31c06ed4b2b7c1072e8dda2$
+// $hash=1948d2651fc5f7fd6aab7878da869b5d231b9cde$
 //
 
 #include "libcef_dll/ctocpp/display_handler_ctocpp.h"
@@ -175,6 +175,27 @@ bool CefDisplayHandlerCToCpp::OnConsoleMessage(CefRefPtr<CefBrowser> browser,
   int _retval = _struct->on_console_message(
       _struct, CefBrowserCppToC::Wrap(browser), message.GetStruct(),
       source.GetStruct(), line);
+
+  // Return type: bool
+  return _retval ? true : false;
+}
+
+bool CefDisplayHandlerCToCpp::OnAutoResize(CefRefPtr<CefBrowser> browser,
+                                           const CefSize& new_size) {
+  cef_display_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, on_auto_resize))
+    return false;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: browser; type: refptr_diff
+  DCHECK(browser.get());
+  if (!browser.get())
+    return false;
+
+  // Execute
+  int _retval = _struct->on_auto_resize(
+      _struct, CefBrowserCppToC::Wrap(browser), &new_size);
 
   // Return type: bool
   return _retval ? true : false;

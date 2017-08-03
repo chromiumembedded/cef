@@ -7,7 +7,9 @@
 
 #include <string>
 
+#include "libcef/browser/extension_impl.h"
 #include "libcef/browser/extensions/pdf_extension_util.h"
+#include "libcef/browser/thread_util.h"
 #include "libcef/common/extensions/extensions_util.h"
 
 #include "base/command_line.h"
@@ -17,6 +19,7 @@
 #include "base/path_service.h"
 #include "base/strings/string_tokenizer.h"
 #include "base/strings/utf_string_conversions.h"
+#include "base/task_scheduler/post_task.h"
 #include "base/threading/thread_restrictions.h"
 #include "chrome/common/chrome_paths.h"
 #include "components/crx_file/id_util.h"
@@ -53,18 +56,9 @@ namespace extensions {
 
 namespace {
 
-std::string GenerateId(const base::DictionaryValue* manifest,
-                       const base::FilePath& path) {
-  std::string raw_key;
-  std::string id_input;
-  CHECK(manifest->GetString(manifest_keys::kPublicKey, &raw_key));
-  CHECK(Extension::ParsePEMKeyBytes(raw_key, &id_input));
-  std::string id = crx_file::id_util::GenerateId(id_input);
-  return id;
-}
-
 // Implementation based on ComponentLoader::ParseManifest.
-base::DictionaryValue* ParseManifest(const std::string& manifest_contents) {
+std::unique_ptr<base::DictionaryValue> ParseManifest(
+    const std::string& manifest_contents) {
   JSONStringValueDeserializer deserializer(manifest_contents);
   std::unique_ptr<base::Value> manifest(deserializer.Deserialize(NULL, NULL));
 
@@ -73,7 +67,81 @@ base::DictionaryValue* ParseManifest(const std::string& manifest_contents) {
     return NULL;
   }
   // Transfer ownership to the caller.
-  return static_cast<base::DictionaryValue*>(manifest.release());
+  return base::WrapUnique(
+      static_cast<base::DictionaryValue*>(manifest.release()));
+}
+
+void ExecuteLoadFailure(CefRefPtr<CefExtensionHandler> handler,
+                        cef_errorcode_t result) {
+  if (!handler)
+    return;
+
+  if (!CEF_CURRENTLY_ON_UIT()) {
+    CEF_POST_TASK(CEF_UIT, base::BindOnce(ExecuteLoadFailure, handler, result));
+    return;
+  }
+
+  handler->OnExtensionLoadFailed(result);
+}
+
+void LoadExtensionOnUIThread(base::WeakPtr<CefExtensionSystem> context,
+                             std::unique_ptr<base::DictionaryValue> manifest,
+                             const base::FilePath& root_directory,
+                             bool internal,
+                             CefRefPtr<CefRequestContext> loader_context,
+                             CefRefPtr<CefExtensionHandler> handler) {
+  if (!CEF_CURRENTLY_ON_UIT()) {
+    CEF_POST_TASK(CEF_UIT, base::BindOnce(LoadExtensionOnUIThread, context,
+                                          base::Passed(std::move(manifest)),
+                                          root_directory, internal,
+                                          loader_context, handler));
+    return;
+  }
+
+  if (context) {
+    context->LoadExtension(std::move(manifest), root_directory, internal,
+                           loader_context, handler);
+  }
+}
+
+void LoadExtensionWithManifest(base::WeakPtr<CefExtensionSystem> context,
+                               const std::string& manifest_contents,
+                               const base::FilePath& root_directory,
+                               bool internal,
+                               CefRefPtr<CefRequestContext> loader_context,
+                               CefRefPtr<CefExtensionHandler> handler) {
+  base::ThreadRestrictions::AssertIOAllowed();
+
+  std::unique_ptr<base::DictionaryValue> manifest =
+      ParseManifest(manifest_contents);
+  if (!manifest) {
+    LOG(WARNING) << "Failed to parse extension manifest";
+    ExecuteLoadFailure(handler, ERR_INVALID_ARGUMENT);
+    return;
+  }
+
+  LoadExtensionOnUIThread(context, std::move(manifest), root_directory,
+                          internal, loader_context, handler);
+}
+
+void LoadExtensionFromDisk(base::WeakPtr<CefExtensionSystem> context,
+                           const base::FilePath& root_directory,
+                           bool internal,
+                           CefRefPtr<CefRequestContext> loader_context,
+                           CefRefPtr<CefExtensionHandler> handler) {
+  base::ThreadRestrictions::AssertIOAllowed();
+
+  base::FilePath manifest_path = root_directory.AppendASCII("manifest.json");
+  std::string manifest_contents;
+  if (!base::ReadFileToString(manifest_path, &manifest_contents)) {
+    LOG(WARNING) << "Failed to read extension manifest from "
+                 << manifest_path.MaybeAsASCII();
+    ExecuteLoadFailure(handler, ERR_FILE_NOT_FOUND);
+    return;
+  }
+
+  LoadExtensionWithManifest(context, manifest_contents, root_directory,
+                            internal, loader_context, handler);
 }
 
 }  // namespace
@@ -110,7 +178,7 @@ void CefExtensionSystem::Init() {
       content::Source<BrowserContext>(browser_context_),
       content::NotificationService::NoDetails());
 
-  // Add the built-in PDF extension. PDF loading works as follows:
+  // Add the internal PDF extension. PDF loading works as follows:
   // 1. PDF PPAPI plugin is registered to handle kPDFPluginOutOfProcessMimeType
   //    in libcef/common/content_client.cc ComputeBuiltInPlugins.
   // 2. PDF extension is registered and associated with the "application/pdf"
@@ -153,40 +221,139 @@ void CefExtensionSystem::Init() {
   //    CefExtensionWebContentsObserver::RenderViewCreated in the browser
   //    process.
   if (PdfExtensionEnabled()) {
-    AddExtension(pdf_extension_util::GetManifest(),
-                 base::FilePath(FILE_PATH_LITERAL("pdf")));
+    LoadExtension(pdf_extension_util::GetManifest(),
+                  base::FilePath(FILE_PATH_LITERAL("pdf")), true /* internal */,
+                  nullptr, nullptr);
   }
 
   initialized_ = true;
 }
 
-// Implementation based on ComponentLoader::Add.
-const Extension* CefExtensionSystem::AddExtension(
+void CefExtensionSystem::LoadExtension(
+    const base::FilePath& root_directory,
+    bool internal,
+    CefRefPtr<CefRequestContext> loader_context,
+    CefRefPtr<CefExtensionHandler> handler) {
+  CEF_REQUIRE_UIT();
+  base::PostTaskWithTraits(
+      FROM_HERE, {base::TaskPriority::USER_VISIBLE, base::MayBlock()},
+      base::BindOnce(LoadExtensionFromDisk, weak_ptr_factory_.GetWeakPtr(),
+                     root_directory, internal, loader_context, handler));
+}
+
+void CefExtensionSystem::LoadExtension(
     const std::string& manifest_contents,
-    const base::FilePath& root_directory) {
-  base::DictionaryValue* manifest = ParseManifest(manifest_contents);
-  if (!manifest)
-    return NULL;
+    const base::FilePath& root_directory,
+    bool internal,
+    CefRefPtr<CefRequestContext> loader_context,
+    CefRefPtr<CefExtensionHandler> handler) {
+  CEF_REQUIRE_UIT();
+  base::PostTaskWithTraits(
+      FROM_HERE, {base::TaskPriority::USER_VISIBLE, base::MayBlock()},
+      base::BindOnce(LoadExtensionWithManifest, weak_ptr_factory_.GetWeakPtr(),
+                     manifest_contents, root_directory, internal,
+                     loader_context, handler));
+}
 
-  ComponentExtensionInfo info(manifest, root_directory);
-  const Extension* extension = LoadExtension(info);
-  delete manifest;
+// Implementation based on ComponentLoader::Add.
+void CefExtensionSystem::LoadExtension(
+    std::unique_ptr<base::DictionaryValue> manifest,
+    const base::FilePath& root_directory,
+    bool internal,
+    CefRefPtr<CefRequestContext> loader_context,
+    CefRefPtr<CefExtensionHandler> handler) {
+  CEF_REQUIRE_UIT();
 
-  return extension;
+// Internal extensions don't have a loader context. External extensions should.
+#if DCHECK_IS_ON()
+  if (internal) {
+    DCHECK(!loader_context);
+  } else {
+    DCHECK(loader_context);
+  }
+#endif
+
+  ComponentExtensionInfo info(manifest.get(), root_directory, internal);
+  const Extension* extension = LoadExtension(info, loader_context, handler);
+  if (!extension)
+    ExecuteLoadFailure(handler, ERR_FAILED);
 }
 
 // Implementation based on ExtensionService::RemoveComponentExtension.
-void CefExtensionSystem::RemoveExtension(const std::string& extension_id) {
+bool CefExtensionSystem::UnloadExtension(const std::string& extension_id) {
+  CEF_REQUIRE_UIT();
+  ExtensionMap::iterator it = extension_map_.find(extension_id);
+  if (it == extension_map_.end()) {
+    // No CEF representation so we've already unloaded it.
+    return false;
+  }
+
+  CefRefPtr<CefExtensionImpl> cef_extension =
+      static_cast<CefExtensionImpl*>(it->second.get());
+
+  // Erase first so that callbacks can't retrieve the unloaded extension.
+  extension_map_.erase(it);
+
+  cef_extension->OnExtensionUnloaded();
+
   scoped_refptr<const Extension> extension(
-      registry_->enabled_extensions().GetByID(extension_id));
+      registry_->GetInstalledExtension(extension_id));
   UnloadExtension(extension_id, UnloadedExtensionReason::UNINSTALL);
   if (extension.get()) {
     registry_->TriggerOnUninstalled(
         extension.get(), extensions::UNINSTALL_REASON_COMPONENT_REMOVED);
   }
+
+  return true;
 }
 
-void CefExtensionSystem::Shutdown() {}
+bool CefExtensionSystem::HasExtension(const std::string& extension_id) const {
+  return !!GetExtension(extension_id);
+}
+
+CefRefPtr<CefExtension> CefExtensionSystem::GetExtension(
+    const std::string& extension_id) const {
+  CEF_REQUIRE_UIT();
+  ExtensionMap::const_iterator it = extension_map_.find(extension_id);
+  if (it != extension_map_.end())
+    return it->second;
+  return nullptr;
+}
+
+CefExtensionSystem::ExtensionMap CefExtensionSystem::GetExtensions() const {
+  CEF_REQUIRE_UIT();
+  return extension_map_;
+}
+
+void CefExtensionSystem::OnRequestContextDeleted(CefRequestContext* context) {
+  CEF_REQUIRE_UIT();
+  DCHECK(context);
+
+  // Make a copy of the map because UnloadExtension will modify it.
+  // Don't add any references to |context|.
+  ExtensionMap map = extension_map_;
+  ExtensionMap::const_iterator it = map.begin();
+  for (; it != map.end(); ++it) {
+    CefRefPtr<CefExtensionImpl> cef_extension =
+        static_cast<CefExtensionImpl*>(it->second.get());
+    if (cef_extension->loader_context() == context)
+      UnloadExtension(it->first);
+  }
+}
+
+void CefExtensionSystem::Shutdown() {
+  CEF_REQUIRE_UIT();
+// Only internal extensions should exist at this point.
+#if DCHECK_IS_ON()
+  ExtensionMap::iterator it = extension_map_.begin();
+  for (; it != extension_map_.end(); ++it) {
+    CefRefPtr<CefExtensionImpl> cef_extension =
+        static_cast<CefExtensionImpl*>(it->second.get());
+    DCHECK(!cef_extension->loader_context());
+  }
+#endif
+  extension_map_.clear();
+}
 
 void CefExtensionSystem::InitForRegularProfile(bool extensions_enabled) {
   DCHECK(!initialized_);
@@ -289,15 +456,15 @@ void CefExtensionSystem::InstallUpdate(const std::string& extension_id,
 
 CefExtensionSystem::ComponentExtensionInfo::ComponentExtensionInfo(
     const base::DictionaryValue* manifest,
-    const base::FilePath& directory)
-    : manifest(manifest), root_directory(directory) {
+    const base::FilePath& directory,
+    bool internal)
+    : manifest(manifest), root_directory(directory), internal(internal) {
   if (!root_directory.IsAbsolute()) {
     // This path structure is required by
     // url_request_util::MaybeCreateURLRequestResourceBundleJob.
     CHECK(PathService::Get(chrome::DIR_RESOURCES, &root_directory));
     root_directory = root_directory.Append(directory);
   }
-  extension_id = GenerateId(manifest, root_directory);
 }
 
 // Implementation based on ComponentLoader::CreateExtension.
@@ -306,24 +473,45 @@ scoped_refptr<const Extension> CefExtensionSystem::CreateExtension(
     std::string* utf8_error) {
   // TODO(abarth): We should REQUIRE_MODERN_MANIFEST_VERSION once we've updated
   //               our component extensions to the new manifest version.
-  int flags = Extension::REQUIRE_KEY;
-  return Extension::Create(info.root_directory, Manifest::COMPONENT,
-                           *info.manifest, flags, utf8_error);
+  int flags = 0;
+  if (info.internal) {
+    // Internal extensions must have kPublicKey in the manifest.
+    flags |= Extension::REQUIRE_KEY;
+  }
+  return Extension::Create(
+      info.root_directory,
+      info.internal ? Manifest::COMPONENT : Manifest::COMMAND_LINE,
+      *info.manifest, flags, utf8_error);
 }
 
 // Implementation based on ComponentLoader::Load and
 // ExtensionService::AddExtension.
 const Extension* CefExtensionSystem::LoadExtension(
-    const ComponentExtensionInfo& info) {
+    const ComponentExtensionInfo& info,
+    CefRefPtr<CefRequestContext> loader_context,
+    CefRefPtr<CefExtensionHandler> handler) {
   std::string error;
   scoped_refptr<const Extension> extension(CreateExtension(info, &error));
   if (!extension.get()) {
     LOG(ERROR) << error;
-    return NULL;
+    return nullptr;
   }
 
-  CHECK_EQ(info.extension_id, extension->id()) << extension->name();
+  if (registry_->GetInstalledExtension(extension->id())) {
+    LOG(ERROR) << "Extension with id " << extension->id()
+               << "is already installed";
+    return nullptr;
+  }
 
+  CefRefPtr<CefExtensionImpl> cef_extension =
+      new CefExtensionImpl(extension.get(), loader_context.get(), handler);
+
+  // Insert first so that callbacks can retrieve the loaded extension.
+  extension_map_.insert(std::make_pair(extension->id(), cef_extension));
+
+  cef_extension->OnExtensionLoaded();
+
+  // This may trigger additional callbacks.
   registry_->AddEnabled(extension.get());
   NotifyExtensionLoaded(extension.get());
 

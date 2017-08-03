@@ -83,6 +83,7 @@
     'shared_sources_resources',
     'cefclient_bundle_resources_mac:MACOSX',
     'cefclient_sources_resources',
+    'cefclient_sources_resources_extensions_set_page_color',
   ],
 }}
 
@@ -192,7 +193,6 @@ if(OS_MACOSX)
   add_dependencies(${CEF_TARGET} libcef_dll_wrapper "${CEF_HELPER_TARGET}")
   target_link_libraries(${CEF_TARGET} libcef_lib libcef_dll_wrapper ${CEF_STANDARD_LIBS} "-framework OpenGL")
   set_target_properties(${CEF_TARGET} PROPERTIES
-    RESOURCE "${CEFCLIENT_RESOURCES_SRCS}"
     MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/resources/mac/Info.plist
     )
 
@@ -214,17 +214,16 @@ if(OS_MACOSX)
   # Fix the framework rpath in the main executable.
   FIX_MACOSX_MAIN_FRAMEWORK_RPATH(${CEF_TARGET})
 
-  if(NOT ${CMAKE_GENERATOR} STREQUAL "Xcode")
-    # Manually process and copy over resource files.
-    # The Xcode generator handles this via the set_target_properties RESOURCE directive.
-    # Remove these prefixes from input file paths.
-    set(PREFIXES
-      "resources/mac/"
-      "resources/"
-      "../shared/resources/"
-      )
-    COPY_MACOSX_RESOURCES("${CEFCLIENT_RESOURCES_SRCS}" "${PREFIXES}" "${CEF_TARGET}" "${CMAKE_CURRENT_SOURCE_DIR}" "${CEF_APP}")
-  endif()
+  # Manually process and copy over resource files.
+  # The Xcode generator can support this via the set_target_properties RESOURCE
+  # directive but that doesn't properly handle nested resource directories.
+  # Remove these prefixes from input file paths.
+  set(PREFIXES
+    "resources/mac/"
+    "resources/"
+    "../shared/resources/"
+    )
+  COPY_MACOSX_RESOURCES("${CEFCLIENT_RESOURCES_SRCS}" "${PREFIXES}" "${CEF_TARGET}" "${CMAKE_CURRENT_SOURCE_DIR}" "${CEF_APP}")
 endif()
 
 

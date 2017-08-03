@@ -13,7 +13,6 @@
 #include "libcef/browser/printing/print_view_manager.h"
 
 #include "base/memory/ptr_util.h"
-#include "chrome/browser/sessions/session_tab_helper.h"
 #include "chrome/browser/ui/prefs/prefs_tab_helper.h"
 #include "components/pdf/browser/pdf_web_contents_helper.h"
 #include "components/zoom/zoom_controller.h"
@@ -64,7 +63,6 @@ void CefExtensionsAPIClient::AttachWebContentsHelpers(
                         new CefPDFWebContentsHelperClient()));
 
   // Used by the tabs extension API.
-  SessionTabHelper::CreateForWebContents(web_contents);
   zoom::ZoomController::CreateForWebContents(web_contents);
 }
 

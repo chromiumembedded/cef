@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=71ef57288d2a5fc3a22b1f22385ac43303f37256$
+// $hash=f9fc3392a980679bb9c2786f0f61ce1a12219c24$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_VIEWS_MENU_BUTTON_DELEGATE_CTOCPP_H_
@@ -36,8 +36,10 @@ class CefMenuButtonDelegateCToCpp
   CefMenuButtonDelegateCToCpp();
 
   // CefMenuButtonDelegate methods.
-  void OnMenuButtonPressed(CefRefPtr<CefMenuButton> menu_button,
-                           const CefPoint& screen_point) override;
+  void OnMenuButtonPressed(
+      CefRefPtr<CefMenuButton> menu_button,
+      const CefPoint& screen_point,
+      CefRefPtr<CefMenuButtonPressedLock> button_pressed_lock) override;
 
   // CefButtonDelegate methods.
   void OnButtonPressed(CefRefPtr<CefButton> button) override;

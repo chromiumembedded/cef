@@ -11,6 +11,8 @@
 #include "base/memory/ptr_util.h"
 #include "build/build_config.h"
 
+#include "libcef/browser/extensions/browser_platform_delegate_background.h"
+
 #if defined(OS_WIN)
 #include "libcef/browser/native/browser_platform_delegate_native_win.h"
 #include "libcef/browser/osr/browser_platform_delegate_osr_win.h"
@@ -78,6 +80,13 @@ std::unique_ptr<CefBrowserPlatformDelegate> CefBrowserPlatformDelegate::Create(
     if (is_windowless)
       return CreateOSRDelegate(std::move(native_delegate));
     return std::move(native_delegate);
+  } else if (create_params.extension_host_type ==
+             extensions::VIEW_TYPE_EXTENSION_BACKGROUND_PAGE) {
+    // Creating a background extension host without a window.
+    std::unique_ptr<CefBrowserPlatformDelegateNative> native_delegate =
+        CreateNativeDelegate(CefWindowInfo(), background_color);
+    return base::MakeUnique<CefBrowserPlatformDelegateBackground>(
+        std::move(native_delegate));
   }
 #if defined(USE_AURA)
   else {

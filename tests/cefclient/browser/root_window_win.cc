@@ -51,7 +51,8 @@ int GetButtonWidth() {
   static bool initialized = false;
 
   if (!initialized) {
-    button_width = LogicalToDevice(BUTTON_WIDTH, GetDeviceScaleFactor());
+    button_width =
+        LogicalToDevice(BUTTON_WIDTH, client::GetDeviceScaleFactor());
     initialized = true;
   }
 
@@ -63,7 +64,8 @@ int GetURLBarHeight() {
   static bool initialized = false;
 
   if (!initialized) {
-    urlbar_height = LogicalToDevice(URLBAR_HEIGHT, GetDeviceScaleFactor());
+    urlbar_height =
+        LogicalToDevice(URLBAR_HEIGHT, client::GetDeviceScaleFactor());
     initialized = true;
   }
 
@@ -73,9 +75,9 @@ int GetURLBarHeight() {
 }  // namespace
 
 RootWindowWin::RootWindowWin()
-    : delegate_(NULL),
-      with_controls_(false),
+    : with_controls_(false),
       with_osr_(false),
+      with_extension_(false),
       is_popup_(false),
       start_rect_(),
       initialized_(false),
@@ -114,33 +116,31 @@ RootWindowWin::~RootWindowWin() {
 }
 
 void RootWindowWin::Init(RootWindow::Delegate* delegate,
-                         bool with_controls,
-                         bool with_osr,
-                         const CefRect& bounds,
-                         const CefBrowserSettings& settings,
-                         const std::string& url) {
+                         const RootWindowConfig& config,
+                         const CefBrowserSettings& settings) {
   DCHECK(delegate);
   DCHECK(!initialized_);
 
   delegate_ = delegate;
-  with_controls_ = with_controls;
-  with_osr_ = with_osr;
+  with_controls_ = config.with_controls;
+  with_osr_ = config.with_osr;
+  with_extension_ = config.with_extension;
 
-  start_rect_.left = bounds.x;
-  start_rect_.top = bounds.y;
-  start_rect_.right = bounds.x + bounds.width;
-  start_rect_.bottom = bounds.y + bounds.height;
+  start_rect_.left = config.bounds.x;
+  start_rect_.top = config.bounds.y;
+  start_rect_.right = config.bounds.x + config.bounds.width;
+  start_rect_.bottom = config.bounds.y + config.bounds.height;
 
-  CreateBrowserWindow(url);
+  CreateBrowserWindow(config.url);
 
   initialized_ = true;
 
   // Create the native root window on the main thread.
   if (CURRENTLY_ON_MAIN_THREAD()) {
-    CreateRootWindow(settings);
+    CreateRootWindow(settings, config.initially_hidden);
   } else {
-    MAIN_POST_CLOSURE(
-        base::Bind(&RootWindowWin::CreateRootWindow, this, settings));
+    MAIN_POST_CLOSURE(base::Bind(&RootWindowWin::CreateRootWindow, this,
+                                 settings, config.initially_hidden));
   }
 }
 
@@ -233,16 +233,18 @@ void RootWindowWin::Close(bool force) {
 void RootWindowWin::SetDeviceScaleFactor(float device_scale_factor) {
   REQUIRE_MAIN_THREAD();
 
-  if (browser_window_)
+  if (browser_window_ && with_osr_)
     browser_window_->SetDeviceScaleFactor(device_scale_factor);
 }
 
 float RootWindowWin::GetDeviceScaleFactor() const {
   REQUIRE_MAIN_THREAD();
 
-  if (browser_window_)
+  if (browser_window_ && with_osr_)
     return browser_window_->GetDeviceScaleFactor();
-  return client::GetDeviceScaleFactor();
+
+  NOTREACHED();
+  return 0.0f;
 }
 
 CefRefPtr<CefBrowser> RootWindowWin::GetBrowser() const {
@@ -258,6 +260,16 @@ ClientWindowHandle RootWindowWin::GetWindowHandle() const {
   return hwnd_;
 }
 
+bool RootWindowWin::WithWindowlessRendering() const {
+  REQUIRE_MAIN_THREAD();
+  return with_osr_;
+}
+
+bool RootWindowWin::WithExtension() const {
+  REQUIRE_MAIN_THREAD();
+  return with_extension_;
+}
+
 void RootWindowWin::CreateBrowserWindow(const std::string& startup_url) {
   if (with_osr_) {
     OsrRenderer::Settings settings = {};
@@ -268,7 +280,8 @@ void RootWindowWin::CreateBrowserWindow(const std::string& startup_url) {
   }
 }
 
-void RootWindowWin::CreateRootWindow(const CefBrowserSettings& settings) {
+void RootWindowWin::CreateRootWindow(const CefBrowserSettings& settings,
+                                     bool initially_hidden) {
   REQUIRE_MAIN_THREAD();
   DCHECK(!hwnd_);
 
@@ -415,8 +428,10 @@ void RootWindowWin::CreateRootWindow(const CefBrowserSettings& settings) {
                                rect.right - rect.left, rect.bottom - rect.top);
   }
 
-  // Show this window.
-  Show(ShowNormal);
+  if (!initially_hidden) {
+    // Show this window.
+    Show(ShowNormal);
+  }
 }
 
 // static
@@ -556,6 +571,11 @@ LRESULT CALLBACK RootWindowWin::RootWndProc(HWND hWnd,
       self->OnPaint();
       return 0;
 
+    case WM_ACTIVATE:
+      self->OnActivate(LOWORD(wParam) != WA_INACTIVE);
+      // Allow DefWindowProc to set keyboard focus.
+      break;
+
     case WM_SETFOCUS:
       self->OnFocus();
       return 0;
@@ -629,6 +649,11 @@ void RootWindowWin::OnPaint() {
 void RootWindowWin::OnFocus() {
   if (browser_window_)
     browser_window_->SetFocus(true);
+}
+
+void RootWindowWin::OnActivate(bool active) {
+  if (active)
+    delegate_->OnRootWindowActivated(this);
 }
 
 void RootWindowWin::OnSize(bool minimized) {
@@ -825,11 +850,13 @@ void RootWindowWin::OnBrowserCreated(CefRefPtr<CefBrowser> browser) {
   if (is_popup_) {
     // For popup browsers create the root window once the browser has been
     // created.
-    CreateRootWindow(CefBrowserSettings());
+    CreateRootWindow(CefBrowserSettings(), false);
   } else {
     // Make sure the browser is sized correctly.
     OnSize(false);
   }
+
+  delegate_->OnBrowserCreated(this, browser);
 }
 
 void RootWindowWin::OnBrowserWindowDestroyed() {
@@ -874,6 +901,36 @@ void RootWindowWin::OnSetFullscreen(bool fullscreen) {
     else
       test_runner->Restore(browser);
   }
+}
+
+void RootWindowWin::OnAutoResize(const CefSize& new_size) {
+  REQUIRE_MAIN_THREAD();
+
+  if (!hwnd_)
+    return;
+
+  int new_width = new_size.width;
+
+  // Make the window wide enough to drag by the top menu bar.
+  if (new_width < 200)
+    new_width = 200;
+
+  RECT rect = {
+      0, 0, LogicalToDevice(new_width, client::GetDeviceScaleFactor()),
+      LogicalToDevice(new_size.height, client::GetDeviceScaleFactor())};
+  DWORD style = GetWindowLong(hwnd_, GWL_STYLE);
+  DWORD ex_style = GetWindowLong(hwnd_, GWL_EXSTYLE);
+  bool has_menu = !(style & WS_CHILD) && (GetMenu(hwnd_) != NULL);
+
+  // The size value is for the client area. Calculate the whole window size
+  // based on the current style.
+  AdjustWindowRectEx(&rect, style, has_menu, ex_style);
+
+  // Size the window. The left/top values may be negative.
+  // Also show the window if it's not currently visible.
+  SetWindowPos(hwnd_, NULL, 0, 0, rect.right - rect.left,
+               rect.bottom - rect.top,
+               SWP_NOZORDER | SWP_NOMOVE | SWP_NOACTIVATE | SWP_SHOWWINDOW);
 }
 
 void RootWindowWin::OnSetLoadingState(bool isLoading,

@@ -840,6 +840,12 @@ typedef enum {
   // and "~/Library/Application Support" directory on Mac OS X.
   ///
   PK_USER_DATA,
+
+  ///
+  // Directory containing application resources. Can be configured via
+  // CefSettings.resources_dir_path.
+  ///
+  PK_DIR_RESOURCES,
 } cef_path_key_t;
 
 ///

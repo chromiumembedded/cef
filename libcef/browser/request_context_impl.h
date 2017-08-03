@@ -80,6 +80,13 @@ class CefRequestContextImpl : public CefRequestContext {
   cef_errorcode_t ResolveHostCached(
       const CefString& origin,
       std::vector<CefString>& resolved_ips) override;
+  void LoadExtension(const CefString& root_directory,
+                     CefRefPtr<CefDictionaryValue> manifest,
+                     CefRefPtr<CefExtensionHandler> handler) override;
+  bool DidLoadExtension(const CefString& extension_id) override;
+  bool HasExtension(const CefString& extension_id) override;
+  bool GetExtensions(std::vector<CefString>& extension_ids) override;
+  CefRefPtr<CefExtension> GetExtension(const CefString& extension_id) override;
 
   const CefRequestContextSettings& settings() const { return config_.settings; }
 

@@ -22,23 +22,29 @@ namespace cefimpl = extensions::cef;
 
 #define EXTENSION_FUNCTION_NAME(classname) classname::function_name()
 
+// Maintain the same order as https://developer.chrome.com/extensions/api_index
+// so chrome://extensions-support looks nice.
+const char* const kSupportedAPIs[] = {
+    "resourcesPrivate",
+    EXTENSION_FUNCTION_NAME(ResourcesPrivateGetStringsFunction),
+    "streamsPrivate",
+    EXTENSION_FUNCTION_NAME(StreamsPrivateAbortFunction),
+    "tabs",
+    EXTENSION_FUNCTION_NAME(cefimpl::TabsGetFunction),
+    EXTENSION_FUNCTION_NAME(cefimpl::TabsExecuteScriptFunction),
+    EXTENSION_FUNCTION_NAME(cefimpl::TabsInsertCSSFunction),
+    EXTENSION_FUNCTION_NAME(cefimpl::TabsSetZoomFunction),
+    EXTENSION_FUNCTION_NAME(cefimpl::TabsGetZoomFunction),
+    EXTENSION_FUNCTION_NAME(cefimpl::TabsSetZoomSettingsFunction),
+    EXTENSION_FUNCTION_NAME(cefimpl::TabsGetZoomSettingsFunction),
+    nullptr,  // Indicates end of array.
+};
+
 // Only add APIs to this list that have been tested in CEF.
 // static
 bool ChromeFunctionRegistry::IsSupported(const std::string& name) {
-  static const char* const supported_apis[] = {
-      "resourcesPrivate",
-      EXTENSION_FUNCTION_NAME(ResourcesPrivateGetStringsFunction),
-      "streamsPrivate",
-      EXTENSION_FUNCTION_NAME(StreamsPrivateAbortFunction),
-      "tabs",
-      EXTENSION_FUNCTION_NAME(cefimpl::TabsGetFunction),
-      EXTENSION_FUNCTION_NAME(cefimpl::TabsSetZoomFunction),
-      EXTENSION_FUNCTION_NAME(cefimpl::TabsGetZoomFunction),
-      EXTENSION_FUNCTION_NAME(cefimpl::TabsSetZoomSettingsFunction),
-      EXTENSION_FUNCTION_NAME(cefimpl::TabsGetZoomSettingsFunction),
-  };
-  for (size_t i = 0; i < arraysize(supported_apis); ++i) {
-    if (name == supported_apis[i])
+  for (size_t i = 0; kSupportedAPIs[i] != nullptr; ++i) {
+    if (name == kSupportedAPIs[i])
       return true;
   }
   return false;
@@ -49,6 +55,8 @@ bool ChromeFunctionRegistry::IsSupported(const std::string& name) {
 void ChromeFunctionRegistry::RegisterAll(ExtensionFunctionRegistry* registry) {
   registry->RegisterFunction<ResourcesPrivateGetStringsFunction>();
   registry->RegisterFunction<StreamsPrivateAbortFunction>();
+  registry->RegisterFunction<cefimpl::TabsExecuteScriptFunction>();
+  registry->RegisterFunction<cefimpl::TabsInsertCSSFunction>();
   registry->RegisterFunction<cefimpl::TabsGetFunction>();
   registry->RegisterFunction<cefimpl::TabsSetZoomFunction>();
   registry->RegisterFunction<cefimpl::TabsGetZoomFunction>();

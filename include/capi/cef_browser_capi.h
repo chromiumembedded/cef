@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=b6308ab5e97eb9f7af95f1f4c371fd6e7edbf852$
+// $hash=a4831deeb05bc0a022c1a0ee6f1c484b338c741c$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_BROWSER_CAPI_H_
@@ -115,7 +115,8 @@ typedef struct _cef_browser_t {
   void(CEF_CALLBACK* stop_load)(struct _cef_browser_t* self);
 
   ///
-  // Returns the globally unique identifier for this browser.
+  // Returns the globally unique identifier for this browser. This value is also
+  // used as the tabId for extension APIs.
   ///
   int(CEF_CALLBACK* get_identifier)(struct _cef_browser_t* self);
 
@@ -812,6 +813,30 @@ typedef struct _cef_browser_host_t {
   ///
   void(CEF_CALLBACK* set_accessibility_state)(struct _cef_browser_host_t* self,
                                               cef_state_t accessibility_state);
+
+  ///
+  // Enable notifications of auto resize via
+  // cef_display_handler_t::OnAutoResize. Notifications are disabled by default.
+  // |min_size| and |max_size| define the range of allowed sizes.
+  ///
+  void(CEF_CALLBACK* set_auto_resize_enabled)(struct _cef_browser_host_t* self,
+                                              int enabled,
+                                              const cef_size_t* min_size,
+                                              const cef_size_t* max_size);
+
+  ///
+  // Returns the extension hosted in this browser or NULL if no extension is
+  // hosted. See cef_request_tContext::LoadExtension for details.
+  ///
+  struct _cef_extension_t*(CEF_CALLBACK* get_extension)(
+      struct _cef_browser_host_t* self);
+
+  ///
+  // Returns true (1) if this browser is hosting an extension background script.
+  // Background hosts do not have a window and are not displayable. See
+  // cef_request_tContext::LoadExtension for details.
+  ///
+  int(CEF_CALLBACK* is_background_host)(struct _cef_browser_host_t* self);
 } cef_browser_host_t;
 
 ///

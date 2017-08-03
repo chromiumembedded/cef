@@ -114,6 +114,18 @@ class CefDisplayHandler : public virtual CefBaseRefCounted {
                                 int line) {
     return false;
   }
+
+  ///
+  // Called when auto-resize is enabled via CefBrowserHost::SetAutoResizeEnabled
+  // and the contents have auto-resized. |new_size| will be the desired size in
+  // view coordinates. Return true if the resize was handled or false for
+  // default handling.
+  ///
+  /*--cef()--*/
+  virtual bool OnAutoResize(CefRefPtr<CefBrowser> browser,
+                            const CefSize& new_size) {
+    return false;
+  }
 };
 
 #endif  // CEF_INCLUDE_CEF_DISPLAY_HANDLER_H_

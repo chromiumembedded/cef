@@ -122,6 +122,8 @@ class CefWindowImpl
                 cef_menu_anchor_position_t anchor_position);
   void MenuClosed();
 
+  views::Widget* widget() const { return widget_; }
+
  private:
   // Create a new implementation object.
   // Always call Initialize() after creation.

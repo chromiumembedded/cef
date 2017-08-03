@@ -2,7 +2,7 @@
 // 2012 The Chromium Authors. All rights reserved. Use of this source code is
 // governed by a BSD-style license that can be found in the LICENSE file.
 
-#include "tests/ceftests/file_util.h"
+#include "tests/shared/browser/file_util.h"
 
 #include "include/base/cef_build.h"
 #include "include/base/cef_scoped_ptr.h"
@@ -12,6 +12,7 @@
 #include <cstdio>
 #include <memory>
 
+namespace client {
 namespace file_util {
 
 namespace {
@@ -109,4 +110,12 @@ std::string JoinPath(const std::string& path1, const std::string& path2) {
   return result;
 }
 
+std::string GetFileExtension(const std::string& path) {
+  size_t sep = path.find_last_of(".");
+  if (sep != std::string::npos)
+    return path.substr(sep + 1);
+  return std::string();
+}
+
 }  // namespace file_util
+}  // namespace client

@@ -8,17 +8,19 @@
 #include <utility>
 
 #include "libcef/browser/browser_context_impl.h"
+#include "libcef/browser/browser_host_impl.h"
 #include "libcef/browser/extensions/chrome_api_registration.h"
 #include "libcef/browser/extensions/component_extension_resource_manager.h"
+#include "libcef/browser/extensions/extension_system.h"
 #include "libcef/browser/extensions/extension_system_factory.h"
 #include "libcef/browser/extensions/extension_web_contents_observer.h"
 #include "libcef/browser/extensions/extensions_api_client.h"
+#include "libcef/browser/request_context_impl.h"
 
 //#include "cef/libcef/browser/extensions/api/generated_api_registration.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/extensions/chrome_url_request_util.h"
 #include "chrome/browser/extensions/event_router_forwarder.h"
-#include "chrome/browser/profiles/incognito_helpers.h"
 #include "content/public/browser/browser_context.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/render_frame_host.h"
@@ -30,6 +32,7 @@
 #include "extensions/browser/extension_function_registry.h"
 #include "extensions/browser/extension_host_delegate.h"
 #include "extensions/browser/mojo/service_registration.h"
+#include "extensions/browser/serial_extension_host_queue.h"
 #include "extensions/browser/url_request_util.h"
 #include "extensions/common/constants.h"
 
@@ -43,6 +46,12 @@ CefExtensionsBrowserClient::CefExtensionsBrowserClient()
       resource_manager_(new CefComponentExtensionResourceManager) {}
 
 CefExtensionsBrowserClient::~CefExtensionsBrowserClient() {}
+
+// static
+CefExtensionsBrowserClient* CefExtensionsBrowserClient::Get() {
+  return static_cast<CefExtensionsBrowserClient*>(
+      ExtensionsBrowserClient::Get());
+}
 
 bool CefExtensionsBrowserClient::IsShuttingDown() {
   return false;
@@ -62,24 +71,28 @@ bool CefExtensionsBrowserClient::IsSameContext(BrowserContext* first,
                                                BrowserContext* second) {
   // Returns true if |first| and |second| share the same underlying
   // CefBrowserContextImpl.
-  return CefBrowserContextImpl::GetForContext(first) ==
-         CefBrowserContextImpl::GetForContext(second);
+  return GetCefImplContext(first) == GetCefImplContext(second);
 }
 
 bool CefExtensionsBrowserClient::HasOffTheRecordContext(
     BrowserContext* context) {
+  // CEF doesn't use incognito contexts.
   return false;
 }
 
 BrowserContext* CefExtensionsBrowserClient::GetOffTheRecordContext(
     BrowserContext* context) {
-  // TODO(extensions): Do we need to support this?
   return NULL;
 }
 
 BrowserContext* CefExtensionsBrowserClient::GetOriginalContext(
     BrowserContext* context) {
-  return chrome::GetBrowserContextRedirectedInIncognito(context);
+  return GetCefImplContext(context);
+}
+
+BrowserContext* CefExtensionsBrowserClient::GetCefImplContext(
+    BrowserContext* context) {
+  return CefBrowserContextImpl::GetForContext(context);
 }
 
 bool CefExtensionsBrowserClient::IsGuestSession(BrowserContext* context) const {
@@ -148,9 +161,66 @@ ProcessManagerDelegate* CefExtensionsBrowserClient::GetProcessManagerDelegate()
 
 std::unique_ptr<ExtensionHostDelegate>
 CefExtensionsBrowserClient::CreateExtensionHostDelegate() {
-  // TODO(extensions): Implement to support Apps.
+  // CEF does not use the ExtensionHost constructor that calls this method.
   NOTREACHED();
   return std::unique_ptr<ExtensionHostDelegate>();
+}
+
+bool CefExtensionsBrowserClient::CreateBackgroundExtensionHost(
+    const Extension* extension,
+    content::BrowserContext* browser_context,
+    const GURL& url,
+    ExtensionHost** host) {
+  // The BrowserContext referenced by ProcessManager should always be an *Impl.
+  DCHECK(!static_cast<CefBrowserContext*>(browser_context)->is_proxy());
+  CefBrowserContextImpl* browser_context_impl =
+      CefBrowserContextImpl::GetForContext(browser_context);
+
+  // A CEF representation should always exist.
+  CefRefPtr<CefExtension> cef_extension =
+      browser_context_impl->extension_system()->GetExtension(extension->id());
+  DCHECK(cef_extension);
+  if (!cef_extension) {
+    // Cancel the background host creation.
+    return true;
+  }
+
+  // Always use the same request context that the extension was registered with.
+  // May represent an *Impl or *Proxy BrowserContext.
+  // GetLoaderContext() will return NULL for internal extensions.
+  CefRefPtr<CefRequestContext> request_context =
+      cef_extension->GetLoaderContext();
+  if (!request_context) {
+    // Cancel the background host creation.
+    return true;
+  }
+
+  CefBrowserHostImpl::CreateParams create_params;
+  create_params.url = url;
+  create_params.request_context = request_context;
+
+  CefRefPtr<CefExtensionHandler> handler = cef_extension->GetHandler();
+  if (handler.get() && handler->OnBeforeBackgroundBrowser(
+                           cef_extension, url.spec(), create_params.client,
+                           create_params.settings)) {
+    // Cancel the background host creation.
+    return true;
+  }
+
+  // This triggers creation of the background host.
+  create_params.extension = extension;
+  create_params.extension_host_type =
+      extensions::VIEW_TYPE_EXTENSION_BACKGROUND_PAGE;
+
+  // Browser creation may fail under certain rare circumstances. Fail the
+  // background host creation in that case.
+  CefRefPtr<CefBrowserHostImpl> browser =
+      CefBrowserHostImpl::Create(create_params);
+  if (browser) {
+    *host = browser->extension_host();
+    DCHECK(*host);
+  }
+  return true;
 }
 
 bool CefExtensionsBrowserClient::DidVersionUpdate(BrowserContext* context) {
@@ -250,9 +320,10 @@ bool CefExtensionsBrowserClient::IsLockScreenContext(
   return false;
 }
 
-void CefExtensionsBrowserClient::SetAPIClientForTest(
-    ExtensionsAPIClient* api_client) {
-  api_client_.reset(api_client);
+ExtensionHostQueue* CefExtensionsBrowserClient::GetExtensionHostQueue() {
+  if (!extension_host_queue_)
+    extension_host_queue_.reset(new SerialExtensionHostQueue);
+  return extension_host_queue_.get();
 }
 
 }  // namespace extensions

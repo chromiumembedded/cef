@@ -53,6 +53,8 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
   std::unique_ptr<base::Value> GetServiceManifestOverlay(
       base::StringPiece name) override;
   std::vector<ServiceManifestInfo> GetExtraServiceManifests() override;
+  bool IsSameBrowserContext(content::BrowserContext* context1,
+                            content::BrowserContext* context2) override;
   void AppendExtraCommandLineSwitches(base::CommandLine* command_line,
                                       int child_process_id) override;
   content::QuotaPermissionContext* CreateQuotaPermissionContext() override;

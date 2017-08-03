@@ -7,6 +7,7 @@
 #pragma once
 
 #include <string>
+#include <vector>
 
 #include "include/cef_command_line.h"
 #include "include/wrapper/cef_helpers.h"
@@ -26,6 +27,12 @@ class CefTestSuite {
   void GetSettings(CefSettings& settings) const;
   bool GetCachePath(std::string& path) const;
 
+  // Register a temp directory that should be deleted on shutdown.
+  void RegisterTempDirectory(const CefString& directory);
+
+  // Called after shutdown to delete any registered temp directories.
+  void DeleteTempDirectories();
+
   CefRefPtr<CefCommandLine> command_line() const { return command_line_; }
 
   // The return value from Run().
@@ -39,6 +46,9 @@ class CefTestSuite {
   int argc_;
   CefScopedArgArray argv_;
   CefRefPtr<CefCommandLine> command_line_;
+
+  std::vector<CefString> temp_directories_;
+  base::Lock temp_directories_lock_;
 
   int retval_;
 };

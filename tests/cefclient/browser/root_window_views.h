@@ -28,11 +28,8 @@ class RootWindowViews : public RootWindow,
 
   // RootWindow methods:
   void Init(RootWindow::Delegate* delegate,
-            bool with_controls,
-            bool with_osr,
-            const CefRect& rect,
-            const CefBrowserSettings& settings,
-            const std::string& url) OVERRIDE;
+            const RootWindowConfig& config,
+            const CefBrowserSettings& settings) OVERRIDE;
   void InitAsPopup(RootWindow::Delegate* delegate,
                    bool with_controls,
                    bool with_osr,
@@ -48,16 +45,28 @@ class RootWindowViews : public RootWindow,
   float GetDeviceScaleFactor() const OVERRIDE;
   CefRefPtr<CefBrowser> GetBrowser() const OVERRIDE;
   ClientWindowHandle GetWindowHandle() const OVERRIDE;
+  bool WithWindowlessRendering() const OVERRIDE { return false; }
+  bool WithExtension() const OVERRIDE;
+  void OnExtensionsChanged(const ExtensionSet& extensions) OVERRIDE;
 
   // ViewsWindow::Delegate methods:
   bool WithControls() OVERRIDE;
+  bool WithExtension() OVERRIDE;
+  bool InitiallyHidden() OVERRIDE;
+  CefRefPtr<CefWindow> GetParentWindow() OVERRIDE;
   CefRect GetWindowBounds() OVERRIDE;
+  scoped_refptr<ImageCache> GetImageCache() OVERRIDE;
   void OnViewsWindowCreated(CefRefPtr<ViewsWindow> window) OVERRIDE;
   void OnViewsWindowDestroyed(CefRefPtr<ViewsWindow> window) OVERRIDE;
+  void OnViewsWindowActivated(CefRefPtr<ViewsWindow> window) OVERRIDE;
   ViewsWindow::Delegate* GetDelegateForPopup(
       CefRefPtr<CefClient> client) OVERRIDE;
-  virtual void OnTest(int test_id) OVERRIDE;
-  virtual void OnExit() OVERRIDE;
+  void CreateExtensionWindow(CefRefPtr<CefExtension> extension,
+                             const CefRect& source_bounds,
+                             CefRefPtr<CefWindow> parent_window,
+                             const base::Closure& close_callback) OVERRIDE;
+  void OnTest(int test_id) OVERRIDE;
+  void OnExit() OVERRIDE;
 
  protected:
   // ClientHandler::Delegate methods:
@@ -68,6 +77,7 @@ class RootWindowViews : public RootWindow,
   void OnSetTitle(const std::string& title) OVERRIDE;
   void OnSetFavicon(CefRefPtr<CefImage> image) OVERRIDE;
   void OnSetFullscreen(bool fullscreen) OVERRIDE;
+  void OnAutoResize(const CefSize& new_size) OVERRIDE;
   void OnSetLoadingState(bool isLoading,
                          bool canGoBack,
                          bool canGoForward) OVERRIDE;
@@ -83,18 +93,24 @@ class RootWindowViews : public RootWindow,
                         const std::string& startup_url);
   void CreateViewsWindow(const CefBrowserSettings& settings,
                          const std::string& startup_url,
-                         CefRefPtr<CefRequestContext> request_context);
+                         CefRefPtr<CefRequestContext> request_context,
+                         const ImageCache::ImageSet& images);
 
   void NotifyViewsWindowDestroyed();
+  void NotifyViewsWindowActivated();
   void NotifyDestroyedIfDone();
 
   // After initialization all members are only accessed on the main thread
   // unless otherwise indicated.
   // Members set during initialization.
-  RootWindow::Delegate* delegate_;
   bool with_controls_;
+  bool with_extension_;
+  bool initially_hidden_;
+  CefRefPtr<CefWindow> parent_window_;
   bool is_popup_;
   CefRect initial_bounds_;
+  base::Closure close_callback_;
+  bool position_on_resize_;
   CefRefPtr<ClientHandler> client_handler_;
 
   bool initialized_;
@@ -105,6 +121,8 @@ class RootWindowViews : public RootWindow,
 
   // Only accessed on the browser process UI thread.
   CefRefPtr<ViewsWindow> window_;
+  ExtensionSet pending_extensions_;
+  scoped_refptr<ImageCache> image_cache_;
 
   DISALLOW_COPY_AND_ASSIGN(RootWindowViews);
 };

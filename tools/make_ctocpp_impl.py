@@ -610,9 +610,13 @@ def make_ctocpp_class_impl(header, clsname, impl):
   # any derived classes can be unwrapped
   unwrapderived = make_ctocpp_unwrap_derived(header, cls, base_scoped)
 
+  const =  '// CONSTRUCTOR - Do not edit by hand.\n\n'+ \
+           clsname+'CToCpp::'+clsname+'CToCpp() {\n'+ \
+           '}\n\n'
+
   # determine what includes are required by identifying what translation
   # classes are being used
-  includes = format_translation_includes(header, resultingimpl +
+  includes = format_translation_includes(header, const + resultingimpl +
                                          (unwrapderived[0]
                                           if base_scoped else unwrapderived))
 
@@ -622,10 +626,6 @@ def make_ctocpp_class_impl(header, clsname, impl):
   result += includes + '\n' + resultingimpl + '\n'
 
   parent_sig = template_class + '<' + clsname + 'CToCpp, ' + clsname + ', ' + capiname + '>'
-
-  const =  '// CONSTRUCTOR - Do not edit by hand.\n\n'+ \
-           clsname+'CToCpp::'+clsname+'CToCpp() {\n'+ \
-           '}\n\n'
 
   if base_scoped:
     const += 'template<> '+capiname+'* '+parent_sig+'::UnwrapDerivedOwn(CefWrapperType type, CefOwnPtr<'+clsname+'> c) {\n'+ \

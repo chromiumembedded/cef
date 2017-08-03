@@ -9,19 +9,21 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=c1af150d3b847d4fda504d0f9c668d90fa348308$
+// $hash=81cf9c1f1aff3557bd27f8751d2df517f2f73249$
 //
 
 #include "libcef_dll/ctocpp/views/menu_button_delegate_ctocpp.h"
 #include "libcef_dll/cpptoc/views/button_cpptoc.h"
 #include "libcef_dll/cpptoc/views/menu_button_cpptoc.h"
+#include "libcef_dll/cpptoc/views/menu_button_pressed_lock_cpptoc.h"
 #include "libcef_dll/cpptoc/views/view_cpptoc.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
 void CefMenuButtonDelegateCToCpp::OnMenuButtonPressed(
     CefRefPtr<CefMenuButton> menu_button,
-    const CefPoint& screen_point) {
+    const CefPoint& screen_point,
+    CefRefPtr<CefMenuButtonPressedLock> button_pressed_lock) {
   cef_menu_button_delegate_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_menu_button_pressed))
     return;
@@ -32,10 +34,15 @@ void CefMenuButtonDelegateCToCpp::OnMenuButtonPressed(
   DCHECK(menu_button.get());
   if (!menu_button.get())
     return;
+  // Verify param: button_pressed_lock; type: refptr_diff
+  DCHECK(button_pressed_lock.get());
+  if (!button_pressed_lock.get())
+    return;
 
   // Execute
   _struct->on_menu_button_pressed(
-      _struct, CefMenuButtonCppToC::Wrap(menu_button), &screen_point);
+      _struct, CefMenuButtonCppToC::Wrap(menu_button), &screen_point,
+      CefMenuButtonPressedLockCppToC::Wrap(button_pressed_lock));
 }
 
 void CefMenuButtonDelegateCToCpp::OnButtonPressed(CefRefPtr<CefButton> button) {

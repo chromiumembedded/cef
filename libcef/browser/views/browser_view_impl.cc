@@ -174,7 +174,7 @@ void CefBrowserViewImpl::SetPendingBrowserCreateParams(
   DCHECK(!pending_browser_create_params_);
   pending_browser_create_params_.reset(new CefBrowserHostImpl::CreateParams());
   pending_browser_create_params_->client = client;
-  pending_browser_create_params_->url = url;
+  pending_browser_create_params_->url = GURL(url.ToString());
   pending_browser_create_params_->settings = settings;
   pending_browser_create_params_->request_context = request_context;
 }

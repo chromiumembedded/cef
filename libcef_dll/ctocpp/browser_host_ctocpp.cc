@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=aff3b781529dd68e4a26208c7ab116e8ecd8cca5$
+// $hash=068f8e238672b955b7f648002c80e364e24a936a$
 //
 
 #include "libcef_dll/ctocpp/browser_host_ctocpp.h"
@@ -20,6 +20,7 @@
 #include "libcef_dll/cpptoc/run_file_dialog_callback_cpptoc.h"
 #include "libcef_dll/ctocpp/browser_ctocpp.h"
 #include "libcef_dll/ctocpp/drag_data_ctocpp.h"
+#include "libcef_dll/ctocpp/extension_ctocpp.h"
 #include "libcef_dll/ctocpp/navigation_entry_ctocpp.h"
 #include "libcef_dll/ctocpp/request_context_ctocpp.h"
 #include "libcef_dll/transfer_util.h"
@@ -818,6 +819,47 @@ void CefBrowserHostCToCpp::SetAccessibilityState(
 
   // Execute
   _struct->set_accessibility_state(_struct, accessibility_state);
+}
+
+void CefBrowserHostCToCpp::SetAutoResizeEnabled(bool enabled,
+                                                const CefSize& min_size,
+                                                const CefSize& max_size) {
+  cef_browser_host_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, set_auto_resize_enabled))
+    return;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  _struct->set_auto_resize_enabled(_struct, enabled, &min_size, &max_size);
+}
+
+CefRefPtr<CefExtension> CefBrowserHostCToCpp::GetExtension() {
+  cef_browser_host_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_extension))
+    return NULL;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  cef_extension_t* _retval = _struct->get_extension(_struct);
+
+  // Return type: refptr_same
+  return CefExtensionCToCpp::Wrap(_retval);
+}
+
+bool CefBrowserHostCToCpp::IsBackgroundHost() {
+  cef_browser_host_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, is_background_host))
+    return false;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  int _retval = _struct->is_background_host(_struct);
+
+  // Return type: bool
+  return _retval ? true : false;
 }
 
 // CONSTRUCTOR - Do not edit by hand.

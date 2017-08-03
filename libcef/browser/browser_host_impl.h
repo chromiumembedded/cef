@@ -31,11 +31,17 @@
 #include "content/public/browser/web_contents.h"
 #include "content/public/browser/web_contents_delegate.h"
 #include "content/public/browser/web_contents_observer.h"
+#include "extensions/common/view_type.h"
 
 namespace content {
 struct DragEventSourceInfo;
 class RenderWidgetHostImpl;
 }  // namespace content
+
+namespace extensions {
+class Extension;
+class ExtensionHost;
+}  // namespace extensions
 
 namespace net {
 class URLRequest;
@@ -111,8 +117,9 @@ class CefBrowserHostImpl : public CefBrowserHost,
     // Client implementation. May be nullptr.
     CefRefPtr<CefClient> client;
 
-    // Initial URL to load. May be empty.
-    CefString url;
+    // Initial URL to load. May be empty. If this is a valid extension URL then
+    // the browser will be created as an app view extension host.
+    GURL url;
 
     // Browser settings.
     CefBrowserSettings settings;
@@ -124,6 +131,11 @@ class CefBrowserHostImpl : public CefBrowserHost,
     // Request context to use when creating the browser. If nullptr the global
     // request context will be used.
     CefRefPtr<CefRequestContext> request_context;
+
+    // Used when explicitly creating the browser as an extension host via
+    // ProcessManager::CreateBackgroundHost.
+    const extensions::Extension* extension = nullptr;
+    extensions::ViewType extension_host_type = extensions::VIEW_TYPE_INVALID;
   };
 
   // Create a new CefBrowserHostImpl instance.
@@ -234,6 +246,11 @@ class CefBrowserHostImpl : public CefBrowserHost,
   void DragSourceEndedAt(int x, int y, DragOperationsMask op) override;
   CefRefPtr<CefNavigationEntry> GetVisibleNavigationEntry() override;
   void SetAccessibilityState(cef_state_t accessibility_state) override;
+  void SetAutoResizeEnabled(bool enabled,
+                            const CefSize& min_size,
+                            const CefSize& max_size) override;
+  CefRefPtr<CefExtension> GetExtension() override;
+  bool IsBackgroundHost() override;
 
   // CefBrowser methods.
   CefRefPtr<CefBrowserHost> GetHost() override;
@@ -352,6 +369,10 @@ class CefBrowserHostImpl : public CefBrowserHost,
   scoped_refptr<CefBrowserInfo> browser_info() const { return browser_info_; }
   int browser_id() const;
 
+  // Accessors that must be called on the UI thread.
+  content::BrowserContext* GetBrowserContext();
+  extensions::ExtensionHost* extension_host() const { return extension_host_; }
+
   void OnSetFocus(cef_focus_source_t source);
 
   // Run the file chooser dialog specified by |params|. Only a single dialog may
@@ -382,6 +403,13 @@ class CefBrowserHostImpl : public CefBrowserHost,
   content::WebContents* OpenURLFromTab(
       content::WebContents* source,
       const content::OpenURLParams& params) override;
+  bool ShouldTransferNavigation(bool is_main_frame_navigation) override;
+  void AddNewContents(content::WebContents* source,
+                      content::WebContents* new_contents,
+                      WindowOpenDisposition disposition,
+                      const gfx::Rect& initial_rect,
+                      bool user_gesture,
+                      bool* was_blocked) override;
   void LoadingStateChanged(content::WebContents* source,
                            bool to_different_document) override;
   void CloseContents(content::WebContents* source) override;
@@ -402,6 +430,8 @@ class CefBrowserHostImpl : public CefBrowserHost,
   void HandleKeyboardEvent(
       content::WebContents* source,
       const content::NativeWebKeyboardEvent& event) override;
+  bool PreHandleGestureEvent(content::WebContents* source,
+                             const blink::WebGestureEvent& event) override;
   bool CanDragEnter(content::WebContents* source,
                     const content::DropData& data,
                     blink::WebDragOperationsMask operations_allowed) override;
@@ -440,6 +470,8 @@ class CefBrowserHostImpl : public CefBrowserHost,
                  bool final_update) override;
   void UpdatePreferredSize(content::WebContents* source,
                            const gfx::Size& pref_size) override;
+  void ResizeDueToAutoResize(content::WebContents* source,
+                             const gfx::Size& new_size) override;
   void RequestMediaAccessPermission(
       content::WebContents* web_contents,
       const content::MediaStreamRequest& request,
@@ -447,6 +479,7 @@ class CefBrowserHostImpl : public CefBrowserHost,
   bool CheckMediaAccessPermission(content::WebContents* web_contents,
                                   const GURL& security_origin,
                                   content::MediaStreamType type) override;
+  bool IsNeverVisible(content::WebContents* web_contents) override;
 
   // content::WebContentsObserver methods.
   using content::WebContentsObserver::BeforeUnloadFired;
@@ -504,7 +537,8 @@ class CefBrowserHostImpl : public CefBrowserHost,
       CefRefPtr<CefBrowserHostImpl> opener,
       bool is_devtools_popup,
       CefRefPtr<CefRequestContext> request_context,
-      std::unique_ptr<CefBrowserPlatformDelegate> platform_delegate);
+      std::unique_ptr<CefBrowserPlatformDelegate> platform_delegate,
+      CefRefPtr<CefExtension> extension);
 
   // content::WebContentsObserver::OnMessageReceived() message handlers.
   void OnFrameIdentified(int64 frame_id,
@@ -533,10 +567,20 @@ class CefBrowserHostImpl : public CefBrowserHost,
       scoped_refptr<CefBrowserInfo> browser_info,
       CefRefPtr<CefBrowserHostImpl> opener,
       CefRefPtr<CefRequestContext> request_context,
-      std::unique_ptr<CefBrowserPlatformDelegate> platform_delegate);
+      std::unique_ptr<CefBrowserPlatformDelegate> platform_delegate,
+      CefRefPtr<CefExtension> extension);
 
   // Give the platform delegate an opportunity to create the host window.
   bool CreateHostWindow();
+
+  // Create/delete the host for extensions.
+  void CreateExtensionHost(const extensions::Extension* extension,
+                           content::BrowserContext* browser_context,
+                           content::WebContents* host_contents,
+                           const GURL& url,
+                           extensions::ViewType host_type);
+  void DestroyExtensionHost();
+  void OnExtensionHostDeleted();
 
   // Updates and returns an existing frame or creates a new frame. Pass
   // CefFrameHostImpl::kUnspecifiedFrameId for |parent_frame_id| if unknown.
@@ -648,6 +692,11 @@ class CefBrowserHostImpl : public CefBrowserHost,
 
   // Used to provide unique incremental IDs for each find request.
   int find_request_id_counter_ = 0;
+
+  // Used when the browser is hosting an extension.
+  extensions::ExtensionHost* extension_host_ = nullptr;
+  CefRefPtr<CefExtension> extension_;
+  bool is_background_host_ = false;
 
   IMPLEMENT_REFCOUNTING(CefBrowserHostImpl);
   DISALLOW_COPY_AND_ASSIGN(CefBrowserHostImpl);

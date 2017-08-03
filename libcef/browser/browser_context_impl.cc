@@ -329,6 +329,11 @@ void CefBrowserContextImpl::AddCefRequestContext(
 void CefBrowserContextImpl::RemoveCefRequestContext(
     CefRequestContextImpl* context) {
   CEF_REQUIRE_UIT();
+
+  if (extensions::ExtensionsEnabled()) {
+    extension_system()->OnRequestContextDeleted(context);
+  }
+
   request_context_set_.erase(context);
 
   // Delete ourselves when the reference count reaches zero.
@@ -382,7 +387,9 @@ CefBrowserContextImpl::CreateZoomLevelDelegate(
 }
 
 bool CefBrowserContextImpl::IsOffTheRecord() const {
-  return cache_path_.empty();
+  // CEF contexts are never flagged as off-the-record. It causes problems
+  // for the extension system.
+  return false;
 }
 
 content::DownloadManagerDelegate*

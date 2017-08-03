@@ -13,6 +13,9 @@ namespace extensions {
 namespace api {
 namespace cef {
 
+// Array of currently supported APIs.
+extern const char* const kSupportedAPIs[];
+
 class ChromeFunctionRegistry {
  public:
   static bool IsSupported(const std::string& name);

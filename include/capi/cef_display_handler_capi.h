@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=f0f3fd4cab00c0eb11956e674a111cb30d3af100$
+// $hash=979968e494e9d7c4d5117a1753acade5d0e79215$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_DISPLAY_HANDLER_CAPI_H_
@@ -121,6 +121,16 @@ typedef struct _cef_display_handler_t {
                                         const cef_string_t* message,
                                         const cef_string_t* source,
                                         int line);
+
+  ///
+  // Called when auto-resize is enabled via
+  // cef_browser_host_t::SetAutoResizeEnabled and the contents have auto-
+  // resized. |new_size| will be the desired size in view coordinates. Return
+  // true (1) if the resize was handled or false (0) for default handling.
+  ///
+  int(CEF_CALLBACK* on_auto_resize)(struct _cef_display_handler_t* self,
+                                    struct _cef_browser_t* browser,
+                                    const cef_size_t* new_size);
 } cef_display_handler_t;
 
 #ifdef __cplusplus

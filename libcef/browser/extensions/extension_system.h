@@ -6,7 +6,11 @@
 #ifndef CEF_LIBCEF_BROWSER_EXTENSIONS_EXTENSION_SYSTEM_H_
 #define CEF_LIBCEF_BROWSER_EXTENSIONS_EXTENSION_SYSTEM_H_
 
-#include <vector>
+#include <map>
+#include <memory>
+
+#include "include/cef_extension_handler.h"
+#include "include/cef_request_context.h"
 
 #include "base/compiler_specific.h"
 #include "base/memory/weak_ptr.h"
@@ -16,8 +20,9 @@
 class BrowserContextKeyedServiceFactory;
 
 namespace base {
+class DictionaryValue;
 class FilePath;
-}
+}  // namespace base
 
 namespace content {
 class BrowserContext;
@@ -41,13 +46,43 @@ class CefExtensionSystem : public ExtensionSystem {
   // Initializes the extension system.
   void Init();
 
-  // Add an extension. Returns the new Extension object on success or NULL on
-  // failure.
-  const Extension* AddExtension(const std::string& manifest_contents,
-                                const base::FilePath& root_directory);
+  // Load an extension. For internal (built-in) extensions set |internal| to
+  // true and |loader_context| and |handler| to NULL. For external extensions
+  // set |internal| to false and |loader_context| must be the request context
+  // that loaded the extension. |handler| is optional for internal extensions
+  // and, if specified, will receive extension-related callbacks.
+  void LoadExtension(const base::FilePath& root_directory,
+                     bool internal,
+                     CefRefPtr<CefRequestContext> loader_context,
+                     CefRefPtr<CefExtensionHandler> handler);
+  void LoadExtension(const std::string& manifest_contents,
+                     const base::FilePath& root_directory,
+                     bool internal,
+                     CefRefPtr<CefRequestContext> loader_context,
+                     CefRefPtr<CefExtensionHandler> handler);
+  void LoadExtension(std::unique_ptr<base::DictionaryValue> manifest,
+                     const base::FilePath& root_directory,
+                     bool internal,
+                     CefRefPtr<CefRequestContext> loader_context,
+                     CefRefPtr<CefExtensionHandler> handler);
 
-  // Remove an extension.
-  void RemoveExtension(const std::string& extension_id);
+  // Unload the external extension identified by |extension_id|.
+  bool UnloadExtension(const std::string& extension_id);
+
+  // Returns true if an extension matching |extension_id| is loaded.
+  bool HasExtension(const std::string& extension_id) const;
+
+  // Returns the loaded extention matching |extension_id| or NULL if not found.
+  CefRefPtr<CefExtension> GetExtension(const std::string& extension_id) const;
+
+  using ExtensionMap = std::map<std::string, CefRefPtr<CefExtension>>;
+
+  // Returns the map of all loaded extensions.
+  ExtensionMap GetExtensions() const;
+
+  // Called when a request context is deleted. Unregisters any external
+  // extensions that were registered with this context.
+  void OnRequestContextDeleted(CefRequestContext* context);
 
   // KeyedService implementation:
   void Shutdown() override;
@@ -84,7 +119,8 @@ class CefExtensionSystem : public ExtensionSystem {
   // Information about a registered component extension.
   struct ComponentExtensionInfo {
     ComponentExtensionInfo(const base::DictionaryValue* manifest,
-                           const base::FilePath& root_directory);
+                           const base::FilePath& root_directory,
+                           bool internal);
 
     // The parsed contents of the extensions's manifest file.
     const base::DictionaryValue* manifest;
@@ -92,8 +128,8 @@ class CefExtensionSystem : public ExtensionSystem {
     // Directory where the extension is stored.
     base::FilePath root_directory;
 
-    // The component extension's ID.
-    std::string extension_id;
+    // True if the extension is an internal (built-in) component.
+    bool internal;
   };
 
   scoped_refptr<const Extension> CreateExtension(
@@ -101,7 +137,9 @@ class CefExtensionSystem : public ExtensionSystem {
       std::string* utf8_error);
 
   // Loads a registered component extension.
-  const Extension* LoadExtension(const ComponentExtensionInfo& info);
+  const Extension* LoadExtension(const ComponentExtensionInfo& info,
+                                 CefRefPtr<CefRequestContext> loader_context,
+                                 CefRefPtr<CefExtensionHandler> handler);
 
   // Unload the specified extension.
   void UnloadExtension(const std::string& extension_id,
@@ -140,6 +178,9 @@ class CefExtensionSystem : public ExtensionSystem {
   // The associated RendererStartupHelper. Guaranteed to outlive the
   // ExtensionSystem, and thus us.
   extensions::RendererStartupHelper* renderer_helper_;
+
+  // Map of extension ID to CEF extension object.
+  ExtensionMap extension_map_;
 
   // Must be the last member.
   base::WeakPtrFactory<CefExtensionSystem> weak_ptr_factory_;

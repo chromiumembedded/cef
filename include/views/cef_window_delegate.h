@@ -64,6 +64,21 @@ class CefWindowDelegate : public CefPanelDelegate {
   virtual void OnWindowDestroyed(CefRefPtr<CefWindow> window) {}
 
   ///
+  // Return the parent for |window| or NULL if the |window| does not have a
+  // parent. Windows with parents will not get a taskbar button. Set |is_menu|
+  // to true if |window| will be displayed as a menu, in which case it will not
+  // be clipped to the parent window bounds. Set |can_activate_menu| to false
+  // if |is_menu| is true and |window| should not be activated (given keyboard
+  // focus) when displayed.
+  ///
+  /*--cef()--*/
+  virtual CefRefPtr<CefWindow> GetParentWindow(CefRefPtr<CefWindow> window,
+                                               bool* is_menu,
+                                               bool* can_activate_menu) {
+    return NULL;
+  }
+
+  ///
   // Return true if |window| should be created without a frame or title bar. The
   // window will be resizable if CanResize() returns true. Use
   // CefWindow::SetDraggableRegions() to specify draggable regions.

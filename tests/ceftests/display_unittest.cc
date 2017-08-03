@@ -6,6 +6,7 @@
 
 #include "include/base/cef_bind.h"
 #include "include/wrapper/cef_closure_task.h"
+#include "tests/ceftests/routing_test_handler.h"
 #include "tests/ceftests/test_handler.h"
 #include "tests/gtest/include/gtest/gtest.h"
 
@@ -140,6 +141,104 @@ class TitleTestHandler : public TestHandler {
 // Test title notifications.
 TEST(DisplayTest, Title) {
   CefRefPtr<TitleTestHandler> handler = new TitleTestHandler();
+  handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
+}
+
+namespace {
+
+const char kAutoResizeUrl[] = "http://tests-display/auto-resize.html";
+
+class AutoResizeTestHandler : public RoutingTestHandler {
+ public:
+  AutoResizeTestHandler() {}
+
+  void RunTest() override {
+    // Add the resources that we will navigate to/from.
+    AddResource(kAutoResizeUrl,
+                "<html><head><style>"
+                "body {overflow:hidden;margin:0px;padding:0px;}"
+                "</style></head><body><div id=a>Content</div></body></html>",
+                "text/html");
+
+    // Create the browser.
+    CreateBrowser(kAutoResizeUrl);
+
+    // Time out the test after a reasonable period of time.
+    SetTestTimeout();
+  }
+
+  void OnAfterCreated(CefRefPtr<CefBrowser> browser) override {
+    RoutingTestHandler::OnAfterCreated(browser);
+    browser->GetHost()->SetAutoResizeEnabled(true, CefSize(10, 10),
+                                             CefSize(500, 500));
+  }
+
+  bool OnAutoResize(CefRefPtr<CefBrowser> browser,
+                    const CefSize& new_size) override {
+    if (!got_auto_resize1_) {
+      got_auto_resize1_.yes();
+      EXPECT_EQ(50, new_size.width);
+      EXPECT_EQ(18, new_size.height);
+
+      // Trigger a resize.
+      browser->GetMainFrame()->ExecuteJavaScript(
+          "document.getElementById('a').innerText='New Content';",
+          kAutoResizeUrl, 0);
+    } else if (!got_auto_resize2_) {
+      got_auto_resize2_.yes();
+      EXPECT_EQ(50, new_size.width);
+      EXPECT_EQ(36, new_size.height);
+
+      // Disable resize notifications.
+      browser->GetHost()->SetAutoResizeEnabled(false, CefSize(), CefSize());
+
+      // There should be no more resize notifications. End the test after a
+      // short delay.
+      browser->GetMainFrame()->ExecuteJavaScript(
+          "document.getElementById('a').innerText='New Content Again';"
+          "var interval = setInterval(function() {"
+          "window.testQuery({request:'done'});clearInterval(interval);}, 50);",
+          kAutoResizeUrl, 0);
+    } else {
+      EXPECT_TRUE(false);  // Not reached.
+    }
+    return true;
+  }
+
+  bool OnQuery(CefRefPtr<CefBrowser> browser,
+               CefRefPtr<CefFrame> frame,
+               int64 query_id,
+               const CefString& request,
+               bool persistent,
+               CefRefPtr<Callback> callback) override {
+    EXPECT_STREQ("done", request.ToString().c_str());
+    EXPECT_FALSE(got_done_message_);
+    got_done_message_.yes();
+    DestroyTest();
+    return true;
+  }
+
+  void DestroyTest() override {
+    EXPECT_TRUE(got_auto_resize1_);
+    EXPECT_TRUE(got_auto_resize2_);
+    EXPECT_TRUE(got_done_message_);
+    TestHandler::DestroyTest();
+  }
+
+ private:
+  TrackCallback got_auto_resize1_;
+  TrackCallback got_auto_resize2_;
+  TrackCallback got_done_message_;
+
+  IMPLEMENT_REFCOUNTING(AutoResizeTestHandler);
+};
+
+}  // namespace
+
+// Test OnAutoResize notification.
+TEST(DisplayTest, AutoResize) {
+  CefRefPtr<AutoResizeTestHandler> handler = new AutoResizeTestHandler();
   handler->ExecuteTest();
   ReleaseAndWaitForDestructor(handler);
 }

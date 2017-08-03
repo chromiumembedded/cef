@@ -8,7 +8,7 @@
 # by hand. See the translator.README.txt file in the tools directory for
 # more information.
 #
-# $hash=20588ad142633d169a929c7631888e287ab66b9a$
+# $hash=2a6e7c37a8421d3c0d032cc907fb3058790ac71d$
 #
 
 {
@@ -32,6 +32,8 @@
       'include/cef_download_item.h',
       'include/cef_drag_data.h',
       'include/cef_drag_handler.h',
+      'include/cef_extension.h',
+      'include/cef_extension_handler.h',
       'include/cef_file_util.h',
       'include/cef_find_handler.h',
       'include/cef_focus_handler.h',
@@ -122,6 +124,8 @@
       'include/capi/cef_download_item_capi.h',
       'include/capi/cef_drag_data_capi.h',
       'include/capi/cef_drag_handler_capi.h',
+      'include/capi/cef_extension_capi.h',
+      'include/capi/cef_extension_handler_capi.h',
       'include/capi/cef_file_util_capi.h',
       'include/capi/cef_find_handler_capi.h',
       'include/capi/cef_focus_handler_capi.h',
@@ -266,6 +270,10 @@
       'libcef_dll/ctocpp/drag_handler_ctocpp.h',
       'libcef_dll/ctocpp/end_tracing_callback_ctocpp.cc',
       'libcef_dll/ctocpp/end_tracing_callback_ctocpp.h',
+      'libcef_dll/cpptoc/extension_cpptoc.cc',
+      'libcef_dll/cpptoc/extension_cpptoc.h',
+      'libcef_dll/ctocpp/extension_handler_ctocpp.cc',
+      'libcef_dll/ctocpp/extension_handler_ctocpp.h',
       'libcef_dll/cpptoc/file_dialog_callback_cpptoc.cc',
       'libcef_dll/cpptoc/file_dialog_callback_cpptoc.h',
       'libcef_dll/cpptoc/views/fill_layout_cpptoc.cc',
@@ -280,6 +288,8 @@
       'libcef_dll/cpptoc/geolocation_callback_cpptoc.h',
       'libcef_dll/ctocpp/geolocation_handler_ctocpp.cc',
       'libcef_dll/ctocpp/geolocation_handler_ctocpp.h',
+      'libcef_dll/cpptoc/get_extension_resource_callback_cpptoc.cc',
+      'libcef_dll/cpptoc/get_extension_resource_callback_cpptoc.h',
       'libcef_dll/ctocpp/get_geolocation_callback_ctocpp.cc',
       'libcef_dll/ctocpp/get_geolocation_callback_ctocpp.h',
       'libcef_dll/cpptoc/image_cpptoc.cc',
@@ -304,6 +314,8 @@
       'libcef_dll/cpptoc/views/menu_button_cpptoc.h',
       'libcef_dll/ctocpp/views/menu_button_delegate_ctocpp.cc',
       'libcef_dll/ctocpp/views/menu_button_delegate_ctocpp.h',
+      'libcef_dll/cpptoc/views/menu_button_pressed_lock_cpptoc.cc',
+      'libcef_dll/cpptoc/views/menu_button_pressed_lock_cpptoc.h',
       'libcef_dll/cpptoc/menu_model_cpptoc.cc',
       'libcef_dll/cpptoc/menu_model_cpptoc.h',
       'libcef_dll/ctocpp/menu_model_delegate_ctocpp.cc',
@@ -540,6 +552,10 @@
       'libcef_dll/cpptoc/drag_handler_cpptoc.h',
       'libcef_dll/cpptoc/end_tracing_callback_cpptoc.cc',
       'libcef_dll/cpptoc/end_tracing_callback_cpptoc.h',
+      'libcef_dll/ctocpp/extension_ctocpp.cc',
+      'libcef_dll/ctocpp/extension_ctocpp.h',
+      'libcef_dll/cpptoc/extension_handler_cpptoc.cc',
+      'libcef_dll/cpptoc/extension_handler_cpptoc.h',
       'libcef_dll/ctocpp/file_dialog_callback_ctocpp.cc',
       'libcef_dll/ctocpp/file_dialog_callback_ctocpp.h',
       'libcef_dll/ctocpp/views/fill_layout_ctocpp.cc',
@@ -554,6 +570,8 @@
       'libcef_dll/ctocpp/geolocation_callback_ctocpp.h',
       'libcef_dll/cpptoc/geolocation_handler_cpptoc.cc',
       'libcef_dll/cpptoc/geolocation_handler_cpptoc.h',
+      'libcef_dll/ctocpp/get_extension_resource_callback_ctocpp.cc',
+      'libcef_dll/ctocpp/get_extension_resource_callback_ctocpp.h',
       'libcef_dll/cpptoc/get_geolocation_callback_cpptoc.cc',
       'libcef_dll/cpptoc/get_geolocation_callback_cpptoc.h',
       'libcef_dll/ctocpp/image_ctocpp.cc',
@@ -578,6 +596,8 @@
       'libcef_dll/ctocpp/views/menu_button_ctocpp.h',
       'libcef_dll/cpptoc/views/menu_button_delegate_cpptoc.cc',
       'libcef_dll/cpptoc/views/menu_button_delegate_cpptoc.h',
+      'libcef_dll/ctocpp/views/menu_button_pressed_lock_ctocpp.cc',
+      'libcef_dll/ctocpp/views/menu_button_pressed_lock_ctocpp.h',
       'libcef_dll/ctocpp/menu_model_ctocpp.cc',
       'libcef_dll/ctocpp/menu_model_ctocpp.h',
       'libcef_dll/cpptoc/menu_model_delegate_cpptoc.cc',

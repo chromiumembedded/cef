@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=45f1ced8a482b44d73c8538fbbdbc27e73003d6f$
+// $hash=2df1182745ef1d14ed20428c53ed7638742c13f9$
 //
 
 #include "include/capi/cef_app_capi.h"
@@ -56,9 +56,11 @@
 #include "libcef_dll/cpptoc/download_item_callback_cpptoc.h"
 #include "libcef_dll/cpptoc/download_item_cpptoc.h"
 #include "libcef_dll/cpptoc/drag_data_cpptoc.h"
+#include "libcef_dll/cpptoc/extension_cpptoc.h"
 #include "libcef_dll/cpptoc/file_dialog_callback_cpptoc.h"
 #include "libcef_dll/cpptoc/frame_cpptoc.h"
 #include "libcef_dll/cpptoc/geolocation_callback_cpptoc.h"
+#include "libcef_dll/cpptoc/get_extension_resource_callback_cpptoc.h"
 #include "libcef_dll/cpptoc/image_cpptoc.h"
 #include "libcef_dll/cpptoc/jsdialog_callback_cpptoc.h"
 #include "libcef_dll/cpptoc/list_value_cpptoc.h"
@@ -100,6 +102,7 @@
 #include "libcef_dll/cpptoc/views/label_button_cpptoc.h"
 #include "libcef_dll/cpptoc/views/layout_cpptoc.h"
 #include "libcef_dll/cpptoc/views/menu_button_cpptoc.h"
+#include "libcef_dll/cpptoc/views/menu_button_pressed_lock_cpptoc.h"
 #include "libcef_dll/cpptoc/views/panel_cpptoc.h"
 #include "libcef_dll/cpptoc/views/scroll_view_cpptoc.h"
 #include "libcef_dll/cpptoc/views/textfield_cpptoc.h"
@@ -125,6 +128,7 @@
 #include "libcef_dll/ctocpp/download_image_callback_ctocpp.h"
 #include "libcef_dll/ctocpp/drag_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/end_tracing_callback_ctocpp.h"
+#include "libcef_dll/ctocpp/extension_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/find_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/focus_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/geolocation_handler_ctocpp.h"
@@ -277,6 +281,8 @@ CEF_EXPORT void cef_shutdown() {
   DCHECK(base::AtomicRefCountIsZero(&CefDragDataCppToC::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefDragHandlerCToCpp::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefEndTracingCallbackCToCpp::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(&CefExtensionCppToC::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(&CefExtensionHandlerCToCpp::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefFileDialogCallbackCppToC::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefFillLayoutCppToC::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefFindHandlerCToCpp::DebugObjCt));
@@ -284,6 +290,8 @@ CEF_EXPORT void cef_shutdown() {
   DCHECK(base::AtomicRefCountIsZero(&CefFrameCppToC::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefGeolocationCallbackCppToC::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefGeolocationHandlerCToCpp::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(
+      &CefGetExtensionResourceCallbackCppToC::DebugObjCt));
   DCHECK(
       base::AtomicRefCountIsZero(&CefGetGeolocationCallbackCToCpp::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefImageCppToC::DebugObjCt));
@@ -297,6 +305,8 @@ CEF_EXPORT void cef_shutdown() {
   DCHECK(base::AtomicRefCountIsZero(&CefLoadHandlerCToCpp::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefMenuButtonCppToC::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefMenuButtonDelegateCToCpp::DebugObjCt));
+  DCHECK(
+      base::AtomicRefCountIsZero(&CefMenuButtonPressedLockCppToC::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefMenuModelCppToC::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefMenuModelDelegateCToCpp::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefNavigationEntryCppToC::DebugObjCt));

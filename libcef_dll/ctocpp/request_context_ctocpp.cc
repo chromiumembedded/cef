@@ -9,16 +9,18 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=eb7605c00ee71d056306cd6b9d0e7eb55112927a$
+// $hash=7199bc96d7ab4c07229d7d8cb078a9b64621042c$
 //
 
 #include "libcef_dll/ctocpp/request_context_ctocpp.h"
 #include "libcef_dll/cpptoc/completion_callback_cpptoc.h"
+#include "libcef_dll/cpptoc/extension_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/request_context_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/resolve_callback_cpptoc.h"
 #include "libcef_dll/cpptoc/scheme_handler_factory_cpptoc.h"
 #include "libcef_dll/ctocpp/cookie_manager_ctocpp.h"
 #include "libcef_dll/ctocpp/dictionary_value_ctocpp.h"
+#include "libcef_dll/ctocpp/extension_ctocpp.h"
 #include "libcef_dll/ctocpp/value_ctocpp.h"
 #include "libcef_dll/transfer_util.h"
 
@@ -408,6 +410,115 @@ cef_errorcode_t CefRequestContextCToCpp::ResolveHostCached(
 
   // Return type: simple
   return _retval;
+}
+
+void CefRequestContextCToCpp::LoadExtension(
+    const CefString& root_directory,
+    CefRefPtr<CefDictionaryValue> manifest,
+    CefRefPtr<CefExtensionHandler> handler) {
+  cef_request_context_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, load_extension))
+    return;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: root_directory; type: string_byref_const
+  DCHECK(!root_directory.empty());
+  if (root_directory.empty())
+    return;
+  // Unverified params: manifest, handler
+
+  // Execute
+  _struct->load_extension(_struct, root_directory.GetStruct(),
+                          CefDictionaryValueCToCpp::Unwrap(manifest),
+                          CefExtensionHandlerCppToC::Wrap(handler));
+}
+
+bool CefRequestContextCToCpp::DidLoadExtension(const CefString& extension_id) {
+  cef_request_context_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, did_load_extension))
+    return false;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: extension_id; type: string_byref_const
+  DCHECK(!extension_id.empty());
+  if (extension_id.empty())
+    return false;
+
+  // Execute
+  int _retval = _struct->did_load_extension(_struct, extension_id.GetStruct());
+
+  // Return type: bool
+  return _retval ? true : false;
+}
+
+bool CefRequestContextCToCpp::HasExtension(const CefString& extension_id) {
+  cef_request_context_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, has_extension))
+    return false;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: extension_id; type: string_byref_const
+  DCHECK(!extension_id.empty());
+  if (extension_id.empty())
+    return false;
+
+  // Execute
+  int _retval = _struct->has_extension(_struct, extension_id.GetStruct());
+
+  // Return type: bool
+  return _retval ? true : false;
+}
+
+bool CefRequestContextCToCpp::GetExtensions(
+    std::vector<CefString>& extension_ids) {
+  cef_request_context_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_extensions))
+    return false;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Translate param: extension_ids; type: string_vec_byref
+  cef_string_list_t extension_idsList = cef_string_list_alloc();
+  DCHECK(extension_idsList);
+  if (extension_idsList)
+    transfer_string_list_contents(extension_ids, extension_idsList);
+
+  // Execute
+  int _retval = _struct->get_extensions(_struct, extension_idsList);
+
+  // Restore param:extension_ids; type: string_vec_byref
+  if (extension_idsList) {
+    extension_ids.clear();
+    transfer_string_list_contents(extension_idsList, extension_ids);
+    cef_string_list_free(extension_idsList);
+  }
+
+  // Return type: bool
+  return _retval ? true : false;
+}
+
+CefRefPtr<CefExtension> CefRequestContextCToCpp::GetExtension(
+    const CefString& extension_id) {
+  cef_request_context_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_extension))
+    return NULL;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: extension_id; type: string_byref_const
+  DCHECK(!extension_id.empty());
+  if (extension_id.empty())
+    return NULL;
+
+  // Execute
+  cef_extension_t* _retval =
+      _struct->get_extension(_struct, extension_id.GetStruct());
+
+  // Return type: refptr_same
+  return CefExtensionCToCpp::Wrap(_retval);
 }
 
 // CONSTRUCTOR - Do not edit by hand.
