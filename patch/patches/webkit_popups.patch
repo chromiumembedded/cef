@@ -12,10 +12,10 @@ index ed45829..a43bd1e 100644
    virtual GraphicsLayer* RootGraphicsLayer() = 0;
    virtual void RegisterViewportLayersWithCompositor() = 0;
 diff --git third_party/WebKit/Source/web/ChromeClientImpl.cpp third_party/WebKit/Source/web/ChromeClientImpl.cpp
-index 2a35f2c..dded520 100644
+index 9ff6994..d310a87 100644
 --- third_party/WebKit/Source/web/ChromeClientImpl.cpp
 +++ third_party/WebKit/Source/web/ChromeClientImpl.cpp
-@@ -935,7 +935,7 @@ PopupMenu* ChromeClientImpl::OpenPopupMenu(LocalFrame& frame,
+@@ -928,7 +928,7 @@ PopupMenu* ChromeClientImpl::OpenPopupMenu(LocalFrame& frame,
      return nullptr;
  
    NotifyPopupOpeningObservers();
@@ -25,10 +25,10 @@ index 2a35f2c..dded520 100644
  
    DCHECK(RuntimeEnabledFeatures::pagePopupEnabled());
 diff --git third_party/WebKit/Source/web/WebViewImpl.cpp third_party/WebKit/Source/web/WebViewImpl.cpp
-index bd1490b..80b61b8 100644
+index 3e58637..6d89fa1 100644
 --- third_party/WebKit/Source/web/WebViewImpl.cpp
 +++ third_party/WebKit/Source/web/WebViewImpl.cpp
-@@ -353,6 +353,7 @@ WebViewImpl::WebViewImpl(WebViewClient* client,
+@@ -354,6 +354,7 @@ WebViewImpl::WebViewImpl(WebViewClient* client,
        enable_fake_page_scale_animation_for_testing_(false),
        fake_page_scale_animation_page_scale_factor_(0),
        fake_page_scale_animation_use_anchor_(false),
@@ -36,7 +36,7 @@ index bd1490b..80b61b8 100644
        compositor_device_scale_factor_override_(0),
        suppress_next_keypress_event_(false),
        ime_accept_events_(true),
-@@ -3689,12 +3690,13 @@ void WebViewImpl::MainFrameScrollOffsetChanged() {
+@@ -3694,12 +3695,13 @@ void WebViewImpl::MainFrameScrollOffsetChanged() {
    dev_tools_emulator_->MainFrameScrollOrScaleChanged();
  }
  
