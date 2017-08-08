@@ -115,7 +115,7 @@ index 68e5b60..3861921 100644
    class InkDropGestureHandler;
    friend class InkDropGestureHandler;
 diff --git ui/views/controls/button/label_button.cc ui/views/controls/button/label_button.cc
-index f049ca8..23bc0bd 100644
+index f049ca8..631fd16 100644
 --- ui/views/controls/button/label_button.cc
 +++ ui/views/controls/button/label_button.cc
 @@ -192,6 +192,7 @@ gfx::Size LabelButton::CalculatePreferredSize() const {
@@ -126,12 +126,13 @@ index f049ca8..23bc0bd 100644
  
    if (style_ == STYLE_BUTTON && PlatformStyle::kDefaultLabelButtonHasBoldFont) {
      // Some text appears wider when rendered normally than when rendered bold.
-@@ -404,6 +405,11 @@ std::unique_ptr<views::InkDropHighlight> LabelButton::CreateInkDropHighlight()
+@@ -404,6 +405,12 @@ std::unique_ptr<views::InkDropHighlight> LabelButton::CreateInkDropHighlight()
                     gfx::RectF(image()->GetMirroredBounds()).CenterPoint());
  }
  
 +void LabelButton::SetFontList(const gfx::FontList& font_list) {
 +  cached_normal_font_list_ = font_list;
++  cached_default_button_font_list_ = font_list;
 +  label_->SetFontList(cached_normal_font_list_);
 +}
 +
