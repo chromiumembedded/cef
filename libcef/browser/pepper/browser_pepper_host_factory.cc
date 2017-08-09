@@ -6,10 +6,13 @@
 
 #include "base/memory/ptr_util.h"
 #include "build/build_config.h"
+#include "chrome/browser/renderer_host/pepper/pepper_broker_message_filter.h"
 #include "chrome/browser/renderer_host/pepper/pepper_flash_browser_host.h"
 #include "chrome/browser/renderer_host/pepper/pepper_flash_clipboard_message_filter.h"
 #include "chrome/browser/renderer_host/pepper/pepper_flash_drm_host.h"
 #include "chrome/browser/renderer_host/pepper/pepper_isolated_file_system_message_filter.h"
+#include "chrome/browser/renderer_host/pepper/pepper_output_protection_message_filter.h"
+#include "chrome/browser/renderer_host/pepper/pepper_platform_verification_message_filter.h"
 #include "content/public/browser/browser_ppapi_host.h"
 #include "ppapi/host/message_filter_host.h"
 #include "ppapi/host/ppapi_host.h"
@@ -37,6 +40,33 @@ std::unique_ptr<ResourceHost> CefBrowserPepperHostFactory::CreateResourceHost(
   // Make sure the plugin is giving us a valid instance for this resource.
   if (!host_->IsValidInstance(instance))
     return nullptr;
+
+  // Private interfaces.
+  if (host_->GetPpapiHost()->permissions().HasPermission(
+          ppapi::PERMISSION_PRIVATE)) {
+    switch (message.type()) {
+      case PpapiHostMsg_Broker_Create::ID: {
+        scoped_refptr<ResourceMessageFilter> broker_filter(
+            new chrome::PepperBrokerMessageFilter(instance, host_));
+        return std::unique_ptr<ResourceHost>(new MessageFilterHost(
+            host_->GetPpapiHost(), instance, resource, broker_filter));
+      }
+      case PpapiHostMsg_PlatformVerification_Create::ID: {
+        scoped_refptr<ResourceMessageFilter> pv_filter(
+            new chrome::PepperPlatformVerificationMessageFilter(host_,
+                                                                instance));
+        return std::unique_ptr<ResourceHost>(new MessageFilterHost(
+            host_->GetPpapiHost(), instance, resource, pv_filter));
+      }
+      case PpapiHostMsg_OutputProtection_Create::ID: {
+        scoped_refptr<ResourceMessageFilter> output_protection_filter(
+            new chrome::PepperOutputProtectionMessageFilter(host_, instance));
+        return std::unique_ptr<ResourceHost>(
+            new MessageFilterHost(host_->GetPpapiHost(), instance, resource,
+                                  output_protection_filter));
+      }
+    }
+  }
 
   // Flash interfaces.
   if (host_->GetPpapiHost()->permissions().HasPermission(
