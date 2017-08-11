@@ -68,8 +68,9 @@ class TestDeleteCookiesCallback : public CefDeleteCookiesCallback {
       : expected_num_deleted_(expected_num_deleted), event_(event) {}
 
   void OnComplete(int num_deleted) override {
-    if (expected_num_deleted_ != kIgnoreNumDeleted)
+    if (expected_num_deleted_ != kIgnoreNumDeleted) {
       EXPECT_EQ(expected_num_deleted_, num_deleted);
+    }
     event_->Signal();
   }
 

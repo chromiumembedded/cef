@@ -185,10 +185,11 @@ class HistoryNavRendererTest : public ClientAppRenderer::Delegate,
     EXPECT_EQ(RT_SUB_RESOURCE, request->GetResourceType());
     EXPECT_EQ(TT_EXPLICIT, request->GetTransitionType());
 
-    if (item.action == NA_LOAD)
+    if (item.action == NA_LOAD) {
       EXPECT_EQ(NAVIGATION_OTHER, navigation_type);
-    else if (item.action == NA_BACK || item.action == NA_FORWARD)
+    } else if (item.action == NA_BACK || item.action == NA_FORWARD) {
       EXPECT_EQ(NAVIGATION_BACK_FORWARD, navigation_type);
+    }
 
     if (nav_ > 0) {
       const NavListItem& last_item = kHNavList[nav_ - 1];
@@ -423,11 +424,12 @@ class HistoryNavTestHandler : public TestHandler {
     EXPECT_STREQ(item.target, url.c_str());
 
     EXPECT_EQ(RT_MAIN_FRAME, request->GetResourceType());
-    if (item.action == NA_LOAD)
+    if (item.action == NA_LOAD) {
       EXPECT_EQ(TT_EXPLICIT, request->GetTransitionType());
-    else if (item.action == NA_BACK || item.action == NA_FORWARD)
+    } else if (item.action == NA_BACK || item.action == NA_FORWARD) {
       EXPECT_EQ(TT_EXPLICIT | TT_FORWARD_BACK_FLAG,
                 request->GetTransitionType());
+    }
 
     if (nav_ > 0) {
       const NavListItem& last_item = kHNavList[nav_ - 1];
@@ -449,11 +451,12 @@ class HistoryNavTestHandler : public TestHandler {
     const NavListItem& item = kHNavList[nav_];
 
     EXPECT_EQ(RT_MAIN_FRAME, request->GetResourceType());
-    if (item.action == NA_LOAD)
+    if (item.action == NA_LOAD) {
       EXPECT_EQ(TT_EXPLICIT, request->GetTransitionType());
-    else if (item.action == NA_BACK || item.action == NA_FORWARD)
+    } else if (item.action == NA_BACK || item.action == NA_FORWARD) {
       EXPECT_EQ(TT_EXPLICIT | TT_FORWARD_BACK_FLAG,
                 request->GetTransitionType());
+    }
 
     got_before_resource_load_[nav_].yes();
 
@@ -494,10 +497,11 @@ class HistoryNavTestHandler : public TestHandler {
 
     got_load_start_[nav_].yes();
 
-    if (item.action == NA_LOAD)
+    if (item.action == NA_LOAD) {
       EXPECT_EQ(TT_EXPLICIT, transition_type);
-    else if (item.action == NA_BACK || item.action == NA_FORWARD)
+    } else if (item.action == NA_BACK || item.action == NA_FORWARD) {
       EXPECT_EQ(TT_EXPLICIT | TT_FORWARD_BACK_FLAG, transition_type);
+    }
 
     std::string url1 = browser->GetMainFrame()->GetURL();
     std::string url2 = frame->GetURL();

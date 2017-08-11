@@ -161,8 +161,9 @@ class TestSchemeHandler : public TestHandler {
 #if defined(OS_LINUX)
     // CustomStandardXHR* tests are flaky on Linux, sometimes returning
     // ERR_ABORTED. Make the tests less flaky by also accepting that value.
-    if (!(test_results_->expected_error_code == 0 && errorCode == ERR_ABORTED))
+    if (!(test_results_->expected_error_code == 0 && errorCode == ERR_ABORTED)) {
       EXPECT_EQ(test_results_->expected_error_code, errorCode);
+    }
 #else
     // Check that the error code matches the expectation.
     EXPECT_EQ(test_results_->expected_error_code, errorCode);

@@ -344,8 +344,9 @@ void TestHandler::DestroyTest() {
 
 void TestHandler::OnTestTimeout(int timeout_ms, bool treat_as_error) {
   EXPECT_UI_THREAD();
-  if (treat_as_error)
+  if (treat_as_error) {
     EXPECT_TRUE(false) << "Test timed out after " << timeout_ms << "ms";
+  }
   DestroyTest();
 }
 

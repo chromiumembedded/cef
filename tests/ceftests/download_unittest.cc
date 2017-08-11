@@ -271,8 +271,9 @@ class DownloadTestHandler : public TestHandler {
     EXPECT_TRUE(download_item.get());
     EXPECT_TRUE(callback.get());
 
-    if (got_on_before_download_)
+    if (got_on_before_download_) {
       EXPECT_EQ(download_id_, download_item->GetId());
+    }
 
     EXPECT_LE(0LL, download_item->GetCurrentSpeed());
     EXPECT_LE(0, download_item->GetPercentComplete());

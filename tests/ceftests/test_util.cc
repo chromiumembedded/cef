@@ -8,8 +8,9 @@
 void TestMapEqual(const CefRequest::HeaderMap& map1,
                   const CefRequest::HeaderMap& map2,
                   bool allowExtras) {
-  if (!allowExtras)
+  if (!allowExtras) {
     EXPECT_EQ(map1.size(), map2.size());
+  }
 
   TestMapNoDuplicates(map1);
   TestMapNoDuplicates(map2);

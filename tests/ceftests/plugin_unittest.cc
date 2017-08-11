@@ -558,8 +558,9 @@ class PluginTestHandler : public RoutingTestHandler,
         EXPECT_TRUE(got_on_load_end_pdf1_);
         EXPECT_TRUE(got_on_load_end_pdf2_);
 
-        if (HasRequestContextHandler())
+        if (HasRequestContextHandler()) {
           EXPECT_TRUE(got_on_before_plugin_load_pdf_);
+        }
       }
     } else if (url_ == kPdfDirectUrl) {
       // Load the PDF file directly.
@@ -567,8 +568,9 @@ class PluginTestHandler : public RoutingTestHandler,
       EXPECT_TRUE(got_on_load_end_pdf1_);
       EXPECT_FALSE(got_on_load_end_pdf2_);
 
-      if (HasRequestContextHandler())
+      if (HasRequestContextHandler()) {
         EXPECT_TRUE(got_on_before_plugin_load_pdf_);
+      }
     } else {
       NOTREACHED();
     }
