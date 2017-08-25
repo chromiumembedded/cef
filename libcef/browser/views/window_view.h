@@ -68,6 +68,8 @@ class CefWindowView
   bool ShouldDescendIntoChildForEventHandling(
       gfx::NativeView child,
       const gfx::Point& location) override;
+  bool MaybeGetMinimumSize(gfx::Size* size) const override;
+  bool MaybeGetMaximumSize(gfx::Size* size) const override;
 
   // views::View methods:
   void ViewHierarchyChanged(

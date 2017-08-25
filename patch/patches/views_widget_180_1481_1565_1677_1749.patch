@@ -335,7 +335,7 @@ index cb18967..0c143d2 100644
    base::WeakPtrFactory<DesktopWindowTreeHostX11> weak_factory_;
  
 diff --git ui/views/widget/widget.cc ui/views/widget/widget.cc
-index 32a50e8..06d39f0 100644
+index 32a50e8..43191a9 100644
 --- ui/views/widget/widget.cc
 +++ ui/views/widget/widget.cc
 @@ -130,6 +130,7 @@ Widget::InitParams::InitParams(Type type)
@@ -369,6 +369,23 @@ index 32a50e8..06d39f0 100644
    }
    // This must come after SetContentsView() or it might not be able to find
    // the correct NativeTheme (on Linux). See http://crbug.com/384492
+@@ -1098,10 +1104,16 @@ void Widget::OnNativeWidgetDestroyed() {
+ }
+ 
+ gfx::Size Widget::GetMinimumSize() const {
++  gfx::Size size;
++  if (widget_delegate_->MaybeGetMinimumSize(&size))
++    return size;
+   return non_client_view_ ? non_client_view_->GetMinimumSize() : gfx::Size();
+ }
+ 
+ gfx::Size Widget::GetMaximumSize() const {
++  gfx::Size size;
++  if (widget_delegate_->MaybeGetMaximumSize(&size))
++    return size;
+   return non_client_view_ ? non_client_view_->GetMaximumSize() : gfx::Size();
+ }
+ 
 diff --git ui/views/widget/widget.h ui/views/widget/widget.h
 index 63fcb9d..7237ae6 100644
 --- ui/views/widget/widget.h
@@ -381,6 +398,21 @@ index 63fcb9d..7237ae6 100644
      // Specifies the initial bounds of the Widget. Default is empty, which means
      // the NativeWidget may specify a default size. If the parent is specified,
      // |bounds| is in the parent's coordinate system. If the parent is not
+diff --git ui/views/widget/widget_delegate.h ui/views/widget/widget_delegate.h
+index bd4d8a7..998cfa0 100644
+--- ui/views/widget/widget_delegate.h
++++ ui/views/widget/widget_delegate.h
+@@ -187,6 +187,10 @@ class VIEWS_EXPORT WidgetDelegate {
+   // be cycled through with keyboard focus.
+   virtual void GetAccessiblePanes(std::vector<View*>* panes) {}
+ 
++  // CEF supports override of min/max size values.
++  virtual bool MaybeGetMinimumSize(gfx::Size* size) const { return false; }
++  virtual bool MaybeGetMaximumSize(gfx::Size* size) const { return false; }
++
+  protected:
+   virtual ~WidgetDelegate() {}
+ 
 diff --git ui/views/widget/widget_hwnd_utils.cc ui/views/widget/widget_hwnd_utils.cc
 index 163e4b5..58f594db 100644
 --- ui/views/widget/widget_hwnd_utils.cc

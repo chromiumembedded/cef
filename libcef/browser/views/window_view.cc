@@ -436,6 +436,30 @@ bool CefWindowView::ShouldDescendIntoChildForEventHandling(
          !draggable_region_->contains(location.x(), location.y());
 }
 
+bool CefWindowView::MaybeGetMinimumSize(gfx::Size* size) const {
+#if defined(OS_LINUX)
+  // Resize is disabled on Linux by returning the preferred size as the min/max
+  // size.
+  if (!CanResize()) {
+    *size = CalculatePreferredSize();
+    return true;
+  }
+#endif
+  return false;
+}
+
+bool CefWindowView::MaybeGetMaximumSize(gfx::Size* size) const {
+#if defined(OS_LINUX)
+  // Resize is disabled on Linux by returning the preferred size as the min/max
+  // size.
+  if (!CanResize()) {
+    *size = CalculatePreferredSize();
+    return true;
+  }
+#endif
+  return false;
+}
+
 void CefWindowView::ViewHierarchyChanged(
     const views::View::ViewHierarchyChangedDetails& details) {
   if (details.child == this) {
