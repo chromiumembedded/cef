@@ -1,3 +1,18 @@
+diff --git chrome/browser/feedback/system_logs/log_sources/chrome_internal_log_source.cc chrome/browser/feedback/system_logs/log_sources/chrome_internal_log_source.cc
+index c76b85d5c8f6..45663219337f 100644
+--- chrome/browser/feedback/system_logs/log_sources/chrome_internal_log_source.cc
++++ chrome/browser/feedback/system_logs/log_sources/chrome_internal_log_source.cc
+@@ -163,6 +163,10 @@ void ChromeInternalLogSource::Fetch(const SysLogsSourceCallback& callback) {
+ }
+ 
+ void ChromeInternalLogSource::PopulateSyncLogs(SystemLogsResponse* response) {
++  // CEF should avoid loading ProfileSyncServiceFactory which depends on a lot
++  // of unnecessary Chrome-specific factories.
++  return;
++
+   // We are only interested in sync logs for the primary user profile.
+   Profile* profile = ProfileManager::GetPrimaryUserProfile();
+   if (!profile ||
 diff --git chrome/browser/ui/webui/net_internals/net_internals_ui.cc chrome/browser/ui/webui/net_internals/net_internals_ui.cc
 index 028eff9..2495103d 100644
 --- chrome/browser/ui/webui/net_internals/net_internals_ui.cc
