@@ -1,5 +1,5 @@
 diff --git net/base/network_delegate.h net/base/network_delegate.h
-index eaa1e30..18b486d 100644
+index eaa1e3061c64..18b486d3e35a 100644
 --- net/base/network_delegate.h
 +++ net/base/network_delegate.h
 @@ -16,6 +16,7 @@
@@ -22,7 +22,7 @@ index eaa1e30..18b486d 100644
    // This is the interface for subclasses of NetworkDelegate to implement. These
    // member functions will be called by the respective public notification
 diff --git net/url_request/url_request_job.cc net/url_request/url_request_job.cc
-index 050ba28..05684c8 100644
+index 050ba283f66a..05684c8d67da 100644
 --- net/url_request/url_request_job.cc
 +++ net/url_request/url_request_job.cc
 @@ -499,6 +499,12 @@ void URLRequestJob::NotifyHeadersComplete() {

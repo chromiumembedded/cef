@@ -1,5 +1,5 @@
 diff --git third_party/crashpad/crashpad/client/prune_crash_reports.cc third_party/crashpad/crashpad/client/prune_crash_reports.cc
-index 3aaaeee..d99fcb4 100644
+index 3aaaeee5d07f..d99fcb418d9e 100644
 --- third_party/crashpad/crashpad/client/prune_crash_reports.cc
 +++ third_party/crashpad/crashpad/client/prune_crash_reports.cc
 @@ -67,13 +67,19 @@ void PruneCrashReportDatabase(CrashReportDatabase* database,
@@ -26,7 +26,7 @@ index 3aaaeee..d99fcb4 100644
  
  static const time_t kSecondsInDay = 60 * 60 * 24;
 diff --git third_party/crashpad/crashpad/client/prune_crash_reports.h third_party/crashpad/crashpad/client/prune_crash_reports.h
-index 6dac5f3..34f5ee1 100644
+index 6dac5f3002b3..34f5ee111d3d 100644
 --- third_party/crashpad/crashpad/client/prune_crash_reports.h
 +++ third_party/crashpad/crashpad/client/prune_crash_reports.h
 @@ -57,7 +57,8 @@ class PruneCondition {
@@ -40,7 +40,7 @@ index 6dac5f3..34f5ee1 100644
    virtual ~PruneCondition() {}
  
 diff --git third_party/crashpad/crashpad/client/settings.cc third_party/crashpad/crashpad/client/settings.cc
-index 15d16f2..5e8eadf 100644
+index 15d16f2e0928..5e8eadfd3ad1 100644
 --- third_party/crashpad/crashpad/client/settings.cc
 +++ third_party/crashpad/crashpad/client/settings.cc
 @@ -38,7 +38,7 @@ void ScopedLockedFileHandleTraits::Free(FileHandle handle) {
@@ -130,7 +130,7 @@ index 15d16f2..5e8eadf 100644
  Settings::ScopedLockedFileHandle Settings::MakeScopedLockedFileHandle(
      FileHandle file,
 diff --git third_party/crashpad/crashpad/client/settings.h third_party/crashpad/crashpad/client/settings.h
-index b64f74f..0c3c22e 100644
+index b64f74fbaf28..0c3c22e215b6 100644
 --- third_party/crashpad/crashpad/client/settings.h
 +++ third_party/crashpad/crashpad/client/settings.h
 @@ -102,6 +102,11 @@ class Settings {
@@ -146,7 +146,7 @@ index b64f74f..0c3c22e 100644
    struct Data;
  
 diff --git third_party/crashpad/crashpad/handler/crash_report_upload_thread.h third_party/crashpad/crashpad/handler/crash_report_upload_thread.h
-index c769efe..daec6cd 100644
+index c769efed5c54..daec6cd17f37 100644
 --- third_party/crashpad/crashpad/handler/crash_report_upload_thread.h
 +++ third_party/crashpad/crashpad/handler/crash_report_upload_thread.h
 @@ -89,7 +89,7 @@ class CrashReportUploadThread : public WorkerThread::Delegate {
@@ -177,7 +177,7 @@ index c769efe..daec6cd 100644
    //! \brief Attempts to upload a crash report.
    //!
 diff --git third_party/crashpad/crashpad/handler/handler_main.cc third_party/crashpad/crashpad/handler/handler_main.cc
-index e6d05e2..93e5eb1 100644
+index e6d05e22b639..93e5eb17f7c5 100644
 --- third_party/crashpad/crashpad/handler/handler_main.cc
 +++ third_party/crashpad/crashpad/handler/handler_main.cc
 @@ -35,8 +35,10 @@

@@ -1,5 +1,5 @@
 diff --git content/public/common/common_param_traits_macros.h content/public/common/common_param_traits_macros.h
-index e0f025b..b691251 100644
+index e0f025b87b62..b69125110799 100644
 --- content/public/common/common_param_traits_macros.h
 +++ content/public/common/common_param_traits_macros.h
 @@ -207,6 +207,7 @@ IPC_STRUCT_TRAITS_BEGIN(content::WebPreferences)
@@ -11,7 +11,7 @@ index e0f025b..b691251 100644
    IPC_STRUCT_TRAITS_MEMBER(navigate_on_drag_drop)
    IPC_STRUCT_TRAITS_MEMBER(spatial_navigation_enabled)
 diff --git content/public/common/web_preferences.cc content/public/common/web_preferences.cc
-index 1e00ba5..d829b4f 100644
+index 1e00ba53c4af..d829b4f8bdc5 100644
 --- content/public/common/web_preferences.cc
 +++ content/public/common/web_preferences.cc
 @@ -171,6 +171,7 @@ WebPreferences::WebPreferences()
@@ -23,7 +23,7 @@ index 1e00ba5..d829b4f 100644
        inert_visual_viewport(false),
        record_whole_document(false),
 diff --git content/public/common/web_preferences.h content/public/common/web_preferences.h
-index 41f7a69..d04e476 100644
+index 41f7a69d1d71..d04e476ab383 100644
 --- content/public/common/web_preferences.h
 +++ content/public/common/web_preferences.h
 @@ -191,6 +191,7 @@ struct CONTENT_EXPORT WebPreferences {
@@ -35,7 +35,7 @@ index 41f7a69..d04e476 100644
    bool inert_visual_viewport;
    bool record_whole_document;
 diff --git content/renderer/render_view_impl.cc content/renderer/render_view_impl.cc
-index d9a7e20..a1e971c 100644
+index d9a7e20f21cc..a1e971c14ba5 100644
 --- content/renderer/render_view_impl.cc
 +++ content/renderer/render_view_impl.cc
 @@ -1400,6 +1400,8 @@ void RenderViewImpl::ApplyWebPreferencesInternal(

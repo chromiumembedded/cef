@@ -1,5 +1,5 @@
 diff --git chrome/browser/ui/webui/net_internals/net_internals_ui.cc chrome/browser/ui/webui/net_internals/net_internals_ui.cc
-index 2fa6e2a..f7bb035 100644
+index 2fa6e2ae7576..f7bb03539496 100644
 --- chrome/browser/ui/webui/net_internals/net_internals_ui.cc
 +++ chrome/browser/ui/webui/net_internals/net_internals_ui.cc
 @@ -526,8 +526,7 @@ void NetInternalsMessageHandler::OnGetSessionNetworkStats(
@@ -47,7 +47,7 @@ index 2fa6e2a..f7bb035 100644
    // Add entries for ongoing network objects.
    CreateNetLogEntriesForActiveObjects(contexts, this);
 diff --git content/browser/resource_context_impl.cc content/browser/resource_context_impl.cc
-index 141a083..b16b4d6 100644
+index 141a08305332..b16b4d61988d 100644
 --- content/browser/resource_context_impl.cc
 +++ content/browser/resource_context_impl.cc
 @@ -58,6 +58,10 @@ URLDataManagerBackend* GetURLDataManagerForResourceContext(
@@ -62,7 +62,7 @@ index 141a083..b16b4d6 100644
    ResourceContext* resource_context = browser_context->GetResourceContext();
  
 diff --git content/browser/resource_context_impl.h content/browser/resource_context_impl.h
-index 903cc54..56ee4ea 100644
+index 903cc543a242..56ee4ea7bfb4 100644
 --- content/browser/resource_context_impl.h
 +++ content/browser/resource_context_impl.h
 @@ -28,6 +28,8 @@ CONTENT_EXPORT StreamContext* GetStreamContextForResourceContext(
@@ -75,23 +75,23 @@ index 903cc54..56ee4ea 100644
  CONTENT_EXPORT void InitializeResourceContext(BrowserContext* browser_context);
  
 diff --git content/browser/webui/url_data_manager.cc content/browser/webui/url_data_manager.cc
-index 5681ff5..7d96c24 100644
+index 5681ff549fd4..7d96c24fab2f 100644
 --- content/browser/webui/url_data_manager.cc
 +++ content/browser/webui/url_data_manager.cc
-@@ -153,6 +153,11 @@ void URLDataManager::UpdateWebUIDataSource(
+@@ -152,6 +152,11 @@ void URLDataManager::UpdateWebUIDataSource(
+       ->UpdateWebUIDataSource(source_name, std::move(update));
  }
  
- // static
++// static
 +const void* URLDataManager::GetUserDataKey() {
 +  return kURLDataManagerKeyName;
 +}
 +
-+// static
+ // static
  bool URLDataManager::IsScheduledForDeletion(
      const URLDataSourceImpl* data_source) {
-   base::AutoLock lock(g_delete_lock.Get());
 diff --git content/browser/webui/url_data_manager.h content/browser/webui/url_data_manager.h
-index 5ceb74d..0c584d6 100644
+index 5ceb74d411fc..0c584d6e69b5 100644
 --- content/browser/webui/url_data_manager.h
 +++ content/browser/webui/url_data_manager.h
 @@ -69,6 +69,8 @@ class CONTENT_EXPORT URLDataManager : public base::SupportsUserData::Data {

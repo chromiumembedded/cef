@@ -1,5 +1,5 @@
 diff --git content/browser/compositor/gpu_process_transport_factory.cc content/browser/compositor/gpu_process_transport_factory.cc
-index 409df107..e1df182 100644
+index 409df107103e..e1df1826410e 100644
 --- content/browser/compositor/gpu_process_transport_factory.cc
 +++ content/browser/compositor/gpu_process_transport_factory.cc
 @@ -240,6 +240,13 @@ GpuProcessTransportFactory::~GpuProcessTransportFactory() {
@@ -17,7 +17,7 @@ index 409df107..e1df182 100644
    if (command_line->HasSwitch(switches::kHeadless))
      return base::WrapUnique(new cc::SoftwareOutputDevice);
 diff --git ui/compositor/compositor.h ui/compositor/compositor.h
-index 54a104a..ba76d90 100644
+index 54a104ae7619..ba76d902d4ea 100644
 --- ui/compositor/compositor.h
 +++ ui/compositor/compositor.h
 @@ -18,6 +18,7 @@

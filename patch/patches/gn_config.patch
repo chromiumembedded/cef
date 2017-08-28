@@ -1,5 +1,5 @@
 diff --git .gn .gn
-index c91f911..bd906bc 100644
+index c91f91148cf0..bd906bc2e851 100644
 --- .gn
 +++ .gn
 @@ -261,6 +261,8 @@ exec_script_whitelist =
@@ -12,7 +12,7 @@ index c91f911..bd906bc 100644
        # https://crbug.com/474506.
        "//clank/java/BUILD.gn",
 diff --git BUILD.gn BUILD.gn
-index 9429718..1f8c486 100644
+index 94297185eddd..1f8c4866a48a 100644
 --- BUILD.gn
 +++ BUILD.gn
 @@ -154,6 +154,7 @@ group("gn_all") {
@@ -24,7 +24,7 @@ index 9429718..1f8c486 100644
        "//chrome/test:unit_tests",
        "//components:components_browsertests",
 diff --git build/config/win/visual_studio_version.gni build/config/win/visual_studio_version.gni
-index 982fbe8..e757be46 100644
+index 982fbe8d3f0d..e757be4688f1 100644
 --- build/config/win/visual_studio_version.gni
 +++ build/config/win/visual_studio_version.gni
 @@ -12,9 +12,8 @@ declare_args() {
@@ -56,7 +56,7 @@ index 982fbe8..e757be46 100644
 +         "studio path")
  }
 diff --git build/toolchain/win/setup_toolchain.py build/toolchain/win/setup_toolchain.py
-index e8b0849..0bfc676 100644
+index e8b08495745c..0bfc67619941 100644
 --- build/toolchain/win/setup_toolchain.py
 +++ build/toolchain/win/setup_toolchain.py
 @@ -132,18 +132,20 @@ def _LoadToolchainEnv(cpu, sdk_dir):
@@ -91,7 +91,7 @@ index e8b0849..0bfc676 100644
  
  
 diff --git build/vs_toolchain.py build/vs_toolchain.py
-index bb8f96c..6902237 100755
+index bb8f96c4e52c..690223784382 100755
 --- build/vs_toolchain.py
 +++ build/vs_toolchain.py
 @@ -79,11 +79,18 @@ def SetEnvironmentAndGetRuntimeDllDirs():
@@ -114,7 +114,7 @@ index bb8f96c..6902237 100755
      # directory in order to run binaries locally, but they are needed in order
      # to create isolates or the mini_installer. Copying them to the output
 diff --git chrome/chrome_paks.gni chrome/chrome_paks.gni
-index 1f9a1fc..aa69e8c 100644
+index 1f9a1fc9a687..aa69e8c98648 100644
 --- chrome/chrome_paks.gni
 +++ chrome/chrome_paks.gni
 @@ -245,7 +245,7 @@ template("chrome_paks") {
@@ -127,7 +127,7 @@ index 1f9a1fc..aa69e8c 100644
        if (is_mac) {
          output_locales = locales_as_mac_outputs
 diff --git chrome/installer/mini_installer/BUILD.gn chrome/installer/mini_installer/BUILD.gn
-index 2afab1a..c8791ea 100644
+index 2afab1a3c6a3..c8791ea51be2 100644
 --- chrome/installer/mini_installer/BUILD.gn
 +++ chrome/installer/mini_installer/BUILD.gn
 @@ -128,7 +128,7 @@ template("generate_mini_installer") {

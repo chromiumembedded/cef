@@ -1,5 +1,5 @@
 diff --git third_party/WebKit/Source/core/dom/DOMImplementation.cpp third_party/WebKit/Source/core/dom/DOMImplementation.cpp
-index 372b21d..78107f3 100644
+index 372b21d40782..78107f391847 100644
 --- third_party/WebKit/Source/core/dom/DOMImplementation.cpp
 +++ third_party/WebKit/Source/core/dom/DOMImplementation.cpp
 @@ -242,10 +242,11 @@ Document* DOMImplementation::createDocument(const String& type,
@@ -17,7 +17,7 @@ index 372b21d..78107f3 100644
                                                          .Top()
                                                          .GetSecurityContext()
 diff --git third_party/WebKit/Source/core/frame/LocalFrame.cpp third_party/WebKit/Source/core/frame/LocalFrame.cpp
-index 97a5393..21da4ee 100644
+index 97a5393d40b4..21da4ee7d27c 100644
 --- third_party/WebKit/Source/core/frame/LocalFrame.cpp
 +++ third_party/WebKit/Source/core/frame/LocalFrame.cpp
 @@ -930,7 +930,7 @@ ContentSettingsClient* LocalFrame::GetContentSettingsClient() {
@@ -30,7 +30,7 @@ index 97a5393..21da4ee 100644
  }
  
 diff --git third_party/WebKit/Source/core/page/Page.cpp third_party/WebKit/Source/core/page/Page.cpp
-index 6dc4b21..41d56b5 100644
+index 6dc4b2180bc2..41d56b50887b 100644
 --- third_party/WebKit/Source/core/page/Page.cpp
 +++ third_party/WebKit/Source/core/page/Page.cpp
 @@ -289,16 +289,30 @@ void Page::RefreshPlugins() {
@@ -72,7 +72,7 @@ index 6dc4b21..41d56b5 100644
  
  void Page::SetValidationMessageClient(ValidationMessageClient* client) {
 diff --git third_party/WebKit/Source/core/page/Page.h third_party/WebKit/Source/core/page/Page.h
-index e644faa..2fe0d37 100644
+index e644faaeae13..2fe0d37974c9 100644
 --- third_party/WebKit/Source/core/page/Page.h
 +++ third_party/WebKit/Source/core/page/Page.h
 @@ -132,7 +132,8 @@ class CORE_EXPORT Page final : public GarbageCollectedFinalized<Page>,
@@ -96,7 +96,7 @@ index e644faa..2fe0d37 100644
    EditorClient* const editor_client_;
    SpellCheckerClient* const spell_checker_client_;
 diff --git third_party/WebKit/Source/platform/plugins/PluginData.cpp third_party/WebKit/Source/platform/plugins/PluginData.cpp
-index 03618f6..5ac59e8 100644
+index 03618f6a3d96..5ac59e858c9d 100644
 --- third_party/WebKit/Source/platform/plugins/PluginData.cpp
 +++ third_party/WebKit/Source/platform/plugins/PluginData.cpp
 @@ -30,11 +30,12 @@
@@ -126,7 +126,7 @@ index 03618f6..5ac59e8 100644
  }
  
 diff --git third_party/WebKit/Source/platform/plugins/PluginData.h third_party/WebKit/Source/platform/plugins/PluginData.h
-index cdf3381..671f17c 100644
+index cdf3381cedec..671f17c752a1 100644
 --- third_party/WebKit/Source/platform/plugins/PluginData.h
 +++ third_party/WebKit/Source/platform/plugins/PluginData.h
 @@ -52,8 +52,9 @@ class PLATFORM_EXPORT PluginData : public RefCounted<PluginData> {
@@ -157,7 +157,7 @@ index cdf3381..671f17c 100644
  };
  
 diff --git third_party/WebKit/public/platform/Platform.h third_party/WebKit/public/platform/Platform.h
-index f7360bf6..f7599cc 100644
+index f7360bf6cb93..f7599ccd143c 100644
 --- third_party/WebKit/public/platform/Platform.h
 +++ third_party/WebKit/public/platform/Platform.h
 @@ -363,6 +363,7 @@ class BLINK_PLATFORM_EXPORT Platform {

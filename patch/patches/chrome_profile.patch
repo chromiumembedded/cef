@@ -1,5 +1,5 @@
 diff --git chrome/browser/profiles/incognito_helpers.cc chrome/browser/profiles/incognito_helpers.cc
-index 6155e96..2125a436 100644
+index 6155e9606d67..2125a436c87e 100644
 --- chrome/browser/profiles/incognito_helpers.cc
 +++ chrome/browser/profiles/incognito_helpers.cc
 @@ -8,13 +8,35 @@
@@ -39,7 +39,7 @@ index 6155e96..2125a436 100644
  }
  
 diff --git chrome/browser/profiles/incognito_helpers.h chrome/browser/profiles/incognito_helpers.h
-index 4b43013..169ca47 100644
+index 4b430133e16f..169ca4765907 100644
 --- chrome/browser/profiles/incognito_helpers.h
 +++ chrome/browser/profiles/incognito_helpers.h
 @@ -11,6 +11,19 @@ class BrowserContext;
@@ -63,7 +63,7 @@ index 4b43013..169ca47 100644
  content::BrowserContext* GetBrowserContextRedirectedInIncognito(
      content::BrowserContext* context);
 diff --git chrome/browser/profiles/profile_manager.h chrome/browser/profiles/profile_manager.h
-index 5753fec..cc23f06 100644
+index 5753fecbe39f..cc23f0662993 100644
 --- chrome/browser/profiles/profile_manager.h
 +++ chrome/browser/profiles/profile_manager.h
 @@ -95,7 +95,7 @@ class ProfileManager : public base::NonThreadSafe,

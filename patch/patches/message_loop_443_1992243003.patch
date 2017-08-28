@@ -1,5 +1,5 @@
 diff --git base/message_loop/message_loop.h base/message_loop/message_loop.h
-index fa25e78..cd62826 100644
+index fa25e78f6d38..cd62826e366d 100644
 --- base/message_loop/message_loop.h
 +++ base/message_loop/message_loop.h
 @@ -288,6 +288,16 @@ class BASE_EXPORT MessageLoop : public MessagePump::Delegate,
@@ -33,7 +33,7 @@ index fa25e78..cd62826 100644
    // if type_ is TYPE_CUSTOM and pump_ is null.
    MessagePumpFactoryCallback pump_factory_;
 diff --git base/message_loop/message_pump_win.cc base/message_loop/message_pump_win.cc
-index 6f48da1..e427941 100644
+index 6f48da1c744e..e427941bfd06 100644
 --- base/message_loop/message_pump_win.cc
 +++ base/message_loop/message_pump_win.cc
 @@ -366,20 +366,28 @@ bool MessagePumpForUI::ProcessMessageHelper(const MSG& msg) {

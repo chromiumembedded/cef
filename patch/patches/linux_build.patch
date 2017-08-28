@@ -1,5 +1,5 @@
 diff --git chrome/browser/ui/libgtkui/gtk_ui.cc chrome/browser/ui/libgtkui/gtk_ui.cc
-index 7df1d0c..3dd3209 100644
+index 7df1d0c511c1..3dd32090eb8d 100644
 --- chrome/browser/ui/libgtkui/gtk_ui.cc
 +++ chrome/browser/ui/libgtkui/gtk_ui.cc
 @@ -320,8 +320,12 @@ float GetRawDeviceScaleFactor() {

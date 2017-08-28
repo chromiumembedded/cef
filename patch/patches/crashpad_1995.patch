@@ -1,5 +1,5 @@
 diff --git build/secondary/third_party/crashpad/crashpad/handler/BUILD.gn build/secondary/third_party/crashpad/crashpad/handler/BUILD.gn
-index 4d385dd..1b51f2d 100644
+index 4d385dd5512b..1b51f2d17491 100644
 --- build/secondary/third_party/crashpad/crashpad/handler/BUILD.gn
 +++ build/secondary/third_party/crashpad/crashpad/handler/BUILD.gn
 @@ -2,6 +2,8 @@
@@ -31,7 +31,7 @@ index 4d385dd..1b51f2d 100644
      cflags = [ "/wd4201" ]
    }
 diff --git chrome/common/crash_keys.cc chrome/common/crash_keys.cc
-index e9578be..2561824 100644
+index e9578be2cd28..2561824f984b 100644
 --- chrome/common/crash_keys.cc
 +++ chrome/common/crash_keys.cc
 @@ -4,6 +4,8 @@
@@ -90,7 +90,7 @@ index e9578be..2561824 100644
  
  void SetActiveExtensions(const std::set<std::string>& extensions) {
 diff --git chrome/common/crash_keys.h chrome/common/crash_keys.h
-index 93fb0b0..3e543d2 100644
+index 93fb0b07ec1e..3e543d211ff3 100644
 --- chrome/common/crash_keys.h
 +++ chrome/common/crash_keys.h
 @@ -22,10 +22,18 @@ class CommandLine;
@@ -113,7 +113,7 @@ index 93fb0b0..3e543d2 100644
  // on the given |command_line|.
  void SetCrashKeysFromCommandLine(const base::CommandLine& command_line);
 diff --git chrome_elf/BUILD.gn chrome_elf/BUILD.gn
-index c8197e9..21ad726 100644
+index c8197e919e95..21ad726a223e 100644
 --- chrome_elf/BUILD.gn
 +++ chrome_elf/BUILD.gn
 @@ -7,6 +7,7 @@
@@ -169,7 +169,7 @@ index c8197e9..21ad726 100644
      "//components/crash/content/app:app",
      "//components/crash/core/common",  # crash_keys
 diff --git chrome_elf/crash/crash_helper.cc chrome_elf/crash/crash_helper.cc
-index c658fa9..8c4a145 100644
+index c658fa949b7c..8c4a145d1d9a 100644
 --- chrome_elf/crash/crash_helper.cc
 +++ chrome_elf/crash/crash_helper.cc
 @@ -11,12 +11,17 @@
@@ -203,7 +203,7 @@ index c658fa9..8c4a145 100644
    g_crash_helper_enabled = true;
    return true;
 diff --git components/crash/content/app/breakpad_linux.cc components/crash/content/app/breakpad_linux.cc
-index 0d3de65..a1b8b09 100644
+index 0d3de65043a0..a1b8b092f23a 100644
 --- components/crash/content/app/breakpad_linux.cc
 +++ components/crash/content/app/breakpad_linux.cc
 @@ -29,6 +29,7 @@
@@ -281,7 +281,7 @@ index 0d3de65..a1b8b09 100644
  void InitNonBrowserCrashReporterForAndroid(const std::string& process_type) {
    SanitizationInfo sanitization_info;
 diff --git components/crash/content/app/breakpad_linux.h components/crash/content/app/breakpad_linux.h
-index 0160f62..b732498 100644
+index 0160f6284561..b732498f86ab 100644
 --- components/crash/content/app/breakpad_linux.h
 +++ components/crash/content/app/breakpad_linux.h
 @@ -16,6 +16,9 @@ namespace breakpad {
@@ -295,7 +295,7 @@ index 0160f62..b732498 100644
  extern void InitCrashKeysForTesting();
  
 diff --git components/crash/content/app/crash_reporter_client.cc components/crash/content/app/crash_reporter_client.cc
-index 2e9ee28..de53f59 100644
+index 2e9ee28e1b00..de53f5927143 100644
 --- components/crash/content/app/crash_reporter_client.cc
 +++ components/crash/content/app/crash_reporter_client.cc
 @@ -88,11 +88,12 @@ int CrashReporterClient::GetResultCodeRespawnFailed() {
@@ -364,7 +364,7 @@ index 2e9ee28..de53f59 100644
 -
  }  // namespace crash_reporter
 diff --git components/crash/content/app/crash_reporter_client.h components/crash/content/app/crash_reporter_client.h
-index 9f69c19..2abaee00 100644
+index 9f69c193dda2..2abaee004c47 100644
 --- components/crash/content/app/crash_reporter_client.h
 +++ components/crash/content/app/crash_reporter_client.h
 @@ -8,6 +8,7 @@
@@ -390,14 +390,14 @@ index 9f69c19..2abaee00 100644
    virtual base::FilePath GetReporterLogFilename();
  
    // Custom crash minidump handler after the minidump is generated.
-@@ -119,6 +121,7 @@ class CrashReporterClient {
+@@ -118,6 +120,7 @@ class CrashReporterClient {
+   // WARNING: this handler runs in a compromised context. It may not call into
    // libc nor allocate memory normally.
    virtual bool HandleCrashDump(const char* crashdump_filename);
- #endif
 +#endif
+ #endif
  
    // The location where minidump files should be written. Returns true if
-   // |crash_dir| was set. Windows has to use base::string16 because this code
 @@ -197,6 +200,23 @@ class CrashReporterClient {
  
    // Returns true if breakpad should run in the given process type.
@@ -423,7 +423,7 @@ index 9f69c19..2abaee00 100644
  
  }  // namespace crash_reporter
 diff --git components/crash/content/app/crashpad.cc components/crash/content/app/crashpad.cc
-index dcec346..6272df6 100644
+index dcec34684352..6272df65bd0d 100644
 --- components/crash/content/app/crashpad.cc
 +++ components/crash/content/app/crashpad.cc
 @@ -142,7 +142,8 @@ void InitializeCrashpadImpl(bool initial_client,
@@ -437,7 +437,7 @@ index dcec346..6272df6 100644
          crashpad::TriState::kDisabled);
    }
 diff --git components/crash/content/app/crashpad_mac.mm components/crash/content/app/crashpad_mac.mm
-index 3bae07e..b2bee0e 100644
+index 3bae07e14c69..b2bee0ee1572 100644
 --- components/crash/content/app/crashpad_mac.mm
 +++ components/crash/content/app/crashpad_mac.mm
 @@ -16,11 +16,14 @@
@@ -538,7 +538,7 @@ index 3bae07e..b2bee0e 100644
            handler_path, database_path, metrics_path, url, process_annotations,
            arguments, true, false);
 diff --git components/crash/content/app/crashpad_win.cc components/crash/content/app/crashpad_win.cc
-index 94a350f..09fce54 100644
+index 94a350f4b5a4..09fce540a054 100644
 --- components/crash/content/app/crashpad_win.cc
 +++ components/crash/content/app/crashpad_win.cc
 @@ -33,8 +33,8 @@ void GetPlatformCrashpadAnnotations(
@@ -608,7 +608,7 @@ index 94a350f..09fce54 100644
  
      if (crash_reporter_client->ShouldMonitorCrashHandlerExpensively()) {
 diff --git content/browser/frame_host/debug_urls.cc content/browser/frame_host/debug_urls.cc
-index bcf53d5..d4f070b 100644
+index bcf53d5960e4..d4f070b19cd8 100644
 --- content/browser/frame_host/debug_urls.cc
 +++ content/browser/frame_host/debug_urls.cc
 @@ -139,7 +139,9 @@ bool HandleDebugURL(const GURL& url, ui::PageTransition transition) {

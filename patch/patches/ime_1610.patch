@@ -1,5 +1,5 @@
 diff --git ui/base/ime/input_method_win.cc ui/base/ime/input_method_win.cc
-index e2bb528..3e851e5 100644
+index e2bb52868157..3e851e5dbe03 100644
 --- ui/base/ime/input_method_win.cc
 +++ ui/base/ime/input_method_win.cc
 @@ -682,8 +682,9 @@ bool InputMethodWin::IsWindowFocused(const TextInputClient* client) const {

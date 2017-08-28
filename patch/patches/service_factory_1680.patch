@@ -1,5 +1,5 @@
 diff --git chrome/browser/spellchecker/spellcheck_factory.cc chrome/browser/spellchecker/spellcheck_factory.cc
-index 9d94c21..990046f 100644
+index 9d94c21c4201..990046f0a8bf 100644
 --- chrome/browser/spellchecker/spellcheck_factory.cc
 +++ chrome/browser/spellchecker/spellcheck_factory.cc
 @@ -17,6 +17,13 @@
@@ -26,7 +26,7 @@ index 9d94c21..990046f 100644
  
  SpellcheckServiceFactory::SpellcheckServiceFactory()
 diff --git chrome/browser/spellchecker/spellcheck_factory.h chrome/browser/spellchecker/spellcheck_factory.h
-index e8eb9f7..2e1b7cf 100644
+index e8eb9f7e8aa6..2e1b7cf84081 100644
 --- chrome/browser/spellchecker/spellcheck_factory.h
 +++ chrome/browser/spellchecker/spellcheck_factory.h
 @@ -7,7 +7,7 @@
@@ -48,7 +48,7 @@ index e8eb9f7..2e1b7cf 100644
    SpellcheckServiceFactory();
    ~SpellcheckServiceFactory() override;
 diff --git chrome/browser/supervised_user/supervised_user_settings_service_factory.cc chrome/browser/supervised_user/supervised_user_settings_service_factory.cc
-index 173ac31..473e561 100644
+index 173ac3132161..473e56161cca 100644
 --- chrome/browser/supervised_user/supervised_user_settings_service_factory.cc
 +++ chrome/browser/supervised_user/supervised_user_settings_service_factory.cc
 @@ -9,6 +9,13 @@
@@ -75,7 +75,7 @@ index 173ac31..473e561 100644
  
  SupervisedUserSettingsServiceFactory::SupervisedUserSettingsServiceFactory()
 diff --git chrome/browser/supervised_user/supervised_user_settings_service_factory.h chrome/browser/supervised_user/supervised_user_settings_service_factory.h
-index 2907619..f941fba 100644
+index 2907619549ba..f941fba363b5 100644
 --- chrome/browser/supervised_user/supervised_user_settings_service_factory.h
 +++ chrome/browser/supervised_user/supervised_user_settings_service_factory.h
 @@ -5,7 +5,7 @@
@@ -97,7 +97,7 @@ index 2907619..f941fba 100644
  
    SupervisedUserSettingsServiceFactory();
 diff --git chrome/browser/ui/prefs/prefs_tab_helper.cc chrome/browser/ui/prefs/prefs_tab_helper.cc
-index 175e4db..e5361c5 100644
+index 175e4db36ae2..e5361c596b17 100644
 --- chrome/browser/ui/prefs/prefs_tab_helper.cc
 +++ chrome/browser/ui/prefs/prefs_tab_helper.cc
 @@ -11,8 +11,8 @@

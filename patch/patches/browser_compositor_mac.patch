@@ -1,5 +1,5 @@
 diff --git content/browser/renderer_host/browser_compositor_view_mac.h content/browser/renderer_host/browser_compositor_view_mac.h
-index 16599b1..e489af1 100644
+index 16599b12409c..e489af16f4d1 100644
 --- content/browser/renderer_host/browser_compositor_view_mac.h
 +++ content/browser/renderer_host/browser_compositor_view_mac.h
 @@ -51,9 +51,11 @@ class BrowserCompositorMac : public DelegatedFrameHostClient {
@@ -15,7 +15,7 @@ index 16599b1..e489af1 100644
  
    void DidCreateNewRendererCompositorFrameSink(
 diff --git content/browser/renderer_host/browser_compositor_view_mac.mm content/browser/renderer_host/browser_compositor_view_mac.mm
-index 4121584..c821275 100644
+index 4121584c970f..c82127536fca 100644
 --- content/browser/renderer_host/browser_compositor_view_mac.mm
 +++ content/browser/renderer_host/browser_compositor_view_mac.mm
 @@ -202,6 +202,12 @@ BrowserCompositorMac::~BrowserCompositorMac() {

@@ -1,5 +1,5 @@
 diff --git chrome/browser/ui/cocoa/applescript/tab_applescript.mm chrome/browser/ui/cocoa/applescript/tab_applescript.mm
-index 0cd84f3..2f872dd 100644
+index 0cd84f38c229..2f872dd3dfe2 100644
 --- chrome/browser/ui/cocoa/applescript/tab_applescript.mm
 +++ chrome/browser/ui/cocoa/applescript/tab_applescript.mm
 @@ -9,7 +9,6 @@
@@ -41,7 +41,7 @@ index 0cd84f3..2f872dd 100644
  
  - (void)handlesSaveScriptCommand:(NSScriptCommand*)command {
 diff --git chrome/common/chrome_utility_printing_messages.h chrome/common/chrome_utility_printing_messages.h
-index f5712a7..11c0366 100644
+index f5712a7a5bb8..11c03661412b 100644
 --- chrome/common/chrome_utility_printing_messages.h
 +++ chrome/common/chrome_utility_printing_messages.h
 @@ -26,7 +26,6 @@
@@ -61,7 +61,7 @@ index f5712a7..11c0366 100644
    IPC_STRUCT_TRAITS_MEMBER(printer_capabilities)
    IPC_STRUCT_TRAITS_MEMBER(caps_mime_type)
 diff --git components/printing/common/print_messages.cc components/printing/common/print_messages.cc
-index de03634..76ee3a7 100644
+index de036345130c..76ee3a748007 100644
 --- components/printing/common/print_messages.cc
 +++ components/printing/common/print_messages.cc
 @@ -105,7 +105,6 @@ void PrintMsg_PrintPages_Params::Reset() {
@@ -78,7 +78,7 @@ index de03634..76ee3a7 100644
  }
 -#endif  // BUILDFLAG(ENABLE_PRINT_PREVIEW)
 diff --git components/printing/common/print_messages.h components/printing/common/print_messages.h
-index 32b0451..9ccb733 100644
+index 32b0451b60dd..9ccb7332bec6 100644
 --- components/printing/common/print_messages.h
 +++ components/printing/common/print_messages.h
 @@ -74,7 +74,6 @@ struct PrintMsg_PrintPages_Params {
@@ -198,7 +198,7 @@ index 32b0451..9ccb733 100644
                      PrintHostMsg_SetOptionsFromDocument_Params /* params */)
 -#endif  // BUILDFLAG(ENABLE_PRINT_PREVIEW)
 diff --git components/printing/renderer/print_web_view_helper.cc components/printing/renderer/print_web_view_helper.cc
-index 829b2dc..df3fc29 100644
+index 829b2dc1c65e..df3fc296ae7c 100644
 --- components/printing/renderer/print_web_view_helper.cc
 +++ components/printing/renderer/print_web_view_helper.cc
 @@ -320,7 +320,6 @@ bool PrintingNodeOrPdfFrame(const blink::WebLocalFrame* frame,
@@ -405,7 +405,7 @@ index 829b2dc..df3fc29 100644
  PrintWebViewHelper::PrintPreviewContext::PrintPreviewContext()
      : total_page_count_(0),
 diff --git components/printing/renderer/print_web_view_helper.h components/printing/renderer/print_web_view_helper.h
-index c4339d4..433fb26 100644
+index c4339d474adb..433fb26ae269 100644
 --- components/printing/renderer/print_web_view_helper.h
 +++ components/printing/renderer/print_web_view_helper.h
 @@ -153,9 +153,7 @@ class PrintWebViewHelper
@@ -486,7 +486,7 @@ index c4339d4..433fb26 100644
    bool is_loading_;
    bool is_scripted_preview_delayed_;
 diff --git components/printing/renderer/print_web_view_helper_mac.mm components/printing/renderer/print_web_view_helper_mac.mm
-index a00cfa0..4608dc0 100644
+index a00cfa0a95f1..4608dc001172 100644
 --- components/printing/renderer/print_web_view_helper_mac.mm
 +++ components/printing/renderer/print_web_view_helper_mac.mm
 @@ -76,7 +76,6 @@ void PrintWebViewHelper::PrintPagesInternal(

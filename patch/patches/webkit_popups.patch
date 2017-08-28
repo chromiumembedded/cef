@@ -1,5 +1,5 @@
 diff --git third_party/WebKit/Source/core/exported/WebViewBase.h third_party/WebKit/Source/core/exported/WebViewBase.h
-index ed45829..a43bd1e 100644
+index ed4582968a2c..a43bd1e3fac5 100644
 --- third_party/WebKit/Source/core/exported/WebViewBase.h
 +++ third_party/WebKit/Source/core/exported/WebViewBase.h
 @@ -151,7 +151,7 @@ class WebViewBase : public WebView, public RefCounted<WebViewBase> {
@@ -12,7 +12,7 @@ index ed45829..a43bd1e 100644
    virtual GraphicsLayer* RootGraphicsLayer() = 0;
    virtual void RegisterViewportLayersWithCompositor() = 0;
 diff --git third_party/WebKit/Source/web/ChromeClientImpl.cpp third_party/WebKit/Source/web/ChromeClientImpl.cpp
-index 9ff6994..d310a87 100644
+index 9ff6994c1267..d310a8750cb3 100644
 --- third_party/WebKit/Source/web/ChromeClientImpl.cpp
 +++ third_party/WebKit/Source/web/ChromeClientImpl.cpp
 @@ -928,7 +928,7 @@ PopupMenu* ChromeClientImpl::OpenPopupMenu(LocalFrame& frame,
@@ -25,7 +25,7 @@ index 9ff6994..d310a87 100644
  
    DCHECK(RuntimeEnabledFeatures::pagePopupEnabled());
 diff --git third_party/WebKit/Source/web/WebViewImpl.cpp third_party/WebKit/Source/web/WebViewImpl.cpp
-index 3e58637..6d89fa1 100644
+index 3e586378a0d6..6d89fa162e84 100644
 --- third_party/WebKit/Source/web/WebViewImpl.cpp
 +++ third_party/WebKit/Source/web/WebViewImpl.cpp
 @@ -354,6 +354,7 @@ WebViewImpl::WebViewImpl(WebViewClient* client,
@@ -55,7 +55,7 @@ index 3e58637..6d89fa1 100644
  
  void WebViewImpl::SetBackgroundColorOverride(WebColor color) {
 diff --git third_party/WebKit/Source/web/WebViewImpl.h third_party/WebKit/Source/web/WebViewImpl.h
-index 591da9f..df2c787 100644
+index 591da9f40545..df2c787f935b 100644
 --- third_party/WebKit/Source/web/WebViewImpl.h
 +++ third_party/WebKit/Source/web/WebViewImpl.h
 @@ -357,7 +357,8 @@ class WEB_EXPORT WebViewImpl final
@@ -78,7 +78,7 @@ index 591da9f..df2c787 100644
    TransformationMatrix device_emulation_transform_;
  
 diff --git third_party/WebKit/public/web/WebView.h third_party/WebKit/public/web/WebView.h
-index e790df6..4e57f29 100644
+index e790df6eb89b..4e57f29f2883 100644
 --- third_party/WebKit/public/web/WebView.h
 +++ third_party/WebKit/public/web/WebView.h
 @@ -398,6 +398,7 @@ class WebView : protected WebWidget {

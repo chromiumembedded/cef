@@ -1,5 +1,5 @@
 diff --git services/service_manager/embedder/main.cc services/service_manager/embedder/main.cc
-index 8667ae7..8418e52 100644
+index 8667ae76348b..8418e52b710f 100644
 --- services/service_manager/embedder/main.cc
 +++ services/service_manager/embedder/main.cc
 @@ -325,13 +325,30 @@ int RunService(MainDelegate* delegate) {
@@ -136,7 +136,7 @@ index 8667ae7..8418e52 100644
  }
  
 diff --git services/service_manager/embedder/main.h services/service_manager/embedder/main.h
-index e86697a..771acd8 100644
+index e86697a26d0f..771acd80a3e1 100644
 --- services/service_manager/embedder/main.h
 +++ services/service_manager/embedder/main.h
 @@ -5,9 +5,15 @@
@@ -178,7 +178,7 @@ index e86697a..771acd8 100644
  }  // namespace service_manager
  
 diff --git services/service_manager/embedder/set_process_title.cc services/service_manager/embedder/set_process_title.cc
-index 80b9a0a..5162354 100644
+index 80b9a0ab2ffc..5162354006b0 100644
 --- services/service_manager/embedder/set_process_title.cc
 +++ services/service_manager/embedder/set_process_title.cc
 @@ -44,7 +44,7 @@ void SetProcessTitleFromCommandLine(const char** main_argv) {

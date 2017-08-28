@@ -1,5 +1,5 @@
 diff --git content/browser/frame_host/render_widget_host_view_guest.cc content/browser/frame_host/render_widget_host_view_guest.cc
-index b7e4883..2dfd11e 100644
+index b7e4883f030e..2dfd11ec94bb 100644
 --- content/browser/frame_host/render_widget_host_view_guest.cc
 +++ content/browser/frame_host/render_widget_host_view_guest.cc
 @@ -246,13 +246,14 @@ void RenderWidgetHostViewGuest::Destroy() {

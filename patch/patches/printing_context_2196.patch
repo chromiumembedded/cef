@@ -1,5 +1,5 @@
 diff --git chrome/browser/printing/print_job_worker.cc chrome/browser/printing/print_job_worker.cc
-index 07850f5..2127e49 100644
+index 07850f544b6a..2127e4969ce1 100644
 --- chrome/browser/printing/print_job_worker.cc
 +++ chrome/browser/printing/print_job_worker.cc
 @@ -121,6 +121,7 @@ PrintJobWorker::PrintJobWorker(int render_process_id,
@@ -11,7 +11,7 @@ index 07850f5..2127e49 100644
  
  PrintJobWorker::~PrintJobWorker() {
 diff --git printing/printing_context.h printing/printing_context.h
-index 7054654..ed5b664 100644
+index 7054654260a7..ed5b664f86a7 100644
 --- printing/printing_context.h
 +++ printing/printing_context.h
 @@ -127,6 +127,13 @@ class PRINTING_EXPORT PrintingContext {
