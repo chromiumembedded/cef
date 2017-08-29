@@ -1,0 +1,103 @@
+diff --git content/public/app/mojo/content_browser_manifest.json content/public/app/mojo/content_browser_manifest.json
+index 360cc64..b84e346 100644
+--- content/public/app/mojo/content_browser_manifest.json
++++ content/public/app/mojo/content_browser_manifest.json
+@@ -4,13 +4,14 @@
+   "interface_provider_specs": {
+     "service_manager:connector": {
+       "provides": {
++        // Interfaces needed by a generic client of content browser.
++        "app": [
++          "memory_instrumentation::mojom::Coordinator"
++        ],
+         "gpu": [
+           "content::mojom::FieldTrialRecorder",
+           "media::mojom::AndroidOverlayProvider"
+         ],
+-        "memory_instrumentation": [
+-          "memory_instrumentation::mojom::Coordinator"
+-        ],
+         "plugin": [
+           "discardable_memory::mojom::DiscardableSharedMemoryManager",
+           "ui::mojom::Gpu"
+@@ -54,10 +55,6 @@
+         ],
+         "service_manager:service_factory": [
+           "service_manager::mojom::ServiceFactory"
+-        ],
+-        "utility": [
+-          "discardable_memory::mojom::DiscardableSharedMemoryManager",
+-          "memory_instrumentation::mojom::Coordinator"
+         ]
+       },
+       "requires": {
+@@ -67,7 +64,6 @@
+         "content_browser": [
+           "ash",
+           "display",
+-          "memory_instrumentation",
+           "url_keyed_metrics",
+           "geolocation_config"
+         ],
+diff --git content/public/app/mojo/content_gpu_manifest.json content/public/app/mojo/content_gpu_manifest.json
+index a7d05d7..336eefd 100644
+--- content/public/app/mojo/content_gpu_manifest.json
++++ content/public/app/mojo/content_gpu_manifest.json
+@@ -15,7 +15,8 @@
+         ]
+       },
+       "requires": {
+-        "content_browser": [ "gpu", "memory_instrumentation" ],
++        "*": [ "app" ],
++        "content_browser": [ "gpu" ],
+         "device": [ "device:power_monitor" ]
+       }
+     }
+diff --git content/public/app/mojo/content_plugin_manifest.json content/public/app/mojo/content_plugin_manifest.json
+index ed8f326..fc78b99 100644
+--- content/public/app/mojo/content_plugin_manifest.json
++++ content/public/app/mojo/content_plugin_manifest.json
+@@ -4,7 +4,7 @@
+   "interface_provider_specs": {
+     "service_manager:connector": {
+       "provides": {
+-        "browser": [ 
++        "browser": [
+           "content::mojom::Child",
+           "IPC::mojom::ChannelBootstrap"
+         ],
+@@ -13,6 +13,7 @@
+         ]
+       },
+       "requires": {
++        "*": [ "app" ],
+         "content_browser": [ "plugin" ],
+         "device": [ "device:power_monitor" ],
+         "ui": [ "discardable_memory" ]
+diff --git content/public/app/mojo/content_renderer_manifest.json content/public/app/mojo/content_renderer_manifest.json
+index a44f29e..ed32e78 100644
+--- content/public/app/mojo/content_renderer_manifest.json
++++ content/public/app/mojo/content_renderer_manifest.json
+@@ -19,7 +19,8 @@
+         ]
+       },
+       "requires": {
+-        "content_browser": [ "memory_instrumentation", "renderer" ],
++        "*": [ "app" ],
++        "content_browser": [ "renderer" ],
+         "device": [
+           "device:battery_monitor",
+           "device:power_monitor",
+diff --git content/public/app/mojo/content_utility_manifest.json content/public/app/mojo/content_utility_manifest.json
+index 3ea2993..5caad0c 100644
+--- content/public/app/mojo/content_utility_manifest.json
++++ content/public/app/mojo/content_utility_manifest.json
+@@ -14,7 +14,7 @@
+         ]
+       },
+       "requires": {
+-        "content_browser": [ "memory_instrumentation" ],
++        "*": [ "app" ],
+         "device": [
+           "device:power_monitor",
+           "device:time_zone_monitor"

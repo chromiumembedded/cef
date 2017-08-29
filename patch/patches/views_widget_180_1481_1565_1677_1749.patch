@@ -1,5 +1,5 @@
 diff --git content/browser/renderer_host/render_widget_host_view_base.cc content/browser/renderer_host/render_widget_host_view_base.cc
-index ebf64e9..f242f5f 100644
+index ebf64e9cd8cd..f242f5f0fd41 100644
 --- content/browser/renderer_host/render_widget_host_view_base.cc
 +++ content/browser/renderer_host/render_widget_host_view_base.cc
 @@ -298,6 +298,14 @@ void RenderWidgetHostViewBase::FocusedNodeTouched(
@@ -18,7 +18,7 @@ index ebf64e9..f242f5f 100644
    return renderer_frame_number_;
  }
 diff --git content/browser/renderer_host/render_widget_host_view_base.h content/browser/renderer_host/render_widget_host_view_base.h
-index 9a124eb..84d1c63 100644
+index 9a124eb9377e..84d1c63a1c4a 100644
 --- content/browser/renderer_host/render_widget_host_view_base.h
 +++ content/browser/renderer_host/render_widget_host_view_base.h
 @@ -77,6 +77,7 @@ class BrowserAccessibilityManager;
@@ -73,7 +73,7 @@ index 9a124eb..84d1c63 100644
    gfx::Rect current_display_area_;
  
 diff --git content/browser/renderer_host/render_widget_host_view_event_handler.cc content/browser/renderer_host/render_widget_host_view_event_handler.cc
-index ed267bc..514eade 100644
+index ed267bcdaba6..514eadee14c6 100644
 --- content/browser/renderer_host/render_widget_host_view_event_handler.cc
 +++ content/browser/renderer_host/render_widget_host_view_event_handler.cc
 @@ -28,6 +28,10 @@
@@ -87,10 +87,11 @@ index ed267bc..514eade 100644
  #if defined(OS_WIN)
  #include "content/browser/frame_host/render_frame_host_impl.h"
  #include "content/public/common/context_menu_params.h"
-@@ -851,6 +855,14 @@ void RenderWidgetHostViewEventHandler::SetKeyboardFocus() {
+@@ -850,6 +854,14 @@ void RenderWidgetHostViewEventHandler::SetKeyboardFocus() {
+         ::SetFocus(hwnd);
      }
    }
- #endif
++#endif
 +#if defined(OS_LINUX)
 +  if (host_view_->HasExternalParent() &&
 +      window_ && window_->delegate()->CanFocus()) {
@@ -98,12 +99,11 @@ index ed267bc..514eade 100644
 +    if (host)
 +      host->Show();
 +  }
-+#endif
+ #endif
    // TODO(wjmaclean): can host_ ever be null?
    if (host_ && set_focus_on_mouse_down_or_key_event_) {
-     set_focus_on_mouse_down_or_key_event_ = false;
 diff --git content/public/browser/render_widget_host_view.h content/public/browser/render_widget_host_view.h
-index 995f917..dbbd883 100644
+index 995f917d9ebc..dbbd8833b6fe 100644
 --- content/public/browser/render_widget_host_view.h
 +++ content/public/browser/render_widget_host_view.h
 @@ -236,6 +236,14 @@ class CONTENT_EXPORT RenderWidgetHostView {
@@ -122,7 +122,7 @@ index 995f917..dbbd883 100644
    // Return the accelerated widget which hosts the CALayers that draw the
    // content of the view in GetNativeView. This may be null.
 diff --git ui/views/widget/desktop_aura/desktop_screen_win.cc ui/views/widget/desktop_aura/desktop_screen_win.cc
-index f772f64..7d13f9f 100644
+index f772f64d656e..7d13f9f81b6c 100644
 --- ui/views/widget/desktop_aura/desktop_screen_win.cc
 +++ ui/views/widget/desktop_aura/desktop_screen_win.cc
 @@ -32,6 +32,8 @@ display::Display DesktopScreenWin::GetDisplayMatching(
@@ -135,7 +135,7 @@ index f772f64..7d13f9f 100644
    return host ? host->GetAcceleratedWidget() : NULL;
  }
 diff --git ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc
-index 4d0dfbe..7ef6ace 100644
+index 4d0dfbe80e50..7ef6ace1528a 100644
 --- ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc
 +++ ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc
 @@ -85,6 +85,7 @@ DesktopWindowTreeHostWin::DesktopWindowTreeHostWin(
@@ -179,7 +179,7 @@ index 4d0dfbe..7ef6ace 100644
  
  bool DesktopWindowTreeHostWin::HandleMouseEvent(const ui::MouseEvent& event) {
 diff --git ui/views/widget/desktop_aura/desktop_window_tree_host_win.h ui/views/widget/desktop_aura/desktop_window_tree_host_win.h
-index 3f1c7bf..2658da5 100644
+index 3f1c7bffb61f..2658da5f35cc 100644
 --- ui/views/widget/desktop_aura/desktop_window_tree_host_win.h
 +++ ui/views/widget/desktop_aura/desktop_window_tree_host_win.h
 @@ -264,6 +264,10 @@ class VIEWS_EXPORT DesktopWindowTreeHostWin
@@ -194,7 +194,7 @@ index 3f1c7bf..2658da5 100644
    // a reference.
    corewm::TooltipWin* tooltip_;
 diff --git ui/views/widget/desktop_aura/desktop_window_tree_host_x11.cc ui/views/widget/desktop_aura/desktop_window_tree_host_x11.cc
-index e8a7a79..1c1057f 100644
+index e8a7a79c5342..1c1057f702f8 100644
 --- ui/views/widget/desktop_aura/desktop_window_tree_host_x11.cc
 +++ ui/views/widget/desktop_aura/desktop_window_tree_host_x11.cc
 @@ -152,6 +152,7 @@ DesktopWindowTreeHostX11::DesktopWindowTreeHostX11(
@@ -279,7 +279,7 @@ index e8a7a79..1c1057f 100644
      case FocusOut:
        OnFocusEvent(xev->type == FocusIn, event->xfocus.mode,
 diff --git ui/views/widget/desktop_aura/desktop_window_tree_host_x11.h ui/views/widget/desktop_aura/desktop_window_tree_host_x11.h
-index cb18967..0c143d2 100644
+index cb189675734f..0c143d2d40bd 100644
 --- ui/views/widget/desktop_aura/desktop_window_tree_host_x11.h
 +++ ui/views/widget/desktop_aura/desktop_window_tree_host_x11.h
 @@ -86,6 +86,12 @@ class VIEWS_EXPORT DesktopWindowTreeHostX11
@@ -327,7 +327,7 @@ index cb18967..0c143d2 100644
    base::WeakPtrFactory<DesktopWindowTreeHostX11> weak_factory_;
  
 diff --git ui/views/widget/widget.cc ui/views/widget/widget.cc
-index 32a50e8..06d39f0 100644
+index 32a50e8860a9..06d39f0f0ed6 100644
 --- ui/views/widget/widget.cc
 +++ ui/views/widget/widget.cc
 @@ -130,6 +130,7 @@ Widget::InitParams::InitParams(Type type)
@@ -362,7 +362,7 @@ index 32a50e8..06d39f0 100644
    // This must come after SetContentsView() or it might not be able to find
    // the correct NativeTheme (on Linux). See http://crbug.com/384492
 diff --git ui/views/widget/widget.h ui/views/widget/widget.h
-index 63fcb9d..7237ae6 100644
+index 63fcb9d611e8..7237ae60007f 100644
 --- ui/views/widget/widget.h
 +++ ui/views/widget/widget.h
 @@ -253,6 +253,7 @@ class VIEWS_EXPORT Widget : public internal::NativeWidgetDelegate,
@@ -374,7 +374,7 @@ index 63fcb9d..7237ae6 100644
      // the NativeWidget may specify a default size. If the parent is specified,
      // |bounds| is in the parent's coordinate system. If the parent is not
 diff --git ui/views/win/hwnd_message_handler.cc ui/views/win/hwnd_message_handler.cc
-index 559f968..f679144 100644
+index 559f9688a3f9..f6791443449c 100644
 --- ui/views/win/hwnd_message_handler.cc
 +++ ui/views/win/hwnd_message_handler.cc
 @@ -2650,8 +2650,12 @@ LRESULT HWNDMessageHandler::HandleMouseEventInternal(UINT message,

@@ -1,5 +1,5 @@
 diff --git content/app/content_service_manager_main_delegate.h content/app/content_service_manager_main_delegate.h
-index 7563ce4..6c59474 100644
+index 7563ce48bf5e..6c594749d57b 100644
 --- content/app/content_service_manager_main_delegate.h
 +++ content/app/content_service_manager_main_delegate.h
 @@ -16,7 +16,8 @@ namespace content {
@@ -13,7 +13,7 @@ index 7563ce4..6c59474 100644
    explicit ContentServiceManagerMainDelegate(const ContentMainParams& params);
    ~ContentServiceManagerMainDelegate() override;
 diff --git third_party/WebKit/Source/web/BUILD.gn third_party/WebKit/Source/web/BUILD.gn
-index 148b260..b08bb89 100644
+index 148b260eb482..b08bb897cb46 100644
 --- third_party/WebKit/Source/web/BUILD.gn
 +++ third_party/WebKit/Source/web/BUILD.gn
 @@ -15,6 +15,7 @@ component("web") {

@@ -1,5 +1,5 @@
 diff --git chrome/common/chrome_content_client.cc chrome/common/chrome_content_client.cc
-index 05e23a6..051dab3 100644
+index 05e23a6d53ea..051dab3cfd02 100644
 --- chrome/common/chrome_content_client.cc
 +++ chrome/common/chrome_content_client.cc
 @@ -82,7 +82,7 @@

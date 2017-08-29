@@ -1,5 +1,5 @@
 diff --git ui/latency/latency_histogram_macros.h ui/latency/latency_histogram_macros.h
-index 77e3eee..f8dd635 100644
+index 77e3eeef70ba..f8dd6350c120 100644
 --- ui/latency/latency_histogram_macros.h
 +++ ui/latency/latency_histogram_macros.h
 @@ -10,8 +10,7 @@

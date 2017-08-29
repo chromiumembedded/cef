@@ -1,5 +1,5 @@
 diff --git content/browser/web_contents/web_contents_impl.cc content/browser/web_contents/web_contents_impl.cc
-index 13cb8a2..4bd3e2f 100644
+index effd1bee8a12..1ce0b93decd5 100644
 --- content/browser/web_contents/web_contents_impl.cc
 +++ content/browser/web_contents/web_contents_impl.cc
 @@ -1698,6 +1698,12 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
@@ -58,7 +58,7 @@ index 13cb8a2..4bd3e2f 100644
    // Now that the RenderView has been created, we need to tell it its size.
    if (rwh_view)
 diff --git content/public/browser/web_contents.cc content/public/browser/web_contents.cc
-index fa0afb5..d677b31 100644
+index fa0afb545df9..d677b310e5ec 100644
 --- content/public/browser/web_contents.cc
 +++ content/public/browser/web_contents.cc
 @@ -29,7 +29,9 @@ WebContents::CreateParams::CreateParams(BrowserContext* context,
@@ -73,7 +73,7 @@ index fa0afb5..d677b31 100644
  
  WebContents::CreateParams::CreateParams(const CreateParams& other) = default;
 diff --git content/public/browser/web_contents.h content/public/browser/web_contents.h
-index 06f8d80..4ec9757 100644
+index 06f8d801670e..4ec9757e8f6d 100644
 --- content/public/browser/web_contents.h
 +++ content/public/browser/web_contents.h
 @@ -68,9 +68,11 @@ class PageState;
@@ -100,7 +100,7 @@ index 06f8d80..4ec9757 100644
  
    // Creates a new WebContents.
 diff --git content/public/browser/web_contents_delegate.h content/public/browser/web_contents_delegate.h
-index e62fe35..f5b9fe0 100644
+index e62fe354fb3c..f5b9fe0bfe82 100644
 --- content/public/browser/web_contents_delegate.h
 +++ content/public/browser/web_contents_delegate.h
 @@ -43,11 +43,13 @@ class ColorChooser;

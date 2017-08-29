@@ -1,5 +1,5 @@
 diff --git chrome/browser/ui/libgtkui/gtk_ui.cc chrome/browser/ui/libgtkui/gtk_ui.cc
-index a38c6b8..bb4fa59 100644
+index a38c6b806be7..bb4fa59d7612 100644
 --- chrome/browser/ui/libgtkui/gtk_ui.cc
 +++ chrome/browser/ui/libgtkui/gtk_ui.cc
 @@ -1053,7 +1053,11 @@ float GtkUi::GetRawDeviceScaleFactor() {
@@ -15,7 +15,7 @@ index a38c6b8..bb4fa59 100644
    const float scale_factor =
        resolution <= 0 ? scale : resolution * scale / kDefaultDPI;
 diff --git ui/accessibility/platform/ax_platform_node_auralinux.cc ui/accessibility/platform/ax_platform_node_auralinux.cc
-index c73d7a9..5fcc441 100644
+index c73d7a93abf3..5fcc441e4e7b 100644
 --- ui/accessibility/platform/ax_platform_node_auralinux.cc
 +++ ui/accessibility/platform/ax_platform_node_auralinux.cc
 @@ -474,8 +474,12 @@ void AXPlatformNodeAuraLinux::GetAtkState(AtkStateSet* atk_state_set) {

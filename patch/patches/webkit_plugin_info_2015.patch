@@ -1,5 +1,5 @@
 diff --git third_party/WebKit/Source/core/dom/DOMImplementation.cpp third_party/WebKit/Source/core/dom/DOMImplementation.cpp
-index 9a2e9f7..4379c0c 100644
+index 9a2e9f72bd08..4379c0c10593 100644
 --- third_party/WebKit/Source/core/dom/DOMImplementation.cpp
 +++ third_party/WebKit/Source/core/dom/DOMImplementation.cpp
 @@ -241,10 +241,11 @@ Document* DOMImplementation::createDocument(const String& type,
@@ -17,7 +17,7 @@ index 9a2e9f7..4379c0c 100644
                                                          .Top()
                                                          .GetSecurityContext()
 diff --git third_party/WebKit/Source/core/frame/LocalFrame.cpp third_party/WebKit/Source/core/frame/LocalFrame.cpp
-index 72aaf88..ec45bcb 100644
+index 72aaf883fc19..ec45bcb0005f 100644
 --- third_party/WebKit/Source/core/frame/LocalFrame.cpp
 +++ third_party/WebKit/Source/core/frame/LocalFrame.cpp
 @@ -1012,7 +1012,7 @@ ContentSettingsClient* LocalFrame::GetContentSettingsClient() {
@@ -30,7 +30,7 @@ index 72aaf88..ec45bcb 100644
  }
  
 diff --git third_party/WebKit/Source/core/page/Page.cpp third_party/WebKit/Source/core/page/Page.cpp
-index 17f01a7..4a0b13b 100644
+index 17f01a7f63a4..4a0b13bb93a2 100644
 --- third_party/WebKit/Source/core/page/Page.cpp
 +++ third_party/WebKit/Source/core/page/Page.cpp
 @@ -118,7 +118,8 @@ Page::Page(PageClients& page_clients)
@@ -102,7 +102,7 @@ index 17f01a7..4a0b13b 100644
    visitor->Trace(use_counter_);
    visitor->Trace(plugins_changed_observers_);
 diff --git third_party/WebKit/Source/core/page/Page.h third_party/WebKit/Source/core/page/Page.h
-index f854ba7..0fd317c 100644
+index f854ba7b440f..0fd317cc9307 100644
 --- third_party/WebKit/Source/core/page/Page.h
 +++ third_party/WebKit/Source/core/page/Page.h
 @@ -135,7 +135,8 @@ class CORE_EXPORT Page final : public GarbageCollectedFinalized<Page>,
@@ -126,7 +126,7 @@ index f854ba7..0fd317c 100644
    EditorClient* const editor_client_;
    SpellCheckerClient* const spell_checker_client_;
 diff --git third_party/WebKit/Source/platform/plugins/PluginData.cpp third_party/WebKit/Source/platform/plugins/PluginData.cpp
-index c4fb8d7..1d5945c 100644
+index c4fb8d7e103c..1d5945c5ecf5 100644
 --- third_party/WebKit/Source/platform/plugins/PluginData.cpp
 +++ third_party/WebKit/Source/platform/plugins/PluginData.cpp
 @@ -79,16 +79,18 @@ DEFINE_TRACE(PluginData) {
@@ -152,7 +152,7 @@ index c4fb8d7..1d5945c 100644
    for (PluginInfo* plugin_info : plugins_) {
      for (MimeClassInfo* mime_class_info : plugin_info->mimes_)
 diff --git third_party/WebKit/Source/platform/plugins/PluginData.h third_party/WebKit/Source/platform/plugins/PluginData.h
-index 6cb520cd..fdcaf93 100644
+index 6cb520cd5810..fdcaf938b28a 100644
 --- third_party/WebKit/Source/platform/plugins/PluginData.h
 +++ third_party/WebKit/Source/platform/plugins/PluginData.h
 @@ -93,7 +93,7 @@ class PLATFORM_EXPORT PluginData final
@@ -165,7 +165,7 @@ index 6cb520cd..fdcaf93 100644
  
    bool SupportsMimeType(const String& mime_type) const;
 diff --git third_party/WebKit/public/platform/Platform.h third_party/WebKit/public/platform/Platform.h
-index bf92050..6f4949d 100644
+index bf920505a9b7..6f4949df5106 100644
 --- third_party/WebKit/public/platform/Platform.h
 +++ third_party/WebKit/public/platform/Platform.h
 @@ -379,6 +379,7 @@ class BLINK_PLATFORM_EXPORT Platform {

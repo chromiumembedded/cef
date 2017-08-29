@@ -1,5 +1,5 @@
 diff --git BUILD.gn BUILD.gn
-index 80a258e..7f343f1 100644
+index 80a258ea4..7f343f173 100644
 --- BUILD.gn
 +++ BUILD.gn
 @@ -227,6 +227,10 @@ static_library("pdfium") {
@@ -14,7 +14,7 @@ index 80a258e..7f343f1 100644
  
  static_library("test_support") {
 diff --git fpdfsdk/fpdfview.cpp fpdfsdk/fpdfview.cpp
-index 7dbaf7f..3b41421 100644
+index 7dbaf7f9e..3b41421e3 100644
 --- fpdfsdk/fpdfview.cpp
 +++ fpdfsdk/fpdfview.cpp
 @@ -37,6 +37,7 @@
