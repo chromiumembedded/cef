@@ -430,6 +430,7 @@
       'tests/ceftests/download_unittest.cc',
       'tests/ceftests/draggable_regions_unittest.cc',
       'tests/ceftests/extensions/background_unittest.cc',
+      'tests/ceftests/extensions/chrome_alarms_unittest.cc',
       'tests/ceftests/extensions/chrome_tabs_unittest.cc',
       'tests/ceftests/extensions/extension_test_handler.cc',
       'tests/ceftests/extensions/extension_test_handler.h',

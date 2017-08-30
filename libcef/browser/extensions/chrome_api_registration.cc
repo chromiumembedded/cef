@@ -12,6 +12,7 @@
 
 #include "chrome/browser/extensions/api/resources_private/resources_private_api.h"
 #include "chrome/browser/extensions/api/streams_private/streams_private_api.h"
+#include "extensions/browser/api/alarms/alarms_api.h"
 #include "extensions/browser/extension_function_registry.h"
 
 namespace extensions {
@@ -29,6 +30,12 @@ const char* const kSupportedAPIs[] = {
     EXTENSION_FUNCTION_NAME(ResourcesPrivateGetStringsFunction),
     "streamsPrivate",
     EXTENSION_FUNCTION_NAME(StreamsPrivateAbortFunction),
+    "alarms",
+    EXTENSION_FUNCTION_NAME(AlarmsCreateFunction),
+    EXTENSION_FUNCTION_NAME(AlarmsGetFunction),
+    EXTENSION_FUNCTION_NAME(AlarmsGetAllFunction),
+    EXTENSION_FUNCTION_NAME(AlarmsClearFunction),
+    EXTENSION_FUNCTION_NAME(AlarmsClearAllFunction),
     "tabs",
     EXTENSION_FUNCTION_NAME(cefimpl::TabsGetFunction),
     EXTENSION_FUNCTION_NAME(cefimpl::TabsExecuteScriptFunction),
@@ -55,6 +62,11 @@ bool ChromeFunctionRegistry::IsSupported(const std::string& name) {
 void ChromeFunctionRegistry::RegisterAll(ExtensionFunctionRegistry* registry) {
   registry->RegisterFunction<ResourcesPrivateGetStringsFunction>();
   registry->RegisterFunction<StreamsPrivateAbortFunction>();
+  registry->RegisterFunction<AlarmsCreateFunction>();
+  registry->RegisterFunction<AlarmsGetFunction>();
+  registry->RegisterFunction<AlarmsGetAllFunction>();
+  registry->RegisterFunction<AlarmsClearFunction>();
+  registry->RegisterFunction<AlarmsClearAllFunction>();
   registry->RegisterFunction<cefimpl::TabsExecuteScriptFunction>();
   registry->RegisterFunction<cefimpl::TabsInsertCSSFunction>();
   registry->RegisterFunction<cefimpl::TabsGetFunction>();
