@@ -594,7 +594,7 @@ LRESULT CALLBACK CefBrowserPlatformDelegateNativeWin::WndProc(HWND hwnd,
       // Allow the close.
       break;
 
-    case WM_DESTROY:
+    case WM_NCDESTROY:
       if (platform_delegate) {
         // Clear the user data pointer.
         gfx::SetWindowUserData(hwnd, NULL);
@@ -604,7 +604,7 @@ LRESULT CALLBACK CefBrowserPlatformDelegateNativeWin::WndProc(HWND hwnd,
         // CreateHostWindow().
         browser->WindowDestroyed();
       }
-      return 0;
+      break;
 
     case WM_SIZE:
       if (platform_delegate && platform_delegate->window_widget_) {

@@ -614,7 +614,7 @@ LRESULT CALLBACK RootWindowWin::RootWndProc(HWND hWnd,
       SetUserDataPtr(hWnd, NULL);
       self->hwnd_ = NULL;
       self->OnDestroyed();
-      return 0;
+      break;
   }
 
   return DefWindowProc(hWnd, message, wParam, lParam);
