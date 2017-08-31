@@ -140,7 +140,7 @@ MainMessageLoopMultithreadedWin::MessageWndProc(HWND hWnd,
     task->Release();
   } else {
     switch (message) {
-      case WM_DESTROY:
+      case WM_NCDESTROY:
         // Clear the reference to |self|.
         SetUserDataPtr(hWnd, NULL);
         break;
