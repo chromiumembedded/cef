@@ -1,8 +1,22 @@
 diff --git content/browser/renderer_host/render_widget_host_view_aura.cc content/browser/renderer_host/render_widget_host_view_aura.cc
-index e32783644331..17f65e18b181 100644
+index e32783644331..716c73e3b971 100644
 --- content/browser/renderer_host/render_widget_host_view_aura.cc
 +++ content/browser/renderer_host/render_widget_host_view_aura.cc
-@@ -747,8 +747,10 @@ void RenderWidgetHostViewAura::UpdateBackgroundColorFromRenderer(
+@@ -419,13 +419,6 @@ RenderWidgetHostViewAura::RenderWidgetHostViewAura(RenderWidgetHost* host,
+   selection_controller_client_.reset(
+       new TouchSelectionControllerClientAura(this));
+   CreateSelectionController();
+-
+-  RenderViewHost* rvh = RenderViewHost::From(host_);
+-  if (rvh) {
+-    // TODO(mostynb): actually use prefs.  Landing this as a separate CL
+-    // first to rebaseline some unreliable layout tests.
+-    ignore_result(rvh->GetWebkitPreferences());
+-  }
+ }
+ 
+ ////////////////////////////////////////////////////////////////////////////////
+@@ -747,8 +740,10 @@ void RenderWidgetHostViewAura::UpdateBackgroundColorFromRenderer(
    background_color_ = color;
  
    bool opaque = SkColorGetA(color) == SK_AlphaOPAQUE;
@@ -15,3 +29,19 @@ index e32783644331..17f65e18b181 100644
  }
  
  bool RenderWidgetHostViewAura::IsMouseLocked() {
+@@ -1924,6 +1919,15 @@ void RenderWidgetHostViewAura::CreateAuraWindow(aura::client::WindowType type) {
+   window_->Init(ui::LAYER_SOLID_COLOR);
+   window_->layer()->SetColor(background_color_);
+ 
++  // Do this after |window_| is created to avoid crashes on Win10.
++  // See https://crbug.com/761389.
++  RenderViewHost* rvh = RenderViewHost::From(host_);
++  if (rvh) {
++    // TODO(mostynb): actually use prefs.  Landing this as a separate CL
++    // first to rebaseline some unreliable layout tests.
++    ignore_result(rvh->GetWebkitPreferences());
++  }
++
+   if (!IsMus())
+     return;
+ 
