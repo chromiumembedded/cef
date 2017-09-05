@@ -30,6 +30,7 @@
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/pref_names.h"
 #include "components/net_log/chrome_net_log.h"
+#include "components/network_session_configurator/browser/network_session_configurator.h"
 #include "components/prefs/pref_registry_simple.h"
 #include "components/prefs/pref_service.h"
 #include "content/public/browser/browser_thread.h"
@@ -381,6 +382,11 @@ net::URLRequestContext* CefURLRequestContextGetterImpl::GetURLRequestContext() {
     network_session_context.net_log = io_state_->net_log_;
 
     net::HttpNetworkSession::Params network_session_params;
+    network_session_configurator::ParseCommandLineAndFieldTrials(
+        *base::CommandLine::ForCurrentProcess(),
+        false /* is_quic_force_disabled */,
+        CefContentClient::Get()->GetUserAgent() /* quic_user_agent_id */,
+        &network_session_params);
     network_session_params.ignore_certificate_errors =
         settings_.ignore_certificate_errors ? true : false;
 
