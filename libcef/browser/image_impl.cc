@@ -319,8 +319,7 @@ bool CefImageImpl::AddBitmap(float scale_factor, const SkBitmap& bitmap) {
 
   gfx::ImageSkiaRep skia_rep(bitmap, scale_factor);
   if (image_.IsEmpty()) {
-    gfx::Image image((gfx::ImageSkia(skia_rep)));
-    image_.SwapRepresentations(&image);
+    image_ = gfx::Image(gfx::ImageSkia(skia_rep));
   } else {
     image_.AsImageSkia().AddRepresentation(skia_rep);
   }

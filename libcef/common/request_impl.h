@@ -142,7 +142,7 @@ class CefRequestImpl : public CefRequest {
 
   // The below members are used by CefURLRequest.
   int flags_;
-  GURL first_party_for_cookies_;
+  GURL site_for_cookies_;
 
   // True if this object is read-only.
   bool read_only_;

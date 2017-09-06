@@ -12,7 +12,7 @@ bool CefCurrentlyOn(CefThreadId threadId) {
   scoped_refptr<base::SequencedTaskRunner> task_runner =
       CefTaskRunnerImpl::GetTaskRunner(threadId);
   if (task_runner.get())
-    return task_runner->RunsTasksOnCurrentThread();
+    return task_runner->RunsTasksInCurrentSequence();
   return false;
 }
 

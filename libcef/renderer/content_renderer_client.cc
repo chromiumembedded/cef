@@ -25,7 +25,7 @@
 #include "libcef/common/values_impl.h"
 #include "libcef/renderer/browser_impl.h"
 #include "libcef/renderer/extensions/extensions_renderer_client.h"
-#include "libcef/renderer/extensions/print_web_view_helper_delegate.h"
+#include "libcef/renderer/extensions/print_render_frame_helper_delegate.h"
 #include "libcef/renderer/media/cef_key_systems.h"
 #include "libcef/renderer/pepper/pepper_helper.h"
 #include "libcef/renderer/plugins/cef_plugin_placeholder.h"
@@ -57,7 +57,7 @@
 #include "chrome/renderer/plugins/power_saver_info.h"
 #include "components/content_settings/core/common/content_settings_types.h"
 #include "components/nacl/common/nacl_constants.h"
-#include "components/printing/renderer/print_web_view_helper.h"
+#include "components/printing/renderer/print_render_frame_helper.h"
 #include "components/spellcheck/renderer/spellcheck.h"
 #include "components/spellcheck/renderer/spellcheck_provider.h"
 #include "components/visitedlink/renderer/visitedlink_slave.h"
@@ -75,6 +75,7 @@
 #include "content/public/renderer/render_view_visitor.h"
 #include "content/renderer/render_frame_impl.h"
 #include "content/renderer/render_widget.h"
+#include "extensions/common/switches.h"
 #include "extensions/renderer/renderer_extension_registry.h"
 #include "ipc/ipc_sync_channel.h"
 #include "media/base/media.h"
@@ -84,6 +85,7 @@
 #include "third_party/WebKit/public/platform/WebRuntimeFeatures.h"
 #include "third_party/WebKit/public/platform/WebString.h"
 #include "third_party/WebKit/public/platform/WebURL.h"
+#include "third_party/WebKit/public/platform/scheduler/renderer_process_type.h"
 #include "third_party/WebKit/public/web/WebConsoleMessage.h"
 #include "third_party/WebKit/public/web/WebElement.h"
 #include "third_party/WebKit/public/web/WebFrame.h"
@@ -156,6 +158,12 @@ void AppendParams(const std::vector<base::string16>& additional_names,
 
   existing_names->Swap(names);
   existing_values->Swap(values);
+}
+
+bool IsStandaloneExtensionProcess() {
+  return extensions::ExtensionsEnabled() &&
+         extensions::CefExtensionsRendererClient::
+             IsStandaloneExtensionProcess();
 }
 
 }  // namespace
@@ -389,6 +397,12 @@ void CefContentRendererClient::RenderThreadStarted() {
   web_cache_impl_.reset(new web_cache::WebCacheImpl());
 
   content::RenderThread* thread = content::RenderThread::Get();
+
+  thread->SetRendererProcessType(
+      IsStandaloneExtensionProcess()
+          ? blink::scheduler::RendererProcessType::kExtensionRenderer
+          : blink::scheduler::RendererProcessType::kRenderer);
+
   thread->AddObserver(observer_.get());
   thread->GetChannel()->AddFilter(new CefRenderMessageFilter);
 
@@ -462,14 +476,17 @@ void CefContentRendererClient::RenderThreadConnected() {
 
 void CefContentRendererClient::RenderFrameCreated(
     content::RenderFrame* render_frame) {
-  new CefRenderFrameObserver(render_frame);
+  CefRenderFrameObserver* render_frame_observer =
+      new CefRenderFrameObserver(render_frame);
+  service_manager::BinderRegistry* registry = render_frame_observer->registry();
+
   new CefPepperHelper(render_frame);
-  new printing::PrintWebViewHelper(
+  new printing::PrintRenderFrameHelper(
       render_frame,
-      base::WrapUnique(new extensions::CefPrintWebViewHelperDelegate()));
+      base::WrapUnique(new extensions::CefPrintRenderFrameHelperDelegate()));
 
   if (extensions::ExtensionsEnabled())
-    extensions_renderer_client_->RenderFrameCreated(render_frame);
+    extensions_renderer_client_->RenderFrameCreated(render_frame, registry);
 
   const base::CommandLine* command_line =
       base::CommandLine::ForCurrentProcess();

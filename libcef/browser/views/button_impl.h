@@ -13,7 +13,7 @@
 
 #include "base/logging.h"
 #include "ui/gfx/color_utils.h"
-#include "ui/views/controls/button/custom_button.h"
+#include "ui/views/controls/button/button.h"
 
 // Helpers for template boiler-plate.
 #define CEF_BUTTON_IMPL_T CEF_VIEW_IMPL_T
@@ -54,7 +54,7 @@ CEF_BUTTON_IMPL_T void CEF_BUTTON_IMPL_D::SetState(cef_button_state_t state) {
       static_cast<views::Button::ButtonState>(state);
 
   if (ParentClass::root_view()->ink_drop_mode() !=
-          views::CustomButton::InkDropMode::OFF &&
+          views::Button::InkDropMode::OFF &&
       !ParentClass::root_view()->IsFocusable()) {
     // Ink drop state does not get set properly on state change when the button
     // is non-focusable.

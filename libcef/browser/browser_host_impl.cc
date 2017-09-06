@@ -983,14 +983,12 @@ void CefBrowserHostImpl::SetAccessibilityState(
   if (!web_contents_impl)
     return;
 
-  content::AccessibilityMode accMode;
+  ui::AXMode accMode;
   // In windowless mode set accessibility to TreeOnly mode. Else native
   // accessibility APIs, specific to each platform, are also created.
   if (accessibility_state == STATE_ENABLED) {
-    if (IsWindowless())
-      accMode = content::kAccessibilityModeWebContentsOnly;
-    else
-      accMode = content::kAccessibilityModeComplete;
+    accMode =
+        IsWindowless() ? ui::AXMode::kWebContents : ui::AXMode::kNativeAPIs;
   }
   web_contents_impl->SetAccessibilityMode(accMode);
 }
@@ -1609,7 +1607,7 @@ void CefBrowserHostImpl::Navigate(const CefNavigateParams& params) {
       CefRequestImpl::BlinkReferrerPolicyToNetReferrerPolicy(
           params.referrer.policy);
   request.frame_id = params.frame_id;
-  request.first_party_for_cookies = params.first_party_for_cookies;
+  request.site_for_cookies = params.site_for_cookies;
   request.headers = params.headers;
   request.load_flags = params.load_flags;
   request.upload_data = params.upload_data;
@@ -2205,17 +2203,25 @@ void CefBrowserHostImpl::AddNewContents(content::WebContents* source,
 
 void CefBrowserHostImpl::LoadingStateChanged(content::WebContents* source,
                                              bool to_different_document) {
-  int current_index =
+  const int current_index =
       web_contents_->GetController().GetLastCommittedEntryIndex();
-  int max_index = web_contents_->GetController().GetEntryCount() - 1;
+  const int max_index = web_contents_->GetController().GetEntryCount() - 1;
 
-  bool is_loading, can_go_back, can_go_forward;
+  const bool is_loading = web_contents_->IsLoading();
+  const bool can_go_back = (current_index > 0);
+  const bool can_go_forward = (current_index < max_index);
 
   {
     base::AutoLock lock_scope(state_lock_);
-    is_loading = is_loading_ = web_contents_->IsLoading();
-    can_go_back = can_go_back_ = (current_index > 0);
-    can_go_forward = can_go_forward_ = (current_index < max_index);
+
+    // This method may be called multiple times in a row with |is_loading| true
+    // as a result of https://crrev.com/5e750ad0. Ignore the 2nd+ times.
+    if (is_loading_ == is_loading)
+      return;
+
+    is_loading_ = is_loading;
+    can_go_back_ = can_go_back;
+    can_go_forward_ = can_go_forward;
   }
 
   if (client_.get()) {
@@ -2754,8 +2760,7 @@ void CefBrowserHostImpl::DidFailLoad(
     content::RenderFrameHost* render_frame_host,
     const GURL& validated_url,
     int error_code,
-    const base::string16& error_description,
-    bool was_ignored_by_handler) {
+    const base::string16& error_description) {
   // The navigation failed after commit. OnLoadStart was called so we also call
   // OnLoadEnd.
   const bool is_main_frame = !render_frame_host->GetParent();

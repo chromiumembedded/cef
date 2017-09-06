@@ -1,5 +1,5 @@
 diff --git src/libGLESv2.gypi src/libGLESv2.gypi
-index e0167d7..937dda0 100644
+index 8f12a4a9b..2d7175eb7 100644
 --- src/libGLESv2.gypi
 +++ src/libGLESv2.gypi
 @@ -36,8 +36,6 @@

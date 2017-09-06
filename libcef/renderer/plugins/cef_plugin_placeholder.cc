@@ -54,8 +54,7 @@ CefPluginPlaceholder::CefPluginPlaceholder(content::RenderFrame* render_frame,
     : plugins::LoadablePluginPlaceholder(render_frame, params, html_data),
       status_(CefViewHostMsg_GetPluginInfo_Status::kAllowed),
       title_(title),
-      context_menu_request_id_(0),
-      did_send_blocked_content_notification_(false) {
+      context_menu_request_id_(0) {
   RenderThread::Get()->AddObserver(this);
 }
 
@@ -283,11 +282,10 @@ blink::WebPlugin* CefPluginPlaceholder::CreatePlugin() {
                                       std::move(throttler));
 }
 
-void CefPluginPlaceholder::OnBlockedTinyContent() {
+void CefPluginPlaceholder::OnBlockedContent(
+    content::RenderFrame::PeripheralContentStatus status,
+    bool is_same_origin) {
   DCHECK(render_frame());
-  if (did_send_blocked_content_notification_)
-    return;
-  did_send_blocked_content_notification_ = true;
 }
 
 gin::ObjectTemplateBuilder CefPluginPlaceholder::GetObjectTemplateBuilder(

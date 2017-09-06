@@ -18,9 +18,9 @@
 #include "base/command_line.h"
 #include "base/memory/ptr_util.h"
 #include "cc/base/switches.h"
-#include "cc/output/copy_output_request.h"
-#include "cc/scheduler/delay_based_time_source.h"
+#include "components/viz/common/frame_sinks/delay_based_time_source.h"
 #include "components/viz/common/gl_helper.h"
+#include "components/viz/common/quads/copy_output_request.h"
 #include "content/browser/bad_message.h"
 #include "content/browser/compositor/image_transport_factory.h"
 #include "content/browser/frame_host/render_widget_host_view_guest.h"
@@ -130,8 +130,8 @@ class CefCopyFrameGenerator {
     // The below code is similar in functionality to
     // DelegatedFrameHost::CopyFromCompositingSurface but we reuse the same
     // SkBitmap in the GPU codepath and avoid scaling where possible.
-    std::unique_ptr<cc::CopyOutputRequest> request =
-        cc::CopyOutputRequest::CreateRequest(base::Bind(
+    std::unique_ptr<viz::CopyOutputRequest> request =
+        viz::CopyOutputRequest::CreateRequest(base::Bind(
             &CefCopyFrameGenerator::CopyFromCompositingSurfaceHasResult,
             weak_ptr_factory_.GetWeakPtr(), damage_rect));
 
@@ -141,7 +141,7 @@ class CefCopyFrameGenerator {
 
   void CopyFromCompositingSurfaceHasResult(
       const gfx::Rect& damage_rect,
-      std::unique_ptr<cc::CopyOutputResult> result) {
+      std::unique_ptr<viz::CopyOutputResult> result) {
     if (result->IsEmpty() || result->size().IsEmpty() ||
         !view_->render_widget_host()) {
       OnCopyFrameCaptureFailure(damage_rect);
@@ -159,7 +159,7 @@ class CefCopyFrameGenerator {
 
   void PrepareTextureCopyOutputResult(
       const gfx::Rect& damage_rect,
-      std::unique_ptr<cc::CopyOutputResult> result) {
+      std::unique_ptr<viz::CopyOutputResult> result) {
     DCHECK(result->HasTexture());
     base::ScopedClosureRunner scoped_callback_runner(
         base::Bind(&CefCopyFrameGenerator::OnCopyFrameCaptureFailure,
@@ -188,7 +188,7 @@ class CefCopyFrameGenerator {
     uint8_t* pixels = static_cast<uint8_t*>(bitmap_->getPixels());
 
     viz::TextureMailbox texture_mailbox;
-    std::unique_ptr<cc::SingleReleaseCallback> release_callback;
+    std::unique_ptr<viz::SingleReleaseCallback> release_callback;
     result->TakeTexture(&texture_mailbox, &release_callback);
     DCHECK(texture_mailbox.IsTexture());
     if (!texture_mailbox.IsTexture())
@@ -208,7 +208,7 @@ class CefCopyFrameGenerator {
 
   static void CopyFromCompositingSurfaceFinishedProxy(
       base::WeakPtr<CefCopyFrameGenerator> generator,
-      std::unique_ptr<cc::SingleReleaseCallback> release_callback,
+      std::unique_ptr<viz::SingleReleaseCallback> release_callback,
       const gfx::Rect& damage_rect,
       std::unique_ptr<SkBitmap> bitmap,
       bool result) {
@@ -247,7 +247,7 @@ class CefCopyFrameGenerator {
 
   void PrepareBitmapCopyOutputResult(
       const gfx::Rect& damage_rect,
-      std::unique_ptr<cc::CopyOutputResult> result) {
+      std::unique_ptr<viz::CopyOutputResult> result) {
     DCHECK(result->HasBitmap());
     std::unique_ptr<SkBitmap> source = result->TakeBitmap();
     DCHECK(source);
@@ -308,11 +308,11 @@ class CefCopyFrameGenerator {
 
 // Used to control the VSync rate in subprocesses when BeginFrame scheduling is
 // enabled.
-class CefBeginFrameTimer : public cc::DelayBasedTimeSourceClient {
+class CefBeginFrameTimer : public viz::DelayBasedTimeSourceClient {
  public:
   CefBeginFrameTimer(int frame_rate_threshold_ms, const base::Closure& callback)
       : callback_(callback) {
-    time_source_.reset(new cc::DelayBasedTimeSource(
+    time_source_.reset(new viz::DelayBasedTimeSource(
         content::BrowserThread::GetTaskRunnerForThread(CEF_UIT).get()));
     time_source_->SetTimebaseAndInterval(
         base::TimeTicks(),
@@ -335,7 +335,7 @@ class CefBeginFrameTimer : public cc::DelayBasedTimeSourceClient {
   void OnTimerTick() override { callback_.Run(); }
 
   const base::Closure callback_;
-  std::unique_ptr<cc::DelayBasedTimeSource> time_source_;
+  std::unique_ptr<viz::DelayBasedTimeSource> time_source_;
 
   DISALLOW_COPY_AND_ASSIGN(CefBeginFrameTimer);
 };
@@ -399,7 +399,8 @@ CefRenderWidgetHostViewOSR::CefRenderWidgetHostViewOSR(
       new ui::Compositor(context_factory_private->AllocateFrameSinkId(),
                          content::GetContextFactory(), context_factory_private,
                          base::ThreadTaskRunnerHandle::Get(),
-                         false /* enable_surface_synchronization */));
+                         false /* enable_surface_synchronization */,
+                         false /* enable_pixel_canvas */));
   compositor_->SetAcceleratedWidget(compositor_widget_);
   compositor_->SetDelegate(this);
   compositor_->SetRootLayer(root_layer_.get());
@@ -572,7 +573,7 @@ bool CefRenderWidgetHostViewOSR::LockMouse() {
 void CefRenderWidgetHostViewOSR::UnlockMouse() {}
 
 void CefRenderWidgetHostViewOSR::DidCreateNewRendererCompositorFrameSink(
-    cc::mojom::CompositorFrameSinkClient* renderer_compositor_frame_sink) {
+    viz::mojom::CompositorFrameSinkClient* renderer_compositor_frame_sink) {
   renderer_compositor_frame_sink_ = renderer_compositor_frame_sink;
   if (GetDelegatedFrameHost()) {
     GetDelegatedFrameHost()->DidCreateNewRendererCompositorFrameSink(
@@ -868,12 +869,12 @@ void CefRenderWidgetHostViewOSR::ImeSetComposition(
   if (!render_widget_host_)
     return;
 
-  std::vector<ui::CompositionUnderline> web_underlines;
+  std::vector<ui::ImeTextSpan> web_underlines;
   web_underlines.reserve(underlines.size());
   for (const CefCompositionUnderline& line : underlines) {
-    web_underlines.push_back(ui::CompositionUnderline(
-        line.range.from, line.range.to, line.color, line.thick ? true : false,
-        line.background_color));
+    web_underlines.push_back(ui::ImeTextSpan(
+        ui::ImeTextSpan::Type::kComposition, line.range.from, line.range.to,
+        line.color, line.thick ? true : false, line.background_color));
   }
   gfx::Range range(replacement_range.from, replacement_range.to);
 
@@ -893,8 +894,7 @@ void CefRenderWidgetHostViewOSR::ImeCommitText(
     return;
 
   gfx::Range range(replacement_range.from, replacement_range.to);
-  render_widget_host_->ImeCommitText(text,
-                                     std::vector<ui::CompositionUnderline>(),
+  render_widget_host_->ImeCommitText(text, std::vector<ui::ImeTextSpan>(),
                                      range, relative_cursor_pos);
 
   // Stop Monitoring for composition updates after we are done.
@@ -1492,10 +1492,10 @@ void CefRenderWidgetHostViewOSR::SendBeginFrame(base::TimeTicks frame_time,
 
   base::TimeTicks deadline = display_time - estimated_browser_composite_time;
 
-  const cc::BeginFrameArgs& begin_frame_args = cc::BeginFrameArgs::Create(
+  const viz::BeginFrameArgs& begin_frame_args = viz::BeginFrameArgs::Create(
       BEGINFRAME_FROM_HERE, begin_frame_source_.source_id(),
       begin_frame_number_, frame_time, deadline, vsync_period,
-      cc::BeginFrameArgs::NORMAL);
+      viz::BeginFrameArgs::NORMAL);
   DCHECK(begin_frame_args.IsValid());
   begin_frame_number_++;
 

@@ -1,5 +1,17 @@
+diff --git chrome/browser/ui/BUILD.gn chrome/browser/ui/BUILD.gn
+index 97c769cdf483..78d9db9d084e 100644
+--- chrome/browser/ui/BUILD.gn
++++ chrome/browser/ui/BUILD.gn
+@@ -489,6 +489,7 @@ split_static_library("ui") {
+     "//chrome/browser/ui/webui/usb_internals:mojo_bindings",
+     "//chrome/common",
+     "//chrome/common:search_mojom",
++    "//chrome/common:service_process_mojom",
+     "//chrome/common/net",
+     "//chrome/installer/util:with_no_strings",
+     "//components/about_ui",
 diff --git content/app/content_service_manager_main_delegate.h content/app/content_service_manager_main_delegate.h
-index 7563ce4..6c59474 100644
+index 7563ce48bf5e..6c594749d57b 100644
 --- content/app/content_service_manager_main_delegate.h
 +++ content/app/content_service_manager_main_delegate.h
 @@ -16,7 +16,8 @@ namespace content {
@@ -12,12 +24,12 @@ index 7563ce4..6c59474 100644
   public:
    explicit ContentServiceManagerMainDelegate(const ContentMainParams& params);
    ~ContentServiceManagerMainDelegate() override;
-diff --git third_party/WebKit/Source/web/BUILD.gn third_party/WebKit/Source/web/BUILD.gn
-index 148b260..b08bb89 100644
---- third_party/WebKit/Source/web/BUILD.gn
-+++ third_party/WebKit/Source/web/BUILD.gn
-@@ -15,6 +15,7 @@ component("web") {
-   output_name = "blink_web"
+diff --git third_party/WebKit/Source/controller/BUILD.gn third_party/WebKit/Source/controller/BUILD.gn
+index dbcd69337de8..fc0b6aca080f 100644
+--- third_party/WebKit/Source/controller/BUILD.gn
++++ third_party/WebKit/Source/controller/BUILD.gn
+@@ -15,6 +15,7 @@ component("controller") {
+   output_name = "blink_controller"
  
    deps = [
 +    "//cef:webkit_set",

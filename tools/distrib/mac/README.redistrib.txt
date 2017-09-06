@@ -22,7 +22,7 @@ cefclient.app/
           devtools_resources.pak <=^
           crash_inspector, crash_report_sender <= breakpad support
           icudtl.dat <= unicode support
-          natives_blob.bin, snapshot_blob.bin <= V8 initial snapshot
+          natives_blob.bin, snapshot_blob.bin, v8_context_snapshot.bin <= V8 initial snapshot
           en.lproj/, ... <= locale-specific resources and strings
           Info.plist
       cefclient Helper.app/
@@ -61,6 +61,7 @@ The following components are required. CEF will not function without them.
 * V8 snapshot data.
   * Chromium Embedded Framework.framework/Resources/natives_blob.bin
   * Chromium Embedded Framework.framework/Resources/snapshot_blob.bin
+  * Chromium Embedded Framework.framework/Resources/v8_context_snapshot.bin
 
 Optional components:
 

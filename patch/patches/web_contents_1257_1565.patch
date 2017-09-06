@@ -1,8 +1,8 @@
 diff --git content/browser/web_contents/web_contents_impl.cc content/browser/web_contents/web_contents_impl.cc
-index 13cb8a2..4bd3e2f 100644
+index 5b54c7614dcb..89addf197fae 100644
 --- content/browser/web_contents/web_contents_impl.cc
 +++ content/browser/web_contents/web_contents_impl.cc
-@@ -1698,6 +1698,12 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
+@@ -1772,6 +1772,12 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
    std::string unique_name;
    frame_tree_.root()->SetFrameName(params.main_frame_name, unique_name);
  
@@ -15,7 +15,7 @@ index 13cb8a2..4bd3e2f 100644
    WebContentsViewDelegate* delegate =
        GetContentClient()->browser()->GetWebContentsViewDelegate(this);
  
-@@ -1708,6 +1714,7 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
+@@ -1782,6 +1788,7 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
      view_.reset(CreateWebContentsView(this, delegate,
                                        &render_view_host_delegate_view_));
    }
@@ -23,7 +23,7 @@ index 13cb8a2..4bd3e2f 100644
  
    if (browser_plugin_guest_ && !GuestMode::IsCrossProcessFrameGuest(this)) {
      view_.reset(new WebContentsViewGuest(this, browser_plugin_guest_.get(),
-@@ -2272,6 +2279,15 @@ void WebContentsImpl::CreateNewWindow(
+@@ -2343,6 +2350,15 @@ void WebContentsImpl::CreateNewWindow(
    create_params.renderer_initiated_creation =
        main_frame_route_id != MSG_ROUTING_NONE;
  
@@ -39,7 +39,7 @@ index 13cb8a2..4bd3e2f 100644
    WebContentsImpl* new_contents = NULL;
    if (!is_guest) {
      create_params.context = view_->GetNativeView();
-@@ -2301,7 +2317,7 @@ void WebContentsImpl::CreateNewWindow(
+@@ -2372,7 +2388,7 @@ void WebContentsImpl::CreateNewWindow(
        // TODO(brettw): It seems bogus that we have to call this function on the
        // newly created object and give it one of its own member variables.
        new_view->CreateViewForWidget(
@@ -48,7 +48,7 @@ index 13cb8a2..4bd3e2f 100644
      }
      // Save the created window associated with the route so we can show it
      // later.
-@@ -5345,7 +5361,7 @@ InterstitialPageImpl* WebContentsImpl::GetInterstitialForRenderManager() {
+@@ -5534,7 +5550,7 @@ InterstitialPageImpl* WebContentsImpl::GetInterstitialForRenderManager() {
  void WebContentsImpl::CreateRenderWidgetHostViewForRenderManager(
      RenderViewHost* render_view_host) {
    RenderWidgetHostViewBase* rwh_view =
@@ -58,7 +58,7 @@ index 13cb8a2..4bd3e2f 100644
    // Now that the RenderView has been created, we need to tell it its size.
    if (rwh_view)
 diff --git content/public/browser/web_contents.cc content/public/browser/web_contents.cc
-index fa0afb5..d677b31 100644
+index fa0afb545df9..d677b310e5ec 100644
 --- content/public/browser/web_contents.cc
 +++ content/public/browser/web_contents.cc
 @@ -29,7 +29,9 @@ WebContents::CreateParams::CreateParams(BrowserContext* context,
@@ -73,7 +73,7 @@ index fa0afb5..d677b31 100644
  
  WebContents::CreateParams::CreateParams(const CreateParams& other) = default;
 diff --git content/public/browser/web_contents.h content/public/browser/web_contents.h
-index 06f8d80..4ec9757 100644
+index ddaf664254ab..ffec3b79332e 100644
 --- content/public/browser/web_contents.h
 +++ content/public/browser/web_contents.h
 @@ -68,9 +68,11 @@ class PageState;
@@ -100,7 +100,7 @@ index 06f8d80..4ec9757 100644
  
    // Creates a new WebContents.
 diff --git content/public/browser/web_contents_delegate.h content/public/browser/web_contents_delegate.h
-index e62fe35..f5b9fe0 100644
+index 8b548ba29917..dd9bff8f3939 100644
 --- content/public/browser/web_contents_delegate.h
 +++ content/public/browser/web_contents_delegate.h
 @@ -43,11 +43,13 @@ class ColorChooser;
@@ -117,7 +117,7 @@ index e62fe35..f5b9fe0 100644
  struct ColorSuggestion;
  struct ContextMenuParams;
  struct DropData;
-@@ -331,6 +333,14 @@ class CONTENT_EXPORT WebContentsDelegate {
+@@ -320,6 +322,14 @@ class CONTENT_EXPORT WebContentsDelegate {
        const std::string& partition_id,
        SessionStorageNamespace* session_storage_namespace);
  

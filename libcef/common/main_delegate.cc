@@ -67,6 +67,11 @@
 
 namespace {
 
+const char* const kNonWildcardDomainNonPortSchemes[] = {
+    extensions::kExtensionScheme};
+const size_t kNonWildcardDomainNonPortSchemesSize =
+    arraysize(kNonWildcardDomainNonPortSchemes);
+
 #if defined(OS_MACOSX)
 
 base::FilePath GetResourcesFilePath() {
@@ -481,8 +486,8 @@ bool CefMainDelegate::BasicStartupComplete(int* exit_code) {
 
   logging::InitLogging(log_settings);
 
-  ContentSettingsPattern::SetNonWildcardDomainNonPortScheme(
-      extensions::kExtensionScheme);
+  ContentSettingsPattern::SetNonWildcardDomainNonPortSchemes(
+      kNonWildcardDomainNonPortSchemes, kNonWildcardDomainNonPortSchemesSize);
 
   content::SetContentClient(&content_client_);
 

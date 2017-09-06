@@ -34,8 +34,7 @@ CefRefPtr<CefMenuButtonImpl> CefMenuButtonImpl::Create(
   if (!text.empty())
     menu_button->SetText(text);
   if (with_frame) {
-    menu_button->root_view()->SetStyleDeprecated(
-        views::CustomButton::STYLE_BUTTON);
+    menu_button->root_view()->SetStyleDeprecated(views::Button::STYLE_BUTTON);
   }
   menu_button->root_view()->set_show_menu_marker(with_menu_marker);
   return menu_button;

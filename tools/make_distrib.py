@@ -661,6 +661,7 @@ if platform == 'windows':
     'libGLESv2.dll',
     'natives_blob.bin',
     'snapshot_blob.bin',
+    'v8_context_snapshot.bin',
     # Should match the output path from media/cdm/ppapi/cdm_paths.gni.
     'WidevineCdm\\_platform_specific\\win_%s\\widevinecdmadapter.dll' % \
       ('x64' if options.x64build else 'x86'),
@@ -949,6 +950,9 @@ elif platform == 'linux':
           os.path.join(build_dir, 'natives_blob.bin'), dst_dir, options.quiet)
       copy_file(
           os.path.join(build_dir, 'snapshot_blob.bin'), dst_dir, options.quiet)
+      copy_file(
+          os.path.join(build_dir, 'v8_context_snapshot.bin'), dst_dir,
+          options.quiet)
     else:
       sys.stderr.write("No Debug build files.\n")
 
@@ -973,6 +977,9 @@ elif platform == 'linux':
         os.path.join(build_dir, 'natives_blob.bin'), dst_dir, options.quiet)
     copy_file(
         os.path.join(build_dir, 'snapshot_blob.bin'), dst_dir, options.quiet)
+    copy_file(
+        os.path.join(build_dir, 'v8_context_snapshot.bin'), dst_dir,
+        options.quiet)
   else:
     sys.stderr.write("No Release build files.\n")
 

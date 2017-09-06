@@ -1,33 +1,20 @@
 diff --git chrome/browser/ui/libgtkui/gtk_ui.cc chrome/browser/ui/libgtkui/gtk_ui.cc
-index a38c6b8..bb4fa59 100644
+index f45f2b1..dbabf1b 100644
 --- chrome/browser/ui/libgtkui/gtk_ui.cc
 +++ chrome/browser/ui/libgtkui/gtk_ui.cc
-@@ -1053,7 +1053,11 @@ float GtkUi::GetRawDeviceScaleFactor() {
-     return display::Display::GetForcedDeviceScaleFactor();
+@@ -92,6 +92,7 @@ namespace libgtkui {
  
-   GdkScreen* screen = gdk_screen_get_default();
+ namespace {
+ 
 +#if GTK_MAJOR_VERSION == 3
-   gint scale = gtk_widget_get_scale_factor(fake_window_);
-+#else
-+  gint scale = 1;
+ // We would like this to be a feature flag, but GtkUi gets initialized
+ // earlier than the feature flag registry, so just use a simple bool.
+ // The reason for wanting a flag is so that we can release the GTK3
+@@ -100,6 +101,7 @@ namespace {
+ // Since this was never really intended to be toggled by users, this
+ // is fine for now.
+ const bool kUseGtkNavButtonLayoutManager = true;
 +#endif
-   gdouble resolution = gdk_screen_get_resolution(screen);
-   const float scale_factor =
-       resolution <= 0 ? scale : resolution * scale / kDefaultDPI;
-diff --git ui/accessibility/platform/ax_platform_node_auralinux.cc ui/accessibility/platform/ax_platform_node_auralinux.cc
-index c73d7a9..5fcc441 100644
---- ui/accessibility/platform/ax_platform_node_auralinux.cc
-+++ ui/accessibility/platform/ax_platform_node_auralinux.cc
-@@ -474,8 +474,12 @@ void AXPlatformNodeAuraLinux::GetAtkState(AtkStateSet* atk_state_set) {
-     atk_state_set_add_state(atk_state_set, ATK_STATE_EXPANDED);
-   if (data.HasState(ui::AX_STATE_FOCUSABLE))
-     atk_state_set_add_state(atk_state_set, ATK_STATE_FOCUSABLE);
-+#if defined(ATK_CHECK_VERSION)
-+#if ATK_CHECK_VERSION(2, 11, 2)
-   if (data.HasState(ui::AX_STATE_HASPOPUP))
-     atk_state_set_add_state(atk_state_set, ATK_STATE_HAS_POPUP);
-+#endif
-+#endif
-   if (data.HasState(ui::AX_STATE_SELECTED))
-     atk_state_set_add_state(atk_state_set, ATK_STATE_SELECTED);
-   if (data.HasState(ui::AX_STATE_SELECTABLE))
+ 
+ const double kDefaultDPI = 96;
+ 

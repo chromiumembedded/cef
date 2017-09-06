@@ -1,5 +1,5 @@
 diff --git content/browser/renderer_host/render_view_host_impl.h content/browser/renderer_host/render_view_host_impl.h
-index 7e0cc57..66916d4 100644
+index d9667c321aab..1cee78df71d3 100644
 --- content/browser/renderer_host/render_view_host_impl.h
 +++ content/browser/renderer_host/render_view_host_impl.h
 @@ -155,6 +155,7 @@ class CONTENT_EXPORT RenderViewHostImpl : public RenderViewHost,

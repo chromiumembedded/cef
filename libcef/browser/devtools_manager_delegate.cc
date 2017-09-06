@@ -9,7 +9,6 @@
 #include <vector>
 
 #include "libcef/browser/browser_host_impl.h"
-#include "libcef/common/content_client.h"
 
 #include "base/atomicops.h"
 #include "base/bind.h"
@@ -107,7 +106,7 @@ void CefDevToolsManagerDelegate::StartHttpHandler(
     return;
   content::DevToolsAgentHost::StartRemoteDebuggingServer(
       std::move(socket_factory), std::string(), browser_context->GetPath(),
-      base::FilePath(), std::string(), CefContentClient::Get()->GetUserAgent());
+      base::FilePath());
 }
 
 // static

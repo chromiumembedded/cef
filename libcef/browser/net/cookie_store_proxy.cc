@@ -156,7 +156,16 @@ CefCookieStoreProxy::AddCallbackForCookie(
   net::CookieStore* cookie_store = GetCookieStore();
   if (cookie_store)
     return cookie_store->AddCallbackForCookie(url, name, callback);
-  return NULL;
+  return nullptr;
+}
+
+std::unique_ptr<net::CookieStore::CookieChangedSubscription>
+CefCookieStoreProxy::AddCallbackForAllChanges(
+    const CookieChangedCallback& callback) {
+  net::CookieStore* cookie_store = GetCookieStore();
+  if (cookie_store)
+    return cookie_store->AddCallbackForAllChanges(callback);
+  return nullptr;
 }
 
 bool CefCookieStoreProxy::IsEphemeral() {

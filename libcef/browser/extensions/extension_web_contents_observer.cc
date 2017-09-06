@@ -5,8 +5,8 @@
 #include "libcef/browser/extensions/extension_web_contents_observer.h"
 
 #include "content/public/browser/child_process_security_policy.h"
+#include "content/public/browser/render_frame_host.h"
 #include "content/public/browser/render_process_host.h"
-#include "content/public/browser/render_view_host.h"
 #include "content/public/common/url_constants.h"
 
 DEFINE_WEB_CONTENTS_USER_DATA_KEY(extensions::CefExtensionWebContentsObserver);
@@ -21,15 +21,15 @@ CefExtensionWebContentsObserver::CefExtensionWebContentsObserver(
 
 CefExtensionWebContentsObserver::~CefExtensionWebContentsObserver() {}
 
-void CefExtensionWebContentsObserver::RenderViewCreated(
-    content::RenderViewHost* render_view_host) {
-  ExtensionWebContentsObserver::RenderViewCreated(render_view_host);
+void CefExtensionWebContentsObserver::RenderFrameCreated(
+    content::RenderFrameHost* render_frame_host) {
+  ExtensionWebContentsObserver::RenderFrameCreated(render_frame_host);
 
-  const Extension* extension = GetExtension(render_view_host);
+  const Extension* extension = GetExtensionFromFrame(render_frame_host, false);
   if (!extension)
     return;
 
-  int process_id = render_view_host->GetProcess()->GetID();
+  int process_id = render_frame_host->GetProcess()->GetID();
   auto policy = content::ChildProcessSecurityPolicy::GetInstance();
 
   // Components of chrome that are implemented as extensions or platform apps

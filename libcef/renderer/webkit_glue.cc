@@ -20,13 +20,13 @@ MSVC_PUSH_WARNING_LEVEL(0);
 #include "third_party/WebKit/Source/core/dom/Element.h"
 #include "third_party/WebKit/Source/core/dom/Node.h"
 #include "third_party/WebKit/Source/core/editing/serializers/Serialization.h"
+#include "third_party/WebKit/Source/core/exported/WebViewImpl.h"
 #include "third_party/WebKit/Source/core/frame/LocalFrame.h"
 #include "third_party/WebKit/Source/core/frame/Settings.h"
+#include "third_party/WebKit/Source/core/frame/WebLocalFrameImpl.h"
 #include "third_party/WebKit/Source/platform/ScriptForbiddenScope.h"
 #include "third_party/WebKit/Source/platform/bindings/V8Binding.h"
 #include "third_party/WebKit/Source/platform/weborigin/SchemeRegistry.h"
-#include "third_party/WebKit/Source/web/WebLocalFrameImpl.h"
-#include "third_party/WebKit/Source/web/WebViewImpl.h"
 MSVC_POP_WARNING();
 #undef LOG
 
@@ -178,7 +178,8 @@ v8::MaybeLocal<v8::Value> ExecuteV8ScriptAndReturnValue(
     v8CacheOptions = frame->GetSettings()->GetV8CacheOptions();
 
   v8::Local<v8::Script> script;
-  if (!blink::V8ScriptRunner::CompileScript(ssc, isolate, accessControlStatus,
+  if (!blink::V8ScriptRunner::CompileScript(blink::ScriptState::From(context),
+                                            ssc, accessControlStatus,
                                             v8CacheOptions)
            .ToLocal(&script)) {
     DCHECK(tryCatch.HasCaught());

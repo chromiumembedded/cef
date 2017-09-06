@@ -149,7 +149,7 @@ void SavePdfFile(scoped_refptr<base::RefCountedBytes> data,
   DCHECK_CURRENTLY_ON(BrowserThread::FILE);
   DCHECK_GT(data->size(), 0U);
 
-  PdfMetafileSkia metafile(PDF_SKIA_DOCUMENT_TYPE);
+  PdfMetafileSkia metafile(SkiaDocumentType::PDF);
   metafile.InitFromData(static_cast<const void*>(data->front()), data->size());
 
   base::File file(path,

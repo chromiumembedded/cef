@@ -26,6 +26,10 @@ CefStoragePartitionProxy::GetMediaURLRequestContext() {
   return GetURLRequestContext();
 }
 
+content::mojom::NetworkContext* CefStoragePartitionProxy::GetNetworkContext() {
+  return parent_->GetNetworkContext();
+}
+
 storage::QuotaManager* CefStoragePartitionProxy::GetQuotaManager() {
   return parent_->GetQuotaManager();
 }
@@ -162,10 +166,6 @@ void CefStoragePartitionProxy::ClearBluetoothAllowedDevicesMapForTesting() {
   parent_->ClearBluetoothAllowedDevicesMapForTesting();
 }
 
-content::mojom::NetworkContext* CefStoragePartitionProxy::network_context() {
-  return parent_->network_context();
-}
-
 content::URLLoaderFactoryGetter*
 CefStoragePartitionProxy::url_loader_factory_getter() {
   return parent_->url_loader_factory_getter();
@@ -176,6 +176,7 @@ content::BrowserContext* CefStoragePartitionProxy::browser_context() const {
 }
 
 void CefStoragePartitionProxy::Bind(
+    int process_id,
     mojo::InterfaceRequest<content::mojom::StoragePartitionService> request) {
-  parent_->Bind(std::move(request));
+  parent_->Bind(process_id, std::move(request));
 }

@@ -101,6 +101,12 @@ void CefPrefStore::CommitPendingWrite(base::OnceClosure done_callback) {
 
 void CefPrefStore::SchedulePendingLossyWrites() {}
 
+void CefPrefStore::ClearMutableValues() {
+  NOTIMPLEMENTED();
+}
+
+void CefPrefStore::OnStoreDeletionFromDisk() {}
+
 void CefPrefStore::SetInitializationCompleted() {
   NotifyInitializationCompleted();
 }
@@ -165,10 +171,6 @@ void CefPrefStore::SetBlockAsyncRead(bool block_async_read) {
   block_async_read_ = block_async_read;
   if (pending_async_read_ && !block_async_read_)
     NotifyInitializationCompleted();
-}
-
-void CefPrefStore::ClearMutableValues() {
-  NOTIMPLEMENTED();
 }
 
 void CefPrefStore::set_read_only(bool read_only) {

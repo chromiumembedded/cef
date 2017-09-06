@@ -21,6 +21,7 @@
 #include "extensions/renderer/dispatcher.h"
 #include "extensions/renderer/extension_frame_helper.h"
 #include "extensions/renderer/extension_helper.h"
+#include "extensions/renderer/extensions_render_frame_observer.h"
 #include "extensions/renderer/guest_view/extensions_guest_view_container.h"
 #include "extensions/renderer/guest_view/extensions_guest_view_container_dispatcher.h"
 #include "extensions/renderer/guest_view/mime_handler_view/mime_handler_view_container.h"
@@ -33,11 +34,6 @@
 namespace extensions {
 
 namespace {
-
-bool IsStandaloneExtensionProcess() {
-  return base::CommandLine::ForCurrentProcess()->HasSwitch(
-      extensions::switches::kExtensionProcess);
-}
 
 void IsGuestViewApiAvailableToScriptContext(
     bool* api_is_available,
@@ -86,7 +82,7 @@ bool CrossesExtensionExtents(blink::WebLocalFrame* frame,
         opener_top_extension &&
         opener_top_extension->id() == extensions::kWebStoreAppId;
     if (!is_extension_url && !opener_is_extension_url && !opener_is_web_store &&
-        IsStandaloneExtensionProcess() &&
+        CefExtensionsRendererClient::IsStandaloneExtensionProcess() &&
         opener_origin.CanRequest(blink::WebURL(new_url)))
       return false;
   }
@@ -148,7 +144,9 @@ void CefExtensionsRendererClient::RenderThreadStarted() {
 }
 
 void CefExtensionsRendererClient::RenderFrameCreated(
-    content::RenderFrame* render_frame) {
+    content::RenderFrame* render_frame,
+    service_manager::BinderRegistry* registry) {
+  new extensions::ExtensionsRenderFrameObserver(render_frame, registry);
   new extensions::ExtensionFrameHelper(render_frame,
                                        extension_dispatcher_.get());
   extension_dispatcher_->OnRenderFrameCreated(render_frame);
@@ -202,6 +200,12 @@ void CefExtensionsRendererClient::RunScriptsAtDocumentEnd(
 void CefExtensionsRendererClient::RunScriptsAtDocumentIdle(
     content::RenderFrame* render_frame) {
   extension_dispatcher_->RunScriptsAtDocumentIdle(render_frame);
+}
+
+// static
+bool CefExtensionsRendererClient::IsStandaloneExtensionProcess() {
+  return base::CommandLine::ForCurrentProcess()->HasSwitch(
+      extensions::switches::kExtensionProcess);
 }
 
 // static

@@ -1,34 +1,24 @@
-diff --git third_party/WebKit/Source/core/exported/WebViewBase.h third_party/WebKit/Source/core/exported/WebViewBase.h
-index 5b6db09f..73c2260 100644
---- third_party/WebKit/Source/core/exported/WebViewBase.h
-+++ third_party/WebKit/Source/core/exported/WebViewBase.h
-@@ -157,7 +157,7 @@ class WebViewBase : public WebView, public RefCounted<WebViewBase> {
+diff --git third_party/WebKit/Source/core/exported/WebViewImpl.cpp third_party/WebKit/Source/core/exported/WebViewImpl.cpp
+index 827581a9cb57..318e5181545a 100644
+--- third_party/WebKit/Source/core/exported/WebViewImpl.cpp
++++ third_party/WebKit/Source/core/exported/WebViewImpl.cpp
+@@ -247,8 +247,13 @@ void WebView::SetUseExternalPopupMenus(bool use_external_popup_menus) {
+   g_should_use_external_popup_menus = use_external_popup_menus;
+ }
  
-   // Returns true if popup menus should be rendered by the browser, false if
-   // they should be rendered by WebKit (which is the default).
--  static bool UseExternalPopupMenus();
-+  virtual bool UseExternalPopupMenus() const = 0;
+-bool WebViewImpl::UseExternalPopupMenus() {
+-  return g_should_use_external_popup_menus;
++void WebViewImpl::SetUseExternalPopupMenusThisInstance(
++    bool use_external_popup_menus) {
++  should_use_external_popup_menus_ = use_external_popup_menus;
++}
++
++bool WebViewImpl::UseExternalPopupMenus() const {
++  return should_use_external_popup_menus_;
+ }
  
-   virtual GraphicsLayer* RootGraphicsLayer() = 0;
-   virtual void RegisterViewportLayersWithCompositor() = 0;
-diff --git third_party/WebKit/Source/web/ChromeClientImpl.cpp third_party/WebKit/Source/web/ChromeClientImpl.cpp
-index cf36ed93..e508f14 100644
---- third_party/WebKit/Source/web/ChromeClientImpl.cpp
-+++ third_party/WebKit/Source/web/ChromeClientImpl.cpp
-@@ -781,7 +781,7 @@ PopupMenu* ChromeClientImpl::OpenPopupMenu(LocalFrame& frame,
-     return nullptr;
- 
-   NotifyPopupOpeningObservers();
--  if (WebViewBase::UseExternalPopupMenus())
-+  if (web_view_->UseExternalPopupMenus())
-     return new ExternalPopupMenu(frame, select, *web_view_);
- 
-   DCHECK(RuntimeEnabledFeatures::PagePopupEnabled());
-diff --git third_party/WebKit/Source/web/WebViewImpl.cpp third_party/WebKit/Source/web/WebViewImpl.cpp
-index f7fc7dd..7aa4f01 100644
---- third_party/WebKit/Source/web/WebViewImpl.cpp
-+++ third_party/WebKit/Source/web/WebViewImpl.cpp
-@@ -320,6 +320,7 @@ WebViewImpl::WebViewImpl(WebViewClient* client,
+ namespace {
+@@ -342,6 +347,7 @@ WebViewImpl::WebViewImpl(WebViewClient* client,
        enable_fake_page_scale_animation_for_testing_(false),
        fake_page_scale_animation_page_scale_factor_(0),
        fake_page_scale_animation_use_anchor_(false),
@@ -36,39 +26,21 @@ index f7fc7dd..7aa4f01 100644
        compositor_device_scale_factor_override_(0),
        suppress_next_keypress_event_(false),
        ime_accept_events_(true),
-@@ -3644,12 +3645,13 @@ void WebViewImpl::MainFrameScrollOffsetChanged() {
-   dev_tools_emulator_->MainFrameScrollOrScaleChanged();
- }
- 
--bool WebViewBase::UseExternalPopupMenus() {
--  return WebViewImpl::UseExternalPopupMenus();
-+void WebViewImpl::SetUseExternalPopupMenusThisInstance(
-+    bool useExternalPopupMenus) {
-+  should_use_external_popup_menus_ = useExternalPopupMenus;
- }
- 
--bool WebViewImpl::UseExternalPopupMenus() {
--  return g_should_use_external_popup_menus;
-+bool WebViewImpl::UseExternalPopupMenus() const {
-+  return should_use_external_popup_menus_;
- }
- 
- void WebViewImpl::SetBackgroundColorOverride(WebColor color) {
-diff --git third_party/WebKit/Source/web/WebViewImpl.h third_party/WebKit/Source/web/WebViewImpl.h
-index 5ea6e7b..5c7b4d8 100644
---- third_party/WebKit/Source/web/WebViewImpl.h
-+++ third_party/WebKit/Source/web/WebViewImpl.h
-@@ -345,7 +345,8 @@ class WEB_EXPORT WebViewImpl final
- 
+diff --git third_party/WebKit/Source/core/exported/WebViewImpl.h third_party/WebKit/Source/core/exported/WebViewImpl.h
+index 7ea90b01b4c6..30e54df93efc 100644
+--- third_party/WebKit/Source/core/exported/WebViewImpl.h
++++ third_party/WebKit/Source/core/exported/WebViewImpl.h
+@@ -108,7 +108,8 @@ class CORE_EXPORT WebViewImpl final
+   static const WebInputEvent* CurrentInputEvent();
    // Returns true if popup menus should be rendered by the browser, false if
    // they should be rendered by WebKit (which is the default).
 -  static bool UseExternalPopupMenus();
 +  void SetUseExternalPopupMenusThisInstance(bool);
-+  bool UseExternalPopupMenus() const override;
++  bool UseExternalPopupMenus() const;
  
-   bool ShouldAutoResize() const override { return should_auto_resize_; }
- 
-@@ -637,6 +638,8 @@ class WEB_EXPORT WebViewImpl final
+   // WebWidget methods:
+   void Close() override;
+@@ -615,6 +616,8 @@ class CORE_EXPORT WebViewImpl final
    float fake_page_scale_animation_page_scale_factor_;
    bool fake_page_scale_animation_use_anchor_;
  
@@ -77,8 +49,21 @@ index 5ea6e7b..5c7b4d8 100644
    float compositor_device_scale_factor_override_;
    TransformationMatrix device_emulation_transform_;
  
+diff --git third_party/WebKit/Source/core/page/ChromeClientImpl.cpp third_party/WebKit/Source/core/page/ChromeClientImpl.cpp
+index 581b6b5b9538..14aec97bd676 100644
+--- third_party/WebKit/Source/core/page/ChromeClientImpl.cpp
++++ third_party/WebKit/Source/core/page/ChromeClientImpl.cpp
+@@ -776,7 +776,7 @@ PopupMenu* ChromeClientImpl::OpenPopupMenu(LocalFrame& frame,
+     return nullptr;
+ 
+   NotifyPopupOpeningObservers();
+-  if (WebViewImpl::UseExternalPopupMenus())
++  if (web_view_->UseExternalPopupMenus())
+     return new ExternalPopupMenu(frame, select, *web_view_);
+ 
+   DCHECK(RuntimeEnabledFeatures::PagePopupEnabled());
 diff --git third_party/WebKit/public/web/WebView.h third_party/WebKit/public/web/WebView.h
-index 1917509..536c147 100644
+index 729c1ceabb91..a11ad9e6c86e 100644
 --- third_party/WebKit/public/web/WebView.h
 +++ third_party/WebKit/public/web/WebView.h
 @@ -374,6 +374,7 @@ class WebView : protected WebWidget {

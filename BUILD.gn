@@ -270,7 +270,6 @@ source_set("webkit_set") {
   defines = [
     # Blink-internal defines.
     "BLINK_IMPLEMENTATION=1",
-    "BLINK_WEB_IMPLEMENTATION=1",
     "INSIDE_BLINK",
   ]
 
@@ -629,8 +628,8 @@ static_library("libcef_static") {
     "libcef/renderer/extensions/extensions_dispatcher_delegate.h",
     "libcef/renderer/extensions/extensions_renderer_client.cc",
     "libcef/renderer/extensions/extensions_renderer_client.h",
-    "libcef/renderer/extensions/print_web_view_helper_delegate.cc",
-    "libcef/renderer/extensions/print_web_view_helper_delegate.h",
+    "libcef/renderer/extensions/print_render_frame_helper_delegate.cc",
+    "libcef/renderer/extensions/print_render_frame_helper_delegate.h",
     "libcef/renderer/frame_impl.cc",
     "libcef/renderer/frame_impl.h",
     "libcef/renderer/media/cef_key_systems.cc",
@@ -717,7 +716,7 @@ static_library("libcef_static") {
     "//components/keyed_service/content:content",
     "//components/keyed_service/core:core",
     "//components/navigation_interception",
-    "//components/network_session_configurator/common",
+    "//components/network_session_configurator/browser",
     "//components/pdf/browser",
     "//components/pdf/renderer",
     "//components/plugins/renderer",
@@ -781,6 +780,7 @@ static_library("libcef_static") {
     "//third_party/widevine/cdm:headers",
     "//third_party/icu",
     "//third_party/zlib:minizip",
+    "//tools/v8_context_snapshot:v8_context_snapshot",
     "//ui/base",
     "//ui/base/ime",
     "//ui/events:events_base",
@@ -1078,7 +1078,7 @@ template("cef_pak_scaled") {
     # Each input pak file should also have a deps line for completeness.
     # Add associated .h files in the make_pack_header("resources") target.
     sources = [
-      "$root_gen_dir/blink/public/resources/blink_image_resources_${percent}_percent.pak",
+      "$root_gen_dir/blink/public/resources/blink_scaled_resources_${percent}_percent.pak",
       "$root_gen_dir/chrome/renderer_resources_${percent}_percent.pak",
       "$root_gen_dir/components/components_resources_${percent}_percent.pak",
       "$root_gen_dir/content/app/resources/content_resources_${percent}_percent.pak",
@@ -1090,12 +1090,18 @@ template("cef_pak_scaled") {
     # the libcef_static target. Grit deps that generate .cc files must be
     # listed both here and in the libcef_static target.
     public_deps = [
-      "//third_party/WebKit/public:image_resources",
+      "//third_party/WebKit/public:scaled_resources",
       "//chrome/renderer:resources",
       "//components/resources:components_scaled_resources",
       "//content/app/resources",
       "//extensions:extensions_browser_resources",
       "//ui/resources:ui_resources_grd",
+    ]
+
+    deps = [
+      # This repack target generates the blink_scaled_resources_*_percent.pak
+      # file but doesn't expose the public_deps required by make_pack_header.
+      "//third_party/WebKit/public:scaled_resources_${percent}_percent",
     ]
 
     if (toolkit_views) {
@@ -1265,6 +1271,7 @@ template("make_pack_header") {
 make_pack_header("resources") {
   header = "$root_out_dir/includes/include/cef_pack_resources.h"
   inputs = [
+    "$root_gen_dir/blink/public/resources/grit/media_controls_resources.h",
     "$root_gen_dir/blink/public/resources/grit/blink_image_resources.h",
     "$root_gen_dir/blink/public/resources/grit/blink_resources.h",
     "$root_gen_dir/cef/grit/cef_resources.h",
@@ -1346,6 +1353,7 @@ if (is_mac) {
       "$root_out_dir/cef_200_percent.pak",
       "$root_out_dir/cef_extensions.pak",
       "$root_out_dir/devtools_resources.pak",
+      "$root_out_dir/v8_context_snapshot.bin",
       # TODO(cef): Restore this line once Widevine build errors are resolved.
       # "$root_out_dir/$widevine_cdm_path/widevinecdmadapter.plugin",
     ]
@@ -1358,6 +1366,7 @@ if (is_mac) {
       ":pak_extensions",
       # TODO(cef): Restore this line once Widevine build errors are resolved.
       # "//third_party/widevine/cdm:widevinecdmadapter",
+      "//tools/v8_context_snapshot:v8_context_snapshot",
     ]
 
     if (icu_use_data_file) {

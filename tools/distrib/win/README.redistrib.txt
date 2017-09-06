@@ -19,6 +19,7 @@ The following components are required. CEF will not function without them.
 * V8 snapshot data.
   * natives_blob.bin
   * snapshot_blob.bin
+  * v8_context_snapshot.bin
 
 Optional components:
 

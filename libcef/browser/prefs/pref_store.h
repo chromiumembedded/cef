@@ -47,6 +47,8 @@ class CefPrefStore : public PersistentPrefStore {
   void ReadPrefsAsync(ReadErrorDelegate* error_delegate) override;
   virtual void CommitPendingWrite(base::OnceClosure done_callback) override;
   void SchedulePendingLossyWrites() override;
+  void ClearMutableValues() override;
+  void OnStoreDeletionFromDisk() override;
 
   // Marks the store as having completed initialization.
   void SetInitializationCompleted();
@@ -69,8 +71,6 @@ class CefPrefStore : public PersistentPrefStore {
   // to ReadPrefsAsync. To unblock, invoke again with false (non-blocking) after
   // the call to ReadPrefsAsync.
   void SetBlockAsyncRead(bool block_async_read);
-
-  void ClearMutableValues() override;
 
   // Getter and Setter methods for setting and getting the state of the
   // |TestingPrefStore|.

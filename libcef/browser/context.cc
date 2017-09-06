@@ -303,7 +303,8 @@ void CefQuitMessageLoop() {
     return;
   }
 
-  CefBrowserMessageLoop::current()->QuitWhenIdle();
+  // Quit the CefBrowserMessageLoop.
+  base::RunLoop::QuitCurrentWhenIdleDeprecated();
 }
 
 void CefSetOSModalLoop(bool osModalLoop) {
@@ -499,7 +500,7 @@ void CefContext::OnContextInitialized() {
   static_cast<ChromeBrowserProcessStub*>(g_browser_process)
       ->OnContextInitialized();
 
-#if defined(WIDEVINE_CDM_AVAILABLE) && BUILDFLAG(ENABLE_PEPPER_CDMS)
+#if defined(WIDEVINE_CDM_AVAILABLE) && BUILDFLAG(ENABLE_LIBRARY_CDMS)
   CefWidevineLoader::GetInstance()->OnContextInitialized();
 #endif
 

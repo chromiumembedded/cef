@@ -36,14 +36,10 @@ class CefWebURLLoaderClient : public blink::WebURLLoaderClient {
   ~CefWebURLLoaderClient() override;
 
   // blink::WebURLLoaderClient methods.
-  bool WillFollowRedirect(WebURLRequest& newRequest,
-                          const WebURLResponse& redirectResponse) override;
   void DidSendData(unsigned long long bytesSent,
                    unsigned long long totalBytesToBeSent) override;
   void DidReceiveResponse(const WebURLResponse& response) override;
-  void DidDownloadData(int dataLength, int encodedDataLength) override;
   void DidReceiveData(const char* data, int dataLength) override;
-  void DidReceiveCachedMetadata(const char* data, int dataLength) override;
   void DidFinishLoading(double finish_time,
                         int64_t total_encoded_data_length,
                         int64_t total_encoded_body_length,
@@ -84,7 +80,7 @@ class CefRenderURLRequest::Context
   }
 
   inline bool CalledOnValidThread() {
-    return task_runner_->RunsTasksOnCurrentThread();
+    return task_runner_->RunsTasksInCurrentSequence();
   }
 
   bool Start() {
@@ -240,12 +236,6 @@ CefWebURLLoaderClient::CefWebURLLoaderClient(
 
 CefWebURLLoaderClient::~CefWebURLLoaderClient() {}
 
-bool CefWebURLLoaderClient::WillFollowRedirect(
-    WebURLRequest& newRequest,
-    const WebURLResponse& redirectResponse) {
-  return true;
-}
-
 void CefWebURLLoaderClient::DidSendData(unsigned long long bytesSent,
                                         unsigned long long totalBytesToBeSent) {
   if (request_flags_ & UR_FLAG_REPORT_UPLOAD_PROGRESS)
@@ -256,18 +246,12 @@ void CefWebURLLoaderClient::DidReceiveResponse(const WebURLResponse& response) {
   context_->OnResponse(response);
 }
 
-void CefWebURLLoaderClient::DidDownloadData(int dataLength,
-                                            int encodedDataLength) {}
-
 void CefWebURLLoaderClient::DidReceiveData(const char* data, int dataLength) {
   context_->OnDownloadProgress(dataLength);
 
   if (!(request_flags_ & UR_FLAG_NO_DOWNLOAD_DATA))
     context_->OnDownloadData(data, dataLength);
 }
-
-void CefWebURLLoaderClient::DidReceiveCachedMetadata(const char* data,
-                                                     int dataLength) {}
 
 void CefWebURLLoaderClient::DidFinishLoading(
     double finishTime,

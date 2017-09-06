@@ -1,12 +1,16 @@
 diff --git content/browser/renderer_host/browser_compositor_view_mac.h content/browser/renderer_host/browser_compositor_view_mac.h
-index da3c2c7..93ed93d 100644
+index 4355a8cdacb4..57961ef39f8d 100644
 --- content/browser/renderer_host/browser_compositor_view_mac.h
 +++ content/browser/renderer_host/browser_compositor_view_mac.h
-@@ -50,9 +50,11 @@ class BrowserCompositorMac : public DelegatedFrameHostClient {
+@@ -50,6 +50,7 @@ class CONTENT_EXPORT BrowserCompositorMac : public DelegatedFrameHostClient {
  
    // These will not return nullptr until Destroy is called.
    DelegatedFrameHost* GetDelegatedFrameHost();
 +  ui::Layer* GetRootLayer() { return root_layer_.get(); }
+ 
+   // Ensure that the currect compositor frame be cleared (even if it is
+   // potentially visible).
+@@ -57,6 +58,7 @@ class CONTENT_EXPORT BrowserCompositorMac : public DelegatedFrameHostClient {
  
    // This may return nullptr, if this has detached itself from its
    // ui::Compositor.
@@ -15,10 +19,10 @@ index da3c2c7..93ed93d 100644
  
    void DidCreateNewRendererCompositorFrameSink(
 diff --git content/browser/renderer_host/browser_compositor_view_mac.mm content/browser/renderer_host/browser_compositor_view_mac.mm
-index 278c702..686bfb5 100644
+index 428bef1ff74e..e841db553ed8 100644
 --- content/browser/renderer_host/browser_compositor_view_mac.mm
 +++ content/browser/renderer_host/browser_compositor_view_mac.mm
-@@ -204,6 +204,12 @@ BrowserCompositorMac::~BrowserCompositorMac() {
+@@ -205,6 +205,12 @@ BrowserCompositorMac::~BrowserCompositorMac() {
      g_spare_recyclable_compositors.Get().clear();
  }
  
@@ -31,7 +35,7 @@ index 278c702..686bfb5 100644
  ui::AcceleratedWidgetMac* BrowserCompositorMac::GetAcceleratedWidgetMac() {
    if (recyclable_compositor_)
      return recyclable_compositor_->accelerated_widget_mac();
-@@ -425,8 +431,13 @@ SkColor BrowserCompositorMac::DelegatedFrameHostGetGutterColor(
+@@ -437,8 +443,13 @@ SkColor BrowserCompositorMac::DelegatedFrameHostGetGutterColor(
  }
  
  gfx::Size BrowserCompositorMac::DelegatedFrameHostDesiredSizeInDIP() const {

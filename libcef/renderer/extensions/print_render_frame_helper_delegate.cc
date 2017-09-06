@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "libcef/renderer/extensions/print_web_view_helper_delegate.h"
+#include "libcef/renderer/extensions/print_render_frame_helper_delegate.h"
 
 #include <vector>
 
@@ -18,15 +18,15 @@
 
 namespace extensions {
 
-CefPrintWebViewHelperDelegate::~CefPrintWebViewHelperDelegate() {}
+CefPrintRenderFrameHelperDelegate::~CefPrintRenderFrameHelperDelegate() {}
 
-bool CefPrintWebViewHelperDelegate::CancelPrerender(
+bool CefPrintRenderFrameHelperDelegate::CancelPrerender(
     content::RenderFrame* render_frame) {
   return false;
 }
 
 // Return the PDF object element if |frame| is the out of process PDF extension.
-blink::WebElement CefPrintWebViewHelperDelegate::GetPdfElement(
+blink::WebElement CefPrintRenderFrameHelperDelegate::GetPdfElement(
     blink::WebLocalFrame* frame) {
   GURL url = frame->GetDocument().Url();
   if (url.SchemeIs(extensions::kExtensionScheme) &&
@@ -42,11 +42,12 @@ blink::WebElement CefPrintWebViewHelperDelegate::GetPdfElement(
   return blink::WebElement();
 }
 
-bool CefPrintWebViewHelperDelegate::IsPrintPreviewEnabled() {
+bool CefPrintRenderFrameHelperDelegate::IsPrintPreviewEnabled() {
   return false;
 }
 
-bool CefPrintWebViewHelperDelegate::OverridePrint(blink::WebLocalFrame* frame) {
+bool CefPrintRenderFrameHelperDelegate::OverridePrint(
+    blink::WebLocalFrame* frame) {
   if (!frame->GetDocument().IsPluginDocument())
     return false;
 

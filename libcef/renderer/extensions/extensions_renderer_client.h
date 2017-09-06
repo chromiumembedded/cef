@@ -10,6 +10,7 @@
 
 #include "base/macros.h"
 #include "extensions/renderer/extensions_renderer_client.h"
+#include "services/service_manager/public/cpp/binder_registry.h"
 #include "ui/base/page_transition_types.h"
 
 class GURL;
@@ -49,7 +50,8 @@ class CefExtensionsRendererClient : public ExtensionsRendererClient {
 
   // See CefContentRendererClient methods with the same names.
   void RenderThreadStarted();
-  void RenderFrameCreated(content::RenderFrame* render_frame);
+  void RenderFrameCreated(content::RenderFrame* render_frame,
+                          service_manager::BinderRegistry* registry);
   void RenderViewCreated(content::RenderView* render_view);
   bool OverrideCreatePlugin(content::RenderFrame* render_frame,
                             const blink::WebPluginParams& params);
@@ -61,6 +63,7 @@ class CefExtensionsRendererClient : public ExtensionsRendererClient {
   void RunScriptsAtDocumentEnd(content::RenderFrame* render_frame);
   void RunScriptsAtDocumentIdle(content::RenderFrame* render_frame);
 
+  static bool IsStandaloneExtensionProcess();
   static bool ShouldFork(blink::WebLocalFrame* frame,
                          const GURL& url,
                          bool is_initial_navigation,

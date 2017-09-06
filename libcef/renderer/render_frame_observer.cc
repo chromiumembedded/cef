@@ -28,8 +28,14 @@ CefRenderFrameObserver::CefRenderFrameObserver(
 
 CefRenderFrameObserver::~CefRenderFrameObserver() {}
 
+void CefRenderFrameObserver::OnInterfaceRequestForFrame(
+    const std::string& interface_name,
+    mojo::ScopedMessagePipeHandle* interface_pipe) {
+  registry_.TryBindInterface(interface_name, interface_pipe);
+}
+
 void CefRenderFrameObserver::DidStartProvisionalLoad(
-    blink::WebDataSource* data_source) {
+    blink::WebDocumentLoader* document_loader) {
   blink::WebLocalFrame* frame = render_frame()->GetWebFrame();
   CefRefPtr<CefBrowserImpl> browserPtr =
       CefBrowserImpl::GetBrowserForMainFrame(frame->Top());

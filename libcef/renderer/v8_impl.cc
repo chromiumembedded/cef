@@ -812,7 +812,7 @@ CefV8HandleBase::~CefV8HandleBase() {
 }
 
 bool CefV8HandleBase::BelongsToCurrentThread() const {
-  return task_runner_->RunsTasksOnCurrentThread();
+  return task_runner_->RunsTasksInCurrentSequence();
 }
 
 CefV8HandleBase::CefV8HandleBase(v8::Isolate* isolate,

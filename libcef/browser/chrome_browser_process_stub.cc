@@ -88,6 +88,11 @@ void ChromeBrowserProcessStub::EndSession() {
   NOTREACHED();
 };
 
+void ChromeBrowserProcessStub::FlushLocalStateAndReply(
+    base::OnceClosure reply) {
+  NOTREACHED();
+}
+
 metrics_services_manager::MetricsServicesManager*
 ChromeBrowserProcessStub::GetMetricsServicesManager() {
   NOTREACHED();
@@ -110,6 +115,12 @@ ukm::UkmRecorder* ChromeBrowserProcessStub::ukm_recorder() {
 }
 
 IOThread* ChromeBrowserProcessStub::io_thread() {
+  return NULL;
+}
+
+SystemNetworkContextManager*
+ChromeBrowserProcessStub::system_network_context_manager() {
+  NOTREACHED();
   return NULL;
 }
 
@@ -319,11 +330,6 @@ MediaFileSystemRegistry*
 ChromeBrowserProcessStub::media_file_system_registry() {
   NOTREACHED();
   return NULL;
-}
-
-bool ChromeBrowserProcessStub::created_local_state() const {
-  NOTREACHED();
-  return false;
 }
 
 #if BUILDFLAG(ENABLE_WEBRTC)

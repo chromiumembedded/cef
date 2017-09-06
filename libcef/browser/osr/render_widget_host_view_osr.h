@@ -15,7 +15,7 @@
 
 #include "base/memory/weak_ptr.h"
 #include "build/build_config.h"
-#include "cc/scheduler/begin_frame_source.h"
+#include "components/viz/common/frame_sinks/begin_frame_source.h"
 #include "content/browser/renderer_host/compositor_resize_lock.h"
 #include "content/browser/renderer_host/delegated_frame_host.h"
 #include "content/browser/renderer_host/render_widget_host_view_base.h"
@@ -129,7 +129,7 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
 
   // RenderWidgetHostViewBase implementation.
   void DidCreateNewRendererCompositorFrameSink(
-      cc::mojom::CompositorFrameSinkClient* renderer_compositor_frame_sink)
+      viz::mojom::CompositorFrameSinkClient* renderer_compositor_frame_sink)
       override;
   void SubmitCompositorFrame(const viz::LocalSurfaceId& local_surface_id,
                              cc::CompositorFrame frame) override;
@@ -343,8 +343,8 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
   std::unique_ptr<CefBeginFrameTimer> begin_frame_timer_;
 
   // Provides |source_id| for BeginFrameArgs that we create.
-  cc::StubBeginFrameSource begin_frame_source_;
-  uint64_t begin_frame_number_ = cc::BeginFrameArgs::kStartingFrameNumber;
+  viz::StubBeginFrameSource begin_frame_source_;
+  uint64_t begin_frame_number_ = viz::BeginFrameArgs::kStartingFrameNumber;
 
   // Used for direct rendering from the compositor when GPU compositing is
   // disabled. This object is owned by the compositor.
@@ -377,7 +377,7 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
   gfx::Vector2dF last_scroll_offset_;
   bool is_scroll_offset_changed_pending_;
 
-  cc::mojom::CompositorFrameSinkClient* renderer_compositor_frame_sink_ =
+  viz::mojom::CompositorFrameSinkClient* renderer_compositor_frame_sink_ =
       nullptr;
 
   base::WeakPtrFactory<CefRenderWidgetHostViewOSR> weak_ptr_factory_;

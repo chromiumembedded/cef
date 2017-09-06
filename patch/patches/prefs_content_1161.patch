@@ -1,5 +1,5 @@
 diff --git content/public/common/common_param_traits_macros.h content/public/common/common_param_traits_macros.h
-index 95656cd..35f26f1 100644
+index 24302aa9a63b..ba5c08bf5892 100644
 --- content/public/common/common_param_traits_macros.h
 +++ content/public/common/common_param_traits_macros.h
 @@ -205,6 +205,7 @@ IPC_STRUCT_TRAITS_BEGIN(content::WebPreferences)
@@ -11,10 +11,10 @@ index 95656cd..35f26f1 100644
    IPC_STRUCT_TRAITS_MEMBER(navigate_on_drag_drop)
    IPC_STRUCT_TRAITS_MEMBER(spatial_navigation_enabled)
 diff --git content/public/common/web_preferences.cc content/public/common/web_preferences.cc
-index 767e91c..34f59fe 100644
+index a9c7b7d8c3ae..7c9d26fb223f 100644
 --- content/public/common/web_preferences.cc
 +++ content/public/common/web_preferences.cc
-@@ -171,6 +171,7 @@ WebPreferences::WebPreferences()
+@@ -170,6 +170,7 @@ WebPreferences::WebPreferences()
        spatial_navigation_enabled(false),
        use_solid_color_scrollbars(false),
        navigate_on_drag_drop(true),
@@ -23,7 +23,7 @@ index 767e91c..34f59fe 100644
        record_whole_document(false),
        cookie_enabled(true),
 diff --git content/public/common/web_preferences.h content/public/common/web_preferences.h
-index 5012952..ed17a57 100644
+index 1e24ea16ae51..2c4062d42992 100644
 --- content/public/common/web_preferences.h
 +++ content/public/common/web_preferences.h
 @@ -191,6 +191,7 @@ struct CONTENT_EXPORT WebPreferences {
@@ -35,10 +35,10 @@ index 5012952..ed17a57 100644
    bool record_whole_document;
  
 diff --git content/renderer/render_view_impl.cc content/renderer/render_view_impl.cc
-index f26cc78..fab85a3 100644
+index 344e89232ca7..c74e5c5432ed 100644
 --- content/renderer/render_view_impl.cc
 +++ content/renderer/render_view_impl.cc
-@@ -1317,6 +1317,8 @@ void RenderViewImpl::ApplyWebPreferencesInternal(
+@@ -1309,6 +1309,8 @@ void RenderViewImpl::ApplyWebPreferencesInternal(
      blink::WebView* web_view,
      CompositorDependencies* compositor_deps) {
    ApplyWebPreferences(prefs, web_view);

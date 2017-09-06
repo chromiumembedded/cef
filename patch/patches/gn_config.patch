@@ -1,8 +1,8 @@
 diff --git .gn .gn
-index 441b8ac..c3fe3b1 100644
+index 29d65d771249..eb61510004a7 100644
 --- .gn
 +++ .gn
-@@ -271,6 +271,8 @@ exec_script_whitelist =
+@@ -255,6 +255,8 @@ exec_script_whitelist =
        # in the Chromium repo outside of //build.
        "//build_overrides/build.gni",
  
@@ -12,10 +12,10 @@ index 441b8ac..c3fe3b1 100644
        # https://crbug.com/474506.
        "//clank/java/BUILD.gn",
 diff --git BUILD.gn BUILD.gn
-index d274819..191ea00 100644
+index 5fdb6c5f516c..654c28e9f3a0 100644
 --- BUILD.gn
 +++ BUILD.gn
-@@ -170,6 +170,7 @@ group("gn_all") {
+@@ -172,6 +172,7 @@ group("gn_all") {
    if (!is_ios && !is_fuchsia) {
      deps += [
        "//cc:cc_unittests",
@@ -24,7 +24,7 @@ index d274819..191ea00 100644
        "//chrome/test:unit_tests",
        "//components:components_browsertests",
 diff --git build/config/win/visual_studio_version.gni build/config/win/visual_studio_version.gni
-index 982fbe8..e757be46 100644
+index 982fbe8d3f0d..e757be4688f1 100644
 --- build/config/win/visual_studio_version.gni
 +++ build/config/win/visual_studio_version.gni
 @@ -12,9 +12,8 @@ declare_args() {
@@ -56,7 +56,7 @@ index 982fbe8..e757be46 100644
 +         "studio path")
  }
 diff --git build/toolchain/win/setup_toolchain.py build/toolchain/win/setup_toolchain.py
-index 8150d3a..39441ef 100644
+index 8150d3a4e4ac..39441ef7ae89 100644
 --- build/toolchain/win/setup_toolchain.py
 +++ build/toolchain/win/setup_toolchain.py
 @@ -132,17 +132,21 @@ def _LoadToolchainEnv(cpu, sdk_dir):
@@ -91,7 +91,7 @@ index 8150d3a..39441ef 100644
  
  
 diff --git build/vs_toolchain.py build/vs_toolchain.py
-index 3b2c727..60e4984 100755
+index 93a04ceb27d0..05342d2707e9 100755
 --- build/vs_toolchain.py
 +++ build/vs_toolchain.py
 @@ -79,11 +79,18 @@ def SetEnvironmentAndGetRuntimeDllDirs():
@@ -114,10 +114,10 @@ index 3b2c727..60e4984 100755
      # directory in order to run binaries locally, but they are needed in order
      # to create isolates or the mini_installer. Copying them to the output
 diff --git chrome/chrome_paks.gni chrome/chrome_paks.gni
-index a7778f9..5e3eb75a 100644
+index c9a9a3d95f29..41f3bd29d7dc 100644
 --- chrome/chrome_paks.gni
 +++ chrome/chrome_paks.gni
-@@ -252,7 +252,7 @@ template("chrome_paks") {
+@@ -248,7 +248,7 @@ template("chrome_paks") {
      }
  
      input_locales = locales
@@ -127,10 +127,10 @@ index a7778f9..5e3eb75a 100644
      if (is_mac) {
        output_locales = locales_as_mac_outputs
 diff --git chrome/installer/mini_installer/BUILD.gn chrome/installer/mini_installer/BUILD.gn
-index 2afab1a..c8791ea 100644
+index 14a729a33cd4..3651ff58915c 100644
 --- chrome/installer/mini_installer/BUILD.gn
 +++ chrome/installer/mini_installer/BUILD.gn
-@@ -128,7 +128,7 @@ template("generate_mini_installer") {
+@@ -130,7 +130,7 @@ template("generate_mini_installer") {
      inputs = [
        "$chrome_dll_file",
        "$root_out_dir/chrome.exe",

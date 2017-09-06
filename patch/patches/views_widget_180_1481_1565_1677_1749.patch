@@ -1,5 +1,5 @@
 diff --git content/browser/renderer_host/render_widget_host_view_base.cc content/browser/renderer_host/render_widget_host_view_base.cc
-index ebf64e9..f242f5f 100644
+index 69c338c37b5a..6301d3737b12 100644
 --- content/browser/renderer_host/render_widget_host_view_base.cc
 +++ content/browser/renderer_host/render_widget_host_view_base.cc
 @@ -298,6 +298,14 @@ void RenderWidgetHostViewBase::FocusedNodeTouched(
@@ -18,10 +18,10 @@ index ebf64e9..f242f5f 100644
    return renderer_frame_number_;
  }
 diff --git content/browser/renderer_host/render_widget_host_view_base.h content/browser/renderer_host/render_widget_host_view_base.h
-index 9a124eb..84d1c63 100644
+index faec1e5bb3bc..4331d143c5c4 100644
 --- content/browser/renderer_host/render_widget_host_view_base.h
 +++ content/browser/renderer_host/render_widget_host_view_base.h
-@@ -77,6 +77,7 @@ class BrowserAccessibilityManager;
+@@ -74,6 +74,7 @@ class BrowserAccessibilityManager;
  class CursorManager;
  class RenderWidgetHostImpl;
  class RenderWidgetHostViewBaseObserver;
@@ -29,7 +29,7 @@ index 9a124eb..84d1c63 100644
  class SyntheticGestureTarget;
  class TextInputManager;
  class TouchSelectionControllerClientManager;
-@@ -94,6 +95,9 @@ class CONTENT_EXPORT RenderWidgetHostViewBase : public RenderWidgetHostView,
+@@ -91,6 +92,9 @@ class CONTENT_EXPORT RenderWidgetHostViewBase : public RenderWidgetHostView,
    float current_device_scale_factor() const {
      return current_device_scale_factor_;
    }
@@ -39,7 +39,7 @@ index 9a124eb..84d1c63 100644
  
    // Returns the focused RenderWidgetHost inside this |view|'s RWH.
    RenderWidgetHostImpl* GetFocusedWidget() const;
-@@ -123,6 +127,8 @@ class CONTENT_EXPORT RenderWidgetHostViewBase : public RenderWidgetHostView,
+@@ -120,6 +124,8 @@ class CONTENT_EXPORT RenderWidgetHostViewBase : public RenderWidgetHostView,
    void EndFrameSubscription() override;
    void FocusedNodeTouched(const gfx::Point& location_dips_screen,
                            bool editable) override;
@@ -48,7 +48,7 @@ index 9a124eb..84d1c63 100644
    TouchSelectionControllerClientManager*
    GetTouchSelectionControllerClientManager() override;
  
-@@ -365,6 +371,12 @@ class CONTENT_EXPORT RenderWidgetHostViewBase : public RenderWidgetHostView,
+@@ -366,6 +372,12 @@ class CONTENT_EXPORT RenderWidgetHostViewBase : public RenderWidgetHostView,
    // helps to position the full screen widget on the correct monitor.
    virtual void InitAsFullscreen(RenderWidgetHostView* reference_host_view) = 0;
  
@@ -61,7 +61,7 @@ index 9a124eb..84d1c63 100644
    // Sets the cursor for this view to the one associated with the specified
    // cursor_type.
    virtual void UpdateCursor(const WebCursor& cursor) = 0;
-@@ -492,6 +504,10 @@ class CONTENT_EXPORT RenderWidgetHostViewBase : public RenderWidgetHostView,
+@@ -493,6 +505,10 @@ class CONTENT_EXPORT RenderWidgetHostViewBase : public RenderWidgetHostView,
  
    WebContentsAccessibility* web_contents_accessibility_;
  
@@ -73,7 +73,7 @@ index 9a124eb..84d1c63 100644
    gfx::Rect current_display_area_;
  
 diff --git content/browser/renderer_host/render_widget_host_view_event_handler.cc content/browser/renderer_host/render_widget_host_view_event_handler.cc
-index ed267bc..514eade 100644
+index 02614b2e7eff..38c207888aba 100644
 --- content/browser/renderer_host/render_widget_host_view_event_handler.cc
 +++ content/browser/renderer_host/render_widget_host_view_event_handler.cc
 @@ -28,6 +28,10 @@
@@ -87,10 +87,11 @@ index ed267bc..514eade 100644
  #if defined(OS_WIN)
  #include "content/browser/frame_host/render_frame_host_impl.h"
  #include "content/public/common/context_menu_params.h"
-@@ -851,6 +855,14 @@ void RenderWidgetHostViewEventHandler::SetKeyboardFocus() {
+@@ -850,6 +854,14 @@ void RenderWidgetHostViewEventHandler::SetKeyboardFocus() {
+         ::SetFocus(hwnd);
      }
    }
- #endif
++#endif
 +#if defined(OS_LINUX)
 +  if (host_view_->HasExternalParent() &&
 +      window_ && window_->delegate()->CanFocus()) {
@@ -98,12 +99,11 @@ index ed267bc..514eade 100644
 +    if (host)
 +      host->Show();
 +  }
-+#endif
+ #endif
    // TODO(wjmaclean): can host_ ever be null?
    if (host_ && set_focus_on_mouse_down_or_key_event_) {
-     set_focus_on_mouse_down_or_key_event_ = false;
 diff --git content/public/browser/render_widget_host_view.h content/public/browser/render_widget_host_view.h
-index 995f917..dbbd883 100644
+index 995f917d9ebc..dbbd8833b6fe 100644
 --- content/public/browser/render_widget_host_view.h
 +++ content/public/browser/render_widget_host_view.h
 @@ -236,6 +236,14 @@ class CONTENT_EXPORT RenderWidgetHostView {
@@ -122,7 +122,7 @@ index 995f917..dbbd883 100644
    // Return the accelerated widget which hosts the CALayers that draw the
    // content of the view in GetNativeView. This may be null.
 diff --git ui/views/widget/desktop_aura/desktop_screen_win.cc ui/views/widget/desktop_aura/desktop_screen_win.cc
-index f772f64..7d13f9f 100644
+index f772f64d656e..7d13f9f81b6c 100644
 --- ui/views/widget/desktop_aura/desktop_screen_win.cc
 +++ ui/views/widget/desktop_aura/desktop_screen_win.cc
 @@ -32,6 +32,8 @@ display::Display DesktopScreenWin::GetDisplayMatching(
@@ -135,10 +135,10 @@ index f772f64..7d13f9f 100644
    return host ? host->GetAcceleratedWidget() : NULL;
  }
 diff --git ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc
-index 4d0dfbe..7ef6ace 100644
+index c332dc7e0a58..6be166492241 100644
 --- ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc
 +++ ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc
-@@ -85,6 +85,7 @@ DesktopWindowTreeHostWin::DesktopWindowTreeHostWin(
+@@ -84,6 +84,7 @@ DesktopWindowTreeHostWin::DesktopWindowTreeHostWin(
        should_animate_window_close_(false),
        pending_close_(false),
        has_non_client_view_(false),
@@ -146,7 +146,7 @@ index 4d0dfbe..7ef6ace 100644
        tooltip_(NULL) {
  }
  
-@@ -123,8 +124,12 @@ void DesktopWindowTreeHostWin::Init(aura::Window* content_window,
+@@ -122,8 +123,12 @@ void DesktopWindowTreeHostWin::Init(aura::Window* content_window,
                          native_widget_delegate_);
  
    HWND parent_hwnd = NULL;
@@ -160,7 +160,7 @@ index 4d0dfbe..7ef6ace 100644
  
    remove_standard_frame_ = params.remove_standard_frame;
    has_non_client_view_ = Widget::RequiresNonClientView(params.type);
-@@ -831,11 +836,15 @@ void DesktopWindowTreeHostWin::HandleFrameChanged() {
+@@ -825,11 +830,15 @@ void DesktopWindowTreeHostWin::HandleFrameChanged() {
  }
  
  void DesktopWindowTreeHostWin::HandleNativeFocus(HWND last_focused_window) {
@@ -179,10 +179,10 @@ index 4d0dfbe..7ef6ace 100644
  
  bool DesktopWindowTreeHostWin::HandleMouseEvent(const ui::MouseEvent& event) {
 diff --git ui/views/widget/desktop_aura/desktop_window_tree_host_win.h ui/views/widget/desktop_aura/desktop_window_tree_host_win.h
-index 3f1c7bf..2658da5 100644
+index 4ee4bb30a122..5441d5e8a2a5 100644
 --- ui/views/widget/desktop_aura/desktop_window_tree_host_win.h
 +++ ui/views/widget/desktop_aura/desktop_window_tree_host_win.h
-@@ -264,6 +264,10 @@ class VIEWS_EXPORT DesktopWindowTreeHostWin
+@@ -265,6 +265,10 @@ class VIEWS_EXPORT DesktopWindowTreeHostWin
    // True if the window should have the frame removed.
    bool remove_standard_frame_;
  
@@ -194,7 +194,7 @@ index 3f1c7bf..2658da5 100644
    // a reference.
    corewm::TooltipWin* tooltip_;
 diff --git ui/views/widget/desktop_aura/desktop_window_tree_host_x11.cc ui/views/widget/desktop_aura/desktop_window_tree_host_x11.cc
-index e8a7a79..a5f4d0e 100644
+index fa2878ae0d1d..fde5a8e549be 100644
 --- ui/views/widget/desktop_aura/desktop_window_tree_host_x11.cc
 +++ ui/views/widget/desktop_aura/desktop_window_tree_host_x11.cc
 @@ -152,6 +152,7 @@ DesktopWindowTreeHostX11::DesktopWindowTreeHostX11(
@@ -211,9 +211,9 @@ index e8a7a79..a5f4d0e 100644
        modal_dialog_counter_(0),
 +      xwindow_destroyed_(false),
        close_widget_factory_(this),
-       weak_factory_(this) {
- }
-@@ -201,6 +203,8 @@ std::vector<aura::Window*> DesktopWindowTreeHostX11::GetAllOpenWindows() {
+       weak_factory_(this) {}
+ 
+@@ -200,6 +202,8 @@ std::vector<aura::Window*> DesktopWindowTreeHostX11::GetAllOpenWindows() {
  }
  
  gfx::Rect DesktopWindowTreeHostX11::GetX11RootWindowBounds() const {
@@ -222,7 +222,7 @@ index e8a7a79..a5f4d0e 100644
    return bounds_in_pixels_;
  }
  
-@@ -512,7 +516,8 @@ void DesktopWindowTreeHostX11::CloseNow() {
+@@ -511,7 +515,8 @@ void DesktopWindowTreeHostX11::CloseNow() {
    // Actually free our native resources.
    if (ui::PlatformEventSource::GetInstance())
      ui::PlatformEventSource::GetInstance()->RemovePlatformEventDispatcher(this);
@@ -232,7 +232,7 @@ index e8a7a79..a5f4d0e 100644
    xwindow_ = None;
  
    desktop_native_widget_aura_->OnHostClosed();
-@@ -653,6 +658,8 @@ void DesktopWindowTreeHostX11::GetWindowPlacement(
+@@ -652,6 +657,8 @@ void DesktopWindowTreeHostX11::GetWindowPlacement(
  }
  
  gfx::Rect DesktopWindowTreeHostX11::GetWindowBoundsInScreen() const {
@@ -241,7 +241,7 @@ index e8a7a79..a5f4d0e 100644
    return ToDIPRect(bounds_in_pixels_);
  }
  
-@@ -1245,6 +1252,8 @@ void DesktopWindowTreeHostX11::SetBoundsInPixels(
+@@ -1247,6 +1254,8 @@ void DesktopWindowTreeHostX11::SetBoundsInPixels(
  }
  
  gfx::Point DesktopWindowTreeHostX11::GetLocationOnScreenInPixels() const {
@@ -250,7 +250,7 @@ index e8a7a79..a5f4d0e 100644
    return bounds_in_pixels_.origin();
  }
  
-@@ -1335,7 +1344,6 @@ void DesktopWindowTreeHostX11::InitX11Window(
+@@ -1339,7 +1348,6 @@ void DesktopWindowTreeHostX11::InitX11Window(
    ::Atom window_type;
    switch (params.type) {
      case Widget::InitParams::TYPE_MENU:
@@ -258,7 +258,7 @@ index e8a7a79..a5f4d0e 100644
        window_type = gfx::GetAtom("_NET_WM_WINDOW_TYPE_MENU");
        break;
      case Widget::InitParams::TYPE_TOOLTIP:
-@@ -1391,9 +1399,15 @@ void DesktopWindowTreeHostX11::InitX11Window(
+@@ -1395,9 +1403,15 @@ void DesktopWindowTreeHostX11::InitX11Window(
    attribute_mask |= CWBorderPixel;
    swa.border_pixel = 0;
  
@@ -275,7 +275,7 @@ index e8a7a79..a5f4d0e 100644
                             bounds_in_pixels_.y(), bounds_in_pixels_.width(),
                             bounds_in_pixels_.height(),
                             0,  // border width
-@@ -1998,6 +2012,10 @@ uint32_t DesktopWindowTreeHostX11::DispatchEvent(
+@@ -2011,6 +2025,10 @@ uint32_t DesktopWindowTreeHostX11::DispatchEvent(
        }
        break;
      }
@@ -287,7 +287,7 @@ index e8a7a79..a5f4d0e 100644
      case FocusOut:
        OnFocusEvent(xev->type == FocusIn, event->xfocus.mode,
 diff --git ui/views/widget/desktop_aura/desktop_window_tree_host_x11.h ui/views/widget/desktop_aura/desktop_window_tree_host_x11.h
-index cb18967..0c143d2 100644
+index b72ec26d3ed6..263c233bf0f6 100644
 --- ui/views/widget/desktop_aura/desktop_window_tree_host_x11.h
 +++ ui/views/widget/desktop_aura/desktop_window_tree_host_x11.h
 @@ -86,6 +86,12 @@ class VIEWS_EXPORT DesktopWindowTreeHostX11
@@ -303,7 +303,7 @@ index cb18967..0c143d2 100644
   protected:
    // Overridden from DesktopWindowTreeHost:
    void Init(aura::Window* content_window,
-@@ -305,6 +311,9 @@ class VIEWS_EXPORT DesktopWindowTreeHostX11
+@@ -308,6 +314,9 @@ class VIEWS_EXPORT DesktopWindowTreeHostX11
    // The bounds of |xwindow_|.
    gfx::Rect bounds_in_pixels_;
  
@@ -313,7 +313,7 @@ index cb18967..0c143d2 100644
    // Whenever the bounds are set, we keep the previous set of bounds around so
    // we can have a better chance of getting the real
    // |restored_bounds_in_pixels_|. Window managers tend to send a Configure
-@@ -344,6 +353,10 @@ class VIEWS_EXPORT DesktopWindowTreeHostX11
+@@ -347,6 +356,10 @@ class VIEWS_EXPORT DesktopWindowTreeHostX11
    // Whether we used an ARGB visual for our window.
    bool use_argb_visual_;
  
@@ -324,7 +324,7 @@ index cb18967..0c143d2 100644
    DesktopDragDropClientAuraX11* drag_drop_client_;
  
    std::unique_ptr<ui::EventHandler> x11_non_client_event_filter_;
-@@ -431,6 +444,9 @@ class VIEWS_EXPORT DesktopWindowTreeHostX11
+@@ -434,6 +447,9 @@ class VIEWS_EXPORT DesktopWindowTreeHostX11
  
    uint32_t modal_dialog_counter_;
  
@@ -335,7 +335,7 @@ index cb18967..0c143d2 100644
    base::WeakPtrFactory<DesktopWindowTreeHostX11> weak_factory_;
  
 diff --git ui/views/widget/widget.cc ui/views/widget/widget.cc
-index 32a50e8..43191a9 100644
+index d37585c6fa39..d036db18c12d 100644
 --- ui/views/widget/widget.cc
 +++ ui/views/widget/widget.cc
 @@ -130,6 +130,7 @@ Widget::InitParams::InitParams(Type type)
@@ -369,7 +369,7 @@ index 32a50e8..43191a9 100644
    }
    // This must come after SetContentsView() or it might not be able to find
    // the correct NativeTheme (on Linux). See http://crbug.com/384492
-@@ -1098,10 +1104,16 @@ void Widget::OnNativeWidgetDestroyed() {
+@@ -1094,10 +1100,16 @@ void Widget::OnNativeWidgetDestroyed() {
  }
  
  gfx::Size Widget::GetMinimumSize() const {
@@ -387,10 +387,10 @@ index 32a50e8..43191a9 100644
  }
  
 diff --git ui/views/widget/widget.h ui/views/widget/widget.h
-index 63fcb9d..7237ae6 100644
+index 6590ea90b805..814bd617df3b 100644
 --- ui/views/widget/widget.h
 +++ ui/views/widget/widget.h
-@@ -253,6 +253,7 @@ class VIEWS_EXPORT Widget : public internal::NativeWidgetDelegate,
+@@ -254,6 +254,7 @@ class VIEWS_EXPORT Widget : public internal::NativeWidgetDelegate,
      // Whether the widget should be maximized or minimized.
      ui::WindowShowState show_state;
      gfx::NativeView parent;
@@ -399,7 +399,7 @@ index 63fcb9d..7237ae6 100644
      // the NativeWidget may specify a default size. If the parent is specified,
      // |bounds| is in the parent's coordinate system. If the parent is not
 diff --git ui/views/widget/widget_delegate.h ui/views/widget/widget_delegate.h
-index bd4d8a7..998cfa0 100644
+index bd4d8a7a1de2..998cfa05ea51 100644
 --- ui/views/widget/widget_delegate.h
 +++ ui/views/widget/widget_delegate.h
 @@ -187,6 +187,10 @@ class VIEWS_EXPORT WidgetDelegate {
@@ -414,7 +414,7 @@ index bd4d8a7..998cfa0 100644
    virtual ~WidgetDelegate() {}
  
 diff --git ui/views/widget/widget_hwnd_utils.cc ui/views/widget/widget_hwnd_utils.cc
-index 163e4b5..58f594db 100644
+index 163e4b54b033..58f594db5019 100644
 --- ui/views/widget/widget_hwnd_utils.cc
 +++ ui/views/widget/widget_hwnd_utils.cc
 @@ -73,7 +73,7 @@ void CalculateWindowStylesFromInitParams(
@@ -427,10 +427,10 @@ index 163e4b5..58f594db 100644
        if (native_widget_delegate->IsDialogBox()) {
          *style |= DS_MODALFRAME;
 diff --git ui/views/win/hwnd_message_handler.cc ui/views/win/hwnd_message_handler.cc
-index 559f968..f679144 100644
+index 4af7811d64d9..7f8f08900ac1 100644
 --- ui/views/win/hwnd_message_handler.cc
 +++ ui/views/win/hwnd_message_handler.cc
-@@ -2650,8 +2650,12 @@ LRESULT HWNDMessageHandler::HandleMouseEventInternal(UINT message,
+@@ -2659,8 +2659,12 @@ LRESULT HWNDMessageHandler::HandleMouseEventInternal(UINT message,
      active_mouse_tracking_flags_ = 0;
    } else if (event.type() == ui::ET_MOUSEWHEEL) {
      // Reroute the mouse wheel to the window under the pointer if applicable.

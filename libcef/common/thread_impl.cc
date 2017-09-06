@@ -45,7 +45,7 @@ CefThreadImpl::CefThreadImpl() : thread_id_(kInvalidPlatformThreadId) {}
 
 CefThreadImpl::~CefThreadImpl() {
   if (thread_.get()) {
-    if (!owner_task_runner_->RunsTasksOnCurrentThread()) {
+    if (!owner_task_runner_->RunsTasksInCurrentSequence()) {
       // Delete |thread_| on the correct thread.
       owner_task_runner_->PostTask(
           FROM_HERE,
@@ -126,7 +126,7 @@ cef_platform_thread_id_t CefThreadImpl::GetPlatformThreadId() {
 void CefThreadImpl::Stop() {
   if (!owner_task_runner_)
     return;
-  if (!owner_task_runner_->RunsTasksOnCurrentThread()) {
+  if (!owner_task_runner_->RunsTasksInCurrentSequence()) {
     NOTREACHED() << "called on invalid thread";
     return;
   }
@@ -138,7 +138,7 @@ void CefThreadImpl::Stop() {
 bool CefThreadImpl::IsRunning() {
   if (!owner_task_runner_)
     return false;
-  if (!owner_task_runner_->RunsTasksOnCurrentThread()) {
+  if (!owner_task_runner_->RunsTasksInCurrentSequence()) {
     NOTREACHED() << "called on invalid thread";
     return false;
   }

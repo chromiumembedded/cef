@@ -357,8 +357,7 @@ net::URLRequestContext* CefURLRequestContextGetterImpl::GetURLRequestContext() {
     std::unique_ptr<net::HttpCache::DefaultBackend> main_backend(
         new net::HttpCache::DefaultBackend(
             cache_path.empty() ? net::MEMORY_CACHE : net::DISK_CACHE,
-            net::CACHE_BACKEND_DEFAULT, http_cache_path, 0,
-            BrowserThread::GetTaskRunnerForThread(BrowserThread::CACHE)));
+            net::CACHE_BACKEND_DEFAULT, http_cache_path, 0));
 
     net::HttpNetworkSession::Context network_session_context;
     network_session_context.host_resolver =

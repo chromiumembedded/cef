@@ -39,6 +39,10 @@ ContentSettingsType PermissionTypeToContentSetting(PermissionType permission) {
       return CONTENT_SETTINGS_TYPE_BACKGROUND_SYNC;
     case PermissionType::FLASH:
       return CONTENT_SETTINGS_TYPE_PLUGINS;
+    case PermissionType::SENSORS:
+      return CONTENT_SETTINGS_TYPE_SENSORS;
+    case PermissionType::ACCESSIBILITY_EVENTS:
+      return CONTENT_SETTINGS_TYPE_ACCESSIBILITY_EVENTS;
     case PermissionType::NUM:
       // This will hit the NOTREACHED below.
       break;

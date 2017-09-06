@@ -88,9 +88,9 @@ int ResponseWriter::Write(net::IOBuffer* buffer,
 
   content::BrowserThread::PostTask(
       content::BrowserThread::UI, FROM_HERE,
-      base::Bind(&CefDevToolsFrontend::CallClientFunction, shell_devtools_,
-                 "DevToolsAPI.streamWrite", base::Owned(id),
-                 base::Owned(chunkValue), nullptr));
+      base::BindOnce(&CefDevToolsFrontend::CallClientFunction, shell_devtools_,
+                     "DevToolsAPI.streamWrite", base::Owned(id),
+                     base::Owned(chunkValue), nullptr));
   return num_bytes;
 }
 
@@ -221,6 +221,8 @@ void CefDevToolsFrontend::DocumentAvailableInMainFrame() {
   scoped_refptr<content::DevToolsAgentHost> agent_host =
       content::DevToolsAgentHost::GetOrCreateFor(inspected_contents_);
   if (agent_host != agent_host_) {
+    if (agent_host_)
+      agent_host_->DetachClient(this);
     agent_host_ = agent_host;
     agent_host_->AttachClient(this);
     if (!inspect_element_at_.IsEmpty()) {
@@ -231,8 +233,10 @@ void CefDevToolsFrontend::DocumentAvailableInMainFrame() {
 }
 
 void CefDevToolsFrontend::WebContentsDestroyed() {
-  if (agent_host_)
+  if (agent_host_) {
     agent_host_->DetachClient(this);
+    agent_host_ = nullptr;
+  }
   delete this;
 }
 
@@ -270,8 +274,6 @@ void CefDevToolsFrontend::HandleMessageFromDevToolsFrontend(
   dict->GetList("params", &params);
 
   if (method == "dispatchProtocolMessage" && params && params->GetSize() == 1) {
-    if (!agent_host_ || !agent_host_->IsAttached())
-      return;
     std::string protocol_message;
     if (!params->GetString(0, &protocol_message))
       return;
@@ -348,7 +350,7 @@ void CefDevToolsFrontend::HandleMessageFromDevToolsFrontend(
       return;
     }
     DictionaryPrefUpdate update(GetPrefs(), prefs::kDevToolsPreferences);
-    update.Get()->SetStringWithoutPathExpansion(name, value);
+    update.Get()->SetKey(name, base::Value(value));
   } else if (method == "removePreference") {
     std::string name;
     if (!params->GetString(0, &name))

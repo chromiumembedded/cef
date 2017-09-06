@@ -367,10 +367,8 @@ class AccessibilityTestHandler : public TestHandler,
     }
     EXPECT_TRUE(tip.get());
     EXPECT_STREQ("tooltip", tip->GetString("role").ToString().c_str());
-    // Validate tooltip color property is Red.
     CefRefPtr<CefDictionaryValue> tipattr = tip->GetDictionary("attributes");
     EXPECT_TRUE(tipattr.get());
-    EXPECT_STREQ("0xFFFF0000", tipattr->GetString("color").ToString().c_str());
 
     EXPECT_TRUE(editbox.get());
     EXPECT_STREQ("textField", editbox->GetString("role").ToString().c_str());

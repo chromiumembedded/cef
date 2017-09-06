@@ -14,7 +14,7 @@
 // interface. Based on chrome/browser/speech/
 // chrome_speech_recognition_manager_delegate.[cc|h]
 class CefSpeechRecognitionManagerDelegate
-    : NON_EXPORTED_BASE(public content::SpeechRecognitionManagerDelegate),
+    : public content::SpeechRecognitionManagerDelegate,
       public content::SpeechRecognitionEventListener {
  public:
   CefSpeechRecognitionManagerDelegate();

@@ -1,10 +1,10 @@
 diff --git net/url_request/url_request.h net/url_request/url_request.h
-index e529c37..9039974 100644
+index ae6bba1cdfa7..6fe1172b01b8 100644
 --- net/url_request/url_request.h
 +++ net/url_request/url_request.h
-@@ -667,10 +667,10 @@ class NET_EXPORT URLRequest : public base::SupportsUserData {
-     return traffic_annotation_;
-   }
+@@ -681,10 +681,10 @@ class NET_EXPORT URLRequest : public base::SupportsUserData {
+   // called with a response from the server.
+   void SetResponseHeadersCallback(ResponseHeadersCallback callback);
  
 - protected:
    // Allow the URLRequestJob class to control the is_pending() flag.

@@ -129,7 +129,7 @@ bool CefTaskRunnerImpl::IsSame(CefRefPtr<CefTaskRunner> that) {
 }
 
 bool CefTaskRunnerImpl::BelongsToCurrentThread() {
-  return task_runner_->RunsTasksOnCurrentThread();
+  return task_runner_->RunsTasksInCurrentSequence();
 }
 
 bool CefTaskRunnerImpl::BelongsToThread(CefThreadId threadId) {

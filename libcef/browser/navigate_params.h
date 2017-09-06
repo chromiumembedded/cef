@@ -38,9 +38,9 @@ struct CefNavigateParams {
   // Usually the URL of the document in the top-level window, which may be
   // checked by the third-party cookie blocking policy. Leaving it empty may
   // lead to undesired cookie blocking. Third-party cookie blocking can be
-  // bypassed by setting first_party_for_cookies = url, but this should ideally
+  // bypassed by setting site_for_cookies = url, but this should ideally
   // only be done if there really is no way to determine the correct value.
-  GURL first_party_for_cookies;
+  GURL site_for_cookies;
 
   // Additional HTTP request headers.
   std::string headers;

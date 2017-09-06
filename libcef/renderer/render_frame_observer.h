@@ -6,6 +6,7 @@
 #define LIBCEF_RENDERER_RENDER_FRAME_OBSERVER_H_
 
 #include "content/public/renderer/render_frame_observer.h"
+#include "services/service_manager/public/cpp/binder_registry.h"
 
 namespace content {
 class RenderFrame;
@@ -17,7 +18,11 @@ class CefRenderFrameObserver : public content::RenderFrameObserver {
   ~CefRenderFrameObserver() override;
 
   // RenderFrameObserver methods:
-  void DidStartProvisionalLoad(blink::WebDataSource* data_source) override;
+  void OnInterfaceRequestForFrame(
+      const std::string& interface_name,
+      mojo::ScopedMessagePipeHandle* interface_pipe) override;
+  void DidStartProvisionalLoad(
+      blink::WebDocumentLoader* document_loader) override;
   void DidFinishLoad() override;
   void FrameDetached() override;
   void FrameFocused() override;
@@ -29,7 +34,11 @@ class CefRenderFrameObserver : public content::RenderFrameObserver {
                                 int world_id) override;
   void OnDestruct() override;
 
+  service_manager::BinderRegistry* registry() { return &registry_; }
+
  private:
+  service_manager::BinderRegistry registry_;
+
   DISALLOW_COPY_AND_ASSIGN(CefRenderFrameObserver);
 };
 

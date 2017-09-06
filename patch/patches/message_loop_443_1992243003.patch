@@ -1,8 +1,8 @@
 diff --git base/message_loop/message_loop.h base/message_loop/message_loop.h
-index 83c3191..c4c1290a 100644
+index a118917ea1cc..5c89a01e1019 100644
 --- base/message_loop/message_loop.h
 +++ base/message_loop/message_loop.h
-@@ -291,6 +291,16 @@ class BASE_EXPORT MessageLoop : public MessagePump::Delegate,
+@@ -278,6 +278,16 @@ class BASE_EXPORT MessageLoop : public MessagePump::Delegate,
    void AddTaskObserver(TaskObserver* task_observer);
    void RemoveTaskObserver(TaskObserver* task_observer);
  
@@ -16,11 +16,11 @@ index 83c3191..c4c1290a 100644
 +  }
 +#endif  // OS_WIN
 +
-   // Returns true if the message loop has high resolution timers enabled.
-   // Provided for testing.
-   bool HasHighResolutionTasks();
-@@ -427,6 +437,12 @@ class BASE_EXPORT MessageLoop : public MessagePump::Delegate,
-   // insider a (accidentally induced?) nested message pump.
+   // Returns true if the message loop is "idle". Provided for testing.
+   bool IsIdleForTesting();
+ 
+@@ -413,6 +423,12 @@ class BASE_EXPORT MessageLoop : public MessagePump::Delegate,
+   // need to be checked in conditionals).
    bool nestable_tasks_allowed_;
  
 +#if defined(OS_WIN)
@@ -33,7 +33,7 @@ index 83c3191..c4c1290a 100644
    // if type_ is TYPE_CUSTOM and pump_ is null.
    MessagePumpFactoryCallback pump_factory_;
 diff --git base/message_loop/message_pump_win.cc base/message_loop/message_pump_win.cc
-index 6f48da1..e427941 100644
+index 6f48da1c744e..e427941bfd06 100644
 --- base/message_loop/message_pump_win.cc
 +++ base/message_loop/message_pump_win.cc
 @@ -366,20 +366,28 @@ bool MessagePumpForUI::ProcessMessageHelper(const MSG& msg) {

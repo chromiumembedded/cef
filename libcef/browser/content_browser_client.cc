@@ -700,7 +700,7 @@ void CefContentBrowserClient::AppendExtraCommandLineSwitches(
     command_line->CopySwitchesFrom(*browser_cmd, kSwitchNames,
                                    arraysize(kSwitchNames));
 
-#if defined(WIDEVINE_CDM_AVAILABLE) && BUILDFLAG(ENABLE_PEPPER_CDMS)
+#if defined(WIDEVINE_CDM_AVAILABLE) && BUILDFLAG(ENABLE_LIBRARY_CDMS)
     if (!browser_cmd->HasSwitch(switches::kNoSandbox)) {
       // Pass the Widevine CDM path to the Zygote process. See comments in
       // CefWidevineLoader::AddPepperPlugins.
@@ -958,7 +958,7 @@ CefContentBrowserClient::CreateThrottlesForNavigation(
 void CefContentBrowserClient::GetAdditionalMappedFilesForChildProcess(
     const base::CommandLine& command_line,
     int child_process_id,
-    content::FileDescriptorInfo* mappings) {
+    content::PosixFileDescriptorInfo* mappings) {
   int crash_signal_fd = GetCrashSignalFD(command_line);
   if (crash_signal_fd >= 0) {
     mappings->Share(kCrashDumpSignal, crash_signal_fd);

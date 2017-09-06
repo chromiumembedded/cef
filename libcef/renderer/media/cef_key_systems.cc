@@ -17,7 +17,6 @@
 #include "media/base/eme_constants.h"
 #include "media/base/key_system_properties.h"
 #include "media/media_features.h"
-#include "ppapi/features/features.h"
 
 #include "widevine_cdm_version.h"  // In SHARED_INTERMEDIATE_DIR.
 
@@ -33,7 +32,7 @@ using media::SupportedCodecs;
 
 namespace {
 
-#if BUILDFLAG(ENABLE_PEPPER_CDMS)
+#if BUILDFLAG(ENABLE_LIBRARY_CDMS)
 bool IsPepperCdmAvailable(
     const std::string& pepper_type,
     std::vector<base::string16>* additional_param_names,
@@ -132,15 +131,15 @@ void AddPepperBasedWidevine(
       media::EmeFeatureSupport::NOT_SUPPORTED));  // Distinctive identifier.
 }
 #endif  // defined(WIDEVINE_CDM_AVAILABLE)
-#endif  // BUILDFLAG(ENABLE_PEPPER_CDMS)
+#endif  // BUILDFLAG(ENABLE_LIBRARY_CDMS)
 
 }  // namespace
 
 void AddCefKeySystems(
     std::vector<std::unique_ptr<KeySystemProperties>>* key_systems_properties) {
-#if BUILDFLAG(ENABLE_PEPPER_CDMS)
+#if BUILDFLAG(ENABLE_LIBRARY_CDMS)
 #if defined(WIDEVINE_CDM_AVAILABLE)
   AddPepperBasedWidevine(key_systems_properties);
 #endif  // defined(WIDEVINE_CDM_AVAILABLE)
-#endif  // BUILDFLAG(ENABLE_PEPPER_CDMS)
+#endif  // BUILDFLAG(ENABLE_LIBRARY_CDMS)
 }

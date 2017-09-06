@@ -94,18 +94,18 @@ bool ShouldUseJavaScriptSettingForPlugin(const WebPluginInfo& plugin) {
     return true;
 #endif
 
-#if defined(WIDEVINE_CDM_AVAILABLE) && BUILDFLAG(ENABLE_PEPPER_CDMS)
+#if defined(WIDEVINE_CDM_AVAILABLE) && BUILDFLAG(ENABLE_LIBRARY_CDMS)
   // Treat CDM invocations like JavaScript.
   if (plugin.name == base::ASCIIToUTF16(kWidevineCdmDisplayName)) {
     DCHECK(plugin.type == WebPluginInfo::PLUGIN_TYPE_PEPPER_OUT_OF_PROCESS);
     return true;
   }
-#endif  // defined(WIDEVINE_CDM_AVAILABLE) && BUILDFLAG(ENABLE_PEPPER_CDMS)
+#endif  // defined(WIDEVINE_CDM_AVAILABLE) && BUILDFLAG(ENABLE_LIBRARY_CDMS)
 
   return false;
 }
 
-#if BUILDFLAG(ENABLE_PEPPER_CDMS)
+#if BUILDFLAG(ENABLE_LIBRARY_CDMS)
 
 enum PluginAvailabilityStatusForUMA {
   PLUGIN_NOT_REGISTERED,
@@ -126,7 +126,7 @@ static void SendPluginAvailabilityUMA(const std::string& mime_type,
 #endif  // defined(WIDEVINE_CDM_AVAILABLE)
 }
 
-#endif  // BUILDFLAG(ENABLE_PEPPER_CDMS)
+#endif  // BUILDFLAG(ENABLE_LIBRARY_CDMS)
 
 void ReportMetrics(const std::string& mime_type,
                    const GURL& url,
@@ -221,7 +221,7 @@ bool CefPluginInfoMessageFilter::OnMessageReceived(
   IPC_BEGIN_MESSAGE_MAP(CefPluginInfoMessageFilter, message)
     IPC_MESSAGE_HANDLER_DELAY_REPLY(CefViewHostMsg_GetPluginInfo,
                                     OnGetPluginInfo)
-#if BUILDFLAG(ENABLE_PEPPER_CDMS)
+#if BUILDFLAG(ENABLE_LIBRARY_CDMS)
     IPC_MESSAGE_HANDLER(CefViewHostMsg_IsInternalPluginAvailableForMimeType,
                         OnIsInternalPluginAvailableForMimeType)
 #endif
@@ -287,7 +287,7 @@ void CefPluginInfoMessageFilter::PluginsLoaded(
   }
 }
 
-#if BUILDFLAG(ENABLE_PEPPER_CDMS)
+#if BUILDFLAG(ENABLE_LIBRARY_CDMS)
 
 void CefPluginInfoMessageFilter::OnIsInternalPluginAvailableForMimeType(
     const std::string& mime_type,
@@ -323,7 +323,7 @@ void CefPluginInfoMessageFilter::OnIsInternalPluginAvailableForMimeType(
       mime_type, is_plugin_disabled ? PLUGIN_DISABLED : PLUGIN_NOT_REGISTERED);
 }
 
-#endif  // BUILDFLAG(ENABLE_PEPPER_CDMS)
+#endif  // BUILDFLAG(ENABLE_LIBRARY_CDMS)
 
 void CefPluginInfoMessageFilter::Context::DecidePluginStatus(
     const GetPluginInfo_Params& params,

@@ -131,7 +131,7 @@ TEST(WebUITest, network_error) {
   // -310 is ERR_TOO_MANY_REDIRECTS
   url_list.push_back("chrome://network-error/-310");
   CefRefPtr<WebUITestHandler> handler = new WebUITestHandler(url_list);
-  handler->set_expected_url("data:text/html,chromewebdata");
+  handler->set_expected_url("chrome-error://chromewebdata/");
   handler->set_expected_error_code(ERR_TOO_MANY_REDIRECTS);
   handler->ExecuteTest();
   ReleaseAndWaitForDestructor(handler);

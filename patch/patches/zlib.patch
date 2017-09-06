@@ -1,5 +1,5 @@
 diff --git third_party/zlib/contrib/minizip/unzip.c third_party/zlib/contrib/minizip/unzip.c
-index 199b472..be42478 100644
+index 199b4723fcfc..be424783fece 100644
 --- third_party/zlib/contrib/minizip/unzip.c
 +++ third_party/zlib/contrib/minizip/unzip.c
 @@ -69,7 +69,7 @@

@@ -30,7 +30,7 @@ class CefExtensionWebContentsObserver
   explicit CefExtensionWebContentsObserver(content::WebContents* web_contents);
 
   // content::WebContentsObserver overrides.
-  void RenderViewCreated(content::RenderViewHost* render_view_host) override;
+  void RenderFrameCreated(content::RenderFrameHost* render_frame_host) override;
 
   // Our content script observers. Declare at top so that it will outlive all
   // other members, since they might add themselves as observers.

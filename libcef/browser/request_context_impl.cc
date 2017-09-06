@@ -26,7 +26,7 @@ using content::BrowserThread;
 
 namespace {
 
-base::StaticAtomicSequenceNumber g_next_id;
+base::AtomicSequenceNumber g_next_id;
 
 const char* GetTypeString(base::Value::Type type) {
   switch (type) {

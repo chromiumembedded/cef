@@ -31,7 +31,7 @@
 #include "extensions/browser/event_router.h"
 #include "extensions/browser/extension_function_registry.h"
 #include "extensions/browser/extension_host_delegate.h"
-#include "extensions/browser/mojo/service_registration.h"
+#include "extensions/browser/mojo/interface_registration.h"
 #include "extensions/browser/serial_extension_host_queue.h"
 #include "extensions/browser/url_request_util.h"
 #include "extensions/common/constants.h"
@@ -257,10 +257,12 @@ void CefExtensionsBrowserClient::RegisterExtensionFunctions(
   api::cef::ChromeFunctionRegistry::RegisterAll(registry);
 }
 
-void CefExtensionsBrowserClient::RegisterMojoServices(
+void CefExtensionsBrowserClient::RegisterExtensionInterfaces(
+    service_manager::BinderRegistryWithArgs<content::RenderFrameHost*>*
+        registry,
     content::RenderFrameHost* render_frame_host,
     const Extension* extension) const {
-  RegisterServicesForFrame(render_frame_host, extension);
+  RegisterInterfacesForExtension(registry, render_frame_host, extension);
 }
 
 std::unique_ptr<RuntimeAPIDelegate>
@@ -318,6 +320,10 @@ KioskDelegate* CefExtensionsBrowserClient::GetKioskDelegate() {
 bool CefExtensionsBrowserClient::IsLockScreenContext(
     content::BrowserContext* context) {
   return false;
+}
+
+std::string CefExtensionsBrowserClient::GetApplicationLocale() {
+  return g_browser_process->GetApplicationLocale();
 }
 
 ExtensionHostQueue* CefExtensionsBrowserClient::GetExtensionHostQueue() {

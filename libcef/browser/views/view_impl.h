@@ -53,8 +53,7 @@
 // And the CefBasicLabelButtonView object created via
 // CefBasicLabelButtonImpl::CreateRootView() has the following object hierarchy:
 //
-//   views::View => views::Button => views::CustomButton =>
-//   views::LabelButton =>
+//   views::View => views::Button => views::LabelButton =>
 //   LabelButtonEx (used to implement the required no-argument constructor) =>
 //   CefViewView<LabelButtonEx, CefButtonDelegate> =>
 //   CefButtonView<LabelButtonEx, CefButtonDelegate> =>

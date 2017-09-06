@@ -145,7 +145,7 @@ class CefBrowserURLRequest::Context
   }
 
   inline bool CalledOnValidThread() {
-    return task_runner_->RunsTasksOnCurrentThread();
+    return task_runner_->RunsTasksInCurrentSequence();
   }
 
   bool Start() {

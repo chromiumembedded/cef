@@ -160,14 +160,14 @@ int CefBrowserMainParts::PreCreateThreads() {
   // before the IO thread is started.
   content::GpuDataManager::GetInstance();
 
-#if defined(USE_AURA)
-  display::Screen::SetScreenInstance(views::CreateDesktopScreen());
-#endif
-
   return 0;
 }
 
 void CefBrowserMainParts::PreMainMessageLoopRun() {
+#if defined(USE_AURA)
+  display::Screen::SetScreenInstance(views::CreateDesktopScreen());
+#endif
+
   if (extensions::ExtensionsEnabled()) {
     // Initialize extension global objects before creating the global
     // BrowserContext.

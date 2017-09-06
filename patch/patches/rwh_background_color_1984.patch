@@ -1,5 +1,5 @@
 diff --git content/browser/renderer_host/render_widget_host_view_aura.cc content/browser/renderer_host/render_widget_host_view_aura.cc
-index 91e326b7c623..72fd49dca893 100644
+index dda1da688eb7..936fc509685c 100644
 --- content/browser/renderer_host/render_widget_host_view_aura.cc
 +++ content/browser/renderer_host/render_widget_host_view_aura.cc
 @@ -422,13 +422,6 @@ RenderWidgetHostViewAura::RenderWidgetHostViewAura(RenderWidgetHost* host,
@@ -16,7 +16,7 @@ index 91e326b7c623..72fd49dca893 100644
  }
  
  ////////////////////////////////////////////////////////////////////////////////
-@@ -740,8 +733,10 @@ void RenderWidgetHostViewAura::UpdateBackgroundColorFromRenderer(
+@@ -746,8 +739,10 @@ void RenderWidgetHostViewAura::UpdateBackgroundColorFromRenderer(
    background_color_ = color;
  
    bool opaque = SkColorGetA(color) == SK_AlphaOPAQUE;
@@ -29,7 +29,7 @@ index 91e326b7c623..72fd49dca893 100644
  }
  
  bool RenderWidgetHostViewAura::IsMouseLocked() {
-@@ -1915,6 +1910,15 @@ void RenderWidgetHostViewAura::CreateAuraWindow(aura::client::WindowType type) {
+@@ -1933,6 +1928,15 @@ void RenderWidgetHostViewAura::CreateAuraWindow(aura::client::WindowType type) {
    window_->Init(ui::LAYER_SOLID_COLOR);
    window_->layer()->SetColor(background_color_);
  

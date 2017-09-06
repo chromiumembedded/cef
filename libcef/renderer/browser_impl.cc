@@ -31,7 +31,6 @@
 #include "third_party/WebKit/public/platform/WebURL.h"
 #include "third_party/WebKit/public/platform/WebURLError.h"
 #include "third_party/WebKit/public/platform/WebURLResponse.h"
-#include "third_party/WebKit/public/web/WebDataSource.h"
 #include "third_party/WebKit/public/web/WebDocument.h"
 #include "third_party/WebKit/public/web/WebFrame.h"
 #include "third_party/WebKit/public/web/WebFrameContentDumper.h"
@@ -446,11 +445,11 @@ void CefBrowserImpl::DidStopLoading() {
 }
 
 void CefBrowserImpl::DidFinishLoad(blink::WebLocalFrame* frame) {
-  blink::WebDataSource* ds = frame->DataSource();
+  blink::WebDocumentLoader* dl = frame->GetDocumentLoader();
   Send(new CefHostMsg_DidFinishLoad(routing_id(),
                                     render_frame_util::GetIdentifier(frame),
-                                    ds->GetRequest().Url(), !frame->Parent(),
-                                    ds->GetResponse().HttpStatusCode()));
+                                    dl->GetRequest().Url(), !frame->Parent(),
+                                    dl->GetResponse().HttpStatusCode()));
   OnLoadEnd(frame);
 }
 
@@ -718,7 +717,7 @@ void CefBrowserImpl::OnLoadEnd(blink::WebLocalFrame* frame) {
       if (load_handler.get()) {
         CefRefPtr<CefFrameImpl> cef_frame = GetWebFrameImpl(frame);
         int httpStatusCode =
-            frame->DataSource()->GetResponse().HttpStatusCode();
+            frame->GetDocumentLoader()->GetResponse().HttpStatusCode();
         load_handler->OnLoadEnd(this, cef_frame.get(), httpStatusCode);
       }
     }

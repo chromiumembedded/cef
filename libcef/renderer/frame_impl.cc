@@ -107,7 +107,7 @@ void CefFrameImpl::LoadRequest(CefRefPtr<CefRequest> request) {
   params.url = GURL(std::string(request->GetURL()));
   params.method = request->GetMethod();
   params.frame_id = frame_id_;
-  params.first_party_for_cookies =
+  params.site_for_cookies =
       GURL(std::string(request->GetFirstPartyForCookies()));
 
   CefRequest::HeaderMap headerMap;

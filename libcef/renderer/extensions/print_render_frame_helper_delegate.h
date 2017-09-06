@@ -2,17 +2,17 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CEF_LIBCEF_RENDERER_EXTENSIONS_PRINT_WEB_VIEW_HELPER_DELEGATE_H_
-#define CEF_LIBCEF_RENDERER_EXTENSIONS_PRINT_WEB_VIEW_HELPER_DELEGATE_H_
+#ifndef CEF_LIBCEF_RENDERER_EXTENSIONS_PRINT_RENDER_FRAME_HELPER_DELEGATE_H_
+#define CEF_LIBCEF_RENDERER_EXTENSIONS_PRINT_RENDER_FRAME_HELPER_DELEGATE_H_
 
-#include "components/printing/renderer/print_web_view_helper.h"
+#include "components/printing/renderer/print_render_frame_helper.h"
 
 namespace extensions {
 
-class CefPrintWebViewHelperDelegate
-    : public printing::PrintWebViewHelper::Delegate {
+class CefPrintRenderFrameHelperDelegate
+    : public printing::PrintRenderFrameHelper::Delegate {
  public:
-  ~CefPrintWebViewHelperDelegate() override;
+  ~CefPrintRenderFrameHelperDelegate() override;
 
   bool CancelPrerender(content::RenderFrame* render_frame) override;
   blink::WebElement GetPdfElement(blink::WebLocalFrame* frame) override;
@@ -22,4 +22,4 @@ class CefPrintWebViewHelperDelegate
 
 }  // namespace extensions
 
-#endif  // CEF_LIBCEF_RENDERER_EXTENSIONS_PRINT_WEB_VIEW_HELPER_DELEGATE_H_
+#endif  // CEF_LIBCEF_RENDERER_EXTENSIONS_PRINT_RENDER_FRAME_HELPER_DELEGATE_H_

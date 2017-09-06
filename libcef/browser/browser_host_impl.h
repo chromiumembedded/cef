@@ -496,8 +496,7 @@ class CefBrowserHostImpl : public CefBrowserHost,
   void DidFailLoad(content::RenderFrameHost* render_frame_host,
                    const GURL& validated_url,
                    int error_code,
-                   const base::string16& error_description,
-                   bool was_ignored_by_handler) override;
+                   const base::string16& error_description) override;
   void FrameDeleted(content::RenderFrameHost* render_frame_host) override;
   void TitleWasSet(content::NavigationEntry* entry, bool explicit_set) override;
   void PluginCrashed(const base::FilePath& plugin_path,

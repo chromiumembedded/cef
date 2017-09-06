@@ -345,15 +345,15 @@ void CefRequestImpl::SetFlags(int flags) {
 
 CefString CefRequestImpl::GetFirstPartyForCookies() {
   base::AutoLock lock_scope(lock_);
-  return first_party_for_cookies_.spec();
+  return site_for_cookies_.spec();
 }
 
 void CefRequestImpl::SetFirstPartyForCookies(const CefString& url) {
   base::AutoLock lock_scope(lock_);
   CHECK_READONLY_RETURN_VOID();
   const GURL& new_url = GURL(url.ToString());
-  if (first_party_for_cookies_ != new_url) {
-    first_party_for_cookies_ = new_url;
+  if (site_for_cookies_ != new_url) {
+    site_for_cookies_ = new_url;
     Changed(kChangedFirstPartyForCookies);
   }
 }
@@ -405,7 +405,7 @@ void CefRequestImpl::Set(net::URLRequest* request) {
     static_cast<CefPostDataImpl*>(postdata_.get())->Set(*data);
   }
 
-  first_party_for_cookies_ = request->first_party_for_cookies();
+  site_for_cookies_ = request->site_for_cookies();
 
   const content::ResourceRequestInfo* info =
       content::ResourceRequestInfo::ForRequest(request);
@@ -443,9 +443,9 @@ void CefRequestImpl::Get(net::URLRequest* request, bool changed_only) const {
     }
   }
 
-  if (!first_party_for_cookies_.is_empty() &&
+  if (!site_for_cookies_.is_empty() &&
       ShouldSet(kChangedFirstPartyForCookies, changed_only)) {
-    request->set_first_party_for_cookies(first_party_for_cookies_);
+    request->set_site_for_cookies(site_for_cookies_);
   }
 }
 
@@ -492,7 +492,7 @@ void CefRequestImpl::Set(const blink::WebURLRequest& request) {
     static_cast<CefPostDataImpl*>(postdata_.get())->Set(body);
   }
 
-  first_party_for_cookies_ = request.FirstPartyForCookies();
+  site_for_cookies_ = request.SiteForCookies();
 
   if (request.GetCachePolicy() == blink::WebCachePolicy::kBypassingCache)
     flags_ |= UR_FLAG_SKIP_CACHE;
@@ -541,8 +541,8 @@ void CefRequestImpl::Get(blink::WebURLRequest& request,
 
   ::SetHeaderMap(headermap_, request);
 
-  if (!first_party_for_cookies_.is_empty())
-    request.SetFirstPartyForCookies(first_party_for_cookies_);
+  if (!site_for_cookies_.is_empty())
+    request.SetSiteForCookies(site_for_cookies_);
 
   request.SetCachePolicy((flags_ & UR_FLAG_SKIP_CACHE)
                              ? blink::WebCachePolicy::kBypassingCache
@@ -620,8 +620,8 @@ void CefRequestImpl::Get(const CefMsg_LoadRequest_Params& params,
     request.SetHTTPBody(body);
   }
 
-  if (params.first_party_for_cookies.is_valid())
-    request.SetFirstPartyForCookies(params.first_party_for_cookies);
+  if (params.site_for_cookies.is_valid())
+    request.SetSiteForCookies(params.site_for_cookies);
 
   request.SetCachePolicy((params.load_flags & UR_FLAG_SKIP_CACHE)
                              ? blink::WebCachePolicy::kBypassingCache
@@ -653,7 +653,7 @@ void CefRequestImpl::Get(CefNavigateParams& params) const {
     impl->Get(*params.upload_data.get());
   }
 
-  params.first_party_for_cookies = first_party_for_cookies_;
+  params.site_for_cookies = site_for_cookies_;
   params.load_flags = flags_;
 }
 
@@ -722,8 +722,8 @@ void CefRequestImpl::Get(net::URLFetcher& fetcher,
     }
   }
 
-  if (!first_party_for_cookies_.is_empty())
-    fetcher.SetInitiator(url::Origin(first_party_for_cookies_));
+  if (!site_for_cookies_.is_empty())
+    fetcher.SetInitiator(url::Origin(site_for_cookies_));
 
   if (flags_ & UR_FLAG_NO_RETRY_ON_5XX)
     fetcher.SetAutomaticallyRetryOn5xx(false);
@@ -881,7 +881,7 @@ void CefRequestImpl::Reset() {
   transition_type_ = TT_EXPLICIT;
   identifier_ = 0U;
   flags_ = UR_FLAG_NONE;
-  first_party_for_cookies_ = GURL();
+  site_for_cookies_ = GURL();
 
   changes_ = kChangedNone;
 }
@@ -1299,8 +1299,15 @@ void CefPostDataElementImpl::Set(const blink::WebHTTPBody::Element& element) {
   }
 
   if (element.type == blink::WebHTTPBody::Element::kTypeData) {
-    SetToBytes(element.data.size(),
-               static_cast<const void*>(element.data.Data()));
+    std::string file_contents;
+    file_contents.reserve(element.data.size());
+    element.data.ForEachSegment([&file_contents](const char* segment,
+                                                 size_t segment_size,
+                                                 size_t segment_offset) {
+      file_contents.append(segment, segment_size);
+      return true;
+    });
+    SetToBytes(file_contents.size(), file_contents.data());
   } else if (element.type == blink::WebHTTPBody::Element::kTypeFile) {
     SetToFile(element.file_path.Utf16());
   } else {

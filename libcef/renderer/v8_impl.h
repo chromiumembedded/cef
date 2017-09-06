@@ -75,7 +75,7 @@ class CefV8ContextState : public base::RefCounted<CefV8ContextState> {
 struct CefV8DeleteOnMessageLoopThread {
   template <typename T>
   static void Destruct(const T* x) {
-    if (x->task_runner()->RunsTasksOnCurrentThread()) {
+    if (x->task_runner()->RunsTasksInCurrentSequence()) {
       delete x;
     } else {
       if (!x->task_runner()->DeleteSoon(FROM_HERE, x)) {

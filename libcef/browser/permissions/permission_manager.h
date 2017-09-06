@@ -8,7 +8,7 @@
 #include "libcef/browser/permissions/permission_context.h"
 
 #include "base/callback_forward.h"
-#include "base/id_map.h"
+#include "base/containers/id_map.h"
 #include "base/macros.h"
 #include "base/memory/weak_ptr.h"
 #include "components/content_settings/core/browser/content_settings_observer.h"
@@ -65,10 +65,10 @@ class CefPermissionManager : public KeyedService,
 
  private:
   class PendingRequest;
-  using PendingRequestsMap = IDMap<std::unique_ptr<PendingRequest>>;
+  using PendingRequestsMap = base::IDMap<std::unique_ptr<PendingRequest>>;
 
   struct Subscription;
-  using SubscriptionsMap = IDMap<std::unique_ptr<Subscription>>;
+  using SubscriptionsMap = base::IDMap<std::unique_ptr<Subscription>>;
 
   // Called when a permission was decided for a given PendingRequest. The
   // PendingRequest is identified by its |request_id| and the permission is

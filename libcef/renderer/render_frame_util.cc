@@ -9,6 +9,7 @@
 
 #include "base/logging.h"
 #include "content/renderer/render_frame_impl.h"
+#include "third_party/WebKit/public/web/WebLocalFrame.h"
 
 namespace render_frame_util {
 

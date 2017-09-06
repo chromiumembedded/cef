@@ -216,7 +216,7 @@ void CefExtensionSystem::Init() {
   // 11.The PDF extension requests a plugin to handle
   //    kPDFPluginOutOfProcessMimeType which loads the PDF PPAPI plugin.
   // 12.Routing of print-related commands are handled by ChromePDFPrintClient
-  //    and CefPrintWebViewHelperDelegate in the renderer process.
+  //    and CefPrintRenderFrameHelperDelegate in the renderer process.
   // 13.The PDF extension is granted access to chrome://resources via
   //    CefExtensionWebContentsObserver::RenderViewCreated in the browser
   //    process.

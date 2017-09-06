@@ -26,8 +26,7 @@ CefRefPtr<CefBasicLabelButtonImpl> CefBasicLabelButtonImpl::Create(
   if (!text.empty())
     label_button->SetText(text);
   if (with_frame) {
-    label_button->root_view()->SetStyleDeprecated(
-        views::CustomButton::STYLE_BUTTON);
+    label_button->root_view()->SetStyleDeprecated(views::Button::STYLE_BUTTON);
   }
   return label_button;
 }
