@@ -1,5 +1,5 @@
 diff --git content/public/app/mojo/content_browser_manifest.json content/public/app/mojo/content_browser_manifest.json
-index 360cc64..b84e346 100644
+index 31e7f8e4c31c..15a1a833011a 100644
 --- content/public/app/mojo/content_browser_manifest.json
 +++ content/public/app/mojo/content_browser_manifest.json
 @@ -4,13 +4,14 @@
@@ -20,7 +20,7 @@ index 360cc64..b84e346 100644
          "plugin": [
            "discardable_memory::mojom::DiscardableSharedMemoryManager",
            "ui::mojom::Gpu"
-@@ -54,10 +55,6 @@
+@@ -53,10 +54,6 @@
          ],
          "service_manager:service_factory": [
            "service_manager::mojom::ServiceFactory"
@@ -31,7 +31,7 @@ index 360cc64..b84e346 100644
          ]
        },
        "requires": {
-@@ -67,7 +64,6 @@
+@@ -66,7 +63,6 @@
          "content_browser": [
            "ash",
            "display",
@@ -40,7 +40,7 @@ index 360cc64..b84e346 100644
            "geolocation_config"
          ],
 diff --git content/public/app/mojo/content_gpu_manifest.json content/public/app/mojo/content_gpu_manifest.json
-index a7d05d7..336eefd 100644
+index a7d05d716337..336eefdc7d17 100644
 --- content/public/app/mojo/content_gpu_manifest.json
 +++ content/public/app/mojo/content_gpu_manifest.json
 @@ -15,7 +15,8 @@
@@ -54,7 +54,7 @@ index a7d05d7..336eefd 100644
        }
      }
 diff --git content/public/app/mojo/content_plugin_manifest.json content/public/app/mojo/content_plugin_manifest.json
-index ed8f326..fc78b99 100644
+index ed8f3268cc9a..fc78b9945080 100644
 --- content/public/app/mojo/content_plugin_manifest.json
 +++ content/public/app/mojo/content_plugin_manifest.json
 @@ -4,7 +4,7 @@
@@ -75,7 +75,7 @@ index ed8f326..fc78b99 100644
          "device": [ "device:power_monitor" ],
          "ui": [ "discardable_memory" ]
 diff --git content/public/app/mojo/content_renderer_manifest.json content/public/app/mojo/content_renderer_manifest.json
-index a44f29e..ed32e78 100644
+index a850e12576ab..a3d0267e8b14 100644
 --- content/public/app/mojo/content_renderer_manifest.json
 +++ content/public/app/mojo/content_renderer_manifest.json
 @@ -19,7 +19,8 @@
@@ -89,7 +89,7 @@ index a44f29e..ed32e78 100644
            "device:battery_monitor",
            "device:power_monitor",
 diff --git content/public/app/mojo/content_utility_manifest.json content/public/app/mojo/content_utility_manifest.json
-index 3ea2993..5caad0c 100644
+index 3ea2993ba859..5caad0c5639b 100644
 --- content/public/app/mojo/content_utility_manifest.json
 +++ content/public/app/mojo/content_utility_manifest.json
 @@ -14,7 +14,7 @@

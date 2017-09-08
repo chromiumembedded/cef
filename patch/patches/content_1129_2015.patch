@@ -429,7 +429,7 @@ index 48b932e878e3..80110f9efcbb 100644
    virtual void FocusedNodeChanged(const blink::WebNode& node) {}
  
 diff --git content/renderer/render_frame_impl.cc content/renderer/render_frame_impl.cc
-index f982db960f90..4981ad6dad8e 100644
+index 7b56c01f25af..497cd8e97a71 100644
 --- content/renderer/render_frame_impl.cc
 +++ content/renderer/render_frame_impl.cc
 @@ -2898,7 +2898,8 @@ blink::WebPlugin* RenderFrameImpl::CreatePlugin(
@@ -451,7 +451,7 @@ index f982db960f90..4981ad6dad8e 100644
  }
  
  void RenderFrameImpl::WillCommitProvisionalLoad() {
-@@ -5325,9 +5328,8 @@ WebNavigationPolicy RenderFrameImpl::DecidePolicyForNavigation(
+@@ -5339,9 +5342,8 @@ WebNavigationPolicy RenderFrameImpl::DecidePolicyForNavigation(
         (!IsBrowserSideNavigationEnabled() ||
          url != pending_navigation_params_->request_params.redirects[0]));
  
@@ -463,7 +463,7 @@ index f982db960f90..4981ad6dad8e 100644
    // The handlenavigation API is deprecated and will be removed once
    // crbug.com/325351 is resolved.
    if (GetContentClient()->renderer()->HandleNavigation(
-@@ -5340,7 +5342,6 @@ WebNavigationPolicy RenderFrameImpl::DecidePolicyForNavigation(
+@@ -5354,7 +5356,6 @@ WebNavigationPolicy RenderFrameImpl::DecidePolicyForNavigation(
      }
      return blink::kWebNavigationPolicyIgnore;
    }
