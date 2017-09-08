@@ -194,7 +194,7 @@ index 4ee4bb30a122..5441d5e8a2a5 100644
    // a reference.
    corewm::TooltipWin* tooltip_;
 diff --git ui/views/widget/desktop_aura/desktop_window_tree_host_x11.cc ui/views/widget/desktop_aura/desktop_window_tree_host_x11.cc
-index fa2878ae0d1d..fde5a8e549be 100644
+index 316cf855f7cf..ba52793ba622 100644
 --- ui/views/widget/desktop_aura/desktop_window_tree_host_x11.cc
 +++ ui/views/widget/desktop_aura/desktop_window_tree_host_x11.cc
 @@ -152,6 +152,7 @@ DesktopWindowTreeHostX11::DesktopWindowTreeHostX11(

@@ -1,5 +1,5 @@
 diff --git chrome/browser/ui/libgtkui/gtk_ui.cc chrome/browser/ui/libgtkui/gtk_ui.cc
-index f45f2b1..dbabf1b 100644
+index f45f2b10a842..dbabf1bb7f3b 100644
 --- chrome/browser/ui/libgtkui/gtk_ui.cc
 +++ chrome/browser/ui/libgtkui/gtk_ui.cc
 @@ -92,6 +92,7 @@ namespace libgtkui {

@@ -274,6 +274,7 @@ source_set("webkit_set") {
   ]
 
   deps = [
+    "//services/network/public/interfaces",
     "//skia",
     "//third_party/icu",
     "//third_party/boringssl",

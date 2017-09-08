@@ -1,5 +1,5 @@
 diff --git content/browser/browser_plugin/browser_plugin_guest.cc content/browser/browser_plugin/browser_plugin_guest.cc
-index 13e452c2b72b..2c4c55d90a50 100644
+index 13e452c2b72b..3feca359d649 100644
 --- content/browser/browser_plugin/browser_plugin_guest.cc
 +++ content/browser/browser_plugin/browser_plugin_guest.cc
 @@ -345,8 +345,11 @@ void BrowserPluginGuest::InitInternal(
