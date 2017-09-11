@@ -24,6 +24,18 @@ class CefExtensionsAPIClient : public ExtensionsAPIClient {
       MimeHandlerViewGuest* guest) const override;
   void AttachWebContentsHelpers(
       content::WebContents* web_contents) const override;
+
+  // Storage API support.
+
+  // Add any additional value store caches (e.g. for chrome.storage.managed)
+  // to |caches|. By default adds nothing.
+  void AddAdditionalValueStoreCaches(
+      content::BrowserContext* context,
+      const scoped_refptr<ValueStoreFactory>& factory,
+      const scoped_refptr<base::ObserverListThreadSafe<SettingsObserver>>&
+          observers,
+      std::map<settings_namespace::Namespace, ValueStoreCache*>* caches)
+      override;
 };
 
 }  // namespace extensions

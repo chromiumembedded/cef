@@ -13,6 +13,7 @@
 #include "chrome/browser/extensions/api/resources_private/resources_private_api.h"
 #include "chrome/browser/extensions/api/streams_private/streams_private_api.h"
 #include "extensions/browser/api/alarms/alarms_api.h"
+#include "extensions/browser/api/storage/storage_api.h"
 #include "extensions/browser/extension_function_registry.h"
 
 namespace extensions {
@@ -36,6 +37,12 @@ const char* const kSupportedAPIs[] = {
     EXTENSION_FUNCTION_NAME(AlarmsGetAllFunction),
     EXTENSION_FUNCTION_NAME(AlarmsClearFunction),
     EXTENSION_FUNCTION_NAME(AlarmsClearAllFunction),
+    "storage",
+    EXTENSION_FUNCTION_NAME(StorageStorageAreaGetFunction),
+    EXTENSION_FUNCTION_NAME(StorageStorageAreaSetFunction),
+    EXTENSION_FUNCTION_NAME(StorageStorageAreaRemoveFunction),
+    EXTENSION_FUNCTION_NAME(StorageStorageAreaClearFunction),
+    EXTENSION_FUNCTION_NAME(StorageStorageAreaGetBytesInUseFunction),
     "tabs",
     EXTENSION_FUNCTION_NAME(cefimpl::TabsGetFunction),
     EXTENSION_FUNCTION_NAME(cefimpl::TabsExecuteScriptFunction),
@@ -67,6 +74,11 @@ void ChromeFunctionRegistry::RegisterAll(ExtensionFunctionRegistry* registry) {
   registry->RegisterFunction<AlarmsGetAllFunction>();
   registry->RegisterFunction<AlarmsClearFunction>();
   registry->RegisterFunction<AlarmsClearAllFunction>();
+  registry->RegisterFunction<StorageStorageAreaGetFunction>();
+  registry->RegisterFunction<StorageStorageAreaSetFunction>();
+  registry->RegisterFunction<StorageStorageAreaRemoveFunction>();
+  registry->RegisterFunction<StorageStorageAreaClearFunction>();
+  registry->RegisterFunction<StorageStorageAreaGetBytesInUseFunction>();
   registry->RegisterFunction<cefimpl::TabsExecuteScriptFunction>();
   registry->RegisterFunction<cefimpl::TabsInsertCSSFunction>();
   registry->RegisterFunction<cefimpl::TabsGetFunction>();

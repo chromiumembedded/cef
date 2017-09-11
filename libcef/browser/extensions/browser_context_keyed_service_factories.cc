@@ -8,6 +8,7 @@
 #include "chrome/browser/extensions/api/streams_private/streams_private_api.h"
 #include "chrome/browser/ui/prefs/prefs_tab_helper.h"
 #include "extensions/browser/api/alarms/alarm_manager.h"
+#include "extensions/browser/api/storage/storage_frontend.h"
 #include "extensions/browser/renderer_startup_helper.h"
 
 namespace extensions {
@@ -18,6 +19,7 @@ void EnsureBrowserContextKeyedServiceFactoriesBuilt() {
   CookieSettingsFactory::GetInstance();
   PrefsTabHelper::GetServiceInstance();
   RendererStartupHelperFactory::GetInstance();
+  StorageFrontend::GetFactoryInstance();
   StreamsPrivateAPI::GetFactoryInstance();
 }
 

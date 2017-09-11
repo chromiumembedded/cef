@@ -116,6 +116,8 @@ class CefExtensionSystem : public ExtensionSystem {
   bool initialized() const { return initialized_; }
 
  private:
+  virtual void InitPrefs();
+
   // Information about a registered component extension.
   struct ComponentExtensionInfo {
     ComponentExtensionInfo(const base::DictionaryValue* manifest,
@@ -168,6 +170,10 @@ class CefExtensionSystem : public ExtensionSystem {
   std::unique_ptr<RuntimeData> runtime_data_;
   std::unique_ptr<QuotaService> quota_service_;
   std::unique_ptr<AppSorting> app_sorting_;
+
+  std::unique_ptr<StateStore> state_store_;
+  std::unique_ptr<StateStore> rules_store_;
+  scoped_refptr<ValueStoreFactory> store_factory_;
 
   // Signaled when the extension system has completed its startup tasks.
   OneShotEvent ready_;

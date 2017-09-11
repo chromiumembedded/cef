@@ -9,6 +9,7 @@
 
 #include "libcef/browser/extension_impl.h"
 #include "libcef/browser/extensions/pdf_extension_util.h"
+#include "libcef/browser/extensions/value_store/cef_value_store_factory.h"
 #include "libcef/browser/thread_util.h"
 #include "libcef/common/extensions/extensions_util.h"
 
@@ -21,6 +22,7 @@
 #include "base/strings/utf_string_conversions.h"
 #include "base/task_scheduler/post_task.h"
 #include "base/threading/thread_restrictions.h"
+#include "chrome/browser/profiles/profile.h"
 #include "chrome/common/chrome_paths.h"
 #include "components/crx_file/id_util.h"
 #include "content/public/browser/browser_context.h"
@@ -40,7 +42,7 @@
 #include "extensions/browser/renderer_startup_helper.h"
 #include "extensions/browser/runtime_data.h"
 #include "extensions/browser/service_worker_manager.h"
-#include "extensions/browser/value_store/value_store_factory.h"
+#include "extensions/browser/state_store.h"
 #include "extensions/common/constants.h"
 #include "extensions/common/extension_messages.h"
 #include "extensions/common/file_util.h"
@@ -153,7 +155,9 @@ CefExtensionSystem::CefExtensionSystem(BrowserContext* browser_context)
       renderer_helper_(
           extensions::RendererStartupHelperFactory::GetForBrowserContext(
               browser_context)),
-      weak_ptr_factory_(this) {}
+      weak_ptr_factory_(this) {
+  InitPrefs();
+}
 
 CefExtensionSystem::~CefExtensionSystem() {}
 
@@ -384,15 +388,15 @@ SharedUserScriptMaster* CefExtensionSystem::shared_user_script_master() {
 }
 
 StateStore* CefExtensionSystem::state_store() {
-  return nullptr;
+  return state_store_.get();
 }
 
 StateStore* CefExtensionSystem::rules_store() {
-  return nullptr;
+  return rules_store_.get();
 }
 
 scoped_refptr<ValueStoreFactory> CefExtensionSystem::store_factory() {
-  return nullptr;
+  return store_factory_;
 }
 
 InfoMap* CefExtensionSystem::info_map() {
@@ -465,6 +469,21 @@ CefExtensionSystem::ComponentExtensionInfo::ComponentExtensionInfo(
     CHECK(PathService::Get(chrome::DIR_RESOURCES, &root_directory));
     root_directory = root_directory.Append(directory);
   }
+}
+
+void CefExtensionSystem::InitPrefs() {
+  store_factory_ = new CefValueStoreFactory(browser_context_->GetPath());
+
+  Profile* profile = Profile::FromBrowserContext(browser_context_);
+
+  // Two state stores. The latter, which contains declarative rules, must be
+  // loaded immediately so that the rules are ready before we issue network
+  // requests.
+  state_store_.reset(new StateStore(
+      profile, store_factory_, ValueStoreFrontend::BackendType::STATE, true));
+
+  rules_store_.reset(new StateStore(
+      profile, store_factory_, ValueStoreFrontend::BackendType::RULES, false));
 }
 
 // Implementation based on ComponentLoader::CreateExtension.
