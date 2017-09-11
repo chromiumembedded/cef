@@ -7,6 +7,7 @@
 
 #include "include/internal/cef_types_wrappers.h"
 #include "libcef/browser/browser_context_impl.h"
+#include "libcef/browser/extensions/api/storage/sync_value_store_cache.h"
 #include "libcef/browser/extensions/extension_web_contents_observer.h"
 #include "libcef/browser/extensions/mime_handler_view_guest_delegate.h"
 #include "libcef/browser/extensions/pdf_web_contents_helper_client.h"
@@ -64,6 +65,19 @@ void CefExtensionsAPIClient::AttachWebContentsHelpers(
 
   // Used by the tabs extension API.
   zoom::ZoomController::CreateForWebContents(web_contents);
+}
+
+void CefExtensionsAPIClient::AddAdditionalValueStoreCaches(
+    content::BrowserContext* context,
+    const scoped_refptr<ValueStoreFactory>& factory,
+    const scoped_refptr<base::ObserverListThreadSafe<SettingsObserver>>&
+        observers,
+    std::map<settings_namespace::Namespace, ValueStoreCache*>* caches) {
+  // Add support for chrome.storage.sync.
+  // Because we don't support syncing with Google, we follow the behavior of
+  // chrome.storage.sync as if Chrome were permanently offline, by using a local
+  // store see: https://developer.chrome.com/apps/storage for more information
+  (*caches)[settings_namespace::SYNC] = new cef::SyncValueStoreCache(factory);
 }
 
 }  // namespace extensions
