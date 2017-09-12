@@ -268,8 +268,8 @@ def apply_deps_patch():
 
   if os.path.isfile(deps_path):
     msg("Chromium DEPS file: %s" % (deps_path))
-    patch_file = os.path.join(cef_dir, 'patch', 'patches', deps_file + '.patch')
-    if os.path.exists(patch_file):
+    patch_file = os.path.join(cef_dir, 'patch', 'patches', deps_file)
+    if os.path.exists(patch_file + ".patch"):
       # Attempt to apply the DEPS patch file that may exist with newer branches.
       patch_tool = os.path.join(cef_dir, 'tools', 'patcher.py')
       run('%s %s --patch-file "%s" --patch-dir "%s"' %
