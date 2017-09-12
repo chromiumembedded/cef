@@ -1,5 +1,18 @@
+diff --git build/config/compiler/BUILD.gn build/config/compiler/BUILD.gn
+index 0acb460fe62d..5b0183fb7540 100644
+--- build/config/compiler/BUILD.gn
++++ build/config/compiler/BUILD.gn
+@@ -415,7 +415,7 @@ config("compiler") {
+     # chromeos binutils has been patched with the fix, so always use icf there.
+     # The bug only affects x86 and x64, so we can still use ICF when targeting
+     # other architectures.
+-    if ((!is_android && linux_use_bundled_binutils) || is_chromeos ||
++    if ((!is_android && linux_use_bundled_binutils && current_cpu != "x86") || is_chromeos ||
+         !(current_cpu == "x86" || current_cpu == "x64")) {
+       ldflags += [ "-Wl,--icf=all" ]
+     }
 diff --git chrome/browser/ui/libgtkui/gtk_ui.cc chrome/browser/ui/libgtkui/gtk_ui.cc
-index f45f2b1..dbabf1b 100644
+index f45f2b10a842..dbabf1bb7f3b 100644
 --- chrome/browser/ui/libgtkui/gtk_ui.cc
 +++ chrome/browser/ui/libgtkui/gtk_ui.cc
 @@ -92,6 +92,7 @@ namespace libgtkui {
