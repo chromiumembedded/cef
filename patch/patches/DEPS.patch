@@ -1,8 +1,8 @@
 diff --git DEPS DEPS
-index 64d6cfe9f8b3..89a81358e899 100644
+index 64d6cfe9f8b3..37c1d8501077 100644
 --- DEPS
 +++ DEPS
-@@ -644,20 +644,6 @@ hooks = [
+@@ -644,20 +644,22 @@ hooks = [
      'name':
        'drmemory'
    },
@@ -20,6 +20,22 @@ index 64d6cfe9f8b3..89a81358e899 100644
 -    'name':
 -      'syzygy-binaries'
 -  },
++  # This action fails on Windows builders, see
++  # https://bitbucket.org/chromiumembedded/cef/issues/2258
++  #{
++  #  'action': [
++  #    'python',
++  #    'src/build/get_syzygy_binaries.py',
++  #    '--output-dir=src/third_party/syzygy/binaries',
++  #    '--revision=190dbfe74c6f5b5913820fa66d9176877924d7c5',
++  #    '--overwrite',
++  #    '--copy-dia-binaries'
++  #  ],
++  #  'pattern':
++  #    '.',
++  #  'name':
++  #    'syzygy-binaries'
++  #},
    {
      'action': [
        'python',
