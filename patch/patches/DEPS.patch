@@ -1,0 +1,25 @@
+diff --git DEPS DEPS
+index 64d6cfe9f8b3..89a81358e899 100644
+--- DEPS
++++ DEPS
+@@ -644,20 +644,6 @@ hooks = [
+     'name':
+       'drmemory'
+   },
+-  {
+-    'action': [
+-      'python',
+-      'src/build/get_syzygy_binaries.py',
+-      '--output-dir=src/third_party/syzygy/binaries',
+-      '--revision=190dbfe74c6f5b5913820fa66d9176877924d7c5',
+-      '--overwrite',
+-      '--copy-dia-binaries'
+-    ],
+-    'pattern':
+-      '.',
+-    'name':
+-      'syzygy-binaries'
+-  },
+   {
+     'action': [
+       'python',
