@@ -417,7 +417,7 @@ void CefBrowserPlatformDelegateNativeMac::TranslateWheelEvent(
   result.SetType(blink::WebInputEvent::kMouseWheel);
 
   static const double scrollbarPixelsPerCocoaTick = 40.0;
-  result.delta_y = deltaX;
+  result.delta_x = deltaX;
   result.delta_y = deltaY;
   result.wheel_ticks_x = deltaX / scrollbarPixelsPerCocoaTick;
   result.wheel_ticks_y = deltaY / scrollbarPixelsPerCocoaTick;
