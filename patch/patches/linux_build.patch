@@ -11,6 +11,26 @@ index b5d6d8fdb443..3cb6a0a719c2 100644
          !(current_cpu == "x86" || current_cpu == "x64")) {
        ldflags += [ "-Wl,--icf=all" ]
      }
+diff --git chrome/browser/safe_browsing/settings_reset_prompt/settings_reset_prompt_controller.cc chrome/browser/safe_browsing/settings_reset_prompt/settings_reset_prompt_controller.cc
+index b8e9169c0db2..eff883b03f26 100644
+--- chrome/browser/safe_browsing/settings_reset_prompt/settings_reset_prompt_controller.cc
++++ chrome/browser/safe_browsing/settings_reset_prompt/settings_reset_prompt_controller.cc
+@@ -57,6 +57,7 @@ bool ResetHomepageEnabled(const SettingsResetPromptModel& model) {
+ void TryToShowSettingsResetPrompt(
+     std::unique_ptr<SettingsResetPromptModel> model,
+     std::unique_ptr<BrandcodedDefaultSettings> default_settings) {
++#if defined(OS_WIN)
+   DCHECK(model);
+   DCHECK(default_settings);
+ 
+@@ -78,6 +79,7 @@ void TryToShowSettingsResetPrompt(
+   SettingsResetPromptController::ShowSettingsResetPrompt(
+       browser, new SettingsResetPromptController(std::move(model),
+                                                  std::move(default_settings)));
++#endif  // defined(OS_WIN)
+ }
+ 
+ // Will display the settings reset prompt if required and if there is at least
 diff --git chrome/browser/ui/libgtkui/gtk_ui.cc chrome/browser/ui/libgtkui/gtk_ui.cc
 index a38c6b806be7..bb4fa59d7612 100644
 --- chrome/browser/ui/libgtkui/gtk_ui.cc
