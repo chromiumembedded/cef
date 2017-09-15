@@ -279,10 +279,10 @@ index 85b64dad4b90..e77f1bb5a1c2 100644
                       const std::string& mime_type,
                       bool allow_wildcard,
 diff --git content/common/frame_messages.h content/common/frame_messages.h
-index da541c99666f..5cd14c981e0f 100644
+index 80dbf7c11827..695fc9595fa2 100644
 --- content/common/frame_messages.h
 +++ content/common/frame_messages.h
-@@ -1325,8 +1325,9 @@ IPC_MESSAGE_ROUTED1(FrameHostMsg_PepperStopsPlayback,
+@@ -1330,8 +1330,9 @@ IPC_MESSAGE_ROUTED1(FrameHostMsg_PepperStopsPlayback,
  
  // Used to get the list of plugins. |main_frame_origin| is used to handle
  // exceptions for plugin content settings.
@@ -293,7 +293,7 @@ index da541c99666f..5cd14c981e0f 100644
                              url::Origin /* main_frame_origin */,
                              std::vector<content::WebPluginInfo> /* plugins */)
  
-@@ -1334,9 +1335,10 @@ IPC_SYNC_MESSAGE_CONTROL2_1(FrameHostMsg_GetPlugins,
+@@ -1339,9 +1340,10 @@ IPC_SYNC_MESSAGE_CONTROL2_1(FrameHostMsg_GetPlugins,
  // type. If there is no matching plugin, |found| is false.
  // |actual_mime_type| is the actual mime type supported by the
  // found plugin.
@@ -305,7 +305,7 @@ index da541c99666f..5cd14c981e0f 100644
                              url::Origin /* main_frame_origin */,
                              std::string /* mime_type */,
                              bool /* found */,
-@@ -1717,9 +1719,9 @@ IPC_MESSAGE_ROUTED3(FrameHostMsg_FindMatchRects_Reply,
+@@ -1722,9 +1724,9 @@ IPC_MESSAGE_ROUTED3(FrameHostMsg_FindMatchRects_Reply,
  IPC_MESSAGE_ROUTED2(FrameHostMsg_GetNearestFindResult_Reply,
                      int /* nfr_request_id */,
                      float /* distance */)
@@ -429,10 +429,10 @@ index 48b932e878e3..80110f9efcbb 100644
    virtual void FocusedNodeChanged(const blink::WebNode& node) {}
  
 diff --git content/renderer/render_frame_impl.cc content/renderer/render_frame_impl.cc
-index 7b56c01f25af..497cd8e97a71 100644
+index ab1029fcda01..c1f89724da69 100644
 --- content/renderer/render_frame_impl.cc
 +++ content/renderer/render_frame_impl.cc
-@@ -2898,7 +2898,8 @@ blink::WebPlugin* RenderFrameImpl::CreatePlugin(
+@@ -2899,7 +2899,8 @@ blink::WebPlugin* RenderFrameImpl::CreatePlugin(
    std::string mime_type;
    bool found = false;
    Send(new FrameHostMsg_GetPluginInfo(
@@ -442,7 +442,7 @@ index 7b56c01f25af..497cd8e97a71 100644
        params.mime_type.Utf8(), &found, &info, &mime_type));
    if (!found)
      return nullptr;
-@@ -3206,6 +3207,8 @@ void RenderFrameImpl::FrameDetached(blink::WebLocalFrame* frame,
+@@ -3207,6 +3208,8 @@ void RenderFrameImpl::FrameDetached(blink::WebLocalFrame* frame,
  
  void RenderFrameImpl::FrameFocused() {
    Send(new FrameHostMsg_FrameFocused(routing_id_));
@@ -451,7 +451,7 @@ index 7b56c01f25af..497cd8e97a71 100644
  }
  
  void RenderFrameImpl::WillCommitProvisionalLoad() {
-@@ -5339,9 +5342,8 @@ WebNavigationPolicy RenderFrameImpl::DecidePolicyForNavigation(
+@@ -5360,9 +5363,8 @@ WebNavigationPolicy RenderFrameImpl::DecidePolicyForNavigation(
         (!IsBrowserSideNavigationEnabled() ||
          url != pending_navigation_params_->request_params.redirects[0]));
  
@@ -463,7 +463,7 @@ index 7b56c01f25af..497cd8e97a71 100644
    // The handlenavigation API is deprecated and will be removed once
    // crbug.com/325351 is resolved.
    if (GetContentClient()->renderer()->HandleNavigation(
-@@ -5354,7 +5356,6 @@ WebNavigationPolicy RenderFrameImpl::DecidePolicyForNavigation(
+@@ -5375,7 +5377,6 @@ WebNavigationPolicy RenderFrameImpl::DecidePolicyForNavigation(
      }
      return blink::kWebNavigationPolicyIgnore;
    }
