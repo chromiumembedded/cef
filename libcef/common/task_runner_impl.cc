@@ -19,7 +19,7 @@ using content::BrowserThread;
 
 // static
 CefRefPtr<CefTaskRunner> CefTaskRunner::GetForCurrentThread() {
-  scoped_refptr<base::SequencedTaskRunner> task_runner =
+  scoped_refptr<base::SingleThreadTaskRunner> task_runner =
       CefTaskRunnerImpl::GetCurrentTaskRunner();
   if (task_runner.get())
     return new CefTaskRunnerImpl(task_runner);
@@ -28,7 +28,7 @@ CefRefPtr<CefTaskRunner> CefTaskRunner::GetForCurrentThread() {
 
 // static
 CefRefPtr<CefTaskRunner> CefTaskRunner::GetForThread(CefThreadId threadId) {
-  scoped_refptr<base::SequencedTaskRunner> task_runner =
+  scoped_refptr<base::SingleThreadTaskRunner> task_runner =
       CefTaskRunnerImpl::GetTaskRunner(threadId);
   if (task_runner.get())
     return new CefTaskRunnerImpl(task_runner);
@@ -40,13 +40,13 @@ CefRefPtr<CefTaskRunner> CefTaskRunner::GetForThread(CefThreadId threadId) {
 // CefTaskRunnerImpl
 
 CefTaskRunnerImpl::CefTaskRunnerImpl(
-    scoped_refptr<base::SequencedTaskRunner> task_runner)
+    scoped_refptr<base::SingleThreadTaskRunner> task_runner)
     : task_runner_(task_runner) {
   DCHECK(task_runner_.get());
 }
 
 // static
-scoped_refptr<base::SequencedTaskRunner> CefTaskRunnerImpl::GetTaskRunner(
+scoped_refptr<base::SingleThreadTaskRunner> CefTaskRunnerImpl::GetTaskRunner(
     CefThreadId threadId) {
   // Render process.
   if (threadId == TID_RENDERER) {
@@ -95,9 +95,9 @@ scoped_refptr<base::SequencedTaskRunner> CefTaskRunnerImpl::GetTaskRunner(
 }
 
 // static
-scoped_refptr<base::SequencedTaskRunner>
+scoped_refptr<base::SingleThreadTaskRunner>
 CefTaskRunnerImpl::GetCurrentTaskRunner() {
-  scoped_refptr<base::SequencedTaskRunner> task_runner;
+  scoped_refptr<base::SingleThreadTaskRunner> task_runner;
 
   // For named browser process threads return the same TaskRunner as
   // GetTaskRunner(). Otherwise BelongsToThread() will return incorrect results.
@@ -133,7 +133,7 @@ bool CefTaskRunnerImpl::BelongsToCurrentThread() {
 }
 
 bool CefTaskRunnerImpl::BelongsToThread(CefThreadId threadId) {
-  scoped_refptr<base::SequencedTaskRunner> task_runner =
+  scoped_refptr<base::SingleThreadTaskRunner> task_runner =
       GetTaskRunner(threadId);
   return (task_runner_ == task_runner);
 }

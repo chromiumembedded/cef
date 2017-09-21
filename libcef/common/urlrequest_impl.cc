@@ -5,6 +5,7 @@
 #include "include/cef_urlrequest.h"
 #include "libcef/browser/browser_urlrequest_impl.h"
 #include "libcef/common/content_client.h"
+#include "libcef/common/task_runner_impl.h"
 #include "libcef/renderer/render_urlrequest_impl.h"
 
 #include "base/logging.h"
@@ -21,7 +22,7 @@ CefRefPtr<CefURLRequest> CefURLRequest::Create(
     return NULL;
   }
 
-  if (!base::MessageLoop::current()) {
+  if (!CefTaskRunnerImpl::GetCurrentTaskRunner()) {
     NOTREACHED() << "called on invalid thread";
     return NULL;
   }

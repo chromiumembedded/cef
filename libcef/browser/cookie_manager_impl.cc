@@ -11,6 +11,7 @@
 #include "libcef/browser/content_browser_client.h"
 #include "libcef/browser/context.h"
 #include "libcef/browser/net/network_delegate.h"
+#include "libcef/common/task_runner_impl.h"
 #include "libcef/common/time_util.h"
 
 #include "base/bind.h"
@@ -144,7 +145,7 @@ void CefCookieManagerImpl::GetCookieStore(
     scoped_refptr<base::SingleThreadTaskRunner> task_runner,
     const CookieStoreCallback& callback) {
   if (!task_runner.get())
-    task_runner = base::MessageLoop::current()->task_runner();
+    task_runner = CefTaskRunnerImpl::GetCurrentTaskRunner();
 
   if (!CEF_CURRENTLY_ON_IOT()) {
     CEF_POST_TASK(CEF_IOT, base::Bind(&CefCookieManagerImpl::GetCookieStore,

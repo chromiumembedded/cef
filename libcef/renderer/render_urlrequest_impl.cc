@@ -8,6 +8,7 @@
 
 #include "libcef/common/request_impl.h"
 #include "libcef/common/response_impl.h"
+#include "libcef/common/task_runner_impl.h"
 
 #include "base/logging.h"
 #include "base/message_loop/message_loop.h"
@@ -68,7 +69,7 @@ class CefRenderURLRequest::Context
       : url_request_(url_request),
         request_(request),
         client_(client),
-        task_runner_(base::MessageLoop::current()->task_runner()),
+        task_runner_(CefTaskRunnerImpl::GetCurrentTaskRunner()),
         status_(UR_IO_PENDING),
         error_code_(ERR_NONE),
         upload_data_size_(0),

@@ -152,7 +152,7 @@ class CefV8IsolateManager {
   }
 
   v8::Isolate* isolate() const { return isolate_; }
-  scoped_refptr<base::SequencedTaskRunner> task_runner() const {
+  scoped_refptr<base::SingleThreadTaskRunner> task_runner() const {
     return task_runner_;
   }
 
@@ -162,7 +162,7 @@ class CefV8IsolateManager {
 
  private:
   v8::Isolate* isolate_;
-  scoped_refptr<base::SequencedTaskRunner> task_runner_;
+  scoped_refptr<base::SingleThreadTaskRunner> task_runner_;
 
   typedef std::map<int, scoped_refptr<CefV8ContextState>> ContextMap;
   ContextMap context_map_;

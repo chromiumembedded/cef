@@ -66,7 +66,7 @@ class CefContentRendererClient : public content::ContentRendererClient,
   void OnGuestViewDestroyed(CefGuestView* guest_view);
 
   // Render thread task runner.
-  base::SequencedTaskRunner* render_task_runner() const {
+  base::SingleThreadTaskRunner* render_task_runner() const {
     return render_task_runner_.get();
   }
 
@@ -82,7 +82,7 @@ class CefContentRendererClient : public content::ContentRendererClient,
 
   // Returns the task runner for the current thread. Returns NULL if the current
   // thread is not the main render process thread.
-  scoped_refptr<base::SequencedTaskRunner> GetCurrentTaskRunner();
+  scoped_refptr<base::SingleThreadTaskRunner> GetCurrentTaskRunner();
 
   // Perform cleanup work that needs to occur before shutdown when running in
   // single-process mode. Blocks until cleanup is complete.
@@ -145,7 +145,7 @@ class CefContentRendererClient : public content::ContentRendererClient,
   // Perform cleanup work for single-process mode.
   void RunSingleProcessCleanupOnUIThread();
 
-  scoped_refptr<base::SequencedTaskRunner> render_task_runner_;
+  scoped_refptr<base::SingleThreadTaskRunner> render_task_runner_;
   std::unique_ptr<CefRenderThreadObserver> observer_;
   std::unique_ptr<web_cache::WebCacheImpl> web_cache_impl_;
   std::unique_ptr<SpellCheck> spellcheck_;
