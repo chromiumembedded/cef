@@ -314,6 +314,16 @@ uint32_t CefWindowX11::DispatchEvent(const ui::PlatformEvent& event) {
           if (!browser_ || browser_->TryCloseBrowser()) {
             // Allow the close.
             XDestroyWindow(xdisplay_, xwindow_);
+
+            xwindow_ = None;
+
+            if (browser_.get()) {
+              // Force the browser to be destroyed and release the reference
+              // added in PlatformCreateWindow().
+              browser_->WindowDestroyed();
+            }
+
+            delete this;
           }
         } else if (protocol == gfx::GetAtom(kNetWMPing)) {
           XEvent reply_event = *xev;
@@ -327,17 +337,6 @@ uint32_t CefWindowX11::DispatchEvent(const ui::PlatformEvent& event) {
       }
       break;
     }
-    case DestroyNotify:
-      xwindow_ = None;
-
-      if (browser_.get()) {
-        // Force the browser to be destroyed and release the reference added
-        // in PlatformCreateWindow().
-        browser_->WindowDestroyed();
-      }
-
-      delete this;
-      break;
     case FocusIn:
       // This message is received first followed by a "_NET_ACTIVE_WINDOW"
       // message sent to the root window. When X11DesktopHandler handles the
