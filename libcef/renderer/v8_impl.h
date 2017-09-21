@@ -14,7 +14,7 @@
 #include "base/location.h"
 #include "base/logging.h"
 #include "base/memory/ref_counted.h"
-#include "base/sequenced_task_runner.h"
+#include "base/single_thread_task_runner.h"
 #include "v8/include/v8.h"
 
 class CefTrackNode;
@@ -103,7 +103,7 @@ class CefV8HandleBase
   bool BelongsToCurrentThread() const;
 
   v8::Isolate* isolate() const { return isolate_; }
-  scoped_refptr<base::SequencedTaskRunner> task_runner() const {
+  scoped_refptr<base::SingleThreadTaskRunner> task_runner() const {
     return task_runner_;
   }
 
@@ -120,7 +120,7 @@ class CefV8HandleBase
 
  protected:
   v8::Isolate* isolate_;
-  scoped_refptr<base::SequencedTaskRunner> task_runner_;
+  scoped_refptr<base::SingleThreadTaskRunner> task_runner_;
   scoped_refptr<CefV8ContextState> context_state_;
 };
 

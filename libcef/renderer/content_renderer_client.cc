@@ -350,7 +350,7 @@ void CefContentRendererClient::DevToolsAgentDetached() {
   }
 }
 
-scoped_refptr<base::SequencedTaskRunner>
+scoped_refptr<base::SingleThreadTaskRunner>
 CefContentRendererClient::GetCurrentTaskRunner() {
   // Check if currently on the render thread.
   if (CEF_CURRENTLY_ON_RT())
