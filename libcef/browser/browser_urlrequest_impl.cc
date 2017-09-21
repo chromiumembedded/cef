@@ -14,6 +14,7 @@
 #include "libcef/browser/thread_util.h"
 #include "libcef/common/request_impl.h"
 #include "libcef/common/response_impl.h"
+#include "libcef/common/task_runner_impl.h"
 
 #include "base/logging.h"
 #include "base/message_loop/message_loop.h"
@@ -75,7 +76,7 @@ class CefURLFetcherResponseWriter : public net::URLFetcherResponseWriter {
           base::Bind(&CefURLFetcherResponseWriter::WriteOnClientThread,
                      url_request_, scoped_refptr<net::IOBuffer>(buffer),
                      num_bytes, callback,
-                     base::MessageLoop::current()->task_runner()));
+                     CefTaskRunnerImpl::GetCurrentTaskRunner()));
       return net::ERR_IO_PENDING;
     }
     return num_bytes;
@@ -135,7 +136,7 @@ class CefBrowserURLRequest::Context
         request_(request),
         client_(client),
         request_context_(request_context),
-        task_runner_(base::MessageLoop::current()->task_runner()),
+        task_runner_(CefTaskRunnerImpl::GetCurrentTaskRunner()),
         status_(UR_IO_PENDING),
         error_code_(ERR_NONE),
         upload_data_size_(0),
@@ -391,7 +392,7 @@ CefURLFetcherDelegate::~CefURLFetcherDelegate() {}
 void CefURLFetcherDelegate::OnURLFetchComplete(const net::URLFetcher* source) {
   // Complete asynchronously so as not to delete the URLFetcher while it's still
   // in the call stack.
-  base::MessageLoop::current()->task_runner()->PostTask(
+  CefTaskRunnerImpl::GetCurrentTaskRunner()->PostTask(
       FROM_HERE,
       base::Bind(&CefBrowserURLRequest::Context::OnComplete, context_));
 }

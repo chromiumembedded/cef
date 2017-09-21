@@ -9,6 +9,7 @@
 #include "libcef/browser/context.h"
 #include "libcef/browser/cookie_manager_impl.h"
 #include "libcef/browser/thread_util.h"
+#include "libcef/common/task_runner_impl.h"
 #include "libcef/common/values_impl.h"
 
 #include "base/atomic_sequence_num.h"
@@ -180,7 +181,7 @@ void CefRequestContextImpl::GetBrowserContext(
     scoped_refptr<base::SingleThreadTaskRunner> task_runner,
     const BrowserContextCallback& callback) {
   if (!task_runner.get())
-    task_runner = base::MessageLoop::current()->task_runner();
+    task_runner = CefTaskRunnerImpl::GetCurrentTaskRunner();
   GetBrowserContextOnUIThread(task_runner, callback);
 }
 
@@ -188,7 +189,7 @@ void CefRequestContextImpl::GetRequestContextImpl(
     scoped_refptr<base::SingleThreadTaskRunner> task_runner,
     const RequestContextCallback& callback) {
   if (!task_runner.get())
-    task_runner = base::MessageLoop::current()->task_runner();
+    task_runner = CefTaskRunnerImpl::GetCurrentTaskRunner();
   if (request_context_getter_impl_) {
     // The browser context already exists.
     DCHECK(browser_context());

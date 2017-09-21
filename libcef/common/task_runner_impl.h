@@ -8,18 +8,18 @@
 
 #include "include/cef_task.h"
 
-#include "base/sequenced_task_runner.h"
+#include "base/single_thread_task_runner.h"
 
 class CefTaskRunnerImpl : public CefTaskRunner {
  public:
   explicit CefTaskRunnerImpl(
-      scoped_refptr<base::SequencedTaskRunner> task_runner);
+      scoped_refptr<base::SingleThreadTaskRunner> task_runner);
 
   // Returns the task runner associated with |threadId|.
-  static scoped_refptr<base::SequencedTaskRunner> GetTaskRunner(
+  static scoped_refptr<base::SingleThreadTaskRunner> GetTaskRunner(
       CefThreadId threadId);
   // Returns the current task runner.
-  static scoped_refptr<base::SequencedTaskRunner> GetCurrentTaskRunner();
+  static scoped_refptr<base::SingleThreadTaskRunner> GetCurrentTaskRunner();
 
   // CefTaskRunner methods:
   bool IsSame(CefRefPtr<CefTaskRunner> that) override;
@@ -29,7 +29,7 @@ class CefTaskRunnerImpl : public CefTaskRunner {
   bool PostDelayedTask(CefRefPtr<CefTask> task, int64 delay_ms) override;
 
  private:
-  scoped_refptr<base::SequencedTaskRunner> task_runner_;
+  scoped_refptr<base::SingleThreadTaskRunner> task_runner_;
 
   IMPLEMENT_REFCOUNTING(CefTaskRunnerImpl);
   DISALLOW_COPY_AND_ASSIGN(CefTaskRunnerImpl);

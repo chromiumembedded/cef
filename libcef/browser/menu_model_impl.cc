@@ -8,6 +8,7 @@
 #include <vector>
 
 #include "libcef/browser/thread_util.h"
+#include "libcef/common/task_runner_impl.h"
 
 #include "base/bind.h"
 #include "base/logging.h"
@@ -793,7 +794,7 @@ void CefMenuModelImpl::MouseOutsideMenu(const gfx::Point& screen_point) {
 
   // Allow the callstack to unwind before notifying the delegate since it may
   // result in the menu being destroyed.
-  base::MessageLoop::current()->task_runner()->PostTask(
+  CefTaskRunnerImpl::GetCurrentTaskRunner()->PostTask(
       FROM_HERE,
       base::Bind(&CefMenuModelImpl::OnMouseOutsideMenu, this, screen_point));
 }
@@ -804,7 +805,7 @@ void CefMenuModelImpl::UnhandledOpenSubmenu(bool is_rtl) {
 
   // Allow the callstack to unwind before notifying the delegate since it may
   // result in the menu being destroyed.
-  base::MessageLoop::current()->task_runner()->PostTask(
+  CefTaskRunnerImpl::GetCurrentTaskRunner()->PostTask(
       FROM_HERE,
       base::Bind(&CefMenuModelImpl::OnUnhandledOpenSubmenu, this, is_rtl));
 }
@@ -815,7 +816,7 @@ void CefMenuModelImpl::UnhandledCloseSubmenu(bool is_rtl) {
 
   // Allow the callstack to unwind before notifying the delegate since it may
   // result in the menu being destroyed.
-  base::MessageLoop::current()->task_runner()->PostTask(
+  CefTaskRunnerImpl::GetCurrentTaskRunner()->PostTask(
       FROM_HERE,
       base::Bind(&CefMenuModelImpl::OnUnhandledCloseSubmenu, this, is_rtl));
 }
@@ -891,7 +892,7 @@ void CefMenuModelImpl::MenuWillClose() {
   // Due to how menus work on the different platforms, ActivatedAt will be
   // called after this.  It's more convenient for the delegate to be called
   // afterwards, though, so post a task.
-  base::MessageLoop::current()->task_runner()->PostTask(
+  CefTaskRunnerImpl::GetCurrentTaskRunner()->PostTask(
       FROM_HERE, base::Bind(&CefMenuModelImpl::OnMenuClosed, this));
 }
 
