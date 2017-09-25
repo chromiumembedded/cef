@@ -265,16 +265,11 @@ void CefBrowserContextImpl::Initialize() {
         CefString(&CefContext::Get()->settings().accept_language_list);
   }
 
-  // Initialize a temporary PrefService object that may be referenced during
-  // BrowserContextServices initialization.
-  pref_service_ =
-      browser_prefs::CreatePrefService(this, base::FilePath(), false, true);
+  // Initialize the PrefService object.
+  pref_service_ = browser_prefs::CreatePrefService(
+      this, cache_path_, !!settings_.persist_user_preferences);
 
   CefBrowserContext::Initialize();
-
-  // Initialize the real PrefService object.
-  pref_service_ = browser_prefs::CreatePrefService(
-      this, cache_path_, !!settings_.persist_user_preferences, false);
 
   // Initialize visited links management.
   base::FilePath visited_link_path;
