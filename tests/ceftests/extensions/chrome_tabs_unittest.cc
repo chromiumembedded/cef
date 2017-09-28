@@ -6,6 +6,8 @@
 
 #include <sstream>
 
+#include "include/cef_parser.h"
+
 #include "tests/ceftests/test_util.h"
 #include "tests/shared/browser/extension_util.h"
 
@@ -291,6 +293,7 @@ class TabsTestHandler : public ExtensionTestHandler {
   void set_expected_api_call_count(int val) { expected_api_call_count_ = val; }
 
   bool got_success_message() const { return got_success_message_; }
+  void set_got_success_message() { got_success_message_.yes(); }
 
  private:
   void CreateBrowserForExtensionIfReady() {
@@ -360,6 +363,175 @@ class TabsTestHandler : public ExtensionTestHandler {
   int got_get_active_browser_count_;
   int got_can_access_browser_count_;
 };
+
+//
+// chrome.tabs.create tests.
+//
+
+const char kCreateBrowserURL[] =
+    "https://test-extensions.com/chrome-tabs-create";
+const char kTabCallbackMessage[] = "tab-callback";
+const int kCreateTabIndex = 2;
+
+// Class for chrome.tabs.create tests.
+class CreateTestHandler : public TabsTestHandler {
+ public:
+  explicit CreateTestHandler(RequestContextType request_context_type)
+      : TabsTestHandler(request_context_type) {}
+
+  bool OnBeforeBrowser(CefRefPtr<CefExtension> extension,
+                       CefRefPtr<CefBrowser> browser,
+                       CefRefPtr<CefBrowser> active_browser,
+                       int index,
+                       const CefString& url,
+                       bool foreground,
+                       CefWindowInfo& windowInfo,
+                       CefRefPtr<CefClient>& client,
+                       CefBrowserSettings& settings) override {
+    EXPECT_TRUE(extension->IsSame(this->extension()));
+    EXPECT_TRUE(browser->IsSame(extension_browser()));
+    EXPECT_TRUE(active_browser->IsSame(main_browser()));
+    EXPECT_EQ(kCreateTabIndex, index);
+    EXPECT_STREQ(kCreateBrowserURL, url.ToString().c_str());
+    EXPECT_TRUE(foreground);
+    EXPECT_TRUE(client);
+
+    EXPECT_FALSE(got_on_before_browser_);
+    got_on_before_browser_.yes();
+
+    return false;
+  }
+
+  void OnAddMainBrowserResources() override {
+    AddResource(kCreateBrowserURL, GetCreatedBrowserHTML(), "text/html");
+
+    TabsTestHandler::OnAddMainBrowserResources();
+  }
+
+  void OnLoadingStateChange(CefRefPtr<CefBrowser> browser,
+                            bool isLoading,
+                            bool canGoBack,
+                            bool canGoForward) override {
+    if (extension_browser() && main_browser()) {
+      if (isLoading) {
+        // Keep a reference to the newly created browser.
+        EXPECT_FALSE(created_browser_);
+        created_browser_ = browser;
+        return;
+      } else {
+        const std::string& url = browser->GetMainFrame()->GetURL();
+        if (url == kCreateBrowserURL) {
+          EXPECT_TRUE(browser->IsSame(created_browser_));
+          return;
+        }
+      }
+    }
+
+    TabsTestHandler::OnLoadingStateChange(browser, isLoading, canGoBack,
+                                          canGoForward);
+  }
+
+  CefRefPtr<CefResourceHandler> GetResourceHandler(
+      CefRefPtr<CefBrowser> browser,
+      CefRefPtr<CefFrame> frame,
+      CefRefPtr<CefRequest> request) override {
+    const std::string& url = request->GetURL();
+    if (url == kCreateBrowserURL) {
+      EXPECT_TRUE(browser->IsSame(created_browser_));
+      EXPECT_FALSE(got_create_browser_url_request_);
+      got_create_browser_url_request_.yes();
+    }
+
+    return TabsTestHandler::GetResourceHandler(browser, frame, request);
+  }
+
+ protected:
+  std::string GetTabsApiJS() const override {
+    std::stringstream ss;
+    ss << kCreateTabIndex;
+
+    return "chrome.tabs.create({url: \"" + std::string(kCreateBrowserURL) +
+           "\", index: " + ss.str() +
+           "}, function(tab) { window.testQuery({request:'" +
+           kTabCallbackMessage + ":' + JSON.stringify(tab)}); });";
+  }
+
+  bool OnMessage(CefRefPtr<CefBrowser> browser,
+                 const std::string& message) override {
+    if (message.find(kTabCallbackMessage) != std::string::npos) {
+      EXPECT_TRUE(browser->IsSame(extension_browser()));
+      EXPECT_FALSE(got_tab_callback_message_);
+      got_tab_callback_message_.yes();
+
+      // Verify the contents of the Tab object.
+      const std::string& json_str =
+          message.substr(strlen(kTabCallbackMessage) + 1);
+      CefRefPtr<CefValue> obj = CefParseJSON(json_str, JSON_PARSER_RFC);
+      EXPECT_TRUE(obj);
+      EXPECT_EQ(VTYPE_DICTIONARY, obj->GetType());
+      CefRefPtr<CefDictionaryValue> dict = obj->GetDictionary();
+
+      int index = dict->GetInt("index");
+      EXPECT_EQ(kCreateTabIndex, index);
+
+      int id = dict->GetInt("id");
+      int windowId = dict->GetInt("windowId");
+      EXPECT_EQ(created_browser_->GetIdentifier(), id);
+      EXPECT_EQ(created_browser_->GetIdentifier(), windowId);
+
+      const std::string& url = dict->GetString("url");
+      EXPECT_STREQ(kCreateBrowserURL, url.c_str());
+
+      TriggerDestroyTestIfReady();
+      return true;
+    } else if (message == kSuccessMessage) {
+      // Overriding default kSuccessMessage handling.
+      EXPECT_TRUE(browser->IsSame(created_browser_));
+      EXPECT_FALSE(got_success_message());
+      set_got_success_message();
+      TriggerDestroyTestIfReady();
+      return true;
+    }
+
+    return TabsTestHandler::OnMessage(browser, message);
+  }
+
+  void OnDestroyTest() override {
+    created_browser_ = NULL;
+
+    EXPECT_TRUE(got_on_before_browser_);
+    EXPECT_TRUE(got_create_browser_url_request_);
+    EXPECT_TRUE(got_tab_callback_message_);
+
+    TabsTestHandler::OnDestroyTest();
+  }
+
+ private:
+  std::string GetCreatedBrowserHTML() {
+    return "<html><body onLoad=" + GetMessageJS(kSuccessMessage) +
+           ">Created</body></html>";
+  }
+
+  void TriggerDestroyTestIfReady() {
+    if (got_tab_callback_message_ && got_success_message())
+      TriggerDestroyTest();
+  }
+
+  CefRefPtr<CefBrowser> created_browser_;
+
+  TrackCallback got_on_before_browser_;
+  TrackCallback got_create_browser_url_request_;
+  TrackCallback got_tab_callback_message_;
+
+  IMPLEMENT_REFCOUNTING(CreateTestHandler);
+  DISALLOW_COPY_AND_ASSIGN(CreateTestHandler);
+};
+
+}  // namespace
+
+TABS_TEST_GROUP_ALL(Create, CreateTestHandler);
+
+namespace {
 
 //
 // chrome.tabs.executeScript tests.

@@ -52,10 +52,47 @@ void ZoomModeToZoomSettings(zoom::ZoomController::ZoomMode zoom_mode,
   }
 }
 
+template <typename T>
+void AssignOptionalValue(const std::unique_ptr<T>& source,
+                         std::unique_ptr<T>& destination) {
+  if (source.get()) {
+    destination.reset(new T(*source));
+  }
+}
+
 }  // namespace
 
 ExtensionFunction::ResponseAction TabsGetFunction::Run() {
   return RespondNow(Error(kNotImplementedError));
+}
+
+TabsCreateFunction::TabsCreateFunction() : cef_details_(this) {}
+
+ExtensionFunction::ResponseAction TabsCreateFunction::Run() {
+  std::unique_ptr<tabs::Create::Params> params(
+      tabs::Create::Params::Create(*args_));
+  EXTENSION_FUNCTION_VALIDATE(params.get());
+
+  CefExtensionFunctionDetails::OpenTabParams options;
+  AssignOptionalValue(params->create_properties.window_id, options.window_id);
+  AssignOptionalValue(params->create_properties.opener_tab_id,
+                      options.opener_tab_id);
+  AssignOptionalValue(params->create_properties.selected, options.active);
+  // The 'active' property has replaced the 'selected' property.
+  AssignOptionalValue(params->create_properties.active, options.active);
+  AssignOptionalValue(params->create_properties.pinned, options.pinned);
+  AssignOptionalValue(params->create_properties.index, options.index);
+  AssignOptionalValue(params->create_properties.url, options.url);
+
+  std::string error;
+  std::unique_ptr<base::DictionaryValue> result(
+      cef_details_.OpenTab(options, user_gesture(), &error));
+  if (!result)
+    return RespondNow(Error(error));
+
+  // Return data about the newly created tab.
+  return RespondNow(has_callback() ? OneArgument(std::move(result))
+                                   : NoArguments());
 }
 
 ExecuteCodeInTabFunction::ExecuteCodeInTabFunction()

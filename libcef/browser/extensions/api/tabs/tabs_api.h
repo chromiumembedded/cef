@@ -29,6 +29,19 @@ class TabsGetFunction : public UIThreadExtensionFunction {
   DECLARE_EXTENSION_FUNCTION("tabs.get", TABS_GET)
 };
 
+class TabsCreateFunction : public UIThreadExtensionFunction {
+ public:
+  TabsCreateFunction();
+  ~TabsCreateFunction() override {}
+
+  ResponseAction Run() override;
+
+  DECLARE_EXTENSION_FUNCTION("tabs.create", TABS_CREATE)
+
+ private:
+  const CefExtensionFunctionDetails cef_details_;
+};
+
 // Implement API call tabs.executeScript and tabs.insertCSS.
 class ExecuteCodeInTabFunction : public ExecuteCodeFunction {
  public:
