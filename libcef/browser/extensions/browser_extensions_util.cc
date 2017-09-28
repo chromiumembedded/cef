@@ -137,7 +137,7 @@ CefRefPtr<CefBrowserHostImpl> GetBrowserForTabId(
     content::BrowserContext* browser_context) {
   CEF_REQUIRE_UIT();
   DCHECK(browser_context);
-  if (tab_id == -1 || !browser_context)
+  if (tab_id < 0 || !browser_context)
     return nullptr;
 
   CefBrowserContextImpl* browser_context_impl =

@@ -11,6 +11,7 @@
 
 #include "base/callback_forward.h"
 #include "base/macros.h"
+#include "chrome/common/extensions/api/tabs.h"
 #include "ui/gfx/native_widget_types.h"
 
 class Profile;
@@ -64,7 +65,7 @@ class CefExtensionFunctionDetails {
   bool CanAccessBrowser(CefRefPtr<CefBrowserHostImpl> target) const;
 
   // Returns the browser matching |tab_id| or NULL if the browser cannot be
-  // found or does not have a WebContents. If |tab_id| is -1 the "current"
+  // found or does not have a WebContents. If |tab_id| is < 0 the "current"
   // browser will be returned. |error_message| can optionally be passed in and
   // will be set with an appropriate message on error. This method should only
   // be called one time per extension function and will check all necessary
@@ -88,6 +89,40 @@ class CefExtensionFunctionDetails {
   using LoadFileCallback =
       base::OnceCallback<void(std::unique_ptr<std::string>)>;
   bool LoadFile(const std::string& file, LoadFileCallback callback) const;
+
+  struct OpenTabParams {
+    OpenTabParams();
+    ~OpenTabParams();
+
+    std::unique_ptr<int> window_id;
+    std::unique_ptr<int> opener_tab_id;
+    std::unique_ptr<std::string> url;
+    std::unique_ptr<bool> active;
+    std::unique_ptr<bool> pinned;
+    std::unique_ptr<int> index;
+  };
+
+  // Opens a new tab given creation parameters |params|. Returns a Tab object
+  // if successful, or NULL and optionally sets |error_message| if an error
+  // occurs.
+  base::DictionaryValue* OpenTab(const OpenTabParams& params,
+                                 bool user_gesture,
+                                 std::string* error_message) const;
+
+  // Creates a Tab object (see chrome/common/extensions/api/tabs.json) with
+  // information about the state of a browser tab. Depending on the
+  // permissions of the extension, the object may or may not include sensitive
+  // data such as the tab's URL.
+  std::unique_ptr<api::tabs::Tab> CreateTabObject(
+      CefRefPtr<CefBrowserHostImpl> new_browser,
+      int opener_browser_id,
+      bool active,
+      int index) const;
+
+  // Creates a tab MutedInfo object (see chrome/common/extensions/api/tabs.json)
+  // with information about the mute state of a browser tab.
+  static std::unique_ptr<api::tabs::MutedInfo> CreateMutedInfo(
+      content::WebContents* contents);
 
   // Returns a pointer to the associated UIThreadExtensionFunction
   UIThreadExtensionFunction* function() { return function_; }

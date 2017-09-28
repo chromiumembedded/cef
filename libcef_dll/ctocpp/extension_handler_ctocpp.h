@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=369179037f2f6abc4d30e25099b52acf2f71e1e2$
+// $hash=0d7d8e2694c5828bb5506fbb5737819b60094428$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_EXTENSION_HANDLER_CTOCPP_H_
@@ -43,6 +43,15 @@ class CefExtensionHandlerCToCpp
                                  const CefString& url,
                                  CefRefPtr<CefClient>& client,
                                  CefBrowserSettings& settings) override;
+  bool OnBeforeBrowser(CefRefPtr<CefExtension> extension,
+                       CefRefPtr<CefBrowser> browser,
+                       CefRefPtr<CefBrowser> active_browser,
+                       int index,
+                       const CefString& url,
+                       bool active,
+                       CefWindowInfo& windowInfo,
+                       CefRefPtr<CefClient>& client,
+                       CefBrowserSettings& settings) override;
   CefRefPtr<CefBrowser> GetActiveBrowser(CefRefPtr<CefExtension> extension,
                                          CefRefPtr<CefBrowser> browser,
                                          bool include_incognito) override;

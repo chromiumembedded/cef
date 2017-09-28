@@ -7,11 +7,16 @@
 #include "libcef/browser/browser_context_impl.h"
 #include "libcef/browser/extensions/browser_extensions_util.h"
 #include "libcef/browser/extensions/extension_system.h"
+#include "libcef/browser/navigate_params.h"
 #include "libcef/browser/thread_util.h"
 
+#include "base/strings/utf_string_conversions.h"
 #include "base/task_scheduler/post_task.h"
 #include "chrome/browser/extensions/api/tabs/tabs_constants.h"
+#include "chrome/browser/extensions/extension_tab_util.h"
 #include "chrome/browser/profiles/profile.h"
+#include "content/public/browser/favicon_status.h"
+#include "content/public/browser/navigation_entry.h"
 #include "extensions/browser/extension_function.h"
 #include "extensions/browser/extension_function_dispatcher.h"
 #include "extensions/common/error_utils.h"
@@ -208,13 +213,12 @@ CefRefPtr<CefBrowserHostImpl>
 CefExtensionFunctionDetails::GetBrowserForTabIdFirstTime(
     int tab_id,
     std::string* error_message) const {
-  DCHECK_GE(tab_id, -1);
   DCHECK(!get_browser_called_first_time_);
   get_browser_called_first_time_ = true;
 
   CefRefPtr<CefBrowserHostImpl> browser;
 
-  if (tab_id != -1) {
+  if (tab_id >= 0) {
     // May be an invalid tabId or in the wrong BrowserContext.
     browser = GetBrowserForTabId(tab_id, function_->browser_context());
     if (!browser || !browser->web_contents() || !CanAccessBrowser(browser)) {
@@ -275,6 +279,184 @@ bool CefExtensionFunctionDetails::LoadFile(const std::string& file,
   }
 
   return false;
+}
+
+CefExtensionFunctionDetails::OpenTabParams::OpenTabParams() {}
+
+CefExtensionFunctionDetails::OpenTabParams::~OpenTabParams() {}
+
+base::DictionaryValue* CefExtensionFunctionDetails::OpenTab(
+    const OpenTabParams& params,
+    bool user_gesture,
+    std::string* error_message) const {
+  CefRefPtr<CefBrowserHostImpl> sender_browser = GetSenderBrowser();
+  if (!sender_browser)
+    return nullptr;
+
+  // windowId defaults to "current" window.
+  int window_id = extension_misc::kCurrentWindowId;
+  if (params.window_id.get())
+    window_id = *params.window_id;
+
+  // CEF doesn't have the concept of windows containing tab strips so we'll
+  // select an "active browser" for BrowserContext sharing instead.
+  CefRefPtr<CefBrowserHostImpl> active_browser =
+      GetBrowserForTabIdFirstTime(window_id, error_message);
+  if (!active_browser)
+    return nullptr;
+
+  // If an opener browser was specified then we expect it to exist.
+  int opener_browser_id = -1;
+  if (params.opener_tab_id.get() && *params.opener_tab_id >= 0) {
+    if (GetBrowserForTabIdAgain(*params.opener_tab_id, error_message)) {
+      opener_browser_id = *params.opener_tab_id;
+    } else {
+      return nullptr;
+    }
+  }
+
+  GURL url;
+  if (params.url.get()) {
+    std::string url_string = *params.url;
+    url = ExtensionTabUtil::ResolvePossiblyRelativeURL(url_string,
+                                                       function()->extension());
+    if (!url.is_valid()) {
+      if (error_message) {
+        *error_message =
+            ErrorUtils::FormatErrorMessage(keys::kInvalidUrlError, url_string);
+      }
+      return nullptr;
+    }
+  }
+
+  // Don't let extensions crash the browser or renderers.
+  if (ExtensionTabUtil::IsKillURL(url)) {
+    if (error_message)
+      *error_message = keys::kNoCrashBrowserError;
+    return nullptr;
+  }
+
+  // Default to foreground for the new tab. The presence of 'active' property
+  // will override this default.
+  bool active = true;
+  if (params.active.get())
+    active = *params.active;
+
+  // CEF doesn't use the index value but we let the client see/modify it.
+  int index = 0;
+  if (params.index.get())
+    index = *params.index;
+
+  CefBrowserContextImpl* browser_context_impl =
+      CefBrowserContextImpl::GetForContext(active_browser->GetBrowserContext());
+
+  // A CEF representation should always exist.
+  CefRefPtr<CefExtension> cef_extension =
+      browser_context_impl->extension_system()->GetExtension(
+          function()->extension()->id());
+  DCHECK(cef_extension);
+  if (!cef_extension)
+    return nullptr;
+
+  // Always use the same request context that the extension was registered with.
+  // May represent an *Impl or *Proxy BrowserContext.
+  // GetLoaderContext() will return NULL for internal extensions.
+  CefRefPtr<CefRequestContext> request_context =
+      cef_extension->GetLoaderContext();
+  if (!request_context)
+    return nullptr;
+
+  CefBrowserHostImpl::CreateParams create_params;
+  create_params.url = url;
+  create_params.request_context = request_context;
+  create_params.window_info.reset(new CefWindowInfo);
+
+#if defined(OS_WIN)
+  create_params.window_info->SetAsPopup(NULL, CefString());
+#endif
+
+  // Start with the active browser's settings.
+  create_params.client = active_browser->GetClient();
+  create_params.settings = active_browser->settings();
+
+  CefRefPtr<CefExtensionHandler> handler = cef_extension->GetHandler();
+  if (handler.get() &&
+      handler->OnBeforeBrowser(cef_extension, sender_browser.get(),
+                               active_browser.get(), index, url.spec(), active,
+                               *create_params.window_info, create_params.client,
+                               create_params.settings)) {
+    // Cancel the browser creation.
+    return nullptr;
+  }
+
+  if (active_browser->IsViewsHosted()) {
+    // The new browser will also be Views hosted.
+    create_params.window_info.reset();
+  }
+
+  // Browser creation may fail under certain rare circumstances.
+  CefRefPtr<CefBrowserHostImpl> new_browser =
+      CefBrowserHostImpl::Create(create_params);
+  if (!new_browser)
+    return nullptr;
+
+  // Return data about the newly created tab.
+  auto result = CreateTabObject(new_browser, opener_browser_id, active, index);
+  ExtensionTabUtil::ScrubTabForExtension(
+      function()->extension(), new_browser->web_contents(), result.get());
+  return result->ToValue().release();
+}
+
+std::unique_ptr<api::tabs::Tab> CefExtensionFunctionDetails::CreateTabObject(
+    CefRefPtr<CefBrowserHostImpl> new_browser,
+    int opener_browser_id,
+    bool active,
+    int index) const {
+  content::WebContents* contents = new_browser->web_contents();
+
+  bool is_loading = contents->IsLoading();
+  auto tab_object = base::MakeUnique<api::tabs::Tab>();
+  tab_object->id = base::MakeUnique<int>(new_browser->GetIdentifier());
+  tab_object->index = index;
+  tab_object->window_id = *tab_object->id;
+  tab_object->status = base::MakeUnique<std::string>(
+      is_loading ? keys::kStatusValueLoading : keys::kStatusValueComplete);
+  tab_object->active = active;
+  tab_object->selected = true;
+  tab_object->highlighted = true;
+  tab_object->pinned = false;
+  tab_object->audible = base::MakeUnique<bool>(contents->WasRecentlyAudible());
+  tab_object->discarded = false;
+  tab_object->auto_discardable = false;
+  tab_object->muted_info = CreateMutedInfo(contents);
+  tab_object->incognito = false;
+  gfx::Size contents_size = contents->GetContainerBounds().size();
+  tab_object->width = base::MakeUnique<int>(contents_size.width());
+  tab_object->height = base::MakeUnique<int>(contents_size.height());
+  tab_object->url = base::MakeUnique<std::string>(contents->GetURL().spec());
+  tab_object->title =
+      base::MakeUnique<std::string>(base::UTF16ToUTF8(contents->GetTitle()));
+
+  content::NavigationEntry* entry = contents->GetController().GetVisibleEntry();
+  if (entry && entry->GetFavicon().valid) {
+    tab_object->fav_icon_url =
+        base::MakeUnique<std::string>(entry->GetFavicon().url.spec());
+  }
+
+  if (opener_browser_id >= 0)
+    tab_object->opener_tab_id = base::MakeUnique<int>(opener_browser_id);
+
+  return tab_object;
+}
+
+// static
+std::unique_ptr<api::tabs::MutedInfo>
+CefExtensionFunctionDetails::CreateMutedInfo(content::WebContents* contents) {
+  DCHECK(contents);
+  std::unique_ptr<api::tabs::MutedInfo> info(new api::tabs::MutedInfo);
+  info->muted = contents->IsAudioMuted();
+  // TODO(cef): Maybe populate |info->reason|.
+  return info;
 }
 
 CefRefPtr<CefExtension> CefExtensionFunctionDetails::GetCefExtension() const {

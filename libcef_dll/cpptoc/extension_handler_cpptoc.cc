@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=a4c5733b13d0513946314faf2ac0745c86419df7$
+// $hash=05b6fa7134b9e58dcef8262b0b726e4afd6e3512$
 //
 
 #include "libcef_dll/cpptoc/extension_handler_cpptoc.h"
@@ -115,6 +115,92 @@ int CEF_CALLBACK extension_handler_on_before_background_browser(
           CefExtensionCToCpp::Wrap(extension), CefString(url), clientPtr,
           settingsObj);
 
+  // Restore param: client; type: refptr_same_byref
+  if (client) {
+    if (clientPtr.get()) {
+      if (clientPtr.get() != clientOrig) {
+        *client = CefClientCppToC::Wrap(clientPtr);
+      }
+    } else {
+      *client = NULL;
+    }
+  }
+  // Restore param: settings; type: struct_byref
+  if (settings)
+    settingsObj.DetachTo(*settings);
+
+  // Return type: bool
+  return _retval;
+}
+
+int CEF_CALLBACK
+extension_handler_on_before_browser(struct _cef_extension_handler_t* self,
+                                    cef_extension_t* extension,
+                                    cef_browser_t* browser,
+                                    cef_browser_t* active_browser,
+                                    int index,
+                                    const cef_string_t* url,
+                                    int active,
+                                    cef_window_info_t* windowInfo,
+                                    cef_client_t** client,
+                                    struct _cef_browser_settings_t* settings) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return 0;
+  // Verify param: extension; type: refptr_diff
+  DCHECK(extension);
+  if (!extension)
+    return 0;
+  // Verify param: browser; type: refptr_diff
+  DCHECK(browser);
+  if (!browser)
+    return 0;
+  // Verify param: active_browser; type: refptr_diff
+  DCHECK(active_browser);
+  if (!active_browser)
+    return 0;
+  // Verify param: url; type: string_byref_const
+  DCHECK(url);
+  if (!url)
+    return 0;
+  // Verify param: windowInfo; type: struct_byref
+  DCHECK(windowInfo);
+  if (!windowInfo)
+    return 0;
+  // Verify param: client; type: refptr_same_byref
+  DCHECK(client);
+  if (!client)
+    return 0;
+  // Verify param: settings; type: struct_byref
+  DCHECK(settings);
+  if (!settings)
+    return 0;
+
+  // Translate param: windowInfo; type: struct_byref
+  CefWindowInfo windowInfoObj;
+  if (windowInfo)
+    windowInfoObj.AttachTo(*windowInfo);
+  // Translate param: client; type: refptr_same_byref
+  CefRefPtr<CefClient> clientPtr;
+  if (client && *client)
+    clientPtr = CefClientCppToC::Unwrap(*client);
+  CefClient* clientOrig = clientPtr.get();
+  // Translate param: settings; type: struct_byref
+  CefBrowserSettings settingsObj;
+  if (settings)
+    settingsObj.AttachTo(*settings);
+
+  // Execute
+  bool _retval = CefExtensionHandlerCppToC::Get(self)->OnBeforeBrowser(
+      CefExtensionCToCpp::Wrap(extension), CefBrowserCToCpp::Wrap(browser),
+      CefBrowserCToCpp::Wrap(active_browser), index, CefString(url),
+      active ? true : false, windowInfoObj, clientPtr, settingsObj);
+
+  // Restore param: windowInfo; type: struct_byref
+  if (windowInfo)
+    windowInfoObj.DetachTo(*windowInfo);
   // Restore param: client; type: refptr_same_byref
   if (client) {
     if (clientPtr.get()) {
@@ -243,6 +329,7 @@ CefExtensionHandlerCppToC::CefExtensionHandlerCppToC() {
   GetStruct()->on_extension_unloaded = extension_handler_on_extension_unloaded;
   GetStruct()->on_before_background_browser =
       extension_handler_on_before_background_browser;
+  GetStruct()->on_before_browser = extension_handler_on_before_browser;
   GetStruct()->get_active_browser = extension_handler_get_active_browser;
   GetStruct()->can_access_browser = extension_handler_can_access_browser;
   GetStruct()->get_extension_resource =

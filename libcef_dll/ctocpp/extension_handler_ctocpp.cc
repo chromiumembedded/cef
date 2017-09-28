@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=b8f2ada19624a72741d86b5d6ff5214a4b711dd6$
+// $hash=0166cbfe3039f90a07fd2d9267178ad1fdb0d4f7$
 //
 
 #include "libcef_dll/ctocpp/extension_handler_ctocpp.h"
@@ -95,6 +95,64 @@ bool CefExtensionHandlerCToCpp::OnBeforeBackgroundBrowser(
   int _retval = _struct->on_before_background_browser(
       _struct, CefExtensionCppToC::Wrap(extension), url.GetStruct(),
       &clientStruct, &settings);
+
+  // Restore param:client; type: refptr_same_byref
+  if (clientStruct) {
+    if (clientStruct != clientOrig) {
+      client = CefClientCToCpp::Wrap(clientStruct);
+    }
+  } else {
+    client = NULL;
+  }
+
+  // Return type: bool
+  return _retval ? true : false;
+}
+
+bool CefExtensionHandlerCToCpp::OnBeforeBrowser(
+    CefRefPtr<CefExtension> extension,
+    CefRefPtr<CefBrowser> browser,
+    CefRefPtr<CefBrowser> active_browser,
+    int index,
+    const CefString& url,
+    bool active,
+    CefWindowInfo& windowInfo,
+    CefRefPtr<CefClient>& client,
+    CefBrowserSettings& settings) {
+  cef_extension_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, on_before_browser))
+    return false;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: extension; type: refptr_diff
+  DCHECK(extension.get());
+  if (!extension.get())
+    return false;
+  // Verify param: browser; type: refptr_diff
+  DCHECK(browser.get());
+  if (!browser.get())
+    return false;
+  // Verify param: active_browser; type: refptr_diff
+  DCHECK(active_browser.get());
+  if (!active_browser.get())
+    return false;
+  // Verify param: url; type: string_byref_const
+  DCHECK(!url.empty());
+  if (url.empty())
+    return false;
+
+  // Translate param: client; type: refptr_same_byref
+  cef_client_t* clientStruct = NULL;
+  if (client.get())
+    clientStruct = CefClientCToCpp::Unwrap(client);
+  cef_client_t* clientOrig = clientStruct;
+
+  // Execute
+  int _retval = _struct->on_before_browser(
+      _struct, CefExtensionCppToC::Wrap(extension),
+      CefBrowserCppToC::Wrap(browser), CefBrowserCppToC::Wrap(active_browser),
+      index, url.GetStruct(), active, &windowInfo, &clientStruct, &settings);
 
   // Restore param:client; type: refptr_same_byref
   if (clientStruct) {

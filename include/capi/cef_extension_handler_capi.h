@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=b49f4c91db8eccdfe9ded503d8bb32ee0e433f60$
+// $hash=b6311a69fc01fa19d3c49230f412a5963633ce27$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_EXTENSION_HANDLER_CAPI_H_
@@ -126,6 +126,33 @@ typedef struct _cef_extension_handler_t {
       struct _cef_extension_handler_t* self,
       struct _cef_extension_t* extension,
       const cef_string_t* url,
+      struct _cef_client_t** client,
+      struct _cef_browser_settings_t* settings);
+
+  ///
+  // Called when an extension API (e.g. chrome.tabs.create) requests creation of
+  // a new browser. |extension| and |browser| are the source of the API call.
+  // |active_browser| may optionally be specified via the windowId property or
+  // returned via the get_active_browser() callback and provides the default
+  // |client| and |settings| values for the new browser. |index| is the position
+  // value optionally specified via the index property. |url| is the URL that
+  // will be loaded in the browser. |active| is true (1) if the new browser
+  // should be active when opened.  To allow creation of the browser optionally
+  // modify |windowInfo|, |client| and |settings| and return false (0). To
+  // cancel creation of the browser return true (1). Successful creation will be
+  // indicated by a call to cef_life_span_handler_t::OnAfterCreated. Any
+  // modifications to |windowInfo| will be ignored if |active_browser| is
+  // wrapped in a cef_browser_view_t.
+  ///
+  int(CEF_CALLBACK* on_before_browser)(
+      struct _cef_extension_handler_t* self,
+      struct _cef_extension_t* extension,
+      struct _cef_browser_t* browser,
+      struct _cef_browser_t* active_browser,
+      int index,
+      const cef_string_t* url,
+      int active,
+      struct _cef_window_info_t* windowInfo,
       struct _cef_client_t** client,
       struct _cef_browser_settings_t* settings);
 

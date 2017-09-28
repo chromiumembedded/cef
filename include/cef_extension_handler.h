@@ -117,6 +117,33 @@ class CefExtensionHandler : public virtual CefBaseRefCounted {
   }
 
   ///
+  // Called when an extension API (e.g. chrome.tabs.create) requests creation of
+  // a new browser. |extension| and |browser| are the source of the API call.
+  // |active_browser| may optionally be specified via the windowId property or
+  // returned via the GetActiveBrowser() callback and provides the default
+  // |client| and |settings| values for the new browser. |index| is the position
+  // value optionally specified via the index property. |url| is the URL that
+  // will be loaded in the browser. |active| is true if the new browser should
+  // be active when opened.  To allow creation of the browser optionally modify
+  // |windowInfo|, |client| and |settings| and return false. To cancel creation
+  // of the browser return true. Successful creation will be indicated by a call
+  // to CefLifeSpanHandler::OnAfterCreated. Any modifications to |windowInfo|
+  // will be ignored if |active_browser| is wrapped in a CefBrowserView.
+  ///
+  /*--cef()--*/
+  virtual bool OnBeforeBrowser(CefRefPtr<CefExtension> extension,
+                               CefRefPtr<CefBrowser> browser,
+                               CefRefPtr<CefBrowser> active_browser,
+                               int index,
+                               const CefString& url,
+                               bool active,
+                               CefWindowInfo& windowInfo,
+                               CefRefPtr<CefClient>& client,
+                               CefBrowserSettings& settings) {
+    return false;
+  }
+
+  ///
   // Called when no tabId is specified to an extension API call that accepts a
   // tabId parameter (e.g. chrome.tabs.*). |extension| and |browser| are the
   // source of the API call. Return the browser that will be acted on by the API
