@@ -1,0 +1,18 @@
+diff --git content/common/sandbox_win.cc content/common/sandbox_win.cc
+index a98c8bd7646b..7c100ff20d34 100644
+--- content/common/sandbox_win.cc
++++ content/common/sandbox_win.cc
+@@ -782,8 +782,11 @@ sandbox::ResultCode StartSandboxedProcess(
+ #endif
+ 
+   // Post-startup mitigations.
+-  mitigations = sandbox::MITIGATION_STRICT_HANDLE_CHECKS |
+-                sandbox::MITIGATION_DLL_SEARCH_ORDER;
++  mitigations = sandbox::MITIGATION_DLL_SEARCH_ORDER;
++  if (!browser_command_line.HasSwitch("win-rt-app")) {
++    // Don't enable this mitigation in WinRT apps. See issue #2274.
++    mitigations |= sandbox::MITIGATION_STRICT_HANDLE_CHECKS;
++  }
+   if (base::FeatureList::IsEnabled(features::kWinSboxForceMsSigned))
+     mitigations |= sandbox::MITIGATION_FORCE_MS_SIGNED_BINS;
+ 
