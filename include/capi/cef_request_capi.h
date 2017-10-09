@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=e4d28f171862beea61f00e46d7acb8ee4154b077$
+// $hash=dbd087f353209506f042dd2598db753c905f11f0$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_REQUEST_CAPI_H_
@@ -158,7 +158,7 @@ typedef struct _cef_request_t {
   void(CEF_CALLBACK* set_flags)(struct _cef_request_t* self, int flags);
 
   ///
-  // Set the URL to the first party for cookies used in combination with
+  // Get the URL to the first party for cookies used in combination with
   // cef_urlrequest_t.
   ///
   // The resulting string must be freed by calling cef_string_userfree_free().
@@ -166,7 +166,7 @@ typedef struct _cef_request_t {
       struct _cef_request_t* self);
 
   ///
-  // Get the URL to the first party for cookies used in combination with
+  // Set the URL to the first party for cookies used in combination with
   // cef_urlrequest_t.
   ///
   void(CEF_CALLBACK* set_first_party_for_cookies)(struct _cef_request_t* self,

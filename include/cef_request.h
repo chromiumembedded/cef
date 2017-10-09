@@ -164,14 +164,14 @@ class CefRequest : public virtual CefBaseRefCounted {
   virtual void SetFlags(int flags) = 0;
 
   ///
-  // Set the URL to the first party for cookies used in combination with
+  // Get the URL to the first party for cookies used in combination with
   // CefURLRequest.
   ///
   /*--cef()--*/
   virtual CefString GetFirstPartyForCookies() = 0;
 
   ///
-  // Get the URL to the first party for cookies used in combination with
+  // Set the URL to the first party for cookies used in combination with
   // CefURLRequest.
   ///
   /*--cef()--*/
