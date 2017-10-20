@@ -75,7 +75,6 @@ class CefContentRendererClient : public content::ContentRendererClient,
   }
 
   void WebKitInitialized();
-  void OnRenderProcessShutdown();
 
   void DevToolsAgentAttached();
   void DevToolsAgentDetached();

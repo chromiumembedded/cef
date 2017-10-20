@@ -63,6 +63,9 @@ void CefExtensionsClient::Initialize() {
                                               GetExtensionsPermissionAliases());
 }
 
+void CefExtensionsClient::InitializeWebStoreUrls(
+    base::CommandLine* command_line) {}
+
 const PermissionMessageProvider&
 CefExtensionsClient::GetPermissionMessageProvider() const {
   return permission_message_provider_;

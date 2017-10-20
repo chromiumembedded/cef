@@ -14,23 +14,15 @@
 #include "content/public/child/child_thread.h"
 #include "content/public/common/service_manager_connection.h"
 #include "content/public/common/simple_connection_filter.h"
+#include "content/public/network/url_request_context_builder_mojo.h"
 #include "mojo/public/cpp/bindings/strong_binding.h"
-#include "net/proxy/mojo_proxy_resolver_factory_impl.h"
+#include "services/proxy_resolver/proxy_resolver_service.h"  // nogncheck
+#include "services/proxy_resolver/public/interfaces/proxy_resolver.mojom.h"  // nogncheck
 #include "services/service_manager/public/cpp/binder_registry.h"
 
 #if defined(OS_WIN)
 #include "chrome/utility/printing_handler.h"
 #endif
-
-namespace {
-
-void CreateProxyResolverFactory(
-    net::interfaces::ProxyResolverFactoryRequest request) {
-  mojo::MakeStrongBinding(base::MakeUnique<net::MojoProxyResolverFactoryImpl>(),
-                          std::move(request));
-}
-
-}  // namespace
 
 CefContentUtilityClient::CefContentUtilityClient() {
 #if defined(OS_WIN)
@@ -50,10 +42,6 @@ void CefContentUtilityClient::UtilityThreadStarted() {
     return;
 
   auto registry = base::MakeUnique<service_manager::BinderRegistry>();
-
-  registry->AddInterface<net::interfaces::ProxyResolverFactory>(
-      base::Bind(CreateProxyResolverFactory),
-      base::ThreadTaskRunnerHandle::Get());
 
   connection->AddConnectionFilter(
       base::MakeUnique<content::SimpleConnectionFilter>(std::move(registry)));
@@ -75,4 +63,12 @@ void CefContentUtilityClient::RegisterServices(StaticServiceMap* services) {
   pdf_compositor_info.factory =
       base::Bind(&printing::CreatePdfCompositorService, std::string());
   services->emplace(printing::mojom::kServiceName, pdf_compositor_info);
+
+  service_manager::EmbeddedServiceInfo proxy_resolver_info;
+  proxy_resolver_info.task_runner =
+      content::ChildThread::Get()->GetIOTaskRunner();
+  proxy_resolver_info.factory =
+      base::Bind(&proxy_resolver::ProxyResolverService::CreateService);
+  services->emplace(proxy_resolver::mojom::kProxyResolverServiceName,
+                    proxy_resolver_info);
 }

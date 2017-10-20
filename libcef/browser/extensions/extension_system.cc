@@ -590,7 +590,7 @@ void CefExtensionSystem::NotifyExtensionLoaded(const Extension* extension) {
       extension,
       base::Bind(&CefExtensionSystem::OnExtensionRegisteredWithRequestContexts,
                  weak_ptr_factory_.GetWeakPtr(),
-                 make_scoped_refptr(extension)));
+                 base::WrapRefCounted(extension)));
 
   // Tell renderers about the loaded extension.
   renderer_helper_->OnExtensionLoaded(*extension);

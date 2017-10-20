@@ -32,7 +32,7 @@ const char kPdfResourceIdentifier[] = "chromium-pdf";
 const char kPdfPluginName[] = "Chrome PDF Viewer";
 
 std::string GetManifest() {
-  std::string manifest_contents = ResourceBundle::GetSharedInstance()
+  std::string manifest_contents = ui::ResourceBundle::GetSharedInstance()
                                       .GetRawDataResource(IDR_PDF_MANIFEST)
                                       .as_string();
   DCHECK(manifest_contents.find(kNameTag) != std::string::npos);

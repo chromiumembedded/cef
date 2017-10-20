@@ -1,8 +1,8 @@
 diff --git content/browser/web_contents/web_contents_impl.cc content/browser/web_contents/web_contents_impl.cc
-index 5b54c7614dcb..89addf197fae 100644
+index 7297db47cf2d..d47c44680415 100644
 --- content/browser/web_contents/web_contents_impl.cc
 +++ content/browser/web_contents/web_contents_impl.cc
-@@ -1772,6 +1772,12 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
+@@ -1762,6 +1762,12 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
    std::string unique_name;
    frame_tree_.root()->SetFrameName(params.main_frame_name, unique_name);
  
@@ -15,7 +15,7 @@ index 5b54c7614dcb..89addf197fae 100644
    WebContentsViewDelegate* delegate =
        GetContentClient()->browser()->GetWebContentsViewDelegate(this);
  
-@@ -1782,6 +1788,7 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
+@@ -1772,6 +1778,7 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
      view_.reset(CreateWebContentsView(this, delegate,
                                        &render_view_host_delegate_view_));
    }
@@ -23,7 +23,7 @@ index 5b54c7614dcb..89addf197fae 100644
  
    if (browser_plugin_guest_ && !GuestMode::IsCrossProcessFrameGuest(this)) {
      view_.reset(new WebContentsViewGuest(this, browser_plugin_guest_.get(),
-@@ -2343,6 +2350,15 @@ void WebContentsImpl::CreateNewWindow(
+@@ -2340,6 +2347,15 @@ void WebContentsImpl::CreateNewWindow(
    create_params.renderer_initiated_creation =
        main_frame_route_id != MSG_ROUTING_NONE;
  
@@ -39,7 +39,7 @@ index 5b54c7614dcb..89addf197fae 100644
    WebContentsImpl* new_contents = NULL;
    if (!is_guest) {
      create_params.context = view_->GetNativeView();
-@@ -2372,7 +2388,7 @@ void WebContentsImpl::CreateNewWindow(
+@@ -2369,7 +2385,7 @@ void WebContentsImpl::CreateNewWindow(
        // TODO(brettw): It seems bogus that we have to call this function on the
        // newly created object and give it one of its own member variables.
        new_view->CreateViewForWidget(
@@ -48,7 +48,7 @@ index 5b54c7614dcb..89addf197fae 100644
      }
      // Save the created window associated with the route so we can show it
      // later.
-@@ -5534,7 +5550,7 @@ InterstitialPageImpl* WebContentsImpl::GetInterstitialForRenderManager() {
+@@ -5507,7 +5523,7 @@ InterstitialPageImpl* WebContentsImpl::GetInterstitialForRenderManager() {
  void WebContentsImpl::CreateRenderWidgetHostViewForRenderManager(
      RenderViewHost* render_view_host) {
    RenderWidgetHostViewBase* rwh_view =
@@ -73,12 +73,12 @@ index fa0afb545df9..d677b310e5ec 100644
  
  WebContents::CreateParams::CreateParams(const CreateParams& other) = default;
 diff --git content/public/browser/web_contents.h content/public/browser/web_contents.h
-index ddaf664254ab..ffec3b79332e 100644
+index 453942537f6c..be871fbb677b 100644
 --- content/public/browser/web_contents.h
 +++ content/public/browser/web_contents.h
-@@ -68,9 +68,11 @@ class PageState;
+@@ -68,9 +68,11 @@ class InterstitialPage;
+ class PageState;
  class RenderFrameHost;
- class RenderProcessHost;
  class RenderViewHost;
 +class RenderViewHostDelegateView;
  class RenderWidgetHost;
@@ -88,7 +88,7 @@ index ddaf664254ab..ffec3b79332e 100644
  struct CustomContextMenuContext;
  struct DropData;
  struct Manifest;
-@@ -171,6 +173,10 @@ class WebContents : public PageNavigator,
+@@ -170,6 +172,10 @@ class WebContents : public PageNavigator,
      // Note that the pre-created renderer process may not be used if the first
      // navigation requires a dedicated or privileged process, such as a WebUI.
      bool initialize_renderer;
@@ -100,10 +100,10 @@ index ddaf664254ab..ffec3b79332e 100644
  
    // Creates a new WebContents.
 diff --git content/public/browser/web_contents_delegate.h content/public/browser/web_contents_delegate.h
-index 8b548ba29917..dd9bff8f3939 100644
+index 3f31a372ecbb..0958fe90bb31 100644
 --- content/public/browser/web_contents_delegate.h
 +++ content/public/browser/web_contents_delegate.h
-@@ -43,11 +43,13 @@ class ColorChooser;
+@@ -44,11 +44,13 @@ class ColorChooser;
  class JavaScriptDialogManager;
  class PageState;
  class RenderFrameHost;
@@ -117,7 +117,7 @@ index 8b548ba29917..dd9bff8f3939 100644
  struct ColorSuggestion;
  struct ContextMenuParams;
  struct DropData;
-@@ -320,6 +322,14 @@ class CONTENT_EXPORT WebContentsDelegate {
+@@ -318,6 +320,14 @@ class CONTENT_EXPORT WebContentsDelegate {
        const std::string& partition_id,
        SessionStorageNamespace* session_storage_namespace);
  

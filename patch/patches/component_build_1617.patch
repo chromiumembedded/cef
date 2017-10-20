@@ -1,8 +1,8 @@
 diff --git chrome/browser/ui/BUILD.gn chrome/browser/ui/BUILD.gn
-index 97c769cdf483..78d9db9d084e 100644
+index 82f43b9591ae..1ef9adad166f 100644
 --- chrome/browser/ui/BUILD.gn
 +++ chrome/browser/ui/BUILD.gn
-@@ -489,6 +489,7 @@ split_static_library("ui") {
+@@ -369,6 +369,7 @@ split_static_library("ui") {
      "//chrome/browser/ui/webui/usb_internals:mojo_bindings",
      "//chrome/common",
      "//chrome/common:search_mojom",
@@ -25,10 +25,10 @@ index 7563ce48bf5e..6c594749d57b 100644
    explicit ContentServiceManagerMainDelegate(const ContentMainParams& params);
    ~ContentServiceManagerMainDelegate() override;
 diff --git third_party/WebKit/Source/controller/BUILD.gn third_party/WebKit/Source/controller/BUILD.gn
-index dbcd69337de8..fc0b6aca080f 100644
+index 1d29633ba10d..1a42fe1d37fa 100644
 --- third_party/WebKit/Source/controller/BUILD.gn
 +++ third_party/WebKit/Source/controller/BUILD.gn
-@@ -15,6 +15,7 @@ component("controller") {
+@@ -16,6 +16,7 @@ component("controller") {
    output_name = "blink_controller"
  
    deps = [

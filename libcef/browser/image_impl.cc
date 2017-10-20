@@ -128,7 +128,7 @@ bool CefImageImpl::AddBitmap(float scale_factor,
     return false;
   }
 
-  DCHECK_EQ(pixel_data_size, bitmap.getSize());
+  DCHECK_EQ(pixel_data_size, bitmap.computeByteSize());
   memcpy(bitmap.getPixels(), pixel_data, pixel_data_size);
 
   return AddBitmap(scale_factor, bitmap);
@@ -226,14 +226,15 @@ CefRefPtr<CefBinaryValue> CefImageImpl::GetAsBitmap(float scale_factor,
 
   if (bitmap->colorType() == desired_ct && bitmap->alphaType() == desired_at) {
     // No conversion necessary.
-    return CefBinaryValue::Create(bitmap->getPixels(), bitmap->getSize());
+    return CefBinaryValue::Create(bitmap->getPixels(),
+                                  bitmap->computeByteSize());
   } else {
     SkBitmap desired_bitmap;
     if (!ConvertBitmap(*bitmap, &desired_bitmap, desired_ct, desired_at))
       return nullptr;
     DCHECK(desired_bitmap.readyToDraw());
     return CefBinaryValue::Create(desired_bitmap.getPixels(),
-                                  desired_bitmap.getSize());
+                                  desired_bitmap.computeByteSize());
   }
 }
 

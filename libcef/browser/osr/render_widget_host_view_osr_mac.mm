@@ -46,6 +46,10 @@ class MacHelper : public content::BrowserCompositorMacClient,
 
   void BrowserCompositorMacOnBeginFrame() override {}
 
+  viz::LocalSurfaceId GetLocalSurfaceId() const override {
+    return view_->local_surface_id();
+  }
+
   // AcceleratedWidgetMacNSView methods:
 
   NSView* AcceleratedWidgetGetNSView() const override {

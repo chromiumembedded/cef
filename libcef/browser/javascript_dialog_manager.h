@@ -33,17 +33,17 @@ class CefJavaScriptDialogManager : public content::JavaScriptDialogManager {
                            content::JavaScriptDialogType message_type,
                            const base::string16& message_text,
                            const base::string16& default_prompt_text,
-                           const DialogClosedCallback& callback,
+                           DialogClosedCallback callback,
                            bool* did_suppress_message) override;
   void RunBeforeUnloadDialog(content::WebContents* web_contents,
                              bool is_reload,
-                             const DialogClosedCallback& callback) override;
+                             DialogClosedCallback callback) override;
   void CancelDialogs(content::WebContents* web_contents,
                      bool reset_state) override;
 
  private:
   // Method executed by the callback passed to CefJavaScriptDialogRunner::Run.
-  void DialogClosed(const DialogClosedCallback& callback,
+  void DialogClosed(DialogClosedCallback callback,
                     bool success,
                     const base::string16& user_input);
 

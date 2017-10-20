@@ -20,16 +20,16 @@ namespace {
 class CefJSDialogCallbackImpl : public CefJSDialogCallback {
  public:
   CefJSDialogCallbackImpl(
-      const content::JavaScriptDialogManager::DialogClosedCallback& callback)
-      : callback_(callback) {}
+      content::JavaScriptDialogManager::DialogClosedCallback callback)
+      : callback_(std::move(callback)) {}
   ~CefJSDialogCallbackImpl() override {
     if (!callback_.is_null()) {
       // The callback is still pending. Cancel it now.
       if (CEF_CURRENTLY_ON_UIT()) {
-        CancelNow(callback_);
+        CancelNow(std::move(callback_));
       } else {
         CEF_POST_TASK(CEF_UIT, base::Bind(&CefJSDialogCallbackImpl::CancelNow,
-                                          callback_));
+                                          base::Passed(std::move(callback_))));
       }
     }
   }
@@ -37,8 +37,7 @@ class CefJSDialogCallbackImpl : public CefJSDialogCallback {
   void Continue(bool success, const CefString& user_input) override {
     if (CEF_CURRENTLY_ON_UIT()) {
       if (!callback_.is_null()) {
-        callback_.Run(success, user_input);
-        callback_.Reset();
+        std::move(callback_).Run(success, user_input);
       }
     } else {
       CEF_POST_TASK(CEF_UIT, base::Bind(&CefJSDialogCallbackImpl::Continue,
@@ -50,9 +49,9 @@ class CefJSDialogCallbackImpl : public CefJSDialogCallback {
 
  private:
   static void CancelNow(
-      const content::JavaScriptDialogManager::DialogClosedCallback& callback) {
+      content::JavaScriptDialogManager::DialogClosedCallback callback) {
     CEF_REQUIRE_UIT();
-    callback.Run(false, base::string16());
+    std::move(callback).Run(false, base::string16());
   }
 
   content::JavaScriptDialogManager::DialogClosedCallback callback_;
@@ -85,7 +84,7 @@ void CefJavaScriptDialogManager::RunJavaScriptDialog(
     content::JavaScriptDialogType message_type,
     const base::string16& message_text,
     const base::string16& default_prompt_text,
-    const DialogClosedCallback& callback,
+    DialogClosedCallback callback,
     bool* did_suppress_message) {
   CefRefPtr<CefClient> client = browser_->GetClient();
   if (client.get()) {
@@ -94,7 +93,7 @@ void CefJavaScriptDialogManager::RunJavaScriptDialog(
       *did_suppress_message = false;
 
       CefRefPtr<CefJSDialogCallbackImpl> callbackPtr(
-          new CefJSDialogCallbackImpl(callback));
+          new CefJSDialogCallbackImpl(std::move(callback)));
 
       // Execute the user callback.
       bool handled = handler->OnJSDialog(
@@ -132,18 +131,19 @@ void CefJavaScriptDialogManager::RunJavaScriptDialog(
   runner_->Run(browser_, message_type, display_url, message_text,
                default_prompt_text,
                base::Bind(&CefJavaScriptDialogManager::DialogClosed,
-                          weak_ptr_factory_.GetWeakPtr(), callback));
+                          weak_ptr_factory_.GetWeakPtr(),
+                          base::Passed(std::move(callback))));
 }
 
 void CefJavaScriptDialogManager::RunBeforeUnloadDialog(
     content::WebContents* web_contents,
     bool is_reload,
-    const DialogClosedCallback& callback) {
+    DialogClosedCallback callback) {
   if (browser_->destruction_state() >=
       CefBrowserHostImpl::DESTRUCTION_STATE_ACCEPTED) {
     // Currently destroying the browser. Accept the unload without showing
     // the prompt.
-    callback.Run(true, base::string16());
+    std::move(callback).Run(true, base::string16());
     return;
   }
 
@@ -155,7 +155,7 @@ void CefJavaScriptDialogManager::RunBeforeUnloadDialog(
     CefRefPtr<CefJSDialogHandler> handler = client->GetJSDialogHandler();
     if (handler.get()) {
       CefRefPtr<CefJSDialogCallbackImpl> callbackPtr(
-          new CefJSDialogCallbackImpl(callback));
+          new CefJSDialogCallbackImpl(std::move(callback)));
 
       // Execute the user callback.
       bool handled = handler->OnBeforeUnloadDialog(
@@ -172,7 +172,7 @@ void CefJavaScriptDialogManager::RunBeforeUnloadDialog(
       LOG(WARNING) << "No javascript dialog runner available for this platform";
     // Suppress the dialog if there is no platform runner or if the dialog is
     // currently running.
-    callback.Run(true, base::string16());
+    std::move(callback).Run(true, base::string16());
     return;
   }
 
@@ -183,7 +183,8 @@ void CefJavaScriptDialogManager::RunBeforeUnloadDialog(
                message_text,
                base::string16(),  // default_prompt_text
                base::Bind(&CefJavaScriptDialogManager::DialogClosed,
-                          weak_ptr_factory_.GetWeakPtr(), callback));
+                          weak_ptr_factory_.GetWeakPtr(),
+                          base::Passed(std::move(callback))));
 }
 
 void CefJavaScriptDialogManager::CancelDialogs(
@@ -205,7 +206,7 @@ void CefJavaScriptDialogManager::CancelDialogs(
 }
 
 void CefJavaScriptDialogManager::DialogClosed(
-    const DialogClosedCallback& callback,
+    DialogClosedCallback callback,
     bool success,
     const base::string16& user_input) {
   CefRefPtr<CefClient> client = browser_->GetClient();
@@ -220,5 +221,5 @@ void CefJavaScriptDialogManager::DialogClosed(
 
   dialog_running_ = false;
 
-  callback.Run(success, user_input);
+  std::move(callback).Run(success, user_input);
 }

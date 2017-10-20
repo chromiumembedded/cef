@@ -6,9 +6,6 @@
 
 namespace switches {
 
-// Log file path.
-const char kLogFile[] = "log-file";
-
 // Severity of messages to log.
 const char kLogSeverity[] = "log-severity";
 const char kLogSeverity_Verbose[] = "verbose";

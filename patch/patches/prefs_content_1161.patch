@@ -1,8 +1,8 @@
 diff --git content/public/common/common_param_traits_macros.h content/public/common/common_param_traits_macros.h
-index 24302aa9a63b..ba5c08bf5892 100644
+index 90951a5d5e56..940fe86b6587 100644
 --- content/public/common/common_param_traits_macros.h
 +++ content/public/common/common_param_traits_macros.h
-@@ -205,6 +205,7 @@ IPC_STRUCT_TRAITS_BEGIN(content::WebPreferences)
+@@ -208,6 +208,7 @@ IPC_STRUCT_TRAITS_BEGIN(content::WebPreferences)
    IPC_STRUCT_TRAITS_MEMBER(main_frame_resizes_are_orientation_changes)
    IPC_STRUCT_TRAITS_MEMBER(initialize_at_minimum_page_scale)
    IPC_STRUCT_TRAITS_MEMBER(smart_insert_delete_enabled)
@@ -11,34 +11,34 @@ index 24302aa9a63b..ba5c08bf5892 100644
    IPC_STRUCT_TRAITS_MEMBER(navigate_on_drag_drop)
    IPC_STRUCT_TRAITS_MEMBER(spatial_navigation_enabled)
 diff --git content/public/common/web_preferences.cc content/public/common/web_preferences.cc
-index a9c7b7d8c3ae..7c9d26fb223f 100644
+index 722afb30f662..42274dd9cc8c 100644
 --- content/public/common/web_preferences.cc
 +++ content/public/common/web_preferences.cc
-@@ -170,6 +170,7 @@ WebPreferences::WebPreferences()
+@@ -179,6 +179,7 @@ WebPreferences::WebPreferences()
        spatial_navigation_enabled(false),
        use_solid_color_scrollbars(false),
        navigate_on_drag_drop(true),
 +      base_background_color(0xFFFFFFFF),  // Color::white
        v8_cache_options(V8_CACHE_OPTIONS_DEFAULT),
        record_whole_document(false),
-       cookie_enabled(true),
+       save_previous_document_resources(SavePreviousDocumentResources::NEVER),
 diff --git content/public/common/web_preferences.h content/public/common/web_preferences.h
-index 1e24ea16ae51..2c4062d42992 100644
+index c81979993ad5..f0a4474c4023 100644
 --- content/public/common/web_preferences.h
 +++ content/public/common/web_preferences.h
-@@ -191,6 +191,7 @@ struct CONTENT_EXPORT WebPreferences {
+@@ -198,6 +198,7 @@ struct CONTENT_EXPORT WebPreferences {
    bool spatial_navigation_enabled;
    bool use_solid_color_scrollbars;
    bool navigate_on_drag_drop;
 +  uint32_t base_background_color;
    V8CacheOptions v8_cache_options;
    bool record_whole_document;
- 
+   SavePreviousDocumentResources save_previous_document_resources;
 diff --git content/renderer/render_view_impl.cc content/renderer/render_view_impl.cc
-index 344e89232ca7..c74e5c5432ed 100644
+index 22bd13a28fb7..027eaf5b65da 100644
 --- content/renderer/render_view_impl.cc
 +++ content/renderer/render_view_impl.cc
-@@ -1309,6 +1309,8 @@ void RenderViewImpl::ApplyWebPreferencesInternal(
+@@ -1308,6 +1308,8 @@ void RenderViewImpl::ApplyWebPreferencesInternal(
      blink::WebView* web_view,
      CompositorDependencies* compositor_deps) {
    ApplyWebPreferences(prefs, web_view);

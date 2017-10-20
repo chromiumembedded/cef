@@ -69,7 +69,7 @@ void CefSoftwareOutputDeviceOSR::EndPaint() {
   if (!bitmap_.get())
     return;
 
-  cc::SoftwareOutputDevice::EndPaint();
+  viz::SoftwareOutputDevice::EndPaint();
 
   if (active_)
     OnPaint(damage_rect_);

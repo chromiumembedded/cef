@@ -251,7 +251,7 @@ std::string CefContentClient::GetUserAgent() const {
 
 base::string16 CefContentClient::GetLocalizedString(int message_id) const {
   base::string16 value =
-      ResourceBundle::GetSharedInstance().GetLocalizedString(message_id);
+      ui::ResourceBundle::GetSharedInstance().GetLocalizedString(message_id);
   if (value.empty())
     LOG(ERROR) << "No localized string available for id " << message_id;
 
@@ -262,7 +262,7 @@ base::StringPiece CefContentClient::GetDataResource(
     int resource_id,
     ui::ScaleFactor scale_factor) const {
   base::StringPiece value =
-      ResourceBundle::GetSharedInstance().GetRawDataResourceForScale(
+      ui::ResourceBundle::GetSharedInstance().GetRawDataResourceForScale(
           resource_id, scale_factor);
   if (value.empty())
     LOG(ERROR) << "No data resource available for id " << resource_id;
@@ -273,7 +273,8 @@ base::StringPiece CefContentClient::GetDataResource(
 base::RefCountedMemory* CefContentClient::GetDataResourceBytes(
     int resource_id) const {
   base::RefCountedMemory* value =
-      ResourceBundle::GetSharedInstance().LoadDataResourceBytes(resource_id);
+      ui::ResourceBundle::GetSharedInstance().LoadDataResourceBytes(
+          resource_id);
   if (!value)
     LOG(ERROR) << "No data resource bytes available for id " << resource_id;
 
@@ -282,7 +283,7 @@ base::RefCountedMemory* CefContentClient::GetDataResourceBytes(
 
 gfx::Image& CefContentClient::GetNativeImageNamed(int resource_id) const {
   gfx::Image& value =
-      ResourceBundle::GetSharedInstance().GetNativeImageNamed(resource_id);
+      ui::ResourceBundle::GetSharedInstance().GetNativeImageNamed(resource_id);
   if (value.IsEmpty())
     LOG(ERROR) << "No native image available for id " << resource_id;
 

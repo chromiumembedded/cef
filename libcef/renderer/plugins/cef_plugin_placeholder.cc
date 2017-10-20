@@ -69,7 +69,7 @@ CefPluginPlaceholder* CefPluginPlaceholder::CreateLoadableMissingPlugin(
     content::RenderFrame* render_frame,
     const blink::WebPluginParams& params) {
   const base::StringPiece template_html(
-      ResourceBundle::GetSharedInstance().GetRawDataResource(
+      ui::ResourceBundle::GetSharedInstance().GetRawDataResource(
           IDR_BLOCKED_PLUGIN_HTML));
 
   base::DictionaryValue values;
@@ -121,7 +121,7 @@ CefPluginPlaceholder* CefPluginPlaceholder::CreateBlockedPlugin(
   }
 
   const base::StringPiece template_html(
-      ResourceBundle::GetSharedInstance().GetRawDataResource(template_id));
+      ui::ResourceBundle::GetSharedInstance().GetRawDataResource(template_id));
 
   DCHECK(!template_html.empty())
       << "unable to load template. ID: " << template_id;

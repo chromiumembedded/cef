@@ -27,7 +27,6 @@ class CefRenderThreadObserver : public content::RenderThreadObserver {
 
   // RenderThreadObserver implementation.
   bool OnControlMessageReceived(const IPC::Message& message) override;
-  void OnRenderProcessShutdown() override;
 
   visitedlink::VisitedLinkSlave* visited_link_slave() {
     return visited_link_slave_.get();

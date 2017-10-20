@@ -4,10 +4,6 @@
 
 #include "libcef/browser/native/browser_platform_delegate_native_linux.h"
 
-// Include this first to avoid type conflict errors.
-#include "base/tracked_objects.h"
-#undef Status
-
 #include <sys/sysinfo.h>
 
 #include "libcef/browser/browser_host_impl.h"

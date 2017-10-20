@@ -16,6 +16,7 @@
 #include "base/memory/weak_ptr.h"
 #include "build/build_config.h"
 #include "components/viz/common/frame_sinks/begin_frame_source.h"
+#include "components/viz/common/surfaces/local_surface_id_allocator.h"
 #include "content/browser/renderer_host/compositor_resize_lock.h"
 #include "content/browser/renderer_host/delegated_frame_host.h"
 #include "content/browser/renderer_host/render_widget_host_view_base.h"
@@ -132,7 +133,7 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
       viz::mojom::CompositorFrameSinkClient* renderer_compositor_frame_sink)
       override;
   void SubmitCompositorFrame(const viz::LocalSurfaceId& local_surface_id,
-                             cc::CompositorFrame frame) override;
+                             viz::CompositorFrame frame) override;
   void ClearCompositorFrame() override;
   void InitAsPopup(content::RenderWidgetHostView* parent_host_view,
                    const gfx::Rect& pos) override;
@@ -196,7 +197,7 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
       gfx::Point* transformed_point) override;
 
   // ui::CompositorDelegate implementation.
-  std::unique_ptr<cc::SoftwareOutputDevice> CreateSoftwareOutputDevice(
+  std::unique_ptr<viz::SoftwareOutputDevice> CreateSoftwareOutputDevice(
       ui::Compositor* compositor) override;
 
 #if !defined(OS_MACOSX)
@@ -208,6 +209,7 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
   bool DelegatedFrameCanCreateResizeLock() const override;
   std::unique_ptr<content::CompositorResizeLock>
   DelegatedFrameHostCreateResizeLock() override;
+  viz::LocalSurfaceId GetLocalSurfaceId() const override;
   void OnBeginFrame() override;
   bool IsAutoResizeEnabled() const override;
 
@@ -267,6 +269,8 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
   }
   ui::Layer* GetRootLayer() const;
 
+  viz::LocalSurfaceId local_surface_id() const { return local_surface_id_; }
+
  private:
   content::DelegatedFrameHost* GetDelegatedFrameHost() const;
 
@@ -325,6 +329,9 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
   std::unique_ptr<content::DelegatedFrameHost> delegated_frame_host_;
   std::unique_ptr<ui::Layer> root_layer_;
 #endif
+
+  viz::LocalSurfaceId local_surface_id_;
+  viz::LocalSurfaceIdAllocator local_surface_id_allocator_;
 
 #if defined(OS_WIN)
   std::unique_ptr<gfx::WindowImpl> window_;

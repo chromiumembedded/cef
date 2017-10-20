@@ -424,6 +424,11 @@ content::PermissionManager* CefBrowserContextImpl::GetPermissionManager() {
   return permission_manager_.get();
 }
 
+content::BackgroundFetchDelegate*
+CefBrowserContextImpl::GetBackgroundFetchDelegate() {
+  return nullptr;
+}
+
 content::BackgroundSyncController*
 CefBrowserContextImpl::GetBackgroundSyncController() {
   return nullptr;

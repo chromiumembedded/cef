@@ -18,9 +18,9 @@
 #include "base/command_line.h"
 #include "base/memory/ptr_util.h"
 #include "cc/base/switches.h"
+#include "components/viz/common/frame_sinks/copy_output_request.h"
 #include "components/viz/common/frame_sinks/delay_based_time_source.h"
 #include "components/viz/common/gl_helper.h"
-#include "components/viz/common/quads/copy_output_request.h"
 #include "content/browser/bad_message.h"
 #include "content/browser/compositor/image_transport_factory.h"
 #include "content/browser/frame_host/render_widget_host_view_guest.h"
@@ -131,9 +131,11 @@ class CefCopyFrameGenerator {
     // DelegatedFrameHost::CopyFromCompositingSurface but we reuse the same
     // SkBitmap in the GPU codepath and avoid scaling where possible.
     std::unique_ptr<viz::CopyOutputRequest> request =
-        viz::CopyOutputRequest::CreateRequest(base::Bind(
-            &CefCopyFrameGenerator::CopyFromCompositingSurfaceHasResult,
-            weak_ptr_factory_.GetWeakPtr(), damage_rect));
+        std::make_unique<viz::CopyOutputRequest>(
+            viz::CopyOutputRequest::ResultFormat::RGBA_BITMAP,
+            base::Bind(
+                &CefCopyFrameGenerator::CopyFromCompositingSurfaceHasResult,
+                weak_ptr_factory_.GetWeakPtr(), damage_rect));
 
     request->set_area(gfx::Rect(view_->GetPhysicalBackingSize()));
     view_->GetRootLayer()->RequestCopyOfOutput(std::move(request));
@@ -148,19 +150,19 @@ class CefCopyFrameGenerator {
       return;
     }
 
-    if (result->HasTexture()) {
+    if (result->format() == viz::CopyOutputResult::Format::RGBA_TEXTURE) {
       PrepareTextureCopyOutputResult(damage_rect, std::move(result));
       return;
     }
 
-    DCHECK(result->HasBitmap());
+    DCHECK_EQ(viz::CopyOutputResult::Format::RGBA_BITMAP, result->format());
     PrepareBitmapCopyOutputResult(damage_rect, std::move(result));
   }
 
   void PrepareTextureCopyOutputResult(
       const gfx::Rect& damage_rect,
       std::unique_ptr<viz::CopyOutputResult> result) {
-    DCHECK(result->HasTexture());
+    DCHECK_EQ(result->format(), viz::CopyOutputResult::Format::RGBA_TEXTURE);
     base::ScopedClosureRunner scoped_callback_runner(
         base::Bind(&CefCopyFrameGenerator::OnCopyFrameCaptureFailure,
                    weak_ptr_factory_.GetWeakPtr(), damage_rect));
@@ -189,8 +191,10 @@ class CefCopyFrameGenerator {
 
     viz::TextureMailbox texture_mailbox;
     std::unique_ptr<viz::SingleReleaseCallback> release_callback;
-    result->TakeTexture(&texture_mailbox, &release_callback);
-    DCHECK(texture_mailbox.IsTexture());
+    if (auto* mailbox = result->GetTextureMailbox()) {
+      texture_mailbox = *mailbox;
+      release_callback = result->TakeTextureOwnership();
+    }
     if (!texture_mailbox.IsTexture())
       return;
 
@@ -198,7 +202,7 @@ class CefCopyFrameGenerator {
 
     gl_helper->CropScaleReadbackAndCleanMailbox(
         texture_mailbox.mailbox(), texture_mailbox.sync_token(), result_size,
-        gfx::Rect(result_size), result_size, pixels, kN32_SkColorType,
+        result_size, pixels, kN32_SkColorType,
         base::Bind(
             &CefCopyFrameGenerator::CopyFromCompositingSurfaceFinishedProxy,
             weak_ptr_factory_.GetWeakPtr(), base::Passed(&release_callback),
@@ -248,10 +252,14 @@ class CefCopyFrameGenerator {
   void PrepareBitmapCopyOutputResult(
       const gfx::Rect& damage_rect,
       std::unique_ptr<viz::CopyOutputResult> result) {
-    DCHECK(result->HasBitmap());
-    std::unique_ptr<SkBitmap> source = result->TakeBitmap();
+    DCHECK(!result->IsEmpty());
+    DCHECK_EQ(result->format(), viz::CopyOutputResult::Format::RGBA_BITMAP);
+    std::unique_ptr<SkBitmap> source =
+        std::make_unique<SkBitmap>(result->AsSkBitmap());
     DCHECK(source);
+
     if (source) {
+      DCHECK(source->readyToDraw());
       OnCopyFrameCaptureSuccess(damage_rect, *source);
     } else {
       OnCopyFrameCaptureFailure(damage_rect);
@@ -376,9 +384,12 @@ CefRenderWidgetHostViewOSR::CefRenderWidgetHostViewOSR(
         content::RenderViewHost::From(render_widget_host_));
   }
 
+  local_surface_id_ = local_surface_id_allocator_.GenerateId();
+
 #if !defined(OS_MACOSX)
   delegated_frame_host_ = base::MakeUnique<content::DelegatedFrameHost>(
-      AllocateFrameSinkId(is_guest_view_hack), this);
+      AllocateFrameSinkId(is_guest_view_hack), this,
+      false /* enable_surface_synchronization */);
 
   root_layer_.reset(new ui::Layer(ui::LAYER_SOLID_COLOR));
 #endif
@@ -583,7 +594,7 @@ void CefRenderWidgetHostViewOSR::DidCreateNewRendererCompositorFrameSink(
 
 void CefRenderWidgetHostViewOSR::SubmitCompositorFrame(
     const viz::LocalSurfaceId& local_surface_id,
-    cc::CompositorFrame frame) {
+    viz::CompositorFrame frame) {
   TRACE_EVENT0("libcef", "CefRenderWidgetHostViewOSR::OnSwapCompositorFrame");
 
   if (frame.metadata.root_scroll_offset != last_scroll_offset_) {
@@ -622,7 +633,7 @@ void CefRenderWidgetHostViewOSR::SubmitCompositorFrame(
 
       // Determine the damage rectangle for the current frame. This is the same
       // calculation that SwapDelegatedFrame uses.
-      cc::RenderPass* root_pass = frame.render_pass_list.back().get();
+      viz::RenderPass* root_pass = frame.render_pass_list.back().get();
       gfx::Size frame_size = root_pass->output_rect.size();
       gfx::Rect damage_rect =
           gfx::ToEnclosingRect(gfx::RectF(root_pass->damage_rect));
@@ -1000,7 +1011,7 @@ bool CefRenderWidgetHostViewOSR::TransformPointToCoordSpaceForView(
       point, target_view, transformed_point);
 }
 
-std::unique_ptr<cc::SoftwareOutputDevice>
+std::unique_ptr<viz::SoftwareOutputDevice>
 CefRenderWidgetHostViewOSR::CreateSoftwareOutputDevice(
     ui::Compositor* compositor) {
   DCHECK_EQ(GetCompositor(), compositor);
@@ -1052,6 +1063,10 @@ CefRenderWidgetHostViewOSR::DelegatedFrameHostCreateResizeLock() {
   return base::MakeUnique<content::CompositorResizeLock>(this, desired_size);
 }
 
+viz::LocalSurfaceId CefRenderWidgetHostViewOSR::GetLocalSurfaceId() const {
+  return local_surface_id_;
+}
+
 void CefRenderWidgetHostViewOSR::OnBeginFrame() {
   // TODO(cef): Maybe we can use this method in combination with
   // OnSetNeedsBeginFrames() instead of using CefBeginFrameTimer.
@@ -1076,11 +1091,11 @@ void CefRenderWidgetHostViewOSR::CompositorResizeLockEnded() {
 
 bool CefRenderWidgetHostViewOSR::InstallTransparency() {
   if (background_color() == SK_ColorTRANSPARENT) {
-    SetBackgroundColor(SkColor());
+    SetBackgroundColor(background_color());
 #if defined(OS_MACOSX)
-    browser_compositor_->SetHasTransparentBackground(true);
+    browser_compositor_->SetBackgroundColor(background_color());
 #else
-    compositor_->SetHostHasTransparentBackground(true);
+    compositor_->SetBackgroundColor(background_color());
 #endif
     return true;
   }
@@ -1464,6 +1479,8 @@ void CefRenderWidgetHostViewOSR::ResizeRootLayer() {
 
   const gfx::Size& size_in_pixels =
       gfx::ConvertSizeToPixel(current_device_scale_factor_, size);
+
+  local_surface_id_ = local_surface_id_allocator_.GenerateId();
 
   GetRootLayer()->SetBounds(gfx::Rect(size));
   GetCompositor()->SetScaleAndSize(current_device_scale_factor_,

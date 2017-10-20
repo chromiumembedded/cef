@@ -30,6 +30,11 @@ content::mojom::NetworkContext* CefStoragePartitionProxy::GetNetworkContext() {
   return parent_->GetNetworkContext();
 }
 
+content::mojom::URLLoaderFactory*
+CefStoragePartitionProxy::GetURLLoaderFactoryForBrowserProcess() {
+  return parent_->GetURLLoaderFactoryForBrowserProcess();
+}
+
 storage::QuotaManager* CefStoragePartitionProxy::GetQuotaManager() {
   return parent_->GetQuotaManager();
 }
@@ -175,8 +180,8 @@ content::BrowserContext* CefStoragePartitionProxy::browser_context() const {
   return parent_->browser_context();
 }
 
-void CefStoragePartitionProxy::Bind(
+mojo::BindingId CefStoragePartitionProxy::Bind(
     int process_id,
     mojo::InterfaceRequest<content::mojom::StoragePartitionService> request) {
-  parent_->Bind(process_id, std::move(request));
+  return parent_->Bind(process_id, std::move(request));
 }

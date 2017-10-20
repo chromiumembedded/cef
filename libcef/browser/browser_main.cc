@@ -60,50 +60,6 @@
 #include "libcef/browser/printing/print_dialog_linux.h"
 #endif
 
-namespace {
-
-// In-memory store for access tokens used by geolocation.
-class CefAccessTokenStore : public device::AccessTokenStore {
- public:
-  // |system_context| is used by NetworkLocationProvider to communicate with a
-  // remote geolocation service.
-  explicit CefAccessTokenStore(net::URLRequestContextGetter* system_context)
-      : system_context_(system_context) {}
-
-  void LoadAccessTokens(const LoadAccessTokensCallback& callback) override {
-    callback.Run(access_token_map_, system_context_);
-  }
-
-  void SaveAccessToken(const GURL& server_url,
-                       const base::string16& access_token) override {
-    access_token_map_[server_url] = access_token;
-  }
-
- private:
-  net::URLRequestContextGetter* system_context_;
-  AccessTokenMap access_token_map_;
-
-  DISALLOW_COPY_AND_ASSIGN(CefAccessTokenStore);
-};
-
-// A provider of services for geolocation.
-class CefGeolocationDelegate : public device::GeolocationDelegate {
- public:
-  explicit CefGeolocationDelegate(net::URLRequestContextGetter* system_context)
-      : system_context_(system_context) {}
-
-  scoped_refptr<device::AccessTokenStore> CreateAccessTokenStore() override {
-    return new CefAccessTokenStore(system_context_);
-  }
-
- private:
-  net::URLRequestContextGetter* system_context_;
-
-  DISALLOW_COPY_AND_ASSIGN(CefGeolocationDelegate);
-};
-
-}  // namespace
-
 CefBrowserMainParts::CefBrowserMainParts(
     const content::MainFunctionParams& parameters)
     : BrowserMainParts(), devtools_delegate_(NULL) {}
@@ -198,10 +154,6 @@ void CefBrowserMainParts::PreMainMessageLoopRun() {
 
   // Triggers initialization of the singleton instance on UI thread.
   PluginFinder::GetInstance()->Init();
-
-  device::GeolocationProvider::SetGeolocationDelegate(
-      new CefGeolocationDelegate(
-          browser_context->request_context_getter().get()));
 
   scheme::RegisterWebUIControllerFactory();
 }

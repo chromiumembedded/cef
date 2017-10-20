@@ -18,9 +18,9 @@
 #include "content/public/renderer/render_thread.h"
 #include "extensions/common/constants.h"
 #include "extensions/common/switches.h"
+#include "extensions/renderer/api/automation/automation_api_helper.h"
 #include "extensions/renderer/dispatcher.h"
 #include "extensions/renderer/extension_frame_helper.h"
-#include "extensions/renderer/extension_helper.h"
 #include "extensions/renderer/extensions_render_frame_observer.h"
 #include "extensions/renderer/guest_view/extensions_guest_view_container.h"
 #include "extensions/renderer/guest_view/extensions_guest_view_container_dispatcher.h"
@@ -130,10 +130,8 @@ void CefExtensionsRendererClient::OnExtensionUnloaded(
 void CefExtensionsRendererClient::RenderThreadStarted() {
   content::RenderThread* thread = content::RenderThread::Get();
 
-  extension_dispatcher_delegate_.reset(
-      new extensions::CefExtensionsDispatcherDelegate());
-  extension_dispatcher_.reset(
-      new extensions::Dispatcher(extension_dispatcher_delegate_.get()));
+  extension_dispatcher_.reset(new extensions::Dispatcher(
+      std::make_unique<extensions::CefExtensionsDispatcherDelegate>()));
   resource_request_policy_.reset(
       new extensions::ResourceRequestPolicy(extension_dispatcher_.get()));
   guest_view_container_dispatcher_.reset(
@@ -154,7 +152,8 @@ void CefExtensionsRendererClient::RenderFrameCreated(
 
 void CefExtensionsRendererClient::RenderViewCreated(
     content::RenderView* render_view) {
-  new extensions::ExtensionHelper(render_view, extension_dispatcher_.get());
+  // Manages its own lifetime.
+  new extensions::AutomationApiHelper(render_view);
 }
 
 bool CefExtensionsRendererClient::OverrideCreatePlugin(

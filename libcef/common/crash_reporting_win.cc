@@ -15,6 +15,9 @@ namespace crash_reporting_win {
 
 namespace {
 
+const base::FilePath::CharType kChromeElfDllName[] =
+    FILE_PATH_LITERAL("chrome_elf.dll");
+
 // exported in crash_reporter_client.cc:
 //    size_t __declspec(dllexport) __cdecl GetCrashKeyCountImpl.
 typedef size_t(__cdecl* GetCrashKeyCount)();
@@ -25,7 +28,7 @@ typedef bool(__cdecl* GetCrashKey)(size_t, const char**, size_t*);
 
 size_t GetCrashKeyCountTrampoline() {
   static GetCrashKeyCount get_crash_key_count = []() {
-    HMODULE elf_module = GetModuleHandle(chrome::kChromeElfDllName);
+    HMODULE elf_module = GetModuleHandle(kChromeElfDllName);
     return reinterpret_cast<GetCrashKeyCount>(
         elf_module ? GetProcAddress(elf_module, "GetCrashKeyCountImpl")
                    : nullptr);
@@ -40,7 +43,7 @@ bool GetCrashKeyTrampoline(size_t index,
                            const char** key_name,
                            size_t* max_length) {
   static GetCrashKey get_crash_key = []() {
-    HMODULE elf_module = GetModuleHandle(chrome::kChromeElfDllName);
+    HMODULE elf_module = GetModuleHandle(kChromeElfDllName);
     return reinterpret_cast<GetCrashKey>(
         elf_module ? GetProcAddress(elf_module, "GetCrashKeyImpl") : nullptr);
   }();
@@ -63,7 +66,7 @@ typedef void(__cdecl* ClearCrashKeyValue)(const wchar_t*);
 void SetCrashKeyValueTrampoline(const base::StringPiece& key,
                                 const base::StringPiece& value) {
   static SetCrashKeyValue set_crash_key = []() {
-    HMODULE elf_module = GetModuleHandle(chrome::kChromeElfDllName);
+    HMODULE elf_module = GetModuleHandle(kChromeElfDllName);
     return reinterpret_cast<SetCrashKeyValue>(
         elf_module ? GetProcAddress(elf_module, "SetCrashKeyValueImpl")
                    : nullptr);
@@ -76,7 +79,7 @@ void SetCrashKeyValueTrampoline(const base::StringPiece& key,
 
 void ClearCrashKeyValueTrampoline(const base::StringPiece& key) {
   static ClearCrashKeyValue clear_crash_key = []() {
-    HMODULE elf_module = GetModuleHandle(chrome::kChromeElfDllName);
+    HMODULE elf_module = GetModuleHandle(kChromeElfDllName);
     return reinterpret_cast<ClearCrashKeyValue>(
         elf_module ? GetProcAddress(elf_module, "ClearCrashKeyValueImpl")
                    : nullptr);

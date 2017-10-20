@@ -107,12 +107,6 @@ chrome_browser_net::Predictor* ChromeProfileStub::GetNetworkPredictor() {
   return NULL;
 }
 
-DevToolsNetworkControllerHandle*
-ChromeProfileStub::GetDevToolsNetworkControllerHandle() {
-  NOTREACHED();
-  return NULL;
-}
-
 void ChromeProfileStub::ClearNetworkingHistorySince(
     base::Time time,
     const base::Closure& completion) {

@@ -156,6 +156,11 @@ content::PermissionManager* CefBrowserContextProxy::GetPermissionManager() {
   return parent_->GetPermissionManager();
 }
 
+content::BackgroundFetchDelegate*
+CefBrowserContextProxy::GetBackgroundFetchDelegate() {
+  return parent_->GetBackgroundFetchDelegate();
+}
+
 content::BackgroundSyncController*
 CefBrowserContextProxy::GetBackgroundSyncController() {
   return parent_->GetBackgroundSyncController();

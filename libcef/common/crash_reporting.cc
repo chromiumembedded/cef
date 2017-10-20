@@ -28,6 +28,7 @@
 
 #if defined(OS_POSIX) && !defined(OS_MACOSX)
 #include "components/crash/content/app/breakpad_linux.h"
+#include "v8/include/v8.h"
 #endif
 
 #if defined(OS_WIN)
@@ -136,6 +137,8 @@ void BasicStartupComplete(base::CommandLine* command_line) {
 #if !defined(OS_MACOSX)
     // Breakpad requires this switch.
     command_line->AppendSwitch(switches::kEnableCrashReporter);
+
+    breakpad::SetFirstChanceExceptionHandler(v8::V8::TryHandleSignal);
 #endif
   }
 }

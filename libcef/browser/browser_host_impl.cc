@@ -49,7 +49,6 @@
 #include "chrome/browser/ui/prefs/prefs_tab_helper.h"
 #include "components/zoom/zoom_controller.h"
 #include "content/browser/gpu/compositor_util.h"
-#include "content/browser/renderer_host/render_view_host_impl.h"
 #include "content/browser/web_contents/web_contents_impl.h"
 #include "content/common/view_messages.h"
 #include "content/public/browser/desktop_media_id.h"
@@ -1793,7 +1792,7 @@ void CefBrowserHostImpl::ExecuteJavaScriptWithUserGestureForTests(
     rfh = web_contents()->GetMainFrame();
   } else {
     rfh = content::RenderFrameHost::FromID(
-        web_contents()->GetRenderProcessHost()->GetID(), frame_id);
+        web_contents()->GetRenderViewHost()->GetProcess()->GetID(), frame_id);
   }
 
   if (rfh)
@@ -2616,12 +2615,8 @@ void CefBrowserHostImpl::RenderFrameDeleted(
 
 void CefBrowserHostImpl::RenderViewCreated(
     content::RenderViewHost* render_view_host) {
-  // The swapped out state of a RVH is determined by its main frame since
-  // subframes should have their own widgets. We should never recieve creation
-  // notifications for a RVH where the main frame is swapped out.
-  content::RenderViewHostImpl* render_view_host_impl =
-      static_cast<content::RenderViewHostImpl*>(render_view_host);
-  DCHECK(!render_view_host_impl->is_swapped_out());
+  // As of https://crrev.com/27caae83 this notification will be sent for RVHs
+  // created for provisional main frame navigations.
 
   const int render_process_id = render_view_host->GetProcess()->GetID();
   const int render_routing_id = render_view_host->GetRoutingID();
@@ -2641,15 +2636,6 @@ void CefBrowserHostImpl::RenderViewCreated(
 
 void CefBrowserHostImpl::RenderViewDeleted(
     content::RenderViewHost* render_view_host) {
-  // The swapped out state of a RVH is determined by its main frame since
-  // subframes should have their own widgets. Ignore deletion notification for
-  // a RVH where the main frame host is swapped out. We probably shouldn't be
-  // getting these notifications to begin with.
-  content::RenderViewHostImpl* render_view_host_impl =
-      static_cast<content::RenderViewHostImpl*>(render_view_host);
-  if (render_view_host_impl->is_swapped_out())
-    return;
-
   const int render_process_id = render_view_host->GetProcess()->GetID();
   const int render_routing_id = render_view_host->GetRoutingID();
   browser_info_->render_id_manager()->remove_render_view_id(render_process_id,
@@ -2788,8 +2774,7 @@ void CefBrowserHostImpl::FrameDeleted(
     focused_frame_id_ = CefFrameHostImpl::kInvalidFrameId;
 }
 
-void CefBrowserHostImpl::TitleWasSet(content::NavigationEntry* entry,
-                                     bool explicit_set) {
+void CefBrowserHostImpl::TitleWasSet(content::NavigationEntry* entry) {
   // |entry| may be NULL if a popup is created via window.open and never
   // navigated.
   if (entry)
@@ -2892,8 +2877,11 @@ bool CefBrowserHostImpl::Send(IPC::Message* message) {
     if (queue_messages_) {
       queued_messages_.push(message);
       return true;
+    } else if (web_contents() && web_contents()->GetRenderViewHost()) {
+      return web_contents()->GetRenderViewHost()->Send(message);
     } else {
-      return content::WebContentsObserver::Send(message);
+      delete message;
+      return false;
     }
   } else {
     CEF_POST_TASK(
@@ -2901,6 +2889,14 @@ bool CefBrowserHostImpl::Send(IPC::Message* message) {
                             message));
     return true;
   }
+}
+
+int CefBrowserHostImpl::routing_id() const {
+  CEF_REQUIRE_UIT();
+  if (!web_contents())
+    return MSG_ROUTING_NONE;
+
+  return web_contents()->GetRenderViewHost()->GetRoutingID();
 }
 
 void CefBrowserHostImpl::AddObserver(Observer* observer) {

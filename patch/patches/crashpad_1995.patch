@@ -31,7 +31,7 @@ index 4d385dd5512b..1b51f2d17491 100644
      cflags = [ "/wd4201" ]
    }
 diff --git chrome/common/crash_keys.cc chrome/common/crash_keys.cc
-index 1b3349852829..c1425f39e28d 100644
+index ff516e246948..47e474c1840d 100644
 --- chrome/common/crash_keys.cc
 +++ chrome/common/crash_keys.cc
 @@ -4,6 +4,8 @@
@@ -52,7 +52,7 @@ index 1b3349852829..c1425f39e28d 100644
    // The following keys may be chunked by the underlying crash logging system,
    // but ultimately constitute a single key-value pair.
    //
-@@ -212,10 +214,16 @@ size_t RegisterChromeCrashKeys() {
+@@ -223,10 +225,16 @@ size_t RegisterChromeCrashKeys() {
  
    // This dynamic set of keys is used for sets of key value pairs when gathering
    // a collection of data, like command line switches or extension IDs.
@@ -71,7 +71,7 @@ index 1b3349852829..c1425f39e28d 100644
  
    // Register the extension IDs.
    {
-@@ -249,7 +257,7 @@ size_t RegisterChromeCrashKeys() {
+@@ -260,7 +268,7 @@ size_t RegisterChromeCrashKeys() {
    return base::debug::InitCrashKeys(&keys.at(0), keys.size(), kChunkMaxLength);
  }
  
@@ -80,7 +80,7 @@ index 1b3349852829..c1425f39e28d 100644
    static const char* const kIgnoreSwitches[] = {
      switches::kEnableLogging,
      switches::kFlagSwitchesBegin,
-@@ -305,7 +313,7 @@ static bool IsBoringSwitch(const std::string& flag) {
+@@ -316,7 +324,7 @@ static bool IsBoringSwitch(const std::string& flag) {
  }
  
  void SetCrashKeysFromCommandLine(const base::CommandLine& command_line) {
@@ -113,7 +113,7 @@ index 687146e9e92c..b1b73d6e36b2 100644
  // on the given |command_line|.
  void SetCrashKeysFromCommandLine(const base::CommandLine& command_line);
 diff --git chrome_elf/BUILD.gn chrome_elf/BUILD.gn
-index f8ac4823fa05..83386f77dd69 100644
+index 1276a06ac02a..f5198bc4be48 100644
 --- chrome_elf/BUILD.gn
 +++ chrome_elf/BUILD.gn
 @@ -7,6 +7,7 @@
@@ -124,7 +124,7 @@ index f8ac4823fa05..83386f77dd69 100644
  import("//chrome/process_version_rc_template.gni")
  import("//testing/test.gni")
  
-@@ -158,9 +159,6 @@ static_library("blacklist") {
+@@ -166,9 +167,6 @@ static_library("blacklist") {
  
  static_library("crash") {
    sources = [
@@ -134,7 +134,7 @@ index f8ac4823fa05..83386f77dd69 100644
      "crash/crash_helper.cc",
      "crash/crash_helper.h",
    ]
-@@ -168,6 +166,7 @@ static_library("crash") {
+@@ -176,6 +174,7 @@ static_library("crash") {
      ":hook_util",
      "//base",  # This needs to go.  DEP of app, crash_keys, client.
      "//base:base_static",  # pe_image
@@ -142,7 +142,7 @@ index f8ac4823fa05..83386f77dd69 100644
      "//chrome/install_static:install_static_util",
      "//components/crash/content/app",
      "//components/crash/core/common",  # crash_keys
-@@ -176,6 +175,17 @@ static_library("crash") {
+@@ -184,6 +183,17 @@ static_library("crash") {
      "//gpu/config:crash_keys",
      "//third_party/crashpad/crashpad/client",  # DumpWithoutCrash
    ]
@@ -161,7 +161,7 @@ index f8ac4823fa05..83386f77dd69 100644
  
  static_library("hook_util") {
 diff --git chrome_elf/crash/crash_helper.cc chrome_elf/crash/crash_helper.cc
-index e1bede4790c0..e21761ecaf52 100644
+index e8e27dc4ebd7..7cb2149ec41d 100644
 --- chrome_elf/crash/crash_helper.cc
 +++ chrome_elf/crash/crash_helper.cc
 @@ -11,12 +11,17 @@
@@ -195,7 +195,7 @@ index e1bede4790c0..e21761ecaf52 100644
    g_crash_helper_enabled = true;
    return true;
 diff --git components/crash/content/app/breakpad_linux.cc components/crash/content/app/breakpad_linux.cc
-index 2199920ee793..e6e8f58a0be0 100644
+index 526c410915f3..347385906357 100644
 --- components/crash/content/app/breakpad_linux.cc
 +++ components/crash/content/app/breakpad_linux.cc
 @@ -29,6 +29,7 @@
@@ -254,7 +254,7 @@ index 2199920ee793..e6e8f58a0be0 100644
      if (info.pid > 0) {
        char pid_value_buf[kUint64StringSize];
        uint64_t pid_value_len = my_uint64_len(info.pid);
-@@ -2011,6 +2022,17 @@ void InitCrashReporter(const std::string& process_type) {
+@@ -2013,6 +2024,17 @@ void InitCrashReporter(const std::string& process_type) {
    PostEnableBreakpadInitialization();
  }
  
@@ -356,7 +356,7 @@ index 2e9ee28e1b00..de53f5927143 100644
 -
  }  // namespace crash_reporter
 diff --git components/crash/content/app/crash_reporter_client.h components/crash/content/app/crash_reporter_client.h
-index 9f69c193dda2..2abaee004c47 100644
+index 46ba162cd35a..19afc3c6215f 100644
 --- components/crash/content/app/crash_reporter_client.h
 +++ components/crash/content/app/crash_reporter_client.h
 @@ -8,6 +8,7 @@
@@ -415,7 +415,7 @@ index 9f69c193dda2..2abaee004c47 100644
  
  }  // namespace crash_reporter
 diff --git components/crash/content/app/crashpad.cc components/crash/content/app/crashpad.cc
-index aface8de549a..df37644bd872 100644
+index af31c1a40d4f..0452cfb5dc39 100644
 --- components/crash/content/app/crashpad.cc
 +++ components/crash/content/app/crashpad.cc
 @@ -135,7 +135,8 @@ void InitializeCrashpadImpl(bool initial_client,
@@ -530,7 +530,7 @@ index 485c2b4b3e98..3b5f3eaa3926 100644
            handler_path, database_path, metrics_path, url, process_annotations,
            arguments, true, false);
 diff --git components/crash/content/app/crashpad_win.cc components/crash/content/app/crashpad_win.cc
-index bb5c09732c20..da3628cf8eb1 100644
+index 3a33c9bb8e92..961d600f7452 100644
 --- components/crash/content/app/crashpad_win.cc
 +++ components/crash/content/app/crashpad_win.cc
 @@ -34,8 +34,8 @@ void GetPlatformCrashpadAnnotations(

@@ -279,7 +279,8 @@ void RegisterWidevineCdmOnUIThread(const base::FilePath& cdm_adapter_path,
       cdm_codecs, std::string(1, kCdmSupportedCodecsValueDelimiter),
       base::TRIM_WHITESPACE, base::SPLIT_WANT_NONEMPTY);
   content::CdmRegistry::GetInstance()->RegisterCdm(content::CdmInfo(
-      kWidevineCdmType, base::Version(cdm_version), cdm_path, codecs));
+      kWidevineCdmDisplayName, kWidevineCdmGuid, base::Version(cdm_version),
+      cdm_path, kWidevineCdmFileSystemId, codecs, kWidevineKeySystem, false));
 
   DeliverWidevineCdmCallback(CEF_CDM_REGISTRATION_ERROR_NONE, std::string(),
                              callback);

@@ -25,6 +25,8 @@ class CefStoragePartitionProxy : public content::StoragePartition {
   net::URLRequestContextGetter* GetURLRequestContext() override;
   net::URLRequestContextGetter* GetMediaURLRequestContext() override;
   content::mojom::NetworkContext* GetNetworkContext() override;
+  content::mojom::URLLoaderFactory* GetURLLoaderFactoryForBrowserProcess()
+      override;
   storage::QuotaManager* GetQuotaManager() override;
   content::AppCacheService* GetAppCacheService() override;
   storage::FileSystemContext* GetFileSystemContext() override;
@@ -73,9 +75,10 @@ class CefStoragePartitionProxy : public content::StoragePartition {
   void ClearBluetoothAllowedDevicesMapForTesting() override;
   content::URLLoaderFactoryGetter* url_loader_factory_getter() override;
   content::BrowserContext* browser_context() const override;
-  void Bind(int process_id,
-            mojo::InterfaceRequest<content::mojom::StoragePartitionService>
-                request) override;
+  mojo::BindingId Bind(
+      int process_id,
+      mojo::InterfaceRequest<content::mojom::StoragePartitionService> request)
+      override;
 
   content::StoragePartition* parent() const { return parent_; }
 

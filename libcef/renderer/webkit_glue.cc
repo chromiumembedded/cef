@@ -163,7 +163,7 @@ v8::MaybeLocal<v8::Value> ExecuteV8ScriptAndReturnValue(
                            : blink::KURL(blink::kParsedURLString, source_url);
 
   const blink::ScriptSourceCode ssc = blink::ScriptSourceCode(
-      source, kurl,
+      source, kurl, blink::WebString() /* nonce */, blink::kNotParserInserted,
       WTF::TextPosition(WTF::OrdinalNumber::FromOneBasedInt(start_line),
                         WTF::OrdinalNumber::FromZeroBasedInt(0)));
 

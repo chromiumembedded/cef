@@ -1,8 +1,8 @@
 diff --git chrome/browser/feedback/system_logs/log_sources/chrome_internal_log_source.cc chrome/browser/feedback/system_logs/log_sources/chrome_internal_log_source.cc
-index 0442d4d191a5..9b2d2e572f1f 100644
+index 6b81e1e0f6c5..7509c2b18b47 100644
 --- chrome/browser/feedback/system_logs/log_sources/chrome_internal_log_source.cc
 +++ chrome/browser/feedback/system_logs/log_sources/chrome_internal_log_source.cc
-@@ -163,6 +163,10 @@ void ChromeInternalLogSource::Fetch(const SysLogsSourceCallback& callback) {
+@@ -164,6 +164,10 @@ void ChromeInternalLogSource::Fetch(const SysLogsSourceCallback& callback) {
  }
  
  void ChromeInternalLogSource::PopulateSyncLogs(SystemLogsResponse* response) {
@@ -14,7 +14,7 @@ index 0442d4d191a5..9b2d2e572f1f 100644
    Profile* profile = ProfileManager::GetPrimaryUserProfile();
    if (!profile ||
 diff --git chrome/browser/ui/webui/net_internals/net_internals_ui.cc chrome/browser/ui/webui/net_internals/net_internals_ui.cc
-index 1c3b918736f5..a408d04f550a 100644
+index 442ee5b2a91f..23c3feb4dea3 100644
 --- chrome/browser/ui/webui/net_internals/net_internals_ui.cc
 +++ chrome/browser/ui/webui/net_internals/net_internals_ui.cc
 @@ -515,41 +515,31 @@ void NetInternalsMessageHandler::OnClearBrowserCache(
@@ -124,10 +124,10 @@ index 903cc543a242..5bd30ae82974 100644
  CONTENT_EXPORT void InitializeResourceContext(BrowserContext* browser_context);
  
 diff --git content/browser/webui/url_data_manager.cc content/browser/webui/url_data_manager.cc
-index 5681ff549fd4..7d96c24fab2f 100644
+index f45d227fe94a..32e37bd0a79e 100644
 --- content/browser/webui/url_data_manager.cc
 +++ content/browser/webui/url_data_manager.cc
-@@ -152,6 +152,11 @@ void URLDataManager::UpdateWebUIDataSource(
+@@ -150,6 +150,11 @@ void URLDataManager::UpdateWebUIDataSource(
        ->UpdateWebUIDataSource(source_name, std::move(update));
  }
  

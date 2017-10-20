@@ -718,8 +718,8 @@ void CefRequestContextImpl::GetRequestContextImplOnIOThread(
   } else {
     // Execute the callback on the target thread.
     task_runner->PostTask(
-        FROM_HERE,
-        base::Bind(callback, make_scoped_refptr(request_context_getter_impl_)));
+        FROM_HERE, base::Bind(callback, base::WrapRefCounted(
+                                            request_context_getter_impl_)));
   }
 }
 

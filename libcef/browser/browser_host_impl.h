@@ -498,7 +498,7 @@ class CefBrowserHostImpl : public CefBrowserHost,
                    int error_code,
                    const base::string16& error_description) override;
   void FrameDeleted(content::RenderFrameHost* render_frame_host) override;
-  void TitleWasSet(content::NavigationEntry* entry, bool explicit_set) override;
+  void TitleWasSet(content::NavigationEntry* entry) override;
   void PluginCrashed(const base::FilePath& plugin_path,
                      base::ProcessId plugin_pid) override;
   void DidUpdateFaviconURL(
@@ -515,8 +515,12 @@ class CefBrowserHostImpl : public CefBrowserHost,
 
   void OnWebContentsFocused(
       content::RenderWidgetHost* render_widget_host) override;
-  // Override to provide a thread safe implementation.
-  bool Send(IPC::Message* message) override;
+
+  // Send a message to the RenderViewHost associated with this browser.
+  // TODO(cef): With the introduction of OOPIFs, WebContents can span multiple
+  // processes. Messages should be sent to specific RenderFrameHosts instead.
+  bool Send(IPC::Message* message);
+  int routing_id() const;
 
   // Manage observer objects. The observer must either outlive this object or
   // remove itself before destruction. These methods can only be called on the

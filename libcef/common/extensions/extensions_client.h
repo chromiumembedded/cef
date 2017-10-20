@@ -24,6 +24,7 @@ class CefExtensionsClient : public ExtensionsClient {
 
   // ExtensionsClient overrides:
   void Initialize() override;
+  void InitializeWebStoreUrls(base::CommandLine* command_line) override;
   const PermissionMessageProvider& GetPermissionMessageProvider()
       const override;
   const std::string GetProductName() override;

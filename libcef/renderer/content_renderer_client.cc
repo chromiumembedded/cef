@@ -330,11 +330,6 @@ void CefContentRendererClient::WebKitInitialized() {
   }
 }
 
-void CefContentRendererClient::OnRenderProcessShutdown() {
-  // Destroy global objects associated with the default Isolate.
-  CefV8IsolateDestroyed();
-}
-
 void CefContentRendererClient::DevToolsAgentAttached() {
   CEF_REQUIRE_RT();
   ++devtools_agent_count_;

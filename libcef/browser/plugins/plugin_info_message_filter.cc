@@ -24,6 +24,7 @@
 #include "chrome/common/pref_names.h"
 #include "components/content_settings/core/common/content_settings_utils.h"
 #include "components/keyed_service/content/browser_context_keyed_service_shutdown_notifier_factory.h"
+#include "components/nacl/common/features.h"
 #include "content/public/browser/browser_context.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/plugin_service.h"
@@ -40,7 +41,7 @@
 
 #include "widevine_cdm_version.h"  // In SHARED_INTERMEDIATE_DIR.
 
-#if !defined(DISABLE_NACL)
+#if BUILDFLAG(ENABLE_NACL)
 #include "components/nacl/common/nacl_constants.h"
 #endif
 
@@ -88,7 +89,7 @@ bool ShouldUseJavaScriptSettingForPlugin(const WebPluginInfo& plugin) {
     return false;
   }
 
-#if !defined(DISABLE_NACL)
+#if BUILDFLAG(ENABLE_NACL)
   // Treat Native Client invocations like JavaScript.
   if (plugin.name == base::ASCIIToUTF16(nacl::kNaClPluginName))
     return true;

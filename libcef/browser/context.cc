@@ -391,8 +391,7 @@ bool CefContext::Initialize(const CefMainArgs& args,
   if (exit_code >= 0)
     return false;
 
-  static_cast<ChromeBrowserProcessStub*>(g_browser_process)
-      ->Initialize(*base::CommandLine::ForCurrentProcess());
+  static_cast<ChromeBrowserProcessStub*>(g_browser_process)->Initialize();
 
   // Run the process. Results in a call to CefMainDelegate::RunProcess() which
   // will create the browser runner and message loop without blocking.

@@ -228,7 +228,7 @@ base::FilePath GetUserDataPath() {
 }
 
 // Returns true if |scale_factor| is supported by this platform.
-// Same as ResourceBundle::IsScaleFactorSupported.
+// Same as ui::ResourceBundle::IsScaleFactorSupported.
 bool IsScaleFactorSupported(ui::ScaleFactor scale_factor) {
   const std::vector<ui::ScaleFactor>& supported_scale_factors =
       ui::GetSupportedScaleFactors();
@@ -579,7 +579,7 @@ int CefMainDelegate::RunProcess(
 }
 
 void CefMainDelegate::ProcessExiting(const std::string& process_type) {
-  ResourceBundle::CleanupSharedInstance();
+  ui::ResourceBundle::CleanupSharedInstance();
 }
 
 #if defined(OS_POSIX) && !defined(OS_ANDROID) && !defined(OS_MACOSX)
@@ -660,7 +660,7 @@ void CefMainDelegate::InitializeResourceBundle() {
   std::string locale = command_line->GetSwitchValueASCII(switches::kLang);
   DCHECK(!locale.empty());
 
-  // Avoid DCHECK() in ResourceBundle::LoadChromeResources().
+  // Avoid DCHECK() in ui::ResourceBundle::LoadChromeResources().
   ui::MaterialDesignController::Initialize();
 
   const std::string loaded_locale =
@@ -669,7 +669,7 @@ void CefMainDelegate::InitializeResourceBundle() {
   if (!loaded_locale.empty() && g_browser_process)
     g_browser_process->SetApplicationLocale(loaded_locale);
 
-  ResourceBundle& resource_bundle = ResourceBundle::GetSharedInstance();
+  ui::ResourceBundle& resource_bundle = ui::ResourceBundle::GetSharedInstance();
 
   if (!content_client_.pack_loading_disabled()) {
     if (loaded_locale.empty())

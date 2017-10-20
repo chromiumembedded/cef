@@ -108,8 +108,10 @@ void SetChromePrefs(CefBrowserContext* profile, content::WebPreferences& web) {
   web.loads_images_automatically =
       prefs->GetBoolean(prefs::kWebKitLoadsImagesAutomatically);
 
-  if (prefs->GetBoolean(prefs::kDisable3DAPIs))
-    web.experimental_webgl_enabled = false;
+  if (prefs->GetBoolean(prefs::kDisable3DAPIs)) {
+    web.webgl1_enabled = false;
+    web.webgl2_enabled = false;
+  }
 
   web.allow_running_insecure_content =
       prefs->GetBoolean(prefs::kWebKitAllowRunningInsecureContent);
@@ -251,8 +253,10 @@ void SetCefPrefs(const CefBrowserSettings& cef, content::WebPreferences& web) {
 
   // Never explicitly enable GPU-related functions in this method because the
   // GPU blacklist is not being checked here.
-  if (cef.webgl == STATE_DISABLED)
-    web.experimental_webgl_enabled = false;
+  if (cef.webgl == STATE_DISABLED) {
+    web.webgl1_enabled = false;
+    web.webgl2_enabled = false;
+  }
 }
 
 void SetString(CommandLinePrefStore* prefs,

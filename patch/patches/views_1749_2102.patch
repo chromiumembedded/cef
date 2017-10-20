@@ -39,7 +39,7 @@ index 0755f2752f1d..0322b8c638e7 100644
    virtual void MenuWillShow() {}
  
 diff --git ui/gfx/render_text.cc ui/gfx/render_text.cc
-index f8999eb9f61c..dff78c1ca921 100644
+index 43603c028e5e..a06aaf037153 100644
 --- ui/gfx/render_text.cc
 +++ ui/gfx/render_text.cc
 @@ -495,6 +495,14 @@ void RenderText::SetElideBehavior(ElideBehavior elide_behavior) {
@@ -57,7 +57,7 @@ index f8999eb9f61c..dff78c1ca921 100644
  void RenderText::SetDisplayRect(const Rect& r) {
    if (r != display_rect_) {
      display_rect_ = r;
-@@ -1395,6 +1403,19 @@ void RenderText::OnTextAttributeChanged() {
+@@ -1433,6 +1441,19 @@ void RenderText::OnTextAttributeChanged() {
    if (!multiline_ && replace_newline_chars_with_symbols_)
      base::ReplaceChars(layout_text_, kNewline, kNewlineSymbol, &layout_text_);
  
@@ -78,10 +78,10 @@ index f8999eb9f61c..dff78c1ca921 100644
  }
  
 diff --git ui/gfx/render_text.h ui/gfx/render_text.h
-index 024c73ed1ac3..29ad09f7c2f0 100644
+index fb9ab0f6cc85..17f182198b06 100644
 --- ui/gfx/render_text.h
 +++ ui/gfx/render_text.h
-@@ -276,6 +276,10 @@ class GFX_EXPORT RenderText {
+@@ -280,6 +280,10 @@ class GFX_EXPORT RenderText {
    void SetElideBehavior(ElideBehavior elide_behavior);
    ElideBehavior elide_behavior() const { return elide_behavior_; }
  
@@ -92,7 +92,7 @@ index 024c73ed1ac3..29ad09f7c2f0 100644
    const Rect& display_rect() const { return display_rect_; }
    void SetDisplayRect(const Rect& r);
  
-@@ -828,6 +832,8 @@ class GFX_EXPORT RenderText {
+@@ -833,6 +837,8 @@ class GFX_EXPORT RenderText {
    // The ratio of strike-through line thickness to text height.
    SkScalar strike_thickness_factor_;
  
@@ -211,10 +211,10 @@ index e38200b8a43a..f40b079f82ec 100644
    // The time is used for simulating menu behavior for the menu button; that
    // is, if the menu is shown and the button is pressed, we need to close the
 diff --git ui/views/controls/label.cc ui/views/controls/label.cc
-index 16aec515d729..a75ddb9802bb 100644
+index def97220e051..cbe1568cbda3 100644
 --- ui/views/controls/label.cc
 +++ ui/views/controls/label.cc
-@@ -26,6 +26,7 @@
+@@ -25,6 +25,7 @@
  #include "ui/gfx/color_utils.h"
  #include "ui/gfx/geometry/insets.h"
  #include "ui/gfx/text_elider.h"
@@ -222,7 +222,7 @@ index 16aec515d729..a75ddb9802bb 100644
  #include "ui/native_theme/native_theme.h"
  #include "ui/strings/grit/ui_strings.h"
  #include "ui/views/background.h"
-@@ -42,6 +43,20 @@ namespace {
+@@ -41,6 +42,20 @@ namespace {
  gfx::Insets NonBorderInsets(const Label& label) {
    return label.GetInsets() - label.View::GetInsets();
  }
@@ -243,7 +243,7 @@ index 16aec515d729..a75ddb9802bb 100644
  }  // namespace
  
  const char Label::kViewClassName[] = "Label";
-@@ -227,6 +242,15 @@ void Label::SetElideBehavior(gfx::ElideBehavior elide_behavior) {
+@@ -226,6 +241,15 @@ void Label::SetElideBehavior(gfx::ElideBehavior elide_behavior) {
    ResetLayout();
  }
  
@@ -259,7 +259,7 @@ index 16aec515d729..a75ddb9802bb 100644
  void Label::SetTooltipText(const base::string16& tooltip_text) {
    DCHECK(handles_tooltips_);
    tooltip_text_ = tooltip_text;
-@@ -454,7 +478,19 @@ std::unique_ptr<gfx::RenderText> Label::CreateRenderText(
+@@ -453,7 +477,19 @@ std::unique_ptr<gfx::RenderText> Label::CreateRenderText(
    render_text->SetFontList(font_list());
    render_text->set_shadows(shadows());
    render_text->SetCursorEnabled(false);
@@ -281,7 +281,7 @@ index 16aec515d729..a75ddb9802bb 100644
  }
  
 diff --git ui/views/controls/label.h ui/views/controls/label.h
-index 7cae587453c0..33d15cd4bc59 100644
+index ab6487ee6a60..0b105a658e8f 100644
 --- ui/views/controls/label.h
 +++ ui/views/controls/label.h
 @@ -151,6 +151,10 @@ class VIEWS_EXPORT Label : public View,
@@ -295,7 +295,7 @@ index 7cae587453c0..33d15cd4bc59 100644
    // Sets the tooltip text.  Default behavior for a label (single-line) is to
    // show the full text if it is wider than its bounds.  Calling this overrides
    // the default behavior and lets you set a custom tooltip.  To revert to
-@@ -371,6 +375,7 @@ class VIEWS_EXPORT Label : public View,
+@@ -372,6 +376,7 @@ class VIEWS_EXPORT Label : public View,
    bool collapse_when_hidden_;
    int fixed_width_;
    int max_width_;
@@ -304,10 +304,10 @@ index 7cae587453c0..33d15cd4bc59 100644
    // TODO(ckocagil): Remove is_first_paint_text_ before crbug.com/441028 is
    // closed.
 diff --git ui/views/controls/menu/menu_controller.cc ui/views/controls/menu/menu_controller.cc
-index 9c0a30130cdc..36f1e4db0ad0 100644
+index 2f78dfd30849..313a26e85e3b 100644
 --- ui/views/controls/menu/menu_controller.cc
 +++ ui/views/controls/menu/menu_controller.cc
-@@ -2267,8 +2267,13 @@ MenuItemView* MenuController::FindNextSelectableMenuItem(
+@@ -2262,8 +2262,13 @@ MenuItemView* MenuController::FindNextSelectableMenuItem(
  
  void MenuController::OpenSubmenuChangeSelectionIfCan() {
    MenuItemView* item = pending_state_.item;
@@ -322,7 +322,7 @@ index 9c0a30130cdc..36f1e4db0ad0 100644
    MenuItemView* to_select = NULL;
    if (item->GetSubmenu()->GetMenuItemCount() > 0)
      to_select = FindInitialSelectableMenuItem(item, INCREMENT_SELECTION_DOWN);
-@@ -2283,8 +2288,10 @@ void MenuController::OpenSubmenuChangeSelectionIfCan() {
+@@ -2278,8 +2283,10 @@ void MenuController::OpenSubmenuChangeSelectionIfCan() {
  void MenuController::CloseSubmenu() {
    MenuItemView* item = state_.item;
    DCHECK(item);
@@ -382,10 +382,10 @@ index 4dea63f9f286..ef50b710c5af 100644
    virtual int GetMaxWidthForMenu(MenuItemView* menu);
  
 diff --git ui/views/controls/menu/menu_item_view.cc ui/views/controls/menu/menu_item_view.cc
-index fcf1e9aa0b74..dd4f65849feb 100644
+index d90a8ec45fcf..0a7b0a9d2ea5 100644
 --- ui/views/controls/menu/menu_item_view.cc
 +++ ui/views/controls/menu/menu_item_view.cc
-@@ -810,7 +810,12 @@ void MenuItemView::PaintButton(gfx::Canvas* canvas, PaintButtonMode mode) {
+@@ -811,7 +811,12 @@ void MenuItemView::PaintButton(gfx::Canvas* canvas, PaintButtonMode mode) {
    // only need the background when we want it to look different, as when we're
    // selected.
    ui::NativeTheme* native_theme = GetNativeTheme();
@@ -399,7 +399,7 @@ index fcf1e9aa0b74..dd4f65849feb 100644
      gfx::Rect item_bounds(0, 0, width(), height());
      AdjustBoundsForRTLUI(&item_bounds);
  
-@@ -899,6 +904,13 @@ void MenuItemView::PaintMinorText(gfx::Canvas* canvas, SkColor color) {
+@@ -900,6 +905,13 @@ void MenuItemView::PaintMinorText(gfx::Canvas* canvas, SkColor color) {
  SkColor MenuItemView::GetTextColor(bool minor,
                                     bool render_selection,
                                     bool emphasized) const {
@@ -552,7 +552,7 @@ index 534e0c4cb41d..974d82da99cb 100644
        // Move the cursor because EnterNotify/LeaveNotify are generated with the
        // current mouse position as a result of XGrabPointer()
 diff --git ui/views/view.h ui/views/view.h
-index 33f393275cbc..67cc5d64c58d 100644
+index bfacdb72edaa..b7684349c0cc 100644
 --- ui/views/view.h
 +++ ui/views/view.h
 @@ -18,6 +18,7 @@

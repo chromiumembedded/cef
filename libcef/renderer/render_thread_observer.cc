@@ -54,11 +54,6 @@ bool CefRenderThreadObserver::OnControlMessageReceived(
   return handled;
 }
 
-void CefRenderThreadObserver::OnRenderProcessShutdown() {
-  CefContentRendererClient::Get()->OnRenderProcessShutdown();
-  visited_link_slave_.reset();
-}
-
 void CefRenderThreadObserver::OnSetIsIncognitoProcess(
     bool is_incognito_process) {
   is_incognito_process_ = is_incognito_process;

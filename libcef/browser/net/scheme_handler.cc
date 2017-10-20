@@ -11,7 +11,7 @@
 #include "libcef/common/net/scheme_registration.h"
 
 #include "base/memory/ptr_util.h"
-#include "base/threading/sequenced_worker_pool.h"
+#include "base/task_scheduler/post_task.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/common/url_constants.h"
 #include "net/net_features.h"
@@ -34,10 +34,9 @@ void InstallInternalProtectedHandlers(
   protocol_handlers->insert(std::make_pair(
       url::kFileScheme,
       linked_ptr<net::URLRequestJobFactory::ProtocolHandler>(
-          new net::FileProtocolHandler(
-              content::BrowserThread::GetBlockingPool()
-                  ->GetTaskRunnerWithShutdownBehavior(
-                      base::SequencedWorkerPool::SKIP_ON_SHUTDOWN)))));
+          new net::FileProtocolHandler(base::CreateTaskRunnerWithTraits(
+              {base::MayBlock(), base::TaskPriority::BACKGROUND,
+               base::TaskShutdownBehavior::SKIP_ON_SHUTDOWN})))));
 #if !BUILDFLAG(DISABLE_FTP_SUPPORT)
   protocol_handlers->insert(std::make_pair(
       url::kFtpScheme,

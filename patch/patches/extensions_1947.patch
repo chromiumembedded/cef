@@ -1,5 +1,5 @@
 diff --git content/browser/frame_host/render_frame_host_manager.cc content/browser/frame_host/render_frame_host_manager.cc
-index 799d2925b21a..43f9173e5db2 100644
+index 7e444585731f..2355ab4fec2b 100644
 --- content/browser/frame_host/render_frame_host_manager.cc
 +++ content/browser/frame_host/render_frame_host_manager.cc
 @@ -1072,10 +1072,11 @@ bool RenderFrameHostManager::ShouldSwapBrowsingInstancesForNavigation(
@@ -18,7 +18,7 @@ index 799d2925b21a..43f9173e5db2 100644
      return true;
    }
  
-@@ -1197,7 +1198,8 @@ RenderFrameHostManager::GetSiteInstanceForNavigation(
+@@ -1214,7 +1215,8 @@ RenderFrameHostManager::GetSiteInstanceForNavigation(
  
    // Double-check that the new SiteInstance is associated with the right
    // BrowserContext.
@@ -29,10 +29,10 @@ index 799d2925b21a..43f9173e5db2 100644
    // If |new_instance| is a new SiteInstance for a subframe with an isolated
    // origin, set its process reuse policy so that such subframes are
 diff --git content/public/browser/content_browser_client.h content/public/browser/content_browser_client.h
-index 507f728ffe5b..20c49cc25387 100644
+index 842557d5fcb7..fc254e2b7bb8 100644
 --- content/public/browser/content_browser_client.h
 +++ content/public/browser/content_browser_client.h
-@@ -316,6 +316,13 @@ class CONTENT_EXPORT ContentBrowserClient {
+@@ -325,6 +325,13 @@ class CONTENT_EXPORT ContentBrowserClient {
                                                const GURL& current_url,
                                                const GURL& new_url);
  
@@ -47,7 +47,7 @@ index 507f728ffe5b..20c49cc25387 100644
    // current SiteInstance, if it does not yet have a site.
    virtual bool ShouldAssignSiteForURL(const GURL& url);
 diff --git extensions/browser/extension_host.cc extensions/browser/extension_host.cc
-index 4ec655aa834c..b937c201ecf9 100644
+index e85940e1123a..7d4e3c13204b 100644
 --- extensions/browser/extension_host.cc
 +++ extensions/browser/extension_host.cc
 @@ -69,11 +69,12 @@ ExtensionHost::ExtensionHost(const Extension* extension,
@@ -197,7 +197,7 @@ index 0c70794823d3..4922df0d5398 100644
    // once each time the extensions system is loaded per browser_context. The
    // implementation may wish to use the BrowserContext to record the current
 diff --git extensions/browser/process_manager.cc extensions/browser/process_manager.cc
-index 073efff20e05..7a7656206cef 100644
+index 383b13c51e08..b3cde7df636a 100644
 --- extensions/browser/process_manager.cc
 +++ extensions/browser/process_manager.cc
 @@ -349,9 +349,16 @@ bool ProcessManager::CreateBackgroundHost(const Extension* extension,

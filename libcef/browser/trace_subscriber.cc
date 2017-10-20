@@ -114,7 +114,7 @@ bool CefTraceSubscriber::EndTracing(const base::FilePath& tracing_file,
                  weak_factory_.GetWeakPtr(), callback, tracing_file);
 
   TracingController::GetInstance()->StopTracing(
-      TracingController::CreateFileSink(tracing_file, result_callback));
+      TracingController::CreateFileEndpoint(tracing_file, result_callback));
   return true;
 }
 

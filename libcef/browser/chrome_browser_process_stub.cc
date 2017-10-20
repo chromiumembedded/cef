@@ -31,19 +31,10 @@ ChromeBrowserProcessStub::~ChromeBrowserProcessStub() {
   chrome::SetBrowserContextIncognitoHelper(nullptr);
 }
 
-void ChromeBrowserProcessStub::Initialize(
-    const base::CommandLine& command_line) {
+void ChromeBrowserProcessStub::Initialize() {
   DCHECK(!initialized_);
   DCHECK(!context_initialized_);
   DCHECK(!shutdown_);
-
-  net_log_ = base::MakeUnique<net_log::ChromeNetLog>();
-  if (command_line.HasSwitch(switches::kLogNetLog)) {
-    net_log_->StartWritingToFile(
-        command_line.GetSwitchValuePath(switches::kLogNetLog),
-        GetNetCaptureModeFromCommandLine(command_line),
-        command_line.GetCommandLineString(), std::string());
-  }
 
   initialized_ = true;
 }
@@ -300,6 +291,17 @@ void ChromeBrowserProcessStub::StartAutoupdateTimer() {}
 
 net_log::ChromeNetLog* ChromeBrowserProcessStub::net_log() {
   DCHECK(initialized_);
+  if (!net_log_) {
+    const base::CommandLine& command_line =
+        *base::CommandLine::ForCurrentProcess();
+    net_log_ = base::MakeUnique<net_log::ChromeNetLog>();
+    if (command_line.HasSwitch(switches::kLogNetLog)) {
+      net_log_->StartWritingToFile(
+          command_line.GetSwitchValuePath(switches::kLogNetLog),
+          GetNetCaptureModeFromCommandLine(command_line),
+          command_line.GetCommandLineString(), std::string());
+    }
+  }
   return net_log_.get();
 }
 
@@ -310,12 +312,6 @@ ChromeBrowserProcessStub::component_updater() {
 }
 
 CRLSetFetcher* ChromeBrowserProcessStub::crl_set_fetcher() {
-  NOTREACHED();
-  return NULL;
-}
-
-component_updater::PnaclComponentInstaller*
-ChromeBrowserProcessStub::pnacl_component_installer() {
   NOTREACHED();
   return NULL;
 }

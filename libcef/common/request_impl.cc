@@ -217,7 +217,8 @@ CefRefPtr<CefRequest> CefRequest::Create() {
 CefRequestImpl::CefRequestImpl() : read_only_(false), track_changes_(false) {
   // Verify that our enum matches Chromium's values.
   static_assert(
-      REFERRER_POLICY_LAST_VALUE == net::URLRequest::MAX_REFERRER_POLICY,
+      static_cast<int>(REFERRER_POLICY_LAST_VALUE) ==
+      static_cast<int>(net::URLRequest::MAX_REFERRER_POLICY),
       "enum mismatch");
 
   base::AutoLock lock_scope(lock_);

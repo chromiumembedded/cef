@@ -1,8 +1,8 @@
 diff --git content/browser/renderer_host/render_widget_host_view_aura.cc content/browser/renderer_host/render_widget_host_view_aura.cc
-index dda1da688eb7..936fc509685c 100644
+index 7f727c290067..9d8a4683411f 100644
 --- content/browser/renderer_host/render_widget_host_view_aura.cc
 +++ content/browser/renderer_host/render_widget_host_view_aura.cc
-@@ -422,13 +422,6 @@ RenderWidgetHostViewAura::RenderWidgetHostViewAura(RenderWidgetHost* host,
+@@ -426,13 +426,6 @@ RenderWidgetHostViewAura::RenderWidgetHostViewAura(
    selection_controller_client_.reset(
        new TouchSelectionControllerClientAura(this));
    CreateSelectionController();
@@ -16,7 +16,7 @@ index dda1da688eb7..936fc509685c 100644
  }
  
  ////////////////////////////////////////////////////////////////////////////////
-@@ -746,8 +739,10 @@ void RenderWidgetHostViewAura::UpdateBackgroundColorFromRenderer(
+@@ -750,8 +743,10 @@ void RenderWidgetHostViewAura::UpdateBackgroundColorFromRenderer(
    background_color_ = color;
  
    bool opaque = SkColorGetA(color) == SK_AlphaOPAQUE;
@@ -29,7 +29,7 @@ index dda1da688eb7..936fc509685c 100644
  }
  
  bool RenderWidgetHostViewAura::IsMouseLocked() {
-@@ -1933,6 +1928,15 @@ void RenderWidgetHostViewAura::CreateAuraWindow(aura::client::WindowType type) {
+@@ -1913,6 +1908,15 @@ void RenderWidgetHostViewAura::CreateAuraWindow(aura::client::WindowType type) {
    window_->Init(ui::LAYER_SOLID_COLOR);
    window_->layer()->SetColor(background_color_);
  

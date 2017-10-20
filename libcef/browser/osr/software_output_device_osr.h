@@ -7,7 +7,7 @@
 #define CEF_LIBCEF_BROWSER_OSR_SOFTWARE_OUTPUT_DEVICE_OSR_H_
 
 #include "base/callback.h"
-#include "cc/output/software_output_device.h"
+#include "components/viz/service/display/software_output_device.h"
 
 namespace ui {
 class Compositor;
@@ -15,7 +15,7 @@ class Compositor;
 
 // Device implementation for direct software rendering via DelegatedFrameHost.
 // All Rect/Size values are in pixels.
-class CefSoftwareOutputDeviceOSR : public cc::SoftwareOutputDevice {
+class CefSoftwareOutputDeviceOSR : public viz::SoftwareOutputDevice {
  public:
   typedef base::Callback<void(const gfx::Rect&, int, int, void*)>
       OnPaintCallback;
@@ -25,7 +25,7 @@ class CefSoftwareOutputDeviceOSR : public cc::SoftwareOutputDevice {
                              const OnPaintCallback& callback);
   ~CefSoftwareOutputDeviceOSR() override;
 
-  // cc::SoftwareOutputDevice implementation.
+  // viz::SoftwareOutputDevice implementation.
   void Resize(const gfx::Size& viewport_pixel_size,
               float scale_factor) override;
   SkCanvas* BeginPaint(const gfx::Rect& damage_rect) override;

@@ -86,7 +86,8 @@ class CefSpeechRecognitionManagerDelegate::WebContentsWatcher
     DCHECK_EQ(content::NOTIFICATION_WEB_CONTENTS_DISCONNECTED, type);
 
     WebContents* web_contents = content::Source<WebContents>(source).ptr();
-    int render_process_id = web_contents->GetRenderProcessHost()->GetID();
+    int render_process_id =
+        web_contents->GetRenderViewHost()->GetProcess()->GetID();
     int render_view_id = web_contents->GetRenderViewHost()->GetRoutingID();
 
     registrar_->Remove(this, content::NOTIFICATION_WEB_CONTENTS_DISCONNECTED,

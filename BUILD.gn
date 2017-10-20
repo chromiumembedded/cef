@@ -713,6 +713,7 @@ static_library("libcef_static") {
     "//chrome/child",
     "//chrome/common",
     "//chrome/renderer",
+    "//chrome/utility",
     "//components/cdm/renderer",
     "//components/content_settings/core/browser",
     "//components/content_settings/core/common",
@@ -1547,7 +1548,7 @@ if (is_mac) {
       ]
 
       outputs = [
-        "{{bundle_root_dir}}/Frameworks/{{source_file_part}}",
+        "{{bundle_contents_dir}}/Frameworks/{{source_file_part}}",
       ]
     }
 

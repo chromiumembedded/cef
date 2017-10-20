@@ -1,14 +1,14 @@
 diff --git third_party/WebKit/Source/core/dom/DOMImplementation.cpp third_party/WebKit/Source/core/dom/DOMImplementation.cpp
-index 9a7f30516021..22f1214abbe2 100644
+index b26a7d6b8413..476b5c138555 100644
 --- third_party/WebKit/Source/core/dom/DOMImplementation.cpp
 +++ third_party/WebKit/Source/core/dom/DOMImplementation.cpp
 @@ -242,10 +242,11 @@ Document* DOMImplementation::createDocument(const String& type,
      // For that reason, the origin must be retrieved directly from init.url().
      if (init.GetFrame()->IsMainFrame()) {
        RefPtr<SecurityOrigin> origin = SecurityOrigin::Create(init.Url());
--      plugin_data = init.GetFrame()->GetPage()->GetPluginData(origin.Get());
+-      plugin_data = init.GetFrame()->GetPage()->GetPluginData(origin.get());
 +      plugin_data = init.GetFrame()->GetPage()->GetPluginData(true,
-+                                                              origin.Get());
++                                                              origin.get());
      } else {
        plugin_data =
 -          init.GetFrame()->GetPage()->GetPluginData(init.GetFrame()
@@ -17,10 +17,10 @@ index 9a7f30516021..22f1214abbe2 100644
                                                          .Top()
                                                          .GetSecurityContext()
 diff --git third_party/WebKit/Source/core/frame/LocalFrame.cpp third_party/WebKit/Source/core/frame/LocalFrame.cpp
-index a06acdcd51ff..90ba2c860542 100644
+index bf29beabedf7..e45901940d91 100644
 --- third_party/WebKit/Source/core/frame/LocalFrame.cpp
 +++ third_party/WebKit/Source/core/frame/LocalFrame.cpp
-@@ -1016,7 +1016,7 @@ FrameResourceCoordinator* LocalFrame::GetFrameResourceCoordinator() {
+@@ -1026,7 +1026,7 @@ FrameResourceCoordinator* LocalFrame::GetFrameResourceCoordinator() {
  PluginData* LocalFrame::GetPluginData() const {
    if (!Loader().AllowPlugins(kNotAboutToInstantiatePlugin))
      return nullptr;
@@ -30,7 +30,7 @@ index a06acdcd51ff..90ba2c860542 100644
  }
  
 diff --git third_party/WebKit/Source/core/page/Page.cpp third_party/WebKit/Source/core/page/Page.cpp
-index bdc85924f2b3..8105be8f4e5d 100644
+index 769fb58698a4..5372984b342a 100644
 --- third_party/WebKit/Source/core/page/Page.cpp
 +++ third_party/WebKit/Source/core/page/Page.cpp
 @@ -126,7 +126,8 @@ Page::Page(PageClients& page_clients)
@@ -152,23 +152,23 @@ index 5eb6af5fbdd5..eac85461c7de 100644
    for (PluginInfo* plugin_info : plugins_) {
      for (MimeClassInfo* mime_class_info : plugin_info->mimes_)
 diff --git third_party/WebKit/Source/platform/plugins/PluginData.h third_party/WebKit/Source/platform/plugins/PluginData.h
-index 6cb520cd5810..fdcaf938b28a 100644
+index 14a944467373..f4333c6a5f09 100644
 --- third_party/WebKit/Source/platform/plugins/PluginData.h
 +++ third_party/WebKit/Source/platform/plugins/PluginData.h
-@@ -93,7 +93,7 @@ class PLATFORM_EXPORT PluginData final
+@@ -94,7 +94,7 @@ class PLATFORM_EXPORT PluginData final
    const HeapVector<Member<PluginInfo>>& Plugins() const { return plugins_; }
    const HeapVector<Member<MimeClassInfo>>& Mimes() const { return mimes_; }
-   const SecurityOrigin* Origin() const { return main_frame_origin_.Get(); }
+   const SecurityOrigin* Origin() const { return main_frame_origin_.get(); }
 -  void UpdatePluginList(SecurityOrigin* main_frame_origin);
 +  void UpdatePluginList(bool is_main_frame, SecurityOrigin* main_frame_origin);
    void ResetPluginData();
  
    bool SupportsMimeType(const String& mime_type) const;
 diff --git third_party/WebKit/public/platform/Platform.h third_party/WebKit/public/platform/Platform.h
-index de906059109c..baaeb09ec8f5 100644
+index 379b033facc4..fcea4c7171b7 100644
 --- third_party/WebKit/public/platform/Platform.h
 +++ third_party/WebKit/public/platform/Platform.h
-@@ -384,6 +384,7 @@ class BLINK_PLATFORM_EXPORT Platform {
+@@ -369,6 +369,7 @@ class BLINK_PLATFORM_EXPORT Platform {
    // satisfy this call. mainFrameOrigin is used by the browser process to
    // filter plugins from the plugin list based on content settings.
    virtual void GetPluginList(bool refresh,

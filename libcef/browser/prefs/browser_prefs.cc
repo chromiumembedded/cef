@@ -13,6 +13,7 @@
 #include "base/command_line.h"
 #include "base/files/file_path.h"
 #include "base/strings/string_number_conversions.h"
+#include "base/task_scheduler/post_task.h"
 #include "base/values.h"
 #include "chrome/browser/net/prediction_options.h"
 #include "chrome/browser/prefs/chrome_command_line_pref_store.h"
@@ -118,11 +119,11 @@ std::unique_ptr<PrefService> CreatePrefService(Profile* profile,
 
   scoped_refptr<base::SequencedTaskRunner> sequenced_task_runner;
   if (store_on_disk) {
-    // Get sequenced task runner for making sure that file operations of
-    // this profile (defined by |cache_path|) are executed in expected order
-    // (what was previously assured by the FILE thread).
-    sequenced_task_runner = JsonPrefStore::GetTaskRunnerForFile(
-        cache_path, content::BrowserThread::GetBlockingPool());
+    // Get sequenced task runner for making sure that file operations are
+    // executed in expected order (what was previously assured by the FILE
+    // thread).
+    sequenced_task_runner = base::CreateSequencedTaskRunnerWithTraits(
+        {base::MayBlock(), base::TaskShutdownBehavior::BLOCK_SHUTDOWN});
   }
 
   // Used to store user preferences.
@@ -154,7 +155,7 @@ std::unique_ptr<PrefService> CreatePrefService(Profile* profile,
   }
 
   scoped_refptr<PrefStore> supervised_user_prefs =
-      make_scoped_refptr(new SupervisedUserPrefStore(supervised_user_settings));
+      base::MakeRefCounted<SupervisedUserPrefStore>(supervised_user_settings);
   DCHECK(supervised_user_prefs->IsInitializationComplete());
   factory.set_supervised_user_prefs(supervised_user_prefs);
 #endif  // BUILDFLAG(ENABLE_SUPERVISED_USERS)

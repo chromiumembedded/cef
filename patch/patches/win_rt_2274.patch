@@ -1,8 +1,8 @@
 diff --git content/common/sandbox_win.cc content/common/sandbox_win.cc
-index a98c8bd7646b..7c100ff20d34 100644
+index 3c8150376bbe..5d505838ec1d 100644
 --- content/common/sandbox_win.cc
 +++ content/common/sandbox_win.cc
-@@ -782,8 +782,11 @@ sandbox::ResultCode StartSandboxedProcess(
+@@ -783,8 +783,11 @@ sandbox::ResultCode StartSandboxedProcess(
  #endif
  
    // Post-startup mitigations.
