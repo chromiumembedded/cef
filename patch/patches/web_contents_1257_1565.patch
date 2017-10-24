@@ -1,5 +1,5 @@
 diff --git content/browser/web_contents/web_contents_impl.cc content/browser/web_contents/web_contents_impl.cc
-index 5b54c7614dcb..89addf197fae 100644
+index b46cec9804d1..998e8c7d12dc 100644
 --- content/browser/web_contents/web_contents_impl.cc
 +++ content/browser/web_contents/web_contents_impl.cc
 @@ -1772,6 +1772,12 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
@@ -23,7 +23,7 @@ index 5b54c7614dcb..89addf197fae 100644
  
    if (browser_plugin_guest_ && !GuestMode::IsCrossProcessFrameGuest(this)) {
      view_.reset(new WebContentsViewGuest(this, browser_plugin_guest_.get(),
-@@ -2343,6 +2350,15 @@ void WebContentsImpl::CreateNewWindow(
+@@ -2350,6 +2357,15 @@ void WebContentsImpl::CreateNewWindow(
    create_params.renderer_initiated_creation =
        main_frame_route_id != MSG_ROUTING_NONE;
  
@@ -39,7 +39,7 @@ index 5b54c7614dcb..89addf197fae 100644
    WebContentsImpl* new_contents = NULL;
    if (!is_guest) {
      create_params.context = view_->GetNativeView();
-@@ -2372,7 +2388,7 @@ void WebContentsImpl::CreateNewWindow(
+@@ -2379,7 +2395,7 @@ void WebContentsImpl::CreateNewWindow(
        // TODO(brettw): It seems bogus that we have to call this function on the
        // newly created object and give it one of its own member variables.
        new_view->CreateViewForWidget(
@@ -48,7 +48,7 @@ index 5b54c7614dcb..89addf197fae 100644
      }
      // Save the created window associated with the route so we can show it
      // later.
-@@ -5534,7 +5550,7 @@ InterstitialPageImpl* WebContentsImpl::GetInterstitialForRenderManager() {
+@@ -5541,7 +5557,7 @@ InterstitialPageImpl* WebContentsImpl::GetInterstitialForRenderManager() {
  void WebContentsImpl::CreateRenderWidgetHostViewForRenderManager(
      RenderViewHost* render_view_host) {
    RenderWidgetHostViewBase* rwh_view =
@@ -73,7 +73,7 @@ index fa0afb545df9..d677b310e5ec 100644
  
  WebContents::CreateParams::CreateParams(const CreateParams& other) = default;
 diff --git content/public/browser/web_contents.h content/public/browser/web_contents.h
-index ddaf664254ab..ffec3b79332e 100644
+index 9c27ee5021de..fd34d821e0d4 100644
 --- content/public/browser/web_contents.h
 +++ content/public/browser/web_contents.h
 @@ -68,9 +68,11 @@ class PageState;

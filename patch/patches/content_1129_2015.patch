@@ -1,8 +1,8 @@
 diff --git chrome/browser/download/download_target_determiner.cc chrome/browser/download/download_target_determiner.cc
-index faca8fe60751..cd96d66a5d8b 100644
+index d3677b9732ff..ac41dbec4e6b 100644
 --- chrome/browser/download/download_target_determiner.cc
 +++ chrome/browser/download/download_target_determiner.cc
-@@ -484,8 +484,8 @@ void IsHandledBySafePlugin(content::ResourceContext* resource_context,
+@@ -477,8 +477,8 @@ void IsHandledBySafePlugin(content::ResourceContext* resource_context,
    content::PluginService* plugin_service =
        content::PluginService::GetInstance();
    bool plugin_found = plugin_service->GetPluginInfo(
@@ -108,7 +108,7 @@ index 2e4d0d9ac4cb..9bd0bf12ca88 100644
  }
  
 diff --git content/browser/frame_host/render_frame_host_impl.cc content/browser/frame_host/render_frame_host_impl.cc
-index 7e577c8395d7..96421d4f2d88 100644
+index a9c344c3cbee..78ad450cf104 100644
 --- content/browser/frame_host/render_frame_host_impl.cc
 +++ content/browser/frame_host/render_frame_host_impl.cc
 @@ -370,9 +370,9 @@ void ForwardRequest(const char* service_name,
@@ -305,10 +305,10 @@ index b654bf3c98b4..1b09cd3d0a23 100644
                       const std::string& mime_type,
                       bool allow_wildcard,
 diff --git content/common/frame_messages.h content/common/frame_messages.h
-index 7fcc51298b12..6cde762011c9 100644
+index cd68128c6167..6bb6ced10858 100644
 --- content/common/frame_messages.h
 +++ content/common/frame_messages.h
-@@ -1324,8 +1324,9 @@ IPC_MESSAGE_ROUTED1(FrameHostMsg_PepperStopsPlayback,
+@@ -1329,8 +1329,9 @@ IPC_MESSAGE_ROUTED1(FrameHostMsg_PepperStopsPlayback,
  
  // Used to get the list of plugins. |main_frame_origin| is used to handle
  // exceptions for plugin content settings.
@@ -319,7 +319,7 @@ index 7fcc51298b12..6cde762011c9 100644
                              url::Origin /* main_frame_origin */,
                              std::vector<content::WebPluginInfo> /* plugins */)
  
-@@ -1333,9 +1334,10 @@ IPC_SYNC_MESSAGE_CONTROL2_1(FrameHostMsg_GetPlugins,
+@@ -1338,9 +1339,10 @@ IPC_SYNC_MESSAGE_CONTROL2_1(FrameHostMsg_GetPlugins,
  // type. If there is no matching plugin, |found| is false.
  // |actual_mime_type| is the actual mime type supported by the
  // found plugin.
@@ -331,7 +331,7 @@ index 7fcc51298b12..6cde762011c9 100644
                              url::Origin /* main_frame_origin */,
                              std::string /* mime_type */,
                              bool /* found */,
-@@ -1722,9 +1724,9 @@ IPC_MESSAGE_ROUTED3(FrameHostMsg_FindMatchRects_Reply,
+@@ -1727,9 +1729,9 @@ IPC_MESSAGE_ROUTED3(FrameHostMsg_FindMatchRects_Reply,
  IPC_MESSAGE_ROUTED2(FrameHostMsg_GetNearestFindResult_Reply,
                      int /* nfr_request_id */,
                      float /* distance */)
@@ -455,10 +455,10 @@ index 4f8478bfa87a..52471407518e 100644
    virtual void FocusedNodeChanged(const blink::WebNode& node) {}
  
 diff --git content/renderer/render_frame_impl.cc content/renderer/render_frame_impl.cc
-index 7fc594620793..9082ae71219f 100644
+index 7e546c27b671..11f88ec24b00 100644
 --- content/renderer/render_frame_impl.cc
 +++ content/renderer/render_frame_impl.cc
-@@ -2952,7 +2952,8 @@ blink::WebPlugin* RenderFrameImpl::CreatePlugin(
+@@ -2959,7 +2959,8 @@ blink::WebPlugin* RenderFrameImpl::CreatePlugin(
    std::string mime_type;
    bool found = false;
    Send(new FrameHostMsg_GetPluginInfo(
@@ -468,7 +468,7 @@ index 7fc594620793..9082ae71219f 100644
        params.mime_type.Utf8(), &found, &info, &mime_type));
    if (!found)
      return nullptr;
-@@ -3258,6 +3259,8 @@ void RenderFrameImpl::FrameDetached(DetachType type) {
+@@ -3265,6 +3266,8 @@ void RenderFrameImpl::FrameDetached(DetachType type) {
  
  void RenderFrameImpl::FrameFocused() {
    Send(new FrameHostMsg_FrameFocused(routing_id_));
@@ -477,7 +477,7 @@ index 7fc594620793..9082ae71219f 100644
  }
  
  void RenderFrameImpl::WillCommitProvisionalLoad() {
-@@ -5397,9 +5400,8 @@ WebNavigationPolicy RenderFrameImpl::DecidePolicyForNavigation(
+@@ -5431,9 +5434,8 @@ WebNavigationPolicy RenderFrameImpl::DecidePolicyForNavigation(
         (!IsBrowserSideNavigationEnabled() ||
          url != pending_navigation_params_->request_params.redirects[0]));
  
@@ -489,7 +489,7 @@ index 7fc594620793..9082ae71219f 100644
    // The handlenavigation API is deprecated and will be removed once
    // crbug.com/325351 is resolved.
    if (GetContentClient()->renderer()->HandleNavigation(
-@@ -5412,7 +5414,6 @@ WebNavigationPolicy RenderFrameImpl::DecidePolicyForNavigation(
+@@ -5446,7 +5448,6 @@ WebNavigationPolicy RenderFrameImpl::DecidePolicyForNavigation(
      }
      return blink::kWebNavigationPolicyIgnore;
    }

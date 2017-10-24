@@ -1,8 +1,8 @@
 diff --git chrome/browser/ui/BUILD.gn chrome/browser/ui/BUILD.gn
-index 97c769cdf483..78d9db9d084e 100644
+index d207627330a3..66c32686f98a 100644
 --- chrome/browser/ui/BUILD.gn
 +++ chrome/browser/ui/BUILD.gn
-@@ -489,6 +489,7 @@ split_static_library("ui") {
+@@ -493,6 +493,7 @@ split_static_library("ui") {
      "//chrome/browser/ui/webui/usb_internals:mojo_bindings",
      "//chrome/common",
      "//chrome/common:search_mojom",

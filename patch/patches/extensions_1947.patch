@@ -1,5 +1,5 @@
 diff --git content/browser/frame_host/render_frame_host_manager.cc content/browser/frame_host/render_frame_host_manager.cc
-index 799d2925b21a..43f9173e5db2 100644
+index 22645479cadc..0c0e92f6ed72 100644
 --- content/browser/frame_host/render_frame_host_manager.cc
 +++ content/browser/frame_host/render_frame_host_manager.cc
 @@ -1072,10 +1072,11 @@ bool RenderFrameHostManager::ShouldSwapBrowsingInstancesForNavigation(
@@ -18,7 +18,7 @@ index 799d2925b21a..43f9173e5db2 100644
      return true;
    }
  
-@@ -1197,7 +1198,8 @@ RenderFrameHostManager::GetSiteInstanceForNavigation(
+@@ -1214,7 +1215,8 @@ RenderFrameHostManager::GetSiteInstanceForNavigation(
  
    // Double-check that the new SiteInstance is associated with the right
    // BrowserContext.
@@ -29,7 +29,7 @@ index 799d2925b21a..43f9173e5db2 100644
    // If |new_instance| is a new SiteInstance for a subframe with an isolated
    // origin, set its process reuse policy so that such subframes are
 diff --git content/public/browser/content_browser_client.h content/public/browser/content_browser_client.h
-index 507f728ffe5b..20c49cc25387 100644
+index 9e09d8dbfc35..6c0609aa4dbb 100644
 --- content/public/browser/content_browser_client.h
 +++ content/public/browser/content_browser_client.h
 @@ -316,6 +316,13 @@ class CONTENT_EXPORT ContentBrowserClient {
