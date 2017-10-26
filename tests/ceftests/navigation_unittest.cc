@@ -939,8 +939,9 @@ class RedirectTestHandler : public TestHandler {
       // Called due to the nav3 redirect response.
       got_nav3_redirect_.yes();
 
-      EXPECT_EQ(200, response->GetStatus());
-      EXPECT_TRUE(response->GetStatusText().empty());
+      EXPECT_EQ(303, response->GetStatus());
+      EXPECT_STREQ("See Other",
+                   response->GetStatusText().ToString().c_str());
       EXPECT_STREQ("text/html", response->GetMimeType().ToString().c_str());
     } else {
       got_invalid_redirect_.yes();

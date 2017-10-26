@@ -286,14 +286,14 @@ bool CefResourceRequestJob::IsRedirectResponse(GURL* location,
                                                int* http_status_code) {
   CEF_REQUIRE_IOT();
 
+  bool redirect = false;
+
   if (redirect_url_.is_valid()) {
     // Redirect to the new URL.
     *http_status_code = 303;
     location->Swap(&redirect_url_);
-    return true;
-  }
-
-  if (response_.get()) {
+    redirect = true;
+  } else if (response_.get()) {
     // Check for HTTP 302 or HTTP 303 redirect.
     int status = response_->GetStatus();
     if (status == 302 || status == 303) {
@@ -304,12 +304,20 @@ bool CefResourceRequestJob::IsRedirectResponse(GURL* location,
         GURL new_url = GURL(std::string(iter->second));
         *http_status_code = status;
         location->Swap(&new_url);
-        return true;
+        redirect = true;
       }
     }
   }
 
-  return false;
+  if (redirect) {
+    // Set the correct response status. This avoids a DCHECK in
+    // RedirectInfo::ComputeRedirectInfo.
+    request_->response_headers()->ReplaceStatusLine(
+        *http_status_code == 302 ? "HTTP/1.1 302 Found"
+                                 : "HTTP/1.1 303 See Other");
+  }
+
+  return redirect;
 }
 
 bool CefResourceRequestJob::GetMimeType(std::string* mime_type) const {
