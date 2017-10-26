@@ -435,6 +435,13 @@ bool CefMainDelegate::BasicStartupComplete(int* exit_code) {
           switches::kUncaughtExceptionStackSize,
           base::IntToString(settings.uncaught_exception_stack_size));
     }
+
+    // If browser-side navigation is not explicitly enabled or disabled, disable
+    // it. See https://crbug.com/776884.
+    if (!command_line->HasSwitch(switches::kDisableBrowserSideNavigation) &&
+        !command_line->HasSwitch(switches::kEnableBrowserSideNavigation)) {
+      command_line->AppendSwitch(switches::kDisableBrowserSideNavigation);
+    }
   }
 
   if (content_client_.application().get()) {
