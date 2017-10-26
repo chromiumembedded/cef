@@ -26,7 +26,6 @@
 #include "content/public/renderer/navigation_state.h"
 #include "content/public/renderer/render_view.h"
 #include "content/renderer/navigation_state_impl.h"
-#include "content/renderer/render_view_impl.h"
 #include "third_party/WebKit/public/platform/WebString.h"
 #include "third_party/WebKit/public/platform/WebURL.h"
 #include "third_party/WebKit/public/platform/WebURLError.h"
@@ -413,12 +412,6 @@ void CefBrowserImpl::AddFrameObject(int64_t frame_id,
   manager->Add(tracked_object);
 }
 
-bool CefBrowserImpl::is_swapped_out() const {
-  content::RenderViewImpl* render_view_impl =
-      static_cast<content::RenderViewImpl*>(render_view());
-  return (!render_view_impl || render_view_impl->is_swapped_out());
-}
-
 // RenderViewObserver methods.
 // -----------------------------------------------------------------------------
 
@@ -668,9 +661,6 @@ void CefBrowserImpl::OnResponseAck(int request_id) {
 }
 
 void CefBrowserImpl::OnLoadingStateChange(bool isLoading) {
-  if (is_swapped_out())
-    return;
-
   CefRefPtr<CefApp> app = CefContentClient::Get()->application();
   if (app.get()) {
     CefRefPtr<CefRenderProcessHandler> handler = app->GetRenderProcessHandler();
@@ -689,9 +679,6 @@ void CefBrowserImpl::OnLoadingStateChange(bool isLoading) {
 }
 
 void CefBrowserImpl::OnLoadStart(blink::WebLocalFrame* frame) {
-  if (is_swapped_out())
-    return;
-
   CefRefPtr<CefApp> app = CefContentClient::Get()->application();
   if (app.get()) {
     CefRefPtr<CefRenderProcessHandler> handler = app->GetRenderProcessHandler();
@@ -706,9 +693,6 @@ void CefBrowserImpl::OnLoadStart(blink::WebLocalFrame* frame) {
 }
 
 void CefBrowserImpl::OnLoadEnd(blink::WebLocalFrame* frame) {
-  if (is_swapped_out())
-    return;
-
   CefRefPtr<CefApp> app = CefContentClient::Get()->application();
   if (app.get()) {
     CefRefPtr<CefRenderProcessHandler> handler = app->GetRenderProcessHandler();
@@ -726,9 +710,6 @@ void CefBrowserImpl::OnLoadEnd(blink::WebLocalFrame* frame) {
 
 void CefBrowserImpl::OnLoadError(blink::WebLocalFrame* frame,
                                  const blink::WebURLError& error) {
-  if (is_swapped_out())
-    return;
-
   CefRefPtr<CefApp> app = CefContentClient::Get()->application();
   if (app.get()) {
     CefRefPtr<CefRenderProcessHandler> handler = app->GetRenderProcessHandler();

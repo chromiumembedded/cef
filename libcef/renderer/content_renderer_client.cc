@@ -73,7 +73,6 @@
 #include "content/public/renderer/render_thread.h"
 #include "content/public/renderer/render_view.h"
 #include "content/public/renderer/render_view_visitor.h"
-#include "content/renderer/render_frame_impl.h"
 #include "content/renderer/render_widget.h"
 #include "extensions/common/switches.h"
 #include "extensions/renderer/renderer_extension_registry.h"
@@ -837,27 +836,18 @@ void CefContentRendererClient::BrowserCreated(
   if (!render_view || !render_frame)
     return;
 
-  // Swapped out RenderWidgets will be created in the parent/owner process for
-  // frames that are hosted in a separate process (e.g. guest views or OOP
-  // frames). Don't create any CEF objects for swapped out RenderWidgets.
-  content::RenderFrameImpl* render_frame_impl =
-      static_cast<content::RenderFrameImpl*>(render_frame);
-  if (render_frame_impl->GetRenderWidget()->is_swapped_out())
-    return;
-
   // Don't create another browser or guest view object if one already exists for
   // the view.
   if (GetBrowserForView(render_view).get() || HasGuestViewForView(render_view))
     return;
 
-  const int render_view_routing_id = render_view->GetRoutingID();
   const int render_frame_routing_id = render_frame->GetRoutingID();
 
   // Retrieve the browser information synchronously. This will also register
   // the routing ids with the browser info object in the browser process.
   CefProcessHostMsg_GetNewBrowserInfo_Params params;
   content::RenderThread::Get()->Send(new CefProcessHostMsg_GetNewBrowserInfo(
-      render_view_routing_id, render_frame_routing_id, &params));
+      render_frame_routing_id, &params));
   if (params.browser_id == 0) {
     // The popup may have been canceled during creation.
     return;

@@ -29,6 +29,12 @@ CefRequestInterceptor::~CefRequestInterceptor() {
 net::URLRequestJob* CefRequestInterceptor::MaybeInterceptRequest(
     net::URLRequest* request,
     net::NetworkDelegate* network_delegate) const {
+  // With PlzNavigate we now receive blob URLs here.
+  // Ignore these URLs. See https://crbug.com/776884 for details.
+  if (request->url().SchemeIs(url::kBlobScheme)) {
+    return nullptr;
+  }
+
   CefRefPtr<CefBrowserHostImpl> browser =
       CefBrowserHostImpl::GetBrowserForRequest(request);
   if (browser.get()) {

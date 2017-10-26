@@ -17,7 +17,6 @@
 #include "content/common/view_messages.h"
 #include "content/public/browser/render_frame_host.h"
 #include "content/public/browser/render_process_host.h"
-#include "content/public/browser/render_view_host.h"
 #include "content/public/browser/web_contents.h"
 #include "content/public/common/child_process_host.h"
 
@@ -79,23 +78,12 @@ scoped_refptr<CefBrowserInfo> CefBrowserInfoManager::CreatePopupBrowserInfo(
     bool is_windowless) {
   base::AutoLock lock_scope(browser_info_lock_);
 
-  content::RenderViewHost* view_host = new_contents->GetRenderViewHost();
-  content::RenderFrameHost* main_frame_host = new_contents->GetMainFrame();
-
-  content::RenderProcessHost* host = view_host->GetProcess();
-
-  // The host processes may be different in the future with OOP iframes. When
-  // that happens re-visit the implementation of this class.
-  DCHECK_EQ(host, main_frame_host->GetProcess());
-
-  const int render_process_id = host->GetID();
-  const int render_view_routing_id = view_host->GetRoutingID();
-  const int render_frame_routing_id = main_frame_host->GetRoutingID();
+  content::RenderFrameHost* frame_host = new_contents->GetMainFrame();
+  const int render_process_id = frame_host->GetProcess()->GetID();
+  const int render_frame_routing_id = frame_host->GetRoutingID();
 
   scoped_refptr<CefBrowserInfo> browser_info =
       new CefBrowserInfo(++next_browser_id_, true);
-  browser_info->render_id_manager()->add_render_view_id(render_process_id,
-                                                        render_view_routing_id);
   browser_info->render_id_manager()->add_render_frame_id(
       render_process_id, render_frame_routing_id);
   browser_info_list_.push_back(browser_info);
@@ -109,7 +97,6 @@ scoped_refptr<CefBrowserInfo> CefBrowserInfoManager::CreatePopupBrowserInfo(
   for (; it != pending_new_browser_info_list_.end(); ++it) {
     PendingNewBrowserInfo* info = it->get();
     if (info->render_process_id == render_process_id &&
-        info->render_view_routing_id == render_view_routing_id &&
         info->render_frame_routing_id == render_frame_routing_id) {
       SendNewBrowserInfoResponse(render_process_id, browser_info, false,
                                  info->reply_msg);
@@ -281,11 +268,9 @@ void CefBrowserInfoManager::WebContentsCreated(
 }
 
 void CefBrowserInfoManager::OnGetNewBrowserInfo(int render_process_id,
-                                                int render_view_routing_id,
                                                 int render_frame_routing_id,
                                                 IPC::Message* reply_msg) {
   DCHECK_NE(render_process_id, content::ChildProcessHost::kInvalidUniqueID);
-  DCHECK_GT(render_view_routing_id, 0);
   DCHECK_GT(render_frame_routing_id, 0);
   DCHECK(reply_msg);
 
@@ -294,8 +279,7 @@ void CefBrowserInfoManager::OnGetNewBrowserInfo(int render_process_id,
   bool is_guest_view = false;
 
   scoped_refptr<CefBrowserInfo> browser_info = GetBrowserInfo(
-      render_process_id, render_view_routing_id, render_process_id,
-      render_frame_routing_id, &is_guest_view);
+      render_process_id, render_frame_routing_id, &is_guest_view);
 
   if (browser_info.get()) {
     // Send the response immediately.
@@ -312,7 +296,6 @@ void CefBrowserInfoManager::OnGetNewBrowserInfo(int render_process_id,
     for (; it != pending_new_browser_info_list_.end(); ++it) {
       PendingNewBrowserInfo* info = it->get();
       if (info->render_process_id == render_process_id &&
-          info->render_view_routing_id == render_view_routing_id &&
           info->render_frame_routing_id == render_frame_routing_id) {
         NOTREACHED();
       }
@@ -323,7 +306,6 @@ void CefBrowserInfoManager::OnGetNewBrowserInfo(int render_process_id,
   // Queue the request.
   std::unique_ptr<PendingNewBrowserInfo> pending(new PendingNewBrowserInfo());
   pending->render_process_id = render_process_id;
-  pending->render_view_routing_id = render_view_routing_id;
   pending->render_frame_routing_id = render_frame_routing_id;
   pending->reply_msg = reply_msg;
   pending_new_browser_info_list_.push_back(std::move(pending));
@@ -374,22 +356,31 @@ void CefBrowserInfoManager::DestroyAllBrowsers() {
 #endif
 }
 
-scoped_refptr<CefBrowserInfo> CefBrowserInfoManager::GetBrowserInfoForView(
-    int render_process_id,
-    int render_routing_id,
-    bool* is_guest_view) {
-  base::AutoLock lock_scope(browser_info_lock_);
-  return GetBrowserInfo(render_process_id, render_routing_id, 0, 0,
-                        is_guest_view);
-}
-
 scoped_refptr<CefBrowserInfo> CefBrowserInfoManager::GetBrowserInfoForFrame(
     int render_process_id,
     int render_routing_id,
     bool* is_guest_view) {
   base::AutoLock lock_scope(browser_info_lock_);
-  return GetBrowserInfo(0, 0, render_process_id, render_routing_id,
-                        is_guest_view);
+  return GetBrowserInfo(render_process_id, render_routing_id, is_guest_view);
+}
+
+scoped_refptr<CefBrowserInfo>
+CefBrowserInfoManager::GetBrowserInfoForFrameTreeNode(int frame_tree_node_id) {
+  if (frame_tree_node_id < 0)
+    return nullptr;
+
+  base::AutoLock lock_scope(browser_info_lock_);
+
+  BrowserInfoList::const_iterator it = browser_info_list_.begin();
+  for (; it != browser_info_list_.end(); ++it) {
+    const scoped_refptr<CefBrowserInfo>& browser_info = *it;
+    if (browser_info->frame_tree_node_id_manager()->is_frame_tree_node_id_match(
+            frame_tree_node_id)) {
+      return browser_info;
+    }
+  }
+
+  return nullptr;
 }
 
 void CefBrowserInfoManager::GetBrowserInfoList(BrowserInfoList& list) {
@@ -465,8 +456,6 @@ CefBrowserInfoManager::PopPendingPopup(PendingPopup::Step step,
 }
 
 scoped_refptr<CefBrowserInfo> CefBrowserInfoManager::GetBrowserInfo(
-    int render_view_process_id,
-    int render_view_routing_id,
     int render_frame_process_id,
     int render_frame_routing_id,
     bool* is_guest_view) {
@@ -475,41 +464,19 @@ scoped_refptr<CefBrowserInfo> CefBrowserInfoManager::GetBrowserInfo(
   if (is_guest_view)
     *is_guest_view = false;
 
-  const bool valid_view_ids =
-      render_view_process_id > 0 && render_view_routing_id > 0;
-  const bool valid_frame_ids =
-      render_frame_process_id > 0 && render_frame_routing_id > 0;
+  if (render_frame_process_id < 0 || render_frame_routing_id < 0)
+    return nullptr;
 
   BrowserInfoList::const_iterator it = browser_info_list_.begin();
   for (; it != browser_info_list_.end(); ++it) {
     const scoped_refptr<CefBrowserInfo>& browser_info = *it;
-    if (valid_view_ids &&
-        browser_info->render_id_manager()->is_render_view_id_match(
-            render_view_process_id, render_view_routing_id)) {
-      if (valid_frame_ids) {
-        // Make sure the frame id is also registered.
-        browser_info->render_id_manager()->add_render_frame_id(
-            render_frame_process_id, render_frame_routing_id);
-      }
-      return browser_info;
-    }
-    if (valid_frame_ids &&
-        browser_info->render_id_manager()->is_render_frame_id_match(
+    if (browser_info->render_id_manager()->is_render_frame_id_match(
             render_frame_process_id, render_frame_routing_id)) {
-      if (valid_view_ids) {
-        // Make sure the view id is also registered.
-        browser_info->render_id_manager()->add_render_view_id(
-            render_view_process_id, render_view_routing_id);
-      }
       return browser_info;
     }
     if (extensions::ExtensionsEnabled() &&
-        ((valid_view_ids &&
-          browser_info->guest_render_id_manager()->is_render_view_id_match(
-              render_view_process_id, render_view_routing_id)) ||
-         (valid_frame_ids &&
-          browser_info->guest_render_id_manager()->is_render_frame_id_match(
-              render_frame_process_id, render_frame_routing_id)))) {
+        browser_info->guest_render_id_manager()->is_render_frame_id_match(
+            render_frame_process_id, render_frame_routing_id)) {
       if (is_guest_view)
         *is_guest_view = true;
       return browser_info;

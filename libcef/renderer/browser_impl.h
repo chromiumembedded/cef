@@ -105,8 +105,6 @@ class CefBrowserImpl : public CefBrowser, public content::RenderViewObserver {
     return content::RenderViewObserver::render_view();
   }
 
-  bool is_swapped_out() const;
-
   // RenderViewObserver methods.
   void OnDestruct() override;
   void DidStartLoading() override;

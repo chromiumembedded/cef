@@ -153,9 +153,9 @@ class CefBrowserHostImpl : public CefBrowserHost,
   // Returns the browser associated with the specified URLRequest.
   static CefRefPtr<CefBrowserHostImpl> GetBrowserForRequest(
       const net::URLRequest* request);
-  // Returns the browser associated with the specified view routing IDs.
-  static CefRefPtr<CefBrowserHostImpl> GetBrowserForView(int render_process_id,
-                                                         int render_routing_id);
+  // Returns the browser associated with the specified FrameTreeNode.
+  static CefRefPtr<CefBrowserHostImpl> GetBrowserForFrameTreeNode(
+      int frame_tree_node_id);
   // Returns the browser associated with the specified frame routing IDs.
   static CefRefPtr<CefBrowserHostImpl> GetBrowserForFrame(
       int render_process_id,
@@ -485,7 +485,9 @@ class CefBrowserHostImpl : public CefBrowserHost,
   using content::WebContentsObserver::BeforeUnloadFired;
   using content::WebContentsObserver::WasHidden;
   void RenderFrameCreated(content::RenderFrameHost* render_frame_host) override;
-  void RenderFrameDeleted(content::RenderFrameHost* render_frame_host) override;
+  void RenderFrameHostChanged(content::RenderFrameHost* old_host,
+                              content::RenderFrameHost* new_host) override;
+  void FrameDeleted(content::RenderFrameHost* render_frame_host) override;
   void RenderViewCreated(content::RenderViewHost* render_view_host) override;
   void RenderViewDeleted(content::RenderViewHost* render_view_host) override;
   void RenderViewReady() override;
@@ -497,7 +499,6 @@ class CefBrowserHostImpl : public CefBrowserHost,
                    const GURL& validated_url,
                    int error_code,
                    const base::string16& error_description) override;
-  void FrameDeleted(content::RenderFrameHost* render_frame_host) override;
   void TitleWasSet(content::NavigationEntry* entry) override;
   void PluginCrashed(const base::FilePath& plugin_path,
                      base::ProcessId plugin_pid) override;

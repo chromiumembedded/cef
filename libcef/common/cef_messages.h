@@ -202,9 +202,8 @@ IPC_STRUCT_BEGIN(CefProcessHostMsg_GetNewBrowserInfo_Params)
 IPC_STRUCT_END()
 
 // Retrieve information about a newly created browser.
-IPC_SYNC_MESSAGE_CONTROL2_1(
+IPC_SYNC_MESSAGE_CONTROL1_1(
     CefProcessHostMsg_GetNewBrowserInfo,
-    int /* render_view_routing_id */,
     int /* render_frame_routing_id */,
     CefProcessHostMsg_GetNewBrowserInfo_Params /* params*/)
 

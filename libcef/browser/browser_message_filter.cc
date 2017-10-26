@@ -56,13 +56,11 @@ void CefBrowserMessageFilter::OnGetNewRenderThreadInfo(
   }
 }
 
-void CefBrowserMessageFilter::OnGetNewBrowserInfo(int render_view_routing_id,
-                                                  int render_frame_routing_id,
+void CefBrowserMessageFilter::OnGetNewBrowserInfo(int render_frame_routing_id,
                                                   IPC::Message* reply_msg) {
   if (render_process_id_ != content::ChildProcessHost::kInvalidUniqueID) {
     CefBrowserInfoManager::GetInstance()->OnGetNewBrowserInfo(
-        render_process_id_, render_view_routing_id, render_frame_routing_id,
-        reply_msg);
+        render_process_id_, render_frame_routing_id, reply_msg);
   } else {
     delete reply_msg;
   }

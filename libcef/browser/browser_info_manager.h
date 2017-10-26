@@ -99,7 +99,6 @@ class CefBrowserInfoManager : public content::RenderProcessHostObserver {
   // already exist for traditional popup browsers depending on timing. See
   // comments on PendingPopup for more information.
   void OnGetNewBrowserInfo(int render_process_id,
-                           int render_view_routing_id,
                            int render_frame_routing_id,
                            IPC::Message* reply_msg);
 
@@ -112,16 +111,21 @@ class CefBrowserInfoManager : public content::RenderProcessHostObserver {
 
   // Retrieves the CefBrowserInfo matching the specified IDs or an empty
   // pointer if no match is found. It is allowed to add new callers of this
-  // method but consider using CefBrowserHostImpl::GetBrowserFor[View|Frame]()
+  // method but consider using CefBrowserHostImpl::GetBrowserForFrame()
   // or extensions::GetOwnerBrowserForFrame() instead.
   // |is_guest_view| will be set to true if the IDs match a guest view
   // associated with the returned browser info instead of the browser itself.
-  scoped_refptr<CefBrowserInfo> GetBrowserInfoForView(int render_process_id,
-                                                      int render_routing_id,
-                                                      bool* is_guest_view);
   scoped_refptr<CefBrowserInfo> GetBrowserInfoForFrame(int render_process_id,
                                                        int render_routing_id,
                                                        bool* is_guest_view);
+
+  // Retrieves the CefBrowserInfo matching the specified ID or an empty
+  // pointer if no match is found. It is allowed to add new callers of this
+  // method but consider using CefBrowserHostImpl::GetBrowserForRequest()
+  // instead since we generally use this mapping for URLRequests on the IO
+  // thread.
+  scoped_refptr<CefBrowserInfo> GetBrowserInfoForFrameTreeNode(
+      int frame_tree_node_id);
 
   // Retrieves all existing CefBrowserInfo objects.
   typedef std::list<scoped_refptr<CefBrowserInfo>> BrowserInfoList;
@@ -178,9 +182,7 @@ class CefBrowserInfoManager : public content::RenderProcessHostObserver {
 
   // Retrieves the BrowserInfo matching the specified IDs. If both sets are
   // valid then this method makes sure both sets have been registered.
-  scoped_refptr<CefBrowserInfo> GetBrowserInfo(int render_view_process_id,
-                                               int render_view_routing_id,
-                                               int render_frame_process_id,
+  scoped_refptr<CefBrowserInfo> GetBrowserInfo(int render_frame_process_id,
                                                int render_frame_routing_id,
                                                bool* is_guest_view);
 
@@ -194,7 +196,6 @@ class CefBrowserInfoManager : public content::RenderProcessHostObserver {
   // Pending request for OnGetNewBrowserInfo.
   struct PendingNewBrowserInfo {
     int render_process_id;
-    int render_view_routing_id;
     int render_frame_routing_id;
     IPC::Message* reply_msg;
   };

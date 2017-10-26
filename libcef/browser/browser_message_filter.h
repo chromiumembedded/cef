@@ -29,8 +29,7 @@ class CefBrowserMessageFilter : public content::BrowserMessageFilter {
   // Message handlers.
   void OnGetNewRenderThreadInfo(
       CefProcessHostMsg_GetNewRenderThreadInfo_Params* params);
-  void OnGetNewBrowserInfo(int render_view_routing_id,
-                           int render_frame_routing_id,
+  void OnGetNewBrowserInfo(int render_frame_routing_id,
                            IPC::Message* reply_msg);
 
   int render_process_id_;
