@@ -404,7 +404,7 @@ index 4f8478bfa87a..52471407518e 100644
    virtual void FocusedNodeChanged(const blink::WebNode& node) {}
  
 diff --git content/renderer/render_frame_impl.cc content/renderer/render_frame_impl.cc
-index 285d1d6fb031..8024d725d86c 100644
+index 9c48e63b7f25..6c4d4d91d368 100644
 --- content/renderer/render_frame_impl.cc
 +++ content/renderer/render_frame_impl.cc
 @@ -2975,7 +2975,8 @@ blink::WebPlugin* RenderFrameImpl::CreatePlugin(

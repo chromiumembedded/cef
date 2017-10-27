@@ -17,10 +17,10 @@ index b26a7d6b8413..476b5c138555 100644
                                                          .Top()
                                                          .GetSecurityContext()
 diff --git third_party/WebKit/Source/core/frame/LocalFrame.cpp third_party/WebKit/Source/core/frame/LocalFrame.cpp
-index bf29beabedf7..e45901940d91 100644
+index d0ffc86d701b..8a2c5e2ee1cf 100644
 --- third_party/WebKit/Source/core/frame/LocalFrame.cpp
 +++ third_party/WebKit/Source/core/frame/LocalFrame.cpp
-@@ -1026,7 +1026,7 @@ FrameResourceCoordinator* LocalFrame::GetFrameResourceCoordinator() {
+@@ -1027,7 +1027,7 @@ FrameResourceCoordinator* LocalFrame::GetFrameResourceCoordinator() {
  PluginData* LocalFrame::GetPluginData() const {
    if (!Loader().AllowPlugins(kNotAboutToInstantiatePlugin))
      return nullptr;
