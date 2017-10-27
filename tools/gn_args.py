@@ -325,11 +325,6 @@ def ValidateArgs(args):
     if is_official_build:
       assert not is_win_fastlink, "is_official_build=true precludes is_win_fastlink=true"
 
-    # Non-official debug builds should use /DEBUG:FASTLINK.
-    if not is_official_build and is_debug and not is_win_fastlink:
-      msg('is_official_build=false + is_debug=true recommends is_win_fastlink=true'
-         )
-
     # Windows custom toolchain requirements.
     #
     # Required GN arguments:
