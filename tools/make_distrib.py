@@ -654,17 +654,19 @@ if mode == 'standard':
 
 if platform == 'windows':
   binaries = [
-    'chrome_elf.dll',
-    'd3dcompiler_47.dll',
-    'libcef.dll',
-    'libEGL.dll',
-    'libGLESv2.dll',
-    'natives_blob.bin',
-    'snapshot_blob.bin',
-    'v8_context_snapshot.bin',
+    {'path': 'chrome_elf.dll'},
+    {'path': 'd3dcompiler_47.dll'},
+    {'path': 'libcef.dll'},
+    {'path': 'libEGL.dll'},
+    {'path': 'libGLESv2.dll'},
+    {'path': 'natives_blob.bin'},
+    {'path': 'snapshot_blob.bin'},
+    {'path': 'v8_context_snapshot.bin'},
     # Should match the output path from media/cdm/ppapi/cdm_paths.gni.
-    'WidevineCdm\\_platform_specific\\win_%s\\widevinecdmadapter.dll' % \
-      ('x64' if options.x64build else 'x86'),
+    {'path': 'WidevineCdm\\_platform_specific\\win_%s\\widevinecdmadapter.dll' % \
+      ('x64' if options.x64build else 'x86'), 'strip_folder': True},
+    {'path': 'swiftshader\\libEGL.dll'},
+    {'path': 'swiftshader\\libGLESv2.dll'},
   ]
 
   libcef_dll_file = 'libcef.dll.lib'
@@ -707,9 +709,13 @@ if platform == 'windows':
       copy_files(
           os.path.join(script_dir, 'distrib/win/*.dll'), dst_dir, options.quiet)
       for binary in binaries:
+        if 'strip_folder' in binary and binary['strip_folder']:
+          target_path = os.path.join(dst_dir, os.path.basename(binary['path']))
+        else:
+          target_path = os.path.join(dst_dir, binary['path'])
+          make_dir(os.path.dirname(target_path), options.quiet)
         copy_file(
-            os.path.join(build_dir, binary),
-            os.path.join(dst_dir, os.path.basename(binary)), options.quiet)
+            os.path.join(build_dir, binary['path']), target_path, options.quiet)
       copy_file(os.path.join(build_dir, libcef_dll_file), os.path.join(dst_dir, 'libcef.lib'), \
                 options.quiet)
 
@@ -735,9 +741,13 @@ if platform == 'windows':
       copy_files(
           os.path.join(script_dir, 'distrib/win/*.dll'), dst_dir, options.quiet)
       for binary in binaries:
+        if 'strip_folder' in binary and binary['strip_folder']:
+          target_path = os.path.join(dst_dir, os.path.basename(binary['path']))
+        else:
+          target_path = os.path.join(dst_dir, binary['path'])
+          make_dir(os.path.dirname(target_path), options.quiet)
         copy_file(
-            os.path.join(build_dir, binary),
-            os.path.join(dst_dir, os.path.basename(binary)), options.quiet)
+            os.path.join(build_dir, binary['path']), target_path, options.quiet)
 
       if mode != 'client':
         copy_file(os.path.join(build_dir, libcef_dll_file), os.path.join(dst_dir, 'libcef.lib'), \

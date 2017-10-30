@@ -415,6 +415,7 @@ if(OS_WINDOWS)
     libGLESv2.dll
     natives_blob.bin
     snapshot_blob.bin
+    swiftshader
     )
 
   # List of CEF resource files.

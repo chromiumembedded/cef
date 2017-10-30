@@ -67,6 +67,12 @@ run but any related functionality may become broken or disabled.
   Without these files HTML5 accelerated content like 2D canvas, 3D CSS and WebGL
   will not function.
 
+* SwiftShader support.
+  * swiftshader/libEGL.dll
+  * swiftshader/libGLESv2.dll
+  Without these files WebGL will not function in software-only mode when the GPU
+  is not available or disabled.
+
 * Widevine CDM support.
   * widevinecdmadapter.dll
     Without this file playback of Widevine projected content will not function.
