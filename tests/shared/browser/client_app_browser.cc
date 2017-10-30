@@ -48,6 +48,12 @@ void ClientAppBrowser::OnBeforeCommandLineProcessing(
       command_line->AppendSwitchWithValue("top-chrome-md", "non-material");
     }
 
+    if (!command_line->HasSwitch(switches::kCachePath) &&
+        !command_line->HasSwitch("disable-gpu-shader-disk-cache")) {
+      // Don't create a "GPUCache" directory when cache-path is unspecified.
+      command_line->AppendSwitch("disable-gpu-shader-disk-cache");
+    }
+
     DelegateSet::iterator it = delegates_.begin();
     for (; it != delegates_.end(); ++it)
       (*it)->OnBeforeCommandLineProcessing(this, command_line);
