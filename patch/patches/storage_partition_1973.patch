@@ -59,11 +59,15 @@ index 13d802fa72cd..a2d34d1d72eb 100644
        partition->GetBluetoothAllowedDevicesMap();
    return allowed_devices_map->GetOrCreateAllowedDevices(GetOrigin());
 diff --git content/browser/browser_context.cc content/browser/browser_context.cc
-index 42b002908c3b..f7d9c3933090 100644
+index 42b002908c3b..6787b9ed35b7 100644
 --- content/browser/browser_context.cc
 +++ content/browser/browser_context.cc
-@@ -125,7 +125,14 @@ StoragePartition* GetStoragePartitionFromConfig(
-   if (browser_context->IsOffTheRecord())
+@@ -122,10 +122,17 @@ StoragePartition* GetStoragePartitionFromConfig(
+   StoragePartitionImplMap* partition_map =
+       GetStoragePartitionMap(browser_context);
+ 
+-  if (browser_context->IsOffTheRecord())
++  if (browser_context->IsOffTheRecord() || browser_context->GetPath().empty())
      in_memory = true;
  
 -  return partition_map->Get(partition_domain, partition_name, in_memory);
@@ -669,3 +673,16 @@ index cf270b894186..1f95c9c3b023 100644
   protected:
    virtual ~StoragePartition() {}
  };
+diff --git storage/browser/database/database_tracker.cc storage/browser/database/database_tracker.cc
+index 86fb9f41fc71..7a8be02473a3 100644
+--- storage/browser/database/database_tracker.cc
++++ storage/browser/database/database_tracker.cc
+@@ -495,7 +495,7 @@ bool DatabaseTracker::LazyInit() {
+     meta_table_.reset(new sql::MetaTable());
+ 
+     is_initialized_ =
+-        base::CreateDirectory(db_dir_) &&
++        (is_incognito_ ? true : base::CreateDirectory(db_dir_)) &&
+         (db_->is_open() ||
+          (is_incognito_ ? db_->OpenInMemory() :
+           db_->Open(kTrackerDatabaseFullPath))) &&
