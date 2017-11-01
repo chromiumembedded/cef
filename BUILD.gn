@@ -241,7 +241,7 @@ config("libcef_static_config") {
 }
 
 # Target for building code that accesses Blink internals. Included from the
-# //third_party/WebKit/Source/web target.
+# //third_party/WebKit/Source/controller target.
 source_set("webkit_set") {
   sources = [
     "libcef/renderer/webkit_glue.cc",
@@ -275,10 +275,9 @@ source_set("webkit_set") {
 
   deps = [
     "//services/network/public/interfaces",
-    "//skia",
-    "//third_party/icu",
     "//third_party/boringssl",
-    "//v8",
+    "//third_party/icu",
+    "//third_party/WebKit/Source/core:core_generated",
   ]
 }
 
