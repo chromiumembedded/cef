@@ -329,11 +329,19 @@ if(OS_WINDOWS)
 
   # Configure use of the sandbox.
   option(USE_SANDBOX "Enable or disable use of the sandbox." ON)
-  if(USE_SANDBOX AND NOT MSVC_VERSION EQUAL 1900 AND NOT MSVC_VERSION EQUAL 1910)
-    # The cef_sandbox.lib static library is currently built with VS2015, which
-    # is compatible with VS2015 and VS2017. It will not link successfully with
-    # other VS versions.
-    set(USE_SANDBOX OFF)
+  if(USE_SANDBOX)
+    # Check if the current MSVC version is compatible with the cef_sandbox.lib
+    # static library.
+    list(APPEND supported_msvc_versions
+      1900  # VS2015
+      1910  # VS2017 <= 15.2
+      1911  # VS2017 >= 15.3
+      )
+    list(FIND supported_msvc_versions ${MSVC_VERSION} _index)
+    if (${_index} EQUAL -1)
+      message(WARNING "CEF sandbox is not compatible with the current MSVC version (${MSVC_VERSION})")
+      set(USE_SANDBOX OFF)
+    endif()
   endif()
 
   # Consumers who run into LNK4099 warnings can pass /Z7 instead (see issue #385).
