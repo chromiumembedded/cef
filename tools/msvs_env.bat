@@ -26,19 +26,32 @@ if %vcvars% == "none" goto found_vcvars
 
 if "%1" == "win64" goto check_win64
 
+:: Hardcoded list of MSVS paths for VS2017 32-bit builds.
+set vcvars="%PROGRAMFILES(X86)%\Microsoft Visual Studio\2017\Professional\VC\Auxiliary\Build\vcvars32.bat"
+if exist %vcvars% goto found_vcvars
+set vcvars="%PROGRAMFILES%\Microsoft Visual Studio\2017\Professional\VC\Auxiliary\Build\vcvars32.bat"
+if exist %vcvars% goto found_vcvars
+
 :: Hardcoded list of MSVS paths for VS2015 32-bit builds.
 set vcvars="%PROGRAMFILES(X86)%\Microsoft Visual Studio 14.0\VC\bin\vcvars32.bat"
 if exist %vcvars% goto found_vcvars
 set vcvars="%PROGRAMFILES%\Microsoft Visual Studio 14.0\VC\bin\vcvars32.bat"
 if exist %vcvars% goto found_vcvars
 
+goto notfound_vcvars
+
 :check_win64
+:: Hardcoded list of MSVS paths for VS2017 64-bit builds.
+set vcvars="%PROGRAMFILES(X86)%\Microsoft Visual Studio\2017\Professional\VC\Auxiliary\Build\vcvars64.bat"
+if exist %vcvars% goto found_vcvars
+set vcvars="%PROGRAMFILES%\Microsoft Visual Studio\2017\Professional\VC\Auxiliary\Build\vcvars64.bat"
+if exist %vcvars% goto found_vcvars
+
 :: Hardcoded list of MSVS paths for VS2015 64-bit builds.
 set vcvars="%PROGRAMFILES(X86)%\Microsoft Visual Studio 14.0\VC\bin\amd64\vcvars64.bat"
 if exist %vcvars% goto found_vcvars
 set vcvars="%PROGRAMFILES%\Microsoft Visual Studio 14.0\VC\bin\amd64\vcvars64.bat"
 if exist %vcvars% goto found_vcvars
-goto notfound_vcvars
 
 :notfound_vcvars
 echo ERROR: Failed to find vcvars
