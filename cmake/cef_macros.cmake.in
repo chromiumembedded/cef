@@ -102,8 +102,8 @@ macro(COPY_FILES target file_list source_dir target_dir)
     get_filename_component(target_name ${FILENAME} NAME)
     set(target_file ${target_dir}/${target_name})
 
-    string(FIND ${source_file} "$<CONFIGURATION>" pos)
-    if(pos GREATER_EQUAL 0)
+    string(FIND ${source_file} "$<CONFIGURATION>" _pos)
+    if(NOT ${_pos} EQUAL -1)
       # Must test with an actual configuration directory.
       string(REPLACE "$<CONFIGURATION>" "Release" existing_source_file ${source_file})
       if(NOT EXISTS ${existing_source_file})
