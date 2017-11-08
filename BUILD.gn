@@ -775,7 +775,6 @@ static_library("libcef_static") {
     "//services/service_manager/embedder",
     "//services/service_manager/public/interfaces",
     "//services/service_manager/runner/common",
-    "//services/ui:lib",
     "//skia",
     "//storage/browser",
     "//third_party/brotli:dec",
@@ -863,6 +862,7 @@ static_library("libcef_static") {
 
     deps += [
       "//build/config/freetype",
+      "//services/ui:lib",
       "//third_party/fontconfig",
     ]
   }
