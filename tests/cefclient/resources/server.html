@@ -1,0 +1,104 @@
+<html>
+<head>
+<title>Server Test</title>
+<script language="JavaScript">
+
+// Send a query to the browser process.
+function sendMessage(request, success_callback) {
+  // Results in a call to the OnQuery method in server_test.cc
+  window.cefQuery({
+    request: JSON.stringify(request),
+    onSuccess: function(response) {
+      success_callback(response.length == 0 ? {} : JSON.parse(response));
+    },
+    onFailure: function(error_code, error_message) {
+      alert("Request failed with error " + error_message + "(" + error_code + ")");
+    }
+  });
+}
+
+function setButtonState(start_enabled, stop_enabled) {
+  document.getElementById('start').disabled = !start_enabled;
+  document.getElementById('stop').disabled = !stop_enabled;
+  document.getElementById('open').disabled = !stop_enabled;
+}
+
+function setup() {
+  if (location.origin != 'http://tests') {
+    document.getElementById('warning').style.display = 'block';
+    return;
+  }
+
+  // Query the current server state.
+  sendMessage({'action':'query'}, function(response) {
+    if (response['result'] == 'success') {
+      var running = (response['status'] == 'running')
+      setButtonState(!running, running);
+
+      var port_element = document.getElementById('port');
+      port_element.value = response['port'];
+      port_element.disabled = false;
+    }
+  });
+}
+
+function startServer() {  
+  var port = parseInt(document.getElementById('port').value);
+  if (port < 1025 || port > 65535) {
+    alert('Specify a port number between 1025 and 65535');
+    return;
+  }
+
+  setButtonState(false, false);
+
+  sendMessage({'action':'start', 'port':port}, function(response) {
+    if (response['result'] == 'success') {
+      setButtonState(false, true);
+    } else {
+      setButtonState(true, false);
+      alert(response['message']);
+    }
+  });
+}
+
+function stopServer() {
+  setButtonState(false, false);
+
+  sendMessage({'action':'stop'}, function(response) {
+    if (response['result'] == 'success') {
+      setButtonState(true, false);
+    } else {
+      setButtonState(false, true);
+      alert(response['message']);
+    }
+  });
+}
+
+function openServer() {
+  var port = document.getElementById('port').value;
+  window.open('http://localhost:' + port);
+}
+
+</script>
+
+</head>
+<body bgcolor="white" onload="setup()">
+<div id="warning" style="display:none;color:red;font-weight:bold;">
+This page can only be run from the http://tests origin.
+</div>
+<p>
+This page starts an HTTP/WebSocket server on localhost with the specified port number.
+After starting the server click the "Open Example" button to open the WebSocket Client test in a popup window.
+</p>
+<p>
+With this example each browser window can create/manage a separate server instance.
+The server will be stopped automatically when the managing browser window is closed.
+</p>
+<form>
+Server port: <input type="text" id="port" value="" disabled="true">
+<br/><input type="button" id="start" onclick="startServer()" value="Start Server" disabled="true">
+<input type="button" id="stop" onclick="stopServer()" value="Stop Server" disabled="true">
+<input type="button" id="open" onclick="openServer()" value="Open Example" disabled="true">
+</form>
+</body>
+</html>

@@ -12,6 +12,7 @@
 #include "include/base/cef_bind.h"
 #include "include/wrapper/cef_stream_resource_handler.h"
 #include "tests/cefclient/browser/main_context.h"
+#include "tests/cefclient/browser/test_runner.h"
 #include "tests/cefclient/browser/window_test_runner.h"
 
 #if defined(OS_WIN) || defined(OS_LINUX)
@@ -31,7 +32,7 @@ namespace window_test {
 
 namespace {
 
-const char kTestUrl[] = "http://tests/window";
+const char kTestUrlPath[] = "/window";
 const char kMessagePositionName[] = "WindowTest.Position";
 const char kMessageMinimizeName[] = "WindowTest.Minimize";
 const char kMessageMaximizeName[] = "WindowTest.Maximize";
@@ -69,7 +70,7 @@ class Handler : public CefMessageRouterBrowserSide::Handler {
                        CefRefPtr<Callback> callback) OVERRIDE {
     // Only handle messages from the test URL.
     const std::string& url = frame->GetURL();
-    if (url.find(kTestUrl) != 0)
+    if (!test_runner::IsTestURL(url, kTestUrlPath))
       return false;
 
     const std::string& message_name = request;

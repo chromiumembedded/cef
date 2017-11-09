@@ -3,6 +3,21 @@
 <title>DRM Test</title>
 <script language="JavaScript">
 
+function setup() {
+  if (location.hostname == 'tests' || location.hostname == 'localhost')
+    return;
+
+  alert('This page can only be run from tests or localhost.');
+
+  // Disable all elements.
+  var elements = document.getElementById("form").elements;
+  for (var i = 0, element; element = elements[i++]; ) {
+    element.disabled = true;
+  }
+
+  doTest();
+}
+
 // Based on DRM detection code from https://github.com/google/shaka-player
 function probeSupport() {
   var tests = [];
@@ -87,7 +102,7 @@ function sendMessage() {
   request.widevine_cdm_path =
       document.getElementById("widevine_cdm_path").value;
 
-  // Results in a call to the OnQuery method in drm_test.cpp
+  // Results in a call to the OnQuery method in drm_test.cc
   window.cefQuery({
     request: JSON.stringify(request),
     onSuccess: function(response) {
@@ -104,7 +119,7 @@ function sendMessage() {
 </script>
 
 </head>
-<body bgcolor="white" onload="doTest()">
+<body bgcolor="white" onload="setup()">
 Important notes:
 <ul>
 <li>Clearkey support is built in and should always be enabled.</li>
@@ -117,7 +132,7 @@ Important notes:
 <li>Test DRM video playback <a href="https://shaka-player-demo.appspot.com/demo/">here</a>. Select an "asset" that includes Clearkey or Widevine in the name.</li>
 </ul>
 
-<form>
+<form id="form">
 Widevine CDM Path: <input type="text" id="widevine_cdm_path" value="" size="40">
 <input type="button" onclick="sendMessage();" value="Load CDM">
 </form>

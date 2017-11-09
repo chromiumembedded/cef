@@ -3,9 +3,22 @@
 <title>Binding Test</title>
 <script language="JavaScript">
 
+function setup() {
+  if (location.hostname == 'tests' || location.hostname == 'localhost')
+    return;
+
+  alert('This page can only be run from tests or localhost.');
+
+  // Disable all elements.
+  var elements = document.getElementById("form").elements;
+  for (var i = 0, element; element = elements[i++]; ) {
+    element.disabled = true;
+  }
+}
+
 // Send a query to the browser process.
 function sendMessage() {
-  // Results in a call to the OnQuery method in binding_test.cpp
+  // Results in a call to the OnQuery method in binding_test.cc
   window.cefQuery({
     request: 'BindingTest:' + document.getElementById("message").value,
     onSuccess: function(response) {
@@ -17,8 +30,8 @@ function sendMessage() {
 </script>
 
 </head>
-<body bgcolor="white">
-<form>
+<body bgcolor="white" onload="setup()">
+<form id="form">
 Message: <input type="text" id="message" value="My Message">
 <br/><input type="button" onclick="sendMessage();" value="Send Message">
 <br/>You should see the reverse of your message below:

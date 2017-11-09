@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=82e24ebf13dbb1b7430a4710fd3d296b98311d1d$
+// $hash=8f5702806c240c66d2b9235cf44e58ba52fe3b63$
 //
 
 #include "include/capi/cef_app_capi.h"
@@ -81,6 +81,7 @@
 #include "libcef_dll/cpptoc/response_filter_cpptoc.h"
 #include "libcef_dll/cpptoc/run_file_dialog_callback_cpptoc.h"
 #include "libcef_dll/cpptoc/scheme_handler_factory_cpptoc.h"
+#include "libcef_dll/cpptoc/server_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/set_cookie_callback_cpptoc.h"
 #include "libcef_dll/cpptoc/string_visitor_cpptoc.h"
 #include "libcef_dll/cpptoc/task_cpptoc.h"
@@ -134,6 +135,7 @@
 #include "libcef_dll/ctocpp/run_context_menu_callback_ctocpp.h"
 #include "libcef_dll/ctocpp/scheme_registrar_ctocpp.h"
 #include "libcef_dll/ctocpp/select_client_certificate_callback_ctocpp.h"
+#include "libcef_dll/ctocpp/server_ctocpp.h"
 #include "libcef_dll/ctocpp/sslinfo_ctocpp.h"
 #include "libcef_dll/ctocpp/sslstatus_ctocpp.h"
 #include "libcef_dll/ctocpp/stream_reader_ctocpp.h"
@@ -335,6 +337,8 @@ CEF_GLOBAL void CefShutdown() {
   DCHECK(base::AtomicRefCountIsZero(&CefScrollViewCToCpp::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(
       &CefSelectClientCertificateCallbackCToCpp::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(&CefServerCToCpp::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(&CefServerHandlerCppToC::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefSetCookieCallbackCppToC::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefStreamReaderCToCpp::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefStreamWriterCToCpp::DebugObjCt));

@@ -10,8 +10,23 @@
        script hosting from http://cdnjs.com/libraries/jsoneditor -->
   <link href="https://cdnjs.cloudflare.com/ajax/libs/jsoneditor/4.2.1/jsoneditor.min.css" rel="stylesheet" type="text/css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jsoneditor/4.2.1/jsoneditor.min.js"></script>
+
+  <script>
+    function setup() {
+      if (location.hostname == 'tests' || location.hostname == 'localhost')
+        return;
+
+      alert('This page can only be run from tests or localhost.');
+
+      // Disable all elements.
+      var elements = document.getElementById("form").elements;
+      for (var i = 0, element; element = elements[i++]; ) {
+        element.disabled = true;
+      }
+    }
+  </script>
 </head>
-<body bgcolor="white">
+<body bgcolor="white" onload="setup()">
   <!-- Header -->
   <div id="simple_links">
     [ <b>Simple</b> ]
@@ -21,6 +36,8 @@
     [ <a href="#" onClick="toggleView(); return false;">Simple</a> ]
     [ <b>Advanced</b> ]
   </div>
+
+  <form id="form">
 
   <!-- Simple view -->
   <div id="simple">
@@ -87,6 +104,8 @@
       </tr>
     </table>
   </div>
+
+  </form>
 
   <script>
     // Reference to the JSONEditor.

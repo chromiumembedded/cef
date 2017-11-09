@@ -1,6 +1,19 @@
 <html>
-<body bgcolor="white">
+<head>
 <script language="JavaScript">
+
+function setup() {
+  if (location.hostname == 'tests' || location.hostname == 'localhost')
+    return;
+
+  alert('This page can only be run from tests or localhost');
+
+  // Disable all elements.
+  var elements = document.getElementById("form").elements;
+  for (var i = 0, element; element = elements[i++]; ) {
+    element.disabled = true;
+  }
+}
 
 // Send a query to the browser process.
 function execURLRequest() {
@@ -18,7 +31,9 @@ function execURLRequest() {
   });
 }
 </script>
-<form>
+</head>
+<body bgcolor="white" onload="setup()">
+<form id="form">
 URL: <input type="text" id="url" value="http://www.google.com">
 <br/><input type="button" onclick="execURLRequest();" value="Execute CefURLRequest">
 <br/><textarea rows="10" cols="40" id="ta"></textarea>

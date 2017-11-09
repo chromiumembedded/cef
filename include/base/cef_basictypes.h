@@ -64,6 +64,16 @@ typedef int int32;
 typedef unsigned int uint32;
 #endif
 
+#ifndef _INT16
+#define _INT16
+typedef short int16;
+#endif
+
+#ifndef _UINT16
+#define _UINT16
+typedef unsigned short uint16;
+#endif
+
 // UTF-16 character type.
 // This should be kept synchronized with base/strings/string16.h
 #ifndef char16

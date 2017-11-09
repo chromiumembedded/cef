@@ -9,6 +9,7 @@
 
 #include "include/cef_parser.h"
 #include "include/cef_web_plugin.h"
+#include "tests/cefclient/browser/test_runner.h"
 
 namespace client {
 namespace drm_test {
@@ -19,7 +20,7 @@ namespace {
 const int kMessageFormatError = 1;
 const int kCdmLoadError = 2;
 
-const char kTestUrl[] = "http://tests/drm";
+const char kTestUrlPath[] = "/drm";
 const char kWidevineCdmPathKey[] = "widevine_cdm_path";
 
 // Callback executed once CDM registration is complete.
@@ -49,7 +50,7 @@ class Handler : public CefMessageRouterBrowserSide::Handler {
  public:
   Handler() {}
 
-  // Called due to cefQuery execution in binding.html.
+  // Called due to cefQuery execution in drm.html.
   virtual bool OnQuery(CefRefPtr<CefBrowser> browser,
                        CefRefPtr<CefFrame> frame,
                        int64 query_id,
@@ -58,7 +59,7 @@ class Handler : public CefMessageRouterBrowserSide::Handler {
                        CefRefPtr<Callback> callback) OVERRIDE {
     // Only handle messages from the test URL.
     const std::string& url = frame->GetURL();
-    if (url.find(kTestUrl) != 0)
+    if (!test_runner::IsTestURL(url, kTestUrlPath))
       return false;
 
     // Parse |request| as a JSON dictionary.

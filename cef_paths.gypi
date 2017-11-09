@@ -8,7 +8,7 @@
 # by hand. See the translator.README.txt file in the tools directory for
 # more information.
 #
-# $hash=2a6e7c37a8421d3c0d032cc907fb3058790ac71d$
+# $hash=a508906eb96c55e83eda7f17639a9ddcc0632f45$
 #
 
 {
@@ -67,6 +67,7 @@
       'include/cef_response.h',
       'include/cef_response_filter.h',
       'include/cef_scheme.h',
+      'include/cef_server.h',
       'include/cef_ssl_info.h',
       'include/cef_ssl_status.h',
       'include/cef_stream.h',
@@ -159,6 +160,7 @@
       'include/capi/cef_response_capi.h',
       'include/capi/cef_response_filter_capi.h',
       'include/capi/cef_scheme_capi.h',
+      'include/capi/cef_server_capi.h',
       'include/capi/cef_ssl_info_capi.h',
       'include/capi/cef_ssl_status_capi.h',
       'include/capi/cef_stream_capi.h',
@@ -390,6 +392,10 @@
       'libcef_dll/cpptoc/views/scroll_view_cpptoc.h',
       'libcef_dll/cpptoc/select_client_certificate_callback_cpptoc.cc',
       'libcef_dll/cpptoc/select_client_certificate_callback_cpptoc.h',
+      'libcef_dll/cpptoc/server_cpptoc.cc',
+      'libcef_dll/cpptoc/server_cpptoc.h',
+      'libcef_dll/ctocpp/server_handler_ctocpp.cc',
+      'libcef_dll/ctocpp/server_handler_ctocpp.h',
       'libcef_dll/ctocpp/set_cookie_callback_ctocpp.cc',
       'libcef_dll/ctocpp/set_cookie_callback_ctocpp.h',
       'libcef_dll/cpptoc/stream_reader_cpptoc.cc',
@@ -672,6 +678,10 @@
       'libcef_dll/ctocpp/views/scroll_view_ctocpp.h',
       'libcef_dll/ctocpp/select_client_certificate_callback_ctocpp.cc',
       'libcef_dll/ctocpp/select_client_certificate_callback_ctocpp.h',
+      'libcef_dll/ctocpp/server_ctocpp.cc',
+      'libcef_dll/ctocpp/server_ctocpp.h',
+      'libcef_dll/cpptoc/server_handler_cpptoc.cc',
+      'libcef_dll/cpptoc/server_handler_cpptoc.h',
       'libcef_dll/cpptoc/set_cookie_callback_cpptoc.cc',
       'libcef_dll/cpptoc/set_cookie_callback_cpptoc.h',
       'libcef_dll/ctocpp/stream_reader_ctocpp.cc',
