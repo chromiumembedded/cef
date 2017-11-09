@@ -7,12 +7,14 @@
 #include <algorithm>
 #include <string>
 
+#include "tests/cefclient/browser/test_runner.h"
+
 namespace client {
 namespace binding_test {
 
 namespace {
 
-const char kTestUrl[] = "http://tests/binding";
+const char kTestUrlPath[] = "/binding";
 const char kTestMessageName[] = "BindingTest";
 
 // Handle messages in the browser process.
@@ -29,7 +31,7 @@ class Handler : public CefMessageRouterBrowserSide::Handler {
                        CefRefPtr<Callback> callback) OVERRIDE {
     // Only handle messages from the test URL.
     const std::string& url = frame->GetURL();
-    if (url.find(kTestUrl) != 0)
+    if (!test_runner::IsTestURL(url, kTestUrlPath))
       return false;
 
     const std::string& message_name = request;

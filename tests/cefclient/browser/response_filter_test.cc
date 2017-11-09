@@ -10,6 +10,7 @@
 
 #include "include/base/cef_logging.h"
 #include "include/cef_command_line.h"
+#include "tests/cefclient/browser/test_runner.h"
 #include "tests/shared/common/client_switches.h"
 
 namespace client {
@@ -17,7 +18,7 @@ namespace response_filter_test {
 
 namespace {
 
-const char kTestUrl[] = "http://tests/response_filter";
+const char kTestUrlPath[] = "/response_filter";
 const char kFindString[] = "REPLACE_THIS_STRING";
 const char kReplaceString[] = "This is the replaced string!";
 
@@ -226,7 +227,8 @@ CefRefPtr<CefResponseFilter> GetResourceResponseFilter(
     CefRefPtr<CefResponse> response) {
   // Use the find/replace filter on the test URL.
   const std::string& url = request->GetURL();
-  if (url.find(kTestUrl) == 0)
+
+  if (test_runner::IsTestURL(url, kTestUrlPath))
     return new FindReplaceResponseFilter();
 
   if (MatchesFilterURL(url))

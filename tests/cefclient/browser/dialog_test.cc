@@ -8,13 +8,14 @@
 
 #include "include/cef_browser.h"
 #include "include/wrapper/cef_helpers.h"
+#include "tests/cefclient/browser/test_runner.h"
 
 namespace client {
 namespace dialog_test {
 
 namespace {
 
-const char kTestUrl[] = "http://tests/dialogs";
+const char kTestUrlPath[] = "/dialogs";
 const char kFileOpenMessageName[] = "DialogTest.FileOpen";
 const char kFileOpenMultipleMessageName[] = "DialogTest.FileOpenMultiple";
 const char kFileOpenFolderMessageName[] = "DialogTest.FileOpenFolder";
@@ -109,7 +110,7 @@ class Handler : public CefMessageRouterBrowserSide::Handler {
 
     // Only handle messages from the test URL.
     const std::string& url = frame->GetURL();
-    if (url.find(kTestUrl) != 0)
+    if (!test_runner::IsTestURL(url, kTestUrlPath))
       return false;
 
     if (!dialog_state_.get())

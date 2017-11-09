@@ -11,13 +11,14 @@
 #include "include/base/cef_logging.h"
 #include "include/cef_urlrequest.h"
 #include "include/wrapper/cef_helpers.h"
+#include "tests/cefclient/browser/test_runner.h"
 
 namespace client {
 namespace urlrequest_test {
 
 namespace {
 
-const char kTestUrl[] = "http://tests/urlrequest";
+const char kTestUrlPath[] = "/urlrequest";
 const char kTestMessageName[] = "URLRequestTest";
 
 // Implementation of CefURLRequestClient that stores response information. Only
@@ -97,13 +98,14 @@ class Handler : public CefMessageRouterBrowserSide::Handler {
     CEF_REQUIRE_UI_THREAD();
 
     // Only handle messages from the test URL.
-    std::string url = frame->GetURL();
-    if (url.find(kTestUrl) != 0)
+    const std::string& url = frame->GetURL();
+    if (!test_runner::IsTestURL(url, kTestUrlPath))
       return false;
 
     const std::string& message_name = request;
     if (message_name.find(kTestMessageName) == 0) {
-      url = message_name.substr(sizeof(kTestMessageName));
+      const std::string& load_url =
+          message_name.substr(sizeof(kTestMessageName));
 
       CancelPendingRequest();
 
@@ -114,7 +116,7 @@ class Handler : public CefMessageRouterBrowserSide::Handler {
 
       // Create a CefRequest for the specified URL.
       CefRefPtr<CefRequest> cef_request = CefRequest::Create();
-      cef_request->SetURL(url);
+      cef_request->SetURL(load_url);
       cef_request->SetMethod("GET");
 
       // Callback to be executed on request completion.

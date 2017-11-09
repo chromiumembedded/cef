@@ -29,6 +29,17 @@ function update_time() {
 function setup() {
   update_time();
   setInterval(update_time, 1000);
+
+  if (location.hostname != 'tests' && location.hostname != 'localhost') {
+    alert('Parts of this page can only be run from tests or localhost.');
+    return;
+  }
+
+  // Enable all elements.
+  var elements = document.getElementById("form").elements;
+  for (var i = 0, element; element = elements[i++]; ) {
+    element.disabled = false;
+  }
 }
 
 function show_file_dialog(element, test) {
@@ -49,16 +60,16 @@ window.addEventListener('load', setup, false);
 </script>
 </head>
 <body bgcolor="white">
-<form>
+<form id="form">
 Click a button to show the associated dialog type.
 <br/><input type="button" onclick="show_alert();" value="Show Alert">
 <br/><input type="button" onclick="show_confirm();" value="Show Confirm"> <span id="cm"></span>
 <br/><input type="button" onclick="show_prompt();" value="Show Prompt"> <span id="pm"></span>
 <br/>input type="file": <input type="file" name="pic" accept="text/*,.js,.css,image/*">
-<br/><input type="button" onclick="show_file_dialog('fo', 'FileOpen');" value="Show File Open"> <span id="fo"></span>
-<br/><input type="button" onclick="show_file_dialog('fom', 'FileOpenMultiple');" value="Show File Open Multiple"> <span id="fom"></span>
-<br/><input type="button" onclick="show_file_dialog('fof', 'FileOpenFolder');" value="Show File Open Folder"> <span id="fof"></span>
-<br/><input type="button" onclick="show_file_dialog('fs', 'FileSave');" value="Show File Save"> <span id="fs"></span>
+<br/><input type="button" onclick="show_file_dialog('fo', 'FileOpen');" value="Show File Open" disabled="true"> <span id="fo"></span>
+<br/><input type="button" onclick="show_file_dialog('fom', 'FileOpenMultiple');" value="Show File Open Multiple" disabled="true"> <span id="fom"></span>
+<br/><input type="button" onclick="show_file_dialog('fof', 'FileOpenFolder');" value="Show File Open Folder" disabled="true"> <span id="fof"></span>
+<br/><input type="button" onclick="show_file_dialog('fs', 'FileSave');" value="Show File Save" disabled="true"> <span id="fs"></span>
 <p id="time"></p>
 </form>
 </body>

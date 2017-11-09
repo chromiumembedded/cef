@@ -11,13 +11,14 @@
 #include "include/base/cef_logging.h"
 #include "include/cef_command_line.h"
 #include "include/cef_parser.h"
+#include "tests/cefclient/browser/test_runner.h"
 
 namespace client {
 namespace preferences_test {
 
 namespace {
 
-const char kTestUrl[] = "http://tests/preferences";
+const char kTestUrlPath[] = "/preferences";
 
 // Application-specific error codes.
 const int kMessageFormatError = 1;
@@ -52,8 +53,8 @@ class Handler : public CefMessageRouterBrowserSide::Handler {
     CEF_REQUIRE_UI_THREAD();
 
     // Only handle messages from the test URL.
-    std::string url = frame->GetURL();
-    if (url.find(kTestUrl) != 0)
+    const std::string& url = frame->GetURL();
+    if (!test_runner::IsTestURL(url, kTestUrlPath))
       return false;
 
     // Parse |request| as a JSON dictionary.

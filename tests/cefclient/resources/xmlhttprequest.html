@@ -3,8 +3,20 @@
 <script language="JavaScript">
 function execXMLHttpRequest()
 {
+  var url = document.getElementById("url").value;
+  var warningElement = document.getElementById("warning");
+  if (url.indexOf(location.origin) != 0) {
+    warningElement.innerHTML =
+      'For cross-origin requests to succeed the server must return CORS headers:' +
+      '<pre>Access-Control-Allow-Origin: ' + location.origin +
+      '<br/>Access-Control-Allow-Header: My-Custom-Header</pre>';
+    warningElement.style.display = 'block';
+  } else {
+    warningElement.style.display = 'none';
+  }
+
   xhr = new XMLHttpRequest();
-  xhr.open("GET", document.getElementById("url").value, true);
+  xhr.open("GET", url, true);
   xhr.setRequestHeader('My-Custom-Header', 'Some Value');
   xhr.onload = function(e) {
     if (xhr.readyState === 4) {
@@ -22,5 +34,6 @@ URL: <input type="text" id="url" value="http://tests/request">
 <br/><input type="button" onclick="execXMLHttpRequest();" value="Execute XMLHttpRequest">
 <br/><textarea rows="10" cols="40" id="ta"></textarea>
 </form>
+<div id="warning" style="display:none;font-weight:bold;"></div>
 </body>
 </html>

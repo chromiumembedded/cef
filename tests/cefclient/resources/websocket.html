@@ -1,0 +1,107 @@
+<html>
+<head>
+<title>WebSocket Test</title>
+<script language="JavaScript">
+
+var ws = null;
+
+function setup() {
+  // Match the secure state of the current origin.
+  var origin = location.origin;
+  if (origin.indexOf('http://') == 0) {
+    origin = origin.replace('http://', 'ws://');
+  } else if (origin.indexOf('https://') == 0) {
+    origin = origin.replace('https://', 'wss://');
+  } else {
+    origin = '';
+  }
+
+  if (origin.length > 0)
+    document.getElementById('server').value = origin;
+  document.getElementById('server').disabled = false;
+
+  if (location.hostname != 'localhost')
+    document.getElementById('warning').style.display = 'block';
+
+  setConnected(false);
+}
+
+function setConnected(connected) {
+  document.getElementById('connect').disabled = connected;
+  document.getElementById('disconnect').disabled = !connected;
+  document.getElementById('message').disabled = !connected;
+  document.getElementById('response').disabled = !connected;
+  document.getElementById('send').disabled = !connected;
+}
+
+function doConnect() {
+  var url = document.getElementById('server').value;
+  if (url.indexOf('ws://') < 0 && url.indexOf('wss://') < 0) {
+    alert('Specify a valid WebSocket server URL.');
+    return;
+  }
+
+  if (ws) {
+    alert('WebSocket is already connected.');
+    return;
+  }
+
+  ws = new WebSocket(url);
+  ws.onopen = function() { setConnected(true); };
+  ws.onmessage = function(event) {
+    document.getElementById('response').value = event.data;
+  };
+  ws.onclose = function(event) {
+    setConnected(false);
+    ws = null;
+  };
+  ws.onerror = function(event) {
+    if (ws.readyState == 3)
+      alert('WebSocket connection failed.');
+  }
+}
+
+function doDisconnect() {
+  if (!ws) {
+    alert('WebSocket is not currently connected.');
+    return;
+  }
+
+  ws.close();
+}
+
+function doSend() {
+  if (!ws) {
+    alert('WebSocket is not currently connected.');
+    return;
+  }
+
+  var value = document.getElementById('message').value;
+  if (value.length > 0)
+    ws.send(value);
+}
+
+</script>
+
+</head>
+<body bgcolor="white" onload="setup()">
+<div id="warning" style="display:none;color:red;font-weight:bold;">
+This page is most useful when loaded from localhost.
+You should first create a server using the <a href="http://tests/server">HTTP/WebSocket Server test</a>.
+</div>
+<p>
+This page tests a WebSocket connection.
+The example implementation in server_test.cc will then echo the message contents in reverse.
+</p>
+<form>
+Server URL: <input type="text" id="server" value="" disabled="true">
+<br/><input type="button" id="connect" onclick="doConnect()" value="Connect" disabled="true">
+<input type="button" id="disconnect" onclick="doDisconnect()" value="Disconnect" disabled="true">
+<br/>Message: <input type="text" id="message" value="Test Message" disabled="true">
+<input type="button" id="send" onclick="doSend()" value="Send" disabled="true">
+<br/>Response: <input type="text" id="response" value="" disabled="true">
+<br/><br/>
+The example implementation in server_test.cc can also serve the HTTP-based <a href="other_tests">Other Tests</a>.
+</form>
+</body>
+</html>
