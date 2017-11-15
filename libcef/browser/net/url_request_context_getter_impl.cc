@@ -270,6 +270,7 @@ net::URLRequestContext* CefURLRequestContextGetterImpl::GetURLRequestContext() {
 
     io_state_->url_request_context_.reset(new CefURLRequestContextImpl());
     io_state_->url_request_context_->set_net_log(io_state_->net_log_);
+    io_state_->url_request_context_->set_enable_brotli(true);
 
     io_state_->storage_.reset(new net::URLRequestContextStorage(
         io_state_->url_request_context_.get()));

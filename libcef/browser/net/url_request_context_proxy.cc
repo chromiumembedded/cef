@@ -21,6 +21,7 @@ CefURLRequestContextProxy::CefURLRequestContextProxy(
 
   // All other values refer to the parent request context.
   set_net_log(parent->net_log());
+  set_enable_brotli(parent->enable_brotli());
   set_host_resolver(parent->host_resolver());
   set_cert_verifier(parent->cert_verifier());
   set_transport_security_state(parent->transport_security_state());
