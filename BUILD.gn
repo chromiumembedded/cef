@@ -865,6 +865,7 @@ static_library("libcef_static") {
 
     deps += [
       "//build/config/freetype",
+      "//services/ui:lib",
       "//third_party/fontconfig",
     ]
   }
