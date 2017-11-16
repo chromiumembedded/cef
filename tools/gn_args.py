@@ -247,6 +247,11 @@ def GetRequiredArgs():
     # Don't use the chrome style plugin.
     result['clang_use_chrome_plugins'] = False
 
+  if platform == 'linux':
+    # Don't generate Chromium installer packages. This avoids GN dependency
+    # errors with CEF (see issue #2301).
+    result['enable_linux_installer'] = False
+
   if platform == 'macosx':
     # Always generate dSYM files. The make_distrib script will fail if
     # enable_dsyms=true is not explicitly set when is_official_build=false.
