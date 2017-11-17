@@ -966,6 +966,7 @@ class StaticHttpRequestRunner : public HttpTestRunner::RequestRunner {
     CefRefPtr<CefRequest> request = CreateTestServerRequest(
         path, "POST", "foo=bar&choo=too", "application/x-www-form-urlencoded",
         request_headers);
+    request->SetReferrer("http://tests/referer.html", REFERRER_POLICY_DEFAULT);
 
     HttpServerResponse response(HttpServerResponse::TYPE_CUSTOM);
     response.response_code = 202;
