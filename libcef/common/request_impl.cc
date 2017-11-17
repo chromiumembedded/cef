@@ -2,6 +2,7 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
+#include <algorithm>
 #include <limits>
 #include <string>
 #include <utility>
@@ -44,7 +45,13 @@ namespace {
 
 const char kReferrerLowerCase[] = "referer";
 const char kContentTypeLowerCase[] = "content-type";
+const char kCacheControlLowerCase[] = "cache-control";
+const char kCacheControlDirectiveNoCacheLowerCase[] = "no-cache";
+const char kCacheControlDirectiveOnlyIfCachedLowerCase[] = "only-if-cached";
 const char kApplicationFormURLEncoded[] = "application/x-www-form-urlencoded";
+
+// Mask of values that configure the cache policy.
+const int kURCachePolicyMask = (UR_FLAG_SKIP_CACHE | UR_FLAG_ONLY_FROM_CACHE);
 
 // A subclass of net::UploadBytesElementReader that keeps the associated
 // UploadElement alive until the request completes.
@@ -98,6 +105,71 @@ std::string GetURLRequestReferrer(const GURL& referrer_url) {
   }
 
   return referrer_url.spec();
+}
+
+// Returns the cef_urlrequest_flags_t policy specified by the Cache-Control
+// request header directives, if any. The directives are case-insensitive and
+// some have an optional argument. Multiple directives are comma-separated.
+// See https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control
+// for details.
+int GetCacheControlHeaderPolicy(CefRequest::HeaderMap headerMap) {
+  std::string line;
+
+  // Extract the Cache-Control header line.
+  {
+    CefRequest::HeaderMap::const_iterator it = headerMap.begin();
+    for (; it != headerMap.end(); ++it) {
+      if (base::LowerCaseEqualsASCII(it->first.ToString(),
+                                     kCacheControlLowerCase)) {
+        line = it->second;
+        break;
+      }
+    }
+  }
+
+  int flags = 0;
+
+  if (!line.empty()) {
+    std::transform(line.begin(), line.end(), line.begin(), ::tolower);
+
+    std::vector<base::StringPiece> pieces = base::SplitStringPiece(
+        line, ",", base::TRIM_WHITESPACE, base::SPLIT_WANT_NONEMPTY);
+    for (const auto& piece : pieces) {
+      if (base::LowerCaseEqualsASCII(piece,
+                                     kCacheControlDirectiveNoCacheLowerCase)) {
+        flags |= UR_FLAG_SKIP_CACHE;
+      } else if (base::LowerCaseEqualsASCII(
+                     piece, kCacheControlDirectiveOnlyIfCachedLowerCase)) {
+        flags |= UR_FLAG_ONLY_FROM_CACHE;
+      }
+    }
+  }
+
+  return flags;
+}
+
+// Convert cef_urlrequest_flags_t to blink::WebCachePolicy.
+blink::WebCachePolicy GetWebCachePolicy(int ur_flags) {
+  if ((ur_flags & kURCachePolicyMask) == kURCachePolicyMask) {
+    return blink::WebCachePolicy::kBypassCacheLoadOnlyFromCache;
+  } else if (ur_flags & UR_FLAG_SKIP_CACHE) {
+    return blink::WebCachePolicy::kBypassingCache;
+  } else if (ur_flags & UR_FLAG_ONLY_FROM_CACHE) {
+    return blink::WebCachePolicy::kReturnCacheDataDontLoad;
+  }
+  return blink::WebCachePolicy::kUseProtocolCachePolicy;
+}
+
+// Convert blink::WebCachePolicy to cef_urlrequest_flags_t.
+int GetURCachePolicy(blink::WebCachePolicy web_policy) {
+  if (web_policy == blink::WebCachePolicy::kBypassCacheLoadOnlyFromCache) {
+    return kURCachePolicyMask;
+  } else if (web_policy == blink::WebCachePolicy::kBypassingCache) {
+    return UR_FLAG_SKIP_CACHE;
+  } else if (web_policy == blink::WebCachePolicy::kReturnCacheDataDontLoad) {
+    return UR_FLAG_ONLY_FROM_CACHE;
+  }
+  return 0;
 }
 
 blink::WebString FilePathStringToWebString(
@@ -216,10 +288,9 @@ CefRefPtr<CefRequest> CefRequest::Create() {
 
 CefRequestImpl::CefRequestImpl() : read_only_(false), track_changes_(false) {
   // Verify that our enum matches Chromium's values.
-  static_assert(
-      static_cast<int>(REFERRER_POLICY_LAST_VALUE) ==
-      static_cast<int>(net::URLRequest::MAX_REFERRER_POLICY),
-      "enum mismatch");
+  static_assert(static_cast<int>(REFERRER_POLICY_LAST_VALUE) ==
+                    static_cast<int>(net::URLRequest::MAX_REFERRER_POLICY),
+                "enum mismatch");
 
   base::AutoLock lock_scope(lock_);
   Reset();
@@ -495,10 +566,9 @@ void CefRequestImpl::Set(const blink::WebURLRequest& request) {
 
   site_for_cookies_ = request.SiteForCookies();
 
-  if (request.GetCachePolicy() == blink::WebCachePolicy::kBypassingCache)
-    flags_ |= UR_FLAG_SKIP_CACHE;
+  flags_ |= GetURCachePolicy(request.GetCachePolicy());
   if (request.AllowStoredCredentials())
-    flags_ |= UR_FLAG_ALLOW_CACHED_CREDENTIALS;
+    flags_ |= UR_FLAG_ALLOW_STORED_CREDENTIALS;
   if (request.ReportUploadProgress())
     flags_ |= UR_FLAG_REPORT_UPLOAD_PROGRESS;
 }
@@ -545,12 +615,16 @@ void CefRequestImpl::Get(blink::WebURLRequest& request,
   if (!site_for_cookies_.is_empty())
     request.SetSiteForCookies(site_for_cookies_);
 
-  request.SetCachePolicy((flags_ & UR_FLAG_SKIP_CACHE)
-                             ? blink::WebCachePolicy::kBypassingCache
-                             : blink::WebCachePolicy::kUseProtocolCachePolicy);
+  int flags = flags_;
+  if (!(flags & kURCachePolicyMask)) {
+    // Only consider the Cache-Control directives when a cache policy is not
+    // explicitly set on the request.
+    flags |= GetCacheControlHeaderPolicy(headermap_);
+  }
+  request.SetCachePolicy(GetWebCachePolicy(flags));
 
   SETBOOLFLAG(request, flags_, SetAllowStoredCredentials,
-              UR_FLAG_ALLOW_CACHED_CREDENTIALS);
+              UR_FLAG_ALLOW_STORED_CREDENTIALS);
   SETBOOLFLAG(request, flags_, SetReportUploadProgress,
               UR_FLAG_REPORT_UPLOAD_PROGRESS);
 }
@@ -576,12 +650,14 @@ void CefRequestImpl::Get(const CefMsg_LoadRequest_Params& params,
     }
   }
 
+  CefRequest::HeaderMap headerMap;
   if (!params.headers.empty()) {
     for (net::HttpUtil::HeadersIterator i(params.headers.begin(),
                                           params.headers.end(), "\n");
          i.GetNext();) {
       request.AddHTTPHeaderField(blink::WebString::FromUTF8(i.name()),
                                  blink::WebString::FromUTF8(i.values()));
+      headerMap.insert(std::make_pair(i.name(), i.values()));
     }
   }
 
@@ -624,12 +700,16 @@ void CefRequestImpl::Get(const CefMsg_LoadRequest_Params& params,
   if (params.site_for_cookies.is_valid())
     request.SetSiteForCookies(params.site_for_cookies);
 
-  request.SetCachePolicy((params.load_flags & UR_FLAG_SKIP_CACHE)
-                             ? blink::WebCachePolicy::kBypassingCache
-                             : blink::WebCachePolicy::kUseProtocolCachePolicy);
+  int flags = params.load_flags;
+  if (!(flags & kURCachePolicyMask)) {
+    // Only consider the Cache-Control directives when a cache policy is not
+    // explicitly set on the request.
+    flags |= GetCacheControlHeaderPolicy(headerMap);
+  }
+  request.SetCachePolicy(GetWebCachePolicy(flags));
 
   SETBOOLFLAG(request, params.load_flags, SetAllowStoredCredentials,
-              UR_FLAG_ALLOW_CACHED_CREDENTIALS);
+              UR_FLAG_ALLOW_STORED_CREDENTIALS);
   SETBOOLFLAG(request, params.load_flags, SetReportUploadProgress,
               UR_FLAG_REPORT_UPLOAD_PROGRESS);
 }
@@ -726,21 +806,31 @@ void CefRequestImpl::Get(net::URLFetcher& fetcher,
   if (!site_for_cookies_.is_empty())
     fetcher.SetInitiator(url::Origin(site_for_cookies_));
 
-  if (flags_ & UR_FLAG_NO_RETRY_ON_5XX)
-    fetcher.SetAutomaticallyRetryOn5xx(false);
-
-  int load_flags = 0;
-
-  if (flags_ & UR_FLAG_SKIP_CACHE)
-    load_flags |= net::LOAD_BYPASS_CACHE;
-
-  if (!(flags_ & UR_FLAG_ALLOW_CACHED_CREDENTIALS)) {
-    load_flags |= net::LOAD_DO_NOT_SEND_AUTH_DATA;
-    load_flags |= net::LOAD_DO_NOT_SEND_COOKIES;
-    load_flags |= net::LOAD_DO_NOT_SAVE_COOKIES;
+  int flags = flags_;
+  if (!(flags & kURCachePolicyMask)) {
+    // Only consider the Cache-Control directives when a cache policy is not
+    // explicitly set on the request.
+    flags |= GetCacheControlHeaderPolicy(headerMap);
   }
 
-  fetcher.SetLoadFlags(load_flags);
+  if (flags & UR_FLAG_NO_RETRY_ON_5XX)
+    fetcher.SetAutomaticallyRetryOn5xx(false);
+
+  int net_flags = 0;
+
+  if (flags & UR_FLAG_SKIP_CACHE) {
+    net_flags |= net::LOAD_BYPASS_CACHE;
+  }
+  if (flags & UR_FLAG_ONLY_FROM_CACHE) {
+    net_flags |= net::LOAD_ONLY_FROM_CACHE | net::LOAD_SKIP_CACHE_VALIDATION;
+  }
+
+  if (!(flags & UR_FLAG_ALLOW_STORED_CREDENTIALS)) {
+    net_flags |= net::LOAD_DO_NOT_SEND_AUTH_DATA |
+                 net::LOAD_DO_NOT_SEND_COOKIES | net::LOAD_DO_NOT_SAVE_COOKIES;
+  }
+
+  fetcher.SetLoadFlags(net_flags);
 }
 
 void CefRequestImpl::SetReadOnly(bool read_only) {

@@ -40,6 +40,8 @@
 
 namespace {
 
+const char kReferrerLowerCase[] = "referer";
+
 // Wrap a string in a unique_ptr to avoid extra copies.
 std::unique_ptr<std::string> CreateUniqueString(const void* data,
                                                 size_t data_size) {
@@ -67,18 +69,27 @@ CefRefPtr<CefRequest> CreateRequest(const std::string& address,
     post_data->AddElement(post_element);
   }
 
+  std::string referer;
+
   CefRequest::HeaderMap header_map;
   if (!info.headers.empty()) {
     net::HttpServerRequestInfo::HeadersMap::const_iterator it =
         info.headers.begin();
     for (; it != info.headers.end(); ++it) {
-      header_map.insert(std::make_pair(it->first, it->second));
+      // Don't include Referer in the header map.
+      if (base::LowerCaseEqualsASCII(it->first, kReferrerLowerCase)) {
+        referer = it->second;
+      } else {
+        header_map.insert(std::make_pair(it->first, it->second));
+      }
     }
   }
 
   CefRefPtr<CefRequestImpl> request = new CefRequestImpl();
   request->Set((is_websocket ? "ws://" : "http://") + address + info.path,
                info.method, post_data, header_map);
+  if (!referer.empty())
+    request->SetReferrer(referer, REFERRER_POLICY_DEFAULT);
   request->SetReadOnly(true);
   return request;
 }
