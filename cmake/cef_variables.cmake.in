@@ -199,6 +199,7 @@ if(OS_LINUX)
     libcef.so
     natives_blob.bin
     snapshot_blob.bin
+    v8_context_snapshot.bin
     )
 
   # List of CEF resource files.
@@ -423,6 +424,7 @@ if(OS_WINDOWS)
     libGLESv2.dll
     natives_blob.bin
     snapshot_blob.bin
+    v8_context_snapshot.bin
     swiftshader
     )
 
