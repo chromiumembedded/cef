@@ -19,6 +19,7 @@ def make_wrapper_types_header(header):
   for clsname in clsnames:
     result += '  ' + get_wrapper_type_enum(clsname) + ',\n'
 
+  result += '\n  WT_LAST\n'
   result += '};\n\n' + \
             '#endif  // CEF_LIBCEF_DLL_WRAPPER_TYPES_H_'
 
