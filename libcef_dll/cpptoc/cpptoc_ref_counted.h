@@ -143,7 +143,7 @@ class CefCppToCRefCounted : public CefBaseRefCounted {
 
   // Increment/decrement reference counts on only the underlying class.
   void UnderlyingAddRef() const { wrapper_struct_.object_->AddRef(); }
-  bool UnderlyingRelease() const { return wrapper_struct_.object_->Release(); }
+  void UnderlyingRelease() const { wrapper_struct_.object_->Release(); }
   bool UnderlyingHasOneRef() const {
     return wrapper_struct_.object_->HasOneRef();
   }
