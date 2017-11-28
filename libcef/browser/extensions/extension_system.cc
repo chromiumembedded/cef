@@ -225,7 +225,7 @@ void CefExtensionSystem::Init() {
   //    CefExtensionWebContentsObserver::RenderViewCreated in the browser
   //    process.
   if (PdfExtensionEnabled()) {
-    LoadExtension(pdf_extension_util::GetManifest(),
+    LoadExtension(ParseManifest(pdf_extension_util::GetManifest()),
                   base::FilePath(FILE_PATH_LITERAL("pdf")), true /* internal */,
                   nullptr, nullptr);
   }

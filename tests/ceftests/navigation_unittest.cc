@@ -940,8 +940,7 @@ class RedirectTestHandler : public TestHandler {
       got_nav3_redirect_.yes();
 
       EXPECT_EQ(303, response->GetStatus());
-      EXPECT_STREQ("See Other",
-                   response->GetStatusText().ToString().c_str());
+      EXPECT_STREQ("See Other", response->GetStatusText().ToString().c_str());
       EXPECT_STREQ("text/html", response->GetMimeType().ToString().c_str());
     } else {
       got_invalid_redirect_.yes();
@@ -1169,21 +1168,20 @@ class OrderNavLoadState {
     got_load_end_.yes();
   }
 
-  bool IsStarted() {
+  bool IsStarted() const {
     return got_loading_state_start_ || got_loading_state_end_ ||
            got_load_start_ || got_load_end_;
   }
 
-  bool IsDone() {
+  bool IsDone() const {
     return got_loading_state_start_ && got_loading_state_end_ &&
            got_load_start_ && got_load_end_;
   }
 
- private:
   bool Verify(bool got_loading_state_start,
               bool got_loading_state_end,
               bool got_load_start,
-              bool got_load_end) {
+              bool got_load_end) const {
     EXPECT_EQ(got_loading_state_start, got_loading_state_start_)
         << "Popup: " << is_popup_ << "; Browser Side: " << browser_side_;
     EXPECT_EQ(got_loading_state_end, got_loading_state_end_)
@@ -1198,6 +1196,7 @@ class OrderNavLoadState {
            got_load_start == got_load_start_ && got_load_end == got_load_end_;
   }
 
+ private:
   bool is_popup_;
   bool browser_side_;
 
@@ -1382,6 +1381,15 @@ class OrderNavRendererTest : public ClientAppRenderer::Delegate,
     }
 
     SendTestResultsIfDone(browser);
+  }
+
+  void OnLoadError(CefRefPtr<CefBrowser> browser,
+                   CefRefPtr<CefFrame> frame,
+                   ErrorCode errorCode,
+                   const CefString& errorText,
+                   const CefString& failedUrl) override {
+    ADD_FAILURE() << "renderer OnLoadError url: " << failedUrl.ToString()
+                  << " error: " << errorCode;
   }
 
  protected:
@@ -1580,6 +1588,15 @@ class OrderNavTestHandler : public TestHandler {
     ContinueIfReady(browser);
   }
 
+  void OnLoadError(CefRefPtr<CefBrowser> browser,
+                   CefRefPtr<CefFrame> frame,
+                   ErrorCode errorCode,
+                   const CefString& errorText,
+                   const CefString& failedUrl) override {
+    ADD_FAILURE() << "browser OnLoadError url: " << failedUrl.ToString()
+                  << " error: " << errorCode;
+  }
+
   bool OnProcessMessageReceived(CefRefPtr<CefBrowser> browser,
                                 CefProcessId source_process,
                                 CefRefPtr<CefProcessMessage> message) override {
@@ -1626,6 +1643,9 @@ class OrderNavTestHandler : public TestHandler {
     // Verify test expectations.
     EXPECT_TRUE(got_before_browse_main_);
     EXPECT_TRUE(got_before_browse_popup_);
+
+    EXPECT_TRUE(state_main_.Verify(true, true, true, true));
+    EXPECT_TRUE(state_popup_.Verify(true, true, true, true));
 
     TestHandler::DestroyTest();
   }
@@ -2405,8 +2425,15 @@ class PopupJSWindowOpenTestHandler : public TestHandler {
   void OnAfterCreated(CefRefPtr<CefBrowser> browser) override {
     TestHandler::OnAfterCreated(browser);
 
-    if (browser->IsPopup())
+    if (browser->IsPopup()) {
       after_created_ct_++;
+      if (!popup1_)
+        popup1_ = browser;
+      else if (!popup2_)
+        popup2_ = browser;
+      else
+        ADD_FAILURE();
+    }
   }
 
   void OnLoadingStateChange(CefRefPtr<CefBrowser> browser,
@@ -2418,10 +2445,23 @@ class PopupJSWindowOpenTestHandler : public TestHandler {
 
     if (browser->IsPopup()) {
       const std::string& url = browser->GetMainFrame()->GetURL();
-      if (load_end_ct_ == 0)
+      if (url == kPopupJSOpenPopupUrl) {
+        EXPECT_TRUE(browser->IsSame(popup2_));
+        popup2_ = nullptr;
+
+        if (IsBrowserSideNavigationEnabled()) {
+          // OnLoadingStateChange is not currently called for browser-side
+          // navigations of empty popups. See https://crbug.com/789252.
+          // Explicitly close the empty popup here as a workaround.
+          CloseBrowser(popup1_, true);
+          popup1_ = nullptr;
+        }
+      } else {
+        // Empty popup.
         EXPECT_TRUE(url.empty());
-      else
-        EXPECT_STREQ(kPopupJSOpenPopupUrl, url.c_str());
+        EXPECT_TRUE(browser->IsSame(popup1_));
+        popup1_ = nullptr;
+      }
 
       load_end_ct_++;
       CloseBrowser(browser, true);
@@ -2436,6 +2476,15 @@ class PopupJSWindowOpenTestHandler : public TestHandler {
     }
   }
 
+  void OnLoadError(CefRefPtr<CefBrowser> browser,
+                   CefRefPtr<CefFrame> frame,
+                   ErrorCode errorCode,
+                   const CefString& errorText,
+                   const CefString& failedUrl) override {
+    ADD_FAILURE() << "OnLoadError url: " << failedUrl.ToString()
+                  << " error: " << errorCode;
+  }
+
   void OnBeforeClose(CefRefPtr<CefBrowser> browser) override {
     TestHandler::OnBeforeClose(browser);
 
@@ -2448,11 +2497,21 @@ class PopupJSWindowOpenTestHandler : public TestHandler {
   void DestroyTest() override {
     EXPECT_EQ(2U, before_popup_ct_);
     EXPECT_EQ(2U, after_created_ct_);
-    EXPECT_EQ(2U, load_end_ct_);
     EXPECT_EQ(2U, before_close_ct_);
+
+    if (IsBrowserSideNavigationEnabled()) {
+      // OnLoadingStateChange is not currently called for browser-side
+      // navigations of empty popups. See https://crbug.com/789252.
+      EXPECT_EQ(1U, load_end_ct_);
+    } else {
+      EXPECT_EQ(2U, load_end_ct_);
+    }
 
     TestHandler::DestroyTest();
   }
+
+  CefRefPtr<CefBrowser> popup1_;
+  CefRefPtr<CefBrowser> popup2_;
 
   size_t before_popup_ct_;
   size_t after_created_ct_;
@@ -3131,8 +3190,10 @@ class CancelAfterNavTestHandler : public TestHandler {
 
     got_get_resource_handler_.yes();
 
-    CefPostDelayedTask(
-        TID_UI, base::Bind(&CancelAfterNavTestHandler::CancelLoad, this), 100);
+    // The required delay is longer when browser-side navigation is enabled.
+    CefPostDelayedTask(TID_UI,
+                       base::Bind(&CancelAfterNavTestHandler::CancelLoad, this),
+                       IsBrowserSideNavigationEnabled() ? 500 : 100);
 
     return new StalledSchemeHandler();
   }

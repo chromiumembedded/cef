@@ -327,6 +327,9 @@ void ReleaseAndWaitForDestructor(CefRefPtr<T>& handler, int delay_ms = 2000) {
 // Returns true if the currently running test has failed.
 bool TestFailed();
 
+// Returns true if browser-side navigation is enabled.
+bool IsBrowserSideNavigationEnabled();
+
 // Helper macros for executing checks in a method with a boolean return value.
 // For example:
 //

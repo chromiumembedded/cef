@@ -450,6 +450,8 @@ static_library("libcef_static") {
     "libcef/browser/net/devtools_scheme_handler.h",
     "libcef/browser/net/internal_scheme_handler.cc",
     "libcef/browser/net/internal_scheme_handler.h",
+    "libcef/browser/net/net_util.cc",
+    "libcef/browser/net/net_util.h",
     "libcef/browser/net/network_delegate.cc",
     "libcef/browser/net/network_delegate.h",
     "libcef/browser/net/resource_request_job.cc",

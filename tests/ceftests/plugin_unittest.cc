@@ -361,7 +361,6 @@ class PluginTestHandler : public RoutingTestHandler,
       return new CefStreamResourceHandler("application/pdf", stream);
     }
 
-    NOTREACHED();
     return NULL;
   }
 

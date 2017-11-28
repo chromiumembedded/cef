@@ -82,6 +82,10 @@ using content::KeyboardEventProcessingResult;
 
 namespace {
 
+const int kUnspecifiedFrameTreeNodeId = -3;
+const int kMainFrameTreeNodeId = -2;
+const int kUnusedFrameTreeNodeId = -1;
+
 // Associates a CefBrowserHostImpl instance with a WebContents. This object will
 // be deleted automatically when the WebContents is destroyed.
 class WebContentsUserDataAdapter : public base::SupportsUserData::Data {
@@ -1390,7 +1394,9 @@ CefRefPtr<CefFrame> CefBrowserHostImpl::GetFrame(int64 identifier) {
   if (main_frame_id_ == CefFrameHostImpl::kInvalidFrameId) {
     // A main frame does not exist yet. Return the placeholder frame that
     // provides limited functionality.
-    return placeholder_frame_.get();
+    return GetOrCreatePendingFrame(kMainFrameTreeNodeId,
+                                   CefFrameHostImpl::kInvalidFrameId, nullptr)
+        .get();
   }
 
   if (identifier == CefFrameHostImpl::kMainFrameId) {
@@ -1406,7 +1412,7 @@ CefRefPtr<CefFrame> CefBrowserHostImpl::GetFrame(int64 identifier) {
   if (identifier == CefFrameHostImpl::kInvalidFrameId)
     return nullptr;
 
-  FrameMap::const_iterator it = frames_.find(identifier);
+  FrameIdMap::const_iterator it = frames_.find(identifier);
   if (it != frames_.end())
     return it->second.get();
 
@@ -1416,7 +1422,7 @@ CefRefPtr<CefFrame> CefBrowserHostImpl::GetFrame(int64 identifier) {
 CefRefPtr<CefFrame> CefBrowserHostImpl::GetFrame(const CefString& name) {
   base::AutoLock lock_scope(state_lock_);
 
-  FrameMap::const_iterator it = frames_.begin();
+  FrameIdMap::const_iterator it = frames_.begin();
   for (; it != frames_.end(); ++it) {
     if (it->second->GetName() == name)
       return it->second.get();
@@ -1436,7 +1442,7 @@ void CefBrowserHostImpl::GetFrameIdentifiers(std::vector<int64>& identifiers) {
   if (identifiers.size() > 0)
     identifiers.clear();
 
-  FrameMap::const_iterator it = frames_.begin();
+  FrameIdMap::const_iterator it = frames_.begin();
   for (; it != frames_.end(); ++it)
     identifiers.push_back(it->first);
 }
@@ -1447,7 +1453,7 @@ void CefBrowserHostImpl::GetFrameNames(std::vector<CefString>& names) {
   if (names.size() > 0)
     names.clear();
 
-  FrameMap::const_iterator it = frames_.begin();
+  FrameIdMap::const_iterator it = frames_.begin();
   for (; it != frames_.end(); ++it)
     names.push_back(it->second->GetName());
 }
@@ -1578,7 +1584,7 @@ CefRefPtr<CefFrame> CefBrowserHostImpl::GetFrameForRequest(
       content::ResourceRequestInfo::ForRequest(request);
   if (!info)
     return nullptr;
-  return GetOrCreateFrame(info->GetRenderFrameID(),
+  return GetOrCreateFrame(info->GetRenderFrameID(), info->GetFrameTreeNodeId(),
                           CefFrameHostImpl::kUnspecifiedFrameId,
                           info->IsMainFrame(), base::string16(), GURL());
 }
@@ -2198,10 +2204,10 @@ void CefBrowserHostImpl::AddNewContents(content::WebContents* source,
 void CefBrowserHostImpl::LoadingStateChanged(content::WebContents* source,
                                              bool to_different_document) {
   const int current_index =
-      web_contents_->GetController().GetLastCommittedEntryIndex();
-  const int max_index = web_contents_->GetController().GetEntryCount() - 1;
+      source->GetController().GetLastCommittedEntryIndex();
+  const int max_index = source->GetController().GetEntryCount() - 1;
 
-  const bool is_loading = web_contents_->IsLoading();
+  const bool is_loading = source->IsLoading();
   const bool can_go_back = (current_index > 0);
   const bool can_go_forward = (current_index < max_index);
 
@@ -2631,17 +2637,26 @@ void CefBrowserHostImpl::FrameDeleted(
 
   base::AutoLock lock_scope(state_lock_);
 
-  const int64 frame_id = render_frame_host->GetRoutingID();
-  FrameMap::iterator it = frames_.find(frame_id);
-  if (it != frames_.end()) {
-    it->second->Detach();
-    frames_.erase(it);
+  if (render_routing_id >= 0) {
+    FrameIdMap::iterator it = frames_.find(render_routing_id);
+    if (it != frames_.end()) {
+      it->second->Detach();
+      frames_.erase(it);
+    }
+
+    if (main_frame_id_ == render_routing_id)
+      main_frame_id_ = CefFrameHostImpl::kInvalidFrameId;
+    if (focused_frame_id_ == render_routing_id)
+      focused_frame_id_ = CefFrameHostImpl::kInvalidFrameId;
   }
 
-  if (main_frame_id_ == frame_id)
-    main_frame_id_ = CefFrameHostImpl::kInvalidFrameId;
-  if (focused_frame_id_ == frame_id)
-    focused_frame_id_ = CefFrameHostImpl::kInvalidFrameId;
+  if (frame_tree_node_id >= 0) {
+    FrameTreeNodeIdMap::iterator it = pending_frames_.find(frame_tree_node_id);
+    if (it != pending_frames_.end()) {
+      it->second->Detach();
+      pending_frames_.erase(it);
+    }
+  }
 }
 
 void CefBrowserHostImpl::RenderViewCreated(
@@ -2653,6 +2668,9 @@ void CefBrowserHostImpl::RenderViewCreated(
     registrar_->Add(this, content::NOTIFICATION_FOCUS_CHANGED_IN_PAGE,
                     content::Source<content::RenderViewHost>(render_view_host));
   }
+
+  // RenderFrameCreated is otherwise not called for new popup browsers.
+  RenderFrameCreated(render_view_host->GetMainFrame());
 
   platform_delegate_->RenderViewCreated(render_view_host);
 }
@@ -2706,25 +2724,28 @@ void CefBrowserHostImpl::RenderProcessGone(base::TerminationStatus status) {
 
 void CefBrowserHostImpl::DidFinishNavigation(
     content::NavigationHandle* navigation_handle) {
-  // This method may be called with a nullptr RenderFrameHost (RFH) when a
-  // provisional load is started. It should be called again with a non-nullptr
-  // RFH once the provisional load is committed or if the provisional load
-  // fails.
-  if (!navigation_handle->GetRenderFrameHost())
-    return;
-
   const net::Error error_code = navigation_handle->GetNetErrorCode();
+
+  // With PlzNavigate the RenderFrameHost will only be nullptr if the
+  // provisional load fails, in which case |error_code| will be ERR_ABORTED.
+  DCHECK(navigation_handle->GetRenderFrameHost() ||
+         error_code == net::ERR_ABORTED);
+
+  const int64 frame_id =
+      navigation_handle->GetRenderFrameHost()
+          ? navigation_handle->GetRenderFrameHost()->GetRoutingID()
+          : CefFrameHostImpl::kUnspecifiedFrameId;
+  const bool is_main_frame = navigation_handle->IsInMainFrame();
+  const GURL& url =
+      (error_code == net::OK ? navigation_handle->GetURL() : GURL());
+
+  CefRefPtr<CefFrame> frame =
+      GetOrCreateFrame(frame_id, navigation_handle->GetFrameTreeNodeId(),
+                       CefFrameHostImpl::kUnspecifiedFrameId, is_main_frame,
+                       base::string16(), url);
+
   if (error_code == net::OK) {
     // The navigation has been committed.
-    const bool is_main_frame = navigation_handle->IsInMainFrame();
-    const GURL& url = navigation_handle->GetURL();
-
-    // This also updates the URL associated with the frame.
-    CefRefPtr<CefFrame> frame = GetOrCreateFrame(
-        navigation_handle->GetRenderFrameHost()->GetRoutingID(),
-        CefFrameHostImpl::kUnspecifiedFrameId, is_main_frame, base::string16(),
-        url);
-
     // Don't call OnLoadStart for same page navigations (fragments,
     // history state).
     if (!navigation_handle->IsSameDocument())
@@ -2735,11 +2756,6 @@ void CefBrowserHostImpl::DidFinishNavigation(
   } else {
     // The navigation failed before commit. Originates from
     // RenderFrameHostImpl::OnDidFailProvisionalLoadWithError.
-    CefRefPtr<CefFrame> frame = GetOrCreateFrame(
-        navigation_handle->GetRenderFrameHost()->GetRoutingID(),
-        CefFrameHostImpl::kUnspecifiedFrameId,
-        navigation_handle->IsInMainFrame(), base::string16(), GURL());
-
     // OnLoadStart/OnLoadEnd will not be called.
     OnLoadError(frame, navigation_handle->GetURL(), error_code);
   }
@@ -2768,9 +2784,11 @@ void CefBrowserHostImpl::DidFailLoad(
   // The navigation failed after commit. OnLoadStart was called so we also call
   // OnLoadEnd.
   const bool is_main_frame = !render_frame_host->GetParent();
-  CefRefPtr<CefFrame> frame = GetOrCreateFrame(
-      render_frame_host->GetRoutingID(), CefFrameHostImpl::kUnspecifiedFrameId,
-      is_main_frame, base::string16(), validated_url);
+  CefRefPtr<CefFrame> frame =
+      GetOrCreateFrame(render_frame_host->GetRoutingID(),
+                       render_frame_host->GetFrameTreeNodeId(),
+                       CefFrameHostImpl::kUnspecifiedFrameId, is_main_frame,
+                       base::string16(), validated_url);
   OnLoadError(frame, validated_url, error_code);
   OnLoadEnd(frame, validated_url, error_code);
 }
@@ -2922,7 +2940,8 @@ void CefBrowserHostImpl::OnFrameIdentified(int64 frame_id,
                                            int64 parent_frame_id,
                                            base::string16 name) {
   bool is_main_frame = (parent_frame_id == CefFrameHostImpl::kMainFrameId);
-  GetOrCreateFrame(frame_id, parent_frame_id, is_main_frame, name, GURL());
+  GetOrCreateFrame(frame_id, kUnspecifiedFrameTreeNodeId, parent_frame_id,
+                   is_main_frame, name, GURL());
 }
 
 void CefBrowserHostImpl::OnFrameFocused(
@@ -2937,13 +2956,13 @@ void CefBrowserHostImpl::OnFrameFocused(
 
     if (focused_frame_id_ != CefFrameHostImpl::kInvalidFrameId) {
       // Unfocus the previously focused frame.
-      FrameMap::const_iterator it = frames_.find(frame_id);
+      FrameIdMap::const_iterator it = frames_.find(frame_id);
       if (it != frames_.end())
         unfocused_frame = it->second;
     }
 
     // Focus the newly focused frame.
-    FrameMap::iterator it = frames_.find(frame_id);
+    FrameIdMap::iterator it = frames_.find(frame_id);
     if (it != frames_.end())
       focused_frame = it->second;
 
@@ -2962,8 +2981,9 @@ void CefBrowserHostImpl::OnDidFinishLoad(int64 frame_id,
                                          bool is_main_frame,
                                          int http_status_code) {
   CefRefPtr<CefFrame> frame =
-      GetOrCreateFrame(frame_id, CefFrameHostImpl::kUnspecifiedFrameId,
-                       is_main_frame, base::string16(), validated_url);
+      GetOrCreateFrame(frame_id, kUnspecifiedFrameTreeNodeId,
+                       CefFrameHostImpl::kUnspecifiedFrameId, is_main_frame,
+                       base::string16(), validated_url);
 
   // Give internal scheme handlers an opportunity to update content.
   scheme::DidFinishLoad(frame, validated_url);
@@ -3117,10 +3137,6 @@ CefBrowserHostImpl::CefBrowserHostImpl(
 
   response_manager_.reset(new CefResponseManager);
 
-  placeholder_frame_ = new CefFrameHostImpl(
-      this, CefFrameHostImpl::kInvalidFrameId, true, CefString(), CefString(),
-      CefFrameHostImpl::kInvalidFrameId);
-
   PrefsTabHelper::CreateForWebContents(web_contents_.get());
   printing::CefPrintViewManager::CreateForWebContents(web_contents_.get());
 
@@ -3209,13 +3225,13 @@ void CefBrowserHostImpl::OnExtensionHostDeleted() {
 
 CefRefPtr<CefFrame> CefBrowserHostImpl::GetOrCreateFrame(
     int64 frame_id,
+    int frame_tree_node_id,
     int64 parent_frame_id,
     bool is_main_frame,
     base::string16 frame_name,
     const GURL& frame_url) {
-  DCHECK(frame_id > CefFrameHostImpl::kInvalidFrameId);
-  if (frame_id <= CefFrameHostImpl::kInvalidFrameId)
-    return nullptr;
+  // We need either a valid |frame_id| or a valid |frame_tree_node_id|.
+  DCHECK(frame_id >= 0 || frame_tree_node_id >= kUnusedFrameTreeNodeId);
 
   CefString url;
   if (frame_url.is_valid())
@@ -3228,13 +3244,50 @@ CefRefPtr<CefFrame> CefBrowserHostImpl::GetOrCreateFrame(
   CefRefPtr<CefFrameHostImpl> frame;
   bool frame_created = false;
 
-  {
-    base::AutoLock lock_scope(state_lock_);
+  base::AutoLock lock_scope(state_lock_);
 
+  if (frame_id < 0) {
+    // With PlzNavigate the renderer process representation might not exist yet.
+    if (is_main_frame && main_frame_id_ != CefFrameHostImpl::kInvalidFrameId) {
+      // Operating in the main frame. Continue using the existing main frame
+      // object until the new renderer process representation is created.
+      frame_id = main_frame_id_;
+    } else {
+      if (is_main_frame) {
+        // Always use the same pending object for the main frame.
+        frame_tree_node_id = kMainFrameTreeNodeId;
+      }
+
+      // Operating in a sub-frame, or the main frame hasn't yet navigated for
+      // the first time. Use a pending object keyed on |frame_tree_node_id|.
+      frame = GetOrCreatePendingFrame(frame_tree_node_id, parent_frame_id,
+                                      &frame_created);
+    }
+  }
+
+  if (!frame) {
+    // Delete the pending object, if any.
+    {
+      FrameTreeNodeIdMap::iterator it =
+          pending_frames_.find(frame_tree_node_id);
+      if (it != pending_frames_.end()) {
+        DCHECK_EQ(is_main_frame, it->second->IsMain());
+
+        // Persist URL and name to the new frame.
+        if (url.empty())
+          url = it->second->GetURL();
+        if (name.empty())
+          name = it->second->GetName();
+
+        pending_frames_.erase(it);
+      }
+    }
+
+    // Update the main frame object if the ID has changed.
     if (is_main_frame && main_frame_id_ != frame_id) {
       if (main_frame_id_ != CefFrameHostImpl::kInvalidFrameId) {
         // Remove the old main frame object before adding the new one.
-        FrameMap::iterator it = frames_.find(main_frame_id_);
+        FrameIdMap::iterator it = frames_.find(main_frame_id_);
         if (it != frames_.end()) {
           // Persist URL and name to the new main frame.
           if (url.empty())
@@ -3249,15 +3302,18 @@ CefRefPtr<CefFrame> CefBrowserHostImpl::GetOrCreateFrame(
         if (focused_frame_id_ == main_frame_id_)
           focused_frame_id_ = frame_id;
       }
+
       main_frame_id_ = frame_id;
     }
 
-    // Check if a frame object already exists.
-    FrameMap::const_iterator it = frames_.find(frame_id);
-    if (it != frames_.end())
-      frame = it->second.get();
+    // Check if a frame object already exists for the ID. If so, re-use it.
+    {
+      FrameIdMap::const_iterator it = frames_.find(frame_id);
+      if (it != frames_.end())
+        frame = it->second;
+    }
 
-    if (!frame.get()) {
+    if (!frame) {
       frame = new CefFrameHostImpl(this, frame_id, is_main_frame, url, name,
                                    parent_frame_id);
       frame_created = true;
@@ -3266,13 +3322,40 @@ CefRefPtr<CefFrame> CefBrowserHostImpl::GetOrCreateFrame(
   }
 
   if (!frame_created)
-    frame->SetAttributes(url, name, parent_frame_id);
+    frame->SetAttributes(is_main_frame, url, name, parent_frame_id);
 
   return frame.get();
 }
 
+CefRefPtr<CefFrameHostImpl> CefBrowserHostImpl::GetOrCreatePendingFrame(
+    int frame_tree_node_id,
+    int64 parent_frame_id,
+    bool* created) {
+  const bool is_main_frame = (frame_tree_node_id == kMainFrameTreeNodeId);
+  DCHECK(is_main_frame || frame_tree_node_id >= 0);
+
+  state_lock_.AssertAcquired();
+
+  FrameTreeNodeIdMap::const_iterator it =
+      pending_frames_.find(frame_tree_node_id);
+  if (it != pending_frames_.end()) {
+    DCHECK_EQ(is_main_frame, it->second->IsMain());
+    return it->second;
+  }
+
+  CefRefPtr<CefFrameHostImpl> frame = new CefFrameHostImpl(
+      this, CefFrameHostImpl::kInvalidFrameId, is_main_frame, CefString(),
+      CefString(), parent_frame_id);
+  pending_frames_.insert(std::make_pair(frame_tree_node_id, frame));
+  if (created)
+    *created = true;
+
+  return frame;
+}
+
 void CefBrowserHostImpl::DetachAllFrames() {
-  FrameMap frames;
+  FrameIdMap frames;
+  FrameTreeNodeIdMap pending_frames;
 
   {
     base::AutoLock lock_scope(state_lock_);
@@ -3280,15 +3363,26 @@ void CefBrowserHostImpl::DetachAllFrames() {
     frames = frames_;
     frames_.clear();
 
+    pending_frames = pending_frames_;
+    pending_frames_.clear();
+
     if (main_frame_id_ != CefFrameHostImpl::kInvalidFrameId)
       main_frame_id_ = CefFrameHostImpl::kInvalidFrameId;
     if (focused_frame_id_ != CefFrameHostImpl::kInvalidFrameId)
       focused_frame_id_ = CefFrameHostImpl::kInvalidFrameId;
   }
 
-  FrameMap::const_iterator it = frames.begin();
-  for (; it != frames.end(); ++it)
-    it->second->Detach();
+  {
+    FrameIdMap::const_iterator it = frames.begin();
+    for (; it != frames.end(); ++it)
+      it->second->Detach();
+  }
+
+  {
+    FrameTreeNodeIdMap::const_iterator it = pending_frames.begin();
+    for (; it != pending_frames.end(); ++it)
+      it->second->Detach();
+  }
 }
 
 gfx::Point CefBrowserHostImpl::GetScreenPoint(const gfx::Point& view) const {

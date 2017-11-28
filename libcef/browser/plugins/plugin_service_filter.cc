@@ -24,6 +24,10 @@ bool CefPluginServiceFilter::IsPluginAvailable(
     bool is_main_frame,
     const url::Origin& main_frame_origin,
     content::WebPluginInfo* plugin) {
+  // With PlzNavigate this can be called before the renderer process exists.
+  if (render_process_id < 0)
+    return true;
+
   CefResourceContext* resource_context = const_cast<CefResourceContext*>(
       reinterpret_cast<const CefResourceContext*>(context));
   CefViewHostMsg_GetPluginInfo_Status status =

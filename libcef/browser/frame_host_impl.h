@@ -57,7 +57,8 @@ class CefFrameHostImpl : public CefFrame {
   void VisitDOM(CefRefPtr<CefDOMVisitor> visitor) override;
 
   void SetFocused(bool focused);
-  void SetAttributes(const CefString& url,
+  void SetAttributes(bool is_main_frame,
+                     const CefString& url,
                      const CefString& name,
                      int64 parent_frame_id);
 

@@ -7,6 +7,7 @@
 #include <string>
 
 #include "libcef/browser/browser_host_impl.h"
+#include "libcef/browser/net/net_util.h"
 #include "libcef/browser/net/resource_request_job.h"
 #include "libcef/browser/thread_util.h"
 #include "libcef/common/net/http_header_utils.h"
@@ -29,11 +30,8 @@ CefRequestInterceptor::~CefRequestInterceptor() {
 net::URLRequestJob* CefRequestInterceptor::MaybeInterceptRequest(
     net::URLRequest* request,
     net::NetworkDelegate* network_delegate) const {
-  // With PlzNavigate we now receive blob URLs here.
-  // Ignore these URLs. See https://crbug.com/776884 for details.
-  if (request->url().SchemeIs(url::kBlobScheme)) {
+  if (net_util::IsInternalRequest(request))
     return nullptr;
-  }
 
   CefRefPtr<CefBrowserHostImpl> browser =
       CefBrowserHostImpl::GetBrowserForRequest(request);
@@ -59,13 +57,16 @@ net::URLRequestJob* CefRequestInterceptor::MaybeInterceptRequest(
     }
   }
 
-  return NULL;
+  return nullptr;
 }
 
 net::URLRequestJob* CefRequestInterceptor::MaybeInterceptRedirect(
     net::URLRequest* request,
     net::NetworkDelegate* network_delegate,
     const GURL& location) const {
+  if (net_util::IsInternalRequest(request))
+    return nullptr;
+
   CefRefPtr<CefBrowserHostImpl> browser =
       CefBrowserHostImpl::GetBrowserForRequest(request);
   if (browser.get()) {
@@ -100,24 +101,27 @@ net::URLRequestJob* CefRequestInterceptor::MaybeInterceptRedirect(
     }
   }
 
-  return NULL;
+  return nullptr;
 }
 
 net::URLRequestJob* CefRequestInterceptor::MaybeInterceptResponse(
     net::URLRequest* request,
     net::NetworkDelegate* network_delegate) const {
+  if (net_util::IsInternalRequest(request))
+    return nullptr;
+
   CefRefPtr<CefBrowserHostImpl> browser =
       CefBrowserHostImpl::GetBrowserForRequest(request);
   if (!browser.get())
-    return NULL;
+    return nullptr;
 
   CefRefPtr<CefClient> client = browser->GetClient();
   if (!client.get())
-    return NULL;
+    return nullptr;
 
   CefRefPtr<CefRequestHandler> handler = client->GetRequestHandler();
   if (!handler.get())
-    return NULL;
+    return nullptr;
 
   CefRefPtr<CefFrame> frame = browser->GetFrameForRequest(request);
 
@@ -132,7 +136,7 @@ net::URLRequestJob* CefRequestInterceptor::MaybeInterceptResponse(
   // Give the client an opportunity to retry or redirect the request.
   if (!handler->OnResourceResponse(browser.get(), frame, cefRequest.get(),
                                    cefResponse.get())) {
-    return NULL;
+    return nullptr;
   }
 
   // This flag will be reset by URLRequest::RestartWithJob() calling

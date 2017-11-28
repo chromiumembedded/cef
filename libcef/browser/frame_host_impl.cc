@@ -212,10 +212,12 @@ void CefFrameHostImpl::SetFocused(bool focused) {
   is_focused_ = focused;
 }
 
-void CefFrameHostImpl::SetAttributes(const CefString& url,
+void CefFrameHostImpl::SetAttributes(bool is_main_frame,
+                                     const CefString& url,
                                      const CefString& name,
                                      int64 parent_frame_id) {
   base::AutoLock lock_scope(state_lock_);
+  is_main_frame_ = is_main_frame;
   if (!url.empty() && url != url_)
     url_ = url;
   if (!name.empty() && name != name_)

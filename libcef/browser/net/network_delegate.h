@@ -20,10 +20,6 @@ class CefNetworkDelegate : public net::NetworkDelegateImpl {
   CefNetworkDelegate();
   ~CefNetworkDelegate() override;
 
-  // Match the logic from ChromeNetworkDelegate and
-  // RenderFrameMessageFilter::OnSetCookie.
-  static bool AreExperimentalCookieFeaturesEnabled();
-
   void set_force_google_safesearch(BooleanPrefMember* force_google_safesearch) {
     force_google_safesearch_ = force_google_safesearch;
   }
