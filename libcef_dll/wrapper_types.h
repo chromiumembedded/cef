@@ -159,6 +159,8 @@ enum CefWrapperType {
   WT_X509CERTIFICATE,
   WT_XML_READER,
   WT_ZIP_READER,
+
+  WT_LAST
 };
 
 #endif  // CEF_LIBCEF_DLL_WRAPPER_TYPES_H_
