@@ -31,7 +31,9 @@
 #define CEF_INCLUDE_CEF_APPLICATION_MAC_H_
 #pragma once
 
+#ifdef __cplusplus
 #include "include/cef_base.h"
+#endif  // __cplusplus
 
 #if defined(OS_MACOSX) && defined(__OBJC__)
 
