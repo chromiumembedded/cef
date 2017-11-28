@@ -591,8 +591,10 @@ class TypeTestHandler : public TestHandler {
     if (destroyed_)
       return;
 
-    if (completed_browser_side_ && completed_render_side_)
+    if (completed_browser_side_ &&
+        (completed_render_side_ || IsBrowserSideNavigationEnabled())) {
       DestroyTest();
+    }
   }
 
   void DestroyTest() override {
@@ -602,7 +604,11 @@ class TypeTestHandler : public TestHandler {
 
     // Verify test expectations.
     EXPECT_TRUE(completed_browser_side_);
-    EXPECT_TRUE(completed_render_side_);
+    if (IsBrowserSideNavigationEnabled()) {
+      EXPECT_FALSE(completed_render_side_);
+    } else {
+      EXPECT_TRUE(completed_render_side_);
+    }
     EXPECT_TRUE(browse_expectations_.IsDone(true));
     EXPECT_TRUE(load_expectations_.IsDone(true));
     EXPECT_TRUE(get_expectations_.IsDone(true));

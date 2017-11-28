@@ -586,13 +586,36 @@ class CefBrowserHostImpl : public CefBrowserHost,
   void DestroyExtensionHost();
   void OnExtensionHostDeleted();
 
-  // Updates and returns an existing frame or creates a new frame. Pass
-  // CefFrameHostImpl::kUnspecifiedFrameId for |parent_frame_id| if unknown.
+  // Update or create a frame object. |frame_id| (renderer routing id) will be
+  // >= 0 if the frame currently exists in the renderer process. |frame_id| will
+  // be < 0 for the main frame if it has not yet navigated for the first time,
+  // or for sub-frames if PlzNavigate is enabled and the sub-frame does not yet
+  // have a renderer process representation. |frame_tree_node_id| will be
+  // kUnspecifiedFrameTreeNodeId for calls that originate from the renderer
+  // process (meaning that |frame_id| should be >= 0); kUnusedFrameTreeNodeId
+  // if PlzNavigate is disabled; or >= 0 otherwise. |parent_frame_id| will be
+  // CefFrameHostImpl::kUnspecifiedFrameId if unknown. In cases where |frame_id|
+  // is < 0 either the existing main frame object or a pending object will be
+  // returned depending on current state.
   CefRefPtr<CefFrame> GetOrCreateFrame(int64 frame_id,
+                                       int frame_tree_node_id,
                                        int64 parent_frame_id,
                                        bool is_main_frame,
                                        base::string16 frame_name,
                                        const GURL& frame_url);
+
+  // Returns a pending frame object. If the main frame has not yet navigated for
+  // the first time then |frame_tree_node_id| will be kMainFrameTreeNodeId and a
+  // single pending object will be returned. Otherwise, this method will be
+  // called with a |frame_tree_node_id| value >= 0 when PlzNavigate is enabled
+  // and there will then be one pending object for each frame that does not yet
+  // have a renderer process representation. |parent_frame_id| will be
+  // CefFrameHostImpl::kUnspecifiedFrameId if unknown. |created| will be set to
+  // true if |created| is non-nullptr and the frame object was created.
+  CefRefPtr<CefFrameHostImpl> GetOrCreatePendingFrame(int frame_tree_node_id,
+                                                      int64 parent_frame_id,
+                                                      bool* created);
+
   // Remove the references to all frames and mark them as detached.
   void DetachAllFrames();
 
@@ -636,15 +659,20 @@ class CefBrowserHostImpl : public CefBrowserHost,
   std::queue<IPC::Message*> queued_messages_;
   bool queue_messages_;
 
-  // Map of unique frame ids to CefFrameHostImpl references.
-  typedef std::map<int64, CefRefPtr<CefFrameHostImpl>> FrameMap;
-  FrameMap frames_;
+  // Map of frame tree node id to CefFrameHostImpl. These are frames that do not
+  // yet have a renderer process representation.
+  typedef std::map<int, CefRefPtr<CefFrameHostImpl>> FrameTreeNodeIdMap;
+  FrameTreeNodeIdMap pending_frames_;
+
+  // Map of unique frame id (renderer routing id) to CefFrameHostImpl. These are
+  // frames that do have a renderer process representation.
+  typedef std::map<int64, CefRefPtr<CefFrameHostImpl>> FrameIdMap;
+  FrameIdMap frames_;
+
   // The unique frame id currently identified as the main frame.
   int64 main_frame_id_;
   // The unique frame id currently identified as the focused frame.
   int64 focused_frame_id_;
-  // Used when no other frame exists. Provides limited functionality.
-  CefRefPtr<CefFrameHostImpl> placeholder_frame_;
 
   // Represents the current browser destruction state. Only accessed on the UI
   // thread.

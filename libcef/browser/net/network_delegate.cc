@@ -9,6 +9,7 @@
 
 #include "include/cef_urlrequest.h"
 #include "libcef/browser/browser_host_impl.h"
+#include "libcef/browser/net/net_util.h"
 #include "libcef/browser/net/source_stream.h"
 #include "libcef/browser/net/url_request_user_data.h"
 #include "libcef/browser/thread_util.h"
@@ -219,14 +220,9 @@ class CefAuthCallbackImpl : public CefAuthCallback {
   IMPLEMENT_REFCOUNTING(CefAuthCallbackImpl);
 };
 
-}  // namespace
-
-CefNetworkDelegate::CefNetworkDelegate() : force_google_safesearch_(nullptr) {}
-
-CefNetworkDelegate::~CefNetworkDelegate() {}
-
-// static
-bool CefNetworkDelegate::AreExperimentalCookieFeaturesEnabled() {
+// Match the logic from ChromeNetworkDelegate and
+// RenderFrameMessageFilter::OnSetCookie.
+bool AreExperimentalCookieFeaturesEnabled() {
   static bool initialized = false;
   static bool enabled = false;
   if (!initialized) {
@@ -237,9 +233,18 @@ bool CefNetworkDelegate::AreExperimentalCookieFeaturesEnabled() {
   return enabled;
 }
 
+}  // namespace
+
+CefNetworkDelegate::CefNetworkDelegate() : force_google_safesearch_(nullptr) {}
+
+CefNetworkDelegate::~CefNetworkDelegate() {}
+
 std::unique_ptr<net::SourceStream> CefNetworkDelegate::CreateSourceStream(
     net::URLRequest* request,
     std::unique_ptr<net::SourceStream> upstream) {
+  if (net_util::IsInternalRequest(request))
+    return upstream;
+
   CefRefPtr<CefResponseFilter> cef_filter;
 
   CefRefPtr<CefBrowserHostImpl> browser =
@@ -275,6 +280,9 @@ int CefNetworkDelegate::OnBeforeURLRequest(
     net::URLRequest* request,
     const net::CompletionCallback& callback,
     GURL* new_url) {
+  if (net_util::IsInternalRequest(request))
+    return net::OK;
+
   const bool force_google_safesearch =
       (force_google_safesearch_ && force_google_safesearch_->GetValue());
 
@@ -330,6 +338,9 @@ int CefNetworkDelegate::OnBeforeURLRequest(
 }
 
 void CefNetworkDelegate::OnCompleted(net::URLRequest* request, bool started) {
+  if (net_util::IsInternalRequest(request))
+    return;
+
   if (!started)
     return;
 
@@ -381,6 +392,9 @@ net::NetworkDelegate::AuthRequiredResponse CefNetworkDelegate::OnAuthRequired(
     const net::AuthChallengeInfo& auth_info,
     const AuthCallback& callback,
     net::AuthCredentials* credentials) {
+  if (net_util::IsInternalRequest(request))
+    return AUTH_REQUIRED_RESPONSE_NO_ACTION;
+
   CefRefPtr<CefBrowserHostImpl> browser =
       CefBrowserHostImpl::GetBrowserForRequest(request);
   if (browser.get()) {
@@ -434,5 +448,5 @@ bool CefNetworkDelegate::OnCanAccessFile(
 }
 
 bool CefNetworkDelegate::OnAreExperimentalCookieFeaturesEnabled() const {
-  return AreExperimentalCookieFeaturesEnabled();
+  return ::AreExperimentalCookieFeaturesEnabled();
 }

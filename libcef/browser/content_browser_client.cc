@@ -433,16 +433,6 @@ bool NavigationOnUIThread(
   return ignore_navigation;
 }
 
-void FindFrameHostForNavigationHandle(
-    content::NavigationHandle* navigation_handle,
-    content::RenderFrameHost** matching_frame_host,
-    content::RenderFrameHost* current_frame_host) {
-  content::RenderFrameHostImpl* current_impl =
-      static_cast<content::RenderFrameHostImpl*>(current_frame_host);
-  if (current_impl->navigation_handle() == navigation_handle)
-    *matching_frame_host = current_frame_host;
-}
-
 }  // namespace
 
 CefContentBrowserClient::CefContentBrowserClient() : browser_main_parts_(NULL) {
@@ -919,19 +909,12 @@ CefContentBrowserClient::CreateThrottlesForNavigation(
 
   int64 parent_frame_id = CefFrameHostImpl::kUnspecifiedFrameId;
   if (!is_main_frame) {
-    // Identify the RenderFrameHostImpl that originated the navigation.
-    // TODO(cef): It would be better if NavigationHandle could directly report
-    // the owner RenderFrameHostImpl.
-    // There is additional complexity here if PlzNavigate is enabled. See
-    // comments in content/browser/frame_host/navigation_handle_impl.h.
-    content::WebContents* web_contents = navigation_handle->GetWebContents();
-    content::RenderFrameHost* parent_frame_host = NULL;
-    web_contents->ForEachFrame(base::Bind(FindFrameHostForNavigationHandle,
-                                          navigation_handle,
-                                          &parent_frame_host));
+    // Identify the RenderFrameHost that originated the navigation.
+    content::RenderFrameHost* parent_frame_host =
+        navigation_handle->GetParentFrame();
     DCHECK(parent_frame_host);
-
-    parent_frame_id = parent_frame_host->GetRoutingID();
+    if (parent_frame_host)
+      parent_frame_id = parent_frame_host->GetRoutingID();
     if (parent_frame_id < 0)
       parent_frame_id = CefFrameHostImpl::kUnspecifiedFrameId;
   }

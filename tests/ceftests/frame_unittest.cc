@@ -736,8 +736,13 @@ class FrameNavExpectationsRendererSingleNav
     V_EXPECT_TRUE(got_load_end_);
     V_EXPECT_TRUE(got_loading_state_change_start_);
     V_EXPECT_TRUE(got_loading_state_change_end_);
-    V_EXPECT_TRUE(got_before_navigation_);
     V_EXPECT_FALSE(got_finalize_);
+
+    if (IsBrowserSideNavigationEnabled()) {
+      V_EXPECT_FALSE(got_before_navigation_);
+    } else {
+      V_EXPECT_TRUE(got_before_navigation_);
+    }
 
     got_finalize_.yes();
 
@@ -1018,8 +1023,10 @@ class FrameNavExpectationsBrowserTestSingleNav
                       CefRefPtr<CefFrame> frame,
                       const std::string& url) override {
     V_DECLARE();
-    V_EXPECT_TRUE(
-        VerifySingleBrowserFrames(browser, frame, true, std::string()));
+    // When browser-side navigation is enabled this method will be called
+    // before the frame is created.
+    V_EXPECT_TRUE(VerifySingleBrowserFrames(
+        browser, frame, !IsBrowserSideNavigationEnabled(), std::string()));
     V_EXPECT_TRUE(parent::OnBeforeBrowse(browser, frame, url));
     V_RETURN();
   }
@@ -1027,8 +1034,10 @@ class FrameNavExpectationsBrowserTestSingleNav
   bool GetResourceHandler(CefRefPtr<CefBrowser> browser,
                           CefRefPtr<CefFrame> frame) override {
     V_DECLARE();
-    V_EXPECT_TRUE(
-        VerifySingleBrowserFrames(browser, frame, true, std::string()));
+    // When browser-side navigation is enabled this method will be called
+    // before the frame is created.
+    V_EXPECT_TRUE(VerifySingleBrowserFrames(
+        browser, frame, !IsBrowserSideNavigationEnabled(), std::string()));
     V_EXPECT_TRUE(parent::GetResourceHandler(browser, frame));
     V_RETURN();
   }
@@ -1527,8 +1536,11 @@ class FrameNavExpectationsBrowserTestMultiNav
     std::string expected_url;
     if (nav() > 0)
       expected_url = GetPreviousMainURL();
-    V_EXPECT_TRUE(
-        VerifySingleBrowserFrames(browser, frame, true, expected_url));
+    // When browser-side navigation is enabled this method will be called
+    // before the frame is created for the first navigation.
+    V_EXPECT_TRUE(VerifySingleBrowserFrames(
+        browser, frame, nav() == 0 ? !IsBrowserSideNavigationEnabled() : true,
+        expected_url));
     V_EXPECT_TRUE(parent::OnBeforeBrowse(browser, frame, url));
     V_RETURN();
   }
@@ -1539,8 +1551,11 @@ class FrameNavExpectationsBrowserTestMultiNav
     std::string expected_url;
     if (nav() > 0)
       expected_url = GetPreviousMainURL();
-    V_EXPECT_TRUE(
-        VerifySingleBrowserFrames(browser, frame, true, expected_url));
+    // When browser-side navigation is enabled this method will be called
+    // before the frame is created for the first navigation.
+    V_EXPECT_TRUE(VerifySingleBrowserFrames(
+        browser, frame, nav() == 0 ? !IsBrowserSideNavigationEnabled() : true,
+        expected_url));
     V_EXPECT_TRUE(parent::GetResourceHandler(browser, frame));
     V_RETURN();
   }
@@ -1723,33 +1738,48 @@ bool VerifyBrowserIframe(CefRefPtr<CefBrowser> browser,
   V_EXPECT_TRUE(frame2.get());
 
   // Verify that the name matches.
-  V_EXPECT_TRUE(frame0->GetName().ToString() == kFrame0Name);
-  V_EXPECT_TRUE(frame1->GetName().ToString() == kFrame1Name);
-  V_EXPECT_TRUE(frame2->GetName().ToString() == kFrame2Name);
+  V_EXPECT_TRUE(frame0->GetName().ToString() == kFrame0Name)
+      << "expected: " << kFrame0Name
+      << " actual: " << frame0->GetName().ToString();
+  V_EXPECT_TRUE(frame1->GetName().ToString() == kFrame1Name)
+      << "expected: " << kFrame1Name
+      << " actual: " << frame1->GetName().ToString();
+  V_EXPECT_TRUE(frame2->GetName().ToString() == kFrame2Name)
+      << "expected: " << kFrame2Name
+      << " actual: " << frame2->GetName().ToString();
 
   // Verify that the URL matches.
   frame0url = GetMultiNavURL(origin, 0);
-  V_EXPECT_TRUE(frame0->GetURL() == frame0url);
+  V_EXPECT_TRUE(frame0->GetURL() == frame0url)
+      << "expected: " << frame0url
+      << " actual: " << frame0->GetURL().ToString();
   frame1url = GetMultiNavURL(origin, 1);
-  V_EXPECT_TRUE(frame1->GetURL() == frame1url);
+  V_EXPECT_TRUE(frame1->GetURL() == frame1url)
+      << "expected: " << frame1url
+      << " actual: " << frame1->GetURL().ToString();
   frame2url = GetMultiNavURL(origin, 2);
-  V_EXPECT_TRUE(frame2->GetURL() == frame2url);
+  V_EXPECT_TRUE(frame2->GetURL() == frame2url)
+      << "expected: " << frame2url
+      << " actual: " << frame2->GetURL().ToString();
 
   // Verify that the frame id is valid.
   frame0id = frame0->GetIdentifier();
-  V_EXPECT_TRUE(frame0id > 0);
+  V_EXPECT_TRUE(frame0id > 0) << "actual: " << frame0id;
   frame1id = frame1->GetIdentifier();
-  V_EXPECT_TRUE(frame1id > 0);
+  V_EXPECT_TRUE(frame1id > 0) << "actual: " << frame1id;
   frame2id = frame2->GetIdentifier();
-  V_EXPECT_TRUE(frame2id > 0);
+  V_EXPECT_TRUE(frame2id > 0) << "actual: " << frame2id;
 
   // Verify that the current frame has the correct id.
   if (frame_number == 0) {
-    V_EXPECT_TRUE(frame->GetIdentifier() == frame0id);
+    V_EXPECT_TRUE(frame->GetIdentifier() == frame0id)
+        << "expected: " << frame0id << " actual: " << frame->GetIdentifier();
   } else if (frame_number == 1) {
-    V_EXPECT_TRUE(frame->GetIdentifier() == frame1id);
+    V_EXPECT_TRUE(frame->GetIdentifier() == frame1id)
+        << "expected: " << frame1id << " actual: " << frame->GetIdentifier();
   } else if (frame_number == 2) {
-    V_EXPECT_TRUE(frame->GetIdentifier() == frame2id);
+    V_EXPECT_TRUE(frame->GetIdentifier() == frame2id)
+        << "expected: " << frame2id << " actual: " << frame->GetIdentifier();
   }
 
   // Find frames by id.
@@ -1761,33 +1791,46 @@ bool VerifyBrowserIframe(CefRefPtr<CefBrowser> browser,
   V_EXPECT_TRUE(frame2b.get());
 
   // Verify that the id matches.
-  V_EXPECT_TRUE(frame0b->GetIdentifier() == frame0id);
-  V_EXPECT_TRUE(frame1b->GetIdentifier() == frame1id);
-  V_EXPECT_TRUE(frame2b->GetIdentifier() == frame2id);
+  V_EXPECT_TRUE(frame0b->GetIdentifier() == frame0id)
+      << "expected: " << frame0id << " actual: " << frame0b->GetIdentifier();
+  V_EXPECT_TRUE(frame1b->GetIdentifier() == frame1id)
+      << "expected: " << frame1id << " actual: " << frame1b->GetIdentifier();
+  V_EXPECT_TRUE(frame2b->GetIdentifier() == frame2id)
+      << "expected: " << frame2id << " actual: " << frame2b->GetIdentifier();
 
   size_t frame_count = browser->GetFrameCount();
-  V_EXPECT_TRUE(frame_count == 3U) << "actual " << frame_count;
+  V_EXPECT_TRUE(frame_count == 3U) << "actual: " << frame_count;
 
   // Verify the GetFrameNames result.
   std::vector<CefString> names;
   browser->GetFrameNames(names);
-  V_EXPECT_TRUE(names.size() == 3U);
-  V_EXPECT_TRUE(names[0].ToString() == kFrame0Name);
-  V_EXPECT_TRUE(names[1].ToString() == kFrame1Name);
-  V_EXPECT_TRUE(names[2].ToString() == kFrame2Name);
+  V_EXPECT_TRUE(names.size() == 3U) << "actual: " << names.size();
+  V_EXPECT_TRUE(names[0].ToString() == kFrame0Name)
+      << "expected: " << kFrame0Name << " actual: " << names[0].ToString();
+  V_EXPECT_TRUE(names[1].ToString() == kFrame1Name)
+      << "expected: " << kFrame1Name << " actual: " << names[1].ToString();
+  V_EXPECT_TRUE(names[2].ToString() == kFrame2Name)
+      << "expected: " << kFrame2Name << " actual: " << names[2].ToString();
 
   // Verify the GetFrameIdentifiers result.
   std::vector<int64> idents;
   browser->GetFrameIdentifiers(idents);
-  V_EXPECT_TRUE(idents.size() == 3U);
-  V_EXPECT_TRUE(idents[0] == frame0->GetIdentifier());
-  V_EXPECT_TRUE(idents[1] == frame1->GetIdentifier());
-  V_EXPECT_TRUE(idents[2] == frame2->GetIdentifier());
+  V_EXPECT_TRUE(idents.size() == 3U) << "actual: " << idents.size();
+  V_EXPECT_TRUE(idents[0] == frame0id)
+      << "expected: " << frame0id << " actual: " << idents[0];
+  V_EXPECT_TRUE(idents[1] == frame1id)
+      << "expected: " << frame1id << " actual: " << idents[1];
+  V_EXPECT_TRUE(idents[2] == frame2id)
+      << "expected: " << frame2id << " actual: " << idents[2];
 
   // Verify parent hierarchy.
   V_EXPECT_FALSE(frame0->GetParent().get());
-  V_EXPECT_TRUE(frame1->GetParent()->GetIdentifier() == frame0id);
-  V_EXPECT_TRUE(frame2->GetParent()->GetIdentifier() == frame1id);
+  V_EXPECT_TRUE(frame1->GetParent()->GetIdentifier() == frame0id)
+      << "expected: " << frame0id
+      << " actual: " << frame1->GetParent()->GetIdentifier();
+  V_EXPECT_TRUE(frame2->GetParent()->GetIdentifier() == frame1id)
+      << "expected: " << frame1id
+      << " actual: " << frame2->GetParent()->GetIdentifier();
 
   V_RETURN();
 }
