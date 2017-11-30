@@ -842,11 +842,11 @@ elif platform == 'macosx':
       valid_build_dir = build_dir
       dst_dir = os.path.join(output_dir, 'Debug')
       make_dir(dst_dir, options.quiet)
+      framework_dst_dir = os.path.join(dst_dir, '%s.framework' % framework_name)
       copy_dir(os.path.join(build_dir, 'cefclient.app/Contents/Frameworks/%s.framework' % framework_name), \
-               os.path.join(dst_dir, '%s.framework' % framework_name), options.quiet)
-      copy_file(
-          os.path.join(script_dir, 'distrib/mac/widevinecdmadapter.plugin'),
-          dst_dir, options.quiet)
+               framework_dst_dir, options.quiet)
+      move_file(os.path.join(framework_dst_dir, 'Resources/widevinecdmadapter.plugin'), \
+                os.path.join(dst_dir, 'widevinecdmadapter.plugin'), options.quiet)
 
       if not options.nosymbols:
         # create the symbol output directory
@@ -869,11 +869,11 @@ elif platform == 'macosx':
     dst_dir = os.path.join(output_dir, 'Release')
     make_dir(dst_dir, options.quiet)
     if mode != 'client':
+      framework_dst_dir = os.path.join(dst_dir, '%s.framework' % framework_name)
       copy_dir(os.path.join(build_dir, 'cefclient.app/Contents/Frameworks/%s.framework' % framework_name), \
-               os.path.join(dst_dir, '%s.framework' % framework_name), options.quiet)
-      copy_file(
-          os.path.join(script_dir, 'distrib/mac/widevinecdmadapter.plugin'),
-          dst_dir, options.quiet)
+               framework_dst_dir, options.quiet)
+      move_file(os.path.join(framework_dst_dir, 'Resources/widevinecdmadapter.plugin'), \
+                os.path.join(dst_dir, 'widevinecdmadapter.plugin'), options.quiet)
     else:
       copy_dir(
           os.path.join(build_dir, 'cefclient.app'),
