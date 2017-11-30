@@ -784,6 +784,7 @@ static_library("libcef_static") {
     "//third_party/libxml",
     "//third_party/WebKit/public:blink",
     "//third_party/widevine/cdm:headers",
+    "//third_party/widevine/cdm:widevinecdmadapter",
     "//third_party/icu",
     "//third_party/zlib:minizip",
     "//tools/v8_context_snapshot:v8_context_snapshot",
@@ -799,11 +800,6 @@ static_library("libcef_static") {
     "//url",
     "//v8",
   ]
-
-  if (!is_mac) {
-    # TODO(cef): Enable for Mac once Widevine build errors are resolved.
-    deps += [ "//third_party/widevine/cdm:widevinecdmadapter" ]
-  }
 
   if (is_win) {
     sources += gypi_paths2.includes_win + [
@@ -1361,8 +1357,7 @@ if (is_mac) {
       "$root_out_dir/cef_extensions.pak",
       "$root_out_dir/devtools_resources.pak",
       "$root_out_dir/v8_context_snapshot.bin",
-      # TODO(cef): Restore this line once Widevine build errors are resolved.
-      # "$root_out_dir/$widevine_cdm_path/widevinecdmadapter.plugin",
+      "$root_out_dir/$widevine_cdm_path/widevinecdmadapter.plugin",
     ]
 
     public_deps = [
@@ -1371,8 +1366,7 @@ if (is_mac) {
       ":pak_200_percent",
       ":pak_devtools",
       ":pak_extensions",
-      # TODO(cef): Restore this line once Widevine build errors are resolved.
-      # "//third_party/widevine/cdm:widevinecdmadapter",
+      "//third_party/widevine/cdm:widevinecdmadapter",
       "//tools/v8_context_snapshot:v8_context_snapshot",
     ]
 
