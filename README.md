@@ -42,7 +42,7 @@ The CEF project is an extension of the Chromium project. CEF maintains developme
 
 The base CEF framework includes support for the C and C++ programming languages. Thanks to the hard work of external maintainers CEF can integrate with a number of other programming languages and frameworks. These external projects are not maintained by CEF so please contact the respective project maintainer if you have any questions or issues.
 
-* .Net - https://github.com/chillitom/CefSharp
+* .Net (CEF3) - https://github.com/cefsharp/CefSharp
 * .Net (CEF1) - https://bitbucket.org/fddima/cefglue
 * .Net/Mono (CEF3) - https://bitbucket.org/xilium/xilium.cefglue
 * .Net (CEF3) - https://bitbucket.org/chromiumfx/chromiumfx
