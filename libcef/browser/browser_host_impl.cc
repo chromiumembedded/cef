@@ -985,8 +985,7 @@ void CefBrowserHostImpl::SetAccessibilityState(
   // In windowless mode set accessibility to TreeOnly mode. Else native
   // accessibility APIs, specific to each platform, are also created.
   if (accessibility_state == STATE_ENABLED) {
-    accMode =
-        IsWindowless() ? ui::AXMode::kWebContents : ui::AXMode::kNativeAPIs;
+    accMode = IsWindowless() ? ui::kAXModeWebContentsOnly : ui::kAXModeComplete;
   }
   web_contents_impl->SetAccessibilityMode(accMode);
 }
