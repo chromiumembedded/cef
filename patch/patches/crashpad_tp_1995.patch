@@ -1,8 +1,8 @@
 diff --git third_party/crashpad/crashpad/client/prune_crash_reports.cc third_party/crashpad/crashpad/client/prune_crash_reports.cc
-index 3aaaeee5d07f..d99fcb418d9e 100644
+index 3aaaeee5d07f..9d2e7bcbd621 100644
 --- third_party/crashpad/crashpad/client/prune_crash_reports.cc
 +++ third_party/crashpad/crashpad/client/prune_crash_reports.cc
-@@ -67,13 +67,19 @@ void PruneCrashReportDatabase(CrashReportDatabase* database,
+@@ -67,13 +67,20 @@ void PruneCrashReportDatabase(CrashReportDatabase* database,
  }
  
  // static
@@ -17,11 +17,13 @@ index 3aaaeee5d07f..d99fcb418d9e 100644
 +  if (max_age_in_days <= 0)
 +    max_age_in_days = 365;
    return base::WrapUnique(
-       new BinaryPruneCondition(BinaryPruneCondition::OR,
+-      new BinaryPruneCondition(BinaryPruneCondition::OR,
 -                               new DatabaseSizePruneCondition(1024 * 128),
 -                               new AgePruneCondition(365)));
-+                               new DatabaseSizePruneCondition(max_size_in_mb),
-+                               new AgePruneCondition(max_age_in_days)));
++      new BinaryPruneCondition(
++          BinaryPruneCondition::OR,
++          new DatabaseSizePruneCondition(1024 * max_size_in_mb),
++          new AgePruneCondition(max_age_in_days)));
  }
  
  static const time_t kSecondsInDay = 60 * 60 * 24;
