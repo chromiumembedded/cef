@@ -108,7 +108,7 @@ index 28048bdb2046..b295b7a33601 100644
  }
  
 diff --git content/browser/frame_host/render_frame_host_impl.cc content/browser/frame_host/render_frame_host_impl.cc
-index 2b2e16f95e48..17731d783a63 100644
+index a89eefd44037..7ff26d61e467 100644
 --- content/browser/frame_host/render_frame_host_impl.cc
 +++ content/browser/frame_host/render_frame_host_impl.cc
 @@ -359,9 +359,9 @@ void ForwardRequest(const char* service_name,
@@ -404,7 +404,7 @@ index 4f8478bfa87a..52471407518e 100644
    virtual void FocusedNodeChanged(const blink::WebNode& node) {}
  
 diff --git content/renderer/render_frame_impl.cc content/renderer/render_frame_impl.cc
-index 9c48e63b7f25..6c4d4d91d368 100644
+index f1f589186855..61407e4c239b 100644
 --- content/renderer/render_frame_impl.cc
 +++ content/renderer/render_frame_impl.cc
 @@ -2975,7 +2975,8 @@ blink::WebPlugin* RenderFrameImpl::CreatePlugin(
@@ -426,7 +426,7 @@ index 9c48e63b7f25..6c4d4d91d368 100644
  }
  
  void RenderFrameImpl::WillCommitProvisionalLoad() {
-@@ -5459,9 +5462,8 @@ WebNavigationPolicy RenderFrameImpl::DecidePolicyForNavigation(
+@@ -5458,9 +5461,8 @@ WebNavigationPolicy RenderFrameImpl::DecidePolicyForNavigation(
         (!IsBrowserSideNavigationEnabled() ||
          url != pending_navigation_params_->request_params.redirects[0]));
  
@@ -438,7 +438,7 @@ index 9c48e63b7f25..6c4d4d91d368 100644
    // The handlenavigation API is deprecated and will be removed once
    // crbug.com/325351 is resolved.
    if ((!IsBrowserSideNavigationEnabled() || !IsURLHandledByNetworkStack(url)) &&
-@@ -5471,7 +5473,6 @@ WebNavigationPolicy RenderFrameImpl::DecidePolicyForNavigation(
+@@ -5470,7 +5472,6 @@ WebNavigationPolicy RenderFrameImpl::DecidePolicyForNavigation(
            is_redirect)) {
      return blink::kWebNavigationPolicyIgnore;
    }
@@ -447,7 +447,7 @@ index 9c48e63b7f25..6c4d4d91d368 100644
    // If the browser is interested, then give it a chance to look at the request.
    if (is_content_initiated && IsTopLevelNavigation(frame_) &&
 diff --git content/renderer/render_thread_impl.cc content/renderer/render_thread_impl.cc
-index dc0111728c3e..b8ab8834fc97 100644
+index 13eeab3a9463..ef45b57113b3 100644
 --- content/renderer/render_thread_impl.cc
 +++ content/renderer/render_thread_impl.cc
 @@ -779,6 +779,8 @@ void RenderThreadImpl::Init(

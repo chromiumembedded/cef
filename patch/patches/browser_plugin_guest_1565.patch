@@ -1,5 +1,5 @@
 diff --git content/browser/browser_plugin/browser_plugin_guest.cc content/browser/browser_plugin/browser_plugin_guest.cc
-index e6e79a68e263..c8007ccea445 100644
+index c73f9f0c640d..53b51a344ea0 100644
 --- content/browser/browser_plugin/browser_plugin_guest.cc
 +++ content/browser/browser_plugin/browser_plugin_guest.cc
 @@ -337,8 +337,11 @@ void BrowserPluginGuest::InitInternal(
@@ -15,7 +15,7 @@ index e6e79a68e263..c8007ccea445 100644
  
      // Once a BrowserPluginGuest has an embedder WebContents, it's considered to
      // be attached.
-@@ -832,10 +835,19 @@ void BrowserPluginGuest::OnWillAttachComplete(
+@@ -834,10 +837,19 @@ void BrowserPluginGuest::OnWillAttachComplete(
          static_cast<WebContentsViewGuest*>(GetWebContents()->GetView());
      if (!web_contents()->GetRenderViewHost()->GetWidget()->GetView()) {
        web_contents_view->CreateViewForWidget(
