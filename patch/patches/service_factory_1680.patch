@@ -1,9 +1,9 @@
 diff --git chrome/browser/spellchecker/spellcheck_factory.cc chrome/browser/spellchecker/spellcheck_factory.cc
-index 9f9eb3bdd044..63988fba828d 100644
+index 148ec2086d1f..cc7f9ac83481 100644
 --- chrome/browser/spellchecker/spellcheck_factory.cc
 +++ chrome/browser/spellchecker/spellcheck_factory.cc
-@@ -17,6 +17,13 @@
- #include "content/public/browser/render_process_host.h"
+@@ -18,6 +18,13 @@
+ #include "services/service_manager/public/cpp/identity.h"
  #include "ui/base/l10n/l10n_util.h"
  
 +namespace {
@@ -16,7 +16,7 @@ index 9f9eb3bdd044..63988fba828d 100644
  // static
  SpellcheckService* SpellcheckServiceFactory::GetForContext(
      content::BrowserContext* context) {
-@@ -39,7 +46,7 @@ SpellcheckService* SpellcheckServiceFactory::GetForRenderProcessId(
+@@ -38,7 +45,7 @@ SpellcheckService* SpellcheckServiceFactory::GetForRenderer(
  
  // static
  SpellcheckServiceFactory* SpellcheckServiceFactory::GetInstance() {
@@ -26,7 +26,7 @@ index 9f9eb3bdd044..63988fba828d 100644
  
  SpellcheckServiceFactory::SpellcheckServiceFactory()
 diff --git chrome/browser/spellchecker/spellcheck_factory.h chrome/browser/spellchecker/spellcheck_factory.h
-index e8eb9f7e8aa6..2e1b7cf84081 100644
+index fd4e6643725c..fcdbb8e4db88 100644
 --- chrome/browser/spellchecker/spellcheck_factory.h
 +++ chrome/browser/spellchecker/spellcheck_factory.h
 @@ -7,7 +7,7 @@
@@ -38,7 +38,7 @@ index e8eb9f7e8aa6..2e1b7cf84081 100644
  #include "components/keyed_service/content/browser_context_keyed_service_factory.h"
  
  class SpellcheckService;
-@@ -26,7 +26,7 @@ class SpellcheckServiceFactory : public BrowserContextKeyedServiceFactory {
+@@ -31,7 +31,7 @@ class SpellcheckServiceFactory : public BrowserContextKeyedServiceFactory {
    static SpellcheckServiceFactory* GetInstance();
  
   private:
@@ -97,7 +97,7 @@ index 2907619549ba..f941fba363b5 100644
  
    SupervisedUserSettingsServiceFactory();
 diff --git chrome/browser/ui/prefs/prefs_tab_helper.cc chrome/browser/ui/prefs/prefs_tab_helper.cc
-index 149dbc568f54..ec01bd851d9c 100644
+index 23dfe243fb83..7eb879cadcbb 100644
 --- chrome/browser/ui/prefs/prefs_tab_helper.cc
 +++ chrome/browser/ui/prefs/prefs_tab_helper.cc
 @@ -11,8 +11,8 @@

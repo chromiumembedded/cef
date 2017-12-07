@@ -10,11 +10,13 @@ using content::PermissionType;
 
 namespace permission_util {
 
+// Copied from chrome/browser/permissions/permission_manager.cc.
 ContentSettingsType PermissionTypeToContentSetting(PermissionType permission) {
   switch (permission) {
+    case PermissionType::MIDI:
+      return CONTENT_SETTINGS_TYPE_MIDI;
     case PermissionType::MIDI_SYSEX:
       return CONTENT_SETTINGS_TYPE_MIDI_SYSEX;
-    case PermissionType::PUSH_MESSAGING:
     case PermissionType::NOTIFICATIONS:
       return CONTENT_SETTINGS_TYPE_NOTIFICATIONS;
     case PermissionType::GEOLOCATION:
@@ -28,9 +30,6 @@ ContentSettingsType PermissionTypeToContentSetting(PermissionType permission) {
 #endif
     case PermissionType::DURABLE_STORAGE:
       return CONTENT_SETTINGS_TYPE_DURABLE_STORAGE;
-    case PermissionType::MIDI:
-      // This will hit the NOTREACHED below.
-      break;
     case PermissionType::AUDIO_CAPTURE:
       return CONTENT_SETTINGS_TYPE_MEDIASTREAM_MIC;
     case PermissionType::VIDEO_CAPTURE:
@@ -43,6 +42,10 @@ ContentSettingsType PermissionTypeToContentSetting(PermissionType permission) {
       return CONTENT_SETTINGS_TYPE_SENSORS;
     case PermissionType::ACCESSIBILITY_EVENTS:
       return CONTENT_SETTINGS_TYPE_ACCESSIBILITY_EVENTS;
+    case PermissionType::CLIPBOARD_READ:
+      return CONTENT_SETTINGS_TYPE_CLIPBOARD_READ;
+    case PermissionType::CLIPBOARD_WRITE:
+      return CONTENT_SETTINGS_TYPE_CLIPBOARD_WRITE;
     case PermissionType::NUM:
       // This will hit the NOTREACHED below.
       break;

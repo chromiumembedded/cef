@@ -1,8 +1,8 @@
 diff --git services/service_manager/embedder/main.cc services/service_manager/embedder/main.cc
-index 87ac6f053947..868ff9e0c115 100644
+index 08ea94a11772..873726c6ea19 100644
 --- services/service_manager/embedder/main.cc
 +++ services/service_manager/embedder/main.cc
-@@ -317,13 +317,30 @@ int RunService(MainDelegate* delegate) {
+@@ -304,13 +304,30 @@ int RunService(MainDelegate* delegate) {
    return exit_code;
  }
  
@@ -34,7 +34,7 @@ index 87ac6f053947..868ff9e0c115 100644
    MainDelegate* delegate = params.delegate;
    DCHECK(delegate);
  
-@@ -391,30 +408,14 @@ int Main(const MainParams& params) {
+@@ -378,30 +395,14 @@ int Main(const MainParams& params) {
    MainDelegate::InitializeParams init_params;
  
  #if defined(OS_MACOSX)
@@ -43,7 +43,7 @@ index 87ac6f053947..868ff9e0c115 100644
 -  // Each "main" needs to flush this pool right before it goes into its main
 -  // event loop to get rid of the cruft.
 -  std::unique_ptr<base::mac::ScopedNSAutoreleasePool> autorelease_pool =
--      base::MakeUnique<base::mac::ScopedNSAutoreleasePool>();
+-      std::make_unique<base::mac::ScopedNSAutoreleasePool>();
 -  init_params.autorelease_pool = autorelease_pool.get();
 +  init_params.autorelease_pool = params.autorelease_pool.get();
    InitializeMac();
@@ -69,7 +69,7 @@ index 87ac6f053947..868ff9e0c115 100644
    mojo_config.max_message_num_bytes = kMaximumMojoMessageSize;
    delegate->OverrideMojoConfiguration(&mojo_config);
    mojo::edk::Init(mojo_config);
-@@ -449,6 +450,16 @@ int Main(const MainParams& params) {
+@@ -436,6 +437,16 @@ int Main(const MainParams& params) {
          trace_config, base::trace_event::TraceLog::RECORDING_MODE);
    }
  
@@ -86,7 +86,7 @@ index 87ac6f053947..868ff9e0c115 100644
    switch (process_type) {
      case ProcessType::kDefault:
        NOTREACHED();
-@@ -470,6 +481,8 @@ int Main(const MainParams& params) {
+@@ -457,6 +468,8 @@ int Main(const MainParams& params) {
        break;
    }
  
@@ -95,7 +95,7 @@ index 87ac6f053947..868ff9e0c115 100644
    if (tracker) {
      if (exit_code == 0) {
        tracker->SetProcessPhaseIfEnabled(
-@@ -481,13 +494,38 @@ int Main(const MainParams& params) {
+@@ -468,13 +481,38 @@ int Main(const MainParams& params) {
      }
    }
  

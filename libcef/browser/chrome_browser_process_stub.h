@@ -47,9 +47,9 @@ class ChromeBrowserProcessStub : public BrowserProcess,
       override;
   metrics::MetricsService* metrics_service() override;
   rappor::RapporServiceImpl* rappor_service() override;
-  ukm::UkmRecorder* ukm_recorder() override;
   IOThread* io_thread() override;
   SystemNetworkContextManager* system_network_context_manager() override;
+  content::NetworkConnectionTracker* network_connection_tracker() override;
   WatchDogThread* watchdog_thread() override;
   ProfileManager* profile_manager() override;
   PrefService* local_state() override;
@@ -87,6 +87,8 @@ class ChromeBrowserProcessStub : public BrowserProcess,
       override;
   subresource_filter::ContentRulesetService*
   subresource_filter_ruleset_service() override;
+  optimization_guide::OptimizationGuideService* optimization_guide_service()
+      override;
 
 #if (defined(OS_WIN) || defined(OS_LINUX)) && !defined(OS_CHROMEOS)
   void StartAutoupdateTimer() override;
@@ -94,7 +96,6 @@ class ChromeBrowserProcessStub : public BrowserProcess,
 
   net_log::ChromeNetLog* net_log() override;
   component_updater::ComponentUpdateService* component_updater() override;
-  CRLSetFetcher* crl_set_fetcher() override;
   component_updater::SupervisedUserWhitelistInstaller*
   supervised_user_whitelist_installer() override;
   MediaFileSystemRegistry* media_file_system_registry() override;

@@ -1,11 +1,12 @@
 diff --git chrome/browser/profiles/incognito_helpers.cc chrome/browser/profiles/incognito_helpers.cc
-index 6155e9606d67..2125a436c87e 100644
+index ce4f72b98a05..f7d57b854399 100644
 --- chrome/browser/profiles/incognito_helpers.cc
 +++ chrome/browser/profiles/incognito_helpers.cc
-@@ -8,13 +8,35 @@
+@@ -7,19 +7,42 @@
+ #include "chrome/browser/profiles/profile.h"
  
  namespace chrome {
- 
++  
 +namespace {
 +BrowserContextIncognitoHelper* g_helper = nullptr;
 +}  // namespace
@@ -13,7 +14,7 @@ index 6155e9606d67..2125a436c87e 100644
 +void SetBrowserContextIncognitoHelper(BrowserContextIncognitoHelper* helper) {
 +  g_helper = helper;
 +}
-+
+ 
  content::BrowserContext* GetBrowserContextRedirectedInIncognito(
      content::BrowserContext* context) {
 +  if (g_helper) {
@@ -24,6 +25,13 @@ index 6155e9606d67..2125a436c87e 100644
 +  }
 +
    return static_cast<Profile*>(context)->GetOriginalProfile();
+ }
+ 
+ const content::BrowserContext* GetBrowserContextRedirectedInIncognito(
+     const content::BrowserContext* context) {
+-  return static_cast<const Profile*>(context)->GetOriginalProfile();
++  return GetBrowserContextRedirectedInIncognito(
++      const_cast<content::BrowserContext*>(context));
  }
  
  content::BrowserContext* GetBrowserContextOwnInstanceInIncognito(
@@ -39,7 +47,7 @@ index 6155e9606d67..2125a436c87e 100644
  }
  
 diff --git chrome/browser/profiles/incognito_helpers.h chrome/browser/profiles/incognito_helpers.h
-index 4b430133e16f..169ca4765907 100644
+index e8e76ce5b954..1dd338dd0142 100644
 --- chrome/browser/profiles/incognito_helpers.h
 +++ chrome/browser/profiles/incognito_helpers.h
 @@ -11,6 +11,19 @@ class BrowserContext;
@@ -63,7 +71,7 @@ index 4b430133e16f..169ca4765907 100644
  content::BrowserContext* GetBrowserContextRedirectedInIncognito(
      content::BrowserContext* context);
 diff --git chrome/browser/profiles/profile_manager.cc chrome/browser/profiles/profile_manager.cc
-index a711472a63a9..47212b151d41 100644
+index 0fe78f76aaa7..8fb527cc2636 100644
 --- chrome/browser/profiles/profile_manager.cc
 +++ chrome/browser/profiles/profile_manager.cc
 @@ -375,7 +375,7 @@ ProfileManager::ProfileManager(const base::FilePath& user_data_dir)

@@ -21,19 +21,11 @@ namespace {
 
 void SetCRLSetIfNewer(scoped_refptr<net::CRLSet> crl_set) {
   CEF_REQUIRE_IOT();
-
-  scoped_refptr<net::CRLSet> old_crl_set(net::SSLConfigService::GetCRLSet());
-  if (old_crl_set.get() && old_crl_set->sequence() > crl_set->sequence()) {
-    LOG(WARNING) << "Refusing to downgrade CRL set from #"
-                 << old_crl_set->sequence() << "to #" << crl_set->sequence();
-  } else {
-    net::SSLConfigService::SetCRLSet(crl_set);
-    VLOG(1) << "Installed CRL set #" << crl_set->sequence();
-  }
+  net::SSLConfigService::SetCRLSetIfNewer(crl_set);
 }
 
 void LoadFromDisk(const base::FilePath& path) {
-  base::ThreadRestrictions::AssertIOAllowed();
+  base::AssertBlockingAllowed();
 
   std::string crl_set_bytes;
   if (!base::ReadFileToString(path, &crl_set_bytes)) {

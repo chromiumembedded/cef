@@ -9,7 +9,6 @@
 #include <string>
 
 #include "libcef/browser/browser_context_impl.h"
-#include "libcef/browser/browser_context_proxy.h"
 #include "libcef/browser/browser_message_loop.h"
 #include "libcef/browser/content_browser_client.h"
 #include "libcef/browser/context.h"
@@ -25,16 +24,10 @@
 #include "libcef/common/net/net_resource_provider.h"
 
 #include "base/bind.h"
-#include "base/command_line.h"
 #include "base/message_loop/message_loop.h"
 #include "base/strings/string_number_conversions.h"
 #include "chrome/browser/plugins/plugin_finder.h"
-#include "content/public/browser/child_process_security_policy.h"
 #include "content/public/browser/gpu_data_manager.h"
-#include "content/public/common/content_switches.h"
-#include "device/geolocation/access_token_store.h"
-#include "device/geolocation/geolocation_delegate.h"
-#include "device/geolocation/geolocation_provider.h"
 #include "extensions/browser/extension_system.h"
 #include "extensions/common/constants.h"
 #include "net/base/net_module.h"

@@ -9,15 +9,22 @@
 
 #include "base/macros.h"
 #include "base/memory/ref_counted.h"
+#include "base/memory/weak_ptr.h"
 #include "base/strings/string16.h"
 #include "build/build_config.h"
 #include "components/prefs/pref_member.h"
 #include "components/printing/browser/print_manager.h"
+#include "components/printing/service/public/interfaces/pdf_compositor.mojom.h"
 #include "content/public/browser/notification_observer.h"
 #include "content/public/browser/notification_registrar.h"
+#include "mojo/public/cpp/system/platform_handle.h"
 #include "printing/features/features.h"
 
 struct PrintHostMsg_DidPrintPage_Params;
+
+namespace base {
+class SharedMemory;
+}
 
 namespace content {
 class RenderFrameHost;
@@ -26,7 +33,6 @@ class RenderFrameHost;
 namespace printing {
 
 class JobEventDetails;
-class MetafilePlayer;
 class PrintJob;
 class PrintJobWorkerOwner;
 class PrintQueriesQueue;
@@ -77,9 +83,19 @@ class CefPrintViewManagerBase : public content::NotificationObserver,
 
   // IPC Message handlers.
   void OnDidGetPrintedPagesCount(int cookie, int number_pages) override;
-  void OnDidPrintPage(const PrintHostMsg_DidPrintPage_Params& params);
   void OnPrintingFailed(int cookie) override;
   void OnShowInvalidPrinterSettingsError();
+  void OnDidPrintPage(const PrintHostMsg_DidPrintPage_Params& params);
+
+  // Handle extra tasks once a page or doc is printed.
+  void UpdateForPrintedPage(const PrintHostMsg_DidPrintPage_Params& params,
+                            bool has_valid_page_data,
+                            std::unique_ptr<base::SharedMemory> shared_buf);
+
+  // IPC message handlers for service.
+  void OnComposePdfDone(const PrintHostMsg_DidPrintPage_Params& params,
+                        mojom::PdfCompositor::Status status,
+                        mojo::ScopedSharedBufferHandle handle);
 
   // Processes a NOTIFY_PRINT_JOB_EVENT notification.
   void OnNotifyPrintJobEvent(const JobEventDetails& event_details);
@@ -148,15 +164,15 @@ class CefPrintViewManagerBase : public content::NotificationObserver,
   // print settings are being loaded.
   bool inside_inner_message_loop_;
 
-#if !defined(OS_MACOSX)
   // Set to true when OnDidPrintPage() should be expecting the first page.
   bool expecting_first_page_;
-#endif  // OS_MACOSX
 
   // Whether printing is enabled.
   BooleanPrefMember printing_enabled_;
 
   scoped_refptr<printing::PrintQueriesQueue> queue_;
+
+  base::WeakPtrFactory<CefPrintViewManagerBase> weak_ptr_factory_;
 
   DISALLOW_COPY_AND_ASSIGN(CefPrintViewManagerBase);
 };

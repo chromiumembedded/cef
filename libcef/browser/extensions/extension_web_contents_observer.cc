@@ -36,8 +36,8 @@ void CefExtensionWebContentsObserver::RenderFrameCreated(
   // are allowed to use chrome://resources/ URLs.
   if ((extension->is_extension() || extension->is_platform_app()) &&
       Manifest::IsComponentLocation(extension->location())) {
-    policy->GrantOrigin(process_id,
-                        url::Origin(GURL(content::kChromeUIResourcesURL)));
+    policy->GrantOrigin(
+        process_id, url::Origin::Create(GURL(content::kChromeUIResourcesURL)));
   }
 }
 

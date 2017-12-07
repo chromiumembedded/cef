@@ -1,8 +1,8 @@
 diff --git .gn .gn
-index 7a7160de63c1..2b715af702dc 100644
+index db85e5f4092f..779c93c07523 100644
 --- .gn
 +++ .gn
-@@ -221,6 +221,8 @@ exec_script_whitelist =
+@@ -230,6 +230,8 @@ exec_script_whitelist =
        # in the Chromium repo outside of //build.
        "//build_overrides/build.gni",
  
@@ -12,7 +12,7 @@ index 7a7160de63c1..2b715af702dc 100644
        # https://crbug.com/474506.
        "//clank/java/BUILD.gn",
 diff --git BUILD.gn BUILD.gn
-index df54a97736bd..6a2938a28f8c 100644
+index 5c26c723bf8b..fa4994456865 100644
 --- BUILD.gn
 +++ BUILD.gn
 @@ -179,6 +179,7 @@ group("gn_all") {
@@ -56,7 +56,7 @@ index 982fbe8d3f0d..e757be4688f1 100644
 +         "studio path")
  }
 diff --git build/toolchain/win/setup_toolchain.py build/toolchain/win/setup_toolchain.py
-index bb599d62968f..410c888cbe54 100644
+index a1d2ea4b2394..50514a54e64f 100644
 --- build/toolchain/win/setup_toolchain.py
 +++ build/toolchain/win/setup_toolchain.py
 @@ -132,19 +132,22 @@ def _LoadToolchainEnv(cpu, sdk_dir):
@@ -96,7 +96,7 @@ index bb599d62968f..410c888cbe54 100644
  
  
 diff --git build/vs_toolchain.py build/vs_toolchain.py
-index 7626880b142a..009eab551c90 100755
+index 7a258ed1dacc..4165c1f9d07b 100755
 --- build/vs_toolchain.py
 +++ build/vs_toolchain.py
 @@ -81,11 +81,18 @@ def SetEnvironmentAndGetRuntimeDllDirs():
@@ -119,10 +119,10 @@ index 7626880b142a..009eab551c90 100755
      # directory in order to run binaries locally, but they are needed in order
      # to create isolates or the mini_installer. Copying them to the output
 diff --git chrome/chrome_paks.gni chrome/chrome_paks.gni
-index 91dc01d5ca6e..129f0a4db7f0 100644
+index bd0fc70bb87f..79315464c57b 100644
 --- chrome/chrome_paks.gni
 +++ chrome/chrome_paks.gni
-@@ -250,7 +250,7 @@ template("chrome_paks") {
+@@ -255,7 +255,7 @@ template("chrome_paks") {
      }
  
      input_locales = locales
@@ -132,10 +132,10 @@ index 91dc01d5ca6e..129f0a4db7f0 100644
      if (is_mac) {
        output_locales = locales_as_mac_outputs
 diff --git chrome/installer/mini_installer/BUILD.gn chrome/installer/mini_installer/BUILD.gn
-index cc3782f4a91d..7f0e8aa3f82e 100644
+index 88a6d8627d51..4a25b5d1b713 100644
 --- chrome/installer/mini_installer/BUILD.gn
 +++ chrome/installer/mini_installer/BUILD.gn
-@@ -131,7 +131,7 @@ template("generate_mini_installer") {
+@@ -130,7 +130,7 @@ template("generate_mini_installer") {
      inputs = [
        "$chrome_dll_file",
        "$root_out_dir/chrome.exe",

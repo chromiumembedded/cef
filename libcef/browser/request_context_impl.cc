@@ -436,10 +436,10 @@ bool CefRequestContextImpl::SetPreference(const CefString& name,
   CefValueImpl::ScopedLockedValue scoped_locked_value(impl);
   base::Value* impl_value = impl->GetValueUnsafe();
 
-  if (pref->GetType() != impl_value->GetType()) {
+  if (pref->GetType() != impl_value->type()) {
     error = base::StringPrintf(
         "Trying to set a preference of type %s to value of type %s",
-        GetTypeString(pref->GetType()), GetTypeString(impl_value->GetType()));
+        GetTypeString(pref->GetType()), GetTypeString(impl_value->type()));
     return false;
   }
 

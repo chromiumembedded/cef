@@ -1,17 +1,17 @@
 diff --git chrome/browser/printing/print_job_worker.cc chrome/browser/printing/print_job_worker.cc
-index 13434ba2f6cd..9e6734501057 100644
+index 6f185aef2feb..1c2e0fae7f47 100644
 --- chrome/browser/printing/print_job_worker.cc
 +++ chrome/browser/printing/print_job_worker.cc
-@@ -125,6 +125,7 @@ PrintJobWorker::PrintJobWorker(int render_process_id,
-   printing_context_delegate_ = base::MakeUnique<PrintingContextDelegate>(
-       render_process_id, render_frame_id);
-   printing_context_ = PrintingContext::Create(printing_context_delegate_.get());
+@@ -129,6 +129,7 @@ PrintJobWorker::PrintJobWorker(int render_process_id,
+       weak_factory_(this) {
+   // The object is created in the IO thread.
+   DCHECK(owner_->RunsTasksInCurrentSequence());
 +  printing_context_->set_render_ids(render_process_id, render_frame_id);
  }
  
  PrintJobWorker::~PrintJobWorker() {
 diff --git printing/printing_context.h printing/printing_context.h
-index 03f940ca4684..d23a4a354d57 100644
+index 96934fb0d0c8..39d0019a9826 100644
 --- printing/printing_context.h
 +++ printing/printing_context.h
 @@ -127,6 +127,13 @@ class PRINTING_EXPORT PrintingContext {

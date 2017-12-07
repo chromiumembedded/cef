@@ -1,8 +1,8 @@
 diff --git build/config/compiler/BUILD.gn build/config/compiler/BUILD.gn
-index 7888e2f8589d..2b3e8dff4637 100644
+index fff8488778d7..0443bcace1d4 100644
 --- build/config/compiler/BUILD.gn
 +++ build/config/compiler/BUILD.gn
-@@ -398,7 +398,7 @@ config("compiler") {
+@@ -399,7 +399,7 @@ config("compiler") {
      # chromeos binutils has been patched with the fix, so always use icf there.
      # The bug only affects x86 and x64, so we can still use ICF when targeting
      # other architectures.
@@ -11,3 +11,53 @@ index 7888e2f8589d..2b3e8dff4637 100644
          !(current_cpu == "x86" || current_cpu == "x64")) {
        ldflags += [ "-Wl,--icf=all" ]
      }
+diff --git chrome/browser/ui/libgtkui/gtk_ui.cc chrome/browser/ui/libgtkui/gtk_ui.cc
+index bf37dd5c3799..ad5693e38487 100644
+--- chrome/browser/ui/libgtkui/gtk_ui.cc
++++ chrome/browser/ui/libgtkui/gtk_ui.cc
+@@ -404,11 +404,13 @@ SkColor GetToolbarTopSeparatorColor(SkColor header_fg,
+ }
+ #endif
+ 
++#if GTK_MAJOR_VERSION >= 3
+ using GdkSetAllowedBackendsFn = void (*)(const gchar*);
+ // Place this function pointers in read-only memory after being resolved to
+ // prevent it being tampered with. See crbug.com/771365 for details.
+ PROTECTED_MEMORY_SECTION base::ProtectedMemory<GdkSetAllowedBackendsFn>
+     g_gdk_set_allowed_backends;
++#endif
+ 
+ }  // namespace
+ 
+diff --git chrome/browser/ui/libgtkui/native_theme_gtk2.cc chrome/browser/ui/libgtkui/native_theme_gtk2.cc
+index af67e8343f5a..1e6d1e5818e4 100644
+--- chrome/browser/ui/libgtkui/native_theme_gtk2.cc
++++ chrome/browser/ui/libgtkui/native_theme_gtk2.cc
+@@ -348,6 +348,7 @@ SkColor NativeThemeGtk2::GetSystemColor(ColorId color_id) const {
+     }
+ 
+     case kColorId_NumColors:
++    default:
+       NOTREACHED();
+       break;
+   }
+diff --git ui/accessibility/platform/atk_util_auralinux_gtk2.cc ui/accessibility/platform/atk_util_auralinux_gtk2.cc
+index 9c50ead85605..54cbd52c7de0 100644
+--- ui/accessibility/platform/atk_util_auralinux_gtk2.cc
++++ ui/accessibility/platform/atk_util_auralinux_gtk2.cc
+@@ -56,6 +56,8 @@ void FinishAccessibilityInitOnMainThread(
+   init_func();
+ }
+ 
++namespace ui {
++
+ bool AtkUtilAuraLinux::PlatformShouldEnableAccessibility() {
+   std::unique_ptr<base::Environment> env(base::Environment::Create());
+   std::string gtk_modules;
+@@ -78,3 +80,6 @@ void AtkUtilAuraLinux::PlatformInitializeAsync() {
+       base::Bind(&GetAccessibilityModuleInitFunc),
+       base::Bind(&FinishAccessibilityInitOnMainThread));
+ }
++
++}  // namespace ui
++

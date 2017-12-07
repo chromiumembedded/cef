@@ -1,8 +1,8 @@
 diff --git third_party/crashpad/crashpad/client/prune_crash_reports.cc third_party/crashpad/crashpad/client/prune_crash_reports.cc
-index 3aaaeee5d07f..d99fcb418d9e 100644
+index d045eb6a65a0..bc347a30ea26 100644
 --- third_party/crashpad/crashpad/client/prune_crash_reports.cc
 +++ third_party/crashpad/crashpad/client/prune_crash_reports.cc
-@@ -67,13 +67,19 @@ void PruneCrashReportDatabase(CrashReportDatabase* database,
+@@ -66,13 +66,19 @@ void PruneCrashReportDatabase(CrashReportDatabase* database,
  }
  
  // static
@@ -16,12 +16,12 @@ index 3aaaeee5d07f..d99fcb418d9e 100644
 +    max_size_in_mb = 128;
 +  if (max_age_in_days <= 0)
 +    max_age_in_days = 365;
-   return base::WrapUnique(
-       new BinaryPruneCondition(BinaryPruneCondition::OR,
--                               new DatabaseSizePruneCondition(1024 * 128),
--                               new AgePruneCondition(365)));
-+                               new DatabaseSizePruneCondition(max_size_in_mb),
-+                               new AgePruneCondition(max_age_in_days)));
+   return std::make_unique<BinaryPruneCondition>(
+       BinaryPruneCondition::OR,
+-      new DatabaseSizePruneCondition(1024 * 128),
+-      new AgePruneCondition(365));
++      new DatabaseSizePruneCondition(1024 * max_size_in_mb),
++      new AgePruneCondition(max_age_in_days));
  }
  
  static const time_t kSecondsInDay = 60 * 60 * 24;
@@ -145,11 +145,42 @@ index b64f74fbaf28..0c3c22e215b6 100644
   private:
    struct Data;
  
+diff --git third_party/crashpad/crashpad/handler/BUILD.gn third_party/crashpad/crashpad/handler/BUILD.gn
+index 05f554b73036..5b6d1a2a98e1 100644
+--- third_party/crashpad/crashpad/handler/BUILD.gn
++++ third_party/crashpad/crashpad/handler/BUILD.gn
+@@ -12,6 +12,7 @@
+ # See the License for the specific language governing permissions and
+ # limitations under the License.
+ 
++import("//cef/libcef/features/features.gni")
+ import("//testing/test.gni")
+ 
+ static_library("handler") {
+@@ -56,8 +57,18 @@ static_library("handler") {
+     "../tools:tool_support",
+     "../util",
+     "//base",
++    "//cef/libcef/features",
+   ]
+ 
++  if (enable_cef) {
++    sources += [
++      "//cef/libcef/common/cef_crash_report_upload_thread.cc",
++      "//cef/libcef/common/cef_crash_report_upload_thread.h",
++    ]
++
++    configs += [ "//cef/libcef/features:config" ]
++  }
++
+   if (is_win) {
+     cflags = [ "/wd4201" ]  # nonstandard extension used : nameless struct/union
+   }
 diff --git third_party/crashpad/crashpad/handler/crash_report_upload_thread.h third_party/crashpad/crashpad/handler/crash_report_upload_thread.h
-index c769efed5c54..daec6cd17f37 100644
+index cdd1502b7e2f..db47f0a8b559 100644
 --- third_party/crashpad/crashpad/handler/crash_report_upload_thread.h
 +++ third_party/crashpad/crashpad/handler/crash_report_upload_thread.h
-@@ -89,7 +89,7 @@ class CrashReportUploadThread : public WorkerThread::Delegate {
+@@ -99,7 +99,7 @@ class CrashReportUploadThread : public WorkerThread::Delegate {
    //! This method may be called from any thread.
    void ReportPending(const UUID& report_uuid);
  
@@ -158,7 +189,7 @@ index c769efed5c54..daec6cd17f37 100644
    //! \brief The result code from UploadReport().
    enum class UploadResult {
      //! \brief The crash report was uploaded successfully.
-@@ -117,7 +117,7 @@ class CrashReportUploadThread : public WorkerThread::Delegate {
+@@ -127,7 +127,7 @@ class CrashReportUploadThread : public WorkerThread::Delegate {
    //! object was constructed with \a watch_pending_reports, it will also scan
    //! the crash report database for other pending reports, and process those as
    //! well.
@@ -167,7 +198,7 @@ index c769efed5c54..daec6cd17f37 100644
  
    //! \brief Processes a single pending report from the database.
    //!
-@@ -131,7 +131,7 @@ class CrashReportUploadThread : public WorkerThread::Delegate {
+@@ -141,7 +141,7 @@ class CrashReportUploadThread : public WorkerThread::Delegate {
    //! remain in the “pending” state. If the upload fails and no more retries are
    //! desired, or report upload is disabled, it will be marked as “completed” in
    //! the database without ever having been uploaded.
@@ -177,7 +208,7 @@ index c769efed5c54..daec6cd17f37 100644
    //! \brief Attempts to upload a crash report.
    //!
 diff --git third_party/crashpad/crashpad/handler/handler_main.cc third_party/crashpad/crashpad/handler/handler_main.cc
-index abc22bf3ef0c..05753af3c2a1 100644
+index 2e46f86a6522..faf4f1072ad0 100644
 --- third_party/crashpad/crashpad/handler/handler_main.cc
 +++ third_party/crashpad/crashpad/handler/handler_main.cc
 @@ -35,8 +35,10 @@
@@ -202,7 +233,7 @@ index abc22bf3ef0c..05753af3c2a1 100644
  namespace crashpad {
  
  namespace {
-@@ -147,6 +153,9 @@ struct Options {
+@@ -151,6 +157,9 @@ struct Options {
    bool periodic_tasks;
    bool rate_limit;
    bool upload_gzip;
@@ -212,7 +243,7 @@ index abc22bf3ef0c..05753af3c2a1 100644
  };
  
  // Splits |key_value| on '=' and inserts the resulting key and value into |map|.
-@@ -430,6 +439,9 @@ int HandlerMain(int argc,
+@@ -438,6 +447,9 @@ int HandlerMain(int argc,
      kOptionResetOwnCrashExceptionPortToSystemDefault,
  #endif  // OS_MACOSX
      kOptionURL,
@@ -222,7 +253,7 @@ index abc22bf3ef0c..05753af3c2a1 100644
  
      // Standard options.
      kOptionHelp = -2,
-@@ -476,6 +488,9 @@ int HandlerMain(int argc,
+@@ -488,6 +500,9 @@ int HandlerMain(int argc,
      {"url", required_argument, nullptr, kOptionURL},
      {"help", no_argument, nullptr, kOptionHelp},
      {"version", no_argument, nullptr, kOptionVersion},
@@ -232,7 +263,7 @@ index abc22bf3ef0c..05753af3c2a1 100644
      {nullptr, 0, nullptr, 0},
    };
  
-@@ -575,6 +590,27 @@ int HandlerMain(int argc,
+@@ -592,6 +607,27 @@ int HandlerMain(int argc,
          options.url = optarg;
          break;
        }
@@ -260,23 +291,19 @@ index abc22bf3ef0c..05753af3c2a1 100644
        case kOptionHelp: {
          Usage(me);
          MetricsRecordExit(Metrics::LifetimeMilestone::kExitedEarly);
-@@ -734,17 +770,27 @@ int HandlerMain(int argc,
-   // TODO(scottmg): options.rate_limit should be removed when we have a
-   // configurable database setting to control upload limiting.
-   // See https://crashpad.chromium.org/bug/23.
+@@ -757,15 +793,23 @@ int HandlerMain(int argc,
+   upload_thread_options.rate_limit = options.rate_limit;
+   upload_thread_options.upload_gzip = options.upload_gzip;
+   upload_thread_options.watch_pending_reports = options.periodic_tasks;
 +#if BUILDFLAG(ENABLE_CEF)
 +  CefCrashReportUploadThread upload_thread(database.get(),
 +                                           options.url,
-+                                           options.periodic_tasks,
-+                                           options.rate_limit,
-+                                           options.upload_gzip,
++                                           upload_thread_options,
 +                                           options.max_uploads);
 +#else
    CrashReportUploadThread upload_thread(database.get(),
                                          options.url,
-                                         options.periodic_tasks,
-                                         options.rate_limit,
-                                         options.upload_gzip);
+                                         upload_thread_options);
 +#endif
    upload_thread.Start();
  

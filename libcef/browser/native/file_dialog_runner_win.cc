@@ -7,6 +7,7 @@
 
 #include <commdlg.h>
 #include <shlobj.h>
+#include <wrl/client.h>
 
 #include "libcef/browser/browser_host_impl.h"
 
@@ -15,7 +16,6 @@
 #include "base/strings/string_util.h"
 #include "base/strings/utf_string_conversions.h"
 #include "base/win/registry.h"
-#include "base/win/scoped_comptr.h"
 #include "cef/grit/cef_strings.h"
 #include "chrome/grit/generated_resources.h"
 #include "net/base/mime_util.h"
@@ -395,7 +395,7 @@ bool RunOpenFolderDialog(const CefFileDialogRunner::FileChooserParams& params,
     STRRET out_dir_buffer;
     ZeroMemory(&out_dir_buffer, sizeof(out_dir_buffer));
     out_dir_buffer.uType = STRRET_WSTR;
-    base::win::ScopedComPtr<IShellFolder> shell_folder;
+    Microsoft::WRL::ComPtr<IShellFolder> shell_folder;
     if (SHGetDesktopFolder(shell_folder.GetAddressOf()) == NOERROR) {
       HRESULT hr = shell_folder->GetDisplayNameOf(list, SHGDN_FORPARSING,
                                                   &out_dir_buffer);

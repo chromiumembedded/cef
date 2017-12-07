@@ -16,7 +16,9 @@
 #include "base/task_scheduler/post_task.h"
 #include "base/values.h"
 #include "chrome/browser/net/prediction_options.h"
+#include "chrome/browser/plugins/plugin_info_host_impl.h"
 #include "chrome/browser/prefs/chrome_command_line_pref_store.h"
+#include "chrome/browser/renderer_host/pepper/device_id_fetcher.h"
 #include "chrome/browser/supervised_user/supervised_user_pref_store.h"
 #include "chrome/browser/supervised_user/supervised_user_settings_service.h"
 #include "chrome/browser/supervised_user/supervised_user_settings_service_factory.h"
@@ -27,6 +29,7 @@
 #include "components/content_settings/core/browser/cookie_settings.h"
 #include "components/content_settings/core/browser/host_content_settings_map.h"
 #include "components/google/core/browser/google_url_tracker.h"
+#include "components/keyed_service/content/browser_context_dependency_manager.h"
 #include "components/pref_registry/pref_registry_syncable.h"
 #include "components/prefs/json_pref_store.h"
 #include "components/prefs/pref_filter.h"
@@ -44,55 +47,6 @@
 #include "ui/base/l10n/l10n_util.h"
 
 namespace browser_prefs {
-
-namespace {
-
-// A helper function for registering localized values.
-// Based on CreateLocaleDefaultValue from
-// components/pref_registry/pref_registry_syncable.cc.
-void RegisterLocalizedValue(PrefRegistrySimple* registry,
-                            const char* path,
-                            base::Value::Type type,
-                            int message_id) {
-  const std::string resource_string = l10n_util::GetStringUTF8(message_id);
-  DCHECK(!resource_string.empty());
-  switch (type) {
-    case base::Value::Type::BOOLEAN: {
-      if ("true" == resource_string)
-        registry->RegisterBooleanPref(path, true);
-      else if ("false" == resource_string)
-        registry->RegisterBooleanPref(path, false);
-      return;
-    }
-
-    case base::Value::Type::INTEGER: {
-      int val;
-      base::StringToInt(resource_string, &val);
-      registry->RegisterIntegerPref(path, val);
-      return;
-    }
-
-    case base::Value::Type::DOUBLE: {
-      double val;
-      base::StringToDouble(resource_string, &val);
-      registry->RegisterDoublePref(path, val);
-      return;
-    }
-
-    case base::Value::Type::STRING: {
-      registry->RegisterStringPref(path, resource_string);
-      return;
-    }
-
-    default: {
-      NOTREACHED()
-          << "list and dictionary types cannot have default locale values";
-    }
-  }
-  NOTREACHED();
-}
-
-}  // namespace
 
 const char kUserPrefsFileName[] = "UserPrefs.json";
 
@@ -165,70 +119,69 @@ std::unique_ptr<PrefService> CreatePrefService(Profile* profile,
   scoped_refptr<user_prefs::PrefRegistrySyncable> registry(
       new user_prefs::PrefRegistrySyncable());
 
+  // Some preferences are specific to CEF and others are defined in Chromium.
+  // The preferred approach for registering preferences defined in Chromium is
+  // as follows:
+  //
+  // 1. If a non-static RegisterProfilePrefs() method exists in a *Factory
+  //    class then add a *Factory::GetInstance() call in
+  //    EnsureBrowserContextKeyedServiceFactoriesBuilt().
+  // 2. If a static RegisterPrefs() method exists then call that method in the
+  //    "Default preferences" section below.
+  // 3. If the default values are not appropriate but the set of registered
+  //    preferences is otherwise fine then change the defaults by calling
+  //    SetDefaultPrefValue after calling the existing registration method.
+  // 4. If the original registration method contains many unused preferences or
+  //    otherwise inappropiate logic (e.g. calls to objects that CEF doesn't
+  //    use) then register the preferences directly instead of calling the
+  //    existing registration method.
+
+  // Call RegisterProfilePrefs() for all services listed by
+  // EnsureBrowserContextKeyedServiceFactoriesBuilt().
+  BrowserContextDependencyManager::GetInstance()
+      ->RegisterProfilePrefsForServices(profile, registry.get());
+
   // Default preferences.
   CefMediaCaptureDevicesDispatcher::RegisterPrefs(registry.get());
-  PrefProxyConfigTrackerImpl::RegisterPrefs(registry.get());
-  extensions::ExtensionPrefs::RegisterProfilePrefs(registry.get());
-  HostContentSettingsMap::RegisterProfilePrefs(registry.get());
   CefURLRequestContextGetterImpl::RegisterPrefs(registry.get());
+  chrome_browser_net::RegisterPredictionOptionsProfilePrefs(registry.get());
+  DeviceIDFetcher::RegisterProfilePrefs(registry.get());
+  extensions::ExtensionPrefs::RegisterProfilePrefs(registry.get());
+  GoogleURLTracker::RegisterProfilePrefs(registry.get());
+  HostContentSettingsMap::RegisterProfilePrefs(registry.get());
+  PluginInfoHostImpl::RegisterUserPrefs(registry.get());
+  PrefProxyConfigTrackerImpl::RegisterPrefs(registry.get());
   renderer_prefs::RegisterProfilePrefs(registry.get());
   update_client::RegisterPrefs(registry.get());
-  content_settings::CookieSettings::RegisterProfilePrefs(registry.get());
-  chrome_browser_net::RegisterPredictionOptionsProfilePrefs(registry.get());
-  GoogleURLTracker::RegisterProfilePrefs(registry.get());
 
   // Print preferences.
+  // Based on ProfileImpl::RegisterProfilePrefs.
   registry->RegisterBooleanPref(prefs::kPrintingEnabled, true);
 
   // Spell checking preferences.
-  // Based on SpellcheckServiceFactory::RegisterProfilePrefs.
-  registry->RegisterListPref(spellcheck::prefs::kSpellCheckDictionaries,
-                             base::MakeUnique<base::ListValue>());
+  // Modify defaults from SpellcheckServiceFactory::RegisterProfilePrefs.
   std::string spellcheck_lang =
       command_line->GetSwitchValueASCII(switches::kOverrideSpellCheckLang);
   if (!spellcheck_lang.empty()) {
-    registry->RegisterStringPref(spellcheck::prefs::kSpellCheckDictionary,
-                                 spellcheck_lang);
-  } else {
-    RegisterLocalizedValue(
-        registry.get(), spellcheck::prefs::kSpellCheckDictionary,
-        base::Value::Type::STRING, IDS_SPELLCHECK_DICTIONARY);
+    registry->SetDefaultPrefValue(spellcheck::prefs::kSpellCheckDictionary,
+                                  base::Value(spellcheck_lang));
   }
-  registry->RegisterBooleanPref(
+  const bool enable_spelling_service_ =
+      command_line->HasSwitch(switches::kEnableSpellingService);
+  registry->SetDefaultPrefValue(
       spellcheck::prefs::kSpellCheckUseSpellingService,
-      command_line->HasSwitch(switches::kEnableSpellingService));
-  registry->RegisterBooleanPref(
-      spellcheck::prefs::kEnableSpellcheck,
-      !command_line->HasSwitch(switches::kDisableSpellChecking));
+      base::Value(enable_spelling_service_));
+  registry->SetDefaultPrefValue(spellcheck::prefs::kEnableSpellcheck,
+                                base::Value(!enable_spelling_service_));
 
   // Pepper flash preferences.
-  // Based on DeviceIDFetcher::RegisterProfilePrefs.
-  registry->RegisterBooleanPref(prefs::kEnableDRM, false);
-  registry->RegisterStringPref(prefs::kDRMSalt, "");
+  // Modify defaults from DeviceIDFetcher::RegisterProfilePrefs.
+  registry->SetDefaultPrefValue(prefs::kEnableDRM, base::Value(false));
 
   // Authentication preferences.
+  // Based on IOThread::RegisterPrefs.
   registry->RegisterStringPref(prefs::kAuthServerWhitelist, "");
   registry->RegisterStringPref(prefs::kAuthNegotiateDelegateWhitelist, "");
-
-  // Plugin preferences.
-  // Based on chrome::RegisterBrowserUserPrefs.
-  registry->RegisterBooleanPref(prefs::kPluginsAllowOutdated, false);
-  registry->RegisterBooleanPref(prefs::kPluginsAlwaysAuthorize, false);
-
-// Theme preferences.
-// Based on ThemeServiceFactory::RegisterProfilePrefs.
-// TODO(cef/chrome): Remove this once CEF supports ThemeService.
-#if defined(USE_X11)
-  registry->RegisterBooleanPref(prefs::kUsesSystemTheme, false);
-#endif
-  registry->RegisterFilePathPref(prefs::kCurrentThemePackFilename,
-                                 base::FilePath());
-  registry->RegisterStringPref(prefs::kCurrentThemeID,
-                               ThemeService::kDefaultThemeID);
-  registry->RegisterDictionaryPref(prefs::kCurrentThemeImages);
-  registry->RegisterDictionaryPref(prefs::kCurrentThemeColors);
-  registry->RegisterDictionaryPref(prefs::kCurrentThemeTints);
-  registry->RegisterDictionaryPref(prefs::kCurrentThemeDisplayProperties);
 
   // Browser UI preferences.
   // Based on chrome/browser/ui/browser_ui_prefs.cc RegisterBrowserPrefs.

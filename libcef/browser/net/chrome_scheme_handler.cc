@@ -37,6 +37,7 @@
 #include "content/browser/webui/content_web_ui_controller_factory.h"
 #include "content/public/browser/browser_url_handler.h"
 #include "content/public/common/url_constants.h"
+#include "content/public/common/url_utils.h"
 #include "content/public/common/user_agent.h"
 #include "ipc/ipc_channel.h"
 #include "net/url_request/url_request.h"
@@ -169,7 +170,7 @@ bool IsDebugURL(const GURL& url) {
 
   // Also include URLs handled by the browser process in
   // content/browser/frame_host/debug_urls.cc HandleDebugURL().
-  for (int i = 0; i < chrome::kNumberOfChromeDebugURLs; ++i) {
+  for (size_t i = 0; i < chrome::kNumberOfChromeDebugURLs; ++i) {
     GURL host(chrome::kChromeDebugURLs[i]);
     if (url.GetOrigin() == host.GetOrigin())
       return true;
@@ -186,7 +187,7 @@ bool IsDebugURL(const GURL& url) {
 }
 
 void GetDebugURLs(std::vector<std::string>* urls) {
-  for (int i = 0; i < chrome::kNumberOfChromeDebugURLs; ++i) {
+  for (size_t i = 0; i < chrome::kNumberOfChromeDebugURLs; ++i) {
     urls->push_back(chrome::kChromeDebugURLs[i]);
   }
 

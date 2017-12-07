@@ -136,9 +136,9 @@ std::unique_ptr<net::ProxyService> CreateProxyService(
     dhcp_proxy_script_fetcher = dhcp_factory.Create(context);
 
     proxy_service = content::CreateProxyServiceUsingMojoFactory(
-        ChromeMojoProxyResolverFactory::GetInstance(),
+        ChromeMojoProxyResolverFactory::CreateWithStrongBinding(),
         std::move(proxy_config_service),
-        new net::ProxyScriptFetcherImpl(context),
+        base::MakeUnique<net::ProxyScriptFetcherImpl>(context),
         std::move(dhcp_proxy_script_fetcher), context->host_resolver(), net_log,
         network_delegate);
   } else {
@@ -536,11 +536,11 @@ void CefURLRequestContextGetterImpl::CreateProxyConfigService() {
 }
 
 void CefURLRequestContextGetterImpl::UpdateServerWhitelist() {
-  io_state_->http_auth_preferences_->set_server_whitelist(
+  io_state_->http_auth_preferences_->SetServerWhitelist(
       auth_server_whitelist_.GetValue());
 }
 
 void CefURLRequestContextGetterImpl::UpdateDelegateWhitelist() {
-  io_state_->http_auth_preferences_->set_delegate_whitelist(
+  io_state_->http_auth_preferences_->SetDelegateWhitelist(
       auth_negotiate_delegate_whitelist_.GetValue());
 }

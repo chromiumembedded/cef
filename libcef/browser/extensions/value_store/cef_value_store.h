@@ -31,6 +31,10 @@ class CefValueStore : public ValueStore {
   int read_count() const { return read_count_; }
   int write_count() const { return write_count_; }
 
+  // Sets the error code for requests. If OK, errors won't be thrown.
+  // Defaults to OK.
+  void set_status_code(StatusCode status_code);
+
   // ValueStore implementation.
   size_t GetBytesInUse(const std::string& key) override;
   size_t GetBytesInUse(const std::vector<std::string>& keys) override;

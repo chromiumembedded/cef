@@ -130,7 +130,7 @@ class DragEnumFormatEtc : public IEnumFORMATETC {
   // Construction / Destruction
   //
   DragEnumFormatEtc(FORMATETC* pFormatEtc, int nNumFormats);
-  ~DragEnumFormatEtc();
+  virtual ~DragEnumFormatEtc();
 
   static void DeepCopyFormatEtc(FORMATETC* dest, FORMATETC* source);
 
@@ -181,6 +181,7 @@ class DataObjectWin : public IDataObject {
   int LookupFormatEtc(FORMATETC* pFormatEtc);
 
   explicit DataObjectWin(FORMATETC* fmtetc, STGMEDIUM* stgmed, int count);
+  virtual ~DataObjectWin() {}
 };
 
 }  // namespace client

@@ -718,9 +718,9 @@ void CefBrowserImpl::OnLoadError(blink::WebLocalFrame* frame,
       if (load_handler.get()) {
         CefRefPtr<CefFrameImpl> cef_frame = GetWebFrameImpl(frame);
         const cef_errorcode_t errorCode =
-            static_cast<cef_errorcode_t>(error.reason);
-        const std::string& errorText = error.localized_description.Utf8();
-        const GURL& failedUrl = error.unreachable_url;
+            static_cast<cef_errorcode_t>(error.reason());
+        const std::string& errorText = net::ErrorToString(error.reason());
+        const GURL& failedUrl = error.url();
         load_handler->OnLoadError(this, cef_frame.get(), errorCode, errorText,
                                   failedUrl.spec());
       }

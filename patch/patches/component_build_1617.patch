@@ -1,17 +1,5 @@
-diff --git chrome/browser/ui/BUILD.gn chrome/browser/ui/BUILD.gn
-index 82f43b9591ae..1ef9adad166f 100644
---- chrome/browser/ui/BUILD.gn
-+++ chrome/browser/ui/BUILD.gn
-@@ -369,6 +369,7 @@ split_static_library("ui") {
-     "//chrome/browser/ui/webui/usb_internals:mojo_bindings",
-     "//chrome/common",
-     "//chrome/common:search_mojom",
-+    "//chrome/common:service_process_mojom",
-     "//chrome/common/net",
-     "//chrome/installer/util:with_no_strings",
-     "//components/about_ui",
 diff --git content/app/content_service_manager_main_delegate.h content/app/content_service_manager_main_delegate.h
-index 7563ce48bf5e..6c594749d57b 100644
+index 4393a8fac233..860715e86900 100644
 --- content/app/content_service_manager_main_delegate.h
 +++ content/app/content_service_manager_main_delegate.h
 @@ -16,7 +16,8 @@ namespace content {
@@ -25,7 +13,7 @@ index 7563ce48bf5e..6c594749d57b 100644
    explicit ContentServiceManagerMainDelegate(const ContentMainParams& params);
    ~ContentServiceManagerMainDelegate() override;
 diff --git third_party/WebKit/Source/controller/BUILD.gn third_party/WebKit/Source/controller/BUILD.gn
-index 1d29633ba10d..1a42fe1d37fa 100644
+index 714113da5d67..08130f97b76c 100644
 --- third_party/WebKit/Source/controller/BUILD.gn
 +++ third_party/WebKit/Source/controller/BUILD.gn
 @@ -16,6 +16,7 @@ component("controller") {

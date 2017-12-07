@@ -389,10 +389,11 @@ bool CefBrowserContextImpl::IsOffTheRecord() const {
 
 content::DownloadManagerDelegate*
 CefBrowserContextImpl::GetDownloadManagerDelegate() {
-  DCHECK(!download_manager_delegate_.get());
-
-  content::DownloadManager* manager = BrowserContext::GetDownloadManager(this);
-  download_manager_delegate_.reset(new CefDownloadManagerDelegate(manager));
+  if (!download_manager_delegate_) {
+    content::DownloadManager* manager =
+        BrowserContext::GetDownloadManager(this);
+    download_manager_delegate_.reset(new CefDownloadManagerDelegate(manager));
+  }
   return download_manager_delegate_.get();
 }
 

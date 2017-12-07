@@ -43,15 +43,9 @@ class CallRecordUploadAttempt {
 CefCrashReportUploadThread::CefCrashReportUploadThread(
     CrashReportDatabase* database,
     const std::string& url,
-    bool watch_pending_reports,
-    bool rate_limit,
-    bool upload_gzip,
+    const Options& options,
     int max_uploads)
-    : CrashReportUploadThread(database,
-                              url,
-                              watch_pending_reports,
-                              rate_limit,
-                              upload_gzip),
+    : CrashReportUploadThread(database, url, options),
       max_uploads_(max_uploads) {}
 
 CefCrashReportUploadThread::~CefCrashReportUploadThread() {}
@@ -173,7 +167,7 @@ bool CefCrashReportUploadThread::UploadsEnabled() const {
 }
 
 bool CefCrashReportUploadThread::MaxUploadsEnabled() const {
-  return rate_limit_ && max_uploads_ > 0;
+  return options_.rate_limit && max_uploads_ > 0;
 }
 
 bool CefCrashReportUploadThread::MaxUploadsExceeded() const {
@@ -181,7 +175,7 @@ bool CefCrashReportUploadThread::MaxUploadsExceeded() const {
 }
 
 bool CefCrashReportUploadThread::BackoffPending() const {
-  if (!rate_limit_)
+  if (!options_.rate_limit)
     return false;
 
   Settings* const settings = database_->GetSettings();
@@ -198,7 +192,7 @@ bool CefCrashReportUploadThread::BackoffPending() const {
 }
 
 void CefCrashReportUploadThread::IncreaseBackoff() {
-  if (!rate_limit_)
+  if (!options_.rate_limit)
     return;
 
   const int kHour = 60 * 60;  // 1 hour
@@ -236,7 +230,7 @@ void CefCrashReportUploadThread::IncreaseBackoff() {
 }
 
 void CefCrashReportUploadThread::ResetBackoff() {
-  if (!rate_limit_)
+  if (!options_.rate_limit)
     return;
 
   Settings* settings = database_->GetSettings();

@@ -88,9 +88,6 @@ class OsrImeHandlerWin {
   // The current composition character range and its bounds.
   std::vector<CefRect> composition_bounds_;
 
-  // This value represents whether or not the current input context has IMEs.
-  bool ime_status_;
-
   // The current input Language ID retrieved from Windows -
   // used for processing language-specific operations in IME.
   LANGID input_language_id_;

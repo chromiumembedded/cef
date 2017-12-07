@@ -231,7 +231,8 @@ bool ExecuteCodeInTabFunction::LoadFile(const std::string& file) {
 void ExecuteCodeInTabFunction::LoadFileComplete(
     const std::string& file,
     std::unique_ptr<std::string> data) {
-  DidLoadAndLocalizeFile(file, !!data.get(), std::move(data));
+  const bool success = !!data.get();
+  DidLoadAndLocalizeFile(file, success, std::move(data));
 }
 
 bool TabsExecuteScriptFunction::ShouldInsertCSS() const {

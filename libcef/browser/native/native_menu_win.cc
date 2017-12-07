@@ -109,7 +109,7 @@ static CefNativeMenuWin* GetCefNativeMenuWinFromHMENU(HMENU hmenu) {
 // structure we have constructed in CefNativeMenuWin.
 class CefNativeMenuWin::MenuHostWindow {
  public:
-  explicit MenuHostWindow(CefNativeMenuWin* parent) : parent_(parent) {
+  MenuHostWindow() {
     RegisterClass();
     hwnd_ = CreateWindowEx(l10n_util::GetExtendedStyles(), kWindowClassName,
                            L"", 0, 0, 0, 0, 0, HWND_MESSAGE, NULL, NULL, NULL);
@@ -389,7 +389,6 @@ class CefNativeMenuWin::MenuHostWindow {
   }
 
   HWND hwnd_;
-  CefNativeMenuWin* parent_;
 
   DISALLOW_COPY_AND_ASSIGN(MenuHostWindow);
 };
@@ -775,7 +774,7 @@ void CefNativeMenuWin::CreateHostWindow() {
   // host window per menu hierarchy, no matter how many CefNativeMenuWin objects
   // exist wrapping submenus.
   if (!host_window_.get())
-    host_window_.reset(new MenuHostWindow(this));
+    host_window_.reset(new MenuHostWindow());
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -124,10 +124,14 @@ CefExtensionsBrowserClient::MaybeCreateResourceBundleRequestJob(
 }
 
 bool CefExtensionsBrowserClient::AllowCrossRendererResourceLoad(
-    net::URLRequest* request,
+    const GURL& url,
+    content::ResourceType resource_type,
+    ui::PageTransition page_transition,
+    int child_id,
     bool is_incognito,
     const Extension* extension,
-    InfoMap* extension_info_map) {
+    const ExtensionSet& extensions,
+    const ProcessMap& process_map) {
   // TODO(cef): This bypasses additional checks added to
   // AllowCrossRendererResourceLoad() in https://crrev.com/5cf9d45c. Figure out
   // why permission is not being granted based on "web_accessible_resources"
@@ -137,7 +141,8 @@ bool CefExtensionsBrowserClient::AllowCrossRendererResourceLoad(
 
   bool allowed = false;
   if (url_request_util::AllowCrossRendererResourceLoad(
-          request, is_incognito, extension, extension_info_map, &allowed)) {
+          url, resource_type, page_transition, child_id, is_incognito,
+          extension, extensions, process_map, &allowed)) {
     return allowed;
   }
 

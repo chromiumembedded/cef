@@ -21,20 +21,6 @@
 #ifndef CEF_LIBCEF_COMMON_CEF_MESSAGES_H_
 #define CEF_LIBCEF_COMMON_CEF_MESSAGES_H_
 
-// Based on ChromeViewHostMsg_GetPluginInfo_Status.
-enum class CefViewHostMsg_GetPluginInfo_Status {
-  kAllowed,
-  kBlocked,
-  kBlockedByPolicy,
-  kDisabled,
-  kNotFound,
-  kNPAPINotSupported,
-  kOutdatedBlocked,
-  kOutdatedDisallowed,
-  kPlayImportantContent,
-  kUnauthorized,
-};
-
 namespace IPC {
 
 // Extracted from chrome/common/automation_messages.h.
@@ -206,44 +192,6 @@ IPC_SYNC_MESSAGE_CONTROL1_1(
     CefProcessHostMsg_GetNewBrowserInfo,
     int /* render_frame_routing_id */,
     CefProcessHostMsg_GetNewBrowserInfo_Params /* params*/)
-
-IPC_ENUM_TRAITS_MAX_VALUE(CefViewHostMsg_GetPluginInfo_Status,
-                          CefViewHostMsg_GetPluginInfo_Status::kUnauthorized)
-
-// Output parameters for CefViewHostMsg_GetPluginInfo message.
-IPC_STRUCT_BEGIN(CefViewHostMsg_GetPluginInfo_Output)
-  IPC_STRUCT_MEMBER(CefViewHostMsg_GetPluginInfo_Status, status)
-  IPC_STRUCT_MEMBER(content::WebPluginInfo, plugin)
-  IPC_STRUCT_MEMBER(std::string, actual_mime_type)
-  IPC_STRUCT_MEMBER(std::string, group_identifier)
-  IPC_STRUCT_MEMBER(base::string16, group_name)
-IPC_STRUCT_END()
-
-// Return information about a plugin for the given URL and MIME type.
-// In contrast to ViewHostMsg_GetPluginInfo in content/, this IPC call knows
-// about specific reasons why a plugin can't be used, for example because it's
-// disabled. Based on ChromeViewHostMsg_GetPluginInfo.
-IPC_SYNC_MESSAGE_CONTROL5_1(CefViewHostMsg_GetPluginInfo,
-                            int /* render_frame_id */,
-                            GURL /* url */,
-                            bool /* is_main_frame */,
-                            url::Origin /* top_origin_url */,
-                            std::string /* mime_type */,
-                            CefViewHostMsg_GetPluginInfo_Output /* output */)
-
-// Returns whether any internal plugin supporting |mime_type| is registered and
-// enabled. Does not determine whether the plugin can actually be instantiated
-// (e.g. whether it has all its dependencies).
-// When the returned *|is_available| is true, |additional_param_names| and
-// |additional_param_values| contain the name-value pairs, if any, specified
-// for the *first* non-disabled plugin found that is registered for |mime_type|.
-// Based on ChromeViewHostMsg_IsInternalPluginAvailableForMimeType.
-IPC_SYNC_MESSAGE_CONTROL1_3(
-    CefViewHostMsg_IsInternalPluginAvailableForMimeType,
-    std::string /* mime_type */,
-    bool /* is_available */,
-    std::vector<base::string16> /* additional_param_names */,
-    std::vector<base::string16> /* additional_param_values */)
 
 // Sent when a frame is identified for the first time.
 IPC_MESSAGE_ROUTED3(CefHostMsg_FrameIdentified,

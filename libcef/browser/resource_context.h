@@ -10,13 +10,13 @@
 #include "include/cef_request_context_handler.h"
 
 #include "base/files/file_path.h"
+#include "chrome/common/plugin.mojom.h"
 #include "content/public/browser/resource_context.h"
 #include "extensions/browser/info_map.h"
 #include "net/ssl/client_cert_store.h"
 #include "url/origin.h"
 
 class CefURLRequestContextGetter;
-enum class CefViewHostMsg_GetPluginInfo_Status;
 
 // Acts as a bridge for resource loading. Life span is controlled by
 // CefBrowserContext. Created on the UI thread but accessed and destroyed on the
@@ -53,12 +53,12 @@ class CefResourceContext : public content::ResourceContext {
                              const base::FilePath& plugin_path,
                              bool is_main_frame,
                              const url::Origin& main_frame_origin,
-                             CefViewHostMsg_GetPluginInfo_Status status);
+                             chrome::mojom::PluginStatus status);
   bool HasPluginLoadDecision(int render_process_id,
                              const base::FilePath& plugin_path,
                              bool is_main_frame,
                              const url::Origin& main_frame_origin,
-                             CefViewHostMsg_GetPluginInfo_Status* status) const;
+                             chrome::mojom::PluginStatus* status) const;
 
   // Clear the plugin load decisions associated with |render_process_id|, or all
   // plugin load decisions if |render_process_id| is -1.
@@ -88,7 +88,7 @@ class CefResourceContext : public content::ResourceContext {
   // plugin load decision.
   typedef std::map<
       std::pair<std::pair<int, base::FilePath>, std::pair<bool, url::Origin>>,
-      CefViewHostMsg_GetPluginInfo_Status>
+      chrome::mojom::PluginStatus>
       PluginLoadDecisionMap;
   PluginLoadDecisionMap plugin_load_decision_map_;
 

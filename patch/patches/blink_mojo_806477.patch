@@ -1,0 +1,52 @@
+diff --git third_party/WebKit/Source/core/frame/Deprecation.cpp third_party/WebKit/Source/core/frame/Deprecation.cpp
+index db80f4a67b11..f3191313f929 100644
+--- third_party/WebKit/Source/core/frame/Deprecation.cpp
++++ third_party/WebKit/Source/core/frame/Deprecation.cpp
+@@ -16,8 +16,9 @@
+ #include "core/page/Page.h"
+ #include "core/workers/WorkerOrWorkletGlobalScope.h"
+ #include "platform/runtime_enabled_features.h"
++#include "public/platform/Platform.h"
+ #include "public/platform/reporting.mojom-blink.h"
+-#include "services/service_manager/public/cpp/interface_provider.h"
++#include "services/service_manager/public/cpp/connector.h"
+ #include "third_party/WebKit/common/feature_policy/feature_policy_feature.h"
+ 
+ using blink::WebFeature;
+@@ -796,7 +797,9 @@ void Deprecation::GenerateReport(const LocalFrame* frame, WebFeature feature) {
+ 
+   // Send the deprecation report to the Reporting API.
+   mojom::blink::ReportingServiceProxyPtr service;
+-  frame->Client()->GetInterfaceProvider()->GetInterface(&service);
++  Platform* platform = Platform::Current();
++  platform->GetConnector()->BindInterface(platform->GetBrowserServiceName(),
++                                          &service);
+   service->QueueDeprecationReport(document->Url(), info.message,
+                                   body->sourceFile(), body->lineNumber(),
+                                   body->columnNumber());
+diff --git third_party/WebKit/Source/core/frame/Intervention.cpp third_party/WebKit/Source/core/frame/Intervention.cpp
+index fb342ba765db..089eb6a3d662 100644
+--- third_party/WebKit/Source/core/frame/Intervention.cpp
++++ third_party/WebKit/Source/core/frame/Intervention.cpp
+@@ -11,8 +11,9 @@
+ #include "core/frame/Report.h"
+ #include "core/frame/ReportingContext.h"
+ #include "core/inspector/ConsoleMessage.h"
++#include "public/platform/Platform.h"
+ #include "public/platform/reporting.mojom-blink.h"
+-#include "services/service_manager/public/cpp/interface_provider.h"
++#include "services/service_manager/public/cpp/connector.h"
+ 
+ namespace blink {
+ 
+@@ -44,7 +45,9 @@ void Intervention::GenerateReport(const LocalFrame* frame,
+ 
+   // Send the intervention report to the Reporting API.
+   mojom::blink::ReportingServiceProxyPtr service;
+-  frame->Client()->GetInterfaceProvider()->GetInterface(&service);
++  Platform* platform = Platform::Current();
++  platform->GetConnector()->BindInterface(platform->GetBrowserServiceName(),
++                                          &service);
+   service->QueueInterventionReport(document->Url(), message, body->sourceFile(),
+                                    body->lineNumber(), body->columnNumber());
+ }

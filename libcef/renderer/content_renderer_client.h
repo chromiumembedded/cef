@@ -18,7 +18,14 @@
 #include "base/compiler_specific.h"
 #include "base/message_loop/message_loop.h"
 #include "base/sequenced_task_runner.h"
+#include "chrome/common/plugin.mojom.h"
 #include "content/public/renderer/content_renderer_client.h"
+#include "content/public/renderer/render_thread.h"
+#include "services/service_manager/public/cpp/local_interface_provider.h"
+
+namespace blink {
+class WebURLLoaderFactory;
+}
 
 namespace extensions {
 class CefExtensionsRendererClient;
@@ -37,11 +44,11 @@ class WebCacheImpl;
 class CefGuestView;
 class CefRenderThreadObserver;
 struct Cef_CrossOriginWhiteListEntry_Params;
-struct CefViewHostMsg_GetPluginInfo_Output;
 class ChromePDFPrintClient;
 class SpellCheck;
 
 class CefContentRendererClient : public content::ContentRendererClient,
+                                 public service_manager::LocalInterfaceProvider,
                                  public base::MessageLoop::DestructionObserver {
  public:
   CefContentRendererClient();
@@ -74,10 +81,12 @@ class CefContentRendererClient : public content::ContentRendererClient,
     return uncaught_exception_stack_size_;
   }
 
-  void WebKitInitialized();
+  // Used by CefRenderURLRequest to create WebURLLoaders.
+  blink::WebURLLoaderFactory* url_loader_factory() const {
+    return url_loader_factory_.get();
+  }
 
-  void DevToolsAgentAttached();
-  void DevToolsAgentDetached();
+  void WebKitInitialized();
 
   // Returns the task runner for the current thread. Returns NULL if the current
   // thread is not the main render process thread.
@@ -128,14 +137,17 @@ class CefContentRendererClient : public content::ContentRendererClient,
   void RunScriptsAtDocumentStart(content::RenderFrame* render_frame) override;
   void RunScriptsAtDocumentEnd(content::RenderFrame* render_frame) override;
   void RunScriptsAtDocumentIdle(content::RenderFrame* render_frame) override;
+  void DevToolsAgentAttached(content::RenderFrame* render_frame,
+                             int session_id) override;
+  void DevToolsAgentDetached(content::RenderFrame* render_frame,
+                             int session_id) override;
+
+  // service_manager::LocalInterfaceProvider implementation.
+  void GetInterface(const std::string& name,
+                    mojo::ScopedMessagePipeHandle request_handle) override;
 
   // MessageLoop::DestructionObserver implementation.
   void WillDestroyCurrentMessageLoop() override;
-
-  static blink::WebPlugin* CreatePlugin(
-      content::RenderFrame* render_frame,
-      const blink::WebPluginParams& params,
-      const CefViewHostMsg_GetPluginInfo_Output& output);
 
  private:
   void BrowserCreated(content::RenderView* render_view,
@@ -148,6 +160,7 @@ class CefContentRendererClient : public content::ContentRendererClient,
   std::unique_ptr<CefRenderThreadObserver> observer_;
   std::unique_ptr<web_cache::WebCacheImpl> web_cache_impl_;
   std::unique_ptr<SpellCheck> spellcheck_;
+  std::unique_ptr<blink::WebURLLoaderFactory> url_loader_factory_;
 
   // Map of RenderView pointers to CefBrowserImpl references.
   typedef std::map<content::RenderView*, CefRefPtr<CefBrowserImpl>> BrowserMap;

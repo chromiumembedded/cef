@@ -19,8 +19,6 @@
 #include "libcef/browser/extensions/extension_system.h"
 #include "libcef/browser/media_capture_devices_dispatcher.h"
 #include "libcef/browser/net/chrome_scheme_handler.h"
-#include "libcef/browser/pepper/browser_pepper_host_factory.h"
-#include "libcef/browser/plugins/plugin_info_message_filter.h"
 #include "libcef/browser/plugins/plugin_service_filter.h"
 #include "libcef/browser/prefs/renderer_prefs.h"
 #include "libcef/browser/printing/printing_message_filter.h"
@@ -43,9 +41,12 @@
 #include "base/json/json_reader.h"
 #include "base/path_service.h"
 #include "cef/grit/cef_resources.h"
+#include "chrome/browser/chrome_service.h"
+#include "chrome/browser/plugins/plugin_info_host_impl.h"
 #include "chrome/browser/profiles/profile.h"
-#include "chrome/browser/spellchecker/spell_check_host_impl.h"
+#include "chrome/browser/renderer_host/pepper/chrome_browser_pepper_host_factory.h"
 #include "chrome/common/chrome_switches.h"
+#include "chrome/common/constants.mojom.h"
 #include "chrome/grit/browser_resources.h"
 #include "components/navigation_interception/intercept_navigation_throttle.h"
 #include "components/navigation_interception/navigation_params.h"
@@ -81,6 +82,8 @@
 #include "extensions/common/switches.h"
 #include "net/ssl/ssl_cert_request_info.h"
 #include "ppapi/host/ppapi_host.h"
+#include "services/metrics/metrics_mojo_service.h"
+#include "services/metrics/public/interfaces/constants.mojom.h"
 #include "storage/browser/quota/quota_settings.h"
 #include "third_party/WebKit/public/web/WebWindowFeatures.h"
 #include "ui/base/resource/resource_bundle.h"
@@ -471,9 +474,6 @@ void CefContentBrowserClient::RenderProcessWillLaunch(
   }
 #endif
 
-  host->AddFilter(new CefPluginInfoMessageFilter(
-      id, static_cast<CefBrowserContext*>(profile)));
-
   if (extensions::ExtensionsEnabled()) {
     host->AddFilter(new extensions::ExtensionMessageFilter(id, profile));
     host->AddFilter(
@@ -587,6 +587,21 @@ void CefContentBrowserClient::SiteInstanceDeleting(
                           site_instance->GetId()));
 }
 
+void CefContentBrowserClient::RegisterInProcessServices(StaticServiceMap* services) {
+  {
+    // For spell checking.
+    service_manager::EmbeddedServiceInfo info;
+    info.factory = base::Bind(&ChromeService::Create);
+    services->insert(std::make_pair(chrome::mojom::kServiceName, info));
+  }
+  {
+    // For metrics.
+    service_manager::EmbeddedServiceInfo info;
+    info.factory = base::Bind(&metrics::CreateMetricsService);
+    services->emplace(metrics::mojom::kMetricsServiceName, info);
+  }
+}
+
 void CefContentBrowserClient::RegisterOutOfProcessServices(
     OutOfProcessServiceMap* services) {
   (*services)[printing::mojom::kServiceName] =
@@ -598,6 +613,8 @@ std::unique_ptr<base::Value> CefContentBrowserClient::GetServiceManifestOverlay(
   int id = -1;
   if (name == content::mojom::kBrowserServiceName)
     id = IDR_CEF_BROWSER_MANIFEST_OVERLAY;
+  else if (name == content::mojom::kPackagedServicesServiceName)
+    id = IDR_CEF_PACKAGED_SERVICES_MANIFEST_OVERLAY;
   else if (name == content::mojom::kRendererServiceName)
     id = IDR_CEF_RENDERER_MANIFEST_OVERLAY;
   else if (name == content::mojom::kUtilityServiceName)
@@ -890,7 +907,7 @@ void CefContentBrowserClient::DidCreatePpapiPlugin(
     content::BrowserPpapiHost* browser_host) {
   browser_host->GetPpapiHost()->AddHostFactoryFilter(
       std::unique_ptr<ppapi::host::HostFactory>(
-          new CefBrowserPepperHostFactory(browser_host)));
+          new ChromeBrowserPepperHostFactory(browser_host)));
 }
 
 content::DevToolsManagerDelegate*
@@ -935,7 +952,7 @@ CefContentBrowserClient::CreateThrottlesForNavigation(
   return throttles;
 }
 
-#if defined(OS_POSIX) && !defined(OS_MACOSX)
+#if defined(OS_LINUX)
 void CefContentBrowserClient::GetAdditionalMappedFilesForChildProcess(
     const base::CommandLine& command_line,
     int child_process_id,
@@ -945,7 +962,7 @@ void CefContentBrowserClient::GetAdditionalMappedFilesForChildProcess(
     mappings->Share(kCrashDumpSignal, crash_signal_fd);
   }
 }
-#endif  // defined(OS_POSIX) && !defined(OS_MACOSX)
+#endif  // defined(OS_LINUX)
 
 #if defined(OS_WIN)
 const wchar_t* CefContentBrowserClient::GetResourceDllName() {
@@ -971,18 +988,12 @@ bool CefContentBrowserClient::PreSpawnRenderer(sandbox::TargetPolicy* policy) {
 
 void CefContentBrowserClient::ExposeInterfacesToRenderer(
     service_manager::BinderRegistry* registry,
-    content::AssociatedInterfaceRegistry* associated_registry,
-    content::RenderProcessHost* render_process_host) {
-  const base::CommandLine* command_line =
-      base::CommandLine::ForCurrentProcess();
-  scoped_refptr<base::SingleThreadTaskRunner> ui_task_runner =
-      content::BrowserThread::GetTaskRunnerForThread(
-          content::BrowserThread::UI);
-  if (!command_line->HasSwitch(switches::kDisableSpellChecking)) {
-    registry->AddInterface(
-        base::Bind(&SpellCheckHostImpl::Create, render_process_host->GetID()),
-        ui_task_runner);
-  }
+    blink::AssociatedInterfaceRegistry* associated_registry,
+    content::RenderProcessHost* host) {
+  Profile* profile = Profile::FromBrowserContext(host->GetBrowserContext());
+  host->GetChannel()->AddAssociatedInterfaceForIOThread(base::Bind(
+      &PluginInfoHostImpl::OnPluginInfoHostRequest,
+      base::MakeRefCounted<PluginInfoHostImpl>(host->GetID(), profile)));
 }
 
 void CefContentBrowserClient::RegisterCustomScheme(const std::string& scheme) {

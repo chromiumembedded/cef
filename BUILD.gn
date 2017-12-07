@@ -105,6 +105,8 @@ import("//media/media_options.gni")
 import("//mojo/public/tools/bindings/mojom.gni")
 import("//ppapi/features/features.gni")
 import("//printing/features/features.gni")
+import("//services/catalog/public/tools/catalog.gni")
+import("//services/service_manager/public/service_manifest.gni")
 import("//third_party/icu/config.gni")
 import("//third_party/widevine/cdm/widevine.gni")
 import("//tools/grit/repack.gni")
@@ -229,17 +231,6 @@ group("cef") {
 # libcef static target.
 #
 
-# Configuration that will be applied to all targets that depend on
-# libcef_static.
-config("libcef_static_config") {
-  # CEF targets use includes relative to the CEF root directory.
-  include_dirs = [ "." ]
-  defines = [
-    "BUILDING_CEF_SHARED",
-    "USING_CHROMIUM_INCLUDES",
-  ]
-}
-
 # Target for building code that accesses Blink internals. Included from the
 # //third_party/WebKit/Source/web target.
 source_set("webkit_set") {
@@ -249,7 +240,7 @@ source_set("webkit_set") {
   ]
 
   configs += [
-    ":libcef_static_config",
+    "libcef/features:config",
     "//build/config:precompiled_headers",
 
     # Blink-internal include paths.
@@ -301,7 +292,7 @@ if (is_win) {
     ]
 
     configs += [
-      ":libcef_static_config",
+      "libcef/features:config",
       "//build/config:precompiled_headers",
     ]
 
@@ -491,16 +482,12 @@ static_library("libcef_static") {
     "libcef/browser/osr/web_contents_view_osr.cc",
     "libcef/browser/osr/web_contents_view_osr.h",
     "libcef/browser/path_util_impl.cc",
-    "libcef/browser/pepper/browser_pepper_host_factory.cc",
-    "libcef/browser/pepper/browser_pepper_host_factory.h",
     "libcef/browser/permissions/permission_context.cc",
     "libcef/browser/permissions/permission_context.h",
     "libcef/browser/permissions/permission_manager.cc",
     "libcef/browser/permissions/permission_manager.h",
     "libcef/browser/permissions/permission_util.cc",
     "libcef/browser/permissions/permission_util.h",
-    "libcef/browser/plugins/plugin_info_message_filter.cc",
-    "libcef/browser/plugins/plugin_info_message_filter.h",
     "libcef/browser/plugins/plugin_service_filter.cc",
     "libcef/browser/plugins/plugin_service_filter.h",
     "libcef/browser/prefs/browser_prefs.cc",
@@ -642,16 +629,6 @@ static_library("libcef_static") {
     "libcef/renderer/extensions/print_render_frame_helper_delegate.h",
     "libcef/renderer/frame_impl.cc",
     "libcef/renderer/frame_impl.h",
-    "libcef/renderer/media/cef_key_systems.cc",
-    "libcef/renderer/media/cef_key_systems.h",
-    "libcef/renderer/pepper/pepper_helper.cc",
-    "libcef/renderer/pepper/pepper_helper.h",
-    "libcef/renderer/pepper/renderer_pepper_host_factory.cc",
-    "libcef/renderer/pepper/renderer_pepper_host_factory.h",
-    "libcef/renderer/plugins/cef_plugin_placeholder.cc",
-    "libcef/renderer/plugins/cef_plugin_placeholder.h",
-    "libcef/renderer/plugins/plugin_preroller.cc",
-    "libcef/renderer/plugins/plugin_preroller.h",
     "libcef/renderer/render_frame_observer.cc",
     "libcef/renderer/render_frame_observer.h",
     "libcef/renderer/render_frame_util.cc",
@@ -675,7 +652,7 @@ static_library("libcef_static") {
   ]
 
   configs += [
-    ":libcef_static_config",
+    "libcef/features:config",
     "//build/config:precompiled_headers",
 
     # TODO(jschuh): crbug.com/167187 fix size_t to int truncations.
@@ -683,7 +660,7 @@ static_library("libcef_static") {
   ]
 
   public_configs = [
-    ":libcef_static_config",
+    "libcef/features:config",
   ]
 
   include_dirs = [
@@ -754,12 +731,13 @@ static_library("libcef_static") {
     "//content/public/child",
     "//content/public/common",
     "//content/public/gpu",
+    "//content/public/network",
     "//content/public/renderer",
     "//content/public/utility",
     "//crypto",
     "//device/base",
     "//device/geolocation",
-    "//device/hid",
+    "//device/geolocation/public/interfaces",
     "//extensions/browser",
     "//extensions/browser/api:api_registration",
     "//extensions/common/api",
@@ -783,7 +761,7 @@ static_library("libcef_static") {
     "//skia",
     "//storage/browser",
     "//third_party/brotli:dec",
-    "//third_party/cld",
+    "//third_party/cld_3/src/src:cld_3",
     "//third_party/hunspell",
     "//third_party/leveldatabase",
     "//third_party/libxml",
@@ -887,7 +865,7 @@ static_library("libcef_static") {
   }
 
   if (is_win || is_mac) {
-    deps += [ "//third_party/crashpad/crashpad/handler:handler_lib" ]
+    deps += [ "//third_party/crashpad/crashpad/handler" ]
   }
 
   if (use_x11) {
@@ -992,6 +970,11 @@ static_library("libcef_static") {
     if (is_win) {
       sources += [
         # Support for UI input events.
+        # Part of //base/test:test_config which is testingonly.
+        "//base/test/test_switches.cc",
+        "//base/test/test_switches.h",
+        "//base/test/test_timeouts.cc",
+        "//base/test/test_timeouts.h",
         # Part of //ui/aura:test_support which is testingonly.
         "//ui/aura/test/ui_controls_factory_aurawin.cc",
         # Part of //ui/base:test_support which is testingonly.
@@ -1071,6 +1054,42 @@ if (is_win) {
     include_dirs = [ "." ]
     deps = [ "//sandbox" ]
   }
+}
+
+
+#
+# Service manifests.
+#
+
+cef_packaged_services = [
+  "//chrome/app:chrome_manifest",  # For spell checking.
+  "//services/metrics:manifest",
+]
+
+service_manifest("cef_packaged_services_manifest_overlay") {
+  source = "libcef/common/service_manifests/packaged_services_manifest_overlay.json"
+  packaged_services = cef_packaged_services
+}
+
+service_manifest("cef_browser_manifest_overlay") {
+  source = "libcef/common/service_manifests/browser_manifest_overlay.json"
+}
+
+service_manifest("cef_renderer_manifest_overlay") {
+  source = "libcef/common/service_manifests/renderer_manifest_overlay.json"
+}
+
+service_manifest("cef_utility_manifest_overlay") {
+  source = "libcef/common/service_manifests/utility_manifest_overlay.json"
+}
+
+group("cef_manifest_overlays") {
+  deps = [
+    ":cef_packaged_services_manifest_overlay",
+    ":cef_browser_manifest_overlay",
+    ":cef_renderer_manifest_overlay",
+    ":cef_utility_manifest_overlay",
+  ]
 }
 
 
@@ -1162,6 +1181,7 @@ repack("pak_extensions") {
     "$root_gen_dir/chrome/component_extension_resources.pak",
     "$root_gen_dir/extensions/extensions_renderer_resources.pak",
     "$root_gen_dir/extensions/extensions_resources.pak",
+    "$root_gen_dir/mojo/public/js/mojo_bindings_resources.pak",
     "$root_gen_dir/ui/resources/webui_resources.pak",
   ]
 
@@ -1172,6 +1192,7 @@ repack("pak_extensions") {
     "//chrome/browser/resources:component_extension_resources",
     "//extensions:extensions_renderer_resources",
     "//extensions:extensions_resources_grd",
+    "//mojo/public/js:resources",
     "//ui/resources:webui_resources_grd",
   ]
 
@@ -1212,6 +1233,11 @@ grit("cef_resources") {
     "grit/cef_resources.h",
     "cef_resources.pak",
   ]
+  grit_flags = [
+    "-E",
+    "root_gen_dir=" + rebase_path(root_gen_dir, root_build_dir),
+  ]
+  deps = [ ":cef_manifest_overlays" ]
 }
 
 # Generate cef.pak.
@@ -1863,9 +1889,6 @@ if (is_mac) {
       deps += [
         ":cef_sandbox",
         "//build/win:default_exe_manifest",
-
-        # Tool that can be used for testing crash reporting.
-        "//content/shell:content_shell_crash_service",
       ]
 
       libs = [

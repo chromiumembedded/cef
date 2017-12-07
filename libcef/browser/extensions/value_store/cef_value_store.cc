@@ -10,9 +10,25 @@
 #include "base/logging.h"
 #include "base/memory/ptr_util.h"
 
+namespace {
+
+const char kGenericErrorMessage[] = "CefValueStore configured to error";
+
+// Having this utility function allows ValueStore::Status to not have a copy
+// constructor.
+ValueStore::Status CreateStatusCopy(const ValueStore::Status& status) {
+  return ValueStore::Status(status.code, status.restore_status, status.message);
+}
+
+}  // namespace
+
 CefValueStore::CefValueStore() : read_count_(0), write_count_(0) {}
 
 CefValueStore::~CefValueStore() {}
+
+void CefValueStore::set_status_code(StatusCode status_code) {
+  status_ = ValueStore::Status(status_code, kGenericErrorMessage);
+}
 
 size_t CefValueStore::GetBytesInUse(const std::string& key) {
   // Let SettingsStorageQuotaEnforcer implement this.
@@ -39,7 +55,10 @@ ValueStore::ReadResult CefValueStore::Get(const std::string& key) {
 ValueStore::ReadResult CefValueStore::Get(
     const std::vector<std::string>& keys) {
   read_count_++;
-  base::DictionaryValue* settings = new base::DictionaryValue();
+  if (!status_.ok())
+    return ReadResult(CreateStatusCopy(status_));
+
+  auto settings = std::make_unique<base::DictionaryValue>();
   for (std::vector<std::string>::const_iterator it = keys.begin();
        it != keys.end(); ++it) {
     base::Value* value = NULL;
@@ -47,12 +66,14 @@ ValueStore::ReadResult CefValueStore::Get(
       settings->SetWithoutPathExpansion(*it, value->CreateDeepCopy());
     }
   }
-  return MakeReadResult(base::WrapUnique(settings), status_);
+  return ReadResult(std::move(settings), CreateStatusCopy(status_));
 }
 
 ValueStore::ReadResult CefValueStore::Get() {
   read_count_++;
-  return MakeReadResult(storage_.CreateDeepCopy(), status_);
+  if (!status_.ok())
+    return ReadResult(CreateStatusCopy(status_));
+  return ReadResult(storage_.CreateDeepCopy(), CreateStatusCopy(status_));
 }
 
 ValueStore::WriteResult CefValueStore::Set(WriteOptions options,
@@ -67,6 +88,9 @@ ValueStore::WriteResult CefValueStore::Set(
     WriteOptions options,
     const base::DictionaryValue& settings) {
   write_count_++;
+  if (!status_.ok())
+    return WriteResult(CreateStatusCopy(status_));
+
   std::unique_ptr<ValueStoreChangeList> changes(new ValueStoreChangeList());
   for (base::DictionaryValue::Iterator it(settings); !it.IsAtEnd();
        it.Advance()) {
@@ -79,7 +103,7 @@ ValueStore::WriteResult CefValueStore::Set(
       storage_.SetWithoutPathExpansion(it.key(), it.value().CreateDeepCopy());
     }
   }
-  return MakeWriteResult(std::move(changes), status_);
+  return WriteResult(std::move(changes), CreateStatusCopy(status_));
 }
 
 ValueStore::WriteResult CefValueStore::Remove(const std::string& key) {
@@ -89,6 +113,9 @@ ValueStore::WriteResult CefValueStore::Remove(const std::string& key) {
 ValueStore::WriteResult CefValueStore::Remove(
     const std::vector<std::string>& keys) {
   write_count_++;
+  if (!status_.ok())
+    return WriteResult(CreateStatusCopy(status_));
+
   std::unique_ptr<ValueStoreChangeList> changes(new ValueStoreChangeList());
   for (std::vector<std::string>::const_iterator it = keys.begin();
        it != keys.end(); ++it) {
@@ -97,7 +124,7 @@ ValueStore::WriteResult CefValueStore::Remove(
       changes->push_back(ValueStoreChange(*it, std::move(old_value), nullptr));
     }
   }
-  return MakeWriteResult(std::move(changes), status_);
+  return WriteResult(std::move(changes), CreateStatusCopy(status_));
 }
 
 ValueStore::WriteResult CefValueStore::Clear() {

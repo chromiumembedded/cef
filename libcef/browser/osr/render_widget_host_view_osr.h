@@ -86,7 +86,7 @@ class MacHelper;
 class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
                                    public ui::CompositorDelegate
 #if !defined(OS_MACOSX)
-                                   ,
+    ,
                                    public content::DelegatedFrameHostClient,
                                    public content::CompositorResizeLockClient
 #endif
@@ -132,8 +132,10 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
   void DidCreateNewRendererCompositorFrameSink(
       viz::mojom::CompositorFrameSinkClient* renderer_compositor_frame_sink)
       override;
-  void SubmitCompositorFrame(const viz::LocalSurfaceId& local_surface_id,
-                             viz::CompositorFrame frame) override;
+  void SubmitCompositorFrame(
+      const viz::LocalSurfaceId& local_surface_id,
+      viz::CompositorFrame frame,
+      viz::mojom::HitTestRegionListPtr hit_test_region_list) override;
   void ClearCompositorFrame() override;
   void InitAsPopup(content::RenderWidgetHostView* parent_host_view,
                    const gfx::Rect& pos) override;
@@ -188,13 +190,13 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
                          const ui::LatencyInfo& latency) override;
   void ProcessGestureEvent(const blink::WebGestureEvent& event,
                            const ui::LatencyInfo& latency) override;
-  bool TransformPointToLocalCoordSpace(const gfx::Point& point,
+  bool TransformPointToLocalCoordSpace(const gfx::PointF& point,
                                        const viz::SurfaceId& original_surface,
-                                       gfx::Point* transformed_point) override;
+                                       gfx::PointF* transformed_point) override;
   bool TransformPointToCoordSpaceForView(
-      const gfx::Point& point,
+      const gfx::PointF& point,
       RenderWidgetHostViewBase* target_view,
-      gfx::Point* transformed_point) override;
+      gfx::PointF* transformed_point) override;
 
   // ui::CompositorDelegate implementation.
   std::unique_ptr<viz::SoftwareOutputDevice> CreateSoftwareOutputDevice(
@@ -212,6 +214,7 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
   viz::LocalSurfaceId GetLocalSurfaceId() const override;
   void OnBeginFrame() override;
   bool IsAutoResizeEnabled() const override;
+  void OnFrameTokenChanged(uint32_t frame_token) override;
 
   // CompositorResizeLockClient implementation.
   std::unique_ptr<ui::CompositorLock> GetCompositorLock(

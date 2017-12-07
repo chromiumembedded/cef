@@ -1,0 +1,27 @@
+diff --git build/toolchain/win/rc/linux64/rc.sha1 build/toolchain/win/rc/linux64/rc.sha1
+index 76f7627..11440ae 100644
+--- build/toolchain/win/rc/linux64/rc.sha1
++++ build/toolchain/win/rc/linux64/rc.sha1
+@@ -1 +1 @@
+-a6d75f015275c8a65ff855e8b78437dd03a9bb7d
+\ No newline at end of file
++e642170ce663c75a44822c3bffb1579068ab6f17
+\ No newline at end of file
+diff --git build/toolchain/win/rc/mac/rc.sha1 build/toolchain/win/rc/mac/rc.sha1
+index 8a817c5..ff0c32e 100644
+--- build/toolchain/win/rc/mac/rc.sha1
++++ build/toolchain/win/rc/mac/rc.sha1
+@@ -1 +1 @@
+-3ccc7a61fc5368e8db33364093e42a92de874a26
+\ No newline at end of file
++58489426ecea29e276c94529201bc6a0cc1da027
+\ No newline at end of file
+diff --git build/toolchain/win/rc/win/rc.exe.sha1 build/toolchain/win/rc/win/rc.exe.sha1
+index c74dce41..165e4688 100644
+--- build/toolchain/win/rc/win/rc.exe.sha1
++++ build/toolchain/win/rc/win/rc.exe.sha1
+@@ -1 +1 @@
+-9887dc07d042bf58d20b5557e3f91d18d0254022
+\ No newline at end of file
++9de6c3d751b4432a3a7b1cf96f432a21187764e9
+\ No newline at end of file

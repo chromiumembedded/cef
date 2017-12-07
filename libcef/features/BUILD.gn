@@ -8,12 +8,88 @@ import("//cef/libcef/features/features.gni")
 # This file is in a separate directory so all targets in the build can refer to
 # the buildflag header to get the necessary preprocessor defines without
 # bringing in any CEF targets. Other targets can depend on this target
-# regardless of whether CEF is being built.
+# regardless of whether CEF is being built. Set the `enable_cef=false` GN arg to
+# disable the CEF changes when building Chrome.
+#
+# Example usage:
+#
+# 1. An existing GN configuration file at path/to/foo/BUILD.gn:
+#
+#    # Import the `enable_cef` arg.
+#    import("//cef/libcef/features/features.gni")
+#    ...
+#
+#    # An existing target that is modified for CEF.
+#    # The target type might instead be `component`, `source_set`, etc.
+#    static_library("foo") {
+#      sources = [ ... ]
+#
+#      deps = [
+#        # Always include the CEF features.
+#        "//cef/libcef/features",
+#        ...
+#      ]
+#
+#      if (enable_cef) {
+#        # Actions to perform when the CEF build is enabled.
+#
+#        # Optionally include CEF source files directly in this target. This
+#        # approach is required for targets that are either directly or
+#        # indirectly included in a `component` target (otherwise
+#        # `is_component_build=true` builds will fail). Keep in mind that these
+#        # files are part of this target instead of the `libcef_static` target
+#        # and therefore subject to any target-specific configuration settings
+#        # such as include paths, defines, compiler flags, etc.
+#        sources += [
+#          "//cef/libcef/browser/foo_helper.cc",
+#          "//cef/libcef/browser/foo_helper.h",
+#        ]
+#
+#        # Always include the CEF configuration.
+#        configs += [ "//cef/libcef/features:config" ]
+#     }
+#     ...
+#   }
+#
+# 2. An existing C++ source file at path/to/foo/foo.cc:
+#
+#    // Include the `BUILDFLAG(ENABLE_CEF)` definition.
+#    #include "cef/libcef/features/features.h"
+#    ...
+#
+#    #if BUILDFLAG(ENABLE_CEF)
+#    // CEF headers here...
+#    #include "cef/libcef/browser/foo_helper.h"
+#    #else
+#    // Chrome headers here...
+#    #endif
+#
+#    // An existing function that is modified for CEF.
+#    void DoFoo() {
+#    #if BUILDFLAG(ENABLE_CEF)
+#      // CEF implementation here...
+#      cef_foo_helper::DoFoo();
+#    #else
+#      // Chrome implementation here...
+#    #endif  // !BUILDFLAG(ENABLE_CEF)
+#    }
+#    ...
+#
 
 buildflag_header("features") {
   header = "features.h"
 
   flags = [
     "ENABLE_CEF=$enable_cef",
+  ]
+}
+
+# Configuration for all targets that include CEF source code library-side.
+config("config") {
+  # CEF sources use includes relative to the CEF root directory.
+  include_dirs = [ "//cef" ]
+  defines = [
+    "BUILDING_CEF_SHARED",
+    "USING_CHROMIUM_INCLUDES",
   ]
 }

@@ -125,10 +125,9 @@ void CefStoragePartitionProxy::ClearDataForOrigin(
     uint32_t remove_mask,
     uint32_t quota_storage_remove_mask,
     const GURL& storage_origin,
-    net::URLRequestContextGetter* rq_context,
-    const base::Closure& callback) {
+    net::URLRequestContextGetter* rq_context) {
   parent_->ClearDataForOrigin(remove_mask, quota_storage_remove_mask,
-                              storage_origin, rq_context, callback);
+                              storage_origin, rq_context);
 }
 
 void CefStoragePartitionProxy::ClearData(
@@ -138,9 +137,9 @@ void CefStoragePartitionProxy::ClearData(
     const OriginMatcherFunction& origin_matcher,
     const base::Time begin,
     const base::Time end,
-    const base::Closure& callback) {
+    base::OnceClosure callback) {
   parent_->ClearData(remove_mask, quota_storage_remove_mask, storage_origin,
-                     origin_matcher, begin, end, callback);
+                     origin_matcher, begin, end, std::move(callback));
 }
 
 void CefStoragePartitionProxy::ClearData(
@@ -150,17 +149,18 @@ void CefStoragePartitionProxy::ClearData(
     const CookieMatcherFunction& cookie_matcher,
     const base::Time begin,
     const base::Time end,
-    const base::Closure& callback) {
+    base::OnceClosure callback) {
   parent_->ClearData(remove_mask, quota_storage_remove_mask, origin_matcher,
-                     cookie_matcher, begin, end, callback);
+                     cookie_matcher, begin, end, std::move(callback));
 }
 
 void CefStoragePartitionProxy::ClearHttpAndMediaCaches(
     const base::Time begin,
     const base::Time end,
     const base::Callback<bool(const GURL&)>& url_matcher,
-    const base::Closure& callback) {
-  parent_->ClearHttpAndMediaCaches(begin, end, url_matcher, callback);
+    base::OnceClosure callback) {
+  parent_->ClearHttpAndMediaCaches(begin, end, url_matcher,
+                                   std::move(callback));
 }
 
 void CefStoragePartitionProxy::Flush() {
@@ -169,6 +169,11 @@ void CefStoragePartitionProxy::Flush() {
 
 void CefStoragePartitionProxy::ClearBluetoothAllowedDevicesMapForTesting() {
   parent_->ClearBluetoothAllowedDevicesMapForTesting();
+}
+
+void CefStoragePartitionProxy::SetNetworkFactoryForTesting(
+    content::mojom::URLLoaderFactory* test_factory) {
+  parent_->SetNetworkFactoryForTesting(test_factory);
 }
 
 content::URLLoaderFactoryGetter*

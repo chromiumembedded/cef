@@ -500,25 +500,29 @@ void CefResourceRequestJob::SaveNextCookie() {
     return;
   }
 
+  const std::string& cookie_line =
+      response_cookies_[response_cookies_save_index_];
+
   net::CookieOptions options;
   options.set_include_httponly();
-  bool can_set_cookie =
-      CanSetCookie(response_cookies_[response_cookies_save_index_], &options);
+  std::unique_ptr<net::CanonicalCookie> cookie = net::CanonicalCookie::Create(
+      request_->url(), cookie_line, base::Time::Now(), options);
+
+  bool can_set_cookie = cookie && CanSetCookie(*cookie, &options);
   if (can_set_cookie) {
-    CefCookie cookie;
-    if (CefCookieManagerImpl::GetCefCookie(
-            request_->url(), response_cookies_[response_cookies_save_index_],
-            cookie)) {
-      can_set_cookie = handler_->CanSetCookie(cookie);
+    CefCookie cef_cookie;
+    if (CefCookieManagerImpl::GetCefCookie(request_->url(), cookie_line,
+                                           cef_cookie)) {
+      can_set_cookie = handler_->CanSetCookie(cef_cookie);
     } else {
       can_set_cookie = false;
     }
   }
 
   if (can_set_cookie) {
-    request_->context()->cookie_store()->SetCookieWithOptionsAsync(
-        request_->url(), response_cookies_[response_cookies_save_index_],
-        options,
+    request_->context()->cookie_store()->SetCanonicalCookieAsync(
+        std::move(cookie), request_->url().SchemeIsCryptographic(),
+        !options.exclude_httponly(),
         base::Bind(&CefResourceRequestJob::OnCookieSaved,
                    weak_factory_.GetWeakPtr()));
     return;

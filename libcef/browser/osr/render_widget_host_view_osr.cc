@@ -21,6 +21,7 @@
 #include "components/viz/common/frame_sinks/copy_output_request.h"
 #include "components/viz/common/frame_sinks/delay_based_time_source.h"
 #include "components/viz/common/gl_helper.h"
+#include "components/viz/common/switches.h"
 #include "content/browser/bad_message.h"
 #include "content/browser/compositor/image_transport_factory.h"
 #include "content/browser/frame_host/render_widget_host_view_guest.h"
@@ -238,7 +239,8 @@ CefRenderWidgetHostViewOSR::CefRenderWidgetHostViewOSR(
 #if !defined(OS_MACOSX)
   delegated_frame_host_ = base::MakeUnique<content::DelegatedFrameHost>(
       AllocateFrameSinkId(is_guest_view_hack), this,
-      false /* enable_surface_synchronization */);
+      false /* enable_surface_synchronization */,
+      base::CommandLine::ForCurrentProcess()->HasSwitch(switches::kEnableViz));
 
   root_layer_.reset(new ui::Layer(ui::LAYER_SOLID_COLOR));
 #endif
@@ -443,7 +445,8 @@ void CefRenderWidgetHostViewOSR::DidCreateNewRendererCompositorFrameSink(
 
 void CefRenderWidgetHostViewOSR::SubmitCompositorFrame(
     const viz::LocalSurfaceId& local_surface_id,
-    viz::CompositorFrame frame) {
+    viz::CompositorFrame frame,
+    viz::mojom::HitTestRegionListPtr hit_test_region_list) {
   TRACE_EVENT0("libcef", "CefRenderWidgetHostViewOSR::OnSwapCompositorFrame");
 
   if (frame.metadata.root_scroll_offset != last_scroll_offset_) {
@@ -472,8 +475,8 @@ void CefRenderWidgetHostViewOSR::SubmitCompositorFrame(
       // We would normally call BrowserCompositorMac::SubmitCompositorFrame on
       // macOS, however it contains compositor resize logic that we don't want.
       // Consequently we instead call the SwapDelegatedFrame method directly.
-      GetDelegatedFrameHost()->SubmitCompositorFrame(local_surface_id,
-                                                     std::move(frame));
+      GetDelegatedFrameHost()->SubmitCompositorFrame(
+          local_surface_id, std::move(frame), std::move(hit_test_region_list));
     } else {
       if (!copy_frame_generator_.get()) {
         copy_frame_generator_.reset(
@@ -491,8 +494,8 @@ void CefRenderWidgetHostViewOSR::SubmitCompositorFrame(
       // We would normally call BrowserCompositorMac::SubmitCompositorFrame on
       // macOS, however it contains compositor resize logic that we don't want.
       // Consequently we instead call the SwapDelegatedFrame method directly.
-      GetDelegatedFrameHost()->SubmitCompositorFrame(local_surface_id,
-                                                     std::move(frame));
+      GetDelegatedFrameHost()->SubmitCompositorFrame(
+          local_surface_id, std::move(frame), std::move(hit_test_region_list));
 
       // Request a copy of the last compositor frame which will eventually call
       // OnPaint asynchronously.
@@ -827,12 +830,12 @@ void CefRenderWidgetHostViewOSR::ProcessGestureEvent(
 }
 
 bool CefRenderWidgetHostViewOSR::TransformPointToLocalCoordSpace(
-    const gfx::Point& point,
+    const gfx::PointF& point,
     const viz::SurfaceId& original_surface,
-    gfx::Point* transformed_point) {
+    gfx::PointF* transformed_point) {
   // Transformations use physical pixels rather than DIP, so conversion
   // is necessary.
-  gfx::Point point_in_pixels =
+  gfx::PointF point_in_pixels =
       gfx::ConvertPointToPixel(current_device_scale_factor_, point);
   if (!GetDelegatedFrameHost()->TransformPointToLocalCoordSpace(
           point_in_pixels, original_surface, transformed_point)) {
@@ -845,9 +848,9 @@ bool CefRenderWidgetHostViewOSR::TransformPointToLocalCoordSpace(
 }
 
 bool CefRenderWidgetHostViewOSR::TransformPointToCoordSpaceForView(
-    const gfx::Point& point,
+    const gfx::PointF& point,
     RenderWidgetHostViewBase* target_view,
-    gfx::Point* transformed_point) {
+    gfx::PointF* transformed_point) {
   if (target_view == this) {
     *transformed_point = point;
     return true;
@@ -924,6 +927,10 @@ void CefRenderWidgetHostViewOSR::OnBeginFrame() {
 
 bool CefRenderWidgetHostViewOSR::IsAutoResizeEnabled() const {
   return render_widget_host_->auto_resize_enabled();
+}
+
+void CefRenderWidgetHostViewOSR::OnFrameTokenChanged(uint32_t frame_token) {
+  render_widget_host_->DidProcessFrame(frame_token);
 }
 
 std::unique_ptr<ui::CompositorLock>
@@ -1294,16 +1301,11 @@ void CefRenderWidgetHostViewOSR::SetDeviceScaleFactor() {
 
   current_device_scale_factor_ = new_scale_factor;
 
-  if (render_widget_host_ && render_widget_host_->delegate())
-    render_widget_host_->delegate()->UpdateDeviceScaleFactor(new_scale_factor);
-
   // Notify the guest hosts if any.
   for (auto guest_host_view : guest_host_views_) {
     content::RenderWidgetHostImpl* rwhi = guest_host_view->render_widget_host();
     if (!rwhi)
       continue;
-    if (rwhi->delegate())
-      rwhi->delegate()->UpdateDeviceScaleFactor(new_scale_factor);
     if (rwhi->GetView())
       rwhi->GetView()->set_current_device_scale_factor(new_scale_factor);
   }

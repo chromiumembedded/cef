@@ -68,6 +68,7 @@
 #include "content/public/browser/render_view_host.h"
 #include "content/public/browser/render_widget_host.h"
 #include "content/public/browser/resource_request_info.h"
+#include "content/public/common/browser_side_navigation_policy.h"
 #include "content/public/common/favicon_url.h"
 #include "extensions/browser/process_manager.h"
 #include "net/base/net_errors.h"
@@ -2727,8 +2728,12 @@ void CefBrowserHostImpl::DidFinishNavigation(
 
   // With PlzNavigate the RenderFrameHost will only be nullptr if the
   // provisional load fails, in which case |error_code| will be ERR_ABORTED.
+  // Without PlzNavigate the RenderFrameHost may be nullptr and |error_code|
+  // may be OK when a pending navigation is canceled (e.g. by calling LoadURL
+  // from OnCertificateError).
   DCHECK(navigation_handle->GetRenderFrameHost() ||
-         error_code == net::ERR_ABORTED);
+         error_code == net::ERR_ABORTED ||
+         !content::IsBrowserSideNavigationEnabled());
 
   const int64 frame_id =
       navigation_handle->GetRenderFrameHost()

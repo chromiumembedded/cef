@@ -69,7 +69,7 @@ template <typename T>
 void GetStorageForString(STGMEDIUM* stgmed, const std::basic_string<T>& data) {
   GetStorageForBytes(
       stgmed, data.c_str(),
-      (data.size() + 1) * sizeof(std::basic_string<T>::value_type));
+      (data.size() + 1) * sizeof(typename std::basic_string<T>::value_type));
 }
 
 void GetStorageForFileDescriptor(STGMEDIUM* storage,
@@ -269,7 +269,7 @@ bool DragDataToDataObject(CefRefPtr<CefDragData> drag_data,
   }
   DCHECK_LT(curr_index, kMaxDataObjects);
 
-  CComPtr<IDataObject> obj =
+  CComPtr<DataObjectWin> obj =
       DataObjectWin::Create(fmtetcs, stgmeds, curr_index);
   (*data_object) = obj.Detach();
   return true;
@@ -389,7 +389,7 @@ CefBrowserHost::DragOperationsMask DropTargetWin::StartDragging(
   CComPtr<IDataObject> dataObject;
   DWORD resEffect = DROPEFFECT_NONE;
   if (DragDataToDataObject(drag_data, &dataObject)) {
-    CComPtr<IDropSource> dropSource = DropSourceWin::Create();
+    CComPtr<DropSourceWin> dropSource = DropSourceWin::Create();
     DWORD effect = DragOperationToDropEffect(allowed_ops);
     current_drag_data_ = drag_data->Clone();
     current_drag_data_->ResetFileContents();

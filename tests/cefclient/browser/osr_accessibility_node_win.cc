@@ -214,13 +214,15 @@ struct CefIAccessible : public IAccessible {
                       EXCEPINFO FAR* pExcepInfo,
                       unsigned int FAR* puArgErr);
 
-  CefIAccessible(OsrAXNode* node) : node_(node), ref_count_(0) {}
+  CefIAccessible(OsrAXNode* node) : ref_count_(0), node_(node) {}
 
   // Remove the node reference when OsrAXNode is destroyed, so that
   // MSAA clients get  CO_E_OBJNOTCONNECTED
   void MarkDestroyed() { node_ = NULL; }
 
  protected:
+  virtual ~CefIAccessible() {}
+
   // Ref Count
   ULONG ref_count_;
   // OsrAXNode* proxy object
@@ -680,8 +682,7 @@ CefNativeAccessible* OsrAXNode::GetNativeAccessibleObject(OsrAXNode* parent) {
 
 namespace client {
 
-void OsrAXNode::NotifyAccessibilityEvent(std::string event_type) const {
-}
+void OsrAXNode::NotifyAccessibilityEvent(std::string event_type) const {}
 
 void OsrAXNode::Destroy() {}
 

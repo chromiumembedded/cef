@@ -33,12 +33,12 @@
 #include "net/http/http_util.h"
 #include "net/url_request/url_fetcher.h"
 #include "net/url_request/url_request.h"
-#include "third_party/WebKit/public/platform/WebCachePolicy.h"
 #include "third_party/WebKit/public/platform/WebHTTPHeaderVisitor.h"
 #include "third_party/WebKit/public/platform/WebString.h"
 #include "third_party/WebKit/public/platform/WebURL.h"
 #include "third_party/WebKit/public/platform/WebURLError.h"
 #include "third_party/WebKit/public/platform/WebURLRequest.h"
+#include "third_party/WebKit/public/platform/modules/fetch/fetch_api_request.mojom-shared.h"
 #include "third_party/WebKit/public/web/WebSecurityPolicy.h"
 
 namespace {
@@ -149,24 +149,24 @@ int GetCacheControlHeaderPolicy(CefRequest::HeaderMap headerMap) {
 }
 
 // Convert cef_urlrequest_flags_t to blink::WebCachePolicy.
-blink::WebCachePolicy GetWebCachePolicy(int ur_flags) {
+blink::mojom::FetchCacheMode GetFetchCacheMode(int ur_flags) {
   if ((ur_flags & kURCachePolicyMask) == kURCachePolicyMask) {
-    return blink::WebCachePolicy::kBypassCacheLoadOnlyFromCache;
+    return blink::mojom::FetchCacheMode::kUnspecifiedForceCacheMiss;
   } else if (ur_flags & UR_FLAG_SKIP_CACHE) {
-    return blink::WebCachePolicy::kBypassingCache;
+    return blink::mojom::FetchCacheMode::kBypassCache;
   } else if (ur_flags & UR_FLAG_ONLY_FROM_CACHE) {
-    return blink::WebCachePolicy::kReturnCacheDataDontLoad;
+    return blink::mojom::FetchCacheMode::kOnlyIfCached;
   }
-  return blink::WebCachePolicy::kUseProtocolCachePolicy;
+  return blink::mojom::FetchCacheMode::kDefault;
 }
 
 // Convert blink::WebCachePolicy to cef_urlrequest_flags_t.
-int GetURCachePolicy(blink::WebCachePolicy web_policy) {
-  if (web_policy == blink::WebCachePolicy::kBypassCacheLoadOnlyFromCache) {
+int GetURCachePolicy(blink::mojom::FetchCacheMode cache_mode) {
+  if (cache_mode == blink::mojom::FetchCacheMode::kUnspecifiedForceCacheMiss) {
     return kURCachePolicyMask;
-  } else if (web_policy == blink::WebCachePolicy::kBypassingCache) {
+  } else if (cache_mode == blink::mojom::FetchCacheMode::kBypassCache) {
     return UR_FLAG_SKIP_CACHE;
-  } else if (web_policy == blink::WebCachePolicy::kReturnCacheDataDontLoad) {
+  } else if (cache_mode == blink::mojom::FetchCacheMode::kOnlyIfCached) {
     return UR_FLAG_ONLY_FROM_CACHE;
   }
   return 0;
@@ -566,7 +566,7 @@ void CefRequestImpl::Set(const blink::WebURLRequest& request) {
 
   site_for_cookies_ = request.SiteForCookies();
 
-  flags_ |= GetURCachePolicy(request.GetCachePolicy());
+  flags_ |= GetURCachePolicy(request.GetCacheMode());
   if (request.AllowStoredCredentials())
     flags_ |= UR_FLAG_ALLOW_STORED_CREDENTIALS;
   if (request.ReportUploadProgress())
@@ -621,7 +621,7 @@ void CefRequestImpl::Get(blink::WebURLRequest& request,
     // explicitly set on the request.
     flags |= GetCacheControlHeaderPolicy(headermap_);
   }
-  request.SetCachePolicy(GetWebCachePolicy(flags));
+  request.SetCacheMode(GetFetchCacheMode(flags));
 
   SETBOOLFLAG(request, flags_, SetAllowStoredCredentials,
               UR_FLAG_ALLOW_STORED_CREDENTIALS);
@@ -706,7 +706,7 @@ void CefRequestImpl::Get(const CefMsg_LoadRequest_Params& params,
     // explicitly set on the request.
     flags |= GetCacheControlHeaderPolicy(headerMap);
   }
-  request.SetCachePolicy(GetWebCachePolicy(flags));
+  request.SetCacheMode(GetFetchCacheMode(flags));
 
   SETBOOLFLAG(request, params.load_flags, SetAllowStoredCredentials,
               UR_FLAG_ALLOW_STORED_CREDENTIALS);
@@ -804,7 +804,7 @@ void CefRequestImpl::Get(net::URLFetcher& fetcher,
   }
 
   if (!site_for_cookies_.is_empty())
-    fetcher.SetInitiator(url::Origin(site_for_cookies_));
+    fetcher.SetInitiator(url::Origin::Create(site_for_cookies_));
 
   int flags = flags_;
   if (!(flags & kURCachePolicyMask)) {
@@ -1415,8 +1415,7 @@ void CefPostDataElementImpl::Get(blink::WebHTTPBody::Element& element) const {
                         data_.bytes.size);
   } else if (type_ == PDE_TYPE_FILE) {
     element.type = blink::WebHTTPBody::Element::kTypeFile;
-    element.file_path.Assign(
-        blink::WebString::FromUTF16(CefString(&data_.filename)));
+    element.file_path = blink::WebString::FromUTF16(CefString(&data_.filename));
   } else {
     NOTREACHED();
   }

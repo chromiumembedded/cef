@@ -91,7 +91,7 @@ content::PepperPluginInfo CreatePepperFlashInfo(const base::FilePath& path,
   plugin.is_out_of_process = true;
   plugin.name = content::kFlashPluginName;
   plugin.path = path;
-  plugin.permissions = chrome::kPepperFlashPermissions;
+  plugin.permissions = kPepperFlashPermissions;
 
   std::vector<std::string> flash_version_numbers = base::SplitString(
       version, ".", base::TRIM_WHITESPACE, base::SPLIT_WANT_NONEMPTY);
@@ -170,7 +170,7 @@ bool GetSystemPepperFlash(content::PepperPluginInfo* plugin) {
     return false;
 
   base::Version version;
-  if (!chrome::CheckPepperFlashManifest(*manifest, &version))
+  if (!CheckPepperFlashManifest(*manifest, &version))
     return false;
 
   *plugin = CreatePepperFlashInfo(flash_filename, version.GetString());

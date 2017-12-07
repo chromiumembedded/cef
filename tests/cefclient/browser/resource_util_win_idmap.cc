@@ -11,7 +11,7 @@ namespace client {
 int GetResourceId(const char* resource_name) {
   // Map of resource labels to BINARY id values.
   static struct _resource_map {
-    char* name;
+    const char* name;
     int id;
   } resource_map[] = {
       {"binding.html", IDS_BINDING_HTML},
@@ -48,7 +48,7 @@ int GetResourceId(const char* resource_name) {
       {"xmlhttprequest.html", IDS_XMLHTTPREQUEST_HTML},
   };
 
-  for (int i = 0; i < sizeof(resource_map) / sizeof(_resource_map); ++i) {
+  for (size_t i = 0; i < sizeof(resource_map) / sizeof(_resource_map); ++i) {
     if (!strcmp(resource_map[i].name, resource_name))
       return resource_map[i].id;
   }

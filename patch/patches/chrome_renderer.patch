@@ -1,0 +1,31 @@
+diff --git chrome/renderer/BUILD.gn chrome/renderer/BUILD.gn
+index da3b9d31a05b..78c15d30755d 100644
+--- chrome/renderer/BUILD.gn
++++ chrome/renderer/BUILD.gn
+@@ -3,6 +3,7 @@
+ # found in the LICENSE file.
+ 
+ import("//build/config/features.gni")
++import("//cef/libcef/features/features.gni")
+ import("//chrome/common/features.gni")
+ import("//components/nacl/features.gni")
+ import("//components/spellcheck/spellcheck_build_features.gni")
+@@ -102,6 +103,7 @@ static_library("renderer") {
+   defines = []
+ 
+   deps = [
++    "//cef/libcef/features",
+     "//chrome:resources",
+     "//chrome:strings",
+     "//chrome/common",
+@@ -161,6 +163,10 @@ static_library("renderer") {
+ 
+   configs += [ "//build/config/compiler:wexit_time_destructors" ]
+ 
++  if (enable_cef) {
++    configs += [ "//cef/libcef/features:config" ]
++  }
++
+   if (enable_nacl) {
+     deps += [
+       "//components/nacl/loader",

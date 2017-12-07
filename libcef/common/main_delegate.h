@@ -17,7 +17,7 @@
 namespace base {
 class CommandLine;
 class Thread;
-}
+}  // namespace base
 
 namespace content {
 class BrowserMainRunner;
@@ -39,7 +39,7 @@ class CefMainDelegate : public content::ContentMainDelegate {
       const std::string& process_type,
       const content::MainFunctionParams& main_function_params) override;
   void ProcessExiting(const std::string& process_type) override;
-#if defined(OS_POSIX) && !defined(OS_ANDROID) && !defined(OS_MACOSX)
+#if defined(OS_LINUX)
   void ZygoteForked() override;
 #endif
   content::ContentBrowserClient* CreateContentBrowserClient() override;

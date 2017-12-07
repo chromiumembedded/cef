@@ -33,11 +33,14 @@ void ChromeProfileStub::DestroyOffTheRecordProfile() {
 }
 
 bool ChromeProfileStub::HasOffTheRecordProfile() {
-  NOTREACHED();
   return false;
 }
 
 Profile* ChromeProfileStub::GetOriginalProfile() {
+  return this;
+}
+
+const Profile* ChromeProfileStub::GetOriginalProfile() const {
   return this;
 }
 
@@ -105,12 +108,6 @@ PrefProxyConfigTracker* ChromeProfileStub::GetProxyConfigTracker() {
 chrome_browser_net::Predictor* ChromeProfileStub::GetNetworkPredictor() {
   NOTREACHED();
   return NULL;
-}
-
-void ChromeProfileStub::ClearNetworkingHistorySince(
-    base::Time time,
-    const base::Closure& completion) {
-  NOTREACHED();
 }
 
 GURL ChromeProfileStub::GetHomePage() {

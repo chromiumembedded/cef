@@ -1,8 +1,8 @@
 diff --git base/message_loop/message_loop.h base/message_loop/message_loop.h
-index 0c82e51dfcd4..e5cb6fdb4c80 100644
+index bff60ef11025..33b430dadaf7 100644
 --- base/message_loop/message_loop.h
 +++ base/message_loop/message_loop.h
-@@ -277,6 +277,16 @@ class BASE_EXPORT MessageLoop : public MessagePump::Delegate,
+@@ -266,6 +266,16 @@ class BASE_EXPORT MessageLoop : public MessagePump::Delegate,
    void AddTaskObserver(TaskObserver* task_observer);
    void RemoveTaskObserver(TaskObserver* task_observer);
  
@@ -19,9 +19,9 @@ index 0c82e51dfcd4..e5cb6fdb4c80 100644
    // Returns true if the message loop is "idle". Provided for testing.
    bool IsIdleForTesting();
  
-@@ -376,6 +386,12 @@ class BASE_EXPORT MessageLoop : public MessagePump::Delegate,
-   // need to be checked in conditionals).
-   bool nestable_tasks_allowed_;
+@@ -369,6 +379,12 @@ class BASE_EXPORT MessageLoop : public MessagePump::Delegate,
+   // is known to generate a system-driven nested loop.
+   bool task_execution_allowed_ = true;
  
 +#if defined(OS_WIN)
 +  // Should be set to true before calling Windows APIs like TrackPopupMenu, etc.

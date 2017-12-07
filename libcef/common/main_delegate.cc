@@ -541,7 +541,7 @@ void CefMainDelegate::PreSandboxStartup() {
   crash_reporting::PreSandboxStartup(*command_line, process_type);
 
   InitializeResourceBundle();
-  chrome::InitializePDF();
+  InitializePDF();
 }
 
 void CefMainDelegate::SandboxInitialized(const std::string& process_type) {
@@ -589,7 +589,7 @@ void CefMainDelegate::ProcessExiting(const std::string& process_type) {
   ui::ResourceBundle::CleanupSharedInstance();
 }
 
-#if defined(OS_POSIX) && !defined(OS_ANDROID) && !defined(OS_MACOSX)
+#if defined(OS_LINUX)
 void CefMainDelegate::ZygoteForked() {
   base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
   const std::string& process_type =

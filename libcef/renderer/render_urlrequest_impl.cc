@@ -9,15 +9,16 @@
 #include "libcef/common/request_impl.h"
 #include "libcef/common/response_impl.h"
 #include "libcef/common/task_runner_impl.h"
+#include "libcef/renderer/content_renderer_client.h"
 
 #include "base/logging.h"
 #include "base/message_loop/message_loop.h"
-#include "third_party/WebKit/public/platform/Platform.h"
 #include "third_party/WebKit/public/platform/WebString.h"
 #include "third_party/WebKit/public/platform/WebURL.h"
 #include "third_party/WebKit/public/platform/WebURLError.h"
 #include "third_party/WebKit/public/platform/WebURLLoader.h"
 #include "third_party/WebKit/public/platform/WebURLLoaderClient.h"
+#include "third_party/WebKit/public/platform/WebURLLoaderFactory.h"
 #include "third_party/WebKit/public/platform/WebURLRequest.h"
 #include "third_party/WebKit/public/platform/WebURLResponse.h"
 
@@ -102,8 +103,9 @@ class CefRenderURLRequest::Context
     urlRequest.SetRequestorOrigin(
         blink::WebSecurityOrigin::Create(urlRequest.Url()));
 
-    loader_ = blink::Platform::Current()->CreateURLLoader(urlRequest,
-                                                          task_runner_.get());
+    loader_ =
+        CefContentRendererClient::Get()->url_loader_factory()->CreateURLLoader(
+            urlRequest, task_runner_.get());
     loader_->LoadAsynchronously(urlRequest, url_client_.get());
     return true;
   }
@@ -139,7 +141,7 @@ class CefRenderURLRequest::Context
 
     if (status_ == UR_IO_PENDING) {
       status_ = UR_FAILED;
-      error_code_ = static_cast<CefURLRequest::ErrorCode>(error.reason);
+      error_code_ = static_cast<cef_errorcode_t>(error.reason());
     }
 
     OnComplete();

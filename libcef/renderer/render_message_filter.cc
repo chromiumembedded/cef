@@ -11,9 +11,7 @@
 #include "base/bind.h"
 #include "base/message_loop/message_loop.h"
 #include "chrome/common/render_messages.h"
-#include "content/common/devtools_messages.h"
 #include "content/public/browser/browser_thread.h"
-#include "content/renderer/devtools/devtools_agent.h"
 #include "third_party/WebKit/public/platform/WebString.h"
 #include "third_party/WebKit/public/web/WebSecurityPolicy.h"
 #include "url/gurl.h"
@@ -35,17 +33,7 @@ void CefRenderMessageFilter::OnFilterRemoved() {
 
 bool CefRenderMessageFilter::OnMessageReceived(const IPC::Message& message) {
   bool handled = true;
-
-  // Observe the DevTools messages but don't handle them.
-  if (message.type() == DevToolsAgentMsg_Attach::ID) {
-    handled = false;
-  } else if (message.type() == DevToolsAgentMsg_Detach::ID) {
-    OnDevToolsAgentDetach(message.routing_id());
-    return false;
-  }
-
   IPC_BEGIN_MESSAGE_MAP(CefRenderMessageFilter, message)
-    IPC_MESSAGE_HANDLER(DevToolsAgentMsg_Attach, OnDevToolsAgentAttach)
     IPC_MESSAGE_HANDLER(ChromeViewHostMsg_IsCrashReportingEnabled,
                         OnIsCrashReportingEnabled)
     IPC_MESSAGE_UNHANDLED(handled = false)
@@ -79,44 +67,8 @@ bool CefRenderMessageFilter::Send(IPC::Message* message) {
   return false;
 }
 
-void CefRenderMessageFilter::OnDevToolsAgentAttach(const std::string& host_id,
-                                                   int session_id) {
-  CEF_POST_TASK_RT(
-      base::Bind(&CefRenderMessageFilter::OnDevToolsAgentAttach_RT, this));
-}
-
-void CefRenderMessageFilter::OnDevToolsAgentDetach(int32_t routing_id) {
-  CEF_POST_TASK_RT(base::Bind(&CefRenderMessageFilter::OnDevToolsAgentDetach_RT,
-                              this, routing_id));
-}
-
 void CefRenderMessageFilter::OnIsCrashReportingEnabled(bool* enabled) {
   // TODO(cef): Explore whether it's useful for CEF clients to report when crash
   // reporting is enabled.
   *enabled = false;
-}
-
-void CefRenderMessageFilter::OnDevToolsAgentAttach_RT() {
-  CEF_REQUIRE_RT();
-  CefContentRendererClient::Get()->DevToolsAgentAttached();
-}
-
-void CefRenderMessageFilter::OnDevToolsAgentDetach_RT(int32_t routing_id) {
-  CEF_REQUIRE_RT();
-
-  // Wait for the DevToolsAgent to detach. It would be better to receive
-  // notification when the DevToolsAgent detaches but that's not currently
-  // available.
-  content::DevToolsAgent* agent =
-      content::DevToolsAgent::FromRoutingId(routing_id);
-  if (agent && agent->IsAttached()) {
-    // Try again in a bit.
-    CEF_POST_DELAYED_TASK_RT(
-        base::Bind(&CefRenderMessageFilter::OnDevToolsAgentDetach_RT, this,
-                   routing_id),
-        50);
-    return;
-  }
-
-  CefContentRendererClient::Get()->DevToolsAgentDetached();
 }

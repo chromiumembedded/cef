@@ -9,7 +9,6 @@
 #include "libcef/browser/resource_context.h"
 #include "libcef/browser/thread_util.h"
 #include "libcef/browser/web_plugin_impl.h"
-#include "libcef/common/cef_messages.h"
 #include "libcef/common/content_client.h"
 
 #include "extensions/common/constants.h"
@@ -30,8 +29,7 @@ bool CefPluginServiceFilter::IsPluginAvailable(
 
   CefResourceContext* resource_context = const_cast<CefResourceContext*>(
       reinterpret_cast<const CefResourceContext*>(context));
-  CefViewHostMsg_GetPluginInfo_Status status =
-      CefViewHostMsg_GetPluginInfo_Status::kAllowed;
+  chrome::mojom::PluginStatus status = chrome::mojom::PluginStatus::kAllowed;
 
   // Perform origin check here because we're passing an empty origin value to
   // IsPluginAvailable() below.
@@ -54,8 +52,8 @@ bool CefPluginServiceFilter::IsPluginAvailable(
   // retrieve the actual load decision with a non-empty origin. That will
   // determine whether the plugin load is allowed or the plugin placeholder is
   // displayed.
-  return IsPluginAvailable(render_process_id, resource_context, url,
-                           is_main_frame, url::Origin(), plugin, &status);
+  return IsPluginAvailable(render_process_id, render_frame_id, resource_context,
+                           url, is_main_frame, url::Origin(), plugin, &status);
 }
 
 bool CefPluginServiceFilter::CanLoadPlugin(int render_process_id,
@@ -65,21 +63,24 @@ bool CefPluginServiceFilter::CanLoadPlugin(int render_process_id,
 
 bool CefPluginServiceFilter::IsPluginAvailable(
     int render_process_id,
-    CefResourceContext* resource_context,
+    int render_frame_id,
+    content::ResourceContext* content_resource_context,
     const GURL& url,
     bool is_main_frame,
     const url::Origin& main_frame_origin,
     content::WebPluginInfo* plugin,
-    CefViewHostMsg_GetPluginInfo_Status* status) {
-  if (*status == CefViewHostMsg_GetPluginInfo_Status::kNotFound ||
-      *status == CefViewHostMsg_GetPluginInfo_Status::kNPAPINotSupported) {
+    chrome::mojom::PluginStatus* status) {
+  CefResourceContext* resource_context =
+      static_cast<CefResourceContext*>(content_resource_context);
+
+  if (*status == chrome::mojom::PluginStatus::kNotFound) {
     // The plugin does not exist so no need to query the handler.
     return false;
   }
 
   if (plugin->path == CefString(CefContentClient::kPDFPluginPath)) {
     // Always allow the internal PDF plugin to load.
-    *status = CefViewHostMsg_GetPluginInfo_Status::kAllowed;
+    *status = chrome::mojom::PluginStatus::kAllowed;
     return true;
   }
 
@@ -89,41 +90,41 @@ bool CefPluginServiceFilter::IsPluginAvailable(
     // Always allow extension origins to load plugins.
     // TODO(extensions): Revisit this decision once CEF supports more than just
     // the PDF extension.
-    *status = CefViewHostMsg_GetPluginInfo_Status::kAllowed;
+    *status = chrome::mojom::PluginStatus::kAllowed;
     return true;
   }
 
   CefRefPtr<CefRequestContextHandler> handler = resource_context->GetHandler();
   if (!handler) {
     // No handler so go with the default plugin load decision.
-    return *status != CefViewHostMsg_GetPluginInfo_Status::kDisabled;
+    return *status != chrome::mojom::PluginStatus::kDisabled;
   }
 
   // Check for a cached plugin load decision.
   if (resource_context->HasPluginLoadDecision(render_process_id, plugin->path,
                                               is_main_frame, main_frame_origin,
                                               status)) {
-    return *status != CefViewHostMsg_GetPluginInfo_Status::kDisabled;
+    return *status != chrome::mojom::PluginStatus::kDisabled;
   }
 
   CefRefPtr<CefWebPluginInfoImpl> pluginInfo(new CefWebPluginInfoImpl(*plugin));
 
   cef_plugin_policy_t plugin_policy = PLUGIN_POLICY_ALLOW;
   switch (*status) {
-    case CefViewHostMsg_GetPluginInfo_Status::kAllowed:
+    case chrome::mojom::PluginStatus::kAllowed:
       plugin_policy = PLUGIN_POLICY_ALLOW;
       break;
-    case CefViewHostMsg_GetPluginInfo_Status::kBlocked:
-    case CefViewHostMsg_GetPluginInfo_Status::kBlockedByPolicy:
-    case CefViewHostMsg_GetPluginInfo_Status::kOutdatedBlocked:
-    case CefViewHostMsg_GetPluginInfo_Status::kOutdatedDisallowed:
-    case CefViewHostMsg_GetPluginInfo_Status::kUnauthorized:
+    case chrome::mojom::PluginStatus::kBlocked:
+    case chrome::mojom::PluginStatus::kBlockedByPolicy:
+    case chrome::mojom::PluginStatus::kOutdatedBlocked:
+    case chrome::mojom::PluginStatus::kOutdatedDisallowed:
+    case chrome::mojom::PluginStatus::kUnauthorized:
       plugin_policy = PLUGIN_POLICY_BLOCK;
       break;
-    case CefViewHostMsg_GetPluginInfo_Status::kDisabled:
+    case chrome::mojom::PluginStatus::kDisabled:
       plugin_policy = PLUGIN_POLICY_DISABLE;
       break;
-    case CefViewHostMsg_GetPluginInfo_Status::kPlayImportantContent:
+    case chrome::mojom::PluginStatus::kPlayImportantContent:
       plugin_policy = PLUGIN_POLICY_DETECT_IMPORTANT;
       break;
     default:
@@ -137,16 +138,16 @@ bool CefPluginServiceFilter::IsPluginAvailable(
                                   pluginInfo.get(), &plugin_policy)) {
     switch (plugin_policy) {
       case PLUGIN_POLICY_ALLOW:
-        *status = CefViewHostMsg_GetPluginInfo_Status::kAllowed;
+        *status = chrome::mojom::PluginStatus::kAllowed;
         break;
       case PLUGIN_POLICY_DETECT_IMPORTANT:
-        *status = CefViewHostMsg_GetPluginInfo_Status::kPlayImportantContent;
+        *status = chrome::mojom::PluginStatus::kPlayImportantContent;
         break;
       case PLUGIN_POLICY_BLOCK:
-        *status = CefViewHostMsg_GetPluginInfo_Status::kBlocked;
+        *status = chrome::mojom::PluginStatus::kBlocked;
         break;
       case PLUGIN_POLICY_DISABLE:
-        *status = CefViewHostMsg_GetPluginInfo_Status::kDisabled;
+        *status = chrome::mojom::PluginStatus::kDisabled;
         break;
     }
   }
@@ -156,5 +157,5 @@ bool CefPluginServiceFilter::IsPluginAvailable(
                                           is_main_frame, main_frame_origin,
                                           *status);
 
-  return *status != CefViewHostMsg_GetPluginInfo_Status::kDisabled;
+  return *status != chrome::mojom::PluginStatus::kDisabled;
 }

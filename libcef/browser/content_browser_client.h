@@ -49,6 +49,7 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
   bool IsHandledURL(const GURL& url) override;
   void SiteInstanceGotProcess(content::SiteInstance* site_instance) override;
   void SiteInstanceDeleting(content::SiteInstance* site_instance) override;
+  void RegisterInProcessServices(StaticServiceMap* services) override;
   void RegisterOutOfProcessServices(OutOfProcessServiceMap* services) override;
   std::unique_ptr<base::Value> GetServiceManifestOverlay(
       base::StringPiece name) override;
@@ -104,7 +105,7 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
   CreateThrottlesForNavigation(
       content::NavigationHandle* navigation_handle) override;
 
-#if defined(OS_POSIX) && !defined(OS_MACOSX)
+#if defined(OS_LINUX)
   void GetAdditionalMappedFilesForChildProcess(
       const base::CommandLine& command_line,
       int child_process_id,
@@ -118,7 +119,7 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
 
   void ExposeInterfacesToRenderer(
       service_manager::BinderRegistry* registry,
-      content::AssociatedInterfaceRegistry* associated_registry,
+      blink::AssociatedInterfaceRegistry* associated_registry,
       content::RenderProcessHost* render_process_host) override;
 
   // Perform browser process registration for the custom scheme.

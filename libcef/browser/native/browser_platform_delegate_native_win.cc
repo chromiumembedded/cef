@@ -95,23 +95,6 @@ void ExecuteExternalProtocol(const GURL& url) {
   ShellExecuteA(NULL, "open", address.c_str(), NULL, NULL, SW_SHOWNORMAL);
 }
 
-WORD KeyStatesToWord() {
-  static const USHORT kHighBitMaskShort = 0x8000;
-  WORD result = 0;
-
-  if (GetKeyState(VK_CONTROL) & kHighBitMaskShort)
-    result |= MK_CONTROL;
-  if (GetKeyState(VK_SHIFT) & kHighBitMaskShort)
-    result |= MK_SHIFT;
-  if (GetKeyState(VK_LBUTTON) & kHighBitMaskShort)
-    result |= MK_LBUTTON;
-  if (GetKeyState(VK_MBUTTON) & kHighBitMaskShort)
-    result |= MK_MBUTTON;
-  if (GetKeyState(VK_RBUTTON) & kHighBitMaskShort)
-    result |= MK_RBUTTON;
-  return result;
-}
-
 }  // namespace
 
 CefBrowserPlatformDelegateNativeWin::CefBrowserPlatformDelegateNativeWin(
@@ -387,8 +370,9 @@ void CefBrowserPlatformDelegateNativeWin::TranslateKeyEvent(
     // TODO(cef): CefKeyEvent does not currently pass extended key status (see
     // WM_KEYDOWN docs) which would be necessary to pass EF_IS_EXTENDED_KEY as
     // the |flags| parameter to DomKeyFromKeyboardCode().
+    int flags = 0;
     result.dom_key = ui::PlatformKeyMap::DomKeyFromKeyboardCode(
-        ui::KeyboardCodeForWindowsKeyCode(key_event.windows_key_code), 0);
+        ui::KeyboardCodeForWindowsKeyCode(key_event.windows_key_code), &flags);
   }
 
   if (result.GetType() == blink::WebInputEvent::kChar ||

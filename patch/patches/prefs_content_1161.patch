@@ -1,8 +1,8 @@
 diff --git content/public/common/common_param_traits_macros.h content/public/common/common_param_traits_macros.h
-index 90951a5d5e56..940fe86b6587 100644
+index 63a73ad504d5..9b8cde03ecf4 100644
 --- content/public/common/common_param_traits_macros.h
 +++ content/public/common/common_param_traits_macros.h
-@@ -208,6 +208,7 @@ IPC_STRUCT_TRAITS_BEGIN(content::WebPreferences)
+@@ -195,6 +195,7 @@ IPC_STRUCT_TRAITS_BEGIN(content::WebPreferences)
    IPC_STRUCT_TRAITS_MEMBER(main_frame_resizes_are_orientation_changes)
    IPC_STRUCT_TRAITS_MEMBER(initialize_at_minimum_page_scale)
    IPC_STRUCT_TRAITS_MEMBER(smart_insert_delete_enabled)
@@ -11,10 +11,10 @@ index 90951a5d5e56..940fe86b6587 100644
    IPC_STRUCT_TRAITS_MEMBER(navigate_on_drag_drop)
    IPC_STRUCT_TRAITS_MEMBER(spatial_navigation_enabled)
 diff --git content/public/common/web_preferences.cc content/public/common/web_preferences.cc
-index 722afb30f662..42274dd9cc8c 100644
+index cc20936125f4..a1cde3a9a2b2 100644
 --- content/public/common/web_preferences.cc
 +++ content/public/common/web_preferences.cc
-@@ -179,6 +179,7 @@ WebPreferences::WebPreferences()
+@@ -178,6 +178,7 @@ WebPreferences::WebPreferences()
        spatial_navigation_enabled(false),
        use_solid_color_scrollbars(false),
        navigate_on_drag_drop(true),
@@ -23,10 +23,10 @@ index 722afb30f662..42274dd9cc8c 100644
        record_whole_document(false),
        save_previous_document_resources(SavePreviousDocumentResources::NEVER),
 diff --git content/public/common/web_preferences.h content/public/common/web_preferences.h
-index c81979993ad5..f0a4474c4023 100644
+index 361505babff0..341873d000bc 100644
 --- content/public/common/web_preferences.h
 +++ content/public/common/web_preferences.h
-@@ -198,6 +198,7 @@ struct CONTENT_EXPORT WebPreferences {
+@@ -197,6 +197,7 @@ struct CONTENT_EXPORT WebPreferences {
    bool spatial_navigation_enabled;
    bool use_solid_color_scrollbars;
    bool navigate_on_drag_drop;
@@ -35,10 +35,10 @@ index c81979993ad5..f0a4474c4023 100644
    bool record_whole_document;
    SavePreviousDocumentResources save_previous_document_resources;
 diff --git content/renderer/render_view_impl.cc content/renderer/render_view_impl.cc
-index 22bd13a28fb7..027eaf5b65da 100644
+index 0f5f1d8e1649..ae5c98646619 100644
 --- content/renderer/render_view_impl.cc
 +++ content/renderer/render_view_impl.cc
-@@ -1308,6 +1308,8 @@ void RenderViewImpl::ApplyWebPreferencesInternal(
+@@ -1250,6 +1250,8 @@ void RenderViewImpl::ApplyWebPreferencesInternal(
      blink::WebView* web_view,
      CompositorDependencies* compositor_deps) {
    ApplyWebPreferences(prefs, web_view);

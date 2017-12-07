@@ -9,7 +9,7 @@
 
 #include "base/logging.h"
 #include "device/geolocation/geolocation_provider.h"
-#include "device/geolocation/geoposition.h"
+#include "device/geolocation/public/interfaces/geoposition.mojom.h"
 
 namespace {
 
@@ -31,7 +31,7 @@ class CefLocationRequest
 
   ~CefLocationRequest() {}
 
-  void OnLocationUpdate(const device::Geoposition& position) {
+  void OnLocationUpdate(const device::mojom::Geoposition& position) {
     CEF_REQUIRE_UIT();
     if (callback_.get()) {
       CefGeoposition cef_position;
@@ -43,7 +43,8 @@ class CefLocationRequest
     geo_callback_.Reset();
   }
 
-  void SetPosition(const device::Geoposition& source, CefGeoposition& target) {
+  void SetPosition(const device::mojom::Geoposition& source,
+                   CefGeoposition& target) {
     target.latitude = source.latitude;
     target.longitude = source.longitude;
     target.altitude = source.altitude;
@@ -54,16 +55,16 @@ class CefLocationRequest
     cef_time_from_basetime(source.timestamp, target.timestamp);
 
     switch (source.error_code) {
-      case device::Geoposition::ERROR_CODE_NONE:
+      case device::mojom::Geoposition::ErrorCode::NONE:
         target.error_code = GEOPOSITON_ERROR_NONE;
         break;
-      case device::Geoposition::ERROR_CODE_PERMISSION_DENIED:
+      case device::mojom::Geoposition::ErrorCode::PERMISSION_DENIED:
         target.error_code = GEOPOSITON_ERROR_PERMISSION_DENIED;
         break;
-      case device::Geoposition::ERROR_CODE_POSITION_UNAVAILABLE:
+      case device::mojom::Geoposition::ErrorCode::POSITION_UNAVAILABLE:
         target.error_code = GEOPOSITON_ERROR_POSITION_UNAVAILABLE;
         break;
-      case device::Geoposition::ERROR_CODE_TIMEOUT:
+      case device::mojom::Geoposition::ErrorCode::TIMEOUT:
         target.error_code = GEOPOSITON_ERROR_TIMEOUT;
         break;
     }

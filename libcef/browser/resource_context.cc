@@ -118,7 +118,7 @@ void CefResourceContext::AddPluginLoadDecision(
     const base::FilePath& plugin_path,
     bool is_main_frame,
     const url::Origin& main_frame_origin,
-    CefViewHostMsg_GetPluginInfo_Status status) {
+    chrome::mojom::PluginStatus status) {
   CEF_REQUIRE_IOT();
   DCHECK_GE(render_process_id, 0);
   DCHECK(!plugin_path.empty());
@@ -134,7 +134,7 @@ bool CefResourceContext::HasPluginLoadDecision(
     const base::FilePath& plugin_path,
     bool is_main_frame,
     const url::Origin& main_frame_origin,
-    CefViewHostMsg_GetPluginInfo_Status* status) const {
+    chrome::mojom::PluginStatus* status) const {
   CEF_REQUIRE_IOT();
   DCHECK_GE(render_process_id, 0);
   DCHECK(!plugin_path.empty());

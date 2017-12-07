@@ -65,6 +65,10 @@ class MacHelper : public content::BrowserCompositorMacClient,
 
   void AcceleratedWidgetSwapCompleted() override {}
 
+  void OnFrameTokenChanged(uint32_t frame_token) override {
+    view_->render_widget_host()->DidProcessFrame(frame_token);
+  }
+
  private:
   // Guaranteed to outlive this object.
   CefRenderWidgetHostViewOSR* view_;

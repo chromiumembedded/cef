@@ -1,8 +1,8 @@
 diff --git content/browser/frame_host/render_frame_host_manager.cc content/browser/frame_host/render_frame_host_manager.cc
-index 7e444585731f..2355ab4fec2b 100644
+index 0663535e3f81..e0e20722c820 100644
 --- content/browser/frame_host/render_frame_host_manager.cc
 +++ content/browser/frame_host/render_frame_host_manager.cc
-@@ -1072,10 +1072,11 @@ bool RenderFrameHostManager::ShouldSwapBrowsingInstancesForNavigation(
+@@ -1082,10 +1082,11 @@ bool RenderFrameHostManager::ShouldSwapBrowsingInstancesForNavigation(
    // TODO(alexmos): This check should've been enforced earlier in the
    // navigation, in chrome::Navigate().  Verify this, and then convert this to
    // a CHECK and remove the fallback.
@@ -18,7 +18,7 @@ index 7e444585731f..2355ab4fec2b 100644
      return true;
    }
  
-@@ -1214,7 +1215,8 @@ RenderFrameHostManager::GetSiteInstanceForNavigation(
+@@ -1224,7 +1225,8 @@ RenderFrameHostManager::GetSiteInstanceForNavigation(
  
    // Double-check that the new SiteInstance is associated with the right
    // BrowserContext.
@@ -29,10 +29,10 @@ index 7e444585731f..2355ab4fec2b 100644
    // If |new_instance| is a new SiteInstance for a subframe with an isolated
    // origin, set its process reuse policy so that such subframes are
 diff --git content/public/browser/content_browser_client.h content/public/browser/content_browser_client.h
-index 842557d5fcb7..fc254e2b7bb8 100644
+index e56b320170df..26aa6fe50311 100644
 --- content/public/browser/content_browser_client.h
 +++ content/public/browser/content_browser_client.h
-@@ -325,6 +325,13 @@ class CONTENT_EXPORT ContentBrowserClient {
+@@ -343,6 +343,13 @@ class CONTENT_EXPORT ContentBrowserClient {
                                                const GURL& current_url,
                                                const GURL& new_url);
  
@@ -117,10 +117,10 @@ index e85940e1123a..7d4e3c13204b 100644
    ExtensionRegistry::Get(browser_context_)->RemoveObserver(this);
  
 diff --git extensions/browser/extension_host.h extensions/browser/extension_host.h
-index fea09edc247f..16f81b139476 100644
+index 34812c083bf5..1ccfaf6e1c45 100644
 --- extensions/browser/extension_host.h
 +++ extensions/browser/extension_host.h
-@@ -51,11 +51,17 @@ class ExtensionHost : public DeferredStartRenderHost,
+@@ -51,13 +51,19 @@ class ExtensionHost : public DeferredStartRenderHost,
    ExtensionHost(const Extension* extension,
                  content::SiteInstance* site_instance,
                  const GURL& url, ViewType host_type);
@@ -132,14 +132,16 @@ index fea09edc247f..16f81b139476 100644
 +                ViewType host_type);
    ~ExtensionHost() override;
  
+   // This may be null if the extension has been or is being unloaded.
    const Extension* extension() const { return extension_; }
+ 
    const std::string& extension_id() const { return extension_id_; }
 -  content::WebContents* host_contents() const { return host_contents_.get(); }
 +  content::WebContents* host_contents() const { return host_contents_; }
    content::RenderViewHost* render_view_host() const;
    content::RenderProcessHost* render_process_host() const;
    bool has_loaded_once() const { return has_loaded_once_; }
-@@ -173,7 +179,8 @@ class ExtensionHost : public DeferredStartRenderHost,
+@@ -175,7 +181,8 @@ class ExtensionHost : public DeferredStartRenderHost,
    content::BrowserContext* browser_context_;
  
    // The host for our HTML content.
@@ -150,18 +152,10 @@ index fea09edc247f..16f81b139476 100644
    // A weak pointer to the current or pending RenderViewHost. We don't access
    // this through the host_contents because we want to deal with the pending
 diff --git extensions/browser/extensions_browser_client.h extensions/browser/extensions_browser_client.h
-index 0c70794823d3..4922df0d5398 100644
+index 69434c704f2f..f31b65fcd192 100644
 --- extensions/browser/extensions_browser_client.h
 +++ extensions/browser/extensions_browser_client.h
-@@ -18,6 +18,7 @@
- #include "services/service_manager/public/cpp/binder_registry.h"
- 
- class ExtensionFunctionRegistry;
-+class GURL;
- class PrefService;
- 
- namespace base {
-@@ -49,6 +50,7 @@ class ComponentExtensionResourceManager;
+@@ -53,6 +53,7 @@ class ComponentExtensionResourceManager;
  class Extension;
  class ExtensionCache;
  class ExtensionError;
@@ -169,7 +163,7 @@ index 0c70794823d3..4922df0d5398 100644
  class ExtensionHostDelegate;
  class ExtensionPrefsObserver;
  class ExtensionApiFrameIdMap;
-@@ -103,6 +105,11 @@ class ExtensionsBrowserClient {
+@@ -108,6 +109,11 @@ class ExtensionsBrowserClient {
    virtual content::BrowserContext* GetOriginalContext(
        content::BrowserContext* context) = 0;
  
@@ -181,7 +175,7 @@ index 0c70794823d3..4922df0d5398 100644
  #if defined(OS_CHROMEOS)
    // Returns a user id hash from |context| or an empty string if no hash could
    // be extracted.
-@@ -163,6 +170,14 @@ class ExtensionsBrowserClient {
+@@ -173,6 +179,14 @@ class ExtensionsBrowserClient {
    virtual std::unique_ptr<ExtensionHostDelegate>
    CreateExtensionHostDelegate() = 0;
  
@@ -197,7 +191,7 @@ index 0c70794823d3..4922df0d5398 100644
    // once each time the extensions system is loaded per browser_context. The
    // implementation may wish to use the BrowserContext to record the current
 diff --git extensions/browser/process_manager.cc extensions/browser/process_manager.cc
-index 383b13c51e08..b3cde7df636a 100644
+index 5a06db3d4495..b960853f02b2 100644
 --- extensions/browser/process_manager.cc
 +++ extensions/browser/process_manager.cc
 @@ -349,9 +349,16 @@ bool ProcessManager::CreateBackgroundHost(const Extension* extension,

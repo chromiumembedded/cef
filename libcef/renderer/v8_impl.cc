@@ -713,8 +713,11 @@ void MessageListenerCallbackImpl(v8::Handle<v8::Message> message,
   CefRefPtr<CefV8Exception> exception = new CefV8ExceptionImpl(
       static_cast<CefV8ContextImpl*>(context.get())->GetV8Context(), message);
 
-  handler->OnUncaughtException(context->GetBrowser(), context->GetFrame(),
-                               context, exception, stackTrace);
+  CefRefPtr<CefBrowser> browser = context->GetBrowser();
+  if (browser) {
+    handler->OnUncaughtException(browser, context->GetFrame(), context,
+                                 exception, stackTrace);
+  }
 }
 
 }  // namespace
@@ -898,7 +901,9 @@ CefRefPtr<CefFrame> CefV8ContextImpl::GetFrame() {
   if (webframe) {
     CefRefPtr<CefBrowserImpl> browser =
         CefBrowserImpl::GetBrowserForMainFrame(webframe->Top());
-    frame = browser->GetFrame(render_frame_util::GetIdentifier(webframe));
+    if (browser) {
+      frame = browser->GetFrame(render_frame_util::GetIdentifier(webframe));
+    }
   }
 
   return frame;

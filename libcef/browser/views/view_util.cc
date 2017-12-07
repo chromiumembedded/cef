@@ -182,8 +182,10 @@ display::Display GetDisplayNearestPoint(const gfx::Point& point,
                                         bool input_pixel_coords) {
   gfx::Point find_point = point;
 #if defined(OS_WIN)
-  if (input_pixel_coords)
-    find_point = display::win::ScreenWin::ScreenToDIPPoint(point);
+  if (input_pixel_coords) {
+    find_point = gfx::ToFlooredPoint(
+        display::win::ScreenWin::ScreenToDIPPoint(gfx::PointF(point)));
+  }
 #endif
   return display::Screen::GetScreen()->GetDisplayNearestPoint(find_point);
 }

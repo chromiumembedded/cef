@@ -18,7 +18,6 @@
 #include "content/public/renderer/render_thread.h"
 #include "extensions/common/constants.h"
 #include "extensions/common/switches.h"
-#include "extensions/renderer/api/automation/automation_api_helper.h"
 #include "extensions/renderer/dispatcher.h"
 #include "extensions/renderer/extension_frame_helper.h"
 #include "extensions/renderer/extensions_render_frame_observer.h"
@@ -148,12 +147,6 @@ void CefExtensionsRendererClient::RenderFrameCreated(
   new extensions::ExtensionFrameHelper(render_frame,
                                        extension_dispatcher_.get());
   extension_dispatcher_->OnRenderFrameCreated(render_frame);
-}
-
-void CefExtensionsRendererClient::RenderViewCreated(
-    content::RenderView* render_view) {
-  // Manages its own lifetime.
-  new extensions::AutomationApiHelper(render_view);
 }
 
 bool CefExtensionsRendererClient::OverrideCreatePlugin(

@@ -112,7 +112,7 @@ void LoadExtensionWithManifest(base::WeakPtr<CefExtensionSystem> context,
                                bool internal,
                                CefRefPtr<CefRequestContext> loader_context,
                                CefRefPtr<CefExtensionHandler> handler) {
-  base::ThreadRestrictions::AssertIOAllowed();
+  base::AssertBlockingAllowed();
 
   std::unique_ptr<base::DictionaryValue> manifest =
       ParseManifest(manifest_contents);
@@ -131,7 +131,7 @@ void LoadExtensionFromDisk(base::WeakPtr<CefExtensionSystem> context,
                            bool internal,
                            CefRefPtr<CefRequestContext> loader_context,
                            CefRefPtr<CefExtensionHandler> handler) {
-  base::ThreadRestrictions::AssertIOAllowed();
+  base::AssertBlockingAllowed();
 
   base::FilePath manifest_path = root_directory.AppendASCII("manifest.json");
   std::string manifest_contents;

@@ -27,6 +27,7 @@ class ChromeProfileStub : public Profile {
   void DestroyOffTheRecordProfile() override;
   bool HasOffTheRecordProfile() override;
   Profile* GetOriginalProfile() override;
+  const Profile* GetOriginalProfile() const override;
   bool IsSupervised() const override;
   bool IsChild() const override;
   bool IsLegacySupervised() const override;
@@ -40,8 +41,6 @@ class ChromeProfileStub : public Profile {
   void set_last_selected_directory(const base::FilePath& path) override;
   PrefProxyConfigTracker* GetProxyConfigTracker() override;
   chrome_browser_net::Predictor* GetNetworkPredictor() override;
-  void ClearNetworkingHistorySince(base::Time time,
-                                   const base::Closure& completion) override;
   GURL GetHomePage() override;
   bool WasCreatedByVersionOrLater(const std::string& version) override;
   void SetExitType(ExitType exit_type) override;

@@ -180,10 +180,10 @@ void GetPluginInfo(const base::FilePath& cdm_adapter_path,
       kWidevineCdmPluginMimeType, kWidevineCdmPluginExtension,
       kWidevineCdmPluginMimeTypeDescription);
 
-  widevine_cdm_mime_type.additional_param_names.push_back(
-      base::ASCIIToUTF16(kCdmSupportedCodecsParamName));
-  widevine_cdm_mime_type.additional_param_values.push_back(
-      base::ASCIIToUTF16(cdm_codecs));
+  widevine_cdm_mime_type.additional_params.emplace_back(
+      content::WebPluginMimeType::Param(
+          base::ASCIIToUTF16(kCdmSupportedCodecsParamName),
+          base::ASCIIToUTF16(cdm_codecs)));
 
   widevine_cdm->mime_types.push_back(widevine_cdm_mime_type);
   widevine_cdm->permissions = kWidevineCdmPluginPermissions;

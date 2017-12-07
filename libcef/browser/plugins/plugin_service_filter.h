@@ -5,14 +5,16 @@
 #ifndef CEF_LIBCEF_BROWSER_PLUGINS_PLUGIN_SERVICE_FILTER_H_
 #define CEF_LIBCEF_BROWSER_PLUGINS_PLUGIN_SERVICE_FILTER_H_
 
+#include "chrome/common/plugin.mojom.h"
 #include "content/public/browser/plugin_service_filter.h"
 
 #include "include/internal/cef_types.h"
 
 #include "base/macros.h"
 
-class CefResourceContext;
-enum class CefViewHostMsg_GetPluginInfo_Status;
+namespace content {
+class ResourceContext;
+}
 
 class CefPluginServiceFilter : public content::PluginServiceFilter {
  public:
@@ -32,16 +34,19 @@ class CefPluginServiceFilter : public content::PluginServiceFilter {
   bool CanLoadPlugin(int render_process_id,
                      const base::FilePath& path) override;
 
+  // Called from the above IsPluginAvailable method and from
+  // PluginInfoHostImpl::Context::FindEnabledPlugin.
   // Returns false if the plugin is not found or disabled. May call
   // CefRequestContextHandler::OnBeforePluginLoad if possible/necessary.
   // See related discussion in issue #2015.
   bool IsPluginAvailable(int render_process_id,
-                         CefResourceContext* resource_context,
+                         int render_frame_id,
+                         content::ResourceContext* resource_context,
                          const GURL& url,
                          bool is_main_frame,
                          const url::Origin& main_frame_origin,
                          content::WebPluginInfo* plugin,
-                         CefViewHostMsg_GetPluginInfo_Status* status);
+                         chrome::mojom::PluginStatus* status);
 
  private:
   DISALLOW_COPY_AND_ASSIGN(CefPluginServiceFilter);

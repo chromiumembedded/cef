@@ -455,8 +455,7 @@ void CefDevToolsFrontend::SendMessageAck(int request_id,
 }
 
 void CefDevToolsFrontend::AgentHostClosed(
-    content::DevToolsAgentHost* agent_host,
-    bool replaced) {
+    content::DevToolsAgentHost* agent_host) {
   DCHECK(agent_host == agent_host_.get());
   agent_host_ = nullptr;
   Close();

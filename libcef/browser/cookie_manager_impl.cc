@@ -564,13 +564,15 @@ void CefCookieManagerImpl::SetCookieInternal(
   if (cookie.has_expires)
     cef_time_to_basetime(cookie.expires, expiration_time);
 
-  cookie_store->SetCookieWithDetailsAsync(
-      url, name, value, domain, path,
-      base::Time(),  // Creation time.
-      expiration_time,
-      base::Time(),  // Last access time.
+  cookie_store->SetCanonicalCookieAsync(
+      net::CanonicalCookie::CreateSanitizedCookie(
+          url, name, value, domain, path,
+          base::Time(),  // Creation time.
+          expiration_time,
+          base::Time(),  // Last access time.
+          cookie.secure ? true : false, cookie.httponly ? true : false,
+          net::CookieSameSite::DEFAULT_MODE, net::COOKIE_PRIORITY_DEFAULT),
       cookie.secure ? true : false, cookie.httponly ? true : false,
-      net::CookieSameSite::DEFAULT_MODE, net::COOKIE_PRIORITY_DEFAULT,
       base::Bind(SetCookieCallbackImpl, callback));
 }
 

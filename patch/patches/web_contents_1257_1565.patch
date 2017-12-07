@@ -1,8 +1,8 @@
 diff --git content/browser/web_contents/web_contents_impl.cc content/browser/web_contents/web_contents_impl.cc
-index 7297db47cf2d..d47c44680415 100644
+index c1ae2a911735..e45e3e388a5e 100644
 --- content/browser/web_contents/web_contents_impl.cc
 +++ content/browser/web_contents/web_contents_impl.cc
-@@ -1762,6 +1762,12 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
+@@ -1783,6 +1783,12 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
    std::string unique_name;
    frame_tree_.root()->SetFrameName(params.main_frame_name, unique_name);
  
@@ -15,15 +15,15 @@ index 7297db47cf2d..d47c44680415 100644
    WebContentsViewDelegate* delegate =
        GetContentClient()->browser()->GetWebContentsViewDelegate(this);
  
-@@ -1772,6 +1778,7 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
-     view_.reset(CreateWebContentsView(this, delegate,
-                                       &render_view_host_delegate_view_));
+@@ -1837,6 +1843,7 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
+     GetRenderViewHost()->DispatchRenderViewCreated();
+     GetRenderManager()->current_frame_host()->SetRenderFrameCreated(true);
    }
 +  }
  
-   if (browser_plugin_guest_ && !GuestMode::IsCrossProcessFrameGuest(this)) {
-     view_.reset(new WebContentsViewGuest(this, browser_plugin_guest_.get(),
-@@ -2340,6 +2347,15 @@ void WebContentsImpl::CreateNewWindow(
+   // Create the renderer process in advance if requested.
+   if (params.initialize_renderer) {
+@@ -2349,6 +2356,15 @@ void WebContentsImpl::CreateNewWindow(
    create_params.renderer_initiated_creation =
        main_frame_route_id != MSG_ROUTING_NONE;
  
@@ -36,10 +36,10 @@ index 7297db47cf2d..d47c44680415 100644
 +                                        &create_params.delegate_view);
 +  }
 +
-   WebContentsImpl* new_contents = NULL;
+   WebContentsImpl* new_contents = nullptr;
    if (!is_guest) {
      create_params.context = view_->GetNativeView();
-@@ -2369,7 +2385,7 @@ void WebContentsImpl::CreateNewWindow(
+@@ -2378,7 +2394,7 @@ void WebContentsImpl::CreateNewWindow(
        // TODO(brettw): It seems bogus that we have to call this function on the
        // newly created object and give it one of its own member variables.
        new_view->CreateViewForWidget(
@@ -48,7 +48,7 @@ index 7297db47cf2d..d47c44680415 100644
      }
      // Save the created window associated with the route so we can show it
      // later.
-@@ -5507,7 +5523,7 @@ InterstitialPageImpl* WebContentsImpl::GetInterstitialForRenderManager() {
+@@ -5546,7 +5562,7 @@ InterstitialPageImpl* WebContentsImpl::GetInterstitialForRenderManager() {
  void WebContentsImpl::CreateRenderWidgetHostViewForRenderManager(
      RenderViewHost* render_view_host) {
    RenderWidgetHostViewBase* rwh_view =
@@ -58,26 +58,26 @@ index 7297db47cf2d..d47c44680415 100644
    // Now that the RenderView has been created, we need to tell it its size.
    if (rwh_view)
 diff --git content/public/browser/web_contents.cc content/public/browser/web_contents.cc
-index fa0afb545df9..d677b310e5ec 100644
+index 53d56abb35a3..d7b955f42ca5 100644
 --- content/public/browser/web_contents.cc
 +++ content/public/browser/web_contents.cc
-@@ -29,7 +29,9 @@ WebContents::CreateParams::CreateParams(BrowserContext* context,
-       guest_delegate(nullptr),
+@@ -30,7 +30,9 @@ WebContents::CreateParams::CreateParams(BrowserContext* context,
        context(nullptr),
        renderer_initiated_creation(false),
--      initialize_renderer(false) {
-+      initialize_renderer(false),
+       initialize_renderer(false),
+-      starting_sandbox_flags(blink::WebSandboxFlags::kNone) {}
++      starting_sandbox_flags(blink::WebSandboxFlags::kNone),
 +      view(nullptr),
-+      delegate_view(nullptr) {
- }
++      delegate_view(nullptr) {}
  
  WebContents::CreateParams::CreateParams(const CreateParams& other) = default;
+ 
 diff --git content/public/browser/web_contents.h content/public/browser/web_contents.h
-index 453942537f6c..be871fbb677b 100644
+index d6252667ed68..83265f9b6b41 100644
 --- content/public/browser/web_contents.h
 +++ content/public/browser/web_contents.h
-@@ -68,9 +68,11 @@ class InterstitialPage;
- class PageState;
+@@ -68,9 +68,11 @@ class BrowserPluginGuestDelegate;
+ class InterstitialPage;
  class RenderFrameHost;
  class RenderViewHost;
 +class RenderViewHostDelegateView;
@@ -88,10 +88,10 @@ index 453942537f6c..be871fbb677b 100644
  struct CustomContextMenuContext;
  struct DropData;
  struct Manifest;
-@@ -170,6 +172,10 @@ class WebContents : public PageNavigator,
-     // Note that the pre-created renderer process may not be used if the first
-     // navigation requires a dedicated or privileged process, such as a WebUI.
-     bool initialize_renderer;
+@@ -173,6 +175,10 @@ class WebContents : public PageNavigator,
+ 
+     // Sandboxing flags set on the new WebContents.
+     blink::WebSandboxFlags starting_sandbox_flags;
 +
 +    // Optionally specify the view and delegate view.
 +    content::WebContentsView* view;
@@ -100,12 +100,12 @@ index 453942537f6c..be871fbb677b 100644
  
    // Creates a new WebContents.
 diff --git content/public/browser/web_contents_delegate.h content/public/browser/web_contents_delegate.h
-index 3f31a372ecbb..0958fe90bb31 100644
+index 37db677b7438..4f4a8574e47d 100644
 --- content/public/browser/web_contents_delegate.h
 +++ content/public/browser/web_contents_delegate.h
-@@ -44,11 +44,13 @@ class ColorChooser;
+@@ -43,11 +43,13 @@ namespace content {
+ class ColorChooser;
  class JavaScriptDialogManager;
- class PageState;
  class RenderFrameHost;
 +class RenderViewHostDelegateView;
  class RenderWidgetHost;
@@ -117,7 +117,7 @@ index 3f31a372ecbb..0958fe90bb31 100644
  struct ColorSuggestion;
  struct ContextMenuParams;
  struct DropData;
-@@ -318,6 +320,14 @@ class CONTENT_EXPORT WebContentsDelegate {
+@@ -308,6 +310,14 @@ class CONTENT_EXPORT WebContentsDelegate {
        const std::string& partition_id,
        SessionStorageNamespace* session_storage_namespace);
  

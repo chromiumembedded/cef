@@ -25,7 +25,6 @@ class WebURL;
 namespace content {
 class BrowserPluginDelegate;
 class RenderFrame;
-class RenderView;
 }  // namespace content
 
 namespace extensions {
@@ -52,7 +51,6 @@ class CefExtensionsRendererClient : public ExtensionsRendererClient {
   void RenderThreadStarted();
   void RenderFrameCreated(content::RenderFrame* render_frame,
                           service_manager::BinderRegistry* registry);
-  void RenderViewCreated(content::RenderView* render_view);
   bool OverrideCreatePlugin(content::RenderFrame* render_frame,
                             const blink::WebPluginParams& params);
   bool WillSendRequest(blink::WebLocalFrame* frame,

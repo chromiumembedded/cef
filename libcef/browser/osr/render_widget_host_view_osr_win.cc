@@ -127,6 +127,8 @@ LPCWSTR ToCursorID(WebCursorInfo::Type type) {
       return MAKEINTRESOURCE(IDC_HAND_GRAB);
     case WebCursorInfo::kTypeGrabbing:
       return MAKEINTRESOURCE(IDC_HAND_GRABBING);
+    case WebCursorInfo::kTypeCustom:
+      break;
   }
   NOTREACHED();
   return NULL;

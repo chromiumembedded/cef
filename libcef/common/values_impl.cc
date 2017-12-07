@@ -219,7 +219,7 @@ CefValueType CefValueImpl::GetType() {
     return VTYPE_LIST;
 
   if (value_) {
-    switch (value_->GetType()) {
+    switch (value_->type()) {
       case base::Value::Type::NONE:
         return VTYPE_NULL;
       case base::Value::Type::BOOLEAN:
@@ -345,7 +345,7 @@ void CefValueImpl::SetValueInternal(base::Value* value) {
   list_value_ = NULL;
 
   if (value) {
-    switch (value->GetType()) {
+    switch (value->type()) {
       case base::Value::Type::BINARY:
         binary_value_ = new CefBinaryValueImpl(value, true);
         return;
@@ -731,7 +731,7 @@ CefValueType CefDictionaryValueImpl::GetType(const CefString& key) {
   const base::Value* out_value = NULL;
   if (const_value().GetWithoutPathExpansion(base::StringPiece(key),
                                             &out_value)) {
-    switch (out_value->GetType()) {
+    switch (out_value->type()) {
       case base::Value::Type::NONE:
         return VTYPE_NULL;
       case base::Value::Type::BOOLEAN:
@@ -1140,7 +1140,7 @@ CefValueType CefListValueImpl::GetType(size_t index) {
 
   const base::Value* out_value = NULL;
   if (const_value().Get(index, &out_value)) {
-    switch (out_value->GetType()) {
+    switch (out_value->type()) {
       case base::Value::Type::NONE:
         return VTYPE_NULL;
       case base::Value::Type::BOOLEAN:

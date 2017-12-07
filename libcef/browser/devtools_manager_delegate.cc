@@ -107,6 +107,11 @@ void CefDevToolsManagerDelegate::StartHttpHandler(
   content::DevToolsAgentHost::StartRemoteDebuggingServer(
       std::move(socket_factory), std::string(), browser_context->GetPath(),
       base::FilePath());
+
+  const base::CommandLine& command_line =
+      *base::CommandLine::ForCurrentProcess();
+  if (command_line.HasSwitch(switches::kRemoteDebuggingPipe))
+    content::DevToolsAgentHost::StartRemoteDebuggingPipeHandler();
 }
 
 // static

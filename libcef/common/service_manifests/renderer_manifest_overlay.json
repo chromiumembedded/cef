@@ -6,6 +6,9 @@
         "browser": [
           "spellcheck::mojom::SpellChecker"
         ]
+      },
+      "requires": {
+        "chrome": [ "renderer" ]
       }
     }
   }

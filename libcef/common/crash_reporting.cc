@@ -12,6 +12,7 @@
 #include "base/debug/crash_logging.h"
 #include "base/strings/string_util.h"
 #include "chrome/common/crash_keys.h"
+#include "components/crash/core/common/crash_key.h"
 #include "content/public/common/content_switches.h"
 
 #if defined(OS_MACOSX)
@@ -160,6 +161,8 @@ void PreSandboxStartup(const base::CommandLine& command_line,
     LOG(INFO) << "Crash reporting enabled for process: "
               << (process_type.empty() ? "browser" : process_type.c_str());
   }
+
+  crash_reporter::InitializeCrashKeys();
 
   // After platform crash reporting have been initialized, store the command
   // line for crash reporting.

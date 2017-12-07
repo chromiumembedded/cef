@@ -9,6 +9,7 @@
 #include "libcef/common/extensions/extensions_util.h"
 
 #include "base/logging.h"
+#include "chrome/browser/plugins/chrome_plugin_service_filter.h"
 #include "chrome/browser/ui/zoom/chrome_zoom_level_prefs.h"
 #include "components/keyed_service/content/browser_context_dependency_manager.h"
 #include "components/user_prefs/user_prefs.h"
@@ -68,6 +69,9 @@ void CefBrowserContext::PostInitialize() {
   const bool extensions_enabled = extensions::ExtensionsEnabled();
   if (extensions_enabled && !is_proxy_)
     extension_system_->Init();
+
+  ChromePluginServiceFilter::GetInstance()->RegisterResourceContext(
+      this, resource_context_.get());
 }
 
 void CefBrowserContext::Shutdown() {
@@ -75,6 +79,9 @@ void CefBrowserContext::Shutdown() {
 
   // Send notifications to clean up objects associated with this Profile.
   MaybeSendDestroyedNotification();
+
+  ChromePluginServiceFilter::GetInstance()->UnregisterResourceContext(
+      resource_context_.get());
 
   // Remove any BrowserContextKeyedServiceFactory associations. This must be
   // called before the ProxyService owned by CefBrowserContextImpl is destroyed.

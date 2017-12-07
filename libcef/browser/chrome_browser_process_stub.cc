@@ -96,12 +96,7 @@ metrics::MetricsService* ChromeBrowserProcessStub::metrics_service() {
 }
 
 rappor::RapporServiceImpl* ChromeBrowserProcessStub::rappor_service() {
-  NOTREACHED();
-  return NULL;
-}
-
-ukm::UkmRecorder* ChromeBrowserProcessStub::ukm_recorder() {
-  NOTREACHED();
+  // Called from PluginInfoHostImpl::ReportMetrics.
   return NULL;
 }
 
@@ -111,6 +106,12 @@ IOThread* ChromeBrowserProcessStub::io_thread() {
 
 SystemNetworkContextManager*
 ChromeBrowserProcessStub::system_network_context_manager() {
+  NOTREACHED();
+  return NULL;
+}
+
+content::NetworkConnectionTracker*
+ChromeBrowserProcessStub::network_connection_tracker() {
   NOTREACHED();
   return NULL;
 }
@@ -285,6 +286,12 @@ ChromeBrowserProcessStub::subresource_filter_ruleset_service() {
   return NULL;
 }
 
+optimization_guide::OptimizationGuideService*
+ChromeBrowserProcessStub::optimization_guide_service() {
+  NOTREACHED();
+  return NULL;
+}
+
 #if (defined(OS_WIN) || defined(OS_LINUX)) && !defined(OS_CHROMEOS)
 void ChromeBrowserProcessStub::StartAutoupdateTimer() {}
 #endif
@@ -307,11 +314,6 @@ net_log::ChromeNetLog* ChromeBrowserProcessStub::net_log() {
 
 component_updater::ComponentUpdateService*
 ChromeBrowserProcessStub::component_updater() {
-  NOTREACHED();
-  return NULL;
-}
-
-CRLSetFetcher* ChromeBrowserProcessStub::crl_set_fetcher() {
   NOTREACHED();
   return NULL;
 }

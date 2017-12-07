@@ -26,10 +26,6 @@
 #include "libcef/renderer/browser_impl.h"
 #include "libcef/renderer/extensions/extensions_renderer_client.h"
 #include "libcef/renderer/extensions/print_render_frame_helper_delegate.h"
-#include "libcef/renderer/media/cef_key_systems.h"
-#include "libcef/renderer/pepper/pepper_helper.h"
-#include "libcef/renderer/plugins/cef_plugin_placeholder.h"
-#include "libcef/renderer/plugins/plugin_preroller.h"
 #include "libcef/renderer/render_frame_observer.h"
 #include "libcef/renderer/render_message_filter.h"
 #include "libcef/renderer/render_thread_observer.h"
@@ -47,14 +43,14 @@
 #include "base/strings/utf_string_conversions.h"
 #include "build/build_config.h"
 #include "chrome/common/chrome_switches.h"
-#include "chrome/common/pepper_permission_util.h"
+#include "chrome/common/constants.mojom.h"
 #include "chrome/common/url_constants.h"
-#include "chrome/grit/generated_resources.h"
-#include "chrome/grit/renderer_resources.h"
-#include "chrome/renderer/content_settings_observer.h"
+#include "chrome/renderer/chrome_content_renderer_client.h"
 #include "chrome/renderer/loadtimes_extension_bindings.h"
+#include "chrome/renderer/media/chrome_key_systems.h"
 #include "chrome/renderer/pepper/chrome_pdf_print_client.h"
-#include "chrome/renderer/plugins/power_saver_info.h"
+#include "chrome/renderer/pepper/pepper_helper.h"
+#include "chrome/renderer/plugins/chrome_plugin_placeholder.h"
 #include "components/content_settings/core/common/content_settings_types.h"
 #include "components/nacl/common/nacl_constants.h"
 #include "components/printing/renderer/print_render_frame_helper.h"
@@ -70,7 +66,6 @@
 #include "content/public/common/content_paths.h"
 #include "content/public/common/content_switches.h"
 #include "content/public/renderer/plugin_instance_throttler.h"
-#include "content/public/renderer/render_thread.h"
 #include "content/public/renderer/render_view.h"
 #include "content/public/renderer/render_view_visitor.h"
 #include "content/renderer/render_widget.h"
@@ -79,6 +74,10 @@
 #include "ipc/ipc_sync_channel.h"
 #include "media/base/media.h"
 #include "printing/print_settings.h"
+#include "services/service_manager/public/cpp/connector.h"
+#include "services/service_manager/public/cpp/interface_provider.h"
+#include "third_party/WebKit/common/associated_interfaces/associated_interface_provider.h"
+#include "third_party/WebKit/public/platform/Platform.h"
 #include "third_party/WebKit/public/platform/URLConversion.h"
 #include "third_party/WebKit/public/platform/WebPrerenderingSupport.h"
 #include "third_party/WebKit/public/platform/WebRuntimeFeatures.h"
@@ -130,34 +129,6 @@ class CefPrerendererClient : public content::RenderViewObserver,
   void WillAddPrerender(blink::WebPrerender* prerender) override {}
   bool IsPrefetchOnly() override { return false; }
 };
-
-void AppendParams(const std::vector<base::string16>& additional_names,
-                  const std::vector<base::string16>& additional_values,
-                  blink::WebVector<blink::WebString>* existing_names,
-                  blink::WebVector<blink::WebString>* existing_values) {
-  DCHECK(additional_names.size() == additional_values.size());
-  DCHECK(existing_names->size() == existing_values->size());
-
-  size_t existing_size = existing_names->size();
-  size_t total_size = existing_size + additional_names.size();
-
-  blink::WebVector<blink::WebString> names(total_size);
-  blink::WebVector<blink::WebString> values(total_size);
-
-  for (size_t i = 0; i < existing_size; ++i) {
-    names[i] = (*existing_names)[i];
-    values[i] = (*existing_values)[i];
-  }
-
-  for (size_t i = 0; i < additional_names.size(); ++i) {
-    names[existing_size + i] = blink::WebString::FromUTF16(additional_names[i]);
-    values[existing_size + i] =
-        blink::WebString::FromUTF16(additional_values[i]);
-  }
-
-  existing_names->Swap(names);
-  existing_values->Swap(values);
-}
 
 bool IsStandaloneExtensionProcess() {
   return extensions::ExtensionsEnabled() &&
@@ -319,6 +290,9 @@ void CefContentRendererClient::WebKitInitialized() {
     }
   }
 
+  url_loader_factory_ =
+      blink::Platform::Current()->CreateDefaultURLLoaderFactory();
+
   // Notify the render process handler.
   CefRefPtr<CefApp> application = CefContentClient::Get()->application();
   if (application.get()) {
@@ -326,21 +300,6 @@ void CefContentRendererClient::WebKitInitialized() {
         application->GetRenderProcessHandler();
     if (handler.get())
       handler->OnWebKitInitialized();
-  }
-}
-
-void CefContentRendererClient::DevToolsAgentAttached() {
-  CEF_REQUIRE_RT();
-  ++devtools_agent_count_;
-}
-
-void CefContentRendererClient::DevToolsAgentDetached() {
-  CEF_REQUIRE_RT();
-  --devtools_agent_count_;
-  if (devtools_agent_count_ == 0 && uncaught_exception_stack_size_ > 0) {
-    // When the last DevToolsAgent is detached the stack size is set to 0.
-    // Restore the user-specified stack size here.
-    CefV8SetUncaughtExceptionStackSize(uncaught_exception_stack_size_);
   }
 }
 
@@ -401,7 +360,7 @@ void CefContentRendererClient::RenderThreadStarted() {
   thread->GetChannel()->AddFilter(new CefRenderMessageFilter);
 
   if (!command_line->HasSwitch(switches::kDisableSpellChecking)) {
-    spellcheck_.reset(new SpellCheck());
+    spellcheck_.reset(new SpellCheck(this));
     thread->AddObserver(spellcheck_.get());
   }
 
@@ -474,7 +433,7 @@ void CefContentRendererClient::RenderFrameCreated(
       new CefRenderFrameObserver(render_frame);
   service_manager::BinderRegistry* registry = render_frame_observer->registry();
 
-  new CefPepperHelper(render_frame);
+  new PepperHelper(render_frame);
   new printing::PrintRenderFrameHelper(
       render_frame,
       base::WrapUnique(new extensions::CefPrintRenderFrameHelperDelegate()));
@@ -484,8 +443,18 @@ void CefContentRendererClient::RenderFrameCreated(
 
   const base::CommandLine* command_line =
       base::CommandLine::ForCurrentProcess();
-  if (!command_line->HasSwitch(switches::kDisableSpellChecking))
-    new SpellCheckProvider(render_frame, spellcheck_.get());
+  if (!command_line->HasSwitch(switches::kDisableSpellChecking)) {
+    SpellCheckProvider* spell_check_provider =
+        new SpellCheckProvider(render_frame, spellcheck_.get(), this);
+    // TODO(xiaochengh): Design better way to sync between Chrome-side and
+    // Blink-side spellcheck enabled states.  See crbug.com/710097.
+    //
+    // TODO(alexmos): Do this for all frames so that this works properly for
+    // OOPIFs.  See https://crbug.com/789273.
+    if (render_frame->IsMainFrame())
+      spell_check_provider->EnableSpellcheck(
+          spellcheck_->IsSpellcheckEnabled());
+  }
 
   BrowserCreated(render_frame->GetRenderView(), render_frame);
 }
@@ -493,22 +462,6 @@ void CefContentRendererClient::RenderFrameCreated(
 void CefContentRendererClient::RenderViewCreated(
     content::RenderView* render_view) {
   new CefPrerendererClient(render_view);
-
-  if (extensions::ExtensionsEnabled())
-    extensions_renderer_client_->RenderViewCreated(render_view);
-
-  const base::CommandLine* command_line =
-      base::CommandLine::ForCurrentProcess();
-  if (!command_line->HasSwitch(switches::kDisableSpellChecking)) {
-    // This is a workaround keeping the behavior that, the Blink side spellcheck
-    // enabled state is initialized on RenderView creation.
-    // TODO(xiaochengh): Design better way to sync between Chrome-side and
-    // Blink-side spellcheck enabled states.  See crbug.com/710097.
-    if (SpellCheckProvider* provider =
-            SpellCheckProvider::Get(render_view->GetMainRenderFrame())) {
-      provider->EnableSpellcheck(spellcheck_->IsSpellcheckEnabled());
-    }
-  }
 
   BrowserCreated(render_view, render_view->GetMainRenderFrame());
 }
@@ -525,13 +478,13 @@ bool CefContentRendererClient::OverrideCreatePlugin(
   }
 
   GURL url(params.url);
-  CefViewHostMsg_GetPluginInfo_Output output;
-  render_frame->Send(new CefViewHostMsg_GetPluginInfo(
+  chrome::mojom::PluginInfoPtr plugin_info = chrome::mojom::PluginInfo::New();
+  ChromeContentRendererClient::GetPluginInfoHost()->GetPluginInfo(
       render_frame->GetRoutingID(), url,
-      render_frame->GetWebFrame()->Parent() == nullptr,
       render_frame->GetWebFrame()->Top()->GetSecurityOrigin(), orig_mime_type,
-      &output));
-  *plugin = CreatePlugin(render_frame, params, output);
+      &plugin_info);
+  *plugin = ChromeContentRendererClient::CreatePlugin(render_frame, params,
+                                                      *plugin_info);
   return true;
 }
 
@@ -657,7 +610,7 @@ CefContentRendererClient::CreateBrowserPluginDelegate(
 
 void CefContentRendererClient::AddSupportedKeySystems(
     std::vector<std::unique_ptr<::media::KeySystemProperties>>* key_systems) {
-  AddCefKeySystems(key_systems);
+  AddChromeKeySystems(key_systems);
 }
 
 void CefContentRendererClient::RunScriptsAtDocumentStart(
@@ -678,156 +631,36 @@ void CefContentRendererClient::RunScriptsAtDocumentIdle(
     extensions_renderer_client_->RunScriptsAtDocumentIdle(render_frame);
 }
 
+void CefContentRendererClient::DevToolsAgentAttached(
+    content::RenderFrame* render_frame,
+    int session_id) {
+  CEF_REQUIRE_RT();
+  ++devtools_agent_count_;
+}
+
+void CefContentRendererClient::DevToolsAgentDetached(
+    content::RenderFrame* render_frame,
+    int session_id) {
+  CEF_REQUIRE_RT();
+  --devtools_agent_count_;
+  if (devtools_agent_count_ == 0 && uncaught_exception_stack_size_ > 0) {
+    // When the last DevToolsAgent is detached the stack size is set to 0.
+    // Restore the user-specified stack size here.
+    CefV8SetUncaughtExceptionStackSize(uncaught_exception_stack_size_);
+  }
+}
+
+void CefContentRendererClient::GetInterface(
+    const std::string& interface_name,
+    mojo::ScopedMessagePipeHandle interface_pipe) {
+  content::RenderThread::Get()->GetConnector()->BindInterface(
+      service_manager::Identity(chrome::mojom::kServiceName), interface_name,
+      std::move(interface_pipe));
+}
+
 void CefContentRendererClient::WillDestroyCurrentMessageLoop() {
   base::AutoLock lock_scope(single_process_cleanup_lock_);
   single_process_cleanup_complete_ = true;
-}
-
-// static
-blink::WebPlugin* CefContentRendererClient::CreatePlugin(
-    content::RenderFrame* render_frame,
-    const blink::WebPluginParams& original_params,
-    const CefViewHostMsg_GetPluginInfo_Output& output) {
-  const content::WebPluginInfo& info = output.plugin;
-  const std::string& actual_mime_type = output.actual_mime_type;
-  const base::string16& group_name = output.group_name;
-  const std::string& identifier = output.group_identifier;
-  CefViewHostMsg_GetPluginInfo_Status status = output.status;
-  GURL url(original_params.url);
-  std::string orig_mime_type = original_params.mime_type.Utf8();
-  CefPluginPlaceholder* placeholder = NULL;
-
-  // If the browser plugin is to be enabled, this should be handled by the
-  // renderer, so the code won't reach here due to the early exit in
-  // OverrideCreatePlugin.
-  if (status == CefViewHostMsg_GetPluginInfo_Status::kNotFound ||
-      orig_mime_type == content::kBrowserPluginMimeType) {
-    placeholder = CefPluginPlaceholder::CreateLoadableMissingPlugin(
-        render_frame, original_params);
-  } else {
-    // TODO(bauerb): This should be in content/.
-    blink::WebPluginParams params(original_params);
-    for (const auto& mime_type : info.mime_types) {
-      if (mime_type.mime_type == actual_mime_type) {
-        AppendParams(mime_type.additional_param_names,
-                     mime_type.additional_param_values, &params.attribute_names,
-                     &params.attribute_values);
-        break;
-      }
-    }
-    if (params.mime_type.IsNull() && (actual_mime_type.size() > 0)) {
-      // Webkit might say that mime type is null while we already know the
-      // actual mime type via CefViewHostMsg_GetPluginInfo. In that case
-      // we should use what we know since WebpluginDelegateProxy does some
-      // specific initializations based on this information.
-      params.mime_type = blink::WebString::FromUTF8(actual_mime_type);
-    }
-
-    auto create_blocked_plugin = [&render_frame, &params, &info, &identifier,
-                                  &group_name](int template_id,
-                                               const base::string16& message) {
-      return CefPluginPlaceholder::CreateBlockedPlugin(
-          render_frame, params, info, identifier, group_name, template_id,
-          message, PowerSaverInfo());
-    };
-    blink::WebLocalFrame* frame = render_frame->GetWebFrame();
-    switch (status) {
-      case CefViewHostMsg_GetPluginInfo_Status::kNotFound: {
-        NOTREACHED();
-        break;
-      }
-      case CefViewHostMsg_GetPluginInfo_Status::kAllowed:
-      case CefViewHostMsg_GetPluginInfo_Status::kPlayImportantContent: {
-        // Delay loading plugins if prerendering.
-        // TODO(mmenke):  In the case of prerendering, feed into
-        //                CefContentRendererClient::CreatePlugin instead, to
-        //                reduce the chance of future regressions.
-        bool is_prerendering = false;
-        bool power_saver_setting_on =
-            status ==
-            CefViewHostMsg_GetPluginInfo_Status::kPlayImportantContent;
-
-        PowerSaverInfo power_saver_info =
-            PowerSaverInfo::Get(render_frame, power_saver_setting_on, params,
-                                info, frame->GetDocument().Url());
-        if (power_saver_info.blocked_for_background_tab || is_prerendering ||
-            !power_saver_info.poster_attribute.empty()) {
-          placeholder = CefPluginPlaceholder::CreateBlockedPlugin(
-              render_frame, params, info, identifier, group_name,
-              power_saver_info.poster_attribute.empty()
-                  ? IDR_BLOCKED_PLUGIN_HTML
-                  : IDR_PLUGIN_POSTER_HTML,
-              l10n_util::GetStringFUTF16(IDS_PLUGIN_BLOCKED, group_name),
-              power_saver_info);
-          placeholder->set_blocked_for_prerendering(is_prerendering);
-          placeholder->AllowLoading();
-          break;
-        }
-
-        std::unique_ptr<content::PluginInstanceThrottler> throttler;
-        if (power_saver_info.power_saver_enabled) {
-          throttler = content::PluginInstanceThrottler::Create(
-              content::RenderFrame::DONT_RECORD_DECISION);
-          // PluginPreroller manages its own lifetime.
-          new CefPluginPreroller(
-              render_frame, params, info, identifier, group_name,
-              l10n_util::GetStringFUTF16(IDS_PLUGIN_BLOCKED, group_name),
-              throttler.get());
-        }
-
-        return render_frame->CreatePlugin(info, params, std::move(throttler));
-      }
-      case CefViewHostMsg_GetPluginInfo_Status::kDisabled: {
-        // Intentionally using the blocked plugin resources instead of the
-        // disabled plugin resources. This provides better messaging (no link to
-        // chrome://plugins) and adds testing support.
-        placeholder = create_blocked_plugin(
-            IDR_BLOCKED_PLUGIN_HTML,
-            l10n_util::GetStringFUTF16(IDS_PLUGIN_BLOCKED_BY_POLICY,
-                                       group_name));
-        break;
-      }
-      case CefViewHostMsg_GetPluginInfo_Status::kOutdatedBlocked: {
-        NOTREACHED() << "Plugin installation is not supported.";
-        break;
-      }
-      case CefViewHostMsg_GetPluginInfo_Status::kOutdatedDisallowed: {
-        placeholder = create_blocked_plugin(
-            IDR_BLOCKED_PLUGIN_HTML,
-            l10n_util::GetStringFUTF16(IDS_PLUGIN_OUTDATED, group_name));
-        break;
-      }
-      case CefViewHostMsg_GetPluginInfo_Status::kUnauthorized: {
-        placeholder = create_blocked_plugin(
-            IDR_BLOCKED_PLUGIN_HTML,
-            l10n_util::GetStringFUTF16(IDS_PLUGIN_NOT_AUTHORIZED, group_name));
-        placeholder->AllowLoading();
-        break;
-      }
-      case CefViewHostMsg_GetPluginInfo_Status::kBlocked: {
-        placeholder = create_blocked_plugin(
-            IDR_BLOCKED_PLUGIN_HTML,
-            l10n_util::GetStringFUTF16(IDS_PLUGIN_BLOCKED, group_name));
-        placeholder->AllowLoading();
-        content::RenderThread::Get()->RecordAction(
-            base::UserMetricsAction("Plugin_Blocked"));
-        break;
-      }
-      case CefViewHostMsg_GetPluginInfo_Status::kBlockedByPolicy: {
-        placeholder = create_blocked_plugin(
-            IDR_BLOCKED_PLUGIN_HTML,
-            l10n_util::GetStringFUTF16(IDS_PLUGIN_BLOCKED_BY_POLICY,
-                                       group_name));
-        content::RenderThread::Get()->RecordAction(
-            base::UserMetricsAction("Plugin_BlockedByPolicy"));
-        break;
-      }
-      default:
-        break;
-    }
-  }
-  placeholder->SetStatus(status);
-  return placeholder->plugin();
 }
 
 void CefContentRendererClient::BrowserCreated(

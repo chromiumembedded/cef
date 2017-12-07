@@ -7,9 +7,7 @@
         "renderer": [
           "blink::mojom::BudgetService",
           "metrics::mojom::LeakDetector",
-          "mojom::ModuleEventSink",
-          "spellcheck::mojom::SpellCheckHost",
-          "startup_metric_utils::mojom::StartupMetricHost"
+          "mojom::ModuleEventSink"
         ]
       }
     },

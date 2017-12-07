@@ -38,7 +38,7 @@ const char kXdndProxy[] = "XdndProxy";
   ::Window root;
   ::Window parent;
   ::Window* children;
-  ::Window child_window = None;
+  ::Window child_window = x11::None;
   unsigned int nchildren;
   if (XQueryTree(display, window, &root, &parent, &children, &nchildren)) {
     DCHECK_EQ(1U, nchildren);
@@ -50,8 +50,8 @@ const char kXdndProxy[] = "XdndProxy";
 
 ::Window FindToplevelParent(::Display* display, ::Window window) {
   ::Window top_level_window = window;
-  ::Window root = None;
-  ::Window parent = None;
+  ::Window root = x11::None;
+  ::Window parent = x11::None;
   ::Window* children = NULL;
   unsigned int nchildren = 0;
   // Enumerate all parents of "window" to find the highest level window
@@ -91,12 +91,12 @@ CefWindowX11::CefWindowX11(CefRefPtr<CefBrowserHostImpl> browser,
       bounds_(bounds),
       focus_pending_(false),
       weak_ptr_factory_(this) {
-  if (parent_xwindow_ == None)
+  if (parent_xwindow_ == x11::None)
     parent_xwindow_ = DefaultRootWindow(xdisplay_);
 
   XSetWindowAttributes swa;
   memset(&swa, 0, sizeof(swa));
-  swa.background_pixmap = None;
+  swa.background_pixmap = x11::None;
   swa.override_redirect = false;
   xwindow_ = XCreateWindow(xdisplay_, parent_xwindow_, bounds.x(), bounds.y(),
                            bounds.width(), bounds.height(),
@@ -148,12 +148,12 @@ void CefWindowX11::Close() {
   ev.xclient.message_type = gfx::GetAtom(kWMProtocols);
   ev.xclient.format = 32;
   ev.xclient.data.l[0] = gfx::GetAtom(kWMDeleteWindow);
-  ev.xclient.data.l[1] = CurrentTime;
-  XSendEvent(xdisplay_, xwindow_, False, NoEventMask, &ev);
+  ev.xclient.data.l[1] = x11::CurrentTime;
+  XSendEvent(xdisplay_, xwindow_, false, NoEventMask, &ev);
 }
 
 void CefWindowX11::Show() {
-  if (xwindow_ == None)
+  if (xwindow_ == x11::None)
     return;
 
   if (!window_mapped_) {
@@ -205,7 +205,7 @@ void CefWindowX11::Show() {
 }
 
 void CefWindowX11::Hide() {
-  if (xwindow_ == None)
+  if (xwindow_ == x11::None)
     return;
 
   if (window_mapped_) {
@@ -215,22 +215,22 @@ void CefWindowX11::Hide() {
 }
 
 void CefWindowX11::Focus() {
-  if (xwindow_ == None || !window_mapped_)
+  if (xwindow_ == x11::None || !window_mapped_)
     return;
 
   if (browser_.get()) {
     ::Window child = FindChild(xdisplay_, xwindow_);
     if (child && ui::IsWindowVisible(child)) {
       // Give focus to the child DesktopWindowTreeHostX11.
-      XSetInputFocus(xdisplay_, child, RevertToParent, CurrentTime);
+      XSetInputFocus(xdisplay_, child, RevertToParent, x11::CurrentTime);
     }
   } else {
-    XSetInputFocus(xdisplay_, xwindow_, RevertToParent, CurrentTime);
+    XSetInputFocus(xdisplay_, xwindow_, RevertToParent, x11::CurrentTime);
   }
 }
 
 void CefWindowX11::SetBounds(const gfx::Rect& bounds) {
-  if (xwindow_ == None)
+  if (xwindow_ == x11::None)
     return;
 
   bool origin_changed = bounds_.origin() != bounds.origin();
@@ -315,7 +315,7 @@ uint32_t CefWindowX11::DispatchEvent(const ui::PlatformEvent& event) {
             // Allow the close.
             XDestroyWindow(xdisplay_, xwindow_);
 
-            xwindow_ = None;
+            xwindow_ = x11::None;
 
             if (browser_.get()) {
               // Force the browser to be destroyed and release the reference
@@ -329,7 +329,7 @@ uint32_t CefWindowX11::DispatchEvent(const ui::PlatformEvent& event) {
           XEvent reply_event = *xev;
           reply_event.xclient.window = parent_xwindow_;
 
-          XSendEvent(xdisplay_, reply_event.xclient.window, False,
+          XSendEvent(xdisplay_, reply_event.xclient.window, false,
                      SubstructureRedirectMask | SubstructureNotifyMask,
                      &reply_event);
           XFlush(xdisplay_);

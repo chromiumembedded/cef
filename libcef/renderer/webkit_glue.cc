@@ -24,7 +24,7 @@ MSVC_PUSH_WARNING_LEVEL(0);
 #include "third_party/WebKit/Source/core/frame/LocalFrame.h"
 #include "third_party/WebKit/Source/core/frame/Settings.h"
 #include "third_party/WebKit/Source/core/frame/WebLocalFrameImpl.h"
-#include "third_party/WebKit/Source/platform/ScriptForbiddenScope.h"
+#include "third_party/WebKit/Source/platform/bindings/ScriptForbiddenScope.h"
 #include "third_party/WebKit/Source/platform/bindings/V8Binding.h"
 #include "third_party/WebKit/Source/platform/weborigin/SchemeRegistry.h"
 MSVC_POP_WARNING();
@@ -158,12 +158,9 @@ v8::MaybeLocal<v8::Value> ExecuteV8ScriptAndReturnValue(
   if (start_line < 1)
     start_line = 1;
 
-  const blink::KURL kurl =
-      source_url.IsEmpty() ? blink::KURL()
-                           : blink::KURL(blink::kParsedURLString, source_url);
-
   const blink::ScriptSourceCode ssc = blink::ScriptSourceCode(
-      source, kurl, blink::WebString() /* nonce */, blink::kNotParserInserted,
+      source, blink::ScriptSourceLocationType::kInternal,
+      blink::KURL(source_url),
       WTF::TextPosition(WTF::OrdinalNumber::FromOneBasedInt(start_line),
                         WTF::OrdinalNumber::FromZeroBasedInt(0)));
 
@@ -179,8 +176,8 @@ v8::MaybeLocal<v8::Value> ExecuteV8ScriptAndReturnValue(
 
   v8::Local<v8::Script> script;
   if (!blink::V8ScriptRunner::CompileScript(blink::ScriptState::From(context),
-                                            ssc, accessControlStatus,
-                                            v8CacheOptions)
+                                            ssc, blink::ScriptFetchOptions(),
+                                            accessControlStatus, v8CacheOptions)
            .ToLocal(&script)) {
     DCHECK(tryCatch.HasCaught());
     return result;

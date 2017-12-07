@@ -21,14 +21,16 @@ bool CefMenuRunnerMac::RunContextMenu(
     CefMenuModelImpl* model,
     const content::ContextMenuParams& params) {
   // Create a menu controller based on the model.
-  menu_controller_.reset([[MenuController alloc] initWithModel:model->model()
-                                        useWithPopUpButtonCell:NO]);
+  menu_controller_.reset([[MenuControllerCocoa alloc]
+               initWithModel:model->model()
+      useWithPopUpButtonCell:NO]);
 
   // Keep the menu controller alive (by adding an additional retain) until after
   // the menu has been dismissed. Otherwise it will crash if the browser is
   // destroyed (and consequently the menu controller is destroyed) while the
   // menu is still pending.
-  base::scoped_nsobject<MenuController> menu_controller_ref(menu_controller_);
+  base::scoped_nsobject<MenuControllerCocoa> menu_controller_ref(
+      menu_controller_);
 
   // Make sure events can be pumped while the menu is up.
   base::MessageLoop::ScopedNestableTaskAllower allow(

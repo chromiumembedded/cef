@@ -241,11 +241,10 @@ def GetRequiredArgs():
 
       # Enable support for Widevine CDM.
       'enable_widevine': True,
-  }
 
-  if platform == 'linux' or platform == 'macosx':
-    # Don't use the chrome style plugin.
-    result['clang_use_chrome_plugins'] = False
+      # Don't use the chrome style plugin.
+      'clang_use_chrome_plugins': False,
+  }
 
   if platform == 'linux':
     # Don't generate Chromium installer packages. This avoids GN dependency

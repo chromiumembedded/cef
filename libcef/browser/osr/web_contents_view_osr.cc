@@ -63,6 +63,8 @@ void CefWebContentsViewOSR::StoreFocus() {}
 
 void CefWebContentsViewOSR::RestoreFocus() {}
 
+void CefWebContentsViewOSR::FocusThroughTabTraversal(bool reverse) {}
+
 void CefWebContentsViewOSR::GotFocus(
     content::RenderWidgetHostImpl* render_widget_host) {
   if (web_contents_) {

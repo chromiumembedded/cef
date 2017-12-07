@@ -50,29 +50,30 @@ class CefStoragePartitionProxy : public content::StoragePartition {
   void ClearDataForOrigin(uint32_t remove_mask,
                           uint32_t quota_storage_remove_mask,
                           const GURL& storage_origin,
-                          net::URLRequestContextGetter* rq_context,
-                          const base::Closure& callback);
+                          net::URLRequestContextGetter* rq_context) override;
   void ClearData(uint32_t remove_mask,
                  uint32_t quota_storage_remove_mask,
                  const GURL& storage_origin,
                  const OriginMatcherFunction& origin_matcher,
                  const base::Time begin,
                  const base::Time end,
-                 const base::Closure& callback);
+                 base::OnceClosure callback) override;
   void ClearData(uint32_t remove_mask,
                  uint32_t quota_storage_remove_mask,
                  const OriginMatcherFunction& origin_matcher,
                  const CookieMatcherFunction& cookie_matcher,
                  const base::Time begin,
                  const base::Time end,
-                 const base::Closure& callback) override;
+                 base::OnceClosure callback) override;
   void ClearHttpAndMediaCaches(
       const base::Time begin,
       const base::Time end,
       const base::Callback<bool(const GURL&)>& url_matcher,
-      const base::Closure& callback) override;
+      base::OnceClosure callback) override;
   void Flush() override;
   void ClearBluetoothAllowedDevicesMapForTesting() override;
+  void SetNetworkFactoryForTesting(
+      content::mojom::URLLoaderFactory* test_factory) override;
   content::URLLoaderFactoryGetter* url_loader_factory_getter() override;
   content::BrowserContext* browser_context() const override;
   mojo::BindingId Bind(
