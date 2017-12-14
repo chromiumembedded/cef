@@ -345,7 +345,7 @@ index 3e3d132705a8..4a972b4475e6 100644
    return false;
  }
 diff --git content/public/renderer/content_renderer_client.h content/public/renderer/content_renderer_client.h
-index 3d34633700dd..6cee67f439f7 100644
+index 3d34633700dd..a3ab85aa14cb 100644
 --- content/public/renderer/content_renderer_client.h
 +++ content/public/renderer/content_renderer_client.h
 @@ -73,6 +73,9 @@ class CONTENT_EXPORT ContentRendererClient {

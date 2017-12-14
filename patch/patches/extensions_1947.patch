@@ -1,8 +1,8 @@
 diff --git content/browser/frame_host/render_frame_host_manager.cc content/browser/frame_host/render_frame_host_manager.cc
-index 0663535e3f81..e0e20722c820 100644
+index 53b0f5b1863e..092210ea44ec 100644
 --- content/browser/frame_host/render_frame_host_manager.cc
 +++ content/browser/frame_host/render_frame_host_manager.cc
-@@ -1082,10 +1082,11 @@ bool RenderFrameHostManager::ShouldSwapBrowsingInstancesForNavigation(
+@@ -1083,10 +1083,11 @@ bool RenderFrameHostManager::ShouldSwapBrowsingInstancesForNavigation(
    // TODO(alexmos): This check should've been enforced earlier in the
    // navigation, in chrome::Navigate().  Verify this, and then convert this to
    // a CHECK and remove the fallback.
@@ -18,7 +18,7 @@ index 0663535e3f81..e0e20722c820 100644
      return true;
    }
  
-@@ -1224,7 +1225,8 @@ RenderFrameHostManager::GetSiteInstanceForNavigation(
+@@ -1225,7 +1226,8 @@ RenderFrameHostManager::GetSiteInstanceForNavigation(
  
    // Double-check that the new SiteInstance is associated with the right
    // BrowserContext.
@@ -29,10 +29,10 @@ index 0663535e3f81..e0e20722c820 100644
    // If |new_instance| is a new SiteInstance for a subframe with an isolated
    // origin, set its process reuse policy so that such subframes are
 diff --git content/public/browser/content_browser_client.h content/public/browser/content_browser_client.h
-index e56b320170df..26aa6fe50311 100644
+index 3841f3c1c010..f2a7eb747a2a 100644
 --- content/public/browser/content_browser_client.h
 +++ content/public/browser/content_browser_client.h
-@@ -343,6 +343,13 @@ class CONTENT_EXPORT ContentBrowserClient {
+@@ -350,6 +350,13 @@ class CONTENT_EXPORT ContentBrowserClient {
                                                const GURL& current_url,
                                                const GURL& new_url);
  

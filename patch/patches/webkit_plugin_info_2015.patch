@@ -30,7 +30,7 @@ index 123258b23cb2..f00869df94e3 100644
  }
  
 diff --git third_party/WebKit/Source/core/page/Page.cpp third_party/WebKit/Source/core/page/Page.cpp
-index c6071e8ba68e..4304cc95ba2e 100644
+index 451729509c46..b74eea96dbef 100644
 --- third_party/WebKit/Source/core/page/Page.cpp
 +++ third_party/WebKit/Source/core/page/Page.cpp
 @@ -129,7 +129,8 @@ Page::Page(PageClients& page_clients)

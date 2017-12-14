@@ -1,5 +1,5 @@
 diff --git chrome/browser/ui/BUILD.gn chrome/browser/ui/BUILD.gn
-index 02b2c4212767..5a89d17b06a4 100644
+index 02b2c4212767..b8a3ebb82fbe 100644
 --- chrome/browser/ui/BUILD.gn
 +++ chrome/browser/ui/BUILD.gn
 @@ -344,6 +344,7 @@ split_static_library("ui") {
