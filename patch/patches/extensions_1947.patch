@@ -1,5 +1,5 @@
 diff --git content/browser/frame_host/render_frame_host_manager.cc content/browser/frame_host/render_frame_host_manager.cc
-index 5541f127d366..ad0f4bc58f59 100644
+index 4c5330e8a09b..db13b3aa26de 100644
 --- content/browser/frame_host/render_frame_host_manager.cc
 +++ content/browser/frame_host/render_frame_host_manager.cc
 @@ -1072,10 +1072,11 @@ bool RenderFrameHostManager::ShouldSwapBrowsingInstancesForNavigation(
@@ -29,10 +29,10 @@ index 5541f127d366..ad0f4bc58f59 100644
    // If |new_instance| is a new SiteInstance for a subframe with an isolated
    // origin, set its process reuse policy so that such subframes are
 diff --git content/public/browser/content_browser_client.h content/public/browser/content_browser_client.h
-index 842557d5fcb7..fc254e2b7bb8 100644
+index 61c108c53b92..a415a48df0c4 100644
 --- content/public/browser/content_browser_client.h
 +++ content/public/browser/content_browser_client.h
-@@ -325,6 +325,13 @@ class CONTENT_EXPORT ContentBrowserClient {
+@@ -336,6 +336,13 @@ class CONTENT_EXPORT ContentBrowserClient {
                                                const GURL& current_url,
                                                const GURL& new_url);
  

@@ -484,8 +484,19 @@ void CefContentRendererClient::RenderFrameCreated(
 
   const base::CommandLine* command_line =
       base::CommandLine::ForCurrentProcess();
-  if (!command_line->HasSwitch(switches::kDisableSpellChecking))
-    new SpellCheckProvider(render_frame, spellcheck_.get());
+  if (!command_line->HasSwitch(switches::kDisableSpellChecking)) {
+    SpellCheckProvider* spell_check_provider =
+        new SpellCheckProvider(render_frame, spellcheck_.get());
+    // TODO(xiaochengh): Design better way to sync between Chrome-side and
+    // Blink-side spellcheck enabled states.  See crbug.com/710097.
+    //
+    // TODO(alexmos): Do this for all frames so that this works properly for
+    // OOPIFs.  See https://crbug.com/789273.
+    if (render_frame->IsMainFrame()) {
+      spell_check_provider->EnableSpellcheck(
+          spellcheck_->IsSpellcheckEnabled());
+    }
+  }
 
   BrowserCreated(render_frame->GetRenderView(), render_frame);
 }
@@ -496,19 +507,6 @@ void CefContentRendererClient::RenderViewCreated(
 
   if (extensions::ExtensionsEnabled())
     extensions_renderer_client_->RenderViewCreated(render_view);
-
-  const base::CommandLine* command_line =
-      base::CommandLine::ForCurrentProcess();
-  if (!command_line->HasSwitch(switches::kDisableSpellChecking)) {
-    // This is a workaround keeping the behavior that, the Blink side spellcheck
-    // enabled state is initialized on RenderView creation.
-    // TODO(xiaochengh): Design better way to sync between Chrome-side and
-    // Blink-side spellcheck enabled states.  See crbug.com/710097.
-    if (SpellCheckProvider* provider =
-            SpellCheckProvider::Get(render_view->GetMainRenderFrame())) {
-      provider->EnableSpellcheck(spellcheck_->IsSpellcheckEnabled());
-    }
-  }
 
   BrowserCreated(render_view, render_view->GetMainRenderFrame());
 }

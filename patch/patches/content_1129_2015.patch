@@ -91,7 +91,7 @@ index ba2dacd6f420..803b5bc929bd 100644
                mime_type, false, NULL, &plugin, NULL));
  }
 diff --git content/browser/frame_host/navigation_handle_impl.cc content/browser/frame_host/navigation_handle_impl.cc
-index 28048bdb2046..b295b7a33601 100644
+index e56b81ef55e1..01e12073870d 100644
 --- content/browser/frame_host/navigation_handle_impl.cc
 +++ content/browser/frame_host/navigation_handle_impl.cc
 @@ -312,12 +312,6 @@ net::Error NavigationHandleImpl::GetNetErrorCode() {
