@@ -7,7 +7,7 @@ CEF Version:      $CEF_VER$
 CEF URL:          $CEF_URL$
                   @$CEF_REV$
 
-Chromium Verison: $CHROMIUM_VER$
+Chromium Version: $CHROMIUM_VER$
 Chromium URL:     $CHROMIUM_URL$
                   @$CHROMIUM_REV$
 
