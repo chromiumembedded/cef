@@ -310,6 +310,7 @@ if (is_win) {
       "//chrome/common:features",
       "//ppapi/features:features",
       "//printing/features:features",
+      "//ui/base:ui_features",
     ]
   }
 }
