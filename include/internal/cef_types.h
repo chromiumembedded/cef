@@ -95,6 +95,11 @@ typedef enum {
   LOGSEVERITY_VERBOSE,
 
   ///
+  // DEBUG logging.
+  ///
+  LOGSEVERITY_DEBUG = LOGSEVERITY_VERBOSE,
+
+  ///
   // INFO logging.
   ///
   LOGSEVERITY_INFO,

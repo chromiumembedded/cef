@@ -147,6 +147,7 @@ class ClientHandler : public CefClient,
   void OnFullscreenModeChange(CefRefPtr<CefBrowser> browser,
                               bool fullscreen) OVERRIDE;
   bool OnConsoleMessage(CefRefPtr<CefBrowser> browser,
+                        cef_log_severity_t level,
                         const CefString& message,
                         const CefString& source,
                         int line) OVERRIDE;

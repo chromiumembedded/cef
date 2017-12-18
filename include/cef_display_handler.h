@@ -109,6 +109,7 @@ class CefDisplayHandler : public virtual CefBaseRefCounted {
   ///
   /*--cef(optional_param=message,optional_param=source)--*/
   virtual bool OnConsoleMessage(CefRefPtr<CefBrowser> browser,
+                                cef_log_severity_t level,
                                 const CefString& message,
                                 const CefString& source,
                                 int line) {
