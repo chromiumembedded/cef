@@ -940,6 +940,17 @@ elif platform == 'macosx':
              options.quiet)
 
 elif platform == 'linux':
+  binaries = [
+    {'path': 'libEGL.so'},
+    {'path': 'libGLESv2.so'},
+    {'path': 'libwidevinecdmadapter.so'},
+    {'path': 'natives_blob.bin'},
+    {'path': 'snapshot_blob.bin'},
+    {'path': 'v8_context_snapshot.bin'},
+    {'path': 'swiftshader/libEGL.so'},
+    {'path': 'swiftshader/libGLESv2.so'},
+  ]
+
   valid_build_dir = None
 
   if mode == 'standard':
@@ -954,16 +965,12 @@ elif platform == 'linux':
           os.path.join(build_dir, 'chrome_sandbox'),
           os.path.join(dst_dir, 'chrome-sandbox'), options.quiet)
       copy_file(libcef_path, dst_dir, options.quiet)
-      copy_file(
-          os.path.join(build_dir, 'libwidevinecdmadapter.so'), dst_dir,
-          options.quiet)
-      copy_file(
-          os.path.join(build_dir, 'natives_blob.bin'), dst_dir, options.quiet)
-      copy_file(
-          os.path.join(build_dir, 'snapshot_blob.bin'), dst_dir, options.quiet)
-      copy_file(
-          os.path.join(build_dir, 'v8_context_snapshot.bin'), dst_dir,
-          options.quiet)
+
+      for binary in binaries:
+        target_path = os.path.join(dst_dir, binary['path'])
+        make_dir(os.path.dirname(target_path), options.quiet)
+        copy_file(
+            os.path.join(build_dir, binary['path']), target_path, options.quiet)
     else:
       sys.stderr.write("No Debug build files.\n")
 
@@ -981,16 +988,12 @@ elif platform == 'linux':
     copy_file(
         os.path.join(build_dir, 'chrome_sandbox'),
         os.path.join(dst_dir, 'chrome-sandbox'), options.quiet)
-    copy_file(
-        os.path.join(build_dir, 'libwidevinecdmadapter.so'), dst_dir,
-        options.quiet)
-    copy_file(
-        os.path.join(build_dir, 'natives_blob.bin'), dst_dir, options.quiet)
-    copy_file(
-        os.path.join(build_dir, 'snapshot_blob.bin'), dst_dir, options.quiet)
-    copy_file(
-        os.path.join(build_dir, 'v8_context_snapshot.bin'), dst_dir,
-        options.quiet)
+
+    for binary in binaries:
+      target_path = os.path.join(dst_dir, binary['path'])
+      make_dir(os.path.dirname(target_path), options.quiet)
+      copy_file(
+          os.path.join(build_dir, binary['path']), target_path, options.quiet)
   else:
     sys.stderr.write("No Release build files.\n")
 
