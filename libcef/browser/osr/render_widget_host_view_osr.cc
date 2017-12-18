@@ -659,8 +659,8 @@ gfx::Size CefRenderWidgetHostViewOSR::GetRequestedRendererSize() const {
 }
 
 gfx::Size CefRenderWidgetHostViewOSR::GetPhysicalBackingSize() const {
-  return gfx::ConvertSizeToPixel(current_device_scale_factor_,
-                                 GetRequestedRendererSize());
+  return gfx::ScaleToCeiledSize(GetRequestedRendererSize(),
+                                current_device_scale_factor_);
 }
 
 void CefRenderWidgetHostViewOSR::CopyFromSurface(
