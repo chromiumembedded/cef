@@ -58,6 +58,18 @@ run but any related functionality may become broken or disabled.
     This file contains non-localized resources required for Chrome Developer
     Tools. Without this file Chrome Developer Tools will not function.
 
+* Angle support.
+  * libEGL.so
+  * libGLESv2.so
+  Without these files HTML5 accelerated content like 2D canvas, 3D CSS and WebGL
+  will not function.
+
+* SwiftShader support.
+  * swiftshader/libEGL.so
+  * swiftshader/libGLESv2.so
+  Without these files WebGL will not function in software-only mode when the GPU
+  is not available or disabled.
+
 * Widevine CDM support.
   * libwidevinecdmadapter.so
     Without this file playback of Widevine projected content will not function.
