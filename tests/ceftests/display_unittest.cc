@@ -242,3 +242,215 @@ TEST(DisplayTest, AutoResize) {
   handler->ExecuteTest();
   ReleaseAndWaitForDestructor(handler);
 }
+
+namespace {
+
+// Browser side.
+class ConsoleTestHandler : public TestHandler {
+ public:
+  struct TestConfig {
+    // Use something other than 1 as |line| for testing.
+    explicit TestConfig(cef_log_severity_t message_level)
+        : level(message_level),
+          message("'Test Message'"),
+          expected_message("Test Message"),
+          source("http://tests-console-message/level.html"),
+          line(42) {}
+
+    cef_log_severity_t level;
+    std::string message;
+    std::string expected_message;
+    std::string source;
+    int line;
+    std::string function;
+  };
+
+  ConsoleTestHandler(const TestConfig& config) : config_(config) {}
+
+  void RunTest() override {
+    // Add the resources that will be used to print to console.
+    AddResource(
+        config_.source,
+        CreateResourceContent(config_.message, config_.function, config_.line),
+        "text/html");
+
+    // Create the browser.
+    CreateBrowser(config_.source);
+
+    // Time out the test after a reasonable period of time.
+    SetTestTimeout();
+  }
+
+  void OnLoadingStateChange(CefRefPtr<CefBrowser> browser,
+                            bool isLoading,
+                            bool canGoBack,
+                            bool canGoForward) override {
+    if (isLoading)
+      return;
+
+    // Print console message after loading.
+    browser->GetMainFrame()->ExecuteJavaScript("printMessage()", config_.source,
+                                               0);
+  }
+
+  bool OnConsoleMessage(CefRefPtr<CefBrowser> browser,
+                        cef_log_severity_t level,
+                        const CefString& message,
+                        const CefString& source,
+                        int line) override {
+    EXPECT_EQ(config_.level, level);
+    EXPECT_EQ(config_.expected_message, message.ToString());
+    EXPECT_EQ(config_.source, source.ToString());
+    EXPECT_EQ(config_.line, line);
+
+    TestHandler::DestroyTest();
+
+    return false;
+  }
+
+ private:
+  std::string CreateResourceContent(const CefString& message,
+                                    const CefString& function,
+                                    int line) {
+    std::string content = "<html><script>function printMessage() { ";
+    for (int i = 1; i < line; ++i) {
+      // Add additional lines to test the |line| argument in |OnConsoleMessage|.
+      content += ";\n";
+    }
+    content += "console." + function.ToString() + "(" + message.ToString() +
+               "); }</script></html>";
+
+    return content;
+  }
+
+  TestConfig config_;
+
+  IMPLEMENT_REFCOUNTING(ConsoleTestHandler);
+};
+
+}  // namespace
+
+TEST(DisplayTest, OnConsoleMessageDebug) {
+  ConsoleTestHandler::TestConfig config(LOGSEVERITY_DEBUG);
+  config.function = "debug";
+
+  CefRefPtr<ConsoleTestHandler> handler = new ConsoleTestHandler(config);
+  handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
+}
+
+TEST(DisplayTest, OnConsoleMessageCount) {
+  ConsoleTestHandler::TestConfig config(LOGSEVERITY_DEBUG);
+  config.function = "count";
+  config.expected_message = "Test Message: 1";
+
+  CefRefPtr<ConsoleTestHandler> handler = new ConsoleTestHandler(config);
+  handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
+}
+
+TEST(DisplayTest, OnConsoleMessageTimeEnd) {
+  ConsoleTestHandler::TestConfig config(LOGSEVERITY_DEBUG);
+  config.function = "timeEnd";
+  config.expected_message = "Test Message: 0ms";
+
+  CefRefPtr<ConsoleTestHandler> handler = new ConsoleTestHandler(config);
+  handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
+}
+
+TEST(DisplayTest, OnConsoleMessageInfo) {
+  ConsoleTestHandler::TestConfig config(LOGSEVERITY_INFO);
+  config.function = "info";
+
+  CefRefPtr<ConsoleTestHandler> handler = new ConsoleTestHandler(config);
+  handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
+}
+
+TEST(DisplayTest, OnConsoleMessageLog) {
+  ConsoleTestHandler::TestConfig config(LOGSEVERITY_INFO);
+  config.function = "log";
+
+  CefRefPtr<ConsoleTestHandler> handler = new ConsoleTestHandler(config);
+  handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
+}
+
+TEST(DisplayTest, OnConsoleMessageGroup) {
+  ConsoleTestHandler::TestConfig config(LOGSEVERITY_INFO);
+  config.function = "group";
+
+  CefRefPtr<ConsoleTestHandler> handler = new ConsoleTestHandler(config);
+  handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
+}
+
+TEST(DisplayTest, OnConsoleMessageGroupCollapsed) {
+  ConsoleTestHandler::TestConfig config(LOGSEVERITY_INFO);
+  config.function = "groupCollapsed";
+
+  CefRefPtr<ConsoleTestHandler> handler = new ConsoleTestHandler(config);
+  handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
+}
+
+TEST(DisplayTest, OnConsoleMessageGroupEnd) {
+  ConsoleTestHandler::TestConfig config(LOGSEVERITY_INFO);
+  config.function = "groupEnd";
+
+  CefRefPtr<ConsoleTestHandler> handler = new ConsoleTestHandler(config);
+  handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
+}
+
+TEST(DisplayTest, OnConsoleMessageTable) {
+  ConsoleTestHandler::TestConfig config(LOGSEVERITY_INFO);
+  config.function = "table";
+  config.message = "[1, 2, 3]";
+  config.expected_message = "1,2,3";
+
+  CefRefPtr<ConsoleTestHandler> handler = new ConsoleTestHandler(config);
+  handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
+}
+
+TEST(DisplayTest, OnConsoleMessageTrace) {
+  ConsoleTestHandler::TestConfig config(LOGSEVERITY_INFO);
+  config.function = "trace";
+  config.message = "";
+  config.expected_message = "console.trace";
+
+  CefRefPtr<ConsoleTestHandler> handler = new ConsoleTestHandler(config);
+  handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
+}
+
+TEST(DisplayTest, OnConsoleMessageWarn) {
+  ConsoleTestHandler::TestConfig config(LOGSEVERITY_WARNING);
+  config.function = "warn";
+
+  CefRefPtr<ConsoleTestHandler> handler = new ConsoleTestHandler(config);
+  handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
+}
+
+TEST(DisplayTest, OnConsoleMessageError) {
+  ConsoleTestHandler::TestConfig config(LOGSEVERITY_ERROR);
+  config.function = "error";
+
+  CefRefPtr<ConsoleTestHandler> handler = new ConsoleTestHandler(config);
+  handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
+}
+
+TEST(DisplayTest, OnConsoleMessageAssert) {
+  ConsoleTestHandler::TestConfig config(LOGSEVERITY_ERROR);
+  config.function = "assert";
+  config.message = "false";
+  config.expected_message = "console.assert";
+
+  CefRefPtr<ConsoleTestHandler> handler = new ConsoleTestHandler(config);
+  handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
+}

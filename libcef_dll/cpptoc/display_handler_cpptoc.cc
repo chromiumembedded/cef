@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=b52f437f558356645aaf45ee20cf4f3983e03891$
+// $hash=5fc57065576d03784d294cefc9bdddb06d007798$
 //
 
 #include "libcef_dll/cpptoc/display_handler_cpptoc.h"
@@ -161,6 +161,7 @@ display_handler_on_status_message(struct _cef_display_handler_t* self,
 int CEF_CALLBACK
 display_handler_on_console_message(struct _cef_display_handler_t* self,
                                    cef_browser_t* browser,
+                                   cef_log_severity_t level,
                                    const cef_string_t* message,
                                    const cef_string_t* source,
                                    int line) {
@@ -177,8 +178,8 @@ display_handler_on_console_message(struct _cef_display_handler_t* self,
 
   // Execute
   bool _retval = CefDisplayHandlerCppToC::Get(self)->OnConsoleMessage(
-      CefBrowserCToCpp::Wrap(browser), CefString(message), CefString(source),
-      line);
+      CefBrowserCToCpp::Wrap(browser), level, CefString(message),
+      CefString(source), line);
 
   // Return type: bool
   return _retval;

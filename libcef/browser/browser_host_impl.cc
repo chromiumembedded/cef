@@ -2290,8 +2290,24 @@ bool CefBrowserHostImpl::DidAddMessageToConsole(
     const base::string16& source_id) {
   if (client_.get()) {
     CefRefPtr<CefDisplayHandler> handler = client_->GetDisplayHandler();
-    if (handler.get())
-      return handler->OnConsoleMessage(this, message, source_id, line_no);
+    if (handler.get()) {
+      // Use LOGSEVERITY_DEBUG for unrecognized |level| values.
+      cef_log_severity_t log_level = LOGSEVERITY_DEBUG;
+      switch (level) {
+        case 0:
+          log_level = LOGSEVERITY_INFO;
+          break;
+        case 1:
+          log_level = LOGSEVERITY_WARNING;
+          break;
+        case 2:
+          log_level = LOGSEVERITY_ERROR;
+          break;
+      }
+
+      return handler->OnConsoleMessage(this, log_level, message, source_id,
+                                       line_no);
+    }
   }
 
   return false;

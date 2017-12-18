@@ -394,6 +394,7 @@ void ClientHandler::OnFullscreenModeChange(CefRefPtr<CefBrowser> browser,
 }
 
 bool ClientHandler::OnConsoleMessage(CefRefPtr<CefBrowser> browser,
+                                     cef_log_severity_t level,
                                      const CefString& message,
                                      const CefString& source,
                                      int line) {
@@ -402,6 +403,24 @@ bool ClientHandler::OnConsoleMessage(CefRefPtr<CefBrowser> browser,
   FILE* file = fopen(console_log_file_.c_str(), "a");
   if (file) {
     std::stringstream ss;
+    ss << "Level: ";
+    switch (level) {
+      case LOGSEVERITY_DEBUG:
+        ss << "Debug" << NEWLINE;
+        break;
+      case LOGSEVERITY_INFO:
+        ss << "Info" << NEWLINE;
+        break;
+      case LOGSEVERITY_WARNING:
+        ss << "Warn" << NEWLINE;
+        break;
+      case LOGSEVERITY_ERROR:
+        ss << "Error" << NEWLINE;
+        break;
+      default:
+        NOTREACHED();
+        break;
+    }
     ss << "Message: " << message.ToString() << NEWLINE
        << "Source: " << source.ToString() << NEWLINE << "Line: " << line
        << NEWLINE << "-----------------------" << NEWLINE;

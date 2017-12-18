@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=6d8ab7f2086373de52eb178cc640d2d553d43c58$
+// $hash=834d40adeea090f273d3b4a1c47b5e5ab546f542$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_DISPLAY_HANDLER_CTOCPP_H_
@@ -48,6 +48,7 @@ class CefDisplayHandlerCToCpp
   void OnStatusMessage(CefRefPtr<CefBrowser> browser,
                        const CefString& value) override;
   bool OnConsoleMessage(CefRefPtr<CefBrowser> browser,
+                        cef_log_severity_t level,
                         const CefString& message,
                         const CefString& source,
                         int line) override;
