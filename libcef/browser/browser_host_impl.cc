@@ -1461,17 +1461,23 @@ void CefBrowserHostImpl::GetFrameNames(std::vector<CefString>& names) {
 bool CefBrowserHostImpl::SendProcessMessage(
     CefProcessId target_process,
     CefRefPtr<CefProcessMessage> message) {
+  DCHECK_EQ(PID_RENDERER, target_process);
   DCHECK(message.get());
 
   Cef_Request_Params params;
   CefProcessMessageImpl* impl =
       static_cast<CefProcessMessageImpl*>(message.get());
-  if (impl->CopyTo(params)) {
-    return SendProcessMessage(target_process, params.name, &params.arguments,
-                              true);
-  }
+  if (!impl->CopyTo(params))
+    return false;
 
-  return false;
+  DCHECK(!params.name.empty());
+
+  params.frame_id = -1;
+  params.user_initiated = true;
+  params.request_id = -1;
+  params.expect_response = false;
+
+  return Send(new CefMsg_Request(MSG_ROUTING_NONE, params));
 }
 
 // CefBrowserHostImpl public methods.
@@ -1612,7 +1618,7 @@ void CefBrowserHostImpl::Navigate(const CefNavigateParams& params) {
   request.load_flags = params.load_flags;
   request.upload_data = params.upload_data;
 
-  Send(new CefMsg_LoadRequest(routing_id(), request));
+  Send(new CefMsg_LoadRequest(MSG_ROUTING_NONE, request));
 
   OnSetFocus(FOCUS_SOURCE_NAVIGATION);
 }
@@ -1692,7 +1698,7 @@ void CefBrowserHostImpl::LoadString(int64 frame_id,
   params.arguments.AppendString(string);
   params.arguments.AppendString(url);
 
-  Send(new CefMsg_Request(routing_id(), params));
+  Send(new CefMsg_Request(MSG_ROUTING_NONE, params));
 }
 
 void CefBrowserHostImpl::SendCommand(
@@ -1722,7 +1728,7 @@ void CefBrowserHostImpl::SendCommand(
 
     params.arguments.AppendString(command);
 
-    Send(new CefMsg_Request(routing_id(), params));
+    Send(new CefMsg_Request(MSG_ROUTING_NONE, params));
   } else {
     CEF_POST_TASK(CEF_UIT, base::Bind(&CefBrowserHostImpl::SendCommand, this,
                                       frame_id, command, responseHandler));
@@ -1763,7 +1769,7 @@ void CefBrowserHostImpl::SendCode(
     params.arguments.AppendString(script_url);
     params.arguments.AppendInteger(script_start_line);
 
-    Send(new CefMsg_Request(routing_id(), params));
+    Send(new CefMsg_Request(MSG_ROUTING_NONE, params));
   } else {
     CEF_POST_TASK(CEF_UIT, base::Bind(&CefBrowserHostImpl::SendCode, this,
                                       frame_id, is_javascript, code, script_url,
@@ -1798,25 +1804,6 @@ void CefBrowserHostImpl::ExecuteJavaScriptWithUserGestureForTests(
 
   if (rfh)
     rfh->ExecuteJavaScriptWithUserGestureForTests(javascript);
-}
-
-bool CefBrowserHostImpl::SendProcessMessage(CefProcessId target_process,
-                                            const std::string& name,
-                                            base::ListValue* arguments,
-                                            bool user_initiated) {
-  DCHECK_EQ(PID_RENDERER, target_process);
-  DCHECK(!name.empty());
-
-  Cef_Request_Params params;
-  params.name = name;
-  if (arguments)
-    params.arguments.Swap(arguments);
-  params.frame_id = -1;
-  params.user_initiated = user_initiated;
-  params.request_id = -1;
-  params.expect_response = false;
-
-  return Send(new CefMsg_Request(routing_id(), params));
 }
 
 void CefBrowserHostImpl::ViewText(const std::string& text) {
@@ -2911,33 +2898,6 @@ void CefBrowserHostImpl::OnWebContentsFocused(
   }
 }
 
-bool CefBrowserHostImpl::Send(IPC::Message* message) {
-  if (CEF_CURRENTLY_ON_UIT()) {
-    if (queue_messages_) {
-      queued_messages_.push(message);
-      return true;
-    } else if (web_contents() && web_contents()->GetRenderViewHost()) {
-      return web_contents()->GetRenderViewHost()->Send(message);
-    } else {
-      delete message;
-      return false;
-    }
-  } else {
-    CEF_POST_TASK(
-        CEF_UIT, base::Bind(base::IgnoreResult(&CefBrowserHostImpl::Send), this,
-                            message));
-    return true;
-  }
-}
-
-int CefBrowserHostImpl::routing_id() const {
-  CEF_REQUIRE_UIT();
-  if (!web_contents())
-    return MSG_ROUTING_NONE;
-
-  return web_contents()->GetRenderViewHost()->GetRoutingID();
-}
-
 void CefBrowserHostImpl::AddObserver(Observer* observer) {
   CEF_REQUIRE_UIT();
   observers_.AddObserver(observer);
@@ -3032,6 +2992,8 @@ void CefBrowserHostImpl::OnUpdateDraggableRegions(
 }
 
 void CefBrowserHostImpl::OnRequest(const Cef_Request_Params& params) {
+  CEF_REQUIRE_UIT();
+
   bool success = false;
   std::string response;
   bool expect_response_ack = false;
@@ -3059,14 +3021,16 @@ void CefBrowserHostImpl::OnRequest(const Cef_Request_Params& params) {
     response_params.success = success;
     response_params.response = response;
     response_params.expect_response_ack = expect_response_ack;
-    Send(new CefMsg_Response(routing_id(), response_params));
+    Send(new CefMsg_Response(MSG_ROUTING_NONE, response_params));
   }
 }
 
 void CefBrowserHostImpl::OnResponse(const Cef_Response_Params& params) {
+  CEF_REQUIRE_UIT();
+
   response_manager_->RunHandler(params);
   if (params.expect_response_ack)
-    Send(new CefMsg_ResponseAck(routing_id(), params.request_id));
+    Send(new CefMsg_ResponseAck(MSG_ROUTING_NONE, params.request_id));
 }
 
 void CefBrowserHostImpl::OnResponseAck(int request_id) {
@@ -3512,4 +3476,27 @@ void CefBrowserHostImpl::EnsureFileDialogManager() {
     file_dialog_manager_.reset(new CefFileDialogManager(
         this, platform_delegate_->CreateFileDialogRunner()));
   }
+}
+
+bool CefBrowserHostImpl::Send(IPC::Message* message) {
+  if (!CEF_CURRENTLY_ON_UIT()) {
+    CEF_POST_TASK(
+        CEF_UIT, base::Bind(base::IgnoreResult(&CefBrowserHostImpl::Send), this,
+                            message));
+    return true;
+  }
+
+  if (queue_messages_) {
+    queued_messages_.push(message);
+    return true;
+  } else if (web_contents()) {
+    content::RenderViewHost* rvh = web_contents()->GetRenderViewHost();
+    if (rvh) {
+      message->set_routing_id(rvh->GetRoutingID());
+      return rvh->Send(message);
+    }
+  }
+
+  delete message;
+  return false;
 }
