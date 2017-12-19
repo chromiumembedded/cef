@@ -2,8 +2,10 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
+#include "include/base/cef_bind.h"
 #include "include/cef_process_message.h"
 #include "include/cef_task.h"
+#include "include/wrapper/cef_closure_task.h"
 #include "tests/ceftests/test_handler.h"
 #include "tests/ceftests/test_util.h"
 #include "tests/gtest/include/gtest/gtest.h"
@@ -70,7 +72,8 @@ class SendRecvRendererTest : public ClientAppRenderer::Delegate {
 // Browser side.
 class SendRecvTestHandler : public TestHandler {
  public:
-  SendRecvTestHandler() {}
+  explicit SendRecvTestHandler(cef_thread_id_t send_thread)
+      : send_thread_(send_thread) {}
 
   void RunTest() override {
     message_ = CreateTestMessage();
@@ -85,13 +88,21 @@ class SendRecvTestHandler : public TestHandler {
   void OnLoadEnd(CefRefPtr<CefBrowser> browser,
                  CefRefPtr<CefFrame> frame,
                  int httpStatusCode) override {
+    EXPECT_TRUE(CefCurrentlyOn(TID_UI));
+
     // Send the message to the renderer process.
-    EXPECT_TRUE(browser->SendProcessMessage(PID_RENDERER, message_));
+    if (!CefCurrentlyOn(send_thread_)) {
+      CefPostTask(send_thread_,
+                  base::Bind(&SendRecvTestHandler::SendMessage, this, browser));
+    } else {
+      SendMessage(browser);
+    }
   }
 
   bool OnProcessMessageReceived(CefRefPtr<CefBrowser> browser,
                                 CefProcessId source_process,
                                 CefRefPtr<CefProcessMessage> message) override {
+    EXPECT_TRUE(CefCurrentlyOn(TID_UI));
     EXPECT_TRUE(browser.get());
     EXPECT_EQ(PID_RENDERER, source_process);
     EXPECT_TRUE(message.get());
@@ -108,6 +119,20 @@ class SendRecvTestHandler : public TestHandler {
     return true;
   }
 
+ protected:
+  void DestroyTest() override {
+    EXPECT_TRUE(got_message_);
+    TestHandler::DestroyTest();
+  }
+
+ private:
+  void SendMessage(CefRefPtr<CefBrowser> browser) {
+    EXPECT_TRUE(CefCurrentlyOn(send_thread_));
+    EXPECT_TRUE(browser->SendProcessMessage(PID_RENDERER, message_));
+  }
+
+  cef_thread_id_t send_thread_;
+
   CefRefPtr<CefProcessMessage> message_;
   TrackCallback got_message_;
 
@@ -116,13 +141,17 @@ class SendRecvTestHandler : public TestHandler {
 
 }  // namespace
 
-// Verify send and recieve.
-TEST(ProcessMessageTest, SendRecv) {
-  CefRefPtr<SendRecvTestHandler> handler = new SendRecvTestHandler();
+// Verify send from the UI thread and recieve.
+TEST(ProcessMessageTest, SendRecvUI) {
+  CefRefPtr<SendRecvTestHandler> handler = new SendRecvTestHandler(TID_UI);
   handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
+}
 
-  EXPECT_TRUE(handler->got_message_);
-
+// Verify send from the IO thread and recieve.
+TEST(ProcessMessageTest, SendRecvIO) {
+  CefRefPtr<SendRecvTestHandler> handler = new SendRecvTestHandler(TID_IO);
+  handler->ExecuteTest();
   ReleaseAndWaitForDestructor(handler);
 }
 

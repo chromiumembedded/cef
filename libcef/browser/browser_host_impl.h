@@ -339,11 +339,6 @@ class CefBrowserHostImpl : public CefBrowserHost,
   void ExecuteJavaScriptWithUserGestureForTests(int64 frame_id,
                                                 const CefString& javascript);
 
-  bool SendProcessMessage(CefProcessId target_process,
-                          const std::string& name,
-                          base::ListValue* arguments,
-                          bool user_initiated);
-
   // Open the specified text in the default text editor.
   void ViewText(const std::string& text);
 
@@ -517,12 +512,6 @@ class CefBrowserHostImpl : public CefBrowserHost,
   void OnWebContentsFocused(
       content::RenderWidgetHost* render_widget_host) override;
 
-  // Send a message to the RenderViewHost associated with this browser.
-  // TODO(cef): With the introduction of OOPIFs, WebContents can span multiple
-  // processes. Messages should be sent to specific RenderFrameHosts instead.
-  bool Send(IPC::Message* message);
-  int routing_id() const;
-
   // Manage observer objects. The observer must either outlive this object or
   // remove itself before destruction. These methods can only be called on the
   // UI thread.
@@ -633,6 +622,11 @@ class CefBrowserHostImpl : public CefBrowserHost,
 
   // Create the CefFileDialogManager if it doesn't already exist.
   void EnsureFileDialogManager();
+
+  // Send a message to the RenderViewHost associated with this browser.
+  // TODO(cef): With the introduction of OOPIFs, WebContents can span multiple
+  // processes. Messages should be sent to specific RenderFrameHosts instead.
+  bool Send(IPC::Message* message);
 
   CefBrowserSettings settings_;
   CefRefPtr<CefClient> client_;
