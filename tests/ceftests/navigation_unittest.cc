@@ -2387,7 +2387,6 @@ const char kPopupJSOpenMainUrl[] = "http://www.tests-pjso.com/main.html";
 const char kPopupJSOpenPopupUrl[] = "http://www.tests-pjso.com/popup.html";
 
 // Test a popup where the URL is a JavaScript URI that opens another popup.
-// See comments on CefBrowserInfoManager::FilterPendingPopupURL.
 class PopupJSWindowOpenTestHandler : public TestHandler {
  public:
   PopupJSWindowOpenTestHandler()
@@ -2527,6 +2526,109 @@ class PopupJSWindowOpenTestHandler : public TestHandler {
 TEST(NavigationTest, PopupJSWindowOpen) {
   CefRefPtr<PopupJSWindowOpenTestHandler> handler =
       new PopupJSWindowOpenTestHandler();
+  handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
+}
+
+namespace {
+
+const char kPopupJSEmptyMainUrl[] = "http://www.tests-pjse.com/main.html";
+
+// Test creation of a popup where the URL is empty.
+class PopupJSWindowEmptyTestHandler : public TestHandler {
+ public:
+  PopupJSWindowEmptyTestHandler() {}
+
+  void RunTest() override {
+    AddResource(kPopupJSEmptyMainUrl, "<html>Main</html>", "text/html");
+
+    // Create the browser.
+    CreateBrowser(kPopupJSEmptyMainUrl);
+
+    // Time out the test after a reasonable period of time.
+    SetTestTimeout();
+  }
+
+  bool OnBeforePopup(CefRefPtr<CefBrowser> browser,
+                     CefRefPtr<CefFrame> frame,
+                     const CefString& target_url,
+                     const CefString& target_frame_name,
+                     cef_window_open_disposition_t target_disposition,
+                     bool user_gesture,
+                     const CefPopupFeatures& popupFeatures,
+                     CefWindowInfo& windowInfo,
+                     CefRefPtr<CefClient>& client,
+                     CefBrowserSettings& settings,
+                     bool* no_javascript_access) override {
+    got_before_popup_.yes();
+    return false;
+  }
+
+  void OnAfterCreated(CefRefPtr<CefBrowser> browser) override {
+    TestHandler::OnAfterCreated(browser);
+
+    if (browser->IsPopup()) {
+      got_after_created_popup_.yes();
+    }
+  }
+
+  void OnLoadingStateChange(CefRefPtr<CefBrowser> browser,
+                            bool isLoading,
+                            bool canGoBack,
+                            bool canGoForward) override {
+    if (isLoading)
+      return;
+
+    if (browser->IsPopup()) {
+      got_load_end_popup_.yes();
+      CloseBrowser(browser, true);
+    } else {
+      browser->GetMainFrame()->LoadURL("javascript:window.open('')");
+    }
+  }
+
+  void OnLoadError(CefRefPtr<CefBrowser> browser,
+                   CefRefPtr<CefFrame> frame,
+                   ErrorCode errorCode,
+                   const CefString& errorText,
+                   const CefString& failedUrl) override {
+    ADD_FAILURE() << "OnLoadError url: " << failedUrl.ToString()
+                  << " error: " << errorCode;
+  }
+
+  void OnBeforeClose(CefRefPtr<CefBrowser> browser) override {
+    TestHandler::OnBeforeClose(browser);
+
+    if (browser->IsPopup()) {
+      got_before_close_popup_.yes();
+      DestroyTest();
+    }
+  }
+
+ private:
+  void DestroyTest() override {
+    EXPECT_TRUE(got_before_popup_);
+    EXPECT_TRUE(got_after_created_popup_);
+    EXPECT_TRUE(got_load_end_popup_);
+    EXPECT_TRUE(got_before_close_popup_);
+
+    TestHandler::DestroyTest();
+  }
+
+  TrackCallback got_before_popup_;
+  TrackCallback got_after_created_popup_;
+  TrackCallback got_load_end_popup_;
+  TrackCallback got_before_close_popup_;
+
+  IMPLEMENT_REFCOUNTING(PopupJSWindowEmptyTestHandler);
+};
+
+}  // namespace
+
+// Test creation of a popup where the URL is empty.
+TEST(NavigationTest, PopupJSWindowEmpty) {
+  CefRefPtr<PopupJSWindowEmptyTestHandler> handler =
+      new PopupJSWindowEmptyTestHandler();
   handler->ExecuteTest();
   ReleaseAndWaitForDestructor(handler);
 }
