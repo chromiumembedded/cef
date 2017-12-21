@@ -68,7 +68,6 @@
 #include "content/public/browser/render_view_host.h"
 #include "content/public/browser/render_widget_host.h"
 #include "content/public/browser/resource_request_info.h"
-#include "content/public/common/browser_side_navigation_policy.h"
 #include "content/public/common/favicon_url.h"
 #include "extensions/browser/process_manager.h"
 #include "net/base/net_errors.h"
@@ -2729,14 +2728,10 @@ void CefBrowserHostImpl::DidFinishNavigation(
     content::NavigationHandle* navigation_handle) {
   const net::Error error_code = navigation_handle->GetNetErrorCode();
 
-  // With PlzNavigate the RenderFrameHost will only be nullptr if the
-  // provisional load fails, in which case |error_code| will be ERR_ABORTED.
-  // Without PlzNavigate the RenderFrameHost may be nullptr and |error_code|
-  // may be OK when a pending navigation is canceled (e.g. by calling LoadURL
-  // from OnCertificateError).
-  DCHECK(navigation_handle->GetRenderFrameHost() ||
-         error_code == net::ERR_ABORTED ||
-         !content::IsBrowserSideNavigationEnabled());
+  // Skip calls where the navigation has not yet committed and there is no
+  // error code. For example, when creating a browser without loading a URL.
+  if (!navigation_handle->HasCommitted() && error_code == net::OK)
+    return;
 
   const int64 frame_id =
       navigation_handle->GetRenderFrameHost()
@@ -2752,7 +2747,9 @@ void CefBrowserHostImpl::DidFinishNavigation(
                        base::string16(), url);
 
   if (error_code == net::OK) {
-    // The navigation has been committed.
+    // The navigation has been committed and there is no error.
+    DCHECK(navigation_handle->HasCommitted());
+
     // Don't call OnLoadStart for same page navigations (fragments,
     // history state).
     if (!navigation_handle->IsSameDocument())
@@ -2761,21 +2758,21 @@ void CefBrowserHostImpl::DidFinishNavigation(
     if (is_main_frame)
       OnAddressChange(frame, url);
   } else {
-    // The navigation failed before commit. Originates from
+    // The navigation failed with an error. This may happen before commit
+    // (e.g. network error) or after commit (e.g. response filter error).
+    // If the error happened before commit then this call will originate from
     // RenderFrameHostImpl::OnDidFailProvisionalLoadWithError.
     // OnLoadStart/OnLoadEnd will not be called.
     OnLoadError(frame, navigation_handle->GetURL(), error_code);
   }
 
-  if (!web_contents())
-    return;
-
-  CefBrowserContext* context =
-      static_cast<CefBrowserContext*>(web_contents()->GetBrowserContext());
-  if (!context)
-    return;
-
-  context->AddVisitedURLs(navigation_handle->GetRedirectChain());
+  if (web_contents()) {
+    CefBrowserContext* context =
+        static_cast<CefBrowserContext*>(web_contents()->GetBrowserContext());
+    if (context) {
+      context->AddVisitedURLs(navigation_handle->GetRedirectChain());
+    }
+  }
 }
 
 void CefBrowserHostImpl::DocumentAvailableInMainFrame() {
