@@ -684,7 +684,7 @@ class RequestServerHandler : public CefServerHandler {
 
     if (expected_connection_ct_ < 0) {
       // Default to the assumption of one request per registered URL.
-      SetExpectedRequestCount(data_map_.size());
+      SetExpectedRequestCount(static_cast<int>(data_map_.size()));
     }
 
     EXPECT_FALSE(initialized_);
