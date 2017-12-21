@@ -19,9 +19,9 @@ namespace {
 
 class CefJSDialogCallbackImpl : public CefJSDialogCallback {
  public:
-  CefJSDialogCallbackImpl(
-      content::JavaScriptDialogManager::DialogClosedCallback callback)
-      : callback_(std::move(callback)) {}
+  using Callback = content::JavaScriptDialogManager::DialogClosedCallback;
+
+  CefJSDialogCallbackImpl(Callback callback) : callback_(std::move(callback)) {}
   ~CefJSDialogCallbackImpl() override {
     if (!callback_.is_null()) {
       // The callback is still pending. Cancel it now.
@@ -45,16 +45,15 @@ class CefJSDialogCallbackImpl : public CefJSDialogCallback {
     }
   }
 
-  void Disconnect() { callback_.Reset(); }
+  Callback Disconnect() WARN_UNUSED_RESULT { return std::move(callback_); }
 
  private:
-  static void CancelNow(
-      content::JavaScriptDialogManager::DialogClosedCallback callback) {
+  static void CancelNow(Callback callback) {
     CEF_REQUIRE_UIT();
     std::move(callback).Run(false, base::string16());
   }
 
-  content::JavaScriptDialogManager::DialogClosedCallback callback_;
+  Callback callback_;
 
   IMPLEMENT_REFCOUNTING(CefJSDialogCallbackImpl);
 };
@@ -106,8 +105,9 @@ void CefJavaScriptDialogManager::RunJavaScriptDialog(
         return;
       }
 
-      callbackPtr->Disconnect();
-      if (*did_suppress_message)
+      // |callback| may be null if the user executed it despite returning false.
+      callback = callbackPtr->Disconnect();
+      if (callback.is_null() || *did_suppress_message)
         return;
     }
   }
@@ -128,6 +128,7 @@ void CefJavaScriptDialogManager::RunJavaScriptDialog(
   const base::string16& display_url =
       url_formatter::FormatUrlForSecurityDisplay(origin_url);
 
+  DCHECK(!callback.is_null());
   runner_->Run(browser_, message_type, display_url, message_text,
                default_prompt_text,
                base::Bind(&CefJavaScriptDialogManager::DialogClosed,
@@ -164,7 +165,10 @@ void CefJavaScriptDialogManager::RunBeforeUnloadDialog(
       if (handled)
         return;
 
-      callbackPtr->Disconnect();
+      // |callback| may be null if the user executed it despite returning false.
+      callback = callbackPtr->Disconnect();
+      if (callback.is_null())
+        return;
     }
   }
 
@@ -179,6 +183,7 @@ void CefJavaScriptDialogManager::RunBeforeUnloadDialog(
 
   dialog_running_ = true;
 
+  DCHECK(!callback.is_null());
   runner_->Run(browser_, content::JAVASCRIPT_DIALOG_TYPE_CONFIRM,
                base::string16(),  // display_url
                message_text,
