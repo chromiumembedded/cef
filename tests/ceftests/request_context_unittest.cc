@@ -8,6 +8,7 @@
 #include "include/wrapper/cef_closure_task.h"
 #include "include/wrapper/cef_scoped_temp_dir.h"
 #include "tests/ceftests/test_handler.h"
+#include "tests/ceftests/test_util.h"
 #include "tests/gtest/include/gtest/gtest.h"
 
 TEST(RequestContextTest, GetGlobalContext) {
@@ -608,7 +609,7 @@ const char kPopupNavPopupName[] = "my_popup";
 // Browser side.
 class PopupNavTestHandler : public TestHandler {
  public:
-  enum Mode {
+  enum TestMode {
     ALLOW_CLOSE_POPUP_FIRST,
     ALLOW_CLOSE_POPUP_LAST,
     DENY,
@@ -620,14 +621,11 @@ class PopupNavTestHandler : public TestHandler {
     DESTROY_PARENT_AFTER_CREATION,
     DESTROY_PARENT_AFTER_CREATION_FORCE,
   };
-  enum RCMode {
-    RC_MODE_NONE,
-    RC_MODE_IMPL,
-    RC_MODE_PROXY,
-  };
 
-  PopupNavTestHandler(Mode mode, RCMode rc_mode)
-      : mode_(mode), rc_mode_(rc_mode) {}
+  PopupNavTestHandler(TestMode test_mode,
+                      TestRequestContextMode rc_mode,
+                      const std::string& rc_cache_path)
+      : mode_(test_mode), rc_mode_(rc_mode), rc_cache_path_(rc_cache_path) {}
 
   void RunTest() override {
     // Add the resources that we will navigate to/from.
@@ -640,23 +638,8 @@ class PopupNavTestHandler : public TestHandler {
     if (mode_ == NAVIGATE_AFTER_CREATION)
       AddResource(kPopupNavPopupUrl2, "<html>Popup2</html>", "text/html");
 
-    CefRefPtr<CefRequestContext> request_context;
-    CefRefPtr<CefRequestContextHandler> rc_handler;
-    if (rc_mode_ == RC_MODE_PROXY) {
-      class Handler : public CefRequestContextHandler {
-       public:
-        Handler() {}
-
-       private:
-        IMPLEMENT_REFCOUNTING(Handler);
-      };
-      rc_handler = new Handler();
-    }
-
-    if (rc_mode_ != RC_MODE_NONE) {
-      CefRequestContextSettings settings;
-      request_context = CefRequestContext::CreateContext(settings, rc_handler);
-    }
+    CefRefPtr<CefRequestContext> request_context =
+        CreateTestRequestContext(rc_mode_, rc_cache_path_);
 
     // Create the browser.
     CreateBrowser(kPopupNavPageUrl, request_context);
@@ -872,8 +855,9 @@ class PopupNavTestHandler : public TestHandler {
     TestHandler::DestroyTest();
   }
 
-  const Mode mode_;
-  const RCMode rc_mode_;
+  const TestMode mode_;
+  const TestRequestContextMode rc_mode_;
+  const std::string rc_cache_path_;
 
   TrackCallback got_on_before_popup_;
   TrackCallback got_load_start_;
@@ -890,36 +874,28 @@ class PopupNavTestHandler : public TestHandler {
 };
 
 }  // namespace
-
-#define POPUP_TEST(name, test_mode, rc_mode)                           \
-  TEST(RequestContextTest, Popup##name) {                              \
-    CefRefPtr<PopupNavTestHandler> handler = new PopupNavTestHandler(  \
-        PopupNavTestHandler::test_mode, PopupNavTestHandler::rc_mode); \
-    handler->ExecuteTest();                                            \
-    ReleaseAndWaitForDestructor(handler);                              \
-  }
-
-#define POPUP_TEST_GROUP(name, test_mode)            \
-  POPUP_TEST(name##RCNone, test_mode, RC_MODE_NONE); \
-  POPUP_TEST(name##RCImpl, test_mode, RC_MODE_IMPL); \
-  POPUP_TEST(name##RCProxy, test_mode, RC_MODE_PROXY);
+#define POPUP_TEST_GROUP(test_name, test_mode)                  \
+  RC_TEST_GROUP_IN_MEMORY(RequestContextTest, Popup##test_name, \
+                          PopupNavTestHandler, test_mode)
 
 // Test allowing popups and closing the popup browser first.
 POPUP_TEST_GROUP(AllowClosePopupFirst, ALLOW_CLOSE_POPUP_FIRST);
 
-// Test allowing popups and closing the main browser first to verify that
-// internal objects are tracked correctly (see issue #2162).
+// Test allowing popups and closing the main browser first to verify
+// that internal objects are tracked correctly (see issue #2162).
 POPUP_TEST_GROUP(AllowClosePopupLast, ALLOW_CLOSE_POPUP_LAST);
 
 // Test denying popups.
 POPUP_TEST_GROUP(Deny, DENY);
 
-// Test navigation to a different origin after popup creation to verify that
-// internal objects are tracked correctly (see issue #1392).
+// Test navigation to a different origin after popup creation to
+// verify that internal objects are tracked correctly (see issue
+// #1392).
 POPUP_TEST_GROUP(NavigateAfterCreation, NAVIGATE_AFTER_CREATION);
 
-// Test destroying the parent browser during or immediately after popup creation
-// to verify that internal objects are tracked correctly (see issue #2041).
+// Test destroying the parent browser during or immediately after
+// popup creation to verify that internal objects are tracked
+// correctly (see issue #2041).
 POPUP_TEST_GROUP(DestroyParentBeforeCreation, DESTROY_PARENT_BEFORE_CREATION);
 POPUP_TEST_GROUP(DestroyParentBeforeCreationForce,
                  DESTROY_PARENT_BEFORE_CREATION_FORCE);
@@ -1058,7 +1034,8 @@ class MethodTestHandler : public TestHandler {
 
 }  // namespace
 
-// Test CefRequestContext::ClearCertificateExceptions with the global context.
+// Test CefRequestContext::ClearCertificateExceptions with the global
+// context.
 TEST(RequestContextTest, ClearCertificateExceptionsGlobal) {
   CefRefPtr<MethodTestHandler> handler = new MethodTestHandler(
       true, MethodTestHandler::METHOD_CLEAR_CERTIFICATE_EXCEPTIONS);
@@ -1066,7 +1043,8 @@ TEST(RequestContextTest, ClearCertificateExceptionsGlobal) {
   ReleaseAndWaitForDestructor(handler);
 }
 
-// Test CefRequestContext::ClearCertificateExceptions with a custom context.
+// Test CefRequestContext::ClearCertificateExceptions with a custom
+// context.
 TEST(RequestContextTest, ClearCertificateExceptionsCustom) {
   CefRefPtr<MethodTestHandler> handler = new MethodTestHandler(
       false, MethodTestHandler::METHOD_CLEAR_CERTIFICATE_EXCEPTIONS);
@@ -1074,7 +1052,8 @@ TEST(RequestContextTest, ClearCertificateExceptionsCustom) {
   ReleaseAndWaitForDestructor(handler);
 }
 
-// Test CefRequestContext::CloseAllConnections with the global context.
+// Test CefRequestContext::CloseAllConnections with the global
+// context.
 TEST(RequestContextTest, CloseAllConnectionsGlobal) {
   CefRefPtr<MethodTestHandler> handler = new MethodTestHandler(
       true, MethodTestHandler::METHOD_CLOSE_ALL_CONNECTIONS);

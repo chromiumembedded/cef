@@ -261,3 +261,39 @@ void TestStringVectorEqual(const std::vector<CefString>& val1,
   for (size_t i = 0; i < val1.size(); ++i)
     EXPECT_STREQ(val1[i].ToString().c_str(), val2[i].ToString().c_str());
 }
+
+CefRefPtr<CefRequestContext> CreateTestRequestContext(
+    TestRequestContextMode mode,
+    const std::string& cache_path) {
+  EXPECT_TRUE(cache_path.empty() || mode == TEST_RC_MODE_CUSTOM ||
+              mode == TEST_RC_MODE_CUSTOM_WITH_HANDLER);
+
+  if (mode == TEST_RC_MODE_NONE)
+    return nullptr;
+  if (mode == TEST_RC_MODE_GLOBAL)
+    return CefRequestContext::GetGlobalContext();
+
+  CefRefPtr<CefRequestContextHandler> rc_handler;
+  if (mode == TEST_RC_MODE_GLOBAL_WITH_HANDLER ||
+      mode == TEST_RC_MODE_CUSTOM_WITH_HANDLER) {
+    class Handler : public CefRequestContextHandler {
+     public:
+      Handler() {}
+
+     private:
+      IMPLEMENT_REFCOUNTING(Handler);
+    };
+    rc_handler = new Handler();
+  }
+
+  if (mode == TEST_RC_MODE_CUSTOM || mode == TEST_RC_MODE_CUSTOM_WITH_HANDLER) {
+    CefRequestContextSettings settings;
+    if (!cache_path.empty())
+      CefString(&settings.cache_path) = cache_path;
+    return CefRequestContext::CreateContext(settings, rc_handler);
+  }
+
+  EXPECT_EQ(mode, TEST_RC_MODE_GLOBAL_WITH_HANDLER);
+  return CefRequestContext::CreateContext(CefRequestContext::GetGlobalContext(),
+                                          rc_handler);
+}
