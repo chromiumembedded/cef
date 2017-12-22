@@ -315,13 +315,28 @@ void CefDownloadManagerDelegate::OnDownloadDestroyed(DownloadItem* item) {
 
 void CefDownloadManagerDelegate::OnDownloadCreated(DownloadManager* manager,
                                                    DownloadItem* item) {
-  item->AddObserver(this);
-
   CefBrowserHostImpl* browser = nullptr;
   content::WebContents* contents = item->GetWebContents();
-  if (contents)
+  if (contents) {
     browser = CefBrowserHostImpl::GetBrowserForContents(contents).get();
-  DCHECK(browser);
+    DCHECK(browser);
+  }
+  if (!browser) {
+    // If the download is rejected (e.g. ALT+click on an invalid protocol link)
+    // then an "interrupted" download will be started via DownloadManagerImpl::
+    // StartDownloadWithId (originating from CreateInterruptedDownload) with no
+    // associated WebContents and consequently no associated CEF browser. In
+    // that case DetermineDownloadTarget will be called before this method.
+    // TODO(cef): Figure out how to expose this via a client callback.
+    const std::vector<GURL>& url_chain = item->GetUrlChain();
+    if (!url_chain.empty()) {
+      LOG(INFO) << "Rejected download of " << url_chain.back().spec();
+    }
+    item->Cancel(true);
+    return;
+  }
+
+  item->AddObserver(this);
 
   item_browser_map_.insert(std::make_pair(item, browser));
 
@@ -399,7 +414,11 @@ CefBrowserHostImpl* CefDownloadManagerDelegate::GetBrowser(DownloadItem* item) {
   if (it != item_browser_map_.end())
     return it->second;
 
-  // An entry should always exist for a DownloadItem.
-  NOTREACHED();
+  // If the download is rejected (e.g. ALT+click on an invalid protocol link)
+  // then an "interrupted" download will be started via DownloadManagerImpl::
+  // StartDownloadWithId (originating from CreateInterruptedDownload) with no
+  // associated WebContents and consequently no associated CEF browser. In that
+  // case DetermineDownloadTarget will be called before OnDownloadCreated.
+  DCHECK(!item->GetWebContents());
   return nullptr;
 }
