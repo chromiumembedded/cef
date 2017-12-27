@@ -1024,6 +1024,7 @@ if (is_win) {
 cef_packaged_services = [
   "//chrome/app:chrome_manifest",  # For spell checking.
   "//services/metrics:manifest",
+  "//services/proxy_resolver:proxy_resolver_manifest",
 ]
 
 service_manifest("cef_packaged_services_manifest_overlay") {

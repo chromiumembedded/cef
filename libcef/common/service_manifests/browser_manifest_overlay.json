@@ -9,6 +9,9 @@
           "metrics::mojom::LeakDetector",
           "mojom::ModuleEventSink"
         ]
+      },
+      "requires": {
+        "proxy_resolver": [ "factory" ]
       }
     },
     "navigation:frame": {
