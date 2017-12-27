@@ -48,6 +48,7 @@
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/constants.mojom.h"
 #include "chrome/grit/browser_resources.h"
+#include "chrome/grit/generated_resources.h"
 #include "components/navigation_interception/intercept_navigation_throttle.h"
 #include "components/navigation_interception/navigation_params.h"
 #include "components/printing/service/public/interfaces/pdf_compositor.mojom.h"
@@ -84,8 +85,10 @@
 #include "ppapi/host/ppapi_host.h"
 #include "services/metrics/metrics_mojo_service.h"
 #include "services/metrics/public/interfaces/constants.mojom.h"
+#include "services/proxy_resolver/public/interfaces/proxy_resolver.mojom.h"
 #include "storage/browser/quota/quota_settings.h"
 #include "third_party/WebKit/public/web/WebWindowFeatures.h"
+#include "ui/base/l10n/l10n_util.h"
 #include "ui/base/resource/resource_bundle.h"
 #include "ui/base/ui_base_switches.h"
 #include "url/gurl.h"
@@ -587,7 +590,8 @@ void CefContentBrowserClient::SiteInstanceDeleting(
                           site_instance->GetId()));
 }
 
-void CefContentBrowserClient::RegisterInProcessServices(StaticServiceMap* services) {
+void CefContentBrowserClient::RegisterInProcessServices(
+    StaticServiceMap* services) {
   {
     // For spell checking.
     service_manager::EmbeddedServiceInfo info;
@@ -606,6 +610,9 @@ void CefContentBrowserClient::RegisterOutOfProcessServices(
     OutOfProcessServiceMap* services) {
   (*services)[printing::mojom::kServiceName] =
       base::ASCIIToUTF16("PDF Compositor Service");
+
+  (*services)[proxy_resolver::mojom::kProxyResolverServiceName] =
+      l10n_util::GetStringUTF16(IDS_UTILITY_PROCESS_PROXY_RESOLVER_NAME);
 }
 
 std::unique_ptr<base::Value> CefContentBrowserClient::GetServiceManifestOverlay(
