@@ -231,47 +231,6 @@ group("cef") {
 # libcef static target.
 #
 
-# Target for building code that accesses Blink internals. Included from the
-# //third_party/WebKit/Source/web target.
-source_set("webkit_set") {
-  sources = [
-    "libcef/renderer/webkit_glue.cc",
-    "libcef/renderer/webkit_glue.h",
-  ]
-
-  configs += [
-    "libcef/features:config",
-    "//build/config:precompiled_headers",
-
-    # Blink-internal include paths.
-    "//third_party/WebKit/Source/core:core_include_dirs",
-  ]
-
-  include_dirs = [
-    # Blink code uses paths relative to these directories. We need them because
-    # we include Blink headers.
-    "//third_party/WebKit",
-    "//third_party/WebKit/public/platform",
-    "//third_party/WebKit/public/web",
-    "//third_party/WebKit/Source",
-    "$root_gen_dir/blink",
-    "$root_gen_dir/third_party/WebKit",
-  ]
-
-  defines = [
-    # Blink-internal defines.
-    "BLINK_IMPLEMENTATION=1",
-    "INSIDE_BLINK",
-  ]
-
-  deps = [
-    "//skia",
-    "//third_party/icu",
-    "//third_party/boringssl",
-    "//v8",
-  ]
-}
-
 if (is_win) {
   # Target for building code that accesses chrome_elf internals. Included from
   # the //chrome_elf:crash target. Defined as a static_library instead of a
