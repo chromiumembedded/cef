@@ -47,6 +47,7 @@
 #include "chrome/browser/spellchecker/spell_check_host_impl.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/grit/browser_resources.h"
+#include "chrome/grit/generated_resources.h"
 #include "components/navigation_interception/intercept_navigation_throttle.h"
 #include "components/navigation_interception/navigation_params.h"
 #include "components/printing/service/public/interfaces/pdf_compositor.mojom.h"
@@ -81,8 +82,10 @@
 #include "extensions/common/switches.h"
 #include "net/ssl/ssl_cert_request_info.h"
 #include "ppapi/host/ppapi_host.h"
+#include "services/proxy_resolver/public/interfaces/proxy_resolver.mojom.h"
 #include "storage/browser/quota/quota_settings.h"
 #include "third_party/WebKit/public/web/WebWindowFeatures.h"
+#include "ui/base/l10n/l10n_util.h"
 #include "ui/base/resource/resource_bundle.h"
 #include "ui/base/ui_base_switches.h"
 #include "url/gurl.h"
@@ -591,6 +594,9 @@ void CefContentBrowserClient::RegisterOutOfProcessServices(
     OutOfProcessServiceMap* services) {
   (*services)[printing::mojom::kServiceName] =
       base::ASCIIToUTF16("PDF Compositor Service");
+
+  (*services)[proxy_resolver::mojom::kProxyResolverServiceName] =
+      l10n_util::GetStringUTF16(IDS_UTILITY_PROCESS_PROXY_RESOLVER_NAME);
 }
 
 std::unique_ptr<base::Value> CefContentBrowserClient::GetServiceManifestOverlay(
@@ -598,6 +604,8 @@ std::unique_ptr<base::Value> CefContentBrowserClient::GetServiceManifestOverlay(
   int id = -1;
   if (name == content::mojom::kBrowserServiceName)
     id = IDR_CEF_BROWSER_MANIFEST_OVERLAY;
+  else if (name == content::mojom::kPackagedServicesServiceName)
+    id = IDR_CEF_PACKAGED_SERVICES_MANIFEST_OVERLAY;
   else if (name == content::mojom::kRendererServiceName)
     id = IDR_CEF_RENDERER_MANIFEST_OVERLAY;
   else if (name == content::mojom::kUtilityServiceName)

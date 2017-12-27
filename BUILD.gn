@@ -105,6 +105,8 @@ import("//media/media_options.gni")
 import("//mojo/public/tools/bindings/mojom.gni")
 import("//ppapi/features/features.gni")
 import("//printing/features/features.gni")
+import("//services/catalog/public/tools/catalog.gni")
+import("//services/service_manager/public/service_manifest.gni")
 import("//third_party/icu/config.gni")
 import("//third_party/widevine/cdm/widevine.gni")
 import("//tools/grit/repack.gni")
@@ -1023,6 +1025,41 @@ if (is_win) {
 
 
 #
+# Service manifests.
+#
+
+cef_packaged_services = [
+  "//services/proxy_resolver:proxy_resolver_manifest",
+]
+
+service_manifest("cef_packaged_services_manifest_overlay") {
+  source = "libcef/common/service_manifests/packaged_services_manifest_overlay.json"
+  packaged_services = cef_packaged_services
+}
+
+service_manifest("cef_browser_manifest_overlay") {
+  source = "libcef/common/service_manifests/browser_manifest_overlay.json"
+}
+
+service_manifest("cef_renderer_manifest_overlay") {
+  source = "libcef/common/service_manifests/renderer_manifest_overlay.json"
+}
+
+service_manifest("cef_utility_manifest_overlay") {
+  source = "libcef/common/service_manifests/utility_manifest_overlay.json"
+}
+
+group("cef_manifest_overlays") {
+  deps = [
+    ":cef_packaged_services_manifest_overlay",
+    ":cef_browser_manifest_overlay",
+    ":cef_renderer_manifest_overlay",
+    ":cef_utility_manifest_overlay",
+  ]
+}
+
+
+#
 # Resource grit/pack targets.
 #
 
@@ -1160,6 +1197,11 @@ grit("cef_resources") {
     "grit/cef_resources.h",
     "cef_resources.pak",
   ]
+  grit_flags = [
+    "-E",
+    "root_gen_dir=" + rebase_path(root_gen_dir, root_build_dir),
+  ]
+  deps = [ ":cef_manifest_overlays" ]
 }
 
 # Generate cef.pak.

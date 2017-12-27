@@ -11,6 +11,9 @@
           "spellcheck::mojom::SpellCheckHost",
           "startup_metric_utils::mojom::StartupMetricHost"
         ]
+      },
+      "requires": {
+        "proxy_resolver": [ "factory" ]
       }
     },
     "navigation:frame": {
