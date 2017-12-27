@@ -540,8 +540,10 @@ class HttpTestRunner : public base::RefCountedThreadSafe<HttpTestRunner> {
       handler_->AddHttpRequestHandler(it->second->CreateHttpRequestHandler());
     }
 
-    handler_->SetExpectedConnectionCount(request_runner_map_.size());
-    handler_->SetExpectedHttpRequestCount(request_runner_map_.size());
+    handler_->SetExpectedConnectionCount(
+        static_cast<int>(request_runner_map_.size()));
+    handler_->SetExpectedHttpRequestCount(
+        static_cast<int>(request_runner_map_.size()));
 
     handler_->CreateServer();
 
