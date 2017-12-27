@@ -334,9 +334,10 @@ if(OS_WINDOWS)
     # Check if the current MSVC version is compatible with the cef_sandbox.lib
     # static library.
     list(APPEND supported_msvc_versions
-      1900  # VS2015
-      1910  # VS2017 <= 15.2
-      1911  # VS2017 >= 15.3
+      1900  # VS2015 and updates 1, 2, & 3
+      1910  # VS2017 version 15.1 & 15.2
+      1911  # VS2017 version 15.3 & 15.4
+      1912  # VS2017 version 15.5
       )
     list(FIND supported_msvc_versions ${MSVC_VERSION} _index)
     if (${_index} EQUAL -1)
