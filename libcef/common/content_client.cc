@@ -229,24 +229,24 @@ void CefContentClient::AddAdditionalSchemes(Schemes* schemes) {
   scheme_info_list_locked_ = true;
 }
 
-std::string CefContentClient::GetUserAgent() const {
-  std::string product_version;
+std::string CefContentClient::GetProduct() const {
+  const base::CommandLine* command_line =
+      base::CommandLine::ForCurrentProcess();
+  if (command_line->HasSwitch(switches::kProductVersion))
+    return command_line->GetSwitchValueASCII(switches::kProductVersion);
 
+  return base::StringPrintf("Chrome/%d.%d.%d.%d", CHROME_VERSION_MAJOR,
+                            CHROME_VERSION_MINOR, CHROME_VERSION_BUILD,
+                            CHROME_VERSION_PATCH);
+}
+
+std::string CefContentClient::GetUserAgent() const {
   const base::CommandLine* command_line =
       base::CommandLine::ForCurrentProcess();
   if (command_line->HasSwitch(switches::kUserAgent))
     return command_line->GetSwitchValueASCII(switches::kUserAgent);
 
-  if (command_line->HasSwitch(switches::kProductVersion)) {
-    product_version =
-        command_line->GetSwitchValueASCII(switches::kProductVersion);
-  } else {
-    product_version = base::StringPrintf(
-        "Chrome/%d.%d.%d.%d", CHROME_VERSION_MAJOR, CHROME_VERSION_MINOR,
-        CHROME_VERSION_BUILD, CHROME_VERSION_PATCH);
-  }
-
-  return content::BuildUserAgentFromProduct(product_version);
+  return content::BuildUserAgentFromProduct(GetProduct());
 }
 
 base::string16 CefContentClient::GetLocalizedString(int message_id) const {
