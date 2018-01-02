@@ -450,11 +450,11 @@ def LinuxSysrootExists(cpu):
   # CPU-specific sysroot directory names.
   # Should match the values in build/config/sysroot.gni.
   if cpu == 'x86':
-    sysroot_name = 'debian_jessie_i386-sysroot'
+    sysroot_name = 'debian_stretch_i386-sysroot'
   elif cpu == 'x64':
-    sysroot_name = 'debian_jessie_amd64-sysroot'
+    sysroot_name = 'debian_stretch_amd64-sysroot'
   elif cpu == 'arm':
-    sysroot_name = 'debian_jessie_arm-sysroot'
+    sysroot_name = 'debian_stretch_arm-sysroot'
   else:
     raise Exception('Unrecognized sysroot CPU: %s' % cpu)
 
