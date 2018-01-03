@@ -1,4 +1,4 @@
-// Copyright (c) 2017 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2018 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=96086b1a55c3539fa5a98c71363b1c9f78570398$
+// $hash=2bd27eaa0d2a977064dccedffdecbffd6c28d02b$
 //
 
 #include "libcef_dll/ctocpp/geolocation_callback_ctocpp.h"

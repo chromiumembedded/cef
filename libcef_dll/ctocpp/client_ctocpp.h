@@ -1,4 +1,4 @@
-// Copyright (c) 2017 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2018 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=c5a433652b493e327563d0aad569dec2416fdf42$
+// $hash=d1d5aff0ab25713b263c91a5c2dba2c60c798d39$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_CLIENT_CTOCPP_H_

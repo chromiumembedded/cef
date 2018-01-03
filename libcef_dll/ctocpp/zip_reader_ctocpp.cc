@@ -1,4 +1,4 @@
-// Copyright (c) 2017 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2018 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=d4f8db738611b945b0519dd94884e3ebeb7bb497$
+// $hash=d4d48397e4afa8fb246b3ee66122c90b14b67fba$
 //
 
 #include "libcef_dll/ctocpp/zip_reader_ctocpp.h"

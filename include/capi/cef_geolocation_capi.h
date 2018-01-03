@@ -1,4 +1,4 @@
-// Copyright (c) 2017 Marshall A. Greenblatt. All rights reserved.
+// Copyright (c) 2018 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=3ae57ba897d73f3fcccc955c827379746b6203af$
+// $hash=2af1552c0d2dada94c325be8249bfd889b22ca58$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_GEOLOCATION_CAPI_H_
