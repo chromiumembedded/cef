@@ -139,6 +139,7 @@ class CefBrowserURLRequest::Context
         task_runner_(CefTaskRunnerImpl::GetCurrentTaskRunner()),
         status_(UR_IO_PENDING),
         error_code_(ERR_NONE),
+        response_was_cached_(false),
         upload_data_size_(0),
         got_upload_progress_complete_(false) {
     // Mark the request as read-only.
@@ -320,11 +321,12 @@ class CefBrowserURLRequest::Context
     client_->OnUploadProgress(url_request_.get(), current, total);
   }
 
-  CefRefPtr<CefRequest> request() { return request_; }
-  CefRefPtr<CefURLRequestClient> client() { return client_; }
-  CefURLRequest::Status status() { return status_; }
-  CefURLRequest::ErrorCode error_code() { return error_code_; }
-  CefRefPtr<CefResponse> response() { return response_; }
+  CefRefPtr<CefRequest> request() const { return request_; }
+  CefRefPtr<CefURLRequestClient> client() const { return client_; }
+  CefURLRequest::Status status() const { return status_; }
+  CefURLRequest::ErrorCode error_code() const { return error_code_; }
+  CefRefPtr<CefResponse> response() const { return response_; }
+  bool response_was_cached() const { return response_was_cached_; }
 
  private:
   friend class base::RefCountedThreadSafe<CefBrowserURLRequest::Context>;
@@ -349,6 +351,7 @@ class CefBrowserURLRequest::Context
 
   void OnResponse() {
     if (fetcher_.get()) {
+      response_was_cached_ = fetcher_->WasCached();
       response_ = new CefResponseImpl();
       CefResponseImpl* responseImpl =
           static_cast<CefResponseImpl*>(response_.get());
@@ -372,6 +375,7 @@ class CefBrowserURLRequest::Context
   CefURLRequest::Status status_;
   CefURLRequest::ErrorCode error_code_;
   CefRefPtr<CefResponse> response_;
+  bool response_was_cached_;
   int64 upload_data_size_;
   bool got_upload_progress_complete_;
 
@@ -460,6 +464,12 @@ CefRefPtr<CefResponse> CefBrowserURLRequest::GetResponse() {
   if (!VerifyContext())
     return NULL;
   return context_->response();
+}
+
+bool CefBrowserURLRequest::ResponseWasCached() {
+  if (!VerifyContext())
+    return false;
+  return context_->response_was_cached();
 }
 
 void CefBrowserURLRequest::Cancel() {

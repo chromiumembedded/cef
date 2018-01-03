@@ -22,6 +22,7 @@ class WebElement;
 class WebLocalFrame;
 class WebNode;
 class WebString;
+class WebURLResponse;
 class WebView;
 }  // namespace blink
 
@@ -80,6 +81,8 @@ class BLINK_EXPORT CefScriptForbiddenScope final {
 
   DISALLOW_COPY_AND_ASSIGN(CefScriptForbiddenScope);
 };
+
+BLINK_EXPORT bool ResponseWasCached(const blink::WebURLResponse& response);
 
 }  // namespace webkit_glue
 

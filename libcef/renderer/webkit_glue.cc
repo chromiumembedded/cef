@@ -210,4 +210,8 @@ CefScriptForbiddenScope::CefScriptForbiddenScope() : impl_(new Impl()) {}
 
 CefScriptForbiddenScope::~CefScriptForbiddenScope() {}
 
+bool ResponseWasCached(const blink::WebURLResponse& response) {
+  return response.ToResourceResponse().WasCached();
+}
+
 }  // namespace webkit_glue

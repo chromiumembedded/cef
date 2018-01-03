@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=f7018df83933208988d855d87dbb9e153a8983b4$
+// $hash=07e19d965f0eaea30c4fe94f76fbb4571568b8b3$
 //
 
 #include "libcef_dll/cpptoc/urlrequest_cpptoc.h"
@@ -128,6 +128,21 @@ urlrequest_get_response(struct _cef_urlrequest_t* self) {
   return CefResponseCppToC::Wrap(_retval);
 }
 
+int CEF_CALLBACK
+urlrequest_response_was_cached(struct _cef_urlrequest_t* self) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return 0;
+
+  // Execute
+  bool _retval = CefURLRequestCppToC::Get(self)->ResponseWasCached();
+
+  // Return type: bool
+  return _retval;
+}
+
 void CEF_CALLBACK urlrequest_cancel(struct _cef_urlrequest_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -149,6 +164,7 @@ CefURLRequestCppToC::CefURLRequestCppToC() {
   GetStruct()->get_request_status = urlrequest_get_request_status;
   GetStruct()->get_request_error = urlrequest_get_request_error;
   GetStruct()->get_response = urlrequest_get_response;
+  GetStruct()->response_was_cached = urlrequest_response_was_cached;
   GetStruct()->cancel = urlrequest_cancel;
 }
 
