@@ -10,6 +10,7 @@
 #include "libcef/common/response_impl.h"
 #include "libcef/common/task_runner_impl.h"
 #include "libcef/renderer/content_renderer_client.h"
+#include "libcef/renderer/webkit_glue.h"
 
 #include "base/logging.h"
 #include "base/message_loop/message_loop.h"
@@ -73,6 +74,7 @@ class CefRenderURLRequest::Context
         task_runner_(CefTaskRunnerImpl::GetCurrentTaskRunner()),
         status_(UR_IO_PENDING),
         error_code_(ERR_NONE),
+        response_was_cached_(false),
         upload_data_size_(0),
         got_upload_progress_complete_(false),
         download_data_received_(0),
@@ -127,6 +129,7 @@ class CefRenderURLRequest::Context
   void OnResponse(const WebURLResponse& response) {
     DCHECK(CalledOnValidThread());
 
+    response_was_cached_ = webkit_glue::ResponseWasCached(response);
     response_ = CefResponse::Create();
     CefResponseImpl* responseImpl =
         static_cast<CefResponseImpl*>(response_.get());
@@ -190,11 +193,12 @@ class CefRenderURLRequest::Context
     client_->OnUploadProgress(url_request_.get(), current, total);
   }
 
-  CefRefPtr<CefRequest> request() { return request_; }
-  CefRefPtr<CefURLRequestClient> client() { return client_; }
-  CefURLRequest::Status status() { return status_; }
-  CefURLRequest::ErrorCode error_code() { return error_code_; }
-  CefRefPtr<CefResponse> response() { return response_; }
+  CefRefPtr<CefRequest> request() const { return request_; }
+  CefRefPtr<CefURLRequestClient> client() const { return client_; }
+  CefURLRequest::Status status() const { return status_; }
+  CefURLRequest::ErrorCode error_code() const { return error_code_; }
+  CefRefPtr<CefResponse> response() const { return response_; }
+  bool response_was_cached() const { return response_was_cached_; }
 
  private:
   friend class base::RefCountedThreadSafe<CefRenderURLRequest::Context>;
@@ -220,6 +224,7 @@ class CefRenderURLRequest::Context
   CefURLRequest::Status status_;
   CefURLRequest::ErrorCode error_code_;
   CefRefPtr<CefResponse> response_;
+  bool response_was_cached_;
   std::unique_ptr<blink::WebURLLoader> loader_;
   std::unique_ptr<CefWebURLLoaderClient> url_client_;
   int64_t upload_data_size_;
@@ -317,6 +322,12 @@ CefRefPtr<CefResponse> CefRenderURLRequest::GetResponse() {
   if (!VerifyContext())
     return NULL;
   return context_->response();
+}
+
+bool CefRenderURLRequest::ResponseWasCached() {
+  if (!VerifyContext())
+    return false;
+  return context_->response_was_cached();
 }
 
 void CefRenderURLRequest::Cancel() {

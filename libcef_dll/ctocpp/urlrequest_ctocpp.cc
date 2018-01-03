@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=78d98006142b5694aaf16320761f55ad19104c40$
+// $hash=f4e93b00934fd541c9ab0b0a43da21ece8ccddaf$
 //
 
 #include "libcef_dll/ctocpp/urlrequest_ctocpp.h"
@@ -116,6 +116,20 @@ CefRefPtr<CefResponse> CefURLRequestCToCpp::GetResponse() {
 
   // Return type: refptr_same
   return CefResponseCToCpp::Wrap(_retval);
+}
+
+bool CefURLRequestCToCpp::ResponseWasCached() {
+  cef_urlrequest_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, response_was_cached))
+    return false;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  int _retval = _struct->response_was_cached(_struct);
+
+  // Return type: bool
+  return _retval ? true : false;
 }
 
 void CefURLRequestCToCpp::Cancel() {
