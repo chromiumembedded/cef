@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=8f301ab7ac41ee16f9e8d5206f2c2b3d0f0fa5d2$
+// $hash=82b495b11a2564be98ffb520fefe8b2ea941c977$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_URLREQUEST_CTOCPP_H_
@@ -38,6 +38,7 @@ class CefURLRequestCToCpp : public CefCToCppRefCounted<CefURLRequestCToCpp,
   Status GetRequestStatus() OVERRIDE;
   ErrorCode GetRequestError() OVERRIDE;
   CefRefPtr<CefResponse> GetResponse() OVERRIDE;
+  bool ResponseWasCached() OVERRIDE;
   void Cancel() OVERRIDE;
 };
 

@@ -26,6 +26,7 @@ class CefBrowserURLRequest : public CefURLRequest {
   Status GetRequestStatus() override;
   ErrorCode GetRequestError() override;
   CefRefPtr<CefResponse> GetResponse() override;
+  bool ResponseWasCached() override;
   void Cancel() override;
 
  private:

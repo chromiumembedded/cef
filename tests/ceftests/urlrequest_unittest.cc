@@ -89,6 +89,7 @@ struct RequestRunSettings {
         expect_send_cookie(false),
         expect_save_cookie(false),
         expect_follow_redirect(true),
+        expect_response_was_cached(false),
         expected_send_count(-1),
         expected_receive_count(-1) {}
 
@@ -139,6 +140,9 @@ struct RequestRunSettings {
 
   // If true the redirect is expected to be followed.
   bool expect_follow_redirect;
+
+  // If true the response is expected to be served from cache.
+  bool expect_response_was_cached;
 
   // The expected number of requests to send, or -1 if unspecified.
   // Used only with the server backend.
@@ -960,7 +964,10 @@ class RequestClient : public CefURLRequestClient {
         download_progress_ct_(0),
         download_data_ct_(0),
         upload_total_(0),
-        download_total_(0) {
+        download_total_(0),
+        status_(UR_UNKNOWN),
+        error_code_(ERR_NONE),
+        response_was_cached_(false) {
     EXPECT_FALSE(complete_callback_.is_null());
   }
 
@@ -971,6 +978,7 @@ class RequestClient : public CefURLRequestClient {
     EXPECT_TRUE(request_->IsReadOnly());
     status_ = request->GetRequestStatus();
     error_code_ = request->GetRequestError();
+    response_was_cached_ = request->ResponseWasCached();
     response_ = request->GetResponse();
     if (response_) {
       EXPECT_TRUE(response_->IsReadOnly());
@@ -1031,6 +1039,7 @@ class RequestClient : public CefURLRequestClient {
   CefURLRequest::Status status_;
   CefURLRequest::ErrorCode error_code_;
   CefRefPtr<CefResponse> response_;
+  bool response_was_cached_;
 
  private:
   IMPLEMENT_REFCOUNTING(RequestClient);
@@ -1373,6 +1382,20 @@ class RequestTestRunner : public base::RefCountedThreadSafe<RequestTestRunner> {
     // should receive cached data.
     settings_.expected_send_count = 3;
     settings_.expected_receive_count = 1;
+    settings_.setup_next_request =
+        base::Bind(&RequestTestRunner::SetupCacheWithControlTestNext, this);
+
+    complete_callback.Run();
+  }
+
+  void SetupCacheWithControlTestNext(int next_send_count,
+                                     const base::Closure& complete_callback) {
+    // Only handle from the cache.
+    settings_.expect_response_was_cached = true;
+
+    // The following requests will use the same setup, so no more callbacks
+    // are required.
+    settings_.setup_next_request.Reset();
 
     complete_callback.Run();
   }
@@ -1475,6 +1498,7 @@ class RequestTestRunner : public base::RefCountedThreadSafe<RequestTestRunner> {
 
     // Only handle from the cache.
     settings_.request->SetFlags(UR_FLAG_ONLY_FROM_CACHE);
+    settings_.expect_response_was_cached = true;
 
     // The following requests will use the same setup, so no more callbacks
     // are required.
@@ -1508,6 +1532,7 @@ class RequestTestRunner : public base::RefCountedThreadSafe<RequestTestRunner> {
     CefRequest::HeaderMap headerMap;
     headerMap.insert(std::make_pair(kCacheControlHeader, "only-if-cached"));
     settings_.request->SetHeaderMap(headerMap);
+    settings_.expect_response_was_cached = true;
 
     // The following requests will use the same setup, so no more callbacks
     // are required.
@@ -1554,6 +1579,9 @@ class RequestTestRunner : public base::RefCountedThreadSafe<RequestTestRunner> {
     EXPECT_EQ(settings_.expected_error_code, client->error_code_);
     if (expected_response && client->response_)
       TestResponseEqual(expected_response, client->response_, true);
+
+    EXPECT_EQ(settings_.expect_response_was_cached,
+              client->response_was_cached_);
 
     EXPECT_EQ(1, client->request_complete_ct_);
 

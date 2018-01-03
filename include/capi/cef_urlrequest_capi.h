@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=71979633d571d03ae236d52b09c4bb63bfa01b45$
+// $hash=f877ff032d10d23cb5f71e01a8770347c1e66335$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_URLREQUEST_CAPI_H_
@@ -98,6 +98,12 @@ typedef struct _cef_urlrequest_t {
   ///
   struct _cef_response_t*(CEF_CALLBACK* get_response)(
       struct _cef_urlrequest_t* self);
+
+  ///
+  // Returns true (1) if the response body was served from the cache. This
+  // includes responses for which revalidation was required.
+  ///
+  int(CEF_CALLBACK* response_was_cached)(struct _cef_urlrequest_t* self);
 
   ///
   // Cancel the request.
