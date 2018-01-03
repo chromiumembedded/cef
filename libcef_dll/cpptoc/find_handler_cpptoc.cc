@@ -1,4 +1,4 @@
-// Copyright (c) 2017 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2018 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=c238cf6ea739c44c8a9ef78812da0a2be57aac93$
+// $hash=7c08a8abec9f93ad3a08aeea58bdb84b5845afa0$
 //
 
 #include "libcef_dll/cpptoc/find_handler_cpptoc.h"

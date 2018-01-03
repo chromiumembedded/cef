@@ -1,4 +1,4 @@
-// Copyright (c) 2017 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2018 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=8d8b3b460f28ec8a0b81cbf20f6a1fb9e870a7d6$
+// $hash=757f5102b8b65a7965d908f2868c41e7bfcc390e$
 //
 
 #include "libcef_dll/ctocpp/end_tracing_callback_ctocpp.h"
