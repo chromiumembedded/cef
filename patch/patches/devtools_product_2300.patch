@@ -1,0 +1,28 @@
+diff --git content/browser/devtools/devtools_http_handler.cc content/browser/devtools/devtools_http_handler.cc
+index 72ffe59f522b..dcefb6cd9bb4 100644
+--- content/browser/devtools/devtools_http_handler.cc
++++ content/browser/devtools/devtools_http_handler.cc
+@@ -504,7 +504,7 @@ void DevToolsHttpHandler::OnJsonRequest(
+     version.SetString("Protocol-Version",
+                       DevToolsAgentHost::GetProtocolVersion());
+     version.SetString("WebKit-Version", GetWebKitVersion());
+-    version.SetString("Browser", GetContentClient()->GetProduct());
++    version.SetString("Browser", GetContentClient()->GetChromeProduct());
+     version.SetString("User-Agent", GetContentClient()->GetUserAgent());
+     version.SetString("V8-Version", V8_VERSION_STRING);
+     std::string host = info.headers["host"];
+diff --git content/public/common/content_client.h content/public/common/content_client.h
+index 48ca775aa88e..cb268f412f61 100644
+--- content/public/common/content_client.h
++++ content/public/common/content_client.h
+@@ -138,6 +138,10 @@ class CONTENT_EXPORT ContentClient {
+   // Used as part of the user agent string.
+   virtual std::string GetProduct() const;
+ 
++  // Returns the Chrome-specific product string. This is used for compatibility
++  // purposes with external tools like Selenium.
++  virtual std::string GetChromeProduct() const { return GetProduct(); }
++
+   // Returns the user agent.  Content may cache this value.
+   virtual std::string GetUserAgent() const;
+ 

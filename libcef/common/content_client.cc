@@ -235,6 +235,10 @@ std::string CefContentClient::GetProduct() const {
   if (command_line->HasSwitch(switches::kProductVersion))
     return command_line->GetSwitchValueASCII(switches::kProductVersion);
 
+  return GetChromeProduct();
+}
+
+std::string CefContentClient::GetChromeProduct() const {
   return base::StringPrintf("Chrome/%d.%d.%d.%d", CHROME_VERSION_MAJOR,
                             CHROME_VERSION_MINOR, CHROME_VERSION_BUILD,
                             CHROME_VERSION_PATCH);
