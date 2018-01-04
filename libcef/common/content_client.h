@@ -35,6 +35,7 @@ class CefContentClient : public content::ContentClient,
       std::vector<content::PepperPluginInfo>* plugins) override;
   void AddAdditionalSchemes(Schemes* schemes) override;
   std::string GetProduct() const override;
+  std::string GetChromeProduct() const override;
   std::string GetUserAgent() const override;
   base::string16 GetLocalizedString(int message_id) const override;
   base::StringPiece GetDataResource(
