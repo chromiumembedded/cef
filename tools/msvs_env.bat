@@ -7,53 +7,34 @@
 :: was specified on the command-line.
 
 set RC=
-setlocal
+
+:: Support !! syntax for delayed variable expansion.
+setlocal enabledelayedexpansion
 
 :: Require that platform is passed as the first argument.
-set ARGSOK=F
-if "%1" == "win32" set ARGSOK=T
-if "%1" == "win64" set ARGSOK=T
-if "%ARGSOK%" == "F" (
+if "%1" == "win32" (
+  set bits=32
+) else if "%1" == "win64" (
+  set bits=64
+) else (
   echo ERROR: Please specify a target platform: win32 or win64
   set ERRORLEVEL=1
   goto end
 )
 
-:: In case vcvars is already provided via the environment.
+:: Check if vcvars is already provided via the environment.
 set vcvars="%CEF_VCVARS%"
-if exist %vcvars% goto found_vcvars
 if %vcvars% == "none" goto found_vcvars
-
-if "%1" == "win64" goto check_win64
-
-:: Hardcoded list of MSVS paths for VS2017 32-bit builds.
-set vcvars="%PROGRAMFILES(X86)%\Microsoft Visual Studio\2017\Professional\VC\Auxiliary\Build\vcvars32.bat"
-if exist %vcvars% goto found_vcvars
-set vcvars="%PROGRAMFILES%\Microsoft Visual Studio\2017\Professional\VC\Auxiliary\Build\vcvars32.bat"
 if exist %vcvars% goto found_vcvars
 
-:: Hardcoded list of MSVS paths for VS2015 32-bit builds.
-set vcvars="%PROGRAMFILES(X86)%\Microsoft Visual Studio 14.0\VC\bin\vcvars32.bat"
-if exist %vcvars% goto found_vcvars
-set vcvars="%PROGRAMFILES%\Microsoft Visual Studio 14.0\VC\bin\vcvars32.bat"
-if exist %vcvars% goto found_vcvars
+:: Search for the default VS2017 installation path.
+for %%x in ("%PROGRAMFILES(X86)%" "%PROGRAMFILES%") do (
+  for %%y in (Professional Enterprise Community) do (
+    set vcvars="%%~x\Microsoft Visual Studio\2017\%%y\VC\Auxiliary\Build\vcvars%bits%.bat"
+    if exist !vcvars! goto found_vcvars
+  )
+)
 
-goto notfound_vcvars
-
-:check_win64
-:: Hardcoded list of MSVS paths for VS2017 64-bit builds.
-set vcvars="%PROGRAMFILES(X86)%\Microsoft Visual Studio\2017\Professional\VC\Auxiliary\Build\vcvars64.bat"
-if exist %vcvars% goto found_vcvars
-set vcvars="%PROGRAMFILES%\Microsoft Visual Studio\2017\Professional\VC\Auxiliary\Build\vcvars64.bat"
-if exist %vcvars% goto found_vcvars
-
-:: Hardcoded list of MSVS paths for VS2015 64-bit builds.
-set vcvars="%PROGRAMFILES(X86)%\Microsoft Visual Studio 14.0\VC\bin\amd64\vcvars64.bat"
-if exist %vcvars% goto found_vcvars
-set vcvars="%PROGRAMFILES%\Microsoft Visual Studio 14.0\VC\bin\amd64\vcvars64.bat"
-if exist %vcvars% goto found_vcvars
-
-:notfound_vcvars
 echo ERROR: Failed to find vcvars
 set ERRORLEVEL=1
 goto end
@@ -61,7 +42,12 @@ goto end
 :found_vcvars
 echo vcvars:
 echo %vcvars%
-if not %vcvars% == "none" call %vcvars%
+
+if not %vcvars% == "none" (
+  :: Set this variable to keep VS2017 < 15.5 from changing the current working directory.
+  set "VSCMD_START_DIR=%CD%"
+  call %vcvars%
+)
 
 echo PATH:
 echo %PATH%
