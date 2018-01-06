@@ -1,5 +1,5 @@
 diff --git content/browser/renderer_host/render_widget_host_view_aura.cc content/browser/renderer_host/render_widget_host_view_aura.cc
-index 3adf96eda163..673f4c689fcb 100644
+index 46a5b64a44b3..9ce3e48cf576 100644
 --- content/browser/renderer_host/render_widget_host_view_aura.cc
 +++ content/browser/renderer_host/render_widget_host_view_aura.cc
 @@ -435,13 +435,6 @@ RenderWidgetHostViewAura::RenderWidgetHostViewAura(

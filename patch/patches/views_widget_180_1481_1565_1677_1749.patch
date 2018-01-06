@@ -73,7 +73,7 @@ index aac5858b18d8..652b07955fe8 100644
  #if defined(USE_AURA)
    void OnDidScheduleEmbed(int routing_id,
 diff --git content/browser/renderer_host/render_widget_host_view_event_handler.cc content/browser/renderer_host/render_widget_host_view_event_handler.cc
-index 8302a8563d85..7ae0a870071c 100644
+index aada073d7390..b67ce94f03be 100644
 --- content/browser/renderer_host/render_widget_host_view_event_handler.cc
 +++ content/browser/renderer_host/render_widget_host_view_event_handler.cc
 @@ -28,6 +28,10 @@
@@ -87,7 +87,7 @@ index 8302a8563d85..7ae0a870071c 100644
  #if defined(OS_WIN)
  #include "content/browser/frame_host/render_frame_host_impl.h"
  #include "content/public/common/context_menu_params.h"
-@@ -857,6 +861,14 @@ void RenderWidgetHostViewEventHandler::SetKeyboardFocus() {
+@@ -868,6 +872,14 @@ void RenderWidgetHostViewEventHandler::SetKeyboardFocus() {
          ::SetFocus(hwnd);
      }
    }

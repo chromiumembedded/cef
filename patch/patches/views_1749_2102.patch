@@ -552,7 +552,7 @@ index 875ac82283b3..44424b2ce138 100644
        // Move the cursor because EnterNotify/LeaveNotify are generated with the
        // current mouse position as a result of XGrabPointer()
 diff --git ui/views/view.h ui/views/view.h
-index da4b110ecec8..f03291dcd330 100644
+index d254c7cca8d6..60fd5d15983d 100644
 --- ui/views/view.h
 +++ ui/views/view.h
 @@ -18,6 +18,7 @@
