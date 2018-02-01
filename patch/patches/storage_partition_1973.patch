@@ -111,7 +111,7 @@ index d2478ae31473..5fd30c1cd72c 100644
  
    BrowserThread::PostTask(BrowserThread::IO, FROM_HERE,
 diff --git content/browser/download/download_manager_impl.cc content/browser/download/download_manager_impl.cc
-index 0992aad5fe6c..788d432c48d9 100644
+index 360d672ee139..309c955bc1ca 100644
 --- content/browser/download/download_manager_impl.cc
 +++ content/browser/download/download_manager_impl.cc
 @@ -83,9 +83,9 @@ WebContents* GetWebContents(int render_process_id,
@@ -137,7 +137,7 @@ index 0992aad5fe6c..788d432c48d9 100644
  }
  
  bool CanRequestURLFromRenderer(int render_process_id, GURL url) {
-@@ -987,16 +986,17 @@ void DownloadManagerImpl::BeginDownloadInternal(
+@@ -993,16 +992,17 @@ void DownloadManagerImpl::BeginDownloadInternal(
    if (base::FeatureList::IsEnabled(features::kNetworkService)) {
      std::unique_ptr<ResourceRequest> request = CreateResourceRequest(
          params.get());
@@ -209,7 +209,7 @@ index 8816724941ff..6b9a26b7c615 100644
        partition->GetPaymentAppContext();
  
 diff --git content/browser/renderer_host/render_process_host_impl.cc content/browser/renderer_host/render_process_host_impl.cc
-index a61b8ab0886e..5be550085df1 100644
+index 28a84469516e..77de149cc044 100644
 --- content/browser/renderer_host/render_process_host_impl.cc
 +++ content/browser/renderer_host/render_process_host_impl.cc
 @@ -500,9 +500,8 @@ class SpareRenderProcessHostManager : public RenderProcessHostObserver {

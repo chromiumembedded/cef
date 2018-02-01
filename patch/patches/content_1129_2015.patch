@@ -501,10 +501,10 @@ index 10b32b1254c6..6ba3dfbe9d15 100644
        base::Bind(&RenderThreadImpl::OnRendererInterfaceRequest,
                   base::Unretained(this)));
 diff --git content/renderer/renderer_blink_platform_impl.cc content/renderer/renderer_blink_platform_impl.cc
-index 3cd99e14d1d5..96e8d51625d7 100644
+index edda27d2cfb0..9ecc52e8f9e2 100644
 --- content/renderer/renderer_blink_platform_impl.cc
 +++ content/renderer/renderer_blink_platform_impl.cc
-@@ -846,6 +846,7 @@ RendererBlinkPlatformImpl::CreateMIDIAccessor(
+@@ -845,6 +845,7 @@ RendererBlinkPlatformImpl::CreateMIDIAccessor(
  
  void RendererBlinkPlatformImpl::GetPluginList(
      bool refresh,
@@ -512,7 +512,7 @@ index 3cd99e14d1d5..96e8d51625d7 100644
      const blink::WebSecurityOrigin& mainFrameOrigin,
      blink::WebPluginListBuilder* builder) {
  #if BUILDFLAG(ENABLE_PLUGINS)
-@@ -853,7 +854,8 @@ void RendererBlinkPlatformImpl::GetPluginList(
+@@ -852,7 +853,8 @@ void RendererBlinkPlatformImpl::GetPluginList(
    if (!plugin_refresh_allowed_)
      refresh = false;
    RenderThread::Get()->Send(
