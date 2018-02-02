@@ -1,29 +1,51 @@
 diff --git content/browser/web_contents/web_contents_impl.cc content/browser/web_contents/web_contents_impl.cc
-index c1ae2a911735..e45e3e388a5e 100644
+index c1ae2a911735..933fb8153ef1 100644
 --- content/browser/web_contents/web_contents_impl.cc
 +++ content/browser/web_contents/web_contents_impl.cc
-@@ -1783,6 +1783,12 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
+@@ -1783,21 +1783,30 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
    std::string unique_name;
    frame_tree_.root()->SetFrameName(params.main_frame_name, unique_name);
  
+-  WebContentsViewDelegate* delegate =
+-      GetContentClient()->browser()->GetWebContentsViewDelegate(this);
 +  if (params.view && params.delegate_view) {
 +    view_.reset(params.view);
 +    render_view_host_delegate_view_ = params.delegate_view;
 +  }
-+
+ 
+-  if (GuestMode::IsCrossProcessFrameGuest(this)) {
+-    view_.reset(new WebContentsViewChildFrame(
+-        this, delegate, &render_view_host_delegate_view_));
+-  } else {
+-    view_.reset(CreateWebContentsView(this, delegate,
+-                                      &render_view_host_delegate_view_));
+-    if (browser_plugin_guest_) {
+-      view_ = std::make_unique<WebContentsViewGuest>(
+-          this, browser_plugin_guest_.get(), std::move(view_),
+-          &render_view_host_delegate_view_);
 +  if (!view_) {
-   WebContentsViewDelegate* delegate =
-       GetContentClient()->browser()->GetWebContentsViewDelegate(this);
- 
-@@ -1837,6 +1843,7 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
-     GetRenderViewHost()->DispatchRenderViewCreated();
-     GetRenderManager()->current_frame_host()->SetRenderFrameCreated(true);
++    WebContentsViewDelegate* delegate =
++        GetContentClient()->browser()->GetWebContentsViewDelegate(this);
++
++    if (GuestMode::IsCrossProcessFrameGuest(this)) {
++      view_.reset(new WebContentsViewChildFrame(
++          this, delegate, &render_view_host_delegate_view_));
++    } else {
++      view_.reset(CreateWebContentsView(this, delegate,
++                                        &render_view_host_delegate_view_));
+     }
    }
++
++  if (browser_plugin_guest_ && !GuestMode::IsCrossProcessFrameGuest(this)) {
++    view_.reset(new WebContentsViewGuest(this, browser_plugin_guest_.get(),
++                                         std::move(view_),
++                                         &render_view_host_delegate_view_));
 +  }
++
+   CHECK(render_view_host_delegate_view_);
+   CHECK(view_.get());
  
-   // Create the renderer process in advance if requested.
-   if (params.initialize_renderer) {
-@@ -2349,6 +2356,15 @@ void WebContentsImpl::CreateNewWindow(
+@@ -2349,6 +2358,15 @@ void WebContentsImpl::CreateNewWindow(
    create_params.renderer_initiated_creation =
        main_frame_route_id != MSG_ROUTING_NONE;
  
@@ -39,7 +61,7 @@ index c1ae2a911735..e45e3e388a5e 100644
    WebContentsImpl* new_contents = nullptr;
    if (!is_guest) {
      create_params.context = view_->GetNativeView();
-@@ -2378,7 +2394,7 @@ void WebContentsImpl::CreateNewWindow(
+@@ -2378,7 +2396,7 @@ void WebContentsImpl::CreateNewWindow(
        // TODO(brettw): It seems bogus that we have to call this function on the
        // newly created object and give it one of its own member variables.
        new_view->CreateViewForWidget(
@@ -48,7 +70,7 @@ index c1ae2a911735..e45e3e388a5e 100644
      }
      // Save the created window associated with the route so we can show it
      // later.
-@@ -5546,7 +5562,7 @@ InterstitialPageImpl* WebContentsImpl::GetInterstitialForRenderManager() {
+@@ -5546,7 +5564,7 @@ InterstitialPageImpl* WebContentsImpl::GetInterstitialForRenderManager() {
  void WebContentsImpl::CreateRenderWidgetHostViewForRenderManager(
      RenderViewHost* render_view_host) {
    RenderWidgetHostViewBase* rwh_view =
