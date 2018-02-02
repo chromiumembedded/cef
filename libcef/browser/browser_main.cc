@@ -9,11 +9,11 @@
 #include <string>
 
 #include "libcef/browser/browser_context_impl.h"
+#include "libcef/browser/browser_context_keyed_service_factories.h"
 #include "libcef/browser/browser_message_loop.h"
 #include "libcef/browser/content_browser_client.h"
 #include "libcef/browser/context.h"
 #include "libcef/browser/devtools_manager_delegate.h"
-#include "libcef/browser/extensions/browser_context_keyed_service_factories.h"
 #include "libcef/browser/extensions/extension_system_factory.h"
 #include "libcef/browser/extensions/extensions_browser_client.h"
 #include "libcef/browser/net/chrome_scheme_handler.h"
@@ -126,11 +126,12 @@ void CefBrowserMainParts::PreMainMessageLoopRun() {
         new extensions::CefExtensionsBrowserClient);
     extensions::ExtensionsBrowserClient::Set(extensions_browser_client_.get());
 
-    // Register additional KeyedService factories here. See
-    // ChromeBrowserMainExtraPartsProfiles for details.
-    extensions::cef::EnsureBrowserContextKeyedServiceFactoriesBuilt();
     extensions::CefExtensionSystemFactory::GetInstance();
   }
+
+  // Register additional KeyedService factories here. See
+  // ChromeBrowserMainExtraPartsProfiles for details.
+  cef::EnsureBrowserContextKeyedServiceFactoriesBuilt();
 
   printing::CefPrintingMessageFilter::EnsureShutdownNotifierFactoryBuilt();
 
