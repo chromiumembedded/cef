@@ -28,21 +28,6 @@ index 1971727c0a8f..2babb3aca3d0 100644
  
    // If |new_instance| is a new SiteInstance for a subframe with an isolated
    // origin, set its process reuse policy so that such subframes are
-@@ -1286,10 +1288,10 @@ void RenderFrameHostManager::InitializeRenderFrameIfNecessary(
-   if (render_frame_host != render_frame_host_.get())
-     return;
- 
--  EnsureRenderFrameHostVisibilityConsistent();
--
--  // TODO: uncomment this when the method is shared. Not adding the call now
--  // to make merge to 63 easier.
-+  EnsureRenderFrameHostVisibilityConsistent();
-+
-+  // TODO: uncomment this when the method is shared. Not adding the call now
-+  // to make merge to 63 easier.
-   // EnsureRenderFrameHostPageFocusConsistent();
- 
-   // TODO(nasko): This is a very ugly hack. The Chrome extensions process
 diff --git content/public/browser/content_browser_client.h content/public/browser/content_browser_client.h
 index 6b6614b9b04a..881907067740 100644
 --- content/public/browser/content_browser_client.h
