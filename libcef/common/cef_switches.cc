@@ -57,6 +57,9 @@ const char kDisableTextAreaResize[] = "disable-text-area-resize";
 // Disable using the tab key to advance focus to links.
 const char kDisableTabToLinks[] = "disable-tab-to-links";
 
+// Disable plugins.
+const char kDisablePlugins[] = "disable-plugins";
+
 // Persist session cookies.
 const char kPersistSessionCookies[] = "persist-session-cookies";
 

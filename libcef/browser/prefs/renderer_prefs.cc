@@ -288,6 +288,8 @@ void SetCommandLinePrefDefaults(CommandLinePrefStore* prefs) {
     SetBool(prefs, prefs::kWebKitLoadsImagesAutomatically, false);
   if (command_line->HasSwitch(switches::kDisableTabToLinks))
     SetBool(prefs, prefs::kWebkitTabsToLinks, false);
+  if (command_line->HasSwitch(switches::kDisablePlugins))
+    SetBool(prefs, prefs::kWebKitPluginsEnabled, false);
 }
 
 void RegisterProfilePrefs(user_prefs::PrefRegistrySyncable* registry) {

@@ -717,7 +717,8 @@ void CefMainDelegate::InitializeResourceBundle() {
       }
     }
 
-    if (extensions::ExtensionsEnabled()) {
+    if (extensions::ExtensionsEnabled() ||
+        !command_line->HasSwitch(switches::kDisablePlugins)) {
       if (base::PathExists(cef_extensions_pak_file)) {
         resource_bundle.AddDataPackFromPath(cef_extensions_pak_file,
                                             ui::SCALE_FACTOR_NONE);
