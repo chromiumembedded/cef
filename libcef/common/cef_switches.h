@@ -31,6 +31,7 @@ extern const char kDisableImageLoading[];
 extern const char kImageShrinkStandaloneToFit[];
 extern const char kDisableTextAreaResize[];
 extern const char kDisableTabToLinks[];
+extern const char kDisablePlugins[];
 extern const char kPersistSessionCookies[];
 extern const char kPersistUserPreferences[];
 extern const char kEnableMediaStream[];

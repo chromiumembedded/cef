@@ -680,11 +680,17 @@ void CefContentBrowserClient::AppendExtraCommandLineSwitches(
     // Propagate the following switches to the renderer command line (along with
     // any associated values) if present in the browser command line.
     static const char* const kSwitchNames[] = {
-        switches::kDisableExtensions,   switches::kDisablePdfExtension,
-        switches::kDisableScrollBounce, switches::kDisableSpellChecking,
-        switches::kEnableSpeechInput,   switches::kEnableSystemFlash,
-        switches::kPpapiFlashArgs,      switches::kPpapiFlashPath,
-        switches::kPpapiFlashVersion,   switches::kUncaughtExceptionStackSize,
+        switches::kDisableExtensions,
+        switches::kDisablePdfExtension,
+        switches::kDisablePlugins,
+        switches::kDisableScrollBounce,
+        switches::kDisableSpellChecking,
+        switches::kEnableSpeechInput,
+        switches::kEnableSystemFlash,
+        switches::kPpapiFlashArgs,
+        switches::kPpapiFlashPath,
+        switches::kPpapiFlashVersion,
+        switches::kUncaughtExceptionStackSize,
     };
     command_line->CopySwitchesFrom(*browser_cmd, kSwitchNames,
                                    arraysize(kSwitchNames));

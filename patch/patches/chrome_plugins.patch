@@ -187,3 +187,21 @@ index 5dc888bfb2df..297737be682e 100644
          break;
        }
        case chrome::mojom::PluginStatus::kComponentUpdateRequired: {
+diff --git chrome/renderer/plugins/chrome_plugin_placeholder.cc chrome/renderer/plugins/chrome_plugin_placeholder.cc
+index 7a814bb072dc..79c7d65118cb 100644
+--- chrome/renderer/plugins/chrome_plugin_placeholder.cc
++++ chrome/renderer/plugins/chrome_plugin_placeholder.cc
+@@ -349,8 +349,11 @@ void ChromePluginPlaceholder::OnBlockedContent(
+ 
+   if (status ==
+       content::RenderFrame::PeripheralContentStatus::CONTENT_STATUS_TINY) {
+-    ContentSettingsObserver::Get(render_frame())
+-        ->DidBlockContentType(CONTENT_SETTINGS_TYPE_PLUGINS, title_);
++    ContentSettingsObserver* observer =
++        ContentSettingsObserver::Get(render_frame());
++    if (observer) {
++      observer->DidBlockContentType(CONTENT_SETTINGS_TYPE_PLUGINS, title_);
++    }
+   }
+ 
+   std::string message = base::StringPrintf(
