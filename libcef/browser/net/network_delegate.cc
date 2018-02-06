@@ -9,6 +9,7 @@
 
 #include "include/cef_urlrequest.h"
 #include "libcef/browser/browser_host_impl.h"
+#include "libcef/browser/cookie_manager_impl.h"
 #include "libcef/browser/net/net_util.h"
 #include "libcef/browser/net/source_stream.h"
 #include "libcef/browser/net/url_request_user_data.h"
@@ -438,6 +439,64 @@ net::NetworkDelegate::AuthRequiredResponse CefNetworkDelegate::OnAuthRequired(
   }
 
   return AUTH_REQUIRED_RESPONSE_NO_ACTION;
+}
+
+bool CefNetworkDelegate::OnCanGetCookies(const net::URLRequest& request,
+                                         const net::CookieList& cookie_list) {
+  if (net_util::IsInternalRequest(&request))
+    return true;
+
+  CefRefPtr<CefBrowserHostImpl> browser =
+      CefBrowserHostImpl::GetBrowserForRequest(&request);
+  if (browser.get()) {
+    CefRefPtr<CefClient> client = browser->GetClient();
+    if (client.get()) {
+      CefRefPtr<CefRequestHandler> handler = client->GetRequestHandler();
+      if (handler.get()) {
+        CefRefPtr<CefFrame> frame = browser->GetFrameForRequest(&request);
+
+        CefRefPtr<CefRequestImpl> cefRequest = new CefRequestImpl();
+        cefRequest->Set(&request);
+        cefRequest->SetReadOnly(true);
+
+        return handler->CanGetCookies(browser.get(), frame, cefRequest.get());
+      }
+    }
+  }
+
+  return true;
+}
+
+bool CefNetworkDelegate::OnCanSetCookie(const net::URLRequest& request,
+                                        const net::CanonicalCookie& cookie,
+                                        net::CookieOptions* options) {
+  if (net_util::IsInternalRequest(&request))
+    return true;
+
+  CefRefPtr<CefBrowserHostImpl> browser =
+      CefBrowserHostImpl::GetBrowserForRequest(&request);
+  if (browser.get()) {
+    CefRefPtr<CefClient> client = browser->GetClient();
+    if (client.get()) {
+      CefRefPtr<CefRequestHandler> handler = client->GetRequestHandler();
+      if (handler.get()) {
+        CefRefPtr<CefFrame> frame = browser->GetFrameForRequest(&request);
+
+        CefRefPtr<CefRequestImpl> cefRequest = new CefRequestImpl();
+        cefRequest->Set(&request);
+        cefRequest->SetReadOnly(true);
+
+        CefCookie cefCookie;
+        if (!CefCookieManagerImpl::GetCefCookie(cookie, cefCookie))
+          return true;
+
+        return handler->CanSetCookie(browser.get(), frame, cefRequest.get(),
+                                     cefCookie);
+      }
+    }
+  }
+
+  return true;
 }
 
 bool CefNetworkDelegate::OnCanAccessFile(

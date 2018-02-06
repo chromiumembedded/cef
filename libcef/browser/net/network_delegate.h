@@ -38,6 +38,11 @@ class CefNetworkDelegate : public net::NetworkDelegateImpl {
       const AuthCallback& callback,
       net::AuthCredentials* credentials) override;
   void OnCompleted(net::URLRequest* request, bool started) override;
+  bool OnCanGetCookies(const net::URLRequest& request,
+                       const net::CookieList& cookie_list) override;
+  bool OnCanSetCookie(const net::URLRequest& request,
+                      const net::CanonicalCookie& cookie,
+                      net::CookieOptions* options) override;
   bool OnCanAccessFile(const net::URLRequest& request,
                        const base::FilePath& original_path,
                        const base::FilePath& absolute_path) const override;

@@ -1583,7 +1583,7 @@ void CefBrowserHostImpl::CancelContextMenu() {
 }
 
 CefRefPtr<CefFrame> CefBrowserHostImpl::GetFrameForRequest(
-    net::URLRequest* request) {
+    const net::URLRequest* request) {
   CEF_REQUIRE_IOT();
   const content::ResourceRequestInfo* info =
       content::ResourceRequestInfo::ForRequest(request);

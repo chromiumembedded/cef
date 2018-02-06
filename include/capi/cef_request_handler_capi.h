@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=52ba75e5a733ed0be9a064b9794c0181e714c090$
+// $hash=b8b5a62b11dbc48f0733c0522864e4dbda8b4f59$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_REQUEST_HANDLER_CAPI_H_
@@ -246,6 +246,29 @@ typedef struct _cef_request_handler_t {
       const cef_string_t* realm,
       const cef_string_t* scheme,
       struct _cef_auth_callback_t* callback);
+
+  ///
+  // Called on the IO thread before sending a network request with a "Cookie"
+  // request header. Return true (1) to allow cookies to be included in the
+  // network request or false (0) to block cookies. The |request| object should
+  // not be modified in this callback.
+  ///
+  int(CEF_CALLBACK* can_get_cookies)(struct _cef_request_handler_t* self,
+                                     struct _cef_browser_t* browser,
+                                     struct _cef_frame_t* frame,
+                                     struct _cef_request_t* request);
+
+  ///
+  // Called on the IO thread when receiving a network request with a "Set-
+  // Cookie" response header value represented by |cookie|. Return true (1) to
+  // allow the cookie to be stored or false (0) to block the cookie. The
+  // |request| object should not be modified in this callback.
+  ///
+  int(CEF_CALLBACK* can_set_cookie)(struct _cef_request_handler_t* self,
+                                    struct _cef_browser_t* browser,
+                                    struct _cef_frame_t* frame,
+                                    struct _cef_request_t* request,
+                                    const struct _cef_cookie_t* cookie);
 
   ///
   // Called on the IO thread when JavaScript requests a specific storage quota

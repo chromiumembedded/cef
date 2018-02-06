@@ -80,7 +80,7 @@ class CefRequestImpl : public CefRequest {
   uint64 GetIdentifier() override;
 
   // Populate this object from the URLRequest object.
-  void Set(net::URLRequest* request);
+  void Set(const net::URLRequest* request);
 
   // Populate the URLRequest object from this object.
   // If |changed_only| is true then only the changed fields will be updated.

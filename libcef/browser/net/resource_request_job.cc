@@ -411,7 +411,7 @@ void CefResourceRequestJob::DoLoadCookies() {
 
 void CefResourceRequestJob::CheckCookiePolicyAndLoad(
     const net::CookieList& cookie_list) {
-  bool can_get_cookies = CanGetCookies(cookie_list);
+  bool can_get_cookies = !cookie_list.empty() && CanGetCookies(cookie_list);
   if (can_get_cookies) {
     net::CookieList::const_iterator it = cookie_list.begin();
     for (; it != cookie_list.end(); ++it) {
