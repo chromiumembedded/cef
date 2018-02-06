@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=a28a81ae22b7edb9dfb3a9df72c48a96971b7017$
+// $hash=cde69cb97f29cb75da85bb709470f73d9e57f5bc$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_REQUEST_HANDLER_CTOCPP_H_
@@ -80,6 +80,13 @@ class CefRequestHandlerCToCpp
                           const CefString& realm,
                           const CefString& scheme,
                           CefRefPtr<CefAuthCallback> callback) override;
+  bool CanGetCookies(CefRefPtr<CefBrowser> browser,
+                     CefRefPtr<CefFrame> frame,
+                     CefRefPtr<CefRequest> request) override;
+  bool CanSetCookie(CefRefPtr<CefBrowser> browser,
+                    CefRefPtr<CefFrame> frame,
+                    CefRefPtr<CefRequest> request,
+                    const CefCookie& cookie) override;
   bool OnQuotaRequest(CefRefPtr<CefBrowser> browser,
                       const CefString& origin_url,
                       int64 new_size,

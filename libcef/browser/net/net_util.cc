@@ -9,7 +9,7 @@
 
 namespace net_util {
 
-bool IsInternalRequest(net::URLRequest* request) {
+bool IsInternalRequest(const net::URLRequest* request) {
   // With PlzNavigate we now receive blob URLs. Ignore these URLs.
   // See https://crbug.com/776884 for details.
   if (request->url().SchemeIs(url::kBlobScheme)) {

@@ -253,6 +253,33 @@ class CefRequestHandler : public virtual CefBaseRefCounted {
   }
 
   ///
+  // Called on the IO thread before sending a network request with a "Cookie"
+  // request header. Return true to allow cookies to be included in the network
+  // request or false to block cookies. The |request| object should not be
+  // modified in this callback.
+  ///
+  /*--cef()--*/
+  virtual bool CanGetCookies(CefRefPtr<CefBrowser> browser,
+                             CefRefPtr<CefFrame> frame,
+                             CefRefPtr<CefRequest> request) {
+    return true;
+  }
+
+  ///
+  // Called on the IO thread when receiving a network request with a
+  // "Set-Cookie" response header value represented by |cookie|. Return true to
+  // allow the cookie to be stored or false to block the cookie. The |request|
+  // object should not be modified in this callback.
+  ///
+  /*--cef()--*/
+  virtual bool CanSetCookie(CefRefPtr<CefBrowser> browser,
+                            CefRefPtr<CefFrame> frame,
+                            CefRefPtr<CefRequest> request,
+                            const CefCookie& cookie) {
+    return true;
+  }
+
+  ///
   // Called on the IO thread when JavaScript requests a specific storage quota
   // size via the webkitStorageInfo.requestQuota function. |origin_url| is the
   // origin of the page making the request. |new_size| is the requested quota

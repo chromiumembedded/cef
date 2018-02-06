@@ -14,7 +14,7 @@ namespace net_util {
 
 // Returns true if |request| is handled internally and should not be exposed via
 // the CEF API.
-bool IsInternalRequest(net::URLRequest* request);
+bool IsInternalRequest(const net::URLRequest* request);
 
 };  // namespace net_util
 

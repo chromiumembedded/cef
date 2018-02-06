@@ -445,7 +445,7 @@ uint64 CefRequestImpl::GetIdentifier() {
   return identifier_;
 }
 
-void CefRequestImpl::Set(net::URLRequest* request) {
+void CefRequestImpl::Set(const net::URLRequest* request) {
   base::AutoLock lock_scope(lock_);
   CHECK_READONLY_RETURN_VOID();
 

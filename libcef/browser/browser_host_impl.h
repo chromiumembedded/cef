@@ -303,7 +303,7 @@ class CefBrowserHostImpl : public CefBrowserHost,
 #endif
 
   // Returns the frame associated with the specified URLRequest.
-  CefRefPtr<CefFrame> GetFrameForRequest(net::URLRequest* request);
+  CefRefPtr<CefFrame> GetFrameForRequest(const net::URLRequest* request);
 
   // Navigate as specified by the |params| argument.
   void Navigate(const CefNavigateParams& params);

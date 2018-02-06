@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=9bcd78135c26925b3e33662e92497d1ef7d85642$
+// $hash=fbd234d6060aadc1bf5ee0efce5d8cb2c4a0e022$
 //
 
 #include "libcef_dll/ctocpp/request_handler_ctocpp.h"
@@ -348,6 +348,69 @@ bool CefRequestHandlerCToCpp::GetAuthCredentials(
       _struct, CefBrowserCppToC::Wrap(browser), CefFrameCppToC::Wrap(frame),
       isProxy, host.GetStruct(), port, realm.GetStruct(), scheme.GetStruct(),
       CefAuthCallbackCppToC::Wrap(callback));
+
+  // Return type: bool
+  return _retval ? true : false;
+}
+
+bool CefRequestHandlerCToCpp::CanGetCookies(CefRefPtr<CefBrowser> browser,
+                                            CefRefPtr<CefFrame> frame,
+                                            CefRefPtr<CefRequest> request) {
+  cef_request_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, can_get_cookies))
+    return false;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: browser; type: refptr_diff
+  DCHECK(browser.get());
+  if (!browser.get())
+    return false;
+  // Verify param: frame; type: refptr_diff
+  DCHECK(frame.get());
+  if (!frame.get())
+    return false;
+  // Verify param: request; type: refptr_diff
+  DCHECK(request.get());
+  if (!request.get())
+    return false;
+
+  // Execute
+  int _retval = _struct->can_get_cookies(
+      _struct, CefBrowserCppToC::Wrap(browser), CefFrameCppToC::Wrap(frame),
+      CefRequestCppToC::Wrap(request));
+
+  // Return type: bool
+  return _retval ? true : false;
+}
+
+bool CefRequestHandlerCToCpp::CanSetCookie(CefRefPtr<CefBrowser> browser,
+                                           CefRefPtr<CefFrame> frame,
+                                           CefRefPtr<CefRequest> request,
+                                           const CefCookie& cookie) {
+  cef_request_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, can_set_cookie))
+    return false;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: browser; type: refptr_diff
+  DCHECK(browser.get());
+  if (!browser.get())
+    return false;
+  // Verify param: frame; type: refptr_diff
+  DCHECK(frame.get());
+  if (!frame.get())
+    return false;
+  // Verify param: request; type: refptr_diff
+  DCHECK(request.get());
+  if (!request.get())
+    return false;
+
+  // Execute
+  int _retval = _struct->can_set_cookie(
+      _struct, CefBrowserCppToC::Wrap(browser), CefFrameCppToC::Wrap(frame),
+      CefRequestCppToC::Wrap(request), &cookie);
 
   // Return type: bool
   return _retval ? true : false;
