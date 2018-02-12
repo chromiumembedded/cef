@@ -3252,9 +3252,8 @@ class CancelAfterNavTestHandler : public TestHandler {
     got_get_resource_handler_.yes();
 
     // The required delay is longer when browser-side navigation is enabled.
-    CefPostDelayedTask(TID_UI,
-                       base::Bind(&CancelAfterNavTestHandler::CancelLoad, this),
-                       1000);
+    CefPostDelayedTask(
+        TID_UI, base::Bind(&CancelAfterNavTestHandler::CancelLoad, this), 1000);
 
     return new StalledSchemeHandler();
   }

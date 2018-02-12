@@ -990,8 +990,8 @@ class FrameNavExpectationsBrowserTestSingleNav
     V_DECLARE();
     // When browser-side navigation is enabled this method will be called
     // before the frame is created.
-    V_EXPECT_TRUE(VerifySingleBrowserFrames(
-        browser, frame, false, std::string()));
+    V_EXPECT_TRUE(
+        VerifySingleBrowserFrames(browser, frame, false, std::string()));
     V_EXPECT_TRUE(parent::OnBeforeBrowse(browser, frame, url));
     V_RETURN();
   }
@@ -1001,8 +1001,8 @@ class FrameNavExpectationsBrowserTestSingleNav
     V_DECLARE();
     // When browser-side navigation is enabled this method will be called
     // before the frame is created.
-    V_EXPECT_TRUE(VerifySingleBrowserFrames(
-        browser, frame, false, std::string()));
+    V_EXPECT_TRUE(
+        VerifySingleBrowserFrames(browser, frame, false, std::string()));
     V_EXPECT_TRUE(parent::GetResourceHandler(browser, frame));
     V_RETURN();
   }
@@ -1504,8 +1504,7 @@ class FrameNavExpectationsBrowserTestMultiNav
     // When browser-side navigation is enabled this method will be called
     // before the frame is created for the first navigation.
     V_EXPECT_TRUE(VerifySingleBrowserFrames(
-        browser, frame, nav() == 0 ? false : true,
-        expected_url));
+        browser, frame, nav() == 0 ? false : true, expected_url));
     V_EXPECT_TRUE(parent::OnBeforeBrowse(browser, frame, url));
     V_RETURN();
   }
@@ -1519,8 +1518,7 @@ class FrameNavExpectationsBrowserTestMultiNav
     // When browser-side navigation is enabled this method will be called
     // before the frame is created for the first navigation.
     V_EXPECT_TRUE(VerifySingleBrowserFrames(
-        browser, frame, nav() == 0 ? false : true,
-        expected_url));
+        browser, frame, nav() == 0 ? false : true, expected_url));
     V_EXPECT_TRUE(parent::GetResourceHandler(browser, frame));
     V_RETURN();
   }

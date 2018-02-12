@@ -313,7 +313,7 @@ const char kTypeTestOrigin[] = "http://tests-requesttt.com/";
 
 static struct TypeExpected {
   const char* file;
-  bool navigation;    // True if this expectation represents a navigation.
+  bool navigation;  // True if this expectation represents a navigation.
   cef_transition_type_t transition_type;
   cef_resource_type_t resource_type;
   int expected_count;
@@ -342,8 +342,7 @@ static struct TypeExpected {
 
 class TypeExpectations {
  public:
-  explicit TypeExpectations(bool navigation)
-      : navigation_(navigation) {
+  explicit TypeExpectations(bool navigation) : navigation_(navigation) {
     // Build the map of relevant requests.
     for (int i = 0;
          i < static_cast<int>(sizeof(g_type_expected) / sizeof(TypeExpected));
@@ -378,8 +377,7 @@ class TypeExpectations {
     const int actual_count = ++it->second;
     const int expected_count = g_type_expected[index].expected_count;
     EXPECT_LE(actual_count, expected_count)
-        << "File: " << file.c_str()
-        << "; Navigation: " << navigation_
+        << "File: " << file.c_str() << "; Navigation: " << navigation_
         << "; Transition Type: " << transition_type
         << "; Resource Type: " << resource_type;
 
@@ -513,8 +511,7 @@ class TypeTestHandler : public TestHandler {
         get_expectations_.IsDone(false)) {
       completed_browser_side_ = true;
       // Destroy the test on the UI thread.
-      CefPostTask(TID_UI,
-                  base::Bind(&TypeTestHandler::DestroyTest, this));
+      CefPostTask(TID_UI, base::Bind(&TypeTestHandler::DestroyTest, this));
     }
 
     return TestHandler::GetResourceHandler(browser, frame, request);
