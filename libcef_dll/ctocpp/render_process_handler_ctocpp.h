@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=dc50857b856d7bc0a536ebb52152eb78a1b9db6c$
+// $hash=1bc7b7dd592df33e6e5b7a3beb85e465d5e9e5a7$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_RENDER_PROCESS_HANDLER_CTOCPP_H_
@@ -39,11 +39,6 @@ class CefRenderProcessHandlerCToCpp
   void OnBrowserCreated(CefRefPtr<CefBrowser> browser) override;
   void OnBrowserDestroyed(CefRefPtr<CefBrowser> browser) override;
   CefRefPtr<CefLoadHandler> GetLoadHandler() override;
-  bool OnBeforeNavigation(CefRefPtr<CefBrowser> browser,
-                          CefRefPtr<CefFrame> frame,
-                          CefRefPtr<CefRequest> request,
-                          NavigationType navigation_type,
-                          bool is_redirect) override;
   void OnContextCreated(CefRefPtr<CefBrowser> browser,
                         CefRefPtr<CefFrame> frame,
                         CefRefPtr<CefV8Context> context) override;

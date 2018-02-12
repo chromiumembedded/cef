@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=d3eec11738f8a75aba830ba813dd095c7eeb0738$
+// $hash=b1925c4cbcf5889e56f005d7f7255366e0daf073$
 //
 
 #include "libcef_dll/ctocpp/render_process_handler_ctocpp.h"
@@ -18,7 +18,6 @@
 #include "libcef_dll/cpptoc/frame_cpptoc.h"
 #include "libcef_dll/cpptoc/list_value_cpptoc.h"
 #include "libcef_dll/cpptoc/process_message_cpptoc.h"
-#include "libcef_dll/cpptoc/request_cpptoc.h"
 #include "libcef_dll/cpptoc/v8context_cpptoc.h"
 #include "libcef_dll/cpptoc/v8exception_cpptoc.h"
 #include "libcef_dll/cpptoc/v8stack_trace_cpptoc.h"
@@ -101,40 +100,6 @@ CefRefPtr<CefLoadHandler> CefRenderProcessHandlerCToCpp::GetLoadHandler() {
 
   // Return type: refptr_same
   return CefLoadHandlerCToCpp::Wrap(_retval);
-}
-
-bool CefRenderProcessHandlerCToCpp::OnBeforeNavigation(
-    CefRefPtr<CefBrowser> browser,
-    CefRefPtr<CefFrame> frame,
-    CefRefPtr<CefRequest> request,
-    NavigationType navigation_type,
-    bool is_redirect) {
-  cef_render_process_handler_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, on_before_navigation))
-    return false;
-
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Verify param: browser; type: refptr_diff
-  DCHECK(browser.get());
-  if (!browser.get())
-    return false;
-  // Verify param: frame; type: refptr_diff
-  DCHECK(frame.get());
-  if (!frame.get())
-    return false;
-  // Verify param: request; type: refptr_diff
-  DCHECK(request.get());
-  if (!request.get())
-    return false;
-
-  // Execute
-  int _retval = _struct->on_before_navigation(
-      _struct, CefBrowserCppToC::Wrap(browser), CefFrameCppToC::Wrap(frame),
-      CefRequestCppToC::Wrap(request), navigation_type, is_redirect);
-
-  // Return type: bool
-  return _retval ? true : false;
 }
 
 void CefRenderProcessHandlerCToCpp::OnContextCreated(

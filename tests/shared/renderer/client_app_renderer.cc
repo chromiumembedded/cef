@@ -46,22 +46,6 @@ CefRefPtr<CefLoadHandler> ClientAppRenderer::GetLoadHandler() {
   return load_handler;
 }
 
-bool ClientAppRenderer::OnBeforeNavigation(CefRefPtr<CefBrowser> browser,
-                                           CefRefPtr<CefFrame> frame,
-                                           CefRefPtr<CefRequest> request,
-                                           NavigationType navigation_type,
-                                           bool is_redirect) {
-  DelegateSet::iterator it = delegates_.begin();
-  for (; it != delegates_.end(); ++it) {
-    if ((*it)->OnBeforeNavigation(this, browser, frame, request,
-                                  navigation_type, is_redirect)) {
-      return true;
-    }
-  }
-
-  return false;
-}
-
 void ClientAppRenderer::OnContextCreated(CefRefPtr<CefBrowser> browser,
                                          CefRefPtr<CefFrame> frame,
                                          CefRefPtr<CefV8Context> context) {

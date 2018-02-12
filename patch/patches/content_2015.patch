@@ -324,28 +324,8 @@ index 3b610b1f554e..7c439e060779 100644
                                   const url::Origin& main_frame_origin,
                                   WebPluginInfo* plugin) = 0;
  
-diff --git content/public/renderer/content_renderer_client.cc content/public/renderer/content_renderer_client.cc
-index 3e3d132705a8..4a972b4475e6 100644
---- content/public/renderer/content_renderer_client.cc
-+++ content/public/renderer/content_renderer_client.cc
-@@ -101,7 +101,6 @@ bool ContentRendererClient::AllowPopup() {
-   return false;
- }
- 
--#if defined(OS_ANDROID)
- bool ContentRendererClient::HandleNavigation(
-     RenderFrame* render_frame,
-     bool is_content_initiated,
-@@ -114,6 +113,7 @@ bool ContentRendererClient::HandleNavigation(
-   return false;
- }
- 
-+#if defined(OS_ANDROID)
- bool ContentRendererClient::ShouldUseMediaPlayerForURL(const GURL& url) {
-   return false;
- }
 diff --git content/public/renderer/content_renderer_client.h content/public/renderer/content_renderer_client.h
-index 3d34633700dd..6cee67f439f7 100644
+index 3d34633700dd..b175fff52d6c 100644
 --- content/public/renderer/content_renderer_client.h
 +++ content/public/renderer/content_renderer_client.h
 @@ -73,6 +73,9 @@ class CONTENT_EXPORT ContentRendererClient {
@@ -358,22 +338,6 @@ index 3d34633700dd..6cee67f439f7 100644
    // Notifies that a new RenderFrame has been created.
    virtual void RenderFrameCreated(RenderFrame* render_frame) {}
  
-@@ -190,7 +193,6 @@ class CONTENT_EXPORT ContentRendererClient {
-   // Returns true if a popup window should be allowed.
-   virtual bool AllowPopup();
- 
--#if defined(OS_ANDROID)
-   // TODO(sgurun) This callback is deprecated and will be removed as soon
-   // as android webview completes implementation of a resource throttle based
-   // shouldoverrideurl implementation. See crbug.com/325351
-@@ -206,6 +208,7 @@ class CONTENT_EXPORT ContentRendererClient {
-                                 blink::WebNavigationPolicy default_policy,
-                                 bool is_redirect);
- 
-+#if defined(OS_ANDROID)
-   // Indicates if the Android MediaPlayer should be used instead of Chrome's
-   // built in media player for the given |url|. Defaults to false.
-   virtual bool ShouldUseMediaPlayerForURL(const GURL& url);
 @@ -331,6 +334,12 @@ class CONTENT_EXPORT ContentRendererClient {
    // This method may invalidate the frame.
    virtual void RunScriptsAtDocumentIdle(RenderFrame* render_frame) {}
@@ -445,7 +409,7 @@ index 685c39f6aca2..cee77800770a 100644
    io_sessions_.clear();
    sessions_.clear();
 diff --git content/renderer/render_frame_impl.cc content/renderer/render_frame_impl.cc
-index 40f9cef599dc..323084e643d7 100644
+index 40f9cef599dc..ebbc6078b611 100644
 --- content/renderer/render_frame_impl.cc
 +++ content/renderer/render_frame_impl.cc
 @@ -3210,7 +3210,8 @@ blink::WebPlugin* RenderFrameImpl::CreatePlugin(
@@ -467,26 +431,6 @@ index 40f9cef599dc..323084e643d7 100644
  }
  
  void RenderFrameImpl::WillCommitProvisionalLoad() {
-@@ -5643,9 +5646,8 @@ WebNavigationPolicy RenderFrameImpl::DecidePolicyForNavigation(
-        (!IsBrowserSideNavigationEnabled() ||
-         url != pending_navigation_params_->request_params.redirects[0]));
- 
--#ifdef OS_ANDROID
--  bool render_view_was_created_by_renderer =
--      render_view_->was_created_by_renderer_;
-+  // CEF doesn't use this value, so just pass false.
-+  bool render_view_was_created_by_renderer = false;
-   // The handlenavigation API is deprecated and will be removed once
-   // crbug.com/325351 is resolved.
-   if ((!IsBrowserSideNavigationEnabled() || !IsURLHandledByNetworkStack(url)) &&
-@@ -5655,7 +5657,6 @@ WebNavigationPolicy RenderFrameImpl::DecidePolicyForNavigation(
-           is_redirect)) {
-     return blink::kWebNavigationPolicyIgnore;
-   }
--#endif
- 
-   // If the browser is interested, then give it a chance to look at the request.
-   if (is_content_initiated && IsTopLevelNavigation(frame_) &&
 diff --git content/renderer/render_thread_impl.cc content/renderer/render_thread_impl.cc
 index 10b32b1254c6..6ba3dfbe9d15 100644
 --- content/renderer/render_thread_impl.cc

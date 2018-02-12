@@ -838,13 +838,11 @@ class PopupNavTestHandler : public TestHandler {
       EXPECT_FALSE(got_popup_load_end2_);
     } else if (mode_ == NAVIGATE_AFTER_CREATION) {
       EXPECT_FALSE(got_popup_load_start_);
-      if (IsBrowserSideNavigationEnabled()) {
-        // With browser-side navigation we will never actually begin the
-        // navigation to the 1st popup URL, so there will be no load error.
-        EXPECT_FALSE(got_popup_load_error_);
-      } else {
-        EXPECT_TRUE(got_popup_load_error_);
-      }
+
+      // With browser-side navigation we will never actually begin the
+      // navigation to the 1st popup URL, so there will be no load error.
+      EXPECT_FALSE(got_popup_load_error_);
+
       EXPECT_FALSE(got_popup_load_end_);
       EXPECT_TRUE(got_popup_load_start2_);
       EXPECT_FALSE(got_popup_load_error2_);

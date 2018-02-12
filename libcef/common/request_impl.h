@@ -93,10 +93,6 @@ class CefRequestImpl : public CefRequest {
   void Set(const navigation_interception::NavigationParams& params,
            bool is_main_frame);
 
-  // Populate this object from a WebURLRequest object.
-  // Called from CefContentRendererClient::HandleNavigation().
-  void Set(const blink::WebURLRequest& request);
-
   // Populate the WebURLRequest object from this object.
   // Called from CefRenderURLRequest::Context::Start().
   void Get(blink::WebURLRequest& request, int64& upload_data_size) const;

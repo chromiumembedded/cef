@@ -490,19 +490,3 @@ bool TestFailed() {
     return ::testing::UnitTest::GetInstance()->Failed();
   }
 }
-
-bool IsBrowserSideNavigationEnabled() {
-  static bool initialized = false;
-  static bool value = false;  // Default value.
-  if (!initialized) {
-    CefRefPtr<CefCommandLine> command_line =
-        CefCommandLine::GetGlobalCommandLine();
-    if (command_line->HasSwitch("enable-browser-side-navigation")) {
-      value = true;
-    } else if (command_line->HasSwitch("disable-browser-side-navigation")) {
-      value = false;
-    }
-    initialized = true;
-  }
-  return value;
-}

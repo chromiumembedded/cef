@@ -488,68 +488,6 @@ bool CefContentRendererClient::OverrideCreatePlugin(
   return true;
 }
 
-bool CefContentRendererClient::HandleNavigation(
-    content::RenderFrame* render_frame,
-    bool is_content_initiated,
-    bool render_view_was_created_by_renderer,
-    blink::WebFrame* frame,
-    const blink::WebURLRequest& request,
-    blink::WebNavigationType type,
-    blink::WebNavigationPolicy default_policy,
-    bool is_redirect) {
-  if (!frame->IsWebLocalFrame())
-    return false;
-
-  CefRefPtr<CefApp> application = CefContentClient::Get()->application();
-  if (application.get()) {
-    CefRefPtr<CefRenderProcessHandler> handler =
-        application->GetRenderProcessHandler();
-    if (handler.get()) {
-      CefRefPtr<CefBrowserImpl> browserPtr =
-          CefBrowserImpl::GetBrowserForMainFrame(frame->Top());
-      if (browserPtr.get()) {
-        CefRefPtr<CefFrameImpl> framePtr =
-            browserPtr->GetWebFrameImpl(frame->ToWebLocalFrame());
-        CefRefPtr<CefRequest> requestPtr(CefRequest::Create());
-        CefRequestImpl* requestImpl =
-            static_cast<CefRequestImpl*>(requestPtr.get());
-        requestImpl->Set(request);
-        requestImpl->SetReadOnly(true);
-
-        cef_navigation_type_t navigation_type = NAVIGATION_OTHER;
-        switch (type) {
-          case blink::kWebNavigationTypeLinkClicked:
-            navigation_type = NAVIGATION_LINK_CLICKED;
-            break;
-          case blink::kWebNavigationTypeFormSubmitted:
-            navigation_type = NAVIGATION_FORM_SUBMITTED;
-            break;
-          case blink::kWebNavigationTypeBackForward:
-            navigation_type = NAVIGATION_BACK_FORWARD;
-            break;
-          case blink::kWebNavigationTypeReload:
-            navigation_type = NAVIGATION_RELOAD;
-            break;
-          case blink::kWebNavigationTypeFormResubmitted:
-            navigation_type = NAVIGATION_FORM_RESUBMITTED;
-            break;
-          case blink::kWebNavigationTypeOther:
-            navigation_type = NAVIGATION_OTHER;
-            break;
-        }
-
-        if (handler->OnBeforeNavigation(browserPtr.get(), framePtr.get(),
-                                        requestPtr.get(), navigation_type,
-                                        is_redirect)) {
-          return true;
-        }
-      }
-    }
-  }
-
-  return false;
-}
-
 bool CefContentRendererClient::ShouldFork(blink::WebLocalFrame* frame,
                                           const GURL& url,
                                           const std::string& http_method,

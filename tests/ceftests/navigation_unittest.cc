@@ -168,41 +168,6 @@ class HistoryNavRendererTest : public ClientAppRenderer::Delegate,
     SendTestResultsIfDone(browser);
   }
 
-  bool OnBeforeNavigation(CefRefPtr<ClientAppRenderer> app,
-                          CefRefPtr<CefBrowser> browser,
-                          CefRefPtr<CefFrame> frame,
-                          CefRefPtr<CefRequest> request,
-                          cef_navigation_type_t navigation_type,
-                          bool is_redirect) override {
-    if (!run_test_)
-      return false;
-
-    const NavListItem& item = kHNavList[nav_];
-
-    std::string url = request->GetURL();
-    EXPECT_STREQ(item.target, url.c_str());
-
-    EXPECT_EQ(RT_SUB_RESOURCE, request->GetResourceType());
-    EXPECT_EQ(TT_EXPLICIT, request->GetTransitionType());
-
-    if (item.action == NA_LOAD) {
-      EXPECT_EQ(NAVIGATION_OTHER, navigation_type);
-    } else if (item.action == NA_BACK || item.action == NA_FORWARD) {
-      EXPECT_EQ(NAVIGATION_BACK_FORWARD, navigation_type);
-    }
-
-    if (nav_ > 0) {
-      const NavListItem& last_item = kHNavList[nav_ - 1];
-      EXPECT_EQ(last_item.can_go_back, browser->CanGoBack());
-      EXPECT_EQ(last_item.can_go_forward, browser->CanGoForward());
-    } else {
-      EXPECT_FALSE(browser->CanGoBack());
-      EXPECT_FALSE(browser->CanGoForward());
-    }
-
-    return false;
-  }
-
  protected:
   void SendTestResultsIfDone(CefRefPtr<CefBrowser> browser) {
     if (got_load_end_ && got_loading_state_end_)
@@ -2448,13 +2413,11 @@ class PopupJSWindowOpenTestHandler : public TestHandler {
         EXPECT_TRUE(browser->IsSame(popup2_));
         popup2_ = nullptr;
 
-        if (IsBrowserSideNavigationEnabled()) {
-          // OnLoadingStateChange is not currently called for browser-side
-          // navigations of empty popups. See https://crbug.com/789252.
-          // Explicitly close the empty popup here as a workaround.
-          CloseBrowser(popup1_, true);
-          popup1_ = nullptr;
-        }
+        // OnLoadingStateChange is not currently called for browser-side
+        // navigations of empty popups. See https://crbug.com/789252.
+        // Explicitly close the empty popup here as a workaround.
+        CloseBrowser(popup1_, true);
+        popup1_ = nullptr;
       } else {
         // Empty popup.
         EXPECT_TRUE(url.empty());
@@ -2498,13 +2461,9 @@ class PopupJSWindowOpenTestHandler : public TestHandler {
     EXPECT_EQ(2U, after_created_ct_);
     EXPECT_EQ(2U, before_close_ct_);
 
-    if (IsBrowserSideNavigationEnabled()) {
-      // OnLoadingStateChange is not currently called for browser-side
-      // navigations of empty popups. See https://crbug.com/789252.
-      EXPECT_EQ(1U, load_end_ct_);
-    } else {
-      EXPECT_EQ(2U, load_end_ct_);
-    }
+    // OnLoadingStateChange is not currently called for browser-side
+    // navigations of empty popups. See https://crbug.com/789252.
+    EXPECT_EQ(1U, load_end_ct_);
 
     TestHandler::DestroyTest();
   }
@@ -3295,7 +3254,7 @@ class CancelAfterNavTestHandler : public TestHandler {
     // The required delay is longer when browser-side navigation is enabled.
     CefPostDelayedTask(TID_UI,
                        base::Bind(&CancelAfterNavTestHandler::CancelLoad, this),
-                       IsBrowserSideNavigationEnabled() ? 1000 : 100);
+                       1000);
 
     return new StalledSchemeHandler();
   }

@@ -33,7 +33,6 @@
 #include "net/http/http_util.h"
 #include "net/url_request/url_fetcher.h"
 #include "net/url_request/url_request.h"
-#include "third_party/WebKit/public/platform/WebHTTPHeaderVisitor.h"
 #include "third_party/WebKit/public/platform/WebString.h"
 #include "third_party/WebKit/public/platform/WebURL.h"
 #include "third_party/WebKit/public/platform/WebURLError.h"
@@ -160,18 +159,6 @@ blink::mojom::FetchCacheMode GetFetchCacheMode(int ur_flags) {
   return blink::mojom::FetchCacheMode::kDefault;
 }
 
-// Convert blink::WebCachePolicy to cef_urlrequest_flags_t.
-int GetURCachePolicy(blink::mojom::FetchCacheMode cache_mode) {
-  if (cache_mode == blink::mojom::FetchCacheMode::kUnspecifiedForceCacheMiss) {
-    return kURCachePolicyMask;
-  } else if (cache_mode == blink::mojom::FetchCacheMode::kBypassCache) {
-    return UR_FLAG_SKIP_CACHE;
-  } else if (cache_mode == blink::mojom::FetchCacheMode::kOnlyIfCached) {
-    return UR_FLAG_ONLY_FROM_CACHE;
-  }
-  return 0;
-}
-
 blink::WebString FilePathStringToWebString(
     const base::FilePath::StringType& str) {
 #if defined(OS_POSIX)
@@ -197,37 +184,6 @@ void GetHeaderMap(const net::HttpRequestHeaders& headers,
     if (!base::LowerCaseEqualsASCII(name, kReferrerLowerCase))
       map.insert(std::make_pair(name, it.value()));
   };
-}
-
-// Read |request| into |map|. If a Referer value is specified populate
-// |referrer|.
-void GetHeaderMap(const blink::WebURLRequest& request,
-                  CefRequest::HeaderMap& map,
-                  GURL& referrer) {
-  map.clear();
-
-  class HeaderVisitor : public blink::WebHTTPHeaderVisitor {
-   public:
-    HeaderVisitor(CefRequest::HeaderMap* map, GURL* referrer)
-        : map_(map), referrer_(referrer) {}
-
-    void VisitHeader(const blink::WebString& name,
-                     const blink::WebString& value) override {
-      const base::string16& nameStr = name.Utf16();
-      const base::string16& valueStr = value.Utf16();
-      if (base::LowerCaseEqualsASCII(nameStr, kReferrerLowerCase))
-        *referrer_ = GURL(valueStr);
-      else
-        map_->insert(std::make_pair(nameStr, valueStr));
-    }
-
-   private:
-    CefRequest::HeaderMap* map_;
-    GURL* referrer_;
-  };
-
-  HeaderVisitor visitor(&map, &referrer);
-  request.VisitHTTPHeaderFields(&visitor);
 }
 
 // Read |source| into |map|.
@@ -541,36 +497,6 @@ void CefRequestImpl::Set(
   resource_type_ = is_main_frame ? RT_MAIN_FRAME : RT_SUB_FRAME;
   transition_type_ =
       static_cast<cef_transition_type_t>(params.transition_type());
-}
-
-void CefRequestImpl::Set(const blink::WebURLRequest& request) {
-  DCHECK(!request.IsNull());
-
-  base::AutoLock lock_scope(lock_);
-  CHECK_READONLY_RETURN_VOID();
-
-  Reset();
-
-  url_ = request.Url();
-  method_ = request.HttpMethod().Utf8();
-
-  ::GetHeaderMap(request, headermap_, referrer_url_);
-  referrer_policy_ =
-      BlinkReferrerPolicyToNetReferrerPolicy(request.GetReferrerPolicy());
-
-  const blink::WebHTTPBody& body = request.HttpBody();
-  if (!body.IsNull()) {
-    postdata_ = new CefPostDataImpl();
-    static_cast<CefPostDataImpl*>(postdata_.get())->Set(body);
-  }
-
-  site_for_cookies_ = request.SiteForCookies();
-
-  flags_ |= GetURCachePolicy(request.GetCacheMode());
-  if (request.AllowStoredCredentials())
-    flags_ |= UR_FLAG_ALLOW_STORED_CREDENTIALS;
-  if (request.ReportUploadProgress())
-    flags_ |= UR_FLAG_REPORT_UPLOAD_PROGRESS;
 }
 
 void CefRequestImpl::Get(blink::WebURLRequest& request,

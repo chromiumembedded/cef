@@ -70,11 +70,6 @@ void CreateRenderDelegates(ClientAppRenderer::DelegateSet& delegates) {
                                                 delegates);
   CreateRequestHandlerRendererTests(delegates);
 
-  // Bring in the Request tests.
-  extern void CreateRequestRendererTests(ClientAppRenderer::DelegateSet &
-                                         delegates);
-  CreateRequestRendererTests(delegates);
-
   // Bring in the routing test handler delegate.
   extern void CreateRoutingTestHandlerDelegate(ClientAppRenderer::DelegateSet &
                                                delegates);

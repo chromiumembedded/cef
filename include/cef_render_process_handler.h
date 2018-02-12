@@ -93,20 +93,6 @@ class CefRenderProcessHandler : public virtual CefBaseRefCounted {
   virtual CefRefPtr<CefLoadHandler> GetLoadHandler() { return NULL; }
 
   ///
-  // Called before browser navigation. Return true to cancel the navigation or
-  // false to allow the navigation to proceed. The |request| object cannot be
-  // modified in this callback.
-  ///
-  /*--cef()--*/
-  virtual bool OnBeforeNavigation(CefRefPtr<CefBrowser> browser,
-                                  CefRefPtr<CefFrame> frame,
-                                  CefRefPtr<CefRequest> request,
-                                  NavigationType navigation_type,
-                                  bool is_redirect) {
-    return false;
-  }
-
-  ///
   // Called immediately after the V8 context for a frame has been created. To
   // retrieve the JavaScript 'window' object use the CefV8Context::GetGlobal()
   // method. V8 handles can only be accessed from the thread on which they are
