@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=2a93a2e7a17c81d39ad1b8c1c1aa93d5d90b1100$
+// $hash=1dbb0adf7ac5fd42b5a79d271834781664a7fd47$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_CLIENT_CAPI_H_
@@ -48,7 +48,6 @@
 #include "include/capi/cef_drag_handler_capi.h"
 #include "include/capi/cef_find_handler_capi.h"
 #include "include/capi/cef_focus_handler_capi.h"
-#include "include/capi/cef_geolocation_handler_capi.h"
 #include "include/capi/cef_jsdialog_handler_capi.h"
 #include "include/capi/cef_keyboard_handler_capi.h"
 #include "include/capi/cef_life_span_handler_capi.h"
@@ -113,13 +112,6 @@ typedef struct _cef_client_t {
   // Return the handler for focus events.
   ///
   struct _cef_focus_handler_t*(CEF_CALLBACK* get_focus_handler)(
-      struct _cef_client_t* self);
-
-  ///
-  // Return the handler for geolocation permissions requests. If no handler is
-  // provided geolocation access will be denied by default.
-  ///
-  struct _cef_geolocation_handler_t*(CEF_CALLBACK* get_geolocation_handler)(
       struct _cef_client_t* self);
 
   ///

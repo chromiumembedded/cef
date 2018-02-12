@@ -832,37 +832,6 @@ struct CefCookieTraits {
 ///
 typedef CefStructBase<CefCookieTraits> CefCookie;
 
-struct CefGeopositionTraits {
-  typedef cef_geoposition_t struct_type;
-
-  static inline void init(struct_type* s) {}
-
-  static inline void clear(struct_type* s) {
-    cef_string_clear(&s->error_message);
-  }
-
-  static inline void set(const struct_type* src,
-                         struct_type* target,
-                         bool copy) {
-    target->latitude = src->latitude;
-    target->longitude = src->longitude;
-    target->altitude = src->altitude;
-    target->accuracy = src->accuracy;
-    target->altitude_accuracy = src->altitude_accuracy;
-    target->heading = src->heading;
-    target->speed = src->speed;
-    target->timestamp = src->timestamp;
-    target->error_code = src->error_code;
-    cef_string_set(src->error_message.str, src->error_message.length,
-                   &target->error_message, copy);
-  }
-};
-
-///
-// Class representing a geoposition.
-///
-typedef CefStructBase<CefGeopositionTraits> CefGeoposition;
-
 struct CefCursorInfoTraits {
   typedef cef_cursor_info_t struct_type;
 

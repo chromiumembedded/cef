@@ -31,7 +31,6 @@ class ClientHandler : public CefClient,
                       public CefDownloadHandler,
                       public CefDragHandler,
                       public CefFocusHandler,
-                      public CefGeolocationHandler,
                       public CefKeyboardHandler,
                       public CefLifeSpanHandler,
                       public CefLoadHandler,
@@ -105,9 +104,6 @@ class ClientHandler : public CefClient,
   CefRefPtr<CefDownloadHandler> GetDownloadHandler() OVERRIDE { return this; }
   CefRefPtr<CefDragHandler> GetDragHandler() OVERRIDE { return this; }
   CefRefPtr<CefFocusHandler> GetFocusHandler() OVERRIDE { return this; }
-  CefRefPtr<CefGeolocationHandler> GetGeolocationHandler() OVERRIDE {
-    return this;
-  }
   CefRefPtr<CefKeyboardHandler> GetKeyboardHandler() OVERRIDE { return this; }
   CefRefPtr<CefLifeSpanHandler> GetLifeSpanHandler() OVERRIDE { return this; }
   CefRefPtr<CefLoadHandler> GetLoadHandler() OVERRIDE { return this; }
@@ -173,13 +169,6 @@ class ClientHandler : public CefClient,
 
   // CefFocusHandler methods
   void OnTakeFocus(CefRefPtr<CefBrowser> browser, bool next) OVERRIDE;
-
-  // CefGeolocationHandler methods
-  bool OnRequestGeolocationPermission(
-      CefRefPtr<CefBrowser> browser,
-      const CefString& requesting_url,
-      int request_id,
-      CefRefPtr<CefGeolocationCallback> callback) OVERRIDE;
 
   // CefKeyboardHandler methods
   bool OnPreKeyEvent(CefRefPtr<CefBrowser> browser,

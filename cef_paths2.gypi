@@ -442,7 +442,6 @@
       'tests/ceftests/extensions/view_unittest.cc',
       'tests/ceftests/file_util_unittest.cc',
       'tests/ceftests/frame_unittest.cc',
-      'tests/ceftests/geolocation_unittest.cc',
       'tests/ceftests/image_unittest.cc',
       'tests/ceftests/image_util.cc',
       'tests/ceftests/image_util.h',

@@ -497,18 +497,6 @@ void ClientHandler::OnTakeFocus(CefRefPtr<CefBrowser> browser, bool next) {
   NotifyTakeFocus(next);
 }
 
-bool ClientHandler::OnRequestGeolocationPermission(
-    CefRefPtr<CefBrowser> browser,
-    const CefString& requesting_url,
-    int request_id,
-    CefRefPtr<CefGeolocationCallback> callback) {
-  CEF_REQUIRE_UI_THREAD();
-
-  // Allow geolocation access from all websites.
-  callback->Continue(true);
-  return true;
-}
-
 bool ClientHandler::OnPreKeyEvent(CefRefPtr<CefBrowser> browser,
                                   const CefKeyEvent& event,
                                   CefEventHandle os_event,

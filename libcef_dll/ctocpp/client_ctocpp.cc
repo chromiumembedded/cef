@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=0fccd49cb20ab68370e1259052bda83c0cfd0a09$
+// $hash=d02e30103863b1d5eb2a8339f8bd8e5d01812f28$
 //
 
 #include "libcef_dll/ctocpp/client_ctocpp.h"
@@ -22,7 +22,6 @@
 #include "libcef_dll/ctocpp/drag_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/find_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/focus_handler_ctocpp.h"
-#include "libcef_dll/ctocpp/geolocation_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/jsdialog_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/keyboard_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/life_span_handler_ctocpp.h"
@@ -129,21 +128,6 @@ CefRefPtr<CefFocusHandler> CefClientCToCpp::GetFocusHandler() {
 
   // Return type: refptr_same
   return CefFocusHandlerCToCpp::Wrap(_retval);
-}
-
-CefRefPtr<CefGeolocationHandler> CefClientCToCpp::GetGeolocationHandler() {
-  cef_client_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_geolocation_handler))
-    return NULL;
-
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Execute
-  cef_geolocation_handler_t* _retval =
-      _struct->get_geolocation_handler(_struct);
-
-  // Return type: refptr_same
-  return CefGeolocationHandlerCToCpp::Wrap(_retval);
 }
 
 CefRefPtr<CefJSDialogHandler> CefClientCToCpp::GetJSDialogHandler() {

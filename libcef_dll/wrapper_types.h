@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=981e50d71f62734221727297117cf18f0ed9fd2e$
+// $hash=3fe3af71072987e46db28d1a94b8b6a9ad7d9e2a$
 //
 
 #ifndef CEF_LIBCEF_DLL_WRAPPER_TYPES_H_
@@ -62,10 +62,7 @@ enum CefWrapperType {
   WT_FIND_HANDLER,
   WT_FOCUS_HANDLER,
   WT_FRAME,
-  WT_GEOLOCATION_CALLBACK,
-  WT_GEOLOCATION_HANDLER,
   WT_GET_EXTENSION_RESOURCE_CALLBACK,
-  WT_GET_GEOLOCATION_CALLBACK,
   WT_IMAGE,
   WT_JSDIALOG_CALLBACK,
   WT_JSDIALOG_HANDLER,

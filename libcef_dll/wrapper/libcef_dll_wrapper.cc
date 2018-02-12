@@ -9,13 +9,12 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=c73e15357ba9d9047c54452fc244fadcf98b4760$
+// $hash=07d31c969dc527db8df550827d750aefa0abf1b8$
 //
 
 #include "include/capi/cef_app_capi.h"
 #include "include/capi/cef_crash_util_capi.h"
 #include "include/capi/cef_file_util_capi.h"
-#include "include/capi/cef_geolocation_capi.h"
 #include "include/capi/cef_origin_whitelist_capi.h"
 #include "include/capi/cef_parser_capi.h"
 #include "include/capi/cef_path_util_capi.h"
@@ -30,7 +29,6 @@
 #include "include/cef_app.h"
 #include "include/cef_crash_util.h"
 #include "include/cef_file_util.h"
-#include "include/cef_geolocation.h"
 #include "include/cef_origin_whitelist.h"
 #include "include/cef_parser.h"
 #include "include/cef_path_util.h"
@@ -60,8 +58,6 @@
 #include "libcef_dll/cpptoc/extension_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/find_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/focus_handler_cpptoc.h"
-#include "libcef_dll/cpptoc/geolocation_handler_cpptoc.h"
-#include "libcef_dll/cpptoc/get_geolocation_callback_cpptoc.h"
 #include "libcef_dll/cpptoc/jsdialog_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/keyboard_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/life_span_handler_cpptoc.h"
@@ -120,7 +116,6 @@
 #include "libcef_dll/ctocpp/extension_ctocpp.h"
 #include "libcef_dll/ctocpp/file_dialog_callback_ctocpp.h"
 #include "libcef_dll/ctocpp/frame_ctocpp.h"
-#include "libcef_dll/ctocpp/geolocation_callback_ctocpp.h"
 #include "libcef_dll/ctocpp/get_extension_resource_callback_ctocpp.h"
 #include "libcef_dll/ctocpp/image_ctocpp.h"
 #include "libcef_dll/ctocpp/jsdialog_callback_ctocpp.h"
@@ -281,12 +276,8 @@ CEF_GLOBAL void CefShutdown() {
   DCHECK(base::AtomicRefCountIsZero(&CefFindHandlerCppToC::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefFocusHandlerCppToC::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefFrameCToCpp::DebugObjCt));
-  DCHECK(base::AtomicRefCountIsZero(&CefGeolocationCallbackCToCpp::DebugObjCt));
-  DCHECK(base::AtomicRefCountIsZero(&CefGeolocationHandlerCppToC::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(
       &CefGetExtensionResourceCallbackCToCpp::DebugObjCt));
-  DCHECK(
-      base::AtomicRefCountIsZero(&CefGetGeolocationCallbackCppToC::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefImageCToCpp::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefJSDialogCallbackCToCpp::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefJSDialogHandlerCppToC::DebugObjCt));
@@ -577,23 +568,6 @@ CEF_GLOBAL void CefLoadCRLSetsFile(const CefString& path) {
 
   // Execute
   cef_load_crlsets_file(path.GetStruct());
-}
-
-CEF_GLOBAL bool CefGetGeolocation(
-    CefRefPtr<CefGetGeolocationCallback> callback) {
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Verify param: callback; type: refptr_diff
-  DCHECK(callback.get());
-  if (!callback.get())
-    return false;
-
-  // Execute
-  int _retval =
-      cef_get_geolocation(CefGetGeolocationCallbackCppToC::Wrap(callback));
-
-  // Return type: bool
-  return _retval ? true : false;
 }
 
 CEF_GLOBAL bool CefAddCrossOriginWhitelistEntry(

@@ -8,7 +8,7 @@
 # by hand. See the translator.README.txt file in the tools directory for
 # more information.
 #
-# $hash=5f69924ad7517dee8adf933a7c013616ebb94c36$
+# $hash=bede6f61d0f5b45669b8e924144e4200c41f869b$
 #
 
 {
@@ -38,8 +38,6 @@
       'include/cef_find_handler.h',
       'include/cef_focus_handler.h',
       'include/cef_frame.h',
-      'include/cef_geolocation.h',
-      'include/cef_geolocation_handler.h',
       'include/cef_image.h',
       'include/cef_jsdialog_handler.h',
       'include/cef_keyboard_handler.h',
@@ -131,8 +129,6 @@
       'include/capi/cef_find_handler_capi.h',
       'include/capi/cef_focus_handler_capi.h',
       'include/capi/cef_frame_capi.h',
-      'include/capi/cef_geolocation_capi.h',
-      'include/capi/cef_geolocation_handler_capi.h',
       'include/capi/cef_image_capi.h',
       'include/capi/cef_jsdialog_handler_capi.h',
       'include/capi/cef_keyboard_handler_capi.h',
@@ -286,14 +282,8 @@
       'libcef_dll/ctocpp/focus_handler_ctocpp.h',
       'libcef_dll/cpptoc/frame_cpptoc.cc',
       'libcef_dll/cpptoc/frame_cpptoc.h',
-      'libcef_dll/cpptoc/geolocation_callback_cpptoc.cc',
-      'libcef_dll/cpptoc/geolocation_callback_cpptoc.h',
-      'libcef_dll/ctocpp/geolocation_handler_ctocpp.cc',
-      'libcef_dll/ctocpp/geolocation_handler_ctocpp.h',
       'libcef_dll/cpptoc/get_extension_resource_callback_cpptoc.cc',
       'libcef_dll/cpptoc/get_extension_resource_callback_cpptoc.h',
-      'libcef_dll/ctocpp/get_geolocation_callback_ctocpp.cc',
-      'libcef_dll/ctocpp/get_geolocation_callback_ctocpp.h',
       'libcef_dll/cpptoc/image_cpptoc.cc',
       'libcef_dll/cpptoc/image_cpptoc.h',
       'libcef_dll/cpptoc/jsdialog_callback_cpptoc.cc',
@@ -572,14 +562,8 @@
       'libcef_dll/cpptoc/focus_handler_cpptoc.h',
       'libcef_dll/ctocpp/frame_ctocpp.cc',
       'libcef_dll/ctocpp/frame_ctocpp.h',
-      'libcef_dll/ctocpp/geolocation_callback_ctocpp.cc',
-      'libcef_dll/ctocpp/geolocation_callback_ctocpp.h',
-      'libcef_dll/cpptoc/geolocation_handler_cpptoc.cc',
-      'libcef_dll/cpptoc/geolocation_handler_cpptoc.h',
       'libcef_dll/ctocpp/get_extension_resource_callback_ctocpp.cc',
       'libcef_dll/ctocpp/get_extension_resource_callback_ctocpp.h',
-      'libcef_dll/cpptoc/get_geolocation_callback_cpptoc.cc',
-      'libcef_dll/cpptoc/get_geolocation_callback_cpptoc.h',
       'libcef_dll/ctocpp/image_ctocpp.cc',
       'libcef_dll/ctocpp/image_ctocpp.h',
       'libcef_dll/ctocpp/jsdialog_callback_ctocpp.cc',

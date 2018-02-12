@@ -121,7 +121,6 @@ class CefBrowserContextImpl : public CefBrowserContext,
 
   std::unique_ptr<CefDownloadManagerDelegate> download_manager_delegate_;
   scoped_refptr<CefURLRequestContextGetterImpl> url_request_getter_;
-  std::unique_ptr<content::PermissionManager> permission_manager_;
   std::unique_ptr<CefSSLHostStateDelegate> ssl_host_state_delegate_;
   scoped_refptr<HostContentSettingsMap> host_content_settings_map_;
   std::unique_ptr<visitedlink::VisitedLinkMaster> visitedlink_master_;
