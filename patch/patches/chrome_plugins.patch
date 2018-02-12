@@ -1,5 +1,5 @@
 diff --git chrome/browser/plugins/plugin_info_host_impl.cc chrome/browser/plugins/plugin_info_host_impl.cc
-index 1afbaf86ac40..e2edec854ca7 100644
+index 1afbaf86ac40..c80a499d4dc2 100644
 --- chrome/browser/plugins/plugin_info_host_impl.cc
 +++ chrome/browser/plugins/plugin_info_host_impl.cc
 @@ -18,6 +18,7 @@
@@ -82,7 +82,26 @@ index 1afbaf86ac40..e2edec854ca7 100644
    allow_outdated_plugins_.Init(prefs::kPluginsAllowOutdated,
                                 profile->GetPrefs());
    allow_outdated_plugins_.MoveToThread(
-@@ -325,6 +344,14 @@ void PluginInfoHostImpl::Context::DecidePluginStatus(
+@@ -264,6 +283,7 @@ void PluginInfoHostImpl::PluginsLoaded(
+         plugin_metadata->identifier(), &output->status);
+   }
+ 
++#if !BUILDFLAG(ENABLE_CEF)
+   if (output->status == chrome::mojom::PluginStatus::kNotFound) {
+     // Check to see if the component updater can fetch an implementation.
+     base::PostTaskAndReplyWithResult(
+@@ -275,7 +295,9 @@ void PluginInfoHostImpl::PluginsLoaded(
+         base::BindOnce(&PluginInfoHostImpl::ComponentPluginLookupDone, this,
+                        params, std::move(output), std::move(callback),
+                        std::move(plugin_metadata)));
+-  } else {
++  } else
++#endif  // !BUILDFLAG(ENABLE_CEF)
++  {
+     GetPluginInfoFinish(params, std::move(output), std::move(callback),
+                         std::move(plugin_metadata));
+   }
+@@ -325,6 +347,14 @@ void PluginInfoHostImpl::Context::DecidePluginStatus(
      PluginMetadata::SecurityStatus security_status,
      const std::string& plugin_identifier,
      chrome::mojom::PluginStatus* status) const {
@@ -97,7 +116,7 @@ index 1afbaf86ac40..e2edec854ca7 100644
    if (security_status == PluginMetadata::SECURITY_STATUS_FULLY_TRUSTED) {
      *status = chrome::mojom::PluginStatus::kAllowed;
      return;
-@@ -450,16 +477,36 @@ bool PluginInfoHostImpl::Context::FindEnabledPlugin(
+@@ -450,16 +480,36 @@ bool PluginInfoHostImpl::Context::FindEnabledPlugin(
      return false;
    }
  
