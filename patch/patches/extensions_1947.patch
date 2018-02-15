@@ -1,8 +1,8 @@
 diff --git content/browser/frame_host/render_frame_host_manager.cc content/browser/frame_host/render_frame_host_manager.cc
-index 0663535e3f81..e0e20722c820 100644
+index 3263eb9e324a..b5bde4cea8f7 100644
 --- content/browser/frame_host/render_frame_host_manager.cc
 +++ content/browser/frame_host/render_frame_host_manager.cc
-@@ -1082,10 +1082,11 @@ bool RenderFrameHostManager::ShouldSwapBrowsingInstancesForNavigation(
+@@ -890,10 +890,11 @@ bool RenderFrameHostManager::ShouldSwapBrowsingInstancesForNavigation(
    // TODO(alexmos): This check should've been enforced earlier in the
    // navigation, in chrome::Navigate().  Verify this, and then convert this to
    // a CHECK and remove the fallback.
@@ -18,7 +18,7 @@ index 0663535e3f81..e0e20722c820 100644
      return true;
    }
  
-@@ -1224,7 +1225,8 @@ RenderFrameHostManager::GetSiteInstanceForNavigation(
+@@ -1032,7 +1033,8 @@ RenderFrameHostManager::GetSiteInstanceForNavigation(
  
    // Double-check that the new SiteInstance is associated with the right
    // BrowserContext.
@@ -26,15 +26,15 @@ index 0663535e3f81..e0e20722c820 100644
 +  DCHECK(GetContentClient()->browser()->IsSameBrowserContext(
 +      new_instance->GetBrowserContext(), browser_context));
  
-   // If |new_instance| is a new SiteInstance for a subframe with an isolated
-   // origin, set its process reuse policy so that such subframes are
+   // If |new_instance| is a new SiteInstance for a subframe that requires a
+   // dedicated process, set its process reuse policy so that such subframes are
 diff --git content/public/browser/content_browser_client.h content/public/browser/content_browser_client.h
-index e56b320170df..26aa6fe50311 100644
+index 18767b608ce9..41f5dc26ffdc 100644
 --- content/public/browser/content_browser_client.h
 +++ content/public/browser/content_browser_client.h
-@@ -343,6 +343,13 @@ class CONTENT_EXPORT ContentBrowserClient {
-                                               const GURL& current_url,
-                                               const GURL& new_url);
+@@ -341,6 +341,13 @@ class CONTENT_EXPORT ContentBrowserClient {
+       const GURL& current_url,
+       const GURL& new_url);
  
 +  // Returns true if two browser contexts should be considered the same. CEF
 +  // uses this to treat *Impl and *Proxy contexts as the same.
@@ -47,10 +47,10 @@ index e56b320170df..26aa6fe50311 100644
    // current SiteInstance, if it does not yet have a site.
    virtual bool ShouldAssignSiteForURL(const GURL& url);
 diff --git extensions/browser/extension_host.cc extensions/browser/extension_host.cc
-index e85940e1123a..7d4e3c13204b 100644
+index d60c12116dcc..70d376348c46 100644
 --- extensions/browser/extension_host.cc
 +++ extensions/browser/extension_host.cc
-@@ -69,11 +69,12 @@ ExtensionHost::ExtensionHost(const Extension* extension,
+@@ -68,11 +68,12 @@ ExtensionHost::ExtensionHost(const Extension* extension,
    DCHECK(host_type == VIEW_TYPE_EXTENSION_BACKGROUND_PAGE ||
           host_type == VIEW_TYPE_EXTENSION_DIALOG ||
           host_type == VIEW_TYPE_EXTENSION_POPUP);
@@ -67,7 +67,7 @@ index e85940e1123a..7d4e3c13204b 100644
  
    render_view_host_ = host_contents_->GetRenderViewHost();
  
-@@ -88,6 +89,48 @@ ExtensionHost::ExtensionHost(const Extension* extension,
+@@ -87,6 +88,48 @@ ExtensionHost::ExtensionHost(const Extension* extension,
        dispatcher()->set_delegate(this);
  }
  
@@ -152,7 +152,7 @@ index 34812c083bf5..1ccfaf6e1c45 100644
    // A weak pointer to the current or pending RenderViewHost. We don't access
    // this through the host_contents because we want to deal with the pending
 diff --git extensions/browser/extensions_browser_client.h extensions/browser/extensions_browser_client.h
-index 69434c704f2f..f31b65fcd192 100644
+index 267a40121d8e..fc68e632465c 100644
 --- extensions/browser/extensions_browser_client.h
 +++ extensions/browser/extensions_browser_client.h
 @@ -53,6 +53,7 @@ class ComponentExtensionResourceManager;
@@ -191,10 +191,10 @@ index 69434c704f2f..f31b65fcd192 100644
    // once each time the extensions system is loaded per browser_context. The
    // implementation may wish to use the BrowserContext to record the current
 diff --git extensions/browser/process_manager.cc extensions/browser/process_manager.cc
-index 5a06db3d4495..b960853f02b2 100644
+index fec28715c0fe..74564954904f 100644
 --- extensions/browser/process_manager.cc
 +++ extensions/browser/process_manager.cc
-@@ -349,9 +349,16 @@ bool ProcessManager::CreateBackgroundHost(const Extension* extension,
+@@ -351,9 +351,16 @@ bool ProcessManager::CreateBackgroundHost(const Extension* extension,
      return true;  // TODO(kalman): return false here? It might break things...
  
    DVLOG(1) << "CreateBackgroundHost " << extension->id();

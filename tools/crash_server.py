@@ -249,8 +249,10 @@ class CrashHTTPRequestHandler(BaseHTTPRequestHandler):
     #   Content-Encoding: gzip
     print self.headers
 
-    chunked = 'Transfer-Encoding' in self.headers and self.headers['Transfer-Encoding'] == 'chunked'
-    compressed = 'Content-Encoding' in self.headers and self.headers['Content-Encoding'] == 'gzip'
+    chunked = 'Transfer-Encoding' in self.headers and self.headers['Transfer-Encoding'].lower(
+    ) == 'chunked'
+    compressed = 'Content-Encoding' in self.headers and self.headers['Content-Encoding'].lower(
+    ) == 'gzip'
     if chunked:
       request_body = self._unchunk_request(compressed)
     else:
@@ -286,7 +288,13 @@ class CrashHTTPRequestHandler(BaseHTTPRequestHandler):
     # Write the metadata to file.
     meta_file = os.path.join(self._dump_directory, dump_id + '.json')
     with open(meta_file, 'w') as fp:
-      json.dump(metadata, fp)
+      json.dump(
+          metadata,
+          fp,
+          ensure_ascii=False,
+          encoding='utf8',
+          indent=2,
+          sort_keys=True)
 
 
 def HandleRequestsUsing(dump_store):

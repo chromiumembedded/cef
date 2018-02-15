@@ -78,14 +78,14 @@ class CefPrintingMessageFilter : public content::BrowserMessageFilter {
                         int preview_request_id,
                         bool* cancel);
 
+  std::unique_ptr<KeyedServiceShutdownNotifier::Subscription>
+      printing_shutdown_notifier_;
+
   BooleanPrefMember is_printing_enabled_;
 
   const int render_process_id_;
 
   scoped_refptr<PrintQueriesQueue> queue_;
-
-  std::unique_ptr<KeyedServiceShutdownNotifier::Subscription>
-      shutdown_notifier_;
 
   DISALLOW_COPY_AND_ASSIGN(CefPrintingMessageFilter);
 };

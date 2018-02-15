@@ -4,6 +4,7 @@
 
 #include "libcef/common/cef_crash_report_upload_thread.h"
 
+#include "libcef/common/cef_crash_report_utils.h"
 #include "third_party/crashpad/crashpad/client/settings.h"
 
 using namespace crashpad;
@@ -157,6 +158,11 @@ void CefCrashReportUploadThread::ProcessPendingReport(
       IncreaseBackoff();
       break;
   }
+}
+
+CrashReportUploadThread::ParameterMap
+CefCrashReportUploadThread::FilterParameters(const ParameterMap& parameters) {
+  return crash_report_utils::FilterParameters(parameters);
 }
 
 bool CefCrashReportUploadThread::UploadsEnabled() const {

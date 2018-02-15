@@ -20,9 +20,7 @@ CertPolicy::~CertPolicy() {}
 bool CertPolicy::Check(const net::X509Certificate& cert,
                        net::CertStatus error) const {
   net::SHA256HashValue fingerprint = cert.CalculateChainFingerprint256();
-  std::map<net::SHA256HashValue, net::CertStatus,
-           net::SHA256HashValueLessThan>::const_iterator allowed_iter =
-      allowed_.find(fingerprint);
+  const auto& allowed_iter = allowed_.find(fingerprint);
   if ((allowed_iter != allowed_.end()) && (allowed_iter->second & error) &&
       ((allowed_iter->second & error) == error)) {
     return true;

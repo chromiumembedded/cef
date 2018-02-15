@@ -11,6 +11,7 @@
         ]
       },
       "requires": {
+        "chrome_printing": [ "converter" ],
         "proxy_resolver": [ "factory" ]
       }
     },

@@ -266,6 +266,33 @@ def transfer_files(cef_dir, script_dir, transfer_cfg_dir, mode, output_dir,
   eval_transfer_file(cef_dir, script_dir, transfer_cfg, output_dir, quiet)
 
 
+# |paths| is a list of dictionary values with the following keys:
+# path        [required]  Input file or directory path relative to |build_dir|.
+#                         By default this will also be the output path relative
+#                         to |dst_dir|.
+# out_path    [optional]  Override the output path relative to |dst_dir|.
+# conditional [optional]  Set to True if the path is conditional on build
+#                         settings. Missing conditional paths will not be
+#                         treated as an error.
+def copy_files_list(build_dir, dst_dir, paths):
+  ''' Copy the files listed in |paths| from |build_dir| to |dst_dir|. '''
+  for entry in paths:
+    source_path = os.path.join(build_dir, entry['path'])
+    if os.path.exists(source_path):
+      target_path = os.path.join(dst_dir, entry['out_path']
+                                 if 'out_path' in entry else entry['path'])
+      make_dir(os.path.dirname(target_path), options.quiet)
+      if os.path.isdir(source_path):
+        copy_dir(source_path, target_path, options.quiet)
+      else:
+        copy_file(source_path, target_path, options.quiet)
+    else:
+      if 'conditional' in entry and entry['conditional']:
+        sys.stdout.write('Missing conditional path: %s.\n' % source_path)
+      else:
+        raise Exception('Missing required path: %s' % source_path)
+
+
 def combine_libs(build_dir, libs, dest_lib):
   """ Combine multiple static libraries into a single static library. """
   cmdline = 'msvs_env.bat win%s python combine_libs.py -o "%s"' % (
@@ -653,23 +680,44 @@ if mode == 'standard':
             os.path.join(output_dir, 'cef_paths2.gypi'), options.quiet)
 
 if platform == 'windows':
+  libcef_dll = 'libcef.dll'
+  libcef_dll_lib = '%s.lib' % libcef_dll
+  libcef_dll_pdb = '%s.pdb' % libcef_dll
+  # yapf: disable
   binaries = [
-    {'path': 'chrome_elf.dll'},
-    {'path': 'd3dcompiler_47.dll'},
-    {'path': 'libcef.dll'},
-    {'path': 'libEGL.dll'},
-    {'path': 'libGLESv2.dll'},
-    {'path': 'natives_blob.bin'},
-    {'path': 'snapshot_blob.bin'},
-    {'path': 'v8_context_snapshot.bin'},
-    # Should match the output path from media/cdm/ppapi/cdm_paths.gni.
-    {'path': 'WidevineCdm\\_platform_specific\\win_%s\\widevinecdmadapter.dll' % \
-      ('x64' if options.x64build else 'x86'), 'strip_folder': True},
-    {'path': 'swiftshader\\libEGL.dll'},
-    {'path': 'swiftshader\\libGLESv2.dll'},
+      {'path': 'chrome_elf.dll'},
+      {'path': 'd3dcompiler_47.dll'},
+      {'path': libcef_dll},
+      {'path': 'libEGL.dll'},
+      {'path': 'libGLESv2.dll'},
+      {'path': 'natives_blob.bin'},
+      {'path': 'snapshot_blob.bin', 'conditional': True},
+      {'path': 'v8_context_snapshot.bin', 'conditional': True},
+      # Should match the output path from media/cdm/ppapi/cdm_paths.gni.
+      {'path': 'WidevineCdm\\_platform_specific\\win_%s\\widevinecdmadapter.dll' % \
+        ('x64' if options.x64build else 'x86'), 'out_path': 'widevinecdmadapter.dll'},
+      {'path': 'swiftshader\\libEGL.dll'},
+      {'path': 'swiftshader\\libGLESv2.dll'},
   ]
+  # yapf: enable
 
-  libcef_dll_file = 'libcef.dll.lib'
+  if mode == 'client':
+    binaries.append({'path': 'cefclient.exe'})
+  else:
+    binaries.append({'path': libcef_dll_lib, 'out_path': 'libcef.lib'})
+
+  # yapf: disable
+  resources = [
+      {'path': 'cef.pak'},
+      {'path': 'cef_100_percent.pak'},
+      {'path': 'cef_200_percent.pak'},
+      {'path': 'cef_extensions.pak'},
+      {'path': 'devtools_resources.pak'},
+      {'path': 'icudtl.dat'},
+      {'path': 'locales'},
+  ]
+  # yapf: enable
+
   cef_sandbox_lib = 'obj\\cef\\cef_sandbox.lib'
   sandbox_libs = [
       'obj\\base\\base.lib',
@@ -702,22 +750,12 @@ if platform == 'windows':
     # transfer Debug files
     build_dir = build_dir_debug
     if not options.allowpartial or path_exists(
-        os.path.join(build_dir, 'libcef.dll')):
+        os.path.join(build_dir, libcef_dll)):
       valid_build_dir = build_dir
       dst_dir = os.path.join(output_dir, 'Debug')
-      make_dir(dst_dir, options.quiet)
+      copy_files_list(build_dir, dst_dir, binaries)
       copy_files(
           os.path.join(script_dir, 'distrib/win/*.dll'), dst_dir, options.quiet)
-      for binary in binaries:
-        if 'strip_folder' in binary and binary['strip_folder']:
-          target_path = os.path.join(dst_dir, os.path.basename(binary['path']))
-        else:
-          target_path = os.path.join(dst_dir, binary['path'])
-          make_dir(os.path.dirname(target_path), options.quiet)
-        copy_file(
-            os.path.join(build_dir, binary['path']), target_path, options.quiet)
-      copy_file(os.path.join(build_dir, libcef_dll_file), os.path.join(dst_dir, 'libcef.lib'), \
-                options.quiet)
 
       if not options.nosymbols:
         # create the symbol output directory
@@ -725,36 +763,21 @@ if platform == 'windows':
             output_dir_name + '_debug_symbols', options.outputdir)
         # transfer contents
         copy_file(
-            os.path.join(build_dir, 'libcef.dll.pdb'), symbol_output_dir,
+            os.path.join(build_dir, libcef_dll_pdb), symbol_output_dir,
             options.quiet)
     else:
-      sys.stderr.write("No Debug build files.\n")
+      sys.stdout.write("No Debug build files.\n")
 
   if mode != 'sandbox':
     # transfer Release files
     build_dir = build_dir_release
     if not options.allowpartial or path_exists(
-        os.path.join(build_dir, 'libcef.dll')):
+        os.path.join(build_dir, libcef_dll)):
       valid_build_dir = build_dir
       dst_dir = os.path.join(output_dir, 'Release')
-      make_dir(dst_dir, options.quiet)
+      copy_files_list(build_dir, dst_dir, binaries)
       copy_files(
           os.path.join(script_dir, 'distrib/win/*.dll'), dst_dir, options.quiet)
-      for binary in binaries:
-        if 'strip_folder' in binary and binary['strip_folder']:
-          target_path = os.path.join(dst_dir, os.path.basename(binary['path']))
-        else:
-          target_path = os.path.join(dst_dir, binary['path'])
-          make_dir(os.path.dirname(target_path), options.quiet)
-        copy_file(
-            os.path.join(build_dir, binary['path']), target_path, options.quiet)
-
-      if mode != 'client':
-        copy_file(os.path.join(build_dir, libcef_dll_file), os.path.join(dst_dir, 'libcef.lib'), \
-            options.quiet)
-      else:
-        copy_file(
-            os.path.join(build_dir, 'cefclient.exe'), dst_dir, options.quiet)
 
       if not options.nosymbols:
         # create the symbol output directory
@@ -762,10 +785,10 @@ if platform == 'windows':
             output_dir_name + '_release_symbols', options.outputdir)
         # transfer contents
         copy_file(
-            os.path.join(build_dir, 'libcef.dll.pdb'), symbol_output_dir,
+            os.path.join(build_dir, libcef_dll_pdb), symbol_output_dir,
             options.quiet)
     else:
-      sys.stderr.write("No Release build files.\n")
+      sys.stdout.write("No Release build files.\n")
 
   if not valid_build_dir is None:
     # transfer resource files
@@ -774,21 +797,7 @@ if platform == 'windows':
       dst_dir = os.path.join(output_dir, 'Release')
     else:
       dst_dir = os.path.join(output_dir, 'Resources')
-    make_dir(dst_dir, options.quiet)
-    copy_file(os.path.join(build_dir, 'cef.pak'), dst_dir, options.quiet)
-    copy_file(
-        os.path.join(build_dir, 'cef_100_percent.pak'), dst_dir, options.quiet)
-    copy_file(
-        os.path.join(build_dir, 'cef_200_percent.pak'), dst_dir, options.quiet)
-    copy_file(
-        os.path.join(build_dir, 'cef_extensions.pak'), dst_dir, options.quiet)
-    copy_file(
-        os.path.join(build_dir, 'devtools_resources.pak'), dst_dir,
-        options.quiet)
-    copy_file(os.path.join(build_dir, 'icudtl.dat'), dst_dir, options.quiet)
-    copy_dir(
-        os.path.join(build_dir, 'locales'),
-        os.path.join(dst_dir, 'locales'), options.quiet)
+    copy_files_list(build_dir, dst_dir, resources)
 
   if mode == 'standard' or mode == 'minimal':
     # transfer include files
@@ -831,14 +840,17 @@ if platform == 'windows':
       copy_dir(src_dir, docs_output_dir, options.quiet)
 
 elif platform == 'macosx':
-  valid_build_dir = None
   framework_name = 'Chromium Embedded Framework'
+  framework_dsym = '%s.dSYM' % framework_name
+  cefclient_app = 'cefclient.app'
+
+  valid_build_dir = None
 
   if mode == 'standard':
     # transfer Debug files
     build_dir = build_dir_debug
     if not options.allowpartial or path_exists(
-        os.path.join(build_dir, 'cefclient.app')):
+        os.path.join(build_dir, cefclient_app)):
       valid_build_dir = build_dir
       dst_dir = os.path.join(output_dir, 'Debug')
       make_dir(dst_dir, options.quiet)
@@ -857,14 +869,15 @@ elif platform == 'macosx':
         # dSYMs are only generated when is_official_build=true or enable_dsyms=true.
         # See //build/config/mac/symbols.gni.
         copy_dir(
-            os.path.join(build_dir, '%s.dSYM' % framework_name),
-            os.path.join(symbol_output_dir, '%s.dSYM' % framework_name),
-            options.quiet)
+            os.path.join(build_dir, framework_dsym),
+            os.path.join(symbol_output_dir, framework_dsym), options.quiet)
+    else:
+      sys.stdout.write("No Debug build files.\n")
 
   # transfer Release files
   build_dir = build_dir_release
   if not options.allowpartial or path_exists(
-      os.path.join(build_dir, 'cefclient.app')):
+      os.path.join(build_dir, cefclient_app)):
     valid_build_dir = build_dir
     dst_dir = os.path.join(output_dir, 'Release')
     make_dir(dst_dir, options.quiet)
@@ -876,8 +889,8 @@ elif platform == 'macosx':
                 os.path.join(dst_dir, 'widevinecdmadapter.plugin'), options.quiet)
     else:
       copy_dir(
-          os.path.join(build_dir, 'cefclient.app'),
-          os.path.join(dst_dir, 'cefclient.app'), options.quiet)
+          os.path.join(build_dir, cefclient_app),
+          os.path.join(dst_dir, cefclient_app), options.quiet)
 
     if not options.nosymbols:
       # create the symbol output directory
@@ -888,9 +901,10 @@ elif platform == 'macosx':
       # dSYMs are only generated when is_official_build=true or enable_dsyms=true.
       # See //build/config/mac/symbols.gni.
       copy_dir(
-          os.path.join(build_dir, '%s.dSYM' % framework_name),
-          os.path.join(symbol_output_dir, '%s.dSYM' % framework_name),
-          options.quiet)
+          os.path.join(build_dir, framework_dsym),
+          os.path.join(symbol_output_dir, framework_dsym), options.quiet)
+  else:
+    sys.stdout.write("No Release build files.\n")
 
   if mode == 'standard' or mode == 'minimal':
     # transfer include files
@@ -940,62 +954,59 @@ elif platform == 'macosx':
              options.quiet)
 
 elif platform == 'linux':
+  libcef_so = 'libcef.so'
+  # yapf: disable
   binaries = [
-    {'path': 'libEGL.so'},
-    {'path': 'libGLESv2.so'},
-    {'path': 'libwidevinecdmadapter.so'},
-    {'path': 'natives_blob.bin'},
-    {'path': 'snapshot_blob.bin'},
-    {'path': 'v8_context_snapshot.bin'},
-    {'path': 'swiftshader/libEGL.so'},
-    {'path': 'swiftshader/libGLESv2.so'},
+      {'path': 'chrome_sandbox', 'out_path': 'chrome-sandbox'},
+      {'path': libcef_so},
+      {'path': 'libEGL.so'},
+      {'path': 'libGLESv2.so'},
+      {'path': 'libwidevinecdmadapter.so'},
+      {'path': 'natives_blob.bin'},
+      {'path': 'snapshot_blob.bin', 'conditional': True},
+      {'path': 'v8_context_snapshot.bin', 'conditional': True},
+      {'path': 'swiftshader/libEGL.so'},
+      {'path': 'swiftshader/libGLESv2.so'},
   ]
+  # yapf: enable
+
+  if mode == 'client':
+    binaries.append({'path': 'cefclient'})
+
+  # yapf: disable
+  resources = [
+      {'path': 'cef.pak'},
+      {'path': 'cef_100_percent.pak'},
+      {'path': 'cef_200_percent.pak'},
+      {'path': 'cef_extensions.pak'},
+      {'path': 'devtools_resources.pak'},
+      {'path': 'icudtl.dat'},
+      {'path': 'locales'},
+  ]
+  # yapf: enable
 
   valid_build_dir = None
 
   if mode == 'standard':
     # transfer Debug files
     build_dir = build_dir_debug
-    libcef_path = os.path.join(build_dir, 'libcef.so')
+    libcef_path = os.path.join(build_dir, libcef_so)
     if not options.allowpartial or path_exists(libcef_path):
       valid_build_dir = build_dir
       dst_dir = os.path.join(output_dir, 'Debug')
-      make_dir(dst_dir, options.quiet)
-      copy_file(
-          os.path.join(build_dir, 'chrome_sandbox'),
-          os.path.join(dst_dir, 'chrome-sandbox'), options.quiet)
-      copy_file(libcef_path, dst_dir, options.quiet)
-
-      for binary in binaries:
-        target_path = os.path.join(dst_dir, binary['path'])
-        make_dir(os.path.dirname(target_path), options.quiet)
-        copy_file(
-            os.path.join(build_dir, binary['path']), target_path, options.quiet)
+      copy_files_list(build_dir, dst_dir, binaries)
     else:
-      sys.stderr.write("No Debug build files.\n")
+      sys.stdout.write("No Debug build files.\n")
 
   # transfer Release files
   build_dir = build_dir_release
-  libcef_path = os.path.join(build_dir, 'libcef.so')
+  libcef_path = os.path.join(build_dir, libcef_so)
   if not options.allowpartial or path_exists(libcef_path):
     valid_build_dir = build_dir
     dst_dir = os.path.join(output_dir, 'Release')
-    make_dir(dst_dir, options.quiet)
-
-    if mode == 'client':
-      copy_file(os.path.join(build_dir, 'cefsimple'), dst_dir, options.quiet)
-    copy_file(libcef_path, dst_dir, options.quiet)
-    copy_file(
-        os.path.join(build_dir, 'chrome_sandbox'),
-        os.path.join(dst_dir, 'chrome-sandbox'), options.quiet)
-
-    for binary in binaries:
-      target_path = os.path.join(dst_dir, binary['path'])
-      make_dir(os.path.dirname(target_path), options.quiet)
-      copy_file(
-          os.path.join(build_dir, binary['path']), target_path, options.quiet)
+    copy_files_list(build_dir, dst_dir, binaries)
   else:
-    sys.stderr.write("No Release build files.\n")
+    sys.stdout.write("No Release build files.\n")
 
   if not valid_build_dir is None:
     # transfer resource files
@@ -1004,21 +1015,7 @@ elif platform == 'linux':
       dst_dir = os.path.join(output_dir, 'Release')
     else:
       dst_dir = os.path.join(output_dir, 'Resources')
-    make_dir(dst_dir, options.quiet)
-    copy_file(os.path.join(build_dir, 'cef.pak'), dst_dir, options.quiet)
-    copy_file(
-        os.path.join(build_dir, 'cef_100_percent.pak'), dst_dir, options.quiet)
-    copy_file(
-        os.path.join(build_dir, 'cef_200_percent.pak'), dst_dir, options.quiet)
-    copy_file(
-        os.path.join(build_dir, 'cef_extensions.pak'), dst_dir, options.quiet)
-    copy_file(
-        os.path.join(build_dir, 'devtools_resources.pak'), dst_dir,
-        options.quiet)
-    copy_file(os.path.join(build_dir, 'icudtl.dat'), dst_dir, options.quiet)
-    copy_dir(
-        os.path.join(build_dir, 'locales'),
-        os.path.join(dst_dir, 'locales'), options.quiet)
+    copy_files_list(build_dir, dst_dir, resources)
 
   if mode == 'standard' or mode == 'minimal':
     # transfer include files

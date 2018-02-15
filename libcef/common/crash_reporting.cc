@@ -10,9 +10,11 @@
 #include "base/base_switches.h"
 #include "base/command_line.h"
 #include "base/debug/crash_logging.h"
+#include "base/strings/string_piece.h"
 #include "base/strings/string_util.h"
 #include "chrome/common/crash_keys.h"
 #include "components/crash/core/common/crash_key.h"
+#include "components/crash/core/common/crash_keys.h"
 #include "content/public/common/content_switches.h"
 
 #if defined(OS_MACOSX)
@@ -32,13 +34,54 @@
 #include "v8/include/v8.h"
 #endif
 
-#if defined(OS_WIN)
-#include "libcef/common/crash_reporting_win.h"
-#endif
-
 namespace crash_reporting {
 
 namespace {
+
+#if defined(OS_WIN)
+
+const base::FilePath::CharType kChromeElfDllName[] =
+    FILE_PATH_LITERAL("chrome_elf.dll");
+
+// exported in crash_reporter_client.cc:
+//    int __declspec(dllexport) __cdecl SetCrashKeyValueImpl.
+typedef int(__cdecl* SetCrashKeyValue)(const char*,
+                                       size_t,
+                                       const char*,
+                                       size_t);
+
+//    int __declspec(dllexport) __cdecl IsCrashReportingEnabledImpl.
+typedef int(__cdecl* IsCrashReportingEnabled)();
+
+bool SetCrashKeyValueTrampoline(const base::StringPiece& key,
+                                const base::StringPiece& value) {
+  static SetCrashKeyValue set_crash_key = []() {
+    HMODULE elf_module = GetModuleHandle(kChromeElfDllName);
+    return reinterpret_cast<SetCrashKeyValue>(
+        elf_module ? GetProcAddress(elf_module, "SetCrashKeyValueImpl")
+                   : nullptr);
+  }();
+  if (set_crash_key) {
+    return !!(set_crash_key)(key.data(), key.size(), value.data(),
+                             value.size());
+  }
+  return false;
+}
+
+bool IsCrashReportingEnabledTrampoline() {
+  static IsCrashReportingEnabled is_crash_reporting_enabled = []() {
+    HMODULE elf_module = GetModuleHandle(kChromeElfDllName);
+    return reinterpret_cast<IsCrashReportingEnabled>(
+        elf_module ? GetProcAddress(elf_module, "IsCrashReportingEnabledImpl")
+                   : nullptr);
+  }();
+  if (is_crash_reporting_enabled) {
+    return !!(is_crash_reporting_enabled)();
+  }
+  return false;
+}
+
+#endif  // defined(OS_WIN)
 
 bool g_crash_reporting_enabled = false;
 
@@ -109,7 +152,8 @@ bool IsBoringCEFSwitch(const std::string& flag) {
 
       // Chromium internals.
       "content-image-texture-target", "mojo-platform-channel-handle",
-      "primordial-pipe-token", "service-request-channel-token",
+      "primordial-pipe-token", "service-pipe-token",
+      "service-request-channel-token",
   };
 
   if (!base::StartsWith(flag, "--", base::CompareCase::SENSITIVE))
@@ -128,6 +172,18 @@ bool IsBoringCEFSwitch(const std::string& flag) {
 
 bool Enabled() {
   return g_crash_reporting_enabled;
+}
+
+bool SetCrashKeyValue(const base::StringPiece& key,
+                      const base::StringPiece& value) {
+  if (!g_crash_reporting_enabled)
+    return false;
+
+#if defined(OS_WIN)
+  return SetCrashKeyValueTrampoline(key, value);
+#else
+  return g_crash_reporter_client.Pointer()->SetCrashKeyValue(key, value);
+#endif
 }
 
 #if defined(OS_POSIX)
@@ -152,9 +208,7 @@ void PreSandboxStartup(const base::CommandLine& command_line,
   // Windows is initialized from context.cc.
   InitCrashReporter(command_line, process_type);
 #elif defined(OS_WIN)
-  // Initialize crash key globals in the module (libcef) address space.
-  g_crash_reporting_enabled =
-      crash_reporting_win::InitializeCrashReportingForModule();
+  g_crash_reporting_enabled = IsCrashReportingEnabledTrampoline();
 #endif
 
   if (g_crash_reporting_enabled) {
@@ -196,5 +250,8 @@ bool CefCrashReportingEnabled() {
 }
 
 void CefSetCrashKeyValue(const CefString& key, const CefString& value) {
-  base::debug::SetCrashKeyValue(key.ToString(), value.ToString());
+  if (!crash_reporting::SetCrashKeyValue(key.ToString(), value.ToString())) {
+    LOG(WARNING) << "Failed to set crash key: " << key.ToString()
+                 << " with value: " << value.ToString();
+  }
 }

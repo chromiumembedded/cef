@@ -239,8 +239,7 @@ CefRenderWidgetHostViewOSR::CefRenderWidgetHostViewOSR(
 #if !defined(OS_MACOSX)
   delegated_frame_host_ = base::MakeUnique<content::DelegatedFrameHost>(
       AllocateFrameSinkId(is_guest_view_hack), this,
-      false /* enable_surface_synchronization */,
-      base::CommandLine::ForCurrentProcess()->HasSwitch(switches::kEnableViz));
+      false /* enable_surface_synchronization */, false /* enable_viz */);
 
   root_layer_.reset(new ui::Layer(ui::LAYER_SOLID_COLOR));
 #endif
@@ -321,11 +320,6 @@ void CefRenderWidgetHostViewOSR::InitAsChild(gfx::NativeView parent_view) {
 
   ResizeRootLayer();
   Show();
-}
-
-content::RenderWidgetHost* CefRenderWidgetHostViewOSR::GetRenderWidgetHost()
-    const {
-  return render_widget_host_;
 }
 
 void CefRenderWidgetHostViewOSR::SetSize(const gfx::Size& size) {}
@@ -710,6 +704,17 @@ gfx::Rect CefRenderWidgetHostViewOSR::GetBoundsInRootWindow() {
   return GetViewBounds();
 }
 
+content::RenderWidgetHostImpl*
+CefRenderWidgetHostViewOSR::GetRenderWidgetHostImpl() const {
+  return render_widget_host_;
+}
+
+viz::SurfaceId CefRenderWidgetHostViewOSR::GetCurrentSurfaceId() const {
+  return GetDelegatedFrameHost()
+             ? GetDelegatedFrameHost()->GetCurrentSurfaceId()
+             : viz::SurfaceId();
+}
+
 content::BrowserAccessibilityManager*
 CefRenderWidgetHostViewOSR::CreateBrowserAccessibilityManager(
     content::BrowserAccessibilityDelegate* delegate,
@@ -799,34 +804,10 @@ void CefRenderWidgetHostViewOSR::SetNeedsBeginFrames(bool enabled) {
   }
 }
 
-void CefRenderWidgetHostViewOSR::ProcessKeyboardEvent(
-    const content::NativeWebKeyboardEvent& event,
-    const ui::LatencyInfo& latency) {
-  render_widget_host_->ForwardKeyboardEventWithLatencyInfo(event, latency);
-}
-
-void CefRenderWidgetHostViewOSR::ProcessMouseEvent(
-    const blink::WebMouseEvent& event,
-    const ui::LatencyInfo& latency) {
-  render_widget_host_->ForwardMouseEventWithLatencyInfo(event, latency);
-}
-
-void CefRenderWidgetHostViewOSR::ProcessMouseWheelEvent(
-    const blink::WebMouseWheelEvent& event,
-    const ui::LatencyInfo& latency) {
-  render_widget_host_->ForwardWheelEventWithLatencyInfo(event, latency);
-}
-
-void CefRenderWidgetHostViewOSR::ProcessTouchEvent(
-    const blink::WebTouchEvent& event,
-    const ui::LatencyInfo& latency) {
-  render_widget_host_->ForwardTouchEventWithLatencyInfo(event, latency);
-}
-
-void CefRenderWidgetHostViewOSR::ProcessGestureEvent(
-    const blink::WebGestureEvent& event,
-    const ui::LatencyInfo& latency) {
-  render_widget_host_->ForwardGestureEventWithLatencyInfo(event, latency);
+void CefRenderWidgetHostViewOSR::SetWantsAnimateOnlyBeginFrames() {
+  if (GetDelegatedFrameHost()) {
+    GetDelegatedFrameHost()->SetWantsAnimateOnlyBeginFrames();
+  }
 }
 
 bool CefRenderWidgetHostViewOSR::TransformPointToLocalCoordSpace(
@@ -886,8 +867,7 @@ bool CefRenderWidgetHostViewOSR::DelegatedFrameHostIsVisible() const {
   return !render_widget_host_->is_hidden();
 }
 
-SkColor CefRenderWidgetHostViewOSR::DelegatedFrameHostGetGutterColor(
-    SkColor color) const {
+SkColor CefRenderWidgetHostViewOSR::DelegatedFrameHostGetGutterColor() const {
   // When making an element on the page fullscreen the element's background
   // may not match the page's, so use black as the gutter color to avoid
   // flashes of brighter colors during the transition.
@@ -895,7 +875,7 @@ SkColor CefRenderWidgetHostViewOSR::DelegatedFrameHostGetGutterColor(
       render_widget_host_->delegate()->IsFullscreenForCurrentTab()) {
     return SK_ColorBLACK;
   }
-  return color;
+  return background_color_;
 }
 
 gfx::Size CefRenderWidgetHostViewOSR::DelegatedFrameHostDesiredSizeInDIP()
@@ -919,7 +899,7 @@ viz::LocalSurfaceId CefRenderWidgetHostViewOSR::GetLocalSurfaceId() const {
   return local_surface_id_;
 }
 
-void CefRenderWidgetHostViewOSR::OnBeginFrame() {
+void CefRenderWidgetHostViewOSR::OnBeginFrame(base::TimeTicks frame_time) {
   // TODO(cef): Maybe we can use this method in combination with
   // OnSetNeedsBeginFrames() instead of using CefBeginFrameTimer.
   // See https://codereview.chromium.org/1841083007.
@@ -1039,7 +1019,7 @@ void CefRenderWidgetHostViewOSR::SendKeyEvent(
   TRACE_EVENT0("libcef", "CefRenderWidgetHostViewOSR::SendKeyEvent");
   if (render_widget_host_ && render_widget_host_->GetView()) {
     // Direct routing requires that events go directly to the View.
-    render_widget_host_->GetView()->ProcessKeyboardEvent(
+    render_widget_host_->ForwardKeyboardEventWithLatencyInfo(
         event, ui::LatencyInfo(event.GetType() == blink::WebInputEvent::kChar ||
                                        event.GetType() ==
                                            blink::WebInputEvent::kRawKeyDown
@@ -1334,8 +1314,8 @@ void CefRenderWidgetHostViewOSR::ResizeRootLayer() {
   local_surface_id_ = local_surface_id_allocator_.GenerateId();
 
   GetRootLayer()->SetBounds(gfx::Rect(size));
-  GetCompositor()->SetScaleAndSize(current_device_scale_factor_,
-                                   size_in_pixels);
+  GetCompositor()->SetScaleAndSize(current_device_scale_factor_, size_in_pixels,
+                                   local_surface_id_);
   PlatformResizeCompositorWidget(size_in_pixels);
 }
 

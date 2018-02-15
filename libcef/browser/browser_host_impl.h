@@ -585,11 +585,13 @@ class CefBrowserHostImpl : public CefBrowserHost,
   // if PlzNavigate is disabled; or >= 0 otherwise. |parent_frame_id| will be
   // CefFrameHostImpl::kUnspecifiedFrameId if unknown. In cases where |frame_id|
   // is < 0 either the existing main frame object or a pending object will be
-  // returned depending on current state.
+  // returned depending on current state. If |is_download| is true then the
+  // value of |is_main_frame| cannot be relied on.
   CefRefPtr<CefFrame> GetOrCreateFrame(int64 frame_id,
                                        int frame_tree_node_id,
                                        int64 parent_frame_id,
                                        bool is_main_frame,
+                                       bool is_download,
                                        base::string16 frame_name,
                                        const GURL& frame_url);
 

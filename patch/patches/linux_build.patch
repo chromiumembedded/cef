@@ -1,8 +1,8 @@
 diff --git build/config/compiler/BUILD.gn build/config/compiler/BUILD.gn
-index fff8488778d7..0443bcace1d4 100644
+index 2673c6a79889..ca5726966ac0 100644
 --- build/config/compiler/BUILD.gn
 +++ build/config/compiler/BUILD.gn
-@@ -399,7 +399,7 @@ config("compiler") {
+@@ -443,7 +443,7 @@ config("compiler") {
      # chromeos binutils has been patched with the fix, so always use icf there.
      # The bug only affects x86 and x64, so we can still use ICF when targeting
      # other architectures.
@@ -11,53 +11,52 @@ index fff8488778d7..0443bcace1d4 100644
          !(current_cpu == "x86" || current_cpu == "x64")) {
        ldflags += [ "-Wl,--icf=all" ]
      }
-diff --git chrome/browser/ui/libgtkui/gtk_ui.cc chrome/browser/ui/libgtkui/gtk_ui.cc
-index bf37dd5c3799..ad5693e38487 100644
---- chrome/browser/ui/libgtkui/gtk_ui.cc
-+++ chrome/browser/ui/libgtkui/gtk_ui.cc
-@@ -404,11 +404,13 @@ SkColor GetToolbarTopSeparatorColor(SkColor header_fg,
+diff --git chrome/browser/ui/libgtkui/gtk_util.cc chrome/browser/ui/libgtkui/gtk_util.cc
+index fc6ffb9d..f6c22e5 100644
+--- chrome/browser/ui/libgtkui/gtk_util.cc
++++ chrome/browser/ui/libgtkui/gtk_util.cc
+@@ -56,6 +56,7 @@ void CommonInitFromCommandLine(const base::CommandLine& command_line,
+   }
  }
- #endif
  
-+#if GTK_MAJOR_VERSION >= 3
- using GdkSetAllowedBackendsFn = void (*)(const gchar*);
- // Place this function pointers in read-only memory after being resolved to
- // prevent it being tampered with. See crbug.com/771365 for details.
- PROTECTED_MEMORY_SECTION base::ProtectedMemory<GdkSetAllowedBackendsFn>
-     g_gdk_set_allowed_backends;
++#if GTK_MAJOR_VERSION > 2
+ using GtkSetState = void (*)(GtkWidgetPath*, gint, GtkStateFlags);
+ PROTECTED_MEMORY_SECTION base::ProtectedMemory<GtkSetState>
+     _gtk_widget_path_iter_set_state;
+@@ -63,6 +64,7 @@ PROTECTED_MEMORY_SECTION base::ProtectedMemory<GtkSetState>
+ using GtkSetObjectName = void (*)(GtkWidgetPath*, gint, const char*);
+ PROTECTED_MEMORY_SECTION base::ProtectedMemory<GtkSetObjectName>
+     _gtk_widget_path_iter_set_object_name;
 +#endif
  
  }  // namespace
  
-diff --git chrome/browser/ui/libgtkui/native_theme_gtk2.cc chrome/browser/ui/libgtkui/native_theme_gtk2.cc
-index af67e8343f5a..1e6d1e5818e4 100644
---- chrome/browser/ui/libgtkui/native_theme_gtk2.cc
-+++ chrome/browser/ui/libgtkui/native_theme_gtk2.cc
-@@ -348,6 +348,7 @@ SkColor NativeThemeGtk2::GetSystemColor(ColorId color_id) const {
-     }
+@@ -401,10 +403,12 @@ ScopedStyleContext AppendCssNodeToStyleContext(GtkStyleContext* context,
+           NOTREACHED();
+       }
+     } else {
++#if GTK_MAJOR_VERSION > 2
+       static base::ProtectedMemory<GtkSetObjectName>::Initializer init(
+           &_gtk_widget_path_iter_set_object_name,
+           reinterpret_cast<GtkSetObjectName>(dlsym(
+               GetGtkSharedLibrary(), "gtk_widget_path_iter_set_object_name")));
++#endif
+       switch (part_type) {
+         case CSS_NAME: {
+           if (GtkVersionCheck(3, 20)) {
+@@ -449,6 +453,7 @@ ScopedStyleContext AppendCssNodeToStyleContext(GtkStyleContext* context,
+   // widgets specially if they want to.
+   gtk_widget_path_iter_add_class(path, -1, "chromium");
  
-     case kColorId_NumColors:
-+    default:
-       NOTREACHED();
-       break;
++#if GTK_MAJOR_VERSION > 2
+   if (GtkVersionCheck(3, 14)) {
+     static base::ProtectedMemory<GtkSetState>::Initializer init(
+         &_gtk_widget_path_iter_set_state,
+@@ -457,6 +462,7 @@ ScopedStyleContext AppendCssNodeToStyleContext(GtkStyleContext* context,
+     DCHECK(*_gtk_widget_path_iter_set_state);
+     base::UnsanitizedCfiCall(_gtk_widget_path_iter_set_state)(path, -1, state);
    }
-diff --git ui/accessibility/platform/atk_util_auralinux_gtk2.cc ui/accessibility/platform/atk_util_auralinux_gtk2.cc
-index 9c50ead85605..54cbd52c7de0 100644
---- ui/accessibility/platform/atk_util_auralinux_gtk2.cc
-+++ ui/accessibility/platform/atk_util_auralinux_gtk2.cc
-@@ -56,6 +56,8 @@ void FinishAccessibilityInitOnMainThread(
-   init_func();
- }
++#endif
  
-+namespace ui {
-+
- bool AtkUtilAuraLinux::PlatformShouldEnableAccessibility() {
-   std::unique_ptr<base::Environment> env(base::Environment::Create());
-   std::string gtk_modules;
-@@ -78,3 +80,6 @@ void AtkUtilAuraLinux::PlatformInitializeAsync() {
-       base::Bind(&GetAccessibilityModuleInitFunc),
-       base::Bind(&FinishAccessibilityInitOnMainThread));
- }
-+
-+}  // namespace ui
-+
+   ScopedStyleContext child_context(gtk_style_context_new());
+   gtk_style_context_set_path(child_context, path);

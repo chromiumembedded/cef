@@ -35,36 +35,32 @@ namespace printing {
 
 namespace {
 
-// There's a race condition between deletion of the CefPrintingMessageFilter
-// object on the UI thread and deletion of the PrefService (owned by Profile)
-// on the UI thread. If the PrefService will be deleted first then
-// PrefMember::Destroy() must be called from ShutdownOnUIThread() to avoid
-// heap-use-after-free on CefPrintingMessageFilter destruction (due to
-// ~PrefMember trying to access the already-deleted PrefService).
-// ShutdownNotifierFactory makes sure that ShutdownOnUIThread() is called in
-// this case.
-class ShutdownNotifierFactory
+class CefPrintingMessageFilterShutdownNotifierFactory
     : public BrowserContextKeyedServiceShutdownNotifierFactory {
  public:
-  static ShutdownNotifierFactory* GetInstance();
+  static CefPrintingMessageFilterShutdownNotifierFactory* GetInstance();
 
  private:
-  friend struct base::LazyInstanceTraitsBase<ShutdownNotifierFactory>;
+  friend struct base::LazyInstanceTraitsBase<
+      CefPrintingMessageFilterShutdownNotifierFactory>;
 
-  ShutdownNotifierFactory()
+  CefPrintingMessageFilterShutdownNotifierFactory()
       : BrowserContextKeyedServiceShutdownNotifierFactory(
             "CefPrintingMessageFilter") {}
-  ~ShutdownNotifierFactory() override {}
 
-  DISALLOW_COPY_AND_ASSIGN(ShutdownNotifierFactory);
+  ~CefPrintingMessageFilterShutdownNotifierFactory() override {}
+
+  DISALLOW_COPY_AND_ASSIGN(CefPrintingMessageFilterShutdownNotifierFactory);
 };
 
-base::LazyInstance<ShutdownNotifierFactory>::Leaky g_shutdown_notifier_factory =
-    LAZY_INSTANCE_INITIALIZER;
+base::LazyInstance<CefPrintingMessageFilterShutdownNotifierFactory>::Leaky
+    g_printing_message_filter_shutdown_notifier_factory =
+        LAZY_INSTANCE_INITIALIZER;
 
 // static
-ShutdownNotifierFactory* ShutdownNotifierFactory::GetInstance() {
-  return g_shutdown_notifier_factory.Pointer();
+CefPrintingMessageFilterShutdownNotifierFactory*
+CefPrintingMessageFilterShutdownNotifierFactory::GetInstance() {
+  return g_printing_message_filter_shutdown_notifier_factory.Pointer();
 }
 
 }  // namespace
@@ -76,18 +72,18 @@ CefPrintingMessageFilter::CefPrintingMessageFilter(int render_process_id,
       queue_(g_browser_process->print_job_manager()->queue()) {
   DCHECK(queue_.get());
   DCHECK_CURRENTLY_ON(BrowserThread::UI);
-  shutdown_notifier_ =
-      ShutdownNotifierFactory::GetInstance()->Get(profile)->Subscribe(
-          base::Bind(&CefPrintingMessageFilter::ShutdownOnUIThread,
-                     base::Unretained(this)));
-
+  printing_shutdown_notifier_ =
+      CefPrintingMessageFilterShutdownNotifierFactory::GetInstance()
+          ->Get(profile)
+          ->Subscribe(base::Bind(&CefPrintingMessageFilter::ShutdownOnUIThread,
+                                 base::Unretained(this)));
   is_printing_enabled_.Init(prefs::kPrintingEnabled, profile->GetPrefs());
   is_printing_enabled_.MoveToThread(
       content::BrowserThread::GetTaskRunnerForThread(BrowserThread::IO));
 }
 
 void CefPrintingMessageFilter::EnsureShutdownNotifierFactoryBuilt() {
-  ShutdownNotifierFactory::GetInstance();
+  CefPrintingMessageFilterShutdownNotifierFactory::GetInstance();
 }
 
 CefPrintingMessageFilter::~CefPrintingMessageFilter() {
@@ -95,8 +91,9 @@ CefPrintingMessageFilter::~CefPrintingMessageFilter() {
 }
 
 void CefPrintingMessageFilter::ShutdownOnUIThread() {
+  DCHECK_CURRENTLY_ON(BrowserThread::UI);
   is_printing_enabled_.Destroy();
-  shutdown_notifier_.reset();
+  printing_shutdown_notifier_.reset();
 }
 
 void CefPrintingMessageFilter::OverrideThreadForMessage(
@@ -249,14 +246,8 @@ void CefPrintingMessageFilter::OnUpdatePrintSettings(
   }
   printer_query = queue_->PopPrinterQuery(document_cookie);
   if (!printer_query.get()) {
-    int host_id;
-    int routing_id;
-    if (!new_settings->GetInteger(kPreviewInitiatorHostId, &host_id) ||
-        !new_settings->GetInteger(kPreviewInitiatorRoutingId, &routing_id)) {
-      host_id = content::ChildProcessHost::kInvalidUniqueID;
-      routing_id = MSG_ROUTING_NONE;
-    }
-    printer_query = queue_->CreatePrinterQuery(host_id, routing_id);
+    printer_query = queue_->CreatePrinterQuery(
+        content::ChildProcessHost::kInvalidUniqueID, MSG_ROUTING_NONE);
   }
   printer_query->SetSettings(
       std::move(new_settings),
@@ -276,7 +267,6 @@ void CefPrintingMessageFilter::OnUpdatePrintSettingsReply(
     params.params.document_cookie = printer_query->cookie();
     params.pages = PageRange::GetPages(printer_query->settings().ranges());
   }
-
   bool canceled = printer_query.get() &&
                   (printer_query->last_status() == PrintingContext::CANCEL);
   PrintHostMsg_UpdatePrintSettings::WriteReplyParams(reply_msg, params,

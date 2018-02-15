@@ -23,7 +23,6 @@
 #include "content/public/browser/render_frame_host.h"
 #include "content/public/browser/resource_request_info.h"
 #include "content/public/browser/stream_info.h"
-#include "content/public/common/resource_response.h"
 #include "content/public/common/webplugininfo.h"
 #include "extensions/common/constants.h"
 #include "extensions/common/extension.h"
@@ -180,7 +179,7 @@ void CefResourceDispatcherHostDelegate::OnRequestRedirected(
     const GURL& redirect_url,
     net::URLRequest* request,
     content::ResourceContext* resource_context,
-    content::ResourceResponse* response) {
+    network::ResourceResponse* response) {
   const GURL& active_url = request->url();
   if (active_url.is_valid() && redirect_url.is_valid() &&
       active_url.GetOrigin() != redirect_url.GetOrigin() &&

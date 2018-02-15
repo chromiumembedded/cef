@@ -1,8 +1,8 @@
 diff --git chrome/browser/plugins/plugin_info_host_impl.cc chrome/browser/plugins/plugin_info_host_impl.cc
-index 1afbaf86ac40..c80a499d4dc2 100644
+index 312e27d1b562..03eb1fda05cb 100644
 --- chrome/browser/plugins/plugin_info_host_impl.cc
 +++ chrome/browser/plugins/plugin_info_host_impl.cc
-@@ -18,6 +18,7 @@
+@@ -17,6 +17,7 @@
  #include "base/task_runner_util.h"
  #include "base/threading/thread_task_runner_handle.h"
  #include "build/build_config.h"
@@ -10,9 +10,9 @@ index 1afbaf86ac40..c80a499d4dc2 100644
  #include "chrome/browser/browser_process.h"
  #include "chrome/browser/content_settings/host_content_settings_map_factory.h"
  #include "chrome/browser/plugins/chrome_plugin_service_filter.h"
-@@ -56,6 +57,11 @@
+@@ -55,6 +56,11 @@
+ #include "url/gurl.h"
  #include "url/origin.h"
- #include "widevine_cdm_version.h"  // In SHARED_INTERMEDIATE_DIR.
  
 +#if BUILDFLAG(ENABLE_CEF)
 +#include "cef/libcef/browser/plugins/plugin_service_filter.h"
@@ -22,37 +22,39 @@ index 1afbaf86ac40..c80a499d4dc2 100644
  #if BUILDFLAG(ENABLE_EXTENSIONS)
  #include "components/guest_view/browser/guest_view_base.h"
  #include "extensions/browser/extension_registry.h"
-@@ -77,12 +83,10 @@ namespace {
- class ShutdownNotifierFactory
+@@ -76,12 +82,10 @@ namespace {
+ class PluginInfoHostImplShutdownNotifierFactory
      : public BrowserContextKeyedServiceShutdownNotifierFactory {
   public:
--  static ShutdownNotifierFactory* GetInstance() {
--    return base::Singleton<ShutdownNotifierFactory>::get();
+-  static PluginInfoHostImplShutdownNotifierFactory* GetInstance() {
+-    return base::Singleton<PluginInfoHostImplShutdownNotifierFactory>::get();
 -  }
-+  static ShutdownNotifierFactory* GetInstance();
++  static PluginInfoHostImplShutdownNotifierFactory* GetInstance();
  
   private:
--  friend struct base::DefaultSingletonTraits<ShutdownNotifierFactory>;
-+  friend struct base::LazyInstanceTraitsBase<ShutdownNotifierFactory>;
+-  friend struct base::DefaultSingletonTraits<
++  friend struct base::LazyInstanceTraitsBase<
+       PluginInfoHostImplShutdownNotifierFactory>;
  
-   ShutdownNotifierFactory()
-       : BrowserContextKeyedServiceShutdownNotifierFactory(
-@@ -93,6 +97,14 @@ class ShutdownNotifierFactory
-   DISALLOW_COPY_AND_ASSIGN(ShutdownNotifierFactory);
+   PluginInfoHostImplShutdownNotifierFactory()
+@@ -93,6 +97,16 @@ class PluginInfoHostImplShutdownNotifierFactory
+   DISALLOW_COPY_AND_ASSIGN(PluginInfoHostImplShutdownNotifierFactory);
  };
  
-+base::LazyInstance<ShutdownNotifierFactory>::Leaky g_shutdown_notifier_factory =
-+    LAZY_INSTANCE_INITIALIZER;
++base::LazyInstance<PluginInfoHostImplShutdownNotifierFactory>::Leaky
++    g_plugin_info_host_impl_shutdown_notifier_factory =
++        LAZY_INSTANCE_INITIALIZER;
 +
 +// static
-+ShutdownNotifierFactory* ShutdownNotifierFactory::GetInstance() {
-+  return g_shutdown_notifier_factory.Pointer();
++PluginInfoHostImplShutdownNotifierFactory*
++PluginInfoHostImplShutdownNotifierFactory::GetInstance() {
++  return g_plugin_info_host_impl_shutdown_notifier_factory.Pointer();
 +}
 +
- #if BUILDFLAG(ENABLE_LIBRARY_CDMS)
- 
- enum PluginAvailabilityStatusForUMA {
-@@ -124,6 +136,9 @@ bool IsPluginLoadingAccessibleResourceInWebView(
+ #if BUILDFLAG(ENABLE_EXTENSIONS)
+ // Returns whether a request from a plugin to load |resource| from a renderer
+ // with process id |process_id| is a request for an internal resource by an app
+@@ -101,6 +115,9 @@ bool IsPluginLoadingAccessibleResourceInWebView(
      extensions::ExtensionRegistry* extension_registry,
      int process_id,
      const GURL& resource) {
@@ -62,7 +64,7 @@ index 1afbaf86ac40..c80a499d4dc2 100644
    extensions::WebViewRendererState* renderer_state =
        extensions::WebViewRendererState::GetInstance();
    std::string partition_id;
-@@ -153,12 +168,16 @@ bool IsPluginLoadingAccessibleResourceInWebView(
+@@ -130,12 +147,16 @@ bool IsPluginLoadingAccessibleResourceInWebView(
  PluginInfoHostImpl::Context::Context(int render_process_id, Profile* profile)
      : render_process_id_(render_process_id),
        resource_context_(profile->GetResourceContext()),
@@ -82,7 +84,7 @@ index 1afbaf86ac40..c80a499d4dc2 100644
    allow_outdated_plugins_.Init(prefs::kPluginsAllowOutdated,
                                 profile->GetPrefs());
    allow_outdated_plugins_.MoveToThread(
-@@ -264,6 +283,7 @@ void PluginInfoHostImpl::PluginsLoaded(
+@@ -234,6 +255,7 @@ void PluginInfoHostImpl::PluginsLoaded(
          plugin_metadata->identifier(), &output->status);
    }
  
@@ -90,7 +92,7 @@ index 1afbaf86ac40..c80a499d4dc2 100644
    if (output->status == chrome::mojom::PluginStatus::kNotFound) {
      // Check to see if the component updater can fetch an implementation.
      base::PostTaskAndReplyWithResult(
-@@ -275,7 +295,9 @@ void PluginInfoHostImpl::PluginsLoaded(
+@@ -245,7 +267,9 @@ void PluginInfoHostImpl::PluginsLoaded(
          base::BindOnce(&PluginInfoHostImpl::ComponentPluginLookupDone, this,
                         params, std::move(output), std::move(callback),
                         std::move(plugin_metadata)));
@@ -101,7 +103,7 @@ index 1afbaf86ac40..c80a499d4dc2 100644
      GetPluginInfoFinish(params, std::move(output), std::move(callback),
                          std::move(plugin_metadata));
    }
-@@ -325,6 +347,14 @@ void PluginInfoHostImpl::Context::DecidePluginStatus(
+@@ -258,6 +282,14 @@ void PluginInfoHostImpl::Context::DecidePluginStatus(
      PluginMetadata::SecurityStatus security_status,
      const std::string& plugin_identifier,
      chrome::mojom::PluginStatus* status) const {
@@ -116,7 +118,7 @@ index 1afbaf86ac40..c80a499d4dc2 100644
    if (security_status == PluginMetadata::SECURITY_STATUS_FULLY_TRUSTED) {
      *status = chrome::mojom::PluginStatus::kAllowed;
      return;
-@@ -450,16 +480,36 @@ bool PluginInfoHostImpl::Context::FindEnabledPlugin(
+@@ -382,16 +414,36 @@ bool PluginInfoHostImpl::Context::FindEnabledPlugin(
      return false;
    }
  
@@ -155,10 +157,10 @@ index 1afbaf86ac40..c80a499d4dc2 100644
    // If we broke out of the loop, we have found an enabled plugin.
    bool enabled = i < matching_plugins.size();
 diff --git chrome/renderer/chrome_content_renderer_client.cc chrome/renderer/chrome_content_renderer_client.cc
-index 5dc888bfb2df..297737be682e 100644
+index 47aceed2a513..2f1dae33e865 100644
 --- chrome/renderer/chrome_content_renderer_client.cc
 +++ chrome/renderer/chrome_content_renderer_client.cc
-@@ -805,6 +805,7 @@ WebPlugin* ChromeContentRendererClient::CreatePlugin(
+@@ -795,6 +795,7 @@ WebPlugin* ChromeContentRendererClient::CreatePlugin(
  
      if ((status == chrome::mojom::PluginStatus::kUnauthorized ||
           status == chrome::mojom::PluginStatus::kBlocked) &&
@@ -166,7 +168,7 @@ index 5dc888bfb2df..297737be682e 100644
          observer->IsPluginTemporarilyAllowed(identifier)) {
        status = chrome::mojom::PluginStatus::kAllowed;
      }
-@@ -992,7 +993,8 @@ WebPlugin* ChromeContentRendererClient::CreatePlugin(
+@@ -982,7 +983,8 @@ WebPlugin* ChromeContentRendererClient::CreatePlugin(
          render_frame->GetRemoteAssociatedInterfaces()->GetInterface(
              &plugin_auth_host);
          plugin_auth_host->BlockedUnauthorizedPlugin(group_name, identifier);
@@ -176,7 +178,7 @@ index 5dc888bfb2df..297737be682e 100644
          break;
        }
        case chrome::mojom::PluginStatus::kBlocked: {
-@@ -1001,7 +1003,8 @@ WebPlugin* ChromeContentRendererClient::CreatePlugin(
+@@ -991,7 +993,8 @@ WebPlugin* ChromeContentRendererClient::CreatePlugin(
              l10n_util::GetStringFUTF16(IDS_PLUGIN_BLOCKED, group_name));
          placeholder->AllowLoading();
          RenderThread::Get()->RecordAction(UserMetricsAction("Plugin_Blocked"));
@@ -186,7 +188,7 @@ index 5dc888bfb2df..297737be682e 100644
          break;
        }
        case chrome::mojom::PluginStatus::kBlockedByPolicy: {
-@@ -1011,7 +1014,8 @@ WebPlugin* ChromeContentRendererClient::CreatePlugin(
+@@ -1001,7 +1004,8 @@ WebPlugin* ChromeContentRendererClient::CreatePlugin(
                                         group_name));
          RenderThread::Get()->RecordAction(
              UserMetricsAction("Plugin_BlockedByPolicy"));
@@ -196,7 +198,7 @@ index 5dc888bfb2df..297737be682e 100644
          break;
        }
        case chrome::mojom::PluginStatus::kBlockedNoLoading: {
-@@ -1019,7 +1023,8 @@ WebPlugin* ChromeContentRendererClient::CreatePlugin(
+@@ -1009,7 +1013,8 @@ WebPlugin* ChromeContentRendererClient::CreatePlugin(
              IDR_BLOCKED_PLUGIN_HTML,
              l10n_util::GetStringFUTF16(IDS_PLUGIN_BLOCKED_NO_LOADING,
                                         group_name));
@@ -207,10 +209,10 @@ index 5dc888bfb2df..297737be682e 100644
        }
        case chrome::mojom::PluginStatus::kComponentUpdateRequired: {
 diff --git chrome/renderer/plugins/chrome_plugin_placeholder.cc chrome/renderer/plugins/chrome_plugin_placeholder.cc
-index 7a814bb072dc..79c7d65118cb 100644
+index 63b86138b4fe..4ed38c132efb 100644
 --- chrome/renderer/plugins/chrome_plugin_placeholder.cc
 +++ chrome/renderer/plugins/chrome_plugin_placeholder.cc
-@@ -349,8 +349,11 @@ void ChromePluginPlaceholder::OnBlockedContent(
+@@ -350,8 +350,11 @@ void ChromePluginPlaceholder::OnBlockedContent(
  
    if (status ==
        content::RenderFrame::PeripheralContentStatus::CONTENT_STATUS_TINY) {

@@ -29,6 +29,7 @@
 #include "components/content_settings/core/common/content_settings_pattern.h"
 #include "content/public/browser/browser_main_runner.h"
 #include "content/public/browser/render_process_host.h"
+#include "content/public/common/content_features.h"
 #include "content/public/common/content_switches.h"
 #include "content/public/common/main_function_params.h"
 #include "extensions/common/constants.h"
@@ -434,6 +435,21 @@ bool CefMainDelegate::BasicStartupComplete(int* exit_code) {
       command_line->AppendSwitchASCII(
           switches::kUncaughtExceptionStackSize,
           base::IntToString(settings.uncaught_exception_stack_size));
+    }
+
+    // Disable AsyncWheelEvents when OSR is enabled to avoid DCHECKs in
+    // MouseWheelEventQueue.
+    if (settings.windowless_rendering_enabled &&
+        features::kAsyncWheelEvents.default_state ==
+            base::FEATURE_ENABLED_BY_DEFAULT) {
+      DCHECK(!base::FeatureList::GetInstance());
+      std::string disable_features =
+          command_line->GetSwitchValueASCII(switches::kDisableFeatures);
+      if (!disable_features.empty())
+        disable_features += ",";
+      disable_features += features::kAsyncWheelEvents.name;
+      command_line->AppendSwitchASCII(switches::kDisableFeatures,
+                                      disable_features);
     }
   }
 

@@ -1,8 +1,8 @@
 diff --git net/url_request/url_request.h net/url_request/url_request.h
-index 0635448f00a1..3d91e1d92d7f 100644
+index 60fbf78c7886..9597011602ba 100644
 --- net/url_request/url_request.h
 +++ net/url_request/url_request.h
-@@ -684,10 +684,10 @@ class NET_EXPORT URLRequest : public base::SupportsUserData {
+@@ -693,10 +693,10 @@ class NET_EXPORT URLRequest : public base::SupportsUserData {
    // called with a response from the server.
    void SetResponseHeadersCallback(ResponseHeadersCallback callback);
  

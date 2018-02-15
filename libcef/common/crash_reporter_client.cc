@@ -15,9 +15,9 @@
 #include "base/strings/string_number_conversions.h"
 #include "base/strings/string_split.h"
 #include "base/strings/string_util.h"
-#include "base/strings/stringprintf.h"
 #include "base/strings/utf_string_conversions.h"
-#include "chrome/common/crash_keys.h"
+#include "components/crash/core/common/crash_key.h"
+#include "third_party/crashpad/crashpad/client/annotation.h"
 
 #if defined(OS_MACOSX)
 #include "libcef/common/util_mac.h"
@@ -37,6 +37,7 @@
 
 #if defined(OS_POSIX) && !defined(OS_MACOSX)
 #include "content/public/common/content_switches.h"
+#include "libcef/common/cef_crash_report_utils.h"
 #endif
 
 #if defined(OS_WIN)
@@ -227,27 +228,39 @@ CefCrashReporterClient* g_crash_reporter_client = nullptr;
 
 #endif  // defined(OS_WIN)
 
+const char kKeyMapDelim = ',';
+
+std::string NormalizeCrashKey(const base::StringPiece& key) {
+  std::string str = key.as_string();
+  std::replace(str.begin(), str.end(), kKeyMapDelim, '-');
+  if (str.length() > crashpad::Annotation::kNameMaxLength) {
+    return str.substr(0, crashpad::Annotation::kNameMaxLength);
+  }
+  return str;
+}
+
 }  // namespace
 
 #if defined(OS_WIN)
 
 extern "C" {
 
-// Export functions from chrome_elf that are required by
-// crash_reporting_win::InitializeCrashReportingForModule().
+// Export functions from chrome_elf that are required by crash_reporting.cc
 
-size_t __declspec(dllexport) __cdecl GetCrashKeyCountImpl() {
-  if (!g_crash_reporter_client)
-    return 0;
-  return g_crash_reporter_client->GetCrashKeyCount();
+int __declspec(dllexport) __cdecl SetCrashKeyValueImpl(const char* key,
+                                                       size_t key_size,
+                                                       const char* value,
+                                                       size_t value_size) {
+  if (g_crash_reporter_client) {
+    return g_crash_reporter_client->SetCrashKeyValue(
+        base::StringPiece(key, key_size), base::StringPiece(value, value_size));
+  }
+  return 0;
 }
 
-bool __declspec(dllexport) __cdecl GetCrashKeyImpl(size_t index,
-                                                   const char** key_name,
-                                                   size_t* max_length) {
-  if (!g_crash_reporter_client)
-    return false;
-  return g_crash_reporter_client->GetCrashKey(index, key_name, max_length);
+int __declspec(dllexport) __cdecl IsCrashReportingEnabledImpl() {
+  return g_crash_reporter_client &&
+         g_crash_reporter_client->HasCrashConfigFile();
 }
 
 }  // extern "C"
@@ -329,6 +342,11 @@ bool CefCrashReporterClient::ReadCrashConfigFile() {
     return false;
 
   char line[1000];
+
+  size_t small_index = 0;
+  size_t medium_index = 0;
+  size_t large_index = 0;
+  std::string map_keys;
 
   enum section {
     kNoSection,
@@ -413,34 +431,71 @@ bool CefCrashReporterClient::ReadCrashConfigFile() {
       }
 #endif
     } else if (current_section == kCrashKeysSection) {
-      size_t max_size = 0;
-      if (val_str == "small")
-        max_size = crash_keys::kSmallSize;
-      else if (val_str == "medium")
-        max_size = crash_keys::kMediumSize;
-      else if (val_str == "large")
-        max_size = crash_keys::kLargeSize;
-
-      if (max_size == 0)
+      // Skip duplicate definitions.
+      if (!crash_keys_.empty() &&
+          crash_keys_.find(name_str) != crash_keys_.end()) {
         continue;
+      }
 
-      crash_keys_.push_back({name_str, max_size});
+      KeySize size;
+      size_t index;
+      char group;
+      if (val_str == "small") {
+        size = SMALL_SIZE;
+        index = small_index++;
+        group = 'S';
+      } else if (val_str == "medium") {
+        size = MEDIUM_SIZE;
+        index = medium_index++;
+        group = 'M';
+      } else if (val_str == "large") {
+        size = LARGE_SIZE;
+        index = large_index++;
+        group = 'L';
+      } else {
+        continue;
+      }
+
+      name_str = NormalizeCrashKey(name_str);
+      crash_keys_.insert(std::make_pair(name_str, std::make_pair(size, index)));
+
+      const std::string& key =
+          std::string(1, group) + "-" + std::string(1, 'A' + index);
+      if (!map_keys.empty()) {
+        map_keys.append(std::string(1, kKeyMapDelim));
+      }
+      map_keys.append(key + "=" + name_str);
     }
   }
 
   fclose(fp);
 
-  // Add the list of potential crash keys from chrome, content and other layers.
-  // Do it here so that they're also exported to the libcef module for Windows.
-  {
-    std::vector<base::debug::CrashKey> keys;
-    crash_keys::GetChromeCrashKeys(keys);
+  if (!map_keys.empty()) {
+    // Split |map_keys| across multiple Annotations if necessary.
+    // Must match the logic in crash_report_utils::FilterParameters.
+    using IDKey =
+        crash_reporter::CrashKeyString<crashpad::Annotation::kValueMaxSize>;
+    static IDKey ids[] = {
+        {"K-A", IDKey::Tag::kArray},
+        {"K-B", IDKey::Tag::kArray},
+        {"K-C", IDKey::Tag::kArray},
+    };
 
-    if (!keys.empty()) {
-      crash_keys_.reserve(crash_keys_.size() + keys.size());
-      for (const auto& key : keys) {
-        crash_keys_.push_back({key.key_name, key.max_length});
-      }
+    // Make sure we can fit all possible name/value pairs.
+    static_assert(arraysize(ids) * crashpad::Annotation::kValueMaxSize >=
+                      3 * 26 /* sizes (small, medium, large) * slots (A to Z) */
+                          * (3 + 2 /* key size ("S-A") + delim size ("=,") */
+                             + crashpad::Annotation::kNameMaxLength),
+                  "Not enough storage for key map");
+
+    size_t offset = 0;
+    for (size_t i = 0; i < arraysize(ids); ++i) {
+      size_t length = std::min(map_keys.size() - offset,
+                               crashpad::Annotation::kValueMaxSize);
+      ids[i].Set(base::StringPiece(map_keys.data() + offset, length));
+      offset += length;
+      if (offset >= map_keys.size())
+        break;
     }
   }
 
@@ -575,20 +630,6 @@ bool CefCrashReporterClient::ReportingIsEnforcedByPolicy(
 }
 #endif
 
-size_t CefCrashReporterClient::RegisterCrashKeys() {
-  std::vector<base::debug::CrashKey> keys;
-
-  if (!crash_keys_.empty()) {
-    keys.reserve(crash_keys_.size());
-    for (const auto& key : crash_keys_) {
-      keys.push_back({key.key_name_.c_str(), key.max_length_});
-    }
-  }
-
-  return base::debug::InitCrashKeys(&keys[0], keys.size(),
-                                    crash_keys::kChunkMaxLength);
-}
-
 #if defined(OS_POSIX) && !defined(OS_MACOSX)
 bool CefCrashReporterClient::IsRunningUnattended() {
   // Crash upload will only be enabled with Breakpad on Linux if this method
@@ -596,24 +637,6 @@ bool CefCrashReporterClient::IsRunningUnattended() {
   return false;
 }
 #endif
-
-#if defined(OS_WIN)
-size_t CefCrashReporterClient::GetCrashKeyCount() const {
-  return crash_keys_.size();
-}
-
-bool CefCrashReporterClient::GetCrashKey(size_t index,
-                                         const char** key_name,
-                                         size_t* max_length) const {
-  if (index >= crash_keys_.size())
-    return false;
-
-  const auto& key = crash_keys_[index];
-  *key_name = key.key_name_.c_str();
-  *max_length = key.max_length_;
-  return true;
-}
-#endif  // defined(OS_WIN)
 
 std::string CefCrashReporterClient::GetCrashServerURL() {
   return server_url_;
@@ -665,3 +688,77 @@ bool CefCrashReporterClient::EnableBrowserCrashForwarding() {
   return enable_browser_crash_forwarding_;
 }
 #endif
+
+#if defined(OS_POSIX) && !defined(OS_MACOSX)
+CefCrashReporterClient::ParameterMap CefCrashReporterClient::FilterParameters(
+    const ParameterMap& parameters) {
+  return crash_report_utils::FilterParameters(parameters);
+}
+#endif
+
+// The new Crashpad Annotation API requires that annotations be declared using
+// static storage. We work around this limitation by defining a fixed amount of
+// storage for each key size and later substituting the actual key name during
+// crash dump processing.
+
+#define IDKEY(name) \
+  { name, IDKey::Tag::kArray }
+
+#define IDKEY_ENTRIES(n)                                                     \
+  IDKEY(n "-A"), IDKEY(n "-B"), IDKEY(n "-C"), IDKEY(n "-D"), IDKEY(n "-E"), \
+      IDKEY(n "-F"), IDKEY(n "-G"), IDKEY(n "-H"), IDKEY(n "-I"),            \
+      IDKEY(n "-J"), IDKEY(n "-K"), IDKEY(n "-L"), IDKEY(n "-M"),            \
+      IDKEY(n "-N"), IDKEY(n "-O"), IDKEY(n "-P"), IDKEY(n "-Q"),            \
+      IDKEY(n "-R"), IDKEY(n "-S"), IDKEY(n "-T"), IDKEY(n "-U"),            \
+      IDKEY(n "-V"), IDKEY(n "-W"), IDKEY(n "-X"), IDKEY(n "-Y"),            \
+      IDKEY(n "-Z")
+
+#define IDKEY_FUNCTION(name, size)                                           \
+  static_assert(size <= crashpad::Annotation::kValueMaxSize,                 \
+                "Annotation size is too large.");                            \
+  bool Set##name##Annotation(size_t index, const base::StringPiece& value) { \
+    using IDKey = crash_reporter::CrashKeyString<size>;                      \
+    static IDKey ids[] = {IDKEY_ENTRIES(#name)};                             \
+    if (index < arraysize(ids)) {                                            \
+      if (value.empty()) {                                                   \
+        ids[index].Clear();                                                  \
+      } else {                                                               \
+        ids[index].Set(value);                                               \
+      }                                                                      \
+      return true;                                                           \
+    }                                                                        \
+    return false;                                                            \
+  }
+
+// The first argument must be kept synchronized with the logic in
+// CefCrashReporterClient::ReadCrashConfigFile and
+// crash_report_utils::FilterParameters.
+IDKEY_FUNCTION(S, 64)
+IDKEY_FUNCTION(M, 256)
+IDKEY_FUNCTION(L, 1024)
+
+bool CefCrashReporterClient::SetCrashKeyValue(const base::StringPiece& key,
+                                              const base::StringPiece& value) {
+  if (key.empty() || crash_keys_.empty())
+    return false;
+
+  KeyMap::const_iterator it = crash_keys_.find(NormalizeCrashKey(key));
+  if (it == crash_keys_.end())
+    return false;
+
+  const KeySize size = it->second.first;
+  const size_t index = it->second.second;
+
+  base::AutoLock lock_scope(crash_key_lock_);
+
+  switch (size) {
+    case SMALL_SIZE:
+      return SetSAnnotation(index, value);
+    case MEDIUM_SIZE:
+      return SetMAnnotation(index, value);
+    case LARGE_SIZE:
+      return SetLAnnotation(index, value);
+  }
+
+  return false;
+}

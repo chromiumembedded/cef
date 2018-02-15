@@ -49,6 +49,7 @@
 #include "chrome/common/constants.mojom.h"
 #include "chrome/grit/browser_resources.h"
 #include "chrome/grit/generated_resources.h"
+#include "chrome/services/printing/public/interfaces/constants.mojom.h"
 #include "components/navigation_interception/intercept_navigation_throttle.h"
 #include "components/navigation_interception/navigation_params.h"
 #include "components/printing/service/public/interfaces/pdf_compositor.mojom.h"
@@ -83,8 +84,6 @@
 #include "extensions/common/switches.h"
 #include "net/ssl/ssl_cert_request_info.h"
 #include "ppapi/host/ppapi_host.h"
-#include "services/metrics/metrics_mojo_service.h"
-#include "services/metrics/public/interfaces/constants.mojom.h"
 #include "services/proxy_resolver/public/interfaces/proxy_resolver.mojom.h"
 #include "storage/browser/quota/quota_settings.h"
 #include "third_party/WebKit/public/web/WebWindowFeatures.h"
@@ -294,7 +293,7 @@ class CefQuotaPermissionContext : public content::QuotaPermissionContext {
   void RequestQuotaPermission(const content::StorageQuotaParams& params,
                               int render_process_id,
                               const PermissionCallback& callback) override {
-    if (params.storage_type != storage::kStorageTypePersistent) {
+    if (params.storage_type != blink::mojom::StorageType::kPersistent) {
       // To match Chrome behavior we only support requesting quota with this
       // interface for Persistent storage type.
       callback.Run(QUOTA_PERMISSION_RESPONSE_DISALLOW);
@@ -598,19 +597,14 @@ void CefContentBrowserClient::RegisterInProcessServices(
     info.factory = base::Bind(&ChromeService::Create);
     services->insert(std::make_pair(chrome::mojom::kServiceName, info));
   }
-  {
-    // For metrics.
-    service_manager::EmbeddedServiceInfo info;
-    info.factory = base::Bind(&metrics::CreateMetricsService);
-    services->emplace(metrics::mojom::kMetricsServiceName, info);
-  }
 }
 
 void CefContentBrowserClient::RegisterOutOfProcessServices(
     OutOfProcessServiceMap* services) {
   (*services)[printing::mojom::kServiceName] =
       base::ASCIIToUTF16("PDF Compositor Service");
-
+  (*services)[printing::mojom::kChromePrintingServiceName] =
+      base::ASCIIToUTF16("Printing Service");
   (*services)[proxy_resolver::mojom::kProxyResolverServiceName] =
       l10n_util::GetStringUTF16(IDS_UTILITY_PROCESS_PROXY_RESOLVER_NAME);
 }
@@ -662,7 +656,6 @@ void CefContentBrowserClient::AppendExtraCommandLineSwitches(
 #if defined(OS_MACOSX)
       switches::kFrameworkDirPath,
 #endif
-      switches::kLang,
       switches::kLocalesDirPath,
       switches::kLogFile,
       switches::kLogSeverity,
@@ -707,6 +700,14 @@ void CefContentBrowserClient::AppendExtraCommandLineSwitches(
         command_line->AppendSwitch(extensions::switches::kExtensionProcess);
       }
     }
+  } else {
+    // Propagate the following switches to non-renderer command line (along with
+    // any associated values) if present in the browser command line.
+    static const char* const kSwitchNames[] = {
+        switches::kLang,
+    };
+    command_line->CopySwitchesFrom(*browser_cmd, kSwitchNames,
+                                   arraysize(kSwitchNames));
   }
 
 #if defined(OS_LINUX)

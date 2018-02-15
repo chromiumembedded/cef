@@ -171,7 +171,7 @@ std::unique_ptr<PrefService> CreatePrefService(Profile* profile,
   registry->SetDefaultPrefValue(
       spellcheck::prefs::kSpellCheckUseSpellingService,
       base::Value(enable_spelling_service_));
-  registry->SetDefaultPrefValue(spellcheck::prefs::kEnableSpellcheck,
+  registry->SetDefaultPrefValue(spellcheck::prefs::kSpellCheckEnable,
                                 base::Value(!enable_spelling_service_));
 
   // Pepper flash preferences.

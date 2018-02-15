@@ -16,6 +16,7 @@
 #include "base/memory/ptr_util.h"
 #include "base/native_library.h"
 #include "base/strings/string_number_conversions.h"
+#include "base/strings/string_piece.h"
 #include "base/strings/string_split.h"
 #include "base/strings/utf_string_conversions.h"
 #include "chrome/common/widevine_cdm_constants.h"
@@ -63,9 +64,7 @@ const char kCdmVersionName[] = "version";
 // All values are strings.
 // All values that are lists are delimited by commas. No trailing commas.
 // For example, "1,2,4".
-const char kCdmValueDelimiter = ',';
-static_assert(kCdmValueDelimiter == kCdmSupportedCodecsValueDelimiter,
-              "cdm delimiters must match");
+const char kCdmValueDelimiter[] = ",";
 // The following entries are required.
 //  Interface versions are lists of integers (e.g. "1" or "1,2,4").
 //  These are checked in this file before registering the CDM.
@@ -80,6 +79,17 @@ const char kCdmHostVersionsName[] = "x-cdm-host-versions";
 //  The codecs list is a list of simple codec names (e.g. "vp8,vorbis").
 //  The list is passed to other parts of Chrome.
 const char kCdmCodecsListName[] = "x-cdm-codecs";
+//  Whether persistent license is supported by the CDM: "true" or "false".
+const char kCdmPersistentLicenseSupportName[] =
+    "x-cdm-persistent-license-support";
+
+// The following strings are used to specify supported codecs in the
+// parameter |kCdmCodecsListName|.
+const char kCdmSupportedCodecVp8[] = "vp8";
+const char kCdmSupportedCodecVp9[] = "vp9.0";
+#if BUILDFLAG(USE_PROPRIETARY_CODECS)
+const char kCdmSupportedCodecAvc1[] = "avc1";
+#endif
 
 std::unique_ptr<base::DictionaryValue> ParseManifestFile(
     const base::FilePath& manifest_path) {
@@ -95,7 +105,7 @@ std::unique_ptr<base::DictionaryValue> ParseManifestFile(
   JSONStringValueDeserializer deserializer(manifest_contents);
   std::unique_ptr<base::Value> manifest(deserializer.Deserialize(NULL, NULL));
 
-  if (!manifest.get() || !manifest->IsType(base::Value::Type::DICTIONARY))
+  if (!manifest.get() || !manifest->is_dict())
     return nullptr;
 
   // Transfer ownership to the caller.
@@ -129,9 +139,9 @@ bool CheckForCompatibleVersion(const base::DictionaryValue& manifest,
   if (versions_string.empty())
     return false;
 
-  for (const base::StringPiece& ver_str : base::SplitStringPiece(
-           versions_string, std::string(1, kCdmValueDelimiter),
-           base::TRIM_WHITESPACE, base::SPLIT_WANT_ALL)) {
+  for (const base::StringPiece& ver_str :
+       base::SplitStringPiece(versions_string, kCdmValueDelimiter,
+                              base::TRIM_WHITESPACE, base::SPLIT_WANT_ALL)) {
     int version = 0;
     if (base::StringToInt(ver_str, &version))
       if (version_check_func(version))
@@ -169,6 +179,7 @@ void GetPluginInfo(const base::FilePath& cdm_adapter_path,
                    const base::FilePath& cdm_path,
                    const std::string& cdm_version,
                    const std::string& cdm_codecs,
+                   bool supports_persistent_license,
                    content::PepperPluginInfo* widevine_cdm) {
   widevine_cdm->is_out_of_process = true;
   widevine_cdm->path = cdm_adapter_path;
@@ -179,11 +190,6 @@ void GetPluginInfo(const base::FilePath& cdm_adapter_path,
   content::WebPluginMimeType widevine_cdm_mime_type(
       kWidevineCdmPluginMimeType, kWidevineCdmPluginExtension,
       kWidevineCdmPluginMimeTypeDescription);
-
-  widevine_cdm_mime_type.additional_params.emplace_back(
-      content::WebPluginMimeType::Param(
-          base::ASCIIToUTF16(kCdmSupportedCodecsParamName),
-          base::ASCIIToUTF16(cdm_codecs)));
 
   widevine_cdm->mime_types.push_back(widevine_cdm_mime_type);
   widevine_cdm->permissions = kWidevineCdmPluginPermissions;
@@ -196,6 +202,7 @@ cef_cdm_registration_error_t LoadWidevineCdmInfo(
     base::FilePath* cdm_path,
     std::string* cdm_version,
     std::string* cdm_codecs,
+    bool* supports_persistent_license,
     std::string* error_message) {
   std::stringstream ss;
 
@@ -240,6 +247,10 @@ cef_cdm_registration_error_t LoadWidevineCdmInfo(
   if (cdm_codecs->empty())
     return CEF_CDM_REGISTRATION_ERROR_INCORRECT_CONTENTS;
 
+  const base::Value* value =
+      manifest->FindKey(kCdmPersistentLicenseSupportName);
+  *supports_persistent_license = value && value->is_bool() && value->GetBool();
+
   return CEF_CDM_REGISTRATION_ERROR_NONE;
 }
 
@@ -255,16 +266,37 @@ void DeliverWidevineCdmCallback(cef_cdm_registration_error_t result,
     callback->OnCdmRegistrationComplete(result, error_message);
 }
 
+std::vector<media::VideoCodec> ConvertCodecsString(const std::string& codecs) {
+  std::vector<media::VideoCodec> supported_video_codecs;
+  const std::vector<base::StringPiece> supported_codecs =
+      base::SplitStringPiece(codecs, kCdmValueDelimiter, base::TRIM_WHITESPACE,
+                             base::SPLIT_WANT_NONEMPTY);
+
+  for (const auto& codec : supported_codecs) {
+    if (codec == kCdmSupportedCodecVp8)
+      supported_video_codecs.push_back(media::VideoCodec::kCodecVP8);
+    else if (codec == kCdmSupportedCodecVp9)
+      supported_video_codecs.push_back(media::VideoCodec::kCodecVP9);
+#if BUILDFLAG(USE_PROPRIETARY_CODECS)
+    else if (codec == kCdmSupportedCodecAvc1)
+      supported_video_codecs.push_back(media::VideoCodec::kCodecH264);
+#endif  // BUILDFLAG(USE_PROPRIETARY_CODECS)
+  }
+
+  return supported_video_codecs;
+}
+
 void RegisterWidevineCdmOnUIThread(const base::FilePath& cdm_adapter_path,
                                    const base::FilePath& cdm_path,
                                    const std::string& cdm_version,
                                    const std::string& cdm_codecs,
+                                   bool supports_persistent_license,
                                    CefRefPtr<CefRegisterCdmCallback> callback) {
   CEF_REQUIRE_UIT();
 
   content::PepperPluginInfo widevine_cdm;
   GetPluginInfo(cdm_adapter_path, cdm_path, cdm_version, cdm_codecs,
-                &widevine_cdm);
+                supports_persistent_license, &widevine_cdm);
 
   // true = Add to beginning of list to override any existing registrations.
   content::PluginService::GetInstance()->RegisterInternalPlugin(
@@ -275,12 +307,12 @@ void RegisterWidevineCdmOnUIThread(const base::FilePath& cdm_adapter_path,
   content::PluginService::GetInstance()->PurgePluginListCache(NULL, false);
 
   // Also register Widevine with the CdmRegistry.
-  const std::vector<std::string> codecs = base::SplitString(
-      cdm_codecs, std::string(1, kCdmSupportedCodecsValueDelimiter),
-      base::TRIM_WHITESPACE, base::SPLIT_WANT_NONEMPTY);
+  std::vector<media::VideoCodec> supported_video_codecs =
+      ConvertCodecsString(cdm_codecs);
   content::CdmRegistry::GetInstance()->RegisterCdm(content::CdmInfo(
       kWidevineCdmDisplayName, kWidevineCdmGuid, base::Version(cdm_version),
-      cdm_path, kWidevineCdmFileSystemId, codecs, kWidevineKeySystem, false));
+      cdm_path, kWidevineCdmFileSystemId, supported_video_codecs,
+      supports_persistent_license, kWidevineKeySystem, false));
 
   DeliverWidevineCdmCallback(CEF_CDM_REGISTRATION_ERROR_NONE, std::string(),
                              callback);
@@ -295,10 +327,11 @@ void LoadWidevineCdmInfoOnFileThread(
   base::FilePath cdm_path;
   std::string cdm_version;
   std::string cdm_codecs;
+  bool supports_persistent_license;
   std::string error_message;
-  cef_cdm_registration_error_t result =
-      LoadWidevineCdmInfo(base_path, &cdm_adapter_path, &cdm_path, &cdm_version,
-                          &cdm_codecs, &error_message);
+  cef_cdm_registration_error_t result = LoadWidevineCdmInfo(
+      base_path, &cdm_adapter_path, &cdm_path, &cdm_version, &cdm_codecs,
+      &supports_persistent_license, &error_message);
   if (result != CEF_CDM_REGISTRATION_ERROR_NONE) {
     CEF_POST_TASK(CEF_UIT, base::Bind(DeliverWidevineCdmCallback, result,
                                       error_message, callback));
@@ -308,7 +341,8 @@ void LoadWidevineCdmInfoOnFileThread(
   // Continue execution on the UI thread.
   CEF_POST_TASK(CEF_UIT,
                 base::Bind(RegisterWidevineCdmOnUIThread, cdm_adapter_path,
-                           cdm_path, cdm_version, cdm_codecs, callback));
+                           cdm_path, cdm_version, cdm_codecs,
+                           supports_persistent_license, callback));
 }
 
 }  // namespace
@@ -374,10 +408,11 @@ void CefWidevineLoader::AddPepperPlugins(
   base::FilePath cdm_path;
   std::string cdm_version;
   std::string cdm_codecs;
+  bool supports_persistent_license;
   std::string error_message;
-  cef_cdm_registration_error_t result =
-      LoadWidevineCdmInfo(base_path, &cdm_adapter_path, &cdm_path, &cdm_version,
-                          &cdm_codecs, &error_message);
+  cef_cdm_registration_error_t result = LoadWidevineCdmInfo(
+      base_path, &cdm_adapter_path, &cdm_path, &cdm_version, &cdm_codecs,
+      &supports_persistent_license, &error_message);
   if (result != CEF_CDM_REGISTRATION_ERROR_NONE) {
     LOG(ERROR) << "Widevine CDM registration failed; " << error_message;
     return;
@@ -385,7 +420,7 @@ void CefWidevineLoader::AddPepperPlugins(
 
   content::PepperPluginInfo widevine_cdm;
   GetPluginInfo(cdm_adapter_path, cdm_path, cdm_version, cdm_codecs,
-                &widevine_cdm);
+                supports_persistent_license, &widevine_cdm);
   plugins->push_back(widevine_cdm);
 }
 

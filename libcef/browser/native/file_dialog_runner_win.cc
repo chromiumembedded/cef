@@ -5,6 +5,8 @@
 
 #include "libcef/browser/native/file_dialog_runner_win.h"
 
+#include <windows.h>
+
 #include <commdlg.h>
 #include <shlobj.h>
 #include <wrl/client.h>

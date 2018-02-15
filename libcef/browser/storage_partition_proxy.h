@@ -24,33 +24,28 @@ class CefStoragePartitionProxy : public content::StoragePartition {
   base::FilePath GetPath() override;
   net::URLRequestContextGetter* GetURLRequestContext() override;
   net::URLRequestContextGetter* GetMediaURLRequestContext() override;
-  content::mojom::NetworkContext* GetNetworkContext() override;
-  content::mojom::URLLoaderFactory* GetURLLoaderFactoryForBrowserProcess()
+  network::mojom::NetworkContext* GetNetworkContext() override;
+  network::mojom::URLLoaderFactory* GetURLLoaderFactoryForBrowserProcess()
       override;
+  network::mojom::CookieManager* GetCookieManagerForBrowserProcess() override;
   storage::QuotaManager* GetQuotaManager() override;
   content::AppCacheService* GetAppCacheService() override;
   storage::FileSystemContext* GetFileSystemContext() override;
   storage::DatabaseTracker* GetDatabaseTracker() override;
   content::DOMStorageContext* GetDOMStorageContext() override;
+  content::LockManager* GetLockManager() override;
   content::IndexedDBContext* GetIndexedDBContext() override;
   content::ServiceWorkerContext* GetServiceWorkerContext() override;
+  content::SharedWorkerService* GetSharedWorkerService() override;
   content::CacheStorageContext* GetCacheStorageContext() override;
   content::HostZoomMap* GetHostZoomMap() override;
   content::HostZoomLevelContext* GetHostZoomLevelContext() override;
   content::ZoomLevelDelegate* GetZoomLevelDelegate() override;
   content::PlatformNotificationContext* GetPlatformNotificationContext()
       override;
-  content::BackgroundFetchContext* GetBackgroundFetchContext() override;
-  content::BackgroundSyncContext* GetBackgroundSyncContext() override;
-  content::PaymentAppContextImpl* GetPaymentAppContext() override;
-  content::BroadcastChannelProvider* GetBroadcastChannelProvider() override;
-  content::BluetoothAllowedDevicesMap* GetBluetoothAllowedDevicesMap() override;
-  content::BlobURLLoaderFactory* GetBlobURLLoaderFactory() override;
-  content::BlobRegistryWrapper* GetBlobRegistry() override;
   void ClearDataForOrigin(uint32_t remove_mask,
                           uint32_t quota_storage_remove_mask,
-                          const GURL& storage_origin,
-                          net::URLRequestContextGetter* rq_context) override;
+                          const GURL& storage_origin) override;
   void ClearData(uint32_t remove_mask,
                  uint32_t quota_storage_remove_mask,
                  const GURL& storage_origin,
@@ -72,14 +67,23 @@ class CefStoragePartitionProxy : public content::StoragePartition {
       base::OnceClosure callback) override;
   void Flush() override;
   void ClearBluetoothAllowedDevicesMapForTesting() override;
-  void SetNetworkFactoryForTesting(
-      content::mojom::URLLoaderFactory* test_factory) override;
+  void FlushNetworkInterfaceForTesting() override;
+  content::BackgroundFetchContext* GetBackgroundFetchContext() override;
+  content::BackgroundSyncContext* GetBackgroundSyncContext() override;
+  content::PaymentAppContextImpl* GetPaymentAppContext() override;
+  content::BroadcastChannelProvider* GetBroadcastChannelProvider() override;
+  content::BluetoothAllowedDevicesMap* GetBluetoothAllowedDevicesMap() override;
+  content::BlobURLLoaderFactory* GetBlobURLLoaderFactory() override;
+  content::BlobRegistryWrapper* GetBlobRegistry() override;
   content::URLLoaderFactoryGetter* url_loader_factory_getter() override;
   content::BrowserContext* browser_context() const override;
   mojo::BindingId Bind(
       int process_id,
       mojo::InterfaceRequest<content::mojom::StoragePartitionService> request)
       override;
+  void set_site_for_service_worker(
+      const GURL& site_for_service_worker) override;
+  const GURL& site_for_service_worker() const override;
 
   content::StoragePartition* parent() const { return parent_; }
 

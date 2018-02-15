@@ -1,5 +1,5 @@
 diff --git chrome/browser/BUILD.gn chrome/browser/BUILD.gn
-index 1126d7e63c30..64ecb8982428 100644
+index 472d5ea34687..575960cb4a37 100644
 --- chrome/browser/BUILD.gn
 +++ chrome/browser/BUILD.gn
 @@ -7,6 +7,7 @@ import("//build/config/crypto.gni")
@@ -10,7 +10,7 @@ index 1126d7e63c30..64ecb8982428 100644
  import("//chrome/common/features.gni")
  import("//components/feature_engagement/features.gni")
  import("//components/nacl/features.gni")
-@@ -1551,6 +1552,7 @@ split_static_library("browser") {
+@@ -1586,6 +1587,7 @@ split_static_library("browser") {
      "//base:i18n",
      "//base/allocator:features",
      "//cc",
@@ -18,7 +18,7 @@ index 1126d7e63c30..64ecb8982428 100644
      "//chrome:extra_resources",
      "//chrome:resources",
      "//chrome:strings",
-@@ -1797,6 +1799,10 @@ split_static_library("browser") {
+@@ -1837,6 +1839,10 @@ split_static_library("browser") {
      "//ui/web_dialogs",
    ]
  

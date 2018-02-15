@@ -101,7 +101,9 @@ struct PopulateAxNodeAttributes {
       case ui::AX_ATTR_ERRORMESSAGE_ID:
       case ui::AX_ATTR_DETAILS_ID:
       case ui::AX_ATTR_MEMBER_OF_ID:
+      case ui::AX_ATTR_NEXT_FOCUS_ID:
       case ui::AX_ATTR_NEXT_ON_LINE_ID:
+      case ui::AX_ATTR_PREVIOUS_FOCUS_ID:
       case ui::AX_ATTR_PREVIOUS_ON_LINE_ID:
       case ui::AX_ATTR_CHILD_TREE_ID:
       case ui::AX_ATTR_SET_SIZE:

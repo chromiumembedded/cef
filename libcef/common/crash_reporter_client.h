@@ -14,6 +14,7 @@
 #include "include/cef_version.h"
 
 #include "base/macros.h"
+#include "base/synchronization/lock.h"
 #include "build/build_config.h"
 #include "components/crash/content/app/crash_reporter_client.h"
 
@@ -66,17 +67,8 @@ class CefCrashReporterClient : public crash_reporter::CrashReporterClient {
   bool ReportingIsEnforcedByPolicy(bool* crashpad_enabled) override;
 #endif
 
-  size_t RegisterCrashKeys() override;
-
 #if defined(OS_POSIX) && !defined(OS_MACOSX)
   bool IsRunningUnattended() override;
-#endif
-
-#if defined(OS_WIN)
-  size_t GetCrashKeyCount() const;
-  bool GetCrashKey(size_t index,
-                   const char** key_name,
-                   size_t* max_length) const;
 #endif
 
   std::string GetCrashServerURL() override;
@@ -92,16 +84,27 @@ class CefCrashReporterClient : public crash_reporter::CrashReporterClient {
   bool EnableBrowserCrashForwarding() override;
 #endif
 
+#if defined(OS_POSIX) && !defined(OS_MACOSX)
+  ParameterMap FilterParameters(const ParameterMap& parameters) override;
+#endif
+
+  // Set or clear a crash key value.
+  bool SetCrashKeyValue(const base::StringPiece& key,
+                        const base::StringPiece& value);
+
  private:
   bool has_crash_config_file_ = false;
 
-  // Values that will persist until the end of the program.
-  // Matches the members of base::debug::CrashKey.
-  struct StoredCrashKey {
-    std::string key_name_;
-    size_t max_length_;
-  };
-  std::vector<StoredCrashKey> crash_keys_;
+  enum KeySize { SMALL_SIZE, MEDIUM_SIZE, LARGE_SIZE };
+
+  // Map of crash key name to (KeySize, index).
+  // Const access to |crash_keys_| is thread-safe after initialization.
+  using KeyMap = std::map<std::string, std::pair<KeySize, size_t>>;
+  KeyMap crash_keys_;
+
+  // Modification of CrashKeyString values must be synchronized.
+  base::Lock crash_key_lock_;
+
   std::string server_url_;
   bool rate_limit_ = true;
   int max_uploads_ = 5;

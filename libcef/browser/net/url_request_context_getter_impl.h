@@ -17,6 +17,7 @@
 #include "base/compiler_specific.h"
 #include "base/files/file_path.h"
 #include "base/memory/ref_counted.h"
+#include "chrome/browser/net/chrome_mojo_proxy_resolver_factory.h"
 #include "components/prefs/pref_member.h"
 #include "content/public/browser/browser_context.h"
 #include "net/url_request/url_request_job_factory.h"
@@ -84,7 +85,6 @@ class CefURLRequestContextGetterImpl : public CefURLRequestContextGetter {
   }
 
  private:
-  void CreateProxyConfigService();
   void UpdateServerWhitelist();
   void UpdateDelegateWhitelist();
 
@@ -117,6 +117,8 @@ class CefURLRequestContextGetterImpl : public CefURLRequestContextGetter {
     std::vector<std::string> cookie_supported_schemes_;
 
     std::vector<CefRefPtr<CefRequestContextHandler>> handler_list_;
+
+    proxy_resolver::mojom::ProxyResolverFactoryPtr proxy_resolver_factory_;
   };
   std::unique_ptr<IOState> io_state_;
 

@@ -170,7 +170,7 @@ message_center::MessageCenter* ChromeBrowserProcessStub::message_center() {
   return NULL;
 }
 
-policy::BrowserPolicyConnector*
+policy::ChromeBrowserPolicyConnector*
 ChromeBrowserProcessStub::browser_policy_connector() {
   NOTREACHED();
   return NULL;
@@ -187,11 +187,6 @@ IconManager* ChromeBrowserProcessStub::icon_manager() {
 }
 
 GpuModeManager* ChromeBrowserProcessStub::gpu_mode_manager() {
-  NOTREACHED();
-  return NULL;
-}
-
-GpuProfileCache* ChromeBrowserProcessStub::gpu_profile_cache() {
   NOTREACHED();
   return NULL;
 }

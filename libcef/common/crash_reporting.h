@@ -4,6 +4,7 @@
 
 #include <string>
 
+#include "base/strings/string_piece_forward.h"
 #include "build/build_config.h"
 
 namespace base {
@@ -14,6 +15,10 @@ namespace crash_reporting {
 
 // Returns true if crash reporting is enabled.
 bool Enabled();
+
+// Set or clear a crash key value.
+bool SetCrashKeyValue(const base::StringPiece& key,
+                      const base::StringPiece& value);
 
 // Functions are called from similarly named methods in CefMainDelegate.
 

@@ -25,7 +25,6 @@
 #include "base/threading/thread_restrictions.h"
 #include "build/build_config.h"
 #include "chrome/browser/browser_process.h"
-#include "chrome/browser/net/chrome_mojo_proxy_resolver_factory.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/pref_names.h"
 #include "components/net_log/chrome_net_log.h"
@@ -115,6 +114,7 @@ std::unique_ptr<net::ProxyService> CreateProxyService(
     net::NetLog* net_log,
     net::URLRequestContext* context,
     net::NetworkDelegate* network_delegate,
+    proxy_resolver::mojom::ProxyResolverFactoryPtr proxy_resolver_factory,
     std::unique_ptr<net::ProxyConfigService> proxy_config_service,
     const base::CommandLine& command_line,
     bool quick_check_enabled,
@@ -136,8 +136,7 @@ std::unique_ptr<net::ProxyService> CreateProxyService(
     dhcp_proxy_script_fetcher = dhcp_factory.Create(context);
 
     proxy_service = content::CreateProxyServiceUsingMojoFactory(
-        ChromeMojoProxyResolverFactory::CreateWithStrongBinding(),
-        std::move(proxy_config_service),
+        std::move(proxy_resolver_factory), std::move(proxy_config_service),
         base::MakeUnique<net::ProxyScriptFetcherImpl>(context),
         std::move(dhcp_proxy_script_fetcher), context->host_resolver(), net_log,
         network_delegate);
@@ -171,6 +170,8 @@ CefURLRequestContextGetterImpl::CefURLRequestContextGetterImpl(
   io_state_->net_log_ = g_browser_process->net_log(),
   DCHECK(io_state_->net_log_);
   io_state_->io_task_runner_ = std::move(io_task_runner);
+  io_state_->proxy_resolver_factory_ =
+      ChromeMojoProxyResolverFactory::CreateWithStrongBinding();
   io_state_->proxy_config_service_ = std::move(proxy_config_service);
   io_state_->request_interceptors_ = std::move(request_interceptors);
 
@@ -318,6 +319,7 @@ net::URLRequestContext* CefURLRequestContextGetterImpl::GetURLRequestContext() {
         CreateProxyService(io_state_->net_log_,
                            io_state_->url_request_context_.get(),
                            io_state_->url_request_context_->network_delegate(),
+                           std::move(io_state_->proxy_resolver_factory_),
                            std::move(io_state_->proxy_config_service_),
                            *command_line, quick_check_enabled_.GetValue(),
                            pac_https_url_stripping_enabled_.GetValue());
@@ -524,15 +526,6 @@ net::CookieStore* CefURLRequestContextGetterImpl::GetExistingCookieStore()
 
   LOG(ERROR) << "Cookie store does not exist";
   return nullptr;
-}
-
-void CefURLRequestContextGetterImpl::CreateProxyConfigService() {
-  if (io_state_->proxy_config_service_.get())
-    return;
-
-  io_state_->proxy_config_service_ =
-      net::ProxyService::CreateSystemProxyConfigService(
-          io_state_->io_task_runner_);
 }
 
 void CefURLRequestContextGetterImpl::UpdateServerWhitelist() {

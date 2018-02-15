@@ -399,7 +399,7 @@ bool OnKeyEvent(CefRefPtr<CefWindow> window, const CefKeyEvent& event) {
     else
       EXPECT_TRUE(got_accelerator);
 
-    EXPECT_EQ(event.modifiers, EVENTFLAG_ALT_DOWN);
+    EXPECT_EQ(EVENTFLAG_ALT_DOWN, static_cast<int>(event.modifiers));
     got_key_event_alt_count++;
   } else if (event.windows_key_code == kChar) {
     // Then we get the char key press with the ALT modifier if the accelerator
@@ -408,7 +408,7 @@ bool OnKeyEvent(CefRefPtr<CefWindow> window, const CefKeyEvent& event) {
     EXPECT_EQ(got_key_event_alt_count, 2);
     EXPECT_FALSE(got_key_event_char);
 
-    EXPECT_EQ(event.modifiers, EVENTFLAG_ALT_DOWN);
+    EXPECT_EQ(EVENTFLAG_ALT_DOWN, static_cast<int>(event.modifiers));
     got_key_event_char = true;
 
     // Call this method just to make sure it doesn't crash.

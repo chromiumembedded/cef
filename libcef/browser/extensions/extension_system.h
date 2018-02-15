@@ -89,6 +89,7 @@ class CefExtensionSystem : public ExtensionSystem {
 
   // ExtensionSystem implementation:
   void InitForRegularProfile(bool extensions_enabled) override;
+  void InitForIncognitoProfile() override;
   ExtensionService* extension_service() override;
   RuntimeData* runtime_data() override;
   ManagementPolicy* management_policy() override;
@@ -111,7 +112,9 @@ class CefExtensionSystem : public ExtensionSystem {
   std::unique_ptr<ExtensionSet> GetDependentExtensions(
       const Extension* extension) override;
   void InstallUpdate(const std::string& extension_id,
-                     const base::FilePath& temp_dir) override;
+                     const std::string& public_key,
+                     const base::FilePath& temp_dir,
+                     InstallUpdateCallback install_update_callback) override;
 
   bool initialized() const { return initialized_; }
 

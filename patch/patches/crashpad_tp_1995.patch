@@ -146,7 +146,7 @@ index b64f74fbaf28..0c3c22e215b6 100644
    struct Data;
  
 diff --git third_party/crashpad/crashpad/handler/BUILD.gn third_party/crashpad/crashpad/handler/BUILD.gn
-index 05f554b73036..5b6d1a2a98e1 100644
+index 71037bb04d5d..61f7e8ca04ca 100644
 --- third_party/crashpad/crashpad/handler/BUILD.gn
 +++ third_party/crashpad/crashpad/handler/BUILD.gn
 @@ -12,6 +12,7 @@
@@ -154,13 +154,13 @@ index 05f554b73036..5b6d1a2a98e1 100644
  # limitations under the License.
  
 +import("//cef/libcef/features/features.gni")
- import("//testing/test.gni")
+ import("../build/crashpad_buildconfig.gni")
  
  static_library("handler") {
-@@ -56,8 +57,18 @@ static_library("handler") {
+@@ -75,8 +76,20 @@ static_library("handler") {
+     "../third_party/mini_chromium:base",
      "../tools:tool_support",
      "../util",
-     "//base",
 +    "//cef/libcef/features",
    ]
  
@@ -168,19 +168,42 @@ index 05f554b73036..5b6d1a2a98e1 100644
 +    sources += [
 +      "//cef/libcef/common/cef_crash_report_upload_thread.cc",
 +      "//cef/libcef/common/cef_crash_report_upload_thread.h",
++      "//cef/libcef/common/cef_crash_report_utils.cc",
++      "//cef/libcef/common/cef_crash_report_utils.h",
 +    ]
 +
 +    configs += [ "//cef/libcef/features:config" ]
 +  }
 +
-   if (is_win) {
+   if (crashpad_is_win) {
      cflags = [ "/wd4201" ]  # nonstandard extension used : nameless struct/union
    }
+diff --git third_party/crashpad/crashpad/handler/crash_report_upload_thread.cc third_party/crashpad/crashpad/handler/crash_report_upload_thread.cc
+index 7505524b693b..4f8ceaa43bd6 100644
+--- third_party/crashpad/crashpad/handler/crash_report_upload_thread.cc
++++ third_party/crashpad/crashpad/handler/crash_report_upload_thread.cc
+@@ -302,6 +302,8 @@ CrashReportUploadThread::UploadResult CrashReportUploadThread::UploadReport(
+   if (minidump_process_snapshot.Initialize(&minidump_file_reader)) {
+     parameters =
+         BreakpadHTTPFormParametersFromMinidump(&minidump_process_snapshot);
++    if (!parameters.empty())
++      parameters = FilterParameters(parameters);
+   }
+ 
+   if (!minidump_file_reader.SeekSet(start_offset)) {
 diff --git third_party/crashpad/crashpad/handler/crash_report_upload_thread.h third_party/crashpad/crashpad/handler/crash_report_upload_thread.h
-index cdd1502b7e2f..db47f0a8b559 100644
+index cdd1502b7e2f..cb8450a892ba 100644
 --- third_party/crashpad/crashpad/handler/crash_report_upload_thread.h
 +++ third_party/crashpad/crashpad/handler/crash_report_upload_thread.h
-@@ -99,7 +99,7 @@ class CrashReportUploadThread : public WorkerThread::Delegate {
+@@ -15,6 +15,7 @@
+ #ifndef CRASHPAD_HANDLER_CRASH_REPORT_UPLOAD_THREAD_H_
+ #define CRASHPAD_HANDLER_CRASH_REPORT_UPLOAD_THREAD_H_
+ 
++#include <map>
+ #include <memory>
+ #include <string>
+ 
+@@ -99,7 +100,7 @@ class CrashReportUploadThread : public WorkerThread::Delegate {
    //! This method may be called from any thread.
    void ReportPending(const UUID& report_uuid);
  
@@ -189,7 +212,7 @@ index cdd1502b7e2f..db47f0a8b559 100644
    //! \brief The result code from UploadReport().
    enum class UploadResult {
      //! \brief The crash report was uploaded successfully.
-@@ -127,7 +127,7 @@ class CrashReportUploadThread : public WorkerThread::Delegate {
+@@ -127,7 +128,7 @@ class CrashReportUploadThread : public WorkerThread::Delegate {
    //! object was constructed with \a watch_pending_reports, it will also scan
    //! the crash report database for other pending reports, and process those as
    //! well.
@@ -198,7 +221,7 @@ index cdd1502b7e2f..db47f0a8b559 100644
  
    //! \brief Processes a single pending report from the database.
    //!
-@@ -141,7 +141,7 @@ class CrashReportUploadThread : public WorkerThread::Delegate {
+@@ -141,7 +142,7 @@ class CrashReportUploadThread : public WorkerThread::Delegate {
    //! remain in the “pending” state. If the upload fails and no more retries are
    //! desired, or report upload is disabled, it will be marked as “completed” in
    //! the database without ever having been uploaded.
@@ -207,8 +230,20 @@ index cdd1502b7e2f..db47f0a8b559 100644
  
    //! \brief Attempts to upload a crash report.
    //!
+@@ -158,6 +159,11 @@ class CrashReportUploadThread : public WorkerThread::Delegate {
+   UploadResult UploadReport(const CrashReportDatabase::Report* report,
+                             std::string* response_body);
+ 
++  using ParameterMap = std::map<std::string, std::string>;
++  virtual ParameterMap FilterParameters(const ParameterMap& parameters) {
++    return parameters;
++  }
++
+   // WorkerThread::Delegate:
+   //! \brief Calls ProcessPendingReports() in response to ReportPending() having
+   //!     been called on any thread, as well as periodically on a timer.
 diff --git third_party/crashpad/crashpad/handler/handler_main.cc third_party/crashpad/crashpad/handler/handler_main.cc
-index 2e46f86a6522..faf4f1072ad0 100644
+index f175fddf6084..d6285bbf28bf 100644
 --- third_party/crashpad/crashpad/handler/handler_main.cc
 +++ third_party/crashpad/crashpad/handler/handler_main.cc
 @@ -35,8 +35,10 @@
@@ -222,8 +257,8 @@ index 2e46f86a6522..faf4f1072ad0 100644
  #include "client/crash_report_database.h"
  #include "client/crashpad_client.h"
  #include "client/crashpad_info.h"
-@@ -76,6 +78,10 @@
- #include "util/win/session_end_watcher.h"
+@@ -79,6 +81,10 @@
+ #include "handler/fuchsia/exception_handler_server.h"
  #endif  // OS_MACOSX
  
 +#if BUILDFLAG(ENABLE_CEF)
@@ -233,7 +268,7 @@ index 2e46f86a6522..faf4f1072ad0 100644
  namespace crashpad {
  
  namespace {
-@@ -151,6 +157,9 @@ struct Options {
+@@ -154,6 +160,9 @@ struct Options {
    bool periodic_tasks;
    bool rate_limit;
    bool upload_gzip;
@@ -243,7 +278,7 @@ index 2e46f86a6522..faf4f1072ad0 100644
  };
  
  // Splits |key_value| on '=' and inserts the resulting key and value into |map|.
-@@ -438,6 +447,9 @@ int HandlerMain(int argc,
+@@ -451,6 +460,9 @@ int HandlerMain(int argc,
      kOptionResetOwnCrashExceptionPortToSystemDefault,
  #endif  // OS_MACOSX
      kOptionURL,
@@ -253,7 +288,7 @@ index 2e46f86a6522..faf4f1072ad0 100644
  
      // Standard options.
      kOptionHelp = -2,
-@@ -488,6 +500,9 @@ int HandlerMain(int argc,
+@@ -501,6 +513,9 @@ int HandlerMain(int argc,
      {"url", required_argument, nullptr, kOptionURL},
      {"help", no_argument, nullptr, kOptionHelp},
      {"version", no_argument, nullptr, kOptionVersion},
@@ -263,7 +298,7 @@ index 2e46f86a6522..faf4f1072ad0 100644
      {nullptr, 0, nullptr, 0},
    };
  
-@@ -592,6 +607,27 @@ int HandlerMain(int argc,
+@@ -605,6 +620,27 @@ int HandlerMain(int argc,
          options.url = optarg;
          break;
        }
@@ -291,7 +326,7 @@ index 2e46f86a6522..faf4f1072ad0 100644
        case kOptionHelp: {
          Usage(me);
          MetricsRecordExit(Metrics::LifetimeMilestone::kExitedEarly);
-@@ -757,15 +793,23 @@ int HandlerMain(int argc,
+@@ -772,15 +808,23 @@ int HandlerMain(int argc,
    upload_thread_options.rate_limit = options.rate_limit;
    upload_thread_options.upload_gzip = options.upload_gzip;
    upload_thread_options.watch_pending_reports = options.periodic_tasks;

@@ -9,8 +9,8 @@
 #include "libcef/renderer/render_thread_observer.h"
 
 #include "base/command_line.h"
-#include "chrome/common/extensions/extension_process_policy.h"
 #include "chrome/common/url_constants.h"
+#include "chrome/renderer/extensions/extension_process_policy.h"
 #include "chrome/renderer/extensions/resource_request_policy.h"
 #include "content/public/common/content_constants.h"
 #include "content/public/common/content_switches.h"

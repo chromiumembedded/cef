@@ -240,27 +240,8 @@ void CefDevToolsFrontend::WebContentsDestroyed() {
   delete this;
 }
 
-void CefDevToolsFrontend::SetPreferences(const std::string& json) {
-  if (json.empty())
-    return;
-  base::DictionaryValue* dict = nullptr;
-  std::unique_ptr<base::Value> parsed = base::JSONReader::Read(json);
-  if (!parsed || !parsed->GetAsDictionary(&dict))
-    return;
-
-  DictionaryPrefUpdate update(GetPrefs(), prefs::kDevToolsPreferences);
-  for (base::DictionaryValue::Iterator it(*dict); !it.IsAtEnd(); it.Advance()) {
-    if (!it.value().IsType(base::Value::Type::STRING))
-      continue;
-    update.Get()->SetWithoutPathExpansion(it.key(),
-                                          it.value().CreateDeepCopy());
-  }
-}
-
 void CefDevToolsFrontend::HandleMessageFromDevToolsFrontend(
     const std::string& message) {
-  if (!agent_host_)
-    return;
   std::string method;
   base::ListValue* params = NULL;
   base::DictionaryValue* dict = NULL;
@@ -275,7 +256,7 @@ void CefDevToolsFrontend::HandleMessageFromDevToolsFrontend(
 
   if (method == "dispatchProtocolMessage" && params && params->GetSize() == 1) {
     std::string protocol_message;
-    if (!params->GetString(0, &protocol_message))
+    if (!agent_host_ || !params->GetString(0, &protocol_message))
       return;
     agent_host_->DispatchProtocolMessage(this, protocol_message);
   } else if (method == "loadCompleted") {
@@ -361,6 +342,8 @@ void CefDevToolsFrontend::HandleMessageFromDevToolsFrontend(
     web_contents()->GetMainFrame()->ExecuteJavaScriptForTests(
         base::ASCIIToUTF16("DevToolsAPI.fileSystemsLoaded([]);"));
   } else if (method == "reattach") {
+    if (!agent_host_)
+      return;
     agent_host_->DetachClient(this);
     agent_host_->AttachClient(this);
   } else if (method == "registerExtensionsAPI") {

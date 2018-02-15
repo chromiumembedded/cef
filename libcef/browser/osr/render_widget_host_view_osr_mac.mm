@@ -26,14 +26,7 @@ class MacHelper : public content::BrowserCompositorMacClient,
 
   // BrowserCompositorMacClient methods:
 
-  NSView* BrowserCompositorMacGetNSView() const override {
-    // Intentionally return nil so that
-    // BrowserCompositorMac::DelegatedFrameHostDesiredSizeInDIP uses the layer
-    // size instead of the NSView size.
-    return nil;
-  }
-
-  SkColor BrowserCompositorMacGetGutterColor(SkColor color) const override {
+  SkColor BrowserCompositorMacGetGutterColor() const override {
     // When making an element on the page fullscreen the element's background
     // may not match the page's, so use black as the gutter color to avoid
     // flashes of brighter colors during the transition.
@@ -41,19 +34,21 @@ class MacHelper : public content::BrowserCompositorMacClient,
         view_->render_widget_host()->delegate()->IsFullscreenForCurrentTab()) {
       return SK_ColorBLACK;
     }
-    return color;
+    return view_->background_color();
   }
 
   void BrowserCompositorMacOnBeginFrame() override {}
 
-  viz::LocalSurfaceId GetLocalSurfaceId() const override {
-    return view_->local_surface_id();
+  void OnFrameTokenChanged(uint32_t frame_token) override {
+    view_->render_widget_host()->DidProcessFrame(frame_token);
   }
 
   // AcceleratedWidgetMacNSView methods:
 
   NSView* AcceleratedWidgetGetNSView() const override {
-    return [view_->window_ contentView];
+    // Intentionally return nil so that BrowserCompositorMac::GetViewProperties
+    // uses the layer size instead of the NSView size.
+    return nil;
   }
 
   void AcceleratedWidgetGetVSyncParameters(
@@ -65,23 +60,12 @@ class MacHelper : public content::BrowserCompositorMacClient,
 
   void AcceleratedWidgetSwapCompleted() override {}
 
-  void OnFrameTokenChanged(uint32_t frame_token) override {
-    view_->render_widget_host()->DidProcessFrame(frame_token);
-  }
-
  private:
   // Guaranteed to outlive this object.
   CefRenderWidgetHostViewOSR* view_;
 
   DISALLOW_COPY_AND_ASSIGN(MacHelper);
 };
-
-ui::AcceleratedWidgetMac* CefRenderWidgetHostViewOSR::GetAcceleratedWidgetMac()
-    const {
-  if (browser_compositor_)
-    return browser_compositor_->GetAcceleratedWidgetMac();
-  return nullptr;
-}
 
 void CefRenderWidgetHostViewOSR::SetActive(bool active) {}
 

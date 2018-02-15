@@ -58,7 +58,7 @@ class CefDevToolsFrontend : public content::WebContentsObserver,
     return frontend_browser_;
   }
 
- protected:
+ private:
   CefDevToolsFrontend(CefRefPtr<CefBrowserHostImpl> frontend_browser,
                       content::WebContents* inspected_contents,
                       const CefPoint& inspect_element_at);
@@ -68,8 +68,7 @@ class CefDevToolsFrontend : public content::WebContentsObserver,
   void AgentHostClosed(content::DevToolsAgentHost* agent_host) override;
   void DispatchProtocolMessage(content::DevToolsAgentHost* agent_host,
                                const std::string& message) override;
-  void SetPreferences(const std::string& json);
-  virtual void HandleMessageFromDevToolsFrontend(const std::string& message);
+  void HandleMessageFromDevToolsFrontend(const std::string& message);
 
  private:
   // WebContentsObserver overrides

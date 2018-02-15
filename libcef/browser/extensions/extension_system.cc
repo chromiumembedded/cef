@@ -64,7 +64,7 @@ std::unique_ptr<base::DictionaryValue> ParseManifest(
   JSONStringValueDeserializer deserializer(manifest_contents);
   std::unique_ptr<base::Value> manifest(deserializer.Deserialize(NULL, NULL));
 
-  if (!manifest.get() || !manifest->IsType(base::Value::Type::DICTIONARY)) {
+  if (!manifest.get() || !manifest->is_dict()) {
     LOG(ERROR) << "Failed to parse extension manifest.";
     return NULL;
   }
@@ -367,6 +367,10 @@ void CefExtensionSystem::InitForRegularProfile(bool extensions_enabled) {
   app_sorting_.reset(new NullAppSorting);
 }
 
+void CefExtensionSystem::InitForIncognitoProfile() {
+  NOTREACHED();
+}
+
 ExtensionService* CefExtensionSystem::extension_service() {
   return nullptr;
 }
@@ -452,8 +456,11 @@ std::unique_ptr<ExtensionSet> CefExtensionSystem::GetDependentExtensions(
   return base::MakeUnique<ExtensionSet>();
 }
 
-void CefExtensionSystem::InstallUpdate(const std::string& extension_id,
-                                       const base::FilePath& temp_dir) {
+void CefExtensionSystem::InstallUpdate(
+    const std::string& extension_id,
+    const std::string& public_key,
+    const base::FilePath& temp_dir,
+    InstallUpdateCallback install_update_callback) {
   NOTREACHED();
   base::DeleteFile(temp_dir, true /* recursive */);
 }

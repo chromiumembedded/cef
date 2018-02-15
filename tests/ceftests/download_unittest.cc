@@ -146,7 +146,9 @@ class DownloadTestHandler : public TestHandler {
                       const std::string& rc_cache_path)
       : test_mode_(test_mode),
         rc_mode_(rc_mode),
-        rc_cache_path_(rc_cache_path) {}
+        rc_cache_path_(rc_cache_path),
+        download_id_(0),
+        verified_results_(false) {}
 
   bool is_clicked() const {
     return test_mode_ == CLICKED || test_mode_ == CLICKED_REJECTED;
@@ -307,10 +309,13 @@ class DownloadTestHandler : public TestHandler {
 
     callback->Continue(test_path_, false);
 
-    if (test_mode_ == NAVIGATED)
-      browser->GetMainFrame()->LoadURL(kTestNavUrl);
-    else if (test_mode_ == PENDING)
+    if (test_mode_ == NAVIGATED) {
+      CefRefPtr<CefFrame> main_frame = browser->GetMainFrame();
+      EXPECT_TRUE(main_frame->IsMain());
+      main_frame->LoadURL(kTestNavUrl);
+    } else if (test_mode_ == PENDING) {
       ContinuePendingIfReady();
+    }
   }
 
   void OnDownloadUpdated(CefRefPtr<CefBrowser> browser,
@@ -382,7 +387,9 @@ class DownloadTestHandler : public TestHandler {
   }
 
   void DestroyTest() override {
-    if (!temp_dir_.IsEmpty()) {
+    if (!verified_results_ && !temp_dir_.IsEmpty()) {
+      // Avoid an endless failure loop.
+      verified_results_ = true;
       // Clean up temp_dir_ on the FILE thread before destroying the test.
       CefPostTask(
           TID_FILE,
@@ -447,6 +454,7 @@ class DownloadTestHandler : public TestHandler {
   CefScopedTempDir temp_dir_;
   std::string test_path_;
   uint32 download_id_;
+  bool verified_results_;
 
   TrackCallback got_download_request_;
   TrackCallback got_on_before_download_;

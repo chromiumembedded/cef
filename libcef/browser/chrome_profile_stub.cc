@@ -100,11 +100,6 @@ void ChromeProfileStub::set_last_selected_directory(
   NOTREACHED();
 }
 
-PrefProxyConfigTracker* ChromeProfileStub::GetProxyConfigTracker() {
-  NOTREACHED();
-  return NULL;
-}
-
 chrome_browser_net::Predictor* ChromeProfileStub::GetNetworkPredictor() {
   NOTREACHED();
   return NULL;

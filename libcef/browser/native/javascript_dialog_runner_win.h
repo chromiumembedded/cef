@@ -7,6 +7,8 @@
 #define CEF_LIBCEF_BROWSER_NATIVE_JAVASCRIPT_DIALOG_RUNNER_WIN_H_
 #pragma once
 
+#include <windows.h>
+
 #include "libcef/browser/javascript_dialog_runner.h"
 
 class CefJavaScriptDialogRunnerWin : public CefJavaScriptDialogRunner {

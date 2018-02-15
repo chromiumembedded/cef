@@ -26,13 +26,18 @@ CefStoragePartitionProxy::GetMediaURLRequestContext() {
   return GetURLRequestContext();
 }
 
-content::mojom::NetworkContext* CefStoragePartitionProxy::GetNetworkContext() {
+network::mojom::NetworkContext* CefStoragePartitionProxy::GetNetworkContext() {
   return parent_->GetNetworkContext();
 }
 
-content::mojom::URLLoaderFactory*
+network::mojom::URLLoaderFactory*
 CefStoragePartitionProxy::GetURLLoaderFactoryForBrowserProcess() {
   return parent_->GetURLLoaderFactoryForBrowserProcess();
+}
+
+network::mojom::CookieManager*
+CefStoragePartitionProxy::GetCookieManagerForBrowserProcess() {
+  return parent_->GetCookieManagerForBrowserProcess();
 }
 
 storage::QuotaManager* CefStoragePartitionProxy::GetQuotaManager() {
@@ -55,6 +60,10 @@ content::DOMStorageContext* CefStoragePartitionProxy::GetDOMStorageContext() {
   return parent_->GetDOMStorageContext();
 }
 
+content::LockManager* CefStoragePartitionProxy::GetLockManager() {
+  return parent_->GetLockManager();
+}
+
 content::IndexedDBContext* CefStoragePartitionProxy::GetIndexedDBContext() {
   return parent_->GetIndexedDBContext();
 }
@@ -62,6 +71,11 @@ content::IndexedDBContext* CefStoragePartitionProxy::GetIndexedDBContext() {
 content::ServiceWorkerContext*
 CefStoragePartitionProxy::GetServiceWorkerContext() {
   return parent_->GetServiceWorkerContext();
+}
+
+content::SharedWorkerService*
+CefStoragePartitionProxy::GetSharedWorkerService() {
+  return parent_->GetSharedWorkerService();
 }
 
 content::CacheStorageContext*
@@ -87,47 +101,12 @@ CefStoragePartitionProxy::GetPlatformNotificationContext() {
   return parent_->GetPlatformNotificationContext();
 }
 
-content::BackgroundFetchContext*
-CefStoragePartitionProxy::GetBackgroundFetchContext() {
-  return parent_->GetBackgroundFetchContext();
-}
-
-content::BackgroundSyncContext*
-CefStoragePartitionProxy::GetBackgroundSyncContext() {
-  return parent_->GetBackgroundSyncContext();
-}
-
-content::PaymentAppContextImpl*
-CefStoragePartitionProxy::GetPaymentAppContext() {
-  return parent_->GetPaymentAppContext();
-}
-
-content::BroadcastChannelProvider*
-CefStoragePartitionProxy::GetBroadcastChannelProvider() {
-  return parent_->GetBroadcastChannelProvider();
-}
-
-content::BluetoothAllowedDevicesMap*
-CefStoragePartitionProxy::GetBluetoothAllowedDevicesMap() {
-  return parent_->GetBluetoothAllowedDevicesMap();
-}
-
-content::BlobURLLoaderFactory*
-CefStoragePartitionProxy::GetBlobURLLoaderFactory() {
-  return parent_->GetBlobURLLoaderFactory();
-}
-
-content::BlobRegistryWrapper* CefStoragePartitionProxy::GetBlobRegistry() {
-  return parent_->GetBlobRegistry();
-}
-
 void CefStoragePartitionProxy::ClearDataForOrigin(
     uint32_t remove_mask,
     uint32_t quota_storage_remove_mask,
-    const GURL& storage_origin,
-    net::URLRequestContextGetter* rq_context) {
+    const GURL& storage_origin) {
   parent_->ClearDataForOrigin(remove_mask, quota_storage_remove_mask,
-                              storage_origin, rq_context);
+                              storage_origin);
 }
 
 void CefStoragePartitionProxy::ClearData(
@@ -171,9 +150,42 @@ void CefStoragePartitionProxy::ClearBluetoothAllowedDevicesMapForTesting() {
   parent_->ClearBluetoothAllowedDevicesMapForTesting();
 }
 
-void CefStoragePartitionProxy::SetNetworkFactoryForTesting(
-    content::mojom::URLLoaderFactory* test_factory) {
-  parent_->SetNetworkFactoryForTesting(test_factory);
+void CefStoragePartitionProxy::FlushNetworkInterfaceForTesting() {
+  parent_->FlushNetworkInterfaceForTesting();
+}
+
+content::BackgroundFetchContext*
+CefStoragePartitionProxy::GetBackgroundFetchContext() {
+  return parent_->GetBackgroundFetchContext();
+}
+
+content::BackgroundSyncContext*
+CefStoragePartitionProxy::GetBackgroundSyncContext() {
+  return parent_->GetBackgroundSyncContext();
+}
+
+content::PaymentAppContextImpl*
+CefStoragePartitionProxy::GetPaymentAppContext() {
+  return parent_->GetPaymentAppContext();
+}
+
+content::BroadcastChannelProvider*
+CefStoragePartitionProxy::GetBroadcastChannelProvider() {
+  return parent_->GetBroadcastChannelProvider();
+}
+
+content::BluetoothAllowedDevicesMap*
+CefStoragePartitionProxy::GetBluetoothAllowedDevicesMap() {
+  return parent_->GetBluetoothAllowedDevicesMap();
+}
+
+content::BlobURLLoaderFactory*
+CefStoragePartitionProxy::GetBlobURLLoaderFactory() {
+  return parent_->GetBlobURLLoaderFactory();
+}
+
+content::BlobRegistryWrapper* CefStoragePartitionProxy::GetBlobRegistry() {
+  return parent_->GetBlobRegistry();
 }
 
 content::URLLoaderFactoryGetter*
@@ -189,4 +201,13 @@ mojo::BindingId CefStoragePartitionProxy::Bind(
     int process_id,
     mojo::InterfaceRequest<content::mojom::StoragePartitionService> request) {
   return parent_->Bind(process_id, std::move(request));
+}
+
+void CefStoragePartitionProxy::set_site_for_service_worker(
+    const GURL& site_for_service_worker) {
+  parent_->set_site_for_service_worker(site_for_service_worker);
+}
+
+const GURL& CefStoragePartitionProxy::site_for_service_worker() const {
+  return parent_->site_for_service_worker();
 }

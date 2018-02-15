@@ -4,6 +4,8 @@
 
 #include "libcef/browser/native/window_delegate_view.h"
 
+#include <utility>
+
 #include "content/public/browser/web_contents.h"
 #include "ui/views/background.h"
 #include "ui/views/controls/webview/webview.h"
@@ -55,7 +57,7 @@ void CefWindowDelegateView::Init(gfx::AcceleratedWidget parent_widget,
 
 void CefWindowDelegateView::InitContent() {
   SetBackground(views::CreateSolidBackground(background_color_));
-  SetLayoutManager(new views::FillLayout());
+  SetLayoutManager(std::make_unique<views::FillLayout>());
   AddChildView(web_view_);
 }
 

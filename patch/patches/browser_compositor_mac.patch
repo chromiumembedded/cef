@@ -1,8 +1,8 @@
 diff --git content/browser/renderer_host/browser_compositor_view_mac.h content/browser/renderer_host/browser_compositor_view_mac.h
-index 3ed8b18dfabd..f0c30a60376a 100644
+index 81376ab57c4b..364305777492 100644
 --- content/browser/renderer_host/browser_compositor_view_mac.h
 +++ content/browser/renderer_host/browser_compositor_view_mac.h
-@@ -53,6 +53,7 @@ class CONTENT_EXPORT BrowserCompositorMac : public DelegatedFrameHostClient {
+@@ -51,11 +51,13 @@ class CONTENT_EXPORT BrowserCompositorMac : public DelegatedFrameHostClient {
  
    // These will not return nullptr until Destroy is called.
    DelegatedFrameHost* GetDelegatedFrameHost();
@@ -10,19 +10,17 @@ index 3ed8b18dfabd..f0c30a60376a 100644
  
    // Ensure that the currect compositor frame be cleared (even if it is
    // potentially visible).
-@@ -60,6 +61,7 @@ class CONTENT_EXPORT BrowserCompositorMac : public DelegatedFrameHostClient {
+   void ClearCompositorFrame();
  
-   // This may return nullptr, if this has detached itself from its
-   // ui::Compositor.
 +  ui::Compositor* GetCompositor();
-   ui::AcceleratedWidgetMac* GetAcceleratedWidgetMac();
- 
+   gfx::AcceleratedWidget GetAcceleratedWidget();
    void DidCreateNewRendererCompositorFrameSink(
+       viz::mojom::CompositorFrameSinkClient* renderer_compositor_frame_sink);
 diff --git content/browser/renderer_host/browser_compositor_view_mac.mm content/browser/renderer_host/browser_compositor_view_mac.mm
-index 00169dea145c..cb3d2b3175b1 100644
+index 8e98fb37c1d4..8dc887eac61b 100644
 --- content/browser/renderer_host/browser_compositor_view_mac.mm
 +++ content/browser/renderer_host/browser_compositor_view_mac.mm
-@@ -211,6 +211,12 @@ BrowserCompositorMac::~BrowserCompositorMac() {
+@@ -214,6 +214,12 @@ void OnCompositingShuttingDown(ui::Compositor* compositor) override {}
      g_spare_recyclable_compositors.Get().clear();
  }
  
@@ -32,22 +30,40 @@ index 00169dea145c..cb3d2b3175b1 100644
 +  return nullptr;
 +}
 +
- ui::AcceleratedWidgetMac* BrowserCompositorMac::GetAcceleratedWidgetMac() {
-   if (recyclable_compositor_)
-     return recyclable_compositor_->accelerated_widget_mac();
-@@ -441,8 +447,13 @@ SkColor BrowserCompositorMac::DelegatedFrameHostGetGutterColor(
- }
+ gfx::AcceleratedWidget BrowserCompositorMac::GetAcceleratedWidget() {
+   if (recyclable_compositor_) {
+     return recyclable_compositor_->accelerated_widget_mac()
+@@ -473,10 +479,16 @@ void OnCompositingShuttingDown(ui::Compositor* compositor) override {}
+   NSView* ns_view =
+       accelerated_widget_mac_ns_view_->AcceleratedWidgetGetNSView();
+   if (bounds_in_dip) {
+-    NSSize dip_ns_size = [ns_view bounds].size;
+-    *bounds_in_dip = gfx::Size(dip_ns_size.width, dip_ns_size.height);
++    if (ns_view) {
++      NSSize dip_ns_size = [ns_view bounds].size;
++      *bounds_in_dip = gfx::Size(dip_ns_size.width, dip_ns_size.height);
++    } else {
++      // |ns_view| will be nullptr for CEF.
++      *bounds_in_dip = root_layer_->bounds().size();
++    }
+   }
+   if (scale_factor || color_space) {
++    // TODO(cef): Return values from CEF callbacks here.
+     display::Display display =
+         display::Screen::GetScreen()->GetDisplayNearestView(ns_view);
+     if (scale_factor)
+diff --git ui/accelerated_widget_mac/accelerated_widget_mac.mm ui/accelerated_widget_mac/accelerated_widget_mac.mm
+index 7ff59beee63c..48efe5ac93fa 100644
+--- ui/accelerated_widget_mac/accelerated_widget_mac.mm
++++ ui/accelerated_widget_mac/accelerated_widget_mac.mm
+@@ -66,6 +66,10 @@ - (void)setContentsChanged;
+   DCHECK(view && !view_);
+   view_ = view;
  
- gfx::Size BrowserCompositorMac::DelegatedFrameHostDesiredSizeInDIP() const {
--  NSRect bounds = [client_->BrowserCompositorMacGetNSView() bounds];
--  return gfx::Size(bounds.size.width, bounds.size.height);
-+  // View will be nil with CEF OSR.
-+  NSView* view = client_->BrowserCompositorMacGetNSView();
-+  if (view) {
-+    NSRect bounds = [view bounds];
-+    return gfx::Size(bounds.size.width, bounds.size.height);
-+  }
-+  return root_layer_->bounds().size();
- }
- 
- bool BrowserCompositorMac::DelegatedFrameCanCreateResizeLock() const {
++  // Will be nullptr for CEF.
++  if (!view_->AcceleratedWidgetGetNSView())
++    return;
++
+   CALayer* background_layer = [view_->AcceleratedWidgetGetNSView() layer];
+   DCHECK(background_layer);
+   [flipped_layer_ setBounds:[background_layer bounds]];

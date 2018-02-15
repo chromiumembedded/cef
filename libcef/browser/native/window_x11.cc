@@ -13,7 +13,6 @@
 
 #include "ui/base/x/x11_util.h"
 #include "ui/events/platform/platform_event_source.h"
-#include "ui/events/platform/x11/x11_event_source.h"
 #include "ui/views/widget/desktop_aura/desktop_window_tree_host_x11.h"
 #include "ui/views/widget/desktop_aura/x11_topmost_window_finder.h"
 
@@ -170,11 +169,8 @@ void CefWindowX11::Show() {
 
     XMapWindow(xdisplay_, xwindow_);
 
-    // We now block until our window is mapped. Some X11 APIs will crash and
-    // burn if passed |xwindow_| before the window is mapped, and XMapWindow is
-    // asynchronous.
-    if (ui::X11EventSource::GetInstance())
-      ui::X11EventSource::GetInstance()->BlockUntilWindowMapped(xwindow_);
+    // TODO(thomasanderson): Find out why this flush is necessary.
+    XFlush(xdisplay_);
     window_mapped_ = true;
 
     // Setup the drag and drop proxy on the top level window of the application

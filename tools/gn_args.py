@@ -220,6 +220,13 @@ def GetRecommendedDefaultArgs():
     # x86 or x64 build: $ gclient runhooks
     result['use_sysroot'] = False
 
+    # Don't add the `-Wl,--fatal-warnings` linker flag when building on Ubuntu
+    # 14 (Trusty) host systems. It results in errors like the following:
+    # ld.lld: error: found local symbol '__bss_start' in global part of symbol
+    # table in file /usr/lib/x86_64-linux-gnu/libGL.so
+    # TODO(cef): Remove this flag once we require a newer host system.
+    result['fatal_linker_warnings'] = False
+
   return result
 
 

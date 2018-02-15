@@ -22,9 +22,12 @@ class ClientBrowserDelegate : public ClientAppBrowser::Delegate {
     if (CefCrashReportingEnabled()) {
       // Set some crash keys for testing purposes. Keys must be defined in the
       // "crash_reporter.cfg" file. See cef_crash_util.h for details.
-      CefSetCrashKeyValue("testkey1", "value1_browser");
-      CefSetCrashKeyValue("testkey2", "value2_browser");
-      CefSetCrashKeyValue("testkey3", "value3_browser");
+      CefSetCrashKeyValue("testkey_small1", "value1_small_browser");
+      CefSetCrashKeyValue("testkey_small2", "value2_small_browser");
+      CefSetCrashKeyValue("testkey_medium1", "value1_medium_browser");
+      CefSetCrashKeyValue("testkey_medium2", "value2_medium_browser");
+      CefSetCrashKeyValue("testkey_large1", "value1_large_browser");
+      CefSetCrashKeyValue("testkey_large2", "value2_large_browser");
     }
 
     const std::string& crl_sets_path =

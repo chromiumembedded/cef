@@ -24,19 +24,19 @@ CefRefPtr<CefValue> CefValueImpl::GetOrCreateRefOrCopy(
     CefValueController* controller) {
   DCHECK(value);
 
-  if (value->IsType(base::Value::Type::BINARY)) {
+  if (value->is_blob()) {
     return new CefValueImpl(
         CefBinaryValueImpl::GetOrCreateRef(value, parent_value, controller));
   }
 
-  if (value->IsType(base::Value::Type::DICTIONARY)) {
+  if (value->is_dict()) {
     base::DictionaryValue* dict_value =
         static_cast<base::DictionaryValue*>(value);
     return new CefValueImpl(CefDictionaryValueImpl::GetOrCreateRef(
         dict_value, parent_value, read_only, controller));
   }
 
-  if (value->IsType(base::Value::Type::LIST)) {
+  if (value->is_list()) {
     base::ListValue* list_value = static_cast<base::ListValue*>(value);
     return new CefValueImpl(CefListValueImpl::GetOrCreateRef(
         list_value, parent_value, read_only, controller));
@@ -825,7 +825,7 @@ CefRefPtr<CefBinaryValue> CefDictionaryValueImpl::GetBinary(
 
   if (const_value().GetWithoutPathExpansion(base::StringPiece(key),
                                             &out_value) &&
-      out_value->IsType(base::Value::Type::BINARY)) {
+      out_value->is_blob()) {
     base::Value* binary_value = const_cast<base::Value*>(out_value);
     return CefBinaryValueImpl::GetOrCreateRef(
         binary_value, const_cast<base::DictionaryValue*>(&const_value()),
@@ -843,7 +843,7 @@ CefRefPtr<CefDictionaryValue> CefDictionaryValueImpl::GetDictionary(
 
   if (const_value().GetWithoutPathExpansion(base::StringPiece(key),
                                             &out_value) &&
-      out_value->IsType(base::Value::Type::DICTIONARY)) {
+      out_value->is_dict()) {
     base::DictionaryValue* dict_value = static_cast<base::DictionaryValue*>(
         const_cast<base::Value*>(out_value));
     return CefDictionaryValueImpl::GetOrCreateRef(
@@ -861,7 +861,7 @@ CefRefPtr<CefListValue> CefDictionaryValueImpl::GetList(const CefString& key) {
 
   if (const_value().GetWithoutPathExpansion(base::StringPiece(key),
                                             &out_value) &&
-      out_value->IsType(base::Value::Type::LIST)) {
+      out_value->is_list()) {
     base::ListValue* list_value =
         static_cast<base::ListValue*>(const_cast<base::Value*>(out_value));
     return CefListValueImpl::GetOrCreateRef(
@@ -962,8 +962,7 @@ bool CefDictionaryValueImpl::RemoveInternal(const CefString& key) {
   controller()->Remove(out_value.get(), true);
 
   // Only list and dictionary types may have dependencies.
-  if (out_value->IsType(base::Value::Type::LIST) ||
-      out_value->IsType(base::Value::Type::DICTIONARY)) {
+  if (out_value->is_list() || out_value->is_dict()) {
     controller()->RemoveDependencies(out_value.get());
   }
 
@@ -1230,8 +1229,7 @@ CefRefPtr<CefBinaryValue> CefListValueImpl::GetBinary(size_t index) {
 
   const base::Value* out_value = NULL;
 
-  if (const_value().Get(index, &out_value) &&
-      out_value->IsType(base::Value::Type::BINARY)) {
+  if (const_value().Get(index, &out_value) && out_value->is_blob()) {
     base::Value* binary_value = const_cast<base::Value*>(out_value);
     return CefBinaryValueImpl::GetOrCreateRef(
         binary_value, const_cast<base::ListValue*>(&const_value()),
@@ -1246,8 +1244,7 @@ CefRefPtr<CefDictionaryValue> CefListValueImpl::GetDictionary(size_t index) {
 
   const base::Value* out_value = NULL;
 
-  if (const_value().Get(index, &out_value) &&
-      out_value->IsType(base::Value::Type::DICTIONARY)) {
+  if (const_value().Get(index, &out_value) && out_value->is_dict()) {
     base::DictionaryValue* dict_value = static_cast<base::DictionaryValue*>(
         const_cast<base::Value*>(out_value));
     return CefDictionaryValueImpl::GetOrCreateRef(
@@ -1263,8 +1260,7 @@ CefRefPtr<CefListValue> CefListValueImpl::GetList(size_t index) {
 
   const base::Value* out_value = NULL;
 
-  if (const_value().Get(index, &out_value) &&
-      out_value->IsType(base::Value::Type::LIST)) {
+  if (const_value().Get(index, &out_value) && out_value->is_list()) {
     base::ListValue* list_value =
         static_cast<base::ListValue*>(const_cast<base::Value*>(out_value));
     return CefListValueImpl::GetOrCreateRef(
@@ -1368,8 +1364,7 @@ bool CefListValueImpl::RemoveInternal(size_t index) {
   controller()->Remove(const_cast<base::Value*>(actual_value), true);
 
   // Only list and dictionary types may have dependencies.
-  if (out_value->IsType(base::Value::Type::LIST) ||
-      out_value->IsType(base::Value::Type::DICTIONARY)) {
+  if (out_value->is_list() || out_value->is_dict()) {
     controller()->RemoveDependencies(const_cast<base::Value*>(actual_value));
   }
 

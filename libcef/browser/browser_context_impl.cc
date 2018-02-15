@@ -26,11 +26,11 @@
 #include "base/strings/string_util.h"
 #include "base/threading/thread_restrictions.h"
 #include "chrome/browser/font_family_cache.h"
-#include "chrome/browser/net/proxy_service_factory.h"
 #include "chrome/browser/ui/zoom/chrome_zoom_level_prefs.h"
 #include "components/content_settings/core/browser/host_content_settings_map.h"
 #include "components/guest_view/browser/guest_view_manager.h"
 #include "components/prefs/pref_service.h"
+#include "components/proxy_config/pref_proxy_config_tracker_impl.h"
 #include "components/visitedlink/browser/visitedlink_event_listener.h"
 #include "components/visitedlink/browser/visitedlink_master.h"
 #include "components/zoom/zoom_event_manager.h"
@@ -40,6 +40,7 @@
 #include "extensions/browser/extension_protocols.h"
 #include "extensions/common/constants.h"
 #include "net/proxy/proxy_config_service.h"
+#include "net/proxy/proxy_service.h"
 
 using content::BrowserThread;
 
@@ -282,9 +283,8 @@ void CefBrowserContextImpl::Initialize() {
   visitedlink_master_->Init();
 
   // Initialize proxy configuration tracker.
-  pref_proxy_config_tracker_.reset(
-      ProxyServiceFactory::CreatePrefProxyConfigTrackerOfLocalState(
-          GetPrefs()));
+  pref_proxy_config_tracker_.reset(new PrefProxyConfigTrackerImpl(
+      GetPrefs(), BrowserThread::GetTaskRunnerForThread(BrowserThread::IO)));
 
   CefBrowserContext::PostInitialize();
 
@@ -443,10 +443,17 @@ net::URLRequestContextGetter* CefBrowserContextImpl::CreateRequestContext(
   CEF_REQUIRE_UIT();
   DCHECK(!url_request_getter_.get());
 
+  auto io_thread_runner =
+      content::BrowserThread::GetTaskRunnerForThread(BrowserThread::IO);
+
   // Initialize the proxy configuration service.
+  // TODO(cef): Determine if we can use the Chrome/Mojo implementation from
+  // https://crrev.com/d0d0d050
+  std::unique_ptr<net::ProxyConfigService> base_service(
+      net::ProxyService::CreateSystemProxyConfigService(io_thread_runner));
   std::unique_ptr<net::ProxyConfigService> proxy_config_service(
-      ProxyServiceFactory::CreateProxyConfigService(
-          pref_proxy_config_tracker_.get()));
+      pref_proxy_config_tracker_->CreateTrackingProxyConfigService(
+          std::move(base_service)));
 
   if (extensions::ExtensionsEnabled()) {
     // Handle only chrome-extension:// requests. CEF does not support
@@ -461,10 +468,8 @@ net::URLRequestContextGetter* CefBrowserContextImpl::CreateRequestContext(
   }
 
   url_request_getter_ = new CefURLRequestContextGetterImpl(
-      settings_, GetPrefs(),
-      BrowserThread::GetTaskRunnerForThread(BrowserThread::IO),
-      protocol_handlers, std::move(proxy_config_service),
-      std::move(request_interceptors));
+      settings_, GetPrefs(), io_thread_runner, protocol_handlers,
+      std::move(proxy_config_service), std::move(request_interceptors));
   resource_context()->set_url_request_context_getter(url_request_getter_.get());
   return url_request_getter_.get();
 }

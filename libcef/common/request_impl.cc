@@ -33,6 +33,7 @@
 #include "net/http/http_util.h"
 #include "net/url_request/url_fetcher.h"
 #include "net/url_request/url_request.h"
+#include "services/network/public/cpp/network_switches.h"
 #include "third_party/WebKit/public/platform/WebString.h"
 #include "third_party/WebKit/public/platform/WebURL.h"
 #include "third_party/WebKit/public/platform/WebURLError.h"
@@ -99,7 +100,7 @@ class FileElementReader : public net::UploadFileElementReader {
 std::string GetURLRequestReferrer(const GURL& referrer_url) {
   base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
   if (!referrer_url.is_valid() ||
-      command_line->HasSwitch(switches::kNoReferrers)) {
+      command_line->HasSwitch(network::switches::kNoReferrers)) {
     return std::string();
   }
 
@@ -559,6 +560,7 @@ void CefRequestImpl::Get(blink::WebURLRequest& request,
 void CefRequestImpl::Get(const CefMsg_LoadRequest_Params& params,
                          blink::WebURLRequest& request) {
   request.SetURL(params.url);
+  request.SetRequestorOrigin(blink::WebSecurityOrigin::Create(params.url));
   if (!params.method.empty())
     request.SetHTTPMethod(blink::WebString::FromASCII(params.method));
 

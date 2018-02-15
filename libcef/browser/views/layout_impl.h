@@ -57,7 +57,7 @@ class CefLayoutImpl : public CefLayoutAdapter, public CefLayoutClass {
     owner_view_ = owner_view;
     layout_ref_ = CreateLayout();
     DCHECK(layout_ref_);
-    owner_view->SetLayoutManager(layout_ref_);
+    owner_view->SetLayoutManager(base::WrapUnique(layout_ref_));
     layout_util::Assign(this, owner_view);
   }
 

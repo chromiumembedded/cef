@@ -20,10 +20,10 @@
 #include "mojo/public/cpp/system/platform_handle.h"
 #include "printing/features/features.h"
 
-struct PrintHostMsg_DidPrintPage_Params;
+struct PrintHostMsg_DidPrintDocument_Params;
 
 namespace base {
-class SharedMemory;
+class RefCountedBytes;
 }
 
 namespace content {
@@ -36,6 +36,8 @@ class JobEventDetails;
 class PrintJob;
 class PrintJobWorkerOwner;
 class PrintQueriesQueue;
+class PrintedDocument;
+class PrinterQuery;
 
 // Base class for managing the print commands for a WebContents.
 class CefPrintViewManagerBase : public content::NotificationObserver,
@@ -85,15 +87,10 @@ class CefPrintViewManagerBase : public content::NotificationObserver,
   void OnDidGetPrintedPagesCount(int cookie, int number_pages) override;
   void OnPrintingFailed(int cookie) override;
   void OnShowInvalidPrinterSettingsError();
-  void OnDidPrintPage(const PrintHostMsg_DidPrintPage_Params& params);
-
-  // Handle extra tasks once a page or doc is printed.
-  void UpdateForPrintedPage(const PrintHostMsg_DidPrintPage_Params& params,
-                            bool has_valid_page_data,
-                            std::unique_ptr<base::SharedMemory> shared_buf);
+  void OnDidPrintDocument(const PrintHostMsg_DidPrintDocument_Params& params);
 
   // IPC message handlers for service.
-  void OnComposePdfDone(const PrintHostMsg_DidPrintPage_Params& params,
+  void OnComposePdfDone(const PrintHostMsg_DidPrintDocument_Params& params,
                         mojom::PdfCompositor::Status status,
                         mojo::ScopedSharedBufferHandle handle);
 
@@ -105,9 +102,21 @@ class CefPrintViewManagerBase : public content::NotificationObserver,
   // been requested to the renderer.
   bool RenderAllMissingPagesNow();
 
+  // Checks that synchronization is correct and a print query exists for
+  // |cookie|. If so, returns the document associated with the cookie.
+  PrintedDocument* GetDocument(int cookie);
+
+  // Starts printing |document| with the given |print_data|. This method assumes
+  // |print_data| contains valid data.
+  void PrintDocument(PrintedDocument* document,
+                     const scoped_refptr<base::RefCountedBytes>& print_data,
+                     const gfx::Size& page_size,
+                     const gfx::Rect& content_area,
+                     const gfx::Point& offsets);
+
   // Quits the current message loop if these conditions hold true: a document is
   // loaded and is complete and waiting_for_pages_to_be_rendered_ is true. This
-  // function is called in DidPrintPage() or on ALL_PAGES_REQUESTED
+  // function is called in DidPrintDocument() or on ALL_PAGES_REQUESTED
   // notification. The inner message loop is created was created by
   // RenderAllMissingPagesNow().
   void ShouldQuitFromInnerMessageLoop();
@@ -163,9 +172,6 @@ class CefPrintViewManagerBase : public content::NotificationObserver,
   // we are _blocking_ until all the necessary pages have been rendered or the
   // print settings are being loaded.
   bool inside_inner_message_loop_;
-
-  // Set to true when OnDidPrintPage() should be expecting the first page.
-  bool expecting_first_page_;
 
   // Whether printing is enabled.
   BooleanPrefMember printing_enabled_;

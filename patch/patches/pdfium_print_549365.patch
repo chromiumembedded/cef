@@ -1,8 +1,8 @@
 diff --git BUILD.gn BUILD.gn
-index 6fb2bd888..b275bfd2b 100644
+index c771b8191..6a5f1f3e4 100644
 --- BUILD.gn
 +++ BUILD.gn
-@@ -229,6 +229,10 @@ static_library("pdfium") {
+@@ -230,6 +230,10 @@ jumbo_static_library("pdfium") {
    if (pdf_is_complete_lib) {
      complete_static_lib = true
    }
@@ -12,9 +12,9 @@ index 6fb2bd888..b275bfd2b 100644
 +  ]
  }
  
- static_library("test_support") {
+ jumbo_static_library("test_support") {
 diff --git fpdfsdk/fpdfview.cpp fpdfsdk/fpdfview.cpp
-index 2736b8dd6..830f074b7 100644
+index 97fc02a23..000b4a7d3 100644
 --- fpdfsdk/fpdfview.cpp
 +++ fpdfsdk/fpdfview.cpp
 @@ -36,6 +36,7 @@
@@ -25,7 +25,7 @@ index 2736b8dd6..830f074b7 100644
  #include "fxjs/ijs_runtime.h"
  #include "public/fpdf_edit.h"
  #include "public/fpdf_ext.h"
-@@ -497,6 +498,7 @@ FPDF_EXPORT void FPDF_CALLCONV FPDF_DestroyLibrary() {
+@@ -495,6 +496,7 @@ FPDF_EXPORT void FPDF_CALLCONV FPDF_DestroyLibrary() {
  
    CPDF_ModuleMgr::Destroy();
    CFX_GEModule::Destroy();

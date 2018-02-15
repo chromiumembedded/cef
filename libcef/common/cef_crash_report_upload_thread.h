@@ -19,6 +19,7 @@ class CefCrashReportUploadThread : public crashpad::CrashReportUploadThread {
   void ProcessPendingReports() override;
   void ProcessPendingReport(
       const crashpad::CrashReportDatabase::Report& report) override;
+  ParameterMap FilterParameters(const ParameterMap& parameters) override;
 
   bool UploadsEnabled() const;
 

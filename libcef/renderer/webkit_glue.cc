@@ -9,6 +9,7 @@
 
 MSVC_PUSH_WARNING_LEVEL(0);
 #include "third_party/WebKit/public/platform/WebString.h"
+#include "third_party/WebKit/public/platform/WebURLResponse.h"
 #include "third_party/WebKit/public/web/WebDocument.h"
 #include "third_party/WebKit/public/web/WebElement.h"
 #include "third_party/WebKit/public/web/WebNode.h"
@@ -26,6 +27,7 @@ MSVC_PUSH_WARNING_LEVEL(0);
 #include "third_party/WebKit/Source/core/frame/WebLocalFrameImpl.h"
 #include "third_party/WebKit/Source/platform/bindings/ScriptForbiddenScope.h"
 #include "third_party/WebKit/Source/platform/bindings/V8Binding.h"
+#include "third_party/WebKit/Source/platform/loader/fetch/ResourceResponse.h"
 #include "third_party/WebKit/Source/platform/weborigin/SchemeRegistry.h"
 MSVC_POP_WARNING();
 #undef LOG
@@ -160,6 +162,7 @@ v8::MaybeLocal<v8::Value> ExecuteV8ScriptAndReturnValue(
 
   const blink::ScriptSourceCode ssc = blink::ScriptSourceCode(
       source, blink::ScriptSourceLocationType::kInternal,
+      nullptr, /* cache_handler */
       blink::KURL(source_url),
       WTF::TextPosition(WTF::OrdinalNumber::FromOneBasedInt(start_line),
                         WTF::OrdinalNumber::FromZeroBasedInt(0)));
@@ -175,9 +178,9 @@ v8::MaybeLocal<v8::Value> ExecuteV8ScriptAndReturnValue(
     v8CacheOptions = frame->GetSettings()->GetV8CacheOptions();
 
   v8::Local<v8::Script> script;
-  if (!blink::V8ScriptRunner::CompileScript(blink::ScriptState::From(context),
-                                            ssc, blink::ScriptFetchOptions(),
-                                            accessControlStatus, v8CacheOptions)
+  if (!blink::V8ScriptRunner::CompileScript(
+           blink::ScriptState::From(context), ssc, accessControlStatus,
+           v8CacheOptions, blink::ReferrerScriptInfo())
            .ToLocal(&script)) {
     DCHECK(tryCatch.HasCaught());
     return result;

@@ -13,7 +13,7 @@ index 4393a8fac233..860715e86900 100644
    explicit ContentServiceManagerMainDelegate(const ContentMainParams& params);
    ~ContentServiceManagerMainDelegate() override;
 diff --git third_party/WebKit/Source/controller/BUILD.gn third_party/WebKit/Source/controller/BUILD.gn
-index 714113da5d67..2a8feb621f4b 100644
+index d10cff4a0fdd..89673c9c5250 100644
 --- third_party/WebKit/Source/controller/BUILD.gn
 +++ third_party/WebKit/Source/controller/BUILD.gn
 @@ -25,6 +25,7 @@ component("controller") {
@@ -24,8 +24,8 @@ index 714113da5d67..2a8feb621f4b 100644
      "//third_party/WebKit/Source:config",
      "//third_party/WebKit/Source:inside_blink",
      "//third_party/WebKit/Source:non_test_config",
-@@ -39,6 +40,8 @@ component("controller") {
-     "ControllerExport.h",
+@@ -41,6 +42,8 @@ component("controller") {
+     "DevToolsFrontendImpl.h",
      "OomInterventionImpl.cpp",
      "OomInterventionImpl.h",
 +    "//cef/libcef/renderer/webkit_glue.cc",

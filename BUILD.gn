@@ -13,14 +13,14 @@
 #    Optionally configure GN by setting the `GN_DEFINES` and/or `GN_ARGUMENTS`
 #    environment variables.
 #
-#    Example A: Use /DEBUG:FASTLINK on Windows:
+#    Example A: Create an official build on Windows:
 #
-#      > set GN_DEFINES=is_win_fastlink=true
+#      > set GN_DEFINES=is_official_build=true
 #
-#    Example B: Generate VS2015 project files in addition to the default Ninja
+#    Example B: Generate VS2017 project files in addition to the default Ninja
 #               build files on Windows:
 #
-#      > set GN_ARGUMENTS=--ide=vs2015 --sln=cef --filters=//cef/*
+#      > set GN_ARGUMENTS=--ide=vs2017 --sln=cef --filters=//cef/*
 #
 #      After completing the "GN Automated Build" or "GN Manual Build" section
 #      open "out\<build_dir>\cef.sln" for editing and debugging. Building must
@@ -111,6 +111,7 @@ import("//third_party/icu/config.gni")
 import("//third_party/widevine/cdm/widevine.gni")
 import("//tools/grit/repack.gni")
 import("//tools/grit/grit_rule.gni")
+import("//tools/v8_context_snapshot/v8_context_snapshot.gni")
 import("//v8/gni/v8.gni")
 if (is_clang) {
   import("//build/config/clang/clang.gni")
@@ -263,7 +264,6 @@ if (is_win) {
 
     deps = [
       "//components/crash/core/common",  # crash_keys
-      "//gpu/config:crash_keys",
 
       # Required by chrome_switches.cc
       "//chrome/common:features",
@@ -647,6 +647,7 @@ static_library("libcef_static") {
     "//chrome/child",
     "//chrome/common",
     "//chrome/renderer",
+    "//chrome/services/printing:lib",
     "//chrome/utility",
     "//components/cdm/renderer",
     "//components/content_settings/core/browser",
@@ -684,7 +685,6 @@ static_library("libcef_static") {
     "//content/public/child",
     "//content/public/common",
     "//content/public/gpu",
-    "//content/public/network",
     "//content/public/renderer",
     "//content/public/utility",
     "//crypto",
@@ -706,6 +706,8 @@ static_library("libcef_static") {
     "//pdf",
     "//ppapi/features",
     "//printing/features",
+    "//services/network:network_service",
+    "//services/network/public/cpp",
     "//services/service_manager/embedder",
     "//services/service_manager/public/interfaces",
     "//services/service_manager/runner/common",
@@ -721,7 +723,6 @@ static_library("libcef_static") {
     "//third_party/widevine/cdm:widevinecdmadapter",
     "//third_party/icu",
     "//third_party/zlib:minizip",
-    "//tools/v8_context_snapshot:v8_context_snapshot",
     "//ui/base",
     "//ui/base/ime",
     "//ui/events:events_base",
@@ -754,8 +755,6 @@ static_library("libcef_static") {
       "libcef/browser/osr/browser_platform_delegate_osr_win.cc",
       "libcef/browser/osr/browser_platform_delegate_osr_win.h",
       "libcef/browser/osr/render_widget_host_view_osr_win.cc",
-      "libcef/common/crash_reporting_win.cc",
-      "libcef/common/crash_reporting_win.h",
 
       # Part of //chrome/utility.
       "//chrome/utility/printing_handler.cc",
@@ -824,10 +823,19 @@ static_library("libcef_static") {
   }
 
   if (is_posix && !is_mac) {
+    sources += [
+      "libcef/common/cef_crash_report_utils.cc",
+      "libcef/common/cef_crash_report_utils.h",
+    ]
+
     deps += [
       "//components/crash/content/app",
       "//components/crash/content/browser",
     ]
+  }
+
+  if (v8_use_external_startup_data && use_v8_context_snapshot) {
+    deps += [ "//tools/v8_context_snapshot" ]
   }
 
   if (use_aura) {
@@ -904,6 +912,7 @@ static_library("libcef_static") {
     ]
 
     deps += [
+      "//services/ui",
       "//ui/aura",
       "//ui/events",
       "//ui/strings",
@@ -1014,6 +1023,7 @@ if (is_win) {
 
 cef_packaged_services = [
   "//chrome/app:chrome_manifest",  # For spell checking.
+  "//chrome/services/printing:manifest",
   "//services/metrics:manifest",
   "//services/proxy_resolver:proxy_resolver_manifest",
 ]
@@ -1339,7 +1349,6 @@ if (is_mac) {
       "$root_out_dir/cef_200_percent.pak",
       "$root_out_dir/cef_extensions.pak",
       "$root_out_dir/devtools_resources.pak",
-      "$root_out_dir/v8_context_snapshot.bin",
       "$root_out_dir/$widevine_cdm_path/widevinecdmadapter.plugin",
     ]
 
@@ -1350,7 +1359,6 @@ if (is_mac) {
       ":pak_devtools",
       ":pak_extensions",
       "//third_party/widevine/cdm:widevinecdmadapter",
-      "//tools/v8_context_snapshot:v8_context_snapshot",
     ]
 
     if (icu_use_data_file) {
@@ -1364,6 +1372,10 @@ if (is_mac) {
         "$root_out_dir/snapshot_blob.bin",
       ]
       public_deps += [ "//v8" ]
+      if (use_v8_context_snapshot) {
+        sources += [ "$root_out_dir/v8_context_snapshot.bin" ]
+        public_deps += [ "//tools/v8_context_snapshot" ]
+      }
     }
 
     outputs = [

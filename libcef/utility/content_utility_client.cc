@@ -8,6 +8,8 @@
 #include <utility>
 
 #include "build/build_config.h"
+#include "chrome/services/printing/printing_service.h"
+#include "chrome/services/printing/public/interfaces/constants.mojom.h"
 #include "chrome/utility/utility_message_handler.h"
 #include "components/printing/service/public/cpp/pdf_compositor_service_factory.h"
 #include "components/printing/service/public/interfaces/pdf_compositor.mojom.h"
@@ -63,6 +65,14 @@ void CefContentUtilityClient::RegisterServices(StaticServiceMap* services) {
   pdf_compositor_info.factory =
       base::Bind(&printing::CreatePdfCompositorService, std::string());
   services->emplace(printing::mojom::kServiceName, pdf_compositor_info);
+
+  {
+    service_manager::EmbeddedServiceInfo printing_info;
+    printing_info.factory =
+        base::Bind(&printing::PrintingService::CreateService);
+    services->emplace(printing::mojom::kChromePrintingServiceName,
+                      printing_info);
+  }
 
   service_manager::EmbeddedServiceInfo proxy_resolver_info;
   proxy_resolver_info.task_runner =

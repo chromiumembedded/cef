@@ -46,7 +46,8 @@ class CefWebURLLoaderClient : public blink::WebURLLoaderClient {
   void DidFinishLoading(double finish_time,
                         int64_t total_encoded_data_length,
                         int64_t total_encoded_body_length,
-                        int64_t total_decoded_body_length) override;
+                        int64_t total_decoded_body_length,
+                        bool blocked_cross_site_document) override;
   void DidFail(const WebURLError&,
                int64_t total_encoded_data_length,
                int64_t total_encoded_body_length,
@@ -261,11 +262,11 @@ void CefWebURLLoaderClient::DidReceiveData(const char* data, int dataLength) {
     context_->OnDownloadData(data, dataLength);
 }
 
-void CefWebURLLoaderClient::DidFinishLoading(
-    double finishTime,
-    int64_t total_encoded_data_length,
-    int64_t total_encoded_body_length,
-    int64_t total_decoded_body_length) {
+void CefWebURLLoaderClient::DidFinishLoading(double finishTime,
+                                             int64_t total_encoded_data_length,
+                                             int64_t total_encoded_body_length,
+                                             int64_t total_decoded_body_length,
+                                             bool blocked_cross_site_document) {
   context_->OnComplete();
 }
 

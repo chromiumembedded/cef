@@ -16,7 +16,7 @@
 #include "base/memory/weak_ptr.h"
 #include "build/build_config.h"
 #include "components/viz/common/frame_sinks/begin_frame_source.h"
-#include "components/viz/common/surfaces/local_surface_id_allocator.h"
+#include "components/viz/common/surfaces/parent_local_surface_id_allocator.h"
 #include "content/browser/renderer_host/compositor_resize_lock.h"
 #include "content/browser/renderer_host/delegated_frame_host.h"
 #include "content/browser/renderer_host/render_widget_host_view_base.h"
@@ -100,7 +100,6 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
 
   // RenderWidgetHostView implementation.
   void InitAsChild(gfx::NativeView parent_view) override;
-  content::RenderWidgetHost* GetRenderWidgetHost() const override;
   void SetSize(const gfx::Size& size) override;
   void SetBounds(const gfx::Rect& rect) override;
   gfx::Vector2dF GetLastScrollOffset() const override;
@@ -119,7 +118,6 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
   void UnlockMouse() override;
 
 #if defined(OS_MACOSX)
-  ui::AcceleratedWidgetMac* GetAcceleratedWidgetMac() const override;
   void SetActive(bool active) override;
   void ShowDefinitionForSelection() override;
   bool SupportsSpeech() const override;
@@ -166,6 +164,8 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
   void EndFrameSubscription() override;
   bool HasAcceleratedSurface(const gfx::Size& desired_size) override;
   gfx::Rect GetBoundsInRootWindow() override;
+  content::RenderWidgetHostImpl* GetRenderWidgetHostImpl() const override;
+  viz::SurfaceId GetCurrentSurfaceId() const override;
   content::BrowserAccessibilityManager* CreateBrowserAccessibilityManager(
       content::BrowserAccessibilityDelegate* delegate,
       bool for_root_frame) override;
@@ -179,17 +179,8 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
       const std::vector<gfx::Rect>& character_bounds) override;
 
   void SetNeedsBeginFrames(bool enabled) override;
+  void SetWantsAnimateOnlyBeginFrames() override;
 
-  void ProcessKeyboardEvent(const content::NativeWebKeyboardEvent& event,
-                            const ui::LatencyInfo& latency) override;
-  void ProcessMouseEvent(const blink::WebMouseEvent& event,
-                         const ui::LatencyInfo& latency) override;
-  void ProcessMouseWheelEvent(const blink::WebMouseWheelEvent& event,
-                              const ui::LatencyInfo& latency) override;
-  void ProcessTouchEvent(const blink::WebTouchEvent& event,
-                         const ui::LatencyInfo& latency) override;
-  void ProcessGestureEvent(const blink::WebGestureEvent& event,
-                           const ui::LatencyInfo& latency) override;
   bool TransformPointToLocalCoordSpace(const gfx::PointF& point,
                                        const viz::SurfaceId& original_surface,
                                        gfx::PointF* transformed_point) override;
@@ -206,13 +197,13 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
   // DelegatedFrameHostClient implementation.
   ui::Layer* DelegatedFrameHostGetLayer() const override;
   bool DelegatedFrameHostIsVisible() const override;
-  SkColor DelegatedFrameHostGetGutterColor(SkColor color) const override;
+  SkColor DelegatedFrameHostGetGutterColor() const override;
   gfx::Size DelegatedFrameHostDesiredSizeInDIP() const override;
   bool DelegatedFrameCanCreateResizeLock() const override;
   std::unique_ptr<content::CompositorResizeLock>
   DelegatedFrameHostCreateResizeLock() override;
   viz::LocalSurfaceId GetLocalSurfaceId() const override;
-  void OnBeginFrame() override;
+  void OnBeginFrame(base::TimeTicks frame_time) override;
   bool IsAutoResizeEnabled() const override;
   void OnFrameTokenChanged(uint32_t frame_token) override;
 
@@ -334,7 +325,7 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
 #endif
 
   viz::LocalSurfaceId local_surface_id_;
-  viz::LocalSurfaceIdAllocator local_surface_id_allocator_;
+  viz::ParentLocalSurfaceIdAllocator local_surface_id_allocator_;
 
 #if defined(OS_WIN)
   std::unique_ptr<gfx::WindowImpl> window_;

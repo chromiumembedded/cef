@@ -444,16 +444,7 @@ void CefContentRendererClient::RenderFrameCreated(
   const base::CommandLine* command_line =
       base::CommandLine::ForCurrentProcess();
   if (!command_line->HasSwitch(switches::kDisableSpellChecking)) {
-    SpellCheckProvider* spell_check_provider =
-        new SpellCheckProvider(render_frame, spellcheck_.get(), this);
-    // TODO(xiaochengh): Design better way to sync between Chrome-side and
-    // Blink-side spellcheck enabled states.  See crbug.com/710097.
-    //
-    // TODO(alexmos): Do this for all frames so that this works properly for
-    // OOPIFs.  See https://crbug.com/789273.
-    if (render_frame->IsMainFrame())
-      spell_check_provider->EnableSpellcheck(
-          spellcheck_->IsSpellcheckEnabled());
+    new SpellCheckProvider(render_frame, spellcheck_.get(), this);
   }
 
   BrowserCreated(render_frame->GetRenderView(), render_frame);
@@ -515,7 +506,6 @@ bool CefContentRendererClient::WillSendRequest(
     blink::WebLocalFrame* frame,
     ui::PageTransition transition_type,
     const blink::WebURL& url,
-    std::vector<std::unique_ptr<content::URLLoaderThrottle>>* throttles,
     GURL* new_url) {
   if (extensions::ExtensionsEnabled()) {
     return extensions_renderer_client_->WillSendRequest(frame, transition_type,
@@ -569,16 +559,12 @@ void CefContentRendererClient::RunScriptsAtDocumentIdle(
     extensions_renderer_client_->RunScriptsAtDocumentIdle(render_frame);
 }
 
-void CefContentRendererClient::DevToolsAgentAttached(
-    content::RenderFrame* render_frame,
-    int session_id) {
+void CefContentRendererClient::DevToolsAgentAttached() {
   CEF_REQUIRE_RT();
   ++devtools_agent_count_;
 }
 
-void CefContentRendererClient::DevToolsAgentDetached(
-    content::RenderFrame* render_frame,
-    int session_id) {
+void CefContentRendererClient::DevToolsAgentDetached() {
   CEF_REQUIRE_RT();
   --devtools_agent_count_;
   if (devtools_agent_count_ == 0 && uncaught_exception_stack_size_ > 0) {
