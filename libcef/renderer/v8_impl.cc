@@ -310,7 +310,7 @@ class V8FunctionData {
  public:
   static v8::Local<v8::External> Create(v8::Isolate* isolate,
                                         const CefString& function_name,
-                                        CefV8Handler* handler) {
+                                        CefRefPtr<CefV8Handler> handler) {
     // |data| will be deleted if/when the returned v8::External is GC'd.
     V8FunctionData* data = new V8FunctionData(isolate, function_name, handler);
     return data->CreateExternal();
@@ -323,12 +323,16 @@ class V8FunctionData {
 
   CefString function_name() const { return function_name_; }
 
-  CefV8Handler* handler() const { return handler_; }
+  CefV8Handler* handler() const {
+    if (!handler_)
+      return nullptr;
+    return handler_.get();
+  }
 
  private:
   V8FunctionData(v8::Isolate* isolate,
                  const CefString& function_name,
-                 CefV8Handler* handler)
+                 CefRefPtr<CefV8Handler> handler)
       : isolate_(isolate), function_name_(function_name), handler_(handler) {
     DCHECK(isolate_);
     DCHECK(handler_);
@@ -337,6 +341,8 @@ class V8FunctionData {
   ~V8FunctionData() {
     isolate_->AdjustAmountOfExternalAllocatedMemory(
         -static_cast<int>(sizeof(V8FunctionData)));
+    handler_ = nullptr;
+    function_name_ = "FreedFunction";
   }
 
   v8::Local<v8::External> CreateExternal() {
@@ -366,7 +372,7 @@ class V8FunctionData {
 
   v8::Isolate* isolate_;
   CefString function_name_;
-  CefV8Handler* handler_;
+  CefRefPtr<CefV8Handler> handler_;
   v8::Persistent<v8::External> handle_;
 };
 
@@ -450,7 +456,11 @@ void FunctionCallbackImpl(const v8::FunctionCallbackInfo<v8::Value>& info) {
   v8::Local<v8::Context> context = isolate->GetCurrentContext();
 
   V8FunctionData* data = V8FunctionData::Unwrap(info.Data());
-
+  if (!data->handler()) {
+    // handler has gone away, bail!
+    info.GetReturnValue().SetUndefined();
+    return;
+  }
   CefV8ValueList params;
   for (int i = 0; i < info.Length(); i++)
     params.push_back(new CefV8ValueImpl(isolate, context, info[i]));
@@ -1316,7 +1326,7 @@ CefRefPtr<CefV8Value> CefV8Value::CreateFunction(
   }
 
   v8::Local<v8::External> function_data =
-      V8FunctionData::Create(isolate, name, handler.get());
+      V8FunctionData::Create(isolate, name, handler);
 
   // Create a new V8 function template.
   v8::Local<v8::FunctionTemplate> tmpl =
