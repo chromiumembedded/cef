@@ -12,7 +12,7 @@ index 2673c6a79889..ca5726966ac0 100644
        ldflags += [ "-Wl,--icf=all" ]
      }
 diff --git chrome/browser/ui/libgtkui/gtk_util.cc chrome/browser/ui/libgtkui/gtk_util.cc
-index fc6ffb9d..f6c22e5 100644
+index fc6ffb9d2eb1..f6c22e57392c 100644
 --- chrome/browser/ui/libgtkui/gtk_util.cc
 +++ chrome/browser/ui/libgtkui/gtk_util.cc
 @@ -56,6 +56,7 @@ void CommonInitFromCommandLine(const base::CommandLine& command_line,

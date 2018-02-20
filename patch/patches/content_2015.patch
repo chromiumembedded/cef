@@ -93,10 +93,10 @@ index 89a41274745c..586864a9d827 100644
  }
  
 diff --git content/browser/frame_host/render_frame_host_impl.cc content/browser/frame_host/render_frame_host_impl.cc
-index fc3412cb2680..385a7c591689 100644
+index 1879ab630973..caf65b0fcf3d 100644
 --- content/browser/frame_host/render_frame_host_impl.cc
 +++ content/browser/frame_host/render_frame_host_impl.cc
-@@ -1499,6 +1499,7 @@ void RenderFrameHostImpl::OnDidFailProvisionalLoadWithError(
+@@ -1517,6 +1517,7 @@ void RenderFrameHostImpl::OnDidFailProvisionalLoadWithError(
    if (navigation_handle_) {
      navigation_handle_->set_net_error_code(
          static_cast<net::Error>(params.error_code));
@@ -104,7 +104,7 @@ index fc3412cb2680..385a7c591689 100644
    }
  
    frame_tree_node_->navigator()->DidFailProvisionalLoadWithError(this, params);
-@@ -3515,9 +3516,9 @@ void RenderFrameHostImpl::CommitNavigation(
+@@ -3532,9 +3533,9 @@ void RenderFrameHostImpl::CommitNavigation(
      // however only do this for cross-document navigations, because the
      // alternative would be redundant effort.
      network::mojom::URLLoaderFactoryPtr default_factory;
@@ -117,7 +117,7 @@ index fc3412cb2680..385a7c591689 100644
      if (subresource_loader_params &&
          subresource_loader_params->loader_factory_info.is_valid()) {
        // If the caller has supplied a default URLLoaderFactory override (for
-@@ -3652,9 +3653,9 @@ void RenderFrameHostImpl::FailedNavigation(
+@@ -3670,9 +3671,9 @@ void RenderFrameHostImpl::FailedNavigation(
    // completing an unload handler.
    ResetWaitingState();
  
@@ -263,7 +263,7 @@ index e6de4ca6c8b3..18eea4948e43 100644
                       const std::string& mime_type,
                       bool allow_wildcard,
 diff --git content/common/frame_messages.h content/common/frame_messages.h
-index 7bce348a78d4..bc27dbcdda37 100644
+index 3e4b79cce1af..081366a36f65 100644
 --- content/common/frame_messages.h
 +++ content/common/frame_messages.h
 @@ -1342,8 +1342,9 @@ IPC_MESSAGE_ROUTED1(FrameHostMsg_PepperStopsPlayback,
@@ -377,7 +377,7 @@ index aa77b86eee98..097d26a80aa9 100644
    virtual void FocusedNodeChanged(const blink::WebNode& node) {}
  
 diff --git content/renderer/render_frame_impl.cc content/renderer/render_frame_impl.cc
-index f341fb4aec24..28f3105f15c0 100644
+index 03f713d5ff94..bb971481bf80 100644
 --- content/renderer/render_frame_impl.cc
 +++ content/renderer/render_frame_impl.cc
 @@ -3468,7 +3468,8 @@ blink::WebPlugin* RenderFrameImpl::CreatePlugin(
@@ -400,7 +400,7 @@ index f341fb4aec24..28f3105f15c0 100644
  
  void RenderFrameImpl::WillCommitProvisionalLoad() {
 diff --git content/renderer/render_thread_impl.cc content/renderer/render_thread_impl.cc
-index f55d956f05ec..ec2292acb1c3 100644
+index d5f3d130b634..aaa9d6a79306 100644
 --- content/renderer/render_thread_impl.cc
 +++ content/renderer/render_thread_impl.cc
 @@ -822,6 +822,8 @@ void RenderThreadImpl::Init(

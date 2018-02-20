@@ -171,10 +171,10 @@ index 11eb1d3b732a..52962a868999 100644
              weak_factory_.GetWeakPtr(), site_url, tab_url, tab_referrer_url),
          base::BindOnce(&DownloadManagerImpl::AddUrlDownloadHandler,
 diff --git content/browser/loader/navigation_url_loader_network_service.cc content/browser/loader/navigation_url_loader_network_service.cc
-index d9297fa8365e..38a3fb629a7a 100644
+index f222194d970f..3c7fd1009494 100644
 --- content/browser/loader/navigation_url_loader_network_service.cc
 +++ content/browser/loader/navigation_url_loader_network_service.cc
-@@ -868,11 +868,12 @@ NavigationURLLoaderNetworkService::NavigationURLLoaderNetworkService(
+@@ -888,11 +888,12 @@ NavigationURLLoaderNetworkService::NavigationURLLoaderNetworkService(
              .PassInterface();
    }
  
@@ -220,7 +220,7 @@ index b9d2670514c0..004939aa055a 100644
        partition->GetPaymentAppContext();
  
 diff --git content/browser/renderer_host/render_process_host_impl.cc content/browser/renderer_host/render_process_host_impl.cc
-index 22c72f3ac929..c12815670521 100644
+index 0e57990b06a1..494a64798a1a 100644
 --- content/browser/renderer_host/render_process_host_impl.cc
 +++ content/browser/renderer_host/render_process_host_impl.cc
 @@ -497,9 +497,8 @@ class SpareRenderProcessHostManager : public RenderProcessHostObserver {
@@ -492,19 +492,16 @@ index 01ba96322f69..6dde251b3d1b 100644
    parameterized_binder_registry_.AddInterface(
        base::BindRepeating(&BackgroundFetchServiceImpl::Create));
 diff --git content/browser/shared_worker/shared_worker_connector_impl.cc content/browser/shared_worker/shared_worker_connector_impl.cc
-index 1e95910e7168..45adb88b1e96 100644
+index adcc28c72119..96fef4e3099e 100644
 --- content/browser/shared_worker/shared_worker_connector_impl.cc
 +++ content/browser/shared_worker/shared_worker_connector_impl.cc
-@@ -34,10 +34,9 @@ void SharedWorkerConnectorImpl::Connect(
-     mojom::SharedWorkerClientPtr client,
-     blink::mojom::SharedWorkerCreationContextType creation_context_type,
-     mojo::ScopedMessagePipeHandle message_port) {
--  SharedWorkerServiceImpl* service =
--      static_cast<StoragePartitionImpl*>(
--          RenderProcessHost::FromID(process_id_)->GetStoragePartition())
+@@ -41,8 +41,8 @@ void SharedWorkerConnectorImpl::Connect(
+     return;
+   }
+   SharedWorkerServiceImpl* service =
+-      static_cast<StoragePartitionImpl*>(host->GetStoragePartition())
 -          ->GetSharedWorkerService();
-+  SharedWorkerServiceImpl* service = static_cast<SharedWorkerServiceImpl*>(
-+      RenderProcessHost::FromID(process_id_)->GetStoragePartition()
++      static_cast<SharedWorkerServiceImpl*>(host->GetStoragePartition()
 +          ->GetSharedWorkerService());
    service->ConnectToWorker(process_id_, frame_id_, std::move(info),
                             std::move(client), creation_context_type,

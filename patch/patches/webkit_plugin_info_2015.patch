@@ -17,18 +17,19 @@ index 8088169f0434..47cf612db044 100644
                                                          .Top()
                                                          .GetSecurityContext()
 diff --git third_party/WebKit/Source/core/exported/WebDevToolsAgentImpl.cpp third_party/WebKit/Source/core/exported/WebDevToolsAgentImpl.cpp
-index 0fa2449c7f1c..8adf2d575e66 100644
+index 9b0ec7152d34..09a7901bf526 100644
 --- third_party/WebKit/Source/core/exported/WebDevToolsAgentImpl.cpp
 +++ third_party/WebKit/Source/core/exported/WebDevToolsAgentImpl.cpp
-@@ -329,6 +329,7 @@ WebDevToolsAgentImpl::Session::Session(
-   host_ptr_.Bind(std::move(host_ptr_info));
-   host_ptr_.set_connection_error_handler(WTF::Bind(
+@@ -330,6 +330,8 @@ WebDevToolsAgentImpl::Session::Session(
        &WebDevToolsAgentImpl::Session::Detach, WrapWeakPersistent(this)));
+ 
+   InitializeInspectorSession(reattach_state);
++
 +  Platform::Current()->DevToolsAgentAttached();
  }
  
- void WebDevToolsAgentImpl::Session::Trace(blink::Visitor* visitor) {
-@@ -347,6 +348,7 @@ void WebDevToolsAgentImpl::Session::Detach() {
+ WebDevToolsAgentImpl::Session::~Session() {
+@@ -354,6 +356,7 @@ void WebDevToolsAgentImpl::Session::Detach() {
    io_session_->DeleteSoon();
    io_session_ = nullptr;
    inspector_session_->Dispose();
