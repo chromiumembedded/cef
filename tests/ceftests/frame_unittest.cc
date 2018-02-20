@@ -1027,13 +1027,8 @@ class FrameNavExpectationsRendererTestSingleNav
                             bool isLoading) override {
     V_DECLARE();
     // A frame should always exist in the renderer process.
-    if (isLoading) {
-      V_EXPECT_TRUE(
-          VerifySingleBrowserFrames(browser, NULL, true, std::string()));
-    } else {
-      V_EXPECT_TRUE(
-          VerifySingleBrowserFrames(browser, NULL, true, kFrameNavOrigin0));
-    }
+    V_EXPECT_TRUE(
+        VerifySingleBrowserFrames(browser, NULL, true, kFrameNavOrigin0));
     V_EXPECT_TRUE(parent::OnLoadingStateChange(browser, isLoading));
     V_RETURN();
   }
@@ -1572,16 +1567,7 @@ class FrameNavExpectationsRendererTestMultiNav
       got_load_state_change_done_.yes();
     V_DECLARE();
     // A frame should always exist in the renderer process.
-    if (isLoading) {
-      std::string expected_url;
-      if (nav() > 0)
-        expected_url = GetPreviousMainURL();
-      V_EXPECT_TRUE(
-          VerifySingleBrowserFrames(browser, NULL, true, expected_url));
-    } else {
-      V_EXPECT_TRUE(
-          VerifySingleBrowserFrames(browser, NULL, true, GetMainURL()));
-    }
+    V_EXPECT_TRUE(VerifySingleBrowserFrames(browser, NULL, true, GetMainURL()));
     V_EXPECT_TRUE(parent::OnLoadingStateChange(browser, isLoading));
     V_RETURN();
   }

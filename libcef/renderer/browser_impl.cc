@@ -429,10 +429,6 @@ void CefBrowserImpl::OnDestruct() {
   CefContentRendererClient::Get()->OnBrowserDestroyed(this);
 }
 
-void CefBrowserImpl::DidStartLoading() {
-  OnLoadingStateChange(true);
-}
-
 void CefBrowserImpl::DidStopLoading() {
   OnLoadingStateChange(false);
 }
@@ -458,6 +454,9 @@ void CefBrowserImpl::DidFailProvisionalLoad(blink::WebLocalFrame* frame,
 
 void CefBrowserImpl::DidCommitProvisionalLoad(blink::WebLocalFrame* frame,
                                               bool is_new_navigation) {
+  if (frame->Parent() == nullptr) {
+    OnLoadingStateChange(true);
+  }
   OnLoadStart(frame);
 }
 

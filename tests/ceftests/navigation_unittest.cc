@@ -105,33 +105,21 @@ class HistoryNavRendererTest : public ClientAppRenderer::Delegate,
     const NavListItem& item = kHNavList[nav_];
 
     const std::string& url = browser->GetMainFrame()->GetURL();
+    EXPECT_STREQ(item.target, url.c_str());
+
+    EXPECT_EQ(item.can_go_back, browser->CanGoBack())
+        << "nav: " << nav_ << " isLoading: " << isLoading;
+    EXPECT_EQ(item.can_go_back, canGoBack)
+        << "nav: " << nav_ << " isLoading: " << isLoading;
+    EXPECT_EQ(item.can_go_forward, browser->CanGoForward())
+        << "nav: " << nav_ << " isLoading: " << isLoading;
+    EXPECT_EQ(item.can_go_forward, canGoForward)
+        << "nav: " << nav_ << " isLoading: " << isLoading;
+
     if (isLoading) {
       got_loading_state_start_.yes();
-
-      EXPECT_STRNE(item.target, url.c_str());
-
-      if (nav_ > 0) {
-        const NavListItem& last_item = kHNavList[nav_ - 1];
-        EXPECT_EQ(last_item.can_go_back, browser->CanGoBack());
-        EXPECT_EQ(last_item.can_go_back, canGoBack);
-        EXPECT_EQ(last_item.can_go_forward, browser->CanGoForward());
-        EXPECT_EQ(last_item.can_go_forward, canGoForward);
-      } else {
-        EXPECT_FALSE(browser->CanGoBack());
-        EXPECT_FALSE(canGoBack);
-        EXPECT_FALSE(browser->CanGoForward());
-        EXPECT_FALSE(canGoForward);
-      }
     } else {
       got_loading_state_end_.yes();
-
-      EXPECT_STREQ(item.target, url.c_str());
-
-      EXPECT_EQ(item.can_go_back, browser->CanGoBack());
-      EXPECT_EQ(item.can_go_back, canGoBack);
-      EXPECT_EQ(item.can_go_forward, browser->CanGoForward());
-      EXPECT_EQ(item.can_go_forward, canGoForward);
-
       SendTestResultsIfDone(browser);
     }
   }
