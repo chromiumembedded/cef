@@ -60,7 +60,7 @@ OsrWindowWin::OsrWindowWin(Delegate* delegate,
       hwnd_(NULL),
       hdc_(NULL),
       hrc_(NULL),
-      device_scale_factor_(client::GetDeviceScaleFactor()),
+      device_scale_factor_(0),
       painting_popup_(false),
       render_task_pending_(false),
       hidden_(false),
@@ -872,6 +872,7 @@ bool OsrWindowWin::GetRootScreenRect(CefRefPtr<CefBrowser> browser,
 
 bool OsrWindowWin::GetViewRect(CefRefPtr<CefBrowser> browser, CefRect& rect) {
   CEF_REQUIRE_UI_THREAD();
+  DCHECK_GT(device_scale_factor_, 0);
 
   rect.x = rect.y = 0;
   rect.width = DeviceToLogical(client_rect_.right - client_rect_.left,
@@ -887,6 +888,7 @@ bool OsrWindowWin::GetScreenPoint(CefRefPtr<CefBrowser> browser,
                                   int& screenX,
                                   int& screenY) {
   CEF_REQUIRE_UI_THREAD();
+  DCHECK_GT(device_scale_factor_, 0);
 
   if (!::IsWindow(hwnd_))
     return false;
@@ -903,6 +905,7 @@ bool OsrWindowWin::GetScreenPoint(CefRefPtr<CefBrowser> browser,
 bool OsrWindowWin::GetScreenInfo(CefRefPtr<CefBrowser> browser,
                                  CefScreenInfo& screen_info) {
   CEF_REQUIRE_UI_THREAD();
+  DCHECK_GT(device_scale_factor_, 0);
 
   if (!::IsWindow(hwnd_))
     return false;
