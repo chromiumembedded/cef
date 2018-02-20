@@ -83,11 +83,14 @@ class RootWindowWin : public RootWindow, public BrowserWindow::Delegate {
   void OnActivate(bool active);
   void OnSize(bool minimized);
   void OnMove();
+  void OnDpiChanged(WPARAM wParam, LPARAM lParam);
   bool OnEraseBkgnd();
   bool OnCommand(UINT id);
   void OnFind();
   void OnFindEvent();
   void OnAbout();
+  void OnNCCreate(LPCREATESTRUCT lpCreateStruct);
+  void OnCreate(LPCREATESTRUCT lpCreateStruct);
   bool OnClose();
   void OnDestroyed();
 
@@ -114,6 +117,7 @@ class RootWindowWin : public RootWindow, public BrowserWindow::Delegate {
   bool is_popup_;
   RECT start_rect_;
   scoped_ptr<BrowserWindow> browser_window_;
+  CefBrowserSettings browser_settings_;
   bool initialized_;
 
   // Main window.
@@ -124,6 +128,7 @@ class RootWindowWin : public RootWindow, public BrowserWindow::Delegate {
 
   // Font for buttons and text fields.
   HFONT font_;
+  int font_height_;
 
   // Buttons.
   HWND back_hwnd_;
@@ -149,6 +154,8 @@ class RootWindowWin : public RootWindow, public BrowserWindow::Delegate {
 
   bool window_destroyed_;
   bool browser_destroyed_;
+
+  bool called_enable_non_client_dpi_scaling_;
 
   DISALLOW_COPY_AND_ASSIGN(RootWindowWin);
 };
