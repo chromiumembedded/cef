@@ -4,12 +4,6 @@
 
 #include "include/base/cef_build.h"
 
-#if defined(OS_WIN)
-#include <windows.h>
-
-#include <shellscalingapi.h>
-#endif
-
 #include "include/internal/cef_logging_internal.h"
 #include "include/internal/cef_thread_internal.h"
 #include "include/internal/cef_trace_event_internal.h"
@@ -19,50 +13,8 @@
 #include "base/trace_event/trace_event.h"
 
 #if defined(OS_WIN)
-#include "base/win/windows_version.h"
-
-namespace {
-
-// Implementation from chrome/app/chrome_exe_main_win.cc.
-
-// Win8.1 supports monitor-specific DPI scaling.
-bool SetProcessDpiAwarenessWrapper(PROCESS_DPI_AWARENESS value) {
-  typedef HRESULT(WINAPI * SetProcessDpiAwarenessPtr)(PROCESS_DPI_AWARENESS);
-  SetProcessDpiAwarenessPtr set_process_dpi_awareness_func =
-      reinterpret_cast<SetProcessDpiAwarenessPtr>(GetProcAddress(
-          GetModuleHandleA("user32.dll"), "SetProcessDpiAwarenessInternal"));
-  if (set_process_dpi_awareness_func) {
-    HRESULT hr = set_process_dpi_awareness_func(value);
-    if (SUCCEEDED(hr)) {
-      VLOG(1) << "SetProcessDpiAwareness succeeded.";
-      return true;
-    } else if (hr == E_ACCESSDENIED) {
-      LOG(ERROR) << "Access denied error from SetProcessDpiAwareness. "
-                    "Function called twice, or manifest was used.";
-    }
-  }
-  return false;
-}
-
-// This function works for Windows Vista through Win8. Win8.1 must use
-// SetProcessDpiAwareness[Wrapper].
-BOOL SetProcessDPIAwareWrapper() {
-  typedef BOOL(WINAPI * SetProcessDPIAwarePtr)(VOID);
-  SetProcessDPIAwarePtr set_process_dpi_aware_func =
-      reinterpret_cast<SetProcessDPIAwarePtr>(
-          GetProcAddress(GetModuleHandleA("user32.dll"), "SetProcessDPIAware"));
-  return set_process_dpi_aware_func && set_process_dpi_aware_func();
-}
-
-void EnableHighDPISupport() {
-  if (!SetProcessDpiAwarenessWrapper(PROCESS_SYSTEM_DPI_AWARE)) {
-    SetProcessDPIAwareWrapper();
-  }
-}
-
-}  // namespace
-
-#endif  // defined(OS_WIN)
+#include "base/win/win_util.h"
+#endif
 
 // The contents of this file are a compilation unit that is not called by other
 // functions in the the library. Consiquently MSVS will exclude it during the
@@ -399,10 +351,6 @@ cef_get_current_platform_thread_handle() {
 
 void CefEnableHighDPISupport() {
 #if defined(OS_WIN)
-  // We don't want to set DPI awareness on pre-Win7 because we don't support
-  // DirectWrite there. GDI fonts are kerned very badly, so better to leave
-  // DPI-unaware and at effective 1.0. See also ShouldUseDirectWrite().
-  if (base::win::GetVersion() >= base::win::VERSION_WIN7)
-    EnableHighDPISupport();
+  base::win::EnableHighDPISupport();
 #endif
 }

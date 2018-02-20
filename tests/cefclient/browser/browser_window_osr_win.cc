@@ -5,16 +5,13 @@
 #include "tests/cefclient/browser/browser_window_osr_win.h"
 
 #include "tests/shared/browser/main_message_loop.h"
-#include "tests/shared/browser/util_win.h"
 
 namespace client {
 
 BrowserWindowOsrWin::BrowserWindowOsrWin(BrowserWindow::Delegate* delegate,
                                          const std::string& startup_url,
                                          const OsrRenderer::Settings& settings)
-    : BrowserWindow(delegate),
-      osr_hwnd_(NULL),
-      device_scale_factor_(client::GetDeviceScaleFactor()) {
+    : BrowserWindow(delegate), osr_hwnd_(NULL), device_scale_factor_(0) {
   osr_window_ = new OsrWindowWin(this, settings);
   client_handler_ = new ClientHandlerOsr(this, osr_window_.get(), startup_url);
 }
@@ -92,6 +89,7 @@ void BrowserWindowOsrWin::SetDeviceScaleFactor(float device_scale_factor) {
 
 float BrowserWindowOsrWin::GetDeviceScaleFactor() const {
   REQUIRE_MAIN_THREAD();
+  DCHECK_GT(device_scale_factor_, 0);
   return device_scale_factor_;
 }
 
