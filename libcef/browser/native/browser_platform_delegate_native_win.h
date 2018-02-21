@@ -68,6 +68,9 @@ class CefBrowserPlatformDelegateNativeWin
   // Widget hosting the web contents. It will be deleted automatically when the
   // associated root window is destroyed.
   views::Widget* window_widget_;
+
+  bool has_frame_ = false;
+  bool called_enable_non_client_dpi_scaling_ = false;
 };
 
 #endif  // CEF_LIBCEF_BROWSER_NATIVE_BROWSER_PLATFORM_DELEGATE_NATIVE_WIN_H_
