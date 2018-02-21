@@ -20,6 +20,7 @@
 #include "base/memory/ref_counted_memory.h"
 #include "base/strings/utf_string_conversions.h"
 #include "base/win/registry.h"
+#include "base/win/win_util.h"
 #include "content/public/browser/native_web_keyboard_event.h"
 #include "third_party/WebKit/public/platform/WebMouseEvent.h"
 #include "third_party/WebKit/public/platform/WebMouseWheelEvent.h"
@@ -95,6 +96,31 @@ void ExecuteExternalProtocol(const GURL& url) {
   ShellExecuteA(NULL, "open", address.c_str(), NULL, NULL, SW_SHOWNORMAL);
 }
 
+// DPI value for 1x scale factor.
+#define DPI_1X 96.0f
+
+float GetWindowScaleFactor(HWND hwnd) {
+  DCHECK(hwnd);
+
+  if (base::win::IsProcessPerMonitorDpiAware()) {
+    // Let Windows tell us the correct DPI.
+    static auto get_dpi_for_window_func = []() {
+      return reinterpret_cast<decltype(::GetDpiForWindow)*>(
+          GetProcAddress(GetModuleHandle(L"user32.dll"), "GetDpiForWindow"));
+    }();
+    if (get_dpi_for_window_func)
+      return static_cast<float>(get_dpi_for_window_func(hwnd)) / DPI_1X;
+  }
+
+  // Fallback to the monitor that contains the window center point.
+  RECT cr;
+  GetWindowRect(hwnd, &cr);
+  return display::Screen::GetScreen()
+      ->GetDisplayNearestPoint(
+          gfx::Point((cr.right - cr.left) / 2, (cr.bottom - cr.top) / 2))
+      .device_scale_factor();
+}
+
 }  // namespace
 
 CefBrowserPlatformDelegateNativeWin::CefBrowserPlatformDelegateNativeWin(
@@ -117,40 +143,49 @@ void CefBrowserPlatformDelegateNativeWin::BrowserDestroyed(
 bool CefBrowserPlatformDelegateNativeWin::CreateHostWindow() {
   RegisterWindowClass();
 
+  has_frame_ = !(window_info_.style & WS_CHILD);
+
   std::wstring windowName(CefString(&window_info_.window_name));
 
   // Create the new browser window.
-  window_info_.window = CreateWindowEx(
-      window_info_.ex_style, GetWndClass(), windowName.c_str(),
-      window_info_.style, window_info_.x, window_info_.y, window_info_.width,
-      window_info_.height, window_info_.parent_window, window_info_.menu,
-      ::GetModuleHandle(NULL), NULL);
+  CreateWindowEx(window_info_.ex_style, GetWndClass(), windowName.c_str(),
+                 window_info_.style, window_info_.x, window_info_.y,
+                 window_info_.width, window_info_.height,
+                 window_info_.parent_window, window_info_.menu,
+                 ::GetModuleHandle(NULL), this);
 
   // It's possible for CreateWindowEx to fail if the parent window was
   // destroyed between the call to CreateBrowser and the above one.
-  DCHECK(window_info_.window != NULL);
+  DCHECK(window_info_.window);
   if (!window_info_.window)
     return false;
 
   host_window_created_ = true;
 
-  // Set window user data to this object for future reference from the window
-  // procedure.
-  gfx::SetWindowUserData(window_info_.window, this);
-
   // Add a reference that will later be released in DestroyBrowser().
   browser_->AddRef();
 
-  RECT cr;
-  GetClientRect(window_info_.window, &cr);
+  if (!called_enable_non_client_dpi_scaling_ && has_frame_ &&
+      base::win::IsProcessPerMonitorDpiAware()) {
+    // This call gets Windows to scale the non-client area when WM_DPICHANGED
+    // is fired on Windows versions < 10.0.14393.0.
+    // Derived signature; not available in headers.
+    static auto enable_child_window_dpi_message_func = []() {
+      using EnableChildWindowDpiMessagePtr = LRESULT(WINAPI*)(HWND, BOOL);
+      return reinterpret_cast<EnableChildWindowDpiMessagePtr>(GetProcAddress(
+          GetModuleHandle(L"user32.dll"), "EnableChildWindowDpiMessage"));
+    }();
+    if (enable_child_window_dpi_message_func)
+      enable_child_window_dpi_message_func(window_info_.window, TRUE);
+  }
 
   DCHECK(!window_widget_);
 
-  // Adjust for potential display scaling.
+  // Convert from device coordinates to logical coordinates.
+  RECT cr;
+  GetClientRect(window_info_.window, &cr);
   gfx::Point point = gfx::Point(cr.right, cr.bottom);
-  float scale = display::Screen::GetScreen()
-                    ->GetDisplayNearestPoint(point)
-                    .device_scale_factor();
+  const float scale = GetWindowScaleFactor(window_info_.window);
   point =
       gfx::ToFlooredPoint(gfx::ScalePoint(gfx::PointF(point), 1.0f / scale));
 
@@ -270,19 +305,19 @@ gfx::Point CefBrowserPlatformDelegateNativeWin::GetScreenPoint(
   if (windowless_handler_)
     return windowless_handler_->GetParentScreenPoint(view);
 
-  if (!window_widget_)
+  if (!window_info_.window)
     return view;
 
-  aura::Window* window = window_widget_->GetNativeView();
-  const gfx::Rect& bounds_in_screen = window->GetBoundsInScreen();
-  const gfx::Point& screen_point = gfx::Point(bounds_in_screen.x() + view.x(),
-                                              bounds_in_screen.y() + view.y());
+  // Convert from logical coordinates to device coordinates.
+  const float scale = GetWindowScaleFactor(window_info_.window);
+  const gfx::Point& device_pt =
+      gfx::ToFlooredPoint(gfx::ScalePoint(gfx::PointF(view), scale));
 
-  // Adjust for potential display scaling.
-  float scale = display::Screen::GetScreen()
-                    ->GetDisplayNearestPoint(screen_point)
-                    .device_scale_factor();
-  return gfx::ToFlooredPoint(gfx::ScalePoint(gfx::PointF(screen_point), scale));
+  // Convert from client coordinates to screen coordinates.
+  POINT screen_pt = {device_pt.x(), device_pt.y()};
+  ClientToScreen(window_info_.window, &screen_pt);
+
+  return gfx::Point(screen_pt.x, screen_pt.y);
 }
 
 void CefBrowserPlatformDelegateNativeWin::ViewText(const std::string& text) {
@@ -562,12 +597,15 @@ LRESULT CALLBACK CefBrowserPlatformDelegateNativeWin::WndProc(HWND hwnd,
                                                               UINT message,
                                                               WPARAM wParam,
                                                               LPARAM lParam) {
-  CefBrowserPlatformDelegateNativeWin* platform_delegate =
-      static_cast<CefBrowserPlatformDelegateNativeWin*>(
-          gfx::GetWindowUserData(hwnd));
+  CefBrowserPlatformDelegateNativeWin* platform_delegate = nullptr;
   CefBrowserHostImpl* browser = nullptr;
-  if (platform_delegate)
-    browser = platform_delegate->browser_;
+
+  if (message != WM_NCCREATE) {
+    platform_delegate = static_cast<CefBrowserPlatformDelegateNativeWin*>(
+        gfx::GetWindowUserData(hwnd));
+    if (platform_delegate)
+      browser = platform_delegate->browser_;
+  }
 
   switch (message) {
     case WM_CLOSE:
@@ -578,6 +616,31 @@ LRESULT CALLBACK CefBrowserPlatformDelegateNativeWin::WndProc(HWND hwnd,
 
       // Allow the close.
       break;
+
+    case WM_NCCREATE: {
+      CREATESTRUCT* cs = reinterpret_cast<CREATESTRUCT*>(lParam);
+      platform_delegate =
+          reinterpret_cast<CefBrowserPlatformDelegateNativeWin*>(
+              cs->lpCreateParams);
+      DCHECK(platform_delegate);
+      // Associate |platform_delegate| with the window handle.
+      gfx::SetWindowUserData(hwnd, platform_delegate);
+      platform_delegate->window_info_.window = hwnd;
+
+      if (platform_delegate->has_frame_ &&
+          base::win::IsProcessPerMonitorDpiAware()) {
+        // This call gets Windows to scale the non-client area when
+        // WM_DPICHANGED is fired on Windows versions >= 10.0.14393.0.
+        static auto enable_non_client_dpi_scaling_func = []() {
+          return reinterpret_cast<decltype(::EnableNonClientDpiScaling)*>(
+              GetProcAddress(GetModuleHandle(L"user32.dll"),
+                             "EnableNonClientDpiScaling"));
+        }();
+        platform_delegate->called_enable_non_client_dpi_scaling_ =
+            !!(enable_non_client_dpi_scaling_func &&
+               enable_non_client_dpi_scaling_func(hwnd));
+      }
+    } break;
 
     case WM_NCDESTROY:
       if (platform_delegate) {
@@ -617,6 +680,17 @@ LRESULT CALLBACK CefBrowserPlatformDelegateNativeWin::WndProc(HWND hwnd,
 
     case WM_ERASEBKGND:
       return 0;
+
+    case WM_DPICHANGED:
+      if (platform_delegate && platform_delegate->has_frame_) {
+        // Suggested size and position of the current window scaled for the
+        // new DPI.
+        const RECT* rect = reinterpret_cast<RECT*>(lParam);
+        SetWindowPos(platform_delegate->GetHostWindowHandle(), NULL, rect->left,
+                     rect->top, rect->right - rect->left,
+                     rect->bottom - rect->top, SWP_NOZORDER | SWP_NOACTIVATE);
+      }
+      break;
   }
 
   return DefWindowProc(hwnd, message, wParam, lParam);

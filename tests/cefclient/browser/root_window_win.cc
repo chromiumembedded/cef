@@ -77,15 +77,15 @@ bool IsProcessPerMonitorDpiAware() {
 }
 
 // DPI value for 1x scale factor.
-#define DPI_1X 96
+#define DPI_1X 96.0f
 
-int GetWindowScaleFactor(HWND hwnd) {
+float GetWindowScaleFactor(HWND hwnd) {
   if (hwnd && IsProcessPerMonitorDpiAware()) {
     typedef UINT(WINAPI * GetDpiForWindowPtr)(HWND);
     static GetDpiForWindowPtr func_ptr = reinterpret_cast<GetDpiForWindowPtr>(
         GetProcAddress(GetModuleHandle(L"user32.dll"), "GetDpiForWindow"));
     if (func_ptr)
-      return func_ptr(hwnd) / DPI_1X;
+      return static_cast<float>(func_ptr(hwnd)) / DPI_1X;
   }
 
   return client::GetDeviceScaleFactor();
@@ -638,6 +638,7 @@ void RootWindowWin::OnSize(bool minimized) {
     const int font_height = LogicalToDevice(14, GetWindowScaleFactor(hwnd_));
 
     if (font_height != font_height_) {
+      font_height_ = font_height;
       if (font_) {
         DeleteObject(font_);
       }
@@ -716,18 +717,11 @@ void RootWindowWin::OnDpiChanged(WPARAM wParam, LPARAM lParam) {
     return;
   }
 
-  if (browser_window_) {
-    if (with_osr_) {
-      browser_window_->SetDeviceScaleFactor(LOWORD(wParam) / DPI_1X);
-    } else {
-      // Forward the DPI change to the browser window handle.
-      HWND browser_hwnd = browser_window_->GetWindowHandle();
-      if (browser_hwnd) {
-        RECT child_rect = {};
-        SendMessage(browser_hwnd, WM_DPICHANGED, wParam,
-                    reinterpret_cast<LPARAM>(&child_rect));
-      }
-    }
+  if (browser_window_ && with_osr_) {
+    // Scale factor for the new display.
+    const float display_scale_factor =
+        static_cast<float>(LOWORD(wParam)) / DPI_1X;
+    browser_window_->SetDeviceScaleFactor(display_scale_factor);
   }
 
   // Suggested size and position of the current window scaled for the new DPI.
@@ -928,7 +922,7 @@ void RootWindowWin::OnCreate(LPCREATESTRUCT lpCreateStruct) {
     ::SetMenu(hwnd_, NULL);
   }
 
-  const int device_scale_factor = GetWindowScaleFactor(hwnd_);
+  const float device_scale_factor = GetWindowScaleFactor(hwnd_);
 
   if (with_osr_) {
     browser_window_->SetDeviceScaleFactor(device_scale_factor);
@@ -938,7 +932,6 @@ void RootWindowWin::OnCreate(LPCREATESTRUCT lpCreateStruct) {
     // Create the browser window.
     CefRect cef_rect(rect.left, rect.top, rect.right - rect.left,
                      rect.bottom - rect.top);
-    cef_rect = client::DeviceToLogical(cef_rect, device_scale_factor);
     browser_window_->CreateBrowser(hwnd_, cef_rect, browser_settings_,
                                    delegate_->GetRequestContext(this));
   } else {
@@ -1043,7 +1036,7 @@ void RootWindowWin::OnAutoResize(const CefSize& new_size) {
   if (new_width < 200)
     new_width = 200;
 
-  const int device_scale_factor = GetWindowScaleFactor(hwnd_);
+  const float device_scale_factor = GetWindowScaleFactor(hwnd_);
   RECT rect = {0, 0, LogicalToDevice(new_width, device_scale_factor),
                LogicalToDevice(new_size.height, device_scale_factor)};
   DWORD style = GetWindowLong(hwnd_, GWL_STYLE);
