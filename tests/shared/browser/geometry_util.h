@@ -16,7 +16,6 @@ CefRect LogicalToDevice(const CefRect& value, float device_scale_factor);
 
 // Convert |value| from device coordinates to logical coordinates.
 int DeviceToLogical(int value, float device_scale_factor);
-CefRect DeviceToLogical(const CefRect& value, float device_scale_factor);
 void DeviceToLogical(CefMouseEvent& value, float device_scale_factor);
 
 }  // namespace client
