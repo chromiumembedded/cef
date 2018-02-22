@@ -35,15 +35,14 @@ index 49be57cd2aad..417be7a55184 100644
    bool record_whole_document;
    SavePreviousDocumentResources save_previous_document_resources;
 diff --git content/renderer/render_view_impl.cc content/renderer/render_view_impl.cc
-index 1d136aa56ff4..23c00d73b8ed 100644
+index 1d136aa56ff4..2151ad629dd9 100644
 --- content/renderer/render_view_impl.cc
 +++ content/renderer/render_view_impl.cc
-@@ -1261,6 +1261,8 @@ void RenderViewImpl::ApplyWebPreferencesInternal(
+@@ -1261,6 +1261,7 @@ void RenderViewImpl::ApplyWebPreferencesInternal(
      blink::WebView* web_view,
      CompositorDependencies* compositor_deps) {
    ApplyWebPreferences(prefs, web_view);
-+  if (GetWebFrameWidget())
-+    GetWebFrameWidget()->SetBaseBackgroundColor(prefs.base_background_color);
++  web_view->SetBaseBackgroundColor(prefs.base_background_color);
  }
  
  void RenderViewImpl::OnForceRedraw(const ui::LatencyInfo& latency_info) {
