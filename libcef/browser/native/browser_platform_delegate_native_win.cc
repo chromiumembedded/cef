@@ -559,6 +559,8 @@ void CefBrowserPlatformDelegateNativeWin::TranslateMouseEvent(
 
   // timestamp
   result.SetTimeStampSeconds(GetMessageTime() / 1000.0);
+
+  result.pointer_type = blink::WebPointerProperties::PointerType::kMouse;
 }
 
 // static

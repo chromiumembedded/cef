@@ -384,4 +384,6 @@ void CefBrowserPlatformDelegateNativeLinux::TranslateMouseEvent(
 
   // timestamp
   result.SetTimeStampSeconds(GetSystemUptime());
+
+  result.pointer_type = blink::WebPointerProperties::PointerType::kMouse;
 }
