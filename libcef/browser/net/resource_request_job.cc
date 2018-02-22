@@ -328,6 +328,14 @@ bool CefResourceRequestJob::GetMimeType(std::string* mime_type) const {
   return true;
 }
 
+bool CefResourceRequestJob::GetCharset(std::string* charset) {
+  CEF_REQUIRE_IOT();
+
+  if (net::HttpResponseHeaders *headers = GetResponseHeaders())
+    return headers->GetCharset(charset);
+  return false;
+}
+
 void CefResourceRequestJob::SendHeaders() {
   CEF_REQUIRE_IOT();
 
