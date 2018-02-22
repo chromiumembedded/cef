@@ -469,4 +469,6 @@ void CefBrowserPlatformDelegateNativeMac::TranslateMouseEvent(
 
   // timestamp - Mac OSX specific
   result.SetTimeStampSeconds(currentEventTimestamp());
+
+  result.pointer_type = blink::WebPointerProperties::PointerType::kMouse;
 }
