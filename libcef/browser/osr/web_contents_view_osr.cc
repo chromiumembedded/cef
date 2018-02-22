@@ -135,9 +135,10 @@ CefWebContentsViewOSR::CreateViewForPopupWidget(
 void CefWebContentsViewOSR::SetPageTitle(const base::string16& title) {}
 
 void CefWebContentsViewOSR::RenderViewCreated(content::RenderViewHost* host) {
-  // |view| will be nullptr the first time this method is called for popup
-  // browsers.
-  CefRenderWidgetHostViewOSR* view = GetView();
+  if (!host)
+    return;
+  CefRenderWidgetHostViewOSR* view =
+      static_cast<CefRenderWidgetHostViewOSR*>(host->GetWidget()->GetView());
   if (view)
     view->InstallTransparency();
 }

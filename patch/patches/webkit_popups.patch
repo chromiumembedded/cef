@@ -27,7 +27,7 @@ index d91e3b143073..35fd90706031 100644
        suppress_next_keypress_event_(false),
        ime_accept_events_(true),
 diff --git third_party/WebKit/Source/core/exported/WebViewImpl.h third_party/WebKit/Source/core/exported/WebViewImpl.h
-index a17a3af5ec27..7036d8e87ba0 100644
+index a17a3af5ec27..810293b7ac44 100644
 --- third_party/WebKit/Source/core/exported/WebViewImpl.h
 +++ third_party/WebKit/Source/core/exported/WebViewImpl.h
 @@ -106,7 +106,8 @@ class CORE_EXPORT WebViewImpl final
@@ -40,6 +40,15 @@ index a17a3af5ec27..7036d8e87ba0 100644
  
    // WebWidget methods:
    void Close() override;
+@@ -255,7 +256,7 @@ class CORE_EXPORT WebViewImpl final
+   HitTestResult CoreHitTestResultAt(const WebPoint&);
+   void InvalidateRect(const IntRect&);
+ 
+-  void SetBaseBackgroundColor(WebColor);
++  void SetBaseBackgroundColor(WebColor) override;
+   void SetBaseBackgroundColorOverride(WebColor);
+   void ClearBaseBackgroundColorOverride();
+   void SetBackgroundColorOverride(WebColor);
 @@ -605,6 +606,8 @@ class CORE_EXPORT WebViewImpl final
    float fake_page_scale_animation_page_scale_factor_;
    bool fake_page_scale_animation_use_anchor_;
@@ -63,7 +72,7 @@ index 98618289cfab..ec154753a350 100644
  
    DCHECK(RuntimeEnabledFeatures::PagePopupEnabled());
 diff --git third_party/WebKit/public/web/WebView.h third_party/WebKit/public/web/WebView.h
-index 8f30d3c30bac..6d156c7837fb 100644
+index 8f30d3c30bac..062ae5e643bb 100644
 --- third_party/WebKit/public/web/WebView.h
 +++ third_party/WebKit/public/web/WebView.h
 @@ -360,6 +360,7 @@ class WebView : protected WebWidget {
@@ -74,3 +83,12 @@ index 8f30d3c30bac..6d156c7837fb 100644
  
    // Hides any popup (suggestions, selects...) that might be showing.
    virtual void HidePopups() = 0;
+@@ -390,6 +391,8 @@ class WebView : protected WebWidget {
+                                   unsigned inactive_background_color,
+                                   unsigned inactive_foreground_color) = 0;
+ 
++  virtual void SetBaseBackgroundColor(WebColor color) = 0;
++
+   // Modal dialog support ------------------------------------------------
+ 
+   // Call these methods before and after running a nested, modal event loop
