@@ -198,9 +198,12 @@ if(OS_LINUX)
   set(CEF_BINARY_FILES
     chrome-sandbox
     libcef.so
+    libEGL.so
+    libGLESv2.so
     natives_blob.bin
     snapshot_blob.bin
     v8_context_snapshot.bin
+    swiftshader
     )
 
   # List of CEF resource files.
