@@ -23,6 +23,9 @@ namespace client {
 struct RootWindowConfig {
   RootWindowConfig();
 
+  // If true the window will always display above other windows.
+  bool always_on_top;
+
   // If true the window will show controls.
   bool with_controls;
 

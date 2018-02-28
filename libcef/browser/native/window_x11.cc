@@ -396,3 +396,34 @@ void CefWindowX11::ContinueFocus() {
     browser_->SetFocus(true);
   focus_pending_ = false;
 }
+
+bool CefWindowX11::TopLevelAlwaysOnTop() const {
+  ::Window toplevel_window = FindToplevelParent(xdisplay_, xwindow_);
+
+  Atom state_atom = gfx::GetAtom("_NET_WM_STATE");
+  Atom state_keep_above = gfx::GetAtom("_NET_WM_STATE_KEEP_ABOVE");
+  Atom* states;
+
+  Atom actual_type;
+  int actual_format;
+  unsigned long num_items;
+  unsigned long bytes_after;
+
+  XGetWindowProperty(xdisplay_, toplevel_window, state_atom, 0, 1024,
+                     x11::False, XA_ATOM, &actual_type, &actual_format,
+                     &num_items, &bytes_after,
+                     reinterpret_cast<unsigned char**>(&states));
+
+  bool always_on_top = false;
+
+  for (unsigned long i = 0; i < num_items; ++i) {
+    if (states[i] == state_keep_above) {
+      always_on_top = true;
+      break;
+    }
+  }
+
+  XFree(states);
+
+  return always_on_top;
+}

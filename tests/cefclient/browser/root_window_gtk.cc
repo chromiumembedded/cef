@@ -51,6 +51,7 @@ void MaximizeWindow(GtkWindow* window) {
 
 RootWindowGtk::RootWindowGtk()
     : with_controls_(false),
+      always_on_top_(false),
       with_osr_(false),
       with_extension_(false),
       is_popup_(false),
@@ -84,6 +85,7 @@ void RootWindowGtk::Init(RootWindow::Delegate* delegate,
 
   delegate_ = delegate;
   with_controls_ = config.with_controls;
+  always_on_top_ = config.always_on_top;
   with_osr_ = config.with_osr;
   with_extension_ = config.with_extension;
   start_rect_ = config.bounds;
@@ -274,6 +276,10 @@ void RootWindowGtk::CreateRootWindow(const CefBrowserSettings& settings,
 
   window_ = gtk_window_new(GTK_WINDOW_TOPLEVEL);
   CHECK(window_);
+
+  if (always_on_top_) {
+    gtk_window_set_keep_above(GTK_WINDOW(window_), TRUE);
+  }
 
   gtk_window_set_default_size(GTK_WINDOW(window_), width, height);
   g_signal_connect(G_OBJECT(window_), "focus-in-event",

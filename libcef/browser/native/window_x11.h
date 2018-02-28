@@ -52,6 +52,8 @@ class CefWindowX11 : public ui::PlatformEventDispatcher {
   ::Window xwindow() const { return xwindow_; }
   gfx::Rect bounds() const { return bounds_; }
 
+  bool TopLevelAlwaysOnTop() const;
+
  private:
   void ContinueFocus();
 

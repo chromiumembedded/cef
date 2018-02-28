@@ -20,7 +20,7 @@ class WebView;
 // will be deleted automatically when the associated root window is destroyed.
 class CefWindowDelegateView : public views::WidgetDelegateView {
  public:
-  explicit CefWindowDelegateView(SkColor background_color);
+  CefWindowDelegateView(SkColor background_color, bool always_on_top);
 
   // Create the Widget and associated root window.
   void Init(gfx::AcceleratedWidget parent_widget,
@@ -43,6 +43,7 @@ class CefWindowDelegateView : public views::WidgetDelegateView {
  private:
   SkColor background_color_;
   views::WebView* web_view_;
+  bool always_on_top_;
 
   DISALLOW_COPY_AND_ASSIGN(CefWindowDelegateView);
 };

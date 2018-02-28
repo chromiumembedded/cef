@@ -81,8 +81,8 @@ bool CefBrowserPlatformDelegateNativeLinux::CreateHostWindow() {
   // Add a reference that will be released in BrowserDestroyed().
   browser_->AddRef();
 
-  CefWindowDelegateView* delegate_view =
-      new CefWindowDelegateView(GetBackgroundColor());
+  CefWindowDelegateView* delegate_view = new CefWindowDelegateView(
+      GetBackgroundColor(), window_x11_->TopLevelAlwaysOnTop());
   delegate_view->Init(window_info_.window, browser_->web_contents(),
                       gfx::Rect(gfx::Point(), rect.size()));
 

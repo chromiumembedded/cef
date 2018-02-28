@@ -194,8 +194,15 @@ bool CefBrowserPlatformDelegateNativeWin::CreateHostWindow() {
   point =
       gfx::ToFlooredPoint(gfx::ScalePoint(gfx::PointF(point), 1.0f / scale));
 
+  // Stay on top if top-most window hosting the web view is topmost.
+  HWND top_level_window = GetAncestor(window_info_.window, GA_ROOT);
+  DWORD top_level_window_ex_styles =
+      GetWindowLongPtr(top_level_window, GWL_EXSTYLE);
+  bool always_on_top =
+      (top_level_window_ex_styles & WS_EX_TOPMOST) == WS_EX_TOPMOST;
+
   CefWindowDelegateView* delegate_view =
-      new CefWindowDelegateView(GetBackgroundColor());
+      new CefWindowDelegateView(GetBackgroundColor(), always_on_top);
   delegate_view->Init(window_info_.window, browser_->web_contents(),
                       gfx::Rect(0, 0, point.x(), point.y()));
 
