@@ -222,6 +222,13 @@ void ViewsWindow::SetFullscreen(bool fullscreen) {
   }
 }
 
+void ViewsWindow::SetAlwaysOnTop(bool on_top) {
+  CEF_REQUIRE_UI_THREAD();
+  if (window_) {
+    window_->SetAlwaysOnTop(on_top);
+  }
+}
+
 void ViewsWindow::SetLoadingState(bool isLoading,
                                   bool canGoBack,
                                   bool canGoForward) {

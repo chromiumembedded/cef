@@ -103,6 +103,7 @@ int GetURLBarHeight(HWND hwnd) {
 
 RootWindowWin::RootWindowWin()
     : with_controls_(false),
+      always_on_top_(false),
       with_osr_(false),
       with_extension_(false),
       is_popup_(false),
@@ -152,6 +153,7 @@ void RootWindowWin::Init(RootWindow::Delegate* delegate,
 
   delegate_ = delegate;
   with_controls_ = config.with_controls;
+  always_on_top_ = config.always_on_top;
   with_osr_ = config.with_osr;
   with_extension_ = config.with_extension;
 
@@ -333,6 +335,7 @@ void RootWindowWin::CreateRootWindow(const CefBrowserSettings& settings,
   CHECK(find_message_id_);
 
   const DWORD dwStyle = WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN;
+  const DWORD dwExStyle = always_on_top_ ? WS_EX_TOPMOST : 0;
 
   int x, y, width, height;
   if (::IsRectEmpty(&start_rect_)) {
@@ -341,7 +344,7 @@ void RootWindowWin::CreateRootWindow(const CefBrowserSettings& settings,
   } else {
     // Adjust the window size to account for window frame and controls.
     RECT window_rect = start_rect_;
-    ::AdjustWindowRectEx(&window_rect, dwStyle, with_controls_, 0);
+    ::AdjustWindowRectEx(&window_rect, dwStyle, with_controls_, dwExStyle);
 
     x = start_rect_.left;
     y = start_rect_.top;
@@ -352,8 +355,8 @@ void RootWindowWin::CreateRootWindow(const CefBrowserSettings& settings,
   browser_settings_ = settings;
 
   // Create the main window initially hidden.
-  CreateWindow(window_class.c_str(), window_title.c_str(), dwStyle, x, y, width,
-               height, NULL, NULL, hInstance, this);
+  CreateWindowEx(dwExStyle, window_class.c_str(), window_title.c_str(), dwStyle,
+                 x, y, width, height, NULL, NULL, hInstance, this);
   CHECK(hwnd_);
 
   if (!called_enable_non_client_dpi_scaling_ && IsProcessPerMonitorDpiAware()) {

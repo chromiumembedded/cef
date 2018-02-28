@@ -12,8 +12,11 @@
 #include "ui/views/layout/fill_layout.h"
 #include "ui/views/widget/widget.h"
 
-CefWindowDelegateView::CefWindowDelegateView(SkColor background_color)
-    : background_color_(background_color), web_view_(NULL) {}
+CefWindowDelegateView::CefWindowDelegateView(SkColor background_color,
+                                             bool always_on_top)
+    : background_color_(background_color),
+      web_view_(NULL),
+      always_on_top_(always_on_top) {}
 
 void CefWindowDelegateView::Init(gfx::AcceleratedWidget parent_widget,
                                  content::WebContents* web_contents,
@@ -43,6 +46,8 @@ void CefWindowDelegateView::Init(gfx::AcceleratedWidget parent_widget,
   // Cause WidgetDelegate::CanActivate to return true. See comments in
   // CefBrowserHostImpl::PlatformSetFocus.
   params.activatable = views::Widget::InitParams::ACTIVATABLE_YES;
+
+  params.keep_on_top = always_on_top_;
 
   // Results in a call to InitContent().
   widget->Init(params);

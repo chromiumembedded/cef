@@ -21,6 +21,7 @@ static const char* kDefaultImageCache[] = {"menu_icon", "window_icon"};
 
 RootWindowViews::RootWindowViews()
     : with_controls_(false),
+      always_on_top_(false),
       with_extension_(false),
       initially_hidden_(false),
       is_popup_(false),
@@ -42,6 +43,7 @@ void RootWindowViews::Init(RootWindow::Delegate* delegate,
 
   delegate_ = delegate;
   with_controls_ = config.with_controls;
+  always_on_top_ = config.always_on_top;
   with_extension_ = config.with_extension;
   initially_hidden_ = config.initially_hidden;
   if (initially_hidden_ && !config.source_bounds.IsEmpty()) {
@@ -239,6 +241,7 @@ void RootWindowViews::OnViewsWindowCreated(CefRefPtr<ViewsWindow> window) {
   CEF_REQUIRE_UI_THREAD();
   DCHECK(!window_);
   window_ = window;
+  window_->SetAlwaysOnTop(always_on_top_);
 
   if (!pending_extensions_.empty()) {
     window_->OnExtensionsChanged(pending_extensions_);

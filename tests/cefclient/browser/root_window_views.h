@@ -104,6 +104,7 @@ class RootWindowViews : public RootWindow,
   // unless otherwise indicated.
   // Members set during initialization.
   bool with_controls_;
+  bool always_on_top_;
   bool with_extension_;
   bool initially_hidden_;
   CefRefPtr<CefWindow> parent_window_;

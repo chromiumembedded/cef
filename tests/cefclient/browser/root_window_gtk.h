@@ -125,6 +125,7 @@ class RootWindowGtk : public RootWindow, public BrowserWindow::Delegate {
   // After initialization all members are only accessed on the main thread.
   // Members set during initialization.
   bool with_controls_;
+  bool always_on_top_;
   bool with_osr_;
   bool with_extension_;
   bool is_popup_;
