@@ -38,10 +38,10 @@ index 9b0ec7152d34..09a7901bf526 100644
  
  void WebDevToolsAgentImpl::Session::DispatchProtocolMessage(
 diff --git third_party/WebKit/Source/core/frame/LocalFrame.cpp third_party/WebKit/Source/core/frame/LocalFrame.cpp
-index b76797e978da..a784ce63c21d 100644
+index 198244acb3e9..fa3847fcb4d1 100644
 --- third_party/WebKit/Source/core/frame/LocalFrame.cpp
 +++ third_party/WebKit/Source/core/frame/LocalFrame.cpp
-@@ -1084,7 +1084,7 @@ FrameResourceCoordinator* LocalFrame::GetFrameResourceCoordinator() {
+@@ -1088,7 +1088,7 @@ FrameResourceCoordinator* LocalFrame::GetFrameResourceCoordinator() {
  PluginData* LocalFrame::GetPluginData() const {
    if (!Loader().AllowPlugins(kNotAboutToInstantiatePlugin))
      return nullptr;

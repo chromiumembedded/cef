@@ -93,7 +93,7 @@ index 89a41274745c..586864a9d827 100644
  }
  
 diff --git content/browser/frame_host/render_frame_host_impl.cc content/browser/frame_host/render_frame_host_impl.cc
-index 1879ab630973..caf65b0fcf3d 100644
+index bbb9f413e994..5eec7c9e1535 100644
 --- content/browser/frame_host/render_frame_host_impl.cc
 +++ content/browser/frame_host/render_frame_host_impl.cc
 @@ -1517,6 +1517,7 @@ void RenderFrameHostImpl::OnDidFailProvisionalLoadWithError(
@@ -117,19 +117,19 @@ index 1879ab630973..caf65b0fcf3d 100644
      if (subresource_loader_params &&
          subresource_loader_params->loader_factory_info.is_valid()) {
        // If the caller has supplied a default URLLoaderFactory override (for
-@@ -3670,9 +3671,9 @@ void RenderFrameHostImpl::FailedNavigation(
-   // completing an unload handler.
-   ResetWaitingState();
+@@ -3672,9 +3673,9 @@ void RenderFrameHostImpl::FailedNavigation(
  
--  StoragePartitionImpl* storage_partition =
--      static_cast<StoragePartitionImpl*>(BrowserContext::GetStoragePartition(
--          GetSiteInstance()->GetBrowserContext(), GetSiteInstance()));
-+  StoragePartition* storage_partition =
-+      BrowserContext::GetStoragePartition(
-+          GetSiteInstance()->GetBrowserContext(), GetSiteInstance());
+   base::Optional<URLLoaderFactoryBundle> subresource_loader_factories;
+   if (base::FeatureList::IsEnabled(features::kNetworkService)) {
+-    StoragePartitionImpl* storage_partition =
+-        static_cast<StoragePartitionImpl*>(BrowserContext::GetStoragePartition(
+-            GetSiteInstance()->GetBrowserContext(), GetSiteInstance()));
++    StoragePartition* storage_partition =
++        BrowserContext::GetStoragePartition(
++            GetSiteInstance()->GetBrowserContext(), GetSiteInstance());
  
-   network::mojom::URLLoaderFactoryPtr default_factory;
-   if (g_url_loader_factory_callback_for_test.Get().is_null()) {
+     network::mojom::URLLoaderFactoryPtr default_factory;
+     if (g_url_loader_factory_callback_for_test.Get().is_null()) {
 diff --git content/browser/frame_host/render_frame_message_filter.cc content/browser/frame_host/render_frame_message_filter.cc
 index 6e105e13b6c5..99815c49cbc1 100644
 --- content/browser/frame_host/render_frame_message_filter.cc
@@ -377,7 +377,7 @@ index aa77b86eee98..097d26a80aa9 100644
    virtual void FocusedNodeChanged(const blink::WebNode& node) {}
  
 diff --git content/renderer/render_frame_impl.cc content/renderer/render_frame_impl.cc
-index 03f713d5ff94..bb971481bf80 100644
+index 956085eaaf10..d80f38c62dab 100644
 --- content/renderer/render_frame_impl.cc
 +++ content/renderer/render_frame_impl.cc
 @@ -3468,7 +3468,8 @@ blink::WebPlugin* RenderFrameImpl::CreatePlugin(
