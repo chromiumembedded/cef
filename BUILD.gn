@@ -831,7 +831,6 @@ static_library("libcef_static") {
     deps += [
       "//components/crash/content/app",
       "//components/crash/content/browser",
-      "//third_party/crashpad/crashpad/client",
     ]
   }
 
