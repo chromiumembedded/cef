@@ -971,7 +971,7 @@ elif platform == 'linux':
   # yapf: enable
 
   if mode == 'client':
-    binaries.append({'path': 'cefclient'})
+    binaries.append({'path': 'cefsimple'})
 
   # yapf: disable
   resources = [
