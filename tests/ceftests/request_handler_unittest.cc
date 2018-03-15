@@ -2180,14 +2180,46 @@ class CookieAccessTestHandler : public RoutingTestHandler {
     ALLOW = 0,
     BLOCK_READ = 1 << 0,
     BLOCK_WRITE = 1 << 1,
-    BLOCK_ALL = BLOCK_READ | BLOCK_WRITE,
+    BLOCK_READ_WRITE = BLOCK_READ | BLOCK_WRITE,
+    BLOCK_ALL = 1 << 2,
+  };
+
+  class RequestContextHandler : public CefRequestContextHandler {
+   public:
+    explicit RequestContextHandler(CookieAccessTestHandler* handler)
+        : handler_(handler) {}
+
+    CefRefPtr<CefCookieManager> GetCookieManager() override {
+      EXPECT_TRUE(handler_);
+      EXPECT_TRUE(CefCurrentlyOn(TID_IO));
+
+      handler_->got_cookie_manager_.yes();
+      return handler_->cookie_manager_;
+    }
+
+    void Detach() { handler_ = NULL; }
+
+   private:
+    CookieAccessTestHandler* handler_;
+
+    IMPLEMENT_REFCOUNTING(RequestContextHandler);
   };
 
   CookieAccessTestHandler(TestMode test_mode, bool server_backend)
       : test_mode_(test_mode), server_backend_(server_backend) {}
 
   void RunTest() override {
-    cookie_manager_ = CefCookieManager::GetGlobalManager(nullptr);
+    if (test_mode_ == BLOCK_ALL) {
+      cookie_manager_ = CefCookieManager::GetBlockingManager();
+      context_handler_ = new RequestContextHandler(this);
+
+      // Create a request context that uses |context_handler_|.
+      CefRequestContextSettings settings;
+      context_ =
+          CefRequestContext::CreateContext(settings, context_handler_.get());
+    } else {
+      cookie_manager_ = CefCookieManager::GetGlobalManager(nullptr);
+    }
     SetTestTimeout();
 
     CefPostTask(TID_UI,
@@ -2204,88 +2236,130 @@ class CookieAccessTestHandler : public RoutingTestHandler {
     }
 
     cookie_manager_ = NULL;
-
-    // Always get a call to CanSetCookie for the 1st network request due to the
-    // network cookie.
-    EXPECT_TRUE(got_can_set_cookie1_);
-    // Always get a call to CanGetCookies for the 2nd network request due to the
-    // JS cookie.
-    EXPECT_TRUE(got_can_get_cookies2_);
-
-    // Always get the JS cookie via JS.
-    EXPECT_TRUE(got_cookie_js1_);
-    EXPECT_TRUE(got_cookie_js2_);
-    EXPECT_TRUE(got_cookie_js3_);
-
-    // Only get the net cookie via JS if cookie write was allowed.
-    if (test_mode_ & BLOCK_WRITE) {
-      EXPECT_FALSE(got_cookie_net1_);
-      EXPECT_FALSE(got_cookie_net2_);
-      EXPECT_FALSE(got_cookie_net3_);
-    } else {
-      EXPECT_TRUE(got_cookie_net1_);
-      EXPECT_TRUE(got_cookie_net2_);
-      EXPECT_TRUE(got_cookie_net3_);
+    if (context_)
+      context_ = NULL;
+    if (context_handler_) {
+      context_handler_->Detach();
+      context_handler_ = NULL;
     }
 
     // Got both network requests.
     EXPECT_TRUE(data1_.got_request_);
     EXPECT_TRUE(data2_.got_request_);
 
-    // No cookies sent for the 1st network request.
-    EXPECT_FALSE(data1_.got_cookie_js_);
-    EXPECT_FALSE(data1_.got_cookie_net_);
+    if (test_mode_ == BLOCK_ALL) {
+      EXPECT_TRUE(got_cookie_manager_);
 
-    // 2nd network request...
-    if (test_mode_ & BLOCK_READ) {
-      // No cookies sent if reading was blocked.
-      EXPECT_FALSE(data2_.got_cookie_js_);
-      EXPECT_FALSE(data2_.got_cookie_net_);
-    } else if (test_mode_ & BLOCK_WRITE) {
-      // Only JS cookie sent if writing was blocked.
-      EXPECT_TRUE(data2_.got_cookie_js_);
-      EXPECT_FALSE(data2_.got_cookie_net_);
-    } else {
-      // All cookies sent.
-      EXPECT_TRUE(data2_.got_cookie_js_);
-      EXPECT_TRUE(data2_.got_cookie_net_);
-    }
+      // The callback to set the cookie comes before the actual storage fails.
+      EXPECT_TRUE(got_can_set_cookie1_);
 
-    if (!server_backend_) {
-      // No query to get cookies with the 1st network request because none have
-      // been set yet.
+      if (!server_backend_) {
+        // The callback to set the cookie comes before the actual storage fails.
+        EXPECT_TRUE(data1_.got_can_set_cookie_net_);
+      } else {
+        EXPECT_FALSE(data1_.got_can_set_cookie_net_);
+      }
+
+      // No cookies stored anywhere.
+      EXPECT_FALSE(got_can_get_cookies2_);
+      EXPECT_FALSE(got_cookie_js1_);
+      EXPECT_FALSE(got_cookie_js2_);
+      EXPECT_FALSE(got_cookie_js3_);
+      EXPECT_FALSE(got_cookie_net1_);
+      EXPECT_FALSE(got_cookie_net2_);
+      EXPECT_FALSE(got_cookie_net3_);
+      EXPECT_FALSE(data1_.got_cookie_js_);
+      EXPECT_FALSE(data1_.got_cookie_net_);
       EXPECT_FALSE(data1_.got_can_get_cookie_js_);
       EXPECT_FALSE(data1_.got_can_get_cookie_net_);
-
-      // JS cookie is not set via a network request.
       EXPECT_FALSE(data1_.got_can_set_cookie_js_);
+      EXPECT_FALSE(data2_.got_cookie_js_);
+      EXPECT_FALSE(data2_.got_cookie_net_);
+      EXPECT_FALSE(data2_.got_can_get_cookie_js_);
+      EXPECT_FALSE(data2_.got_can_get_cookie_net_);
       EXPECT_FALSE(data2_.got_can_set_cookie_js_);
-
-      // No query to set the net cookie for the 1st network request if write was
-      // blocked.
-      if (test_mode_ & BLOCK_WRITE) {
-        EXPECT_FALSE(data1_.got_can_set_cookie_net_);
-      } else {
-        EXPECT_TRUE(data1_.got_can_set_cookie_net_);
-      }
-
-      // Net cookie is not set via the 2nd network request.
       EXPECT_FALSE(data2_.got_can_set_cookie_net_);
+    } else {
+      EXPECT_FALSE(got_cookie_manager_);
 
-      // No query to get the JS cookie for the 2nd network request if read was
-      // blocked.
-      if (test_mode_ & BLOCK_READ) {
-        EXPECT_FALSE(data2_.got_can_get_cookie_js_);
+      // Always get a call to CanSetCookie for the 1st network request due to
+      // the network cookie.
+      EXPECT_TRUE(got_can_set_cookie1_);
+      // Always get a call to CanGetCookies for the 2nd network request due to
+      // the JS cookie.
+      EXPECT_TRUE(got_can_get_cookies2_);
+
+      // Always get the JS cookie via JS.
+      EXPECT_TRUE(got_cookie_js1_);
+      EXPECT_TRUE(got_cookie_js2_);
+      EXPECT_TRUE(got_cookie_js3_);
+
+      // Only get the net cookie via JS if cookie write was allowed.
+      if (test_mode_ & BLOCK_WRITE) {
+        EXPECT_FALSE(got_cookie_net1_);
+        EXPECT_FALSE(got_cookie_net2_);
+        EXPECT_FALSE(got_cookie_net3_);
       } else {
-        EXPECT_TRUE(data2_.got_can_get_cookie_js_);
+        EXPECT_TRUE(got_cookie_net1_);
+        EXPECT_TRUE(got_cookie_net2_);
+        EXPECT_TRUE(got_cookie_net3_);
       }
 
-      // No query to get the net cookie for the 2nd network request if read or
-      // write (of the net cookie) was blocked.
-      if (test_mode_ & (BLOCK_READ | BLOCK_WRITE)) {
-        EXPECT_FALSE(data2_.got_can_get_cookie_net_);
+      // No cookies sent for the 1st network request.
+      EXPECT_FALSE(data1_.got_cookie_js_);
+      EXPECT_FALSE(data1_.got_cookie_net_);
+
+      // 2nd network request...
+      if (test_mode_ & BLOCK_READ) {
+        // No cookies sent if reading was blocked.
+        EXPECT_FALSE(data2_.got_cookie_js_);
+        EXPECT_FALSE(data2_.got_cookie_net_);
+      } else if (test_mode_ & BLOCK_WRITE) {
+        // Only JS cookie sent if writing was blocked.
+        EXPECT_TRUE(data2_.got_cookie_js_);
+        EXPECT_FALSE(data2_.got_cookie_net_);
       } else {
-        EXPECT_TRUE(data2_.got_can_get_cookie_net_);
+        // All cookies sent.
+        EXPECT_TRUE(data2_.got_cookie_js_);
+        EXPECT_TRUE(data2_.got_cookie_net_);
+      }
+
+      if (!server_backend_) {
+        // No query to get cookies with the 1st network request because none
+        // have been set yet.
+        EXPECT_FALSE(data1_.got_can_get_cookie_js_);
+        EXPECT_FALSE(data1_.got_can_get_cookie_net_);
+
+        // JS cookie is not set via a network request.
+        EXPECT_FALSE(data1_.got_can_set_cookie_js_);
+        EXPECT_FALSE(data2_.got_can_set_cookie_js_);
+
+        // No query to set the net cookie for the 1st network request if write
+        // was blocked.
+        if (test_mode_ & BLOCK_WRITE) {
+          EXPECT_FALSE(data1_.got_can_set_cookie_net_);
+        } else {
+          EXPECT_TRUE(data1_.got_can_set_cookie_net_);
+        }
+
+        // Net cookie is not set via the 2nd network request.
+        EXPECT_FALSE(data2_.got_can_set_cookie_net_);
+
+        // No query to get the JS cookie for the 2nd network request if read was
+        // blocked.
+        if (test_mode_ & BLOCK_READ) {
+          EXPECT_FALSE(data2_.got_can_get_cookie_js_);
+        } else {
+          EXPECT_TRUE(data2_.got_can_get_cookie_js_);
+        }
+
+        // No query to get the net cookie for the 2nd network request if read or
+        // write (of the net cookie) was blocked.
+        if (test_mode_ & (BLOCK_READ | BLOCK_WRITE)) {
+          EXPECT_FALSE(data2_.got_can_get_cookie_net_);
+        } else {
+          EXPECT_TRUE(data2_.got_can_get_cookie_net_);
+        }
       }
     }
 
@@ -2413,8 +2487,13 @@ class CookieAccessTestHandler : public RoutingTestHandler {
     // Add the factory registration.
     scheme_factory_ = new CookieAccessSchemeHandlerFactory();
     AddResponses(scheme_factory_.get());
-    CefRegisterSchemeHandlerFactory(kCookieAccessScheme, kCookieAccessDomain,
-                                    scheme_factory_.get());
+    if (context_) {
+      context_->RegisterSchemeHandlerFactory(
+          kCookieAccessScheme, kCookieAccessDomain, scheme_factory_.get());
+    } else {
+      CefRegisterSchemeHandlerFactory(kCookieAccessScheme, kCookieAccessDomain,
+                                      scheme_factory_.get());
+    }
 
     complete_callback.Run();
   }
@@ -2426,7 +2505,7 @@ class CookieAccessTestHandler : public RoutingTestHandler {
       return;
     }
 
-    CreateBrowser(GetCookieAccessUrl1(server_backend_));
+    CreateBrowser(GetCookieAccessUrl1(server_backend_), context_);
   }
 
   void FinishTest() {
@@ -2487,14 +2566,21 @@ class CookieAccessTestHandler : public RoutingTestHandler {
   void ShutdownSchemeHandler(const base::Closure& complete_callback) {
     EXPECT_TRUE(scheme_factory_);
 
-    CefRegisterSchemeHandlerFactory(kCookieAccessScheme, kCookieAccessDomain,
-                                    nullptr);
+    if (context_) {
+      context_->RegisterSchemeHandlerFactory(kCookieAccessScheme,
+                                             kCookieAccessDomain, nullptr);
+    } else {
+      CefRegisterSchemeHandlerFactory(kCookieAccessScheme, kCookieAccessDomain,
+                                      nullptr);
+    }
     scheme_factory_->Shutdown(complete_callback);
     scheme_factory_ = nullptr;
   }
 
   TestMode test_mode_;
   bool server_backend_;
+  CefRefPtr<RequestContextHandler> context_handler_;
+  CefRefPtr<CefRequestContext> context_;
   CefRefPtr<CefCookieManager> cookie_manager_;
 
   CefRefPtr<CookieAccessServerHandler> server_handler_;
@@ -2502,6 +2588,8 @@ class CookieAccessTestHandler : public RoutingTestHandler {
 
   CookieAccessData data1_;
   CookieAccessData data2_;
+
+  TrackCallback got_cookie_manager_;
 
   // 1st request.
   TrackCallback got_can_set_cookie1_;
@@ -2548,6 +2636,14 @@ TEST(RequestHandlerTest, CookieAccessServerBlockWrite) {
 }
 
 // Block reading and writing of cookies with server backend.
+TEST(RequestHandlerTest, CookieAccessServerBlockReadWrite) {
+  CefRefPtr<CookieAccessTestHandler> handler = new CookieAccessTestHandler(
+      CookieAccessTestHandler::BLOCK_READ_WRITE, true);
+  handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
+}
+
+// Block all cookies with server backend.
 TEST(RequestHandlerTest, CookieAccessServerBlockAll) {
   CefRefPtr<CookieAccessTestHandler> handler =
       new CookieAccessTestHandler(CookieAccessTestHandler::BLOCK_ALL, true);
@@ -2580,6 +2676,14 @@ TEST(RequestHandlerTest, CookieAccessSchemeBlockWrite) {
 }
 
 // Block reading and writing of cookies with scheme handler backend.
+TEST(RequestHandlerTest, CookieAccessSchemeBlockReadWrite) {
+  CefRefPtr<CookieAccessTestHandler> handler = new CookieAccessTestHandler(
+      CookieAccessTestHandler::BLOCK_READ_WRITE, false);
+  handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
+}
+
+// Block all cookies with scheme handler backend.
 TEST(RequestHandlerTest, CookieAccessSchemeBlockAll) {
   CefRefPtr<CookieAccessTestHandler> handler =
       new CookieAccessTestHandler(CookieAccessTestHandler::BLOCK_ALL, false);

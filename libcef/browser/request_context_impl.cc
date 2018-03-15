@@ -293,7 +293,8 @@ CefString CefRequestContextImpl::GetCachePath() {
 
 CefRefPtr<CefCookieManager> CefRequestContextImpl::GetDefaultCookieManager(
     CefRefPtr<CefCompletionCallback> callback) {
-  CefRefPtr<CefCookieManagerImpl> cookie_manager = new CefCookieManagerImpl();
+  CefRefPtr<CefCookieManagerImpl> cookie_manager =
+      new CefCookieManagerImpl(false);
   cookie_manager->Initialize(this, CefString(), false, callback);
   return cookie_manager.get();
 }

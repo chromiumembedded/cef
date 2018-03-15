@@ -18,10 +18,11 @@
 // Implementation of the CefCookieManager interface.
 class CefCookieManagerImpl : public CefCookieManager {
  public:
-  CefCookieManagerImpl();
+  explicit CefCookieManagerImpl(bool is_blocking);
   ~CefCookieManagerImpl() override;
 
-  // Must be called immediately after this object is created.
+  // Must be called immediately after this object is created when |is_blocking|
+  // is false.
   void Initialize(CefRefPtr<CefRequestContextImpl> request_context,
                   const CefString& path,
                   bool persist_session_cookies,
@@ -112,6 +113,9 @@ class CefCookieManagerImpl : public CefCookieManager {
                              const CookieStoreGetter& cookie_store_getter);
   void FlushStoreInternal(CefRefPtr<CefCompletionCallback> callback,
                           const CookieStoreGetter& cookie_store_getter);
+
+  // If true all cookies will be blocked.
+  const bool is_blocking_;
 
   // Used for cookie monsters owned by the context.
   CefRefPtr<CefRequestContextImpl> request_context_;
