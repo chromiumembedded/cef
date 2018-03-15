@@ -120,7 +120,8 @@ net::CookieStore* GetExistingCookieStoreHelper(
 
 }  // namespace
 
-CefCookieManagerImpl::CefCookieManagerImpl() : weak_ptr_factory_(this) {}
+CefCookieManagerImpl::CefCookieManagerImpl(bool is_blocking)
+    : is_blocking_(is_blocking), weak_ptr_factory_(this) {}
 
 CefCookieManagerImpl::~CefCookieManagerImpl() {
   CEF_REQUIRE_IOT();
@@ -131,6 +132,7 @@ void CefCookieManagerImpl::Initialize(
     const CefString& path,
     bool persist_session_cookies,
     CefRefPtr<CefCompletionCallback> callback) {
+  CHECK(!is_blocking_);
   if (request_context.get()) {
     request_context_ = request_context;
     request_context_->GetRequestContextImpl(
@@ -160,7 +162,7 @@ void CefCookieManagerImpl::GetCookieStore(
     return;
   }
 
-  DCHECK(cookie_store_.get());
+  DCHECK(is_blocking_ || cookie_store_.get());
 
   // Binding ref-counted |this| to CookieStoreGetter may result in
   // heap-use-after-free if (a) the CookieStoreGetter contains the last
@@ -192,7 +194,9 @@ net::CookieStore* CefCookieManagerImpl::GetExistingCookieStore() {
     return cookie_store;
   }
 
-  LOG(ERROR) << "Cookie store does not exist";
+  DCHECK(is_blocking_);
+  if (!is_blocking_)
+    LOG(ERROR) << "Cookie store does not exist";
   return nullptr;
 }
 
@@ -495,12 +499,11 @@ void CefCookieManagerImpl::SetSupportedSchemesInternal(
     return;
   }
 
-  DCHECK(cookie_store_.get());
-  if (!cookie_store_.get())
-    return;
-
-  supported_schemes_ = schemes;
-  SetCookieMonsterSchemes(cookie_store_.get(), supported_schemes_);
+  DCHECK(is_blocking_ || cookie_store_.get());
+  if (cookie_store_) {
+    supported_schemes_ = schemes;
+    SetCookieMonsterSchemes(cookie_store_.get(), supported_schemes_);
+  }
 
   RunAsyncCompletionOnIOThread(callback);
 }
@@ -552,8 +555,13 @@ void CefCookieManagerImpl::SetCookieInternal(
   CEF_REQUIRE_IOT();
 
   net::CookieStore* cookie_store = cookie_store_getter.Run();
-  if (!cookie_store)
+  if (!cookie_store) {
+    if (callback.get()) {
+      CEF_POST_TASK(CEF_IOT, base::Bind(&CefSetCookieCallback::OnComplete,
+                                        callback.get(), false));
+    }
     return;
+  }
 
   std::string name = CefString(&cookie.name).ToString();
   std::string value = CefString(&cookie.value).ToString();
@@ -584,8 +592,13 @@ void CefCookieManagerImpl::DeleteCookiesInternal(
   CEF_REQUIRE_IOT();
 
   net::CookieStore* cookie_store = cookie_store_getter.Run();
-  if (!cookie_store)
+  if (!cookie_store) {
+    if (callback.get()) {
+      CEF_POST_TASK(CEF_IOT, base::Bind(&CefDeleteCookiesCallback::OnComplete,
+                                        callback.get(), 0));
+    }
     return;
+  }
 
   if (url.is_empty()) {
     // Delete all cookies.
@@ -610,8 +623,10 @@ void CefCookieManagerImpl::FlushStoreInternal(
   CEF_REQUIRE_IOT();
 
   net::CookieStore* cookie_store = cookie_store_getter.Run();
-  if (!cookie_store)
+  if (!cookie_store) {
+    RunAsyncCompletionOnIOThread(callback);
     return;
+  }
 
   cookie_store->FlushStore(base::Bind(RunAsyncCompletionOnIOThread, callback));
 }
@@ -632,6 +647,11 @@ CefRefPtr<CefCookieManager> CefCookieManager::GetGlobalManager(
 }
 
 // static
+CefRefPtr<CefCookieManager> CefCookieManager::GetBlockingManager() {
+  return new CefCookieManagerImpl(true);
+}
+
+// static
 CefRefPtr<CefCookieManager> CefCookieManager::CreateManager(
     const CefString& path,
     bool persist_session_cookies,
@@ -642,7 +662,8 @@ CefRefPtr<CefCookieManager> CefCookieManager::CreateManager(
     return NULL;
   }
 
-  CefRefPtr<CefCookieManagerImpl> cookie_manager = new CefCookieManagerImpl();
+  CefRefPtr<CefCookieManagerImpl> cookie_manager =
+      new CefCookieManagerImpl(false);
   cookie_manager->Initialize(NULL, path, persist_session_cookies, callback);
   return cookie_manager.get();
 }

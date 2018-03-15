@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=5a754788197bd0d5e1e18db5dc1643285baa848f$
+// $hash=5a5ae9a4567ba338efa8477ba1dc53435ada8c6b$
 //
 
 #include "libcef_dll/ctocpp/cookie_manager_ctocpp.h"
@@ -30,6 +30,16 @@ CefRefPtr<CefCookieManager> CefCookieManager::GetGlobalManager(
   // Execute
   cef_cookie_manager_t* _retval = cef_cookie_manager_get_global_manager(
       CefCompletionCallbackCppToC::Wrap(callback));
+
+  // Return type: refptr_same
+  return CefCookieManagerCToCpp::Wrap(_retval);
+}
+
+CefRefPtr<CefCookieManager> CefCookieManager::GetBlockingManager() {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  cef_cookie_manager_t* _retval = cef_cookie_manager_get_blocking_manager();
 
   // Return type: refptr_same
   return CefCookieManagerCToCpp::Wrap(_retval);

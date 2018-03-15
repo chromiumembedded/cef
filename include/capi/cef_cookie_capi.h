@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=e0605a0c9918e225b9282b6d5e6138a7d697945b$
+// $hash=00e6d1aa80d5998d89cc272dcb199cde0add12fa$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_COOKIE_CAPI_H_
@@ -158,6 +158,16 @@ typedef struct _cef_cookie_manager_t {
 ///
 CEF_EXPORT cef_cookie_manager_t* cef_cookie_manager_get_global_manager(
     struct _cef_completion_callback_t* callback);
+
+///
+// Returns a cookie manager that neither stores nor retrieves cookies. All usage
+// of cookies will be blocked including cookies accessed via the network
+// (request/response headers), via JavaScript (document.cookie), and via
+// cef_cookie_manager_t functions. No cookies will be displayed in DevTools. If
+// you wish to only block cookies sent via the network use the
+// cef_request_tHandler CanGetCookies and CanSetCookie functions instead.
+///
+CEF_EXPORT cef_cookie_manager_t* cef_cookie_manager_get_blocking_manager();
 
 ///
 // Creates a new cookie manager. If |path| is NULL data will be stored in memory
