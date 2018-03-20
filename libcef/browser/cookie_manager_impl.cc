@@ -303,7 +303,10 @@ bool CefCookieManagerImpl::SetStoragePath(
       const base::FilePath& cookie_path = new_path.AppendASCII("Cookies");
       persistent_store = new net::SQLitePersistentCookieStore(
           cookie_path, BrowserThread::GetTaskRunnerForThread(BrowserThread::IO),
-          BrowserThread::GetTaskRunnerForThread(BrowserThread::DB),
+          // Intentionally using the background task runner exposed by CEF to
+          // facilitate unit test expectations. This task runner MUST be
+          // configured with BLOCK_SHUTDOWN.
+          CefContentBrowserClient::Get()->background_task_runner(),
           persist_session_cookies, NULL);
     } else {
       NOTREACHED() << "The cookie storage directory could not be created";

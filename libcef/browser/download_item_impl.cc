@@ -6,11 +6,11 @@
 
 #include "libcef/common/time_util.h"
 
-#include "content/public/browser/download_item.h"
+#include "components/download/public/common/download_item.h"
 #include "url/gurl.h"
 
-CefDownloadItemImpl::CefDownloadItemImpl(content::DownloadItem* value)
-    : CefValueBase<CefDownloadItem, content::DownloadItem>(
+CefDownloadItemImpl::CefDownloadItemImpl(download::DownloadItem* value)
+    : CefValueBase<CefDownloadItem, download::DownloadItem>(
           value,
           NULL,
           kOwnerNoDelete,
@@ -26,17 +26,17 @@ bool CefDownloadItemImpl::IsValid() {
 
 bool CefDownloadItemImpl::IsInProgress() {
   CEF_VALUE_VERIFY_RETURN(false, false);
-  return const_value().GetState() == content::DownloadItem::IN_PROGRESS;
+  return const_value().GetState() == download::DownloadItem::IN_PROGRESS;
 }
 
 bool CefDownloadItemImpl::IsComplete() {
   CEF_VALUE_VERIFY_RETURN(false, false);
-  return const_value().GetState() == content::DownloadItem::COMPLETE;
+  return const_value().GetState() == download::DownloadItem::COMPLETE;
 }
 
 bool CefDownloadItemImpl::IsCanceled() {
   CEF_VALUE_VERIFY_RETURN(false, false);
-  return const_value().GetState() == content::DownloadItem::CANCELLED;
+  return const_value().GetState() == download::DownloadItem::CANCELLED;
 }
 
 int64 CefDownloadItemImpl::GetCurrentSpeed() {

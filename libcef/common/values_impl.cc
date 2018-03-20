@@ -1109,7 +1109,7 @@ bool CefListValueImpl::SetSize(size_t size) {
       RemoveInternal(i);
   } else if (size > 0) {
     // Expand the list size.
-    mutable_value()->Set(size - 1, base::MakeUnique<base::Value>());
+    mutable_value()->Set(size - 1, std::make_unique<base::Value>());
   }
   return true;
 }

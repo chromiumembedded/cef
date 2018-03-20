@@ -202,7 +202,8 @@ CefRefPtr<CefFrame> CefBrowserImpl::GetFrame(const CefString& name) {
 
   blink::WebView* web_view = render_view()->GetWebView();
   if (web_view) {
-    const blink::WebString& frame_name = blink::WebString::FromUTF16(name);
+    const blink::WebString& frame_name =
+        blink::WebString::FromUTF16(name.ToString16());
     // Search by assigned frame name (Frame::name).
     WebFrame* frame = web_view->MainFrame();
     if (frame && frame->IsWebLocalFrame())

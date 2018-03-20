@@ -17,30 +17,31 @@ index 8088169f0434..47cf612db044 100644
                                                          .Top()
                                                          .GetSecurityContext()
 diff --git third_party/WebKit/Source/core/exported/WebDevToolsAgentImpl.cpp third_party/WebKit/Source/core/exported/WebDevToolsAgentImpl.cpp
-index 0fa2449c7f1c..8adf2d575e66 100644
+index 647da1f97f5c..4ef9014aecd9 100644
 --- third_party/WebKit/Source/core/exported/WebDevToolsAgentImpl.cpp
 +++ third_party/WebKit/Source/core/exported/WebDevToolsAgentImpl.cpp
-@@ -329,6 +329,7 @@ WebDevToolsAgentImpl::Session::Session(
-   host_ptr_.Bind(std::move(host_ptr_info));
-   host_ptr_.set_connection_error_handler(WTF::Bind(
+@@ -322,6 +322,8 @@ WebDevToolsAgentImpl::Session::Session(
        &WebDevToolsAgentImpl::Session::Detach, WrapWeakPersistent(this)));
+ 
+   InitializeInspectorSession(reattach_state);
++
 +  Platform::Current()->DevToolsAgentAttached();
  }
  
- void WebDevToolsAgentImpl::Session::Trace(blink::Visitor* visitor) {
-@@ -347,6 +348,7 @@ void WebDevToolsAgentImpl::Session::Detach() {
+ WebDevToolsAgentImpl::Session::~Session() {
+@@ -347,6 +349,7 @@ void WebDevToolsAgentImpl::Session::Detach() {
    io_session_->DeleteSoon();
    io_session_ = nullptr;
    inspector_session_->Dispose();
 +  Platform::Current()->DevToolsAgentDetached();
  }
  
- void WebDevToolsAgentImpl::Session::DispatchProtocolMessage(
+ void WebDevToolsAgentImpl::Session::SendProtocolResponse(int session_id,
 diff --git third_party/WebKit/Source/core/frame/LocalFrame.cpp third_party/WebKit/Source/core/frame/LocalFrame.cpp
-index b76797e978da..a784ce63c21d 100644
+index d300bba78132..48ca90b83fd6 100644
 --- third_party/WebKit/Source/core/frame/LocalFrame.cpp
 +++ third_party/WebKit/Source/core/frame/LocalFrame.cpp
-@@ -1084,7 +1084,7 @@ FrameResourceCoordinator* LocalFrame::GetFrameResourceCoordinator() {
+@@ -1132,7 +1132,7 @@ FrameResourceCoordinator* LocalFrame::GetFrameResourceCoordinator() {
  PluginData* LocalFrame::GetPluginData() const {
    if (!Loader().AllowPlugins(kNotAboutToInstantiatePlugin))
      return nullptr;
@@ -50,7 +51,7 @@ index b76797e978da..a784ce63c21d 100644
  }
  
 diff --git third_party/WebKit/Source/core/page/Page.cpp third_party/WebKit/Source/core/page/Page.cpp
-index b864a731dc65..7fc8a6c023f1 100644
+index 2cedf7285afd..f3690511ceda 100644
 --- third_party/WebKit/Source/core/page/Page.cpp
 +++ third_party/WebKit/Source/core/page/Page.cpp
 @@ -148,7 +148,8 @@ Page::Page(PageClients& page_clients)
@@ -188,10 +189,10 @@ index bdd586bd9621..13efebb33a49 100644
  
    bool SupportsMimeType(const String& mime_type) const;
 diff --git third_party/WebKit/public/platform/Platform.h third_party/WebKit/public/platform/Platform.h
-index cc2a721a6ea3..2a843527f9d7 100644
+index d6ce9d31e241..93d4c32b656a 100644
 --- third_party/WebKit/public/platform/Platform.h
 +++ third_party/WebKit/public/platform/Platform.h
-@@ -376,6 +376,7 @@ class BLINK_PLATFORM_EXPORT Platform {
+@@ -383,6 +383,7 @@ class BLINK_PLATFORM_EXPORT Platform {
    // satisfy this call. mainFrameOrigin is used by the browser process to
    // filter plugins from the plugin list based on content settings.
    virtual void GetPluginList(bool refresh,
@@ -199,7 +200,7 @@ index cc2a721a6ea3..2a843527f9d7 100644
                               const WebSecurityOrigin& main_frame_origin,
                               WebPluginListBuilder*) {}
  
-@@ -748,6 +749,11 @@ class BLINK_PLATFORM_EXPORT Platform {
+@@ -746,6 +747,11 @@ class BLINK_PLATFORM_EXPORT Platform {
    // runs during Chromium's build step).
    virtual bool IsTakingV8ContextSnapshot() { return false; }
  

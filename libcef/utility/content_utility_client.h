@@ -11,7 +11,11 @@
 
 #include "content/public/utility/content_utility_client.h"
 
-class UtilityMessageHandler;
+#if defined(OS_WIN)
+namespace printing {
+class PrintingHandler;
+}
+#endif
 
 class CefContentUtilityClient : public content::ContentUtilityClient {
  public:
@@ -23,8 +27,9 @@ class CefContentUtilityClient : public content::ContentUtilityClient {
   void RegisterServices(StaticServiceMap* services) override;
 
  private:
-  using Handlers = std::vector<std::unique_ptr<UtilityMessageHandler>>;
-  Handlers handlers_;
+#if defined(OS_WIN)
+  std::unique_ptr<printing::PrintingHandler> printing_handler_;
+#endif
 
   DISALLOW_COPY_AND_ASSIGN(CefContentUtilityClient);
 };

@@ -196,7 +196,8 @@ bool CefDOMNodeImpl::SetValue(const CefString& value) {
   if (node_.IsElementNode())
     return false;
 
-  return webkit_glue::SetNodeValue(node_, WebString::FromUTF16(value));
+  return webkit_glue::SetNodeValue(node_,
+                                   WebString::FromUTF16(value.ToString16()));
 }
 
 CefString CefDOMNodeImpl::GetAsMarkup() {
@@ -301,7 +302,7 @@ bool CefDOMNodeImpl::HasElementAttribute(const CefString& attrName) {
   }
 
   const WebElement& element = node_.ToConst<blink::WebElement>();
-  return element.HasAttribute(WebString::FromUTF16(attrName));
+  return element.HasAttribute(WebString::FromUTF16(attrName.ToString16()));
 }
 
 CefString CefDOMNodeImpl::GetElementAttribute(const CefString& attrName) {
@@ -315,7 +316,8 @@ CefString CefDOMNodeImpl::GetElementAttribute(const CefString& attrName) {
   }
 
   const WebElement& element = node_.ToConst<blink::WebElement>();
-  const WebString& attr = element.GetAttribute(WebString::FromUTF16(attrName));
+  const WebString& attr =
+      element.GetAttribute(WebString::FromUTF16(attrName.ToString16()));
   if (!attr.IsNull())
     str = attr.Utf16();
 
@@ -354,8 +356,8 @@ bool CefDOMNodeImpl::SetElementAttribute(const CefString& attrName,
   }
 
   WebElement element = node_.To<blink::WebElement>();
-  element.SetAttribute(WebString::FromUTF16(attrName),
-                       WebString::FromUTF16(value));
+  element.SetAttribute(WebString::FromUTF16(attrName.ToString16()),
+                       WebString::FromUTF16(value.ToString16()));
   return true;
 }
 

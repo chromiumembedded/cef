@@ -56,6 +56,7 @@
 #include "components/printing/renderer/print_render_frame_helper.h"
 #include "components/spellcheck/renderer/spellcheck.h"
 #include "components/spellcheck/renderer/spellcheck_provider.h"
+#include "components/startup_metric_utils/common/startup_metric.mojom.h"
 #include "components/visitedlink/renderer/visitedlink_slave.h"
 #include "components/web_cache/renderer/web_cache_impl.h"
 #include "content/common/frame_messages.h"
@@ -76,7 +77,8 @@
 #include "printing/print_settings.h"
 #include "services/service_manager/public/cpp/connector.h"
 #include "services/service_manager/public/cpp/interface_provider.h"
-#include "third_party/WebKit/common/associated_interfaces/associated_interface_provider.h"
+#include "services/service_manager/public/cpp/service_context.h"
+#include "third_party/WebKit/public/common/associated_interfaces/associated_interface_provider.h"
 #include "third_party/WebKit/public/platform/Platform.h"
 #include "third_party/WebKit/public/platform/URLConversion.h"
 #include "third_party/WebKit/public/platform/WebPrerenderingSupport.h"
@@ -152,7 +154,8 @@ class CefGuestView : public content::RenderViewObserver {
 };
 
 CefContentRendererClient::CefContentRendererClient()
-    : devtools_agent_count_(0),
+    : main_entry_time_(base::TimeTicks::Now()),
+      devtools_agent_count_(0),
       uncaught_exception_stack_size_(0),
       single_process_cleanup_complete_(false) {
   if (extensions::ExtensionsEnabled()) {
@@ -356,12 +359,18 @@ void CefContentRendererClient::RenderThreadStarted() {
           ? blink::scheduler::RendererProcessType::kExtensionRenderer
           : blink::scheduler::RendererProcessType::kRenderer);
 
+  {
+    startup_metric_utils::mojom::StartupMetricHostPtr startup_metric_host;
+    GetConnector()->BindInterface(chrome::mojom::kServiceName,
+                                  &startup_metric_host);
+    startup_metric_host->RecordRendererMainEntryTime(main_entry_time_);
+  }
+
   thread->AddObserver(observer_.get());
   thread->GetChannel()->AddFilter(new CefRenderMessageFilter);
 
   if (!command_line->HasSwitch(switches::kDisableSpellChecking)) {
-    spellcheck_.reset(new SpellCheck(this));
-    thread->AddObserver(spellcheck_.get());
+    spellcheck_ = std::make_unique<SpellCheck>(&registry_, this);
   }
 
   if (content::RenderProcessHost::run_renderer_in_process()) {
@@ -574,10 +583,28 @@ void CefContentRendererClient::DevToolsAgentDetached() {
   }
 }
 
+void CefContentRendererClient::CreateRendererService(
+    service_manager::mojom::ServiceRequest service_request) {
+  service_context_ = std::make_unique<service_manager::ServiceContext>(
+      std::make_unique<service_manager::ForwardingService>(this),
+      std::move(service_request));
+}
+
+void CefContentRendererClient::OnStart() {
+  context()->connector()->BindConnectorRequest(std::move(connector_request_));
+}
+
+void CefContentRendererClient::OnBindInterface(
+    const service_manager::BindSourceInfo& remote_info,
+    const std::string& name,
+    mojo::ScopedMessagePipeHandle handle) {
+  registry_.TryBindInterface(name, &handle);
+}
+
 void CefContentRendererClient::GetInterface(
     const std::string& interface_name,
     mojo::ScopedMessagePipeHandle interface_pipe) {
-  content::RenderThread::Get()->GetConnector()->BindInterface(
+  connector_->BindInterface(
       service_manager::Identity(chrome::mojom::kServiceName), interface_name,
       std::move(interface_pipe));
 }
@@ -613,7 +640,7 @@ void CefContentRendererClient::BrowserCreated(
   if (params.is_guest_view) {
     // Don't create a CefBrowser for guest views.
     guest_views_.insert(std::make_pair(
-        render_view, base::MakeUnique<CefGuestView>(render_view)));
+        render_view, std::make_unique<CefGuestView>(render_view)));
     return;
   }
 
@@ -667,6 +694,12 @@ void CefContentRendererClient::RunSingleProcessCleanupOnUIThread() {
   // we need to explicitly delete the object when not running in this mode.
   if (!CefContext::Get()->settings().multi_threaded_message_loop)
     delete host;
+}
+
+service_manager::Connector* CefContentRendererClient::GetConnector() {
+  if (!connector_)
+    connector_ = service_manager::Connector::Create(&connector_request_);
+  return connector_.get();
 }
 
 // Enable deprecation warnings for MSVC. See http://crbug.com/585142.

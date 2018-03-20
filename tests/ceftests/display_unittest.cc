@@ -176,14 +176,9 @@ class AutoResizeTestHandler : public RoutingTestHandler {
 
   bool OnAutoResize(CefRefPtr<CefBrowser> browser,
                     const CefSize& new_size) override {
-#if !defined(OS_MACOSX)
-    if (!got_auto_resize0_) {
-      got_auto_resize0_.yes();
-      EXPECT_EQ(16, new_size.width);
-      EXPECT_EQ(10, new_size.height);
-    } else
-#endif
-        if (!got_auto_resize1_) {
+    if (new_size.width == 16 && new_size.height == 10) {
+      // Ignore this initial resize that may or may not occur.
+    } else if (!got_auto_resize1_) {
       got_auto_resize1_.yes();
       EXPECT_EQ(50, new_size.width);
       EXPECT_EQ(18, new_size.height);
@@ -227,9 +222,6 @@ class AutoResizeTestHandler : public RoutingTestHandler {
   }
 
   void DestroyTest() override {
-#if !defined(OS_MACOSX)
-    EXPECT_TRUE(got_auto_resize0_);
-#endif
     EXPECT_TRUE(got_auto_resize1_);
     EXPECT_TRUE(got_auto_resize2_);
     EXPECT_TRUE(got_done_message_);
@@ -237,7 +229,6 @@ class AutoResizeTestHandler : public RoutingTestHandler {
   }
 
  private:
-  TrackCallback got_auto_resize0_;
   TrackCallback got_auto_resize1_;
   TrackCallback got_auto_resize2_;
   TrackCallback got_done_message_;

@@ -41,14 +41,6 @@ gfx::NativeWindow CefWebContentsViewOSR::GetTopLevelNativeWindow() const {
   return gfx::NativeWindow();
 }
 
-void CefWebContentsViewOSR::GetScreenInfo(content::ScreenInfo* results) const {
-  CefRenderWidgetHostViewOSR* view = GetView();
-  if (view)
-    view->GetScreenInfo(results);
-  else
-    WebContentsView::GetDefaultScreenInfo(results);
-}
-
 void CefWebContentsViewOSR::GetContainerBounds(gfx::Rect* out) const {
   *out = GetViewBounds();
 }

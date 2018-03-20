@@ -272,7 +272,7 @@ std::unique_ptr<net::SourceStream> CefNetworkDelegate::CreateSourceStream(
   }
 
   if (cef_filter && cef_filter->InitFilter())
-    return base::MakeUnique<CefSourceStream>(cef_filter, std::move(upstream));
+    return std::make_unique<CefSourceStream>(cef_filter, std::move(upstream));
 
   return upstream;
 }

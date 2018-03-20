@@ -1,29 +1,29 @@
 diff --git build/config/compiler/BUILD.gn build/config/compiler/BUILD.gn
-index 2673c6a79889..ca5726966ac0 100644
+index 9a10137aa405..6dd8033a0b33 100644
 --- build/config/compiler/BUILD.gn
 +++ build/config/compiler/BUILD.gn
-@@ -443,7 +443,7 @@ config("compiler") {
-     # chromeos binutils has been patched with the fix, so always use icf there.
-     # The bug only affects x86 and x64, so we can still use ICF when targeting
-     # other architectures.
--    if ((!is_android && linux_use_bundled_binutils) || is_chromeos ||
-+    if ((!is_android && linux_use_bundled_binutils && current_cpu != "x86") || is_chromeos ||
-         !(current_cpu == "x86" || current_cpu == "x64")) {
-       ldflags += [ "-Wl,--icf=all" ]
-     }
+@@ -137,7 +137,7 @@ declare_args() {
+       is_posix && !using_sanitizer && !(is_android && use_order_profiling) &&
+       ((use_lld && !is_nacl) ||
+        (use_gold &&
+-        ((!is_android && linux_use_bundled_binutils) || is_chromeos ||
++        ((!is_android && linux_use_bundled_binutils && current_cpu != "x86") || is_chromeos ||
+          !(current_cpu == "x86" || current_cpu == "x64"))))
+ }
+ 
 diff --git chrome/browser/ui/libgtkui/gtk_util.cc chrome/browser/ui/libgtkui/gtk_util.cc
-index fc6ffb9d..f6c22e5 100644
+index 96f8c0e71472..49c462b37e12 100644
 --- chrome/browser/ui/libgtkui/gtk_util.cc
 +++ chrome/browser/ui/libgtkui/gtk_util.cc
-@@ -56,6 +56,7 @@ void CommonInitFromCommandLine(const base::CommandLine& command_line,
-   }
+@@ -237,6 +237,7 @@ float GetDeviceScaleFactor() {
+   return linux_ui ? linux_ui->GetDeviceScaleFactor() : 1;
  }
  
 +#if GTK_MAJOR_VERSION > 2
  using GtkSetState = void (*)(GtkWidgetPath*, gint, GtkStateFlags);
  PROTECTED_MEMORY_SECTION base::ProtectedMemory<GtkSetState>
      _gtk_widget_path_iter_set_state;
-@@ -63,6 +64,7 @@ PROTECTED_MEMORY_SECTION base::ProtectedMemory<GtkSetState>
+@@ -244,6 +245,7 @@ PROTECTED_MEMORY_SECTION base::ProtectedMemory<GtkSetState>
  using GtkSetObjectName = void (*)(GtkWidgetPath*, gint, const char*);
  PROTECTED_MEMORY_SECTION base::ProtectedMemory<GtkSetObjectName>
      _gtk_widget_path_iter_set_object_name;

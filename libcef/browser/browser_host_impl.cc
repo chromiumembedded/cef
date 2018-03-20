@@ -53,7 +53,7 @@
 #include "content/common/view_messages.h"
 #include "content/public/browser/desktop_media_id.h"
 #include "content/public/browser/download_manager.h"
-#include "content/public/browser/download_url_parameters.h"
+#include "content/public/browser/download_request_utils.h"
 #include "content/public/browser/host_zoom_map.h"
 #include "content/public/browser/keyboard_event_processing_result.h"
 #include "content/public/browser/native_web_keyboard_event.h"
@@ -745,8 +745,8 @@ void CefBrowserHostImpl::StartDownload(const CefString& url) {
   if (!manager)
     return;
 
-  std::unique_ptr<content::DownloadUrlParameters> params(
-      content::DownloadUrlParameters::CreateForWebContentsMainFrame(
+  std::unique_ptr<download::DownloadUrlParameters> params(
+      content::DownloadRequestUtils::CreateDownloadForWebContentsMainFrame(
           web_contents(), gurl, NO_TRAFFIC_ANNOTATION_YET));
   manager->DownloadUrl(std::move(params));
 }

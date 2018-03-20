@@ -1,0 +1,28 @@
+diff --git base/strings/strcat.h base/strings/strcat.h
+index b249d49..44c6211 100644
+--- base/strings/strcat.h
++++ base/strings/strcat.h
+@@ -11,6 +11,12 @@
+ #include "base/compiler_specific.h"
+ #include "base/containers/span.h"
+ #include "base/strings/string_piece.h"
++#include "build/build_config.h"
++
++#if defined(OS_WIN)
++// To resolve a conflict with Win32 API StrCat macro.
++#include "base/win/windows_types.h"
++#endif
+ 
+ namespace base {
+ 
+diff --git base/win/windows_types.h base/win/windows_types.h
+index 8060f03..2a86195 100644
+--- base/win/windows_types.h
++++ base/win/windows_types.h
+@@ -248,5 +248,6 @@
+ #define SendMessageCallback SendMessageCallbackW
+ #define SetCurrentDirectory SetCurrentDirectoryW
+ #define StartService StartServiceW
++#define StrCat StrCatW
+ 
+ #endif  // BASE_WIN_WINDOWS_TYPES_H

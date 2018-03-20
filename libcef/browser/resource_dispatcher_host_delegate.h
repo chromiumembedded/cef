@@ -24,7 +24,6 @@ class CefResourceDispatcherHostDelegate
   bool HandleExternalProtocol(const GURL& url,
                               content::ResourceRequestInfo* info) override;
   bool ShouldInterceptResourceAsStream(net::URLRequest* request,
-                                       const base::FilePath& plugin_path,
                                        const std::string& mime_type,
                                        GURL* origin,
                                        std::string* payload) override;
@@ -34,8 +33,6 @@ class CefResourceDispatcherHostDelegate
                            net::URLRequest* request,
                            content::ResourceContext* resource_context,
                            network::ResourceResponse* response) override;
-  std::unique_ptr<net::ClientCertStore> CreateClientCertStore(
-      content::ResourceContext* resource_context) override;
 
  private:
   void HandleExternalProtocolOnUIThread(

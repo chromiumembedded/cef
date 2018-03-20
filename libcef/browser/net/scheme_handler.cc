@@ -35,7 +35,7 @@ void InstallInternalProtectedHandlers(
       url::kFileScheme,
       linked_ptr<net::URLRequestJobFactory::ProtocolHandler>(
           new net::FileProtocolHandler(base::CreateTaskRunnerWithTraits(
-              {base::MayBlock(), base::TaskPriority::BACKGROUND,
+              {base::MayBlock(), base::TaskPriority::USER_VISIBLE,
                base::TaskShutdownBehavior::SKIP_ON_SHUTDOWN})))));
 #if !BUILDFLAG(DISABLE_FTP_SUPPORT)
   protocol_handlers->insert(std::make_pair(

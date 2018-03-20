@@ -1,8 +1,8 @@
 diff --git chrome/browser/download/download_target_determiner.cc chrome/browser/download/download_target_determiner.cc
-index 4f4dadd98fd9..840c1df997dd 100644
+index 03ca8ad55078..0899131ab154 100644
 --- chrome/browser/download/download_target_determiner.cc
 +++ chrome/browser/download/download_target_determiner.cc
-@@ -539,8 +539,8 @@ void IsHandledBySafePlugin(content::ResourceContext* resource_context,
+@@ -540,8 +540,8 @@ void IsHandledBySafePlugin(content::ResourceContext* resource_context,
    content::PluginService* plugin_service =
        content::PluginService::GetInstance();
    bool plugin_found = plugin_service->GetPluginInfo(
@@ -14,10 +14,10 @@ index 4f4dadd98fd9..840c1df997dd 100644
      // The GetPlugins call causes the plugin list to be refreshed. Once that's
      // done we can retry the GetPluginInfo call. We break out of this cycle
 diff --git chrome/browser/plugins/chrome_plugin_service_filter.cc chrome/browser/plugins/chrome_plugin_service_filter.cc
-index 5b07f3a407bf..7dffe84fc17c 100644
+index 8e6ef99239ab..24ceaf229702 100644
 --- chrome/browser/plugins/chrome_plugin_service_filter.cc
 +++ chrome/browser/plugins/chrome_plugin_service_filter.cc
-@@ -169,6 +169,7 @@ bool ChromePluginServiceFilter::IsPluginAvailable(
+@@ -178,6 +178,7 @@ bool ChromePluginServiceFilter::IsPluginAvailable(
      int render_frame_id,
      const void* context,
      const GURL& plugin_content_url,
@@ -38,7 +38,7 @@ index 133145db74bf..021ab307ee2a 100644
                           content::WebPluginInfo* plugin) override;
  
 diff --git chrome/browser/plugins/pdf_iframe_navigation_throttle.cc chrome/browser/plugins/pdf_iframe_navigation_throttle.cc
-index 8027836d925e..71f8d5a3f9dc 100644
+index 3b0948c90a00..f0fb3b5d9d55 100644
 --- chrome/browser/plugins/pdf_iframe_navigation_throttle.cc
 +++ chrome/browser/plugins/pdf_iframe_navigation_throttle.cc
 @@ -53,7 +53,7 @@ PDFIFrameNavigationThrottle::MaybeCreateThrottleFor(
@@ -51,10 +51,10 @@ index 8027836d925e..71f8d5a3f9dc 100644
      return nullptr;
    }
 diff --git chrome/browser/ui/cocoa/drag_util.mm chrome/browser/ui/cocoa/drag_util.mm
-index 6a2122ee1ed7..68831894695a 100644
+index b1a49f718226..cb56c9fd4765 100644
 --- chrome/browser/ui/cocoa/drag_util.mm
 +++ chrome/browser/ui/cocoa/drag_util.mm
-@@ -54,7 +54,7 @@ BOOL IsSupportedFileURL(Profile* profile, const GURL& url) {
+@@ -51,7 +51,7 @@ BOOL IsSupportedFileURL(Profile* profile, const GURL& url) {
    return PluginService::GetInstance()->GetPluginInfo(
        -1,                // process ID
        MSG_ROUTING_NONE,  // routing ID
@@ -64,10 +64,10 @@ index 6a2122ee1ed7..68831894695a 100644
  }
  
 diff --git chrome/browser/ui/views/tabs/browser_tab_strip_controller.cc chrome/browser/ui/views/tabs/browser_tab_strip_controller.cc
-index fcbea93113dd..0cd61aaf0aae 100644
+index f4eb41e948bb..7e47a184d8c0 100644
 --- chrome/browser/ui/views/tabs/browser_tab_strip_controller.cc
 +++ chrome/browser/ui/views/tabs/browser_tab_strip_controller.cc
-@@ -596,6 +596,6 @@ void BrowserTabStripController::OnFindURLMimeTypeCompleted(
+@@ -601,6 +601,6 @@ void BrowserTabStripController::OnFindURLMimeTypeCompleted(
            content::PluginService::GetInstance()->GetPluginInfo(
                -1,                // process ID
                MSG_ROUTING_NONE,  // routing ID
@@ -76,10 +76,10 @@ index fcbea93113dd..0cd61aaf0aae 100644
                mime_type, false, NULL, &plugin, NULL));
  }
 diff --git content/browser/frame_host/navigation_handle_impl.cc content/browser/frame_host/navigation_handle_impl.cc
-index 89a41274745c..586864a9d827 100644
+index 2986bf0e340e..6ef8486960ce 100644
 --- content/browser/frame_host/navigation_handle_impl.cc
 +++ content/browser/frame_host/navigation_handle_impl.cc
-@@ -325,12 +325,6 @@ net::Error NavigationHandleImpl::GetNetErrorCode() {
+@@ -368,12 +368,6 @@ net::Error NavigationHandleImpl::GetNetErrorCode() {
  }
  
  RenderFrameHostImpl* NavigationHandleImpl::GetRenderFrameHost() {
@@ -93,21 +93,34 @@ index 89a41274745c..586864a9d827 100644
  }
  
 diff --git content/browser/frame_host/render_frame_host_impl.cc content/browser/frame_host/render_frame_host_impl.cc
-index fc3412cb2680..385a7c591689 100644
+index 1f566ef1f437..cffef1c8a2f2 100644
 --- content/browser/frame_host/render_frame_host_impl.cc
 +++ content/browser/frame_host/render_frame_host_impl.cc
-@@ -1499,6 +1499,7 @@ void RenderFrameHostImpl::OnDidFailProvisionalLoadWithError(
-   if (navigation_handle_) {
-     navigation_handle_->set_net_error_code(
+@@ -1527,6 +1527,7 @@ void RenderFrameHostImpl::OnDidFailProvisionalLoadWithError(
+   if (GetNavigationHandle()) {
+     GetNavigationHandle()->set_net_error_code(
          static_cast<net::Error>(params.error_code));
-+    navigation_handle_->set_render_frame_host(this);
++    GetNavigationHandle()->set_render_frame_host(this);
    }
  
    frame_tree_node_->navigator()->DidFailProvisionalLoadWithError(this, params);
-@@ -3515,9 +3516,9 @@ void RenderFrameHostImpl::CommitNavigation(
+@@ -3269,9 +3270,9 @@ void RenderFrameHostImpl::RegisterMojoInterfaces() {
+       &QuotaDispatcherHost::CreateForFrame, GetProcess(), routing_id_));
+ 
+   if (base::FeatureList::IsEnabled(network::features::kNetworkService)) {
+-    StoragePartitionImpl* storage_partition =
+-        static_cast<StoragePartitionImpl*>(BrowserContext::GetStoragePartition(
+-            GetSiteInstance()->GetBrowserContext(), GetSiteInstance()));
++    StoragePartition* storage_partition =
++        BrowserContext::GetStoragePartition(
++            GetSiteInstance()->GetBrowserContext(), GetSiteInstance());
+     // TODO(https://crbug.com/813479): Investigate why we need to explicitly
+     // specify task runner for BrowserThread::IO here.
+     // Bind calls to the BindRegistry should come on to the IO thread by
+@@ -3545,9 +3546,9 @@ void RenderFrameHostImpl::CommitNavigation(
      // however only do this for cross-document navigations, because the
      // alternative would be redundant effort.
-     network::mojom::URLLoaderFactoryPtr default_factory;
+     network::mojom::URLLoaderFactoryPtrInfo default_factory_info;
 -    StoragePartitionImpl* storage_partition =
 -        static_cast<StoragePartitionImpl*>(BrowserContext::GetStoragePartition(
 -            GetSiteInstance()->GetBrowserContext(), GetSiteInstance()));
@@ -117,24 +130,22 @@ index fc3412cb2680..385a7c591689 100644
      if (subresource_loader_params &&
          subresource_loader_params->loader_factory_info.is_valid()) {
        // If the caller has supplied a default URLLoaderFactory override (for
-@@ -3652,9 +3653,9 @@ void RenderFrameHostImpl::FailedNavigation(
-   // completing an unload handler.
-   ResetWaitingState();
- 
--  StoragePartitionImpl* storage_partition =
--      static_cast<StoragePartitionImpl*>(BrowserContext::GetStoragePartition(
--          GetSiteInstance()->GetBrowserContext(), GetSiteInstance()));
+@@ -4162,8 +4163,8 @@ void RenderFrameHostImpl::CreateNetworkServiceDefaultFactoryAndObserve(
+   auto* context = GetSiteInstance()->GetBrowserContext();
+   GetContentClient()->browser()->WillCreateURLLoaderFactory(
+       this, false /* is_navigation */, &default_factory_request);
+-  StoragePartitionImpl* storage_partition = static_cast<StoragePartitionImpl*>(
+-      BrowserContext::GetStoragePartition(context, GetSiteInstance()));
 +  StoragePartition* storage_partition =
-+      BrowserContext::GetStoragePartition(
-+          GetSiteInstance()->GetBrowserContext(), GetSiteInstance());
- 
-   network::mojom::URLLoaderFactoryPtr default_factory;
-   if (g_url_loader_factory_callback_for_test.Get().is_null()) {
++      BrowserContext::GetStoragePartition(context, GetSiteInstance());
+   if (g_create_network_factory_callback_for_test.Get().is_null()) {
+     storage_partition->GetNetworkContext()->CreateURLLoaderFactory(
+         std::move(default_factory_request), GetProcess()->GetID());
 diff --git content/browser/frame_host/render_frame_message_filter.cc content/browser/frame_host/render_frame_message_filter.cc
-index 6e105e13b6c5..99815c49cbc1 100644
+index b3653373a51f..6db0652284ec 100644
 --- content/browser/frame_host/render_frame_message_filter.cc
 +++ content/browser/frame_host/render_frame_message_filter.cc
-@@ -540,6 +540,7 @@ void RenderFrameMessageFilter::GetCookies(int render_frame_id,
+@@ -546,6 +546,7 @@ void RenderFrameMessageFilter::GetCookies(int render_frame_id,
  
  void RenderFrameMessageFilter::OnGetPlugins(
      bool refresh,
@@ -142,7 +153,7 @@ index 6e105e13b6c5..99815c49cbc1 100644
      const url::Origin& main_frame_origin,
      IPC::Message* reply_msg) {
    // Don't refresh if the specified threshold has not been passed.  Note that
-@@ -561,18 +562,19 @@ void RenderFrameMessageFilter::OnGetPlugins(
+@@ -567,18 +568,19 @@ void RenderFrameMessageFilter::OnGetPlugins(
  
    PluginServiceImpl::GetInstance()->GetPlugins(
        base::BindOnce(&RenderFrameMessageFilter::GetPluginsCallback, this,
@@ -164,7 +175,7 @@ index 6e105e13b6c5..99815c49cbc1 100644
    int routing_id = MSG_ROUTING_NONE;
    // In this loop, copy the WebPluginInfo (and do not use a reference) because
    // the filter might mutate it.
-@@ -581,7 +583,7 @@ void RenderFrameMessageFilter::GetPluginsCallback(
+@@ -587,7 +589,7 @@ void RenderFrameMessageFilter::GetPluginsCallback(
      if (!filter ||
          filter->IsPluginAvailable(child_process_id, routing_id,
                                    resource_context_, main_frame_origin.GetURL(),
@@ -173,7 +184,7 @@ index 6e105e13b6c5..99815c49cbc1 100644
        plugins.push_back(plugin);
      }
    }
-@@ -593,6 +595,7 @@ void RenderFrameMessageFilter::GetPluginsCallback(
+@@ -599,6 +601,7 @@ void RenderFrameMessageFilter::GetPluginsCallback(
  void RenderFrameMessageFilter::OnGetPluginInfo(
      int render_frame_id,
      const GURL& url,
@@ -181,7 +192,7 @@ index 6e105e13b6c5..99815c49cbc1 100644
      const url::Origin& main_frame_origin,
      const std::string& mime_type,
      bool* found,
-@@ -601,8 +604,8 @@ void RenderFrameMessageFilter::OnGetPluginInfo(
+@@ -607,8 +610,8 @@ void RenderFrameMessageFilter::OnGetPluginInfo(
    bool allow_wildcard = true;
    *found = plugin_service_->GetPluginInfo(
        render_process_id_, render_frame_id, resource_context_, url,
@@ -193,7 +204,7 @@ index 6e105e13b6c5..99815c49cbc1 100644
  
  void RenderFrameMessageFilter::OnOpenChannelToPepperPlugin(
 diff --git content/browser/frame_host/render_frame_message_filter.h content/browser/frame_host/render_frame_message_filter.h
-index 8c3371209034..ae382bf750c0 100644
+index db9398a07607..ce062d8a9ccd 100644
 --- content/browser/frame_host/render_frame_message_filter.h
 +++ content/browser/frame_host/render_frame_message_filter.h
 @@ -136,13 +136,16 @@ class CONTENT_EXPORT RenderFrameMessageFilter
@@ -214,10 +225,10 @@ index 8c3371209034..ae382bf750c0 100644
                         const std::string& mime_type,
                         bool* found,
 diff --git content/browser/loader/mime_sniffing_resource_handler.cc content/browser/loader/mime_sniffing_resource_handler.cc
-index f951a3fd5cad..4740a49d4d38 100644
+index a9322bc8b5d7..0b3bfef2237b 100644
 --- content/browser/loader/mime_sniffing_resource_handler.cc
 +++ content/browser/loader/mime_sniffing_resource_handler.cc
-@@ -447,8 +447,8 @@ bool MimeSniffingResourceHandler::CheckForPluginHandler(
+@@ -494,8 +494,8 @@ bool MimeSniffingResourceHandler::CheckForPluginHandler(
    WebPluginInfo plugin;
    bool has_plugin = plugin_service_->GetPluginInfo(
        info->GetChildID(), info->GetRenderFrameID(), info->GetContext(),
@@ -263,10 +274,10 @@ index e6de4ca6c8b3..18eea4948e43 100644
                       const std::string& mime_type,
                       bool allow_wildcard,
 diff --git content/common/frame_messages.h content/common/frame_messages.h
-index 7bce348a78d4..bc27dbcdda37 100644
+index 8e482fa78e3a..99b8e486e88f 100644
 --- content/common/frame_messages.h
 +++ content/common/frame_messages.h
-@@ -1342,8 +1342,9 @@ IPC_MESSAGE_ROUTED1(FrameHostMsg_PepperStopsPlayback,
+@@ -1362,8 +1362,9 @@ IPC_MESSAGE_ROUTED1(FrameHostMsg_PepperStopsPlayback,
  
  // Used to get the list of plugins. |main_frame_origin| is used to handle
  // exceptions for plugin content settings.
@@ -277,7 +288,7 @@ index 7bce348a78d4..bc27dbcdda37 100644
                              url::Origin /* main_frame_origin */,
                              std::vector<content::WebPluginInfo> /* plugins */)
  
-@@ -1351,9 +1352,10 @@ IPC_SYNC_MESSAGE_CONTROL2_1(FrameHostMsg_GetPlugins,
+@@ -1371,9 +1372,10 @@ IPC_SYNC_MESSAGE_CONTROL2_1(FrameHostMsg_GetPlugins,
  // type. If there is no matching plugin, |found| is false.
  // |actual_mime_type| is the actual mime type supported by the
  // found plugin.
@@ -338,10 +349,10 @@ index 3b610b1f554e..7c439e060779 100644
                                   WebPluginInfo* plugin) = 0;
  
 diff --git content/public/renderer/content_renderer_client.h content/public/renderer/content_renderer_client.h
-index b51a04da8ca0..ca13e9a6a07e 100644
+index 34aed4fd3565..364f042ee903 100644
 --- content/public/renderer/content_renderer_client.h
 +++ content/public/renderer/content_renderer_client.h
-@@ -73,6 +73,9 @@ class CONTENT_EXPORT ContentRendererClient {
+@@ -74,6 +74,9 @@ class CONTENT_EXPORT ContentRendererClient {
    // Notifies us that the RenderThread has been created.
    virtual void RenderThreadStarted() {}
  
@@ -351,7 +362,7 @@ index b51a04da8ca0..ca13e9a6a07e 100644
    // Notifies that a new RenderFrame has been created.
    virtual void RenderFrameCreated(RenderFrame* render_frame) {}
  
-@@ -327,6 +330,10 @@ class CONTENT_EXPORT ContentRendererClient {
+@@ -333,6 +336,10 @@ class CONTENT_EXPORT ContentRendererClient {
    // This method may invalidate the frame.
    virtual void RunScriptsAtDocumentIdle(RenderFrame* render_frame) {}
  
@@ -377,10 +388,10 @@ index aa77b86eee98..097d26a80aa9 100644
    virtual void FocusedNodeChanged(const blink::WebNode& node) {}
  
 diff --git content/renderer/render_frame_impl.cc content/renderer/render_frame_impl.cc
-index f341fb4aec24..28f3105f15c0 100644
+index 259d31191208..890ec89bbaee 100644
 --- content/renderer/render_frame_impl.cc
 +++ content/renderer/render_frame_impl.cc
-@@ -3468,7 +3468,8 @@ blink::WebPlugin* RenderFrameImpl::CreatePlugin(
+@@ -3447,7 +3447,8 @@ blink::WebPlugin* RenderFrameImpl::CreatePlugin(
    std::string mime_type;
    bool found = false;
    Send(new FrameHostMsg_GetPluginInfo(
@@ -390,7 +401,7 @@ index f341fb4aec24..28f3105f15c0 100644
        params.mime_type.Utf8(), &found, &info, &mime_type));
    if (!found)
      return nullptr;
-@@ -3824,6 +3825,8 @@ void RenderFrameImpl::FrameDetached(DetachType type) {
+@@ -3808,6 +3809,8 @@ void RenderFrameImpl::FrameDetached(DetachType type) {
  
  void RenderFrameImpl::FrameFocused() {
    Send(new FrameHostMsg_FrameFocused(routing_id_));
@@ -400,10 +411,10 @@ index f341fb4aec24..28f3105f15c0 100644
  
  void RenderFrameImpl::WillCommitProvisionalLoad() {
 diff --git content/renderer/render_thread_impl.cc content/renderer/render_thread_impl.cc
-index f55d956f05ec..ec2292acb1c3 100644
+index 81d3f80db8ef..1e349f80ed23 100644
 --- content/renderer/render_thread_impl.cc
 +++ content/renderer/render_thread_impl.cc
-@@ -822,6 +822,8 @@ void RenderThreadImpl::Init(
+@@ -925,6 +925,8 @@ void RenderThreadImpl::Init(
  
    StartServiceManagerConnection();
  
@@ -413,10 +424,10 @@ index f55d956f05ec..ec2292acb1c3 100644
        base::Bind(&RenderThreadImpl::OnRendererInterfaceRequest,
                   base::Unretained(this)));
 diff --git content/renderer/renderer_blink_platform_impl.cc content/renderer/renderer_blink_platform_impl.cc
-index 561593754e91..18273663e17e 100644
+index 0affacaa0294..8c08aad965a2 100644
 --- content/renderer/renderer_blink_platform_impl.cc
 +++ content/renderer/renderer_blink_platform_impl.cc
-@@ -842,6 +842,7 @@ RendererBlinkPlatformImpl::CreateMIDIAccessor(
+@@ -849,6 +849,7 @@ RendererBlinkPlatformImpl::CreateMIDIAccessor(
  
  void RendererBlinkPlatformImpl::GetPluginList(
      bool refresh,
@@ -424,7 +435,7 @@ index 561593754e91..18273663e17e 100644
      const blink::WebSecurityOrigin& mainFrameOrigin,
      blink::WebPluginListBuilder* builder) {
  #if BUILDFLAG(ENABLE_PLUGINS)
-@@ -849,7 +850,8 @@ void RendererBlinkPlatformImpl::GetPluginList(
+@@ -856,7 +857,8 @@ void RendererBlinkPlatformImpl::GetPluginList(
    if (!plugin_refresh_allowed_)
      refresh = false;
    RenderThread::Get()->Send(
@@ -434,7 +445,7 @@ index 561593754e91..18273663e17e 100644
    for (const WebPluginInfo& plugin : plugins) {
      builder->AddPlugin(WebString::FromUTF16(plugin.name),
                         WebString::FromUTF16(plugin.desc),
-@@ -1424,6 +1426,14 @@ void RendererBlinkPlatformImpl::RequestPurgeMemory() {
+@@ -1417,6 +1419,14 @@ void RendererBlinkPlatformImpl::RequestPurgeMemory() {
    base::MemoryCoordinatorClientRegistry::GetInstance()->PurgeMemory();
  }
  
@@ -450,7 +461,7 @@ index 561593754e91..18273663e17e 100644
    if (!web_database_host_) {
      web_database_host_ = blink::mojom::ThreadSafeWebDatabaseHostPtr::Create(
 diff --git content/renderer/renderer_blink_platform_impl.h content/renderer/renderer_blink_platform_impl.h
-index 65ddfde81aff..d92a0b316270 100644
+index e8a4578009d1..780d8b29acb2 100644
 --- content/renderer/renderer_blink_platform_impl.h
 +++ content/renderer/renderer_blink_platform_impl.h
 @@ -128,6 +128,7 @@ class CONTENT_EXPORT RendererBlinkPlatformImpl : public BlinkPlatformImpl {
@@ -461,7 +472,7 @@ index 65ddfde81aff..d92a0b316270 100644
                       const blink::WebSecurityOrigin& mainFrameOrigin,
                       blink::WebPluginListBuilder* builder) override;
    blink::WebPublicSuffixList* PublicSuffixList() override;
-@@ -258,6 +259,9 @@ class CONTENT_EXPORT RendererBlinkPlatformImpl : public BlinkPlatformImpl {
+@@ -256,6 +257,9 @@ class CONTENT_EXPORT RendererBlinkPlatformImpl : public BlinkPlatformImpl {
        mojo::ScopedDataPipeConsumerHandle handle) override;
    void RequestPurgeMemory() override;
  
@@ -520,10 +531,10 @@ index db23a83ed079..57a4c536118c 100644
                       const std::string& mime_type,
                       bool allow_wildcard,
 diff --git content/test/test_blink_web_unit_test_support.cc content/test/test_blink_web_unit_test_support.cc
-index ae5e6942fe34..a8fead11a023 100644
+index 25182fdb0928..9cc19c4016d3 100644
 --- content/test/test_blink_web_unit_test_support.cc
 +++ content/test/test_blink_web_unit_test_support.cc
-@@ -325,6 +325,7 @@ blink::WebThread* TestBlinkWebUnitTestSupport::CurrentThread() {
+@@ -324,6 +324,7 @@ blink::WebThread* TestBlinkWebUnitTestSupport::CurrentThread() {
  
  void TestBlinkWebUnitTestSupport::GetPluginList(
      bool refresh,
@@ -532,7 +543,7 @@ index ae5e6942fe34..a8fead11a023 100644
      blink::WebPluginListBuilder* builder) {
    builder->AddPlugin("pdf", "pdf", "pdf-files");
 diff --git content/test/test_blink_web_unit_test_support.h content/test/test_blink_web_unit_test_support.h
-index 9b5c0a94fa7f..f31678481f0f 100644
+index d8ad7b6e4435..5eda4bc3c2d5 100644
 --- content/test/test_blink_web_unit_test_support.h
 +++ content/test/test_blink_web_unit_test_support.h
 @@ -72,6 +72,7 @@ class TestBlinkWebUnitTestSupport : public BlinkPlatformImpl {

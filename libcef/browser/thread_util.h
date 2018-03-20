@@ -8,21 +8,20 @@
 
 #include "base/location.h"
 #include "base/logging.h"
+#include "base/task_scheduler/post_task.h"
+#include "base/threading/thread_restrictions.h"
 #include "content/public/browser/browser_thread.h"
 
 #define CEF_UIT content::BrowserThread::UI
 #define CEF_IOT content::BrowserThread::IO
-#define CEF_FILET content::BrowserThread::FILE
 
 #define CEF_CURRENTLY_ON(id) content::BrowserThread::CurrentlyOn(id)
 #define CEF_CURRENTLY_ON_UIT() CEF_CURRENTLY_ON(CEF_UIT)
 #define CEF_CURRENTLY_ON_IOT() CEF_CURRENTLY_ON(CEF_IOT)
-#define CEF_CURRENTLY_ON_FILET() CEF_CURRENTLY_ON(CEF_FILET)
 
 #define CEF_REQUIRE(id) DCHECK(CEF_CURRENTLY_ON(id))
 #define CEF_REQUIRE_UIT() CEF_REQUIRE(CEF_UIT)
 #define CEF_REQUIRE_IOT() CEF_REQUIRE(CEF_IOT)
-#define CEF_REQUIRE_FILET() CEF_REQUIRE(CEF_FILET)
 
 #define CEF_REQUIRE_RETURN(id, var)             \
   if (!CEF_CURRENTLY_ON(id)) {                  \
@@ -45,6 +44,36 @@
 #define CEF_POST_DELAYED_TASK(id, task, delay_ms) \
   content::BrowserThread::PostDelayedTask(        \
       id, FROM_HERE, task, base::TimeDelta::FromMilliseconds(delay_ms))
+
+// Post a blocking task with the specified |priority|. Tasks that have not
+// started executing at shutdown will never run. However, any task that has
+// already begun executing when shutdown is invoked will be allowed to continue
+// and will block shutdown until completion.
+// Tasks posted with this method are not guaranteed to run sequentially. Use
+// base::CreateSequencedTaskRunnerWithTraits instead if sequence is important.
+// Sequenced runners at various priorities that always execute all pending tasks
+// before shutdown are available via CefContentBrowserClient::*_task_runner()
+// and exposed by the CEF API.
+#define CEF_POST_BLOCKING_TASK(priority, task)                 \
+  base::PostTaskWithTraits(                                    \
+      FROM_HERE,                                               \
+      {priority, base::TaskShutdownBehavior::SKIP_ON_SHUTDOWN, \
+       base::MayBlock()},                                      \
+      task)
+
+// Post a blocking task that affects UI or responsiveness of future user
+// interactions. Do not use if an immediate response to a user interaction is
+// expected.
+#define CEF_POST_USER_VISIBLE_TASK(task) \
+  CEF_POST_BLOCKING_TASK(base::TaskPriority::USER_VISIBLE, task)
+
+// Post a blocking task where the user won't notice if it takes an arbitrarily
+// long time to complete.
+#define CEF_POST_BACKGROUND_TASK(task) \
+  CEF_POST_BLOCKING_TASK(base::TaskPriority::BACKGROUND, task)
+
+// Assert that blocking is allowed on the current thread.
+#define CEF_REQUIRE_BLOCKING() base::AssertBlockingAllowed()
 
 // Same as IMPLEMENT_REFCOUNTING() but using the specified Destructor.
 #define IMPLEMENT_REFCOUNTING_EX(ClassName, Destructor)              \

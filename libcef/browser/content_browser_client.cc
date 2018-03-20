@@ -49,7 +49,7 @@
 #include "chrome/common/constants.mojom.h"
 #include "chrome/grit/browser_resources.h"
 #include "chrome/grit/generated_resources.h"
-#include "chrome/services/printing/public/interfaces/constants.mojom.h"
+#include "chrome/services/printing/public/mojom/constants.mojom.h"
 #include "components/navigation_interception/intercept_navigation_throttle.h"
 #include "components/navigation_interception/navigation_params.h"
 #include "components/printing/service/public/interfaces/pdf_compositor.mojom.h"
@@ -84,7 +84,7 @@
 #include "extensions/common/switches.h"
 #include "net/ssl/ssl_cert_request_info.h"
 #include "ppapi/host/ppapi_host.h"
-#include "services/proxy_resolver/public/interfaces/proxy_resolver.mojom.h"
+#include "services/service_manager/public/mojom/connector.mojom.h"
 #include "storage/browser/quota/quota_settings.h"
 #include "third_party/WebKit/public/web/WebWindowFeatures.h"
 #include "ui/base/l10n/l10n_util.h"
@@ -94,10 +94,6 @@
 
 #if defined(OS_LINUX)
 #include "libcef/common/widevine_loader.h"
-#endif
-
-#if defined(OS_MACOSX)
-#include "components/spellcheck/browser/spellcheck_message_filter_platform.h"
 #endif
 
 #if defined(OS_POSIX) && !defined(OS_MACOSX)
@@ -450,6 +446,8 @@ CefContentBrowserClient::~CefContentBrowserClient() {}
 
 // static
 CefContentBrowserClient* CefContentBrowserClient::Get() {
+  if (!CefContentClient::Get())
+    return nullptr;
   return static_cast<CefContentBrowserClient*>(
       CefContentClient::Get()->browser());
 }
@@ -457,24 +455,19 @@ CefContentBrowserClient* CefContentBrowserClient::Get() {
 content::BrowserMainParts* CefContentBrowserClient::CreateBrowserMainParts(
     const content::MainFunctionParams& parameters) {
   browser_main_parts_ = new CefBrowserMainParts(parameters);
+  browser_main_parts_->AddParts(
+      ChromeService::GetInstance()->CreateExtraParts());
   return browser_main_parts_;
 }
 
 void CefContentBrowserClient::RenderProcessWillLaunch(
-    content::RenderProcessHost* host) {
+    content::RenderProcessHost* host,
+    service_manager::mojom::ServiceRequest* service_request) {
   const int id = host->GetID();
   Profile* profile = Profile::FromBrowserContext(host->GetBrowserContext());
 
   host->AddFilter(new CefBrowserMessageFilter(id));
   host->AddFilter(new printing::CefPrintingMessageFilter(id, profile));
-
-#if defined(OS_MACOSX)
-  const base::CommandLine* command_line =
-      base::CommandLine::ForCurrentProcess();
-  if (!command_line->HasSwitch(switches::kDisableSpellChecking)) {
-    host->AddFilter(new SpellCheckMessageFilterPlatform(id));
-  }
-#endif
 
   if (extensions::ExtensionsEnabled()) {
     host->AddFilter(new extensions::ExtensionMessageFilter(id, profile));
@@ -492,6 +485,16 @@ void CefContentBrowserClient::RenderProcessWillLaunch(
 
   host->Send(
       new CefProcessMsg_SetIsIncognitoProcess(profile->IsOffTheRecord()));
+
+  service_manager::mojom::ServicePtr service;
+  *service_request = mojo::MakeRequest(&service);
+  service_manager::mojom::PIDReceiverPtr pid_receiver;
+  service_manager::Identity renderer_identity = host->GetChildIdentity();
+  ChromeService::GetInstance()->connector()->StartService(
+      service_manager::Identity(chrome::mojom::kRendererServiceName,
+                                renderer_identity.user_id(),
+                                renderer_identity.instance()),
+      std::move(service), mojo::MakeRequest(&pid_receiver));
 }
 
 bool CefContentBrowserClient::ShouldUseProcessPerSite(
@@ -594,7 +597,7 @@ void CefContentBrowserClient::RegisterInProcessServices(
   {
     // For spell checking.
     service_manager::EmbeddedServiceInfo info;
-    info.factory = base::Bind(&ChromeService::Create);
+    info.factory = ChromeService::GetInstance()->CreateChromeServiceFactory();
     services->insert(std::make_pair(chrome::mojom::kServiceName, info));
   }
 }
@@ -633,6 +636,8 @@ std::vector<content::ContentBrowserClient::ServiceManifestInfo>
 CefContentBrowserClient::GetExtraServiceManifests() {
   return std::vector<ServiceManifestInfo>({
       {printing::mojom::kServiceName, IDR_PDF_COMPOSITOR_MANIFEST},
+      {chrome::mojom::kRendererServiceName,
+       IDR_CHROME_RENDERER_SERVICE_MANIFEST},
   });
 }
 
@@ -958,7 +963,7 @@ CefContentBrowserClient::CreateThrottlesForNavigation(
   }
 
   std::unique_ptr<content::NavigationThrottle> throttle =
-      base::MakeUnique<navigation_interception::InterceptNavigationThrottle>(
+      std::make_unique<navigation_interception::InterceptNavigationThrottle>(
           navigation_handle, base::Bind(&NavigationOnUIThread, is_main_frame,
                                         frame_id, parent_frame_id));
   throttles.push_back(std::move(throttle));
@@ -1010,6 +1015,15 @@ void CefContentBrowserClient::ExposeInterfacesToRenderer(
       base::MakeRefCounted<PluginInfoHostImpl>(host->GetID(), profile)));
 }
 
+std::unique_ptr<net::ClientCertStore>
+CefContentBrowserClient::CreateClientCertStore(
+    content::ResourceContext* resource_context) {
+  if (!resource_context)
+    return nullptr;
+  return static_cast<CefResourceContext*>(resource_context)
+      ->CreateClientCertStore();
+}
+
 void CefContentBrowserClient::RegisterCustomScheme(const std::string& scheme) {
   // Register as a Web-safe scheme so that requests for the scheme from a
   // render process will be allowed in resource_dispatcher_host_impl.cc
@@ -1027,6 +1041,21 @@ CefRefPtr<CefRequestContextImpl> CefContentBrowserClient::request_context()
 
 CefDevToolsDelegate* CefContentBrowserClient::devtools_delegate() const {
   return browser_main_parts_->devtools_delegate();
+}
+
+scoped_refptr<base::SingleThreadTaskRunner>
+CefContentBrowserClient::background_task_runner() const {
+  return browser_main_parts_->background_task_runner();
+}
+
+scoped_refptr<base::SingleThreadTaskRunner>
+CefContentBrowserClient::user_visible_task_runner() const {
+  return browser_main_parts_->user_visible_task_runner();
+}
+
+scoped_refptr<base::SingleThreadTaskRunner>
+CefContentBrowserClient::user_blocking_task_runner() const {
+  return browser_main_parts_->user_blocking_task_runner();
 }
 
 const extensions::Extension* CefContentBrowserClient::GetExtension(

@@ -42,7 +42,7 @@
 namespace {
 
 void WriteTempFileAndView(scoped_refptr<base::RefCountedString> str) {
-  CEF_REQUIRE_FILET();
+  CEF_REQUIRE_BLOCKING();
 
   base::FilePath tmp_file;
   if (!base::CreateTemporaryFile(&tmp_file))
@@ -84,7 +84,7 @@ bool HasExternalHandler(const std::string& scheme) {
 }
 
 void ExecuteExternalProtocol(const GURL& url) {
-  CEF_REQUIRE_FILET();
+  CEF_REQUIRE_BLOCKING();
 
   if (!HasExternalHandler(url.scheme()))
     return;
@@ -324,7 +324,7 @@ void CefBrowserPlatformDelegateNativeWin::ViewText(const std::string& text) {
   std::string str = text;
   scoped_refptr<base::RefCountedString> str_ref =
       base::RefCountedString::TakeString(&str);
-  CEF_POST_TASK(CEF_FILET, base::Bind(WriteTempFileAndView, str_ref));
+  CEF_POST_USER_VISIBLE_TASK(base::Bind(WriteTempFileAndView, str_ref));
 }
 
 void CefBrowserPlatformDelegateNativeWin::HandleKeyboardEvent(
@@ -370,8 +370,7 @@ void CefBrowserPlatformDelegateNativeWin::HandleKeyboardEvent(
 
 void CefBrowserPlatformDelegateNativeWin::HandleExternalProtocol(
     const GURL& url) {
-  // Execute on the FILE thread.
-  CEF_POST_TASK(CEF_FILET, base::Bind(ExecuteExternalProtocol, url));
+  CEF_POST_USER_VISIBLE_TASK(base::Bind(ExecuteExternalProtocol, url));
 }
 
 void CefBrowserPlatformDelegateNativeWin::TranslateKeyEvent(

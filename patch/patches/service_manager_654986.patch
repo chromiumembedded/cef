@@ -1,8 +1,8 @@
 diff --git services/service_manager/embedder/main.cc services/service_manager/embedder/main.cc
-index 08ea94a11772..873726c6ea19 100644
+index ed36168629af..20be6bed9f79 100644
 --- services/service_manager/embedder/main.cc
 +++ services/service_manager/embedder/main.cc
-@@ -304,13 +304,30 @@ int RunService(MainDelegate* delegate) {
+@@ -301,13 +301,30 @@ int RunService(MainDelegate* delegate) {
    return exit_code;
  }
  
@@ -34,7 +34,7 @@ index 08ea94a11772..873726c6ea19 100644
    MainDelegate* delegate = params.delegate;
    DCHECK(delegate);
  
-@@ -378,30 +395,14 @@ int Main(const MainParams& params) {
+@@ -375,30 +392,14 @@ int Main(const MainParams& params) {
    MainDelegate::InitializeParams init_params;
  
  #if defined(OS_MACOSX)
@@ -69,7 +69,7 @@ index 08ea94a11772..873726c6ea19 100644
    mojo_config.max_message_num_bytes = kMaximumMojoMessageSize;
    delegate->OverrideMojoConfiguration(&mojo_config);
    mojo::edk::Init(mojo_config);
-@@ -436,6 +437,16 @@ int Main(const MainParams& params) {
+@@ -433,6 +434,16 @@ int Main(const MainParams& params) {
          trace_config, base::trace_event::TraceLog::RECORDING_MODE);
    }
  
@@ -86,7 +86,7 @@ index 08ea94a11772..873726c6ea19 100644
    switch (process_type) {
      case ProcessType::kDefault:
        NOTREACHED();
-@@ -457,6 +468,8 @@ int Main(const MainParams& params) {
+@@ -454,6 +465,8 @@ int Main(const MainParams& params) {
        break;
    }
  
@@ -95,7 +95,7 @@ index 08ea94a11772..873726c6ea19 100644
    if (tracker) {
      if (exit_code == 0) {
        tracker->SetProcessPhaseIfEnabled(
-@@ -468,13 +481,38 @@ int Main(const MainParams& params) {
+@@ -465,13 +478,38 @@ int Main(const MainParams& params) {
      }
    }
  

@@ -25,7 +25,7 @@ class CefDevToolsManagerDelegate : public content::DevToolsManagerDelegate {
   scoped_refptr<content::DevToolsAgentHost> CreateNewTarget(
       const GURL& url) override;
   std::string GetDiscoveryPageHTML() override;
-  std::string GetFrontendResource(const std::string& path) override;
+  bool HasBundledFrontendResources() override;
 
  private:
   DISALLOW_COPY_AND_ASSIGN(CefDevToolsManagerDelegate);

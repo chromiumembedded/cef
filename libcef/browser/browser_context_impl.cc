@@ -39,8 +39,8 @@
 #include "content/public/browser/storage_partition.h"
 #include "extensions/browser/extension_protocols.h"
 #include "extensions/common/constants.h"
-#include "net/proxy/proxy_config_service.h"
-#include "net/proxy/proxy_service.h"
+#include "net/proxy_resolution/proxy_config_service.h"
+#include "net/proxy_resolution/proxy_service.h"
 
 using content::BrowserThread;
 
@@ -162,7 +162,7 @@ class CefVisitedLinkListener : public visitedlink::VisitedLinkMaster::Listener {
 
   void CreateListenerForContext(const CefBrowserContext* context) {
     CEF_REQUIRE_UIT();
-    auto listener = base::MakeUnique<visitedlink::VisitedLinkEventListener>(
+    auto listener = std::make_unique<visitedlink::VisitedLinkEventListener>(
         const_cast<CefBrowserContext*>(context));
     listener_map_.insert(std::make_pair(context, std::move(listener)));
   }
@@ -450,7 +450,8 @@ net::URLRequestContextGetter* CefBrowserContextImpl::CreateRequestContext(
   // TODO(cef): Determine if we can use the Chrome/Mojo implementation from
   // https://crrev.com/d0d0d050
   std::unique_ptr<net::ProxyConfigService> base_service(
-      net::ProxyService::CreateSystemProxyConfigService(io_thread_runner));
+      net::ProxyResolutionService::CreateSystemProxyConfigService(
+          io_thread_runner));
   std::unique_ptr<net::ProxyConfigService> proxy_config_service(
       pref_proxy_config_tracker_->CreateTrackingProxyConfigService(
           std::move(base_service)));

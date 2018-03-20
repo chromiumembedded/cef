@@ -11,6 +11,32 @@
 #include "base/logging.h"
 #include "net/url_request/url_request_context.h"
 
+namespace {
+
+class NullCookieChangeDispatcher : public net::CookieChangeDispatcher {
+ public:
+  NullCookieChangeDispatcher() {}
+  ~NullCookieChangeDispatcher() override {}
+
+  // net::CookieChangeDispatcher
+  std::unique_ptr<net::CookieChangeSubscription> AddCallbackForCookie(
+      const GURL& url,
+      const std::string& name,
+      net::CookieChangeCallback callback) override WARN_UNUSED_RESULT {
+    return nullptr;
+  }
+
+  std::unique_ptr<net::CookieChangeSubscription> AddCallbackForAllChanges(
+      net::CookieChangeCallback callback) override WARN_UNUSED_RESULT {
+    return nullptr;
+  }
+
+ private:
+  DISALLOW_COPY_AND_ASSIGN(NullCookieChangeDispatcher);
+};
+
+}  // namespace
+
 CefCookieStoreProxy::CefCookieStoreProxy(
     CefURLRequestContextImpl* parent,
     CefRefPtr<CefRequestContextHandler> handler)
@@ -50,18 +76,6 @@ void CefCookieStoreProxy::SetCanonicalCookieAsync(
                                           std::move(callback));
   } else if (!callback.is_null()) {
     std::move(callback).Run(false);
-  }
-}
-
-void CefCookieStoreProxy::GetCookiesWithOptionsAsync(
-    const GURL& url,
-    const net::CookieOptions& options,
-    GetCookiesCallback callback) {
-  net::CookieStore* cookie_store = GetCookieStore();
-  if (cookie_store) {
-    cookie_store->GetCookiesWithOptionsAsync(url, options, std::move(callback));
-  } else if (!callback.is_null()) {
-    std::move(callback).Run(std::string());
   }
 }
 
@@ -154,26 +168,14 @@ void CefCookieStoreProxy::FlushStore(base::OnceClosure callback) {
   }
 }
 
-std::unique_ptr<net::CookieStore::CookieChangedSubscription>
-CefCookieStoreProxy::AddCallbackForCookie(
-    const GURL& url,
-    const std::string& name,
-    const CookieChangedCallback& callback) {
+net::CookieChangeDispatcher& CefCookieStoreProxy::GetChangeDispatcher() {
   net::CookieStore* cookie_store = GetCookieStore();
-  if (cookie_store) {
-    return cookie_store->AddCallbackForCookie(url, name, callback);
-  }
-  return nullptr;
-}
+  if (cookie_store)
+    return cookie_store->GetChangeDispatcher();
 
-std::unique_ptr<net::CookieStore::CookieChangedSubscription>
-CefCookieStoreProxy::AddCallbackForAllChanges(
-    const CookieChangedCallback& callback) {
-  net::CookieStore* cookie_store = GetCookieStore();
-  if (cookie_store) {
-    return cookie_store->AddCallbackForAllChanges(callback);
-  }
-  return nullptr;
+  if (!null_dispatcher_)
+    null_dispatcher_.reset(new NullCookieChangeDispatcher());
+  return *null_dispatcher_;
 }
 
 bool CefCookieStoreProxy::IsEphemeral() {

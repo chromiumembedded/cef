@@ -79,12 +79,14 @@ void CefJavaScriptDialogManager::Destroy() {
 
 void CefJavaScriptDialogManager::RunJavaScriptDialog(
     content::WebContents* web_contents,
-    const GURL& origin_url,
+    content::RenderFrameHost* render_frame_host,
     content::JavaScriptDialogType message_type,
     const base::string16& message_text,
     const base::string16& default_prompt_text,
     DialogClosedCallback callback,
     bool* did_suppress_message) {
+  const GURL& origin_url = render_frame_host->GetLastCommittedURL();
+
   CefRefPtr<CefClient> client = browser_->GetClient();
   if (client.get()) {
     CefRefPtr<CefJSDialogHandler> handler = client->GetJSDialogHandler();

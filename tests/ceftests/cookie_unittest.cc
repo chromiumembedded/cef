@@ -86,9 +86,12 @@ class TestVisitor : public CefCookieVisitor {
  public:
   TestVisitor(CookieVector* cookies,
               bool deleteCookies,
-              CefRefPtr<CefWaitableEvent> event)
-      : cookies_(cookies), delete_cookies_(deleteCookies), event_(event) {}
-  ~TestVisitor() override { event_->Signal(); }
+              const base::Closure& callback)
+      : cookies_(cookies), delete_cookies_(deleteCookies), callback_(callback) {
+    EXPECT_TRUE(cookies_);
+    EXPECT_FALSE(callback_.is_null());
+  }
+  ~TestVisitor() override { callback_.Run(); }
 
   bool Visit(const CefCookie& cookie,
              int count,
@@ -100,9 +103,10 @@ class TestVisitor : public CefCookieVisitor {
     return true;
   }
 
+ private:
   CookieVector* cookies_;
   bool delete_cookies_;
-  CefRefPtr<CefWaitableEvent> event_;
+  base::Closure callback_;
 
   IMPLEMENT_REFCOUNTING(TestVisitor);
 };
@@ -159,6 +163,49 @@ void CreateCookie(CefRefPtr<CefCookieManager> manager,
   SetCookies(manager, kTestUrl, cookies, true, event);
 }
 
+// Visit URL cookies. Execute |callback| on completion.
+void VisitUrlCookies(CefRefPtr<CefCookieManager> manager,
+                     const CefString& url,
+                     bool includeHttpOnly,
+                     CookieVector& cookies,
+                     bool deleteCookies,
+                     const base::Closure& callback) {
+  EXPECT_TRUE(manager->VisitUrlCookies(
+      url, includeHttpOnly,
+      new TestVisitor(&cookies, deleteCookies, callback)));
+}
+
+// Visit URL cookies. Block on |event|.
+void VisitUrlCookies(CefRefPtr<CefCookieManager> manager,
+                     const CefString& url,
+                     bool includeHttpOnly,
+                     CookieVector& cookies,
+                     bool deleteCookies,
+                     CefRefPtr<CefWaitableEvent> event) {
+  VisitUrlCookies(manager, url, includeHttpOnly, cookies, deleteCookies,
+                  base::Bind(&CefWaitableEvent::Signal, event));
+  event->Wait();
+}
+
+// Visit all cookies. Execute |callback| on completion.
+void VisitAllCookies(CefRefPtr<CefCookieManager> manager,
+                     CookieVector& cookies,
+                     bool deleteCookies,
+                     const base::Closure& callback) {
+  EXPECT_TRUE(manager->VisitAllCookies(
+      new TestVisitor(&cookies, deleteCookies, callback)));
+}
+
+// Visit all cookies. Block on |event|.
+void VisitAllCookies(CefRefPtr<CefCookieManager> manager,
+                     CookieVector& cookies,
+                     bool deleteCookies,
+                     CefRefPtr<CefWaitableEvent> event) {
+  VisitAllCookies(manager, cookies, deleteCookies,
+                  base::Bind(&CefWaitableEvent::Signal, event));
+  event->Wait();
+}
+
 // Retrieve the test cookie. If |withDomain| is true check that the cookie
 // is a domain cookie, otherwise a host cookie. if |deleteCookies| is true
 // the cookie will be deleted when it's retrieved.
@@ -170,9 +217,7 @@ void GetCookie(CefRefPtr<CefCookieManager> manager,
   CookieVector cookies;
 
   // Get the cookie and delete it.
-  EXPECT_TRUE(manager->VisitUrlCookies(
-      kTestUrl, false, new TestVisitor(&cookies, deleteCookies, event)));
-  event->Wait();
+  VisitUrlCookies(manager, kTestUrl, false, cookies, deleteCookies, event);
 
   EXPECT_EQ(1U, cookies.size());
   if (cookies.size() != 1U)
@@ -197,28 +242,6 @@ void GetCookie(CefRefPtr<CefCookieManager> manager,
   EXPECT_EQ(cookie.expires.millisecond, cookie_read.expires.millisecond);
 }
 
-// Visit URL cookies.
-void VisitUrlCookies(CefRefPtr<CefCookieManager> manager,
-                     const CefString& url,
-                     bool includeHttpOnly,
-                     CookieVector& cookies,
-                     bool deleteCookies,
-                     CefRefPtr<CefWaitableEvent> event) {
-  EXPECT_TRUE(manager->VisitUrlCookies(
-      url, includeHttpOnly, new TestVisitor(&cookies, deleteCookies, event)));
-  event->Wait();
-}
-
-// Visit all cookies.
-void VisitAllCookies(CefRefPtr<CefCookieManager> manager,
-                     CookieVector& cookies,
-                     bool deleteCookies,
-                     CefRefPtr<CefWaitableEvent> event) {
-  EXPECT_TRUE(manager->VisitAllCookies(
-      new TestVisitor(&cookies, deleteCookies, event)));
-  event->Wait();
-}
-
 // Verify that no cookies exist. If |withUrl| is true it will only check for
 // cookies matching the URL.
 void VerifyNoCookies(CefRefPtr<CefCookieManager> manager,
@@ -228,13 +251,10 @@ void VerifyNoCookies(CefRefPtr<CefCookieManager> manager,
 
   // Verify that the cookie has been deleted.
   if (withUrl) {
-    EXPECT_TRUE(manager->VisitUrlCookies(
-        kTestUrl, false, new TestVisitor(&cookies, false, event)));
+    VisitUrlCookies(manager, kTestUrl, false, cookies, false, event);
   } else {
-    EXPECT_TRUE(
-        manager->VisitAllCookies(new TestVisitor(&cookies, false, event)));
+    VisitAllCookies(manager, cookies, false, event);
   }
-  event->Wait();
 
   EXPECT_EQ(0U, cookies.size());
 }
@@ -543,10 +563,10 @@ TEST(CookieTest, DomainCookieOnDisk) {
 
   TestDomainCookie(manager, event);
 
-  // The backing store will be closed on the DB thread after the CookieManager
+  // The backing store will be closed on the FILE thread after the CookieManager
   // is destroyed.
   manager = NULL;
-  WaitForDBThreadWithDelay(kCacheDeleteDelay);
+  WaitForFILEThreadWithDelay(kCacheDeleteDelay);
 }
 
 // Test creation of a host cookie.
@@ -592,10 +612,10 @@ TEST(CookieTest, HostCookieOnDisk) {
 
   TestHostCookie(manager, event);
 
-  // The backing store will be closed on the DB thread after the CookieManager
+  // The backing store will be closed on the FILE thread after the CookieManager
   // is destroyed.
   manager = NULL;
-  WaitForDBThreadWithDelay(kCacheDeleteDelay);
+  WaitForFILEThreadWithDelay(kCacheDeleteDelay);
 }
 
 // Test creation of multiple cookies.
@@ -641,10 +661,10 @@ TEST(CookieTest, MultipleCookiesOnDisk) {
 
   TestMultipleCookies(manager, event);
 
-  // The backing store will be closed on the DB thread after the CookieManager
+  // The backing store will be closed on the FILE thread after the CookieManager
   // is destroyed.
   manager = NULL;
-  WaitForDBThreadWithDelay(kCacheDeleteDelay);
+  WaitForFILEThreadWithDelay(kCacheDeleteDelay);
 }
 
 TEST(CookieTest, AllCookiesGlobal) {
@@ -687,10 +707,10 @@ TEST(CookieTest, AllCookiesOnDisk) {
 
   TestAllCookies(manager, event);
 
-  // The backing store will be closed on the DB thread after the CookieManager
+  // The backing store will be closed on the FILE thread after the CookieManager
   // is destroyed.
   manager = NULL;
-  WaitForDBThreadWithDelay(kCacheDeleteDelay);
+  WaitForFILEThreadWithDelay(kCacheDeleteDelay);
 }
 
 TEST(CookieTest, ChangeDirectoryGlobal) {
@@ -914,26 +934,23 @@ class CookieTestJSHandler : public TestHandler {
                     const std::string& value,
                     TrackCallback* callback,
                     const base::Closure& continue_callback) {
-    if (!CefCurrentlyOn(TID_FILE)) {
-      CefPostTask(TID_FILE,
-                  base::Bind(&CookieTestJSHandler::VerifyCookie, this, manager,
-                             url, name, value, base::Unretained(callback),
-                             continue_callback));
-      return;
-    }
-
-    CefRefPtr<CefWaitableEvent> event =
-        CefWaitableEvent::CreateWaitableEvent(true, false);
-    CookieVector cookies;
-
     // Get the cookie.
-    VisitUrlCookies(manager, url, false, cookies, false, event);
+    EXPECT_TRUE(cookies_.empty());
+    VisitUrlCookies(manager, url, false, cookies_, false,
+                    base::Bind(&CookieTestJSHandler::VerifyCookieComplete, this,
+                               name, value, callback, continue_callback));
+  }
 
-    if (cookies.size() == 1U && CefString(&cookies[0].name) == name &&
-        CefString(&cookies[0].value) == value) {
+  void VerifyCookieComplete(const std::string& name,
+                            const std::string& value,
+                            TrackCallback* callback,
+                            const base::Closure& continue_callback) {
+    if (cookies_.size() == 1U && CefString(&cookies_[0].name) == name &&
+        CefString(&cookies_[0].value) == value) {
       callback->yes();
     }
 
+    cookies_.clear();
     continue_callback.Run();
   }
 
@@ -941,6 +958,8 @@ class CookieTestJSHandler : public TestHandler {
 
   CefRefPtr<CefCookieManager> manager1_;
   CefRefPtr<CefCookieManager> manager2_;
+
+  CookieVector cookies_;
 
   TrackCallback got_cookie_manager1_;
   TrackCallback got_cookie_manager2_;
@@ -1212,26 +1231,23 @@ class CookieTestSchemeHandler : public TestHandler {
                     const std::string& value,
                     TrackCallback* callback,
                     const base::Closure& continue_callback) {
-    if (!CefCurrentlyOn(TID_FILE)) {
-      CefPostTask(TID_FILE,
-                  base::Bind(&CookieTestSchemeHandler::VerifyCookie, this,
-                             manager, url, name, value,
-                             base::Unretained(callback), continue_callback));
-      return;
-    }
-
-    CefRefPtr<CefWaitableEvent> event =
-        CefWaitableEvent::CreateWaitableEvent(true, false);
-    CookieVector cookies;
-
     // Get the cookie.
-    VisitUrlCookies(manager, url, false, cookies, false, event);
+    EXPECT_TRUE(cookies_.empty());
+    VisitUrlCookies(manager, url, false, cookies_, false,
+                    base::Bind(&CookieTestSchemeHandler::VerifyCookieComplete,
+                               this, name, value, callback, continue_callback));
+  }
 
-    if (cookies.size() == 1U && CefString(&cookies[0].name) == name &&
-        CefString(&cookies[0].value) == value) {
+  void VerifyCookieComplete(const std::string& name,
+                            const std::string& value,
+                            TrackCallback* callback,
+                            const base::Closure& continue_callback) {
+    if (cookies_.size() == 1U && CefString(&cookies_[0].name) == name &&
+        CefString(&cookies_[0].value) == value) {
       callback->yes();
     }
 
+    cookies_.clear();
     continue_callback.Run();
   }
 
@@ -1244,6 +1260,8 @@ class CookieTestSchemeHandler : public TestHandler {
 
   CefRefPtr<CefCookieManager> manager1_;
   CefRefPtr<CefCookieManager> manager2_;
+
+  CookieVector cookies_;
 
   TrackCallback got_process_request1_;
   TrackCallback got_process_request2_;

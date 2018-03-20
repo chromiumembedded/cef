@@ -1,8 +1,8 @@
 diff --git BUILD.gn BUILD.gn
-index c771b8191..6a5f1f3e4 100644
+index d7c8640a2..7f508fdae 100644
 --- BUILD.gn
 +++ BUILD.gn
-@@ -230,6 +230,10 @@ jumbo_static_library("pdfium") {
+@@ -231,6 +231,10 @@ jumbo_static_library("pdfium") {
    if (pdf_is_complete_lib) {
      complete_static_lib = true
    }
@@ -14,14 +14,14 @@ index c771b8191..6a5f1f3e4 100644
  
  jumbo_static_library("test_support") {
 diff --git fpdfsdk/fpdfview.cpp fpdfsdk/fpdfview.cpp
-index 97fc02a23..000b4a7d3 100644
+index e890aa009..cabb73bb6 100644
 --- fpdfsdk/fpdfview.cpp
 +++ fpdfsdk/fpdfview.cpp
 @@ -36,6 +36,7 @@
  #include "fpdfsdk/cpdfsdk_pageview.h"
  #include "fpdfsdk/fsdk_define.h"
  #include "fpdfsdk/fsdk_pauseadapter.h"
-+#include "fxjs/fxjs_v8.h"
++#include "fxjs/cfxjs_engine.h"
  #include "fxjs/ijs_runtime.h"
  #include "public/fpdf_edit.h"
  #include "public/fpdf_ext.h"

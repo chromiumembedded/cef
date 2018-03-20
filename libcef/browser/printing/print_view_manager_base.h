@@ -87,7 +87,8 @@ class CefPrintViewManagerBase : public content::NotificationObserver,
   void OnDidGetPrintedPagesCount(int cookie, int number_pages) override;
   void OnPrintingFailed(int cookie) override;
   void OnShowInvalidPrinterSettingsError();
-  void OnDidPrintDocument(const PrintHostMsg_DidPrintDocument_Params& params);
+  void OnDidPrintDocument(content::RenderFrameHost* render_frame_host,
+                          const PrintHostMsg_DidPrintDocument_Params& params);
 
   // IPC message handlers for service.
   void OnComposePdfDone(const PrintHostMsg_DidPrintDocument_Params& params,

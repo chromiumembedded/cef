@@ -177,10 +177,25 @@ v8::MaybeLocal<v8::Value> ExecuteV8ScriptAndReturnValue(
   if (frame && frame->GetSettings())
     v8CacheOptions = frame->GetSettings()->GetV8CacheOptions();
 
+  // Based on V8ScriptRunner::CompileAndRunInternalScript:
+  v8::ScriptCompiler::CompileOptions compile_options;
+  blink::V8ScriptRunner::ProduceCacheOptions produce_cache_options;
+  v8::ScriptCompiler::NoCacheReason no_cache_reason;
+  std::tie(compile_options, produce_cache_options, no_cache_reason) =
+      blink::V8ScriptRunner::GetCompileOptions(v8CacheOptions, ssc);
+
+  // Currently internal scripts don't have cache handlers, so we should not
+  // produce cache for them.
+  DCHECK_EQ(produce_cache_options,
+            blink::V8ScriptRunner::ProduceCacheOptions::kNoProduceCache);
+
   v8::Local<v8::Script> script;
+  // Use default ReferrerScriptInfo here:
+  // - nonce: empty for internal script, and
+  // - parser_state: always "not parser inserted" for internal scripts.
   if (!blink::V8ScriptRunner::CompileScript(
            blink::ScriptState::From(context), ssc, accessControlStatus,
-           v8CacheOptions, blink::ReferrerScriptInfo())
+           compile_options, no_cache_reason, blink::ReferrerScriptInfo())
            .ToLocal(&script)) {
     DCHECK(tryCatch.HasCaught());
     return result;

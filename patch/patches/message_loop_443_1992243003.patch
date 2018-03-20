@@ -33,7 +33,7 @@ index 27ee7fe8155b..353a61c3badd 100644
    // if type_ is TYPE_CUSTOM and pump_ is null.
    MessagePumpFactoryCallback pump_factory_;
 diff --git base/message_loop/message_pump_win.cc base/message_loop/message_pump_win.cc
-index 6f48da1c744e..e427941bfd06 100644
+index 5069b8524924..e88a3c7974f2 100644
 --- base/message_loop/message_pump_win.cc
 +++ base/message_loop/message_pump_win.cc
 @@ -366,20 +366,28 @@ bool MessagePumpForUI::ProcessMessageHelper(const MSG& msg) {

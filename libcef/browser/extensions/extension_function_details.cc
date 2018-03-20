@@ -415,36 +415,36 @@ std::unique_ptr<api::tabs::Tab> CefExtensionFunctionDetails::CreateTabObject(
   content::WebContents* contents = new_browser->web_contents();
 
   bool is_loading = contents->IsLoading();
-  auto tab_object = base::MakeUnique<api::tabs::Tab>();
-  tab_object->id = base::MakeUnique<int>(new_browser->GetIdentifier());
+  auto tab_object = std::make_unique<api::tabs::Tab>();
+  tab_object->id = std::make_unique<int>(new_browser->GetIdentifier());
   tab_object->index = index;
   tab_object->window_id = *tab_object->id;
-  tab_object->status = base::MakeUnique<std::string>(
+  tab_object->status = std::make_unique<std::string>(
       is_loading ? keys::kStatusValueLoading : keys::kStatusValueComplete);
   tab_object->active = active;
   tab_object->selected = true;
   tab_object->highlighted = true;
   tab_object->pinned = false;
-  tab_object->audible = base::MakeUnique<bool>(contents->WasRecentlyAudible());
+  tab_object->audible = std::make_unique<bool>(contents->WasRecentlyAudible());
   tab_object->discarded = false;
   tab_object->auto_discardable = false;
   tab_object->muted_info = CreateMutedInfo(contents);
   tab_object->incognito = false;
   gfx::Size contents_size = contents->GetContainerBounds().size();
-  tab_object->width = base::MakeUnique<int>(contents_size.width());
-  tab_object->height = base::MakeUnique<int>(contents_size.height());
-  tab_object->url = base::MakeUnique<std::string>(contents->GetURL().spec());
+  tab_object->width = std::make_unique<int>(contents_size.width());
+  tab_object->height = std::make_unique<int>(contents_size.height());
+  tab_object->url = std::make_unique<std::string>(contents->GetURL().spec());
   tab_object->title =
-      base::MakeUnique<std::string>(base::UTF16ToUTF8(contents->GetTitle()));
+      std::make_unique<std::string>(base::UTF16ToUTF8(contents->GetTitle()));
 
   content::NavigationEntry* entry = contents->GetController().GetVisibleEntry();
   if (entry && entry->GetFavicon().valid) {
     tab_object->fav_icon_url =
-        base::MakeUnique<std::string>(entry->GetFavicon().url.spec());
+        std::make_unique<std::string>(entry->GetFavicon().url.spec());
   }
 
   if (opener_browser_id >= 0)
-    tab_object->opener_tab_id = base::MakeUnique<int>(opener_browser_id);
+    tab_object->opener_tab_id = std::make_unique<int>(opener_browser_id);
 
   return tab_object;
 }

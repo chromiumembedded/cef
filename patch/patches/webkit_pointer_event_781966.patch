@@ -1,8 +1,8 @@
 diff --git third_party/WebKit/Source/core/input/PointerEventManager.cpp third_party/WebKit/Source/core/input/PointerEventManager.cpp
-index 6e0a75cf93c3..403b019db4ee 100644
+index ce07c49a4777..ed1ef44ac2de 100644
 --- third_party/WebKit/Source/core/input/PointerEventManager.cpp
 +++ third_party/WebKit/Source/core/input/PointerEventManager.cpp
-@@ -269,7 +269,7 @@ void PointerEventManager::HandlePointerInterruption(
+@@ -270,7 +270,7 @@ void PointerEventManager::HandlePointerInterruption(
    for (auto pointer_event : canceled_pointer_events) {
      // If we are sending a pointercancel we have sent the pointerevent to some
      // target before.

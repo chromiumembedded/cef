@@ -60,6 +60,10 @@ class MacHelper : public content::BrowserCompositorMacClient,
 
   void AcceleratedWidgetSwapCompleted() override {}
 
+  void DidReceiveFirstFrameAfterNavigation() override {
+    view_->render_widget_host()->DidReceiveFirstFrameAfterNavigation();
+  }
+
  private:
   // Guaranteed to outlive this object.
   CefRenderWidgetHostViewOSR* view_;
@@ -82,6 +86,10 @@ bool CefRenderWidgetHostViewOSR::IsSpeaking() const {
 }
 
 void CefRenderWidgetHostViewOSR::StopSpeaking() {}
+
+bool CefRenderWidgetHostViewOSR::ShouldContinueToPauseForFrame() {
+  return browser_compositor_->ShouldContinueToPauseForFrame();
+}
 
 ui::Compositor* CefRenderWidgetHostViewOSR::GetCompositor() const {
   return browser_compositor_->GetCompositor();

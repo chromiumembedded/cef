@@ -105,8 +105,7 @@ void CefDevToolsManagerDelegate::StartHttpHandler(
   if (!socket_factory)
     return;
   content::DevToolsAgentHost::StartRemoteDebuggingServer(
-      std::move(socket_factory), std::string(), browser_context->GetPath(),
-      base::FilePath());
+      std::move(socket_factory), browser_context->GetPath(), base::FilePath());
 
   const base::CommandLine& command_line =
       *base::CommandLine::ForCurrentProcess();
@@ -138,7 +137,6 @@ std::string CefDevToolsManagerDelegate::GetDiscoveryPageHTML() {
       .as_string();
 }
 
-std::string CefDevToolsManagerDelegate::GetFrontendResource(
-    const std::string& path) {
-  return content::DevToolsFrontendHost::GetFrontendResource(path).as_string();
+bool CefDevToolsManagerDelegate::HasBundledFrontendResources() {
+  return true;
 }

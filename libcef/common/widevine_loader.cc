@@ -93,7 +93,7 @@ const char kCdmSupportedCodecAvc1[] = "avc1";
 
 std::unique_ptr<base::DictionaryValue> ParseManifestFile(
     const base::FilePath& manifest_path) {
-  CEF_REQUIRE_FILET();
+  CEF_REQUIRE_BLOCKING();
 
   // Manifest file should be < 1kb. Read at most 2kb.
   std::string manifest_contents;
@@ -318,10 +318,10 @@ void RegisterWidevineCdmOnUIThread(const base::FilePath& cdm_adapter_path,
                              callback);
 }
 
-void LoadWidevineCdmInfoOnFileThread(
+void LoadWidevineCdmInfoOnBlockingThread(
     const base::FilePath& base_path,
     CefRefPtr<CefRegisterCdmCallback> callback) {
-  CEF_REQUIRE_FILET();
+  CEF_REQUIRE_BLOCKING();
 
   base::FilePath cdm_adapter_path;
   base::FilePath cdm_path;
@@ -363,9 +363,8 @@ void CefWidevineLoader::LoadWidevineCdm(
     return;
   }
 
-  // Continue execution on the FILE thread.
-  CEF_POST_TASK(CEF_FILET,
-                base::Bind(LoadWidevineCdmInfoOnFileThread, path, callback));
+  CEF_POST_USER_VISIBLE_TASK(
+      base::Bind(LoadWidevineCdmInfoOnBlockingThread, path, callback));
 }
 
 void CefWidevineLoader::OnContextInitialized() {

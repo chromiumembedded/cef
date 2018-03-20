@@ -9,15 +9,15 @@
 #include "include/cef_download_item.h"
 #include "libcef/common/value_base.h"
 
-namespace content {
+namespace download {
 class DownloadItem;
 }
 
 // CefDownloadItem implementation
 class CefDownloadItemImpl
-    : public CefValueBase<CefDownloadItem, content::DownloadItem> {
+    : public CefValueBase<CefDownloadItem, download::DownloadItem> {
  public:
-  explicit CefDownloadItemImpl(content::DownloadItem* value);
+  explicit CefDownloadItemImpl(download::DownloadItem* value);
 
   // CefDownloadItem methods.
   bool IsValid() override;

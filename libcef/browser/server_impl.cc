@@ -12,7 +12,6 @@
 #include "base/format_macros.h"
 #include "base/memory/ptr_util.h"
 #include "base/strings/stringprintf.h"
-#include "base/task_scheduler/post_task.h"
 #include "base/threading/thread.h"
 #include "net/base/net_errors.h"
 #include "net/http/http_request_headers.h"
@@ -20,6 +19,7 @@
 #include "net/server/http_server_response_info.h"
 #include "net/socket/server_socket.h"
 #include "net/socket/tcp_server_socket.h"
+#include "net/traffic_annotation/network_traffic_annotation.h"
 
 #define CEF_CURRENTLY_ON_HT() CurrentlyOnHandlerThread()
 #define CEF_REQUIRE_HT() DCHECK(CEF_CURRENTLY_ON_HT())
@@ -237,7 +237,7 @@ void CefServerImpl::SendHttp404Response(int connection_id) {
     return;
   }
 
-  server_->Send404(connection_id);
+  server_->Send404(connection_id, NO_TRAFFIC_ANNOTATION_YET);
   server_->Close(connection_id);
 }
 
@@ -262,7 +262,7 @@ void CefServerImpl::SendHttp500Response(int connection_id,
     return;
   }
 
-  server_->Send500(connection_id, error_message);
+  server_->Send500(connection_id, error_message, NO_TRAFFIC_ANNOTATION_YET);
   server_->Close(connection_id);
 }
 
@@ -305,7 +305,7 @@ void CefServerImpl::SendHttpResponse(int connection_id,
         base::StringPrintf("%" PRIuS, static_cast<size_t>(content_length)));
   }
 
-  server_->SendResponse(connection_id, response);
+  server_->SendResponse(connection_id, response, NO_TRAFFIC_ANNOTATION_YET);
   if (content_length == 0) {
     server_->Close(connection_id);
   }
@@ -366,7 +366,8 @@ void CefServerImpl::ContinueWebSocketRequest(
   info->is_websocket_pending = false;
 
   if (allow) {
-    server_->AcceptWebSocket(connection_id, request_info);
+    server_->AcceptWebSocket(connection_id, request_info,
+                             NO_TRAFFIC_ANNOTATION_YET);
     handler_->OnWebSocketConnected(this, connection_id);
   } else {
     server_->Close(connection_id);
@@ -397,7 +398,8 @@ void CefServerImpl::SendHttp200ResponseInternal(
     return;
   }
 
-  server_->Send200(connection_id, *data, content_type);
+  server_->Send200(connection_id, *data, content_type,
+                   NO_TRAFFIC_ANNOTATION_YET);
   server_->Close(connection_id);
 }
 
@@ -416,7 +418,7 @@ void CefServerImpl::SendRawDataInternal(int connection_id,
   if (!GetConnectionInfo(connection_id))
     return;
 
-  server_->SendRaw(connection_id, *data);
+  server_->SendRaw(connection_id, *data, NO_TRAFFIC_ANNOTATION_YET);
 }
 
 void CefServerImpl::SendWebSocketMessageInternal(
@@ -442,7 +444,7 @@ void CefServerImpl::SendWebSocketMessageInternal(
     return;
   }
 
-  server_->SendOverWebSocket(connection_id, *data);
+  server_->SendOverWebSocket(connection_id, *data, NO_TRAFFIC_ANNOTATION_YET);
 }
 
 void CefServerImpl::OnConnect(int connection_id) {
@@ -595,8 +597,7 @@ void CefServerImpl::ShutdownOnUIThread() {
   if (thread_) {
     // Stop the handler thread as a background task so the UI thread isn't
     // blocked.
-    base::PostTaskWithTraits(
-        FROM_HERE, {base::MayBlock(), base::TaskPriority::BACKGROUND},
+    CEF_POST_BACKGROUND_TASK(
         BindOnce([](std::unique_ptr<base::Thread>) {}, std::move(thread_)));
 
     // Release the reference that was added in StartupOnUIThread().

@@ -93,7 +93,6 @@ bool CefResourceDispatcherHostDelegate::HandleExternalProtocol(
 // ChromeResourceDispatcherHostDelegate::ShouldInterceptResourceAsStream.
 bool CefResourceDispatcherHostDelegate::ShouldInterceptResourceAsStream(
     net::URLRequest* request,
-    const base::FilePath& plugin_path,
     const std::string& mime_type,
     GURL* origin,
     std::string* payload) {
@@ -125,29 +124,14 @@ bool CefResourceDispatcherHostDelegate::ShouldInterceptResourceAsStream(
     if (!handler)
       continue;
 
-    // If a plugin path is provided then a stream is being intercepted for the
-    // mimeHandlerPrivate API. Otherwise a stream is being intercepted for the
-    // streamsPrivate API.
-    if (!plugin_path.empty()) {
-      if (handler->HasPlugin() && plugin_path == handler->GetPluginPath()) {
-        StreamTargetInfo target_info;
-        *origin =
-            extensions::Extension::GetBaseURLFromExtensionId(extension_id);
-        target_info.extension_id = extension_id;
-        target_info.view_id = base::GenerateGUID();
-        *payload = target_info.view_id;
-        stream_target_info_[request] = target_info;
-        return true;
-      }
-    } else {
-      if (!handler->HasPlugin() && handler->CanHandleMIMEType(mime_type)) {
-        StreamTargetInfo target_info;
-        *origin =
-            extensions::Extension::GetBaseURLFromExtensionId(extension_id);
-        target_info.extension_id = extension_id;
-        stream_target_info_[request] = target_info;
-        return true;
-      }
+    if (handler->CanHandleMIMEType(mime_type)) {
+      StreamTargetInfo target_info;
+      *origin = extensions::Extension::GetBaseURLFromExtensionId(extension_id);
+      target_info.extension_id = extension_id;
+      target_info.view_id = base::GenerateGUID();
+      *payload = target_info.view_id;
+      stream_target_info_[request] = target_info;
+      return true;
     }
   }
 
@@ -193,13 +177,6 @@ void CefResourceDispatcherHostDelegate::OnRequestRedirected(
         active_url.host());
     response->head.headers->AddHeader("Access-Control-Allow-Credentials: true");
   }
-}
-
-std::unique_ptr<net::ClientCertStore>
-CefResourceDispatcherHostDelegate::CreateClientCertStore(
-    content::ResourceContext* resource_context) {
-  return static_cast<CefResourceContext*>(resource_context)
-      ->CreateClientCertStore();
 }
 
 void CefResourceDispatcherHostDelegate::HandleExternalProtocolOnUIThread(

@@ -478,7 +478,6 @@ class CefBrowserHostImpl : public CefBrowserHost,
 
   // content::WebContentsObserver methods.
   using content::WebContentsObserver::BeforeUnloadFired;
-  using content::WebContentsObserver::WasHidden;
   void RenderFrameCreated(content::RenderFrameHost* render_frame_host) override;
   void RenderFrameHostChanged(content::RenderFrameHost* old_host,
                               content::RenderFrameHost* new_host) override;

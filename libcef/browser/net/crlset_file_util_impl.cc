@@ -9,10 +9,8 @@
 
 #include "base/files/file_util.h"
 #include "base/logging.h"
-#include "base/task_scheduler/post_task.h"
 #include "base/threading/thread_restrictions.h"
 #include "net/cert/crl_set.h"
-#include "net/cert/crl_set_storage.h"
 #include "net/ssl/ssl_config_service.h"
 
 namespace {
@@ -25,7 +23,7 @@ void SetCRLSetIfNewer(scoped_refptr<net::CRLSet> crl_set) {
 }
 
 void LoadFromDisk(const base::FilePath& path) {
-  base::AssertBlockingAllowed();
+  CEF_REQUIRE_BLOCKING();
 
   std::string crl_set_bytes;
   if (!base::ReadFileToString(path, &crl_set_bytes)) {
@@ -34,7 +32,7 @@ void LoadFromDisk(const base::FilePath& path) {
   }
 
   scoped_refptr<net::CRLSet> crl_set;
-  if (!net::CRLSetStorage::Parse(crl_set_bytes, &crl_set)) {
+  if (!net::CRLSet::Parse(crl_set_bytes, &crl_set)) {
     LOG(WARNING) << "Failed to parse CRL set from " << path.MaybeAsASCII();
     return;
   }
@@ -51,7 +49,5 @@ void CefLoadCRLSetsFile(const CefString& path) {
     return;
   }
 
-  base::PostTaskWithTraits(FROM_HERE,
-                           {base::TaskPriority::BACKGROUND, base::MayBlock()},
-                           base::BindOnce(&LoadFromDisk, path));
+  CEF_POST_USER_VISIBLE_TASK(base::BindOnce(&LoadFromDisk, path));
 }

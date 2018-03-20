@@ -21,7 +21,10 @@
 #include "chrome/common/plugin.mojom.h"
 #include "content/public/renderer/content_renderer_client.h"
 #include "content/public/renderer/render_thread.h"
+#include "services/service_manager/public/cpp/binder_registry.h"
+#include "services/service_manager/public/cpp/connector.h"
 #include "services/service_manager/public/cpp/local_interface_provider.h"
+#include "services/service_manager/public/cpp/service.h"
 
 namespace blink {
 class WebURLLoaderFactory;
@@ -48,6 +51,7 @@ class ChromePDFPrintClient;
 class SpellCheck;
 
 class CefContentRendererClient : public content::ContentRendererClient,
+                                 public service_manager::Service,
                                  public service_manager::LocalInterfaceProvider,
                                  public base::MessageLoop::DestructionObserver {
  public:
@@ -129,6 +133,14 @@ class CefContentRendererClient : public content::ContentRendererClient,
   void RunScriptsAtDocumentIdle(content::RenderFrame* render_frame) override;
   void DevToolsAgentAttached() override;
   void DevToolsAgentDetached() override;
+  void CreateRendererService(
+      service_manager::mojom::ServiceRequest service_request) override;
+
+  // service_manager::Service implementation.
+  void OnStart() override;
+  void OnBindInterface(const service_manager::BindSourceInfo& remote_info,
+                       const std::string& name,
+                       mojo::ScopedMessagePipeHandle handle) override;
 
   // service_manager::LocalInterfaceProvider implementation.
   void GetInterface(const std::string& name,
@@ -143,6 +155,12 @@ class CefContentRendererClient : public content::ContentRendererClient,
 
   // Perform cleanup work for single-process mode.
   void RunSingleProcessCleanupOnUIThread();
+
+  service_manager::Connector* GetConnector();
+
+  // Time at which this object was created. This is very close to the time at
+  // which the RendererMain function was entered.
+  base::TimeTicks main_entry_time_;
 
   scoped_refptr<base::SingleThreadTaskRunner> render_task_runner_;
   std::unique_ptr<CefRenderThreadObserver> observer_;
@@ -176,6 +194,11 @@ class CefContentRendererClient : public content::ContentRendererClient,
   // Access must be protected by |single_process_cleanup_lock_|.
   bool single_process_cleanup_complete_;
   base::Lock single_process_cleanup_lock_;
+
+  std::unique_ptr<service_manager::Connector> connector_;
+  service_manager::mojom::ConnectorRequest connector_request_;
+  std::unique_ptr<service_manager::ServiceContext> service_context_;
+  service_manager::BinderRegistry registry_;
 
   DISALLOW_COPY_AND_ASSIGN(CefContentRendererClient);
 };

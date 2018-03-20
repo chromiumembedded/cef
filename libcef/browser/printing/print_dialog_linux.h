@@ -40,13 +40,13 @@ class CefPrintDialogLinux : public printing::PrintDialogGtkInterface,
   // Notify the client when printing has started.
   static void OnPrintStart(int render_process_id, int render_routing_id);
 
-  // printing::CefPrintDialogLinuxInterface implementation.
+  // PrintDialogGtkInterface implementation.
   void UseDefaultSettings() override;
   bool UpdateSettings(printing::PrintSettings* settings) override;
   void ShowDialog(
       gfx::NativeView parent_view,
       bool has_selection,
-      const PrintingContextLinux::PrintSettingsCallback& callback) override;
+      PrintingContextLinux::PrintSettingsCallback callback) override;
   void PrintDocument(const printing::MetafilePlayer& metafile,
                      const base::string16& document_name) override;
   void AddRefToDialog() override;

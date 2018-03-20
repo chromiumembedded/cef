@@ -12,7 +12,8 @@
 #include "base/strings/string_number_conversions.h"
 #include "base/strings/stringprintf.h"
 #include "content/public/browser/ax_event_notification_details.h"
-#include "ui/accessibility/ax_enums.h"
+#include "ui/accessibility/ax_enum_util.h"
+#include "ui/accessibility/ax_enums.mojom.h"
 #include "ui/accessibility/ax_text_utils.h"
 #include "ui/accessibility/ax_tree_update.h"
 #include "ui/gfx/transform.h"
@@ -39,9 +40,10 @@ CefRefPtr<CefListValue> ToCefValue(uint32_t state) {
 
   int index = 0;
   // Iterate and find which states are set.
-  for (unsigned i = ui::AX_STATE_NONE; i <= ui::AX_STATE_LAST; i++) {
+  for (unsigned i = static_cast<unsigned>(ax::mojom::Role::kNone);
+       i <= static_cast<unsigned>(ax::mojom::Role::kLast); i++) {
     if (state & (1 << i))
-      value->SetString(index++, ToString(static_cast<ui::AXState>(i)));
+      value->SetString(index++, ToString(static_cast<ax::mojom::State>(i)));
   }
   return value;
 }
@@ -65,127 +67,124 @@ struct PopulateAxNodeAttributes {
       : attributes(attrs) {}
 
   // Int Attributes
-  void operator()(const std::pair<ui::AXIntAttribute, int32_t> attr) {
-    if (attr.first == ui::AX_INT_ATTRIBUTE_NONE)
+  void operator()(const std::pair<ax::mojom::IntAttribute, int32_t> attr) {
+    if (attr.first == ax::mojom::IntAttribute::kNone)
       return;
 
     switch (attr.first) {
-      case ui::AX_INT_ATTRIBUTE_NONE:
+      case ax::mojom::IntAttribute::kNone:
         break;
-      case ui::AX_ATTR_SCROLL_X:
-      case ui::AX_ATTR_SCROLL_X_MIN:
-      case ui::AX_ATTR_SCROLL_X_MAX:
-      case ui::AX_ATTR_SCROLL_Y:
-      case ui::AX_ATTR_SCROLL_Y_MIN:
-      case ui::AX_ATTR_SCROLL_Y_MAX:
-      case ui::AX_ATTR_HIERARCHICAL_LEVEL:
-      case ui::AX_ATTR_TEXT_SEL_START:
-      case ui::AX_ATTR_TEXT_SEL_END:
-      case ui::AX_ATTR_ARIA_COLUMN_COUNT:
-      case ui::AX_ATTR_ARIA_CELL_COLUMN_INDEX:
-      case ui::AX_ATTR_ARIA_ROW_COUNT:
-      case ui::AX_ATTR_ARIA_CELL_ROW_INDEX:
-      case ui::AX_ATTR_TABLE_ROW_COUNT:
-      case ui::AX_ATTR_TABLE_COLUMN_COUNT:
-      case ui::AX_ATTR_TABLE_CELL_COLUMN_INDEX:
-      case ui::AX_ATTR_TABLE_CELL_ROW_INDEX:
-      case ui::AX_ATTR_TABLE_CELL_COLUMN_SPAN:
-      case ui::AX_ATTR_TABLE_CELL_ROW_SPAN:
-      case ui::AX_ATTR_TABLE_COLUMN_HEADER_ID:
-      case ui::AX_ATTR_TABLE_COLUMN_INDEX:
-      case ui::AX_ATTR_TABLE_HEADER_ID:
-      case ui::AX_ATTR_TABLE_ROW_HEADER_ID:
-      case ui::AX_ATTR_TABLE_ROW_INDEX:
-      case ui::AX_ATTR_ACTIVEDESCENDANT_ID:
-      case ui::AX_ATTR_IN_PAGE_LINK_TARGET_ID:
-      case ui::AX_ATTR_ERRORMESSAGE_ID:
-      case ui::AX_ATTR_DETAILS_ID:
-      case ui::AX_ATTR_MEMBER_OF_ID:
-      case ui::AX_ATTR_NEXT_FOCUS_ID:
-      case ui::AX_ATTR_NEXT_ON_LINE_ID:
-      case ui::AX_ATTR_PREVIOUS_FOCUS_ID:
-      case ui::AX_ATTR_PREVIOUS_ON_LINE_ID:
-      case ui::AX_ATTR_CHILD_TREE_ID:
-      case ui::AX_ATTR_SET_SIZE:
-      case ui::AX_ATTR_POS_IN_SET:
+      case ax::mojom::IntAttribute::kScrollX:
+      case ax::mojom::IntAttribute::kScrollXMin:
+      case ax::mojom::IntAttribute::kScrollXMax:
+      case ax::mojom::IntAttribute::kScrollY:
+      case ax::mojom::IntAttribute::kScrollYMin:
+      case ax::mojom::IntAttribute::kScrollYMax:
+      case ax::mojom::IntAttribute::kHierarchicalLevel:
+      case ax::mojom::IntAttribute::kTextSelStart:
+      case ax::mojom::IntAttribute::kTextSelEnd:
+      case ax::mojom::IntAttribute::kAriaColumnCount:
+      case ax::mojom::IntAttribute::kAriaCellColumnIndex:
+      case ax::mojom::IntAttribute::kAriaRowCount:
+      case ax::mojom::IntAttribute::kAriaCellRowIndex:
+      case ax::mojom::IntAttribute::kTableRowCount:
+      case ax::mojom::IntAttribute::kTableColumnCount:
+      case ax::mojom::IntAttribute::kTableCellColumnIndex:
+      case ax::mojom::IntAttribute::kTableCellRowIndex:
+      case ax::mojom::IntAttribute::kTableCellColumnSpan:
+      case ax::mojom::IntAttribute::kTableCellRowSpan:
+      case ax::mojom::IntAttribute::kTableColumnHeaderId:
+      case ax::mojom::IntAttribute::kTableColumnIndex:
+      case ax::mojom::IntAttribute::kTableHeaderId:
+      case ax::mojom::IntAttribute::kTableRowHeaderId:
+      case ax::mojom::IntAttribute::kTableRowIndex:
+      case ax::mojom::IntAttribute::kActivedescendantId:
+      case ax::mojom::IntAttribute::kInPageLinkTargetId:
+      case ax::mojom::IntAttribute::kErrormessageId:
+      case ax::mojom::IntAttribute::kDetailsId:
+      case ax::mojom::IntAttribute::kMemberOfId:
+      case ax::mojom::IntAttribute::kNextFocusId:
+      case ax::mojom::IntAttribute::kNextOnLineId:
+      case ax::mojom::IntAttribute::kPreviousFocusId:
+      case ax::mojom::IntAttribute::kPreviousOnLineId:
+      case ax::mojom::IntAttribute::kChildTreeId:
+      case ax::mojom::IntAttribute::kSetSize:
+      case ax::mojom::IntAttribute::kPosInSet:
         attributes->SetInt(ToString(attr.first), attr.second);
         break;
-      case ui::AX_ATTR_DEFAULT_ACTION_VERB:
+      case ax::mojom::IntAttribute::kDefaultActionVerb:
         attributes->SetString(
             ToString(attr.first),
             ui::ActionVerbToUnlocalizedString(
-                static_cast<ui::AXDefaultActionVerb>(attr.second)));
+                static_cast<ax::mojom::DefaultActionVerb>(attr.second)));
         break;
-      case ui::AX_ATTR_INVALID_STATE:
-        if (ui::AX_INVALID_STATE_NONE != attr.second) {
-          attributes->SetString(
-              ToString(attr.first),
-              ToString(static_cast<ui::AXInvalidState>(attr.second)));
+      case ax::mojom::IntAttribute::kInvalidState: {
+        auto state = static_cast<ax::mojom::InvalidState>(attr.second);
+        if (ax::mojom::InvalidState::kNone != state) {
+          attributes->SetString(ToString(attr.first), ToString(state));
         }
-        break;
-      case ui::AX_ATTR_CHECKED_STATE:
-        if (ui::AX_CHECKED_STATE_NONE != attr.second) {
-          attributes->SetString(
-              ToString(attr.first),
-              ToString(static_cast<ui::AXCheckedState>(attr.second)));
+      } break;
+      case ax::mojom::IntAttribute::kCheckedState: {
+        auto state = static_cast<ax::mojom::CheckedState>(attr.second);
+        if (ax::mojom::CheckedState::kNone != state) {
+          attributes->SetString(ToString(attr.first), ToString(state));
         }
-        break;
-      case ui::AX_ATTR_RESTRICTION:
+      } break;
+      case ax::mojom::IntAttribute::kRestriction:
         attributes->SetString(
             ToString(attr.first),
-            ToString(static_cast<ui::AXRestriction>(attr.second)));
+            ToString(static_cast<ax::mojom::Restriction>(attr.second)));
         break;
-      case ui::AX_ATTR_SORT_DIRECTION:
-        if (ui::AX_SORT_DIRECTION_NONE != attr.second) {
-          attributes->SetString(
-              ToString(attr.first),
-              ToString(static_cast<ui::AXSortDirection>(attr.second)));
+      case ax::mojom::IntAttribute::kSortDirection: {
+        auto state = static_cast<ax::mojom::SortDirection>(attr.second);
+        if (ax::mojom::SortDirection::kNone != state) {
+          attributes->SetString(ToString(attr.first), ToString(state));
         }
-        break;
-      case ui::AX_ATTR_NAME_FROM:
+      } break;
+      case ax::mojom::IntAttribute::kNameFrom:
         attributes->SetString(
             ToString(attr.first),
-            ToString(static_cast<ui::AXNameFrom>(attr.second)));
+            ToString(static_cast<ax::mojom::NameFrom>(attr.second)));
         break;
-      case ui::AX_ATTR_COLOR_VALUE:
-      case ui::AX_ATTR_BACKGROUND_COLOR:
-      case ui::AX_ATTR_COLOR:
+      case ax::mojom::IntAttribute::kColorValue:
+      case ax::mojom::IntAttribute::kBackgroundColor:
+      case ax::mojom::IntAttribute::kColor:
         attributes->SetString(ToString(attr.first),
                               base::StringPrintf("0x%X", attr.second));
         break;
-      case ui::AX_ATTR_DESCRIPTION_FROM:
+      case ax::mojom::IntAttribute::kDescriptionFrom:
         attributes->SetString(
             ToString(attr.first),
-            ToString(static_cast<ui::AXDescriptionFrom>(attr.second)));
+            ToString(static_cast<ax::mojom::DescriptionFrom>(attr.second)));
         break;
-      case ui::AX_ATTR_ARIA_CURRENT_STATE:
-        if (ui::AX_ARIA_CURRENT_STATE_NONE != attr.second) {
-          attributes->SetString(
-              ToString(attr.first),
-              ToString(static_cast<ui::AXAriaCurrentState>(attr.second)));
+      case ax::mojom::IntAttribute::kAriaCurrentState: {
+        auto state = static_cast<ax::mojom::AriaCurrentState>(attr.second);
+        if (ax::mojom::AriaCurrentState::kNone != state) {
+          attributes->SetString(ToString(attr.first), ToString(state));
         }
-        break;
-      case ui::AX_ATTR_TEXT_DIRECTION:
-        if (ui::AX_TEXT_DIRECTION_NONE != attr.second) {
-          attributes->SetString(
-              ToString(attr.first),
-              ToString(static_cast<ui::AXTextDirection>(attr.second)));
+      } break;
+      case ax::mojom::IntAttribute::kTextDirection: {
+        auto state = static_cast<ax::mojom::TextDirection>(attr.second);
+        if (ax::mojom::TextDirection::kNone != state) {
+          attributes->SetString(ToString(attr.first), ToString(state));
         }
-        break;
-      case ui::AX_ATTR_TEXT_STYLE: {
-        auto text_style = static_cast<ui::AXTextStyle>(attr.second);
-        if (text_style == ui::AX_TEXT_STYLE_NONE)
+      } break;
+      case ax::mojom::IntAttribute::kTextStyle: {
+        auto text_style = static_cast<ax::mojom::TextStyle>(attr.second);
+        if (text_style == ax::mojom::TextStyle::kNone)
           break;
 
-        static ui::AXTextStyle textStyleArr[] = {
-            ui::AX_TEXT_STYLE_BOLD, ui::AX_TEXT_STYLE_ITALIC,
-            ui::AX_TEXT_STYLE_UNDERLINE, ui::AX_TEXT_STYLE_LINE_THROUGH};
+        static ax::mojom::TextStyle textStyleArr[] = {
+            ax::mojom::TextStyle::kTextStyleBold,
+            ax::mojom::TextStyle::kTextStyleItalic,
+            ax::mojom::TextStyle::kTextStyleUnderline,
+            ax::mojom::TextStyle::kTextStyleLineThrough};
 
         CefRefPtr<CefListValue> list = CefListValue::Create();
         int index = 0;
         // Iterate and find which states are set.
         for (unsigned i = 0; i < arraysize(textStyleArr); i++) {
-          if (text_style & textStyleArr[i])
+          if (attr.second & static_cast<int>(textStyleArr[i]))
             list->SetString(index++, ToString(textStyleArr[i]));
         }
         attributes->SetList(ToString(attr.first), list);
@@ -194,43 +193,44 @@ struct PopulateAxNodeAttributes {
   }
 
   // Set Bool Attributes.
-  void operator()(const std::pair<ui::AXBoolAttribute, bool> attr) {
-    if (attr.first != ui::AX_BOOL_ATTRIBUTE_NONE)
+  void operator()(const std::pair<ax::mojom::BoolAttribute, bool> attr) {
+    if (attr.first != ax::mojom::BoolAttribute::kNone)
       attributes->SetBool(ToString(attr.first), attr.second);
   }
   // Set String Attributes.
-  void operator()(const std::pair<ui::AXStringAttribute, std::string>& attr) {
-    if (attr.first != ui::AX_STRING_ATTRIBUTE_NONE)
+  void operator()(
+      const std::pair<ax::mojom::StringAttribute, std::string>& attr) {
+    if (attr.first != ax::mojom::StringAttribute::kNone)
       attributes->SetString(ToString(attr.first), attr.second);
   }
   // Set Float attributes.
-  void operator()(const std::pair<ui::AXFloatAttribute, float>& attr) {
-    if (attr.first != ui::AX_FLOAT_ATTRIBUTE_NONE)
+  void operator()(const std::pair<ax::mojom::FloatAttribute, float>& attr) {
+    if (attr.first != ax::mojom::FloatAttribute::kNone)
       attributes->SetDouble(ToString(attr.first), attr.second);
   }
 
   // Set Int list attributes.
-  void operator()(
-      const std::pair<ui::AXIntListAttribute, std::vector<int32_t>>& attr) {
-    if (attr.first != ui::AX_INT_LIST_ATTRIBUTE_NONE) {
+  void operator()(const std::pair<ax::mojom::IntListAttribute,
+                                  std::vector<int32_t>>& attr) {
+    if (attr.first != ax::mojom::IntListAttribute::kNone) {
       CefRefPtr<CefListValue> list;
 
-      if (ui::AX_ATTR_MARKER_TYPES == attr.first) {
+      if (ax::mojom::IntListAttribute::kMarkerTypes == attr.first) {
         list = CefListValue::Create();
         int index = 0;
         for (size_t i = 0; i < attr.second.size(); ++i) {
-          auto type = static_cast<ui::AXMarkerType>(attr.second[i]);
+          auto type = static_cast<ax::mojom::MarkerType>(attr.second[i]);
 
-          if (type == ui::AX_MARKER_TYPE_NONE)
+          if (type == ax::mojom::MarkerType::kNone)
             continue;
 
-          static ui::AXMarkerType marktypeArr[] = {
-              ui::AX_MARKER_TYPE_SPELLING, ui::AX_MARKER_TYPE_GRAMMAR,
-              ui::AX_MARKER_TYPE_TEXT_MATCH};
+          static ax::mojom::MarkerType marktypeArr[] = {
+              ax::mojom::MarkerType::kSpelling, ax::mojom::MarkerType::kGrammar,
+              ax::mojom::MarkerType::kTextMatch};
 
           // Iterate and find which markers are set.
           for (unsigned j = 0; j < arraysize(marktypeArr); j++) {
-            if (type & marktypeArr[j])
+            if (attr.second[i] & static_cast<int>(marktypeArr[j]))
               list->SetString(index++, ToString(marktypeArr[j]));
           }
         }
@@ -267,9 +267,10 @@ CefRefPtr<CefDictionaryValue> ToCefValue(const ui::AXNodeData& node) {
 
   CefRefPtr<CefListValue> actions_strings;
   size_t actions_idx = 0;
-  for (int action_index = ui::AX_ACTION_NONE + 1;
-       action_index <= ui::AX_ACTION_LAST; ++action_index) {
-    auto action = static_cast<ui::AXAction>(action_index);
+  for (int action_index = static_cast<int>(ax::mojom::Action::kNone) + 1;
+       action_index <= static_cast<int>(ax::mojom::Action::kLast);
+       ++action_index) {
+    auto action = static_cast<ax::mojom::Action>(action_index);
     if (node.HasAction(action)) {
       if (!actions_strings)
         actions_strings = CefListValue::Create();
@@ -383,10 +384,10 @@ CefRefPtr<CefDictionaryValue> ToCefValue(
   if (eventData.ax_tree_id != -1)
     value->SetInt("ax_tree_id", eventData.ax_tree_id);
 
-  if (eventData.event_type != ui::AX_EVENT_NONE)
+  if (eventData.event_type != ax::mojom::Event::kNone)
     value->SetString("event_type", ToString(eventData.event_type));
 
-  if (eventData.event_from != ui::AX_EVENT_FROM_NONE)
+  if (eventData.event_from != ax::mojom::EventFrom::kNone)
     value->SetString("event_from", ToString(eventData.event_from));
 
   value->SetDictionary("update", ToCefValue(eventData.update));

@@ -333,7 +333,7 @@ uint32_t CefWindowX11::DispatchEvent(const ui::PlatformEvent& event) {
       }
       break;
     }
-    case FocusIn:
+    case x11::FocusIn:
       // This message is received first followed by a "_NET_ACTIVE_WINDOW"
       // message sent to the root window. When X11DesktopHandler handles the
       // "_NET_ACTIVE_WINDOW" message it will erroneously mark the WebView
@@ -347,7 +347,7 @@ uint32_t CefWindowX11::DispatchEvent(const ui::PlatformEvent& event) {
                               100);
       }
       break;
-    case FocusOut:
+    case x11::FocusOut:
       // Cancel the pending focus change if some other window has gained focus
       // while waiting for the async task to run. Otherwise we can get stuck in
       // a focus change loop.

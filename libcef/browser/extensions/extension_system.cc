@@ -20,7 +20,6 @@
 #include "base/path_service.h"
 #include "base/strings/string_tokenizer.h"
 #include "base/strings/utf_string_conversions.h"
-#include "base/task_scheduler/post_task.h"
 #include "base/threading/thread_restrictions.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/common/chrome_paths.h"
@@ -112,7 +111,7 @@ void LoadExtensionWithManifest(base::WeakPtr<CefExtensionSystem> context,
                                bool internal,
                                CefRefPtr<CefRequestContext> loader_context,
                                CefRefPtr<CefExtensionHandler> handler) {
-  base::AssertBlockingAllowed();
+  CEF_REQUIRE_BLOCKING();
 
   std::unique_ptr<base::DictionaryValue> manifest =
       ParseManifest(manifest_contents);
@@ -131,7 +130,7 @@ void LoadExtensionFromDisk(base::WeakPtr<CefExtensionSystem> context,
                            bool internal,
                            CefRefPtr<CefRequestContext> loader_context,
                            CefRefPtr<CefExtensionHandler> handler) {
-  base::AssertBlockingAllowed();
+  CEF_REQUIRE_BLOCKING();
 
   base::FilePath manifest_path = root_directory.AppendASCII("manifest.json");
   std::string manifest_contents;
@@ -239,8 +238,7 @@ void CefExtensionSystem::LoadExtension(
     CefRefPtr<CefRequestContext> loader_context,
     CefRefPtr<CefExtensionHandler> handler) {
   CEF_REQUIRE_UIT();
-  base::PostTaskWithTraits(
-      FROM_HERE, {base::TaskPriority::USER_VISIBLE, base::MayBlock()},
+  CEF_POST_USER_VISIBLE_TASK(
       base::BindOnce(LoadExtensionFromDisk, weak_ptr_factory_.GetWeakPtr(),
                      root_directory, internal, loader_context, handler));
 }
@@ -252,11 +250,9 @@ void CefExtensionSystem::LoadExtension(
     CefRefPtr<CefRequestContext> loader_context,
     CefRefPtr<CefExtensionHandler> handler) {
   CEF_REQUIRE_UIT();
-  base::PostTaskWithTraits(
-      FROM_HERE, {base::TaskPriority::USER_VISIBLE, base::MayBlock()},
-      base::BindOnce(LoadExtensionWithManifest, weak_ptr_factory_.GetWeakPtr(),
-                     manifest_contents, root_directory, internal,
-                     loader_context, handler));
+  CEF_POST_USER_VISIBLE_TASK(base::BindOnce(
+      LoadExtensionWithManifest, weak_ptr_factory_.GetWeakPtr(),
+      manifest_contents, root_directory, internal, loader_context, handler));
 }
 
 // Implementation based on ComponentLoader::Add.
@@ -453,7 +449,7 @@ ContentVerifier* CefExtensionSystem::content_verifier() {
 
 std::unique_ptr<ExtensionSet> CefExtensionSystem::GetDependentExtensions(
     const Extension* extension) {
-  return base::MakeUnique<ExtensionSet>();
+  return std::make_unique<ExtensionSet>();
 }
 
 void CefExtensionSystem::InstallUpdate(
@@ -463,6 +459,13 @@ void CefExtensionSystem::InstallUpdate(
     InstallUpdateCallback install_update_callback) {
   NOTREACHED();
   base::DeleteFile(temp_dir, true /* recursive */);
+}
+
+bool CefExtensionSystem::FinishDelayedInstallationIfReady(
+    const std::string& extension_id,
+    bool install_immediately) {
+  NOTREACHED();
+  return false;
 }
 
 CefExtensionSystem::ComponentExtensionInfo::ComponentExtensionInfo(

@@ -82,7 +82,7 @@ const CefRect kNavigateButtonRect(375, 275, 130, 20);
 const CefRect kSelectRect(461, 21, 87, 26);
 const CefRect kExpandedSelectRect(463, 42, 75, 286);
 const CefRect kDropDivRect(9, 330, 52, 52);
-const CefRect kDragDivRect(60, 330, 52, 52);
+const CefRect kDragDivRect(60, 330, 30, 30);
 #elif defined(OS_LINUX)
 const CefRect kEditBoxRect(434, 246, 60, 20);
 const CefRect kNavigateButtonRect(380, 271, 140, 22);
@@ -1019,15 +1019,9 @@ class OSRTestHandler : public RoutingTestHandler,
       if (image.get()) {
         // Drag image height seems to always be + 1px greater than the drag rect
         // on Linux. Therefore allow it to be +/- 1px.
-#if defined(OS_MACOSX)
-        EXPECT_NEAR(static_cast<int>(image->GetWidth()), GetScaledInt(15), 1);
-        EXPECT_NEAR(static_cast<int>(image->GetHeight()), GetScaledInt(15), 1);
-#else
-        EXPECT_NEAR(static_cast<int>(image->GetWidth()),
-                    GetScaledInt(kDragDivRect.width), 1);
-        EXPECT_NEAR(static_cast<int>(image->GetHeight()),
-                    GetScaledInt(kDragDivRect.height), 1);
-#endif
+        EXPECT_NEAR(static_cast<int>(image->GetWidth()), kDragDivRect.width, 1);
+        EXPECT_NEAR(static_cast<int>(image->GetHeight()), kDragDivRect.height,
+                    1);
       }
       // During testing hotspot (x, y) was (15, 23) at 1x scale and (15, 18) at
       // 2x scale. Since the mechanism for determining this position is unclear

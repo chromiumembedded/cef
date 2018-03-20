@@ -71,7 +71,7 @@ index e8e76ce5b954..1dd338dd0142 100644
  content::BrowserContext* GetBrowserContextRedirectedInIncognito(
      content::BrowserContext* context);
 diff --git chrome/browser/profiles/profile_manager.cc chrome/browser/profiles/profile_manager.cc
-index c5ab3d4e4d7a..69f54123f2cc 100644
+index 06cc4ca5c59c..a610360829d8 100644
 --- chrome/browser/profiles/profile_manager.cc
 +++ chrome/browser/profiles/profile_manager.cc
 @@ -377,7 +377,7 @@ ProfileManager::ProfileManager(const base::FilePath& user_data_dir)
@@ -84,7 +84,7 @@ index c5ab3d4e4d7a..69f54123f2cc 100644
                                      this));
  }
 diff --git chrome/browser/profiles/profile_manager.h chrome/browser/profiles/profile_manager.h
-index 9c410dc3ba6d..219d42503fa7 100644
+index 95d20f01a062..96834378f487 100644
 --- chrome/browser/profiles/profile_manager.h
 +++ chrome/browser/profiles/profile_manager.h
 @@ -93,7 +93,7 @@ class ProfileManager : public content::NotificationObserver,

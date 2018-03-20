@@ -9,17 +9,16 @@
 
 #include "build/build_config.h"
 #include "chrome/services/printing/printing_service.h"
-#include "chrome/services/printing/public/interfaces/constants.mojom.h"
-#include "chrome/utility/utility_message_handler.h"
+#include "chrome/services/printing/public/mojom/constants.mojom.h"
 #include "components/printing/service/public/cpp/pdf_compositor_service_factory.h"
 #include "components/printing/service/public/interfaces/pdf_compositor.mojom.h"
 #include "content/public/child/child_thread.h"
 #include "content/public/common/service_manager_connection.h"
 #include "content/public/common/simple_connection_filter.h"
-#include "content/public/network/url_request_context_builder_mojo.h"
 #include "mojo/public/cpp/bindings/strong_binding.h"
+#include "services/network/url_request_context_builder_mojo.h"
 #include "services/proxy_resolver/proxy_resolver_service.h"  // nogncheck
-#include "services/proxy_resolver/public/interfaces/proxy_resolver.mojom.h"  // nogncheck
+#include "services/proxy_resolver/public/mojom/proxy_resolver.mojom.h"  // nogncheck
 #include "services/service_manager/public/cpp/binder_registry.h"
 
 #if defined(OS_WIN)
@@ -28,7 +27,7 @@
 
 CefContentUtilityClient::CefContentUtilityClient() {
 #if defined(OS_WIN)
-  handlers_.push_back(base::MakeUnique<printing::PrintingHandler>());
+  printing_handler_ = std::make_unique<printing::PrintingHandler>();
 #endif
 }
 
@@ -43,19 +42,19 @@ void CefContentUtilityClient::UtilityThreadStarted() {
   if (!connection)
     return;
 
-  auto registry = base::MakeUnique<service_manager::BinderRegistry>();
+  auto registry = std::make_unique<service_manager::BinderRegistry>();
 
   connection->AddConnectionFilter(
-      base::MakeUnique<content::SimpleConnectionFilter>(std::move(registry)));
+      std::make_unique<content::SimpleConnectionFilter>(std::move(registry)));
 }
 
 bool CefContentUtilityClient::OnMessageReceived(const IPC::Message& message) {
   bool handled = false;
 
-  for (Handlers::iterator it = handlers_.begin();
-       !handled && it != handlers_.end(); ++it) {
-    handled = (*it)->OnMessageReceived(message);
-  }
+#if defined(OS_WIN)
+  if (printing_handler_->OnMessageReceived(message))
+    return true;
+#endif
 
   return handled;
 }

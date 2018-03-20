@@ -163,7 +163,7 @@ void CefDevToolsFrontend::InspectElementAt(int x, int y) {
   if (inspect_element_at_.x != x || inspect_element_at_.y != y)
     inspect_element_at_.Set(x, y);
   if (agent_host_)
-    agent_host_->InspectElement(this, x, y);
+    agent_host_->InspectElement(inspected_contents_->GetFocusedFrame(), x, y);
 }
 
 void CefDevToolsFrontend::Close() {
@@ -226,8 +226,8 @@ void CefDevToolsFrontend::DocumentAvailableInMainFrame() {
     agent_host_ = agent_host;
     agent_host_->AttachClient(this);
     if (!inspect_element_at_.IsEmpty()) {
-      agent_host_->InspectElement(this, inspect_element_at_.x,
-                                  inspect_element_at_.y);
+      agent_host_->InspectElement(inspected_contents_->GetFocusedFrame(),
+                                  inspect_element_at_.x, inspect_element_at_.y);
     }
   }
 }
@@ -392,7 +392,7 @@ void CefDevToolsFrontend::OnURLFetchComplete(const net::URLFetcher* source) {
   DCHECK(it != pending_requests_.end());
 
   base::DictionaryValue response;
-  auto headers = base::MakeUnique<base::DictionaryValue>();
+  auto headers = std::make_unique<base::DictionaryValue>();
   net::HttpResponseHeaders* rh = source->GetResponseHeaders();
   response.SetInteger("statusCode", rh ? rh->response_code() : 200);
 

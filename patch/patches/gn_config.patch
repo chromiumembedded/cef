@@ -1,8 +1,8 @@
 diff --git .gn .gn
-index 20f642efb056..7f73f53c70ad 100644
+index 50a8a2fe9f1e..719adff0da9b 100644
 --- .gn
 +++ .gn
-@@ -234,6 +234,8 @@ exec_script_whitelist =
+@@ -241,6 +241,8 @@ exec_script_whitelist =
        # in the Chromium repo outside of //build.
        "//build_overrides/build.gni",
  
@@ -12,10 +12,10 @@ index 20f642efb056..7f73f53c70ad 100644
        # https://crbug.com/474506.
        "//clank/java/BUILD.gn",
 diff --git BUILD.gn BUILD.gn
-index 92a8578280e6..11eb3b16a812 100644
+index 161519ebfeac..c034f54603e8 100644
 --- BUILD.gn
 +++ BUILD.gn
-@@ -183,6 +183,7 @@ group("gn_all") {
+@@ -190,6 +190,7 @@ group("gn_all") {
  
    if (!is_ios && !is_fuchsia) {
      deps += [
@@ -96,7 +96,7 @@ index a1d2ea4b2394..50514a54e64f 100644
  
  
 diff --git build/vs_toolchain.py build/vs_toolchain.py
-index 0a54e113f30f..d8ff277fcda6 100755
+index 5f9541e4556f..c1144b30f237 100755
 --- build/vs_toolchain.py
 +++ build/vs_toolchain.py
 @@ -81,11 +81,18 @@ def SetEnvironmentAndGetRuntimeDllDirs():
@@ -119,10 +119,10 @@ index 0a54e113f30f..d8ff277fcda6 100755
      # directory in order to run binaries locally, but they are needed in order
      # to create isolates or the mini_installer. Copying them to the output
 diff --git chrome/chrome_paks.gni chrome/chrome_paks.gni
-index bd0fc70bb87f..79315464c57b 100644
+index 94c5f759a0dd..a166b6302eeb 100644
 --- chrome/chrome_paks.gni
 +++ chrome/chrome_paks.gni
-@@ -255,7 +255,7 @@ template("chrome_paks") {
+@@ -253,7 +253,7 @@ template("chrome_paks") {
      }
  
      input_locales = locales
@@ -132,15 +132,15 @@ index bd0fc70bb87f..79315464c57b 100644
      if (is_mac) {
        output_locales = locales_as_mac_outputs
 diff --git chrome/installer/mini_installer/BUILD.gn chrome/installer/mini_installer/BUILD.gn
-index 3f65aa27ca38..3227cb17e460 100644
+index 3ed598db3989..b23170bc4591 100644
 --- chrome/installer/mini_installer/BUILD.gn
 +++ chrome/installer/mini_installer/BUILD.gn
-@@ -130,7 +130,7 @@ template("generate_mini_installer") {
+@@ -143,7 +143,7 @@ template("generate_mini_installer") {
      inputs = [
        "$chrome_dll_file",
        "$root_out_dir/chrome.exe",
 -      "$root_out_dir/locales/en-US.pak",
 +      "$root_out_dir/chrome/locales/en-US.pak",
        "$root_out_dir/setup.exe",
-       "$root_out_dir/v8_context_snapshot.bin",
        "//chrome/tools/build/win/makecab.py",
+       release_file,

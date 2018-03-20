@@ -124,6 +124,7 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
   void SpeakSelection() override;
   bool IsSpeaking() const override;
   void StopSpeaking() override;
+  bool ShouldContinueToPauseForFrame() override;
 #endif  // defined(OS_MACOSX)
 
   // RenderWidgetHostViewBase implementation.
@@ -150,19 +151,12 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
 
   gfx::Size GetRequestedRendererSize() const override;
   gfx::Size GetPhysicalBackingSize() const override;
-  void CopyFromSurface(const gfx::Rect& src_subrect,
-                       const gfx::Size& dst_size,
-                       const content::ReadbackRequestCallback& callback,
-                       const SkColorType color_type) override;
-  void CopyFromSurfaceToVideoFrame(
-      const gfx::Rect& src_subrect,
-      scoped_refptr<media::VideoFrame> target,
-      const base::Callback<void(const gfx::Rect&, bool)>& callback) override;
-  void BeginFrameSubscription(
-      std::unique_ptr<content::RenderWidgetHostViewFrameSubscriber> subscriber)
-      override;
-  void EndFrameSubscription() override;
-  bool HasAcceleratedSurface(const gfx::Size& desired_size) override;
+  void CopyFromSurface(
+      const gfx::Rect& src_rect,
+      const gfx::Size& output_size,
+      base::OnceCallback<void(const SkBitmap&)> callback) override;
+  void GetScreenInfo(content::ScreenInfo* results) const override;
+  gfx::Vector2d GetOffsetFromRootSurface() override;
   gfx::Rect GetBoundsInRootWindow() override;
   content::RenderWidgetHostImpl* GetRenderWidgetHostImpl() const override;
   viz::SurfaceId GetCurrentSurfaceId() const override;
@@ -188,6 +182,7 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
       const gfx::PointF& point,
       RenderWidgetHostViewBase* target_view,
       gfx::PointF* transformed_point) override;
+  void DidNavigate() override;
 
   // ui::CompositorDelegate implementation.
   std::unique_ptr<viz::SoftwareOutputDevice> CreateSoftwareOutputDevice(
@@ -198,14 +193,15 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
   ui::Layer* DelegatedFrameHostGetLayer() const override;
   bool DelegatedFrameHostIsVisible() const override;
   SkColor DelegatedFrameHostGetGutterColor() const override;
-  gfx::Size DelegatedFrameHostDesiredSizeInDIP() const override;
   bool DelegatedFrameCanCreateResizeLock() const override;
   std::unique_ptr<content::CompositorResizeLock>
   DelegatedFrameHostCreateResizeLock() override;
   viz::LocalSurfaceId GetLocalSurfaceId() const override;
+  void OnFirstSurfaceActivation(const viz::SurfaceInfo& surface_info) override;
   void OnBeginFrame(base::TimeTicks frame_time) override;
   bool IsAutoResizeEnabled() const override;
   void OnFrameTokenChanged(uint32_t frame_token) override;
+  void DidReceiveFirstFrameAfterNavigation() override;
 
   // CompositorResizeLockClient implementation.
   std::unique_ptr<ui::CompositorLock> GetCompositorLock(
@@ -216,7 +212,6 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
   bool InstallTransparency();
 
   void WasResized();
-  void GetScreenInfo(content::ScreenInfo* results);
   void OnScreenInfoChanged();
   void Invalidate(CefBrowserHost::PaintElementType type);
   void SendKeyEvent(const content::NativeWebKeyboardEvent& event);

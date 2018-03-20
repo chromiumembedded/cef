@@ -43,7 +43,9 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
   // ContentBrowserClient implementation.
   content::BrowserMainParts* CreateBrowserMainParts(
       const content::MainFunctionParams& parameters) override;
-  void RenderProcessWillLaunch(content::RenderProcessHost* host) override;
+  void RenderProcessWillLaunch(
+      content::RenderProcessHost* host,
+      service_manager::mojom::ServiceRequest* service_request) override;
   bool ShouldUseProcessPerSite(content::BrowserContext* browser_context,
                                const GURL& effective_url) override;
   bool IsHandledURL(const GURL& url) override;
@@ -122,11 +124,18 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
       blink::AssociatedInterfaceRegistry* associated_registry,
       content::RenderProcessHost* render_process_host) override;
 
+  std::unique_ptr<net::ClientCertStore> CreateClientCertStore(
+      content::ResourceContext* resource_context) override;
+
   // Perform browser process registration for the custom scheme.
   void RegisterCustomScheme(const std::string& scheme);
 
   CefRefPtr<CefRequestContextImpl> request_context() const;
   CefDevToolsDelegate* devtools_delegate() const;
+
+  scoped_refptr<base::SingleThreadTaskRunner> background_task_runner() const;
+  scoped_refptr<base::SingleThreadTaskRunner> user_visible_task_runner() const;
+  scoped_refptr<base::SingleThreadTaskRunner> user_blocking_task_runner() const;
 
  private:
   // Returns the extension or app associated with |site_instance| or NULL.

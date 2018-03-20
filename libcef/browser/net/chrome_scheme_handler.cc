@@ -72,7 +72,6 @@ const char* kAllowedWebUIHosts[] = {
     chrome::kChromeUINetInternalsHost,
     content::kChromeUINetworkErrorHost,
     content::kChromeUINetworkErrorsListingHost,
-    content::kChromeUINetworkViewCacheHost,
     content::kChromeUIResourcesHost,
     content::kChromeUIServiceWorkerInternalsHost,
     chrome::kChromeUISystemInfoHost,
@@ -794,6 +793,7 @@ void DidFinishChromeLoad(CefRefPtr<CefFrame> frame, const GURL& validated_url) {
   switch (host_id) {
     case CHROME_VERSION:
       DidFinishChromeVersionLoad(frame);
+      break;
     default:
       break;
   }

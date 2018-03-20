@@ -14,10 +14,10 @@ index e3a222a90f33..24298a7423f1 100644
    Profile* profile = ProfileManager::GetPrimaryUserProfile();
    if (!profile ||
 diff --git chrome/browser/ui/webui/net_internals/net_internals_ui.cc chrome/browser/ui/webui/net_internals/net_internals_ui.cc
-index 158173bac8eb..26af7ef2e14b 100644
+index 302df0f9a2cf..f6714b63a9f2 100644
 --- chrome/browser/ui/webui/net_internals/net_internals_ui.cc
 +++ chrome/browser/ui/webui/net_internals/net_internals_ui.cc
-@@ -552,41 +552,31 @@ void NetInternalsMessageHandler::OnClearBrowserCache(
+@@ -553,41 +553,31 @@ void NetInternalsMessageHandler::OnClearBrowserCache(
  void NetInternalsMessageHandler::OnGetPrerenderInfo(
      const base::ListValue* list) {
    DCHECK_CURRENTLY_ON(BrowserThread::UI);
@@ -64,7 +64,7 @@ index 158173bac8eb..26af7ef2e14b 100644
  }
  
  ////////////////////////////////////////////////////////////////////////////////
-@@ -666,9 +656,17 @@ void NetInternalsMessageHandler::IOThreadImpl::OnRendererReady(
+@@ -667,9 +657,17 @@ void NetInternalsMessageHandler::IOThreadImpl::OnRendererReady(
  
    PrePopulateEventList();
  

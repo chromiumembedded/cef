@@ -18,6 +18,7 @@
 #include "base/command_line.h"
 #include "base/memory/ptr_util.h"
 #include "cc/base/switches.h"
+#include "components/viz/common/features.h"
 #include "components/viz/common/frame_sinks/copy_output_request.h"
 #include "components/viz/common/frame_sinks/delay_based_time_source.h"
 #include "components/viz/common/gl_helper.h"
@@ -28,14 +29,15 @@
 #include "content/browser/renderer_host/dip_util.h"
 #include "content/browser/renderer_host/render_widget_host_delegate.h"
 #include "content/browser/renderer_host/render_widget_host_impl.h"
-#include "content/browser/renderer_host/render_widget_host_view_frame_subscriber.h"
 #include "content/common/input_messages.h"
 #include "content/common/view_messages.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/context_factory.h"
+#include "content/public/browser/render_process_host.h"
 #include "content/public/browser/render_view_host.h"
 #include "content/public/common/content_switches.h"
 #include "media/base/video_frame.h"
+#include "ui/compositor/compositor_vsync_manager.h"
 #include "ui/gfx/geometry/dip_util.h"
 #include "ui/gfx/geometry/size_conversions.h"
 
@@ -236,10 +238,16 @@ CefRenderWidgetHostViewOSR::CefRenderWidgetHostViewOSR(
 
   local_surface_id_ = local_surface_id_allocator_.GenerateId();
 
+  // Surface synchronization is not supported with OSR.
+  DCHECK(!features::IsSurfaceSynchronizationEnabled());
+
 #if !defined(OS_MACOSX)
-  delegated_frame_host_ = base::MakeUnique<content::DelegatedFrameHost>(
+  // Matching the attributes from BrowserCompositorMac.
+  delegated_frame_host_ = std::make_unique<content::DelegatedFrameHost>(
       AllocateFrameSinkId(is_guest_view_hack), this,
-      false /* enable_surface_synchronization */, false /* enable_viz */);
+      features::IsSurfaceSynchronizationEnabled(),
+      base::FeatureList::IsEnabled(features::kVizDisplayCompositor),
+      true /* should_register_frame_sink_id */);
 
   root_layer_.reset(new ui::Layer(ui::LAYER_SOLID_COLOR));
 #endif
@@ -256,11 +264,12 @@ CefRenderWidgetHostViewOSR::CefRenderWidgetHostViewOSR(
       content::ImageTransportFactory::GetInstance();
   ui::ContextFactoryPrivate* context_factory_private =
       factory->GetContextFactoryPrivate();
+  // Matching the attributes from RecyclableCompositorMac.
   compositor_.reset(
       new ui::Compositor(context_factory_private->AllocateFrameSinkId(),
                          content::GetContextFactory(), context_factory_private,
                          base::ThreadTaskRunnerHandle::Get(),
-                         false /* enable_surface_synchronization */,
+                         features::IsSurfaceSynchronizationEnabled(),
                          false /* enable_pixel_canvas */));
   compositor_->SetAcceleratedWidget(compositor_widget_);
   compositor_->SetDelegate(this);
@@ -359,9 +368,12 @@ void CefRenderWidgetHostViewOSR::Show() {
   browser_compositor_->SetRenderWidgetHostIsHidden(false);
 #else
   delegated_frame_host_->SetCompositor(compositor_.get());
-  delegated_frame_host_->WasShown(ui::LatencyInfo());
+  delegated_frame_host_->WasShown(
+      GetLocalSurfaceId(), GetRootLayer()->bounds().size(), ui::LatencyInfo());
 #endif
 
+  // Note that |render_widget_host_| will retrieve size parameters from the
+  // DelegatedFrameHost, so it must have WasShown called after.
   if (render_widget_host_)
     render_widget_host_->WasShown(ui::LatencyInfo());
 }
@@ -658,38 +670,49 @@ gfx::Size CefRenderWidgetHostViewOSR::GetPhysicalBackingSize() const {
 }
 
 void CefRenderWidgetHostViewOSR::CopyFromSurface(
-    const gfx::Rect& src_subrect,
-    const gfx::Size& dst_size,
-    const content::ReadbackRequestCallback& callback,
-    const SkColorType color_type) {
-  GetDelegatedFrameHost()->CopyFromCompositingSurface(src_subrect, dst_size,
-                                                      callback, color_type);
+    const gfx::Rect& src_rect,
+    const gfx::Size& output_size,
+    base::OnceCallback<void(const SkBitmap&)> callback) {
+  GetDelegatedFrameHost()->CopyFromCompositingSurface(src_rect, output_size,
+                                                      std::move(callback));
 }
 
-void CefRenderWidgetHostViewOSR::CopyFromSurfaceToVideoFrame(
-    const gfx::Rect& src_subrect,
-    scoped_refptr<media::VideoFrame> target,
-    const base::Callback<void(const gfx::Rect&, bool)>& callback) {
-  GetDelegatedFrameHost()->CopyFromCompositingSurfaceToVideoFrame(
-      src_subrect, target, callback);
+void CefRenderWidgetHostViewOSR::GetScreenInfo(
+    content::ScreenInfo* results) const {
+  if (!browser_impl_.get())
+    return;
+
+  CefScreenInfo screen_info(kDefaultScaleFactor, 0, 0, false, CefRect(),
+                            CefRect());
+
+  CefRefPtr<CefRenderHandler> handler =
+      browser_impl_->client()->GetRenderHandler();
+  if (handler.get() &&
+      (!handler->GetScreenInfo(browser_impl_.get(), screen_info) ||
+       screen_info.rect.width == 0 || screen_info.rect.height == 0 ||
+       screen_info.available_rect.width == 0 ||
+       screen_info.available_rect.height == 0)) {
+    // If a screen rectangle was not provided, try using the view rectangle
+    // instead. Otherwise, popup views may be drawn incorrectly, or not at all.
+    CefRect screenRect;
+    if (!handler->GetViewRect(browser_impl_.get(), screenRect)) {
+      NOTREACHED();
+      screenRect = CefRect();
+    }
+
+    if (screen_info.rect.width == 0 && screen_info.rect.height == 0)
+      screen_info.rect = screenRect;
+
+    if (screen_info.available_rect.width == 0 &&
+        screen_info.available_rect.height == 0)
+      screen_info.available_rect = screenRect;
+  }
+
+  *results = ScreenInfoFrom(screen_info);
 }
 
-void CefRenderWidgetHostViewOSR::BeginFrameSubscription(
-    std::unique_ptr<content::RenderWidgetHostViewFrameSubscriber> subscriber) {
-  GetDelegatedFrameHost()->BeginFrameSubscription(std::move(subscriber));
-}
-
-void CefRenderWidgetHostViewOSR::EndFrameSubscription() {
-  GetDelegatedFrameHost()->EndFrameSubscription();
-}
-
-bool CefRenderWidgetHostViewOSR::HasAcceleratedSurface(
-    const gfx::Size& desired_size) {
-  // CEF doesn't use GetBackingStore for accelerated pages, so it doesn't
-  // matter what is returned here as GetBackingStore is the only caller of this
-  // method.
-  NOTREACHED();
-  return false;
+gfx::Vector2d CefRenderWidgetHostViewOSR::GetOffsetFromRootSurface() {
+  return gfx::Vector2d();
 }
 
 gfx::Rect CefRenderWidgetHostViewOSR::GetBoundsInRootWindow() {
@@ -844,6 +867,16 @@ bool CefRenderWidgetHostViewOSR::TransformPointToCoordSpaceForView(
       point, target_view, transformed_point);
 }
 
+void CefRenderWidgetHostViewOSR::DidNavigate() {
+#if defined(OS_MACOSX)
+  browser_compositor_->DidNavigate();
+#else
+  ResizeRootLayer();
+  if (delegated_frame_host_)
+    delegated_frame_host_->DidNavigate();
+#endif
+}
+
 std::unique_ptr<viz::SoftwareOutputDevice>
 CefRenderWidgetHostViewOSR::CreateSoftwareOutputDevice(
     ui::Compositor* compositor) {
@@ -878,11 +911,6 @@ SkColor CefRenderWidgetHostViewOSR::DelegatedFrameHostGetGutterColor() const {
   return background_color_;
 }
 
-gfx::Size CefRenderWidgetHostViewOSR::DelegatedFrameHostDesiredSizeInDIP()
-    const {
-  return GetRootLayer()->bounds().size();
-}
-
 bool CefRenderWidgetHostViewOSR::DelegatedFrameCanCreateResizeLock() const {
   return !render_widget_host_->auto_resize_enabled();
 }
@@ -892,12 +920,15 @@ CefRenderWidgetHostViewOSR::DelegatedFrameHostCreateResizeLock() {
   HoldResize();
 
   const gfx::Size& desired_size = GetRootLayer()->bounds().size();
-  return base::MakeUnique<content::CompositorResizeLock>(this, desired_size);
+  return std::make_unique<content::CompositorResizeLock>(this, desired_size);
 }
 
 viz::LocalSurfaceId CefRenderWidgetHostViewOSR::GetLocalSurfaceId() const {
   return local_surface_id_;
 }
+
+void CefRenderWidgetHostViewOSR::OnFirstSurfaceActivation(
+    const viz::SurfaceInfo& surface_info) {}
 
 void CefRenderWidgetHostViewOSR::OnBeginFrame(base::TimeTicks frame_time) {
   // TODO(cef): Maybe we can use this method in combination with
@@ -911,6 +942,10 @@ bool CefRenderWidgetHostViewOSR::IsAutoResizeEnabled() const {
 
 void CefRenderWidgetHostViewOSR::OnFrameTokenChanged(uint32_t frame_token) {
   render_widget_host_->DidProcessFrame(frame_token);
+}
+
+void CefRenderWidgetHostViewOSR::DidReceiveFirstFrameAfterNavigation() {
+  render_widget_host_->DidReceiveFirstFrameAfterNavigation();
 }
 
 std::unique_ptr<ui::CompositorLock>
@@ -946,42 +981,6 @@ void CefRenderWidgetHostViewOSR::WasResized() {
   }
 
   ResizeRootLayer();
-  if (render_widget_host_)
-    render_widget_host_->WasResized();
-  GetDelegatedFrameHost()->WasResized();
-}
-
-void CefRenderWidgetHostViewOSR::GetScreenInfo(content::ScreenInfo* results) {
-  if (!browser_impl_.get())
-    return;
-
-  CefScreenInfo screen_info(kDefaultScaleFactor, 0, 0, false, CefRect(),
-                            CefRect());
-
-  CefRefPtr<CefRenderHandler> handler =
-      browser_impl_->client()->GetRenderHandler();
-  if (handler.get() &&
-      (!handler->GetScreenInfo(browser_impl_.get(), screen_info) ||
-       screen_info.rect.width == 0 || screen_info.rect.height == 0 ||
-       screen_info.available_rect.width == 0 ||
-       screen_info.available_rect.height == 0)) {
-    // If a screen rectangle was not provided, try using the view rectangle
-    // instead. Otherwise, popup views may be drawn incorrectly, or not at all.
-    CefRect screenRect;
-    if (!handler->GetViewRect(browser_impl_.get(), screenRect)) {
-      NOTREACHED();
-      screenRect = CefRect();
-    }
-
-    if (screen_info.rect.width == 0 && screen_info.rect.height == 0)
-      screen_info.rect = screenRect;
-
-    if (screen_info.available_rect.width == 0 &&
-        screen_info.available_rect.height == 0)
-      screen_info.available_rect = screenRect;
-  }
-
-  *results = ScreenInfoFrom(screen_info);
 }
 
 void CefRenderWidgetHostViewOSR::OnScreenInfoChanged() {
@@ -991,7 +990,22 @@ void CefRenderWidgetHostViewOSR::OnScreenInfoChanged() {
 
   // TODO(OSR): Update the backing store.
 
+  if (render_widget_host_->delegate())
+    render_widget_host_->delegate()->SendScreenRects();
+  else
+    render_widget_host_->SendScreenRects();
+
+#if defined(OS_MACOSX)
+  // RenderWidgetHostImpl will query BrowserCompositorMac for the dimensions
+  // to send to the renderer, so it is required that BrowserCompositorMac be
+  // updated first. Only notify RenderWidgetHostImpl of the update if any
+  // properties it will query have changed.
+  if (browser_compositor_->UpdateNSViewAndDisplay())
+    render_widget_host_->NotifyScreenInfoChanged();
+#else
   render_widget_host_->NotifyScreenInfoChanged();
+#endif
+
   // We might want to change the cursor scale factor here as well - see the
   // cache for the current_cursor_, as passed by UpdateCursor from the renderer
   // in the rwhv_aura (current_cursor_.SetScaleFactor)
@@ -1317,6 +1331,19 @@ void CefRenderWidgetHostViewOSR::ResizeRootLayer() {
   GetCompositor()->SetScaleAndSize(current_device_scale_factor_, size_in_pixels,
                                    local_surface_id_);
   PlatformResizeCompositorWidget(size_in_pixels);
+
+#if defined(OS_MACOSX)
+  bool resized = browser_compositor_->UpdateNSViewAndDisplay();
+#else
+  bool resized = true;
+  GetDelegatedFrameHost()->WasResized(local_surface_id_, size,
+                                      cc::DeadlinePolicy::UseDefaultDeadline());
+#endif
+
+  // Note that |render_widget_host_| will retrieve resize parameters from the
+  // DelegatedFrameHost, so it must have WasResized called after.
+  if (resized && render_widget_host_)
+    render_widget_host_->WasResized();
 }
 
 void CefRenderWidgetHostViewOSR::OnBeginFrameTimerTick() {
@@ -1416,10 +1443,9 @@ void CefRenderWidgetHostViewOSR::RemoveGuestHostView(
 
 void CefRenderWidgetHostViewOSR::RegisterGuestViewFrameSwappedCallback(
     content::RenderWidgetHostViewGuest* guest_host_view) {
-  guest_host_view->RegisterFrameSwappedCallback(
-      base::MakeUnique<base::Closure>(base::Bind(
-          &CefRenderWidgetHostViewOSR::OnGuestViewFrameSwapped,
-          weak_ptr_factory_.GetWeakPtr(), base::Unretained(guest_host_view))));
+  guest_host_view->RegisterFrameSwappedCallback(base::BindOnce(
+      &CefRenderWidgetHostViewOSR::OnGuestViewFrameSwapped,
+      weak_ptr_factory_.GetWeakPtr(), base::Unretained(guest_host_view)));
   guest_host_view->set_current_device_scale_factor(
       current_device_scale_factor_);
 }

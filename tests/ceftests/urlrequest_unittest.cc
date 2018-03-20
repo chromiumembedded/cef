@@ -313,29 +313,25 @@ void GetUploadData(CefRefPtr<CefRequest> request, std::string& data) {
 
 // Set a cookie so that we can test if it's sent with the request.
 void SetTestCookie(CefRefPtr<CefRequestContext> request_context,
-                   bool server_backend) {
-  EXPECT_TRUE(CefCurrentlyOn(TID_FILE));
-
+                   bool server_backend,
+                   const base::Closure& callback) {
   class Callback : public CefSetCookieCallback {
    public:
-    explicit Callback(CefRefPtr<CefWaitableEvent> event) : event_(event) {
-      EXPECT_TRUE(event_);
+    explicit Callback(const base::Closure& callback) : callback_(callback) {
+      EXPECT_FALSE(callback_.is_null());
     }
 
     void OnComplete(bool success) override {
       EXPECT_TRUE(success);
-      event_->Signal();
-      event_ = nullptr;
+      callback_.Run();
+      callback_.Reset();
     }
 
    private:
-    CefRefPtr<CefWaitableEvent> event_;
+    base::Closure callback_;
 
     IMPLEMENT_REFCOUNTING(Callback);
   };
-
-  CefRefPtr<CefWaitableEvent> event =
-      CefWaitableEvent::CreateWaitableEvent(false, false);
 
   CefCookie cookie;
   CefString(&cookie.name) = kRequestSendCookieName;
@@ -344,27 +340,23 @@ void SetTestCookie(CefRefPtr<CefRequestContext> request_context,
   CefString(&cookie.path) = "/";
   cookie.has_expires = false;
   EXPECT_TRUE(request_context->GetDefaultCookieManager(NULL)->SetCookie(
-      GetRequestOrigin(server_backend), cookie, new Callback(event)));
-
-  // Wait for the Callback.
-  event->TimedWait(2000);
-  EXPECT_TRUE(event->IsSignaled());
+      GetRequestOrigin(server_backend), cookie, new Callback(callback)));
 }
+
+typedef base::Callback<void(bool /* cookie exists */)> GetTestCookieCallback;
 
 // Tests if the save cookie has been set. If set, it will be deleted at the same
 // time.
 void GetTestCookie(CefRefPtr<CefRequestContext> request_context,
-                   bool* cookie_exists,
-                   bool server_backend) {
-  EXPECT_TRUE(CefCurrentlyOn(TID_FILE));
-
+                   bool server_backend,
+                   const GetTestCookieCallback& callback) {
   class Visitor : public CefCookieVisitor {
    public:
-    Visitor(CefRefPtr<CefWaitableEvent> event, bool* cookie_exists)
-        : event_(event), cookie_exists_(cookie_exists) {
-      EXPECT_TRUE(event_);
+    explicit Visitor(const GetTestCookieCallback& callback)
+        : callback_(callback), cookie_exists_(false) {
+      EXPECT_FALSE(callback_.is_null());
     }
-    ~Visitor() override { event_->Signal(); }
+    ~Visitor() override { callback_.Run(cookie_exists_); }
 
     bool Visit(const CefCookie& cookie,
                int count,
@@ -372,7 +364,7 @@ void GetTestCookie(CefRefPtr<CefRequestContext> request_context,
                bool& deleteCookie) override {
       std::string cookie_name = CefString(&cookie.name);
       if (cookie_name == kRequestSaveCookieName) {
-        *cookie_exists_ = true;
+        cookie_exists_ = true;
         deleteCookie = true;
         return false;
       }
@@ -380,23 +372,16 @@ void GetTestCookie(CefRefPtr<CefRequestContext> request_context,
     }
 
    private:
-    CefRefPtr<CefWaitableEvent> event_;
-    bool* cookie_exists_;
+    GetTestCookieCallback callback_;
+    bool cookie_exists_;
 
     IMPLEMENT_REFCOUNTING(Visitor);
   };
 
-  CefRefPtr<CefWaitableEvent> event =
-      CefWaitableEvent::CreateWaitableEvent(false, false);
-
   CefRefPtr<CefCookieManager> cookie_manager =
       request_context->GetDefaultCookieManager(NULL);
   cookie_manager->VisitUrlCookies(GetRequestOrigin(server_backend), true,
-                                  new Visitor(event, cookie_exists));
-
-  // Wait for the Visitor.
-  event->TimedWait(2000);
-  EXPECT_TRUE(event->IsSignaled());
+                                  new Visitor(callback));
 }
 
 std::string GetHeaderValue(const CefRequest::HeaderMap& header_map,
@@ -1996,22 +1981,16 @@ class RequestTestHandler : public TestHandler {
   // Browser process setup is complete.
   void OnSetupComplete() {
     // Start post-setup actions.
-    CefPostTask(TID_FILE,
-                base::Bind(&RequestTestHandler::PostSetupFileTasks, this));
-  }
-
-  void PostSetupFileTasks() {
-    EXPECT_TRUE(CefCurrentlyOn(TID_FILE));
-
-    // Don't use WaitableEvent on the UI thread.
-    SetTestCookie(test_runner_->GetRequestContext(), test_server_backend_);
-
-    CefPostTask(TID_UI,
-                base::Bind(&RequestTestHandler::PostSetupComplete, this));
+    SetTestCookie(test_runner_->GetRequestContext(), test_server_backend_,
+                  base::Bind(&RequestTestHandler::PostSetupComplete, this));
   }
 
   void PostSetupComplete() {
-    EXPECT_TRUE(CefCurrentlyOn(TID_UI));
+    if (!CefCurrentlyOn(TID_UI)) {
+      CefPostTask(TID_UI,
+                  base::Bind(&RequestTestHandler::PostSetupComplete, this));
+      return;
+    }
 
     if (test_in_browser_) {
       // Run the test now.
@@ -2064,24 +2043,18 @@ class RequestTestHandler : public TestHandler {
 
   // Test run is complete. It ran in either the browser or render process.
   void OnRunComplete() {
-    CefPostTask(TID_FILE,
-                base::Bind(&RequestTestHandler::PostRunFileTasks, this));
+    GetTestCookie(test_runner_->GetRequestContext(), test_server_backend_,
+                  base::Bind(&RequestTestHandler::PostRunComplete, this));
   }
 
-  void PostRunFileTasks() {
-    EXPECT_TRUE(CefCurrentlyOn(TID_FILE));
+  void PostRunComplete(bool has_save_cookie) {
+    if (!CefCurrentlyOn(TID_UI)) {
+      CefPostTask(TID_UI, base::Bind(&RequestTestHandler::PostRunComplete, this,
+                                     has_save_cookie));
+      return;
+    }
 
-    // Don't use WaitableEvent on the UI thread.
-    bool has_save_cookie = false;
-    GetTestCookie(test_runner_->GetRequestContext(), &has_save_cookie,
-                  test_server_backend_);
     EXPECT_EQ(test_runner_->settings_.expect_save_cookie, has_save_cookie);
-
-    CefPostTask(TID_UI, base::Bind(&RequestTestHandler::PostRunComplete, this));
-  }
-
-  void PostRunComplete() {
-    EXPECT_TRUE(CefCurrentlyOn(TID_UI));
 
     // Shut down the browser side of the test.
     test_runner_->ShutdownTest(

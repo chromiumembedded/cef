@@ -154,7 +154,7 @@ bool CefBrowserInfoManager::CanCreateWindow(
   window_info->SetAsPopup(NULL, CefString());
 #endif
 
-  auto pending_popup = base::MakeUnique<CefBrowserInfoManager::PendingPopup>();
+  auto pending_popup = std::make_unique<CefBrowserInfoManager::PendingPopup>();
   pending_popup->step = CefBrowserInfoManager::PendingPopup::CAN_CREATE_WINDOW;
   pending_popup->opener_process_id = opener->GetProcess()->GetID();
   pending_popup->opener_frame_id = opener->GetRoutingID();

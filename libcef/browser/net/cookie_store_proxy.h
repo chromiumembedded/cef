@@ -30,9 +30,6 @@ class CefCookieStoreProxy : public net::CookieStore {
                                bool secure_source,
                                bool modify_http_only,
                                SetCookiesCallback callback) override;
-  void GetCookiesWithOptionsAsync(const GURL& url,
-                                  const net::CookieOptions& options,
-                                  GetCookiesCallback callback) override;
   void GetCookieListWithOptionsAsync(const GURL& url,
                                      const net::CookieOptions& options,
                                      GetCookieListCallback callback) override;
@@ -52,12 +49,7 @@ class CefCookieStoreProxy : public net::CookieStore {
       DeleteCallback callback) override;
   void DeleteSessionCookiesAsync(DeleteCallback callback) override;
   void FlushStore(base::OnceClosure callback) override;
-  std::unique_ptr<CookieChangedSubscription> AddCallbackForCookie(
-      const GURL& url,
-      const std::string& name,
-      const CookieChangedCallback& callback) override;
-  std::unique_ptr<CookieChangedSubscription> AddCallbackForAllChanges(
-      const CookieChangedCallback& callback) override;
+  net::CookieChangeDispatcher& GetChangeDispatcher() override;
   bool IsEphemeral() override;
 
  private:
@@ -67,6 +59,8 @@ class CefCookieStoreProxy : public net::CookieStore {
   // which has a ref to the owning CefURLRequestContextGetterImpl.
   CefURLRequestContextImpl* parent_;
   CefRefPtr<CefRequestContextHandler> handler_;
+
+  std::unique_ptr<net::CookieChangeDispatcher> null_dispatcher_;
 
   DISALLOW_COPY_AND_ASSIGN(CefCookieStoreProxy);
 };

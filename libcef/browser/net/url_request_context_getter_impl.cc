@@ -8,6 +8,7 @@
 #include <utility>
 #include <vector>
 
+#include "libcef/browser/content_browser_client.h"
 #include "libcef/browser/cookie_manager_impl.h"
 #include "libcef/browser/net/network_delegate.h"
 #include "libcef/browser/net/scheme_handler.h"
@@ -31,7 +32,6 @@
 #include "components/network_session_configurator/browser/network_session_configurator.h"
 #include "components/prefs/pref_registry_simple.h"
 #include "components/prefs/pref_service.h"
-#include "content/network/proxy_service_mojo.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/common/content_client.h"
 #include "content/public/common/content_switches.h"
@@ -51,9 +51,9 @@
 #include "net/http/http_server_properties_impl.h"
 #include "net/http/http_util.h"
 #include "net/http/transport_security_state.h"
-#include "net/proxy/dhcp_proxy_script_fetcher_factory.h"
-#include "net/proxy/proxy_script_fetcher_impl.h"
-#include "net/proxy/proxy_service.h"
+#include "net/proxy_resolution/dhcp_pac_file_fetcher_factory.h"
+#include "net/proxy_resolution/pac_file_fetcher_impl.h"
+#include "net/proxy_resolution/proxy_service.h"
 #include "net/ssl/ssl_config_service_defaults.h"
 #include "net/url_request/http_user_agent_settings.h"
 #include "net/url_request/url_request.h"
@@ -62,6 +62,7 @@
 #include "net/url_request/url_request_intercepting_job_factory.h"
 #include "net/url_request/url_request_job_factory_impl.h"
 #include "net/url_request/url_request_job_manager.h"
+#include "services/network/proxy_service_mojo.h"
 #include "url/url_constants.h"
 
 #if defined(OS_WIN)
@@ -108,9 +109,9 @@ class CefHttpUserAgentSettings : public net::HttpUserAgentSettings {
   DISALLOW_COPY_AND_ASSIGN(CefHttpUserAgentSettings);
 };
 
-// Based on ProxyServiceFactory::CreateProxyService which was deleted in
-// http://crrev.com/1c261ff4.
-std::unique_ptr<net::ProxyService> CreateProxyService(
+// Based on ProxyResolutionServiceFactory::CreateProxyResolutionService which
+// was deleted in http://crrev.com/1c261ff4.
+std::unique_ptr<net::ProxyResolutionService> CreateProxyResolutionService(
     net::NetLog* net_log,
     net::URLRequestContext* context,
     net::NetworkDelegate* network_delegate,
@@ -129,27 +130,27 @@ std::unique_ptr<net::ProxyService> CreateProxyService(
     use_v8 = false;  // Fallback to non-v8 implementation.
   }
 
-  std::unique_ptr<net::ProxyService> proxy_service;
+  std::unique_ptr<net::ProxyResolutionService> proxy_service;
   if (use_v8) {
     std::unique_ptr<net::DhcpProxyScriptFetcher> dhcp_proxy_script_fetcher;
     net::DhcpProxyScriptFetcherFactory dhcp_factory;
     dhcp_proxy_script_fetcher = dhcp_factory.Create(context);
 
-    proxy_service = content::CreateProxyServiceUsingMojoFactory(
+    proxy_service = network::CreateProxyServiceUsingMojoFactory(
         std::move(proxy_resolver_factory), std::move(proxy_config_service),
-        base::MakeUnique<net::ProxyScriptFetcherImpl>(context),
+        std::make_unique<net::ProxyScriptFetcherImpl>(context),
         std::move(dhcp_proxy_script_fetcher), context->host_resolver(), net_log,
         network_delegate);
   } else {
-    proxy_service = net::ProxyService::CreateUsingSystemProxyResolver(
+    proxy_service = net::ProxyResolutionService::CreateUsingSystemProxyResolver(
         std::move(proxy_config_service), net_log);
   }
 
   proxy_service->set_quick_check_enabled(quick_check_enabled);
   proxy_service->set_sanitize_url_policy(
       pac_https_url_stripping_enabled
-          ? net::ProxyService::SanitizeUrlPolicy::SAFE
-          : net::ProxyService::SanitizeUrlPolicy::UNSAFE);
+          ? net::ProxyResolutionService::SanitizeUrlPolicy::SAFE
+          : net::ProxyResolutionService::SanitizeUrlPolicy::UNSAFE);
 
   return proxy_service;
 }
@@ -163,7 +164,7 @@ CefURLRequestContextGetterImpl::CefURLRequestContextGetterImpl(
     content::ProtocolHandlerMap* protocol_handlers,
     std::unique_ptr<net::ProxyConfigService> proxy_config_service,
     content::URLRequestInterceptorScopedVector request_interceptors)
-    : settings_(settings), io_state_(base::MakeUnique<IOState>()) {
+    : settings_(settings), io_state_(std::make_unique<IOState>()) {
   // Must first be created on the UI thread.
   CEF_REQUIRE_UIT();
 
@@ -246,9 +247,9 @@ void CefURLRequestContextGetterImpl::ShutdownOnIOThread() {
 
   shutting_down_ = true;
 
-  // Delete the ProxyService object here so that any pending requests will be
-  // canceled before the URLRequestContext is destroyed.
-  io_state_->storage_->set_proxy_service(NULL);
+  // Delete the ProxyResolutionService object here so that any pending requests
+  // will be canceled before the URLRequestContext is destroyed.
+  io_state_->storage_->set_proxy_resolution_service(NULL);
 
   io_state_.reset();
 
@@ -315,15 +316,16 @@ net::URLRequestContext* CefURLRequestContextGetterImpl::GetURLRequestContext() {
         settings_.enable_net_security_expiration ? true : false);
     io_state_->storage_->set_ct_policy_enforcer(std::move(ct_policy_enforcer));
 
-    std::unique_ptr<net::ProxyService> system_proxy_service =
-        CreateProxyService(io_state_->net_log_,
-                           io_state_->url_request_context_.get(),
-                           io_state_->url_request_context_->network_delegate(),
-                           std::move(io_state_->proxy_resolver_factory_),
-                           std::move(io_state_->proxy_config_service_),
-                           *command_line, quick_check_enabled_.GetValue(),
-                           pac_https_url_stripping_enabled_.GetValue());
-    io_state_->storage_->set_proxy_service(std::move(system_proxy_service));
+    std::unique_ptr<net::ProxyResolutionService> system_proxy_service =
+        CreateProxyResolutionService(
+            io_state_->net_log_, io_state_->url_request_context_.get(),
+            io_state_->url_request_context_->network_delegate(),
+            std::move(io_state_->proxy_resolver_factory_),
+            std::move(io_state_->proxy_config_service_), *command_line,
+            quick_check_enabled_.GetValue(),
+            pac_https_url_stripping_enabled_.GetValue());
+    io_state_->storage_->set_proxy_resolution_service(
+        std::move(system_proxy_service));
 
     io_state_->storage_->set_ssl_config_service(
         new net::SSLConfigServiceDefaults);
@@ -372,8 +374,8 @@ net::URLRequestContext* CefURLRequestContextGetterImpl::GetURLRequestContext() {
         io_state_->url_request_context_->cert_transparency_verifier();
     network_session_context.ct_policy_enforcer =
         io_state_->url_request_context_->ct_policy_enforcer();
-    network_session_context.proxy_service =
-        io_state_->url_request_context_->proxy_service();
+    network_session_context.proxy_resolution_service =
+        io_state_->url_request_context_->proxy_resolution_service();
     network_session_context.ssl_config_service =
         io_state_->url_request_context_->ssl_config_service();
     network_session_context.http_auth_handler_factory =
@@ -414,7 +416,7 @@ net::URLRequestContext* CefURLRequestContextGetterImpl::GetURLRequestContext() {
     scheme::RegisterInternalHandlers(io_state_->url_request_manager_.get());
 
     io_state_->request_interceptors_.push_back(
-        base::MakeUnique<CefRequestInterceptor>());
+        std::make_unique<CefRequestInterceptor>());
 
     // Set up interceptors in the reverse order.
     std::unique_ptr<net::URLRequestJobFactory> top_job_factory =
@@ -472,7 +474,10 @@ void CefURLRequestContextGetterImpl::SetCookieStoragePath(
       const base::FilePath& cookie_path = path.AppendASCII("Cookies");
       persistent_store = new net::SQLitePersistentCookieStore(
           cookie_path, BrowserThread::GetTaskRunnerForThread(BrowserThread::IO),
-          BrowserThread::GetTaskRunnerForThread(BrowserThread::DB),
+          // Intentionally using the background task runner exposed by CEF to
+          // facilitate unit test expectations. This task runner MUST be
+          // configured with BLOCK_SHUTDOWN.
+          CefContentBrowserClient::Get()->background_task_runner(),
           persist_session_cookies, NULL);
     } else {
       NOTREACHED() << "The cookie storage directory could not be created";

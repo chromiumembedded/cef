@@ -669,12 +669,16 @@ class CefV8ExceptionImpl : public CefV8Exception {
       return;
 
     GetCefString(message->Get(), message_);
-    GetCefString(message->GetSourceLine(), source_line_);
+    v8::MaybeLocal<v8::String> source_line = message->GetSourceLine(context);
+    if (!source_line.IsEmpty())
+      GetCefString(source_line.ToLocalChecked(), source_line_);
 
     if (!message->GetScriptResourceName().IsEmpty())
       GetCefString(message->GetScriptResourceName()->ToString(), script_);
 
-    line_number_ = message->GetLineNumber();
+    v8::Maybe<int> line_number = message->GetLineNumber(context);
+    if (!line_number.IsNothing())
+      line_number_ = line_number.ToChecked();
     start_position_ = message->GetStartPosition();
     end_position_ = message->GetEndPosition();
     start_column_ = message->GetStartColumn(context).FromJust();
@@ -1011,8 +1015,10 @@ bool CefV8ContextImpl::Eval(const CefString& code,
   v8::Local<v8::Context> context = GetV8Context();
   v8::Context::Scope context_scope(context);
 
-  const blink::WebString& source = blink::WebString::FromUTF16(code);
-  const blink::WebString& source_url = blink::WebString::FromUTF16(script_url);
+  const blink::WebString& source =
+      blink::WebString::FromUTF16(code.ToString16());
+  const blink::WebString& source_url =
+      blink::WebString::FromUTF16(script_url.ToString16());
 
   v8::TryCatch try_catch(isolate);
   try_catch.SetVerbose(true);

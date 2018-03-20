@@ -18,6 +18,7 @@
 #include "base/logging.h"
 #include "base/strings/string_util.h"
 #include "base/strings/utf_string_conversions.h"
+#include "base/task_scheduler/post_task.h"
 #include "components/navigation_interception/navigation_params.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/resource_request_info.h"
@@ -70,10 +71,9 @@ class BytesElementReader : public net::UploadBytesElementReader {
   DISALLOW_COPY_AND_ASSIGN(BytesElementReader);
 };
 
-base::TaskRunner* GetFileTaskRunner() {
-  return content::BrowserThread::GetTaskRunnerForThread(
-             content::BrowserThread::FILE)
-      .get();
+scoped_refptr<base::SequencedTaskRunner> GetFileTaskRunner() {
+  return base::CreateSequencedTaskRunnerWithTraits(
+      {base::MayBlock(), base::TaskPriority::USER_VISIBLE});
 }
 
 // A subclass of net::UploadFileElementReader that keeps the associated
@@ -82,7 +82,7 @@ class FileElementReader : public net::UploadFileElementReader {
  public:
   explicit FileElementReader(std::unique_ptr<net::UploadElement> element)
       : net::UploadFileElementReader(
-            GetFileTaskRunner(),
+            GetFileTaskRunner().get(),
             element->file_path(),
             element->file_range_offset(),
             element->file_range_length(),
@@ -92,6 +92,7 @@ class FileElementReader : public net::UploadFileElementReader {
   }
 
  private:
+  scoped_refptr<base::SequencedTaskRunner> task_runner_;
   std::unique_ptr<net::UploadElement> element_;
 
   DISALLOW_COPY_AND_ASSIGN(FileElementReader);
@@ -207,8 +208,9 @@ void SetHeaderMap(const CefRequest::HeaderMap& map,
                   blink::WebURLRequest& request) {
   CefRequest::HeaderMap::const_iterator it = map.begin();
   for (; it != map.end(); ++it) {
-    request.SetHTTPHeaderField(blink::WebString::FromUTF16(it->first),
-                               blink::WebString::FromUTF16(it->second));
+    request.SetHTTPHeaderField(
+        blink::WebString::FromUTF16(it->first.ToString16()),
+        blink::WebString::FromUTF16(it->second.ToString16()));
   }
 }
 
@@ -1030,7 +1032,7 @@ void CefPostDataImpl::Get(net::UploadData& data) const {
   net::UploadData::ElementsVector data_elements;
   for (const auto& element : elements_) {
     std::unique_ptr<net::UploadElement> data_element =
-        base::MakeUnique<net::UploadElement>();
+        std::make_unique<net::UploadElement>();
     static_cast<CefPostDataElementImpl*>(element.get())
         ->Get(*data_element.get());
     data_elements.push_back(std::move(data_element));
@@ -1047,7 +1049,7 @@ std::unique_ptr<net::UploadDataStream> CefPostDataImpl::Get() const {
         static_cast<CefPostDataElementImpl*>(element.get())->Get());
   }
 
-  return base::MakeUnique<net::ElementsUploadDataStream>(
+  return std::make_unique<net::ElementsUploadDataStream>(
       std::move(element_readers), 0);
 }
 
@@ -1299,12 +1301,12 @@ std::unique_ptr<net::UploadElementReader> CefPostDataElementImpl::Get() const {
     net::UploadElement* element = new net::UploadElement();
     element->SetToBytes(static_cast<char*>(data_.bytes.bytes),
                         data_.bytes.size);
-    return base::MakeUnique<BytesElementReader>(base::WrapUnique(element));
+    return std::make_unique<BytesElementReader>(base::WrapUnique(element));
   } else if (type_ == PDE_TYPE_FILE) {
     net::UploadElement* element = new net::UploadElement();
     base::FilePath path = base::FilePath(CefString(&data_.filename));
     element->SetToFilePath(path);
-    return base::MakeUnique<FileElementReader>(base::WrapUnique(element));
+    return std::make_unique<FileElementReader>(base::WrapUnique(element));
   } else {
     NOTREACHED();
     return nullptr;
@@ -1343,7 +1345,8 @@ void CefPostDataElementImpl::Get(blink::WebHTTPBody::Element& element) const {
                         data_.bytes.size);
   } else if (type_ == PDE_TYPE_FILE) {
     element.type = blink::WebHTTPBody::Element::kTypeFile;
-    element.file_path = blink::WebString::FromUTF16(CefString(&data_.filename));
+    element.file_path =
+        blink::WebString::FromUTF16(CefString(&data_.filename).ToString16());
   } else {
     NOTREACHED();
   }

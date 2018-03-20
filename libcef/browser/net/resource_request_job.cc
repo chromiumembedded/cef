@@ -331,7 +331,7 @@ bool CefResourceRequestJob::GetMimeType(std::string* mime_type) const {
 bool CefResourceRequestJob::GetCharset(std::string* charset) {
   CEF_REQUIRE_IOT();
 
-  if (net::HttpResponseHeaders *headers = GetResponseHeaders())
+  if (net::HttpResponseHeaders* headers = GetResponseHeaders())
     return headers->GetCharset(charset);
   return false;
 }
@@ -411,7 +411,7 @@ void CefResourceRequestJob::AddCookieHeaderAndStart() {
 void CefResourceRequestJob::DoLoadCookies() {
   net::CookieOptions options;
   options.set_include_httponly();
-  request_->context()->cookie_store()->GetCookiesWithOptionsAsync(
+  request_->context()->cookie_store()->GetCookieListWithOptionsAsync(
       request_->url(), options,
       base::Bind(&CefResourceRequestJob::OnCookiesLoaded,
                  weak_factory_.GetWeakPtr()));
@@ -438,8 +438,11 @@ void CefResourceRequestJob::CheckCookiePolicyAndLoad(
     DoStartTransaction();
 }
 
-void CefResourceRequestJob::OnCookiesLoaded(const std::string& cookie_line) {
-  if (!cookie_line.empty()) {
+void CefResourceRequestJob::OnCookiesLoaded(
+    const net::CookieList& cookie_list) {
+  if (!cookie_list.empty()) {
+    const std::string& cookie_line =
+        net::CanonicalCookie::BuildCookieLine(cookie_list);
     CefRequest::HeaderMap headerMap;
     cef_request_->GetHeaderMap(headerMap);
     headerMap.insert(

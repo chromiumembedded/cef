@@ -290,6 +290,7 @@ class TracingTestHandler : public CefEndTracingCallback,
       case TT_TRACE_EVENT_ASYNC_END2:
         TRACE_EVENT_ASYNC_END2(kTraceTestCategory, "TT_TRACE_EVENT_ASYNC_END2",
                                100, "arg1", 1, "arg2", 2);
+        break;
       case TT_TRACE_EVENT_COPY_ASYNC_END0:
         TRACE_EVENT_COPY_ASYNC_END0(kTraceTestCategory,
                                     "TT_TRACE_EVENT_COPY_ASYNC_END0", 100);

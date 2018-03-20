@@ -20,7 +20,7 @@
 namespace net {
 class HttpResponseHeaders;
 class URLRequest;
-}
+}  // namespace net
 
 class CefResourceRequestJobCallback;
 
@@ -48,7 +48,7 @@ class CefResourceRequestJob : public net::URLRequestJob {
   void AddCookieHeaderAndStart();
   void DoLoadCookies();
   void CheckCookiePolicyAndLoad(const net::CookieList& cookie_list);
-  void OnCookiesLoaded(const std::string& cookie_line);
+  void OnCookiesLoaded(const net::CookieList& cookie_list);
   void DoStartTransaction();
   void StartTransaction();
 

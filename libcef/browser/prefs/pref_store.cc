@@ -131,15 +131,15 @@ void CefPrefStore::ReportValueChanged(const std::string& key, uint32_t flags) {
 }
 
 void CefPrefStore::SetString(const std::string& key, const std::string& value) {
-  SetValue(key, base::MakeUnique<base::Value>(value), DEFAULT_PREF_WRITE_FLAGS);
+  SetValue(key, std::make_unique<base::Value>(value), DEFAULT_PREF_WRITE_FLAGS);
 }
 
 void CefPrefStore::SetInteger(const std::string& key, int value) {
-  SetValue(key, base::MakeUnique<base::Value>(value), DEFAULT_PREF_WRITE_FLAGS);
+  SetValue(key, std::make_unique<base::Value>(value), DEFAULT_PREF_WRITE_FLAGS);
 }
 
 void CefPrefStore::SetBoolean(const std::string& key, bool value) {
-  SetValue(key, base::MakeUnique<base::Value>(value), DEFAULT_PREF_WRITE_FLAGS);
+  SetValue(key, std::make_unique<base::Value>(value), DEFAULT_PREF_WRITE_FLAGS);
 }
 
 bool CefPrefStore::GetString(const std::string& key, std::string* value) const {

@@ -15,7 +15,7 @@ UploadData::UploadData()
 void UploadData::AppendBytes(const char* bytes, int bytes_len) {
   DCHECK(!is_chunked_);
   if (bytes_len > 0) {
-    elements_.push_back(base::MakeUnique<UploadElement>());
+    elements_.push_back(std::make_unique<UploadElement>());
     elements_.back()->SetToBytes(bytes, bytes_len);
   }
 }
@@ -25,7 +25,7 @@ void UploadData::AppendFileRange(const base::FilePath& file_path,
                                  uint64_t length,
                                  const base::Time& expected_modification_time) {
   DCHECK(!is_chunked_);
-  elements_.push_back(base::MakeUnique<UploadElement>());
+  elements_.push_back(std::make_unique<UploadElement>());
   elements_.back()->SetToFilePathRange(file_path, offset, length,
                                        expected_modification_time);
 }

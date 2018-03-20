@@ -25,8 +25,8 @@ class CefStoragePartitionProxy : public content::StoragePartition {
   net::URLRequestContextGetter* GetURLRequestContext() override;
   net::URLRequestContextGetter* GetMediaURLRequestContext() override;
   network::mojom::NetworkContext* GetNetworkContext() override;
-  network::mojom::URLLoaderFactory* GetURLLoaderFactoryForBrowserProcess()
-      override;
+  scoped_refptr<content::SharedURLLoaderFactory>
+  GetURLLoaderFactoryForBrowserProcess() override;
   network::mojom::CookieManager* GetCookieManagerForBrowserProcess() override;
   storage::QuotaManager* GetQuotaManager() override;
   content::AppCacheService* GetAppCacheService() override;
@@ -68,6 +68,7 @@ class CefStoragePartitionProxy : public content::StoragePartition {
   void Flush() override;
   void ClearBluetoothAllowedDevicesMapForTesting() override;
   void FlushNetworkInterfaceForTesting() override;
+  void WaitForDeletionTasksForTesting() override;
   content::BackgroundFetchContext* GetBackgroundFetchContext() override;
   content::BackgroundSyncContext* GetBackgroundSyncContext() override;
   content::PaymentAppContextImpl* GetPaymentAppContext() override;
@@ -75,6 +76,7 @@ class CefStoragePartitionProxy : public content::StoragePartition {
   content::BluetoothAllowedDevicesMap* GetBluetoothAllowedDevicesMap() override;
   content::BlobURLLoaderFactory* GetBlobURLLoaderFactory() override;
   content::BlobRegistryWrapper* GetBlobRegistry() override;
+  content::PrefetchURLLoaderService* GetPrefetchURLLoaderService() override;
   content::URLLoaderFactoryGetter* url_loader_factory_getter() override;
   content::BrowserContext* browser_context() const override;
   mojo::BindingId Bind(

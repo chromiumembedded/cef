@@ -1,8 +1,8 @@
 diff --git chrome/browser/printing/print_job_worker.cc chrome/browser/printing/print_job_worker.cc
-index 4f093cb61d69..60bb7a4f40ea 100644
+index ba99093fc98e..5e1da4621361 100644
 --- chrome/browser/printing/print_job_worker.cc
 +++ chrome/browser/printing/print_job_worker.cc
-@@ -140,6 +140,7 @@ PrintJobWorker::PrintJobWorker(int render_process_id,
+@@ -142,6 +142,7 @@ PrintJobWorker::PrintJobWorker(int render_process_id,
        weak_factory_(this) {
    // The object is created in the IO thread.
    DCHECK(owner_->RunsTasksInCurrentSequence());
@@ -11,10 +11,10 @@ index 4f093cb61d69..60bb7a4f40ea 100644
  
  PrintJobWorker::~PrintJobWorker() {
 diff --git printing/printing_context.h printing/printing_context.h
-index 96934fb0d0c8..39d0019a9826 100644
+index 885937908414..03f0f0837f80 100644
 --- printing/printing_context.h
 +++ printing/printing_context.h
-@@ -127,6 +127,13 @@ class PRINTING_EXPORT PrintingContext {
+@@ -133,6 +133,13 @@ class PRINTING_EXPORT PrintingContext {
  
    int job_id() const { return job_id_; }
  
@@ -28,7 +28,7 @@ index 96934fb0d0c8..39d0019a9826 100644
   protected:
    explicit PrintingContext(Delegate* delegate);
  
-@@ -151,6 +158,10 @@ class PRINTING_EXPORT PrintingContext {
+@@ -157,6 +164,10 @@ class PRINTING_EXPORT PrintingContext {
    // The job id for the current job. The value is 0 if no jobs are active.
    int job_id_;
  

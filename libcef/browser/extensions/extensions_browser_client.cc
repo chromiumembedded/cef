@@ -123,6 +123,25 @@ CefExtensionsBrowserClient::MaybeCreateResourceBundleRequestJob(
       send_cors_header);
 }
 
+base::FilePath CefExtensionsBrowserClient::GetBundleResourcePath(
+    const network::ResourceRequest& request,
+    const base::FilePath& extension_resources_path,
+    int* resource_id) const {
+  *resource_id = 0;
+  return base::FilePath();
+}
+
+void CefExtensionsBrowserClient::LoadResourceFromResourceBundle(
+    const network::ResourceRequest& request,
+    network::mojom::URLLoaderRequest loader,
+    const base::FilePath& resource_relative_path,
+    int resource_id,
+    const std::string& content_security_policy,
+    network::mojom::URLLoaderClientPtr client,
+    bool send_cors_header) {
+  NOTREACHED() << "Load resources from bundles not supported.";
+}
+
 bool CefExtensionsBrowserClient::AllowCrossRendererResourceLoad(
     const GURL& url,
     content::ResourceType resource_type,
@@ -236,6 +255,11 @@ bool CefExtensionsBrowserClient::DidVersionUpdate(BrowserContext* context) {
 void CefExtensionsBrowserClient::PermitExternalProtocolHandler() {}
 
 bool CefExtensionsBrowserClient::IsRunningInForcedAppMode() {
+  return false;
+}
+
+bool CefExtensionsBrowserClient::IsAppModeForcedForApp(
+    const ExtensionId& extension_id) {
   return false;
 }
 

@@ -1,8 +1,8 @@
 diff --git content/browser/frame_host/render_frame_host_manager.cc content/browser/frame_host/render_frame_host_manager.cc
-index 3263eb9e324a..b5bde4cea8f7 100644
+index d7342d69dd8e..33d538952375 100644
 --- content/browser/frame_host/render_frame_host_manager.cc
 +++ content/browser/frame_host/render_frame_host_manager.cc
-@@ -890,10 +890,11 @@ bool RenderFrameHostManager::ShouldSwapBrowsingInstancesForNavigation(
+@@ -891,10 +891,11 @@ bool RenderFrameHostManager::ShouldSwapBrowsingInstancesForNavigation(
    // TODO(alexmos): This check should've been enforced earlier in the
    // navigation, in chrome::Navigate().  Verify this, and then convert this to
    // a CHECK and remove the fallback.
@@ -18,7 +18,7 @@ index 3263eb9e324a..b5bde4cea8f7 100644
      return true;
    }
  
-@@ -1032,7 +1033,8 @@ RenderFrameHostManager::GetSiteInstanceForNavigation(
+@@ -1033,7 +1034,8 @@ RenderFrameHostManager::GetSiteInstanceForNavigation(
  
    // Double-check that the new SiteInstance is associated with the right
    // BrowserContext.
@@ -29,10 +29,10 @@ index 3263eb9e324a..b5bde4cea8f7 100644
    // If |new_instance| is a new SiteInstance for a subframe that requires a
    // dedicated process, set its process reuse policy so that such subframes are
 diff --git content/public/browser/content_browser_client.h content/public/browser/content_browser_client.h
-index 18767b608ce9..41f5dc26ffdc 100644
+index 5373ee07b5cd..2558e590ba7c 100644
 --- content/public/browser/content_browser_client.h
 +++ content/public/browser/content_browser_client.h
-@@ -341,6 +341,13 @@ class CONTENT_EXPORT ContentBrowserClient {
+@@ -354,6 +354,13 @@ class CONTENT_EXPORT ContentBrowserClient {
        const GURL& current_url,
        const GURL& new_url);
  
@@ -152,10 +152,10 @@ index 34812c083bf5..1ccfaf6e1c45 100644
    // A weak pointer to the current or pending RenderViewHost. We don't access
    // this through the host_contents because we want to deal with the pending
 diff --git extensions/browser/extensions_browser_client.h extensions/browser/extensions_browser_client.h
-index 267a40121d8e..fc68e632465c 100644
+index 9e8ebb1a4d59..b42e88b11f6a 100644
 --- extensions/browser/extensions_browser_client.h
 +++ extensions/browser/extensions_browser_client.h
-@@ -53,6 +53,7 @@ class ComponentExtensionResourceManager;
+@@ -54,6 +54,7 @@ class ComponentExtensionResourceManager;
  class Extension;
  class ExtensionCache;
  class ExtensionError;
@@ -163,7 +163,7 @@ index 267a40121d8e..fc68e632465c 100644
  class ExtensionHostDelegate;
  class ExtensionPrefsObserver;
  class ExtensionApiFrameIdMap;
-@@ -108,6 +109,11 @@ class ExtensionsBrowserClient {
+@@ -109,6 +110,11 @@ class ExtensionsBrowserClient {
    virtual content::BrowserContext* GetOriginalContext(
        content::BrowserContext* context) = 0;
  
@@ -175,7 +175,7 @@ index 267a40121d8e..fc68e632465c 100644
  #if defined(OS_CHROMEOS)
    // Returns a user id hash from |context| or an empty string if no hash could
    // be extracted.
-@@ -173,6 +179,14 @@ class ExtensionsBrowserClient {
+@@ -191,6 +197,14 @@ class ExtensionsBrowserClient {
    virtual std::unique_ptr<ExtensionHostDelegate>
    CreateExtensionHostDelegate() = 0;
  

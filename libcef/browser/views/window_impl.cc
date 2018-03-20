@@ -634,7 +634,7 @@ void CefWindowImpl::CreateWidget() {
 
 #if defined(USE_AURA)
   unhandled_key_event_handler_ =
-      base::MakeUnique<CefUnhandledKeyEventHandler>(this, widget_);
+      std::make_unique<CefUnhandledKeyEventHandler>(this, widget_);
 #endif
 
   // The Widget and root View are owned by the native window. Therefore don't

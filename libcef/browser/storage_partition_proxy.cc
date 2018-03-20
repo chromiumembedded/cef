@@ -30,7 +30,7 @@ network::mojom::NetworkContext* CefStoragePartitionProxy::GetNetworkContext() {
   return parent_->GetNetworkContext();
 }
 
-network::mojom::URLLoaderFactory*
+scoped_refptr<content::SharedURLLoaderFactory>
 CefStoragePartitionProxy::GetURLLoaderFactoryForBrowserProcess() {
   return parent_->GetURLLoaderFactoryForBrowserProcess();
 }
@@ -154,6 +154,10 @@ void CefStoragePartitionProxy::FlushNetworkInterfaceForTesting() {
   parent_->FlushNetworkInterfaceForTesting();
 }
 
+void CefStoragePartitionProxy::WaitForDeletionTasksForTesting() {
+  parent_->WaitForDeletionTasksForTesting();
+}
+
 content::BackgroundFetchContext*
 CefStoragePartitionProxy::GetBackgroundFetchContext() {
   return parent_->GetBackgroundFetchContext();
@@ -186,6 +190,11 @@ CefStoragePartitionProxy::GetBlobURLLoaderFactory() {
 
 content::BlobRegistryWrapper* CefStoragePartitionProxy::GetBlobRegistry() {
   return parent_->GetBlobRegistry();
+}
+
+content::PrefetchURLLoaderService*
+CefStoragePartitionProxy::GetPrefetchURLLoaderService() {
+  return parent_->GetPrefetchURLLoaderService();
 }
 
 content::URLLoaderFactoryGetter*

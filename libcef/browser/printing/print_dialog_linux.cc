@@ -183,16 +183,16 @@ bool CefPrintDialogLinux::UpdateSettings(printing::PrintSettings* settings) {
 void CefPrintDialogLinux::ShowDialog(
     gfx::NativeView parent_view,
     bool has_selection,
-    const PrintingContextLinux::PrintSettingsCallback& callback) {
+    PrintingContextLinux::PrintSettingsCallback callback) {
   CEF_REQUIRE_UIT();
 
   SetHandler();
   if (!handler_.get()) {
-    callback.Run(PrintingContextLinux::CANCEL);
+    std::move(callback).Run(PrintingContextLinux::CANCEL);
     return;
   }
 
-  callback_ = callback;
+  callback_ = std::move(callback);
 
   CefRefPtr<CefPrintDialogCallbackImpl> callback_impl(
       new CefPrintDialogCallbackImpl(this));
@@ -310,18 +310,15 @@ void CefPrintDialogLinux::OnPrintContinue(
     CefValueController::AutoLock lock_scope(impl->controller());
     context_->InitWithSettings(impl->print_settings());
   }
-  callback_.Run(PrintingContextLinux::OK);
-  callback_.Reset();
+  std::move(callback_).Run(PrintingContextLinux::OK);
 }
 
 void CefPrintDialogLinux::OnPrintCancel() {
-  callback_.Run(PrintingContextLinux::CANCEL);
-  callback_.Reset();
+  std::move(callback_).Run(PrintingContextLinux::CANCEL);
 }
 
 void CefPrintDialogLinux::OnJobCompleted() {
-  content::BrowserThread::PostTask(
-      content::BrowserThread::FILE, FROM_HERE,
+  CEF_POST_BACKGROUND_TASK(
       base::Bind(base::IgnoreResult(&base::DeleteFile), path_to_pdf_, false));
 
   // Printing finished. Matches AddRef() in PrintDocument();

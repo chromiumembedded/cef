@@ -123,7 +123,7 @@ if (is_mac) {
   import("//build/config/mac/rules.gni")
   import("//build/mac/tweak_info_plist.gni")
   import("//build/util/version.gni")
-  import("//media/cdm/ppapi/cdm_paths.gni")
+  import("//media/cdm/library_cdm/cdm_paths.gni")
 }
 if (is_win) {
   import("//build/config/win/console_app.gni")
@@ -266,7 +266,7 @@ if (is_win) {
       "//components/crash/core/common",  # crash_keys
 
       # Required by chrome_switches.cc
-      "//chrome/common:features",
+      "//chrome/common:buildflags",
       "//ppapi/features:features",
       "//printing/features:features",
       "//ui/base:ui_features",
@@ -709,7 +709,7 @@ static_library("libcef_static") {
     "//services/network:network_service",
     "//services/network/public/cpp",
     "//services/service_manager/embedder",
-    "//services/service_manager/public/interfaces",
+    "//services/service_manager/public/cpp",
     "//services/service_manager/runner/common",
     "//skia",
     "//storage/browser",
@@ -1023,6 +1023,7 @@ if (is_win) {
 
 cef_packaged_services = [
   "//chrome/app:chrome_manifest",  # For spell checking.
+  "//chrome/app:chrome_renderer_manifest",  # For spell checking.
   "//chrome/services/printing:manifest",
   "//services/metrics:manifest",
   "//services/proxy_resolver:proxy_resolver_manifest",
