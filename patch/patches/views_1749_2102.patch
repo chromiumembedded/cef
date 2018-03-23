@@ -39,7 +39,7 @@ index 605dc1b17e43..24c385a53289 100644
    virtual void MenuWillShow() {}
  
 diff --git ui/gfx/render_text.cc ui/gfx/render_text.cc
-index 3d706df56ee6..f10d816a3f05 100644
+index ac61b2db1ff6..7706cd21f1c7 100644
 --- ui/gfx/render_text.cc
 +++ ui/gfx/render_text.cc
 @@ -518,6 +518,14 @@ void RenderText::SetElideBehavior(ElideBehavior elide_behavior) {
@@ -57,7 +57,7 @@ index 3d706df56ee6..f10d816a3f05 100644
  void RenderText::SetDisplayRect(const Rect& r) {
    if (r != display_rect_) {
      display_rect_ = r;
-@@ -1465,6 +1473,19 @@ void RenderText::OnTextAttributeChanged() {
+@@ -1472,6 +1480,19 @@ void RenderText::OnTextAttributeChanged() {
    if (!multiline_ && replace_newline_chars_with_symbols_)
      base::ReplaceChars(layout_text_, kNewline, kNewlineSymbol, &layout_text_);
  
@@ -78,7 +78,7 @@ index 3d706df56ee6..f10d816a3f05 100644
  }
  
 diff --git ui/gfx/render_text.h ui/gfx/render_text.h
-index 47fa4c605ce1..f5587fac6b5d 100644
+index b17fadb3b3b9..bf175c1f21d9 100644
 --- ui/gfx/render_text.h
 +++ ui/gfx/render_text.h
 @@ -295,6 +295,10 @@ class GFX_EXPORT RenderText {
@@ -92,7 +92,7 @@ index 47fa4c605ce1..f5587fac6b5d 100644
    const Rect& display_rect() const { return display_rect_; }
    void SetDisplayRect(const Rect& r);
  
-@@ -858,6 +862,8 @@ class GFX_EXPORT RenderText {
+@@ -868,6 +872,8 @@ class GFX_EXPORT RenderText {
    // Extra spacing placed between glyphs; used for obscured text styling.
    int glyph_spacing_ = 0;
  
@@ -211,7 +211,7 @@ index 8fb11e1cf9cb..bd2951bd948b 100644
    // The time is used for simulating menu behavior for the menu button; that
    // is, if the menu is shown and the button is pressed, we need to close the
 diff --git ui/views/controls/label.cc ui/views/controls/label.cc
-index 6b6d5f02b8ab..0dc4d1f0f389 100644
+index 9085592b2279..1512a1345171 100644
 --- ui/views/controls/label.cc
 +++ ui/views/controls/label.cc
 @@ -42,6 +42,20 @@ namespace {
@@ -272,7 +272,7 @@ index 6b6d5f02b8ab..0dc4d1f0f389 100644
    render_text->SetMaxLines(multi_line() ? max_lines() : 0);
    render_text->SetWordWrapBehavior(full_text_->word_wrap_behavior());
 diff --git ui/views/controls/label.h ui/views/controls/label.h
-index 635025a82505..58899c5ec0aa 100644
+index 1d35afeda78f..333f9c0f778d 100644
 --- ui/views/controls/label.h
 +++ ui/views/controls/label.h
 @@ -153,6 +153,10 @@ class VIEWS_EXPORT Label : public View,
@@ -286,7 +286,7 @@ index 635025a82505..58899c5ec0aa 100644
    // Sets the tooltip text.  Default behavior for a label (single-line) is to
    // show the full text if it is wider than its bounds.  Calling this overrides
    // the default behavior and lets you set a custom tooltip.  To revert to
-@@ -367,6 +371,7 @@ class VIEWS_EXPORT Label : public View,
+@@ -370,6 +374,7 @@ class VIEWS_EXPORT Label : public View,
    bool collapse_when_hidden_;
    int fixed_width_;
    int max_width_;

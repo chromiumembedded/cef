@@ -388,10 +388,10 @@ index aa77b86eee98..097d26a80aa9 100644
    virtual void FocusedNodeChanged(const blink::WebNode& node) {}
  
 diff --git content/renderer/render_frame_impl.cc content/renderer/render_frame_impl.cc
-index 259d31191208..890ec89bbaee 100644
+index 433188b26a53..8ec2321f5f45 100644
 --- content/renderer/render_frame_impl.cc
 +++ content/renderer/render_frame_impl.cc
-@@ -3447,7 +3447,8 @@ blink::WebPlugin* RenderFrameImpl::CreatePlugin(
+@@ -3479,7 +3479,8 @@ blink::WebPlugin* RenderFrameImpl::CreatePlugin(
    std::string mime_type;
    bool found = false;
    Send(new FrameHostMsg_GetPluginInfo(
@@ -401,7 +401,7 @@ index 259d31191208..890ec89bbaee 100644
        params.mime_type.Utf8(), &found, &info, &mime_type));
    if (!found)
      return nullptr;
-@@ -3808,6 +3809,8 @@ void RenderFrameImpl::FrameDetached(DetachType type) {
+@@ -3840,6 +3841,8 @@ void RenderFrameImpl::FrameDetached(DetachType type) {
  
  void RenderFrameImpl::FrameFocused() {
    Send(new FrameHostMsg_FrameFocused(routing_id_));

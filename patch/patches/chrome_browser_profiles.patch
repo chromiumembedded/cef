@@ -71,10 +71,10 @@ index e8e76ce5b954..1dd338dd0142 100644
  content::BrowserContext* GetBrowserContextRedirectedInIncognito(
      content::BrowserContext* context);
 diff --git chrome/browser/profiles/profile_manager.cc chrome/browser/profiles/profile_manager.cc
-index 06cc4ca5c59c..a610360829d8 100644
+index e231a1ebca9d..96c5dec36531 100644
 --- chrome/browser/profiles/profile_manager.cc
 +++ chrome/browser/profiles/profile_manager.cc
-@@ -377,7 +377,7 @@ ProfileManager::ProfileManager(const base::FilePath& user_data_dir)
+@@ -378,7 +378,7 @@ ProfileManager::ProfileManager(const base::FilePath& user_data_dir)
        chrome::NOTIFICATION_BROWSER_CLOSE_CANCELLED,
        content::NotificationService::AllSources());
  

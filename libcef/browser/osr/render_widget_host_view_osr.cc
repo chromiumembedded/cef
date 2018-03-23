@@ -93,7 +93,7 @@ class CefCopyFrameGenerator {
                 &CefCopyFrameGenerator::CopyFromCompositingSurfaceHasResult,
                 weak_ptr_factory_.GetWeakPtr(), damage_rect));
 
-    request->set_area(gfx::Rect(view_->GetPhysicalBackingSize()));
+    request->set_area(gfx::Rect(view_->GetCompositorViewportPixelSize()));
     view_->GetRootLayer()->RequestCopyOfOutput(std::move(request));
   }
 
@@ -664,7 +664,7 @@ gfx::Size CefRenderWidgetHostViewOSR::GetRequestedRendererSize() const {
   return GetDelegatedFrameHost()->GetRequestedRendererSize();
 }
 
-gfx::Size CefRenderWidgetHostViewOSR::GetPhysicalBackingSize() const {
+gfx::Size CefRenderWidgetHostViewOSR::GetCompositorViewportPixelSize() const {
   return gfx::ScaleToCeiledSize(GetRequestedRendererSize(),
                                 current_device_scale_factor_);
 }
@@ -1025,7 +1025,7 @@ void CefRenderWidgetHostViewOSR::Invalidate(
     return;
   }
 
-  InvalidateInternal(gfx::Rect(GetPhysicalBackingSize()));
+  InvalidateInternal(gfx::Rect(GetCompositorViewportPixelSize()));
 }
 
 void CefRenderWidgetHostViewOSR::SendKeyEvent(

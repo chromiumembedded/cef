@@ -1,5 +1,5 @@
 diff --git content/browser/renderer_host/render_widget_host_view_base.cc content/browser/renderer_host/render_widget_host_view_base.cc
-index 151c87cd72e3..593a79904382 100644
+index 09a37c1a2c70..b3fd2d561569 100644
 --- content/browser/renderer_host/render_widget_host_view_base.cc
 +++ content/browser/renderer_host/render_widget_host_view_base.cc
 @@ -312,6 +312,14 @@ float RenderWidgetHostViewBase::GetDeviceScaleFactor() const {
@@ -18,7 +18,7 @@ index 151c87cd72e3..593a79904382 100644
    return renderer_frame_number_;
  }
 diff --git content/browser/renderer_host/render_widget_host_view_base.h content/browser/renderer_host/render_widget_host_view_base.h
-index 06f2793aa2d7..06244d674026 100644
+index 17c07af5e63b..6a408d061790 100644
 --- content/browser/renderer_host/render_widget_host_view_base.h
 +++ content/browser/renderer_host/render_widget_host_view_base.h
 @@ -79,6 +79,7 @@ class BrowserAccessibilityManager;
@@ -103,10 +103,10 @@ index 8318ed172a75..0d6023427bf4 100644
    // TODO(wjmaclean): can host_ ever be null?
    if (host_ && set_focus_on_mouse_down_or_key_event_) {
 diff --git content/public/browser/render_widget_host_view.h content/public/browser/render_widget_host_view.h
-index e967efe6ad9b..3c49ea9ac980 100644
+index 71f3b3cc9e8a..3aa2ead0894d 100644
 --- content/public/browser/render_widget_host_view.h
 +++ content/public/browser/render_widget_host_view.h
-@@ -213,6 +213,14 @@ class CONTENT_EXPORT RenderWidgetHostView {
+@@ -215,6 +215,14 @@ class CONTENT_EXPORT RenderWidgetHostView {
    // This must always return the same device scale factor as GetScreenInfo.
    virtual float GetDeviceScaleFactor() const = 0;
  

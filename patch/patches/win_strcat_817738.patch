@@ -1,5 +1,5 @@
 diff --git base/strings/strcat.h base/strings/strcat.h
-index b249d49..44c6211 100644
+index b249d4919e82..44c6211d6b54 100644
 --- base/strings/strcat.h
 +++ base/strings/strcat.h
 @@ -11,6 +11,12 @@
@@ -16,10 +16,10 @@ index b249d49..44c6211 100644
  namespace base {
  
 diff --git base/win/windows_types.h base/win/windows_types.h
-index 8060f03..2a86195 100644
+index 8060f0391117..2a86195fa731 100644
 --- base/win/windows_types.h
 +++ base/win/windows_types.h
-@@ -248,5 +248,6 @@
+@@ -248,5 +248,6 @@ WINBASEAPI VOID WINAPI SetLastError(_In_ DWORD dwErrCode);
  #define SendMessageCallback SendMessageCallbackW
  #define SetCurrentDirectory SetCurrentDirectoryW
  #define StartService StartServiceW

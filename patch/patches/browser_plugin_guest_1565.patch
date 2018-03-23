@@ -1,5 +1,5 @@
 diff --git content/browser/browser_plugin/browser_plugin_guest.cc content/browser/browser_plugin/browser_plugin_guest.cc
-index 593f46130e32..5f7d2fe7355d 100644
+index 3e1786aa6901..2a94e9ec8856 100644
 --- content/browser/browser_plugin/browser_plugin_guest.cc
 +++ content/browser/browser_plugin/browser_plugin_guest.cc
 @@ -322,8 +322,11 @@ void BrowserPluginGuest::InitInternal(
@@ -79,10 +79,10 @@ index cf8c74f4c744..b8cefb4b154b 100644
    // Creates a new View that holds a popup and receives messages for it.
    virtual RenderWidgetHostViewBase* CreateViewForPopupWidget(
 diff --git content/browser/web_contents/web_contents_view_aura.cc content/browser/web_contents/web_contents_view_aura.cc
-index 13d687ea411e..f16415faa23f 100644
+index 5d28247a3161..b4f77825bbfb 100644
 --- content/browser/web_contents/web_contents_view_aura.cc
 +++ content/browser/web_contents/web_contents_view_aura.cc
-@@ -781,7 +781,8 @@ void WebContentsViewAura::CreateView(const gfx::Size& initial_size,
+@@ -784,7 +784,8 @@ void WebContentsViewAura::CreateView(const gfx::Size& initial_size,
  }
  
  RenderWidgetHostViewBase* WebContentsViewAura::CreateViewForWidget(
@@ -92,7 +92,7 @@ index 13d687ea411e..f16415faa23f 100644
    if (render_widget_host->GetView()) {
      // During testing, the view will already be set up in most cases to the
      // test view, so we don't want to clobber it with a real one. To verify that
-@@ -793,6 +794,7 @@ RenderWidgetHostViewBase* WebContentsViewAura::CreateViewForWidget(
+@@ -796,6 +797,7 @@ RenderWidgetHostViewBase* WebContentsViewAura::CreateViewForWidget(
          render_widget_host->GetView());
    }
  
@@ -101,10 +101,10 @@ index 13d687ea411e..f16415faa23f 100644
        g_create_render_widget_host_view
            ? g_create_render_widget_host_view(render_widget_host,
 diff --git content/browser/web_contents/web_contents_view_aura.h content/browser/web_contents/web_contents_view_aura.h
-index 2371c819e665..40fa46097de1 100644
+index 50c22b1dfb53..d83f2dfab6d5 100644
 --- content/browser/web_contents/web_contents_view_aura.h
 +++ content/browser/web_contents/web_contents_view_aura.h
-@@ -114,7 +114,7 @@ class CONTENT_EXPORT WebContentsViewAura
+@@ -119,7 +119,7 @@ class CONTENT_EXPORT WebContentsViewAura
                    gfx::NativeView context) override;
    RenderWidgetHostViewBase* CreateViewForWidget(
        RenderWidgetHost* render_widget_host,
@@ -221,10 +221,10 @@ index 968c5157ab41..22aad9fbafa4 100644
        RenderWidgetHost* render_widget_host) override;
    void SetPageTitle(const base::string16& title) override;
 diff --git content/browser/web_contents/web_contents_view_mac.mm content/browser/web_contents/web_contents_view_mac.mm
-index 6a9ee15776b6..e4872d47e3d2 100644
+index d3533591027d..8b9bbbc2f0de 100644
 --- content/browser/web_contents/web_contents_view_mac.mm
 +++ content/browser/web_contents/web_contents_view_mac.mm
-@@ -346,7 +346,8 @@ void WebContentsViewMac::CreateView(
+@@ -348,7 +348,8 @@ void WebContentsViewMac::CreateView(
  }
  
  RenderWidgetHostViewBase* WebContentsViewMac::CreateViewForWidget(
@@ -234,7 +234,7 @@ index 6a9ee15776b6..e4872d47e3d2 100644
    if (render_widget_host->GetView()) {
      // During testing, the view will already be set up in most cases to the
      // test view, so we don't want to clobber it with a real one. To verify that
-@@ -358,6 +359,7 @@ RenderWidgetHostViewBase* WebContentsViewMac::CreateViewForWidget(
+@@ -360,6 +361,7 @@ RenderWidgetHostViewBase* WebContentsViewMac::CreateViewForWidget(
          render_widget_host->GetView());
    }
  

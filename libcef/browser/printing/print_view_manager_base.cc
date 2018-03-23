@@ -27,6 +27,7 @@
 #include "chrome/browser/printing/printer_query.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/common/pref_names.h"
+#include "chrome/common/webui_url_constants.h"
 #include "chrome/grit/generated_resources.h"
 #include "components/prefs/pref_service.h"
 #include "components/printing/browser/print_composite_client.h"
@@ -42,12 +43,14 @@
 #include "content/public/browser/render_process_host.h"
 #include "content/public/browser/render_view_host.h"
 #include "content/public/browser/web_contents.h"
+#include "extensions/common/constants.h"
 #include "mojo/public/cpp/system/buffer.h"
 #include "printing/features/features.h"
 #include "printing/pdf_metafile_skia.h"
 #include "printing/print_settings.h"
 #include "printing/printed_document.h"
 #include "ui/base/l10n/l10n_util.h"
+#include "url/gurl.h"
 
 #if defined(OS_WIN)
 #include "base/command_line.h"
@@ -58,6 +61,18 @@ using base::TimeDelta;
 using content::BrowserThread;
 
 namespace printing {
+
+namespace {
+
+bool PrintingPdfContent(content::RenderFrameHost* rfh) {
+  GURL url = rfh->GetLastCommittedURL();
+  // Whether it is inside print preview or pdf plugin extension.
+  return url.GetOrigin() == chrome::kChromeUIPrintURL ||
+         (url.SchemeIs(extensions::kExtensionScheme) &&
+          url.host_piece() == extension_misc::kPdfExtensionId);
+}
+
+}  // namespace
 
 CefPrintViewManagerBase::CefPrintViewManagerBase(
     content::WebContents* web_contents)
@@ -121,6 +136,11 @@ void CefPrintViewManagerBase::PrintDocument(
     print_job_->StartPdfToEmfConversion(print_data, page_size, content_area,
                                         print_text_with_gdi);
   }
+  // Indicate that the PDF is fully rendered and we no longer need the renderer
+  // and web contents, so the print job does not need to be cancelled if they
+  // die. This is needed on Windows because the PrintedDocument will not be
+  // considered complete until PDF conversion finishes.
+  document->SetConvertingPdf();
 #else
   std::unique_ptr<PdfMetafileSkia> metafile =
       std::make_unique<PdfMetafileSkia>();
@@ -210,8 +230,7 @@ void CefPrintViewManagerBase::OnDidPrintDocument(
   }
 
   auto* client = PrintCompositeClient::FromWebContents(web_contents());
-  if (IsOopifEnabled() && !client->for_preview() &&
-      document->settings().is_modifiable()) {
+  if (IsOopifEnabled() && !PrintingPdfContent(render_frame_host)) {
     client->DoCompositeDocumentToPdf(
         params.document_cookie, render_frame_host, content.metafile_data_handle,
         content.data_size, content.subframe_content_info,
@@ -358,16 +377,16 @@ bool CefPrintViewManagerBase::RenderAllMissingPagesNow() {
   if (!print_job_.get() || !print_job_->is_job_pending())
     return false;
 
-  // We can't print if there is no renderer.
-  if (!web_contents() || !web_contents()->GetRenderViewHost() ||
-      !web_contents()->GetRenderViewHost()->IsRenderViewLive()) {
-    return false;
-  }
-
   // Is the document already complete?
   if (print_job_->document() && print_job_->document()->IsComplete()) {
     printing_succeeded_ = true;
     return true;
+  }
+
+  // We can't print if there is no renderer.
+  if (!web_contents() || !web_contents()->GetRenderViewHost() ||
+      !web_contents()->GetRenderViewHost()->IsRenderViewLive()) {
+    return false;
   }
 
   // WebContents is either dying or a second consecutive request to print
