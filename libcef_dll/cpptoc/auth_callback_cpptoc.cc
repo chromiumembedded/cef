@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=1adf0d1a89ad232ddb0daa468082980906dc5931$
+// $hash=3980a914cf9a6be45acabff6e35c2849b51b27dd$
 //
 
 #include "libcef_dll/cpptoc/auth_callback_cpptoc.h"
@@ -26,11 +26,7 @@ void CEF_CALLBACK auth_callback_cont(struct _cef_auth_callback_t* self,
   DCHECK(self);
   if (!self)
     return;
-  // Verify param: username; type: string_byref_const
-  DCHECK(username);
-  if (!username)
-    return;
-  // Unverified params: password
+  // Unverified params: username, password
 
   // Execute
   CefAuthCallbackCppToC::Get(self)->Continue(CefString(username),

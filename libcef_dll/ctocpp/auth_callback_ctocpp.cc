@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=de11e537658b94c48a2d2be344399186bd679f5b$
+// $hash=0464376fa24627e57280c81408ff70c3c2768021$
 //
 
 #include "libcef_dll/ctocpp/auth_callback_ctocpp.h"
@@ -24,11 +24,7 @@ void CefAuthCallbackCToCpp::Continue(const CefString& username,
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
-  // Verify param: username; type: string_byref_const
-  DCHECK(!username.empty());
-  if (username.empty())
-    return;
-  // Unverified params: password
+  // Unverified params: username, password
 
   // Execute
   _struct->cont(_struct, username.GetStruct(), password.GetStruct());
