@@ -10,6 +10,7 @@
 #include <windows.h>
 #endif
 
+#include "base/environment.h"
 #include "base/logging.h"
 #include "base/strings/string16.h"
 #include "base/strings/string_number_conversions.h"
@@ -239,6 +240,29 @@ std::string NormalizeCrashKey(const base::StringPiece& key) {
   return str;
 }
 
+void ParseURL(const std::string& value, std::string* url) {
+  if (value.find("http://") == 0 || value.find("https://") == 0) {
+    *url = value;
+    if (url->rfind('/') <= 8) {
+      // Make sure the URL includes a path component. Otherwise, crash
+      // upload will fail on older Windows versions due to
+      // https://crbug.com/826564.
+      *url += "/";
+    }
+  }
+}
+
+bool ParseBool(const std::string& value) {
+  return base::EqualsCaseInsensitiveASCII(value, "true") || value == "1";
+}
+
+int ParseZeroBasedInt(const std::string& value) {
+  int int_val;
+  if (base::StringToInt(value, &int_val) && int_val > 0)
+    return int_val;
+  return 0;
+}
+
 }  // namespace
 
 #if defined(OS_WIN)
@@ -387,37 +411,19 @@ bool CefCrashReporterClient::ReadCrashConfigFile() {
 
     if (current_section == kConfigSection) {
       if (name_str == "ServerURL") {
-        if (val_str.find("http://") == 0 || val_str.find("https://") == 0) {
-          server_url_ = val_str;
-          if (server_url_.rfind('/') <= 8) {
-            // Make sure the URL includes a path component. Otherwise, crash
-            // upload will fail on older Windows versions due to
-            // https://crbug.com/826564.
-            server_url_ += "/";
-          }
-        }
+        ParseURL(val_str, &server_url_);
       } else if (name_str == "ProductName") {
         product_name_ = val_str;
       } else if (name_str == "ProductVersion") {
         product_version_ = val_str;
       } else if (name_str == "RateLimitEnabled") {
-        rate_limit_ = (base::EqualsCaseInsensitiveASCII(val_str, "true") ||
-                       val_str == "1");
+        rate_limit_ = ParseBool(val_str);
       } else if (name_str == "MaxUploadsPerDay") {
-        if (base::StringToInt(val_str, &max_uploads_)) {
-          if (max_uploads_ < 0)
-            max_uploads_ = 0;
-        }
+        max_uploads_ = ParseZeroBasedInt(val_str);
       } else if (name_str == "MaxDatabaseSizeInMb") {
-        if (base::StringToInt(val_str, &max_db_size_)) {
-          if (max_db_size_ < 0)
-            max_db_size_ = 0;
-        }
+        max_db_size_ = ParseZeroBasedInt(val_str);
       } else if (name_str == "MaxDatabaseAgeInDays") {
-        if (base::StringToInt(val_str, &max_db_age_)) {
-          if (max_db_age_ < 0)
-            max_db_age_ = 0;
-        }
+        max_db_age_ = ParseZeroBasedInt(val_str);
       }
 #if defined(OS_WIN)
       else if (name_str == "ExternalHandler") {
@@ -432,9 +438,7 @@ bool CefCrashReporterClient::ReadCrashConfigFile() {
       }
 #elif defined(OS_MACOSX)
       else if (name_str == "BrowserCrashForwardingEnabled") {
-        enable_browser_crash_forwarding_ =
-            (base::EqualsCaseInsensitiveASCII(val_str, "true") ||
-             val_str == "1");
+        enable_browser_crash_forwarding_ = ParseBool(val_str);
       }
 #endif
     } else if (current_section == kCrashKeysSection) {
@@ -503,6 +507,19 @@ bool CefCrashReporterClient::ReadCrashConfigFile() {
       offset += length;
       if (offset >= map_keys.size())
         break;
+    }
+  }
+
+  // Allow override of some values via environment variables.
+  {
+    std::unique_ptr<base::Environment> env(base::Environment::Create());
+    std::string val_str;
+
+    if (env->GetVar("CEF_CRASH_REPORTER_SERVER_URL", &val_str)) {
+      ParseURL(val_str, &server_url_);
+    }
+    if (env->GetVar("CEF_CRASH_REPORTER_RATE_LIMIT_ENABLED", &val_str)) {
+      rate_limit_ = ParseBool(val_str);
     }
   }
 

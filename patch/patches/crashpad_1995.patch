@@ -498,7 +498,7 @@ index 6508c2a06760..f51ce5a17e63 100644
            handler_path, database_path, metrics_path, url, process_annotations,
            arguments, true, false);
 diff --git components/crash/content/app/crashpad_win.cc components/crash/content/app/crashpad_win.cc
-index a5d1afc409f4..91815d949f2e 100644
+index a5d1afc409f4..dc9917f7eca9 100644
 --- components/crash/content/app/crashpad_win.cc
 +++ components/crash/content/app/crashpad_win.cc
 @@ -34,8 +34,8 @@ void GetPlatformCrashpadAnnotations(
@@ -524,16 +524,34 @@ index a5d1afc409f4..91815d949f2e 100644
  #endif
  }
  
-@@ -83,7 +83,7 @@ base::FilePath PlatformCrashpadInitialization(
+@@ -62,7 +62,9 @@ base::FilePath PlatformCrashpadInitialization(
+   base::FilePath metrics_path;  // Only valid in the browser process.
+ 
+   const char kPipeNameVar[] = "CHROME_CRASHPAD_PIPE_NAME";
++#if defined(GOOGLE_CHROME_BUILD)
+   const char kServerUrlVar[] = "CHROME_CRASHPAD_SERVER_URL";
++#endif
+   std::unique_ptr<base::Environment> env(base::Environment::Create());
+   if (initial_client) {
+     CrashReporterClient* crash_reporter_client = GetCrashReporterClient();
+@@ -82,13 +84,13 @@ base::FilePath PlatformCrashpadInitialization(
+ 
  #if defined(GOOGLE_CHROME_BUILD)
      std::string url = "https://clients2.google.com/cr/report";
- #else
+-#else
 -    std::string url;
-+    std::string url = crash_reporter_client->GetCrashServerURL();
- #endif
+-#endif
  
      // Allow the crash server to be overridden for testing. If the variable
-@@ -103,13 +103,14 @@ base::FilePath PlatformCrashpadInitialization(
+     // isn't present in the environment then the default URL will remain.
+     env->GetVar(kServerUrlVar, &url);
++#else
++    std::string url = crash_reporter_client->GetCrashServerURL();
++#endif
+ 
+     wchar_t exe_file_path[MAX_PATH] = {};
+     CHECK(
+@@ -103,13 +105,14 @@ base::FilePath PlatformCrashpadInitialization(
                crashpad::TriState::kEnabled, kIndirectMemoryLimit);
      }
  
@@ -553,7 +571,7 @@ index a5d1afc409f4..91815d949f2e 100644
        if (!user_data_dir.empty()) {
          start_arguments.push_back(std::string("--user-data-dir=") +
                                    user_data_dir);
-@@ -120,9 +121,12 @@ base::FilePath PlatformCrashpadInitialization(
+@@ -120,9 +123,12 @@ base::FilePath PlatformCrashpadInitialization(
        start_arguments.push_back("/prefetch:7");
      } else {
        base::FilePath exe_dir = exe_file.DirName();
