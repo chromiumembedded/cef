@@ -214,7 +214,7 @@ CefRefPtr<CefFrame> CefBrowserImpl::GetFrame(const CefString& name) {
       for (WebFrame* cur_frame = web_view->MainFrame(); cur_frame;
            cur_frame = cur_frame->TraverseNext()) {
         if (cur_frame->IsWebLocalFrame() &&
-            render_frame_util::GetUniqueName(cur_frame->ToWebLocalFrame()) ==
+            render_frame_util::GetName(cur_frame->ToWebLocalFrame()) ==
                 searchname) {
           frame = cur_frame;
           break;
@@ -269,8 +269,7 @@ void CefBrowserImpl::GetFrameNames(std::vector<CefString>& names) {
     for (WebFrame* frame = render_view()->GetWebView()->MainFrame(); frame;
          frame = frame->TraverseNext()) {
       if (frame->IsWebLocalFrame())
-        names.push_back(
-            render_frame_util::GetUniqueName(frame->ToWebLocalFrame()));
+        names.push_back(render_frame_util::GetName(frame->ToWebLocalFrame()));
     }
   }
 }
@@ -356,7 +355,7 @@ CefRefPtr<CefFrameImpl> CefBrowserImpl::GetWebFrameImpl(
                                             frame->Parent()->ToWebLocalFrame())
                                       : webkit_glue::kInvalidFrameId;
   const base::string16& name =
-      base::UTF8ToUTF16(render_frame_util::GetUniqueName(frame));
+      base::UTF8ToUTF16(render_frame_util::GetName(frame));
 
   // Notify the browser that the frame has been identified.
   Send(new CefHostMsg_FrameIdentified(routing_id(), frame_id, parent_id, name));

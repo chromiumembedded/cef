@@ -17,7 +17,7 @@ class WebLocalFrame;
 namespace render_frame_util {
 
 int64_t GetIdentifier(blink::WebLocalFrame* frame);
-std::string GetUniqueName(blink::WebLocalFrame* frame);
+std::string GetName(blink::WebLocalFrame* frame);
 
 }  // namespace render_frame_util
 
