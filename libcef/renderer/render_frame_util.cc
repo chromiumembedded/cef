@@ -24,7 +24,14 @@ int64_t GetIdentifier(blink::WebLocalFrame* frame) {
   return webkit_glue::kInvalidFrameId;
 }
 
-std::string GetUniqueName(blink::WebLocalFrame* frame) {
+std::string GetName(blink::WebLocalFrame* frame) {
+  DCHECK(frame);
+  // Return the assigned name if it is non-empty. This represents the name
+  // property on the frame DOM element. If the assigned name is empty, revert to
+  // the internal unique name.
+  if (frame->AssignedName().length() > 0) {
+    return frame->AssignedName().Utf8();
+  }
   content::RenderFrameImpl* render_frame =
       content::RenderFrameImpl::FromWebFrame(frame);
   DCHECK(render_frame);

@@ -188,7 +188,7 @@ CefString CefFrameImpl::GetName() {
   CEF_REQUIRE_RT_RETURN(name);
 
   if (frame_)
-    name = render_frame_util::GetUniqueName(frame_);
+    name = render_frame_util::GetName(frame_);
   return name;
 }
 
