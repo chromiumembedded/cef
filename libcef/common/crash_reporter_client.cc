@@ -387,8 +387,15 @@ bool CefCrashReporterClient::ReadCrashConfigFile() {
 
     if (current_section == kConfigSection) {
       if (name_str == "ServerURL") {
-        if (val_str.find("http://") == 0 || val_str.find("https://") == 0)
+        if (val_str.find("http://") == 0 || val_str.find("https://") == 0) {
           server_url_ = val_str;
+          if (server_url_.rfind('/') <= 8) {
+            // Make sure the URL includes a path component. Otherwise, crash
+            // upload will fail on older Windows versions due to
+            // https://crbug.com/826564.
+            server_url_ += "/";
+          }
+        }
       } else if (name_str == "ProductName") {
         product_name_ = val_str;
       } else if (name_str == "ProductVersion") {
