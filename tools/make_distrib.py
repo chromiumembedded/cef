@@ -274,6 +274,7 @@ def transfer_files(cef_dir, script_dir, transfer_cfg_dir, mode, output_dir,
 # conditional [optional]  Set to True if the path is conditional on build
 #                         settings. Missing conditional paths will not be
 #                         treated as an error.
+# delete      [optional]  Glob pattern of files to delete after the copy.
 def copy_files_list(build_dir, dst_dir, paths):
   ''' Copy the files listed in |paths| from |build_dir| to |dst_dir|. '''
   for entry in paths:
@@ -284,6 +285,13 @@ def copy_files_list(build_dir, dst_dir, paths):
       make_dir(os.path.dirname(target_path), options.quiet)
       if os.path.isdir(source_path):
         copy_dir(source_path, target_path, options.quiet)
+        if 'delete' in entry:
+          for delete_path in get_files(
+              os.path.join(target_path, entry['delete'])):
+            if not os.path.isdir(delete_path):
+              remove_file(delete_path, options.quiet)
+            else:
+              raise Exception('Refusing to delete directory: %s' % delete_path)
       else:
         copy_file(source_path, target_path, options.quiet)
     else:
@@ -714,7 +722,7 @@ if platform == 'windows':
       {'path': 'cef_extensions.pak'},
       {'path': 'devtools_resources.pak'},
       {'path': 'icudtl.dat'},
-      {'path': 'locales'},
+      {'path': 'locales', 'delete': '*.info'},
   ]
   # yapf: enable
 
@@ -981,7 +989,7 @@ elif platform == 'linux':
       {'path': 'cef_extensions.pak'},
       {'path': 'devtools_resources.pak'},
       {'path': 'icudtl.dat'},
-      {'path': 'locales'},
+      {'path': 'locales', 'delete': '*.info'},
   ]
   # yapf: enable
 
