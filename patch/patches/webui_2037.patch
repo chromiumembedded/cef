@@ -1,5 +1,5 @@
 diff --git chrome/browser/feedback/system_logs/log_sources/chrome_internal_log_source.cc chrome/browser/feedback/system_logs/log_sources/chrome_internal_log_source.cc
-index e3a222a90f33..24298a7423f1 100644
+index e3a222a90f33..e2b557efa1e7 100644
 --- chrome/browser/feedback/system_logs/log_sources/chrome_internal_log_source.cc
 +++ chrome/browser/feedback/system_logs/log_sources/chrome_internal_log_source.cc
 @@ -164,6 +164,10 @@ void ChromeInternalLogSource::Fetch(SysLogsSourceCallback callback) {
@@ -13,6 +13,36 @@ index e3a222a90f33..24298a7423f1 100644
    // We are only interested in sync logs for the primary user profile.
    Profile* profile = ProfileManager::GetPrimaryUserProfile();
    if (!profile ||
+@@ -208,6 +212,12 @@ void ChromeInternalLogSource::PopulateExtensionInfoLogs(
+   if (!profile)
+     return;
+ 
++  // CEF should avoid accessing ExtensionRegistry when extensions are disabled.
++  if (base::CommandLine::ForCurrentProcess()->HasSwitch(
++      switches::kDisableExtensions)) {
++    return;
++  }
++
+   extensions::ExtensionRegistry* extension_registry =
+       extensions::ExtensionRegistry::Get(profile);
+   std::string extensions_list;
+diff --git chrome/browser/memory_details.cc chrome/browser/memory_details.cc
+index 5ef6e7292f5f..bba242e97d45 100644
+--- chrome/browser/memory_details.cc
++++ chrome/browser/memory_details.cc
+@@ -253,8 +253,11 @@ void MemoryDetails::CollectChildInfoOnUIThread() {
+ 
+ #if BUILDFLAG(ENABLE_EXTENSIONS)
+     // Determine if this is an extension process.
++    // CEF should avoid accessing ExtensionRegistry when extensions are disabled.
+     bool process_is_for_extensions = false;
+-    if (render_process_host) {
++    if (render_process_host &&
++        !base::CommandLine::ForCurrentProcess()->HasSwitch(
++            switches::kDisableExtensions)) {
+       content::BrowserContext* context =
+           render_process_host->GetBrowserContext();
+       extensions::ExtensionRegistry* extension_registry =
 diff --git chrome/browser/ui/webui/net_internals/net_internals_ui.cc chrome/browser/ui/webui/net_internals/net_internals_ui.cc
 index 302df0f9a2cf..f6714b63a9f2 100644
 --- chrome/browser/ui/webui/net_internals/net_internals_ui.cc
