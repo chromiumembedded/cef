@@ -1,8 +1,16 @@
 diff --git chrome/browser/feedback/system_logs/log_sources/chrome_internal_log_source.cc chrome/browser/feedback/system_logs/log_sources/chrome_internal_log_source.cc
-index e3a222a90f33..e2b557efa1e7 100644
+index e3a222a90f33..8b909deef05d 100644
 --- chrome/browser/feedback/system_logs/log_sources/chrome_internal_log_source.cc
 +++ chrome/browser/feedback/system_logs/log_sources/chrome_internal_log_source.cc
-@@ -164,6 +164,10 @@ void ChromeInternalLogSource::Fetch(SysLogsSourceCallback callback) {
+@@ -17,6 +17,7 @@
+ #include "chrome/browser/profiles/profile_manager.h"
+ #include "chrome/browser/sync/profile_sync_service_factory.h"
+ #include "chrome/common/channel_info.h"
++#include "chrome/common/chrome_switches.h"
+ #include "chrome/common/pref_names.h"
+ #include "components/browser_sync/profile_sync_service.h"
+ #include "components/prefs/pref_service.h"
+@@ -164,6 +165,10 @@ void ChromeInternalLogSource::Fetch(SysLogsSourceCallback callback) {
  }
  
  void ChromeInternalLogSource::PopulateSyncLogs(SystemLogsResponse* response) {
@@ -13,7 +21,7 @@ index e3a222a90f33..e2b557efa1e7 100644
    // We are only interested in sync logs for the primary user profile.
    Profile* profile = ProfileManager::GetPrimaryUserProfile();
    if (!profile ||
-@@ -208,6 +212,12 @@ void ChromeInternalLogSource::PopulateExtensionInfoLogs(
+@@ -208,6 +213,12 @@ void ChromeInternalLogSource::PopulateExtensionInfoLogs(
    if (!profile)
      return;
  
@@ -27,10 +35,18 @@ index e3a222a90f33..e2b557efa1e7 100644
        extensions::ExtensionRegistry::Get(profile);
    std::string extensions_list;
 diff --git chrome/browser/memory_details.cc chrome/browser/memory_details.cc
-index 5ef6e7292f5f..bba242e97d45 100644
+index 5ef6e7292f5f..2884102c28e8 100644
 --- chrome/browser/memory_details.cc
 +++ chrome/browser/memory_details.cc
-@@ -253,8 +253,11 @@ void MemoryDetails::CollectChildInfoOnUIThread() {
+@@ -16,6 +16,7 @@
+ #include "base/task_scheduler/post_task.h"
+ #include "build/build_config.h"
+ #include "chrome/browser/profiles/profile.h"
++#include "chrome/common/chrome_switches.h"
+ #include "components/nacl/common/nacl_process_type.h"
+ #include "components/strings/grit/components_strings.h"
+ #include "content/public/browser/browser_child_process_host_iterator.h"
+@@ -253,8 +254,11 @@ void MemoryDetails::CollectChildInfoOnUIThread() {
  
  #if BUILDFLAG(ENABLE_EXTENSIONS)
      // Determine if this is an extension process.
