@@ -64,6 +64,8 @@ class MacHelper : public content::BrowserCompositorMacClient,
     view_->render_widget_host()->DidReceiveFirstFrameAfterNavigation();
   }
 
+  void DestroyCompositorForShutdown() override {}
+
  private:
   // Guaranteed to outlive this object.
   CefRenderWidgetHostViewOSR* view_;

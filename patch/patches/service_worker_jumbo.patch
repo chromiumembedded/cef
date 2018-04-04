@@ -1,0 +1,22 @@
+diff --git content/browser/service_worker/service_worker_version.cc content/browser/service_worker/service_worker_version.cc
+index 2417abcfdae2..c66986773923 100644
+--- content/browser/service_worker/service_worker_version.cc
++++ content/browser/service_worker/service_worker_version.cc
+@@ -54,8 +54,6 @@
+ 
+ namespace content {
+ 
+-using StatusCallback = ServiceWorkerVersion::StatusCallback;
+-
+ namespace {
+ 
+ // Timeout for an installed worker to start.
+@@ -103,7 +101,7 @@ void RunCallbacks(ServiceWorkerVersion* version,
+ 
+ // An adapter to run a |callback| after StartWorker.
+ void RunCallbackAfterStartWorker(base::WeakPtr<ServiceWorkerVersion> version,
+-                                 StatusCallback callback,
++                                 ServiceWorkerVersion::StatusCallback callback,
+                                  ServiceWorkerStatusCode status) {
+   if (status == SERVICE_WORKER_OK &&
+       version->running_status() != EmbeddedWorkerStatus::RUNNING) {
