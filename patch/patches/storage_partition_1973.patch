@@ -207,10 +207,10 @@ index de25ae93f74d..73f490f783c9 100644
    workers_[offset] = std::move(worker);
  }
 diff --git content/browser/loader/navigation_url_loader_network_service.cc content/browser/loader/navigation_url_loader_network_service.cc
-index 8e4c4a42b0a0..f78f3d3817ae 100644
+index 6e0b9d68ccbc..ba39c57a749a 100644
 --- content/browser/loader/navigation_url_loader_network_service.cc
 +++ content/browser/loader/navigation_url_loader_network_service.cc
-@@ -1020,11 +1020,12 @@ NavigationURLLoaderNetworkService::NavigationURLLoaderNetworkService(
+@@ -1030,11 +1030,12 @@ NavigationURLLoaderNetworkService::NavigationURLLoaderNetworkService(
      }
    }
  

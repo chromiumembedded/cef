@@ -71,7 +71,7 @@ index e8e76ce5b954..1dd338dd0142 100644
  content::BrowserContext* GetBrowserContextRedirectedInIncognito(
      content::BrowserContext* context);
 diff --git chrome/browser/profiles/profile_manager.cc chrome/browser/profiles/profile_manager.cc
-index e231a1ebca9d..96c5dec36531 100644
+index 5ba0e61824b0..db12c9e551ed 100644
 --- chrome/browser/profiles/profile_manager.cc
 +++ chrome/browser/profiles/profile_manager.cc
 @@ -378,7 +378,7 @@ ProfileManager::ProfileManager(const base::FilePath& user_data_dir)

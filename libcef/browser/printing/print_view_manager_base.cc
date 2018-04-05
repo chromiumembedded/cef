@@ -432,8 +432,6 @@ bool CefPrintViewManagerBase::CreateNewPrintJob(PrintJobWorkerOwner* job) {
     return false;
   }
 
-  // Ask the renderer to generate the print preview, create the print preview
-  // view and switch to it, initialize the printer and show the print dialog.
   DCHECK(!print_job_.get());
   DCHECK(job);
   if (!job)

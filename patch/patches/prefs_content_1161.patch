@@ -35,7 +35,7 @@ index 43606a755fa2..967190fc8f83 100644
    bool record_whole_document;
    SavePreviousDocumentResources save_previous_document_resources;
 diff --git content/renderer/render_view_impl.cc content/renderer/render_view_impl.cc
-index 09a26d8a7a6c..ccd7fc42e590 100644
+index a9b91cdcc86d..2417a19d56e1 100644
 --- content/renderer/render_view_impl.cc
 +++ content/renderer/render_view_impl.cc
 @@ -1236,6 +1236,7 @@ void RenderViewImpl::ApplyWebPreferencesInternal(

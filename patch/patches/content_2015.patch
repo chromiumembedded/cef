@@ -93,7 +93,7 @@ index 2986bf0e340e..6ef8486960ce 100644
  }
  
 diff --git content/browser/frame_host/render_frame_host_impl.cc content/browser/frame_host/render_frame_host_impl.cc
-index 1f566ef1f437..cffef1c8a2f2 100644
+index 00f36c5deb77..ff5db72358a2 100644
 --- content/browser/frame_host/render_frame_host_impl.cc
 +++ content/browser/frame_host/render_frame_host_impl.cc
 @@ -1527,6 +1527,7 @@ void RenderFrameHostImpl::OnDidFailProvisionalLoadWithError(
@@ -104,7 +104,7 @@ index 1f566ef1f437..cffef1c8a2f2 100644
    }
  
    frame_tree_node_->navigator()->DidFailProvisionalLoadWithError(this, params);
-@@ -3269,9 +3270,9 @@ void RenderFrameHostImpl::RegisterMojoInterfaces() {
+@@ -3278,9 +3279,9 @@ void RenderFrameHostImpl::RegisterMojoInterfaces() {
        &QuotaDispatcherHost::CreateForFrame, GetProcess(), routing_id_));
  
    if (base::FeatureList::IsEnabled(network::features::kNetworkService)) {
@@ -117,7 +117,7 @@ index 1f566ef1f437..cffef1c8a2f2 100644
      // TODO(https://crbug.com/813479): Investigate why we need to explicitly
      // specify task runner for BrowserThread::IO here.
      // Bind calls to the BindRegistry should come on to the IO thread by
-@@ -3545,9 +3546,9 @@ void RenderFrameHostImpl::CommitNavigation(
+@@ -3554,9 +3555,9 @@ void RenderFrameHostImpl::CommitNavigation(
      // however only do this for cross-document navigations, because the
      // alternative would be redundant effort.
      network::mojom::URLLoaderFactoryPtrInfo default_factory_info;
@@ -130,7 +130,7 @@ index 1f566ef1f437..cffef1c8a2f2 100644
      if (subresource_loader_params &&
          subresource_loader_params->loader_factory_info.is_valid()) {
        // If the caller has supplied a default URLLoaderFactory override (for
-@@ -4162,8 +4163,8 @@ void RenderFrameHostImpl::CreateNetworkServiceDefaultFactoryAndObserve(
+@@ -4171,8 +4172,8 @@ void RenderFrameHostImpl::CreateNetworkServiceDefaultFactoryAndObserve(
    auto* context = GetSiteInstance()->GetBrowserContext();
    GetContentClient()->browser()->WillCreateURLLoaderFactory(
        this, false /* is_navigation */, &default_factory_request);
@@ -274,10 +274,10 @@ index e6de4ca6c8b3..18eea4948e43 100644
                       const std::string& mime_type,
                       bool allow_wildcard,
 diff --git content/common/frame_messages.h content/common/frame_messages.h
-index 8e482fa78e3a..99b8e486e88f 100644
+index c06c9d132a3a..f58a2ca60eb2 100644
 --- content/common/frame_messages.h
 +++ content/common/frame_messages.h
-@@ -1362,8 +1362,9 @@ IPC_MESSAGE_ROUTED1(FrameHostMsg_PepperStopsPlayback,
+@@ -1368,8 +1368,9 @@ IPC_MESSAGE_ROUTED1(FrameHostMsg_PepperStopsPlayback,
  
  // Used to get the list of plugins. |main_frame_origin| is used to handle
  // exceptions for plugin content settings.
@@ -288,7 +288,7 @@ index 8e482fa78e3a..99b8e486e88f 100644
                              url::Origin /* main_frame_origin */,
                              std::vector<content::WebPluginInfo> /* plugins */)
  
-@@ -1371,9 +1372,10 @@ IPC_SYNC_MESSAGE_CONTROL2_1(FrameHostMsg_GetPlugins,
+@@ -1377,9 +1378,10 @@ IPC_SYNC_MESSAGE_CONTROL2_1(FrameHostMsg_GetPlugins,
  // type. If there is no matching plugin, |found| is false.
  // |actual_mime_type| is the actual mime type supported by the
  // found plugin.
@@ -388,10 +388,10 @@ index aa77b86eee98..097d26a80aa9 100644
    virtual void FocusedNodeChanged(const blink::WebNode& node) {}
  
 diff --git content/renderer/render_frame_impl.cc content/renderer/render_frame_impl.cc
-index 433188b26a53..8ec2321f5f45 100644
+index 7fc7063d9f45..d0cf90c9fadc 100644
 --- content/renderer/render_frame_impl.cc
 +++ content/renderer/render_frame_impl.cc
-@@ -3479,7 +3479,8 @@ blink::WebPlugin* RenderFrameImpl::CreatePlugin(
+@@ -3484,7 +3484,8 @@ blink::WebPlugin* RenderFrameImpl::CreatePlugin(
    std::string mime_type;
    bool found = false;
    Send(new FrameHostMsg_GetPluginInfo(
@@ -401,7 +401,7 @@ index 433188b26a53..8ec2321f5f45 100644
        params.mime_type.Utf8(), &found, &info, &mime_type));
    if (!found)
      return nullptr;
-@@ -3840,6 +3841,8 @@ void RenderFrameImpl::FrameDetached(DetachType type) {
+@@ -3845,6 +3846,8 @@ void RenderFrameImpl::FrameDetached(DetachType type) {
  
  void RenderFrameImpl::FrameFocused() {
    Send(new FrameHostMsg_FrameFocused(routing_id_));
