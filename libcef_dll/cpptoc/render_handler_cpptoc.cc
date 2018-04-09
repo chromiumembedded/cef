@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=7dba22b79d2e50ab27ccf93a393f5220965a08ce$
+// $hash=98625368df8daaeca9df1791f1867828a6271a89$
 //
 
 #include "libcef_dll/cpptoc/render_handler_cpptoc.h"
@@ -408,6 +408,31 @@ void CEF_CALLBACK render_handler_on_ime_composition_range_changed(
       CefBrowserCToCpp::Wrap(browser), selected_rangeVal, character_boundsList);
 }
 
+void CEF_CALLBACK
+render_handler_on_text_selection_changed(struct _cef_render_handler_t* self,
+                                         cef_browser_t* browser,
+                                         const cef_string_t* selected_text,
+                                         const cef_range_t* selected_range) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return;
+  // Verify param: browser; type: refptr_diff
+  DCHECK(browser);
+  if (!browser)
+    return;
+  // Unverified params: selected_text, selected_range
+
+  // Translate param: selected_range; type: simple_byref_const
+  CefRange selected_rangeVal = selected_range ? *selected_range : CefRange();
+
+  // Execute
+  CefRenderHandlerCppToC::Get(self)->OnTextSelectionChanged(
+      CefBrowserCToCpp::Wrap(browser), CefString(selected_text),
+      selected_rangeVal);
+}
+
 }  // namespace
 
 // CONSTRUCTOR - Do not edit by hand.
@@ -429,6 +454,8 @@ CefRenderHandlerCppToC::CefRenderHandlerCppToC() {
       render_handler_on_scroll_offset_changed;
   GetStruct()->on_ime_composition_range_changed =
       render_handler_on_ime_composition_range_changed;
+  GetStruct()->on_text_selection_changed =
+      render_handler_on_text_selection_changed;
 }
 
 template <>

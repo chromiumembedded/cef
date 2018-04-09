@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=3fb1034cb02cfeddcaf02d8fde0dec5b8a18f416$
+// $hash=f2f3acb1df9815e4ac9bf34010ce260a2496ae5a$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_RENDER_HANDLER_CAPI_H_
@@ -202,6 +202,17 @@ typedef struct _cef_render_handler_t {
       const cef_range_t* selected_range,
       size_t character_boundsCount,
       cef_rect_t const* character_bounds);
+
+  ///
+  // Called when text selection has changed for the specified |browser|.
+  // |selected_text| is the currently selected text and |selected_range| is the
+  // character range.
+  ///
+  void(CEF_CALLBACK* on_text_selection_changed)(
+      struct _cef_render_handler_t* self,
+      struct _cef_browser_t* browser,
+      const cef_string_t* selected_text,
+      const cef_range_t* selected_range);
 } cef_render_handler_t;
 
 #ifdef __cplusplus

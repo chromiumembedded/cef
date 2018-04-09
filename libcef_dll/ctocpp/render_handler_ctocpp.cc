@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=f76ba6a84dade0b75d2018c4aee6b681a2a1505b$
+// $hash=98ed2d6d147cc82b00f766b45e1b0e15e0f84393$
 //
 
 #include "libcef_dll/ctocpp/render_handler_ctocpp.h"
@@ -324,6 +324,28 @@ void CefRenderHandlerCToCpp::OnImeCompositionRangeChanged(
   // Restore param:character_bounds; type: simple_vec_byref_const
   if (character_boundsList)
     delete[] character_boundsList;
+}
+
+void CefRenderHandlerCToCpp::OnTextSelectionChanged(
+    CefRefPtr<CefBrowser> browser,
+    const CefString& selected_text,
+    const CefRange& selected_range) {
+  cef_render_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, on_text_selection_changed))
+    return;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: browser; type: refptr_diff
+  DCHECK(browser.get());
+  if (!browser.get())
+    return;
+  // Unverified params: selected_text, selected_range
+
+  // Execute
+  _struct->on_text_selection_changed(_struct, CefBrowserCppToC::Wrap(browser),
+                                     selected_text.GetStruct(),
+                                     &selected_range);
 }
 
 // CONSTRUCTOR - Do not edit by hand.
