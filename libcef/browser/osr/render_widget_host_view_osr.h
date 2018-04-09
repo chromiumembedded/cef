@@ -184,6 +184,10 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
       gfx::PointF* transformed_point) override;
   void DidNavigate() override;
 
+  void SelectionChanged(const base::string16& text,
+                        size_t offset,
+                        const gfx::Range& range) override;
+
   // ui::CompositorDelegate implementation.
   std::unique_ptr<viz::SoftwareOutputDevice> CreateSoftwareOutputDevice(
       ui::Compositor* compositor) override;

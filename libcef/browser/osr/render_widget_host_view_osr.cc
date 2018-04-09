@@ -17,6 +17,7 @@
 #include "base/callback_helpers.h"
 #include "base/command_line.h"
 #include "base/memory/ptr_util.h"
+#include "base/strings/utf_string_conversions.h"
 #include "cc/base/switches.h"
 #include "components/viz/common/features.h"
 #include "components/viz/common/frame_sinks/copy_output_request.h"
@@ -812,6 +813,31 @@ void CefRenderWidgetHostViewOSR::ImeCancelComposition() {
 
   // Stop Monitoring for composition updates after we are done.
   RequestImeCompositionUpdate(false);
+}
+
+void CefRenderWidgetHostViewOSR::SelectionChanged(const base::string16& text,
+                                                  size_t offset,
+                                                  const gfx::Range& range) {
+  RenderWidgetHostViewBase::SelectionChanged(text, offset, range);
+
+  if (!browser_impl_.get())
+    return;
+
+  CefString selected_text;
+  if (!range.is_empty() && !text.empty()) {
+    size_t pos = range.GetMin() - offset;
+    size_t n = range.length();
+    if (pos + n <= text.length())
+      selected_text = text.substr(pos, n);
+  }
+
+  CefRefPtr<CefRenderHandler> handler =
+      browser_impl_->GetClient()->GetRenderHandler();
+  if (handler.get()) {
+    CefRange cef_range(range.start(), range.end());
+    handler->OnTextSelectionChanged(browser_impl_.get(), selected_text,
+                                    cef_range);
+  }
 }
 
 void CefRenderWidgetHostViewOSR::SetNeedsBeginFrames(bool enabled) {

@@ -204,6 +204,16 @@ class CefRenderHandler : public virtual CefBaseRefCounted {
   virtual void OnImeCompositionRangeChanged(CefRefPtr<CefBrowser> browser,
                                             const CefRange& selected_range,
                                             const RectList& character_bounds) {}
+
+  ///
+  // Called when text selection has changed for the specified |browser|.
+  // |selected_text| is the currently selected text and |selected_range| is
+  // the character range.
+  ///
+  /*--cef(optional_param=selected_text,optional_param=selected_range)--*/
+  virtual void OnTextSelectionChanged(CefRefPtr<CefBrowser> browser,
+                                      const CefString& selected_text,
+                                      const CefRange& selected_range) {}
 };
 
 #endif  // CEF_INCLUDE_CEF_RENDER_HANDLER_H_

@@ -31,9 +31,50 @@
   function makeH1Red() { getElement('LI00').style.color='red'; }
   function makeH1Black() { getElement('LI00').style.color='black'; }
   function navigate() { location.href='?k='+getElement('editbox').value; }
-  function load() { var select = document.getElementById('LI11select');
+  function load() {
+    var elems = [];
+    var param = { type: 'ElementBounds', elems: elems };
+
+    elems.push(getElementBounds('LI00'));
+    elems.push(getElementBounds('LI01'));
+    elems.push(getElementBounds('LI02'));
+    elems.push(getElementBounds('LI03'));
+    elems.push(getElementBounds('LI04'));
+    elems.push(getElementBounds('LI05'));
+    elems.push(getElementBounds('LI06'));
+    elems.push(getElementBounds('LI07'));
+    elems.push(getElementBounds('LI08'));
+    elems.push(getElementBounds('LI09'));
+    elems.push(getElementBounds('LI10'));
+    elems.push(getElementBounds('LI11'));
+    elems.push(getElementBounds('LI11select'));
+    elems.push(getElementBounds('editbox'));
+    elems.push(getElementBounds('btnnavigate'));
+    elems.push(getElementBounds('dropdiv'));
+    elems.push(getElementBounds('dragdiv'));
+
+    if (window.testQuery)
+      window.testQuery({request: JSON.stringify(param)});
+
+    fillDropDown();
+  }
+
+  function fillDropDown() {
+    var select = document.getElementById('LI11select');
     for (var i = 1; i < 21; i++)
       select.options.add(new Option('Option ' + i, i));
+  }
+
+  function getElementBounds(id) {
+    var element = document.getElementById(id);
+    var bounds = element.getBoundingClientRect();
+    return {
+      id: id,
+      x: Math.floor(bounds.x),
+      y: Math.floor(bounds.y),
+      width: Math.floor(bounds.width),
+      height: Math.floor(bounds.height)
+    };
   }
 
   function onEventTest(event) {
@@ -64,6 +105,15 @@
     if (window.testQuery)
       window.testQuery({request: "osrdrop"});
   }
+
+  function selectText(ev) {
+    var element = ev.target;
+    var selection = window.getSelection();
+    var range = document.createRange();
+    range.selectNodeContents(element);
+    selection.removeAllRanges();
+    selection.addRange(range);
+  }
   </script>
   <body onfocus='onEventTest(event)' onblur='onEventTest(event)' onload='load();'>
   <h1 id='LI00' onclick="onEventTest(event)">
@@ -92,6 +142,7 @@
       value='Click here to navigate' id='editbox' /></li>
   <li id='LI10' title='EXPECTED_TOOLTIP'>Mouse over this element will
       trigger show a tooltip</li>
+  <li id='LI11' onclick='selectText(event)'>SELECTED_TEXT_RANGE</li>
   </ol>
   <div class="dropdiv" id="dropdiv" ondrop="drop(event)" ondragover="allowDrop(event)">
     <span id="draghere">Drag here</span>

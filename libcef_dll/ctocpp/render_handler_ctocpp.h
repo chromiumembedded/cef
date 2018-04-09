@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=980eeb6c12f70a23b985c8f3bb897b69ee9b73ef$
+// $hash=9e2bcb61512095fba2fca928f4696fbb39d9d3b1$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_RENDER_HANDLER_CTOCPP_H_
@@ -69,6 +69,9 @@ class CefRenderHandlerCToCpp
   void OnImeCompositionRangeChanged(CefRefPtr<CefBrowser> browser,
                                     const CefRange& selected_range,
                                     const RectList& character_bounds) override;
+  void OnTextSelectionChanged(CefRefPtr<CefBrowser> browser,
+                              const CefString& selected_text,
+                              const CefRange& selected_range) override;
 };
 
 #endif  // CEF_LIBCEF_DLL_CTOCPP_RENDER_HANDLER_CTOCPP_H_
