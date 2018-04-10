@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=8fb3e1af64274b34482ee34c75a6196654104360$
+// $hash=34ae05a5b71f5f9ede44fb859074e9ffcd7b65ad$
 //
 
 #include "include/capi/cef_app_capi.h"
@@ -158,6 +158,7 @@
 #include "libcef_dll/ctocpp/test/translator_test_scoped_client_ctocpp.h"
 #include "libcef_dll/ctocpp/urlrequest_client_ctocpp.h"
 #include "libcef_dll/ctocpp/v8accessor_ctocpp.h"
+#include "libcef_dll/ctocpp/v8array_buffer_release_callback_ctocpp.h"
 #include "libcef_dll/ctocpp/v8handler_ctocpp.h"
 #include "libcef_dll/ctocpp/v8interceptor_ctocpp.h"
 #include "libcef_dll/ctocpp/views/browser_view_delegate_ctocpp.h"
@@ -372,6 +373,8 @@ CEF_EXPORT void cef_shutdown() {
   DCHECK(base::AtomicRefCountIsZero(&CefURLRequestClientCToCpp::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefURLRequestCppToC::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefV8AccessorCToCpp::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(
+      &CefV8ArrayBufferReleaseCallbackCToCpp::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefV8ContextCppToC::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefV8ExceptionCppToC::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefV8HandlerCToCpp::DebugObjCt));

@@ -227,6 +227,7 @@ class CefV8ValueImpl : public CefV8Value {
   bool IsString() override;
   bool IsObject() override;
   bool IsArray() override;
+  bool IsArrayBuffer() override;
   bool IsFunction() override;
   bool IsSame(CefRefPtr<CefV8Value> value) override;
   bool GetBoolValue() override;
@@ -260,6 +261,9 @@ class CefV8ValueImpl : public CefV8Value {
   int GetExternallyAllocatedMemory() override;
   int AdjustExternallyAllocatedMemory(int change_in_bytes) override;
   int GetArrayLength() override;
+  CefRefPtr<CefV8ArrayBufferReleaseCallback> GetArrayBufferReleaseCallback()
+      override;
+  bool NeuterArrayBuffer() override;
   CefString GetFunctionName() override;
   CefRefPtr<CefV8Handler> GetFunctionHandler() override;
   CefRefPtr<CefV8Value> ExecuteFunction(

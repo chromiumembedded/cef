@@ -8,7 +8,7 @@
 # by hand. See the translator.README.txt file in the tools directory for
 # more information.
 #
-# $hash=bede6f61d0f5b45669b8e924144e4200c41f869b$
+# $hash=67bc21133e37f5361a39f25dcfe004616d467dbc$
 #
 
 {
@@ -432,6 +432,8 @@
       'libcef_dll/ctocpp/urlrequest_client_ctocpp.h',
       'libcef_dll/ctocpp/v8accessor_ctocpp.cc',
       'libcef_dll/ctocpp/v8accessor_ctocpp.h',
+      'libcef_dll/ctocpp/v8array_buffer_release_callback_ctocpp.cc',
+      'libcef_dll/ctocpp/v8array_buffer_release_callback_ctocpp.h',
       'libcef_dll/cpptoc/v8context_cpptoc.cc',
       'libcef_dll/cpptoc/v8context_cpptoc.h',
       'libcef_dll/cpptoc/v8exception_cpptoc.cc',
@@ -712,6 +714,8 @@
       'libcef_dll/cpptoc/urlrequest_client_cpptoc.h',
       'libcef_dll/cpptoc/v8accessor_cpptoc.cc',
       'libcef_dll/cpptoc/v8accessor_cpptoc.h',
+      'libcef_dll/cpptoc/v8array_buffer_release_callback_cpptoc.cc',
+      'libcef_dll/cpptoc/v8array_buffer_release_callback_cpptoc.h',
       'libcef_dll/ctocpp/v8context_ctocpp.cc',
       'libcef_dll/ctocpp/v8context_ctocpp.h',
       'libcef_dll/ctocpp/v8exception_ctocpp.cc',
