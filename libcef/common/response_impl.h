@@ -13,7 +13,7 @@
 namespace net {
 class HttpResponseHeaders;
 class URLRequest;
-}
+}  // namespace net
 
 namespace blink {
 class WebURLResponse;
@@ -37,6 +37,8 @@ class CefResponseImpl : public CefResponse {
   CefString GetHeader(const CefString& name) override;
   void GetHeaderMap(HeaderMap& headerMap) override;
   void SetHeaderMap(const HeaderMap& headerMap) override;
+  CefString GetURL() override;
+  void SetURL(const CefString& url) override;
 
   net::HttpResponseHeaders* GetResponseHeaders();
   void SetResponseHeaders(const net::HttpResponseHeaders& headers);
@@ -51,6 +53,7 @@ class CefResponseImpl : public CefResponse {
   int status_code_;
   CefString status_text_;
   CefString mime_type_;
+  CefString url_;
   HeaderMap header_map_;
   bool read_only_;
 

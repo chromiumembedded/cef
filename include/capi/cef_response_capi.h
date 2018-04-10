@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=561e4711432158fd3da971f3c0240dcf5e8e782a$
+// $hash=fd2cbc427bccf30298e26dd6c3bcef9551433f8b$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_RESPONSE_CAPI_H_
@@ -127,6 +127,18 @@ typedef struct _cef_response_t {
   ///
   void(CEF_CALLBACK* set_header_map)(struct _cef_response_t* self,
                                      cef_string_multimap_t headerMap);
+
+  ///
+  // Get the resolved URL after redirects or changed as a result of HSTS.
+  ///
+  // The resulting string must be freed by calling cef_string_userfree_free().
+  cef_string_userfree_t(CEF_CALLBACK* get_url)(struct _cef_response_t* self);
+
+  ///
+  // Set the resolved URL after redirects or changed as a result of HSTS.
+  ///
+  void(CEF_CALLBACK* set_url)(struct _cef_response_t* self,
+                              const cef_string_t* url);
 } cef_response_t;
 
 ///

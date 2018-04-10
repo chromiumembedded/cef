@@ -1264,6 +1264,12 @@ typedef enum {
   // originated in the browser process.
   ///
   UR_FLAG_NO_RETRY_ON_5XX = 1 << 5,
+
+  ///
+  // If set 3XX responses will cause the fetch to halt immediately rather than
+  // continue through the redirect.
+  ///
+  UR_FLAG_STOP_ON_REDIRECT = 1 << 6,
 } cef_urlrequest_flags_t;
 
 ///

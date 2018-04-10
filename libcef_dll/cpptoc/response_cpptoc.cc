@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=f2872ff67c69f164f899040c77340e116bd214c0$
+// $hash=9cf199db470205062b0c4d39f7daa739db2a95a2$
 //
 
 #include "libcef_dll/cpptoc/response_cpptoc.h"
@@ -222,6 +222,37 @@ void CEF_CALLBACK response_set_header_map(struct _cef_response_t* self,
   CefResponseCppToC::Get(self)->SetHeaderMap(headerMapMultimap);
 }
 
+cef_string_userfree_t CEF_CALLBACK
+response_get_url(struct _cef_response_t* self) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return NULL;
+
+  // Execute
+  CefString _retval = CefResponseCppToC::Get(self)->GetURL();
+
+  // Return type: string
+  return _retval.DetachToUserFree();
+}
+
+void CEF_CALLBACK response_set_url(struct _cef_response_t* self,
+                                   const cef_string_t* url) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return;
+  // Verify param: url; type: string_byref_const
+  DCHECK(url);
+  if (!url)
+    return;
+
+  // Execute
+  CefResponseCppToC::Get(self)->SetURL(CefString(url));
+}
+
 }  // namespace
 
 // CONSTRUCTOR - Do not edit by hand.
@@ -239,6 +270,8 @@ CefResponseCppToC::CefResponseCppToC() {
   GetStruct()->get_header = response_get_header;
   GetStruct()->get_header_map = response_get_header_map;
   GetStruct()->set_header_map = response_set_header_map;
+  GetStruct()->get_url = response_get_url;
+  GetStruct()->set_url = response_set_url;
 }
 
 template <>
