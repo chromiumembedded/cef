@@ -407,6 +407,8 @@ class CefBrowserHostImpl : public CefBrowserHost,
                       bool* was_blocked) override;
   void LoadingStateChanged(content::WebContents* source,
                            bool to_different_document) override;
+  void LoadProgressChanged(content::WebContents* source,
+                           double progress) override;
   void CloseContents(content::WebContents* source) override;
   void UpdateTargetURL(content::WebContents* source, const GURL& url) override;
   bool DidAddMessageToConsole(content::WebContents* source,

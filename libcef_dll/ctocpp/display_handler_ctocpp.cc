@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=ca92b50b1b21d6de1a591edce5025267abdd2342$
+// $hash=9506e4c51606a428b82d70eb5a2366fed4c1c61e$
 //
 
 #include "libcef_dll/ctocpp/display_handler_ctocpp.h"
@@ -200,6 +200,25 @@ bool CefDisplayHandlerCToCpp::OnAutoResize(CefRefPtr<CefBrowser> browser,
 
   // Return type: bool
   return _retval ? true : false;
+}
+
+void CefDisplayHandlerCToCpp::OnLoadingProgressChange(
+    CefRefPtr<CefBrowser> browser,
+    double progress) {
+  cef_display_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, on_loading_progress_change))
+    return;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: browser; type: refptr_diff
+  DCHECK(browser.get());
+  if (!browser.get())
+    return;
+
+  // Execute
+  _struct->on_loading_progress_change(_struct, CefBrowserCppToC::Wrap(browser),
+                                      progress);
 }
 
 // CONSTRUCTOR - Do not edit by hand.

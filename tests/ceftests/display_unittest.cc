@@ -456,3 +456,71 @@ TEST(DisplayTest, OnConsoleMessageAssert) {
   handler->ExecuteTest();
   ReleaseAndWaitForDestructor(handler);
 }
+
+namespace {
+
+const char kLoadinProgressUrl[] = "http://tests-display/loading-progress.html";
+
+// Browser side.
+class LoadingProgressTestHandler : public TestHandler {
+ public:
+  LoadingProgressTestHandler() {}
+
+  void RunTest() override {
+    // Add the resources that we will navigate to/from.
+    AddResource(kLoadinProgressUrl,
+                "<html><head><style>"
+                "body {overflow:hidden;margin:0px;padding:0px;}"
+                "</style></head><body><div id=a>Content</div></body></html>",
+                "text/html");
+
+    // Create the browser.
+    CreateBrowser(kLoadinProgressUrl);
+
+    // Time out the test after a reasonable period of time.
+    SetTestTimeout();
+  }
+
+  void OnLoadingStateChange(CefRefPtr<CefBrowser> browser,
+                            bool isLoading,
+                            bool canGoBack,
+                            bool canGoForward) override {
+    if (isLoading)
+      return;
+
+    DestroyTest();
+  }
+
+  void OnLoadingProgressChange(CefRefPtr<CefBrowser> browser,
+                               double progress) override {
+    if (!got_loading_progress_change0_) {
+      got_loading_progress_change0_.yes();
+      EXPECT_GE(progress, 0.0);
+    } else if (!got_loading_progress_change1_) {
+      got_loading_progress_change1_.yes();
+      EXPECT_LE(progress, 1.0);
+    }
+  }
+
+  void DestroyTest() override {
+    EXPECT_TRUE(got_loading_progress_change0_);
+    EXPECT_TRUE(got_loading_progress_change1_);
+    TestHandler::DestroyTest();
+  }
+
+ private:
+  TrackCallback got_loading_progress_change0_;
+  TrackCallback got_loading_progress_change1_;
+
+  IMPLEMENT_REFCOUNTING(LoadingProgressTestHandler);
+};
+
+}  // namespace
+
+// Test OnLoadingProgressChange notification.
+TEST(DisplayTest, LoadingProgress) {
+  CefRefPtr<LoadingProgressTestHandler> handler =
+      new LoadingProgressTestHandler();
+  handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
+}

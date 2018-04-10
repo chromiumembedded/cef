@@ -2221,6 +2221,16 @@ void CefBrowserHostImpl::LoadingStateChanged(content::WebContents* source,
   }
 }
 
+void CefBrowserHostImpl::LoadProgressChanged(content::WebContents* source,
+                                             double progress) {
+  if (client_.get()) {
+    CefRefPtr<CefDisplayHandler> handler = client_->GetDisplayHandler();
+    if (handler.get()) {
+      handler->OnLoadingProgressChange(this, progress);
+    }
+  }
+}
+
 void CefBrowserHostImpl::CloseContents(content::WebContents* source) {
   CEF_REQUIRE_UIT();
 

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=f0405e9e04f7eaa587fefd5f00abeed44704773b$
+// $hash=0ba45406ca1fcca29b4d8085d6f7b3280477e13f$
 //
 
 #include "libcef_dll/cpptoc/display_handler_cpptoc.h"
@@ -214,6 +214,25 @@ display_handler_on_auto_resize(struct _cef_display_handler_t* self,
   return _retval;
 }
 
+void CEF_CALLBACK
+display_handler_on_loading_progress_change(struct _cef_display_handler_t* self,
+                                           cef_browser_t* browser,
+                                           double progress) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return;
+  // Verify param: browser; type: refptr_diff
+  DCHECK(browser);
+  if (!browser)
+    return;
+
+  // Execute
+  CefDisplayHandlerCppToC::Get(self)->OnLoadingProgressChange(
+      CefBrowserCToCpp::Wrap(browser), progress);
+}
+
 }  // namespace
 
 // CONSTRUCTOR - Do not edit by hand.
@@ -228,6 +247,8 @@ CefDisplayHandlerCppToC::CefDisplayHandlerCppToC() {
   GetStruct()->on_status_message = display_handler_on_status_message;
   GetStruct()->on_console_message = display_handler_on_console_message;
   GetStruct()->on_auto_resize = display_handler_on_auto_resize;
+  GetStruct()->on_loading_progress_change =
+      display_handler_on_loading_progress_change;
 }
 
 template <>
