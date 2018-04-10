@@ -356,6 +356,9 @@ class CefBrowserURLRequest::Context
       CefResponseImpl* responseImpl =
           static_cast<CefResponseImpl*>(response_.get());
 
+      responseImpl->SetURL(fetcher_->GetURL().spec());
+      responseImpl->SetStatus(fetcher_->GetResponseCode());
+
       net::HttpResponseHeaders* headers = fetcher_->GetResponseHeaders();
       if (headers)
         responseImpl->SetResponseHeaders(*headers);

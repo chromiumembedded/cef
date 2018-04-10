@@ -41,6 +41,7 @@ class CefResourceRequestJob : public net::URLRequestJob {
   bool IsRedirectResponse(GURL* location, int* http_status_code) override;
   bool GetMimeType(std::string* mime_type) const override;
   bool GetCharset(std::string* charset) override;
+  int GetResponseCode() const override;
 
   void SendHeaders();
 

@@ -23,6 +23,7 @@
 #include "third_party/WebKit/public/platform/WebURLRequest.h"
 #include "third_party/WebKit/public/platform/WebURLResponse.h"
 
+using blink::WebReferrerPolicy;
 using blink::WebString;
 using blink::WebURL;
 using blink::WebURLError;
@@ -52,6 +53,13 @@ class CefWebURLLoaderClient : public blink::WebURLLoaderClient {
                int64_t total_encoded_data_length,
                int64_t total_encoded_body_length,
                int64_t total_decoded_body_length) override;
+  bool WillFollowRedirect(const WebURL& new_url,
+                          const WebURL& new_site_for_cookies,
+                          const WebString& new_referrer,
+                          WebReferrerPolicy new_referrer_policy,
+                          const WebString& new_method,
+                          const WebURLResponse& passed_redirect_response,
+                          bool& report_raw_headers) override;
 
  protected:
   // The context_ pointer will outlive this object.
@@ -125,6 +133,28 @@ class CefRenderURLRequest::Context
 
     // Will result in a call to OnError().
     loader_->Cancel();
+  }
+
+  void OnStopRedirect(const WebURL& redirect_url,
+                      const WebURLResponse& response) {
+    DCHECK(CalledOnValidThread());
+
+    response_was_cached_ = webkit_glue::ResponseWasCached(response);
+    response_ = CefResponse::Create();
+    CefResponseImpl* responseImpl =
+        static_cast<CefResponseImpl*>(response_.get());
+
+    // In case of StopOnRedirect we only set these fields. Everything else is
+    // left blank. This also replicates the behaviour of the browser urlrequest
+    // fetcher.
+    responseImpl->SetStatus(response.HttpStatusCode());
+    responseImpl->SetURL(redirect_url.GetString().Utf16());
+    responseImpl->SetReadOnly(true);
+
+    status_ = UR_CANCELED;
+    error_code_ = ERR_ABORTED;
+
+    OnComplete();
   }
 
   void OnResponse(const WebURLResponse& response) {
@@ -275,6 +305,21 @@ void CefWebURLLoaderClient::DidFail(const WebURLError& error,
                                     int64_t total_encoded_body_length,
                                     int64_t total_decoded_body_length) {
   context_->OnError(error);
+}
+
+bool CefWebURLLoaderClient::WillFollowRedirect(
+    const WebURL& new_url,
+    const WebURL& new_site_for_cookies,
+    const WebString& new_referrer,
+    WebReferrerPolicy new_referrer_policy,
+    const WebString& new_method,
+    const WebURLResponse& passed_redirect_response,
+    bool& report_raw_headers) {
+  if (request_flags_ & UR_FLAG_STOP_ON_REDIRECT) {
+    context_->OnStopRedirect(new_url, passed_redirect_response);
+    return false;
+  }
+  return true;
 }
 
 }  // namespace

@@ -336,6 +336,14 @@ bool CefResourceRequestJob::GetCharset(std::string* charset) {
   return false;
 }
 
+int CefResourceRequestJob::GetResponseCode() const {
+  CEF_REQUIRE_IOT();
+
+  if (response_.get())
+    return response_->GetStatus();
+  return -1;
+}
+
 void CefResourceRequestJob::SendHeaders() {
   CEF_REQUIRE_IOT();
 

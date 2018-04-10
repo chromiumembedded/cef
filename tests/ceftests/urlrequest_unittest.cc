@@ -57,6 +57,7 @@ enum RequestTestMode {
   REQTEST_GET_NODATA,
   REQTEST_GET_ALLOWCOOKIES,
   REQTEST_GET_REDIRECT,
+  REQTEST_GET_REDIRECT_STOP,
   REQTEST_GET_REFERRER,
   REQTEST_POST,
   REQTEST_POST_FILE,
@@ -1058,6 +1059,8 @@ class RequestTestRunner : public base::RefCountedThreadSafe<RequestTestRunner> {
     REGISTER_TEST(REQTEST_GET_ALLOWCOOKIES, SetupGetAllowCookiesTest,
                   SingleRunTest);
     REGISTER_TEST(REQTEST_GET_REDIRECT, SetupGetRedirectTest, SingleRunTest);
+    REGISTER_TEST(REQTEST_GET_REDIRECT_STOP, SetupGetRedirectStopTest,
+                  SingleRunTest);
     REGISTER_TEST(REQTEST_GET_REFERRER, SetupGetReferrerTest, SingleRunTest);
     REGISTER_TEST(REQTEST_POST, SetupPostTest, SingleRunTest);
     REGISTER_TEST(REQTEST_POST_FILE, SetupPostFileTest, SingleRunTest);
@@ -1236,6 +1239,41 @@ class RequestTestRunner : public base::RefCountedThreadSafe<RequestTestRunner> {
     CefResponse::HeaderMap headerMap;
     headerMap.insert(std::make_pair("Location", settings_.request->GetURL()));
     settings_.redirect_response->SetHeaderMap(headerMap);
+
+    complete_callback.Run();
+  }
+
+  void SetupGetRedirectStopTest(const base::Closure& complete_callback) {
+    settings_.request = CefRequest::Create();
+    settings_.request->SetURL(GetTestURL("GetTest.html"));
+    settings_.request->SetMethod("GET");
+
+    // With the test server only the status is expected
+    // on stop redirects.
+    settings_.response = CefResponse::Create();
+    settings_.response->SetStatus(302);
+
+    // Add a redirect request.
+    settings_.redirect_request = CefRequest::Create();
+    settings_.redirect_request->SetURL(GetTestURL("redirect.html"));
+    settings_.redirect_request->SetMethod("GET");
+    settings_.redirect_request->SetFlags(UR_FLAG_STOP_ON_REDIRECT);
+
+    settings_.redirect_response = CefResponse::Create();
+    settings_.redirect_response->SetMimeType("text/html");
+    settings_.redirect_response->SetStatus(302);
+    settings_.redirect_response->SetStatusText("Found");
+
+    CefResponse::HeaderMap headerMap;
+    headerMap.insert(std::make_pair("Location", settings_.request->GetURL()));
+    settings_.redirect_response->SetHeaderMap(headerMap);
+
+    settings_.expected_status = UR_CANCELED;
+    settings_.expected_error_code = ERR_ABORTED;
+    settings_.expect_download_data = false;
+    settings_.expect_download_progress = false;
+    settings_.expected_send_count = 1;
+    settings_.expected_receive_count = 1;
 
     complete_callback.Run();
   }
@@ -2210,6 +2248,8 @@ void RegisterURLRequestCustomSchemes(
            context_mode, true, test_server_backend);                           \
   REQ_TEST(BrowserGETRedirect##suffix, REQTEST_GET_REDIRECT, context_mode,     \
            true, test_server_backend);                                         \
+  REQ_TEST(BrowserGETRedirectStop##suffix, REQTEST_GET_REDIRECT_STOP,          \
+           context_mode, true, test_server_backend);                           \
   REQ_TEST(BrowserGETReferrer##suffix, REQTEST_GET_REFERRER, context_mode,     \
            true, test_server_backend);                                         \
   REQ_TEST(BrowserPOST##suffix, REQTEST_POST, context_mode, true,              \
@@ -2228,6 +2268,8 @@ void RegisterURLRequestCustomSchemes(
            context_mode, false, test_server_backend);                          \
   REQ_TEST(RendererGETRedirect##suffix, REQTEST_GET_REDIRECT, context_mode,    \
            false, test_server_backend);                                        \
+  REQ_TEST(RendererGETRedirectStop##suffix, REQTEST_GET_REDIRECT_STOP,         \
+           context_mode, false, test_server_backend);                          \
   REQ_TEST(RendererGETReferrer##suffix, REQTEST_GET_REFERRER, context_mode,    \
            false, test_server_backend);                                        \
   REQ_TEST(RendererPOST##suffix, REQTEST_POST, context_mode, false,            \

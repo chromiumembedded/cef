@@ -128,6 +128,18 @@ class CefResponse : public virtual CefBaseRefCounted {
   ///
   /*--cef()--*/
   virtual void SetHeaderMap(const HeaderMap& headerMap) = 0;
+
+  ///
+  // Get the resolved URL after redirects or changed as a result of HSTS.
+  ///
+  /*--cef()--*/
+  virtual CefString GetURL() = 0;
+
+  ///
+  // Set the resolved URL after redirects or changed as a result of HSTS.
+  ///
+  /*--cef()--*/
+  virtual void SetURL(const CefString& url) = 0;
 };
 
 #endif  // CEF_INCLUDE_CEF_RESPONSE_H_

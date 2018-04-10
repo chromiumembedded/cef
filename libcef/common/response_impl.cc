@@ -13,6 +13,7 @@
 #include "net/url_request/url_request.h"
 #include "third_party/WebKit/public/platform/WebHTTPHeaderVisitor.h"
 #include "third_party/WebKit/public/platform/WebString.h"
+#include "third_party/WebKit/public/platform/WebURL.h"
 #include "third_party/WebKit/public/platform/WebURLResponse.h"
 
 #define CHECK_READONLY_RETURN_VOID()       \
@@ -93,6 +94,17 @@ CefString CefResponseImpl::GetHeader(const CefString& name) {
     value = it->second;
 
   return value;
+}
+
+CefString CefResponseImpl::GetURL() {
+  base::AutoLock lock_scope(lock_);
+  return url_;
+}
+
+void CefResponseImpl::SetURL(const CefString& url) {
+  base::AutoLock lock_scope(lock_);
+  CHECK_READONLY_RETURN_VOID();
+  url_ = url;
 }
 
 void CefResponseImpl::GetHeaderMap(HeaderMap& map) {
@@ -190,6 +202,8 @@ void CefResponseImpl::Set(const blink::WebURLResponse& response) {
   status_text_ = str.Utf16();
   str = response.MimeType();
   mime_type_ = str.Utf16();
+  str = response.Url().GetString();
+  url_ = str.Utf16();
 
   class HeaderVisitor : public blink::WebHTTPHeaderVisitor {
    public:

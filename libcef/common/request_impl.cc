@@ -745,6 +745,8 @@ void CefRequestImpl::Get(net::URLFetcher& fetcher,
 
   if (flags & UR_FLAG_NO_RETRY_ON_5XX)
     fetcher.SetAutomaticallyRetryOn5xx(false);
+  if (flags & UR_FLAG_STOP_ON_REDIRECT)
+    fetcher.SetStopOnRedirect(true);
 
   int net_flags = 0;
 
