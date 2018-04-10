@@ -127,6 +127,14 @@ class CefDisplayHandler : public virtual CefBaseRefCounted {
                             const CefSize& new_size) {
     return false;
   }
+
+  ///
+  // Called when the overall page loading progress has changed. |progress|
+  // ranges from 0.0 to 1.0.
+  ///
+  /*--cef()--*/
+  virtual void OnLoadingProgressChange(CefRefPtr<CefBrowser> browser,
+                                       double progress) {}
 };
 
 #endif  // CEF_INCLUDE_CEF_DISPLAY_HANDLER_H_
