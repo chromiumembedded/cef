@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=e9e43167b1cf8033bd7e6ba6931213d7cf4b69b5$
+// $hash=2303574e76708e5311aede8e66eb7f1f679e0d1f$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_V8_CAPI_H_
@@ -356,6 +356,25 @@ typedef struct _cef_v8exception_t {
 } cef_v8exception_t;
 
 ///
+// Callback structure that is passed to cef_v8value_t::CreateArrayBuffer.
+///
+typedef struct _cef_v8array_buffer_release_callback_t {
+  ///
+  // Base structure.
+  ///
+  cef_base_ref_counted_t base;
+
+  ///
+  // Called to release |buffer| when the ArrayBuffer JS object is garbage
+  // collected. |buffer| is the value that was passed to CreateArrayBuffer along
+  // with this object.
+  ///
+  void(CEF_CALLBACK* release_buffer)(
+      struct _cef_v8array_buffer_release_callback_t* self,
+      void* buffer);
+} cef_v8array_buffer_release_callback_t;
+
+///
 // Structure representing a V8 value handle. V8 handles can only be accessed
 // from the thread on which they are created. Valid threads for creating a V8
 // handle include the render process main thread (TID_RENDERER) and WebWorker
@@ -424,6 +443,11 @@ typedef struct _cef_v8value_t {
   // True if the value type is array.
   ///
   int(CEF_CALLBACK* is_array)(struct _cef_v8value_t* self);
+
+  ///
+  // True if the value type is an ArrayBuffer.
+  ///
+  int(CEF_CALLBACK* is_array_buffer)(struct _cef_v8value_t* self);
 
   ///
   // True if the value type is function.
@@ -639,6 +663,25 @@ typedef struct _cef_v8value_t {
   ///
   int(CEF_CALLBACK* get_array_length)(struct _cef_v8value_t* self);
 
+  // ARRAY BUFFER METHODS - These functions are only available on ArrayBuffers.
+
+  ///
+  // Returns the ReleaseCallback object associated with the ArrayBuffer or NULL
+  // if the ArrayBuffer was not created with CreateArrayBuffer.
+  ///
+  struct _cef_v8array_buffer_release_callback_t*(
+      CEF_CALLBACK* get_array_buffer_release_callback)(
+      struct _cef_v8value_t* self);
+
+  ///
+  // Prevent the ArrayBuffer from using it's memory block by setting the length
+  // to zero. This operation cannot be undone. If the ArrayBuffer was created
+  // with CreateArrayBuffer then
+  // cef_v8array_buffer_release_callback_t::ReleaseBuffer will be called to
+  // release the underlying buffer.
+  ///
+  int(CEF_CALLBACK* neuter_array_buffer)(struct _cef_v8value_t* self);
+
   // FUNCTION METHODS - These functions are only available on functions.
 
   ///
@@ -750,6 +793,21 @@ CEF_EXPORT cef_v8value_t* cef_v8value_create_object(
 // reference.
 ///
 CEF_EXPORT cef_v8value_t* cef_v8value_create_array(int length);
+
+///
+// Create a new cef_v8value_t object of type ArrayBuffer which wraps the
+// provided |buffer| of size |length| bytes. The ArrayBuffer is externalized,
+// meaning that it does not own |buffer|. The caller is responsible for freeing
+// |buffer| when requested via a call to cef_v8array_buffer_release_callback_t::
+// ReleaseBuffer. This function should only be called from within the scope of a
+// cef_render_process_handler_t, cef_v8handler_t or cef_v8accessor_t callback,
+// or in combination with calling enter() and exit() on a stored cef_v8context_t
+// reference.
+///
+CEF_EXPORT cef_v8value_t* cef_v8value_create_array_buffer(
+    void* buffer,
+    size_t length,
+    cef_v8array_buffer_release_callback_t* release_callback);
 
 ///
 // Create a new cef_v8value_t object of type function. This function should only

@@ -9,12 +9,13 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=54a9512b67fa17d33626e83e249fa27037bd92bc$
+// $hash=c08a6af7e4295bc574af45eb798e84e546f2e1a0$
 //
 
 #include "libcef_dll/ctocpp/v8value_ctocpp.h"
 #include "libcef_dll/cpptoc/base_ref_counted_cpptoc.h"
 #include "libcef_dll/cpptoc/v8accessor_cpptoc.h"
+#include "libcef_dll/cpptoc/v8array_buffer_release_callback_cpptoc.h"
 #include "libcef_dll/cpptoc/v8handler_cpptoc.h"
 #include "libcef_dll/cpptoc/v8interceptor_cpptoc.h"
 #include "libcef_dll/ctocpp/v8context_ctocpp.h"
@@ -126,6 +127,30 @@ CefRefPtr<CefV8Value> CefV8Value::CreateArray(int length) {
 
   // Execute
   cef_v8value_t* _retval = cef_v8value_create_array(length);
+
+  // Return type: refptr_same
+  return CefV8ValueCToCpp::Wrap(_retval);
+}
+
+CefRefPtr<CefV8Value> CefV8Value::CreateArrayBuffer(
+    void* buffer,
+    size_t length,
+    CefRefPtr<CefV8ArrayBufferReleaseCallback> release_callback) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: buffer; type: simple_byaddr
+  DCHECK(buffer);
+  if (!buffer)
+    return NULL;
+  // Verify param: release_callback; type: refptr_diff
+  DCHECK(release_callback.get());
+  if (!release_callback.get())
+    return NULL;
+
+  // Execute
+  cef_v8value_t* _retval = cef_v8value_create_array_buffer(
+      buffer, length,
+      CefV8ArrayBufferReleaseCallbackCppToC::Wrap(release_callback));
 
   // Return type: refptr_same
   return CefV8ValueCToCpp::Wrap(_retval);
@@ -304,6 +329,20 @@ bool CefV8ValueCToCpp::IsArray() {
 
   // Execute
   int _retval = _struct->is_array(_struct);
+
+  // Return type: bool
+  return _retval ? true : false;
+}
+
+bool CefV8ValueCToCpp::IsArrayBuffer() {
+  cef_v8value_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, is_array_buffer))
+    return false;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  int _retval = _struct->is_array_buffer(_struct);
 
   // Return type: bool
   return _retval ? true : false;
@@ -782,6 +821,36 @@ int CefV8ValueCToCpp::GetArrayLength() {
 
   // Return type: simple
   return _retval;
+}
+
+CefRefPtr<CefV8ArrayBufferReleaseCallback>
+CefV8ValueCToCpp::GetArrayBufferReleaseCallback() {
+  cef_v8value_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_array_buffer_release_callback))
+    return NULL;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  cef_v8array_buffer_release_callback_t* _retval =
+      _struct->get_array_buffer_release_callback(_struct);
+
+  // Return type: refptr_diff
+  return CefV8ArrayBufferReleaseCallbackCppToC::Unwrap(_retval);
+}
+
+bool CefV8ValueCToCpp::NeuterArrayBuffer() {
+  cef_v8value_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, neuter_array_buffer))
+    return false;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  int _retval = _struct->neuter_array_buffer(_struct);
+
+  // Return type: bool
+  return _retval ? true : false;
 }
 
 CefString CefV8ValueCToCpp::GetFunctionName() {

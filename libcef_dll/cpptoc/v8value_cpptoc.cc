@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=d4baeb8853a8d33bde68e82a87e73e63fefb6e59$
+// $hash=b8c41c5cff5d308ad0ecbeafb38f12fae4ce06eb$
 //
 
 #include "libcef_dll/cpptoc/v8value_cpptoc.h"
@@ -17,6 +17,7 @@
 #include "libcef_dll/cpptoc/v8exception_cpptoc.h"
 #include "libcef_dll/ctocpp/base_ref_counted_ctocpp.h"
 #include "libcef_dll/ctocpp/v8accessor_ctocpp.h"
+#include "libcef_dll/ctocpp/v8array_buffer_release_callback_ctocpp.h"
 #include "libcef_dll/ctocpp/v8handler_ctocpp.h"
 #include "libcef_dll/ctocpp/v8interceptor_ctocpp.h"
 #include "libcef_dll/transfer_util.h"
@@ -134,6 +135,30 @@ CEF_EXPORT cef_v8value_t* cef_v8value_create_array(int length) {
 
   // Execute
   CefRefPtr<CefV8Value> _retval = CefV8Value::CreateArray(length);
+
+  // Return type: refptr_same
+  return CefV8ValueCppToC::Wrap(_retval);
+}
+
+CEF_EXPORT cef_v8value_t* cef_v8value_create_array_buffer(
+    void* buffer,
+    size_t length,
+    cef_v8array_buffer_release_callback_t* release_callback) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: buffer; type: simple_byaddr
+  DCHECK(buffer);
+  if (!buffer)
+    return NULL;
+  // Verify param: release_callback; type: refptr_diff
+  DCHECK(release_callback);
+  if (!release_callback)
+    return NULL;
+
+  // Execute
+  CefRefPtr<CefV8Value> _retval = CefV8Value::CreateArrayBuffer(
+      buffer, length,
+      CefV8ArrayBufferReleaseCallbackCToCpp::Wrap(release_callback));
 
   // Return type: refptr_same
   return CefV8ValueCppToC::Wrap(_retval);
@@ -314,6 +339,20 @@ int CEF_CALLBACK v8value_is_array(struct _cef_v8value_t* self) {
 
   // Execute
   bool _retval = CefV8ValueCppToC::Get(self)->IsArray();
+
+  // Return type: bool
+  return _retval;
+}
+
+int CEF_CALLBACK v8value_is_array_buffer(struct _cef_v8value_t* self) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return 0;
+
+  // Execute
+  bool _retval = CefV8ValueCppToC::Get(self)->IsArrayBuffer();
 
   // Return type: bool
   return _retval;
@@ -806,6 +845,36 @@ int CEF_CALLBACK v8value_get_array_length(struct _cef_v8value_t* self) {
   return _retval;
 }
 
+cef_v8array_buffer_release_callback_t* CEF_CALLBACK
+v8value_get_array_buffer_release_callback(struct _cef_v8value_t* self) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return NULL;
+
+  // Execute
+  CefRefPtr<CefV8ArrayBufferReleaseCallback> _retval =
+      CefV8ValueCppToC::Get(self)->GetArrayBufferReleaseCallback();
+
+  // Return type: refptr_diff
+  return CefV8ArrayBufferReleaseCallbackCToCpp::Unwrap(_retval);
+}
+
+int CEF_CALLBACK v8value_neuter_array_buffer(struct _cef_v8value_t* self) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return 0;
+
+  // Execute
+  bool _retval = CefV8ValueCppToC::Get(self)->NeuterArrayBuffer();
+
+  // Return type: bool
+  return _retval;
+}
+
 cef_string_userfree_t CEF_CALLBACK
 v8value_get_function_name(struct _cef_v8value_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -928,6 +997,7 @@ CefV8ValueCppToC::CefV8ValueCppToC() {
   GetStruct()->is_string = v8value_is_string;
   GetStruct()->is_object = v8value_is_object;
   GetStruct()->is_array = v8value_is_array;
+  GetStruct()->is_array_buffer = v8value_is_array_buffer;
   GetStruct()->is_function = v8value_is_function;
   GetStruct()->is_same = v8value_is_same;
   GetStruct()->get_bool_value = v8value_get_bool_value;
@@ -959,6 +1029,9 @@ CefV8ValueCppToC::CefV8ValueCppToC() {
   GetStruct()->adjust_externally_allocated_memory =
       v8value_adjust_externally_allocated_memory;
   GetStruct()->get_array_length = v8value_get_array_length;
+  GetStruct()->get_array_buffer_release_callback =
+      v8value_get_array_buffer_release_callback;
+  GetStruct()->neuter_array_buffer = v8value_neuter_array_buffer;
   GetStruct()->get_function_name = v8value_get_function_name;
   GetStruct()->get_function_handler = v8value_get_function_handler;
   GetStruct()->execute_function = v8value_execute_function;
