@@ -513,7 +513,11 @@ struct ClientPrintHandlerGtk::PrintHandler {
   }
 
   void OnJobCompleted(GtkPrintJob* print_job, GError* error) {
-    job_callback_->Continue();
+    // Continue() will result in a call to ClientPrintHandlerGtk::OnPrintReset
+    // which deletes |this|. Execute it asnychronously so the call stack has a
+    // chance to unwind.
+    CefPostTask(TID_UI, base::Bind(&CefPrintJobCallback::Continue,
+                                   job_callback_.get()));
     job_callback_ = NULL;
   }
 
