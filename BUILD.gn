@@ -1443,6 +1443,7 @@ if (is_mac) {
 
     deps = [
       ":libcef_static",
+      "//build/config:exe_and_shlib_deps",
     ]
 
     if (is_win) {
@@ -1463,9 +1464,12 @@ if (is_mac) {
       ]
     }
 
-    if (is_linux && !is_debug && !using_sanitizer && use_allocator=="none") {
+    if (is_linux && !is_debug && use_allocator=="none") {
       # Only export necessary symbols from libcef.so.
-      # Don't do this in Debug builds because it causes the resulting application to crash.
+      # Don't do this in Debug builds because it causes the resulting
+      # application to crash.
+      # Also need to do this for ASAN builds to work around
+      # https://crbug.com/832808.
       ldflags = [ "-Wl,--version-script=" +
                   rebase_path("//cef/libcef_dll/libcef.lst") ]
     }
