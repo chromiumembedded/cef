@@ -118,6 +118,7 @@ if (is_clang) {
 }
 if (is_linux) {
   import("//build/config/linux/pkg_config.gni")
+  import("//third_party/fontconfig/fontconfig.gni")
 }
 if (is_mac) {
   import("//build/config/mac/rules.gni")
@@ -146,6 +147,12 @@ assert(enable_widevine)
 if (is_clang) {
   # Don't use the chrome style plugin.
   assert(!clang_use_chrome_plugins)
+}
+
+if (is_linux) {
+  # Use system fontconfig. This avoids a startup hang on Ubuntu 16.04.4 (see
+  # issue #2424).
+  assert(!use_bundled_fontconfig)
 }
 
 if (is_mac) {
