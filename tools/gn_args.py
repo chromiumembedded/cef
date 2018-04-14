@@ -256,7 +256,13 @@ def GetRequiredArgs():
   if platform == 'linux':
     # Don't generate Chromium installer packages. This avoids GN dependency
     # errors with CEF (see issue #2301).
+    # Due to the way this variable is declared in chrome/installer/BUILD.gn it
+    # can't be enforced by assert().
     result['enable_linux_installer'] = False
+
+    # Use system fontconfig. This avoids a startup hang on Ubuntu 16.04.4 (see
+    # issue #2424).
+    result['use_bundled_fontconfig'] = False
 
   if platform == 'macosx':
     # Always generate dSYM files. The make_distrib script will fail if
