@@ -1,5 +1,5 @@
 diff --git content/browser/renderer_host/render_widget_host_view_aura.cc content/browser/renderer_host/render_widget_host_view_aura.cc
-index 487198015037..5731dd060375 100644
+index 00bcfa035870..1212e1735c50 100644
 --- content/browser/renderer_host/render_widget_host_view_aura.cc
 +++ content/browser/renderer_host/render_widget_host_view_aura.cc
 @@ -433,13 +433,6 @@ RenderWidgetHostViewAura::RenderWidgetHostViewAura(
@@ -29,7 +29,7 @@ index 487198015037..5731dd060375 100644
  }
  
  bool RenderWidgetHostViewAura::IsMouseLocked() {
-@@ -1922,6 +1917,15 @@ void RenderWidgetHostViewAura::CreateAuraWindow(aura::client::WindowType type) {
+@@ -1923,6 +1918,15 @@ void RenderWidgetHostViewAura::CreateAuraWindow(aura::client::WindowType type) {
    if (frame_sink_id_.is_valid())
      window_->SetEmbedFrameSinkId(frame_sink_id_);
  
