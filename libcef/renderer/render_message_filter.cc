@@ -12,8 +12,8 @@
 #include "base/message_loop/message_loop.h"
 #include "chrome/common/render_messages.h"
 #include "content/public/browser/browser_thread.h"
-#include "third_party/WebKit/public/platform/WebString.h"
-#include "third_party/WebKit/public/web/WebSecurityPolicy.h"
+#include "third_party/blink/public/platform/web_string.h"
+#include "third_party/blink/public/web/web_security_policy.h"
 #include "url/gurl.h"
 #include "url/url_util.h"
 

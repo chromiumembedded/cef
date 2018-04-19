@@ -10,7 +10,7 @@
 #include "base/auto_reset.h"
 #include "base/bind.h"
 #include "base/location.h"
-#include "base/memory/ptr_util.h"
+#include "base/memory/ref_counted_memory.h"
 #include "base/memory/shared_memory.h"
 #include "base/message_loop/message_loop.h"
 #include "base/run_loop.h"
@@ -27,6 +27,7 @@
 #include "chrome/browser/printing/printer_query.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/common/pref_names.h"
+#include "chrome/common/webui_url_constants.h"
 #include "chrome/grit/generated_resources.h"
 #include "components/prefs/pref_service.h"
 #include "components/printing/browser/print_composite_client.h"
@@ -42,12 +43,14 @@
 #include "content/public/browser/render_process_host.h"
 #include "content/public/browser/render_view_host.h"
 #include "content/public/browser/web_contents.h"
+#include "extensions/common/constants.h"
 #include "mojo/public/cpp/system/buffer.h"
-#include "printing/features/features.h"
+#include "printing/buildflags/buildflags.h"
 #include "printing/pdf_metafile_skia.h"
 #include "printing/print_settings.h"
 #include "printing/printed_document.h"
 #include "ui/base/l10n/l10n_util.h"
+#include "url/gurl.h"
 
 #if defined(OS_WIN)
 #include "base/command_line.h"
@@ -58,6 +61,18 @@ using base::TimeDelta;
 using content::BrowserThread;
 
 namespace printing {
+
+namespace {
+
+bool PrintingPdfContent(content::RenderFrameHost* rfh) {
+  GURL url = rfh->GetLastCommittedURL();
+  // Whether it is inside print preview or pdf plugin extension.
+  return url.GetOrigin() == chrome::kChromeUIPrintURL ||
+         (url.SchemeIs(extensions::kExtensionScheme) &&
+          url.host_piece() == extension_misc::kPdfExtensionId);
+}
+
+}  // namespace
 
 CefPrintViewManagerBase::CefPrintViewManagerBase(
     content::WebContents* web_contents)
@@ -93,7 +108,7 @@ bool CefPrintViewManagerBase::PrintNow(content::RenderFrameHost* rfh) {
 
 void CefPrintViewManagerBase::PrintDocument(
     PrintedDocument* document,
-    const scoped_refptr<base::RefCountedBytes>& print_data,
+    const scoped_refptr<base::RefCountedMemory>& print_data,
     const gfx::Size& page_size,
     const gfx::Rect& content_area,
     const gfx::Point& offsets) {
@@ -121,6 +136,11 @@ void CefPrintViewManagerBase::PrintDocument(
     print_job_->StartPdfToEmfConversion(print_data, page_size, content_area,
                                         print_text_with_gdi);
   }
+  // Indicate that the PDF is fully rendered and we no longer need the renderer
+  // and web contents, so the print job does not need to be cancelled if they
+  // die. This is needed on Windows because the PrintedDocument will not be
+  // considered complete until PDF conversion finishes.
+  document->SetConvertingPdf();
 #else
   std::unique_ptr<PdfMetafileSkia> metafile =
       std::make_unique<PdfMetafileSkia>();
@@ -187,11 +207,13 @@ void CefPrintViewManagerBase::OnComposePdfDone(
 
   std::unique_ptr<base::SharedMemory> shared_buf =
       GetShmFromMojoHandle(std::move(handle));
-  scoped_refptr<base::RefCountedBytes> bytes =
-      base::MakeRefCounted<base::RefCountedBytes>(
-          reinterpret_cast<const unsigned char*>(shared_buf->memory()),
-          shared_buf->mapped_size());
-  PrintDocument(document, bytes, params.page_size, params.content_area,
+  if (!shared_buf)
+    return;
+
+  size_t size = shared_buf->mapped_size();
+  auto data = base::MakeRefCounted<base::RefCountedSharedMemory>(
+      std::move(shared_buf), size);
+  PrintDocument(document, data, params.page_size, params.content_area,
                 params.physical_offsets);
 }
 
@@ -210,8 +232,7 @@ void CefPrintViewManagerBase::OnDidPrintDocument(
   }
 
   auto* client = PrintCompositeClient::FromWebContents(web_contents());
-  if (IsOopifEnabled() && !client->for_preview() &&
-      document->settings().is_modifiable()) {
+  if (IsOopifEnabled() && !PrintingPdfContent(render_frame_host)) {
     client->DoCompositeDocumentToPdf(
         params.document_cookie, render_frame_host, content.metafile_data_handle,
         content.data_size, content.subframe_content_info,
@@ -219,7 +240,6 @@ void CefPrintViewManagerBase::OnDidPrintDocument(
                        weak_ptr_factory_.GetWeakPtr(), params));
     return;
   }
-
   auto shared_buf =
       std::make_unique<base::SharedMemory>(content.metafile_data_handle, true);
   if (!shared_buf->Map(content.data_size)) {
@@ -227,11 +247,10 @@ void CefPrintViewManagerBase::OnDidPrintDocument(
     web_contents()->Stop();
     return;
   }
-  scoped_refptr<base::RefCountedBytes> bytes =
-      base::MakeRefCounted<base::RefCountedBytes>(
-          reinterpret_cast<const unsigned char*>(shared_buf->memory()),
-          content.data_size);
-  PrintDocument(document, bytes, params.page_size, params.content_area,
+
+  auto data = base::MakeRefCounted<base::RefCountedSharedMemory>(
+      std::move(shared_buf), content.data_size);
+  PrintDocument(document, data, params.page_size, params.content_area,
                 params.physical_offsets);
 }
 
@@ -358,16 +377,16 @@ bool CefPrintViewManagerBase::RenderAllMissingPagesNow() {
   if (!print_job_.get() || !print_job_->is_job_pending())
     return false;
 
-  // We can't print if there is no renderer.
-  if (!web_contents() || !web_contents()->GetRenderViewHost() ||
-      !web_contents()->GetRenderViewHost()->IsRenderViewLive()) {
-    return false;
-  }
-
   // Is the document already complete?
   if (print_job_->document() && print_job_->document()->IsComplete()) {
     printing_succeeded_ = true;
     return true;
+  }
+
+  // We can't print if there is no renderer.
+  if (!web_contents() || !web_contents()->GetRenderViewHost() ||
+      !web_contents()->GetRenderViewHost()->IsRenderViewLive()) {
+    return false;
   }
 
   // WebContents is either dying or a second consecutive request to print
@@ -413,14 +432,12 @@ bool CefPrintViewManagerBase::CreateNewPrintJob(PrintJobWorkerOwner* job) {
     return false;
   }
 
-  // Ask the renderer to generate the print preview, create the print preview
-  // view and switch to it, initialize the printer and show the print dialog.
   DCHECK(!print_job_.get());
   DCHECK(job);
   if (!job)
     return false;
 
-  print_job_ = new PrintJob();
+  print_job_ = base::MakeRefCounted<PrintJob>();
   print_job_->Initialize(job, RenderSourceName(), number_pages_);
   registrar_.Add(this, chrome::NOTIFICATION_PRINT_JOB_EVENT,
                  content::Source<PrintJob>(print_job_.get()));

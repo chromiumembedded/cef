@@ -40,10 +40,10 @@ index 6dac5f3002b3..34f5ee111d3d 100644
    virtual ~PruneCondition() {}
  
 diff --git third_party/crashpad/crashpad/client/settings.cc third_party/crashpad/crashpad/client/settings.cc
-index 15d16f2e0928..5e8eadfd3ad1 100644
+index 20bd2581cd97..16d63af65e2f 100644
 --- third_party/crashpad/crashpad/client/settings.cc
 +++ third_party/crashpad/crashpad/client/settings.cc
-@@ -38,7 +38,7 @@ void ScopedLockedFileHandleTraits::Free(FileHandle handle) {
+@@ -85,7 +85,7 @@ void ScopedLockedFileHandleTraits::Free(FileHandle handle) {
  
  struct Settings::Data {
    static const uint32_t kSettingsMagic = 'CPds';
@@ -52,7 +52,7 @@ index 15d16f2e0928..5e8eadfd3ad1 100644
  
    enum Options : uint32_t {
      kUploadsEnabled = 1 << 0,
-@@ -49,6 +49,9 @@ struct Settings::Data {
+@@ -96,6 +96,9 @@ struct Settings::Data {
             options(0),
             padding_0(0),
             last_upload_attempt_time(0),
@@ -62,7 +62,7 @@ index 15d16f2e0928..5e8eadfd3ad1 100644
             client_id() {}
  
    uint32_t magic;
-@@ -56,6 +59,9 @@ struct Settings::Data {
+@@ -103,6 +106,9 @@ struct Settings::Data {
    uint32_t options;
    uint32_t padding_0;
    int64_t last_upload_attempt_time;  // time_t
@@ -72,7 +72,7 @@ index 15d16f2e0928..5e8eadfd3ad1 100644
    UUID client_id;
  };
  
-@@ -141,6 +147,56 @@ bool Settings::SetLastUploadAttemptTime(time_t time) {
+@@ -186,6 +192,56 @@ bool Settings::SetLastUploadAttemptTime(time_t time) {
    return WriteSettings(handle.get(), settings);
  }
  
@@ -130,10 +130,10 @@ index 15d16f2e0928..5e8eadfd3ad1 100644
  Settings::ScopedLockedFileHandle Settings::MakeScopedLockedFileHandle(
      FileHandle file,
 diff --git third_party/crashpad/crashpad/client/settings.h third_party/crashpad/crashpad/client/settings.h
-index b64f74fbaf28..0c3c22e215b6 100644
+index a2b0c74636f4..01370fdc20d9 100644
 --- third_party/crashpad/crashpad/client/settings.h
 +++ third_party/crashpad/crashpad/client/settings.h
-@@ -102,6 +102,11 @@ class Settings {
+@@ -111,6 +111,11 @@ class Settings {
    //!     error logged.
    bool SetLastUploadAttemptTime(time_t time);
  
@@ -146,7 +146,7 @@ index b64f74fbaf28..0c3c22e215b6 100644
    struct Data;
  
 diff --git third_party/crashpad/crashpad/handler/BUILD.gn third_party/crashpad/crashpad/handler/BUILD.gn
-index 9c337697b605..b1fbd1de6074 100644
+index 78a4b092d8a8..c2d3acfab889 100644
 --- third_party/crashpad/crashpad/handler/BUILD.gn
 +++ third_party/crashpad/crashpad/handler/BUILD.gn
 @@ -12,6 +12,7 @@
@@ -179,20 +179,20 @@ index 9c337697b605..b1fbd1de6074 100644
      cflags = [ "/wd4201" ]  # nonstandard extension used : nameless struct/union
    }
 diff --git third_party/crashpad/crashpad/handler/crash_report_upload_thread.cc third_party/crashpad/crashpad/handler/crash_report_upload_thread.cc
-index 7505524b693b..4f8ceaa43bd6 100644
+index 715c533a2756..6f19e2ebc234 100644
 --- third_party/crashpad/crashpad/handler/crash_report_upload_thread.cc
 +++ third_party/crashpad/crashpad/handler/crash_report_upload_thread.cc
-@@ -302,6 +302,8 @@ CrashReportUploadThread::UploadResult CrashReportUploadThread::UploadReport(
-   if (minidump_process_snapshot.Initialize(&minidump_file_reader)) {
+@@ -264,6 +264,8 @@ CrashReportUploadThread::UploadResult CrashReportUploadThread::UploadReport(
+   if (minidump_process_snapshot.Initialize(reader)) {
      parameters =
          BreakpadHTTPFormParametersFromMinidump(&minidump_process_snapshot);
 +    if (!parameters.empty())
 +      parameters = FilterParameters(parameters);
    }
  
-   if (!minidump_file_reader.SeekSet(start_offset)) {
+   if (!reader->SeekSet(start_offset)) {
 diff --git third_party/crashpad/crashpad/handler/crash_report_upload_thread.h third_party/crashpad/crashpad/handler/crash_report_upload_thread.h
-index cdd1502b7e2f..cb8450a892ba 100644
+index 2ec1147d2620..8ff9a72e0bd7 100644
 --- third_party/crashpad/crashpad/handler/crash_report_upload_thread.h
 +++ third_party/crashpad/crashpad/handler/crash_report_upload_thread.h
 @@ -15,6 +15,7 @@
@@ -203,16 +203,16 @@ index cdd1502b7e2f..cb8450a892ba 100644
  #include <memory>
  #include <string>
  
-@@ -99,7 +100,7 @@ class CrashReportUploadThread : public WorkerThread::Delegate {
-   //! This method may be called from any thread.
-   void ReportPending(const UUID& report_uuid);
+@@ -103,7 +104,7 @@ class CrashReportUploadThread : public WorkerThread::Delegate,
+   //! It is expected to only be called from the same thread that called Start().
+   void Stop() override;
  
 - private:
 + protected:
    //! \brief The result code from UploadReport().
    enum class UploadResult {
      //! \brief The crash report was uploaded successfully.
-@@ -127,7 +128,7 @@ class CrashReportUploadThread : public WorkerThread::Delegate {
+@@ -131,7 +132,7 @@ class CrashReportUploadThread : public WorkerThread::Delegate,
    //! object was constructed with \a watch_pending_reports, it will also scan
    //! the crash report database for other pending reports, and process those as
    //! well.
@@ -221,7 +221,7 @@ index cdd1502b7e2f..cb8450a892ba 100644
  
    //! \brief Processes a single pending report from the database.
    //!
-@@ -141,7 +142,7 @@ class CrashReportUploadThread : public WorkerThread::Delegate {
+@@ -145,7 +146,7 @@ class CrashReportUploadThread : public WorkerThread::Delegate,
    //! remain in the “pending” state. If the upload fails and no more retries are
    //! desired, or report upload is disabled, it will be marked as “completed” in
    //! the database without ever having been uploaded.
@@ -230,8 +230,8 @@ index cdd1502b7e2f..cb8450a892ba 100644
  
    //! \brief Attempts to upload a crash report.
    //!
-@@ -158,6 +159,11 @@ class CrashReportUploadThread : public WorkerThread::Delegate {
-   UploadResult UploadReport(const CrashReportDatabase::Report* report,
+@@ -162,6 +163,11 @@ class CrashReportUploadThread : public WorkerThread::Delegate,
+   UploadResult UploadReport(const CrashReportDatabase::UploadReport* report,
                              std::string* response_body);
  
 +  using ParameterMap = std::map<std::string, std::string>;
@@ -243,12 +243,12 @@ index cdd1502b7e2f..cb8450a892ba 100644
    //! \brief Calls ProcessPendingReports() in response to ReportPending() having
    //!     been called on any thread, as well as periodically on a timer.
 diff --git third_party/crashpad/crashpad/handler/handler_main.cc third_party/crashpad/crashpad/handler/handler_main.cc
-index f175fddf6084..d6285bbf28bf 100644
+index dd7adf6503fd..4ae51a58aa6e 100644
 --- third_party/crashpad/crashpad/handler/handler_main.cc
 +++ third_party/crashpad/crashpad/handler/handler_main.cc
-@@ -35,8 +35,10 @@
- #include "base/metrics/persistent_histogram_allocator.h"
+@@ -36,8 +36,10 @@
  #include "base/scoped_generic.h"
+ #include "base/strings/string_number_conversions.h"
  #include "base/strings/stringprintf.h"
 +#include "base/strings/string_number_conversions.h"
  #include "base/strings/utf_string_conversions.h"
@@ -257,8 +257,8 @@ index f175fddf6084..d6285bbf28bf 100644
  #include "client/crash_report_database.h"
  #include "client/crashpad_client.h"
  #include "client/crashpad_info.h"
-@@ -79,6 +81,10 @@
- #include "handler/fuchsia/exception_handler_server.h"
+@@ -90,6 +92,10 @@
+ #include "handler/linux/exception_handler_server.h"
  #endif  // OS_MACOSX
  
 +#if BUILDFLAG(ENABLE_CEF)
@@ -268,7 +268,7 @@ index f175fddf6084..d6285bbf28bf 100644
  namespace crashpad {
  
  namespace {
-@@ -154,6 +160,9 @@ struct Options {
+@@ -173,6 +179,9 @@ struct Options {
    bool periodic_tasks;
    bool rate_limit;
    bool upload_gzip;
@@ -278,9 +278,9 @@ index f175fddf6084..d6285bbf28bf 100644
  };
  
  // Splits |key_value| on '=' and inserts the resulting key and value into |map|.
-@@ -451,6 +460,9 @@ int HandlerMain(int argc,
-     kOptionResetOwnCrashExceptionPortToSystemDefault,
- #endif  // OS_MACOSX
+@@ -532,6 +541,9 @@ int HandlerMain(int argc,
+     kOptionInitialClientFD,
+ #endif
      kOptionURL,
 +    kOptionMaxUploads,
 +    kOptionMaxDatabaseSize,
@@ -288,7 +288,7 @@ index f175fddf6084..d6285bbf28bf 100644
  
      // Standard options.
      kOptionHelp = -2,
-@@ -501,6 +513,9 @@ int HandlerMain(int argc,
+@@ -589,6 +601,9 @@ int HandlerMain(int argc,
      {"url", required_argument, nullptr, kOptionURL},
      {"help", no_argument, nullptr, kOptionHelp},
      {"version", no_argument, nullptr, kOptionVersion},
@@ -298,7 +298,7 @@ index f175fddf6084..d6285bbf28bf 100644
      {nullptr, 0, nullptr, 0},
    };
  
-@@ -605,6 +620,27 @@ int HandlerMain(int argc,
+@@ -714,6 +729,27 @@ int HandlerMain(int argc,
          options.url = optarg;
          break;
        }
@@ -326,28 +326,28 @@ index f175fddf6084..d6285bbf28bf 100644
        case kOptionHelp: {
          Usage(me);
          MetricsRecordExit(Metrics::LifetimeMilestone::kExitedEarly);
-@@ -772,15 +808,23 @@ int HandlerMain(int argc,
-   upload_thread_options.rate_limit = options.rate_limit;
-   upload_thread_options.upload_gzip = options.upload_gzip;
-   upload_thread_options.watch_pending_reports = options.periodic_tasks;
-+#if BUILDFLAG(ENABLE_CEF)
-+  CefCrashReportUploadThread upload_thread(database.get(),
-+                                           options.url,
-+                                           upload_thread_options,
-+                                           options.max_uploads);
-+#else
-   CrashReportUploadThread upload_thread(database.get(),
-                                         options.url,
-                                         upload_thread_options);
-+#endif
-   upload_thread.Start();
+@@ -822,8 +858,14 @@ int HandlerMain(int argc,
+     upload_thread_options.upload_gzip = options.upload_gzip;
+     upload_thread_options.watch_pending_reports = options.periodic_tasks;
  
-   std::unique_ptr<PruneCrashReportThread> prune_thread;
++#if BUILDFLAG(ENABLE_CEF)
++    upload_thread.Reset(new CefCrashReportUploadThread(
++        database.get(), options.url, upload_thread_options,
++        options.max_uploads));
++#else
+     upload_thread.Reset(new CrashReportUploadThread(
+         database.get(), options.url, upload_thread_options));
++#endif
+     upload_thread.Get()->Start();
+   }
+ 
+@@ -844,7 +886,8 @@ int HandlerMain(int argc,
+   ScopedStoppable prune_thread;
    if (options.periodic_tasks) {
-     prune_thread.reset(new PruneCrashReportThread(
+     prune_thread.Reset(new PruneCrashReportThread(
 -        database.get(), PruneCondition::GetDefault()));
 +        database.get(), PruneCondition::GetDefault(options.max_database_size,
 +                                                   options.max_database_age)));
-     prune_thread->Start();
+     prune_thread.Get()->Start();
    }
  

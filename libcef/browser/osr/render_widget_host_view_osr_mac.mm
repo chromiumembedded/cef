@@ -17,6 +17,16 @@
 #include "base/strings/utf_string_conversions.h"
 #include "content/common/view_messages.h"
 #include "ui/accelerated_widget_mac/accelerated_widget_mac.h"
+#include "ui/display/screen.h"
+
+namespace {
+
+display::Display GetDisplay() {
+  // TODO(cef): Get display info from callbacks.
+  return display::Screen::GetScreen()->GetDisplayNearestView(nullptr);
+}
+
+}  // namespace
 
 class MacHelper : public content::BrowserCompositorMacClient,
                   public ui::AcceleratedWidgetMacNSView {
@@ -37,7 +47,7 @@ class MacHelper : public content::BrowserCompositorMacClient,
     return view_->background_color();
   }
 
-  void BrowserCompositorMacOnBeginFrame() override {}
+  void BrowserCompositorMacOnBeginFrame(base::TimeTicks frame_time) override {}
 
   void OnFrameTokenChanged(uint32_t frame_token) override {
     view_->render_widget_host()->DidProcessFrame(frame_token);
@@ -64,6 +74,10 @@ class MacHelper : public content::BrowserCompositorMacClient,
     view_->render_widget_host()->DidReceiveFirstFrameAfterNavigation();
   }
 
+  void DestroyCompositorForShutdown() override {}
+
+  void WasResized() override { view_->render_widget_host()->WasResized(); }
+
  private:
   // Guaranteed to outlive this object.
   CefRenderWidgetHostViewOSR* view_;
@@ -75,17 +89,7 @@ void CefRenderWidgetHostViewOSR::SetActive(bool active) {}
 
 void CefRenderWidgetHostViewOSR::ShowDefinitionForSelection() {}
 
-bool CefRenderWidgetHostViewOSR::SupportsSpeech() const {
-  return false;
-}
-
 void CefRenderWidgetHostViewOSR::SpeakSelection() {}
-
-bool CefRenderWidgetHostViewOSR::IsSpeaking() const {
-  return false;
-}
-
-void CefRenderWidgetHostViewOSR::StopSpeaking() {}
 
 bool CefRenderWidgetHostViewOSR::ShouldContinueToPauseForFrame() {
   return browser_compositor_->ShouldContinueToPauseForFrame();
@@ -102,6 +106,11 @@ ui::Layer* CefRenderWidgetHostViewOSR::GetRootLayer() const {
 content::DelegatedFrameHost* CefRenderWidgetHostViewOSR::GetDelegatedFrameHost()
     const {
   return browser_compositor_->GetDelegatedFrameHost();
+}
+
+bool CefRenderWidgetHostViewOSR::UpdateNSViewAndDisplay() {
+  return browser_compositor_->UpdateNSViewAndDisplay(
+      GetRootLayer()->bounds().size(), GetDisplay());
 }
 
 void CefRenderWidgetHostViewOSR::PlatformCreateCompositorWidget(
@@ -122,7 +131,7 @@ void CefRenderWidgetHostViewOSR::PlatformCreateCompositorWidget(
   mac_helper_ = new MacHelper(this);
   browser_compositor_.reset(new content::BrowserCompositorMac(
       mac_helper_, mac_helper_, render_widget_host_->is_hidden(), true,
-      AllocateFrameSinkId(is_guest_view_hack)));
+      GetDisplay(), AllocateFrameSinkId(is_guest_view_hack)));
 }
 
 void CefRenderWidgetHostViewOSR::PlatformResizeCompositorWidget(

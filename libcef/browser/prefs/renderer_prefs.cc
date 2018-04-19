@@ -36,7 +36,7 @@
 #include "extensions/browser/extension_registry.h"
 #include "extensions/browser/view_type_utils.h"
 #include "extensions/common/constants.h"
-#include "media/media_features.h"
+#include "media/media_buildflags.h"
 
 namespace renderer_prefs {
 

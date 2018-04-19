@@ -8,7 +8,7 @@
 
 #include "content/public/common/url_constants.h"
 #include "extensions/common/constants.h"
-#include "net/net_features.h"
+#include "net/net_buildflags.h"
 #include "url/url_constants.h"
 
 namespace scheme {

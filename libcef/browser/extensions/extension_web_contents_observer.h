@@ -22,6 +22,10 @@ class CefExtensionWebContentsObserver
  public:
   ~CefExtensionWebContentsObserver() override;
 
+  // Creates and initializes an instance of this class for the given
+  // |web_contents|, if it doesn't already exist.
+  static void CreateForWebContents(content::WebContents* web_contents);
+
   ScriptExecutor* script_executor() { return script_executor_.get(); }
 
  private:

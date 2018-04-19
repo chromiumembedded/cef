@@ -23,6 +23,7 @@
 #include "libcef/common/extensions/extensions_util.h"
 #include "libcef/common/request_impl.h"
 #include "libcef/common/values_impl.h"
+#include "libcef/renderer/blink_glue.h"
 #include "libcef/renderer/browser_impl.h"
 #include "libcef/renderer/extensions/extensions_renderer_client.h"
 #include "libcef/renderer/extensions/print_render_frame_helper_delegate.h"
@@ -31,7 +32,6 @@
 #include "libcef/renderer/render_thread_observer.h"
 #include "libcef/renderer/thread_util.h"
 #include "libcef/renderer/v8_impl.h"
-#include "libcef/renderer/webkit_glue.h"
 
 #include "base/command_line.h"
 #include "base/macros.h"
@@ -78,21 +78,21 @@
 #include "services/service_manager/public/cpp/connector.h"
 #include "services/service_manager/public/cpp/interface_provider.h"
 #include "services/service_manager/public/cpp/service_context.h"
-#include "third_party/WebKit/public/common/associated_interfaces/associated_interface_provider.h"
-#include "third_party/WebKit/public/platform/Platform.h"
-#include "third_party/WebKit/public/platform/URLConversion.h"
-#include "third_party/WebKit/public/platform/WebPrerenderingSupport.h"
-#include "third_party/WebKit/public/platform/WebRuntimeFeatures.h"
-#include "third_party/WebKit/public/platform/WebString.h"
-#include "third_party/WebKit/public/platform/WebURL.h"
-#include "third_party/WebKit/public/platform/scheduler/renderer_process_type.h"
-#include "third_party/WebKit/public/web/WebConsoleMessage.h"
-#include "third_party/WebKit/public/web/WebElement.h"
-#include "third_party/WebKit/public/web/WebFrame.h"
-#include "third_party/WebKit/public/web/WebLocalFrame.h"
-#include "third_party/WebKit/public/web/WebPrerendererClient.h"
-#include "third_party/WebKit/public/web/WebSecurityPolicy.h"
-#include "third_party/WebKit/public/web/WebView.h"
+#include "third_party/blink/public/common/associated_interfaces/associated_interface_provider.h"
+#include "third_party/blink/public/platform/platform.h"
+#include "third_party/blink/public/platform/scheduler/renderer_process_type.h"
+#include "third_party/blink/public/platform/url_conversion.h"
+#include "third_party/blink/public/platform/web_prerendering_support.h"
+#include "third_party/blink/public/platform/web_runtime_features.h"
+#include "third_party/blink/public/platform/web_string.h"
+#include "third_party/blink/public/platform/web_url.h"
+#include "third_party/blink/public/web/web_console_message.h"
+#include "third_party/blink/public/web/web_element.h"
+#include "third_party/blink/public/web/web_frame.h"
+#include "third_party/blink/public/web/web_local_frame.h"
+#include "third_party/blink/public/web/web_prerenderer_client.h"
+#include "third_party/blink/public/web/web_security_policy.h"
+#include "third_party/blink/public/web/web_view.h"
 #include "ui/base/l10n/l10n_util.h"
 
 #if defined(OS_MACOSX)
@@ -258,11 +258,11 @@ void CefContentRendererClient::WebKitInitialized() {
       const blink::WebString& scheme =
           blink::WebString::FromUTF8(info.scheme_name);
       if (info.is_local)
-        webkit_glue::RegisterURLSchemeAsLocal(scheme);
+        blink_glue::RegisterURLSchemeAsLocal(scheme);
       if (info.is_display_isolated)
         blink::WebSecurityPolicy::RegisterURLSchemeAsDisplayIsolated(scheme);
       if (info.is_secure)
-        webkit_glue::RegisterURLSchemeAsSecure(scheme);
+        blink_glue::RegisterURLSchemeAsSecure(scheme);
     }
   }
 
@@ -511,17 +511,20 @@ bool CefContentRendererClient::ShouldFork(blink::WebLocalFrame* frame,
   return false;
 }
 
-bool CefContentRendererClient::WillSendRequest(
+void CefContentRendererClient::WillSendRequest(
     blink::WebLocalFrame* frame,
     ui::PageTransition transition_type,
     const blink::WebURL& url,
-    GURL* new_url) {
+    const url::Origin* initiator_origin,
+    GURL* new_url,
+    bool* attach_same_site_cookies) {
   if (extensions::ExtensionsEnabled()) {
-    return extensions_renderer_client_->WillSendRequest(frame, transition_type,
-                                                        url, new_url);
+    extensions_renderer_client_->WillSendRequest(frame, transition_type, url,
+                                                 initiator_origin, new_url,
+                                                 attach_same_site_cookies);
+    if (!new_url->is_empty())
+      return;
   }
-
-  return false;
 }
 
 unsigned long long CefContentRendererClient::VisitedLinkHash(
@@ -535,14 +538,21 @@ bool CefContentRendererClient::IsLinkVisited(unsigned long long link_hash) {
   return observer_->visited_link_slave()->IsVisited(link_hash);
 }
 
+bool CefContentRendererClient::IsOriginIsolatedPepperPlugin(
+    const base::FilePath& plugin_path) {
+  return plugin_path ==
+         base::FilePath::FromUTF8Unsafe(CefContentClient::kPDFPluginPath);
+}
+
 content::BrowserPluginDelegate*
 CefContentRendererClient::CreateBrowserPluginDelegate(
     content::RenderFrame* render_frame,
+    const content::WebPluginInfo& info,
     const std::string& mime_type,
     const GURL& original_url) {
   DCHECK(extensions::ExtensionsEnabled());
   return extensions::CefExtensionsRendererClient::CreateBrowserPluginDelegate(
-      render_frame, mime_type, original_url);
+      render_frame, info, mime_type, original_url);
 }
 
 void CefContentRendererClient::AddSupportedKeySystems(

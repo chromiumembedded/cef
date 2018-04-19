@@ -53,6 +53,9 @@ class CefCrashReporterClient : public crash_reporter::CrashReporterClient {
 #elif defined(OS_POSIX)
   void GetProductNameAndVersion(const char** product_name,
                                 const char** version) override;
+  void GetProductNameAndVersion(const char** product_name,
+                                const char** version,
+                                const char** channel) override;
 #if !defined(OS_MACOSX)
   base::FilePath GetReporterLogFilename() override;
   bool EnableBreakpadForProcess(const std::string& process_type) override;

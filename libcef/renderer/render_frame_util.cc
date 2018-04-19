@@ -5,11 +5,11 @@
 
 #include "libcef/renderer/render_frame_util.h"
 
-#include "libcef/renderer/webkit_glue.h"
+#include "libcef/renderer/blink_glue.h"
 
 #include "base/logging.h"
 #include "content/renderer/render_frame_impl.h"
-#include "third_party/WebKit/public/web/WebLocalFrame.h"
+#include "third_party/blink/public/web/web_local_frame.h"
 
 namespace render_frame_util {
 
@@ -21,7 +21,7 @@ int64_t GetIdentifier(blink::WebLocalFrame* frame) {
   DCHECK(render_frame);
   if (render_frame)
     return render_frame->GetRoutingID();
-  return webkit_glue::kInvalidFrameId;
+  return blink_glue::kInvalidFrameId;
 }
 
 std::string GetName(blink::WebLocalFrame* frame) {

@@ -40,8 +40,8 @@ CefRefPtr<CefListValue> ToCefValue(uint32_t state) {
 
   int index = 0;
   // Iterate and find which states are set.
-  for (unsigned i = static_cast<unsigned>(ax::mojom::Role::kNone);
-       i <= static_cast<unsigned>(ax::mojom::Role::kLast); i++) {
+  for (unsigned i = static_cast<unsigned>(ax::mojom::Role::kMinValue) + 1;
+       i <= static_cast<unsigned>(ax::mojom::Role::kMaxValue); i++) {
     if (state & (1 << i))
       value->SetString(index++, ToString(static_cast<ax::mojom::State>(i)));
   }
@@ -267,8 +267,8 @@ CefRefPtr<CefDictionaryValue> ToCefValue(const ui::AXNodeData& node) {
 
   CefRefPtr<CefListValue> actions_strings;
   size_t actions_idx = 0;
-  for (int action_index = static_cast<int>(ax::mojom::Action::kNone) + 1;
-       action_index <= static_cast<int>(ax::mojom::Action::kLast);
+  for (int action_index = static_cast<int>(ax::mojom::Action::kMinValue) + 1;
+       action_index <= static_cast<int>(ax::mojom::Action::kMaxValue);
        ++action_index) {
     auto action = static_cast<ax::mojom::Action>(action_index);
     if (node.HasAction(action)) {

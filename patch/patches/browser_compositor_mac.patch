@@ -1,8 +1,8 @@
 diff --git content/browser/renderer_host/browser_compositor_view_mac.h content/browser/renderer_host/browser_compositor_view_mac.h
-index dad7599ed999..c8daf2ba58c8 100644
+index 091f34477c01..44002b362be7 100644
 --- content/browser/renderer_host/browser_compositor_view_mac.h
 +++ content/browser/renderer_host/browser_compositor_view_mac.h
-@@ -52,11 +52,13 @@ class CONTENT_EXPORT BrowserCompositorMac : public DelegatedFrameHostClient {
+@@ -55,11 +55,13 @@ class CONTENT_EXPORT BrowserCompositorMac : public DelegatedFrameHostClient {
  
    // These will not return nullptr until Destroy is called.
    DelegatedFrameHost* GetDelegatedFrameHost();
@@ -17,10 +17,10 @@ index dad7599ed999..c8daf2ba58c8 100644
    void DidCreateNewRendererCompositorFrameSink(
        viz::mojom::CompositorFrameSinkClient* renderer_compositor_frame_sink);
 diff --git content/browser/renderer_host/browser_compositor_view_mac.mm content/browser/renderer_host/browser_compositor_view_mac.mm
-index 07d42e680951..46699b959d2d 100644
+index fac719b0bb6f..0672d1445f39 100644
 --- content/browser/renderer_host/browser_compositor_view_mac.mm
 +++ content/browser/renderer_host/browser_compositor_view_mac.mm
-@@ -215,6 +215,12 @@ void OnCompositingShuttingDown(ui::Compositor* compositor) override {}
+@@ -208,6 +208,12 @@ BrowserCompositorMac::~BrowserCompositorMac() {
      g_spare_recyclable_compositors.Get().clear();
  }
  
@@ -33,22 +33,11 @@ index 07d42e680951..46699b959d2d 100644
  gfx::AcceleratedWidget BrowserCompositorMac::GetAcceleratedWidget() {
    if (recyclable_compositor_) {
      return recyclable_compositor_->accelerated_widget_mac()
-@@ -268,7 +274,9 @@ void OnCompositingShuttingDown(ui::Compositor* compositor) override {}
-       accelerated_widget_mac_ns_view_->AcceleratedWidgetGetNSView();
-   display::Display new_display =
-       display::Screen::GetScreen()->GetDisplayNearestView(ns_view);
--  gfx::Size new_size_dip([ns_view bounds].size);
-+  // TODO(cef): Get display info from callbacks. |ns_view| will be nullptr.
-+  gfx::Size new_size_dip(ns_view ? gfx::Size([ns_view bounds].size) :
-+                                   root_layer_->bounds().size());
-   if (new_size_dip == dfh_size_dip_ && new_display == dfh_display_)
-     return false;
- 
 diff --git ui/accelerated_widget_mac/accelerated_widget_mac.mm ui/accelerated_widget_mac/accelerated_widget_mac.mm
 index 8306398431d9..5ab4fef9ac0f 100644
 --- ui/accelerated_widget_mac/accelerated_widget_mac.mm
 +++ ui/accelerated_widget_mac/accelerated_widget_mac.mm
-@@ -71,6 +71,10 @@ - (void)setContentsChanged;
+@@ -71,6 +71,10 @@ void AcceleratedWidgetMac::SetNSView(AcceleratedWidgetMacNSView* view) {
    DCHECK(view && !view_);
    view_ = view;
  

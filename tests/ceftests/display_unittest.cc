@@ -176,7 +176,7 @@ class AutoResizeTestHandler : public RoutingTestHandler {
 
   bool OnAutoResize(CefRefPtr<CefBrowser> browser,
                     const CefSize& new_size) override {
-    if (new_size.width == 16 && new_size.height == 10) {
+    if (new_size.width == 1064 && new_size.height == 576) {
       // Ignore this initial resize that may or may not occur.
     } else if (!got_auto_resize1_) {
       got_auto_resize1_.yes();

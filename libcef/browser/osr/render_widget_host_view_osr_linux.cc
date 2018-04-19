@@ -11,7 +11,7 @@
 
 #include "libcef/browser/native/window_x11.h"
 
-#include "third_party/WebKit/public/platform/WebCursorInfo.h"
+#include "third_party/blink/public/platform/web_cursor_info.h"
 #include "ui/base/x/x11_util.h"
 #include "ui/gfx/x/x11_types.h"
 

@@ -12,24 +12,24 @@ index 4393a8fac233..860715e86900 100644
   public:
    explicit ContentServiceManagerMainDelegate(const ContentMainParams& params);
    ~ContentServiceManagerMainDelegate() override;
-diff --git third_party/WebKit/Source/controller/BUILD.gn third_party/WebKit/Source/controller/BUILD.gn
-index 67afa8b0bcef..20591788d173 100644
---- third_party/WebKit/Source/controller/BUILD.gn
-+++ third_party/WebKit/Source/controller/BUILD.gn
+diff --git third_party/blink/renderer/controller/BUILD.gn third_party/blink/renderer/controller/BUILD.gn
+index 5726fbac54bf..46fd0b2bd568 100644
+--- third_party/blink/renderer/controller/BUILD.gn
++++ third_party/blink/renderer/controller/BUILD.gn
 @@ -25,6 +25,7 @@ component("controller") {
  
    configs += [
      "//build/config/compiler:wexit_time_destructors",
 +    "//cef/libcef/features:config",
-     "//third_party/WebKit/Source:config",
-     "//third_party/WebKit/Source:inside_blink",
-     "//third_party/WebKit/Source:non_test_config",
+     "//third_party/blink/renderer:config",
+     "//third_party/blink/renderer:inside_blink",
+     "//third_party/blink/renderer:non_test_config",
 @@ -41,6 +42,8 @@ component("controller") {
-     "DevToolsFrontendImpl.h",
-     "OomInterventionImpl.cpp",
-     "OomInterventionImpl.h",
-+    "//cef/libcef/renderer/webkit_glue.cc",
-+    "//cef/libcef/renderer/webkit_glue.h",
+     "dev_tools_frontend_impl.h",
+     "oom_intervention_impl.cc",
+     "oom_intervention_impl.h",
++    "//cef/libcef/renderer/blink_glue.cc",
++    "//cef/libcef/renderer/blink_glue.h",
    ]
  
    if (is_mac) {

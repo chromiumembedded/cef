@@ -26,7 +26,7 @@ const char kNetWMPing[] = "_NET_WM_PING";
 const char kNetWMState[] = "_NET_WM_STATE";
 const char kXdndProxy[] = "XdndProxy";
 
-::Window FindEventTarget(const base::NativeEvent& xev) {
+::Window FindEventTarget(const ui::PlatformEvent& xev) {
   ::Window target = xev->xany.window;
   if (xev->type == GenericEvent)
     target = static_cast<XIDeviceEvent*>(xev->xcookie.data)->event;

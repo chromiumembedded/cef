@@ -14,7 +14,7 @@
 #include "base/task_scheduler/post_task.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/common/url_constants.h"
-#include "net/net_features.h"
+#include "net/net_buildflags.h"
 #include "net/url_request/data_protocol_handler.h"
 #include "net/url_request/file_protocol_handler.h"
 #include "net/url_request/ftp_protocol_handler.h"
@@ -29,19 +29,16 @@ void InstallInternalProtectedHandlers(
     content::ProtocolHandlerMap* protocol_handlers,
     net::HostResolver* host_resolver) {
   protocol_handlers->insert(std::make_pair(
-      url::kDataScheme, linked_ptr<net::URLRequestJobFactory::ProtocolHandler>(
-                            new net::DataProtocolHandler)));
+      url::kDataScheme, std::make_unique<net::DataProtocolHandler>()));
   protocol_handlers->insert(std::make_pair(
       url::kFileScheme,
-      linked_ptr<net::URLRequestJobFactory::ProtocolHandler>(
-          new net::FileProtocolHandler(base::CreateTaskRunnerWithTraits(
+      std::make_unique<net::FileProtocolHandler>(
+          base::CreateTaskRunnerWithTraits(
               {base::MayBlock(), base::TaskPriority::USER_VISIBLE,
-               base::TaskShutdownBehavior::SKIP_ON_SHUTDOWN})))));
+               base::TaskShutdownBehavior::SKIP_ON_SHUTDOWN}))));
 #if !BUILDFLAG(DISABLE_FTP_SUPPORT)
   protocol_handlers->insert(std::make_pair(
-      url::kFtpScheme,
-      linked_ptr<net::URLRequestJobFactory::ProtocolHandler>(
-          net::FtpProtocolHandler::Create(host_resolver).release())));
+      url::kFtpScheme, net::FtpProtocolHandler::Create(host_resolver)));
 #endif
 
   for (content::ProtocolHandlerMap::iterator it = protocol_handlers->begin();

@@ -1,8 +1,8 @@
 diff --git services/service_manager/embedder/main.cc services/service_manager/embedder/main.cc
-index ed36168629af..20be6bed9f79 100644
+index 24551fba132e..f4b38b871f9a 100644
 --- services/service_manager/embedder/main.cc
 +++ services/service_manager/embedder/main.cc
-@@ -301,13 +301,30 @@ int RunService(MainDelegate* delegate) {
+@@ -300,13 +300,30 @@ int RunService(MainDelegate* delegate) {
    return exit_code;
  }
  
@@ -34,7 +34,7 @@ index ed36168629af..20be6bed9f79 100644
    MainDelegate* delegate = params.delegate;
    DCHECK(delegate);
  
-@@ -375,30 +392,14 @@ int Main(const MainParams& params) {
+@@ -374,30 +391,14 @@ int Main(const MainParams& params) {
    MainDelegate::InitializeParams init_params;
  
  #if defined(OS_MACOSX)
@@ -69,7 +69,7 @@ index ed36168629af..20be6bed9f79 100644
    mojo_config.max_message_num_bytes = kMaximumMojoMessageSize;
    delegate->OverrideMojoConfiguration(&mojo_config);
    mojo::edk::Init(mojo_config);
-@@ -433,6 +434,16 @@ int Main(const MainParams& params) {
+@@ -432,6 +433,16 @@ int Main(const MainParams& params) {
          trace_config, base::trace_event::TraceLog::RECORDING_MODE);
    }
  
@@ -86,7 +86,7 @@ index ed36168629af..20be6bed9f79 100644
    switch (process_type) {
      case ProcessType::kDefault:
        NOTREACHED();
-@@ -454,6 +465,8 @@ int Main(const MainParams& params) {
+@@ -453,6 +464,8 @@ int Main(const MainParams& params) {
        break;
    }
  
@@ -95,7 +95,7 @@ index ed36168629af..20be6bed9f79 100644
    if (tracker) {
      if (exit_code == 0) {
        tracker->SetProcessPhaseIfEnabled(
-@@ -465,13 +478,38 @@ int Main(const MainParams& params) {
+@@ -464,13 +477,38 @@ int Main(const MainParams& params) {
      }
    }
  
@@ -124,7 +124,7 @@ index ed36168629af..20be6bed9f79 100644
 +  // Each "main" needs to flush this pool right before it goes into its main
 +  // event loop to get rid of the cruft.
 +  params.autorelease_pool =
-+      base::MakeUnique<base::mac::ScopedNSAutoreleasePool>();
++      std::make_unique<base::mac::ScopedNSAutoreleasePool>();
 +#endif
 + 
 +  int exit_code = MainInitialize(params);

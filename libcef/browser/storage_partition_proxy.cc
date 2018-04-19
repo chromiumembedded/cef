@@ -30,9 +30,14 @@ network::mojom::NetworkContext* CefStoragePartitionProxy::GetNetworkContext() {
   return parent_->GetNetworkContext();
 }
 
-scoped_refptr<content::SharedURLLoaderFactory>
+scoped_refptr<network::SharedURLLoaderFactory>
 CefStoragePartitionProxy::GetURLLoaderFactoryForBrowserProcess() {
   return parent_->GetURLLoaderFactoryForBrowserProcess();
+}
+
+std::unique_ptr<network::SharedURLLoaderFactoryInfo>
+CefStoragePartitionProxy::GetURLLoaderFactoryForBrowserProcessIOThread() {
+  return parent_->GetURLLoaderFactoryForBrowserProcessIOThread();
 }
 
 network::mojom::CookieManager*
@@ -99,6 +104,10 @@ content::ZoomLevelDelegate* CefStoragePartitionProxy::GetZoomLevelDelegate() {
 content::PlatformNotificationContext*
 CefStoragePartitionProxy::GetPlatformNotificationContext() {
   return parent_->GetPlatformNotificationContext();
+}
+
+content::WebPackageContext* CefStoragePartitionProxy::GetWebPackageContext() {
+  return parent_->GetWebPackageContext();
 }
 
 void CefStoragePartitionProxy::ClearDataForOrigin(

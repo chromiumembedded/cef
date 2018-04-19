@@ -1,5 +1,5 @@
 diff --git chrome/browser/feedback/system_logs/log_sources/chrome_internal_log_source.cc chrome/browser/feedback/system_logs/log_sources/chrome_internal_log_source.cc
-index e3a222a90f33..8b909deef05d 100644
+index af2362c38753..74a7fcf954a3 100644
 --- chrome/browser/feedback/system_logs/log_sources/chrome_internal_log_source.cc
 +++ chrome/browser/feedback/system_logs/log_sources/chrome_internal_log_source.cc
 @@ -17,6 +17,7 @@
@@ -10,7 +10,7 @@ index e3a222a90f33..8b909deef05d 100644
  #include "chrome/common/pref_names.h"
  #include "components/browser_sync/profile_sync_service.h"
  #include "components/prefs/pref_service.h"
-@@ -164,6 +165,10 @@ void ChromeInternalLogSource::Fetch(SysLogsSourceCallback callback) {
+@@ -171,6 +172,10 @@ void ChromeInternalLogSource::Fetch(SysLogsSourceCallback callback) {
  }
  
  void ChromeInternalLogSource::PopulateSyncLogs(SystemLogsResponse* response) {
@@ -21,7 +21,7 @@ index e3a222a90f33..8b909deef05d 100644
    // We are only interested in sync logs for the primary user profile.
    Profile* profile = ProfileManager::GetPrimaryUserProfile();
    if (!profile ||
-@@ -208,6 +213,12 @@ void ChromeInternalLogSource::PopulateExtensionInfoLogs(
+@@ -215,6 +220,12 @@ void ChromeInternalLogSource::PopulateExtensionInfoLogs(
    if (!profile)
      return;
  
@@ -35,7 +35,7 @@ index e3a222a90f33..8b909deef05d 100644
        extensions::ExtensionRegistry::Get(profile);
    std::string extensions_list;
 diff --git chrome/browser/memory_details.cc chrome/browser/memory_details.cc
-index 5ef6e7292f5f..2884102c28e8 100644
+index 34bc5ae039b8..77556e63ac6d 100644
 --- chrome/browser/memory_details.cc
 +++ chrome/browser/memory_details.cc
 @@ -16,6 +16,7 @@
@@ -46,7 +46,7 @@ index 5ef6e7292f5f..2884102c28e8 100644
  #include "components/nacl/common/nacl_process_type.h"
  #include "components/strings/grit/components_strings.h"
  #include "content/public/browser/browser_child_process_host_iterator.h"
-@@ -253,8 +254,11 @@ void MemoryDetails::CollectChildInfoOnUIThread() {
+@@ -250,8 +251,11 @@ void MemoryDetails::CollectChildInfoOnUIThread() {
  
  #if BUILDFLAG(ENABLE_EXTENSIONS)
      // Determine if this is an extension process.
@@ -60,10 +60,10 @@ index 5ef6e7292f5f..2884102c28e8 100644
            render_process_host->GetBrowserContext();
        extensions::ExtensionRegistry* extension_registry =
 diff --git chrome/browser/ui/webui/net_internals/net_internals_ui.cc chrome/browser/ui/webui/net_internals/net_internals_ui.cc
-index 302df0f9a2cf..f6714b63a9f2 100644
+index 9a9192ba6718..54edcbc95534 100644
 --- chrome/browser/ui/webui/net_internals/net_internals_ui.cc
 +++ chrome/browser/ui/webui/net_internals/net_internals_ui.cc
-@@ -553,41 +553,31 @@ void NetInternalsMessageHandler::OnClearBrowserCache(
+@@ -554,41 +554,31 @@ void NetInternalsMessageHandler::OnClearBrowserCache(
  void NetInternalsMessageHandler::OnGetPrerenderInfo(
      const base::ListValue* list) {
    DCHECK_CURRENTLY_ON(BrowserThread::UI);
@@ -110,7 +110,7 @@ index 302df0f9a2cf..f6714b63a9f2 100644
  }
  
  ////////////////////////////////////////////////////////////////////////////////
-@@ -667,9 +657,17 @@ void NetInternalsMessageHandler::IOThreadImpl::OnRendererReady(
+@@ -668,9 +658,17 @@ void NetInternalsMessageHandler::IOThreadImpl::OnRendererReady(
  
    PrePopulateEventList();
  
@@ -131,7 +131,7 @@ index 302df0f9a2cf..f6714b63a9f2 100644
  }
  
  void NetInternalsMessageHandler::IOThreadImpl::OnGetNetInfo(
-@@ -1180,7 +1178,8 @@ void NetInternalsMessageHandler::IOThreadImpl::PrePopulateEventList() {
+@@ -1181,7 +1179,8 @@ void NetInternalsMessageHandler::IOThreadImpl::PrePopulateEventList() {
    std::set<net::URLRequestContext*> contexts;
    for (const auto& getter : context_getters_)
      contexts.insert(getter->GetURLRequestContext());
@@ -142,10 +142,10 @@ index 302df0f9a2cf..f6714b63a9f2 100644
    // Add entries for ongoing network objects.
    CreateNetLogEntriesForActiveObjects(contexts, this);
 diff --git content/browser/resource_context_impl.cc content/browser/resource_context_impl.cc
-index 895a9367b85b..eeb9c6922a3c 100644
+index 261e9343b8a2..0fe566c705a4 100644
 --- content/browser/resource_context_impl.cc
 +++ content/browser/resource_context_impl.cc
-@@ -57,6 +57,10 @@ URLDataManagerBackend* GetURLDataManagerForResourceContext(
+@@ -56,6 +56,10 @@ URLDataManagerBackend* GetURLDataManagerForResourceContext(
        context->GetUserData(kURLDataManagerBackendKeyName));
  }
  
@@ -170,10 +170,10 @@ index 903cc543a242..5bd30ae82974 100644
  CONTENT_EXPORT void InitializeResourceContext(BrowserContext* browser_context);
  
 diff --git content/browser/webui/url_data_manager.cc content/browser/webui/url_data_manager.cc
-index bdfc5d93765c..5464716aead4 100644
+index a2d542f817e3..fc81237f729a 100644
 --- content/browser/webui/url_data_manager.cc
 +++ content/browser/webui/url_data_manager.cc
-@@ -150,6 +150,11 @@ void URLDataManager::UpdateWebUIDataSource(
+@@ -149,6 +149,11 @@ void URLDataManager::UpdateWebUIDataSource(
        ->UpdateWebUIDataSource(source_name, std::move(update));
  }
  

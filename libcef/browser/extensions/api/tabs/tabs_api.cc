@@ -142,11 +142,11 @@ ExecuteCodeFunction::InitResult ExecuteCodeInTabFunction::Init() {
   return set_init_result(SUCCESS);
 }
 
-bool ExecuteCodeInTabFunction::CanExecuteScriptOnPage() {
+bool ExecuteCodeInTabFunction::CanExecuteScriptOnPage(std::string* error) {
   CHECK_GE(execute_tab_id_, 0);
 
   CefRefPtr<CefBrowserHostImpl> browser =
-      cef_details_.GetBrowserForTabIdAgain(execute_tab_id_, &error_);
+      cef_details_.GetBrowserForTabIdAgain(execute_tab_id_, error);
   if (!browser)
     return false;
 
@@ -156,7 +156,7 @@ bool ExecuteCodeInTabFunction::CanExecuteScriptOnPage() {
       ExtensionApiFrameIdMap::GetRenderFrameHostById(browser->web_contents(),
                                                      frame_id);
   if (!rfh) {
-    error_ = ErrorUtils::FormatErrorMessage(keys::kFrameNotFoundError,
+    *error = ErrorUtils::FormatErrorMessage(keys::kFrameNotFoundError,
                                             base::IntToString(frame_id),
                                             base::IntToString(execute_tab_id_));
     return false;
@@ -181,11 +181,11 @@ bool ExecuteCodeInTabFunction::CanExecuteScriptOnPage() {
   // NOTE: This can give the wrong answer due to race conditions, but it is OK,
   // we check again in the renderer.
   if (!extension()->permissions_data()->CanAccessPage(
-          extension(), effective_document_url, execute_tab_id_, &error_)) {
+          extension(), effective_document_url, execute_tab_id_, error)) {
     if (is_about_url &&
         extension()->permissions_data()->active_permissions().HasAPIPermission(
             APIPermission::kTab)) {
-      error_ = ErrorUtils::FormatErrorMessage(
+      *error = ErrorUtils::FormatErrorMessage(
           manifest_errors::kCannotAccessAboutUrl,
           rfh->GetLastCommittedURL().spec(),
           rfh->GetLastCommittedOrigin().Serialize());
@@ -196,11 +196,12 @@ bool ExecuteCodeInTabFunction::CanExecuteScriptOnPage() {
   return true;
 }
 
-ScriptExecutor* ExecuteCodeInTabFunction::GetScriptExecutor() {
+ScriptExecutor* ExecuteCodeInTabFunction::GetScriptExecutor(
+    std::string* error) {
   CHECK_GE(execute_tab_id_, 0);
 
   CefRefPtr<CefBrowserHostImpl> browser =
-      cef_details_.GetBrowserForTabIdAgain(execute_tab_id_, &error_);
+      cef_details_.GetBrowserForTabIdAgain(execute_tab_id_, error);
   if (!browser)
     return nullptr;
 
@@ -217,7 +218,8 @@ const GURL& ExecuteCodeInTabFunction::GetWebViewSrc() const {
   return GURL::EmptyGURL();
 }
 
-bool ExecuteCodeInTabFunction::LoadFile(const std::string& file) {
+bool ExecuteCodeInTabFunction::LoadFile(const std::string& file,
+                                        std::string* error) {
   if (cef_details_.LoadFile(
           file, base::BindOnce(&ExecuteCodeInTabFunction::LoadFileComplete,
                                this, file))) {
@@ -225,7 +227,7 @@ bool ExecuteCodeInTabFunction::LoadFile(const std::string& file) {
   }
 
   // Default handling.
-  return ExecuteCodeFunction::LoadFile(file);
+  return ExecuteCodeFunction::LoadFile(file, error);
 }
 
 void ExecuteCodeInTabFunction::LoadFileComplete(
@@ -237,15 +239,6 @@ void ExecuteCodeInTabFunction::LoadFileComplete(
 
 bool TabsExecuteScriptFunction::ShouldInsertCSS() const {
   return false;
-}
-
-void TabsExecuteScriptFunction::OnExecuteCodeFinished(
-    const std::string& error,
-    const GURL& on_url,
-    const base::ListValue& result) {
-  if (error.empty())
-    SetResult(result.CreateDeepCopy());
-  ExecuteCodeInTabFunction::OnExecuteCodeFinished(error, on_url, result);
 }
 
 bool TabsInsertCSSFunction::ShouldInsertCSS() const {
@@ -264,10 +257,31 @@ content::WebContents* ZoomAPIFunction::GetWebContents(int tab_id) {
   return browser->web_contents();
 }
 
+void ZoomAPIFunction::SendResponse(bool success) {
+  ResponseValue response;
+  if (success) {
+    response = ArgumentList(std::move(results_));
+  } else {
+    response = results_ ? ErrorWithArguments(std::move(results_), error_)
+                        : Error(error_);
+  }
+  Respond(std::move(response));
+}
+
+ExtensionFunction::ResponseAction ZoomAPIFunction::Run() {
+  if (RunAsync())
+    return RespondLater();
+  // TODO(devlin): Track these down and eliminate them if possible. We
+  // shouldn't return results and an error.
+  if (results_)
+    return RespondNow(ErrorWithArguments(std::move(results_), error_));
+  return RespondNow(Error(error_));
+}
+
 bool TabsSetZoomFunction::RunAsync() {
   std::unique_ptr<tabs::SetZoom::Params> params(
       tabs::SetZoom::Params::Create(*args_));
-  EXTENSION_FUNCTION_VALIDATE(params);
+  EXTENSION_FUNCTION_PRERUN_VALIDATE(params);
 
   int tab_id = params->tab_id ? *params->tab_id : -1;
   content::WebContents* web_contents = GetWebContents(tab_id);
@@ -299,7 +313,7 @@ bool TabsSetZoomFunction::RunAsync() {
 bool TabsGetZoomFunction::RunAsync() {
   std::unique_ptr<tabs::GetZoom::Params> params(
       tabs::GetZoom::Params::Create(*args_));
-  EXTENSION_FUNCTION_VALIDATE(params);
+  EXTENSION_FUNCTION_PRERUN_VALIDATE(params);
 
   int tab_id = params->tab_id ? *params->tab_id : -1;
   content::WebContents* web_contents = GetWebContents(tab_id);
@@ -319,7 +333,7 @@ bool TabsSetZoomSettingsFunction::RunAsync() {
 
   std::unique_ptr<tabs::SetZoomSettings::Params> params(
       tabs::SetZoomSettings::Params::Create(*args_));
-  EXTENSION_FUNCTION_VALIDATE(params);
+  EXTENSION_FUNCTION_PRERUN_VALIDATE(params);
 
   int tab_id = params->tab_id ? *params->tab_id : -1;
   content::WebContents* web_contents = GetWebContents(tab_id);
@@ -370,7 +384,7 @@ bool TabsSetZoomSettingsFunction::RunAsync() {
 bool TabsGetZoomSettingsFunction::RunAsync() {
   std::unique_ptr<tabs::GetZoomSettings::Params> params(
       tabs::GetZoomSettings::Params::Create(*args_));
-  EXTENSION_FUNCTION_VALIDATE(params);
+  EXTENSION_FUNCTION_PRERUN_VALIDATE(params);
 
   int tab_id = params->tab_id ? *params->tab_id : -1;
   content::WebContents* web_contents = GetWebContents(tab_id);

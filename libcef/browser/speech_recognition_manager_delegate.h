@@ -48,13 +48,6 @@ class CefSpeechRecognitionManagerDelegate
   bool FilterProfanities(int render_process_id) override;
 
  private:
-  class WebContentsWatcher;
-
-  // Callback called by |web_contents_watcher_| on the IO thread to signal
-  // web contents closure.
-  void WebContentsClosedCallback(int render_process_id, int render_view_id);
-
-  scoped_refptr<WebContentsWatcher> web_contents_watcher_;
   bool filter_profanities_;
 
   DISALLOW_COPY_AND_ASSIGN(CefSpeechRecognitionManagerDelegate);

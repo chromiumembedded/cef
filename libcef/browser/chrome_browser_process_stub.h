@@ -16,7 +16,7 @@
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/extensions/event_router_forwarder.h"
 #include "chrome/browser/profiles/incognito_helpers.h"
-#include "media/media_features.h"
+#include "media/media_buildflags.h"
 
 class ChromeProfileManagerStub;
 

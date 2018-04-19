@@ -40,7 +40,7 @@
 #include "extensions/browser/extension_protocols.h"
 #include "extensions/common/constants.h"
 #include "net/proxy_resolution/proxy_config_service.h"
-#include "net/proxy_resolution/proxy_service.h"
+#include "net/proxy_resolution/proxy_resolution_service.h"
 
 using content::BrowserThread;
 
@@ -176,11 +176,11 @@ class CefVisitedLinkListener : public visitedlink::VisitedLinkMaster::Listener {
 
   // visitedlink::VisitedLinkMaster::Listener methods.
 
-  void NewTable(mojo::SharedBufferHandle table) override {
+  void NewTable(base::ReadOnlySharedMemoryRegion* table_region) override {
     CEF_REQUIRE_UIT();
     ListenerMap::iterator it = listener_map_.begin();
     for (; it != listener_map_.end(); ++it)
-      it->second->NewTable(table);
+      it->second->NewTable(table_region);
   }
 
   void Add(visitedlink::VisitedLinkCommon::Fingerprint fingerprint) override {
@@ -462,10 +462,8 @@ net::URLRequestContextGetter* CefBrowserContextImpl::CreateRequestContext(
     // data in its installation directory).
     extensions::InfoMap* extension_info_map = extension_system()->info_map();
     (*protocol_handlers)[extensions::kExtensionScheme] =
-        linked_ptr<net::URLRequestJobFactory::ProtocolHandler>(
-            extensions::CreateExtensionProtocolHandler(IsOffTheRecord(),
-                                                       extension_info_map)
-                .release());
+        extensions::CreateExtensionProtocolHandler(IsOffTheRecord(),
+                                                   extension_info_map);
   }
 
   url_request_getter_ = new CefURLRequestContextGetterImpl(

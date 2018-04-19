@@ -7,7 +7,7 @@
 #pragma once
 
 #include "include/cef_dom.h"
-#include "third_party/WebKit/public/web/WebNode.h"
+#include "third_party/blink/public/web/web_node.h"
 
 class CefDOMDocumentImpl;
 

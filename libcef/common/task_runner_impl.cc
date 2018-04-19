@@ -13,6 +13,7 @@
 #include "base/message_loop/message_loop.h"
 #include "base/threading/thread_task_runner_handle.h"
 #include "content/public/browser/browser_thread.h"
+#include "content/public/browser/child_process_launcher_utils.h"
 
 using content::BrowserThread;
 
@@ -73,6 +74,8 @@ scoped_refptr<base::SingleThreadTaskRunner> CefTaskRunnerImpl::GetTaskRunner(
       return client->user_visible_task_runner();
     case TID_FILE_USER_BLOCKING:
       return client->user_blocking_task_runner();
+    case TID_PROCESS_LAUNCHER:
+      return content::GetProcessLauncherTaskRunner();
     case TID_IO:
       id = BrowserThread::IO;
       break;
@@ -81,7 +84,7 @@ scoped_refptr<base::SingleThreadTaskRunner> CefTaskRunnerImpl::GetTaskRunner(
   };
 
   if (id >= 0 &&
-      BrowserThread::IsMessageLoopValid(static_cast<BrowserThread::ID>(id))) {
+      BrowserThread::IsThreadInitialized(static_cast<BrowserThread::ID>(id))) {
     return BrowserThread::GetTaskRunnerForThread(
         static_cast<BrowserThread::ID>(id));
   }
@@ -98,7 +101,7 @@ CefTaskRunnerImpl::GetCurrentTaskRunner() {
   // GetTaskRunner(). Otherwise BelongsToThread() will return incorrect results.
   BrowserThread::ID current_id;
   if (BrowserThread::GetCurrentThreadIdentifier(&current_id) &&
-      BrowserThread::IsMessageLoopValid(current_id)) {
+      BrowserThread::IsThreadInitialized(current_id)) {
     task_runner = BrowserThread::GetTaskRunnerForThread(current_id);
   }
 

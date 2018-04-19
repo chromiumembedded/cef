@@ -1,2 +1,2 @@
 @echo off
-python.bat tools\patcher.py
+python.bat %~dp0\patcher.py

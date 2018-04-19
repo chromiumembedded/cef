@@ -15,7 +15,7 @@
 #include "components/keyed_service/core/keyed_service_shutdown_notifier.h"
 #include "components/prefs/pref_member.h"
 #include "content/public/browser/browser_message_filter.h"
-#include "printing/features/features.h"
+#include "printing/buildflags/buildflags.h"
 
 struct PrintHostMsg_ScriptedPrint_Params;
 class Profile;

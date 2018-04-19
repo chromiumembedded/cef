@@ -1,8 +1,8 @@
 diff --git chrome/browser/spellchecker/spellcheck_factory.cc chrome/browser/spellchecker/spellcheck_factory.cc
-index 20054d12bc55..106c18216e57 100644
+index 64b5243d510a..8ae3001f85fc 100644
 --- chrome/browser/spellchecker/spellcheck_factory.cc
 +++ chrome/browser/spellchecker/spellcheck_factory.cc
-@@ -18,6 +18,13 @@
+@@ -17,6 +17,13 @@
  #include "services/service_manager/public/cpp/identity.h"
  #include "ui/base/l10n/l10n_util.h"
  
@@ -16,7 +16,7 @@ index 20054d12bc55..106c18216e57 100644
  // static
  SpellcheckService* SpellcheckServiceFactory::GetForContext(
      content::BrowserContext* context) {
-@@ -38,7 +45,7 @@ SpellcheckService* SpellcheckServiceFactory::GetForRenderer(
+@@ -37,7 +44,7 @@ SpellcheckService* SpellcheckServiceFactory::GetForRenderer(
  
  // static
  SpellcheckServiceFactory* SpellcheckServiceFactory::GetInstance() {
@@ -97,7 +97,7 @@ index 2907619549ba..f941fba363b5 100644
  
    SupervisedUserSettingsServiceFactory();
 diff --git chrome/browser/ui/prefs/prefs_tab_helper.cc chrome/browser/ui/prefs/prefs_tab_helper.cc
-index 23dfe243fb83..7eb879cadcbb 100644
+index 5486b8e15cb4..9015c41f1f81 100644
 --- chrome/browser/ui/prefs/prefs_tab_helper.cc
 +++ chrome/browser/ui/prefs/prefs_tab_helper.cc
 @@ -11,8 +11,8 @@

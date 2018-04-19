@@ -473,7 +473,7 @@ class CefBrowserHostImpl : public CefBrowserHost,
       content::WebContents* web_contents,
       const content::MediaStreamRequest& request,
       const content::MediaResponseCallback& callback) override;
-  bool CheckMediaAccessPermission(content::WebContents* web_contents,
+  bool CheckMediaAccessPermission(content::RenderFrameHost* render_frame_host,
                                   const GURL& security_origin,
                                   content::MediaStreamType type) override;
   bool IsNeverVisible(content::WebContents* web_contents) override;
@@ -626,6 +626,8 @@ class CefBrowserHostImpl : public CefBrowserHost,
   // Create the CefFileDialogManager if it doesn't already exist.
   void EnsureFileDialogManager();
 
+  void ConfigureAutoResize();
+
   // Send a message to the RenderViewHost associated with this browser.
   // TODO(cef): With the introduction of OOPIFs, WebContents can span multiple
   // processes. Messages should be sent to specific RenderFrameHosts instead.
@@ -726,6 +728,11 @@ class CefBrowserHostImpl : public CefBrowserHost,
   extensions::ExtensionHost* extension_host_ = nullptr;
   CefRefPtr<CefExtension> extension_;
   bool is_background_host_ = false;
+
+  // Used with auto-resize.
+  bool auto_resize_enabled_ = false;
+  gfx::Size auto_resize_min_;
+  gfx::Size auto_resize_max_;
 
   IMPLEMENT_REFCOUNTING(CefBrowserHostImpl);
   DISALLOW_COPY_AND_ASSIGN(CefBrowserHostImpl);

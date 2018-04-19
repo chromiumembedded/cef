@@ -1,8 +1,8 @@
 diff --git ui/gl/init/gl_initializer_mac.cc ui/gl/init/gl_initializer_mac.cc
-index 828ce9bb0138..1301e6cc1d14 100644
+index d58e64ff1939..d83df5dc84ee 100644
 --- ui/gl/init/gl_initializer_mac.cc
 +++ ui/gl/init/gl_initializer_mac.cc
-@@ -40,11 +40,8 @@ bool InitializeOneOffForSandbox() {
+@@ -47,11 +47,8 @@ bool InitializeOneOffForSandbox() {
    // GPU-related stuff is very slow without this, probably because
    // the sandbox prevents loading graphics drivers or some such.
    std::vector<CGLPixelFormatAttribute> attribs;

@@ -34,7 +34,7 @@
 #include "content/public/common/content_switches.h"
 #include "content/public/common/main_function_params.h"
 #include "extensions/common/constants.h"
-#include "ipc/ipc_features.h"
+#include "ipc/ipc_buildflags.h"
 #include "pdf/pdf_ppapi.h"
 #include "ui/base/layout.h"
 #include "ui/base/material_design/material_design_controller.h"

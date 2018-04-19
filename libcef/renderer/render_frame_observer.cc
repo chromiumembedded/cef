@@ -14,13 +14,13 @@
 
 #include "libcef/common/cef_messages.h"
 #include "libcef/common/content_client.h"
+#include "libcef/renderer/blink_glue.h"
 #include "libcef/renderer/content_renderer_client.h"
 #include "libcef/renderer/v8_impl.h"
-#include "libcef/renderer/webkit_glue.h"
 
 #include "content/public/renderer/render_frame.h"
-#include "third_party/WebKit/public/web/WebKit.h"
-#include "third_party/WebKit/public/web/WebLocalFrame.h"
+#include "third_party/blink/public/web/blink.h"
+#include "third_party/blink/public/web/web_local_frame.h"
 
 CefRenderFrameObserver::CefRenderFrameObserver(
     content::RenderFrame* render_frame)
@@ -138,7 +138,7 @@ void CefRenderFrameObserver::WillReleaseScriptContext(
         // The released context should not be used for script execution.
         // Depending on how the context is released this may or may not already
         // be set.
-        webkit_glue::CefScriptForbiddenScope forbidScript;
+        blink_glue::CefScriptForbiddenScope forbidScript;
 
         CefRefPtr<CefV8Context> contextPtr(
             new CefV8ContextImpl(isolate, context));

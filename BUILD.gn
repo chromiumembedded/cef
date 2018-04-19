@@ -100,11 +100,11 @@ import("//build/config/sanitizers/sanitizers.gni")
 import("//build/config/ui.gni")
 import("//cef/cef_repack_locales.gni")
 import("//chrome/common/features.gni")
-import("//extensions/features/features.gni")
+import("//extensions/buildflags/buildflags.gni")
 import("//media/media_options.gni")
 import("//mojo/public/tools/bindings/mojom.gni")
-import("//ppapi/features/features.gni")
-import("//printing/features/features.gni")
+import("//ppapi/buildflags/buildflags.gni")
+import("//printing/buildflags/buildflags.gni")
 import("//services/catalog/public/tools/catalog.gni")
 import("//services/service_manager/public/service_manifest.gni")
 import("//third_party/icu/config.gni")
@@ -274,8 +274,8 @@ if (is_win) {
 
       # Required by chrome_switches.cc
       "//chrome/common:buildflags",
-      "//ppapi/features:features",
-      "//printing/features:features",
+      "//ppapi/buildflags:buildflags",
+      "//printing/buildflags:buildflags",
       "//ui/base:ui_features",
     ]
   }
@@ -698,10 +698,9 @@ static_library("libcef_static") {
     "//device/base",
     "//extensions/browser",
     "//extensions/browser/api:api_registration",
+    "//extensions/buildflags",
     "//extensions/common/api",
-    "//extensions/features",
     "//extensions/renderer",
-    "//extensions/utility",
     "//gpu",
     "//ipc",
     "//media",
@@ -711,8 +710,8 @@ static_library("libcef_static") {
     "//net:net_utility_services",
     "//net:net_with_v8",
     "//pdf",
-    "//ppapi/features",
-    "//printing/features",
+    "//ppapi/buildflags",
+    "//printing/buildflags",
     "//services/network:network_service",
     "//services/network/public/cpp",
     "//services/service_manager/embedder",
@@ -720,14 +719,14 @@ static_library("libcef_static") {
     "//services/service_manager/runner/common",
     "//skia",
     "//storage/browser",
+    "//third_party/blink/public:blink",
     "//third_party/brotli:dec",
     "//third_party/cld_3/src/src:cld_3",
     "//third_party/hunspell",
     "//third_party/leveldatabase",
     "//third_party/libxml",
-    "//third_party/WebKit/public:blink",
     "//third_party/widevine/cdm:headers",
-    "//third_party/widevine/cdm:widevinecdmadapter",
+    "//third_party/widevine/cdm",
     "//third_party/icu",
     "//third_party/zlib:minizip",
     "//ui/base",
@@ -1075,11 +1074,11 @@ template("cef_pak_scaled") {
     # Each input pak file should also have a deps line for completeness.
     # Add associated .h files in the make_pack_header("resources") target.
     sources = [
-      "$root_gen_dir/blink/public/resources/blink_scaled_resources_${percent}_percent.pak",
       "$root_gen_dir/chrome/renderer_resources_${percent}_percent.pak",
       "$root_gen_dir/components/components_resources_${percent}_percent.pak",
       "$root_gen_dir/content/app/resources/content_resources_${percent}_percent.pak",
       "$root_gen_dir/extensions/extensions_browser_resources_${percent}_percent.pak",
+      "$root_gen_dir/third_party/blink/public/resources/blink_scaled_resources_${percent}_percent.pak",
       "$root_gen_dir/ui/resources/ui_resources_${percent}_percent.pak",
     ]
 
@@ -1087,18 +1086,18 @@ template("cef_pak_scaled") {
     # the libcef_static target. Grit deps that generate .cc files must be
     # listed both here and in the libcef_static target.
     public_deps = [
-      "//third_party/WebKit/public:scaled_resources",
       "//chrome/renderer:resources",
       "//components/resources:components_scaled_resources",
       "//content/app/resources",
       "//extensions:extensions_browser_resources",
+      "//third_party/blink/public:scaled_resources",
       "//ui/resources:ui_resources_grd",
     ]
 
     deps = [
       # This repack target generates the blink_scaled_resources_*_percent.pak
       # file but doesn't expose the public_deps required by make_pack_header.
-      "//third_party/WebKit/public:scaled_resources_${percent}_percent",
+      "//third_party/blink/public:scaled_resources_${percent}_percent",
     ]
 
     if (toolkit_views) {
@@ -1215,7 +1214,6 @@ repack("pak") {
   # Each input pak file should also have a deps line for completeness.
   # Add associated .h files in the make_pack_header("resources") target.
   sources = [
-    "$root_gen_dir/blink/public/resources/blink_resources.pak",
     "$root_gen_dir/chrome/browser_resources.pak",
     "$root_gen_dir/chrome/net_internals_resources.pak",
     "$root_gen_dir/chrome/common_resources.pak",
@@ -1224,13 +1222,13 @@ repack("pak") {
     "$root_gen_dir/content/browser/tracing/tracing_resources.pak",
     "$root_gen_dir/content/content_resources.pak",
     "$root_gen_dir/net/net_resources.pak",
+    "$root_gen_dir/third_party/blink/public/resources/blink_resources.pak",
   ]
 
   # Use public_deps so that generated grit headers are discoverable from
   # the libcef_static target. Grit deps that generate .cc files must be
   # listed both here and in the libcef_static target.
   public_deps = [
-    "//third_party/WebKit/public:resources_grit",
     "//chrome/browser:resources",
     "//chrome/browser/resources:net_internals_resources",
     "//chrome/common:resources",
@@ -1239,6 +1237,7 @@ repack("pak") {
     "//content/browser/tracing:resources",
     "//content:resources",
     "//net:net_resources",
+    "//third_party/blink/public:resources",
   ]
 
   output = "$root_out_dir/cef.pak"
@@ -1275,9 +1274,6 @@ template("make_pack_header") {
 make_pack_header("resources") {
   header = "$root_out_dir/includes/include/cef_pack_resources.h"
   inputs = [
-    "$root_gen_dir/blink/public/resources/grit/media_controls_resources.h",
-    "$root_gen_dir/blink/public/resources/grit/blink_image_resources.h",
-    "$root_gen_dir/blink/public/resources/grit/blink_resources.h",
     "$root_gen_dir/cef/grit/cef_resources.h",
     "$root_gen_dir/chrome/grit/browser_resources.h",
     "$root_gen_dir/chrome/grit/common_resources.h",
@@ -1292,6 +1288,7 @@ make_pack_header("resources") {
     "$root_gen_dir/extensions/grit/extensions_renderer_resources.h",
     "$root_gen_dir/extensions/grit/extensions_resources.h",
     "$root_gen_dir/net/grit/net_resources.h",
+    "$root_gen_dir/third_party/blink/public/resources/grit/blink_resources.h",
     "$root_gen_dir/ui/resources/grit/ui_resources.h",
     "$root_gen_dir/ui/resources/grit/webui_resources.h",
     "$root_gen_dir/ui/views/resources/grit/views_resources.h",
@@ -1357,7 +1354,6 @@ if (is_mac) {
       "$root_out_dir/cef_200_percent.pak",
       "$root_out_dir/cef_extensions.pak",
       "$root_out_dir/devtools_resources.pak",
-      "$root_out_dir/$widevine_cdm_path/widevinecdmadapter.plugin",
     ]
 
     public_deps = [
@@ -1366,7 +1362,6 @@ if (is_mac) {
       ":pak_200_percent",
       ":pak_devtools",
       ":pak_extensions",
-      "//third_party/widevine/cdm:widevinecdmadapter",
     ]
 
     if (icu_use_data_file) {
@@ -1393,6 +1388,11 @@ if (is_mac) {
 
   mac_framework_bundle("cef_framework") {
     output_name = cef_framework_name
+
+    framework_version = "A"
+    framework_contents = [
+      "Resources",
+    ]
 
     sources = gypi_paths2.includes_common +
               gypi_paths2.includes_mac +
@@ -1429,11 +1429,11 @@ if (is_mac) {
     if (is_component_build) {
       # Set up the rpath for the framework so that it can find dylibs in the
       # root output directory. The framework is at
-      # $app_name.app/Contents/Frameworks/$output_name.framework/$output_name
+      # $app_name.app/Contents/Frameworks/$output_name.framework/Versions/A/$output_name
       # so use loader_path to go back to the root output directory.
       ldflags += [
         "-rpath",
-        "@loader_path/../../../..",
+        "@loader_path/../../../../../..",
       ]
     }
 

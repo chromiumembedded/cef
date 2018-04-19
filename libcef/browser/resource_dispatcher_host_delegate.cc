@@ -30,64 +30,9 @@
 #include "net/http/http_response_headers.h"
 #include "net/url_request/url_request.h"
 
-namespace {
-
-void SendExecuteMimeTypeHandlerEvent(
-    std::unique_ptr<content::StreamInfo> stream,
-    int64_t expected_content_size,
-    const std::string& extension_id,
-    const std::string& view_id,
-    bool embedded,
-    int frame_tree_node_id,
-    int render_process_id,
-    int render_frame_id) {
-  CEF_REQUIRE_UIT();
-
-  content::WebContents* web_contents = nullptr;
-  if (frame_tree_node_id != -1) {
-    web_contents =
-        content::WebContents::FromFrameTreeNodeId(frame_tree_node_id);
-  } else {
-    web_contents = content::WebContents::FromRenderFrameHost(
-        content::RenderFrameHost::FromID(render_process_id, render_frame_id));
-  }
-  if (!web_contents)
-    return;
-
-  CefRefPtr<CefBrowserHostImpl> browser =
-      CefBrowserHostImpl::GetBrowserForContents(web_contents);
-  if (!browser.get())
-    return;
-
-  content::BrowserContext* browser_context = web_contents->GetBrowserContext();
-
-  extensions::StreamsPrivateAPI* streams_private =
-      extensions::StreamsPrivateAPI::Get(browser_context);
-  if (!streams_private)
-    return;
-
-  streams_private->ExecuteMimeTypeHandler(
-      extension_id, std::move(stream), view_id, expected_content_size, embedded,
-      frame_tree_node_id, render_process_id, render_frame_id);
-}
-
-}  // namespace
-
 CefResourceDispatcherHostDelegate::CefResourceDispatcherHostDelegate() {}
 
 CefResourceDispatcherHostDelegate::~CefResourceDispatcherHostDelegate() {}
-
-bool CefResourceDispatcherHostDelegate::HandleExternalProtocol(
-    const GURL& url,
-    content::ResourceRequestInfo* info) {
-  CEF_POST_TASK(
-      CEF_UIT,
-      base::Bind(base::IgnoreResult(&CefResourceDispatcherHostDelegate::
-                                        HandleExternalProtocolOnUIThread),
-                 base::Unretained(this), url,
-                 info->GetWebContentsGetterForRequest()));
-  return false;
-}
 
 // Implementation based on
 // ChromeResourceDispatcherHostDelegate::ShouldInterceptResourceAsStream.
@@ -150,12 +95,14 @@ void CefResourceDispatcherHostDelegate::OnStreamCreated(
       stream_target_info_.find(request);
   CHECK(ix != stream_target_info_.end());
   bool embedded = info->GetResourceType() != content::RESOURCE_TYPE_MAIN_FRAME;
-  CEF_POST_TASK(
-      CEF_UIT,
-      base::Bind(&SendExecuteMimeTypeHandlerEvent, base::Passed(&stream),
-                 request->GetExpectedContentSize(), ix->second.extension_id,
-                 ix->second.view_id, embedded, info->GetFrameTreeNodeId(),
-                 info->GetChildID(), info->GetRenderFrameID()));
+  content::BrowserThread::PostTask(
+      content::BrowserThread::UI, FROM_HERE,
+      base::BindOnce(
+          &extensions::StreamsPrivateAPI::SendExecuteMimeTypeHandlerEvent,
+          request->GetExpectedContentSize(), ix->second.extension_id,
+          ix->second.view_id, embedded, info->GetFrameTreeNodeId(),
+          info->GetChildID(), info->GetRenderFrameID(), std::move(stream),
+          nullptr /* transferrable_loader */, GURL()));
   stream_target_info_.erase(request);
 }
 
@@ -176,19 +123,5 @@ void CefResourceDispatcherHostDelegate::OnRequestRedirected(
         "Access-Control-Allow-Origin: " + active_url.scheme() + "://" +
         active_url.host());
     response->head.headers->AddHeader("Access-Control-Allow-Credentials: true");
-  }
-}
-
-void CefResourceDispatcherHostDelegate::HandleExternalProtocolOnUIThread(
-    const GURL& url,
-    const content::ResourceRequestInfo::WebContentsGetter&
-        web_contents_getter) {
-  CEF_REQUIRE_UIT();
-  content::WebContents* web_contents = web_contents_getter.Run();
-  if (web_contents) {
-    CefRefPtr<CefBrowserHostImpl> browser =
-        CefBrowserHostImpl::GetBrowserForContents(web_contents);
-    if (browser.get())
-      browser->HandleExternalProtocol(url);
   }
 }

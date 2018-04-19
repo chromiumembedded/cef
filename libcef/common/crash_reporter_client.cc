@@ -556,7 +556,7 @@ void CefCrashReporterClient::InitializeCrashReportingForProcess() {
     if (embedded_handler) {
       crash_reporter::InitializeCrashpadWithEmbeddedHandler(
           process_type.empty(), install_static::UTF16ToUTF8(process_type),
-          std::string());
+          std::string(), base::FilePath());
     } else {
       crash_reporter::InitializeCrashpad(
           process_type.empty(), install_static::UTF16ToUTF8(process_type));
@@ -603,6 +603,12 @@ bool CefCrashReporterClient::GetCrashMetricsLocation(
 
 void CefCrashReporterClient::GetProductNameAndVersion(const char** product_name,
                                                       const char** version) {
+  GetProductNameAndVersion(product_name, version, nullptr);
+}
+
+void CefCrashReporterClient::GetProductNameAndVersion(const char** product_name,
+                                                      const char** version,
+                                                      const char** channel) {
   *product_name = product_name_.c_str();
   *version = product_version_.c_str();
 }

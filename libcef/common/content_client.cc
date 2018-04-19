@@ -204,15 +204,19 @@ void CefContentClient::AddPepperPlugins(
   ComputeBuiltInPlugins(plugins);
   AddPepperFlashFromCommandLine(plugins);
 
-#if defined(OS_LINUX)
-#if defined(WIDEVINE_CDM_AVAILABLE) && BUILDFLAG(ENABLE_LIBRARY_CDMS)
-  CefWidevineLoader::AddPepperPlugins(plugins);
-#endif
-#endif
-
   content::PepperPluginInfo plugin;
   if (GetSystemPepperFlash(&plugin))
     plugins->push_back(plugin);
+}
+
+void CefContentClient::AddContentDecryptionModules(
+    std::vector<content::CdmInfo>* cdms,
+    std::vector<media::CdmHostFilePath>* cdm_host_file_paths) {
+#if defined(OS_LINUX)
+#if defined(WIDEVINE_CDM_AVAILABLE) && BUILDFLAG(ENABLE_LIBRARY_CDMS)
+  CefWidevineLoader::AddContentDecryptionModules(cdms, cdm_host_file_paths);
+#endif
+#endif
 }
 
 void CefContentClient::AddAdditionalSchemes(Schemes* schemes) {

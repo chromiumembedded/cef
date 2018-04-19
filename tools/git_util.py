@@ -94,20 +94,22 @@ def git_apply_patch_file(patch_path, patch_dir):
     sys.stdout.write('... patch directory is not a repository root.\n')
     return 'fail'
 
+  config = '-p0 --ignore-whitespace'
+
   # Output patch contents.
-  cmd = '%s apply -p0 --numstat' % git_exe
+  cmd = '%s apply %s --numstat' % (git_exe, config)
   result = exec_cmd(cmd, patch_dir, patch_string)
   write_indented_output(result['out'].replace('<stdin>', patch_name))
 
   # Reverse check to see if the patch has already been applied.
-  cmd = '%s apply -p0 --reverse --check' % git_exe
+  cmd = '%s apply %s --reverse --check' % (git_exe, config)
   result = exec_cmd(cmd, patch_dir, patch_string)
   if result['err'].find('error:') < 0:
     sys.stdout.write('... already applied (skipping).\n')
     return 'skip'
 
   # Normal check to see if the patch can be applied cleanly.
-  cmd = '%s apply -p0 --check' % git_exe
+  cmd = '%s apply %s --check' % (git_exe, config)
   result = exec_cmd(cmd, patch_dir, patch_string)
   if result['err'].find('error:') >= 0:
     sys.stdout.write('... failed to apply:\n')
@@ -116,7 +118,7 @@ def git_apply_patch_file(patch_path, patch_dir):
 
   # Apply the patch file. This should always succeed because the previous
   # command succeeded.
-  cmd = '%s apply -p0' % git_exe
+  cmd = '%s apply %s' % (git_exe, config)
   result = exec_cmd(cmd, patch_dir, patch_string)
   if result['err'] == '':
     sys.stdout.write('... successfully applied.\n')

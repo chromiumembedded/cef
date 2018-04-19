@@ -8,11 +8,7 @@
 
 #include "libcef/browser/browser_main.h"
 
-#include "cef/grit/cef_strings.h"
-#include "content/public/browser/utility_process_host.h"
-#include "content/public/browser/utility_process_host_client.h"
-#include "ui/base/l10n/l10n_util.h"
-#include "ui/gfx/win/direct_write.h"
+#include "base/logging.h"
 
 void CefBrowserMainParts::PlatformInitialize() {
   HRESULT res;

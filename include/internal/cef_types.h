@@ -1424,6 +1424,11 @@ typedef enum {
   TID_FILE_USER_BLOCKING,
 
   ///
+  // Used to launch and terminate browser processes.
+  ///
+  TID_PROCESS_LAUNCHER,
+
+  ///
   // Used to process IPC and network messages. Do not perform blocking tasks on
   // this thread. All tasks posted after
   // CefBrowserProcessHandler::OnContextInitialized() and before CefShutdown()

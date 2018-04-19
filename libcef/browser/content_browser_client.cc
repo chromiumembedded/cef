@@ -75,7 +75,9 @@
 #include "content/public/common/service_names.mojom.h"
 #include "content/public/common/storage_quota_params.h"
 #include "content/public/common/web_preferences.h"
+#include "extensions/browser/api/web_request/web_request_api.h"
 #include "extensions/browser/extension_message_filter.h"
+#include "extensions/browser/extension_protocols.h"
 #include "extensions/browser/extension_registry.h"
 #include "extensions/browser/extensions_browser_client.h"
 #include "extensions/browser/guest_view/extensions_guest_view_message_filter.h"
@@ -86,7 +88,7 @@
 #include "ppapi/host/ppapi_host.h"
 #include "services/service_manager/public/mojom/connector.mojom.h"
 #include "storage/browser/quota/quota_settings.h"
-#include "third_party/WebKit/public/web/WebWindowFeatures.h"
+#include "third_party/blink/public/web/web_window_features.h"
 #include "ui/base/l10n/l10n_util.h"
 #include "ui/base/resource/resource_bundle.h"
 #include "ui/base/ui_base_switches.h"
@@ -729,7 +731,7 @@ void CefContentBrowserClient::AppendExtraCommandLineSwitches(
 #if defined(WIDEVINE_CDM_AVAILABLE) && BUILDFLAG(ENABLE_LIBRARY_CDMS)
     if (!browser_cmd->HasSwitch(switches::kNoSandbox)) {
       // Pass the Widevine CDM path to the Zygote process. See comments in
-      // CefWidevineLoader::AddPepperPlugins.
+      // CefWidevineLoader::AddContentDecryptionModules.
       const base::FilePath& cdm_path = CefWidevineLoader::GetInstance()->path();
       if (!cdm_path.empty())
         command_line->AppendSwitchPath(switches::kWidevineCdmPath, cdm_path);
@@ -1025,6 +1027,68 @@ CefContentBrowserClient::CreateClientCertStore(
       ->CreateClientCertStore();
 }
 
+void CefContentBrowserClient::RegisterNonNetworkNavigationURLLoaderFactories(
+    content::RenderFrameHost* frame_host,
+    NonNetworkURLLoaderFactoryMap* factories) {
+  if (!extensions::ExtensionsEnabled())
+    return;
+
+  content::BrowserContext* browser_context =
+      frame_host->GetProcess()->GetBrowserContext();
+  factories->emplace(
+      extensions::kExtensionScheme,
+      extensions::CreateExtensionNavigationURLLoaderFactory(
+          frame_host,
+          extensions::ExtensionSystem::Get(browser_context)->info_map()));
+}
+
+void CefContentBrowserClient::RegisterNonNetworkSubresourceURLLoaderFactories(
+    content::RenderFrameHost* frame_host,
+    const GURL& frame_url,
+    NonNetworkURLLoaderFactoryMap* factories) {
+  if (!extensions::ExtensionsEnabled())
+    return;
+
+  content::BrowserContext* browser_context =
+      frame_host->GetProcess()->GetBrowserContext();
+  auto factory = extensions::MaybeCreateExtensionSubresourceURLLoaderFactory(
+      frame_host, frame_url,
+      extensions::ExtensionSystem::Get(browser_context)->info_map());
+  if (factory)
+    factories->emplace(extensions::kExtensionScheme, std::move(factory));
+}
+
+bool CefContentBrowserClient::WillCreateURLLoaderFactory(
+    content::RenderFrameHost* frame,
+    bool is_navigation,
+    network::mojom::URLLoaderFactoryRequest* factory_request) {
+  if (!extensions::ExtensionsEnabled())
+    return false;
+
+  auto* web_request_api =
+      extensions::BrowserContextKeyedAPIFactory<extensions::WebRequestAPI>::Get(
+          frame->GetProcess()->GetBrowserContext());
+  return web_request_api->MaybeProxyURLLoaderFactory(frame, is_navigation,
+                                                     factory_request);
+}
+
+bool CefContentBrowserClient::HandleExternalProtocol(
+    const GURL& url,
+    content::ResourceRequestInfo::WebContentsGetter web_contents_getter,
+    int child_id,
+    content::NavigationUIData* navigation_data,
+    bool is_main_frame,
+    ui::PageTransition page_transition,
+    bool has_user_gesture) {
+  CEF_POST_TASK(
+      CEF_UIT,
+      base::Bind(
+          base::IgnoreResult(
+              &CefContentBrowserClient::HandleExternalProtocolOnUIThread),
+          url, web_contents_getter));
+  return false;
+}
+
 void CefContentBrowserClient::RegisterCustomScheme(const std::string& scheme) {
   // Register as a Web-safe scheme so that requests for the scheme from a
   // render process will be allowed in resource_dispatcher_host_impl.cc
@@ -1067,4 +1131,19 @@ const extensions::Extension* CefContentBrowserClient::GetExtension(
     return nullptr;
   return registry->enabled_extensions().GetExtensionOrAppByURL(
       site_instance->GetSiteURL());
+}
+
+// static
+void CefContentBrowserClient::HandleExternalProtocolOnUIThread(
+    const GURL& url,
+    const content::ResourceRequestInfo::WebContentsGetter&
+        web_contents_getter) {
+  CEF_REQUIRE_UIT();
+  content::WebContents* web_contents = web_contents_getter.Run();
+  if (web_contents) {
+    CefRefPtr<CefBrowserHostImpl> browser =
+        CefBrowserHostImpl::GetBrowserForContents(web_contents);
+    if (browser.get())
+      browser->HandleExternalProtocol(url);
+  }
 }

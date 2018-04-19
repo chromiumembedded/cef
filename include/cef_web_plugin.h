@@ -179,9 +179,6 @@ class CefRegisterCdmCallback : public virtual CefBaseRefCounted {
 //   2. widevinecdm file from the CDM binary distribution (e.g.
 //      widevinecdm.dll on on Windows, libwidevinecdm.dylib on OS X,
 //      libwidevinecdm.so on Linux).
-//   3. widevidecdmadapter file from the CEF binary distribution (e.g.
-//      widevinecdmadapter.dll on Windows, widevinecdmadapter.plugin on OS X,
-//      libwidevinecdmadapter.so on Linux).
 //
 // If any of these files are missing or if the manifest file has incorrect
 // contents the registration will fail and |callback| will receive a |result|

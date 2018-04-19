@@ -127,6 +127,27 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
   std::unique_ptr<net::ClientCertStore> CreateClientCertStore(
       content::ResourceContext* resource_context) override;
 
+  void RegisterNonNetworkNavigationURLLoaderFactories(
+      content::RenderFrameHost* frame_host,
+      NonNetworkURLLoaderFactoryMap* factories) override;
+  void RegisterNonNetworkSubresourceURLLoaderFactories(
+      content::RenderFrameHost* frame_host,
+      const GURL& frame_url,
+      NonNetworkURLLoaderFactoryMap* factories) override;
+  bool WillCreateURLLoaderFactory(
+      content::RenderFrameHost* frame,
+      bool is_navigation,
+      network::mojom::URLLoaderFactoryRequest* factory_request) override;
+
+  bool HandleExternalProtocol(
+      const GURL& url,
+      content::ResourceRequestInfo::WebContentsGetter web_contents_getter,
+      int child_id,
+      content::NavigationUIData* navigation_data,
+      bool is_main_frame,
+      ui::PageTransition page_transition,
+      bool has_user_gesture) override;
+
   // Perform browser process registration for the custom scheme.
   void RegisterCustomScheme(const std::string& scheme);
 
@@ -141,6 +162,11 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
   // Returns the extension or app associated with |site_instance| or NULL.
   const extensions::Extension* GetExtension(
       content::SiteInstance* site_instance);
+
+  static void HandleExternalProtocolOnUIThread(
+      const GURL& url,
+      const content::ResourceRequestInfo::WebContentsGetter&
+          web_contents_getter);
 
   CefBrowserMainParts* browser_main_parts_;
 

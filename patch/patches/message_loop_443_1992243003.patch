@@ -1,8 +1,8 @@
 diff --git base/message_loop/message_loop.h base/message_loop/message_loop.h
-index 27ee7fe8155b..353a61c3badd 100644
+index 439d364fc54c..6cbe494e7041 100644
 --- base/message_loop/message_loop.h
 +++ base/message_loop/message_loop.h
-@@ -266,6 +266,16 @@ class BASE_EXPORT MessageLoop : public MessagePump::Delegate,
+@@ -257,6 +257,16 @@ class BASE_EXPORT MessageLoop : public MessagePump::Delegate,
    void AddTaskObserver(TaskObserver* task_observer);
    void RemoveTaskObserver(TaskObserver* task_observer);
  
@@ -19,7 +19,7 @@ index 27ee7fe8155b..353a61c3badd 100644
    // Returns true if the message loop is idle (ignoring delayed tasks). This is
    // the same condition which triggers DoWork() to return false: i.e.
    // out of tasks which can be processed at the current run-level -- there might
-@@ -373,6 +383,12 @@ class BASE_EXPORT MessageLoop : public MessagePump::Delegate,
+@@ -358,6 +368,12 @@ class BASE_EXPORT MessageLoop : public MessagePump::Delegate,
    // is known to generate a system-driven nested loop.
    bool task_execution_allowed_ = true;
  
@@ -33,10 +33,10 @@ index 27ee7fe8155b..353a61c3badd 100644
    // if type_ is TYPE_CUSTOM and pump_ is null.
    MessagePumpFactoryCallback pump_factory_;
 diff --git base/message_loop/message_pump_win.cc base/message_loop/message_pump_win.cc
-index 5069b8524924..e88a3c7974f2 100644
+index b145a1d54a32..9b28169050b2 100644
 --- base/message_loop/message_pump_win.cc
 +++ base/message_loop/message_pump_win.cc
-@@ -366,20 +366,28 @@ bool MessagePumpForUI::ProcessMessageHelper(const MSG& msg) {
+@@ -372,20 +372,28 @@ bool MessagePumpForUI::ProcessMessageHelper(const MSG& msg) {
  }
  
  bool MessagePumpForUI::ProcessPumpReplacementMessage() {

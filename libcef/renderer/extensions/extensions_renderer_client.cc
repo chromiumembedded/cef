@@ -17,6 +17,7 @@
 #include "content/public/renderer/render_frame.h"
 #include "content/public/renderer/render_thread.h"
 #include "extensions/common/constants.h"
+#include "extensions/common/permissions/permissions_data.h"
 #include "extensions/common/switches.h"
 #include "extensions/renderer/dispatcher.h"
 #include "extensions/renderer/extension_frame_helper.h"
@@ -26,9 +27,9 @@
 #include "extensions/renderer/guest_view/mime_handler_view/mime_handler_view_container.h"
 #include "extensions/renderer/renderer_extension_registry.h"
 #include "extensions/renderer/script_context.h"
-#include "third_party/WebKit/public/web/WebDocument.h"
-#include "third_party/WebKit/public/web/WebLocalFrame.h"
-#include "third_party/WebKit/public/web/WebPluginParams.h"
+#include "third_party/blink/public/web/web_document.h"
+#include "third_party/blink/public/web/web_local_frame.h"
+#include "third_party/blink/public/web/web_plugin_params.h"
 
 namespace extensions {
 
@@ -162,21 +163,42 @@ bool CefExtensionsRendererClient::OverrideCreatePlugin(
   return !guest_view_api_available;
 }
 
-bool CefExtensionsRendererClient::WillSendRequest(
+void CefExtensionsRendererClient::WillSendRequest(
     blink::WebLocalFrame* frame,
     ui::PageTransition transition_type,
     const blink::WebURL& url,
-    GURL* new_url) {
+    const url::Origin* initiator_origin,
+    GURL* new_url,
+    bool* attach_same_site_cookies) {
+  if (initiator_origin &&
+      initiator_origin->scheme() == extensions::kExtensionScheme) {
+    const extensions::RendererExtensionRegistry* extension_registry =
+        extensions::RendererExtensionRegistry::Get();
+    const Extension* extension =
+        extension_registry->GetByID(initiator_origin->host());
+    if (extension) {
+      int tab_id = extensions::ExtensionFrameHelper::Get(
+                       content::RenderFrame::FromWebFrame(frame))
+                       ->tab_id();
+      GURL request_url(url);
+      if (extension->permissions_data()->GetPageAccess(extension, request_url,
+                                                       tab_id, nullptr) ==
+              extensions::PermissionsData::ACCESS_ALLOWED ||
+          extension->permissions_data()->GetContentScriptAccess(
+              extension, request_url, tab_id, nullptr) ==
+              extensions::PermissionsData::ACCESS_ALLOWED) {
+        *attach_same_site_cookies = true;
+      }
+    }
+  }
+
   // Check whether the request should be allowed. If not allowed, we reset the
   // URL to something invalid to prevent the request and cause an error.
   if (url.ProtocolIs(extensions::kExtensionScheme) &&
       !resource_request_policy_->CanRequestResource(GURL(url), frame,
                                                     transition_type)) {
     *new_url = GURL(chrome::kExtensionInvalidRequestURL);
-    return true;
   }
-
-  return false;
 }
 
 void CefExtensionsRendererClient::RunScriptsAtDocumentStart(
@@ -250,11 +272,12 @@ bool CefExtensionsRendererClient::ShouldFork(blink::WebLocalFrame* frame,
 content::BrowserPluginDelegate*
 CefExtensionsRendererClient::CreateBrowserPluginDelegate(
     content::RenderFrame* render_frame,
+    const content::WebPluginInfo& info,
     const std::string& mime_type,
     const GURL& original_url) {
   if (mime_type == content::kBrowserPluginMimeType)
     return new extensions::ExtensionsGuestViewContainer(render_frame);
-  return new extensions::MimeHandlerViewContainer(render_frame, mime_type,
+  return new extensions::MimeHandlerViewContainer(render_frame, info, mime_type,
                                                   original_url);
 }
 

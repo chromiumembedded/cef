@@ -25,8 +25,10 @@ class CefStoragePartitionProxy : public content::StoragePartition {
   net::URLRequestContextGetter* GetURLRequestContext() override;
   net::URLRequestContextGetter* GetMediaURLRequestContext() override;
   network::mojom::NetworkContext* GetNetworkContext() override;
-  scoped_refptr<content::SharedURLLoaderFactory>
+  scoped_refptr<network::SharedURLLoaderFactory>
   GetURLLoaderFactoryForBrowserProcess() override;
+  std::unique_ptr<network::SharedURLLoaderFactoryInfo>
+  GetURLLoaderFactoryForBrowserProcessIOThread() override;
   network::mojom::CookieManager* GetCookieManagerForBrowserProcess() override;
   storage::QuotaManager* GetQuotaManager() override;
   content::AppCacheService* GetAppCacheService() override;
@@ -43,6 +45,7 @@ class CefStoragePartitionProxy : public content::StoragePartition {
   content::ZoomLevelDelegate* GetZoomLevelDelegate() override;
   content::PlatformNotificationContext* GetPlatformNotificationContext()
       override;
+  content::WebPackageContext* GetWebPackageContext() override;
   void ClearDataForOrigin(uint32_t remove_mask,
                           uint32_t quota_storage_remove_mask,
                           const GURL& storage_origin) override;

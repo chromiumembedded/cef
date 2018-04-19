@@ -3,8 +3,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CEF_LIBCEF_RENDERER_WEBKIT_GLUE_H_
-#define CEF_LIBCEF_RENDERER_WEBKIT_GLUE_H_
+#ifndef CEF_LIBCEF_RENDERER_BLINK_GLUE_H_
+#define CEF_LIBCEF_RENDERER_BLINK_GLUE_H_
 
 #include <stdint.h>
 
@@ -13,8 +13,8 @@
 
 #include "include/internal/cef_types.h"
 
-#include "third_party/WebKit/Source/platform/loader/fetch/AccessControlStatus.h"
-#include "third_party/WebKit/public/platform/WebCommon.h"
+#include "third_party/blink/public/platform/web_common.h"
+#include "third_party/blink/renderer/platform/loader/fetch/access_control_status.h"
 #include "v8/include/v8.h"
 
 namespace blink {
@@ -26,7 +26,7 @@ class WebURLResponse;
 class WebView;
 }  // namespace blink
 
-namespace webkit_glue {
+namespace blink_glue {
 
 BLINK_EXPORT extern const int64_t kInvalidFrameId;
 
@@ -84,6 +84,6 @@ class BLINK_EXPORT CefScriptForbiddenScope final {
 
 BLINK_EXPORT bool ResponseWasCached(const blink::WebURLResponse& response);
 
-}  // namespace webkit_glue
+}  // namespace blink_glue
 
-#endif  // CEF_LIBCEF_RENDERER_WEBKIT_GLUE_H_
+#endif  // CEF_LIBCEF_RENDERER_BLINK_GLUE_H_

@@ -15,22 +15,22 @@
 #include "libcef/common/cef_messages.h"
 #include "libcef/common/net/http_header_utils.h"
 #include "libcef/common/request_impl.h"
+#include "libcef/renderer/blink_glue.h"
 #include "libcef/renderer/browser_impl.h"
 #include "libcef/renderer/dom_document_impl.h"
 #include "libcef/renderer/render_frame_util.h"
 #include "libcef/renderer/thread_util.h"
 #include "libcef/renderer/v8_impl.h"
-#include "libcef/renderer/webkit_glue.h"
 
-#include "third_party/WebKit/public/platform/WebData.h"
-#include "third_party/WebKit/public/platform/WebString.h"
-#include "third_party/WebKit/public/platform/WebURL.h"
-#include "third_party/WebKit/public/web/WebDocument.h"
-#include "third_party/WebKit/public/web/WebFrameContentDumper.h"
-#include "third_party/WebKit/public/web/WebKit.h"
-#include "third_party/WebKit/public/web/WebLocalFrame.h"
-#include "third_party/WebKit/public/web/WebScriptSource.h"
-#include "third_party/WebKit/public/web/WebView.h"
+#include "third_party/blink/public/platform/web_data.h"
+#include "third_party/blink/public/platform/web_string.h"
+#include "third_party/blink/public/platform/web_url.h"
+#include "third_party/blink/public/web/blink.h"
+#include "third_party/blink/public/web/web_document.h"
+#include "third_party/blink/public/web/web_frame_content_dumper.h"
+#include "third_party/blink/public/web/web_local_frame.h"
+#include "third_party/blink/public/web/web_script_source.h"
+#include "third_party/blink/public/web/web_view.h"
 
 using blink::WebString;
 
@@ -92,7 +92,7 @@ void CefFrameImpl::GetText(CefRefPtr<CefStringVisitor> visitor) {
   CEF_REQUIRE_RT_RETURN_VOID();
 
   if (frame_) {
-    const CefString& content = webkit_glue::DumpDocumentText(frame_);
+    const CefString& content = blink_glue::DumpDocumentText(frame_);
     visitor->Visit(content);
   }
 }

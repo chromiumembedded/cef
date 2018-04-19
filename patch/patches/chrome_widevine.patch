@@ -1,8 +1,8 @@
 diff --git chrome/common/chrome_content_client.cc chrome/common/chrome_content_client.cc
-index 750df2f7fbbe..5b46bb127102 100644
+index d15599593511..0f37d5933391 100644
 --- chrome/common/chrome_content_client.cc
 +++ chrome/common/chrome_content_client.cc
-@@ -91,7 +91,8 @@
+@@ -92,7 +92,8 @@
  
  #if BUILDFLAG(ENABLE_LIBRARY_CDMS)
  #include "media/cdm/cdm_paths.h"  // nogncheck
@@ -10,5 +10,26 @@ index 750df2f7fbbe..5b46bb127102 100644
 +#if defined(WIDEVINE_CDM_AVAILABLE) && !defined(WIDEVINE_CDM_IS_COMPONENT) && \
 +    defined(WIDEVINE_CDM_VERSION_STRING)
  #define WIDEVINE_CDM_AVAILABLE_NOT_COMPONENT
- #include "chrome/common/widevine_cdm_constants.h"
  #endif
+ #endif  // BUILDFLAG(ENABLE_LIBRARY_CDMS)
+diff --git third_party/widevine/cdm/BUILD.gn third_party/widevine/cdm/BUILD.gn
+index 55b471ea..6dac055 100644
+--- third_party/widevine/cdm/BUILD.gn
++++ third_party/widevine/cdm/BUILD.gn
+@@ -4,6 +4,7 @@
+ 
+ import("//build/config/chrome_build.gni")
+ import("//build/config/features.gni")
++import("//cef/libcef/features/features.gni")
+ import("//media/cdm/library_cdm/cdm_paths.gni")
+ import("//media/media_options.gni")
+ import("//third_party/widevine/cdm/widevine.gni")
+@@ -11,7 +12,7 @@ import("//third_party/widevine/cdm/widevine.gni")
+ # Internal Cast builds set enable_widevine=true to bring in Widevine support.
+ # TODO(xhwang): Support component updated CDM on other platforms and remove this
+ # assert.
+-assert(!enable_widevine || is_win || is_mac || is_chromecast,
++assert(!enable_widevine || is_win || is_mac || is_chromecast || enable_cef,
+        "Component updated CDM only supported on Windows and Mac for now.")
+ 
+ widevine_arch = current_cpu

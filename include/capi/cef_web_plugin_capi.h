@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=ec4f722423ff89dd2ff61fd3336bda1776081023$
+// $hash=8815d0d0778cc210fb6f9ede9dafc5ca51124169$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_WEB_PLUGIN_CAPI_H_
@@ -202,9 +202,6 @@ CEF_EXPORT void cef_is_web_plugin_unstable(
 //   2. widevinecdm file from the CDM binary distribution (e.g.
 //      widevinecdm.dll on on Windows, libwidevinecdm.dylib on OS X,
 //      libwidevinecdm.so on Linux).
-//   3. widevidecdmadapter file from the CEF binary distribution (e.g.
-//      widevinecdmadapter.dll on Windows, widevinecdmadapter.plugin on OS X,
-//      libwidevinecdmadapter.so on Linux).
 //
 // If any of these files are missing or if the manifest file has incorrect
 // contents the registration will fail and |callback| will receive a |result|

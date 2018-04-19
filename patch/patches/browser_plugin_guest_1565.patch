@@ -1,8 +1,8 @@
 diff --git content/browser/browser_plugin/browser_plugin_guest.cc content/browser/browser_plugin/browser_plugin_guest.cc
-index 593f46130e32..5f7d2fe7355d 100644
+index 15994d5dada4..e19eca0c4369 100644
 --- content/browser/browser_plugin/browser_plugin_guest.cc
 +++ content/browser/browser_plugin/browser_plugin_guest.cc
-@@ -322,8 +322,11 @@ void BrowserPluginGuest::InitInternal(
+@@ -315,8 +315,11 @@ void BrowserPluginGuest::InitInternal(
            static_cast<WebContentsViewGuest*>(GetWebContents()->GetView());
      }
  
@@ -15,7 +15,7 @@ index 593f46130e32..5f7d2fe7355d 100644
  
      // Once a BrowserPluginGuest has an embedder WebContents, it's considered to
      // be attached.
-@@ -806,10 +809,19 @@ void BrowserPluginGuest::OnWillAttachComplete(
+@@ -799,10 +802,19 @@ void BrowserPluginGuest::OnWillAttachComplete(
          static_cast<WebContentsViewGuest*>(GetWebContents()->GetView());
      if (!web_contents()->GetRenderViewHost()->GetWidget()->GetView()) {
        web_contents_view->CreateViewForWidget(
@@ -37,10 +37,10 @@ index 593f46130e32..5f7d2fe7355d 100644
  
    attached_ = true;
 diff --git content/browser/frame_host/interstitial_page_impl.cc content/browser/frame_host/interstitial_page_impl.cc
-index 7c83d2a63b2c..070982ea2298 100644
+index af9c604d5785..81d3071b0f3d 100644
 --- content/browser/frame_host/interstitial_page_impl.cc
 +++ content/browser/frame_host/interstitial_page_impl.cc
-@@ -614,7 +614,7 @@ WebContentsView* InterstitialPageImpl::CreateWebContentsView() {
+@@ -618,7 +618,7 @@ WebContentsView* InterstitialPageImpl::CreateWebContentsView() {
    WebContentsView* wcv =
        static_cast<WebContentsImpl*>(web_contents())->GetView();
    RenderWidgetHostViewBase* view =
@@ -79,7 +79,7 @@ index cf8c74f4c744..b8cefb4b154b 100644
    // Creates a new View that holds a popup and receives messages for it.
    virtual RenderWidgetHostViewBase* CreateViewForPopupWidget(
 diff --git content/browser/web_contents/web_contents_view_aura.cc content/browser/web_contents/web_contents_view_aura.cc
-index 13d687ea411e..f16415faa23f 100644
+index 3aea2d29dc40..65ab77f7ddf5 100644
 --- content/browser/web_contents/web_contents_view_aura.cc
 +++ content/browser/web_contents/web_contents_view_aura.cc
 @@ -781,7 +781,8 @@ void WebContentsViewAura::CreateView(const gfx::Size& initial_size,
@@ -101,7 +101,7 @@ index 13d687ea411e..f16415faa23f 100644
        g_create_render_widget_host_view
            ? g_create_render_widget_host_view(render_widget_host,
 diff --git content/browser/web_contents/web_contents_view_aura.h content/browser/web_contents/web_contents_view_aura.h
-index 2371c819e665..40fa46097de1 100644
+index 82807c7f77fd..60bd9ceaf9ee 100644
 --- content/browser/web_contents/web_contents_view_aura.h
 +++ content/browser/web_contents/web_contents_view_aura.h
 @@ -114,7 +114,7 @@ class CONTENT_EXPORT WebContentsViewAura
@@ -266,10 +266,10 @@ index d05dd5421458..fa13775f0512 100644
    // a BrowserPlugin even when we are using cross process frames for guests. It
    // should be removed after resolving https://crbug.com/642826).
 diff --git extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc
-index 6f2b56d0cd90..ec6f15c0a789 100644
+index 6861814915c2..766090cd3b06 100644
 --- extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc
 +++ extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc
-@@ -174,6 +174,8 @@ void MimeHandlerViewGuest::CreateWebContents(
+@@ -192,6 +192,8 @@ void MimeHandlerViewGuest::CreateWebContents(
    WebContents::CreateParams params(browser_context(),
                                     guest_site_instance.get());
    params.guest_delegate = this;
@@ -278,7 +278,7 @@ index 6f2b56d0cd90..ec6f15c0a789 100644
    callback.Run(WebContents::Create(params));
  
    registry_.AddInterface(
-@@ -199,6 +201,18 @@ bool MimeHandlerViewGuest::ShouldDestroyOnDetach() const {
+@@ -225,6 +227,18 @@ bool MimeHandlerViewGuest::ShouldDestroyOnDetach() const {
    return true;
  }
  
@@ -298,10 +298,10 @@ index 6f2b56d0cd90..ec6f15c0a789 100644
      WebContents* source,
      const content::OpenURLParams& params) {
 diff --git extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.h extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.h
-index df25eca4aeae..3072be6a9ca5 100644
+index 2bc53e063aae..9814b40f84ea 100644
 --- extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.h
 +++ extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.h
-@@ -89,6 +89,10 @@ class MimeHandlerViewGuest :
+@@ -108,6 +108,10 @@ class MimeHandlerViewGuest :
    bool ZoomPropagatesFromEmbedderToGuest() const final;
    bool ShouldDestroyOnDetach() const final;
  

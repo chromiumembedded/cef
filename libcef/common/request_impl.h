@@ -13,8 +13,8 @@
 #include "include/cef_request.h"
 
 #include "base/synchronization/lock.h"
-#include "third_party/WebKit/public/platform/WebHTTPBody.h"
-#include "third_party/WebKit/public/platform/WebReferrerPolicy.h"
+#include "third_party/blink/public/platform/web_http_body.h"
+#include "third_party/blink/public/platform/web_referrer_policy.h"
 #include "url/gurl.h"
 
 namespace navigation_interception {

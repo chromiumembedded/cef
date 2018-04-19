@@ -1,2 +1,2 @@
 @echo off
-python.bat make_distrib.py --output-dir ..\binary_distrib\ %*
+python.bat %~dp0\make_distrib.py --output-dir %~dp0\..\binary_distrib\ %*

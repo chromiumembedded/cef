@@ -3,38 +3,39 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "libcef/renderer/webkit_glue.h"
+#include "libcef/renderer/blink_glue.h"
 
 #include "base/compiler_specific.h"
 
 MSVC_PUSH_WARNING_LEVEL(0);
-#include "third_party/WebKit/public/platform/WebString.h"
-#include "third_party/WebKit/public/platform/WebURLResponse.h"
-#include "third_party/WebKit/public/web/WebDocument.h"
-#include "third_party/WebKit/public/web/WebElement.h"
-#include "third_party/WebKit/public/web/WebNode.h"
-#include "third_party/WebKit/public/web/WebViewClient.h"
+#include "third_party/blink/public/platform/web_string.h"
+#include "third_party/blink/public/platform/web_url_response.h"
+#include "third_party/blink/public/web/web_document.h"
+#include "third_party/blink/public/web/web_element.h"
+#include "third_party/blink/public/web/web_node.h"
+#include "third_party/blink/public/web/web_view_client.h"
 
-#include "third_party/WebKit/Source/bindings/core/v8/ScriptController.h"
-#include "third_party/WebKit/Source/bindings/core/v8/ScriptSourceCode.h"
-#include "third_party/WebKit/Source/core/dom/Document.h"
-#include "third_party/WebKit/Source/core/dom/Element.h"
-#include "third_party/WebKit/Source/core/dom/Node.h"
-#include "third_party/WebKit/Source/core/editing/serializers/Serialization.h"
-#include "third_party/WebKit/Source/core/exported/WebViewImpl.h"
-#include "third_party/WebKit/Source/core/frame/LocalFrame.h"
-#include "third_party/WebKit/Source/core/frame/Settings.h"
-#include "third_party/WebKit/Source/core/frame/WebLocalFrameImpl.h"
-#include "third_party/WebKit/Source/platform/bindings/ScriptForbiddenScope.h"
-#include "third_party/WebKit/Source/platform/bindings/V8Binding.h"
-#include "third_party/WebKit/Source/platform/loader/fetch/ResourceResponse.h"
-#include "third_party/WebKit/Source/platform/weborigin/SchemeRegistry.h"
+#include "third_party/blink/renderer/bindings/core/v8/script_controller.h"
+#include "third_party/blink/renderer/bindings/core/v8/script_source_code.h"
+#include "third_party/blink/renderer/bindings/core/v8/v8_binding_for_core.h"
+#include "third_party/blink/renderer/core/dom/document.h"
+#include "third_party/blink/renderer/core/dom/element.h"
+#include "third_party/blink/renderer/core/dom/node.h"
+#include "third_party/blink/renderer/core/editing/serializers/serialization.h"
+#include "third_party/blink/renderer/core/exported/web_view_impl.h"
+#include "third_party/blink/renderer/core/frame/local_frame.h"
+#include "third_party/blink/renderer/core/frame/settings.h"
+#include "third_party/blink/renderer/core/frame/web_local_frame_impl.h"
+#include "third_party/blink/renderer/platform/bindings/script_forbidden_scope.h"
+#include "third_party/blink/renderer/platform/bindings/v8_binding.h"
+#include "third_party/blink/renderer/platform/loader/fetch/resource_response.h"
+#include "third_party/blink/renderer/platform/weborigin/scheme_registry.h"
 MSVC_POP_WARNING();
 #undef LOG
 
 #include "base/logging.h"
 
-namespace webkit_glue {
+namespace blink_glue {
 
 const int64_t kInvalidFrameId = -1;
 
@@ -229,4 +230,4 @@ bool ResponseWasCached(const blink::WebURLResponse& response) {
   return response.ToResourceResponse().WasCached();
 }
 
-}  // namespace webkit_glue
+}  // namespace blink_glue

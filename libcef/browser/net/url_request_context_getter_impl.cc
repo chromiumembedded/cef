@@ -53,7 +53,7 @@
 #include "net/http/transport_security_state.h"
 #include "net/proxy_resolution/dhcp_pac_file_fetcher_factory.h"
 #include "net/proxy_resolution/pac_file_fetcher_impl.h"
-#include "net/proxy_resolution/proxy_service.h"
+#include "net/proxy_resolution/proxy_resolution_service.h"
 #include "net/ssl/ssl_config_service_defaults.h"
 #include "net/url_request/http_user_agent_settings.h"
 #include "net/url_request/url_request.h"
@@ -132,14 +132,14 @@ std::unique_ptr<net::ProxyResolutionService> CreateProxyResolutionService(
 
   std::unique_ptr<net::ProxyResolutionService> proxy_service;
   if (use_v8) {
-    std::unique_ptr<net::DhcpProxyScriptFetcher> dhcp_proxy_script_fetcher;
-    net::DhcpProxyScriptFetcherFactory dhcp_factory;
-    dhcp_proxy_script_fetcher = dhcp_factory.Create(context);
+    std::unique_ptr<net::DhcpPacFileFetcher> dhcp_pac_file_fetcher;
+    net::DhcpPacFileFetcherFactory dhcp_factory;
+    dhcp_pac_file_fetcher = dhcp_factory.Create(context);
 
-    proxy_service = network::CreateProxyServiceUsingMojoFactory(
+    proxy_service = network::CreateProxyResolutionServiceUsingMojoFactory(
         std::move(proxy_resolver_factory), std::move(proxy_config_service),
-        std::make_unique<net::ProxyScriptFetcherImpl>(context),
-        std::move(dhcp_proxy_script_fetcher), context->host_resolver(), net_log,
+        std::make_unique<net::PacFileFetcherImpl>(context),
+        std::move(dhcp_pac_file_fetcher), context->host_resolver(), net_log,
         network_delegate);
   } else {
     proxy_service = net::ProxyResolutionService::CreateUsingSystemProxyResolver(

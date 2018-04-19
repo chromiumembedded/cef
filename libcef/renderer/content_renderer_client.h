@@ -114,15 +114,19 @@ class CefContentRendererClient : public content::ContentRendererClient,
                   bool is_initial_navigation,
                   bool is_server_redirect,
                   bool* send_referrer) override;
-  bool WillSendRequest(blink::WebLocalFrame* frame,
+  void WillSendRequest(blink::WebLocalFrame* frame,
                        ui::PageTransition transition_type,
                        const blink::WebURL& url,
-                       GURL* new_url) override;
+                       const url::Origin* initiator_origin,
+                       GURL* new_url,
+                       bool* attach_same_site_cookies) override;
   unsigned long long VisitedLinkHash(const char* canonical_url,
                                      size_t length) override;
   bool IsLinkVisited(unsigned long long link_hash) override;
+  bool IsOriginIsolatedPepperPlugin(const base::FilePath& plugin_path) override;
   content::BrowserPluginDelegate* CreateBrowserPluginDelegate(
       content::RenderFrame* render_frame,
+      const content::WebPluginInfo& info,
       const std::string& mime_type,
       const GURL& original_url) override;
   void AddSupportedKeySystems(

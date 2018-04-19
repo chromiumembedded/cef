@@ -102,7 +102,6 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
   void InitAsChild(gfx::NativeView parent_view) override;
   void SetSize(const gfx::Size& size) override;
   void SetBounds(const gfx::Rect& rect) override;
-  gfx::Vector2dF GetLastScrollOffset() const override;
   gfx::NativeView GetNativeView() const override;
   gfx::NativeViewAccessible GetNativeViewAccessible() override;
   void Focus() override;
@@ -116,14 +115,12 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
   SkColor background_color() const override;
   bool LockMouse() override;
   void UnlockMouse() override;
+  void TakeFallbackContentFrom(content::RenderWidgetHostView* view) override;
 
 #if defined(OS_MACOSX)
   void SetActive(bool active) override;
   void ShowDefinitionForSelection() override;
-  bool SupportsSpeech() const override;
   void SpeakSelection() override;
-  bool IsSpeaking() const override;
-  void StopSpeaking() override;
   bool ShouldContinueToPauseForFrame() override;
 #endif  // defined(OS_MACOSX)
 
@@ -150,7 +147,7 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
   void SetTooltipText(const base::string16& tooltip_text) override;
 
   gfx::Size GetRequestedRendererSize() const override;
-  gfx::Size GetPhysicalBackingSize() const override;
+  gfx::Size GetCompositorViewportPixelSize() const override;
   void CopyFromSurface(
       const gfx::Rect& src_rect,
       const gfx::Size& output_size,
@@ -158,7 +155,6 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
   void GetScreenInfo(content::ScreenInfo* results) const override;
   gfx::Vector2d GetOffsetFromRootSurface() override;
   gfx::Rect GetBoundsInRootWindow() override;
-  content::RenderWidgetHostImpl* GetRenderWidgetHostImpl() const override;
   viz::SurfaceId GetCurrentSurfaceId() const override;
   content::BrowserAccessibilityManager* CreateBrowserAccessibilityManager(
       content::BrowserAccessibilityDelegate* delegate,
@@ -302,7 +298,9 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
 
 #if defined(OS_MACOSX)
   friend class MacHelper;
-#endif
+  bool UpdateNSViewAndDisplay();
+#endif  // defined(OS_MACOSX)
+
   void PlatformCreateCompositorWidget(bool is_guest_view_hack);
   void PlatformResizeCompositorWidget(const gfx::Size& size);
   void PlatformDestroyCompositorWidget();

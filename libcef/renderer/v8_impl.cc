@@ -24,18 +24,18 @@
 #include "libcef/common/content_client.h"
 #include "libcef/common/task_runner_impl.h"
 #include "libcef/common/tracker.h"
+#include "libcef/renderer/blink_glue.h"
 #include "libcef/renderer/browser_impl.h"
 #include "libcef/renderer/render_frame_util.h"
 #include "libcef/renderer/thread_util.h"
-#include "libcef/renderer/webkit_glue.h"
 
 #include "base/bind.h"
 #include "base/lazy_instance.h"
 #include "base/strings/string_number_conversions.h"
 #include "base/threading/thread_local.h"
-#include "third_party/WebKit/public/web/WebFrame.h"
-#include "third_party/WebKit/public/web/WebKit.h"
-#include "third_party/WebKit/public/web/WebLocalFrame.h"
+#include "third_party/blink/public/web/blink.h"
+#include "third_party/blink/public/web/web_frame.h"
+#include "third_party/blink/public/web/web_local_frame.h"
 #include "url/gurl.h"
 
 namespace {
@@ -625,9 +625,9 @@ void AccessorNameSetterCallbackImpl(
 }
 
 // Two helper functions for V8 Interceptor callbacks.
-CefString PropertyToIndex(v8::Local<v8::String> str) {
+CefString PropertyToIndex(v8::Local<v8::Name> property) {
   CefString name;
-  GetCefString(str, name);
+  GetCefString(property.As<v8::String>(), name);
   return name;
 }
 
@@ -636,7 +636,7 @@ int PropertyToIndex(uint32_t index) {
 }
 
 // V8 Interceptor callbacks.
-// T == v8::Local<v8::String> for named property handlers and
+// T == v8::Local<v8::Name> for named property handlers and
 // T == uint32_t for indexed property handlers
 template <typename T>
 void InterceptorGetterCallbackImpl(
@@ -994,7 +994,7 @@ CefRefPtr<CefFrame> CefV8ContextImpl::GetFrame() {
 CefRefPtr<CefV8Value> CefV8ContextImpl::GetGlobal() {
   CEF_V8_REQUIRE_VALID_HANDLE_RETURN(NULL);
 
-  if (webkit_glue::IsScriptForbidden())
+  if (blink_glue::IsScriptForbidden())
     return nullptr;
 
   v8::Isolate* isolate = handle_->isolate();
@@ -1007,7 +1007,7 @@ CefRefPtr<CefV8Value> CefV8ContextImpl::GetGlobal() {
 bool CefV8ContextImpl::Enter() {
   CEF_V8_REQUIRE_VALID_HANDLE_RETURN(false);
 
-  if (webkit_glue::IsScriptForbidden())
+  if (blink_glue::IsScriptForbidden())
     return false;
 
   v8::Isolate* isolate = handle_->isolate();
@@ -1028,7 +1028,7 @@ bool CefV8ContextImpl::Enter() {
 bool CefV8ContextImpl::Exit() {
   CEF_V8_REQUIRE_VALID_HANDLE_RETURN(false);
 
-  if (webkit_glue::IsScriptForbidden())
+  if (blink_glue::IsScriptForbidden())
     return false;
 
   if (enter_count_ <= 0) {
@@ -1070,7 +1070,7 @@ bool CefV8ContextImpl::Eval(const CefString& code,
 
   CEF_V8_REQUIRE_VALID_HANDLE_RETURN(false);
 
-  if (webkit_glue::IsScriptForbidden())
+  if (blink_glue::IsScriptForbidden())
     return false;
 
   if (code.empty()) {
@@ -1091,10 +1091,9 @@ bool CefV8ContextImpl::Eval(const CefString& code,
   v8::TryCatch try_catch(isolate);
   try_catch.SetVerbose(true);
 
-  v8::MaybeLocal<v8::Value> func_rv =
-      webkit_glue::ExecuteV8ScriptAndReturnValue(
-          source, source_url, start_line, context, isolate, try_catch,
-          blink::AccessControlStatus::kNotSharableCrossOrigin);
+  v8::MaybeLocal<v8::Value> func_rv = blink_glue::ExecuteV8ScriptAndReturnValue(
+      source, source_url, start_line, context, isolate, try_catch,
+      blink::AccessControlStatus::kNotSharableCrossOrigin);
 
   if (try_catch.HasCaught()) {
     exception = new CefV8ExceptionImpl(context, try_catch.Message());
@@ -1115,7 +1114,7 @@ v8::Local<v8::Context> CefV8ContextImpl::GetV8Context() {
 blink::WebLocalFrame* CefV8ContextImpl::GetWebFrame() {
   CEF_REQUIRE_RT();
 
-  if (webkit_glue::IsScriptForbidden())
+  if (blink_glue::IsScriptForbidden())
     return nullptr;
 
   v8::HandleScope handle_scope(handle_->isolate());
@@ -1325,9 +1324,11 @@ CefRefPtr<CefV8Value> CefV8Value::CreateObject(
   v8::Local<v8::Object> obj;
   if (interceptor.get()) {
     v8::Local<v8::ObjectTemplate> tmpl = v8::ObjectTemplate::New(isolate);
-    tmpl->SetNamedPropertyHandler(
-        InterceptorGetterCallbackImpl<v8::Local<v8::String>>,
-        InterceptorSetterCallbackImpl<v8::Local<v8::String>>);
+    tmpl->SetHandler(v8::NamedPropertyHandlerConfiguration(
+        InterceptorGetterCallbackImpl<v8::Local<v8::Name>>,
+        InterceptorSetterCallbackImpl<v8::Local<v8::Name>>, nullptr, nullptr,
+        nullptr, v8::Local<v8::Value>(),
+        v8::PropertyHandlerFlags::kOnlyInterceptStrings));
 
     tmpl->SetIndexedPropertyHandler(InterceptorGetterCallbackImpl<uint32_t>,
                                     InterceptorSetterCallbackImpl<uint32_t>);
@@ -2374,7 +2375,7 @@ CefRefPtr<CefV8Value> CefV8ValueImpl::ExecuteFunctionWithContext(
     v8::TryCatch try_catch(isolate);
     try_catch.SetVerbose(true);
 
-    v8::MaybeLocal<v8::Value> func_rv = webkit_glue::CallV8Function(
+    v8::MaybeLocal<v8::Value> func_rv = blink_glue::CallV8Function(
         context_local, func, recv, argc, argv, handle_->isolate());
 
     if (!HasCaught(context_local, try_catch) && !func_rv.IsEmpty()) {

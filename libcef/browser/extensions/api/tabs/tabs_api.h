@@ -55,11 +55,11 @@ class ExecuteCodeInTabFunction : public ExecuteCodeFunction {
 
   // Initializes |execute_tab_id_| and |details_|.
   InitResult Init() override;
-  bool CanExecuteScriptOnPage() override;
-  ScriptExecutor* GetScriptExecutor() override;
+  bool CanExecuteScriptOnPage(std::string* error) override;
+  ScriptExecutor* GetScriptExecutor(std::string* error) override;
   bool IsWebView() const override;
   const GURL& GetWebViewSrc() const override;
-  bool LoadFile(const std::string& file) override;
+  bool LoadFile(const std::string& file, std::string* error) override;
 
  private:
   const CefExtensionFunctionDetails cef_details_;
@@ -78,10 +78,6 @@ class TabsExecuteScriptFunction : public ExecuteCodeInTabFunction {
  private:
   ~TabsExecuteScriptFunction() override {}
 
-  void OnExecuteCodeFinished(const std::string& error,
-                             const GURL& on_url,
-                             const base::ListValue& script_result) override;
-
   DECLARE_EXTENSION_FUNCTION("tabs.executeScript", TABS_EXECUTESCRIPT)
 };
 
@@ -94,7 +90,8 @@ class TabsInsertCSSFunction : public ExecuteCodeInTabFunction {
   DECLARE_EXTENSION_FUNCTION("tabs.insertCSS", TABS_INSERTCSS)
 };
 
-class ZoomAPIFunction : public AsyncExtensionFunction {
+// Based on ChromeAsyncExtensionFunction.
+class ZoomAPIFunction : public UIThreadExtensionFunction {
  public:
   ZoomAPIFunction();
 
@@ -103,10 +100,26 @@ class ZoomAPIFunction : public AsyncExtensionFunction {
 
   // Gets the WebContents for |tab_id| if it is specified. Otherwise get the
   // WebContents for the active tab in the current window. Calling this function
-  // may set error_.
+  // may set |error_|.
   content::WebContents* GetWebContents(int tab_id);
 
+  virtual bool RunAsync() = 0;
+
+  // Responds with success/failure. |results_| or |error_| should be set
+  // accordingly.
+  void SendResponse(bool success);
+
+  // Exposed versions of ExtensionFunction::results_ and
+  // ExtensionFunction::error_ that are curried into the response.
+  // These need to keep the same name to avoid breaking existing
+  // implementations, but this should be temporary with crbug.com/648275
+  // and crbug.com/634140.
+  std::unique_ptr<base::ListValue> results_;
+  std::string error_;
+
  private:
+  ResponseAction Run() final;
+
   const CefExtensionFunctionDetails cef_details_;
 };
 

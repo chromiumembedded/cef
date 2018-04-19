@@ -23,7 +23,6 @@
 #include "content/public/browser/render_frame_host.h"
 #include "content/public/browser/web_contents.h"
 #include "content/public/common/child_process_host.h"
-#include "printing/features/features.h"
 
 #if defined(OS_LINUX)
 #include "libcef/browser/printing/print_dialog_linux.h"

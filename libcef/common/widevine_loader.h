@@ -19,7 +19,11 @@
 #include "base/lazy_instance.h"
 
 namespace content {
-struct PepperPluginInfo;
+struct CdmInfo;
+}
+
+namespace media {
+struct CdmHostFilePath;
 }
 
 class CefWidevineLoader {
@@ -38,10 +42,12 @@ class CefWidevineLoader {
 
 #if defined(OS_LINUX)
   // The zygote process which is used when the sandbox is enabled on Linux
-  // requires early loading of pepper plugins. Other processes will receive
+  // requires early loading of CDM modules. Other processes will receive
   // load notification in the usual way.
-  // Called from CefContentClient::AddPepperPlugins.
-  static void AddPepperPlugins(std::vector<content::PepperPluginInfo>* plugins);
+  // Called from CefContentClient::AddContentDecryptionModules.
+  static void AddContentDecryptionModules(
+      std::vector<content::CdmInfo>* cdms,
+      std::vector<media::CdmHostFilePath>* cdm_host_file_paths);
 
   const base::FilePath& path() { return path_; }
 #endif

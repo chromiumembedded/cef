@@ -9,19 +9,19 @@
 #include "libcef/common/request_impl.h"
 #include "libcef/common/response_impl.h"
 #include "libcef/common/task_runner_impl.h"
+#include "libcef/renderer/blink_glue.h"
 #include "libcef/renderer/content_renderer_client.h"
-#include "libcef/renderer/webkit_glue.h"
 
 #include "base/logging.h"
 #include "base/message_loop/message_loop.h"
-#include "third_party/WebKit/public/platform/WebString.h"
-#include "third_party/WebKit/public/platform/WebURL.h"
-#include "third_party/WebKit/public/platform/WebURLError.h"
-#include "third_party/WebKit/public/platform/WebURLLoader.h"
-#include "third_party/WebKit/public/platform/WebURLLoaderClient.h"
-#include "third_party/WebKit/public/platform/WebURLLoaderFactory.h"
-#include "third_party/WebKit/public/platform/WebURLRequest.h"
-#include "third_party/WebKit/public/platform/WebURLResponse.h"
+#include "third_party/blink/public/platform/web_string.h"
+#include "third_party/blink/public/platform/web_url.h"
+#include "third_party/blink/public/platform/web_url_error.h"
+#include "third_party/blink/public/platform/web_url_loader.h"
+#include "third_party/blink/public/platform/web_url_loader_client.h"
+#include "third_party/blink/public/platform/web_url_loader_factory.h"
+#include "third_party/blink/public/platform/web_url_request.h"
+#include "third_party/blink/public/platform/web_url_response.h"
 
 using blink::WebReferrerPolicy;
 using blink::WebString;
@@ -139,7 +139,7 @@ class CefRenderURLRequest::Context
                       const WebURLResponse& response) {
     DCHECK(CalledOnValidThread());
 
-    response_was_cached_ = webkit_glue::ResponseWasCached(response);
+    response_was_cached_ = blink_glue::ResponseWasCached(response);
     response_ = CefResponse::Create();
     CefResponseImpl* responseImpl =
         static_cast<CefResponseImpl*>(response_.get());
@@ -160,7 +160,7 @@ class CefRenderURLRequest::Context
   void OnResponse(const WebURLResponse& response) {
     DCHECK(CalledOnValidThread());
 
-    response_was_cached_ = webkit_glue::ResponseWasCached(response);
+    response_was_cached_ = blink_glue::ResponseWasCached(response);
     response_ = CefResponse::Create();
     CefResponseImpl* responseImpl =
         static_cast<CefResponseImpl*>(response_.get());

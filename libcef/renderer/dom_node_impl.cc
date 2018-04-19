@@ -5,22 +5,22 @@
 #include "libcef/renderer/dom_node_impl.h"
 
 #include "libcef/common/tracker.h"
+#include "libcef/renderer/blink_glue.h"
 #include "libcef/renderer/browser_impl.h"
 #include "libcef/renderer/dom_document_impl.h"
 #include "libcef/renderer/thread_util.h"
-#include "libcef/renderer/webkit_glue.h"
 
 #include "base/logging.h"
 #include "base/strings/string_util.h"
 #include "base/strings/utf_string_conversions.h"
-#include "third_party/WebKit/public/platform/WebString.h"
-#include "third_party/WebKit/public/web/WebDOMEvent.h"
-#include "third_party/WebKit/public/web/WebDocument.h"
-#include "third_party/WebKit/public/web/WebElement.h"
-#include "third_party/WebKit/public/web/WebFormControlElement.h"
-#include "third_party/WebKit/public/web/WebInputElement.h"
-#include "third_party/WebKit/public/web/WebNode.h"
-#include "third_party/WebKit/public/web/WebSelectElement.h"
+#include "third_party/blink/public/platform/web_string.h"
+#include "third_party/blink/public/web/web_document.h"
+#include "third_party/blink/public/web/web_dom_event.h"
+#include "third_party/blink/public/web/web_element.h"
+#include "third_party/blink/public/web/web_form_control_element.h"
+#include "third_party/blink/public/web/web_input_element.h"
+#include "third_party/blink/public/web/web_node.h"
+#include "third_party/blink/public/web/web_select_element.h"
 
 using blink::WebDocument;
 using blink::WebDOMEvent;
@@ -48,7 +48,7 @@ CefDOMNodeImpl::Type CefDOMNodeImpl::GetType() {
   if (!VerifyContext())
     return DOM_NODE_TYPE_UNSUPPORTED;
 
-  return webkit_glue::GetNodeType(node_);
+  return blink_glue::GetNodeType(node_);
 }
 
 bool CefDOMNodeImpl::IsText() {
@@ -75,7 +75,7 @@ bool CefDOMNodeImpl::IsEditable() {
 
   if (node_.IsElementNode()) {
     const WebElement& element = node_.ToConst<WebElement>();
-    if (webkit_glue::IsTextControlElement(element))
+    if (blink_glue::IsTextControlElement(element))
       return true;
 
     // Also return true if it has an ARIA role of 'textbox'.
@@ -143,7 +143,7 @@ CefString CefDOMNodeImpl::GetName() {
   if (!VerifyContext())
     return str;
 
-  const WebString& name = webkit_glue::GetNodeName(node_);
+  const WebString& name = blink_glue::GetNodeName(node_);
   if (!name.IsNull())
     str = name.Utf16();
 
@@ -196,8 +196,8 @@ bool CefDOMNodeImpl::SetValue(const CefString& value) {
   if (node_.IsElementNode())
     return false;
 
-  return webkit_glue::SetNodeValue(node_,
-                                   WebString::FromUTF16(value.ToString16()));
+  return blink_glue::SetNodeValue(node_,
+                                  WebString::FromUTF16(value.ToString16()));
 }
 
 CefString CefDOMNodeImpl::GetAsMarkup() {
@@ -205,7 +205,7 @@ CefString CefDOMNodeImpl::GetAsMarkup() {
   if (!VerifyContext())
     return str;
 
-  const WebString& markup = webkit_glue::CreateNodeMarkup(node_);
+  const WebString& markup = blink_glue::CreateNodeMarkup(node_);
   if (!markup.IsNull())
     str = markup.Utf16();
 

@@ -69,6 +69,12 @@ parser.add_option(
     default=False,
     help='re-save existing patch files to pick up manual changes')
 parser.add_option(
+    '--reapply',
+    action='store_true',
+    dest='reapply',
+    default=False,
+    help='reapply the patch without first reverting changes')
+parser.add_option(
     '--revert',
     action='store_true',
     dest='revert',
@@ -131,24 +137,25 @@ for patch in patches:
     added_paths = []
 
     if not options.resave:
-      # Revert any changes to existing files in the patch.
-      for patch_path in patch_paths:
-        patch_path_abs = os.path.abspath(os.path.join(patch_root_abs, \
-                                                      patch_path))
-        if os.path.exists(patch_path_abs):
-          msg('Reverting changes to %s' % patch_path_abs)
-          cmd = 'git checkout -- %s' % (patch_path_abs)
-          result = exec_cmd(cmd, patch_root_abs)
-          if result['err'] != '':
-            msg('Failed to revert file: %s' % result['err'])
-            msg('Deleting file %s' % patch_path_abs)
-            os.remove(patch_path_abs)
+      if not options.reapply:
+        # Revert any changes to existing files in the patch.
+        for patch_path in patch_paths:
+          patch_path_abs = os.path.abspath(os.path.join(patch_root_abs, \
+                                                        patch_path))
+          if os.path.exists(patch_path_abs):
+            msg('Reverting changes to %s' % patch_path_abs)
+            cmd = 'git checkout -- %s' % (patch_path_abs)
+            result = exec_cmd(cmd, patch_root_abs)
+            if result['err'] != '':
+              msg('Failed to revert file: %s' % result['err'])
+              msg('Deleting file %s' % patch_path_abs)
+              os.remove(patch_path_abs)
+              added_paths.append(patch_path_abs)
+            if result['out'] != '':
+              sys.stdout.write(result['out'])
+          else:
+            msg('Skipping non-existing file %s' % patch_path_abs)
             added_paths.append(patch_path_abs)
-          if result['out'] != '':
-            sys.stdout.write(result['out'])
-        else:
-          msg('Skipping non-existing file %s' % patch_path_abs)
-          added_paths.append(patch_path_abs)
 
       if not options.revert:
         # Apply the patch file.
@@ -163,7 +170,7 @@ for patch in patches:
                patch['name'])
           continue
 
-    if not options.revert:
+    if not options.revert and not options.reapply:
       msg('Saving changes to %s' % patch_file)
       if added_paths:
         # Inform git of the added paths so they appear in the patch file.
@@ -174,7 +181,7 @@ for patch in patches:
 
       # Re-create the patch file.
       patch_paths_str = ' '.join(patch_paths)
-      cmd = 'git diff --no-prefix --relative %s' % patch_paths_str
+      cmd = 'git diff --no-prefix --relative --ignore-space-at-eol %s' % patch_paths_str
       result = exec_cmd(cmd, patch_root_abs)
       if result['err'] != '' and result['err'].find('warning:') != 0:
         raise Exception('Failed to create patch file: %s' % result['err'])

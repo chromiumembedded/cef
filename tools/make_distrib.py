@@ -701,9 +701,6 @@ if platform == 'windows':
       {'path': 'natives_blob.bin'},
       {'path': 'snapshot_blob.bin', 'conditional': True},
       {'path': 'v8_context_snapshot.bin', 'conditional': True},
-      # Should match the output path from media/cdm/ppapi/cdm_paths.gni.
-      {'path': 'WidevineCdm\\_platform_specific\\win_%s\\widevinecdmadapter.dll' % \
-        ('x64' if options.x64build else 'x86'), 'out_path': 'widevinecdmadapter.dll'},
       {'path': 'swiftshader\\libEGL.dll'},
       {'path': 'swiftshader\\libGLESv2.dll'},
   ]
@@ -862,11 +859,11 @@ elif platform == 'macosx':
       valid_build_dir = build_dir
       dst_dir = os.path.join(output_dir, 'Debug')
       make_dir(dst_dir, options.quiet)
+      framework_src_dir = os.path.join(
+          build_dir, '%s/Contents/Frameworks/%s.framework/Versions/A' %
+          (cefclient_app, framework_name))
       framework_dst_dir = os.path.join(dst_dir, '%s.framework' % framework_name)
-      copy_dir(os.path.join(build_dir, 'cefclient.app/Contents/Frameworks/%s.framework' % framework_name), \
-               framework_dst_dir, options.quiet)
-      move_file(os.path.join(framework_dst_dir, 'Resources/widevinecdmadapter.plugin'), \
-                os.path.join(dst_dir, 'widevinecdmadapter.plugin'), options.quiet)
+      copy_dir(framework_src_dir, framework_dst_dir, options.quiet)
 
       if not options.nosymbols:
         # create the symbol output directory
@@ -889,16 +886,21 @@ elif platform == 'macosx':
     valid_build_dir = build_dir
     dst_dir = os.path.join(output_dir, 'Release')
     make_dir(dst_dir, options.quiet)
+    framework_src_dir = os.path.join(
+        build_dir, '%s/Contents/Frameworks/%s.framework/Versions/A' %
+        (cefclient_app, framework_name))
     if mode != 'client':
       framework_dst_dir = os.path.join(dst_dir, '%s.framework' % framework_name)
-      copy_dir(os.path.join(build_dir, 'cefclient.app/Contents/Frameworks/%s.framework' % framework_name), \
-               framework_dst_dir, options.quiet)
-      move_file(os.path.join(framework_dst_dir, 'Resources/widevinecdmadapter.plugin'), \
-                os.path.join(dst_dir, 'widevinecdmadapter.plugin'), options.quiet)
     else:
       copy_dir(
           os.path.join(build_dir, cefclient_app),
           os.path.join(dst_dir, cefclient_app), options.quiet)
+      # Replace the versioned framework with an unversioned framework in the sample app.
+      framework_dst_dir = os.path.join(
+          dst_dir, '%s/Contents/Frameworks/%s.framework' % (cefclient_app,
+                                                            framework_name))
+      remove_dir(framework_dst_dir, options.quiet)
+    copy_dir(framework_src_dir, framework_dst_dir, options.quiet)
 
     if not options.nosymbols:
       # create the symbol output directory
@@ -969,7 +971,6 @@ elif platform == 'linux':
       {'path': libcef_so},
       {'path': 'libEGL.so'},
       {'path': 'libGLESv2.so'},
-      {'path': 'libwidevinecdmadapter.so'},
       {'path': 'natives_blob.bin'},
       {'path': 'snapshot_blob.bin', 'conditional': True},
       {'path': 'v8_context_snapshot.bin', 'conditional': True},

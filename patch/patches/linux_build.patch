@@ -1,14 +1,14 @@
 diff --git build/config/compiler/BUILD.gn build/config/compiler/BUILD.gn
-index 9a10137aa405..6dd8033a0b33 100644
+index 461e62da2d50..7cd9237c03ca 100644
 --- build/config/compiler/BUILD.gn
 +++ build/config/compiler/BUILD.gn
-@@ -137,7 +137,7 @@ declare_args() {
-       is_posix && !using_sanitizer && !(is_android && use_order_profiling) &&
-       ((use_lld && !is_nacl) ||
-        (use_gold &&
--        ((!is_android && linux_use_bundled_binutils) || is_chromeos ||
-+        ((!is_android && linux_use_bundled_binutils && current_cpu != "x86") || is_chromeos ||
-          !(current_cpu == "x86" || current_cpu == "x64"))))
+@@ -149,7 +149,7 @@ declare_args() {
+             !(is_android && use_order_profiling) &&
+             ((use_lld && !is_nacl) ||
+              (use_gold &&
+-              ((!is_android && linux_use_bundled_binutils) || is_chromeos ||
++              ((!is_android && linux_use_bundled_binutils && current_cpu != "x86") || is_chromeos ||
+                !(current_cpu == "x86" || current_cpu == "x64"))))
  }
  
 diff --git chrome/browser/ui/libgtkui/gtk_util.cc chrome/browser/ui/libgtkui/gtk_util.cc
@@ -60,3 +60,18 @@ index 96f8c0e71472..49c462b37e12 100644
  
    ScopedStyleContext child_context(gtk_style_context_new());
    gtk_style_context_set_path(child_context, path);
+diff --git third_party/unrar/BUILD.gn third_party/unrar/BUILD.gn
+index 6e2bc75171ee..9275f68d12e3 100644
+--- third_party/unrar/BUILD.gn
++++ third_party/unrar/BUILD.gn
+@@ -56,6 +56,10 @@ if (safe_browsing_mode == 1) {
+       "src/volume.cpp",
+     ]
+ 
++    if (is_posix && !is_mac) {
++      sources += [ "src/global.cpp" ]
++    }
++
+     configs -= [
+       "//build/config/compiler:chromium_code",
+       "//build/config/compiler:no_exceptions",

@@ -1,8 +1,8 @@
 diff --git .gn .gn
-index 50a8a2fe9f1e..719adff0da9b 100644
+index 2bcaabc1330e..6e6cbb542a59 100644
 --- .gn
 +++ .gn
-@@ -241,6 +241,8 @@ exec_script_whitelist =
+@@ -244,6 +244,8 @@ exec_script_whitelist =
        # in the Chromium repo outside of //build.
        "//build_overrides/build.gni",
  
@@ -12,10 +12,10 @@ index 50a8a2fe9f1e..719adff0da9b 100644
        # https://crbug.com/474506.
        "//clank/java/BUILD.gn",
 diff --git BUILD.gn BUILD.gn
-index 161519ebfeac..c034f54603e8 100644
+index acd17275a438..52ea2a4654b0 100644
 --- BUILD.gn
 +++ BUILD.gn
-@@ -190,6 +190,7 @@ group("gn_all") {
+@@ -192,6 +192,7 @@ group("gn_all") {
  
    if (!is_ios && !is_fuchsia) {
      deps += [
@@ -56,10 +56,10 @@ index 982fbe8d3f0d..e757be4688f1 100644
 +         "studio path")
  }
 diff --git build/toolchain/win/setup_toolchain.py build/toolchain/win/setup_toolchain.py
-index a1d2ea4b2394..50514a54e64f 100644
+index fce62521a385..73fa49852fd6 100644
 --- build/toolchain/win/setup_toolchain.py
 +++ build/toolchain/win/setup_toolchain.py
-@@ -132,19 +132,22 @@ def _LoadToolchainEnv(cpu, sdk_dir):
+@@ -134,26 +134,29 @@ def _LoadToolchainEnv(cpu, sdk_dir, target_store):
        # variable.
        if 'VSINSTALLDIR' in os.environ:
          del os.environ['VSINSTALLDIR']
@@ -70,21 +70,35 @@ index a1d2ea4b2394..50514a54e64f 100644
 -        raise Exception('%s is missing - make sure VC++ tools are installed.' %
 -                        script_path)
 -      script_path = other_path
+-    cpu_arg = "amd64"
+-    if (cpu != 'x64'):
+-      # x64 is default target CPU thus any other CPU requires a target set
+-      cpu_arg += '_' + cpu
+-    args = [script_path, cpu_arg]
+-    # Store target must come before any SDK version declaration
+-    if (target_store):
+-      args.append(['store'])
 -    # Chromium requires the 10.0.15063.468 SDK - previous versions don't have
 -    # all of the required declarations and 10.0.16299.0 has some
 -    # incompatibilities (crbug.com/773476).
--    args = [script_path, 'amd64_x86' if cpu == 'x86' else 'amd64',
--            '10.0.15063.0']
+-    args.append('10.0.15063.0')
 -    variables = _LoadEnvFromBat(args)
 +      script_path = os.path.normpath(os.path.join(
 +                                         os.environ['GYP_MSVS_OVERRIDE_PATH'],
 +                                         'VC/Auxiliary/Build/vcvarsall.bat'))
 +    if os.path.exists(script_path):
++      cpu_arg = "amd64"
++      if (cpu != 'x64'):
++        # x64 is default target CPU thus any other CPU requires a target set
++        cpu_arg += '_' + cpu
++      args = [script_path, cpu_arg]
++      # Store target must come before any SDK version declaration
++      if (target_store):
++        args.append(['store'])
 +      # Chromium requires the 10.0.15063.468 SDK - previous versions don't have
 +      # all of the required declarations and 10.0.16299.0 has some
 +      # incompatibilities (crbug.com/773476).
-+      args = [script_path, 'amd64_x86' if cpu == 'x86' else 'amd64',
-+              '10.0.15063.0']
++      args.append('10.0.15063.0')
 +      variables = _LoadEnvFromBat(args)
 +    else:
 +      variables = []
@@ -96,7 +110,7 @@ index a1d2ea4b2394..50514a54e64f 100644
  
  
 diff --git build/vs_toolchain.py build/vs_toolchain.py
-index 5f9541e4556f..c1144b30f237 100755
+index 6060415bda86..1cc1eaae0a1d 100755
 --- build/vs_toolchain.py
 +++ build/vs_toolchain.py
 @@ -81,11 +81,18 @@ def SetEnvironmentAndGetRuntimeDllDirs():
@@ -119,10 +133,10 @@ index 5f9541e4556f..c1144b30f237 100755
      # directory in order to run binaries locally, but they are needed in order
      # to create isolates or the mini_installer. Copying them to the output
 diff --git chrome/chrome_paks.gni chrome/chrome_paks.gni
-index 94c5f759a0dd..a166b6302eeb 100644
+index 6d412994ffd8..575536f80166 100644
 --- chrome/chrome_paks.gni
 +++ chrome/chrome_paks.gni
-@@ -253,7 +253,7 @@ template("chrome_paks") {
+@@ -257,7 +257,7 @@ template("chrome_paks") {
      }
  
      input_locales = locales
@@ -132,10 +146,10 @@ index 94c5f759a0dd..a166b6302eeb 100644
      if (is_mac) {
        output_locales = locales_as_mac_outputs
 diff --git chrome/installer/mini_installer/BUILD.gn chrome/installer/mini_installer/BUILD.gn
-index 3ed598db3989..b23170bc4591 100644
+index c365088b90b7..29c28300979e 100644
 --- chrome/installer/mini_installer/BUILD.gn
 +++ chrome/installer/mini_installer/BUILD.gn
-@@ -143,7 +143,7 @@ template("generate_mini_installer") {
+@@ -133,7 +133,7 @@ template("generate_mini_installer") {
      inputs = [
        "$chrome_dll_file",
        "$root_out_dir/chrome.exe",

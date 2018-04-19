@@ -1,8 +1,8 @@
 diff --git chrome/browser/ui/BUILD.gn chrome/browser/ui/BUILD.gn
-index c50380806706..011b63531a33 100644
+index 72dde06a99a7..0a7cd2e45d2c 100644
 --- chrome/browser/ui/BUILD.gn
 +++ chrome/browser/ui/BUILD.gn
-@@ -919,6 +919,7 @@ split_static_library("ui") {
+@@ -923,6 +923,7 @@ split_static_library("ui") {
      "//base:i18n",
      "//base/allocator:buildflags",
      "//cc/paint",
@@ -11,7 +11,7 @@ index c50380806706..011b63531a33 100644
      "//chrome:resources",
      "//chrome:strings",
 diff --git chrome/browser/ui/cocoa/applescript/tab_applescript.mm chrome/browser/ui/cocoa/applescript/tab_applescript.mm
-index e5ac419b8f4c..ced62e390bc4 100644
+index 33216fef9a1b..c84572425a8d 100644
 --- chrome/browser/ui/cocoa/applescript/tab_applescript.mm
 +++ chrome/browser/ui/cocoa/applescript/tab_applescript.mm
 @@ -9,7 +9,7 @@
@@ -34,7 +34,7 @@ index e5ac419b8f4c..ced62e390bc4 100644
  using content::NavigationController;
  using content::NavigationEntry;
  using content::OpenURLParams;
-@@ -232,11 +236,15 @@ void ResumeAppleEventAndSendReply(NSAppleEventManagerSuspensionID suspension_id,
+@@ -231,11 +235,15 @@ void ResumeAppleEventAndSendReply(NSAppleEventManagerSuspensionID suspension_id,
  
  - (void)handlesPrintScriptCommand:(NSScriptCommand*)command {
    AppleScript::LogAppleScriptUMA(AppleScript::AppleScriptCommand::TAB_PRINT);
@@ -51,7 +51,7 @@ index e5ac419b8f4c..ced62e390bc4 100644
  
  - (void)handlesSaveScriptCommand:(NSScriptCommand*)command {
 diff --git chrome/browser/ui/webui/settings/printing_handler.cc chrome/browser/ui/webui/settings/printing_handler.cc
-index 45644030eb24..c894209e1530 100644
+index 8647b2daf9ea..b070ab3e4b86 100644
 --- chrome/browser/ui/webui/settings/printing_handler.cc
 +++ chrome/browser/ui/webui/settings/printing_handler.cc
 @@ -6,9 +6,13 @@
@@ -82,7 +82,7 @@ index 45644030eb24..c894209e1530 100644
  
  }  // namespace settings
 diff --git chrome/common/chrome_utility_printing_messages.h chrome/common/chrome_utility_printing_messages.h
-index 6dfe3b430d7d..82e3ab03bdc4 100644
+index f903429e25e4..cde2124fb18e 100644
 --- chrome/common/chrome_utility_printing_messages.h
 +++ chrome/common/chrome_utility_printing_messages.h
 @@ -16,7 +16,7 @@
@@ -103,12 +103,12 @@ index 6dfe3b430d7d..82e3ab03bdc4 100644
  
  #endif  // CHROME_COMMON_CHROME_UTILITY_PRINTING_MESSAGES_H_
 diff --git chrome/utility/printing_handler.h chrome/utility/printing_handler.h
-index b56deaf18589..3d931b55686f 100644
+index 006966fd1c58..db9cd49af2a4 100644
 --- chrome/utility/printing_handler.h
 +++ chrome/utility/printing_handler.h
 @@ -11,7 +11,7 @@
  #include "build/build_config.h"
- #include "printing/features/features.h"
+ #include "printing/buildflags/buildflags.h"
  
 -#if !defined(OS_WIN) || !BUILDFLAG(ENABLE_PRINT_PREVIEW)
 +#if !defined(OS_WIN)
@@ -116,7 +116,7 @@ index b56deaf18589..3d931b55686f 100644
  #endif
  
 diff --git components/printing/common/print_messages.cc components/printing/common/print_messages.cc
-index 6df98550d22d..3192faf033f8 100644
+index b308dc410ffb..6c92009df454 100644
 --- components/printing/common/print_messages.cc
 +++ components/printing/common/print_messages.cc
 @@ -148,7 +148,6 @@ PrintMsg_PrintFrame_Params::PrintMsg_PrintFrame_Params() {}
@@ -133,7 +133,7 @@ index 6df98550d22d..3192faf033f8 100644
  }
 -#endif  // BUILDFLAG(ENABLE_PRINT_PREVIEW)
 diff --git components/printing/common/print_messages.h components/printing/common/print_messages.h
-index 22469f97d1f9..fd303fd1e764 100644
+index 0f1e59167b24..783cbcdc6bd9 100644
 --- components/printing/common/print_messages.h
 +++ components/printing/common/print_messages.h
 @@ -85,7 +85,6 @@ struct PrintMsg_PrintFrame_Params {
@@ -242,7 +242,7 @@ index 22469f97d1f9..fd303fd1e764 100644
  
  #endif  // COMPONENTS_PRINTING_COMMON_PRINT_MESSAGES_H_
 diff --git components/printing/renderer/print_render_frame_helper.cc components/printing/renderer/print_render_frame_helper.cc
-index 2d81ba90d69c..0f70f15f2deb 100644
+index 1c914fd1ba34..6141c4021785 100644
 --- components/printing/renderer/print_render_frame_helper.cc
 +++ components/printing/renderer/print_render_frame_helper.cc
 @@ -326,7 +326,6 @@ bool PrintingNodeOrPdfFrame(const blink::WebLocalFrame* frame,
@@ -433,7 +433,7 @@ index 2d81ba90d69c..0f70f15f2deb 100644
  PrintRenderFrameHelper::PrintPreviewContext::PrintPreviewContext()
      : total_page_count_(0),
 diff --git components/printing/renderer/print_render_frame_helper.h components/printing/renderer/print_render_frame_helper.h
-index 64a6dd6a1912..8c87d7565eca 100644
+index b1b1a18dd6aa..8e014acdd246 100644
 --- components/printing/renderer/print_render_frame_helper.h
 +++ components/printing/renderer/print_render_frame_helper.h
 @@ -145,10 +145,8 @@ class PrintRenderFrameHelper
@@ -514,13 +514,28 @@ index 64a6dd6a1912..8c87d7565eca 100644
    PrintPreviewContext print_preview_context_;
    bool is_loading_;
    bool is_scripted_preview_delayed_;
+diff --git components/printing_strings.grdp components/printing_strings.grdp
+index a669226337f2..5e3c3caa2aa2 100644
+--- components/printing_strings.grdp
++++ components/printing_strings.grdp
+@@ -1,10 +1,8 @@
+ <?xml version="1.0" encoding="utf-8"?>
+ <grit-part>
+-  <if expr="enable_print_preview">
+     <if expr="is_win">
+       <message name="IDS_PRINT_PREVIEW_FRIENDLY_WIN_NETWORK_PRINTER_NAME" desc="Friendly name for a printer with a given name on a given server. This uses the same format as the Windows print dialog.">
+         <ph name="PRINTER_NAME">$1<ex>HP LaserJet</ex></ph> on <ph name="SERVER_NAME">$2<ex>printserver</ex></ph>
+       </message>
+     </if>
+-  </if>
+ </grit-part>
 diff --git components/pwg_encoder/BUILD.gn components/pwg_encoder/BUILD.gn
-index 452c53bff69f..abb4dc0e6219 100644
+index 96ae254116a9..3697d6034300 100644
 --- components/pwg_encoder/BUILD.gn
 +++ components/pwg_encoder/BUILD.gn
 @@ -4,8 +4,6 @@
  
- import("//printing/features/features.gni")
+ import("//printing/buildflags/buildflags.gni")
  
 -assert(enable_print_preview)
 -

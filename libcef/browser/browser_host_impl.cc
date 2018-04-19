@@ -71,7 +71,7 @@
 #include "content/public/common/favicon_url.h"
 #include "extensions/browser/process_manager.h"
 #include "net/base/net_errors.h"
-#include "third_party/WebKit/public/web/WebFindOptions.h"
+#include "third_party/blink/public/web/web_find_options.h"
 #include "ui/events/base_event_utils.h"
 
 #if defined(OS_MACOSX)
@@ -999,16 +999,17 @@ void CefBrowserHostImpl::SetAutoResizeEnabled(bool enabled,
     return;
   }
 
-  if (!web_contents() || !web_contents()->GetRenderViewHost())
+  if (enabled == auto_resize_enabled_)
     return;
 
+  auto_resize_enabled_ = enabled;
   if (enabled) {
-    web_contents()->GetRenderViewHost()->EnableAutoResize(
-        gfx::Size(min_size.width, min_size.height),
-        gfx::Size(max_size.width, max_size.height));
+    auto_resize_min_ = gfx::Size(min_size.width, min_size.height);
+    auto_resize_max_ = gfx::Size(max_size.width, max_size.height);
   } else {
-    web_contents()->GetRenderViewHost()->DisableAutoResize(gfx::Size());
+    auto_resize_min_ = auto_resize_max_ = gfx::Size();
   }
+  ConfigureAutoResize();
 }
 
 CefRefPtr<CefExtension> CefBrowserHostImpl::GetExtension() {
@@ -2583,7 +2584,7 @@ void CefBrowserHostImpl::RequestMediaAccessPermission(
 }
 
 bool CefBrowserHostImpl::CheckMediaAccessPermission(
-    content::WebContents* web_contents,
+    content::RenderFrameHost* render_frame_host,
     const GURL& security_origin,
     content::MediaStreamType type) {
   // Check media access permission without prompting the user. This is called
@@ -2701,6 +2702,8 @@ void CefBrowserHostImpl::RenderViewDeleted(
 }
 
 void CefBrowserHostImpl::RenderViewReady() {
+  ConfigureAutoResize();
+
   // Send the queued messages.
   queue_messages_ = false;
   while (!queued_messages_.empty()) {
@@ -3504,6 +3507,20 @@ void CefBrowserHostImpl::EnsureFileDialogManager() {
   if (!file_dialog_manager_.get() && platform_delegate_) {
     file_dialog_manager_.reset(new CefFileDialogManager(
         this, platform_delegate_->CreateFileDialogRunner()));
+  }
+}
+
+void CefBrowserHostImpl::ConfigureAutoResize() {
+  CEF_REQUIRE_UIT();
+  if (!web_contents() || !web_contents()->GetRenderWidgetHostView()) {
+    return;
+  }
+
+  if (auto_resize_enabled_) {
+    web_contents()->GetRenderWidgetHostView()->EnableAutoResize(
+        auto_resize_min_, auto_resize_max_);
+  } else {
+    web_contents()->GetRenderWidgetHostView()->DisableAutoResize(gfx::Size());
   }
 }
 

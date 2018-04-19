@@ -12,9 +12,9 @@
 #include "content/public/renderer/render_view.h"
 #include "extensions/common/constants.h"
 #include "extensions/renderer/guest_view/mime_handler_view/mime_handler_view_container.h"
-#include "third_party/WebKit/public/web/WebDocument.h"
-#include "third_party/WebKit/public/web/WebElement.h"
-#include "third_party/WebKit/public/web/WebLocalFrame.h"
+#include "third_party/blink/public/web/web_document.h"
+#include "third_party/blink/public/web/web_element.h"
+#include "third_party/blink/public/web/web_local_frame.h"
 
 namespace extensions {
 

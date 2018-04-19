@@ -16,9 +16,9 @@
 #include "content/public/renderer/render_thread.h"
 #include "net/base/net_module.h"
 #include "services/service_manager/public/cpp/binder_registry.h"
-#include "third_party/WebKit/public/platform/WebString.h"
-#include "third_party/WebKit/public/platform/WebURL.h"
-#include "third_party/WebKit/public/web/WebSecurityPolicy.h"
+#include "third_party/blink/public/platform/web_string.h"
+#include "third_party/blink/public/platform/web_url.h"
+#include "third_party/blink/public/web/web_security_policy.h"
 
 bool CefRenderThreadObserver::is_incognito_process_ = false;
 

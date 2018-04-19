@@ -1,8 +1,29 @@
-diff --git third_party/WebKit/Source/core/exported/WebViewImpl.cpp third_party/WebKit/Source/core/exported/WebViewImpl.cpp
-index 494a9bc0f294..a766c5d047b0 100644
---- third_party/WebKit/Source/core/exported/WebViewImpl.cpp
-+++ third_party/WebKit/Source/core/exported/WebViewImpl.cpp
-@@ -253,8 +253,13 @@ void WebView::SetUseExternalPopupMenus(bool use_external_popup_menus) {
+diff --git third_party/blink/public/web/web_view.h third_party/blink/public/web/web_view.h
+index e6ab3248281e..645fab919ace 100644
+--- third_party/blink/public/web/web_view.h
++++ third_party/blink/public/web/web_view.h
+@@ -357,6 +357,7 @@ class WebView : protected WebWidget {
+ 
+   // Sets whether select popup menus should be rendered by the browser.
+   BLINK_EXPORT static void SetUseExternalPopupMenus(bool);
++  virtual void SetUseExternalPopupMenusThisInstance(bool) = 0;
+ 
+   // Hides any popup (suggestions, selects...) that might be showing.
+   virtual void HidePopups() = 0;
+@@ -387,6 +388,8 @@ class WebView : protected WebWidget {
+                                   unsigned inactive_background_color,
+                                   unsigned inactive_foreground_color) = 0;
+ 
++  virtual void SetBaseBackgroundColor(WebColor color) = 0;
++
+   // Modal dialog support ------------------------------------------------
+ 
+   // Call these methods before and after running a nested, modal event loop
+diff --git third_party/blink/renderer/core/exported/web_view_impl.cc third_party/blink/renderer/core/exported/web_view_impl.cc
+index 0d070fb8df7c..de3b889ce29a 100644
+--- third_party/blink/renderer/core/exported/web_view_impl.cc
++++ third_party/blink/renderer/core/exported/web_view_impl.cc
+@@ -251,8 +251,13 @@ void WebView::SetUseExternalPopupMenus(bool use_external_popup_menus) {
    g_should_use_external_popup_menus = use_external_popup_menus;
  }
  
@@ -18,7 +39,7 @@ index 494a9bc0f294..a766c5d047b0 100644
  }
  
  namespace {
-@@ -345,6 +350,7 @@ WebViewImpl::WebViewImpl(WebViewClient* client,
+@@ -343,6 +348,7 @@ WebViewImpl::WebViewImpl(WebViewClient* client,
        enable_fake_page_scale_animation_for_testing_(false),
        fake_page_scale_animation_page_scale_factor_(0),
        fake_page_scale_animation_use_anchor_(false),
@@ -26,11 +47,11 @@ index 494a9bc0f294..a766c5d047b0 100644
        compositor_device_scale_factor_override_(0),
        suppress_next_keypress_event_(false),
        ime_accept_events_(true),
-diff --git third_party/WebKit/Source/core/exported/WebViewImpl.h third_party/WebKit/Source/core/exported/WebViewImpl.h
-index 4e820e7746b7..52c6eaaf2f89 100644
---- third_party/WebKit/Source/core/exported/WebViewImpl.h
-+++ third_party/WebKit/Source/core/exported/WebViewImpl.h
-@@ -106,7 +106,8 @@ class CORE_EXPORT WebViewImpl final
+diff --git third_party/blink/renderer/core/exported/web_view_impl.h third_party/blink/renderer/core/exported/web_view_impl.h
+index 68fadab79a6e..bc397a361f39 100644
+--- third_party/blink/renderer/core/exported/web_view_impl.h
++++ third_party/blink/renderer/core/exported/web_view_impl.h
+@@ -102,7 +102,8 @@ class CORE_EXPORT WebViewImpl final : public WebView,
    static HashSet<WebViewImpl*>& AllInstances();
    // Returns true if popup menus should be rendered by the browser, false if
    // they should be rendered by WebKit (which is the default).
@@ -40,7 +61,7 @@ index 4e820e7746b7..52c6eaaf2f89 100644
  
    // WebWidget methods:
    void Close() override;
-@@ -256,7 +257,7 @@ class CORE_EXPORT WebViewImpl final
+@@ -246,7 +247,7 @@ class CORE_EXPORT WebViewImpl final : public WebView,
    HitTestResult CoreHitTestResultAt(const WebPoint&);
    void InvalidateRect(const IntRect&);
  
@@ -49,7 +70,7 @@ index 4e820e7746b7..52c6eaaf2f89 100644
    void SetBaseBackgroundColorOverride(WebColor);
    void ClearBaseBackgroundColorOverride();
    void SetBackgroundColorOverride(WebColor);
-@@ -602,6 +603,8 @@ class CORE_EXPORT WebViewImpl final
+@@ -619,6 +620,8 @@ class CORE_EXPORT WebViewImpl final : public WebView,
    float fake_page_scale_animation_page_scale_factor_;
    bool fake_page_scale_animation_use_anchor_;
  
@@ -58,11 +79,11 @@ index 4e820e7746b7..52c6eaaf2f89 100644
    float compositor_device_scale_factor_override_;
    TransformationMatrix device_emulation_transform_;
  
-diff --git third_party/WebKit/Source/core/page/ChromeClientImpl.cpp third_party/WebKit/Source/core/page/ChromeClientImpl.cpp
-index fd6ddf8f6c82..c953adec0b27 100644
---- third_party/WebKit/Source/core/page/ChromeClientImpl.cpp
-+++ third_party/WebKit/Source/core/page/ChromeClientImpl.cpp
-@@ -779,7 +779,7 @@ PopupMenu* ChromeClientImpl::OpenPopupMenu(LocalFrame& frame,
+diff --git third_party/blink/renderer/core/page/chrome_client_impl.cc third_party/blink/renderer/core/page/chrome_client_impl.cc
+index 484f950bd065..a0c47c7ea782 100644
+--- third_party/blink/renderer/core/page/chrome_client_impl.cc
++++ third_party/blink/renderer/core/page/chrome_client_impl.cc
+@@ -783,7 +783,7 @@ PopupMenu* ChromeClientImpl::OpenPopupMenu(LocalFrame& frame,
      return nullptr;
  
    NotifyPopupOpeningObservers();
@@ -71,24 +92,3 @@ index fd6ddf8f6c82..c953adec0b27 100644
      return new ExternalPopupMenu(frame, select, *web_view_);
  
    DCHECK(RuntimeEnabledFeatures::PagePopupEnabled());
-diff --git third_party/WebKit/public/web/WebView.h third_party/WebKit/public/web/WebView.h
-index 8fc376c9973c..4f2ee40e800c 100644
---- third_party/WebKit/public/web/WebView.h
-+++ third_party/WebKit/public/web/WebView.h
-@@ -361,6 +361,7 @@ class WebView : protected WebWidget {
- 
-   // Sets whether select popup menus should be rendered by the browser.
-   BLINK_EXPORT static void SetUseExternalPopupMenus(bool);
-+  virtual void SetUseExternalPopupMenusThisInstance(bool) = 0;
- 
-   // Hides any popup (suggestions, selects...) that might be showing.
-   virtual void HidePopups() = 0;
-@@ -391,6 +392,8 @@ class WebView : protected WebWidget {
-                                   unsigned inactive_background_color,
-                                   unsigned inactive_foreground_color) = 0;
- 
-+  virtual void SetBaseBackgroundColor(WebColor color) = 0;
-+
-   // Modal dialog support ------------------------------------------------
- 
-   // Call these methods before and after running a nested, modal event loop

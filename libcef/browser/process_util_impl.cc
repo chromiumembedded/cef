@@ -7,7 +7,7 @@
 
 #include "base/logging.h"
 #include "base/process/launch.h"
-#include "content/public/browser/browser_thread.h"
+#include "content/public/browser/child_process_launcher_utils.h"
 
 bool CefLaunchProcess(CefRefPtr<CefCommandLine> command_line) {
   if (!command_line.get()) {
@@ -15,8 +15,7 @@ bool CefLaunchProcess(CefRefPtr<CefCommandLine> command_line) {
     return false;
   }
 
-  if (!content::BrowserThread::CurrentlyOn(
-          content::BrowserThread::PROCESS_LAUNCHER)) {
+  if (!content::CurrentlyOnProcessLauncherTaskRunner()) {
     NOTREACHED() << "called on invalid thread";
     return false;
   }

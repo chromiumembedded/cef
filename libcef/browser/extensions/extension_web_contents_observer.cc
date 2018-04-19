@@ -21,6 +21,16 @@ CefExtensionWebContentsObserver::CefExtensionWebContentsObserver(
 
 CefExtensionWebContentsObserver::~CefExtensionWebContentsObserver() {}
 
+// static
+void CefExtensionWebContentsObserver::CreateForWebContents(
+    content::WebContents* web_contents) {
+  content::WebContentsUserData<
+      CefExtensionWebContentsObserver>::CreateForWebContents(web_contents);
+
+  // Initialize this instance if necessary.
+  FromWebContents(web_contents)->Initialize();
+}
+
 void CefExtensionWebContentsObserver::RenderFrameCreated(
     content::RenderFrameHost* render_frame_host) {
   ExtensionWebContentsObserver::RenderFrameCreated(render_frame_host);

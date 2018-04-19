@@ -10,7 +10,7 @@
 #include "libcef/browser/browser_host_impl.h"
 #include "libcef/browser/content_browser_client.h"
 
-#include "third_party/WebKit/public/platform/WebCursorInfo.h"
+#include "third_party/blink/public/platform/web_cursor_info.h"
 #include "ui/resources/grit/ui_unscaled_resources.h"
 
 namespace {

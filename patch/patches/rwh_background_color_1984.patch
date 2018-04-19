@@ -1,35 +1,23 @@
 diff --git content/browser/renderer_host/render_widget_host_view_aura.cc content/browser/renderer_host/render_widget_host_view_aura.cc
-index 087bc630062a..bd6ae8b47a1b 100644
+index 867b83e3be2f..d5e46c884d8f 100644
 --- content/browser/renderer_host/render_widget_host_view_aura.cc
 +++ content/browser/renderer_host/render_widget_host_view_aura.cc
-@@ -433,13 +433,6 @@ RenderWidgetHostViewAura::RenderWidgetHostViewAura(
-   selection_controller_client_.reset(
-       new TouchSelectionControllerClientAura(this));
-   CreateSelectionController();
--
--  RenderViewHost* rvh = RenderViewHost::From(host_);
--  if (rvh) {
--    // TODO(mostynb): actually use prefs.  Landing this as a separate CL
--    // first to rebaseline some unreliable layout tests.
--    ignore_result(rvh->GetWebkitPreferences());
--  }
- }
- 
- ////////////////////////////////////////////////////////////////////////////////
-@@ -789,8 +782,10 @@ void RenderWidgetHostViewAura::UpdateBackgroundColorFromRenderer(
+@@ -734,9 +734,11 @@ void RenderWidgetHostViewAura::UpdateBackgroundColorFromRenderer(
+     return;
    background_color_ = color;
  
-   bool opaque = SkColorGetA(color) == SK_AlphaOPAQUE;
+-  bool opaque = SkColorGetA(color) == SK_AlphaOPAQUE;
 -  window_->layer()->SetFillsBoundsOpaquely(opaque);
 -  window_->layer()->SetColor(color);
 +  if (window_) {
++    bool opaque = SkColorGetA(color) == SK_AlphaOPAQUE;
 +    window_->layer()->SetFillsBoundsOpaquely(opaque);
 +    window_->layer()->SetColor(color);
 +  }
  }
  
- bool RenderWidgetHostViewAura::IsMouseLocked() {
-@@ -1922,6 +1917,15 @@ void RenderWidgetHostViewAura::CreateAuraWindow(aura::client::WindowType type) {
+ void RenderWidgetHostViewAura::WindowTitleChanged() {
+@@ -1869,6 +1871,15 @@ void RenderWidgetHostViewAura::CreateAuraWindow(aura::client::WindowType type) {
    if (frame_sink_id_.is_valid())
      window_->SetEmbedFrameSinkId(frame_sink_id_);
  

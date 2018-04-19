@@ -1,10 +1,10 @@
 diff --git BUILD.gn BUILD.gn
-index d7c8640a2..7f508fdae 100644
+index 2f74e43bf..a74e2dade 100644
 --- BUILD.gn
 +++ BUILD.gn
-@@ -231,6 +231,10 @@ jumbo_static_library("pdfium") {
-   if (pdf_is_complete_lib) {
+@@ -240,6 +240,10 @@ jumbo_static_library("pdfium") {
      complete_static_lib = true
+     configs -= [ "//build/config/compiler:thin_archive" ]
    }
 +
 +  include_dirs = [
@@ -13,19 +13,19 @@ index d7c8640a2..7f508fdae 100644
  }
  
  jumbo_static_library("test_support") {
-diff --git fpdfsdk/fpdfview.cpp fpdfsdk/fpdfview.cpp
-index e890aa009..cabb73bb6 100644
---- fpdfsdk/fpdfview.cpp
-+++ fpdfsdk/fpdfview.cpp
+diff --git fpdfsdk/fpdf_view.cpp fpdfsdk/fpdf_view.cpp
+index cd8edbbdd..ea06a5576 100644
+--- fpdfsdk/fpdf_view.cpp
++++ fpdfsdk/fpdf_view.cpp
 @@ -36,6 +36,7 @@
+ #include "fpdfsdk/cpdfsdk_memoryaccess.h"
  #include "fpdfsdk/cpdfsdk_pageview.h"
- #include "fpdfsdk/fsdk_define.h"
- #include "fpdfsdk/fsdk_pauseadapter.h"
+ #include "fpdfsdk/ipdfsdk_pauseadapter.h"
 +#include "fxjs/cfxjs_engine.h"
  #include "fxjs/ijs_runtime.h"
- #include "public/fpdf_edit.h"
- #include "public/fpdf_ext.h"
-@@ -495,6 +496,7 @@ FPDF_EXPORT void FPDF_CALLCONV FPDF_DestroyLibrary() {
+ #include "public/fpdf_formfill.h"
+ #include "third_party/base/ptr_util.h"
+@@ -186,6 +187,7 @@ FPDF_EXPORT void FPDF_CALLCONV FPDF_DestroyLibrary() {
  
    CPDF_ModuleMgr::Destroy();
    CFX_GEModule::Destroy();

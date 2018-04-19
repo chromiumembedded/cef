@@ -72,8 +72,3 @@ run but any related functionality may become broken or disabled.
   * swiftshader/libGLESv2.dll
   Without these files WebGL will not function in software-only mode when the GPU
   is not available or disabled.
-
-* Widevine CDM support.
-  * widevinecdmadapter.dll
-    Without this file playback of Widevine projected content will not function.
-    See the CefRegisterWidevineCdm() function in cef_web_plugin.h for usage.
