@@ -426,7 +426,8 @@ bool NavigationOnUIThread(
         request->SetReadOnly(true);
 
         ignore_navigation = handler->OnBeforeBrowse(
-            browser.get(), frame, request.get(), params.is_redirect());
+            browser.get(), frame, request.get(), params.has_user_gesture(),
+            params.is_redirect());
       }
     }
   }

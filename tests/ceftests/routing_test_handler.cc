@@ -83,6 +83,7 @@ void RoutingTestHandler::OnRenderProcessTerminated(
 bool RoutingTestHandler::OnBeforeBrowse(CefRefPtr<CefBrowser> browser,
                                         CefRefPtr<CefFrame> frame,
                                         CefRefPtr<CefRequest> request,
+                                        bool user_gesture,
                                         bool is_redirect) {
   message_router_->OnBeforeBrowse(browser, frame);
   return false;

@@ -106,12 +106,15 @@ class CefRequestHandler : public virtual CefBaseRefCounted {
   // If the navigation is allowed CefLoadHandler::OnLoadStart and
   // CefLoadHandler::OnLoadEnd will be called. If the navigation is canceled
   // CefLoadHandler::OnLoadError will be called with an |errorCode| value of
-  // ERR_ABORTED.
+  // ERR_ABORTED. The |user_gesture| value will be true if the browser
+  // navigated via explicit user gesture (e.g. clicking a link) or false if it
+  // navigated automatically (e.g. via the DomContentLoaded event).
   ///
   /*--cef()--*/
   virtual bool OnBeforeBrowse(CefRefPtr<CefBrowser> browser,
                               CefRefPtr<CefFrame> frame,
                               CefRefPtr<CefRequest> request,
+                              bool user_gesture,
                               bool is_redirect) {
     return false;
   }

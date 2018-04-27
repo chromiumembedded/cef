@@ -368,6 +368,7 @@ class HistoryNavTestHandler : public TestHandler {
   bool OnBeforeBrowse(CefRefPtr<CefBrowser> browser,
                       CefRefPtr<CefFrame> frame,
                       CefRefPtr<CefRequest> request,
+                      bool user_gesture,
                       bool is_redirect) override {
     const NavListItem& item = kHNavList[nav_];
 
@@ -1455,6 +1456,7 @@ class OrderNavTestHandler : public TestHandler {
   bool OnBeforeBrowse(CefRefPtr<CefBrowser> browser,
                       CefRefPtr<CefFrame> frame,
                       CefRefPtr<CefRequest> request,
+                      bool user_gesture,
                       bool is_redirect) override {
     EXPECT_EQ(RT_MAIN_FRAME, request->GetResourceType());
 
@@ -1896,12 +1898,21 @@ class LoadNavTestHandler : public TestHandler {
   bool OnBeforeBrowse(CefRefPtr<CefBrowser> browser,
                       CefRefPtr<CefFrame> frame,
                       CefRefPtr<CefRequest> request,
+                      bool user_gesture,
                       bool is_redirect) override {
     EXPECT_EQ(RT_MAIN_FRAME, request->GetResourceType());
-    if (mode_ == LOAD || request->GetURL() == kLoadNav1)
+    if (mode_ == LOAD || request->GetURL() == kLoadNav1) {
       EXPECT_EQ(TT_EXPLICIT, request->GetTransitionType());
-    else
+      EXPECT_FALSE(user_gesture);
+    } else {
       EXPECT_EQ(TT_LINK, request->GetTransitionType());
+
+      if (mode_ == LEFT_CLICK) {
+        EXPECT_TRUE(user_gesture);
+      } else {
+        EXPECT_FALSE(user_gesture);
+      }
+    }
 
     EXPECT_GT(browser_id_current_, 0);
     EXPECT_EQ(browser_id_current_, browser->GetIdentifier());
@@ -2602,6 +2613,7 @@ class BrowseNavTestHandler : public TestHandler {
   bool OnBeforeBrowse(CefRefPtr<CefBrowser> browser,
                       CefRefPtr<CefFrame> frame,
                       CefRefPtr<CefRequest> request,
+                      bool user_gesture,
                       bool is_redirect) override {
     const std::string& url = request->GetURL();
     EXPECT_STREQ(kBrowseNavPageUrl, url.c_str());
@@ -2764,6 +2776,7 @@ class SameNavTestHandler : public TestHandler {
   bool OnBeforeBrowse(CefRefPtr<CefBrowser> browser,
                       CefRefPtr<CefFrame> frame,
                       CefRefPtr<CefRequest> request,
+                      bool user_gesture,
                       bool is_redirect) override {
     const std::string& url = request->GetURL();
     EXPECT_STREQ(expected_url_.c_str(), url.c_str());
@@ -2956,6 +2969,7 @@ class CancelBeforeNavTestHandler : public TestHandler {
   bool OnBeforeBrowse(CefRefPtr<CefBrowser> browser,
                       CefRefPtr<CefFrame> frame,
                       CefRefPtr<CefRequest> request,
+                      bool user_gesture,
                       bool is_redirect) override {
     EXPECT_TRUE(got_loading_state_changed_start_);
     EXPECT_FALSE(got_before_browse_);
@@ -3199,6 +3213,7 @@ class CancelAfterNavTestHandler : public TestHandler {
   bool OnBeforeBrowse(CefRefPtr<CefBrowser> browser,
                       CefRefPtr<CefFrame> frame,
                       CefRefPtr<CefRequest> request,
+                      bool user_gesture,
                       bool is_redirect) override {
     EXPECT_TRUE(got_loading_state_changed_start_);
     EXPECT_FALSE(got_before_browse_);

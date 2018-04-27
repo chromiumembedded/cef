@@ -229,6 +229,7 @@ class MRTestHandler : public TestHandler {
   bool OnBeforeBrowse(CefRefPtr<CefBrowser> browser,
                       CefRefPtr<CefFrame> frame,
                       CefRefPtr<CefRequest> request,
+                      bool user_gesture,
                       bool is_redirect) override {
     message_router_->OnBeforeBrowse(browser, frame);
     return false;

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=b4c3eec00b1889871f4e13ea05d7c00a12da1fa0$
+// $hash=02ebd75f0920edad6a23db997a57f28fc921b045$
 //
 
 #include "libcef_dll/cpptoc/request_handler_cpptoc.h"
@@ -34,6 +34,7 @@ request_handler_on_before_browse(struct _cef_request_handler_t* self,
                                  cef_browser_t* browser,
                                  cef_frame_t* frame,
                                  cef_request_t* request,
+                                 int user_gesture,
                                  int is_redirect) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -56,7 +57,8 @@ request_handler_on_before_browse(struct _cef_request_handler_t* self,
   // Execute
   bool _retval = CefRequestHandlerCppToC::Get(self)->OnBeforeBrowse(
       CefBrowserCToCpp::Wrap(browser), CefFrameCToCpp::Wrap(frame),
-      CefRequestCToCpp::Wrap(request), is_redirect ? true : false);
+      CefRequestCToCpp::Wrap(request), user_gesture ? true : false,
+      is_redirect ? true : false);
 
   // Return type: bool
   return _retval;
