@@ -208,6 +208,7 @@ class ClientHandler : public CefClient,
   bool OnBeforeBrowse(CefRefPtr<CefBrowser> browser,
                       CefRefPtr<CefFrame> frame,
                       CefRefPtr<CefRequest> request,
+                      bool user_gesture,
                       bool is_redirect) OVERRIDE;
   bool OnOpenURLFromTab(
       CefRefPtr<CefBrowser> browser,

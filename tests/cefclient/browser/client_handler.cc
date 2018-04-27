@@ -635,6 +635,7 @@ void ClientHandler::OnLoadError(CefRefPtr<CefBrowser> browser,
 bool ClientHandler::OnBeforeBrowse(CefRefPtr<CefBrowser> browser,
                                    CefRefPtr<CefFrame> frame,
                                    CefRefPtr<CefRequest> request,
+                                   bool user_gesture,
                                    bool is_redirect) {
   CEF_REQUIRE_UI_THREAD();
 

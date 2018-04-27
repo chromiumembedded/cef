@@ -480,6 +480,7 @@ class FrameNavTestHandler : public TestHandler {
   bool OnBeforeBrowse(CefRefPtr<CefBrowser> browser,
                       CefRefPtr<CefFrame> frame,
                       CefRefPtr<CefRequest> request,
+                      bool user_gesture,
                       bool is_redirect) override {
     EXPECT_TRUE(
         expectations_->OnBeforeBrowse(browser, frame, request->GetURL()))

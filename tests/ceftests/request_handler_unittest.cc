@@ -204,6 +204,7 @@ class NetNotifyTestHandler : public TestHandler {
   bool OnBeforeBrowse(CefRefPtr<CefBrowser> browser,
                       CefRefPtr<CefFrame> frame,
                       CefRefPtr<CefRequest> request,
+                      bool user_gesture,
                       bool is_redirect) override {
     std::string url = request->GetURL();
 
@@ -576,6 +577,7 @@ class ResourceResponseTest : public TestHandler {
   bool OnBeforeBrowse(CefRefPtr<CefBrowser> browser,
                       CefRefPtr<CefFrame> frame,
                       CefRefPtr<CefRequest> request,
+                      bool user_gesture,
                       bool is_redirect) override {
     EXPECT_UI_THREAD();
     EXPECT_EQ(0, browser_id_);

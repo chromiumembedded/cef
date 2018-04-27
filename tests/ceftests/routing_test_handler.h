@@ -26,6 +26,7 @@ class RoutingTestHandler : public TestHandler,
   bool OnBeforeBrowse(CefRefPtr<CefBrowser> browser,
                       CefRefPtr<CefFrame> frame,
                       CefRefPtr<CefRequest> request,
+                      bool user_gesture,
                       bool is_redirect) override;
 
   // Returns true if the router handled the navigation.

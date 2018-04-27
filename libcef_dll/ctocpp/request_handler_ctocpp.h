@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=cde69cb97f29cb75da85bb709470f73d9e57f5bc$
+// $hash=f8849fecaa6e2a36280b9c71b37bdfbe1600fb06$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_REQUEST_HANDLER_CTOCPP_H_
@@ -37,6 +37,7 @@ class CefRequestHandlerCToCpp
   bool OnBeforeBrowse(CefRefPtr<CefBrowser> browser,
                       CefRefPtr<CefFrame> frame,
                       CefRefPtr<CefRequest> request,
+                      bool user_gesture,
                       bool is_redirect) override;
   bool OnOpenURLFromTab(CefRefPtr<CefBrowser> browser,
                         CefRefPtr<CefFrame> frame,
