@@ -1050,7 +1050,7 @@ if not options.nobuild and (chromium_checkout_changed or \
   # Build using Ninja.
   command = 'ninja -C '
   if options.verbosebuild:
-    command = 'ninja -v -C'
+    command = 'ninja -v -C '
   target = ' ' + options.buildtarget
   if options.buildtests:
     target = target + ' ceftests'
