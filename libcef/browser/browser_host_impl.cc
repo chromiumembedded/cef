@@ -1590,10 +1590,13 @@ CefRefPtr<CefFrame> CefBrowserHostImpl::GetFrameForRequest(
       content::ResourceRequestInfo::ForRequest(request);
   if (!info)
     return nullptr;
-  // The value of |IsMainFrame| is unreliable when |IsDownload| returns true.
+  // The value of |IsMainFrame| is unreliable in these cases.
+  const bool is_main_frame_state_flaky =
+      info->IsDownload() ||
+      info->GetResourceType() == content::RESOURCE_TYPE_XHR;
   return GetOrCreateFrame(info->GetRenderFrameID(), info->GetFrameTreeNodeId(),
                           CefFrameHostImpl::kUnspecifiedFrameId,
-                          info->IsMainFrame(), info->IsDownload(),
+                          info->IsMainFrame(), is_main_frame_state_flaky,
                           base::string16(), GURL());
 }
 
@@ -3224,7 +3227,7 @@ CefRefPtr<CefFrame> CefBrowserHostImpl::GetOrCreateFrame(
     int frame_tree_node_id,
     int64 parent_frame_id,
     bool is_main_frame,
-    bool is_download,
+    bool is_main_frame_state_flaky,
     base::string16 frame_name,
     const GURL& frame_url) {
   // We need either a valid |frame_id| or a valid |frame_tree_node_id|.
@@ -3245,13 +3248,13 @@ CefRefPtr<CefFrame> CefBrowserHostImpl::GetOrCreateFrame(
 
   if (frame_id < 0) {
     // With PlzNavigate the renderer process representation might not exist yet.
-    if ((is_main_frame || is_download) &&
+    if ((is_main_frame || is_main_frame_state_flaky) &&
         main_frame_id_ != CefFrameHostImpl::kInvalidFrameId) {
       // Operating in the main frame. Continue using the existing main frame
       // object until the new renderer process representation is created.
       frame_id = main_frame_id_;
     } else {
-      if (is_main_frame || is_download) {
+      if (is_main_frame || is_main_frame_state_flaky) {
         // Always use the same pending object for the main frame.
         frame_tree_node_id = kMainFrameTreeNodeId;
       }
@@ -3319,7 +3322,7 @@ CefRefPtr<CefFrame> CefBrowserHostImpl::GetOrCreateFrame(
     }
   }
 
-  if (!frame_created && !is_download)
+  if (!frame_created && !is_main_frame_state_flaky)
     frame->SetAttributes(is_main_frame, url, name, parent_frame_id);
 
 #if DCHECK_IS_ON()
