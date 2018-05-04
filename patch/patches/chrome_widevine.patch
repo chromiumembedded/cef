@@ -13,7 +13,7 @@ index d15599593511..0f37d5933391 100644
  #endif
  #endif  // BUILDFLAG(ENABLE_LIBRARY_CDMS)
 diff --git third_party/widevine/cdm/BUILD.gn third_party/widevine/cdm/BUILD.gn
-index 55b471ea..6dac055 100644
+index 55b471ea93f8..6dac0552d66f 100644
 --- third_party/widevine/cdm/BUILD.gn
 +++ third_party/widevine/cdm/BUILD.gn
 @@ -4,6 +4,7 @@

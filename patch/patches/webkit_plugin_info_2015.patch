@@ -23,7 +23,7 @@ index d4948345246e..73b7e0b1effe 100644
    Platform();
    virtual ~Platform();
 diff --git third_party/blink/renderer/core/dom/dom_implementation.cc third_party/blink/renderer/core/dom/dom_implementation.cc
-index c80fedc37a43..3b3cf2d73511 100644
+index 8c40eef254a8..b9ac9f2a3472 100644
 --- third_party/blink/renderer/core/dom/dom_implementation.cc
 +++ third_party/blink/renderer/core/dom/dom_implementation.cc
 @@ -243,10 +243,11 @@ Document* DOMImplementation::createDocument(const String& type,
@@ -75,7 +75,7 @@ index 04520b3a5427..a9a4f345386e 100644
  }
  
 diff --git third_party/blink/renderer/core/page/page.cc third_party/blink/renderer/core/page/page.cc
-index a825578f8eee..b122d7fbf994 100644
+index 61c746499547..45fa14d8417f 100644
 --- third_party/blink/renderer/core/page/page.cc
 +++ third_party/blink/renderer/core/page/page.cc
 @@ -153,7 +153,8 @@ Page::Page(PageClients& page_clients)
@@ -149,7 +149,7 @@ index a825578f8eee..b122d7fbf994 100644
    visitor->Trace(use_counter_);
    visitor->Trace(plugins_changed_observers_);
 diff --git third_party/blink/renderer/core/page/page.h third_party/blink/renderer/core/page/page.h
-index e614d62e2eeb..e180d16a7d47 100644
+index 25cc045b39cc..390f4aa6be7f 100644
 --- third_party/blink/renderer/core/page/page.h
 +++ third_party/blink/renderer/core/page/page.h
 @@ -138,7 +138,8 @@ class CORE_EXPORT Page final : public GarbageCollectedFinalized<Page>,
@@ -162,7 +162,7 @@ index e614d62e2eeb..e180d16a7d47 100644
  
    // Refreshes the browser-side plugin cache.
    static void RefreshPlugins();
-@@ -373,7 +374,8 @@ class CORE_EXPORT Page final : public GarbageCollectedFinalized<Page>,
+@@ -374,7 +375,8 @@ class CORE_EXPORT Page final : public GarbageCollectedFinalized<Page>,
    // longer needed.
    Member<Frame> main_frame_;
  
@@ -173,10 +173,10 @@ index e614d62e2eeb..e180d16a7d47 100644
    Member<ValidationMessageClient> validation_message_client_;
  
 diff --git third_party/blink/renderer/platform/plugins/plugin_data.cc third_party/blink/renderer/platform/plugins/plugin_data.cc
-index 122ad2b0fa79..869bbf71bc44 100644
+index 73d10a188b27..8af05af0dc76 100644
 --- third_party/blink/renderer/platform/plugins/plugin_data.cc
 +++ third_party/blink/renderer/platform/plugins/plugin_data.cc
-@@ -79,16 +79,18 @@ void PluginData::Trace(blink::Visitor* visitor) {
+@@ -83,16 +83,18 @@ void PluginData::Trace(blink::Visitor* visitor) {
  // static
  void PluginData::RefreshBrowserSidePluginCache() {
    PluginListBuilder builder(nullptr);
@@ -199,10 +199,10 @@ index 122ad2b0fa79..869bbf71bc44 100644
    for (PluginInfo* plugin_info : plugins_) {
      for (MimeClassInfo* mime_class_info : plugin_info->mimes_)
 diff --git third_party/blink/renderer/platform/plugins/plugin_data.h third_party/blink/renderer/platform/plugins/plugin_data.h
-index 736a244e720f..2279b0b8dd1e 100644
+index f1a78d3e0d5f..f6403f5ac018 100644
 --- third_party/blink/renderer/platform/plugins/plugin_data.h
 +++ third_party/blink/renderer/platform/plugins/plugin_data.h
-@@ -95,7 +95,8 @@ class PLATFORM_EXPORT PluginData final
+@@ -101,7 +101,8 @@ class PLATFORM_EXPORT PluginData final
    const HeapVector<Member<PluginInfo>>& Plugins() const { return plugins_; }
    const HeapVector<Member<MimeClassInfo>>& Mimes() const { return mimes_; }
    const SecurityOrigin* Origin() const { return main_frame_origin_.get(); }

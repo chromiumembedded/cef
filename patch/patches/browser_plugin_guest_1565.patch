@@ -266,19 +266,19 @@ index d05dd5421458..fa13775f0512 100644
    // a BrowserPlugin even when we are using cross process frames for guests. It
    // should be removed after resolving https://crbug.com/642826).
 diff --git extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc
-index 6861814915c2..766090cd3b06 100644
+index 57e98ae8a5bb..72f9e29dfcd5 100644
 --- extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc
 +++ extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc
-@@ -192,6 +192,8 @@ void MimeHandlerViewGuest::CreateWebContents(
+@@ -193,6 +193,8 @@ void MimeHandlerViewGuest::CreateWebContents(
    WebContents::CreateParams params(browser_context(),
                                     guest_site_instance.get());
    params.guest_delegate = this;
 +  if (delegate_)
 +    delegate_->OverrideWebContentsCreateParams(&params);
-   callback.Run(WebContents::Create(params));
- 
-   registry_.AddInterface(
-@@ -225,6 +227,18 @@ bool MimeHandlerViewGuest::ShouldDestroyOnDetach() const {
+   auto* web_contents = WebContents::Create(params);
+   SetViewType(web_contents, VIEW_TYPE_EXTENSION_GUEST);
+   callback.Run(web_contents);
+@@ -228,6 +230,18 @@ bool MimeHandlerViewGuest::ShouldDestroyOnDetach() const {
    return true;
  }
  

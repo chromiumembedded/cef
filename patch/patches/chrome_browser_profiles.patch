@@ -2,11 +2,10 @@ diff --git chrome/browser/profiles/incognito_helpers.cc chrome/browser/profiles/
 index ce4f72b98a05..f7d57b854399 100644
 --- chrome/browser/profiles/incognito_helpers.cc
 +++ chrome/browser/profiles/incognito_helpers.cc
-@@ -7,19 +7,42 @@
- #include "chrome/browser/profiles/profile.h"
+@@ -8,18 +8,41 @@
  
  namespace chrome {
-+  
+   
 +namespace {
 +BrowserContextIncognitoHelper* g_helper = nullptr;
 +}  // namespace
@@ -14,7 +13,7 @@ index ce4f72b98a05..f7d57b854399 100644
 +void SetBrowserContextIncognitoHelper(BrowserContextIncognitoHelper* helper) {
 +  g_helper = helper;
 +}
- 
++
  content::BrowserContext* GetBrowserContextRedirectedInIncognito(
      content::BrowserContext* context) {
 +  if (g_helper) {

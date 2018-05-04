@@ -295,10 +295,10 @@ index 1d35afeda78f..333f9c0f778d 100644
    std::unique_ptr<SelectionController> selection_controller_;
  
 diff --git ui/views/controls/menu/menu_controller.cc ui/views/controls/menu/menu_controller.cc
-index 1e6f6cc17281..bcecef51482e 100644
+index 46713d7170a6..685b0fb33286 100644
 --- ui/views/controls/menu/menu_controller.cc
 +++ ui/views/controls/menu/menu_controller.cc
-@@ -2316,8 +2316,13 @@ MenuItemView* MenuController::FindNextSelectableMenuItem(
+@@ -2321,8 +2321,13 @@ MenuItemView* MenuController::FindNextSelectableMenuItem(
  
  void MenuController::OpenSubmenuChangeSelectionIfCan() {
    MenuItemView* item = pending_state_.item;
@@ -313,7 +313,7 @@ index 1e6f6cc17281..bcecef51482e 100644
    MenuItemView* to_select = NULL;
    if (item->GetSubmenu()->GetMenuItemCount() > 0)
      to_select = FindInitialSelectableMenuItem(item, INCREMENT_SELECTION_DOWN);
-@@ -2332,8 +2337,10 @@ void MenuController::OpenSubmenuChangeSelectionIfCan() {
+@@ -2337,8 +2342,10 @@ void MenuController::OpenSubmenuChangeSelectionIfCan() {
  void MenuController::CloseSubmenu() {
    MenuItemView* item = state_.item;
    DCHECK(item);
