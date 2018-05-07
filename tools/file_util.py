@@ -52,7 +52,7 @@ def backup_file(name):
 def copy_file(src, dst, quiet=True):
   """ Copy a file. """
   try:
-    shutil.copy(src, dst)
+    shutil.copy2(src, dst)
     if not quiet:
       sys.stdout.write('Transferring ' + src + ' file.\n')
   except IOError, (errno, strerror):

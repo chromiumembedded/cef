@@ -7,7 +7,10 @@ import os
 import re
 import sys
 from exec_util import exec_cmd
+from file_util import copy_file, move_file, read_file, remove_file
 import git_util as git
+
+backup_ext = '.cefbak'
 
 
 def msg(message):
@@ -67,7 +70,7 @@ parser.add_option(
     action='store_true',
     dest='resave',
     default=False,
-    help='re-save existing patch files to pick up manual changes')
+    help='resave existing patch files to pick up manual changes')
 parser.add_option(
     '--reapply',
     action='store_true',
@@ -80,6 +83,19 @@ parser.add_option(
     dest='revert',
     default=False,
     help='revert all changes from existing patch files')
+parser.add_option(
+    '--backup',
+    action='store_true',
+    dest='backup',
+    default=False,
+    help='backup patched files. Used in combination with --revert.')
+parser.add_option(
+    '--restore',
+    action='store_true',
+    dest='restore',
+    default=False,
+    help='restore backup of patched files that have not changed. If a backup has ' +\
+         'changed the patch file will be resaved. Used in combination with --reapply.')
 parser.add_option(
     '--patch',
     action='extend',
@@ -136,6 +152,9 @@ for patch in patches:
     # List of paths added by the patch file.
     added_paths = []
 
+    # True if any backed up files have changed.
+    has_backup_changes = False
+
     if not options.resave:
       if not options.reapply:
         # Revert any changes to existing files in the patch.
@@ -143,6 +162,14 @@ for patch in patches:
           patch_path_abs = os.path.abspath(os.path.join(patch_root_abs, \
                                                         patch_path))
           if os.path.exists(patch_path_abs):
+            if options.backup:
+              backup_path_abs = patch_path_abs + backup_ext
+              if not os.path.exists(backup_path_abs):
+                msg('Creating backup of %s' % patch_path_abs)
+                copy_file(patch_path_abs, backup_path_abs)
+              else:
+                msg('Skipping backup of %s' % patch_path_abs)
+
             msg('Reverting changes to %s' % patch_path_abs)
             cmd = 'git checkout -- %s' % (patch_path_abs)
             result = exec_cmd(cmd, patch_root_abs)
@@ -170,7 +197,25 @@ for patch in patches:
                patch['name'])
           continue
 
-    if not options.revert and not options.reapply:
+        if options.restore:
+          # Restore from backup if a backup exists.
+          for patch_path in patch_paths:
+            patch_path_abs = os.path.abspath(os.path.join(patch_root_abs, \
+                                                          patch_path))
+            backup_path_abs = patch_path_abs + backup_ext
+            if os.path.exists(backup_path_abs):
+              if read_file(patch_path_abs) == read_file(backup_path_abs):
+                msg('Restoring backup of %s' % patch_path_abs)
+                remove_file(patch_path_abs)
+                move_file(backup_path_abs, patch_path_abs)
+              else:
+                msg('Discarding backup of %s' % patch_path_abs)
+                remove_file(backup_path_abs)
+                has_backup_changes = True
+            else:
+              msg('No backup of %s' % patch_path_abs)
+
+    if (not options.revert and not options.reapply) or has_backup_changes:
       msg('Saving changes to %s' % patch_file)
       if added_paths:
         # Inform git of the added paths so they appear in the patch file.
