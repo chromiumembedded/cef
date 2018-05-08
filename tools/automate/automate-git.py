@@ -2,14 +2,18 @@
 # reserved. Use of this source code is governed by a BSD-style license that
 # can be found in the LICENSE file.
 
+from datetime import datetime
+import json
 from optparse import OptionParser
 import os
+import re
 import shlex
 import shutil
 import subprocess
 import sys
 import tempfile
 import urllib
+import urllib2
 import zipfile
 
 ##
@@ -20,6 +24,8 @@ depot_tools_url = 'https://chromium.googlesource.com/chromium/tools/depot_tools.
 depot_tools_archive_url = 'https://storage.googleapis.com/chrome-infra/depot_tools.zip'
 
 cef_git_url = 'https://bitbucket.org/chromiumembedded/cef.git'
+
+chromium_channel_json_url = 'https://omahaproxy.appspot.com/all.json'
 
 ##
 # Global system variables.
@@ -135,6 +141,16 @@ def get_git_hash(path, branch):
   result = exec_cmd(cmd, path)
   if result['out'] != '':
     return result['out'].strip()
+  return 'Unknown'
+
+
+def get_git_date(path, branch):
+  """ Returns the date for the specified branch/tag/hash. """
+  cmd = "%s show -s --format=%%ct %s" % (git_exe, branch)
+  result = exec_cmd(cmd, path)
+  if result['out'] != '':
+    return datetime.utcfromtimestamp(
+        int(result['out'].strip())).strftime('%Y-%m-%d %H:%M:%S UTC')
   return 'Unknown'
 
 
@@ -310,6 +326,158 @@ def onerror(func, path, exc_info):
     raise
 
 
+def read_json_url(url):
+  """ Read a JSON URL. """
+  msg('Downloading %s' % url)
+  response = urllib2.urlopen(url)
+  return json.loads(response.read())
+
+
+g_channel_data = None
+
+
+def get_chromium_channel_data(os, channel, param=None):
+  """ Returns all data for the specified Chromium channel. """
+  global g_channel_data
+
+  if g_channel_data is None:
+    g_channel_data = read_json_url(chromium_channel_json_url)
+    assert len(g_channel_data) > 0, 'Failed to load Chromium channel data'
+
+  for oses in g_channel_data:
+    if oses['os'] == os:
+      for version in oses['versions']:
+        if version['channel'] == channel:
+          assert version['os'] == os
+          assert version['channel'] == channel
+          if param is None:
+            return version
+          else:
+            assert param in version, 'Missing parameter %s for Chromium channel %s %s' % (
+                param, os, channel)
+            return version[param]
+      raise Exception("Invalid Chromium channel value: %s" % channel)
+  raise Exception("Invalid Chromium os value: %s" % os)
+
+
+def get_chromium_channel_commit(os, channel):
+  """ Returns the current branch commit for the specified Chromium channel. """
+  return get_chromium_channel_data(os, channel, 'branch_commit')
+
+
+def get_chromium_channel_version(os, channel):
+  """ Returns the current version for the specified Chromium channel. """
+  return get_chromium_channel_data(os, channel, 'current_version')
+
+
+def get_chromium_master_position(commit):
+  """ Returns the closest master position for the specified Chromium commit. """
+  # Using -2 because a "Publish DEPS" commit which does not have a master
+  # position may be first.
+  cmd = "%s log -2 %s" % (git_exe, commit)
+  result = exec_cmd(cmd, chromium_src_dir)
+  if result['out'] != '':
+    match = re.search(r'refs/heads/master@{#([\d]+)}', result['out'])
+    assert match != None, 'Failed to find position'
+    return int(match.groups()[0])
+  return None
+
+
+def get_chromium_master_commit(position):
+  """ Returns the master commit for the specified Chromium commit position. """
+  cmd = '%s log -1 --grep=refs/heads/master@{#%s} origin/master' % (
+      git_exe, str(position))
+  result = exec_cmd(cmd, chromium_src_dir)
+  if result['out'] != '':
+    match = re.search(r'^commit ([a-f0-9]+)', result['out'])
+    assert match != None, 'Failed to find commit'
+    return match.groups()[0]
+  return None
+
+
+def get_chromium_versions(commit):
+  """ Returns the list of Chromium versions that contain the specified commit.
+      Versions are listed oldest to newest. """
+  cmd = '%s tag --contains %s' % (git_exe, commit)
+  result = exec_cmd(cmd, chromium_src_dir)
+  if result['out'] != '':
+    return [line.strip() for line in result['out'].strip().split('\n')]
+  return None
+
+
+def get_chromium_compat_version():
+  """ Returns the compatible Chromium version specified by the CEF checkout. """
+  compat_path = os.path.join(cef_dir, 'CHROMIUM_BUILD_COMPATIBILITY.txt')
+  msg("Reading %s" % compat_path)
+  config = read_config_file(compat_path)
+
+  if 'chromium_checkout' in config:
+    return config['chromium_checkout']
+  raise Exception("Missing chromium_checkout value in %s" % (compat_path))
+
+
+def get_chromium_target_version(os='win', channel='canary', target_distance=0):
+  """ Returns the target Chromium version based on a heuristic. """
+  # The current compatible version from CEF.
+  compat_version = get_chromium_compat_version()
+  compat_commit = get_git_hash(chromium_src_dir, compat_version)
+  if compat_version == compat_commit:
+    versions = get_chromium_versions(compat_commit)
+    if len(versions) > 0:
+      compat_version = 'refs/tags/' + versions[0]
+      # Closest version may not align with the compat position, so adjust the
+      # commit to match.
+      compat_commit = get_git_hash(chromium_src_dir, compat_version)
+  compat_position = get_chromium_master_position(compat_commit)
+  compat_date = get_git_date(chromium_src_dir, compat_commit)
+
+  # The most recent channel version from the Chromium website.
+  channel_version = 'refs/tags/' + get_chromium_channel_version(os, channel)
+  channel_commit = get_chromium_channel_commit(os, channel)
+  channel_position = get_chromium_master_position(channel_commit)
+  channel_date = get_git_date(chromium_src_dir, channel_commit)
+
+  if compat_position >= channel_position:
+    # Already compatible with the channel version or newer.
+    target_version = compat_version
+    target_commit = compat_commit
+    target_position = compat_position
+    target_date = compat_date
+  elif target_distance <= 0 or compat_position + target_distance >= channel_position:
+    # Channel version is within the target distance.
+    target_version = channel_version
+    target_commit = channel_commit
+    target_position = channel_position
+    target_date = channel_date
+  else:
+    # Find an intermediary version that's within the target distance.
+    target_position = compat_position + target_distance
+    target_commit = get_chromium_master_commit(target_position)
+    versions = get_chromium_versions(target_commit)
+    if len(versions) > 0:
+      target_version = 'refs/tags/' + versions[0]
+      # Closest version may not align with the target position, so adjust the
+      # commit and position to match.
+      target_commit = get_git_hash(chromium_src_dir, target_version)
+      target_position = get_chromium_master_position(target_commit)
+    else:
+      target_version = target_commit
+    target_date = get_git_date(chromium_src_dir, target_commit)
+
+  msg("")
+  msg("Computed Chromium update for %s %s at distance %d" % (os, channel,
+                                                             target_distance))
+  msg("Compat:  %s %s %s (#%d)" % (compat_date, compat_version, compat_commit,
+                                   compat_position))
+  msg("Target:  %s %s %s (#%d)" % (target_date, target_version, target_commit,
+                                   target_position))
+  msg("Channel: %s %s %s (#%d)" % (channel_date, channel_version,
+                                   channel_commit, channel_position))
+  msg("")
+
+  return target_version
+
+
 ##
 # Program entry point.
 ##
@@ -364,6 +532,16 @@ parser.add_option('--chromium-checkout', dest='chromiumcheckout',
                   help='Version of Chromium to checkout (Git '+\
                        'branch/hash/tag). This overrides the value specified '+\
                        'by CEF in CHROMIUM_BUILD_COMPATIBILITY.txt.',
+                  default='')
+parser.add_option('--chromium-channel', dest='chromiumchannel',
+                  help='Chromium channel to check out (canary, dev, beta or '+\
+                       'stable). This overrides the value specified by CEF '+\
+                       'in CHROMIUM_BUILD_COMPATIBILITY.txt.',
+                  default='')
+parser.add_option('--chromium-channel-distance', dest='chromiumchanneldistance',
+                  help='The target number of commits to step in the '+\
+                       'channel, or 0 to use the newest channel version. '+\
+                       'Used in combination with --chromium-channel.',
                   default='')
 
 # Miscellaneous options.
@@ -574,7 +752,8 @@ if (options.nochromiumupdate and options.forceupdate) or \
    (options.nocefupdate and options.forceupdate) or \
    (options.nobuild and options.forcebuild) or \
    (options.nodistrib and options.forcedistrib) or \
-   ((options.forceclean or options.forcecleandeps) and options.fastupdate):
+   ((options.forceclean or options.forcecleandeps) and options.fastupdate) or \
+   (options.chromiumcheckout and options.chromiumchannel):
   print "Invalid combination of options."
   parser.print_help(sys.stderr)
   sys.exit()
@@ -924,18 +1103,24 @@ if not options.dryrun and not is_git_checkout(chromium_src_dir):
 if os.path.exists(chromium_src_dir):
   msg("Chromium URL: %s" % (get_git_url(chromium_src_dir)))
 
-# Determine the Chromium checkout options required by CEF.
-if options.chromiumcheckout == '':
-  # Read the build compatibility file to identify the checkout name.
-  compat_path = os.path.join(cef_dir, 'CHROMIUM_BUILD_COMPATIBILITY.txt')
-  config = read_config_file(compat_path)
+# Fetch Chromium changes so that we can perform the necessary calculations using
+# local history.
+if not options.nochromiumupdate and os.path.exists(chromium_src_dir):
+  # Fetch new sources.
+  run("%s fetch" % (git_exe), chromium_src_dir, depot_tools_dir)
+  # Also fetch tags, which are required for release branch builds.
+  run("%s fetch --tags" % (git_exe), chromium_src_dir, depot_tools_dir)
 
-  if 'chromium_checkout' in config:
-    chromium_checkout = config['chromium_checkout']
-  else:
-    raise Exception("Missing chromium_checkout value in %s" % (compat_path))
-else:
+# Determine the Chromium checkout options required by CEF.
+if len(options.chromiumcheckout) > 0:
   chromium_checkout = options.chromiumcheckout
+elif len(options.chromiumchannel) > 0:
+  target_distance = int(options.chromiumchanneldistance
+                       ) if len(options.chromiumchanneldistance) > 0 else 0
+  chromium_checkout = get_chromium_target_version(
+      channel=options.chromiumchannel, target_distance=target_distance)
+else:
+  chromium_checkout = get_chromium_compat_version()
 
 # Determine if the Chromium checkout needs to change.
 if not options.nochromiumupdate and os.path.exists(chromium_src_dir):
@@ -982,11 +1167,6 @@ if chromium_checkout_changed:
     else:
       # Revert all changes in the Chromium checkout.
       run("gclient revert --nohooks", chromium_dir, depot_tools_dir)
-
-  # Fetch new sources.
-  run("%s fetch" % (git_exe), chromium_src_dir, depot_tools_dir)
-  # Also fetch tags, which are required for release branch builds.
-  run("%s fetch --tags" % (git_exe), chromium_src_dir, depot_tools_dir)
 
   # Checkout the requested branch.
   run("%s checkout %s%s" % \
