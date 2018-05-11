@@ -1,11 +1,11 @@
 diff --git chrome/browser/profiles/incognito_helpers.cc chrome/browser/profiles/incognito_helpers.cc
-index ce4f72b98a05..f7d57b854399 100644
+index ce4f72b98a05..39f7c3140c6e 100644
 --- chrome/browser/profiles/incognito_helpers.cc
 +++ chrome/browser/profiles/incognito_helpers.cc
 @@ -8,18 +8,41 @@
  
  namespace chrome {
-   
+ 
 +namespace {
 +BrowserContextIncognitoHelper* g_helper = nullptr;
 +}  // namespace

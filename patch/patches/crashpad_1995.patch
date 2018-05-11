@@ -30,13 +30,13 @@ index 887e13776dd2..de30ebff25e4 100644
  
  void SetActiveExtensions(const std::set<std::string>& extensions) {
 diff --git chrome/common/crash_keys.h chrome/common/crash_keys.h
-index bcf172e645a2..a46141ea43e0 100644
+index bcf172e645a2..f879aa745adf 100644
 --- chrome/common/crash_keys.h
 +++ chrome/common/crash_keys.h
 @@ -17,6 +17,10 @@ class CommandLine;
  
  namespace crash_keys {
-   
+ 
 +// Returns true if the specified command-line flag should be excluded from
 +// crash reporting.
 +bool IsBoringChromeSwitch(const std::string& flag);
