@@ -18,11 +18,16 @@ def msg(message):
   sys.stdout.write('--> ' + message + "\n")
 
 
+def linebreak():
+  """ Output a line break. """
+  sys.stdout.write('-' * 80 + "\n")
+
+
 def warn(message):
   """ Output a warning. """
-  sys.stdout.write('-' * 80 + "\n")
+  linebreak()
   sys.stdout.write('!!!! WARNING: ' + message + "\n")
-  sys.stdout.write('-' * 80 + "\n")
+  linebreak()
 
 
 def extract_paths(file):
@@ -129,6 +134,8 @@ scope = {}
 execfile(patch_cfg, scope)
 patches = scope["patches"]
 
+failed_patches = {}
+
 # Read each individual patch file.
 patches_dir = os.path.join(patch_dir, 'patches')
 for patch in patches:
@@ -193,8 +200,13 @@ for patch in patches:
           raise Exception('Failed to apply patch file: %s' % result['err'])
         sys.stdout.write(result['out'])
         if result['out'].find('FAILED') != -1:
+          failed_lines = []
+          for line in result['out'].split('\n'):
+            if line.find('FAILED') != -1:
+              failed_lines.append(line.strip())
           warn('Failed to apply %s, fix manually and run with --resave' % \
                patch['name'])
+          failed_patches[patch['name']] = failed_lines
           continue
 
         if options.restore:
@@ -235,3 +247,14 @@ for patch in patches:
       f.close()
   else:
     raise Exception('Patch file does not exist: %s' % patch_file)
+
+if len(failed_patches) > 0:
+  sys.stdout.write("\n")
+  linebreak()
+  sys.stdout.write("!!!! FAILED PATCHES, fix manually and run with --resave\n")
+  for name in sorted(failed_patches.keys()):
+    sys.stdout.write("%s:\n" % name)
+    for line in failed_patches[name]:
+      sys.stdout.write("  %s\n" % line)
+  linebreak()
+  sys.exit(1)

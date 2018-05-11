@@ -300,10 +300,12 @@ def apply_deps_patch():
     raise Exception("Path does not exist: %s" % (deps_path))
 
 
-def run_patch_updater(args):
+def run_patch_updater(args=''):
   """ Run the patch updater script. """
   tool = os.path.join(cef_src_dir, 'tools', 'patch_updater.py')
-  run('%s %s %s' % (python_exe, tool, args), cef_src_dir, depot_tools_dir)
+  if len(args) > 0:
+    args = ' ' + args
+  run('%s %s%s' % (python_exe, tool, args), cef_src_dir, depot_tools_dir)
 
 
 def onerror(func, path, exc_info):
@@ -419,7 +421,7 @@ def get_chromium_compat_version():
 def get_chromium_target_version(os='win', channel='canary', target_distance=0):
   """ Returns the target Chromium version based on a heuristic. """
   # The current compatible version from CEF.
-  compat_version = get_chromium_compat_version()
+  compat_version = chromium_compat_version
   compat_commit = get_git_hash(chromium_src_dir, compat_version)
   if compat_version == compat_commit:
     versions = get_chromium_versions(compat_commit)
@@ -1112,6 +1114,7 @@ if not options.nochromiumupdate and os.path.exists(chromium_src_dir):
   run("%s fetch --tags" % (git_exe), chromium_src_dir, depot_tools_dir)
 
 # Determine the Chromium checkout options required by CEF.
+chromium_compat_version = get_chromium_compat_version()
 if len(options.chromiumcheckout) > 0:
   chromium_checkout = options.chromiumcheckout
 elif len(options.chromiumchannel) > 0:
@@ -1120,7 +1123,7 @@ elif len(options.chromiumchannel) > 0:
   chromium_checkout = get_chromium_target_version(
       channel=options.chromiumchannel, target_distance=target_distance)
 else:
-  chromium_checkout = get_chromium_compat_version()
+  chromium_checkout = chromium_compat_version
 
 # Determine if the Chromium checkout needs to change.
 if not options.nochromiumupdate and os.path.exists(chromium_src_dir):
@@ -1210,6 +1213,11 @@ elif not out_src_dir_exists:
 
 # Write the config file for identifying the branch.
 write_branch_config_file(out_src_dir, cef_branch)
+
+if not options.fastupdate and chromium_checkout_changed and \
+   chromium_checkout != chromium_compat_version:
+  # Not using the known-compatible Chromium version. Try to update patch files.
+  run_patch_updater()
 
 ##
 # Build CEF.

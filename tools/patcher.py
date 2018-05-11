@@ -87,9 +87,7 @@ def apply_patch_config():
     write_note('ERROR',
                '%d patches failed to apply. Your build will not be correct.' %
                results['fail'])
-    raise Exception(
-        '%d patches failed to apply. Your build will not be correct.' %
-        results['fail'])
+    sys.exit(1)
 
 
 # Parse command-line options.
