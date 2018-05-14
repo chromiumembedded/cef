@@ -90,7 +90,7 @@ class CefBeforeDownloadCallbackImpl : public CefBeforeDownloadCallback {
     }
 
     if (suggested_path.empty()) {
-      if (PathService::Get(base::DIR_TEMP, &suggested_path)) {
+      if (base::PathService::Get(base::DIR_TEMP, &suggested_path)) {
         // Use the temp directory.
         suggested_path = suggested_path.Append(suggested_name);
       } else {

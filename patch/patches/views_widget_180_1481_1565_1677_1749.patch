@@ -18,7 +18,7 @@ index ca70db586f53..80cc47fdbb50 100644
    return renderer_frame_number_;
  }
 diff --git content/browser/renderer_host/render_widget_host_view_base.h content/browser/renderer_host/render_widget_host_view_base.h
-index 895e2dcaf262..8333bd24b192 100644
+index 3dd76a134848..b13e619dd8ef 100644
 --- content/browser/renderer_host/render_widget_host_view_base.h
 +++ content/browser/renderer_host/render_widget_host_view_base.h
 @@ -80,6 +80,7 @@ class BrowserAccessibilityManager;
@@ -335,7 +335,7 @@ index 79d677baa9f7..9056f02c37f0 100644
    base::WeakPtrFactory<DesktopWindowTreeHostX11> weak_factory_;
  
 diff --git ui/views/widget/widget.cc ui/views/widget/widget.cc
-index 7bc25d68ab4d..b6c69838fcc4 100644
+index 239b66424dcc..1006f78e284c 100644
 --- ui/views/widget/widget.cc
 +++ ui/views/widget/widget.cc
 @@ -133,6 +133,7 @@ Widget::InitParams::InitParams(Type type)
@@ -369,7 +369,7 @@ index 7bc25d68ab4d..b6c69838fcc4 100644
    }
    // This must come after SetContentsView() or it might not be able to find
    // the correct NativeTheme (on Linux). See http://crbug.com/384492
-@@ -1110,10 +1116,16 @@ void Widget::OnNativeWidgetDestroyed() {
+@@ -1098,10 +1104,16 @@ void Widget::OnNativeWidgetDestroyed() {
  }
  
  gfx::Size Widget::GetMinimumSize() const {
@@ -387,7 +387,7 @@ index 7bc25d68ab4d..b6c69838fcc4 100644
  }
  
 diff --git ui/views/widget/widget.h ui/views/widget/widget.h
-index e2df1f67a8b9..920f2ea6a8b7 100644
+index bc3b94fa4f3b..e80f9674ccac 100644
 --- ui/views/widget/widget.h
 +++ ui/views/widget/widget.h
 @@ -252,6 +252,7 @@ class VIEWS_EXPORT Widget : public internal::NativeWidgetDelegate,
@@ -427,10 +427,10 @@ index c7296fed234d..244d0034a1c4 100644
        if (native_widget_delegate->IsDialogBox()) {
          *style |= DS_MODALFRAME;
 diff --git ui/views/win/hwnd_message_handler.cc ui/views/win/hwnd_message_handler.cc
-index 6a468941cf4a..55a159a2dbff 100644
+index 010d3f43e501..43d54d4010f6 100644
 --- ui/views/win/hwnd_message_handler.cc
 +++ ui/views/win/hwnd_message_handler.cc
-@@ -2794,10 +2794,13 @@ LRESULT HWNDMessageHandler::HandleMouseEventInternal(UINT message,
+@@ -2801,10 +2801,13 @@ LRESULT HWNDMessageHandler::HandleMouseEventInternal(UINT message,
    } else if (event.type() == ui::ET_MOUSEWHEEL) {
      ui::MouseWheelEvent mouse_wheel_event(msg);
      // Reroute the mouse wheel to the window under the pointer if applicable.

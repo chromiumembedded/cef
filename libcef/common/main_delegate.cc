@@ -36,6 +36,7 @@
 #include "extensions/common/constants.h"
 #include "ipc/ipc_buildflags.h"
 #include "pdf/pdf_ppapi.h"
+#include "services/service_manager/sandbox/switches.h"
 #include "ui/base/layout.h"
 #include "ui/base/material_design/material_design_controller.h"
 #include "ui/base/resource/resource_bundle.h"
@@ -107,21 +108,21 @@ void OverrideChildProcessPath() {
   }
 
   // Used by ChildProcessHost::GetChildPath and PlatformCrashpadInitialization.
-  PathService::Override(content::CHILD_PROCESS_EXE, child_process_path);
+  base::PathService::Override(content::CHILD_PROCESS_EXE, child_process_path);
 }
 
 #else  // !defined(OS_MACOSX)
 
 base::FilePath GetResourcesFilePath() {
   base::FilePath pak_dir;
-  PathService::Get(base::DIR_MODULE, &pak_dir);
+  base::PathService::Get(base::DIR_MODULE, &pak_dir);
   return pak_dir;
 }
 
 // Use a "debug.log" file in the running executable's directory.
 base::FilePath GetDefaultLogFile() {
   base::FilePath log_path;
-  PathService::Get(base::DIR_EXE, &log_path);
+  base::PathService::Get(base::DIR_EXE, &log_path);
   return log_path.Append(FILE_PATH_LITERAL("debug.log"));
 }
 
@@ -168,8 +169,8 @@ void OverridePepperFlashSystemPluginPath() {
 #endif
 
   if (!plugin_filename.empty()) {
-    PathService::Override(chrome::FILE_PEPPER_FLASH_SYSTEM_PLUGIN,
-                          plugin_filename);
+    base::PathService::Override(chrome::FILE_PEPPER_FLASH_SYSTEM_PLUGIN,
+                                plugin_filename);
   }
 }
 
@@ -193,7 +194,7 @@ bool GetDefaultUserDataDirectory(base::FilePath* result) {
 
 // Based on chrome/common/chrome_paths_mac.mm.
 bool GetDefaultUserDataDirectory(base::FilePath* result) {
-  if (!PathService::Get(base::DIR_APP_DATA, result))
+  if (!base::PathService::Get(base::DIR_APP_DATA, result))
     return false;
   *result = result->Append(FILE_PATH_LITERAL("CEF"));
   *result = result->Append(FILE_PATH_LITERAL("User Data"));
@@ -204,7 +205,7 @@ bool GetDefaultUserDataDirectory(base::FilePath* result) {
 
 // Based on chrome/common/chrome_paths_win.cc.
 bool GetDefaultUserDataDirectory(base::FilePath* result) {
-  if (!PathService::Get(base::DIR_LOCAL_APP_DATA, result))
+  if (!base::PathService::Get(base::DIR_LOCAL_APP_DATA, result))
     return false;
   *result = result->Append(FILE_PATH_LITERAL("CEF"));
   *result = result->Append(FILE_PATH_LITERAL("User Data"));
@@ -222,7 +223,7 @@ base::FilePath GetUserDataPath() {
   if (GetDefaultUserDataDirectory(&result))
     return result;
 
-  if (PathService::Get(base::DIR_TEMP, &result))
+  if (base::PathService::Get(base::DIR_TEMP, &result))
     return result;
 
   NOTREACHED();
@@ -343,7 +344,7 @@ bool CefMainDelegate::BasicStartupComplete(int* exit_code) {
 #endif
 
     if (no_sandbox)
-      command_line->AppendSwitch(switches::kNoSandbox);
+      command_line->AppendSwitch(service_manager::switches::kNoSandbox);
 
     if (settings.user_agent.length > 0) {
       command_line->AppendSwitchASCII(switches::kUserAgent,
@@ -547,13 +548,13 @@ void CefMainDelegate::PreSandboxStartup() {
     OverridePepperFlashSystemPluginPath();
 
     const base::FilePath& user_data_path = GetUserDataPath();
-    PathService::Override(chrome::DIR_USER_DATA, user_data_path);
+    base::PathService::Override(chrome::DIR_USER_DATA, user_data_path);
 
     // Path used for crash dumps.
-    PathService::Override(chrome::DIR_CRASH_DUMPS, user_data_path);
+    base::PathService::Override(chrome::DIR_CRASH_DUMPS, user_data_path);
 
     // Path used for spell checking dictionary files.
-    PathService::OverrideAndCreateIfNeeded(
+    base::PathService::OverrideAndCreateIfNeeded(
         chrome::DIR_APP_DICTIONARIES,
         user_data_path.AppendASCII("Dictionaries"),
         false,  // May not be an absolute path.
@@ -668,7 +669,7 @@ void CefMainDelegate::InitializeResourceBundle() {
   if (resources_dir.empty())
     resources_dir = GetResourcesFilePath();
   if (!resources_dir.empty())
-    PathService::Override(chrome::DIR_RESOURCES, resources_dir);
+    base::PathService::Override(chrome::DIR_RESOURCES, resources_dir);
 
   if (!content_client_.pack_loading_disabled()) {
     if (!resources_dir.empty()) {
@@ -688,7 +689,7 @@ void CefMainDelegate::InitializeResourceBundle() {
       locales_dir = command_line->GetSwitchValuePath(switches::kLocalesDirPath);
 
     if (!locales_dir.empty())
-      PathService::Override(ui::DIR_LOCALES, locales_dir);
+      base::PathService::Override(ui::DIR_LOCALES, locales_dir);
   }
 
   std::string locale = command_line->GetSwitchValueASCII(switches::kLang);

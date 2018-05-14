@@ -86,6 +86,7 @@ typedef std::char_traits<wchar_t> string16_char_traits;
 
 #include "include/base/cef_macros.h"
 
+namespace cef {
 namespace base {
 
 typedef uint16_t char16;
@@ -156,7 +157,14 @@ struct string16_char_traits {
   static int_type eof() { return static_cast<int_type>(EOF); }
 };
 
-typedef std::basic_string<char16, base::string16_char_traits> string16;
+typedef std::basic_string<char16, string16_char_traits> string16;
+
+}  // namespace base
+}  // namespace cef
+
+namespace base {
+
+typedef cef::base::string16 string16;
 
 extern std::ostream& operator<<(std::ostream& out, const string16& str);
 
@@ -204,8 +212,8 @@ extern void PrintTo(const string16& str, std::ostream* out);
 //
 // TODO(mark): File this bug with Apple and update this note with a bug number.
 
-extern template class std::basic_string<base::char16,
-                                        base::string16_char_traits>;
+extern template class std::basic_string<cef::base::char16,
+                                        cef::base::string16_char_traits>;
 
 #endif  // WCHAR_T_IS_UTF32
 

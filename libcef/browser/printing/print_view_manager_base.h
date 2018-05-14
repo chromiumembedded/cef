@@ -34,9 +34,7 @@ namespace printing {
 
 class JobEventDetails;
 class PrintJob;
-class PrintJobWorkerOwner;
 class PrintQueriesQueue;
-class PrintedDocument;
 class PrinterQuery;
 
 // Base class for managing the print commands for a WebContents.
@@ -45,12 +43,10 @@ class CefPrintViewManagerBase : public content::NotificationObserver,
  public:
   ~CefPrintViewManagerBase() override;
 
-#if BUILDFLAG(ENABLE_BASIC_PRINTING)
   // Prints the current document immediately. Since the rendering is
   // asynchronous, the actual printing will not be completed on the return of
   // this function. Returns false if printing is impossible at the moment.
   virtual bool PrintNow(content::RenderFrameHost* rfh);
-#endif  // ENABLE_BASIC_PRINTING
 
   // Whether printing is enabled or not.
   void UpdatePrintingEnabled();
@@ -78,7 +74,7 @@ class CefPrintViewManagerBase : public content::NotificationObserver,
   // currently a print job, safely disconnect from it. Returns false if it is
   // impossible to safely disconnect from the current print job or it is
   // impossible to create a new print job.
-  virtual bool CreateNewPrintJob(PrintJobWorkerOwner* job);
+  virtual bool CreateNewPrintJob(PrinterQuery* query);
 
   // Manages the low-level talk to the printer.
   scoped_refptr<PrintJob> print_job_;
@@ -112,14 +108,13 @@ class CefPrintViewManagerBase : public content::NotificationObserver,
   // been requested to the renderer.
   bool RenderAllMissingPagesNow();
 
-  // Checks that synchronization is correct and a print query exists for
-  // |cookie|. If so, returns the document associated with the cookie.
-  PrintedDocument* GetDocument(int cookie);
+  // Checks that synchronization is correct with |print_job_| based on |cookie|.
+  bool PrintJobHasDocument(int cookie);
 
-  // Starts printing |document| with the given |print_data|. This method assumes
-  // |print_data| contains valid data.
-  void PrintDocument(PrintedDocument* document,
-                     const scoped_refptr<base::RefCountedMemory>& print_data,
+  // Starts printing the |document| in |print_job_| with the given |print_data|.
+  // This method assumes PrintJobHasDocument() has been called, and |print_data|
+  // contains valid data.
+  void PrintDocument(const scoped_refptr<base::RefCountedMemory>& print_data,
                      const gfx::Size& page_size,
                      const gfx::Rect& content_area,
                      const gfx::Point& offsets);
@@ -177,7 +172,7 @@ class CefPrintViewManagerBase : public content::NotificationObserver,
   // Whether printing is enabled.
   BooleanPrefMember printing_enabled_;
 
-  scoped_refptr<printing::PrintQueriesQueue> queue_;
+  scoped_refptr<PrintQueriesQueue> queue_;
 
   base::WeakPtrFactory<CefPrintViewManagerBase> weak_ptr_factory_;
 

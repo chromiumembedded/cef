@@ -12,7 +12,7 @@ index 2bcaabc1330e..6e6cbb542a59 100644
        # https://crbug.com/474506.
        "//clank/java/BUILD.gn",
 diff --git BUILD.gn BUILD.gn
-index acd17275a438..52ea2a4654b0 100644
+index 5ce3ebab4683..73f9594f36cb 100644
 --- BUILD.gn
 +++ BUILD.gn
 @@ -192,6 +192,7 @@ group("gn_all") {
@@ -110,10 +110,10 @@ index fce62521a385..73fa49852fd6 100644
  
  
 diff --git build/vs_toolchain.py build/vs_toolchain.py
-index 6060415bda86..1cc1eaae0a1d 100755
+index 11e5e4c7d30f..88e8b84d23e3 100755
 --- build/vs_toolchain.py
 +++ build/vs_toolchain.py
-@@ -81,11 +81,18 @@ def SetEnvironmentAndGetRuntimeDllDirs():
+@@ -82,11 +82,18 @@ def SetEnvironmentAndGetRuntimeDllDirs():
      runtime_path = os.path.pathsep.join(vs_runtime_dll_dirs)
      os.environ['PATH'] = runtime_path + os.path.pathsep + os.environ['PATH']
    elif sys.platform == 'win32' and not depot_tools_win_toolchain:
@@ -146,7 +146,7 @@ index 6d412994ffd8..575536f80166 100644
      if (is_mac) {
        output_locales = locales_as_mac_outputs
 diff --git chrome/installer/mini_installer/BUILD.gn chrome/installer/mini_installer/BUILD.gn
-index c365088b90b7..29c28300979e 100644
+index 5c940dde6d9c..1cc058e51c5b 100644
 --- chrome/installer/mini_installer/BUILD.gn
 +++ chrome/installer/mini_installer/BUILD.gn
 @@ -133,7 +133,7 @@ template("generate_mini_installer") {

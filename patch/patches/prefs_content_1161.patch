@@ -35,10 +35,10 @@ index e4fc39c60fd7..f19fccf47261 100644
    bool record_whole_document;
    SavePreviousDocumentResources save_previous_document_resources;
 diff --git content/renderer/render_view_impl.cc content/renderer/render_view_impl.cc
-index 58cf6da520e2..02ad4c2998bf 100644
+index a0f5f3d0912b..f10561eeb952 100644
 --- content/renderer/render_view_impl.cc
 +++ content/renderer/render_view_impl.cc
-@@ -1209,6 +1209,7 @@ void RenderViewImpl::ApplyWebPreferencesInternal(
+@@ -1198,6 +1198,7 @@ void RenderViewImpl::ApplyWebPreferencesInternal(
      blink::WebView* web_view,
      CompositorDependencies* compositor_deps) {
    ApplyWebPreferences(prefs, web_view);

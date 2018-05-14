@@ -1,12 +1,11 @@
 diff --git chrome/browser/profiles/incognito_helpers.cc chrome/browser/profiles/incognito_helpers.cc
-index ce4f72b98a05..f7d57b854399 100644
+index ce4f72b98a05..39f7c3140c6e 100644
 --- chrome/browser/profiles/incognito_helpers.cc
 +++ chrome/browser/profiles/incognito_helpers.cc
-@@ -7,19 +7,42 @@
- #include "chrome/browser/profiles/profile.h"
+@@ -8,18 +8,41 @@
  
  namespace chrome {
-+  
+ 
 +namespace {
 +BrowserContextIncognitoHelper* g_helper = nullptr;
 +}  // namespace
@@ -14,7 +13,7 @@ index ce4f72b98a05..f7d57b854399 100644
 +void SetBrowserContextIncognitoHelper(BrowserContextIncognitoHelper* helper) {
 +  g_helper = helper;
 +}
- 
++
  content::BrowserContext* GetBrowserContextRedirectedInIncognito(
      content::BrowserContext* context) {
 +  if (g_helper) {
@@ -71,10 +70,10 @@ index e8e76ce5b954..1dd338dd0142 100644
  content::BrowserContext* GetBrowserContextRedirectedInIncognito(
      content::BrowserContext* context);
 diff --git chrome/browser/profiles/profile_manager.cc chrome/browser/profiles/profile_manager.cc
-index 7675240b2556..08f621236038 100644
+index 7f15a0bcb0a9..3f2db9c4b75b 100644
 --- chrome/browser/profiles/profile_manager.cc
 +++ chrome/browser/profiles/profile_manager.cc
-@@ -378,7 +378,7 @@ ProfileManager::ProfileManager(const base::FilePath& user_data_dir)
+@@ -379,7 +379,7 @@ ProfileManager::ProfileManager(const base::FilePath& user_data_dir)
        chrome::NOTIFICATION_BROWSER_CLOSE_CANCELLED,
        content::NotificationService::AllSources());
  

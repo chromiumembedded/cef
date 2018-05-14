@@ -55,7 +55,7 @@ index fb6f4847cfe9..aa4c1cdafb9f 100644
  
  }  // namespace net
 diff --git net/http/transport_security_state.cc net/http/transport_security_state.cc
-index 2f07f68ace0d..8c223aed6210 100644
+index c82981c270e3..25c6a3950830 100644
 --- net/http/transport_security_state.cc
 +++ net/http/transport_security_state.cc
 @@ -1581,8 +1581,10 @@ void TransportSecurityState::ClearReportCachesForTesting() {
@@ -72,7 +72,7 @@ index 2f07f68ace0d..8c223aed6210 100644
    // We consider built-in information to be timely for 10 weeks.
    return (base::Time::Now() - build_time).InDays() < 70 /* 10 weeks */;
 diff --git net/http/transport_security_state.h net/http/transport_security_state.h
-index cf034710df38..d53de146034e 100644
+index ed2c644c3c81..4c7a43990c8b 100644
 --- net/http/transport_security_state.h
 +++ net/http/transport_security_state.h
 @@ -582,6 +582,10 @@ class NET_EXPORT TransportSecurityState {

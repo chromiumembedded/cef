@@ -677,7 +677,6 @@ static_library("libcef_static") {
     "//components/printing/service/public/cpp:factory",
     "//components/printing/service/public/interfaces",
     "//components/proxy_config",
-    "//components/ssl_config",
     "//components/update_client",
     "//components/url_formatter",
     "//components/user_prefs",

@@ -17,7 +17,7 @@ index 091f34477c01..44002b362be7 100644
    void DidCreateNewRendererCompositorFrameSink(
        viz::mojom::CompositorFrameSinkClient* renderer_compositor_frame_sink);
 diff --git content/browser/renderer_host/browser_compositor_view_mac.mm content/browser/renderer_host/browser_compositor_view_mac.mm
-index fac719b0bb6f..0672d1445f39 100644
+index f459dc4ff03b..142e66948c3b 100644
 --- content/browser/renderer_host/browser_compositor_view_mac.mm
 +++ content/browser/renderer_host/browser_compositor_view_mac.mm
 @@ -208,6 +208,12 @@ BrowserCompositorMac::~BrowserCompositorMac() {

@@ -84,7 +84,7 @@ PathString GetCrashConfigPath() {
 
   if (config_path.empty()) {
     // Start with the path to the running executable.
-    if (!PathService::Get(base::DIR_EXE, &config_path))
+    if (!base::PathService::Get(base::DIR_EXE, &config_path))
       return PathString();
   }
 
@@ -637,9 +637,9 @@ bool CefCrashReporterClient::GetCrashDumpLocation(base::FilePath* crash_dir) {
   if (env->GetVar("BREAKPAD_DUMP_LOCATION", &alternate_crash_dump_location)) {
     base::FilePath crash_dumps_dir_path =
         base::FilePath::FromUTF8Unsafe(alternate_crash_dump_location);
-    PathService::Override(chrome::DIR_CRASH_DUMPS, crash_dumps_dir_path);
+    base::PathService::Override(chrome::DIR_CRASH_DUMPS, crash_dumps_dir_path);
   }
-  return PathService::Get(chrome::DIR_CRASH_DUMPS, crash_dir);
+  return base::PathService::Get(chrome::DIR_CRASH_DUMPS, crash_dir);
 }
 
 #endif  // !defined(OS_POSIX)

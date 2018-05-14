@@ -1,11 +1,11 @@
 diff --git chrome/browser/printing/print_job_worker.cc chrome/browser/printing/print_job_worker.cc
-index da87d60520c6..1c45a50595b5 100644
+index 06a5fe2bac26..e9783f33933a 100644
 --- chrome/browser/printing/print_job_worker.cc
 +++ chrome/browser/printing/print_job_worker.cc
-@@ -142,6 +142,7 @@ PrintJobWorker::PrintJobWorker(int render_process_id,
+@@ -146,6 +146,7 @@ PrintJobWorker::PrintJobWorker(int render_process_id,
        weak_factory_(this) {
    // The object is created in the IO thread.
-   DCHECK(owner_->RunsTasksInCurrentSequence());
+   DCHECK(query_->RunsTasksInCurrentSequence());
 +  printing_context_->set_render_ids(render_process_id, render_frame_id);
  }
  

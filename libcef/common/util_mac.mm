@@ -63,7 +63,7 @@ base::FilePath GetFrameworkResourcesDirectory() {
 
 base::FilePath GetMainProcessPath() {
   base::FilePath path;
-  PathService::Get(base::FILE_EXE, &path);
+  base::PathService::Get(base::FILE_EXE, &path);
   DCHECK(!path.empty());
   return path;
 }

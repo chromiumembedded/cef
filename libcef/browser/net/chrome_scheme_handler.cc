@@ -437,7 +437,7 @@ std::string GetCommandLine() {
 
 std::string GetModulePath() {
   base::FilePath path;
-  if (PathService::Get(base::FILE_MODULE, &path))
+  if (base::PathService::Get(base::FILE_MODULE, &path))
     return CefString(path.value());
   return std::string();
 }

@@ -150,8 +150,8 @@ bool GetSystemPepperFlash(content::PepperPluginInfo* plugin) {
     return false;
 
   base::FilePath flash_filename;
-  if (!PathService::Get(chrome::FILE_PEPPER_FLASH_SYSTEM_PLUGIN,
-                        &flash_filename)) {
+  if (!base::PathService::Get(chrome::FILE_PEPPER_FLASH_SYSTEM_PLUGIN,
+                              &flash_filename)) {
     return false;
   }
 

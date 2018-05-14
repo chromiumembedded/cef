@@ -3,7 +3,7 @@ index 53c7404ef1f9..ac33df7cfe0e 100644
 --- chrome/browser/extensions/api/streams_private/streams_private_api.cc
 +++ chrome/browser/extensions/api/streams_private/streams_private_api.cc
 @@ -9,6 +9,7 @@
-
+ 
  #include "base/lazy_instance.h"
  #include "base/values.h"
 +#include "cef/libcef/features/features.h"
@@ -13,7 +13,7 @@ index 53c7404ef1f9..ac33df7cfe0e 100644
 @@ -79,6 +80,7 @@ void StreamsPrivateAPI::SendExecuteMimeTypeHandlerEvent(
    if (!web_contents)
      return;
-
+ 
 +#if !BUILDFLAG(ENABLE_CEF)
    // If the request was for a prerender, abort the prerender and do not
    // continue. This is because plugins cancel prerender, see
@@ -23,7 +23,7 @@ index 53c7404ef1f9..ac33df7cfe0e 100644
      return;
    }
 +#endif  // !BUILDFLAG(ENABLE_CEF)
-
+ 
    auto* browser_context = web_contents->GetBrowserContext();
    StreamsPrivateAPI* streams_private = GetStreamsPrivateAPI(browser_context);
 diff --git content/browser/frame_host/render_frame_host_manager.cc content/browser/frame_host/render_frame_host_manager.cc

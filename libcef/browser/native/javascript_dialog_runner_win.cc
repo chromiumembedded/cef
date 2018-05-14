@@ -121,7 +121,7 @@ void CefJavaScriptDialogRunnerWin::Run(
   HMODULE hModule = NULL;
 
   // Try to load the dialog from the DLL.
-  if (PathService::Get(base::DIR_MODULE, &file_path)) {
+  if (base::PathService::Get(base::DIR_MODULE, &file_path)) {
     file_path = file_path.Append(L"libcef.dll");
     hModule = ::GetModuleHandle(file_path.value().c_str());
   }

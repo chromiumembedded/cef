@@ -1,5 +1,5 @@
 diff --git chrome/browser/BUILD.gn chrome/browser/BUILD.gn
-index ac64f5c5cd14..d926502a78a0 100644
+index d1fc8968a730..0f485507181d 100644
 --- chrome/browser/BUILD.gn
 +++ chrome/browser/BUILD.gn
 @@ -8,6 +8,7 @@ import("//build/config/features.gni")
@@ -10,7 +10,7 @@ index ac64f5c5cd14..d926502a78a0 100644
  import("//chrome/common/features.gni")
  import("//components/feature_engagement/features.gni")
  import("//components/nacl/features.gni")
-@@ -1581,6 +1582,7 @@ jumbo_split_static_library("browser") {
+@@ -1583,6 +1584,7 @@ jumbo_split_static_library("browser") {
      "//base:i18n",
      "//base/allocator:buildflags",
      "//cc",
@@ -18,7 +18,7 @@ index ac64f5c5cd14..d926502a78a0 100644
      "//chrome:extra_resources",
      "//chrome:resources",
      "//chrome:strings",
-@@ -1835,6 +1837,10 @@ jumbo_split_static_library("browser") {
+@@ -1836,6 +1838,10 @@ jumbo_split_static_library("browser") {
      "//ui/web_dialogs",
    ]
  

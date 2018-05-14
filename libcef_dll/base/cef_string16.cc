@@ -19,6 +19,7 @@
 
 #include "include/internal/cef_string_types.h"
 
+namespace cef {
 namespace base {
 
 int c16memcmp(const char16* s1, const char16* s2, size_t n) {
@@ -69,6 +70,11 @@ char16* c16memset(char16* s, char16 c, size_t n) {
   return s_orig;
 }
 
+}  // namespace base
+}  // namespace cef
+
+namespace base {
+
 std::ostream& operator<<(std::ostream& out, const string16& str) {
   cef_string_utf8_t cef_str = {0};
   cef_string_utf16_to_utf8(str.c_str(), str.size(), &cef_str);
@@ -83,7 +89,8 @@ void PrintTo(const string16& str, std::ostream* out) {
 
 }  // namespace base
 
-template class std::basic_string<base::char16, base::string16_char_traits>;
+template class std::basic_string<cef::base::char16,
+                                 cef::base::string16_char_traits>;
 
 #endif  // WCHAR_T_IS_UTF32
 #endif  // OS_POSIX

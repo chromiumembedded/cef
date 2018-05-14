@@ -1,8 +1,8 @@
 diff --git third_party/blink/public/platform/platform.h third_party/blink/public/platform/platform.h
-index d4948345246e..73b7e0b1effe 100644
+index 1198bcacde83..0f2801225553 100644
 --- third_party/blink/public/platform/platform.h
 +++ third_party/blink/public/platform/platform.h
-@@ -382,6 +382,7 @@ class BLINK_PLATFORM_EXPORT Platform {
+@@ -381,6 +381,7 @@ class BLINK_PLATFORM_EXPORT Platform {
    // satisfy this call. mainFrameOrigin is used by the browser process to
    // filter plugins from the plugin list based on content settings.
    virtual void GetPluginList(bool refresh,
@@ -10,7 +10,7 @@ index d4948345246e..73b7e0b1effe 100644
                               const WebSecurityOrigin& main_frame_origin,
                               WebPluginListBuilder*) {}
  
-@@ -754,6 +755,11 @@ class BLINK_PLATFORM_EXPORT Platform {
+@@ -755,6 +756,11 @@ class BLINK_PLATFORM_EXPORT Platform {
    // runs during Chromium's build step).
    virtual bool IsTakingV8ContextSnapshot() { return false; }
  
@@ -41,7 +41,7 @@ index c80fedc37a43..3b3cf2d73511 100644
                                                          .Top()
                                                          .GetSecurityContext()
 diff --git third_party/blink/renderer/core/exported/web_dev_tools_agent_impl.cc third_party/blink/renderer/core/exported/web_dev_tools_agent_impl.cc
-index edf785effe8e..c895b23bc409 100644
+index c9bbed3722d2..76d96682fead 100644
 --- third_party/blink/renderer/core/exported/web_dev_tools_agent_impl.cc
 +++ third_party/blink/renderer/core/exported/web_dev_tools_agent_impl.cc
 @@ -323,6 +323,8 @@ WebDevToolsAgentImpl::Session::Session(
@@ -75,7 +75,7 @@ index 04520b3a5427..a9a4f345386e 100644
  }
  
 diff --git third_party/blink/renderer/core/page/page.cc third_party/blink/renderer/core/page/page.cc
-index a825578f8eee..b122d7fbf994 100644
+index 9eae0f477b7f..51de5abb8a4c 100644
 --- third_party/blink/renderer/core/page/page.cc
 +++ third_party/blink/renderer/core/page/page.cc
 @@ -153,7 +153,8 @@ Page::Page(PageClients& page_clients)
@@ -88,7 +88,7 @@ index a825578f8eee..b122d7fbf994 100644
        use_counter_(page_clients.chrome_client &&
                             page_clients.chrome_client->IsSVGImageChromeClient()
                         ? UseCounter::kSVGImageContext
-@@ -327,21 +328,40 @@ void Page::RefreshPlugins() {
+@@ -326,21 +327,40 @@ void Page::RefreshPlugins() {
    PluginData::RefreshBrowserSidePluginCache();
  }
  
@@ -138,7 +138,7 @@ index a825578f8eee..b122d7fbf994 100644
        page->NotifyPluginsChanged();
      }
    }
-@@ -714,7 +734,8 @@ void Page::Trace(blink::Visitor* visitor) {
+@@ -713,7 +733,8 @@ void Page::Trace(blink::Visitor* visitor) {
    visitor->Trace(visual_viewport_);
    visitor->Trace(overscroll_controller_);
    visitor->Trace(main_frame_);
@@ -149,7 +149,7 @@ index a825578f8eee..b122d7fbf994 100644
    visitor->Trace(use_counter_);
    visitor->Trace(plugins_changed_observers_);
 diff --git third_party/blink/renderer/core/page/page.h third_party/blink/renderer/core/page/page.h
-index e614d62e2eeb..e180d16a7d47 100644
+index 5206c91bfa89..c45a2cc0f16f 100644
 --- third_party/blink/renderer/core/page/page.h
 +++ third_party/blink/renderer/core/page/page.h
 @@ -138,7 +138,8 @@ class CORE_EXPORT Page final : public GarbageCollectedFinalized<Page>,

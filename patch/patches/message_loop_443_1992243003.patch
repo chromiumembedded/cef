@@ -1,8 +1,8 @@
-diff --git base/message_loop/message_loop.h base/message_loop/message_loop.h
-index 439d364fc54c..6cbe494e7041 100644
---- base/message_loop/message_loop.h
-+++ base/message_loop/message_loop.h
-@@ -257,6 +257,16 @@ class BASE_EXPORT MessageLoop : public MessagePump::Delegate,
+diff --git base/message_loop/message_loop_current.h base/message_loop/message_loop_current.h
+index 4b313adf63ec..c23927ea4e1e 100644
+--- base/message_loop/message_loop_current.h
++++ base/message_loop/message_loop_current.h
+@@ -126,6 +126,16 @@ class BASE_EXPORT MessageLoopCurrent {
    void AddTaskObserver(TaskObserver* task_observer);
    void RemoveTaskObserver(TaskObserver* task_observer);
  
@@ -16,22 +16,23 @@ index 439d364fc54c..6cbe494e7041 100644
 +  }
 +#endif  // OS_WIN
 +
-   // Returns true if the message loop is idle (ignoring delayed tasks). This is
-   // the same condition which triggers DoWork() to return false: i.e.
-   // out of tasks which can be processed at the current run-level -- there might
-@@ -358,6 +368,12 @@ class BASE_EXPORT MessageLoop : public MessagePump::Delegate,
-   // is known to generate a system-driven nested loop.
-   bool task_execution_allowed_ = true;
+   // Enables or disables the recursive task processing. This happens in the case
+   // of recursive message loops. Some unwanted message loops may occur when
+   // using common controls or printer functions. By default, recursive task
+@@ -199,6 +209,13 @@ class BASE_EXPORT MessageLoopCurrent {
+   explicit MessageLoopCurrent(MessageLoop* current) : current_(current) {}
  
+   MessageLoop* const current_;
++
 +#if defined(OS_WIN)
++ private:
 +  // Should be set to true before calling Windows APIs like TrackPopupMenu, etc.
 +  // which enter a modal message loop.
 +  bool os_modal_loop_ = false;
 +#endif
-+
-   // pump_factory_.Run() is called to create a message pump for this loop
-   // if type_ is TYPE_CUSTOM and pump_ is null.
-   MessagePumpFactoryCallback pump_factory_;
+ };
+ 
+ #if !defined(OS_NACL)
 diff --git base/message_loop/message_pump_win.cc base/message_loop/message_pump_win.cc
 index b145a1d54a32..9b28169050b2 100644
 --- base/message_loop/message_pump_win.cc

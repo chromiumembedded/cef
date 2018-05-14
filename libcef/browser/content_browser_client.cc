@@ -87,6 +87,7 @@
 #include "net/ssl/ssl_cert_request_info.h"
 #include "ppapi/host/ppapi_host.h"
 #include "services/service_manager/public/mojom/connector.mojom.h"
+#include "services/service_manager/sandbox/switches.h"
 #include "storage/browser/quota/quota_settings.h"
 #include "third_party/blink/public/web/web_window_features.h"
 #include "ui/base/l10n/l10n_util.h"
@@ -335,7 +336,7 @@ class CefQuotaPermissionContext : public content::QuotaPermissionContext {
 breakpad::CrashHandlerHostLinux* CreateCrashHandlerHost(
     const std::string& process_type) {
   base::FilePath dumps_path;
-  PathService::Get(chrome::DIR_CRASH_DUMPS, &dumps_path);
+  base::PathService::Get(chrome::DIR_CRASH_DUMPS, &dumps_path);
   {
     ANNOTATE_SCOPED_MEMORY_LEAK;
     // Uploads will only occur if a non-empty crash URL is specified in
@@ -729,7 +730,7 @@ void CefContentBrowserClient::AppendExtraCommandLineSwitches(
                                    arraysize(kSwitchNames));
 
 #if defined(WIDEVINE_CDM_AVAILABLE) && BUILDFLAG(ENABLE_LIBRARY_CDMS)
-    if (!browser_cmd->HasSwitch(switches::kNoSandbox)) {
+    if (!browser_cmd->HasSwitch(service_manager::switches::kNoSandbox)) {
       // Pass the Widevine CDM path to the Zygote process. See comments in
       // CefWidevineLoader::AddContentDecryptionModules.
       const base::FilePath& cdm_path = CefWidevineLoader::GetInstance()->path();
@@ -993,7 +994,7 @@ const wchar_t* CefContentBrowserClient::GetResourceDllName() {
   if (file_path[0] == 0) {
     // Retrieve the module path (usually libcef.dll).
     base::FilePath module;
-    PathService::Get(base::FILE_MODULE, &module);
+    base::PathService::Get(base::FILE_MODULE, &module);
     const std::wstring wstr = module.value();
     size_t count = std::min(static_cast<size_t>(MAX_PATH), wstr.size());
     wcsncpy(file_path, wstr.c_str(), count);

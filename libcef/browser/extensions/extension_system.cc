@@ -476,7 +476,7 @@ CefExtensionSystem::ComponentExtensionInfo::ComponentExtensionInfo(
   if (!root_directory.IsAbsolute()) {
     // This path structure is required by
     // url_request_util::MaybeCreateURLRequestResourceBundleJob.
-    CHECK(PathService::Get(chrome::DIR_RESOURCES, &root_directory));
+    CHECK(base::PathService::Get(chrome::DIR_RESOURCES, &root_directory));
     root_directory = root_directory.Append(directory);
   }
 }
