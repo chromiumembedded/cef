@@ -1,0 +1,64 @@
+# The Chromium Embedded Framework (CEF) project is built on top of the Chromium
+# project source tree. When updating Chromium to a new version certain files and
+# patterns should be observed for changes. If changes are detected then the CEF
+# source code or patch files will likely need to be updated.
+#
+# Add `--log-chromium-changes` to the automate-git.py command-line to output
+# the following files in the <download-dir>:
+#
+# * chromium_update_changes.diff
+#   Files in the chromium/src directory that have changed. See the 'files'
+#   section below.
+#
+# * chromium_update_patterns.txt
+#   Files in the chromium/src directory that contain invalid/unexpected
+#   patterns. See the 'patterns' section below. Failure of this step is
+#   considered a fatal error during update.
+#
+# * chromium_update_patches.txt
+#   Output from attempting to update existing Chromium patch files using the
+#   patch_updater.py tool. Failure of this step is considered a fatal error
+#   during update.
+#
+# For complete update instructions see:
+# https://bitbucket.org/chromiumembedded/cef/wiki/ChromiumUpdate.md
+
+{
+  # Files in the chromium/src directory that should be evaluated for changes.
+  # Similar changes may need to be applied to the CEF source code.
+  'files': [
+     'chrome/browser/extensions/api/tabs/tabs_api.*',
+     'chrome/browser/extensions/chrome_component_extension_resource_manager.*',
+     'chrome/browser/extensions/chrome_extension_web_contents_observer.*',
+     'chrome/browser/extensions/component_loader.*',
+     'chrome/browser/extensions/extension_service.*',
+     'chrome/browser/printing/print_view_manager*',
+     'chrome/browser/printing/printing_message_filter*',
+     'chrome/browser/renderer_host/chrome_resource_dispatcher_host_delegate.*',
+     'chrome/common/extensions/api/*_features.json',
+     'chrome/renderer/chrome_content_renderer_client.*',
+     'chrome/renderer/extensions/chrome_extensions_renderer_client.*',
+     'content/shell/BUILD.gn',
+     'content/shell/app/*',
+     'content/shell/browser/shell_*',
+     'content/shell/browser/renderer_host/shell_*',
+     'content/shell/common/shell_*',
+     'content/shell/gpu/shell_*',
+     'content/shell/renderer/shell_*',
+     'content/shell/utility/shell_*',
+     'extensions/shell/*',
+  ],
+  # Patterns that should not be found in the chromium/src directory after
+  # applying patch files.
+  'patterns': [
+    {
+      # New instances of this static_cast are added to the Chromium sources with
+      # some regularity. If unfixed they will result in runtime crashes.
+      'pattern': 'static_cast<StoragePartitionImpl\*>(',
+      'exclude_matches': '^(.+?)test(.+?):',
+      'message': 'New instances in non-test files should be converted to ' +\
+                 'call StoragePartition methods.' +\
+                 '\nSee storage_partition_1973.patch.',
+    },
+  ],
+}

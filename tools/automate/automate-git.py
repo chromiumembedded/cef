@@ -59,14 +59,19 @@ def run(command_line, working_dir, depot_tools_dir=None, output_file=None):
     if not output_file:
       return subprocess.check_call(
           args, cwd=working_dir, env=env, shell=(sys.platform == 'win32'))
-    with open(output_file, "w") as f:
-      return subprocess.check_call(
-          args,
-          cwd=working_dir,
-          env=env,
-          shell=(sys.platform == 'win32'),
-          stderr=subprocess.STDOUT,
-          stdout=f)
+    try:
+      msg('Writing %s' % output_file)
+      with open(output_file, "w") as f:
+        return subprocess.check_call(
+            args,
+            cwd=working_dir,
+            env=env,
+            shell=(sys.platform == 'win32'),
+            stderr=subprocess.STDOUT,
+            stdout=f)
+    except subprocess.CalledProcessError:
+      msg('ERROR Run failed. See %s for output.' % output_file)
+      raise
 
 
 def create_directory(path):
@@ -300,12 +305,13 @@ def apply_deps_patch():
     raise Exception("Path does not exist: %s" % (deps_path))
 
 
-def run_patch_updater(args=''):
+def run_patch_updater(args='', output_file=None):
   """ Run the patch updater script. """
   tool = os.path.join(cef_src_dir, 'tools', 'patch_updater.py')
   if len(args) > 0:
     args = ' ' + args
-  run('%s %s%s' % (python_exe, tool, args), cef_src_dir, depot_tools_dir)
+  run('%s %s%s' % (python_exe, tool, args), cef_src_dir, depot_tools_dir,
+      output_file)
 
 
 def onerror(func, path, exc_info):
@@ -499,6 +505,103 @@ def get_build_directory_name(is_debug):
   return build_dir
 
 
+def read_update_file():
+  update_path = os.path.join(cef_src_dir, 'CHROMIUM_UPDATE.txt')
+  if not os.path.exists(update_path):
+    msg("Missing file: %s" % update_path)
+    return None
+
+  msg("Reading %s" % update_path)
+  return read_config_file(update_path)
+
+
+def log_chromium_changes():
+  """ Evaluate the Chromium checkout for changes. """
+  config = read_update_file()
+  if config is None:
+    msg("Skipping Chromium changes log.")
+    return
+
+  if 'files' in config:
+    out_file = os.path.join(download_dir, 'chromium_update_changes.diff')
+    if os.path.exists(out_file):
+      os.remove(out_file)
+
+    old_commit = get_chromium_master_commit(
+        get_chromium_master_position(chromium_compat_version))
+    new_commit = get_chromium_master_commit(
+        get_chromium_master_position(chromium_checkout))
+
+    cmd = '%s diff --relative --no-prefix %s..%s -- %s' % (
+        git_exe, old_commit, new_commit, ' '.join(config['files']))
+    result = exec_cmd(cmd, chromium_src_dir)
+    if result['out'] != '':
+      msg('Writing %s' % out_file)
+      with open(out_file, 'w') as fp:
+        fp.write(result['out'])
+
+
+def check_pattern_matches(output_file=None):
+  """ Evaluate the Chromium checkout for pattern matches. """
+  config = read_update_file()
+  if config is None:
+    msg("Skipping Chromium pattern matching.")
+    return
+
+  if 'patterns' in config:
+    if output_file is None:
+      fp = sys.stdout
+    else:
+      msg('Writing %s' % output_file)
+      fp = open(output_file, 'w')
+
+    has_output = False
+    for entry in config['patterns']:
+      msg("Evaluating pattern: %s" % entry['pattern'])
+
+      # Read patterns from a file to avoid formatting problems.
+      pattern_handle, pattern_file = tempfile.mkstemp()
+      os.write(pattern_handle, entry['pattern'])
+      os.close(pattern_handle)
+
+      cmd = '%s grep -n -f %s' % (git_exe, pattern_file)
+      result = exec_cmd(cmd, chromium_src_dir)
+      os.remove(pattern_file)
+
+      if result['out'] != '':
+        write_msg = True
+        re_exclude = re.compile(
+            entry['exclude_matches']) if 'exclude_matches' in entry else None
+
+        for line in result['out'].split('\n'):
+          line = line.strip()
+          if len(line) == 0:
+            continue
+          skip = not re_exclude is None and re_exclude.match(line) != None
+          if not skip:
+            if write_msg:
+              if has_output:
+                fp.write('\n')
+              fp.write('!!!! WARNING: FOUND PATTERN: %s\n' % entry['pattern'])
+              if 'message' in entry:
+                fp.write(entry['message'] + '\n')
+              fp.write('\n')
+              write_msg = False
+            fp.write(line + '\n')
+            has_output = True
+
+    if not output_file is None:
+      if has_output:
+        msg('ERROR Matches found. See %s for output.' % out_file)
+      else:
+        fp.write('Good news! No matches.\n')
+      fp.close()
+
+    if has_output:
+      # Don't continue when we know the build will be wrong.
+      sys.exit(1)
+
+
 ##
 # Program entry point.
 ##
@@ -624,6 +727,18 @@ parser.add_option('--fast-update',
                        'builds by attempting to minimize the number of modified files. '+\
                        'The update will fail if there are unstaged CEF changes or if '+\
                        'Chromium changes are not included in a patch file.')
+parser.add_option(
+    '--force-patch-update',
+    action='store_true',
+    dest='forcepatchupdate',
+    default=False,
+    help='Force update of patch files.')
+parser.add_option(
+    '--log-chromium-changes',
+    action='store_true',
+    dest='logchromiumchanges',
+    default=False,
+    help='Create a log of the Chromium changes.')
 
 # Build-related options.
 parser.add_option('--force-build',
@@ -1282,10 +1397,29 @@ elif not out_src_dir_exists:
 # Write the config file for identifying the branch.
 write_branch_config_file(out_src_dir, cef_branch)
 
-if not options.fastupdate and chromium_checkout_changed and \
-   chromium_checkout != chromium_compat_version:
+if options.logchromiumchanges and chromium_checkout != chromium_compat_version:
+  log_chromium_changes()
+
+if options.forcepatchupdate or (not options.fastupdate and \
+                                chromium_checkout_changed and \
+                                chromium_checkout != chromium_compat_version):
   # Not using the known-compatible Chromium version. Try to update patch files.
-  run_patch_updater()
+  if options.logchromiumchanges:
+    out_file = os.path.join(download_dir, 'chromium_update_patches.txt')
+    if os.path.exists(out_file):
+      os.remove(out_file)
+  else:
+    out_file = None
+  run_patch_updater(output_file=out_file)
+
+if chromium_checkout != chromium_compat_version:
+  if options.logchromiumchanges:
+    out_file = os.path.join(download_dir, 'chromium_update_patterns.txt')
+    if os.path.exists(out_file):
+      os.remove(out_file)
+  else:
+    out_file = None
+  check_pattern_matches(output_file=out_file)
 
 ##
 # Build CEF.
