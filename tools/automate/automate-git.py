@@ -480,6 +480,25 @@ def get_chromium_target_version(os='win', channel='canary', target_distance=0):
   return target_version
 
 
+def get_build_directory_name(is_debug):
+  build_dir = ('Debug' if is_debug else 'Release') + '_'
+  if use_gn:
+    # CEF uses a consistent directory naming scheme for GN via
+    # GetAllPlatformConfigs in tools/gn_args.py.
+    if options.x64build:
+      build_dir += 'GN_x64'
+    elif options.armbuild:
+      build_dir += 'GN_arm'
+    else:
+      build_dir += 'GN_x86'
+  else:
+    # GYP outputs both x86 and x64 builds to the same directory on Linux and
+    # Mac OS X. On Windows it suffixes the directory name for x64 builds.
+    if platform == 'windows' and options.x64build:
+      build_dir += 'x64'
+  return build_dir
+
+
 ##
 # Program entry point.
 ##
@@ -628,7 +647,7 @@ parser.add_option(
     action='store_true',
     dest='buildtests',
     default=False,
-    help='Also build the ceftests target.')
+    help='Also build the test target specified via --test-target.')
 parser.add_option(
     '--no-debug-build',
     action='store_true',
@@ -647,6 +666,12 @@ parser.add_option(
     dest='verbosebuild',
     default=False,
     help='Show all command lines while building.')
+parser.add_option(
+    '--build-failure-limit',
+    dest='buildfailurelimit',
+    default=1,
+    type="int",
+    help='Keep going until N jobs fail.')
 parser.add_option('--build-log-file',
                   action='store_true', dest='buildlogfile', default=False,
                   help='Write build logs to file. The file will be named '+\
@@ -664,6 +689,41 @@ parser.add_option(
     dest='armbuild',
     default=False,
     help='Create an ARM build.')
+
+# Test-related options.
+parser.add_option(
+    '--run-tests',
+    action='store_true',
+    dest='runtests',
+    default=False,
+    help='Run the ceftests target.')
+parser.add_option(
+    '--no-debug-tests',
+    action='store_true',
+    dest='nodebugtests',
+    default=False,
+    help="Don't run debug build tests.")
+parser.add_option(
+    '--no-release-tests',
+    action='store_true',
+    dest='noreleasetests',
+    default=False,
+    help="Don't run release build tests.")
+parser.add_option(
+    '--test-target',
+    dest='testtarget',
+    default='ceftests',
+    help='Test target name to build (defaults to "ceftests").')
+parser.add_option(
+    '--test-prefix',
+    dest='testprefix',
+    default='',
+    help='Prefix for running the test executable (e.g. `xvfb-run` on Linux).')
+parser.add_option(
+    '--test-args',
+    dest='testargs',
+    default='',
+    help='Arguments that will be passed to the test executable.')
 
 # Distribution-related options.
 parser.add_option(
@@ -750,6 +810,9 @@ if options.noupdate:
   options.nochromiumupdate = True
   options.nodepottoolsupdate = True
 
+if options.runtests:
+  options.buildtests = True
+
 if (options.nochromiumupdate and options.forceupdate) or \
    (options.nocefupdate and options.forceupdate) or \
    (options.nobuild and options.forcebuild) or \
@@ -770,6 +833,11 @@ if (options.noreleasebuild and \
 
 if options.x64build and options.armbuild:
   print 'Invalid combination of options.'
+  parser.print_help(sys.stderr)
+  sys.exit()
+
+if (options.buildtests or options.runtests) and len(options.testtarget) == 0:
+  print "A test target must be specified via --test-target."
   parser.print_help(sys.stderr)
   sys.exit()
 
@@ -1261,34 +1329,21 @@ if not options.nobuild and (chromium_checkout_changed or \
   run(path, cef_src_dir, depot_tools_dir)
 
   # Build using Ninja.
-  command = 'ninja -C '
+  command = 'ninja '
   if options.verbosebuild:
-    command = 'ninja -v -C '
+    command += '-v '
+  if options.buildfailurelimit != 1:
+    command += '-k %d ' % options.buildfailurelimit
+  command += '-C '
   target = ' ' + options.buildtarget
   if options.buildtests:
-    target = target + ' ceftests'
+    target += ' ' + options.testtarget
   if platform == 'linux':
-    target = target + ' chrome_sandbox'
-
-  build_dir_suffix = ''
-  if use_gn:
-    # CEF uses a consistent directory naming scheme for GN via
-    # GetAllPlatformConfigs in tools/gn_args.py.
-    if options.x64build:
-      build_dir_suffix = '_GN_x64'
-    elif options.armbuild:
-      build_dir_suffix = '_GN_arm'
-    else:
-      build_dir_suffix = '_GN_x86'
-  else:
-    # GYP outputs both x86 and x64 builds to the same directory on Linux and
-    # Mac OS X. On Windows it suffixes the directory name for x64 builds.
-    if platform == 'windows' and options.x64build:
-      build_dir_suffix = '_x64'
+    target += ' chrome_sandbox'
 
   # Make a CEF Debug build.
   if not options.nodebugbuild:
-    build_path = os.path.join('out', 'Debug' + build_dir_suffix)
+    build_path = os.path.join('out', get_build_directory_name(True))
     if use_gn:
       args_path = os.path.join(chromium_src_dir, build_path, 'args.gn')
       msg(args_path + ' contents:\n' + read_file(args_path))
@@ -1299,7 +1354,7 @@ if not options.nobuild and (chromium_checkout_changed or \
 
     if use_gn and platform == 'windows':
       # Make the separate cef_sandbox.lib build when GN is_official_build=true.
-      build_path = os.path.join('out', 'Debug' + build_dir_suffix + '_sandbox')
+      build_path += '_sandbox'
       if os.path.exists(os.path.join(chromium_src_dir, build_path)):
         args_path = os.path.join(chromium_src_dir, build_path, 'args.gn')
         msg(args_path + ' contents:\n' + read_file(args_path))
@@ -1310,7 +1365,7 @@ if not options.nobuild and (chromium_checkout_changed or \
 
   # Make a CEF Release build.
   if not options.noreleasebuild:
-    build_path = os.path.join('out', 'Release' + build_dir_suffix)
+    build_path = os.path.join('out', get_build_directory_name(False))
     if use_gn:
       args_path = os.path.join(chromium_src_dir, build_path, 'args.gn')
       msg(args_path + ' contents:\n' + read_file(args_path))
@@ -1321,8 +1376,7 @@ if not options.nobuild and (chromium_checkout_changed or \
 
     if use_gn and platform == 'windows':
       # Make the separate cef_sandbox.lib build when GN is_official_build=true.
-      build_path = os.path.join('out',
-                                'Release' + build_dir_suffix + '_sandbox')
+      build_path += '_sandbox'
       if os.path.exists(os.path.join(chromium_src_dir, build_path)):
         args_path = os.path.join(chromium_src_dir, build_path, 'args.gn')
         msg(args_path + ' contents:\n' + read_file(args_path))
@@ -1334,6 +1388,43 @@ if not options.nobuild and (chromium_checkout_changed or \
 elif not options.nobuild:
   msg('Not building. The source hashes have not changed and ' +
       'the output folder "%s" already exists' % (out_src_dir))
+
+##
+# Run CEF tests.
+##
+
+if options.runtests:
+  if platform == 'windows':
+    test_exe = '%s.exe' % options.testtarget
+  elif platform == 'macosx':
+    test_exe = '%s.app/Contents/MacOS/%s' % (options.testtarget,
+                                             options.testtarget)
+  elif platform == 'linux':
+    test_exe = options.testtarget
+
+  test_prefix = options.testprefix
+  if len(test_prefix) > 0:
+    test_prefix += ' '
+
+  test_args = options.testargs
+  if len(test_args) > 0:
+    test_args = ' ' + test_args
+
+  if not options.nodebugtests:
+    build_path = os.path.join(out_src_dir, get_build_directory_name(True))
+    test_path = os.path.join(build_path, test_exe)
+    if os.path.exists(test_path):
+      run(test_prefix + test_exe + test_args, build_path, depot_tools_dir)
+    else:
+      msg('Not running debug tests. Missing executable: %s' % test_path)
+
+  if not options.noreleasetests:
+    build_path = os.path.join(out_src_dir, get_build_directory_name(False))
+    test_path = os.path.join(build_path, test_exe)
+    if os.path.exists(test_path):
+      run(test_prefix + test_exe + test_args, build_path, depot_tools_dir)
+    else:
+      msg('Not running release tests. Missing executable: %s' % test_path)
 
 ##
 # Create the CEF binary distribution.
