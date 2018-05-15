@@ -192,10 +192,40 @@ for patch in patches:
             added_paths.append(patch_path_abs)
 
       if not options.revert:
+        # Chromium files are occasionally (incorrectly) checked in with Windows
+        # line endings. This will cause the patch tool to fail when attempting
+        # to patch those files on Posix systems. Convert any such files to Posix
+        # line endings before applying the patch.
+        converted_files = []
+        for patch_path in patch_paths:
+          patch_path_abs = os.path.abspath(os.path.join(patch_root_abs, \
+                                                        patch_path))
+          if os.path.exists(patch_path_abs):
+            with open(patch_path_abs, 'rb') as fp:
+              contents = fp.read()
+            if "\r\n" in contents:
+              msg('Converting to Posix line endings for %s' % patch_path_abs)
+              converted_files.append(patch_path_abs)
+              contents = contents.replace("\r\n", "\n")
+              with open(patch_path_abs, 'wb') as fp:
+                fp.write(contents)
+
         # Apply the patch file.
         msg('Applying patch to %s' % patch_root_abs)
         patch_string = open(patch_file, 'rb').read()
         result = exec_cmd('patch -p0', patch_root_abs, patch_string)
+
+        if len(converted_files) > 0:
+          # Restore Windows line endings in converted files so that the diff is
+          # correct if/when the patch file is re-saved.
+          for patch_path_abs in converted_files:
+            with open(patch_path_abs, 'rb') as fp:
+              contents = fp.read()
+            msg('Converting to Windows line endings for %s' % patch_path_abs)
+            contents = contents.replace("\n", "\r\n")
+            with open(patch_path_abs, 'wb') as fp:
+              fp.write(contents)
+
         if result['err'] != '':
           raise Exception('Failed to apply patch file: %s' % result['err'])
         sys.stdout.write(result['out'])
@@ -238,10 +268,18 @@ for patch in patches:
 
       # Re-create the patch file.
       patch_paths_str = ' '.join(patch_paths)
-      cmd = 'git diff --no-prefix --relative --ignore-space-at-eol %s' % patch_paths_str
+      cmd = 'git diff --no-prefix --relative %s' % patch_paths_str
       result = exec_cmd(cmd, patch_root_abs)
       if result['err'] != '' and result['err'].find('warning:') != 0:
         raise Exception('Failed to create patch file: %s' % result['err'])
+
+      if "\r\n" in result['out']:
+        # Patch files should always be saved with Posix line endings.
+        # This will avoid problems when attempting to re-apply the patch
+        # file on Posix systems.
+        msg('Converting to Posix line endings for %s' % patch_file)
+        result['out'] = result['out'].replace("\r\n", "\n")
+
       f = open(patch_file, 'wb')
       f.write(result['out'])
       f.close()
