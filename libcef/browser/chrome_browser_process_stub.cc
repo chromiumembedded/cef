@@ -258,7 +258,6 @@ StatusTray* ChromeBrowserProcessStub::status_tray() {
 
 safe_browsing::SafeBrowsingService*
 ChromeBrowserProcessStub::safe_browsing_service() {
-  NOTREACHED();
   return NULL;
 }
 

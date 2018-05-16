@@ -1,8 +1,8 @@
 diff --git content/browser/renderer_host/browser_compositor_view_mac.h content/browser/renderer_host/browser_compositor_view_mac.h
-index 091f34477c01..44002b362be7 100644
+index d33a85adf914..ad8bd68b235e 100644
 --- content/browser/renderer_host/browser_compositor_view_mac.h
 +++ content/browser/renderer_host/browser_compositor_view_mac.h
-@@ -55,11 +55,13 @@ class CONTENT_EXPORT BrowserCompositorMac : public DelegatedFrameHostClient {
+@@ -56,11 +56,13 @@ class CONTENT_EXPORT BrowserCompositorMac : public DelegatedFrameHostClient {
  
    // These will not return nullptr until Destroy is called.
    DelegatedFrameHost* GetDelegatedFrameHost();
@@ -17,7 +17,7 @@ index 091f34477c01..44002b362be7 100644
    void DidCreateNewRendererCompositorFrameSink(
        viz::mojom::CompositorFrameSinkClient* renderer_compositor_frame_sink);
 diff --git content/browser/renderer_host/browser_compositor_view_mac.mm content/browser/renderer_host/browser_compositor_view_mac.mm
-index f459dc4ff03b..142e66948c3b 100644
+index 0da91deadd3d..70a592bdfa6e 100644
 --- content/browser/renderer_host/browser_compositor_view_mac.mm
 +++ content/browser/renderer_host/browser_compositor_view_mac.mm
 @@ -208,6 +208,12 @@ BrowserCompositorMac::~BrowserCompositorMac() {

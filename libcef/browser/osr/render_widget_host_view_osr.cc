@@ -400,6 +400,11 @@ bool CefRenderWidgetHostViewOSR::IsShowing() {
   return is_showing_;
 }
 
+void CefRenderWidgetHostViewOSR::EnsureSurfaceSynchronizedForLayoutTest() {
+  ++latest_capture_sequence_number_;
+  WasResized();
+}
+
 gfx::Rect CefRenderWidgetHostViewOSR::GetViewBounds() const {
   if (IsPopupWidget())
     return popup_position_;
@@ -681,6 +686,10 @@ gfx::Size CefRenderWidgetHostViewOSR::GetRequestedRendererSize() const {
 gfx::Size CefRenderWidgetHostViewOSR::GetCompositorViewportPixelSize() const {
   return gfx::ScaleToCeiledSize(GetRequestedRendererSize(),
                                 current_device_scale_factor_);
+}
+
+uint32_t CefRenderWidgetHostViewOSR::GetCaptureSequenceNumber() const {
+  return latest_capture_sequence_number_;
 }
 
 void CefRenderWidgetHostViewOSR::CopyFromSurface(

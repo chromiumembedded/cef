@@ -1,8 +1,8 @@
 diff --git third_party/blink/public/platform/platform.h third_party/blink/public/platform/platform.h
-index 1198bcacde83..0f2801225553 100644
+index 5d0201f5bd76..5044f7c84076 100644
 --- third_party/blink/public/platform/platform.h
 +++ third_party/blink/public/platform/platform.h
-@@ -381,6 +381,7 @@ class BLINK_PLATFORM_EXPORT Platform {
+@@ -380,6 +380,7 @@ class BLINK_PLATFORM_EXPORT Platform {
    // satisfy this call. mainFrameOrigin is used by the browser process to
    // filter plugins from the plugin list based on content settings.
    virtual void GetPluginList(bool refresh,
@@ -10,7 +10,7 @@ index 1198bcacde83..0f2801225553 100644
                               const WebSecurityOrigin& main_frame_origin,
                               WebPluginListBuilder*) {}
  
-@@ -755,6 +756,11 @@ class BLINK_PLATFORM_EXPORT Platform {
+@@ -748,6 +749,11 @@ class BLINK_PLATFORM_EXPORT Platform {
    // runs during Chromium's build step).
    virtual bool IsTakingV8ContextSnapshot() { return false; }
  

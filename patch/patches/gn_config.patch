@@ -1,8 +1,8 @@
 diff --git .gn .gn
-index 2bcaabc1330e..6e6cbb542a59 100644
+index 36b54aca866c..06337f3f3086 100644
 --- .gn
 +++ .gn
-@@ -244,6 +244,8 @@ exec_script_whitelist =
+@@ -245,6 +245,8 @@ exec_script_whitelist =
        # in the Chromium repo outside of //build.
        "//build_overrides/build.gni",
  
@@ -12,7 +12,7 @@ index 2bcaabc1330e..6e6cbb542a59 100644
        # https://crbug.com/474506.
        "//clank/java/BUILD.gn",
 diff --git BUILD.gn BUILD.gn
-index 5ce3ebab4683..73f9594f36cb 100644
+index 06c117e4e79a..6e0a66aaaf75 100644
 --- BUILD.gn
 +++ BUILD.gn
 @@ -192,6 +192,7 @@ group("gn_all") {
@@ -56,7 +56,7 @@ index 982fbe8d3f0d..e757be4688f1 100644
 +         "studio path")
  }
 diff --git build/toolchain/win/setup_toolchain.py build/toolchain/win/setup_toolchain.py
-index fce62521a385..73fa49852fd6 100644
+index 5f51eadb13b2..aa7ab8dbb16d 100644
 --- build/toolchain/win/setup_toolchain.py
 +++ build/toolchain/win/setup_toolchain.py
 @@ -134,26 +134,29 @@ def _LoadToolchainEnv(cpu, sdk_dir, target_store):
@@ -133,10 +133,10 @@ index 11e5e4c7d30f..88e8b84d23e3 100755
      # directory in order to run binaries locally, but they are needed in order
      # to create isolates or the mini_installer. Copying them to the output
 diff --git chrome/chrome_paks.gni chrome/chrome_paks.gni
-index 6d412994ffd8..575536f80166 100644
+index 9c2c9cbddc57..4ff2c6367217 100644
 --- chrome/chrome_paks.gni
 +++ chrome/chrome_paks.gni
-@@ -257,7 +257,7 @@ template("chrome_paks") {
+@@ -259,7 +259,7 @@ template("chrome_paks") {
      }
  
      input_locales = locales

@@ -1,8 +1,8 @@
 diff --git chrome/browser/ui/BUILD.gn chrome/browser/ui/BUILD.gn
-index 388cb0b5db0e..d9580cda6f8b 100644
+index 8bbe039f4dc1..dee4f54f3c0a 100644
 --- chrome/browser/ui/BUILD.gn
 +++ chrome/browser/ui/BUILD.gn
-@@ -884,6 +884,7 @@ split_static_library("ui") {
+@@ -891,6 +891,7 @@ split_static_library("ui") {
      "//base:i18n",
      "//base/allocator:buildflags",
      "//cc/paint",
@@ -242,7 +242,7 @@ index b9e8aa76fe5a..12e8b30b339d 100644
  
  #endif  // COMPONENTS_PRINTING_COMMON_PRINT_MESSAGES_H_
 diff --git components/printing/renderer/print_render_frame_helper.cc components/printing/renderer/print_render_frame_helper.cc
-index 0d4dcbd43b48..91c430ccead8 100644
+index d73427c00ea9..2190fca8edcf 100644
 --- components/printing/renderer/print_render_frame_helper.cc
 +++ components/printing/renderer/print_render_frame_helper.cc
 @@ -326,7 +326,6 @@ bool PrintingNodeOrPdfFrame(const blink::WebLocalFrame* frame,
@@ -515,7 +515,7 @@ index cccd932eb993..ed7893a67e7a 100644
    bool is_loading_;
    bool is_scripted_preview_delayed_;
 diff --git components/printing_strings.grdp components/printing_strings.grdp
-index a669226337f2..5e3c3caa2aa2 100644
+index f157cbaec42e..5e3c3caa2aa2 100644
 --- components/printing_strings.grdp
 +++ components/printing_strings.grdp
 @@ -1,10 +1,8 @@

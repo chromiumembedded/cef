@@ -609,10 +609,10 @@ void CefCookieManagerImpl::DeleteCookiesInternal(
         base::Bind(DeleteCookiesCallbackImpl, callback));
   } else if (cookie_name.empty()) {
     // Delete all matching host cookies.
-    cookie_store->DeleteAllCreatedBetweenWithPredicateAsync(
-        base::Time(), base::Time::Max(),
-        content::StoragePartitionImpl::CreatePredicateForHostCookies(url),
-        base::Bind(DeleteCookiesCallbackImpl, callback));
+    net::CookieStore::CookieDeletionInfo delete_info;
+    delete_info.host = url.host();
+    cookie_store->DeleteAllMatchingInfoAsync(
+        delete_info, base::Bind(DeleteCookiesCallbackImpl, callback));
   } else {
     // Delete all matching host and domain cookies.
     cookie_store->DeleteCookieAsync(

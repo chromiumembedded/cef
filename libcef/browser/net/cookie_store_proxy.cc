@@ -129,28 +129,24 @@ void CefCookieStoreProxy::DeleteCanonicalCookieAsync(
   }
 }
 
-void CefCookieStoreProxy::DeleteAllCreatedBetweenAsync(
-    const base::Time& delete_begin,
-    const base::Time& delete_end,
+void CefCookieStoreProxy::DeleteAllCreatedInTimeRangeAsync(
+    const TimeRange& creation_range,
     DeleteCallback callback) {
   net::CookieStore* cookie_store = GetCookieStore();
   if (cookie_store) {
-    cookie_store->DeleteAllCreatedBetweenAsync(delete_begin, delete_end,
-                                               std::move(callback));
+    cookie_store->DeleteAllCreatedInTimeRangeAsync(creation_range,
+                                                   std::move(callback));
   } else if (!callback.is_null()) {
     std::move(callback).Run(0);
   }
 }
 
-void CefCookieStoreProxy::DeleteAllCreatedBetweenWithPredicateAsync(
-    const base::Time& delete_begin,
-    const base::Time& delete_end,
-    const CookiePredicate& predicate,
+void CefCookieStoreProxy::DeleteAllMatchingInfoAsync(
+    CookieDeletionInfo delete_info,
     DeleteCallback callback) {
   net::CookieStore* cookie_store = GetCookieStore();
   if (cookie_store) {
-    cookie_store->DeleteAllCreatedBetweenWithPredicateAsync(
-        delete_begin, delete_end, predicate, std::move(callback));
+    cookie_store->DeleteAllMatchingInfoAsync(delete_info, std::move(callback));
   } else if (!callback.is_null()) {
     std::move(callback).Run(0);
   }

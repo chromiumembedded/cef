@@ -1,5 +1,5 @@
 diff --git base/message_loop/message_loop_current.h base/message_loop/message_loop_current.h
-index 4b313adf63ec..c23927ea4e1e 100644
+index c2a8a731b9fb..7e9e96849d6a 100644
 --- base/message_loop/message_loop_current.h
 +++ base/message_loop/message_loop_current.h
 @@ -126,6 +126,16 @@ class BASE_EXPORT MessageLoopCurrent {

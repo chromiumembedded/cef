@@ -1,5 +1,5 @@
 diff --git ui/gl/init/gl_initializer_mac.cc ui/gl/init/gl_initializer_mac.cc
-index d58e64ff1939..d83df5dc84ee 100644
+index 30725d1f2a5f..1a0278110d78 100644
 --- ui/gl/init/gl_initializer_mac.cc
 +++ ui/gl/init/gl_initializer_mac.cc
 @@ -47,11 +47,8 @@ bool InitializeOneOffForSandbox() {

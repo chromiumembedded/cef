@@ -38,6 +38,8 @@
      'chrome/common/extensions/api/*_features.json',
      'chrome/renderer/chrome_content_renderer_client.*',
      'chrome/renderer/extensions/chrome_extensions_renderer_client.*',
+     'content/public/browser/render_widget_host_view.h',
+     'content/public/browser/storage_partition.h',
      'content/shell/BUILD.gn',
      'content/shell/app/*',
      'content/shell/browser/shell_*',
@@ -47,6 +49,7 @@
      'content/shell/renderer/shell_*',
      'content/shell/utility/shell_*',
      'extensions/shell/*',
+     'net/cookies/cookie_store.h',
   ],
   # Patterns that should not be found in the chromium/src directory after
   # applying patch files.

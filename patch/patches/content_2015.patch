@@ -93,7 +93,7 @@ index 0c0c4cbb9efe..4703ce943367 100644
  }
  
 diff --git content/browser/frame_host/render_frame_host_impl.cc content/browser/frame_host/render_frame_host_impl.cc
-index ecc292f2050b..6a91426372d1 100644
+index 0ea57461ee89..5f6b5d6b089c 100644
 --- content/browser/frame_host/render_frame_host_impl.cc
 +++ content/browser/frame_host/render_frame_host_impl.cc
 @@ -1549,6 +1549,7 @@ void RenderFrameHostImpl::OnDidFailProvisionalLoadWithError(
@@ -133,7 +133,7 @@ index ecc292f2050b..6a91426372d1 100644
 @@ -4219,8 +4220,8 @@ void RenderFrameHostImpl::CreateNetworkServiceDefaultFactoryAndObserve(
    // Keep DevTools proxy lasy, i.e. closest to the network.
    RenderFrameDevToolsAgentHost::WillCreateURLLoaderFactory(
-       this, false, &default_factory_request);
+       this, false, false, &default_factory_request);
 -  StoragePartitionImpl* storage_partition = static_cast<StoragePartitionImpl*>(
 -      BrowserContext::GetStoragePartition(context, GetSiteInstance()));
 +  StoragePartition* storage_partition =
@@ -285,10 +285,10 @@ index 4e11056a3dc9..973ad50975e1 100644
                       const std::string& mime_type,
                       bool allow_wildcard,
 diff --git content/common/frame_messages.h content/common/frame_messages.h
-index d8ac3881e867..d040a59a5090 100644
+index d88e6eb45030..58ed9ea3ff32 100644
 --- content/common/frame_messages.h
 +++ content/common/frame_messages.h
-@@ -1398,8 +1398,9 @@ IPC_MESSAGE_ROUTED1(FrameHostMsg_PepperStopsPlayback,
+@@ -1399,8 +1399,9 @@ IPC_MESSAGE_ROUTED1(FrameHostMsg_PepperStopsPlayback,
  
  // Used to get the list of plugins. |main_frame_origin| is used to handle
  // exceptions for plugin content settings.
@@ -299,7 +299,7 @@ index d8ac3881e867..d040a59a5090 100644
                              url::Origin /* main_frame_origin */,
                              std::vector<content::WebPluginInfo> /* plugins */)
  
-@@ -1407,9 +1408,10 @@ IPC_SYNC_MESSAGE_CONTROL2_1(FrameHostMsg_GetPlugins,
+@@ -1408,9 +1409,10 @@ IPC_SYNC_MESSAGE_CONTROL2_1(FrameHostMsg_GetPlugins,
  // type. If there is no matching plugin, |found| is false.
  // |actual_mime_type| is the actual mime type supported by the
  // found plugin.
@@ -399,7 +399,7 @@ index 74a031ad10c3..3b3f9e292f4b 100644
    virtual void FocusedNodeChanged(const blink::WebNode& node) {}
  
 diff --git content/renderer/render_frame_impl.cc content/renderer/render_frame_impl.cc
-index e5478c1845ef..5302ab1138a1 100644
+index 58d8ad7d5658..e486c356b2da 100644
 --- content/renderer/render_frame_impl.cc
 +++ content/renderer/render_frame_impl.cc
 @@ -3281,7 +3281,8 @@ blink::WebPlugin* RenderFrameImpl::CreatePlugin(
@@ -422,10 +422,10 @@ index e5478c1845ef..5302ab1138a1 100644
  
  void RenderFrameImpl::WillCommitProvisionalLoad() {
 diff --git content/renderer/render_thread_impl.cc content/renderer/render_thread_impl.cc
-index dcd109f2947f..dff078ea3f4f 100644
+index ca78dbcefd6a..f69265b98731 100644
 --- content/renderer/render_thread_impl.cc
 +++ content/renderer/render_thread_impl.cc
-@@ -911,6 +911,8 @@ void RenderThreadImpl::Init(
+@@ -900,6 +900,8 @@ void RenderThreadImpl::Init(
  
    StartServiceManagerConnection();
  
@@ -435,10 +435,10 @@ index dcd109f2947f..dff078ea3f4f 100644
        base::Bind(&RenderThreadImpl::OnRendererInterfaceRequest,
                   base::Unretained(this)));
 diff --git content/renderer/renderer_blink_platform_impl.cc content/renderer/renderer_blink_platform_impl.cc
-index 7e4d6f05a496..a6f10b7f66a6 100644
+index 1af02be0dfbf..eeedc3b9cdb1 100644
 --- content/renderer/renderer_blink_platform_impl.cc
 +++ content/renderer/renderer_blink_platform_impl.cc
-@@ -839,6 +839,7 @@ RendererBlinkPlatformImpl::CreateMIDIAccessor(
+@@ -836,6 +836,7 @@ RendererBlinkPlatformImpl::CreateMIDIAccessor(
  
  void RendererBlinkPlatformImpl::GetPluginList(
      bool refresh,
@@ -446,7 +446,7 @@ index 7e4d6f05a496..a6f10b7f66a6 100644
      const blink::WebSecurityOrigin& mainFrameOrigin,
      blink::WebPluginListBuilder* builder) {
  #if BUILDFLAG(ENABLE_PLUGINS)
-@@ -846,7 +847,8 @@ void RendererBlinkPlatformImpl::GetPluginList(
+@@ -843,7 +844,8 @@ void RendererBlinkPlatformImpl::GetPluginList(
    if (!plugin_refresh_allowed_)
      refresh = false;
    RenderThread::Get()->Send(
@@ -456,7 +456,7 @@ index 7e4d6f05a496..a6f10b7f66a6 100644
    for (const WebPluginInfo& plugin : plugins) {
      builder->AddPlugin(WebString::FromUTF16(plugin.name),
                         WebString::FromUTF16(plugin.desc),
-@@ -1413,6 +1415,14 @@ void RendererBlinkPlatformImpl::RequestPurgeMemory() {
+@@ -1401,6 +1403,14 @@ void RendererBlinkPlatformImpl::RequestPurgeMemory() {
    base::MemoryCoordinatorClientRegistry::GetInstance()->PurgeMemory();
  }
  
@@ -472,10 +472,10 @@ index 7e4d6f05a496..a6f10b7f66a6 100644
    if (!web_database_host_) {
      web_database_host_ = blink::mojom::ThreadSafeWebDatabaseHostPtr::Create(
 diff --git content/renderer/renderer_blink_platform_impl.h content/renderer/renderer_blink_platform_impl.h
-index 09c80bbe6eb8..b41bd2928e41 100644
+index e3b802abb18e..019645e1ca5a 100644
 --- content/renderer/renderer_blink_platform_impl.h
 +++ content/renderer/renderer_blink_platform_impl.h
-@@ -127,6 +127,7 @@ class CONTENT_EXPORT RendererBlinkPlatformImpl : public BlinkPlatformImpl {
+@@ -126,6 +126,7 @@ class CONTENT_EXPORT RendererBlinkPlatformImpl : public BlinkPlatformImpl {
    viz::FrameSinkId GenerateFrameSinkId() override;
  
    void GetPluginList(bool refresh,
@@ -483,7 +483,7 @@ index 09c80bbe6eb8..b41bd2928e41 100644
                       const blink::WebSecurityOrigin& mainFrameOrigin,
                       blink::WebPluginListBuilder* builder) override;
    blink::WebPublicSuffixList* PublicSuffixList() override;
-@@ -256,6 +257,9 @@ class CONTENT_EXPORT RendererBlinkPlatformImpl : public BlinkPlatformImpl {
+@@ -252,6 +253,9 @@ class CONTENT_EXPORT RendererBlinkPlatformImpl : public BlinkPlatformImpl {
        mojo::ScopedDataPipeConsumerHandle handle) override;
    void RequestPurgeMemory() override;
  
@@ -542,10 +542,10 @@ index 84bed37848d9..1a66c0757437 100644
                       const std::string& mime_type,
                       bool allow_wildcard,
 diff --git content/test/test_blink_web_unit_test_support.cc content/test/test_blink_web_unit_test_support.cc
-index c58ced83f5a3..b59123565abd 100644
+index dcb37733b01f..a32572b636da 100644
 --- content/test/test_blink_web_unit_test_support.cc
 +++ content/test/test_blink_web_unit_test_support.cc
-@@ -325,6 +325,7 @@ blink::WebThread* TestBlinkWebUnitTestSupport::CurrentThread() {
+@@ -316,6 +316,7 @@ blink::WebThread* TestBlinkWebUnitTestSupport::CurrentThread() {
  
  void TestBlinkWebUnitTestSupport::GetPluginList(
      bool refresh,
@@ -554,11 +554,11 @@ index c58ced83f5a3..b59123565abd 100644
      blink::WebPluginListBuilder* builder) {
    builder->AddPlugin("pdf", "pdf", "pdf-files");
 diff --git content/test/test_blink_web_unit_test_support.h content/test/test_blink_web_unit_test_support.h
-index 06ddd5b7b28f..c3371fecff87 100644
+index c3dd2efd9318..9866732b1ebd 100644
 --- content/test/test_blink_web_unit_test_support.h
 +++ content/test/test_blink_web_unit_test_support.h
-@@ -73,6 +73,7 @@ class TestBlinkWebUnitTestSupport : public BlinkPlatformImpl {
-       viz::ResourceFormat format) override;
+@@ -65,6 +65,7 @@ class TestBlinkWebUnitTestSupport : public BlinkPlatformImpl {
+   blink::WebThread* CurrentThread() override;
  
    void GetPluginList(bool refresh,
 +                     bool is_main_frame,
