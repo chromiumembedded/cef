@@ -7,7 +7,10 @@ import os
 import re
 import sys
 from exec_util import exec_cmd
+from file_util import copy_file, move_file, read_file, remove_file
 import git_util as git
+
+backup_ext = '.cefbak'
 
 
 def msg(message):
@@ -15,11 +18,16 @@ def msg(message):
   sys.stdout.write('--> ' + message + "\n")
 
 
+def linebreak():
+  """ Output a line break. """
+  sys.stdout.write('-' * 80 + "\n")
+
+
 def warn(message):
   """ Output a warning. """
-  sys.stdout.write('-' * 80 + "\n")
+  linebreak()
   sys.stdout.write('!!!! WARNING: ' + message + "\n")
-  sys.stdout.write('-' * 80 + "\n")
+  linebreak()
 
 
 def extract_paths(file):
@@ -67,13 +75,32 @@ parser.add_option(
     action='store_true',
     dest='resave',
     default=False,
-    help='re-save existing patch files to pick up manual changes')
+    help='resave existing patch files to pick up manual changes')
+parser.add_option(
+    '--reapply',
+    action='store_true',
+    dest='reapply',
+    default=False,
+    help='reapply the patch without first reverting changes')
 parser.add_option(
     '--revert',
     action='store_true',
     dest='revert',
     default=False,
     help='revert all changes from existing patch files')
+parser.add_option(
+    '--backup',
+    action='store_true',
+    dest='backup',
+    default=False,
+    help='backup patched files. Used in combination with --revert.')
+parser.add_option(
+    '--restore',
+    action='store_true',
+    dest='restore',
+    default=False,
+    help='restore backup of patched files that have not changed. If a backup has ' +\
+         'changed the patch file will be resaved. Used in combination with --reapply.')
 parser.add_option(
     '--patch',
     action='extend',
@@ -107,6 +134,8 @@ scope = {}
 execfile(patch_cfg, scope)
 patches = scope["patches"]
 
+failed_patches = {}
+
 # Read each individual patch file.
 patches_dir = os.path.join(patch_dir, 'patches')
 for patch in patches:
@@ -130,40 +159,105 @@ for patch in patches:
     # List of paths added by the patch file.
     added_paths = []
 
+    # True if any backed up files have changed.
+    has_backup_changes = False
+
     if not options.resave:
-      # Revert any changes to existing files in the patch.
-      for patch_path in patch_paths:
-        patch_path_abs = os.path.abspath(os.path.join(patch_root_abs, \
-                                                      patch_path))
-        if os.path.exists(patch_path_abs):
-          msg('Reverting changes to %s' % patch_path_abs)
-          cmd = 'git checkout -- %s' % (patch_path_abs)
-          result = exec_cmd(cmd, patch_root_abs)
-          if result['err'] != '':
-            msg('Failed to revert file: %s' % result['err'])
-            msg('Deleting file %s' % patch_path_abs)
-            os.remove(patch_path_abs)
+      if not options.reapply:
+        # Revert any changes to existing files in the patch.
+        for patch_path in patch_paths:
+          patch_path_abs = os.path.abspath(os.path.join(patch_root_abs, \
+                                                        patch_path))
+          if os.path.exists(patch_path_abs):
+            if options.backup:
+              backup_path_abs = patch_path_abs + backup_ext
+              if not os.path.exists(backup_path_abs):
+                msg('Creating backup of %s' % patch_path_abs)
+                copy_file(patch_path_abs, backup_path_abs)
+              else:
+                msg('Skipping backup of %s' % patch_path_abs)
+
+            msg('Reverting changes to %s' % patch_path_abs)
+            cmd = 'git checkout -- %s' % (patch_path_abs)
+            result = exec_cmd(cmd, patch_root_abs)
+            if result['err'] != '':
+              msg('Failed to revert file: %s' % result['err'])
+              msg('Deleting file %s' % patch_path_abs)
+              os.remove(patch_path_abs)
+              added_paths.append(patch_path_abs)
+            if result['out'] != '':
+              sys.stdout.write(result['out'])
+          else:
+            msg('Skipping non-existing file %s' % patch_path_abs)
             added_paths.append(patch_path_abs)
-          if result['out'] != '':
-            sys.stdout.write(result['out'])
-        else:
-          msg('Skipping non-existing file %s' % patch_path_abs)
-          added_paths.append(patch_path_abs)
 
       if not options.revert:
+        # Chromium files are occasionally (incorrectly) checked in with Windows
+        # line endings. This will cause the patch tool to fail when attempting
+        # to patch those files on Posix systems. Convert any such files to Posix
+        # line endings before applying the patch.
+        converted_files = []
+        for patch_path in patch_paths:
+          patch_path_abs = os.path.abspath(os.path.join(patch_root_abs, \
+                                                        patch_path))
+          if os.path.exists(patch_path_abs):
+            with open(patch_path_abs, 'rb') as fp:
+              contents = fp.read()
+            if "\r\n" in contents:
+              msg('Converting to Posix line endings for %s' % patch_path_abs)
+              converted_files.append(patch_path_abs)
+              contents = contents.replace("\r\n", "\n")
+              with open(patch_path_abs, 'wb') as fp:
+                fp.write(contents)
+
         # Apply the patch file.
         msg('Applying patch to %s' % patch_root_abs)
         patch_string = open(patch_file, 'rb').read()
         result = exec_cmd('patch -p0', patch_root_abs, patch_string)
+
+        if len(converted_files) > 0:
+          # Restore Windows line endings in converted files so that the diff is
+          # correct if/when the patch file is re-saved.
+          for patch_path_abs in converted_files:
+            with open(patch_path_abs, 'rb') as fp:
+              contents = fp.read()
+            msg('Converting to Windows line endings for %s' % patch_path_abs)
+            contents = contents.replace("\n", "\r\n")
+            with open(patch_path_abs, 'wb') as fp:
+              fp.write(contents)
+
         if result['err'] != '':
           raise Exception('Failed to apply patch file: %s' % result['err'])
         sys.stdout.write(result['out'])
         if result['out'].find('FAILED') != -1:
+          failed_lines = []
+          for line in result['out'].split('\n'):
+            if line.find('FAILED') != -1:
+              failed_lines.append(line.strip())
           warn('Failed to apply %s, fix manually and run with --resave' % \
                patch['name'])
+          failed_patches[patch['name']] = failed_lines
           continue
 
-    if not options.revert:
+        if options.restore:
+          # Restore from backup if a backup exists.
+          for patch_path in patch_paths:
+            patch_path_abs = os.path.abspath(os.path.join(patch_root_abs, \
+                                                          patch_path))
+            backup_path_abs = patch_path_abs + backup_ext
+            if os.path.exists(backup_path_abs):
+              if read_file(patch_path_abs) == read_file(backup_path_abs):
+                msg('Restoring backup of %s' % patch_path_abs)
+                remove_file(patch_path_abs)
+                move_file(backup_path_abs, patch_path_abs)
+              else:
+                msg('Discarding backup of %s' % patch_path_abs)
+                remove_file(backup_path_abs)
+                has_backup_changes = True
+            else:
+              msg('No backup of %s' % patch_path_abs)
+
+    if (not options.revert and not options.reapply) or has_backup_changes:
       msg('Saving changes to %s' % patch_file)
       if added_paths:
         # Inform git of the added paths so they appear in the patch file.
@@ -178,8 +272,27 @@ for patch in patches:
       result = exec_cmd(cmd, patch_root_abs)
       if result['err'] != '' and result['err'].find('warning:') != 0:
         raise Exception('Failed to create patch file: %s' % result['err'])
+
+      if "\r\n" in result['out']:
+        # Patch files should always be saved with Posix line endings.
+        # This will avoid problems when attempting to re-apply the patch
+        # file on Posix systems.
+        msg('Converting to Posix line endings for %s' % patch_file)
+        result['out'] = result['out'].replace("\r\n", "\n")
+
       f = open(patch_file, 'wb')
       f.write(result['out'])
       f.close()
   else:
     raise Exception('Patch file does not exist: %s' % patch_file)
+
+if len(failed_patches) > 0:
+  sys.stdout.write("\n")
+  linebreak()
+  sys.stdout.write("!!!! FAILED PATCHES, fix manually and run with --resave\n")
+  for name in sorted(failed_patches.keys()):
+    sys.stdout.write("%s:\n" % name)
+    for line in failed_patches[name]:
+      sys.stdout.write("  %s\n" % line)
+  linebreak()
+  sys.exit(1)
