@@ -1413,7 +1413,7 @@ write_branch_config_file(out_src_dir, cef_branch)
 if options.logchromiumchanges and chromium_checkout != chromium_compat_version:
   log_chromium_changes()
 
-if options.forcepatchupdate or (not options.fastupdate and \
+if options.forcepatchupdate or ((chromium_checkout_new or not options.fastupdate) and \
                                 chromium_checkout_changed and \
                                 chromium_checkout != chromium_compat_version):
   # Not using the known-compatible Chromium version. Try to update patch files.
