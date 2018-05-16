@@ -709,6 +709,11 @@ parser.add_option('--no-cef-update',
                   help='Do not update CEF. Pass --force-build or '+\
                        '--force-distrib if you desire a new build or '+\
                        'distribution.')
+parser.add_option('--force-cef-update',
+                  action='store_true', dest='forcecefupdate', default=False,
+                  help='Force a CEF update. This will cause local changes in '+\
+                       'the CEF checkout to be discarded and patch files to '+\
+                       'be reapplied.')
 parser.add_option(
     '--no-chromium-update',
     action='store_true',
@@ -1203,6 +1208,7 @@ if not options.nocefupdate and os.path.exists(cef_dir):
 
   cef_desired_hash = get_git_hash(cef_dir, cef_checkout)
   cef_checkout_changed = cef_checkout_new or force_change or \
+                         options.forcecefupdate or \
                          cef_current_hash != cef_desired_hash
 
   msg("CEF Current Checkout: %s" % (cef_current_hash))
@@ -1211,7 +1217,9 @@ if not options.nocefupdate and os.path.exists(cef_dir):
   if cef_checkout_changed:
     # Checkout the requested branch.
     run('%s checkout %s%s' %
-      (git_exe, ('--force ' if options.forceclean else ''), cef_checkout), \
+      (git_exe, \
+       ('--force ' if (options.forceclean or options.forcecefupdate) else ''), \
+       cef_checkout), \
       cef_dir, depot_tools_dir)
 else:
   cef_checkout_changed = False
@@ -1380,6 +1388,11 @@ if chromium_checkout_changed:
 
   # Delete the src/out directory created by `gclient sync`.
   delete_directory(out_src_dir)
+elif cef_checkout_changed:
+  # Backup and revert the patched files.
+  run_patch_updater("--backup --revert")
+  # Check and restore the patched files.
+  run_patch_updater("--reapply --restore")
 
 # Restore the src/cef directory.
 if cef_dir != cef_src_dir and os.path.exists(
