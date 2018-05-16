@@ -1548,7 +1548,7 @@ if options.runtests:
     build_path = os.path.join(out_src_dir, get_build_directory_name(True))
     test_path = os.path.join(build_path, test_exe)
     if os.path.exists(test_path):
-      run(test_prefix + test_exe + test_args, build_path, depot_tools_dir)
+      run(test_prefix + test_path + test_args, build_path, depot_tools_dir)
     else:
       msg('Not running debug tests. Missing executable: %s' % test_path)
 
@@ -1556,7 +1556,7 @@ if options.runtests:
     build_path = os.path.join(out_src_dir, get_build_directory_name(False))
     test_path = os.path.join(build_path, test_exe)
     if os.path.exists(test_path):
-      run(test_prefix + test_exe + test_args, build_path, depot_tools_dir)
+      run(test_prefix + test_path + test_args, build_path, depot_tools_dir)
     else:
       msg('Not running release tests. Missing executable: %s' % test_path)
 
