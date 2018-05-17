@@ -1,5 +1,5 @@
 diff --git base/message_loop/message_loop_current.h base/message_loop/message_loop_current.h
-index c2a8a731b9fb..7e9e96849d6a 100644
+index 72b0d8c6fe8c..f5df6369f269 100644
 --- base/message_loop/message_loop_current.h
 +++ base/message_loop/message_loop_current.h
 @@ -126,6 +126,16 @@ class BASE_EXPORT MessageLoopCurrent {
@@ -34,10 +34,10 @@ index c2a8a731b9fb..7e9e96849d6a 100644
  
  #if !defined(OS_NACL)
 diff --git base/message_loop/message_pump_win.cc base/message_loop/message_pump_win.cc
-index b145a1d54a32..9b28169050b2 100644
+index ca257370fb56..3d9b4cea21ce 100644
 --- base/message_loop/message_pump_win.cc
 +++ base/message_loop/message_pump_win.cc
-@@ -372,20 +372,28 @@ bool MessagePumpForUI::ProcessMessageHelper(const MSG& msg) {
+@@ -370,20 +370,28 @@ bool MessagePumpForUI::ProcessMessageHelper(const MSG& msg) {
  }
  
  bool MessagePumpForUI::ProcessPumpReplacementMessage() {

@@ -1077,7 +1077,7 @@ void CefBrowserHostImpl::WasResized() {
   if (!web_contents() || !platform_delegate_)
     return;
 
-  platform_delegate_->WasResized();
+  platform_delegate_->SynchronizeVisualProperties();
 }
 
 void CefBrowserHostImpl::WasHidden(bool hidden) {
@@ -1145,9 +1145,9 @@ void CefBrowserHostImpl::SendKeyEvent(const CefKeyEvent& event) {
   if (!web_contents() || !platform_delegate_)
     return;
 
-  content::NativeWebKeyboardEvent web_event(
-      blink::WebInputEvent::kUndefined, blink::WebInputEvent::kNoModifiers,
-      ui::EventTimeStampToSeconds(ui::EventTimeForNow()));
+  content::NativeWebKeyboardEvent web_event(blink::WebInputEvent::kUndefined,
+                                            blink::WebInputEvent::kNoModifiers,
+                                            ui::EventTimeForNow());
   platform_delegate_->TranslateKeyEvent(web_event, event);
   platform_delegate_->SendKeyEvent(web_event);
 }

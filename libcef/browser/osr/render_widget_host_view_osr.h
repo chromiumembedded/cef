@@ -213,7 +213,7 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
 
   bool InstallTransparency();
 
-  void WasResized();
+  void SynchronizeVisualProperties();
   void OnScreenInfoChanged();
   void Invalidate(CefBrowserHost::PaintElementType type);
   void SendKeyEvent(const content::NativeWebKeyboardEvent& event);

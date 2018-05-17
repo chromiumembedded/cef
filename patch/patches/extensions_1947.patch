@@ -27,10 +27,10 @@ index 53c7404ef1f9..ac33df7cfe0e 100644
    auto* browser_context = web_contents->GetBrowserContext();
    StreamsPrivateAPI* streams_private = GetStreamsPrivateAPI(browser_context);
 diff --git content/browser/frame_host/render_frame_host_manager.cc content/browser/frame_host/render_frame_host_manager.cc
-index 33678d6f3cbf..e16bd447aea2 100644
+index b6fb23189522..ccbf05206387 100644
 --- content/browser/frame_host/render_frame_host_manager.cc
 +++ content/browser/frame_host/render_frame_host_manager.cc
-@@ -898,10 +898,11 @@ bool RenderFrameHostManager::ShouldSwapBrowsingInstancesForNavigation(
+@@ -903,10 +903,11 @@ bool RenderFrameHostManager::ShouldSwapBrowsingInstancesForNavigation(
    // TODO(alexmos): This check should've been enforced earlier in the
    // navigation, in chrome::Navigate().  Verify this, and then convert this to
    // a CHECK and remove the fallback.
@@ -46,7 +46,7 @@ index 33678d6f3cbf..e16bd447aea2 100644
      return true;
    }
  
-@@ -1041,7 +1042,8 @@ RenderFrameHostManager::GetSiteInstanceForNavigation(
+@@ -1046,7 +1047,8 @@ RenderFrameHostManager::GetSiteInstanceForNavigation(
  
    // Double-check that the new SiteInstance is associated with the right
    // BrowserContext.
@@ -57,7 +57,7 @@ index 33678d6f3cbf..e16bd447aea2 100644
    // If |new_instance| is a new SiteInstance for a subframe that requires a
    // dedicated process, set its process reuse policy so that such subframes are
 diff --git content/public/browser/content_browser_client.h content/public/browser/content_browser_client.h
-index a9818834fec3..d21e360bea01 100644
+index c8dcbf0f6daa..19c162f0c76a 100644
 --- content/public/browser/content_browser_client.h
 +++ content/public/browser/content_browser_client.h
 @@ -366,6 +366,13 @@ class CONTENT_EXPORT ContentBrowserClient {

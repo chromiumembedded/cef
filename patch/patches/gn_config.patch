@@ -12,10 +12,10 @@ index 36b54aca866c..06337f3f3086 100644
        # https://crbug.com/474506.
        "//clank/java/BUILD.gn",
 diff --git BUILD.gn BUILD.gn
-index 06c117e4e79a..6e0a66aaaf75 100644
+index ff2f6ff45105..562bea65a4a6 100644
 --- BUILD.gn
 +++ BUILD.gn
-@@ -192,6 +192,7 @@ group("gn_all") {
+@@ -191,6 +191,7 @@ group("gn_all") {
  
    if (!is_ios && !is_fuchsia) {
      deps += [
@@ -110,7 +110,7 @@ index 5f51eadb13b2..aa7ab8dbb16d 100644
  
  
 diff --git build/vs_toolchain.py build/vs_toolchain.py
-index 11e5e4c7d30f..88e8b84d23e3 100755
+index d5999f71ca7b..d630585ecd2f 100755
 --- build/vs_toolchain.py
 +++ build/vs_toolchain.py
 @@ -82,11 +82,18 @@ def SetEnvironmentAndGetRuntimeDllDirs():

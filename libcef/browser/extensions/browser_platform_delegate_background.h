@@ -22,7 +22,7 @@ class CefBrowserPlatformDelegateBackground
   void CloseHostWindow() override;
   CefWindowHandle GetHostWindowHandle() const override;
   SkColor GetBackgroundColor() const override;
-  void WasResized() override;
+  void SynchronizeVisualProperties() override;
   void SendKeyEvent(const content::NativeWebKeyboardEvent& event) override;
   void SendMouseEvent(const blink::WebMouseEvent& event) override;
   void SendMouseWheelEvent(const blink::WebMouseWheelEvent& event) override;

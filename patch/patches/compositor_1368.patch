@@ -1,8 +1,8 @@
 diff --git content/browser/compositor/gpu_process_transport_factory.cc content/browser/compositor/gpu_process_transport_factory.cc
-index e34a0de26349..b90d1a106aff 100644
+index 9d5348d73ae1..e4b7905a7137 100644
 --- content/browser/compositor/gpu_process_transport_factory.cc
 +++ content/browser/compositor/gpu_process_transport_factory.cc
-@@ -495,9 +495,19 @@ void GpuProcessTransportFactory::EstablishedGpuChannel(
+@@ -496,9 +496,19 @@ void GpuProcessTransportFactory::EstablishedGpuChannel(
          // surfaces as they are not following the correct mode.
          DisableGpuCompositing(compositor.get());
        }

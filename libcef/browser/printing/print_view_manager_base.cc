@@ -163,7 +163,7 @@ bool CefPrintViewManagerBase::PrintJobHasDocument(int cookie) {
 void CefPrintViewManagerBase::OnComposePdfDone(
     const PrintHostMsg_DidPrintDocument_Params& params,
     mojom::PdfCompositor::Status status,
-    mojo::ScopedSharedBufferHandle handle) {
+    base::ReadOnlySharedMemoryRegion region) {
   DCHECK_CURRENTLY_ON(content::BrowserThread::UI);
   if (status != mojom::PdfCompositor::Status::SUCCESS) {
     DLOG(ERROR) << "Compositing pdf failed with error " << status;
@@ -173,14 +173,11 @@ void CefPrintViewManagerBase::OnComposePdfDone(
   if (!print_job_->document())
     return;
 
-  std::unique_ptr<base::SharedMemory> shared_buf =
-      GetShmFromMojoHandle(std::move(handle));
-  if (!shared_buf)
+  scoped_refptr<base::RefCountedSharedMemoryMapping> data =
+      base::RefCountedSharedMemoryMapping::CreateFromWholeRegion(region);
+  if (!data)
     return;
 
-  size_t size = shared_buf->mapped_size();
-  auto data = base::MakeRefCounted<base::RefCountedSharedMemory>(
-      std::move(shared_buf), size);
   PrintDocument(data, params.page_size, params.content_area,
                 params.physical_offsets);
 }

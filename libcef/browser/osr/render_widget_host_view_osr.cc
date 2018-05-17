@@ -402,7 +402,7 @@ bool CefRenderWidgetHostViewOSR::IsShowing() {
 
 void CefRenderWidgetHostViewOSR::EnsureSurfaceSynchronizedForLayoutTest() {
   ++latest_capture_sequence_number_;
-  WasResized();
+  SynchronizeVisualProperties();
 }
 
 gfx::Rect CefRenderWidgetHostViewOSR::GetViewBounds() const {
@@ -1018,7 +1018,7 @@ bool CefRenderWidgetHostViewOSR::InstallTransparency() {
   return false;
 }
 
-void CefRenderWidgetHostViewOSR::WasResized() {
+void CefRenderWidgetHostViewOSR::SynchronizeVisualProperties() {
   if (hold_resize_) {
     if (!pending_resize_)
       pending_resize_ = true;
@@ -1238,8 +1238,10 @@ void CefRenderWidgetHostViewOSR::ReleaseResize() {
   hold_resize_ = false;
   if (pending_resize_) {
     pending_resize_ = false;
-    CEF_POST_TASK(CEF_UIT, base::Bind(&CefRenderWidgetHostViewOSR::WasResized,
-                                      weak_ptr_factory_.GetWeakPtr()));
+    CEF_POST_TASK(
+        CEF_UIT,
+        base::Bind(&CefRenderWidgetHostViewOSR::SynchronizeVisualProperties,
+                   weak_ptr_factory_.GetWeakPtr()));
   }
 }
 
@@ -1254,7 +1256,8 @@ void CefRenderWidgetHostViewOSR::OnPaint(const gfx::Rect& damage_rect,
   if (!handler.get())
     return;
 
-  // Don't execute WasResized while the OnPaint callback is pending.
+  // Don't execute SynchronizeVisualProperties while the OnPaint callback is
+  // pending.
   HoldResize();
 
   gfx::Rect rect_in_bitmap(0, 0, bitmap_width, bitmap_height);
@@ -1381,14 +1384,15 @@ void CefRenderWidgetHostViewOSR::ResizeRootLayer() {
   bool resized = UpdateNSViewAndDisplay();
 #else
   bool resized = true;
-  GetDelegatedFrameHost()->WasResized(local_surface_id_, size,
-                                      cc::DeadlinePolicy::UseDefaultDeadline());
+  GetDelegatedFrameHost()->SynchronizeVisualProperties(
+      local_surface_id_, size, cc::DeadlinePolicy::UseDefaultDeadline());
 #endif
 
   // Note that |render_widget_host_| will retrieve resize parameters from the
-  // DelegatedFrameHost, so it must have WasResized called after.
+  // DelegatedFrameHost, so it must have SynchronizeVisualProperties called
+  // after.
   if (resized && render_widget_host_)
-    render_widget_host_->WasResized();
+    render_widget_host_->SynchronizeVisualProperties();
 }
 
 void CefRenderWidgetHostViewOSR::OnBeginFrameTimerTick() {

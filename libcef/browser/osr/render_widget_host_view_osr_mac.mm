@@ -76,7 +76,9 @@ class MacHelper : public content::BrowserCompositorMacClient,
 
   void DestroyCompositorForShutdown() override {}
 
-  void WasResized() override { view_->render_widget_host()->WasResized(); }
+  void SynchronizeVisualProperties() override {
+    view_->render_widget_host()->SynchronizeVisualProperties();
+  }
 
  private:
   // Guaranteed to outlive this object.

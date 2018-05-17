@@ -169,10 +169,10 @@ SkColor CefBrowserPlatformDelegateViews::GetBackgroundColor() const {
   return native_delegate_->GetBackgroundColor();
 }
 
-void CefBrowserPlatformDelegateViews::WasResized() {
+void CefBrowserPlatformDelegateViews::SynchronizeVisualProperties() {
   content::RenderViewHost* host = browser_->web_contents()->GetRenderViewHost();
   if (host)
-    host->GetWidget()->WasResized();
+    host->GetWidget()->SynchronizeVisualProperties();
 }
 
 void CefBrowserPlatformDelegateViews::SendKeyEvent(

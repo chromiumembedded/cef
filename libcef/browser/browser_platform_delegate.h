@@ -22,14 +22,14 @@ namespace blink {
 class WebMouseEvent;
 class WebMouseWheelEvent;
 class WebInputEvent;
-}
+}  // namespace blink
 
 namespace content {
 struct NativeWebKeyboardEvent;
 class RenderViewHost;
 class RenderViewHostDelegateView;
 class WebContentsView;
-}
+}  // namespace content
 
 #if defined(USE_AURA)
 namespace views {
@@ -140,7 +140,7 @@ class CefBrowserPlatformDelegate {
   virtual SkColor GetBackgroundColor() const = 0;
 
   // Notify the window that it was resized.
-  virtual void WasResized() = 0;
+  virtual void SynchronizeVisualProperties() = 0;
 
   // Send input events.
   virtual void SendKeyEvent(const content::NativeWebKeyboardEvent& event) = 0;

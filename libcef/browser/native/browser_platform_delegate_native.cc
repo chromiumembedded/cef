@@ -20,10 +20,10 @@ SkColor CefBrowserPlatformDelegateNative::GetBackgroundColor() const {
   return background_color_;
 }
 
-void CefBrowserPlatformDelegateNative::WasResized() {
+void CefBrowserPlatformDelegateNative::SynchronizeVisualProperties() {
   content::RenderViewHost* host = browser_->web_contents()->GetRenderViewHost();
   if (host)
-    host->GetWidget()->WasResized();
+    host->GetWidget()->SynchronizeVisualProperties();
 }
 
 void CefBrowserPlatformDelegateNative::SendKeyEvent(

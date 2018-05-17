@@ -128,7 +128,8 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
       content::ResourceContext* resource_context) override;
 
   void RegisterNonNetworkNavigationURLLoaderFactories(
-      content::RenderFrameHost* frame_host,
+      int render_process_id,
+      int render_frame_id,
       NonNetworkURLLoaderFactoryMap* factories) override;
   void RegisterNonNetworkSubresourceURLLoaderFactories(
       content::RenderFrameHost* frame_host,

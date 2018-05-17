@@ -39,7 +39,7 @@ SkColor CefBrowserPlatformDelegateBackground::GetBackgroundColor() const {
   return native_delegate_->GetBackgroundColor();
 }
 
-void CefBrowserPlatformDelegateBackground::WasResized() {
+void CefBrowserPlatformDelegateBackground::SynchronizeVisualProperties() {
   // Nothing to do here.
 }
 
