@@ -127,7 +127,7 @@ index fdc51ab22807..cb0a99dd190c 100644
    g_crash_helper_enabled = true;
    return true;
 diff --git components/crash/content/app/breakpad_linux.cc components/crash/content/app/breakpad_linux.cc
-index 1dde47fb6bba..8b96a022abf0 100644
+index 87703f9a5276..a651ed2b1833 100644
 --- components/crash/content/app/breakpad_linux.cc
 +++ components/crash/content/app/breakpad_linux.cc
 @@ -28,6 +28,7 @@
@@ -155,7 +155,7 @@ index 1dde47fb6bba..8b96a022abf0 100644
    info.process_start_time = g_process_start_time;
    info.oom_size = base::g_oom_size;
    info.pid = g_pid;
-@@ -1342,7 +1344,7 @@ void ExecUploadProcessOrTerminate(const BreakpadInfo& info,
+@@ -1341,7 +1343,7 @@ void ExecUploadProcessOrTerminate(const BreakpadInfo& info,
      header_content_encoding,
      header_content_type,
      post_file,
@@ -164,7 +164,7 @@ index 1dde47fb6bba..8b96a022abf0 100644
      "--timeout=10",  // Set a timeout so we don't hang forever.
      "--tries=1",     // Don't retry if the upload fails.
      "-O",  // Output reply to the file descriptor path.
-@@ -1682,10 +1684,19 @@ void HandleCrashDump(const BreakpadInfo& info) {
+@@ -1681,10 +1683,19 @@ void HandleCrashDump(const BreakpadInfo& info) {
      GetCrashReporterClient()->GetProductNameAndVersion(&product_name, &version);
  
      writer.AddBoundary();
@@ -186,7 +186,7 @@ index 1dde47fb6bba..8b96a022abf0 100644
      if (info.pid > 0) {
        char pid_value_buf[kUint64StringSize];
        uint64_t pid_value_len = my_uint64_len(info.pid);
-@@ -1803,10 +1814,20 @@ void HandleCrashDump(const BreakpadInfo& info) {
+@@ -1802,10 +1813,20 @@ void HandleCrashDump(const BreakpadInfo& info) {
          crash_reporter::internal::TransitionalCrashKeyStorage;
      CrashKeyStorage::Iterator crash_key_iterator(*info.crash_keys);
      const CrashKeyStorage::Entry* entry;
@@ -208,7 +208,7 @@ index 1dde47fb6bba..8b96a022abf0 100644
        writer.AddBoundary();
        writer.Flush();
      }
-@@ -2016,6 +2037,17 @@ void SetChannelCrashKey(const std::string& channel) {
+@@ -2015,6 +2036,17 @@ void SetChannelCrashKey(const std::string& channel) {
    channel_key.Set(channel);
  }
  

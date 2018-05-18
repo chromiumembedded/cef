@@ -17,10 +17,10 @@ index 6ad9f5fb334d..d7bf762314a4 100644
    void DidCreateNewRendererCompositorFrameSink(
        viz::mojom::CompositorFrameSinkClient* renderer_compositor_frame_sink);
 diff --git content/browser/renderer_host/browser_compositor_view_mac.mm content/browser/renderer_host/browser_compositor_view_mac.mm
-index 13a7da672959..28b0ab2d0e1a 100644
+index f8d3575e06dc..688aa7e5b117 100644
 --- content/browser/renderer_host/browser_compositor_view_mac.mm
 +++ content/browser/renderer_host/browser_compositor_view_mac.mm
-@@ -208,6 +208,12 @@ BrowserCompositorMac::~BrowserCompositorMac() {
+@@ -206,6 +206,12 @@ BrowserCompositorMac::~BrowserCompositorMac() {
      g_spare_recyclable_compositors.Get().clear();
  }
  
@@ -34,7 +34,7 @@ index 13a7da672959..28b0ab2d0e1a 100644
    if (recyclable_compositor_) {
      return recyclable_compositor_->accelerated_widget_mac()
 diff --git ui/accelerated_widget_mac/accelerated_widget_mac.mm ui/accelerated_widget_mac/accelerated_widget_mac.mm
-index 97e7b502f15d..44811edbda4c 100644
+index 0de89795c461..3d46421491a9 100644
 --- ui/accelerated_widget_mac/accelerated_widget_mac.mm
 +++ ui/accelerated_widget_mac/accelerated_widget_mac.mm
 @@ -71,6 +71,10 @@ void AcceleratedWidgetMac::SetNSView(AcceleratedWidgetMacNSView* view) {

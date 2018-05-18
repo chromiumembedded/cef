@@ -8,6 +8,7 @@
 #include "libcef/browser/native/menu_2.h"
 
 #include "base/message_loop/message_loop.h"
+#include "base/message_loop/message_loop_current.h"
 #include "ui/gfx/geometry/point.h"
 
 CefMenuRunnerWin::CefMenuRunnerWin() {}
@@ -21,8 +22,7 @@ bool CefMenuRunnerWin::RunContextMenu(
   menu_->Rebuild(NULL);
 
   // Make sure events can be pumped while the menu is up.
-  base::MessageLoop::ScopedNestableTaskAllower allow(
-      base::MessageLoop::current());
+  base::MessageLoopCurrent::ScopedNestableTaskAllower allow;
 
   const gfx::Point& screen_point =
       browser->GetScreenPoint(gfx::Point(params.x, params.y));

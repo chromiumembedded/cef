@@ -400,7 +400,7 @@ class CefBrowserHostImpl : public CefBrowserHost,
       const content::OpenURLParams& params) override;
   bool ShouldTransferNavigation(bool is_main_frame_navigation) override;
   void AddNewContents(content::WebContents* source,
-                      content::WebContents* new_contents,
+                      std::unique_ptr<content::WebContents> new_contents,
                       WindowOpenDisposition disposition,
                       const gfx::Rect& initial_rect,
                       bool user_gesture,
@@ -527,6 +527,7 @@ class CefBrowserHostImpl : public CefBrowserHost,
       const CefBrowserSettings& settings,
       CefRefPtr<CefClient> client,
       content::WebContents* web_contents,
+      bool own_web_contents,
       scoped_refptr<CefBrowserInfo> browser_info,
       CefRefPtr<CefBrowserHostImpl> opener,
       bool is_devtools_popup,
@@ -563,6 +564,8 @@ class CefBrowserHostImpl : public CefBrowserHost,
       CefRefPtr<CefRequestContext> request_context,
       std::unique_ptr<CefBrowserPlatformDelegate> platform_delegate,
       CefRefPtr<CefExtension> extension);
+
+  void set_owned_web_contents(content::WebContents* owned_contents);
 
   // Give the platform delegate an opportunity to create the host window.
   bool CreateHostWindow();
@@ -635,7 +638,6 @@ class CefBrowserHostImpl : public CefBrowserHost,
 
   CefBrowserSettings settings_;
   CefRefPtr<CefClient> client_;
-  std::unique_ptr<content::WebContents> web_contents_;
   scoped_refptr<CefBrowserInfo> browser_info_;
   CefWindowHandle opener_;
   CefRefPtr<CefRequestContext> request_context_;
@@ -643,6 +645,12 @@ class CefBrowserHostImpl : public CefBrowserHost,
   const bool is_windowless_;
   const bool is_views_hosted_;
   CefWindowHandle host_window_handle_;
+
+  // Non-nullptr if this object owns the WebContents. Will be nullptr for popup
+  // browsers between the calls to WebContentsCreated() and AddNewContents(),
+  // and may never be set if the parent browser is destroyed during popup
+  // creation.
+  std::unique_ptr<content::WebContents> owned_web_contents_;
 
   // Volatile state information. All access must be protected by the state lock.
   base::Lock state_lock_;

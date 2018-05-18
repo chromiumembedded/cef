@@ -1,8 +1,8 @@
 diff --git content/browser/renderer_host/render_widget_host_view_base.cc content/browser/renderer_host/render_widget_host_view_base.cc
-index d6e3ba62a9d6..772baa2f5129 100644
+index 909cbf39b2e0..f91f652a9d73 100644
 --- content/browser/renderer_host/render_widget_host_view_base.cc
 +++ content/browser/renderer_host/render_widget_host_view_base.cc
-@@ -371,6 +371,14 @@ float RenderWidgetHostViewBase::GetDeviceScaleFactor() const {
+@@ -376,6 +376,14 @@ float RenderWidgetHostViewBase::GetDeviceScaleFactor() const {
    return screen_info.device_scale_factor;
  }
  
@@ -18,18 +18,18 @@ index d6e3ba62a9d6..772baa2f5129 100644
    return renderer_frame_number_;
  }
 diff --git content/browser/renderer_host/render_widget_host_view_base.h content/browser/renderer_host/render_widget_host_view_base.h
-index 3293d2dd5e6d..3c1bf7a41f07 100644
+index 04b50a9fcefb..c0b509f4881f 100644
 --- content/browser/renderer_host/render_widget_host_view_base.h
 +++ content/browser/renderer_host/render_widget_host_view_base.h
-@@ -80,6 +80,7 @@ class BrowserAccessibilityManager;
- class CursorManager;
+@@ -81,6 +81,7 @@ class CursorManager;
+ class MouseWheelPhaseHandler;
  class RenderWidgetHostImpl;
  class RenderWidgetHostViewBaseObserver;
 +class RenderWidgetHostViewGuest;
  class SyntheticGestureTarget;
  class TextInputManager;
  class TouchSelectionControllerClientManager;
-@@ -101,6 +102,9 @@ class CONTENT_EXPORT RenderWidgetHostViewBase
+@@ -102,6 +103,9 @@ class CONTENT_EXPORT RenderWidgetHostViewBase
    float current_device_scale_factor() const {
      return current_device_scale_factor_;
    }
@@ -39,7 +39,7 @@ index 3293d2dd5e6d..3c1bf7a41f07 100644
  
    // Returns the focused RenderWidgetHost inside this |view|'s RWH.
    RenderWidgetHostImpl* GetFocusedWidget() const;
-@@ -132,6 +136,8 @@ class CONTENT_EXPORT RenderWidgetHostViewBase
+@@ -133,6 +137,8 @@ class CONTENT_EXPORT RenderWidgetHostViewBase
    void DisableAutoResize(const gfx::Size& new_size) override;
    bool IsScrollOffsetAtTop() const override;
    float GetDeviceScaleFactor() const final;
@@ -48,7 +48,7 @@ index 3293d2dd5e6d..3c1bf7a41f07 100644
    TouchSelectionControllerClientManager*
    GetTouchSelectionControllerClientManager() override;
  
-@@ -425,6 +431,12 @@ class CONTENT_EXPORT RenderWidgetHostViewBase
+@@ -426,6 +432,12 @@ class CONTENT_EXPORT RenderWidgetHostViewBase
    // helps to position the full screen widget on the correct monitor.
    virtual void InitAsFullscreen(RenderWidgetHostView* reference_host_view) = 0;
  
@@ -61,7 +61,7 @@ index 3293d2dd5e6d..3c1bf7a41f07 100644
    // Sets the cursor for this view to the one associated with the specified
    // cursor_type.
    virtual void UpdateCursor(const WebCursor& cursor) = 0;
-@@ -595,6 +607,10 @@ class CONTENT_EXPORT RenderWidgetHostViewBase
+@@ -600,6 +612,10 @@ class CONTENT_EXPORT RenderWidgetHostViewBase
  
    bool is_currently_scrolling_viewport_;
  
@@ -194,7 +194,7 @@ index beffc35eee45..0982b021b4e2 100644
    // a reference.
    corewm::TooltipWin* tooltip_;
 diff --git ui/views/widget/desktop_aura/desktop_window_tree_host_x11.cc ui/views/widget/desktop_aura/desktop_window_tree_host_x11.cc
-index 3f50f47d64a3..7e5579c96a2c 100644
+index 89513b6e40e0..06bb9d0508ab 100644
 --- ui/views/widget/desktop_aura/desktop_window_tree_host_x11.cc
 +++ ui/views/widget/desktop_aura/desktop_window_tree_host_x11.cc
 @@ -145,6 +145,7 @@ DesktopWindowTreeHostX11::DesktopWindowTreeHostX11(

@@ -25,6 +25,7 @@
 #include "content/public/common/content_switches.h"
 #include "media/cdm/cdm_host_file.h"
 #include "media/cdm/supported_cdm_versions.h"
+#include "services/service_manager/embedder/switches.h"
 #include "services/service_manager/sandbox/switches.h"
 
 namespace {
@@ -355,7 +356,7 @@ void CefWidevineLoader::AddContentDecryptionModules(
   // errors during plugin loading. This is because the Zygote process must pre-
   // load all plugins before initializing the sandbox.
   if (command_line.GetSwitchValueASCII(switches::kProcessType) !=
-          switches::kZygoteProcess ||
+          service_manager::switches::kZygoteProcess ||
       command_line.HasSwitch(service_manager::switches::kNoSandbox)) {
     return;
   }

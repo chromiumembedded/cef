@@ -1,5 +1,5 @@
 diff --git content/browser/renderer_host/render_widget_host_view_aura.cc content/browser/renderer_host/render_widget_host_view_aura.cc
-index ec3c8adcdea4..72bd8e7cc871 100644
+index 01db5dbf533b..b70659867710 100644
 --- content/browser/renderer_host/render_widget_host_view_aura.cc
 +++ content/browser/renderer_host/render_widget_host_view_aura.cc
 @@ -741,9 +741,11 @@ void RenderWidgetHostViewAura::UpdateBackgroundColorFromRenderer(

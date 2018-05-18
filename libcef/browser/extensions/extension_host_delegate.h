@@ -21,7 +21,7 @@ class CefExtensionHostDelegate : public ExtensionHostDelegate {
   void OnExtensionHostCreated(content::WebContents* web_contents) override;
   void OnRenderViewCreatedForBackgroundPage(ExtensionHost* host) override;
   content::JavaScriptDialogManager* GetJavaScriptDialogManager() override;
-  void CreateTab(content::WebContents* web_contents,
+  void CreateTab(std::unique_ptr<content::WebContents> web_contents,
                  const std::string& extension_id,
                  WindowOpenDisposition disposition,
                  const gfx::Rect& initial_rect,

@@ -1,5 +1,5 @@
 diff --git third_party/blink/public/web/web_view.h third_party/blink/public/web/web_view.h
-index db2e2e88c9f6..19eb6e7f3073 100644
+index c25144ef9318..343d1de5f03a 100644
 --- third_party/blink/public/web/web_view.h
 +++ third_party/blink/public/web/web_view.h
 @@ -358,6 +358,7 @@ class WebView : protected WebWidget {
@@ -20,7 +20,7 @@ index db2e2e88c9f6..19eb6e7f3073 100644
  
    // Call these methods before and after running a nested, modal event loop
 diff --git third_party/blink/renderer/core/exported/web_view_impl.cc third_party/blink/renderer/core/exported/web_view_impl.cc
-index f2a2a4d8b3e1..e349385e4ae3 100644
+index 7298a752d360..26bac8472a20 100644
 --- third_party/blink/renderer/core/exported/web_view_impl.cc
 +++ third_party/blink/renderer/core/exported/web_view_impl.cc
 @@ -251,8 +251,13 @@ void WebView::SetUseExternalPopupMenus(bool use_external_popup_menus) {
@@ -48,7 +48,7 @@ index f2a2a4d8b3e1..e349385e4ae3 100644
        suppress_next_keypress_event_(false),
        ime_accept_events_(true),
 diff --git third_party/blink/renderer/core/exported/web_view_impl.h third_party/blink/renderer/core/exported/web_view_impl.h
-index f2a35c0426bd..cf7641477c2e 100644
+index 7d13f1c07529..1c664d42eb17 100644
 --- third_party/blink/renderer/core/exported/web_view_impl.h
 +++ third_party/blink/renderer/core/exported/web_view_impl.h
 @@ -102,7 +102,8 @@ class CORE_EXPORT WebViewImpl final : public WebView,
@@ -70,7 +70,7 @@ index f2a35c0426bd..cf7641477c2e 100644
    void SetBaseBackgroundColorOverride(WebColor);
    void ClearBaseBackgroundColorOverride();
    void SetBackgroundColorOverride(WebColor);
-@@ -620,6 +621,8 @@ class CORE_EXPORT WebViewImpl final : public WebView,
+@@ -622,6 +623,8 @@ class CORE_EXPORT WebViewImpl final : public WebView,
    float fake_page_scale_animation_page_scale_factor_;
    bool fake_page_scale_animation_use_anchor_;
  

@@ -352,13 +352,13 @@ CefRefPtr<CefBrowserHostImpl> CefBrowserHostImpl::Create(
         &wc_create_params.view, &wc_create_params.delegate_view);
   }
 
-  content::WebContents* web_contents =
+  std::unique_ptr<content::WebContents> web_contents =
       content::WebContents::Create(wc_create_params);
   DCHECK(web_contents);
 
-  CefRefPtr<CefBrowserHostImpl> browser = CefBrowserHostImpl::CreateInternal(
-      create_params.settings, create_params.client, web_contents, info,
-      create_params.devtools_opener, is_devtools_popup,
+  CefRefPtr<CefBrowserHostImpl> browser = CreateInternal(
+      create_params.settings, create_params.client, web_contents.release(),
+      true, info, create_params.devtools_opener, is_devtools_popup,
       create_params.request_context, std::move(platform_delegate),
       cef_extension);
   if (!browser)
@@ -366,7 +366,7 @@ CefRefPtr<CefBrowserHostImpl> CefBrowserHostImpl::Create(
 
   if (create_params.extension) {
     browser->CreateExtensionHost(create_params.extension, browser_context,
-                                 web_contents, create_params.url,
+                                 browser->web_contents(), create_params.url,
                                  create_params.extension_host_type);
   } else if (!create_params.url.is_empty()) {
     browser->LoadURL(CefFrameHostImpl::kMainFrameId, create_params.url.spec(),
@@ -382,6 +382,7 @@ CefRefPtr<CefBrowserHostImpl> CefBrowserHostImpl::CreateInternal(
     const CefBrowserSettings& settings,
     CefRefPtr<CefClient> client,
     content::WebContents* web_contents,
+    bool own_web_contents,
     scoped_refptr<CefBrowserInfo> browser_info,
     CefRefPtr<CefBrowserHostImpl> opener,
     bool is_devtools_popup,
@@ -415,6 +416,8 @@ CefRefPtr<CefBrowserHostImpl> CefBrowserHostImpl::CreateInternal(
   CefRefPtr<CefBrowserHostImpl> browser = new CefBrowserHostImpl(
       settings, client, web_contents, browser_info, opener, request_context,
       std::move(platform_delegate), extension);
+  if (own_web_contents)
+    browser->set_owned_web_contents(web_contents);
   if (!browser->CreateHostWindow())
     return nullptr;
 
@@ -819,7 +822,7 @@ void CefBrowserHostImpl::Find(int identifier,
                               bool matchCase,
                               bool findNext) {
   if (CEF_CURRENTLY_ON_UIT()) {
-    if (!web_contents_)
+    if (!web_contents())
       return;
 
     // Every find request must have a unique ID and these IDs must strictly
@@ -844,7 +847,7 @@ void CefBrowserHostImpl::Find(int identifier,
 
 void CefBrowserHostImpl::StopFinding(bool clearSelection) {
   if (CEF_CURRENTLY_ON_UIT()) {
-    if (!web_contents_)
+    if (!web_contents())
       return;
 
     content::StopFindAction action =
@@ -862,7 +865,7 @@ void CefBrowserHostImpl::ShowDevTools(const CefWindowInfo& windowInfo,
                                       const CefBrowserSettings& settings,
                                       const CefPoint& inspect_element_at) {
   if (CEF_CURRENTLY_ON_UIT()) {
-    if (!web_contents_)
+    if (!web_contents())
       return;
 
     if (devtools_frontend_) {
@@ -1281,8 +1284,8 @@ void CefBrowserHostImpl::GoBack() {
       return;
     }
 
-    if (web_contents_.get() && web_contents_->GetController().CanGoBack())
-      web_contents_->GetController().GoBack();
+    if (web_contents() && web_contents()->GetController().CanGoBack())
+      web_contents()->GetController().GoBack();
   } else {
     CEF_POST_TASK(CEF_UIT, base::Bind(&CefBrowserHostImpl::GoBack, this));
   }
@@ -1301,8 +1304,8 @@ void CefBrowserHostImpl::GoForward() {
       return;
     }
 
-    if (web_contents_.get() && web_contents_->GetController().CanGoForward())
-      web_contents_->GetController().GoForward();
+    if (web_contents() && web_contents()->GetController().CanGoForward())
+      web_contents()->GetController().GoForward();
   } else {
     CEF_POST_TASK(CEF_UIT, base::Bind(&CefBrowserHostImpl::GoForward, this));
   }
@@ -1321,8 +1324,8 @@ void CefBrowserHostImpl::Reload() {
       return;
     }
 
-    if (web_contents_.get())
-      web_contents_->GetController().Reload(content::ReloadType::NORMAL, true);
+    if (web_contents())
+      web_contents()->GetController().Reload(content::ReloadType::NORMAL, true);
   } else {
     CEF_POST_TASK(CEF_UIT, base::Bind(&CefBrowserHostImpl::Reload, this));
   }
@@ -1337,8 +1340,8 @@ void CefBrowserHostImpl::ReloadIgnoreCache() {
       return;
     }
 
-    if (web_contents_.get()) {
-      web_contents_->GetController().Reload(
+    if (web_contents()) {
+      web_contents()->GetController().Reload(
           content::ReloadType::BYPASSING_CACHE, true);
     }
   } else {
@@ -1355,8 +1358,8 @@ void CefBrowserHostImpl::StopLoad() {
       return;
     }
 
-    if (web_contents_.get())
-      web_contents_->Stop();
+    if (web_contents())
+      web_contents()->Stop();
   } else {
     CEF_POST_TASK(CEF_UIT, base::Bind(&CefBrowserHostImpl::StopLoad, this));
   }
@@ -1544,7 +1547,8 @@ void CefBrowserHostImpl::DestroyBrowser() {
   registrar_.reset(NULL);
   response_manager_.reset(NULL);
   content::WebContentsObserver::Observe(NULL);
-  web_contents_.reset(NULL);
+  if (owned_web_contents_)
+    owned_web_contents_.reset(NULL);
 
   // Delete objects created by the platform delegate that may be referenced by
   // the WebContents.
@@ -1654,7 +1658,7 @@ void CefBrowserHostImpl::LoadURL(int64 frame_id,
         return;
       }
 
-      if (web_contents_.get()) {
+      if (web_contents()) {
         GURL gurl = GURL(url);
 
         if (!gurl.is_valid() && !gurl.has_scheme()) {
@@ -1669,8 +1673,8 @@ void CefBrowserHostImpl::LoadURL(int64 frame_id,
           return;
         }
 
-        web_contents_->GetController().LoadURL(gurl, referrer, transition,
-                                               extra_headers);
+        web_contents()->GetController().LoadURL(gurl, referrer, transition,
+                                                extra_headers);
         OnSetFocus(FOCUS_SOURCE_NAVIGATION);
       }
     } else {
@@ -1853,8 +1857,8 @@ int CefBrowserHostImpl::browser_id() const {
 
 content::BrowserContext* CefBrowserHostImpl::GetBrowserContext() {
   CEF_REQUIRE_UIT();
-  if (web_contents_)
-    return web_contents_->GetBrowserContext();
+  if (web_contents())
+    return web_contents()->GetBrowserContext();
   return nullptr;
 }
 
@@ -2181,15 +2185,25 @@ bool CefBrowserHostImpl::ShouldTransferNavigation(
   return true;
 }
 
-void CefBrowserHostImpl::AddNewContents(content::WebContents* source,
-                                        content::WebContents* new_contents,
-                                        WindowOpenDisposition disposition,
-                                        const gfx::Rect& initial_rect,
-                                        bool user_gesture,
-                                        bool* was_blocked) {
+void CefBrowserHostImpl::AddNewContents(
+    content::WebContents* source,
+    std::unique_ptr<content::WebContents> new_contents,
+    WindowOpenDisposition disposition,
+    const gfx::Rect& initial_rect,
+    bool user_gesture,
+    bool* was_blocked) {
+  CefRefPtr<CefBrowserHostImpl> owner =
+      GetBrowserForContents(new_contents.get());
+  if (owner) {
+    // Taking ownership of |new_contents|.
+    owner->set_owned_web_contents(new_contents.release());
+    return;
+  }
+
   if (extension_host_) {
-    extension_host_->AddNewContents(source, new_contents, disposition,
-                                    initial_rect, user_gesture, was_blocked);
+    extension_host_->AddNewContents(source, std::move(new_contents),
+                                    disposition, initial_rect, user_gesture,
+                                    was_blocked);
   }
 }
 
@@ -2469,10 +2483,12 @@ void CefBrowserHostImpl::WebContentsCreated(
       static_cast<CefBrowserContext*>(new_contents->GetBrowserContext());
   DCHECK(browser_context);
 
-  CefRefPtr<CefBrowserHostImpl> browser = CefBrowserHostImpl::CreateInternal(
-      settings, client, new_contents, info, opener, false,
-      browser_context->GetCefRequestContext(), std::move(platform_delegate),
-      nullptr);
+  // We don't officially own |new_contents| until AddNewContents() is called.
+  // However, we need to install observers/delegates here.
+  CefRefPtr<CefBrowserHostImpl> browser =
+      CreateInternal(settings, client, new_contents, false, info, opener, false,
+                     browser_context->GetCefRequestContext(),
+                     std::move(platform_delegate), nullptr);
 }
 
 void CefBrowserHostImpl::DidNavigateMainFramePostCommit(
@@ -3117,7 +3133,6 @@ CefBrowserHostImpl::CefBrowserHostImpl(
   DCHECK(!browser_info_->browser().get());
   browser_info_->set_browser(this);
 
-  web_contents_.reset(web_contents);
   web_contents->SetDelegate(this);
 
   // Associate the WebContents with this browser object.
@@ -3136,15 +3151,15 @@ CefBrowserHostImpl::CefBrowserHostImpl(
 
   response_manager_.reset(new CefResponseManager);
 
-  PrefsTabHelper::CreateForWebContents(web_contents_.get());
-  printing::CefPrintViewManager::CreateForWebContents(web_contents_.get());
+  PrefsTabHelper::CreateForWebContents(web_contents);
+  printing::CefPrintViewManager::CreateForWebContents(web_contents);
 
   if (extensions::ExtensionsEnabled()) {
     extensions::CefExtensionWebContentsObserver::CreateForWebContents(
-        web_contents_.get());
+        web_contents);
 
     // Used by the tabs extension API.
-    zoom::ZoomController::CreateForWebContents(web_contents_.get());
+    zoom::ZoomController::CreateForWebContents(web_contents);
   }
 
   // Make sure RenderViewCreated is called at least one time.
@@ -3152,6 +3167,15 @@ CefBrowserHostImpl::CefBrowserHostImpl(
 
   // Associate the platform delegate with this browser.
   platform_delegate_->BrowserCreated(this);
+}
+
+void CefBrowserHostImpl::set_owned_web_contents(
+    content::WebContents* owned_contents) {
+  // Should not currently own a WebContents.
+  CHECK(!owned_web_contents_);
+  // Should already be associated with |owned_contents|.
+  CHECK(web_contents() == owned_contents);
+  owned_web_contents_.reset(owned_contents);
 }
 
 bool CefBrowserHostImpl::CreateHostWindow() {

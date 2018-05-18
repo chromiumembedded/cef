@@ -61,13 +61,6 @@ class MacHelper : public content::BrowserCompositorMacClient,
     return nil;
   }
 
-  void AcceleratedWidgetGetVSyncParameters(
-      base::TimeTicks* timebase,
-      base::TimeDelta* interval) const override {
-    *timebase = base::TimeTicks();
-    *interval = base::TimeDelta();
-  }
-
   void AcceleratedWidgetSwapCompleted() override {}
 
   void DidReceiveFirstFrameAfterNavigation() override {

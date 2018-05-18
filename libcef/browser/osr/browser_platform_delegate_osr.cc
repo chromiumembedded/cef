@@ -13,6 +13,7 @@
 #include "libcef/browser/osr/web_contents_view_osr.h"
 #include "libcef/common/drag_data_impl.h"
 
+#include "base/message_loop/message_loop_current.h"
 #include "content/browser/renderer_host/render_widget_host_input_event_router.h"
 #include "content/browser/web_contents/web_contents_impl.h"
 #include "content/public/browser/render_view_host.h"
@@ -455,8 +456,7 @@ void CefBrowserPlatformDelegateOsr::StartDragging(
     CefRefPtr<CefDragDataImpl> drag_data(
         new CefDragDataImpl(drop_data, cef_image, cef_image_pos));
     drag_data->SetReadOnly(true);
-    base::MessageLoop::ScopedNestableTaskAllower allow(
-        base::MessageLoop::current());
+    base::MessageLoopCurrent::ScopedNestableTaskAllower allow;
     handled = handler->StartDragging(
         browser_, drag_data.get(),
         static_cast<CefRenderHandler::DragOperationsMask>(allowed_ops),

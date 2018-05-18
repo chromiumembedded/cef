@@ -164,6 +164,7 @@ typedef std::basic_string<char16, string16_char_traits> string16;
 
 namespace base {
 
+typedef cef::base::char16 char16;
 typedef cef::base::string16 string16;
 
 extern std::ostream& operator<<(std::ostream& out, const string16& str);

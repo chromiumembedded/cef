@@ -35,7 +35,7 @@ index 7742a5367ff0..0ec2381dc558 100644
        extensions::ExtensionRegistry::Get(profile);
    std::string extensions_list;
 diff --git chrome/browser/memory_details.cc chrome/browser/memory_details.cc
-index 4c0434b3c6ff..d92a70ce8ead 100644
+index 509b62c78375..f48dd53e30c3 100644
 --- chrome/browser/memory_details.cc
 +++ chrome/browser/memory_details.cc
 @@ -16,6 +16,7 @@

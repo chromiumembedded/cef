@@ -7,6 +7,7 @@
 #include "libcef/browser/extensions/extensions_browser_client.h"
 
 #include "base/logging.h"
+#include "content/public/browser/web_contents.h"
 
 namespace extensions {
 
@@ -28,11 +29,12 @@ CefExtensionHostDelegate::GetJavaScriptDialogManager() {
   return NULL;
 }
 
-void CefExtensionHostDelegate::CreateTab(content::WebContents* web_contents,
-                                         const std::string& extension_id,
-                                         WindowOpenDisposition disposition,
-                                         const gfx::Rect& initial_rect,
-                                         bool user_gesture) {
+void CefExtensionHostDelegate::CreateTab(
+    std::unique_ptr<content::WebContents> web_contents,
+    const std::string& extension_id,
+    WindowOpenDisposition disposition,
+    const gfx::Rect& initial_rect,
+    bool user_gesture) {
   // TODO(cef): Add support for extensions opening popup windows.
   NOTIMPLEMENTED();
 }

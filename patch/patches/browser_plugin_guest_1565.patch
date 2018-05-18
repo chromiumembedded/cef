@@ -1,5 +1,5 @@
 diff --git content/browser/browser_plugin/browser_plugin_guest.cc content/browser/browser_plugin/browser_plugin_guest.cc
-index 6508c1e0dacf..0241d11f664d 100644
+index ab0b50b62aac..d17bc04e53bf 100644
 --- content/browser/browser_plugin/browser_plugin_guest.cc
 +++ content/browser/browser_plugin/browser_plugin_guest.cc
 @@ -315,8 +315,11 @@ void BrowserPluginGuest::InitInternal(
@@ -221,10 +221,10 @@ index 968c5157ab41..22aad9fbafa4 100644
        RenderWidgetHost* render_widget_host) override;
    void SetPageTitle(const base::string16& title) override;
 diff --git content/browser/web_contents/web_contents_view_mac.mm content/browser/web_contents/web_contents_view_mac.mm
-index 8a69fdb183bc..7fb05f4a755e 100644
+index 8cd612e1f03a..5cf012b31bda 100644
 --- content/browser/web_contents/web_contents_view_mac.mm
 +++ content/browser/web_contents/web_contents_view_mac.mm
-@@ -345,7 +345,8 @@ void WebContentsViewMac::CreateView(
+@@ -348,7 +348,8 @@ void WebContentsViewMac::CreateView(
  }
  
  RenderWidgetHostViewBase* WebContentsViewMac::CreateViewForWidget(
@@ -234,7 +234,7 @@ index 8a69fdb183bc..7fb05f4a755e 100644
    if (render_widget_host->GetView()) {
      // During testing, the view will already be set up in most cases to the
      // test view, so we don't want to clobber it with a real one. To verify that
-@@ -357,6 +358,7 @@ RenderWidgetHostViewBase* WebContentsViewMac::CreateViewForWidget(
+@@ -360,6 +361,7 @@ RenderWidgetHostViewBase* WebContentsViewMac::CreateViewForWidget(
          render_widget_host->GetView());
    }
  
@@ -266,19 +266,19 @@ index d05dd5421458..fa13775f0512 100644
    // a BrowserPlugin even when we are using cross process frames for guests. It
    // should be removed after resolving https://crbug.com/642826).
 diff --git extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc
-index 6861814915c2..766090cd3b06 100644
+index 54c9b6320d9c..d474ead5f147 100644
 --- extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc
 +++ extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc
-@@ -192,6 +192,8 @@ void MimeHandlerViewGuest::CreateWebContents(
+@@ -193,6 +193,8 @@ void MimeHandlerViewGuest::CreateWebContents(
    WebContents::CreateParams params(browser_context(),
                                     guest_site_instance.get());
    params.guest_delegate = this;
 +  if (delegate_)
 +    delegate_->OverrideWebContentsCreateParams(&params);
-   callback.Run(WebContents::Create(params));
- 
-   registry_.AddInterface(
-@@ -225,6 +227,18 @@ bool MimeHandlerViewGuest::ShouldDestroyOnDetach() const {
+   // TODO(erikchen): Fix ownership semantics for guest views.
+   // https://crbug.com/832879.
+   auto* web_contents = WebContents::Create(params).release();
+@@ -230,6 +232,18 @@ bool MimeHandlerViewGuest::ShouldDestroyOnDetach() const {
    return true;
  }
  
