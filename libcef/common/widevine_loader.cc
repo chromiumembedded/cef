@@ -25,7 +25,6 @@
 #include "content/public/common/content_switches.h"
 #include "media/cdm/cdm_host_file.h"
 #include "media/cdm/supported_cdm_versions.h"
-#include "services/service_manager/embedder/switches.h"
 #include "services/service_manager/sandbox/switches.h"
 
 namespace {
@@ -84,6 +83,8 @@ const char kCdmCodecsListName[] = "x-cdm-codecs";
 //  Whether persistent license is supported by the CDM: "true" or "false".
 const char kCdmPersistentLicenseSupportName[] =
     "x-cdm-persistent-license-support";
+const char kCdmSupportedEncryptionSchemesName[] =
+    "x-cdm-supported-encryption-schemes";
 
 // The following strings are used to specify supported codecs in the
 // parameter |kCdmCodecsListName|.
@@ -92,6 +93,11 @@ const char kCdmSupportedCodecVp9[] = "vp9.0";
 #if BUILDFLAG(USE_PROPRIETARY_CODECS)
 const char kCdmSupportedCodecAvc1[] = "avc1";
 #endif
+
+// The following strings are used to specify supported encryption schemes in
+// the parameter |kCdmSupportedEncryptionSchemesName|.
+const char kCdmSupportedEncryptionSchemeCenc[] = "cenc";
+const char kCdmSupportedEncryptionSchemeCbcs[] = "cbcs";
 
 std::unique_ptr<base::DictionaryValue> ParseManifestFile(
     const base::FilePath& manifest_path) {
@@ -176,6 +182,57 @@ bool IsCompatibleWithChrome(const base::DictionaryValue& manifest,
                                    error_message);
 }
 
+// Determine the set of encryption schemes supported from |manifest|. It is
+// assumed that all CDMs support 'cenc', so if the manifest entry
+// |kCdmSupportedEncryptionSchemesName| is missing, the result will indicate
+// support for 'cenc' only. Incorrect types in the manifest entry will log
+// the error and return the empty set. Unrecognized values will be reported
+// but otherwise ignored.
+base::flat_set<media::EncryptionMode> GetSupportedEncryptionSchemes(
+    const base::DictionaryValue& manifest,
+    std::string* error_message) {
+  const base::Value* value =
+      manifest.FindKey(kCdmSupportedEncryptionSchemesName);
+  if (!value)
+    return {media::EncryptionMode::kCenc};
+
+  if (!value->is_list()) {
+    std::stringstream ss;
+    ss << "Manifest entry " << kCdmSupportedEncryptionSchemesName
+       << " is not a list.";
+    *error_message = ss.str();
+    return {};
+  }
+
+  const base::Value::ListStorage& list = value->GetList();
+  base::flat_set<media::EncryptionMode> result;
+  for (const auto& item : list) {
+    if (!item.is_string()) {
+      std::stringstream ss;
+      ss << "Unrecognized item type in manifest entry "
+         << kCdmSupportedEncryptionSchemesName;
+      *error_message = ss.str();
+      return {};
+    }
+
+    const std::string& scheme = item.GetString();
+    if (scheme == kCdmSupportedEncryptionSchemeCenc) {
+      result.insert(media::EncryptionMode::kCenc);
+    } else if (scheme == kCdmSupportedEncryptionSchemeCbcs) {
+      result.insert(media::EncryptionMode::kCbcs);
+    } else {
+      std::stringstream ss;
+      ss << "Unrecognized encryption scheme " << scheme << " in manifest entry "
+         << kCdmSupportedEncryptionSchemesName;
+      if (!error_message->empty())
+        *error_message += ", ";
+      *error_message += ss.str();
+    }
+  }
+
+  return result;
+}
+
 // Verify and load the contents of |base_path|.
 cef_cdm_registration_error_t LoadWidevineCdmInfo(
     const base::FilePath& base_path,
@@ -183,6 +240,7 @@ cef_cdm_registration_error_t LoadWidevineCdmInfo(
     std::string* cdm_version,
     std::string* cdm_codecs,
     bool* supports_persistent_license,
+    base::flat_set<media::EncryptionMode>* supported_encryption_schemes,
     std::string* error_message) {
   std::stringstream ss;
 
@@ -224,6 +282,11 @@ cef_cdm_registration_error_t LoadWidevineCdmInfo(
       manifest->FindKey(kCdmPersistentLicenseSupportName);
   *supports_persistent_license = value && value->is_bool() && value->GetBool();
 
+  *supported_encryption_schemes =
+      GetSupportedEncryptionSchemes(*manifest, error_message);
+  if (supported_encryption_schemes->empty())
+    return CEF_CDM_REGISTRATION_ERROR_INCORRECT_CONTENTS;
+
   return CEF_CDM_REGISTRATION_ERROR_NONE;
 }
 
@@ -234,6 +297,8 @@ void DeliverWidevineCdmCallback(cef_cdm_registration_error_t result,
 
   if (result != CEF_CDM_REGISTRATION_ERROR_NONE)
     LOG(ERROR) << "Widevine CDM registration failed; " << error_message;
+  else if (!error_message.empty())
+    LOG(WARNING) << "Widevine CDM registration warning; " << error_message;
 
   if (callback)
     callback->OnCdmRegistrationComplete(result, error_message);
@@ -259,28 +324,34 @@ std::vector<media::VideoCodec> ConvertCodecsString(const std::string& codecs) {
   return supported_video_codecs;
 }
 
-content::CdmInfo MakeCdmInfo(const base::FilePath& cdm_path,
-                             const std::string& cdm_version,
-                             const std::string& cdm_codecs,
-                             bool supports_persistent_license) {
+content::CdmInfo MakeCdmInfo(
+    const base::FilePath& cdm_path,
+    const std::string& cdm_version,
+    const std::string& cdm_codecs,
+    bool supports_persistent_license,
+    const base::flat_set<media::EncryptionMode>& supported_encryption_schemes) {
   std::vector<media::VideoCodec> supported_video_codecs =
       ConvertCodecsString(cdm_codecs);
   return content::CdmInfo(
       kWidevineCdmDisplayName, kWidevineCdmGuid, base::Version(cdm_version),
       cdm_path, kWidevineCdmFileSystemId, supported_video_codecs,
-      supports_persistent_license, kWidevineKeySystem, false);
+      supports_persistent_license, supported_encryption_schemes,
+      kWidevineKeySystem, false);
 }
 
-void RegisterWidevineCdmOnUIThread(const base::FilePath& cdm_path,
-                                   const std::string& cdm_version,
-                                   const std::string& cdm_codecs,
-                                   bool supports_persistent_license,
-                                   CefRefPtr<CefRegisterCdmCallback> callback) {
+void RegisterWidevineCdmOnUIThread(
+    const base::FilePath& cdm_path,
+    const std::string& cdm_version,
+    const std::string& cdm_codecs,
+    bool supports_persistent_license,
+    const base::flat_set<media::EncryptionMode>& supported_encryption_schemes,
+    CefRefPtr<CefRegisterCdmCallback> callback) {
   CEF_REQUIRE_UIT();
 
   // Register Widevine with the CdmRegistry.
-  content::CdmRegistry::GetInstance()->RegisterCdm(MakeCdmInfo(
-      cdm_path, cdm_version, cdm_codecs, supports_persistent_license));
+  content::CdmRegistry::GetInstance()->RegisterCdm(
+      MakeCdmInfo(cdm_path, cdm_version, cdm_codecs,
+                  supports_persistent_license, supported_encryption_schemes));
 
   DeliverWidevineCdmCallback(CEF_CDM_REGISTRATION_ERROR_NONE, std::string(),
                              callback);
@@ -295,10 +366,12 @@ void LoadWidevineCdmInfoOnBlockingThread(
   std::string cdm_version;
   std::string cdm_codecs;
   bool supports_persistent_license;
+  base::flat_set<media::EncryptionMode> supported_encryption_schemes;
   std::string error_message;
   cef_cdm_registration_error_t result =
       LoadWidevineCdmInfo(base_path, &cdm_path, &cdm_version, &cdm_codecs,
-                          &supports_persistent_license, &error_message);
+                          &supports_persistent_license,
+                          &supported_encryption_schemes, &error_message);
   if (result != CEF_CDM_REGISTRATION_ERROR_NONE) {
     CEF_POST_TASK(CEF_UIT, base::Bind(DeliverWidevineCdmCallback, result,
                                       error_message, callback));
@@ -308,7 +381,8 @@ void LoadWidevineCdmInfoOnBlockingThread(
   // Continue execution on the UI thread.
   CEF_POST_TASK(CEF_UIT,
                 base::Bind(RegisterWidevineCdmOnUIThread, cdm_path, cdm_version,
-                           cdm_codecs, supports_persistent_license, callback));
+                           cdm_codecs, supports_persistent_license,
+                           supported_encryption_schemes, callback));
 }
 
 }  // namespace
@@ -356,7 +430,7 @@ void CefWidevineLoader::AddContentDecryptionModules(
   // errors during plugin loading. This is because the Zygote process must pre-
   // load all plugins before initializing the sandbox.
   if (command_line.GetSwitchValueASCII(switches::kProcessType) !=
-          service_manager::switches::kZygoteProcess ||
+          switches::kZygoteProcess ||
       command_line.HasSwitch(service_manager::switches::kNoSandbox)) {
     return;
   }
@@ -375,17 +449,20 @@ void CefWidevineLoader::AddContentDecryptionModules(
   std::string cdm_version;
   std::string cdm_codecs;
   bool supports_persistent_license;
+  base::flat_set<media::EncryptionMode> supported_encryption_schemes;
   std::string error_message;
   cef_cdm_registration_error_t result =
       LoadWidevineCdmInfo(base_path, &cdm_path, &cdm_version, &cdm_codecs,
-                          &supports_persistent_license, &error_message);
+                          &supports_persistent_license,
+                          &supported_encryption_schemes, &error_message);
   if (result != CEF_CDM_REGISTRATION_ERROR_NONE) {
     LOG(ERROR) << "Widevine CDM registration failed; " << error_message;
     return;
   }
 
   cdms->push_back(MakeCdmInfo(cdm_path, cdm_version, cdm_codecs,
-                              supports_persistent_license));
+                              supports_persistent_license,
+                              supported_encryption_schemes));
 }
 
 #endif  // defined(OS_LINUX)

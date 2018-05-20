@@ -1,8 +1,8 @@
 diff --git content/browser/renderer_host/browser_compositor_view_mac.h content/browser/renderer_host/browser_compositor_view_mac.h
-index 6ad9f5fb334d..d7bf762314a4 100644
+index f823af11a791..2c08bf522a10 100644
 --- content/browser/renderer_host/browser_compositor_view_mac.h
 +++ content/browser/renderer_host/browser_compositor_view_mac.h
-@@ -56,11 +56,13 @@ class CONTENT_EXPORT BrowserCompositorMac : public DelegatedFrameHostClient {
+@@ -56,6 +56,7 @@ class CONTENT_EXPORT BrowserCompositorMac : public DelegatedFrameHostClient {
  
    // These will not return nullptr until Destroy is called.
    DelegatedFrameHost* GetDelegatedFrameHost();
@@ -10,17 +10,19 @@ index 6ad9f5fb334d..d7bf762314a4 100644
  
    // Ensure that the currect compositor frame be cleared (even if it is
    // potentially visible).
-   void ClearCompositorFrame();
+@@ -67,6 +68,7 @@ class CONTENT_EXPORT BrowserCompositorMac : public DelegatedFrameHostClient {
+   // no valid frame is available.
+   const gfx::CALayerParams* GetLastCALayerParams() const;
  
 +  ui::Compositor* GetCompositor();
    gfx::AcceleratedWidget GetAcceleratedWidget();
    void DidCreateNewRendererCompositorFrameSink(
        viz::mojom::CompositorFrameSinkClient* renderer_compositor_frame_sink);
 diff --git content/browser/renderer_host/browser_compositor_view_mac.mm content/browser/renderer_host/browser_compositor_view_mac.mm
-index f8d3575e06dc..688aa7e5b117 100644
+index a03b35dbad92..d8938fb0562c 100644
 --- content/browser/renderer_host/browser_compositor_view_mac.mm
 +++ content/browser/renderer_host/browser_compositor_view_mac.mm
-@@ -206,6 +206,12 @@ BrowserCompositorMac::~BrowserCompositorMac() {
+@@ -248,6 +248,12 @@ BrowserCompositorMac::~BrowserCompositorMac() {
      g_spare_recyclable_compositors.Get().clear();
  }
  
@@ -33,18 +35,3 @@ index f8d3575e06dc..688aa7e5b117 100644
  gfx::AcceleratedWidget BrowserCompositorMac::GetAcceleratedWidget() {
    if (recyclable_compositor_) {
      return recyclable_compositor_->accelerated_widget_mac()
-diff --git ui/accelerated_widget_mac/accelerated_widget_mac.mm ui/accelerated_widget_mac/accelerated_widget_mac.mm
-index 0de89795c461..3d46421491a9 100644
---- ui/accelerated_widget_mac/accelerated_widget_mac.mm
-+++ ui/accelerated_widget_mac/accelerated_widget_mac.mm
-@@ -71,6 +71,10 @@ void AcceleratedWidgetMac::SetNSView(AcceleratedWidgetMacNSView* view) {
-   DCHECK(view && !view_);
-   view_ = view;
- 
-+  // Will be nullptr for CEF.
-+  if (!view_->AcceleratedWidgetGetNSView())
-+    return;
-+
-   CALayer* background_layer = [view_->AcceleratedWidgetGetNSView() layer];
-   DCHECK(background_layer);
-   [flipped_layer_ setBounds:[background_layer bounds]];

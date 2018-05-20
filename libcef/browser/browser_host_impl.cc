@@ -1903,7 +1903,8 @@ bool CefBrowserHostImpl::EmbedsFullscreenWidget() const {
 
 void CefBrowserHostImpl::EnterFullscreenModeForTab(
     content::WebContents* web_contents,
-    const GURL& origin) {
+    const GURL& origin,
+    const blink::WebFullscreenOptions& options) {
   OnFullscreenModeChange(true);
 }
 

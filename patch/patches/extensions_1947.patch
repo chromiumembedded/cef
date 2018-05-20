@@ -27,10 +27,10 @@ index 53c7404ef1f9..ac33df7cfe0e 100644
    auto* browser_context = web_contents->GetBrowserContext();
    StreamsPrivateAPI* streams_private = GetStreamsPrivateAPI(browser_context);
 diff --git content/browser/frame_host/render_frame_host_manager.cc content/browser/frame_host/render_frame_host_manager.cc
-index d7875ac0c044..d369de7e33f1 100644
+index 73b66a56be83..3f60cbf1a727 100644
 --- content/browser/frame_host/render_frame_host_manager.cc
 +++ content/browser/frame_host/render_frame_host_manager.cc
-@@ -903,10 +903,11 @@ bool RenderFrameHostManager::ShouldSwapBrowsingInstancesForNavigation(
+@@ -897,10 +897,11 @@ bool RenderFrameHostManager::ShouldSwapBrowsingInstancesForNavigation(
    // TODO(alexmos): This check should've been enforced earlier in the
    // navigation, in chrome::Navigate().  Verify this, and then convert this to
    // a CHECK and remove the fallback.
@@ -46,7 +46,7 @@ index d7875ac0c044..d369de7e33f1 100644
      return true;
    }
  
-@@ -1046,7 +1047,8 @@ RenderFrameHostManager::GetSiteInstanceForNavigation(
+@@ -1041,7 +1042,8 @@ RenderFrameHostManager::GetSiteInstanceForNavigation(
  
    // Double-check that the new SiteInstance is associated with the right
    // BrowserContext.
@@ -57,12 +57,12 @@ index d7875ac0c044..d369de7e33f1 100644
    // If |new_instance| is a new SiteInstance for a subframe that requires a
    // dedicated process, set its process reuse policy so that such subframes are
 diff --git content/public/browser/content_browser_client.h content/public/browser/content_browser_client.h
-index 0a347624dcc5..46a2398b567f 100644
+index 2dc3bf7a8006..034598edfada 100644
 --- content/public/browser/content_browser_client.h
 +++ content/public/browser/content_browser_client.h
-@@ -366,6 +366,13 @@ class CONTENT_EXPORT ContentBrowserClient {
-       const GURL& current_url,
-       const GURL& new_url);
+@@ -371,6 +371,13 @@ class CONTENT_EXPORT ContentBrowserClient {
+   // Returns true if error page should be isolated in its own process.
+   virtual bool ShouldIsolateErrorPage(bool in_main_frame);
  
 +  // Returns true if two browser contexts should be considered the same. CEF
 +  // uses this to treat *Impl and *Proxy contexts as the same.

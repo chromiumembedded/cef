@@ -346,12 +346,6 @@ resource_coordinator::TabManager* ChromeBrowserProcessStub::GetTabManager() {
   return NULL;
 }
 
-physical_web::PhysicalWebDataSource*
-ChromeBrowserProcessStub::GetPhysicalWebDataSource() {
-  NOTREACHED();
-  return NULL;
-}
-
 prefs::InProcessPrefServiceFactory*
 ChromeBrowserProcessStub::pref_service_factory() const {
   NOTREACHED();

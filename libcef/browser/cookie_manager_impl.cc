@@ -609,7 +609,7 @@ void CefCookieManagerImpl::DeleteCookiesInternal(
         base::Bind(DeleteCookiesCallbackImpl, callback));
   } else if (cookie_name.empty()) {
     // Delete all matching host cookies.
-    net::CookieStore::CookieDeletionInfo delete_info;
+    net::CookieDeletionInfo delete_info;
     delete_info.host = url.host();
     cookie_store->DeleteAllMatchingInfoAsync(
         delete_info, base::Bind(DeleteCookiesCallbackImpl, callback));

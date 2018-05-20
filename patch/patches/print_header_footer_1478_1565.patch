@@ -1,8 +1,8 @@
 diff --git chrome/browser/ui/BUILD.gn chrome/browser/ui/BUILD.gn
-index b6f6dbf2c0c5..82672ca1320e 100644
+index e7da097d25f4..8ca569703b26 100644
 --- chrome/browser/ui/BUILD.gn
 +++ chrome/browser/ui/BUILD.gn
-@@ -891,6 +891,7 @@ split_static_library("ui") {
+@@ -892,6 +892,7 @@ split_static_library("ui") {
      "//base:i18n",
      "//base/allocator:buildflags",
      "//cc/paint",

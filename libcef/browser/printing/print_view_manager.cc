@@ -50,7 +50,6 @@ void FillInDictionaryFromPdfPrintSettings(
   print_settings.SetBoolean(kSettingCollate, false);
   print_settings.SetString(kSettingDeviceName, "");
   print_settings.SetBoolean(kSettingRasterizePdf, false);
-  print_settings.SetBoolean(kSettingGenerateDraftData, false);
   print_settings.SetBoolean(kSettingPreviewModifiable, false);
   print_settings.SetInteger(kSettingDpiHorizontal, 0);
   print_settings.SetInteger(kSettingDpiVertical, 0);

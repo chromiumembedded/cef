@@ -104,7 +104,6 @@ class ChromeBrowserProcessStub : public BrowserProcess,
   shell_integration::DefaultWebClientState CachedDefaultWebClientState()
       override;
   resource_coordinator::TabManager* GetTabManager() override;
-  physical_web::PhysicalWebDataSource* GetPhysicalWebDataSource() override;
   prefs::InProcessPrefServiceFactory* pref_service_factory() const override;
 
   // BrowserContextIncognitoHelper implementation.

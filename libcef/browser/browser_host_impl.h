@@ -452,8 +452,10 @@ class CefBrowserHostImpl : public CefBrowserHost,
   void RunFileChooser(content::RenderFrameHost* render_frame_host,
                       const content::FileChooserParams& params) override;
   bool EmbedsFullscreenWidget() const override;
-  void EnterFullscreenModeForTab(content::WebContents* web_contents,
-                                 const GURL& origin) override;
+  void EnterFullscreenModeForTab(
+      content::WebContents* web_contents,
+      const GURL& origin,
+      const blink::WebFullscreenOptions& options) override;
   void ExitFullscreenModeForTab(content::WebContents* web_contents) override;
   bool IsFullscreenForTabOrPending(
       const content::WebContents* web_contents) const override;

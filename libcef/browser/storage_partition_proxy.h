@@ -59,7 +59,7 @@ class CefStoragePartitionProxy : public content::StoragePartition {
   void ClearData(uint32_t remove_mask,
                  uint32_t quota_storage_remove_mask,
                  const OriginMatcherFunction& origin_matcher,
-                 net::CookieStore::CookieDeletionInfo cookie_delete_info,
+                 network::mojom::CookieDeletionFilterPtr cookie_deletion_filter,
                  const base::Time begin,
                  const base::Time end,
                  base::OnceClosure callback) override;

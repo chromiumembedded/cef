@@ -448,14 +448,6 @@ bool CefMainDelegate::BasicStartupComplete(int* exit_code) {
           base::FEATURE_ENABLED_BY_DEFAULT) {
         disable_features.push_back(features::kAsyncWheelEvents.name);
       }
-
-      // Disable SurfaceSynchronization when OSR is enabled, otherwise rendering
-      // will fail.
-      if (features::kEnableSurfaceSynchronization.default_state ==
-          base::FEATURE_ENABLED_BY_DEFAULT) {
-        disable_features.push_back(
-            features::kEnableSurfaceSynchronization.name);
-      }
     }
 
     if (!disable_features.empty()) {

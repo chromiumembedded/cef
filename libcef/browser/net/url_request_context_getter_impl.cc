@@ -138,7 +138,7 @@ std::unique_ptr<net::ProxyResolutionService> CreateProxyResolutionService(
 
     proxy_service = network::CreateProxyResolutionServiceUsingMojoFactory(
         std::move(proxy_resolver_factory), std::move(proxy_config_service),
-        std::make_unique<net::PacFileFetcherImpl>(context),
+        net::PacFileFetcherImpl::Create(context),
         std::move(dhcp_pac_file_fetcher), context->host_resolver(), net_log,
         network_delegate);
   } else {

@@ -70,7 +70,7 @@ index e8e76ce5b954..1dd338dd0142 100644
  content::BrowserContext* GetBrowserContextRedirectedInIncognito(
      content::BrowserContext* context);
 diff --git chrome/browser/profiles/profile_manager.cc chrome/browser/profiles/profile_manager.cc
-index 7f15a0bcb0a9..3f2db9c4b75b 100644
+index fc316ed90cfd..eef294ac6985 100644
 --- chrome/browser/profiles/profile_manager.cc
 +++ chrome/browser/profiles/profile_manager.cc
 @@ -379,7 +379,7 @@ ProfileManager::ProfileManager(const base::FilePath& user_data_dir)
@@ -83,10 +83,10 @@ index 7f15a0bcb0a9..3f2db9c4b75b 100644
                                      this));
  }
 diff --git chrome/browser/profiles/profile_manager.h chrome/browser/profiles/profile_manager.h
-index 9a0d8dd4c3e6..6cfbfd1ddc8d 100644
+index fc027d61027a..61484ca7e3c5 100644
 --- chrome/browser/profiles/profile_manager.h
 +++ chrome/browser/profiles/profile_manager.h
-@@ -94,7 +94,7 @@ class ProfileManager : public content::NotificationObserver,
+@@ -93,7 +93,7 @@ class ProfileManager : public content::NotificationObserver,
    // acceptable. Returns null if creation of the new profile fails.
    // TODO(bauerb): Migrate calls from other code to GetProfileByPath(), then
    // make this method private.
@@ -95,7 +95,7 @@ index 9a0d8dd4c3e6..6cfbfd1ddc8d 100644
  
    // Returns total number of profiles available on this machine.
    size_t GetNumberOfProfiles();
-@@ -125,7 +125,7 @@ class ProfileManager : public content::NotificationObserver,
+@@ -124,7 +124,7 @@ class ProfileManager : public content::NotificationObserver,
  
    // Returns true if the profile pointer is known to point to an existing
    // profile.
@@ -104,7 +104,7 @@ index 9a0d8dd4c3e6..6cfbfd1ddc8d 100644
  
    // Returns the directory where the first created profile is stored,
    // relative to the user data directory currently in use.
-@@ -134,7 +134,7 @@ class ProfileManager : public content::NotificationObserver,
+@@ -133,7 +133,7 @@ class ProfileManager : public content::NotificationObserver,
    // Get the Profile last used (the Profile to which owns the most recently
    // focused window) with this Chrome build. If no signed profile has been
    // stored in Local State, hand back the Default profile.

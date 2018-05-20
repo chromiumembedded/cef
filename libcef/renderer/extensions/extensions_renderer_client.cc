@@ -183,10 +183,10 @@ void CefExtensionsRendererClient::WillSendRequest(
       GURL request_url(url);
       if (extension->permissions_data()->GetPageAccess(extension, request_url,
                                                        tab_id, nullptr) ==
-              extensions::PermissionsData::ACCESS_ALLOWED ||
+              extensions::PermissionsData::PageAccess::kAllowed ||
           extension->permissions_data()->GetContentScriptAccess(
               extension, request_url, tab_id, nullptr) ==
-              extensions::PermissionsData::ACCESS_ALLOWED) {
+              extensions::PermissionsData::PageAccess::kAllowed) {
         *attach_same_site_cookies = true;
       }
     }

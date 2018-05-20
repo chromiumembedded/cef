@@ -108,10 +108,23 @@ parser.add_option(
     type='string',
     default=[],
     help='optional patch name to process (multiples allowed)')
+parser.add_option(
+    '--add',
+    action='extend',
+    dest='add',
+    type='string',
+    default=[],
+    help='optional relative file paths to add (multiples allowed). Used in ' +\
+         'combination with --resave and a single --patch value.')
 (options, args) = parser.parse_args()
 
 if options.resave and options.revert:
   print 'Invalid combination of options.'
+  parser.print_help(sys.stderr)
+  sys.exit()
+
+if len(options.add) > 0 and (len(options.patch) != 1 or not options.resave):
+  print '--add can only be used with --resave and a single --patch value.'
   parser.print_help(sys.stderr)
   sys.exit()
 
@@ -258,6 +271,17 @@ for patch in patches:
               msg('No backup of %s' % patch_path_abs)
 
     if (not options.revert and not options.reapply) or has_backup_changes:
+      if len(options.add) > 0:
+        # Add additional requested files to the patch.
+        for patch_path in options.add:
+          patch_path_abs = os.path.abspath(os.path.join(patch_root_abs, \
+                                                        patch_path))
+          if os.path.exists(patch_path_abs):
+            msg('Adding file %s' % patch_path_abs)
+            patch_paths.append(patch_path)
+          else:
+            msg('Skipping non-existing file %s' % patch_path_abs)
+
       msg('Saving changes to %s' % patch_file)
       if added_paths:
         # Inform git of the added paths so they appear in the patch file.

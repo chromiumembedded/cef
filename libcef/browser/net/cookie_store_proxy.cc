@@ -130,7 +130,7 @@ void CefCookieStoreProxy::DeleteCanonicalCookieAsync(
 }
 
 void CefCookieStoreProxy::DeleteAllCreatedInTimeRangeAsync(
-    const TimeRange& creation_range,
+    const net::CookieDeletionInfo::TimeRange& creation_range,
     DeleteCallback callback) {
   net::CookieStore* cookie_store = GetCookieStore();
   if (cookie_store) {
@@ -142,7 +142,7 @@ void CefCookieStoreProxy::DeleteAllCreatedInTimeRangeAsync(
 }
 
 void CefCookieStoreProxy::DeleteAllMatchingInfoAsync(
-    CookieDeletionInfo delete_info,
+    net::CookieDeletionInfo delete_info,
     DeleteCallback callback) {
   net::CookieStore* cookie_store = GetCookieStore();
   if (cookie_store) {

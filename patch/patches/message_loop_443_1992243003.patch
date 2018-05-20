@@ -34,10 +34,18 @@ index cf30bae0b202..009574ff488b 100644
  
  #if !defined(OS_NACL)
 diff --git base/message_loop/message_pump_win.cc base/message_loop/message_pump_win.cc
-index ca257370fb56..3d9b4cea21ce 100644
+index 8e6f1f41def2..b07865ebae37 100644
 --- base/message_loop/message_pump_win.cc
 +++ base/message_loop/message_pump_win.cc
-@@ -370,20 +370,28 @@ bool MessagePumpForUI::ProcessMessageHelper(const MSG& msg) {
+@@ -11,6 +11,7 @@
+ 
+ #include "base/debug/alias.h"
+ #include "base/memory/ptr_util.h"
++#include "base/message_loop/message_loop_current.h"
+ #include "base/metrics/histogram_macros.h"
+ #include "base/strings/stringprintf.h"
+ #include "base/trace_event/trace_event.h"
+@@ -369,20 +370,28 @@ bool MessagePumpForUI::ProcessMessageHelper(const MSG& msg) {
  }
  
  bool MessagePumpForUI::ProcessPumpReplacementMessage() {
@@ -66,7 +74,7 @@ index ca257370fb56..3d9b4cea21ce 100644
 +  // We should not process all window messages if we are in the context of an
 +  // OS modal loop, i.e. in the context of a windows API call like MessageBox.
 +  // This is to ensure that these messages are peeked out by the OS modal loop.
-+  if (MessageLoop::current()->os_modal_loop()) {
++  if (MessageLoopCurrent::Get()->os_modal_loop()) {
 +    // We only peek out WM_PAINT and WM_TIMER here for reasons mentioned above.
 +    have_message = PeekMessage(&msg, NULL, WM_PAINT, WM_PAINT, PM_REMOVE) ||
 +                   PeekMessage(&msg, NULL, WM_TIMER, WM_TIMER, PM_REMOVE);

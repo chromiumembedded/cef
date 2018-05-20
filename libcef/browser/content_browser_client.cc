@@ -86,7 +86,6 @@
 #include "extensions/common/switches.h"
 #include "net/ssl/ssl_cert_request_info.h"
 #include "ppapi/host/ppapi_host.h"
-#include "services/service_manager/embedder/switches.h"
 #include "services/service_manager/public/mojom/connector.mojom.h"
 #include "services/service_manager/sandbox/switches.h"
 #include "storage/browser/quota/quota_settings.h"
@@ -721,7 +720,7 @@ void CefContentBrowserClient::AppendExtraCommandLineSwitches(
   }
 
 #if defined(OS_LINUX)
-  if (process_type == service_manager::switches::kZygoteProcess) {
+  if (process_type == switches::kZygoteProcess) {
     // Propagate the following switches to the zygote command line (along with
     // any associated values) if present in the browser command line.
     static const char* const kSwitchNames[] = {
@@ -983,7 +982,7 @@ void CefContentBrowserClient::GetAdditionalMappedFilesForChildProcess(
     content::PosixFileDescriptorInfo* mappings) {
   int crash_signal_fd = GetCrashSignalFD(command_line);
   if (crash_signal_fd >= 0) {
-    mappings->Share(service_manager::kCrashDumpSignal, crash_signal_fd);
+    mappings->Share(kCrashDumpSignal, crash_signal_fd);
   }
 }
 #endif  // defined(OS_LINUX)

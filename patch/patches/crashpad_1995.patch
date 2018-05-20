@@ -127,7 +127,7 @@ index fdc51ab22807..cb0a99dd190c 100644
    g_crash_helper_enabled = true;
    return true;
 diff --git components/crash/content/app/breakpad_linux.cc components/crash/content/app/breakpad_linux.cc
-index 87703f9a5276..a651ed2b1833 100644
+index e57c54b9cf6c..caee714efe38 100644
 --- components/crash/content/app/breakpad_linux.cc
 +++ components/crash/content/app/breakpad_linux.cc
 @@ -28,6 +28,7 @@
@@ -155,7 +155,7 @@ index 87703f9a5276..a651ed2b1833 100644
    info.process_start_time = g_process_start_time;
    info.oom_size = base::g_oom_size;
    info.pid = g_pid;
-@@ -1341,7 +1343,7 @@ void ExecUploadProcessOrTerminate(const BreakpadInfo& info,
+@@ -1342,7 +1344,7 @@ void ExecUploadProcessOrTerminate(const BreakpadInfo& info,
      header_content_encoding,
      header_content_type,
      post_file,
@@ -164,7 +164,7 @@ index 87703f9a5276..a651ed2b1833 100644
      "--timeout=10",  // Set a timeout so we don't hang forever.
      "--tries=1",     // Don't retry if the upload fails.
      "-O",  // Output reply to the file descriptor path.
-@@ -1681,10 +1683,19 @@ void HandleCrashDump(const BreakpadInfo& info) {
+@@ -1682,10 +1684,19 @@ void HandleCrashDump(const BreakpadInfo& info) {
      GetCrashReporterClient()->GetProductNameAndVersion(&product_name, &version);
  
      writer.AddBoundary();
@@ -186,7 +186,7 @@ index 87703f9a5276..a651ed2b1833 100644
      if (info.pid > 0) {
        char pid_value_buf[kUint64StringSize];
        uint64_t pid_value_len = my_uint64_len(info.pid);
-@@ -1802,10 +1813,20 @@ void HandleCrashDump(const BreakpadInfo& info) {
+@@ -1803,10 +1814,20 @@ void HandleCrashDump(const BreakpadInfo& info) {
          crash_reporter::internal::TransitionalCrashKeyStorage;
      CrashKeyStorage::Iterator crash_key_iterator(*info.crash_keys);
      const CrashKeyStorage::Entry* entry;
@@ -208,7 +208,7 @@ index 87703f9a5276..a651ed2b1833 100644
        writer.AddBoundary();
        writer.Flush();
      }
-@@ -2015,6 +2036,17 @@ void SetChannelCrashKey(const std::string& channel) {
+@@ -2016,6 +2037,17 @@ void SetChannelCrashKey(const std::string& channel) {
    channel_key.Set(channel);
  }
  
@@ -402,7 +402,7 @@ index a5f6b2e6f423..b3892d3743ff 100644
          ->set_system_crash_reporter_forwarding(crashpad::TriState::kDisabled);
    }
 diff --git components/crash/content/app/crashpad_mac.mm components/crash/content/app/crashpad_mac.mm
-index eb82f44053ce..daf2c722837c 100644
+index eb82f44053ce..73cfcc15998d 100644
 --- components/crash/content/app/crashpad_mac.mm
 +++ components/crash/content/app/crashpad_mac.mm
 @@ -16,11 +16,14 @@
@@ -429,7 +429,7 @@ index eb82f44053ce..daf2c722837c 100644
 -          framework_bundle_path.Append("Helpers").Append("crashpad_handler");
 +      // Use the same subprocess helper exe.
 +      base::FilePath handler_path;
-+      PathService::Get(content::CHILD_PROCESS_EXE, &handler_path);
++      base::PathService::Get(content::CHILD_PROCESS_EXE, &handler_path);
 +      DCHECK(!handler_path.empty());
  
        // Is there a way to recover if this fails?

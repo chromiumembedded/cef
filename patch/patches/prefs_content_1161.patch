@@ -1,5 +1,5 @@
 diff --git content/public/common/common_param_traits_macros.h content/public/common/common_param_traits_macros.h
-index 3b72878d9462..02ed570accd6 100644
+index b297eae01757..65b4ac6ded54 100644
 --- content/public/common/common_param_traits_macros.h
 +++ content/public/common/common_param_traits_macros.h
 @@ -185,6 +185,7 @@ IPC_STRUCT_TRAITS_BEGIN(content::WebPreferences)
@@ -35,10 +35,10 @@ index e4fc39c60fd7..f19fccf47261 100644
    bool record_whole_document;
    SavePreviousDocumentResources save_previous_document_resources;
 diff --git content/renderer/render_view_impl.cc content/renderer/render_view_impl.cc
-index c0df4120b0d1..679c8974fc95 100644
+index 2533785a1911..3518aba46aef 100644
 --- content/renderer/render_view_impl.cc
 +++ content/renderer/render_view_impl.cc
-@@ -1198,6 +1198,7 @@ void RenderViewImpl::ApplyWebPreferencesInternal(
+@@ -1201,6 +1201,7 @@ void RenderViewImpl::ApplyWebPreferencesInternal(
      blink::WebView* web_view,
      CompositorDependencies* compositor_deps) {
    ApplyWebPreferences(prefs, web_view);

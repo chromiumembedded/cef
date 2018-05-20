@@ -1,5 +1,5 @@
 diff --git build/config/compiler/BUILD.gn build/config/compiler/BUILD.gn
-index bb13f93c0277..52e610d0a28a 100644
+index e4e0775ff9ee..03d4123187cf 100644
 --- build/config/compiler/BUILD.gn
 +++ build/config/compiler/BUILD.gn
 @@ -153,7 +153,7 @@ declare_args() {
@@ -60,18 +60,16 @@ index 96f8c0e71472..49c462b37e12 100644
  
    ScopedStyleContext child_context(gtk_style_context_new());
    gtk_style_context_set_path(child_context, path);
-diff --git third_party/unrar/BUILD.gn third_party/unrar/BUILD.gn
-index 6e2bc75171ee..9275f68d12e3 100644
---- third_party/unrar/BUILD.gn
-+++ third_party/unrar/BUILD.gn
-@@ -56,6 +56,10 @@ if (safe_browsing_mode == 1) {
-       "src/volume.cpp",
-     ]
+diff --git chrome/browser/ui/libgtkui/native_theme_gtk2.cc chrome/browser/ui/libgtkui/native_theme_gtk2.cc
+index b24ff4b95f97..49e80717b1d6 100644
+--- chrome/browser/ui/libgtkui/native_theme_gtk2.cc
++++ chrome/browser/ui/libgtkui/native_theme_gtk2.cc
+@@ -163,6 +163,8 @@ SkColor NativeThemeGtk2::GetSystemColor(ColorId color_id) const {
+       return GetBgColor(GetMenu(), NORMAL);
  
-+    if (is_posix && !is_mac) {
-+      sources += [ "src/global.cpp" ]
-+    }
-+
-     configs -= [
-       "//build/config/compiler:chromium_code",
-       "//build/config/compiler:no_exceptions",
+     // Label
++    case kColorId_ActionableSubmenuVerticalSeparatorColor:
++    case kColorId_TouchableMenuItemLabelColor:
+     case kColorId_LabelEnabledColor:
+       return GetTextColor(GetEntry(), NORMAL);
+     case kColorId_LabelDisabledColor:

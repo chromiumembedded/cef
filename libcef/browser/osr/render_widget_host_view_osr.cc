@@ -240,14 +240,10 @@ CefRenderWidgetHostViewOSR::CefRenderWidgetHostViewOSR(
 
   local_surface_id_ = local_surface_id_allocator_.GenerateId();
 
-  // Surface synchronization is not supported with OSR.
-  DCHECK(!features::IsSurfaceSynchronizationEnabled());
-
 #if !defined(OS_MACOSX)
   // Matching the attributes from BrowserCompositorMac.
   delegated_frame_host_ = std::make_unique<content::DelegatedFrameHost>(
       AllocateFrameSinkId(is_guest_view_hack), this,
-      features::IsSurfaceSynchronizationEnabled(),
       base::FeatureList::IsEnabled(features::kVizDisplayCompositor),
       true /* should_register_frame_sink_id */);
 
@@ -279,7 +275,7 @@ CefRenderWidgetHostViewOSR::CefRenderWidgetHostViewOSR(
 #endif
 
   if (browser_impl_.get())
-    ResizeRootLayer();
+    ResizeRootLayer(false);
 
   // Do this last because it may result in a call to SetNeedsBeginFrames.
   render_widget_host_->SetView(this);
@@ -329,7 +325,7 @@ void CefRenderWidgetHostViewOSR::InitAsChild(gfx::NativeView parent_view) {
   // The parent view should not render while the full-screen view exists.
   parent_host_view_->Hide();
 
-  ResizeRootLayer();
+  ResizeRootLayer(false);
   Show();
 }
 
@@ -559,7 +555,7 @@ void CefRenderWidgetHostViewOSR::InitAsPopup(
   if (handler.get())
     handler->OnPopupSize(browser_impl_.get(), widget_pos);
 
-  ResizeRootLayer();
+  ResizeRootLayer(false);
   Show();
 }
 
@@ -878,7 +874,7 @@ void CefRenderWidgetHostViewOSR::SetWantsAnimateOnlyBeginFrames() {
   }
 }
 
-bool CefRenderWidgetHostViewOSR::TransformPointToLocalCoordSpace(
+bool CefRenderWidgetHostViewOSR::TransformPointToLocalCoordSpaceLegacy(
     const gfx::PointF& point,
     const viz::SurfaceId& original_surface,
     gfx::PointF* transformed_point) {
@@ -886,7 +882,7 @@ bool CefRenderWidgetHostViewOSR::TransformPointToLocalCoordSpace(
   // is necessary.
   gfx::PointF point_in_pixels =
       gfx::ConvertPointToPixel(current_device_scale_factor_, point);
-  if (!GetDelegatedFrameHost()->TransformPointToLocalCoordSpace(
+  if (!GetDelegatedFrameHost()->TransformPointToLocalCoordSpaceLegacy(
           point_in_pixels, original_surface, transformed_point)) {
     return false;
   }
@@ -899,7 +895,8 @@ bool CefRenderWidgetHostViewOSR::TransformPointToLocalCoordSpace(
 bool CefRenderWidgetHostViewOSR::TransformPointToCoordSpaceForView(
     const gfx::PointF& point,
     RenderWidgetHostViewBase* target_view,
-    gfx::PointF* transformed_point) {
+    gfx::PointF* transformed_point,
+    viz::EventSource source) {
   if (target_view == this) {
     *transformed_point = point;
     return true;
@@ -909,14 +906,16 @@ bool CefRenderWidgetHostViewOSR::TransformPointToCoordSpaceForView(
   // but it is not necessary here because the final target view is responsible
   // for converting before computing the final transform.
   return GetDelegatedFrameHost()->TransformPointToCoordSpaceForView(
-      point, target_view, transformed_point);
+      point, target_view, transformed_point, source);
 }
 
 void CefRenderWidgetHostViewOSR::DidNavigate() {
 #if defined(OS_MACOSX)
   browser_compositor_->DidNavigate();
 #else
-  ResizeRootLayer();
+  // With surface synchronization enabled we need to force synchronization on
+  // first navigation.
+  ResizeRootLayer(true);
   if (delegated_frame_host_)
     delegated_frame_host_->DidNavigate();
 #endif
@@ -956,18 +955,6 @@ SkColor CefRenderWidgetHostViewOSR::DelegatedFrameHostGetGutterColor() const {
   return background_color_;
 }
 
-bool CefRenderWidgetHostViewOSR::DelegatedFrameCanCreateResizeLock() const {
-  return !render_widget_host_->auto_resize_enabled();
-}
-
-std::unique_ptr<content::CompositorResizeLock>
-CefRenderWidgetHostViewOSR::DelegatedFrameHostCreateResizeLock() {
-  HoldResize();
-
-  const gfx::Size& desired_size = GetRootLayer()->bounds().size();
-  return std::make_unique<content::CompositorResizeLock>(this, desired_size);
-}
-
 viz::LocalSurfaceId CefRenderWidgetHostViewOSR::GetLocalSurfaceId() const {
   return local_surface_id_;
 }
@@ -979,10 +966,6 @@ void CefRenderWidgetHostViewOSR::OnBeginFrame(base::TimeTicks frame_time) {
   // TODO(cef): Maybe we can use this method in combination with
   // OnSetNeedsBeginFrames() instead of using CefBeginFrameTimer.
   // See https://codereview.chromium.org/1841083007.
-}
-
-bool CefRenderWidgetHostViewOSR::IsAutoResizeEnabled() const {
-  return render_widget_host_->auto_resize_enabled();
 }
 
 void CefRenderWidgetHostViewOSR::OnFrameTokenChanged(uint32_t frame_token) {
@@ -1025,7 +1008,7 @@ void CefRenderWidgetHostViewOSR::SynchronizeVisualProperties() {
     return;
   }
 
-  ResizeRootLayer();
+  ResizeRootLayer(false);
 }
 
 void CefRenderWidgetHostViewOSR::OnScreenInfoChanged() {
@@ -1353,7 +1336,7 @@ void CefRenderWidgetHostViewOSR::SetDeviceScaleFactor() {
   }
 }
 
-void CefRenderWidgetHostViewOSR::ResizeRootLayer() {
+void CefRenderWidgetHostViewOSR::ResizeRootLayer(bool force) {
   SetFrameRate();
 
   const float orgScaleFactor = current_device_scale_factor_;
@@ -1367,8 +1350,10 @@ void CefRenderWidgetHostViewOSR::ResizeRootLayer() {
   else
     size = popup_position_.size();
 
-  if (!scaleFactorDidChange && size == GetRootLayer()->bounds().size())
+  if (!force && !scaleFactorDidChange &&
+      size == GetRootLayer()->bounds().size()) {
     return;
+  }
 
   const gfx::Size& size_in_pixels =
       gfx::ConvertSizeToPixel(current_device_scale_factor_, size);

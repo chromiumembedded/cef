@@ -173,13 +173,15 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
   void SetNeedsBeginFrames(bool enabled) override;
   void SetWantsAnimateOnlyBeginFrames() override;
 
-  bool TransformPointToLocalCoordSpace(const gfx::PointF& point,
-                                       const viz::SurfaceId& original_surface,
-                                       gfx::PointF* transformed_point) override;
+  bool TransformPointToLocalCoordSpaceLegacy(
+      const gfx::PointF& point,
+      const viz::SurfaceId& original_surface,
+      gfx::PointF* transformed_point) override;
   bool TransformPointToCoordSpaceForView(
       const gfx::PointF& point,
       RenderWidgetHostViewBase* target_view,
-      gfx::PointF* transformed_point) override;
+      gfx::PointF* transformed_point,
+      viz::EventSource source = viz::EventSource::ANY) override;
   void DidNavigate() override;
 
   void SelectionChanged(const base::string16& text,
@@ -195,13 +197,9 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
   ui::Layer* DelegatedFrameHostGetLayer() const override;
   bool DelegatedFrameHostIsVisible() const override;
   SkColor DelegatedFrameHostGetGutterColor() const override;
-  bool DelegatedFrameCanCreateResizeLock() const override;
-  std::unique_ptr<content::CompositorResizeLock>
-  DelegatedFrameHostCreateResizeLock() override;
   viz::LocalSurfaceId GetLocalSurfaceId() const override;
   void OnFirstSurfaceActivation(const viz::SurfaceInfo& surface_info) override;
   void OnBeginFrame(base::TimeTicks frame_time) override;
-  bool IsAutoResizeEnabled() const override;
   void OnFrameTokenChanged(uint32_t frame_token) override;
   void DidReceiveFirstFrameAfterNavigation() override;
 
@@ -267,7 +265,7 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
 
   void SetFrameRate();
   void SetDeviceScaleFactor();
-  void ResizeRootLayer();
+  void ResizeRootLayer(bool force);
 
   // Called by CefBeginFrameTimer to send a BeginFrame request.
   void OnBeginFrameTimerTick();

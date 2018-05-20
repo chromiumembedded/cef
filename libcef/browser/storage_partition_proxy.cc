@@ -134,12 +134,13 @@ void CefStoragePartitionProxy::ClearData(
     uint32_t remove_mask,
     uint32_t quota_storage_remove_mask,
     const OriginMatcherFunction& origin_matcher,
-    net::CookieStore::CookieDeletionInfo cookie_delete_info,
+    network::mojom::CookieDeletionFilterPtr cookie_deletion_filter,
     const base::Time begin,
     const base::Time end,
     base::OnceClosure callback) {
   parent_->ClearData(remove_mask, quota_storage_remove_mask, origin_matcher,
-                     cookie_delete_info, begin, end, std::move(callback));
+                     std::move(cookie_deletion_filter), begin, end,
+                     std::move(callback));
 }
 
 void CefStoragePartitionProxy::ClearHttpAndMediaCaches(

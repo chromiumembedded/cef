@@ -176,8 +176,8 @@ void CefPrintDialogLinux::UseDefaultSettings() {
   UpdateSettings(&settings, true);
 }
 
-bool CefPrintDialogLinux::UpdateSettings(printing::PrintSettings* settings) {
-  return UpdateSettings(settings, false);
+void CefPrintDialogLinux::UpdateSettings(printing::PrintSettings* settings) {
+  UpdateSettings(settings, false);
 }
 
 void CefPrintDialogLinux::ShowDialog(
