@@ -739,6 +739,12 @@ parser.add_option(
     default=False,
     help='Force update of patch files.')
 parser.add_option(
+    '--resave',
+    action='store_true',
+    dest='resave',
+    default=False,
+    help='Resave patch files.')
+parser.add_option(
     '--log-chromium-changes',
     action='store_true',
     dest='logchromiumchanges',
@@ -1074,6 +1080,14 @@ if platform == 'macosx' and not options.x64build and branch_is_2272_or_newer:
 # Options that force the sources to change.
 force_change = options.forceclean or options.forceupdate
 
+# Options that cause local changes to be discarded.
+discard_local_changes = force_change or options.forcecefupdate
+
+if options.resave and (options.forcepatchupdate or discard_local_changes):
+  print '--resave cannot be combined with options that modify or discard patches.'
+  parser.print_help(sys.stderr)
+  sys.exit()
+
 if platform == 'windows':
   # Avoid errors when the "vs_toolchain.py update" Chromium hook runs.
   os.environ['DEPOT_TOOLS_WIN_TOOLCHAIN'] = '0'
@@ -1198,12 +1212,12 @@ if not options.nocefupdate and not os.path.exists(cef_dir):
 else:
   cef_checkout_new = False
 
-# Update the CEF checkout if necessary.
+# Determine if the CEF checkout needs to change.
 if not options.nocefupdate and os.path.exists(cef_dir):
   cef_current_hash = get_git_hash(cef_dir, 'HEAD')
 
   if not cef_checkout_new:
-    # Fetch new sources.
+    # Fetch updated sources.
     run('%s fetch' % (git_exe), cef_dir, depot_tools_dir)
 
   cef_desired_hash = get_git_hash(cef_dir, cef_checkout)
@@ -1215,11 +1229,14 @@ if not options.nocefupdate and os.path.exists(cef_dir):
   msg("CEF Desired Checkout: %s (%s)" % (cef_desired_hash, cef_checkout))
 
   if cef_checkout_changed:
-    # Checkout the requested branch.
+    if cef_dir == cef_src_dir:
+      # Running in fast update mode. Backup and revert the patched files before
+      # changing the CEF checkout.
+      run_patch_updater("--backup --revert")
+
+    # Update the CEF checkout.
     run('%s checkout %s%s' %
-      (git_exe, \
-       ('--force ' if (options.forceclean or options.forcecefupdate) else ''), \
-       cef_checkout), \
+      (git_exe, '--force ' if discard_local_changes else '', cef_checkout), \
       cef_dir, depot_tools_dir)
 else:
   cef_checkout_changed = False
@@ -1299,7 +1316,7 @@ if os.path.exists(chromium_src_dir):
 # Fetch Chromium changes so that we can perform the necessary calculations using
 # local history.
 if not options.nochromiumupdate and os.path.exists(chromium_src_dir):
-  # Fetch new sources.
+  # Fetch updated sources.
   run("%s fetch" % (git_exe), chromium_src_dir, depot_tools_dir)
   # Also fetch tags, which are required for release branch builds.
   run("%s fetch --tags" % (git_exe), chromium_src_dir, depot_tools_dir)
@@ -1329,11 +1346,15 @@ if not options.nochromiumupdate and os.path.exists(chromium_src_dir):
 else:
   chromium_checkout_changed = options.dryrun
 
-# Delete the existing src/cef directory. It will be re-copied from the download
-# directory later.
-if cef_checkout_changed and cef_dir != cef_src_dir and os.path.exists(
-    cef_src_dir):
-  delete_directory(cef_src_dir)
+if cef_checkout_changed:
+  if cef_dir != cef_src_dir and os.path.exists(cef_src_dir):
+    # Delete the existing src/cef directory. It will be re-copied from the
+    # download directory later.
+    delete_directory(cef_src_dir)
+elif chromium_checkout_changed and cef_dir == cef_src_dir:
+  # Running in fast update mode. Backup and revert the patched files before
+  # changing the Chromium checkout.
+  run_patch_updater("--backup --revert")
 
 # Delete the existing src/out directory if requested.
 if options.forceclean and os.path.exists(out_src_dir):
@@ -1343,18 +1364,15 @@ if options.forceclean and os.path.exists(out_src_dir):
 # directory. It will be moved back from the download directory later.
 if os.path.exists(out_src_dir):
   old_branch = read_branch_config_file(out_src_dir)
-  if old_branch != '' and (chromium_checkout_changed or \
+  if old_branch != '' and (chromium_checkout_changed or
                            old_branch != cef_branch):
     old_out_dir = os.path.join(download_dir, 'out_' + old_branch)
     move_directory(out_src_dir, old_out_dir)
 
 # Update the Chromium checkout.
 if chromium_checkout_changed:
-  if not chromium_checkout_new:
-    if options.fastupdate:
-      # Backup and revert the patched files.
-      run_patch_updater("--backup --revert")
-    elif options.forceclean and options.forcecleandeps:
+  if not chromium_checkout_new and not options.fastupdate:
+    if options.forceclean and options.forcecleandeps:
       # Remove all local changes including third-party git checkouts managed by
       # gclient.
       run("%s clean -dffx" % (git_exe), chromium_src_dir, depot_tools_dir)
@@ -1364,7 +1382,7 @@ if chromium_checkout_changed:
 
   # Checkout the requested branch.
   run("%s checkout %s%s" % \
-    (git_exe, ('--force ' if options.forceclean else ''), chromium_checkout), \
+    (git_exe, '--force ' if discard_local_changes else '', chromium_checkout), \
     chromium_src_dir, depot_tools_dir)
 
   # Patch the Chromium DEPS file if necessary.
@@ -1376,27 +1394,21 @@ if chromium_checkout_changed:
 
   # Update third-party dependencies including branch/tag information.
   run("gclient sync %s--with_branch_heads --disable-syntax-validation --jobs 16" % \
-      (('--reset ' if options.forceclean else '')), \
-      chromium_dir, depot_tools_dir)
+      ('--reset ' if discard_local_changes else ''), chromium_dir, depot_tools_dir)
 
   # Clear the GYP_CHROMIUM_NO_ACTION value.
   del os.environ['GYP_CHROMIUM_NO_ACTION']
 
-  if not chromium_checkout_new and options.fastupdate:
-    # Check and restore the patched files.
-    run_patch_updater("--reapply --restore")
-
   # Delete the src/out directory created by `gclient sync`.
   delete_directory(out_src_dir)
-elif cef_checkout_changed:
-  # Backup and revert the patched files.
-  run_patch_updater("--backup --revert")
-  # Check and restore the patched files.
-  run_patch_updater("--reapply --restore")
 
-# Restore the src/cef directory.
-if cef_dir != cef_src_dir and os.path.exists(
-    cef_dir) and not os.path.exists(cef_src_dir):
+if cef_dir == cef_src_dir:
+  # Running in fast update mode.
+  if cef_checkout_changed or chromium_checkout_changed:
+    # Check and restore the patched files.
+    run_patch_updater("--reapply --restore")
+elif os.path.exists(cef_dir) and not os.path.exists(cef_src_dir):
+  # Restore the src/cef directory.
   copy_directory(cef_dir, cef_src_dir)
 
 # Restore the src/out directory.
@@ -1424,6 +1436,9 @@ if options.forcepatchupdate or ((chromium_checkout_new or not options.fastupdate
   else:
     out_file = None
   run_patch_updater(output_file=out_file)
+elif options.resave:
+  # Resave patch files.
+  run_patch_updater("--resave")
 
 if chromium_checkout != chromium_compat_version:
   if options.logchromiumchanges:
