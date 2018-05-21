@@ -4,7 +4,7 @@
     "service_manager:connector": {
       "provides": {
         "browser": [
-          "spellcheck::mojom::SpellChecker"
+          "spellcheck.mojom.SpellChecker"
         ]
       },
       "requires": {

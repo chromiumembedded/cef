@@ -81,11 +81,13 @@
 #include "extensions/browser/extension_registry.h"
 #include "extensions/browser/extensions_browser_client.h"
 #include "extensions/browser/guest_view/extensions_guest_view_message_filter.h"
+#include "extensions/browser/guest_view/web_view/web_view_guest.h"
 #include "extensions/browser/io_thread_extension_message_filter.h"
 #include "extensions/common/constants.h"
 #include "extensions/common/switches.h"
 #include "net/ssl/ssl_cert_request_info.h"
 #include "ppapi/host/ppapi_host.h"
+#include "services/service_manager/embedder/switches.h"
 #include "services/service_manager/public/mojom/connector.mojom.h"
 #include "services/service_manager/sandbox/switches.h"
 #include "storage/browser/quota/quota_settings.h"
@@ -720,7 +722,7 @@ void CefContentBrowserClient::AppendExtraCommandLineSwitches(
   }
 
 #if defined(OS_LINUX)
-  if (process_type == switches::kZygoteProcess) {
+  if (process_type == service_manager::switches::kZygoteProcess) {
     // Propagate the following switches to the zygote command line (along with
     // any associated values) if present in the browser command line.
     static const char* const kSwitchNames[] = {
@@ -982,7 +984,7 @@ void CefContentBrowserClient::GetAdditionalMappedFilesForChildProcess(
     content::PosixFileDescriptorInfo* mappings) {
   int crash_signal_fd = GetCrashSignalFD(command_line);
   if (crash_signal_fd >= 0) {
-    mappings->Share(kCrashDumpSignal, crash_signal_fd);
+    mappings->Share(service_manager::kCrashDumpSignal, crash_signal_fd);
   }
 }
 #endif  // defined(OS_LINUX)
@@ -1029,34 +1031,29 @@ CefContentBrowserClient::CreateClientCertStore(
 }
 
 void CefContentBrowserClient::RegisterNonNetworkNavigationURLLoaderFactories(
+    int frame_tree_node_id,
+    NonNetworkURLLoaderFactoryMap* factories) {
+  if (!extensions::ExtensionsEnabled())
+    return;
+
+  content::WebContents* web_contents =
+      content::WebContents::FromFrameTreeNodeId(frame_tree_node_id);
+  factories->emplace(
+      extensions::kExtensionScheme,
+      extensions::CreateExtensionNavigationURLLoaderFactory(
+          web_contents->GetBrowserContext(),
+          !!extensions::WebViewGuest::FromWebContents(web_contents)));
+}
+
+void CefContentBrowserClient::RegisterNonNetworkSubresourceURLLoaderFactories(
     int render_process_id,
     int render_frame_id,
     NonNetworkURLLoaderFactoryMap* factories) {
   if (!extensions::ExtensionsEnabled())
     return;
 
-  content::RenderProcessHost* process_host =
-      content::RenderProcessHost::FromID(render_process_id);
-  content::BrowserContext* browser_context = process_host->GetBrowserContext();
-  factories->emplace(
-      extensions::kExtensionScheme,
-      extensions::CreateExtensionNavigationURLLoaderFactory(
-          render_process_id, render_frame_id,
-          extensions::ExtensionSystem::Get(browser_context)->info_map()));
-}
-
-void CefContentBrowserClient::RegisterNonNetworkSubresourceURLLoaderFactories(
-    content::RenderFrameHost* frame_host,
-    const GURL& frame_url,
-    NonNetworkURLLoaderFactoryMap* factories) {
-  if (!extensions::ExtensionsEnabled())
-    return;
-
-  content::RenderProcessHost* process_host = frame_host->GetProcess();
-  content::BrowserContext* browser_context = process_host->GetBrowserContext();
-  auto factory = extensions::MaybeCreateExtensionSubresourceURLLoaderFactory(
-      process_host->GetID(), frame_host->GetRoutingID(), frame_url,
-      extensions::ExtensionSystem::Get(browser_context)->info_map());
+  auto factory = extensions::CreateExtensionURLLoaderFactory(render_process_id,
+                                                             render_frame_id);
   if (factory)
     factories->emplace(extensions::kExtensionScheme, std::move(factory));
 }

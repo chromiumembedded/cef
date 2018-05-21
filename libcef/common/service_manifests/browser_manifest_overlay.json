@@ -5,9 +5,9 @@
     "service_manager:connector": {
       "provides": {
         "renderer": [
-          "blink::mojom::BudgetService",
-          "metrics::mojom::LeakDetector",
-          "mojom::ModuleEventSink"
+          "blink.mojom.BudgetService",
+          "metrics.mojom.LeakDetector",
+          "mojom.ModuleEventSink"
         ]
       },
       "requires": {
@@ -18,9 +18,9 @@
     "navigation:frame": {
       "provides": {
         "renderer": [
-          "blink::mojom::BudgetService",
-          "extensions::KeepAlive",
-          "extensions::mime_handler::MimeHandlerService"
+          "blink.mojom.BudgetService",
+          "extensions.KeepAlive",
+          "extensions.mime_handler.MimeHandlerService"
         ]
       }
     }

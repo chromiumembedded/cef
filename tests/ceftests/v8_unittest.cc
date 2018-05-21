@@ -562,7 +562,9 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
 
       ~TestArrayBufferReleaseCallback() { *destructorCalled_ = true; }
 
-      void ReleaseBuffer(void* buffer) { *releaseBufferCalled_ = true; }
+      void ReleaseBuffer(void* buffer) override {
+        *releaseBufferCalled_ = true;
+      }
 
       IMPLEMENT_REFCOUNTING(TestArrayBufferReleaseCallback);
 
@@ -624,7 +626,7 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
 
       ~TestArrayBufferReleaseCallback() {}
 
-      void ReleaseBuffer(void* buffer) {}
+      void ReleaseBuffer(void* buffer) override {}
 
       IMPLEMENT_REFCOUNTING(TestArrayBufferReleaseCallback);
     };

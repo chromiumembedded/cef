@@ -18,6 +18,7 @@
 #include "base/strings/string_util.h"
 #include "base/strings/utf_string_conversions.h"
 #include "components/crash/core/common/crash_key.h"
+#include "services/service_manager/embedder/switches.h"
 #include "third_party/crashpad/crashpad/client/annotation.h"
 
 #if defined(OS_MACOSX)
@@ -603,14 +604,15 @@ bool CefCrashReporterClient::GetCrashMetricsLocation(
 
 void CefCrashReporterClient::GetProductNameAndVersion(const char** product_name,
                                                       const char** version) {
-  GetProductNameAndVersion(product_name, version, nullptr);
-}
-
-void CefCrashReporterClient::GetProductNameAndVersion(const char** product_name,
-                                                      const char** version,
-                                                      const char** channel) {
   *product_name = product_name_.c_str();
   *version = product_version_.c_str();
+}
+
+void CefCrashReporterClient::GetProductNameAndVersion(std::string* product_name,
+                                                      std::string* version,
+                                                      std::string* channel) {
+  *product_name = product_name_;
+  *version = product_version_;
 }
 
 #if !defined(OS_MACOSX)
@@ -623,7 +625,7 @@ bool CefCrashReporterClient::EnableBreakpadForProcess(
     const std::string& process_type) {
   return process_type == switches::kRendererProcess ||
          process_type == switches::kPpapiPluginProcess ||
-         process_type == switches::kZygoteProcess ||
+         process_type == service_manager::switches::kZygoteProcess ||
          process_type == switches::kGpuProcess;
 }
 

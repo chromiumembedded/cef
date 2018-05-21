@@ -28,6 +28,8 @@
 #include "chrome/browser/browser_process.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/pref_names.h"
+#include "components/certificate_transparency/chrome_ct_policy_enforcer.h"
+#include "components/certificate_transparency/ct_known_logs.h"
 #include "components/net_log/chrome_net_log.h"
 #include "components/network_session_configurator/browser/network_session_configurator.h"
 #include "components/prefs/pref_registry_simple.h"
@@ -37,9 +39,7 @@
 #include "content/public/common/content_switches.h"
 #include "content/public/common/url_constants.h"
 #include "net/cert/cert_verifier.h"
-#include "net/cert/ct_known_logs.h"
 #include "net/cert/ct_log_verifier.h"
-#include "net/cert/ct_policy_enforcer.h"
 #include "net/cert/multi_log_ct_verifier.h"
 #include "net/cookies/cookie_monster.h"
 #include "net/dns/host_resolver.h"
@@ -153,6 +153,27 @@ std::unique_ptr<net::ProxyResolutionService> CreateProxyResolutionService(
           : net::ProxyResolutionService::SanitizeUrlPolicy::UNSAFE);
 
   return proxy_service;
+}
+
+// Based on net::ct::CreateLogVerifiersForKnownLogs which was deleted in
+// https://crrev.com/24711fe395.
+std::vector<scoped_refptr<const net::CTLogVerifier>>
+CreateLogVerifiersForKnownLogs() {
+  std::vector<scoped_refptr<const net::CTLogVerifier>> verifiers;
+
+  for (const auto& log : certificate_transparency::GetKnownLogs()) {
+    scoped_refptr<const net::CTLogVerifier> log_verifier =
+        net::CTLogVerifier::Create(
+            base::StringPiece(log.log_key, log.log_key_length), log.log_name,
+            log.log_dns_domain);
+    // Make sure no null logs enter verifiers. Parsing of all statically
+    // configured logs should always succeed, unless there has been binary or
+    // memory corruption.
+    CHECK(log_verifier);
+    verifiers.push_back(std::move(log_verifier));
+  }
+
+  return verifiers;
 }
 
 }  // namespace
@@ -304,14 +325,15 @@ net::URLRequestContext* CefURLRequestContextGetterImpl::GetURLRequestContext() {
         std::move(transport_security_state));
 
     std::vector<scoped_refptr<const net::CTLogVerifier>> ct_logs(
-        net::ct::CreateLogVerifiersForKnownLogs());
+        CreateLogVerifiersForKnownLogs());
     std::unique_ptr<net::MultiLogCTVerifier> ct_verifier(
         new net::MultiLogCTVerifier());
     ct_verifier->AddLogs(ct_logs);
     io_state_->storage_->set_cert_transparency_verifier(std::move(ct_verifier));
 
-    std::unique_ptr<net::CTPolicyEnforcer> ct_policy_enforcer(
-        new net::CTPolicyEnforcer);
+    std::unique_ptr<certificate_transparency::ChromeCTPolicyEnforcer>
+        ct_policy_enforcer(
+            new certificate_transparency::ChromeCTPolicyEnforcer);
     ct_policy_enforcer->set_enforce_net_security_expiration(
         settings_.enable_net_security_expiration ? true : false);
     io_state_->storage_->set_ct_policy_enforcer(std::move(ct_policy_enforcer));

@@ -127,7 +127,7 @@ index fdc51ab22807..cb0a99dd190c 100644
    g_crash_helper_enabled = true;
    return true;
 diff --git components/crash/content/app/breakpad_linux.cc components/crash/content/app/breakpad_linux.cc
-index e57c54b9cf6c..caee714efe38 100644
+index 76f15cb5b511..7cf4cb636a2e 100644
 --- components/crash/content/app/breakpad_linux.cc
 +++ components/crash/content/app/breakpad_linux.cc
 @@ -28,6 +28,7 @@
@@ -155,7 +155,7 @@ index e57c54b9cf6c..caee714efe38 100644
    info.process_start_time = g_process_start_time;
    info.oom_size = base::g_oom_size;
    info.pid = g_pid;
-@@ -1342,7 +1344,7 @@ void ExecUploadProcessOrTerminate(const BreakpadInfo& info,
+@@ -1341,7 +1343,7 @@ void ExecUploadProcessOrTerminate(const BreakpadInfo& info,
      header_content_encoding,
      header_content_type,
      post_file,
@@ -164,7 +164,7 @@ index e57c54b9cf6c..caee714efe38 100644
      "--timeout=10",  // Set a timeout so we don't hang forever.
      "--tries=1",     // Don't retry if the upload fails.
      "-O",  // Output reply to the file descriptor path.
-@@ -1682,10 +1684,19 @@ void HandleCrashDump(const BreakpadInfo& info) {
+@@ -1681,10 +1683,19 @@ void HandleCrashDump(const BreakpadInfo& info) {
      GetCrashReporterClient()->GetProductNameAndVersion(&product_name, &version);
  
      writer.AddBoundary();
@@ -186,7 +186,7 @@ index e57c54b9cf6c..caee714efe38 100644
      if (info.pid > 0) {
        char pid_value_buf[kUint64StringSize];
        uint64_t pid_value_len = my_uint64_len(info.pid);
-@@ -1803,10 +1814,20 @@ void HandleCrashDump(const BreakpadInfo& info) {
+@@ -1802,10 +1813,20 @@ void HandleCrashDump(const BreakpadInfo& info) {
          crash_reporter::internal::TransitionalCrashKeyStorage;
      CrashKeyStorage::Iterator crash_key_iterator(*info.crash_keys);
      const CrashKeyStorage::Entry* entry;
@@ -208,7 +208,7 @@ index e57c54b9cf6c..caee714efe38 100644
        writer.AddBoundary();
        writer.Flush();
      }
-@@ -2016,6 +2037,17 @@ void SetChannelCrashKey(const std::string& channel) {
+@@ -2015,6 +2036,17 @@ void SetChannelCrashKey(const std::string& channel) {
    channel_key.Set(channel);
  }
  
@@ -241,7 +241,7 @@ index 9ee85554812c..7af55ddda8fe 100644
  extern void InitCrashKeysForTesting();
  
 diff --git components/crash/content/app/crash_reporter_client.cc components/crash/content/app/crash_reporter_client.cc
-index 4ec26a2a487a..0eba6a25009c 100644
+index 464fe2efc0db..dcc8d69bdd3a 100644
 --- components/crash/content/app/crash_reporter_client.cc
 +++ components/crash/content/app/crash_reporter_client.cc
 @@ -88,7 +88,7 @@ int CrashReporterClient::GetResultCodeRespawnFailed() {
@@ -253,9 +253,9 @@ index 4ec26a2a487a..0eba6a25009c 100644
  void CrashReporterClient::GetProductNameAndVersion(const char** product_name,
                                                     const char** version) {
  }
-@@ -97,6 +97,7 @@ void CrashReporterClient::GetProductNameAndVersion(const char** product_name,
-                                                    const char** version,
-                                                    const char** channel) {}
+@@ -97,6 +97,7 @@ void CrashReporterClient::GetProductNameAndVersion(std::string* product_name,
+                                                    std::string* version,
+                                                    std::string* channel) {}
  
 +#if !defined(OS_MACOSX)
  base::FilePath CrashReporterClient::GetReporterLogFilename() {
@@ -318,7 +318,7 @@ index 4ec26a2a487a..0eba6a25009c 100644
  
  }  // namespace crash_reporter
 diff --git components/crash/content/app/crash_reporter_client.h components/crash/content/app/crash_reporter_client.h
-index 94cdee55b87c..4612a6a6461a 100644
+index e6a09126bdb9..8052e323a5e3 100644
 --- components/crash/content/app/crash_reporter_client.h
 +++ components/crash/content/app/crash_reporter_client.h
 @@ -5,7 +5,9 @@
@@ -341,8 +341,8 @@ index 94cdee55b87c..4612a6a6461a 100644
    // in the crash report. Neither out parameter should be set to NULL.
    // TODO(jperaza): Remove the 2-parameter overload of this method once all
 @@ -102,6 +104,7 @@ class CrashReporterClient {
-                                         const char** version,
-                                         const char** channel);
+                                         std::string* version,
+                                         std::string* channel);
  
 +#if !defined(OS_MACOSX)
    virtual base::FilePath GetReporterLogFilename();
@@ -388,7 +388,7 @@ index 94cdee55b87c..4612a6a6461a 100644
  
  }  // namespace crash_reporter
 diff --git components/crash/content/app/crashpad.cc components/crash/content/app/crashpad.cc
-index a5f6b2e6f423..b3892d3743ff 100644
+index c6a98292bb5e..7cf360d3b340 100644
 --- components/crash/content/app/crashpad.cc
 +++ components/crash/content/app/crashpad.cc
 @@ -147,7 +147,8 @@ void InitializeCrashpadImpl(bool initial_client,
@@ -402,7 +402,7 @@ index a5f6b2e6f423..b3892d3743ff 100644
          ->set_system_crash_reporter_forwarding(crashpad::TriState::kDisabled);
    }
 diff --git components/crash/content/app/crashpad_mac.mm components/crash/content/app/crashpad_mac.mm
-index eb82f44053ce..73cfcc15998d 100644
+index 91aaa801f951..1f138f38487d 100644
 --- components/crash/content/app/crashpad_mac.mm
 +++ components/crash/content/app/crashpad_mac.mm
 @@ -16,11 +16,14 @@
@@ -420,7 +420,7 @@ index eb82f44053ce..73cfcc15998d 100644
  #include "third_party/crashpad/crashpad/client/crash_report_database.h"
  #include "third_party/crashpad/crashpad/client/crashpad_client.h"
  #include "third_party/crashpad/crashpad/client/crashpad_info.h"
-@@ -42,9 +45,10 @@ base::FilePath PlatformCrashpadInitialization(bool initial_client,
+@@ -73,9 +76,10 @@ base::FilePath PlatformCrashpadInitialization(bool initial_client,
  
    if (initial_client) {
      @autoreleasepool {
@@ -434,7 +434,7 @@ index eb82f44053ce..73cfcc15998d 100644
  
        // Is there a way to recover if this fails?
        CrashReporterClient* crash_reporter_client = GetCrashReporterClient();
-@@ -56,16 +60,27 @@ base::FilePath PlatformCrashpadInitialization(bool initial_client,
+@@ -87,16 +91,27 @@ base::FilePath PlatformCrashpadInitialization(bool initial_client,
        // crash server won't have symbols for any other build types.
        std::string url = "https://clients2.google.com/cr/report";
  #else
@@ -467,7 +467,7 @@ index eb82f44053ce..73cfcc15998d 100644
  
  #if defined(GOOGLE_CHROME_BUILD)
        // Empty means stable.
-@@ -81,12 +96,16 @@ base::FilePath PlatformCrashpadInitialization(bool initial_client,
+@@ -112,12 +127,16 @@ base::FilePath PlatformCrashpadInitialization(bool initial_client,
          process_annotations["channel"] = "";
        }
  
@@ -489,7 +489,7 @@ index eb82f44053ce..73cfcc15998d 100644
  
        std::vector<std::string> arguments;
  
-@@ -108,6 +127,12 @@ base::FilePath PlatformCrashpadInitialization(bool initial_client,
+@@ -139,6 +158,12 @@ base::FilePath PlatformCrashpadInitialization(bool initial_client,
              "--reset-own-crash-exception-port-to-system-default");
        }
  

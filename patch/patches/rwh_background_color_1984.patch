@@ -1,15 +1,17 @@
 diff --git content/browser/renderer_host/render_widget_host_view_aura.cc content/browser/renderer_host/render_widget_host_view_aura.cc
-index 6a0753f3f3b8..f567fee075e4 100644
+index 64cf9df83085..23745cd77082 100644
 --- content/browser/renderer_host/render_widget_host_view_aura.cc
 +++ content/browser/renderer_host/render_widget_host_view_aura.cc
-@@ -744,9 +744,11 @@ void RenderWidgetHostViewAura::UpdateBackgroundColorFromRenderer(
-     return;
-   background_color_ = color;
+@@ -726,10 +726,12 @@ gfx::Rect RenderWidgetHostViewAura::GetViewBounds() const {
+ void RenderWidgetHostViewAura::UpdateBackgroundColor() {
+   DCHECK(GetBackgroundColor());
  
+-  SkColor color = *GetBackgroundColor();
 -  bool opaque = SkColorGetA(color) == SK_AlphaOPAQUE;
 -  window_->layer()->SetFillsBoundsOpaquely(opaque);
 -  window_->layer()->SetColor(color);
 +  if (window_) {
++    SkColor color = *GetBackgroundColor();
 +    bool opaque = SkColorGetA(color) == SK_AlphaOPAQUE;
 +    window_->layer()->SetFillsBoundsOpaquely(opaque);
 +    window_->layer()->SetColor(color);
@@ -17,7 +19,7 @@ index 6a0753f3f3b8..f567fee075e4 100644
  }
  
  void RenderWidgetHostViewAura::WindowTitleChanged() {
-@@ -1935,6 +1937,15 @@ void RenderWidgetHostViewAura::CreateAuraWindow(aura::client::WindowType type) {
+@@ -1925,6 +1927,15 @@ void RenderWidgetHostViewAura::CreateAuraWindow(aura::client::WindowType type) {
    if (frame_sink_id_.is_valid())
      window_->SetEmbedFrameSinkId(frame_sink_id_);
  

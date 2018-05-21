@@ -13,7 +13,7 @@ index 4393a8fac233..860715e86900 100644
    explicit ContentServiceManagerMainDelegate(const ContentMainParams& params);
    ~ContentServiceManagerMainDelegate() override;
 diff --git third_party/blink/renderer/controller/BUILD.gn third_party/blink/renderer/controller/BUILD.gn
-index 1aaa34c60ac9..c9c9a430f6b0 100644
+index 3df8b9c94f17..a16461d8d729 100644
 --- third_party/blink/renderer/controller/BUILD.gn
 +++ third_party/blink/renderer/controller/BUILD.gn
 @@ -25,6 +25,7 @@ component("controller") {
@@ -24,7 +24,7 @@ index 1aaa34c60ac9..c9c9a430f6b0 100644
      "//third_party/blink/renderer:config",
      "//third_party/blink/renderer:inside_blink",
      "//third_party/blink/renderer:non_test_config",
-@@ -43,6 +44,8 @@ component("controller") {
+@@ -45,6 +46,8 @@ component("controller") {
      "dev_tools_frontend_impl.h",
      "oom_intervention_impl.cc",
      "oom_intervention_impl.h",

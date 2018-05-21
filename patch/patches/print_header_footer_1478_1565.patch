@@ -1,8 +1,8 @@
 diff --git chrome/browser/ui/BUILD.gn chrome/browser/ui/BUILD.gn
-index e7da097d25f4..8ca569703b26 100644
+index 78dd59c790a9..a7eacdf4c193 100644
 --- chrome/browser/ui/BUILD.gn
 +++ chrome/browser/ui/BUILD.gn
-@@ -892,6 +892,7 @@ split_static_library("ui") {
+@@ -894,6 +894,7 @@ split_static_library("ui") {
      "//base:i18n",
      "//base/allocator:buildflags",
      "//cc/paint",
@@ -11,7 +11,7 @@ index e7da097d25f4..8ca569703b26 100644
      "//chrome:resources",
      "//chrome:strings",
 diff --git chrome/browser/ui/cocoa/applescript/tab_applescript.mm chrome/browser/ui/cocoa/applescript/tab_applescript.mm
-index 33216fef9a1b..c84572425a8d 100644
+index f0a489a0c3af..1bd1259e47e3 100644
 --- chrome/browser/ui/cocoa/applescript/tab_applescript.mm
 +++ chrome/browser/ui/cocoa/applescript/tab_applescript.mm
 @@ -9,7 +9,7 @@
@@ -34,7 +34,7 @@ index 33216fef9a1b..c84572425a8d 100644
  using content::NavigationController;
  using content::NavigationEntry;
  using content::OpenURLParams;
-@@ -231,11 +235,15 @@ void ResumeAppleEventAndSendReply(NSAppleEventManagerSuspensionID suspension_id,
+@@ -233,11 +237,15 @@ void ResumeAppleEventAndSendReply(NSAppleEventManagerSuspensionID suspension_id,
  
  - (void)handlesPrintScriptCommand:(NSScriptCommand*)command {
    AppleScript::LogAppleScriptUMA(AppleScript::AppleScriptCommand::TAB_PRINT);
@@ -116,10 +116,10 @@ index 006966fd1c58..db9cd49af2a4 100644
  #endif
  
 diff --git components/printing/common/print_messages.cc components/printing/common/print_messages.cc
-index f4647d65aeda..1716d5ce956b 100644
+index 8b6f52b3f80a..d88865648117 100644
 --- components/printing/common/print_messages.cc
 +++ components/printing/common/print_messages.cc
-@@ -150,7 +150,6 @@ PrintMsg_PrintFrame_Params::PrintMsg_PrintFrame_Params() {}
+@@ -140,7 +140,6 @@ PrintMsg_PrintFrame_Params::PrintMsg_PrintFrame_Params() {}
  
  PrintMsg_PrintFrame_Params::~PrintMsg_PrintFrame_Params() {}
  
@@ -127,7 +127,7 @@ index f4647d65aeda..1716d5ce956b 100644
  PrintHostMsg_RequestPrintPreview_Params::
      PrintHostMsg_RequestPrintPreview_Params()
      : is_modifiable(false),
-@@ -172,4 +171,3 @@ PrintHostMsg_SetOptionsFromDocument_Params::
+@@ -162,4 +161,3 @@ PrintHostMsg_SetOptionsFromDocument_Params::
  PrintHostMsg_SetOptionsFromDocument_Params::
      ~PrintHostMsg_SetOptionsFromDocument_Params() {
  }

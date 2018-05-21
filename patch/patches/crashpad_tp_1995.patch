@@ -146,7 +146,7 @@ index a2b0c74636f4..01370fdc20d9 100644
    struct Data;
  
 diff --git third_party/crashpad/crashpad/handler/BUILD.gn third_party/crashpad/crashpad/handler/BUILD.gn
-index 78a4b092d8a8..c2d3acfab889 100644
+index f94e4e744e96..91786643298f 100644
 --- third_party/crashpad/crashpad/handler/BUILD.gn
 +++ third_party/crashpad/crashpad/handler/BUILD.gn
 @@ -12,6 +12,7 @@
@@ -243,7 +243,7 @@ index 2ec1147d2620..8ff9a72e0bd7 100644
    //! \brief Calls ProcessPendingReports() in response to ReportPending() having
    //!     been called on any thread, as well as periodically on a timer.
 diff --git third_party/crashpad/crashpad/handler/handler_main.cc third_party/crashpad/crashpad/handler/handler_main.cc
-index dd7adf6503fd..4ae51a58aa6e 100644
+index 70192cf4dd47..37a4380c65ba 100644
 --- third_party/crashpad/crashpad/handler/handler_main.cc
 +++ third_party/crashpad/crashpad/handler/handler_main.cc
 @@ -36,8 +36,10 @@
@@ -257,7 +257,7 @@ index dd7adf6503fd..4ae51a58aa6e 100644
  #include "client/crash_report_database.h"
  #include "client/crashpad_client.h"
  #include "client/crashpad_info.h"
-@@ -90,6 +92,10 @@
+@@ -93,6 +95,10 @@
  #include "handler/linux/exception_handler_server.h"
  #endif  // OS_MACOSX
  
@@ -268,7 +268,7 @@ index dd7adf6503fd..4ae51a58aa6e 100644
  namespace crashpad {
  
  namespace {
-@@ -173,6 +179,9 @@ struct Options {
+@@ -176,6 +182,9 @@ struct Options {
    bool periodic_tasks;
    bool rate_limit;
    bool upload_gzip;
@@ -278,7 +278,7 @@ index dd7adf6503fd..4ae51a58aa6e 100644
  };
  
  // Splits |key_value| on '=' and inserts the resulting key and value into |map|.
-@@ -532,6 +541,9 @@ int HandlerMain(int argc,
+@@ -537,6 +546,9 @@ int HandlerMain(int argc,
      kOptionInitialClientFD,
  #endif
      kOptionURL,
@@ -288,7 +288,7 @@ index dd7adf6503fd..4ae51a58aa6e 100644
  
      // Standard options.
      kOptionHelp = -2,
-@@ -589,6 +601,9 @@ int HandlerMain(int argc,
+@@ -594,6 +606,9 @@ int HandlerMain(int argc,
      {"url", required_argument, nullptr, kOptionURL},
      {"help", no_argument, nullptr, kOptionHelp},
      {"version", no_argument, nullptr, kOptionVersion},
@@ -298,7 +298,7 @@ index dd7adf6503fd..4ae51a58aa6e 100644
      {nullptr, 0, nullptr, 0},
    };
  
-@@ -714,6 +729,27 @@ int HandlerMain(int argc,
+@@ -719,6 +734,27 @@ int HandlerMain(int argc,
          options.url = optarg;
          break;
        }
@@ -326,7 +326,7 @@ index dd7adf6503fd..4ae51a58aa6e 100644
        case kOptionHelp: {
          Usage(me);
          MetricsRecordExit(Metrics::LifetimeMilestone::kExitedEarly);
-@@ -822,8 +858,14 @@ int HandlerMain(int argc,
+@@ -827,8 +863,14 @@ int HandlerMain(int argc,
      upload_thread_options.upload_gzip = options.upload_gzip;
      upload_thread_options.watch_pending_reports = options.periodic_tasks;
  
@@ -341,7 +341,7 @@ index dd7adf6503fd..4ae51a58aa6e 100644
      upload_thread.Get()->Start();
    }
  
-@@ -844,7 +886,8 @@ int HandlerMain(int argc,
+@@ -849,7 +891,8 @@ int HandlerMain(int argc,
    ScopedStoppable prune_thread;
    if (options.periodic_tasks) {
      prune_thread.Reset(new PruneCrashReportThread(

@@ -44,7 +44,7 @@ class MacHelper : public content::BrowserCompositorMacClient,
         view_->render_widget_host()->delegate()->IsFullscreenForCurrentTab()) {
       return SK_ColorBLACK;
     }
-    return view_->background_color();
+    return *view_->GetBackgroundColor();
   }
 
   void BrowserCompositorMacOnBeginFrame(base::TimeTicks frame_time) override {}

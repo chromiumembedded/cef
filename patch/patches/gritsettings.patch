@@ -1,8 +1,8 @@
 diff --git tools/gritsettings/resource_ids tools/gritsettings/resource_ids
-index 7e838ac964fc..184708195c52 100644
+index fc16a42e623e..2dd0879350ee 100644
 --- tools/gritsettings/resource_ids
 +++ tools/gritsettings/resource_ids
-@@ -417,4 +417,11 @@
+@@ -414,4 +414,11 @@
    # Please read the header and find the right section above instead.
  
    # Resource ids starting at 31000 are reserved for projects built on Chromium.

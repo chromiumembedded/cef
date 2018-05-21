@@ -429,8 +429,12 @@ void CefRenderWidgetHostViewOSR::SetBackgroundColor(SkColor color) {
   }
 }
 
-SkColor CefRenderWidgetHostViewOSR::background_color() const {
+base::Optional<SkColor> CefRenderWidgetHostViewOSR::GetBackgroundColor() const {
   return background_color_;
+}
+
+void CefRenderWidgetHostViewOSR::UpdateBackgroundColor() {
+  NOTREACHED();
 }
 
 bool CefRenderWidgetHostViewOSR::LockMouse() {
@@ -447,7 +451,7 @@ void CefRenderWidgetHostViewOSR::TakeFallbackContentFrom(
               ->IsRenderWidgetHostViewGuest());
   CefRenderWidgetHostViewOSR* view_cef =
       static_cast<CefRenderWidgetHostViewOSR*>(view);
-  SetBackgroundColor(view_cef->background_color());
+  SetBackgroundColor(view_cef->background_color_);
   if (GetDelegatedFrameHost() && view_cef->GetDelegatedFrameHost()) {
     GetDelegatedFrameHost()->TakeFallbackContentFrom(
         view_cef->GetDelegatedFrameHost());
@@ -928,7 +932,7 @@ CefRenderWidgetHostViewOSR::CreateSoftwareOutputDevice(
   DCHECK(!copy_frame_generator_);
   DCHECK(!software_output_device_);
   software_output_device_ = new CefSoftwareOutputDeviceOSR(
-      compositor, background_color() == SK_ColorTRANSPARENT,
+      compositor, background_color_ == SK_ColorTRANSPARENT,
       base::Bind(&CefRenderWidgetHostViewOSR::OnPaint,
                  weak_ptr_factory_.GetWeakPtr()));
   return base::WrapUnique(software_output_device_);
@@ -976,25 +980,15 @@ void CefRenderWidgetHostViewOSR::DidReceiveFirstFrameAfterNavigation() {
   render_widget_host_->DidReceiveFirstFrameAfterNavigation();
 }
 
-std::unique_ptr<ui::CompositorLock>
-CefRenderWidgetHostViewOSR::GetCompositorLock(
-    ui::CompositorLockClient* client) {
-  return GetCompositor()->GetCompositorLock(client);
-}
-
-void CefRenderWidgetHostViewOSR::CompositorResizeLockEnded() {
-  ReleaseResize();
-}
-
 #endif  // !defined(OS_MACOSX)
 
 bool CefRenderWidgetHostViewOSR::InstallTransparency() {
-  if (background_color() == SK_ColorTRANSPARENT) {
-    SetBackgroundColor(background_color());
+  if (background_color_ == SK_ColorTRANSPARENT) {
+    SetBackgroundColor(background_color_);
 #if defined(OS_MACOSX)
-    browser_compositor_->SetBackgroundColor(background_color());
+    browser_compositor_->SetBackgroundColor(background_color_);
 #else
-    compositor_->SetBackgroundColor(background_color());
+    compositor_->SetBackgroundColor(background_color_);
 #endif
     return true;
   }
@@ -1548,7 +1542,7 @@ viz::FrameSinkId CefRenderWidgetHostViewOSR::AllocateFrameSinkId(
 
 void CefRenderWidgetHostViewOSR::UpdateBackgroundColorFromRenderer(
     SkColor color) {
-  if (color == background_color())
+  if (color == background_color_)
     return;
   background_color_ = color;
 

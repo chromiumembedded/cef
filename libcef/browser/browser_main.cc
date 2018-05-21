@@ -30,10 +30,10 @@
 #include "chrome/browser/chrome_browser_main_extra_parts.h"
 #include "chrome/browser/plugins/plugin_finder.h"
 #include "content/public/browser/gpu_data_manager.h"
-#include "content/public/common/result_codes.h"
 #include "extensions/browser/extension_system.h"
 #include "extensions/common/constants.h"
 #include "net/base/net_module.h"
+#include "services/service_manager/embedder/result_codes.h"
 #include "ui/base/resource/resource_bundle.h"
 
 #if defined(USE_AURA)
@@ -80,7 +80,7 @@ int CefBrowserMainParts::PreEarlyInitialization() {
   for (size_t i = 0; i < chrome_extra_parts_.size(); ++i)
     chrome_extra_parts_[i]->PreEarlyInitialization();
 
-  return content::RESULT_CODE_NORMAL_EXIT;
+  return service_manager::RESULT_CODE_NORMAL_EXIT;
 }
 
 void CefBrowserMainParts::PostEarlyInitialization() {

@@ -45,7 +45,7 @@ CEF_LABEL_BUTTON_VIEW_T class CefLabelButtonView : public CEF_BUTTON_VIEW_D {
   }
 
   // CefViewView methods:
-  bool HasMinimumSize() const { return true; }
+  bool HasMinimumSize() const override { return true; }
 };
 
 #endif  // CEF_LIBCEF_BROWSER_VIEWS_LABEL_BUTTON_VIEW_H_

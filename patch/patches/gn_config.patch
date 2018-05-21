@@ -1,8 +1,8 @@
 diff --git .gn .gn
-index 36b54aca866c..06337f3f3086 100644
+index 65c8804cc47c..f3a9a704abec 100644
 --- .gn
 +++ .gn
-@@ -245,6 +245,8 @@ exec_script_whitelist =
+@@ -246,6 +246,8 @@ exec_script_whitelist =
        # in the Chromium repo outside of //build.
        "//build_overrides/build.gni",
  
@@ -12,7 +12,7 @@ index 36b54aca866c..06337f3f3086 100644
        # https://crbug.com/474506.
        "//clank/java/BUILD.gn",
 diff --git BUILD.gn BUILD.gn
-index 9dec8407e62d..f3355fe8fc3e 100644
+index 29915efe706f..68e11a68576d 100644
 --- BUILD.gn
 +++ BUILD.gn
 @@ -192,6 +192,7 @@ group("gn_all") {
@@ -55,11 +55,32 @@ index 982fbe8d3f0d..e757be4688f1 100644
 +         "You must set the visual_studio_runtime_dirs if you set the visual " +
 +         "studio path")
  }
+diff --git build/toolchain/win/BUILD.gn build/toolchain/win/BUILD.gn
+index 4d9d1f45f870..c668f93a50f3 100644
+--- build/toolchain/win/BUILD.gn
++++ build/toolchain/win/BUILD.gn
+@@ -6,6 +6,7 @@ import("//build/config/clang/clang.gni")
+ import("//build/config/compiler/compiler.gni")
+ import("//build/config/sanitizers/sanitizers.gni")
+ import("//build/config/win/visual_studio_version.gni")
++import("//build/toolchain/cc_wrapper.gni")
+ import("//build/toolchain/clang_static_analyzer.gni")
+ import("//build/toolchain/goma.gni")
+ import("//build/toolchain/toolchain.gni")
+@@ -28,6 +29,8 @@ if (use_goma) {
+   } else {
+     goma_prefix = "$goma_dir/gomacc "
+   }
++} else if (cc_wrapper != "") {
++  goma_prefix = "$cc_wrapper "
+ } else {
+   goma_prefix = ""
+ }
 diff --git build/toolchain/win/setup_toolchain.py build/toolchain/win/setup_toolchain.py
-index 5f51eadb13b2..aa7ab8dbb16d 100644
+index d63b131aea35..6aca4e2cc56e 100644
 --- build/toolchain/win/setup_toolchain.py
 +++ build/toolchain/win/setup_toolchain.py
-@@ -134,26 +134,29 @@ def _LoadToolchainEnv(cpu, sdk_dir, target_store):
+@@ -134,25 +134,28 @@ def _LoadToolchainEnv(cpu, sdk_dir, target_store):
        # variable.
        if 'VSINSTALLDIR' in os.environ:
          del os.environ['VSINSTALLDIR']
@@ -78,10 +99,9 @@ index 5f51eadb13b2..aa7ab8dbb16d 100644
 -    # Store target must come before any SDK version declaration
 -    if (target_store):
 -      args.append(['store'])
--    # Chromium requires the 10.0.15063.468 SDK - previous versions don't have
--    # all of the required declarations and 10.0.16299.0 has some
--    # incompatibilities (crbug.com/773476).
--    args.append('10.0.15063.0')
+-    # Chromium requires the 10.0.17134.0 SDK - previous versions don't have
+-    # all of the required declarations.
+-    args.append('10.0.17134.0')
 -    variables = _LoadEnvFromBat(args)
 +      script_path = os.path.normpath(os.path.join(
 +                                         os.environ['GYP_MSVS_OVERRIDE_PATH'],
@@ -95,10 +115,9 @@ index 5f51eadb13b2..aa7ab8dbb16d 100644
 +      # Store target must come before any SDK version declaration
 +      if (target_store):
 +        args.append(['store'])
-+      # Chromium requires the 10.0.15063.468 SDK - previous versions don't have
-+      # all of the required declarations and 10.0.16299.0 has some
-+      # incompatibilities (crbug.com/773476).
-+      args.append('10.0.15063.0')
++      # Chromium requires the 10.0.17134.0 SDK - previous versions don't have
++      # all of the required declarations.
++      args.append('10.0.17134.0')
 +      variables = _LoadEnvFromBat(args)
 +    else:
 +      variables = []
@@ -110,7 +129,7 @@ index 5f51eadb13b2..aa7ab8dbb16d 100644
  
  
 diff --git build/vs_toolchain.py build/vs_toolchain.py
-index d5999f71ca7b..d630585ecd2f 100755
+index 0abf143029cc..7e163f846982 100755
 --- build/vs_toolchain.py
 +++ build/vs_toolchain.py
 @@ -82,11 +82,18 @@ def SetEnvironmentAndGetRuntimeDllDirs():
@@ -133,10 +152,10 @@ index d5999f71ca7b..d630585ecd2f 100755
      # directory in order to run binaries locally, but they are needed in order
      # to create isolates or the mini_installer. Copying them to the output
 diff --git chrome/chrome_paks.gni chrome/chrome_paks.gni
-index 9c2c9cbddc57..4ff2c6367217 100644
+index fde31eb044ed..b4fd21636719 100644
 --- chrome/chrome_paks.gni
 +++ chrome/chrome_paks.gni
-@@ -259,7 +259,7 @@ template("chrome_paks") {
+@@ -257,7 +257,7 @@ template("chrome_paks") {
      }
  
      input_locales = locales

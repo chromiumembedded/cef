@@ -207,6 +207,10 @@ CefStoragePartitionProxy::GetPrefetchURLLoaderService() {
   return parent_->GetPrefetchURLLoaderService();
 }
 
+content::CookieStoreContext* CefStoragePartitionProxy::GetCookieStoreContext() {
+  return parent_->GetCookieStoreContext();
+}
+
 content::URLLoaderFactoryGetter*
 CefStoragePartitionProxy::url_loader_factory_getter() {
   return parent_->url_loader_factory_getter();

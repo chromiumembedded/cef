@@ -373,10 +373,10 @@ index 4dea63f9f286..ef50b710c5af 100644
    virtual int GetMaxWidthForMenu(MenuItemView* menu);
  
 diff --git ui/views/controls/menu/menu_item_view.cc ui/views/controls/menu/menu_item_view.cc
-index 4eb50c922aa4..52a3b414a017 100644
+index b410d39d786e..f0efe213acb8 100644
 --- ui/views/controls/menu/menu_item_view.cc
 +++ ui/views/controls/menu/menu_item_view.cc
-@@ -896,7 +896,12 @@ void MenuItemView::PaintButton(gfx::Canvas* canvas, PaintButtonMode mode) {
+@@ -900,7 +900,12 @@ void MenuItemView::PaintButton(gfx::Canvas* canvas, PaintButtonMode mode) {
    // only need the background when we want it to look different, as when we're
    // selected.
    ui::NativeTheme* native_theme = GetNativeTheme();
@@ -390,7 +390,7 @@ index 4eb50c922aa4..52a3b414a017 100644
      gfx::Rect item_bounds(0, 0, width(), height());
      if (type_ == ACTIONABLE_SUBMENU) {
        if (submenu_area_of_actionable_submenu_selected_) {
-@@ -1015,6 +1020,13 @@ void MenuItemView::PaintMinorIconAndText(gfx::Canvas* canvas, SkColor color) {
+@@ -1019,6 +1024,13 @@ void MenuItemView::PaintMinorIconAndText(gfx::Canvas* canvas, SkColor color) {
  SkColor MenuItemView::GetTextColor(bool minor,
                                     bool render_selection,
                                     bool emphasized) const {
@@ -543,7 +543,7 @@ index 9e16b4c88177..3d660e406709 100644
        // Move the cursor because EnterNotify/LeaveNotify are generated with the
        // current mouse position as a result of XGrabPointer()
 diff --git ui/views/view.h ui/views/view.h
-index 8b874876b89f..1fe8a762b6c8 100644
+index 463438a3d774..39894b612984 100644
 --- ui/views/view.h
 +++ ui/views/view.h
 @@ -19,6 +19,7 @@

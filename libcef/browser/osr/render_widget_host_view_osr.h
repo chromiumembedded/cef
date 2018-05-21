@@ -17,7 +17,6 @@
 #include "build/build_config.h"
 #include "components/viz/common/frame_sinks/begin_frame_source.h"
 #include "components/viz/common/surfaces/parent_local_surface_id_allocator.h"
-#include "content/browser/renderer_host/compositor_resize_lock.h"
 #include "content/browser/renderer_host/delegated_frame_host.h"
 #include "content/browser/renderer_host/render_widget_host_view_base.h"
 #include "ui/compositor/compositor.h"
@@ -87,8 +86,7 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
                                    public ui::CompositorDelegate
 #if !defined(OS_MACOSX)
     ,
-                                   public content::DelegatedFrameHostClient,
-                                   public content::CompositorResizeLockClient
+                                   public content::DelegatedFrameHostClient
 #endif
 {
  public:
@@ -114,7 +112,8 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
   void EnsureSurfaceSynchronizedForLayoutTest() override;
   gfx::Rect GetViewBounds() const override;
   void SetBackgroundColor(SkColor color) override;
-  SkColor background_color() const override;
+  base::Optional<SkColor> GetBackgroundColor() const override;
+  void UpdateBackgroundColor() override;
   bool LockMouse() override;
   void UnlockMouse() override;
   void TakeFallbackContentFrom(content::RenderWidgetHostView* view) override;
@@ -202,11 +201,6 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
   void OnBeginFrame(base::TimeTicks frame_time) override;
   void OnFrameTokenChanged(uint32_t frame_token) override;
   void DidReceiveFirstFrameAfterNavigation() override;
-
-  // CompositorResizeLockClient implementation.
-  std::unique_ptr<ui::CompositorLock> GetCompositorLock(
-      ui::CompositorLockClient* client) override;
-  void CompositorResizeLockEnded() override;
 #endif  // !defined(OS_MACOSX)
 
   bool InstallTransparency();
@@ -238,7 +232,7 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
                      const CefRange& replacement_range,
                      int relative_cursor_pos);
   void ImeFinishComposingText(bool keep_selection);
-  void ImeCancelComposition();
+  void ImeCancelComposition() override;
 
   CefRefPtr<CefBrowserHostImpl> browser_impl() const { return browser_impl_; }
   void set_browser_impl(CefRefPtr<CefBrowserHostImpl> browser) {

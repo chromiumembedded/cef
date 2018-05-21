@@ -317,6 +317,9 @@ if len(failed_patches) > 0:
   for name in sorted(failed_patches.keys()):
     sys.stdout.write("%s:\n" % name)
     for line in failed_patches[name]:
+      if sys.platform == 'win32' and line.find('.rej') > 0:
+        # Convert paths to use Windows-style separator.
+        line = line.replace('/', '\\')
       sys.stdout.write("  %s\n" % line)
   linebreak()
   sys.exit(1)

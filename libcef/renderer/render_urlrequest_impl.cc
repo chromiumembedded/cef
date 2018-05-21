@@ -44,7 +44,7 @@ class CefWebURLLoaderClient : public blink::WebURLLoaderClient {
                    unsigned long long totalBytesToBeSent) override;
   void DidReceiveResponse(const WebURLResponse& response) override;
   void DidReceiveData(const char* data, int dataLength) override;
-  void DidFinishLoading(double finish_time,
+  void DidFinishLoading(base::TimeTicks finish_time,
                         int64_t total_encoded_data_length,
                         int64_t total_encoded_body_length,
                         int64_t total_decoded_body_length,
@@ -292,7 +292,7 @@ void CefWebURLLoaderClient::DidReceiveData(const char* data, int dataLength) {
     context_->OnDownloadData(data, dataLength);
 }
 
-void CefWebURLLoaderClient::DidFinishLoading(double finishTime,
+void CefWebURLLoaderClient::DidFinishLoading(base::TimeTicks finish_time,
                                              int64_t total_encoded_data_length,
                                              int64_t total_encoded_body_length,
                                              int64_t total_decoded_body_length,

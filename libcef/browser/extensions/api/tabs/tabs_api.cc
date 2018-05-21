@@ -289,7 +289,7 @@ bool TabsSetZoomFunction::RunAsync() {
     return false;
 
   GURL url(web_contents->GetVisibleURL());
-  if (extensions::PermissionsData::IsRestrictedUrl(url, extension(), &error_))
+  if (extension()->permissions_data()->IsRestrictedUrl(url, &error_))
     return false;
 
   zoom::ZoomController* zoom_controller =
@@ -341,7 +341,7 @@ bool TabsSetZoomSettingsFunction::RunAsync() {
     return false;
 
   GURL url(web_contents->GetVisibleURL());
-  if (PermissionsData::IsRestrictedUrl(url, extension(), &error_))
+  if (extension()->permissions_data()->IsRestrictedUrl(url, &error_))
     return false;
 
   // "per-origin" scope is only available in "automatic" mode.

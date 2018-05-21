@@ -80,6 +80,7 @@ class CefStoragePartitionProxy : public content::StoragePartition {
   content::BlobURLLoaderFactory* GetBlobURLLoaderFactory() override;
   content::BlobRegistryWrapper* GetBlobRegistry() override;
   content::PrefetchURLLoaderService* GetPrefetchURLLoaderService() override;
+  content::CookieStoreContext* GetCookieStoreContext() override;
   content::URLLoaderFactoryGetter* url_loader_factory_getter() override;
   content::BrowserContext* browser_context() const override;
   mojo::BindingId Bind(

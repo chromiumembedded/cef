@@ -54,7 +54,7 @@ class CefBrowserMainParts : public content::BrowserMainParts {
   void PostMainMessageLoopStart() override;
   int PreCreateThreads() override;
   void ServiceManagerConnectionStarted(
-      content::ServiceManagerConnection* connection);
+      content::ServiceManagerConnection* connection) override;
   void PreMainMessageLoopRun() override;
   void PostMainMessageLoopRun() override;
   void PostDestroyThreads() override;
