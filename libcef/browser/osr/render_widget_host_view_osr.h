@@ -187,6 +187,9 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
                         size_t offset,
                         const gfx::Range& range) override;
 
+  viz::LocalSurfaceId GetLocalSurfaceId() const override;
+  viz::FrameSinkId GetFrameSinkId() override;
+
   // ui::CompositorDelegate implementation.
   std::unique_ptr<viz::SoftwareOutputDevice> CreateSoftwareOutputDevice(
       ui::Compositor* compositor) override;
@@ -196,7 +199,6 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
   ui::Layer* DelegatedFrameHostGetLayer() const override;
   bool DelegatedFrameHostIsVisible() const override;
   SkColor DelegatedFrameHostGetGutterColor() const override;
-  viz::LocalSurfaceId GetLocalSurfaceId() const override;
   void OnFirstSurfaceActivation(const viz::SurfaceInfo& surface_info) override;
   void OnBeginFrame(base::TimeTicks frame_time) override;
   void OnFrameTokenChanged(uint32_t frame_token) override;
@@ -252,8 +254,6 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
   }
   ui::Layer* GetRootLayer() const;
 
-  viz::LocalSurfaceId local_surface_id() const { return local_surface_id_; }
-
  private:
   content::DelegatedFrameHost* GetDelegatedFrameHost() const;
 
@@ -296,7 +296,9 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
 #endif  // defined(OS_MACOSX)
 
   void PlatformCreateCompositorWidget(bool is_guest_view_hack);
+#if !defined(OS_MACOSX)
   void PlatformResizeCompositorWidget(const gfx::Size& size);
+#endif
   void PlatformDestroyCompositorWidget();
 
 #if defined(USE_AURA)
@@ -313,10 +315,9 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
   gfx::AcceleratedWidget compositor_widget_;
   std::unique_ptr<content::DelegatedFrameHost> delegated_frame_host_;
   std::unique_ptr<ui::Layer> root_layer_;
-#endif
-
   viz::LocalSurfaceId local_surface_id_;
   viz::ParentLocalSurfaceIdAllocator local_surface_id_allocator_;
+#endif
 
 #if defined(OS_WIN)
   std::unique_ptr<gfx::WindowImpl> window_;

@@ -467,7 +467,7 @@ class OSRTestHandler : public RoutingTestHandler,
           EXPECT_TRUE(IsFullRepaint(dirtyRects[0], GetScaledInt(kOsrWidth),
                                     GetScaledInt(kOsrHeight)));
 #if defined(OS_MACOSX)
-          EXPECT_EQ(0x807e0308U, *(reinterpret_cast<const uint32*>(buffer)));
+          EXPECT_EQ(0x807F070EU, *(reinterpret_cast<const uint32*>(buffer)));
 #else
           EXPECT_EQ(0x80800000U, *(reinterpret_cast<const uint32*>(buffer)));
 #endif

@@ -238,9 +238,9 @@ CefRenderWidgetHostViewOSR::CefRenderWidgetHostViewOSR(
         content::RenderViewHost::From(render_widget_host_));
   }
 
+#if !defined(OS_MACOSX)
   local_surface_id_ = local_surface_id_allocator_.GenerateId();
 
-#if !defined(OS_MACOSX)
   // Matching the attributes from BrowserCompositorMac.
   delegated_frame_host_ = std::make_unique<content::DelegatedFrameHost>(
       AllocateFrameSinkId(is_guest_view_hack), this,
@@ -859,6 +859,16 @@ void CefRenderWidgetHostViewOSR::SelectionChanged(const base::string16& text,
   }
 }
 
+#if !defined(OS_MACOSX)
+viz::LocalSurfaceId CefRenderWidgetHostViewOSR::GetLocalSurfaceId() const {
+  return local_surface_id_;
+}
+#endif
+
+viz::FrameSinkId CefRenderWidgetHostViewOSR::GetFrameSinkId() {
+  return GetDelegatedFrameHost()->frame_sink_id();
+}
+
 void CefRenderWidgetHostViewOSR::SetNeedsBeginFrames(bool enabled) {
   SetFrameRate();
 
@@ -914,12 +924,12 @@ bool CefRenderWidgetHostViewOSR::TransformPointToCoordSpaceForView(
 }
 
 void CefRenderWidgetHostViewOSR::DidNavigate() {
-#if defined(OS_MACOSX)
-  browser_compositor_->DidNavigate();
-#else
   // With surface synchronization enabled we need to force synchronization on
   // first navigation.
   ResizeRootLayer(true);
+#if defined(OS_MACOSX)
+  browser_compositor_->DidNavigate();
+#else
   if (delegated_frame_host_)
     delegated_frame_host_->DidNavigate();
 #endif
@@ -957,10 +967,6 @@ SkColor CefRenderWidgetHostViewOSR::DelegatedFrameHostGetGutterColor() const {
     return SK_ColorBLACK;
   }
   return background_color_;
-}
-
-viz::LocalSurfaceId CefRenderWidgetHostViewOSR::GetLocalSurfaceId() const {
-  return local_surface_id_;
 }
 
 void CefRenderWidgetHostViewOSR::OnFirstSurfaceActivation(
@@ -1285,9 +1291,11 @@ void CefRenderWidgetHostViewOSR::SetFrameRate() {
       osr_util::ClampFrameRate(browser->settings().windowless_frame_rate);
   frame_rate_threshold_us_ = 1000000 / frame_rate;
 
-  // Configure the VSync interval for the browser process.
-  GetCompositor()->vsync_manager()->SetAuthoritativeVSyncInterval(
-      base::TimeDelta::FromMicroseconds(frame_rate_threshold_us_));
+  if (GetCompositor()) {
+    // Configure the VSync interval for the browser process.
+    GetCompositor()->vsync_manager()->SetAuthoritativeVSyncInterval(
+        base::TimeDelta::FromMicroseconds(frame_rate_threshold_us_));
+  }
 
   if (copy_frame_generator_.get()) {
     copy_frame_generator_->set_frame_rate_threshold_us(
@@ -1349,23 +1357,26 @@ void CefRenderWidgetHostViewOSR::ResizeRootLayer(bool force) {
     return;
   }
 
+  GetRootLayer()->SetBounds(gfx::Rect(size));
+
+#if defined(OS_MACOSX)
+  bool resized = UpdateNSViewAndDisplay();
+#else
   const gfx::Size& size_in_pixels =
       gfx::ConvertSizeToPixel(current_device_scale_factor_, size);
 
   local_surface_id_ = local_surface_id_allocator_.GenerateId();
 
-  GetRootLayer()->SetBounds(gfx::Rect(size));
-  GetCompositor()->SetScaleAndSize(current_device_scale_factor_, size_in_pixels,
-                                   local_surface_id_);
+  if (GetCompositor()) {
+    GetCompositor()->SetScaleAndSize(current_device_scale_factor_,
+                                     size_in_pixels, local_surface_id_);
+  }
   PlatformResizeCompositorWidget(size_in_pixels);
 
-#if defined(OS_MACOSX)
-  bool resized = UpdateNSViewAndDisplay();
-#else
   bool resized = true;
   GetDelegatedFrameHost()->SynchronizeVisualProperties(
       local_surface_id_, size, cc::DeadlinePolicy::UseDefaultDeadline());
-#endif
+#endif  // !defined(OS_MACOSX)
 
   // Note that |render_widget_host_| will retrieve resize parameters from the
   // DelegatedFrameHost, so it must have SynchronizeVisualProperties called

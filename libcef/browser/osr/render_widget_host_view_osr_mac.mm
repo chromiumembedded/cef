@@ -90,6 +90,10 @@ bool CefRenderWidgetHostViewOSR::ShouldContinueToPauseForFrame() {
   return browser_compositor_->ShouldContinueToPauseForFrame();
 }
 
+viz::LocalSurfaceId CefRenderWidgetHostViewOSR::GetLocalSurfaceId() const {
+  return browser_compositor_->GetRendererLocalSurfaceId();
+}
+
 ui::Compositor* CefRenderWidgetHostViewOSR::GetCompositor() const {
   return browser_compositor_->GetCompositor();
 }
@@ -128,9 +132,6 @@ void CefRenderWidgetHostViewOSR::PlatformCreateCompositorWidget(
       mac_helper_, mac_helper_, render_widget_host_->is_hidden(), true,
       GetDisplay(), AllocateFrameSinkId(is_guest_view_hack)));
 }
-
-void CefRenderWidgetHostViewOSR::PlatformResizeCompositorWidget(
-    const gfx::Size&) {}
 
 void CefRenderWidgetHostViewOSR::PlatformDestroyCompositorWidget() {
   DCHECK(window_);
