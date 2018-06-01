@@ -159,7 +159,6 @@
       'tests/shared/browser/main_message_loop_std.cc',
       'tests/shared/browser/main_message_loop_std.h',
       'tests/shared/browser/resource_util.h',
-      'tests/shared/browser/resource_util.h',
     ],
     'shared_sources_common': [
       'tests/shared/common/client_app.cc',
