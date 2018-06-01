@@ -1,5 +1,5 @@
 diff --git content/browser/renderer_host/browser_compositor_view_mac.h content/browser/renderer_host/browser_compositor_view_mac.h
-index 3c627056a718..1b33fcf47a13 100644
+index e7d40839956f..bda09e167c87 100644
 --- content/browser/renderer_host/browser_compositor_view_mac.h
 +++ content/browser/renderer_host/browser_compositor_view_mac.h
 @@ -55,11 +55,13 @@ class CONTENT_EXPORT BrowserCompositorMac : public DelegatedFrameHostClient {
@@ -17,7 +17,7 @@ index 3c627056a718..1b33fcf47a13 100644
    void DidCreateNewRendererCompositorFrameSink(
        viz::mojom::CompositorFrameSinkClient* renderer_compositor_frame_sink);
 diff --git content/browser/renderer_host/browser_compositor_view_mac.mm content/browser/renderer_host/browser_compositor_view_mac.mm
-index 625eb2228a8d..0ad0ca498f06 100644
+index 3d5a2193bd51..9bdd51d2007d 100644
 --- content/browser/renderer_host/browser_compositor_view_mac.mm
 +++ content/browser/renderer_host/browser_compositor_view_mac.mm
 @@ -208,6 +208,12 @@ BrowserCompositorMac::~BrowserCompositorMac() {

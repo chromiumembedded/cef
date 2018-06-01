@@ -93,7 +93,7 @@ index 0c0c4cbb9efe..4703ce943367 100644
  }
  
 diff --git content/browser/frame_host/render_frame_host_impl.cc content/browser/frame_host/render_frame_host_impl.cc
-index 8a64612e8e34..2b6a1e710222 100644
+index d938013c90b6..5602c2279847 100644
 --- content/browser/frame_host/render_frame_host_impl.cc
 +++ content/browser/frame_host/render_frame_host_impl.cc
 @@ -1557,6 +1557,7 @@ void RenderFrameHostImpl::OnDidFailProvisionalLoadWithError(
@@ -104,7 +104,7 @@ index 8a64612e8e34..2b6a1e710222 100644
    }
  
    frame_tree_node_->navigator()->DidFailProvisionalLoadWithError(this, params);
-@@ -3314,9 +3315,9 @@ void RenderFrameHostImpl::RegisterMojoInterfaces() {
+@@ -3326,9 +3327,9 @@ void RenderFrameHostImpl::RegisterMojoInterfaces() {
        &QuotaDispatcherHost::CreateForFrame, GetProcess(), routing_id_));
  
    if (base::FeatureList::IsEnabled(network::features::kNetworkService)) {
@@ -117,7 +117,7 @@ index 8a64612e8e34..2b6a1e710222 100644
      // TODO(https://crbug.com/813479): Investigate why we need to explicitly
      // specify task runner for BrowserThread::IO here.
      // Bind calls to the BindRegistry should come on to the IO thread by
-@@ -3593,9 +3594,9 @@ void RenderFrameHostImpl::CommitNavigation(
+@@ -3605,9 +3606,9 @@ void RenderFrameHostImpl::CommitNavigation(
      // however only do this for cross-document navigations, because the
      // alternative would be redundant effort.
      network::mojom::URLLoaderFactoryPtrInfo default_factory_info;
@@ -130,7 +130,7 @@ index 8a64612e8e34..2b6a1e710222 100644
      if (subresource_loader_params &&
          subresource_loader_params->loader_factory_info.is_valid()) {
        // If the caller has supplied a default URLLoaderFactory override (for
-@@ -4223,8 +4224,8 @@ void RenderFrameHostImpl::CreateNetworkServiceDefaultFactoryAndObserve(
+@@ -4235,8 +4236,8 @@ void RenderFrameHostImpl::CreateNetworkServiceDefaultFactoryAndObserve(
    // Keep DevTools proxy lasy, i.e. closest to the network.
    RenderFrameDevToolsAgentHost::WillCreateURLLoaderFactory(
        this, false, &default_factory_request);
@@ -141,7 +141,7 @@ index 8a64612e8e34..2b6a1e710222 100644
    if (g_create_network_factory_callback_for_test.Get().is_null()) {
      storage_partition->GetNetworkContext()->CreateURLLoaderFactory(
          std::move(default_factory_request), GetProcess()->GetID());
-@@ -4475,8 +4476,8 @@ void RenderFrameHostImpl::CreateWebSocket(
+@@ -4487,8 +4488,8 @@ void RenderFrameHostImpl::CreateWebSocket(
      network::mojom::WebSocketRequest request) {
    if (base::FeatureList::IsEnabled(network::features::kNetworkService)) {
      auto* context = GetSiteInstance()->GetBrowserContext();

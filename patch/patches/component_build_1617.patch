@@ -13,7 +13,7 @@ index 4393a8fac233..860715e86900 100644
    explicit ContentServiceManagerMainDelegate(const ContentMainParams& params);
    ~ContentServiceManagerMainDelegate() override;
 diff --git third_party/blink/renderer/controller/BUILD.gn third_party/blink/renderer/controller/BUILD.gn
-index 5726fbac54bf..46fd0b2bd568 100644
+index 7f3cf01859a7..74deeb84127f 100644
 --- third_party/blink/renderer/controller/BUILD.gn
 +++ third_party/blink/renderer/controller/BUILD.gn
 @@ -25,6 +25,7 @@ component("controller") {

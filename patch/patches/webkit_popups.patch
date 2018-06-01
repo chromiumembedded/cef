@@ -20,7 +20,7 @@ index cd3bf3baf8c2..3d9a992a29b3 100644
  
    // Call these methods before and after running a nested, modal event loop
 diff --git third_party/blink/renderer/core/exported/web_view_impl.cc third_party/blink/renderer/core/exported/web_view_impl.cc
-index e46c83b1b6bb..7099fe8c2bda 100644
+index 580b48c703ee..190727cd66d1 100644
 --- third_party/blink/renderer/core/exported/web_view_impl.cc
 +++ third_party/blink/renderer/core/exported/web_view_impl.cc
 @@ -251,8 +251,13 @@ void WebView::SetUseExternalPopupMenus(bool use_external_popup_menus) {
