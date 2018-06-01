@@ -317,12 +317,10 @@ ChromeBrowserProcessStub::media_file_system_registry() {
   return NULL;
 }
 
-#if BUILDFLAG(ENABLE_WEBRTC)
 WebRtcLogUploader* ChromeBrowserProcessStub::webrtc_log_uploader() {
   NOTREACHED();
   return NULL;
 }
-#endif
 
 network_time::NetworkTimeTracker*
 ChromeBrowserProcessStub::network_time_tracker() {

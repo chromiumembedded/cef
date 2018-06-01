@@ -97,7 +97,7 @@ index 2907619549ba..f941fba363b5 100644
  
    SupervisedUserSettingsServiceFactory();
 diff --git chrome/browser/ui/prefs/prefs_tab_helper.cc chrome/browser/ui/prefs/prefs_tab_helper.cc
-index 5486b8e15cb4..9015c41f1f81 100644
+index c778758ced62..80d84ef4f6a6 100644
 --- chrome/browser/ui/prefs/prefs_tab_helper.cc
 +++ chrome/browser/ui/prefs/prefs_tab_helper.cc
 @@ -11,8 +11,8 @@
@@ -110,7 +110,7 @@ index 5486b8e15cb4..9015c41f1f81 100644
  #include "base/strings/string_number_conversions.h"
  #include "base/strings/string_util.h"
  #include "base/strings/stringprintf.h"
-@@ -392,12 +392,10 @@ class PrefWatcherFactory : public BrowserContextKeyedServiceFactory {
+@@ -389,12 +389,10 @@ class PrefWatcherFactory : public BrowserContextKeyedServiceFactory {
          GetInstance()->GetServiceForBrowserContext(profile, true));
    }
  
@@ -125,7 +125,7 @@ index 5486b8e15cb4..9015c41f1f81 100644
  
    PrefWatcherFactory() : BrowserContextKeyedServiceFactory(
        "PrefWatcher",
-@@ -418,6 +416,18 @@ class PrefWatcherFactory : public BrowserContextKeyedServiceFactory {
+@@ -415,6 +413,18 @@ class PrefWatcherFactory : public BrowserContextKeyedServiceFactory {
    }
  };
  

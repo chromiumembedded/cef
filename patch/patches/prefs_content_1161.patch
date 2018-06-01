@@ -1,8 +1,8 @@
 diff --git content/public/common/common_param_traits_macros.h content/public/common/common_param_traits_macros.h
-index c241d7b56549..081e1a3c6a81 100644
+index e3c46fdf48c7..8ca2e54e13a3 100644
 --- content/public/common/common_param_traits_macros.h
 +++ content/public/common/common_param_traits_macros.h
-@@ -187,6 +187,7 @@ IPC_STRUCT_TRAITS_BEGIN(content::WebPreferences)
+@@ -189,6 +189,7 @@ IPC_STRUCT_TRAITS_BEGIN(content::WebPreferences)
    IPC_STRUCT_TRAITS_MEMBER(main_frame_resizes_are_orientation_changes)
    IPC_STRUCT_TRAITS_MEMBER(initialize_at_minimum_page_scale)
    IPC_STRUCT_TRAITS_MEMBER(smart_insert_delete_enabled)
@@ -11,10 +11,10 @@ index c241d7b56549..081e1a3c6a81 100644
    IPC_STRUCT_TRAITS_MEMBER(navigate_on_drag_drop)
    IPC_STRUCT_TRAITS_MEMBER(spatial_navigation_enabled)
 diff --git content/public/common/web_preferences.cc content/public/common/web_preferences.cc
-index a288caad850e..b4518162ec1e 100644
+index c5f6d0b03ba6..4951f816e407 100644
 --- content/public/common/web_preferences.cc
 +++ content/public/common/web_preferences.cc
-@@ -176,6 +176,7 @@ WebPreferences::WebPreferences()
+@@ -178,6 +178,7 @@ WebPreferences::WebPreferences()
        spatial_navigation_enabled(false),
        use_solid_color_scrollbars(false),
        navigate_on_drag_drop(true),
@@ -35,10 +35,10 @@ index a1e9fba06a66..c37d89755744 100644
    bool record_whole_document;
    SavePreviousDocumentResources save_previous_document_resources;
 diff --git content/renderer/render_view_impl.cc content/renderer/render_view_impl.cc
-index f17c11ec869d..493c8117fb7e 100644
+index 4aba7a9e290e..3a26dab9d31d 100644
 --- content/renderer/render_view_impl.cc
 +++ content/renderer/render_view_impl.cc
-@@ -1204,6 +1204,7 @@ void RenderViewImpl::ApplyWebPreferencesInternal(
+@@ -1194,6 +1194,7 @@ void RenderViewImpl::ApplyWebPreferencesInternal(
      blink::WebView* web_view,
      CompositorDependencies* compositor_deps) {
    ApplyWebPreferences(prefs, web_view);

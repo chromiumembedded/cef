@@ -34,7 +34,6 @@ class ChromeProfileStub : public Profile {
   ExtensionSpecialStoragePolicy* GetExtensionSpecialStoragePolicy() override;
   PrefService* GetOffTheRecordPrefs() override;
   net::URLRequestContextGetter* GetRequestContextForExtensions() override;
-  net::SSLConfigService* GetSSLConfigService() override;
   bool IsSameProfile(Profile* profile) override;
   base::Time GetStartTime() const override;
   base::FilePath last_selected_directory() override;

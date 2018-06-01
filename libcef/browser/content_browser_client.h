@@ -51,7 +51,9 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
   bool IsHandledURL(const GURL& url) override;
   void SiteInstanceGotProcess(content::SiteInstance* site_instance) override;
   void SiteInstanceDeleting(content::SiteInstance* site_instance) override;
-  void RegisterInProcessServices(StaticServiceMap* services) override;
+  void RegisterInProcessServices(
+      StaticServiceMap* services,
+      content::ServiceManagerConnection* connection) override;
   void RegisterOutOfProcessServices(OutOfProcessServiceMap* services) override;
   std::unique_ptr<base::Value> GetServiceManifestOverlay(
       base::StringPiece name) override;

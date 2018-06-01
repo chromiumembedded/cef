@@ -12,10 +12,10 @@ index c9187e774953..72dc4a43c3f0 100644
      version.SetString("V8-Version", V8_VERSION_STRING);
      std::string host = info.headers["host"];
 diff --git content/public/common/content_client.h content/public/common/content_client.h
-index caf91a31abb9..492d12fbbfda 100644
+index 528fd6abf6a6..a45793539166 100644
 --- content/public/common/content_client.h
 +++ content/public/common/content_client.h
-@@ -148,6 +148,10 @@ class CONTENT_EXPORT ContentClient {
+@@ -150,6 +150,10 @@ class CONTENT_EXPORT ContentClient {
    // Used as part of the user agent string.
    virtual std::string GetProduct() const;
  
@@ -24,5 +24,5 @@ index caf91a31abb9..492d12fbbfda 100644
 +  virtual std::string GetChromeProduct() const { return GetProduct(); }
 +
    // Returns the user agent.  Content may cache this value.
+   // TODO(yhirano): Move this to ContentBrowserClient.
    virtual std::string GetUserAgent() const;
- 

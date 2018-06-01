@@ -1,10 +1,10 @@
 diff --git content/app/content_service_manager_main_delegate.h content/app/content_service_manager_main_delegate.h
-index 4393a8fac233..860715e86900 100644
+index a6ab54a14bc9..93a38abe55d2 100644
 --- content/app/content_service_manager_main_delegate.h
 +++ content/app/content_service_manager_main_delegate.h
-@@ -16,7 +16,8 @@ namespace content {
+@@ -18,7 +18,8 @@ namespace content {
  
- class ContentMainRunner;
+ class ContentMainRunnerImpl;
  
 -class ContentServiceManagerMainDelegate : public service_manager::MainDelegate {
 +class CONTENT_EXPORT ContentServiceManagerMainDelegate :
@@ -13,7 +13,7 @@ index 4393a8fac233..860715e86900 100644
    explicit ContentServiceManagerMainDelegate(const ContentMainParams& params);
    ~ContentServiceManagerMainDelegate() override;
 diff --git third_party/blink/renderer/controller/BUILD.gn third_party/blink/renderer/controller/BUILD.gn
-index 3df8b9c94f17..a16461d8d729 100644
+index 20d1994e156e..45102558569f 100644
 --- third_party/blink/renderer/controller/BUILD.gn
 +++ third_party/blink/renderer/controller/BUILD.gn
 @@ -25,6 +25,7 @@ component("controller") {
@@ -24,12 +24,12 @@ index 3df8b9c94f17..a16461d8d729 100644
      "//third_party/blink/renderer:config",
      "//third_party/blink/renderer:inside_blink",
      "//third_party/blink/renderer:non_test_config",
-@@ -45,6 +46,8 @@ component("controller") {
+@@ -43,6 +44,8 @@ component("controller") {
+     "controller_export.h",
+     "dev_tools_frontend_impl.cc",
      "dev_tools_frontend_impl.h",
-     "oom_intervention_impl.cc",
-     "oom_intervention_impl.h",
 +    "//cef/libcef/renderer/blink_glue.cc",
 +    "//cef/libcef/renderer/blink_glue.h",
    ]
  
-   if (is_mac) {
+   if (is_android) {

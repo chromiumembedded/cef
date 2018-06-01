@@ -170,6 +170,12 @@ struct PopulateAxNodeAttributes {
           attributes->SetString(ToString(attr.first), ToString(state));
         }
       } break;
+      case ax::mojom::IntAttribute::kTextPosition: {
+        auto state = static_cast<ax::mojom::TextPosition>(attr.second);
+        if (ax::mojom::TextPosition::kNone != state) {
+          attributes->SetString(ToString(attr.first), ToString(state));
+        }
+      } break;
       case ax::mojom::IntAttribute::kTextStyle: {
         auto text_style = static_cast<ax::mojom::TextStyle>(attr.second);
         if (text_style == ax::mojom::TextStyle::kNone)

@@ -402,7 +402,7 @@ index c6a98292bb5e..7cf360d3b340 100644
          ->set_system_crash_reporter_forwarding(crashpad::TriState::kDisabled);
    }
 diff --git components/crash/content/app/crashpad_mac.mm components/crash/content/app/crashpad_mac.mm
-index 91aaa801f951..1f138f38487d 100644
+index f06d903c2f41..6ec1442323e9 100644
 --- components/crash/content/app/crashpad_mac.mm
 +++ components/crash/content/app/crashpad_mac.mm
 @@ -16,11 +16,14 @@
@@ -420,40 +420,23 @@ index 91aaa801f951..1f138f38487d 100644
  #include "third_party/crashpad/crashpad/client/crash_report_database.h"
  #include "third_party/crashpad/crashpad/client/crashpad_client.h"
  #include "third_party/crashpad/crashpad/client/crashpad_info.h"
-@@ -73,9 +76,10 @@ base::FilePath PlatformCrashpadInitialization(bool initial_client,
- 
-   if (initial_client) {
-     @autoreleasepool {
--      base::FilePath framework_bundle_path = base::mac::FrameworkBundlePath();
--      base::FilePath handler_path =
--          framework_bundle_path.Append("Helpers").Append("crashpad_handler");
-+      // Use the same subprocess helper exe.
-+      base::FilePath handler_path;
-+      base::PathService::Get(content::CHILD_PROCESS_EXE, &handler_path);
-+      DCHECK(!handler_path.empty());
- 
-       // Is there a way to recover if this fails?
-       CrashReporterClient* crash_reporter_client = GetCrashReporterClient();
-@@ -87,16 +91,27 @@ base::FilePath PlatformCrashpadInitialization(bool initial_client,
-       // crash server won't have symbols for any other build types.
-       std::string url = "https://clients2.google.com/cr/report";
- #else
--      std::string url;
-+      std::string url = crash_reporter_client->GetCrashServerURL();
- #endif
- 
-       std::map<std::string, std::string> process_annotations;
- 
-+      const char* product_name = "";
-+      const char* product_version = "";
-+      crash_reporter_client->GetProductNameAndVersion(&product_name,
-+                                                      &product_version);
+@@ -36,12 +39,25 @@ namespace {
+ std::map<std::string, std::string> GetProcessSimpleAnnotations() {
+   static std::map<std::string, std::string> annotations = []() -> auto {
+     std::map<std::string, std::string> process_annotations;
 +
+     @autoreleasepool {
        NSBundle* outer_bundle = base::mac::OuterBundle();
 -      NSString* product = base::mac::ObjCCast<NSString>([outer_bundle
 -          objectForInfoDictionaryKey:base::mac::CFToNSCast(kCFBundleNameKey)]);
 -      process_annotations["prod"] =
 -          base::SysNSStringToUTF8(product).append("_Mac");
++
++      CrashReporterClient* crash_reporter_client = GetCrashReporterClient();
++      const char* product_name = "";
++      const char* product_version = "";
++      crash_reporter_client->GetProductNameAndVersion(&product_name,
++                                                      &product_version);
 +
 +      if (strlen(product_name) == 0) {
 +        NSString* product = base::mac::ObjCCast<NSString>([outer_bundle
@@ -467,7 +450,7 @@ index 91aaa801f951..1f138f38487d 100644
  
  #if defined(GOOGLE_CHROME_BUILD)
        // Empty means stable.
-@@ -112,12 +127,16 @@ base::FilePath PlatformCrashpadInitialization(bool initial_client,
+@@ -57,12 +73,16 @@ std::map<std::string, std::string> GetProcessSimpleAnnotations() {
          process_annotations["channel"] = "";
        }
  
@@ -486,10 +469,33 @@ index 91aaa801f951..1f138f38487d 100644
  
 -      process_annotations["plat"] = std::string("OS X");
 +      process_annotations["platform"] = std::string("macos");
+     }  // @autoreleasepool
+     return process_annotations;
+   }();
+@@ -119,9 +139,10 @@ base::FilePath PlatformCrashpadInitialization(bool initial_client,
+ 
+   if (initial_client) {
+     @autoreleasepool {
+-      base::FilePath framework_bundle_path = base::mac::FrameworkBundlePath();
+-      base::FilePath handler_path =
+-          framework_bundle_path.Append("Helpers").Append("crashpad_handler");
++      // Use the same subprocess helper exe.
++      base::FilePath handler_path;
++      base::PathService::Get(content::CHILD_PROCESS_EXE, &handler_path);
++      DCHECK(!handler_path.empty());
+ 
+       // Is there a way to recover if this fails?
+       CrashReporterClient* crash_reporter_client = GetCrashReporterClient();
+@@ -133,7 +154,7 @@ base::FilePath PlatformCrashpadInitialization(bool initial_client,
+       // crash server won't have symbols for any other build types.
+       std::string url = "https://clients2.google.com/cr/report";
+ #else
+-      std::string url;
++      std::string url = crash_reporter_client->GetCrashServerURL();
+ #endif
  
        std::vector<std::string> arguments;
- 
-@@ -139,6 +158,12 @@ base::FilePath PlatformCrashpadInitialization(bool initial_client,
+@@ -156,6 +177,12 @@ base::FilePath PlatformCrashpadInitialization(bool initial_client,
              "--reset-own-crash-exception-port-to-system-default");
        }
  
@@ -500,8 +506,8 @@ index 91aaa801f951..1f138f38487d 100644
 +      crash_reporter_client->GetCrashOptionalArguments(&arguments);
 +
        bool result = GetCrashpadClient().StartHandler(
-           handler_path, database_path, metrics_path, url, process_annotations,
-           arguments, true, false);
+           handler_path, database_path, metrics_path, url,
+           GetProcessSimpleAnnotations(), arguments, true, false);
 diff --git components/crash/content/app/crashpad_win.cc components/crash/content/app/crashpad_win.cc
 index 8b0edef1b594..22555bb9dc77 100644
 --- components/crash/content/app/crashpad_win.cc

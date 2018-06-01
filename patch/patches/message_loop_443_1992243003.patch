@@ -1,8 +1,8 @@
 diff --git base/message_loop/message_loop_current.h base/message_loop/message_loop_current.h
-index 3631a8ff2b81..988b3edb404b 100644
+index c5016dcf20a2..cf1db622f8fb 100644
 --- base/message_loop/message_loop_current.h
 +++ base/message_loop/message_loop_current.h
-@@ -126,6 +126,16 @@ class BASE_EXPORT MessageLoopCurrent {
+@@ -120,6 +120,16 @@ class BASE_EXPORT MessageLoopCurrent {
    void AddTaskObserver(TaskObserver* task_observer);
    void RemoveTaskObserver(TaskObserver* task_observer);
  
@@ -19,7 +19,7 @@ index 3631a8ff2b81..988b3edb404b 100644
    // Enables or disables the recursive task processing. This happens in the case
    // of recursive message loops. Some unwanted message loops may occur when
    // using common controls or printer functions. By default, recursive task
-@@ -194,6 +204,13 @@ class BASE_EXPORT MessageLoopCurrent {
+@@ -188,6 +198,13 @@ class BASE_EXPORT MessageLoopCurrent {
    explicit MessageLoopCurrent(MessageLoop* current) : current_(current) {}
  
    MessageLoop* const current_;

@@ -73,7 +73,7 @@ index cda94e43e866..84fde20fdce2 100644
        partition->GetBluetoothAllowedDevicesMap();
    return allowed_devices_map->GetOrCreateAllowedDevices(GetOrigin());
 diff --git content/browser/browser_context.cc content/browser/browser_context.cc
-index af7cced24feb..6a228c204912 100644
+index 69271e39f274..529af0b12e20 100644
 --- content/browser/browser_context.cc
 +++ content/browser/browser_context.cc
 @@ -131,11 +131,18 @@ StoragePartition* GetStoragePartitionFromConfig(
@@ -98,7 +98,7 @@ index af7cced24feb..6a228c204912 100644
  }
  
  void SaveSessionStateOnIOThread(
-@@ -566,6 +573,11 @@ ServiceManagerConnection* BrowserContext::GetServiceManagerConnectionFor(
+@@ -564,6 +571,11 @@ ServiceManagerConnection* BrowserContext::GetServiceManagerConnectionFor(
  BrowserContext::BrowserContext()
      : unique_id_(base::UnguessableToken::Create().ToString()) {}
  
@@ -111,10 +111,10 @@ index af7cced24feb..6a228c204912 100644
    CHECK(GetUserData(kMojoWasInitialized))
        << "Attempting to destroy a BrowserContext that never called "
 diff --git content/browser/devtools/protocol/network_handler.cc content/browser/devtools/protocol/network_handler.cc
-index 114a65623106..be16268a89f5 100644
+index b8ea9fc92052..a27ec3fb7607 100644
 --- content/browser/devtools/protocol/network_handler.cc
 +++ content/browser/devtools/protocol/network_handler.cc
-@@ -900,8 +900,7 @@ class BackgroundSyncRestorer {
+@@ -902,8 +902,7 @@ class BackgroundSyncRestorer {
      scoped_refptr<ServiceWorkerDevToolsAgentHost> service_worker_host =
          static_cast<ServiceWorkerDevToolsAgentHost*>(host.get());
      scoped_refptr<BackgroundSyncContext> sync_context =
@@ -161,7 +161,7 @@ index ec9ab86d0ca6..0fe5219f1e84 100644
    base::WeakPtrFactory<ServiceWorkerHandler> weak_factory_;
  
 diff --git content/browser/download/download_manager_impl.cc content/browser/download/download_manager_impl.cc
-index eb14d255d48b..ecea6e42e595 100644
+index 081c7a2c2f13..0699f88da38b 100644
 --- content/browser/download/download_manager_impl.cc
 +++ content/browser/download/download_manager_impl.cc
 @@ -84,9 +84,9 @@
@@ -205,27 +205,7 @@ index eb14d255d48b..ecea6e42e595 100644
        std::move(proxy_factory_ptr_info), std::move(proxy_factory_request));
  }
  
-@@ -597,8 +596,8 @@ void DownloadManagerImpl::ResumeInterruptedDownload(
-     std::unique_ptr<download::DownloadUrlParameters> params,
-     uint32_t id,
-     const GURL& site_url) {
--  StoragePartitionImpl* storage_partition = static_cast<StoragePartitionImpl*>(
--      BrowserContext::GetStoragePartitionForSite(browser_context_, site_url));
-+  StoragePartition* storage_partition =
-+      BrowserContext::GetStoragePartitionForSite(browser_context_, site_url);
-   params->set_url_request_context_getter(
-       storage_partition->GetURLRequestContext());
-   BeginDownloadInternal(std::move(params), nullptr /* blob_data_handle */,
-@@ -787,7 +786,7 @@ void DownloadManagerImpl::DownloadUrl(
-   download::RecordDownloadCountWithSource(
-       download::DownloadCountTypes::DOWNLOAD_TRIGGERED_COUNT,
-       params->download_source());
--  StoragePartitionImpl* storage_partition =
-+  StoragePartition* storage_partition =
-       GetStoragePartition(browser_context_, params->render_process_host_id(),
-                           params->render_frame_host_routing_id());
-   BeginDownloadInternal(std::move(params), std::move(blob_data_handle),
-@@ -1005,7 +1004,7 @@ void DownloadManagerImpl::InterceptNavigationOnChecksComplete(
+@@ -1004,7 +1003,7 @@ void DownloadManagerImpl::InterceptNavigationOnChecksComplete(
        tab_referrer_url = entry->GetReferrer().url;
      }
    }
@@ -234,42 +214,24 @@ index eb14d255d48b..ecea6e42e595 100644
        GetStoragePartition(browser_context_, render_process_id, render_frame_id);
    in_progress_manager_->InterceptDownloadFromNavigation(
        std::move(resource_request), render_process_id, render_frame_id, site_url,
-@@ -1020,7 +1019,7 @@ void DownloadManagerImpl::BeginDownloadInternal(
-     std::unique_ptr<storage::BlobDataHandle> blob_data_handle,
-     scoped_refptr<network::SharedURLLoaderFactory> blob_url_loader_factory,
-     uint32_t id,
--    StoragePartitionImpl* storage_partition) {
-+    StoragePartition* storage_partition) {
-   // Check if the renderer is permitted to request the requested URL.
-   if (params->render_process_host_id() >= 0 &&
-       !CanRequestURLFromRenderer(params->render_process_host_id(),
-diff --git content/browser/download/download_manager_impl.h content/browser/download/download_manager_impl.h
-index b62b8ae7eb8a..3f4d01b03ebb 100644
---- content/browser/download/download_manager_impl.h
-+++ content/browser/download/download_manager_impl.h
-@@ -42,7 +42,7 @@ class DownloadRequestHandleInterface;
- 
- namespace content {
- class ResourceContext;
--class StoragePartitionImpl;
-+class StoragePartition;
- 
- class CONTENT_EXPORT DownloadManagerImpl
-     : public DownloadManager,
-@@ -247,7 +247,7 @@ class CONTENT_EXPORT DownloadManagerImpl
-       std::unique_ptr<storage::BlobDataHandle> blob_data_handle,
-       scoped_refptr<network::SharedURLLoaderFactory> blob_url_loader_factory,
-       uint32_t id,
--      StoragePartitionImpl* storage_partition);
-+      StoragePartition* storage_partition);
- 
-   void InterceptNavigationOnChecksComplete(
-       ResourceRequestInfo::WebContentsGetter web_contents_getter,
+@@ -1050,10 +1049,8 @@ void DownloadManagerImpl::BeginResourceDownloadOnChecksComplete(
+         base::MakeRefCounted<BlobDownloadURLLoaderFactoryGetter>(
+             params->url(), std::move(blob_data_handle));
+   } else {
+-    StoragePartitionImpl* storage_partition =
+-        static_cast<StoragePartitionImpl*>(
+-            BrowserContext::GetStoragePartitionForSite(browser_context_,
+-                                                       site_url));
++    StoragePartition* storage_partition =
++        BrowserContext::GetStoragePartitionForSite(browser_context_, site_url);
+     url_loader_factory_getter =
+         CreateDownloadURLLoaderFactoryGetter(storage_partition, rfh, true);
+   }
 diff --git content/browser/loader/navigation_url_loader_impl.cc content/browser/loader/navigation_url_loader_impl.cc
-index 8b06869fa95a..073d006b4e5d 100644
+index 3dc150704988..4fb316246c4a 100644
 --- content/browser/loader/navigation_url_loader_impl.cc
 +++ content/browser/loader/navigation_url_loader_impl.cc
-@@ -938,7 +938,7 @@ class NavigationURLLoaderImpl::URLLoaderRequestController
+@@ -936,7 +936,7 @@ class NavigationURLLoaderImpl::URLLoaderRequestController
      // path does as well for navigations.
      bool has_plugin = PluginService::GetInstance()->GetPluginInfo(
          -1 /* render_process_id */, -1 /* render_frame_id */, resource_context_,
@@ -278,16 +240,16 @@ index 8b06869fa95a..073d006b4e5d 100644
          false /* allow_wildcard */, &stale, &plugin, nullptr);
  
      if (stale) {
-@@ -1292,7 +1292,7 @@ NavigationURLLoaderImpl::NavigationURLLoaderImpl(
-     }
-   }
+@@ -1263,7 +1263,7 @@ NavigationURLLoaderImpl::NavigationURLLoaderImpl(
  
+   network::mojom::URLLoaderFactoryPtrInfo proxied_factory_info;
+   network::mojom::URLLoaderFactoryRequest proxied_factory_request;
 -  auto* partition = static_cast<StoragePartitionImpl*>(storage_partition);
 +  auto* partition = storage_partition;
-   non_network_url_loader_factories_[url::kFileScheme] =
-       std::make_unique<FileURLLoaderFactory>(
-           partition->browser_context()->GetPath(),
-@@ -1306,7 +1306,8 @@ NavigationURLLoaderImpl::NavigationURLLoaderImpl(
+   if (frame_tree_node) {
+     // |frame_tree_node| may be null in some unit test environments.
+     GetContentClient()
+@@ -1311,7 +1311,8 @@ NavigationURLLoaderImpl::NavigationURLLoaderImpl(
    DCHECK(!request_controller_);
    request_controller_ = std::make_unique<URLLoaderRequestController>(
        std::move(initial_interceptors), std::move(new_request), resource_context,
@@ -344,10 +306,10 @@ index dd0af046aec4..f5ad5b37c1f3 100644
        partition->GetPaymentAppContext();
  
 diff --git content/browser/renderer_host/render_process_host_impl.cc content/browser/renderer_host/render_process_host_impl.cc
-index f41a38484759..3ff02d0fa2e1 100644
+index deece35f627d..2c29eaf50bc9 100644
 --- content/browser/renderer_host/render_process_host_impl.cc
 +++ content/browser/renderer_host/render_process_host_impl.cc
-@@ -730,11 +730,10 @@ class DefaultSubframeProcessHostHolder : public base::SupportsUserData::Data,
+@@ -721,11 +721,10 @@ class DefaultSubframeProcessHostHolder : public base::SupportsUserData::Data,
    // Gets the correct render process to use for this SiteInstance.
    RenderProcessHost* GetProcessHost(SiteInstance* site_instance,
                                      bool is_for_guests_only) {
@@ -363,7 +325,7 @@ index f41a38484759..3ff02d0fa2e1 100644
  
      // Is this the default storage partition? If it isn't, then just give it its
      // own non-shared process.
-@@ -1341,7 +1340,7 @@ int RenderProcessHost::GetCurrentRenderProcessCountForTesting() {
+@@ -1332,7 +1331,7 @@ int RenderProcessHost::GetCurrentRenderProcessCountForTesting() {
  // static
  RenderProcessHost* RenderProcessHostImpl::CreateRenderProcessHost(
      BrowserContext* browser_context,
@@ -372,7 +334,7 @@ index f41a38484759..3ff02d0fa2e1 100644
      SiteInstance* site_instance,
      bool is_for_guests_only) {
    if (g_render_process_host_factory_) {
-@@ -1350,8 +1349,8 @@ RenderProcessHost* RenderProcessHostImpl::CreateRenderProcessHost(
+@@ -1341,8 +1340,8 @@ RenderProcessHost* RenderProcessHostImpl::CreateRenderProcessHost(
    }
  
    if (!storage_partition_impl) {
@@ -383,7 +345,7 @@ index f41a38484759..3ff02d0fa2e1 100644
    }
    // If we've made a StoragePartition for guests (e.g., for the <webview> tag),
    // stash the Site URL on it. This way, when we start a service worker inside
-@@ -1376,7 +1375,7 @@ const unsigned int RenderProcessHostImpl::kMaxFrameDepthForPriority =
+@@ -1367,7 +1366,7 @@ const unsigned int RenderProcessHostImpl::kMaxFrameDepthForPriority =
  
  RenderProcessHostImpl::RenderProcessHostImpl(
      BrowserContext* browser_context,
@@ -392,7 +354,7 @@ index f41a38484759..3ff02d0fa2e1 100644
      bool is_for_guests_only)
      : fast_shutdown_started_(false),
        deleting_soon_(false),
-@@ -1409,7 +1408,8 @@ RenderProcessHostImpl::RenderProcessHostImpl(
+@@ -1400,7 +1399,8 @@ RenderProcessHostImpl::RenderProcessHostImpl(
        indexed_db_factory_(new IndexedDBDispatcherHost(
            id_,
            storage_partition_impl_->GetURLRequestContext(),
@@ -402,7 +364,7 @@ index f41a38484759..3ff02d0fa2e1 100644
            ChromeBlobStorageContext::GetFor(browser_context_))),
        channel_connected_(false),
        sent_render_process_ready_(false),
-@@ -1444,7 +1444,8 @@ RenderProcessHostImpl::RenderProcessHostImpl(
+@@ -1435,7 +1435,8 @@ RenderProcessHostImpl::RenderProcessHostImpl(
    }
  
    push_messaging_manager_.reset(new PushMessagingManager(
@@ -412,7 +374,7 @@ index f41a38484759..3ff02d0fa2e1 100644
  
    AddObserver(indexed_db_factory_.get());
  #if defined(OS_MACOSX)
-@@ -1772,6 +1773,17 @@ void RenderProcessHostImpl::ResetChannelProxy() {
+@@ -1768,6 +1769,17 @@ void RenderProcessHostImpl::ResetChannelProxy() {
  
  void RenderProcessHostImpl::CreateMessageFilters() {
    DCHECK_CURRENTLY_ON(BrowserThread::UI);
@@ -430,7 +392,7 @@ index f41a38484759..3ff02d0fa2e1 100644
    AddFilter(new ResourceSchedulerFilter(GetID()));
    MediaInternals* media_internals = MediaInternals::GetInstance();
    // Add BrowserPluginMessageFilter to ensure it gets the first stab at messages
-@@ -1785,8 +1797,8 @@ void RenderProcessHostImpl::CreateMessageFilters() {
+@@ -1781,8 +1793,8 @@ void RenderProcessHostImpl::CreateMessageFilters() {
        new RenderMessageFilter(
            GetID(), GetBrowserContext(), request_context.get(),
            widget_helper_.get(), media_internals,
@@ -441,7 +403,7 @@ index f41a38484759..3ff02d0fa2e1 100644
    AddFilter(render_message_filter.get());
  
    render_frame_message_filter_ = new RenderFrameMessageFilter(
-@@ -1813,10 +1825,10 @@ void RenderProcessHostImpl::CreateMessageFilters() {
+@@ -1809,10 +1821,10 @@ void RenderProcessHostImpl::CreateMessageFilters() {
        ChromeBlobStorageContext::GetFor(browser_context);
  
    resource_message_filter_ = new ResourceMessageFilter(
@@ -454,7 +416,7 @@ index f41a38484759..3ff02d0fa2e1 100644
        storage_partition_impl_->GetPrefetchURLLoaderService(),
        std::move(get_contexts_callback),
        BrowserThread::GetTaskRunnerForThread(BrowserThread::IO));
-@@ -1825,8 +1837,7 @@ void RenderProcessHostImpl::CreateMessageFilters() {
+@@ -1821,8 +1833,7 @@ void RenderProcessHostImpl::CreateMessageFilters() {
  
    AddFilter(
        new MidiHost(GetID(), BrowserMainLoop::GetInstance()->midi_service()));
@@ -462,19 +424,19 @@ index f41a38484759..3ff02d0fa2e1 100644
 -      storage_partition_impl_->GetDOMStorageContext()));
 +  AddFilter(new DOMStorageMessageFilter(dom_storage_context));
  
- #if BUILDFLAG(ENABLE_WEBRTC)
    peer_connection_tracker_host_ = new PeerConnectionTrackerHost(GetID());
-@@ -1846,8 +1857,7 @@ void RenderProcessHostImpl::CreateMessageFilters() {
+   AddFilter(peer_connection_tracker_host_.get());
+@@ -1840,8 +1851,7 @@ void RenderProcessHostImpl::CreateMessageFilters() {
  
-   scoped_refptr<ServiceWorkerDispatcherHost> service_worker_filter =
-       new ServiceWorkerDispatcherHost(GetID(), resource_context);
+   auto service_worker_filter =
+       base::MakeRefCounted<ServiceWorkerDispatcherHost>(GetID());
 -  service_worker_filter->Init(
 -      storage_partition_impl_->GetServiceWorkerContext());
 +  service_worker_filter->Init(service_worker_context);
    AddFilter(service_worker_filter.get());
  
- #if BUILDFLAG(ENABLE_WEBRTC)
-@@ -1858,10 +1868,6 @@ void RenderProcessHostImpl::CreateMessageFilters() {
+   p2p_socket_dispatcher_host_ = new P2PSocketDispatcherHost(
+@@ -1850,10 +1860,6 @@ void RenderProcessHostImpl::CreateMessageFilters() {
  
    AddFilter(new TraceMessageFilter(GetID()));
    AddFilter(new ResolveProxyMsgHelper(request_context.get()));
@@ -485,7 +447,7 @@ index f41a38484759..3ff02d0fa2e1 100644
  }
  
  void RenderProcessHostImpl::BindCacheStorage(
-@@ -1873,7 +1879,8 @@ void RenderProcessHostImpl::BindCacheStorage(
+@@ -1865,7 +1871,8 @@ void RenderProcessHostImpl::BindCacheStorage(
      cache_storage_dispatcher_host_ =
          base::MakeRefCounted<CacheStorageDispatcherHost>();
      cache_storage_dispatcher_host_->Init(
@@ -495,7 +457,7 @@ index f41a38484759..3ff02d0fa2e1 100644
    }
    // Send the binding to IO thread, because Cache Storage handles Mojo IPC on IO
    // thread entirely.
-@@ -2006,7 +2013,8 @@ void RenderProcessHostImpl::RegisterMojoInterfaces() {
+@@ -1996,7 +2003,8 @@ void RenderProcessHostImpl::RegisterMojoInterfaces() {
  
    registry->AddInterface(base::BindRepeating(
        &AppCacheDispatcherHost::Create,
@@ -506,18 +468,18 @@ index f41a38484759..3ff02d0fa2e1 100644
  
    AddUIThreadInterface(registry.get(), base::Bind(&FieldTrialRecorder::Create));
 diff --git content/browser/renderer_host/render_process_host_impl.h content/browser/renderer_host/render_process_host_impl.h
-index 3d2cc7cb7e0c..f20125fced66 100644
+index 60a1958f3ca9..922e2100f7c9 100644
 --- content/browser/renderer_host/render_process_host_impl.h
 +++ content/browser/renderer_host/render_process_host_impl.h
-@@ -87,7 +87,6 @@ class ResourceMessageFilter;
+@@ -89,7 +89,6 @@ class ResourceMessageFilter;
  class SiteInstance;
  class SiteInstanceImpl;
  class StoragePartition;
 -class StoragePartitionImpl;
  struct ChildProcessTerminationInfo;
  
- #if BUILDFLAG(ENABLE_WEBRTC)
-@@ -135,7 +134,7 @@ class CONTENT_EXPORT RenderProcessHostImpl
+ typedef base::Thread* (*RendererMainThreadFactoryFunction)(
+@@ -132,7 +131,7 @@ class CONTENT_EXPORT RenderProcessHostImpl
    // null.
    static RenderProcessHost* CreateRenderProcessHost(
        BrowserContext* browser_context,
@@ -526,7 +488,7 @@ index 3d2cc7cb7e0c..f20125fced66 100644
        SiteInstance* site_instance,
        bool is_for_guests_only);
  
-@@ -440,7 +439,7 @@ class CONTENT_EXPORT RenderProcessHostImpl
+@@ -435,7 +434,7 @@ class CONTENT_EXPORT RenderProcessHostImpl
    // Use CreateRenderProcessHost() instead of calling this constructor
    // directly.
    RenderProcessHostImpl(BrowserContext* browser_context,
@@ -535,7 +497,7 @@ index 3d2cc7cb7e0c..f20125fced66 100644
                          bool is_for_guests_only);
  
    // Initializes a new IPC::ChannelProxy in |channel_|, which will be connected
-@@ -707,10 +706,10 @@ class CONTENT_EXPORT RenderProcessHostImpl
+@@ -700,10 +699,10 @@ class CONTENT_EXPORT RenderProcessHostImpl
    // called.
    int instance_id_ = 1;
  
@@ -608,10 +570,10 @@ index 4b08ffd8b662..a09bdc7cb892 100644
                             std::move(client), creation_context_type,
                             blink::MessagePortChannel(std::move(message_port)));
 diff --git content/browser/shared_worker/shared_worker_service_impl.cc content/browser/shared_worker/shared_worker_service_impl.cc
-index 5b5d3a790ebb..d5af1985df27 100644
+index 8140ae678d37..245d0bffd69e 100644
 --- content/browser/shared_worker/shared_worker_service_impl.cc
 +++ content/browser/shared_worker/shared_worker_service_impl.cc
-@@ -206,8 +206,8 @@ void SharedWorkerServiceImpl::CreateWorker(
+@@ -253,8 +253,8 @@ void SharedWorkerServiceImpl::CreateWorker(
          BrowserThread::IO, FROM_HERE,
          base::BindOnce(
              &CreateScriptLoaderOnIO,
@@ -619,7 +581,7 @@ index 5b5d3a790ebb..d5af1985df27 100644
 -                ->url_loader_factory_getter(),
 +            base::WrapRefCounted(service_worker_context_->storage_partition()
 +                ->url_loader_factory_getter()),
-             service_worker_context_, process_id,
+             std::move(factory_bundle), service_worker_context_, process_id,
              base::BindOnce(&SharedWorkerServiceImpl::StartWorker,
                             weak_factory_.GetWeakPtr(), std::move(instance),
 diff --git content/browser/storage_partition_impl.h content/browser/storage_partition_impl.h
@@ -726,12 +688,12 @@ index 075ae3e7431e..57fb5fd2c4a8 100644
  
    void InitializeOnIOThread();
 diff --git content/browser/webui/web_ui_url_loader_factory.cc content/browser/webui/web_ui_url_loader_factory.cc
-index 187bde2d1cca..b86e9c943f01 100644
+index baa74f4c5e5e..3d5ebb876ea1 100644
 --- content/browser/webui/web_ui_url_loader_factory.cc
 +++ content/browser/webui/web_ui_url_loader_factory.cc
-@@ -20,13 +20,13 @@
+@@ -19,13 +19,13 @@
+ #include "content/browser/blob_storage/chrome_blob_storage_context.h"
  #include "content/browser/frame_host/render_frame_host_impl.h"
- #include "content/browser/histogram_internals_url_loader.h"
  #include "content/browser/resource_context_impl.h"
 -#include "content/browser/storage_partition_impl.h"
  #include "content/browser/webui/network_error_url_loader.h"
@@ -744,7 +706,7 @@ index 187bde2d1cca..b86e9c943f01 100644
  #include "content/public/browser/web_contents.h"
  #include "content/public/browser/web_contents_observer.h"
  #include "content/public/common/url_constants.h"
-@@ -319,9 +319,8 @@ class WebUIURLLoaderFactory : public network::mojom::URLLoaderFactory,
+@@ -313,9 +313,8 @@ class WebUIURLLoaderFactory : public network::mojom::URLLoaderFactory,
    const std::string& scheme() const { return scheme_; }
  
   private:
@@ -785,7 +747,7 @@ index b5cad2b73640..da041c3faf19 100644
        std::map<std::string, service_manager::EmbeddedServiceInfo>;
  
 diff --git content/public/browser/storage_partition.h content/public/browser/storage_partition.h
-index db26f7cfcef9..b358ff381eeb 100644
+index 28e2c251a117..5eb3ea81db32 100644
 --- content/public/browser/storage_partition.h
 +++ content/public/browser/storage_partition.h
 @@ -14,6 +14,7 @@
@@ -833,7 +795,7 @@ index db26f7cfcef9..b358ff381eeb 100644
    virtual IndexedDBContext* GetIndexedDBContext() = 0;
    virtual ServiceWorkerContext* GetServiceWorkerContext() = 0;
    virtual SharedWorkerService* GetSharedWorkerService() = 0;
-@@ -223,6 +241,27 @@ class CONTENT_EXPORT StoragePartition {
+@@ -224,6 +242,27 @@ class CONTENT_EXPORT StoragePartition {
    // Wait until all deletions tasks are finished. For test use only.
    virtual void WaitForDeletionTasksForTesting() = 0;
  

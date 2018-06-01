@@ -15,7 +15,7 @@
 #include "build/build_config.h"
 #include "components/prefs/pref_member.h"
 #include "components/printing/browser/print_manager.h"
-#include "components/printing/service/public/interfaces/pdf_compositor.mojom.h"
+#include "components/services/pdf_compositor/public/interfaces/pdf_compositor.mojom.h"
 #include "content/public/browser/notification_observer.h"
 #include "content/public/browser/notification_registrar.h"
 #include "mojo/public/cpp/system/platform_handle.h"

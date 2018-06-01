@@ -180,8 +180,8 @@ bool ExecuteCodeInTabFunction::CanExecuteScriptOnPage(std::string* error) {
 
   // NOTE: This can give the wrong answer due to race conditions, but it is OK,
   // we check again in the renderer.
-  if (!extension()->permissions_data()->CanAccessPage(
-          extension(), effective_document_url, execute_tab_id_, error)) {
+  if (!extension()->permissions_data()->CanAccessPage(effective_document_url,
+                                                      execute_tab_id_, error)) {
     if (is_about_url &&
         extension()->permissions_data()->active_permissions().HasAPIPermission(
             APIPermission::kTab)) {

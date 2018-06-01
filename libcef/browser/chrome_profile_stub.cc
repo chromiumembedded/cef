@@ -75,11 +75,6 @@ ChromeProfileStub::GetRequestContextForExtensions() {
   return GetRequestContext();
 }
 
-net::SSLConfigService* ChromeProfileStub::GetSSLConfigService() {
-  NOTREACHED();
-  return NULL;
-}
-
 bool ChromeProfileStub::IsSameProfile(Profile* profile) {
   NOTREACHED();
   return false;

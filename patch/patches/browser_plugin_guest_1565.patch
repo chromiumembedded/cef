@@ -37,7 +37,7 @@ index a0bc9305e62d..0c8d42c55302 100644
  
    attached_ = true;
 diff --git content/browser/frame_host/interstitial_page_impl.cc content/browser/frame_host/interstitial_page_impl.cc
-index f7340d1f5d4c..d2cdb73e8db9 100644
+index 7c55f52cb49a..fa1c85a86ed5 100644
 --- content/browser/frame_host/interstitial_page_impl.cc
 +++ content/browser/frame_host/interstitial_page_impl.cc
 @@ -619,7 +619,7 @@ WebContentsView* InterstitialPageImpl::CreateWebContentsView() {
@@ -208,10 +208,10 @@ index 4a06fe5f6880..ecad941c2638 100644
        RenderWidgetHost* render_widget_host) override;
    void SetPageTitle(const base::string16& title) override;
 diff --git content/browser/web_contents/web_contents_view_mac.h content/browser/web_contents/web_contents_view_mac.h
-index 968c5157ab41..22aad9fbafa4 100644
+index 4640550b8484..efa2496b6317 100644
 --- content/browser/web_contents/web_contents_view_mac.h
 +++ content/browser/web_contents/web_contents_view_mac.h
-@@ -89,7 +89,7 @@ class WebContentsViewMac : public WebContentsView,
+@@ -93,7 +93,7 @@ class WebContentsViewMac : public WebContentsView,
                    gfx::NativeView context) override;
    RenderWidgetHostViewBase* CreateViewForWidget(
        RenderWidgetHost* render_widget_host,
@@ -221,7 +221,7 @@ index 968c5157ab41..22aad9fbafa4 100644
        RenderWidgetHost* render_widget_host) override;
    void SetPageTitle(const base::string16& title) override;
 diff --git content/browser/web_contents/web_contents_view_mac.mm content/browser/web_contents/web_contents_view_mac.mm
-index 8cd612e1f03a..5cf012b31bda 100644
+index 00b2d2a729da..cb8a81ed8ee2 100644
 --- content/browser/web_contents/web_contents_view_mac.mm
 +++ content/browser/web_contents/web_contents_view_mac.mm
 @@ -348,7 +348,8 @@ void WebContentsViewMac::CreateView(

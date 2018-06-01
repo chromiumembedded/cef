@@ -1,8 +1,8 @@
 diff --git third_party/blink/public/platform/platform.h third_party/blink/public/platform/platform.h
-index 5eac7f13d083..9e74a22c5796 100644
+index f3ec52975650..4922837a169e 100644
 --- third_party/blink/public/platform/platform.h
 +++ third_party/blink/public/platform/platform.h
-@@ -357,6 +357,7 @@ class BLINK_PLATFORM_EXPORT Platform {
+@@ -353,6 +353,7 @@ class BLINK_PLATFORM_EXPORT Platform {
    // satisfy this call. mainFrameOrigin is used by the browser process to
    // filter plugins from the plugin list based on content settings.
    virtual void GetPluginList(bool refresh,
@@ -10,7 +10,7 @@ index 5eac7f13d083..9e74a22c5796 100644
                               const WebSecurityOrigin& main_frame_origin,
                               WebPluginListBuilder*) {}
  
-@@ -714,6 +715,11 @@ class BLINK_PLATFORM_EXPORT Platform {
+@@ -704,6 +705,11 @@ class BLINK_PLATFORM_EXPORT Platform {
    // runs during Chromium's build step).
    virtual bool IsTakingV8ContextSnapshot() { return false; }
  
@@ -62,10 +62,10 @@ index f98ae01cd46d..bba0b1930bff 100644
  
  void WebDevToolsAgentImpl::Session::SendProtocolResponse(int session_id,
 diff --git third_party/blink/renderer/core/frame/local_frame.cc third_party/blink/renderer/core/frame/local_frame.cc
-index 2c6e6b9dccc3..fd957c70922a 100644
+index f0c55c05da71..9f0ede2594e4 100644
 --- third_party/blink/renderer/core/frame/local_frame.cc
 +++ third_party/blink/renderer/core/frame/local_frame.cc
-@@ -1217,7 +1217,7 @@ FrameResourceCoordinator* LocalFrame::GetFrameResourceCoordinator() {
+@@ -1228,7 +1228,7 @@ FrameResourceCoordinator* LocalFrame::GetFrameResourceCoordinator() {
  PluginData* LocalFrame::GetPluginData() const {
    if (!Loader().AllowPlugins(kNotAboutToInstantiatePlugin))
      return nullptr;
@@ -75,10 +75,10 @@ index 2c6e6b9dccc3..fd957c70922a 100644
  }
  
 diff --git third_party/blink/renderer/core/page/page.cc third_party/blink/renderer/core/page/page.cc
-index 1c299e2ad3a8..17dc5045895a 100644
+index a6a36fb4b38b..9b3bbb8fdb9b 100644
 --- third_party/blink/renderer/core/page/page.cc
 +++ third_party/blink/renderer/core/page/page.cc
-@@ -154,7 +154,8 @@ Page::Page(PageClients& page_clients)
+@@ -152,7 +152,8 @@ Page::Page(PageClients& page_clients)
        overscroll_controller_(
            OverscrollController::Create(GetVisualViewport(), GetChromeClient())),
        main_frame_(nullptr),
@@ -88,7 +88,7 @@ index 1c299e2ad3a8..17dc5045895a 100644
        use_counter_(page_clients.chrome_client &&
                             page_clients.chrome_client->IsSVGImageChromeClient()
                         ? UseCounter::kSVGImageContext
-@@ -333,21 +334,40 @@ void Page::RefreshPlugins() {
+@@ -322,21 +323,40 @@ void Page::RefreshPlugins() {
    PluginData::RefreshBrowserSidePluginCache();
  }
  
@@ -138,7 +138,7 @@ index 1c299e2ad3a8..17dc5045895a 100644
        page->NotifyPluginsChanged();
      }
    }
-@@ -720,7 +740,8 @@ void Page::Trace(blink::Visitor* visitor) {
+@@ -708,7 +728,8 @@ void Page::Trace(blink::Visitor* visitor) {
    visitor->Trace(visual_viewport_);
    visitor->Trace(overscroll_controller_);
    visitor->Trace(main_frame_);
@@ -149,10 +149,10 @@ index 1c299e2ad3a8..17dc5045895a 100644
    visitor->Trace(use_counter_);
    visitor->Trace(plugins_changed_observers_);
 diff --git third_party/blink/renderer/core/page/page.h third_party/blink/renderer/core/page/page.h
-index 0f51ac4d6e62..ccaae2f1c38f 100644
+index eba08dbfa108..846ad08241bd 100644
 --- third_party/blink/renderer/core/page/page.h
 +++ third_party/blink/renderer/core/page/page.h
-@@ -138,7 +138,8 @@ class CORE_EXPORT Page final : public GarbageCollectedFinalized<Page>,
+@@ -137,7 +137,8 @@ class CORE_EXPORT Page final : public GarbageCollectedFinalized<Page>,
    ViewportDescription GetViewportDescription() const;
  
    // Returns the plugin data associated with |main_frame_origin|.
@@ -162,7 +162,7 @@ index 0f51ac4d6e62..ccaae2f1c38f 100644
  
    // Refreshes the browser-side plugin cache.
    static void RefreshPlugins();
-@@ -374,7 +375,8 @@ class CORE_EXPORT Page final : public GarbageCollectedFinalized<Page>,
+@@ -369,7 +370,8 @@ class CORE_EXPORT Page final : public GarbageCollectedFinalized<Page>,
    // longer needed.
    Member<Frame> main_frame_;
  

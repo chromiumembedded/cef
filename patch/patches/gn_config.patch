@@ -12,10 +12,10 @@ index 65c8804cc47c..f3a9a704abec 100644
        # https://crbug.com/474506.
        "//clank/java/BUILD.gn",
 diff --git BUILD.gn BUILD.gn
-index 29915efe706f..68e11a68576d 100644
+index 378aa8822bec..5fddd6adbf28 100644
 --- BUILD.gn
 +++ BUILD.gn
-@@ -192,6 +192,7 @@ group("gn_all") {
+@@ -193,6 +193,7 @@ group("gn_all") {
  
    if (!is_ios && !is_fuchsia) {
      deps += [

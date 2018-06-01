@@ -57,10 +57,10 @@ index 7f6e27181267..26080b6d61e0 100644
    // If |new_instance| is a new SiteInstance for a subframe that requires a
    // dedicated process, set its process reuse policy so that such subframes are
 diff --git content/public/browser/content_browser_client.h content/public/browser/content_browser_client.h
-index d6799f4e2d07..d8b3cc177c44 100644
+index e9c6b810e050..e5dbbc6dbc02 100644
 --- content/public/browser/content_browser_client.h
 +++ content/public/browser/content_browser_client.h
-@@ -372,6 +372,13 @@ class CONTENT_EXPORT ContentBrowserClient {
+@@ -373,6 +373,13 @@ class CONTENT_EXPORT ContentBrowserClient {
    // Returns true if error page should be isolated in its own process.
    virtual bool ShouldIsolateErrorPage(bool in_main_frame);
  

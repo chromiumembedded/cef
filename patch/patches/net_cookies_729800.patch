@@ -1,0 +1,14 @@
+diff --git net/cookies/cookie_monster_change_dispatcher.cc net/cookies/cookie_monster_change_dispatcher.cc
+index 2eadab6ca652..79fd1f0b6f58 100644
+--- net/cookies/cookie_monster_change_dispatcher.cc
++++ net/cookies/cookie_monster_change_dispatcher.cc
+@@ -51,7 +51,8 @@ CookieMonsterChangeDispatcher::Subscription::Subscription(
+ CookieMonsterChangeDispatcher::Subscription::~Subscription() {
+   DCHECK_CALLED_ON_VALID_THREAD(thread_checker_);
+ 
+-  change_dispatcher_->UnlinkSubscription(this);
++  if (change_dispatcher_)
++    change_dispatcher_->UnlinkSubscription(this);
+ }
+ 
+ void CookieMonsterChangeDispatcher::Subscription::DispatchChange(

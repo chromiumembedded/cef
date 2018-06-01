@@ -96,9 +96,7 @@ class ChromeBrowserProcessStub : public BrowserProcess,
   component_updater::SupervisedUserWhitelistInstaller*
   supervised_user_whitelist_installer() override;
   MediaFileSystemRegistry* media_file_system_registry() override;
-#if BUILDFLAG(ENABLE_WEBRTC)
   WebRtcLogUploader* webrtc_log_uploader() override;
-#endif
   network_time::NetworkTimeTracker* network_time_tracker() override;
   gcm::GCMDriver* gcm_driver() override;
   shell_integration::DefaultWebClientState CachedDefaultWebClientState()

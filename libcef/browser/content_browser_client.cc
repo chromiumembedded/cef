@@ -52,7 +52,7 @@
 #include "chrome/services/printing/public/mojom/constants.mojom.h"
 #include "components/navigation_interception/intercept_navigation_throttle.h"
 #include "components/navigation_interception/navigation_params.h"
-#include "components/printing/service/public/interfaces/pdf_compositor.mojom.h"
+#include "components/services/pdf_compositor/public/interfaces/pdf_compositor.mojom.h"
 #include "content/browser/frame_host/navigation_handle_impl.h"
 #include "content/browser/frame_host/render_frame_host_impl.h"
 #include "content/browser/plugin_service_impl.h"
@@ -599,7 +599,8 @@ void CefContentBrowserClient::SiteInstanceDeleting(
 }
 
 void CefContentBrowserClient::RegisterInProcessServices(
-    StaticServiceMap* services) {
+    StaticServiceMap* services,
+    content::ServiceManagerConnection* connection) {
   {
     // For spell checking.
     service_manager::EmbeddedServiceInfo info;

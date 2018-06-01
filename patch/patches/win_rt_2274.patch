@@ -1,20 +1,18 @@
 diff --git services/service_manager/sandbox/win/sandbox_win.cc services/service_manager/sandbox/win/sandbox_win.cc
-index 6c72f29ee7ce..9b0114b2cfdc 100644
+index 197090f0f500..69e1e24f41e3 100644
 --- services/service_manager/sandbox/win/sandbox_win.cc
 +++ services/service_manager/sandbox/win/sandbox_win.cc
-@@ -865,10 +865,13 @@ sandbox::ResultCode SandboxWin::StartSandboxedProcess(
+@@ -865,8 +865,11 @@ sandbox::ResultCode SandboxWin::StartSandboxedProcess(
  #endif
  
    // Post-startup mitigations.
 -  mitigations = sandbox::MITIGATION_STRICT_HANDLE_CHECKS |
 -                sandbox::MITIGATION_DLL_SEARCH_ORDER;
 +  mitigations = sandbox::MITIGATION_DLL_SEARCH_ORDER;
-   if (!cmd_line->HasSwitch(switches::kAllowThirdPartyModules))
-     mitigations |= sandbox::MITIGATION_FORCE_MS_SIGNED_BINS;
 +  if (!launcher_process_command_line.HasSwitch("win-rt-app")) {
 +    // Don't enable this mitigation in WinRT apps. See issue #2274.
 +    mitigations |= sandbox::MITIGATION_STRICT_HANDLE_CHECKS;
 +  }
- 
-   result = policy->SetDelayedProcessMitigations(mitigations);
-   if (result != sandbox::SBOX_ALL_OK)
+   if (!cmd_line->HasSwitch(switches::kAllowThirdPartyModules))
+     mitigations |= sandbox::MITIGATION_FORCE_MS_SIGNED_BINS;
+   if (sandbox_type == SANDBOX_TYPE_NETWORK)

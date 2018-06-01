@@ -1,5 +1,5 @@
 diff --git services/service_manager/embedder/main.cc services/service_manager/embedder/main.cc
-index a2208dadcb9d..a9630ea9ad07 100644
+index fdff39ef3345..60f8a1dc7545 100644
 --- services/service_manager/embedder/main.cc
 +++ services/service_manager/embedder/main.cc
 @@ -300,13 +300,30 @@ int RunService(MainDelegate* delegate) {
@@ -86,7 +86,7 @@ index a2208dadcb9d..a9630ea9ad07 100644
    switch (process_type) {
      case ProcessType::kDefault:
        NOTREACHED();
-@@ -453,6 +464,8 @@ int Main(const MainParams& params) {
+@@ -460,6 +471,8 @@ int Main(const MainParams& params) {
        break;
    }
  
@@ -95,7 +95,7 @@ index a2208dadcb9d..a9630ea9ad07 100644
    if (tracker) {
      if (exit_code == 0) {
        tracker->SetProcessPhaseIfEnabled(
-@@ -464,13 +477,38 @@ int Main(const MainParams& params) {
+@@ -471,13 +484,38 @@ int Main(const MainParams& params) {
      }
    }
  
