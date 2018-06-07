@@ -100,7 +100,7 @@ int ResponseWriter::Finish(int net_error,
 }
 
 static std::string GetFrontendURL() {
-  return base::StringPrintf("%s://%s/inspector.html",
+  return base::StringPrintf("%s://%s/devtools_app.html",
                             content::kChromeDevToolsScheme,
                             scheme::kChromeDevToolsHost);
 }
