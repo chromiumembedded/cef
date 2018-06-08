@@ -94,10 +94,10 @@ index b23698013a09..d60eb48c6efd 100644
                  "WillFailRequest state should come before WillProcessResponse");
    return render_frame_host_;
 diff --git content/browser/frame_host/render_frame_host_impl.cc content/browser/frame_host/render_frame_host_impl.cc
-index 2ef1f5b667fa..c0296f748648 100644
+index 968f4bfd098f..035c093e5a2c 100644
 --- content/browser/frame_host/render_frame_host_impl.cc
 +++ content/browser/frame_host/render_frame_host_impl.cc
-@@ -1568,6 +1568,7 @@ void RenderFrameHostImpl::OnDidFailProvisionalLoadWithError(
+@@ -1593,6 +1593,7 @@ void RenderFrameHostImpl::OnDidFailProvisionalLoadWithError(
    if (GetNavigationHandle()) {
      GetNavigationHandle()->set_net_error_code(
          static_cast<net::Error>(params.error_code));
@@ -105,20 +105,7 @@ index 2ef1f5b667fa..c0296f748648 100644
    }
  
    frame_tree_node_->navigator()->DidFailProvisionalLoadWithError(this, params);
-@@ -3328,9 +3329,9 @@ void RenderFrameHostImpl::RegisterMojoInterfaces() {
-       BrowserThread::GetTaskRunnerForThread(BrowserThread::IO));
- 
-   if (base::FeatureList::IsEnabled(network::features::kNetworkService)) {
--    StoragePartitionImpl* storage_partition =
--        static_cast<StoragePartitionImpl*>(BrowserContext::GetStoragePartition(
--            GetSiteInstance()->GetBrowserContext(), GetSiteInstance()));
-+    StoragePartition* storage_partition =
-+        BrowserContext::GetStoragePartition(
-+            GetSiteInstance()->GetBrowserContext(), GetSiteInstance());
-     // TODO(https://crbug.com/813479): Investigate why we need to explicitly
-     // specify task runner for BrowserThread::IO here.
-     // Bind calls to the BindRegistry should come on to the IO thread by
-@@ -3606,9 +3607,9 @@ void RenderFrameHostImpl::CommitNavigation(
+@@ -3612,9 +3613,9 @@ void RenderFrameHostImpl::CommitNavigation(
      // however only do this for cross-document navigations, because the
      // alternative would be redundant effort.
      network::mojom::URLLoaderFactoryPtrInfo default_factory_info;
@@ -131,7 +118,7 @@ index 2ef1f5b667fa..c0296f748648 100644
      if (subresource_loader_params &&
          subresource_loader_params->loader_factory_info.is_valid()) {
        // If the caller has supplied a default URLLoaderFactory override (for
-@@ -4300,8 +4301,8 @@ void RenderFrameHostImpl::CreateNetworkServiceDefaultFactoryAndObserve(
+@@ -4334,8 +4335,8 @@ void RenderFrameHostImpl::CreateNetworkServiceDefaultFactoryAndObserve(
    RenderFrameDevToolsAgentHost::WillCreateURLLoaderFactory(
        this, false /* is_navigation */, false /* is_download */,
        &default_factory_request);
@@ -142,6 +129,17 @@ index 2ef1f5b667fa..c0296f748648 100644
    if (g_create_network_factory_callback_for_test.Get().is_null()) {
      storage_partition->GetNetworkContext()->CreateURLLoaderFactory(
          std::move(default_factory_request), std::move(params));
+@@ -4622,8 +4623,8 @@ void RenderFrameHostImpl::ConnectToPrefetchURLLoaderService(
+   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
+   DCHECK(base::FeatureList::IsEnabled(network::features::kNetworkService));
+   auto* storage_partition =
+-      static_cast<StoragePartitionImpl*>(BrowserContext::GetStoragePartition(
+-          GetSiteInstance()->GetBrowserContext(), GetSiteInstance()));
++      BrowserContext::GetStoragePartition(
++          GetSiteInstance()->GetBrowserContext(), GetSiteInstance());
+   auto subresource_factories = CloneSubresourceFactories();
+   // Make sure that file: URL is available only when the origin of the last
+   // commited URL is for file:. This should be always true as far as
 diff --git content/browser/frame_host/render_frame_message_filter.cc content/browser/frame_host/render_frame_message_filter.cc
 index 91bf248a67a5..ede635e9ef44 100644
 --- content/browser/frame_host/render_frame_message_filter.cc
@@ -275,10 +273,10 @@ index 4e11056a3dc9..973ad50975e1 100644
                       const std::string& mime_type,
                       bool allow_wildcard,
 diff --git content/common/frame_messages.h content/common/frame_messages.h
-index 3ed93bdae0e3..c03780d69cfb 100644
+index 6375b644540c..b9ccfdb14dea 100644
 --- content/common/frame_messages.h
 +++ content/common/frame_messages.h
-@@ -1363,8 +1363,9 @@ IPC_MESSAGE_ROUTED1(FrameHostMsg_PepperStopsPlayback,
+@@ -1369,8 +1369,9 @@ IPC_MESSAGE_ROUTED1(FrameHostMsg_PepperStopsPlayback,
  
  // Used to get the list of plugins. |main_frame_origin| is used to handle
  // exceptions for plugin content settings.
@@ -289,7 +287,7 @@ index 3ed93bdae0e3..c03780d69cfb 100644
                              url::Origin /* main_frame_origin */,
                              std::vector<content::WebPluginInfo> /* plugins */)
  
-@@ -1372,9 +1373,10 @@ IPC_SYNC_MESSAGE_CONTROL2_1(FrameHostMsg_GetPlugins,
+@@ -1378,9 +1379,10 @@ IPC_SYNC_MESSAGE_CONTROL2_1(FrameHostMsg_GetPlugins,
  // type. If there is no matching plugin, |found| is false.
  // |actual_mime_type| is the actual mime type supported by the
  // found plugin.
@@ -302,10 +300,10 @@ index 3ed93bdae0e3..c03780d69cfb 100644
                              std::string /* mime_type */,
                              bool /* found */,
 diff --git content/ppapi_plugin/ppapi_blink_platform_impl.cc content/ppapi_plugin/ppapi_blink_platform_impl.cc
-index cdfffa0cab11..5b61d86d5d42 100644
+index 5f6c08be7e96..2bc2d6659810 100644
 --- content/ppapi_plugin/ppapi_blink_platform_impl.cc
 +++ content/ppapi_plugin/ppapi_blink_platform_impl.cc
-@@ -189,6 +189,7 @@ blink::WebThemeEngine* PpapiBlinkPlatformImpl::ThemeEngine() {
+@@ -196,6 +196,7 @@ blink::WebThemeEngine* PpapiBlinkPlatformImpl::ThemeEngine() {
  
  void PpapiBlinkPlatformImpl::GetPluginList(
      bool refresh,
@@ -350,7 +348,7 @@ index 3b610b1f554e..7c439e060779 100644
                                   WebPluginInfo* plugin) = 0;
  
 diff --git content/public/renderer/content_renderer_client.h content/public/renderer/content_renderer_client.h
-index 6dd2589d653a..2a604fb6b14f 100644
+index 5395f8eb0736..8543081de7d0 100644
 --- content/public/renderer/content_renderer_client.h
 +++ content/public/renderer/content_renderer_client.h
 @@ -74,6 +74,9 @@ class CONTENT_EXPORT ContentRendererClient {
@@ -363,7 +361,7 @@ index 6dd2589d653a..2a604fb6b14f 100644
    // Notifies that a new RenderFrame has been created.
    virtual void RenderFrameCreated(RenderFrame* render_frame) {}
  
-@@ -351,6 +354,10 @@ class CONTENT_EXPORT ContentRendererClient {
+@@ -352,6 +355,10 @@ class CONTENT_EXPORT ContentRendererClient {
    // This method may invalidate the frame.
    virtual void RunScriptsAtDocumentIdle(RenderFrame* render_frame) {}
  
@@ -389,10 +387,10 @@ index 74a031ad10c3..3b3f9e292f4b 100644
    virtual void FocusedNodeChanged(const blink::WebNode& node) {}
  
 diff --git content/renderer/render_frame_impl.cc content/renderer/render_frame_impl.cc
-index fd8ec4750c17..714c46e6f3ed 100644
+index ae67d75b76b8..98b38322e68c 100644
 --- content/renderer/render_frame_impl.cc
 +++ content/renderer/render_frame_impl.cc
-@@ -3253,7 +3253,8 @@ blink::WebPlugin* RenderFrameImpl::CreatePlugin(
+@@ -3292,7 +3292,8 @@ blink::WebPlugin* RenderFrameImpl::CreatePlugin(
    std::string mime_type;
    bool found = false;
    Send(new FrameHostMsg_GetPluginInfo(
@@ -402,7 +400,7 @@ index fd8ec4750c17..714c46e6f3ed 100644
        params.mime_type.Utf8(), &found, &info, &mime_type));
    if (!found)
      return nullptr;
-@@ -3610,6 +3611,8 @@ void RenderFrameImpl::FrameDetached(DetachType type) {
+@@ -3650,6 +3651,8 @@ void RenderFrameImpl::FrameDetached(DetachType type) {
  
  void RenderFrameImpl::FrameFocused() {
    Send(new FrameHostMsg_FrameFocused(routing_id_));
@@ -412,10 +410,10 @@ index fd8ec4750c17..714c46e6f3ed 100644
  
  void RenderFrameImpl::WillCommitProvisionalLoad() {
 diff --git content/renderer/render_thread_impl.cc content/renderer/render_thread_impl.cc
-index 1e68c2fee634..75d5dfade01f 100644
+index 204a30082489..e091b7d8feab 100644
 --- content/renderer/render_thread_impl.cc
 +++ content/renderer/render_thread_impl.cc
-@@ -876,6 +876,8 @@ void RenderThreadImpl::Init(
+@@ -866,6 +866,8 @@ void RenderThreadImpl::Init(
  
    StartServiceManagerConnection();
  
@@ -425,10 +423,10 @@ index 1e68c2fee634..75d5dfade01f 100644
        base::Bind(&RenderThreadImpl::OnRendererInterfaceRequest,
                   base::Unretained(this)));
 diff --git content/renderer/renderer_blink_platform_impl.cc content/renderer/renderer_blink_platform_impl.cc
-index 4205c92765af..5541af8b7b7e 100644
+index 635a6c368466..38c8aef73844 100644
 --- content/renderer/renderer_blink_platform_impl.cc
 +++ content/renderer/renderer_blink_platform_impl.cc
-@@ -767,6 +767,7 @@ RendererBlinkPlatformImpl::CreateMIDIAccessor(
+@@ -787,12 +787,14 @@ RendererBlinkPlatformImpl::CreateMIDIAccessor(
  
  void RendererBlinkPlatformImpl::GetPluginList(
      bool refresh,
@@ -436,9 +434,7 @@ index 4205c92765af..5541af8b7b7e 100644
      const blink::WebSecurityOrigin& mainFrameOrigin,
      blink::WebPluginListBuilder* builder) {
  #if BUILDFLAG(ENABLE_PLUGINS)
-@@ -774,7 +775,8 @@ void RendererBlinkPlatformImpl::GetPluginList(
-   if (!plugin_refresh_allowed_)
-     refresh = false;
+   std::vector<WebPluginInfo> plugins;
    RenderThread::Get()->Send(
 -      new FrameHostMsg_GetPlugins(refresh, mainFrameOrigin, &plugins));
 +      new FrameHostMsg_GetPlugins(refresh, isMainFrame, mainFrameOrigin,
@@ -446,7 +442,7 @@ index 4205c92765af..5541af8b7b7e 100644
    for (const WebPluginInfo& plugin : plugins) {
      builder->AddPlugin(WebString::FromUTF16(plugin.name),
                         WebString::FromUTF16(plugin.desc),
-@@ -1264,6 +1266,14 @@ void RendererBlinkPlatformImpl::RequestPurgeMemory() {
+@@ -1214,6 +1216,14 @@ void RendererBlinkPlatformImpl::RequestPurgeMemory() {
    base::MemoryCoordinatorClientRegistry::GetInstance()->PurgeMemory();
  }
  
@@ -462,18 +458,18 @@ index 4205c92765af..5541af8b7b7e 100644
    if (!web_database_host_) {
      web_database_host_ = blink::mojom::ThreadSafeWebDatabaseHostPtr::Create(
 diff --git content/renderer/renderer_blink_platform_impl.h content/renderer/renderer_blink_platform_impl.h
-index ecb5ce6d6aa0..0733b16b5cd3 100644
+index 8fa06edcbd6f..e6a3da8f46d0 100644
 --- content/renderer/renderer_blink_platform_impl.h
 +++ content/renderer/renderer_blink_platform_impl.h
 @@ -122,6 +122,7 @@ class CONTENT_EXPORT RendererBlinkPlatformImpl : public BlinkPlatformImpl {
-   viz::FrameSinkId GenerateFrameSinkId() override;
+   bool IsLockedToSite() const override;
  
    void GetPluginList(bool refresh,
 +                     bool isMainFrame,
                       const blink::WebSecurityOrigin& mainFrameOrigin,
                       blink::WebPluginListBuilder* builder) override;
    blink::WebPublicSuffixList* PublicSuffixList() override;
-@@ -241,6 +242,9 @@ class CONTENT_EXPORT RendererBlinkPlatformImpl : public BlinkPlatformImpl {
+@@ -236,6 +237,9 @@ class CONTENT_EXPORT RendererBlinkPlatformImpl : public BlinkPlatformImpl {
        mojo::ScopedDataPipeConsumerHandle handle) override;
    void RequestPurgeMemory() override;
  
@@ -532,7 +528,7 @@ index 84bed37848d9..1a66c0757437 100644
                       const std::string& mime_type,
                       bool allow_wildcard,
 diff --git content/test/test_blink_web_unit_test_support.cc content/test/test_blink_web_unit_test_support.cc
-index 84fcd3a10415..230ad9a26961 100644
+index 72e440c2c083..6a88a8ca4fbc 100644
 --- content/test/test_blink_web_unit_test_support.cc
 +++ content/test/test_blink_web_unit_test_support.cc
 @@ -336,6 +336,7 @@ blink::WebThread* TestBlinkWebUnitTestSupport::CurrentThread() {
@@ -544,7 +540,7 @@ index 84fcd3a10415..230ad9a26961 100644
      blink::WebPluginListBuilder* builder) {
    builder->AddPlugin("pdf", "pdf", "pdf-files", SkColorSetRGB(38, 38, 38));
 diff --git content/test/test_blink_web_unit_test_support.h content/test/test_blink_web_unit_test_support.h
-index 3e9fdf28d72f..94880b599ada 100644
+index 3d0c7df795d9..dee79a34eb66 100644
 --- content/test/test_blink_web_unit_test_support.h
 +++ content/test/test_blink_web_unit_test_support.h
 @@ -62,6 +62,7 @@ class TestBlinkWebUnitTestSupport : public BlinkPlatformImpl {

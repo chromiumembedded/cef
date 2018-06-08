@@ -196,7 +196,7 @@ void CefBrowserPlatformDelegate::DragSourceSystemDragEnded() {
 }
 
 void CefBrowserPlatformDelegate::AccessibilityEventReceived(
-    const std::vector<content::AXEventNotificationDetails>& eventData) {
+    const content::AXEventNotificationDetails& eventData) {
   NOTREACHED();
 }
 

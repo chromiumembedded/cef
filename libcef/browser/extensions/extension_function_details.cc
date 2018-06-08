@@ -160,8 +160,9 @@ CefRefPtr<CefBrowserHostImpl> CefExtensionFunctionDetails::GetCurrentBrowser()
     CefRefPtr<CefExtensionHandler> handler = GetCefExtension()->GetHandler();
     if (handler) {
       // Give the handler an opportunity to specify a different browser.
-      CefRefPtr<CefBrowser> active_browser = handler->GetActiveBrowser(
-          GetCefExtension(), browser.get(), function_->include_incognito());
+      CefRefPtr<CefBrowser> active_browser =
+          handler->GetActiveBrowser(GetCefExtension(), browser.get(),
+                                    function_->include_incognito_information());
       if (active_browser && active_browser != browser) {
         CefRefPtr<CefBrowserHostImpl> active_browser_impl =
             static_cast<CefBrowserHostImpl*>(active_browser.get());
@@ -200,8 +201,9 @@ bool CefExtensionFunctionDetails::CanAccessBrowser(
   if (browser && browser->client()) {
     CefRefPtr<CefExtensionHandler> handler = GetCefExtension()->GetHandler();
     if (handler) {
-      return handler->CanAccessBrowser(GetCefExtension(), browser.get(),
-                                       function_->include_incognito(), target);
+      return handler->CanAccessBrowser(
+          GetCefExtension(), browser.get(),
+          function_->include_incognito_information(), target);
     }
   }
 
@@ -425,7 +427,7 @@ std::unique_ptr<api::tabs::Tab> CefExtensionFunctionDetails::CreateTabObject(
   tab_object->selected = true;
   tab_object->highlighted = true;
   tab_object->pinned = false;
-  tab_object->audible = std::make_unique<bool>(contents->WasRecentlyAudible());
+  // TODO(extensions): Use RecentlyAudibleHelper to populate |audible|.
   tab_object->discarded = false;
   tab_object->auto_discardable = false;
   tab_object->muted_info = CreateMutedInfo(contents);

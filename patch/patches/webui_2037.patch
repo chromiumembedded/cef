@@ -60,10 +60,10 @@ index 509b62c78375..f48dd53e30c3 100644
            render_process_host->GetBrowserContext();
        extensions::ExtensionRegistry* extension_registry =
 diff --git chrome/browser/ui/webui/net_internals/net_internals_ui.cc chrome/browser/ui/webui/net_internals/net_internals_ui.cc
-index 12c2eb2e1271..0de1335e91c7 100644
+index 488d0c70949f..d95b2e9b3cf9 100644
 --- chrome/browser/ui/webui/net_internals/net_internals_ui.cc
 +++ chrome/browser/ui/webui/net_internals/net_internals_ui.cc
-@@ -552,41 +552,31 @@ void NetInternalsMessageHandler::OnClearBrowserCache(
+@@ -527,41 +527,31 @@ void NetInternalsMessageHandler::OnClearBrowserCache(
  void NetInternalsMessageHandler::OnGetPrerenderInfo(
      const base::ListValue* list) {
    DCHECK_CURRENTLY_ON(BrowserThread::UI);
@@ -110,7 +110,7 @@ index 12c2eb2e1271..0de1335e91c7 100644
  }
  
  ////////////////////////////////////////////////////////////////////////////////
-@@ -666,9 +656,17 @@ void NetInternalsMessageHandler::IOThreadImpl::OnRendererReady(
+@@ -641,9 +631,17 @@ void NetInternalsMessageHandler::IOThreadImpl::OnRendererReady(
  
    PrePopulateEventList();
  
@@ -131,7 +131,7 @@ index 12c2eb2e1271..0de1335e91c7 100644
  }
  
  void NetInternalsMessageHandler::IOThreadImpl::OnGetNetInfo(
-@@ -1179,7 +1177,8 @@ void NetInternalsMessageHandler::IOThreadImpl::PrePopulateEventList() {
+@@ -1139,7 +1137,8 @@ void NetInternalsMessageHandler::IOThreadImpl::PrePopulateEventList() {
    std::set<net::URLRequestContext*> contexts;
    for (const auto& getter : context_getters_)
      contexts.insert(getter->GetURLRequestContext());

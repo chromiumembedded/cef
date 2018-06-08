@@ -687,9 +687,6 @@ void CefMainDelegate::InitializeResourceBundle() {
   std::string locale = command_line->GetSwitchValueASCII(switches::kLang);
   DCHECK(!locale.empty());
 
-  // Avoid DCHECK() in ui::ResourceBundle::LoadChromeResources().
-  ui::MaterialDesignController::Initialize();
-
   const std::string loaded_locale =
       ui::ResourceBundle::InitSharedInstanceWithLocale(
           locale, &content_client_, ui::ResourceBundle::LOAD_COMMON_RESOURCES);

@@ -12,6 +12,10 @@
 {
   // From chrome/common/extensions/api/_permission_features.json.
   // Required by the PDF extension which is hosted in a guest view.
+  "contentSettings": {
+    "channel": "stable",
+    "extension_types": ["extension", "legacy_packaged_app"]
+  },
   "resourcesPrivate": {
     "channel": "stable",
     "extension_types": [

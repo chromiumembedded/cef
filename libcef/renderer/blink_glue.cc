@@ -18,6 +18,7 @@ MSVC_PUSH_WARNING_LEVEL(0);
 #include "third_party/blink/renderer/bindings/core/v8/script_controller.h"
 #include "third_party/blink/renderer/bindings/core/v8/script_source_code.h"
 #include "third_party/blink/renderer/bindings/core/v8/v8_binding_for_core.h"
+#include "third_party/blink/renderer/bindings/core/v8/v8_code_cache.h"
 #include "third_party/blink/renderer/core/dom/document.h"
 #include "third_party/blink/renderer/core/dom/element.h"
 #include "third_party/blink/renderer/core/dom/node.h"
@@ -180,15 +181,15 @@ v8::MaybeLocal<v8::Value> ExecuteV8ScriptAndReturnValue(
 
   // Based on V8ScriptRunner::CompileAndRunInternalScript:
   v8::ScriptCompiler::CompileOptions compile_options;
-  blink::V8ScriptRunner::ProduceCacheOptions produce_cache_options;
+  blink::V8CodeCache::ProduceCacheOptions produce_cache_options;
   v8::ScriptCompiler::NoCacheReason no_cache_reason;
   std::tie(compile_options, produce_cache_options, no_cache_reason) =
-      blink::V8ScriptRunner::GetCompileOptions(v8CacheOptions, ssc);
+      blink::V8CodeCache::GetCompileOptions(v8CacheOptions, ssc);
 
   // Currently internal scripts don't have cache handlers, so we should not
   // produce cache for them.
   DCHECK_EQ(produce_cache_options,
-            blink::V8ScriptRunner::ProduceCacheOptions::kNoProduceCache);
+            blink::V8CodeCache::ProduceCacheOptions::kNoProduceCache);
 
   v8::Local<v8::Script> script;
   // Use default ReferrerScriptInfo here:

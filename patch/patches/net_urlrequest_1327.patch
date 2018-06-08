@@ -1,10 +1,10 @@
 diff --git net/url_request/url_request.h net/url_request/url_request.h
-index 57273101f211..cbd357b4d910 100644
+index 13b7326d6d50..d9b1dac19cd8 100644
 --- net/url_request/url_request.h
 +++ net/url_request/url_request.h
-@@ -712,10 +712,10 @@ class NET_EXPORT URLRequest : public base::SupportsUserData {
-   void set_socket_tag(const SocketTag& socket_tag);
-   const SocketTag& socket_tag() const { return socket_tag_; }
+@@ -723,10 +723,10 @@ class NET_EXPORT URLRequest : public base::SupportsUserData {
+   }
+   bool upgrade_if_insecure() const { return upgrade_if_insecure_; }
  
 - protected:
    // Allow the URLRequestJob class to control the is_pending() flag.

@@ -295,10 +295,10 @@ index 1d35afeda78f..333f9c0f778d 100644
    std::unique_ptr<SelectionController> selection_controller_;
  
 diff --git ui/views/controls/menu/menu_controller.cc ui/views/controls/menu/menu_controller.cc
-index 00590f09d91f..028a0af16d5e 100644
+index 7feb65bfdd66..c970760173ab 100644
 --- ui/views/controls/menu/menu_controller.cc
 +++ ui/views/controls/menu/menu_controller.cc
-@@ -2410,8 +2410,13 @@ MenuItemView* MenuController::FindNextSelectableMenuItem(
+@@ -2411,8 +2411,13 @@ MenuItemView* MenuController::FindNextSelectableMenuItem(
  
  void MenuController::OpenSubmenuChangeSelectionIfCan() {
    MenuItemView* item = pending_state_.item;
@@ -313,7 +313,7 @@ index 00590f09d91f..028a0af16d5e 100644
    MenuItemView* to_select = NULL;
    if (item->GetSubmenu()->GetMenuItemCount() > 0)
      to_select = FindInitialSelectableMenuItem(item, INCREMENT_SELECTION_DOWN);
-@@ -2426,8 +2431,10 @@ void MenuController::OpenSubmenuChangeSelectionIfCan() {
+@@ -2427,8 +2432,10 @@ void MenuController::OpenSubmenuChangeSelectionIfCan() {
  void MenuController::CloseSubmenu() {
    MenuItemView* item = state_.item;
    DCHECK(item);
@@ -373,10 +373,10 @@ index 4dea63f9f286..ef50b710c5af 100644
    virtual int GetMaxWidthForMenu(MenuItemView* menu);
  
 diff --git ui/views/controls/menu/menu_item_view.cc ui/views/controls/menu/menu_item_view.cc
-index 22a219b46605..a475cb45b03f 100644
+index f058ad626438..70df455a7c5d 100644
 --- ui/views/controls/menu/menu_item_view.cc
 +++ ui/views/controls/menu/menu_item_view.cc
-@@ -900,7 +900,12 @@ void MenuItemView::PaintButton(gfx::Canvas* canvas, PaintButtonMode mode) {
+@@ -905,7 +905,12 @@ void MenuItemView::PaintButton(gfx::Canvas* canvas, PaintButtonMode mode) {
    // only need the background when we want it to look different, as when we're
    // selected.
    ui::NativeTheme* native_theme = GetNativeTheme();
@@ -390,7 +390,7 @@ index 22a219b46605..a475cb45b03f 100644
      gfx::Rect item_bounds(0, 0, width(), height());
      if (type_ == ACTIONABLE_SUBMENU) {
        if (submenu_area_of_actionable_submenu_selected_) {
-@@ -1019,6 +1024,13 @@ void MenuItemView::PaintMinorIconAndText(gfx::Canvas* canvas, SkColor color) {
+@@ -1024,6 +1029,13 @@ void MenuItemView::PaintMinorIconAndText(gfx::Canvas* canvas, SkColor color) {
  SkColor MenuItemView::GetTextColor(bool minor,
                                     bool render_selection,
                                     bool emphasized) const {
@@ -528,7 +528,7 @@ index abcc8e28e7e5..574d46d03505 100644
        content_view_->GetMenuItem()->GetMenuController()->GetAnchorPosition());
  
 diff --git ui/views/test/ui_controls_factory_desktop_aurax11.cc ui/views/test/ui_controls_factory_desktop_aurax11.cc
-index 9e16b4c88177..3d660e406709 100644
+index 3ec1dcbdf822..e2658cec8095 100644
 --- ui/views/test/ui_controls_factory_desktop_aurax11.cc
 +++ ui/views/test/ui_controls_factory_desktop_aurax11.cc
 @@ -140,10 +140,6 @@ class UIControlsDesktopX11 : public UIControlsAura {

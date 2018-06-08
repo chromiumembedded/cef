@@ -147,7 +147,6 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
   void Destroy() override;
   void SetTooltipText(const base::string16& tooltip_text) override;
 
-  gfx::Size GetRequestedRendererSize() const override;
   gfx::Size GetCompositorViewportPixelSize() const override;
   void CopyFromSurface(
       const gfx::Rect& src_rect,

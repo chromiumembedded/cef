@@ -20,10 +20,10 @@ index f7c3e651b3ce..ce3e42c6900d 100644
  
    // Call these methods before and after running a nested, modal event loop
 diff --git third_party/blink/renderer/core/exported/web_view_impl.cc third_party/blink/renderer/core/exported/web_view_impl.cc
-index 80ba4c18ebc9..2f76f1e8df40 100644
+index 224122471b0e..92aad351f293 100644
 --- third_party/blink/renderer/core/exported/web_view_impl.cc
 +++ third_party/blink/renderer/core/exported/web_view_impl.cc
-@@ -248,8 +248,13 @@ void WebView::SetUseExternalPopupMenus(bool use_external_popup_menus) {
+@@ -246,8 +246,13 @@ void WebView::SetUseExternalPopupMenus(bool use_external_popup_menus) {
    g_should_use_external_popup_menus = use_external_popup_menus;
  }
  
@@ -39,7 +39,7 @@ index 80ba4c18ebc9..2f76f1e8df40 100644
  }
  
  namespace {
-@@ -340,6 +345,7 @@ WebViewImpl::WebViewImpl(WebViewClient* client,
+@@ -338,6 +343,7 @@ WebViewImpl::WebViewImpl(WebViewClient* client,
        enable_fake_page_scale_animation_for_testing_(false),
        fake_page_scale_animation_page_scale_factor_(0),
        fake_page_scale_animation_use_anchor_(false),
@@ -48,7 +48,7 @@ index 80ba4c18ebc9..2f76f1e8df40 100644
        suppress_next_keypress_event_(false),
        ime_accept_events_(true),
 diff --git third_party/blink/renderer/core/exported/web_view_impl.h third_party/blink/renderer/core/exported/web_view_impl.h
-index 58f8ff5cc826..0decc98d44f8 100644
+index 69f1438873b2..86443bf1f05e 100644
 --- third_party/blink/renderer/core/exported/web_view_impl.h
 +++ third_party/blink/renderer/core/exported/web_view_impl.h
 @@ -105,7 +105,8 @@ class CORE_EXPORT WebViewImpl final : public WebView,
@@ -70,7 +70,7 @@ index 58f8ff5cc826..0decc98d44f8 100644
    void SetBaseBackgroundColorOverride(SkColor);
    void ClearBaseBackgroundColorOverride();
    void SetBackgroundColorOverride(SkColor);
-@@ -620,6 +621,8 @@ class CORE_EXPORT WebViewImpl final : public WebView,
+@@ -617,6 +618,8 @@ class CORE_EXPORT WebViewImpl final : public WebView,
    float fake_page_scale_animation_page_scale_factor_;
    bool fake_page_scale_animation_use_anchor_;
  
@@ -80,7 +80,7 @@ index 58f8ff5cc826..0decc98d44f8 100644
    TransformationMatrix device_emulation_transform_;
  
 diff --git third_party/blink/renderer/core/page/chrome_client_impl.cc third_party/blink/renderer/core/page/chrome_client_impl.cc
-index 50350ccbc3f7..6b73415761a9 100644
+index d1d042242009..d2a78831921c 100644
 --- third_party/blink/renderer/core/page/chrome_client_impl.cc
 +++ third_party/blink/renderer/core/page/chrome_client_impl.cc
 @@ -774,7 +774,7 @@ bool ChromeClientImpl::HasOpenedPopup() const {

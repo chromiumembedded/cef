@@ -1,8 +1,8 @@
 diff --git content/public/common/common_param_traits_macros.h content/public/common/common_param_traits_macros.h
-index e3c46fdf48c7..8ca2e54e13a3 100644
+index 57f03dc1ed38..061bf10c07aa 100644
 --- content/public/common/common_param_traits_macros.h
 +++ content/public/common/common_param_traits_macros.h
-@@ -189,6 +189,7 @@ IPC_STRUCT_TRAITS_BEGIN(content::WebPreferences)
+@@ -190,6 +190,7 @@ IPC_STRUCT_TRAITS_BEGIN(content::WebPreferences)
    IPC_STRUCT_TRAITS_MEMBER(main_frame_resizes_are_orientation_changes)
    IPC_STRUCT_TRAITS_MEMBER(initialize_at_minimum_page_scale)
    IPC_STRUCT_TRAITS_MEMBER(smart_insert_delete_enabled)
@@ -11,7 +11,7 @@ index e3c46fdf48c7..8ca2e54e13a3 100644
    IPC_STRUCT_TRAITS_MEMBER(navigate_on_drag_drop)
    IPC_STRUCT_TRAITS_MEMBER(spatial_navigation_enabled)
 diff --git content/public/common/web_preferences.cc content/public/common/web_preferences.cc
-index c5f6d0b03ba6..4951f816e407 100644
+index 8ecb8383f9f6..fa6d9bef0ffb 100644
 --- content/public/common/web_preferences.cc
 +++ content/public/common/web_preferences.cc
 @@ -178,6 +178,7 @@ WebPreferences::WebPreferences()
@@ -23,7 +23,7 @@ index c5f6d0b03ba6..4951f816e407 100644
        record_whole_document(false),
        save_previous_document_resources(SavePreviousDocumentResources::NEVER),
 diff --git content/public/common/web_preferences.h content/public/common/web_preferences.h
-index a1e9fba06a66..c37d89755744 100644
+index 78cbf5f3db86..9a4906a32336 100644
 --- content/public/common/web_preferences.h
 +++ content/public/common/web_preferences.h
 @@ -198,6 +198,7 @@ struct CONTENT_EXPORT WebPreferences {
@@ -35,10 +35,10 @@ index a1e9fba06a66..c37d89755744 100644
    bool record_whole_document;
    SavePreviousDocumentResources save_previous_document_resources;
 diff --git content/renderer/render_view_impl.cc content/renderer/render_view_impl.cc
-index 4aba7a9e290e..3a26dab9d31d 100644
+index 4a2a3fac30ae..79f1e8192c9d 100644
 --- content/renderer/render_view_impl.cc
 +++ content/renderer/render_view_impl.cc
-@@ -1194,6 +1194,7 @@ void RenderViewImpl::ApplyWebPreferencesInternal(
+@@ -1227,6 +1227,7 @@ void RenderViewImpl::ApplyWebPreferencesInternal(
      blink::WebView* web_view,
      CompositorDependencies* compositor_deps) {
    ApplyWebPreferences(prefs, web_view);

@@ -77,7 +77,7 @@ index 4d9d1f45f870..c668f93a50f3 100644
    goma_prefix = ""
  }
 diff --git build/toolchain/win/setup_toolchain.py build/toolchain/win/setup_toolchain.py
-index d63b131aea35..6aca4e2cc56e 100644
+index 7405c61df323..4df7c57fe72f 100644
 --- build/toolchain/win/setup_toolchain.py
 +++ build/toolchain/win/setup_toolchain.py
 @@ -134,25 +134,28 @@ def _LoadToolchainEnv(cpu, sdk_dir, target_store):
@@ -129,7 +129,7 @@ index d63b131aea35..6aca4e2cc56e 100644
  
  
 diff --git build/vs_toolchain.py build/vs_toolchain.py
-index 0abf143029cc..7e163f846982 100755
+index aeb7bdadc73e..84b8541f1ff3 100755
 --- build/vs_toolchain.py
 +++ build/vs_toolchain.py
 @@ -82,11 +82,18 @@ def SetEnvironmentAndGetRuntimeDllDirs():
@@ -165,7 +165,7 @@ index fde31eb044ed..b4fd21636719 100644
      if (is_mac) {
        output_locales = locales_as_mac_outputs
 diff --git chrome/installer/mini_installer/BUILD.gn chrome/installer/mini_installer/BUILD.gn
-index 5c940dde6d9c..1cc058e51c5b 100644
+index 7189a44f5c31..1a83b3ea6325 100644
 --- chrome/installer/mini_installer/BUILD.gn
 +++ chrome/installer/mini_installer/BUILD.gn
 @@ -133,7 +133,7 @@ template("generate_mini_installer") {

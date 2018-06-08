@@ -15,6 +15,9 @@ class CefExtensionsDispatcherDelegate : public DispatcherDelegate {
   CefExtensionsDispatcherDelegate();
   ~CefExtensionsDispatcherDelegate() override;
 
+  void PopulateSourceMap(
+      extensions::ResourceBundleSourceMap* source_map) override;
+
  private:
   DISALLOW_COPY_AND_ASSIGN(CefExtensionsDispatcherDelegate);
 };

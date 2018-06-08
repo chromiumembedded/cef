@@ -4,10 +4,24 @@
 
 #include "libcef/renderer/extensions/extensions_dispatcher_delegate.h"
 
+#include "base/feature_list.h"
+#include "chrome/grit/renderer_resources.h"
+#include "extensions/common/extension_features.h"
+#include "extensions/renderer/resource_bundle_source_map.h"
+
 namespace extensions {
 
 CefExtensionsDispatcherDelegate::CefExtensionsDispatcherDelegate() {}
 
 CefExtensionsDispatcherDelegate::~CefExtensionsDispatcherDelegate() {}
+
+void CefExtensionsDispatcherDelegate::PopulateSourceMap(
+    extensions::ResourceBundleSourceMap* source_map) {
+  // These bindings are unnecessary with native bindings enabled.
+  if (!base::FeatureList::IsEnabled(extensions::features::kNativeCrxBindings)) {
+    // Custom types sources.
+    source_map->RegisterSource("ContentSetting", IDR_CONTENT_SETTING_JS);
+  }
+}
 
 }  // namespace extensions

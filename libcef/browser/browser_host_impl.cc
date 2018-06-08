@@ -2900,13 +2900,13 @@ bool CefBrowserHostImpl::OnMessageReceived(
 }
 
 void CefBrowserHostImpl::AccessibilityEventReceived(
-    const std::vector<content::AXEventNotificationDetails>& eventData) {
+    const content::AXEventNotificationDetails& content_event_bundle) {
   // Only needed in windowless mode.
   if (IsWindowless()) {
     if (!web_contents() || !platform_delegate_)
       return;
 
-    platform_delegate_->AccessibilityEventReceived(eventData);
+    platform_delegate_->AccessibilityEventReceived(content_event_bundle);
   }
 }
 

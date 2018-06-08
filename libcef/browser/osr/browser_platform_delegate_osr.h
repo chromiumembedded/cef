@@ -90,8 +90,7 @@ class CefBrowserPlatformDelegateOsr
   void DragSourceEndedAt(int x, int y, cef_drag_operations_mask_t op) override;
   void DragSourceSystemDragEnded() override;
   void AccessibilityEventReceived(
-      const std::vector<content::AXEventNotificationDetails>& eventData)
-      override;
+      const content::AXEventNotificationDetails& eventData) override;
   void AccessibilityLocationChangesReceived(
       const std::vector<content::AXLocationChangeNotificationDetails>& locData)
       override;

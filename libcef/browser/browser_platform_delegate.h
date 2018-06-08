@@ -262,7 +262,7 @@ class CefBrowserPlatformDelegate {
   virtual void DragSourceEndedAt(int x, int y, cef_drag_operations_mask_t op);
   virtual void DragSourceSystemDragEnded();
   virtual void AccessibilityEventReceived(
-      const std::vector<content::AXEventNotificationDetails>& eventData);
+      const content::AXEventNotificationDetails& eventData);
   virtual void AccessibilityLocationChangesReceived(
       const std::vector<content::AXLocationChangeNotificationDetails>& locData);
 

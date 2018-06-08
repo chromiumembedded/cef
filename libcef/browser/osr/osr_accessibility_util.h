@@ -19,7 +19,7 @@ namespace osr_accessibility_util {
 // Convert Accessibility Event and location updates to CefValue, which may be
 // consumed or serialized with CefJSONWrite.
 CefRefPtr<CefValue> ParseAccessibilityEventData(
-    const std::vector<content::AXEventNotificationDetails>& data);
+    const content::AXEventNotificationDetails& data);
 
 CefRefPtr<CefValue> ParseAccessibilityLocationData(
     const std::vector<content::AXLocationChangeNotificationDetails>& data);

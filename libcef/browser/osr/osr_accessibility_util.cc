@@ -380,24 +380,53 @@ CefRefPtr<CefDictionaryValue> ToCefValue(const ui::AXTreeUpdate& update) {
   return value;
 }
 
+// Converts AXEvent to CefDictionaryValue.
+CefRefPtr<CefDictionaryValue> ToCefValue(const ui::AXEvent& event) {
+  CefRefPtr<CefDictionaryValue> value = CefDictionaryValue::Create();
+
+  if (event.event_type != ax::mojom::Event::kNone)
+    value->SetString("event_type", ToString(event.event_type));
+
+  if (event.id != -1)
+    value->SetInt("id", event.id);
+
+  if (event.event_from != ax::mojom::EventFrom::kNone)
+    value->SetString("event_from", ToString(event.event_from));
+
+  if (event.action_request_id != -1)
+    value->SetInt("action_request_id", event.action_request_id);
+
+  return value;
+}
+
 // Convert AXEventNotificationDetails to CefDictionaryValue.
 CefRefPtr<CefDictionaryValue> ToCefValue(
     const content::AXEventNotificationDetails& eventData) {
   CefRefPtr<CefDictionaryValue> value = CefDictionaryValue::Create();
 
-  if (eventData.id != -1)
-    value->SetInt("id", eventData.id);
-
   if (eventData.ax_tree_id != -1)
     value->SetInt("ax_tree_id", eventData.ax_tree_id);
 
-  if (eventData.event_type != ax::mojom::Event::kNone)
-    value->SetString("event_type", ToString(eventData.event_type));
+  if (eventData.updates.size() > 0) {
+    CefRefPtr<CefListValue> updates = CefListValue::Create();
+    updates->SetSize(eventData.updates.size());
+    size_t i = 0;
+    for (const auto& update : eventData.updates) {
+      updates->SetDictionary(i++, ToCefValue(update));
+    }
+    value->SetList("updates", updates);
+  }
 
-  if (eventData.event_from != ax::mojom::EventFrom::kNone)
-    value->SetString("event_from", ToString(eventData.event_from));
+  if (eventData.events.size() > 0) {
+    CefRefPtr<CefListValue> events = CefListValue::Create();
+    events->SetSize(eventData.events.size());
+    size_t i = 0;
+    for (const auto& event : eventData.events) {
+      events->SetDictionary(i++, ToCefValue(event));
+    }
+    value->SetList("events", events);
+  }
 
-  value->SetDictionary("update", ToCefValue(eventData.update));
   return value;
 }
 
@@ -419,7 +448,7 @@ CefRefPtr<CefDictionaryValue> ToCefValue(const ui::AXRelativeBounds& location) {
   return value;
 }
 
-// Convert AXEventNotificationDetails to CefDictionaryValue.
+// Convert AXLocationChangeNotificationDetails to CefDictionaryValue.
 CefRefPtr<CefDictionaryValue> ToCefValue(
     const content::AXLocationChangeNotificationDetails& locData) {
   CefRefPtr<CefDictionaryValue> value = CefDictionaryValue::Create();
@@ -450,9 +479,9 @@ CefRefPtr<CefListValue> ToCefValue(const std::vector<T>& vecData) {
 namespace osr_accessibility_util {
 
 CefRefPtr<CefValue> ParseAccessibilityEventData(
-    const std::vector<content::AXEventNotificationDetails>& data) {
+    const content::AXEventNotificationDetails& data) {
   CefRefPtr<CefValue> value = CefValue::Create();
-  value->SetList(ToCefValue(data));
+  value->SetDictionary(ToCefValue(data));
   return value;
 }
 

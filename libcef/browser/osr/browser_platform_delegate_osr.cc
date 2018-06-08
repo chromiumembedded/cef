@@ -535,7 +535,7 @@ void CefBrowserPlatformDelegateOsr::DragSourceSystemDragEnded() {
 }
 
 void CefBrowserPlatformDelegateOsr::AccessibilityEventReceived(
-    const std::vector<content::AXEventNotificationDetails>& eventData) {
+    const content::AXEventNotificationDetails& eventData) {
   CefRefPtr<CefRenderHandler> handler = browser_->client()->GetRenderHandler();
   if (handler.get()) {
     CefRefPtr<CefAccessibilityHandler> acchandler =

@@ -362,14 +362,14 @@ void CefRenderWidgetHostViewOSR::Show() {
   browser_compositor_->SetRenderWidgetHostIsHidden(false);
 #else
   delegated_frame_host_->SetCompositor(compositor_.get());
-  delegated_frame_host_->WasShown(
-      GetLocalSurfaceId(), GetRootLayer()->bounds().size(), ui::LatencyInfo());
+  delegated_frame_host_->WasShown(GetLocalSurfaceId(),
+                                  GetRootLayer()->bounds().size(), false);
 #endif
 
   // Note that |render_widget_host_| will retrieve size parameters from the
   // DelegatedFrameHost, so it must have WasShown called after.
   if (render_widget_host_)
-    render_widget_host_->WasShown(ui::LatencyInfo());
+    render_widget_host_->WasShown(false);
 }
 
 void CefRenderWidgetHostViewOSR::Hide() {
@@ -677,10 +677,6 @@ void CefRenderWidgetHostViewOSR::SetTooltipText(
   if (handler.get()) {
     handler->OnTooltip(browser_impl_.get(), tooltip);
   }
-}
-
-gfx::Size CefRenderWidgetHostViewOSR::GetRequestedRendererSize() const {
-  return GetDelegatedFrameHost()->GetRequestedRendererSize();
 }
 
 gfx::Size CefRenderWidgetHostViewOSR::GetCompositorViewportPixelSize() const {
@@ -1374,7 +1370,7 @@ void CefRenderWidgetHostViewOSR::ResizeRootLayer(bool force) {
   PlatformResizeCompositorWidget(size_in_pixels);
 
   bool resized = true;
-  GetDelegatedFrameHost()->SynchronizeVisualProperties(
+  GetDelegatedFrameHost()->EmbedSurface(
       local_surface_id_, size, cc::DeadlinePolicy::UseDefaultDeadline());
 #endif  // !defined(OS_MACOSX)
 

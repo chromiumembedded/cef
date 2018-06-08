@@ -1,8 +1,8 @@
 diff --git content/browser/web_contents/web_contents_impl.cc content/browser/web_contents/web_contents_impl.cc
-index dde4f26a40c3..9249b0cbb6a1 100644
+index 59f3a5069faa..8b47e7a5b9f3 100644
 --- content/browser/web_contents/web_contents_impl.cc
 +++ content/browser/web_contents/web_contents_impl.cc
-@@ -1797,21 +1797,30 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
+@@ -1862,21 +1862,30 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
    std::string unique_name;
    frame_tree_.root()->SetFrameName(params.main_frame_name, unique_name);
  
@@ -45,7 +45,7 @@ index dde4f26a40c3..9249b0cbb6a1 100644
    CHECK(render_view_host_delegate_view_);
    CHECK(view_.get());
  
-@@ -2418,6 +2427,15 @@ void WebContentsImpl::CreateNewWindow(
+@@ -2484,6 +2493,15 @@ void WebContentsImpl::CreateNewWindow(
    create_params.renderer_initiated_creation =
        main_frame_route_id != MSG_ROUTING_NONE;
  
@@ -61,7 +61,7 @@ index dde4f26a40c3..9249b0cbb6a1 100644
    std::unique_ptr<WebContents> new_contents;
    if (!is_guest) {
      create_params.context = view_->GetNativeView();
-@@ -2448,7 +2466,7 @@ void WebContentsImpl::CreateNewWindow(
+@@ -2514,7 +2532,7 @@ void WebContentsImpl::CreateNewWindow(
        // TODO(brettw): It seems bogus that we have to call this function on the
        // newly created object and give it one of its own member variables.
        new_view->CreateViewForWidget(
@@ -70,7 +70,7 @@ index dde4f26a40c3..9249b0cbb6a1 100644
      }
      // Save the created window associated with the route so we can show it
      // later.
-@@ -5742,7 +5760,7 @@ InterstitialPageImpl* WebContentsImpl::GetInterstitialForRenderManager() {
+@@ -5814,7 +5832,7 @@ InterstitialPageImpl* WebContentsImpl::GetInterstitialForRenderManager() {
  void WebContentsImpl::CreateRenderWidgetHostViewForRenderManager(
      RenderViewHost* render_view_host) {
    RenderWidgetHostViewBase* rwh_view =
@@ -80,13 +80,13 @@ index dde4f26a40c3..9249b0cbb6a1 100644
    // Now that the RenderView has been created, we need to tell it its size.
    if (rwh_view)
 diff --git content/public/browser/web_contents.cc content/public/browser/web_contents.cc
-index 53d56abb35a3..d7b955f42ca5 100644
+index df508da0aef2..f6f4bf42b108 100644
 --- content/public/browser/web_contents.cc
 +++ content/public/browser/web_contents.cc
 @@ -30,7 +30,9 @@ WebContents::CreateParams::CreateParams(BrowserContext* context,
        context(nullptr),
        renderer_initiated_creation(false),
-       initialize_renderer(false),
+       desired_renderer_state(kOkayToHaveRendererProcess),
 -      starting_sandbox_flags(blink::WebSandboxFlags::kNone) {}
 +      starting_sandbox_flags(blink::WebSandboxFlags::kNone),
 +      view(nullptr),
@@ -95,10 +95,10 @@ index 53d56abb35a3..d7b955f42ca5 100644
  WebContents::CreateParams::CreateParams(const CreateParams& other) = default;
  
 diff --git content/public/browser/web_contents.h content/public/browser/web_contents.h
-index c4a7f3173b98..d42beefe4589 100644
+index f7a44dd2bbe1..0e4954c46f2a 100644
 --- content/public/browser/web_contents.h
 +++ content/public/browser/web_contents.h
-@@ -74,9 +74,11 @@ class BrowserPluginGuestDelegate;
+@@ -75,9 +75,11 @@ class BrowserPluginGuestDelegate;
  class InterstitialPage;
  class RenderFrameHost;
  class RenderViewHost;
@@ -110,7 +110,7 @@ index c4a7f3173b98..d42beefe4589 100644
  struct CustomContextMenuContext;
  struct DropData;
  struct MHTMLGenerationParams;
-@@ -178,6 +180,10 @@ class WebContents : public PageNavigator,
+@@ -216,6 +218,10 @@ class WebContents : public PageNavigator,
  
      // Sandboxing flags set on the new WebContents.
      blink::WebSandboxFlags starting_sandbox_flags;
@@ -122,7 +122,7 @@ index c4a7f3173b98..d42beefe4589 100644
  
    // Creates a new WebContents.
 diff --git content/public/browser/web_contents_delegate.h content/public/browser/web_contents_delegate.h
-index 4fc457c9e413..79a6dbf5b3a5 100644
+index a4d4d079fbaa..4f5f626846bc 100644
 --- content/public/browser/web_contents_delegate.h
 +++ content/public/browser/web_contents_delegate.h
 @@ -47,10 +47,12 @@ class ColorChooser;
@@ -138,7 +138,7 @@ index 4fc457c9e413..79a6dbf5b3a5 100644
  struct ContextMenuParams;
  struct DropData;
  struct FileChooserParams;
-@@ -313,6 +315,14 @@ class CONTENT_EXPORT WebContentsDelegate {
+@@ -310,6 +312,14 @@ class CONTENT_EXPORT WebContentsDelegate {
        const std::string& partition_id,
        SessionStorageNamespace* session_storage_namespace);
  

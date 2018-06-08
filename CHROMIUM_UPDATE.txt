@@ -41,6 +41,7 @@
     'chrome/renderer/chrome_content_renderer_client.*',
     'chrome/renderer/extensions/chrome_extensions_renderer_client.*',
     'content/browser/renderer_host/render_widget_host_view_base.*',
+    'content/public/browser/content_browser_client.*',
     'content/public/browser/render_widget_host_view.h',
     'content/public/browser/storage_partition.h',
     'content/public/browser/web_contents_delegate.h',

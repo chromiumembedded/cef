@@ -110,7 +110,8 @@ void CefBrowserImpl::Reload() {
   if (render_view()->GetWebView()) {
     WebFrame* main_frame = render_view()->GetWebView()->MainFrame();
     if (main_frame && main_frame->IsWebLocalFrame()) {
-      main_frame->ToWebLocalFrame()->Reload(blink::WebFrameLoadType::kReload);
+      main_frame->ToWebLocalFrame()->StartReload(
+          blink::WebFrameLoadType::kReload);
     }
   }
 }
@@ -121,7 +122,7 @@ void CefBrowserImpl::ReloadIgnoreCache() {
   if (render_view()->GetWebView()) {
     WebFrame* main_frame = render_view()->GetWebView()->MainFrame();
     if (main_frame && main_frame->IsWebLocalFrame()) {
-      main_frame->ToWebLocalFrame()->Reload(
+      main_frame->ToWebLocalFrame()->StartReload(
           blink::WebFrameLoadType::kReloadBypassingCache);
     }
   }
@@ -313,7 +314,7 @@ void CefBrowserImpl::LoadRequest(const CefMsg_LoadRequest_Params& params) {
   blink::WebURLRequest request;
   CefRequestImpl::Get(params, request);
 
-  web_frame->LoadRequest(request);
+  web_frame->StartNavigation(request);
 }
 
 bool CefBrowserImpl::SendProcessMessage(CefProcessId target_process,

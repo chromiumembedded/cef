@@ -12,6 +12,10 @@
 {
   // From chrome/common/extensions/api/_api_features.json.
   // Required by the PDF extension which is hosted in a guest view.
+  "contentSettings": {
+    "dependencies": ["permission:contentSettings"],
+    "contexts": ["blessed_extension"]
+  },
   "mimeHandlerViewGuestInternal": {
     "internal": true,
     "contexts": "all",

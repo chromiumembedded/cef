@@ -506,8 +506,7 @@ class CefBrowserHostImpl : public CefBrowserHost,
   bool OnMessageReceived(const IPC::Message& message,
                          content::RenderFrameHost* render_frame_host) override;
   void AccessibilityEventReceived(
-      const std::vector<content::AXEventNotificationDetails>& eventData)
-      override;
+      const content::AXEventNotificationDetails& content_event_bundle) override;
   void AccessibilityLocationChangesReceived(
       const std::vector<content::AXLocationChangeNotificationDetails>& locData)
       override;

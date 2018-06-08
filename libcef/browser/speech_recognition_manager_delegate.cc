@@ -21,8 +21,6 @@
 #include "content/public/browser/speech_recognition_manager.h"
 #include "content/public/browser/speech_recognition_session_context.h"
 #include "content/public/browser/web_contents.h"
-#include "content/public/common/speech_recognition_error.h"
-#include "content/public/common/speech_recognition_result.h"
 
 using content::BrowserThread;
 using content::SpeechRecognitionManager;
@@ -52,11 +50,11 @@ void CefSpeechRecognitionManagerDelegate::OnAudioEnd(int session_id) {}
 
 void CefSpeechRecognitionManagerDelegate::OnRecognitionResults(
     int session_id,
-    const content::SpeechRecognitionResults& result) {}
+    const std::vector<content::mojom::SpeechRecognitionResultPtr>& result) {}
 
 void CefSpeechRecognitionManagerDelegate::OnRecognitionError(
     int session_id,
-    const content::SpeechRecognitionError& error) {}
+    const content::mojom::SpeechRecognitionError& error) {}
 
 void CefSpeechRecognitionManagerDelegate::OnAudioLevelsChange(
     int session_id,

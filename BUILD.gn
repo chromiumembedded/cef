@@ -706,8 +706,7 @@ static_library("libcef_static") {
     "//media",
     "//media/blink",
     "//net",
-    "//net:net_browser_services",
-    "//net:net_utility_services",
+    "//net/dns:mojo_client",
     "//net:net_with_v8",
     "//pdf",
     "//ppapi/buildflags",
@@ -1450,7 +1449,6 @@ if (is_mac) {
 
     deps = [
       ":libcef_static",
-      "//build/config:exe_and_shlib_deps",
     ]
 
     if (is_win) {
@@ -1845,7 +1843,6 @@ if (is_mac) {
     deps = [
       ":libcef",
       ":libcef_dll_wrapper",
-      "//build/config:exe_and_shlib_deps",
     ]
 
     if (is_win) {
@@ -1919,7 +1916,6 @@ if (is_mac) {
     deps = [
       ":libcef",
       ":libcef_dll_wrapper",
-      "//build/config:exe_and_shlib_deps",
     ]
 
     if (is_win) {
@@ -1988,7 +1984,6 @@ if (is_mac) {
     deps = [
       ":libcef",
       ":libcef_dll_wrapper",
-      "//build/config:exe_and_shlib_deps",
       "//testing/gtest",
     ]
 
