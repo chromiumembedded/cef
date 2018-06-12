@@ -336,12 +336,15 @@ if(OS_WINDOWS)
   option(USE_SANDBOX "Enable or disable use of the sandbox." ON)
   if(USE_SANDBOX)
     # Check if the current MSVC version is compatible with the cef_sandbox.lib
-    # static library.
+    # static library. For a list of all version numbers see
+    # https://en.wikipedia.org/wiki/Microsoft_Visual_C%2B%2B#Internal_version_numbering
     list(APPEND supported_msvc_versions
       1900  # VS2015 and updates 1, 2, & 3
       1910  # VS2017 version 15.1 & 15.2
       1911  # VS2017 version 15.3 & 15.4
       1912  # VS2017 version 15.5
+      1913  # VS2017 version 15.6
+      1914  # VS2017 version 15.7
       )
     list(FIND supported_msvc_versions ${MSVC_VERSION} _index)
     if (${_index} EQUAL -1)
