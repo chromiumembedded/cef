@@ -1,0 +1,102 @@
+diff --git content/app/content_main_runner_impl.cc content/app/content_main_runner_impl.cc
+index 83e8990edf17..89bdab3f3885 100644
+--- content/app/content_main_runner_impl.cc
++++ content/app/content_main_runner_impl.cc
+@@ -603,7 +603,8 @@ int RunBrowserProcessMain(
+     ContentMainDelegate* delegate,
+     std::unique_ptr<BrowserProcessSubThread> service_manager_thread) {
+   if (delegate) {
+-    int exit_code = delegate->RunProcess("", main_function_params);
++    int exit_code = delegate->RunProcess("", main_function_params,
++                                         std::move(service_manager_thread));
+ #if defined(OS_ANDROID)
+     // In Android's browser process, the negative exit code doesn't mean the
+     // default behavior should be used as the UI message loop is managed by
+diff --git content/browser/browser_main_runner_impl.h content/browser/browser_main_runner_impl.h
+index adb084fe27c6..42a6fdc2d67f 100644
+--- content/browser/browser_main_runner_impl.h
++++ content/browser/browser_main_runner_impl.h
+@@ -42,7 +42,7 @@ class BrowserMainRunnerImpl : public BrowserMainRunner {
+   // on which ServiceManager is currently running.
+   int Initialize(
+       const MainFunctionParams& parameters,
+-      std::unique_ptr<BrowserProcessSubThread> service_manager_thread);
++      std::unique_ptr<BrowserProcessSubThread> service_manager_thread) override;
+ 
+  private:
+   // True if we have started to initialize the runner.
+diff --git content/public/app/content_main_delegate.cc content/public/app/content_main_delegate.cc
+index c4bdfd36ad0c..f6830c35fd1d 100644
+--- content/public/app/content_main_delegate.cc
++++ content/public/app/content_main_delegate.cc
+@@ -6,6 +6,7 @@
+ 
+ #include "base/logging.h"
+ #include "build/build_config.h"
++#include "content/browser/browser_process_sub_thread.h"
+ #include "content/public/gpu/content_gpu_client.h"
+ #include "content/public/renderer/content_renderer_client.h"
+ #include "content/public/utility/content_utility_client.h"
+@@ -26,6 +27,13 @@ int ContentMainDelegate::RunProcess(
+   return -1;
+ }
+ 
++int ContentMainDelegate::RunProcess(
++    const std::string& process_type,
++    const MainFunctionParams& main_function_params,
++    std::unique_ptr<BrowserProcessSubThread> service_manager_thread) {
++  return RunProcess(process_type, main_function_params);
++}
++
+ ui::DataPack* ContentMainDelegate::LoadServiceManifestDataPack() {
+   return nullptr;
+ }
+diff --git content/public/app/content_main_delegate.h content/public/app/content_main_delegate.h
+index b5d8b1889d60..ea6af1600c36 100644
+--- content/public/app/content_main_delegate.h
++++ content/public/app/content_main_delegate.h
+@@ -30,6 +30,7 @@ class DataPack;
+ 
+ namespace content {
+ 
++class BrowserProcessSubThread;
+ class ContentBrowserClient;
+ class ContentGpuClient;
+ class ContentRendererClient;
+@@ -60,6 +61,12 @@ class CONTENT_EXPORT ContentMainDelegate {
+       const std::string& process_type,
+       const MainFunctionParams& main_function_params);
+ 
++  // Asks the embedder to start a process. Return -1 for the default behavior.
++  virtual int RunProcess(
++      const std::string& process_type,
++      const MainFunctionParams& main_function_params,
++      std::unique_ptr<BrowserProcessSubThread> service_manager_thread);
++
+   // Called right before the process exits.
+   virtual void ProcessExiting(const std::string& process_type) {}
+ 
+diff --git content/public/browser/browser_main_runner.h content/public/browser/browser_main_runner.h
+index c01be956eded..8cbd8d894ac5 100644
+--- content/public/browser/browser_main_runner.h
++++ content/public/browser/browser_main_runner.h
+@@ -10,6 +10,7 @@
+ 
+ namespace content {
+ 
++class BrowserProcessSubThread;
+ struct MainFunctionParams;
+ 
+ // This class is responsible for browser initialization, running and shutdown.
+@@ -26,7 +27,10 @@ class CONTENT_EXPORT BrowserMainRunner {
+   // Initialize all necessary browser state. The |parameters| values will be
+   // copied. Returning a non-negative value indicates that initialization
+   // failed, and the returned value is used as the exit code for the process.
+-  virtual int Initialize(const content::MainFunctionParams& parameters) = 0;
++  virtual int Initialize(const MainFunctionParams& parameters) = 0;
++  virtual int Initialize(
++      const MainFunctionParams& parameters,
++      std::unique_ptr<BrowserProcessSubThread> service_manager_thread) = 0;
+ 
+ #if defined(OS_ANDROID)
+   // Run all queued startup tasks. Only defined on Android because other
