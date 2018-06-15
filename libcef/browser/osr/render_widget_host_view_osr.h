@@ -18,6 +18,7 @@
 #include "components/viz/common/frame_sinks/begin_frame_source.h"
 #include "components/viz/common/surfaces/parent_local_surface_id_allocator.h"
 #include "content/browser/renderer_host/delegated_frame_host.h"
+#include "content/browser/renderer_host/input/mouse_wheel_phase_handler.h"
 #include "content/browser/renderer_host/render_widget_host_view_base.h"
 #include "ui/compositor/compositor.h"
 
@@ -368,6 +369,8 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
   // The last scroll offset of the view.
   gfx::Vector2dF last_scroll_offset_;
   bool is_scroll_offset_changed_pending_;
+
+  content::MouseWheelPhaseHandler mouse_wheel_phase_handler_;
 
   viz::mojom::CompositorFrameSinkClient* renderer_compositor_frame_sink_ =
       nullptr;
