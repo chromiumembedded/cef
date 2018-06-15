@@ -268,6 +268,12 @@ CefRefPtr<CefBrowser> CefBrowserHost::CreateBrowserSync(
   create_params.window_info.reset(new CefWindowInfo(windowInfo));
   create_params.client = client;
   create_params.url = GURL(url.ToString());
+  if (!url.empty() && 
+      !create_params.url.is_valid() && 
+      !create_params.url.has_scheme()) {
+    std::string new_url = std::string("http://") + url.ToString();
+    create_params.url = GURL(new_url);
+  }
   create_params.settings = settings;
   create_params.request_context = request_context;
 
