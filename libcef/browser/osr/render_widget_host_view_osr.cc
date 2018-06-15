@@ -1296,9 +1296,11 @@ void CefRenderWidgetHostViewOSR::SetFrameRate() {
       osr_util::ClampFrameRate(browser->settings().windowless_frame_rate);
   frame_rate_threshold_us_ = 1000000 / frame_rate;
 
-  // Configure the VSync interval for the browser process.
-  GetCompositor()->vsync_manager()->SetAuthoritativeVSyncInterval(
-      base::TimeDelta::FromMicroseconds(frame_rate_threshold_us_));
+  if (GetCompositor()) {
+    // Configure the VSync interval for the browser process.
+    GetCompositor()->vsync_manager()->SetAuthoritativeVSyncInterval(
+        base::TimeDelta::FromMicroseconds(frame_rate_threshold_us_));
+  }
 
   if (copy_frame_generator_.get()) {
     copy_frame_generator_->set_frame_rate_threshold_us(
@@ -1364,8 +1366,10 @@ void CefRenderWidgetHostViewOSR::ResizeRootLayer() {
   local_surface_id_ = local_surface_id_allocator_.GenerateId();
 
   GetRootLayer()->SetBounds(gfx::Rect(size));
-  GetCompositor()->SetScaleAndSize(current_device_scale_factor_, size_in_pixels,
-                                   local_surface_id_);
+  if (GetCompositor()) {
+    GetCompositor()->SetScaleAndSize(current_device_scale_factor_,
+                                     size_in_pixels, local_surface_id_);
+  }
   PlatformResizeCompositorWidget(size_in_pixels);
 
 #if defined(OS_MACOSX)
