@@ -28,6 +28,7 @@
 #include "chrome/common/chrome_switches.h"
 #include "components/content_settings/core/common/content_settings_pattern.h"
 #include "components/viz/common/features.h"
+#include "content/browser/browser_process_sub_thread.h"
 #include "content/public/browser/browser_main_runner.h"
 #include "content/public/browser/render_process_host.h"
 #include "content/public/common/content_features.h"
@@ -243,9 +244,12 @@ bool IsScaleFactorSupported(ui::ScaleFactor scale_factor) {
 // Used to run the UI on a separate thread.
 class CefUIThread : public base::Thread {
  public:
-  explicit CefUIThread(const content::MainFunctionParams& main_function_params)
+  CefUIThread(
+      const content::MainFunctionParams& main_function_params,
+      std::unique_ptr<content::BrowserProcessSubThread> service_manager_thread)
       : base::Thread("CefUIThread"),
-        main_function_params_(main_function_params) {}
+        main_function_params_(main_function_params),
+        service_manager_thread_(std::move(service_manager_thread)) {}
 
   void Init() override {
 #if defined(OS_WIN)
@@ -257,7 +261,8 @@ class CefUIThread : public base::Thread {
     browser_runner_.reset(content::BrowserMainRunner::Create());
 
     // Initialize browser process state. Uses the current thread's mesage loop.
-    int exit_code = browser_runner_->Initialize(main_function_params_);
+    int exit_code = browser_runner_->Initialize(
+        main_function_params_, std::move(service_manager_thread_));
     CHECK_EQ(exit_code, -1);
   }
 
@@ -274,6 +279,7 @@ class CefUIThread : public base::Thread {
 
  protected:
   content::MainFunctionParams main_function_params_;
+  std::unique_ptr<content::BrowserProcessSubThread> service_manager_thread_;
   std::unique_ptr<content::BrowserMainRunner> browser_runner_;
 };
 
@@ -573,6 +579,13 @@ void CefMainDelegate::SandboxInitialized(const std::string& process_type) {
 int CefMainDelegate::RunProcess(
     const std::string& process_type,
     const content::MainFunctionParams& main_function_params) {
+  return RunProcess(process_type, main_function_params, nullptr);
+}
+
+int CefMainDelegate::RunProcess(
+    const std::string& process_type,
+    const content::MainFunctionParams& main_function_params,
+    std::unique_ptr<content::BrowserProcessSubThread> service_manager_thread) {
   if (process_type.empty()) {
     const CefSettings& settings = CefContext::Get()->settings();
     if (!settings.multi_threaded_message_loop) {
@@ -582,13 +595,15 @@ int CefMainDelegate::RunProcess(
       // Initialize browser process state. Results in a call to
       // CefBrowserMain::PreMainMessageLoopStart() which creates the UI message
       // loop.
-      int exit_code = browser_runner_->Initialize(main_function_params);
+      int exit_code = browser_runner_->Initialize(
+          main_function_params, std::move(service_manager_thread));
       if (exit_code >= 0)
         return exit_code;
     } else {
       // Run the UI on a separate thread.
       std::unique_ptr<base::Thread> thread;
-      thread.reset(new CefUIThread(main_function_params));
+      thread.reset(new CefUIThread(main_function_params,
+                                   std::move(service_manager_thread)));
       base::Thread::Options options;
       options.message_loop_type = base::MessageLoop::TYPE_UI;
       if (!thread->StartWithOptions(options)) {
