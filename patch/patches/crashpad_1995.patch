@@ -45,7 +45,7 @@ index bcf172e645a2..f879aa745adf 100644
  // on the given |command_line|.
  void SetCrashKeysFromCommandLine(const base::CommandLine& command_line);
 diff --git chrome_elf/BUILD.gn chrome_elf/BUILD.gn
-index c4744fbd2a78..05d10cc09d69 100644
+index e1207fd03292..4453785e72df 100644
 --- chrome_elf/BUILD.gn
 +++ chrome_elf/BUILD.gn
 @@ -7,6 +7,7 @@

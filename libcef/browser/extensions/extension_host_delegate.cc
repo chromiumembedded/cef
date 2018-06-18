@@ -42,7 +42,7 @@ void CefExtensionHostDelegate::CreateTab(
 void CefExtensionHostDelegate::ProcessMediaAccessRequest(
     content::WebContents* web_contents,
     const content::MediaStreamRequest& request,
-    const content::MediaResponseCallback& callback,
+    content::MediaResponseCallback callback,
     const Extension* extension) {
   // Never routed here from CefBrowserHostImpl.
   NOTREACHED();

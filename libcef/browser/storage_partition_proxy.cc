@@ -222,7 +222,7 @@ content::BrowserContext* CefStoragePartitionProxy::browser_context() const {
 
 mojo::BindingId CefStoragePartitionProxy::Bind(
     int process_id,
-    mojo::InterfaceRequest<content::mojom::StoragePartitionService> request) {
+    mojo::InterfaceRequest<blink::mojom::StoragePartitionService> request) {
   return parent_->Bind(process_id, std::move(request));
 }
 

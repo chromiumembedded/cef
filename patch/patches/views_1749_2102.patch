@@ -39,7 +39,7 @@ index a19e6e937f87..817b7eada253 100644
    virtual void MenuWillShow() {}
  
 diff --git ui/gfx/render_text.cc ui/gfx/render_text.cc
-index 39702db77da5..fa1a84425200 100644
+index a60952af55e0..7934c02ea3bb 100644
 --- ui/gfx/render_text.cc
 +++ ui/gfx/render_text.cc
 @@ -524,6 +524,14 @@ void RenderText::SetElideBehavior(ElideBehavior elide_behavior) {
@@ -57,7 +57,7 @@ index 39702db77da5..fa1a84425200 100644
  void RenderText::SetDisplayRect(const Rect& r) {
    if (r != display_rect_) {
      display_rect_ = r;
-@@ -1485,6 +1493,19 @@ void RenderText::OnTextAttributeChanged() {
+@@ -1489,6 +1497,19 @@ void RenderText::OnTextAttributeChanged() {
    if (!multiline_ && replace_newline_chars_with_symbols_)
      base::ReplaceChars(layout_text_, kNewline, kNewlineSymbol, &layout_text_);
  
@@ -78,10 +78,10 @@ index 39702db77da5..fa1a84425200 100644
  }
  
 diff --git ui/gfx/render_text.h ui/gfx/render_text.h
-index 4cc2bdc85fe8..2b05443698da 100644
+index 5032b215594e..6c5edfedb251 100644
 --- ui/gfx/render_text.h
 +++ ui/gfx/render_text.h
-@@ -299,6 +299,10 @@ class GFX_EXPORT RenderText {
+@@ -300,6 +300,10 @@ class GFX_EXPORT RenderText {
    void SetElideBehavior(ElideBehavior elide_behavior);
    ElideBehavior elide_behavior() const { return elide_behavior_; }
  
@@ -92,7 +92,7 @@ index 4cc2bdc85fe8..2b05443698da 100644
    const Rect& display_rect() const { return display_rect_; }
    void SetDisplayRect(const Rect& r);
  
-@@ -882,6 +886,8 @@ class GFX_EXPORT RenderText {
+@@ -886,6 +890,8 @@ class GFX_EXPORT RenderText {
    // Extra spacing placed between glyphs; used for obscured text styling.
    int glyph_spacing_ = 0;
  
@@ -295,10 +295,10 @@ index 1d35afeda78f..333f9c0f778d 100644
    std::unique_ptr<SelectionController> selection_controller_;
  
 diff --git ui/views/controls/menu/menu_controller.cc ui/views/controls/menu/menu_controller.cc
-index 7feb65bfdd66..c970760173ab 100644
+index cb9ff25e88a5..6dbd8472cea2 100644
 --- ui/views/controls/menu/menu_controller.cc
 +++ ui/views/controls/menu/menu_controller.cc
-@@ -2411,8 +2411,13 @@ MenuItemView* MenuController::FindNextSelectableMenuItem(
+@@ -2417,8 +2417,13 @@ MenuItemView* MenuController::FindNextSelectableMenuItem(
  
  void MenuController::OpenSubmenuChangeSelectionIfCan() {
    MenuItemView* item = pending_state_.item;
@@ -313,7 +313,7 @@ index 7feb65bfdd66..c970760173ab 100644
    MenuItemView* to_select = NULL;
    if (item->GetSubmenu()->GetMenuItemCount() > 0)
      to_select = FindInitialSelectableMenuItem(item, INCREMENT_SELECTION_DOWN);
-@@ -2427,8 +2432,10 @@ void MenuController::OpenSubmenuChangeSelectionIfCan() {
+@@ -2433,8 +2438,10 @@ void MenuController::OpenSubmenuChangeSelectionIfCan() {
  void MenuController::CloseSubmenu() {
    MenuItemView* item = state_.item;
    DCHECK(item);

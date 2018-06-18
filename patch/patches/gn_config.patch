@@ -1,8 +1,8 @@
 diff --git .gn .gn
-index 65c8804cc47c..f3a9a704abec 100644
+index 87fb8815433e..f19fba48f06c 100644
 --- .gn
 +++ .gn
-@@ -246,6 +246,8 @@ exec_script_whitelist =
+@@ -247,6 +247,8 @@ exec_script_whitelist =
        # in the Chromium repo outside of //build.
        "//build_overrides/build.gni",
  
@@ -12,7 +12,7 @@ index 65c8804cc47c..f3a9a704abec 100644
        # https://crbug.com/474506.
        "//clank/java/BUILD.gn",
 diff --git BUILD.gn BUILD.gn
-index 378aa8822bec..5fddd6adbf28 100644
+index db688ae72c3b..2f59b23ad90a 100644
 --- BUILD.gn
 +++ BUILD.gn
 @@ -193,6 +193,7 @@ group("gn_all") {
@@ -77,7 +77,7 @@ index 4d9d1f45f870..c668f93a50f3 100644
    goma_prefix = ""
  }
 diff --git build/toolchain/win/setup_toolchain.py build/toolchain/win/setup_toolchain.py
-index 7405c61df323..4df7c57fe72f 100644
+index 2ee36e28f50d..7a08b9789226 100644
 --- build/toolchain/win/setup_toolchain.py
 +++ build/toolchain/win/setup_toolchain.py
 @@ -134,25 +134,28 @@ def _LoadToolchainEnv(cpu, sdk_dir, target_store):
@@ -129,10 +129,10 @@ index 7405c61df323..4df7c57fe72f 100644
  
  
 diff --git build/vs_toolchain.py build/vs_toolchain.py
-index aeb7bdadc73e..84b8541f1ff3 100755
+index 83847f456676..bf6254a0ebb6 100755
 --- build/vs_toolchain.py
 +++ build/vs_toolchain.py
-@@ -82,11 +82,18 @@ def SetEnvironmentAndGetRuntimeDllDirs():
+@@ -68,11 +68,18 @@ def SetEnvironmentAndGetRuntimeDllDirs():
      runtime_path = os.path.pathsep.join(vs_runtime_dll_dirs)
      os.environ['PATH'] = runtime_path + os.path.pathsep + os.environ['PATH']
    elif sys.platform == 'win32' and not depot_tools_win_toolchain:
@@ -152,7 +152,7 @@ index aeb7bdadc73e..84b8541f1ff3 100755
      # directory in order to run binaries locally, but they are needed in order
      # to create isolates or the mini_installer. Copying them to the output
 diff --git chrome/chrome_paks.gni chrome/chrome_paks.gni
-index fde31eb044ed..b4fd21636719 100644
+index eca08ff7bc76..908257ebd5ec 100644
 --- chrome/chrome_paks.gni
 +++ chrome/chrome_paks.gni
 @@ -257,7 +257,7 @@ template("chrome_paks") {

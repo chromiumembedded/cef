@@ -1,5 +1,5 @@
 diff --git content/browser/renderer_host/render_widget_host_view_aura.cc content/browser/renderer_host/render_widget_host_view_aura.cc
-index 9987ac296f63..829b7fe0decc 100644
+index 3cacc3fdac2d..694dfa1c3901 100644
 --- content/browser/renderer_host/render_widget_host_view_aura.cc
 +++ content/browser/renderer_host/render_widget_host_view_aura.cc
 @@ -718,10 +718,12 @@ gfx::Rect RenderWidgetHostViewAura::GetViewBounds() const {
@@ -32,6 +32,6 @@ index 9987ac296f63..829b7fe0decc 100644
 +    ignore_result(rvh->GetWebkitPreferences());
 +  }
 +
-   if (!features::IsMashEnabled())
+   if (features::IsAshInBrowserProcess())
      return;
  

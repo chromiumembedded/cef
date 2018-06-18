@@ -50,11 +50,11 @@ void CefSpeechRecognitionManagerDelegate::OnAudioEnd(int session_id) {}
 
 void CefSpeechRecognitionManagerDelegate::OnRecognitionResults(
     int session_id,
-    const std::vector<content::mojom::SpeechRecognitionResultPtr>& result) {}
+    const std::vector<blink::mojom::SpeechRecognitionResultPtr>& result) {}
 
 void CefSpeechRecognitionManagerDelegate::OnRecognitionError(
     int session_id,
-    const content::mojom::SpeechRecognitionError& error) {}
+    const blink::mojom::SpeechRecognitionError& error) {}
 
 void CefSpeechRecognitionManagerDelegate::OnAudioLevelsChange(
     int session_id,

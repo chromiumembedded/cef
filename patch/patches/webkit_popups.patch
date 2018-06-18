@@ -1,5 +1,5 @@
 diff --git third_party/blink/public/web/web_view.h third_party/blink/public/web/web_view.h
-index f7c3e651b3ce..ce3e42c6900d 100644
+index bf85495790f5..83d0f5eadf43 100644
 --- third_party/blink/public/web/web_view.h
 +++ third_party/blink/public/web/web_view.h
 @@ -358,6 +358,7 @@ class WebView : protected WebWidget {
@@ -20,7 +20,7 @@ index f7c3e651b3ce..ce3e42c6900d 100644
  
    // Call these methods before and after running a nested, modal event loop
 diff --git third_party/blink/renderer/core/exported/web_view_impl.cc third_party/blink/renderer/core/exported/web_view_impl.cc
-index 224122471b0e..92aad351f293 100644
+index 066b937a6700..290596dceb21 100644
 --- third_party/blink/renderer/core/exported/web_view_impl.cc
 +++ third_party/blink/renderer/core/exported/web_view_impl.cc
 @@ -246,8 +246,13 @@ void WebView::SetUseExternalPopupMenus(bool use_external_popup_menus) {
@@ -48,7 +48,7 @@ index 224122471b0e..92aad351f293 100644
        suppress_next_keypress_event_(false),
        ime_accept_events_(true),
 diff --git third_party/blink/renderer/core/exported/web_view_impl.h third_party/blink/renderer/core/exported/web_view_impl.h
-index 69f1438873b2..86443bf1f05e 100644
+index 3a9f0243cbee..1b402bd2b79f 100644
 --- third_party/blink/renderer/core/exported/web_view_impl.h
 +++ third_party/blink/renderer/core/exported/web_view_impl.h
 @@ -105,7 +105,8 @@ class CORE_EXPORT WebViewImpl final : public WebView,

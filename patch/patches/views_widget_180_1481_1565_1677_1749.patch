@@ -427,7 +427,7 @@ index c7296fed234d..244d0034a1c4 100644
        if (native_widget_delegate->IsDialogBox()) {
          *style |= DS_MODALFRAME;
 diff --git ui/views/win/hwnd_message_handler.cc ui/views/win/hwnd_message_handler.cc
-index cadeb2322620..ced9be6715ed 100644
+index 8038ca7fcece..2277290bb117 100644
 --- ui/views/win/hwnd_message_handler.cc
 +++ ui/views/win/hwnd_message_handler.cc
 @@ -2809,10 +2809,13 @@ LRESULT HWNDMessageHandler::HandleMouseEventInternal(UINT message,

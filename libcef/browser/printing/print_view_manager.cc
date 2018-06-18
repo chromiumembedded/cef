@@ -259,7 +259,9 @@ void CefPrintViewManager::OnRequestPrintPreview(
 }
 
 void CefPrintViewManager::OnMetafileReadyForPrinting(
-    const PrintHostMsg_DidPreviewDocument_Params& params) {
+    content::RenderFrameHost* render_frame_host,
+    const PrintHostMsg_DidPreviewDocument_Params& params,
+    const PrintHostMsg_PreviewIds& ids) {
   DCHECK_CURRENTLY_ON(BrowserThread::UI);
   StopWorker(params.document_cookie);
 

@@ -281,9 +281,9 @@ void CefPrintingMessageFilter::OnUpdatePrintSettingsReply(
   }
 }
 
-void CefPrintingMessageFilter::OnCheckForCancel(int32_t preview_ui_id,
-                                                int preview_request_id,
-                                                bool* cancel) {
+void CefPrintingMessageFilter::OnCheckForCancel(
+    const PrintHostMsg_PreviewIds& ids,
+    bool* cancel) {
   *cancel = false;
 }
 

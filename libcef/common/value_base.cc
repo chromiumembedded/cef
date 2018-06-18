@@ -173,7 +173,7 @@ void CefValueController::TakeFrom(CefValueController* other) {
       DCHECK(reference_map_.find(it->first) == reference_map_.end());
       reference_map_.insert(std::make_pair(it->first, it->second));
     }
-    other->reference_map_.empty();
+    other->reference_map_.clear();
   }
 
   if (!other->dependency_map_.empty()) {

@@ -1,5 +1,5 @@
 diff --git content/browser/browser_plugin/browser_plugin_guest.cc content/browser/browser_plugin/browser_plugin_guest.cc
-index a0bc9305e62d..0c8d42c55302 100644
+index 06b5f2da12bb..6dbe883dc237 100644
 --- content/browser/browser_plugin/browser_plugin_guest.cc
 +++ content/browser/browser_plugin/browser_plugin_guest.cc
 @@ -313,8 +313,11 @@ void BrowserPluginGuest::InitInternal(
@@ -37,10 +37,10 @@ index a0bc9305e62d..0c8d42c55302 100644
  
    attached_ = true;
 diff --git content/browser/frame_host/interstitial_page_impl.cc content/browser/frame_host/interstitial_page_impl.cc
-index 7c55f52cb49a..fa1c85a86ed5 100644
+index ad9de41d1e3e..a87ec19a5f54 100644
 --- content/browser/frame_host/interstitial_page_impl.cc
 +++ content/browser/frame_host/interstitial_page_impl.cc
-@@ -619,7 +619,7 @@ WebContentsView* InterstitialPageImpl::CreateWebContentsView() {
+@@ -622,7 +622,7 @@ WebContentsView* InterstitialPageImpl::CreateWebContentsView() {
    WebContentsView* wcv =
        static_cast<WebContentsImpl*>(web_contents())->GetView();
    RenderWidgetHostViewBase* view =
@@ -79,7 +79,7 @@ index cf8c74f4c744..b8cefb4b154b 100644
    // Creates a new View that holds a popup and receives messages for it.
    virtual RenderWidgetHostViewBase* CreateViewForPopupWidget(
 diff --git content/browser/web_contents/web_contents_view_aura.cc content/browser/web_contents/web_contents_view_aura.cc
-index 984fa41d064c..f68457a39a4f 100644
+index 617bfe3a5d24..b8c801e26b5e 100644
 --- content/browser/web_contents/web_contents_view_aura.cc
 +++ content/browser/web_contents/web_contents_view_aura.cc
 @@ -781,7 +781,8 @@ void WebContentsViewAura::CreateView(const gfx::Size& initial_size,
@@ -140,7 +140,7 @@ index 17275be93025..6c73effc578b 100644
        RenderWidgetHost* render_widget_host) override;
    void SetPageTitle(const base::string16& title) override;
 diff --git content/browser/web_contents/web_contents_view_guest.cc content/browser/web_contents/web_contents_view_guest.cc
-index 699570cc1390..0c8bb808e657 100644
+index f6a43ca61131..21b61264d99f 100644
 --- content/browser/web_contents/web_contents_view_guest.cc
 +++ content/browser/web_contents/web_contents_view_guest.cc
 @@ -67,6 +67,8 @@ gfx::NativeWindow WebContentsViewGuest::GetTopLevelNativeWindow() const {
@@ -152,15 +152,15 @@ index 699570cc1390..0c8bb808e657 100644
    // In aura, ScreenPositionClient doesn't work properly if we do
    // not have the native view associated with this WebContentsViewGuest in the
    // view hierarchy. We add this view as embedder's child here.
-@@ -79,6 +81,8 @@ void WebContentsViewGuest::OnGuestAttached(WebContentsView* parent_view) {
+@@ -78,6 +80,8 @@ void WebContentsViewGuest::OnGuestAttached(WebContentsView* parent_view) {
+ }
  
  void WebContentsViewGuest::OnGuestDetached(WebContentsView* old_parent_view) {
- #if defined(USE_AURA)
 +  if (!platform_view_->GetNativeView())
 +    return;
-   if (!base::FeatureList::IsEnabled(features::kMash)) {
+ #if defined(USE_AURA)
+   if (features::IsAshInBrowserProcess()) {
      old_parent_view->GetNativeView()->RemoveChild(
-         platform_view_->GetNativeView());
 @@ -132,7 +136,8 @@ void WebContentsViewGuest::CreateView(const gfx::Size& initial_size,
  }
  

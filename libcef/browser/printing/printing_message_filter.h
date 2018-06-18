@@ -17,6 +17,7 @@
 #include "content/public/browser/browser_message_filter.h"
 #include "printing/buildflags/buildflags.h"
 
+struct PrintHostMsg_PreviewIds;
 struct PrintHostMsg_ScriptedPrint_Params;
 class Profile;
 
@@ -74,9 +75,7 @@ class CefPrintingMessageFilter : public content::BrowserMessageFilter {
                                   IPC::Message* reply_msg);
 
   // Check to see if print preview has been cancelled.
-  void OnCheckForCancel(int32_t preview_ui_id,
-                        int preview_request_id,
-                        bool* cancel);
+  void OnCheckForCancel(const PrintHostMsg_PreviewIds& ids, bool* cancel);
 
   std::unique_ptr<KeyedServiceShutdownNotifier::Subscription>
       printing_shutdown_notifier_;

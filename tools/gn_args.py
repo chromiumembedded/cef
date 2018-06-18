@@ -264,6 +264,10 @@ def GetRequiredArgs():
     # issue #2424).
     result['use_bundled_fontconfig'] = False
 
+    # Disable vulkan to avoid linker errors.
+    # See https://bugs.chromium.org/p/chromium/issues/detail?id=848100#c4
+    result['enable_vulkan'] = False
+
   if platform == 'macosx':
     # Always generate dSYM files. The make_distrib script will fail if
     # enable_dsyms=true is not explicitly set when is_official_build=false.

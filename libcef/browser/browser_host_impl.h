@@ -474,7 +474,7 @@ class CefBrowserHostImpl : public CefBrowserHost,
   void RequestMediaAccessPermission(
       content::WebContents* web_contents,
       const content::MediaStreamRequest& request,
-      const content::MediaResponseCallback& callback) override;
+      content::MediaResponseCallback callback) override;
   bool CheckMediaAccessPermission(content::RenderFrameHost* render_frame_host,
                                   const GURL& security_origin,
                                   content::MediaStreamType type) override;
@@ -520,6 +520,20 @@ class CefBrowserHostImpl : public CefBrowserHost,
   void AddObserver(Observer* observer);
   void RemoveObserver(Observer* observer);
   bool HasObserver(Observer* observer) const;
+
+  class NavigationLock final {
+   private:
+    friend class CefBrowserHostImpl;
+    friend std::unique_ptr<NavigationLock>::deleter_type;
+
+    explicit NavigationLock(CefRefPtr<CefBrowserHostImpl> browser);
+    ~NavigationLock();
+
+    CefRefPtr<CefBrowserHostImpl> browser_;
+  };
+
+  // Block navigation-related events on NavigationLock life span.
+  std::unique_ptr<NavigationLock> CreateNavigationLock();
 
  private:
   class DevToolsWebContentsObserver;
@@ -579,6 +593,11 @@ class CefBrowserHostImpl : public CefBrowserHost,
                            extensions::ViewType host_type);
   void DestroyExtensionHost();
   void OnExtensionHostDeleted();
+
+  // Returns true if navigation actions are currently locked.
+  bool navigation_locked() const;
+  // Action to be executed once the navigation lock is released.
+  void set_pending_navigation_action(base::OnceClosure action);
 
   // Update or create a frame object. |frame_id| (renderer routing id) will be
   // >= 0 if the frame currently exists in the renderer process. |frame_id| will
@@ -686,9 +705,11 @@ class CefBrowserHostImpl : public CefBrowserHost,
   // thread.
   DestructionState destruction_state_;
 
-  // True if frame destruction is currently pending. Navigation should not occur
-  // while this flag is true.
-  bool frame_destruction_pending_;
+  // Navigation will not occur while |navigation_lock_count_| > 0.
+  // |pending_navigation_action_| will be executed when the lock is released.
+  // Only accessed on the UI thread.
+  int navigation_lock_count_ = 0;
+  base::OnceClosure pending_navigation_action_;
 
   // True if the OS window hosting the browser has been destroyed. Only accessed
   // on the UI thread.

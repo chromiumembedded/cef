@@ -85,7 +85,7 @@ class CefStoragePartitionProxy : public content::StoragePartition {
   content::BrowserContext* browser_context() const override;
   mojo::BindingId Bind(
       int process_id,
-      mojo::InterfaceRequest<content::mojom::StoragePartitionService> request)
+      mojo::InterfaceRequest<blink::mojom::StoragePartitionService> request)
       override;
   void set_site_for_service_worker(
       const GURL& site_for_service_worker) override;

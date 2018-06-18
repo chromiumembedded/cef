@@ -430,6 +430,11 @@ bool NavigationOnUIThread(
         request->Set(params, is_main_frame);
         request->SetReadOnly(true);
 
+        // Initiating a new navigation in OnBeforeBrowse will delete the
+        // InterceptNavigationThrottle that currently owns this callback,
+        // resulting in a crash. Use the lock to prevent that.
+        std::unique_ptr<CefBrowserHostImpl::NavigationLock> navigation_lock =
+            browser->CreateNavigationLock();
         ignore_navigation = handler->OnBeforeBrowse(
             browser.get(), frame, request.get(), params.has_user_gesture(),
             params.is_redirect());

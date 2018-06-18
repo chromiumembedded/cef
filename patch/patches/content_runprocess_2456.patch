@@ -1,8 +1,8 @@
 diff --git content/app/content_main_runner_impl.cc content/app/content_main_runner_impl.cc
-index 83e8990edf17..89bdab3f3885 100644
+index 0f81f0524014..b330e3902a8d 100644
 --- content/app/content_main_runner_impl.cc
 +++ content/app/content_main_runner_impl.cc
-@@ -603,7 +603,8 @@ int RunBrowserProcessMain(
+@@ -604,7 +604,8 @@ int RunBrowserProcessMain(
      ContentMainDelegate* delegate,
      std::unique_ptr<BrowserProcessSubThread> service_manager_thread) {
    if (delegate) {
@@ -52,7 +52,7 @@ index c4bdfd36ad0c..f6830c35fd1d 100644
    return nullptr;
  }
 diff --git content/public/app/content_main_delegate.h content/public/app/content_main_delegate.h
-index b5d8b1889d60..ea6af1600c36 100644
+index 979e25d1c1b9..87ef81c4e913 100644
 --- content/public/app/content_main_delegate.h
 +++ content/public/app/content_main_delegate.h
 @@ -30,6 +30,7 @@ class DataPack;

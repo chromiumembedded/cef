@@ -146,7 +146,7 @@ index a2b0c74636f4..01370fdc20d9 100644
    struct Data;
  
 diff --git third_party/crashpad/crashpad/handler/BUILD.gn third_party/crashpad/crashpad/handler/BUILD.gn
-index cf4f3e8463ba..8d0d261df1ec 100644
+index 24251b0a9398..5eff85d4dbb5 100644
 --- third_party/crashpad/crashpad/handler/BUILD.gn
 +++ third_party/crashpad/crashpad/handler/BUILD.gn
 @@ -12,6 +12,7 @@
@@ -179,7 +179,7 @@ index cf4f3e8463ba..8d0d261df1ec 100644
      cflags = [ "/wd4201" ]  # nonstandard extension used : nameless struct/union
    }
 diff --git third_party/crashpad/crashpad/handler/crash_report_upload_thread.cc third_party/crashpad/crashpad/handler/crash_report_upload_thread.cc
-index 715c533a2756..6f19e2ebc234 100644
+index 4783ecb252b1..d94295cfa9fb 100644
 --- third_party/crashpad/crashpad/handler/crash_report_upload_thread.cc
 +++ third_party/crashpad/crashpad/handler/crash_report_upload_thread.cc
 @@ -264,6 +264,8 @@ CrashReportUploadThread::UploadResult CrashReportUploadThread::UploadReport(
@@ -243,7 +243,7 @@ index 2ec1147d2620..8ff9a72e0bd7 100644
    //! \brief Calls ProcessPendingReports() in response to ReportPending() having
    //!     been called on any thread, as well as periodically on a timer.
 diff --git third_party/crashpad/crashpad/handler/handler_main.cc third_party/crashpad/crashpad/handler/handler_main.cc
-index 70192cf4dd47..37a4380c65ba 100644
+index 412ee11272ab..4229907a6d79 100644
 --- third_party/crashpad/crashpad/handler/handler_main.cc
 +++ third_party/crashpad/crashpad/handler/handler_main.cc
 @@ -36,8 +36,10 @@
@@ -268,7 +268,7 @@ index 70192cf4dd47..37a4380c65ba 100644
  namespace crashpad {
  
  namespace {
-@@ -176,6 +182,9 @@ struct Options {
+@@ -179,6 +185,9 @@ struct Options {
    bool periodic_tasks;
    bool rate_limit;
    bool upload_gzip;
@@ -278,8 +278,8 @@ index 70192cf4dd47..37a4380c65ba 100644
  };
  
  // Splits |key_value| on '=' and inserts the resulting key and value into |map|.
-@@ -537,6 +546,9 @@ int HandlerMain(int argc,
-     kOptionInitialClientFD,
+@@ -541,6 +550,9 @@ int HandlerMain(int argc,
+     kOptionSanitizationInformation,
  #endif
      kOptionURL,
 +    kOptionMaxUploads,
@@ -288,7 +288,7 @@ index 70192cf4dd47..37a4380c65ba 100644
  
      // Standard options.
      kOptionHelp = -2,
-@@ -594,6 +606,9 @@ int HandlerMain(int argc,
+@@ -602,6 +614,9 @@ int HandlerMain(int argc,
      {"url", required_argument, nullptr, kOptionURL},
      {"help", no_argument, nullptr, kOptionHelp},
      {"version", no_argument, nullptr, kOptionVersion},
@@ -298,7 +298,7 @@ index 70192cf4dd47..37a4380c65ba 100644
      {nullptr, 0, nullptr, 0},
    };
  
-@@ -719,6 +734,27 @@ int HandlerMain(int argc,
+@@ -737,6 +752,27 @@ int HandlerMain(int argc,
          options.url = optarg;
          break;
        }
@@ -326,7 +326,7 @@ index 70192cf4dd47..37a4380c65ba 100644
        case kOptionHelp: {
          Usage(me);
          MetricsRecordExit(Metrics::LifetimeMilestone::kExitedEarly);
-@@ -827,8 +863,14 @@ int HandlerMain(int argc,
+@@ -851,8 +887,14 @@ int HandlerMain(int argc,
      upload_thread_options.upload_gzip = options.upload_gzip;
      upload_thread_options.watch_pending_reports = options.periodic_tasks;
  
@@ -341,7 +341,7 @@ index 70192cf4dd47..37a4380c65ba 100644
      upload_thread.Get()->Start();
    }
  
-@@ -849,7 +891,8 @@ int HandlerMain(int argc,
+@@ -880,7 +922,8 @@ int HandlerMain(int argc,
    ScopedStoppable prune_thread;
    if (options.periodic_tasks) {
      prune_thread.Reset(new PruneCrashReportThread(

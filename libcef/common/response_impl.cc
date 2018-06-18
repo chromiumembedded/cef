@@ -173,7 +173,7 @@ void CefResponseImpl::SetResponseHeaders(
   base::AutoLock lock_scope(lock_);
   CHECK_READONLY_RETURN_VOID();
 
-  header_map_.empty();
+  header_map_.clear();
 
   size_t iter = 0;
   std::string name, value;

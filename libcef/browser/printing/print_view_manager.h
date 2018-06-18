@@ -14,9 +14,10 @@
 namespace content {
 class RenderFrameHost;
 class RenderProcessHost;
-}
+}  // namespace content
 
 struct PrintHostMsg_DidPreviewDocument_Params;
+struct PrintHostMsg_PreviewIds;
 struct PrintHostMsg_RequestPrintPreview_Params;
 
 namespace printing {
@@ -52,7 +53,9 @@ class CefPrintViewManager
   void OnDidShowPrintDialog(content::RenderFrameHost* rfh);
   void OnRequestPrintPreview(const PrintHostMsg_RequestPrintPreview_Params&);
   void OnMetafileReadyForPrinting(
-      const PrintHostMsg_DidPreviewDocument_Params&);
+      content::RenderFrameHost* render_frame_host,
+      const PrintHostMsg_DidPreviewDocument_Params& params,
+      const PrintHostMsg_PreviewIds& ids);
 
   void TerminatePdfPrintJob();
 

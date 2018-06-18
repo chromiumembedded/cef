@@ -32,18 +32,18 @@ namespace {
 
 class CefBeforeResourceLoadCallbackImpl : public CefRequestCallback {
  public:
-  typedef net::CompletionCallback CallbackType;
+  typedef net::CompletionOnceCallback CallbackType;
 
   CefBeforeResourceLoadCallbackImpl(CefRefPtr<CefRequestImpl> cef_request,
                                     GURL* new_url,
                                     net::URLRequest* url_request,
                                     bool force_google_safesearch,
-                                    const CallbackType& callback)
+                                    CallbackType callback)
       : cef_request_(cef_request),
         new_url_(new_url),
         url_request_(url_request),
         force_google_safesearch_(force_google_safesearch),
-        callback_(callback) {
+        callback_(std::move(callback)) {
     DCHECK(new_url);
     DCHECK(url_request_);
 
@@ -56,13 +56,14 @@ class CefBeforeResourceLoadCallbackImpl : public CefRequestCallback {
     if (!callback_.is_null()) {
       // The callback is still pending. Cancel it now.
       if (CEF_CURRENTLY_ON_IOT()) {
-        RunNow(cef_request_, new_url_, url_request_, callback_,
+        RunNow(cef_request_, new_url_, url_request_, std::move(callback_),
                force_google_safesearch_, false);
       } else {
-        CEF_POST_TASK(
-            CEF_IOT, base::Bind(&CefBeforeResourceLoadCallbackImpl::RunNow,
-                                cef_request_, new_url_, url_request_, callback_,
-                                force_google_safesearch_, false));
+        CEF_POST_TASK(CEF_IOT,
+                      base::Bind(&CefBeforeResourceLoadCallbackImpl::RunNow,
+                                 cef_request_, new_url_, url_request_,
+                                 base::Passed(std::move(callback_)),
+                                 force_google_safesearch_, false));
       }
     }
   }
@@ -79,12 +80,13 @@ class CefBeforeResourceLoadCallbackImpl : public CefRequestCallback {
   void ContinueNow(bool allow) {
     CEF_REQUIRE_IOT();
     if (!callback_.is_null()) {
-      RunNow(cef_request_, new_url_, url_request_, callback_,
+      RunNow(cef_request_, new_url_, url_request_, std::move(callback_),
              force_google_safesearch_, allow);
       Disconnect();
     }
   }
 
+ private:
   void Disconnect() {
     CEF_REQUIRE_IOT();
     cef_request_ = nullptr;
@@ -93,7 +95,6 @@ class CefBeforeResourceLoadCallbackImpl : public CefRequestCallback {
     callback_.Reset();
   }
 
- private:
   // Used to disconnect the callback when the associated URLRequest is
   // destroyed.
   class Disconnector : public base::SupportsUserData::Data {
@@ -114,7 +115,7 @@ class CefBeforeResourceLoadCallbackImpl : public CefRequestCallback {
   static void RunNow(CefRefPtr<CefRequestImpl> cef_request,
                      GURL* new_url,
                      net::URLRequest* request,
-                     const CallbackType& callback,
+                     CallbackType callback,
                      bool force_google_safesearch,
                      bool allow) {
     CEF_REQUIRE_IOT();
@@ -144,7 +145,7 @@ class CefBeforeResourceLoadCallbackImpl : public CefRequestCallback {
       if (force_google_safesearch && allow && new_url->is_empty())
         safe_search_util::ForceGoogleSafeSearch(request, new_url);
 
-      callback.Run(allow ? net::OK : net::ERR_ABORTED);
+      std::move(callback).Run(allow ? net::OK : net::ERR_ABORTED);
     }
   }
 
@@ -168,17 +169,18 @@ int CefBeforeResourceLoadCallbackImpl::kLocatorKey = 0;
 
 class CefAuthCallbackImpl : public CefAuthCallback {
  public:
-  CefAuthCallbackImpl(const net::NetworkDelegate::AuthCallback& callback,
-                      net::AuthCredentials* credentials)
-      : callback_(callback), credentials_(credentials) {}
+  typedef net::NetworkDelegate::AuthCallback CallbackType;
+
+  CefAuthCallbackImpl(CallbackType callback, net::AuthCredentials* credentials)
+      : callback_(std::move(callback)), credentials_(credentials) {}
   ~CefAuthCallbackImpl() override {
     if (!callback_.is_null()) {
       // The auth callback is still pending. Cancel it now.
       if (CEF_CURRENTLY_ON_IOT()) {
-        CancelNow(callback_);
+        CancelNow(std::move(callback_));
       } else {
-        CEF_POST_TASK(CEF_IOT,
-                      base::Bind(&CefAuthCallbackImpl::CancelNow, callback_));
+        CEF_POST_TASK(CEF_IOT, base::Bind(&CefAuthCallbackImpl::CancelNow,
+                                          base::Passed(std::move(callback_))));
       }
     }
   }
@@ -187,8 +189,8 @@ class CefAuthCallbackImpl : public CefAuthCallback {
     if (CEF_CURRENTLY_ON_IOT()) {
       if (!callback_.is_null()) {
         credentials_->Set(username, password);
-        callback_.Run(net::NetworkDelegate::AUTH_REQUIRED_RESPONSE_SET_AUTH);
-        callback_.Reset();
+        std::move(callback_).Run(
+            net::NetworkDelegate::AUTH_REQUIRED_RESPONSE_SET_AUTH);
       }
     } else {
       CEF_POST_TASK(CEF_IOT, base::Bind(&CefAuthCallbackImpl::Continue, this,
@@ -199,23 +201,23 @@ class CefAuthCallbackImpl : public CefAuthCallback {
   void Cancel() override {
     if (CEF_CURRENTLY_ON_IOT()) {
       if (!callback_.is_null()) {
-        CancelNow(callback_);
-        callback_.Reset();
+        CancelNow(std::move(callback_));
       }
     } else {
       CEF_POST_TASK(CEF_IOT, base::Bind(&CefAuthCallbackImpl::Cancel, this));
     }
   }
 
-  void Disconnect() { callback_.Reset(); }
+  CallbackType Disconnect() WARN_UNUSED_RESULT { return std::move(callback_); }
 
  private:
-  static void CancelNow(const net::NetworkDelegate::AuthCallback& callback) {
+  static void CancelNow(CallbackType callback) {
     CEF_REQUIRE_IOT();
-    callback.Run(net::NetworkDelegate::AUTH_REQUIRED_RESPONSE_NO_ACTION);
+    std::move(callback).Run(
+        net::NetworkDelegate::AUTH_REQUIRED_RESPONSE_NO_ACTION);
   }
 
-  net::NetworkDelegate::AuthCallback callback_;
+  CallbackType callback_;
   net::AuthCredentials* credentials_;
 
   IMPLEMENT_REFCOUNTING(CefAuthCallbackImpl);
@@ -277,10 +279,9 @@ std::unique_ptr<net::SourceStream> CefNetworkDelegate::CreateSourceStream(
   return upstream;
 }
 
-int CefNetworkDelegate::OnBeforeURLRequest(
-    net::URLRequest* request,
-    const net::CompletionCallback& callback,
-    GURL* new_url) {
+int CefNetworkDelegate::OnBeforeURLRequest(net::URLRequest* request,
+                                           net::CompletionOnceCallback callback,
+                                           GURL* new_url) {
   if (net_util::IsInternalRequest(request))
     return net::OK;
 
@@ -312,7 +313,7 @@ int CefNetworkDelegate::OnBeforeURLRequest(
         CefRefPtr<CefBeforeResourceLoadCallbackImpl> callbackImpl(
             new CefBeforeResourceLoadCallbackImpl(requestPtr, new_url, request,
                                                   force_google_safesearch,
-                                                  callback));
+                                                  std::move(callback)));
 
         // Give the client an opportunity to evaluate the request.
         cef_return_value_t retval = handler->OnBeforeResourceLoad(
@@ -338,7 +339,9 @@ int CefNetworkDelegate::OnBeforeURLRequest(
   return net::OK;
 }
 
-void CefNetworkDelegate::OnCompleted(net::URLRequest* request, bool started) {
+void CefNetworkDelegate::OnCompleted(net::URLRequest* request,
+                                     bool started,
+                                     int net_error) {
   if (net_util::IsInternalRequest(request))
     return;
 
@@ -391,7 +394,7 @@ void CefNetworkDelegate::OnCompleted(net::URLRequest* request, bool started) {
 net::NetworkDelegate::AuthRequiredResponse CefNetworkDelegate::OnAuthRequired(
     net::URLRequest* request,
     const net::AuthChallengeInfo& auth_info,
-    const AuthCallback& callback,
+    AuthCallback callback,
     net::AuthCredentials* credentials) {
   if (net_util::IsInternalRequest(request))
     return AUTH_REQUIRED_RESPONSE_NO_ACTION;
@@ -406,14 +409,14 @@ net::NetworkDelegate::AuthRequiredResponse CefNetworkDelegate::OnAuthRequired(
         CefRefPtr<CefFrame> frame = browser->GetFrameForRequest(request);
 
         CefRefPtr<CefAuthCallbackImpl> callbackPtr(
-            new CefAuthCallbackImpl(callback, credentials));
+            new CefAuthCallbackImpl(std::move(callback), credentials));
         if (handler->GetAuthCredentials(
                 browser.get(), frame, auth_info.is_proxy,
                 auth_info.challenger.host(), auth_info.challenger.port(),
                 auth_info.realm, auth_info.scheme, callbackPtr.get())) {
           return AUTH_REQUIRED_RESPONSE_IO_PENDING;
         } else {
-          callbackPtr->Disconnect();
+          callback = callbackPtr->Disconnect();
         }
       }
     }
@@ -426,14 +429,14 @@ net::NetworkDelegate::AuthRequiredResponse CefNetworkDelegate::OnAuthRequired(
     CefRefPtr<CefURLRequestClient> client = user_data->GetClient();
     if (client.get()) {
       CefRefPtr<CefAuthCallbackImpl> callbackPtr(
-          new CefAuthCallbackImpl(callback, credentials));
+          new CefAuthCallbackImpl(std::move(callback), credentials));
       if (client->GetAuthCredentials(
               auth_info.is_proxy, auth_info.challenger.host(),
               auth_info.challenger.port(), auth_info.realm, auth_info.scheme,
               callbackPtr.get())) {
         return AUTH_REQUIRED_RESPONSE_IO_PENDING;
       } else {
-        callbackPtr->Disconnect();
+        callback = callbackPtr->Disconnect();
       }
     }
   }
