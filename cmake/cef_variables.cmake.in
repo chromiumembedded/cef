@@ -86,7 +86,8 @@ if(OS_LINUX)
     -Werror                         # Treat warnings as errors
     -Wno-missing-field-initializers # Don't warn about missing field initializers
     -Wno-unused-parameter           # Don't warn about unused parameters
-    -Wno-error=comment              # Don't complain about code in ascii art
+    -Wno-error=comment              # Don't warn about code in comments
+    -Wno-comment                    # Don't warn about code in comments
     )
   list(APPEND CEF_C_COMPILER_FLAGS
     -std=c99                        # Use the C99 language standard
