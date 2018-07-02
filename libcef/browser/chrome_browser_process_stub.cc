@@ -116,6 +116,12 @@ ChromeBrowserProcessStub::network_connection_tracker() {
   return NULL;
 }
 
+network::NetworkQualityTracker*
+ChromeBrowserProcessStub::network_quality_tracker() {
+  NOTREACHED();
+  return NULL;
+}
+
 WatchDogThread* ChromeBrowserProcessStub::watchdog_thread() {
   NOTREACHED();
   return NULL;

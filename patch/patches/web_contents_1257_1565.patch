@@ -1,8 +1,8 @@
 diff --git content/browser/web_contents/web_contents_impl.cc content/browser/web_contents/web_contents_impl.cc
-index c586ac23d506..608e99a2eeab 100644
+index cf6b608b2918..e4bbfca9c1a3 100644
 --- content/browser/web_contents/web_contents_impl.cc
 +++ content/browser/web_contents/web_contents_impl.cc
-@@ -1915,21 +1915,30 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
+@@ -2006,21 +2006,30 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
    std::string unique_name;
    frame_tree_.root()->SetFrameName(params.main_frame_name, unique_name);
  
@@ -45,7 +45,7 @@ index c586ac23d506..608e99a2eeab 100644
    CHECK(render_view_host_delegate_view_);
    CHECK(view_.get());
  
-@@ -2605,6 +2614,15 @@ void WebContentsImpl::CreateNewWindow(
+@@ -2703,6 +2712,15 @@ void WebContentsImpl::CreateNewWindow(
    create_params.renderer_initiated_creation =
        main_frame_route_id != MSG_ROUTING_NONE;
  
@@ -61,7 +61,7 @@ index c586ac23d506..608e99a2eeab 100644
    std::unique_ptr<WebContents> new_contents;
    if (!is_guest) {
      create_params.context = view_->GetNativeView();
-@@ -2635,7 +2653,7 @@ void WebContentsImpl::CreateNewWindow(
+@@ -2733,7 +2751,7 @@ void WebContentsImpl::CreateNewWindow(
        // TODO(brettw): It seems bogus that we have to call this function on the
        // newly created object and give it one of its own member variables.
        new_view->CreateViewForWidget(
@@ -70,7 +70,7 @@ index c586ac23d506..608e99a2eeab 100644
      }
      // Save the created window associated with the route so we can show it
      // later.
-@@ -5951,7 +5969,7 @@ InterstitialPageImpl* WebContentsImpl::GetInterstitialForRenderManager() {
+@@ -6063,7 +6081,7 @@ InterstitialPageImpl* WebContentsImpl::GetInterstitialForRenderManager() {
  void WebContentsImpl::CreateRenderWidgetHostViewForRenderManager(
      RenderViewHost* render_view_host) {
    RenderWidgetHostViewBase* rwh_view =
@@ -95,10 +95,10 @@ index df508da0aef2..f6f4bf42b108 100644
  WebContents::CreateParams::CreateParams(const CreateParams& other) = default;
  
 diff --git content/public/browser/web_contents.h content/public/browser/web_contents.h
-index edd94aab382e..9343feb8c3c4 100644
+index d6945dc2f810..51564cbc9b2a 100644
 --- content/public/browser/web_contents.h
 +++ content/public/browser/web_contents.h
-@@ -75,9 +75,11 @@ class BrowserPluginGuestDelegate;
+@@ -76,9 +76,11 @@ class BrowserPluginGuestDelegate;
  class InterstitialPage;
  class RenderFrameHost;
  class RenderViewHost;
@@ -110,19 +110,19 @@ index edd94aab382e..9343feb8c3c4 100644
  struct CustomContextMenuContext;
  struct DropData;
  struct MHTMLGenerationParams;
-@@ -216,6 +218,10 @@ class WebContents : public PageNavigator,
- 
+@@ -218,6 +220,10 @@ class WebContents : public PageNavigator,
      // Sandboxing flags set on the new WebContents.
      blink::WebSandboxFlags starting_sandbox_flags;
-+
+ 
 +    // Optionally specify the view and delegate view.
 +    content::WebContentsView* view;
 +    content::RenderViewHostDelegateView* delegate_view;
-   };
- 
-   // Creates a new WebContents.
++
+     // Value used to set the last time the WebContents was made active, this is
+     // the value that'll be returned by GetLastActiveTime(). If this is left
+     // default initialized then the value is not passed on to the WebContents
 diff --git content/public/browser/web_contents_delegate.h content/public/browser/web_contents_delegate.h
-index 414e3423091d..062f5d0167e8 100644
+index fd745277f942..27d5fa9c7b41 100644
 --- content/public/browser/web_contents_delegate.h
 +++ content/public/browser/web_contents_delegate.h
 @@ -47,10 +47,12 @@ class ColorChooser;

@@ -776,6 +776,8 @@ static_library("libcef_static") {
 
     libs = [
       "comctl32.lib",
+      # For D3D11_DECODER_PROFILE_H264_VLD_NOFGT.
+      "dxguid.lib",
     ]
   }
 

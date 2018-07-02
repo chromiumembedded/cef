@@ -1,5 +1,5 @@
 diff --git chrome/browser/feedback/system_logs/log_sources/chrome_internal_log_source.cc chrome/browser/feedback/system_logs/log_sources/chrome_internal_log_source.cc
-index f68368e79f85..654b7b9312e6 100644
+index 91bd4c2aeae2..129d92a32c50 100644
 --- chrome/browser/feedback/system_logs/log_sources/chrome_internal_log_source.cc
 +++ chrome/browser/feedback/system_logs/log_sources/chrome_internal_log_source.cc
 @@ -18,6 +18,7 @@
@@ -10,7 +10,7 @@ index f68368e79f85..654b7b9312e6 100644
  #include "chrome/common/pref_names.h"
  #include "components/browser_sync/profile_sync_service.h"
  #include "components/prefs/pref_service.h"
-@@ -225,6 +226,10 @@ void ChromeInternalLogSource::Fetch(SysLogsSourceCallback callback) {
+@@ -224,6 +225,10 @@ void ChromeInternalLogSource::Fetch(SysLogsSourceCallback callback) {
  }
  
  void ChromeInternalLogSource::PopulateSyncLogs(SystemLogsResponse* response) {
@@ -21,7 +21,7 @@ index f68368e79f85..654b7b9312e6 100644
    // We are only interested in sync logs for the primary user profile.
    Profile* profile = ProfileManager::GetPrimaryUserProfile();
    if (!profile ||
-@@ -269,6 +274,12 @@ void ChromeInternalLogSource::PopulateExtensionInfoLogs(
+@@ -268,6 +273,12 @@ void ChromeInternalLogSource::PopulateExtensionInfoLogs(
    if (!profile)
      return;
  
@@ -60,7 +60,7 @@ index 6dd7385d105f..1b8635f7569f 100644
            render_process_host->GetBrowserContext();
        extensions::ExtensionRegistry* extension_registry =
 diff --git chrome/browser/ui/webui/net_internals/net_internals_ui.cc chrome/browser/ui/webui/net_internals/net_internals_ui.cc
-index 230edefeca1d..c60e20a28dc9 100644
+index 34960e3e6543..bffb63938274 100644
 --- chrome/browser/ui/webui/net_internals/net_internals_ui.cc
 +++ chrome/browser/ui/webui/net_internals/net_internals_ui.cc
 @@ -529,41 +529,31 @@ void NetInternalsMessageHandler::OnClearBrowserCache(

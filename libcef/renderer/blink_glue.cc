@@ -15,6 +15,7 @@ MSVC_PUSH_WARNING_LEVEL(0);
 #include "third_party/blink/public/web/web_node.h"
 #include "third_party/blink/public/web/web_view_client.h"
 
+#include "third_party/blink/renderer/bindings/core/v8/referrer_script_info.h"
 #include "third_party/blink/renderer/bindings/core/v8/script_controller.h"
 #include "third_party/blink/renderer/bindings/core/v8/script_source_code.h"
 #include "third_party/blink/renderer/bindings/core/v8/v8_binding_for_core.h"

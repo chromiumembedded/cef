@@ -1,9 +1,9 @@
 diff --git build/config/compiler/BUILD.gn build/config/compiler/BUILD.gn
-index 2d82ed5b4e23..4bf0e3a8fc94 100644
+index 9bb0a52e61e0..a9b5f52b936c 100644
 --- build/config/compiler/BUILD.gn
 +++ build/config/compiler/BUILD.gn
 @@ -152,7 +152,7 @@ declare_args() {
-             !(is_android && use_order_profiling) &&
+             !use_clang_coverage && !(is_android && use_order_profiling) &&
              (use_lld ||
               (use_gold &&
 -              ((!is_android && linux_use_bundled_binutils) || is_chromeos ||

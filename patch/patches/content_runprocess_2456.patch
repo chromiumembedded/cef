@@ -1,17 +1,17 @@
 diff --git content/app/content_main_runner_impl.cc content/app/content_main_runner_impl.cc
-index 0f81f0524014..b330e3902a8d 100644
+index 4787f1495826..d81aaf51b6b0 100644
 --- content/app/content_main_runner_impl.cc
 +++ content/app/content_main_runner_impl.cc
-@@ -604,7 +604,8 @@ int RunBrowserProcessMain(
+@@ -592,7 +592,8 @@ int RunBrowserProcessMain(
+     const MainFunctionParams& main_function_params,
      ContentMainDelegate* delegate,
      std::unique_ptr<BrowserProcessSubThread> service_manager_thread) {
-   if (delegate) {
--    int exit_code = delegate->RunProcess("", main_function_params);
-+    int exit_code = delegate->RunProcess("", main_function_params,
-+                                         std::move(service_manager_thread));
+-  int exit_code = delegate->RunProcess("", main_function_params);
++  int exit_code = delegate->RunProcess("", main_function_params,
++                                       std::move(service_manager_thread));
  #if defined(OS_ANDROID)
-     // In Android's browser process, the negative exit code doesn't mean the
-     // default behavior should be used as the UI message loop is managed by
+   // In Android's browser process, the negative exit code doesn't mean the
+   // default behavior should be used as the UI message loop is managed by
 diff --git content/browser/browser_main_runner_impl.h content/browser/browser_main_runner_impl.h
 index adb084fe27c6..42a6fdc2d67f 100644
 --- content/browser/browser_main_runner_impl.h

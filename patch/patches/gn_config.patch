@@ -12,7 +12,7 @@ index 87fb8815433e..f19fba48f06c 100644
        # https://crbug.com/474506.
        "//clank/java/BUILD.gn",
 diff --git BUILD.gn BUILD.gn
-index db688ae72c3b..2f59b23ad90a 100644
+index 62cf575ef492..f159433494c2 100644
 --- BUILD.gn
 +++ BUILD.gn
 @@ -193,6 +193,7 @@ group("gn_all") {
@@ -56,7 +56,7 @@ index 982fbe8d3f0d..e757be4688f1 100644
 +         "studio path")
  }
 diff --git build/toolchain/win/BUILD.gn build/toolchain/win/BUILD.gn
-index 4d9d1f45f870..c668f93a50f3 100644
+index eb3e2b2b377d..a4bee6058da2 100644
 --- build/toolchain/win/BUILD.gn
 +++ build/toolchain/win/BUILD.gn
 @@ -6,6 +6,7 @@ import("//build/config/clang/clang.gni")
@@ -77,7 +77,7 @@ index 4d9d1f45f870..c668f93a50f3 100644
    goma_prefix = ""
  }
 diff --git build/toolchain/win/setup_toolchain.py build/toolchain/win/setup_toolchain.py
-index 2ee36e28f50d..7a08b9789226 100644
+index 1ba5533c3efb..abfd55a2c703 100644
 --- build/toolchain/win/setup_toolchain.py
 +++ build/toolchain/win/setup_toolchain.py
 @@ -134,25 +134,28 @@ def _LoadToolchainEnv(cpu, sdk_dir, target_store):

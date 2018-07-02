@@ -50,6 +50,7 @@ class ChromeBrowserProcessStub : public BrowserProcess,
   IOThread* io_thread() override;
   SystemNetworkContextManager* system_network_context_manager() override;
   content::NetworkConnectionTracker* network_connection_tracker() override;
+  network::NetworkQualityTracker* network_quality_tracker() override;
   WatchDogThread* watchdog_thread() override;
   ProfileManager* profile_manager() override;
   PrefService* local_state() override;

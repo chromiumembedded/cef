@@ -77,7 +77,6 @@ class CefStoragePartitionProxy : public content::StoragePartition {
   content::PaymentAppContextImpl* GetPaymentAppContext() override;
   content::BroadcastChannelProvider* GetBroadcastChannelProvider() override;
   content::BluetoothAllowedDevicesMap* GetBluetoothAllowedDevicesMap() override;
-  content::BlobURLLoaderFactory* GetBlobURLLoaderFactory() override;
   content::BlobRegistryWrapper* GetBlobRegistry() override;
   content::PrefetchURLLoaderService* GetPrefetchURLLoaderService() override;
   content::CookieStoreContext* GetCookieStoreContext() override;

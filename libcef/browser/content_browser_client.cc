@@ -617,11 +617,12 @@ void CefContentBrowserClient::RegisterInProcessServices(
 void CefContentBrowserClient::RegisterOutOfProcessServices(
     OutOfProcessServiceMap* services) {
   (*services)[printing::mojom::kServiceName] =
-      base::ASCIIToUTF16("PDF Compositor Service");
+      base::BindRepeating(&base::ASCIIToUTF16, "PDF Compositor Service");
   (*services)[printing::mojom::kChromePrintingServiceName] =
-      base::ASCIIToUTF16("Printing Service");
+      base::BindRepeating(&base::ASCIIToUTF16, "Printing Service");
   (*services)[proxy_resolver::mojom::kProxyResolverServiceName] =
-      l10n_util::GetStringUTF16(IDS_UTILITY_PROCESS_PROXY_RESOLVER_NAME);
+      base::BindRepeating(&l10n_util::GetStringUTF16,
+                          IDS_UTILITY_PROCESS_PROXY_RESOLVER_NAME);
 }
 
 std::unique_ptr<base::Value> CefContentBrowserClient::GetServiceManifestOverlay(

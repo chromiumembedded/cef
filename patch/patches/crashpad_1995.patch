@@ -45,7 +45,7 @@ index bcf172e645a2..f879aa745adf 100644
  // on the given |command_line|.
  void SetCrashKeysFromCommandLine(const base::CommandLine& command_line);
 diff --git chrome_elf/BUILD.gn chrome_elf/BUILD.gn
-index e1207fd03292..4453785e72df 100644
+index a47b2b61fbfa..83936ff6e265 100644
 --- chrome_elf/BUILD.gn
 +++ chrome_elf/BUILD.gn
 @@ -7,6 +7,7 @@
@@ -56,7 +56,7 @@ index e1207fd03292..4453785e72df 100644
  import("//chrome/process_version_rc_template.gni")
  import("//testing/test.gni")
  
-@@ -196,9 +197,6 @@ static_library("blacklist") {
+@@ -124,9 +125,6 @@ source_set("constants") {
  
  static_library("crash") {
    sources = [
@@ -66,7 +66,7 @@ index e1207fd03292..4453785e72df 100644
      "crash/crash_helper.cc",
      "crash/crash_helper.h",
    ]
-@@ -206,6 +204,7 @@ static_library("crash") {
+@@ -134,6 +132,7 @@ static_library("crash") {
      ":hook_util",
      "//base",  # This needs to go.  DEP of app, crash_keys, client.
      "//base:base_static",  # pe_image
@@ -74,7 +74,7 @@ index e1207fd03292..4453785e72df 100644
      "//chrome/install_static:install_static_util",
      "//components/crash/content/app",
      "//components/crash/core/common",  # crash_keys
-@@ -213,6 +212,17 @@ static_library("crash") {
+@@ -141,6 +140,17 @@ static_library("crash") {
      "//content/public/common:result_codes",
      "//third_party/crashpad/crashpad/client",  # DumpWithoutCrash
    ]
@@ -91,7 +91,7 @@ index e1207fd03292..4453785e72df 100644
 +  }
  }
  
- static_library("hook_util") {
+ source_set("dll_hash") {
 diff --git chrome_elf/crash/crash_helper.cc chrome_elf/crash/crash_helper.cc
 index fdc51ab22807..cb0a99dd190c 100644
 --- chrome_elf/crash/crash_helper.cc
@@ -241,7 +241,7 @@ index 9ee85554812c..7af55ddda8fe 100644
  extern void InitCrashKeysForTesting();
  
 diff --git components/crash/content/app/crash_reporter_client.cc components/crash/content/app/crash_reporter_client.cc
-index 464fe2efc0db..dcc8d69bdd3a 100644
+index f69c6c3ff26e..e0d402abd3fd 100644
 --- components/crash/content/app/crash_reporter_client.cc
 +++ components/crash/content/app/crash_reporter_client.cc
 @@ -88,7 +88,7 @@ int CrashReporterClient::GetResultCodeRespawnFailed() {
@@ -302,7 +302,7 @@ index 464fe2efc0db..dcc8d69bdd3a 100644
  #if defined(OS_ANDROID)
  int CrashReporterClient::GetAndroidMinidumpDescriptor() {
    return 0;
-@@ -175,9 +203,11 @@ bool CrashReporterClient::ShouldMonitorCrashHandlerExpensively() {
+@@ -186,9 +214,11 @@ bool CrashReporterClient::ShouldMonitorCrashHandlerExpensively() {
    return false;
  }
  
@@ -318,7 +318,7 @@ index 464fe2efc0db..dcc8d69bdd3a 100644
  
  }  // namespace crash_reporter
 diff --git components/crash/content/app/crash_reporter_client.h components/crash/content/app/crash_reporter_client.h
-index e6a09126bdb9..8052e323a5e3 100644
+index 485c2c8bf638..7eb175c43b6c 100644
 --- components/crash/content/app/crash_reporter_client.h
 +++ components/crash/content/app/crash_reporter_client.h
 @@ -5,7 +5,9 @@
@@ -356,7 +356,7 @@ index e6a09126bdb9..8052e323a5e3 100644
  #endif
  
    // The location where minidump files should be written. Returns true if
-@@ -181,6 +185,30 @@ class CrashReporterClient {
+@@ -197,6 +201,30 @@ class CrashReporterClient {
  
    // Returns true if breakpad should run in the given process type.
    virtual bool EnableBreakpadForProcess(const std::string& process_type);

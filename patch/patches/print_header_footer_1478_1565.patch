@@ -1,8 +1,8 @@
 diff --git chrome/browser/ui/BUILD.gn chrome/browser/ui/BUILD.gn
-index 30a33ab1cb73..1cbb401d639e 100644
+index 9a6bde79b2d9..3262d468f969 100644
 --- chrome/browser/ui/BUILD.gn
 +++ chrome/browser/ui/BUILD.gn
-@@ -888,6 +888,7 @@ split_static_library("ui") {
+@@ -890,6 +890,7 @@ split_static_library("ui") {
      "//base:i18n",
      "//base/allocator:buildflags",
      "//cc/paint",
@@ -253,7 +253,7 @@ index d85d26c7e79c..ecced6678eb5 100644
  
  #endif  // COMPONENTS_PRINTING_COMMON_PRINT_MESSAGES_H_
 diff --git components/printing/renderer/print_render_frame_helper.cc components/printing/renderer/print_render_frame_helper.cc
-index d1f6630b05c6..66a9e8a04627 100644
+index 7bfc822296c2..04fb1dc64a7d 100644
 --- components/printing/renderer/print_render_frame_helper.cc
 +++ components/printing/renderer/print_render_frame_helper.cc
 @@ -340,7 +340,6 @@ bool PrintingNodeOrPdfFrame(const blink::WebLocalFrame* frame,
@@ -437,7 +437,7 @@ index d1f6630b05c6..66a9e8a04627 100644
  PrintRenderFrameHelper::PrintPreviewContext::PrintPreviewContext()
      : total_page_count_(0),
 diff --git components/printing/renderer/print_render_frame_helper.h components/printing/renderer/print_render_frame_helper.h
-index 46da03048dfb..c6b185b951fc 100644
+index 8915d8c7caf0..26b67583bbf1 100644
 --- components/printing/renderer/print_render_frame_helper.h
 +++ components/printing/renderer/print_render_frame_helper.h
 @@ -149,10 +149,8 @@ class PrintRenderFrameHelper

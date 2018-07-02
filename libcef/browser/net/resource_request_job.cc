@@ -282,11 +282,14 @@ void CefResourceRequestJob::GetLoadTimingInfo(
   load_timing_info->receive_headers_end = receive_headers_end_;
 }
 
-bool CefResourceRequestJob::IsRedirectResponse(GURL* location,
-                                               int* http_status_code) {
+bool CefResourceRequestJob::IsRedirectResponse(
+    GURL* location,
+    int* http_status_code,
+    bool* insecure_scheme_was_upgraded) {
   CEF_REQUIRE_IOT();
 
   bool redirect = false;
+  *insecure_scheme_was_upgraded = false;
 
   if (redirect_url_.is_valid()) {
     // Redirect to the new URL.

@@ -193,11 +193,6 @@ CefStoragePartitionProxy::GetBluetoothAllowedDevicesMap() {
   return parent_->GetBluetoothAllowedDevicesMap();
 }
 
-content::BlobURLLoaderFactory*
-CefStoragePartitionProxy::GetBlobURLLoaderFactory() {
-  return parent_->GetBlobURLLoaderFactory();
-}
-
 content::BlobRegistryWrapper* CefStoragePartitionProxy::GetBlobRegistry() {
   return parent_->GetBlobRegistry();
 }

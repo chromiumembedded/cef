@@ -1,29 +1,22 @@
 diff --git content/browser/renderer_host/browser_compositor_view_mac.h content/browser/renderer_host/browser_compositor_view_mac.h
-index 18c9e514c3b5..e3730ce40046 100644
+index 921df418789e..7ef9285744a2 100644
 --- content/browser/renderer_host/browser_compositor_view_mac.h
 +++ content/browser/renderer_host/browser_compositor_view_mac.h
-@@ -58,6 +58,7 @@ class CONTENT_EXPORT BrowserCompositorMac : public DelegatedFrameHostClient,
+@@ -58,6 +58,8 @@ class CONTENT_EXPORT BrowserCompositorMac : public DelegatedFrameHostClient,
  
    // These will not return nullptr until Destroy is called.
    DelegatedFrameHost* GetDelegatedFrameHost();
 +  ui::Layer* GetRootLayer() { return root_layer_.get(); }
++  ui::Compositor* GetCompositor();
  
    // Ensure that the currect compositor frame be cleared (even if it is
    // potentially visible).
-@@ -69,6 +70,7 @@ class CONTENT_EXPORT BrowserCompositorMac : public DelegatedFrameHostClient,
-   // no valid frame is available.
-   const gfx::CALayerParams* GetLastCALayerParams() const;
- 
-+  ui::Compositor* GetCompositor();
-   gfx::AcceleratedWidget GetAcceleratedWidget();
-   void DidCreateNewRendererCompositorFrameSink(
-       viz::mojom::CompositorFrameSinkClient* renderer_compositor_frame_sink);
 diff --git content/browser/renderer_host/browser_compositor_view_mac.mm content/browser/renderer_host/browser_compositor_view_mac.mm
-index 65f1326ef578..446e93703e7b 100644
+index fce1e648b031..2b63551ed96e 100644
 --- content/browser/renderer_host/browser_compositor_view_mac.mm
 +++ content/browser/renderer_host/browser_compositor_view_mac.mm
-@@ -240,6 +240,12 @@ BrowserCompositorMac::~BrowserCompositorMac() {
-     g_spare_recyclable_compositors.Get().clear();
+@@ -245,6 +245,12 @@ DelegatedFrameHost* BrowserCompositorMac::GetDelegatedFrameHost() {
+   return delegated_frame_host_.get();
  }
  
 +ui::Compositor* BrowserCompositorMac::GetCompositor() {
@@ -32,6 +25,6 @@ index 65f1326ef578..446e93703e7b 100644
 +  return nullptr;
 +}
 +
- gfx::AcceleratedWidget BrowserCompositorMac::GetAcceleratedWidget() {
-   if (recyclable_compositor_) {
-     return recyclable_compositor_->accelerated_widget_mac()
+ void BrowserCompositorMac::ClearCompositorFrame() {
+   // Make sure that we no longer hold a compositor lock by un-suspending the
+   // compositor. This ensures that we are able to swap in a new blank frame to

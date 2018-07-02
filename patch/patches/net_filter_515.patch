@@ -1,5 +1,5 @@
 diff --git net/base/network_delegate.h net/base/network_delegate.h
-index fdd61fecfc9b..b9590ca9c4fb 100644
+index c28d0bb3b676..1acbb4c94495 100644
 --- net/base/network_delegate.h
 +++ net/base/network_delegate.h
 @@ -17,6 +17,7 @@
@@ -10,7 +10,7 @@ index fdd61fecfc9b..b9590ca9c4fb 100644
  #include "net/proxy_resolution/proxy_retry_info.h"
  
  class GURL;
-@@ -123,6 +124,10 @@ class NET_EXPORT NetworkDelegate {
+@@ -125,6 +126,10 @@ class NET_EXPORT NetworkDelegate {
    bool CanUseReportingClient(const url::Origin& origin,
                               const GURL& endpoint) const;
  
@@ -22,10 +22,10 @@ index fdd61fecfc9b..b9590ca9c4fb 100644
    THREAD_CHECKER(thread_checker_);
  
 diff --git net/url_request/url_request_job.cc net/url_request/url_request_job.cc
-index dbe08e3e375f..11051c636d5a 100644
+index 6344fa04593d..ee26c1d88363 100644
 --- net/url_request/url_request_job.cc
 +++ net/url_request/url_request_job.cc
-@@ -460,6 +460,12 @@ void URLRequestJob::NotifyHeadersComplete() {
+@@ -466,6 +466,12 @@ void URLRequestJob::NotifyHeadersComplete() {
      DCHECK(!source_stream_);
      source_stream_ = SetUpSourceStream();
  

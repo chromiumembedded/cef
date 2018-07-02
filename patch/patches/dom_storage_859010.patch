@@ -1,0 +1,15 @@
+diff --git content/browser/dom_storage/dom_storage_context_wrapper.cc content/browser/dom_storage/dom_storage_context_wrapper.cc
+index 242deb55fb27..d7fe71e5e0a6 100644
+--- content/browser/dom_storage/dom_storage_context_wrapper.cc
++++ content/browser/dom_storage/dom_storage_context_wrapper.cc
+@@ -153,7 +153,9 @@ DOMStorageContextWrapper::DOMStorageContextWrapper(
+ 
+   if (base::FeatureList::IsEnabled(features::kMojoSessionStorage)) {
+     mojo_session_state_ = new SessionStorageContextMojo(
+-        mojo_task_runner_, connector, local_partition_path,
++        mojo_task_runner_, connector,
++        profile_path.empty() ? base::nullopt
++                             : base::make_optional(local_partition_path),
+         std::string(kSessionStorageDirectory));
+   }
+ 

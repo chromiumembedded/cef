@@ -38,7 +38,9 @@ class CefResourceRequestJob : public net::URLRequestJob {
   int ReadRawData(net::IOBuffer* dest, int dest_size) override;
   void GetResponseInfo(net::HttpResponseInfo* info) override;
   void GetLoadTimingInfo(net::LoadTimingInfo* load_timing_info) const override;
-  bool IsRedirectResponse(GURL* location, int* http_status_code) override;
+  bool IsRedirectResponse(GURL* location,
+                          int* http_status_code,
+                          bool* insecure_scheme_was_upgraded) override;
   bool GetMimeType(std::string* mime_type) const override;
   bool GetCharset(std::string* charset) override;
   int GetResponseCode() const override;

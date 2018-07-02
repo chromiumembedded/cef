@@ -295,10 +295,10 @@ index 1d35afeda78f..333f9c0f778d 100644
    std::unique_ptr<SelectionController> selection_controller_;
  
 diff --git ui/views/controls/menu/menu_controller.cc ui/views/controls/menu/menu_controller.cc
-index cb9ff25e88a5..6dbd8472cea2 100644
+index 7db3c69b1a3b..3c5a4106629d 100644
 --- ui/views/controls/menu/menu_controller.cc
 +++ ui/views/controls/menu/menu_controller.cc
-@@ -2417,8 +2417,13 @@ MenuItemView* MenuController::FindNextSelectableMenuItem(
+@@ -2451,8 +2451,13 @@ MenuItemView* MenuController::FindNextSelectableMenuItem(
  
  void MenuController::OpenSubmenuChangeSelectionIfCan() {
    MenuItemView* item = pending_state_.item;
@@ -313,7 +313,7 @@ index cb9ff25e88a5..6dbd8472cea2 100644
    MenuItemView* to_select = NULL;
    if (item->GetSubmenu()->GetMenuItemCount() > 0)
      to_select = FindInitialSelectableMenuItem(item, INCREMENT_SELECTION_DOWN);
-@@ -2433,8 +2438,10 @@ void MenuController::OpenSubmenuChangeSelectionIfCan() {
+@@ -2467,8 +2472,10 @@ void MenuController::OpenSubmenuChangeSelectionIfCan() {
  void MenuController::CloseSubmenu() {
    MenuItemView* item = state_.item;
    DCHECK(item);
@@ -373,10 +373,10 @@ index 4dea63f9f286..ef50b710c5af 100644
    virtual int GetMaxWidthForMenu(MenuItemView* menu);
  
 diff --git ui/views/controls/menu/menu_item_view.cc ui/views/controls/menu/menu_item_view.cc
-index f058ad626438..70df455a7c5d 100644
+index 4b45b29b387b..39304c5c708c 100644
 --- ui/views/controls/menu/menu_item_view.cc
 +++ ui/views/controls/menu/menu_item_view.cc
-@@ -905,7 +905,12 @@ void MenuItemView::PaintButton(gfx::Canvas* canvas, PaintButtonMode mode) {
+@@ -906,7 +906,12 @@ void MenuItemView::PaintButton(gfx::Canvas* canvas, PaintButtonMode mode) {
    // only need the background when we want it to look different, as when we're
    // selected.
    ui::NativeTheme* native_theme = GetNativeTheme();
@@ -390,7 +390,7 @@ index f058ad626438..70df455a7c5d 100644
      gfx::Rect item_bounds(0, 0, width(), height());
      if (type_ == ACTIONABLE_SUBMENU) {
        if (submenu_area_of_actionable_submenu_selected_) {
-@@ -1024,6 +1029,13 @@ void MenuItemView::PaintMinorIconAndText(gfx::Canvas* canvas, SkColor color) {
+@@ -1025,6 +1030,13 @@ void MenuItemView::PaintMinorIconAndText(gfx::Canvas* canvas, SkColor color) {
  SkColor MenuItemView::GetTextColor(bool minor,
                                     bool render_selection,
                                     bool emphasized) const {
@@ -512,7 +512,7 @@ index 0ac493c3c6a0..741769e90eb0 100644
    void WillHideMenu(MenuItemView* menu) override;
    void OnMenuClosed(MenuItemView* menu) override;
 diff --git ui/views/controls/menu/menu_scroll_view_container.cc ui/views/controls/menu/menu_scroll_view_container.cc
-index abcc8e28e7e5..574d46d03505 100644
+index 16a1bef6715e..867a643ec1d3 100644
 --- ui/views/controls/menu/menu_scroll_view_container.cc
 +++ ui/views/controls/menu/menu_scroll_view_container.cc
 @@ -183,6 +183,11 @@ MenuScrollViewContainer::MenuScrollViewContainer(SubmenuView* content_view)
