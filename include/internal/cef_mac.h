@@ -88,6 +88,8 @@ struct CefWindowInfoTraits {
     target->hidden = src->hidden;
     target->parent_view = src->parent_view;
     target->windowless_rendering_enabled = src->windowless_rendering_enabled;
+    target->shared_texture_enabled = src->shared_texture_enabled;
+    target->external_begin_frame_enabled = src->external_begin_frame_enabled;
     target->view = src->view;
   }
 };

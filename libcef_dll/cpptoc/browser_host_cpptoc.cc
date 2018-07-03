@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=099ec6c9deac65288a47cec317ab6b355e707179$
+// $hash=2357c186875d3086fa4931a3ac8346d866cab1e3$
 //
 
 #include "libcef_dll/cpptoc/browser_host_cpptoc.h"
@@ -616,6 +616,18 @@ void CEF_CALLBACK browser_host_invalidate(struct _cef_browser_host_t* self,
 }
 
 void CEF_CALLBACK
+browser_host_send_external_begin_frame(struct _cef_browser_host_t* self) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return;
+
+  // Execute
+  CefBrowserHostCppToC::Get(self)->SendExternalBeginFrame();
+}
+
+void CEF_CALLBACK
 browser_host_send_key_event(struct _cef_browser_host_t* self,
                             const struct _cef_key_event_t* event) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -1111,6 +1123,8 @@ CefBrowserHostCppToC::CefBrowserHostCppToC() {
   GetStruct()->notify_screen_info_changed =
       browser_host_notify_screen_info_changed;
   GetStruct()->invalidate = browser_host_invalidate;
+  GetStruct()->send_external_begin_frame =
+      browser_host_send_external_begin_frame;
   GetStruct()->send_key_event = browser_host_send_key_event;
   GetStruct()->send_mouse_click_event = browser_host_send_mouse_click_event;
   GetStruct()->send_mouse_move_event = browser_host_send_mouse_move_event;

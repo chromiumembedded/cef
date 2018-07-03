@@ -35,6 +35,14 @@ CefWindowHandle CefBrowserPlatformDelegateBackground::GetHostWindowHandle()
   return kNullWindowHandle;
 }
 
+bool CefBrowserPlatformDelegateBackground::CanUseSharedTexture() const {
+  return native_delegate_->CanUseSharedTexture();
+}
+
+bool CefBrowserPlatformDelegateBackground::CanUseExternalBeginFrame() const {
+  return native_delegate_->CanUseExternalBeginFrame();
+}
+
 SkColor CefBrowserPlatformDelegateBackground::GetBackgroundColor() const {
   return native_delegate_->GetBackgroundColor();
 }

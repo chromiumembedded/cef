@@ -596,6 +596,13 @@ class CefBrowserHost : public virtual CefBaseRefCounted {
   virtual void Invalidate(PaintElementType type) = 0;
 
   ///
+  // Issue a BeginFrame request to Chromium.  Only valid when
+  // CefWindowInfo::external_begin_frame_enabled is set to true.
+  ///
+  /*--cef()--*/
+  virtual void SendExternalBeginFrame() = 0;
+
+  ///
   // Send a key event to the browser.
   ///
   /*--cef()--*/

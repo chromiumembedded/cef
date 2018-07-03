@@ -28,7 +28,10 @@ class CefBrowserPlatformDelegateOsr
   void BrowserCreated(CefBrowserHostImpl* browser) override;
   void BrowserDestroyed(CefBrowserHostImpl* browser) override;
   SkColor GetBackgroundColor() const override;
+  bool CanUseSharedTexture() const override;
+  bool CanUseExternalBeginFrame() const override;
   void SynchronizeVisualProperties() override;
+  void SendExternalBeginFrame() override;
   void SendKeyEvent(const content::NativeWebKeyboardEvent& event) override;
   void SendMouseEvent(const blink::WebMouseEvent& event) override;
   void SendMouseWheelEvent(const blink::WebMouseWheelEvent& event) override;

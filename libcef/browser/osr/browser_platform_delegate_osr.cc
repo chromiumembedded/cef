@@ -30,7 +30,8 @@ void CefBrowserPlatformDelegateOsr::CreateViewForWebContents(
   DCHECK(!view_osr_);
 
   // Use the OSR view instead of the default platform view.
-  view_osr_ = new CefWebContentsViewOSR(GetBackgroundColor());
+  view_osr_ = new CefWebContentsViewOSR(
+      GetBackgroundColor(), CanUseSharedTexture(), CanUseExternalBeginFrame());
   *view = view_osr_;
   *delegate_view = view_osr_;
 }
@@ -67,6 +68,14 @@ void CefBrowserPlatformDelegateOsr::BrowserDestroyed(
   CefBrowserPlatformDelegate::BrowserDestroyed(browser);
 
   view_osr_ = nullptr;
+}
+
+bool CefBrowserPlatformDelegateOsr::CanUseSharedTexture() const {
+  return native_delegate_->CanUseSharedTexture();
+}
+
+bool CefBrowserPlatformDelegateOsr::CanUseExternalBeginFrame() const {
+  return native_delegate_->CanUseExternalBeginFrame();
 }
 
 SkColor CefBrowserPlatformDelegateOsr::GetBackgroundColor() const {
@@ -213,6 +222,12 @@ void CefBrowserPlatformDelegateOsr::Invalidate(cef_paint_element_type_t type) {
   CefRenderWidgetHostViewOSR* view = GetOSRHostView();
   if (view)
     view->Invalidate(type);
+}
+
+void CefBrowserPlatformDelegateOsr::SendExternalBeginFrame() {
+  CefRenderWidgetHostViewOSR* view = GetOSRHostView();
+  if (view)
+    view->SendExternalBeginFrame();
 }
 
 void CefBrowserPlatformDelegateOsr::SetWindowlessFrameRate(int frame_rate) {

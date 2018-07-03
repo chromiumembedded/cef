@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=6cf6466ab2a1b87a1b57b5994aab64992b9f12dd$
+// $hash=8df4ed4bd6e80bd90fb9563a021a59848fc40ecc$
 //
 
 #include "libcef_dll/cpptoc/render_handler_cpptoc.h"
@@ -266,6 +266,45 @@ void CEF_CALLBACK render_handler_on_paint(struct _cef_render_handler_t* self,
                                              width, height);
 }
 
+void CEF_CALLBACK
+render_handler_on_accelerated_paint(struct _cef_render_handler_t* self,
+                                    cef_browser_t* browser,
+                                    cef_paint_element_type_t type,
+                                    size_t dirtyRectsCount,
+                                    cef_rect_t const* dirtyRects,
+                                    void* shared_handle) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return;
+  // Verify param: browser; type: refptr_diff
+  DCHECK(browser);
+  if (!browser)
+    return;
+  // Verify param: dirtyRects; type: simple_vec_byref_const
+  DCHECK(dirtyRectsCount == 0 || dirtyRects);
+  if (dirtyRectsCount > 0 && !dirtyRects)
+    return;
+  // Verify param: shared_handle; type: simple_byaddr
+  DCHECK(shared_handle);
+  if (!shared_handle)
+    return;
+
+  // Translate param: dirtyRects; type: simple_vec_byref_const
+  std::vector<CefRect> dirtyRectsList;
+  if (dirtyRectsCount > 0) {
+    for (size_t i = 0; i < dirtyRectsCount; ++i) {
+      CefRect dirtyRectsVal = dirtyRects[i];
+      dirtyRectsList.push_back(dirtyRectsVal);
+    }
+  }
+
+  // Execute
+  CefRenderHandlerCppToC::Get(self)->OnAcceleratedPaint(
+      CefBrowserCToCpp::Wrap(browser), type, dirtyRectsList, shared_handle);
+}
+
 void CEF_CALLBACK render_handler_on_cursor_change(
     struct _cef_render_handler_t* self,
     cef_browser_t* browser,
@@ -444,6 +483,7 @@ CefRenderHandlerCppToC::CefRenderHandlerCppToC() {
   GetStruct()->on_popup_show = render_handler_on_popup_show;
   GetStruct()->on_popup_size = render_handler_on_popup_size;
   GetStruct()->on_paint = render_handler_on_paint;
+  GetStruct()->on_accelerated_paint = render_handler_on_accelerated_paint;
   GetStruct()->on_cursor_change = render_handler_on_cursor_change;
   GetStruct()->start_dragging = render_handler_start_dragging;
   GetStruct()->update_drag_cursor = render_handler_update_drag_cursor;

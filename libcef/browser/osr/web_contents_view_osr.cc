@@ -15,8 +15,13 @@
 #include "content/browser/web_contents/web_contents_impl.h"
 #include "content/public/browser/render_widget_host.h"
 
-CefWebContentsViewOSR::CefWebContentsViewOSR(SkColor background_color)
-    : background_color_(background_color), web_contents_(NULL) {}
+CefWebContentsViewOSR::CefWebContentsViewOSR(SkColor background_color,
+                                             bool use_shared_texture,
+                                             bool use_external_begin_frame)
+    : background_color_(background_color),
+      use_shared_texture_(use_shared_texture),
+      use_external_begin_frame_(use_external_begin_frame),
+      web_contents_(NULL) {}
 
 CefWebContentsViewOSR::~CefWebContentsViewOSR() {}
 
@@ -109,8 +114,9 @@ content::RenderWidgetHostViewBase* CefWebContentsViewOSR::CreateViewForWidget(
   }
 
   const bool is_guest_view_hack = !!embedder_render_widget_host;
-  return new CefRenderWidgetHostViewOSR(background_color_, render_widget_host,
-                                        embedder_host_view, is_guest_view_hack);
+  return new CefRenderWidgetHostViewOSR(
+      background_color_, use_shared_texture_, use_external_begin_frame_,
+      render_widget_host, embedder_host_view, is_guest_view_hack);
 }
 
 // Called for popup and fullscreen widgets.
@@ -120,8 +126,9 @@ CefWebContentsViewOSR::CreateViewForPopupWidget(
   CefRenderWidgetHostViewOSR* view = GetView();
   CHECK(view);
 
-  return new CefRenderWidgetHostViewOSR(background_color_, render_widget_host,
-                                        view, false);
+  return new CefRenderWidgetHostViewOSR(background_color_, use_shared_texture_,
+                                        use_external_begin_frame_,
+                                        render_widget_host, view, false);
 }
 
 void CefWebContentsViewOSR::SetPageTitle(const base::string16& title) {}

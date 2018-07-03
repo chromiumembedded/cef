@@ -23,7 +23,9 @@ class CefRenderWidgetHostViewOSR;
 class CefWebContentsViewOSR : public content::WebContentsView,
                               public content::RenderViewHostDelegateView {
  public:
-  explicit CefWebContentsViewOSR(SkColor background_color);
+  explicit CefWebContentsViewOSR(SkColor background_color,
+                                 bool use_shared_texture,
+                                 bool use_external_begin_frame);
   ~CefWebContentsViewOSR() override;
 
   void WebContentsCreated(content::WebContents* web_contents);
@@ -82,6 +84,8 @@ class CefWebContentsViewOSR : public content::WebContentsView,
   CefBrowserHostImpl* GetBrowser() const;
 
   const SkColor background_color_;
+  const bool use_shared_texture_;
+  const bool use_external_begin_frame_;
 
   content::WebContents* web_contents_;
 

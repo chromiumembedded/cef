@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=d259309846e69d866a834aa701bbf8c9562dd117$
+// $hash=ef8abd4a01fe1047abc0d2ab1c359704611a60ac$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_RENDER_HANDLER_CAPI_H_
@@ -141,6 +141,18 @@ typedef struct _cef_render_handler_t {
                                const void* buffer,
                                int width,
                                int height);
+
+  ///
+  // Called when an view has been rendered to the given shared texture handle.
+  // Currently, the shared handle represents a D3D11 Texture2D that can be
+  // accessed with the OpenSharedResource function available from a ID3D11Device
+  ///
+  void(CEF_CALLBACK* on_accelerated_paint)(struct _cef_render_handler_t* self,
+                                           struct _cef_browser_t* browser,
+                                           cef_paint_element_type_t type,
+                                           size_t dirtyRectsCount,
+                                           cef_rect_t const* dirtyRects,
+                                           void* shared_handle);
 
   ///
   // Called when the browser's cursor has changed. If |type| is CT_CUSTOM then

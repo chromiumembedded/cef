@@ -165,6 +165,14 @@ void CefBrowserPlatformDelegateViews::PopupBrowserCreated(
   }
 }
 
+bool CefBrowserPlatformDelegateViews::CanUseSharedTexture() const {
+  return native_delegate_->CanUseSharedTexture();
+}
+
+bool CefBrowserPlatformDelegateViews::CanUseExternalBeginFrame() const {
+  return native_delegate_->CanUseExternalBeginFrame();
+}
+
 SkColor CefBrowserPlatformDelegateViews::GetBackgroundColor() const {
   return native_delegate_->GetBackgroundColor();
 }

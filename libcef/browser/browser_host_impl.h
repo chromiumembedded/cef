@@ -212,6 +212,7 @@ class CefBrowserHostImpl : public CefBrowserHost,
   void WasHidden(bool hidden) override;
   void NotifyScreenInfoChanged() override;
   void Invalidate(PaintElementType type) override;
+  void SendExternalBeginFrame() override;
   void SendKeyEvent(const CefKeyEvent& event) override;
   void SendMouseClickEvent(const CefMouseEvent& event,
                            MouseButtonType type,

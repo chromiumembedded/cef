@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=9a1691bbc0a509032dd60b463189dd1eb0f6cc4d$
+// $hash=5d699bfd2e9f2d689a5bca3372563b1578fa1ba1$
 //
 
 #include "libcef_dll/ctocpp/browser_host_ctocpp.h"
@@ -555,6 +555,17 @@ void CefBrowserHostCToCpp::Invalidate(PaintElementType type) {
 
   // Execute
   _struct->invalidate(_struct, type);
+}
+
+NO_SANITIZE("cfi-icall") void CefBrowserHostCToCpp::SendExternalBeginFrame() {
+  cef_browser_host_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, send_external_begin_frame))
+    return;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  _struct->send_external_begin_frame(_struct);
 }
 
 NO_SANITIZE("cfi-icall")

@@ -41,6 +41,8 @@ class CefBrowserPlatformDelegateViews
       bool is_devtools) override;
   void PopupBrowserCreated(CefBrowserHostImpl* new_browser,
                            bool is_devtools) override;
+  bool CanUseSharedTexture() const override;
+  bool CanUseExternalBeginFrame() const override;
   SkColor GetBackgroundColor() const override;
   void SynchronizeVisualProperties() override;
   void SendKeyEvent(const content::NativeWebKeyboardEvent& event) override;

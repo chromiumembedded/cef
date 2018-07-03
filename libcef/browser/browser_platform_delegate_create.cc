@@ -34,10 +34,13 @@ namespace {
 
 std::unique_ptr<CefBrowserPlatformDelegateNative> CreateNativeDelegate(
     const CefWindowInfo& window_info,
-    SkColor background_color) {
+    SkColor background_color,
+    bool use_shared_texture,
+    bool use_external_begin_frame) {
 #if defined(OS_WIN)
   return std::make_unique<CefBrowserPlatformDelegateNativeWin>(
-      window_info, background_color);
+      window_info, background_color, use_shared_texture,
+      use_external_begin_frame);
 #elif defined(OS_MACOSX)
   return std::make_unique<CefBrowserPlatformDelegateNativeMac>(
       window_info, background_color);
@@ -73,10 +76,22 @@ std::unique_ptr<CefBrowserPlatformDelegate> CefBrowserPlatformDelegate::Create(
   const SkColor background_color = CefContext::Get()->GetBackgroundColor(
       &create_params.settings, is_windowless ? STATE_ENABLED : STATE_DISABLED);
 
+  bool use_shared_texture = false;
+  bool use_external_begin_frame = false;
+
+  if (is_windowless) {
+    use_shared_texture = create_params.window_info &&
+                         create_params.window_info->shared_texture_enabled;
+
+    use_external_begin_frame =
+        create_params.window_info &&
+        create_params.window_info->external_begin_frame_enabled;
+  }
+
   if (create_params.window_info) {
     std::unique_ptr<CefBrowserPlatformDelegateNative> native_delegate =
-        CreateNativeDelegate(*create_params.window_info.get(),
-                             background_color);
+        CreateNativeDelegate(*create_params.window_info.get(), background_color,
+                             use_shared_texture, use_external_begin_frame);
     if (is_windowless)
       return CreateOSRDelegate(std::move(native_delegate));
     return std::move(native_delegate);
@@ -84,7 +99,8 @@ std::unique_ptr<CefBrowserPlatformDelegate> CefBrowserPlatformDelegate::Create(
              extensions::VIEW_TYPE_EXTENSION_BACKGROUND_PAGE) {
     // Creating a background extension host without a window.
     std::unique_ptr<CefBrowserPlatformDelegateNative> native_delegate =
-        CreateNativeDelegate(CefWindowInfo(), background_color);
+        CreateNativeDelegate(CefWindowInfo(), background_color,
+                             use_shared_texture, use_external_begin_frame);
     return std::make_unique<CefBrowserPlatformDelegateBackground>(
         std::move(native_delegate));
   }
@@ -92,7 +108,8 @@ std::unique_ptr<CefBrowserPlatformDelegate> CefBrowserPlatformDelegate::Create(
   else {
     // CefWindowInfo is not used in this case.
     std::unique_ptr<CefBrowserPlatformDelegateNative> native_delegate =
-        CreateNativeDelegate(CefWindowInfo(), background_color);
+        CreateNativeDelegate(CefWindowInfo(), background_color,
+                             use_shared_texture, use_external_begin_frame);
     return std::make_unique<CefBrowserPlatformDelegateViews>(
         std::move(native_delegate),
         static_cast<CefBrowserViewImpl*>(create_params.browser_view.get()));

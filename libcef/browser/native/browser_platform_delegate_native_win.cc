@@ -125,8 +125,13 @@ float GetWindowScaleFactor(HWND hwnd) {
 
 CefBrowserPlatformDelegateNativeWin::CefBrowserPlatformDelegateNativeWin(
     const CefWindowInfo& window_info,
-    SkColor background_color)
-    : CefBrowserPlatformDelegateNative(window_info, background_color),
+    SkColor background_color,
+    bool use_shared_texture,
+    bool use_external_begin_frame)
+    : CefBrowserPlatformDelegateNative(window_info,
+                                       background_color,
+                                       use_shared_texture,
+                                       use_external_begin_frame),
       host_window_created_(false),
       window_widget_(nullptr) {}
 

@@ -7,6 +7,7 @@
 #define CEF_LIBCEF_BROWSER_OSR_RENDER_WIDGET_HOST_VIEW_OSR_H_
 #pragma once
 
+#include <map>
 #include <set>
 #include <vector>
 
@@ -21,6 +22,8 @@
 #include "content/browser/renderer_host/input/mouse_wheel_phase_handler.h"
 #include "content/browser/renderer_host/render_widget_host_view_base.h"
 #include "ui/compositor/compositor.h"
+#include "ui/compositor/external_begin_frame_client.h"
+#include "ui/gfx/geometry/rect.h"
 
 #if defined(OS_LINUX)
 #include "ui/base/x/x11_util.h"
@@ -90,6 +93,7 @@ class MacHelper;
 #endif
 
 class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
+                                   public ui::ExternalBeginFrameClient,
                                    public ui::CompositorDelegate
 #if !defined(OS_MACOSX)
     ,
@@ -98,6 +102,8 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
 {
  public:
   CefRenderWidgetHostViewOSR(SkColor background_color,
+                             bool use_shared_texture,
+                             bool use_external_begin_frame,
                              content::RenderWidgetHost* widget,
                              CefRenderWidgetHostViewOSR* parent_host_view,
                              bool is_guest_view_hack);
@@ -198,6 +204,10 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
   const viz::LocalSurfaceId& GetLocalSurfaceId() const override;
   const viz::FrameSinkId& GetFrameSinkId() const override;
 
+  // ui::ExternalBeginFrameClient implementation:
+  void OnDisplayDidFinishFrame(const viz::BeginFrameAck& ack) override;
+  void OnNeedsExternalBeginFrames(bool needs_begin_frames) override;
+
   // ui::CompositorDelegate implementation.
   std::unique_ptr<viz::SoftwareOutputDevice> CreateSoftwareOutputDevice(
       ui::Compositor* compositor) override;
@@ -217,6 +227,7 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
   void SynchronizeVisualProperties();
   void OnScreenInfoChanged();
   void Invalidate(CefBrowserHost::PaintElementType type);
+  void SendExternalBeginFrame();
   void SendKeyEvent(const content::NativeWebKeyboardEvent& event);
   void SendMouseEvent(const blink::WebMouseEvent& event);
   void SendMouseWheelEvent(const blink::WebMouseWheelEvent& event);
@@ -267,6 +278,8 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
   }
 #endif
 
+  void OnPresentCompositorFrame(uint32_t presentation_token);
+
  private:
   content::DelegatedFrameHost* GetDelegatedFrameHost() const;
 
@@ -298,6 +311,8 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
   void RequestImeCompositionUpdate(bool start_monitoring);
 
   viz::FrameSinkId AllocateFrameSinkId(bool is_guest_view_hack);
+
+  void AddDamageRect(uint32_t presentation_token, const gfx::Rect& rect);
 
   // Applies background color without notifying the RenderWidget about
   // opaqueness changes.
@@ -358,6 +373,10 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
   viz::StubBeginFrameSource begin_frame_source_;
   uint64_t begin_frame_number_ = viz::BeginFrameArgs::kStartingFrameNumber;
 
+  bool sync_frame_rate_ = false;
+  bool external_begin_frame_enabled_ = false;
+  bool needs_external_begin_frames_ = false;
+
   // Used for direct rendering from the compositor when GPU compositing is
   // disabled. This object is owned by the compositor.
   CefSoftwareOutputDeviceOSR* software_output_device_;
@@ -384,6 +403,9 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
   bool is_showing_;
   bool is_destroyed_;
   gfx::Rect popup_position_;
+  uint32_t presentation_token_ = 0;
+  base::Lock damage_rect_lock_;
+  std::map<uint32_t, gfx::Rect> damage_rects_;
 
   // The last scroll offset of the view.
   gfx::Vector2dF last_scroll_offset_;
@@ -391,8 +413,8 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
 
   content::MouseWheelPhaseHandler mouse_wheel_phase_handler_;
 
-  viz::mojom::CompositorFrameSinkClient* renderer_compositor_frame_sink_ =
-      nullptr;
+  std::unique_ptr<viz::mojom::CompositorFrameSinkClient>
+      renderer_compositor_frame_sink_;
 
   // Latest capture sequence number which is incremented when the caller
   // requests surfaces be synchronized via

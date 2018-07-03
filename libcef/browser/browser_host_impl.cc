@@ -1156,6 +1156,24 @@ void CefBrowserHostImpl::Invalidate(PaintElementType type) {
   platform_delegate_->Invalidate(type);
 }
 
+void CefBrowserHostImpl::SendExternalBeginFrame() {
+  if (!IsWindowless()) {
+    NOTREACHED() << "Window rendering is not disabled";
+    return;
+  }
+
+  if (!CEF_CURRENTLY_ON_UIT()) {
+    CEF_POST_TASK(
+        CEF_UIT, base::Bind(&CefBrowserHostImpl::SendExternalBeginFrame, this));
+    return;
+  }
+
+  if (!web_contents() || !platform_delegate_)
+    return;
+
+  platform_delegate_->SendExternalBeginFrame();
+}
+
 void CefBrowserHostImpl::SendKeyEvent(const CefKeyEvent& event) {
   if (!CEF_CURRENTLY_ON_UIT()) {
     CEF_POST_TASK(CEF_UIT, base::BindOnce(&CefBrowserHostImpl::SendKeyEvent,

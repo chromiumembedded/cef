@@ -139,6 +139,9 @@ class CefBrowserPlatformDelegate {
   // enable transparency.
   virtual SkColor GetBackgroundColor() const = 0;
 
+  virtual bool CanUseSharedTexture() const = 0;
+  virtual bool CanUseExternalBeginFrame() const = 0;
+
   // Notify the window that it was resized.
   virtual void SynchronizeVisualProperties() = 0;
 
@@ -226,6 +229,8 @@ class CefBrowserPlatformDelegate {
 
   // Invalidate the view. Only used with windowless rendering.
   virtual void Invalidate(cef_paint_element_type_t type);
+
+  virtual void SendExternalBeginFrame();
 
   // Set the windowless frame rate. Only used with windowless rendering.
   virtual void SetWindowlessFrameRate(int frame_rate);

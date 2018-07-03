@@ -82,6 +82,8 @@ struct CefWindowInfoTraits {
     target->height = src->height;
     target->parent_window = src->parent_window;
     target->windowless_rendering_enabled = src->windowless_rendering_enabled;
+    target->shared_texture_enabled = src->shared_texture_enabled;
+    target->external_begin_frame_enabled = src->external_begin_frame_enabled;
     target->window = src->window;
   }
 };

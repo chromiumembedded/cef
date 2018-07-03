@@ -41,7 +41,10 @@ long GetSystemUptime() {
 CefBrowserPlatformDelegateNativeLinux::CefBrowserPlatformDelegateNativeLinux(
     const CefWindowInfo& window_info,
     SkColor background_color)
-    : CefBrowserPlatformDelegateNative(window_info, background_color),
+    : CefBrowserPlatformDelegateNative(window_info,
+                                       background_color,
+                                       false,
+                                       false),
       host_window_created_(false),
       window_widget_(nullptr),
       window_x11_(nullptr) {}

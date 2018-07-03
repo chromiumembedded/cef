@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=ff3ebc51ed5743aabac0be94caf2edeedbd413b7$
+// $hash=caba7ed3d6e19f7a4499fb48f627c2f5b40e46bc$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_BROWSER_CAPI_H_
@@ -570,6 +570,13 @@ typedef struct _cef_browser_host_t {
   ///
   void(CEF_CALLBACK* invalidate)(struct _cef_browser_host_t* self,
                                  cef_paint_element_type_t type);
+
+  ///
+  // Issue a BeginFrame request to Chromium.  Only valid when
+  // cef_window_tInfo::external_begin_frame_enabled is set to true (1).
+  ///
+  void(CEF_CALLBACK* send_external_begin_frame)(
+      struct _cef_browser_host_t* self);
 
   ///
   // Send a key event to the browser.
