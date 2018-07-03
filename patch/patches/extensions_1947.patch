@@ -27,10 +27,10 @@ index 53c7404ef1f9..ac33df7cfe0e 100644
    auto* browser_context = web_contents->GetBrowserContext();
    StreamsPrivateAPI* streams_private = GetStreamsPrivateAPI(browser_context);
 diff --git content/browser/frame_host/render_frame_host_manager.cc content/browser/frame_host/render_frame_host_manager.cc
-index 7f6e27181267..26080b6d61e0 100644
+index b682235b0f87..50fff0f5e26b 100644
 --- content/browser/frame_host/render_frame_host_manager.cc
 +++ content/browser/frame_host/render_frame_host_manager.cc
-@@ -897,10 +897,11 @@ bool RenderFrameHostManager::ShouldSwapBrowsingInstancesForNavigation(
+@@ -906,10 +906,11 @@ bool RenderFrameHostManager::ShouldSwapBrowsingInstancesForNavigation(
    // TODO(alexmos): This check should've been enforced earlier in the
    // navigation, in chrome::Navigate().  Verify this, and then convert this to
    // a CHECK and remove the fallback.
@@ -46,7 +46,7 @@ index 7f6e27181267..26080b6d61e0 100644
      return true;
    }
  
-@@ -1041,7 +1042,8 @@ RenderFrameHostManager::GetSiteInstanceForNavigation(
+@@ -1050,7 +1051,8 @@ RenderFrameHostManager::GetSiteInstanceForNavigation(
  
    // Double-check that the new SiteInstance is associated with the right
    // BrowserContext.

@@ -37,10 +37,10 @@ index a0bc9305e62d..0c8d42c55302 100644
  
    attached_ = true;
 diff --git content/browser/frame_host/interstitial_page_impl.cc content/browser/frame_host/interstitial_page_impl.cc
-index 7c55f52cb49a..fa1c85a86ed5 100644
+index ad9de41d1e3e..a87ec19a5f54 100644
 --- content/browser/frame_host/interstitial_page_impl.cc
 +++ content/browser/frame_host/interstitial_page_impl.cc
-@@ -619,7 +619,7 @@ WebContentsView* InterstitialPageImpl::CreateWebContentsView() {
+@@ -622,7 +622,7 @@ WebContentsView* InterstitialPageImpl::CreateWebContentsView() {
    WebContentsView* wcv =
        static_cast<WebContentsImpl*>(web_contents())->GetView();
    RenderWidgetHostViewBase* view =

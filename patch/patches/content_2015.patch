@@ -94,10 +94,10 @@ index b23698013a09..d60eb48c6efd 100644
                  "WillFailRequest state should come before WillProcessResponse");
    return render_frame_host_;
 diff --git content/browser/frame_host/render_frame_host_impl.cc content/browser/frame_host/render_frame_host_impl.cc
-index 2ef1f5b667fa..c0296f748648 100644
+index 7f8d8da28de6..b058d7f43a7a 100644
 --- content/browser/frame_host/render_frame_host_impl.cc
 +++ content/browser/frame_host/render_frame_host_impl.cc
-@@ -1568,6 +1568,7 @@ void RenderFrameHostImpl::OnDidFailProvisionalLoadWithError(
+@@ -1581,6 +1581,7 @@ void RenderFrameHostImpl::OnDidFailProvisionalLoadWithError(
    if (GetNavigationHandle()) {
      GetNavigationHandle()->set_net_error_code(
          static_cast<net::Error>(params.error_code));
@@ -105,7 +105,7 @@ index 2ef1f5b667fa..c0296f748648 100644
    }
  
    frame_tree_node_->navigator()->DidFailProvisionalLoadWithError(this, params);
-@@ -3328,9 +3329,9 @@ void RenderFrameHostImpl::RegisterMojoInterfaces() {
+@@ -3346,9 +3347,9 @@ void RenderFrameHostImpl::RegisterMojoInterfaces() {
        BrowserThread::GetTaskRunnerForThread(BrowserThread::IO));
  
    if (base::FeatureList::IsEnabled(network::features::kNetworkService)) {
@@ -118,7 +118,7 @@ index 2ef1f5b667fa..c0296f748648 100644
      // TODO(https://crbug.com/813479): Investigate why we need to explicitly
      // specify task runner for BrowserThread::IO here.
      // Bind calls to the BindRegistry should come on to the IO thread by
-@@ -3606,9 +3607,9 @@ void RenderFrameHostImpl::CommitNavigation(
+@@ -3624,9 +3625,9 @@ void RenderFrameHostImpl::CommitNavigation(
      // however only do this for cross-document navigations, because the
      // alternative would be redundant effort.
      network::mojom::URLLoaderFactoryPtrInfo default_factory_info;
@@ -131,7 +131,7 @@ index 2ef1f5b667fa..c0296f748648 100644
      if (subresource_loader_params &&
          subresource_loader_params->loader_factory_info.is_valid()) {
        // If the caller has supplied a default URLLoaderFactory override (for
-@@ -4300,8 +4301,8 @@ void RenderFrameHostImpl::CreateNetworkServiceDefaultFactoryAndObserve(
+@@ -4318,8 +4319,8 @@ void RenderFrameHostImpl::CreateNetworkServiceDefaultFactoryAndObserve(
    RenderFrameDevToolsAgentHost::WillCreateURLLoaderFactory(
        this, false /* is_navigation */, false /* is_download */,
        &default_factory_request);
@@ -389,7 +389,7 @@ index 74a031ad10c3..3b3f9e292f4b 100644
    virtual void FocusedNodeChanged(const blink::WebNode& node) {}
  
 diff --git content/renderer/render_frame_impl.cc content/renderer/render_frame_impl.cc
-index fd8ec4750c17..714c46e6f3ed 100644
+index 33356adf00d6..9d8d91eed735 100644
 --- content/renderer/render_frame_impl.cc
 +++ content/renderer/render_frame_impl.cc
 @@ -3253,7 +3253,8 @@ blink::WebPlugin* RenderFrameImpl::CreatePlugin(
