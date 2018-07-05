@@ -291,6 +291,8 @@ def apply_deps_patch():
     msg("Chromium DEPS file: %s" % (deps_path))
     patch_file = os.path.join(cef_dir, 'patch', 'patches', deps_file)
     if os.path.exists(patch_file + ".patch"):
+      if branch_is_3029_or_older:
+        patch_file = patch_file + ".patch"
       # Attempt to apply the DEPS patch file that may exist with newer branches.
       patch_tool = os.path.join(cef_dir, 'tools', 'patcher.py')
       run('%s %s --patch-file "%s" --patch-dir "%s"' %
@@ -1027,6 +1029,9 @@ branch_is_2743_or_older = (cef_branch != 'trunk' and int(cef_branch) <= 2743)
 
 # True if the requested branch is newer than 2785.
 branch_is_newer_than_2785 = (cef_branch == 'trunk' or int(cef_branch) > 2785)
+
+# True if the requested branch is 3029 or older.
+branch_is_3029_or_older = (cef_branch != 'trunk' and int(cef_branch) <= 3029)
 
 # Enable GN by default for branches newer than 2785.
 if branch_is_newer_than_2785 and not 'CEF_USE_GN' in os.environ.keys():
