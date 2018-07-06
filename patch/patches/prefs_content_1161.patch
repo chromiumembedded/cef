@@ -11,7 +11,7 @@ index 57f03dc1ed38..061bf10c07aa 100644
    IPC_STRUCT_TRAITS_MEMBER(navigate_on_drag_drop)
    IPC_STRUCT_TRAITS_MEMBER(spatial_navigation_enabled)
 diff --git content/public/common/web_preferences.cc content/public/common/web_preferences.cc
-index 8ecb8383f9f6..fa6d9bef0ffb 100644
+index 8378aefaf81a..f831c4aa6d26 100644
 --- content/public/common/web_preferences.cc
 +++ content/public/common/web_preferences.cc
 @@ -178,6 +178,7 @@ WebPreferences::WebPreferences()
@@ -35,10 +35,10 @@ index 78cbf5f3db86..9a4906a32336 100644
    bool record_whole_document;
    SavePreviousDocumentResources save_previous_document_resources;
 diff --git content/renderer/render_view_impl.cc content/renderer/render_view_impl.cc
-index 950a68c86c38..3e95096693b6 100644
+index 18b915029764..6aa42b269d13 100644
 --- content/renderer/render_view_impl.cc
 +++ content/renderer/render_view_impl.cc
-@@ -1200,6 +1200,7 @@ void RenderViewImpl::ApplyWebPreferencesInternal(
+@@ -1203,6 +1203,7 @@ void RenderViewImpl::ApplyWebPreferencesInternal(
      blink::WebView* web_view,
      CompositorDependencies* compositor_deps) {
    ApplyWebPreferences(prefs, web_view);

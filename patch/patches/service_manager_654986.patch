@@ -1,5 +1,5 @@
 diff --git services/service_manager/embedder/main.cc services/service_manager/embedder/main.cc
-index 80d366e269b2..9ba957a08e65 100644
+index b4728513c0a6..550384c766f2 100644
 --- services/service_manager/embedder/main.cc
 +++ services/service_manager/embedder/main.cc
 @@ -300,13 +300,30 @@ int RunService(MainDelegate* delegate) {
@@ -49,7 +49,7 @@ index 80d366e269b2..9ba957a08e65 100644
    InitializeMac();
  #endif
  
-   mojo::edk::Configuration mojo_config;
+   mojo::core::Configuration mojo_config;
 -  ProcessType process_type = delegate->OverrideProcessType();
 -  if (process_type == ProcessType::kDefault) {
 -    std::string type_switch =
@@ -68,7 +68,7 @@ index 80d366e269b2..9ba957a08e65 100644
 +    mojo_config.is_broker_process = true;
    mojo_config.max_message_num_bytes = kMaximumMojoMessageSize;
    delegate->OverrideMojoConfiguration(&mojo_config);
-   mojo::edk::Init(mojo_config);
+   mojo::core::Init(mojo_config);
 @@ -432,6 +433,16 @@ int Main(const MainParams& params) {
          trace_config, base::trace_event::TraceLog::RECORDING_MODE);
    }
@@ -81,8 +81,8 @@ index 80d366e269b2..9ba957a08e65 100644
 +  DCHECK(delegate);
 +
 +  int exit_code = 0;
-+  const ProcessType process_type =
-+      GetProcessType(delegate, *base::CommandLine::ForCurrentProcess());
++  const auto& command_line = *base::CommandLine::ForCurrentProcess();
++  const ProcessType process_type = GetProcessType(delegate, command_line);
    switch (process_type) {
      case ProcessType::kDefault:
        NOTREACHED();

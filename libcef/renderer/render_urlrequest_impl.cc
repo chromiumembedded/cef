@@ -14,6 +14,7 @@
 
 #include "base/logging.h"
 #include "base/message_loop/message_loop.h"
+#include "third_party/blink/public/platform/web_security_origin.h"
 #include "third_party/blink/public/platform/web_string.h"
 #include "third_party/blink/public/platform/web_url.h"
 #include "third_party/blink/public/platform/web_url_error.h"

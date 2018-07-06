@@ -51,7 +51,10 @@ class CefWebContentsViewOSR : public content::WebContentsView,
       content::RenderWidgetHost* render_widget_host) override;
   void SetPageTitle(const base::string16& title) override;
   void RenderViewCreated(content::RenderViewHost* host) override;
-  void RenderViewSwappedIn(content::RenderViewHost* host) override;
+  void RenderViewReady() override;
+  void RenderFrameSwappedIn(content::RenderFrameHost* old_host,
+                            content::RenderFrameHost* new_host,
+                            bool is_main_frame) override;
   void SetOverscrollControllerEnabled(bool enabled) override;
 
 #if defined(OS_MACOSX)

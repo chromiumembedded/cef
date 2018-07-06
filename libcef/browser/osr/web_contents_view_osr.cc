@@ -135,8 +135,12 @@ void CefWebContentsViewOSR::RenderViewCreated(content::RenderViewHost* host) {
     view->InstallTransparency();
 }
 
-void CefWebContentsViewOSR::RenderViewSwappedIn(content::RenderViewHost* host) {
-}
+void CefWebContentsViewOSR::RenderViewReady() {}
+
+void CefWebContentsViewOSR::RenderFrameSwappedIn(
+    content::RenderFrameHost* old_host,
+    content::RenderFrameHost* new_host,
+    bool is_main_frame) {}
 
 void CefWebContentsViewOSR::SetOverscrollControllerEnabled(bool enabled) {}
 

@@ -1,5 +1,5 @@
 diff --git content/app/content_service_manager_main_delegate.h content/app/content_service_manager_main_delegate.h
-index a6ab54a14bc9..93a38abe55d2 100644
+index 283e1daf6c33..548aa8e71b99 100644
 --- content/app/content_service_manager_main_delegate.h
 +++ content/app/content_service_manager_main_delegate.h
 @@ -18,7 +18,8 @@ namespace content {

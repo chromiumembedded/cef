@@ -27,7 +27,7 @@ index 53c7404ef1f9..ac33df7cfe0e 100644
    auto* browser_context = web_contents->GetBrowserContext();
    StreamsPrivateAPI* streams_private = GetStreamsPrivateAPI(browser_context);
 diff --git content/browser/frame_host/render_frame_host_manager.cc content/browser/frame_host/render_frame_host_manager.cc
-index 79f407b8cb20..fe4c65b5d0a5 100644
+index c90c938f566a..a65453d62c47 100644
 --- content/browser/frame_host/render_frame_host_manager.cc
 +++ content/browser/frame_host/render_frame_host_manager.cc
 @@ -927,10 +927,11 @@ bool RenderFrameHostManager::ShouldSwapBrowsingInstancesForNavigation(

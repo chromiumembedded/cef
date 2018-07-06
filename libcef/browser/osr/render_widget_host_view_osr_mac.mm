@@ -53,16 +53,6 @@ class MacHelper : public content::BrowserCompositorMacClient,
     view_->render_widget_host()->DidProcessFrame(frame_token);
   }
 
-  // AcceleratedWidgetMacNSView methods:
-
-  NSView* AcceleratedWidgetGetNSView() const override {
-    // Intentionally return nil so that BrowserCompositorMac::GetViewProperties
-    // uses the layer size instead of the NSView size.
-    return nil;
-  }
-
-  void AcceleratedWidgetCALayerParamsUpdated() override {}
-
   void DidReceiveFirstFrameAfterNavigation() override {
     view_->render_widget_host()->DidReceiveFirstFrameAfterNavigation();
   }
@@ -72,6 +62,10 @@ class MacHelper : public content::BrowserCompositorMacClient,
   bool SynchronizeVisualProperties() override {
     return view_->render_widget_host()->SynchronizeVisualProperties();
   }
+
+  // AcceleratedWidgetMacNSView methods:
+
+  void AcceleratedWidgetCALayerParamsUpdated() override {}
 
  private:
   // Guaranteed to outlive this object.

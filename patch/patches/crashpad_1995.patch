@@ -597,7 +597,7 @@ index 8b0edef1b594..22555bb9dc77 100644
  
      if (crash_reporter_client->ShouldMonitorCrashHandlerExpensively()) {
 diff --git content/browser/frame_host/debug_urls.cc content/browser/frame_host/debug_urls.cc
-index f66e16a2ebc2..23118ffbeb4b 100644
+index f66e16a2ebc2..fd2269768877 100644
 --- content/browser/frame_host/debug_urls.cc
 +++ content/browser/frame_host/debug_urls.cc
 @@ -129,7 +129,9 @@ bool HandleDebugURL(const GURL& url, ui::PageTransition transition) {
@@ -606,7 +606,7 @@ index f66e16a2ebc2..23118ffbeb4b 100644
  
 -  if (!(transition & ui::PAGE_TRANSITION_FROM_ADDRESS_BAR) &&
 +  // CEF does not use PAGE_TRANSITION_FROM_ADDRESS_BAR.
-+  if (!(transition & (ui::PAGE_TRANSITION_TYPED ||
++  if (!(transition & (ui::PAGE_TRANSITION_TYPED |
 +                      ui::PAGE_TRANSITION_FROM_ADDRESS_BAR)) &&
        !is_telemetry_navigation)
      return false;

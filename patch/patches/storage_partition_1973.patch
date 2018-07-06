@@ -125,10 +125,10 @@ index 905fe910bebb..abf75841dd86 100644
          BrowserThread::IO, FROM_HERE,
          base::BindOnce(
 diff --git content/browser/devtools/protocol/service_worker_handler.cc content/browser/devtools/protocol/service_worker_handler.cc
-index ed4a2e99d68b..a545f01d8efd 100644
+index 77d1cc9fda71..ca372bbf4723 100644
 --- content/browser/devtools/protocol/service_worker_handler.cc
 +++ content/browser/devtools/protocol/service_worker_handler.cc
-@@ -170,8 +170,7 @@ void ServiceWorkerHandler::SetRenderer(int process_host_id,
+@@ -171,8 +171,7 @@ void ServiceWorkerHandler::SetRenderer(int process_host_id,
      return;
    }
  
@@ -228,10 +228,10 @@ index ba4abf130285..9bca602b6ec5 100644
          CreateDownloadURLLoaderFactoryGetter(storage_partition, rfh, true);
    }
 diff --git content/browser/loader/navigation_url_loader_impl.cc content/browser/loader/navigation_url_loader_impl.cc
-index 41a7633f56ec..c40cc01512ef 100644
+index d8eeafefef71..6069cb51e358 100644
 --- content/browser/loader/navigation_url_loader_impl.cc
 +++ content/browser/loader/navigation_url_loader_impl.cc
-@@ -987,7 +987,7 @@ class NavigationURLLoaderImpl::URLLoaderRequestController
+@@ -997,7 +997,7 @@ class NavigationURLLoaderImpl::URLLoaderRequestController
      // path does as well for navigations.
      bool has_plugin = PluginService::GetInstance()->GetPluginInfo(
          -1 /* render_process_id */, -1 /* render_frame_id */, resource_context_,
@@ -240,7 +240,7 @@ index 41a7633f56ec..c40cc01512ef 100644
          false /* allow_wildcard */, &stale, &plugin, nullptr);
  
      if (stale) {
-@@ -1320,7 +1320,7 @@ NavigationURLLoaderImpl::NavigationURLLoaderImpl(
+@@ -1330,7 +1330,7 @@ NavigationURLLoaderImpl::NavigationURLLoaderImpl(
  
    network::mojom::URLLoaderFactoryPtrInfo proxied_factory_info;
    network::mojom::URLLoaderFactoryRequest proxied_factory_request;
@@ -249,7 +249,7 @@ index 41a7633f56ec..c40cc01512ef 100644
    if (frame_tree_node) {
      // |frame_tree_node| may be null in some unit test environments.
      GetContentClient()
-@@ -1368,7 +1368,8 @@ NavigationURLLoaderImpl::NavigationURLLoaderImpl(
+@@ -1378,7 +1378,8 @@ NavigationURLLoaderImpl::NavigationURLLoaderImpl(
    DCHECK(!request_controller_);
    request_controller_ = std::make_unique<URLLoaderRequestController>(
        std::move(initial_interceptors), std::move(new_request), resource_context,
@@ -276,7 +276,7 @@ index 6a6e31bdb070..dce0433e1775 100644
          partition->GetPaymentAppContext();
  
 diff --git content/browser/payments/payment_app_provider_impl.cc content/browser/payments/payment_app_provider_impl.cc
-index 245c0b764f90..8daa7e238fe1 100644
+index 6d28562bd1b9..544566b60192 100644
 --- content/browser/payments/payment_app_provider_impl.cc
 +++ content/browser/payments/payment_app_provider_impl.cc
 @@ -369,10 +369,11 @@ void StartServiceWorkerForDispatch(BrowserContext* browser_context,
@@ -306,7 +306,7 @@ index 245c0b764f90..8daa7e238fe1 100644
        partition->GetPaymentAppContext();
  
 diff --git content/browser/renderer_host/render_process_host_impl.cc content/browser/renderer_host/render_process_host_impl.cc
-index af9db4de12d0..f2552a8199e9 100644
+index bc6050f27296..879d1dc2c113 100644
 --- content/browser/renderer_host/render_process_host_impl.cc
 +++ content/browser/renderer_host/render_process_host_impl.cc
 @@ -740,11 +740,10 @@ class DefaultSubframeProcessHostHolder : public base::SupportsUserData::Data,
@@ -471,7 +471,7 @@ index af9db4de12d0..f2552a8199e9 100644
        &PluginRegistryImpl::Bind, base::Unretained(plugin_registry_.get())));
  #endif
 diff --git content/browser/renderer_host/render_process_host_impl.h content/browser/renderer_host/render_process_host_impl.h
-index 982ae3e1d73e..cb33109b8e83 100644
+index 582d8037c2bf..473b5b5c1daa 100644
 --- content/browser/renderer_host/render_process_host_impl.h
 +++ content/browser/renderer_host/render_process_host_impl.h
 @@ -91,7 +91,6 @@ class ServiceWorkerDispatcherHost;
@@ -491,7 +491,7 @@ index 982ae3e1d73e..cb33109b8e83 100644
        SiteInstance* site_instance,
        bool is_for_guests_only);
  
-@@ -446,7 +445,7 @@ class CONTENT_EXPORT RenderProcessHostImpl
+@@ -443,7 +442,7 @@ class CONTENT_EXPORT RenderProcessHostImpl
    // Use CreateRenderProcessHost() instead of calling this constructor
    // directly.
    RenderProcessHostImpl(BrowserContext* browser_context,
@@ -500,7 +500,7 @@ index 982ae3e1d73e..cb33109b8e83 100644
                          bool is_for_guests_only);
  
    // Initializes a new IPC::ChannelProxy in |channel_|, which will be connected
-@@ -712,10 +711,10 @@ class CONTENT_EXPORT RenderProcessHostImpl
+@@ -709,10 +708,10 @@ class CONTENT_EXPORT RenderProcessHostImpl
    // called.
    int instance_id_ = 1;
  

@@ -1,8 +1,8 @@
 diff --git content/app/content_main_runner_impl.cc content/app/content_main_runner_impl.cc
-index 4787f1495826..d81aaf51b6b0 100644
+index 1fec0c7876ca..0c8722204b0f 100644
 --- content/app/content_main_runner_impl.cc
 +++ content/app/content_main_runner_impl.cc
-@@ -592,7 +592,8 @@ int RunBrowserProcessMain(
+@@ -589,7 +589,8 @@ int RunBrowserProcessMain(
      const MainFunctionParams& main_function_params,
      ContentMainDelegate* delegate,
      std::unique_ptr<BrowserProcessSubThread> service_manager_thread) {

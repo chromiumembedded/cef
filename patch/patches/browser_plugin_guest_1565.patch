@@ -50,10 +50,10 @@ index ad9de41d1e3e..a87ec19a5f54 100644
    render_view_host_->GetMainFrame()->AllowBindings(
        BINDINGS_POLICY_DOM_AUTOMATION);
 diff --git content/browser/web_contents/web_contents_view.h content/browser/web_contents/web_contents_view.h
-index cf8c74f4c744..b8cefb4b154b 100644
+index 50047c045553..5e9424f62623 100644
 --- content/browser/web_contents/web_contents_view.h
 +++ content/browser/web_contents/web_contents_view.h
-@@ -24,7 +24,7 @@ struct ScreenInfo;
+@@ -25,7 +25,7 @@ struct ScreenInfo;
  // The WebContentsView is an interface that is implemented by the platform-
  // dependent web contents views. The WebContents uses this interface to talk to
  // them.
@@ -62,7 +62,7 @@ index cf8c74f4c744..b8cefb4b154b 100644
   public:
    virtual ~WebContentsView() {}
  
-@@ -88,13 +88,9 @@ class WebContentsView {
+@@ -89,13 +89,9 @@ class WebContentsView {
    // Sets up the View that holds the rendered web page, receives messages for
    // it and contains page plugins. The host view should be sized to the current
    // size of the WebContents.
@@ -79,7 +79,7 @@ index cf8c74f4c744..b8cefb4b154b 100644
    // Creates a new View that holds a popup and receives messages for it.
    virtual RenderWidgetHostViewBase* CreateViewForPopupWidget(
 diff --git content/browser/web_contents/web_contents_view_aura.cc content/browser/web_contents/web_contents_view_aura.cc
-index 617bfe3a5d24..b8c801e26b5e 100644
+index 4a373e27bea4..684457680888 100644
 --- content/browser/web_contents/web_contents_view_aura.cc
 +++ content/browser/web_contents/web_contents_view_aura.cc
 @@ -781,7 +781,8 @@ void WebContentsViewAura::CreateView(const gfx::Size& initial_size,
@@ -101,7 +101,7 @@ index 617bfe3a5d24..b8c801e26b5e 100644
        g_create_render_widget_host_view
            ? g_create_render_widget_host_view(render_widget_host,
 diff --git content/browser/web_contents/web_contents_view_aura.h content/browser/web_contents/web_contents_view_aura.h
-index 82807c7f77fd..60bd9ceaf9ee 100644
+index 96f23b81caf2..5fb786187b0c 100644
 --- content/browser/web_contents/web_contents_view_aura.h
 +++ content/browser/web_contents/web_contents_view_aura.h
 @@ -114,7 +114,7 @@ class CONTENT_EXPORT WebContentsViewAura
@@ -114,7 +114,7 @@ index 82807c7f77fd..60bd9ceaf9ee 100644
        RenderWidgetHost* render_widget_host) override;
    void SetPageTitle(const base::string16& title) override;
 diff --git content/browser/web_contents/web_contents_view_child_frame.cc content/browser/web_contents/web_contents_view_child_frame.cc
-index e95c31d677f5..2e14ca1fabcf 100644
+index 345059d92363..39c376940df7 100644
 --- content/browser/web_contents/web_contents_view_child_frame.cc
 +++ content/browser/web_contents/web_contents_view_child_frame.cc
 @@ -84,7 +84,7 @@ void WebContentsViewChildFrame::CreateView(const gfx::Size& initial_size,
@@ -127,7 +127,7 @@ index e95c31d677f5..2e14ca1fabcf 100644
  }
  
 diff --git content/browser/web_contents/web_contents_view_child_frame.h content/browser/web_contents/web_contents_view_child_frame.h
-index 17275be93025..6c73effc578b 100644
+index b5b3a22747ba..7a4e998d3e16 100644
 --- content/browser/web_contents/web_contents_view_child_frame.h
 +++ content/browser/web_contents/web_contents_view_child_frame.h
 @@ -40,7 +40,7 @@ class WebContentsViewChildFrame : public WebContentsView,
@@ -140,7 +140,7 @@ index 17275be93025..6c73effc578b 100644
        RenderWidgetHost* render_widget_host) override;
    void SetPageTitle(const base::string16& title) override;
 diff --git content/browser/web_contents/web_contents_view_guest.cc content/browser/web_contents/web_contents_view_guest.cc
-index f6a43ca61131..21b61264d99f 100644
+index 2b272b7ff3de..cecd81826f7d 100644
 --- content/browser/web_contents/web_contents_view_guest.cc
 +++ content/browser/web_contents/web_contents_view_guest.cc
 @@ -67,6 +67,8 @@ gfx::NativeWindow WebContentsViewGuest::GetTopLevelNativeWindow() const {
@@ -195,7 +195,7 @@ index f6a43ca61131..21b61264d99f 100644
  
  RenderWidgetHostViewBase* WebContentsViewGuest::CreateViewForPopupWidget(
 diff --git content/browser/web_contents/web_contents_view_guest.h content/browser/web_contents/web_contents_view_guest.h
-index 4a06fe5f6880..ecad941c2638 100644
+index 6f65cc816325..33a396e09671 100644
 --- content/browser/web_contents/web_contents_view_guest.h
 +++ content/browser/web_contents/web_contents_view_guest.h
 @@ -58,7 +58,7 @@ class WebContentsViewGuest : public WebContentsView,
@@ -208,7 +208,7 @@ index 4a06fe5f6880..ecad941c2638 100644
        RenderWidgetHost* render_widget_host) override;
    void SetPageTitle(const base::string16& title) override;
 diff --git content/browser/web_contents/web_contents_view_mac.h content/browser/web_contents/web_contents_view_mac.h
-index 4640550b8484..efa2496b6317 100644
+index 15f03bafc0aa..c9418cbfa707 100644
 --- content/browser/web_contents/web_contents_view_mac.h
 +++ content/browser/web_contents/web_contents_view_mac.h
 @@ -93,7 +93,7 @@ class WebContentsViewMac : public WebContentsView,
@@ -221,7 +221,7 @@ index 4640550b8484..efa2496b6317 100644
        RenderWidgetHost* render_widget_host) override;
    void SetPageTitle(const base::string16& title) override;
 diff --git content/browser/web_contents/web_contents_view_mac.mm content/browser/web_contents/web_contents_view_mac.mm
-index 00b2d2a729da..cb8a81ed8ee2 100644
+index 4da80f38595f..dfcf88e06b74 100644
 --- content/browser/web_contents/web_contents_view_mac.mm
 +++ content/browser/web_contents/web_contents_view_mac.mm
 @@ -348,7 +348,8 @@ void WebContentsViewMac::CreateView(
