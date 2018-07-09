@@ -27,6 +27,7 @@
 #include "third_party/blink/public/platform/web_url.h"
 #include "third_party/blink/public/web/blink.h"
 #include "third_party/blink/public/web/web_document.h"
+#include "third_party/blink/public/web/web_document_loader.h"
 #include "third_party/blink/public/web/web_frame_content_dumper.h"
 #include "third_party/blink/public/web/web_local_frame.h"
 #include "third_party/blink/public/web/web_script_source.h"
@@ -34,10 +35,10 @@
 
 using blink::WebString;
 
-CefFrameImpl::CefFrameImpl(CefBrowserImpl* browser, blink::WebLocalFrame* frame)
-    : browser_(browser),
-      frame_(frame),
-      frame_id_(render_frame_util::GetIdentifier(frame)) {}
+CefFrameImpl::CefFrameImpl(CefBrowserImpl* browser,
+                           blink::WebLocalFrame* frame,
+                           int64_t frame_id)
+    : browser_(browser), frame_(frame), frame_id_(frame_id) {}
 
 CefFrameImpl::~CefFrameImpl() {}
 
@@ -216,6 +217,13 @@ CefString CefFrameImpl::GetURL() {
 
   if (frame_) {
     GURL gurl = frame_->GetDocument().Url();
+    if (gurl.is_empty()) {
+      // For popups the main document URL will be empty during loading. Return
+      // the provisional document URL instead.
+      blink::WebDocumentLoader* loader = frame_->GetProvisionalDocumentLoader();
+      if (loader)
+        gurl = loader->GetRequest().Url();
+    }
     url = gurl.spec();
   }
   return url;
