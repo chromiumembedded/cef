@@ -320,9 +320,6 @@ bool CefMainDelegate::BasicStartupComplete(int* exit_code) {
       const_cast<base::CommandLine::SwitchMap*>(&map)->clear();
     }
 
-    if (settings.single_process)
-      command_line->AppendSwitch(switches::kSingleProcess);
-
     bool no_sandbox = settings.no_sandbox ? true : false;
 
     if (settings.browser_subprocess_path.length > 0) {
