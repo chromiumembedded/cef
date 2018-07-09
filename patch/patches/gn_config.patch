@@ -56,7 +56,7 @@ index 982fbe8d3f0d..e757be4688f1 100644
 +         "studio path")
  }
 diff --git build/toolchain/win/BUILD.gn build/toolchain/win/BUILD.gn
-index eb3e2b2b377d..a4bee6058da2 100644
+index eb3e2b2b377d..343b039f3a50 100644
 --- build/toolchain/win/BUILD.gn
 +++ build/toolchain/win/BUILD.gn
 @@ -6,6 +6,7 @@ import("//build/config/clang/clang.gni")
@@ -76,6 +76,15 @@ index eb3e2b2b377d..a4bee6058da2 100644
  } else {
    goma_prefix = ""
  }
+@@ -108,7 +111,7 @@ template("msvc_toolchain") {
+ 
+       # lld-link includes a replacement for lib.exe that can produce thin
+       # archives and understands bitcode (for lto builds).
+-      lib = "$prefix/$lld_link /lib /llvmlibthin"
++      lib = "$prefix/$lld_link /lib"
+       link = "$prefix/$lld_link"
+       if (host_os != "win") {
+         # See comment adding --rsp-quoting to $cl above for more information.
 diff --git build/toolchain/win/setup_toolchain.py build/toolchain/win/setup_toolchain.py
 index 1ba5533c3efb..abfd55a2c703 100644
 --- build/toolchain/win/setup_toolchain.py
