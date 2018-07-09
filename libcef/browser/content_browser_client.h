@@ -62,6 +62,7 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
                             content::BrowserContext* context2) override;
   void AppendExtraCommandLineSwitches(base::CommandLine* command_line,
                                       int child_process_id) override;
+  std::string GetApplicationLocale() override;
   content::QuotaPermissionContext* CreateQuotaPermissionContext() override;
   void GetQuotaSettings(
       content::BrowserContext* context,

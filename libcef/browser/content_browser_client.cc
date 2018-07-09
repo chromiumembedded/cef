@@ -41,6 +41,7 @@
 #include "base/json/json_reader.h"
 #include "base/path_service.h"
 #include "cef/grit/cef_resources.h"
+#include "chrome/browser/browser_process.h"
 #include "chrome/browser/chrome_service.h"
 #include "chrome/browser/plugins/plugin_info_host_impl.h"
 #include "chrome/browser/profiles/profile.h"
@@ -769,6 +770,10 @@ void CefContentBrowserClient::AppendExtraCommandLineSwitches(
       commandLinePtr->Detach(NULL);
     }
   }
+}
+
+std::string CefContentBrowserClient::GetApplicationLocale() {
+  return g_browser_process->GetApplicationLocale();
 }
 
 content::QuotaPermissionContext*
