@@ -21,7 +21,9 @@ class WebLocalFrame;
 // associated renderer WebFrame will close.
 class CefFrameImpl : public CefFrame {
  public:
-  CefFrameImpl(CefBrowserImpl* browser, blink::WebLocalFrame* frame);
+  CefFrameImpl(CefBrowserImpl* browser,
+               blink::WebLocalFrame* frame,
+               int64_t frame_id);
   ~CefFrameImpl() override;
 
   // CefFrame implementation.

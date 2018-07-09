@@ -346,7 +346,7 @@ CefRefPtr<CefFrameImpl> CefBrowserImpl::GetWebFrameImpl(
   if (it != frames_.end())
     return it->second;
 
-  CefRefPtr<CefFrameImpl> framePtr(new CefFrameImpl(this, frame));
+  CefRefPtr<CefFrameImpl> framePtr(new CefFrameImpl(this, frame, frame_id));
   frames_.insert(std::make_pair(frame_id, framePtr));
 
   const int64_t parent_id = frame->Parent() == NULL
