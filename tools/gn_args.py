@@ -251,6 +251,10 @@ def GetRequiredArgs():
 
       # Don't use the chrome style plugin.
       'clang_use_chrome_plugins': False,
+
+      # Disable cfi-icall which is not supported by the CEF bindings layer (see
+      # issue #2472).
+      'use_cfi_icall': False,
   }
 
   if platform == 'linux':
