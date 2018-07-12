@@ -7,7 +7,6 @@
 #include "libcef/common/content_client.h"
 
 #include "base/memory/ptr_util.h"
-#include "base/run_loop.h"
 
 #if defined(OS_MACOSX)
 #include "base/mac/scoped_nsautorelease_pool.h"
@@ -103,20 +102,3 @@ CefBrowserMessageLoop::CefBrowserMessageLoop()
 }
 
 CefBrowserMessageLoop::~CefBrowserMessageLoop() {}
-
-// static
-CefBrowserMessageLoop* CefBrowserMessageLoop::current() {
-  base::MessageLoop* loop = base::MessageLoop::current();
-  DCHECK(loop->IsType(base::MessageLoop::TYPE_UI));
-  return static_cast<CefBrowserMessageLoop*>(loop);
-}
-
-void CefBrowserMessageLoop::DoMessageLoopIteration() {
-  base::RunLoop run_loop;
-  run_loop.RunUntilIdle();
-}
-
-void CefBrowserMessageLoop::RunMessageLoop() {
-  base::RunLoop run_loop;
-  run_loop.Run();
-}
