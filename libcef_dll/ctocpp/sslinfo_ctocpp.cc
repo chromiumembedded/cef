@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=1aeaabcb9a875a75c092e9a851bd222be8aedfa5$
+// $hash=cb17bbac7b6269a8264dc4568161ffe117ee04c0$
 //
 
 #include "libcef_dll/ctocpp/sslinfo_ctocpp.h"
@@ -17,7 +17,7 @@
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
-cef_cert_status_t CefSSLInfoCToCpp::GetCertStatus() {
+NO_SANITIZE("cfi-icall") cef_cert_status_t CefSSLInfoCToCpp::GetCertStatus() {
   cef_sslinfo_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_cert_status))
     return CERT_STATUS_NONE;
@@ -31,6 +31,7 @@ cef_cert_status_t CefSSLInfoCToCpp::GetCertStatus() {
   return _retval;
 }
 
+NO_SANITIZE("cfi-icall")
 CefRefPtr<CefX509Certificate> CefSSLInfoCToCpp::GetX509Certificate() {
   cef_sslinfo_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_x509certificate))

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=d5eaa0df7fe556b0149db7c9390935bc42f7f5f0$
+// $hash=4eae7e6a1575c4ca6b59433049de3f1d7db747d7$
 //
 
 #include "libcef_dll/ctocpp/app_ctocpp.h"
@@ -21,6 +21,7 @@
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
+NO_SANITIZE("cfi-icall")
 void CefAppCToCpp::OnBeforeCommandLineProcessing(
     const CefString& process_type,
     CefRefPtr<CefCommandLine> command_line) {
@@ -42,6 +43,7 @@ void CefAppCToCpp::OnBeforeCommandLineProcessing(
       CefCommandLineCppToC::Wrap(command_line));
 }
 
+NO_SANITIZE("cfi-icall")
 void CefAppCToCpp::OnRegisterCustomSchemes(
     CefRawPtr<CefSchemeRegistrar> registrar) {
   cef_app_t* _struct = GetStruct();
@@ -63,6 +65,7 @@ void CefAppCToCpp::OnRegisterCustomSchemes(
   _struct->on_register_custom_schemes(_struct, registrarPtr->GetStruct());
 }
 
+NO_SANITIZE("cfi-icall")
 CefRefPtr<CefResourceBundleHandler> CefAppCToCpp::GetResourceBundleHandler() {
   cef_app_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_resource_bundle_handler))
@@ -78,6 +81,7 @@ CefRefPtr<CefResourceBundleHandler> CefAppCToCpp::GetResourceBundleHandler() {
   return CefResourceBundleHandlerCToCpp::Wrap(_retval);
 }
 
+NO_SANITIZE("cfi-icall")
 CefRefPtr<CefBrowserProcessHandler> CefAppCToCpp::GetBrowserProcessHandler() {
   cef_app_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_browser_process_handler))
@@ -93,6 +97,7 @@ CefRefPtr<CefBrowserProcessHandler> CefAppCToCpp::GetBrowserProcessHandler() {
   return CefBrowserProcessHandlerCToCpp::Wrap(_retval);
 }
 
+NO_SANITIZE("cfi-icall")
 CefRefPtr<CefRenderProcessHandler> CefAppCToCpp::GetRenderProcessHandler() {
   cef_app_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_render_process_handler))

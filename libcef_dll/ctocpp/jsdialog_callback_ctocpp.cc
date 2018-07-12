@@ -9,13 +9,14 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=554fbc51337594be0c53990b56984991cb9a4892$
+// $hash=3666462f3d39d248f2f188702e648c9988b4ce4e$
 //
 
 #include "libcef_dll/ctocpp/jsdialog_callback_ctocpp.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
+NO_SANITIZE("cfi-icall")
 void CefJSDialogCallbackCToCpp::Continue(bool success,
                                          const CefString& user_input) {
   cef_jsdialog_callback_t* _struct = GetStruct();

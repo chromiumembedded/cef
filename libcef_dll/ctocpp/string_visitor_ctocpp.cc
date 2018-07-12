@@ -9,13 +9,14 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=8b5cda489d4cccecb5606bd2959ac9cc3e9e4ff0$
+// $hash=f821e8d56f699e08879e123a0d5ae91a6c13dd58$
 //
 
 #include "libcef_dll/ctocpp/string_visitor_ctocpp.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
+NO_SANITIZE("cfi-icall")
 void CefStringVisitorCToCpp::Visit(const CefString& string) {
   cef_string_visitor_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, visit))

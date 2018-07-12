@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=e58b29b4a6da123b6c08c1ec136ceb68634df0ba$
+// $hash=9b2397f925567ffc10419a820e90e8457ce061f2$
 //
 
 #include "libcef_dll/ctocpp/load_handler_ctocpp.h"
@@ -18,6 +18,7 @@
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
+NO_SANITIZE("cfi-icall")
 void CefLoadHandlerCToCpp::OnLoadingStateChange(CefRefPtr<CefBrowser> browser,
                                                 bool isLoading,
                                                 bool canGoBack,
@@ -38,6 +39,7 @@ void CefLoadHandlerCToCpp::OnLoadingStateChange(CefRefPtr<CefBrowser> browser,
                                    isLoading, canGoBack, canGoForward);
 }
 
+NO_SANITIZE("cfi-icall")
 void CefLoadHandlerCToCpp::OnLoadStart(CefRefPtr<CefBrowser> browser,
                                        CefRefPtr<CefFrame> frame,
                                        TransitionType transition_type) {
@@ -61,6 +63,7 @@ void CefLoadHandlerCToCpp::OnLoadStart(CefRefPtr<CefBrowser> browser,
                          CefFrameCppToC::Wrap(frame), transition_type);
 }
 
+NO_SANITIZE("cfi-icall")
 void CefLoadHandlerCToCpp::OnLoadEnd(CefRefPtr<CefBrowser> browser,
                                      CefRefPtr<CefFrame> frame,
                                      int httpStatusCode) {
@@ -84,6 +87,7 @@ void CefLoadHandlerCToCpp::OnLoadEnd(CefRefPtr<CefBrowser> browser,
                        CefFrameCppToC::Wrap(frame), httpStatusCode);
 }
 
+NO_SANITIZE("cfi-icall")
 void CefLoadHandlerCToCpp::OnLoadError(CefRefPtr<CefBrowser> browser,
                                        CefRefPtr<CefFrame> frame,
                                        ErrorCode errorCode,

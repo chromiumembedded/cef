@@ -9,13 +9,14 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=e0a50abe45559eab768795831617ba066311d78a$
+// $hash=50c90e97ff3042a7539c56199784a0074976ff71$
 //
 
 #include "libcef_dll/ctocpp/register_cdm_callback_ctocpp.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
+NO_SANITIZE("cfi-icall")
 void CefRegisterCdmCallbackCToCpp::OnCdmRegistrationComplete(
     cef_cdm_registration_error_t result,
     const CefString& error_message) {

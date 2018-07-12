@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=d92a04c8c718168beab8196c30b7922265a3272e$
+// $hash=8847d16f38567af3e580b71e4e71385c0fc00f1e$
 //
 
 #include "libcef_dll/ctocpp/views/textfield_delegate_ctocpp.h"
@@ -18,6 +18,7 @@
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
+NO_SANITIZE("cfi-icall")
 bool CefTextfieldDelegateCToCpp::OnKeyEvent(CefRefPtr<CefTextfield> textfield,
                                             const CefKeyEvent& event) {
   cef_textfield_delegate_t* _struct = GetStruct();
@@ -39,6 +40,7 @@ bool CefTextfieldDelegateCToCpp::OnKeyEvent(CefRefPtr<CefTextfield> textfield,
   return _retval ? true : false;
 }
 
+NO_SANITIZE("cfi-icall")
 void CefTextfieldDelegateCToCpp::OnAfterUserAction(
     CefRefPtr<CefTextfield> textfield) {
   cef_textfield_delegate_t* _struct = GetStruct();
@@ -56,6 +58,7 @@ void CefTextfieldDelegateCToCpp::OnAfterUserAction(
   _struct->on_after_user_action(_struct, CefTextfieldCppToC::Wrap(textfield));
 }
 
+NO_SANITIZE("cfi-icall")
 CefSize CefTextfieldDelegateCToCpp::GetPreferredSize(CefRefPtr<CefView> view) {
   cef_view_delegate_t* _struct =
       reinterpret_cast<cef_view_delegate_t*>(GetStruct());
@@ -77,6 +80,7 @@ CefSize CefTextfieldDelegateCToCpp::GetPreferredSize(CefRefPtr<CefView> view) {
   return _retval;
 }
 
+NO_SANITIZE("cfi-icall")
 CefSize CefTextfieldDelegateCToCpp::GetMinimumSize(CefRefPtr<CefView> view) {
   cef_view_delegate_t* _struct =
       reinterpret_cast<cef_view_delegate_t*>(GetStruct());
@@ -98,6 +102,7 @@ CefSize CefTextfieldDelegateCToCpp::GetMinimumSize(CefRefPtr<CefView> view) {
   return _retval;
 }
 
+NO_SANITIZE("cfi-icall")
 CefSize CefTextfieldDelegateCToCpp::GetMaximumSize(CefRefPtr<CefView> view) {
   cef_view_delegate_t* _struct =
       reinterpret_cast<cef_view_delegate_t*>(GetStruct());
@@ -119,6 +124,7 @@ CefSize CefTextfieldDelegateCToCpp::GetMaximumSize(CefRefPtr<CefView> view) {
   return _retval;
 }
 
+NO_SANITIZE("cfi-icall")
 int CefTextfieldDelegateCToCpp::GetHeightForWidth(CefRefPtr<CefView> view,
                                                   int width) {
   cef_view_delegate_t* _struct =
@@ -141,6 +147,7 @@ int CefTextfieldDelegateCToCpp::GetHeightForWidth(CefRefPtr<CefView> view,
   return _retval;
 }
 
+NO_SANITIZE("cfi-icall")
 void CefTextfieldDelegateCToCpp::OnParentViewChanged(
     CefRefPtr<CefView> view,
     bool added,
@@ -166,6 +173,7 @@ void CefTextfieldDelegateCToCpp::OnParentViewChanged(
                                   CefViewCppToC::Wrap(parent));
 }
 
+NO_SANITIZE("cfi-icall")
 void CefTextfieldDelegateCToCpp::OnChildViewChanged(CefRefPtr<CefView> view,
                                                     bool added,
                                                     CefRefPtr<CefView> child) {
@@ -190,6 +198,7 @@ void CefTextfieldDelegateCToCpp::OnChildViewChanged(CefRefPtr<CefView> view,
                                  CefViewCppToC::Wrap(child));
 }
 
+NO_SANITIZE("cfi-icall")
 void CefTextfieldDelegateCToCpp::OnFocus(CefRefPtr<CefView> view) {
   cef_view_delegate_t* _struct =
       reinterpret_cast<cef_view_delegate_t*>(GetStruct());
@@ -207,6 +216,7 @@ void CefTextfieldDelegateCToCpp::OnFocus(CefRefPtr<CefView> view) {
   _struct->on_focus(_struct, CefViewCppToC::Wrap(view));
 }
 
+NO_SANITIZE("cfi-icall")
 void CefTextfieldDelegateCToCpp::OnBlur(CefRefPtr<CefView> view) {
   cef_view_delegate_t* _struct =
       reinterpret_cast<cef_view_delegate_t*>(GetStruct());

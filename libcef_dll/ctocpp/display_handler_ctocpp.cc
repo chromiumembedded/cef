@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=9506e4c51606a428b82d70eb5a2366fed4c1c61e$
+// $hash=abb3643b400dff92fc3e8c621f1421ad0201aa77$
 //
 
 #include "libcef_dll/ctocpp/display_handler_ctocpp.h"
@@ -19,6 +19,7 @@
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
+NO_SANITIZE("cfi-icall")
 void CefDisplayHandlerCToCpp::OnAddressChange(CefRefPtr<CefBrowser> browser,
                                               CefRefPtr<CefFrame> frame,
                                               const CefString& url) {
@@ -46,6 +47,7 @@ void CefDisplayHandlerCToCpp::OnAddressChange(CefRefPtr<CefBrowser> browser,
                              CefFrameCppToC::Wrap(frame), url.GetStruct());
 }
 
+NO_SANITIZE("cfi-icall")
 void CefDisplayHandlerCToCpp::OnTitleChange(CefRefPtr<CefBrowser> browser,
                                             const CefString& title) {
   cef_display_handler_t* _struct = GetStruct();
@@ -65,6 +67,7 @@ void CefDisplayHandlerCToCpp::OnTitleChange(CefRefPtr<CefBrowser> browser,
                            title.GetStruct());
 }
 
+NO_SANITIZE("cfi-icall")
 void CefDisplayHandlerCToCpp::OnFaviconURLChange(
     CefRefPtr<CefBrowser> browser,
     const std::vector<CefString>& icon_urls) {
@@ -95,6 +98,7 @@ void CefDisplayHandlerCToCpp::OnFaviconURLChange(
     cef_string_list_free(icon_urlsList);
 }
 
+NO_SANITIZE("cfi-icall")
 void CefDisplayHandlerCToCpp::OnFullscreenModeChange(
     CefRefPtr<CefBrowser> browser,
     bool fullscreen) {
@@ -114,6 +118,7 @@ void CefDisplayHandlerCToCpp::OnFullscreenModeChange(
                                      fullscreen);
 }
 
+NO_SANITIZE("cfi-icall")
 bool CefDisplayHandlerCToCpp::OnTooltip(CefRefPtr<CefBrowser> browser,
                                         CefString& text) {
   cef_display_handler_t* _struct = GetStruct();
@@ -136,6 +141,7 @@ bool CefDisplayHandlerCToCpp::OnTooltip(CefRefPtr<CefBrowser> browser,
   return _retval ? true : false;
 }
 
+NO_SANITIZE("cfi-icall")
 void CefDisplayHandlerCToCpp::OnStatusMessage(CefRefPtr<CefBrowser> browser,
                                               const CefString& value) {
   cef_display_handler_t* _struct = GetStruct();
@@ -155,6 +161,7 @@ void CefDisplayHandlerCToCpp::OnStatusMessage(CefRefPtr<CefBrowser> browser,
                              value.GetStruct());
 }
 
+NO_SANITIZE("cfi-icall")
 bool CefDisplayHandlerCToCpp::OnConsoleMessage(CefRefPtr<CefBrowser> browser,
                                                cef_log_severity_t level,
                                                const CefString& message,
@@ -181,6 +188,7 @@ bool CefDisplayHandlerCToCpp::OnConsoleMessage(CefRefPtr<CefBrowser> browser,
   return _retval ? true : false;
 }
 
+NO_SANITIZE("cfi-icall")
 bool CefDisplayHandlerCToCpp::OnAutoResize(CefRefPtr<CefBrowser> browser,
                                            const CefSize& new_size) {
   cef_display_handler_t* _struct = GetStruct();
@@ -202,6 +210,7 @@ bool CefDisplayHandlerCToCpp::OnAutoResize(CefRefPtr<CefBrowser> browser,
   return _retval ? true : false;
 }
 
+NO_SANITIZE("cfi-icall")
 void CefDisplayHandlerCToCpp::OnLoadingProgressChange(
     CefRefPtr<CefBrowser> browser,
     double progress) {

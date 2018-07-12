@@ -9,14 +9,14 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=be55fb12fab60292f212a530c4871409360263e5$
+// $hash=f3c3790616dce3857f0f088b0f44fa7b671e4597$
 //
 
 #include "libcef_dll/ctocpp/v8exception_ctocpp.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
-CefString CefV8ExceptionCToCpp::GetMessage() {
+NO_SANITIZE("cfi-icall") CefString CefV8ExceptionCToCpp::GetMessage() {
   cef_v8exception_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_message))
     return CefString();
@@ -32,7 +32,7 @@ CefString CefV8ExceptionCToCpp::GetMessage() {
   return _retvalStr;
 }
 
-CefString CefV8ExceptionCToCpp::GetSourceLine() {
+NO_SANITIZE("cfi-icall") CefString CefV8ExceptionCToCpp::GetSourceLine() {
   cef_v8exception_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_source_line))
     return CefString();
@@ -48,6 +48,7 @@ CefString CefV8ExceptionCToCpp::GetSourceLine() {
   return _retvalStr;
 }
 
+NO_SANITIZE("cfi-icall")
 CefString CefV8ExceptionCToCpp::GetScriptResourceName() {
   cef_v8exception_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_script_resource_name))
@@ -64,7 +65,7 @@ CefString CefV8ExceptionCToCpp::GetScriptResourceName() {
   return _retvalStr;
 }
 
-int CefV8ExceptionCToCpp::GetLineNumber() {
+NO_SANITIZE("cfi-icall") int CefV8ExceptionCToCpp::GetLineNumber() {
   cef_v8exception_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_line_number))
     return 0;
@@ -78,7 +79,7 @@ int CefV8ExceptionCToCpp::GetLineNumber() {
   return _retval;
 }
 
-int CefV8ExceptionCToCpp::GetStartPosition() {
+NO_SANITIZE("cfi-icall") int CefV8ExceptionCToCpp::GetStartPosition() {
   cef_v8exception_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_start_position))
     return 0;
@@ -92,7 +93,7 @@ int CefV8ExceptionCToCpp::GetStartPosition() {
   return _retval;
 }
 
-int CefV8ExceptionCToCpp::GetEndPosition() {
+NO_SANITIZE("cfi-icall") int CefV8ExceptionCToCpp::GetEndPosition() {
   cef_v8exception_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_end_position))
     return 0;
@@ -106,7 +107,7 @@ int CefV8ExceptionCToCpp::GetEndPosition() {
   return _retval;
 }
 
-int CefV8ExceptionCToCpp::GetStartColumn() {
+NO_SANITIZE("cfi-icall") int CefV8ExceptionCToCpp::GetStartColumn() {
   cef_v8exception_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_start_column))
     return 0;
@@ -120,7 +121,7 @@ int CefV8ExceptionCToCpp::GetStartColumn() {
   return _retval;
 }
 
-int CefV8ExceptionCToCpp::GetEndColumn() {
+NO_SANITIZE("cfi-icall") int CefV8ExceptionCToCpp::GetEndColumn() {
   cef_v8exception_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_end_column))
     return 0;

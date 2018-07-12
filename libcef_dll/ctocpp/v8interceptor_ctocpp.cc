@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=5044e1e3e29bbcd068bcfcb3bc8c2b3a8e52b2e6$
+// $hash=91bd2a97b65a5091af31d55117cf7889bbc39e45$
 //
 
 #include "libcef_dll/ctocpp/v8interceptor_ctocpp.h"
@@ -17,6 +17,7 @@
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
+NO_SANITIZE("cfi-icall")
 bool CefV8InterceptorCToCpp::Get(const CefString& name,
                                  const CefRefPtr<CefV8Value> object,
                                  CefRefPtr<CefV8Value>& retval,
@@ -60,6 +61,7 @@ bool CefV8InterceptorCToCpp::Get(const CefString& name,
   return _retval ? true : false;
 }
 
+NO_SANITIZE("cfi-icall")
 bool CefV8InterceptorCToCpp::Get(int index,
                                  const CefRefPtr<CefV8Value> object,
                                  CefRefPtr<CefV8Value>& retval,
@@ -103,6 +105,7 @@ bool CefV8InterceptorCToCpp::Get(int index,
   return _retval ? true : false;
 }
 
+NO_SANITIZE("cfi-icall")
 bool CefV8InterceptorCToCpp::Set(const CefString& name,
                                  const CefRefPtr<CefV8Value> object,
                                  const CefRefPtr<CefV8Value> value,
@@ -135,6 +138,7 @@ bool CefV8InterceptorCToCpp::Set(const CefString& name,
   return _retval ? true : false;
 }
 
+NO_SANITIZE("cfi-icall")
 bool CefV8InterceptorCToCpp::Set(int index,
                                  const CefRefPtr<CefV8Value> object,
                                  const CefRefPtr<CefV8Value> value,

@@ -9,14 +9,14 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=b8f2740870761cbd4d14e828a06420f2f907b66b$
+// $hash=1792fbb45d19fc9cd7280b6f35e75a7cad4c1732$
 //
 
 #include "libcef_dll/ctocpp/task_ctocpp.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
-void CefTaskCToCpp::Execute() {
+NO_SANITIZE("cfi-icall") void CefTaskCToCpp::Execute() {
   cef_task_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, execute))
     return;

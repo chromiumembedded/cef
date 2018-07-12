@@ -9,13 +9,14 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=95b47a7c128c1ddb4ba842ac13fc344d51cc96dd$
+// $hash=a5a1ea86be992226e3701109e637149b0fa5c7cd$
 //
 
 #include "libcef_dll/ctocpp/set_cookie_callback_ctocpp.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
+NO_SANITIZE("cfi-icall")
 void CefSetCookieCallbackCToCpp::OnComplete(bool success) {
   cef_set_cookie_callback_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_complete))

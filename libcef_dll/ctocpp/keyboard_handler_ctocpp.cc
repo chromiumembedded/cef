@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=fb83504b65f35ee9e57f2de3d091694c3e70a0f8$
+// $hash=9b9a7d5716cc862fde477fada209350ae6ce01b5$
 //
 
 #include "libcef_dll/ctocpp/keyboard_handler_ctocpp.h"
@@ -17,6 +17,7 @@
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
+NO_SANITIZE("cfi-icall")
 bool CefKeyboardHandlerCToCpp::OnPreKeyEvent(CefRefPtr<CefBrowser> browser,
                                              const CefKeyEvent& event,
                                              CefEventHandle os_event,
@@ -53,6 +54,7 @@ bool CefKeyboardHandlerCToCpp::OnPreKeyEvent(CefRefPtr<CefBrowser> browser,
   return _retval ? true : false;
 }
 
+NO_SANITIZE("cfi-icall")
 bool CefKeyboardHandlerCToCpp::OnKeyEvent(CefRefPtr<CefBrowser> browser,
                                           const CefKeyEvent& event,
                                           CefEventHandle os_event) {

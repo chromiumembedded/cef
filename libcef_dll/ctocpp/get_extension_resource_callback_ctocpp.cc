@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=ed4fd9a3360af2e7a81cd5024214f328714a4b7c$
+// $hash=dde34894700dbc23a2a0df5d38e15187a875ccd8$
 //
 
 #include "libcef_dll/ctocpp/get_extension_resource_callback_ctocpp.h"
@@ -17,6 +17,7 @@
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
+NO_SANITIZE("cfi-icall")
 void CefGetExtensionResourceCallbackCToCpp::Continue(
     CefRefPtr<CefStreamReader> stream) {
   cef_get_extension_resource_callback_t* _struct = GetStruct();
@@ -31,7 +32,7 @@ void CefGetExtensionResourceCallbackCToCpp::Continue(
   _struct->cont(_struct, CefStreamReaderCToCpp::Unwrap(stream));
 }
 
-void CefGetExtensionResourceCallbackCToCpp::Cancel() {
+NO_SANITIZE("cfi-icall") void CefGetExtensionResourceCallbackCToCpp::Cancel() {
   cef_get_extension_resource_callback_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, cancel))
     return;

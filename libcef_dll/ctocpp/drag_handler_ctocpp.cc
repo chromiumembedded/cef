@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=ba04da5d81a3bcccf92adefdcb50d925daca1950$
+// $hash=81af536bfb8253e563e2a047adda6144f640b65f$
 //
 
 #include "libcef_dll/ctocpp/drag_handler_ctocpp.h"
@@ -18,6 +18,7 @@
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
+NO_SANITIZE("cfi-icall")
 bool CefDragHandlerCToCpp::OnDragEnter(CefRefPtr<CefBrowser> browser,
                                        CefRefPtr<CefDragData> dragData,
                                        DragOperationsMask mask) {
@@ -44,6 +45,7 @@ bool CefDragHandlerCToCpp::OnDragEnter(CefRefPtr<CefBrowser> browser,
   return _retval ? true : false;
 }
 
+NO_SANITIZE("cfi-icall")
 void CefDragHandlerCToCpp::OnDraggableRegionsChanged(
     CefRefPtr<CefBrowser> browser,
     const std::vector<CefDraggableRegion>& regions) {

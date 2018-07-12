@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=a54f381a1bb9d6da484063f3e620d83a686bc0e2$
+// $hash=edc9c069d5c2f1402225d566d8108c78b446605b$
 //
 
 #include "libcef_dll/ctocpp/download_handler_ctocpp.h"
@@ -20,6 +20,7 @@
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
+NO_SANITIZE("cfi-icall")
 void CefDownloadHandlerCToCpp::OnBeforeDownload(
     CefRefPtr<CefBrowser> browser,
     CefRefPtr<CefDownloadItem> download_item,
@@ -55,6 +56,7 @@ void CefDownloadHandlerCToCpp::OnBeforeDownload(
                               CefBeforeDownloadCallbackCppToC::Wrap(callback));
 }
 
+NO_SANITIZE("cfi-icall")
 void CefDownloadHandlerCToCpp::OnDownloadUpdated(
     CefRefPtr<CefBrowser> browser,
     CefRefPtr<CefDownloadItem> download_item,

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=a5a2b8db9075a61e7dbadb1c47532d969db66fea$
+// $hash=3db1328bd8bdd52280a19825d65235fb2214c262$
 //
 
 #include "libcef_dll/ctocpp/find_handler_ctocpp.h"
@@ -17,6 +17,7 @@
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
+NO_SANITIZE("cfi-icall")
 void CefFindHandlerCToCpp::OnFindResult(CefRefPtr<CefBrowser> browser,
                                         int identifier,
                                         int count,

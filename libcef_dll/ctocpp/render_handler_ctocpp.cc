@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=98ed2d6d147cc82b00f766b45e1b0e15e0f84393$
+// $hash=bd2800111c1f3f3a5c6107d0454a2b5fe67067b6$
 //
 
 #include "libcef_dll/ctocpp/render_handler_ctocpp.h"
@@ -19,6 +19,7 @@
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
+NO_SANITIZE("cfi-icall")
 CefRefPtr<CefAccessibilityHandler>
 CefRenderHandlerCToCpp::GetAccessibilityHandler() {
   cef_render_handler_t* _struct = GetStruct();
@@ -35,6 +36,7 @@ CefRenderHandlerCToCpp::GetAccessibilityHandler() {
   return CefAccessibilityHandlerCToCpp::Wrap(_retval);
 }
 
+NO_SANITIZE("cfi-icall")
 bool CefRenderHandlerCToCpp::GetRootScreenRect(CefRefPtr<CefBrowser> browser,
                                                CefRect& rect) {
   cef_render_handler_t* _struct = GetStruct();
@@ -56,6 +58,7 @@ bool CefRenderHandlerCToCpp::GetRootScreenRect(CefRefPtr<CefBrowser> browser,
   return _retval ? true : false;
 }
 
+NO_SANITIZE("cfi-icall")
 bool CefRenderHandlerCToCpp::GetViewRect(CefRefPtr<CefBrowser> browser,
                                          CefRect& rect) {
   cef_render_handler_t* _struct = GetStruct();
@@ -77,6 +80,7 @@ bool CefRenderHandlerCToCpp::GetViewRect(CefRefPtr<CefBrowser> browser,
   return _retval ? true : false;
 }
 
+NO_SANITIZE("cfi-icall")
 bool CefRenderHandlerCToCpp::GetScreenPoint(CefRefPtr<CefBrowser> browser,
                                             int viewX,
                                             int viewY,
@@ -102,6 +106,7 @@ bool CefRenderHandlerCToCpp::GetScreenPoint(CefRefPtr<CefBrowser> browser,
   return _retval ? true : false;
 }
 
+NO_SANITIZE("cfi-icall")
 bool CefRenderHandlerCToCpp::GetScreenInfo(CefRefPtr<CefBrowser> browser,
                                            CefScreenInfo& screen_info) {
   cef_render_handler_t* _struct = GetStruct();
@@ -123,6 +128,7 @@ bool CefRenderHandlerCToCpp::GetScreenInfo(CefRefPtr<CefBrowser> browser,
   return _retval ? true : false;
 }
 
+NO_SANITIZE("cfi-icall")
 void CefRenderHandlerCToCpp::OnPopupShow(CefRefPtr<CefBrowser> browser,
                                          bool show) {
   cef_render_handler_t* _struct = GetStruct();
@@ -140,6 +146,7 @@ void CefRenderHandlerCToCpp::OnPopupShow(CefRefPtr<CefBrowser> browser,
   _struct->on_popup_show(_struct, CefBrowserCppToC::Wrap(browser), show);
 }
 
+NO_SANITIZE("cfi-icall")
 void CefRenderHandlerCToCpp::OnPopupSize(CefRefPtr<CefBrowser> browser,
                                          const CefRect& rect) {
   cef_render_handler_t* _struct = GetStruct();
@@ -157,6 +164,7 @@ void CefRenderHandlerCToCpp::OnPopupSize(CefRefPtr<CefBrowser> browser,
   _struct->on_popup_size(_struct, CefBrowserCppToC::Wrap(browser), &rect);
 }
 
+NO_SANITIZE("cfi-icall")
 void CefRenderHandlerCToCpp::OnPaint(CefRefPtr<CefBrowser> browser,
                                      PaintElementType type,
                                      const RectList& dirtyRects,
@@ -200,6 +208,7 @@ void CefRenderHandlerCToCpp::OnPaint(CefRefPtr<CefBrowser> browser,
     delete[] dirtyRectsList;
 }
 
+NO_SANITIZE("cfi-icall")
 void CefRenderHandlerCToCpp::OnCursorChange(
     CefRefPtr<CefBrowser> browser,
     CefCursorHandle cursor,
@@ -221,6 +230,7 @@ void CefRenderHandlerCToCpp::OnCursorChange(
                             type, &custom_cursor_info);
 }
 
+NO_SANITIZE("cfi-icall")
 bool CefRenderHandlerCToCpp::StartDragging(CefRefPtr<CefBrowser> browser,
                                            CefRefPtr<CefDragData> drag_data,
                                            DragOperationsMask allowed_ops,
@@ -250,6 +260,7 @@ bool CefRenderHandlerCToCpp::StartDragging(CefRefPtr<CefBrowser> browser,
   return _retval ? true : false;
 }
 
+NO_SANITIZE("cfi-icall")
 void CefRenderHandlerCToCpp::UpdateDragCursor(CefRefPtr<CefBrowser> browser,
                                               DragOperation operation) {
   cef_render_handler_t* _struct = GetStruct();
@@ -268,6 +279,7 @@ void CefRenderHandlerCToCpp::UpdateDragCursor(CefRefPtr<CefBrowser> browser,
                               operation);
 }
 
+NO_SANITIZE("cfi-icall")
 void CefRenderHandlerCToCpp::OnScrollOffsetChanged(
     CefRefPtr<CefBrowser> browser,
     double x,
@@ -288,6 +300,7 @@ void CefRenderHandlerCToCpp::OnScrollOffsetChanged(
                                     y);
 }
 
+NO_SANITIZE("cfi-icall")
 void CefRenderHandlerCToCpp::OnImeCompositionRangeChanged(
     CefRefPtr<CefBrowser> browser,
     const CefRange& selected_range,
@@ -326,6 +339,7 @@ void CefRenderHandlerCToCpp::OnImeCompositionRangeChanged(
     delete[] character_boundsList;
 }
 
+NO_SANITIZE("cfi-icall")
 void CefRenderHandlerCToCpp::OnTextSelectionChanged(
     CefRefPtr<CefBrowser> browser,
     const CefString& selected_text,

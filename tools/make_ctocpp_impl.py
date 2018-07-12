@@ -8,10 +8,11 @@ from cef_parser import *
 def make_ctocpp_impl_proto(clsname, name, func, parts):
   const = ''
 
+  proto = 'NO_SANITIZE("cfi-icall") '
   if clsname is None:
-    proto = 'CEF_GLOBAL ' + parts['retval'] + ' '
+    proto += 'CEF_GLOBAL ' + parts['retval'] + ' '
   else:
-    proto = parts['retval'] + ' ' + clsname
+    proto += parts['retval'] + ' ' + clsname
     if isinstance(func, obj_function_virtual):
       proto += 'CToCpp'
       if func.is_const():

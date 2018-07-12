@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=f4e93b00934fd541c9ab0b0a43da21ece8ccddaf$
+// $hash=2e097242ecf302d49b282c09857030c726beaf0b$
 //
 
 #include "libcef_dll/ctocpp/urlrequest_ctocpp.h"
@@ -20,6 +20,7 @@
 
 // STATIC METHODS - Body may be edited by hand.
 
+NO_SANITIZE("cfi-icall")
 CefRefPtr<CefURLRequest> CefURLRequest::Create(
     CefRefPtr<CefRequest> request,
     CefRefPtr<CefURLRequestClient> client,
@@ -48,6 +49,7 @@ CefRefPtr<CefURLRequest> CefURLRequest::Create(
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
+NO_SANITIZE("cfi-icall")
 CefRefPtr<CefRequest> CefURLRequestCToCpp::GetRequest() {
   cef_urlrequest_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_request))
@@ -62,6 +64,7 @@ CefRefPtr<CefRequest> CefURLRequestCToCpp::GetRequest() {
   return CefRequestCToCpp::Wrap(_retval);
 }
 
+NO_SANITIZE("cfi-icall")
 CefRefPtr<CefURLRequestClient> CefURLRequestCToCpp::GetClient() {
   cef_urlrequest_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_client))
@@ -76,6 +79,7 @@ CefRefPtr<CefURLRequestClient> CefURLRequestCToCpp::GetClient() {
   return CefURLRequestClientCppToC::Unwrap(_retval);
 }
 
+NO_SANITIZE("cfi-icall")
 CefURLRequest::Status CefURLRequestCToCpp::GetRequestStatus() {
   cef_urlrequest_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_request_status))
@@ -90,6 +94,7 @@ CefURLRequest::Status CefURLRequestCToCpp::GetRequestStatus() {
   return _retval;
 }
 
+NO_SANITIZE("cfi-icall")
 CefURLRequest::ErrorCode CefURLRequestCToCpp::GetRequestError() {
   cef_urlrequest_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_request_error))
@@ -104,6 +109,7 @@ CefURLRequest::ErrorCode CefURLRequestCToCpp::GetRequestError() {
   return _retval;
 }
 
+NO_SANITIZE("cfi-icall")
 CefRefPtr<CefResponse> CefURLRequestCToCpp::GetResponse() {
   cef_urlrequest_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_response))
@@ -118,7 +124,7 @@ CefRefPtr<CefResponse> CefURLRequestCToCpp::GetResponse() {
   return CefResponseCToCpp::Wrap(_retval);
 }
 
-bool CefURLRequestCToCpp::ResponseWasCached() {
+NO_SANITIZE("cfi-icall") bool CefURLRequestCToCpp::ResponseWasCached() {
   cef_urlrequest_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, response_was_cached))
     return false;
@@ -132,7 +138,7 @@ bool CefURLRequestCToCpp::ResponseWasCached() {
   return _retval ? true : false;
 }
 
-void CefURLRequestCToCpp::Cancel() {
+NO_SANITIZE("cfi-icall") void CefURLRequestCToCpp::Cancel() {
   cef_urlrequest_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, cancel))
     return;

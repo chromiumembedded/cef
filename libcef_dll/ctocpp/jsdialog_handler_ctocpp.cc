@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=0904b9bbbc6fd8770a778b6b273069ab1d15732e$
+// $hash=e498c4bed5dd87d54da86181ace99b6b632dfa85$
 //
 
 #include "libcef_dll/ctocpp/jsdialog_handler_ctocpp.h"
@@ -18,6 +18,7 @@
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
+NO_SANITIZE("cfi-icall")
 bool CefJSDialogHandlerCToCpp::OnJSDialog(
     CefRefPtr<CefBrowser> browser,
     const CefString& origin_url,
@@ -58,6 +59,7 @@ bool CefJSDialogHandlerCToCpp::OnJSDialog(
   return _retval ? true : false;
 }
 
+NO_SANITIZE("cfi-icall")
 bool CefJSDialogHandlerCToCpp::OnBeforeUnloadDialog(
     CefRefPtr<CefBrowser> browser,
     const CefString& message_text,
@@ -88,6 +90,7 @@ bool CefJSDialogHandlerCToCpp::OnBeforeUnloadDialog(
   return _retval ? true : false;
 }
 
+NO_SANITIZE("cfi-icall")
 void CefJSDialogHandlerCToCpp::OnResetDialogState(
     CefRefPtr<CefBrowser> browser) {
   cef_jsdialog_handler_t* _struct = GetStruct();
@@ -105,6 +108,7 @@ void CefJSDialogHandlerCToCpp::OnResetDialogState(
   _struct->on_reset_dialog_state(_struct, CefBrowserCppToC::Wrap(browser));
 }
 
+NO_SANITIZE("cfi-icall")
 void CefJSDialogHandlerCToCpp::OnDialogClosed(CefRefPtr<CefBrowser> browser) {
   cef_jsdialog_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_dialog_closed))

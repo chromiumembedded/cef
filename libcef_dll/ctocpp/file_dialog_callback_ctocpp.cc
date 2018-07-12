@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=c166001c20c4e1a091089c52afbb42af596a7e5c$
+// $hash=aceb4502ea61266c860248b19be36fad175aaa6c$
 //
 
 #include "libcef_dll/ctocpp/file_dialog_callback_ctocpp.h"
@@ -17,6 +17,7 @@
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
+NO_SANITIZE("cfi-icall")
 void CefFileDialogCallbackCToCpp::Continue(
     int selected_accept_filter,
     const std::vector<CefString>& file_paths) {
@@ -46,7 +47,7 @@ void CefFileDialogCallbackCToCpp::Continue(
     cef_string_list_free(file_pathsList);
 }
 
-void CefFileDialogCallbackCToCpp::Cancel() {
+NO_SANITIZE("cfi-icall") void CefFileDialogCallbackCToCpp::Cancel() {
   cef_file_dialog_callback_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, cancel))
     return;

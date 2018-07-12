@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=d10c5cb8d14dd25dd21c2436f56fe9a2031a1237$
+// $hash=7a16f2cd80ae757de1e629fa2d4d58449f913d05$
 //
 
 #include "libcef_dll/ctocpp/browser_process_handler_ctocpp.h"
@@ -19,6 +19,7 @@
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
+NO_SANITIZE("cfi-icall")
 void CefBrowserProcessHandlerCToCpp::OnContextInitialized() {
   cef_browser_process_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_context_initialized))
@@ -30,6 +31,7 @@ void CefBrowserProcessHandlerCToCpp::OnContextInitialized() {
   _struct->on_context_initialized(_struct);
 }
 
+NO_SANITIZE("cfi-icall")
 void CefBrowserProcessHandlerCToCpp::OnBeforeChildProcessLaunch(
     CefRefPtr<CefCommandLine> command_line) {
   cef_browser_process_handler_t* _struct = GetStruct();
@@ -48,6 +50,7 @@ void CefBrowserProcessHandlerCToCpp::OnBeforeChildProcessLaunch(
       _struct, CefCommandLineCppToC::Wrap(command_line));
 }
 
+NO_SANITIZE("cfi-icall")
 void CefBrowserProcessHandlerCToCpp::OnRenderProcessThreadCreated(
     CefRefPtr<CefListValue> extra_info) {
   cef_browser_process_handler_t* _struct = GetStruct();
@@ -66,6 +69,7 @@ void CefBrowserProcessHandlerCToCpp::OnRenderProcessThreadCreated(
       _struct, CefListValueCppToC::Wrap(extra_info));
 }
 
+NO_SANITIZE("cfi-icall")
 CefRefPtr<CefPrintHandler> CefBrowserProcessHandlerCToCpp::GetPrintHandler() {
   cef_browser_process_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_print_handler))
@@ -80,6 +84,7 @@ CefRefPtr<CefPrintHandler> CefBrowserProcessHandlerCToCpp::GetPrintHandler() {
   return CefPrintHandlerCToCpp::Wrap(_retval);
 }
 
+NO_SANITIZE("cfi-icall")
 void CefBrowserProcessHandlerCToCpp::OnScheduleMessagePumpWork(int64 delay_ms) {
   cef_browser_process_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_schedule_message_pump_work))

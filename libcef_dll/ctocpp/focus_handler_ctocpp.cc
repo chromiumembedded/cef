@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=3b3b0a27fc45fa739fc97fa5d15ddb40bd3ae222$
+// $hash=18801168856dec585bbc6151fe8817689113ad20$
 //
 
 #include "libcef_dll/ctocpp/focus_handler_ctocpp.h"
@@ -17,6 +17,7 @@
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
+NO_SANITIZE("cfi-icall")
 void CefFocusHandlerCToCpp::OnTakeFocus(CefRefPtr<CefBrowser> browser,
                                         bool next) {
   cef_focus_handler_t* _struct = GetStruct();
@@ -34,6 +35,7 @@ void CefFocusHandlerCToCpp::OnTakeFocus(CefRefPtr<CefBrowser> browser,
   _struct->on_take_focus(_struct, CefBrowserCppToC::Wrap(browser), next);
 }
 
+NO_SANITIZE("cfi-icall")
 bool CefFocusHandlerCToCpp::OnSetFocus(CefRefPtr<CefBrowser> browser,
                                        FocusSource source) {
   cef_focus_handler_t* _struct = GetStruct();
@@ -55,6 +57,7 @@ bool CefFocusHandlerCToCpp::OnSetFocus(CefRefPtr<CefBrowser> browser,
   return _retval ? true : false;
 }
 
+NO_SANITIZE("cfi-icall")
 void CefFocusHandlerCToCpp::OnGotFocus(CefRefPtr<CefBrowser> browser) {
   cef_focus_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_got_focus))

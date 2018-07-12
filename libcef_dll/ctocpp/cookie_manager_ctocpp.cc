@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=5a5ae9a4567ba338efa8477ba1dc53435ada8c6b$
+// $hash=1e103ba4bfe9c4d2433fda016759a3f74d7660f1$
 //
 
 #include "libcef_dll/ctocpp/cookie_manager_ctocpp.h"
@@ -21,6 +21,7 @@
 
 // STATIC METHODS - Body may be edited by hand.
 
+NO_SANITIZE("cfi-icall")
 CefRefPtr<CefCookieManager> CefCookieManager::GetGlobalManager(
     CefRefPtr<CefCompletionCallback> callback) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -35,6 +36,7 @@ CefRefPtr<CefCookieManager> CefCookieManager::GetGlobalManager(
   return CefCookieManagerCToCpp::Wrap(_retval);
 }
 
+NO_SANITIZE("cfi-icall")
 CefRefPtr<CefCookieManager> CefCookieManager::GetBlockingManager() {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -45,6 +47,7 @@ CefRefPtr<CefCookieManager> CefCookieManager::GetBlockingManager() {
   return CefCookieManagerCToCpp::Wrap(_retval);
 }
 
+NO_SANITIZE("cfi-icall")
 CefRefPtr<CefCookieManager> CefCookieManager::CreateManager(
     const CefString& path,
     bool persist_session_cookies,
@@ -64,6 +67,7 @@ CefRefPtr<CefCookieManager> CefCookieManager::CreateManager(
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
+NO_SANITIZE("cfi-icall")
 void CefCookieManagerCToCpp::SetSupportedSchemes(
     const std::vector<CefString>& schemes,
     CefRefPtr<CefCompletionCallback> callback) {
@@ -90,6 +94,7 @@ void CefCookieManagerCToCpp::SetSupportedSchemes(
     cef_string_list_free(schemesList);
 }
 
+NO_SANITIZE("cfi-icall")
 bool CefCookieManagerCToCpp::VisitAllCookies(
     CefRefPtr<CefCookieVisitor> visitor) {
   cef_cookie_manager_t* _struct = GetStruct();
@@ -111,6 +116,7 @@ bool CefCookieManagerCToCpp::VisitAllCookies(
   return _retval ? true : false;
 }
 
+NO_SANITIZE("cfi-icall")
 bool CefCookieManagerCToCpp::VisitUrlCookies(
     const CefString& url,
     bool includeHttpOnly,
@@ -139,6 +145,7 @@ bool CefCookieManagerCToCpp::VisitUrlCookies(
   return _retval ? true : false;
 }
 
+NO_SANITIZE("cfi-icall")
 bool CefCookieManagerCToCpp::SetCookie(
     const CefString& url,
     const CefCookie& cookie,
@@ -163,6 +170,7 @@ bool CefCookieManagerCToCpp::SetCookie(
   return _retval ? true : false;
 }
 
+NO_SANITIZE("cfi-icall")
 bool CefCookieManagerCToCpp::DeleteCookies(
     const CefString& url,
     const CefString& cookie_name,
@@ -184,6 +192,7 @@ bool CefCookieManagerCToCpp::DeleteCookies(
   return _retval ? true : false;
 }
 
+NO_SANITIZE("cfi-icall")
 bool CefCookieManagerCToCpp::SetStoragePath(
     const CefString& path,
     bool persist_session_cookies,
@@ -205,6 +214,7 @@ bool CefCookieManagerCToCpp::SetStoragePath(
   return _retval ? true : false;
 }
 
+NO_SANITIZE("cfi-icall")
 bool CefCookieManagerCToCpp::FlushStore(
     CefRefPtr<CefCompletionCallback> callback) {
   cef_cookie_manager_t* _struct = GetStruct();

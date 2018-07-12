@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=4c70f7df52ffea2c9c4d5cea02f10614b434dd33$
+// $hash=5d2bd31a64e3072b4b1609e0d2cbd0f7a802ef79$
 //
 
 #include "libcef_dll/ctocpp/domnode_ctocpp.h"
@@ -18,7 +18,7 @@
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
-CefDOMNode::Type CefDOMNodeCToCpp::GetType() {
+NO_SANITIZE("cfi-icall") CefDOMNode::Type CefDOMNodeCToCpp::GetType() {
   cef_domnode_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_type))
     return DOM_NODE_TYPE_UNSUPPORTED;
@@ -32,7 +32,7 @@ CefDOMNode::Type CefDOMNodeCToCpp::GetType() {
   return _retval;
 }
 
-bool CefDOMNodeCToCpp::IsText() {
+NO_SANITIZE("cfi-icall") bool CefDOMNodeCToCpp::IsText() {
   cef_domnode_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, is_text))
     return false;
@@ -46,7 +46,7 @@ bool CefDOMNodeCToCpp::IsText() {
   return _retval ? true : false;
 }
 
-bool CefDOMNodeCToCpp::IsElement() {
+NO_SANITIZE("cfi-icall") bool CefDOMNodeCToCpp::IsElement() {
   cef_domnode_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, is_element))
     return false;
@@ -60,7 +60,7 @@ bool CefDOMNodeCToCpp::IsElement() {
   return _retval ? true : false;
 }
 
-bool CefDOMNodeCToCpp::IsEditable() {
+NO_SANITIZE("cfi-icall") bool CefDOMNodeCToCpp::IsEditable() {
   cef_domnode_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, is_editable))
     return false;
@@ -74,7 +74,7 @@ bool CefDOMNodeCToCpp::IsEditable() {
   return _retval ? true : false;
 }
 
-bool CefDOMNodeCToCpp::IsFormControlElement() {
+NO_SANITIZE("cfi-icall") bool CefDOMNodeCToCpp::IsFormControlElement() {
   cef_domnode_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, is_form_control_element))
     return false;
@@ -88,6 +88,7 @@ bool CefDOMNodeCToCpp::IsFormControlElement() {
   return _retval ? true : false;
 }
 
+NO_SANITIZE("cfi-icall")
 CefString CefDOMNodeCToCpp::GetFormControlElementType() {
   cef_domnode_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_form_control_element_type))
@@ -105,6 +106,7 @@ CefString CefDOMNodeCToCpp::GetFormControlElementType() {
   return _retvalStr;
 }
 
+NO_SANITIZE("cfi-icall")
 bool CefDOMNodeCToCpp::IsSame(CefRefPtr<CefDOMNode> that) {
   cef_domnode_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, is_same))
@@ -124,7 +126,7 @@ bool CefDOMNodeCToCpp::IsSame(CefRefPtr<CefDOMNode> that) {
   return _retval ? true : false;
 }
 
-CefString CefDOMNodeCToCpp::GetName() {
+NO_SANITIZE("cfi-icall") CefString CefDOMNodeCToCpp::GetName() {
   cef_domnode_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_name))
     return CefString();
@@ -140,7 +142,7 @@ CefString CefDOMNodeCToCpp::GetName() {
   return _retvalStr;
 }
 
-CefString CefDOMNodeCToCpp::GetValue() {
+NO_SANITIZE("cfi-icall") CefString CefDOMNodeCToCpp::GetValue() {
   cef_domnode_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_value))
     return CefString();
@@ -156,6 +158,7 @@ CefString CefDOMNodeCToCpp::GetValue() {
   return _retvalStr;
 }
 
+NO_SANITIZE("cfi-icall")
 bool CefDOMNodeCToCpp::SetValue(const CefString& value) {
   cef_domnode_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, set_value))
@@ -175,7 +178,7 @@ bool CefDOMNodeCToCpp::SetValue(const CefString& value) {
   return _retval ? true : false;
 }
 
-CefString CefDOMNodeCToCpp::GetAsMarkup() {
+NO_SANITIZE("cfi-icall") CefString CefDOMNodeCToCpp::GetAsMarkup() {
   cef_domnode_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_as_markup))
     return CefString();
@@ -191,6 +194,7 @@ CefString CefDOMNodeCToCpp::GetAsMarkup() {
   return _retvalStr;
 }
 
+NO_SANITIZE("cfi-icall")
 CefRefPtr<CefDOMDocument> CefDOMNodeCToCpp::GetDocument() {
   cef_domnode_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_document))
@@ -205,7 +209,7 @@ CefRefPtr<CefDOMDocument> CefDOMNodeCToCpp::GetDocument() {
   return CefDOMDocumentCToCpp::Wrap(_retval);
 }
 
-CefRefPtr<CefDOMNode> CefDOMNodeCToCpp::GetParent() {
+NO_SANITIZE("cfi-icall") CefRefPtr<CefDOMNode> CefDOMNodeCToCpp::GetParent() {
   cef_domnode_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_parent))
     return NULL;
@@ -219,6 +223,7 @@ CefRefPtr<CefDOMNode> CefDOMNodeCToCpp::GetParent() {
   return CefDOMNodeCToCpp::Wrap(_retval);
 }
 
+NO_SANITIZE("cfi-icall")
 CefRefPtr<CefDOMNode> CefDOMNodeCToCpp::GetPreviousSibling() {
   cef_domnode_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_previous_sibling))
@@ -233,6 +238,7 @@ CefRefPtr<CefDOMNode> CefDOMNodeCToCpp::GetPreviousSibling() {
   return CefDOMNodeCToCpp::Wrap(_retval);
 }
 
+NO_SANITIZE("cfi-icall")
 CefRefPtr<CefDOMNode> CefDOMNodeCToCpp::GetNextSibling() {
   cef_domnode_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_next_sibling))
@@ -247,7 +253,7 @@ CefRefPtr<CefDOMNode> CefDOMNodeCToCpp::GetNextSibling() {
   return CefDOMNodeCToCpp::Wrap(_retval);
 }
 
-bool CefDOMNodeCToCpp::HasChildren() {
+NO_SANITIZE("cfi-icall") bool CefDOMNodeCToCpp::HasChildren() {
   cef_domnode_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, has_children))
     return false;
@@ -261,6 +267,7 @@ bool CefDOMNodeCToCpp::HasChildren() {
   return _retval ? true : false;
 }
 
+NO_SANITIZE("cfi-icall")
 CefRefPtr<CefDOMNode> CefDOMNodeCToCpp::GetFirstChild() {
   cef_domnode_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_first_child))
@@ -275,6 +282,7 @@ CefRefPtr<CefDOMNode> CefDOMNodeCToCpp::GetFirstChild() {
   return CefDOMNodeCToCpp::Wrap(_retval);
 }
 
+NO_SANITIZE("cfi-icall")
 CefRefPtr<CefDOMNode> CefDOMNodeCToCpp::GetLastChild() {
   cef_domnode_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_last_child))
@@ -289,7 +297,7 @@ CefRefPtr<CefDOMNode> CefDOMNodeCToCpp::GetLastChild() {
   return CefDOMNodeCToCpp::Wrap(_retval);
 }
 
-CefString CefDOMNodeCToCpp::GetElementTagName() {
+NO_SANITIZE("cfi-icall") CefString CefDOMNodeCToCpp::GetElementTagName() {
   cef_domnode_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_element_tag_name))
     return CefString();
@@ -305,7 +313,7 @@ CefString CefDOMNodeCToCpp::GetElementTagName() {
   return _retvalStr;
 }
 
-bool CefDOMNodeCToCpp::HasElementAttributes() {
+NO_SANITIZE("cfi-icall") bool CefDOMNodeCToCpp::HasElementAttributes() {
   cef_domnode_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, has_element_attributes))
     return false;
@@ -319,6 +327,7 @@ bool CefDOMNodeCToCpp::HasElementAttributes() {
   return _retval ? true : false;
 }
 
+NO_SANITIZE("cfi-icall")
 bool CefDOMNodeCToCpp::HasElementAttribute(const CefString& attrName) {
   cef_domnode_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, has_element_attribute))
@@ -338,6 +347,7 @@ bool CefDOMNodeCToCpp::HasElementAttribute(const CefString& attrName) {
   return _retval ? true : false;
 }
 
+NO_SANITIZE("cfi-icall")
 CefString CefDOMNodeCToCpp::GetElementAttribute(const CefString& attrName) {
   cef_domnode_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_element_attribute))
@@ -360,6 +370,7 @@ CefString CefDOMNodeCToCpp::GetElementAttribute(const CefString& attrName) {
   return _retvalStr;
 }
 
+NO_SANITIZE("cfi-icall")
 void CefDOMNodeCToCpp::GetElementAttributes(AttributeMap& attrMap) {
   cef_domnode_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_element_attributes))
@@ -384,6 +395,7 @@ void CefDOMNodeCToCpp::GetElementAttributes(AttributeMap& attrMap) {
   }
 }
 
+NO_SANITIZE("cfi-icall")
 bool CefDOMNodeCToCpp::SetElementAttribute(const CefString& attrName,
                                            const CefString& value) {
   cef_domnode_t* _struct = GetStruct();
@@ -409,7 +421,7 @@ bool CefDOMNodeCToCpp::SetElementAttribute(const CefString& attrName,
   return _retval ? true : false;
 }
 
-CefString CefDOMNodeCToCpp::GetElementInnerText() {
+NO_SANITIZE("cfi-icall") CefString CefDOMNodeCToCpp::GetElementInnerText() {
   cef_domnode_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_element_inner_text))
     return CefString();
@@ -425,7 +437,7 @@ CefString CefDOMNodeCToCpp::GetElementInnerText() {
   return _retvalStr;
 }
 
-CefRect CefDOMNodeCToCpp::GetElementBounds() {
+NO_SANITIZE("cfi-icall") CefRect CefDOMNodeCToCpp::GetElementBounds() {
   cef_domnode_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_element_bounds))
     return CefRect();

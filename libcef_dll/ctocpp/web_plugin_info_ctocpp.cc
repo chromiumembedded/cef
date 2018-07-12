@@ -9,14 +9,14 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=2402247f2bf53752a68aac9cba181772eed9a670$
+// $hash=32a803a3abcf2f2d70281d6164cad02cf4ffaf65$
 //
 
 #include "libcef_dll/ctocpp/web_plugin_info_ctocpp.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
-CefString CefWebPluginInfoCToCpp::GetName() {
+NO_SANITIZE("cfi-icall") CefString CefWebPluginInfoCToCpp::GetName() {
   cef_web_plugin_info_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_name))
     return CefString();
@@ -32,7 +32,7 @@ CefString CefWebPluginInfoCToCpp::GetName() {
   return _retvalStr;
 }
 
-CefString CefWebPluginInfoCToCpp::GetPath() {
+NO_SANITIZE("cfi-icall") CefString CefWebPluginInfoCToCpp::GetPath() {
   cef_web_plugin_info_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_path))
     return CefString();
@@ -48,7 +48,7 @@ CefString CefWebPluginInfoCToCpp::GetPath() {
   return _retvalStr;
 }
 
-CefString CefWebPluginInfoCToCpp::GetVersion() {
+NO_SANITIZE("cfi-icall") CefString CefWebPluginInfoCToCpp::GetVersion() {
   cef_web_plugin_info_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_version))
     return CefString();
@@ -64,7 +64,7 @@ CefString CefWebPluginInfoCToCpp::GetVersion() {
   return _retvalStr;
 }
 
-CefString CefWebPluginInfoCToCpp::GetDescription() {
+NO_SANITIZE("cfi-icall") CefString CefWebPluginInfoCToCpp::GetDescription() {
   cef_web_plugin_info_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_description))
     return CefString();

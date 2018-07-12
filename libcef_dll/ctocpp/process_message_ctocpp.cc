@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=56e84a88921d747ee35eecc55a0a37a44ba3876d$
+// $hash=ee14fb3335b8311f52e847a4e6430c5400dcd0b9$
 //
 
 #include "libcef_dll/ctocpp/process_message_ctocpp.h"
@@ -17,6 +17,7 @@
 
 // STATIC METHODS - Body may be edited by hand.
 
+NO_SANITIZE("cfi-icall")
 CefRefPtr<CefProcessMessage> CefProcessMessage::Create(const CefString& name) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -34,7 +35,7 @@ CefRefPtr<CefProcessMessage> CefProcessMessage::Create(const CefString& name) {
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
-bool CefProcessMessageCToCpp::IsValid() {
+NO_SANITIZE("cfi-icall") bool CefProcessMessageCToCpp::IsValid() {
   cef_process_message_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, is_valid))
     return false;
@@ -48,7 +49,7 @@ bool CefProcessMessageCToCpp::IsValid() {
   return _retval ? true : false;
 }
 
-bool CefProcessMessageCToCpp::IsReadOnly() {
+NO_SANITIZE("cfi-icall") bool CefProcessMessageCToCpp::IsReadOnly() {
   cef_process_message_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, is_read_only))
     return false;
@@ -62,6 +63,7 @@ bool CefProcessMessageCToCpp::IsReadOnly() {
   return _retval ? true : false;
 }
 
+NO_SANITIZE("cfi-icall")
 CefRefPtr<CefProcessMessage> CefProcessMessageCToCpp::Copy() {
   cef_process_message_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, copy))
@@ -76,7 +78,7 @@ CefRefPtr<CefProcessMessage> CefProcessMessageCToCpp::Copy() {
   return CefProcessMessageCToCpp::Wrap(_retval);
 }
 
-CefString CefProcessMessageCToCpp::GetName() {
+NO_SANITIZE("cfi-icall") CefString CefProcessMessageCToCpp::GetName() {
   cef_process_message_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_name))
     return CefString();
@@ -92,6 +94,7 @@ CefString CefProcessMessageCToCpp::GetName() {
   return _retvalStr;
 }
 
+NO_SANITIZE("cfi-icall")
 CefRefPtr<CefListValue> CefProcessMessageCToCpp::GetArgumentList() {
   cef_process_message_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_argument_list))

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=f26b8bb83e7b74dd3122eeb9bb8107bec99bbc50$
+// $hash=ef0342d66a995b4833fbf83785ea1e1936cb8d28$
 //
 
 #include "libcef_dll/ctocpp/menu_model_delegate_ctocpp.h"
@@ -17,6 +17,7 @@
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
+NO_SANITIZE("cfi-icall")
 void CefMenuModelDelegateCToCpp::ExecuteCommand(
     CefRefPtr<CefMenuModel> menu_model,
     int command_id,
@@ -37,6 +38,7 @@ void CefMenuModelDelegateCToCpp::ExecuteCommand(
                            command_id, event_flags);
 }
 
+NO_SANITIZE("cfi-icall")
 void CefMenuModelDelegateCToCpp::MouseOutsideMenu(
     CefRefPtr<CefMenuModel> menu_model,
     const CefPoint& screen_point) {
@@ -56,6 +58,7 @@ void CefMenuModelDelegateCToCpp::MouseOutsideMenu(
                               &screen_point);
 }
 
+NO_SANITIZE("cfi-icall")
 void CefMenuModelDelegateCToCpp::UnhandledOpenSubmenu(
     CefRefPtr<CefMenuModel> menu_model,
     bool is_rtl) {
@@ -75,6 +78,7 @@ void CefMenuModelDelegateCToCpp::UnhandledOpenSubmenu(
                                   is_rtl);
 }
 
+NO_SANITIZE("cfi-icall")
 void CefMenuModelDelegateCToCpp::UnhandledCloseSubmenu(
     CefRefPtr<CefMenuModel> menu_model,
     bool is_rtl) {
@@ -94,6 +98,7 @@ void CefMenuModelDelegateCToCpp::UnhandledCloseSubmenu(
       _struct, CefMenuModelCppToC::Wrap(menu_model), is_rtl);
 }
 
+NO_SANITIZE("cfi-icall")
 void CefMenuModelDelegateCToCpp::MenuWillShow(
     CefRefPtr<CefMenuModel> menu_model) {
   cef_menu_model_delegate_t* _struct = GetStruct();
@@ -111,6 +116,7 @@ void CefMenuModelDelegateCToCpp::MenuWillShow(
   _struct->menu_will_show(_struct, CefMenuModelCppToC::Wrap(menu_model));
 }
 
+NO_SANITIZE("cfi-icall")
 void CefMenuModelDelegateCToCpp::MenuClosed(
     CefRefPtr<CefMenuModel> menu_model) {
   cef_menu_model_delegate_t* _struct = GetStruct();
@@ -128,6 +134,7 @@ void CefMenuModelDelegateCToCpp::MenuClosed(
   _struct->menu_closed(_struct, CefMenuModelCppToC::Wrap(menu_model));
 }
 
+NO_SANITIZE("cfi-icall")
 bool CefMenuModelDelegateCToCpp::FormatLabel(CefRefPtr<CefMenuModel> menu_model,
                                              CefString& label) {
   cef_menu_model_delegate_t* _struct = GetStruct();

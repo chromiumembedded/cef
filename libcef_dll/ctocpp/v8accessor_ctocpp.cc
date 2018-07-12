@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=ac4cb29beaf545a051d53a6810445b89d77df517$
+// $hash=0b700d67b2a34fd124e7d1f297dc520295f51ac1$
 //
 
 #include "libcef_dll/ctocpp/v8accessor_ctocpp.h"
@@ -17,6 +17,7 @@
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
+NO_SANITIZE("cfi-icall")
 bool CefV8AccessorCToCpp::Get(const CefString& name,
                               const CefRefPtr<CefV8Value> object,
                               CefRefPtr<CefV8Value>& retval,
@@ -60,6 +61,7 @@ bool CefV8AccessorCToCpp::Get(const CefString& name,
   return _retval ? true : false;
 }
 
+NO_SANITIZE("cfi-icall")
 bool CefV8AccessorCToCpp::Set(const CefString& name,
                               const CefRefPtr<CefV8Value> object,
                               const CefRefPtr<CefV8Value> value,

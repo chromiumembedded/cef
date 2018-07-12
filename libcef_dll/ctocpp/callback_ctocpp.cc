@@ -9,14 +9,14 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=39b74063d934e0b907b6e3b40bb8534f2500572d$
+// $hash=0ae20a22ed85d70b28274415690dcf8da3593293$
 //
 
 #include "libcef_dll/ctocpp/callback_ctocpp.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
-void CefCallbackCToCpp::Continue() {
+NO_SANITIZE("cfi-icall") void CefCallbackCToCpp::Continue() {
   cef_callback_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, cont))
     return;
@@ -27,7 +27,7 @@ void CefCallbackCToCpp::Continue() {
   _struct->cont(_struct);
 }
 
-void CefCallbackCToCpp::Cancel() {
+NO_SANITIZE("cfi-icall") void CefCallbackCToCpp::Cancel() {
   cef_callback_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, cancel))
     return;

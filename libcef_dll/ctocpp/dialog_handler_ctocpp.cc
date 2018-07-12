@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=3f49ca4369faaf59e7e74ed8c8b5170a1c88704e$
+// $hash=fca4030784b594889ccb72eff1f6bfb390f050c1$
 //
 
 #include "libcef_dll/ctocpp/dialog_handler_ctocpp.h"
@@ -19,6 +19,7 @@
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
+NO_SANITIZE("cfi-icall")
 bool CefDialogHandlerCToCpp::OnFileDialog(
     CefRefPtr<CefBrowser> browser,
     FileDialogMode mode,

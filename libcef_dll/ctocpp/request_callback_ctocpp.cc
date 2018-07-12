@@ -9,14 +9,14 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=2cdd2e82f2e3ee196519b91a6f6a914f97732cc2$
+// $hash=1d9f467076c3f94bd7b2f7a335467bfeed341849$
 //
 
 #include "libcef_dll/ctocpp/request_callback_ctocpp.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
-void CefRequestCallbackCToCpp::Continue(bool allow) {
+NO_SANITIZE("cfi-icall") void CefRequestCallbackCToCpp::Continue(bool allow) {
   cef_request_callback_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, cont))
     return;
@@ -27,7 +27,7 @@ void CefRequestCallbackCToCpp::Continue(bool allow) {
   _struct->cont(_struct, allow);
 }
 
-void CefRequestCallbackCToCpp::Cancel() {
+NO_SANITIZE("cfi-icall") void CefRequestCallbackCToCpp::Cancel() {
   cef_request_callback_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, cancel))
     return;

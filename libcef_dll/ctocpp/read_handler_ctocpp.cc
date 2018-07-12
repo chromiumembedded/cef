@@ -9,13 +9,14 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=90e75388779c70a5e2e5366799a7772802def9ec$
+// $hash=c3f29dd98a52a1ce978bb30bb6a1680c9e1abca0$
 //
 
 #include "libcef_dll/ctocpp/read_handler_ctocpp.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
+NO_SANITIZE("cfi-icall")
 size_t CefReadHandlerCToCpp::Read(void* ptr, size_t size, size_t n) {
   cef_read_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, read))
@@ -35,6 +36,7 @@ size_t CefReadHandlerCToCpp::Read(void* ptr, size_t size, size_t n) {
   return _retval;
 }
 
+NO_SANITIZE("cfi-icall")
 int CefReadHandlerCToCpp::Seek(int64 offset, int whence) {
   cef_read_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, seek))
@@ -49,7 +51,7 @@ int CefReadHandlerCToCpp::Seek(int64 offset, int whence) {
   return _retval;
 }
 
-int64 CefReadHandlerCToCpp::Tell() {
+NO_SANITIZE("cfi-icall") int64 CefReadHandlerCToCpp::Tell() {
   cef_read_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, tell))
     return 0;
@@ -63,7 +65,7 @@ int64 CefReadHandlerCToCpp::Tell() {
   return _retval;
 }
 
-int CefReadHandlerCToCpp::Eof() {
+NO_SANITIZE("cfi-icall") int CefReadHandlerCToCpp::Eof() {
   cef_read_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, eof))
     return 0;
@@ -77,7 +79,7 @@ int CefReadHandlerCToCpp::Eof() {
   return _retval;
 }
 
-bool CefReadHandlerCToCpp::MayBlock() {
+NO_SANITIZE("cfi-icall") bool CefReadHandlerCToCpp::MayBlock() {
   cef_read_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, may_block))
     return false;

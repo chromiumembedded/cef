@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=c0bf236fbeef704b6b457df707726714a715a935$
+// $hash=110ce393b3a52977fc6ff1de2149fc75d4e2dfad$
 //
 
 #include "libcef_dll/ctocpp/select_client_certificate_callback_ctocpp.h"
@@ -17,6 +17,7 @@
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
+NO_SANITIZE("cfi-icall")
 void CefSelectClientCertificateCallbackCToCpp::Select(
     CefRefPtr<CefX509Certificate> cert) {
   cef_select_client_certificate_callback_t* _struct = GetStruct();

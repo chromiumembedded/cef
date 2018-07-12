@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=f907bfcdd553d3fbc80ae71a00eb8068e0b56def$
+// $hash=2314a60f20f2f32ff28c0857ea4cef5203977b80$
 //
 
 #include "libcef_dll/ctocpp/navigation_entry_visitor_ctocpp.h"
@@ -17,6 +17,7 @@
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
+NO_SANITIZE("cfi-icall")
 bool CefNavigationEntryVisitorCToCpp::Visit(CefRefPtr<CefNavigationEntry> entry,
                                             bool current,
                                             int index,

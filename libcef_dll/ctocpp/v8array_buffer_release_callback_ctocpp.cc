@@ -9,13 +9,14 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=4518c58051d90673ecc1fc2b9e29b70467b36c97$
+// $hash=73e303e55c6b0338cbde6f2c58416ac5bc3c2a8c$
 //
 
 #include "libcef_dll/ctocpp/v8array_buffer_release_callback_ctocpp.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
+NO_SANITIZE("cfi-icall")
 void CefV8ArrayBufferReleaseCallbackCToCpp::ReleaseBuffer(void* buffer) {
   cef_v8array_buffer_release_callback_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, release_buffer))

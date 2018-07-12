@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=088941211e9181221fb7cdee1809ef7f60134715$
+// $hash=5c88de7a076aec8b93ca430248ab0f903a105b98$
 //
 
 #include "libcef_dll/ctocpp/download_image_callback_ctocpp.h"
@@ -17,6 +17,7 @@
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
+NO_SANITIZE("cfi-icall")
 void CefDownloadImageCallbackCToCpp::OnDownloadImageFinished(
     const CefString& image_url,
     int http_status_code,

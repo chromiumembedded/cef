@@ -9,13 +9,14 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=888a1ec1d19711f47f0ca5dbaf45434b8ef4ee71$
+// $hash=8020e125acce042dbc4b2b8d921d88ecd7124bc5$
 //
 
 #include "libcef_dll/ctocpp/test/translator_test_scoped_client_child_ctocpp.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
+NO_SANITIZE("cfi-icall")
 int CefTranslatorTestScopedClientChildCToCpp::GetOtherValue() {
   cef_translator_test_scoped_client_child_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_other_value))
@@ -30,6 +31,7 @@ int CefTranslatorTestScopedClientChildCToCpp::GetOtherValue() {
   return _retval;
 }
 
+NO_SANITIZE("cfi-icall")
 int CefTranslatorTestScopedClientChildCToCpp::GetValue() {
   cef_translator_test_scoped_client_t* _struct =
       reinterpret_cast<cef_translator_test_scoped_client_t*>(GetStruct());

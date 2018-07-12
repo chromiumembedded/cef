@@ -9,13 +9,14 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=32223c03c7acdb953fc9a0fc7a2523c8bfb4a4af$
+// $hash=12107ff56a34277a6b975365ed671e1a2eb2e8aa$
 //
 
 #include "libcef_dll/ctocpp/resource_bundle_handler_ctocpp.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
+NO_SANITIZE("cfi-icall")
 bool CefResourceBundleHandlerCToCpp::GetLocalizedString(int string_id,
                                                         CefString& string) {
   cef_resource_bundle_handler_t* _struct = GetStruct();
@@ -32,6 +33,7 @@ bool CefResourceBundleHandlerCToCpp::GetLocalizedString(int string_id,
   return _retval ? true : false;
 }
 
+NO_SANITIZE("cfi-icall")
 bool CefResourceBundleHandlerCToCpp::GetDataResource(int resource_id,
                                                      void*& data,
                                                      size_t& data_size) {
@@ -49,6 +51,7 @@ bool CefResourceBundleHandlerCToCpp::GetDataResource(int resource_id,
   return _retval ? true : false;
 }
 
+NO_SANITIZE("cfi-icall")
 bool CefResourceBundleHandlerCToCpp::GetDataResourceForScale(
     int resource_id,
     ScaleFactor scale_factor,

@@ -73,6 +73,7 @@ class CefCToCppRefCounted : public BaseName {
   static StructName* UnwrapDerived(CefWrapperType type, BaseName* c);
 
   // Increment/decrement reference counts on only the underlying class.
+  NO_SANITIZE("cfi-icall")
   void UnderlyingAddRef() const {
     cef_base_ref_counted_t* base =
         reinterpret_cast<cef_base_ref_counted_t*>(GetStruct());
@@ -80,6 +81,7 @@ class CefCToCppRefCounted : public BaseName {
       base->add_ref(base);
   }
 
+  NO_SANITIZE("cfi-icall")
   bool UnderlyingRelease() const {
     cef_base_ref_counted_t* base =
         reinterpret_cast<cef_base_ref_counted_t*>(GetStruct());
@@ -88,6 +90,7 @@ class CefCToCppRefCounted : public BaseName {
     return base->release(base) ? true : false;
   }
 
+  NO_SANITIZE("cfi-icall")
   bool UnderlyingHasOneRef() const {
     cef_base_ref_counted_t* base =
         reinterpret_cast<cef_base_ref_counted_t*>(GetStruct());

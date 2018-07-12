@@ -9,13 +9,14 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=501bed74c0102df17e0779d63ace939e082bb085$
+// $hash=4441f1255165e1ac0b3f0b5a373d06e8fed3e800$
 //
 
 #include "libcef_dll/ctocpp/pdf_print_callback_ctocpp.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
+NO_SANITIZE("cfi-icall")
 void CefPdfPrintCallbackCToCpp::OnPdfPrintFinished(const CefString& path,
                                                    bool ok) {
   cef_pdf_print_callback_t* _struct = GetStruct();

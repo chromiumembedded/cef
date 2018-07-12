@@ -9,14 +9,14 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=9a7519986c13a01f7ac10fd56027278967b886f4$
+// $hash=14df1b4e62bc8d726d2d2b2546a1a9ce944beed3$
 //
 
 #include "libcef_dll/ctocpp/response_filter_ctocpp.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
-bool CefResponseFilterCToCpp::InitFilter() {
+NO_SANITIZE("cfi-icall") bool CefResponseFilterCToCpp::InitFilter() {
   cef_response_filter_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, init_filter))
     return false;
@@ -30,6 +30,7 @@ bool CefResponseFilterCToCpp::InitFilter() {
   return _retval ? true : false;
 }
 
+NO_SANITIZE("cfi-icall")
 CefResponseFilter::FilterStatus CefResponseFilterCToCpp::Filter(
     void* data_in,
     size_t data_in_size,

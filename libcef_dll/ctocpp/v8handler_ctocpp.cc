@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=abf2ac1cb9f01fbe17ad6592d061d4935493f999$
+// $hash=248657b411053e330aa1d75c124fdbc107bb0067$
 //
 
 #include "libcef_dll/ctocpp/v8handler_ctocpp.h"
@@ -17,6 +17,7 @@
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
+NO_SANITIZE("cfi-icall")
 bool CefV8HandlerCToCpp::Execute(const CefString& name,
                                  CefRefPtr<CefV8Value> object,
                                  const CefV8ValueList& arguments,

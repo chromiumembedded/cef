@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=64450371efa1c473976f85e44b95880509d7536a$
+// $hash=9a7eb4d66d28dd9d46bb7966cfa770e9e848ab83$
 //
 
 #include "libcef_dll/ctocpp/server_handler_ctocpp.h"
@@ -19,6 +19,7 @@
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
+NO_SANITIZE("cfi-icall")
 void CefServerHandlerCToCpp::OnServerCreated(CefRefPtr<CefServer> server) {
   cef_server_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_server_created))
@@ -35,6 +36,7 @@ void CefServerHandlerCToCpp::OnServerCreated(CefRefPtr<CefServer> server) {
   _struct->on_server_created(_struct, CefServerCppToC::Wrap(server));
 }
 
+NO_SANITIZE("cfi-icall")
 void CefServerHandlerCToCpp::OnServerDestroyed(CefRefPtr<CefServer> server) {
   cef_server_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_server_destroyed))
@@ -51,6 +53,7 @@ void CefServerHandlerCToCpp::OnServerDestroyed(CefRefPtr<CefServer> server) {
   _struct->on_server_destroyed(_struct, CefServerCppToC::Wrap(server));
 }
 
+NO_SANITIZE("cfi-icall")
 void CefServerHandlerCToCpp::OnClientConnected(CefRefPtr<CefServer> server,
                                                int connection_id) {
   cef_server_handler_t* _struct = GetStruct();
@@ -69,6 +72,7 @@ void CefServerHandlerCToCpp::OnClientConnected(CefRefPtr<CefServer> server,
                                connection_id);
 }
 
+NO_SANITIZE("cfi-icall")
 void CefServerHandlerCToCpp::OnClientDisconnected(CefRefPtr<CefServer> server,
                                                   int connection_id) {
   cef_server_handler_t* _struct = GetStruct();
@@ -87,6 +91,7 @@ void CefServerHandlerCToCpp::OnClientDisconnected(CefRefPtr<CefServer> server,
                                   connection_id);
 }
 
+NO_SANITIZE("cfi-icall")
 void CefServerHandlerCToCpp::OnHttpRequest(CefRefPtr<CefServer> server,
                                            int connection_id,
                                            const CefString& client_address,
@@ -116,6 +121,7 @@ void CefServerHandlerCToCpp::OnHttpRequest(CefRefPtr<CefServer> server,
                            CefRequestCppToC::Wrap(request));
 }
 
+NO_SANITIZE("cfi-icall")
 void CefServerHandlerCToCpp::OnWebSocketRequest(
     CefRefPtr<CefServer> server,
     int connection_id,
@@ -152,6 +158,7 @@ void CefServerHandlerCToCpp::OnWebSocketRequest(
                                  CefCallbackCppToC::Wrap(callback));
 }
 
+NO_SANITIZE("cfi-icall")
 void CefServerHandlerCToCpp::OnWebSocketConnected(CefRefPtr<CefServer> server,
                                                   int connection_id) {
   cef_server_handler_t* _struct = GetStruct();
@@ -170,6 +177,7 @@ void CefServerHandlerCToCpp::OnWebSocketConnected(CefRefPtr<CefServer> server,
                                    connection_id);
 }
 
+NO_SANITIZE("cfi-icall")
 void CefServerHandlerCToCpp::OnWebSocketMessage(CefRefPtr<CefServer> server,
                                                 int connection_id,
                                                 const void* data,

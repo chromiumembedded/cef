@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=00480c2e2b238dff9b6c706b948c522fb98a0bd7$
+// $hash=fae7325b1843fa348b5c2721c8f1e108f0c36345$
 //
 
 #include "libcef_dll/ctocpp/extension_handler_ctocpp.h"
@@ -20,6 +20,7 @@
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
+NO_SANITIZE("cfi-icall")
 void CefExtensionHandlerCToCpp::OnExtensionLoadFailed(cef_errorcode_t result) {
   cef_extension_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_extension_load_failed))
@@ -31,6 +32,7 @@ void CefExtensionHandlerCToCpp::OnExtensionLoadFailed(cef_errorcode_t result) {
   _struct->on_extension_load_failed(_struct, result);
 }
 
+NO_SANITIZE("cfi-icall")
 void CefExtensionHandlerCToCpp::OnExtensionLoaded(
     CefRefPtr<CefExtension> extension) {
   cef_extension_handler_t* _struct = GetStruct();
@@ -48,6 +50,7 @@ void CefExtensionHandlerCToCpp::OnExtensionLoaded(
   _struct->on_extension_loaded(_struct, CefExtensionCppToC::Wrap(extension));
 }
 
+NO_SANITIZE("cfi-icall")
 void CefExtensionHandlerCToCpp::OnExtensionUnloaded(
     CefRefPtr<CefExtension> extension) {
   cef_extension_handler_t* _struct = GetStruct();
@@ -65,6 +68,7 @@ void CefExtensionHandlerCToCpp::OnExtensionUnloaded(
   _struct->on_extension_unloaded(_struct, CefExtensionCppToC::Wrap(extension));
 }
 
+NO_SANITIZE("cfi-icall")
 bool CefExtensionHandlerCToCpp::OnBeforeBackgroundBrowser(
     CefRefPtr<CefExtension> extension,
     const CefString& url,
@@ -109,6 +113,7 @@ bool CefExtensionHandlerCToCpp::OnBeforeBackgroundBrowser(
   return _retval ? true : false;
 }
 
+NO_SANITIZE("cfi-icall")
 bool CefExtensionHandlerCToCpp::OnBeforeBrowser(
     CefRefPtr<CefExtension> extension,
     CefRefPtr<CefBrowser> browser,
@@ -167,6 +172,7 @@ bool CefExtensionHandlerCToCpp::OnBeforeBrowser(
   return _retval ? true : false;
 }
 
+NO_SANITIZE("cfi-icall")
 CefRefPtr<CefBrowser> CefExtensionHandlerCToCpp::GetActiveBrowser(
     CefRefPtr<CefExtension> extension,
     CefRefPtr<CefBrowser> browser,
@@ -195,6 +201,7 @@ CefRefPtr<CefBrowser> CefExtensionHandlerCToCpp::GetActiveBrowser(
   return CefBrowserCppToC::Unwrap(_retval);
 }
 
+NO_SANITIZE("cfi-icall")
 bool CefExtensionHandlerCToCpp::CanAccessBrowser(
     CefRefPtr<CefExtension> extension,
     CefRefPtr<CefBrowser> browser,
@@ -229,6 +236,7 @@ bool CefExtensionHandlerCToCpp::CanAccessBrowser(
   return _retval ? true : false;
 }
 
+NO_SANITIZE("cfi-icall")
 bool CefExtensionHandlerCToCpp::GetExtensionResource(
     CefRefPtr<CefExtension> extension,
     CefRefPtr<CefBrowser> browser,

@@ -9,13 +9,14 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=e0c12ac404203e4564fb7acd45c6413af3a9b069$
+// $hash=59a7e35ffba274e172c06cd280ce2c5265a21645$
 //
 
 #include "libcef_dll/ctocpp/web_plugin_unstable_callback_ctocpp.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
+NO_SANITIZE("cfi-icall")
 void CefWebPluginUnstableCallbackCToCpp::IsUnstable(const CefString& path,
                                                     bool unstable) {
   cef_web_plugin_unstable_callback_t* _struct = GetStruct();

@@ -179,6 +179,7 @@ StructName* CefCToCppScoped<ClassName, BaseName, StructName>::UnwrapRaw(
 }
 
 template <class ClassName, class BaseName, class StructName>
+NO_SANITIZE("cfi-icall")
 void CefCToCppScoped<ClassName, BaseName, StructName>::operator delete(
     void* ptr) {
   WrapperStruct* wrapperStruct = GetWrapperStruct(static_cast<BaseName*>(ptr));

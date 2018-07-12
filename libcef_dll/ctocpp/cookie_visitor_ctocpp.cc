@@ -9,13 +9,14 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=1f4ad7654b750bc5e0e0144c4b6eb0ddd159bda2$
+// $hash=d44af05987980b1d598e67edbacfc28921b77b96$
 //
 
 #include "libcef_dll/ctocpp/cookie_visitor_ctocpp.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
+NO_SANITIZE("cfi-icall")
 bool CefCookieVisitorCToCpp::Visit(const CefCookie& cookie,
                                    int count,
                                    int total,

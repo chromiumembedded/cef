@@ -9,14 +9,14 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=ba1967ca93f75cdc2026f390dd25b0b4b6797f1d$
+// $hash=2a7190f94c188143f01d9ebb0790952dd72f2c2b$
 //
 
 #include "libcef_dll/ctocpp/v8stack_frame_ctocpp.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
-bool CefV8StackFrameCToCpp::IsValid() {
+NO_SANITIZE("cfi-icall") bool CefV8StackFrameCToCpp::IsValid() {
   cef_v8stack_frame_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, is_valid))
     return false;
@@ -30,7 +30,7 @@ bool CefV8StackFrameCToCpp::IsValid() {
   return _retval ? true : false;
 }
 
-CefString CefV8StackFrameCToCpp::GetScriptName() {
+NO_SANITIZE("cfi-icall") CefString CefV8StackFrameCToCpp::GetScriptName() {
   cef_v8stack_frame_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_script_name))
     return CefString();
@@ -46,6 +46,7 @@ CefString CefV8StackFrameCToCpp::GetScriptName() {
   return _retvalStr;
 }
 
+NO_SANITIZE("cfi-icall")
 CefString CefV8StackFrameCToCpp::GetScriptNameOrSourceURL() {
   cef_v8stack_frame_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_script_name_or_source_url))
@@ -63,7 +64,7 @@ CefString CefV8StackFrameCToCpp::GetScriptNameOrSourceURL() {
   return _retvalStr;
 }
 
-CefString CefV8StackFrameCToCpp::GetFunctionName() {
+NO_SANITIZE("cfi-icall") CefString CefV8StackFrameCToCpp::GetFunctionName() {
   cef_v8stack_frame_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_function_name))
     return CefString();
@@ -79,7 +80,7 @@ CefString CefV8StackFrameCToCpp::GetFunctionName() {
   return _retvalStr;
 }
 
-int CefV8StackFrameCToCpp::GetLineNumber() {
+NO_SANITIZE("cfi-icall") int CefV8StackFrameCToCpp::GetLineNumber() {
   cef_v8stack_frame_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_line_number))
     return 0;
@@ -93,7 +94,7 @@ int CefV8StackFrameCToCpp::GetLineNumber() {
   return _retval;
 }
 
-int CefV8StackFrameCToCpp::GetColumn() {
+NO_SANITIZE("cfi-icall") int CefV8StackFrameCToCpp::GetColumn() {
   cef_v8stack_frame_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_column))
     return 0;
@@ -107,7 +108,7 @@ int CefV8StackFrameCToCpp::GetColumn() {
   return _retval;
 }
 
-bool CefV8StackFrameCToCpp::IsEval() {
+NO_SANITIZE("cfi-icall") bool CefV8StackFrameCToCpp::IsEval() {
   cef_v8stack_frame_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, is_eval))
     return false;
@@ -121,7 +122,7 @@ bool CefV8StackFrameCToCpp::IsEval() {
   return _retval ? true : false;
 }
 
-bool CefV8StackFrameCToCpp::IsConstructor() {
+NO_SANITIZE("cfi-icall") bool CefV8StackFrameCToCpp::IsConstructor() {
   cef_v8stack_frame_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, is_constructor))
     return false;

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=c00ed48771c61f0701fd439ddc7c270f7d7601b8$
+// $hash=0ad6e3cf67460af7ca39708c08cc9bfcd9081195$
 //
 
 #include "libcef_dll/ctocpp/extension_ctocpp.h"
@@ -19,7 +19,7 @@
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
-CefString CefExtensionCToCpp::GetIdentifier() {
+NO_SANITIZE("cfi-icall") CefString CefExtensionCToCpp::GetIdentifier() {
   cef_extension_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_identifier))
     return CefString();
@@ -35,7 +35,7 @@ CefString CefExtensionCToCpp::GetIdentifier() {
   return _retvalStr;
 }
 
-CefString CefExtensionCToCpp::GetPath() {
+NO_SANITIZE("cfi-icall") CefString CefExtensionCToCpp::GetPath() {
   cef_extension_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_path))
     return CefString();
@@ -51,6 +51,7 @@ CefString CefExtensionCToCpp::GetPath() {
   return _retvalStr;
 }
 
+NO_SANITIZE("cfi-icall")
 CefRefPtr<CefDictionaryValue> CefExtensionCToCpp::GetManifest() {
   cef_extension_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_manifest))
@@ -65,6 +66,7 @@ CefRefPtr<CefDictionaryValue> CefExtensionCToCpp::GetManifest() {
   return CefDictionaryValueCToCpp::Wrap(_retval);
 }
 
+NO_SANITIZE("cfi-icall")
 bool CefExtensionCToCpp::IsSame(CefRefPtr<CefExtension> that) {
   cef_extension_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, is_same))
@@ -84,6 +86,7 @@ bool CefExtensionCToCpp::IsSame(CefRefPtr<CefExtension> that) {
   return _retval ? true : false;
 }
 
+NO_SANITIZE("cfi-icall")
 CefRefPtr<CefExtensionHandler> CefExtensionCToCpp::GetHandler() {
   cef_extension_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_handler))
@@ -98,6 +101,7 @@ CefRefPtr<CefExtensionHandler> CefExtensionCToCpp::GetHandler() {
   return CefExtensionHandlerCppToC::Unwrap(_retval);
 }
 
+NO_SANITIZE("cfi-icall")
 CefRefPtr<CefRequestContext> CefExtensionCToCpp::GetLoaderContext() {
   cef_extension_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_loader_context))
@@ -112,7 +116,7 @@ CefRefPtr<CefRequestContext> CefExtensionCToCpp::GetLoaderContext() {
   return CefRequestContextCToCpp::Wrap(_retval);
 }
 
-bool CefExtensionCToCpp::IsLoaded() {
+NO_SANITIZE("cfi-icall") bool CefExtensionCToCpp::IsLoaded() {
   cef_extension_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, is_loaded))
     return false;
@@ -126,7 +130,7 @@ bool CefExtensionCToCpp::IsLoaded() {
   return _retval ? true : false;
 }
 
-void CefExtensionCToCpp::Unload() {
+NO_SANITIZE("cfi-icall") void CefExtensionCToCpp::Unload() {
   cef_extension_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, unload))
     return;

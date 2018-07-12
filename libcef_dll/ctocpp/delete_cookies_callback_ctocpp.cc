@@ -9,13 +9,14 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=fc7f5f2e63879bbdbb140af7eaec163af0e2fade$
+// $hash=5d51641c43321a8b97de0b344bebc18f94ef8350$
 //
 
 #include "libcef_dll/ctocpp/delete_cookies_callback_ctocpp.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
+NO_SANITIZE("cfi-icall")
 void CefDeleteCookiesCallbackCToCpp::OnComplete(int num_deleted) {
   cef_delete_cookies_callback_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_complete))

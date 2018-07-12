@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=469b34dad7e1f51a520166a01806f0308eb6a701$
+// $hash=21b4db74a6b728862f47fbd8dd6fe4e68609346a$
 //
 
 #include "libcef_dll/ctocpp/sslstatus_ctocpp.h"
@@ -17,7 +17,7 @@
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
-bool CefSSLStatusCToCpp::IsSecureConnection() {
+NO_SANITIZE("cfi-icall") bool CefSSLStatusCToCpp::IsSecureConnection() {
   cef_sslstatus_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, is_secure_connection))
     return false;
@@ -31,7 +31,7 @@ bool CefSSLStatusCToCpp::IsSecureConnection() {
   return _retval ? true : false;
 }
 
-cef_cert_status_t CefSSLStatusCToCpp::GetCertStatus() {
+NO_SANITIZE("cfi-icall") cef_cert_status_t CefSSLStatusCToCpp::GetCertStatus() {
   cef_sslstatus_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_cert_status))
     return CERT_STATUS_NONE;
@@ -45,7 +45,7 @@ cef_cert_status_t CefSSLStatusCToCpp::GetCertStatus() {
   return _retval;
 }
 
-cef_ssl_version_t CefSSLStatusCToCpp::GetSSLVersion() {
+NO_SANITIZE("cfi-icall") cef_ssl_version_t CefSSLStatusCToCpp::GetSSLVersion() {
   cef_sslstatus_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_sslversion))
     return SSL_CONNECTION_VERSION_UNKNOWN;
@@ -59,6 +59,7 @@ cef_ssl_version_t CefSSLStatusCToCpp::GetSSLVersion() {
   return _retval;
 }
 
+NO_SANITIZE("cfi-icall")
 cef_ssl_content_status_t CefSSLStatusCToCpp::GetContentStatus() {
   cef_sslstatus_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_content_status))
@@ -73,6 +74,7 @@ cef_ssl_content_status_t CefSSLStatusCToCpp::GetContentStatus() {
   return _retval;
 }
 
+NO_SANITIZE("cfi-icall")
 CefRefPtr<CefX509Certificate> CefSSLStatusCToCpp::GetX509Certificate() {
   cef_sslstatus_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_x509certificate))

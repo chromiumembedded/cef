@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=b6d5ec54b086f0e166c14f993da12ef1b9d59b19$
+// $hash=24773b11214ee3ee5b5a1772f515c292bfaf5485$
 //
 
 #include "libcef_dll/ctocpp/context_menu_handler_ctocpp.h"
@@ -21,6 +21,7 @@
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
+NO_SANITIZE("cfi-icall")
 void CefContextMenuHandlerCToCpp::OnBeforeContextMenu(
     CefRefPtr<CefBrowser> browser,
     CefRefPtr<CefFrame> frame,
@@ -56,6 +57,7 @@ void CefContextMenuHandlerCToCpp::OnBeforeContextMenu(
                                   CefMenuModelCppToC::Wrap(model));
 }
 
+NO_SANITIZE("cfi-icall")
 bool CefContextMenuHandlerCToCpp::RunContextMenu(
     CefRefPtr<CefBrowser> browser,
     CefRefPtr<CefFrame> frame,
@@ -99,6 +101,7 @@ bool CefContextMenuHandlerCToCpp::RunContextMenu(
   return _retval ? true : false;
 }
 
+NO_SANITIZE("cfi-icall")
 bool CefContextMenuHandlerCToCpp::OnContextMenuCommand(
     CefRefPtr<CefBrowser> browser,
     CefRefPtr<CefFrame> frame,
@@ -133,6 +136,7 @@ bool CefContextMenuHandlerCToCpp::OnContextMenuCommand(
   return _retval ? true : false;
 }
 
+NO_SANITIZE("cfi-icall")
 void CefContextMenuHandlerCToCpp::OnContextMenuDismissed(
     CefRefPtr<CefBrowser> browser,
     CefRefPtr<CefFrame> frame) {

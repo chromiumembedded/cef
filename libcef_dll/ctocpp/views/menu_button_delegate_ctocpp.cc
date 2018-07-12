@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=dc5345471614b494b4a2634e6296b3609a595d06$
+// $hash=cfef0967ef54c02a681c9430ae38dbe879f4920e$
 //
 
 #include "libcef_dll/ctocpp/views/menu_button_delegate_ctocpp.h"
@@ -20,6 +20,7 @@
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
+NO_SANITIZE("cfi-icall")
 void CefMenuButtonDelegateCToCpp::OnMenuButtonPressed(
     CefRefPtr<CefMenuButton> menu_button,
     const CefPoint& screen_point,
@@ -45,6 +46,7 @@ void CefMenuButtonDelegateCToCpp::OnMenuButtonPressed(
       CefMenuButtonPressedLockCppToC::Wrap(button_pressed_lock));
 }
 
+NO_SANITIZE("cfi-icall")
 void CefMenuButtonDelegateCToCpp::OnButtonPressed(CefRefPtr<CefButton> button) {
   cef_button_delegate_t* _struct =
       reinterpret_cast<cef_button_delegate_t*>(GetStruct());
@@ -62,6 +64,7 @@ void CefMenuButtonDelegateCToCpp::OnButtonPressed(CefRefPtr<CefButton> button) {
   _struct->on_button_pressed(_struct, CefButtonCppToC::Wrap(button));
 }
 
+NO_SANITIZE("cfi-icall")
 void CefMenuButtonDelegateCToCpp::OnButtonStateChanged(
     CefRefPtr<CefButton> button) {
   cef_button_delegate_t* _struct =
@@ -80,6 +83,7 @@ void CefMenuButtonDelegateCToCpp::OnButtonStateChanged(
   _struct->on_button_state_changed(_struct, CefButtonCppToC::Wrap(button));
 }
 
+NO_SANITIZE("cfi-icall")
 CefSize CefMenuButtonDelegateCToCpp::GetPreferredSize(CefRefPtr<CefView> view) {
   cef_view_delegate_t* _struct =
       reinterpret_cast<cef_view_delegate_t*>(GetStruct());
@@ -101,6 +105,7 @@ CefSize CefMenuButtonDelegateCToCpp::GetPreferredSize(CefRefPtr<CefView> view) {
   return _retval;
 }
 
+NO_SANITIZE("cfi-icall")
 CefSize CefMenuButtonDelegateCToCpp::GetMinimumSize(CefRefPtr<CefView> view) {
   cef_view_delegate_t* _struct =
       reinterpret_cast<cef_view_delegate_t*>(GetStruct());
@@ -122,6 +127,7 @@ CefSize CefMenuButtonDelegateCToCpp::GetMinimumSize(CefRefPtr<CefView> view) {
   return _retval;
 }
 
+NO_SANITIZE("cfi-icall")
 CefSize CefMenuButtonDelegateCToCpp::GetMaximumSize(CefRefPtr<CefView> view) {
   cef_view_delegate_t* _struct =
       reinterpret_cast<cef_view_delegate_t*>(GetStruct());
@@ -143,6 +149,7 @@ CefSize CefMenuButtonDelegateCToCpp::GetMaximumSize(CefRefPtr<CefView> view) {
   return _retval;
 }
 
+NO_SANITIZE("cfi-icall")
 int CefMenuButtonDelegateCToCpp::GetHeightForWidth(CefRefPtr<CefView> view,
                                                    int width) {
   cef_view_delegate_t* _struct =
@@ -165,6 +172,7 @@ int CefMenuButtonDelegateCToCpp::GetHeightForWidth(CefRefPtr<CefView> view,
   return _retval;
 }
 
+NO_SANITIZE("cfi-icall")
 void CefMenuButtonDelegateCToCpp::OnParentViewChanged(
     CefRefPtr<CefView> view,
     bool added,
@@ -190,6 +198,7 @@ void CefMenuButtonDelegateCToCpp::OnParentViewChanged(
                                   CefViewCppToC::Wrap(parent));
 }
 
+NO_SANITIZE("cfi-icall")
 void CefMenuButtonDelegateCToCpp::OnChildViewChanged(CefRefPtr<CefView> view,
                                                      bool added,
                                                      CefRefPtr<CefView> child) {
@@ -214,6 +223,7 @@ void CefMenuButtonDelegateCToCpp::OnChildViewChanged(CefRefPtr<CefView> view,
                                  CefViewCppToC::Wrap(child));
 }
 
+NO_SANITIZE("cfi-icall")
 void CefMenuButtonDelegateCToCpp::OnFocus(CefRefPtr<CefView> view) {
   cef_view_delegate_t* _struct =
       reinterpret_cast<cef_view_delegate_t*>(GetStruct());
@@ -231,6 +241,7 @@ void CefMenuButtonDelegateCToCpp::OnFocus(CefRefPtr<CefView> view) {
   _struct->on_focus(_struct, CefViewCppToC::Wrap(view));
 }
 
+NO_SANITIZE("cfi-icall")
 void CefMenuButtonDelegateCToCpp::OnBlur(CefRefPtr<CefView> view) {
   cef_view_delegate_t* _struct =
       reinterpret_cast<cef_view_delegate_t*>(GetStruct());

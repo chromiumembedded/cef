@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=660a9d771f8b3f088653a8723ef94b8cc8284979$
+// $hash=4d25dcb9220d9e06f0b39cce7b938040c98dddd0$
 //
 
 #include "libcef_dll/ctocpp/task_runner_ctocpp.h"
@@ -17,6 +17,7 @@
 
 // STATIC METHODS - Body may be edited by hand.
 
+NO_SANITIZE("cfi-icall")
 CefRefPtr<CefTaskRunner> CefTaskRunner::GetForCurrentThread() {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -27,6 +28,7 @@ CefRefPtr<CefTaskRunner> CefTaskRunner::GetForCurrentThread() {
   return CefTaskRunnerCToCpp::Wrap(_retval);
 }
 
+NO_SANITIZE("cfi-icall")
 CefRefPtr<CefTaskRunner> CefTaskRunner::GetForThread(CefThreadId threadId) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -39,6 +41,7 @@ CefRefPtr<CefTaskRunner> CefTaskRunner::GetForThread(CefThreadId threadId) {
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
+NO_SANITIZE("cfi-icall")
 bool CefTaskRunnerCToCpp::IsSame(CefRefPtr<CefTaskRunner> that) {
   cef_task_runner_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, is_same))
@@ -58,7 +61,7 @@ bool CefTaskRunnerCToCpp::IsSame(CefRefPtr<CefTaskRunner> that) {
   return _retval ? true : false;
 }
 
-bool CefTaskRunnerCToCpp::BelongsToCurrentThread() {
+NO_SANITIZE("cfi-icall") bool CefTaskRunnerCToCpp::BelongsToCurrentThread() {
   cef_task_runner_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, belongs_to_current_thread))
     return false;
@@ -72,6 +75,7 @@ bool CefTaskRunnerCToCpp::BelongsToCurrentThread() {
   return _retval ? true : false;
 }
 
+NO_SANITIZE("cfi-icall")
 bool CefTaskRunnerCToCpp::BelongsToThread(CefThreadId threadId) {
   cef_task_runner_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, belongs_to_thread))
@@ -86,6 +90,7 @@ bool CefTaskRunnerCToCpp::BelongsToThread(CefThreadId threadId) {
   return _retval ? true : false;
 }
 
+NO_SANITIZE("cfi-icall")
 bool CefTaskRunnerCToCpp::PostTask(CefRefPtr<CefTask> task) {
   cef_task_runner_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, post_task))
@@ -105,6 +110,7 @@ bool CefTaskRunnerCToCpp::PostTask(CefRefPtr<CefTask> task) {
   return _retval ? true : false;
 }
 
+NO_SANITIZE("cfi-icall")
 bool CefTaskRunnerCToCpp::PostDelayedTask(CefRefPtr<CefTask> task,
                                           int64 delay_ms) {
   cef_task_runner_t* _struct = GetStruct();

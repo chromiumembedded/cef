@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=d1cce98db2a6e216b334dd31907980e9909e1d81$
+// $hash=23e73a858b35e248d4414f8ecd9138f4acd28fa5$
 //
 
 #include "libcef_dll/ctocpp/web_plugin_info_visitor_ctocpp.h"
@@ -17,6 +17,7 @@
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
+NO_SANITIZE("cfi-icall")
 bool CefWebPluginInfoVisitorCToCpp::Visit(CefRefPtr<CefWebPluginInfo> info,
                                           int count,
                                           int total) {

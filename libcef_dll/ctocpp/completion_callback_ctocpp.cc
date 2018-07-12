@@ -9,14 +9,14 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=84459d8aef759b8f189245ae3f8f268d569adc2b$
+// $hash=82c468ec778d4cdad4f18ce4f83a8a3e454afbd5$
 //
 
 #include "libcef_dll/ctocpp/completion_callback_ctocpp.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
-void CefCompletionCallbackCToCpp::OnComplete() {
+NO_SANITIZE("cfi-icall") void CefCompletionCallbackCToCpp::OnComplete() {
   cef_completion_callback_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_complete))
     return;

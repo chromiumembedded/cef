@@ -9,13 +9,14 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=0464376fa24627e57280c81408ff70c3c2768021$
+// $hash=9447c20367d0fc32b690d08cfc152531ace25af8$
 //
 
 #include "libcef_dll/ctocpp/auth_callback_ctocpp.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
+NO_SANITIZE("cfi-icall")
 void CefAuthCallbackCToCpp::Continue(const CefString& username,
                                      const CefString& password) {
   cef_auth_callback_t* _struct = GetStruct();
@@ -30,7 +31,7 @@ void CefAuthCallbackCToCpp::Continue(const CefString& username,
   _struct->cont(_struct, username.GetStruct(), password.GetStruct());
 }
 
-void CefAuthCallbackCToCpp::Cancel() {
+NO_SANITIZE("cfi-icall") void CefAuthCallbackCToCpp::Cancel() {
   cef_auth_callback_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, cancel))
     return;

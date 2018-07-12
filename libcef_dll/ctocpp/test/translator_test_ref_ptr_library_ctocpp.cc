@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=9d241f19c3f59afa389c0121658345efbbecaaf8$
+// $hash=3180c3ee19a92ad7e6b22e2671cdbe6bdab88c77$
 //
 
 #include "libcef_dll/ctocpp/test/translator_test_ref_ptr_library_ctocpp.h"
@@ -18,6 +18,7 @@
 
 // STATIC METHODS - Body may be edited by hand.
 
+NO_SANITIZE("cfi-icall")
 CefRefPtr<CefTranslatorTestRefPtrLibrary>
 CefTranslatorTestRefPtrLibrary::Create(int value) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -32,7 +33,7 @@ CefTranslatorTestRefPtrLibrary::Create(int value) {
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
-int CefTranslatorTestRefPtrLibraryCToCpp::GetValue() {
+NO_SANITIZE("cfi-icall") int CefTranslatorTestRefPtrLibraryCToCpp::GetValue() {
   cef_translator_test_ref_ptr_library_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_value))
     return 0;
@@ -46,6 +47,7 @@ int CefTranslatorTestRefPtrLibraryCToCpp::GetValue() {
   return _retval;
 }
 
+NO_SANITIZE("cfi-icall")
 void CefTranslatorTestRefPtrLibraryCToCpp::SetValue(int value) {
   cef_translator_test_ref_ptr_library_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, set_value))

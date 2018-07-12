@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=b5571470d0f53b671bfc5c223e9e2239fb590801$
+// $hash=b26c4087b6dd78b137224ecbb7a17d01c8135ff0$
 //
 
 #include "libcef_dll/ctocpp/print_dialog_callback_ctocpp.h"
@@ -17,6 +17,7 @@
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
+NO_SANITIZE("cfi-icall")
 void CefPrintDialogCallbackCToCpp::Continue(
     CefRefPtr<CefPrintSettings> settings) {
   cef_print_dialog_callback_t* _struct = GetStruct();
@@ -34,7 +35,7 @@ void CefPrintDialogCallbackCToCpp::Continue(
   _struct->cont(_struct, CefPrintSettingsCToCpp::Unwrap(settings));
 }
 
-void CefPrintDialogCallbackCToCpp::Cancel() {
+NO_SANITIZE("cfi-icall") void CefPrintDialogCallbackCToCpp::Cancel() {
   cef_print_dialog_callback_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, cancel))
     return;

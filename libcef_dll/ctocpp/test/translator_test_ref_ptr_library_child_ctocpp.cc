@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=65466745a595046ec6cf6963ecc20d7296ec8c0b$
+// $hash=ceb923a42bf790b29309bc5d558621e1d51f0678$
 //
 
 #include "libcef_dll/ctocpp/test/translator_test_ref_ptr_library_child_ctocpp.h"
@@ -17,6 +17,7 @@
 
 // STATIC METHODS - Body may be edited by hand.
 
+NO_SANITIZE("cfi-icall")
 CefRefPtr<CefTranslatorTestRefPtrLibraryChild>
 CefTranslatorTestRefPtrLibraryChild::Create(int value, int other_value) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -31,6 +32,7 @@ CefTranslatorTestRefPtrLibraryChild::Create(int value, int other_value) {
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
+NO_SANITIZE("cfi-icall")
 int CefTranslatorTestRefPtrLibraryChildCToCpp::GetOtherValue() {
   cef_translator_test_ref_ptr_library_child_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_other_value))
@@ -45,6 +47,7 @@ int CefTranslatorTestRefPtrLibraryChildCToCpp::GetOtherValue() {
   return _retval;
 }
 
+NO_SANITIZE("cfi-icall")
 void CefTranslatorTestRefPtrLibraryChildCToCpp::SetOtherValue(int value) {
   cef_translator_test_ref_ptr_library_child_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, set_other_value))
@@ -56,6 +59,7 @@ void CefTranslatorTestRefPtrLibraryChildCToCpp::SetOtherValue(int value) {
   _struct->set_other_value(_struct, value);
 }
 
+NO_SANITIZE("cfi-icall")
 int CefTranslatorTestRefPtrLibraryChildCToCpp::GetValue() {
   cef_translator_test_ref_ptr_library_t* _struct =
       reinterpret_cast<cef_translator_test_ref_ptr_library_t*>(GetStruct());
@@ -71,6 +75,7 @@ int CefTranslatorTestRefPtrLibraryChildCToCpp::GetValue() {
   return _retval;
 }
 
+NO_SANITIZE("cfi-icall")
 void CefTranslatorTestRefPtrLibraryChildCToCpp::SetValue(int value) {
   cef_translator_test_ref_ptr_library_t* _struct =
       reinterpret_cast<cef_translator_test_ref_ptr_library_t*>(GetStruct());

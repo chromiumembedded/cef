@@ -9,14 +9,14 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=835fb863ac3e5d72c5b320d0792c2537fe21bb74$
+// $hash=9049987ae9812c63a3165ee12c601bc6fec282c4$
 //
 
 #include "libcef_dll/ctocpp/download_item_callback_ctocpp.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
-void CefDownloadItemCallbackCToCpp::Cancel() {
+NO_SANITIZE("cfi-icall") void CefDownloadItemCallbackCToCpp::Cancel() {
   cef_download_item_callback_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, cancel))
     return;
@@ -27,7 +27,7 @@ void CefDownloadItemCallbackCToCpp::Cancel() {
   _struct->cancel(_struct);
 }
 
-void CefDownloadItemCallbackCToCpp::Pause() {
+NO_SANITIZE("cfi-icall") void CefDownloadItemCallbackCToCpp::Pause() {
   cef_download_item_callback_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, pause))
     return;
@@ -38,7 +38,7 @@ void CefDownloadItemCallbackCToCpp::Pause() {
   _struct->pause(_struct);
 }
 
-void CefDownloadItemCallbackCToCpp::Resume() {
+NO_SANITIZE("cfi-icall") void CefDownloadItemCallbackCToCpp::Resume() {
   cef_download_item_callback_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, resume))
     return;

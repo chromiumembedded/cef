@@ -9,14 +9,14 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=6bd570227988a1f36469ca22a64444dd1b0ee50f$
+// $hash=22669db306a272484b25efdc390bcf4d21c4b92a$
 //
 
 #include "libcef_dll/ctocpp/print_job_callback_ctocpp.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
-void CefPrintJobCallbackCToCpp::Continue() {
+NO_SANITIZE("cfi-icall") void CefPrintJobCallbackCToCpp::Continue() {
   cef_print_job_callback_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, cont))
     return;

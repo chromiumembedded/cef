@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=b1f136b592692f850b442c8f8d3479e784bfaab1$
+// $hash=0ba4734078309a39cd518df906c2fc7d361932e7$
 //
 
 #include "libcef_dll/ctocpp/domvisitor_ctocpp.h"
@@ -17,6 +17,7 @@
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
+NO_SANITIZE("cfi-icall")
 void CefDOMVisitorCToCpp::Visit(CefRefPtr<CefDOMDocument> document) {
   cef_domvisitor_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, visit))

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=b6fa77d00fb05e4523c36a9fdf87caa60337feba$
+// $hash=498d2e99a8b8047387c9a131a7e38c6659ab7cd5$
 //
 
 #include "libcef_dll/ctocpp/scheme_handler_factory_ctocpp.h"
@@ -20,6 +20,7 @@
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
+NO_SANITIZE("cfi-icall")
 CefRefPtr<CefResourceHandler> CefSchemeHandlerFactoryCToCpp::Create(
     CefRefPtr<CefBrowser> browser,
     CefRefPtr<CefFrame> frame,

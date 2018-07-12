@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=db8820466594dddb306863d0b5bc0a915949ac52$
+// $hash=8ff36f4b6be6a1f2c15fc1ad7a0f7eea6af84844$
 //
 
 #include "libcef_dll/ctocpp/life_span_handler_ctocpp.h"
@@ -19,6 +19,7 @@
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
+NO_SANITIZE("cfi-icall")
 bool CefLifeSpanHandlerCToCpp::OnBeforePopup(
     CefRefPtr<CefBrowser> browser,
     CefRefPtr<CefFrame> frame,
@@ -83,6 +84,7 @@ bool CefLifeSpanHandlerCToCpp::OnBeforePopup(
   return _retval ? true : false;
 }
 
+NO_SANITIZE("cfi-icall")
 void CefLifeSpanHandlerCToCpp::OnAfterCreated(CefRefPtr<CefBrowser> browser) {
   cef_life_span_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_after_created))
@@ -99,6 +101,7 @@ void CefLifeSpanHandlerCToCpp::OnAfterCreated(CefRefPtr<CefBrowser> browser) {
   _struct->on_after_created(_struct, CefBrowserCppToC::Wrap(browser));
 }
 
+NO_SANITIZE("cfi-icall")
 bool CefLifeSpanHandlerCToCpp::DoClose(CefRefPtr<CefBrowser> browser) {
   cef_life_span_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, do_close))
@@ -118,6 +121,7 @@ bool CefLifeSpanHandlerCToCpp::DoClose(CefRefPtr<CefBrowser> browser) {
   return _retval ? true : false;
 }
 
+NO_SANITIZE("cfi-icall")
 void CefLifeSpanHandlerCToCpp::OnBeforeClose(CefRefPtr<CefBrowser> browser) {
   cef_life_span_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_before_close))

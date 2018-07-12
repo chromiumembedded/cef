@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=bc492627fb2d11c0ca259abb29c5333a3c6282e0$
+// $hash=81241c8f03a410b848372ec11acc8ceccc96f62e$
 //
 
 #include "libcef_dll/ctocpp/resource_handler_ctocpp.h"
@@ -19,6 +19,7 @@
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
+NO_SANITIZE("cfi-icall")
 bool CefResourceHandlerCToCpp::ProcessRequest(CefRefPtr<CefRequest> request,
                                               CefRefPtr<CefCallback> callback) {
   cef_resource_handler_t* _struct = GetStruct();
@@ -45,6 +46,7 @@ bool CefResourceHandlerCToCpp::ProcessRequest(CefRefPtr<CefRequest> request,
   return _retval ? true : false;
 }
 
+NO_SANITIZE("cfi-icall")
 void CefResourceHandlerCToCpp::GetResponseHeaders(
     CefRefPtr<CefResponse> response,
     int64& response_length,
@@ -66,6 +68,7 @@ void CefResourceHandlerCToCpp::GetResponseHeaders(
                                 redirectUrl.GetWritableStruct());
 }
 
+NO_SANITIZE("cfi-icall")
 bool CefResourceHandlerCToCpp::ReadResponse(void* data_out,
                                             int bytes_to_read,
                                             int& bytes_read,
@@ -94,6 +97,7 @@ bool CefResourceHandlerCToCpp::ReadResponse(void* data_out,
   return _retval ? true : false;
 }
 
+NO_SANITIZE("cfi-icall")
 bool CefResourceHandlerCToCpp::CanGetCookie(const CefCookie& cookie) {
   cef_resource_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, can_get_cookie))
@@ -108,6 +112,7 @@ bool CefResourceHandlerCToCpp::CanGetCookie(const CefCookie& cookie) {
   return _retval ? true : false;
 }
 
+NO_SANITIZE("cfi-icall")
 bool CefResourceHandlerCToCpp::CanSetCookie(const CefCookie& cookie) {
   cef_resource_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, can_set_cookie))
@@ -122,7 +127,7 @@ bool CefResourceHandlerCToCpp::CanSetCookie(const CefCookie& cookie) {
   return _retval ? true : false;
 }
 
-void CefResourceHandlerCToCpp::Cancel() {
+NO_SANITIZE("cfi-icall") void CefResourceHandlerCToCpp::Cancel() {
   cef_resource_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, cancel))
     return;

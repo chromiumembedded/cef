@@ -9,13 +9,14 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=6d3fb5d35f0c61ed0a55ba3d54b747324e76490d$
+// $hash=515dd9767205a2f2a0beb83ae0c9c1e47ed50518$
 //
 
 #include "libcef_dll/ctocpp/test/translator_test_ref_ptr_client_child_ctocpp.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
+NO_SANITIZE("cfi-icall")
 int CefTranslatorTestRefPtrClientChildCToCpp::GetOtherValue() {
   cef_translator_test_ref_ptr_client_child_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_other_value))
@@ -30,6 +31,7 @@ int CefTranslatorTestRefPtrClientChildCToCpp::GetOtherValue() {
   return _retval;
 }
 
+NO_SANITIZE("cfi-icall")
 int CefTranslatorTestRefPtrClientChildCToCpp::GetValue() {
   cef_translator_test_ref_ptr_client_t* _struct =
       reinterpret_cast<cef_translator_test_ref_ptr_client_t*>(GetStruct());

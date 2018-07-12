@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=f89532af5517a1942762081894a386a8b23254eb$
+// $hash=907293394dc271e1b7bc4d17e7aacb490425a3de$
 //
 
 #include "libcef_dll/ctocpp/thread_ctocpp.h"
@@ -17,6 +17,7 @@
 
 // STATIC METHODS - Body may be edited by hand.
 
+NO_SANITIZE("cfi-icall")
 CefRefPtr<CefThread> CefThread::CreateThread(
     const CefString& display_name,
     cef_thread_priority_t priority,
@@ -38,6 +39,7 @@ CefRefPtr<CefThread> CefThread::CreateThread(
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
+NO_SANITIZE("cfi-icall")
 CefRefPtr<CefTaskRunner> CefThreadCToCpp::GetTaskRunner() {
   cef_thread_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_task_runner))
@@ -52,6 +54,7 @@ CefRefPtr<CefTaskRunner> CefThreadCToCpp::GetTaskRunner() {
   return CefTaskRunnerCToCpp::Wrap(_retval);
 }
 
+NO_SANITIZE("cfi-icall")
 cef_platform_thread_id_t CefThreadCToCpp::GetPlatformThreadId() {
   cef_thread_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_platform_thread_id))
@@ -66,7 +69,7 @@ cef_platform_thread_id_t CefThreadCToCpp::GetPlatformThreadId() {
   return _retval;
 }
 
-void CefThreadCToCpp::Stop() {
+NO_SANITIZE("cfi-icall") void CefThreadCToCpp::Stop() {
   cef_thread_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, stop))
     return;
@@ -77,7 +80,7 @@ void CefThreadCToCpp::Stop() {
   _struct->stop(_struct);
 }
 
-bool CefThreadCToCpp::IsRunning() {
+NO_SANITIZE("cfi-icall") bool CefThreadCToCpp::IsRunning() {
   cef_thread_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, is_running))
     return false;

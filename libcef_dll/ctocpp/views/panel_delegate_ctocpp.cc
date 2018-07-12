@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=4ad1a058062c04d60a2ae1a42341704a9f78ef99$
+// $hash=d2ccdc717bb73c0b82fd1659ebde0e114558bab9$
 //
 
 #include "libcef_dll/ctocpp/views/panel_delegate_ctocpp.h"
@@ -18,6 +18,7 @@
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
+NO_SANITIZE("cfi-icall")
 CefSize CefPanelDelegateCToCpp::GetPreferredSize(CefRefPtr<CefView> view) {
   cef_view_delegate_t* _struct =
       reinterpret_cast<cef_view_delegate_t*>(GetStruct());
@@ -39,6 +40,7 @@ CefSize CefPanelDelegateCToCpp::GetPreferredSize(CefRefPtr<CefView> view) {
   return _retval;
 }
 
+NO_SANITIZE("cfi-icall")
 CefSize CefPanelDelegateCToCpp::GetMinimumSize(CefRefPtr<CefView> view) {
   cef_view_delegate_t* _struct =
       reinterpret_cast<cef_view_delegate_t*>(GetStruct());
@@ -60,6 +62,7 @@ CefSize CefPanelDelegateCToCpp::GetMinimumSize(CefRefPtr<CefView> view) {
   return _retval;
 }
 
+NO_SANITIZE("cfi-icall")
 CefSize CefPanelDelegateCToCpp::GetMaximumSize(CefRefPtr<CefView> view) {
   cef_view_delegate_t* _struct =
       reinterpret_cast<cef_view_delegate_t*>(GetStruct());
@@ -81,6 +84,7 @@ CefSize CefPanelDelegateCToCpp::GetMaximumSize(CefRefPtr<CefView> view) {
   return _retval;
 }
 
+NO_SANITIZE("cfi-icall")
 int CefPanelDelegateCToCpp::GetHeightForWidth(CefRefPtr<CefView> view,
                                               int width) {
   cef_view_delegate_t* _struct =
@@ -103,6 +107,7 @@ int CefPanelDelegateCToCpp::GetHeightForWidth(CefRefPtr<CefView> view,
   return _retval;
 }
 
+NO_SANITIZE("cfi-icall")
 void CefPanelDelegateCToCpp::OnParentViewChanged(CefRefPtr<CefView> view,
                                                  bool added,
                                                  CefRefPtr<CefView> parent) {
@@ -127,6 +132,7 @@ void CefPanelDelegateCToCpp::OnParentViewChanged(CefRefPtr<CefView> view,
                                   CefViewCppToC::Wrap(parent));
 }
 
+NO_SANITIZE("cfi-icall")
 void CefPanelDelegateCToCpp::OnChildViewChanged(CefRefPtr<CefView> view,
                                                 bool added,
                                                 CefRefPtr<CefView> child) {
@@ -151,6 +157,7 @@ void CefPanelDelegateCToCpp::OnChildViewChanged(CefRefPtr<CefView> view,
                                  CefViewCppToC::Wrap(child));
 }
 
+NO_SANITIZE("cfi-icall")
 void CefPanelDelegateCToCpp::OnFocus(CefRefPtr<CefView> view) {
   cef_view_delegate_t* _struct =
       reinterpret_cast<cef_view_delegate_t*>(GetStruct());
@@ -168,6 +175,7 @@ void CefPanelDelegateCToCpp::OnFocus(CefRefPtr<CefView> view) {
   _struct->on_focus(_struct, CefViewCppToC::Wrap(view));
 }
 
+NO_SANITIZE("cfi-icall")
 void CefPanelDelegateCToCpp::OnBlur(CefRefPtr<CefView> view) {
   cef_view_delegate_t* _struct =
       reinterpret_cast<cef_view_delegate_t*>(GetStruct());

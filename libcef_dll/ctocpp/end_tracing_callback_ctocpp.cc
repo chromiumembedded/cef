@@ -9,13 +9,14 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=757f5102b8b65a7965d908f2868c41e7bfcc390e$
+// $hash=9a2e23de88740e3d325745c2c1965c8fae6a527b$
 //
 
 #include "libcef_dll/ctocpp/end_tracing_callback_ctocpp.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
+NO_SANITIZE("cfi-icall")
 void CefEndTracingCallbackCToCpp::OnEndTracingComplete(
     const CefString& tracing_file) {
   cef_end_tracing_callback_t* _struct = GetStruct();

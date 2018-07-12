@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=9d8fd1af43414b8007346ade406aa443b8acd4f5$
+// $hash=7e003428cdefe395562950062a60ab06b7b21c49$
 //
 
 #include "include/views/cef_browser_view.h"
@@ -25,6 +25,7 @@
 
 // STATIC STUB METHODS - Do not edit by hand.
 
+NO_SANITIZE("cfi-icall")
 CefRefPtr<CefBrowserView> CefBrowserView::CreateBrowserView(
     CefRefPtr<CefClient> client,
     const CefString& url,
@@ -35,17 +36,19 @@ CefRefPtr<CefBrowserView> CefBrowserView::CreateBrowserView(
   return NULL;
 }
 
+NO_SANITIZE("cfi-icall")
 CefRefPtr<CefBrowserView> CefBrowserView::GetForBrowser(
     CefRefPtr<CefBrowser> browser) {
   NOTIMPLEMENTED();
   return NULL;
 }
 
-CefRefPtr<CefDisplay> CefDisplay::GetPrimaryDisplay() {
+NO_SANITIZE("cfi-icall") CefRefPtr<CefDisplay> CefDisplay::GetPrimaryDisplay() {
   NOTIMPLEMENTED();
   return NULL;
 }
 
+NO_SANITIZE("cfi-icall")
 CefRefPtr<CefDisplay> CefDisplay::GetDisplayNearestPoint(
     const CefPoint& point,
     bool input_pixel_coords) {
@@ -53,6 +56,7 @@ CefRefPtr<CefDisplay> CefDisplay::GetDisplayNearestPoint(
   return NULL;
 }
 
+NO_SANITIZE("cfi-icall")
 CefRefPtr<CefDisplay> CefDisplay::GetDisplayMatchingBounds(
     const CefRect& bounds,
     bool input_pixel_coords) {
@@ -60,15 +64,17 @@ CefRefPtr<CefDisplay> CefDisplay::GetDisplayMatchingBounds(
   return NULL;
 }
 
-size_t CefDisplay::GetDisplayCount() {
+NO_SANITIZE("cfi-icall") size_t CefDisplay::GetDisplayCount() {
   NOTIMPLEMENTED();
   return 0;
 }
 
+NO_SANITIZE("cfi-icall")
 void CefDisplay::GetAllDisplays(std::vector<CefRefPtr<CefDisplay>>& displays) {
   NOTIMPLEMENTED();
 }
 
+NO_SANITIZE("cfi-icall")
 CefRefPtr<CefLabelButton> CefLabelButton::CreateLabelButton(
     CefRefPtr<CefButtonDelegate> delegate,
     const CefString& text,
@@ -77,6 +83,7 @@ CefRefPtr<CefLabelButton> CefLabelButton::CreateLabelButton(
   return NULL;
 }
 
+NO_SANITIZE("cfi-icall")
 CefRefPtr<CefMenuButton> CefMenuButton::CreateMenuButton(
     CefRefPtr<CefMenuButtonDelegate> delegate,
     const CefString& text,
@@ -86,24 +93,28 @@ CefRefPtr<CefMenuButton> CefMenuButton::CreateMenuButton(
   return NULL;
 }
 
+NO_SANITIZE("cfi-icall")
 CefRefPtr<CefPanel> CefPanel::CreatePanel(
     CefRefPtr<CefPanelDelegate> delegate) {
   NOTIMPLEMENTED();
   return NULL;
 }
 
+NO_SANITIZE("cfi-icall")
 CefRefPtr<CefScrollView> CefScrollView::CreateScrollView(
     CefRefPtr<CefViewDelegate> delegate) {
   NOTIMPLEMENTED();
   return NULL;
 }
 
+NO_SANITIZE("cfi-icall")
 CefRefPtr<CefTextfield> CefTextfield::CreateTextfield(
     CefRefPtr<CefTextfieldDelegate> delegate) {
   NOTIMPLEMENTED();
   return NULL;
 }
 
+NO_SANITIZE("cfi-icall")
 CefRefPtr<CefWindow> CefWindow::CreateTopLevelWindow(
     CefRefPtr<CefWindowDelegate> delegate) {
   NOTIMPLEMENTED();

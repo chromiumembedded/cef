@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=0b19a4b72e549ccdd8c4e8bba5a4956c7170d668$
+// $hash=20a8f848a32320063e366b0ddc589d91cee0bfa5$
 //
 
 #include "libcef_dll/ctocpp/views/browser_view_delegate_ctocpp.h"
@@ -20,6 +20,7 @@
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
+NO_SANITIZE("cfi-icall")
 void CefBrowserViewDelegateCToCpp::OnBrowserCreated(
     CefRefPtr<CefBrowserView> browser_view,
     CefRefPtr<CefBrowser> browser) {
@@ -43,6 +44,7 @@ void CefBrowserViewDelegateCToCpp::OnBrowserCreated(
                               CefBrowserCppToC::Wrap(browser));
 }
 
+NO_SANITIZE("cfi-icall")
 void CefBrowserViewDelegateCToCpp::OnBrowserDestroyed(
     CefRefPtr<CefBrowserView> browser_view,
     CefRefPtr<CefBrowser> browser) {
@@ -67,6 +69,7 @@ void CefBrowserViewDelegateCToCpp::OnBrowserDestroyed(
                                 CefBrowserCppToC::Wrap(browser));
 }
 
+NO_SANITIZE("cfi-icall")
 CefRefPtr<CefBrowserViewDelegate>
 CefBrowserViewDelegateCToCpp::GetDelegateForPopupBrowserView(
     CefRefPtr<CefBrowserView> browser_view,
@@ -98,6 +101,7 @@ CefBrowserViewDelegateCToCpp::GetDelegateForPopupBrowserView(
   return CefBrowserViewDelegateCToCpp::Wrap(_retval);
 }
 
+NO_SANITIZE("cfi-icall")
 bool CefBrowserViewDelegateCToCpp::OnPopupBrowserViewCreated(
     CefRefPtr<CefBrowserView> browser_view,
     CefRefPtr<CefBrowserView> popup_browser_view,
@@ -126,6 +130,7 @@ bool CefBrowserViewDelegateCToCpp::OnPopupBrowserViewCreated(
   return _retval ? true : false;
 }
 
+NO_SANITIZE("cfi-icall")
 CefSize CefBrowserViewDelegateCToCpp::GetPreferredSize(
     CefRefPtr<CefView> view) {
   cef_view_delegate_t* _struct =
@@ -148,6 +153,7 @@ CefSize CefBrowserViewDelegateCToCpp::GetPreferredSize(
   return _retval;
 }
 
+NO_SANITIZE("cfi-icall")
 CefSize CefBrowserViewDelegateCToCpp::GetMinimumSize(CefRefPtr<CefView> view) {
   cef_view_delegate_t* _struct =
       reinterpret_cast<cef_view_delegate_t*>(GetStruct());
@@ -169,6 +175,7 @@ CefSize CefBrowserViewDelegateCToCpp::GetMinimumSize(CefRefPtr<CefView> view) {
   return _retval;
 }
 
+NO_SANITIZE("cfi-icall")
 CefSize CefBrowserViewDelegateCToCpp::GetMaximumSize(CefRefPtr<CefView> view) {
   cef_view_delegate_t* _struct =
       reinterpret_cast<cef_view_delegate_t*>(GetStruct());
@@ -190,6 +197,7 @@ CefSize CefBrowserViewDelegateCToCpp::GetMaximumSize(CefRefPtr<CefView> view) {
   return _retval;
 }
 
+NO_SANITIZE("cfi-icall")
 int CefBrowserViewDelegateCToCpp::GetHeightForWidth(CefRefPtr<CefView> view,
                                                     int width) {
   cef_view_delegate_t* _struct =
@@ -212,6 +220,7 @@ int CefBrowserViewDelegateCToCpp::GetHeightForWidth(CefRefPtr<CefView> view,
   return _retval;
 }
 
+NO_SANITIZE("cfi-icall")
 void CefBrowserViewDelegateCToCpp::OnParentViewChanged(
     CefRefPtr<CefView> view,
     bool added,
@@ -237,6 +246,7 @@ void CefBrowserViewDelegateCToCpp::OnParentViewChanged(
                                   CefViewCppToC::Wrap(parent));
 }
 
+NO_SANITIZE("cfi-icall")
 void CefBrowserViewDelegateCToCpp::OnChildViewChanged(
     CefRefPtr<CefView> view,
     bool added,
@@ -262,6 +272,7 @@ void CefBrowserViewDelegateCToCpp::OnChildViewChanged(
                                  CefViewCppToC::Wrap(child));
 }
 
+NO_SANITIZE("cfi-icall")
 void CefBrowserViewDelegateCToCpp::OnFocus(CefRefPtr<CefView> view) {
   cef_view_delegate_t* _struct =
       reinterpret_cast<cef_view_delegate_t*>(GetStruct());
@@ -279,6 +290,7 @@ void CefBrowserViewDelegateCToCpp::OnFocus(CefRefPtr<CefView> view) {
   _struct->on_focus(_struct, CefViewCppToC::Wrap(view));
 }
 
+NO_SANITIZE("cfi-icall")
 void CefBrowserViewDelegateCToCpp::OnBlur(CefRefPtr<CefView> view) {
   cef_view_delegate_t* _struct =
       reinterpret_cast<cef_view_delegate_t*>(GetStruct());

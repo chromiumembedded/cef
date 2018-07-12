@@ -162,6 +162,16 @@
 #define ALLOW_UNUSED_LOCAL(x) false ? (void)x : (void)0
 #endif
 
+// Sanitizers annotations.
+#if defined(__has_attribute)
+#if __has_attribute(no_sanitize)
+#define NO_SANITIZE(what) __attribute__((no_sanitize(what)))
+#endif
+#endif
+#if !defined(NO_SANITIZE)
+#define NO_SANITIZE(what)
+#endif
+
 #endif  // !USING_CHROMIUM_INCLUDES
 
 // Annotate a virtual method indicating it must be overriding a virtual method

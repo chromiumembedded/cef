@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=4576edef0bba52eaa9e18b70301a8ca52b985bb5$
+// $hash=3bc5c29dff8ed5a55cc1fac53f054ef94b7bceb6$
 //
 
 #include "libcef_dll/ctocpp/stream_writer_ctocpp.h"
@@ -17,6 +17,7 @@
 
 // STATIC METHODS - Body may be edited by hand.
 
+NO_SANITIZE("cfi-icall")
 CefRefPtr<CefStreamWriter> CefStreamWriter::CreateForFile(
     const CefString& fileName) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -34,6 +35,7 @@ CefRefPtr<CefStreamWriter> CefStreamWriter::CreateForFile(
   return CefStreamWriterCToCpp::Wrap(_retval);
 }
 
+NO_SANITIZE("cfi-icall")
 CefRefPtr<CefStreamWriter> CefStreamWriter::CreateForHandler(
     CefRefPtr<CefWriteHandler> handler) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -53,6 +55,7 @@ CefRefPtr<CefStreamWriter> CefStreamWriter::CreateForHandler(
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
+NO_SANITIZE("cfi-icall")
 size_t CefStreamWriterCToCpp::Write(const void* ptr, size_t size, size_t n) {
   cef_stream_writer_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, write))
@@ -72,6 +75,7 @@ size_t CefStreamWriterCToCpp::Write(const void* ptr, size_t size, size_t n) {
   return _retval;
 }
 
+NO_SANITIZE("cfi-icall")
 int CefStreamWriterCToCpp::Seek(int64 offset, int whence) {
   cef_stream_writer_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, seek))
@@ -86,7 +90,7 @@ int CefStreamWriterCToCpp::Seek(int64 offset, int whence) {
   return _retval;
 }
 
-int64 CefStreamWriterCToCpp::Tell() {
+NO_SANITIZE("cfi-icall") int64 CefStreamWriterCToCpp::Tell() {
   cef_stream_writer_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, tell))
     return 0;
@@ -100,7 +104,7 @@ int64 CefStreamWriterCToCpp::Tell() {
   return _retval;
 }
 
-int CefStreamWriterCToCpp::Flush() {
+NO_SANITIZE("cfi-icall") int CefStreamWriterCToCpp::Flush() {
   cef_stream_writer_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, flush))
     return 0;
@@ -114,7 +118,7 @@ int CefStreamWriterCToCpp::Flush() {
   return _retval;
 }
 
-bool CefStreamWriterCToCpp::MayBlock() {
+NO_SANITIZE("cfi-icall") bool CefStreamWriterCToCpp::MayBlock() {
   cef_stream_writer_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, may_block))
     return false;

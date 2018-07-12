@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=9f5267dcfa30cfef42bde927cf746429be337094$
+// $hash=31eab8ed8d308359e239f5a648053e60ed5e437b$
 //
 
 #include "libcef_dll/ctocpp/print_handler_ctocpp.h"
@@ -20,6 +20,7 @@
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
+NO_SANITIZE("cfi-icall")
 void CefPrintHandlerCToCpp::OnPrintStart(CefRefPtr<CefBrowser> browser) {
   cef_print_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_print_start))
@@ -36,6 +37,7 @@ void CefPrintHandlerCToCpp::OnPrintStart(CefRefPtr<CefBrowser> browser) {
   _struct->on_print_start(_struct, CefBrowserCppToC::Wrap(browser));
 }
 
+NO_SANITIZE("cfi-icall")
 void CefPrintHandlerCToCpp::OnPrintSettings(
     CefRefPtr<CefBrowser> browser,
     CefRefPtr<CefPrintSettings> settings,
@@ -61,6 +63,7 @@ void CefPrintHandlerCToCpp::OnPrintSettings(
                              get_defaults);
 }
 
+NO_SANITIZE("cfi-icall")
 bool CefPrintHandlerCToCpp::OnPrintDialog(
     CefRefPtr<CefBrowser> browser,
     bool has_selection,
@@ -89,6 +92,7 @@ bool CefPrintHandlerCToCpp::OnPrintDialog(
   return _retval ? true : false;
 }
 
+NO_SANITIZE("cfi-icall")
 bool CefPrintHandlerCToCpp::OnPrintJob(
     CefRefPtr<CefBrowser> browser,
     const CefString& document_name,
@@ -126,6 +130,7 @@ bool CefPrintHandlerCToCpp::OnPrintJob(
   return _retval ? true : false;
 }
 
+NO_SANITIZE("cfi-icall")
 void CefPrintHandlerCToCpp::OnPrintReset(CefRefPtr<CefBrowser> browser) {
   cef_print_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_print_reset))
@@ -142,6 +147,7 @@ void CefPrintHandlerCToCpp::OnPrintReset(CefRefPtr<CefBrowser> browser) {
   _struct->on_print_reset(_struct, CefBrowserCppToC::Wrap(browser));
 }
 
+NO_SANITIZE("cfi-icall")
 CefSize CefPrintHandlerCToCpp::GetPdfPaperSize(int device_units_per_inch) {
   cef_print_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_pdf_paper_size))

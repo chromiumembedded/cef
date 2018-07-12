@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=1caa041e8504be1bcf7b644cbfbbd2a79d25d0bb$
+// $hash=f5900630acc5452d589dab602f97c832af220875$
 //
 
 #include "libcef_dll/ctocpp/post_data_ctocpp.h"
@@ -18,7 +18,7 @@
 
 // STATIC METHODS - Body may be edited by hand.
 
-CefRefPtr<CefPostData> CefPostData::Create() {
+NO_SANITIZE("cfi-icall") CefRefPtr<CefPostData> CefPostData::Create() {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
@@ -30,7 +30,7 @@ CefRefPtr<CefPostData> CefPostData::Create() {
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
-bool CefPostDataCToCpp::IsReadOnly() {
+NO_SANITIZE("cfi-icall") bool CefPostDataCToCpp::IsReadOnly() {
   cef_post_data_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, is_read_only))
     return false;
@@ -44,7 +44,7 @@ bool CefPostDataCToCpp::IsReadOnly() {
   return _retval ? true : false;
 }
 
-bool CefPostDataCToCpp::HasExcludedElements() {
+NO_SANITIZE("cfi-icall") bool CefPostDataCToCpp::HasExcludedElements() {
   cef_post_data_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, has_excluded_elements))
     return false;
@@ -58,7 +58,7 @@ bool CefPostDataCToCpp::HasExcludedElements() {
   return _retval ? true : false;
 }
 
-size_t CefPostDataCToCpp::GetElementCount() {
+NO_SANITIZE("cfi-icall") size_t CefPostDataCToCpp::GetElementCount() {
   cef_post_data_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_element_count))
     return 0;
@@ -72,6 +72,7 @@ size_t CefPostDataCToCpp::GetElementCount() {
   return _retval;
 }
 
+NO_SANITIZE("cfi-icall")
 void CefPostDataCToCpp::GetElements(ElementVector& elements) {
   cef_post_data_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_elements))
@@ -109,6 +110,7 @@ void CefPostDataCToCpp::GetElements(ElementVector& elements) {
   }
 }
 
+NO_SANITIZE("cfi-icall")
 bool CefPostDataCToCpp::RemoveElement(CefRefPtr<CefPostDataElement> element) {
   cef_post_data_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, remove_element))
@@ -129,6 +131,7 @@ bool CefPostDataCToCpp::RemoveElement(CefRefPtr<CefPostDataElement> element) {
   return _retval ? true : false;
 }
 
+NO_SANITIZE("cfi-icall")
 bool CefPostDataCToCpp::AddElement(CefRefPtr<CefPostDataElement> element) {
   cef_post_data_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, add_element))
@@ -149,7 +152,7 @@ bool CefPostDataCToCpp::AddElement(CefRefPtr<CefPostDataElement> element) {
   return _retval ? true : false;
 }
 
-void CefPostDataCToCpp::RemoveElements() {
+NO_SANITIZE("cfi-icall") void CefPostDataCToCpp::RemoveElements() {
   cef_post_data_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, remove_elements))
     return;

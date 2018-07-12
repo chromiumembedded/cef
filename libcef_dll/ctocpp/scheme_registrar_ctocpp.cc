@@ -9,13 +9,14 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=1eb5ac5966df1c081f6c2be44272f5dee1c55cfc$
+// $hash=f44c706c53363ba0c2657a0fcd8a2b50bb37ccd7$
 //
 
 #include "libcef_dll/ctocpp/scheme_registrar_ctocpp.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
+NO_SANITIZE("cfi-icall")
 bool CefSchemeRegistrarCToCpp::AddCustomScheme(const CefString& scheme_name,
                                                bool is_standard,
                                                bool is_local,

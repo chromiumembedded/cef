@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=1c183881e8972b65705223686ac4175b28c766ec$
+// $hash=6313603a55de5caa5ab007c5a743a7223fad9717$
 //
 
 #include "libcef_dll/ctocpp/accessibility_handler_ctocpp.h"
@@ -17,6 +17,7 @@
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
+NO_SANITIZE("cfi-icall")
 void CefAccessibilityHandlerCToCpp::OnAccessibilityTreeChange(
     CefRefPtr<CefValue> value) {
   cef_accessibility_handler_t* _struct = GetStruct();
@@ -34,6 +35,7 @@ void CefAccessibilityHandlerCToCpp::OnAccessibilityTreeChange(
   _struct->on_accessibility_tree_change(_struct, CefValueCppToC::Wrap(value));
 }
 
+NO_SANITIZE("cfi-icall")
 void CefAccessibilityHandlerCToCpp::OnAccessibilityLocationChange(
     CefRefPtr<CefValue> value) {
   cef_accessibility_handler_t* _struct = GetStruct();

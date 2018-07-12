@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=d79db4777effbb4b82dbf171458594228868d702$
+// $hash=d8dad2efcfeef33de2f54da7c72dccea1aa72993$
 //
 
 #include "libcef_dll/ctocpp/resolve_callback_ctocpp.h"
@@ -17,6 +17,7 @@
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
+NO_SANITIZE("cfi-icall")
 void CefResolveCallbackCToCpp::OnResolveCompleted(
     cef_errorcode_t result,
     const std::vector<CefString>& resolved_ips) {

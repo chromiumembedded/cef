@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=32d79cc3fef297748bf029daea2d41392ae1967d$
+// $hash=22ef5adf49ee136cd5752ac51e333e8250bc36fc$
 //
 
 #include "libcef_dll/ctocpp/x509certificate_ctocpp.h"
@@ -19,6 +19,7 @@
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
+NO_SANITIZE("cfi-icall")
 CefRefPtr<CefX509CertPrincipal> CefX509CertificateCToCpp::GetSubject() {
   cef_x509certificate_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_subject))
@@ -33,6 +34,7 @@ CefRefPtr<CefX509CertPrincipal> CefX509CertificateCToCpp::GetSubject() {
   return CefX509CertPrincipalCToCpp::Wrap(_retval);
 }
 
+NO_SANITIZE("cfi-icall")
 CefRefPtr<CefX509CertPrincipal> CefX509CertificateCToCpp::GetIssuer() {
   cef_x509certificate_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_issuer))
@@ -47,6 +49,7 @@ CefRefPtr<CefX509CertPrincipal> CefX509CertificateCToCpp::GetIssuer() {
   return CefX509CertPrincipalCToCpp::Wrap(_retval);
 }
 
+NO_SANITIZE("cfi-icall")
 CefRefPtr<CefBinaryValue> CefX509CertificateCToCpp::GetSerialNumber() {
   cef_x509certificate_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_serial_number))
@@ -61,7 +64,7 @@ CefRefPtr<CefBinaryValue> CefX509CertificateCToCpp::GetSerialNumber() {
   return CefBinaryValueCToCpp::Wrap(_retval);
 }
 
-CefTime CefX509CertificateCToCpp::GetValidStart() {
+NO_SANITIZE("cfi-icall") CefTime CefX509CertificateCToCpp::GetValidStart() {
   cef_x509certificate_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_valid_start))
     return CefTime();
@@ -75,7 +78,7 @@ CefTime CefX509CertificateCToCpp::GetValidStart() {
   return _retval;
 }
 
-CefTime CefX509CertificateCToCpp::GetValidExpiry() {
+NO_SANITIZE("cfi-icall") CefTime CefX509CertificateCToCpp::GetValidExpiry() {
   cef_x509certificate_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_valid_expiry))
     return CefTime();
@@ -89,6 +92,7 @@ CefTime CefX509CertificateCToCpp::GetValidExpiry() {
   return _retval;
 }
 
+NO_SANITIZE("cfi-icall")
 CefRefPtr<CefBinaryValue> CefX509CertificateCToCpp::GetDEREncoded() {
   cef_x509certificate_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_derencoded))
@@ -103,6 +107,7 @@ CefRefPtr<CefBinaryValue> CefX509CertificateCToCpp::GetDEREncoded() {
   return CefBinaryValueCToCpp::Wrap(_retval);
 }
 
+NO_SANITIZE("cfi-icall")
 CefRefPtr<CefBinaryValue> CefX509CertificateCToCpp::GetPEMEncoded() {
   cef_x509certificate_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_pemencoded))
@@ -117,7 +122,7 @@ CefRefPtr<CefBinaryValue> CefX509CertificateCToCpp::GetPEMEncoded() {
   return CefBinaryValueCToCpp::Wrap(_retval);
 }
 
-size_t CefX509CertificateCToCpp::GetIssuerChainSize() {
+NO_SANITIZE("cfi-icall") size_t CefX509CertificateCToCpp::GetIssuerChainSize() {
   cef_x509certificate_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_issuer_chain_size))
     return 0;
@@ -131,6 +136,7 @@ size_t CefX509CertificateCToCpp::GetIssuerChainSize() {
   return _retval;
 }
 
+NO_SANITIZE("cfi-icall")
 void CefX509CertificateCToCpp::GetDEREncodedIssuerChain(
     IssuerChainBinaryList& chain) {
   cef_x509certificate_t* _struct = GetStruct();
@@ -169,6 +175,7 @@ void CefX509CertificateCToCpp::GetDEREncodedIssuerChain(
   }
 }
 
+NO_SANITIZE("cfi-icall")
 void CefX509CertificateCToCpp::GetPEMEncodedIssuerChain(
     IssuerChainBinaryList& chain) {
   cef_x509certificate_t* _struct = GetStruct();

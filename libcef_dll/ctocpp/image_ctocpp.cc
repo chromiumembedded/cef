@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=38e95f3ee63104a77b531418ae731cd4bb8d443b$
+// $hash=d49cb1218160070c78a38fcaa3e729d0ce6c3326$
 //
 
 #include "libcef_dll/ctocpp/image_ctocpp.h"
@@ -17,7 +17,7 @@
 
 // STATIC METHODS - Body may be edited by hand.
 
-CefRefPtr<CefImage> CefImage::CreateImage() {
+NO_SANITIZE("cfi-icall") CefRefPtr<CefImage> CefImage::CreateImage() {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
@@ -29,7 +29,7 @@ CefRefPtr<CefImage> CefImage::CreateImage() {
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
-bool CefImageCToCpp::IsEmpty() {
+NO_SANITIZE("cfi-icall") bool CefImageCToCpp::IsEmpty() {
   cef_image_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, is_empty))
     return false;
@@ -43,7 +43,7 @@ bool CefImageCToCpp::IsEmpty() {
   return _retval ? true : false;
 }
 
-bool CefImageCToCpp::IsSame(CefRefPtr<CefImage> that) {
+NO_SANITIZE("cfi-icall") bool CefImageCToCpp::IsSame(CefRefPtr<CefImage> that) {
   cef_image_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, is_same))
     return false;
@@ -62,6 +62,7 @@ bool CefImageCToCpp::IsSame(CefRefPtr<CefImage> that) {
   return _retval ? true : false;
 }
 
+NO_SANITIZE("cfi-icall")
 bool CefImageCToCpp::AddBitmap(float scale_factor,
                                int pixel_width,
                                int pixel_height,
@@ -89,6 +90,7 @@ bool CefImageCToCpp::AddBitmap(float scale_factor,
   return _retval ? true : false;
 }
 
+NO_SANITIZE("cfi-icall")
 bool CefImageCToCpp::AddPNG(float scale_factor,
                             const void* png_data,
                             size_t png_data_size) {
@@ -111,6 +113,7 @@ bool CefImageCToCpp::AddPNG(float scale_factor,
   return _retval ? true : false;
 }
 
+NO_SANITIZE("cfi-icall")
 bool CefImageCToCpp::AddJPEG(float scale_factor,
                              const void* jpeg_data,
                              size_t jpeg_data_size) {
@@ -133,7 +136,7 @@ bool CefImageCToCpp::AddJPEG(float scale_factor,
   return _retval ? true : false;
 }
 
-size_t CefImageCToCpp::GetWidth() {
+NO_SANITIZE("cfi-icall") size_t CefImageCToCpp::GetWidth() {
   cef_image_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_width))
     return 0;
@@ -147,7 +150,7 @@ size_t CefImageCToCpp::GetWidth() {
   return _retval;
 }
 
-size_t CefImageCToCpp::GetHeight() {
+NO_SANITIZE("cfi-icall") size_t CefImageCToCpp::GetHeight() {
   cef_image_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_height))
     return 0;
@@ -161,6 +164,7 @@ size_t CefImageCToCpp::GetHeight() {
   return _retval;
 }
 
+NO_SANITIZE("cfi-icall")
 bool CefImageCToCpp::HasRepresentation(float scale_factor) {
   cef_image_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, has_representation))
@@ -175,6 +179,7 @@ bool CefImageCToCpp::HasRepresentation(float scale_factor) {
   return _retval ? true : false;
 }
 
+NO_SANITIZE("cfi-icall")
 bool CefImageCToCpp::RemoveRepresentation(float scale_factor) {
   cef_image_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, remove_representation))
@@ -189,6 +194,7 @@ bool CefImageCToCpp::RemoveRepresentation(float scale_factor) {
   return _retval ? true : false;
 }
 
+NO_SANITIZE("cfi-icall")
 bool CefImageCToCpp::GetRepresentationInfo(float scale_factor,
                                            float& actual_scale_factor,
                                            int& pixel_width,
@@ -207,6 +213,7 @@ bool CefImageCToCpp::GetRepresentationInfo(float scale_factor,
   return _retval ? true : false;
 }
 
+NO_SANITIZE("cfi-icall")
 CefRefPtr<CefBinaryValue> CefImageCToCpp::GetAsBitmap(
     float scale_factor,
     cef_color_type_t color_type,
@@ -228,6 +235,7 @@ CefRefPtr<CefBinaryValue> CefImageCToCpp::GetAsBitmap(
   return CefBinaryValueCToCpp::Wrap(_retval);
 }
 
+NO_SANITIZE("cfi-icall")
 CefRefPtr<CefBinaryValue> CefImageCToCpp::GetAsPNG(float scale_factor,
                                                    bool with_transparency,
                                                    int& pixel_width,
@@ -246,6 +254,7 @@ CefRefPtr<CefBinaryValue> CefImageCToCpp::GetAsPNG(float scale_factor,
   return CefBinaryValueCToCpp::Wrap(_retval);
 }
 
+NO_SANITIZE("cfi-icall")
 CefRefPtr<CefBinaryValue> CefImageCToCpp::GetAsJPEG(float scale_factor,
                                                     int quality,
                                                     int& pixel_width,

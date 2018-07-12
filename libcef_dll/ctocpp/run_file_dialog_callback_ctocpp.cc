@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=f2add6b014acc85c5e0626a86b596fbe08d69348$
+// $hash=3ef21896ed5ba3e067ec9023865be7f2030934b6$
 //
 
 #include "libcef_dll/ctocpp/run_file_dialog_callback_ctocpp.h"
@@ -17,6 +17,7 @@
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
+NO_SANITIZE("cfi-icall")
 void CefRunFileDialogCallbackCToCpp::OnFileDialogDismissed(
     int selected_accept_filter,
     const std::vector<CefString>& file_paths) {

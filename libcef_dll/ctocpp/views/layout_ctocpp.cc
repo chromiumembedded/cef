@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=77ba3fd044430b7de25f0be61260ad0d8a21aa0a$
+// $hash=3a350090dc2ff5a80259422428076b4539970300$
 //
 
 #include "libcef_dll/ctocpp/views/layout_ctocpp.h"
@@ -18,6 +18,7 @@
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
+NO_SANITIZE("cfi-icall")
 CefRefPtr<CefBoxLayout> CefLayoutCToCpp::AsBoxLayout() {
   cef_layout_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, as_box_layout))
@@ -32,6 +33,7 @@ CefRefPtr<CefBoxLayout> CefLayoutCToCpp::AsBoxLayout() {
   return CefBoxLayoutCToCpp::Wrap(_retval);
 }
 
+NO_SANITIZE("cfi-icall")
 CefRefPtr<CefFillLayout> CefLayoutCToCpp::AsFillLayout() {
   cef_layout_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, as_fill_layout))
@@ -46,7 +48,7 @@ CefRefPtr<CefFillLayout> CefLayoutCToCpp::AsFillLayout() {
   return CefFillLayoutCToCpp::Wrap(_retval);
 }
 
-bool CefLayoutCToCpp::IsValid() {
+NO_SANITIZE("cfi-icall") bool CefLayoutCToCpp::IsValid() {
   cef_layout_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, is_valid))
     return false;

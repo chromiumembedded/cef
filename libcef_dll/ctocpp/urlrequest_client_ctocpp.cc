@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=7b8fe9676b8432f2027502c862b8f6e121b3d377$
+// $hash=8bd824c1cc8f13b46f267df32068debec46c87a6$
 //
 
 #include "libcef_dll/ctocpp/urlrequest_client_ctocpp.h"
@@ -18,6 +18,7 @@
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
+NO_SANITIZE("cfi-icall")
 void CefURLRequestClientCToCpp::OnRequestComplete(
     CefRefPtr<CefURLRequest> request) {
   cef_urlrequest_client_t* _struct = GetStruct();
@@ -35,6 +36,7 @@ void CefURLRequestClientCToCpp::OnRequestComplete(
   _struct->on_request_complete(_struct, CefURLRequestCppToC::Wrap(request));
 }
 
+NO_SANITIZE("cfi-icall")
 void CefURLRequestClientCToCpp::OnUploadProgress(
     CefRefPtr<CefURLRequest> request,
     int64 current,
@@ -55,6 +57,7 @@ void CefURLRequestClientCToCpp::OnUploadProgress(
                               current, total);
 }
 
+NO_SANITIZE("cfi-icall")
 void CefURLRequestClientCToCpp::OnDownloadProgress(
     CefRefPtr<CefURLRequest> request,
     int64 current,
@@ -75,6 +78,7 @@ void CefURLRequestClientCToCpp::OnDownloadProgress(
                                 current, total);
 }
 
+NO_SANITIZE("cfi-icall")
 void CefURLRequestClientCToCpp::OnDownloadData(CefRefPtr<CefURLRequest> request,
                                                const void* data,
                                                size_t data_length) {
@@ -98,6 +102,7 @@ void CefURLRequestClientCToCpp::OnDownloadData(CefRefPtr<CefURLRequest> request,
                             data_length);
 }
 
+NO_SANITIZE("cfi-icall")
 bool CefURLRequestClientCToCpp::GetAuthCredentials(
     bool isProxy,
     const CefString& host,

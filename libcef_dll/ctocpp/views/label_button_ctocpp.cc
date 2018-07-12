@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=f51da03320d7f675b627764ddca499186cf1ed5f$
+// $hash=df397b3a4babf96a930733c55ea3752cd1f07189$
 //
 
 #include "libcef_dll/ctocpp/views/label_button_ctocpp.h"
@@ -27,6 +27,7 @@
 
 // STATIC METHODS - Body may be edited by hand.
 
+NO_SANITIZE("cfi-icall")
 CefRefPtr<CefLabelButton> CefLabelButton::CreateLabelButton(
     CefRefPtr<CefButtonDelegate> delegate,
     const CefString& text,
@@ -49,6 +50,7 @@ CefRefPtr<CefLabelButton> CefLabelButton::CreateLabelButton(
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
+NO_SANITIZE("cfi-icall")
 CefRefPtr<CefMenuButton> CefLabelButtonCToCpp::AsMenuButton() {
   cef_label_button_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, as_menu_button))
@@ -63,6 +65,7 @@ CefRefPtr<CefMenuButton> CefLabelButtonCToCpp::AsMenuButton() {
   return CefMenuButtonCToCpp::Wrap(_retval);
 }
 
+NO_SANITIZE("cfi-icall")
 void CefLabelButtonCToCpp::SetText(const CefString& text) {
   cef_label_button_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, set_text))
@@ -79,7 +82,7 @@ void CefLabelButtonCToCpp::SetText(const CefString& text) {
   _struct->set_text(_struct, text.GetStruct());
 }
 
-CefString CefLabelButtonCToCpp::GetText() {
+NO_SANITIZE("cfi-icall") CefString CefLabelButtonCToCpp::GetText() {
   cef_label_button_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_text))
     return CefString();
@@ -95,6 +98,7 @@ CefString CefLabelButtonCToCpp::GetText() {
   return _retvalStr;
 }
 
+NO_SANITIZE("cfi-icall")
 void CefLabelButtonCToCpp::SetImage(cef_button_state_t button_state,
                                     CefRefPtr<CefImage> image) {
   cef_label_button_t* _struct = GetStruct();
@@ -109,6 +113,7 @@ void CefLabelButtonCToCpp::SetImage(cef_button_state_t button_state,
   _struct->set_image(_struct, button_state, CefImageCToCpp::Unwrap(image));
 }
 
+NO_SANITIZE("cfi-icall")
 CefRefPtr<CefImage> CefLabelButtonCToCpp::GetImage(
     cef_button_state_t button_state) {
   cef_label_button_t* _struct = GetStruct();
@@ -124,6 +129,7 @@ CefRefPtr<CefImage> CefLabelButtonCToCpp::GetImage(
   return CefImageCToCpp::Wrap(_retval);
 }
 
+NO_SANITIZE("cfi-icall")
 void CefLabelButtonCToCpp::SetTextColor(cef_button_state_t for_state,
                                         cef_color_t color) {
   cef_label_button_t* _struct = GetStruct();
@@ -136,6 +142,7 @@ void CefLabelButtonCToCpp::SetTextColor(cef_button_state_t for_state,
   _struct->set_text_color(_struct, for_state, color);
 }
 
+NO_SANITIZE("cfi-icall")
 void CefLabelButtonCToCpp::SetEnabledTextColors(cef_color_t color) {
   cef_label_button_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, set_enabled_text_colors))
@@ -147,6 +154,7 @@ void CefLabelButtonCToCpp::SetEnabledTextColors(cef_color_t color) {
   _struct->set_enabled_text_colors(_struct, color);
 }
 
+NO_SANITIZE("cfi-icall")
 void CefLabelButtonCToCpp::SetFontList(const CefString& font_list) {
   cef_label_button_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, set_font_list))
@@ -163,6 +171,7 @@ void CefLabelButtonCToCpp::SetFontList(const CefString& font_list) {
   _struct->set_font_list(_struct, font_list.GetStruct());
 }
 
+NO_SANITIZE("cfi-icall")
 void CefLabelButtonCToCpp::SetHorizontalAlignment(
     cef_horizontal_alignment_t alignment) {
   cef_label_button_t* _struct = GetStruct();
@@ -175,6 +184,7 @@ void CefLabelButtonCToCpp::SetHorizontalAlignment(
   _struct->set_horizontal_alignment(_struct, alignment);
 }
 
+NO_SANITIZE("cfi-icall")
 void CefLabelButtonCToCpp::SetMinimumSize(const CefSize& size) {
   cef_label_button_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, set_minimum_size))
@@ -186,6 +196,7 @@ void CefLabelButtonCToCpp::SetMinimumSize(const CefSize& size) {
   _struct->set_minimum_size(_struct, &size);
 }
 
+NO_SANITIZE("cfi-icall")
 void CefLabelButtonCToCpp::SetMaximumSize(const CefSize& size) {
   cef_label_button_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, set_maximum_size))
@@ -197,6 +208,7 @@ void CefLabelButtonCToCpp::SetMaximumSize(const CefSize& size) {
   _struct->set_maximum_size(_struct, &size);
 }
 
+NO_SANITIZE("cfi-icall")
 CefRefPtr<CefLabelButton> CefLabelButtonCToCpp::AsLabelButton() {
   cef_button_t* _struct = reinterpret_cast<cef_button_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, as_label_button))
@@ -211,6 +223,7 @@ CefRefPtr<CefLabelButton> CefLabelButtonCToCpp::AsLabelButton() {
   return CefLabelButtonCToCpp::Wrap(_retval);
 }
 
+NO_SANITIZE("cfi-icall")
 void CefLabelButtonCToCpp::SetState(cef_button_state_t state) {
   cef_button_t* _struct = reinterpret_cast<cef_button_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, set_state))
@@ -222,7 +235,7 @@ void CefLabelButtonCToCpp::SetState(cef_button_state_t state) {
   _struct->set_state(_struct, state);
 }
 
-cef_button_state_t CefLabelButtonCToCpp::GetState() {
+NO_SANITIZE("cfi-icall") cef_button_state_t CefLabelButtonCToCpp::GetState() {
   cef_button_t* _struct = reinterpret_cast<cef_button_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, get_state))
     return CEF_BUTTON_STATE_NORMAL;
@@ -236,6 +249,7 @@ cef_button_state_t CefLabelButtonCToCpp::GetState() {
   return _retval;
 }
 
+NO_SANITIZE("cfi-icall")
 void CefLabelButtonCToCpp::SetInkDropEnabled(bool enabled) {
   cef_button_t* _struct = reinterpret_cast<cef_button_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, set_ink_drop_enabled))
@@ -247,6 +261,7 @@ void CefLabelButtonCToCpp::SetInkDropEnabled(bool enabled) {
   _struct->set_ink_drop_enabled(_struct, enabled);
 }
 
+NO_SANITIZE("cfi-icall")
 void CefLabelButtonCToCpp::SetTooltipText(const CefString& tooltip_text) {
   cef_button_t* _struct = reinterpret_cast<cef_button_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, set_tooltip_text))
@@ -263,6 +278,7 @@ void CefLabelButtonCToCpp::SetTooltipText(const CefString& tooltip_text) {
   _struct->set_tooltip_text(_struct, tooltip_text.GetStruct());
 }
 
+NO_SANITIZE("cfi-icall")
 void CefLabelButtonCToCpp::SetAccessibleName(const CefString& name) {
   cef_button_t* _struct = reinterpret_cast<cef_button_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, set_accessible_name))
@@ -279,6 +295,7 @@ void CefLabelButtonCToCpp::SetAccessibleName(const CefString& name) {
   _struct->set_accessible_name(_struct, name.GetStruct());
 }
 
+NO_SANITIZE("cfi-icall")
 CefRefPtr<CefBrowserView> CefLabelButtonCToCpp::AsBrowserView() {
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, as_browser_view))
@@ -293,7 +310,7 @@ CefRefPtr<CefBrowserView> CefLabelButtonCToCpp::AsBrowserView() {
   return CefBrowserViewCToCpp::Wrap(_retval);
 }
 
-CefRefPtr<CefButton> CefLabelButtonCToCpp::AsButton() {
+NO_SANITIZE("cfi-icall") CefRefPtr<CefButton> CefLabelButtonCToCpp::AsButton() {
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, as_button))
     return NULL;
@@ -307,7 +324,7 @@ CefRefPtr<CefButton> CefLabelButtonCToCpp::AsButton() {
   return CefButtonCToCpp::Wrap(_retval);
 }
 
-CefRefPtr<CefPanel> CefLabelButtonCToCpp::AsPanel() {
+NO_SANITIZE("cfi-icall") CefRefPtr<CefPanel> CefLabelButtonCToCpp::AsPanel() {
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, as_panel))
     return NULL;
@@ -321,6 +338,7 @@ CefRefPtr<CefPanel> CefLabelButtonCToCpp::AsPanel() {
   return CefPanelCToCpp::Wrap(_retval);
 }
 
+NO_SANITIZE("cfi-icall")
 CefRefPtr<CefScrollView> CefLabelButtonCToCpp::AsScrollView() {
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, as_scroll_view))
@@ -335,6 +353,7 @@ CefRefPtr<CefScrollView> CefLabelButtonCToCpp::AsScrollView() {
   return CefScrollViewCToCpp::Wrap(_retval);
 }
 
+NO_SANITIZE("cfi-icall")
 CefRefPtr<CefTextfield> CefLabelButtonCToCpp::AsTextfield() {
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, as_textfield))
@@ -349,7 +368,7 @@ CefRefPtr<CefTextfield> CefLabelButtonCToCpp::AsTextfield() {
   return CefTextfieldCToCpp::Wrap(_retval);
 }
 
-CefString CefLabelButtonCToCpp::GetTypeString() {
+NO_SANITIZE("cfi-icall") CefString CefLabelButtonCToCpp::GetTypeString() {
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, get_type_string))
     return CefString();
@@ -365,6 +384,7 @@ CefString CefLabelButtonCToCpp::GetTypeString() {
   return _retvalStr;
 }
 
+NO_SANITIZE("cfi-icall")
 CefString CefLabelButtonCToCpp::ToString(bool include_children) {
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, to_string))
@@ -381,7 +401,7 @@ CefString CefLabelButtonCToCpp::ToString(bool include_children) {
   return _retvalStr;
 }
 
-bool CefLabelButtonCToCpp::IsValid() {
+NO_SANITIZE("cfi-icall") bool CefLabelButtonCToCpp::IsValid() {
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, is_valid))
     return false;
@@ -395,7 +415,7 @@ bool CefLabelButtonCToCpp::IsValid() {
   return _retval ? true : false;
 }
 
-bool CefLabelButtonCToCpp::IsAttached() {
+NO_SANITIZE("cfi-icall") bool CefLabelButtonCToCpp::IsAttached() {
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, is_attached))
     return false;
@@ -409,6 +429,7 @@ bool CefLabelButtonCToCpp::IsAttached() {
   return _retval ? true : false;
 }
 
+NO_SANITIZE("cfi-icall")
 bool CefLabelButtonCToCpp::IsSame(CefRefPtr<CefView> that) {
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, is_same))
@@ -428,6 +449,7 @@ bool CefLabelButtonCToCpp::IsSame(CefRefPtr<CefView> that) {
   return _retval ? true : false;
 }
 
+NO_SANITIZE("cfi-icall")
 CefRefPtr<CefViewDelegate> CefLabelButtonCToCpp::GetDelegate() {
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, get_delegate))
@@ -442,6 +464,7 @@ CefRefPtr<CefViewDelegate> CefLabelButtonCToCpp::GetDelegate() {
   return CefViewDelegateCppToC::Unwrap(_retval);
 }
 
+NO_SANITIZE("cfi-icall")
 CefRefPtr<CefWindow> CefLabelButtonCToCpp::GetWindow() {
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, get_window))
@@ -456,7 +479,7 @@ CefRefPtr<CefWindow> CefLabelButtonCToCpp::GetWindow() {
   return CefWindowCToCpp::Wrap(_retval);
 }
 
-int CefLabelButtonCToCpp::GetID() {
+NO_SANITIZE("cfi-icall") int CefLabelButtonCToCpp::GetID() {
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, get_id))
     return 0;
@@ -470,7 +493,7 @@ int CefLabelButtonCToCpp::GetID() {
   return _retval;
 }
 
-void CefLabelButtonCToCpp::SetID(int id) {
+NO_SANITIZE("cfi-icall") void CefLabelButtonCToCpp::SetID(int id) {
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, set_id))
     return;
@@ -481,7 +504,7 @@ void CefLabelButtonCToCpp::SetID(int id) {
   _struct->set_id(_struct, id);
 }
 
-int CefLabelButtonCToCpp::GetGroupID() {
+NO_SANITIZE("cfi-icall") int CefLabelButtonCToCpp::GetGroupID() {
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, get_group_id))
     return 0;
@@ -495,7 +518,7 @@ int CefLabelButtonCToCpp::GetGroupID() {
   return _retval;
 }
 
-void CefLabelButtonCToCpp::SetGroupID(int group_id) {
+NO_SANITIZE("cfi-icall") void CefLabelButtonCToCpp::SetGroupID(int group_id) {
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, set_group_id))
     return;
@@ -506,6 +529,7 @@ void CefLabelButtonCToCpp::SetGroupID(int group_id) {
   _struct->set_group_id(_struct, group_id);
 }
 
+NO_SANITIZE("cfi-icall")
 CefRefPtr<CefView> CefLabelButtonCToCpp::GetParentView() {
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, get_parent_view))
@@ -520,6 +544,7 @@ CefRefPtr<CefView> CefLabelButtonCToCpp::GetParentView() {
   return CefViewCToCpp::Wrap(_retval);
 }
 
+NO_SANITIZE("cfi-icall")
 CefRefPtr<CefView> CefLabelButtonCToCpp::GetViewForID(int id) {
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, get_view_for_id))
@@ -534,6 +559,7 @@ CefRefPtr<CefView> CefLabelButtonCToCpp::GetViewForID(int id) {
   return CefViewCToCpp::Wrap(_retval);
 }
 
+NO_SANITIZE("cfi-icall")
 void CefLabelButtonCToCpp::SetBounds(const CefRect& bounds) {
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, set_bounds))
@@ -545,7 +571,7 @@ void CefLabelButtonCToCpp::SetBounds(const CefRect& bounds) {
   _struct->set_bounds(_struct, &bounds);
 }
 
-CefRect CefLabelButtonCToCpp::GetBounds() {
+NO_SANITIZE("cfi-icall") CefRect CefLabelButtonCToCpp::GetBounds() {
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, get_bounds))
     return CefRect();
@@ -559,7 +585,7 @@ CefRect CefLabelButtonCToCpp::GetBounds() {
   return _retval;
 }
 
-CefRect CefLabelButtonCToCpp::GetBoundsInScreen() {
+NO_SANITIZE("cfi-icall") CefRect CefLabelButtonCToCpp::GetBoundsInScreen() {
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, get_bounds_in_screen))
     return CefRect();
@@ -573,6 +599,7 @@ CefRect CefLabelButtonCToCpp::GetBoundsInScreen() {
   return _retval;
 }
 
+NO_SANITIZE("cfi-icall")
 void CefLabelButtonCToCpp::SetSize(const CefSize& size) {
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, set_size))
@@ -584,7 +611,7 @@ void CefLabelButtonCToCpp::SetSize(const CefSize& size) {
   _struct->set_size(_struct, &size);
 }
 
-CefSize CefLabelButtonCToCpp::GetSize() {
+NO_SANITIZE("cfi-icall") CefSize CefLabelButtonCToCpp::GetSize() {
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, get_size))
     return CefSize();
@@ -598,6 +625,7 @@ CefSize CefLabelButtonCToCpp::GetSize() {
   return _retval;
 }
 
+NO_SANITIZE("cfi-icall")
 void CefLabelButtonCToCpp::SetPosition(const CefPoint& position) {
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, set_position))
@@ -609,7 +637,7 @@ void CefLabelButtonCToCpp::SetPosition(const CefPoint& position) {
   _struct->set_position(_struct, &position);
 }
 
-CefPoint CefLabelButtonCToCpp::GetPosition() {
+NO_SANITIZE("cfi-icall") CefPoint CefLabelButtonCToCpp::GetPosition() {
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, get_position))
     return CefPoint();
@@ -623,7 +651,7 @@ CefPoint CefLabelButtonCToCpp::GetPosition() {
   return _retval;
 }
 
-CefSize CefLabelButtonCToCpp::GetPreferredSize() {
+NO_SANITIZE("cfi-icall") CefSize CefLabelButtonCToCpp::GetPreferredSize() {
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, get_preferred_size))
     return CefSize();
@@ -637,7 +665,7 @@ CefSize CefLabelButtonCToCpp::GetPreferredSize() {
   return _retval;
 }
 
-void CefLabelButtonCToCpp::SizeToPreferredSize() {
+NO_SANITIZE("cfi-icall") void CefLabelButtonCToCpp::SizeToPreferredSize() {
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, size_to_preferred_size))
     return;
@@ -648,7 +676,7 @@ void CefLabelButtonCToCpp::SizeToPreferredSize() {
   _struct->size_to_preferred_size(_struct);
 }
 
-CefSize CefLabelButtonCToCpp::GetMinimumSize() {
+NO_SANITIZE("cfi-icall") CefSize CefLabelButtonCToCpp::GetMinimumSize() {
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, get_minimum_size))
     return CefSize();
@@ -662,7 +690,7 @@ CefSize CefLabelButtonCToCpp::GetMinimumSize() {
   return _retval;
 }
 
-CefSize CefLabelButtonCToCpp::GetMaximumSize() {
+NO_SANITIZE("cfi-icall") CefSize CefLabelButtonCToCpp::GetMaximumSize() {
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, get_maximum_size))
     return CefSize();
@@ -676,6 +704,7 @@ CefSize CefLabelButtonCToCpp::GetMaximumSize() {
   return _retval;
 }
 
+NO_SANITIZE("cfi-icall")
 int CefLabelButtonCToCpp::GetHeightForWidth(int width) {
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, get_height_for_width))
@@ -690,7 +719,7 @@ int CefLabelButtonCToCpp::GetHeightForWidth(int width) {
   return _retval;
 }
 
-void CefLabelButtonCToCpp::InvalidateLayout() {
+NO_SANITIZE("cfi-icall") void CefLabelButtonCToCpp::InvalidateLayout() {
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, invalidate_layout))
     return;
@@ -701,7 +730,7 @@ void CefLabelButtonCToCpp::InvalidateLayout() {
   _struct->invalidate_layout(_struct);
 }
 
-void CefLabelButtonCToCpp::SetVisible(bool visible) {
+NO_SANITIZE("cfi-icall") void CefLabelButtonCToCpp::SetVisible(bool visible) {
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, set_visible))
     return;
@@ -712,7 +741,7 @@ void CefLabelButtonCToCpp::SetVisible(bool visible) {
   _struct->set_visible(_struct, visible);
 }
 
-bool CefLabelButtonCToCpp::IsVisible() {
+NO_SANITIZE("cfi-icall") bool CefLabelButtonCToCpp::IsVisible() {
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, is_visible))
     return false;
@@ -726,7 +755,7 @@ bool CefLabelButtonCToCpp::IsVisible() {
   return _retval ? true : false;
 }
 
-bool CefLabelButtonCToCpp::IsDrawn() {
+NO_SANITIZE("cfi-icall") bool CefLabelButtonCToCpp::IsDrawn() {
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, is_drawn))
     return false;
@@ -740,7 +769,7 @@ bool CefLabelButtonCToCpp::IsDrawn() {
   return _retval ? true : false;
 }
 
-void CefLabelButtonCToCpp::SetEnabled(bool enabled) {
+NO_SANITIZE("cfi-icall") void CefLabelButtonCToCpp::SetEnabled(bool enabled) {
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, set_enabled))
     return;
@@ -751,7 +780,7 @@ void CefLabelButtonCToCpp::SetEnabled(bool enabled) {
   _struct->set_enabled(_struct, enabled);
 }
 
-bool CefLabelButtonCToCpp::IsEnabled() {
+NO_SANITIZE("cfi-icall") bool CefLabelButtonCToCpp::IsEnabled() {
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, is_enabled))
     return false;
@@ -765,6 +794,7 @@ bool CefLabelButtonCToCpp::IsEnabled() {
   return _retval ? true : false;
 }
 
+NO_SANITIZE("cfi-icall")
 void CefLabelButtonCToCpp::SetFocusable(bool focusable) {
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, set_focusable))
@@ -776,7 +806,7 @@ void CefLabelButtonCToCpp::SetFocusable(bool focusable) {
   _struct->set_focusable(_struct, focusable);
 }
 
-bool CefLabelButtonCToCpp::IsFocusable() {
+NO_SANITIZE("cfi-icall") bool CefLabelButtonCToCpp::IsFocusable() {
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, is_focusable))
     return false;
@@ -790,7 +820,7 @@ bool CefLabelButtonCToCpp::IsFocusable() {
   return _retval ? true : false;
 }
 
-bool CefLabelButtonCToCpp::IsAccessibilityFocusable() {
+NO_SANITIZE("cfi-icall") bool CefLabelButtonCToCpp::IsAccessibilityFocusable() {
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, is_accessibility_focusable))
     return false;
@@ -804,7 +834,7 @@ bool CefLabelButtonCToCpp::IsAccessibilityFocusable() {
   return _retval ? true : false;
 }
 
-void CefLabelButtonCToCpp::RequestFocus() {
+NO_SANITIZE("cfi-icall") void CefLabelButtonCToCpp::RequestFocus() {
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, request_focus))
     return;
@@ -815,6 +845,7 @@ void CefLabelButtonCToCpp::RequestFocus() {
   _struct->request_focus(_struct);
 }
 
+NO_SANITIZE("cfi-icall")
 void CefLabelButtonCToCpp::SetBackgroundColor(cef_color_t color) {
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, set_background_color))
@@ -826,6 +857,7 @@ void CefLabelButtonCToCpp::SetBackgroundColor(cef_color_t color) {
   _struct->set_background_color(_struct, color);
 }
 
+NO_SANITIZE("cfi-icall")
 cef_color_t CefLabelButtonCToCpp::GetBackgroundColor() {
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, get_background_color))
@@ -840,6 +872,7 @@ cef_color_t CefLabelButtonCToCpp::GetBackgroundColor() {
   return _retval;
 }
 
+NO_SANITIZE("cfi-icall")
 bool CefLabelButtonCToCpp::ConvertPointToScreen(CefPoint& point) {
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, convert_point_to_screen))
@@ -854,6 +887,7 @@ bool CefLabelButtonCToCpp::ConvertPointToScreen(CefPoint& point) {
   return _retval ? true : false;
 }
 
+NO_SANITIZE("cfi-icall")
 bool CefLabelButtonCToCpp::ConvertPointFromScreen(CefPoint& point) {
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, convert_point_from_screen))
@@ -868,6 +902,7 @@ bool CefLabelButtonCToCpp::ConvertPointFromScreen(CefPoint& point) {
   return _retval ? true : false;
 }
 
+NO_SANITIZE("cfi-icall")
 bool CefLabelButtonCToCpp::ConvertPointToWindow(CefPoint& point) {
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, convert_point_to_window))
@@ -882,6 +917,7 @@ bool CefLabelButtonCToCpp::ConvertPointToWindow(CefPoint& point) {
   return _retval ? true : false;
 }
 
+NO_SANITIZE("cfi-icall")
 bool CefLabelButtonCToCpp::ConvertPointFromWindow(CefPoint& point) {
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, convert_point_from_window))
@@ -896,6 +932,7 @@ bool CefLabelButtonCToCpp::ConvertPointFromWindow(CefPoint& point) {
   return _retval ? true : false;
 }
 
+NO_SANITIZE("cfi-icall")
 bool CefLabelButtonCToCpp::ConvertPointToView(CefRefPtr<CefView> view,
                                               CefPoint& point) {
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
@@ -917,6 +954,7 @@ bool CefLabelButtonCToCpp::ConvertPointToView(CefRefPtr<CefView> view,
   return _retval ? true : false;
 }
 
+NO_SANITIZE("cfi-icall")
 bool CefLabelButtonCToCpp::ConvertPointFromView(CefRefPtr<CefView> view,
                                                 CefPoint& point) {
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());

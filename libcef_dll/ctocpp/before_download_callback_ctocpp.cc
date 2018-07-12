@@ -9,13 +9,14 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=d94ac0fccb71faab9bfbf75432f0609b8a3bcc2a$
+// $hash=3a3815c81622985a17849bb056e979a237f67841$
 //
 
 #include "libcef_dll/ctocpp/before_download_callback_ctocpp.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
+NO_SANITIZE("cfi-icall")
 void CefBeforeDownloadCallbackCToCpp::Continue(const CefString& download_path,
                                                bool show_dialog) {
   cef_before_download_callback_t* _struct = GetStruct();

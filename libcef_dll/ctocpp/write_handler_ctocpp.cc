@@ -9,13 +9,14 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=b2e855a481371030cf00223ffbf5097c5fc365c5$
+// $hash=53e323eefc6f9158f5f86a9c611aaab5d427a2ac$
 //
 
 #include "libcef_dll/ctocpp/write_handler_ctocpp.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
+NO_SANITIZE("cfi-icall")
 size_t CefWriteHandlerCToCpp::Write(const void* ptr, size_t size, size_t n) {
   cef_write_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, write))
@@ -35,6 +36,7 @@ size_t CefWriteHandlerCToCpp::Write(const void* ptr, size_t size, size_t n) {
   return _retval;
 }
 
+NO_SANITIZE("cfi-icall")
 int CefWriteHandlerCToCpp::Seek(int64 offset, int whence) {
   cef_write_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, seek))
@@ -49,7 +51,7 @@ int CefWriteHandlerCToCpp::Seek(int64 offset, int whence) {
   return _retval;
 }
 
-int64 CefWriteHandlerCToCpp::Tell() {
+NO_SANITIZE("cfi-icall") int64 CefWriteHandlerCToCpp::Tell() {
   cef_write_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, tell))
     return 0;
@@ -63,7 +65,7 @@ int64 CefWriteHandlerCToCpp::Tell() {
   return _retval;
 }
 
-int CefWriteHandlerCToCpp::Flush() {
+NO_SANITIZE("cfi-icall") int CefWriteHandlerCToCpp::Flush() {
   cef_write_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, flush))
     return 0;
@@ -77,7 +79,7 @@ int CefWriteHandlerCToCpp::Flush() {
   return _retval;
 }
 
-bool CefWriteHandlerCToCpp::MayBlock() {
+NO_SANITIZE("cfi-icall") bool CefWriteHandlerCToCpp::MayBlock() {
   cef_write_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, may_block))
     return false;

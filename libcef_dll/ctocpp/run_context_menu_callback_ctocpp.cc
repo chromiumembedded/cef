@@ -9,13 +9,14 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=ac017bad8a3c8b4e516b8f19eda347fda5ecc9fd$
+// $hash=f723213856f3ee2ad95573b138076cce5b8f9aae$
 //
 
 #include "libcef_dll/ctocpp/run_context_menu_callback_ctocpp.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
+NO_SANITIZE("cfi-icall")
 void CefRunContextMenuCallbackCToCpp::Continue(int command_id,
                                                EventFlags event_flags) {
   cef_run_context_menu_callback_t* _struct = GetStruct();
@@ -28,7 +29,7 @@ void CefRunContextMenuCallbackCToCpp::Continue(int command_id,
   _struct->cont(_struct, command_id, event_flags);
 }
 
-void CefRunContextMenuCallbackCToCpp::Cancel() {
+NO_SANITIZE("cfi-icall") void CefRunContextMenuCallbackCToCpp::Cancel() {
   cef_run_context_menu_callback_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, cancel))
     return;

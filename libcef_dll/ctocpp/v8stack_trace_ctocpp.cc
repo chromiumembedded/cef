@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=a8d9780245d59d7ada91e763388ce3c532567033$
+// $hash=f8584a5020aeedbb3f2a798bad73bf46dc381ed3$
 //
 
 #include "libcef_dll/ctocpp/v8stack_trace_ctocpp.h"
@@ -17,6 +17,7 @@
 
 // STATIC METHODS - Body may be edited by hand.
 
+NO_SANITIZE("cfi-icall")
 CefRefPtr<CefV8StackTrace> CefV8StackTrace::GetCurrent(int frame_limit) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -29,7 +30,7 @@ CefRefPtr<CefV8StackTrace> CefV8StackTrace::GetCurrent(int frame_limit) {
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
-bool CefV8StackTraceCToCpp::IsValid() {
+NO_SANITIZE("cfi-icall") bool CefV8StackTraceCToCpp::IsValid() {
   cef_v8stack_trace_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, is_valid))
     return false;
@@ -43,7 +44,7 @@ bool CefV8StackTraceCToCpp::IsValid() {
   return _retval ? true : false;
 }
 
-int CefV8StackTraceCToCpp::GetFrameCount() {
+NO_SANITIZE("cfi-icall") int CefV8StackTraceCToCpp::GetFrameCount() {
   cef_v8stack_trace_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_frame_count))
     return 0;
@@ -57,6 +58,7 @@ int CefV8StackTraceCToCpp::GetFrameCount() {
   return _retval;
 }
 
+NO_SANITIZE("cfi-icall")
 CefRefPtr<CefV8StackFrame> CefV8StackTraceCToCpp::GetFrame(int index) {
   cef_v8stack_trace_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_frame))
