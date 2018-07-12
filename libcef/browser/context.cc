@@ -7,7 +7,6 @@
 #include "libcef/browser/browser_info.h"
 #include "libcef/browser/browser_info_manager.h"
 #include "libcef/browser/browser_main.h"
-#include "libcef/browser/browser_message_loop.h"
 #include "libcef/browser/chrome_browser_process_stub.h"
 #include "libcef/browser/thread_util.h"
 #include "libcef/browser/trace_subscriber.h"
@@ -21,6 +20,7 @@
 #include "base/command_line.h"
 #include "base/debug/debugger.h"
 #include "base/files/file_util.h"
+#include "base/run_loop.h"
 #include "base/synchronization/waitable_event.h"
 #include "components/network_session_configurator/common/network_switches.h"
 #include "content/app/content_service_manager_main_delegate.h"
@@ -271,7 +271,8 @@ void CefDoMessageLoopWork() {
     return;
   }
 
-  CefBrowserMessageLoop::current()->DoMessageLoopIteration();
+  base::RunLoop run_loop;
+  run_loop.RunUntilIdle();
 }
 
 void CefRunMessageLoop() {
@@ -287,7 +288,8 @@ void CefRunMessageLoop() {
     return;
   }
 
-  CefBrowserMessageLoop::current()->RunMessageLoop();
+  base::RunLoop run_loop;
+  run_loop.Run();
 }
 
 void CefQuitMessageLoop() {
