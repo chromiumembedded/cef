@@ -26,7 +26,6 @@
       'include/base/cef_string16.h',
       'include/base/cef_template_util.h',
       'include/base/cef_thread_checker.h',
-      'include/base/cef_thread_collision_warner.h',
       'include/base/cef_trace_event.h',
       'include/base/cef_tuple.h',
       'include/base/cef_weak_ptr.h',
@@ -115,7 +114,6 @@
       'libcef_dll/base/cef_ref_counted.cc',
       'libcef_dll/base/cef_string16.cc',
       'libcef_dll/base/cef_thread_checker_impl.cc',
-      'libcef_dll/base/cef_thread_collision_warner.cc',
       'libcef_dll/base/cef_weak_ptr.cc',
     ],
     'libcef_dll_wrapper_sources_common': [

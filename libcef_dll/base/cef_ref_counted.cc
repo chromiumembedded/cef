@@ -3,7 +3,6 @@
 // found in the LICENSE file.
 
 #include "include/base/cef_ref_counted.h"
-#include "include/base/cef_thread_collision_warner.h"
 
 namespace base {
 
