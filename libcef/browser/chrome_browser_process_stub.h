@@ -55,6 +55,8 @@ class ChromeBrowserProcessStub : public BrowserProcess,
   ProfileManager* profile_manager() override;
   PrefService* local_state() override;
   net::URLRequestContextGetter* system_request_context() override;
+  scoped_refptr<network::SharedURLLoaderFactory> shared_url_loader_factory()
+      override;
   variations::VariationsService* variations_service() override;
   BrowserProcessPlatformPart* platform_part() override;
   extensions::EventRouterForwarder* extension_event_router_forwarder() override;

@@ -1,5 +1,5 @@
 diff --git content/browser/browser_plugin/browser_plugin_guest.cc content/browser/browser_plugin/browser_plugin_guest.cc
-index 2cf5621ae33f..7a5d79ed09e4 100644
+index f56ce93c3d5b..716cf8846378 100644
 --- content/browser/browser_plugin/browser_plugin_guest.cc
 +++ content/browser/browser_plugin/browser_plugin_guest.cc
 @@ -312,8 +312,11 @@ void BrowserPluginGuest::InitInternal(
@@ -37,10 +37,10 @@ index 2cf5621ae33f..7a5d79ed09e4 100644
  
    attached_ = true;
 diff --git content/browser/frame_host/interstitial_page_impl.cc content/browser/frame_host/interstitial_page_impl.cc
-index ad9de41d1e3e..a87ec19a5f54 100644
+index f839f62061bb..2150ceb6c780 100644
 --- content/browser/frame_host/interstitial_page_impl.cc
 +++ content/browser/frame_host/interstitial_page_impl.cc
-@@ -622,7 +622,7 @@ WebContentsView* InterstitialPageImpl::CreateWebContentsView() {
+@@ -619,7 +619,7 @@ WebContentsView* InterstitialPageImpl::CreateWebContentsView() {
    WebContentsView* wcv =
        static_cast<WebContentsImpl*>(web_contents())->GetView();
    RenderWidgetHostViewBase* view =
@@ -50,10 +50,10 @@ index ad9de41d1e3e..a87ec19a5f54 100644
    render_view_host_->GetMainFrame()->AllowBindings(
        BINDINGS_POLICY_DOM_AUTOMATION);
 diff --git content/browser/web_contents/web_contents_view.h content/browser/web_contents/web_contents_view.h
-index 50047c045553..5e9424f62623 100644
+index 41e44d5d658a..047c935d8ca2 100644
 --- content/browser/web_contents/web_contents_view.h
 +++ content/browser/web_contents/web_contents_view.h
-@@ -25,7 +25,7 @@ struct ScreenInfo;
+@@ -24,7 +24,7 @@ struct ScreenInfo;
  // The WebContentsView is an interface that is implemented by the platform-
  // dependent web contents views. The WebContents uses this interface to talk to
  // them.
@@ -62,7 +62,7 @@ index 50047c045553..5e9424f62623 100644
   public:
    virtual ~WebContentsView() {}
  
-@@ -89,13 +89,9 @@ class WebContentsView {
+@@ -88,13 +88,9 @@ class WebContentsView {
    // Sets up the View that holds the rendered web page, receives messages for
    // it and contains page plugins. The host view should be sized to the current
    // size of the WebContents.
@@ -79,7 +79,7 @@ index 50047c045553..5e9424f62623 100644
    // Creates a new View that holds a popup and receives messages for it.
    virtual RenderWidgetHostViewBase* CreateViewForPopupWidget(
 diff --git content/browser/web_contents/web_contents_view_aura.cc content/browser/web_contents/web_contents_view_aura.cc
-index 4a373e27bea4..684457680888 100644
+index 713b17948ef7..8ec3e045783f 100644
 --- content/browser/web_contents/web_contents_view_aura.cc
 +++ content/browser/web_contents/web_contents_view_aura.cc
 @@ -781,7 +781,8 @@ void WebContentsViewAura::CreateView(const gfx::Size& initial_size,
@@ -101,7 +101,7 @@ index 4a373e27bea4..684457680888 100644
        g_create_render_widget_host_view
            ? g_create_render_widget_host_view(render_widget_host,
 diff --git content/browser/web_contents/web_contents_view_aura.h content/browser/web_contents/web_contents_view_aura.h
-index 96f23b81caf2..5fb786187b0c 100644
+index 058f3e00d6f5..25a3ad4ec991 100644
 --- content/browser/web_contents/web_contents_view_aura.h
 +++ content/browser/web_contents/web_contents_view_aura.h
 @@ -114,7 +114,7 @@ class CONTENT_EXPORT WebContentsViewAura
@@ -114,7 +114,7 @@ index 96f23b81caf2..5fb786187b0c 100644
        RenderWidgetHost* render_widget_host) override;
    void SetPageTitle(const base::string16& title) override;
 diff --git content/browser/web_contents/web_contents_view_child_frame.cc content/browser/web_contents/web_contents_view_child_frame.cc
-index 345059d92363..39c376940df7 100644
+index 688540cea253..8a143a74ce12 100644
 --- content/browser/web_contents/web_contents_view_child_frame.cc
 +++ content/browser/web_contents/web_contents_view_child_frame.cc
 @@ -84,7 +84,7 @@ void WebContentsViewChildFrame::CreateView(const gfx::Size& initial_size,
@@ -127,7 +127,7 @@ index 345059d92363..39c376940df7 100644
  }
  
 diff --git content/browser/web_contents/web_contents_view_child_frame.h content/browser/web_contents/web_contents_view_child_frame.h
-index b5b3a22747ba..7a4e998d3e16 100644
+index e5485f5609c3..589bbb400684 100644
 --- content/browser/web_contents/web_contents_view_child_frame.h
 +++ content/browser/web_contents/web_contents_view_child_frame.h
 @@ -40,7 +40,7 @@ class WebContentsViewChildFrame : public WebContentsView,
@@ -140,7 +140,7 @@ index b5b3a22747ba..7a4e998d3e16 100644
        RenderWidgetHost* render_widget_host) override;
    void SetPageTitle(const base::string16& title) override;
 diff --git content/browser/web_contents/web_contents_view_guest.cc content/browser/web_contents/web_contents_view_guest.cc
-index 2b272b7ff3de..cecd81826f7d 100644
+index 44c68ed25b66..62026810703a 100644
 --- content/browser/web_contents/web_contents_view_guest.cc
 +++ content/browser/web_contents/web_contents_view_guest.cc
 @@ -67,6 +67,8 @@ gfx::NativeWindow WebContentsViewGuest::GetTopLevelNativeWindow() const {
@@ -195,7 +195,7 @@ index 2b272b7ff3de..cecd81826f7d 100644
  
  RenderWidgetHostViewBase* WebContentsViewGuest::CreateViewForPopupWidget(
 diff --git content/browser/web_contents/web_contents_view_guest.h content/browser/web_contents/web_contents_view_guest.h
-index 6f65cc816325..33a396e09671 100644
+index 9e3511a9dabc..83dfee968d59 100644
 --- content/browser/web_contents/web_contents_view_guest.h
 +++ content/browser/web_contents/web_contents_view_guest.h
 @@ -58,7 +58,7 @@ class WebContentsViewGuest : public WebContentsView,
@@ -208,7 +208,7 @@ index 6f65cc816325..33a396e09671 100644
        RenderWidgetHost* render_widget_host) override;
    void SetPageTitle(const base::string16& title) override;
 diff --git content/browser/web_contents/web_contents_view_mac.h content/browser/web_contents/web_contents_view_mac.h
-index 15f03bafc0aa..c9418cbfa707 100644
+index cf3305f96ddb..a44341905909 100644
 --- content/browser/web_contents/web_contents_view_mac.h
 +++ content/browser/web_contents/web_contents_view_mac.h
 @@ -93,7 +93,7 @@ class WebContentsViewMac : public WebContentsView,
@@ -221,10 +221,10 @@ index 15f03bafc0aa..c9418cbfa707 100644
        RenderWidgetHost* render_widget_host) override;
    void SetPageTitle(const base::string16& title) override;
 diff --git content/browser/web_contents/web_contents_view_mac.mm content/browser/web_contents/web_contents_view_mac.mm
-index 4da80f38595f..dfcf88e06b74 100644
+index 082b74eff5b2..6f477ecba11e 100644
 --- content/browser/web_contents/web_contents_view_mac.mm
 +++ content/browser/web_contents/web_contents_view_mac.mm
-@@ -348,7 +348,8 @@ void WebContentsViewMac::CreateView(
+@@ -345,7 +345,8 @@ void WebContentsViewMac::CreateView(
  }
  
  RenderWidgetHostViewBase* WebContentsViewMac::CreateViewForWidget(
@@ -234,7 +234,7 @@ index 4da80f38595f..dfcf88e06b74 100644
    if (render_widget_host->GetView()) {
      // During testing, the view will already be set up in most cases to the
      // test view, so we don't want to clobber it with a real one. To verify that
-@@ -360,6 +361,7 @@ RenderWidgetHostViewBase* WebContentsViewMac::CreateViewForWidget(
+@@ -357,6 +358,7 @@ RenderWidgetHostViewBase* WebContentsViewMac::CreateViewForWidget(
          render_widget_host->GetView());
    }
  
@@ -266,7 +266,7 @@ index d05dd5421458..fa13775f0512 100644
    // a BrowserPlugin even when we are using cross process frames for guests. It
    // should be removed after resolving https://crbug.com/642826).
 diff --git extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc
-index 5adcb212aaaf..c899de6d9a80 100644
+index a2a8e427b231..01d59c063d07 100644
 --- extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc
 +++ extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc
 @@ -193,6 +193,8 @@ void MimeHandlerViewGuest::CreateWebContents(
@@ -298,7 +298,7 @@ index 5adcb212aaaf..c899de6d9a80 100644
      WebContents* source,
      const content::OpenURLParams& params) {
 diff --git extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.h extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.h
-index adcb0864ba28..f0ba4efc277a 100644
+index 2a74abb320d5..16db064fb4a3 100644
 --- extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.h
 +++ extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.h
 @@ -108,6 +108,10 @@ class MimeHandlerViewGuest :

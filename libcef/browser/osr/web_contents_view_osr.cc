@@ -137,10 +137,9 @@ void CefWebContentsViewOSR::RenderViewCreated(content::RenderViewHost* host) {
 
 void CefWebContentsViewOSR::RenderViewReady() {}
 
-void CefWebContentsViewOSR::RenderFrameSwappedIn(
-    content::RenderFrameHost* old_host,
-    content::RenderFrameHost* new_host,
-    bool is_main_frame) {}
+void CefWebContentsViewOSR::RenderViewHostChanged(
+    content::RenderViewHost* old_host,
+    content::RenderViewHost* new_host) {}
 
 void CefWebContentsViewOSR::SetOverscrollControllerEnabled(bool enabled) {}
 

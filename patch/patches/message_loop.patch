@@ -1,5 +1,31 @@
+diff --git base/message_loop/message_loop.cc base/message_loop/message_loop.cc
+index 3c715c8e6ae9..d1622d2e87c9 100644
+--- base/message_loop/message_loop.cc
++++ base/message_loop/message_loop.cc
+@@ -701,6 +701,9 @@ MessageLoopForUI::MessageLoopForUI(Type type) : MessageLoop(type) {
+ #endif
+ }
+ 
++MessageLoopForUI::MessageLoopForUI(std::unique_ptr<MessagePump> pump)
++    : MessageLoop(TYPE_UI, BindOnce(&ReturnPump, std::move(pump))) {}
++
+ // static
+ MessageLoopCurrentForUI MessageLoopForUI::current() {
+   return MessageLoopCurrentForUI::Get();
+diff --git base/message_loop/message_loop.h base/message_loop/message_loop.h
+index f34416015fee..9727efbe288f 100644
+--- base/message_loop/message_loop.h
++++ base/message_loop/message_loop.h
+@@ -352,6 +352,7 @@ class BASE_EXPORT MessageLoop : public MessagePump::Delegate,
+ class BASE_EXPORT MessageLoopForUI : public MessageLoop {
+  public:
+   explicit MessageLoopForUI(Type type = TYPE_UI);
++  explicit MessageLoopForUI(std::unique_ptr<MessagePump> pump);
+ 
+   // TODO(gab): Mass migrate callers to MessageLoopCurrentForUI::Get()/IsSet().
+   static MessageLoopCurrentForUI current();
 diff --git base/message_loop/message_loop_current.h base/message_loop/message_loop_current.h
-index 9e19a78aca10..47a54de56a74 100644
+index 61d1607e31e7..656b3a9c9f68 100644
 --- base/message_loop/message_loop_current.h
 +++ base/message_loop/message_loop_current.h
 @@ -120,6 +120,16 @@ class BASE_EXPORT MessageLoopCurrent {
@@ -34,7 +60,7 @@ index 9e19a78aca10..47a54de56a74 100644
  
  #if !defined(OS_NACL)
 diff --git base/message_loop/message_pump_win.cc base/message_loop/message_pump_win.cc
-index 76747a5086b3..7330d87a9d2d 100644
+index 8dad64cbeb3a..63fa0e1a2be7 100644
 --- base/message_loop/message_pump_win.cc
 +++ base/message_loop/message_pump_win.cc
 @@ -11,6 +11,7 @@
@@ -45,7 +71,7 @@ index 76747a5086b3..7330d87a9d2d 100644
  #include "base/metrics/histogram_macros.h"
  #include "base/strings/stringprintf.h"
  #include "base/trace_event/trace_event.h"
-@@ -369,20 +370,28 @@ bool MessagePumpForUI::ProcessMessageHelper(const MSG& msg) {
+@@ -381,20 +382,28 @@ bool MessagePumpForUI::ProcessMessageHelper(const MSG& msg) {
  }
  
  bool MessagePumpForUI::ProcessPumpReplacementMessage() {

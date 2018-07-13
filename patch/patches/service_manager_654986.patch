@@ -1,8 +1,8 @@
 diff --git services/service_manager/embedder/main.cc services/service_manager/embedder/main.cc
-index b4728513c0a6..550384c766f2 100644
+index 3480d43aee55..310d9e0b4833 100644
 --- services/service_manager/embedder/main.cc
 +++ services/service_manager/embedder/main.cc
-@@ -300,13 +300,30 @@ int RunService(MainDelegate* delegate) {
+@@ -300,22 +300,36 @@ int RunService(MainDelegate* delegate) {
    return exit_code;
  }
  
@@ -34,43 +34,31 @@ index b4728513c0a6..550384c766f2 100644
    MainDelegate* delegate = params.delegate;
    DCHECK(delegate);
  
-@@ -374,30 +391,14 @@ int Main(const MainParams& params) {
-   MainDelegate::InitializeParams init_params;
+   int exit_code = -1;
+   base::debug::GlobalActivityTracker* tracker = nullptr;
+   ProcessType process_type = delegate->OverrideProcessType();
+-#if defined(OS_MACOSX)
+-  std::unique_ptr<base::mac::ScopedNSAutoreleasePool> autorelease_pool;
+-#endif
+ 
+   // A flag to indicate whether Main() has been called before. On Android, we
+   // may re-run Main() without restarting the browser process. This flag
+@@ -391,12 +405,7 @@ int Main(const MainParams& params) {
+     MainDelegate::InitializeParams init_params;
  
  #if defined(OS_MACOSX)
--  // We need this pool for all the objects created before we get to the event
--  // loop, but we don't want to leave them hanging around until the app quits.
--  // Each "main" needs to flush this pool right before it goes into its main
--  // event loop to get rid of the cruft.
--  std::unique_ptr<base::mac::ScopedNSAutoreleasePool> autorelease_pool =
--      std::make_unique<base::mac::ScopedNSAutoreleasePool>();
--  init_params.autorelease_pool = autorelease_pool.get();
-+  init_params.autorelease_pool = params.autorelease_pool.get();
-   InitializeMac();
+-    // We need this pool for all the objects created before we get to the event
+-    // loop, but we don't want to leave them hanging around until the app quits.
+-    // Each "main" needs to flush this pool right before it goes into its main
+-    // event loop to get rid of the cruft.
+-    autorelease_pool = std::make_unique<base::mac::ScopedNSAutoreleasePool>();
+-    init_params.autorelease_pool = autorelease_pool.get();
++    init_params.autorelease_pool = params.autorelease_pool.get();
+     InitializeMac();
  #endif
  
-   mojo::core::Configuration mojo_config;
--  ProcessType process_type = delegate->OverrideProcessType();
--  if (process_type == ProcessType::kDefault) {
--    std::string type_switch =
--        command_line.GetSwitchValueASCII(switches::kProcessType);
--    if (type_switch == switches::kProcessTypeServiceManager) {
--      mojo_config.is_broker_process = true;
--      process_type = ProcessType::kServiceManager;
--    } else if (type_switch == switches::kProcessTypeService) {
--      process_type = ProcessType::kService;
--    } else {
--      process_type = ProcessType::kEmbedder;
--    }
--  }
-+  const ProcessType process_type = GetProcessType(delegate, command_line);
-+  if (process_type == ProcessType::kServiceManager)
-+    mojo_config.is_broker_process = true;
-   mojo_config.max_message_num_bytes = kMaximumMojoMessageSize;
-   delegate->OverrideMojoConfiguration(&mojo_config);
-   mojo::core::Init(mojo_config);
-@@ -432,6 +433,16 @@ int Main(const MainParams& params) {
-         trace_config, base::trace_event::TraceLog::RECORDING_MODE);
+@@ -440,18 +449,16 @@ int Main(const MainParams& params) {
+     }
    }
  
 +  return exit_code;
@@ -81,12 +69,23 @@ index b4728513c0a6..550384c766f2 100644
 +  DCHECK(delegate);
 +
 +  int exit_code = 0;
-+  const auto& command_line = *base::CommandLine::ForCurrentProcess();
+   const auto& command_line = *base::CommandLine::ForCurrentProcess();
+-  if (process_type == ProcessType::kDefault) {
+-    std::string type_switch =
+-        command_line.GetSwitchValueASCII(switches::kProcessType);
+-    if (type_switch == switches::kProcessTypeServiceManager) {
+-      process_type = ProcessType::kServiceManager;
+-    } else if (type_switch == switches::kProcessTypeService) {
+-      process_type = ProcessType::kService;
+-    } else {
+-      process_type = ProcessType::kEmbedder;
+-    }
+-  }
 +  const ProcessType process_type = GetProcessType(delegate, command_line);
    switch (process_type) {
      case ProcessType::kDefault:
        NOTREACHED();
-@@ -460,6 +471,8 @@ int Main(const MainParams& params) {
+@@ -473,6 +480,8 @@ int Main(const MainParams& params) {
        break;
    }
  
@@ -95,7 +94,7 @@ index b4728513c0a6..550384c766f2 100644
    if (tracker) {
      if (exit_code == 0) {
        tracker->SetProcessPhaseIfEnabled(
-@@ -471,13 +484,38 @@ int Main(const MainParams& params) {
+@@ -484,13 +493,38 @@ int Main(const MainParams& params) {
      }
    }
  

@@ -16,6 +16,7 @@
 #include "components/net_log/chrome_net_log.h"
 #include "content/public/common/content_switches.h"
 #include "services/network/public/cpp/network_switches.h"
+#include "services/network/public/cpp/shared_url_loader_factory.h"
 
 ChromeBrowserProcessStub::ChromeBrowserProcessStub()
     : initialized_(false),
@@ -140,6 +141,12 @@ PrefService* ChromeBrowserProcessStub::local_state() {
 
 net::URLRequestContextGetter*
 ChromeBrowserProcessStub::system_request_context() {
+  NOTREACHED();
+  return NULL;
+}
+
+scoped_refptr<network::SharedURLLoaderFactory>
+ChromeBrowserProcessStub::shared_url_loader_factory() {
   NOTREACHED();
   return NULL;
 }

@@ -45,7 +45,7 @@ index bcf172e645a2..f879aa745adf 100644
  // on the given |command_line|.
  void SetCrashKeysFromCommandLine(const base::CommandLine& command_line);
 diff --git chrome_elf/BUILD.gn chrome_elf/BUILD.gn
-index a47b2b61fbfa..83936ff6e265 100644
+index 1b1823b87cc5..eb70d0f5d587 100644
 --- chrome_elf/BUILD.gn
 +++ chrome_elf/BUILD.gn
 @@ -7,6 +7,7 @@
@@ -127,7 +127,7 @@ index fdc51ab22807..cb0a99dd190c 100644
    g_crash_helper_enabled = true;
    return true;
 diff --git components/crash/content/app/breakpad_linux.cc components/crash/content/app/breakpad_linux.cc
-index 76f15cb5b511..7cf4cb636a2e 100644
+index a7378204ffaa..7efc255eb1b4 100644
 --- components/crash/content/app/breakpad_linux.cc
 +++ components/crash/content/app/breakpad_linux.cc
 @@ -28,6 +28,7 @@
@@ -138,7 +138,7 @@ index 76f15cb5b511..7cf4cb636a2e 100644
  #include "base/files/file_path.h"
  #include "base/lazy_instance.h"
  #include "base/linux_util.h"
-@@ -88,6 +89,7 @@ namespace {
+@@ -89,6 +90,7 @@ namespace {
  
  #if !defined(OS_CHROMEOS)
  const char kUploadURL[] = "https://clients2.google.com/cr/report";
@@ -146,7 +146,7 @@ index 76f15cb5b511..7cf4cb636a2e 100644
  #endif
  
  bool g_is_crash_reporter_enabled = false;
-@@ -686,7 +688,7 @@ bool CrashDone(const MinidumpDescriptor& minidump,
+@@ -702,7 +704,7 @@ bool CrashDone(const MinidumpDescriptor& minidump,
    info.process_type_length = 7;
    info.distro = base::g_linux_distro;
    info.distro_length = my_strlen(base::g_linux_distro);
@@ -155,7 +155,7 @@ index 76f15cb5b511..7cf4cb636a2e 100644
    info.process_start_time = g_process_start_time;
    info.oom_size = base::g_oom_size;
    info.pid = g_pid;
-@@ -1341,7 +1343,7 @@ void ExecUploadProcessOrTerminate(const BreakpadInfo& info,
+@@ -1357,7 +1359,7 @@ void ExecUploadProcessOrTerminate(const BreakpadInfo& info,
      header_content_encoding,
      header_content_type,
      post_file,
@@ -164,7 +164,7 @@ index 76f15cb5b511..7cf4cb636a2e 100644
      "--timeout=10",  // Set a timeout so we don't hang forever.
      "--tries=1",     // Don't retry if the upload fails.
      "-O",  // Output reply to the file descriptor path.
-@@ -1681,10 +1683,19 @@ void HandleCrashDump(const BreakpadInfo& info) {
+@@ -1697,10 +1699,19 @@ void HandleCrashDump(const BreakpadInfo& info) {
      GetCrashReporterClient()->GetProductNameAndVersion(&product_name, &version);
  
      writer.AddBoundary();
@@ -186,7 +186,7 @@ index 76f15cb5b511..7cf4cb636a2e 100644
      if (info.pid > 0) {
        char pid_value_buf[kUint64StringSize];
        uint64_t pid_value_len = my_uint64_len(info.pid);
-@@ -1802,10 +1813,20 @@ void HandleCrashDump(const BreakpadInfo& info) {
+@@ -1817,10 +1828,20 @@ void HandleCrashDump(const BreakpadInfo& info) {
          crash_reporter::internal::TransitionalCrashKeyStorage;
      CrashKeyStorage::Iterator crash_key_iterator(*info.crash_keys);
      const CrashKeyStorage::Entry* entry;
@@ -208,7 +208,7 @@ index 76f15cb5b511..7cf4cb636a2e 100644
        writer.AddBoundary();
        writer.Flush();
      }
-@@ -2015,6 +2036,17 @@ void SetChannelCrashKey(const std::string& channel) {
+@@ -2032,6 +2053,17 @@ void SetChannelCrashKey(const std::string& channel) {
    channel_key.Set(channel);
  }
  

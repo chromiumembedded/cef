@@ -224,6 +224,13 @@ bool CefBrowserHost::CreateBrowser(
     return false;
   }
 
+  if (windowInfo.windowless_rendering_enabled &&
+      !CefContext::Get()->settings().windowless_rendering_enabled) {
+    LOG(ERROR) << "Creating a windowless browser without setting "
+                  "CefSettings.windowless_rendering_enabled may result in "
+                  "reduced performance or runtime errors.";
+  }
+
   // Create the browser on the UI thread.
   CreateBrowserHelper* helper = new CreateBrowserHelper(
       windowInfo, client, url, settings, request_context);

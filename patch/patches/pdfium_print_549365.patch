@@ -1,5 +1,5 @@
 diff --git BUILD.gn BUILD.gn
-index d30640f30..56bc41940 100644
+index 222784f36..a492d6735 100644
 --- BUILD.gn
 +++ BUILD.gn
 @@ -239,6 +239,10 @@ jumbo_static_library("pdfium") {

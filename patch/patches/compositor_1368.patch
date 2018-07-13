@@ -1,5 +1,5 @@
 diff --git content/browser/compositor/gpu_process_transport_factory.cc content/browser/compositor/gpu_process_transport_factory.cc
-index 03defa1ab778..73be8a2c8253 100644
+index 20fa23379c4b..87d8ba911d53 100644
 --- content/browser/compositor/gpu_process_transport_factory.cc
 +++ content/browser/compositor/gpu_process_transport_factory.cc
 @@ -494,10 +494,20 @@ void GpuProcessTransportFactory::EstablishedGpuChannel(

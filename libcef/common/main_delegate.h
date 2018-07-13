@@ -38,10 +38,6 @@ class CefMainDelegate : public content::ContentMainDelegate {
   int RunProcess(
       const std::string& process_type,
       const content::MainFunctionParams& main_function_params) override;
-  int RunProcess(const std::string& process_type,
-                 const content::MainFunctionParams& main_function_params,
-                 std::unique_ptr<content::BrowserProcessSubThread>
-                     service_manager_thread) override;
   void ProcessExiting(const std::string& process_type) override;
 #if defined(OS_LINUX)
   void ZygoteForked() override;

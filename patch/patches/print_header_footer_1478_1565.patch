@@ -1,5 +1,5 @@
 diff --git chrome/browser/ui/BUILD.gn chrome/browser/ui/BUILD.gn
-index 07de64d30686..39959f0dbadb 100644
+index 8f0a3e469f58..3520b34a3b22 100644
 --- chrome/browser/ui/BUILD.gn
 +++ chrome/browser/ui/BUILD.gn
 @@ -890,6 +890,7 @@ split_static_library("ui") {
@@ -116,7 +116,7 @@ index 006966fd1c58..db9cd49af2a4 100644
  #endif
  
 diff --git components/printing/common/print_messages.cc components/printing/common/print_messages.cc
-index c2eee7803d32..8b4ecb1db44f 100644
+index 18df7614a988..9f86016d3e68 100644
 --- components/printing/common/print_messages.cc
 +++ components/printing/common/print_messages.cc
 @@ -140,7 +140,6 @@ PrintMsg_PrintFrame_Params::PrintMsg_PrintFrame_Params() {}
@@ -133,7 +133,7 @@ index c2eee7803d32..8b4ecb1db44f 100644
  }
 -#endif  // BUILDFLAG(ENABLE_PRINT_PREVIEW)
 diff --git components/printing/common/print_messages.h components/printing/common/print_messages.h
-index d85d26c7e79c..ecced6678eb5 100644
+index d29bb6aedecd..db7110ce80be 100644
 --- components/printing/common/print_messages.h
 +++ components/printing/common/print_messages.h
 @@ -86,7 +86,6 @@ struct PrintMsg_PrintFrame_Params {
@@ -253,7 +253,7 @@ index d85d26c7e79c..ecced6678eb5 100644
  
  #endif  // COMPONENTS_PRINTING_COMMON_PRINT_MESSAGES_H_
 diff --git components/printing/renderer/print_render_frame_helper.cc components/printing/renderer/print_render_frame_helper.cc
-index 7bfc822296c2..04fb1dc64a7d 100644
+index 6d106fa56134..7fd9e87e9ea4 100644
 --- components/printing/renderer/print_render_frame_helper.cc
 +++ components/printing/renderer/print_render_frame_helper.cc
 @@ -340,7 +340,6 @@ bool PrintingNodeOrPdfFrame(const blink::WebLocalFrame* frame,

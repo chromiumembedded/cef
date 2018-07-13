@@ -350,7 +350,7 @@ net::URLRequestContext* CefURLRequestContextGetterImpl::GetURLRequestContext() {
         std::move(system_proxy_service));
 
     io_state_->storage_->set_ssl_config_service(
-        std::make_unique<net::SSLConfigServiceDefaults>());
+        new net::SSLConfigServiceDefaults);
 
     std::vector<std::string> supported_schemes;
     supported_schemes.push_back("basic");

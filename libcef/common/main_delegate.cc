@@ -31,7 +31,6 @@
 #include "content/browser/browser_process_sub_thread.h"
 #include "content/public/browser/browser_main_runner.h"
 #include "content/public/browser/render_process_host.h"
-#include "content/public/common/content_features.h"
 #include "content/public/common/content_switches.h"
 #include "content/public/common/main_function_params.h"
 #include "extensions/common/constants.h"
@@ -244,12 +243,9 @@ bool IsScaleFactorSupported(ui::ScaleFactor scale_factor) {
 // Used to run the UI on a separate thread.
 class CefUIThread : public base::Thread {
  public:
-  CefUIThread(
-      const content::MainFunctionParams& main_function_params,
-      std::unique_ptr<content::BrowserProcessSubThread> service_manager_thread)
+  CefUIThread(const content::MainFunctionParams& main_function_params)
       : base::Thread("CefUIThread"),
-        main_function_params_(main_function_params),
-        service_manager_thread_(std::move(service_manager_thread)) {}
+        main_function_params_(main_function_params) {}
 
   void Init() override {
 #if defined(OS_WIN)
@@ -261,8 +257,7 @@ class CefUIThread : public base::Thread {
     browser_runner_.reset(content::BrowserMainRunner::Create());
 
     // Initialize browser process state. Uses the current thread's mesage loop.
-    int exit_code = browser_runner_->Initialize(
-        main_function_params_, std::move(service_manager_thread_));
+    int exit_code = browser_runner_->Initialize(main_function_params_);
     CHECK_EQ(exit_code, -1);
   }
 
@@ -279,7 +274,6 @@ class CefUIThread : public base::Thread {
 
  protected:
   content::MainFunctionParams main_function_params_;
-  std::unique_ptr<content::BrowserProcessSubThread> service_manager_thread_;
   std::unique_ptr<content::BrowserMainRunner> browser_runner_;
 };
 
@@ -441,30 +435,6 @@ bool CefMainDelegate::BasicStartupComplete(int* exit_code) {
           switches::kUncaughtExceptionStackSize,
           base::IntToString(settings.uncaught_exception_stack_size));
     }
-
-    std::vector<std::string> disable_features;
-
-    if (settings.windowless_rendering_enabled) {
-      // Disable AsyncWheelEvents when OSR is enabled to avoid DCHECKs in
-      // MouseWheelEventQueue.
-      if (features::kAsyncWheelEvents.default_state ==
-          base::FEATURE_ENABLED_BY_DEFAULT) {
-        disable_features.push_back(features::kAsyncWheelEvents.name);
-      }
-    }
-
-    if (!disable_features.empty()) {
-      DCHECK(!base::FeatureList::GetInstance());
-      std::string disable_features_str =
-          command_line->GetSwitchValueASCII(switches::kDisableFeatures);
-      for (auto feature_str : disable_features) {
-        if (!disable_features_str.empty())
-          disable_features_str += ",";
-        disable_features_str += feature_str;
-      }
-      command_line->AppendSwitchASCII(switches::kDisableFeatures,
-                                      disable_features_str);
-    }
   }
 
   if (content_client_.application().get()) {
@@ -576,13 +546,6 @@ void CefMainDelegate::SandboxInitialized(const std::string& process_type) {
 int CefMainDelegate::RunProcess(
     const std::string& process_type,
     const content::MainFunctionParams& main_function_params) {
-  return RunProcess(process_type, main_function_params, nullptr);
-}
-
-int CefMainDelegate::RunProcess(
-    const std::string& process_type,
-    const content::MainFunctionParams& main_function_params,
-    std::unique_ptr<content::BrowserProcessSubThread> service_manager_thread) {
   if (process_type.empty()) {
     const CefSettings& settings = CefContext::Get()->settings();
     if (!settings.multi_threaded_message_loop) {
@@ -592,15 +555,13 @@ int CefMainDelegate::RunProcess(
       // Initialize browser process state. Results in a call to
       // CefBrowserMain::PreMainMessageLoopStart() which creates the UI message
       // loop.
-      int exit_code = browser_runner_->Initialize(
-          main_function_params, std::move(service_manager_thread));
+      int exit_code = browser_runner_->Initialize(main_function_params);
       if (exit_code >= 0)
         return exit_code;
     } else {
       // Run the UI on a separate thread.
       std::unique_ptr<base::Thread> thread;
-      thread.reset(new CefUIThread(main_function_params,
-                                   std::move(service_manager_thread)));
+      thread.reset(new CefUIThread(main_function_params));
       base::Thread::Options options;
       options.message_loop_type = base::MessageLoop::TYPE_UI;
       if (!thread->StartWithOptions(options)) {

@@ -1,5 +1,5 @@
 diff --git build/config/compiler/BUILD.gn build/config/compiler/BUILD.gn
-index 295dabf..e27ae23 100644
+index 6e38ad782d38..a384f8b79c04 100644
 --- build/config/compiler/BUILD.gn
 +++ build/config/compiler/BUILD.gn
 @@ -152,7 +152,7 @@ declare_args() {
@@ -12,7 +12,7 @@ index 295dabf..e27ae23 100644
  }
  
 diff --git chrome/browser/ui/libgtkui/gtk_util.cc chrome/browser/ui/libgtkui/gtk_util.cc
-index 96f8c0e..49c462b 100644
+index 96f8c0e71472..49c462b37e12 100644
 --- chrome/browser/ui/libgtkui/gtk_util.cc
 +++ chrome/browser/ui/libgtkui/gtk_util.cc
 @@ -237,6 +237,7 @@ float GetDeviceScaleFactor() {
@@ -61,7 +61,7 @@ index 96f8c0e..49c462b 100644
    ScopedStyleContext child_context(gtk_style_context_new());
    gtk_style_context_set_path(child_context, path);
 diff --git chrome/browser/ui/libgtkui/native_theme_gtk2.cc chrome/browser/ui/libgtkui/native_theme_gtk2.cc
-index b24ff4b9..49e8071 100644
+index b24ff4b95f97..49e80717b1d6 100644
 --- chrome/browser/ui/libgtkui/native_theme_gtk2.cc
 +++ chrome/browser/ui/libgtkui/native_theme_gtk2.cc
 @@ -163,6 +163,8 @@ SkColor NativeThemeGtk2::GetSystemColor(ColorId color_id) const {
@@ -74,7 +74,7 @@ index b24ff4b9..49e8071 100644
        return GetTextColor(GetEntry(), NORMAL);
      case kColorId_LabelDisabledColor:
 diff --git ui/accessibility/platform/atk_util_auralinux_gtk2.cc ui/accessibility/platform/atk_util_auralinux_gtk2.cc
-index ac11b56..6355d02 100644
+index ac11b5626f67..6355d0283de1 100644
 --- ui/accessibility/platform/atk_util_auralinux_gtk2.cc
 +++ ui/accessibility/platform/atk_util_auralinux_gtk2.cc
 @@ -48,6 +48,7 @@ GnomeAccessibilityModuleInitFunc GetAccessibilityModuleInitFunc() {
