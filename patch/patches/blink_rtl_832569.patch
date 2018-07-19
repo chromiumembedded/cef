@@ -1,0 +1,17 @@
+diff --git third_party/blink/renderer/core/layout/layout_box.cc third_party/blink/renderer/core/layout/layout_box.cc
+index 4f724b594484..3bb15ddacdd1 100644
+--- third_party/blink/renderer/core/layout/layout_box.cc
++++ third_party/blink/renderer/core/layout/layout_box.cc
+@@ -3998,6 +3998,12 @@ void LayoutBox::ComputeInlineStaticDistance(
+     LayoutUnit static_position = child->Layer()->StaticInlinePosition() +
+                                  container_logical_width +
+                                  container_block->BorderLogicalLeft();
++    if (container_block->IsBox() &&
++        ToLayoutBox(container_block)
++            ->ShouldPlaceBlockDirectionScrollbarOnLogicalLeft()) {
++      static_position +=
++          ToLayoutBox(container_block)->OriginAdjustmentForScrollbars().Width();
++    }
+     for (LayoutObject* curr = child->Parent(); curr; curr = curr->Container()) {
+       if (curr->IsBox()) {
+         if (curr == enclosing_box)
