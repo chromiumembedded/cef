@@ -1,5 +1,5 @@
 diff --git tools/clang/scripts/update.py tools/clang/scripts/update.py
-index 03132fe9ba9b..aee7538e5902 100755
+index f69d2eb8915b..04d97b47dbe9 100755
 --- tools/clang/scripts/update.py
 +++ tools/clang/scripts/update.py
 @@ -392,7 +392,10 @@ def GetWinSDKDir():

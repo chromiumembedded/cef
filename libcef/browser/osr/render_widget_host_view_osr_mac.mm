@@ -59,7 +59,23 @@ class MacHelper : public content::BrowserCompositorMacClient,
 
   void DestroyCompositorForShutdown() override {}
 
-  bool SynchronizeVisualProperties() override {
+  bool SynchronizeVisualProperties(
+      const base::Optional<viz::LocalSurfaceId>&
+          child_allocated_local_surface_id) override {
+    auto* browser_compositor = view_->browser_compositor();
+    if (child_allocated_local_surface_id) {
+      browser_compositor->UpdateRendererLocalSurfaceIdFromChild(
+          *child_allocated_local_surface_id);
+    } else {
+      browser_compositor->AllocateNewRendererLocalSurfaceId();
+    }
+
+    if (auto* host = browser_compositor->GetDelegatedFrameHost()) {
+      host->EmbedSurface(browser_compositor->GetRendererLocalSurfaceId(),
+                         browser_compositor->GetRendererSize(),
+                         cc::DeadlinePolicy::UseDefaultDeadline());
+    }
+
     return view_->render_widget_host()->SynchronizeVisualProperties();
   }
 
@@ -84,7 +100,8 @@ bool CefRenderWidgetHostViewOSR::ShouldContinueToPauseForFrame() {
   return browser_compositor_->ShouldContinueToPauseForFrame();
 }
 
-viz::LocalSurfaceId CefRenderWidgetHostViewOSR::GetLocalSurfaceId() const {
+const viz::LocalSurfaceId& CefRenderWidgetHostViewOSR::GetLocalSurfaceId()
+    const {
   return browser_compositor_->GetRendererLocalSurfaceId();
 }
 

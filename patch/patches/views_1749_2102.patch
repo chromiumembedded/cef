@@ -39,7 +39,7 @@ index a19e6e937f87..817b7eada253 100644
    virtual void MenuWillShow() {}
  
 diff --git ui/gfx/render_text.cc ui/gfx/render_text.cc
-index a60952af55e0..7934c02ea3bb 100644
+index 0754968fae7f..e3c0d9b81459 100644
 --- ui/gfx/render_text.cc
 +++ ui/gfx/render_text.cc
 @@ -524,6 +524,14 @@ void RenderText::SetElideBehavior(ElideBehavior elide_behavior) {
@@ -57,7 +57,7 @@ index a60952af55e0..7934c02ea3bb 100644
  void RenderText::SetDisplayRect(const Rect& r) {
    if (r != display_rect_) {
      display_rect_ = r;
-@@ -1489,6 +1497,19 @@ void RenderText::OnTextAttributeChanged() {
+@@ -1505,6 +1513,19 @@ void RenderText::OnTextAttributeChanged() {
    if (!multiline_ && replace_newline_chars_with_symbols_)
      base::ReplaceChars(layout_text_, kNewline, kNewlineSymbol, &layout_text_);
  
@@ -78,10 +78,10 @@ index a60952af55e0..7934c02ea3bb 100644
  }
  
 diff --git ui/gfx/render_text.h ui/gfx/render_text.h
-index 5032b215594e..6c5edfedb251 100644
+index 76c0db086c66..ed123ef02279 100644
 --- ui/gfx/render_text.h
 +++ ui/gfx/render_text.h
-@@ -300,6 +300,10 @@ class GFX_EXPORT RenderText {
+@@ -307,6 +307,10 @@ class GFX_EXPORT RenderText {
    void SetElideBehavior(ElideBehavior elide_behavior);
    ElideBehavior elide_behavior() const { return elide_behavior_; }
  
@@ -92,7 +92,7 @@ index 5032b215594e..6c5edfedb251 100644
    const Rect& display_rect() const { return display_rect_; }
    void SetDisplayRect(const Rect& r);
  
-@@ -886,6 +890,8 @@ class GFX_EXPORT RenderText {
+@@ -903,6 +907,8 @@ class GFX_EXPORT RenderText {
    // Extra spacing placed between glyphs; used for obscured text styling.
    int glyph_spacing_ = 0;
  

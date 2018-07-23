@@ -153,8 +153,9 @@ CefBrowserContextProxy::GetSSLHostStateDelegate() {
   return parent_->GetSSLHostStateDelegate();
 }
 
-content::PermissionManager* CefBrowserContextProxy::GetPermissionManager() {
-  return parent_->GetPermissionManager();
+content::PermissionControllerDelegate*
+CefBrowserContextProxy::GetPermissionControllerDelegate() {
+  return parent_->GetPermissionControllerDelegate();
 }
 
 content::BackgroundFetchDelegate*

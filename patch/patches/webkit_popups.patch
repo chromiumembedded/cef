@@ -1,8 +1,8 @@
 diff --git third_party/blink/public/web/web_view.h third_party/blink/public/web/web_view.h
-index f4cbe0e0e245..eaabea055764 100644
+index fcba33880932..ef0bf66f8a2b 100644
 --- third_party/blink/public/web/web_view.h
 +++ third_party/blink/public/web/web_view.h
-@@ -352,6 +352,7 @@ class WebView : protected WebWidget {
+@@ -354,6 +354,7 @@ class WebView : protected WebWidget {
  
    // Sets whether select popup menus should be rendered by the browser.
    BLINK_EXPORT static void SetUseExternalPopupMenus(bool);
@@ -10,7 +10,7 @@ index f4cbe0e0e245..eaabea055764 100644
  
    // Hides any popup (suggestions, selects...) that might be showing.
    virtual void HidePopups() = 0;
-@@ -382,6 +383,8 @@ class WebView : protected WebWidget {
+@@ -384,6 +385,8 @@ class WebView : protected WebWidget {
                                    unsigned inactive_background_color,
                                    unsigned inactive_foreground_color) = 0;
  
@@ -20,10 +20,10 @@ index f4cbe0e0e245..eaabea055764 100644
  
    // Call these methods before and after running a nested, modal event loop
 diff --git third_party/blink/renderer/core/exported/web_view_impl.cc third_party/blink/renderer/core/exported/web_view_impl.cc
-index 355d0393070c..7c0d32c6d237 100644
+index 2acc5921abeb..3e0c07dd6aa3 100644
 --- third_party/blink/renderer/core/exported/web_view_impl.cc
 +++ third_party/blink/renderer/core/exported/web_view_impl.cc
-@@ -242,8 +242,13 @@ void WebView::SetUseExternalPopupMenus(bool use_external_popup_menus) {
+@@ -241,8 +241,13 @@ void WebView::SetUseExternalPopupMenus(bool use_external_popup_menus) {
    g_should_use_external_popup_menus = use_external_popup_menus;
  }
  
@@ -39,7 +39,7 @@ index 355d0393070c..7c0d32c6d237 100644
  }
  
  namespace {
-@@ -334,6 +339,7 @@ WebViewImpl::WebViewImpl(WebViewClient* client,
+@@ -337,6 +342,7 @@ WebViewImpl::WebViewImpl(WebViewClient* client,
        enable_fake_page_scale_animation_for_testing_(false),
        fake_page_scale_animation_page_scale_factor_(0),
        fake_page_scale_animation_use_anchor_(false),
@@ -48,10 +48,10 @@ index 355d0393070c..7c0d32c6d237 100644
        suppress_next_keypress_event_(false),
        ime_accept_events_(true),
 diff --git third_party/blink/renderer/core/exported/web_view_impl.h third_party/blink/renderer/core/exported/web_view_impl.h
-index f35cbf267757..39b276fb65ba 100644
+index 9055bbe708a8..dc51d1db9921 100644
 --- third_party/blink/renderer/core/exported/web_view_impl.h
 +++ third_party/blink/renderer/core/exported/web_view_impl.h
-@@ -104,7 +104,8 @@ class CORE_EXPORT WebViewImpl final : public WebView,
+@@ -105,7 +105,8 @@ class CORE_EXPORT WebViewImpl final : public WebView,
    static HashSet<WebViewImpl*>& AllInstances();
    // Returns true if popup menus should be rendered by the browser, false if
    // they should be rendered by WebKit (which is the default).
@@ -70,7 +70,7 @@ index f35cbf267757..39b276fb65ba 100644
    void SetBaseBackgroundColorOverride(SkColor);
    void ClearBaseBackgroundColorOverride();
    void SetBackgroundColorOverride(SkColor);
-@@ -612,6 +613,8 @@ class CORE_EXPORT WebViewImpl final : public WebView,
+@@ -608,6 +609,8 @@ class CORE_EXPORT WebViewImpl final : public WebView,
    float fake_page_scale_animation_page_scale_factor_;
    bool fake_page_scale_animation_use_anchor_;
  
@@ -80,10 +80,10 @@ index f35cbf267757..39b276fb65ba 100644
    TransformationMatrix device_emulation_transform_;
  
 diff --git third_party/blink/renderer/core/page/chrome_client_impl.cc third_party/blink/renderer/core/page/chrome_client_impl.cc
-index e8dffb24f6f9..beadd792985b 100644
+index 5656f762955e..d3ce4ebaf088 100644
 --- third_party/blink/renderer/core/page/chrome_client_impl.cc
 +++ third_party/blink/renderer/core/page/chrome_client_impl.cc
-@@ -807,7 +807,7 @@ bool ChromeClientImpl::HasOpenedPopup() const {
+@@ -809,7 +809,7 @@ bool ChromeClientImpl::HasOpenedPopup() const {
  PopupMenu* ChromeClientImpl::OpenPopupMenu(LocalFrame& frame,
                                             HTMLSelectElement& select) {
    NotifyPopupOpeningObservers();

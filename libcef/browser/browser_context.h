@@ -146,6 +146,7 @@ class CefBrowserContext : public ChromeProfileStub {
 
   // Profile methods.
   ChromeZoomLevelPrefs* GetZoomLevelPrefs() override;
+  scoped_refptr<network::SharedURLLoaderFactory> GetURLLoaderFactory() override;
 
   // Returns a RequestContext associated with this object. If this object is a
   // *Proxy then it will return the single associated proxy RequestContext. If

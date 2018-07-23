@@ -1,8 +1,8 @@
 diff --git content/browser/renderer_host/render_widget_host_view_base.cc content/browser/renderer_host/render_widget_host_view_base.cc
-index c7e802e7ac68..bf1d28904f49 100644
+index c61199d5dd8f..f2c19e4e5f3c 100644
 --- content/browser/renderer_host/render_widget_host_view_base.cc
 +++ content/browser/renderer_host/render_widget_host_view_base.cc
-@@ -468,6 +468,14 @@ float RenderWidgetHostViewBase::GetDeviceScaleFactor() const {
+@@ -480,6 +480,14 @@ float RenderWidgetHostViewBase::GetDeviceScaleFactor() const {
    return screen_info.device_scale_factor;
  }
  
@@ -18,7 +18,7 @@ index c7e802e7ac68..bf1d28904f49 100644
    return renderer_frame_number_;
  }
 diff --git content/browser/renderer_host/render_widget_host_view_base.h content/browser/renderer_host/render_widget_host_view_base.h
-index 1b2563d6bca0..cf6717aaeb98 100644
+index 8ed6ffd3a284..91db6f55c396 100644
 --- content/browser/renderer_host/render_widget_host_view_base.h
 +++ content/browser/renderer_host/render_widget_host_view_base.h
 @@ -84,6 +84,7 @@ class CursorManager;
@@ -39,7 +39,7 @@ index 1b2563d6bca0..cf6717aaeb98 100644
  
    // Returns the focused RenderWidgetHost inside this |view|'s RWH.
    RenderWidgetHostImpl* GetFocusedWidget() const;
-@@ -139,6 +143,8 @@ class CONTENT_EXPORT RenderWidgetHostViewBase
+@@ -141,6 +145,8 @@ class CONTENT_EXPORT RenderWidgetHostViewBase
    void DisableAutoResize(const gfx::Size& new_size) override;
    bool IsScrollOffsetAtTop() const override;
    float GetDeviceScaleFactor() const final;
@@ -48,7 +48,7 @@ index 1b2563d6bca0..cf6717aaeb98 100644
    TouchSelectionControllerClientManager*
    GetTouchSelectionControllerClientManager() override;
  
-@@ -458,6 +464,12 @@ class CONTENT_EXPORT RenderWidgetHostViewBase
+@@ -459,6 +465,12 @@ class CONTENT_EXPORT RenderWidgetHostViewBase
    // helps to position the full screen widget on the correct monitor.
    virtual void InitAsFullscreen(RenderWidgetHostView* reference_host_view) = 0;
  
@@ -61,7 +61,7 @@ index 1b2563d6bca0..cf6717aaeb98 100644
    // Sets the cursor for this view to the one associated with the specified
    // cursor_type.
    virtual void UpdateCursor(const WebCursor& cursor) = 0;
-@@ -649,6 +661,10 @@ class CONTENT_EXPORT RenderWidgetHostViewBase
+@@ -650,6 +662,10 @@ class CONTENT_EXPORT RenderWidgetHostViewBase
  
    bool use_viz_hit_test_ = false;
  
@@ -73,7 +73,7 @@ index 1b2563d6bca0..cf6717aaeb98 100644
    void SynchronizeVisualProperties();
  
 diff --git content/browser/renderer_host/render_widget_host_view_event_handler.cc content/browser/renderer_host/render_widget_host_view_event_handler.cc
-index c079001bb4e5..da93acec6e60 100644
+index 0f9d0a1c4269..cd9a314887cb 100644
 --- content/browser/renderer_host/render_widget_host_view_event_handler.cc
 +++ content/browser/renderer_host/render_widget_host_view_event_handler.cc
 @@ -30,6 +30,10 @@
@@ -87,7 +87,7 @@ index c079001bb4e5..da93acec6e60 100644
  #if defined(OS_WIN)
  #include "content/browser/frame_host/render_frame_host_impl.h"
  #include "content/public/common/context_menu_params.h"
-@@ -883,6 +887,14 @@ void RenderWidgetHostViewEventHandler::SetKeyboardFocus() {
+@@ -889,6 +893,14 @@ void RenderWidgetHostViewEventHandler::SetKeyboardFocus() {
          ::SetFocus(hwnd);
      }
    }
@@ -103,10 +103,10 @@ index c079001bb4e5..da93acec6e60 100644
    // TODO(wjmaclean): can host_ ever be null?
    if (host_ && set_focus_on_mouse_down_or_key_event_) {
 diff --git content/public/browser/render_widget_host_view.h content/public/browser/render_widget_host_view.h
-index 0f2bbdcf4b2b..2ba0761cd680 100644
+index c4b21150bbcf..fad3d9e3ebbd 100644
 --- content/public/browser/render_widget_host_view.h
 +++ content/public/browser/render_widget_host_view.h
-@@ -246,6 +246,14 @@ class CONTENT_EXPORT RenderWidgetHostView {
+@@ -253,6 +253,14 @@ class CONTENT_EXPORT RenderWidgetHostView {
    // This must always return the same device scale factor as GetScreenInfo.
    virtual float GetDeviceScaleFactor() const = 0;
  
@@ -387,7 +387,7 @@ index e4e7fc6ce96c..9123f688646f 100644
  }
  
 diff --git ui/views/widget/widget.h ui/views/widget/widget.h
-index 482ab928bdec..d06cd234da9d 100644
+index 6862cfb45d08..d0674041b075 100644
 --- ui/views/widget/widget.h
 +++ ui/views/widget/widget.h
 @@ -252,6 +252,7 @@ class VIEWS_EXPORT Widget : public internal::NativeWidgetDelegate,
@@ -427,10 +427,10 @@ index c7296fed234d..244d0034a1c4 100644
        if (native_widget_delegate->IsDialogBox()) {
          *style |= DS_MODALFRAME;
 diff --git ui/views/win/hwnd_message_handler.cc ui/views/win/hwnd_message_handler.cc
-index 19f7ed4252dc..6acb123adc30 100644
+index 65ee52f582c9..b8f60b87ce21 100644
 --- ui/views/win/hwnd_message_handler.cc
 +++ ui/views/win/hwnd_message_handler.cc
-@@ -2809,10 +2809,13 @@ LRESULT HWNDMessageHandler::HandleMouseEventInternal(UINT message,
+@@ -2817,10 +2817,13 @@ LRESULT HWNDMessageHandler::HandleMouseEventInternal(UINT message,
    } else if (event.type() == ui::ET_MOUSEWHEEL) {
      ui::MouseWheelEvent mouse_wheel_event(msg);
      // Reroute the mouse wheel to the window under the pointer if applicable.

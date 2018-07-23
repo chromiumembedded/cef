@@ -43,45 +43,34 @@ import("//tools/json_schema_compiler/json_features.gni")
 
 json_features("cef_api_features") {
   feature_type = "APIFeature"
-  provider_class = "CefAPIFeatureProvider"
+  method_name = "AddCEFAPIFeatures"
   sources = [
-    "//extensions/common/api/_api_features.json",
     "_api_features.json",
   ]
 }
 
 json_features("cef_permission_features") {
   feature_type = "PermissionFeature"
-  provider_class = "CefPermissionFeatureProvider"
+  method_name = "AddCEFPermissionFeatures"
   sources = [
-    "//extensions/common/api/_permission_features.json",
     "_permission_features.json",
   ]
 }
 
 json_features("cef_manifest_features") {
   feature_type = "ManifestFeature"
-  provider_class = "CefManifestFeatureProvider"
+  method_name = "AddCEFManifestFeatures"
   sources = [
     # Use the same manifest features as Chrome.
     "//chrome/common/extensions/api/_manifest_features.json",
-    "//extensions/common/api/_manifest_features.json",
-  ]
-}
-
-json_features("cef_behavior_features") {
-  feature_type = "BehaviorFeature"
-  provider_class = "CefBehaviorFeatureProvider"
-  sources = [
-    "//extensions/common/api/_behavior_features.json",
   ]
 }
 
 group("extensions_features") {
   public_deps = [
     ":cef_api_features",
-    ":cef_behavior_features",
     ":cef_manifest_features",
     ":cef_permission_features",
+    "//extensions/common/api:extensions_features",
   ]
 }

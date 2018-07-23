@@ -20,7 +20,6 @@
 #include "base/message_loop/message_loop.h"
 #include "base/strings/string_util.h"
 #include "content/public/browser/browser_thread.h"
-#include "content/public/common/url_fetcher.h"
 #include "net/base/io_buffer.h"
 #include "net/base/net_errors.h"
 #include "net/http/http_response_headers.h"

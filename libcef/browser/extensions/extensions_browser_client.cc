@@ -254,6 +254,10 @@ bool CefExtensionsBrowserClient::DidVersionUpdate(BrowserContext* context) {
 
 void CefExtensionsBrowserClient::PermitExternalProtocolHandler() {}
 
+bool CefExtensionsBrowserClient::IsInDemoMode() {
+  return false;
+}
+
 bool CefExtensionsBrowserClient::IsRunningInForcedAppMode() {
   return false;
 }

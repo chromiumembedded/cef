@@ -14,16 +14,20 @@
 #include "cef/grit/cef_resources.h"
 //#include "cef/libcef/common/extensions/api/generated_schemas.h"
 #include "cef/libcef/common/extensions/api/cef_api_features.h"
-#include "cef/libcef/common/extensions/api/cef_behavior_features.h"
 #include "cef/libcef/common/extensions/api/cef_manifest_features.h"
 #include "cef/libcef/common/extensions/api/cef_permission_features.h"
 #include "chrome/common/extensions/chrome_aliases.h"
 #include "chrome/common/extensions/chrome_manifest_handlers.h"
 #include "chrome/grit/common_resources.h"
+#include "extensions/common/api/api_features.h"
+#include "extensions/common/api/behavior_features.h"
 #include "extensions/common/api/generated_schemas.h"
+#include "extensions/common/api/manifest_features.h"
+#include "extensions/common/api/permission_features.h"
 #include "extensions/common/common_manifest_handlers.h"
 #include "extensions/common/extension_urls.h"
 #include "extensions/common/extensions_aliases.h"
+#include "extensions/common/features/feature_provider.h"
 #include "extensions/common/features/json_feature_provider_source.h"
 #include "extensions/common/features/simple_feature.h"
 #include "extensions/common/manifest_handler.h"
@@ -77,15 +81,19 @@ const std::string CefExtensionsClient::GetProductName() {
 
 std::unique_ptr<FeatureProvider> CefExtensionsClient::CreateFeatureProvider(
     const std::string& name) const {
-  std::unique_ptr<FeatureProvider> provider;
+  auto provider = std::make_unique<FeatureProvider>();
   if (name == "api") {
-    provider.reset(new CefAPIFeatureProvider());
+    AddCoreAPIFeatures(provider.get());
+    AddCEFAPIFeatures(provider.get());
   } else if (name == "manifest") {
-    provider.reset(new CefManifestFeatureProvider());
+    AddCoreManifestFeatures(provider.get());
+    AddCEFManifestFeatures(provider.get());
   } else if (name == "permission") {
-    provider.reset(new CefPermissionFeatureProvider());
+    AddCorePermissionFeatures(provider.get());
+    AddCEFPermissionFeatures(provider.get());
   } else if (name == "behavior") {
-    provider.reset(new CefBehaviorFeatureProvider());
+    // Note: There are no CEF-specific behavior features.
+    AddCoreBehaviorFeatures(provider.get());
   } else {
     NOTREACHED();
   }

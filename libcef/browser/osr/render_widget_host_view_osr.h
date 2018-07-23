@@ -154,7 +154,7 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
       const gfx::Size& output_size,
       base::OnceCallback<void(const SkBitmap&)> callback) override;
   void GetScreenInfo(content::ScreenInfo* results) const override;
-  gfx::Vector2d GetOffsetFromRootSurface() override;
+  void TransformPointToRootSurface(gfx::PointF* point) override;
   gfx::Rect GetBoundsInRootWindow() override;
   viz::SurfaceId GetCurrentSurfaceId() const override;
   content::BrowserAccessibilityManager* CreateBrowserAccessibilityManager(
@@ -187,8 +187,8 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
                         size_t offset,
                         const gfx::Range& range) override;
 
-  viz::LocalSurfaceId GetLocalSurfaceId() const override;
-  viz::FrameSinkId GetFrameSinkId() override;
+  const viz::LocalSurfaceId& GetLocalSurfaceId() const override;
+  const viz::FrameSinkId& GetFrameSinkId() const override;
 
   // ui::CompositorDelegate implementation.
   std::unique_ptr<viz::SoftwareOutputDevice> CreateSoftwareOutputDevice(
@@ -253,6 +253,12 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
     return render_widget_host_;
   }
   ui::Layer* GetRootLayer() const;
+
+#if defined(OS_MACOSX)
+  content::BrowserCompositorMac* browser_compositor() const {
+    return browser_compositor_.get();
+  }
+#endif
 
  private:
   content::DelegatedFrameHost* GetDelegatedFrameHost() const;

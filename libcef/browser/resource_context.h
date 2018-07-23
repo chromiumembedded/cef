@@ -38,7 +38,6 @@ class CefResourceContext : public content::ResourceContext {
   void RemoveUserData(const void* key) override;
 
   // ResourceContext implementation.
-  net::HostResolver* GetHostResolver() override;
   net::URLRequestContext* GetRequestContext() override;
 
   std::unique_ptr<net::ClientCertStore> CreateClientCertStore();

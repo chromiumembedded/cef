@@ -208,10 +208,10 @@ index 9e3511a9dabc..83dfee968d59 100644
        RenderWidgetHost* render_widget_host) override;
    void SetPageTitle(const base::string16& title) override;
 diff --git content/browser/web_contents/web_contents_view_mac.h content/browser/web_contents/web_contents_view_mac.h
-index cf3305f96ddb..a44341905909 100644
+index 2e3f4f8a56d4..75ef26b5381a 100644
 --- content/browser/web_contents/web_contents_view_mac.h
 +++ content/browser/web_contents/web_contents_view_mac.h
-@@ -93,7 +93,7 @@ class WebContentsViewMac : public WebContentsView,
+@@ -96,7 +96,7 @@ class WebContentsViewMac : public WebContentsView,
                    gfx::NativeView context) override;
    RenderWidgetHostViewBase* CreateViewForWidget(
        RenderWidgetHost* render_widget_host,
@@ -221,7 +221,7 @@ index cf3305f96ddb..a44341905909 100644
        RenderWidgetHost* render_widget_host) override;
    void SetPageTitle(const base::string16& title) override;
 diff --git content/browser/web_contents/web_contents_view_mac.mm content/browser/web_contents/web_contents_view_mac.mm
-index 082b74eff5b2..6f477ecba11e 100644
+index 03d7c9c7dcce..e84c1787a84d 100644
 --- content/browser/web_contents/web_contents_view_mac.mm
 +++ content/browser/web_contents/web_contents_view_mac.mm
 @@ -345,7 +345,8 @@ void WebContentsViewMac::CreateView(
@@ -266,10 +266,10 @@ index d05dd5421458..fa13775f0512 100644
    // a BrowserPlugin even when we are using cross process frames for guests. It
    // should be removed after resolving https://crbug.com/642826).
 diff --git extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc
-index a2a8e427b231..01d59c063d07 100644
+index 1930af130f24..77695f7844d7 100644
 --- extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc
 +++ extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc
-@@ -193,6 +193,8 @@ void MimeHandlerViewGuest::CreateWebContents(
+@@ -198,6 +198,8 @@ void MimeHandlerViewGuest::CreateWebContents(
    WebContents::CreateParams params(browser_context(),
                                     guest_site_instance.get());
    params.guest_delegate = this;
@@ -278,7 +278,7 @@ index a2a8e427b231..01d59c063d07 100644
    // TODO(erikchen): Fix ownership semantics for guest views.
    // https://crbug.com/832879.
    std::move(callback).Run(
-@@ -232,6 +234,18 @@ bool MimeHandlerViewGuest::ShouldDestroyOnDetach() const {
+@@ -239,6 +241,18 @@ bool MimeHandlerViewGuest::ShouldDestroyOnDetach() const {
    return true;
  }
  
@@ -298,10 +298,10 @@ index a2a8e427b231..01d59c063d07 100644
      WebContents* source,
      const content::OpenURLParams& params) {
 diff --git extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.h extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.h
-index 2a74abb320d5..16db064fb4a3 100644
+index 477ea3c85631..665a95b7665e 100644
 --- extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.h
 +++ extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.h
-@@ -108,6 +108,10 @@ class MimeHandlerViewGuest :
+@@ -112,6 +112,10 @@ class MimeHandlerViewGuest
    bool ZoomPropagatesFromEmbedderToGuest() const final;
    bool ShouldDestroyOnDetach() const final;
  

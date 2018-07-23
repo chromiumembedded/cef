@@ -20,6 +20,7 @@
         "renderer": [
           "blink.mojom.BudgetService",
           "extensions.KeepAlive",
+          "extensions.mime_handler.BeforeUnloadControl",
           "extensions.mime_handler.MimeHandlerService"
         ]
       }

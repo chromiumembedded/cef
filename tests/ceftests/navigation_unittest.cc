@@ -3035,20 +3035,7 @@ class CancelBeforeNavTestHandler : public TestHandler {
                    ErrorCode errorCode,
                    const CefString& errorText,
                    const CefString& failedUrl) override {
-    EXPECT_TRUE(got_loading_state_changed_start_);
-    EXPECT_TRUE(got_before_browse_);
-    EXPECT_TRUE(got_get_resource_handler_);
-    EXPECT_FALSE(got_load_start_);
-    EXPECT_TRUE(got_cancel_load_);
-    EXPECT_FALSE(got_load_error_);
-    EXPECT_FALSE(got_load_end_);
-    EXPECT_FALSE(got_loading_state_changed_end_);
-
-    const std::string& url = failedUrl;
-    EXPECT_STREQ(kCancelPageUrl, url.c_str());
-    EXPECT_EQ(GetBrowserId(), browser->GetIdentifier());
-    EXPECT_TRUE(frame->IsMain());
-
+    EXPECT_TRUE(false);  // Not reached.
     got_load_error_.yes();
   }
 
@@ -3077,7 +3064,7 @@ class CancelBeforeNavTestHandler : public TestHandler {
       EXPECT_TRUE(got_get_resource_handler_);
       EXPECT_FALSE(got_load_start_);
       EXPECT_TRUE(got_cancel_load_);
-      EXPECT_TRUE(got_load_error_);
+      EXPECT_FALSE(got_load_error_);
       EXPECT_FALSE(got_load_end_);
       EXPECT_FALSE(got_loading_state_changed_end_);
 
@@ -3103,7 +3090,7 @@ class CancelBeforeNavTestHandler : public TestHandler {
     EXPECT_TRUE(got_get_resource_handler_);
     EXPECT_FALSE(got_load_start_);
     EXPECT_TRUE(got_cancel_load_);
-    EXPECT_TRUE(got_load_error_);
+    EXPECT_FALSE(got_load_error_);
     EXPECT_FALSE(got_load_end_);
     EXPECT_TRUE(got_loading_state_changed_end_);
 

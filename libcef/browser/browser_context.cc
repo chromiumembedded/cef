@@ -130,6 +130,12 @@ ChromeZoomLevelPrefs* CefBrowserContext::GetZoomLevelPrefs() {
       GetStoragePartition(this, NULL)->GetZoomLevelDelegate());
 }
 
+scoped_refptr<network::SharedURLLoaderFactory>
+CefBrowserContext::GetURLLoaderFactory() {
+  return GetDefaultStoragePartition(this)
+      ->GetURLLoaderFactoryForBrowserProcess();
+}
+
 void CefBrowserContext::OnRenderFrameDeleted(int render_process_id,
                                              int render_frame_id,
                                              bool is_main_frame,

@@ -731,9 +731,8 @@ void CefRenderWidgetHostViewOSR::GetScreenInfo(
   *results = ScreenInfoFrom(screen_info);
 }
 
-gfx::Vector2d CefRenderWidgetHostViewOSR::GetOffsetFromRootSurface() {
-  return gfx::Vector2d();
-}
+void CefRenderWidgetHostViewOSR::TransformPointToRootSurface(
+    gfx::PointF* point) {}
 
 gfx::Rect CefRenderWidgetHostViewOSR::GetBoundsInRootWindow() {
   if (!browser_impl_.get())
@@ -857,12 +856,13 @@ void CefRenderWidgetHostViewOSR::SelectionChanged(const base::string16& text,
 }
 
 #if !defined(OS_MACOSX)
-viz::LocalSurfaceId CefRenderWidgetHostViewOSR::GetLocalSurfaceId() const {
+const viz::LocalSurfaceId& CefRenderWidgetHostViewOSR::GetLocalSurfaceId()
+    const {
   return local_surface_id_;
 }
 #endif
 
-viz::FrameSinkId CefRenderWidgetHostViewOSR::GetFrameSinkId() {
+const viz::FrameSinkId& CefRenderWidgetHostViewOSR::GetFrameSinkId() const {
   return GetDelegatedFrameHost()->frame_sink_id();
 }
 

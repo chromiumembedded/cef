@@ -418,7 +418,8 @@ CefBrowserContextImpl::GetSSLHostStateDelegate() {
   return ssl_host_state_delegate_.get();
 }
 
-content::PermissionManager* CefBrowserContextImpl::GetPermissionManager() {
+content::PermissionControllerDelegate*
+CefBrowserContextImpl::GetPermissionControllerDelegate() {
   return nullptr;
 }
 

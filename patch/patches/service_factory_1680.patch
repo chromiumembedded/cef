@@ -97,7 +97,7 @@ index 2907619549ba..f941fba363b5 100644
  
    SupervisedUserSettingsServiceFactory();
 diff --git chrome/browser/ui/prefs/prefs_tab_helper.cc chrome/browser/ui/prefs/prefs_tab_helper.cc
-index c778758ced62..80d84ef4f6a6 100644
+index b9b2f059f694..a7b11cb75f22 100644
 --- chrome/browser/ui/prefs/prefs_tab_helper.cc
 +++ chrome/browser/ui/prefs/prefs_tab_helper.cc
 @@ -11,8 +11,8 @@

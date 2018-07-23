@@ -1,8 +1,8 @@
 diff --git content/browser/renderer_host/browser_compositor_view_mac.h content/browser/renderer_host/browser_compositor_view_mac.h
-index 4be07e30cf30..103bf0917a40 100644
+index 513e70d2b738..f821043e0a4e 100644
 --- content/browser/renderer_host/browser_compositor_view_mac.h
 +++ content/browser/renderer_host/browser_compositor_view_mac.h
-@@ -58,6 +58,8 @@ class CONTENT_EXPORT BrowserCompositorMac : public DelegatedFrameHostClient,
+@@ -59,6 +59,8 @@ class CONTENT_EXPORT BrowserCompositorMac : public DelegatedFrameHostClient,
  
    // These will not return nullptr until Destroy is called.
    DelegatedFrameHost* GetDelegatedFrameHost();
@@ -12,10 +12,10 @@ index 4be07e30cf30..103bf0917a40 100644
    // Ensure that the currect compositor frame be cleared (even if it is
    // potentially visible).
 diff --git content/browser/renderer_host/browser_compositor_view_mac.mm content/browser/renderer_host/browser_compositor_view_mac.mm
-index a641f135dc10..64d38c7c1be7 100644
+index 72ad272b4d1a..0b4cd87019bf 100644
 --- content/browser/renderer_host/browser_compositor_view_mac.mm
 +++ content/browser/renderer_host/browser_compositor_view_mac.mm
-@@ -245,6 +245,12 @@ DelegatedFrameHost* BrowserCompositorMac::GetDelegatedFrameHost() {
+@@ -87,6 +87,12 @@ DelegatedFrameHost* BrowserCompositorMac::GetDelegatedFrameHost() {
    return delegated_frame_host_.get();
  }
  

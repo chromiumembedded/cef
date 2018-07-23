@@ -66,11 +66,6 @@ void CefResourceContext::RemoveUserData(const void* key) {
     content::ResourceContext::RemoveUserData(key);
 }
 
-net::HostResolver* CefResourceContext::GetHostResolver() {
-  CHECK(getter_.get());
-  return getter_->GetHostResolver();
-}
-
 net::URLRequestContext* CefResourceContext::GetRequestContext() {
   CHECK(getter_.get());
   return getter_->GetURLRequestContext();

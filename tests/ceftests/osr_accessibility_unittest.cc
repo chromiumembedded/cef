@@ -200,35 +200,16 @@ class AccessibilityTestHandler : public TestHandler,
       EXPECT_EQ(VTYPE_LIST, value->GetType());
       CefRefPtr<CefListValue> list = value->GetList();
       EXPECT_TRUE(list.get());
-      // Ignore empty events
-      if (!list->GetSize())
-        return;
+      // Always empty events after https://crrev.com/c101cb728a.
+      EXPECT_EQ(0U, list->GetSize());
 
-      // Hiding edit box should only change position of subsequent button
-      EXPECT_EQ(1U, list->GetSize());
+      got_accessibility_location_change_.yes();
+    }
 
-      CefRefPtr<CefDictionaryValue> dict = list->GetDictionary(0);
-      EXPECT_TRUE(dict.get());
-
-      // New location of button should be same as older location of edit box
-      // as that is hidden now
-      CefRefPtr<CefDictionaryValue> location =
-          dict->GetDictionary("new_location");
-      EXPECT_TRUE(location.get());
-
-      CefRefPtr<CefDictionaryValue> bounds = location->GetDictionary("bounds");
-      EXPECT_TRUE(bounds.get());
-
-      EXPECT_EQ(bounds->GetInt("x"), edit_box_rect_.x);
-      EXPECT_EQ(bounds->GetInt("y"), edit_box_rect_.y);
-      EXPECT_EQ(bounds->GetInt("width"), edit_box_rect_.width);
-      EXPECT_EQ(bounds->GetInt("height"), edit_box_rect_.height);
-
-      // Now Post a delayed task to destroy the test
-      // giving sufficient time for any accessibility updates to come through
-      CefPostDelayedTask(
-          TID_UI, base::Bind(&AccessibilityTestHandler::DestroyTest, this),
-          500);
+    if (got_hide_edit_box_) {
+      // Now destroy the test.
+      CefPostTask(TID_UI,
+                  base::Bind(&AccessibilityTestHandler::DestroyTest, this));
     }
   }
 
@@ -250,11 +231,13 @@ class AccessibilityTestHandler : public TestHandler,
   }
 
   void HideEditBox(CefRefPtr<CefBrowser> browser) {
-    // Set focus on edit box
+    // Hide the edit box.
     // This should trigger Location update if enabled
     browser->GetMainFrame()->ExecuteJavaScript(
         "document.getElementById('editbox').style.display = 'none';", kTestUrl,
         0);
+
+    got_hide_edit_box_.yes();
   }
 
   void SetFocusOnEditBox(CefRefPtr<CefBrowser> browser) {
@@ -415,19 +398,29 @@ class AccessibilityTestHandler : public TestHandler,
         edit_box_id_ = node->GetInt("id");
         CefRefPtr<CefDictionaryValue> loc = node->GetDictionary("location");
         EXPECT_TRUE(loc.get());
-        edit_box_rect_.x = loc->GetInt("x");
-        edit_box_rect_.y = loc->GetInt("y");
-        edit_box_rect_.width = loc->GetInt("width");
-        edit_box_rect_.height = loc->GetInt("height");
+        EXPECT_GT(loc->GetDouble("x"), 0);
+        EXPECT_GT(loc->GetDouble("y"), 0);
+        EXPECT_GT(loc->GetDouble("width"), 0);
+        EXPECT_GT(loc->GetDouble("height"), 0);
         break;
       }
     }
   }
 
+  void DestroyTest() override {
+    if (test_type_ == TEST_LOCATION_CHANGE) {
+      EXPECT_GT(edit_box_id_, 0);
+      EXPECT_TRUE(got_hide_edit_box_);
+      EXPECT_TRUE(got_accessibility_location_change_);
+    }
+    TestHandler::DestroyTest();
+  }
+
   AccessibilityTestType test_type_;
   int edit_box_id_;
-  CefRect edit_box_rect_;
   bool accessibility_disabled_;
+  TrackCallback got_hide_edit_box_;
+  TrackCallback got_accessibility_location_change_;
 
   IMPLEMENT_REFCOUNTING(AccessibilityTestHandler);
 };

@@ -31,6 +31,7 @@
 #include "content/browser/browser_process_sub_thread.h"
 #include "content/public/browser/browser_main_runner.h"
 #include "content/public/browser/render_process_host.h"
+#include "content/public/common/content_features.h"
 #include "content/public/common/content_switches.h"
 #include "content/public/common/main_function_params.h"
 #include "extensions/common/constants.h"
@@ -435,6 +436,29 @@ bool CefMainDelegate::BasicStartupComplete(int* exit_code) {
           switches::kUncaughtExceptionStackSize,
           base::IntToString(settings.uncaught_exception_stack_size));
     }
+
+#if defined(OS_MACOSX)
+    std::vector<std::string> disable_features;
+
+    // TODO: Remove once MacV2Sandbox is supported. See issue #2459.
+    if (features::kMacV2Sandbox.default_state ==
+        base::FEATURE_ENABLED_BY_DEFAULT) {
+      disable_features.push_back(features::kMacV2Sandbox.name);
+    }
+
+    if (!disable_features.empty()) {
+      DCHECK(!base::FeatureList::GetInstance());
+      std::string disable_features_str =
+          command_line->GetSwitchValueASCII(switches::kDisableFeatures);
+      for (auto feature_str : disable_features) {
+        if (!disable_features_str.empty())
+          disable_features_str += ",";
+        disable_features_str += feature_str;
+      }
+      command_line->AppendSwitchASCII(switches::kDisableFeatures,
+                                      disable_features_str);
+    }
+#endif  // defined(OS_MACOSX)
   }
 
   if (content_client_.application().get()) {

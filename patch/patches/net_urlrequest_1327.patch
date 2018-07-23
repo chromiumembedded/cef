@@ -1,8 +1,8 @@
 diff --git net/url_request/url_request.h net/url_request/url_request.h
-index 8551e92a205d..0bc5443c9f2e 100644
+index 6f23eedfd4f9..82d1f81e4081 100644
 --- net/url_request/url_request.h
 +++ net/url_request/url_request.h
-@@ -724,10 +724,10 @@ class NET_EXPORT URLRequest : public base::SupportsUserData {
+@@ -734,10 +734,10 @@ class NET_EXPORT URLRequest : public base::SupportsUserData {
    }
    bool upgrade_if_insecure() const { return upgrade_if_insecure_; }
  
