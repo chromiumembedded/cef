@@ -112,6 +112,7 @@ import("//third_party/widevine/cdm/widevine.gni")
 import("//tools/grit/repack.gni")
 import("//tools/grit/grit_rule.gni")
 import("//tools/v8_context_snapshot/v8_context_snapshot.gni")
+import("//ui/gl/features.gni")
 import("//v8/gni/v8.gni")
 if (is_clang) {
   import("//build/config/clang/clang.gni")
@@ -1387,11 +1388,58 @@ if (is_mac) {
     ]
   }
 
+  if (use_egl) {
+    # Add the ANGLE .dylibs in the MODULE_DIR of the Framework app bundle.
+    bundle_data("cef_framework_angle_binaries") {
+      sources = [
+        "$root_out_dir/egl_intermediates/libEGL.dylib",
+        "$root_out_dir/egl_intermediates/libGLESv2.dylib",
+      ]
+      outputs = [
+        "{{bundle_contents_dir}}/Libraries/{{source_file_part}}",
+      ]
+      public_deps = [
+        "//ui/gl:angle_library_copy",
+      ]
+    }
+
+    # Add the SwiftShader .dylibs in the MODULE_DIR of the Framework app bundle.
+    bundle_data("cef_framework_swiftshader_binaries") {
+      sources = [
+        "$root_out_dir/egl_intermediates/libswiftshader_libEGL.dylib",
+        "$root_out_dir/egl_intermediates/libswiftshader_libGLESv2.dylib",
+      ]
+      outputs = [
+        "{{bundle_contents_dir}}/Libraries/{{source_file_part}}",
+      ]
+      public_deps = [
+        "//ui/gl:swiftshader_library_copy",
+      ]
+    }
+  }
+
+  group("cef_framework_angle_library") {
+    if (use_egl) {
+      deps = [
+        ":cef_framework_angle_binaries",
+      ]
+    }
+  }
+
+  group("cef_framework_swiftshader_library") {
+    if (use_egl) {
+      deps = [
+        ":cef_framework_swiftshader_binaries",
+      ]
+    }
+  }
+
   mac_framework_bundle("cef_framework") {
     output_name = cef_framework_name
 
     framework_version = "A"
     framework_contents = [
+      "Libraries",
       "Resources",
     ]
 
@@ -1408,8 +1456,10 @@ if (is_mac) {
     #   - crash_report_sender.app
 
     deps = [
+      ":cef_framework_angle_library",
       ":cef_framework_locales",
       ":cef_framework_resources",
+      ":cef_framework_swiftshader_library",
       ":libcef_static",
     ]
 
