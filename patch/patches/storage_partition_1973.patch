@@ -306,7 +306,7 @@ index db44e03f061a..fbba4710aca3 100644
        partition->GetPaymentAppContext();
  
 diff --git content/browser/renderer_host/render_process_host_impl.cc content/browser/renderer_host/render_process_host_impl.cc
-index 6fbecc82f14a..ab2edb9e86b1 100644
+index 5ccfa4398c71..0d5e22d341ab 100644
 --- content/browser/renderer_host/render_process_host_impl.cc
 +++ content/browser/renderer_host/render_process_host_impl.cc
 @@ -727,11 +727,10 @@ class DefaultSubframeProcessHostHolder : public base::SupportsUserData::Data,
@@ -468,7 +468,7 @@ index 6fbecc82f14a..ab2edb9e86b1 100644
  
    AddUIThreadInterface(registry.get(), base::Bind(&FieldTrialRecorder::Create));
 diff --git content/browser/renderer_host/render_process_host_impl.h content/browser/renderer_host/render_process_host_impl.h
-index dad662e0ef1c..97799607ff1d 100644
+index b418b4c8a0ad..30817ff2e0fd 100644
 --- content/browser/renderer_host/render_process_host_impl.h
 +++ content/browser/renderer_host/render_process_host_impl.h
 @@ -89,7 +89,6 @@ class ResourceMessageFilter;
@@ -488,7 +488,7 @@ index dad662e0ef1c..97799607ff1d 100644
        SiteInstance* site_instance,
        bool is_for_guests_only);
  
-@@ -441,7 +440,7 @@ class CONTENT_EXPORT RenderProcessHostImpl
+@@ -438,7 +437,7 @@ class CONTENT_EXPORT RenderProcessHostImpl
    // Use CreateRenderProcessHost() instead of calling this constructor
    // directly.
    RenderProcessHostImpl(BrowserContext* browser_context,
@@ -497,7 +497,7 @@ index dad662e0ef1c..97799607ff1d 100644
                          bool is_for_guests_only);
  
    // Initializes a new IPC::ChannelProxy in |channel_|, which will be connected
-@@ -710,10 +709,10 @@ class CONTENT_EXPORT RenderProcessHostImpl
+@@ -707,10 +706,10 @@ class CONTENT_EXPORT RenderProcessHostImpl
    // called.
    int instance_id_ = 1;
  

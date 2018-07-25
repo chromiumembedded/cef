@@ -62,10 +62,10 @@ index f98ae01cd46d..bba0b1930bff 100644
  
  void WebDevToolsAgentImpl::Session::SendProtocolResponse(int session_id,
 diff --git third_party/blink/renderer/core/frame/local_frame.cc third_party/blink/renderer/core/frame/local_frame.cc
-index f0c55c05da71..9f0ede2594e4 100644
+index 5686e6a06d6f..9e65585bdb0b 100644
 --- third_party/blink/renderer/core/frame/local_frame.cc
 +++ third_party/blink/renderer/core/frame/local_frame.cc
-@@ -1228,7 +1228,7 @@ FrameResourceCoordinator* LocalFrame::GetFrameResourceCoordinator() {
+@@ -1241,7 +1241,7 @@ FrameResourceCoordinator* LocalFrame::GetFrameResourceCoordinator() {
  PluginData* LocalFrame::GetPluginData() const {
    if (!Loader().AllowPlugins(kNotAboutToInstantiatePlugin))
      return nullptr;

@@ -34,7 +34,7 @@ index c5016dcf20a2..cf1db622f8fb 100644
  
  #if !defined(OS_NACL)
 diff --git base/message_loop/message_pump_win.cc base/message_loop/message_pump_win.cc
-index 8e6f1f41def2..b07865ebae37 100644
+index 68bb4c084653..d3995c4c403e 100644
 --- base/message_loop/message_pump_win.cc
 +++ base/message_loop/message_pump_win.cc
 @@ -11,6 +11,7 @@
@@ -45,7 +45,7 @@ index 8e6f1f41def2..b07865ebae37 100644
  #include "base/metrics/histogram_macros.h"
  #include "base/strings/stringprintf.h"
  #include "base/trace_event/trace_event.h"
-@@ -369,20 +370,28 @@ bool MessagePumpForUI::ProcessMessageHelper(const MSG& msg) {
+@@ -381,20 +382,28 @@ bool MessagePumpForUI::ProcessMessageHelper(const MSG& msg) {
  }
  
  bool MessagePumpForUI::ProcessPumpReplacementMessage() {
