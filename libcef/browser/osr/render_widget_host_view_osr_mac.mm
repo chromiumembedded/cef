@@ -19,15 +19,6 @@
 #include "ui/accelerated_widget_mac/accelerated_widget_mac.h"
 #include "ui/display/screen.h"
 
-namespace {
-
-display::Display GetDisplay() {
-  // TODO(cef): Get display info from callbacks.
-  return display::Screen::GetScreen()->GetDisplayNearestView(nullptr);
-}
-
-}  // namespace
-
 class MacHelper : public content::BrowserCompositorMacClient,
                   public ui::AcceleratedWidgetMacNSView {
  public:
@@ -98,6 +89,46 @@ void CefRenderWidgetHostViewOSR::SpeakSelection() {}
 
 bool CefRenderWidgetHostViewOSR::ShouldContinueToPauseForFrame() {
   return browser_compositor_->ShouldContinueToPauseForFrame();
+}
+
+viz::ScopedSurfaceIdAllocator
+CefRenderWidgetHostViewOSR::DidUpdateVisualProperties(
+    const cc::RenderFrameMetadata& metadata) {
+  base::OnceCallback<void()> allocation_task = base::BindOnce(
+      base::IgnoreResult(
+          &CefRenderWidgetHostViewOSR::OnDidUpdateVisualPropertiesComplete),
+      weak_ptr_factory_.GetWeakPtr(), metadata);
+  return browser_compositor_->GetScopedRendererSurfaceIdAllocator(
+      std::move(allocation_task));
+}
+
+display::Display CefRenderWidgetHostViewOSR::GetDisplay() {
+  content::ScreenInfo screen_info;
+  GetScreenInfo(&screen_info);
+
+  // Start with a reasonable display representation.
+  display::Display display =
+      display::Screen::GetScreen()->GetDisplayNearestView(nullptr);
+
+  // Populate attributes based on |screen_info|.
+  display.set_bounds(screen_info.rect);
+  display.set_work_area(screen_info.available_rect);
+  display.set_device_scale_factor(screen_info.device_scale_factor);
+  display.set_color_space(screen_info.color_space);
+  display.set_color_depth(screen_info.depth);
+  display.set_depth_per_component(screen_info.depth_per_component);
+  display.set_is_monochrome(screen_info.is_monochrome);
+  display.SetRotationAsDegree(screen_info.orientation_angle);
+
+  return display;
+}
+
+void CefRenderWidgetHostViewOSR::OnDidUpdateVisualPropertiesComplete(
+    const cc::RenderFrameMetadata& metadata) {
+  DCHECK_EQ(current_device_scale_factor_, metadata.device_scale_factor);
+  browser_compositor_->SynchronizeVisualProperties(
+      metadata.device_scale_factor, metadata.viewport_size_in_pixels,
+      metadata.local_surface_id.value_or(viz::LocalSurfaceId()));
 }
 
 const viz::LocalSurfaceId& CefRenderWidgetHostViewOSR::GetLocalSurfaceId()
