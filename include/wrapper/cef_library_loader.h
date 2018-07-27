@@ -66,22 +66,34 @@ int cef_unload_library();
 //
 // Example usage in the main process:
 //
+//   #include "include/wrapper/cef_library_loader.h"
+//
 //   int main(int argc, char* argv[]) {
+//     // Dynamically load the CEF framework library.
 //     CefScopedLibraryLoader library_loader;
 //     if (!library_loader.LoadInMain())
 //       return 1;
 //
-//     // Rest of the function here...
+//     // Continue with CEF initialization...
 //   }
 //
 // Example usage in the helper process:
 //
+//   #include "include/cef_sandbox_mac.h"
+//   #include "include/wrapper/cef_library_loader.h"
+//
 //   int main(int argc, char* argv[]) {
+//     // Initialize the macOS sandbox for this helper process.
+//     CefScopedSandboxContext sandbox_context;
+//     if (!sandbox_context.Initialize(argc, argv))
+//       return 1;
+//
+//     // Dynamically load the CEF framework library.
 //     CefScopedLibraryLoader library_loader;
 //     if (!library_loader.LoadInHelper())
 //       return 1;
 //
-//     // Rest of the function here...
+//     // Continue with CEF initialization...
 //   }
 ///
 class CefScopedLibraryLoader {

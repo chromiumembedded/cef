@@ -33,8 +33,15 @@
 #include "include/wrapper/cef_library_loader.h"
 #endif
 
-#if defined(OS_WIN)
+// When generating projects with CMake the CEF_USE_SANDBOX value will be defined
+// automatically if using the required compiler version. Pass -DUSE_SANDBOX=OFF
+// to the CMake command-line to disable use of the sandbox.
+#if defined(OS_WIN) && defined(CEF_USE_SANDBOX)
 #include "include/cef_sandbox_win.h"
+
+// The cef_sandbox.lib static library may not link successfully with all VS
+// versions.
+#pragma comment(lib, "cef_sandbox.lib")
 #endif
 
 namespace {
@@ -121,7 +128,7 @@ int main(int argc, char* argv[]) {
 
   void* windows_sandbox_info = NULL;
 
-#if defined(OS_WIN)
+#if defined(OS_WIN) && defined(CEF_USE_SANDBOX)
   // Manages the life span of the sandbox information object.
   CefScopedSandboxInfo scoped_sandbox;
   windows_sandbox_info = scoped_sandbox.sandbox_info();
@@ -153,6 +160,11 @@ int main(int argc, char* argv[]) {
 #endif
 
   CefSettings settings;
+
+#if !defined(CEF_USE_SANDBOX)
+  settings.no_sandbox = true;
+#endif
+
   test_suite.GetSettings(settings);
 
 #if defined(OS_MACOSX)

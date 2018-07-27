@@ -6,6 +6,8 @@
 #define CEF_LIBCEF_COMMON_UTIL_MAC_H_
 #pragma once
 
+#include <string>
+
 namespace base {
 class FilePath;
 }
@@ -30,6 +32,13 @@ base::FilePath GetFrameworkResourcesDirectory();
 // Returns the path to the main (running) process executable (e.g.
 // "myapp.app/Contents/MacOS/myapp").
 base::FilePath GetMainProcessPath();
+
+// Returns the path to the top-level app bundle that contains the main process
+// executable (e.g. "myapp.app").
+base::FilePath GetMainBundlePath();
+
+// Returns the identifier for the top-level app bundle.
+std::string GetMainBundleID();
 
 // Returns the path to the Resources directory inside the top-level app bundle
 // (e.g. "myapp.app/Contents/Resources"). May return an empty value if not

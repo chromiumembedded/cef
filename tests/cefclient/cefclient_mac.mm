@@ -368,6 +368,13 @@ int RunMain(int argc, char* argv[]) {
 
   CefSettings settings;
 
+// When generating projects with CMake the CEF_USE_SANDBOX value will be defined
+// automatically. Pass -DUSE_SANDBOX=OFF to the CMake command-line to disable
+// use of the sandbox.
+#if !defined(CEF_USE_SANDBOX)
+  settings.no_sandbox = true;
+#endif
+
   // Populate the settings based on command line arguments.
   context->PopulateSettings(&settings);
 

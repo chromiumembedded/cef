@@ -128,6 +128,13 @@ int main(int argc, char* argv[]) {
   // Specify CEF global settings here.
   CefSettings settings;
 
+// When generating projects with CMake the CEF_USE_SANDBOX value will be defined
+// automatically. Pass -DUSE_SANDBOX=OFF to the CMake command-line to disable
+// use of the sandbox.
+#if !defined(CEF_USE_SANDBOX)
+  settings.no_sandbox = true;
+#endif
+
   // SimpleApp implements application-level callbacks for the browser process.
   // It will create the first browser instance in OnContextInitialized() after
   // CEF has initialized.

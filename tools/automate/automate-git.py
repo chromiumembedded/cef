@@ -1002,11 +1002,6 @@ if options.clientdistrib or options.clientdistribonly:
     parser.print_help(sys.stderr)
     sys.exit()
 
-if platform != 'windows' and (options.sandboxdistrib or
-                              options.sandboxdistribonly):
-  print 'The sandbox distribution is only supported on Windows.'
-  sys.exit()
-
 # CEF branch.
 if options.branch != 'trunk' and not options.branch.isdigit():
   print 'Invalid branch value: %s' % (options.branch)
@@ -1032,6 +1027,9 @@ branch_is_newer_than_2785 = (cef_branch == 'trunk' or int(cef_branch) > 2785)
 
 # True if the requested branch is 3029 or older.
 branch_is_3029_or_older = (cef_branch != 'trunk' and int(cef_branch) <= 3029)
+
+# True if the requested branch is newer than 3497.
+branch_is_newer_than_3497 = (cef_branch == 'trunk' or int(cef_branch) > 3497)
 
 # Enable GN by default for branches newer than 2785.
 if branch_is_newer_than_2785 and not 'CEF_USE_GN' in os.environ.keys():
@@ -1080,6 +1078,16 @@ else:
 if platform == 'macosx' and not options.x64build and branch_is_2272_or_newer:
   print '32-bit Mac OS X builds are no longer supported with 2272 branch and '+\
         'newer. Add --x64-build flag to generate a 64-bit build.'
+  sys.exit()
+
+# Platforms that build a cef_sandbox library.
+sandbox_lib_platforms = ['windows']
+if branch_is_newer_than_3497:
+  sandbox_lib_platforms.append('macosx')
+
+if not platform in sandbox_lib_platforms and (options.sandboxdistrib or
+                                              options.sandboxdistribonly):
+  print 'The sandbox distribution is not supported on this platform.'
   sys.exit()
 
 # Options that force the sources to change.
@@ -1519,8 +1527,8 @@ if not options.nobuild and (chromium_checkout_changed or \
         os.path.join(download_dir, 'build-%s-debug.log' % (cef_branch)) \
           if options.buildlogfile else None)
 
-    if use_gn and platform == 'windows':
-      # Make the separate cef_sandbox.lib build when GN is_official_build=true.
+    if use_gn and platform in sandbox_lib_platforms:
+      # Make the separate cef_sandbox build when GN is_official_build=true.
       build_path += '_sandbox'
       if os.path.exists(os.path.join(chromium_src_dir, build_path)):
         args_path = os.path.join(chromium_src_dir, build_path, 'args.gn')
@@ -1541,8 +1549,8 @@ if not options.nobuild and (chromium_checkout_changed or \
         os.path.join(download_dir, 'build-%s-release.log' % (cef_branch)) \
           if options.buildlogfile else None)
 
-    if use_gn and platform == 'windows':
-      # Make the separate cef_sandbox.lib build when GN is_official_build=true.
+    if use_gn and platform in sandbox_lib_platforms:
+      # Make the separate cef_sandbox build when GN is_official_build=true.
       build_path += '_sandbox'
       if os.path.exists(os.path.join(chromium_src_dir, build_path)):
         args_path = os.path.join(chromium_src_dir, build_path, 'args.gn')

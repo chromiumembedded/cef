@@ -31,9 +31,10 @@ macro(PRINT_CEF_CONFIG)
   endif()
 
   if(OS_WINDOWS)
-    message(STATUS "CEF Windows sandbox:          ${USE_SANDBOX}")
     message(STATUS "Visual Studio ATL support:    ${USE_ATL}")
   endif()
+
+  message(STATUS "CEF sandbox:                  ${USE_SANDBOX}")
 
   set(_libraries ${CEF_STANDARD_LIBS})
   if(OS_WINDOWS AND USE_SANDBOX)

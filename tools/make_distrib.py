@@ -301,16 +301,19 @@ def copy_files_list(build_dir, dst_dir, paths):
         raise Exception('Missing required path: %s' % source_path)
 
 
-def combine_libs(build_dir, libs, dest_lib):
+def combine_libs(platform, build_dir, libs, dest_lib):
   """ Combine multiple static libraries into a single static library. """
-  cmdline = 'msvs_env.bat win%s python combine_libs.py -o "%s"' % (
-      platform_arch, dest_lib)
+  if platform == 'windows':
+    cmdline = 'msvs_env.bat win%s python combine_libs.py -o "%s"' % (
+        platform_arch, dest_lib)
+  else:
+    cmdline = 'libtool -static -o "%s"' % dest_lib
   for lib in libs:
     lib_path = os.path.join(build_dir, lib)
     for path in get_files(lib_path):  # Expand wildcards in |lib_path|.
       if not path_exists(path):
         raise Exception('File not found: ' + path)
-      cmdline = cmdline + ' "%s"' % path
+      cmdline += ' "%s"' % path
   run(cmdline, os.path.join(cef_dir, 'tools'))
 
 
@@ -745,7 +748,7 @@ if platform == 'windows':
         if path_exists(os.path.join(src_dir, cef_sandbox_lib)):
           dst_dir = os.path.join(output_dir, dir_name)
           make_dir(dst_dir, options.quiet)
-          combine_libs(src_dir, sandbox_libs,
+          combine_libs(platform, src_dir, sandbox_libs,
                        os.path.join(dst_dir, 'cef_sandbox.lib'))
           break
 
@@ -849,6 +852,30 @@ elif platform == 'macosx':
   framework_dsym = '%s.dSYM' % framework_name
   cefclient_app = 'cefclient.app'
 
+  cef_sandbox_lib = 'obj/cef/libcef_sandbox.a'
+  sandbox_libs = [
+      cef_sandbox_lib,
+      'obj/sandbox/mac/libseatbelt.a',
+      'obj/sandbox/mac/libseatbelt_proto.a',
+      'obj/third_party/protobuf/libprotobuf_lite.a',
+  ]
+
+  # Generate the cef_sandbox.a merged library. A separate *_sandbox build
+  # should exist when GN is_official_build=true.
+  if mode in ('standard', 'minimal', 'sandbox'):
+    dirs = {
+        'Debug': (build_dir_debug + '_sandbox', build_dir_debug),
+        'Release': (build_dir_release + '_sandbox', build_dir_release)
+    }
+    for dir_name in dirs.keys():
+      for src_dir in dirs[dir_name]:
+        if path_exists(os.path.join(src_dir, cef_sandbox_lib)):
+          dst_dir = os.path.join(output_dir, dir_name)
+          make_dir(dst_dir, options.quiet)
+          combine_libs(platform, src_dir, sandbox_libs,
+                       os.path.join(dst_dir, 'cef_sandbox.a'))
+          break
+
   valid_build_dir = None
 
   if mode == 'standard':
@@ -879,42 +906,44 @@ elif platform == 'macosx':
     else:
       sys.stdout.write("No Debug build files.\n")
 
-  # transfer Release files
-  build_dir = build_dir_release
-  if not options.allowpartial or path_exists(
-      os.path.join(build_dir, cefclient_app)):
-    valid_build_dir = build_dir
-    dst_dir = os.path.join(output_dir, 'Release')
-    make_dir(dst_dir, options.quiet)
-    framework_src_dir = os.path.join(
-        build_dir, '%s/Contents/Frameworks/%s.framework/Versions/A' %
-        (cefclient_app, framework_name))
-    if mode != 'client':
-      framework_dst_dir = os.path.join(dst_dir, '%s.framework' % framework_name)
+  if mode != 'sandbox':
+    # transfer Release files
+    build_dir = build_dir_release
+    if not options.allowpartial or path_exists(
+        os.path.join(build_dir, cefclient_app)):
+      valid_build_dir = build_dir
+      dst_dir = os.path.join(output_dir, 'Release')
+      make_dir(dst_dir, options.quiet)
+      framework_src_dir = os.path.join(
+          build_dir, '%s/Contents/Frameworks/%s.framework/Versions/A' %
+          (cefclient_app, framework_name))
+      if mode != 'client':
+        framework_dst_dir = os.path.join(dst_dir,
+                                         '%s.framework' % framework_name)
+      else:
+        copy_dir(
+            os.path.join(build_dir, cefclient_app),
+            os.path.join(dst_dir, cefclient_app), options.quiet)
+        # Replace the versioned framework with an unversioned framework in the sample app.
+        framework_dst_dir = os.path.join(
+            dst_dir, '%s/Contents/Frameworks/%s.framework' % (cefclient_app,
+                                                              framework_name))
+        remove_dir(framework_dst_dir, options.quiet)
+      copy_dir(framework_src_dir, framework_dst_dir, options.quiet)
+
+      if not options.nosymbols:
+        # create the symbol output directory
+        symbol_output_dir = create_output_dir(
+            output_dir_name + '_release_symbols', options.outputdir)
+
+        # The real dSYM already exists, just copy it to the output directory.
+        # dSYMs are only generated when is_official_build=true or enable_dsyms=true.
+        # See //build/config/mac/symbols.gni.
+        copy_dir(
+            os.path.join(build_dir, framework_dsym),
+            os.path.join(symbol_output_dir, framework_dsym), options.quiet)
     else:
-      copy_dir(
-          os.path.join(build_dir, cefclient_app),
-          os.path.join(dst_dir, cefclient_app), options.quiet)
-      # Replace the versioned framework with an unversioned framework in the sample app.
-      framework_dst_dir = os.path.join(
-          dst_dir, '%s/Contents/Frameworks/%s.framework' % (cefclient_app,
-                                                            framework_name))
-      remove_dir(framework_dst_dir, options.quiet)
-    copy_dir(framework_src_dir, framework_dst_dir, options.quiet)
-
-    if not options.nosymbols:
-      # create the symbol output directory
-      symbol_output_dir = create_output_dir(
-          output_dir_name + '_release_symbols', options.outputdir)
-
-      # The real dSYM already exists, just copy it to the output directory.
-      # dSYMs are only generated when is_official_build=true or enable_dsyms=true.
-      # See //build/config/mac/symbols.gni.
-      copy_dir(
-          os.path.join(build_dir, framework_dsym),
-          os.path.join(symbol_output_dir, framework_dsym), options.quiet)
-  else:
-    sys.stdout.write("No Release build files.\n")
+      sys.stdout.write("No Release build files.\n")
 
   if mode == 'standard' or mode == 'minimal':
     # transfer include files

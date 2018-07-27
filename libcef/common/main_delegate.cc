@@ -98,6 +98,20 @@ void OverrideFrameworkBundlePath() {
   base::mac::SetOverrideFrameworkBundlePath(framework_path);
 }
 
+void OverrideOuterBundlePath() {
+  base::FilePath bundle_path = util_mac::GetMainBundlePath();
+  DCHECK(!bundle_path.empty());
+
+  base::mac::SetOverrideOuterBundlePath(bundle_path);
+}
+
+void OverrideBaseBundleID() {
+  std::string bundle_id = util_mac::GetMainBundleID();
+  DCHECK(!bundle_id.empty());
+
+  base::mac::SetBaseBundleID(bundle_id.c_str());
+}
+
 void OverrideChildProcessPath() {
   base::FilePath child_process_path =
       base::CommandLine::ForCurrentProcess()->GetSwitchValuePath(
@@ -436,29 +450,6 @@ bool CefMainDelegate::BasicStartupComplete(int* exit_code) {
           switches::kUncaughtExceptionStackSize,
           base::IntToString(settings.uncaught_exception_stack_size));
     }
-
-#if defined(OS_MACOSX)
-    std::vector<std::string> disable_features;
-
-    // TODO: Remove once MacV2Sandbox is supported. See issue #2459.
-    if (features::kMacV2Sandbox.default_state ==
-        base::FEATURE_ENABLED_BY_DEFAULT) {
-      disable_features.push_back(features::kMacV2Sandbox.name);
-    }
-
-    if (!disable_features.empty()) {
-      DCHECK(!base::FeatureList::GetInstance());
-      std::string disable_features_str =
-          command_line->GetSwitchValueASCII(switches::kDisableFeatures);
-      for (auto feature_str : disable_features) {
-        if (!disable_features_str.empty())
-          disable_features_str += ",";
-        disable_features_str += feature_str;
-      }
-      command_line->AppendSwitchASCII(switches::kDisableFeatures,
-                                      disable_features_str);
-    }
-#endif  // defined(OS_MACOSX)
   }
 
   if (content_client_.application().get()) {
@@ -517,6 +508,8 @@ bool CefMainDelegate::BasicStartupComplete(int* exit_code) {
 
 #if defined(OS_MACOSX)
   OverrideFrameworkBundlePath();
+  OverrideOuterBundlePath();
+  OverrideBaseBundleID();
 #endif
 
   return false;

@@ -121,6 +121,12 @@ if(OS_MACOSX)
     OUTPUT_NAME ${CEF_HELPER_OUTPUT_NAME}
     )
 
+  if(USE_SANDBOX)
+    # Logical target used to link the cef_sandbox library.
+    ADD_LOGICAL_TARGET("cef_sandbox_lib" "${CEF_SANDBOX_LIB_DEBUG}" "${CEF_SANDBOX_LIB_RELEASE}")
+    target_link_libraries(${CEF_HELPER_TARGET} cef_sandbox_lib)
+  endif()
+
   # Main executable target.
   add_executable(${CEF_TARGET} MACOSX_BUNDLE ${UNITTESTS_RESOURCES_SRCS} ${UNITTESTS_SRCS})
   SET_EXECUTABLE_TARGET_PROPERTIES(${CEF_TARGET})

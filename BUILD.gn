@@ -1028,6 +1028,15 @@ if (is_win) {
   }
 }
 
+if (is_mac) {
+  static_library("cef_sandbox") {
+    sources = [ "libcef_dll/sandbox/sandbox_mac.mm" ]
+    # CEF sources use include paths relative to the CEF root directory.
+    include_dirs = [ "." ]
+    deps = [ "//sandbox/mac:seatbelt" ]
+  }
+}
+
 
 #
 # Service manifests.
@@ -1568,6 +1577,7 @@ if (is_mac) {
       sources = invoker.helper_sources
 
       deps = [
+        ":cef_sandbox",
         ":libcef_dll_wrapper",
       ]
       if (defined(invoker.helper_deps)) {
@@ -1582,6 +1592,10 @@ if (is_mac) {
       ]
 
       info_plist_target = ":${app_name}_helper_plist"
+
+      if (defined(invoker.helper_defines)) {
+        defines = invoker.helper_defines
+      }
     }
 
     bundle_data("${app_name}_framework_bundle_data") {
@@ -1626,6 +1640,10 @@ if (is_mac) {
 
       if (defined(invoker.libs)) {
         libs = invoker.libs
+      }
+
+      if (defined(invoker.defines)) {
+        defines = invoker.defines
       }
 
       info_plist_target = ":${app_name}_plist"
@@ -1687,6 +1705,9 @@ if (is_mac) {
     helper_deps = [
       ":libcef_dll_wrapper",
     ]
+    helper_defines = [
+      "CEF_USE_SANDBOX",
+    ]
 
     info_plist = "tests/cefclient/resources/mac/Info.plist"
     sources = gypi_paths2.includes_mac +
@@ -1709,6 +1730,9 @@ if (is_mac) {
     libs = [
       "AppKit.framework",
       "OpenGL.framework",
+    ]
+    defines = [
+      "CEF_USE_SANDBOX",
     ]
   }
 
@@ -1755,6 +1779,9 @@ if (is_mac) {
     helper_deps = [
       ":libcef_dll_wrapper",
     ]
+    helper_defines = [
+      "CEF_USE_SANDBOX",
+    ]
 
     info_plist = "tests/cefsimple/mac/Info.plist"
     sources = gypi_paths2.includes_mac +
@@ -1768,6 +1795,9 @@ if (is_mac) {
       ":cefsimple_resources_bundle_data_english",
       ":cefsimple_xibs",
       ":libcef_dll_wrapper",
+    ]
+    defines = [
+      "CEF_USE_SANDBOX",
     ]
   }
 
@@ -1816,6 +1846,9 @@ if (is_mac) {
       ":libcef_dll_wrapper",
       "//testing/gtest",
     ]
+    helper_defines = [
+      "CEF_USE_SANDBOX",
+    ]
 
     info_plist = "tests/ceftests/resources/mac/Info.plist"
     sources = gypi_paths2.includes_mac +
@@ -1836,6 +1869,9 @@ if (is_mac) {
     ]
     libs = [
       "AppKit.framework",
+    ]
+    defines = [
+      "CEF_USE_SANDBOX",
     ]
   }
 } else {
@@ -1893,6 +1929,10 @@ if (is_mac) {
       ":libcef_dll_wrapper",
     ]
 
+    defines = [
+      "CEF_USE_SANDBOX",
+    ]
+
     if (is_win) {
       sources += gypi_paths2.includes_win +
                  gypi_paths2.shared_sources_win +
@@ -1902,9 +1942,8 @@ if (is_mac) {
       configs -= [ "//build/config/win:console" ]
       configs += [ "//build/config/win:windowed" ]
 
-      defines = [
+      defines += [
         "CEF_USE_ATL",
-        "CEF_USE_SANDBOX",
       ]
 
       deps += [
@@ -1966,6 +2005,10 @@ if (is_mac) {
       ":libcef_dll_wrapper",
     ]
 
+    defines = [
+      "CEF_USE_SANDBOX",
+    ]
+
     if (is_win) {
       sources += gypi_paths2.includes_win +
                  gypi_paths2.cefsimple_sources_win
@@ -1973,10 +2016,6 @@ if (is_mac) {
       # Set /SUBSYSTEM:WINDOWS.
       configs -= [ "//build/config/win:console" ]
       configs += [ "//build/config/win:windowed" ]
-
-      defines = [
-        "CEF_USE_SANDBOX",
-      ]
 
       deps += [
         ":cef_sandbox",
@@ -2035,13 +2074,13 @@ if (is_mac) {
       "//testing/gtest",
     ]
 
+    defines = [
+      "CEF_USE_SANDBOX",
+    ]
+
     if (is_win) {
       sources += gypi_paths2.shared_sources_win +
                  gypi_paths2.ceftests_sources_win
-
-      defines = [
-        "CEF_USE_SANDBOX",
-      ]
 
       deps += [
         ":cef_sandbox",

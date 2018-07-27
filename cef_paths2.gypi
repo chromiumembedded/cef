@@ -79,6 +79,7 @@
       'include/base/internal/cef_atomicops_atomicword_compat.h',
       'include/base/internal/cef_atomicops_mac.h',
       'include/cef_application_mac.h',
+      'include/cef_sandbox_mac.h',
       'include/internal/cef_mac.h',
       'include/internal/cef_types_mac.h',
     ],

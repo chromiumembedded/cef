@@ -66,6 +66,10 @@ list(APPEND CEF_COMPILER_DEFINES
   )
 
 
+# Configure use of the sandbox.
+option(USE_SANDBOX "Enable or disable use of the sandbox." ON)
+
+
 #
 # Linux configuration.
 #
@@ -217,6 +221,12 @@ if(OS_LINUX)
     icudtl.dat
     locales
     )
+
+  if(USE_SANDBOX)
+    list(APPEND CEF_COMPILER_DEFINES
+      CEF_USE_SANDBOX   # Used by apps to test if the sandbox is enabled
+      )
+  endif()
 endif()
 
 
@@ -313,6 +323,16 @@ if(OS_MACOSX)
   set(CEF_BINARY_DIR          "${_CEF_ROOT}/$<CONFIGURATION>")
   set(CEF_BINARY_DIR_DEBUG    "${_CEF_ROOT}/Debug")
   set(CEF_BINARY_DIR_RELEASE  "${_CEF_ROOT}/Release")
+
+  if(USE_SANDBOX)
+    list(APPEND CEF_COMPILER_DEFINES
+      CEF_USE_SANDBOX   # Used by apps to test if the sandbox is enabled
+      )
+
+    # CEF sandbox library paths.
+    set(CEF_SANDBOX_LIB_DEBUG "${CEF_BINARY_DIR_DEBUG}/cef_sandbox.a")
+    set(CEF_SANDBOX_LIB_RELEASE "${CEF_BINARY_DIR_RELEASE}/cef_sandbox.a")
+  endif()
 endif()
 
 
@@ -329,8 +349,6 @@ if(OS_WINDOWS)
     set(CMAKE_CXX_FLAGS_RELEASE "")
   endif()
 
-  # Configure use of the sandbox.
-  option(USE_SANDBOX "Enable or disable use of the sandbox." ON)
   if(USE_SANDBOX)
     # Check if the current MSVC version is compatible with the cef_sandbox.lib
     # static library. For a list of all version numbers see
