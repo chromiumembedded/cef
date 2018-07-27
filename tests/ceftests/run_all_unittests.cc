@@ -29,6 +29,10 @@
 #include "tests/shared/common/client_app_other.h"
 #include "tests/shared/renderer/client_app_renderer.h"
 
+#if defined(OS_MACOSX)
+#include "include/wrapper/cef_library_loader.h"
+#endif
+
 #if defined(OS_WIN)
 #include "include/cef_sandbox_win.h"
 #endif
@@ -93,6 +97,14 @@ int XIOErrorHandlerImpl(Display* display) {
 }  // namespace
 
 int main(int argc, char* argv[]) {
+#if defined(OS_MACOSX)
+  // Load the CEF framework library at runtime instead of linking directly
+  // as required by the macOS sandbox implementation.
+  CefScopedLibraryLoader library_loader;
+  if (!library_loader.LoadInMain())
+    return 1;
+#endif
+
   // Create the singleton test suite object.
   CefTestSuite test_suite(argc, argv);
 

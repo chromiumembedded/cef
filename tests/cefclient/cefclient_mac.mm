@@ -6,6 +6,7 @@
 #import <Cocoa/Cocoa.h>
 #include "include/cef_app.h"
 #import "include/cef_application_mac.h"
+#import "include/wrapper/cef_library_loader.h"
 #include "tests/cefclient/browser/main_context_impl.h"
 #include "tests/cefclient/browser/resource.h"
 #include "tests/cefclient/browser/root_window.h"
@@ -338,6 +339,12 @@ namespace client {
 namespace {
 
 int RunMain(int argc, char* argv[]) {
+  // Load the CEF framework library at runtime instead of linking directly
+  // as required by the macOS sandbox implementation.
+  CefScopedLibraryLoader library_loader;
+  if (!library_loader.LoadInMain())
+    return 1;
+
   CefMainArgs main_args(argc, argv);
 
   // Initialize the AutoRelease pool.
@@ -403,7 +410,7 @@ int RunMain(int argc, char* argv[]) {
 }  // namespace
 }  // namespace client
 
-// Program entry point function.
+// Entry point function for the browser process.
 int main(int argc, char* argv[]) {
   return client::RunMain(argc, argv);
 }

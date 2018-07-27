@@ -3,6 +3,7 @@
 // be found in the LICENSE file.
 
 #include "include/cef_app.h"
+#import "include/wrapper/cef_library_loader.h"
 
 #include "tests/shared/common/client_app_other.h"
 #include "tests/shared/renderer/client_app_renderer.h"
@@ -10,6 +11,12 @@
 namespace client {
 
 int RunMain(int argc, char* argv[]) {
+  // Load the CEF framework library at runtime instead of linking directly
+  // as required by the macOS sandbox implementation.
+  CefScopedLibraryLoader library_loader;
+  if (!library_loader.LoadInHelper())
+    return 1;
+
   CefMainArgs main_args(argc, argv);
 
   // Parse command-line arguments.
@@ -30,7 +37,7 @@ int RunMain(int argc, char* argv[]) {
 
 }  // namespace client
 
-// Process entry point.
+// Entry point function for sub-processes.
 int main(int argc, char* argv[]) {
   return client::RunMain(argc, argv);
 }

@@ -920,6 +920,12 @@ elif platform == 'macosx':
     # transfer include files
     transfer_gypi_files(cef_dir, cef_paths2['includes_mac'], \
                         'include/', include_dir, options.quiet)
+    transfer_gypi_files(cef_dir, cef_paths2['includes_wrapper_mac'], \
+                        'include/', include_dir, options.quiet)
+
+    # transfer libcef_dll_wrapper files
+    transfer_gypi_files(cef_dir, cef_paths2['libcef_dll_wrapper_sources_mac'], \
+                      'libcef_dll/', libcef_dll_dir, options.quiet)
 
     # transfer additional files, if any
     transfer_files(cef_dir, script_dir, os.path.join(script_dir, 'distrib', 'mac'), \

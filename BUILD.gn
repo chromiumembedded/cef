@@ -1004,6 +1004,10 @@ static_library("libcef_dll_wrapper") {
             gypi_paths2.libcef_dll_wrapper_sources_common +
             gypi_paths.autogen_client_side
 
+  if (is_mac) {
+    sources += gypi_paths2.libcef_dll_wrapper_sources_mac
+  }
+
   defines = [ "WRAPPING_CEF_SHARED" ]
 
   configs += [ ":libcef_dll_wrapper_config" ]
@@ -1463,14 +1467,9 @@ if (is_mac) {
       ":libcef_static",
     ]
 
-    # Both the main app executable and helper executables need to link the
-    # framework. Because they are at different directory depths, using
-    # @executable_path as the install_name would require using install_name_tool
-    # on one of the executables. However install_name_tool only operates
-    # in-place, which is problematic to express in GN. Instead, use rpath-based
-    # loading.
+    # We don't link the framework so just use the path from the main executable.
     ldflags = [
-      "-Wl,-install_name,@rpath/Frameworks/$output_name.framework/$output_name",
+      "-Wl,-install_name,@executable_path/../Frameworks/$output_name.framework/$output_name",
       "-compatibility_version",
       cef_dylib_version,
       "-current_version",
@@ -1569,7 +1568,6 @@ if (is_mac) {
       sources = invoker.helper_sources
 
       deps = [
-        ":cef_framework+link",
         ":libcef_dll_wrapper",
       ]
       if (defined(invoker.helper_deps)) {
@@ -1578,9 +1576,9 @@ if (is_mac) {
 
       ldflags = [
         # The helper is in $app_name.app/Contents/Frameworks/$app_name Helper.app/Contents/MacOS/
-        # so set rpath up to Contents/ so that the loader can find Frameworks/.
+        # so set rpath up to the base.
         "-rpath",
-        "@executable_path/../../../..",
+         "@executable_path/../../../../../..",
       ]
 
       info_plist_target = ":${app_name}_helper_plist"
@@ -1594,7 +1592,7 @@ if (is_mac) {
       ]
 
       public_deps = [
-        ":cef_framework+link",
+        ":cef_framework",
         ":${app_name}_helper_app",
       ]
 
@@ -1629,13 +1627,6 @@ if (is_mac) {
       if (defined(invoker.libs)) {
         libs = invoker.libs
       }
-
-      ldflags = [
-        # The main app is at $app_name.app/Contents/MacOS/$app_name
-        # so set rpath up to Contents/ so that the loader can find Frameworks/.
-        "-rpath",
-        "@executable_path/../",
-      ]
 
       info_plist_target = ":${app_name}_plist"
     }
@@ -1687,6 +1678,7 @@ if (is_mac) {
     helper_sources = gypi_paths2.includes_mac +
                      gypi_paths2.includes_common +
                      gypi_paths2.includes_wrapper +
+                     gypi_paths2.includes_wrapper_mac +
                      gypi_paths2.shared_sources_common +
                      gypi_paths2.shared_sources_renderer +
                      gypi_paths2.shared_sources_mac_helper +
@@ -1700,6 +1692,7 @@ if (is_mac) {
     sources = gypi_paths2.includes_mac +
               gypi_paths2.includes_common +
               gypi_paths2.includes_wrapper +
+              gypi_paths2.includes_wrapper_mac +
               gypi_paths2.shared_sources_browser +
               gypi_paths2.shared_sources_common +
               gypi_paths2.shared_sources_mac +
@@ -1757,6 +1750,7 @@ if (is_mac) {
     helper_sources = gypi_paths2.includes_mac +
                      gypi_paths2.includes_common +
                      gypi_paths2.includes_wrapper +
+                     gypi_paths2.includes_wrapper_mac +
                      gypi_paths2.cefsimple_sources_mac_helper
     helper_deps = [
       ":libcef_dll_wrapper",
@@ -1766,6 +1760,7 @@ if (is_mac) {
     sources = gypi_paths2.includes_mac +
               gypi_paths2.includes_common +
               gypi_paths2.includes_wrapper +
+              gypi_paths2.includes_wrapper_mac +
               gypi_paths2.cefsimple_sources_common +
               gypi_paths2.cefsimple_sources_mac
     deps = [
@@ -1826,6 +1821,7 @@ if (is_mac) {
     sources = gypi_paths2.includes_mac +
               gypi_paths2.includes_common +
               gypi_paths2.includes_wrapper +
+              gypi_paths2.includes_wrapper_mac +
               gypi_paths2.shared_sources_browser +
               gypi_paths2.shared_sources_common +
               gypi_paths2.shared_sources_mac +

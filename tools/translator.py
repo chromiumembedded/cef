@@ -13,6 +13,7 @@ from make_cpptoc_impl import *
 from make_ctocpp_header import *
 from make_ctocpp_impl import *
 from make_gypi_file import *
+from make_libcef_dll_dylib_impl import *
 from make_views_stub_impl import *
 from make_wrapper_types_header import *
 from optparse import OptionParser
@@ -80,6 +81,8 @@ cpptoc_dir = os.path.join(libcef_dll_dir, 'cpptoc')
 ctocpp_dir = os.path.join(libcef_dll_dir, 'ctocpp')
 gypi_file = os.path.join(root_dir, 'cef_paths.gypi')
 views_stub_impl = os.path.join(libcef_dll_dir, 'views_stub.cc')
+libcef_dll_dylib_impl = os.path.join(libcef_dll_dir, 'wrapper',
+                                     'libcef_dll_dylib.cc')
 
 # make sure the header directory exists
 if not path_exists(cpp_header_dir):
@@ -139,7 +142,7 @@ def update_file(file, newcontents):
   newcontents = newcontents.replace(hash_token, newhash, 1)
 
   # Apply clang-format for C/C++ files.
-  if os.path.splitext(file)[1][1:] in ('cc', 'cpp', 'h'):
+  if os.path.splitext(file)[1][1:] in ('c', 'cc', 'cpp', 'h'):
     result = clang_format(file, newcontents)
     if result != None:
       newcontents = result
@@ -227,6 +230,11 @@ update_file(*write_gypi_file(header, gypi_file))
 if not options.quiet:
   sys.stdout.write('Generating ' + views_stub_impl + ' file...\n')
 update_file(*write_views_stub_impl(header, views_stub_impl))
+
+# output the libcef dll dylib file
+if not options.quiet:
+  sys.stdout.write('Generating ' + libcef_dll_dylib_impl + ' file...\n')
+update_file(*write_libcef_dll_dylib_impl(header, libcef_dll_dylib_impl))
 
 if not options.quiet:
   sys.stdout.write('Done - Wrote ' + str(writect) + ' files.\n')

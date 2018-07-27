@@ -476,7 +476,13 @@ void RootWindowMac::CreateRootWindow(const CefBrowserSettings& settings,
   NSRect screen_rect = [[NSScreen mainScreen] visibleFrame];
   NSRect window_rect =
       NSMakeRect(x, screen_rect.size.height - y, width, height);
-  window_ = [[UnderlayOpenGLHostingWindow alloc]
+
+  // The CEF framework library is loaded at runtime so we need to use this
+  // mechanism for retrieving the class.
+  Class window_class = NSClassFromString(@"UnderlayOpenGLHostingWindow");
+  CHECK(window_class);
+
+  window_ = [[window_class alloc]
       initWithContentRect:window_rect
                 styleMask:(NSTitledWindowMask | NSClosableWindowMask |
                            NSMiniaturizableWindowMask | NSResizableWindowMask |

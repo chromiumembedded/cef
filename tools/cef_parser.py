@@ -386,15 +386,18 @@ _simpletypes = {
 }
 
 
-def get_function_impls(content, ident):
+def get_function_impls(content, ident, has_impl=True):
   """ Retrieve the function parts from the specified contents as a set of
     return value, name, arguments and body. Ident must occur somewhere in
     the value.
     """
   # extract the functions
-  p = re.compile(
-      '\n' + _cre_func + '\((.*?)\)([A-Za-z0-9_\s]{0,})' + '\{(.*?)\n\}',
-      re.MULTILINE | re.DOTALL)
+  find_regex = '\n' + _cre_func + '\((.*?)\)([A-Za-z0-9_\s]{0,})'
+  if has_impl:
+    find_regex += '\{(.*?)\n\}'
+  else:
+    find_regex += '(;)'
+  p = re.compile(find_regex, re.MULTILINE | re.DOTALL)
   list = p.findall(content)
 
   # build the function map with the function name as the key
@@ -405,28 +408,31 @@ def get_function_impls(content, ident):
       continue
 
     # remove the identifier
-    retval = string.replace(retval, ident, '')
-    retval = string.strip(retval)
+    retval = retval.replace(ident, '')
+    retval = retval.strip()
+
+    # Normalize the delimiter.
+    retval = retval.replace('\n', ' ')
 
     # retrieve the function name
-    parts = string.split(retval, ' ')
+    parts = retval.split(' ')
     name = parts[-1]
     del parts[-1]
-    retval = string.join(parts, ' ')
+    retval = ' '.join(parts)
 
     # parse the arguments
     args = []
-    for v in string.split(argval, ','):
-      v = string.strip(v)
+    for v in argval.split(','):
+      v = v.strip()
       if len(v) > 0:
         args.append(v)
 
     result.append({
-        'retval': string.strip(retval),
+        'retval': retval.strip(),
         'name': name,
         'args': args,
-        'vfmod': string.strip(vfmod),
-        'body': body
+        'vfmod': vfmod.strip(),
+        'body': body if has_impl else '',
     })
 
   return result
@@ -476,6 +482,10 @@ class obj_header:
   def set_root_directory(self, root_directory):
     """ Set the root directory. """
     self.root_directory = root_directory
+
+  def get_root_directory(self):
+    """ Get the root directory. """
+    return self.root_directory
 
   def add_directory(self, directory, excluded_files=[]):
     """ Add all header files from the specified directory. """
