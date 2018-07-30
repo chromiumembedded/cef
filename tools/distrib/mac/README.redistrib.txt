@@ -14,13 +14,17 @@ cefclient.app/
     Frameworks/
       Chromium Embedded Framework.framework/
         Chromium Embedded Framework <= main application library
+        Libraries/
+          libEGL.dylib <= angle support libraries
+          libGLESv2.dylib <=^
+          libswiftshader_libEGL.dylib <= swiftshader support libraries
+          libswiftshader_libGLESv2.dylib <=^
         Resources/
           cef.pak <= non-localized resources and strings
           cef_100_percent.pak <====^
           cef_200_percent.pak <====^
           cef_extensions.pak <=====^
           devtools_resources.pak <=^
-          crash_inspector, crash_report_sender <= breakpad support
           icudtl.dat <= unicode support
           natives_blob.bin, snapshot_blob.bin, v8_context_snapshot.bin <= V8 initial snapshot
           en.lproj/, ... <= locale-specific resources and strings
@@ -99,8 +103,14 @@ run but any related functionality may become broken or disabled.
     This file contains non-localized resources required for Chrome Developer
     Tools. Without this file Chrome Developer Tools will not function.
 
-* Breakpad support.
-  * Chromium Embedded Framework.framework/Resources/crash_inspector
-  * Chromium Embedded Framework.framework/Resources/crash_report_sender
-  * Chromium Embedded Framework.framework/Resources/Info.plist
-    Without these files breakpad support (crash reporting) will not function.
+* Angle support.
+  * Chromium Embedded Framework.framework/Libraries/libEGL.dylib
+  * Chromium Embedded Framework.framework/Libraries/libGLESv2.dylib
+  Without these files HTML5 accelerated content like 2D canvas, 3D CSS and WebGL
+  will not function.
+
+* SwiftShader support.
+  * Chromium Embedded Framework.framework/Libraries/libswiftshader_libEGL.dylib
+  * Chromium Embedded Framework.framework/Libraries/libswiftshader_libGLESv2.dylib
+  Without these files WebGL will not function in software-only mode when the GPU
+  is not available or disabled.
