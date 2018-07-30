@@ -20,7 +20,6 @@ cefclient.app/
           cef_200_percent.pak <====^
           cef_extensions.pak <=====^
           devtools_resources.pak <=^
-          crash_inspector, crash_report_sender <= breakpad support
           icudtl.dat <= unicode support
           natives_blob.bin, snapshot_blob.bin, v8_context_snapshot.bin <= V8 initial snapshot
           en.lproj/, ... <= locale-specific resources and strings
@@ -98,9 +97,3 @@ run but any related functionality may become broken or disabled.
   * Chromium Embedded Framework.framework/Resources/devtools_resources.pak
     This file contains non-localized resources required for Chrome Developer
     Tools. Without this file Chrome Developer Tools will not function.
-
-* Breakpad support.
-  * Chromium Embedded Framework.framework/Resources/crash_inspector
-  * Chromium Embedded Framework.framework/Resources/crash_report_sender
-  * Chromium Embedded Framework.framework/Resources/Info.plist
-    Without these files breakpad support (crash reporting) will not function.
