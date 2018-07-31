@@ -9,8 +9,6 @@
 #include "content/public/browser/render_process_host.h"
 #include "content/public/common/url_constants.h"
 
-DEFINE_WEB_CONTENTS_USER_DATA_KEY(extensions::CefExtensionWebContentsObserver);
-
 namespace extensions {
 
 CefExtensionWebContentsObserver::CefExtensionWebContentsObserver(

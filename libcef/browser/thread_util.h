@@ -70,7 +70,7 @@
 // Post a blocking task where the user won't notice if it takes an arbitrarily
 // long time to complete.
 #define CEF_POST_BACKGROUND_TASK(task) \
-  CEF_POST_BLOCKING_TASK(base::TaskPriority::BACKGROUND, task)
+  CEF_POST_BLOCKING_TASK(base::TaskPriority::BEST_EFFORT, task)
 
 // Assert that blocking is allowed on the current thread.
 #define CEF_REQUIRE_BLOCKING() base::AssertBlockingAllowed()

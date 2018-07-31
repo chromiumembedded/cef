@@ -73,7 +73,7 @@ index 8ed6ffd3a284..91db6f55c396 100644
    void SynchronizeVisualProperties();
  
 diff --git content/browser/renderer_host/render_widget_host_view_event_handler.cc content/browser/renderer_host/render_widget_host_view_event_handler.cc
-index 0f9d0a1c4269..cd9a314887cb 100644
+index 940d9c107664..f7a35655c757 100644
 --- content/browser/renderer_host/render_widget_host_view_event_handler.cc
 +++ content/browser/renderer_host/render_widget_host_view_event_handler.cc
 @@ -30,6 +30,10 @@
@@ -87,7 +87,7 @@ index 0f9d0a1c4269..cd9a314887cb 100644
  #if defined(OS_WIN)
  #include "content/browser/frame_host/render_frame_host_impl.h"
  #include "content/public/common/context_menu_params.h"
-@@ -889,6 +893,14 @@ void RenderWidgetHostViewEventHandler::SetKeyboardFocus() {
+@@ -891,6 +895,14 @@ void RenderWidgetHostViewEventHandler::SetKeyboardFocus() {
          ::SetFocus(hwnd);
      }
    }
@@ -335,7 +335,7 @@ index c5e6df7ce811..8648b49b5753 100644
    base::WeakPtrFactory<DesktopWindowTreeHostX11> weak_factory_;
  
 diff --git ui/views/widget/widget.cc ui/views/widget/widget.cc
-index e4e7fc6ce96c..9123f688646f 100644
+index a4a01235a2cd..a3ffe1c16270 100644
 --- ui/views/widget/widget.cc
 +++ ui/views/widget/widget.cc
 @@ -132,6 +132,7 @@ Widget::InitParams::InitParams(Type type)
@@ -369,7 +369,7 @@ index e4e7fc6ce96c..9123f688646f 100644
    }
    // This must come after SetContentsView() or it might not be able to find
    // the correct NativeTheme (on Linux). See http://crbug.com/384492
-@@ -1103,10 +1109,16 @@ void Widget::OnNativeWidgetDestroyed() {
+@@ -1099,10 +1105,16 @@ void Widget::OnNativeWidgetDestroyed() {
  }
  
  gfx::Size Widget::GetMinimumSize() const {
@@ -387,10 +387,10 @@ index e4e7fc6ce96c..9123f688646f 100644
  }
  
 diff --git ui/views/widget/widget.h ui/views/widget/widget.h
-index 6862cfb45d08..d0674041b075 100644
+index c92fd03abc31..f787d9892508 100644
 --- ui/views/widget/widget.h
 +++ ui/views/widget/widget.h
-@@ -252,6 +252,7 @@ class VIEWS_EXPORT Widget : public internal::NativeWidgetDelegate,
+@@ -249,6 +249,7 @@ class VIEWS_EXPORT Widget : public internal::NativeWidgetDelegate,
      // Whether the widget should be maximized or minimized.
      ui::WindowShowState show_state;
      gfx::NativeView parent;

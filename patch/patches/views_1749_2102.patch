@@ -39,7 +39,7 @@ index a19e6e937f87..817b7eada253 100644
    virtual void MenuWillShow() {}
  
 diff --git ui/gfx/render_text.cc ui/gfx/render_text.cc
-index 0754968fae7f..e3c0d9b81459 100644
+index c29ed3e92bc9..fc3fe3a6f12f 100644
 --- ui/gfx/render_text.cc
 +++ ui/gfx/render_text.cc
 @@ -524,6 +524,14 @@ void RenderText::SetElideBehavior(ElideBehavior elide_behavior) {
@@ -57,7 +57,7 @@ index 0754968fae7f..e3c0d9b81459 100644
  void RenderText::SetDisplayRect(const Rect& r) {
    if (r != display_rect_) {
      display_rect_ = r;
-@@ -1505,6 +1513,19 @@ void RenderText::OnTextAttributeChanged() {
+@@ -1518,6 +1526,19 @@ void RenderText::OnTextAttributeChanged() {
    if (!multiline_ && replace_newline_chars_with_symbols_)
      base::ReplaceChars(layout_text_, kNewline, kNewlineSymbol, &layout_text_);
  
@@ -78,7 +78,7 @@ index 0754968fae7f..e3c0d9b81459 100644
  }
  
 diff --git ui/gfx/render_text.h ui/gfx/render_text.h
-index 76c0db086c66..ed123ef02279 100644
+index 50eaca5b18eb..038d866fd8d1 100644
 --- ui/gfx/render_text.h
 +++ ui/gfx/render_text.h
 @@ -307,6 +307,10 @@ class GFX_EXPORT RenderText {
@@ -92,7 +92,7 @@ index 76c0db086c66..ed123ef02279 100644
    const Rect& display_rect() const { return display_rect_; }
    void SetDisplayRect(const Rect& r);
  
-@@ -903,6 +907,8 @@ class GFX_EXPORT RenderText {
+@@ -906,6 +910,8 @@ class GFX_EXPORT RenderText {
    // Extra spacing placed between glyphs; used for obscured text styling.
    int glyph_spacing_ = 0;
  
@@ -272,7 +272,7 @@ index b5baab3cbb18..ee82e1b05b60 100644
    render_text->SetMaxLines(multi_line() ? max_lines() : 0);
    render_text->SetWordWrapBehavior(full_text_->word_wrap_behavior());
 diff --git ui/views/controls/label.h ui/views/controls/label.h
-index 1d35afeda78f..333f9c0f778d 100644
+index 9c78b30ab3a0..999eb4048f5c 100644
 --- ui/views/controls/label.h
 +++ ui/views/controls/label.h
 @@ -153,6 +153,10 @@ class VIEWS_EXPORT Label : public View,

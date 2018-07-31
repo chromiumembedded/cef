@@ -20,7 +20,7 @@ index fcba33880932..ef0bf66f8a2b 100644
  
    // Call these methods before and after running a nested, modal event loop
 diff --git third_party/blink/renderer/core/exported/web_view_impl.cc third_party/blink/renderer/core/exported/web_view_impl.cc
-index 2acc5921abeb..3e0c07dd6aa3 100644
+index 291d4b7a9195..73d413c45a9f 100644
 --- third_party/blink/renderer/core/exported/web_view_impl.cc
 +++ third_party/blink/renderer/core/exported/web_view_impl.cc
 @@ -241,8 +241,13 @@ void WebView::SetUseExternalPopupMenus(bool use_external_popup_menus) {
@@ -80,10 +80,10 @@ index 9055bbe708a8..dc51d1db9921 100644
    TransformationMatrix device_emulation_transform_;
  
 diff --git third_party/blink/renderer/core/page/chrome_client_impl.cc third_party/blink/renderer/core/page/chrome_client_impl.cc
-index 5656f762955e..d3ce4ebaf088 100644
+index 452a87d9f43d..84c562716d72 100644
 --- third_party/blink/renderer/core/page/chrome_client_impl.cc
 +++ third_party/blink/renderer/core/page/chrome_client_impl.cc
-@@ -809,7 +809,7 @@ bool ChromeClientImpl::HasOpenedPopup() const {
+@@ -780,7 +780,7 @@ bool ChromeClientImpl::HasOpenedPopup() const {
  PopupMenu* ChromeClientImpl::OpenPopupMenu(LocalFrame& frame,
                                             HTMLSelectElement& select) {
    NotifyPopupOpeningObservers();

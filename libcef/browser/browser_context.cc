@@ -105,6 +105,10 @@ void CefBrowserContext::Shutdown() {
   }
 }
 
+base::FilePath CefBrowserContext::GetCachePath() const {
+  return GetPath();
+}
+
 content::ResourceContext* CefBrowserContext::GetResourceContext() {
   return resource_context_.get();
 }

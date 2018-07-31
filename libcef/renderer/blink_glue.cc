@@ -5,9 +5,6 @@
 
 #include "libcef/renderer/blink_glue.h"
 
-#include "base/compiler_specific.h"
-
-MSVC_PUSH_WARNING_LEVEL(0);
 #include "third_party/blink/public/platform/web_string.h"
 #include "third_party/blink/public/platform/web_url_response.h"
 #include "third_party/blink/public/web/web_document.h"
@@ -32,7 +29,6 @@ MSVC_PUSH_WARNING_LEVEL(0);
 #include "third_party/blink/renderer/platform/bindings/v8_binding.h"
 #include "third_party/blink/renderer/platform/loader/fetch/resource_response.h"
 #include "third_party/blink/renderer/platform/weborigin/scheme_registry.h"
-MSVC_POP_WARNING();
 #undef LOG
 
 #include "base/logging.h"

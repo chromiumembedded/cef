@@ -192,15 +192,7 @@ bool CefBrowserPlatformDelegateOsr::IsViewsHosted() const {
 }
 
 void CefBrowserPlatformDelegateOsr::WasHidden(bool hidden) {
-  CefRenderWidgetHostViewOSR* view = GetOSRHostView();
-  if (view) {
-    if (hidden)
-      view->Hide();
-    else
-      view->Show();
-  }
-
-  // Also notify the WebContentsImpl for consistency.
+  // The WebContentsImpl will notify the OSR view.
   content::WebContentsImpl* web_contents =
       static_cast<content::WebContentsImpl*>(browser_->web_contents());
   if (web_contents) {

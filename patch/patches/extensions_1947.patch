@@ -57,7 +57,7 @@ index 29386263f0db..11fa39c54d43 100644
    // If |new_instance| is a new SiteInstance for a subframe that requires a
    // dedicated process, set its process reuse policy so that such subframes are
 diff --git content/public/browser/content_browser_client.h content/public/browser/content_browser_client.h
-index fd5d62fee117..b86f2d84457e 100644
+index 2cd82bfafcf8..b8eb09579ec7 100644
 --- content/public/browser/content_browser_client.h
 +++ content/public/browser/content_browser_client.h
 @@ -394,6 +394,13 @@ class CONTENT_EXPORT ContentBrowserClient {

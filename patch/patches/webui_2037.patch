@@ -1,5 +1,5 @@
 diff --git chrome/browser/feedback/system_logs/log_sources/chrome_internal_log_source.cc chrome/browser/feedback/system_logs/log_sources/chrome_internal_log_source.cc
-index 25f26dda33cf..d041b972461c 100644
+index 327117d8344c..136ba5df36c8 100644
 --- chrome/browser/feedback/system_logs/log_sources/chrome_internal_log_source.cc
 +++ chrome/browser/feedback/system_logs/log_sources/chrome_internal_log_source.cc
 @@ -18,6 +18,7 @@
@@ -35,7 +35,7 @@ index 25f26dda33cf..d041b972461c 100644
        extensions::ExtensionRegistry::Get(profile);
    std::string extensions_list;
 diff --git chrome/browser/memory_details.cc chrome/browser/memory_details.cc
-index 6dd7385d105f..1b8635f7569f 100644
+index abd72f75fa01..9566c1cea50a 100644
 --- chrome/browser/memory_details.cc
 +++ chrome/browser/memory_details.cc
 @@ -16,6 +16,7 @@

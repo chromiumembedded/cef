@@ -118,7 +118,7 @@ class DisplayTestHandler : public RoutingTestHandler, public CefRenderHandler {
 
   std::string GetPageContents(const std::string& name,
                               const std::string& status) {
-    return "<html><body>Page1<script>window.testQuery({request:'" +
+    return "<html><body>" + name + "<script>window.testQuery({request:'" +
            std::string(kTestMsg) + ":" + status + "'});</script></body></html>";
   }
 

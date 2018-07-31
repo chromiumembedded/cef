@@ -27,7 +27,6 @@
 #include "chrome/browser/printing/printer_query.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/common/pref_names.h"
-#include "chrome/common/webui_url_constants.h"
 #include "chrome/grit/generated_resources.h"
 #include "components/prefs/pref_service.h"
 #include "components/printing/browser/print_composite_client.h"
@@ -43,14 +42,12 @@
 #include "content/public/browser/render_process_host.h"
 #include "content/public/browser/render_view_host.h"
 #include "content/public/browser/web_contents.h"
-#include "extensions/common/constants.h"
 #include "mojo/public/cpp/system/buffer.h"
 #include "printing/buildflags/buildflags.h"
 #include "printing/pdf_metafile_skia.h"
 #include "printing/print_settings.h"
 #include "printing/printed_document.h"
 #include "ui/base/l10n/l10n_util.h"
-#include "url/gurl.h"
 
 #if defined(OS_WIN)
 #include "base/command_line.h"
@@ -61,18 +58,6 @@ using base::TimeDelta;
 using content::BrowserThread;
 
 namespace printing {
-
-namespace {
-
-bool PrintingPdfContent(content::RenderFrameHost* rfh) {
-  GURL url = rfh->GetLastCommittedURL();
-  // Whether it is inside print preview or pdf plugin extension.
-  return url.GetOrigin() == chrome::kChromeUIPrintURL ||
-         (url.SchemeIs(extensions::kExtensionScheme) &&
-          url.host_piece() == extension_misc::kPdfExtensionId);
-}
-
-}  // namespace
 
 CefPrintViewManagerBase::CefPrintViewManagerBase(
     content::WebContents* web_contents)
@@ -196,7 +181,7 @@ void CefPrintViewManagerBase::OnDidPrintDocument(
   }
 
   auto* client = PrintCompositeClient::FromWebContents(web_contents());
-  if (IsOopifEnabled() && !PrintingPdfContent(render_frame_host)) {
+  if (IsOopifEnabled() && print_job_->document()->settings().is_modifiable()) {
     client->DoCompositeDocumentToPdf(
         params.document_cookie, render_frame_host, content.metafile_data_handle,
         content.data_size, content.subframe_content_info,

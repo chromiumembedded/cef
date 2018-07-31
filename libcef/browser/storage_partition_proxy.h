@@ -40,6 +40,7 @@ class CefStoragePartitionProxy : public content::StoragePartition {
   content::ServiceWorkerContext* GetServiceWorkerContext() override;
   content::SharedWorkerService* GetSharedWorkerService() override;
   content::CacheStorageContext* GetCacheStorageContext() override;
+  content::GeneratedCodeCacheContext* GetGeneratedCodeCacheContext() override;
   content::HostZoomMap* GetHostZoomMap() override;
   content::HostZoomLevelContext* GetHostZoomLevelContext() override;
   content::ZoomLevelDelegate* GetZoomLevelDelegate() override;
@@ -69,6 +70,7 @@ class CefStoragePartitionProxy : public content::StoragePartition {
       const base::Callback<bool(const GURL&)>& url_matcher,
       base::OnceClosure callback) override;
   void Flush() override;
+  void ResetURLLoaderFactories() override;
   void ClearBluetoothAllowedDevicesMapForTesting() override;
   void FlushNetworkInterfaceForTesting() override;
   void WaitForDeletionTasksForTesting() override;

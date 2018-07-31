@@ -553,7 +553,7 @@ size_t CefBinaryValueImpl::GetData(void* buffer,
     return 0;
 
   size = std::min(buffer_size, size - data_offset);
-  const char* data = const_value().GetBlob().data();
+  auto* data = const_value().GetBlob().data();
   memcpy(buffer, data + data_offset, size);
   return size;
 }

@@ -635,9 +635,7 @@ static_library("libcef_static") {
   ]
 
   deps = [
-    # Generate pack files and associated CEF header files.
-    ":make_pack_header_resources",
-    ":make_pack_header_strings",
+    ":cef_make_headers",
 
     # Generate API bindings for extensions.
     # TODO(cef): Enable if/when CEF exposes its own Mojo APIs. See
@@ -799,7 +797,6 @@ static_library("libcef_static") {
 
     deps += [
       "//build/config/freetype",
-      "//services/ui:lib",
       "//third_party/fontconfig",
     ]
   }
@@ -920,7 +917,6 @@ static_library("libcef_static") {
     ]
 
     deps += [
-      "//services/ui",
       "//ui/aura",
       "//ui/events",
       "//ui/strings",
@@ -1326,6 +1322,14 @@ make_pack_header("strings") {
   ]
 }
 
+# Generate pack files and associated CEF header files.
+group("cef_make_headers") {
+  deps = [
+    ":make_pack_header_resources",
+    ":make_pack_header_strings",
+  ]
+}
+
 
 #
 # libcef dll/framework target.
@@ -1577,6 +1581,7 @@ if (is_mac) {
       sources = invoker.helper_sources
 
       deps = [
+        ":cef_make_headers",
         ":cef_sandbox",
         ":libcef_dll_wrapper",
       ]
@@ -1632,6 +1637,7 @@ if (is_mac) {
       sources = invoker.sources
 
       deps = [
+        ":libcef_dll_wrapper",
         ":${app_name}_framework_bundle_data",
       ]
       if (defined(invoker.deps)) {
@@ -1702,9 +1708,6 @@ if (is_mac) {
                      gypi_paths2.shared_sources_mac_helper +
                      gypi_paths2.cefclient_sources_common +
                      gypi_paths2.cefclient_sources_renderer
-    helper_deps = [
-      ":libcef_dll_wrapper",
-    ]
     helper_defines = [
       "CEF_USE_SANDBOX",
     ]
@@ -1725,7 +1728,6 @@ if (is_mac) {
       ":cefclient_resources_bundle_data_extensions_set_page_color",
       ":cefclient_resources_bundle_data_english",
       ":cefclient_xibs",
-      ":libcef_dll_wrapper",
     ]
     libs = [
       "AppKit.framework",
@@ -1776,9 +1778,6 @@ if (is_mac) {
                      gypi_paths2.includes_wrapper +
                      gypi_paths2.includes_wrapper_mac +
                      gypi_paths2.cefsimple_sources_mac_helper
-    helper_deps = [
-      ":libcef_dll_wrapper",
-    ]
     helper_defines = [
       "CEF_USE_SANDBOX",
     ]
@@ -1794,7 +1793,6 @@ if (is_mac) {
       ":cefsimple_resources_bundle_data",
       ":cefsimple_resources_bundle_data_english",
       ":cefsimple_xibs",
-      ":libcef_dll_wrapper",
     ]
     defines = [
       "CEF_USE_SANDBOX",
@@ -1843,7 +1841,6 @@ if (is_mac) {
                      gypi_paths2.shared_sources_mac_helper +
                      gypi_paths2.ceftests_sources_mac_helper
     helper_deps = [
-      ":libcef_dll_wrapper",
       "//testing/gtest",
     ]
     helper_defines = [
@@ -1864,7 +1861,6 @@ if (is_mac) {
       ":ceftests_resources_bundle_data",
       ":ceftests_resources_bundle_data_english",
       ":ceftests_xibs",
-      ":libcef_dll_wrapper",
       "//testing/gtest",
     ]
     libs = [

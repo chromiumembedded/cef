@@ -64,7 +64,7 @@ index 569e6112d86b..41599944688a 100644
  }
  
 diff --git chrome/browser/ui/views/frame/browser_root_view.cc chrome/browser/ui/views/frame/browser_root_view.cc
-index 2a4d9d9b8819..c0e3a92c39eb 100644
+index f3b67e2746f4..9eb3e839cb55 100644
 --- chrome/browser/ui/views/frame/browser_root_view.cc
 +++ chrome/browser/ui/views/frame/browser_root_view.cc
 @@ -66,7 +66,7 @@ void OnFindURLMimeType(const GURL& url,
@@ -94,10 +94,10 @@ index 201f23b9b422..4664c6b32c22 100644
                  "WillFailRequest state should come before WillProcessResponse");
    return render_frame_host_;
 diff --git content/browser/frame_host/render_frame_host_impl.cc content/browser/frame_host/render_frame_host_impl.cc
-index 36b5e3bf6853..9303e53b9094 100644
+index a15c21ad7cb1..f85e40276900 100644
 --- content/browser/frame_host/render_frame_host_impl.cc
 +++ content/browser/frame_host/render_frame_host_impl.cc
-@@ -842,8 +842,8 @@ void RenderFrameHostImpl::CreateNetworkServiceDefaultFactory(
+@@ -843,8 +843,8 @@ void RenderFrameHostImpl::CreateNetworkServiceDefaultFactory(
    RenderFrameDevToolsAgentHost::WillCreateURLLoaderFactory(
        this, false /* is_navigation */, false /* is_download */,
        &default_factory_request);
@@ -108,7 +108,7 @@ index 36b5e3bf6853..9303e53b9094 100644
    if (g_create_network_factory_callback_for_test.Get().is_null()) {
      storage_partition->GetNetworkContext()->CreateURLLoaderFactory(
          std::move(default_factory_request), std::move(params));
-@@ -1672,6 +1672,7 @@ void RenderFrameHostImpl::OnDidFailProvisionalLoadWithError(
+@@ -1673,6 +1673,7 @@ void RenderFrameHostImpl::OnDidFailProvisionalLoadWithError(
    if (GetNavigationHandle()) {
      GetNavigationHandle()->set_net_error_code(
          static_cast<net::Error>(params.error_code));
@@ -116,7 +116,7 @@ index 36b5e3bf6853..9303e53b9094 100644
    }
  
    frame_tree_node_->navigator()->DidFailProvisionalLoadWithError(this, params);
-@@ -4050,9 +4051,9 @@ void RenderFrameHostImpl::CommitNavigation(
+@@ -4072,9 +4073,9 @@ void RenderFrameHostImpl::CommitNavigation(
        // is used. Currently we have this here to make sure we have non-racy
        // situation (https://crbug.com/849929).
        DCHECK(base::FeatureList::IsEnabled(network::features::kNetworkService));
@@ -325,7 +325,7 @@ index 3b610b1f554e..7c439e060779 100644
                                   WebPluginInfo* plugin) = 0;
  
 diff --git content/public/renderer/content_renderer_client.h content/public/renderer/content_renderer_client.h
-index a2dc7a811e75..416918123564 100644
+index 0cc6c47ac897..c9aefc3593b2 100644
 --- content/public/renderer/content_renderer_client.h
 +++ content/public/renderer/content_renderer_client.h
 @@ -74,6 +74,9 @@ class CONTENT_EXPORT ContentRendererClient {
@@ -338,7 +338,7 @@ index a2dc7a811e75..416918123564 100644
    // Notifies that a new RenderFrame has been created.
    virtual void RenderFrameCreated(RenderFrame* render_frame) {}
  
-@@ -348,6 +351,10 @@ class CONTENT_EXPORT ContentRendererClient {
+@@ -341,6 +344,10 @@ class CONTENT_EXPORT ContentRendererClient {
    // This method may invalidate the frame.
    virtual void RunScriptsAtDocumentIdle(RenderFrame* render_frame) {}
  
@@ -364,10 +364,10 @@ index 2f1f46075b27..94f300dfea5d 100644
    virtual void FocusedNodeChanged(const blink::WebNode& node) {}
  
 diff --git content/renderer/render_frame_impl.cc content/renderer/render_frame_impl.cc
-index 61ee2a0d203a..f03a4ff9ee98 100644
+index 1d1d155ca2da..d8c1241d47da 100644
 --- content/renderer/render_frame_impl.cc
 +++ content/renderer/render_frame_impl.cc
-@@ -3471,7 +3471,8 @@ blink::WebPlugin* RenderFrameImpl::CreatePlugin(
+@@ -3506,7 +3506,8 @@ blink::WebPlugin* RenderFrameImpl::CreatePlugin(
    std::string mime_type;
    bool found = false;
    Send(new FrameHostMsg_GetPluginInfo(
@@ -377,7 +377,7 @@ index 61ee2a0d203a..f03a4ff9ee98 100644
        params.mime_type.Utf8(), &found, &info, &mime_type));
    if (!found)
      return nullptr;
-@@ -3836,6 +3837,8 @@ void RenderFrameImpl::FrameDetached(DetachType type) {
+@@ -3871,6 +3872,8 @@ void RenderFrameImpl::FrameDetached(DetachType type) {
  
  void RenderFrameImpl::FrameFocused() {
    Send(new FrameHostMsg_FrameFocused(routing_id_));
@@ -387,7 +387,7 @@ index 61ee2a0d203a..f03a4ff9ee98 100644
  
  void RenderFrameImpl::WillCommitProvisionalLoad() {
 diff --git content/renderer/render_thread_impl.cc content/renderer/render_thread_impl.cc
-index ca6a21b03082..a090b13d65e5 100644
+index ace2680587e3..d021d88eeb96 100644
 --- content/renderer/render_thread_impl.cc
 +++ content/renderer/render_thread_impl.cc
 @@ -866,6 +866,8 @@ void RenderThreadImpl::Init(
@@ -400,10 +400,10 @@ index ca6a21b03082..a090b13d65e5 100644
        base::Bind(&RenderThreadImpl::OnRendererInterfaceRequest,
                   base::Unretained(this)));
 diff --git content/renderer/renderer_blink_platform_impl.cc content/renderer/renderer_blink_platform_impl.cc
-index a9b86c68fe50..41dc5202b0e4 100644
+index 2e5d8a2fe4b1..10f1e09acfe8 100644
 --- content/renderer/renderer_blink_platform_impl.cc
 +++ content/renderer/renderer_blink_platform_impl.cc
-@@ -1121,6 +1121,14 @@ void RendererBlinkPlatformImpl::RequestPurgeMemory() {
+@@ -1111,6 +1111,14 @@ void RendererBlinkPlatformImpl::RequestPurgeMemory() {
    base::MemoryCoordinatorClientRegistry::GetInstance()->PurgeMemory();
  }
  
@@ -419,10 +419,10 @@ index a9b86c68fe50..41dc5202b0e4 100644
    if (!web_database_host_) {
      web_database_host_ = blink::mojom::ThreadSafeWebDatabaseHostPtr::Create(
 diff --git content/renderer/renderer_blink_platform_impl.h content/renderer/renderer_blink_platform_impl.h
-index bebcd933b8ce..d2deaab2d114 100644
+index 3fb1af2bdb57..fb71d1b8f61c 100644
 --- content/renderer/renderer_blink_platform_impl.h
 +++ content/renderer/renderer_blink_platform_impl.h
-@@ -225,6 +225,9 @@ class CONTENT_EXPORT RendererBlinkPlatformImpl : public BlinkPlatformImpl {
+@@ -218,6 +218,9 @@ class CONTENT_EXPORT RendererBlinkPlatformImpl : public BlinkPlatformImpl {
        mojo::ScopedDataPipeConsumerHandle handle) override;
    void RequestPurgeMemory() override;
  

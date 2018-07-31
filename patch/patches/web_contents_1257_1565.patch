@@ -1,8 +1,8 @@
 diff --git content/browser/web_contents/web_contents_impl.cc content/browser/web_contents/web_contents_impl.cc
-index 26384f823b51..0582c1a753af 100644
+index ccde2311b622..d0df241f6f22 100644
 --- content/browser/web_contents/web_contents_impl.cc
 +++ content/browser/web_contents/web_contents_impl.cc
-@@ -1931,21 +1931,30 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
+@@ -1935,21 +1935,30 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
    std::string unique_name;
    frame_tree_.root()->SetFrameName(params.main_frame_name, unique_name);
  
@@ -45,7 +45,7 @@ index 26384f823b51..0582c1a753af 100644
    CHECK(render_view_host_delegate_view_);
    CHECK(view_.get());
  
-@@ -2622,6 +2631,15 @@ void WebContentsImpl::CreateNewWindow(
+@@ -2626,6 +2635,15 @@ void WebContentsImpl::CreateNewWindow(
    create_params.renderer_initiated_creation =
        main_frame_route_id != MSG_ROUTING_NONE;
  
@@ -61,7 +61,7 @@ index 26384f823b51..0582c1a753af 100644
    std::unique_ptr<WebContents> new_contents;
    if (!is_guest) {
      create_params.context = view_->GetNativeView();
-@@ -2652,7 +2670,7 @@ void WebContentsImpl::CreateNewWindow(
+@@ -2656,7 +2674,7 @@ void WebContentsImpl::CreateNewWindow(
        // TODO(brettw): It seems bogus that we have to call this function on the
        // newly created object and give it one of its own member variables.
        new_view->CreateViewForWidget(
@@ -70,7 +70,7 @@ index 26384f823b51..0582c1a753af 100644
      }
      // Save the created window associated with the route so we can show it
      // later.
-@@ -5983,7 +6001,7 @@ InterstitialPageImpl* WebContentsImpl::GetInterstitialForRenderManager() {
+@@ -6000,7 +6018,7 @@ InterstitialPageImpl* WebContentsImpl::GetInterstitialForRenderManager() {
  void WebContentsImpl::CreateRenderWidgetHostViewForRenderManager(
      RenderViewHost* render_view_host) {
    RenderWidgetHostViewBase* rwh_view =
@@ -95,7 +95,7 @@ index df508da0aef2..f6f4bf42b108 100644
  WebContents::CreateParams::CreateParams(const CreateParams& other) = default;
  
 diff --git content/public/browser/web_contents.h content/public/browser/web_contents.h
-index 0f82f91e437c..1c1e5e8f60bd 100644
+index b26563cd2cae..33d245c91cbb 100644
 --- content/public/browser/web_contents.h
 +++ content/public/browser/web_contents.h
 @@ -76,9 +76,11 @@ class BrowserPluginGuestDelegate;

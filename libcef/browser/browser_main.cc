@@ -178,7 +178,7 @@ void CefBrowserMainParts::PreMainMessageLoopRun() {
   printing::CefPrintingMessageFilter::EnsureShutdownNotifierFactoryBuilt();
 
   background_task_runner_ = base::CreateSingleThreadTaskRunnerWithTraits(
-      {base::TaskPriority::BACKGROUND,
+      {base::TaskPriority::BEST_EFFORT,
        base::TaskShutdownBehavior::BLOCK_SHUTDOWN, base::MayBlock()});
   user_visible_task_runner_ = base::CreateSingleThreadTaskRunnerWithTraits(
       {base::TaskPriority::USER_VISIBLE,

@@ -15,6 +15,7 @@
 #include "base/strings/string_number_conversions.h"
 #include "base/task_scheduler/post_task.h"
 #include "base/values.h"
+#include "chrome/browser/accessibility/accessibility_ui.h"
 #include "chrome/browser/net/prediction_options.h"
 #include "chrome/browser/plugins/plugin_info_host_impl.h"
 #include "chrome/browser/prefs/chrome_command_line_pref_store.h"
@@ -142,6 +143,7 @@ std::unique_ptr<PrefService> CreatePrefService(Profile* profile,
       ->RegisterProfilePrefsForServices(profile, registry.get());
 
   // Default preferences.
+  AccessibilityUIMessageHandler::RegisterProfilePrefs(registry.get());
   CefMediaCaptureDevicesDispatcher::RegisterPrefs(registry.get());
   CefURLRequestContextGetterImpl::RegisterPrefs(registry.get());
   chrome_browser_net::RegisterPredictionOptionsProfilePrefs(registry.get());

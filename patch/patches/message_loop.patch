@@ -1,8 +1,8 @@
 diff --git base/message_loop/message_loop.cc base/message_loop/message_loop.cc
-index 4571c726ec4a..ad1479647400 100644
+index 3793fa284744..b2dfc6efd1f7 100644
 --- base/message_loop/message_loop.cc
 +++ base/message_loop/message_loop.cc
-@@ -573,6 +573,9 @@ MessageLoopForUI::MessageLoopForUI(Type type) : MessageLoop(type) {
+@@ -606,6 +606,9 @@ MessageLoopForUI::MessageLoopForUI(Type type) : MessageLoop(type) {
  #endif
  }
  
@@ -13,10 +13,10 @@ index 4571c726ec4a..ad1479647400 100644
  MessageLoopCurrentForUI MessageLoopForUI::current() {
    return MessageLoopCurrentForUI::Get();
 diff --git base/message_loop/message_loop.h base/message_loop/message_loop.h
-index 6010333616eb..f9479daaa4b8 100644
+index 1418c133bf81..7fb7d1e703ff 100644
 --- base/message_loop/message_loop.h
 +++ base/message_loop/message_loop.h
-@@ -343,6 +343,7 @@ class BASE_EXPORT MessageLoop : public MessagePump::Delegate,
+@@ -358,6 +358,7 @@ class BASE_EXPORT MessageLoop : public MessagePump::Delegate,
  class BASE_EXPORT MessageLoopForUI : public MessageLoop {
   public:
    explicit MessageLoopForUI(Type type = TYPE_UI);

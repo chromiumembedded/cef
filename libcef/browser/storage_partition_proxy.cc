@@ -88,6 +88,11 @@ CefStoragePartitionProxy::GetCacheStorageContext() {
   return parent_->GetCacheStorageContext();
 }
 
+content::GeneratedCodeCacheContext*
+CefStoragePartitionProxy::GetGeneratedCodeCacheContext() {
+  return parent_->GetGeneratedCodeCacheContext();
+}
+
 content::HostZoomMap* CefStoragePartitionProxy::GetHostZoomMap() {
   return parent_->GetHostZoomMap();
 }
@@ -154,6 +159,10 @@ void CefStoragePartitionProxy::ClearHttpAndMediaCaches(
 
 void CefStoragePartitionProxy::Flush() {
   parent_->Flush();
+}
+
+void CefStoragePartitionProxy::ResetURLLoaderFactories() {
+  parent_->ResetURLLoaderFactories();
 }
 
 void CefStoragePartitionProxy::ClearBluetoothAllowedDevicesMapForTesting() {

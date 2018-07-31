@@ -1,5 +1,5 @@
 diff --git content/browser/devtools/devtools_http_handler.cc content/browser/devtools/devtools_http_handler.cc
-index eaf44246e9ec..8b1af37e2fd1 100644
+index 3ed1929ba192..ef0d34b4b73c 100644
 --- content/browser/devtools/devtools_http_handler.cc
 +++ content/browser/devtools/devtools_http_handler.cc
 @@ -567,7 +567,7 @@ void DevToolsHttpHandler::OnJsonRequest(

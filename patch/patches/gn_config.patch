@@ -12,7 +12,7 @@ index ec3d38717a85..fbf80cae5500 100644
        # https://crbug.com/474506.
        "//clank/java/BUILD.gn",
 diff --git BUILD.gn BUILD.gn
-index 9d067467e5d2..b40fb00c35a9 100644
+index 4e777abccf7b..6e18897c4f22 100644
 --- BUILD.gn
 +++ BUILD.gn
 @@ -186,6 +186,7 @@ group("gn_all") {

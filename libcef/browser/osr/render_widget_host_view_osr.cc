@@ -952,7 +952,8 @@ ui::Layer* CefRenderWidgetHostViewOSR::DelegatedFrameHostGetLayer() const {
 }
 
 bool CefRenderWidgetHostViewOSR::DelegatedFrameHostIsVisible() const {
-  return !render_widget_host_->is_hidden();
+  // Called indirectly from DelegatedFrameHost::WasShown.
+  return is_showing_;
 }
 
 SkColor CefRenderWidgetHostViewOSR::DelegatedFrameHostGetGutterColor() const {
