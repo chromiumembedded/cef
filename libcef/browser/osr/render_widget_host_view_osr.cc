@@ -734,9 +734,8 @@ void CefRenderWidgetHostViewOSR::GetScreenInfo(
   *results = ScreenInfoFrom(screen_info);
 }
 
-gfx::Vector2d CefRenderWidgetHostViewOSR::GetOffsetFromRootSurface() {
-  return gfx::Vector2d();
-}
+void CefRenderWidgetHostViewOSR::TransformPointToRootSurface(
+    gfx::PointF* point) {}
 
 gfx::Rect CefRenderWidgetHostViewOSR::GetBoundsInRootWindow() {
   if (!browser_impl_.get())

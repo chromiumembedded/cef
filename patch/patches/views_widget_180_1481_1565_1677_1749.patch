@@ -1,5 +1,5 @@
 diff --git content/browser/renderer_host/render_widget_host_view_base.cc content/browser/renderer_host/render_widget_host_view_base.cc
-index d52e0e45d4e1..4cc91095d9c9 100644
+index 1c52a5fd396f..96cd3a6230e9 100644
 --- content/browser/renderer_host/render_widget_host_view_base.cc
 +++ content/browser/renderer_host/render_widget_host_view_base.cc
 @@ -422,6 +422,14 @@ float RenderWidgetHostViewBase::GetDeviceScaleFactor() const {
@@ -18,7 +18,7 @@ index d52e0e45d4e1..4cc91095d9c9 100644
    return renderer_frame_number_;
  }
 diff --git content/browser/renderer_host/render_widget_host_view_base.h content/browser/renderer_host/render_widget_host_view_base.h
-index be17cb811c58..d06168e39008 100644
+index 048fd7d3a8bf..b0f5ea8a085c 100644
 --- content/browser/renderer_host/render_widget_host_view_base.h
 +++ content/browser/renderer_host/render_widget_host_view_base.h
 @@ -84,6 +84,7 @@ class CursorManager;

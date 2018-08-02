@@ -154,7 +154,7 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
       const gfx::Size& output_size,
       base::OnceCallback<void(const SkBitmap&)> callback) override;
   void GetScreenInfo(content::ScreenInfo* results) const override;
-  gfx::Vector2d GetOffsetFromRootSurface() override;
+  void TransformPointToRootSurface(gfx::PointF* point) override;
   gfx::Rect GetBoundsInRootWindow() override;
   viz::SurfaceId GetCurrentSurfaceId() const override;
   content::BrowserAccessibilityManager* CreateBrowserAccessibilityManager(
