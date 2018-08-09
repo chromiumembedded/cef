@@ -1,5 +1,5 @@
 diff --git content/browser/devtools/devtools_http_handler.cc content/browser/devtools/devtools_http_handler.cc
-index 3ed1929ba192..ef0d34b4b73c 100644
+index a0ce6d621d83..f2c7329d6657 100644
 --- content/browser/devtools/devtools_http_handler.cc
 +++ content/browser/devtools/devtools_http_handler.cc
 @@ -567,7 +567,7 @@ void DevToolsHttpHandler::OnJsonRequest(
@@ -12,10 +12,10 @@ index 3ed1929ba192..ef0d34b4b73c 100644
      version.SetString("V8-Version", V8_VERSION_STRING);
      std::string host = info.headers["host"];
 diff --git content/public/common/content_client.h content/public/common/content_client.h
-index 528fd6abf6a6..a45793539166 100644
+index b939bc2a9edf..b37302c0d8cf 100644
 --- content/public/common/content_client.h
 +++ content/public/common/content_client.h
-@@ -150,6 +150,10 @@ class CONTENT_EXPORT ContentClient {
+@@ -151,6 +151,10 @@ class CONTENT_EXPORT ContentClient {
    // Used as part of the user agent string.
    virtual std::string GetProduct() const;
  

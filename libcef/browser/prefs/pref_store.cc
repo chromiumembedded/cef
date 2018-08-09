@@ -94,9 +94,12 @@ void CefPrefStore::ReadPrefsAsync(ReadErrorDelegate* error_delegate) {
     NotifyInitializationCompleted();
 }
 
-void CefPrefStore::CommitPendingWrite(base::OnceClosure done_callback) {
+void CefPrefStore::CommitPendingWrite(
+    base::OnceClosure done_callback,
+    base::OnceClosure synchronous_done_callback) {
   committed_ = true;
-  PersistentPrefStore::CommitPendingWrite(std::move(done_callback));
+  PersistentPrefStore::CommitPendingWrite(std::move(done_callback),
+                                          std::move(synchronous_done_callback));
 }
 
 void CefPrefStore::SchedulePendingLossyWrites() {}

@@ -1,8 +1,8 @@
 diff --git base/message_loop/message_loop.cc base/message_loop/message_loop.cc
-index 3793fa284744..b2dfc6efd1f7 100644
+index 7f063693a0f2..14f50b6f7d5f 100644
 --- base/message_loop/message_loop.cc
 +++ base/message_loop/message_loop.cc
-@@ -606,6 +606,9 @@ MessageLoopForUI::MessageLoopForUI(Type type) : MessageLoop(type) {
+@@ -610,6 +610,9 @@ MessageLoopForUI::MessageLoopForUI(Type type) : MessageLoop(type) {
  #endif
  }
  
@@ -13,10 +13,10 @@ index 3793fa284744..b2dfc6efd1f7 100644
  MessageLoopCurrentForUI MessageLoopForUI::current() {
    return MessageLoopCurrentForUI::Get();
 diff --git base/message_loop/message_loop.h base/message_loop/message_loop.h
-index 1418c133bf81..7fb7d1e703ff 100644
+index 52b474310074..35f4cc41a572 100644
 --- base/message_loop/message_loop.h
 +++ base/message_loop/message_loop.h
-@@ -358,6 +358,7 @@ class BASE_EXPORT MessageLoop : public MessagePump::Delegate,
+@@ -362,6 +362,7 @@ class BASE_EXPORT MessageLoop : public MessagePump::Delegate,
  class BASE_EXPORT MessageLoopForUI : public MessageLoop {
   public:
    explicit MessageLoopForUI(Type type = TYPE_UI);
@@ -25,12 +25,12 @@ index 1418c133bf81..7fb7d1e703ff 100644
    // TODO(gab): Mass migrate callers to MessageLoopCurrentForUI::Get()/IsSet().
    static MessageLoopCurrentForUI current();
 diff --git base/message_loop/message_loop_current.h base/message_loop/message_loop_current.h
-index 61d1607e31e7..656b3a9c9f68 100644
+index 2a2e761e87e8..37881c184940 100644
 --- base/message_loop/message_loop_current.h
 +++ base/message_loop/message_loop_current.h
-@@ -120,6 +120,16 @@ class BASE_EXPORT MessageLoopCurrent {
-   void AddTaskObserver(TaskObserver* task_observer);
-   void RemoveTaskObserver(TaskObserver* task_observer);
+@@ -124,6 +124,16 @@ class BASE_EXPORT MessageLoopCurrent {
+   // posted tasks.
+   void SetAddQueueTimeToTasks(bool enable);
  
 +#if defined(OS_WIN)
 +  void set_os_modal_loop(bool os_modal_loop) {
@@ -45,7 +45,7 @@ index 61d1607e31e7..656b3a9c9f68 100644
    // Enables or disables the recursive task processing. This happens in the case
    // of recursive message loops. Some unwanted message loops may occur when
    // using common controls or printer functions. By default, recursive task
-@@ -188,6 +198,13 @@ class BASE_EXPORT MessageLoopCurrent {
+@@ -192,6 +202,13 @@ class BASE_EXPORT MessageLoopCurrent {
    explicit MessageLoopCurrent(MessageLoop* current) : current_(current) {}
  
    MessageLoop* const current_;

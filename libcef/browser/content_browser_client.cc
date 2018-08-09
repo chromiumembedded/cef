@@ -1074,15 +1074,16 @@ bool CefContentBrowserClient::WillCreateURLLoaderFactory(
     content::BrowserContext* browser_context,
     content::RenderFrameHost* frame,
     bool is_navigation,
-    network::mojom::URLLoaderFactoryRequest* factory_request) {
+    network::mojom::URLLoaderFactoryRequest* factory_request,
+    scoped_refptr<content::RedirectChecker>* redirect_checker) {
   if (!extensions::ExtensionsEnabled())
     return false;
 
   auto* web_request_api =
       extensions::BrowserContextKeyedAPIFactory<extensions::WebRequestAPI>::Get(
           browser_context);
-  return web_request_api->MaybeProxyURLLoaderFactory(frame, is_navigation,
-                                                     factory_request);
+  return web_request_api->MaybeProxyURLLoaderFactory(
+      frame, is_navigation, factory_request, redirect_checker);
 }
 
 bool CefContentBrowserClient::HandleExternalProtocol(

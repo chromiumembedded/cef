@@ -1,5 +1,5 @@
 diff --git content/browser/renderer_host/render_widget_host_view_base.cc content/browser/renderer_host/render_widget_host_view_base.cc
-index c61199d5dd8f..f2c19e4e5f3c 100644
+index bb9aa275f5b4..b588f16aaa27 100644
 --- content/browser/renderer_host/render_widget_host_view_base.cc
 +++ content/browser/renderer_host/render_widget_host_view_base.cc
 @@ -480,6 +480,14 @@ float RenderWidgetHostViewBase::GetDeviceScaleFactor() const {
@@ -18,10 +18,10 @@ index c61199d5dd8f..f2c19e4e5f3c 100644
    return renderer_frame_number_;
  }
 diff --git content/browser/renderer_host/render_widget_host_view_base.h content/browser/renderer_host/render_widget_host_view_base.h
-index 8ed6ffd3a284..91db6f55c396 100644
+index 922f7897e8fd..b43fdd6d55fb 100644
 --- content/browser/renderer_host/render_widget_host_view_base.h
 +++ content/browser/renderer_host/render_widget_host_view_base.h
-@@ -84,6 +84,7 @@ class CursorManager;
+@@ -83,6 +83,7 @@ class CursorManager;
  class MouseWheelPhaseHandler;
  class RenderWidgetHostImpl;
  class RenderWidgetHostViewBaseObserver;
@@ -29,7 +29,7 @@ index 8ed6ffd3a284..91db6f55c396 100644
  class SyntheticGestureTarget;
  class TextInputManager;
  class TouchSelectionControllerClientManager;
-@@ -105,6 +106,9 @@ class CONTENT_EXPORT RenderWidgetHostViewBase
+@@ -104,6 +105,9 @@ class CONTENT_EXPORT RenderWidgetHostViewBase
    float current_device_scale_factor() const {
      return current_device_scale_factor_;
    }
@@ -39,7 +39,7 @@ index 8ed6ffd3a284..91db6f55c396 100644
  
    // Returns the focused RenderWidgetHost inside this |view|'s RWH.
    RenderWidgetHostImpl* GetFocusedWidget() const;
-@@ -141,6 +145,8 @@ class CONTENT_EXPORT RenderWidgetHostViewBase
+@@ -140,6 +144,8 @@ class CONTENT_EXPORT RenderWidgetHostViewBase
    void DisableAutoResize(const gfx::Size& new_size) override;
    bool IsScrollOffsetAtTop() const override;
    float GetDeviceScaleFactor() const final;
@@ -48,7 +48,7 @@ index 8ed6ffd3a284..91db6f55c396 100644
    TouchSelectionControllerClientManager*
    GetTouchSelectionControllerClientManager() override;
  
-@@ -459,6 +465,12 @@ class CONTENT_EXPORT RenderWidgetHostViewBase
+@@ -458,6 +464,12 @@ class CONTENT_EXPORT RenderWidgetHostViewBase
    // helps to position the full screen widget on the correct monitor.
    virtual void InitAsFullscreen(RenderWidgetHostView* reference_host_view) = 0;
  
@@ -61,7 +61,7 @@ index 8ed6ffd3a284..91db6f55c396 100644
    // Sets the cursor for this view to the one associated with the specified
    // cursor_type.
    virtual void UpdateCursor(const WebCursor& cursor) = 0;
-@@ -650,6 +662,10 @@ class CONTENT_EXPORT RenderWidgetHostViewBase
+@@ -644,6 +656,10 @@ class CONTENT_EXPORT RenderWidgetHostViewBase
  
    bool use_viz_hit_test_ = false;
  
@@ -135,7 +135,7 @@ index f772f64d656e..7d13f9f81b6c 100644
    return host ? host->GetAcceleratedWidget() : NULL;
  }
 diff --git ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc
-index 9ec5fdb9bb5c..0694641f11db 100644
+index 9c6b588516f2..90e804d0cc68 100644
 --- ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc
 +++ ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc
 @@ -87,6 +87,7 @@ DesktopWindowTreeHostWin::DesktopWindowTreeHostWin(
@@ -160,7 +160,7 @@ index 9ec5fdb9bb5c..0694641f11db 100644
  
    remove_standard_frame_ = params.remove_standard_frame;
    has_non_client_view_ = Widget::RequiresNonClientView(params.type);
-@@ -871,11 +876,15 @@ void DesktopWindowTreeHostWin::HandleFrameChanged() {
+@@ -873,11 +878,15 @@ void DesktopWindowTreeHostWin::HandleFrameChanged() {
  }
  
  void DesktopWindowTreeHostWin::HandleNativeFocus(HWND last_focused_window) {
@@ -427,10 +427,10 @@ index c7296fed234d..244d0034a1c4 100644
        if (native_widget_delegate->IsDialogBox()) {
          *style |= DS_MODALFRAME;
 diff --git ui/views/win/hwnd_message_handler.cc ui/views/win/hwnd_message_handler.cc
-index 65ee52f582c9..b8f60b87ce21 100644
+index 4b7af541276d..8269cb4990f3 100644
 --- ui/views/win/hwnd_message_handler.cc
 +++ ui/views/win/hwnd_message_handler.cc
-@@ -2817,10 +2817,13 @@ LRESULT HWNDMessageHandler::HandleMouseEventInternal(UINT message,
+@@ -2872,10 +2872,13 @@ LRESULT HWNDMessageHandler::HandleMouseEventInternal(UINT message,
    } else if (event.type() == ui::ET_MOUSEWHEEL) {
      ui::MouseWheelEvent mouse_wheel_event(msg);
      // Reroute the mouse wheel to the window under the pointer if applicable.

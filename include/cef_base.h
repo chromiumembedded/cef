@@ -68,6 +68,11 @@ class CefBaseRefCounted {
   ///
   virtual bool HasOneRef() const = 0;
 
+  ///
+  // Returns true if the reference count is at least 1.
+  ///
+  virtual bool HasAtLeastOneRef() const = 0;
+
  protected:
   virtual ~CefBaseRefCounted() {}
 };
@@ -102,6 +107,13 @@ class CefRefCount {
   ///
   bool HasOneRef() const { return base::AtomicRefCountIsOne(&ref_count_); }
 
+  ///
+  // Returns true if the reference count is at least 1.
+  ///
+  bool HasAtLeastOneRef() const {
+    return !base::AtomicRefCountIsZero(&ref_count_);
+  }
+
  private:
   mutable base::AtomicRefCount ref_count_;
   DISALLOW_COPY_AND_ASSIGN(CefRefCount);
@@ -122,6 +134,9 @@ class CefRefCount {
     return false;                                                    \
   }                                                                  \
   bool HasOneRef() const OVERRIDE { return ref_count_.HasOneRef(); } \
+  bool HasAtLeastOneRef() const OVERRIDE {                           \
+    return ref_count_.HasAtLeastOneRef();                            \
+  }                                                                  \
                                                                      \
  private:                                                            \
   CefRefCount ref_count_;

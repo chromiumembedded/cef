@@ -1,8 +1,8 @@
 diff --git chrome/browser/profiles/incognito_helpers.cc chrome/browser/profiles/incognito_helpers.cc
-index ce4f72b98a05..39f7c3140c6e 100644
+index a319237928b8..82945e3d625d 100644
 --- chrome/browser/profiles/incognito_helpers.cc
 +++ chrome/browser/profiles/incognito_helpers.cc
-@@ -8,18 +8,41 @@
+@@ -8,20 +8,41 @@
  
  namespace chrome {
  
@@ -23,14 +23,15 @@ index ce4f72b98a05..39f7c3140c6e 100644
 +      return new_context;
 +  }
 +
-   return static_cast<Profile*>(context)->GetOriginalProfile();
+   return Profile::FromBrowserContext(context)->GetOriginalProfile();
  }
  
  const content::BrowserContext* GetBrowserContextRedirectedInIncognito(
      const content::BrowserContext* context) {
--  return static_cast<const Profile*>(context)->GetOriginalProfile();
+-  const Profile* profile = Profile::FromBrowserContext(
 +  return GetBrowserContextRedirectedInIncognito(
-+      const_cast<content::BrowserContext*>(context));
+       const_cast<content::BrowserContext*>(context));
+-  return profile->GetOriginalProfile();
  }
  
  content::BrowserContext* GetBrowserContextOwnInstanceInIncognito(
@@ -70,7 +71,7 @@ index e8e76ce5b954..1dd338dd0142 100644
  content::BrowserContext* GetBrowserContextRedirectedInIncognito(
      content::BrowserContext* context);
 diff --git chrome/browser/profiles/profile_manager.cc chrome/browser/profiles/profile_manager.cc
-index 5d780144d11d..b73a88e083ec 100644
+index 675efecaaf74..a0e99efb0a26 100644
 --- chrome/browser/profiles/profile_manager.cc
 +++ chrome/browser/profiles/profile_manager.cc
 @@ -382,7 +382,7 @@ ProfileManager::ProfileManager(const base::FilePath& user_data_dir)

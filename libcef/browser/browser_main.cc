@@ -26,7 +26,7 @@
 #include "base/bind.h"
 #include "base/message_loop/message_loop.h"
 #include "base/strings/string_number_conversions.h"
-#include "base/task_scheduler/post_task.h"
+#include "base/task/post_task.h"
 #include "chrome/browser/chrome_browser_main_extra_parts.h"
 #include "chrome/browser/plugins/plugin_finder.h"
 #include "content/public/browser/gpu_data_manager.h"

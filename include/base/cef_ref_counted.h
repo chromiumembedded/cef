@@ -59,6 +59,7 @@ namespace cef_subtle {
 class RefCountedBase {
  public:
   bool HasOneRef() const { return ref_count_ == 1; }
+  bool HasAtLeastOneRef() const { return ref_count_ >= 1; }
 
  protected:
   RefCountedBase()
@@ -109,6 +110,7 @@ class RefCountedBase {
 class RefCountedThreadSafeBase {
  public:
   bool HasOneRef() const;
+  bool HasAtLeastOneRef() const;
 
  protected:
   RefCountedThreadSafeBase();

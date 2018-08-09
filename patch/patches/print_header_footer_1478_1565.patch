@@ -1,8 +1,8 @@
 diff --git chrome/browser/ui/BUILD.gn chrome/browser/ui/BUILD.gn
-index b80097e3a61e..c93f1ade1676 100644
+index 13b42917efe0..2b292871222e 100644
 --- chrome/browser/ui/BUILD.gn
 +++ chrome/browser/ui/BUILD.gn
-@@ -894,6 +894,7 @@ jumbo_split_static_library("ui") {
+@@ -874,6 +874,7 @@ jumbo_split_static_library("ui") {
      "//base:i18n",
      "//base/allocator:buildflags",
      "//cc/paint",
@@ -253,7 +253,7 @@ index d29bb6aedecd..db7110ce80be 100644
  
  #endif  // COMPONENTS_PRINTING_COMMON_PRINT_MESSAGES_H_
 diff --git components/printing/renderer/print_render_frame_helper.cc components/printing/renderer/print_render_frame_helper.cc
-index 028de5baff30..9f218232052c 100644
+index 89d54c441107..ca90c04eb841 100644
 --- components/printing/renderer/print_render_frame_helper.cc
 +++ components/printing/renderer/print_render_frame_helper.cc
 @@ -341,7 +341,6 @@ bool PrintingNodeOrPdfFrame(const blink::WebLocalFrame* frame,

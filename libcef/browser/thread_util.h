@@ -8,7 +8,7 @@
 
 #include "base/location.h"
 #include "base/logging.h"
-#include "base/task_scheduler/post_task.h"
+#include "base/task/post_task.h"
 #include "base/threading/thread_restrictions.h"
 #include "content/public/browser/browser_thread.h"
 
@@ -87,6 +87,9 @@
     return false;                                                    \
   }                                                                  \
   bool HasOneRef() const OVERRIDE { return ref_count_.HasOneRef(); } \
+  bool HasAtLeastOneRef() const OVERRIDE {                           \
+    return ref_count_.HasAtLeastOneRef();                            \
+  }                                                                  \
                                                                      \
  private:                                                            \
   CefRefCount ref_count_;

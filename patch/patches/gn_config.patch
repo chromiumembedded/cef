@@ -1,8 +1,8 @@
 diff --git .gn .gn
-index ec3d38717a85..fbf80cae5500 100644
+index c1a111364bed..566ffd815bc9 100644
 --- .gn
 +++ .gn
-@@ -248,6 +248,8 @@ exec_script_whitelist =
+@@ -310,6 +310,8 @@ exec_script_whitelist =
        # in the Chromium repo outside of //build.
        "//build_overrides/build.gni",
  
@@ -12,10 +12,10 @@ index ec3d38717a85..fbf80cae5500 100644
        # https://crbug.com/474506.
        "//clank/java/BUILD.gn",
 diff --git BUILD.gn BUILD.gn
-index 4e777abccf7b..6e18897c4f22 100644
+index 45b912d00cdd..4b3bbcd8cbf7 100644
 --- BUILD.gn
 +++ BUILD.gn
-@@ -186,6 +186,7 @@ group("gn_all") {
+@@ -188,6 +188,7 @@ group("gn_all") {
  
    if (!is_ios && !is_fuchsia) {
      deps += [
@@ -161,10 +161,10 @@ index 83847f456676..bf6254a0ebb6 100755
      # directory in order to run binaries locally, but they are needed in order
      # to create isolates or the mini_installer. Copying them to the output
 diff --git chrome/chrome_paks.gni chrome/chrome_paks.gni
-index eca08ff7bc76..908257ebd5ec 100644
+index 8b3d1652ae28..9d69220d85df 100644
 --- chrome/chrome_paks.gni
 +++ chrome/chrome_paks.gni
-@@ -257,7 +257,7 @@ template("chrome_paks") {
+@@ -259,7 +259,7 @@ template("chrome_paks") {
      }
  
      input_locales = locales
@@ -174,7 +174,7 @@ index eca08ff7bc76..908257ebd5ec 100644
      if (is_mac) {
        output_locales = locales_as_mac_outputs
 diff --git chrome/installer/mini_installer/BUILD.gn chrome/installer/mini_installer/BUILD.gn
-index 7189a44f5c31..1a83b3ea6325 100644
+index 931761ff27de..a181fbeadc86 100644
 --- chrome/installer/mini_installer/BUILD.gn
 +++ chrome/installer/mini_installer/BUILD.gn
 @@ -133,7 +133,7 @@ template("generate_mini_installer") {

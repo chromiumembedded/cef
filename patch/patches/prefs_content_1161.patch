@@ -1,8 +1,8 @@
 diff --git content/public/common/common_param_traits_macros.h content/public/common/common_param_traits_macros.h
-index 57f03dc1ed38..061bf10c07aa 100644
+index 8b7955b58e6f..96a801e55e96 100644
 --- content/public/common/common_param_traits_macros.h
 +++ content/public/common/common_param_traits_macros.h
-@@ -190,6 +190,7 @@ IPC_STRUCT_TRAITS_BEGIN(content::WebPreferences)
+@@ -187,6 +187,7 @@ IPC_STRUCT_TRAITS_BEGIN(content::WebPreferences)
    IPC_STRUCT_TRAITS_MEMBER(main_frame_resizes_are_orientation_changes)
    IPC_STRUCT_TRAITS_MEMBER(initialize_at_minimum_page_scale)
    IPC_STRUCT_TRAITS_MEMBER(smart_insert_delete_enabled)
@@ -35,10 +35,10 @@ index 78cbf5f3db86..9a4906a32336 100644
    bool record_whole_document;
    SavePreviousDocumentResources save_previous_document_resources;
 diff --git content/renderer/render_view_impl.cc content/renderer/render_view_impl.cc
-index f268c8301136..e9e182734eb5 100644
+index b97c67a53e1f..d7e56c72c521 100644
 --- content/renderer/render_view_impl.cc
 +++ content/renderer/render_view_impl.cc
-@@ -1270,6 +1270,7 @@ void RenderViewImpl::SendFrameStateUpdates() {
+@@ -1269,6 +1269,7 @@ void RenderViewImpl::SendFrameStateUpdates() {
  void RenderViewImpl::ApplyWebPreferencesInternal(const WebPreferences& prefs,
                                                   blink::WebView* web_view) {
    ApplyWebPreferences(prefs, web_view);

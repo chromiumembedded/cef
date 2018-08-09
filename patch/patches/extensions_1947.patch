@@ -27,7 +27,7 @@ index 53c7404ef1f9..ac33df7cfe0e 100644
    auto* browser_context = web_contents->GetBrowserContext();
    StreamsPrivateAPI* streams_private = GetStreamsPrivateAPI(browser_context);
 diff --git content/browser/frame_host/render_frame_host_manager.cc content/browser/frame_host/render_frame_host_manager.cc
-index 29386263f0db..11fa39c54d43 100644
+index 406302b6b760..5ab2f3d7157b 100644
 --- content/browser/frame_host/render_frame_host_manager.cc
 +++ content/browser/frame_host/render_frame_host_manager.cc
 @@ -928,10 +928,11 @@ bool RenderFrameHostManager::ShouldSwapBrowsingInstancesForNavigation(
@@ -57,10 +57,10 @@ index 29386263f0db..11fa39c54d43 100644
    // If |new_instance| is a new SiteInstance for a subframe that requires a
    // dedicated process, set its process reuse policy so that such subframes are
 diff --git content/public/browser/content_browser_client.h content/public/browser/content_browser_client.h
-index 2cd82bfafcf8..b8eb09579ec7 100644
+index 5e35f1de540d..3e73ad586ab8 100644
 --- content/public/browser/content_browser_client.h
 +++ content/public/browser/content_browser_client.h
-@@ -394,6 +394,13 @@ class CONTENT_EXPORT ContentBrowserClient {
+@@ -396,6 +396,13 @@ class CONTENT_EXPORT ContentBrowserClient {
    // Returns true if error page should be isolated in its own process.
    virtual bool ShouldIsolateErrorPage(bool in_main_frame);
  

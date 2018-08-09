@@ -1,8 +1,8 @@
 diff --git chrome/common/chrome_content_client.cc chrome/common/chrome_content_client.cc
-index f8a16d124dec..40e3c9439ed8 100644
+index f98d01cf4cad..07ba6768ae72 100644
 --- chrome/common/chrome_content_client.cc
 +++ chrome/common/chrome_content_client.cc
-@@ -94,7 +94,8 @@
+@@ -96,7 +96,8 @@
  
  #if BUILDFLAG(ENABLE_LIBRARY_CDMS)
  #include "media/cdm/cdm_paths.h"  // nogncheck

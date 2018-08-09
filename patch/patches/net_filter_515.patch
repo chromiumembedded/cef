@@ -22,7 +22,7 @@ index c28d0bb3b676..1acbb4c94495 100644
    THREAD_CHECKER(thread_checker_);
  
 diff --git net/url_request/url_request_job.cc net/url_request/url_request_job.cc
-index 9bdff67e76e8..35f0e10bcac3 100644
+index 5b27df0e8955..6d3b212f28d0 100644
 --- net/url_request/url_request_job.cc
 +++ net/url_request/url_request_job.cc
 @@ -467,6 +467,12 @@ void URLRequestJob::NotifyHeadersComplete() {

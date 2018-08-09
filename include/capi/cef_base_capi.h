@@ -69,6 +69,11 @@ typedef struct _cef_base_ref_counted_t {
   // Returns true (1) if the current reference count is 1.
   ///
   int(CEF_CALLBACK* has_one_ref)(struct _cef_base_ref_counted_t* self);
+
+  ///
+  // Returns true (1) if the current reference count is at least 1.
+  ///
+  int(CEF_CALLBACK* has_at_least_one_ref)(struct _cef_base_ref_counted_t* self);
 } cef_base_ref_counted_t;
 
 ///

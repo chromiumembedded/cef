@@ -2606,7 +2606,7 @@ void CefBrowserHostImpl::RequestMediaAccessPermission(
   bool webcam_requested =
       (request.video_type == content::MEDIA_DEVICE_VIDEO_CAPTURE);
   bool screen_requested =
-      (request.video_type == content::MEDIA_DESKTOP_VIDEO_CAPTURE);
+      (request.video_type == content::MEDIA_GUM_DESKTOP_VIDEO_CAPTURE);
   if (microphone_requested || webcam_requested || screen_requested) {
     // Pick the desired device or fall back to the first available of the
     // given type.
@@ -2628,8 +2628,9 @@ void CefBrowserHostImpl::RequestMediaAccessPermission(
         media_id =
             content::DesktopMediaID::Parse(request.requested_video_device_id);
       }
-      devices.push_back(content::MediaStreamDevice(
-          content::MEDIA_DESKTOP_VIDEO_CAPTURE, media_id.ToString(), "Screen"));
+      devices.push_back(
+          content::MediaStreamDevice(content::MEDIA_GUM_DESKTOP_VIDEO_CAPTURE,
+                                     media_id.ToString(), "Screen"));
     }
   }
 

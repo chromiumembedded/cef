@@ -20,7 +20,7 @@
 #include "base/command_line.h"
 #include "base/metrics/field_trial.h"
 #include "base/strings/string_util.h"
-#include "chrome/browser/net/safe_search_util.h"
+#include "chrome/common/net/safe_search_util.h"
 #include "components/prefs/pref_member.h"
 #include "components/prefs/pref_service.h"
 #include "content/public/common/content_switches.h"
@@ -143,7 +143,7 @@ class CefBeforeResourceLoadCallbackImpl : public CefRequestCallback {
     // Only execute the callback if the request has not been canceled.
     if (request->status().status() != net::URLRequestStatus::CANCELED) {
       if (force_google_safesearch && allow && new_url->is_empty())
-        safe_search_util::ForceGoogleSafeSearch(request, new_url);
+        safe_search_util::ForceGoogleSafeSearch(request->url(), new_url);
 
       std::move(callback).Run(allow ? net::OK : net::ERR_ABORTED);
     }
@@ -333,7 +333,7 @@ int CefNetworkDelegate::OnBeforeURLRequest(net::URLRequest* request,
   }
 
   if (force_google_safesearch && new_url->is_empty())
-    safe_search_util::ForceGoogleSafeSearch(request, new_url);
+    safe_search_util::ForceGoogleSafeSearch(request->url(), new_url);
 
   // Continue the request immediately.
   return net::OK;

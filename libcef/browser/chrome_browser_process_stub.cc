@@ -111,7 +111,7 @@ ChromeBrowserProcessStub::system_network_context_manager() {
   return NULL;
 }
 
-content::NetworkConnectionTracker*
+network::NetworkConnectionTracker*
 ChromeBrowserProcessStub::network_connection_tracker() {
   NOTREACHED();
   return NULL;

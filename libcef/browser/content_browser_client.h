@@ -141,7 +141,8 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
       content::BrowserContext* browser_context,
       content::RenderFrameHost* frame,
       bool is_navigation,
-      network::mojom::URLLoaderFactoryRequest* factory_request) override;
+      network::mojom::URLLoaderFactoryRequest* factory_request,
+      scoped_refptr<content::RedirectChecker>* redirect_checker) override;
 
   bool HandleExternalProtocol(
       const GURL& url,

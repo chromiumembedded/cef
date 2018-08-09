@@ -35,6 +35,7 @@ class CefCToCppRefCounted : public BaseName {
   }
   bool Release() const;
   bool HasOneRef() const { return UnderlyingHasOneRef(); }
+  bool HasAtLeastOneRef() const { return UnderlyingHasAtLeastOneRef(); }
 
 #if DCHECK_IS_ON()
   // Simple tracking of allocated objects.
@@ -97,6 +98,15 @@ class CefCToCppRefCounted : public BaseName {
     if (!base->has_one_ref)
       return false;
     return base->has_one_ref(base) ? true : false;
+  }
+
+  NO_SANITIZE("cfi-icall")
+  bool UnderlyingHasAtLeastOneRef() const {
+    cef_base_ref_counted_t* base =
+        reinterpret_cast<cef_base_ref_counted_t*>(GetStruct());
+    if (!base->has_one_ref)
+      return false;
+    return base->has_at_least_one_ref(base) ? true : false;
   }
 
   CefRefCount ref_count_;

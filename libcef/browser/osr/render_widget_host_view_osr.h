@@ -165,10 +165,6 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
       content::BrowserAccessibilityDelegate* delegate,
       bool for_root_frame) override;
 
-#if defined(TOOLKIT_VIEWS) || defined(USE_AURA)
-  void ShowDisambiguationPopup(const gfx::Rect& rect_pixels,
-                               const SkBitmap& zoomed_bitmap) override;
-#endif
   void ImeCompositionRangeChanged(
       const gfx::Range& range,
       const std::vector<gfx::Rect>& character_bounds) override;

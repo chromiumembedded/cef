@@ -89,6 +89,7 @@ class CefCppToCRefCounted : public CefBaseRefCounted {
     return false;
   }
   bool HasOneRef() const { return UnderlyingHasOneRef(); }
+  bool HasAtLeastOneRef() const { return UnderlyingHasAtLeastOneRef(); }
 
 #if DCHECK_IS_ON()
   // Simple tracking of allocated objects.
@@ -107,6 +108,7 @@ class CefCppToCRefCounted : public CefBaseRefCounted {
     base->add_ref = struct_add_ref;
     base->release = struct_release;
     base->has_one_ref = struct_has_one_ref;
+    base->has_at_least_one_ref = struct_has_at_least_one_ref;
 
 #if DCHECK_IS_ON()
     base::AtomicRefCountInc(&DebugObjCt);
@@ -147,6 +149,9 @@ class CefCppToCRefCounted : public CefBaseRefCounted {
   bool UnderlyingHasOneRef() const {
     return wrapper_struct_.object_->HasOneRef();
   }
+  bool UnderlyingHasAtLeastOneRef() const {
+    return wrapper_struct_.object_->HasAtLeastOneRef();
+  }
 
   static void CEF_CALLBACK struct_add_ref(cef_base_ref_counted_t* base) {
     DCHECK(base);
@@ -185,6 +190,20 @@ class CefCppToCRefCounted : public CefBaseRefCounted {
     DCHECK_EQ(kWrapperType, wrapperStruct->type_);
 
     return wrapperStruct->wrapper_->HasOneRef();
+  }
+
+  static int CEF_CALLBACK
+  struct_has_at_least_one_ref(cef_base_ref_counted_t* base) {
+    DCHECK(base);
+    if (!base)
+      return 0;
+
+    WrapperStruct* wrapperStruct =
+        GetWrapperStruct(reinterpret_cast<StructName*>(base));
+    // Verify that the wrapper offset was calculated correctly.
+    DCHECK_EQ(kWrapperType, wrapperStruct->type_);
+
+    return wrapperStruct->wrapper_->HasAtLeastOneRef();
   }
 
   WrapperStruct wrapper_struct_;

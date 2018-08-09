@@ -13,7 +13,7 @@
 #include "base/command_line.h"
 #include "base/files/file_path.h"
 #include "base/strings/string_number_conversions.h"
-#include "base/task_scheduler/post_task.h"
+#include "base/task/post_task.h"
 #include "base/values.h"
 #include "chrome/browser/accessibility/accessibility_ui.h"
 #include "chrome/browser/net/prediction_options.h"
@@ -87,7 +87,7 @@ std::unique_ptr<PrefService> CreatePrefService(Profile* profile,
     const base::FilePath& pref_path =
         cache_path.AppendASCII(browser_prefs::kUserPrefsFileName);
     scoped_refptr<JsonPrefStore> json_pref_store = new JsonPrefStore(
-        pref_path, sequenced_task_runner, std::unique_ptr<PrefFilter>());
+        pref_path, std::unique_ptr<PrefFilter>(), sequenced_task_runner);
     factory.set_user_prefs(json_pref_store.get());
   } else {
     scoped_refptr<CefPrefStore> cef_pref_store = new CefPrefStore();

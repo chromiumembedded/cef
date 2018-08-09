@@ -13,6 +13,11 @@ bool RefCountedThreadSafeBase::HasOneRef() const {
       &const_cast<RefCountedThreadSafeBase*>(this)->ref_count_);
 }
 
+bool RefCountedThreadSafeBase::HasAtLeastOneRef() const {
+  return !AtomicRefCountIsZero(
+      &const_cast<RefCountedThreadSafeBase*>(this)->ref_count_);
+}
+
 RefCountedThreadSafeBase::RefCountedThreadSafeBase() : ref_count_(0) {
 #if DCHECK_IS_ON()
   in_dtor_ = false;

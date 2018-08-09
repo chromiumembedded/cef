@@ -295,10 +295,10 @@ index 9c78b30ab3a0..999eb4048f5c 100644
    std::unique_ptr<SelectionController> selection_controller_;
  
 diff --git ui/views/controls/menu/menu_controller.cc ui/views/controls/menu/menu_controller.cc
-index beecb7f27177..61bf431486db 100644
+index ee2852fefa84..bbba1786e1a4 100644
 --- ui/views/controls/menu/menu_controller.cc
 +++ ui/views/controls/menu/menu_controller.cc
-@@ -2421,8 +2421,13 @@ MenuItemView* MenuController::FindNextSelectableMenuItem(
+@@ -2430,8 +2430,13 @@ MenuItemView* MenuController::FindNextSelectableMenuItem(
  
  void MenuController::OpenSubmenuChangeSelectionIfCan() {
    MenuItemView* item = pending_state_.item;
@@ -313,7 +313,7 @@ index beecb7f27177..61bf431486db 100644
    MenuItemView* to_select = NULL;
    if (item->GetSubmenu()->GetMenuItemCount() > 0)
      to_select = FindInitialSelectableMenuItem(item, INCREMENT_SELECTION_DOWN);
-@@ -2437,8 +2442,10 @@ void MenuController::OpenSubmenuChangeSelectionIfCan() {
+@@ -2446,8 +2451,10 @@ void MenuController::OpenSubmenuChangeSelectionIfCan() {
  void MenuController::CloseSubmenu() {
    MenuItemView* item = state_.item;
    DCHECK(item);
@@ -405,7 +405,7 @@ index 4ede4cb5fa04..8f4af6c91969 100644
        minor ? ui::NativeTheme::kColorId_MenuItemMinorTextColor
              : ui::NativeTheme::kColorId_EnabledMenuItemForegroundColor;
 diff --git ui/views/controls/menu/menu_model_adapter.cc ui/views/controls/menu/menu_model_adapter.cc
-index e9cfe1c466c6..bc6797a8205d 100644
+index 784cad79f9db..0e7436792b59 100644
 --- ui/views/controls/menu/menu_model_adapter.cc
 +++ ui/views/controls/menu/menu_model_adapter.cc
 @@ -231,6 +231,77 @@ void MenuModelAdapter::SelectionChanged(MenuItemView* menu) {
@@ -512,7 +512,7 @@ index 0ac493c3c6a0..741769e90eb0 100644
    void WillHideMenu(MenuItemView* menu) override;
    void OnMenuClosed(MenuItemView* menu) override;
 diff --git ui/views/controls/menu/menu_scroll_view_container.cc ui/views/controls/menu/menu_scroll_view_container.cc
-index 16a1bef6715e..867a643ec1d3 100644
+index ecbd5d773b9e..6c9d256b2143 100644
 --- ui/views/controls/menu/menu_scroll_view_container.cc
 +++ ui/views/controls/menu/menu_scroll_view_container.cc
 @@ -183,6 +183,11 @@ MenuScrollViewContainer::MenuScrollViewContainer(SubmenuView* content_view)
@@ -543,7 +543,7 @@ index 3ec1dcbdf822..e2658cec8095 100644
        // Move the cursor because EnterNotify/LeaveNotify are generated with the
        // current mouse position as a result of XGrabPointer()
 diff --git ui/views/view.h ui/views/view.h
-index cbc9e1866b46..65a12cf2ec98 100644
+index bae6ce42102e..f02008bdc354 100644
 --- ui/views/view.h
 +++ ui/views/view.h
 @@ -19,6 +19,7 @@

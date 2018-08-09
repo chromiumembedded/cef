@@ -759,12 +759,6 @@ CefRenderWidgetHostViewOSR::CreateBrowserAccessibilityManager(
   return NULL;
 }
 
-#if defined(TOOLKIT_VIEWS) || defined(USE_AURA)
-void CefRenderWidgetHostViewOSR::ShowDisambiguationPopup(
-    const gfx::Rect& rect_pixels,
-    const SkBitmap& zoomed_bitmap) {}
-#endif
-
 void CefRenderWidgetHostViewOSR::ImeSetComposition(
     const CefString& text,
     const std::vector<CefCompositionUnderline>& underlines,
