@@ -12,10 +12,10 @@ index 959a59231746..67335e852219 100644
  }
  
 diff --git chrome/browser/ui/libgtkui/gtk_util.cc chrome/browser/ui/libgtkui/gtk_util.cc
-index 96f8c0e71472..49c462b37e12 100644
+index 39bf49c7b111..ad7b054e185f 100644
 --- chrome/browser/ui/libgtkui/gtk_util.cc
 +++ chrome/browser/ui/libgtkui/gtk_util.cc
-@@ -237,6 +237,7 @@ float GetDeviceScaleFactor() {
+@@ -239,6 +239,7 @@ float GetDeviceScaleFactor() {
    return linux_ui ? linux_ui->GetDeviceScaleFactor() : 1;
  }
  
@@ -23,7 +23,7 @@ index 96f8c0e71472..49c462b37e12 100644
  using GtkSetState = void (*)(GtkWidgetPath*, gint, GtkStateFlags);
  PROTECTED_MEMORY_SECTION base::ProtectedMemory<GtkSetState>
      _gtk_widget_path_iter_set_state;
-@@ -244,6 +245,7 @@ PROTECTED_MEMORY_SECTION base::ProtectedMemory<GtkSetState>
+@@ -246,6 +247,7 @@ PROTECTED_MEMORY_SECTION base::ProtectedMemory<GtkSetState>
  using GtkSetObjectName = void (*)(GtkWidgetPath*, gint, const char*);
  PROTECTED_MEMORY_SECTION base::ProtectedMemory<GtkSetObjectName>
      _gtk_widget_path_iter_set_object_name;
@@ -31,7 +31,7 @@ index 96f8c0e71472..49c462b37e12 100644
  
  }  // namespace
  
-@@ -401,10 +403,12 @@ ScopedStyleContext AppendCssNodeToStyleContext(GtkStyleContext* context,
+@@ -403,10 +405,12 @@ ScopedStyleContext AppendCssNodeToStyleContext(GtkStyleContext* context,
            NOTREACHED();
        }
      } else {
@@ -44,7 +44,7 @@ index 96f8c0e71472..49c462b37e12 100644
        switch (part_type) {
          case CSS_NAME: {
            if (GtkVersionCheck(3, 20)) {
-@@ -449,6 +453,7 @@ ScopedStyleContext AppendCssNodeToStyleContext(GtkStyleContext* context,
+@@ -451,6 +455,7 @@ ScopedStyleContext AppendCssNodeToStyleContext(GtkStyleContext* context,
    // widgets specially if they want to.
    gtk_widget_path_iter_add_class(path, -1, "chromium");
  
@@ -52,7 +52,7 @@ index 96f8c0e71472..49c462b37e12 100644
    if (GtkVersionCheck(3, 14)) {
      static base::ProtectedMemory<GtkSetState>::Initializer init(
          &_gtk_widget_path_iter_set_state,
-@@ -457,6 +462,7 @@ ScopedStyleContext AppendCssNodeToStyleContext(GtkStyleContext* context,
+@@ -459,6 +464,7 @@ ScopedStyleContext AppendCssNodeToStyleContext(GtkStyleContext* context,
      DCHECK(*_gtk_widget_path_iter_set_state);
      base::UnsanitizedCfiCall(_gtk_widget_path_iter_set_state)(path, -1, state);
    }

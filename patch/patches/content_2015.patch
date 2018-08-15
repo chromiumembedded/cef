@@ -94,10 +94,10 @@ index 201f23b9b422..4664c6b32c22 100644
                  "WillFailRequest state should come before WillProcessResponse");
    return render_frame_host_;
 diff --git content/browser/frame_host/render_frame_host_impl.cc content/browser/frame_host/render_frame_host_impl.cc
-index 36b5e3bf6853..9303e53b9094 100644
+index 8e5af3e3b9c5..5517c7363590 100644
 --- content/browser/frame_host/render_frame_host_impl.cc
 +++ content/browser/frame_host/render_frame_host_impl.cc
-@@ -842,8 +842,8 @@ void RenderFrameHostImpl::CreateNetworkServiceDefaultFactory(
+@@ -843,8 +843,8 @@ void RenderFrameHostImpl::CreateNetworkServiceDefaultFactory(
    RenderFrameDevToolsAgentHost::WillCreateURLLoaderFactory(
        this, false /* is_navigation */, false /* is_download */,
        &default_factory_request);
@@ -108,7 +108,7 @@ index 36b5e3bf6853..9303e53b9094 100644
    if (g_create_network_factory_callback_for_test.Get().is_null()) {
      storage_partition->GetNetworkContext()->CreateURLLoaderFactory(
          std::move(default_factory_request), std::move(params));
-@@ -1672,6 +1672,7 @@ void RenderFrameHostImpl::OnDidFailProvisionalLoadWithError(
+@@ -1673,6 +1673,7 @@ void RenderFrameHostImpl::OnDidFailProvisionalLoadWithError(
    if (GetNavigationHandle()) {
      GetNavigationHandle()->set_net_error_code(
          static_cast<net::Error>(params.error_code));
@@ -116,7 +116,7 @@ index 36b5e3bf6853..9303e53b9094 100644
    }
  
    frame_tree_node_->navigator()->DidFailProvisionalLoadWithError(this, params);
-@@ -4050,9 +4051,9 @@ void RenderFrameHostImpl::CommitNavigation(
+@@ -4069,9 +4070,9 @@ void RenderFrameHostImpl::CommitNavigation(
        // is used. Currently we have this here to make sure we have non-racy
        // situation (https://crbug.com/849929).
        DCHECK(base::FeatureList::IsEnabled(network::features::kNetworkService));
@@ -364,10 +364,10 @@ index 2f1f46075b27..94f300dfea5d 100644
    virtual void FocusedNodeChanged(const blink::WebNode& node) {}
  
 diff --git content/renderer/render_frame_impl.cc content/renderer/render_frame_impl.cc
-index 5413e28e7a5b..cf05bbccdea5 100644
+index f6adabc683c0..e54a9ca14f10 100644
 --- content/renderer/render_frame_impl.cc
 +++ content/renderer/render_frame_impl.cc
-@@ -3471,7 +3471,8 @@ blink::WebPlugin* RenderFrameImpl::CreatePlugin(
+@@ -3473,7 +3473,8 @@ blink::WebPlugin* RenderFrameImpl::CreatePlugin(
    std::string mime_type;
    bool found = false;
    Send(new FrameHostMsg_GetPluginInfo(
@@ -377,7 +377,7 @@ index 5413e28e7a5b..cf05bbccdea5 100644
        params.mime_type.Utf8(), &found, &info, &mime_type));
    if (!found)
      return nullptr;
-@@ -3836,6 +3837,8 @@ void RenderFrameImpl::FrameDetached(DetachType type) {
+@@ -3838,6 +3839,8 @@ void RenderFrameImpl::FrameDetached(DetachType type) {
  
  void RenderFrameImpl::FrameFocused() {
    Send(new FrameHostMsg_FrameFocused(routing_id_));

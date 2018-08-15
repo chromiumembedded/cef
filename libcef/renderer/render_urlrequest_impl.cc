@@ -117,7 +117,8 @@ class CefRenderURLRequest::Context
 
     loader_ =
         CefContentRendererClient::Get()->url_loader_factory()->CreateURLLoader(
-            urlRequest, task_runner_.get());
+            urlRequest, blink::scheduler::WebResourceLoadingTaskRunnerHandle::
+                            CreateUnprioritized(task_runner_.get()));
     loader_->LoadAsynchronously(urlRequest, url_client_.get());
     return true;
   }
