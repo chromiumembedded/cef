@@ -171,8 +171,8 @@ void CefRenderWidgetHostViewOSR::PlatformCreateCompositorWidget(
 
   mac_helper_ = new MacHelper(this);
   browser_compositor_.reset(new content::BrowserCompositorMac(
-      mac_helper_, mac_helper_, render_widget_host_->is_hidden(), true,
-      GetDisplay(), AllocateFrameSinkId(is_guest_view_hack)));
+      mac_helper_, mac_helper_, render_widget_host_->is_hidden(), GetDisplay(),
+      AllocateFrameSinkId(is_guest_view_hack)));
 }
 
 void CefRenderWidgetHostViewOSR::PlatformDestroyCompositorWidget() {
