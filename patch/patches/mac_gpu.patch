@@ -1,8 +1,8 @@
 diff --git ui/gl/init/gl_initializer_mac.cc ui/gl/init/gl_initializer_mac.cc
-index f4789ebf3b0e..73d66e8f5165 100644
+index a89aad20c34c..f3bfc3973a10 100644
 --- ui/gl/init/gl_initializer_mac.cc
 +++ ui/gl/init/gl_initializer_mac.cc
-@@ -47,11 +47,8 @@ bool InitializeOneOffForSandbox() {
+@@ -46,11 +46,8 @@ bool InitializeOneOffForSandbox() {
    // GPU-related stuff is very slow without this, probably because
    // the sandbox prevents loading graphics drivers or some such.
    std::vector<CGLPixelFormatAttribute> attribs;
@@ -16,7 +16,7 @@ index f4789ebf3b0e..73d66e8f5165 100644
    if (GetGLImplementation() == kGLImplementationAppleGL) {
      attribs.push_back(kCGLPFARendererID);
      attribs.push_back(
-@@ -146,8 +143,8 @@ bool InitializeStaticEGLInternal(GLImplementation implementation) {
+@@ -102,8 +99,8 @@ bool InitializeStaticEGLInternal(GLImplementation implementation) {
    // as app bundles. In that case, the .dylib is next to the executable.
    base::FilePath base_dir;
    if (base::mac::AmIBundled()) {

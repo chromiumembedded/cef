@@ -8,34 +8,15 @@
 #include <utility>
 
 #include "libcef/common/cef_switches.h"
-#include "libcef/common/extensions/chrome_generated_schemas.h"
+#include "libcef/common/extensions/extensions_api_provider.h"
 
 #include "base/logging.h"
-#include "cef/grit/cef_resources.h"
-//#include "cef/libcef/common/extensions/api/generated_schemas.h"
-#include "cef/libcef/common/extensions/api/cef_api_features.h"
-#include "cef/libcef/common/extensions/api/cef_manifest_features.h"
-#include "cef/libcef/common/extensions/api/cef_permission_features.h"
-#include "chrome/common/extensions/chrome_aliases.h"
-#include "chrome/common/extensions/chrome_manifest_handlers.h"
-#include "chrome/grit/common_resources.h"
-#include "extensions/common/api/api_features.h"
-#include "extensions/common/api/behavior_features.h"
-#include "extensions/common/api/generated_schemas.h"
-#include "extensions/common/api/manifest_features.h"
-#include "extensions/common/api/permission_features.h"
-#include "extensions/common/common_manifest_handlers.h"
+#include "extensions/common/core_extensions_api_provider.h"
 #include "extensions/common/extension_urls.h"
-#include "extensions/common/extensions_aliases.h"
-#include "extensions/common/features/feature_provider.h"
-#include "extensions/common/features/json_feature_provider_source.h"
 #include "extensions/common/features/simple_feature.h"
-#include "extensions/common/manifest_handler.h"
 #include "extensions/common/permissions/permission_message_provider.h"
-#include "extensions/common/permissions/permissions_info.h"
 #include "extensions/common/permissions/permissions_provider.h"
 #include "extensions/common/url_pattern_set.h"
-#include "extensions/grit/extensions_resources.h"
 
 namespace extensions {
 
@@ -50,22 +31,14 @@ SimpleFeature* CreateFeature() {
 
 CefExtensionsClient::CefExtensionsClient()
     : webstore_base_url_(extension_urls::kChromeWebstoreBaseURL),
-      webstore_update_url_(extension_urls::kChromeWebstoreUpdateURL) {}
+      webstore_update_url_(extension_urls::kChromeWebstoreUpdateURL) {
+  AddAPIProvider(std::make_unique<CoreExtensionsAPIProvider>());
+  AddAPIProvider(std::make_unique<CefExtensionsAPIProvider>());
+}
 
 CefExtensionsClient::~CefExtensionsClient() {}
 
-void CefExtensionsClient::Initialize() {
-  RegisterCommonManifestHandlers();
-  RegisterChromeManifestHandlers();
-  ManifestHandler::FinalizeRegistration();
-  // TODO(jamescook): Do we need to whitelist any extensions?
-
-  // Set up permissions.
-  PermissionsInfo::GetInstance()->AddProvider(chrome_api_permissions_,
-                                              GetChromePermissionAliases());
-  PermissionsInfo::GetInstance()->AddProvider(extensions_api_permissions_,
-                                              GetExtensionsPermissionAliases());
-}
+void CefExtensionsClient::Initialize() {}
 
 void CefExtensionsClient::InitializeWebStoreUrls(
     base::CommandLine* command_line) {}
@@ -77,40 +50,6 @@ CefExtensionsClient::GetPermissionMessageProvider() const {
 
 const std::string CefExtensionsClient::GetProductName() {
   return "cef";
-}
-
-std::unique_ptr<FeatureProvider> CefExtensionsClient::CreateFeatureProvider(
-    const std::string& name) const {
-  auto provider = std::make_unique<FeatureProvider>();
-  if (name == "api") {
-    AddCoreAPIFeatures(provider.get());
-    AddCEFAPIFeatures(provider.get());
-  } else if (name == "manifest") {
-    AddCoreManifestFeatures(provider.get());
-    AddCEFManifestFeatures(provider.get());
-  } else if (name == "permission") {
-    AddCorePermissionFeatures(provider.get());
-    AddCEFPermissionFeatures(provider.get());
-  } else if (name == "behavior") {
-    // Note: There are no CEF-specific behavior features.
-    AddCoreBehaviorFeatures(provider.get());
-  } else {
-    NOTREACHED();
-  }
-  return provider;
-}
-
-std::unique_ptr<JSONFeatureProviderSource>
-CefExtensionsClient::CreateAPIFeatureSource() const {
-  std::unique_ptr<JSONFeatureProviderSource> source(
-      new JSONFeatureProviderSource("api"));
-  source->LoadJSON(IDR_EXTENSION_API_FEATURES);
-
-  // Extension API features specific to CEF. See
-  // libcef/common/extensions/api/README.txt for additional details.
-  source->LoadJSON(IDR_CEF_EXTENSION_API_FEATURES);
-
-  return source;
 }
 
 void CefExtensionsClient::FilterHostPermissions(
@@ -140,40 +79,6 @@ URLPatternSet CefExtensionsClient::GetPermittedChromeSchemeHosts(
 bool CefExtensionsClient::IsScriptableURL(const GURL& url,
                                           std::string* error) const {
   return true;
-}
-
-bool CefExtensionsClient::IsAPISchemaGenerated(const std::string& name) const {
-  // Schema for CEF-only APIs.
-  // TODO(cef): Enable if/when CEF exposes its own Mojo APIs. See
-  // libcef/common/extensions/api/README.txt for details.
-  // if (api::cef::CefGeneratedSchemas::IsGenerated(name))
-  //   return true;
-
-  // Chrome APIs whitelisted by CEF.
-  if (api::cef::ChromeGeneratedSchemas::IsGenerated(name))
-    return true;
-
-  // Core extensions APIs.
-  if (api::GeneratedSchemas::IsGenerated(name))
-    return true;
-
-  return false;
-}
-
-base::StringPiece CefExtensionsClient::GetAPISchema(
-    const std::string& name) const {
-  // Schema for CEF-only APIs.
-  // TODO(cef): Enable if/when CEF exposes its own Mojo APIs. See
-  // libcef/common/extensions/api/README.txt for details.
-  // if (api::cef::CefGeneratedSchemas::IsGenerated(name))
-  //   return api::cef::CefGeneratedSchemas::Get(name);
-
-  // Chrome APIs whitelisted by CEF.
-  if (api::cef::ChromeGeneratedSchemas::IsGenerated(name))
-    return api::cef::ChromeGeneratedSchemas::Get(name);
-
-  // Core extensions APIs.
-  return api::GeneratedSchemas::Get(name);
 }
 
 bool CefExtensionsClient::ShouldSuppressFatalErrors() const {

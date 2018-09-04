@@ -44,7 +44,7 @@
 #include "content/public/browser/web_contents.h"
 #include "mojo/public/cpp/system/buffer.h"
 #include "printing/buildflags/buildflags.h"
-#include "printing/pdf_metafile_skia.h"
+#include "printing/metafile_skia.h"
 #include "printing/print_settings.h"
 #include "printing/printed_document.h"
 #include "ui/base/l10n/l10n_util.h"
@@ -98,8 +98,7 @@ void CefPrintViewManagerBase::PrintDocument(
   print_job_->StartConversionToNativeFormat(print_data, page_size, content_area,
                                             offsets);
 #else
-  std::unique_ptr<PdfMetafileSkia> metafile =
-      std::make_unique<PdfMetafileSkia>();
+  std::unique_ptr<MetafileSkia> metafile = std::make_unique<MetafileSkia>();
   CHECK(metafile->InitFromData(print_data->front(), print_data->size()));
 
   // Update the rendered document. It will send notifications to the listener.
@@ -183,8 +182,7 @@ void CefPrintViewManagerBase::OnDidPrintDocument(
   auto* client = PrintCompositeClient::FromWebContents(web_contents());
   if (IsOopifEnabled() && print_job_->document()->settings().is_modifiable()) {
     client->DoCompositeDocumentToPdf(
-        params.document_cookie, render_frame_host, content.metafile_data_handle,
-        content.data_size, content.subframe_content_info,
+        params.document_cookie, render_frame_host, content,
         base::BindOnce(&CefPrintViewManagerBase::OnComposePdfDone,
                        weak_ptr_factory_.GetWeakPtr(), params));
     return;

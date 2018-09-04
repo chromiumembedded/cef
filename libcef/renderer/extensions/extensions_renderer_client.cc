@@ -226,8 +226,7 @@ bool CefExtensionsRendererClient::IsStandaloneExtensionProcess() {
 bool CefExtensionsRendererClient::ShouldFork(blink::WebLocalFrame* frame,
                                              const GURL& url,
                                              bool is_initial_navigation,
-                                             bool is_server_redirect,
-                                             bool* send_referrer) {
+                                             bool is_server_redirect) {
   const extensions::RendererExtensionRegistry* extension_registry =
       extensions::RendererExtensionRegistry::Get();
 
@@ -246,10 +245,6 @@ bool CefExtensionsRendererClient::ShouldFork(blink::WebLocalFrame* frame,
   if (!is_server_redirect &&
       CrossesExtensionExtents(frame, url, is_extension_url,
                               is_initial_navigation)) {
-    // Include the referrer in this case since we're going from a hosted web
-    // page. (the packaged case is handled previously by the extension
-    // navigation test)
-    *send_referrer = true;
     return true;
   }
 

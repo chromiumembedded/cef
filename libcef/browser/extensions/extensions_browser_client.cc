@@ -9,15 +9,14 @@
 
 #include "libcef/browser/browser_context_impl.h"
 #include "libcef/browser/browser_host_impl.h"
-#include "libcef/browser/extensions/chrome_api_registration.h"
 #include "libcef/browser/extensions/component_extension_resource_manager.h"
 #include "libcef/browser/extensions/extension_system.h"
 #include "libcef/browser/extensions/extension_system_factory.h"
 #include "libcef/browser/extensions/extension_web_contents_observer.h"
 #include "libcef/browser/extensions/extensions_api_client.h"
+#include "libcef/browser/extensions/extensions_browser_api_provider.h"
 #include "libcef/browser/request_context_impl.h"
 
-//#include "cef/libcef/browser/extensions/api/generated_api_registration.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/extensions/chrome_url_request_util.h"
 #include "chrome/browser/extensions/event_router_forwarder.h"
@@ -25,11 +24,10 @@
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/render_frame_host.h"
 #include "extensions/browser/api/extensions_api_client.h"
-#include "extensions/browser/api/generated_api_registration.h"
 #include "extensions/browser/api/runtime/runtime_api_delegate.h"
 #include "extensions/browser/app_sorting.h"
+#include "extensions/browser/core_extensions_browser_api_provider.h"
 #include "extensions/browser/event_router.h"
-#include "extensions/browser/extension_function_registry.h"
 #include "extensions/browser/extension_host_delegate.h"
 #include "extensions/browser/mojo/interface_registration.h"
 #include "extensions/browser/serial_extension_host_queue.h"
@@ -43,7 +41,10 @@ namespace extensions {
 
 CefExtensionsBrowserClient::CefExtensionsBrowserClient()
     : api_client_(new CefExtensionsAPIClient),
-      resource_manager_(new CefComponentExtensionResourceManager) {}
+      resource_manager_(new CefComponentExtensionResourceManager) {
+  AddAPIProvider(std::make_unique<CoreExtensionsBrowserAPIProvider>());
+  AddAPIProvider(std::make_unique<CefExtensionsBrowserAPIProvider>());
+}
 
 CefExtensionsBrowserClient::~CefExtensionsBrowserClient() {}
 
@@ -274,20 +275,6 @@ bool CefExtensionsBrowserClient::IsLoggedInAsPublicAccount() {
 ExtensionSystemProvider*
 CefExtensionsBrowserClient::GetExtensionSystemFactory() {
   return CefExtensionSystemFactory::GetInstance();
-}
-
-void CefExtensionsBrowserClient::RegisterExtensionFunctions(
-    ExtensionFunctionRegistry* registry) const {
-  // Register core extension-system APIs.
-  api::GeneratedFunctionRegistry::RegisterAll(registry);
-
-  // CEF-only APIs.
-  // TODO(cef): Enable if/when CEF exposes its own Mojo APIs. See
-  // libcef/common/extensions/api/README.txt for details.
-  // api::cef::CefGeneratedFunctionRegistry::RegisterAll(registry);
-
-  // Chrome APIs whitelisted by CEF.
-  api::cef::ChromeFunctionRegistry::RegisterAll(registry);
 }
 
 void CefExtensionsBrowserClient::RegisterExtensionInterfaces(

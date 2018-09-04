@@ -15,6 +15,7 @@
 
 #include "base/compiler_specific.h"
 #include "base/strings/utf_string_conversions.h"
+#include "content/browser/renderer_host/render_widget_host_impl.h"
 #include "content/common/view_messages.h"
 #include "ui/accelerated_widget_mac/accelerated_widget_mac.h"
 #include "ui/display/screen.h"
@@ -42,10 +43,6 @@ class MacHelper : public content::BrowserCompositorMacClient,
 
   void OnFrameTokenChanged(uint32_t frame_token) override {
     view_->render_widget_host()->DidProcessFrame(frame_token);
-  }
-
-  void DidReceiveFirstFrameAfterNavigation() override {
-    view_->render_widget_host()->DidReceiveFirstFrameAfterNavigation();
   }
 
   void DestroyCompositorForShutdown() override {}

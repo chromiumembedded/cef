@@ -7,6 +7,7 @@
 
 #include "libcef/common/cef_messages.h"
 #include "libcef/common/net/net_resource_provider.h"
+#include "libcef/renderer/blink_glue.h"
 #include "libcef/renderer/content_renderer_client.h"
 
 #include "components/visitedlink/renderer/visitedlink_slave.h"
@@ -64,18 +65,15 @@ void CefRenderThreadObserver::OnModifyCrossOriginWhitelistEntry(
     const Cef_CrossOriginWhiteListEntry_Params& params) {
   GURL gurl = GURL(params.source_origin);
   if (add) {
-    blink::WebSecurityPolicy::AddOriginAccessWhitelistEntry(
+    blink::WebSecurityPolicy::AddOriginAccessAllowListEntry(
         gurl, blink::WebString::FromUTF8(params.target_protocol),
         blink::WebString::FromUTF8(params.target_domain),
         params.allow_target_subdomains);
   } else {
-    blink::WebSecurityPolicy::RemoveOriginAccessWhitelistEntry(
-        gurl, blink::WebString::FromUTF8(params.target_protocol),
-        blink::WebString::FromUTF8(params.target_domain),
-        params.allow_target_subdomains);
+    blink::WebSecurityPolicy::ClearOriginAccessAllowListForOrigin(gurl);
   }
 }
 
 void CefRenderThreadObserver::OnClearCrossOriginWhitelist() {
-  blink::WebSecurityPolicy::ResetOriginAccessWhitelists();
+  blink::WebSecurityPolicy::ClearOriginAccessAllowList();
 }

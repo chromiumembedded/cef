@@ -96,51 +96,48 @@ index 2907619549ba..f941fba363b5 100644
        SupervisedUserSettingsServiceFactory>;
  
    SupervisedUserSettingsServiceFactory();
-diff --git chrome/browser/ui/prefs/prefs_tab_helper.cc chrome/browser/ui/prefs/prefs_tab_helper.cc
-index 7e3591ae2f28..55f0d4ce1e28 100644
---- chrome/browser/ui/prefs/prefs_tab_helper.cc
-+++ chrome/browser/ui/prefs/prefs_tab_helper.cc
-@@ -11,8 +11,8 @@
- #include <string>
+diff --git chrome/browser/ui/prefs/pref_watcher.cc chrome/browser/ui/prefs/pref_watcher.cc
+index e38f8c50b10f..3b486f3b8daf 100644
+--- chrome/browser/ui/prefs/pref_watcher.cc
++++ chrome/browser/ui/prefs/pref_watcher.cc
+@@ -46,6 +46,9 @@ const char* const kWebPrefsToObserve[] = {
  
- #include "base/command_line.h"
-+#include "base/lazy_instance.h"
- #include "base/macros.h"
+ const int kWebPrefsToObserveLength = base::size(kWebPrefsToObserve);
+ 
++base::LazyInstance<PrefWatcherFactory>::Leaky g_pref_watcher_factory =
++    LAZY_INSTANCE_INITIALIZER;
++
+ }  // namespace
+ 
+ // Watching all these settings per tab is slow when a user has a lot of tabs and
+@@ -124,7 +127,7 @@ PrefWatcher* PrefWatcherFactory::GetForProfile(Profile* profile) {
+ 
+ // static
+ PrefWatcherFactory* PrefWatcherFactory::GetInstance() {
+-  return base::Singleton<PrefWatcherFactory>::get();
++  return g_pref_watcher_factory.Pointer();
+ }
+ 
+ PrefWatcherFactory::PrefWatcherFactory()
+diff --git chrome/browser/ui/prefs/pref_watcher.h chrome/browser/ui/prefs/pref_watcher.h
+index 061ca27681fa..0538f62f3f25 100644
+--- chrome/browser/ui/prefs/pref_watcher.h
++++ chrome/browser/ui/prefs/pref_watcher.h
+@@ -5,7 +5,7 @@
+ #ifndef CHROME_BROWSER_UI_PREFS_PREF_WATCHER_H_
+ #define CHROME_BROWSER_UI_PREFS_PREF_WATCHER_H_
+ 
 -#include "base/memory/singleton.h"
- #include "base/strings/string_number_conversions.h"
- #include "base/strings/string_util.h"
- #include "base/strings/stringprintf.h"
-@@ -387,12 +387,10 @@ class PrefWatcherFactory : public BrowserContextKeyedServiceFactory {
-         GetInstance()->GetServiceForBrowserContext(profile, true));
-   }
- 
--  static PrefWatcherFactory* GetInstance() {
--    return base::Singleton<PrefWatcherFactory>::get();
--  }
-+  static PrefWatcherFactory* GetInstance();
++#include "base/lazy_instance.h"
+ #include "components/keyed_service/content/browser_context_keyed_service_factory.h"
+ #include "components/keyed_service/core/keyed_service.h"
+ #include "components/prefs/pref_change_registrar.h"
+@@ -58,7 +58,7 @@ class PrefWatcherFactory : public BrowserContextKeyedServiceFactory {
+   static PrefWatcherFactory* GetInstance();
  
   private:
 -  friend struct base::DefaultSingletonTraits<PrefWatcherFactory>;
 +  friend struct base::LazyInstanceTraitsBase<PrefWatcherFactory>;
  
-   PrefWatcherFactory() : BrowserContextKeyedServiceFactory(
-       "PrefWatcher",
-@@ -413,6 +411,18 @@ class PrefWatcherFactory : public BrowserContextKeyedServiceFactory {
-   }
- };
- 
-+namespace {
-+
-+base::LazyInstance<PrefWatcherFactory>::Leaky g_pref_watcher_factory =
-+    LAZY_INSTANCE_INITIALIZER;
-+
-+}  // namespace
-+
-+// static
-+PrefWatcherFactory* PrefWatcherFactory::GetInstance() {
-+  return g_pref_watcher_factory.Pointer();
-+}
-+
- // static
- PrefWatcher* PrefWatcher::Get(Profile* profile) {
-   return PrefWatcherFactory::GetForProfile(profile);
+   PrefWatcherFactory();
+   ~PrefWatcherFactory() override;

@@ -35,7 +35,7 @@ index dfe0f29dc772..606f07a1d1ed 100644
        extensions::ExtensionRegistry::Get(profile);
    std::string extensions_list;
 diff --git chrome/browser/memory_details.cc chrome/browser/memory_details.cc
-index e4cfd5b02bea..20a5f81fe231 100644
+index 660cfdb7ea24..5ac15334064e 100644
 --- chrome/browser/memory_details.cc
 +++ chrome/browser/memory_details.cc
 @@ -16,6 +16,7 @@
@@ -60,10 +60,10 @@ index e4cfd5b02bea..20a5f81fe231 100644
            render_process_host->GetBrowserContext();
        extensions::ExtensionRegistry* extension_registry =
 diff --git chrome/browser/ui/webui/net_internals/net_internals_ui.cc chrome/browser/ui/webui/net_internals/net_internals_ui.cc
-index 34960e3e6543..bffb63938274 100644
+index 76652731b926..ec2b6ad11cdb 100644
 --- chrome/browser/ui/webui/net_internals/net_internals_ui.cc
 +++ chrome/browser/ui/webui/net_internals/net_internals_ui.cc
-@@ -529,41 +529,31 @@ void NetInternalsMessageHandler::OnClearBrowserCache(
+@@ -527,41 +527,31 @@ void NetInternalsMessageHandler::OnClearBrowserCache(
  void NetInternalsMessageHandler::OnGetPrerenderInfo(
      const base::ListValue* list) {
    DCHECK_CURRENTLY_ON(BrowserThread::UI);
@@ -110,7 +110,7 @@ index 34960e3e6543..bffb63938274 100644
  }
  
  ////////////////////////////////////////////////////////////////////////////////
-@@ -643,9 +633,17 @@ void NetInternalsMessageHandler::IOThreadImpl::OnRendererReady(
+@@ -641,9 +631,17 @@ void NetInternalsMessageHandler::IOThreadImpl::OnRendererReady(
  
    PrePopulateEventList();
  
@@ -170,10 +170,10 @@ index 903cc543a242..5bd30ae82974 100644
  CONTENT_EXPORT void InitializeResourceContext(BrowserContext* browser_context);
  
 diff --git content/browser/webui/url_data_manager.cc content/browser/webui/url_data_manager.cc
-index ce87d5984c09..6d31657e5c6c 100644
+index fca1d4aa6161..a14e34dae591 100644
 --- content/browser/webui/url_data_manager.cc
 +++ content/browser/webui/url_data_manager.cc
-@@ -148,6 +148,11 @@ void URLDataManager::UpdateWebUIDataSource(
+@@ -150,6 +150,11 @@ void URLDataManager::UpdateWebUIDataSource(
        ->UpdateWebUIDataSource(source_name, std::move(update));
  }
  
@@ -186,7 +186,7 @@ index ce87d5984c09..6d31657e5c6c 100644
  bool URLDataManager::IsScheduledForDeletion(
      const URLDataSourceImpl* data_source) {
 diff --git content/browser/webui/url_data_manager.h content/browser/webui/url_data_manager.h
-index 5ceb74d411fc..0c584d6e69b5 100644
+index 95cff69e1b42..7fd849867829 100644
 --- content/browser/webui/url_data_manager.h
 +++ content/browser/webui/url_data_manager.h
 @@ -69,6 +69,8 @@ class CONTENT_EXPORT URLDataManager : public base::SupportsUserData::Data {

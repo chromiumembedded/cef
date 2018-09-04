@@ -51,9 +51,8 @@ bool CefPrintRenderFrameHelperDelegate::OverridePrint(
   if (!frame->GetDocument().IsPluginDocument())
     return false;
 
-  std::vector<extensions::MimeHandlerViewContainer*> mime_handlers =
-      extensions::MimeHandlerViewContainer::FromRenderFrame(
-          content::RenderFrame::FromWebFrame(frame));
+  auto mime_handlers = extensions::MimeHandlerViewContainer::FromRenderFrame(
+      content::RenderFrame::FromWebFrame(frame));
   if (!mime_handlers.empty()) {
     // This message is handled in chrome/browser/resources/pdf/pdf.js and
     // instructs the PDF plugin to print. This is to make window.print() on a

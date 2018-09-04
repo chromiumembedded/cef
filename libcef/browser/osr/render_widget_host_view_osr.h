@@ -34,6 +34,11 @@
 #include "ui/gfx/win/window_impl.h"
 #endif
 
+#if defined(USE_AURA)
+#include "third_party/blink/public/platform/web_cursor_info.h"
+#include "ui/base/cursor/cursor.h"
+#endif
+
 namespace content {
 class RenderWidgetHost;
 class RenderWidgetHostImpl;
@@ -135,6 +140,7 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
       viz::CompositorFrame frame,
       base::Optional<viz::HitTestRegionList> hit_test_region_list) override;
   void ClearCompositorFrame() override;
+  void ResetFallbackToFirstNavigationSurface() override;
   void InitAsPopup(content::RenderWidgetHostView* parent_host_view,
                    const gfx::Rect& pos) override;
   void InitAsFullscreen(
@@ -202,7 +208,6 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
   void OnFirstSurfaceActivation(const viz::SurfaceInfo& surface_info) override;
   void OnBeginFrame(base::TimeTicks frame_time) override;
   void OnFrameTokenChanged(uint32_t frame_token) override;
-  void DidReceiveFirstFrameAfterNavigation() override;
 #endif  // !defined(OS_MACOSX)
 
   bool InstallTransparency();

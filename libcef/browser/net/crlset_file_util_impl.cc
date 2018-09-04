@@ -19,7 +19,7 @@ namespace {
 
 void SetCRLSetIfNewer(scoped_refptr<net::CRLSet> crl_set) {
   CEF_REQUIRE_IOT();
-  net::SSLConfigService::SetCRLSetIfNewer(crl_set);
+  // TODO(cef): Re-implement via NetworkService.
 }
 
 void LoadFromDisk(const base::FilePath& path) {

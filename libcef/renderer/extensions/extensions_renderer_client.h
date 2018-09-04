@@ -72,8 +72,7 @@ class CefExtensionsRendererClient : public ExtensionsRendererClient {
   static bool ShouldFork(blink::WebLocalFrame* frame,
                          const GURL& url,
                          bool is_initial_navigation,
-                         bool is_server_redirect,
-                         bool* send_referrer);
+                         bool is_server_redirect);
   static content::BrowserPluginDelegate* CreateBrowserPluginDelegate(
       content::RenderFrame* render_frame,
       const content::WebPluginInfo& info,

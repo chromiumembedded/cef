@@ -1,8 +1,8 @@
 diff --git .gn .gn
-index c1a111364bed..566ffd815bc9 100644
+index 6fd17634ee87..0563b730a180 100644
 --- .gn
 +++ .gn
-@@ -310,6 +310,8 @@ exec_script_whitelist =
+@@ -411,6 +411,8 @@ exec_script_whitelist =
        # in the Chromium repo outside of //build.
        "//build_overrides/build.gni",
  
@@ -12,10 +12,10 @@ index c1a111364bed..566ffd815bc9 100644
        # https://crbug.com/474506.
        "//clank/java/BUILD.gn",
 diff --git BUILD.gn BUILD.gn
-index 45b912d00cdd..4b3bbcd8cbf7 100644
+index fd7e05257f9a..89d9e6c53d06 100644
 --- BUILD.gn
 +++ BUILD.gn
-@@ -188,6 +188,7 @@ group("gn_all") {
+@@ -187,6 +187,7 @@ group("gn_all") {
  
    if (!is_ios && !is_fuchsia) {
      deps += [
@@ -56,7 +56,7 @@ index 982fbe8d3f0d..e757be4688f1 100644
 +         "studio path")
  }
 diff --git build/toolchain/win/BUILD.gn build/toolchain/win/BUILD.gn
-index eb3e2b2b377d..343b039f3a50 100644
+index 3c6c9d05d2c8..d475747fa12d 100644
 --- build/toolchain/win/BUILD.gn
 +++ build/toolchain/win/BUILD.gn
 @@ -6,6 +6,7 @@ import("//build/config/clang/clang.gni")

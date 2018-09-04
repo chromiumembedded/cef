@@ -20,7 +20,7 @@
 #include "content/public/browser/render_frame_host.h"
 #include "content/public/browser/render_process_host.h"
 #include "content/public/browser/web_contents.h"
-#include "printing/pdf_metafile_skia.h"
+#include "printing/metafile_skia.h"
 
 #include "libcef/browser/thread_util.h"
 
@@ -148,7 +148,7 @@ void SavePdfFile(scoped_refptr<base::RefCountedBytes> data,
   CEF_REQUIRE_BLOCKING();
   DCHECK_GT(data->size(), 0U);
 
-  PdfMetafileSkia metafile;
+  MetafileSkia metafile;
   metafile.InitFromData(static_cast<const void*>(data->front()), data->size());
 
   base::File file(path,

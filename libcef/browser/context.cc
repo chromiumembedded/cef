@@ -33,6 +33,7 @@
 
 #if defined(OS_WIN)
 #include "base/strings/utf_string_conversions.h"
+#include "chrome/install_static/initialize_from_primary_module.h"
 #include "chrome_elf/chrome_elf_main.h"
 #include "components/crash/content/app/crashpad.h"
 #include "content/public/app/sandbox_helper_win.h"
@@ -70,6 +71,16 @@ void DisableFMA3() {
   _set_FMA3_enable(0);
 }
 #endif  // defined(ARCH_CPU_X86_64)
+
+// Transfer state from chrome_elf.dll to the libcef.dll. Accessed when
+// loading chrome://system.
+void InitInstallDetails() {
+  static bool initialized = false;
+  if (initialized)
+    return;
+  initialized = true;
+  install_static::InitializeFromPrimaryModule();
+}
 
 // Signal chrome_elf to initialize crash reporting, rather than doing it in
 // DllMain. See https://crbug.com/656800 for details.
@@ -156,6 +167,7 @@ int CefExecuteProcess(const CefMainArgs& args,
 #if defined(ARCH_CPU_X86_64)
   DisableFMA3();
 #endif
+  InitInstallDetails();
   InitCrashReporter();
 #endif
 
@@ -215,6 +227,7 @@ bool CefInitialize(const CefMainArgs& args,
 #if defined(ARCH_CPU_X86_64)
   DisableFMA3();
 #endif
+  InitInstallDetails();
   InitCrashReporter();
 #endif
 

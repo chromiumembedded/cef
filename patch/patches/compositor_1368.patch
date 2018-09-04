@@ -1,5 +1,5 @@
 diff --git content/browser/compositor/gpu_process_transport_factory.cc content/browser/compositor/gpu_process_transport_factory.cc
-index ef2d56f496b5..4cbe7cf6229c 100644
+index 642fff3b4367..45faeed249c0 100644
 --- content/browser/compositor/gpu_process_transport_factory.cc
 +++ content/browser/compositor/gpu_process_transport_factory.cc
 @@ -493,10 +493,20 @@ void GpuProcessTransportFactory::EstablishedGpuChannel(
@@ -26,7 +26,7 @@ index ef2d56f496b5..4cbe7cf6229c 100644
      } else {
        DCHECK(context_provider);
 diff --git ui/compositor/compositor.h ui/compositor/compositor.h
-index a84fdb5a29fc..7845c07d7c96 100644
+index a974ea654834..cfb3ff7f8a0c 100644
 --- ui/compositor/compositor.h
 +++ ui/compositor/compositor.h
 @@ -25,6 +25,7 @@

@@ -18,20 +18,18 @@ import("//tools/json_schema_compiler/json_features.gni")
 #schema_include_rules = "//cef/libcef/browser/extensions/api:extensions::api::cef::%(namespace)s"
 #schema_dependencies = [ "//extensions/common/api" ]
 #
-#json_schema_api("api") {
+#generated_json_strings("api") {
 #  sources = schema_sources
 #  schemas = true
-#  bundle = true
 #  configs = [ "//build/config:precompiled_headers" ]
 #  bundle_name = "Cef"
 #
 #  deps = schema_dependencies
 #}
 #
-#json_schema_api("api_registration") {
+#function_registration("api_registration") {
 #  sources = schema_sources
 #  impl_dir = "//cef/libcef/browser/extensions/api"
-#  bundle_registration = true
 #  configs = [ "//build/config:precompiled_headers" ]
 #  bundle_name = "Cef"
 #

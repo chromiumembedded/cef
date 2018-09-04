@@ -1,8 +1,8 @@
 diff --git build/config/compiler/BUILD.gn build/config/compiler/BUILD.gn
-index 7cb21711aa1b..afbddcd5b394 100644
+index d1bb5597f206..8c54651b3bce 100644
 --- build/config/compiler/BUILD.gn
 +++ build/config/compiler/BUILD.gn
-@@ -153,7 +153,7 @@ declare_args() {
+@@ -162,7 +162,7 @@ declare_args() {
              !use_clang_coverage && !(is_android && use_order_profiling) &&
              (use_lld ||
               (use_gold &&
@@ -11,77 +11,3 @@ index 7cb21711aa1b..afbddcd5b394 100644
                 !(current_cpu == "x86" || current_cpu == "x64"))))
  }
  
-diff --git chrome/browser/ui/libgtkui/gtk_util.cc chrome/browser/ui/libgtkui/gtk_util.cc
-index 39bf49c7b111..ad7b054e185f 100644
---- chrome/browser/ui/libgtkui/gtk_util.cc
-+++ chrome/browser/ui/libgtkui/gtk_util.cc
-@@ -239,6 +239,7 @@ float GetDeviceScaleFactor() {
-   return linux_ui ? linux_ui->GetDeviceScaleFactor() : 1;
- }
- 
-+#if GTK_MAJOR_VERSION > 2
- using GtkSetState = void (*)(GtkWidgetPath*, gint, GtkStateFlags);
- PROTECTED_MEMORY_SECTION base::ProtectedMemory<GtkSetState>
-     _gtk_widget_path_iter_set_state;
-@@ -246,6 +247,7 @@ PROTECTED_MEMORY_SECTION base::ProtectedMemory<GtkSetState>
- using GtkSetObjectName = void (*)(GtkWidgetPath*, gint, const char*);
- PROTECTED_MEMORY_SECTION base::ProtectedMemory<GtkSetObjectName>
-     _gtk_widget_path_iter_set_object_name;
-+#endif
- 
- }  // namespace
- 
-@@ -403,10 +405,12 @@ ScopedStyleContext AppendCssNodeToStyleContext(GtkStyleContext* context,
-           NOTREACHED();
-       }
-     } else {
-+#if GTK_MAJOR_VERSION > 2
-       static base::ProtectedMemory<GtkSetObjectName>::Initializer init(
-           &_gtk_widget_path_iter_set_object_name,
-           reinterpret_cast<GtkSetObjectName>(dlsym(
-               GetGtkSharedLibrary(), "gtk_widget_path_iter_set_object_name")));
-+#endif
-       switch (part_type) {
-         case CSS_NAME: {
-           if (GtkVersionCheck(3, 20)) {
-@@ -451,6 +455,7 @@ ScopedStyleContext AppendCssNodeToStyleContext(GtkStyleContext* context,
-   // widgets specially if they want to.
-   gtk_widget_path_iter_add_class(path, -1, "chromium");
- 
-+#if GTK_MAJOR_VERSION > 2
-   if (GtkVersionCheck(3, 14)) {
-     static base::ProtectedMemory<GtkSetState>::Initializer init(
-         &_gtk_widget_path_iter_set_state,
-@@ -459,6 +464,7 @@ ScopedStyleContext AppendCssNodeToStyleContext(GtkStyleContext* context,
-     DCHECK(*_gtk_widget_path_iter_set_state);
-     base::UnsanitizedCfiCall(_gtk_widget_path_iter_set_state)(path, -1, state);
-   }
-+#endif
- 
-   ScopedStyleContext child_context(gtk_style_context_new());
-   gtk_style_context_set_path(child_context, path);
-diff --git chrome/browser/ui/libgtkui/native_theme_gtk2.cc chrome/browser/ui/libgtkui/native_theme_gtk2.cc
-index b24ff4b95f97..49e80717b1d6 100644
---- chrome/browser/ui/libgtkui/native_theme_gtk2.cc
-+++ chrome/browser/ui/libgtkui/native_theme_gtk2.cc
-@@ -163,6 +163,8 @@ SkColor NativeThemeGtk2::GetSystemColor(ColorId color_id) const {
-       return GetBgColor(GetMenu(), NORMAL);
- 
-     // Label
-+    case kColorId_ActionableSubmenuVerticalSeparatorColor:
-+    case kColorId_TouchableMenuItemLabelColor:
-     case kColorId_LabelEnabledColor:
-       return GetTextColor(GetEntry(), NORMAL);
-     case kColorId_LabelDisabledColor:
-diff --git ui/accessibility/platform/atk_util_auralinux_gtk2.cc ui/accessibility/platform/atk_util_auralinux_gtk2.cc
-index 5bcccd9cd98c..fa581fbe23b1 100644
---- ui/accessibility/platform/atk_util_auralinux_gtk2.cc
-+++ ui/accessibility/platform/atk_util_auralinux_gtk2.cc
-@@ -48,6 +48,7 @@ GnomeAccessibilityModuleInitFunc GetAccessibilityModuleInitFunc() {
-   return init_func;
- }
- 
-+NO_SANITIZE("cfi-icall")
- void FinishAccessibilityInitOnMainThread(
-     GnomeAccessibilityModuleInitFunc init_func) {
-   if (!init_func) {

@@ -222,16 +222,16 @@ void CefBrowserMainParts::PostMainMessageLoopRun() {
   DCHECK(global_request_context_->HasOneRef());
   global_request_context_ = NULL;
 
-  if (extensions::ExtensionsEnabled()) {
-    extensions::ExtensionsBrowserClient::Set(NULL);
-    extensions_browser_client_.reset();
-  }
-
   for (size_t i = 0; i < chrome_extra_parts_.size(); ++i)
     chrome_extra_parts_[i]->PostMainMessageLoopRun();
 }
 
 void CefBrowserMainParts::PostDestroyThreads() {
+  if (extensions::ExtensionsEnabled()) {
+    extensions::ExtensionsBrowserClient::Set(NULL);
+    extensions_browser_client_.reset();
+  }
+
 #if defined(USE_AURA)
   // Delete the DesktopTestViewsDelegate.
   delete views::ViewsDelegate::GetInstance();

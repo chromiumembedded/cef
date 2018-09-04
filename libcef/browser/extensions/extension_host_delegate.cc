@@ -62,4 +62,16 @@ ExtensionHostQueue* CefExtensionHostDelegate::GetExtensionHostQueue() const {
   return CefExtensionsBrowserClient::Get()->GetExtensionHostQueue();
 }
 
+gfx::Size CefExtensionHostDelegate::EnterPictureInPicture(
+    content::WebContents* web_contents,
+    const viz::SurfaceId& surface_id,
+    const gfx::Size& natural_size) {
+  NOTREACHED();
+  return gfx::Size();
+}
+
+void CefExtensionHostDelegate::ExitPictureInPicture() {
+  NOTREACHED();
+}
+
 }  // namespace extensions

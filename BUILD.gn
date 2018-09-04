@@ -350,6 +350,8 @@ static_library("libcef_static") {
     "libcef/browser/extensions/component_extension_resource_manager.h",
     "libcef/browser/extensions/extensions_api_client.cc",
     "libcef/browser/extensions/extensions_api_client.h",
+    "libcef/browser/extensions/extensions_browser_api_provider.cc",
+    "libcef/browser/extensions/extensions_browser_api_provider.h",
     "libcef/browser/extensions/extensions_browser_client.cc",
     "libcef/browser/extensions/extensions_browser_client.h",
     "libcef/browser/extensions/extension_background_host.cc",
@@ -520,6 +522,8 @@ static_library("libcef_static") {
     "libcef/common/drag_data_impl.h",
     "libcef/common/extensions/chrome_generated_schemas.cc",
     "libcef/common/extensions/chrome_generated_schemas.h",
+    "libcef/common/extensions/extensions_api_provider.cc",
+    "libcef/common/extensions/extensions_api_provider.h",
     "libcef/common/extensions/extensions_client.cc",
     "libcef/common/extensions/extensions_client.h",
     "libcef/common/extensions/extensions_util.cc",
@@ -673,6 +677,7 @@ static_library("libcef_static") {
     "//components/printing/browser",
     "//components/printing/common",
     "//components/printing/renderer",
+    "//components/safe_browsing/db:test_database_manager",
     "//components/services/pdf_compositor:pdf_compositor_manifest",
     "//components/services/pdf_compositor/public/cpp:utils",
     "//components/services/pdf_compositor/public/interfaces",
@@ -696,9 +701,10 @@ static_library("libcef_static") {
     "//crypto",
     "//device/base",
     "//extensions/browser",
-    "//extensions/browser/api:api_registration",
+    "//extensions/browser:core_api_provider",
     "//extensions/buildflags",
     "//extensions/common/api",
+    "//extensions/common:core_api_provider",
     "//extensions/renderer",
     "//gpu",
     "//ipc",
@@ -766,6 +772,7 @@ static_library("libcef_static") {
     ]
 
     deps += [
+      "//chrome/install_static:secondary_module",
       "//chrome_elf",
     ]
 

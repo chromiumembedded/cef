@@ -772,6 +772,17 @@ void CefContentBrowserClient::AppendExtraCommandLineSwitches(
   }
 }
 
+bool CefContentBrowserClient::ShouldEnableStrictSiteIsolation() {
+  // TODO(cef): Enable this mode once we figure out why it breaks ceftests that
+  // rely on command-line arguments passed to the renderer process. It looks
+  // like the first renderer process is getting all of the callbacks despite
+  // multiple renderer processes being launched.
+  // For example, V8RendererTest::OnBrowserCreated appears to get the same
+  // kV8TestCmdArg value twice when running with:
+  // --gtest_filter=V8Test.ContextEvalCspBypassUnsafeEval:V8Test.ContextEntered
+  return false;
+}
+
 std::string CefContentBrowserClient::GetApplicationLocale() {
   return g_browser_process->GetApplicationLocale();
 }
@@ -1074,16 +1085,16 @@ bool CefContentBrowserClient::WillCreateURLLoaderFactory(
     content::BrowserContext* browser_context,
     content::RenderFrameHost* frame,
     bool is_navigation,
-    network::mojom::URLLoaderFactoryRequest* factory_request,
-    scoped_refptr<content::RedirectChecker>* redirect_checker) {
+    const GURL& url,
+    network::mojom::URLLoaderFactoryRequest* factory_request) {
   if (!extensions::ExtensionsEnabled())
     return false;
 
   auto* web_request_api =
       extensions::BrowserContextKeyedAPIFactory<extensions::WebRequestAPI>::Get(
           browser_context);
-  return web_request_api->MaybeProxyURLLoaderFactory(
-      frame, is_navigation, factory_request, redirect_checker);
+  return web_request_api->MaybeProxyURLLoaderFactory(frame, is_navigation,
+                                                     factory_request);
 }
 
 bool CefContentBrowserClient::HandleExternalProtocol(

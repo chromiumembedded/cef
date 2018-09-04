@@ -1,5 +1,5 @@
 diff --git chrome/renderer/BUILD.gn chrome/renderer/BUILD.gn
-index c8c0126c0aca..6f3297649abe 100644
+index bf218a3f098a..520119b1485e 100644
 --- chrome/renderer/BUILD.gn
 +++ chrome/renderer/BUILD.gn
 @@ -4,6 +4,7 @@
@@ -10,7 +10,7 @@ index c8c0126c0aca..6f3297649abe 100644
  import("//chrome/common/features.gni")
  import("//components/nacl/features.gni")
  import("//components/offline_pages/buildflags/features.gni")
-@@ -116,6 +117,7 @@ jumbo_static_library("renderer") {
+@@ -119,6 +120,7 @@ jumbo_static_library("renderer") {
    defines = []
  
    deps = [
@@ -18,7 +18,7 @@ index c8c0126c0aca..6f3297649abe 100644
      "//chrome:resources",
      "//chrome:strings",
      "//chrome/common",
-@@ -179,6 +181,10 @@ jumbo_static_library("renderer") {
+@@ -182,6 +184,10 @@ jumbo_static_library("renderer") {
  
    configs += [ "//build/config/compiler:wexit_time_destructors" ]
  

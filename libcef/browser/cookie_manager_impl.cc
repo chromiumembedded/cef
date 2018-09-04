@@ -19,6 +19,8 @@
 #include "base/format_macros.h"
 #include "base/logging.h"
 #include "base/threading/thread_restrictions.h"
+#include "chrome/browser/browser_process.h"
+#include "components/net_log/chrome_net_log.h"
 #include "content/browser/storage_partition_impl.h"
 #include "net/cookies/cookie_util.h"
 #include "net/cookies/parsed_cookie.h"
@@ -307,7 +309,7 @@ bool CefCookieManagerImpl::SetStoragePath(
           // facilitate unit test expectations. This task runner MUST be
           // configured with BLOCK_SHUTDOWN.
           CefContentBrowserClient::Get()->background_task_runner(),
-          persist_session_cookies, NULL);
+          persist_session_cookies, nullptr);
     } else {
       NOTREACHED() << "The cookie storage directory could not be created";
       storage_path_.clear();
@@ -317,7 +319,8 @@ bool CefCookieManagerImpl::SetStoragePath(
   // Set the new cookie store that will be used for all new requests. The old
   // cookie store, if any, will be automatically flushed and closed when no
   // longer referenced.
-  cookie_store_.reset(new net::CookieMonster(persistent_store.get(), NULL));
+  cookie_store_.reset(new net::CookieMonster(persistent_store.get(), nullptr,
+                                             g_browser_process->net_log()));
   if (persistent_store.get() && persist_session_cookies)
     cookie_store_->SetPersistSessionCookies(true);
   storage_path_ = new_path;

@@ -1,8 +1,8 @@
 diff --git base/message_loop/message_loop.cc base/message_loop/message_loop.cc
-index 7f063693a0f2..14f50b6f7d5f 100644
+index ff55a15ce0f0..30a903dffcdc 100644
 --- base/message_loop/message_loop.cc
 +++ base/message_loop/message_loop.cc
-@@ -610,6 +610,9 @@ MessageLoopForUI::MessageLoopForUI(Type type) : MessageLoop(type) {
+@@ -613,6 +613,9 @@ MessageLoopForUI::MessageLoopForUI(Type type) : MessageLoop(type) {
  #endif
  }
  
@@ -13,10 +13,10 @@ index 7f063693a0f2..14f50b6f7d5f 100644
  MessageLoopCurrentForUI MessageLoopForUI::current() {
    return MessageLoopCurrentForUI::Get();
 diff --git base/message_loop/message_loop.h base/message_loop/message_loop.h
-index 52b474310074..35f4cc41a572 100644
+index dae6c35eab00..adbd6e72c7a3 100644
 --- base/message_loop/message_loop.h
 +++ base/message_loop/message_loop.h
-@@ -362,6 +362,7 @@ class BASE_EXPORT MessageLoop : public MessagePump::Delegate,
+@@ -366,6 +366,7 @@ class BASE_EXPORT MessageLoop : public MessagePump::Delegate,
  class BASE_EXPORT MessageLoopForUI : public MessageLoop {
   public:
    explicit MessageLoopForUI(Type type = TYPE_UI);
@@ -25,7 +25,7 @@ index 52b474310074..35f4cc41a572 100644
    // TODO(gab): Mass migrate callers to MessageLoopCurrentForUI::Get()/IsSet().
    static MessageLoopCurrentForUI current();
 diff --git base/message_loop/message_loop_current.h base/message_loop/message_loop_current.h
-index 2a2e761e87e8..37881c184940 100644
+index d623cbc7f7b2..04d83792f98d 100644
 --- base/message_loop/message_loop_current.h
 +++ base/message_loop/message_loop_current.h
 @@ -124,6 +124,16 @@ class BASE_EXPORT MessageLoopCurrent {
@@ -60,7 +60,7 @@ index 2a2e761e87e8..37881c184940 100644
  
  #if !defined(OS_NACL)
 diff --git base/message_loop/message_pump_win.cc base/message_loop/message_pump_win.cc
-index c95f85abfee1..b28ac0a0faa1 100644
+index bba71fa7929f..9abffd154557 100644
 --- base/message_loop/message_pump_win.cc
 +++ base/message_loop/message_pump_win.cc
 @@ -11,6 +11,7 @@
@@ -71,7 +71,7 @@ index c95f85abfee1..b28ac0a0faa1 100644
  #include "base/metrics/histogram_macros.h"
  #include "base/strings/stringprintf.h"
  #include "base/trace_event/trace_event.h"
-@@ -375,20 +376,28 @@ bool MessagePumpForUI::ProcessMessageHelper(const MSG& msg) {
+@@ -387,20 +388,28 @@ bool MessagePumpForUI::ProcessMessageHelper(const MSG& msg) {
  }
  
  bool MessagePumpForUI::ProcessPumpReplacementMessage() {

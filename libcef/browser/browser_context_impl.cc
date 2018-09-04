@@ -519,7 +519,7 @@ HostContentSettingsMap* CefBrowserContextImpl::GetHostContentSettingsMap() {
     // that can be stored in the settings map (for example, default values set
     // via DefaultProvider::SetWebsiteSetting).
     host_content_settings_map_ =
-        new HostContentSettingsMap(GetPrefs(), false, false, false);
+        new HostContentSettingsMap(GetPrefs(), false, false, false, false);
 
     // Change the default plugin policy.
     const base::CommandLine* command_line =

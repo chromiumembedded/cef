@@ -295,10 +295,10 @@ index 9c78b30ab3a0..999eb4048f5c 100644
    std::unique_ptr<SelectionController> selection_controller_;
  
 diff --git ui/views/controls/menu/menu_controller.cc ui/views/controls/menu/menu_controller.cc
-index ee2852fefa84..bbba1786e1a4 100644
+index b4da2b5128c8..d030d6e81c19 100644
 --- ui/views/controls/menu/menu_controller.cc
 +++ ui/views/controls/menu/menu_controller.cc
-@@ -2430,8 +2430,13 @@ MenuItemView* MenuController::FindNextSelectableMenuItem(
+@@ -2441,8 +2441,13 @@ MenuItemView* MenuController::FindNextSelectableMenuItem(
  
  void MenuController::OpenSubmenuChangeSelectionIfCan() {
    MenuItemView* item = pending_state_.item;
@@ -313,7 +313,7 @@ index ee2852fefa84..bbba1786e1a4 100644
    MenuItemView* to_select = NULL;
    if (item->GetSubmenu()->GetMenuItemCount() > 0)
      to_select = FindInitialSelectableMenuItem(item, INCREMENT_SELECTION_DOWN);
-@@ -2446,8 +2451,10 @@ void MenuController::OpenSubmenuChangeSelectionIfCan() {
+@@ -2457,8 +2462,10 @@ void MenuController::OpenSubmenuChangeSelectionIfCan() {
  void MenuController::CloseSubmenu() {
    MenuItemView* item = state_.item;
    DCHECK(item);
@@ -326,20 +326,12 @@ index ee2852fefa84..bbba1786e1a4 100644
      SetSelection(item, SELECTION_UPDATE_IMMEDIATELY);
    else if (item->GetParentMenuItem()->GetParentMenuItem())
 diff --git ui/views/controls/menu/menu_delegate.h ui/views/controls/menu/menu_delegate.h
-index 4dea63f9f286..ef50b710c5af 100644
+index 706605182f9a..e97d0495bc72 100644
 --- ui/views/controls/menu/menu_delegate.h
 +++ ui/views/controls/menu/menu_delegate.h
-@@ -10,6 +10,7 @@
- 
- #include "base/logging.h"
- #include "base/strings/string16.h"
-+#include "third_party/skia/include/core/SkColor.h"
- #include "ui/base/dragdrop/drag_drop_types.h"
- #include "ui/base/dragdrop/os_exchange_data.h"
- #include "ui/base/ui_base_types.h"
-@@ -76,6 +77,22 @@ class VIEWS_EXPORT MenuDelegate {
-   // it's disabled.
-   virtual bool GetShouldUseNormalForegroundColor(int command_id) const;
+@@ -81,6 +81,22 @@ class VIEWS_EXPORT MenuDelegate {
+   // parts of |style| or leave it unmodified.
+   virtual void GetLabelStyle(int id, LabelStyle* style) const;
  
 +  // Override the text color of a given menu item dependent on the |command_id|
 +  // and its |is_hovered| state. |is_minor| will be true for accelerator text.
@@ -360,7 +352,7 @@ index 4dea63f9f286..ef50b710c5af 100644
    // The tooltip shown for the menu item. This is invoked when the user
    // hovers over the item, and no tooltip text has been set for that item.
    virtual base::string16 GetTooltipText(int id,
-@@ -208,6 +225,11 @@ class VIEWS_EXPORT MenuDelegate {
+@@ -213,6 +229,11 @@ class VIEWS_EXPORT MenuDelegate {
                                         bool* has_mnemonics,
                                         MenuButton** button);
  
@@ -373,10 +365,10 @@ index 4dea63f9f286..ef50b710c5af 100644
    virtual int GetMaxWidthForMenu(MenuItemView* menu);
  
 diff --git ui/views/controls/menu/menu_item_view.cc ui/views/controls/menu/menu_item_view.cc
-index 4ede4cb5fa04..8f4af6c91969 100644
+index 6c007a1030cf..e63b03f0534c 100644
 --- ui/views/controls/menu/menu_item_view.cc
 +++ ui/views/controls/menu/menu_item_view.cc
-@@ -914,7 +914,12 @@ void MenuItemView::PaintButton(gfx::Canvas* canvas, PaintButtonMode mode) {
+@@ -915,7 +915,12 @@ void MenuItemView::PaintButton(gfx::Canvas* canvas, PaintButtonMode mode) {
    // only need the background when we want it to look different, as when we're
    // selected.
    ui::NativeTheme* native_theme = GetNativeTheme();
@@ -390,10 +382,10 @@ index 4ede4cb5fa04..8f4af6c91969 100644
      gfx::Rect item_bounds(0, 0, width(), height());
      if (type_ == ACTIONABLE_SUBMENU) {
        if (submenu_area_of_actionable_submenu_selected_) {
-@@ -1033,6 +1038,13 @@ void MenuItemView::PaintMinorIconAndText(gfx::Canvas* canvas, SkColor color) {
- SkColor MenuItemView::GetTextColor(bool minor,
-                                    bool render_selection,
-                                    bool emphasized) const {
+@@ -1035,6 +1040,13 @@ void MenuItemView::PaintMinorIconAndText(
+ }
+ 
+ SkColor MenuItemView::GetTextColor(bool minor, bool render_selection) const {
 +  SkColor text_color;
 +  const MenuDelegate *delegate = GetDelegate();
 +  if (delegate && delegate->GetTextColor(GetCommand(), minor, render_selection,
@@ -405,10 +397,10 @@ index 4ede4cb5fa04..8f4af6c91969 100644
        minor ? ui::NativeTheme::kColorId_MenuItemMinorTextColor
              : ui::NativeTheme::kColorId_EnabledMenuItemForegroundColor;
 diff --git ui/views/controls/menu/menu_model_adapter.cc ui/views/controls/menu/menu_model_adapter.cc
-index 784cad79f9db..0e7436792b59 100644
+index cbccee16e4c7..e14173e9e832 100644
 --- ui/views/controls/menu/menu_model_adapter.cc
 +++ ui/views/controls/menu/menu_model_adapter.cc
-@@ -231,6 +231,77 @@ void MenuModelAdapter::SelectionChanged(MenuItemView* menu) {
+@@ -233,6 +233,77 @@ void MenuModelAdapter::SelectionChanged(MenuItemView* menu) {
    NOTREACHED();
  }
  
@@ -487,7 +479,7 @@ index 784cad79f9db..0e7436792b59 100644
    // Look up the menu model for this menu.
    const std::map<MenuItemView*, ui::MenuModel*>::const_iterator map_iterator =
 diff --git ui/views/controls/menu/menu_model_adapter.h ui/views/controls/menu/menu_model_adapter.h
-index 0ac493c3c6a0..741769e90eb0 100644
+index e52edfe5edd7..ab23f3df914e 100644
 --- ui/views/controls/menu/menu_model_adapter.h
 +++ ui/views/controls/menu/menu_model_adapter.h
 @@ -76,6 +76,20 @@ class VIEWS_EXPORT MenuModelAdapter : public MenuDelegate {
@@ -543,7 +535,7 @@ index 3ec1dcbdf822..e2658cec8095 100644
        // Move the cursor because EnterNotify/LeaveNotify are generated with the
        // current mouse position as a result of XGrabPointer()
 diff --git ui/views/view.h ui/views/view.h
-index bae6ce42102e..f02008bdc354 100644
+index 4248609dd3c3..e254ce5a940a 100644
 --- ui/views/view.h
 +++ ui/views/view.h
 @@ -19,6 +19,7 @@

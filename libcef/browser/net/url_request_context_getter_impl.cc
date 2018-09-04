@@ -503,8 +503,8 @@ void CefURLRequestContextGetterImpl::SetCookieStoragePath(
   // Set the new cookie store that will be used for all new requests. The old
   // cookie store, if any, will be automatically flushed and closed when no
   // longer referenced.
-  std::unique_ptr<net::CookieMonster> cookie_monster(
-      new net::CookieMonster(persistent_store.get(), NULL));
+  std::unique_ptr<net::CookieMonster> cookie_monster(new net::CookieMonster(
+      persistent_store.get(), nullptr, io_state_->net_log_));
   if (persistent_store.get() && persist_session_cookies)
     cookie_monster->SetPersistSessionCookies(true);
   io_state_->cookie_store_path_ = path;

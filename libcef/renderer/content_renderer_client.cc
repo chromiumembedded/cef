@@ -272,7 +272,7 @@ void CefContentRendererClient::WebKitInitialized() {
       const Cef_CrossOriginWhiteListEntry_Params& entry =
           cross_origin_whitelist_entries_[i];
       GURL gurl = GURL(entry.source_origin);
-      blink::WebSecurityPolicy::AddOriginAccessWhitelistEntry(
+      blink::WebSecurityPolicy::AddOriginAccessAllowListEntry(
           gurl, blink::WebString::FromUTF8(entry.target_protocol),
           blink::WebString::FromUTF8(entry.target_domain),
           entry.allow_target_subdomains);
@@ -492,8 +492,7 @@ bool CefContentRendererClient::ShouldFork(blink::WebLocalFrame* frame,
                                           const GURL& url,
                                           const std::string& http_method,
                                           bool is_initial_navigation,
-                                          bool is_server_redirect,
-                                          bool* send_referrer) {
+                                          bool is_server_redirect) {
   DCHECK(!frame->Parent());
 
   // For now, we skip the rest for POST submissions.  This is because
@@ -505,7 +504,7 @@ bool CefContentRendererClient::ShouldFork(blink::WebLocalFrame* frame,
 
   if (extensions::ExtensionsEnabled()) {
     return extensions::CefExtensionsRendererClient::ShouldFork(
-        frame, url, is_initial_navigation, is_server_redirect, send_referrer);
+        frame, url, is_initial_navigation, is_server_redirect);
   }
 
   return false;

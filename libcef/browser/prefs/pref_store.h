@@ -111,7 +111,7 @@ class CefPrefStore : public PersistentPrefStore {
   bool committed_;
 
   std::unique_ptr<ReadErrorDelegate> error_delegate_;
-  base::ObserverList<PrefStore::Observer, true> observers_;
+  base::ObserverList<PrefStore::Observer, true>::Unchecked observers_;
 
   DISALLOW_COPY_AND_ASSIGN(CefPrefStore);
 };

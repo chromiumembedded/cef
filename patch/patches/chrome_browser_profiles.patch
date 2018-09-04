@@ -71,7 +71,7 @@ index e8e76ce5b954..1dd338dd0142 100644
  content::BrowserContext* GetBrowserContextRedirectedInIncognito(
      content::BrowserContext* context);
 diff --git chrome/browser/profiles/profile_manager.cc chrome/browser/profiles/profile_manager.cc
-index 675efecaaf74..a0e99efb0a26 100644
+index acd7501aef4a..b53fe5e32289 100644
 --- chrome/browser/profiles/profile_manager.cc
 +++ chrome/browser/profiles/profile_manager.cc
 @@ -382,7 +382,7 @@ ProfileManager::ProfileManager(const base::FilePath& user_data_dir)
@@ -84,7 +84,7 @@ index 675efecaaf74..a0e99efb0a26 100644
                                      this));
  }
 diff --git chrome/browser/profiles/profile_manager.h chrome/browser/profiles/profile_manager.h
-index fc027d61027a..61484ca7e3c5 100644
+index 8a62433e9107..5ae35bc2d16a 100644
 --- chrome/browser/profiles/profile_manager.h
 +++ chrome/browser/profiles/profile_manager.h
 @@ -93,7 +93,7 @@ class ProfileManager : public content::NotificationObserver,
@@ -96,7 +96,7 @@ index fc027d61027a..61484ca7e3c5 100644
  
    // Returns total number of profiles available on this machine.
    size_t GetNumberOfProfiles();
-@@ -124,7 +124,7 @@ class ProfileManager : public content::NotificationObserver,
+@@ -123,7 +123,7 @@ class ProfileManager : public content::NotificationObserver,
  
    // Returns true if the profile pointer is known to point to an existing
    // profile.
@@ -105,7 +105,7 @@ index fc027d61027a..61484ca7e3c5 100644
  
    // Returns the directory where the first created profile is stored,
    // relative to the user data directory currently in use.
-@@ -133,7 +133,7 @@ class ProfileManager : public content::NotificationObserver,
+@@ -132,7 +132,7 @@ class ProfileManager : public content::NotificationObserver,
    // Get the Profile last used (the Profile to which owns the most recently
    // focused window) with this Chrome build. If no signed profile has been
    // stored in Local State, hand back the Default profile.

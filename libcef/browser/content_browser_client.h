@@ -62,6 +62,7 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
                             content::BrowserContext* context2) override;
   void AppendExtraCommandLineSwitches(base::CommandLine* command_line,
                                       int child_process_id) override;
+  bool ShouldEnableStrictSiteIsolation() override;
   std::string GetApplicationLocale() override;
   content::QuotaPermissionContext* CreateQuotaPermissionContext() override;
   void GetQuotaSettings(
@@ -141,8 +142,8 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
       content::BrowserContext* browser_context,
       content::RenderFrameHost* frame,
       bool is_navigation,
-      network::mojom::URLLoaderFactoryRequest* factory_request,
-      scoped_refptr<content::RedirectChecker>* redirect_checker) override;
+      const GURL& url,
+      network::mojom::URLLoaderFactoryRequest* factory_request) override;
 
   bool HandleExternalProtocol(
       const GURL& url,

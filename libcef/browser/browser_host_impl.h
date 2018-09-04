@@ -749,7 +749,7 @@ class CefBrowserHostImpl : public CefBrowserHost,
   CefDevToolsFrontend* devtools_frontend_;
 
   // Observers that want to be notified of changes to this object.
-  base::ObserverList<Observer> observers_;
+  base::ObserverList<Observer>::Unchecked observers_;
 
   // Used to provide unique incremental IDs for each find request.
   int find_request_id_counter_ = 0;
