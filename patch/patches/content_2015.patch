@@ -285,10 +285,10 @@ index 3009401dac6b..b4c5a9e2db50 100644
  };
  
 diff --git content/common/frame_messages.h content/common/frame_messages.h
-index 67a66d040a08..76867658db44 100644
+index 4d0712eca8d0..ef1d88a7d42c 100644
 --- content/common/frame_messages.h
 +++ content/common/frame_messages.h
-@@ -1382,9 +1382,10 @@ IPC_MESSAGE_ROUTED1(FrameHostMsg_PepperStopsPlayback,
+@@ -1379,9 +1379,10 @@ IPC_MESSAGE_ROUTED1(FrameHostMsg_PepperStopsPlayback,
  // type. If there is no matching plugin, |found| is false.
  // |actual_mime_type| is the actual mime type supported by the
  // found plugin.

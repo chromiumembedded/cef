@@ -200,8 +200,6 @@ class AccessibilityTestHandler : public TestHandler,
       EXPECT_EQ(VTYPE_LIST, value->GetType());
       CefRefPtr<CefListValue> list = value->GetList();
       EXPECT_TRUE(list.get());
-      // Always empty events after https://crrev.com/c101cb728a.
-      EXPECT_EQ(0U, list->GetSize());
 
       got_accessibility_location_change_.yes();
     }

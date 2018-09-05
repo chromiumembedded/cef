@@ -1,5 +1,5 @@
 diff --git content/browser/renderer_host/render_widget_host_view_base.cc content/browser/renderer_host/render_widget_host_view_base.cc
-index c61199d5dd8f..f2c19e4e5f3c 100644
+index 5561b7a1f386..929d799fc696 100644
 --- content/browser/renderer_host/render_widget_host_view_base.cc
 +++ content/browser/renderer_host/render_widget_host_view_base.cc
 @@ -480,6 +480,14 @@ float RenderWidgetHostViewBase::GetDeviceScaleFactor() const {
@@ -427,7 +427,7 @@ index c7296fed234d..244d0034a1c4 100644
        if (native_widget_delegate->IsDialogBox()) {
          *style |= DS_MODALFRAME;
 diff --git ui/views/win/hwnd_message_handler.cc ui/views/win/hwnd_message_handler.cc
-index 4b7af541276d..8269cb4990f3 100644
+index d5f442f71da7..1343399efbb8 100644
 --- ui/views/win/hwnd_message_handler.cc
 +++ ui/views/win/hwnd_message_handler.cc
 @@ -2872,10 +2872,13 @@ LRESULT HWNDMessageHandler::HandleMouseEventInternal(UINT message,

@@ -445,10 +445,7 @@ net::NetworkDelegate::AuthRequiredResponse CefNetworkDelegate::OnAuthRequired(
 }
 
 bool CefNetworkDelegate::OnCanGetCookies(const net::URLRequest& request,
-                                         const net::CookieList& cookie_list,
-                                         bool allowed_from_caller) {
-  if (!allowed_from_caller)
-    return false;
+                                         const net::CookieList& cookie_list) {
   if (net_util::IsInternalRequest(&request))
     return true;
 
@@ -475,10 +472,7 @@ bool CefNetworkDelegate::OnCanGetCookies(const net::URLRequest& request,
 
 bool CefNetworkDelegate::OnCanSetCookie(const net::URLRequest& request,
                                         const net::CanonicalCookie& cookie,
-                                        net::CookieOptions* options,
-                                        bool allowed_from_caller) {
-  if (!allowed_from_caller)
-    return false;
+                                        net::CookieOptions* options) {
   if (net_util::IsInternalRequest(&request))
     return true;
 

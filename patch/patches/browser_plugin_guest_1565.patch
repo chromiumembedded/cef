@@ -266,10 +266,10 @@ index d05dd5421458..fa13775f0512 100644
    // a BrowserPlugin even when we are using cross process frames for guests. It
    // should be removed after resolving https://crbug.com/642826).
 diff --git extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc
-index 1930af130f24..77695f7844d7 100644
+index d59bfbac79cd..e5e60edf5174 100644
 --- extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc
 +++ extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc
-@@ -198,6 +198,8 @@ void MimeHandlerViewGuest::CreateWebContents(
+@@ -200,6 +200,8 @@ void MimeHandlerViewGuest::CreateWebContents(
    WebContents::CreateParams params(browser_context(),
                                     guest_site_instance.get());
    params.guest_delegate = this;
@@ -278,7 +278,7 @@ index 1930af130f24..77695f7844d7 100644
    // TODO(erikchen): Fix ownership semantics for guest views.
    // https://crbug.com/832879.
    std::move(callback).Run(
-@@ -239,6 +241,18 @@ bool MimeHandlerViewGuest::ShouldDestroyOnDetach() const {
+@@ -244,6 +246,18 @@ bool MimeHandlerViewGuest::ShouldDestroyOnDetach() const {
    return true;
  }
  

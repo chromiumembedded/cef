@@ -296,10 +296,10 @@ index 3cfa0bde2bca..96da49496944 100644
        partition->GetPaymentAppContext();
  
 diff --git content/browser/renderer_host/render_process_host_impl.cc content/browser/renderer_host/render_process_host_impl.cc
-index 45c9d093154a..f0b5346ca00c 100644
+index 05e0ee79e5ad..578d43ae8b3e 100644
 --- content/browser/renderer_host/render_process_host_impl.cc
 +++ content/browser/renderer_host/render_process_host_impl.cc
-@@ -733,11 +733,10 @@ class DefaultSubframeProcessHostHolder : public base::SupportsUserData::Data,
+@@ -734,11 +734,10 @@ class DefaultSubframeProcessHostHolder : public base::SupportsUserData::Data,
    // Gets the correct render process to use for this SiteInstance.
    RenderProcessHost* GetProcessHost(SiteInstance* site_instance,
                                      bool is_for_guests_only) {
@@ -315,7 +315,7 @@ index 45c9d093154a..f0b5346ca00c 100644
  
      // Is this the default storage partition? If it isn't, then just give it its
      // own non-shared process.
-@@ -1335,7 +1334,7 @@ int RenderProcessHost::GetCurrentRenderProcessCountForTesting() {
+@@ -1396,7 +1395,7 @@ int RenderProcessHost::GetCurrentRenderProcessCountForTesting() {
  // static
  RenderProcessHost* RenderProcessHostImpl::CreateRenderProcessHost(
      BrowserContext* browser_context,
@@ -324,7 +324,7 @@ index 45c9d093154a..f0b5346ca00c 100644
      SiteInstance* site_instance,
      bool is_for_guests_only) {
    if (g_render_process_host_factory_) {
-@@ -1344,8 +1343,8 @@ RenderProcessHost* RenderProcessHostImpl::CreateRenderProcessHost(
+@@ -1405,8 +1404,8 @@ RenderProcessHost* RenderProcessHostImpl::CreateRenderProcessHost(
    }
  
    if (!storage_partition_impl) {
@@ -335,7 +335,7 @@ index 45c9d093154a..f0b5346ca00c 100644
    }
    // If we've made a StoragePartition for guests (e.g., for the <webview> tag),
    // stash the Site URL on it. This way, when we start a service worker inside
-@@ -1370,7 +1369,7 @@ const unsigned int RenderProcessHostImpl::kMaxFrameDepthForPriority =
+@@ -1431,7 +1430,7 @@ const unsigned int RenderProcessHostImpl::kMaxFrameDepthForPriority =
  
  RenderProcessHostImpl::RenderProcessHostImpl(
      BrowserContext* browser_context,
@@ -344,7 +344,7 @@ index 45c9d093154a..f0b5346ca00c 100644
      bool is_for_guests_only)
      : fast_shutdown_started_(false),
        deleting_soon_(false),
-@@ -1403,10 +1402,12 @@ RenderProcessHostImpl::RenderProcessHostImpl(
+@@ -1483,10 +1482,12 @@ RenderProcessHostImpl::RenderProcessHostImpl(
        indexed_db_factory_(new IndexedDBDispatcherHost(
            id_,
            storage_partition_impl_->GetURLRequestContext(),
@@ -359,7 +359,7 @@ index 45c9d093154a..f0b5346ca00c 100644
            id_)),
        channel_connected_(false),
        sent_render_process_ready_(false),
-@@ -1441,7 +1442,8 @@ RenderProcessHostImpl::RenderProcessHostImpl(
+@@ -1521,7 +1522,8 @@ RenderProcessHostImpl::RenderProcessHostImpl(
    }
  
    push_messaging_manager_.reset(new PushMessagingManager(
@@ -369,7 +369,7 @@ index 45c9d093154a..f0b5346ca00c 100644
  
    AddObserver(indexed_db_factory_.get());
    AddObserver(service_worker_dispatcher_host_.get());
-@@ -1774,6 +1776,17 @@ void RenderProcessHostImpl::ResetChannelProxy() {
+@@ -1854,6 +1856,17 @@ void RenderProcessHostImpl::ResetChannelProxy() {
  
  void RenderProcessHostImpl::CreateMessageFilters() {
    DCHECK_CURRENTLY_ON(BrowserThread::UI);
@@ -387,7 +387,7 @@ index 45c9d093154a..f0b5346ca00c 100644
    MediaInternals* media_internals = MediaInternals::GetInstance();
    // Add BrowserPluginMessageFilter to ensure it gets the first stab at messages
    // from guests.
-@@ -1786,7 +1799,7 @@ void RenderProcessHostImpl::CreateMessageFilters() {
+@@ -1866,7 +1879,7 @@ void RenderProcessHostImpl::CreateMessageFilters() {
        base::MakeRefCounted<RenderMessageFilter>(
            GetID(), GetBrowserContext(), request_context.get(),
            widget_helper_.get(), media_internals,
@@ -396,7 +396,7 @@ index 45c9d093154a..f0b5346ca00c 100644
    AddFilter(render_message_filter.get());
  
    render_frame_message_filter_ = new RenderFrameMessageFilter(
-@@ -1813,10 +1826,10 @@ void RenderProcessHostImpl::CreateMessageFilters() {
+@@ -1893,10 +1906,10 @@ void RenderProcessHostImpl::CreateMessageFilters() {
        ChromeBlobStorageContext::GetFor(browser_context);
  
    resource_message_filter_ = new ResourceMessageFilter(
@@ -409,7 +409,7 @@ index 45c9d093154a..f0b5346ca00c 100644
        storage_partition_impl_->GetPrefetchURLLoaderService(),
        std::move(get_contexts_callback),
        BrowserThread::GetTaskRunnerForThread(BrowserThread::IO));
-@@ -1825,8 +1838,7 @@ void RenderProcessHostImpl::CreateMessageFilters() {
+@@ -1905,8 +1918,7 @@ void RenderProcessHostImpl::CreateMessageFilters() {
  
    AddFilter(
        new MidiHost(GetID(), BrowserMainLoop::GetInstance()->midi_service()));
@@ -419,7 +419,7 @@ index 45c9d093154a..f0b5346ca00c 100644
  
    peer_connection_tracker_host_ = new PeerConnectionTrackerHost(GetID());
    AddFilter(peer_connection_tracker_host_.get());
-@@ -1848,10 +1860,6 @@ void RenderProcessHostImpl::CreateMessageFilters() {
+@@ -1928,10 +1940,6 @@ void RenderProcessHostImpl::CreateMessageFilters() {
  
    AddFilter(new TraceMessageFilter(GetID()));
    AddFilter(new ResolveProxyMsgHelper(request_context.get()));
@@ -430,7 +430,7 @@ index 45c9d093154a..f0b5346ca00c 100644
  }
  
  void RenderProcessHostImpl::BindCacheStorage(
-@@ -1863,7 +1871,8 @@ void RenderProcessHostImpl::BindCacheStorage(
+@@ -1943,7 +1951,8 @@ void RenderProcessHostImpl::BindCacheStorage(
      cache_storage_dispatcher_host_ =
          base::MakeRefCounted<CacheStorageDispatcherHost>();
      cache_storage_dispatcher_host_->Init(
@@ -440,7 +440,7 @@ index 45c9d093154a..f0b5346ca00c 100644
    }
    // Send the binding to IO thread, because Cache Storage handles Mojo IPC on IO
    // thread entirely.
-@@ -2013,7 +2022,8 @@ void RenderProcessHostImpl::RegisterMojoInterfaces() {
+@@ -2093,7 +2102,8 @@ void RenderProcessHostImpl::RegisterMojoInterfaces() {
  
    registry->AddInterface(base::BindRepeating(
        &AppCacheDispatcherHost::Create,
@@ -450,7 +450,7 @@ index 45c9d093154a..f0b5346ca00c 100644
        GetID()));
  
    AddUIThreadInterface(registry.get(), base::Bind(&FieldTrialRecorder::Create));
-@@ -2044,6 +2054,9 @@ void RenderProcessHostImpl::RegisterMojoInterfaces() {
+@@ -2124,6 +2134,9 @@ void RenderProcessHostImpl::RegisterMojoInterfaces() {
      plugin_registry_.reset(
          new PluginRegistryImpl(GetBrowserContext()->GetResourceContext()));
    }

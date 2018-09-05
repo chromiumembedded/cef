@@ -61,11 +61,11 @@ index 39bf49c7b111..ad7b054e185f 100644
    ScopedStyleContext child_context(gtk_style_context_new());
    gtk_style_context_set_path(child_context, path);
 diff --git chrome/browser/ui/libgtkui/native_theme_gtk2.cc chrome/browser/ui/libgtkui/native_theme_gtk2.cc
-index b24ff4b95f97..49e80717b1d6 100644
+index 8def6e889fa6..6f054a9b76ea 100644
 --- chrome/browser/ui/libgtkui/native_theme_gtk2.cc
 +++ chrome/browser/ui/libgtkui/native_theme_gtk2.cc
-@@ -163,6 +163,8 @@ SkColor NativeThemeGtk2::GetSystemColor(ColorId color_id) const {
-       return GetBgColor(GetMenu(), NORMAL);
+@@ -166,6 +166,8 @@ SkColor NativeThemeGtk2::GetSystemColor(ColorId color_id) const {
+       return kInvalidColorIdColor;
  
      // Label
 +    case kColorId_ActionableSubmenuVerticalSeparatorColor:
