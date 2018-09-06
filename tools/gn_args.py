@@ -260,6 +260,9 @@ def GetRequiredArgs():
     # See https://bugs.chromium.org/p/chromium/issues/detail?id=848100#c4
     result['enable_vulkan'] = False
 
+    # Build without GTK dependencies (see issue #2014).
+    result['use_gtk'] = False
+
   if platform == 'macosx':
     # Always generate dSYM files. The make_distrib script will fail if
     # enable_dsyms=true is not explicitly set when is_official_build=false.
