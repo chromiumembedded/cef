@@ -323,7 +323,7 @@ void CefWindowView::CreateWidget() {
     };
 
     Atom mwmHintsProperty = XInternAtom(display, "_MOTIF_WM_HINTS", 0);
-    struct MwmHints hints;
+    struct MwmHints hints = {};
     hints.flags = MWM_HINTS_DECORATIONS;
     hints.decorations = 0;
     XChangeProperty(display, window, mwmHintsProperty, mwmHintsProperty, 32,
