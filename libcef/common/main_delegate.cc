@@ -13,6 +13,7 @@
 #include "libcef/renderer/content_renderer_client.h"
 #include "libcef/utility/content_utility_client.h"
 
+#include "base/at_exit.h"
 #include "base/base_switches.h"
 #include "base/command_line.h"
 #include "base/files/file_path.h"
@@ -280,6 +281,14 @@ class CefUIThread : public base::Thread {
   void CleanUp() override {
     browser_runner_->Shutdown();
     browser_runner_.reset(NULL);
+
+    // Release MessagePump resources registered with the AtExitManager.
+    base::MessageLoop* ml = const_cast<base::MessageLoop*>(message_loop());
+    base::MessageLoopCurrent::UnbindFromCurrentThreadInternal(ml);
+    ml->ReleasePump();
+
+    // Run exit callbacks on the UI thread to avoid sequence check failures.
+    base::AtExitManager::ProcessCallbacksNow();
 
 #if defined(OS_WIN)
     // Closes the COM library on the current thread. CoInitialize must
@@ -635,13 +644,14 @@ void CefMainDelegate::ShutdownBrowser() {
     browser_runner_->Shutdown();
     browser_runner_.reset(NULL);
   }
+
+  message_loop_.reset();
+
   if (ui_thread_.get()) {
     // Blocks until the thread has stopped.
     ui_thread_->Stop();
     ui_thread_.reset();
   }
-
-  message_loop_.reset();
 }
 
 void CefMainDelegate::InitializeResourceBundle() {

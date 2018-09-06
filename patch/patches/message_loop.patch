@@ -13,10 +13,20 @@ index ff55a15ce0f0..30a903dffcdc 100644
  MessageLoopCurrentForUI MessageLoopForUI::current() {
    return MessageLoopCurrentForUI::Get();
 diff --git base/message_loop/message_loop.h base/message_loop/message_loop.h
-index dae6c35eab00..adbd6e72c7a3 100644
+index dae6c35eab00..f1b59fccd4c0 100644
 --- base/message_loop/message_loop.h
 +++ base/message_loop/message_loop.h
-@@ -366,6 +366,7 @@ class BASE_EXPORT MessageLoop : public MessagePump::Delegate,
+@@ -197,6 +197,9 @@ class BASE_EXPORT MessageLoop : public MessagePump::Delegate,
+   // Runs the specified PendingTask.
+   void RunTask(PendingTask* pending_task);
+ 
++  // Called from Thread::CleanUp() to release resources.
++  void ReleasePump() { pump_ = nullptr; }
++
+   //----------------------------------------------------------------------------
+  protected:
+   std::unique_ptr<MessagePump> pump_;
+@@ -366,6 +369,7 @@ class BASE_EXPORT MessageLoop : public MessagePump::Delegate,
  class BASE_EXPORT MessageLoopForUI : public MessageLoop {
   public:
    explicit MessageLoopForUI(Type type = TYPE_UI);
@@ -24,6 +34,19 @@ index dae6c35eab00..adbd6e72c7a3 100644
  
    // TODO(gab): Mass migrate callers to MessageLoopCurrentForUI::Get()/IsSet().
    static MessageLoopCurrentForUI current();
+diff --git base/message_loop/message_loop_current.cc base/message_loop/message_loop_current.cc
+index ece6b92ca3a3..3925cdd3ad7f 100644
+--- base/message_loop/message_loop_current.cc
++++ base/message_loop/message_loop_current.cc
+@@ -43,6 +43,8 @@ void MessageLoopCurrent::AddDestructionObserver(
+ 
+ void MessageLoopCurrent::RemoveDestructionObserver(
+     DestructionObserver* destruction_observer) {
++  if (!current_)
++    return;
+   DCHECK_CALLED_ON_VALID_THREAD(current_->bound_thread_checker_);
+   current_->destruction_observers_.RemoveObserver(destruction_observer);
+ }
 diff --git base/message_loop/message_loop_current.h base/message_loop/message_loop_current.h
 index d623cbc7f7b2..04d83792f98d 100644
 --- base/message_loop/message_loop_current.h
