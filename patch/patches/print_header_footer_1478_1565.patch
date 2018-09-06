@@ -1,5 +1,5 @@
 diff --git chrome/browser/ui/BUILD.gn chrome/browser/ui/BUILD.gn
-index 58bfe0e13733..371653fc39e8 100644
+index 58bfe0e..981abac 100644
 --- chrome/browser/ui/BUILD.gn
 +++ chrome/browser/ui/BUILD.gn
 @@ -828,6 +828,7 @@ jumbo_split_static_library("ui") {
@@ -10,8 +10,17 @@ index 58bfe0e13733..371653fc39e8 100644
      "//chrome:extra_resources",
      "//chrome:resources",
      "//chrome:strings",
+@@ -2709,7 +2710,7 @@ jumbo_split_static_library("ui") {
+         "views/frame/native_browser_frame_factory_ozone.cc",
+       ]
+     } else {
+-      if (use_aura) {
++      if (use_aura && use_gtk) {
+         # This is the only component that can interact with gtk.
+         deps += [ "//chrome/browser/ui/libgtkui" ]
+       }
 diff --git chrome/browser/ui/cocoa/applescript/tab_applescript.mm chrome/browser/ui/cocoa/applescript/tab_applescript.mm
-index f0a489a0c3af..1bd1259e47e3 100644
+index f0a489a..1bd1259 100644
 --- chrome/browser/ui/cocoa/applescript/tab_applescript.mm
 +++ chrome/browser/ui/cocoa/applescript/tab_applescript.mm
 @@ -9,7 +9,7 @@
@@ -51,7 +60,7 @@ index f0a489a0c3af..1bd1259e47e3 100644
  
  - (void)handlesSaveScriptCommand:(NSScriptCommand*)command {
 diff --git chrome/browser/ui/webui/settings/printing_handler.cc chrome/browser/ui/webui/settings/printing_handler.cc
-index 8647b2daf9ea..b070ab3e4b86 100644
+index 8647b2d..b070ab3 100644
 --- chrome/browser/ui/webui/settings/printing_handler.cc
 +++ chrome/browser/ui/webui/settings/printing_handler.cc
 @@ -6,9 +6,13 @@
@@ -82,7 +91,7 @@ index 8647b2daf9ea..b070ab3e4b86 100644
  
  }  // namespace settings
 diff --git chrome/common/chrome_utility_printing_messages.h chrome/common/chrome_utility_printing_messages.h
-index f903429e25e4..cde2124fb18e 100644
+index f903429..cde2124 100644
 --- chrome/common/chrome_utility_printing_messages.h
 +++ chrome/common/chrome_utility_printing_messages.h
 @@ -16,7 +16,7 @@
@@ -103,7 +112,7 @@ index f903429e25e4..cde2124fb18e 100644
  
  #endif  // CHROME_COMMON_CHROME_UTILITY_PRINTING_MESSAGES_H_
 diff --git chrome/utility/printing_handler.h chrome/utility/printing_handler.h
-index 006966fd1c58..db9cd49af2a4 100644
+index 006966f..db9cd49 100644
 --- chrome/utility/printing_handler.h
 +++ chrome/utility/printing_handler.h
 @@ -11,7 +11,7 @@
@@ -116,7 +125,7 @@ index 006966fd1c58..db9cd49af2a4 100644
  #endif
  
 diff --git components/printing/common/print_messages.cc components/printing/common/print_messages.cc
-index 18df7614a988..9f86016d3e68 100644
+index 18df761..9f86016d3 100644
 --- components/printing/common/print_messages.cc
 +++ components/printing/common/print_messages.cc
 @@ -140,7 +140,6 @@ PrintMsg_PrintFrame_Params::PrintMsg_PrintFrame_Params() {}
@@ -133,7 +142,7 @@ index 18df7614a988..9f86016d3e68 100644
  }
 -#endif  // BUILDFLAG(ENABLE_PRINT_PREVIEW)
 diff --git components/printing/common/print_messages.h components/printing/common/print_messages.h
-index e3c11e1302ff..0ae7dbd8851a 100644
+index e3c11e1..0ae7dbd 100644
 --- components/printing/common/print_messages.h
 +++ components/printing/common/print_messages.h
 @@ -85,7 +85,6 @@ struct PrintMsg_PrintFrame_Params {
@@ -253,7 +262,7 @@ index e3c11e1302ff..0ae7dbd8851a 100644
  
  #endif  // COMPONENTS_PRINTING_COMMON_PRINT_MESSAGES_H_
 diff --git components/printing/renderer/print_render_frame_helper.cc components/printing/renderer/print_render_frame_helper.cc
-index 86a68c361f06..3cd1008f35b0 100644
+index 86a68c3..3cd1008 100644
 --- components/printing/renderer/print_render_frame_helper.cc
 +++ components/printing/renderer/print_render_frame_helper.cc
 @@ -340,7 +340,6 @@ bool PrintingNodeOrPdfFrame(const blink::WebLocalFrame* frame,
@@ -429,7 +438,7 @@ index 86a68c361f06..3cd1008f35b0 100644
  PrintRenderFrameHelper::PrintPreviewContext::PrintPreviewContext() = default;
  
 diff --git components/printing/renderer/print_render_frame_helper.h components/printing/renderer/print_render_frame_helper.h
-index d09db4d500ca..83d265cf503e 100644
+index d09db4d..83d265c 100644
 --- components/printing/renderer/print_render_frame_helper.h
 +++ components/printing/renderer/print_render_frame_helper.h
 @@ -150,10 +150,8 @@ class PrintRenderFrameHelper
@@ -511,7 +520,7 @@ index d09db4d500ca..83d265cf503e 100644
    bool is_loading_ = false;
    bool is_scripted_preview_delayed_ = false;
 diff --git components/printing_component_strings.grdp components/printing_component_strings.grdp
-index f157cbaec42e..5e3c3caa2aa2 100644
+index f157cba..5e3c3ca 100644
 --- components/printing_component_strings.grdp
 +++ components/printing_component_strings.grdp
 @@ -1,10 +1,8 @@
@@ -526,7 +535,7 @@ index f157cbaec42e..5e3c3caa2aa2 100644
 -  </if>
  </grit-part>
 diff --git components/pwg_encoder/BUILD.gn components/pwg_encoder/BUILD.gn
-index 96ae254116a9..3697d6034300 100644
+index 96ae254..3697d60 100644
 --- components/pwg_encoder/BUILD.gn
 +++ components/pwg_encoder/BUILD.gn
 @@ -4,8 +4,6 @@
