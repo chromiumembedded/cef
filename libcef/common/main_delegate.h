@@ -16,6 +16,7 @@
 
 namespace base {
 class CommandLine;
+class MessageLoop;
 class Thread;
 }  // namespace base
 
@@ -32,6 +33,7 @@ class CefMainDelegate : public content::ContentMainDelegate {
   explicit CefMainDelegate(CefRefPtr<CefApp> application);
   ~CefMainDelegate() override;
 
+  void PreCreateMainMessageLoop() override;
   bool BasicStartupComplete(int* exit_code) override;
   void PreSandboxStartup() override;
   void SandboxInitialized(const std::string& process_type) override;
@@ -55,6 +57,7 @@ class CefMainDelegate : public content::ContentMainDelegate {
  private:
   void InitializeResourceBundle();
 
+  std::unique_ptr<base::MessageLoop> message_loop_;
   std::unique_ptr<content::BrowserMainRunner> browser_runner_;
   std::unique_ptr<base::Thread> ui_thread_;
 

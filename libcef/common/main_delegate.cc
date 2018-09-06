@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 #include "libcef/common/main_delegate.h"
+#include "libcef/browser/browser_message_loop.h"
 #include "libcef/browser/content_browser_client.h"
 #include "libcef/browser/context.h"
 #include "libcef/common/cef_switches.h"
@@ -303,6 +304,11 @@ CefMainDelegate::CefMainDelegate(CefRefPtr<CefApp> application)
 }
 
 CefMainDelegate::~CefMainDelegate() {}
+
+void CefMainDelegate::PreCreateMainMessageLoop() {
+  // Create the main message loop.
+  message_loop_.reset(new CefBrowserMessageLoop());
+}
 
 bool CefMainDelegate::BasicStartupComplete(int* exit_code) {
   base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
@@ -634,6 +640,8 @@ void CefMainDelegate::ShutdownBrowser() {
     ui_thread_->Stop();
     ui_thread_.reset();
   }
+
+  message_loop_.reset();
 }
 
 void CefMainDelegate::InitializeResourceBundle() {
