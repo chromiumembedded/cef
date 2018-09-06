@@ -99,6 +99,7 @@
 }
 
 - (void)cleanup:(id)window {
+  [window_ setDelegate:nil];
   [self release];
 }
 
