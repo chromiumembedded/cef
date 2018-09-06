@@ -1,5 +1,5 @@
 diff --git chrome/browser/plugins/plugin_info_host_impl.cc chrome/browser/plugins/plugin_info_host_impl.cc
-index 52d374d1fe4e..1ac12af269c9 100644
+index 52d374d1fe4e..c113ae8634e0 100644
 --- chrome/browser/plugins/plugin_info_host_impl.cc
 +++ chrome/browser/plugins/plugin_info_host_impl.cc
 @@ -16,6 +16,7 @@
@@ -22,39 +22,7 @@ index 52d374d1fe4e..1ac12af269c9 100644
  #if BUILDFLAG(ENABLE_EXTENSIONS)
  #include "components/guest_view/browser/guest_view_base.h"
  #include "extensions/browser/extension_registry.h"
-@@ -74,12 +80,10 @@ namespace {
- class PluginInfoHostImplShutdownNotifierFactory
-     : public BrowserContextKeyedServiceShutdownNotifierFactory {
-  public:
--  static PluginInfoHostImplShutdownNotifierFactory* GetInstance() {
--    return base::Singleton<PluginInfoHostImplShutdownNotifierFactory>::get();
--  }
-+  static PluginInfoHostImplShutdownNotifierFactory* GetInstance();
- 
-  private:
--  friend struct base::DefaultSingletonTraits<
-+  friend struct base::LazyInstanceTraitsBase<
-       PluginInfoHostImplShutdownNotifierFactory>;
- 
-   PluginInfoHostImplShutdownNotifierFactory()
-@@ -91,6 +95,16 @@ class PluginInfoHostImplShutdownNotifierFactory
-   DISALLOW_COPY_AND_ASSIGN(PluginInfoHostImplShutdownNotifierFactory);
- };
- 
-+base::LazyInstance<PluginInfoHostImplShutdownNotifierFactory>::Leaky
-+    g_plugin_info_host_impl_shutdown_notifier_factory =
-+        LAZY_INSTANCE_INITIALIZER;
-+
-+// static
-+PluginInfoHostImplShutdownNotifierFactory*
-+PluginInfoHostImplShutdownNotifierFactory::GetInstance() {
-+  return g_plugin_info_host_impl_shutdown_notifier_factory.Pointer();
-+}
-+
- #if BUILDFLAG(ENABLE_EXTENSIONS)
- // Returns whether a request from a plugin to load |resource| from a renderer
- // with process id |process_id| is a request for an internal resource by an app
-@@ -99,6 +113,9 @@ bool IsPluginLoadingAccessibleResourceInWebView(
+@@ -99,6 +105,9 @@ bool IsPluginLoadingAccessibleResourceInWebView(
      extensions::ExtensionRegistry* extension_registry,
      int process_id,
      const GURL& resource) {
@@ -64,7 +32,7 @@ index 52d374d1fe4e..1ac12af269c9 100644
    extensions::WebViewRendererState* renderer_state =
        extensions::WebViewRendererState::GetInstance();
    std::string partition_id;
-@@ -128,12 +145,16 @@ bool IsPluginLoadingAccessibleResourceInWebView(
+@@ -128,12 +137,16 @@ bool IsPluginLoadingAccessibleResourceInWebView(
  PluginInfoHostImpl::Context::Context(int render_process_id, Profile* profile)
      : render_process_id_(render_process_id),
        resource_context_(profile->GetResourceContext()),
@@ -84,7 +52,7 @@ index 52d374d1fe4e..1ac12af269c9 100644
    allow_outdated_plugins_.Init(prefs::kPluginsAllowOutdated,
                                 profile->GetPrefs());
    allow_outdated_plugins_.MoveToThread(
-@@ -232,6 +253,7 @@ void PluginInfoHostImpl::PluginsLoaded(
+@@ -232,6 +245,7 @@ void PluginInfoHostImpl::PluginsLoaded(
          plugin_metadata->identifier(), &output->status);
    }
  
@@ -92,7 +60,7 @@ index 52d374d1fe4e..1ac12af269c9 100644
    if (output->status == chrome::mojom::PluginStatus::kNotFound) {
      // Check to see if the component updater can fetch an implementation.
      base::PostTaskAndReplyWithResult(
-@@ -243,7 +265,9 @@ void PluginInfoHostImpl::PluginsLoaded(
+@@ -243,7 +257,9 @@ void PluginInfoHostImpl::PluginsLoaded(
          base::BindOnce(&PluginInfoHostImpl::ComponentPluginLookupDone, this,
                         params, std::move(output), std::move(callback),
                         std::move(plugin_metadata)));
@@ -103,7 +71,7 @@ index 52d374d1fe4e..1ac12af269c9 100644
      GetPluginInfoFinish(params, std::move(output), std::move(callback),
                          std::move(plugin_metadata));
    }
-@@ -256,6 +280,14 @@ void PluginInfoHostImpl::Context::DecidePluginStatus(
+@@ -256,6 +272,14 @@ void PluginInfoHostImpl::Context::DecidePluginStatus(
      PluginMetadata::SecurityStatus security_status,
      const std::string& plugin_identifier,
      chrome::mojom::PluginStatus* status) const {
@@ -118,7 +86,7 @@ index 52d374d1fe4e..1ac12af269c9 100644
    if (security_status == PluginMetadata::SECURITY_STATUS_FULLY_TRUSTED) {
      *status = chrome::mojom::PluginStatus::kAllowed;
      return;
-@@ -379,16 +411,36 @@ bool PluginInfoHostImpl::Context::FindEnabledPlugin(
+@@ -379,16 +403,36 @@ bool PluginInfoHostImpl::Context::FindEnabledPlugin(
      return false;
    }
  
