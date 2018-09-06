@@ -10,7 +10,6 @@
 
 #include "libcef/browser/browser_context_impl.h"
 #include "libcef/browser/browser_context_keyed_service_factories.h"
-#include "libcef/browser/browser_message_loop.h"
 #include "libcef/browser/content_browser_client.h"
 #include "libcef/browser/context.h"
 #include "libcef/browser/devtools_manager_delegate.h"
@@ -107,11 +106,6 @@ void CefBrowserMainParts::ToolkitInitialized() {
 }
 
 void CefBrowserMainParts::PreMainMessageLoopStart() {
-  if (!base::MessageLoop::current()) {
-    // Create the browser message loop.
-    message_loop_.reset(new CefBrowserMessageLoop());
-  }
-
   for (size_t i = 0; i < chrome_extra_parts_.size(); ++i)
     chrome_extra_parts_[i]->PreMainMessageLoopStart();
 }
