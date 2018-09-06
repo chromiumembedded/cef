@@ -60,19 +60,6 @@ index 39bf49c7b111..ad7b054e185f 100644
  
    ScopedStyleContext child_context(gtk_style_context_new());
    gtk_style_context_set_path(child_context, path);
-diff --git chrome/browser/ui/libgtkui/native_theme_gtk2.cc chrome/browser/ui/libgtkui/native_theme_gtk2.cc
-index 8def6e889fa6..6f054a9b76ea 100644
---- chrome/browser/ui/libgtkui/native_theme_gtk2.cc
-+++ chrome/browser/ui/libgtkui/native_theme_gtk2.cc
-@@ -166,6 +166,8 @@ SkColor NativeThemeGtk2::GetSystemColor(ColorId color_id) const {
-       return kInvalidColorIdColor;
- 
-     // Label
-+    case kColorId_ActionableSubmenuVerticalSeparatorColor:
-+    case kColorId_TouchableMenuItemLabelColor:
-     case kColorId_LabelEnabledColor:
-       return GetTextColor(GetEntry(), NORMAL);
-     case kColorId_LabelDisabledColor:
 diff --git ui/accessibility/platform/atk_util_auralinux_gtk2.cc ui/accessibility/platform/atk_util_auralinux_gtk2.cc
 index ac11b5626f67..6355d0283de1 100644
 --- ui/accessibility/platform/atk_util_auralinux_gtk2.cc
