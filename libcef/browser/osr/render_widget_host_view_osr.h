@@ -39,6 +39,7 @@ class RenderWidgetHost;
 class RenderWidgetHostImpl;
 class RenderWidgetHostViewGuest;
 class BackingStore;
+class CursorManager;
 }  // namespace content
 
 class CefBeginFrameTimer;
@@ -147,6 +148,7 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
                          int error_code) override;
   void Destroy() override;
   void SetTooltipText(const base::string16& tooltip_text) override;
+  content::CursorManager* GetCursorManager() override;
 
   gfx::Size GetCompositorViewportPixelSize() const override;
   void CopyFromSurface(
@@ -344,6 +346,8 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
   CefWindowX11* window_;
   std::unique_ptr<ui::XScopedCursor> invisible_cursor_;
 #endif
+
+  std::unique_ptr<content::CursorManager> cursor_manager_;
 
   // Used to control the VSync rate in subprocesses when BeginFrame scheduling
   // is enabled.

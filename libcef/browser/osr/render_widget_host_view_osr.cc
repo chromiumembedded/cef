@@ -27,6 +27,7 @@
 #include "content/browser/bad_message.h"
 #include "content/browser/compositor/image_transport_factory.h"
 #include "content/browser/frame_host/render_widget_host_view_guest.h"
+#include "content/browser/renderer_host/cursor_manager.h"
 #include "content/browser/renderer_host/dip_util.h"
 #include "content/browser/renderer_host/render_widget_host_delegate.h"
 #include "content/browser/renderer_host/render_widget_host_impl.h"
@@ -277,6 +278,8 @@ CefRenderWidgetHostViewOSR::CefRenderWidgetHostViewOSR(
 
   if (browser_impl_.get())
     ResizeRootLayer(false);
+
+  cursor_manager_.reset(new content::CursorManager(this));
 
   // Do this last because it may result in a call to SetNeedsBeginFrames.
   render_widget_host_->SetView(this);
@@ -631,6 +634,10 @@ void CefRenderWidgetHostViewOSR::UpdateCursor(
   // off-screen rendering support.
   NOTREACHED();
 #endif
+}
+
+content::CursorManager* CefRenderWidgetHostViewOSR::GetCursorManager() {
+  return cursor_manager_.get();
 }
 
 void CefRenderWidgetHostViewOSR::SetIsLoading(bool is_loading) {}
