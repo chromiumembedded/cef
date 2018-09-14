@@ -1,0 +1,86 @@
+diff --git third_party/blink/renderer/core/layout/layout_box.cc third_party/blink/renderer/core/layout/layout_box.cc
+index 9435e5ffc886..204bd88ceb8f 100644
+--- third_party/blink/renderer/core/layout/layout_box.cc
++++ third_party/blink/renderer/core/layout/layout_box.cc
+@@ -4408,6 +4408,7 @@ void LayoutBox::ComputePositionedLogicalWidthUsing(
+   }
+ 
+   if (container_block->IsBox() &&
++      container_block->IsHorizontalWritingMode() == IsHorizontalWritingMode() &&
+       ToLayoutBox(container_block)->ScrollsOverflowY() &&
+       ToLayoutBox(container_block)
+           ->ShouldPlaceBlockDirectionScrollbarOnLogicalLeft()) {
+@@ -4764,6 +4765,15 @@ void LayoutBox::ComputePositionedLogicalHeightUsing(
+   }
+   computed_values.extent_ = logical_height_value;
+ 
++  if (container_block->IsBox() &&
++      container_block->IsHorizontalWritingMode() != IsHorizontalWritingMode() &&
++      ToLayoutBox(container_block)->ScrollsOverflowY() &&
++      ToLayoutBox(container_block)
++          ->ShouldPlaceBlockDirectionScrollbarOnLogicalLeft()) {
++    logical_top_value = logical_top_value +
++                         ToLayoutBox(container_block)->VerticalScrollbarWidth();
++  }
++
+   // Use computed values to calculate the vertical position.
+   computed_values.position_ =
+       logical_top_value + computed_values.margins_.before_;
+diff --git third_party/blink/renderer/core/layout/layout_view.cc third_party/blink/renderer/core/layout/layout_view.cc
+index c71691161e5a..52975440a043 100644
+--- third_party/blink/renderer/core/layout/layout_view.cc
++++ third_party/blink/renderer/core/layout/layout_view.cc
+@@ -262,6 +262,22 @@ void LayoutView::SetShouldDoFullPaintInvalidationOnResizeIfNeeded(
+   }
+ }
+ 
++bool LayoutView::ShouldPlaceBlockDirectionScrollbarOnLogicalLeft() const {
++  LocalFrame& frame = GetFrameView()->GetFrame();
++  // See crbug.com/249860
++  if (frame.IsMainFrame())
++    return false;
++  // <body> inherits 'direction' from <html>, so checking style on the body is
++  // sufficient.
++  if (Element* body = GetDocument().body()) {
++    if (LayoutObject* body_layout_object = body->GetLayoutObject()) {
++      return body_layout_object->Style()
++          ->ShouldPlaceBlockDirectionScrollbarOnLogicalLeft();
++    }
++  }
++  return false;
++}
++
+ void LayoutView::UpdateBlockLayout(bool relayout_children) {
+   SubtreeLayoutScope layout_scope(*this);
+ 
+diff --git third_party/blink/renderer/core/layout/layout_view.h third_party/blink/renderer/core/layout/layout_view.h
+index fed51c0988ff..0954c1e7de21 100644
+--- third_party/blink/renderer/core/layout/layout_view.h
++++ third_party/blink/renderer/core/layout/layout_view.h
+@@ -241,13 +241,7 @@ class CORE_EXPORT LayoutView final : public LayoutBlockFlow {
+   void SetShouldDoFullPaintInvalidationOnResizeIfNeeded(bool width_changed,
+                                                         bool height_changed);
+ 
+-  // The document scrollbar is always on the right, even in RTL. This is to
+-  // prevent it from moving around on navigations.
+-  // TODO(skobes): This is not quite the ideal behavior, see
+-  // http://crbug.com/250514 and http://crbug.com/249860.
+-  bool ShouldPlaceBlockDirectionScrollbarOnLogicalLeft() const override {
+-    return false;
+-  }
++  bool ShouldPlaceBlockDirectionScrollbarOnLogicalLeft() const override;
+ 
+   LayoutRect DebugRect() const override;
+ 
+diff --git third_party/blink/renderer/core/paint/compositing/composited_layer_mapping.cc third_party/blink/renderer/core/paint/compositing/composited_layer_mapping.cc
+index c900e894b44e..47d04d54734a 100644
+--- third_party/blink/renderer/core/paint/compositing/composited_layer_mapping.cc
++++ third_party/blink/renderer/core/paint/compositing/composited_layer_mapping.cc
+@@ -1342,6 +1342,7 @@ void CompositedLayerMapping::ComputeGraphicsLayerParentLocation(
+     IntSize scroll_offset = layout_box.ScrolledContentOffset();
+     IntPoint scroll_origin =
+         compositing_container->GetScrollableArea()->ScrollOrigin();
++    scroll_origin.Move(-layout_box.OriginAdjustmentForScrollbars());
+     scroll_origin.Move(-layout_box.BorderLeft().ToInt(),
+                        -layout_box.BorderTop().ToInt());
+     graphics_layer_parent_location = -(scroll_origin + scroll_offset);
