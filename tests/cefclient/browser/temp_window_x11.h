@@ -11,7 +11,7 @@
 namespace client {
 
 // Represents a singleton hidden window that acts as a temporary parent for
-// popup browsers.
+// popup browsers. Only accessed on the UI thread.
 class TempWindowX11 {
  public:
   // Returns the singleton window handle.
@@ -20,6 +20,8 @@ class TempWindowX11 {
  private:
   // A single instance will be created/owned by RootWindowManager.
   friend class RootWindowManager;
+  // Allow deletion via scoped_ptr only.
+  friend struct base::DefaultDeleter<TempWindowX11>;
 
   TempWindowX11();
   ~TempWindowX11();

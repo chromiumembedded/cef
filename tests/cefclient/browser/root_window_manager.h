@@ -106,6 +106,8 @@ class RootWindowManager : public RootWindow::Delegate {
                              const base::Closure& close_callback,
                              bool with_osr) OVERRIDE;
 
+  void CleanupOnUIThread();
+
   const bool terminate_when_all_windows_closed_;
   bool request_context_per_browser_;
   bool request_context_shared_cache_;
@@ -124,7 +126,7 @@ class RootWindowManager : public RootWindow::Delegate {
   CefRefPtr<CefBrowser> active_browser_;
 
   // Singleton window used as the temporary parent for popup browsers.
-  TempWindow temp_window_;
+  scoped_ptr<TempWindow> temp_window_;
 
   CefRefPtr<CefRequestContext> shared_request_context_;
 

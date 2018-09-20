@@ -19,6 +19,7 @@
 #include "include/cef_command_line.h"
 #include "include/wrapper/cef_helpers.h"
 #include "tests/cefclient/browser/main_context_impl.h"
+#include "tests/cefclient/browser/main_message_loop_multithreaded_gtk.h"
 #include "tests/cefclient/browser/test_runner.h"
 #include "tests/shared/browser/client_app_browser.h"
 #include "tests/shared/browser/main_message_loop_external_pump.h"
@@ -92,7 +93,9 @@ int RunMain(int argc, char* argv[]) {
 
   // Create the main message loop object.
   scoped_ptr<MainMessageLoop> message_loop;
-  if (settings.external_message_pump)
+  if (settings.multi_threaded_message_loop)
+    message_loop.reset(new MainMessageLoopMultithreadedGtk);
+  else if (settings.external_message_pump)
     message_loop = MainMessageLoopExternalPump::Create();
   else
     message_loop.reset(new MainMessageLoopStd);

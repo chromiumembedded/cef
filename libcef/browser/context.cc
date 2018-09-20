@@ -29,6 +29,7 @@
 #include "content/public/browser/render_process_host.h"
 #include "content/public/common/content_switches.h"
 #include "services/service_manager/embedder/main.h"
+#include "ui/base/resource/resource_bundle.h"
 #include "ui/base/ui_base_switches.h"
 
 #if defined(OS_WIN)
@@ -343,7 +344,7 @@ bool CefContext::Initialize(const CefMainArgs& args,
   init_thread_id_ = base::PlatformThread::CurrentId();
   settings_ = settings;
 
-#if !defined(OS_WIN)
+#if !(defined(OS_WIN) || defined(OS_LINUX))
   if (settings.multi_threaded_message_loop) {
     NOTIMPLEMENTED() << "multi_threaded_message_loop is not supported.";
     return false;
@@ -525,6 +526,8 @@ void CefContext::FinishShutdownOnUIThread(
     trace_subscriber_.reset(NULL);
 
   static_cast<ChromeBrowserProcessStub*>(g_browser_process)->Shutdown();
+
+  ui::ResourceBundle::GetSharedInstance().CleanupOnUIThread();
 
   if (uithread_shutdown_event)
     uithread_shutdown_event->Signal();

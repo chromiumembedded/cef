@@ -1,0 +1,45 @@
+diff --git ui/base/resource/resource_bundle.cc ui/base/resource/resource_bundle.cc
+index 2a00d4e..d2328b7 100644
+--- ui/base/resource/resource_bundle.cc
++++ ui/base/resource/resource_bundle.cc
+@@ -737,6 +737,12 @@ ResourceBundle::ResourceBundle(Delegate* delegate)
+     : delegate_(delegate),
+       locale_resources_data_lock_(new base::Lock),
+       max_scale_factor_(SCALE_FACTOR_100P) {
++  // With CEF's multi-threaded mode the ResourceBundle may be created on the
++  // main thread and then accessed on the UI thread. Allow the SequenceChecker
++  // to re-bind on the UI thread when CalledOnValidSequence() is called for the
++  // first time.
++  DETACH_FROM_SEQUENCE(sequence_checker_);
++
+   mangle_localized_strings_ = base::CommandLine::ForCurrentProcess()->HasSwitch(
+       switches::kMangleLocalizedStrings);
+ }
+@@ -746,6 +752,11 @@ ResourceBundle::~ResourceBundle() {
+   UnloadLocaleResources();
+ }
+ 
++void ResourceBundle::CleanupOnUIThread() {
++  FreeImages();
++  font_cache_.clear();
++}
++
+ // static
+ void ResourceBundle::InitSharedInstance(Delegate* delegate) {
+   DCHECK(g_shared_instance_ == NULL) << "ResourceBundle initialized twice";
+diff --git ui/base/resource/resource_bundle.h ui/base/resource/resource_bundle.h
+index 422d84b..669522fd 100644
+--- ui/base/resource/resource_bundle.h
++++ ui/base/resource/resource_bundle.h
+@@ -150,6 +150,11 @@ class UI_BASE_EXPORT ResourceBundle {
+   // Return the global resource loader instance.
+   static ResourceBundle& GetSharedInstance();
+ 
++  // With CEF's multi-threaded mode the ResourceBundle may be created/destroyed
++  // on the main thread but accessed on the UI thread. Call this method on the
++  // UI thread to clean up resources before destruction.
++  void CleanupOnUIThread();
++
+   // Loads a secondary locale data pack using the given file region.
+   void LoadSecondaryLocaleDataWithPakFileRegion(
+       base::File pak_file,

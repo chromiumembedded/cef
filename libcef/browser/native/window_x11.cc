@@ -104,6 +104,7 @@ CefWindowX11::CefWindowX11(CefRefPtr<CefBrowserHostImpl> browser,
                            InputOutput,
                            CopyFromParent,  // visual
                            CWBackPixmap | CWOverrideRedirect, &swa);
+  CHECK(xwindow_);
 
   if (ui::PlatformEventSource::GetInstance())
     ui::PlatformEventSource::GetInstance()->AddPlatformEventDispatcher(this);

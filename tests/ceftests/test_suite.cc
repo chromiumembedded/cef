@@ -119,7 +119,7 @@ int CefTestSuite::Run() {
 }
 
 void CefTestSuite::GetSettings(CefSettings& settings) const {
-#if defined(OS_WIN)
+#if (defined(OS_WIN) || defined(OS_LINUX))
   settings.multi_threaded_message_loop =
       command_line_->HasSwitch(client::switches::kMultiThreadedMessageLoop);
 #endif
