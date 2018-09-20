@@ -19,6 +19,9 @@ class BrowserWindowStdGtk : public BrowserWindow {
   // |delegate| must outlive this object.
   BrowserWindowStdGtk(Delegate* delegate, const std::string& startup_url);
 
+  // Called from RootWindowGtk::CreateRootWindow before CreateBrowser.
+  void set_xdisplay(XDisplay* xdisplay);
+
   // BrowserWindow methods.
   void CreateBrowser(ClientWindowHandle parent_handle,
                      const CefRect& rect,
@@ -40,6 +43,8 @@ class BrowserWindowStdGtk : public BrowserWindow {
   ClientWindowHandle GetWindowHandle() const OVERRIDE;
 
  private:
+  XDisplay* xdisplay_;
+
   DISALLOW_COPY_AND_ASSIGN(BrowserWindowStdGtk);
 };
 

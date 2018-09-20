@@ -8,6 +8,7 @@
 
 #include <gtk/gtk.h>
 
+#include "include/base/cef_callback_forward.h"
 #include "include/cef_dialog_handler.h"
 #include "include/cef_jsdialog_handler.h"
 
@@ -42,6 +43,30 @@ class ClientDialogHandlerGtk : public CefDialogHandler,
   void OnResetDialogState(CefRefPtr<CefBrowser> browser) OVERRIDE;
 
  private:
+  struct OnFileDialogParams {
+    CefRefPtr<CefBrowser> browser;
+    FileDialogMode mode;
+    CefString title;
+    CefString default_file_path;
+    std::vector<CefString> accept_filters;
+    int selected_accept_filter;
+    CefRefPtr<CefFileDialogCallback> callback;
+  };
+  void OnFileDialogContinue(OnFileDialogParams params, GtkWindow* window);
+
+  struct OnJSDialogParams {
+    CefRefPtr<CefBrowser> browser;
+    CefString origin_url;
+    JSDialogType dialog_type;
+    CefString message_text;
+    CefString default_prompt_text;
+    CefRefPtr<CefJSDialogCallback> callback;
+  };
+  void OnJSDialogContinue(OnJSDialogParams params, GtkWindow* window);
+
+  void GetWindowAndContinue(CefRefPtr<CefBrowser> browser,
+                            base::Callback<void(GtkWindow*)> callback);
+
   static void OnDialogResponse(GtkDialog* dialog,
                                gint response_id,
                                ClientDialogHandlerGtk* handler);

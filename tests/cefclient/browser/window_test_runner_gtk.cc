@@ -8,6 +8,7 @@
 
 #include "include/wrapper/cef_helpers.h"
 #include "tests/cefclient/browser/root_window.h"
+#include "tests/cefclient/browser/util_gtk.h"
 #include "tests/shared/browser/main_message_loop.h"
 
 namespace client {
@@ -33,17 +34,13 @@ bool IsMaximized(GtkWindow* window) {
   return (state & GDK_WINDOW_STATE_MAXIMIZED) ? true : false;
 }
 
-}  // namespace
-
-WindowTestRunnerGtk::WindowTestRunnerGtk() {}
-
-void WindowTestRunnerGtk::SetPos(CefRefPtr<CefBrowser> browser,
-                                 int x,
-                                 int y,
-                                 int width,
-                                 int height) {
-  CEF_REQUIRE_UI_THREAD();
+void SetPosImpl(CefRefPtr<CefBrowser> browser,
+                int x,
+                int y,
+                int width,
+                int height) {
   REQUIRE_MAIN_THREAD();
+  ScopedGdkThreadsEnter scoped_gdk_threads;
 
   GtkWindow* window = GetWindow(browser);
   if (!window)
@@ -65,15 +62,15 @@ void WindowTestRunnerGtk::SetPos(CefRefPtr<CefBrowser> browser,
   // Make sure the window is inside the display.
   CefRect display_rect(rect.x, rect.y, rect.width, rect.height);
   CefRect window_rect(x, y, width, height);
-  ModifyBounds(display_rect, window_rect);
+  WindowTestRunner::ModifyBounds(display_rect, window_rect);
 
   gdk_window_move_resize(gdk_window, window_rect.x, window_rect.y,
                          window_rect.width, window_rect.height);
 }
 
-void WindowTestRunnerGtk::Minimize(CefRefPtr<CefBrowser> browser) {
-  CEF_REQUIRE_UI_THREAD();
+void MinimizeImpl(CefRefPtr<CefBrowser> browser) {
   REQUIRE_MAIN_THREAD();
+  ScopedGdkThreadsEnter scoped_gdk_threads;
 
   GtkWindow* window = GetWindow(browser);
   if (!window)
@@ -86,9 +83,9 @@ void WindowTestRunnerGtk::Minimize(CefRefPtr<CefBrowser> browser) {
   gtk_window_iconify(window);
 }
 
-void WindowTestRunnerGtk::Maximize(CefRefPtr<CefBrowser> browser) {
-  CEF_REQUIRE_UI_THREAD();
+void MaximizeImpl(CefRefPtr<CefBrowser> browser) {
   REQUIRE_MAIN_THREAD();
+  ScopedGdkThreadsEnter scoped_gdk_threads;
 
   GtkWindow* window = GetWindow(browser);
   if (!window)
@@ -96,9 +93,9 @@ void WindowTestRunnerGtk::Maximize(CefRefPtr<CefBrowser> browser) {
   gtk_window_maximize(window);
 }
 
-void WindowTestRunnerGtk::Restore(CefRefPtr<CefBrowser> browser) {
-  CEF_REQUIRE_UI_THREAD();
+void RestoreImpl(CefRefPtr<CefBrowser> browser) {
   REQUIRE_MAIN_THREAD();
+  ScopedGdkThreadsEnter scoped_gdk_threads;
 
   GtkWindow* window = GetWindow(browser);
   if (!window)
@@ -107,6 +104,30 @@ void WindowTestRunnerGtk::Restore(CefRefPtr<CefBrowser> browser) {
     gtk_window_unmaximize(window);
   else
     gtk_window_present(window);
+}
+
+}  // namespace
+
+WindowTestRunnerGtk::WindowTestRunnerGtk() {}
+
+void WindowTestRunnerGtk::SetPos(CefRefPtr<CefBrowser> browser,
+                                 int x,
+                                 int y,
+                                 int width,
+                                 int height) {
+  MAIN_POST_CLOSURE(base::Bind(SetPosImpl, browser, x, y, width, height));
+}
+
+void WindowTestRunnerGtk::Minimize(CefRefPtr<CefBrowser> browser) {
+  MAIN_POST_CLOSURE(base::Bind(MinimizeImpl, browser));
+}
+
+void WindowTestRunnerGtk::Maximize(CefRefPtr<CefBrowser> browser) {
+  MAIN_POST_CLOSURE(base::Bind(MaximizeImpl, browser));
+}
+
+void WindowTestRunnerGtk::Restore(CefRefPtr<CefBrowser> browser) {
+  MAIN_POST_CLOSURE(base::Bind(RestoreImpl, browser));
 }
 
 }  // namespace window_test

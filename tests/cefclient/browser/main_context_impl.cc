@@ -135,7 +135,7 @@ bool MainContextImpl::UseWindowlessRendering() {
 }
 
 void MainContextImpl::PopulateSettings(CefSettings* settings) {
-#if defined(OS_WIN)
+#if defined(OS_WIN) || defined(OS_LINUX)
   settings->multi_threaded_message_loop =
       command_line_->HasSwitch(switches::kMultiThreadedMessageLoop);
 #endif

@@ -25,6 +25,9 @@ class BrowserWindow : public ClientHandler::Delegate {
     // Called when the browser has been created.
     virtual void OnBrowserCreated(CefRefPtr<CefBrowser> browser) = 0;
 
+    // Called when the BrowserWindow is closing.
+    virtual void OnBrowserWindowClosing() {}
+
     // Called when the BrowserWindow has been destroyed.
     virtual void OnBrowserWindowDestroyed() = 0;
 

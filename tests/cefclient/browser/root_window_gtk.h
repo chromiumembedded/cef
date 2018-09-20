@@ -53,6 +53,7 @@ class RootWindowGtk : public RootWindow, public BrowserWindow::Delegate {
 
   // BrowserWindow::Delegate methods.
   void OnBrowserCreated(CefRefPtr<CefBrowser> browser) OVERRIDE;
+  void OnBrowserWindowClosing() OVERRIDE;
   void OnBrowserWindowDestroyed() OVERRIDE;
   void OnSetAddress(const std::string& url) OVERRIDE;
   void OnSetTitle(const std::string& title) OVERRIDE;
@@ -64,7 +65,17 @@ class RootWindowGtk : public RootWindow, public BrowserWindow::Delegate {
   void OnSetDraggableRegions(
       const std::vector<CefDraggableRegion>& regions) OVERRIDE;
 
-  void NotifyDestroyedIfDone();
+  void NotifyMoveOrResizeStarted();
+  void NotifySetFocus();
+  void NotifyVisibilityChange(bool show);
+  void NotifyMenuBarHeight(int height);
+  void NotifyContentBounds(int x, int y, int width, int height);
+  void NotifyLoadURL(const std::string& url);
+  void NotifyButtonClicked(int id);
+  void NotifyMenuItem(int id);
+  void NotifyForceClose();
+  void NotifyCloseBrowser();
+  void NotifyDestroyedIfDone(bool window_destroyed, bool browser_destroyed);
 
   GtkWidget* CreateMenuBar();
   GtkWidget* CreateMenu(GtkWidget* menu_bar, const char* text);
@@ -139,9 +150,13 @@ class RootWindowGtk : public RootWindow, public BrowserWindow::Delegate {
 
   CefRect browser_bounds_;
 
-  bool force_close_;
   bool window_destroyed_;
   bool browser_destroyed_;
+
+  // Members only accessed on the UI thread because they're needed for
+  // WindowDelete.
+  bool force_close_;
+  bool is_closing_;
 
   DISALLOW_COPY_AND_ASSIGN(RootWindowGtk);
 };

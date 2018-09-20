@@ -6,6 +6,8 @@
 #define CEF_TESTS_CEFCLIENT_BROWSER_BROWSER_WINDOW_OSR_GTK_H_
 #pragma once
 
+#include "include/base/cef_lock.h"
+
 #include "tests/cefclient/browser/browser_window.h"
 #include "tests/cefclient/browser/client_handler_osr.h"
 #include "tests/cefclient/browser/osr_renderer.h"
@@ -23,6 +25,9 @@ class BrowserWindowOsrGtk : public BrowserWindow,
   BrowserWindowOsrGtk(BrowserWindow::Delegate* delegate,
                       const std::string& startup_url,
                       const OsrRenderer::Settings& settings);
+
+  // Called from RootWindowGtk::CreateRootWindow before CreateBrowser.
+  void set_xdisplay(XDisplay* xdisplay);
 
   // BrowserWindow methods.
   void CreateBrowser(ClientWindowHandle parent_handle,
@@ -162,15 +167,18 @@ class BrowserWindowOsrGtk : public BrowserWindow,
                                guint time,
                                BrowserWindowOsrGtk* self);
 
-  // The below members will only be accessed on the main thread which should be
-  // the same as the CEF UI thread.
+  XDisplay* xdisplay_;
+
+  // Members only accessed on the UI thread.
   OsrRenderer renderer_;
-  ClientWindowHandle glarea_;
-  bool hidden_;
   bool gl_enabled_;
   bool painting_popup_;
 
-  float device_scale_factor_;
+  // Members only accessed on the main thread.
+  bool hidden_;
+
+  // Members protected by the GDK global lock.
+  ClientWindowHandle glarea_;
 
   // Drag & drop
   GdkEvent* drag_trigger_event_;  // mouse event, a possible trigger for drag
@@ -180,6 +188,11 @@ class BrowserWindowOsrGtk : public BrowserWindow,
   GtkTargetList* drag_targets_;
   bool drag_leave_;
   bool drag_drop_;
+
+  mutable base::Lock lock_;
+
+  // Access to these members must be protected by |lock_|.
+  float device_scale_factor_;
 
   DISALLOW_COPY_AND_ASSIGN(BrowserWindowOsrGtk);
 };
