@@ -11,6 +11,7 @@
 #include "include/cef_parser.h"
 #include "include/wrapper/cef_helpers.h"
 #include "tests/cefclient/browser/root_window.h"
+#include "tests/cefclient/browser/util_gtk.h"
 
 namespace client {
 
@@ -130,6 +131,7 @@ void AddFilters(GtkFileChooser* chooser,
 }
 
 GtkWindow* GetWindow(CefRefPtr<CefBrowser> browser) {
+  REQUIRE_MAIN_THREAD();
   scoped_refptr<RootWindow> root_window =
       RootWindow::GetForBrowser(browser->GetIdentifier());
   if (root_window) {
@@ -139,6 +141,10 @@ GtkWindow* GetWindow(CefRefPtr<CefBrowser> browser) {
     return window;
   }
   return NULL;
+}
+
+void RunCallback(base::Callback<void(GtkWindow*)> callback, GtkWindow* window) {
+  callback.Run(window);
 }
 
 }  // namespace
@@ -153,6 +159,78 @@ bool ClientDialogHandlerGtk::OnFileDialog(
     const std::vector<CefString>& accept_filters,
     int selected_accept_filter,
     CefRefPtr<CefFileDialogCallback> callback) {
+  CEF_REQUIRE_UI_THREAD();
+
+  OnFileDialogParams params;
+  params.browser = browser;
+  params.mode = mode;
+  params.title = title;
+  params.default_file_path = default_file_path;
+  params.accept_filters = accept_filters;
+  params.selected_accept_filter = selected_accept_filter;
+  params.callback = callback;
+
+  GetWindowAndContinue(
+      browser,
+      base::Bind(&ClientDialogHandlerGtk::OnFileDialogContinue, this, params));
+  return true;
+}
+
+bool ClientDialogHandlerGtk::OnJSDialog(CefRefPtr<CefBrowser> browser,
+                                        const CefString& origin_url,
+                                        JSDialogType dialog_type,
+                                        const CefString& message_text,
+                                        const CefString& default_prompt_text,
+                                        CefRefPtr<CefJSDialogCallback> callback,
+                                        bool& suppress_message) {
+  CEF_REQUIRE_UI_THREAD();
+
+  OnJSDialogParams params;
+  params.browser = browser;
+  params.origin_url = origin_url;
+  params.dialog_type = dialog_type;
+  params.message_text = message_text;
+  params.default_prompt_text = default_prompt_text;
+  params.callback = callback;
+
+  GetWindowAndContinue(
+      browser,
+      base::Bind(&ClientDialogHandlerGtk::OnJSDialogContinue, this, params));
+  return true;
+}
+
+bool ClientDialogHandlerGtk::OnBeforeUnloadDialog(
+    CefRefPtr<CefBrowser> browser,
+    const CefString& message_text,
+    bool is_reload,
+    CefRefPtr<CefJSDialogCallback> callback) {
+  CEF_REQUIRE_UI_THREAD();
+
+  const std::string& new_message_text =
+      message_text.ToString() + "\n\nIs it OK to leave/reload this page?";
+  bool suppress_message = false;
+
+  return OnJSDialog(browser, CefString(), JSDIALOGTYPE_CONFIRM,
+                    new_message_text, CefString(), callback, suppress_message);
+}
+
+void ClientDialogHandlerGtk::OnResetDialogState(CefRefPtr<CefBrowser> browser) {
+  CEF_REQUIRE_UI_THREAD();
+
+  if (!gtk_dialog_)
+    return;
+
+  gtk_widget_destroy(gtk_dialog_);
+  gtk_dialog_ = NULL;
+  js_dialog_callback_ = NULL;
+}
+
+void ClientDialogHandlerGtk::OnFileDialogContinue(OnFileDialogParams params,
+                                                  GtkWindow* window) {
+  CEF_REQUIRE_UI_THREAD();
+
+  ScopedGdkThreadsEnter scoped_gdk_threads;
+
   std::vector<CefString> files;
 
   GtkFileChooserAction action;
@@ -160,7 +238,7 @@ bool ClientDialogHandlerGtk::OnFileDialog(
 
   // Remove any modifier flags.
   FileDialogMode mode_type =
-      static_cast<FileDialogMode>(mode & FILE_DIALOG_TYPE_MASK);
+      static_cast<FileDialogMode>(params.mode & FILE_DIALOG_TYPE_MASK);
 
   if (mode_type == FILE_DIALOG_OPEN || mode_type == FILE_DIALOG_OPEN_MULTIPLE) {
     action = GTK_FILE_CHOOSER_ACTION_OPEN;
@@ -173,12 +251,12 @@ bool ClientDialogHandlerGtk::OnFileDialog(
     accept_button = GTK_STOCK_SAVE;
   } else {
     NOTREACHED();
-    return false;
+    params.callback->Cancel();
   }
 
   std::string title_str;
-  if (!title.empty()) {
-    title_str = title;
+  if (!params.title.empty()) {
+    title_str = params.title;
   } else {
     switch (mode_type) {
       case FILE_DIALOG_OPEN:
@@ -198,10 +276,6 @@ bool ClientDialogHandlerGtk::OnFileDialog(
     }
   }
 
-  GtkWindow* window = GetWindow(browser);
-  if (!window)
-    return false;
-
   GtkWidget* dialog = gtk_file_chooser_dialog_new(
       title_str.c_str(), GTK_WINDOW(window), action, GTK_STOCK_CANCEL,
       GTK_RESPONSE_CANCEL, accept_button, GTK_RESPONSE_ACCEPT, NULL);
@@ -211,14 +285,15 @@ bool ClientDialogHandlerGtk::OnFileDialog(
 
   if (mode_type == FILE_DIALOG_SAVE) {
     gtk_file_chooser_set_do_overwrite_confirmation(
-        GTK_FILE_CHOOSER(dialog), !!(mode & FILE_DIALOG_OVERWRITEPROMPT_FLAG));
+        GTK_FILE_CHOOSER(dialog),
+        !!(params.mode & FILE_DIALOG_OVERWRITEPROMPT_FLAG));
   }
 
-  gtk_file_chooser_set_show_hidden(GTK_FILE_CHOOSER(dialog),
-                                   !(mode & FILE_DIALOG_HIDEREADONLY_FLAG));
+  gtk_file_chooser_set_show_hidden(
+      GTK_FILE_CHOOSER(dialog), !(params.mode & FILE_DIALOG_HIDEREADONLY_FLAG));
 
-  if (!default_file_path.empty() && mode_type == FILE_DIALOG_SAVE) {
-    const std::string& file_path = default_file_path;
+  if (!params.default_file_path.empty() && mode_type == FILE_DIALOG_SAVE) {
+    const std::string& file_path = params.default_file_path;
     bool exists = false;
 
     struct stat sb;
@@ -237,10 +312,10 @@ bool ClientDialogHandlerGtk::OnFileDialog(
   }
 
   std::vector<GtkFileFilter*> filters;
-  AddFilters(GTK_FILE_CHOOSER(dialog), accept_filters, true, &filters);
-  if (selected_accept_filter < static_cast<int>(filters.size())) {
+  AddFilters(GTK_FILE_CHOOSER(dialog), params.accept_filters, true, &filters);
+  if (params.selected_accept_filter < static_cast<int>(filters.size())) {
     gtk_file_chooser_set_filter(GTK_FILE_CHOOSER(dialog),
-                                filters[selected_accept_filter]);
+                                filters[params.selected_accept_filter]);
   }
 
   bool success = false;
@@ -267,7 +342,7 @@ bool ClientDialogHandlerGtk::OnFileDialog(
     }
   }
 
-  int filter_index = selected_accept_filter;
+  int filter_index = params.selected_accept_filter;
   if (success) {
     GtkFileFilter* selected_filter =
         gtk_file_chooser_get_filter(GTK_FILE_CHOOSER(dialog));
@@ -284,27 +359,22 @@ bool ClientDialogHandlerGtk::OnFileDialog(
   gtk_widget_destroy(dialog);
 
   if (success)
-    callback->Continue(filter_index, files);
+    params.callback->Continue(filter_index, files);
   else
-    callback->Cancel();
-
-  return true;
+    params.callback->Cancel();
 }
 
-bool ClientDialogHandlerGtk::OnJSDialog(CefRefPtr<CefBrowser> browser,
-                                        const CefString& origin_url,
-                                        JSDialogType dialog_type,
-                                        const CefString& message_text,
-                                        const CefString& default_prompt_text,
-                                        CefRefPtr<CefJSDialogCallback> callback,
-                                        bool& suppress_message) {
+void ClientDialogHandlerGtk::OnJSDialogContinue(OnJSDialogParams params,
+                                                GtkWindow* window) {
   CEF_REQUIRE_UI_THREAD();
+
+  ScopedGdkThreadsEnter scoped_gdk_threads;
 
   GtkButtonsType buttons = GTK_BUTTONS_NONE;
   GtkMessageType gtk_message_type = GTK_MESSAGE_OTHER;
   std::string title;
 
-  switch (dialog_type) {
+  switch (params.dialog_type) {
     case JSDIALOGTYPE_ALERT:
       buttons = GTK_BUTTONS_NONE;
       gtk_message_type = GTK_MESSAGE_WARNING;
@@ -324,20 +394,16 @@ bool ClientDialogHandlerGtk::OnJSDialog(CefRefPtr<CefBrowser> browser,
       break;
   }
 
-  js_dialog_callback_ = callback;
+  js_dialog_callback_ = params.callback;
 
-  if (!origin_url.empty()) {
+  if (!params.origin_url.empty()) {
     title += " - ";
-    title += CefFormatUrlForSecurityDisplay(origin_url).ToString();
+    title += CefFormatUrlForSecurityDisplay(params.origin_url).ToString();
   }
-
-  GtkWindow* window = GetWindow(browser);
-  if (!window)
-    return false;
 
   gtk_dialog_ = gtk_message_dialog_new(GTK_WINDOW(window), GTK_DIALOG_MODAL,
                                        gtk_message_type, buttons, "%s",
-                                       message_text.ToString().c_str());
+                                       params.message_text.ToString().c_str());
   g_signal_connect(gtk_dialog_, "delete-event",
                    G_CALLBACK(gtk_widget_hide_on_delete), NULL);
 
@@ -346,15 +412,15 @@ bool ClientDialogHandlerGtk::OnJSDialog(CefRefPtr<CefBrowser> browser,
   GtkWidget* ok_button = gtk_dialog_add_button(GTK_DIALOG(gtk_dialog_),
                                                GTK_STOCK_OK, GTK_RESPONSE_OK);
 
-  if (dialog_type != JSDIALOGTYPE_PROMPT)
+  if (params.dialog_type != JSDIALOGTYPE_PROMPT)
     gtk_widget_grab_focus(ok_button);
 
-  if (dialog_type == JSDIALOGTYPE_PROMPT) {
+  if (params.dialog_type == JSDIALOGTYPE_PROMPT) {
     GtkWidget* content_area =
         gtk_dialog_get_content_area(GTK_DIALOG(gtk_dialog_));
     GtkWidget* text_box = gtk_entry_new();
     gtk_entry_set_text(GTK_ENTRY(text_box),
-                       default_prompt_text.ToString().c_str());
+                       params.default_prompt_text.ToString().c_str());
     gtk_box_pack_start(GTK_BOX(content_area), text_box, TRUE, TRUE, 0);
     g_object_set_data(G_OBJECT(gtk_dialog_), kPromptTextId, text_box);
     gtk_entry_set_activates_default(GTK_ENTRY(text_box), TRUE);
@@ -363,33 +429,21 @@ bool ClientDialogHandlerGtk::OnJSDialog(CefRefPtr<CefBrowser> browser,
   gtk_dialog_set_default_response(GTK_DIALOG(gtk_dialog_), GTK_RESPONSE_OK);
   g_signal_connect(gtk_dialog_, "response", G_CALLBACK(OnDialogResponse), this);
   gtk_widget_show_all(GTK_WIDGET(gtk_dialog_));
-
-  return true;
 }
 
-bool ClientDialogHandlerGtk::OnBeforeUnloadDialog(
+void ClientDialogHandlerGtk::GetWindowAndContinue(
     CefRefPtr<CefBrowser> browser,
-    const CefString& message_text,
-    bool is_reload,
-    CefRefPtr<CefJSDialogCallback> callback) {
-  CEF_REQUIRE_UI_THREAD();
-
-  const std::string& new_message_text =
-      message_text.ToString() + "\n\nIs it OK to leave/reload this page?";
-  bool suppress_message = false;
-
-  return OnJSDialog(browser, CefString(), JSDIALOGTYPE_CONFIRM,
-                    new_message_text, CefString(), callback, suppress_message);
-}
-
-void ClientDialogHandlerGtk::OnResetDialogState(CefRefPtr<CefBrowser> browser) {
-  CEF_REQUIRE_UI_THREAD();
-
-  if (!gtk_dialog_)
+    base::Callback<void(GtkWindow*)> callback) {
+  if (!CURRENTLY_ON_MAIN_THREAD()) {
+    MAIN_POST_CLOSURE(base::Bind(&ClientDialogHandlerGtk::GetWindowAndContinue,
+                                 this, browser, callback));
     return;
-  gtk_widget_destroy(gtk_dialog_);
-  gtk_dialog_ = NULL;
-  js_dialog_callback_ = NULL;
+  }
+
+  GtkWindow* window = GetWindow(browser);
+  if (window) {
+    CefPostTask(TID_UI, base::Bind(RunCallback, callback, window));
+  }
 }
 
 // static

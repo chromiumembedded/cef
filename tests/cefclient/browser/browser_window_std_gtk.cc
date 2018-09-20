@@ -14,6 +14,7 @@
 
 #include "include/base/cef_logging.h"
 #include "tests/cefclient/browser/client_handler_std.h"
+#include "tests/cefclient/browser/util_gtk.h"
 #include "tests/shared/browser/main_message_loop.h"
 
 namespace client {
@@ -21,14 +22,16 @@ namespace client {
 namespace {
 
 ::Window GetXWindowForWidget(GtkWidget* widget) {
+  ScopedGdkThreadsEnter scoped_gdk_threads;
+
   // The GTK window must be visible before we can retrieve the XID.
   ::Window xwindow = GDK_WINDOW_XID(gtk_widget_get_window(widget));
   DCHECK(xwindow);
   return xwindow;
 }
 
-void SetXWindowVisible(::Window xwindow, bool visible) {
-  ::Display* xdisplay = cef_get_xdisplay();
+void SetXWindowVisible(XDisplay* xdisplay, ::Window xwindow, bool visible) {
+  CHECK(xdisplay != 0);
 
   // Retrieve the atoms required by the below XChangeProperty call.
   const char* kAtoms[] = {"_NET_WM_STATE", "ATOM", "_NET_WM_STATE_HIDDEN"};
@@ -61,12 +64,13 @@ void SetXWindowVisible(::Window xwindow, bool visible) {
   }
 }
 
-void SetXWindowBounds(::Window xwindow,
+void SetXWindowBounds(XDisplay* xdisplay,
+                      ::Window xwindow,
                       int x,
                       int y,
                       size_t width,
                       size_t height) {
-  ::Display* xdisplay = cef_get_xdisplay();
+  CHECK(xdisplay != 0);
   XWindowChanges changes = {0};
   changes.x = x;
   changes.y = y;
@@ -79,8 +83,14 @@ void SetXWindowBounds(::Window xwindow,
 
 BrowserWindowStdGtk::BrowserWindowStdGtk(Delegate* delegate,
                                          const std::string& startup_url)
-    : BrowserWindow(delegate) {
+    : BrowserWindow(delegate), xdisplay_(nullptr) {
   client_handler_ = new ClientHandlerStd(this, startup_url);
+}
+
+void BrowserWindowStdGtk::set_xdisplay(XDisplay* xdisplay) {
+  REQUIRE_MAIN_THREAD();
+  DCHECK(!xdisplay_);
+  xdisplay_ = xdisplay;
 }
 
 void BrowserWindowStdGtk::CreateBrowser(
@@ -118,14 +128,14 @@ void BrowserWindowStdGtk::ShowPopup(ClientWindowHandle parent_handle,
 
   if (browser_) {
     ::Window parent_xwindow = GetXWindowForWidget(parent_handle);
-    ::Display* xdisplay = cef_get_xdisplay();
+    CHECK(xdisplay_ != 0);
     ::Window xwindow = browser_->GetHost()->GetWindowHandle();
     DCHECK(xwindow);
 
-    XReparentWindow(xdisplay, xwindow, parent_xwindow, x, y);
+    XReparentWindow(xdisplay_, xwindow, parent_xwindow, x, y);
 
-    SetXWindowBounds(xwindow, x, y, width, height);
-    SetXWindowVisible(xwindow, true);
+    SetXWindowBounds(xdisplay_, xwindow, x, y, width, height);
+    SetXWindowVisible(xdisplay_, xwindow, true);
   }
 }
 
@@ -135,7 +145,7 @@ void BrowserWindowStdGtk::Show() {
   if (browser_) {
     ::Window xwindow = browser_->GetHost()->GetWindowHandle();
     DCHECK(xwindow);
-    SetXWindowVisible(xwindow, true);
+    SetXWindowVisible(xdisplay_, xwindow, true);
   }
 }
 
@@ -145,7 +155,7 @@ void BrowserWindowStdGtk::Hide() {
   if (browser_) {
     ::Window xwindow = browser_->GetHost()->GetWindowHandle();
     DCHECK(xwindow);
-    SetXWindowVisible(xwindow, false);
+    SetXWindowVisible(xdisplay_, xwindow, false);
   }
 }
 
@@ -155,7 +165,7 @@ void BrowserWindowStdGtk::SetBounds(int x, int y, size_t width, size_t height) {
   if (browser_) {
     ::Window xwindow = browser_->GetHost()->GetWindowHandle();
     DCHECK(xwindow);
-    SetXWindowBounds(xwindow, x, y, width, height);
+    SetXWindowBounds(xdisplay_, xwindow, x, y, width, height);
   }
 }
 

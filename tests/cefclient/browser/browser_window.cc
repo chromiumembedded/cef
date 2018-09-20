@@ -42,6 +42,8 @@ void BrowserWindow::OnBrowserClosing(CefRefPtr<CefBrowser> browser) {
   REQUIRE_MAIN_THREAD();
   DCHECK_EQ(browser->GetIdentifier(), browser_->GetIdentifier());
   is_closing_ = true;
+
+  delegate_->OnBrowserWindowClosing();
 }
 
 void BrowserWindow::OnBrowserClosed(CefRefPtr<CefBrowser> browser) {

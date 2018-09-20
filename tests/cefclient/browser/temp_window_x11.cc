@@ -16,6 +16,7 @@ namespace {
 // Create the temp window.
 ::Window CreateTempWindow() {
   ::Display* xdisplay = cef_get_xdisplay();
+  CHECK(xdisplay != 0);
   ::Window parent_xwindow = DefaultRootWindow(xdisplay);
 
   XSetWindowAttributes swa;
@@ -33,6 +34,7 @@ namespace {
 // Close the temp window.
 void CloseTempWindow(::Window xwindow) {
   ::Display* xdisplay = cef_get_xdisplay();
+  CHECK(xdisplay != 0);
   XDestroyWindow(xdisplay, xwindow);
 }
 

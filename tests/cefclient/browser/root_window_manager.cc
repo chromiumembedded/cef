@@ -159,6 +159,11 @@ scoped_refptr<RootWindow> RootWindowManager::CreateRootWindowAsPopup(
     CefBrowserSettings& settings) {
   CEF_REQUIRE_UI_THREAD();
 
+  if (!temp_window_) {
+    // TempWindow must be created on the UI thread.
+    temp_window_.reset(new TempWindow());
+  }
+
   MainContext::Get()->PopulateBrowserSettings(&settings);
 
   scoped_refptr<RootWindow> root_window =
@@ -390,8 +395,9 @@ void RootWindowManager::OnRootWindowDestroyed(RootWindow* root_window) {
   }
 
   if (terminate_when_all_windows_closed_ && root_windows_.empty()) {
-    // Quit the main message loop after all windows have closed.
-    MainMessageLoop::Get()->Quit();
+    // All windows have closed. Clean up on the UI thread.
+    CefPostTask(TID_UI, base::Bind(&RootWindowManager::CleanupOnUIThread,
+                                   base::Unretained(this)));
   }
 }
 
@@ -438,6 +444,18 @@ void RootWindowManager::CreateExtensionWindow(
     CreateRootWindowAsExtension(extension, source_bounds, parent_window,
                                 close_callback, false, with_osr);
   }
+}
+
+void RootWindowManager::CleanupOnUIThread() {
+  CEF_REQUIRE_UI_THREAD();
+
+  if (temp_window_) {
+    // TempWindow must be destroyed on the UI thread.
+    temp_window_.reset(nullptr);
+  }
+
+  // Quit the main message loop.
+  MainMessageLoop::Get()->Quit();
 }
 
 }  // namespace client
