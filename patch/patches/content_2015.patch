@@ -364,7 +364,7 @@ index 2f1f46075b27..94f300dfea5d 100644
    virtual void FocusedNodeChanged(const blink::WebNode& node) {}
  
 diff --git content/renderer/render_frame_impl.cc content/renderer/render_frame_impl.cc
-index f6adabc683c0..e54a9ca14f10 100644
+index 9571ea0233e8..c7c4b0bb737b 100644
 --- content/renderer/render_frame_impl.cc
 +++ content/renderer/render_frame_impl.cc
 @@ -3473,7 +3473,8 @@ blink::WebPlugin* RenderFrameImpl::CreatePlugin(
@@ -377,7 +377,7 @@ index f6adabc683c0..e54a9ca14f10 100644
        params.mime_type.Utf8(), &found, &info, &mime_type));
    if (!found)
      return nullptr;
-@@ -3838,6 +3839,8 @@ void RenderFrameImpl::FrameDetached(DetachType type) {
+@@ -3847,6 +3848,8 @@ void RenderFrameImpl::FrameDetached(DetachType type) {
  
  void RenderFrameImpl::FrameFocused() {
    Send(new FrameHostMsg_FrameFocused(routing_id_));
@@ -387,10 +387,10 @@ index f6adabc683c0..e54a9ca14f10 100644
  
  void RenderFrameImpl::WillCommitProvisionalLoad() {
 diff --git content/renderer/render_thread_impl.cc content/renderer/render_thread_impl.cc
-index ca6a21b03082..a090b13d65e5 100644
+index c078565cef71..841601d8fc24 100644
 --- content/renderer/render_thread_impl.cc
 +++ content/renderer/render_thread_impl.cc
-@@ -866,6 +866,8 @@ void RenderThreadImpl::Init(
+@@ -865,6 +865,8 @@ void RenderThreadImpl::Init(
  
    StartServiceManagerConnection();
  

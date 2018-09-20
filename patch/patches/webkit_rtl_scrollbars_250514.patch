@@ -73,7 +73,7 @@ index fed51c0988ff..0954c1e7de21 100644
    LayoutRect DebugRect() const override;
  
 diff --git third_party/blink/renderer/core/paint/compositing/composited_layer_mapping.cc third_party/blink/renderer/core/paint/compositing/composited_layer_mapping.cc
-index c900e894b44e..47d04d54734a 100644
+index 5f13a443aff2..17066cc18e50 100644
 --- third_party/blink/renderer/core/paint/compositing/composited_layer_mapping.cc
 +++ third_party/blink/renderer/core/paint/compositing/composited_layer_mapping.cc
 @@ -1342,6 +1342,7 @@ void CompositedLayerMapping::ComputeGraphicsLayerParentLocation(

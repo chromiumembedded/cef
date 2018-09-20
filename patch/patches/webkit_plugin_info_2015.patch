@@ -65,7 +65,7 @@ index 976bae9c792b..10fb75b0af57 100644
  
  void WebDevToolsAgentImpl::Session::SendProtocolResponse(int session_id,
 diff --git third_party/blink/renderer/core/frame/local_frame.cc third_party/blink/renderer/core/frame/local_frame.cc
-index 464a41e6f278..7e29a6a66bf4 100644
+index 52810bba03b0..88f5bd7066c8 100644
 --- third_party/blink/renderer/core/frame/local_frame.cc
 +++ third_party/blink/renderer/core/frame/local_frame.cc
 @@ -1264,7 +1264,7 @@ FrameResourceCoordinator* LocalFrame::GetFrameResourceCoordinator() {
