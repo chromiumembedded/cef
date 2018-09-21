@@ -41,7 +41,6 @@
 #include "pdf/pdf_ppapi.h"
 #include "services/service_manager/sandbox/switches.h"
 #include "ui/base/layout.h"
-#include "ui/base/material_design/material_design_controller.h"
 #include "ui/base/resource/resource_bundle.h"
 #include "ui/base/ui_base_paths.h"
 #include "ui/base/ui_base_switches.h"
