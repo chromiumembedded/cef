@@ -1,5 +1,5 @@
 diff --git chrome/browser/BUILD.gn chrome/browser/BUILD.gn
-index 52ab34ca40a7..33f8673f54d4 100644
+index 52ab34ca40a7..51eb9d1db641 100644
 --- chrome/browser/BUILD.gn
 +++ chrome/browser/BUILD.gn
 @@ -8,6 +8,7 @@ import("//build/config/features.gni")
@@ -29,3 +29,12 @@ index 52ab34ca40a7..33f8673f54d4 100644
    if (is_android) {
      sources += [
        "after_startup_task_utils_android.cc",
+@@ -3505,7 +3511,7 @@ jumbo_split_static_library("browser") {
+     ]
+   }
+ 
+-  if (use_aura && !use_ozone && is_desktop_linux) {
++  if (use_aura && !use_ozone && is_desktop_linux && use_gtk) {
+     deps += [ "//chrome/browser/ui/libgtkui" ]
+   }
+ 
