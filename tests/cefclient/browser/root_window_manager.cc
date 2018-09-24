@@ -263,8 +263,12 @@ void RootWindowManager::CloseAllWindows(bool force) {
   if (root_windows_.empty())
     return;
 
-  RootWindowSet::const_iterator it = root_windows_.begin();
-  for (; it != root_windows_.end(); ++it)
+  // Use a copy of |root_windows_| because the original set may be modified
+  // in OnRootWindowDestroyed while iterating.
+  RootWindowSet root_windows = root_windows_;
+
+  RootWindowSet::const_iterator it = root_windows.begin();
+  for (; it != root_windows.end(); ++it)
     (*it)->Close(force);
 }
 
