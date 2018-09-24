@@ -789,6 +789,11 @@ typedef enum {
   // Segmentation fault.
   ///
   TS_PROCESS_CRASHED,
+
+  ///
+  // Out of memory. Some platforms may use TS_PROCESS_CRASHED instead.
+  ///
+  TS_PROCESS_OOM,
 } cef_termination_status_t;
 
 ///
