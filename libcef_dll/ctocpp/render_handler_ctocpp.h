@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=9e2bcb61512095fba2fca928f4696fbb39d9d3b1$
+// $hash=46dd8560076264a776129a02ba11e2c2f56bf209$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_RENDER_HANDLER_CTOCPP_H_
@@ -36,7 +36,7 @@ class CefRenderHandlerCToCpp
   // CefRenderHandler methods.
   CefRefPtr<CefAccessibilityHandler> GetAccessibilityHandler() override;
   bool GetRootScreenRect(CefRefPtr<CefBrowser> browser, CefRect& rect) override;
-  bool GetViewRect(CefRefPtr<CefBrowser> browser, CefRect& rect) override;
+  void GetViewRect(CefRefPtr<CefBrowser> browser, CefRect& rect) override;
   bool GetScreenPoint(CefRefPtr<CefBrowser> browser,
                       int viewX,
                       int viewY,

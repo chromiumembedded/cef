@@ -50,12 +50,15 @@ bool ClientHandlerOsr::GetRootScreenRect(CefRefPtr<CefBrowser> browser,
   return osr_delegate_->GetRootScreenRect(browser, rect);
 }
 
-bool ClientHandlerOsr::GetViewRect(CefRefPtr<CefBrowser> browser,
+void ClientHandlerOsr::GetViewRect(CefRefPtr<CefBrowser> browser,
                                    CefRect& rect) {
   CEF_REQUIRE_UI_THREAD();
-  if (!osr_delegate_)
-    return false;
-  return osr_delegate_->GetViewRect(browser, rect);
+  if (!osr_delegate_) {
+    // Never return an empty rectangle.
+    rect.width = rect.height = 1;
+    return;
+  }
+  osr_delegate_->GetViewRect(browser, rect);
 }
 
 bool ClientHandlerOsr::GetScreenPoint(CefRefPtr<CefBrowser> browser,

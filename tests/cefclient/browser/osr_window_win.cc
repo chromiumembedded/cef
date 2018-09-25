@@ -870,7 +870,7 @@ bool OsrWindowWin::GetRootScreenRect(CefRefPtr<CefBrowser> browser,
   return false;
 }
 
-bool OsrWindowWin::GetViewRect(CefRefPtr<CefBrowser> browser, CefRect& rect) {
+void OsrWindowWin::GetViewRect(CefRefPtr<CefBrowser> browser, CefRect& rect) {
   CEF_REQUIRE_UI_THREAD();
   DCHECK_GT(device_scale_factor_, 0);
 
@@ -879,7 +879,6 @@ bool OsrWindowWin::GetViewRect(CefRefPtr<CefBrowser> browser, CefRect& rect) {
                                device_scale_factor_);
   rect.height = DeviceToLogical(client_rect_.bottom - client_rect_.top,
                                 device_scale_factor_);
-  return true;
 }
 
 bool OsrWindowWin::GetScreenPoint(CefRefPtr<CefBrowser> browser,

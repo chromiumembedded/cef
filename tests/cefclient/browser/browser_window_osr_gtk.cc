@@ -1122,12 +1122,17 @@ bool BrowserWindowOsrGtk::GetRootScreenRect(CefRefPtr<CefBrowser> browser,
   return false;
 }
 
-bool BrowserWindowOsrGtk::GetViewRect(CefRefPtr<CefBrowser> browser,
+void BrowserWindowOsrGtk::GetViewRect(CefRefPtr<CefBrowser> browser,
                                       CefRect& rect) {
   CEF_REQUIRE_UI_THREAD();
 
-  if (!glarea_)
-    return false;
+  rect.x = rect.y = 0;
+
+  if (!glarea_) {
+    // Never return an empty rectangle.
+    rect.width = rect.height = 1;
+    return;
+  }
 
   float device_scale_factor;
   {
@@ -1137,11 +1142,9 @@ bool BrowserWindowOsrGtk::GetViewRect(CefRefPtr<CefBrowser> browser,
 
   // The simulated screen and view rectangle are the same. This is necessary
   // for popup menus to be located and sized inside the view.
-  rect.x = rect.y = 0;
   rect.width = DeviceToLogical(glarea_->allocation.width, device_scale_factor);
   rect.height =
       DeviceToLogical(glarea_->allocation.height, device_scale_factor);
-  return true;
 }
 
 bool BrowserWindowOsrGtk::GetScreenPoint(CefRefPtr<CefBrowser> browser,

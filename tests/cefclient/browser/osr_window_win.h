@@ -27,7 +27,7 @@ class OsrWindowWin
     : public base::RefCountedThreadSafe<OsrWindowWin, CefDeleteOnUIThread>,
       public ClientHandlerOsr::OsrDelegate
 #if defined(CEF_USE_ATL)
-      ,
+    ,
       public OsrDragEvents
 #endif
 {
@@ -114,7 +114,7 @@ class OsrWindowWin
   void OnAfterCreated(CefRefPtr<CefBrowser> browser) OVERRIDE;
   void OnBeforeClose(CefRefPtr<CefBrowser> browser) OVERRIDE;
   bool GetRootScreenRect(CefRefPtr<CefBrowser> browser, CefRect& rect) OVERRIDE;
-  bool GetViewRect(CefRefPtr<CefBrowser> browser, CefRect& rect) OVERRIDE;
+  void GetViewRect(CefRefPtr<CefBrowser> browser, CefRect& rect) OVERRIDE;
   bool GetScreenPoint(CefRefPtr<CefBrowser> browser,
                       int viewX,
                       int viewY,

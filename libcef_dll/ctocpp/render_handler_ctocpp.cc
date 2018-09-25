@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=bd2800111c1f3f3a5c6107d0454a2b5fe67067b6$
+// $hash=db89496c825cdc7fe1eaa4b7822d8492ae3a3f23$
 //
 
 #include "libcef_dll/ctocpp/render_handler_ctocpp.h"
@@ -59,25 +59,21 @@ bool CefRenderHandlerCToCpp::GetRootScreenRect(CefRefPtr<CefBrowser> browser,
 }
 
 NO_SANITIZE("cfi-icall")
-bool CefRenderHandlerCToCpp::GetViewRect(CefRefPtr<CefBrowser> browser,
+void CefRenderHandlerCToCpp::GetViewRect(CefRefPtr<CefBrowser> browser,
                                          CefRect& rect) {
   cef_render_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_view_rect))
-    return false;
+    return;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: browser; type: refptr_diff
   DCHECK(browser.get());
   if (!browser.get())
-    return false;
+    return;
 
   // Execute
-  int _retval =
-      _struct->get_view_rect(_struct, CefBrowserCppToC::Wrap(browser), &rect);
-
-  // Return type: bool
-  return _retval ? true : false;
+  _struct->get_view_rect(_struct, CefBrowserCppToC::Wrap(browser), &rect);
 }
 
 NO_SANITIZE("cfi-icall")

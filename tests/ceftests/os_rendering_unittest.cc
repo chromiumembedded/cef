@@ -324,13 +324,12 @@ class OSRTestHandler : public RoutingTestHandler,
   }
 
   // CefRenderHandler methods
-  bool GetViewRect(CefRefPtr<CefBrowser> browser, CefRect& rect) override {
+  void GetViewRect(CefRefPtr<CefBrowser> browser, CefRect& rect) override {
     if (test_type_ == OSR_TEST_RESIZE && started()) {
       rect = CefRect(0, 0, kOsrWidth * 2, kOsrHeight * 2);
-      return true;
+      return;
     }
     rect = CefRect(0, 0, kOsrWidth, kOsrHeight);
-    return true;
   }
 
   bool GetScreenPoint(CefRefPtr<CefBrowser> browser,

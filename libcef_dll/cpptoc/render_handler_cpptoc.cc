@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=98625368df8daaeca9df1791f1867828a6271a89$
+// $hash=6cf6466ab2a1b87a1b57b5994aab64992b9f12dd$
 //
 
 #include "libcef_dll/cpptoc/render_handler_cpptoc.h"
@@ -70,7 +70,7 @@ render_handler_get_root_screen_rect(struct _cef_render_handler_t* self,
   return _retval;
 }
 
-int CEF_CALLBACK
+void CEF_CALLBACK
 render_handler_get_view_rect(struct _cef_render_handler_t* self,
                              cef_browser_t* browser,
                              cef_rect_t* rect) {
@@ -78,29 +78,26 @@ render_handler_get_view_rect(struct _cef_render_handler_t* self,
 
   DCHECK(self);
   if (!self)
-    return 0;
+    return;
   // Verify param: browser; type: refptr_diff
   DCHECK(browser);
   if (!browser)
-    return 0;
+    return;
   // Verify param: rect; type: simple_byref
   DCHECK(rect);
   if (!rect)
-    return 0;
+    return;
 
   // Translate param: rect; type: simple_byref
   CefRect rectVal = rect ? *rect : CefRect();
 
   // Execute
-  bool _retval = CefRenderHandlerCppToC::Get(self)->GetViewRect(
+  CefRenderHandlerCppToC::Get(self)->GetViewRect(
       CefBrowserCToCpp::Wrap(browser), rectVal);
 
   // Restore param: rect; type: simple_byref
   if (rect)
     *rect = rectVal;
-
-  // Return type: bool
-  return _retval;
 }
 
 int CEF_CALLBACK

@@ -414,8 +414,12 @@ gfx::Rect CefRenderWidgetHostViewOSR::GetViewBounds() const {
   CefRect rc;
   CefRefPtr<CefRenderHandler> handler =
       browser_impl_->GetClient()->GetRenderHandler();
-  if (handler.get())
-    handler->GetViewRect(browser_impl_.get(), rc);
+  CHECK(handler);
+
+  handler->GetViewRect(browser_impl_.get(), rc);
+  CHECK_GT(rc.width, 0);
+  CHECK_GT(rc.height, 0);
+
   return gfx::Rect(rc.x, rc.y, rc.width, rc.height);
 }
 
@@ -557,8 +561,9 @@ void CefRenderWidgetHostViewOSR::InitAsPopup(
 
   CefRefPtr<CefRenderHandler> handler =
       browser_impl_->GetClient()->GetRenderHandler();
-  if (handler.get())
-    handler->OnPopupShow(browser_impl_.get(), true);
+  CHECK(handler);
+
+  handler->OnPopupShow(browser_impl_.get(), true);
 
   popup_position_ = pos;
 
@@ -595,8 +600,7 @@ void CefRenderWidgetHostViewOSR::UpdateCursor(
 
   CefRefPtr<CefRenderHandler> handler =
       browser_impl_->GetClient()->GetRenderHandler();
-  if (!handler.get())
-    return;
+  CHECK(handler);
 
   content::CursorInfo cursor_info;
   cursor.GetCursorInfo(&cursor_info);
@@ -717,25 +721,26 @@ void CefRenderWidgetHostViewOSR::GetScreenInfo(
 
   CefRefPtr<CefRenderHandler> handler =
       browser_impl_->client()->GetRenderHandler();
-  if (handler.get() &&
-      (!handler->GetScreenInfo(browser_impl_.get(), screen_info) ||
-       screen_info.rect.width == 0 || screen_info.rect.height == 0 ||
-       screen_info.available_rect.width == 0 ||
-       screen_info.available_rect.height == 0)) {
+  CHECK(handler);
+  if (!handler->GetScreenInfo(browser_impl_.get(), screen_info) ||
+      screen_info.rect.width == 0 || screen_info.rect.height == 0 ||
+      screen_info.available_rect.width == 0 ||
+      screen_info.available_rect.height == 0) {
     // If a screen rectangle was not provided, try using the view rectangle
     // instead. Otherwise, popup views may be drawn incorrectly, or not at all.
     CefRect screenRect;
-    if (!handler->GetViewRect(browser_impl_.get(), screenRect)) {
-      NOTREACHED();
-      screenRect = CefRect();
+    handler->GetViewRect(browser_impl_.get(), screenRect);
+    CHECK_GT(screenRect.width, 0);
+    CHECK_GT(screenRect.height, 0);
+
+    if (screen_info.rect.width == 0 || screen_info.rect.height == 0) {
+      screen_info.rect = screenRect;
     }
 
-    if (screen_info.rect.width == 0 && screen_info.rect.height == 0)
-      screen_info.rect = screenRect;
-
-    if (screen_info.available_rect.width == 0 &&
-        screen_info.available_rect.height == 0)
+    if (screen_info.available_rect.width == 0 ||
+        screen_info.available_rect.height == 0) {
       screen_info.available_rect = screenRect;
+    }
   }
 
   *results = ScreenInfoFrom(screen_info);
@@ -751,7 +756,8 @@ gfx::Rect CefRenderWidgetHostViewOSR::GetBoundsInRootWindow() {
   CefRect rc;
   CefRefPtr<CefRenderHandler> handler =
       browser_impl_->client()->GetRenderHandler();
-  if (handler.get() && handler->GetRootScreenRect(browser_impl_.get(), rc))
+  CHECK(handler);
+  if (handler->GetRootScreenRect(browser_impl_.get(), rc))
     return gfx::Rect(rc.x, rc.y, rc.width, rc.height);
   return GetViewBounds();
 }
@@ -852,11 +858,11 @@ void CefRenderWidgetHostViewOSR::SelectionChanged(const base::string16& text,
 
   CefRefPtr<CefRenderHandler> handler =
       browser_impl_->GetClient()->GetRenderHandler();
-  if (handler.get()) {
-    CefRange cef_range(range.start(), range.end());
-    handler->OnTextSelectionChanged(browser_impl_.get(), selected_text,
-                                    cef_range);
-  }
+  CHECK(handler);
+
+  CefRange cef_range(range.start(), range.end());
+  handler->OnTextSelectionChanged(browser_impl_.get(), selected_text,
+                                  cef_range);
 }
 
 #if !defined(OS_MACOSX)
@@ -1242,8 +1248,7 @@ void CefRenderWidgetHostViewOSR::OnPaint(const gfx::Rect& damage_rect,
 
   CefRefPtr<CefRenderHandler> handler =
       browser_impl_->client()->GetRenderHandler();
-  if (!handler.get())
-    return;
+  CHECK(handler);
 
   // Don't execute SynchronizeVisualProperties while the OnPaint callback is
   // pending.
@@ -1326,8 +1331,8 @@ void CefRenderWidgetHostViewOSR::SetDeviceScaleFactor() {
                               CefRect());
     CefRefPtr<CefRenderHandler> handler =
         browser_impl_->client()->GetRenderHandler();
-    if (handler.get() &&
-        handler->GetScreenInfo(browser_impl_.get(), screen_info)) {
+    CHECK(handler);
+    if (handler->GetScreenInfo(browser_impl_.get(), screen_info)) {
       new_scale_factor = screen_info.device_scale_factor;
     }
   }
@@ -1432,8 +1437,8 @@ void CefRenderWidgetHostViewOSR::CancelWidget() {
   if (IsPopupWidget() && browser_impl_.get()) {
     CefRefPtr<CefRenderHandler> handler =
         browser_impl_->client()->GetRenderHandler();
-    if (handler.get())
-      handler->OnPopupShow(browser_impl_.get(), false);
+    CHECK(handler);
+    handler->OnPopupShow(browser_impl_.get(), false);
     browser_impl_ = NULL;
   }
 
@@ -1467,11 +1472,9 @@ void CefRenderWidgetHostViewOSR::OnScrollOffsetChanged() {
   if (browser_impl_.get()) {
     CefRefPtr<CefRenderHandler> handler =
         browser_impl_->client()->GetRenderHandler();
-    if (handler.get()) {
-      handler->OnScrollOffsetChanged(browser_impl_.get(),
-                                     last_scroll_offset_.x(),
-                                     last_scroll_offset_.y());
-    }
+    CHECK(handler);
+    handler->OnScrollOffsetChanged(browser_impl_.get(), last_scroll_offset_.x(),
+                                   last_scroll_offset_.y());
   }
   is_scroll_offset_changed_pending_ = false;
 }
@@ -1534,10 +1537,9 @@ void CefRenderWidgetHostViewOSR::ImeCompositionRangeChanged(
 
     CefRefPtr<CefRenderHandler> handler =
         browser_impl_->GetClient()->GetRenderHandler();
-    if (handler.get()) {
-      handler->OnImeCompositionRangeChanged(browser_impl_->GetBrowser(),
-                                            cef_range, rcList);
-    }
+    CHECK(handler);
+    handler->OnImeCompositionRangeChanged(browser_impl_->GetBrowser(),
+                                          cef_range, rcList);
   }
 }
 

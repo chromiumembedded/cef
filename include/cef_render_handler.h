@@ -69,7 +69,8 @@ class CefRenderHandler : public virtual CefBaseRefCounted {
 
   ///
   // Called to retrieve the root window rectangle in screen coordinates. Return
-  // true if the rectangle was provided.
+  // true if the rectangle was provided. If this method returns false the
+  // rectangle from GetViewRect will be used.
   ///
   /*--cef()--*/
   virtual bool GetRootScreenRect(CefRefPtr<CefBrowser> browser, CefRect& rect) {
@@ -78,10 +79,10 @@ class CefRenderHandler : public virtual CefBaseRefCounted {
 
   ///
   // Called to retrieve the view rectangle which is relative to screen
-  // coordinates. Return true if the rectangle was provided.
+  // coordinates. This method must always provide a non-empty rectangle.
   ///
   /*--cef()--*/
-  virtual bool GetViewRect(CefRefPtr<CefBrowser> browser, CefRect& rect) = 0;
+  virtual void GetViewRect(CefRefPtr<CefBrowser> browser, CefRect& rect) = 0;
 
   ///
   // Called to retrieve the translation from view coordinates to actual screen

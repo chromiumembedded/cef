@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=f2f3acb1df9815e4ac9bf34010ce260a2496ae5a$
+// $hash=d259309846e69d866a834aa701bbf8c9562dd117$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_RENDER_HANDLER_CAPI_H_
@@ -68,7 +68,8 @@ typedef struct _cef_render_handler_t {
 
   ///
   // Called to retrieve the root window rectangle in screen coordinates. Return
-  // true (1) if the rectangle was provided.
+  // true (1) if the rectangle was provided. If this function returns false (0)
+  // the rectangle from GetViewRect will be used.
   ///
   int(CEF_CALLBACK* get_root_screen_rect)(struct _cef_render_handler_t* self,
                                           struct _cef_browser_t* browser,
@@ -76,11 +77,11 @@ typedef struct _cef_render_handler_t {
 
   ///
   // Called to retrieve the view rectangle which is relative to screen
-  // coordinates. Return true (1) if the rectangle was provided.
+  // coordinates. This function must always provide a non-NULL rectangle.
   ///
-  int(CEF_CALLBACK* get_view_rect)(struct _cef_render_handler_t* self,
-                                   struct _cef_browser_t* browser,
-                                   cef_rect_t* rect);
+  void(CEF_CALLBACK* get_view_rect)(struct _cef_render_handler_t* self,
+                                    struct _cef_browser_t* browser,
+                                    cef_rect_t* rect);
 
   ///
   // Called to retrieve the translation from view coordinates to actual screen

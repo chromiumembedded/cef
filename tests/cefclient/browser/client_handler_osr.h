@@ -27,7 +27,7 @@ class ClientHandlerOsr : public ClientHandler,
     // These methods match the CefRenderHandler interface.
     virtual bool GetRootScreenRect(CefRefPtr<CefBrowser> browser,
                                    CefRect& rect) = 0;
-    virtual bool GetViewRect(CefRefPtr<CefBrowser> browser, CefRect& rect) = 0;
+    virtual void GetViewRect(CefRefPtr<CefBrowser> browser, CefRect& rect) = 0;
     virtual bool GetScreenPoint(CefRefPtr<CefBrowser> browser,
                                 int viewX,
                                 int viewY,
@@ -87,7 +87,7 @@ class ClientHandlerOsr : public ClientHandler,
 
   // CefRenderHandler methods.
   bool GetRootScreenRect(CefRefPtr<CefBrowser> browser, CefRect& rect) OVERRIDE;
-  bool GetViewRect(CefRefPtr<CefBrowser> browser, CefRect& rect) OVERRIDE;
+  void GetViewRect(CefRefPtr<CefBrowser> browser, CefRect& rect) OVERRIDE;
   bool GetScreenPoint(CefRefPtr<CefBrowser> browser,
                       int viewX,
                       int viewY,
