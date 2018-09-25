@@ -252,6 +252,7 @@ void ClientDialogHandlerGtk::OnFileDialogContinue(OnFileDialogParams params,
   } else {
     NOTREACHED();
     params.callback->Cancel();
+    return;
   }
 
   std::string title_str;
