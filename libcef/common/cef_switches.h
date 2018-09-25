@@ -23,6 +23,7 @@ extern const char kLocalesDirPath[];
 extern const char kDisablePackLoading[];
 extern const char kUncaughtExceptionStackSize[];
 extern const char kDefaultEncoding[];
+extern const char kDisableJavascript[];
 extern const char kDisableJavascriptCloseWindows[];
 extern const char kDisableJavascriptAccessClipboard[];
 extern const char kDisableJavascriptDomPaste[];

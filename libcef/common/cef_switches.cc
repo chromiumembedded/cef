@@ -29,6 +29,9 @@ const char kUncaughtExceptionStackSize[] = "uncaught-exception-stack-size";
 // Default encoding.
 const char kDefaultEncoding[] = "default-encoding";
 
+// Disable JavaScript.
+const char kDisableJavascript[] = "disable-javascript";
+
 // Disable closing of windows via JavaScript.
 const char kDisableJavascriptCloseWindows[] =
     "disable-javascript-close-windows";

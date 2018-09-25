@@ -49,6 +49,8 @@ void SetDefaultPrefs(content::WebPreferences& web) {
   const base::CommandLine* command_line =
       base::CommandLine::ForCurrentProcess();
 
+  web.javascript_enabled =
+      !command_line->HasSwitch(switches::kDisableJavascript);
   web.allow_scripts_to_close_windows =
       !command_line->HasSwitch(switches::kDisableJavascriptCloseWindows);
   web.javascript_can_access_clipboard =
