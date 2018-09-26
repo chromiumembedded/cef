@@ -19,6 +19,8 @@ extern const char kOffScreenRenderingEnabled[];
 extern const char kOffScreenFrameRate[];
 extern const char kTransparentPaintingEnabled[];
 extern const char kShowUpdateRect[];
+extern const char kSharedTextureEnabled[];
+extern const char kExternalBeginFrameEnabled[];
 extern const char kMouseCursorChangeDisabled[];
 extern const char kRequestContextPerBrowser[];
 extern const char kRequestContextSharedCache[];

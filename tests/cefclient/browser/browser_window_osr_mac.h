@@ -23,7 +23,7 @@ class BrowserWindowOsrMac : public BrowserWindow,
   // |delegate| must outlive this object.
   BrowserWindowOsrMac(BrowserWindow::Delegate* delegate,
                       const std::string& startup_url,
-                      const OsrRenderer::Settings& settings);
+                      const OsrRendererSettings& settings);
   ~BrowserWindowOsrMac();
 
   // BrowserWindow methods.

@@ -10,7 +10,7 @@ namespace client {
 
 BrowserWindowOsrWin::BrowserWindowOsrWin(BrowserWindow::Delegate* delegate,
                                          const std::string& startup_url,
-                                         const OsrRenderer::Settings& settings)
+                                         const OsrRendererSettings& settings)
     : BrowserWindow(delegate), osr_hwnd_(NULL), device_scale_factor_(0) {
   osr_window_ = new OsrWindowWin(this, settings);
   client_handler_ = new ClientHandlerOsr(this, osr_window_.get(), startup_url);
@@ -36,6 +36,11 @@ void BrowserWindowOsrWin::GetPopupConfig(CefWindowHandle temp_handle,
   CEF_REQUIRE_UI_THREAD();
 
   windowInfo.SetAsWindowless(temp_handle);
+  windowInfo.shared_texture_enabled =
+      osr_window_->settings().shared_texture_enabled;
+  windowInfo.external_begin_frame_enabled =
+      osr_window_->settings().external_begin_frame_enabled;
+
   client = client_handler_;
 }
 

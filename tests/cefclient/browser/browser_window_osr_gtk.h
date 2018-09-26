@@ -24,7 +24,7 @@ class BrowserWindowOsrGtk : public BrowserWindow,
   // |delegate| must outlive this object.
   BrowserWindowOsrGtk(BrowserWindow::Delegate* delegate,
                       const std::string& startup_url,
-                      const OsrRenderer::Settings& settings);
+                      const OsrRendererSettings& settings);
 
   // Called from RootWindowGtk::CreateRootWindow before CreateBrowser.
   void set_xdisplay(XDisplay* xdisplay);

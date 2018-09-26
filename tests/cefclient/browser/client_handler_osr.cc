@@ -107,6 +107,17 @@ void ClientHandlerOsr::OnPaint(CefRefPtr<CefBrowser> browser,
   osr_delegate_->OnPaint(browser, type, dirtyRects, buffer, width, height);
 }
 
+void ClientHandlerOsr::OnAcceleratedPaint(
+    CefRefPtr<CefBrowser> browser,
+    CefRenderHandler::PaintElementType type,
+    const CefRenderHandler::RectList& dirtyRects,
+    void* share_handle) {
+  CEF_REQUIRE_UI_THREAD();
+  if (!osr_delegate_)
+    return;
+  osr_delegate_->OnAcceleratedPaint(browser, type, dirtyRects, share_handle);
+}
+
 void ClientHandlerOsr::OnCursorChange(CefRefPtr<CefBrowser> browser,
                                       CefCursorHandle cursor,
                                       CursorType type,

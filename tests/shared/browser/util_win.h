@@ -13,6 +13,9 @@
 
 namespace client {
 
+// Returns the current time in microseconds.
+uint64_t GetTimeNow();
+
 // Set the window's user data pointer.
 void SetUserDataPtr(HWND hWnd, void* ptr);
 

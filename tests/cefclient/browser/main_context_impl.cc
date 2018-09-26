@@ -46,6 +46,7 @@ MainContextImpl::MainContextImpl(CefRefPtr<CefCommandLine> command_line,
       shutdown_(false),
       background_color_(0),
       browser_background_color_(0),
+      windowless_frame_rate_(0),
       use_views_(false) {
   DCHECK(command_line_.get());
 
@@ -59,10 +60,38 @@ MainContextImpl::MainContextImpl(CefRefPtr<CefCommandLine> command_line,
   use_windowless_rendering_ =
       command_line_->HasSwitch(switches::kOffScreenRenderingEnabled);
 
+  if (use_windowless_rendering_ &&
+      command_line_->HasSwitch(switches::kOffScreenFrameRate)) {
+    windowless_frame_rate_ =
+        atoi(command_line_->GetSwitchValue(switches::kOffScreenFrameRate)
+                 .ToString()
+                 .c_str());
+  }
+
   // Whether transparent painting is used with windowless rendering.
   const bool use_transparent_painting =
       use_windowless_rendering_ &&
       command_line_->HasSwitch(switches::kTransparentPaintingEnabled);
+
+#if defined(OS_WIN)
+  // Shared texture is only supported on Windows.
+  shared_texture_enabled_ =
+      use_windowless_rendering_ &&
+      command_line_->HasSwitch(switches::kSharedTextureEnabled);
+#endif
+
+  external_begin_frame_enabled_ =
+      use_windowless_rendering_ &&
+      command_line_->HasSwitch(switches::kExternalBeginFrameEnabled);
+
+  if (windowless_frame_rate_ <= 0) {
+// Choose a reasonable default rate based on the OSR mode.
+#if defined(OS_WIN)
+    windowless_frame_rate_ = shared_texture_enabled_ ? 60 : 30;
+#else
+    windowless_frame_rate_ = 30;
+#endif
+  }
 
 #if defined(OS_WIN) || defined(OS_LINUX)
   // Whether the Views framework will be used.
@@ -156,20 +185,21 @@ void MainContextImpl::PopulateSettings(CefSettings* settings) {
 }
 
 void MainContextImpl::PopulateBrowserSettings(CefBrowserSettings* settings) {
-  if (command_line_->HasSwitch(switches::kOffScreenFrameRate)) {
-    settings->windowless_frame_rate =
-        atoi(command_line_->GetSwitchValue(switches::kOffScreenFrameRate)
-                 .ToString()
-                 .c_str());
-  }
+  settings->windowless_frame_rate = windowless_frame_rate_;
 
   if (browser_background_color_ != 0)
     settings->background_color = browser_background_color_;
 }
 
-void MainContextImpl::PopulateOsrSettings(OsrRenderer::Settings* settings) {
+void MainContextImpl::PopulateOsrSettings(OsrRendererSettings* settings) {
   settings->show_update_rect =
       command_line_->HasSwitch(switches::kShowUpdateRect);
+
+#if defined(OS_WIN)
+  settings->shared_texture_enabled = shared_texture_enabled_;
+#endif
+  settings->external_begin_frame_enabled = external_begin_frame_enabled_;
+  settings->begin_frame_rate = windowless_frame_rate_;
 
   if (browser_background_color_ != 0)
     settings->background_color = browser_background_color_;

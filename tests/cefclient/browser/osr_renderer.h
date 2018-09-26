@@ -8,20 +8,13 @@
 
 #include "include/cef_browser.h"
 #include "include/cef_render_handler.h"
+#include "tests/cefclient/browser/osr_renderer_settings.h"
 
 namespace client {
 
 class OsrRenderer {
  public:
-  struct Settings {
-    // If true draw a border around update rectangles.
-    bool show_update_rect;
-
-    // Background color. Enables transparency if the alpha component is 0.
-    cef_color_t background_color;
-  };
-
-  explicit OsrRenderer(const Settings& settings);
+  explicit OsrRenderer(const OsrRendererSettings& settings);
   ~OsrRenderer();
 
   // Initialize the OpenGL environment.
@@ -51,18 +44,19 @@ class OsrRenderer {
   int GetViewWidth() const { return view_width_; }
   int GetViewHeight() const { return view_height_; }
 
-  const CefRect& popup_rect() const { return popup_rect_; }
-  const CefRect& original_popup_rect() const { return original_popup_rect_; }
+  CefRect popup_rect() const { return popup_rect_; }
+  CefRect original_popup_rect() const { return original_popup_rect_; }
 
-  CefRect GetPopupRectInWebView(const CefRect& original_rect);
   void ClearPopupRects();
 
  private:
+  CefRect GetPopupRectInWebView(const CefRect& original_rect);
+
   inline bool IsTransparent() const {
     return CefColorGetA(settings_.background_color) == 0;
   };
 
-  const Settings settings_;
+  const OsrRendererSettings settings_;
   bool initialized_;
   unsigned int texture_id_;
   int view_width_;

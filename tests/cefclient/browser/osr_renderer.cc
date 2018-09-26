@@ -40,7 +40,7 @@
 
 namespace client {
 
-OsrRenderer::OsrRenderer(const Settings& settings)
+OsrRenderer::OsrRenderer(const OsrRendererSettings& settings)
     : settings_(settings),
       initialized_(false),
       texture_id_(0),

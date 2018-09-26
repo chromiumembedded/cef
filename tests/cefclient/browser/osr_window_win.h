@@ -13,7 +13,8 @@
 #include "tests/cefclient/browser/client_handler_osr.h"
 #include "tests/cefclient/browser/osr_accessibility_node.h"
 #include "tests/cefclient/browser/osr_dragdrop_win.h"
-#include "tests/cefclient/browser/osr_renderer.h"
+#include "tests/cefclient/browser/osr_render_handler_win.h"
+#include "tests/cefclient/browser/osr_renderer_settings.h"
 
 namespace client {
 
@@ -44,7 +45,7 @@ class OsrWindowWin
   };
 
   // |delegate| must outlive this object.
-  OsrWindowWin(Delegate* delegate, const OsrRenderer::Settings& settings);
+  OsrWindowWin(Delegate* delegate, const OsrRendererSettings& settings);
 
   // Create a new browser and native window.
   void CreateBrowser(HWND parent_hwnd,
@@ -63,6 +64,8 @@ class OsrWindowWin
   void SetFocus();
   void SetDeviceScaleFactor(float device_scale_factor);
 
+  const OsrRendererSettings& settings() const { return settings_; }
+
  private:
   // Only allow deletion via scoped_refptr.
   friend struct CefDeleteOnThread<TID_UI>;
@@ -73,14 +76,6 @@ class OsrWindowWin
   // Manage native window lifespan.
   void Create(HWND parent_hwnd, const RECT& rect);
   void Destroy();
-
-  // Manage GL context lifespan.
-  void EnableGL();
-  void DisableGL();
-
-  // Redraw what is currently in the texture.
-  void Invalidate();
-  void Render();
 
   void NotifyNativeWindowCreated(HWND hwnd);
 
@@ -130,6 +125,10 @@ class OsrWindowWin
                const void* buffer,
                int width,
                int height) OVERRIDE;
+  void OnAcceleratedPaint(CefRefPtr<CefBrowser> browser,
+                          CefRenderHandler::PaintElementType type,
+                          const CefRenderHandler::RectList& dirtyRects,
+                          void* share_handle) OVERRIDE;
   void OnCursorChange(CefRefPtr<CefBrowser> browser,
                       CefCursorHandle cursor,
                       CefRenderHandler::CursorType type,
@@ -163,14 +162,14 @@ class OsrWindowWin
       CefBrowserHost::DragOperationsMask effect) OVERRIDE;
 #endif  // defined(CEF_USE_ATL)
 
+  void EnsureRenderHandler();
+
   // Only accessed on the main thread.
   Delegate* delegate_;
 
-  // The below members are only accessed on the UI thread.
-  OsrRenderer renderer_;
+  const OsrRendererSettings settings_;
   HWND hwnd_;
-  HDC hdc_;
-  HGLRC hrc_;
+  std::unique_ptr<OsrRenderHandlerWin> render_handler_;
 
   // Class that encapsulates IMM32 APIs and controls IMEs attached to a window.
   scoped_ptr<OsrImeHandlerWin> ime_handler_;
@@ -190,8 +189,6 @@ class OsrWindowWin
   IAccessible* accessibility_root_;
 #endif
 
-  bool painting_popup_;
-  bool render_task_pending_;
   bool hidden_;
 
   // Mouse state tracking.

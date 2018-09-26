@@ -1956,6 +1956,7 @@ if (is_mac) {
 
       libs = [
         "comctl32.lib",
+        "d3d11.lib",
         "glu32.lib",
         "imm32.lib",
         "oleacc.lib",

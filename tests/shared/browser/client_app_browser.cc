@@ -21,15 +21,8 @@ void ClientAppBrowser::OnBeforeCommandLineProcessing(
   // Pass additional command-line flags to the browser process.
   if (process_type.empty()) {
     // Pass additional command-line flags when off-screen rendering is enabled.
-    if (command_line->HasSwitch(switches::kOffScreenRenderingEnabled)) {
-      // If the PDF extension is enabled then cc Surfaces must be disabled for
-      // PDFs to render correctly.
-      // See https://bitbucket.org/chromiumembedded/cef/issues/1689 for details.
-      if (!command_line->HasSwitch("disable-extensions") &&
-          !command_line->HasSwitch("disable-pdf-extension")) {
-        command_line->AppendSwitch("disable-surfaces");
-      }
-
+    if (command_line->HasSwitch(switches::kOffScreenRenderingEnabled) &&
+        !command_line->HasSwitch(switches::kSharedTextureEnabled)) {
       // Use software rendering and compositing (disable GPU) for increased FPS
       // and decreased CPU usage. This will also disable WebGL so remove these
       // switches if you need that capability.

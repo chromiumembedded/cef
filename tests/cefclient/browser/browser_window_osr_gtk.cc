@@ -930,7 +930,7 @@ class ScopedGLContext {
 
 BrowserWindowOsrGtk::BrowserWindowOsrGtk(BrowserWindow::Delegate* delegate,
                                          const std::string& startup_url,
-                                         const OsrRenderer::Settings& settings)
+                                         const OsrRendererSettings& settings)
     : BrowserWindow(delegate),
       xdisplay_(nullptr),
       renderer_(settings),

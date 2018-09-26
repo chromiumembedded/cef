@@ -14,6 +14,8 @@
 #include "tests/cefclient/browser/osr_accessibility_helper.h"
 #include "tests/cefclient/browser/osr_accessibility_node.h"
 #include "tests/cefclient/browser/osr_ime_handler_win.h"
+#include "tests/cefclient/browser/osr_render_handler_win_d3d11.h"
+#include "tests/cefclient/browser/osr_render_handler_win_gl.h"
 #include "tests/cefclient/browser/resource.h"
 #include "tests/shared/browser/geometry_util.h"
 #include "tests/shared/browser/main_message_loop.h"
@@ -25,44 +27,14 @@ namespace {
 
 const wchar_t kWndClass[] = L"Client_OsrWindow";
 
-// Render at 30fps during rotation.
-const int kRenderDelay = 1000 / 30;
-
-// Helper that calls wglMakeCurrent.
-class ScopedGLContext {
- public:
-  ScopedGLContext(HDC hdc, HGLRC hglrc, bool swap_buffers)
-      : hdc_(hdc), swap_buffers_(swap_buffers) {
-    BOOL result = wglMakeCurrent(hdc, hglrc);
-    ALLOW_UNUSED_LOCAL(result);
-    DCHECK(result);
-  }
-  ~ScopedGLContext() {
-    BOOL result = wglMakeCurrent(NULL, NULL);
-    DCHECK(result);
-    if (swap_buffers_) {
-      result = SwapBuffers(hdc_);
-      DCHECK(result);
-    }
-  }
-
- private:
-  const HDC hdc_;
-  const bool swap_buffers_;
-};
-
 }  // namespace
 
 OsrWindowWin::OsrWindowWin(Delegate* delegate,
-                           const OsrRenderer::Settings& settings)
+                           const OsrRendererSettings& settings)
     : delegate_(delegate),
-      renderer_(settings),
+      settings_(settings),
       hwnd_(NULL),
-      hdc_(NULL),
-      hrc_(NULL),
       device_scale_factor_(0),
-      painting_popup_(false),
-      render_task_pending_(false),
       hidden_(false),
       last_mouse_pos_(),
       current_mouse_pos_(),
@@ -80,7 +52,7 @@ OsrWindowWin::OsrWindowWin(Delegate* delegate,
 OsrWindowWin::~OsrWindowWin() {
   CEF_REQUIRE_UI_THREAD();
   // The native window should have already been destroyed.
-  DCHECK(!hwnd_);
+  DCHECK(!hwnd_ && !render_handler_.get());
 }
 
 void OsrWindowWin::CreateBrowser(HWND parent_hwnd,
@@ -102,6 +74,10 @@ void OsrWindowWin::CreateBrowser(HWND parent_hwnd,
 
   CefWindowInfo window_info;
   window_info.SetAsWindowless(hwnd_);
+
+  window_info.shared_texture_enabled = settings_.shared_texture_enabled;
+  window_info.external_begin_frame_enabled =
+      settings_.external_begin_frame_enabled;
 
   // Create the browser asynchronously.
   CefBrowserHost::CreateBrowser(window_info, handler, startup_url, settings,
@@ -126,6 +102,10 @@ void OsrWindowWin::ShowPopup(HWND parent_hwnd,
   const RECT rect = {x, y, x + static_cast<int>(width),
                      y + static_cast<int>(height)};
   Create(parent_hwnd, rect);
+
+  // Create the render handler.
+  EnsureRenderHandler();
+  render_handler_->SetBrowser(browser_);
 
   // Send resize notification so the compositor is assigned the correct
   // viewport size and begins rendering.
@@ -226,7 +206,7 @@ void OsrWindowWin::SetDeviceScaleFactor(float device_scale_factor) {
 
 void OsrWindowWin::Create(HWND parent_hwnd, const RECT& rect) {
   CEF_REQUIRE_UI_THREAD();
-  DCHECK(!hwnd_ && !hdc_ && !hrc_);
+  DCHECK(!hwnd_ && !render_handler_.get());
   DCHECK(parent_hwnd);
   DCHECK(!::IsRectEmpty(&rect));
 
@@ -278,88 +258,12 @@ void OsrWindowWin::Destroy() {
   drop_target_ = NULL;
 #endif
 
-  DisableGL();
+  render_handler_.reset();
 
   // Destroy the native window.
   ::DestroyWindow(hwnd_);
   ime_handler_.reset();
   hwnd_ = NULL;
-}
-
-void OsrWindowWin::EnableGL() {
-  CEF_REQUIRE_UI_THREAD();
-
-  PIXELFORMATDESCRIPTOR pfd;
-  int format;
-
-  // Get the device context.
-  hdc_ = GetDC(hwnd_);
-
-  // Set the pixel format for the DC.
-  ZeroMemory(&pfd, sizeof(pfd));
-  pfd.nSize = sizeof(pfd);
-  pfd.nVersion = 1;
-  pfd.dwFlags = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER;
-  pfd.iPixelType = PFD_TYPE_RGBA;
-  pfd.cColorBits = 24;
-  pfd.cDepthBits = 16;
-  pfd.iLayerType = PFD_MAIN_PLANE;
-  format = ChoosePixelFormat(hdc_, &pfd);
-  SetPixelFormat(hdc_, format, &pfd);
-
-  // Create and enable the render context.
-  hrc_ = wglCreateContext(hdc_);
-
-  ScopedGLContext scoped_gl_context(hdc_, hrc_, false);
-  renderer_.Initialize();
-}
-
-void OsrWindowWin::DisableGL() {
-  CEF_REQUIRE_UI_THREAD();
-
-  if (!hdc_)
-    return;
-
-  {
-    ScopedGLContext scoped_gl_context(hdc_, hrc_, false);
-    renderer_.Cleanup();
-  }
-
-  if (IsWindow(hwnd_)) {
-    // wglDeleteContext will make the context not current before deleting it.
-    BOOL result = wglDeleteContext(hrc_);
-    ALLOW_UNUSED_LOCAL(result);
-    DCHECK(result);
-    ReleaseDC(hwnd_, hdc_);
-  }
-
-  hdc_ = NULL;
-  hrc_ = NULL;
-}
-
-void OsrWindowWin::Invalidate() {
-  CEF_REQUIRE_UI_THREAD();
-
-  // Don't post another task if the previous task is still pending.
-  if (render_task_pending_)
-    return;
-  render_task_pending_ = true;
-
-  CefPostDelayedTask(TID_UI, base::Bind(&OsrWindowWin::Render, this),
-                     kRenderDelay);
-}
-
-void OsrWindowWin::Render() {
-  CEF_REQUIRE_UI_THREAD();
-
-  if (render_task_pending_)
-    render_task_pending_ = false;
-
-  if (!hdc_)
-    EnableGL();
-
-  ScopedGLContext scoped_gl_context(hdc_, hrc_, true);
-  renderer_.Render();
 }
 
 void OsrWindowWin::NotifyNativeWindowCreated(HWND hwnd) {
@@ -647,8 +551,7 @@ void OsrWindowWin::OnMouseEvent(UINT message, WPARAM wParam, LPARAM lParam) {
       if (mouse_rotation_) {
         // End rotation effect.
         mouse_rotation_ = false;
-        renderer_.SetSpin(0, 0);
-        Invalidate();
+        render_handler_->SetSpin(0, 0);
       } else {
         int x = GET_X_LPARAM(lParam);
         int y = GET_Y_LPARAM(lParam);
@@ -680,11 +583,11 @@ void OsrWindowWin::OnMouseEvent(UINT message, WPARAM wParam, LPARAM lParam) {
         // Apply rotation effect.
         current_mouse_pos_.x = x;
         current_mouse_pos_.y = y;
-        renderer_.IncrementSpin(current_mouse_pos_.x - last_mouse_pos_.x,
-                                current_mouse_pos_.y - last_mouse_pos_.y);
+        render_handler_->IncrementSpin(
+            current_mouse_pos_.x - last_mouse_pos_.x,
+            current_mouse_pos_.y - last_mouse_pos_.y);
         last_mouse_pos_.x = current_mouse_pos_.x;
         last_mouse_pos_.y = current_mouse_pos_.y;
-        Invalidate();
       } else {
         if (!mouse_tracking_) {
           // Start tracking mouse leave. Required for the WM_MOUSELEAVE event to
@@ -819,21 +722,17 @@ bool OsrWindowWin::OnEraseBkgnd() {
 }
 
 bool OsrWindowWin::IsOverPopupWidget(int x, int y) const {
-  CEF_REQUIRE_UI_THREAD();
-  const CefRect& rc = renderer_.popup_rect();
-  int popup_right = rc.x + rc.width;
-  int popup_bottom = rc.y + rc.height;
-  return (x >= rc.x) && (x < popup_right) && (y >= rc.y) && (y < popup_bottom);
+  if (!render_handler_)
+    return false;
+  return render_handler_->IsOverPopupWidget(x, y);
 }
 
 int OsrWindowWin::GetPopupXOffset() const {
-  CEF_REQUIRE_UI_THREAD();
-  return renderer_.original_popup_rect().x - renderer_.popup_rect().x;
+  return render_handler_->GetPopupXOffset();
 }
 
 int OsrWindowWin::GetPopupYOffset() const {
-  CEF_REQUIRE_UI_THREAD();
-  return renderer_.original_popup_rect().y - renderer_.popup_rect().y;
+  return render_handler_->GetPopupYOffset();
 }
 
 void OsrWindowWin::ApplyPopupOffset(int& x, int& y) const {
@@ -849,6 +748,12 @@ void OsrWindowWin::OnAfterCreated(CefRefPtr<CefBrowser> browser) {
   browser_ = browser;
 
   if (hwnd_) {
+    // The native window will already exist for non-popup browsers.
+    EnsureRenderHandler();
+    render_handler_->SetBrowser(browser);
+  }
+
+  if (hwnd_) {
     // Show the browser window. Called asynchronously so that the browser has
     // time to create associated internal objects.
     CefPostTask(TID_UI, base::Bind(&OsrWindowWin::Show, this));
@@ -861,6 +766,7 @@ void OsrWindowWin::OnBeforeClose(CefRefPtr<CefBrowser> browser) {
   static_cast<ClientHandlerOsr*>(browser_->GetHost()->GetClient().get())
       ->DetachOsrDelegate();
   browser_ = NULL;
+  render_handler_->SetBrowser(NULL);
   Destroy();
 }
 
@@ -922,20 +828,13 @@ bool OsrWindowWin::GetScreenInfo(CefRefPtr<CefBrowser> browser,
 }
 
 void OsrWindowWin::OnPopupShow(CefRefPtr<CefBrowser> browser, bool show) {
-  CEF_REQUIRE_UI_THREAD();
-
-  if (!show) {
-    renderer_.ClearPopupRects();
-    browser->GetHost()->Invalidate(PET_VIEW);
-  }
-  renderer_.OnPopupShow(browser, show);
+  render_handler_->OnPopupShow(browser, show);
 }
 
 void OsrWindowWin::OnPopupSize(CefRefPtr<CefBrowser> browser,
                                const CefRect& rect) {
-  CEF_REQUIRE_UI_THREAD();
-
-  renderer_.OnPopupSize(browser, LogicalToDevice(rect, device_scale_factor_));
+  render_handler_->OnPopupSize(browser,
+                               LogicalToDevice(rect, device_scale_factor_));
 }
 
 void OsrWindowWin::OnPaint(CefRefPtr<CefBrowser> browser,
@@ -944,23 +843,17 @@ void OsrWindowWin::OnPaint(CefRefPtr<CefBrowser> browser,
                            const void* buffer,
                            int width,
                            int height) {
-  CEF_REQUIRE_UI_THREAD();
+  EnsureRenderHandler();
+  render_handler_->OnPaint(browser, type, dirtyRects, buffer, width, height);
+}
 
-  if (painting_popup_) {
-    renderer_.OnPaint(browser, type, dirtyRects, buffer, width, height);
-    return;
-  }
-  if (!hdc_)
-    EnableGL();
-
-  ScopedGLContext scoped_gl_context(hdc_, hrc_, true);
-  renderer_.OnPaint(browser, type, dirtyRects, buffer, width, height);
-  if (type == PET_VIEW && !renderer_.popup_rect().IsEmpty()) {
-    painting_popup_ = true;
-    browser->GetHost()->Invalidate(PET_POPUP);
-    painting_popup_ = false;
-  }
-  renderer_.Render();
+void OsrWindowWin::OnAcceleratedPaint(
+    CefRefPtr<CefBrowser> browser,
+    CefRenderHandler::PaintElementType type,
+    const CefRenderHandler::RectList& dirtyRects,
+    void* share_handle) {
+  EnsureRenderHandler();
+  render_handler_->OnAcceleratedPaint(browser, type, dirtyRects, share_handle);
 }
 
 void OsrWindowWin::OnCursorChange(CefRefPtr<CefBrowser> browser,
@@ -1091,6 +984,31 @@ CefBrowserHost::DragOperationsMask OsrWindowWin::OnDrop(
     browser_->GetHost()->DragTargetDrop(ev);
   }
   return current_drag_op_;
+}
+
+void OsrWindowWin::EnsureRenderHandler() {
+  CEF_REQUIRE_UI_THREAD();
+  if (!render_handler_) {
+    if (settings_.shared_texture_enabled) {
+      // Try to initialize D3D11 rendering.
+      auto render_handler = new OsrRenderHandlerWinD3D11(settings_, hwnd_);
+      if (render_handler->Initialize(browser_,
+                                     client_rect_.right - client_rect_.left,
+                                     client_rect_.bottom - client_rect_.top)) {
+        render_handler_.reset(render_handler);
+      } else {
+        LOG(ERROR) << "Failed to initialize D3D11 rendering.";
+        delete render_handler;
+      }
+    }
+
+    // Fall back to GL rendering.
+    if (!render_handler_) {
+      auto render_handler = new OsrRenderHandlerWinGL(settings_, hwnd_);
+      render_handler->Initialize(browser_);
+      render_handler_.reset(render_handler);
+    }
+  }
 }
 
 #endif  // defined(CEF_USE_ATL)

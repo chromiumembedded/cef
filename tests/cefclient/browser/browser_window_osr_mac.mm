@@ -1208,7 +1208,7 @@ namespace client {
 
 BrowserWindowOsrMac::BrowserWindowOsrMac(BrowserWindow::Delegate* delegate,
                                          const std::string& startup_url,
-                                         const OsrRenderer::Settings& settings)
+                                         const OsrRendererSettings& settings)
     : BrowserWindow(delegate),
       renderer_(settings),
       nsview_(NULL),

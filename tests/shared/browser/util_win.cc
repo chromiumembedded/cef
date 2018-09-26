@@ -8,6 +8,22 @@
 
 namespace client {
 
+namespace {
+
+LARGE_INTEGER qi_freq_ = {};
+
+}  // namespace
+
+uint64_t GetTimeNow() {
+  if (!qi_freq_.HighPart && !qi_freq_.LowPart) {
+    QueryPerformanceFrequency(&qi_freq_);
+  }
+  LARGE_INTEGER t = {};
+  QueryPerformanceCounter(&t);
+  return static_cast<uint64_t>((t.QuadPart / double(qi_freq_.QuadPart)) *
+                               1000000);
+}
+
 void SetUserDataPtr(HWND hWnd, void* ptr) {
   SetLastError(ERROR_SUCCESS);
   LONG_PTR result =
