@@ -1371,7 +1371,11 @@ void BrowserWindowOsrMac::GetViewRect(CefRefPtr<CefBrowser> browser,
 
   // Convert to browser view coordinates.
   rect.width = DeviceToLogical(bounds.size.width, device_scale_factor);
+  if (rect.width == 0)
+    rect.width = 1;
   rect.height = DeviceToLogical(bounds.size.height, device_scale_factor);
+  if (rect.height == 0)
+    rect.height = 1;
 }
 
 bool BrowserWindowOsrMac::GetScreenPoint(CefRefPtr<CefBrowser> browser,

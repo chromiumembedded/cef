@@ -47,6 +47,7 @@ OsrWindowWin::OsrWindowWin(Delegate* delegate,
       last_click_time_(0),
       last_mouse_down_on_view_(false) {
   DCHECK(delegate_);
+  client_rect_ = {0};
 }
 
 OsrWindowWin::~OsrWindowWin() {
@@ -783,8 +784,12 @@ void OsrWindowWin::GetViewRect(CefRefPtr<CefBrowser> browser, CefRect& rect) {
   rect.x = rect.y = 0;
   rect.width = DeviceToLogical(client_rect_.right - client_rect_.left,
                                device_scale_factor_);
+  if (rect.width == 0)
+    rect.width = 1;
   rect.height = DeviceToLogical(client_rect_.bottom - client_rect_.top,
                                 device_scale_factor_);
+  if (rect.height == 0)
+    rect.height = 1;
 }
 
 bool OsrWindowWin::GetScreenPoint(CefRefPtr<CefBrowser> browser,
