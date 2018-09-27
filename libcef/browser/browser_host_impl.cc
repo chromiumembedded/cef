@@ -1231,6 +1231,11 @@ void CefBrowserHostImpl::SendMouseMoveEvent(const CefMouseEvent& event,
 void CefBrowserHostImpl::SendMouseWheelEvent(const CefMouseEvent& event,
                                              int deltaX,
                                              int deltaY) {
+  if (deltaX == 0 && deltaY == 0) {
+    // Nothing to do.
+    return;
+  }
+
   if (!CEF_CURRENTLY_ON_UIT()) {
     CEF_POST_TASK(CEF_UIT,
                   base::BindOnce(&CefBrowserHostImpl::SendMouseWheelEvent, this,
