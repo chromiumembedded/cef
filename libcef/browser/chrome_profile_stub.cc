@@ -53,7 +53,6 @@ bool ChromeProfileStub::IsChild() const {
 }
 
 bool ChromeProfileStub::IsLegacySupervised() const {
-  NOTREACHED();
   return false;
 }
 

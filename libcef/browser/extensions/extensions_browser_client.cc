@@ -259,6 +259,11 @@ bool CefExtensionsBrowserClient::IsInDemoMode() {
   return false;
 }
 
+bool CefExtensionsBrowserClient::IsScreensaverInDemoMode(
+    const std::string& app_id) {
+  return false;
+}
+
 bool CefExtensionsBrowserClient::IsRunningInForcedAppMode() {
   return false;
 }

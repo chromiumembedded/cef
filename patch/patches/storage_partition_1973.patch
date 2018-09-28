@@ -599,10 +599,10 @@ index 51f91bdd7e2f..a67745058ed3 100644
              std::move(subresource_loader_factories), service_worker_context_,
              appcache_handle_core,
 diff --git content/browser/storage_partition_impl.h content/browser/storage_partition_impl.h
-index 6f6c5c1e504a..097095a613dd 100644
+index 78110a30b23a..f387d99af595 100644
 --- content/browser/storage_partition_impl.h
 +++ content/browser/storage_partition_impl.h
-@@ -95,7 +95,7 @@ class CONTENT_EXPORT StoragePartitionImpl
+@@ -97,7 +97,7 @@ class CONTENT_EXPORT StoragePartitionImpl
    storage::FileSystemContext* GetFileSystemContext() override;
    storage::DatabaseTracker* GetDatabaseTracker() override;
    DOMStorageContextWrapper* GetDOMStorageContext() override;
@@ -611,7 +611,7 @@ index 6f6c5c1e504a..097095a613dd 100644
    IndexedDBContextImpl* GetIndexedDBContext() override;
    CacheStorageContextImpl* GetCacheStorageContext() override;
    ServiceWorkerContextWrapper* GetServiceWorkerContext() override;
-@@ -136,14 +136,14 @@ class CONTENT_EXPORT StoragePartitionImpl
+@@ -138,14 +138,14 @@ class CONTENT_EXPORT StoragePartitionImpl
    void FlushNetworkInterfaceForTesting() override;
    void WaitForDeletionTasksForTesting() override;
  
@@ -634,9 +634,9 @@ index 6f6c5c1e504a..097095a613dd 100644
  
    // blink::mojom::StoragePartitionService interface.
    void OpenLocalStorage(const url::Origin& origin,
-@@ -152,18 +152,19 @@ class CONTENT_EXPORT StoragePartitionImpl
-       const std::string& namespace_id,
-       blink::mojom::SessionStorageNamespaceRequest request) override;
+@@ -159,18 +159,19 @@ class CONTENT_EXPORT StoragePartitionImpl
+       const std::vector<url::Origin>& origins,
+       OnCanSendReportingReportsCallback callback) override;
  
 -  scoped_refptr<URLLoaderFactoryGetter> url_loader_factory_getter() {
 -    return url_loader_factory_getter_;
@@ -658,7 +658,7 @@ index 6f6c5c1e504a..097095a613dd 100644
  
    auto& bindings_for_testing() { return bindings_; }
  
-@@ -174,10 +175,11 @@ class CONTENT_EXPORT StoragePartitionImpl
+@@ -181,10 +182,11 @@ class CONTENT_EXPORT StoragePartitionImpl
    // one must use the "chrome-guest://blahblah" site URL to ensure that the
    // service worker stays in this StoragePartition. This is an empty GURL if
    // this StoragePartition is not for guests.
