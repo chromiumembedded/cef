@@ -34,6 +34,7 @@
 #include "components/visitedlink/browser/visitedlink_event_listener.h"
 #include "components/visitedlink/browser/visitedlink_master.h"
 #include "components/zoom/zoom_event_manager.h"
+#include "content/public/browser/browser_task_traits.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/download_manager.h"
 #include "content/public/browser/storage_partition.h"
@@ -284,7 +285,8 @@ void CefBrowserContextImpl::Initialize() {
 
   // Initialize proxy configuration tracker.
   pref_proxy_config_tracker_.reset(new PrefProxyConfigTrackerImpl(
-      GetPrefs(), BrowserThread::GetTaskRunnerForThread(BrowserThread::IO)));
+      GetPrefs(),
+      base::CreateSingleThreadTaskRunnerWithTraits({BrowserThread::IO})));
 
   CefBrowserContext::PostInitialize();
 
@@ -445,7 +447,7 @@ net::URLRequestContextGetter* CefBrowserContextImpl::CreateRequestContext(
   DCHECK(!url_request_getter_.get());
 
   auto io_thread_runner =
-      content::BrowserThread::GetTaskRunnerForThread(BrowserThread::IO);
+      base::CreateSingleThreadTaskRunnerWithTraits({BrowserThread::IO});
 
   // Initialize the proxy configuration service.
   // TODO(cef): Determine if we can use the Chrome/Mojo implementation from

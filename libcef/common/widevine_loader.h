@@ -7,10 +7,10 @@
 #pragma once
 
 #include "build/build_config.h"
+#include "media/media_buildflags.h"
+#include "third_party/widevine/cdm/buildflags.h"
 
-#include "widevine_cdm_version.h"  // In SHARED_INTERMEDIATE_DIR.
-
-#if defined(WIDEVINE_CDM_AVAILABLE) && BUILDFLAG(ENABLE_LIBRARY_CDMS)
+#if BUILDFLAG(ENABLE_WIDEVINE) && BUILDFLAG(ENABLE_LIBRARY_CDMS)
 
 #include <vector>
 
@@ -65,6 +65,6 @@ class CefWidevineLoader {
   ~CefWidevineLoader();
 };
 
-#endif  // defined(WIDEVINE_CDM_AVAILABLE) && BUILDFLAG(ENABLE_LIBRARY_CDMS)
+#endif  // BUILDFLAG(ENABLE_WIDEVINE) && BUILDFLAG(ENABLE_LIBRARY_CDMS)
 
 #endif  // CEF_LIBCEF_COMMON_WIDEVINE_LOADER_H_

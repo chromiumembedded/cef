@@ -46,7 +46,7 @@ class CefFileDialogManager : public content::WebContentsObserver {
   // Called from CefBrowserHostImpl::RunFileChooser.
   // See WebContentsDelegate::RunFileChooser documentation.
   void RunFileChooser(content::RenderFrameHost* render_frame_host,
-                      const content::FileChooserParams& params);
+                      const blink::mojom::FileChooserParams& params);
 
   // Run the file chooser dialog specified by |params|. Only a single dialog may
   // be pending at any given time. |callback| will be executed asynchronously
@@ -69,16 +69,16 @@ class CefFileDialogManager : public content::WebContentsObserver {
       const std::vector<base::FilePath>& file_paths);
 
   // Used with WebContentsDelegate::RunFileChooser when mode is
-  // content::FileChooserParams::UploadFolder.
+  // blink::mojom::FileChooserParams::Mode::kUploadFolder.
   void OnRunFileChooserUploadFolderDelegateCallback(
-      const content::FileChooserParams::Mode mode,
+      const blink::mojom::FileChooserParams::Mode mode,
       int selected_accept_filter,
       const std::vector<base::FilePath>& file_paths);
 
   // Used with WebContentsDelegate::RunFileChooser to notify the
   // RenderFrameHost.
   void OnRunFileChooserDelegateCallback(
-      content::FileChooserParams::Mode mode,
+      blink::mojom::FileChooserParams::Mode mode,
       int selected_accept_filter,
       const std::vector<base::FilePath>& file_paths);
 

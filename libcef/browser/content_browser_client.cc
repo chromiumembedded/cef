@@ -93,6 +93,7 @@
 #include "services/service_manager/sandbox/switches.h"
 #include "storage/browser/quota/quota_settings.h"
 #include "third_party/blink/public/web/web_window_features.h"
+#include "third_party/widevine/cdm/buildflags.h"
 #include "ui/base/l10n/l10n_util.h"
 #include "ui/base/resource/resource_bundle.h"
 #include "ui/base/ui_base_switches.h"
@@ -739,7 +740,7 @@ void CefContentBrowserClient::AppendExtraCommandLineSwitches(
     command_line->CopySwitchesFrom(*browser_cmd, kSwitchNames,
                                    arraysize(kSwitchNames));
 
-#if defined(WIDEVINE_CDM_AVAILABLE) && BUILDFLAG(ENABLE_LIBRARY_CDMS)
+#if BUILDFLAG(ENABLE_WIDEVINE) && BUILDFLAG(ENABLE_LIBRARY_CDMS)
     if (!browser_cmd->HasSwitch(service_manager::switches::kNoSandbox)) {
       // Pass the Widevine CDM path to the Zygote process. See comments in
       // CefWidevineLoader::AddContentDecryptionModules.
@@ -1085,16 +1086,20 @@ bool CefContentBrowserClient::WillCreateURLLoaderFactory(
     content::BrowserContext* browser_context,
     content::RenderFrameHost* frame,
     bool is_navigation,
-    const GURL& url,
-    network::mojom::URLLoaderFactoryRequest* factory_request) {
+    const url::Origin& request_initiator,
+    network::mojom::URLLoaderFactoryRequest* factory_request,
+    bool* bypass_redirect_checks) {
   if (!extensions::ExtensionsEnabled())
     return false;
 
   auto* web_request_api =
       extensions::BrowserContextKeyedAPIFactory<extensions::WebRequestAPI>::Get(
           browser_context);
-  return web_request_api->MaybeProxyURLLoaderFactory(frame, is_navigation,
-                                                     factory_request);
+  bool use_proxy = web_request_api->MaybeProxyURLLoaderFactory(
+      frame, is_navigation, factory_request);
+  if (bypass_redirect_checks)
+    *bypass_redirect_checks = use_proxy;
+  return use_proxy;
 }
 
 bool CefContentBrowserClient::HandleExternalProtocol(

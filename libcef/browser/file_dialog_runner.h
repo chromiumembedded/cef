@@ -11,14 +11,14 @@
 
 #include "base/callback.h"
 #include "base/files/file_path.h"
-#include "content/public/common/file_chooser_params.h"
+#include "third_party/blink/public/mojom/choosers/file_chooser.mojom.h"
 
 class CefBrowserHostImpl;
 
 class CefFileDialogRunner {
  public:
-  // Extend content::FileChooserParams with some options unique to CEF.
-  struct FileChooserParams : public content::FileChooserParams {
+  // Extend blink::mojom::FileChooserParams with some options unique to CEF.
+  struct FileChooserParams : public blink::mojom::FileChooserParams {
     // 0-based index of the selected value in |accept_types|.
     int selected_accept_filter = 0;
 

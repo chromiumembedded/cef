@@ -56,7 +56,7 @@ void GoBack(blink::WebView* view) {
     return;
   blink::WebViewImpl* impl = reinterpret_cast<blink::WebViewImpl*>(view);
   if (impl->Client()->HistoryBackListCount() > 0)
-    impl->Client()->NavigateBackForwardSoon(-1);
+    impl->Client()->NavigateBackForwardSoon(-1, true /* has_user_gesture */);
 }
 
 void GoForward(blink::WebView* view) {
@@ -64,7 +64,7 @@ void GoForward(blink::WebView* view) {
     return;
   blink::WebViewImpl* impl = reinterpret_cast<blink::WebViewImpl*>(view);
   if (impl->Client()->HistoryForwardListCount() > 0)
-    impl->Client()->NavigateBackForwardSoon(1);
+    impl->Client()->NavigateBackForwardSoon(1, true /* has_user_gesture */);
 }
 
 std::string DumpDocumentText(blink::WebLocalFrame* frame) {

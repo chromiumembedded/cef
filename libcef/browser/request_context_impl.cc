@@ -18,6 +18,7 @@
 #include "base/logging.h"
 #include "base/strings/stringprintf.h"
 #include "components/prefs/pref_service.h"
+#include "content/public/browser/browser_task_traits.h"
 #include "content/public/browser/plugin_service.h"
 #include "content/public/browser/ssl_host_state_delegate.h"
 #include "net/http/http_cache.h"
@@ -201,7 +202,7 @@ void CefRequestContextImpl::GetRequestContextImpl(
   } else {
     // Need to initialize the browser context first.
     GetBrowserContextOnUIThread(
-        BrowserThread::GetTaskRunnerForThread(BrowserThread::IO),
+        base::CreateSingleThreadTaskRunnerWithTraits({BrowserThread::IO}),
         base::Bind(&CefRequestContextImpl::GetRequestContextImplOnIOThread,
                    this, task_runner, callback));
   }
@@ -304,7 +305,7 @@ bool CefRequestContextImpl::RegisterSchemeHandlerFactory(
     const CefString& domain_name,
     CefRefPtr<CefSchemeHandlerFactory> factory) {
   GetRequestContextImpl(
-      BrowserThread::GetTaskRunnerForThread(BrowserThread::IO),
+      base::CreateSingleThreadTaskRunnerWithTraits({BrowserThread::IO}),
       base::Bind(&CefRequestContextImpl::RegisterSchemeHandlerFactoryInternal,
                  this, scheme_name, domain_name, factory));
   return true;
@@ -312,7 +313,7 @@ bool CefRequestContextImpl::RegisterSchemeHandlerFactory(
 
 bool CefRequestContextImpl::ClearSchemeHandlerFactories() {
   GetRequestContextImpl(
-      BrowserThread::GetTaskRunnerForThread(BrowserThread::IO),
+      base::CreateSingleThreadTaskRunnerWithTraits({BrowserThread::IO}),
       base::Bind(&CefRequestContextImpl::ClearSchemeHandlerFactoriesInternal,
                  this));
   return true;
@@ -320,7 +321,7 @@ bool CefRequestContextImpl::ClearSchemeHandlerFactories() {
 
 void CefRequestContextImpl::PurgePluginListCache(bool reload_pages) {
   GetBrowserContext(
-      BrowserThread::GetTaskRunnerForThread(BrowserThread::UI),
+      base::CreateSingleThreadTaskRunnerWithTraits({BrowserThread::UI}),
       base::Bind(&CefRequestContextImpl::PurgePluginListCacheInternal, this,
                  reload_pages));
 }
@@ -452,7 +453,7 @@ bool CefRequestContextImpl::SetPreference(const CefString& name,
 void CefRequestContextImpl::ClearCertificateExceptions(
     CefRefPtr<CefCompletionCallback> callback) {
   GetBrowserContext(
-      BrowserThread::GetTaskRunnerForThread(BrowserThread::UI),
+      base::CreateSingleThreadTaskRunnerWithTraits({BrowserThread::UI}),
       base::Bind(&CefRequestContextImpl::ClearCertificateExceptionsInternal,
                  this, callback));
 }
@@ -460,7 +461,7 @@ void CefRequestContextImpl::ClearCertificateExceptions(
 void CefRequestContextImpl::CloseAllConnections(
     CefRefPtr<CefCompletionCallback> callback) {
   GetRequestContextImpl(
-      BrowserThread::GetTaskRunnerForThread(BrowserThread::IO),
+      base::CreateSingleThreadTaskRunnerWithTraits({BrowserThread::IO}),
       base::Bind(&CefRequestContextImpl::CloseAllConnectionsInternal, this,
                  callback));
 }
@@ -469,7 +470,7 @@ void CefRequestContextImpl::ResolveHost(
     const CefString& origin,
     CefRefPtr<CefResolveCallback> callback) {
   GetRequestContextImpl(
-      BrowserThread::GetTaskRunnerForThread(BrowserThread::IO),
+      base::CreateSingleThreadTaskRunnerWithTraits({BrowserThread::IO}),
       base::Bind(&CefRequestContextImpl::ResolveHostInternal, this, origin,
                  callback));
 }

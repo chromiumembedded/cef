@@ -202,22 +202,11 @@ WEBUI_TEST(webui_hosts);
 
 TEST(WebUITest, net_internals) {
   UrlList url_list;
-  url_list.push_back("chrome://net-internals/#capture");
-  url_list.push_back("chrome://net-internals/#import");
-  url_list.push_back("chrome://net-internals/#proxy");
   url_list.push_back("chrome://net-internals/#events");
-  url_list.push_back("chrome://net-internals/#timeline");
+  url_list.push_back("chrome://net-internals/#proxy");
   url_list.push_back("chrome://net-internals/#dns");
   url_list.push_back("chrome://net-internals/#sockets");
-  url_list.push_back("chrome://net-internals/#alt-svc");
-  url_list.push_back("chrome://net-internals/#http2");
-  url_list.push_back("chrome://net-internals/#quic");
-  url_list.push_back("chrome://net-internals/#sdch");
-  url_list.push_back("chrome://net-internals/#httpCache");
-  url_list.push_back("chrome://net-internals/#modules");
   url_list.push_back("chrome://net-internals/#hsts");
-  url_list.push_back("chrome://net-internals/#bandwidth");
-  url_list.push_back("chrome://net-internals/#prerender");
 
   RunWebUITest(url_list);
 }

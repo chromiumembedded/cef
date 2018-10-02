@@ -97,7 +97,9 @@ class CefPrintViewManagerBase : public content::NotificationObserver,
                           const PrintHostMsg_DidPrintDocument_Params& params);
 
   // IPC message handlers for service.
-  void OnComposePdfDone(const PrintHostMsg_DidPrintDocument_Params& params,
+  void OnComposePdfDone(const gfx::Size& page_size,
+                        const gfx::Rect& content_area,
+                        const gfx::Point& physical_offsets,
                         mojom::PdfCompositor::Status status,
                         base::ReadOnlySharedMemoryRegion region);
 

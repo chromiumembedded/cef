@@ -18,7 +18,7 @@ CefExtensionsDispatcherDelegate::~CefExtensionsDispatcherDelegate() {}
 void CefExtensionsDispatcherDelegate::PopulateSourceMap(
     extensions::ResourceBundleSourceMap* source_map) {
   // These bindings are unnecessary with native bindings enabled.
-  if (!base::FeatureList::IsEnabled(extensions::features::kNativeCrxBindings)) {
+  if (!base::FeatureList::IsEnabled(extensions_features::kNativeCrxBindings)) {
     // Custom types sources.
     source_map->RegisterSource("ContentSetting", IDR_CONTENT_SETTING_JS);
   }

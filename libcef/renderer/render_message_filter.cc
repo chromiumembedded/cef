@@ -10,7 +10,9 @@
 
 #include "base/bind.h"
 #include "base/message_loop/message_loop.h"
+#include "base/task/post_task.h"
 #include "chrome/common/render_messages.h"
+#include "content/public/browser/browser_task_traits.h"
 #include "content/public/browser/browser_thread.h"
 #include "third_party/blink/public/platform/web_string.h"
 #include "third_party/blink/public/web/web_security_policy.h"
@@ -53,8 +55,8 @@ bool CefRenderMessageFilter::Send(IPC::Message* message) {
   }
 
   if (!BrowserThread::CurrentlyOn(BrowserThread::IO)) {
-    BrowserThread::PostTask(
-        BrowserThread::IO, FROM_HERE,
+    base::PostTaskWithTraits(
+        FROM_HERE, {content::BrowserThread::IO},
         base::Bind(base::IgnoreResult(&CefRenderMessageFilter::Send), this,
                    message));
     return true;

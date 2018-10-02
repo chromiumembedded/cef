@@ -21,10 +21,12 @@
 #include "base/strings/string_number_conversions.h"
 #include "base/strings/stringprintf.h"
 #include "base/strings/utf_string_conversions.h"
+#include "base/task/post_task.h"
 #include "base/values.h"
 #include "chrome/common/pref_names.h"
 #include "components/prefs/scoped_user_pref_update.h"
 #include "content/public/browser/browser_context.h"
+#include "content/public/browser/browser_task_traits.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/navigation_handle.h"
 #include "content/public/browser/render_frame_host.h"
@@ -87,8 +89,8 @@ int ResponseWriter::Write(net::IOBuffer* buffer,
   base::Value* id = new base::Value(stream_id_);
   base::Value* chunkValue = new base::Value(chunk);
 
-  content::BrowserThread::PostTask(
-      content::BrowserThread::UI, FROM_HERE,
+  base::PostTaskWithTraits(
+      FROM_HERE, {content::BrowserThread::UI},
       base::BindOnce(&CefDevToolsFrontend::CallClientFunction, shell_devtools_,
                      "DevToolsAPI.streamWrite", base::Owned(id),
                      base::Owned(chunkValue), nullptr));
@@ -168,9 +170,9 @@ void CefDevToolsFrontend::InspectElementAt(int x, int y) {
 }
 
 void CefDevToolsFrontend::Close() {
-  content::BrowserThread::PostTask(content::BrowserThread::UI, FROM_HERE,
-                                   base::Bind(&CefBrowserHostImpl::CloseBrowser,
-                                              frontend_browser_.get(), true));
+  base::PostTaskWithTraits(FROM_HERE, {content::BrowserThread::UI},
+                           base::Bind(&CefBrowserHostImpl::CloseBrowser,
+                                      frontend_browser_.get(), true));
 }
 
 void CefDevToolsFrontend::DisconnectFromTarget() {

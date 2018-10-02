@@ -27,10 +27,10 @@ index 53c7404ef1f9..ac33df7cfe0e 100644
    auto* browser_context = web_contents->GetBrowserContext();
    StreamsPrivateAPI* streams_private = GetStreamsPrivateAPI(browser_context);
 diff --git content/browser/frame_host/render_frame_host_manager.cc content/browser/frame_host/render_frame_host_manager.cc
-index 49ad391a3133..b7216126976b 100644
+index 1281c89a231b..4826f71f72ef 100644
 --- content/browser/frame_host/render_frame_host_manager.cc
 +++ content/browser/frame_host/render_frame_host_manager.cc
-@@ -928,10 +928,11 @@ bool RenderFrameHostManager::ShouldSwapBrowsingInstancesForNavigation(
+@@ -923,10 +923,11 @@ bool RenderFrameHostManager::ShouldSwapBrowsingInstancesForNavigation(
    // TODO(alexmos): This check should've been enforced earlier in the
    // navigation, in chrome::Navigate().  Verify this, and then convert this to
    // a CHECK and remove the fallback.
@@ -46,7 +46,7 @@ index 49ad391a3133..b7216126976b 100644
      return true;
    }
  
-@@ -1070,7 +1071,8 @@ RenderFrameHostManager::GetSiteInstanceForNavigation(
+@@ -1065,7 +1066,8 @@ RenderFrameHostManager::GetSiteInstanceForNavigation(
  
    // Double-check that the new SiteInstance is associated with the right
    // BrowserContext.
@@ -57,10 +57,10 @@ index 49ad391a3133..b7216126976b 100644
    // If |new_instance| is a new SiteInstance for a subframe that requires a
    // dedicated process, set its process reuse policy so that such subframes are
 diff --git content/public/browser/content_browser_client.h content/public/browser/content_browser_client.h
-index bc2b501331e9..acf916d35479 100644
+index 1342f701016f..d867ddf1145e 100644
 --- content/public/browser/content_browser_client.h
 +++ content/public/browser/content_browser_client.h
-@@ -422,6 +422,13 @@ class CONTENT_EXPORT ContentBrowserClient {
+@@ -423,6 +423,13 @@ class CONTENT_EXPORT ContentBrowserClient {
    // Returns true if error page should be isolated in its own process.
    virtual bool ShouldIsolateErrorPage(bool in_main_frame);
  
@@ -180,7 +180,7 @@ index ad1ef1bd0b8f..8014a61c5083 100644
    // A weak pointer to the current or pending RenderViewHost. We don't access
    // this through the host_contents because we want to deal with the pending
 diff --git extensions/browser/extensions_browser_client.h extensions/browser/extensions_browser_client.h
-index 7e0c178e1e36..98066c8437a1 100644
+index 5a2533dc788f..b21e25a9af25 100644
 --- extensions/browser/extensions_browser_client.h
 +++ extensions/browser/extensions_browser_client.h
 @@ -61,6 +61,7 @@ class ComponentExtensionResourceManager;
@@ -191,7 +191,7 @@ index 7e0c178e1e36..98066c8437a1 100644
  class ExtensionHostDelegate;
  class ExtensionPrefsObserver;
  class ExtensionApiFrameIdMap;
-@@ -132,6 +133,11 @@ class ExtensionsBrowserClient {
+@@ -133,6 +134,11 @@ class ExtensionsBrowserClient {
    virtual content::BrowserContext* GetOriginalContext(
        content::BrowserContext* context) = 0;
  
@@ -203,7 +203,7 @@ index 7e0c178e1e36..98066c8437a1 100644
  #if defined(OS_CHROMEOS)
    // Returns a user id hash from |context| or an empty string if no hash could
    // be extracted.
-@@ -214,6 +220,14 @@ class ExtensionsBrowserClient {
+@@ -215,6 +221,14 @@ class ExtensionsBrowserClient {
    virtual std::unique_ptr<ExtensionHostDelegate>
    CreateExtensionHostDelegate() = 0;
  
@@ -219,7 +219,7 @@ index 7e0c178e1e36..98066c8437a1 100644
    // once each time the extensions system is loaded per browser_context. The
    // implementation may wish to use the BrowserContext to record the current
 diff --git extensions/browser/process_manager.cc extensions/browser/process_manager.cc
-index ceb2f535caab..6e57be3d9241 100644
+index 6e97fdb3ee30..cd81ef1e67bc 100644
 --- extensions/browser/process_manager.cc
 +++ extensions/browser/process_manager.cc
 @@ -358,9 +358,16 @@ bool ProcessManager::CreateBackgroundHost(const Extension* extension,

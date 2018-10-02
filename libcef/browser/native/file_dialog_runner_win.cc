@@ -499,17 +499,19 @@ void CefFileDialogRunnerWin::Run(CefBrowserHostImpl* browser,
 
   HWND owner = browser->GetWindowHandle();
 
-  if (params.mode == content::FileChooserParams::Open) {
+  if (params.mode == blink::mojom::FileChooserParams::Mode::kOpen) {
     base::FilePath file;
     if (RunOpenFileDialog(params, owner, &filter_index, &file))
       files.push_back(file);
-  } else if (params.mode == content::FileChooserParams::OpenMultiple) {
+  } else if (params.mode ==
+             blink::mojom::FileChooserParams::Mode::kOpenMultiple) {
     RunOpenMultiFileDialog(params, owner, &filter_index, &files);
-  } else if (params.mode == content::FileChooserParams::UploadFolder) {
+  } else if (params.mode ==
+             blink::mojom::FileChooserParams::Mode::kUploadFolder) {
     base::FilePath file;
     if (RunOpenFolderDialog(params, owner, &file))
       files.push_back(file);
-  } else if (params.mode == content::FileChooserParams::Save) {
+  } else if (params.mode == blink::mojom::FileChooserParams::Mode::kSave) {
     base::FilePath file;
     if (RunSaveFileDialog(params, owner, &filter_index, &file))
       files.push_back(file);

@@ -77,11 +77,11 @@ bool CefTraceSubscriber::BeginTracing(
     // reference to |done_callback| after execution.
     callback = new CefCompletionCallbackWrapper(callback);
     done_callback =
-        base::Bind(&CefCompletionCallback::OnComplete, callback.get());
+        base::BindOnce(&CefCompletionCallback::OnComplete, callback.get());
   }
 
   TracingController::GetInstance()->StartTracing(
-      base::trace_event::TraceConfig(categories, ""), done_callback);
+      base::trace_event::TraceConfig(categories, ""), std::move(done_callback));
   return true;
 }
 

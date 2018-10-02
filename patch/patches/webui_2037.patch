@@ -35,10 +35,10 @@ index dfe0f29dc772..606f07a1d1ed 100644
        extensions::ExtensionRegistry::Get(profile);
    std::string extensions_list;
 diff --git chrome/browser/memory_details.cc chrome/browser/memory_details.cc
-index 660cfdb7ea24..5ac15334064e 100644
+index 3280b5e9fd6b..13ef1b99191e 100644
 --- chrome/browser/memory_details.cc
 +++ chrome/browser/memory_details.cc
-@@ -16,6 +16,7 @@
+@@ -17,6 +17,7 @@
  #include "base/task/post_task.h"
  #include "build/build_config.h"
  #include "chrome/browser/profiles/profile.h"
@@ -46,7 +46,7 @@ index 660cfdb7ea24..5ac15334064e 100644
  #include "components/nacl/common/nacl_process_type.h"
  #include "components/strings/grit/components_strings.h"
  #include "content/public/browser/browser_child_process_host_iterator.h"
-@@ -250,8 +251,11 @@ void MemoryDetails::CollectChildInfoOnUIThread() {
+@@ -252,8 +253,11 @@ void MemoryDetails::CollectChildInfoOnUIThread() {
  
  #if BUILDFLAG(ENABLE_EXTENSIONS)
      // Determine if this is an extension process.
@@ -59,88 +59,6 @@ index 660cfdb7ea24..5ac15334064e 100644
        content::BrowserContext* context =
            render_process_host->GetBrowserContext();
        extensions::ExtensionRegistry* extension_registry =
-diff --git chrome/browser/ui/webui/net_internals/net_internals_ui.cc chrome/browser/ui/webui/net_internals/net_internals_ui.cc
-index 76652731b926..ec2b6ad11cdb 100644
---- chrome/browser/ui/webui/net_internals/net_internals_ui.cc
-+++ chrome/browser/ui/webui/net_internals/net_internals_ui.cc
-@@ -527,41 +527,31 @@ void NetInternalsMessageHandler::OnClearBrowserCache(
- void NetInternalsMessageHandler::OnGetPrerenderInfo(
-     const base::ListValue* list) {
-   DCHECK_CURRENTLY_ON(BrowserThread::UI);
--  SendJavascriptCommand(
--      "receivedPrerenderInfo",
--      chrome_browser_net::GetPrerenderInfo(Profile::FromWebUI(web_ui())));
-+  SendJavascriptCommand("receivedPrerenderInfo", nullptr);
- }
- 
- void NetInternalsMessageHandler::OnGetHistoricNetworkStats(
-     const base::ListValue* list) {
-   DCHECK_CURRENTLY_ON(BrowserThread::UI);
--  SendJavascriptCommand("receivedHistoricNetworkStats",
--                        chrome_browser_net::GetHistoricNetworkStats(
--                            Profile::FromWebUI(web_ui())));
-+  SendJavascriptCommand("receivedHistoricNetworkStats", nullptr);
- }
- 
- void NetInternalsMessageHandler::OnGetSessionNetworkStats(
-     const base::ListValue* list) {
-   DCHECK_CURRENTLY_ON(BrowserThread::UI);
--  SendJavascriptCommand(
--      "receivedSessionNetworkStats",
--      chrome_browser_net::GetSessionNetworkStats(Profile::FromWebUI(web_ui())));
-+  SendJavascriptCommand("receivedSessionNetworkStats", nullptr);
- }
- 
- void NetInternalsMessageHandler::OnGetExtensionInfo(
-     const base::ListValue* list) {
-   DCHECK_CURRENTLY_ON(BrowserThread::UI);
--  SendJavascriptCommand(
--      "receivedExtensionInfo",
--      chrome_browser_net::GetExtensionInfo(Profile::FromWebUI(web_ui())));
-+  SendJavascriptCommand("receivedExtensionInfo", nullptr);
- }
- 
- void NetInternalsMessageHandler::OnGetDataReductionProxyInfo(
-     const base::ListValue* list) {
-   DCHECK_CURRENTLY_ON(BrowserThread::UI);
--  SendJavascriptCommand("receivedDataReductionProxyInfo",
--                        chrome_browser_net::GetDataReductionProxyInfo(
--                            Profile::FromWebUI(web_ui())));
-+  SendJavascriptCommand("receivedDataReductionProxyInfo", nullptr);
- }
- 
- ////////////////////////////////////////////////////////////////////////////////
-@@ -641,9 +631,17 @@ void NetInternalsMessageHandler::IOThreadImpl::OnRendererReady(
- 
-   PrePopulateEventList();
- 
--  // Register with network stack to observe events.
--  io_thread_->net_log()->AddObserver(
--      this, net::NetLogCaptureMode::IncludeCookiesAndCredentials());
-+  net::NetLog* net_log = nullptr;
-+  if (io_thread_)
-+    net_log = io_thread_->net_log();
-+  else
-+    net_log = g_browser_process->net_log();
-+
-+  if (net_log) {
-+    // Register with network stack to observe events.
-+    net_log->AddObserver(
-+        this, net::NetLogCaptureMode::IncludeCookiesAndCredentials());
-+  }
- }
- 
- void NetInternalsMessageHandler::IOThreadImpl::OnGetNetInfo(
-@@ -1141,7 +1139,8 @@ void NetInternalsMessageHandler::IOThreadImpl::PrePopulateEventList() {
-   std::set<net::URLRequestContext*> contexts;
-   for (const auto& getter : context_getters_)
-     contexts.insert(getter->GetURLRequestContext());
--  contexts.insert(io_thread_->globals()->system_request_context);
-+  if (io_thread_)
-+    contexts.insert(io_thread_->globals()->system_request_context);
- 
-   // Add entries for ongoing network objects.
-   CreateNetLogEntriesForActiveObjects(contexts, this);
 diff --git content/browser/resource_context_impl.cc content/browser/resource_context_impl.cc
 index 261e9343b8a2..0fe566c705a4 100644
 --- content/browser/resource_context_impl.cc
@@ -170,10 +88,10 @@ index 903cc543a242..5bd30ae82974 100644
  CONTENT_EXPORT void InitializeResourceContext(BrowserContext* browser_context);
  
 diff --git content/browser/webui/url_data_manager.cc content/browser/webui/url_data_manager.cc
-index fca1d4aa6161..a14e34dae591 100644
+index a9f5cfc95d4a..d5281ccab3b4 100644
 --- content/browser/webui/url_data_manager.cc
 +++ content/browser/webui/url_data_manager.cc
-@@ -150,6 +150,11 @@ void URLDataManager::UpdateWebUIDataSource(
+@@ -156,6 +156,11 @@ void URLDataManager::UpdateWebUIDataSource(
        ->UpdateWebUIDataSource(source_name, std::move(update));
  }
  

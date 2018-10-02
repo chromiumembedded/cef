@@ -121,7 +121,7 @@ content::RenderWidgetHostViewBase* CefWebContentsViewOSR::CreateViewForWidget(
 
 // Called for popup and fullscreen widgets.
 content::RenderWidgetHostViewBase*
-CefWebContentsViewOSR::CreateViewForPopupWidget(
+CefWebContentsViewOSR::CreateViewForChildWidget(
     content::RenderWidgetHost* render_widget_host) {
   CefRenderWidgetHostViewOSR* view = GetView();
   CHECK(view);
@@ -151,12 +151,6 @@ void CefWebContentsViewOSR::RenderViewHostChanged(
 void CefWebContentsViewOSR::SetOverscrollControllerEnabled(bool enabled) {}
 
 #if defined(OS_MACOSX)
-void CefWebContentsViewOSR::SetAllowOtherViews(bool allow) {}
-
-bool CefWebContentsViewOSR::GetAllowOtherViews() const {
-  return false;
-}
-
 bool CefWebContentsViewOSR::IsEventTracking() const {
   return false;
 }

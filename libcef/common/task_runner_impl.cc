@@ -12,6 +12,7 @@
 #include "base/logging.h"
 #include "base/message_loop/message_loop.h"
 #include "base/threading/thread_task_runner_handle.h"
+#include "content/public/browser/browser_task_traits.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/child_process_launcher_utils.h"
 
@@ -85,8 +86,8 @@ scoped_refptr<base::SingleThreadTaskRunner> CefTaskRunnerImpl::GetTaskRunner(
 
   if (id >= 0 &&
       BrowserThread::IsThreadInitialized(static_cast<BrowserThread::ID>(id))) {
-    return BrowserThread::GetTaskRunnerForThread(
-        static_cast<BrowserThread::ID>(id));
+    return base::CreateSingleThreadTaskRunnerWithTraits(
+        {static_cast<BrowserThread::ID>(id)});
   }
 
   return NULL;
@@ -102,7 +103,7 @@ CefTaskRunnerImpl::GetCurrentTaskRunner() {
   BrowserThread::ID current_id;
   if (BrowserThread::GetCurrentThreadIdentifier(&current_id) &&
       BrowserThread::IsThreadInitialized(current_id)) {
-    task_runner = BrowserThread::GetTaskRunnerForThread(current_id);
+    task_runner = base::CreateSingleThreadTaskRunnerWithTraits({current_id});
   }
 
   if (!task_runner.get()) {

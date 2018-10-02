@@ -49,7 +49,7 @@ class CefWebContentsViewOSR : public content::WebContentsView,
   content::RenderWidgetHostViewBase* CreateViewForWidget(
       content::RenderWidgetHost* render_widget_host,
       content::RenderWidgetHost* embedder_render_widget_host) override;
-  content::RenderWidgetHostViewBase* CreateViewForPopupWidget(
+  content::RenderWidgetHostViewBase* CreateViewForChildWidget(
       content::RenderWidgetHost* render_widget_host) override;
   void SetPageTitle(const base::string16& title) override;
   void RenderViewCreated(content::RenderViewHost* host) override;
@@ -59,8 +59,6 @@ class CefWebContentsViewOSR : public content::WebContentsView,
   void SetOverscrollControllerEnabled(bool enabled) override;
 
 #if defined(OS_MACOSX)
-  void SetAllowOtherViews(bool allow) override;
-  bool GetAllowOtherViews() const override;
   bool IsEventTracking() const override;
   void CloseTabAfterEventTracking() override;
 #endif

@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=ef8abd4a01fe1047abc0d2ab1c359704611a60ac$
+// $hash=13ef0e12e6fdc3a0be38656c71b913a4eaaab61b$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_RENDER_HANDLER_CAPI_H_
@@ -131,7 +131,8 @@ typedef struct _cef_render_handler_t {
   // contains the pixel data for the whole image. |dirtyRects| contains the set
   // of rectangles in pixel coordinates that need to be repainted. |buffer| will
   // be |width|*|height|*4 bytes in size and represents a BGRA image with an
-  // upper-left origin.
+  // upper-left origin. This function is only called when
+  // cef_window_tInfo::shared_texture_enabled is set to false (0).
   ///
   void(CEF_CALLBACK* on_paint)(struct _cef_render_handler_t* self,
                                struct _cef_browser_t* browser,
@@ -143,9 +144,13 @@ typedef struct _cef_render_handler_t {
                                int height);
 
   ///
-  // Called when an view has been rendered to the given shared texture handle.
-  // Currently, the shared handle represents a D3D11 Texture2D that can be
-  // accessed with the OpenSharedResource function available from a ID3D11Device
+  // Called when an element has been rendered to the shared texture handle.
+  // |type| indicates whether the element is the view or the popup widget.
+  // |dirtyRects| contains the set of rectangles in pixel coordinates that need
+  // to be repainted. |shared_handle| is the handle for a D3D11 Texture2D that
+  // can be accessed via ID3D11Device using the OpenSharedResource function.
+  // This function is only called when cef_window_tInfo::shared_texture_enabled
+  // is set to true (1), and is currently only supported on Windows.
   ///
   void(CEF_CALLBACK* on_accelerated_paint)(struct _cef_render_handler_t* self,
                                            struct _cef_browser_t* browser,

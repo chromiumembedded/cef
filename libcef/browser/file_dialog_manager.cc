@@ -176,16 +176,16 @@ void CefFileDialogManager::RunFileDialog(
   CefFileDialogRunner::FileChooserParams params;
   switch (mode & FILE_DIALOG_TYPE_MASK) {
     case FILE_DIALOG_OPEN:
-      params.mode = content::FileChooserParams::Open;
+      params.mode = blink::mojom::FileChooserParams::Mode::kOpen;
       break;
     case FILE_DIALOG_OPEN_MULTIPLE:
-      params.mode = content::FileChooserParams::OpenMultiple;
+      params.mode = blink::mojom::FileChooserParams::Mode::kOpenMultiple;
       break;
     case FILE_DIALOG_OPEN_FOLDER:
-      params.mode = content::FileChooserParams::UploadFolder;
+      params.mode = blink::mojom::FileChooserParams::Mode::kUploadFolder;
       break;
     case FILE_DIALOG_SAVE:
-      params.mode = content::FileChooserParams::Save;
+      params.mode = blink::mojom::FileChooserParams::Mode::kSave;
       break;
   }
 
@@ -210,15 +210,15 @@ void CefFileDialogManager::RunFileDialog(
 
 void CefFileDialogManager::RunFileChooser(
     content::RenderFrameHost* render_frame_host,
-    const content::FileChooserParams& params) {
+    const blink::mojom::FileChooserParams& params) {
   CEF_REQUIRE_UIT();
   DCHECK(render_frame_host);
 
   CefFileDialogRunner::FileChooserParams cef_params;
-  static_cast<content::FileChooserParams&>(cef_params) = params;
+  static_cast<blink::mojom::FileChooserParams&>(cef_params) = params;
 
   CefFileDialogRunner::RunFileChooserCallback callback;
-  if (params.mode == content::FileChooserParams::UploadFolder) {
+  if (params.mode == blink::mojom::FileChooserParams::Mode::kUploadFolder) {
     callback = base::Bind(
         &CefFileDialogManager::OnRunFileChooserUploadFolderDelegateCallback,
         weak_ptr_factory_.GetWeakPtr(), params.mode);
@@ -263,16 +263,16 @@ void CefFileDialogManager::RunFileChooserInternal(
     if (handler.get()) {
       int mode = FILE_DIALOG_OPEN;
       switch (params.mode) {
-        case content::FileChooserParams::Open:
+        case blink::mojom::FileChooserParams::Mode::kOpen:
           mode = FILE_DIALOG_OPEN;
           break;
-        case content::FileChooserParams::OpenMultiple:
+        case blink::mojom::FileChooserParams::Mode::kOpenMultiple:
           mode = FILE_DIALOG_OPEN_MULTIPLE;
           break;
-        case content::FileChooserParams::UploadFolder:
+        case blink::mojom::FileChooserParams::Mode::kUploadFolder:
           mode = FILE_DIALOG_OPEN_FOLDER;
           break;
-        case content::FileChooserParams::Save:
+        case blink::mojom::FileChooserParams::Mode::kSave:
           mode = FILE_DIALOG_SAVE;
           break;
         default:
@@ -334,11 +334,11 @@ void CefFileDialogManager::OnRunFileChooserCallback(
 }
 
 void CefFileDialogManager::OnRunFileChooserUploadFolderDelegateCallback(
-    const content::FileChooserParams::Mode mode,
+    const blink::mojom::FileChooserParams::Mode mode,
     int selected_accept_filter,
     const std::vector<base::FilePath>& file_paths) {
   CEF_REQUIRE_UIT();
-  DCHECK_EQ(mode, content::FileChooserParams::UploadFolder);
+  DCHECK_EQ(mode, blink::mojom::FileChooserParams::Mode::kUploadFolder);
 
   if (file_paths.size() == 0) {
     // Client canceled the file chooser.
@@ -354,17 +354,17 @@ void CefFileDialogManager::OnRunFileChooserUploadFolderDelegateCallback(
 }
 
 void CefFileDialogManager::OnRunFileChooserDelegateCallback(
-    content::FileChooserParams::Mode mode,
+    blink::mojom::FileChooserParams::Mode mode,
     int selected_accept_filter,
     const std::vector<base::FilePath>& file_paths) {
   CEF_REQUIRE_UIT();
 
   // Convert FilePath list to SelectedFileInfo list.
-  std::vector<content::FileChooserFileInfo> selected_files;
+  std::vector<blink::mojom::FileChooserFileInfoPtr> selected_files;
   for (size_t i = 0; i < file_paths.size(); ++i) {
-    content::FileChooserFileInfo info;
-    info.file_path = file_paths[i];
-    selected_files.push_back(info);
+    auto info = blink::mojom::FileChooserFileInfo::NewNativeFile(
+        blink::mojom::NativeFileInfo::New(file_paths[i], base::string16()));
+    selected_files.push_back(std::move(info));
   }
 
   // Notify our RenderViewHost in all cases.

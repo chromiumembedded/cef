@@ -453,9 +453,9 @@ void SetUpXSS(const std::string& url,
               const std::string& sub_url,
               const std::string& domain = std::string()) {
   // 1. Load |url| which contains an iframe.
-  // 2. The iframe loads |xss_url|.
-  // 3. |xss_url| tries to call a JS function in |url|.
-  // 4. |url| tries to call a JS function in |xss_url|.
+  // 2. The iframe loads |sub_url|.
+  // 3. |sub_url| tries to call a JS function in |url|.
+  // 4. |url| tries to call a JS function in |sub_url|.
 
   std::stringstream ss;
   std::string domain_line;
@@ -473,7 +473,7 @@ void SetUpXSS(const std::string& url,
         "  var result = 'FAILURE';"
         "  try {"
         "    result = parent.getResult();"
-        "  } catch(e) {}"
+        "  } catch(e) { console.log(e.stack); }"
         "  document.location = \"http://tests/exit?result=\"+result;"
         "}"
         "</script>"
@@ -492,7 +492,7 @@ void SetUpXSS(const std::string& url,
         "function getResult() {"
         "  try {"
         "    return document.getElementById('s').contentWindow.getResult();"
-        "  } catch(e) {}"
+        "  } catch(e) { console.log(e.stack); }"
         "  return 'FAILURE';"
         "}"
         "</script>"
@@ -849,7 +849,8 @@ TEST(SchemeHandlerTest, CustomStandardXHRSameOriginAsync) {
   ClearTestSchemes();
 }
 
-// Test that a custom nonstandard scheme can generate same origin XHR requests.
+// Test that custom nonstandard schemes are treated as unique origins that
+// cannot generate XHR requests.
 TEST(SchemeHandlerTest, CustomNonStandardXHRSameOriginSync) {
   RegisterTestScheme("customnonstd", std::string());
 
@@ -865,14 +866,15 @@ TEST(SchemeHandlerTest, CustomNonStandardXHRSameOriginSync) {
   EXPECT_TRUE(g_TestResults.got_request);
   EXPECT_TRUE(g_TestResults.got_read);
   EXPECT_TRUE(g_TestResults.got_output);
-  EXPECT_TRUE(g_TestResults.got_sub_request);
-  EXPECT_TRUE(g_TestResults.got_sub_read);
-  EXPECT_TRUE(g_TestResults.got_sub_success);
+  EXPECT_FALSE(g_TestResults.got_sub_request);
+  EXPECT_FALSE(g_TestResults.got_sub_read);
+  EXPECT_FALSE(g_TestResults.got_sub_success);
 
   ClearTestSchemes();
 }
 
-// Test that a custom nonstandard scheme can generate same origin XHR requests.
+// Test that custom nonstandard schemes are treated as unique origins that
+// cannot generate XHR requests.
 TEST(SchemeHandlerTest, CustomNonStandardXHRSameOriginAsync) {
   RegisterTestScheme("customnonstd", std::string());
 
@@ -889,9 +891,9 @@ TEST(SchemeHandlerTest, CustomNonStandardXHRSameOriginAsync) {
   EXPECT_TRUE(g_TestResults.got_request);
   EXPECT_TRUE(g_TestResults.got_read);
   EXPECT_TRUE(g_TestResults.got_output);
-  EXPECT_TRUE(g_TestResults.got_sub_request);
-  EXPECT_TRUE(g_TestResults.got_sub_read);
-  EXPECT_TRUE(g_TestResults.got_sub_success);
+  EXPECT_FALSE(g_TestResults.got_sub_request);
+  EXPECT_FALSE(g_TestResults.got_sub_read);
+  EXPECT_FALSE(g_TestResults.got_sub_success);
 
   ClearTestSchemes();
 }
@@ -915,7 +917,8 @@ TEST(SchemeHandlerTest, CustomStandardXSSSameOrigin) {
   ClearTestSchemes();
 }
 
-// Test that a custom nonstandard scheme can generate same origin XSS requests.
+// Test that custom nonstandard schemes are treated as unique origins that
+// cannot generate XSS requests.
 TEST(SchemeHandlerTest, CustomNonStandardXSSSameOrigin) {
   RegisterTestScheme("customnonstd", std::string());
   SetUpXSS("customnonstd:some%20value", "customnonstd:xhr%20value");
@@ -929,7 +932,7 @@ TEST(SchemeHandlerTest, CustomNonStandardXSSSameOrigin) {
   EXPECT_TRUE(g_TestResults.got_output);
   EXPECT_TRUE(g_TestResults.got_sub_request);
   EXPECT_TRUE(g_TestResults.got_sub_read);
-  EXPECT_TRUE(g_TestResults.got_sub_success);
+  EXPECT_FALSE(g_TestResults.got_sub_success);
 
   ClearTestSchemes();
 }

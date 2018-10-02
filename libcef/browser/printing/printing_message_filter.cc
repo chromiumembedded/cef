@@ -10,6 +10,7 @@
 
 #include "base/bind.h"
 #include "base/lazy_instance.h"
+#include "base/task/post_task.h"
 #include "build/build_config.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/printing/print_job_manager.h"
@@ -19,6 +20,7 @@
 #include "components/keyed_service/content/browser_context_keyed_service_shutdown_notifier_factory.h"
 #include "components/printing/browser/print_manager_utils.h"
 #include "components/printing/common/print_messages.h"
+#include "content/public/browser/browser_task_traits.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/render_frame_host.h"
 #include "content/public/browser/web_contents.h"
@@ -78,7 +80,7 @@ CefPrintingMessageFilter::CefPrintingMessageFilter(int render_process_id,
                                  base::Unretained(this)));
   is_printing_enabled_.Init(prefs::kPrintingEnabled, profile->GetPrefs());
   is_printing_enabled_.MoveToThread(
-      content::BrowserThread::GetTaskRunnerForThread(BrowserThread::IO));
+      base::CreateSingleThreadTaskRunnerWithTraits({BrowserThread::IO}));
 }
 
 void CefPrintingMessageFilter::EnsureShutdownNotifierFactoryBuilt() {
@@ -219,8 +221,8 @@ void CefPrintingMessageFilter::OnScriptedPrintReply(
     int file_descriptor;
     const base::string16& device_name = printer_query->settings().device_name();
     if (base::StringToInt(device_name, &file_descriptor)) {
-      BrowserThread::PostTask(
-          BrowserThread::UI, FROM_HERE,
+      base::PostTaskWithTraits(
+          FROM_HERE, {BrowserThread::UI},
           base::Bind(&CefPrintingMessageFilter::UpdateFileDescriptor, this,
                      routing_id, file_descriptor));
     }

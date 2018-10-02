@@ -19,6 +19,8 @@
 #include "base/logging.h"
 #include "base/message_loop/message_loop.h"
 #include "base/strings/string_util.h"
+#include "base/task/post_task.h"
+#include "content/public/browser/browser_task_traits.h"
 #include "content/public/browser/browser_thread.h"
 #include "net/base/io_buffer.h"
 #include "net/base/net_errors.h"
@@ -173,8 +175,8 @@ class CefBrowserURLRequest::Context
       return false;
     }
 
-    BrowserThread::PostTaskAndReply(
-        BrowserThread::UI, FROM_HERE,
+    base::PostTaskWithTraitsAndReply(
+        FROM_HERE, {BrowserThread::UI},
         base::Bind(&CefBrowserURLRequest::Context::GetRequestContextOnUIThread,
                    this),
         base::Bind(&CefBrowserURLRequest::Context::ContinueOnOriginatingThread,

@@ -34,6 +34,7 @@
 #include "components/network_session_configurator/browser/network_session_configurator.h"
 #include "components/prefs/pref_registry_simple.h"
 #include "components/prefs/pref_service.h"
+#include "content/public/browser/browser_task_traits.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/common/content_client.h"
 #include "content/public/common/content_switches.h"
@@ -200,7 +201,7 @@ CefURLRequestContextGetterImpl::CefURLRequestContextGetterImpl(
   std::swap(io_state_->protocol_handlers_, *protocol_handlers);
 
   auto io_thread_proxy =
-      BrowserThread::GetTaskRunnerForThread(BrowserThread::IO);
+      base::CreateSingleThreadTaskRunnerWithTraits({BrowserThread::IO});
 
   quick_check_enabled_.Init(prefs::kQuickCheckEnabled, pref_service);
   quick_check_enabled_.MoveToThread(io_thread_proxy);
@@ -462,7 +463,7 @@ net::URLRequestContext* CefURLRequestContextGetterImpl::GetURLRequestContext() {
 
 scoped_refptr<base::SingleThreadTaskRunner>
 CefURLRequestContextGetterImpl::GetNetworkTaskRunner() const {
-  return BrowserThread::GetTaskRunnerForThread(CEF_IOT);
+  return base::CreateSingleThreadTaskRunnerWithTraits({BrowserThread::IO});
 }
 
 net::HostResolver* CefURLRequestContextGetterImpl::GetHostResolver() const {
@@ -489,7 +490,8 @@ void CefURLRequestContextGetterImpl::SetCookieStoragePath(
     if (base::DirectoryExists(path) || base::CreateDirectory(path)) {
       const base::FilePath& cookie_path = path.AppendASCII("Cookies");
       persistent_store = new net::SQLitePersistentCookieStore(
-          cookie_path, BrowserThread::GetTaskRunnerForThread(BrowserThread::IO),
+          cookie_path,
+          base::CreateSingleThreadTaskRunnerWithTraits({BrowserThread::IO}),
           // Intentionally using the background task runner exposed by CEF to
           // facilitate unit test expectations. This task runner MUST be
           // configured with BLOCK_SHUTDOWN.

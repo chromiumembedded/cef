@@ -22,6 +22,7 @@
 #include "chrome/browser/browser_process.h"
 #include "components/net_log/chrome_net_log.h"
 #include "content/browser/storage_partition_impl.h"
+#include "content/public/browser/browser_task_traits.h"
 #include "net/cookies/cookie_util.h"
 #include "net/cookies/parsed_cookie.h"
 #include "net/extras/sqlite/sqlite_persistent_cookie_store.h"
@@ -138,7 +139,7 @@ void CefCookieManagerImpl::Initialize(
   if (request_context.get()) {
     request_context_ = request_context;
     request_context_->GetRequestContextImpl(
-        BrowserThread::GetTaskRunnerForThread(BrowserThread::IO),
+        base::CreateSingleThreadTaskRunnerWithTraits({BrowserThread::IO}),
         base::Bind(&CefCookieManagerImpl::InitWithContext, this, callback));
   } else {
     SetStoragePath(path, persist_session_cookies, callback);
@@ -222,9 +223,10 @@ void CefCookieManagerImpl::SetSupportedSchemes(
 
 bool CefCookieManagerImpl::VisitAllCookies(
     CefRefPtr<CefCookieVisitor> visitor) {
-  GetCookieStore(BrowserThread::GetTaskRunnerForThread(BrowserThread::IO),
-                 base::Bind(&CefCookieManagerImpl::VisitAllCookiesInternal,
-                            this, visitor));
+  GetCookieStore(
+      base::CreateSingleThreadTaskRunnerWithTraits({BrowserThread::IO}),
+      base::Bind(&CefCookieManagerImpl::VisitAllCookiesInternal, this,
+                 visitor));
   return true;
 }
 
@@ -232,9 +234,10 @@ bool CefCookieManagerImpl::VisitUrlCookies(
     const CefString& url,
     bool includeHttpOnly,
     CefRefPtr<CefCookieVisitor> visitor) {
-  GetCookieStore(BrowserThread::GetTaskRunnerForThread(BrowserThread::IO),
-                 base::Bind(&CefCookieManagerImpl::VisitUrlCookiesInternal,
-                            this, url, includeHttpOnly, visitor));
+  GetCookieStore(
+      base::CreateSingleThreadTaskRunnerWithTraits({BrowserThread::IO}),
+      base::Bind(&CefCookieManagerImpl::VisitUrlCookiesInternal, this, url,
+                 includeHttpOnly, visitor));
   return true;
 }
 
@@ -245,9 +248,10 @@ bool CefCookieManagerImpl::SetCookie(const CefString& url,
   if (!gurl.is_valid())
     return false;
 
-  GetCookieStore(BrowserThread::GetTaskRunnerForThread(BrowserThread::IO),
-                 base::Bind(&CefCookieManagerImpl::SetCookieInternal, this,
-                            gurl, cookie, callback));
+  GetCookieStore(
+      base::CreateSingleThreadTaskRunnerWithTraits({BrowserThread::IO}),
+      base::Bind(&CefCookieManagerImpl::SetCookieInternal, this, gurl, cookie,
+                 callback));
   return true;
 }
 
@@ -260,9 +264,10 @@ bool CefCookieManagerImpl::DeleteCookies(
   if (!gurl.is_empty() && !gurl.is_valid())
     return false;
 
-  GetCookieStore(BrowserThread::GetTaskRunnerForThread(BrowserThread::IO),
-                 base::Bind(&CefCookieManagerImpl::DeleteCookiesInternal, this,
-                            gurl, cookie_name, callback));
+  GetCookieStore(
+      base::CreateSingleThreadTaskRunnerWithTraits({BrowserThread::IO}),
+      base::Bind(&CefCookieManagerImpl::DeleteCookiesInternal, this, gurl,
+                 cookie_name, callback));
   return true;
 }
 
@@ -304,7 +309,8 @@ bool CefCookieManagerImpl::SetStoragePath(
     if (base::DirectoryExists(new_path) || base::CreateDirectory(new_path)) {
       const base::FilePath& cookie_path = new_path.AppendASCII("Cookies");
       persistent_store = new net::SQLitePersistentCookieStore(
-          cookie_path, BrowserThread::GetTaskRunnerForThread(BrowserThread::IO),
+          cookie_path,
+          base::CreateSingleThreadTaskRunnerWithTraits({BrowserThread::IO}),
           // Intentionally using the background task runner exposed by CEF to
           // facilitate unit test expectations. This task runner MUST be
           // configured with BLOCK_SHUTDOWN.
@@ -334,7 +340,7 @@ bool CefCookieManagerImpl::SetStoragePath(
 bool CefCookieManagerImpl::FlushStore(
     CefRefPtr<CefCompletionCallback> callback) {
   GetCookieStore(
-      BrowserThread::GetTaskRunnerForThread(BrowserThread::IO),
+      base::CreateSingleThreadTaskRunnerWithTraits({BrowserThread::IO}),
       base::Bind(&CefCookieManagerImpl::FlushStoreInternal, this, callback));
   return true;
 }
@@ -424,7 +430,8 @@ void CefCookieManagerImpl::RunMethodWithContext(
   } else if (request_context_.get()) {
     // Try again after the request context is initialized.
     request_context_->GetRequestContextImpl(
-        BrowserThread::GetTaskRunnerForThread(BrowserThread::IO), method);
+        base::CreateSingleThreadTaskRunnerWithTraits({BrowserThread::IO}),
+        method);
   } else {
     NOTREACHED();
   }

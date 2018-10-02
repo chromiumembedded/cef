@@ -33,7 +33,7 @@
 #include "components/printing/browser/print_manager_utils.h"
 #include "components/printing/common/print_messages.h"
 #include "components/services/pdf_compositor/public/cpp/pdf_service_mojo_types.h"
-#include "components/services/pdf_compositor/public/cpp/pdf_service_mojo_utils.h"
+#include "content/public/browser/browser_task_traits.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/notification_details.h"
 #include "content/public/browser/notification_service.h"
@@ -145,7 +145,9 @@ bool CefPrintViewManagerBase::PrintJobHasDocument(int cookie) {
 }
 
 void CefPrintViewManagerBase::OnComposePdfDone(
-    const PrintHostMsg_DidPrintDocument_Params& params,
+    const gfx::Size& page_size,
+    const gfx::Rect& content_area,
+    const gfx::Point& physical_offsets,
     mojom::PdfCompositor::Status status,
     base::ReadOnlySharedMemoryRegion region) {
   DCHECK_CURRENTLY_ON(content::BrowserThread::UI);
@@ -162,8 +164,7 @@ void CefPrintViewManagerBase::OnComposePdfDone(
   if (!data)
     return;
 
-  PrintDocument(data, params.page_size, params.content_area,
-                params.physical_offsets);
+  PrintDocument(data, page_size, content_area, physical_offsets);
 }
 
 void CefPrintViewManagerBase::OnDidPrintDocument(
@@ -173,7 +174,7 @@ void CefPrintViewManagerBase::OnDidPrintDocument(
     return;
 
   const PrintHostMsg_DidPrintContent_Params& content = params.content;
-  if (!base::SharedMemory::IsHandleValid(content.metafile_data_handle)) {
+  if (!content.metafile_data_region.IsValid()) {
     NOTREACHED() << "invalid memory handle";
     web_contents()->Stop();
     return;
@@ -184,19 +185,18 @@ void CefPrintViewManagerBase::OnDidPrintDocument(
     client->DoCompositeDocumentToPdf(
         params.document_cookie, render_frame_host, content,
         base::BindOnce(&CefPrintViewManagerBase::OnComposePdfDone,
-                       weak_ptr_factory_.GetWeakPtr(), params));
+                       weak_ptr_factory_.GetWeakPtr(), params.page_size,
+                       params.content_area, params.physical_offsets));
     return;
   }
-  auto shared_buf =
-      std::make_unique<base::SharedMemory>(content.metafile_data_handle, true);
-  if (!shared_buf->Map(content.data_size)) {
+  auto data = base::RefCountedSharedMemoryMapping::CreateFromWholeRegion(
+      content.metafile_data_region);
+  if (!data) {
     NOTREACHED() << "couldn't map";
     web_contents()->Stop();
     return;
   }
 
-  auto data = base::MakeRefCounted<base::RefCountedSharedMemory>(
-      std::move(shared_buf), content.data_size);
   PrintDocument(data, params.page_size, params.content_area,
                 params.physical_offsets);
 }
@@ -541,8 +541,8 @@ void CefPrintViewManagerBase::ReleasePrinterQuery() {
   printer_query = queue_->PopPrinterQuery(cookie);
   if (!printer_query)
     return;
-  BrowserThread::PostTask(
-      BrowserThread::IO, FROM_HERE,
+  base::PostTaskWithTraits(
+      FROM_HERE, {content::BrowserThread::IO},
       base::BindOnce(&PrinterQuery::StopWorker, printer_query));
 }
 

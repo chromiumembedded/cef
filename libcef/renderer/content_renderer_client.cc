@@ -9,10 +9,15 @@
 
 #include "base/compiler_specific.h"
 
-// Enable deprecation warnings for MSVC. See http://crbug.com/585142.
+// Enable deprecation warnings on Windows. See http://crbug.com/585142.
 #if defined(OS_WIN)
+#if defined(__clang__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic error "-Wdeprecated-declarations"
+#else
 #pragma warning(push)
 #pragma warning(default : 4996)
+#endif
 #endif
 
 #include "libcef/browser/context.h"
@@ -41,6 +46,7 @@
 #include "base/stl_util.h"
 #include "base/strings/string_number_conversions.h"
 #include "base/strings/utf_string_conversions.h"
+#include "base/task/post_task.h"
 #include "build/build_config.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/constants.mojom.h"
@@ -60,6 +66,7 @@
 #include "components/visitedlink/renderer/visitedlink_slave.h"
 #include "components/web_cache/renderer/web_cache_impl.h"
 #include "content/common/frame_messages.h"
+#include "content/public/browser/browser_task_traits.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/render_process_host.h"
 #include "content/public/child/child_thread.h"
@@ -324,8 +331,8 @@ void CefContentRendererClient::RunSingleProcessCleanup() {
   if (content::BrowserThread::CurrentlyOn(content::BrowserThread::UI)) {
     RunSingleProcessCleanupOnUIThread();
   } else {
-    content::BrowserThread::PostTask(
-        content::BrowserThread::UI, FROM_HERE,
+    base::PostTaskWithTraits(
+        FROM_HERE, {content::BrowserThread::UI},
         base::Bind(&CefContentRendererClient::RunSingleProcessCleanupOnUIThread,
                    base::Unretained(this)));
   }
@@ -711,7 +718,11 @@ service_manager::Connector* CefContentRendererClient::GetConnector() {
   return connector_.get();
 }
 
-// Enable deprecation warnings for MSVC. See http://crbug.com/585142.
+// Enable deprecation warnings on Windows. See http://crbug.com/585142.
 #if defined(OS_WIN)
+#if defined(__clang__)
+#pragma GCC diagnostic pop
+#else
 #pragma warning(pop)
+#endif
 #endif

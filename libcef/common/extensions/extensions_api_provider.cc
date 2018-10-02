@@ -11,22 +11,20 @@
 #include "cef/libcef/common/extensions/api/cef_api_features.h"
 #include "cef/libcef/common/extensions/api/cef_manifest_features.h"
 #include "cef/libcef/common/extensions/api/cef_permission_features.h"
-#include "chrome/common/extensions/chrome_aliases.h"
 #include "chrome/common/extensions/chrome_manifest_handlers.h"
+#include "chrome/common/extensions/permissions/chrome_api_permissions.h"
 #include "extensions/common/features/json_feature_provider_source.h"
 #include "extensions/common/permissions/permissions_info.h"
 
 namespace extensions {
 
-CefExtensionsAPIProvider::CefExtensionsAPIProvider() {
-}
+CefExtensionsAPIProvider::CefExtensionsAPIProvider() {}
 
 void CefExtensionsAPIProvider::AddAPIFeatures(FeatureProvider* provider) {
   AddCEFAPIFeatures(provider);
 }
 
-void CefExtensionsAPIProvider::AddManifestFeatures(
-    FeatureProvider* provider) {
+void CefExtensionsAPIProvider::AddManifestFeatures(FeatureProvider* provider) {
   AddCEFManifestFeatures(provider);
 }
 
@@ -35,8 +33,7 @@ void CefExtensionsAPIProvider::AddPermissionFeatures(
   AddCEFPermissionFeatures(provider);
 }
 
-void CefExtensionsAPIProvider::AddBehaviorFeatures(
-    FeatureProvider* provider) {
+void CefExtensionsAPIProvider::AddBehaviorFeatures(FeatureProvider* provider) {
   // No CEF-specific behavior features.
 }
 
@@ -76,10 +73,11 @@ base::StringPiece CefExtensionsAPIProvider::GetAPISchema(
   return base::StringPiece();
 }
 
-void CefExtensionsAPIProvider::AddPermissionsProviders(
+void CefExtensionsAPIProvider::RegisterPermissions(
     PermissionsInfo* permissions_info) {
-  permissions_info->AddProvider(chrome_api_permissions_,
-                                GetChromePermissionAliases());
+  permissions_info->RegisterPermissions(
+      chrome_api_permissions::GetPermissionInfos(),
+      chrome_api_permissions::GetPermissionAliases());
 }
 
 void CefExtensionsAPIProvider::RegisterManifestHandlers() {

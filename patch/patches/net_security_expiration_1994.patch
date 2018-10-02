@@ -1,5 +1,5 @@
 diff --git components/certificate_transparency/chrome_ct_policy_enforcer.cc components/certificate_transparency/chrome_ct_policy_enforcer.cc
-index a2e2b493def0..c08872260c68 100644
+index 99a4405290ea..d0b35f74e552 100644
 --- components/certificate_transparency/chrome_ct_policy_enforcer.cc
 +++ components/certificate_transparency/chrome_ct_policy_enforcer.cc
 @@ -36,15 +36,6 @@ namespace certificate_transparency {
@@ -58,7 +58,7 @@ index f61ff0d0564a..e6727c7b1cbc 100644
  
  }  // namespace certificate_transparency
 diff --git net/http/transport_security_state.cc net/http/transport_security_state.cc
-index 2dc467772e86..fdb047099ff5 100644
+index 3f3db5c840eb..85553b65e966 100644
 --- net/http/transport_security_state.cc
 +++ net/http/transport_security_state.cc
 @@ -1153,8 +1153,10 @@ void TransportSecurityState::ClearReportCachesForTesting() {

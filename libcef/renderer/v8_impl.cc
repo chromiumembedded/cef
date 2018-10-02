@@ -12,10 +12,15 @@
 #include "base/command_line.h"
 #include "base/compiler_specific.h"
 
-// Enable deprecation warnings for MSVC. See http://crbug.com/585142.
+// Enable deprecation warnings for MSVC and Clang. See http://crbug.com/585142.
 #if defined(OS_WIN)
+#if defined(__clang__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic error "-Wdeprecated-declarations"
+#else
 #pragma warning(push)
 #pragma warning(default : 4996)
+#endif
 #endif
 
 #include "libcef/renderer/v8_impl.h"
@@ -1102,7 +1107,7 @@ bool CefV8ContextImpl::Eval(const CefString& code,
 
   v8::MaybeLocal<v8::Value> func_rv = blink_glue::ExecuteV8ScriptAndReturnValue(
       source, source_url, start_line, context, isolate, try_catch,
-      blink::AccessControlStatus::kNotSharableCrossOrigin);
+      blink::AccessControlStatus::kOpaqueResource);
 
   if (try_catch.HasCaught()) {
     exception = new CefV8ExceptionImpl(context, try_catch.Message());
@@ -1602,7 +1607,9 @@ v8::Local<v8::Value> CefV8ValueImpl::GetV8Value(bool should_persist) {
       return v8::Number::New(isolate_, double_value_);
     case TYPE_DATE:
       // Convert from seconds to milliseconds.
-      return v8::Date::New(isolate_, CefTime(date_value_).GetDoubleT() * 1000);
+      return v8::Date::New(isolate_->GetCurrentContext(),
+                           CefTime(date_value_).GetDoubleT() * 1000)
+          .ToLocalChecked();
     case TYPE_STRING:
       return GetV8String(isolate_, CefString(&string_value_));
     case TYPE_OBJECT:
@@ -2538,7 +2545,11 @@ bool CefV8StackFrameImpl::IsConstructor() {
   return is_constructor_;
 }
 
-// Enable deprecation warnings for MSVC. See http://crbug.com/585142.
+// Enable deprecation warnings on Windows. See http://crbug.com/585142.
 #if defined(OS_WIN)
+#if defined(__clang__)
+#pragma GCC diagnostic pop
+#else
 #pragma warning(pop)
+#endif
 #endif

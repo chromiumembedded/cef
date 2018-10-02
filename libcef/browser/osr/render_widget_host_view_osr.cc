@@ -18,6 +18,7 @@
 #include "base/command_line.h"
 #include "base/memory/ptr_util.h"
 #include "base/strings/utf_string_conversions.h"
+#include "base/task/post_task.h"
 #include "cc/base/switches.h"
 #include "components/viz/common/features.h"
 #include "components/viz/common/frame_sinks/copy_output_request.h"
@@ -33,6 +34,7 @@
 #include "content/browser/renderer_host/render_widget_host_impl.h"
 #include "content/common/input_messages.h"
 #include "content/common/view_messages.h"
+#include "content/public/browser/browser_task_traits.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/context_factory.h"
 #include "content/public/browser/render_process_host.h"
@@ -168,8 +170,8 @@ class CefCopyFrameGenerator {
       base::TimeDelta next_frame_in = next_frame_time_ - now;
       if (next_frame_in > frame_duration_ / 4) {
         next_frame_time_ += frame_duration_;
-        content::BrowserThread::PostDelayedTask(
-            CEF_UIT, FROM_HERE,
+        base::PostDelayedTaskWithTraits(
+            FROM_HERE, {content::BrowserThread::UI},
             base::Bind(&CefCopyFrameGenerator::OnCopyFrameCaptureSuccess,
                        weak_ptr_factory_.GetWeakPtr(), damage_rect, bitmap),
             next_frame_in);
@@ -218,7 +220,9 @@ class CefBeginFrameTimer : public viz::DelayBasedTimeSourceClient {
   CefBeginFrameTimer(int frame_rate_threshold_us, const base::Closure& callback)
       : callback_(callback) {
     time_source_.reset(new viz::DelayBasedTimeSource(
-        content::BrowserThread::GetTaskRunnerForThread(CEF_UIT).get()));
+        base::CreateSingleThreadTaskRunnerWithTraits(
+            {content::BrowserThread::UI})
+            .get()));
     time_source_->SetTimebaseAndInterval(
         base::TimeTicks(),
         base::TimeDelta::FromMicroseconds(frame_rate_threshold_us));
@@ -604,8 +608,7 @@ void CefRenderWidgetHostViewOSR::SubmitCompositorFrame(
   // the frame rate to something other than the default of 60Hz.
   if (sync_frame_rate_) {
     if (frame_rate_threshold_us_ != 0) {
-      GetCompositor()->SetAuthoritativeVSyncInterval(
-          base::TimeDelta::FromMicroseconds(frame_rate_threshold_us_));
+      // TODO(cef): Figure out how to set the VSync interval. See issue #2517.
     }
     sync_frame_rate_ = false;
   }
@@ -1503,9 +1506,7 @@ void CefRenderWidgetHostViewOSR::SetFrameRate() {
   frame_rate_threshold_us_ = 1000000 / frame_rate;
 
   if (compositor) {
-    // Configure the VSync interval for the browser process.
-    compositor->vsync_manager()->SetAuthoritativeVSyncInterval(
-        base::TimeDelta::FromMicroseconds(frame_rate_threshold_us_));
+    // TODO(cef): Figure out how to set the VSync interval. See issue #2517.
   }
 
   if (copy_frame_generator_.get()) {

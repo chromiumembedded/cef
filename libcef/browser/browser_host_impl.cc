@@ -50,7 +50,7 @@
 #include "components/zoom/zoom_controller.h"
 #include "content/browser/gpu/compositor_util.h"
 #include "content/browser/web_contents/web_contents_impl.h"
-#include "content/common/view_messages.h"
+#include "content/common/widget_messages.h"
 #include "content/public/browser/desktop_media_id.h"
 #include "content/public/browser/download_manager.h"
 #include "content/public/browser/download_request_utils.h"
@@ -71,7 +71,7 @@
 #include "content/public/common/favicon_url.h"
 #include "extensions/browser/process_manager.h"
 #include "net/base/net_errors.h"
-#include "third_party/blink/public/web/web_find_options.h"
+#include "third_party/blink/public/mojom/frame/find_in_page.mojom.h"
 #include "ui/events/base_event_utils.h"
 
 #if defined(OS_MACOSX)
@@ -622,7 +622,7 @@ void CefBrowserHostImpl::CloseBrowser(bool force_close) {
     if (contents && contents->NeedToFireBeforeUnload()) {
       // Will result in a call to BeforeUnloadFired() and, if the close isn't
       // canceled, CloseContents().
-      contents->DispatchBeforeUnload();
+      contents->DispatchBeforeUnload(false /* auto_cancel */);
     } else {
       CloseContents(contents);
     }
@@ -846,11 +846,11 @@ void CefBrowserHostImpl::Find(int identifier,
     else
       find_request_id_counter_ = identifier;
 
-    blink::WebFindOptions options;
-    options.forward = forward;
-    options.match_case = matchCase;
-    options.find_next = findNext;
-    web_contents()->Find(identifier, searchText, options);
+    auto options = blink::mojom::FindOptions::New();
+    options->forward = forward;
+    options->match_case = matchCase;
+    options->find_next = findNext;
+    web_contents()->Find(identifier, searchText, std::move(options));
   } else {
     CEF_POST_TASK(CEF_UIT,
                   base::BindOnce(&CefBrowserHostImpl::Find, this, identifier,
@@ -2566,7 +2566,7 @@ CefBrowserHostImpl::GetJavaScriptDialogManager(content::WebContents* source) {
 
 void CefBrowserHostImpl::RunFileChooser(
     content::RenderFrameHost* render_frame_host,
-    const content::FileChooserParams& params) {
+    const blink::mojom::FileChooserParams& params) {
   EnsureFileDialogManager();
   file_dialog_manager_->RunFileChooser(render_frame_host, params);
 }
@@ -2929,7 +2929,7 @@ void CefBrowserHostImpl::DidUpdateFaviconURL(
 bool CefBrowserHostImpl::OnMessageReceived(const IPC::Message& message) {
   // Handle the cursor message here if mouse cursor change is disabled instead
   // of propegating the message to the normal handler.
-  if (message.type() == ViewHostMsg_SetCursor::ID)
+  if (message.type() == WidgetHostMsg_SetCursor::ID)
     return IsMouseCursorChangeDisabled();
 
   bool handled = true;

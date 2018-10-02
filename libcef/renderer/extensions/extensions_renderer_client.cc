@@ -248,18 +248,6 @@ bool CefExtensionsRendererClient::ShouldFork(blink::WebLocalFrame* frame,
     return true;
   }
 
-  // If this is a reload, check whether it has the wrong process type.  We
-  // should send it to the browser if it's an extension URL (e.g., hosted app)
-  // in a normal process, or if it's a process for an extension that has been
-  // uninstalled.  Without --site-per-process mode, we never fork processes
-  // for subframes, so this check only makes sense for top-level frames.
-  // TODO(alexmos,nasko): Figure out how this check should work when reloading
-  // subframes in --site-per-process mode.
-  if (!frame->Parent() && GURL(frame->GetDocument().Url()) == url) {
-    if (is_extension_url != IsStandaloneExtensionProcess())
-      return true;
-  }
-
   return false;
 }
 

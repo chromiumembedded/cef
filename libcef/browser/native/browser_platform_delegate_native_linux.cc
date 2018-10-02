@@ -96,9 +96,6 @@ bool CefBrowserPlatformDelegateNativeLinux::CreateHostWindow() {
   content::RendererPreferences* prefs =
       browser_->web_contents()->GetMutableRendererPrefs();
   prefs->focus_ring_color = SkColorSetARGB(255, 229, 151, 0);
-  prefs->thumb_active_color = SkColorSetRGB(244, 244, 244);
-  prefs->thumb_inactive_color = SkColorSetRGB(234, 234, 234);
-  prefs->track_color = SkColorSetRGB(211, 211, 211);
 
   prefs->active_selection_bg_color = SkColorSetRGB(30, 144, 255);
   prefs->active_selection_fg_color = SK_ColorWHITE;

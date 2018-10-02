@@ -1,5 +1,5 @@
 diff --git build/config/linux/gtk/BUILD.gn build/config/linux/gtk/BUILD.gn
-index a2b40d82..fac0c19 100644
+index a2b40d82674e..fac0c1900ce8 100644
 --- build/config/linux/gtk/BUILD.gn
 +++ build/config/linux/gtk/BUILD.gn
 @@ -4,8 +4,10 @@
@@ -14,7 +14,7 @@ index a2b40d82..fac0c19 100644
  # GN doesn't check visibility for configs so we give this an obviously internal
  # name to discourage random targets from accidentally depending on this and
 diff --git build/config/ui.gni build/config/ui.gni
-index 547b42f..0eae347 100644
+index 547b42fb5c66..0eae3470e1bb 100644
 --- build/config/ui.gni
 +++ build/config/ui.gni
 @@ -37,6 +37,9 @@ declare_args() {
@@ -28,7 +28,7 @@ index 547b42f..0eae347 100644
  
  # Additional dependent variables -----------------------------------------------
 diff --git chrome/browser/ui/views/chrome_browser_main_extra_parts_views_linux.cc chrome/browser/ui/views/chrome_browser_main_extra_parts_views_linux.cc
-index d44c7fe..5f19923 100644
+index d44c7feaabec..5f1992335a38 100644
 --- chrome/browser/ui/views/chrome_browser_main_extra_parts_views_linux.cc
 +++ chrome/browser/ui/views/chrome_browser_main_extra_parts_views_linux.cc
 @@ -5,6 +5,7 @@
@@ -68,10 +68,10 @@ index d44c7fe..5f19923 100644
  
  void ChromeBrowserMainExtraPartsViewsLinux::ToolkitInitialized() {
 diff --git chrome/test/BUILD.gn chrome/test/BUILD.gn
-index 0e72090..795c02b 100644
+index b192d5e5b96b..80562f0af3e8 100644
 --- chrome/test/BUILD.gn
 +++ chrome/test/BUILD.gn
-@@ -3827,7 +3827,7 @@ test("unit_tests") {
+@@ -3848,7 +3848,7 @@ test("unit_tests") {
        "../browser/ui/input_method/input_method_engine_unittest.cc",
      ]
    }
@@ -80,7 +80,7 @@ index 0e72090..795c02b 100644
      sources +=
          [ "../browser/ui/libgtkui/select_file_dialog_impl_gtk_unittest.cc" ]
      deps += [ "//build/config/linux/gtk" ]
-@@ -3848,7 +3848,7 @@ test("unit_tests") {
+@@ -3869,7 +3869,7 @@ test("unit_tests") {
    if (use_gio) {
      configs += [ "//build/linux:gio_config" ]
    }
@@ -89,7 +89,7 @@ index 0e72090..795c02b 100644
      deps += [ "//chrome/browser/ui/libgtkui" ]
    }
  
-@@ -4970,7 +4970,7 @@ if (!is_android) {
+@@ -4874,7 +4874,7 @@ if (!is_android) {
            # suites, it seems like one or another starts timing out too.
            "../browser/ui/views/keyboard_access_browsertest.cc",
          ]
@@ -99,7 +99,7 @@ index 0e72090..795c02b 100644
              "../browser/ui/libgtkui/select_file_dialog_interactive_uitest.cc",
            ]
 diff --git remoting/host/BUILD.gn remoting/host/BUILD.gn
-index 563d831..4795186 100644
+index 563d8318c231..4795186b594c 100644
 --- remoting/host/BUILD.gn
 +++ remoting/host/BUILD.gn
 @@ -336,7 +336,7 @@ static_library("host") {
@@ -121,10 +121,10 @@ index 563d831..4795186 100644
      }
      if ((is_linux && !is_chromeos) || is_mac) {
 diff --git remoting/host/it2me/BUILD.gn remoting/host/it2me/BUILD.gn
-index c8fa7fa..df82cc2 100644
+index 1d8b50d2320e..f72d8a1f3ba3 100644
 --- remoting/host/it2me/BUILD.gn
 +++ remoting/host/it2me/BUILD.gn
-@@ -52,7 +52,7 @@ source_set("common") {
+@@ -53,7 +53,7 @@ source_set("common") {
      "//remoting/resources",
      "//remoting/signaling",
    ]
@@ -133,7 +133,7 @@ index c8fa7fa..df82cc2 100644
      deps += [
        "//build/config/linux/gtk",
  
-@@ -246,7 +246,7 @@ if (!is_chromeos && enable_remoting_host) {
+@@ -247,7 +247,7 @@ if (!is_chromeos && enable_remoting_host) {
          }
        }
  
@@ -143,7 +143,7 @@ index c8fa7fa..df82cc2 100644
        }
      }
 diff --git remoting/host/linux/BUILD.gn remoting/host/linux/BUILD.gn
-index fa24d0b..3ca8743 100644
+index fa24d0b9b4ab..3ca8743bb4c7 100644
 --- remoting/host/linux/BUILD.gn
 +++ remoting/host/linux/BUILD.gn
 @@ -98,7 +98,7 @@ source_set("linux") {
@@ -156,7 +156,7 @@ index fa24d0b..3ca8743 100644
    }
  }
 diff --git remoting/test/BUILD.gn remoting/test/BUILD.gn
-index 2670491..36726033 100644
+index 267049123534..3672603366df 100644
 --- remoting/test/BUILD.gn
 +++ remoting/test/BUILD.gn
 @@ -197,7 +197,7 @@ if (enable_remoting_host && !is_android && !is_chromeos) {

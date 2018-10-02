@@ -138,10 +138,6 @@ class PluginTestHandler : public RoutingTestHandler,
           } else {
             NOTREACHED();
           }
-        } else {
-          // When listing is enabled there should only be the one check in the
-          // plugin frame.
-          NOTREACHED();
         }
 
         if (handler_->HasNoList()) {

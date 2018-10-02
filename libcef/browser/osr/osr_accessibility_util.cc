@@ -108,7 +108,6 @@ struct PopulateAxNodeAttributes {
       case ax::mojom::IntAttribute::kNextOnLineId:
       case ax::mojom::IntAttribute::kPreviousFocusId:
       case ax::mojom::IntAttribute::kPreviousOnLineId:
-      case ax::mojom::IntAttribute::kChildTreeId:
       case ax::mojom::IntAttribute::kSetSize:
       case ax::mojom::IntAttribute::kPosInSet:
         attributes->SetInt(ToString(attr.first), attr.second);
@@ -317,14 +316,14 @@ CefRefPtr<CefDictionaryValue> ToCefValue(const ui::AXNodeData& node) {
 CefRefPtr<CefDictionaryValue> ToCefValue(const ui::AXTreeData& treeData) {
   CefRefPtr<CefDictionaryValue> value = CefDictionaryValue::Create();
 
-  if (treeData.tree_id != -1)
-    value->SetInt("tree_id", treeData.tree_id);
+  if (!treeData.tree_id.ToString().empty())
+    value->SetString("tree_id", treeData.tree_id.ToString());
 
-  if (treeData.parent_tree_id != -1)
-    value->SetInt("parent_tree_id", treeData.parent_tree_id);
+  if (!treeData.parent_tree_id.ToString().empty())
+    value->SetString("parent_tree_id", treeData.parent_tree_id.ToString());
 
-  if (treeData.focused_tree_id != -1)
-    value->SetInt("focused_tree_id", treeData.focused_tree_id);
+  if (!treeData.focused_tree_id.ToString().empty())
+    value->SetString("focused_tree_id", treeData.focused_tree_id.ToString());
 
   if (!treeData.doctype.empty())
     value->SetString("doctype", treeData.doctype);
@@ -404,8 +403,8 @@ CefRefPtr<CefDictionaryValue> ToCefValue(
     const content::AXEventNotificationDetails& eventData) {
   CefRefPtr<CefDictionaryValue> value = CefDictionaryValue::Create();
 
-  if (eventData.ax_tree_id != -1)
-    value->SetInt("ax_tree_id", eventData.ax_tree_id);
+  if (!eventData.ax_tree_id.ToString().empty())
+    value->SetString("ax_tree_id", eventData.ax_tree_id.ToString());
 
   if (eventData.updates.size() > 0) {
     CefRefPtr<CefListValue> updates = CefListValue::Create();
@@ -456,8 +455,8 @@ CefRefPtr<CefDictionaryValue> ToCefValue(
   if (locData.id != -1)
     value->SetInt("id", locData.id);
 
-  if (locData.ax_tree_id != -1)
-    value->SetInt("ax_tree_id", locData.ax_tree_id);
+  if (!locData.ax_tree_id.ToString().empty())
+    value->SetString("ax_tree_id", locData.ax_tree_id.ToString());
 
   value->SetDictionary("new_location", ToCefValue(locData.new_location));
 

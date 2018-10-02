@@ -451,7 +451,7 @@ class CefBrowserHostImpl : public CefBrowserHost,
   content::JavaScriptDialogManager* GetJavaScriptDialogManager(
       content::WebContents* source) override;
   void RunFileChooser(content::RenderFrameHost* render_frame_host,
-                      const content::FileChooserParams& params) override;
+                      const blink::mojom::FileChooserParams& params) override;
   bool EmbedsFullscreenWidget() const override;
   void EnterFullscreenModeForTab(
       content::WebContents* web_contents,

@@ -21,6 +21,7 @@
 #include "content/browser/renderer_host/delegated_frame_host.h"
 #include "content/browser/renderer_host/input/mouse_wheel_phase_handler.h"
 #include "content/browser/renderer_host/render_widget_host_view_base.h"
+#include "content/public/common/widget_type.h"
 #include "ui/compositor/compositor.h"
 #include "ui/compositor/external_begin_frame_client.h"
 #include "ui/gfx/geometry/rect.h"
@@ -242,7 +243,9 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
                int bitmap_height,
                void* bitmap_pixels);
 
-  bool IsPopupWidget() const { return popup_type_ != blink::kWebPopupTypeNone; }
+  bool IsPopupWidget() const {
+    return widget_type_ == content::WidgetType::kPopup;
+  }
 
   void ImeSetComposition(const CefString& text,
                          const std::vector<CefCompositionUnderline>& underlines,

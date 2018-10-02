@@ -15,7 +15,6 @@
 #include "extensions/common/extension_urls.h"
 #include "extensions/common/features/simple_feature.h"
 #include "extensions/common/permissions/permission_message_provider.h"
-#include "extensions/common/permissions/permissions_provider.h"
 #include "extensions/common/url_pattern_set.h"
 
 namespace extensions {

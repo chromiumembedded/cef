@@ -1,5 +1,5 @@
 diff --git chrome/browser/BUILD.gn chrome/browser/BUILD.gn
-index ae76265b33a6..5e1d8f766b48 100644
+index 4adc6a2f64cd..bba2ab9a8b0c 100644
 --- chrome/browser/BUILD.gn
 +++ chrome/browser/BUILD.gn
 @@ -8,6 +8,7 @@ import("//build/config/features.gni")
@@ -10,7 +10,7 @@ index ae76265b33a6..5e1d8f766b48 100644
  import("//chrome/common/features.gni")
  import("//components/feature_engagement/features.gni")
  import("//components/feed/features.gni")
-@@ -1689,6 +1690,7 @@ jumbo_split_static_library("browser") {
+@@ -1691,6 +1692,7 @@ jumbo_split_static_library("browser") {
      "//base:i18n",
      "//base/allocator:buildflags",
      "//cc",
@@ -18,7 +18,7 @@ index ae76265b33a6..5e1d8f766b48 100644
      "//chrome:extra_resources",
      "//chrome:resources",
      "//chrome:strings",
-@@ -1963,6 +1965,10 @@ jumbo_split_static_library("browser") {
+@@ -1966,6 +1968,10 @@ jumbo_split_static_library("browser") {
      ]
    }
  
@@ -29,7 +29,7 @@ index ae76265b33a6..5e1d8f766b48 100644
    if (is_android) {
      sources += [
        "after_startup_task_utils_android.cc",
-@@ -3503,7 +3509,7 @@ jumbo_split_static_library("browser") {
+@@ -3552,7 +3558,7 @@ jumbo_split_static_library("browser") {
      ]
    }
  

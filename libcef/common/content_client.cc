@@ -35,6 +35,7 @@
 #include "content/public/common/pepper_plugin_info.h"
 #include "content/public/common/user_agent.h"
 #include "ppapi/shared_impl/ppapi_permissions.h"
+#include "third_party/widevine/cdm/buildflags.h"
 #include "ui/base/resource/resource_bundle.h"
 
 #if defined(OS_LINUX)
@@ -213,7 +214,7 @@ void CefContentClient::AddContentDecryptionModules(
     std::vector<content::CdmInfo>* cdms,
     std::vector<media::CdmHostFilePath>* cdm_host_file_paths) {
 #if defined(OS_LINUX)
-#if defined(WIDEVINE_CDM_AVAILABLE) && BUILDFLAG(ENABLE_LIBRARY_CDMS)
+#if BUILDFLAG(ENABLE_WIDEVINE) && BUILDFLAG(ENABLE_LIBRARY_CDMS)
   CefWidevineLoader::AddContentDecryptionModules(cdms, cdm_host_file_paths);
 #endif
 #endif

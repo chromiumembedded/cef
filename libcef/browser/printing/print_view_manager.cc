@@ -12,10 +12,12 @@
 #include "base/lazy_instance.h"
 #include "base/memory/ptr_util.h"
 #include "base/memory/ref_counted_memory.h"
+#include "base/task/post_task.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/printing/print_job_manager.h"
 #include "chrome/browser/printing/printer_query.h"
 #include "components/printing/common/print_messages.h"
+#include "content/public/browser/browser_task_traits.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/render_frame_host.h"
 #include "content/public/browser/render_process_host.h"
@@ -119,30 +121,14 @@ void StopWorker(int document_cookie) {
   scoped_refptr<PrinterQuery> printer_query =
       queue->PopPrinterQuery(document_cookie);
   if (printer_query.get()) {
-    BrowserThread::PostTask(
-        BrowserThread::IO, FROM_HERE,
+    base::PostTaskWithTraits(
+        FROM_HERE, {BrowserThread::IO},
         base::Bind(&PrinterQuery::StopWorker, printer_query));
   }
 }
 
-scoped_refptr<base::RefCountedBytes> GetDataFromHandle(
-    base::SharedMemoryHandle handle,
-    uint32_t data_size) {
-  std::unique_ptr<base::SharedMemory> shared_buf =
-      std::make_unique<base::SharedMemory>(handle, true);
-
-  if (!shared_buf->Map(data_size)) {
-    NOTREACHED();
-    return NULL;
-  }
-
-  unsigned char* data = static_cast<unsigned char*>(shared_buf->memory());
-  std::vector<unsigned char> dataVector(data, data + data_size);
-  return base::RefCountedBytes::TakeVector(&dataVector);
-}
-
 // Write the PDF file to disk.
-void SavePdfFile(scoped_refptr<base::RefCountedBytes> data,
+void SavePdfFile(scoped_refptr<base::RefCountedSharedMemoryMapping> data,
                  const base::FilePath& path,
                  const CefPrintViewManager::PdfPrintCallback& callback) {
   CEF_REQUIRE_BLOCKING();
@@ -156,8 +142,8 @@ void SavePdfFile(scoped_refptr<base::RefCountedBytes> data,
   bool ok = file.IsValid() && metafile.SaveTo(&file);
 
   if (!callback.is_null()) {
-    BrowserThread::PostTask(BrowserThread::UI, FROM_HERE,
-                            base::Bind(callback, ok));
+    base::PostTaskWithTraits(FROM_HERE, {BrowserThread::UI},
+                             base::Bind(callback, ok));
   }
 }
 
@@ -266,9 +252,9 @@ void CefPrintViewManager::OnMetafileReadyForPrinting(
   if (!pdf_print_state_)
     return;
 
-  scoped_refptr<base::RefCountedBytes> data_bytes = GetDataFromHandle(
-      params.content.metafile_data_handle, params.content.data_size);
-  if (!data_bytes || !data_bytes->size()) {
+  auto shared_buf = base::RefCountedSharedMemoryMapping::CreateFromWholeRegion(
+      params.content.metafile_data_region);
+  if (!shared_buf) {
     TerminatePdfPrintJob();
     return;
   }
@@ -281,7 +267,7 @@ void CefPrintViewManager::OnMetafileReadyForPrinting(
 
   // Save the PDF file to disk and then execute the callback.
   CEF_POST_USER_VISIBLE_TASK(
-      base::Bind(&SavePdfFile, data_bytes, output_path, print_callback));
+      base::Bind(&SavePdfFile, shared_buf, output_path, print_callback));
 }
 
 void CefPrintViewManager::TerminatePdfPrintJob() {
@@ -291,8 +277,8 @@ void CefPrintViewManager::TerminatePdfPrintJob() {
 
   if (!pdf_print_state_->callback_.is_null()) {
     // Execute the callback.
-    BrowserThread::PostTask(BrowserThread::UI, FROM_HERE,
-                            base::Bind(pdf_print_state_->callback_, false));
+    base::PostTaskWithTraits(FROM_HERE, {BrowserThread::UI},
+                             base::Bind(pdf_print_state_->callback_, false));
   }
 
   // Reset state information.

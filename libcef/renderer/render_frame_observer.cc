@@ -4,10 +4,15 @@
 
 #include "base/compiler_specific.h"
 
-// Enable deprecation warnings for MSVC. See http://crbug.com/585142.
+// Enable deprecation warnings on Windows. See http://crbug.com/585142.
 #if defined(OS_WIN)
+#if defined(__clang__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic error "-Wdeprecated-declarations"
+#else
 #pragma warning(push)
 #pragma warning(default : 4996)
+#endif
 #endif
 
 #include "libcef/renderer/render_frame_observer.h"
@@ -35,7 +40,8 @@ void CefRenderFrameObserver::OnInterfaceRequestForFrame(
 }
 
 void CefRenderFrameObserver::DidStartProvisionalLoad(
-    blink::WebDocumentLoader* document_loader) {
+    blink::WebDocumentLoader* document_loader,
+    bool is_content_initiated) {
   blink::WebLocalFrame* frame = render_frame()->GetWebFrame();
   CefRefPtr<CefBrowserImpl> browserPtr =
       CefBrowserImpl::GetBrowserForMainFrame(frame->Top());
@@ -156,7 +162,11 @@ void CefRenderFrameObserver::OnDestruct() {
   delete this;
 }
 
-// Enable deprecation warnings for MSVC. See http://crbug.com/585142.
+// Enable deprecation warnings on Windows. See http://crbug.com/585142.
 #if defined(OS_WIN)
+#if defined(__clang__)
+#pragma GCC diagnostic pop
+#else
 #pragma warning(pop)
+#endif
 #endif

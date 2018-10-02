@@ -1,5 +1,5 @@
 diff --git build/config/compiler/BUILD.gn build/config/compiler/BUILD.gn
-index d1bb5597f206..8c54651b3bce 100644
+index 1f582933a377..503e2b5bf58a 100644
 --- build/config/compiler/BUILD.gn
 +++ build/config/compiler/BUILD.gn
 @@ -162,7 +162,7 @@ declare_args() {

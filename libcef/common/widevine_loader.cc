@@ -4,7 +4,7 @@
 
 #include "libcef/common/widevine_loader.h"
 
-#if defined(WIDEVINE_CDM_AVAILABLE) && BUILDFLAG(ENABLE_LIBRARY_CDMS)
+#if BUILDFLAG(ENABLE_WIDEVINE) && BUILDFLAG(ENABLE_LIBRARY_CDMS)
 
 #include "libcef/browser/context.h"
 #include "libcef/browser/thread_util.h"
@@ -27,6 +27,7 @@
 #include "media/cdm/supported_cdm_versions.h"
 #include "services/service_manager/embedder/switches.h"
 #include "services/service_manager/sandbox/switches.h"
+#include "third_party/widevine/cdm/widevine_cdm_common.h"  // nogncheck
 
 namespace {
 
@@ -502,4 +503,4 @@ CefWidevineLoader::CefWidevineLoader() {}
 
 CefWidevineLoader::~CefWidevineLoader() {}
 
-#endif  // defined(WIDEVINE_CDM_AVAILABLE) && BUILDFLAG(ENABLE_LIBRARY_CDMS)
+#endif  // BUILDFLAG(ENABLE_WIDEVINE) && BUILDFLAG(ENABLE_LIBRARY_CDMS)

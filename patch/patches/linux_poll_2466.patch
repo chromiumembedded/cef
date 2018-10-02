@@ -1,5 +1,5 @@
 diff --git base/files/file_path_watcher_linux.cc base/files/file_path_watcher_linux.cc
-index c58d6865c27b..6ab39432259d 100644
+index 182a762fec21..69ea94007332 100644
 --- base/files/file_path_watcher_linux.cc
 +++ base/files/file_path_watcher_linux.cc
 @@ -5,6 +5,7 @@
@@ -18,11 +18,10 @@ index c58d6865c27b..6ab39432259d 100644
  #include <map>
  #include <memory>
  #include <set>
-@@ -221,20 +223,15 @@ LazyInstance<InotifyReader>::Leaky g_inotify_reader = LAZY_INSTANCE_INITIALIZER;
- void InotifyReaderThreadDelegate::ThreadMain() {
+@@ -220,21 +222,15 @@ void InotifyReaderThreadDelegate::ThreadMain() {
    PlatformThread::SetName("inotify_reader");
  
--  // Make sure the file descriptors are good for use with select().
+   // Make sure the file descriptors are good for use with select().
 -  CHECK_LE(0, inotify_fd_);
 -  CHECK_GT(FD_SETSIZE, inotify_fd_);
 +  std::array<pollfd, 1> fdarray
@@ -34,6 +33,8 @@ index c58d6865c27b..6ab39432259d 100644
 -    fd_set rfds;
 -    FD_ZERO(&rfds);
 -    FD_SET(inotify_fd_, &rfds);
+-
+-    ScopedBlockingCall scoped_blocking_call(BlockingType::WILL_BLOCK);
 -
 -    // Wait until some inotify events are available.
 -    int select_result =

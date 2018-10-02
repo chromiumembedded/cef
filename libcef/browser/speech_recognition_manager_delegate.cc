@@ -11,6 +11,8 @@
 
 #include "base/bind.h"
 #include "base/command_line.h"
+#include "base/task/post_task.h"
+#include "content/public/browser/browser_task_traits.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/notification_observer.h"
 #include "content/public/browser/notification_registrar.h"
@@ -74,8 +76,8 @@ void CefSpeechRecognitionManagerDelegate::CheckRecognitionIsAllowed(
   // Make sure that initiators properly set the |render_process_id| field.
   DCHECK_NE(context.render_process_id, 0);
 
-  BrowserThread::PostTask(BrowserThread::IO, FROM_HERE,
-                          base::BindOnce(std::move(callback), false, true));
+  base::PostTaskWithTraits(FROM_HERE, {content::BrowserThread::IO},
+                           base::BindOnce(std::move(callback), false, true));
 }
 
 content::SpeechRecognitionEventListener*

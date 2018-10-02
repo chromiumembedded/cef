@@ -30,7 +30,7 @@ void PluginsCallbackImpl(
   }
 }
 
-#if !(defined(WIDEVINE_CDM_AVAILABLE) && BUILDFLAG(ENABLE_LIBRARY_CDMS)) || \
+#if !(BUILDFLAG(ENABLE_WIDEVINE) && BUILDFLAG(ENABLE_LIBRARY_CDMS)) || \
     defined(OS_LINUX)
 
 void DeliverWidevineCdmError(const std::string& error_message,
@@ -168,7 +168,7 @@ void CefIsWebPluginUnstable(const CefString& path,
 
 void CefRegisterWidevineCdm(const CefString& path,
                             CefRefPtr<CefRegisterCdmCallback> callback) {
-#if defined(WIDEVINE_CDM_AVAILABLE) && BUILDFLAG(ENABLE_LIBRARY_CDMS)
+#if BUILDFLAG(ENABLE_WIDEVINE) && BUILDFLAG(ENABLE_LIBRARY_CDMS)
 #if defined(OS_LINUX)
   // Enforce the requirement that CefRegisterWidevineCdm() is called before
   // CefInitialize() on Linux. See comments in
@@ -184,5 +184,5 @@ void CefRegisterWidevineCdm(const CefString& path,
   CefWidevineLoader::GetInstance()->LoadWidevineCdm(path, callback);
 #else
   DeliverWidevineCdmError("Widevine registration is not supported", callback);
-#endif  // defined(WIDEVINE_CDM_AVAILABLE) && BUILDFLAG(ENABLE_LIBRARY_CDMS)
+#endif  // BUILDFLAG(ENABLE_WIDEVINE) && BUILDFLAG(ENABLE_LIBRARY_CDMS)
 }

@@ -39,10 +39,10 @@ index a19e6e937f87..817b7eada253 100644
    virtual void MenuWillShow() {}
  
 diff --git ui/gfx/render_text.cc ui/gfx/render_text.cc
-index c29ed3e92bc9..fc3fe3a6f12f 100644
+index deada9af341b..d68300e5ab96 100644
 --- ui/gfx/render_text.cc
 +++ ui/gfx/render_text.cc
-@@ -524,6 +524,14 @@ void RenderText::SetElideBehavior(ElideBehavior elide_behavior) {
+@@ -513,6 +513,14 @@ void RenderText::SetElideBehavior(ElideBehavior elide_behavior) {
    }
  }
  
@@ -57,7 +57,7 @@ index c29ed3e92bc9..fc3fe3a6f12f 100644
  void RenderText::SetDisplayRect(const Rect& r) {
    if (r != display_rect_) {
      display_rect_ = r;
-@@ -1518,6 +1526,19 @@ void RenderText::OnTextAttributeChanged() {
+@@ -1507,6 +1515,19 @@ void RenderText::OnTextAttributeChanged() {
    if (!multiline_ && replace_newline_chars_with_symbols_)
      base::ReplaceChars(layout_text_, kNewline, kNewlineSymbol, &layout_text_);
  
@@ -295,10 +295,10 @@ index 9c78b30ab3a0..999eb4048f5c 100644
    std::unique_ptr<SelectionController> selection_controller_;
  
 diff --git ui/views/controls/menu/menu_controller.cc ui/views/controls/menu/menu_controller.cc
-index b4da2b5128c8..d030d6e81c19 100644
+index 63a169e74862..16a01b6eb2bd 100644
 --- ui/views/controls/menu/menu_controller.cc
 +++ ui/views/controls/menu/menu_controller.cc
-@@ -2441,8 +2441,13 @@ MenuItemView* MenuController::FindNextSelectableMenuItem(
+@@ -2440,8 +2440,13 @@ MenuItemView* MenuController::FindNextSelectableMenuItem(
  
  void MenuController::OpenSubmenuChangeSelectionIfCan() {
    MenuItemView* item = pending_state_.item;
@@ -313,7 +313,7 @@ index b4da2b5128c8..d030d6e81c19 100644
    MenuItemView* to_select = NULL;
    if (item->GetSubmenu()->GetMenuItemCount() > 0)
      to_select = FindInitialSelectableMenuItem(item, INCREMENT_SELECTION_DOWN);
-@@ -2457,8 +2462,10 @@ void MenuController::OpenSubmenuChangeSelectionIfCan() {
+@@ -2456,8 +2461,10 @@ void MenuController::OpenSubmenuChangeSelectionIfCan() {
  void MenuController::CloseSubmenu() {
    MenuItemView* item = state_.item;
    DCHECK(item);
@@ -365,10 +365,10 @@ index 706605182f9a..e97d0495bc72 100644
    virtual int GetMaxWidthForMenu(MenuItemView* menu);
  
 diff --git ui/views/controls/menu/menu_item_view.cc ui/views/controls/menu/menu_item_view.cc
-index 6c007a1030cf..e63b03f0534c 100644
+index dc3228c2e060..e402e021b464 100644
 --- ui/views/controls/menu/menu_item_view.cc
 +++ ui/views/controls/menu/menu_item_view.cc
-@@ -915,7 +915,12 @@ void MenuItemView::PaintButton(gfx::Canvas* canvas, PaintButtonMode mode) {
+@@ -926,7 +926,12 @@ void MenuItemView::PaintButton(gfx::Canvas* canvas, PaintButtonMode mode) {
    // only need the background when we want it to look different, as when we're
    // selected.
    ui::NativeTheme* native_theme = GetNativeTheme();
@@ -382,7 +382,7 @@ index 6c007a1030cf..e63b03f0534c 100644
      gfx::Rect item_bounds(0, 0, width(), height());
      if (type_ == ACTIONABLE_SUBMENU) {
        if (submenu_area_of_actionable_submenu_selected_) {
-@@ -1035,6 +1040,13 @@ void MenuItemView::PaintMinorIconAndText(
+@@ -1046,6 +1051,13 @@ void MenuItemView::PaintMinorIconAndText(
  }
  
  SkColor MenuItemView::GetTextColor(bool minor, bool render_selection) const {
@@ -535,7 +535,7 @@ index 3ec1dcbdf822..e2658cec8095 100644
        // Move the cursor because EnterNotify/LeaveNotify are generated with the
        // current mouse position as a result of XGrabPointer()
 diff --git ui/views/view.h ui/views/view.h
-index 4248609dd3c3..e254ce5a940a 100644
+index 161e015c0448..4b36bfd17082 100644
 --- ui/views/view.h
 +++ ui/views/view.h
 @@ -19,6 +19,7 @@

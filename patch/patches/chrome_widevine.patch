@@ -1,35 +1,26 @@
 diff --git chrome/common/chrome_content_client.cc chrome/common/chrome_content_client.cc
-index 47eea6d5c75b..40de62691f31 100644
+index d6cb69e4bc05..1f8e2c860c4f 100644
 --- chrome/common/chrome_content_client.cc
 +++ chrome/common/chrome_content_client.cc
-@@ -97,7 +97,8 @@
- 
- #if BUILDFLAG(ENABLE_LIBRARY_CDMS)
- #include "media/cdm/cdm_paths.h"  // nogncheck
--#if defined(WIDEVINE_CDM_AVAILABLE) && !defined(WIDEVINE_CDM_IS_COMPONENT)
-+#if defined(WIDEVINE_CDM_AVAILABLE) && !defined(WIDEVINE_CDM_IS_COMPONENT) && \
+@@ -99,7 +99,8 @@
+ // Registers Widevine CDM if Widevine is enabled, the Widevine CDM is
+ // bundled and not a component. When the Widevine CDM is a component, it is
+ // registered in widevine_cdm_component_installer.cc.
+-#if BUILDFLAG(SHOULD_BUNDLE_WIDEVINE_CDM) && !BUILDFLAG(ENABLE_WIDEVINE_CDM_COMPONENT)
++#if BUILDFLAG(SHOULD_BUNDLE_WIDEVINE_CDM) && !BUILDFLAG(ENABLE_WIDEVINE_CDM_COMPONENT) && \
 +    defined(WIDEVINE_CDM_VERSION_STRING)
- #define WIDEVINE_CDM_AVAILABLE_NOT_COMPONENT
- #endif
- #endif  // BUILDFLAG(ENABLE_LIBRARY_CDMS)
+ #define REGISTER_BUNDLED_WIDEVINE_CDM
+ #include "third_party/widevine/cdm/widevine_cdm_common.h"  // nogncheck
+ // TODO(crbug.com/663554): Needed for WIDEVINE_CDM_VERSION_STRING. Support
 diff --git third_party/widevine/cdm/BUILD.gn third_party/widevine/cdm/BUILD.gn
-index 55b471ea93f8..6dac0552d66f 100644
+index aa21ecb8b018..40df6399891a 100644
 --- third_party/widevine/cdm/BUILD.gn
 +++ third_party/widevine/cdm/BUILD.gn
-@@ -4,6 +4,7 @@
- 
+@@ -5,6 +5,7 @@
+ import("//build/buildflag_header.gni")
  import("//build/config/chrome_build.gni")
  import("//build/config/features.gni")
 +import("//cef/libcef/features/features.gni")
  import("//media/cdm/library_cdm/cdm_paths.gni")
  import("//media/media_options.gni")
  import("//third_party/widevine/cdm/widevine.gni")
-@@ -11,7 +12,7 @@ import("//third_party/widevine/cdm/widevine.gni")
- # Internal Cast builds set enable_widevine=true to bring in Widevine support.
- # TODO(xhwang): Support component updated CDM on other platforms and remove this
- # assert.
--assert(!enable_widevine || is_win || is_mac || is_chromecast,
-+assert(!enable_widevine || is_win || is_mac || is_chromecast || enable_cef,
-        "Component updated CDM only supported on Windows and Mac for now.")
- 
- widevine_arch = current_cpu

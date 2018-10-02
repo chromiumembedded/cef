@@ -1,5 +1,5 @@
 diff --git .gn .gn
-index 6fd17634ee87..0563b730a180 100644
+index 2ae9ab394481..2ff59eb3a2ef 100644
 --- .gn
 +++ .gn
 @@ -411,6 +411,8 @@ exec_script_whitelist =
@@ -12,10 +12,10 @@ index 6fd17634ee87..0563b730a180 100644
        # https://crbug.com/474506.
        "//clank/java/BUILD.gn",
 diff --git BUILD.gn BUILD.gn
-index fd7e05257f9a..89d9e6c53d06 100644
+index 7f12f0ac4a22..2a83ba4f17fd 100644
 --- BUILD.gn
 +++ BUILD.gn
-@@ -187,6 +187,7 @@ group("gn_all") {
+@@ -186,6 +186,7 @@ group("gn_all") {
  
    if (!is_ios && !is_fuchsia) {
      deps += [
@@ -138,10 +138,10 @@ index 1ba5533c3efb..abfd55a2c703 100644
  
  
 diff --git build/vs_toolchain.py build/vs_toolchain.py
-index 83847f456676..bf6254a0ebb6 100755
+index 32bad7f469bd..dcee84f71e5f 100755
 --- build/vs_toolchain.py
 +++ build/vs_toolchain.py
-@@ -68,11 +68,18 @@ def SetEnvironmentAndGetRuntimeDllDirs():
+@@ -65,11 +65,18 @@ def SetEnvironmentAndGetRuntimeDllDirs():
      runtime_path = os.path.pathsep.join(vs_runtime_dll_dirs)
      os.environ['PATH'] = runtime_path + os.path.pathsep + os.environ['PATH']
    elif sys.platform == 'win32' and not depot_tools_win_toolchain:

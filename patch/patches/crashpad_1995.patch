@@ -509,7 +509,7 @@ index f06d903c2f41..6ec1442323e9 100644
            handler_path, database_path, metrics_path, url,
            GetProcessSimpleAnnotations(), arguments, true, false);
 diff --git components/crash/content/app/crashpad_win.cc components/crash/content/app/crashpad_win.cc
-index 8b0edef1b594..22555bb9dc77 100644
+index 4902d87bd171..a573e9557666 100644
 --- components/crash/content/app/crashpad_win.cc
 +++ components/crash/content/app/crashpad_win.cc
 @@ -34,8 +34,8 @@ void GetPlatformCrashpadAnnotations(
@@ -597,10 +597,10 @@ index 8b0edef1b594..22555bb9dc77 100644
  
      if (crash_reporter_client->ShouldMonitorCrashHandlerExpensively()) {
 diff --git content/browser/frame_host/debug_urls.cc content/browser/frame_host/debug_urls.cc
-index 78868e2664bb..ec7c60c62efa 100644
+index 0276f809ab6f..d2ee6cd38264 100644
 --- content/browser/frame_host/debug_urls.cc
 +++ content/browser/frame_host/debug_urls.cc
-@@ -133,7 +133,9 @@ bool HandleDebugURL(const GURL& url, ui::PageTransition transition) {
+@@ -135,7 +135,9 @@ bool HandleDebugURL(const GURL& url, ui::PageTransition transition) {
            cc::switches::kEnableGpuBenchmarking) &&
        (PageTransitionCoreTypeIs(transition, ui::PAGE_TRANSITION_TYPED));
  

@@ -480,7 +480,7 @@ date = get_date()
 
 # Read and parse the version file (key=value pairs, one per line)
 args = {}
-read_version_file(os.path.join(cef_dir, 'VERSION'), args)
+read_version_file(os.path.join(cef_dir, 'VERSION.in'), args)
 read_version_file(os.path.join(cef_dir, '../chrome/VERSION'), args)
 
 cef_ver = '%s.%s.%s.g%s' % (args['CEF_MAJOR'], args['BUILD'], cef_commit_number,

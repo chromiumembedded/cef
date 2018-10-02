@@ -5,6 +5,9 @@
 
 #include "libcef/browser/chrome_profile_stub.h"
 
+#include "content/public/browser/resource_context.h"
+#include "net/url_request/url_request_context.h"
+
 ChromeProfileStub::ChromeProfileStub() {}
 
 ChromeProfileStub::~ChromeProfileStub() {}
@@ -53,7 +56,6 @@ bool ChromeProfileStub::IsChild() const {
 }
 
 bool ChromeProfileStub::IsLegacySupervised() const {
-  NOTREACHED();
   return false;
 }
 
@@ -68,11 +70,13 @@ PrefService* ChromeProfileStub::GetOffTheRecordPrefs() {
   return NULL;
 }
 
-net::URLRequestContextGetter*
-ChromeProfileStub::GetRequestContextForExtensions() {
-  // TODO(cef): Consider creating a separate context for extensions to match
-  // Chrome behavior.
-  return GetRequestContext();
+base::OnceCallback<net::CookieStore*()>
+ChromeProfileStub::GetExtensionsCookieStoreGetter() {
+  return base::BindOnce(
+      [](content::ResourceContext* context) {
+        return context->GetRequestContext()->cookie_store();
+      },
+      GetResourceContext());
 }
 
 bool ChromeProfileStub::IsSameProfile(Profile* profile) {
@@ -93,11 +97,6 @@ base::FilePath ChromeProfileStub::last_selected_directory() {
 void ChromeProfileStub::set_last_selected_directory(
     const base::FilePath& path) {
   NOTREACHED();
-}
-
-chrome_browser_net::Predictor* ChromeProfileStub::GetNetworkPredictor() {
-  NOTREACHED();
-  return NULL;
 }
 
 GURL ChromeProfileStub::GetHomePage() {

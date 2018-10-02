@@ -16,8 +16,10 @@
 #include "libcef/common/extensions/extensions_util.h"
 
 #include "base/guid.h"
+#include "base/task/post_task.h"
 #include "build/build_config.h"
 #include "chrome/browser/extensions/api/streams_private/streams_private_api.h"
+#include "content/public/browser/browser_task_traits.h"
 #include "content/public/browser/plugin_service.h"
 #include "content/public/browser/plugin_service_filter.h"
 #include "content/public/browser/render_frame_host.h"
@@ -95,8 +97,8 @@ void CefResourceDispatcherHostDelegate::OnStreamCreated(
       stream_target_info_.find(request);
   CHECK(ix != stream_target_info_.end());
   bool embedded = info->GetResourceType() != content::RESOURCE_TYPE_MAIN_FRAME;
-  content::BrowserThread::PostTask(
-      content::BrowserThread::UI, FROM_HERE,
+  base::PostTaskWithTraits(
+      FROM_HERE, {content::BrowserThread::UI},
       base::BindOnce(
           &extensions::StreamsPrivateAPI::SendExecuteMimeTypeHandlerEvent,
           request->GetExpectedContentSize(), ix->second.extension_id,

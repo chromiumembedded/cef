@@ -265,7 +265,7 @@ class RequestSendRecvTestHandler : public TestHandler {
     TestRequestEqual(request_, request, true);
     EXPECT_EQ(request_id_, request->GetIdentifier());
     EXPECT_EQ(RT_MAIN_FRAME, request->GetResourceType());
-    EXPECT_EQ(TT_LINK, request->GetTransitionType());
+    EXPECT_EQ(TT_FORM_SUBMIT, request->GetTransitionType());
   }
 
   void TestResponse(CefRefPtr<CefResponse> response) {
@@ -322,7 +322,7 @@ static struct TypeExpected {
     {"main.html", true, TT_EXPLICIT, RT_MAIN_FRAME, 1},
 
     // Sub frame load.
-    {"sub.html", true, TT_LINK, RT_SUB_FRAME, 1},
+    {"sub.html", true, TT_AUTO_SUBFRAME, RT_SUB_FRAME, 1},
 
     // Stylesheet load.
     {"style.css", false, TT_LINK, RT_STYLESHEET, 1},

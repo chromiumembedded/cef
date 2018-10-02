@@ -1,8 +1,8 @@
 diff --git content/browser/devtools/devtools_http_handler.cc content/browser/devtools/devtools_http_handler.cc
-index a0ce6d621d83..f2c7329d6657 100644
+index 7e237fd5dc30..b666eb19166f 100644
 --- content/browser/devtools/devtools_http_handler.cc
 +++ content/browser/devtools/devtools_http_handler.cc
-@@ -567,7 +567,7 @@ void DevToolsHttpHandler::OnJsonRequest(
+@@ -569,7 +569,7 @@ void DevToolsHttpHandler::OnJsonRequest(
      version.SetString("Protocol-Version",
                        DevToolsAgentHost::GetProtocolVersion());
      version.SetString("WebKit-Version", GetWebKitVersion());

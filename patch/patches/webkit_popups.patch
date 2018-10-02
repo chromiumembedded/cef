@@ -1,8 +1,8 @@
 diff --git third_party/blink/public/web/web_view.h third_party/blink/public/web/web_view.h
-index 380ca3f69a26..fe841b6f25bd 100644
+index bafddd241354..1f66e731b111 100644
 --- third_party/blink/public/web/web_view.h
 +++ third_party/blink/public/web/web_view.h
-@@ -351,6 +351,7 @@ class WebView : protected WebWidget {
+@@ -356,6 +356,7 @@ class WebView : protected WebWidget {
  
    // Sets whether select popup menus should be rendered by the browser.
    BLINK_EXPORT static void SetUseExternalPopupMenus(bool);
@@ -10,7 +10,7 @@ index 380ca3f69a26..fe841b6f25bd 100644
  
    // Hides any popup (suggestions, selects...) that might be showing.
    virtual void HidePopups() = 0;
-@@ -375,6 +376,8 @@ class WebView : protected WebWidget {
+@@ -380,6 +381,8 @@ class WebView : protected WebWidget {
                                    unsigned inactive_background_color,
                                    unsigned inactive_foreground_color) = 0;
  
@@ -20,7 +20,7 @@ index 380ca3f69a26..fe841b6f25bd 100644
  
    // Call these methods before and after running a nested, modal event loop
 diff --git third_party/blink/renderer/core/exported/web_view_impl.cc third_party/blink/renderer/core/exported/web_view_impl.cc
-index 1a1e2cfb4fd2..9251b9a09504 100644
+index c6c7154f6e0a..0ed9276cb46e 100644
 --- third_party/blink/renderer/core/exported/web_view_impl.cc
 +++ third_party/blink/renderer/core/exported/web_view_impl.cc
 @@ -234,8 +234,13 @@ void WebView::SetUseExternalPopupMenus(bool use_external_popup_menus) {
@@ -48,10 +48,10 @@ index 1a1e2cfb4fd2..9251b9a09504 100644
        suppress_next_keypress_event_(false),
        ime_accept_events_(true),
 diff --git third_party/blink/renderer/core/exported/web_view_impl.h third_party/blink/renderer/core/exported/web_view_impl.h
-index 66a3b5c16769..ac7331a50353 100644
+index b1399b141480..2a9bba9f2746 100644
 --- third_party/blink/renderer/core/exported/web_view_impl.h
 +++ third_party/blink/renderer/core/exported/web_view_impl.h
-@@ -103,7 +103,8 @@ class CORE_EXPORT WebViewImpl final : public WebView,
+@@ -104,7 +104,8 @@ class CORE_EXPORT WebViewImpl final : public WebView,
    static HashSet<WebViewImpl*>& AllInstances();
    // Returns true if popup menus should be rendered by the browser, false if
    // they should be rendered by WebKit (which is the default).
@@ -61,7 +61,7 @@ index 66a3b5c16769..ac7331a50353 100644
  
    // WebWidget methods:
    void Close() override;
-@@ -244,7 +245,7 @@ class CORE_EXPORT WebViewImpl final : public WebView,
+@@ -246,7 +247,7 @@ class CORE_EXPORT WebViewImpl final : public WebView,
    HitTestResult CoreHitTestResultAt(const WebPoint&);
    void InvalidateRect(const IntRect&);
  
@@ -70,7 +70,7 @@ index 66a3b5c16769..ac7331a50353 100644
    void SetBaseBackgroundColorOverride(SkColor);
    void ClearBaseBackgroundColorOverride();
    void SetBackgroundColorOverride(SkColor);
-@@ -598,6 +599,8 @@ class CORE_EXPORT WebViewImpl final : public WebView,
+@@ -607,6 +608,8 @@ class CORE_EXPORT WebViewImpl final : public WebView,
    float fake_page_scale_animation_page_scale_factor_;
    bool fake_page_scale_animation_use_anchor_;
  
@@ -80,7 +80,7 @@ index 66a3b5c16769..ac7331a50353 100644
    TransformationMatrix device_emulation_transform_;
  
 diff --git third_party/blink/renderer/core/page/chrome_client_impl.cc third_party/blink/renderer/core/page/chrome_client_impl.cc
-index 642b6ded444c..45296936ef21 100644
+index c34ed3622f39..87a3d922f82b 100644
 --- third_party/blink/renderer/core/page/chrome_client_impl.cc
 +++ third_party/blink/renderer/core/page/chrome_client_impl.cc
 @@ -805,7 +805,7 @@ bool ChromeClientImpl::HasOpenedPopup() const {

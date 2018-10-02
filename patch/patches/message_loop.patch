@@ -83,7 +83,7 @@ index d623cbc7f7b2..04d83792f98d 100644
  
  #if !defined(OS_NACL)
 diff --git base/message_loop/message_pump_win.cc base/message_loop/message_pump_win.cc
-index bba71fa7929f..9abffd154557 100644
+index 1d6748e0e88a..1598fb65484e 100644
 --- base/message_loop/message_pump_win.cc
 +++ base/message_loop/message_pump_win.cc
 @@ -11,6 +11,7 @@
@@ -94,7 +94,7 @@ index bba71fa7929f..9abffd154557 100644
  #include "base/metrics/histogram_macros.h"
  #include "base/strings/stringprintf.h"
  #include "base/trace_event/trace_event.h"
-@@ -387,20 +388,28 @@ bool MessagePumpForUI::ProcessMessageHelper(const MSG& msg) {
+@@ -384,20 +385,28 @@ bool MessagePumpForUI::ProcessMessageHelper(const MSG& msg) {
  }
  
  bool MessagePumpForUI::ProcessPumpReplacementMessage() {
@@ -119,7 +119,7 @@ index bba71fa7929f..9abffd154557 100644
 +  bool have_message = false;
    MSG msg;
 -  const bool have_message =
--      PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE) != FALSE;
+-      ::PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE) != FALSE;
 +  // We should not process all window messages if we are in the context of an
 +  // OS modal loop, i.e. in the context of a windows API call like MessageBox.
 +  // This is to ensure that these messages are peeked out by the OS modal loop.
