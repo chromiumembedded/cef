@@ -15,6 +15,8 @@
 #include "base/memory/weak_ptr.h"
 #include "net/cookies/cookie_monster.h"
 
+class CefCookieStoreOwnerSource;
+
 // Implementation of the CefCookieManager interface.
 class CefCookieManagerImpl : public CefCookieManager {
  public:
@@ -122,9 +124,7 @@ class CefCookieManagerImpl : public CefCookieManager {
   scoped_refptr<CefURLRequestContextGetterImpl> request_context_impl_;
 
   // Used for cookie monsters owned by this object.
-  base::FilePath storage_path_;
-  std::vector<std::string> supported_schemes_;
-  std::unique_ptr<net::CookieMonster> cookie_store_;
+  std::unique_ptr<CefCookieStoreOwnerSource> cookie_source_;
 
   // Must be the last member.
   base::WeakPtrFactory<CefCookieManagerImpl> weak_ptr_factory_;
