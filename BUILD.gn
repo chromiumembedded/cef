@@ -405,6 +405,8 @@ static_library("libcef_static") {
     "libcef/browser/net/chrome_scheme_handler.h",
     "libcef/browser/net/cookie_store_proxy.cc",
     "libcef/browser/net/cookie_store_proxy.h",
+    "libcef/browser/net/cookie_store_source.cc",
+    "libcef/browser/net/cookie_store_source.h",
     "libcef/browser/net/crlset_file_util_impl.cc",
     "libcef/browser/net/devtools_scheme_handler.cc",
     "libcef/browser/net/devtools_scheme_handler.h",

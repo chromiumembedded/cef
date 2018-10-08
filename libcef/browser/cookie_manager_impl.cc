@@ -10,12 +10,12 @@
 
 #include "libcef/browser/content_browser_client.h"
 #include "libcef/browser/context.h"
+#include "libcef/browser/net/cookie_store_source.h"
 #include "libcef/browser/net/network_delegate.h"
 #include "libcef/common/task_runner_impl.h"
 #include "libcef/common/time_util.h"
 
 #include "base/bind.h"
-#include "base/files/file_util.h"
 #include "base/format_macros.h"
 #include "base/logging.h"
 #include "base/threading/thread_restrictions.h"
@@ -25,7 +25,6 @@
 #include "content/public/browser/browser_task_traits.h"
 #include "net/cookies/cookie_util.h"
 #include "net/cookies/parsed_cookie.h"
-#include "net/extras/sqlite/sqlite_persistent_cookie_store.h"
 #include "net/url_request/url_request_context.h"
 #include "url/gurl.h"
 
@@ -165,7 +164,7 @@ void CefCookieManagerImpl::GetCookieStore(
     return;
   }
 
-  DCHECK(is_blocking_ || cookie_store_.get());
+  DCHECK(is_blocking_ || cookie_source_);
 
   // Binding ref-counted |this| to CookieStoreGetter may result in
   // heap-use-after-free if (a) the CookieStoreGetter contains the last
@@ -188,8 +187,8 @@ void CefCookieManagerImpl::GetCookieStore(
 
 net::CookieStore* CefCookieManagerImpl::GetExistingCookieStore() {
   CEF_REQUIRE_IOT();
-  if (cookie_store_.get()) {
-    return cookie_store_.get();
+  if (cookie_source_) {
+    return cookie_source_->GetCookieStore();
   } else if (request_context_impl_.get()) {
     net::CookieStore* cookie_store =
         request_context_impl_->GetExistingCookieStore();
@@ -294,46 +293,14 @@ bool CefCookieManagerImpl::SetStoragePath(
   if (!path.empty())
     new_path = base::FilePath(path);
 
-  if (cookie_store_.get() &&
-      ((storage_path_.empty() && path.empty()) || storage_path_ == new_path)) {
-    // The path has not changed so don't do anything.
-    RunAsyncCompletionOnIOThread(callback);
-    return true;
+  if (!cookie_source_) {
+    cookie_source_.reset(new CefCookieStoreOwnerSource());
   }
 
-  scoped_refptr<net::SQLitePersistentCookieStore> persistent_store;
-  if (!new_path.empty()) {
-    // TODO(cef): Move directory creation to the blocking pool instead of
-    // allowing file IO on this thread.
-    base::ThreadRestrictions::ScopedAllowIO allow_io;
-    if (base::DirectoryExists(new_path) || base::CreateDirectory(new_path)) {
-      const base::FilePath& cookie_path = new_path.AppendASCII("Cookies");
-      persistent_store = new net::SQLitePersistentCookieStore(
-          cookie_path,
-          base::CreateSingleThreadTaskRunnerWithTraits({BrowserThread::IO}),
-          // Intentionally using the background task runner exposed by CEF to
-          // facilitate unit test expectations. This task runner MUST be
-          // configured with BLOCK_SHUTDOWN.
-          CefContentBrowserClient::Get()->background_task_runner(),
-          persist_session_cookies, nullptr);
-    } else {
-      NOTREACHED() << "The cookie storage directory could not be created";
-      storage_path_.clear();
-    }
-  }
+  cookie_source_->SetCookieStoragePath(new_path, persist_session_cookies,
+                                       g_browser_process->net_log());
 
-  // Set the new cookie store that will be used for all new requests. The old
-  // cookie store, if any, will be automatically flushed and closed when no
-  // longer referenced.
-  cookie_store_.reset(new net::CookieMonster(persistent_store.get(), nullptr,
-                                             g_browser_process->net_log()));
-  if (persistent_store.get() && persist_session_cookies)
-    cookie_store_->SetPersistSessionCookies(true);
-  storage_path_ = new_path;
-
-  // Restore the previously supported schemes.
-  SetSupportedSchemesInternal(supported_schemes_, callback);
-
+  RunAsyncCompletionOnIOThread(callback);
   return true;
 }
 
@@ -512,10 +479,9 @@ void CefCookieManagerImpl::SetSupportedSchemesInternal(
     return;
   }
 
-  DCHECK(is_blocking_ || cookie_store_.get());
-  if (cookie_store_) {
-    supported_schemes_ = schemes;
-    SetCookieMonsterSchemes(cookie_store_.get(), supported_schemes_);
+  DCHECK(is_blocking_ || cookie_source_);
+  if (cookie_source_) {
+    cookie_source_->SetCookieSupportedSchemes(schemes);
   }
 
   RunAsyncCompletionOnIOThread(callback);

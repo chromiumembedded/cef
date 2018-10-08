@@ -10,6 +10,8 @@
 
 #include "libcef/browser/content_browser_client.h"
 #include "libcef/browser/cookie_manager_impl.h"
+#include "libcef/browser/net/cookie_store_proxy.h"
+#include "libcef/browser/net/cookie_store_source.h"
 #include "libcef/browser/net/network_delegate.h"
 #include "libcef/browser/net/scheme_handler.h"
 #include "libcef/browser/net/url_request_interceptor.h"
@@ -18,7 +20,6 @@
 #include "libcef/common/content_client.h"
 
 #include "base/command_line.h"
-#include "base/files/file_util.h"
 #include "base/logging.h"
 #include "base/memory/ptr_util.h"
 #include "base/stl_util.h"
@@ -44,7 +45,6 @@
 #include "net/cert/multi_log_ct_verifier.h"
 #include "net/cookies/cookie_monster.h"
 #include "net/dns/host_resolver.h"
-#include "net/extras/sqlite/sqlite_persistent_cookie_store.h"
 #include "net/ftp/ftp_network_layer.h"
 #include "net/http/http_auth_handler_factory.h"
 #include "net/http/http_auth_preferences.h"
@@ -474,58 +474,21 @@ void CefURLRequestContextGetterImpl::SetCookieStoragePath(
     const base::FilePath& path,
     bool persist_session_cookies) {
   CEF_REQUIRE_IOT();
-
-  if (io_state_->url_request_context_->cookie_store() &&
-      ((io_state_->cookie_store_path_.empty() && path.empty()) ||
-       io_state_->cookie_store_path_ == path)) {
-    // The path has not changed so don't do anything.
-    return;
+  if (!io_state_->cookie_source_) {
+    // Use a proxy because we can't change the URLRequestContext's CookieStore
+    // during runtime.
+    io_state_->cookie_source_ = new CefCookieStoreOwnerSource();
+    io_state_->storage_->set_cookie_store(std::make_unique<CefCookieStoreProxy>(
+        base::WrapUnique(io_state_->cookie_source_)));
   }
-
-  scoped_refptr<net::SQLitePersistentCookieStore> persistent_store;
-  if (!path.empty()) {
-    // TODO(cef): Move directory creation to the blocking pool instead of
-    // allowing file IO on this thread.
-    base::ThreadRestrictions::ScopedAllowIO allow_io;
-    if (base::DirectoryExists(path) || base::CreateDirectory(path)) {
-      const base::FilePath& cookie_path = path.AppendASCII("Cookies");
-      persistent_store = new net::SQLitePersistentCookieStore(
-          cookie_path,
-          base::CreateSingleThreadTaskRunnerWithTraits({BrowserThread::IO}),
-          // Intentionally using the background task runner exposed by CEF to
-          // facilitate unit test expectations. This task runner MUST be
-          // configured with BLOCK_SHUTDOWN.
-          CefContentBrowserClient::Get()->background_task_runner(),
-          persist_session_cookies, NULL);
-    } else {
-      NOTREACHED() << "The cookie storage directory could not be created";
-    }
-  }
-
-  // Set the new cookie store that will be used for all new requests. The old
-  // cookie store, if any, will be automatically flushed and closed when no
-  // longer referenced.
-  std::unique_ptr<net::CookieMonster> cookie_monster(new net::CookieMonster(
-      persistent_store.get(), nullptr, io_state_->net_log_));
-  if (persistent_store.get() && persist_session_cookies)
-    cookie_monster->SetPersistSessionCookies(true);
-  io_state_->cookie_store_path_ = path;
-
-  // Restore the previously supported schemes.
-  CefCookieManagerImpl::SetCookieMonsterSchemes(
-      cookie_monster.get(), io_state_->cookie_supported_schemes_);
-
-  io_state_->storage_->set_cookie_store(std::move(cookie_monster));
+  io_state_->cookie_source_->SetCookieStoragePath(path, persist_session_cookies,
+                                                  io_state_->net_log_);
 }
 
 void CefURLRequestContextGetterImpl::SetCookieSupportedSchemes(
     const std::vector<std::string>& schemes) {
   CEF_REQUIRE_IOT();
-
-  io_state_->cookie_supported_schemes_ = schemes;
-  CefCookieManagerImpl::SetCookieMonsterSchemes(
-      static_cast<net::CookieMonster*>(GetExistingCookieStore()),
-      io_state_->cookie_supported_schemes_);
+  io_state_->cookie_source_->SetCookieSupportedSchemes(schemes);
 }
 
 void CefURLRequestContextGetterImpl::AddHandler(
@@ -542,9 +505,8 @@ void CefURLRequestContextGetterImpl::AddHandler(
 net::CookieStore* CefURLRequestContextGetterImpl::GetExistingCookieStore()
     const {
   CEF_REQUIRE_IOT();
-  if (io_state_->url_request_context_ &&
-      io_state_->url_request_context_->cookie_store()) {
-    return io_state_->url_request_context_->cookie_store();
+  if (io_state_->cookie_source_) {
+    return io_state_->cookie_source_->GetCookieStore();
   }
 
   LOG(ERROR) << "Cookie store does not exist";

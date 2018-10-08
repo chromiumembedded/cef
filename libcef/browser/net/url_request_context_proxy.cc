@@ -5,6 +5,7 @@
 #include "libcef/browser/net/url_request_context_proxy.h"
 
 #include "libcef/browser/net/cookie_store_proxy.h"
+#include "libcef/browser/net/cookie_store_source.h"
 #include "libcef/browser/net/url_request_context_impl.h"
 #include "libcef/browser/thread_util.h"
 
@@ -16,7 +17,8 @@ CefURLRequestContextProxy::CefURLRequestContextProxy(
   DCHECK(handler.get());
 
   // Cookie store that proxies to the browser implementation.
-  cookie_store_proxy_.reset(new CefCookieStoreProxy(parent, handler));
+  cookie_store_proxy_.reset(new CefCookieStoreProxy(
+      std::make_unique<CefCookieStoreHandlerSource>(parent, handler)));
   set_cookie_store(cookie_store_proxy_.get());
 
   // All other values refer to the parent request context.
