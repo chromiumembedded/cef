@@ -22,6 +22,7 @@
 #include "content/public/browser/browser_context.h"
 #include "net/url_request/url_request_job_factory.h"
 
+class CefCookieStoreOwnerSource;
 class PrefRegistrySimple;
 class PrefService;
 
@@ -113,8 +114,8 @@ class CefURLRequestContextGetterImpl : public CefURLRequestContextGetter {
     content::ProtocolHandlerMap protocol_handlers_;
     content::URLRequestInterceptorScopedVector request_interceptors_;
 
-    base::FilePath cookie_store_path_;
-    std::vector<std::string> cookie_supported_schemes_;
+    // Owned by the URLRequestContextStorage.
+    CefCookieStoreOwnerSource* cookie_source_ = nullptr;
 
     std::vector<CefRefPtr<CefRequestContextHandler>> handler_list_;
 

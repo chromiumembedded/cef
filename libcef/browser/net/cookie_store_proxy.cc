@@ -4,12 +4,12 @@
 
 #include "libcef/browser/net/cookie_store_proxy.h"
 
-#include "libcef/browser/cookie_manager_impl.h"
-#include "libcef/browser/net/url_request_context_impl.h"
+#include "include/cef_request_context.h"
+#include "libcef/browser/net/cookie_store_source.h"
 #include "libcef/browser/thread_util.h"
 
 #include "base/logging.h"
-#include "net/url_request/url_request_context.h"
+#include "net/cookies/cookie_change_dispatcher.h"
 
 namespace {
 
@@ -44,12 +44,10 @@ class NullCookieChangeDispatcher : public net::CookieChangeDispatcher {
 }  // namespace
 
 CefCookieStoreProxy::CefCookieStoreProxy(
-    CefURLRequestContextImpl* parent,
-    CefRefPtr<CefRequestContextHandler> handler)
-    : parent_(parent), handler_(handler) {
+    std::unique_ptr<CefCookieStoreSource> source)
+    : source_(std::move(source)) {
   CEF_REQUIRE_IOT();
-  DCHECK(parent_);
-  DCHECK(handler_.get());
+  DCHECK(source_);
 }
 
 CefCookieStoreProxy::~CefCookieStoreProxy() {
@@ -189,24 +187,5 @@ bool CefCookieStoreProxy::IsEphemeral() {
 
 net::CookieStore* CefCookieStoreProxy::GetCookieStore() {
   CEF_REQUIRE_IOT();
-
-  CefRefPtr<CefCookieManager> manager = handler_->GetCookieManager();
-  if (manager.get()) {
-    // Use the cookie store provided by the manager. May be nullptr if the
-    // cookie manager is blocking.
-    return reinterpret_cast<CefCookieManagerImpl*>(manager.get())
-        ->GetExistingCookieStore();
-  }
-
-  DCHECK(parent_);
-  if (parent_) {
-    // Use the cookie store from the parent.
-    net::CookieStore* cookie_store = parent_->cookie_store();
-    DCHECK(cookie_store);
-    if (!cookie_store)
-      LOG(ERROR) << "Cookie store does not exist";
-    return cookie_store;
-  }
-
-  return nullptr;
+  return source_->GetCookieStore();
 }
