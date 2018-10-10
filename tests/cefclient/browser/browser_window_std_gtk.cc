@@ -162,7 +162,7 @@ void BrowserWindowStdGtk::Hide() {
 void BrowserWindowStdGtk::SetBounds(int x, int y, size_t width, size_t height) {
   REQUIRE_MAIN_THREAD();
 
-  if (browser_) {
+  if (xdisplay_ && browser_) {
     ::Window xwindow = browser_->GetHost()->GetWindowHandle();
     DCHECK(xwindow);
     SetXWindowBounds(xdisplay_, xwindow, x, y, width, height);

@@ -369,6 +369,7 @@ void RootWindowGtk::CreateRootWindow(const CefBrowserSettings& settings,
 
   // Set the Display associated with the browser.
   ::Display* xdisplay = GDK_WINDOW_XDISPLAY(gtk_widget_get_window(window_));
+  CHECK(xdisplay);
   if (with_osr_) {
     static_cast<BrowserWindowOsrGtk*>(browser_window_.get())
         ->set_xdisplay(xdisplay);
