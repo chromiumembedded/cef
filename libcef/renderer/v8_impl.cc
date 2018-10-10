@@ -319,6 +319,8 @@ class V8TrackArrayBuffer : public CefTrackNode {
         buffer_(buffer),
         release_callback_(release_callback) {
     DCHECK(isolate_);
+    isolate_->AdjustAmountOfExternalAllocatedMemory(
+        static_cast<int>(sizeof(V8TrackArrayBuffer)));
   }
 
   ~V8TrackArrayBuffer() {
@@ -335,6 +337,13 @@ class V8TrackArrayBuffer : public CefTrackNode {
 
   void Neuter() { buffer_ = nullptr; }
 
+  // Attach this track object to the specified V8 object.
+  void AttachTo(v8::Local<v8::Context> context,
+                v8::Local<v8::ArrayBuffer> arrayBuffer) {
+    SetPrivate(context, arrayBuffer, kCefTrackObject,
+               v8::External::New(isolate_, this));
+  }
+
   // Retrieve the track object for the specified V8 object.
   static V8TrackArrayBuffer* Unwrap(v8::Local<v8::Context> context,
                                     v8::Local<v8::Object> object) {
@@ -346,35 +355,10 @@ class V8TrackArrayBuffer : public CefTrackNode {
     return nullptr;
   }
 
-  // Attach this track object to the specified V8 object.
-  void AttachTo(v8::Local<v8::Context> context,
-                v8::Local<v8::ArrayBuffer> arrayBuffer) {
-    isolate_->AdjustAmountOfExternalAllocatedMemory(
-        static_cast<int>(sizeof(V8TrackArrayBuffer)));
-
-    SetPrivate(context, arrayBuffer, kCefTrackObject,
-               v8::External::New(isolate_, this));
-
-    handle_.Reset(isolate_, arrayBuffer);
-    handle_.SetWeak(this, FirstWeakCallback, v8::WeakCallbackType::kParameter);
-    handle_.MarkIndependent();
-  }
-
  private:
-  static void FirstWeakCallback(
-      const v8::WeakCallbackInfo<V8TrackArrayBuffer>& data) {
-    V8TrackArrayBuffer* wrapper = data.GetParameter();
-    if (wrapper->buffer_ != nullptr) {
-      wrapper->release_callback_->ReleaseBuffer(wrapper->buffer_);
-      wrapper->buffer_ = nullptr;
-    }
-    wrapper->handle_.Reset();
-  }
-
   v8::Isolate* isolate_;
   void* buffer_;
   CefRefPtr<CefV8ArrayBufferReleaseCallback> release_callback_;
-  v8::Persistent<v8::ArrayBuffer> handle_;
 };
 
 // Object wrapped in a v8::External and passed as the Data argument to
