@@ -77,7 +77,7 @@ int BytesWriteHandler::Flush() {
 }
 
 size_t BytesWriteHandler::Grow(size_t size) {
-  base::AutoLock lock_scope(lock_);
+  lock_.AssertAcquired();
   size_t rv;
   size_t s = (size > grow_ ? size : grow_);
   void* tmp = realloc(data_, datasize_ + s);
