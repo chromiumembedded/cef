@@ -96,9 +96,6 @@ CefString CefDragDataImpl::GetFragmentBaseURL() {
 
 CefString CefDragDataImpl::GetFileName() {
   base::AutoLock lock_scope(lock_);
-  if (data_.file_contents_content_disposition.empty())
-    return CefString();
-
   base::Optional<base::FilePath> filename =
       data_.GetSafeFilenameForImageFileContents();
   return filename ? CefString(filename->value()) : CefString();
