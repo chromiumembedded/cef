@@ -318,6 +318,24 @@ PERF_TEST_FUNC(V8ObjectGetValueWithAccessor) {
   PERF_ITERATIONS_END()
 }
 
+PERF_TEST_FUNC(V8ArrayBufferCreate) {
+  class ReleaseCallback : public CefV8ArrayBufferReleaseCallback {
+   public:
+    void ReleaseBuffer(void* buffer) override { std::free(buffer); }
+    IMPLEMENT_REFCOUNTING(ReleaseCallback);
+  };
+
+  size_t len = 1;
+  size_t byte_len = len * sizeof(float);
+  CefRefPtr<CefV8ArrayBufferReleaseCallback> callback = new ReleaseCallback();
+
+  PERF_ITERATIONS_START()
+  float* buffer = (float*)std::malloc(byte_len);
+  CefRefPtr<CefV8Value> ret =
+      CefV8Value::CreateArrayBuffer(buffer, byte_len, callback);
+  PERF_ITERATIONS_END()
+}
+
 PERF_TEST_FUNC(V8ContextEnterExit) {
   CefRefPtr<CefV8Context> context = CefV8Context::GetCurrentContext();
 
@@ -363,6 +381,7 @@ const PerfTestEntry kPerfTests[] = {
     PERF_TEST_ENTRY(V8ObjectGetValue),
     PERF_TEST_ENTRY(V8ObjectSetValueWithAccessor),
     PERF_TEST_ENTRY(V8ObjectGetValueWithAccessor),
+    PERF_TEST_ENTRY(V8ArrayBufferCreate),
     PERF_TEST_ENTRY(V8ContextEnterExit),
     PERF_TEST_ENTRY(V8ContextEval),
 };
