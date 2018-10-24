@@ -1,8 +1,8 @@
 diff --git content/browser/renderer_host/render_widget_host_view_child_frame.cc content/browser/renderer_host/render_widget_host_view_child_frame.cc
-index df02235579a0..0b3de7a37ab4 100644
+index 0ba4a669381e..dac7ba25ac0d 100644
 --- content/browser/renderer_host/render_widget_host_view_child_frame.cc
 +++ content/browser/renderer_host/render_widget_host_view_child_frame.cc
-@@ -630,6 +630,7 @@ void RenderWidgetHostViewChildFrame::SubmitCompositorFrame(
+@@ -652,6 +652,7 @@ void RenderWidgetHostViewChildFrame::SubmitCompositorFrame(
                 "RenderWidgetHostViewChildFrame::OnSwapCompositorFrame");
    support_->SubmitCompositorFrame(local_surface_id, std::move(frame),
                                    std::move(hit_test_region_list));
@@ -10,7 +10,7 @@ index df02235579a0..0b3de7a37ab4 100644
  }
  
  void RenderWidgetHostViewChildFrame::OnDidNotProduceFrame(
-@@ -913,7 +914,6 @@ void RenderWidgetHostViewChildFrame::OnFirstSurfaceActivation(
+@@ -935,7 +936,6 @@ void RenderWidgetHostViewChildFrame::OnFirstSurfaceActivation(
    last_activated_surface_info_ = surface_info;
    has_frame_ = true;
    FirstSurfaceActivation(surface_info);

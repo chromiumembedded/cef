@@ -1,8 +1,8 @@
 This directory provides API definitions for CEF. Some extensions are implemented
 using Mojo and others use an older JSON-based format.
 
-  <api> is the name of the API definition (e.g. 'streams_private').
-  <class> is the name of the class implementation (e.g. 'StreamsPrivateAPI').
+  <api> is the name of the API definition (e.g. 'alarms').
+  <class> is the name of the class implementation (e.g. 'AlarmManager').
 
 To add a new extension API implemented only in CEF ***:
 

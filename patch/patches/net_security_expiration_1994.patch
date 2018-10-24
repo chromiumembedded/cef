@@ -58,10 +58,10 @@ index f61ff0d0564a..e6727c7b1cbc 100644
  
  }  // namespace certificate_transparency
 diff --git net/http/transport_security_state.cc net/http/transport_security_state.cc
-index 3f3db5c840eb..85553b65e966 100644
+index f1a5d1cec270..2a586caaf0c4 100644
 --- net/http/transport_security_state.cc
 +++ net/http/transport_security_state.cc
-@@ -1153,8 +1153,10 @@ void TransportSecurityState::ClearReportCachesForTesting() {
+@@ -1151,8 +1151,10 @@ void TransportSecurityState::ClearReportCachesForTesting() {
    sent_expect_ct_reports_cache_.Clear();
  }
  

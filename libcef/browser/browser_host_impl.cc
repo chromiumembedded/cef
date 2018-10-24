@@ -54,6 +54,7 @@
 #include "content/public/browser/desktop_media_id.h"
 #include "content/public/browser/download_manager.h"
 #include "content/public/browser/download_request_utils.h"
+#include "content/public/browser/file_select_listener.h"
 #include "content/public/browser/host_zoom_map.h"
 #include "content/public/browser/keyboard_event_processing_result.h"
 #include "content/public/browser/native_web_keyboard_event.h"
@@ -2566,9 +2567,10 @@ CefBrowserHostImpl::GetJavaScriptDialogManager(content::WebContents* source) {
 
 void CefBrowserHostImpl::RunFileChooser(
     content::RenderFrameHost* render_frame_host,
+    std::unique_ptr<content::FileSelectListener> listener,
     const blink::mojom::FileChooserParams& params) {
   EnsureFileDialogManager();
-  file_dialog_manager_->RunFileChooser(render_frame_host, params);
+  file_dialog_manager_->RunFileChooser(std::move(listener), params);
 }
 
 bool CefBrowserHostImpl::HandleContextMenu(
@@ -2867,6 +2869,17 @@ void CefBrowserHostImpl::DidFinishNavigation(
       context->AddVisitedURLs(navigation_handle->GetRedirectChain());
     }
   }
+}
+
+void CefBrowserHostImpl::DidStopLoading() {
+  // Notify the renderer that loading has stopped. We used to use
+  // RenderFrameObserver::DidStopLoading which was removed in
+  // https://crrev.com/3e37dd0ead. However, that callback wasn't necessarily
+  // accurate because it wasn't called in all of the cases where
+  // RenderFrameImpl sends the FrameHostMsg_DidStopLoading message. This adds
+  // an additional round trip but should provide the same or improved
+  // functionality.
+  Send(new CefMsg_DidStopLoading(MSG_ROUTING_NONE));
 }
 
 void CefBrowserHostImpl::DocumentAvailableInMainFrame() {

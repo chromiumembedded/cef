@@ -107,7 +107,6 @@ class CefBrowserImpl : public CefBrowser, public content::RenderViewObserver {
 
   // RenderViewObserver methods.
   void OnDestruct() override;
-  void DidStopLoading() override;
   void DidFailProvisionalLoad(blink::WebLocalFrame* frame,
                               const blink::WebURLError& error) override;
   void DidCommitProvisionalLoad(blink::WebLocalFrame* frame,
@@ -126,6 +125,7 @@ class CefBrowserImpl : public CefBrowser, public content::RenderViewObserver {
   void OnRequest(const Cef_Request_Params& params);
   void OnResponse(const Cef_Response_Params& params);
   void OnResponseAck(int request_id);
+  void OnDidStopLoading();
 
   void OnLoadingStateChange(bool isLoading);
   void OnLoadStart(blink::WebLocalFrame* frame);

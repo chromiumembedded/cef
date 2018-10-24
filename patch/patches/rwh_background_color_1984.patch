@@ -1,8 +1,8 @@
 diff --git content/browser/renderer_host/render_widget_host_view_aura.cc content/browser/renderer_host/render_widget_host_view_aura.cc
-index 404a1e7d2731..27ed31cbe61c 100644
+index 7d4ada0eb032..94067acb8358 100644
 --- content/browser/renderer_host/render_widget_host_view_aura.cc
 +++ content/browser/renderer_host/render_widget_host_view_aura.cc
-@@ -725,10 +725,12 @@ gfx::Rect RenderWidgetHostViewAura::GetViewBounds() const {
+@@ -727,10 +727,12 @@ gfx::Rect RenderWidgetHostViewAura::GetViewBounds() const {
  void RenderWidgetHostViewAura::UpdateBackgroundColor() {
    DCHECK(GetBackgroundColor());
  
@@ -19,7 +19,7 @@ index 404a1e7d2731..27ed31cbe61c 100644
  }
  
  void RenderWidgetHostViewAura::WindowTitleChanged() {
-@@ -1973,6 +1975,15 @@ void RenderWidgetHostViewAura::CreateAuraWindow(aura::client::WindowType type) {
+@@ -1995,6 +1997,15 @@ void RenderWidgetHostViewAura::CreateAuraWindow(aura::client::WindowType type) {
    if (frame_sink_id_.is_valid())
      window_->SetEmbedFrameSinkId(frame_sink_id_);
  

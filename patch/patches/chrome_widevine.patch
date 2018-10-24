@@ -1,19 +1,19 @@
 diff --git chrome/common/chrome_content_client.cc chrome/common/chrome_content_client.cc
-index d6cb69e4bc05..1f8e2c860c4f 100644
+index d93b738c2424..1e3d6d3eb4df 100644
 --- chrome/common/chrome_content_client.cc
 +++ chrome/common/chrome_content_client.cc
 @@ -99,7 +99,8 @@
  // Registers Widevine CDM if Widevine is enabled, the Widevine CDM is
  // bundled and not a component. When the Widevine CDM is a component, it is
  // registered in widevine_cdm_component_installer.cc.
--#if BUILDFLAG(SHOULD_BUNDLE_WIDEVINE_CDM) && !BUILDFLAG(ENABLE_WIDEVINE_CDM_COMPONENT)
-+#if BUILDFLAG(SHOULD_BUNDLE_WIDEVINE_CDM) && !BUILDFLAG(ENABLE_WIDEVINE_CDM_COMPONENT) && \
+-#if BUILDFLAG(BUNDLE_WIDEVINE_CDM) && !BUILDFLAG(ENABLE_WIDEVINE_CDM_COMPONENT)
++#if BUILDFLAG(BUNDLE_WIDEVINE_CDM) && !BUILDFLAG(ENABLE_WIDEVINE_CDM_COMPONENT) && \
 +    defined(WIDEVINE_CDM_VERSION_STRING)
  #define REGISTER_BUNDLED_WIDEVINE_CDM
  #include "third_party/widevine/cdm/widevine_cdm_common.h"  // nogncheck
  // TODO(crbug.com/663554): Needed for WIDEVINE_CDM_VERSION_STRING. Support
 diff --git third_party/widevine/cdm/BUILD.gn third_party/widevine/cdm/BUILD.gn
-index aa21ecb8b018..40df6399891a 100644
+index 00d201e178c0..c37de789d5b2 100644
 --- third_party/widevine/cdm/BUILD.gn
 +++ third_party/widevine/cdm/BUILD.gn
 @@ -5,6 +5,7 @@

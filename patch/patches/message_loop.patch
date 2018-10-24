@@ -48,7 +48,7 @@ index ece6b92ca3a3..3925cdd3ad7f 100644
    current_->destruction_observers_.RemoveObserver(destruction_observer);
  }
 diff --git base/message_loop/message_loop_current.h base/message_loop/message_loop_current.h
-index d623cbc7f7b2..04d83792f98d 100644
+index 403d0dcc2ddb..5176aa0594a3 100644
 --- base/message_loop/message_loop_current.h
 +++ base/message_loop/message_loop_current.h
 @@ -124,6 +124,16 @@ class BASE_EXPORT MessageLoopCurrent {

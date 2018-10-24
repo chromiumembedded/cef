@@ -6,7 +6,6 @@
 #include "libcef/common/extensions/extensions_util.h"
 
 #include "chrome/browser/content_settings/cookie_settings_factory.h"
-#include "chrome/browser/extensions/api/streams_private/streams_private_api.h"
 #include "chrome/browser/plugins/plugin_prefs_factory.h"
 #include "chrome/browser/spellchecker/spellcheck_factory.h"
 #include "chrome/browser/themes/theme_service_factory.h"
@@ -28,7 +27,6 @@ void EnsureBrowserContextKeyedServiceFactoriesBuilt() {
     extensions::AlarmManager::GetFactoryInstance();
     extensions::RendererStartupHelperFactory::GetInstance();
     extensions::StorageFrontend::GetFactoryInstance();
-    extensions::StreamsPrivateAPI::GetFactoryInstance();
   }
 }
 

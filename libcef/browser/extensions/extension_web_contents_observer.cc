@@ -14,8 +14,7 @@ namespace extensions {
 CefExtensionWebContentsObserver::CefExtensionWebContentsObserver(
     content::WebContents* web_contents)
     : ExtensionWebContentsObserver(web_contents),
-      script_executor_(
-          new ScriptExecutor(web_contents, &script_execution_observers_)) {}
+      script_executor_(new ScriptExecutor(web_contents)) {}
 
 CefExtensionWebContentsObserver::~CefExtensionWebContentsObserver() {}
 

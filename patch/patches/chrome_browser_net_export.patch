@@ -1,0 +1,66 @@
+diff --git chrome/browser/browser_process.h chrome/browser/browser_process.h
+index 840e44398dc6..4835c5ddcd64 100644
+--- chrome/browser/browser_process.h
++++ chrome/browser/browser_process.h
+@@ -39,6 +39,10 @@ class SystemNetworkContextManager;
+ class WatchDogThread;
+ class WebRtcLogUploader;
+ 
++namespace net_log {
++class NetExportFileWriter;
++}
++
+ namespace network {
+ class NetworkQualityTracker;
+ class SharedURLLoaderFactory;
+@@ -182,6 +186,9 @@ class BrowserProcess {
+   // backed by the IOThread's URLRequestContext.
+   virtual SystemNetworkContextManager* system_network_context_manager() = 0;
+ 
++  // Provide direct accessor for CEF.
++  virtual net_log::NetExportFileWriter* net_export_file_writer() = 0;
++
+   // Returns a NetworkQualityTracker that can be used to subscribe for
+   // network quality change events.
+   virtual network::NetworkQualityTracker* network_quality_tracker() = 0;
+diff --git chrome/browser/browser_process_impl.cc chrome/browser/browser_process_impl.cc
+index 827c58d28114..7a0a31aeb654 100644
+--- chrome/browser/browser_process_impl.cc
++++ chrome/browser/browser_process_impl.cc
+@@ -662,6 +662,10 @@ BrowserProcessImpl::system_network_context_manager() {
+   return SystemNetworkContextManager::GetInstance();
+ }
+ 
++net_log::NetExportFileWriter* BrowserProcessImpl::net_export_file_writer() {
++  return system_network_context_manager()->GetNetExportFileWriter();
++}
++
+ scoped_refptr<network::SharedURLLoaderFactory>
+ BrowserProcessImpl::shared_url_loader_factory() {
+   return system_network_context_manager()->GetSharedURLLoaderFactory();
+diff --git chrome/browser/browser_process_impl.h chrome/browser/browser_process_impl.h
+index 8799ad360d51..1bac38e1929b 100644
+--- chrome/browser/browser_process_impl.h
++++ chrome/browser/browser_process_impl.h
+@@ -143,6 +143,7 @@ class BrowserProcessImpl : public BrowserProcess,
+   // TODO(qinmin): Remove this method as callers can retrieve the global
+   // instance from SystemNetworkContextManager directly.
+   SystemNetworkContextManager* system_network_context_manager() override;
++  net_log::NetExportFileWriter* net_export_file_writer() override;
+   scoped_refptr<network::SharedURLLoaderFactory> shared_url_loader_factory()
+       override;
+   network::NetworkQualityTracker* network_quality_tracker() override;
+diff --git chrome/browser/ui/webui/net_export_ui.cc chrome/browser/ui/webui/net_export_ui.cc
+index 38c8ac0ed0e1..e759d3ebebf2 100644
+--- chrome/browser/ui/webui/net_export_ui.cc
++++ chrome/browser/ui/webui/net_export_ui.cc
+@@ -159,8 +159,7 @@ class NetExportMessageHandler
+ };
+ 
+ NetExportMessageHandler::NetExportMessageHandler()
+-    : file_writer_(g_browser_process->system_network_context_manager()
+-                       ->GetNetExportFileWriter()),
++    : file_writer_(g_browser_process->net_export_file_writer()),
+       state_observer_manager_(this),
+       weak_ptr_factory_(this) {
+   file_writer_->Initialize();

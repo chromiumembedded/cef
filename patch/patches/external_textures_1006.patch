@@ -27,7 +27,7 @@ index 941d70bd2a7e..ef14a7dd7d4f 100644
    virtual void OnReflectorChanged();
  
 diff --git content/browser/compositor/gpu_process_transport_factory.cc content/browser/compositor/gpu_process_transport_factory.cc
-index 3ef8b77142d6..4be0bbaa28a8 100644
+index e8741caf69a8..1f82cc8c1f29 100644
 --- content/browser/compositor/gpu_process_transport_factory.cc
 +++ content/browser/compositor/gpu_process_transport_factory.cc
 @@ -208,6 +208,18 @@ GpuProcessTransportFactory::~GpuProcessTransportFactory() {
@@ -49,7 +49,7 @@ index 3ef8b77142d6..4be0bbaa28a8 100644
  std::unique_ptr<viz::SoftwareOutputDevice>
  GpuProcessTransportFactory::CreateSoftwareOutputDevice(
      gfx::AcceleratedWidget widget,
-@@ -493,11 +505,20 @@ void GpuProcessTransportFactory::EstablishedGpuChannel(
+@@ -492,11 +504,20 @@ void GpuProcessTransportFactory::EstablishedGpuChannel(
          // surfaces as they are not following the correct mode.
          DisableGpuCompositing(compositor.get());
        }
@@ -73,7 +73,7 @@ index 3ef8b77142d6..4be0bbaa28a8 100644
      } else {
        DCHECK(context_provider);
        const auto& capabilities = context_provider->ContextCapabilities();
-@@ -505,7 +526,8 @@ void GpuProcessTransportFactory::EstablishedGpuChannel(
+@@ -504,7 +525,8 @@ void GpuProcessTransportFactory::EstablishedGpuChannel(
          display_output_surface =
              std::make_unique<OffscreenBrowserCompositorOutputSurface>(
                  context_provider, std::move(vsync_callback),
@@ -83,7 +83,7 @@ index 3ef8b77142d6..4be0bbaa28a8 100644
        } else if (capabilities.surfaceless) {
  #if defined(OS_MACOSX)
          const auto& gpu_feature_info = context_provider->GetGpuFeatureInfo();
-@@ -947,7 +969,8 @@ GpuProcessTransportFactory::CreatePerCompositorData(
+@@ -946,7 +968,8 @@ GpuProcessTransportFactory::CreatePerCompositorData(
    gfx::AcceleratedWidget widget = compositor->widget();
  
    auto data = std::make_unique<PerCompositorData>();
@@ -501,10 +501,10 @@ index b422c3075ae7..1c4b452d1df5 100644
                                                 GLint shm_id,
                                                 GLuint shm_offset,
 diff --git gpu/command_buffer/client/gles2_implementation.cc gpu/command_buffer/client/gles2_implementation.cc
-index 6a18c7919aa4..24d7c5e044b1 100644
+index 65f83c6f5a41..c1bd6e4e7676 100644
 --- gpu/command_buffer/client/gles2_implementation.cc
 +++ gpu/command_buffer/client/gles2_implementation.cc
-@@ -7257,6 +7257,22 @@ void GLES2Implementation::Viewport(GLint x,
+@@ -7248,6 +7248,22 @@ void GLES2Implementation::Viewport(GLint x,
    CheckGLError();
  }
  
@@ -980,7 +980,7 @@ index fcac46f25274..cb39feed2c16 100644
  GL_APICALL void         GL_APIENTRY glInvalidateReadbackBufferShadowDataCHROMIUM (GLidBuffer buffer_id);
  // (used for CHROMIUM_nonblocking_readback implementation)
 diff --git gpu/command_buffer/service/BUILD.gn gpu/command_buffer/service/BUILD.gn
-index e13eadabbe30..7dba39934e14 100644
+index 6e83a5675fc3..330107d93f03 100644
 --- gpu/command_buffer/service/BUILD.gn
 +++ gpu/command_buffer/service/BUILD.gn
 @@ -105,6 +105,8 @@ target(link_target_type, "gles2_sources") {
@@ -1088,7 +1088,7 @@ index 08706db01d3d..245b3d8db6ea 100644
    for (auto it = saved_back_textures_.begin(); it != saved_back_textures_.end();
         ++it) {
 diff --git gpu/command_buffer/service/gles2_cmd_decoder_passthrough.cc gpu/command_buffer/service/gles2_cmd_decoder_passthrough.cc
-index c21fd3c1c0a5..0c33d7632689 100644
+index e4b21a6a1388..c446c9ef3297 100644
 --- gpu/command_buffer/service/gles2_cmd_decoder_passthrough.cc
 +++ gpu/command_buffer/service/gles2_cmd_decoder_passthrough.cc
 @@ -9,6 +9,7 @@
@@ -1099,7 +1099,7 @@ index c21fd3c1c0a5..0c33d7632689 100644
  #include "gpu/command_buffer/service/command_buffer_service.h"
  #include "gpu/command_buffer/service/decoder_client.h"
  #include "gpu/command_buffer/service/feature_info.h"
-@@ -2284,6 +2285,67 @@ error::Error GLES2DecoderPassthroughImpl::CheckSwapBuffersResult(
+@@ -2275,6 +2276,67 @@ error::Error GLES2DecoderPassthroughImpl::CheckSwapBuffersResult(
    return error::kNoError;
  }
  
@@ -1219,7 +1219,7 @@ index 8ae7efefd62c..9b89edf36be5 100644
    observer_list_.AddObserver(observer);
  }
 diff --git ui/compositor/compositor.h ui/compositor/compositor.h
-index 92ed2ff0bbe5..060273efafaa 100644
+index b3905bdfa650..dc984321f2b8 100644
 --- ui/compositor/compositor.h
 +++ ui/compositor/compositor.h
 @@ -26,6 +26,7 @@
@@ -1278,7 +1278,7 @@ index 92ed2ff0bbe5..060273efafaa 100644
    // Compositor does not own observers. It is the responsibility of the
    // observer to remove itself when it is done observing.
    void AddObserver(CompositorObserver* observer);
-@@ -451,6 +472,8 @@ class COMPOSITOR_EXPORT Compositor : public cc::LayerTreeHostClient,
+@@ -448,6 +469,8 @@ class COMPOSITOR_EXPORT Compositor : public cc::LayerTreeHostClient,
    ui::ContextFactory* context_factory_;
    ui::ContextFactoryPrivate* context_factory_private_;
  
@@ -1287,7 +1287,7 @@ index 92ed2ff0bbe5..060273efafaa 100644
    // The root of the Layer tree drawn by this compositor.
    Layer* root_layer_ = nullptr;
  
-@@ -489,6 +512,8 @@ class COMPOSITOR_EXPORT Compositor : public cc::LayerTreeHostClient,
+@@ -486,6 +509,8 @@ class COMPOSITOR_EXPORT Compositor : public cc::LayerTreeHostClient,
    ExternalBeginFrameClient* external_begin_frame_client_ = nullptr;
    bool needs_external_begin_frames_ = false;
  
@@ -1297,10 +1297,10 @@ index 92ed2ff0bbe5..060273efafaa 100644
  
    // The device scale factor of the monitor that this compositor is compositing
 diff --git ui/compositor/host/host_context_factory_private.cc ui/compositor/host/host_context_factory_private.cc
-index ce1385e951e6..01924e0bfb4f 100644
+index 9c73b44101df..94fe32c76046 100644
 --- ui/compositor/host/host_context_factory_private.cc
 +++ ui/compositor/host/host_context_factory_private.cc
-@@ -239,6 +239,10 @@ void HostContextFactoryPrivate::SetOutputIsSecure(Compositor* compositor,
+@@ -244,6 +244,10 @@ void HostContextFactoryPrivate::SetOutputIsSecure(Compositor* compositor,
      iter->second.display_private->SetOutputIsSecure(secure);
  }
  

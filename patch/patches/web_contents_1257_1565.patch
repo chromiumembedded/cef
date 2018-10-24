@@ -1,8 +1,8 @@
 diff --git content/browser/web_contents/web_contents_impl.cc content/browser/web_contents/web_contents_impl.cc
-index 169b1d8d8cb7..453ba504d41f 100644
+index 8ce6d0d2f8ca..79927c392d2a 100644
 --- content/browser/web_contents/web_contents_impl.cc
 +++ content/browser/web_contents/web_contents_impl.cc
-@@ -1958,21 +1958,30 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
+@@ -1992,21 +1992,30 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
    std::string unique_name;
    frame_tree_.root()->SetFrameName(params.main_frame_name, unique_name);
  
@@ -45,7 +45,7 @@ index 169b1d8d8cb7..453ba504d41f 100644
    CHECK(render_view_host_delegate_view_);
    CHECK(view_.get());
  
-@@ -2665,6 +2674,15 @@ void WebContentsImpl::CreateNewWindow(
+@@ -2701,6 +2710,15 @@ void WebContentsImpl::CreateNewWindow(
    create_params.renderer_initiated_creation =
        main_frame_route_id != MSG_ROUTING_NONE;
  
@@ -61,16 +61,16 @@ index 169b1d8d8cb7..453ba504d41f 100644
    std::unique_ptr<WebContents> new_contents;
    if (!is_guest) {
      create_params.context = view_->GetNativeView();
-@@ -2695,7 +2713,7 @@ void WebContentsImpl::CreateNewWindow(
+@@ -2733,7 +2751,7 @@ void WebContentsImpl::CreateNewWindow(
        // TODO(brettw): It seems bogus that we have to call this function on the
        // newly created object and give it one of its own member variables.
        new_view->CreateViewForWidget(
--          new_contents->GetRenderViewHost()->GetWidget(), false);
-+          new_contents->GetRenderViewHost()->GetWidget(), nullptr);
+-          new_contents_impl->GetRenderViewHost()->GetWidget(), false);
++          new_contents_impl->GetRenderViewHost()->GetWidget(), nullptr);
      }
      // Save the created window associated with the route so we can show it
      // later.
-@@ -6117,7 +6135,7 @@ InterstitialPageImpl* WebContentsImpl::GetInterstitialForRenderManager() {
+@@ -6170,7 +6188,7 @@ InterstitialPageImpl* WebContentsImpl::GetInterstitialForRenderManager() {
  void WebContentsImpl::CreateRenderWidgetHostViewForRenderManager(
      RenderViewHost* render_view_host) {
    RenderWidgetHostViewBase* rwh_view =
@@ -122,10 +122,10 @@ index f26f7e501663..1b773a654118 100644
      // the value that'll be returned by GetLastActiveTime(). If this is left
      // default initialized then the value is not passed on to the WebContents
 diff --git content/public/browser/web_contents_delegate.h content/public/browser/web_contents_delegate.h
-index 1c9c817e6075..ed4a5461e0f7 100644
+index df6045dc917c..ca0b7812eba9 100644
 --- content/public/browser/web_contents_delegate.h
 +++ content/public/browser/web_contents_delegate.h
-@@ -47,10 +47,12 @@ class ColorChooser;
+@@ -54,10 +54,12 @@ class FileSelectListener;
  class JavaScriptDialogManager;
  class RenderFrameHost;
  class RenderProcessHost;
@@ -138,7 +138,7 @@ index 1c9c817e6075..ed4a5461e0f7 100644
  struct ContextMenuParams;
  struct DropData;
  struct NativeWebKeyboardEvent;
-@@ -309,6 +311,14 @@ class CONTENT_EXPORT WebContentsDelegate {
+@@ -316,6 +318,14 @@ class CONTENT_EXPORT WebContentsDelegate {
        const std::string& partition_id,
        SessionStorageNamespace* session_storage_namespace);
  

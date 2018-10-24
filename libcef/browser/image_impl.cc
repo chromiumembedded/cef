@@ -200,8 +200,8 @@ bool CefImageImpl::GetRepresentationInfo(float scale_factor,
     return false;
 
   actual_scale_factor = rep.scale();
-  pixel_width = rep.sk_bitmap().width();
-  pixel_height = rep.sk_bitmap().height();
+  pixel_width = rep.GetBitmap().width();
+  pixel_height = rep.GetBitmap().height();
   return true;
 }
 
@@ -336,7 +336,7 @@ const SkBitmap* CefImageImpl::GetBitmap(float scale_factor) const {
   if (rep.is_null())
     return nullptr;
 
-  return &rep.sk_bitmap();
+  return &rep.GetBitmap();
 }
 
 // static

@@ -507,7 +507,7 @@ void CefRequestImpl::Get(blink::WebURLRequest& request,
                          int64& upload_data_size) const {
   base::AutoLock lock_scope(lock_);
 
-  request.SetRequestContext(blink::WebURLRequest::kRequestContextInternal);
+  request.SetRequestContext(blink::mojom::RequestContextType::INTERNAL);
   request.SetURL(url_);
   request.SetHTTPMethod(blink::WebString::FromUTF8(method_));
 

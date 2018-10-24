@@ -1,8 +1,8 @@
 diff --git services/service_manager/sandbox/win/sandbox_win.cc services/service_manager/sandbox/win/sandbox_win.cc
-index 79ae61d7e5c9..92b1721013bc 100644
+index 95cffa1b4eec..691ca2f622f8 100644
 --- services/service_manager/sandbox/win/sandbox_win.cc
 +++ services/service_manager/sandbox/win/sandbox_win.cc
-@@ -883,8 +883,11 @@ sandbox::ResultCode SandboxWin::StartSandboxedProcess(
+@@ -912,8 +912,11 @@ sandbox::ResultCode SandboxWin::StartSandboxedProcess(
  #endif
  
    // Post-startup mitigations.

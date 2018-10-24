@@ -18,7 +18,6 @@
 #include "build/build_config.h"
 #include "components/viz/common/frame_sinks/begin_frame_source.h"
 #include "components/viz/common/surfaces/parent_local_surface_id_allocator.h"
-#include "content/browser/renderer_host/delegated_frame_host.h"
 #include "content/browser/renderer_host/input/mouse_wheel_phase_handler.h"
 #include "content/browser/renderer_host/render_widget_host_view_base.h"
 #include "content/public/common/widget_type.h"
@@ -44,6 +43,8 @@
 #endif
 
 namespace content {
+class DelegatedFrameHost;
+class DelegatedFrameHostClient;
 class RenderWidgetHost;
 class RenderWidgetHostImpl;
 class RenderWidgetHostViewGuest;
@@ -95,12 +96,7 @@ class MacHelper;
 
 class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
                                    public ui::ExternalBeginFrameClient,
-                                   public ui::CompositorDelegate
-#if !defined(OS_MACOSX)
-    ,
-                                   public content::DelegatedFrameHostClient
-#endif
-{
+                                   public ui::CompositorDelegate {
  public:
   CefRenderWidgetHostViewOSR(SkColor background_color,
                              bool use_shared_texture,
@@ -212,16 +208,6 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
   // ui::CompositorDelegate implementation.
   std::unique_ptr<viz::SoftwareOutputDevice> CreateSoftwareOutputDevice(
       ui::Compositor* compositor) override;
-
-#if !defined(OS_MACOSX)
-  // DelegatedFrameHostClient implementation.
-  ui::Layer* DelegatedFrameHostGetLayer() const override;
-  bool DelegatedFrameHostIsVisible() const override;
-  SkColor DelegatedFrameHostGetGutterColor() const override;
-  void OnFirstSurfaceActivation(const viz::SurfaceInfo& surface_info) override;
-  void OnBeginFrame(base::TimeTicks frame_time) override;
-  void OnFrameTokenChanged(uint32_t frame_token) override;
-#endif  // !defined(OS_MACOSX)
 
   bool InstallTransparency();
 
@@ -349,6 +335,8 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
   std::unique_ptr<ui::Compositor> compositor_;
   gfx::AcceleratedWidget compositor_widget_;
   std::unique_ptr<content::DelegatedFrameHost> delegated_frame_host_;
+  std::unique_ptr<content::DelegatedFrameHostClient>
+      delegated_frame_host_client_;
   std::unique_ptr<ui::Layer> root_layer_;
   viz::LocalSurfaceId local_surface_id_;
   viz::ParentLocalSurfaceIdAllocator local_surface_id_allocator_;

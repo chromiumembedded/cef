@@ -429,10 +429,6 @@ void CefBrowserImpl::OnDestruct() {
   CefContentRendererClient::Get()->OnBrowserDestroyed(this);
 }
 
-void CefBrowserImpl::DidStopLoading() {
-  OnLoadingStateChange(false);
-}
-
 void CefBrowserImpl::DidFinishLoad(blink::WebLocalFrame* frame) {
   blink::WebDocumentLoader* dl = frame->GetDocumentLoader();
   Send(new CefHostMsg_DidFinishLoad(routing_id(),
@@ -528,6 +524,7 @@ bool CefBrowserImpl::OnMessageReceived(const IPC::Message& message) {
     IPC_MESSAGE_HANDLER(CefMsg_Response, OnResponse)
     IPC_MESSAGE_HANDLER(CefMsg_ResponseAck, OnResponseAck)
     IPC_MESSAGE_HANDLER(CefMsg_LoadRequest, LoadRequest)
+    IPC_MESSAGE_HANDLER(CefMsg_DidStopLoading, OnDidStopLoading)
     IPC_MESSAGE_UNHANDLED(handled = false)
   IPC_END_MESSAGE_MAP()
   return handled;
@@ -657,6 +654,10 @@ void CefBrowserImpl::OnResponse(const Cef_Response_Params& params) {
 
 void CefBrowserImpl::OnResponseAck(int request_id) {
   response_manager_->RunAckHandler(request_id);
+}
+
+void CefBrowserImpl::OnDidStopLoading() {
+  OnLoadingStateChange(false);
 }
 
 void CefBrowserImpl::OnLoadingStateChange(bool isLoading) {

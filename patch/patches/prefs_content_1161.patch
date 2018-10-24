@@ -35,10 +35,10 @@ index c1881cb04aec..34a64887af4c 100644
    bool record_whole_document;
    SavePreviousDocumentResources save_previous_document_resources;
 diff --git content/renderer/render_view_impl.cc content/renderer/render_view_impl.cc
-index 6d60eae14858..a1be903ea29a 100644
+index 5ff531dd9e35..34d699af2616 100644
 --- content/renderer/render_view_impl.cc
 +++ content/renderer/render_view_impl.cc
-@@ -1311,6 +1311,7 @@ void RenderViewImpl::SendFrameStateUpdates() {
+@@ -1273,6 +1273,7 @@ void RenderViewImpl::SendFrameStateUpdates() {
  void RenderViewImpl::ApplyWebPreferencesInternal(const WebPreferences& prefs,
                                                   blink::WebView* web_view) {
    ApplyWebPreferences(prefs, web_view);

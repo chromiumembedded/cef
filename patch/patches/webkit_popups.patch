@@ -1,8 +1,8 @@
 diff --git third_party/blink/public/web/web_view.h third_party/blink/public/web/web_view.h
-index bafddd241354..1f66e731b111 100644
+index 68e82b2554c6..3434655b89b8 100644
 --- third_party/blink/public/web/web_view.h
 +++ third_party/blink/public/web/web_view.h
-@@ -356,6 +356,7 @@ class WebView : protected WebWidget {
+@@ -357,6 +357,7 @@ class WebView : protected WebWidget {
  
    // Sets whether select popup menus should be rendered by the browser.
    BLINK_EXPORT static void SetUseExternalPopupMenus(bool);
@@ -10,7 +10,7 @@ index bafddd241354..1f66e731b111 100644
  
    // Hides any popup (suggestions, selects...) that might be showing.
    virtual void HidePopups() = 0;
-@@ -380,6 +381,8 @@ class WebView : protected WebWidget {
+@@ -381,6 +382,8 @@ class WebView : protected WebWidget {
                                    unsigned inactive_background_color,
                                    unsigned inactive_foreground_color) = 0;
  
@@ -20,7 +20,7 @@ index bafddd241354..1f66e731b111 100644
  
    // Call these methods before and after running a nested, modal event loop
 diff --git third_party/blink/renderer/core/exported/web_view_impl.cc third_party/blink/renderer/core/exported/web_view_impl.cc
-index c6c7154f6e0a..0ed9276cb46e 100644
+index 81b10a7c81a5..66c66305b340 100644
 --- third_party/blink/renderer/core/exported/web_view_impl.cc
 +++ third_party/blink/renderer/core/exported/web_view_impl.cc
 @@ -234,8 +234,13 @@ void WebView::SetUseExternalPopupMenus(bool use_external_popup_menus) {
@@ -48,10 +48,10 @@ index c6c7154f6e0a..0ed9276cb46e 100644
        suppress_next_keypress_event_(false),
        ime_accept_events_(true),
 diff --git third_party/blink/renderer/core/exported/web_view_impl.h third_party/blink/renderer/core/exported/web_view_impl.h
-index b1399b141480..2a9bba9f2746 100644
+index fb8a36b05106..9db158c1e538 100644
 --- third_party/blink/renderer/core/exported/web_view_impl.h
 +++ third_party/blink/renderer/core/exported/web_view_impl.h
-@@ -104,7 +104,8 @@ class CORE_EXPORT WebViewImpl final : public WebView,
+@@ -105,7 +105,8 @@ class CORE_EXPORT WebViewImpl final : public WebView,
    static HashSet<WebViewImpl*>& AllInstances();
    // Returns true if popup menus should be rendered by the browser, false if
    // they should be rendered by WebKit (which is the default).
@@ -61,7 +61,7 @@ index b1399b141480..2a9bba9f2746 100644
  
    // WebWidget methods:
    void Close() override;
-@@ -246,7 +247,7 @@ class CORE_EXPORT WebViewImpl final : public WebView,
+@@ -241,7 +242,7 @@ class CORE_EXPORT WebViewImpl final : public WebView,
    HitTestResult CoreHitTestResultAt(const WebPoint&);
    void InvalidateRect(const IntRect&);
  
@@ -70,7 +70,7 @@ index b1399b141480..2a9bba9f2746 100644
    void SetBaseBackgroundColorOverride(SkColor);
    void ClearBaseBackgroundColorOverride();
    void SetBackgroundColorOverride(SkColor);
-@@ -607,6 +608,8 @@ class CORE_EXPORT WebViewImpl final : public WebView,
+@@ -602,6 +603,8 @@ class CORE_EXPORT WebViewImpl final : public WebView,
    float fake_page_scale_animation_page_scale_factor_;
    bool fake_page_scale_animation_use_anchor_;
  

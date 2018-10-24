@@ -451,6 +451,7 @@ class CefBrowserHostImpl : public CefBrowserHost,
   content::JavaScriptDialogManager* GetJavaScriptDialogManager(
       content::WebContents* source) override;
   void RunFileChooser(content::RenderFrameHost* render_frame_host,
+                      std::unique_ptr<content::FileSelectListener> listener,
                       const blink::mojom::FileChooserParams& params) override;
   bool EmbedsFullscreenWidget() const override;
   void EnterFullscreenModeForTab(
@@ -493,6 +494,7 @@ class CefBrowserHostImpl : public CefBrowserHost,
   void RenderProcessGone(base::TerminationStatus status) override;
   void DidFinishNavigation(
       content::NavigationHandle* navigation_handle) override;
+  void DidStopLoading() override;
   void DocumentAvailableInMainFrame() override;
   void DidFailLoad(content::RenderFrameHost* render_frame_host,
                    const GURL& validated_url,

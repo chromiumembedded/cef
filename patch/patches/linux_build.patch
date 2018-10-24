@@ -1,8 +1,8 @@
 diff --git build/config/compiler/BUILD.gn build/config/compiler/BUILD.gn
-index 1f582933a377..503e2b5bf58a 100644
+index 148e91397142..ea325faec030 100644
 --- build/config/compiler/BUILD.gn
 +++ build/config/compiler/BUILD.gn
-@@ -162,7 +162,7 @@ declare_args() {
+@@ -163,7 +163,7 @@ declare_args() {
              !use_clang_coverage && !(is_android && use_order_profiling) &&
              (use_lld ||
               (use_gold &&

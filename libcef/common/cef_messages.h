@@ -147,6 +147,9 @@ IPC_MESSAGE_ROUTED1(CefMsg_Response, Cef_Response_Params)
 // has been processed.
 IPC_MESSAGE_ROUTED1(CefMsg_ResponseAck, int /* request_id */)
 
+// Tells the renderer that loading has stopped.
+IPC_MESSAGE_ROUTED0(CefMsg_DidStopLoading)
+
 // Tells the render frame to load all blocked plugins with the given identifier.
 // Based on ChromeViewMsg_LoadBlockedPlugins.
 IPC_MESSAGE_ROUTED1(CefViewMsg_LoadBlockedPlugins, std::string /* identifier */)

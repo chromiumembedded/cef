@@ -13,7 +13,6 @@
 
 #include "chrome/browser/extensions/api/content_settings/content_settings_api.h"
 #include "chrome/browser/extensions/api/resources_private/resources_private_api.h"
-#include "chrome/browser/extensions/api/streams_private/streams_private_api.h"
 #include "extensions/browser/api/alarms/alarms_api.h"
 #include "extensions/browser/api/storage/storage_api.h"
 #include "extensions/browser/extension_function_registry.h"
@@ -31,8 +30,6 @@ namespace cefimpl = extensions::cef;
 const char* const kSupportedAPIs[] = {
     "resourcesPrivate",
     EXTENSION_FUNCTION_NAME(ResourcesPrivateGetStringsFunction),
-    "streamsPrivate",
-    EXTENSION_FUNCTION_NAME(StreamsPrivateAbortFunction),
     "alarms",
     EXTENSION_FUNCTION_NAME(AlarmsCreateFunction),
     EXTENSION_FUNCTION_NAME(AlarmsGetFunction),
@@ -77,7 +74,6 @@ bool ChromeFunctionRegistry::IsSupported(const std::string& name) {
 // static
 void ChromeFunctionRegistry::RegisterAll(ExtensionFunctionRegistry* registry) {
   registry->RegisterFunction<ResourcesPrivateGetStringsFunction>();
-  registry->RegisterFunction<StreamsPrivateAbortFunction>();
   registry->RegisterFunction<AlarmsCreateFunction>();
   registry->RegisterFunction<AlarmsGetFunction>();
   registry->RegisterFunction<AlarmsGetAllFunction>();

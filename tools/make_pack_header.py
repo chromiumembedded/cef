@@ -14,7 +14,7 @@ import string
 import sys
 
 
-def MakeFileSegment(input):
+def MakeFileSegment(input, all_names):
   result = """
 
 // ---------------------------------------------------------------------------
@@ -30,6 +30,13 @@ def MakeFileSegment(input):
   p = re.compile('#define\s([A-Za-z0-9_]{1,})\s([0-9]{1,})')
   list = p.findall(contents)
   for name, id in list:
+    # If the same define exists in multiple files add a suffix.
+    if name in all_names:
+      all_names[name] += 1
+      name += '_%d' % all_names[name]
+    else:
+      all_names[name] = 1
+
     result += "\n#define %s %s" % (name, id)
 
   return result
@@ -79,9 +86,11 @@ def MakeFile(output, input):
   # sort the input files by name
   input = sorted(input, key=lambda path: os.path.split(path)[1])
 
+  all_names = {}
+
   # generate the file segments
   for file in input:
-    result += MakeFileSegment(file)
+    result += MakeFileSegment(file, all_names)
 
   # footer string
   result += \

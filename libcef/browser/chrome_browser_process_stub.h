@@ -49,6 +49,7 @@ class ChromeBrowserProcessStub : public BrowserProcess,
   rappor::RapporServiceImpl* rappor_service() override;
   IOThread* io_thread() override;
   SystemNetworkContextManager* system_network_context_manager() override;
+  net_log::NetExportFileWriter* net_export_file_writer() override;
   network::NetworkQualityTracker* network_quality_tracker() override;
   WatchDogThread* watchdog_thread() override;
   ProfileManager* profile_manager() override;
@@ -122,6 +123,7 @@ class ChromeBrowserProcessStub : public BrowserProcess,
   std::unique_ptr<ChromeProfileManagerStub> profile_manager_;
   scoped_refptr<extensions::EventRouterForwarder> event_router_forwarder_;
   std::unique_ptr<net_log::ChromeNetLog> net_log_;
+  std::unique_ptr<net_log::NetExportFileWriter> net_export_file_writer_;
 
   DISALLOW_COPY_AND_ASSIGN(ChromeBrowserProcessStub);
 };

@@ -14,6 +14,7 @@
 #include "chrome/browser/net/chrome_net_log_helper.h"
 #include "chrome/browser/printing/print_job_manager.h"
 #include "components/net_log/chrome_net_log.h"
+#include "components/net_log/net_export_file_writer.h"
 #include "content/public/common/content_switches.h"
 #include "services/network/public/cpp/network_switches.h"
 #include "services/network/public/cpp/shared_url_loader_factory.h"
@@ -109,6 +110,14 @@ SystemNetworkContextManager*
 ChromeBrowserProcessStub::system_network_context_manager() {
   NOTREACHED();
   return NULL;
+}
+
+net_log::NetExportFileWriter*
+ChromeBrowserProcessStub::net_export_file_writer() {
+  if (!net_export_file_writer_) {
+    net_export_file_writer_ = std::make_unique<net_log::NetExportFileWriter>();
+  }
+  return net_export_file_writer_.get();
 }
 
 network::NetworkQualityTracker*

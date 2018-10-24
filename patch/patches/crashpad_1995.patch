@@ -1,5 +1,5 @@
 diff --git chrome/common/crash_keys.cc chrome/common/crash_keys.cc
-index 887e13776dd2..de30ebff25e4 100644
+index c54f40f27fbd..b96946a1ad96 100644
 --- chrome/common/crash_keys.cc
 +++ chrome/common/crash_keys.cc
 @@ -4,6 +4,8 @@
@@ -597,10 +597,10 @@ index 4902d87bd171..a573e9557666 100644
  
      if (crash_reporter_client->ShouldMonitorCrashHandlerExpensively()) {
 diff --git content/browser/frame_host/debug_urls.cc content/browser/frame_host/debug_urls.cc
-index 0276f809ab6f..d2ee6cd38264 100644
+index 85db4c8396c0..717df9763c95 100644
 --- content/browser/frame_host/debug_urls.cc
 +++ content/browser/frame_host/debug_urls.cc
-@@ -135,7 +135,9 @@ bool HandleDebugURL(const GURL& url, ui::PageTransition transition) {
+@@ -134,7 +134,9 @@ bool HandleDebugURL(const GURL& url, ui::PageTransition transition) {
            cc::switches::kEnableGpuBenchmarking) &&
        (PageTransitionCoreTypeIs(transition, ui::PAGE_TRANSITION_TYPED));
  

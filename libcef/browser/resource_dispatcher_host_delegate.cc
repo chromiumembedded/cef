@@ -101,9 +101,9 @@ void CefResourceDispatcherHostDelegate::OnStreamCreated(
       FROM_HERE, {content::BrowserThread::UI},
       base::BindOnce(
           &extensions::StreamsPrivateAPI::SendExecuteMimeTypeHandlerEvent,
-          request->GetExpectedContentSize(), ix->second.extension_id,
-          ix->second.view_id, embedded, info->GetFrameTreeNodeId(),
-          info->GetChildID(), info->GetRenderFrameID(), std::move(stream),
+          ix->second.extension_id, ix->second.view_id, embedded,
+          info->GetFrameTreeNodeId(), info->GetChildID(),
+          info->GetRenderFrameID(), std::move(stream),
           nullptr /* transferrable_loader */, GURL()));
   stream_target_info_.erase(request);
 }

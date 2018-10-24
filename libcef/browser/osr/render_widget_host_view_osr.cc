@@ -29,6 +29,7 @@
 #include "content/browser/compositor/image_transport_factory.h"
 #include "content/browser/frame_host/render_widget_host_view_guest.h"
 #include "content/browser/renderer_host/cursor_manager.h"
+#include "content/browser/renderer_host/delegated_frame_host.h"
 #include "content/browser/renderer_host/dip_util.h"
 #include "content/browser/renderer_host/render_widget_host_delegate.h"
 #include "content/browser/renderer_host/render_widget_host_impl.h"
@@ -109,6 +110,58 @@ class CefCompositorFrameSinkClient
   viz::mojom::CompositorFrameSinkClient* const forward_;
   CefRenderWidgetHostViewOSR* const render_widget_host_view_;
 };
+
+#if !defined(OS_MACOSX)
+
+class CefDelegatedFrameHostClient : public content::DelegatedFrameHostClient {
+ public:
+  explicit CefDelegatedFrameHostClient(CefRenderWidgetHostViewOSR* view)
+      : view_(view) {}
+
+  ui::Layer* DelegatedFrameHostGetLayer() const override {
+    return view_->GetRootLayer();
+  }
+
+  bool DelegatedFrameHostIsVisible() const override {
+    // Called indirectly from DelegatedFrameHost::WasShown.
+    return view_->IsShowing();
+  }
+
+  SkColor DelegatedFrameHostGetGutterColor() const override {
+    // When making an element on the page fullscreen the element's background
+    // may not match the page's, so use black as the gutter color to avoid
+    // flashes of brighter colors during the transition.
+    if (view_->render_widget_host()->delegate() &&
+        view_->render_widget_host()->delegate()->IsFullscreenForCurrentTab()) {
+      return SK_ColorBLACK;
+    }
+    return *view_->GetBackgroundColor();
+  }
+
+  void OnFirstSurfaceActivation(const viz::SurfaceInfo& surface_info) override {
+  }
+
+  void OnBeginFrame(base::TimeTicks frame_time) override {
+    // TODO(cef): Maybe we can use this method in combination with
+    // OnSetNeedsBeginFrames() instead of using CefBeginFrameTimer.
+    // See https://codereview.chromium.org/1841083007.
+  }
+
+  void OnFrameTokenChanged(uint32_t frame_token) override {
+    view_->render_widget_host()->DidProcessFrame(frame_token);
+  }
+
+  float GetDeviceScaleFactor() const override {
+    return view_->GetDeviceScaleFactor();
+  }
+
+ private:
+  CefRenderWidgetHostViewOSR* const view_;
+
+  DISALLOW_COPY_AND_ASSIGN(CefDelegatedFrameHostClient);
+};
+
+#endif  // !defined(OS_MACOSX)
 
 }  // namespace
 
@@ -203,7 +256,7 @@ class CefCopyFrameGenerator {
                    bitmap->getPixels());
   }
 
-  CefRenderWidgetHostViewOSR* view_;
+  CefRenderWidgetHostViewOSR* const view_;
   int frame_retry_count_;
   base::TimeTicks next_frame_time_;
   base::TimeDelta frame_duration_;
@@ -291,10 +344,12 @@ CefRenderWidgetHostViewOSR::CefRenderWidgetHostViewOSR(
 
 #if !defined(OS_MACOSX)
   local_surface_id_ = local_surface_id_allocator_.GenerateId();
+  delegated_frame_host_client_.reset(new CefDelegatedFrameHostClient(this));
 
   // Matching the attributes from BrowserCompositorMac.
   delegated_frame_host_ = std::make_unique<content::DelegatedFrameHost>(
-      AllocateFrameSinkId(is_guest_view_hack), this,
+      AllocateFrameSinkId(is_guest_view_hack),
+      delegated_frame_host_client_.get(),
       true /* should_register_frame_sink_id */);
 
   root_layer_.reset(new ui::Layer(ui::LAYER_SOLID_COLOR));
@@ -1115,43 +1170,6 @@ CefRenderWidgetHostViewOSR::CreateSoftwareOutputDevice(
                  weak_ptr_factory_.GetWeakPtr()));
   return base::WrapUnique(software_output_device_);
 }
-
-#if !defined(OS_MACOSX)
-
-ui::Layer* CefRenderWidgetHostViewOSR::DelegatedFrameHostGetLayer() const {
-  return GetRootLayer();
-}
-
-bool CefRenderWidgetHostViewOSR::DelegatedFrameHostIsVisible() const {
-  // Called indirectly from DelegatedFrameHost::WasShown.
-  return is_showing_;
-}
-
-SkColor CefRenderWidgetHostViewOSR::DelegatedFrameHostGetGutterColor() const {
-  // When making an element on the page fullscreen the element's background
-  // may not match the page's, so use black as the gutter color to avoid
-  // flashes of brighter colors during the transition.
-  if (render_widget_host_->delegate() &&
-      render_widget_host_->delegate()->IsFullscreenForCurrentTab()) {
-    return SK_ColorBLACK;
-  }
-  return background_color_;
-}
-
-void CefRenderWidgetHostViewOSR::OnFirstSurfaceActivation(
-    const viz::SurfaceInfo& surface_info) {}
-
-void CefRenderWidgetHostViewOSR::OnBeginFrame(base::TimeTicks frame_time) {
-  // TODO(cef): Maybe we can use this method in combination with
-  // OnSetNeedsBeginFrames() instead of using CefBeginFrameTimer.
-  // See https://codereview.chromium.org/1841083007.
-}
-
-void CefRenderWidgetHostViewOSR::OnFrameTokenChanged(uint32_t frame_token) {
-  render_widget_host_->DidProcessFrame(frame_token);
-}
-
-#endif  // !defined(OS_MACOSX)
 
 bool CefRenderWidgetHostViewOSR::InstallTransparency() {
   if (background_color_ == SK_ColorTRANSPARENT) {
