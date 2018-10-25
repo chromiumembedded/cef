@@ -78,7 +78,7 @@ index a7ddc156c2b1..e31496827664 100644
  }
  
 diff --git third_party/blink/renderer/core/page/page.cc third_party/blink/renderer/core/page/page.cc
-index af94b52a5b6e..f5b91fefcda0 100644
+index fc45eecaba60..253acc51e9b5 100644
 --- third_party/blink/renderer/core/page/page.cc
 +++ third_party/blink/renderer/core/page/page.cc
 @@ -171,7 +171,8 @@ Page::Page(PageClients& page_clients)
@@ -141,7 +141,7 @@ index af94b52a5b6e..f5b91fefcda0 100644
        page->NotifyPluginsChanged();
      }
    }
-@@ -736,7 +756,8 @@ void Page::Trace(blink::Visitor* visitor) {
+@@ -737,7 +757,8 @@ void Page::Trace(blink::Visitor* visitor) {
    visitor->Trace(overscroll_controller_);
    visitor->Trace(link_highlights_);
    visitor->Trace(main_frame_);
@@ -152,7 +152,7 @@ index af94b52a5b6e..f5b91fefcda0 100644
    visitor->Trace(plugins_changed_observers_);
    visitor->Trace(next_related_page_);
 diff --git third_party/blink/renderer/core/page/page.h third_party/blink/renderer/core/page/page.h
-index c9ecb33e153f..6ff8e8dc6b67 100644
+index 8036e8ad5e03..597924d40ade 100644
 --- third_party/blink/renderer/core/page/page.h
 +++ third_party/blink/renderer/core/page/page.h
 @@ -136,7 +136,8 @@ class CORE_EXPORT Page final : public GarbageCollectedFinalized<Page>,

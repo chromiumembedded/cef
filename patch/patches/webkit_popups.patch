@@ -1,8 +1,8 @@
 diff --git third_party/blink/public/web/web_view.h third_party/blink/public/web/web_view.h
-index 380ca3f69a26..fe841b6f25bd 100644
+index bafddd241354..1f66e731b111 100644
 --- third_party/blink/public/web/web_view.h
 +++ third_party/blink/public/web/web_view.h
-@@ -351,6 +351,7 @@ class WebView : protected WebWidget {
+@@ -356,6 +356,7 @@ class WebView : protected WebWidget {
  
    // Sets whether select popup menus should be rendered by the browser.
    BLINK_EXPORT static void SetUseExternalPopupMenus(bool);
@@ -10,7 +10,7 @@ index 380ca3f69a26..fe841b6f25bd 100644
  
    // Hides any popup (suggestions, selects...) that might be showing.
    virtual void HidePopups() = 0;
-@@ -375,6 +376,8 @@ class WebView : protected WebWidget {
+@@ -380,6 +381,8 @@ class WebView : protected WebWidget {
                                    unsigned inactive_background_color,
                                    unsigned inactive_foreground_color) = 0;
  
@@ -20,7 +20,7 @@ index 380ca3f69a26..fe841b6f25bd 100644
  
    // Call these methods before and after running a nested, modal event loop
 diff --git third_party/blink/renderer/core/exported/web_view_impl.cc third_party/blink/renderer/core/exported/web_view_impl.cc
-index 5f7f0416a6f2..40250fddf4ce 100644
+index 1dfa732a6a79..e997d738c9e2 100644
 --- third_party/blink/renderer/core/exported/web_view_impl.cc
 +++ third_party/blink/renderer/core/exported/web_view_impl.cc
 @@ -234,8 +234,13 @@ void WebView::SetUseExternalPopupMenus(bool use_external_popup_menus) {
@@ -48,7 +48,7 @@ index 5f7f0416a6f2..40250fddf4ce 100644
        suppress_next_keypress_event_(false),
        ime_accept_events_(true),
 diff --git third_party/blink/renderer/core/exported/web_view_impl.h third_party/blink/renderer/core/exported/web_view_impl.h
-index 66a3b5c16769..ac7331a50353 100644
+index ca44078fa4cf..4148ab31a8e9 100644
 --- third_party/blink/renderer/core/exported/web_view_impl.h
 +++ third_party/blink/renderer/core/exported/web_view_impl.h
 @@ -103,7 +103,8 @@ class CORE_EXPORT WebViewImpl final : public WebView,

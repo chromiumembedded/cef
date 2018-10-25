@@ -194,7 +194,7 @@ index 364d6df184c5..0d32a4579c87 100644
    // a reference.
    corewm::TooltipWin* tooltip_;
 diff --git ui/views/widget/desktop_aura/desktop_window_tree_host_x11.cc ui/views/widget/desktop_aura/desktop_window_tree_host_x11.cc
-index 065d98ec077e..e63ddacfd8a7 100644
+index 4e04197810d8..82d3e87b55d4 100644
 --- ui/views/widget/desktop_aura/desktop_window_tree_host_x11.cc
 +++ ui/views/widget/desktop_aura/desktop_window_tree_host_x11.cc
 @@ -145,6 +145,7 @@ DesktopWindowTreeHostX11::DesktopWindowTreeHostX11(
@@ -241,7 +241,7 @@ index 065d98ec077e..e63ddacfd8a7 100644
    return ToDIPRect(bounds_in_pixels_);
  }
  
-@@ -1272,6 +1279,8 @@ void DesktopWindowTreeHostX11::SetBoundsInPixels(
+@@ -1274,6 +1281,8 @@ void DesktopWindowTreeHostX11::SetBoundsInPixels(
  }
  
  gfx::Point DesktopWindowTreeHostX11::GetLocationOnScreenInPixels() const {
@@ -250,7 +250,7 @@ index 065d98ec077e..e63ddacfd8a7 100644
    return bounds_in_pixels_.origin();
  }
  
-@@ -1416,7 +1425,6 @@ void DesktopWindowTreeHostX11::InitX11Window(
+@@ -1418,7 +1427,6 @@ void DesktopWindowTreeHostX11::InitX11Window(
    XAtom window_type;
    switch (params.type) {
      case Widget::InitParams::TYPE_MENU:
@@ -258,7 +258,7 @@ index 065d98ec077e..e63ddacfd8a7 100644
        window_type = gfx::GetAtom("_NET_WM_WINDOW_TYPE_MENU");
        break;
      case Widget::InitParams::TYPE_TOOLTIP:
-@@ -1472,9 +1480,15 @@ void DesktopWindowTreeHostX11::InitX11Window(
+@@ -1474,9 +1482,15 @@ void DesktopWindowTreeHostX11::InitX11Window(
    attribute_mask |= CWBorderPixel;
    swa.border_pixel = 0;
  
@@ -275,7 +275,7 @@ index 065d98ec077e..e63ddacfd8a7 100644
                             bounds_in_pixels_.y(), bounds_in_pixels_.width(),
                             bounds_in_pixels_.height(),
                             0,  // border width
-@@ -2092,6 +2106,10 @@ uint32_t DesktopWindowTreeHostX11::DispatchEvent(
+@@ -2094,6 +2108,10 @@ uint32_t DesktopWindowTreeHostX11::DispatchEvent(
        }
        break;
      }

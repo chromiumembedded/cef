@@ -26,7 +26,7 @@ index 642fff3b4367..45faeed249c0 100644
      } else {
        DCHECK(context_provider);
 diff --git ui/compositor/compositor.h ui/compositor/compositor.h
-index a974ea654834..cfb3ff7f8a0c 100644
+index a1b6716fc79f..6ec79ea0fab4 100644
 --- ui/compositor/compositor.h
 +++ ui/compositor/compositor.h
 @@ -25,6 +25,7 @@

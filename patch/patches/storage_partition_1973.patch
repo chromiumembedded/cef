@@ -251,10 +251,10 @@ index 37cabf2c9ffa..a5165fdbfdf6 100644
          CreateDownloadURLLoaderFactoryGetter(storage_partition, rfh, true);
    }
 diff --git content/browser/loader/navigation_url_loader_impl.cc content/browser/loader/navigation_url_loader_impl.cc
-index d9034953e7f8..0e7c34daa4f8 100644
+index f14b46b86a87..4e5467dbc2a5 100644
 --- content/browser/loader/navigation_url_loader_impl.cc
 +++ content/browser/loader/navigation_url_loader_impl.cc
-@@ -1131,7 +1131,7 @@ class NavigationURLLoaderImpl::URLLoaderRequestController
+@@ -1160,7 +1160,7 @@ class NavigationURLLoaderImpl::URLLoaderRequestController
      // path does as well for navigations.
      bool has_plugin = PluginService::GetInstance()->GetPluginInfo(
          -1 /* render_process_id */, -1 /* render_frame_id */, resource_context_,
@@ -263,7 +263,7 @@ index d9034953e7f8..0e7c34daa4f8 100644
          false /* allow_wildcard */, &stale, &plugin, nullptr);
  
      if (stale) {
-@@ -1495,7 +1495,7 @@ NavigationURLLoaderImpl::NavigationURLLoaderImpl(
+@@ -1524,7 +1524,7 @@ NavigationURLLoaderImpl::NavigationURLLoaderImpl(
    network::mojom::URLLoaderFactoryPtrInfo proxied_factory_info;
    network::mojom::URLLoaderFactoryRequest proxied_factory_request;
    bool bypass_redirect_checks = false;

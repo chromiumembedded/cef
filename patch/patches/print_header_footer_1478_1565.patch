@@ -1,5 +1,5 @@
 diff --git chrome/browser/ui/BUILD.gn chrome/browser/ui/BUILD.gn
-index e25cab1de327..00bfb0f19aa3 100644
+index ea8b1a687eb5..a154b1e3fd71 100644
 --- chrome/browser/ui/BUILD.gn
 +++ chrome/browser/ui/BUILD.gn
 @@ -828,6 +828,7 @@ jumbo_split_static_library("ui") {
@@ -10,7 +10,7 @@ index e25cab1de327..00bfb0f19aa3 100644
      "//chrome:extra_resources",
      "//chrome:resources",
      "//chrome:strings",
-@@ -2712,7 +2713,7 @@ jumbo_split_static_library("ui") {
+@@ -2714,7 +2715,7 @@ jumbo_split_static_library("ui") {
          "views/frame/native_browser_frame_factory_ozone.cc",
        ]
      } else {

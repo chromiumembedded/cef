@@ -23,10 +23,10 @@ index bd8facb2d850..fba8020aa90e 100644
        record_whole_document(false),
        save_previous_document_resources(SavePreviousDocumentResources::NEVER),
 diff --git content/public/common/web_preferences.h content/public/common/web_preferences.h
-index e21f52c4dde5..b7da33f1b9a3 100644
+index eba70c162af1..59247078aa81 100644
 --- content/public/common/web_preferences.h
 +++ content/public/common/web_preferences.h
-@@ -198,6 +198,7 @@ struct CONTENT_EXPORT WebPreferences {
+@@ -203,6 +203,7 @@ struct CONTENT_EXPORT WebPreferences {
    bool spatial_navigation_enabled;
    bool use_solid_color_scrollbars;
    bool navigate_on_drag_drop;
@@ -35,10 +35,10 @@ index e21f52c4dde5..b7da33f1b9a3 100644
    bool record_whole_document;
    SavePreviousDocumentResources save_previous_document_resources;
 diff --git content/renderer/render_view_impl.cc content/renderer/render_view_impl.cc
-index 059aaa640ef3..e2e0e58726b8 100644
+index 215c4a750f04..6d82965a631d 100644
 --- content/renderer/render_view_impl.cc
 +++ content/renderer/render_view_impl.cc
-@@ -1308,6 +1308,7 @@ void RenderViewImpl::SendFrameStateUpdates() {
+@@ -1312,6 +1312,7 @@ void RenderViewImpl::SendFrameStateUpdates() {
  void RenderViewImpl::ApplyWebPreferencesInternal(const WebPreferences& prefs,
                                                   blink::WebView* web_view) {
    ApplyWebPreferences(prefs, web_view);
