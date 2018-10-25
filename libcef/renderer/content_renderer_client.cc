@@ -282,7 +282,8 @@ void CefContentRendererClient::WebKitInitialized() {
       blink::WebSecurityPolicy::AddOriginAccessAllowListEntry(
           gurl, blink::WebString::FromUTF8(entry.target_protocol),
           blink::WebString::FromUTF8(entry.target_domain),
-          entry.allow_target_subdomains);
+          entry.allow_target_subdomains,
+          network::mojom::CORSOriginAccessMatchPriority::kDefaultPriority);
     }
     cross_origin_whitelist_entries_.clear();
   }

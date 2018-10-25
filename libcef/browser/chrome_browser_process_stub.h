@@ -75,7 +75,8 @@ class ChromeBrowserProcessStub : public BrowserProcess,
   printing::BackgroundPrintingManager* background_printing_manager() override;
   IntranetRedirectDetector* intranet_redirect_detector() override;
   const std::string& GetApplicationLocale() override;
-  void SetApplicationLocale(const std::string& locale) override;
+  void SetApplicationLocale(const std::string& actual_locale,
+                            const std::string& preferred_locale) override;
   DownloadStatusUpdater* download_status_updater() override;
   DownloadRequestLimiter* download_request_limiter() override;
   BackgroundModeManager* background_mode_manager() override;

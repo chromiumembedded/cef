@@ -68,7 +68,8 @@ void CefRenderThreadObserver::OnModifyCrossOriginWhitelistEntry(
     blink::WebSecurityPolicy::AddOriginAccessAllowListEntry(
         gurl, blink::WebString::FromUTF8(params.target_protocol),
         blink::WebString::FromUTF8(params.target_domain),
-        params.allow_target_subdomains);
+        params.allow_target_subdomains,
+        network::mojom::CORSOriginAccessMatchPriority::kDefaultPriority);
   } else {
     blink::WebSecurityPolicy::ClearOriginAccessAllowListForOrigin(gurl);
   }

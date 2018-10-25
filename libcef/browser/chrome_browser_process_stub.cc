@@ -243,8 +243,10 @@ const std::string& ChromeBrowserProcessStub::GetApplicationLocale() {
   return locale_;
 }
 
-void ChromeBrowserProcessStub::SetApplicationLocale(const std::string& locale) {
-  locale_ = locale;
+void ChromeBrowserProcessStub::SetApplicationLocale(
+    const std::string& actual_locale,
+    const std::string& preferred_locale) {
+  locale_ = actual_locale;
 }
 
 DownloadStatusUpdater* ChromeBrowserProcessStub::download_status_updater() {

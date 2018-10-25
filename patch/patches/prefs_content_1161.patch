@@ -35,7 +35,7 @@ index c1881cb04aec..34a64887af4c 100644
    bool record_whole_document;
    SavePreviousDocumentResources save_previous_document_resources;
 diff --git content/renderer/render_view_impl.cc content/renderer/render_view_impl.cc
-index 5ff531dd9e35..34d699af2616 100644
+index bc72fadb307f..d115ace7d7f5 100644
 --- content/renderer/render_view_impl.cc
 +++ content/renderer/render_view_impl.cc
 @@ -1273,6 +1273,7 @@ void RenderViewImpl::SendFrameStateUpdates() {

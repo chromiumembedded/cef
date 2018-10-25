@@ -366,10 +366,10 @@ index dc3f820d88da..1f3d09e169ac 100644
    GLES2_GET_FUN(InvalidateReadbackBufferShadowDataCHROMIUM)
  #define glFramebufferTextureMultiviewLayeredANGLE \
 diff --git gpu/command_buffer/build_gles2_cmd_buffer.py gpu/command_buffer/build_gles2_cmd_buffer.py
-index 574ea592fd0f..ead22d65a6a7 100755
+index 70cae33c1387..06e6061cf654 100755
 --- gpu/command_buffer/build_gles2_cmd_buffer.py
 +++ gpu/command_buffer/build_gles2_cmd_buffer.py
-@@ -4061,6 +4061,35 @@ _FUNCTION_INFO = {
+@@ -4062,6 +4062,35 @@ _FUNCTION_INFO = {
      'extension': 'CHROMIUM_gpu_fence',
      'extension_flag': 'chromium_gpu_fence',
    },
@@ -501,10 +501,10 @@ index b422c3075ae7..1c4b452d1df5 100644
                                                 GLint shm_id,
                                                 GLuint shm_offset,
 diff --git gpu/command_buffer/client/gles2_implementation.cc gpu/command_buffer/client/gles2_implementation.cc
-index 65f83c6f5a41..c1bd6e4e7676 100644
+index 9ee4ed69f3e8..e6b2f002522f 100644
 --- gpu/command_buffer/client/gles2_implementation.cc
 +++ gpu/command_buffer/client/gles2_implementation.cc
-@@ -7248,6 +7248,22 @@ void GLES2Implementation::Viewport(GLint x,
+@@ -7254,6 +7254,22 @@ void GLES2Implementation::Viewport(GLint x,
    CheckGLError();
  }
  
@@ -993,7 +993,7 @@ index 6e83a5675fc3..330107d93f03 100644
      "buffer_manager.cc",
      "buffer_manager.h",
 diff --git gpu/command_buffer/service/gles2_cmd_decoder.cc gpu/command_buffer/service/gles2_cmd_decoder.cc
-index 08706db01d3d..245b3d8db6ea 100644
+index 3cb45cc5b191..f17002799aa6 100644
 --- gpu/command_buffer/service/gles2_cmd_decoder.cc
 +++ gpu/command_buffer/service/gles2_cmd_decoder.cc
 @@ -34,6 +34,7 @@
@@ -1027,7 +1027,7 @@ index 08706db01d3d..245b3d8db6ea 100644
    base::flat_set<scoped_refptr<Buffer>> writes_submitted_but_not_completed_;
  
    // The format of the back buffer_
-@@ -5351,6 +5361,59 @@ error::Error GLES2DecoderImpl::HandleDestroyGpuFenceCHROMIUM(
+@@ -5353,6 +5363,59 @@ error::Error GLES2DecoderImpl::HandleDestroyGpuFenceCHROMIUM(
    return error::kNoError;
  }
  

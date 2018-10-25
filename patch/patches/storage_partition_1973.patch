@@ -251,7 +251,7 @@ index a0220133cd28..02b8726dfbc1 100644
          CreateDownloadURLLoaderFactoryGetter(storage_partition, rfh, true);
    }
 diff --git content/browser/loader/navigation_url_loader_impl.cc content/browser/loader/navigation_url_loader_impl.cc
-index 54a2af4bb179..76f6a48bc046 100644
+index 5caac8e8afb7..7f042ef246e4 100644
 --- content/browser/loader/navigation_url_loader_impl.cc
 +++ content/browser/loader/navigation_url_loader_impl.cc
 @@ -1226,7 +1226,7 @@ class NavigationURLLoaderImpl::URLLoaderRequestController
@@ -263,7 +263,7 @@ index 54a2af4bb179..76f6a48bc046 100644
          false /* allow_wildcard */, &stale, &plugin, nullptr);
  
      if (stale) {
-@@ -1585,7 +1585,7 @@ NavigationURLLoaderImpl::NavigationURLLoaderImpl(
+@@ -1593,7 +1593,7 @@ NavigationURLLoaderImpl::NavigationURLLoaderImpl(
        request_info.get(), frame_tree_node_id, allow_download_);
    new_request->transition_type = request_info->common_params.transition;
  
