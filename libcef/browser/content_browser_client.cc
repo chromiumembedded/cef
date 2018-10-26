@@ -797,8 +797,8 @@ void CefContentBrowserClient::GetQuotaSettings(
     content::StoragePartition* partition,
     storage::OptionalQuotaSettingsCallback callback) {
   const base::FilePath& cache_path = partition->GetPath();
-  storage::GetNominalDynamicSettings(cache_path, !cache_path.empty(),
-                                     std::move(callback));
+  storage::GetNominalDynamicSettings(
+      cache_path, cache_path.empty() /* is_incognito */, std::move(callback));
 }
 
 content::MediaObserver* CefContentBrowserClient::GetMediaObserver() {
