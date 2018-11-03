@@ -1,5 +1,5 @@
 diff --git chrome/browser/browser_process.h chrome/browser/browser_process.h
-index 840e44398dc6..4835c5ddcd64 100644
+index 9b52c6682024..f188476b45ee 100644
 --- chrome/browser/browser_process.h
 +++ chrome/browser/browser_process.h
 @@ -39,6 +39,10 @@ class SystemNetworkContextManager;
@@ -24,10 +24,10 @@ index 840e44398dc6..4835c5ddcd64 100644
    // network quality change events.
    virtual network::NetworkQualityTracker* network_quality_tracker() = 0;
 diff --git chrome/browser/browser_process_impl.cc chrome/browser/browser_process_impl.cc
-index 827c58d28114..7a0a31aeb654 100644
+index a97daaa4d752..8d6e4490ee4f 100644
 --- chrome/browser/browser_process_impl.cc
 +++ chrome/browser/browser_process_impl.cc
-@@ -662,6 +662,10 @@ BrowserProcessImpl::system_network_context_manager() {
+@@ -665,6 +665,10 @@ BrowserProcessImpl::system_network_context_manager() {
    return SystemNetworkContextManager::GetInstance();
  }
  
@@ -39,7 +39,7 @@ index 827c58d28114..7a0a31aeb654 100644
  BrowserProcessImpl::shared_url_loader_factory() {
    return system_network_context_manager()->GetSharedURLLoaderFactory();
 diff --git chrome/browser/browser_process_impl.h chrome/browser/browser_process_impl.h
-index 8799ad360d51..1bac38e1929b 100644
+index ab192b468f53..d0864716dcfe 100644
 --- chrome/browser/browser_process_impl.h
 +++ chrome/browser/browser_process_impl.h
 @@ -143,6 +143,7 @@ class BrowserProcessImpl : public BrowserProcess,
@@ -51,7 +51,7 @@ index 8799ad360d51..1bac38e1929b 100644
        override;
    network::NetworkQualityTracker* network_quality_tracker() override;
 diff --git chrome/browser/ui/webui/net_export_ui.cc chrome/browser/ui/webui/net_export_ui.cc
-index 38c8ac0ed0e1..e759d3ebebf2 100644
+index 62796358a2a7..9249ae2d07fa 100644
 --- chrome/browser/ui/webui/net_export_ui.cc
 +++ chrome/browser/ui/webui/net_export_ui.cc
 @@ -159,8 +159,7 @@ class NetExportMessageHandler

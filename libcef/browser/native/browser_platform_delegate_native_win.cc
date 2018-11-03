@@ -339,19 +339,19 @@ void CefBrowserPlatformDelegateNativeWin::ViewText(const std::string& text) {
   CEF_POST_USER_VISIBLE_TASK(base::Bind(WriteTempFileAndView, str_ref));
 }
 
-void CefBrowserPlatformDelegateNativeWin::HandleKeyboardEvent(
+bool CefBrowserPlatformDelegateNativeWin::HandleKeyboardEvent(
     const content::NativeWebKeyboardEvent& event) {
   // Any unhandled keyboard/character messages are sent to DefWindowProc so that
   // shortcut keys work correctly.
   if (event.os_event) {
     const MSG& msg = event.os_event->native_event();
-    DefWindowProc(msg.hwnd, msg.message, msg.wParam, msg.lParam);
+    return !DefWindowProc(msg.hwnd, msg.message, msg.wParam, msg.lParam);
   } else {
     MSG msg = {};
 
     msg.hwnd = GetHostWindowHandle();
     if (!msg.hwnd)
-      return;
+      return false;
 
     switch (event.GetType()) {
       case blink::WebInputEvent::kRawKeyDown:
@@ -365,7 +365,7 @@ void CefBrowserPlatformDelegateNativeWin::HandleKeyboardEvent(
         break;
       default:
         NOTREACHED();
-        return;
+        return false;
     }
 
     msg.wParam = event.windows_key_code;
@@ -376,7 +376,7 @@ void CefBrowserPlatformDelegateNativeWin::HandleKeyboardEvent(
     if (event.GetModifiers() & content::NativeWebKeyboardEvent::kAltKey)
       msg.lParam |= (1 << 29);
 
-    DefWindowProc(msg.hwnd, msg.message, msg.wParam, msg.lParam);
+    return !DefWindowProc(msg.hwnd, msg.message, msg.wParam, msg.lParam);
   }
 }
 

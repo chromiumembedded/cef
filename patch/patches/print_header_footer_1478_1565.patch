@@ -1,8 +1,8 @@
 diff --git chrome/browser/ui/BUILD.gn chrome/browser/ui/BUILD.gn
-index 108b54de5e75..8ebd76fc4584 100644
+index 81c2bc90ddff..89e129d426d0 100644
 --- chrome/browser/ui/BUILD.gn
 +++ chrome/browser/ui/BUILD.gn
-@@ -368,6 +368,7 @@ jumbo_split_static_library("ui") {
+@@ -369,6 +369,7 @@ jumbo_split_static_library("ui") {
      "//base:i18n",
      "//base/allocator:buildflags",
      "//cc/paint",
@@ -10,7 +10,7 @@ index 108b54de5e75..8ebd76fc4584 100644
      "//chrome:extra_resources",
      "//chrome:resources",
      "//chrome:strings",
-@@ -2289,7 +2290,7 @@ jumbo_split_static_library("ui") {
+@@ -2265,7 +2266,7 @@ jumbo_split_static_library("ui") {
          "views/frame/native_browser_frame_factory_ozone.cc",
        ]
      } else {
@@ -20,7 +20,7 @@ index 108b54de5e75..8ebd76fc4584 100644
          deps += [ "//chrome/browser/ui/libgtkui" ]
        }
 diff --git chrome/browser/ui/cocoa/applescript/tab_applescript.mm chrome/browser/ui/cocoa/applescript/tab_applescript.mm
-index f0a489a0c3af..1bd1259e47e3 100644
+index 71abc5c50e42..20429f93760a 100644
 --- chrome/browser/ui/cocoa/applescript/tab_applescript.mm
 +++ chrome/browser/ui/cocoa/applescript/tab_applescript.mm
 @@ -9,7 +9,7 @@
@@ -43,7 +43,7 @@ index f0a489a0c3af..1bd1259e47e3 100644
  using content::NavigationController;
  using content::NavigationEntry;
  using content::OpenURLParams;
-@@ -233,11 +237,15 @@ void ResumeAppleEventAndSendReply(NSAppleEventManagerSuspensionID suspension_id,
+@@ -234,11 +238,15 @@ void ResumeAppleEventAndSendReply(NSAppleEventManagerSuspensionID suspension_id,
  
  - (void)handlesPrintScriptCommand:(NSScriptCommand*)command {
    AppleScript::LogAppleScriptUMA(AppleScript::AppleScriptCommand::TAB_PRINT);
@@ -262,10 +262,10 @@ index 7dd892feb181..daa097e62ba2 100644
  
  #endif  // COMPONENTS_PRINTING_COMMON_PRINT_MESSAGES_H_
 diff --git components/printing/renderer/print_render_frame_helper.cc components/printing/renderer/print_render_frame_helper.cc
-index 71731e98146e..10ce840c286a 100644
+index 69b9a0e39f17..902f0b9e9fcb 100644
 --- components/printing/renderer/print_render_frame_helper.cc
 +++ components/printing/renderer/print_render_frame_helper.cc
-@@ -341,7 +341,6 @@ bool PrintingNodeOrPdfFrame(const blink::WebLocalFrame* frame,
+@@ -343,7 +343,6 @@ bool PrintingNodeOrPdfFrame(const blink::WebLocalFrame* frame,
    return plugin && plugin->SupportsPaginatedPrint();
  }
  
@@ -273,7 +273,7 @@ index 71731e98146e..10ce840c286a 100644
  // Returns true if the current destination printer is PRINT_TO_PDF.
  bool IsPrintToPdfRequested(const base::DictionaryValue& job_settings) {
    bool print_to_pdf = false;
-@@ -363,7 +362,6 @@ bool PrintingFrameHasPageSizeStyle(blink::WebLocalFrame* frame,
+@@ -365,7 +364,6 @@ bool PrintingFrameHasPageSizeStyle(blink::WebLocalFrame* frame,
    }
    return frame_has_custom_page_size_style;
  }
@@ -281,7 +281,7 @@ index 71731e98146e..10ce840c286a 100644
  
  #if BUILDFLAG(ENABLE_PRINTING)
  // Disable scaling when either:
-@@ -418,7 +416,6 @@ MarginType GetMarginsForPdf(blink::WebLocalFrame* frame,
+@@ -420,7 +418,6 @@ MarginType GetMarginsForPdf(blink::WebLocalFrame* frame,
               : PRINTABLE_AREA_MARGINS;
  }
  
@@ -289,7 +289,7 @@ index 71731e98146e..10ce840c286a 100644
  gfx::Size GetPdfPageSize(const gfx::Size& page_size, int dpi) {
    return gfx::Size(ConvertUnit(page_size.width(), dpi, kPointsPerInch),
                     ConvertUnit(page_size.height(), dpi, kPointsPerInch));
-@@ -465,7 +462,6 @@ blink::WebPrintScalingOption GetPrintScalingOption(
+@@ -467,7 +464,6 @@ blink::WebPrintScalingOption GetPrintScalingOption(
    }
    return blink::kWebPrintScalingOptionFitToPrintableArea;
  }
@@ -297,7 +297,7 @@ index 71731e98146e..10ce840c286a 100644
  
  // Helper function to scale and round an integer value with a double valued
  // scaling.
-@@ -1045,10 +1041,8 @@ void PrintRenderFrameHelper::ScriptedPrint(bool user_initiated) {
+@@ -1090,10 +1086,8 @@ void PrintRenderFrameHelper::ScriptedPrint(bool user_initiated) {
      return;
  
    if (g_is_preview_enabled) {
@@ -308,7 +308,7 @@ index 71731e98146e..10ce840c286a 100644
    } else {
      auto weak_this = weak_ptr_factory_.GetWeakPtr();
      web_frame->DispatchBeforePrintEvent();
-@@ -1076,10 +1070,10 @@ bool PrintRenderFrameHelper::OnMessageReceived(const IPC::Message& message) {
+@@ -1121,10 +1115,10 @@ bool PrintRenderFrameHelper::OnMessageReceived(const IPC::Message& message) {
    IPC_BEGIN_MESSAGE_MAP(PrintRenderFrameHelper, message)
      IPC_MESSAGE_HANDLER(PrintMsg_PrintPages, OnPrintPages)
      IPC_MESSAGE_HANDLER(PrintMsg_PrintForSystemDialog, OnPrintForSystemDialog)
@@ -320,7 +320,7 @@ index 71731e98146e..10ce840c286a 100644
      IPC_MESSAGE_HANDLER(PrintMsg_ClosePrintPreviewDialog,
                          OnClosePrintPreviewDialog)
  #endif  // BUILDFLAG(ENABLE_PRINT_PREVIEW)
-@@ -1161,7 +1155,6 @@ void PrintRenderFrameHelper::UpdateFrameMarginsCssInfo(
+@@ -1207,7 +1201,6 @@ void PrintRenderFrameHelper::UpdateFrameMarginsCssInfo(
    ignore_css_margins_ = (margins_type != DEFAULT_MARGINS);
  }
  
@@ -328,7 +328,7 @@ index 71731e98146e..10ce840c286a 100644
  void PrintRenderFrameHelper::OnPrintPreview(
      const base::DictionaryValue& settings) {
    if (ipc_nesting_level_ > 1)
-@@ -1418,7 +1411,6 @@ int PrintRenderFrameHelper::GetFitToPageScaleFactor(
+@@ -1464,7 +1457,6 @@ int PrintRenderFrameHelper::GetFitToPageScaleFactor(
        printable_height / static_cast<double>(uniform_page_size.height);
    return static_cast<int>(100.0f * std::min(scale_width, scale_height));
  }
@@ -336,7 +336,7 @@ index 71731e98146e..10ce840c286a 100644
  
  void PrintRenderFrameHelper::OnPrintingDone(bool success) {
    if (ipc_nesting_level_ > 1)
-@@ -1433,7 +1425,6 @@ void PrintRenderFrameHelper::OnSetPrintingEnabled(bool enabled) {
+@@ -1479,7 +1471,6 @@ void PrintRenderFrameHelper::OnSetPrintingEnabled(bool enabled) {
    is_printing_enabled_ = enabled;
  }
  
@@ -344,7 +344,7 @@ index 71731e98146e..10ce840c286a 100644
  void PrintRenderFrameHelper::OnInitiatePrintPreview(bool has_selection) {
    if (ipc_nesting_level_ > 1)
      return;
-@@ -1444,7 +1435,9 @@ void PrintRenderFrameHelper::OnInitiatePrintPreview(bool has_selection) {
+@@ -1490,7 +1481,9 @@ void PrintRenderFrameHelper::OnInitiatePrintPreview(bool has_selection) {
    // that instead.
    auto plugin = delegate_->GetPdfElement(frame);
    if (!plugin.IsNull()) {
@@ -354,7 +354,7 @@ index 71731e98146e..10ce840c286a 100644
      return;
    }
    print_preview_context_.InitWithFrame(frame);
-@@ -1453,6 +1446,7 @@ void PrintRenderFrameHelper::OnInitiatePrintPreview(bool has_selection) {
+@@ -1499,6 +1492,7 @@ void PrintRenderFrameHelper::OnInitiatePrintPreview(bool has_selection) {
                            : PRINT_PREVIEW_USER_INITIATED_ENTIRE_FRAME);
  }
  
@@ -362,7 +362,7 @@ index 71731e98146e..10ce840c286a 100644
  void PrintRenderFrameHelper::OnClosePrintPreviewDialog() {
    print_preview_context_.source_frame()->DispatchAfterPrintEvent();
  }
-@@ -1540,11 +1534,9 @@ void PrintRenderFrameHelper::PrintNode(const blink::WebNode& node) {
+@@ -1586,11 +1580,9 @@ void PrintRenderFrameHelper::PrintNode(const blink::WebNode& node) {
  
    print_node_in_progress_ = true;
  
@@ -375,7 +375,7 @@ index 71731e98146e..10ce840c286a 100644
    } else {
      // Make a copy of the node, in case RenderView::OnContextMenuClosed() resets
      // its |context_menu_node_|.
-@@ -1620,13 +1612,11 @@ void PrintRenderFrameHelper::Print(blink::WebLocalFrame* frame,
+@@ -1666,13 +1658,11 @@ void PrintRenderFrameHelper::Print(blink::WebLocalFrame* frame,
  void PrintRenderFrameHelper::DidFinishPrinting(PrintingResult result) {
    int cookie =
        print_pages_params_ ? print_pages_params_->params.document_cookie : 0;
@@ -389,7 +389,7 @@ index 71731e98146e..10ce840c286a 100644
    switch (result) {
      case OK:
        break;
-@@ -1641,7 +1631,6 @@ void PrintRenderFrameHelper::DidFinishPrinting(PrintingResult result) {
+@@ -1687,7 +1677,6 @@ void PrintRenderFrameHelper::DidFinishPrinting(PrintingResult result) {
        }
        break;
  
@@ -397,7 +397,7 @@ index 71731e98146e..10ce840c286a 100644
      case FAIL_PREVIEW:
        if (!is_print_ready_metafile_sent_) {
          if (notify_browser_of_print_failure_) {
-@@ -1659,7 +1648,6 @@ void PrintRenderFrameHelper::DidFinishPrinting(PrintingResult result) {
+@@ -1705,7 +1694,6 @@ void PrintRenderFrameHelper::DidFinishPrinting(PrintingResult result) {
                                                                 cookie, ids));
        print_preview_context_.Failed(false);
        break;
@@ -405,7 +405,7 @@ index 71731e98146e..10ce840c286a 100644
    }
    prep_frame_view_.reset();
    print_pages_params_.reset();
-@@ -1832,7 +1820,6 @@ bool PrintRenderFrameHelper::CalculateNumberOfPages(blink::WebLocalFrame* frame,
+@@ -1880,7 +1868,6 @@ bool PrintRenderFrameHelper::CalculateNumberOfPages(blink::WebLocalFrame* frame,
    return true;
  }
  
@@ -413,7 +413,7 @@ index 71731e98146e..10ce840c286a 100644
  bool PrintRenderFrameHelper::SetOptionsFromPdfDocument(
      PrintHostMsg_SetOptionsFromDocument_Params* options) {
    blink::WebLocalFrame* source_frame = print_preview_context_.source_frame();
-@@ -1925,7 +1912,6 @@ bool PrintRenderFrameHelper::UpdatePrintSettings(
+@@ -1973,7 +1960,6 @@ bool PrintRenderFrameHelper::UpdatePrintSettings(
    print_preview_context_.set_error(PREVIEW_ERROR_INVALID_PRINTER_SETTINGS);
    return false;
  }
@@ -421,7 +421,7 @@ index 71731e98146e..10ce840c286a 100644
  
  void PrintRenderFrameHelper::GetPrintSettingsFromUser(
      blink::WebLocalFrame* frame,
-@@ -2074,7 +2060,6 @@ bool PrintRenderFrameHelper::CopyMetafileDataToReadOnlySharedMem(
+@@ -2125,7 +2111,6 @@ bool PrintRenderFrameHelper::CopyMetafileDataToReadOnlySharedMem(
    return true;
  }
  
@@ -429,7 +429,7 @@ index 71731e98146e..10ce840c286a 100644
  void PrintRenderFrameHelper::ShowScriptedPrintPreview() {
    if (is_scripted_preview_delayed_) {
      is_scripted_preview_delayed_ = false;
-@@ -2200,7 +2185,6 @@ bool PrintRenderFrameHelper::PreviewPageRendered(
+@@ -2251,7 +2236,6 @@ bool PrintRenderFrameHelper::PreviewPageRendered(
    Send(new PrintHostMsg_DidPreviewPage(routing_id(), preview_page_params, ids));
    return true;
  }
@@ -438,7 +438,7 @@ index 71731e98146e..10ce840c286a 100644
  PrintRenderFrameHelper::PrintPreviewContext::PrintPreviewContext() = default;
  
 diff --git components/printing/renderer/print_render_frame_helper.h components/printing/renderer/print_render_frame_helper.h
-index ff6423d51151..12d71ed042c6 100644
+index 34690801675c..f2eed3ffbb24 100644
 --- components/printing/renderer/print_render_frame_helper.h
 +++ components/printing/renderer/print_render_frame_helper.h
 @@ -150,10 +150,8 @@ class PrintRenderFrameHelper
@@ -452,7 +452,7 @@ index ff6423d51151..12d71ed042c6 100644
    };
  
    // These values are persisted to logs. Entries should not be renumbered and
-@@ -189,9 +187,9 @@ class PrintRenderFrameHelper
+@@ -194,9 +192,9 @@ class PrintRenderFrameHelper
    // Message handlers ---------------------------------------------------------
    void OnPrintPages();
    void OnPrintForSystemDialog();
@@ -463,7 +463,7 @@ index ff6423d51151..12d71ed042c6 100644
    void OnClosePrintPreviewDialog();
  #endif  // BUILDFLAG(ENABLE_PRINT_PREVIEW)
    void OnPrintFrameContent(const PrintMsg_PrintFrame_Params& params);
-@@ -207,7 +205,6 @@ class PrintRenderFrameHelper
+@@ -212,7 +210,6 @@ class PrintRenderFrameHelper
    // Update |ignore_css_margins_| based on settings.
    void UpdateFrameMarginsCssInfo(const base::DictionaryValue& settings);
  
@@ -471,7 +471,7 @@ index ff6423d51151..12d71ed042c6 100644
    // Prepare frame for creating preview document.
    void PrepareFrameForPreviewDocument();
  
-@@ -227,7 +224,6 @@ class PrintRenderFrameHelper
+@@ -232,7 +229,6 @@ class PrintRenderFrameHelper
  
    // Helper method to calculate the scale factor for fit-to-page.
    int GetFitToPageScaleFactor(const gfx::Rect& printable_area_in_points);
@@ -479,7 +479,7 @@ index ff6423d51151..12d71ed042c6 100644
  
    // Enable/Disable printing.
    void OnSetPrintingEnabled(bool enabled);
-@@ -255,7 +251,6 @@ class PrintRenderFrameHelper
+@@ -259,7 +255,6 @@ class PrintRenderFrameHelper
                                const blink::WebNode& node,
                                int* number_of_pages);
  
@@ -487,7 +487,7 @@ index ff6423d51151..12d71ed042c6 100644
    // Set options for print preset from source PDF document.
    bool SetOptionsFromPdfDocument(
        PrintHostMsg_SetOptionsFromDocument_Params* options);
-@@ -266,7 +261,6 @@ class PrintRenderFrameHelper
+@@ -270,7 +265,6 @@ class PrintRenderFrameHelper
    bool UpdatePrintSettings(blink::WebLocalFrame* frame,
                             const blink::WebNode& node,
                             const base::DictionaryValue& passed_job_settings);
@@ -495,7 +495,7 @@ index ff6423d51151..12d71ed042c6 100644
  
    // Get final print settings from the user.
    // WARNING: |this| may be gone after this method returns.
-@@ -348,7 +342,6 @@ class PrintRenderFrameHelper
+@@ -352,7 +346,6 @@ class PrintRenderFrameHelper
    bool IsScriptInitiatedPrintAllowed(blink::WebLocalFrame* frame,
                                       bool user_initiated);
  
@@ -503,7 +503,7 @@ index ff6423d51151..12d71ed042c6 100644
    // Shows scripted print preview when options from plugin are available.
    void ShowScriptedPrintPreview();
  
-@@ -367,7 +360,6 @@ class PrintRenderFrameHelper
+@@ -371,7 +364,6 @@ class PrintRenderFrameHelper
    // Returns true if print preview should continue, false on failure.
    bool PreviewPageRendered(int page_number,
                             std::unique_ptr<MetafileSkia> metafile);
@@ -511,7 +511,7 @@ index ff6423d51151..12d71ed042c6 100644
  
    void SetPrintPagesParams(const PrintMsg_PrintPages_Params& settings);
  
-@@ -522,6 +514,7 @@ class PrintRenderFrameHelper
+@@ -526,6 +518,7 @@ class PrintRenderFrameHelper
    ScriptingThrottler scripting_throttler_;
  
    bool print_node_in_progress_ = false;

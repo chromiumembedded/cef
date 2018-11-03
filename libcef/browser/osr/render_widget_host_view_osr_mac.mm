@@ -49,11 +49,14 @@ class MacHelper : public content::BrowserCompositorMacClient,
 
   bool SynchronizeVisualProperties(
       const base::Optional<viz::LocalSurfaceId>&
-          child_allocated_local_surface_id) override {
+          child_allocated_local_surface_id,
+      const base::Optional<base::TimeTicks>&
+          child_local_surface_id_allocation_time) override {
     auto* browser_compositor = view_->browser_compositor();
     if (child_allocated_local_surface_id) {
       browser_compositor->UpdateRendererLocalSurfaceIdFromChild(
-          *child_allocated_local_surface_id);
+          *child_allocated_local_surface_id,
+          *child_local_surface_id_allocation_time);
     } else {
       browser_compositor->AllocateNewRendererLocalSurfaceId();
     }
@@ -125,7 +128,9 @@ void CefRenderWidgetHostViewOSR::OnDidUpdateVisualPropertiesComplete(
   DCHECK_EQ(current_device_scale_factor_, metadata.device_scale_factor);
   browser_compositor_->SynchronizeVisualProperties(
       metadata.device_scale_factor, metadata.viewport_size_in_pixels,
-      metadata.local_surface_id.value_or(viz::LocalSurfaceId()));
+      metadata.local_surface_id.value_or(viz::LocalSurfaceId()),
+      metadata.local_surface_id_allocation_time_from_child.value_or(
+          base::TimeTicks()));
 }
 
 const viz::LocalSurfaceId& CefRenderWidgetHostViewOSR::GetLocalSurfaceId()

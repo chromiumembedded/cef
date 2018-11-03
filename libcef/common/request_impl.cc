@@ -804,55 +804,57 @@ uint8_t CefRequestImpl::GetChanges() const {
 
 // From content/child/web_url_loader_impl.cc
 // static
-blink::WebReferrerPolicy CefRequestImpl::NetReferrerPolicyToBlinkReferrerPolicy(
+network::mojom::ReferrerPolicy
+CefRequestImpl::NetReferrerPolicyToBlinkReferrerPolicy(
     cef_referrer_policy_t net_policy) {
   switch (net_policy) {
     case REFERRER_POLICY_CLEAR_REFERRER_ON_TRANSITION_FROM_SECURE_TO_INSECURE:
-      return blink::kWebReferrerPolicyNoReferrerWhenDowngrade;
+      return network::mojom::ReferrerPolicy::kNoReferrerWhenDowngrade;
     case REFERRER_POLICY_REDUCE_REFERRER_GRANULARITY_ON_TRANSITION_CROSS_ORIGIN:
-      return blink::
-          kWebReferrerPolicyNoReferrerWhenDowngradeOriginWhenCrossOrigin;
+      return network::mojom::ReferrerPolicy::
+          kNoReferrerWhenDowngradeOriginWhenCrossOrigin;
     case REFERRER_POLICY_ORIGIN_ONLY_ON_TRANSITION_CROSS_ORIGIN:
-      return blink::kWebReferrerPolicyOriginWhenCrossOrigin;
+      return network::mojom::ReferrerPolicy::kOriginWhenCrossOrigin;
     case REFERRER_POLICY_NEVER_CLEAR_REFERRER:
-      return blink::kWebReferrerPolicyAlways;
+      return network::mojom::ReferrerPolicy::kAlways;
     case REFERRER_POLICY_ORIGIN:
-      return blink::kWebReferrerPolicyOrigin;
+      return network::mojom::ReferrerPolicy::kOrigin;
     case REFERRER_POLICY_CLEAR_REFERRER_ON_TRANSITION_CROSS_ORIGIN:
-      return blink::kWebReferrerPolicySameOrigin;
+      return network::mojom::ReferrerPolicy::kSameOrigin;
     case REFERRER_POLICY_ORIGIN_CLEAR_ON_TRANSITION_FROM_SECURE_TO_INSECURE:
-      return blink::kWebReferrerPolicyStrictOrigin;
+      return network::mojom::ReferrerPolicy::kStrictOrigin;
     case REFERRER_POLICY_NO_REFERRER:
-      return blink::kWebReferrerPolicyNever;
+      return network::mojom::ReferrerPolicy::kNever;
     case REFERRER_POLICY_LAST_VALUE:
       NOTREACHED();
-      return blink::kWebReferrerPolicyDefault;
+      return network::mojom::ReferrerPolicy::kDefault;
   }
   NOTREACHED();
-  return blink::kWebReferrerPolicyDefault;
+  return network::mojom::ReferrerPolicy::kDefault;
 }
 
 // static
 cef_referrer_policy_t CefRequestImpl::BlinkReferrerPolicyToNetReferrerPolicy(
-    blink::WebReferrerPolicy blink_policy) {
+    network::mojom::ReferrerPolicy blink_policy) {
   switch (blink_policy) {
-    case blink::kWebReferrerPolicyNoReferrerWhenDowngrade:
+    case network::mojom::ReferrerPolicy::kNoReferrerWhenDowngrade:
       return REFERRER_POLICY_CLEAR_REFERRER_ON_TRANSITION_FROM_SECURE_TO_INSECURE;
-    case blink::kWebReferrerPolicyNoReferrerWhenDowngradeOriginWhenCrossOrigin:
+    case network::mojom::ReferrerPolicy::
+        kNoReferrerWhenDowngradeOriginWhenCrossOrigin:
       return REFERRER_POLICY_REDUCE_REFERRER_GRANULARITY_ON_TRANSITION_CROSS_ORIGIN;
-    case blink::kWebReferrerPolicyOriginWhenCrossOrigin:
+    case network::mojom::ReferrerPolicy::kOriginWhenCrossOrigin:
       return REFERRER_POLICY_ORIGIN_ONLY_ON_TRANSITION_CROSS_ORIGIN;
-    case blink::kWebReferrerPolicyAlways:
+    case network::mojom::ReferrerPolicy::kAlways:
       return REFERRER_POLICY_NEVER_CLEAR_REFERRER;
-    case blink::kWebReferrerPolicyOrigin:
+    case network::mojom::ReferrerPolicy::kOrigin:
       return REFERRER_POLICY_ORIGIN;
-    case blink::kWebReferrerPolicySameOrigin:
+    case network::mojom::ReferrerPolicy::kSameOrigin:
       return REFERRER_POLICY_CLEAR_REFERRER_ON_TRANSITION_CROSS_ORIGIN;
-    case blink::kWebReferrerPolicyStrictOrigin:
+    case network::mojom::ReferrerPolicy::kStrictOrigin:
       return REFERRER_POLICY_ORIGIN_CLEAR_ON_TRANSITION_FROM_SECURE_TO_INSECURE;
-    case blink::kWebReferrerPolicyNever:
+    case network::mojom::ReferrerPolicy::kNever:
       return REFERRER_POLICY_NO_REFERRER;
-    case blink::kWebReferrerPolicyDefault:
+    case network::mojom::ReferrerPolicy::kDefault:
       return REFERRER_POLICY_DEFAULT;
   }
   NOTREACHED();

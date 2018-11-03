@@ -73,7 +73,7 @@
   CEF_POST_BLOCKING_TASK(base::TaskPriority::BEST_EFFORT, task)
 
 // Assert that blocking is allowed on the current thread.
-#define CEF_REQUIRE_BLOCKING() base::AssertBlockingAllowed()
+#define CEF_REQUIRE_BLOCKING() base::AssertBlockingAllowedDeprecated()
 
 // Same as IMPLEMENT_REFCOUNTING() but using the specified Destructor.
 #define IMPLEMENT_REFCOUNTING_EX(ClassName, Destructor)              \

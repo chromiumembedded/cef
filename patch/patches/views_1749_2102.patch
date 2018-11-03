@@ -39,10 +39,10 @@ index a19e6e937f87..817b7eada253 100644
    virtual void MenuWillShow() {}
  
 diff --git ui/gfx/render_text.cc ui/gfx/render_text.cc
-index deada9af341b..d68300e5ab96 100644
+index 2b4458cf4f6a..8442cdfbf9a0 100644
 --- ui/gfx/render_text.cc
 +++ ui/gfx/render_text.cc
-@@ -513,6 +513,14 @@ void RenderText::SetElideBehavior(ElideBehavior elide_behavior) {
+@@ -509,6 +509,14 @@ void RenderText::SetElideBehavior(ElideBehavior elide_behavior) {
    }
  }
  
@@ -57,7 +57,7 @@ index deada9af341b..d68300e5ab96 100644
  void RenderText::SetDisplayRect(const Rect& r) {
    if (r != display_rect_) {
      display_rect_ = r;
-@@ -1507,6 +1515,19 @@ void RenderText::OnTextAttributeChanged() {
+@@ -1503,6 +1511,19 @@ void RenderText::OnTextAttributeChanged() {
    if (!multiline_ && replace_newline_chars_with_symbols_)
      base::ReplaceChars(layout_text_, kNewline, kNewlineSymbol, &layout_text_);
  
@@ -102,10 +102,10 @@ index 50eaca5b18eb..038d866fd8d1 100644
  };
  
 diff --git ui/views/animation/ink_drop_host_view.h ui/views/animation/ink_drop_host_view.h
-index 14929b2564b7..339b370199bd 100644
+index d3a3aa6c2859..b3203f9e38c2 100644
 --- ui/views/animation/ink_drop_host_view.h
 +++ ui/views/animation/ink_drop_host_view.h
-@@ -84,6 +84,8 @@ class VIEWS_EXPORT InkDropHostView : public View, public InkDropHost {
+@@ -115,6 +115,8 @@ class VIEWS_EXPORT InkDropHostView : public View {
    // them.
    void AnimateInkDrop(InkDropState state, const ui::LocatedEvent* event);
  
@@ -115,10 +115,10 @@ index 14929b2564b7..339b370199bd 100644
    // Size used for the default SquareInkDropRipple.
    static constexpr int kDefaultInkDropSize = 24;
 diff --git ui/views/controls/button/label_button.cc ui/views/controls/button/label_button.cc
-index 60907bd19cd7..c1b4bba6177b 100644
+index f9b069b1d9b9..1d79949c62ae 100644
 --- ui/views/controls/button/label_button.cc
 +++ ui/views/controls/button/label_button.cc
-@@ -187,6 +187,7 @@ gfx::Size LabelButton::CalculatePreferredSize() const {
+@@ -191,6 +191,7 @@ gfx::Size LabelButton::CalculatePreferredSize() const {
    Label label(GetText(), {label_->font_list()});
    label.SetLineHeight(label_->line_height());
    label.SetShadows(label_->shadows());
@@ -126,7 +126,7 @@ index 60907bd19cd7..c1b4bba6177b 100644
  
    if (style_ == STYLE_BUTTON) {
      // Some text appears wider when rendered normally than when rendered bold.
-@@ -405,6 +406,12 @@ std::unique_ptr<views::InkDropHighlight> LabelButton::CreateInkDropHighlight()
+@@ -417,6 +418,12 @@ std::unique_ptr<views::InkDropHighlight> LabelButton::CreateInkDropHighlight()
                     gfx::RectF(image()->GetMirroredBounds()).CenterPoint());
  }
  
@@ -140,10 +140,10 @@ index 60907bd19cd7..c1b4bba6177b 100644
    const gfx::Size previous_image_size(image_->GetPreferredSize());
    UpdateImage();
 diff --git ui/views/controls/button/label_button.h ui/views/controls/button/label_button.h
-index b2323dae3d9e..4b9546ca1a61 100644
+index 1ff051ab8634..6182b45e3df5 100644
 --- ui/views/controls/button/label_button.h
 +++ ui/views/controls/button/label_button.h
-@@ -102,6 +102,9 @@ class VIEWS_EXPORT LabelButton : public Button, public NativeThemeDelegate {
+@@ -99,6 +99,9 @@ class VIEWS_EXPORT LabelButton : public Button, public NativeThemeDelegate {
    std::unique_ptr<InkDropRipple> CreateInkDropRipple() const override;
    std::unique_ptr<InkDropHighlight> CreateInkDropHighlight() const override;
  
@@ -154,10 +154,10 @@ index b2323dae3d9e..4b9546ca1a61 100644
    ImageView* image() const { return image_; }
    Label* label() const;
 diff --git ui/views/controls/button/menu_button.cc ui/views/controls/button/menu_button.cc
-index 7f38894e57c6..e5b073877ff0 100644
+index 27aed587e9a6..ae8304a04919 100644
 --- ui/views/controls/button/menu_button.cc
 +++ ui/views/controls/button/menu_button.cc
-@@ -178,7 +178,7 @@ bool MenuButton::IsTriggerableEventType(const ui::Event& event) {
+@@ -179,7 +179,7 @@ bool MenuButton::IsTriggerableEventType(const ui::Event& event) {
  gfx::Size MenuButton::CalculatePreferredSize() const {
    gfx::Size prefsize = LabelButton::CalculatePreferredSize();
    if (show_menu_marker_) {
@@ -166,7 +166,7 @@ index 7f38894e57c6..e5b073877ff0 100644
                           kMenuMarkerPaddingRight,
                       0);
    }
-@@ -310,7 +310,7 @@ gfx::Rect MenuButton::GetChildAreaBounds() {
+@@ -311,7 +311,7 @@ gfx::Rect MenuButton::GetChildAreaBounds() {
    gfx::Size s = size();
  
    if (show_menu_marker_) {
@@ -175,7 +175,7 @@ index 7f38894e57c6..e5b073877ff0 100644
                  kMenuMarkerPaddingRight);
    }
  
-@@ -408,4 +408,10 @@ int MenuButton::GetMaximumScreenXCoordinate() {
+@@ -409,4 +409,10 @@ int MenuButton::GetMaximumScreenXCoordinate() {
    return monitor_bounds.right() - 1;
  }
  
@@ -295,10 +295,10 @@ index 9c78b30ab3a0..999eb4048f5c 100644
    std::unique_ptr<SelectionController> selection_controller_;
  
 diff --git ui/views/controls/menu/menu_controller.cc ui/views/controls/menu/menu_controller.cc
-index 5a2af4b405ec..9cec0cc9b33b 100644
+index 9e56ca54813b..f4100b838507 100644
 --- ui/views/controls/menu/menu_controller.cc
 +++ ui/views/controls/menu/menu_controller.cc
-@@ -2439,8 +2439,13 @@ MenuItemView* MenuController::FindNextSelectableMenuItem(
+@@ -2451,8 +2451,13 @@ MenuItemView* MenuController::FindNextSelectableMenuItem(
  
  void MenuController::OpenSubmenuChangeSelectionIfCan() {
    MenuItemView* item = pending_state_.item;
@@ -313,7 +313,7 @@ index 5a2af4b405ec..9cec0cc9b33b 100644
    MenuItemView* to_select = NULL;
    if (item->GetSubmenu()->GetMenuItemCount() > 0)
      to_select = FindInitialSelectableMenuItem(item, INCREMENT_SELECTION_DOWN);
-@@ -2455,8 +2460,10 @@ void MenuController::OpenSubmenuChangeSelectionIfCan() {
+@@ -2467,8 +2472,10 @@ void MenuController::OpenSubmenuChangeSelectionIfCan() {
  void MenuController::CloseSubmenu() {
    MenuItemView* item = state_.item;
    DCHECK(item);
@@ -326,10 +326,10 @@ index 5a2af4b405ec..9cec0cc9b33b 100644
      SetSelection(item, SELECTION_UPDATE_IMMEDIATELY);
    else if (item->GetParentMenuItem()->GetParentMenuItem())
 diff --git ui/views/controls/menu/menu_delegate.h ui/views/controls/menu/menu_delegate.h
-index 706605182f9a..e97d0495bc72 100644
+index 7544162bd986..450b0aee5f1e 100644
 --- ui/views/controls/menu/menu_delegate.h
 +++ ui/views/controls/menu/menu_delegate.h
-@@ -81,6 +81,22 @@ class VIEWS_EXPORT MenuDelegate {
+@@ -82,6 +82,22 @@ class VIEWS_EXPORT MenuDelegate {
    // parts of |style| or leave it unmodified.
    virtual void GetLabelStyle(int id, LabelStyle* style) const;
  
@@ -352,7 +352,7 @@ index 706605182f9a..e97d0495bc72 100644
    // The tooltip shown for the menu item. This is invoked when the user
    // hovers over the item, and no tooltip text has been set for that item.
    virtual base::string16 GetTooltipText(int id,
-@@ -213,6 +229,11 @@ class VIEWS_EXPORT MenuDelegate {
+@@ -214,6 +230,11 @@ class VIEWS_EXPORT MenuDelegate {
                                         bool* has_mnemonics,
                                         MenuButton** button);
  
@@ -504,10 +504,10 @@ index e52edfe5edd7..ab23f3df914e 100644
    void WillHideMenu(MenuItemView* menu) override;
    void OnMenuClosed(MenuItemView* menu) override;
 diff --git ui/views/controls/menu/menu_scroll_view_container.cc ui/views/controls/menu/menu_scroll_view_container.cc
-index ecbd5d773b9e..6c9d256b2143 100644
+index 242725445a82..e766e9b93956 100644
 --- ui/views/controls/menu/menu_scroll_view_container.cc
 +++ ui/views/controls/menu/menu_scroll_view_container.cc
-@@ -183,6 +183,11 @@ MenuScrollViewContainer::MenuScrollViewContainer(SubmenuView* content_view)
+@@ -182,6 +182,11 @@ MenuScrollViewContainer::MenuScrollViewContainer(SubmenuView* content_view)
    scroll_view_ = new MenuScrollView(content_view);
    AddChildView(scroll_view_);
  

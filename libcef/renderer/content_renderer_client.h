@@ -25,6 +25,7 @@
 #include "services/service_manager/public/cpp/connector.h"
 #include "services/service_manager/public/cpp/local_interface_provider.h"
 #include "services/service_manager/public/cpp/service.h"
+#include "services/service_manager/public/cpp/service_binding.h"
 
 namespace blink {
 class WebURLLoaderFactory;
@@ -140,7 +141,6 @@ class CefContentRendererClient : public content::ContentRendererClient,
       service_manager::mojom::ServiceRequest service_request) override;
 
   // service_manager::Service implementation.
-  void OnStart() override;
   void OnBindInterface(const service_manager::BindSourceInfo& remote_info,
                        const std::string& name,
                        mojo::ScopedMessagePipeHandle handle) override;
@@ -198,9 +198,7 @@ class CefContentRendererClient : public content::ContentRendererClient,
   bool single_process_cleanup_complete_;
   base::Lock single_process_cleanup_lock_;
 
-  std::unique_ptr<service_manager::Connector> connector_;
-  service_manager::mojom::ConnectorRequest connector_request_;
-  std::unique_ptr<service_manager::ServiceContext> service_context_;
+  service_manager::ServiceBinding service_binding_{this};
   service_manager::BinderRegistry registry_;
 
   DISALLOW_COPY_AND_ASSIGN(CefContentRendererClient);

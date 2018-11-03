@@ -111,10 +111,6 @@ CefStoragePartitionProxy::GetPlatformNotificationContext() {
   return parent_->GetPlatformNotificationContext();
 }
 
-content::WebPackageContext* CefStoragePartitionProxy::GetWebPackageContext() {
-  return parent_->GetWebPackageContext();
-}
-
 void CefStoragePartitionProxy::ClearDataForOrigin(
     uint32_t remove_mask,
     uint32_t quota_storage_remove_mask,
@@ -123,16 +119,14 @@ void CefStoragePartitionProxy::ClearDataForOrigin(
                               storage_origin);
 }
 
-void CefStoragePartitionProxy::ClearData(
-    uint32_t remove_mask,
-    uint32_t quota_storage_remove_mask,
-    const GURL& storage_origin,
-    const OriginMatcherFunction& origin_matcher,
-    const base::Time begin,
-    const base::Time end,
-    base::OnceClosure callback) {
+void CefStoragePartitionProxy::ClearData(uint32_t remove_mask,
+                                         uint32_t quota_storage_remove_mask,
+                                         const GURL& storage_origin,
+                                         const base::Time begin,
+                                         const base::Time end,
+                                         base::OnceClosure callback) {
   parent_->ClearData(remove_mask, quota_storage_remove_mask, storage_origin,
-                     origin_matcher, begin, end, std::move(callback));
+                     begin, end, std::move(callback));
 }
 
 void CefStoragePartitionProxy::ClearData(
@@ -140,12 +134,13 @@ void CefStoragePartitionProxy::ClearData(
     uint32_t quota_storage_remove_mask,
     const OriginMatcherFunction& origin_matcher,
     network::mojom::CookieDeletionFilterPtr cookie_deletion_filter,
+    bool perform_cleanup,
     const base::Time begin,
     const base::Time end,
     base::OnceClosure callback) {
   parent_->ClearData(remove_mask, quota_storage_remove_mask, origin_matcher,
-                     std::move(cookie_deletion_filter), begin, end,
-                     std::move(callback));
+                     std::move(cookie_deletion_filter), perform_cleanup, begin,
+                     end, std::move(callback));
 }
 
 void CefStoragePartitionProxy::ClearHttpAndMediaCaches(
@@ -155,6 +150,10 @@ void CefStoragePartitionProxy::ClearHttpAndMediaCaches(
     base::OnceClosure callback) {
   parent_->ClearHttpAndMediaCaches(begin, end, url_matcher,
                                    std::move(callback));
+}
+
+void CefStoragePartitionProxy::ClearCodeCaches(base::OnceClosure callback) {
+  parent_->ClearCodeCaches(std::move(callback));
 }
 
 void CefStoragePartitionProxy::Flush() {

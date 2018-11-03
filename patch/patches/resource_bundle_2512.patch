@@ -1,8 +1,8 @@
 diff --git ui/base/resource/resource_bundle.cc ui/base/resource/resource_bundle.cc
-index 71a367e03489..c1ba46ce1340 100644
+index 3bcbb234522a..2d934b3d359c 100644
 --- ui/base/resource/resource_bundle.cc
 +++ ui/base/resource/resource_bundle.cc
-@@ -737,6 +737,12 @@ ResourceBundle::ResourceBundle(Delegate* delegate)
+@@ -686,6 +686,12 @@ ResourceBundle::ResourceBundle(Delegate* delegate)
      : delegate_(delegate),
        locale_resources_data_lock_(new base::Lock),
        max_scale_factor_(SCALE_FACTOR_100P) {
@@ -15,7 +15,7 @@ index 71a367e03489..c1ba46ce1340 100644
    mangle_localized_strings_ = base::CommandLine::ForCurrentProcess()->HasSwitch(
        switches::kMangleLocalizedStrings);
  }
-@@ -746,6 +752,11 @@ ResourceBundle::~ResourceBundle() {
+@@ -695,6 +701,11 @@ ResourceBundle::~ResourceBundle() {
    UnloadLocaleResources();
  }
  
@@ -28,7 +28,7 @@ index 71a367e03489..c1ba46ce1340 100644
  void ResourceBundle::InitSharedInstance(Delegate* delegate) {
    DCHECK(g_shared_instance_ == NULL) << "ResourceBundle initialized twice";
 diff --git ui/base/resource/resource_bundle.h ui/base/resource/resource_bundle.h
-index 422d84bc2664..669522fda74d 100644
+index 667b5b1224a1..6edd94b51269 100644
 --- ui/base/resource/resource_bundle.h
 +++ ui/base/resource/resource_bundle.h
 @@ -150,6 +150,11 @@ class UI_BASE_EXPORT ResourceBundle {

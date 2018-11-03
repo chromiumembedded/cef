@@ -282,7 +282,8 @@ void CefContentRendererClient::WebKitInitialized() {
       blink::WebSecurityPolicy::AddOriginAccessAllowListEntry(
           gurl, blink::WebString::FromUTF8(entry.target_protocol),
           blink::WebString::FromUTF8(entry.target_domain),
-          entry.allow_target_subdomains);
+          entry.allow_target_subdomains,
+          network::mojom::CORSOriginAccessMatchPriority::kDefaultPriority);
     }
     cross_origin_whitelist_entries_.clear();
   }
@@ -383,7 +384,7 @@ void CefContentRendererClient::RenderThreadStarted() {
   if (content::RenderProcessHost::run_renderer_in_process()) {
     // When running in single-process mode register as a destruction observer
     // on the render thread's MessageLoop.
-    base::MessageLoop::current()->AddDestructionObserver(this);
+    base::MessageLoopCurrent::Get()->AddDestructionObserver(this);
   }
 
   blink::WebPrerenderingSupport::Initialize(new CefPrerenderingSupport());
@@ -601,13 +602,8 @@ void CefContentRendererClient::DevToolsAgentDetached() {
 
 void CefContentRendererClient::CreateRendererService(
     service_manager::mojom::ServiceRequest service_request) {
-  service_context_ = std::make_unique<service_manager::ServiceContext>(
-      std::make_unique<service_manager::ForwardingService>(this),
-      std::move(service_request));
-}
-
-void CefContentRendererClient::OnStart() {
-  context()->connector()->BindConnectorRequest(std::move(connector_request_));
+  DCHECK(!service_binding_.is_bound());
+  service_binding_.Bind(std::move(service_request));
 }
 
 void CefContentRendererClient::OnBindInterface(
@@ -620,7 +616,7 @@ void CefContentRendererClient::OnBindInterface(
 void CefContentRendererClient::GetInterface(
     const std::string& interface_name,
     mojo::ScopedMessagePipeHandle interface_pipe) {
-  connector_->BindInterface(
+  service_binding_.GetConnector()->BindInterface(
       service_manager::Identity(chrome::mojom::kServiceName), interface_name,
       std::move(interface_pipe));
 }
@@ -713,9 +709,7 @@ void CefContentRendererClient::RunSingleProcessCleanupOnUIThread() {
 }
 
 service_manager::Connector* CefContentRendererClient::GetConnector() {
-  if (!connector_)
-    connector_ = service_manager::Connector::Create(&connector_request_);
-  return connector_.get();
+  return service_binding_.GetConnector();
 }
 
 // Enable deprecation warnings on Windows. See http://crbug.com/585142.

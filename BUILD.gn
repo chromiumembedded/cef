@@ -212,11 +212,11 @@ if (is_mac) {
 # Read file lists from gypi files. The gypi_to_gn.py script does not support
 # variable references so all required variables must be explicitly specified in
 # the below configurations.
-gypi_paths = exec_script("//build/gypi_to_gn.py",
+gypi_paths = exec_script("//cef/tools/gypi_to_gn.py",
                          [ rebase_path("cef_paths.gypi") ],
                          "scope",
                          [ "cef_paths.gypi" ])
-gypi_paths2 = exec_script("//build/gypi_to_gn.py",
+gypi_paths2 = exec_script("//cef/tools/gypi_to_gn.py",
                           [ rebase_path("cef_paths2.gypi") ],
                           "scope",
                           [ "cef_paths2.gypi" ])

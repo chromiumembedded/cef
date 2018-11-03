@@ -176,15 +176,10 @@ struct PopulateAxNodeAttributes {
         }
       } break;
       case ax::mojom::IntAttribute::kTextStyle: {
-        auto text_style = static_cast<ax::mojom::TextStyle>(attr.second);
-        if (text_style == ax::mojom::TextStyle::kNone)
-          break;
-
         static ax::mojom::TextStyle textStyleArr[] = {
-            ax::mojom::TextStyle::kTextStyleBold,
-            ax::mojom::TextStyle::kTextStyleItalic,
-            ax::mojom::TextStyle::kTextStyleUnderline,
-            ax::mojom::TextStyle::kTextStyleLineThrough};
+            ax::mojom::TextStyle::kBold, ax::mojom::TextStyle::kItalic,
+            ax::mojom::TextStyle::kUnderline,
+            ax::mojom::TextStyle::kLineThrough};
 
         CefRefPtr<CefListValue> list = CefListValue::Create();
         int index = 0;

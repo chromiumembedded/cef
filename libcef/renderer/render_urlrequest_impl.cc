@@ -24,7 +24,6 @@
 #include "third_party/blink/public/platform/web_url_request.h"
 #include "third_party/blink/public/platform/web_url_response.h"
 
-using blink::WebReferrerPolicy;
 using blink::WebString;
 using blink::WebURL;
 using blink::WebURLError;
@@ -59,7 +58,7 @@ class CefWebURLLoaderClient : public blink::WebURLLoaderClient {
   bool WillFollowRedirect(const WebURL& new_url,
                           const WebURL& new_site_for_cookies,
                           const WebString& new_referrer,
-                          WebReferrerPolicy new_referrer_policy,
+                          network::mojom::ReferrerPolicy new_referrer_policy,
                           const WebString& new_method,
                           const WebURLResponse& passed_redirect_response,
                           bool& report_raw_headers) override;
@@ -317,7 +316,7 @@ bool CefWebURLLoaderClient::WillFollowRedirect(
     const WebURL& new_url,
     const WebURL& new_site_for_cookies,
     const WebString& new_referrer,
-    WebReferrerPolicy new_referrer_policy,
+    network::mojom::ReferrerPolicy new_referrer_policy,
     const WebString& new_method,
     const WebURLResponse& passed_redirect_response,
     bool& report_raw_headers) {

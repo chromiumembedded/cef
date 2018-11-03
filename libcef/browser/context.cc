@@ -332,7 +332,7 @@ void CefSetOSModalLoop(bool osModalLoop) {
   }
 
   if (CEF_CURRENTLY_ON_UIT())
-    base::MessageLoop::current()->set_os_modal_loop(osModalLoop);
+    base::MessageLoopCurrent::Get()->set_os_modal_loop(osModalLoop);
   else
     CEF_POST_TASK(CEF_UIT, base::Bind(CefSetOSModalLoop, osModalLoop));
 #endif  // defined(OS_WIN)

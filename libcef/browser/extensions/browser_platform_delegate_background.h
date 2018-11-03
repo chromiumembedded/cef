@@ -31,7 +31,7 @@ class CefBrowserPlatformDelegateBackground
   void SendFocusEvent(bool setFocus) override;
   gfx::Point GetScreenPoint(const gfx::Point& view) const override;
   void ViewText(const std::string& text) override;
-  void HandleKeyboardEvent(
+  bool HandleKeyboardEvent(
       const content::NativeWebKeyboardEvent& event) override;
   void HandleExternalProtocol(const GURL& url) override;
   void TranslateKeyEvent(content::NativeWebKeyboardEvent& result,

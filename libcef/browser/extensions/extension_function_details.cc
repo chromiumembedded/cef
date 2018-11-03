@@ -92,7 +92,7 @@ class CefGetExtensionLoadFileCallbackImpl
   static std::unique_ptr<std::string> LoadFileFromStream(
       const std::string& file,
       CefRefPtr<CefStreamReader> stream) {
-    base::AssertBlockingAllowed();
+    base::AssertBlockingAllowedDeprecated();
 
     // Move to the end of the stream.
     stream->Seek(0, SEEK_END);

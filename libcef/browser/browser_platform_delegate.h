@@ -176,7 +176,7 @@ class CefBrowserPlatformDelegate {
 
   // Forward the keyboard event to the application or frame window to allow
   // processing of shortcut keys.
-  virtual void HandleKeyboardEvent(
+  virtual bool HandleKeyboardEvent(
       const content::NativeWebKeyboardEvent& event) = 0;
 
   // Invoke platform specific handling for the external protocol.

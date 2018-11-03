@@ -1880,8 +1880,8 @@ bool CefV8ValueImpl::DeleteValue(const CefString& key) {
 
   v8::TryCatch try_catch(isolate);
   try_catch.SetVerbose(true);
-  bool del = obj->Delete(GetV8String(isolate, key));
-  return (!HasCaught(context, try_catch) && del);
+  v8::Maybe<bool> del = obj->Delete(context, GetV8String(isolate, key));
+  return (!HasCaught(context, try_catch) && del.FromJust());
 }
 
 bool CefV8ValueImpl::DeleteValue(int index) {

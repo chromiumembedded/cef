@@ -1,8 +1,8 @@
 diff --git content/browser/browser_plugin/browser_plugin_guest.cc content/browser/browser_plugin/browser_plugin_guest.cc
-index 2c585e36dff5..ee7234381aae 100644
+index 8d0d53cbc413..f08659aa85ce 100644
 --- content/browser/browser_plugin/browser_plugin_guest.cc
 +++ content/browser/browser_plugin/browser_plugin_guest.cc
-@@ -314,8 +314,11 @@ void BrowserPluginGuest::InitInternal(
+@@ -347,8 +347,11 @@ void BrowserPluginGuest::InitInternal(
            static_cast<WebContentsViewGuest*>(GetWebContents()->GetView());
      }
  
@@ -15,7 +15,7 @@ index 2c585e36dff5..ee7234381aae 100644
  
      // Once a BrowserPluginGuest has an embedder WebContents, it's considered to
      // be attached.
-@@ -785,10 +788,19 @@ void BrowserPluginGuest::OnWillAttachComplete(
+@@ -856,10 +859,19 @@ void BrowserPluginGuest::OnWillAttachComplete(
          static_cast<WebContentsViewGuest*>(GetWebContents()->GetView());
      if (!web_contents()->GetRenderViewHost()->GetWidget()->GetView()) {
        web_contents_view->CreateViewForWidget(
@@ -37,10 +37,10 @@ index 2c585e36dff5..ee7234381aae 100644
  
    attached_ = true;
 diff --git content/browser/frame_host/interstitial_page_impl.cc content/browser/frame_host/interstitial_page_impl.cc
-index f206f1e547ab..97e18dc1a742 100644
+index babcf10c37d0..b0261ed77ef0 100644
 --- content/browser/frame_host/interstitial_page_impl.cc
 +++ content/browser/frame_host/interstitial_page_impl.cc
-@@ -633,7 +633,7 @@ WebContentsView* InterstitialPageImpl::CreateWebContentsView() {
+@@ -632,7 +632,7 @@ WebContentsView* InterstitialPageImpl::CreateWebContentsView() {
    WebContentsView* wcv =
        static_cast<WebContentsImpl*>(web_contents())->GetView();
    RenderWidgetHostViewBase* view =
@@ -79,7 +79,7 @@ index 5426d600906c..4bf4537514eb 100644
    // Creates a new View that holds a non-top-level widget and receives messages
    // for it.
 diff --git content/browser/web_contents/web_contents_view_aura.cc content/browser/web_contents/web_contents_view_aura.cc
-index ce5602b1cc38..b4189ae15ded 100644
+index 12d8f9bd7cc5..f228b39902bb 100644
 --- content/browser/web_contents/web_contents_view_aura.cc
 +++ content/browser/web_contents/web_contents_view_aura.cc
 @@ -809,7 +809,8 @@ void WebContentsViewAura::CreateView(const gfx::Size& initial_size,
@@ -101,7 +101,7 @@ index ce5602b1cc38..b4189ae15ded 100644
        g_create_render_widget_host_view
            ? g_create_render_widget_host_view(render_widget_host,
 diff --git content/browser/web_contents/web_contents_view_aura.h content/browser/web_contents/web_contents_view_aura.h
-index 0c4a3d2e0d72..e69f663cd1c9 100644
+index 3c0b73d6f72d..4c9e0f3b7d3a 100644
 --- content/browser/web_contents/web_contents_view_aura.h
 +++ content/browser/web_contents/web_contents_view_aura.h
 @@ -121,7 +121,7 @@ class CONTENT_EXPORT WebContentsViewAura
@@ -208,10 +208,10 @@ index 1f0e661628aa..f896c842ff0d 100644
        RenderWidgetHost* render_widget_host) override;
    void SetPageTitle(const base::string16& title) override;
 diff --git content/browser/web_contents/web_contents_view_mac.h content/browser/web_contents/web_contents_view_mac.h
-index d08876fc503a..bad24076b16f 100644
+index 5317a1895671..770d05a9c4a9 100644
 --- content/browser/web_contents/web_contents_view_mac.h
 +++ content/browser/web_contents/web_contents_view_mac.h
-@@ -101,7 +101,7 @@ class WebContentsViewMac : public WebContentsView,
+@@ -102,7 +102,7 @@ class WebContentsViewMac : public WebContentsView,
                    gfx::NativeView context) override;
    RenderWidgetHostViewBase* CreateViewForWidget(
        RenderWidgetHost* render_widget_host,
@@ -221,7 +221,7 @@ index d08876fc503a..bad24076b16f 100644
        RenderWidgetHost* render_widget_host) override;
    void SetPageTitle(const base::string16& title) override;
 diff --git content/browser/web_contents/web_contents_view_mac.mm content/browser/web_contents/web_contents_view_mac.mm
-index 3374d2b122d9..fa222a6ffb13 100644
+index ed6586cff68c..731a51629a2c 100644
 --- content/browser/web_contents/web_contents_view_mac.mm
 +++ content/browser/web_contents/web_contents_view_mac.mm
 @@ -336,7 +336,8 @@ void WebContentsViewMac::CreateView(
@@ -266,10 +266,10 @@ index bf2226b53dd7..782a320ab788 100644
    // a BrowserPlugin even when we are using cross process frames for guests. It
    // should be removed after resolving https://crbug.com/642826).
 diff --git extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc
-index b7a9609ef426..f02c6df27fcc 100644
+index b74700bb5810..af5def149ff8 100644
 --- extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc
 +++ extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc
-@@ -199,6 +199,8 @@ void MimeHandlerViewGuest::CreateWebContents(
+@@ -206,6 +206,8 @@ void MimeHandlerViewGuest::CreateWebContents(
    WebContents::CreateParams params(browser_context(),
                                     guest_site_instance.get());
    params.guest_delegate = this;
@@ -278,7 +278,7 @@ index b7a9609ef426..f02c6df27fcc 100644
    // TODO(erikchen): Fix ownership semantics for guest views.
    // https://crbug.com/832879.
    std::move(callback).Run(
-@@ -243,6 +245,18 @@ bool MimeHandlerViewGuest::ShouldDestroyOnDetach() const {
+@@ -250,6 +252,18 @@ bool MimeHandlerViewGuest::ShouldDestroyOnDetach() const {
    return true;
  }
  
@@ -298,10 +298,10 @@ index b7a9609ef426..f02c6df27fcc 100644
      WebContents* source,
      const content::OpenURLParams& params) {
 diff --git extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.h extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.h
-index ebca89ac6256..ea1e2707cb21 100644
+index cfa759b4b826..4d53d6bcc492 100644
 --- extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.h
 +++ extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.h
-@@ -112,6 +112,10 @@ class MimeHandlerViewGuest
+@@ -114,6 +114,10 @@ class MimeHandlerViewGuest
    bool ZoomPropagatesFromEmbedderToGuest() const final;
    bool ShouldDestroyOnDetach() const final;
  

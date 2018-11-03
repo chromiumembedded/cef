@@ -1,8 +1,8 @@
 diff --git .gn .gn
-index 2ae9ab394481..2ff59eb3a2ef 100644
+index 3a439c9b36aa..5e31650373ba 100644
 --- .gn
 +++ .gn
-@@ -411,6 +411,8 @@ exec_script_whitelist =
+@@ -677,6 +677,8 @@ exec_script_whitelist =
        # in the Chromium repo outside of //build.
        "//build_overrides/build.gni",
  
@@ -12,10 +12,10 @@ index 2ae9ab394481..2ff59eb3a2ef 100644
        # https://crbug.com/474506.
        "//clank/java/BUILD.gn",
 diff --git BUILD.gn BUILD.gn
-index 4283a4f9fce3..b74a2b78f282 100644
+index 6c85e57fd02e..a1ea70f330e7 100644
 --- BUILD.gn
 +++ BUILD.gn
-@@ -186,6 +186,7 @@ group("gn_all") {
+@@ -185,6 +185,7 @@ group("gn_all") {
  
    if (!is_ios && !is_fuchsia) {
      deps += [
@@ -56,7 +56,7 @@ index 982fbe8d3f0d..e757be4688f1 100644
 +         "studio path")
  }
 diff --git build/toolchain/win/BUILD.gn build/toolchain/win/BUILD.gn
-index 3c6c9d05d2c8..d475747fa12d 100644
+index 4eac9f422603..ffc17ad20b5c 100644
 --- build/toolchain/win/BUILD.gn
 +++ build/toolchain/win/BUILD.gn
 @@ -6,6 +6,7 @@ import("//build/config/clang/clang.gni")
@@ -76,7 +76,7 @@ index 3c6c9d05d2c8..d475747fa12d 100644
  } else {
    goma_prefix = ""
  }
-@@ -108,7 +111,7 @@ template("msvc_toolchain") {
+@@ -114,7 +117,7 @@ template("msvc_toolchain") {
  
        # lld-link includes a replacement for lib.exe that can produce thin
        # archives and understands bitcode (for lto builds).
@@ -138,7 +138,7 @@ index 1ba5533c3efb..abfd55a2c703 100644
  
  
 diff --git build/vs_toolchain.py build/vs_toolchain.py
-index 32bad7f469bd..dcee84f71e5f 100755
+index 6a2723e2dced..d7a8dc989528 100755
 --- build/vs_toolchain.py
 +++ build/vs_toolchain.py
 @@ -65,11 +65,18 @@ def SetEnvironmentAndGetRuntimeDllDirs():
@@ -161,10 +161,10 @@ index 32bad7f469bd..dcee84f71e5f 100755
      # directory in order to run binaries locally, but they are needed in order
      # to create isolates or the mini_installer. Copying them to the output
 diff --git chrome/chrome_paks.gni chrome/chrome_paks.gni
-index 8b3d1652ae28..9d69220d85df 100644
+index bebd511e2e4e..1e3501985492 100644
 --- chrome/chrome_paks.gni
 +++ chrome/chrome_paks.gni
-@@ -259,7 +259,7 @@ template("chrome_paks") {
+@@ -261,7 +261,7 @@ template("chrome_paks") {
      }
  
      input_locales = locales
@@ -174,10 +174,10 @@ index 8b3d1652ae28..9d69220d85df 100644
      if (is_mac) {
        output_locales = locales_as_mac_outputs
 diff --git chrome/installer/mini_installer/BUILD.gn chrome/installer/mini_installer/BUILD.gn
-index 931761ff27de..a181fbeadc86 100644
+index 7001812ea42c..175784e1fc69 100644
 --- chrome/installer/mini_installer/BUILD.gn
 +++ chrome/installer/mini_installer/BUILD.gn
-@@ -133,7 +133,7 @@ template("generate_mini_installer") {
+@@ -134,7 +134,7 @@ template("generate_mini_installer") {
      inputs = [
        "$chrome_dll_file",
        "$root_out_dir/chrome.exe",

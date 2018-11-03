@@ -13,8 +13,8 @@
 #include "include/cef_request.h"
 
 #include "base/synchronization/lock.h"
+#include "services/network/public/mojom/referrer_policy.mojom-shared.h"
 #include "third_party/blink/public/platform/web_http_body.h"
-#include "third_party/blink/public/platform/web_referrer_policy.h"
 #include "url/gurl.h"
 
 namespace navigation_interception {
@@ -115,10 +115,10 @@ class CefRequestImpl : public CefRequest {
   void SetTrackChanges(bool track_changes);
   uint8_t GetChanges() const;
 
-  static blink::WebReferrerPolicy NetReferrerPolicyToBlinkReferrerPolicy(
+  static network::mojom::ReferrerPolicy NetReferrerPolicyToBlinkReferrerPolicy(
       cef_referrer_policy_t net_policy);
   static cef_referrer_policy_t BlinkReferrerPolicyToNetReferrerPolicy(
-      blink::WebReferrerPolicy blink_policy);
+      network::mojom::ReferrerPolicy blink_policy);
 
  private:
   void Changed(uint8_t changes);

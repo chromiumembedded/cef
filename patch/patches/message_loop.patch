@@ -1,44 +1,8 @@
-diff --git base/message_loop/message_loop.cc base/message_loop/message_loop.cc
-index ff55a15ce0f0..30a903dffcdc 100644
---- base/message_loop/message_loop.cc
-+++ base/message_loop/message_loop.cc
-@@ -613,6 +613,9 @@ MessageLoopForUI::MessageLoopForUI(Type type) : MessageLoop(type) {
- #endif
- }
- 
-+MessageLoopForUI::MessageLoopForUI(std::unique_ptr<MessagePump> pump)
-+    : MessageLoop(TYPE_UI, BindOnce(&ReturnPump, std::move(pump))) {}
-+
- // static
- MessageLoopCurrentForUI MessageLoopForUI::current() {
-   return MessageLoopCurrentForUI::Get();
-diff --git base/message_loop/message_loop.h base/message_loop/message_loop.h
-index dae6c35eab00..f1b59fccd4c0 100644
---- base/message_loop/message_loop.h
-+++ base/message_loop/message_loop.h
-@@ -197,6 +197,9 @@ class BASE_EXPORT MessageLoop : public MessagePump::Delegate,
-   // Runs the specified PendingTask.
-   void RunTask(PendingTask* pending_task);
- 
-+  // Called from Thread::CleanUp() to release resources.
-+  void ReleasePump() { pump_ = nullptr; }
-+
-   //----------------------------------------------------------------------------
-  protected:
-   std::unique_ptr<MessagePump> pump_;
-@@ -366,6 +369,7 @@ class BASE_EXPORT MessageLoop : public MessagePump::Delegate,
- class BASE_EXPORT MessageLoopForUI : public MessageLoop {
-  public:
-   explicit MessageLoopForUI(Type type = TYPE_UI);
-+  explicit MessageLoopForUI(std::unique_ptr<MessagePump> pump);
- 
-   // TODO(gab): Mass migrate callers to MessageLoopCurrentForUI::Get()/IsSet().
-   static MessageLoopCurrentForUI current();
 diff --git base/message_loop/message_loop_current.cc base/message_loop/message_loop_current.cc
-index ece6b92ca3a3..3925cdd3ad7f 100644
+index c87c4321d137..dbed6fc8f721 100644
 --- base/message_loop/message_loop_current.cc
 +++ base/message_loop/message_loop_current.cc
-@@ -43,6 +43,8 @@ void MessageLoopCurrent::AddDestructionObserver(
+@@ -53,6 +53,8 @@ void MessageLoopCurrent::AddDestructionObserver(
  
  void MessageLoopCurrent::RemoveDestructionObserver(
      DestructionObserver* destruction_observer) {
@@ -48,10 +12,10 @@ index ece6b92ca3a3..3925cdd3ad7f 100644
    current_->destruction_observers_.RemoveObserver(destruction_observer);
  }
 diff --git base/message_loop/message_loop_current.h base/message_loop/message_loop_current.h
-index 403d0dcc2ddb..5176aa0594a3 100644
+index 74af124dea5b..e81e86662a98 100644
 --- base/message_loop/message_loop_current.h
 +++ base/message_loop/message_loop_current.h
-@@ -124,6 +124,16 @@ class BASE_EXPORT MessageLoopCurrent {
+@@ -137,6 +137,16 @@ class BASE_EXPORT MessageLoopCurrent {
    // posted tasks.
    void SetAddQueueTimeToTasks(bool enable);
  
@@ -68,10 +32,10 @@ index 403d0dcc2ddb..5176aa0594a3 100644
    // Enables or disables the recursive task processing. This happens in the case
    // of recursive message loops. Some unwanted message loops may occur when
    // using common controls or printer functions. By default, recursive task
-@@ -192,6 +202,13 @@ class BASE_EXPORT MessageLoopCurrent {
-   explicit MessageLoopCurrent(MessageLoop* current) : current_(current) {}
+@@ -221,6 +231,13 @@ class BASE_EXPORT MessageLoopCurrent {
+   MessageLoop* ToMessageLoopDeprecated() const { return current_; }
  
-   MessageLoop* const current_;
+   MessageLoop* current_;
 +
 +#if defined(OS_WIN)
 + private:
@@ -82,6 +46,42 @@ index 403d0dcc2ddb..5176aa0594a3 100644
  };
  
  #if !defined(OS_NACL)
+diff --git base/message_loop/message_loop_impl.cc base/message_loop/message_loop_impl.cc
+index daf7ca47442a..cad42f7d30a3 100644
+--- base/message_loop/message_loop_impl.cc
++++ base/message_loop/message_loop_impl.cc
+@@ -724,6 +724,9 @@ MessageLoopForUI::MessageLoopForUI(Type type) : MessageLoop(type) {
+ #endif
+ }
+ 
++MessageLoopForUI::MessageLoopForUI(std::unique_ptr<MessagePump> pump)
++    : MessageLoop(TYPE_UI, BindOnce(&ReturnPump, std::move(pump))) {}
++
+ // static
+ MessageLoopCurrentForUI MessageLoopForUI::current() {
+   return MessageLoopCurrentForUI::Get();
+diff --git base/message_loop/message_loop_impl.h base/message_loop/message_loop_impl.h
+index 0b8c50532307..0f29ee2bb19a 100644
+--- base/message_loop/message_loop_impl.h
++++ base/message_loop/message_loop_impl.h
+@@ -200,6 +200,9 @@ class BASE_EXPORT MessageLoop : public MessagePump::Delegate,
+   // Runs the specified PendingTask.
+   void RunTask(PendingTask* pending_task);
+ 
++  // Called from Thread::CleanUp() to release resources.
++  void ReleasePump() { pump_ = nullptr; }
++
+   //----------------------------------------------------------------------------
+  protected:
+   std::unique_ptr<MessagePump> pump_;
+@@ -372,6 +375,7 @@ class BASE_EXPORT MessageLoop : public MessagePump::Delegate,
+ class BASE_EXPORT MessageLoopForUI : public MessageLoop {
+  public:
+   explicit MessageLoopForUI(Type type = TYPE_UI);
++  explicit MessageLoopForUI(std::unique_ptr<MessagePump> pump);
+ 
+   // TODO(gab): Mass migrate callers to MessageLoopCurrentForUI::Get()/IsSet().
+   static MessageLoopCurrentForUI current();
 diff --git base/message_loop/message_pump_win.cc base/message_loop/message_pump_win.cc
 index 1d6748e0e88a..1598fb65484e 100644
 --- base/message_loop/message_pump_win.cc

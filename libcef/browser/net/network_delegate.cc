@@ -223,19 +223,6 @@ class CefAuthCallbackImpl : public CefAuthCallback {
   IMPLEMENT_REFCOUNTING(CefAuthCallbackImpl);
 };
 
-// Match the logic from ChromeNetworkDelegate and
-// RenderFrameMessageFilter::OnSetCookie.
-bool AreExperimentalCookieFeaturesEnabled() {
-  static bool initialized = false;
-  static bool enabled = false;
-  if (!initialized) {
-    enabled = base::CommandLine::ForCurrentProcess()->HasSwitch(
-        switches::kEnableExperimentalWebPlatformFeatures);
-    initialized = true;
-  }
-  return enabled;
-}
-
 }  // namespace
 
 CefNetworkDelegate::CefNetworkDelegate() : force_google_safesearch_(nullptr) {}
@@ -513,8 +500,4 @@ bool CefNetworkDelegate::OnCanAccessFile(
     const base::FilePath& original_path,
     const base::FilePath& absolute_path) const {
   return true;
-}
-
-bool CefNetworkDelegate::OnAreExperimentalCookieFeaturesEnabled() const {
-  return ::AreExperimentalCookieFeaturesEnabled();
 }

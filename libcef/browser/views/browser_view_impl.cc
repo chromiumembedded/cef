@@ -80,17 +80,17 @@ void CefBrowserViewImpl::BrowserDestroyed(CefBrowserHostImpl* browser) {
     root_view()->SetWebContents(nullptr);
 }
 
-void CefBrowserViewImpl::HandleKeyboardEvent(
+bool CefBrowserViewImpl::HandleKeyboardEvent(
     const content::NativeWebKeyboardEvent& event) {
   if (!root_view())
-    return;
+    return false;
 
   views::FocusManager* focus_manager = root_view()->GetFocusManager();
   if (!focus_manager)
-    return;
+    return false;
 
   if (HandleAccelerator(event, focus_manager))
-    return;
+    return true;
 
   // Give the CefWindowDelegate a chance to handle the event.
   CefRefPtr<CefWindow> window =
@@ -100,12 +100,13 @@ void CefBrowserViewImpl::HandleKeyboardEvent(
     CefKeyEvent cef_event;
     if (browser_util::GetCefKeyEvent(event, cef_event) &&
         window_impl->OnKeyEvent(cef_event)) {
-      return;
+      return true;
     }
   }
 
   // Proceed with default native handling.
-  unhandled_keyboard_event_handler_.HandleKeyboardEvent(event, focus_manager);
+  return unhandled_keyboard_event_handler_.HandleKeyboardEvent(event,
+                                                               focus_manager);
 }
 
 CefRefPtr<CefBrowser> CefBrowserViewImpl::GetBrowser() {

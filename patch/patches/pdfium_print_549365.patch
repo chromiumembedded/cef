@@ -1,8 +1,8 @@
 diff --git BUILD.gn BUILD.gn
-index 8a65f06b2..04894604d 100644
+index 53a633baf..8228a486e 100644
 --- BUILD.gn
 +++ BUILD.gn
-@@ -238,6 +238,10 @@ jumbo_static_library("pdfium") {
+@@ -201,6 +201,10 @@ jumbo_static_library("pdfium") {
      complete_static_lib = true
      configs -= [ "//build/config/compiler:thin_archive" ]
    }
@@ -12,9 +12,9 @@ index 8a65f06b2..04894604d 100644
 +  ]
  }
  
- jumbo_source_set("test_support") {
+ # Targets below this are only visible within this file (and to the
 diff --git fpdfsdk/fpdf_view.cpp fpdfsdk/fpdf_view.cpp
-index 247a90240..42c9c5ea8 100644
+index f924a36e2..e8a046799 100644
 --- fpdfsdk/fpdf_view.cpp
 +++ fpdfsdk/fpdf_view.cpp
 @@ -38,6 +38,7 @@

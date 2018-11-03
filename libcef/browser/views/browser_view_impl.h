@@ -47,7 +47,7 @@ class CefBrowserViewImpl : public CefViewImpl<CefBrowserViewView,
 
   // Called to handle accelerators when the event is unhandled by the web
   // content and the browser client.
-  void HandleKeyboardEvent(const content::NativeWebKeyboardEvent& event);
+  bool HandleKeyboardEvent(const content::NativeWebKeyboardEvent& event);
 
   // CefBrowserView methods:
   CefRefPtr<CefBrowser> GetBrowser() override;

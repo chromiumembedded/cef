@@ -80,9 +80,10 @@ void CefBrowserPlatformDelegateBackground::ViewText(const std::string& text) {
   native_delegate_->ViewText(text);
 }
 
-void CefBrowserPlatformDelegateBackground::HandleKeyboardEvent(
+bool CefBrowserPlatformDelegateBackground::HandleKeyboardEvent(
     const content::NativeWebKeyboardEvent& event) {
   // Nothing to do here.
+  return false;
 }
 
 void CefBrowserPlatformDelegateBackground::HandleExternalProtocol(

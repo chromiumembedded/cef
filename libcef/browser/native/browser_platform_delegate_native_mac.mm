@@ -221,7 +221,8 @@ bool CefBrowserPlatformDelegateNativeMac::CreateHostWindow() {
 
   // Parent the TabContents to the browser view.
   const NSRect bounds = [browser_view bounds];
-  NSView* native_view = browser_->web_contents()->GetNativeView();
+  NSView* native_view =
+      browser_->web_contents()->GetNativeView().GetNativeNSView();
   [browser_view addSubview:native_view];
   [native_view setFrame:bounds];
   [native_view setAutoresizingMask:(NSViewWidthSizable | NSViewHeightSizable)];
@@ -261,7 +262,8 @@ void CefBrowserPlatformDelegateNativeMac::SendFocusEvent(bool setFocus) {
 
     if (setFocus) {
       // Give keyboard focus to the native view.
-      NSView* view = browser_->web_contents()->GetContentNativeView();
+      NSView* view =
+          browser_->web_contents()->GetContentNativeView().GetNativeNSView();
       DCHECK([view canBecomeKeyView]);
       [[view window] makeFirstResponder:view];
     }
@@ -290,11 +292,12 @@ void CefBrowserPlatformDelegateNativeMac::ViewText(const std::string& text) {
   NOTIMPLEMENTED();
 }
 
-void CefBrowserPlatformDelegateNativeMac::HandleKeyboardEvent(
+bool CefBrowserPlatformDelegateNativeMac::HandleKeyboardEvent(
     const content::NativeWebKeyboardEvent& event) {
   // Give the top level menu equivalents a chance to handle the event.
   if ([event.os_event type] == NSKeyDown)
-    [[NSApp mainMenu] performKeyEquivalent:event.os_event];
+    return [[NSApp mainMenu] performKeyEquivalent:event.os_event];
+  return false;
 }
 
 void CefBrowserPlatformDelegateNativeMac::HandleExternalProtocol(

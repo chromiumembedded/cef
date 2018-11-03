@@ -138,9 +138,6 @@ class CefDelegatedFrameHostClient : public content::DelegatedFrameHostClient {
     return *view_->GetBackgroundColor();
   }
 
-  void OnFirstSurfaceActivation(const viz::SurfaceInfo& surface_info) override {
-  }
-
   void OnBeginFrame(base::TimeTicks frame_time) override {
     // TODO(cef): Maybe we can use this method in combination with
     // OnSetNeedsBeginFrames() instead of using CefBeginFrameTimer.
@@ -154,6 +151,8 @@ class CefDelegatedFrameHostClient : public content::DelegatedFrameHostClient {
   float GetDeviceScaleFactor() const override {
     return view_->GetDeviceScaleFactor();
   }
+
+  void WasEvicted() override {}
 
  private:
   CefRenderWidgetHostViewOSR* const view_;
@@ -343,7 +342,8 @@ CefRenderWidgetHostViewOSR::CefRenderWidgetHostViewOSR(
   }
 
 #if !defined(OS_MACOSX)
-  local_surface_id_ = local_surface_id_allocator_.GenerateId();
+  local_surface_id_allocator_.GenerateId();
+  local_surface_id_ = local_surface_id_allocator_.GetCurrentLocalSurfaceId();
   delegated_frame_host_client_.reset(new CefDelegatedFrameHostClient(this));
 
   // Matching the attributes from BrowserCompositorMac.
@@ -1597,11 +1597,13 @@ void CefRenderWidgetHostViewOSR::ResizeRootLayer(bool force) {
   const gfx::Size& size_in_pixels =
       gfx::ConvertSizeToPixel(current_device_scale_factor_, size);
 
-  local_surface_id_ = local_surface_id_allocator_.GenerateId();
+  local_surface_id_allocator_.GenerateId();
+  local_surface_id_ = local_surface_id_allocator_.GetCurrentLocalSurfaceId();
 
   if (GetCompositor()) {
     GetCompositor()->SetScaleAndSize(current_device_scale_factor_,
-                                     size_in_pixels, local_surface_id_);
+                                     size_in_pixels, local_surface_id_,
+                                     base::TimeTicks());
   }
   PlatformResizeCompositorWidget(size_in_pixels);
 

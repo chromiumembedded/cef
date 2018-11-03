@@ -132,9 +132,9 @@ void CefBrowserPlatformDelegateOsr::ViewText(const std::string& text) {
   native_delegate_->ViewText(text);
 }
 
-void CefBrowserPlatformDelegateOsr::HandleKeyboardEvent(
+bool CefBrowserPlatformDelegateOsr::HandleKeyboardEvent(
     const content::NativeWebKeyboardEvent& event) {
-  native_delegate_->HandleKeyboardEvent(event);
+  return native_delegate_->HandleKeyboardEvent(event);
 }
 
 void CefBrowserPlatformDelegateOsr::HandleExternalProtocol(const GURL& url) {

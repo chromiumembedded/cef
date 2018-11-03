@@ -46,14 +46,12 @@ class CefStoragePartitionProxy : public content::StoragePartition {
   content::ZoomLevelDelegate* GetZoomLevelDelegate() override;
   content::PlatformNotificationContext* GetPlatformNotificationContext()
       override;
-  content::WebPackageContext* GetWebPackageContext() override;
   void ClearDataForOrigin(uint32_t remove_mask,
                           uint32_t quota_storage_remove_mask,
                           const GURL& storage_origin) override;
   void ClearData(uint32_t remove_mask,
                  uint32_t quota_storage_remove_mask,
                  const GURL& storage_origin,
-                 const OriginMatcherFunction& origin_matcher,
                  const base::Time begin,
                  const base::Time end,
                  base::OnceClosure callback) override;
@@ -61,6 +59,7 @@ class CefStoragePartitionProxy : public content::StoragePartition {
                  uint32_t quota_storage_remove_mask,
                  const OriginMatcherFunction& origin_matcher,
                  network::mojom::CookieDeletionFilterPtr cookie_deletion_filter,
+                 bool perform_cleanup,
                  const base::Time begin,
                  const base::Time end,
                  base::OnceClosure callback) override;
@@ -69,6 +68,7 @@ class CefStoragePartitionProxy : public content::StoragePartition {
       const base::Time end,
       const base::Callback<bool(const GURL&)>& url_matcher,
       base::OnceClosure callback) override;
+  void ClearCodeCaches(base::OnceClosure callback) override;
   void Flush() override;
   void ResetURLLoaderFactories() override;
   void ClearBluetoothAllowedDevicesMapForTesting() override;

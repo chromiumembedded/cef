@@ -225,10 +225,10 @@ void CefBrowserPlatformDelegateViews::ViewText(const std::string& text) {
   native_delegate_->ViewText(text);
 }
 
-void CefBrowserPlatformDelegateViews::HandleKeyboardEvent(
+bool CefBrowserPlatformDelegateViews::HandleKeyboardEvent(
     const content::NativeWebKeyboardEvent& event) {
   // The BrowserView will handle accelerators.
-  browser_view_->HandleKeyboardEvent(event);
+  return browser_view_->HandleKeyboardEvent(event);
 }
 
 void CefBrowserPlatformDelegateViews::HandleExternalProtocol(const GURL& url) {

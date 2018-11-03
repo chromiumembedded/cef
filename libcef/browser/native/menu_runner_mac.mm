@@ -56,7 +56,8 @@ bool CefMenuRunnerMac::RunContextMenu(
                                            atLocation:screen_position
                                                inView:nil];
   } else {
-    NSView* parent_view = browser->web_contents()->GetContentNativeView();
+    NSView* parent_view =
+        browser->web_contents()->GetContentNativeView().GetNativeNSView();
 
     // Synthesize an event for the click, as there is no certainty that
     // [NSApp currentEvent] will return a valid event.

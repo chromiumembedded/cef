@@ -2449,15 +2449,15 @@ KeyboardEventProcessingResult CefBrowserHostImpl::PreHandleKeyboardEvent(
   return KeyboardEventProcessingResult::NOT_HANDLED;
 }
 
-void CefBrowserHostImpl::HandleKeyboardEvent(
+bool CefBrowserHostImpl::HandleKeyboardEvent(
     content::WebContents* source,
     const content::NativeWebKeyboardEvent& event) {
   // Check to see if event should be ignored.
   if (event.skip_in_browser)
-    return;
+    return false;
 
   if (!platform_delegate_)
-    return;
+    return false;
 
   if (client_.get()) {
     CefRefPtr<CefKeyboardHandler> handler = client_->GetKeyboardHandler();
@@ -2468,12 +2468,12 @@ void CefBrowserHostImpl::HandleKeyboardEvent(
 
         CefEventHandle event_handle = platform_delegate_->GetEventHandle(event);
         if (handler->OnKeyEvent(this, cef_event, event_handle))
-          return;
+          return true;
       }
     }
   }
 
-  platform_delegate_->HandleKeyboardEvent(event);
+  return platform_delegate_->HandleKeyboardEvent(event);
 }
 
 bool CefBrowserHostImpl::PreHandleGestureEvent(

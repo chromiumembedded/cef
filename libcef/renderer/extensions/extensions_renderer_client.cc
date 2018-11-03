@@ -132,6 +132,7 @@ void CefExtensionsRendererClient::RenderThreadStarted() {
 
   extension_dispatcher_.reset(new extensions::Dispatcher(
       std::make_unique<extensions::CefExtensionsDispatcherDelegate>()));
+  extension_dispatcher_->OnRenderThreadStarted(thread);
   resource_request_policy_.reset(
       new extensions::ResourceRequestPolicy(extension_dispatcher_.get()));
   guest_view_container_dispatcher_.reset(

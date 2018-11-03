@@ -86,8 +86,11 @@ scoped_refptr<base::SingleThreadTaskRunner> CefTaskRunnerImpl::GetTaskRunner(
 
   if (id >= 0 &&
       BrowserThread::IsThreadInitialized(static_cast<BrowserThread::ID>(id))) {
+    // Specify USER_BLOCKING so that BrowserTaskExecutor::GetTaskRunner always
+    // gives us the same TaskRunner object.
     return base::CreateSingleThreadTaskRunnerWithTraits(
-        {static_cast<BrowserThread::ID>(id)});
+        {static_cast<BrowserThread::ID>(id),
+         base::TaskPriority::USER_BLOCKING});
   }
 
   return NULL;
@@ -103,7 +106,10 @@ CefTaskRunnerImpl::GetCurrentTaskRunner() {
   BrowserThread::ID current_id;
   if (BrowserThread::GetCurrentThreadIdentifier(&current_id) &&
       BrowserThread::IsThreadInitialized(current_id)) {
-    task_runner = base::CreateSingleThreadTaskRunnerWithTraits({current_id});
+    // Specify USER_BLOCKING so that BrowserTaskExecutor::GetTaskRunner always
+    // gives us the same TaskRunner object.
+    task_runner = base::CreateSingleThreadTaskRunnerWithTraits(
+        {current_id, base::TaskPriority::USER_BLOCKING});
   }
 
   if (!task_runner.get()) {

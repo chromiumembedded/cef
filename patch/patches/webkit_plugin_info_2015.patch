@@ -10,10 +10,10 @@ index 92e9cb865204..4628c56882b4 100644
 +  GetPlugins(bool refresh, bool is_main_frame, url.mojom.Origin main_frame_origin) => (array<PluginInfo> plugins);
  };
 diff --git third_party/blink/public/platform/platform.h third_party/blink/public/platform/platform.h
-index 2f57bdd1ef3e..7910c9c12937 100644
+index b9acf7744b61..ec1e92f26560 100644
 --- third_party/blink/public/platform/platform.h
 +++ third_party/blink/public/platform/platform.h
-@@ -766,6 +766,11 @@ class BLINK_PLATFORM_EXPORT Platform {
+@@ -769,6 +769,11 @@ class BLINK_PLATFORM_EXPORT Platform {
    // runs during Chromium's build step).
    virtual bool IsTakingV8ContextSnapshot() { return false; }
  
@@ -22,11 +22,11 @@ index 2f57bdd1ef3e..7910c9c12937 100644
 +  virtual void DevToolsAgentAttached() {}
 +  virtual void DevToolsAgentDetached() {}
 +
-  protected:
-   Thread* main_thread_;
- 
+  private:
+   static void InitializeCommon(Platform* platform,
+                                std::unique_ptr<Thread> main_thread);
 diff --git third_party/blink/renderer/core/dom/dom_implementation.cc third_party/blink/renderer/core/dom/dom_implementation.cc
-index c360933eb10f..6295f9d675f7 100644
+index 3dac1a5a6f61..4fff23e66f2c 100644
 --- third_party/blink/renderer/core/dom/dom_implementation.cc
 +++ third_party/blink/renderer/core/dom/dom_implementation.cc
 @@ -243,10 +243,11 @@ Document* DOMImplementation::createDocument(const String& type,
@@ -44,10 +44,10 @@ index c360933eb10f..6295f9d675f7 100644
                                                          .Top()
                                                          .GetSecurityContext()
 diff --git third_party/blink/renderer/core/frame/local_frame.cc third_party/blink/renderer/core/frame/local_frame.cc
-index 339d96d4dfbd..27b86a9b7a78 100644
+index b7c1d06b0f60..42f2e1de4d90 100644
 --- third_party/blink/renderer/core/frame/local_frame.cc
 +++ third_party/blink/renderer/core/frame/local_frame.cc
-@@ -1238,7 +1238,7 @@ FrameResourceCoordinator* LocalFrame::GetFrameResourceCoordinator() {
+@@ -1303,7 +1303,7 @@ FrameResourceCoordinator* LocalFrame::GetFrameResourceCoordinator() {
  PluginData* LocalFrame::GetPluginData() const {
    if (!Loader().AllowPlugins(kNotAboutToInstantiatePlugin))
      return nullptr;
@@ -56,34 +56,34 @@ index 339d96d4dfbd..27b86a9b7a78 100644
        Tree().Top().GetSecurityContext()->GetSecurityOrigin());
  }
  
-diff --git third_party/blink/renderer/core/inspector/devtools_agent.cc third_party/blink/renderer/core/inspector/devtools_agent.cc
-index 6d31a13f56b8..be2888da4762 100644
---- third_party/blink/renderer/core/inspector/devtools_agent.cc
-+++ third_party/blink/renderer/core/inspector/devtools_agent.cc
-@@ -8,6 +8,7 @@
- #include <memory>
+diff --git third_party/blink/renderer/core/inspector/devtools_session.cc third_party/blink/renderer/core/inspector/devtools_session.cc
+index be579710b518..74c2e586ef0e 100644
+--- third_party/blink/renderer/core/inspector/devtools_session.cc
++++ third_party/blink/renderer/core/inspector/devtools_session.cc
+@@ -4,6 +4,7 @@
  
- #include "mojo/public/cpp/bindings/binding.h"
+ #include "third_party/blink/renderer/core/inspector/devtools_session.h"
+ 
 +#include "third_party/blink/public/platform/platform.h"
- #include "third_party/blink/renderer/core/inspector/inspector_session.h"
- #include "third_party/blink/renderer/core/inspector/inspector_task_runner.h"
- #include "third_party/blink/renderer/platform/cross_thread_functional.h"
-@@ -132,6 +133,7 @@ DevToolsAgent::Session::Session(
-       WTF::Bind(&DevToolsAgent::Session::Detach, WrapWeakPersistent(this)));
-   inspector_session_ =
-       agent_->client_->AttachSession(this, std::move(reattach_session_state));
+ #include "third_party/blink/renderer/bindings/core/v8/script_controller.h"
+ #include "third_party/blink/renderer/core/frame/local_frame.h"
+ #include "third_party/blink/renderer/core/frame/use_counter.h"
+@@ -113,6 +114,7 @@ DevToolsSession::DevToolsSession(
+     for (wtf_size_t i = 0; i < agents_.size(); i++)
+       agents_[i]->Restore();
+   }
 +  Platform::Current()->DevToolsAgentAttached();
  }
  
- DevToolsAgent::Session::~Session() {
-@@ -151,6 +153,7 @@ void DevToolsAgent::Session::Detach() {
-   io_session_->DeleteSoon();
-   io_session_ = nullptr;
-   inspector_session_->Dispose();
+ DevToolsSession::~DevToolsSession() {
+@@ -151,6 +153,7 @@ void DevToolsSession::Detach() {
+   agents_.clear();
+   v8_session_.reset();
+   agent_->client_->DebuggerTaskFinished();
 +  Platform::Current()->DevToolsAgentDetached();
  }
  
- void DevToolsAgent::Session::SendProtocolResponse(
+ void DevToolsSession::FlushProtocolNotifications() {
 diff --git third_party/blink/renderer/core/page/page.cc third_party/blink/renderer/core/page/page.cc
 index 4277312bcad3..ca460b9ec0ca 100644
 --- third_party/blink/renderer/core/page/page.cc

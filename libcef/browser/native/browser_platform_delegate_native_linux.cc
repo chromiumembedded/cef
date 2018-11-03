@@ -13,6 +13,7 @@
 #include "libcef/browser/native/window_x11.h"
 #include "libcef/browser/thread_util.h"
 
+#include "base/no_destructor.h"
 #include "content/browser/renderer_host/render_widget_host_impl.h"
 #include "content/public/browser/native_web_keyboard_event.h"
 #include "content/public/browser/render_view_host.h"
@@ -103,15 +104,14 @@ bool CefBrowserPlatformDelegateNativeLinux::CreateHostWindow() {
   prefs->inactive_selection_fg_color = SkColorSetRGB(50, 50, 50);
 
   // Set font-related attributes.
-  CR_DEFINE_STATIC_LOCAL(
-      const gfx::FontRenderParams, params,
-      (gfx::GetFontRenderParams(gfx::FontRenderParamsQuery(), NULL)));
-  prefs->should_antialias_text = params.antialiasing;
-  prefs->use_subpixel_positioning = params.subpixel_positioning;
-  prefs->hinting = params.hinting;
-  prefs->use_autohinter = params.autohinter;
-  prefs->use_bitmaps = params.use_bitmaps;
-  prefs->subpixel_rendering = params.subpixel_rendering;
+  static const base::NoDestructor<gfx::FontRenderParams> params(
+      gfx::GetFontRenderParams(gfx::FontRenderParamsQuery(), nullptr));
+  prefs->should_antialias_text = params->antialiasing;
+  prefs->use_subpixel_positioning = params->subpixel_positioning;
+  prefs->hinting = params->hinting;
+  prefs->use_autohinter = params->autohinter;
+  prefs->use_bitmaps = params->use_bitmaps;
+  prefs->subpixel_rendering = params->subpixel_rendering;
 
   browser_->web_contents()->GetRenderViewHost()->SyncRendererPrefs();
 
@@ -228,9 +228,10 @@ void CefBrowserPlatformDelegateNativeLinux::ViewText(const std::string& text) {
   ALLOW_UNUSED_LOCAL(result);
 }
 
-void CefBrowserPlatformDelegateNativeLinux::HandleKeyboardEvent(
+bool CefBrowserPlatformDelegateNativeLinux::HandleKeyboardEvent(
     const content::NativeWebKeyboardEvent& event) {
   // TODO(cef): Is something required here to handle shortcut keys?
+  return false;
 }
 
 void CefBrowserPlatformDelegateNativeLinux::HandleExternalProtocol(
