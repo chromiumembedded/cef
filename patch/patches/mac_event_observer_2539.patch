@@ -1,0 +1,22 @@
+diff --git content/browser/scheduler/responsiveness/native_event_observer_mac.mm content/browser/scheduler/responsiveness/native_event_observer_mac.mm
+index 7cb3238e97ed..ae800739b686 100644
+--- content/browser/scheduler/responsiveness/native_event_observer_mac.mm
++++ content/browser/scheduler/responsiveness/native_event_observer_mac.mm
+@@ -12,13 +12,15 @@
+ namespace responsiveness {
+ 
+ void NativeEventObserver::RegisterObserver() {
+-  DCHECK([NSApp conformsToProtocol:@protocol(NativeEventProcessor)]);
++  if (![NSApp conformsToProtocol:@protocol(NativeEventProcessor)])
++    return;
+   id<NativeEventProcessor> processor =
+       static_cast<id<NativeEventProcessor>>(NSApp);
+   [processor addNativeEventProcessorObserver:this];
+ }
+ void NativeEventObserver::DeregisterObserver() {
+-  DCHECK([NSApp conformsToProtocol:@protocol(NativeEventProcessor)]);
++  if (![NSApp conformsToProtocol:@protocol(NativeEventProcessor)])
++    return;
+   id<NativeEventProcessor> processor =
+       static_cast<id<NativeEventProcessor>>(NSApp);
+   [processor removeNativeEventProcessorObserver:this];
