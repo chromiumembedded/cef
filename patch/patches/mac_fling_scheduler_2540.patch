@@ -1,0 +1,15 @@
+diff --git content/browser/renderer_host/input/fling_scheduler_mac.mm content/browser/renderer_host/input/fling_scheduler_mac.mm
+index f10c5d161dd1..92a751dd984e 100644
+--- content/browser/renderer_host/input/fling_scheduler_mac.mm
++++ content/browser/renderer_host/input/fling_scheduler_mac.mm
+@@ -26,6 +26,10 @@
+       return nullptr;
+   }
+ 
++  // For CEF this will always be false when running in OSR mode.
++  if (!view->GetNativeView())
++    return nullptr;
++
+   RenderWidgetHostViewMac* mac_view =
+       static_cast<RenderWidgetHostViewMac*>(view);
+   if (mac_view->BrowserCompositor())
