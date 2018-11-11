@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=64a8d248c8c6c5b17a8ce1bdf79b82e791d87a1a$
+// $hash=e3c016e00f14211a972961650b847d761cec5e25$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_RESOURCE_HANDLER_CAPI_H_
@@ -80,8 +80,12 @@ typedef struct _cef_resource_handler_t {
   // (0) or the specified number of bytes have been read. Use the |response|
   // object to set the mime type, http status code and other optional header
   // values. To redirect the request to a new URL set |redirectUrl| to the new
-  // URL. If an error occured while setting up the request you can call
-  // set_error() on |response| to indicate the error condition.
+  // URL. |redirectUrl| can be either a relative or fully qualified URL. It is
+  // also possible to set |response| to a redirect http status code and pass the
+  // new URL via a Location header. Likewise with |redirectUrl| it is valid to
+  // set a relative or fully qualified URL as the Location header value. If an
+  // error occured while setting up the request you can call set_error() on
+  // |response| to indicate the error condition.
   ///
   void(CEF_CALLBACK* get_response_headers)(struct _cef_resource_handler_t* self,
                                            struct _cef_response_t* response,

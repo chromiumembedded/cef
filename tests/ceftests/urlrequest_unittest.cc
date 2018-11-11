@@ -58,6 +58,8 @@ enum RequestTestMode {
   REQTEST_GET_ALLOWCOOKIES,
   REQTEST_GET_REDIRECT,
   REQTEST_GET_REDIRECT_STOP,
+  REQTEST_GET_REDIRECT_LOCATION,
+  REQTEST_GET_REDIRECT_INSECURE_UPGR,
   REQTEST_GET_REFERRER,
   REQTEST_POST,
   REQTEST_POST_FILE,
@@ -1061,6 +1063,10 @@ class RequestTestRunner : public base::RefCountedThreadSafe<RequestTestRunner> {
     REGISTER_TEST(REQTEST_GET_REDIRECT, SetupGetRedirectTest, SingleRunTest);
     REGISTER_TEST(REQTEST_GET_REDIRECT_STOP, SetupGetRedirectStopTest,
                   SingleRunTest);
+    REGISTER_TEST(REQTEST_GET_REDIRECT_LOCATION, SetupGetRedirectLocationTest,
+                  SingleRunTest);
+    REGISTER_TEST(REQTEST_GET_REDIRECT_INSECURE_UPGR,
+                  SetupGetRedirectInsecureUpgrTest, SingleRunTest);
     REGISTER_TEST(REQTEST_GET_REFERRER, SetupGetReferrerTest, SingleRunTest);
     REGISTER_TEST(REQTEST_POST, SetupPostTest, SingleRunTest);
     REGISTER_TEST(REQTEST_POST_FILE, SetupPostFileTest, SingleRunTest);
@@ -1171,12 +1177,16 @@ class RequestTestRunner : public base::RefCountedThreadSafe<RequestTestRunner> {
     }
   }
 
+  std::string GetTestPath(const std::string& name) {
+    return std::string(run_in_browser_process_ ? "/Browser" : "/Renderer") +
+           name;
+  }
+
   std::string GetTestURL(const std::string& name) {
     // Avoid name duplication between tests running in different processes.
     // Otherwise we'll get unexpected state leakage (cache hits) when running
     // multiple tests.
-    return GetRequestOrigin(is_server_backend_) + "/" +
-           (run_in_browser_process_ ? "Browser" : "Renderer") + name;
+    return GetRequestOrigin(is_server_backend_) + GetTestPath(name);
   }
 
   void SetupGetTestShared() {
@@ -1274,6 +1284,54 @@ class RequestTestRunner : public base::RefCountedThreadSafe<RequestTestRunner> {
     settings_.expect_download_progress = false;
     settings_.expected_send_count = 1;
     settings_.expected_receive_count = 1;
+
+    complete_callback.Run();
+  }
+
+  void SetupGetRedirectLocationTest(const base::Closure& complete_callback) {
+    // Start with the normal get test.
+    SetupGetTestShared();
+
+    // Add a redirect request.
+    settings_.redirect_request = CefRequest::Create();
+    settings_.redirect_request->SetURL(GetTestURL("redirect.html"));
+    settings_.redirect_request->SetMethod("GET");
+
+    settings_.redirect_response = CefResponse::Create();
+    settings_.redirect_response->SetMimeType("text/html");
+    settings_.redirect_response->SetStatus(302);
+    settings_.redirect_response->SetStatusText("Found");
+
+    CefResponse::HeaderMap headerMap;
+    headerMap.insert(std::make_pair("LoCaTioN", GetTestPath("GetTest.html")));
+    settings_.redirect_response->SetHeaderMap(headerMap);
+
+    complete_callback.Run();
+  }
+
+  void SetupGetRedirectInsecureUpgrTest(
+      const base::Closure& complete_callback) {
+    // Start with the normal get test.
+    SetupGetTestShared();
+
+    // Add a redirect request.
+    settings_.redirect_request = CefRequest::Create();
+    settings_.redirect_request->SetURL(GetTestURL("redirect.html"));
+    settings_.redirect_request->SetMethod("GET");
+    {
+      CefRequest::HeaderMap headerMap;
+      headerMap.insert(std::make_pair("Upgrade-Insecure-Requests", "1"));
+      settings_.redirect_request->SetHeaderMap(headerMap);
+    }
+
+    settings_.redirect_response = CefResponse::Create();
+    settings_.redirect_response->SetMimeType("text/html");
+    settings_.redirect_response->SetStatus(302);
+    settings_.redirect_response->SetStatusText("Found");
+
+    CefResponse::HeaderMap headerMap;
+    headerMap.insert(std::make_pair("location", GetTestPath("GetTest.html")));
+    settings_.redirect_response->SetHeaderMap(headerMap);
 
     complete_callback.Run();
   }
@@ -2250,6 +2308,11 @@ void RegisterURLRequestCustomSchemes(
            true, test_server_backend);                                         \
   REQ_TEST(BrowserGETRedirectStop##suffix, REQTEST_GET_REDIRECT_STOP,          \
            context_mode, true, test_server_backend);                           \
+  REQ_TEST(BrowserGETRedirectLocation##suffix, REQTEST_GET_REDIRECT_LOCATION,  \
+           context_mode, true, test_server_backend);                           \
+  REQ_TEST(BrowserGETRedirectInsecureUpgr##suffix,                             \
+           REQTEST_GET_REDIRECT_INSECURE_UPGR, context_mode, true,             \
+           test_server_backend);                                               \
   REQ_TEST(BrowserGETReferrer##suffix, REQTEST_GET_REFERRER, context_mode,     \
            true, test_server_backend);                                         \
   REQ_TEST(BrowserPOST##suffix, REQTEST_POST, context_mode, true,              \
@@ -2270,6 +2333,11 @@ void RegisterURLRequestCustomSchemes(
            false, test_server_backend);                                        \
   REQ_TEST(RendererGETRedirectStop##suffix, REQTEST_GET_REDIRECT_STOP,         \
            context_mode, false, test_server_backend);                          \
+  REQ_TEST(RendererGETRedirectLocation##suffix, REQTEST_GET_REDIRECT_LOCATION, \
+           context_mode, false, test_server_backend);                          \
+  REQ_TEST(RendererGETRedirectInsecureUpgr##suffix,                            \
+           REQTEST_GET_REDIRECT_INSECURE_UPGR, context_mode, false,            \
+           test_server_backend);                                               \
   REQ_TEST(RendererGETReferrer##suffix, REQTEST_GET_REFERRER, context_mode,    \
            false, test_server_backend);                                        \
   REQ_TEST(RendererPOST##suffix, REQTEST_POST, context_mode, false,            \
