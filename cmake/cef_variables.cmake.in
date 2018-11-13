@@ -479,6 +479,7 @@ if(OS_WINDOWS)
       dbghelp.lib
       psapi.lib
       version.lib
+      wbemuuid.lib
       winmm.lib
       )
 
