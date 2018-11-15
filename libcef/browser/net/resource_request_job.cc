@@ -15,7 +15,6 @@
 #include "libcef/common/response_impl.h"
 
 #include "base/logging.h"
-#include "base/strings/string_util.h"
 #include "net/base/io_buffer.h"
 #include "net/base/load_flags.h"
 #include "net/base/mime_util.h"
@@ -27,21 +26,6 @@
 using net::URLRequestStatus;
 
 namespace {
-
-using HeaderMap = std::multimap<CefString, CefString>;
-
-struct CaseInsensitiveComparator {
-  base::StringPiece search;
-  CaseInsensitiveComparator(const std::string& s) : search(s) {}
-  bool operator()(const HeaderMap::value_type& p) const {
-    return base::EqualsCaseInsensitiveASCII(search, p.first.ToString());
-  }
-};
-
-HeaderMap::const_iterator FindHeader(const HeaderMap& m,
-                                     const std::string& name) {
-  return std::find_if(m.begin(), m.end(), CaseInsensitiveComparator(name));
-}
 
 bool SetHeaderIfMissing(CefRequest::HeaderMap& headerMap,
                         const std::string& name,
@@ -310,7 +294,7 @@ bool CefResourceRequestJob::IsRedirectResponse(
   if (redirect_url_.is_valid()) {
     // Redirect to the new URL.
     *http_status_code = 303;
-    *location = redirect_url_;
+    location->Swap(&redirect_url_);
     redirect = true;
   } else if (response_.get()) {
     // Check for HTTP 302 or HTTP 303 redirect.
@@ -318,29 +302,17 @@ bool CefResourceRequestJob::IsRedirectResponse(
     if (status == 302 || status == 303) {
       CefResponse::HeaderMap headerMap;
       response_->GetHeaderMap(headerMap);
-      CefRequest::HeaderMap::const_iterator iter =
-          FindHeader(headerMap, "Location");
+      CefRequest::HeaderMap::iterator iter = headerMap.find("Location");
       if (iter != headerMap.end()) {
-        GURL new_url = request_->url().Resolve(std::string(iter->second));
-        if (new_url.is_valid()) {
-          *http_status_code = status;
-          *location = new_url;
-          redirect = true;
-        }
+        GURL new_url = GURL(std::string(iter->second));
+        *http_status_code = status;
+        location->Swap(&new_url);
+        redirect = true;
       }
     }
   }
 
   if (redirect) {
-    if (request_->upgrade_if_insecure()) {
-      if (location->SchemeIs("http")) {
-        *insecure_scheme_was_upgraded = true;
-        GURL::Replacements replacements;
-        replacements.SetSchemeStr("https");
-        *location = location->ReplaceComponents(replacements);
-      }
-    }
-
     // Set the correct response status. This avoids a DCHECK in
     // RedirectInfo::ComputeRedirectInfo.
     request_->response_headers()->ReplaceStatusLine(
@@ -420,7 +392,7 @@ void CefResourceRequestJob::SendHeaders() {
 
   if (!redirectUrl.empty()) {
     std::string redirectUrlStr = redirectUrl;
-    redirect_url_ = request_->url().Resolve(redirectUrlStr);
+    redirect_url_ = GURL(redirectUrlStr);
   }
 
   if (remaining_bytes_ > 0)
