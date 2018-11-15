@@ -29,7 +29,7 @@ if exist %vcvars% goto found_vcvars
 
 :: Search for the default VS2017 installation path.
 for %%x in ("%PROGRAMFILES(X86)%" "%PROGRAMFILES%") do (
-  for %%y in (Professional Enterprise Community) do (
+  for %%y in (Professional Enterprise Community BuildTools) do (
     set vcvars="%%~x\Microsoft Visual Studio\2017\%%y\VC\Auxiliary\Build\vcvars%bits%.bat"
     if exist !vcvars! goto found_vcvars
   )
