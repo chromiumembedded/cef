@@ -7,7 +7,6 @@
 #include "include/base/cef_bind.h"
 #include "include/wrapper/cef_closure_task.h"
 #include "include/wrapper/cef_helpers.h"
-#include "tests/cefclient/browser/main_context.h"
 #include "tests/shared/browser/util_win.h"
 
 namespace client {
@@ -80,8 +79,8 @@ bool OsrRenderHandlerWinD3D11::Initialize(CefRefPtr<CefBrowser> browser,
                                           int height) {
   CEF_REQUIRE_UI_THREAD();
 
-  // Retrieve the shared D3D11 device instance.
-  device_ = MainContext::Get()->GetD3D11Device();
+  // Create a D3D11 device instance.
+  device_ = d3d11::Device::create();
   DCHECK(device_);
   if (!device_)
     return false;
