@@ -7,8 +7,6 @@
 #include <direct.h>
 #include <shlobj.h>
 
-#include "tests/cefclient/browser/osr_d3d11_win.h"
-
 namespace client {
 
 std::string MainContextImpl::GetDownloadPath(const std::string& file_name) {
@@ -36,13 +34,6 @@ std::string MainContextImpl::GetAppWorkingDirectory() {
     szWorkingDir[len + 1] = 0;
   }
   return szWorkingDir;
-}
-
-std::shared_ptr<d3d11::Device> MainContextImpl::GetD3D11Device() {
-  CEF_REQUIRE_UI_THREAD();
-  if (!d3d11_device_)
-    d3d11_device_ = d3d11::Device::create();
-  return d3d11_device_;
 }
 
 }  // namespace client

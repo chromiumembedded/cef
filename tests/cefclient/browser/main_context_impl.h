@@ -34,10 +34,6 @@ class MainContextImpl : public MainContext {
   void PopulateOsrSettings(OsrRendererSettings* settings) OVERRIDE;
   RootWindowManager* GetRootWindowManager() OVERRIDE;
 
-#if defined(OS_WIN)
-  std::shared_ptr<d3d11::Device> GetD3D11Device() OVERRIDE;
-#endif
-
   // Initialize CEF and associated main context state. This method must be
   // called on the same thread that created this object.
   bool Initialize(const CefMainArgs& args,
@@ -79,7 +75,6 @@ class MainContextImpl : public MainContext {
 
 #if defined(OS_WIN)
   bool shared_texture_enabled_;
-  std::shared_ptr<d3d11::Device> d3d11_device_;
 #endif
 
   bool external_begin_frame_enabled_;

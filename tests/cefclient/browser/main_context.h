@@ -14,12 +14,6 @@
 
 namespace client {
 
-#if defined(OS_WIN)
-namespace d3d11 {
-class Device;
-}
-#endif
-
 class RootWindowManager;
 
 // Used to store global context in the browser process. The methods of this
@@ -57,10 +51,6 @@ class MainContext {
 
   // Returns the object used to create/manage RootWindow instances.
   virtual RootWindowManager* GetRootWindowManager() = 0;
-
-#if defined(OS_WIN)
-  virtual std::shared_ptr<d3d11::Device> GetD3D11Device() = 0;
-#endif
 
  protected:
   MainContext();
