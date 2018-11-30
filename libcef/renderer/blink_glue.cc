@@ -152,7 +152,7 @@ v8::MaybeLocal<v8::Value> ExecuteV8ScriptAndReturnValue(
     v8::Local<v8::Context> context,
     v8::Isolate* isolate,
     v8::TryCatch& tryCatch,
-    blink::AccessControlStatus accessControlStatus) {
+    blink::SanitizeScriptErrors sanitizeScriptErrors) {
   // Based on ScriptController::executeScriptAndReturnValue
   DCHECK(isolate);
 
@@ -193,7 +193,7 @@ v8::MaybeLocal<v8::Value> ExecuteV8ScriptAndReturnValue(
   // - nonce: empty for internal script, and
   // - parser_state: always "not parser inserted" for internal scripts.
   if (!blink::V8ScriptRunner::CompileScript(
-           blink::ScriptState::From(context), ssc, accessControlStatus,
+           blink::ScriptState::From(context), ssc, sanitizeScriptErrors,
            compile_options, no_cache_reason, blink::ReferrerScriptInfo())
            .ToLocal(&script)) {
     DCHECK(tryCatch.HasCaught());

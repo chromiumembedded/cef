@@ -58,15 +58,13 @@ class CefMenuButton : public CefLabelButton {
   // have a visible frame at all times, center alignment, additional padding and
   // a default minimum size of 70x33 DIP. If |with_frame| is false the button
   // will only have a visible frame on hover/press, left alignment, less padding
-  // and no default minimum size. If |with_menu_marker| is true a menu marker
-  // will be added to the button.
+  // and no default minimum size.
   ///
   /*--cef(optional_param=text)--*/
   static CefRefPtr<CefMenuButton> CreateMenuButton(
       CefRefPtr<CefMenuButtonDelegate> delegate,
       const CefString& text,
-      bool with_frame,
-      bool with_menu_marker);
+      bool with_frame);
 
   ///
   // Show a menu with contents |menu_model|. |screen_point| specifies the menu

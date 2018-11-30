@@ -51,10 +51,11 @@ struct Cef_CrossOriginWhiteListEntry_Params;
 class ChromePDFPrintClient;
 class SpellCheck;
 
-class CefContentRendererClient : public content::ContentRendererClient,
-                                 public service_manager::Service,
-                                 public service_manager::LocalInterfaceProvider,
-                                 public base::MessageLoop::DestructionObserver {
+class CefContentRendererClient
+    : public content::ContentRendererClient,
+      public service_manager::Service,
+      public service_manager::LocalInterfaceProvider,
+      public base::MessageLoopCurrent::DestructionObserver {
  public:
   CefContentRendererClient();
   ~CefContentRendererClient() override;
@@ -149,7 +150,7 @@ class CefContentRendererClient : public content::ContentRendererClient,
   void GetInterface(const std::string& name,
                     mojo::ScopedMessagePipeHandle request_handle) override;
 
-  // MessageLoop::DestructionObserver implementation.
+  // MessageLoopCurrent::DestructionObserver implementation.
   void WillDestroyCurrentMessageLoop() override;
 
  private:

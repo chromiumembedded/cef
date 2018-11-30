@@ -283,7 +283,8 @@ class CefUIThread : public base::Thread {
 
     // Release MessagePump resources registered with the AtExitManager.
     base::MessageLoop* ml = const_cast<base::MessageLoop*>(message_loop());
-    base::MessageLoopCurrent::UnbindFromCurrentThreadInternal(ml);
+    base::MessageLoopCurrent::UnbindFromCurrentThreadInternal(
+        ml->GetMessageLoopBase());
     ml->ReleasePump();
 
     // Run exit callbacks on the UI thread to avoid sequence check failures.

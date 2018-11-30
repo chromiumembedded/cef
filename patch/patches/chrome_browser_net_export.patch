@@ -1,5 +1,5 @@
 diff --git chrome/browser/browser_process.h chrome/browser/browser_process.h
-index 9b52c6682024..f188476b45ee 100644
+index cac72c6a2fd1..2ed83a4af1b3 100644
 --- chrome/browser/browser_process.h
 +++ chrome/browser/browser_process.h
 @@ -39,6 +39,10 @@ class SystemNetworkContextManager;
@@ -13,7 +13,7 @@ index 9b52c6682024..f188476b45ee 100644
  namespace network {
  class NetworkQualityTracker;
  class SharedURLLoaderFactory;
-@@ -182,6 +186,9 @@ class BrowserProcess {
+@@ -183,6 +187,9 @@ class BrowserProcess {
    // backed by the IOThread's URLRequestContext.
    virtual SystemNetworkContextManager* system_network_context_manager() = 0;
  
@@ -24,10 +24,10 @@ index 9b52c6682024..f188476b45ee 100644
    // network quality change events.
    virtual network::NetworkQualityTracker* network_quality_tracker() = 0;
 diff --git chrome/browser/browser_process_impl.cc chrome/browser/browser_process_impl.cc
-index a97daaa4d752..8d6e4490ee4f 100644
+index 529239220bcc..fc9cdcd330c2 100644
 --- chrome/browser/browser_process_impl.cc
 +++ chrome/browser/browser_process_impl.cc
-@@ -665,6 +665,10 @@ BrowserProcessImpl::system_network_context_manager() {
+@@ -660,6 +660,10 @@ BrowserProcessImpl::system_network_context_manager() {
    return SystemNetworkContextManager::GetInstance();
  }
  
@@ -39,10 +39,10 @@ index a97daaa4d752..8d6e4490ee4f 100644
  BrowserProcessImpl::shared_url_loader_factory() {
    return system_network_context_manager()->GetSharedURLLoaderFactory();
 diff --git chrome/browser/browser_process_impl.h chrome/browser/browser_process_impl.h
-index ab192b468f53..d0864716dcfe 100644
+index 8cd716593b19..28f8a70167af 100644
 --- chrome/browser/browser_process_impl.h
 +++ chrome/browser/browser_process_impl.h
-@@ -143,6 +143,7 @@ class BrowserProcessImpl : public BrowserProcess,
+@@ -139,6 +139,7 @@ class BrowserProcessImpl : public BrowserProcess,
    // TODO(qinmin): Remove this method as callers can retrieve the global
    // instance from SystemNetworkContextManager directly.
    SystemNetworkContextManager* system_network_context_manager() override;

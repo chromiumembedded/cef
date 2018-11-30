@@ -68,7 +68,7 @@ enum TracingTestType {
   TT_TRACE_EVENT_COPY_ASYNC_END2
 };
 
-const char kTraceTestCategory[] = "test_category";
+const char kTraceTestCategory[] = "cef.client";
 
 class TracingTestHandler : public CefEndTracingCallback,
                            public CefCompletionCallback {

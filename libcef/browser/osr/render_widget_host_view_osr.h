@@ -132,7 +132,6 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
   void SetActive(bool active) override;
   void ShowDefinitionForSelection() override;
   void SpeakSelection() override;
-  bool ShouldContinueToPauseForFrame() override;
 #endif  // defined(OS_MACOSX)
 
   // RenderWidgetHostViewBase implementation.
@@ -198,7 +197,8 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
                         size_t offset,
                         const gfx::Range& range) override;
 
-  const viz::LocalSurfaceId& GetLocalSurfaceId() const override;
+  const viz::LocalSurfaceIdAllocation& GetLocalSurfaceIdAllocation()
+      const override;
   const viz::FrameSinkId& GetFrameSinkId() const override;
 
   // ui::ExternalBeginFrameClient implementation:
@@ -338,7 +338,7 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
   std::unique_ptr<content::DelegatedFrameHostClient>
       delegated_frame_host_client_;
   std::unique_ptr<ui::Layer> root_layer_;
-  viz::LocalSurfaceId local_surface_id_;
+  viz::LocalSurfaceIdAllocation local_surface_id_allocation_;
   viz::ParentLocalSurfaceIdAllocator local_surface_id_allocator_;
 #endif
 

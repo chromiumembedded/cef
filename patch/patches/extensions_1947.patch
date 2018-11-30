@@ -27,10 +27,10 @@ index 9e81f0a33ede..b796e79ae7ef 100644
    auto* browser_context = web_contents->GetBrowserContext();
  
 diff --git content/browser/frame_host/render_frame_host_manager.cc content/browser/frame_host/render_frame_host_manager.cc
-index 297f8315c41b..617bb2918f71 100644
+index fd7d05e26fa5..2ddb3a8ec86f 100644
 --- content/browser/frame_host/render_frame_host_manager.cc
 +++ content/browser/frame_host/render_frame_host_manager.cc
-@@ -924,10 +924,11 @@ bool RenderFrameHostManager::ShouldSwapBrowsingInstancesForNavigation(
+@@ -923,10 +923,11 @@ bool RenderFrameHostManager::ShouldSwapBrowsingInstancesForNavigation(
    // TODO(alexmos): This check should've been enforced earlier in the
    // navigation, in chrome::Navigate().  Verify this, and then convert this to
    // a CHECK and remove the fallback.
@@ -46,7 +46,7 @@ index 297f8315c41b..617bb2918f71 100644
      return true;
    }
  
-@@ -1066,7 +1067,8 @@ RenderFrameHostManager::GetSiteInstanceForNavigation(
+@@ -1065,7 +1066,8 @@ RenderFrameHostManager::GetSiteInstanceForNavigation(
  
    // Double-check that the new SiteInstance is associated with the right
    // BrowserContext.
@@ -57,10 +57,10 @@ index 297f8315c41b..617bb2918f71 100644
    // If |new_instance| is a new SiteInstance for a subframe that requires a
    // dedicated process, set its process reuse policy so that such subframes are
 diff --git content/public/browser/content_browser_client.h content/public/browser/content_browser_client.h
-index 14fa58960ba4..615ef2d89d3e 100644
+index 030b808a20ff..d43f2c640fca 100644
 --- content/public/browser/content_browser_client.h
 +++ content/public/browser/content_browser_client.h
-@@ -438,6 +438,13 @@ class CONTENT_EXPORT ContentBrowserClient {
+@@ -447,6 +447,13 @@ class CONTENT_EXPORT ContentBrowserClient {
    // Returns true if error page should be isolated in its own process.
    virtual bool ShouldIsolateErrorPage(bool in_main_frame);
  

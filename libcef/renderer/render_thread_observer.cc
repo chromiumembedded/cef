@@ -69,12 +69,12 @@ void CefRenderThreadObserver::OnModifyCrossOriginWhitelistEntry(
         gurl, blink::WebString::FromUTF8(params.target_protocol),
         blink::WebString::FromUTF8(params.target_domain),
         params.allow_target_subdomains,
-        network::mojom::CORSOriginAccessMatchPriority::kDefaultPriority);
+        network::mojom::CorsOriginAccessMatchPriority::kDefaultPriority);
   } else {
-    blink::WebSecurityPolicy::ClearOriginAccessAllowListForOrigin(gurl);
+    blink::WebSecurityPolicy::ClearOriginAccessListForOrigin(gurl);
   }
 }
 
 void CefRenderThreadObserver::OnClearCrossOriginWhitelist() {
-  blink::WebSecurityPolicy::ClearOriginAccessAllowList();
+  blink::WebSecurityPolicy::ClearOriginAccessList();
 }

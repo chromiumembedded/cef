@@ -87,7 +87,7 @@
 #include "services/service_manager/public/cpp/service_context.h"
 #include "third_party/blink/public/common/associated_interfaces/associated_interface_provider.h"
 #include "third_party/blink/public/platform/platform.h"
-#include "third_party/blink/public/platform/scheduler/renderer_process_type.h"
+#include "third_party/blink/public/platform/scheduler/web_renderer_process_type.h"
 #include "third_party/blink/public/platform/url_conversion.h"
 #include "third_party/blink/public/platform/web_prerendering_support.h"
 #include "third_party/blink/public/platform/web_runtime_features.h"
@@ -283,7 +283,7 @@ void CefContentRendererClient::WebKitInitialized() {
           gurl, blink::WebString::FromUTF8(entry.target_protocol),
           blink::WebString::FromUTF8(entry.target_domain),
           entry.allow_target_subdomains,
-          network::mojom::CORSOriginAccessMatchPriority::kDefaultPriority);
+          network::mojom::CorsOriginAccessMatchPriority::kDefaultPriority);
     }
     cross_origin_whitelist_entries_.clear();
   }
@@ -364,8 +364,8 @@ void CefContentRendererClient::RenderThreadStarted() {
 
   thread->SetRendererProcessType(
       IsStandaloneExtensionProcess()
-          ? blink::scheduler::RendererProcessType::kExtensionRenderer
-          : blink::scheduler::RendererProcessType::kRenderer);
+          ? blink::scheduler::WebRendererProcessType::kExtensionRenderer
+          : blink::scheduler::WebRendererProcessType::kRenderer);
 
   {
     startup_metric_utils::mojom::StartupMetricHostPtr startup_metric_host;
@@ -617,8 +617,8 @@ void CefContentRendererClient::GetInterface(
     const std::string& interface_name,
     mojo::ScopedMessagePipeHandle interface_pipe) {
   service_binding_.GetConnector()->BindInterface(
-      service_manager::Identity(chrome::mojom::kServiceName), interface_name,
-      std::move(interface_pipe));
+      service_manager::ServiceFilter::ByName(chrome::mojom::kServiceName),
+      interface_name, std::move(interface_pipe));
 }
 
 void CefContentRendererClient::WillDestroyCurrentMessageLoop() {

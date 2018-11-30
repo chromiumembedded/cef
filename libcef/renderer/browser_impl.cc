@@ -538,7 +538,7 @@ void CefBrowserImpl::OnRequest(const Cef_Request_Params& params) {
   std::string response;
   bool expect_response_ack = false;
 
-  TRACE_EVENT2("libcef", "CefBrowserImpl::OnRequest", "request_id",
+  TRACE_EVENT2("cef", "CefBrowserImpl::OnRequest", "request_id",
                params.request_id, "expect_response",
                params.expect_response ? 1 : 0);
 

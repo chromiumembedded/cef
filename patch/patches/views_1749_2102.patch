@@ -1,5 +1,5 @@
 diff --git ui/base/models/menu_model.h ui/base/models/menu_model.h
-index a19e6e937f87..817b7eada253 100644
+index fb958b187f0b..131f2fe7490e 100644
 --- ui/base/models/menu_model.h
 +++ ui/base/models/menu_model.h
 @@ -15,6 +15,7 @@
@@ -10,7 +10,7 @@ index a19e6e937f87..817b7eada253 100644
  struct VectorIcon;
  }
  
-@@ -121,6 +122,27 @@ class UI_BASE_EXPORT MenuModel {
+@@ -124,6 +125,27 @@ class UI_BASE_EXPORT MenuModel {
    // |event_flags| is a bit mask of ui::EventFlags.
    virtual void ActivatedAt(int index, int event_flags);
  
@@ -102,7 +102,7 @@ index 50eaca5b18eb..038d866fd8d1 100644
  };
  
 diff --git ui/views/animation/ink_drop_host_view.h ui/views/animation/ink_drop_host_view.h
-index d3a3aa6c2859..b3203f9e38c2 100644
+index 572573c3c114..427fbad4413a 100644
 --- ui/views/animation/ink_drop_host_view.h
 +++ ui/views/animation/ink_drop_host_view.h
 @@ -115,6 +115,8 @@ class VIEWS_EXPORT InkDropHostView : public View {
@@ -115,10 +115,10 @@ index d3a3aa6c2859..b3203f9e38c2 100644
    // Size used for the default SquareInkDropRipple.
    static constexpr int kDefaultInkDropSize = 24;
 diff --git ui/views/controls/button/label_button.cc ui/views/controls/button/label_button.cc
-index f9b069b1d9b9..1d79949c62ae 100644
+index 8fd404aa2395..e82b1a9708b7 100644
 --- ui/views/controls/button/label_button.cc
 +++ ui/views/controls/button/label_button.cc
-@@ -191,6 +191,7 @@ gfx::Size LabelButton::CalculatePreferredSize() const {
+@@ -192,6 +192,7 @@ gfx::Size LabelButton::CalculatePreferredSize() const {
    Label label(GetText(), {label_->font_list()});
    label.SetLineHeight(label_->line_height());
    label.SetShadows(label_->shadows());
@@ -126,8 +126,8 @@ index f9b069b1d9b9..1d79949c62ae 100644
  
    if (style_ == STYLE_BUTTON) {
      // Some text appears wider when rendered normally than when rendered bold.
-@@ -417,6 +418,12 @@ std::unique_ptr<views::InkDropHighlight> LabelButton::CreateInkDropHighlight()
-                    gfx::RectF(image()->GetMirroredBounds()).CenterPoint());
+@@ -424,6 +425,12 @@ void LabelButton::GetAccessibleNodeData(ui::AXNodeData* node_data) {
+   Button::GetAccessibleNodeData(node_data);
  }
  
 +void LabelButton::SetFontList(const gfx::FontList& font_list) {
@@ -140,12 +140,12 @@ index f9b069b1d9b9..1d79949c62ae 100644
    const gfx::Size previous_image_size(image_->GetPreferredSize());
    UpdateImage();
 diff --git ui/views/controls/button/label_button.h ui/views/controls/button/label_button.h
-index 1ff051ab8634..6182b45e3df5 100644
+index 1a1ab365ad7c..7b4bb7fc87b1 100644
 --- ui/views/controls/button/label_button.h
 +++ ui/views/controls/button/label_button.h
-@@ -99,6 +99,9 @@ class VIEWS_EXPORT LabelButton : public Button, public NativeThemeDelegate {
-   std::unique_ptr<InkDropRipple> CreateInkDropRipple() const override;
+@@ -100,6 +100,9 @@ class VIEWS_EXPORT LabelButton : public Button, public NativeThemeDelegate {
    std::unique_ptr<InkDropHighlight> CreateInkDropHighlight() const override;
+   void GetAccessibleNodeData(ui::AXNodeData* node_data) override;
  
 +  // Sets the font list used by this button.
 +  void SetFontList(const gfx::FontList& font_list);
@@ -153,63 +153,6 @@ index 1ff051ab8634..6182b45e3df5 100644
   protected:
    ImageView* image() const { return image_; }
    Label* label() const;
-diff --git ui/views/controls/button/menu_button.cc ui/views/controls/button/menu_button.cc
-index 27aed587e9a6..ae8304a04919 100644
---- ui/views/controls/button/menu_button.cc
-+++ ui/views/controls/button/menu_button.cc
-@@ -179,7 +179,7 @@ bool MenuButton::IsTriggerableEventType(const ui::Event& event) {
- gfx::Size MenuButton::CalculatePreferredSize() const {
-   gfx::Size prefsize = LabelButton::CalculatePreferredSize();
-   if (show_menu_marker_) {
--    prefsize.Enlarge(menu_marker_->width() + kMenuMarkerPaddingLeft +
-+    prefsize.Enlarge(menu_marker_->width() + GetMarkerPaddingLeft() +
-                          kMenuMarkerPaddingRight,
-                      0);
-   }
-@@ -311,7 +311,7 @@ gfx::Rect MenuButton::GetChildAreaBounds() {
-   gfx::Size s = size();
- 
-   if (show_menu_marker_) {
--    s.set_width(s.width() - menu_marker_->width() - kMenuMarkerPaddingLeft -
-+    s.set_width(s.width() - menu_marker_->width() - GetMarkerPaddingLeft() -
-                 kMenuMarkerPaddingRight);
-   }
- 
-@@ -409,4 +409,10 @@ int MenuButton::GetMaximumScreenXCoordinate() {
-   return monitor_bounds.right() - 1;
- }
- 
-+int MenuButton::GetMarkerPaddingLeft() const {
-+  if (!image()->GetImage().isNull() || !label()->text().empty())
-+    return kMenuMarkerPaddingLeft;
-+  return kMenuMarkerPaddingRight;
-+}
-+
- }  // namespace views
-diff --git ui/views/controls/button/menu_button.h ui/views/controls/button/menu_button.h
-index 8fb11e1cf9cb..bd2951bd948b 100644
---- ui/views/controls/button/menu_button.h
-+++ ui/views/controls/button/menu_button.h
-@@ -57,6 +57,9 @@ class VIEWS_EXPORT MenuButton : public LabelButton {
-   ~MenuButton() override;
- 
-   bool show_menu_marker() const { return show_menu_marker_; }
-+  void set_show_menu_marker(bool show_menu_marker) {
-+    show_menu_marker_ = show_menu_marker;
-+  }
-   void set_menu_marker(const gfx::ImageSkia* menu_marker) {
-     menu_marker_ = menu_marker;
-   }
-@@ -121,6 +124,9 @@ class VIEWS_EXPORT MenuButton : public LabelButton {
-   // use this to make sure a menu is never shown off screen.
-   int GetMaximumScreenXCoordinate();
- 
-+  // Only apply left padding if there's an image or label.
-+  int GetMarkerPaddingLeft() const;
-+
-   // We use a time object in order to keep track of when the menu was closed.
-   // The time is used for simulating menu behavior for the menu button; that
-   // is, if the menu is shown and the button is pressed, we need to close the
 diff --git ui/views/controls/label.cc ui/views/controls/label.cc
 index b5baab3cbb18..ee82e1b05b60 100644
 --- ui/views/controls/label.cc
@@ -295,10 +238,10 @@ index 9c78b30ab3a0..999eb4048f5c 100644
    std::unique_ptr<SelectionController> selection_controller_;
  
 diff --git ui/views/controls/menu/menu_controller.cc ui/views/controls/menu/menu_controller.cc
-index 9e56ca54813b..f4100b838507 100644
+index b0f4756d729f..0c8a9f3f2f44 100644
 --- ui/views/controls/menu/menu_controller.cc
 +++ ui/views/controls/menu/menu_controller.cc
-@@ -2451,8 +2451,13 @@ MenuItemView* MenuController::FindNextSelectableMenuItem(
+@@ -2457,8 +2457,13 @@ MenuItemView* MenuController::FindNextSelectableMenuItem(
  
  void MenuController::OpenSubmenuChangeSelectionIfCan() {
    MenuItemView* item = pending_state_.item;
@@ -313,7 +256,7 @@ index 9e56ca54813b..f4100b838507 100644
    MenuItemView* to_select = NULL;
    if (item->GetSubmenu()->GetMenuItemCount() > 0)
      to_select = FindInitialSelectableMenuItem(item, INCREMENT_SELECTION_DOWN);
-@@ -2467,8 +2472,10 @@ void MenuController::OpenSubmenuChangeSelectionIfCan() {
+@@ -2473,8 +2478,10 @@ void MenuController::OpenSubmenuChangeSelectionIfCan() {
  void MenuController::CloseSubmenu() {
    MenuItemView* item = state_.item;
    DCHECK(item);
@@ -326,10 +269,10 @@ index 9e56ca54813b..f4100b838507 100644
      SetSelection(item, SELECTION_UPDATE_IMMEDIATELY);
    else if (item->GetParentMenuItem()->GetParentMenuItem())
 diff --git ui/views/controls/menu/menu_delegate.h ui/views/controls/menu/menu_delegate.h
-index 7544162bd986..450b0aee5f1e 100644
+index 69a8ed510b6e..3917e7e17fc7 100644
 --- ui/views/controls/menu/menu_delegate.h
 +++ ui/views/controls/menu/menu_delegate.h
-@@ -82,6 +82,22 @@ class VIEWS_EXPORT MenuDelegate {
+@@ -81,6 +81,22 @@ class VIEWS_EXPORT MenuDelegate {
    // parts of |style| or leave it unmodified.
    virtual void GetLabelStyle(int id, LabelStyle* style) const;
  
@@ -352,7 +295,7 @@ index 7544162bd986..450b0aee5f1e 100644
    // The tooltip shown for the menu item. This is invoked when the user
    // hovers over the item, and no tooltip text has been set for that item.
    virtual base::string16 GetTooltipText(int id,
-@@ -214,6 +230,11 @@ class VIEWS_EXPORT MenuDelegate {
+@@ -213,6 +229,11 @@ class VIEWS_EXPORT MenuDelegate {
                                         bool* has_mnemonics,
                                         MenuButton** button);
  
@@ -365,24 +308,26 @@ index 7544162bd986..450b0aee5f1e 100644
    virtual int GetMaxWidthForMenu(MenuItemView* menu);
  
 diff --git ui/views/controls/menu/menu_item_view.cc ui/views/controls/menu/menu_item_view.cc
-index 7b17d2662ecc..0c577b7c5908 100644
+index c26f578b8c62..660095409e0b 100644
 --- ui/views/controls/menu/menu_item_view.cc
 +++ ui/views/controls/menu/menu_item_view.cc
-@@ -926,7 +926,12 @@ void MenuItemView::PaintButton(gfx::Canvas* canvas, PaintButtonMode mode) {
-   // only need the background when we want it to look different, as when we're
-   // selected.
-   ui::NativeTheme* native_theme = GetNativeTheme();
--  if (render_selection) {
+@@ -1011,6 +1011,15 @@ void MenuItemView::PaintBackground(gfx::Canvas* canvas,
+     spilling_rect.set_y(spilling_rect.y() - corner_radius_);
+     spilling_rect.set_height(spilling_rect.height() + corner_radius_);
+     canvas->DrawRoundRect(spilling_rect, corner_radius_, flags);
++    return;
++  }
++
++  MenuDelegate *delegate = GetDelegate();
 +  SkColor override_color;
 +  if (delegate && delegate->GetBackgroundColor(GetCommand(),
 +                                               render_selection,
 +                                               &override_color)) {
 +    canvas->DrawColor(override_color);
-+  } else if (render_selection) {
-     gfx::Rect item_bounds(0, 0, width(), height());
+   } else if (render_selection) {
+     gfx::Rect item_bounds = GetLocalBounds();
      if (type_ == ACTIONABLE_SUBMENU) {
-       if (submenu_area_of_actionable_submenu_selected_) {
-@@ -1046,6 +1051,13 @@ void MenuItemView::PaintMinorIconAndText(
+@@ -1077,6 +1086,13 @@ void MenuItemView::PaintMinorIconAndText(
  }
  
  SkColor MenuItemView::GetTextColor(bool minor, bool render_selection) const {
@@ -397,10 +342,10 @@ index 7b17d2662ecc..0c577b7c5908 100644
        minor ? ui::NativeTheme::kColorId_MenuItemMinorTextColor
              : ui::NativeTheme::kColorId_EnabledMenuItemForegroundColor;
 diff --git ui/views/controls/menu/menu_model_adapter.cc ui/views/controls/menu/menu_model_adapter.cc
-index cbccee16e4c7..e14173e9e832 100644
+index 08132c522c1a..a29813f08b69 100644
 --- ui/views/controls/menu/menu_model_adapter.cc
 +++ ui/views/controls/menu/menu_model_adapter.cc
-@@ -233,6 +233,77 @@ void MenuModelAdapter::SelectionChanged(MenuItemView* menu) {
+@@ -236,6 +236,77 @@ void MenuModelAdapter::SelectionChanged(MenuItemView* menu) {
    NOTREACHED();
  }
  
@@ -504,10 +449,10 @@ index e52edfe5edd7..ab23f3df914e 100644
    void WillHideMenu(MenuItemView* menu) override;
    void OnMenuClosed(MenuItemView* menu) override;
 diff --git ui/views/controls/menu/menu_scroll_view_container.cc ui/views/controls/menu/menu_scroll_view_container.cc
-index 242725445a82..e766e9b93956 100644
+index 0ad986a75c37..504a66d6a7fc 100644
 --- ui/views/controls/menu/menu_scroll_view_container.cc
 +++ ui/views/controls/menu/menu_scroll_view_container.cc
-@@ -182,6 +182,11 @@ MenuScrollViewContainer::MenuScrollViewContainer(SubmenuView* content_view)
+@@ -181,6 +181,11 @@ MenuScrollViewContainer::MenuScrollViewContainer(SubmenuView* content_view)
    scroll_view_ = new MenuScrollView(content_view);
    AddChildView(scroll_view_);
  
@@ -520,7 +465,7 @@ index 242725445a82..e766e9b93956 100644
        content_view_->GetMenuItem()->GetMenuController()->GetAnchorPosition());
  
 diff --git ui/views/test/ui_controls_factory_desktop_aurax11.cc ui/views/test/ui_controls_factory_desktop_aurax11.cc
-index 3ec1dcbdf822..e2658cec8095 100644
+index 0180b30d383a..c0724b6b80a7 100644
 --- ui/views/test/ui_controls_factory_desktop_aurax11.cc
 +++ ui/views/test/ui_controls_factory_desktop_aurax11.cc
 @@ -140,10 +140,6 @@ class UIControlsDesktopX11 : public UIControlsAura {
@@ -535,7 +480,7 @@ index 3ec1dcbdf822..e2658cec8095 100644
        // Move the cursor because EnterNotify/LeaveNotify are generated with the
        // current mouse position as a result of XGrabPointer()
 diff --git ui/views/view.h ui/views/view.h
-index 161e015c0448..4b36bfd17082 100644
+index 998c87a3d6f9..0a587a4b7221 100644
 --- ui/views/view.h
 +++ ui/views/view.h
 @@ -19,6 +19,7 @@

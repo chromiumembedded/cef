@@ -1,5 +1,5 @@
 diff --git content/browser/browser_plugin/browser_plugin_guest.cc content/browser/browser_plugin/browser_plugin_guest.cc
-index 8d0d53cbc413..f08659aa85ce 100644
+index e706efbc6219..3b6f60660650 100644
 --- content/browser/browser_plugin/browser_plugin_guest.cc
 +++ content/browser/browser_plugin/browser_plugin_guest.cc
 @@ -347,8 +347,11 @@ void BrowserPluginGuest::InitInternal(
@@ -15,7 +15,7 @@ index 8d0d53cbc413..f08659aa85ce 100644
  
      // Once a BrowserPluginGuest has an embedder WebContents, it's considered to
      // be attached.
-@@ -856,10 +859,19 @@ void BrowserPluginGuest::OnWillAttachComplete(
+@@ -861,10 +864,19 @@ void BrowserPluginGuest::OnWillAttachComplete(
          static_cast<WebContentsViewGuest*>(GetWebContents()->GetView());
      if (!web_contents()->GetRenderViewHost()->GetWidget()->GetView()) {
        web_contents_view->CreateViewForWidget(
@@ -266,10 +266,10 @@ index bf2226b53dd7..782a320ab788 100644
    // a BrowserPlugin even when we are using cross process frames for guests. It
    // should be removed after resolving https://crbug.com/642826).
 diff --git extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc
-index b74700bb5810..af5def149ff8 100644
+index ad0dae9b1494..80251026a27b 100644
 --- extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc
 +++ extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc
-@@ -206,6 +206,8 @@ void MimeHandlerViewGuest::CreateWebContents(
+@@ -207,6 +207,8 @@ void MimeHandlerViewGuest::CreateWebContents(
    WebContents::CreateParams params(browser_context(),
                                     guest_site_instance.get());
    params.guest_delegate = this;
@@ -278,7 +278,7 @@ index b74700bb5810..af5def149ff8 100644
    // TODO(erikchen): Fix ownership semantics for guest views.
    // https://crbug.com/832879.
    std::move(callback).Run(
-@@ -250,6 +252,18 @@ bool MimeHandlerViewGuest::ShouldDestroyOnDetach() const {
+@@ -251,6 +253,18 @@ bool MimeHandlerViewGuest::ShouldDestroyOnDetach() const {
    return true;
  }
  

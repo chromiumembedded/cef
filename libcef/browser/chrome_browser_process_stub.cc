@@ -283,7 +283,7 @@ ChromeBrowserProcessStub::safe_browsing_detection_service() {
   return NULL;
 }
 
-subresource_filter::ContentRulesetService*
+subresource_filter::RulesetService*
 ChromeBrowserProcessStub::subresource_filter_ruleset_service() {
   NOTREACHED();
   return NULL;
@@ -356,6 +356,12 @@ ChromeBrowserProcessStub::CachedDefaultWebClientState() {
 }
 
 resource_coordinator::TabManager* ChromeBrowserProcessStub::GetTabManager() {
+  NOTREACHED();
+  return NULL;
+}
+
+resource_coordinator::ResourceCoordinatorParts*
+ChromeBrowserProcessStub::resource_coordinator_parts() {
   NOTREACHED();
   return NULL;
 }

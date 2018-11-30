@@ -27,8 +27,7 @@ class CefMenuButtonImpl : public CefLabelButtonImpl<views::MenuButton,
   static CefRefPtr<CefMenuButtonImpl> Create(
       CefRefPtr<CefMenuButtonDelegate> delegate,
       const CefString& text,
-      bool with_frame,
-      bool with_menu_marker);
+      bool with_frame);
 
   // CefMenuButton methods:
   void ShowMenu(CefRefPtr<CefMenuModel> menu_model,

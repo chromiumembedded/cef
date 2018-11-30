@@ -1091,7 +1091,7 @@ bool CefV8ContextImpl::Eval(const CefString& code,
 
   v8::MaybeLocal<v8::Value> func_rv = blink_glue::ExecuteV8ScriptAndReturnValue(
       source, source_url, start_line, context, isolate, try_catch,
-      blink::AccessControlStatus::kOpaqueResource);
+      blink::SanitizeScriptErrors::kSanitize);
 
   if (try_catch.HasCaught()) {
     exception = new CefV8ExceptionImpl(context, try_catch.Message());

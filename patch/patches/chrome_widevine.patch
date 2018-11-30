@@ -13,7 +13,7 @@ index 310971aadad2..1c9f77745f09 100644
  #include "third_party/widevine/cdm/widevine_cdm_common.h"  // nogncheck
  // TODO(crbug.com/663554): Needed for WIDEVINE_CDM_VERSION_STRING. Support
 diff --git third_party/widevine/cdm/BUILD.gn third_party/widevine/cdm/BUILD.gn
-index 00d201e178c0..c37de789d5b2 100644
+index 4826777cffd2..a5835928dbad 100644
 --- third_party/widevine/cdm/BUILD.gn
 +++ third_party/widevine/cdm/BUILD.gn
 @@ -5,6 +5,7 @@

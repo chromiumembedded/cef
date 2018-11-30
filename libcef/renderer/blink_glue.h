@@ -14,7 +14,7 @@
 #include "include/internal/cef_types.h"
 
 #include "third_party/blink/public/platform/web_common.h"
-#include "third_party/blink/renderer/platform/loader/fetch/access_control_status.h"
+#include "third_party/blink/renderer/bindings/core/v8/sanitize_script_errors.h"
 #include "v8/include/v8.h"
 
 namespace blink {
@@ -62,7 +62,7 @@ BLINK_EXPORT v8::MaybeLocal<v8::Value> ExecuteV8ScriptAndReturnValue(
     v8::Local<v8::Context> context,
     v8::Isolate* isolate,
     v8::TryCatch& tryCatch,
-    blink::AccessControlStatus accessControlStatus);
+    blink::SanitizeScriptErrors sanitizeScriptErrors);
 
 BLINK_EXPORT bool IsScriptForbidden();
 

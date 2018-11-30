@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=322e6c3e92ce399d47f8ee00070325f523763c64$
+// $hash=22c0a0f35ff9fe8d8b7f5a38a48164b47e188d25$
 //
 
 #include <dlfcn.h>
@@ -324,7 +324,6 @@ typedef struct _cef_label_button_t* (*cef_label_button_create_ptr)(
 typedef struct _cef_menu_button_t* (*cef_menu_button_create_ptr)(
     struct _cef_menu_button_delegate_t*,
     const cef_string_t*,
-    int,
     int);
 typedef struct _cef_panel_t* (*cef_panel_create_ptr)(
     struct _cef_panel_delegate_t*);
@@ -1099,8 +1098,8 @@ int cef_create_url(const struct _cef_urlparts_t* parts, cef_string_t* url) {
 }
 
 NO_SANITIZE("cfi-icall")
-cef_string_userfree_t
-    cef_format_url_for_security_display(const cef_string_t* origin_url) {
+cef_string_userfree_t cef_format_url_for_security_display(
+    const cef_string_t* origin_url) {
   return g_libcef_pointers.cef_format_url_for_security_display(origin_url);
 }
 
@@ -1591,54 +1590,46 @@ struct _cef_translator_test_t* cef_translator_test_create() {
 }
 
 NO_SANITIZE("cfi-icall")
-struct
-    _cef_translator_test_ref_ptr_library_t* cef_translator_test_ref_ptr_library_create(
-        int value) {
+struct _cef_translator_test_ref_ptr_library_t*
+cef_translator_test_ref_ptr_library_create(int value) {
   return g_libcef_pointers.cef_translator_test_ref_ptr_library_create(value);
 }
 
 NO_SANITIZE("cfi-icall")
-struct
-    _cef_translator_test_ref_ptr_library_child_t* cef_translator_test_ref_ptr_library_child_create(
-        int value,
-        int other_value) {
+struct _cef_translator_test_ref_ptr_library_child_t*
+cef_translator_test_ref_ptr_library_child_create(int value, int other_value) {
   return g_libcef_pointers.cef_translator_test_ref_ptr_library_child_create(
       value, other_value);
 }
 
 NO_SANITIZE("cfi-icall")
-struct
-    _cef_translator_test_ref_ptr_library_child_child_t* cef_translator_test_ref_ptr_library_child_child_create(
-        int value,
-        int other_value,
-        int other_other_value) {
+struct _cef_translator_test_ref_ptr_library_child_child_t*
+cef_translator_test_ref_ptr_library_child_child_create(int value,
+                                                       int other_value,
+                                                       int other_other_value) {
   return g_libcef_pointers
       .cef_translator_test_ref_ptr_library_child_child_create(
           value, other_value, other_other_value);
 }
 
 NO_SANITIZE("cfi-icall")
-struct
-    _cef_translator_test_scoped_library_t* cef_translator_test_scoped_library_create(
-        int value) {
+struct _cef_translator_test_scoped_library_t*
+cef_translator_test_scoped_library_create(int value) {
   return g_libcef_pointers.cef_translator_test_scoped_library_create(value);
 }
 
 NO_SANITIZE("cfi-icall")
-struct
-    _cef_translator_test_scoped_library_child_t* cef_translator_test_scoped_library_child_create(
-        int value,
-        int other_value) {
+struct _cef_translator_test_scoped_library_child_t*
+cef_translator_test_scoped_library_child_create(int value, int other_value) {
   return g_libcef_pointers.cef_translator_test_scoped_library_child_create(
       value, other_value);
 }
 
 NO_SANITIZE("cfi-icall")
-struct
-    _cef_translator_test_scoped_library_child_child_t* cef_translator_test_scoped_library_child_child_create(
-        int value,
-        int other_value,
-        int other_other_value) {
+struct _cef_translator_test_scoped_library_child_child_t*
+cef_translator_test_scoped_library_child_child_create(int value,
+                                                      int other_value,
+                                                      int other_other_value) {
   return g_libcef_pointers
       .cef_translator_test_scoped_library_child_child_create(value, other_value,
                                                              other_other_value);
@@ -1701,10 +1692,8 @@ NO_SANITIZE("cfi-icall")
 struct _cef_menu_button_t* cef_menu_button_create(
     struct _cef_menu_button_delegate_t* delegate,
     const cef_string_t* text,
-    int with_frame,
-    int with_menu_marker) {
-  return g_libcef_pointers.cef_menu_button_create(delegate, text, with_frame,
-                                                  with_menu_marker);
+    int with_frame) {
+  return g_libcef_pointers.cef_menu_button_create(delegate, text, with_frame);
 }
 
 NO_SANITIZE("cfi-icall")

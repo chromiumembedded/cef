@@ -1,8 +1,8 @@
 diff --git content/browser/renderer_host/render_widget_host_view_child_frame.cc content/browser/renderer_host/render_widget_host_view_child_frame.cc
-index 09b8c3e9f215..0b2bef74fe86 100644
+index 97c7697726d4..aa1bbc28cf54 100644
 --- content/browser/renderer_host/render_widget_host_view_child_frame.cc
 +++ content/browser/renderer_host/render_widget_host_view_child_frame.cc
-@@ -654,6 +654,7 @@ void RenderWidgetHostViewChildFrame::SubmitCompositorFrame(
+@@ -633,6 +633,7 @@ void RenderWidgetHostViewChildFrame::SubmitCompositorFrame(
                 "RenderWidgetHostViewChildFrame::OnSwapCompositorFrame");
    support_->SubmitCompositorFrame(local_surface_id, std::move(frame),
                                    std::move(hit_test_region_list));
@@ -10,11 +10,31 @@ index 09b8c3e9f215..0b2bef74fe86 100644
  }
  
  void RenderWidgetHostViewChildFrame::OnDidNotProduceFrame(
-@@ -944,7 +945,6 @@ void RenderWidgetHostViewChildFrame::OnFirstSurfaceActivation(
-   last_activated_surface_info_ = surface_info;
-   has_frame_ = true;
-   FirstSurfaceActivation(surface_info);
--  ProcessFrameSwappedCallbacks();
+@@ -641,6 +642,15 @@ void RenderWidgetHostViewChildFrame::OnDidNotProduceFrame(
+   support_->DidNotProduceFrame(ack);
  }
  
- void RenderWidgetHostViewChildFrame::OnFrameTokenChanged(uint32_t frame_token) {
++void RenderWidgetHostViewChildFrame::ProcessFrameSwappedCallbacks() {
++  std::vector<base::OnceClosure> process_callbacks;
++  // Swap the vectors to avoid re-entrancy issues due to calls to
++  // RegisterFrameSwappedCallback() while running the OnceClosures.
++  process_callbacks.swap(frame_swapped_callbacks_);
++  for (base::OnceClosure& callback : process_callbacks)
++    std::move(callback).Run();
++}
++
+ void RenderWidgetHostViewChildFrame::TransformPointToRootSurface(
+     gfx::PointF* point) {
+   // This function is called by RenderWidgetHostInputEventRouter only for
+@@ -826,6 +836,11 @@ void RenderWidgetHostViewChildFrame::ShowDefinitionForSelection() {
+ void RenderWidgetHostViewChildFrame::SpeakSelection() {}
+ #endif  // defined(OS_MACOSX)
+ 
++void RenderWidgetHostViewChildFrame::RegisterFrameSwappedCallback(
++    base::OnceClosure callback) {
++  frame_swapped_callbacks_.emplace_back(std::move(callback));
++}
++
+ void RenderWidgetHostViewChildFrame::CopyFromSurface(
+     const gfx::Rect& src_subrect,
+     const gfx::Size& output_size,

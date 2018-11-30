@@ -503,10 +503,11 @@ void CefContentBrowserClient::RenderProcessWillLaunch(
   *service_request = mojo::MakeRequest(&service);
   service_manager::mojom::PIDReceiverPtr pid_receiver;
   service_manager::Identity renderer_identity = host->GetChildIdentity();
-  ChromeService::GetInstance()->connector()->StartService(
+  ChromeService::GetInstance()->connector()->RegisterServiceInstance(
       service_manager::Identity(chrome::mojom::kRendererServiceName,
-                                renderer_identity.user_id(),
-                                renderer_identity.instance()),
+                                renderer_identity.instance_group(),
+                                renderer_identity.instance_id(),
+                                base::Token::CreateRandom()),
       std::move(service), mojo::MakeRequest(&pid_receiver));
 }
 
@@ -1118,7 +1119,9 @@ bool CefContentBrowserClient::HandleExternalProtocol(
     content::NavigationUIData* navigation_data,
     bool is_main_frame,
     ui::PageTransition page_transition,
-    bool has_user_gesture) {
+    bool has_user_gesture,
+    const std::string& method,
+    const net::HttpRequestHeaders& headers) {
   CEF_POST_TASK(
       CEF_UIT,
       base::Bind(

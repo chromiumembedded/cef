@@ -1,8 +1,8 @@
 diff --git chrome/browser/ui/BUILD.gn chrome/browser/ui/BUILD.gn
-index 81c2bc90ddff..89e129d426d0 100644
+index 123a058f4c0b..7c7e16407953 100644
 --- chrome/browser/ui/BUILD.gn
 +++ chrome/browser/ui/BUILD.gn
-@@ -369,6 +369,7 @@ jumbo_split_static_library("ui") {
+@@ -368,6 +368,7 @@ jumbo_split_static_library("ui") {
      "//base:i18n",
      "//base/allocator:buildflags",
      "//cc/paint",
@@ -10,7 +10,7 @@ index 81c2bc90ddff..89e129d426d0 100644
      "//chrome:extra_resources",
      "//chrome:resources",
      "//chrome:strings",
-@@ -2265,7 +2266,7 @@ jumbo_split_static_library("ui") {
+@@ -2253,7 +2254,7 @@ jumbo_split_static_library("ui") {
          "views/frame/native_browser_frame_factory_ozone.cc",
        ]
      } else {
@@ -262,7 +262,7 @@ index 7dd892feb181..daa097e62ba2 100644
  
  #endif  // COMPONENTS_PRINTING_COMMON_PRINT_MESSAGES_H_
 diff --git components/printing/renderer/print_render_frame_helper.cc components/printing/renderer/print_render_frame_helper.cc
-index 69b9a0e39f17..902f0b9e9fcb 100644
+index 3a91761b39f8..699ef2146c97 100644
 --- components/printing/renderer/print_render_frame_helper.cc
 +++ components/printing/renderer/print_render_frame_helper.cc
 @@ -343,7 +343,6 @@ bool PrintingNodeOrPdfFrame(const blink::WebLocalFrame* frame,
@@ -297,7 +297,7 @@ index 69b9a0e39f17..902f0b9e9fcb 100644
  
  // Helper function to scale and round an integer value with a double valued
  // scaling.
-@@ -1090,10 +1086,8 @@ void PrintRenderFrameHelper::ScriptedPrint(bool user_initiated) {
+@@ -1111,10 +1107,8 @@ void PrintRenderFrameHelper::ScriptedPrint(bool user_initiated) {
      return;
  
    if (g_is_preview_enabled) {
@@ -308,7 +308,7 @@ index 69b9a0e39f17..902f0b9e9fcb 100644
    } else {
      auto weak_this = weak_ptr_factory_.GetWeakPtr();
      web_frame->DispatchBeforePrintEvent();
-@@ -1121,10 +1115,10 @@ bool PrintRenderFrameHelper::OnMessageReceived(const IPC::Message& message) {
+@@ -1142,10 +1136,10 @@ bool PrintRenderFrameHelper::OnMessageReceived(const IPC::Message& message) {
    IPC_BEGIN_MESSAGE_MAP(PrintRenderFrameHelper, message)
      IPC_MESSAGE_HANDLER(PrintMsg_PrintPages, OnPrintPages)
      IPC_MESSAGE_HANDLER(PrintMsg_PrintForSystemDialog, OnPrintForSystemDialog)
@@ -320,7 +320,7 @@ index 69b9a0e39f17..902f0b9e9fcb 100644
      IPC_MESSAGE_HANDLER(PrintMsg_ClosePrintPreviewDialog,
                          OnClosePrintPreviewDialog)
  #endif  // BUILDFLAG(ENABLE_PRINT_PREVIEW)
-@@ -1207,7 +1201,6 @@ void PrintRenderFrameHelper::UpdateFrameMarginsCssInfo(
+@@ -1228,7 +1222,6 @@ void PrintRenderFrameHelper::UpdateFrameMarginsCssInfo(
    ignore_css_margins_ = (margins_type != DEFAULT_MARGINS);
  }
  
@@ -328,7 +328,7 @@ index 69b9a0e39f17..902f0b9e9fcb 100644
  void PrintRenderFrameHelper::OnPrintPreview(
      const base::DictionaryValue& settings) {
    if (ipc_nesting_level_ > 1)
-@@ -1464,7 +1457,6 @@ int PrintRenderFrameHelper::GetFitToPageScaleFactor(
+@@ -1485,7 +1478,6 @@ int PrintRenderFrameHelper::GetFitToPageScaleFactor(
        printable_height / static_cast<double>(uniform_page_size.height);
    return static_cast<int>(100.0f * std::min(scale_width, scale_height));
  }
@@ -336,7 +336,7 @@ index 69b9a0e39f17..902f0b9e9fcb 100644
  
  void PrintRenderFrameHelper::OnPrintingDone(bool success) {
    if (ipc_nesting_level_ > 1)
-@@ -1479,7 +1471,6 @@ void PrintRenderFrameHelper::OnSetPrintingEnabled(bool enabled) {
+@@ -1500,7 +1492,6 @@ void PrintRenderFrameHelper::OnSetPrintingEnabled(bool enabled) {
    is_printing_enabled_ = enabled;
  }
  
@@ -344,7 +344,7 @@ index 69b9a0e39f17..902f0b9e9fcb 100644
  void PrintRenderFrameHelper::OnInitiatePrintPreview(bool has_selection) {
    if (ipc_nesting_level_ > 1)
      return;
-@@ -1490,7 +1481,9 @@ void PrintRenderFrameHelper::OnInitiatePrintPreview(bool has_selection) {
+@@ -1511,7 +1502,9 @@ void PrintRenderFrameHelper::OnInitiatePrintPreview(bool has_selection) {
    // that instead.
    auto plugin = delegate_->GetPdfElement(frame);
    if (!plugin.IsNull()) {
@@ -354,7 +354,7 @@ index 69b9a0e39f17..902f0b9e9fcb 100644
      return;
    }
    print_preview_context_.InitWithFrame(frame);
-@@ -1499,6 +1492,7 @@ void PrintRenderFrameHelper::OnInitiatePrintPreview(bool has_selection) {
+@@ -1520,6 +1513,7 @@ void PrintRenderFrameHelper::OnInitiatePrintPreview(bool has_selection) {
                            : PRINT_PREVIEW_USER_INITIATED_ENTIRE_FRAME);
  }
  
@@ -362,7 +362,7 @@ index 69b9a0e39f17..902f0b9e9fcb 100644
  void PrintRenderFrameHelper::OnClosePrintPreviewDialog() {
    print_preview_context_.source_frame()->DispatchAfterPrintEvent();
  }
-@@ -1586,11 +1580,9 @@ void PrintRenderFrameHelper::PrintNode(const blink::WebNode& node) {
+@@ -1607,11 +1601,9 @@ void PrintRenderFrameHelper::PrintNode(const blink::WebNode& node) {
  
    print_node_in_progress_ = true;
  
@@ -375,7 +375,7 @@ index 69b9a0e39f17..902f0b9e9fcb 100644
    } else {
      // Make a copy of the node, in case RenderView::OnContextMenuClosed() resets
      // its |context_menu_node_|.
-@@ -1666,13 +1658,11 @@ void PrintRenderFrameHelper::Print(blink::WebLocalFrame* frame,
+@@ -1687,13 +1679,11 @@ void PrintRenderFrameHelper::Print(blink::WebLocalFrame* frame,
  void PrintRenderFrameHelper::DidFinishPrinting(PrintingResult result) {
    int cookie =
        print_pages_params_ ? print_pages_params_->params.document_cookie : 0;
@@ -389,7 +389,7 @@ index 69b9a0e39f17..902f0b9e9fcb 100644
    switch (result) {
      case OK:
        break;
-@@ -1687,7 +1677,6 @@ void PrintRenderFrameHelper::DidFinishPrinting(PrintingResult result) {
+@@ -1708,7 +1698,6 @@ void PrintRenderFrameHelper::DidFinishPrinting(PrintingResult result) {
        }
        break;
  
@@ -397,7 +397,7 @@ index 69b9a0e39f17..902f0b9e9fcb 100644
      case FAIL_PREVIEW:
        if (!is_print_ready_metafile_sent_) {
          if (notify_browser_of_print_failure_) {
-@@ -1705,7 +1694,6 @@ void PrintRenderFrameHelper::DidFinishPrinting(PrintingResult result) {
+@@ -1726,7 +1715,6 @@ void PrintRenderFrameHelper::DidFinishPrinting(PrintingResult result) {
                                                                 cookie, ids));
        print_preview_context_.Failed(false);
        break;
@@ -405,7 +405,7 @@ index 69b9a0e39f17..902f0b9e9fcb 100644
    }
    prep_frame_view_.reset();
    print_pages_params_.reset();
-@@ -1880,7 +1868,6 @@ bool PrintRenderFrameHelper::CalculateNumberOfPages(blink::WebLocalFrame* frame,
+@@ -1901,7 +1889,6 @@ bool PrintRenderFrameHelper::CalculateNumberOfPages(blink::WebLocalFrame* frame,
    return true;
  }
  
@@ -413,7 +413,7 @@ index 69b9a0e39f17..902f0b9e9fcb 100644
  bool PrintRenderFrameHelper::SetOptionsFromPdfDocument(
      PrintHostMsg_SetOptionsFromDocument_Params* options) {
    blink::WebLocalFrame* source_frame = print_preview_context_.source_frame();
-@@ -1973,7 +1960,6 @@ bool PrintRenderFrameHelper::UpdatePrintSettings(
+@@ -1994,7 +1981,6 @@ bool PrintRenderFrameHelper::UpdatePrintSettings(
    print_preview_context_.set_error(PREVIEW_ERROR_INVALID_PRINTER_SETTINGS);
    return false;
  }
@@ -421,7 +421,7 @@ index 69b9a0e39f17..902f0b9e9fcb 100644
  
  void PrintRenderFrameHelper::GetPrintSettingsFromUser(
      blink::WebLocalFrame* frame,
-@@ -2125,7 +2111,6 @@ bool PrintRenderFrameHelper::CopyMetafileDataToReadOnlySharedMem(
+@@ -2146,7 +2132,6 @@ bool PrintRenderFrameHelper::CopyMetafileDataToReadOnlySharedMem(
    return true;
  }
  
@@ -429,7 +429,7 @@ index 69b9a0e39f17..902f0b9e9fcb 100644
  void PrintRenderFrameHelper::ShowScriptedPrintPreview() {
    if (is_scripted_preview_delayed_) {
      is_scripted_preview_delayed_ = false;
-@@ -2251,7 +2236,6 @@ bool PrintRenderFrameHelper::PreviewPageRendered(
+@@ -2272,7 +2257,6 @@ bool PrintRenderFrameHelper::PreviewPageRendered(
    Send(new PrintHostMsg_DidPreviewPage(routing_id(), preview_page_params, ids));
    return true;
  }

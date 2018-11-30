@@ -10,10 +10,10 @@ index 92e9cb865204..4628c56882b4 100644
 +  GetPlugins(bool refresh, bool is_main_frame, url.mojom.Origin main_frame_origin) => (array<PluginInfo> plugins);
  };
 diff --git third_party/blink/public/platform/platform.h third_party/blink/public/platform/platform.h
-index b9acf7744b61..ec1e92f26560 100644
+index e3f1a22160b6..9c34940d429e 100644
 --- third_party/blink/public/platform/platform.h
 +++ third_party/blink/public/platform/platform.h
-@@ -769,6 +769,11 @@ class BLINK_PLATFORM_EXPORT Platform {
+@@ -763,6 +763,11 @@ class BLINK_PLATFORM_EXPORT Platform {
    // runs during Chromium's build step).
    virtual bool IsTakingV8ContextSnapshot() { return false; }
  
@@ -44,7 +44,7 @@ index 3dac1a5a6f61..4fff23e66f2c 100644
                                                          .Top()
                                                          .GetSecurityContext()
 diff --git third_party/blink/renderer/core/frame/local_frame.cc third_party/blink/renderer/core/frame/local_frame.cc
-index b7c1d06b0f60..42f2e1de4d90 100644
+index abaed983fe9c..6657d4144b63 100644
 --- third_party/blink/renderer/core/frame/local_frame.cc
 +++ third_party/blink/renderer/core/frame/local_frame.cc
 @@ -1303,7 +1303,7 @@ FrameResourceCoordinator* LocalFrame::GetFrameResourceCoordinator() {
@@ -85,7 +85,7 @@ index be579710b518..74c2e586ef0e 100644
  
  void DevToolsSession::FlushProtocolNotifications() {
 diff --git third_party/blink/renderer/core/page/page.cc third_party/blink/renderer/core/page/page.cc
-index 4277312bcad3..ca460b9ec0ca 100644
+index 29aad26cb485..f827eea52dbd 100644
 --- third_party/blink/renderer/core/page/page.cc
 +++ third_party/blink/renderer/core/page/page.cc
 @@ -168,7 +168,8 @@ Page::Page(PageClients& page_clients)

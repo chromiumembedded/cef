@@ -84,17 +84,15 @@ class CefCompositorFrameSinkClient
     forward_->DidReceiveCompositorFrameAck(resources);
   }
 
-  void DidPresentCompositorFrame(
-      uint32_t presentation_token,
-      const gfx::PresentationFeedback& feedback) override {
-    forward_->DidPresentCompositorFrame(presentation_token, feedback);
+  void OnBeginFrame(const viz::BeginFrameArgs& args,
+                    const base::flat_map<uint32_t, gfx::PresentationFeedback>&
+                        feedbacks) override {
     if (render_widget_host_view_) {
-      render_widget_host_view_->OnPresentCompositorFrame(presentation_token);
+      for (const auto& pair : feedbacks) {
+        render_widget_host_view_->OnPresentCompositorFrame(pair.first);
+      }
     }
-  }
-
-  void OnBeginFrame(const viz::BeginFrameArgs& args) override {
-    forward_->OnBeginFrame(args);
+    forward_->OnBeginFrame(args, feedbacks);
   }
 
   void OnBeginFramePausedChanged(bool paused) override {
@@ -152,7 +150,11 @@ class CefDelegatedFrameHostClient : public content::DelegatedFrameHostClient {
     return view_->GetDeviceScaleFactor();
   }
 
-  void WasEvicted() override {}
+  void AllocateNewSurfaceIdOnEviction() override {}
+
+  std::vector<viz::SurfaceId> CollectSurfaceIdsForEviction() override {
+    return view_->render_widget_host()->CollectSurfaceIdsForEviction();
+  }
 
  private:
   CefRenderWidgetHostViewOSR* const view_;
@@ -343,7 +345,8 @@ CefRenderWidgetHostViewOSR::CefRenderWidgetHostViewOSR(
 
 #if !defined(OS_MACOSX)
   local_surface_id_allocator_.GenerateId();
-  local_surface_id_ = local_surface_id_allocator_.GetCurrentLocalSurfaceId();
+  local_surface_id_allocation_ =
+      local_surface_id_allocator_.GetCurrentLocalSurfaceIdAllocation();
   delegated_frame_host_client_.reset(new CefDelegatedFrameHostClient(this));
 
   // Matching the attributes from BrowserCompositorMac.
@@ -487,8 +490,9 @@ void CefRenderWidgetHostViewOSR::Show() {
   browser_compositor_->SetRenderWidgetHostIsHidden(false);
 #else
   delegated_frame_host_->AttachToCompositor(compositor_.get());
-  delegated_frame_host_->WasShown(GetLocalSurfaceId(),
-                                  GetRootLayer()->bounds().size(), false);
+  delegated_frame_host_->WasShown(
+      GetLocalSurfaceIdAllocation().local_surface_id(),
+      GetRootLayer()->bounds().size(), false);
 #endif
 
   // Note that |render_widget_host_| will retrieve size parameters from the
@@ -656,7 +660,7 @@ void CefRenderWidgetHostViewOSR::SubmitCompositorFrame(
     const viz::LocalSurfaceId& local_surface_id,
     viz::CompositorFrame frame,
     base::Optional<viz::HitTestRegionList> hit_test_region_list) {
-  TRACE_EVENT0("libcef", "CefRenderWidgetHostViewOSR::OnSwapCompositorFrame");
+  TRACE_EVENT0("cef", "CefRenderWidgetHostViewOSR::OnSwapCompositorFrame");
 
   // Update the frame rate. At this point we should have a valid connection back
   // to the Synthetic Frame Source, which is important so we can actually modify
@@ -745,7 +749,9 @@ void CefRenderWidgetHostViewOSR::SubmitCompositorFrame(
 }
 
 void CefRenderWidgetHostViewOSR::ClearCompositorFrame() {
-  GetDelegatedFrameHost()->ClearDelegatedFrame();
+  // This method is only used for content rendering timeout when surface sync is
+  // off.
+  NOTREACHED();
 }
 
 void CefRenderWidgetHostViewOSR::ResetFallbackToFirstNavigationSurface() {
@@ -800,7 +806,7 @@ void CefRenderWidgetHostViewOSR::InitAsGuest(
 
 void CefRenderWidgetHostViewOSR::UpdateCursor(
     const content::WebCursor& cursor) {
-  TRACE_EVENT0("libcef", "CefRenderWidgetHostViewOSR::UpdateCursor");
+  TRACE_EVENT0("cef", "CefRenderWidgetHostViewOSR::UpdateCursor");
   if (!browser_impl_.get())
     return;
 
@@ -828,8 +834,18 @@ void CefRenderWidgetHostViewOSR::UpdateCursor(
 
   ui::PlatformCursor platform_cursor;
   if (web_cursor.IsCustom()) {
+    ui::Cursor ui_cursor(ui::CursorType::kCustom);
+    SkBitmap bitmap;
+    gfx::Point hotspot;
+    float scale_factor;
+    web_cursor.CreateScaledBitmapAndHotspotFromCustomData(&bitmap, &hotspot,
+                                                          &scale_factor);
+    ui_cursor.set_custom_bitmap(bitmap);
+    ui_cursor.set_custom_hotspot(hotspot);
+    ui_cursor.set_device_scale_factor(scale_factor);
+
     // |web_cursor| owns the resulting |platform_cursor|.
-    platform_cursor = web_cursor.GetPlatformCursor();
+    platform_cursor = web_cursor.GetPlatformCursor(ui_cursor);
   } else {
     platform_cursor = GetPlatformCursor(cursor_info.type);
   }
@@ -987,7 +1003,7 @@ void CefRenderWidgetHostViewOSR::ImeSetComposition(
     const std::vector<CefCompositionUnderline>& underlines,
     const CefRange& replacement_range,
     const CefRange& selection_range) {
-  TRACE_EVENT0("libcef", "CefRenderWidgetHostViewOSR::ImeSetComposition");
+  TRACE_EVENT0("cef", "CefRenderWidgetHostViewOSR::ImeSetComposition");
   if (!render_widget_host_)
     return;
 
@@ -1013,7 +1029,7 @@ void CefRenderWidgetHostViewOSR::ImeCommitText(
     const CefString& text,
     const CefRange& replacement_range,
     int relative_cursor_pos) {
-  TRACE_EVENT0("libcef", "CefRenderWidgetHostViewOSR::ImeCommitText");
+  TRACE_EVENT0("cef", "CefRenderWidgetHostViewOSR::ImeCommitText");
   if (!render_widget_host_)
     return;
 
@@ -1026,7 +1042,7 @@ void CefRenderWidgetHostViewOSR::ImeCommitText(
 }
 
 void CefRenderWidgetHostViewOSR::ImeFinishComposingText(bool keep_selection) {
-  TRACE_EVENT0("libcef", "CefRenderWidgetHostViewOSR::ImeFinishComposingText");
+  TRACE_EVENT0("cef", "CefRenderWidgetHostViewOSR::ImeFinishComposingText");
   if (!render_widget_host_)
     return;
 
@@ -1037,7 +1053,7 @@ void CefRenderWidgetHostViewOSR::ImeFinishComposingText(bool keep_selection) {
 }
 
 void CefRenderWidgetHostViewOSR::ImeCancelComposition() {
-  TRACE_EVENT0("libcef", "CefRenderWidgetHostViewOSR::ImeCancelComposition");
+  TRACE_EVENT0("cef", "CefRenderWidgetHostViewOSR::ImeCancelComposition");
   if (!render_widget_host_)
     return;
 
@@ -1073,9 +1089,9 @@ void CefRenderWidgetHostViewOSR::SelectionChanged(const base::string16& text,
 }
 
 #if !defined(OS_MACOSX)
-const viz::LocalSurfaceId& CefRenderWidgetHostViewOSR::GetLocalSurfaceId()
-    const {
-  return local_surface_id_;
+const viz::LocalSurfaceIdAllocation&
+CefRenderWidgetHostViewOSR::GetLocalSurfaceIdAllocation() const {
+  return local_surface_id_allocation_;
 }
 #endif
 
@@ -1195,7 +1211,7 @@ void CefRenderWidgetHostViewOSR::SynchronizeVisualProperties() {
 }
 
 void CefRenderWidgetHostViewOSR::OnScreenInfoChanged() {
-  TRACE_EVENT0("libcef", "CefRenderWidgetHostViewOSR::OnScreenInfoChanged");
+  TRACE_EVENT0("cef", "CefRenderWidgetHostViewOSR::OnScreenInfoChanged");
   if (!render_widget_host_)
     return;
 
@@ -1228,8 +1244,7 @@ void CefRenderWidgetHostViewOSR::OnScreenInfoChanged() {
 
 void CefRenderWidgetHostViewOSR::Invalidate(
     CefBrowserHost::PaintElementType type) {
-  TRACE_EVENT1("libcef", "CefRenderWidgetHostViewOSR::Invalidate", "type",
-               type);
+  TRACE_EVENT1("cef", "CefRenderWidgetHostViewOSR::Invalidate", "type", type);
   if (!IsPopupWidget() && type == PET_POPUP) {
     if (popup_host_view_)
       popup_host_view_->Invalidate(type);
@@ -1256,7 +1271,7 @@ void CefRenderWidgetHostViewOSR::SendExternalBeginFrame() {
 
   if (renderer_compositor_frame_sink_) {
     GetCompositor()->IssueExternalBeginFrame(begin_frame_args);
-    renderer_compositor_frame_sink_->OnBeginFrame(begin_frame_args);
+    renderer_compositor_frame_sink_->OnBeginFrame(begin_frame_args, {});
   }
 
   if (!IsPopupWidget() && popup_host_view_) {
@@ -1266,7 +1281,7 @@ void CefRenderWidgetHostViewOSR::SendExternalBeginFrame() {
 
 void CefRenderWidgetHostViewOSR::SendKeyEvent(
     const content::NativeWebKeyboardEvent& event) {
-  TRACE_EVENT0("libcef", "CefRenderWidgetHostViewOSR::SendKeyEvent");
+  TRACE_EVENT0("cef", "CefRenderWidgetHostViewOSR::SendKeyEvent");
   if (render_widget_host_ && render_widget_host_->GetView()) {
     // Direct routing requires that events go directly to the View.
     render_widget_host_->ForwardKeyboardEventWithLatencyInfo(
@@ -1280,7 +1295,7 @@ void CefRenderWidgetHostViewOSR::SendKeyEvent(
 
 void CefRenderWidgetHostViewOSR::SendMouseEvent(
     const blink::WebMouseEvent& event) {
-  TRACE_EVENT0("libcef", "CefRenderWidgetHostViewOSR::SendMouseEvent");
+  TRACE_EVENT0("cef", "CefRenderWidgetHostViewOSR::SendMouseEvent");
   if (!IsPopupWidget()) {
     if (browser_impl_.get() &&
         event.GetType() == blink::WebMouseEvent::kMouseDown) {
@@ -1333,7 +1348,7 @@ void CefRenderWidgetHostViewOSR::SendMouseEvent(
 
 void CefRenderWidgetHostViewOSR::SendMouseWheelEvent(
     const blink::WebMouseWheelEvent& event) {
-  TRACE_EVENT0("libcef", "CefRenderWidgetHostViewOSR::SendMouseWheelEvent");
+  TRACE_EVENT0("cef", "CefRenderWidgetHostViewOSR::SendMouseWheelEvent");
 
   blink::WebMouseWheelEvent mouse_wheel_event(event);
 
@@ -1452,7 +1467,7 @@ void CefRenderWidgetHostViewOSR::OnPaint(const gfx::Rect& damage_rect,
                                          int bitmap_width,
                                          int bitmap_height,
                                          void* bitmap_pixels) {
-  TRACE_EVENT0("libcef", "CefRenderWidgetHostViewOSR::OnPaint");
+  TRACE_EVENT0("cef", "CefRenderWidgetHostViewOSR::OnPaint");
 
   CefRefPtr<CefRenderHandler> handler =
       browser_impl_->client()->GetRenderHandler();
@@ -1598,18 +1613,20 @@ void CefRenderWidgetHostViewOSR::ResizeRootLayer(bool force) {
       gfx::ConvertSizeToPixel(current_device_scale_factor_, size);
 
   local_surface_id_allocator_.GenerateId();
-  local_surface_id_ = local_surface_id_allocator_.GetCurrentLocalSurfaceId();
+  local_surface_id_allocation_ =
+      local_surface_id_allocator_.GetCurrentLocalSurfaceIdAllocation();
 
   if (GetCompositor()) {
     GetCompositor()->SetScaleAndSize(current_device_scale_factor_,
-                                     size_in_pixels, local_surface_id_,
-                                     base::TimeTicks());
+                                     size_in_pixels,
+                                     local_surface_id_allocation_);
   }
   PlatformResizeCompositorWidget(size_in_pixels);
 
   bool resized = true;
   GetDelegatedFrameHost()->EmbedSurface(
-      local_surface_id_, size, cc::DeadlinePolicy::UseDefaultDeadline());
+      local_surface_id_allocation_.local_surface_id(), size,
+      cc::DeadlinePolicy::UseDefaultDeadline());
 #endif  // !defined(OS_MACOSX)
 
   // Note that |render_widget_host_| will retrieve resize parameters from the
@@ -1628,7 +1645,7 @@ void CefRenderWidgetHostViewOSR::OnBeginFrameTimerTick() {
 
 void CefRenderWidgetHostViewOSR::SendBeginFrame(base::TimeTicks frame_time,
                                                 base::TimeDelta vsync_period) {
-  TRACE_EVENT1("libcef", "CefRenderWidgetHostViewOSR::SendBeginFrame",
+  TRACE_EVENT1("cef", "CefRenderWidgetHostViewOSR::SendBeginFrame",
                "frame_time_us", frame_time.ToInternalValue());
 
   base::TimeTicks display_time = frame_time + vsync_period;
@@ -1647,8 +1664,9 @@ void CefRenderWidgetHostViewOSR::SendBeginFrame(base::TimeTicks frame_time,
   DCHECK(begin_frame_args.IsValid());
   begin_frame_number_++;
 
-  if (renderer_compositor_frame_sink_)
-    renderer_compositor_frame_sink_->OnBeginFrame(begin_frame_args);
+  if (renderer_compositor_frame_sink_) {
+    renderer_compositor_frame_sink_->OnBeginFrame(begin_frame_args, {});
+  }
 }
 
 void CefRenderWidgetHostViewOSR::CancelWidget() {

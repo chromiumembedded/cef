@@ -21,7 +21,7 @@ class MenuButtonEx : public views::MenuButton,
                      public views::ButtonListener,
                      public views::MenuButtonListener {
  public:
-  MenuButtonEx() : views::MenuButton(base::string16(), this, true) {
+  MenuButtonEx() : views::MenuButton(base::string16(), this) {
     // TODO(cef): MenuButton should not use ButtonListener. See
     // http://crbug.com/585252 for details.
     Button::listener_ = this;

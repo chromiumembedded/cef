@@ -47,27 +47,12 @@ class MacHelper : public content::BrowserCompositorMacClient,
 
   void DestroyCompositorForShutdown() override {}
 
-  bool SynchronizeVisualProperties(
-      const base::Optional<viz::LocalSurfaceId>&
-          child_allocated_local_surface_id,
-      const base::Optional<base::TimeTicks>&
-          child_local_surface_id_allocation_time) override {
-    auto* browser_compositor = view_->browser_compositor();
-    if (child_allocated_local_surface_id) {
-      browser_compositor->UpdateRendererLocalSurfaceIdFromChild(
-          *child_allocated_local_surface_id,
-          *child_local_surface_id_allocation_time);
-    } else {
-      browser_compositor->AllocateNewRendererLocalSurfaceId();
-    }
-
-    if (auto* host = browser_compositor->GetDelegatedFrameHost()) {
-      host->EmbedSurface(browser_compositor->GetRendererLocalSurfaceId(),
-                         browser_compositor->GetRendererSize(),
-                         cc::DeadlinePolicy::UseDefaultDeadline());
-    }
-
+  bool OnBrowserCompositorSurfaceIdChanged() override {
     return view_->render_widget_host()->SynchronizeVisualProperties();
+  }
+
+  std::vector<viz::SurfaceId> CollectSurfaceIdsForEviction() override {
+    return view_->render_widget_host()->CollectSurfaceIdsForEviction();
   }
 
   // AcceleratedWidgetMacNSView methods:
@@ -86,10 +71,6 @@ void CefRenderWidgetHostViewOSR::SetActive(bool active) {}
 void CefRenderWidgetHostViewOSR::ShowDefinitionForSelection() {}
 
 void CefRenderWidgetHostViewOSR::SpeakSelection() {}
-
-bool CefRenderWidgetHostViewOSR::ShouldContinueToPauseForFrame() {
-  return browser_compositor_->ShouldContinueToPauseForFrame();
-}
 
 viz::ScopedSurfaceIdAllocator
 CefRenderWidgetHostViewOSR::DidUpdateVisualProperties(
@@ -126,16 +107,15 @@ display::Display CefRenderWidgetHostViewOSR::GetDisplay() {
 void CefRenderWidgetHostViewOSR::OnDidUpdateVisualPropertiesComplete(
     const cc::RenderFrameMetadata& metadata) {
   DCHECK_EQ(current_device_scale_factor_, metadata.device_scale_factor);
-  browser_compositor_->SynchronizeVisualProperties(
+  browser_compositor_->UpdateSurfaceFromChild(
       metadata.device_scale_factor, metadata.viewport_size_in_pixels,
-      metadata.local_surface_id.value_or(viz::LocalSurfaceId()),
-      metadata.local_surface_id_allocation_time_from_child.value_or(
-          base::TimeTicks()));
+      metadata.local_surface_id_allocation.value_or(
+          viz::LocalSurfaceIdAllocation()));
 }
 
-const viz::LocalSurfaceId& CefRenderWidgetHostViewOSR::GetLocalSurfaceId()
-    const {
-  return browser_compositor_->GetRendererLocalSurfaceId();
+const viz::LocalSurfaceIdAllocation&
+CefRenderWidgetHostViewOSR::GetLocalSurfaceIdAllocation() const {
+  return browser_compositor_->GetRendererLocalSurfaceIdAllocation();
 }
 
 ui::Compositor* CefRenderWidgetHostViewOSR::GetCompositor() const {
@@ -152,7 +132,7 @@ content::DelegatedFrameHost* CefRenderWidgetHostViewOSR::GetDelegatedFrameHost()
 }
 
 bool CefRenderWidgetHostViewOSR::UpdateNSViewAndDisplay() {
-  return browser_compositor_->UpdateNSViewAndDisplay(
+  return browser_compositor_->UpdateSurfaceFromNSView(
       GetRootLayer()->bounds().size(), GetDisplay());
 }
 

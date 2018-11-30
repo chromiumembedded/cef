@@ -85,8 +85,8 @@ class ChromeBrowserProcessStub : public BrowserProcess,
   safe_browsing::SafeBrowsingService* safe_browsing_service() override;
   safe_browsing::ClientSideDetectionService* safe_browsing_detection_service()
       override;
-  subresource_filter::ContentRulesetService*
-  subresource_filter_ruleset_service() override;
+  subresource_filter::RulesetService* subresource_filter_ruleset_service()
+      override;
   optimization_guide::OptimizationGuideService* optimization_guide_service()
       override;
 
@@ -105,6 +105,8 @@ class ChromeBrowserProcessStub : public BrowserProcess,
   shell_integration::DefaultWebClientState CachedDefaultWebClientState()
       override;
   resource_coordinator::TabManager* GetTabManager() override;
+  resource_coordinator::ResourceCoordinatorParts* resource_coordinator_parts()
+      override;
   prefs::InProcessPrefServiceFactory* pref_service_factory() const override;
 
   // BrowserContextIncognitoHelper implementation.

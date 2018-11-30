@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=95e2368fd2fd9f2f7e3675d611e6a214bad0d92e$
+// $hash=265a513e31d882236aaf65b1fc4d505248156382$
 //
 
 #include "libcef_dll/cpptoc/views/menu_button_cpptoc.h"
@@ -31,8 +31,7 @@
 CEF_EXPORT cef_menu_button_t* cef_menu_button_create(
     cef_menu_button_delegate_t* delegate,
     const cef_string_t* text,
-    int with_frame,
-    int with_menu_marker) {
+    int with_frame) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: delegate; type: refptr_diff
@@ -44,7 +43,7 @@ CEF_EXPORT cef_menu_button_t* cef_menu_button_create(
   // Execute
   CefRefPtr<CefMenuButton> _retval = CefMenuButton::CreateMenuButton(
       CefMenuButtonDelegateCToCpp::Wrap(delegate), CefString(text),
-      with_frame ? true : false, with_menu_marker ? true : false);
+      with_frame ? true : false);
 
   // Return type: refptr_same
   return CefMenuButtonCppToC::Wrap(_retval);

@@ -45,7 +45,7 @@ index bcf172e645a2..f879aa745adf 100644
  // on the given |command_line|.
  void SetCrashKeysFromCommandLine(const base::CommandLine& command_line);
 diff --git chrome_elf/BUILD.gn chrome_elf/BUILD.gn
-index d0949dc9693e..afe19e4f3ec4 100644
+index 7f780b54b9fa..a54fda966d36 100644
 --- chrome_elf/BUILD.gn
 +++ chrome_elf/BUILD.gn
 @@ -7,6 +7,7 @@
@@ -56,7 +56,7 @@ index d0949dc9693e..afe19e4f3ec4 100644
  import("//chrome/process_version_rc_template.gni")
  import("//testing/test.gni")
  
-@@ -124,9 +125,6 @@ source_set("constants") {
+@@ -126,9 +127,6 @@ source_set("constants") {
  
  static_library("crash") {
    sources = [
@@ -66,7 +66,7 @@ index d0949dc9693e..afe19e4f3ec4 100644
      "crash/crash_helper.cc",
      "crash/crash_helper.h",
    ]
-@@ -134,6 +132,7 @@ static_library("crash") {
+@@ -136,6 +134,7 @@ static_library("crash") {
      ":hook_util",
      "//base",  # This needs to go.  DEP of app, crash_keys, client.
      "//base:base_static",  # pe_image
@@ -74,7 +74,7 @@ index d0949dc9693e..afe19e4f3ec4 100644
      "//chrome/install_static:install_static_util",
      "//components/crash/content/app",
      "//components/crash/core/common",  # crash_keys
-@@ -141,6 +140,17 @@ static_library("crash") {
+@@ -143,6 +142,17 @@ static_library("crash") {
      "//content/public/common:result_codes",
      "//third_party/crashpad/crashpad/client",  # DumpWithoutCrash
    ]
@@ -597,7 +597,7 @@ index 4902d87bd171..a573e9557666 100644
  
      if (crash_reporter_client->ShouldMonitorCrashHandlerExpensively()) {
 diff --git content/browser/frame_host/debug_urls.cc content/browser/frame_host/debug_urls.cc
-index 85db4c8396c0..717df9763c95 100644
+index d396b2fc0309..e1451174d705 100644
 --- content/browser/frame_host/debug_urls.cc
 +++ content/browser/frame_host/debug_urls.cc
 @@ -134,7 +134,9 @@ bool HandleDebugURL(const GURL& url, ui::PageTransition transition) {

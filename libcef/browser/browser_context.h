@@ -137,7 +137,6 @@ class CefBrowserContext : public ChromeProfileStub {
   virtual void Initialize();
 
   // BrowserContext methods.
-  base::FilePath GetCachePath() const override;
   content::ResourceContext* GetResourceContext() override;
   net::URLRequestContextGetter* GetRequestContext() override;
   net::URLRequestContextGetter* CreateMediaRequestContext() override;

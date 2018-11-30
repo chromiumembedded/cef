@@ -129,26 +129,18 @@ void LabelButtonStyleFramelessImpl() {
   LabelButtonStyle(false);
 }
 
-void MenuButtonStyle(bool with_frame, bool with_menu_marker) {
+void MenuButtonStyle(bool with_frame) {
   CefRefPtr<CefMenuButton> button = CefMenuButton::CreateMenuButton(
-      new EmptyMenuButtonDelegate(), kButtonText, with_frame, with_menu_marker);
+      new EmptyMenuButtonDelegate(), kButtonText, with_frame);
   VerifyMenuButtonStyle(button);
 }
 
-void MenuButtonStyleFramedWithMarkerImpl() {
-  MenuButtonStyle(true, true);
+void MenuButtonStyleFramedImpl() {
+  MenuButtonStyle(true);
 }
 
-void MenuButtonStyleFramedNoMarkerImpl() {
-  MenuButtonStyle(true, false);
-}
-
-void MenuButtonStyleFramelessWithMarkerImpl() {
-  MenuButtonStyle(false, true);
-}
-
-void MenuButtonStyleFramelessNoMarkerImpl() {
-  MenuButtonStyle(false, false);
+void MenuButtonStyleFramelessImpl() {
+  MenuButtonStyle(false);
 }
 
 }  // namespace
@@ -156,10 +148,8 @@ void MenuButtonStyleFramelessNoMarkerImpl() {
 // Test Button getters/setters.
 BUTTON_TEST(LabelButtonStyleFramed);
 BUTTON_TEST(LabelButtonStyleFrameless);
-BUTTON_TEST(MenuButtonStyleFramedWithMarker);
-BUTTON_TEST(MenuButtonStyleFramedNoMarker);
-BUTTON_TEST(MenuButtonStyleFramelessWithMarker);
-BUTTON_TEST(MenuButtonStyleFramelessNoMarker);
+BUTTON_TEST(MenuButtonStyleFramed);
+BUTTON_TEST(MenuButtonStyleFrameless);
 
 namespace {
 
@@ -491,12 +481,10 @@ class TestMenuButtonDelegate : public CefMenuButtonDelegate,
 
 void RunMenuButtonClick(bool with_frame,
                         bool with_text,
-                        bool with_menu_marker,
                         bool with_image,
                         CefRefPtr<CefWindow> window) {
   CefRefPtr<CefMenuButton> button = CefMenuButton::CreateMenuButton(
-      new TestMenuButtonDelegate(), with_text ? kButtonText : "", with_frame,
-      with_menu_marker);
+      new TestMenuButtonDelegate(), with_text ? kButtonText : "", with_frame);
   button->SetID(kButtonID);
 
   EXPECT_TRUE(button->AsButton());
@@ -533,176 +521,94 @@ void RunMenuButtonClick(bool with_frame,
 void MenuButtonClick(CefRefPtr<CefWaitableEvent> event,
                      bool with_button_frame,
                      bool with_button_text,
-                     bool with_button_menu_marker,
                      bool with_button_image,
                      bool with_window_frame) {
   TestWindowDelegate::Config config;
-  config.on_window_created =
-      base::Bind(RunMenuButtonClick, with_button_frame, with_button_text,
-                 with_button_menu_marker, with_button_image);
+  config.on_window_created = base::Bind(RunMenuButtonClick, with_button_frame,
+                                        with_button_text, with_button_image);
   config.frameless = !with_window_frame;
   config.close_window = false;
   TestWindowDelegate::RunTest(event, config);
 }
 
-void MenuButtonClickFramedWithTextWithMarkerWithImageFramedWindowImpl(
+void MenuButtonClickFramedWithTextWithImageFramedWindowImpl(
     CefRefPtr<CefWaitableEvent> event) {
-  MenuButtonClick(event, true, true, true, true, true);
+  MenuButtonClick(event, true, true, true, true);
 }
 
-void MenuButtonClickFramedWithTextNoMarkerWithImageFramedWindowImpl(
+void MenuButtonClickFramedWithTextNoImageFramedWindowImpl(
     CefRefPtr<CefWaitableEvent> event) {
-  MenuButtonClick(event, true, true, false, true, true);
+  MenuButtonClick(event, true, true, false, true);
 }
 
-void MenuButtonClickFramedWithTextWithMarkerNoImageFramedWindowImpl(
+void MenuButtonClickFramedWithTextWithImageFramelessWindowImpl(
     CefRefPtr<CefWaitableEvent> event) {
-  MenuButtonClick(event, true, true, true, false, true);
+  MenuButtonClick(event, true, true, true, false);
 }
 
-void MenuButtonClickFramedWithTextNoMarkerNoImageFramedWindowImpl(
+void MenuButtonClickFramedWithTextNoImageFramelessWindowImpl(
     CefRefPtr<CefWaitableEvent> event) {
-  MenuButtonClick(event, true, true, false, false, true);
+  MenuButtonClick(event, true, true, false, false);
 }
 
-void MenuButtonClickFramedWithTextWithMarkerWithImageFramelessWindowImpl(
+void MenuButtonClickFramedNoTextWithImageFramedWindowImpl(
     CefRefPtr<CefWaitableEvent> event) {
-  MenuButtonClick(event, true, true, true, true, false);
+  MenuButtonClick(event, true, false, true, true);
 }
 
-void MenuButtonClickFramedWithTextNoMarkerWithImageFramelessWindowImpl(
+void MenuButtonClickFramedNoTextNoImageFramedWindowImpl(
     CefRefPtr<CefWaitableEvent> event) {
-  MenuButtonClick(event, true, true, false, true, false);
+  MenuButtonClick(event, true, false, false, true);
 }
 
-void MenuButtonClickFramedWithTextWithMarkerNoImageFramelessWindowImpl(
+void MenuButtonClickFramedNoTextWithImageFramelessWindowImpl(
     CefRefPtr<CefWaitableEvent> event) {
-  MenuButtonClick(event, true, true, true, false, false);
+  MenuButtonClick(event, true, false, true, false);
 }
 
-void MenuButtonClickFramedWithTextNoMarkerNoImageFramelessWindowImpl(
+void MenuButtonClickFramedNoTextNoImageFramelessWindowImpl(
     CefRefPtr<CefWaitableEvent> event) {
-  MenuButtonClick(event, true, true, false, false, false);
+  MenuButtonClick(event, true, false, false, false);
 }
 
-void MenuButtonClickFramedNoTextWithMarkerWithImageFramedWindowImpl(
+void MenuButtonClickFramelessWithTextWithImageFramedWindowImpl(
     CefRefPtr<CefWaitableEvent> event) {
-  MenuButtonClick(event, true, false, true, true, true);
+  MenuButtonClick(event, false, true, true, true);
 }
 
-void MenuButtonClickFramedNoTextNoMarkerWithImageFramedWindowImpl(
+void MenuButtonClickFramelessWithTextNoImageFramedWindowImpl(
     CefRefPtr<CefWaitableEvent> event) {
-  MenuButtonClick(event, true, false, false, true, true);
+  MenuButtonClick(event, false, true, false, true);
 }
 
-void MenuButtonClickFramedNoTextWithMarkerNoImageFramedWindowImpl(
+void MenuButtonClickFramelessWithTextWithImageFramelessWindowImpl(
     CefRefPtr<CefWaitableEvent> event) {
-  MenuButtonClick(event, true, false, true, false, true);
+  MenuButtonClick(event, false, true, true, false);
 }
 
-void MenuButtonClickFramedNoTextNoMarkerNoImageFramedWindowImpl(
+void MenuButtonClickFramelessWithTextNoImageFramelessWindowImpl(
     CefRefPtr<CefWaitableEvent> event) {
-  MenuButtonClick(event, true, false, false, false, true);
+  MenuButtonClick(event, false, true, false, false);
 }
 
-void MenuButtonClickFramedNoTextWithMarkerWithImageFramelessWindowImpl(
+void MenuButtonClickFramelessNoTextWithImageFramedWindowImpl(
     CefRefPtr<CefWaitableEvent> event) {
-  MenuButtonClick(event, true, false, true, true, false);
+  MenuButtonClick(event, false, false, true, true);
 }
 
-void MenuButtonClickFramedNoTextNoMarkerWithImageFramelessWindowImpl(
+void MenuButtonClickFramelessNoTextNoImageFramedWindowImpl(
     CefRefPtr<CefWaitableEvent> event) {
-  MenuButtonClick(event, true, false, false, true, false);
+  MenuButtonClick(event, false, false, false, true);
 }
 
-void MenuButtonClickFramedNoTextWithMarkerNoImageFramelessWindowImpl(
+void MenuButtonClickFramelessNoTextWithImageFramelessWindowImpl(
     CefRefPtr<CefWaitableEvent> event) {
-  MenuButtonClick(event, true, false, true, false, false);
+  MenuButtonClick(event, false, false, true, false);
 }
 
-void MenuButtonClickFramedNoTextNoMarkerNoImageFramelessWindowImpl(
+void MenuButtonClickFramelessNoTextNoImageFramelessWindowImpl(
     CefRefPtr<CefWaitableEvent> event) {
-  MenuButtonClick(event, true, false, false, false, false);
-}
-
-void MenuButtonClickFramelessWithTextWithMarkerWithImageFramedWindowImpl(
-    CefRefPtr<CefWaitableEvent> event) {
-  MenuButtonClick(event, false, true, true, true, true);
-}
-
-void MenuButtonClickFramelessWithTextNoMarkerWithImageFramedWindowImpl(
-    CefRefPtr<CefWaitableEvent> event) {
-  MenuButtonClick(event, false, true, false, true, true);
-}
-
-void MenuButtonClickFramelessWithTextWithMarkerNoImageFramedWindowImpl(
-    CefRefPtr<CefWaitableEvent> event) {
-  MenuButtonClick(event, false, true, true, false, true);
-}
-
-void MenuButtonClickFramelessWithTextNoMarkerNoImageFramedWindowImpl(
-    CefRefPtr<CefWaitableEvent> event) {
-  MenuButtonClick(event, false, true, false, false, true);
-}
-
-void MenuButtonClickFramelessWithTextWithMarkerWithImageFramelessWindowImpl(
-    CefRefPtr<CefWaitableEvent> event) {
-  MenuButtonClick(event, false, true, true, true, false);
-}
-
-void MenuButtonClickFramelessWithTextNoMarkerWithImageFramelessWindowImpl(
-    CefRefPtr<CefWaitableEvent> event) {
-  MenuButtonClick(event, false, true, false, true, false);
-}
-
-void MenuButtonClickFramelessWithTextWithMarkerNoImageFramelessWindowImpl(
-    CefRefPtr<CefWaitableEvent> event) {
-  MenuButtonClick(event, false, true, true, false, false);
-}
-
-void MenuButtonClickFramelessWithTextNoMarkerNoImageFramelessWindowImpl(
-    CefRefPtr<CefWaitableEvent> event) {
-  MenuButtonClick(event, false, true, false, false, false);
-}
-
-void MenuButtonClickFramelessNoTextWithMarkerWithImageFramedWindowImpl(
-    CefRefPtr<CefWaitableEvent> event) {
-  MenuButtonClick(event, false, false, true, true, true);
-}
-
-void MenuButtonClickFramelessNoTextNoMarkerWithImageFramedWindowImpl(
-    CefRefPtr<CefWaitableEvent> event) {
-  MenuButtonClick(event, false, false, false, true, true);
-}
-
-void MenuButtonClickFramelessNoTextWithMarkerNoImageFramedWindowImpl(
-    CefRefPtr<CefWaitableEvent> event) {
-  MenuButtonClick(event, false, false, true, false, true);
-}
-
-void MenuButtonClickFramelessNoTextNoMarkerNoImageFramedWindowImpl(
-    CefRefPtr<CefWaitableEvent> event) {
-  MenuButtonClick(event, false, false, false, false, true);
-}
-
-void MenuButtonClickFramelessNoTextWithMarkerWithImageFramelessWindowImpl(
-    CefRefPtr<CefWaitableEvent> event) {
-  MenuButtonClick(event, false, false, true, true, false);
-}
-
-void MenuButtonClickFramelessNoTextNoMarkerWithImageFramelessWindowImpl(
-    CefRefPtr<CefWaitableEvent> event) {
-  MenuButtonClick(event, false, false, false, true, false);
-}
-
-void MenuButtonClickFramelessNoTextWithMarkerNoImageFramelessWindowImpl(
-    CefRefPtr<CefWaitableEvent> event) {
-  MenuButtonClick(event, false, false, true, false, false);
-}
-
-void MenuButtonClickFramelessNoTextNoMarkerNoImageFramelessWindowImpl(
-    CefRefPtr<CefWaitableEvent> event) {
-  MenuButtonClick(event, false, false, false, false, false);
+  MenuButtonClick(event, false, false, false, false);
 }
 
 }  // namespace
@@ -710,53 +616,22 @@ void MenuButtonClickFramelessNoTextNoMarkerNoImageFramelessWindowImpl(
 // Test MenuButton functionality. This is primarily to exercise exposed CEF
 // APIs and is not intended to comprehensively test button-related behavior
 // (which we presume that Chromium is testing).
-BUTTON_TEST_ASYNC(MenuButtonClickFramedWithTextNoMarkerWithImageFramedWindow);
-BUTTON_TEST_ASYNC(MenuButtonClickFramedWithTextWithMarkerWithImageFramedWindow);
-BUTTON_TEST_ASYNC(MenuButtonClickFramedWithTextNoMarkerNoImageFramedWindow);
-BUTTON_TEST_ASYNC(MenuButtonClickFramedWithTextWithMarkerNoImageFramedWindow);
-BUTTON_TEST_ASYNC(
-    MenuButtonClickFramedWithTextNoMarkerWithImageFramelessWindow);
-BUTTON_TEST_ASYNC(
-    MenuButtonClickFramedWithTextWithMarkerWithImageFramelessWindow);
-BUTTON_TEST_ASYNC(MenuButtonClickFramedWithTextNoMarkerNoImageFramelessWindow);
-BUTTON_TEST_ASYNC(
-    MenuButtonClickFramedWithTextWithMarkerNoImageFramelessWindow);
-BUTTON_TEST_ASYNC(MenuButtonClickFramedNoTextNoMarkerWithImageFramedWindow);
-BUTTON_TEST_ASYNC(MenuButtonClickFramedNoTextWithMarkerWithImageFramedWindow);
-BUTTON_TEST_ASYNC(MenuButtonClickFramedNoTextNoMarkerNoImageFramedWindow);
-BUTTON_TEST_ASYNC(MenuButtonClickFramedNoTextWithMarkerNoImageFramedWindow);
-BUTTON_TEST_ASYNC(MenuButtonClickFramedNoTextNoMarkerWithImageFramelessWindow);
-BUTTON_TEST_ASYNC(
-    MenuButtonClickFramedNoTextWithMarkerWithImageFramelessWindow);
-BUTTON_TEST_ASYNC(MenuButtonClickFramedNoTextNoMarkerNoImageFramelessWindow);
-BUTTON_TEST_ASYNC(MenuButtonClickFramedNoTextWithMarkerNoImageFramelessWindow);
-BUTTON_TEST_ASYNC(
-    MenuButtonClickFramelessWithTextNoMarkerWithImageFramedWindow);
-BUTTON_TEST_ASYNC(
-    MenuButtonClickFramelessWithTextWithMarkerWithImageFramedWindow);
-BUTTON_TEST_ASYNC(MenuButtonClickFramelessWithTextNoMarkerNoImageFramedWindow);
-BUTTON_TEST_ASYNC(
-    MenuButtonClickFramelessWithTextWithMarkerNoImageFramedWindow);
-BUTTON_TEST_ASYNC(
-    MenuButtonClickFramelessWithTextNoMarkerWithImageFramelessWindow);
-BUTTON_TEST_ASYNC(
-    MenuButtonClickFramelessWithTextWithMarkerWithImageFramelessWindow);
-BUTTON_TEST_ASYNC(
-    MenuButtonClickFramelessWithTextNoMarkerNoImageFramelessWindow);
-BUTTON_TEST_ASYNC(
-    MenuButtonClickFramelessWithTextWithMarkerNoImageFramelessWindow);
-BUTTON_TEST_ASYNC(MenuButtonClickFramelessNoTextNoMarkerWithImageFramedWindow);
-BUTTON_TEST_ASYNC(
-    MenuButtonClickFramelessNoTextWithMarkerWithImageFramedWindow);
-BUTTON_TEST_ASYNC(MenuButtonClickFramelessNoTextNoMarkerNoImageFramedWindow);
-BUTTON_TEST_ASYNC(MenuButtonClickFramelessNoTextWithMarkerNoImageFramedWindow);
-BUTTON_TEST_ASYNC(
-    MenuButtonClickFramelessNoTextNoMarkerWithImageFramelessWindow);
-BUTTON_TEST_ASYNC(
-    MenuButtonClickFramelessNoTextWithMarkerWithImageFramelessWindow);
-BUTTON_TEST_ASYNC(MenuButtonClickFramelessNoTextNoMarkerNoImageFramelessWindow);
-BUTTON_TEST_ASYNC(
-    MenuButtonClickFramelessNoTextWithMarkerNoImageFramelessWindow);
+BUTTON_TEST_ASYNC(MenuButtonClickFramedWithTextWithImageFramedWindow);
+BUTTON_TEST_ASYNC(MenuButtonClickFramedWithTextNoImageFramedWindow);
+BUTTON_TEST_ASYNC(MenuButtonClickFramedWithTextWithImageFramelessWindow);
+BUTTON_TEST_ASYNC(MenuButtonClickFramedWithTextNoImageFramelessWindow);
+BUTTON_TEST_ASYNC(MenuButtonClickFramedNoTextWithImageFramedWindow);
+BUTTON_TEST_ASYNC(MenuButtonClickFramedNoTextNoImageFramedWindow);
+BUTTON_TEST_ASYNC(MenuButtonClickFramedNoTextWithImageFramelessWindow);
+BUTTON_TEST_ASYNC(MenuButtonClickFramedNoTextNoImageFramelessWindow);
+BUTTON_TEST_ASYNC(MenuButtonClickFramelessWithTextWithImageFramedWindow);
+BUTTON_TEST_ASYNC(MenuButtonClickFramelessWithTextNoImageFramedWindow);
+BUTTON_TEST_ASYNC(MenuButtonClickFramelessWithTextWithImageFramelessWindow);
+BUTTON_TEST_ASYNC(MenuButtonClickFramelessWithTextNoImageFramelessWindow);
+BUTTON_TEST_ASYNC(MenuButtonClickFramelessNoTextWithImageFramedWindow);
+BUTTON_TEST_ASYNC(MenuButtonClickFramelessNoTextNoImageFramedWindow);
+BUTTON_TEST_ASYNC(MenuButtonClickFramelessNoTextWithImageFramelessWindow);
+BUTTON_TEST_ASYNC(MenuButtonClickFramelessNoTextNoImageFramelessWindow);
 
 namespace {
 
@@ -804,9 +679,7 @@ class TestMenuButtonCustomPopupDelegate : public CefMenuButtonDelegate,
     return parent_window_;
   }
 
-  bool IsFrameless(CefRefPtr<CefWindow> window) override {
-    return true;
-  }
+  bool IsFrameless(CefRefPtr<CefWindow> window) override { return true; }
 
   void OnFocus(CefRefPtr<CefView> view) override {
     if (popup_window_ && view->GetWindow()->IsSame(popup_window_)) {
@@ -842,8 +715,7 @@ class TestMenuButtonCustomPopupDelegate : public CefMenuButtonDelegate,
 void RunMenuButtonCustomPopupClick(bool can_activate,
                                    CefRefPtr<CefWindow> window) {
   CefRefPtr<CefMenuButton> button = CefMenuButton::CreateMenuButton(
-      new TestMenuButtonCustomPopupDelegate(can_activate), "Custom", true,
-      false);
+      new TestMenuButtonCustomPopupDelegate(can_activate), "Custom", true);
   button->SetID(kButtonID);
 
   window->AddChildView(button);

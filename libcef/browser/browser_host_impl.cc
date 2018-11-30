@@ -1771,8 +1771,8 @@ void CefBrowserHostImpl::SendCommand(
 
   // Execute on the UI thread because CefResponseManager is not thread safe.
   if (CEF_CURRENTLY_ON_UIT()) {
-    TRACE_EVENT2("libcef", "CefBrowserHostImpl::SendCommand", "frame_id",
-                 frame_id, "needsResponse", responseHandler.get() ? 1 : 0);
+    TRACE_EVENT2("cef", "CefBrowserHostImpl::SendCommand", "frame_id", frame_id,
+                 "needsResponse", responseHandler.get() ? 1 : 0);
     Cef_Request_Params params;
     params.name = "execute-command";
     params.frame_id = frame_id;
@@ -1810,8 +1810,8 @@ void CefBrowserHostImpl::SendCode(
 
   // Execute on the UI thread because CefResponseManager is not thread safe.
   if (CEF_CURRENTLY_ON_UIT()) {
-    TRACE_EVENT2("libcef", "CefBrowserHostImpl::SendCommand", "frame_id",
-                 frame_id, "needsResponse", responseHandler.get() ? 1 : 0);
+    TRACE_EVENT2("cef", "CefBrowserHostImpl::SendCommand", "frame_id", frame_id,
+                 "needsResponse", responseHandler.get() ? 1 : 0);
     Cef_Request_Params params;
     params.name = "execute-code";
     params.frame_id = frame_id;

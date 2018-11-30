@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=7e003428cdefe395562950062a60ab06b7b21c49$
+// $hash=6b033757107a97e1c1953cb75652962b214f46e8$
 //
 
 #include "include/views/cef_browser_view.h"
@@ -87,8 +87,7 @@ NO_SANITIZE("cfi-icall")
 CefRefPtr<CefMenuButton> CefMenuButton::CreateMenuButton(
     CefRefPtr<CefMenuButtonDelegate> delegate,
     const CefString& text,
-    bool with_frame,
-    bool with_menu_marker) {
+    bool with_frame) {
   NOTIMPLEMENTED();
   return NULL;
 }

@@ -253,18 +253,23 @@ CefRefPtr<CefDictionaryValue> ToCefValue(const ui::AXNodeData& node) {
   value->SetString("role", ToString(node.role));
   value->SetList("state", ToCefValue(node.state));
 
-  if (node.offset_container_id != -1)
-    value->SetInt("offset_container_id", node.offset_container_id);
+  if (node.relative_bounds.offset_container_id != -1) {
+    value->SetInt("offset_container_id",
+                  node.relative_bounds.offset_container_id);
+  }
 
-  value->SetDictionary("location", ToCefValue(node.location));
+  value->SetDictionary("location", ToCefValue(node.relative_bounds.bounds));
 
   // Transform matrix is private, so we set the string that Clients can parse
   // and use if needed.
-  if (node.transform && !node.transform->IsIdentity())
-    value->SetString("transform", node.transform->ToString());
+  if (node.relative_bounds.transform &&
+      !node.relative_bounds.transform->IsIdentity()) {
+    value->SetString("transform", node.relative_bounds.transform->ToString());
+  }
 
-  if (!node.child_ids.empty())
+  if (!node.child_ids.empty()) {
     value->SetList("child_ids", ToCefValue(node.child_ids));
+  }
 
   CefRefPtr<CefListValue> actions_strings;
   size_t actions_idx = 0;
