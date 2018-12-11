@@ -501,10 +501,10 @@ index b422c3075ae7..1c4b452d1df5 100644
                                                 GLint shm_id,
                                                 GLuint shm_offset,
 diff --git gpu/command_buffer/client/gles2_implementation.cc gpu/command_buffer/client/gles2_implementation.cc
-index 9ee4ed69f3e8..e6b2f002522f 100644
+index 65420b9c8bdb..38bb6176100d 100644
 --- gpu/command_buffer/client/gles2_implementation.cc
 +++ gpu/command_buffer/client/gles2_implementation.cc
-@@ -7254,6 +7254,22 @@ void GLES2Implementation::Viewport(GLint x,
+@@ -7256,6 +7256,22 @@ void GLES2Implementation::Viewport(GLint x,
    CheckGLError();
  }
  
@@ -1297,10 +1297,10 @@ index b3905bdfa650..dc984321f2b8 100644
  
    // The device scale factor of the monitor that this compositor is compositing
 diff --git ui/compositor/host/host_context_factory_private.cc ui/compositor/host/host_context_factory_private.cc
-index 9c73b44101df..94fe32c76046 100644
+index 952525b7f823..871379326bc2 100644
 --- ui/compositor/host/host_context_factory_private.cc
 +++ ui/compositor/host/host_context_factory_private.cc
-@@ -244,6 +244,10 @@ void HostContextFactoryPrivate::SetOutputIsSecure(Compositor* compositor,
+@@ -245,6 +245,10 @@ void HostContextFactoryPrivate::SetOutputIsSecure(Compositor* compositor,
      iter->second.display_private->SetOutputIsSecure(secure);
  }
  

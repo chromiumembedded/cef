@@ -1,8 +1,8 @@
 diff --git content/browser/web_contents/web_contents_impl.cc content/browser/web_contents/web_contents_impl.cc
-index 8ce6d0d2f8ca..79927c392d2a 100644
+index c9d8ca8da493..e3114420d847 100644
 --- content/browser/web_contents/web_contents_impl.cc
 +++ content/browser/web_contents/web_contents_impl.cc
-@@ -1992,21 +1992,30 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
+@@ -1993,21 +1993,30 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
    std::string unique_name;
    frame_tree_.root()->SetFrameName(params.main_frame_name, unique_name);
  
@@ -45,7 +45,7 @@ index 8ce6d0d2f8ca..79927c392d2a 100644
    CHECK(render_view_host_delegate_view_);
    CHECK(view_.get());
  
-@@ -2701,6 +2710,15 @@ void WebContentsImpl::CreateNewWindow(
+@@ -2702,6 +2711,15 @@ void WebContentsImpl::CreateNewWindow(
    create_params.renderer_initiated_creation =
        main_frame_route_id != MSG_ROUTING_NONE;
  
@@ -61,7 +61,7 @@ index 8ce6d0d2f8ca..79927c392d2a 100644
    std::unique_ptr<WebContents> new_contents;
    if (!is_guest) {
      create_params.context = view_->GetNativeView();
-@@ -2733,7 +2751,7 @@ void WebContentsImpl::CreateNewWindow(
+@@ -2734,7 +2752,7 @@ void WebContentsImpl::CreateNewWindow(
        // TODO(brettw): It seems bogus that we have to call this function on the
        // newly created object and give it one of its own member variables.
        new_view->CreateViewForWidget(
@@ -70,7 +70,7 @@ index 8ce6d0d2f8ca..79927c392d2a 100644
      }
      // Save the created window associated with the route so we can show it
      // later.
-@@ -6170,7 +6188,7 @@ InterstitialPageImpl* WebContentsImpl::GetInterstitialForRenderManager() {
+@@ -6171,7 +6189,7 @@ InterstitialPageImpl* WebContentsImpl::GetInterstitialForRenderManager() {
  void WebContentsImpl::CreateRenderWidgetHostViewForRenderManager(
      RenderViewHost* render_view_host) {
    RenderWidgetHostViewBase* rwh_view =

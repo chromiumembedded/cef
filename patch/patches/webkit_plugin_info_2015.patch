@@ -1,14 +1,84 @@
 diff --git third_party/blink/public/mojom/plugins/plugin_registry.mojom third_party/blink/public/mojom/plugins/plugin_registry.mojom
-index 92e9cb865204..4628c56882b4 100644
+index 92e9cb865204..e3d51ec6263e 100644
 --- third_party/blink/public/mojom/plugins/plugin_registry.mojom
 +++ third_party/blink/public/mojom/plugins/plugin_registry.mojom
-@@ -34,5 +34,5 @@ interface PluginRegistry {
-   //
-   // TODO(crbug.com/850278): We shouldn't rely on the renderer to tell us the main frame origin.
-   [Sync]
+@@ -1,38 +1,38 @@
+-// Copyright 2018 The Chromium Authors. All rights reserved.
+-// Use of this source code is governed by a BSD-style license that can be
+-// found in the LICENSE file.
+-
+-module blink.mojom;
+-
+-import "mojo/public/mojom/base/file_path.mojom";
+-import "mojo/public/mojom/base/string16.mojom";
+-import "url/mojom/origin.mojom";
+-
+-struct PluginMimeType {
+-  string mime_type;
+-  mojo_base.mojom.String16 description;
+-  array<string> file_extensions;
+-};
+-
+-struct PluginInfo {
+-  mojo_base.mojom.String16 name;
+-  mojo_base.mojom.String16 description;
+-  mojo_base.mojom.FilePath filename;
+-  uint32 background_color;
+-  array<PluginMimeType> mime_types;
+-};
+-
+-interface PluginRegistry {
+-  // Retrieves the list of plugins available to the renderer.
+-  //
+-  // If |refresh| is true, then cached information should not be used to
+-  // satisfy this call. |main_frame_origin| is used by the browser process to
+-  // filter plugins from the plugin list based on content settings.
+-  //
+-  // |main_frame_origin| is used to handle exceptions for plugin content
+-  // settings.
+-  //
+-  // TODO(crbug.com/850278): We shouldn't rely on the renderer to tell us the main frame origin.
+-  [Sync]
 -  GetPlugins(bool refresh, url.mojom.Origin main_frame_origin) => (array<PluginInfo> plugins);
+-};
++// Copyright 2018 The Chromium Authors. All rights reserved.
++// Use of this source code is governed by a BSD-style license that can be
++// found in the LICENSE file.
++
++module blink.mojom;
++
++import "mojo/public/mojom/base/file_path.mojom";
++import "mojo/public/mojom/base/string16.mojom";
++import "url/mojom/origin.mojom";
++
++struct PluginMimeType {
++  string mime_type;
++  mojo_base.mojom.String16 description;
++  array<string> file_extensions;
++};
++
++struct PluginInfo {
++  mojo_base.mojom.String16 name;
++  mojo_base.mojom.String16 description;
++  mojo_base.mojom.FilePath filename;
++  uint32 background_color;
++  array<PluginMimeType> mime_types;
++};
++
++interface PluginRegistry {
++  // Retrieves the list of plugins available to the renderer.
++  //
++  // If |refresh| is true, then cached information should not be used to
++  // satisfy this call. |main_frame_origin| is used by the browser process to
++  // filter plugins from the plugin list based on content settings.
++  //
++  // |main_frame_origin| is used to handle exceptions for plugin content
++  // settings.
++  //
++  // TODO(crbug.com/850278): We shouldn't rely on the renderer to tell us the main frame origin.
++  [Sync]
 +  GetPlugins(bool refresh, bool is_main_frame, url.mojom.Origin main_frame_origin) => (array<PluginInfo> plugins);
- };
++};
 diff --git third_party/blink/public/platform/platform.h third_party/blink/public/platform/platform.h
 index 2f57bdd1ef3e..7910c9c12937 100644
 --- third_party/blink/public/platform/platform.h
@@ -44,10 +114,10 @@ index c360933eb10f..6295f9d675f7 100644
                                                          .Top()
                                                          .GetSecurityContext()
 diff --git third_party/blink/renderer/core/frame/local_frame.cc third_party/blink/renderer/core/frame/local_frame.cc
-index 339d96d4dfbd..27b86a9b7a78 100644
+index 19862e24a7f5..8ab075d9d7f4 100644
 --- third_party/blink/renderer/core/frame/local_frame.cc
 +++ third_party/blink/renderer/core/frame/local_frame.cc
-@@ -1238,7 +1238,7 @@ FrameResourceCoordinator* LocalFrame::GetFrameResourceCoordinator() {
+@@ -1296,7 +1296,7 @@ FrameResourceCoordinator* LocalFrame::GetFrameResourceCoordinator() {
  PluginData* LocalFrame::GetPluginData() const {
    if (!Loader().AllowPlugins(kNotAboutToInstantiatePlugin))
      return nullptr;

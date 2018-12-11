@@ -698,7 +698,7 @@ void CefMainDelegate::InitializeResourceBundle() {
       ui::ResourceBundle::InitSharedInstanceWithLocale(
           locale, &content_client_, ui::ResourceBundle::LOAD_COMMON_RESOURCES);
   if (!loaded_locale.empty() && g_browser_process)
-    g_browser_process->SetApplicationLocale(loaded_locale, locale);
+    g_browser_process->SetApplicationLocale(loaded_locale);
 
   ui::ResourceBundle& resource_bundle = ui::ResourceBundle::GetSharedInstance();
 

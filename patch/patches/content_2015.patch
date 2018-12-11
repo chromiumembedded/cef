@@ -118,10 +118,10 @@ index a17ae7ca0c07..c80e30494698 100644
            FROM_HERE, {BrowserThread::IO},
            base::BindOnce(&PrefetchURLLoaderService::GetFactory,
 diff --git content/browser/frame_host/render_frame_message_filter.cc content/browser/frame_host/render_frame_message_filter.cc
-index 3310e9b06232..7b6c6ad26c34 100644
+index f1db4db0d671..18ca2f2e1604 100644
 --- content/browser/frame_host/render_frame_message_filter.cc
 +++ content/browser/frame_host/render_frame_message_filter.cc
-@@ -644,6 +644,7 @@ void RenderFrameMessageFilter::GetCookies(int render_frame_id,
+@@ -652,6 +652,7 @@ void RenderFrameMessageFilter::GetCookies(int render_frame_id,
  void RenderFrameMessageFilter::OnGetPluginInfo(
      int render_frame_id,
      const GURL& url,
@@ -129,7 +129,7 @@ index 3310e9b06232..7b6c6ad26c34 100644
      const url::Origin& main_frame_origin,
      const std::string& mime_type,
      bool* found,
-@@ -652,8 +653,8 @@ void RenderFrameMessageFilter::OnGetPluginInfo(
+@@ -660,8 +661,8 @@ void RenderFrameMessageFilter::OnGetPluginInfo(
    bool allow_wildcard = true;
    *found = plugin_service_->GetPluginInfo(
        render_process_id_, render_frame_id, resource_context_, url,
@@ -376,7 +376,7 @@ index cf3e520475a5..b21f22084186 100644
  
  void RenderFrameImpl::WillCommitProvisionalLoad() {
 diff --git content/renderer/render_thread_impl.cc content/renderer/render_thread_impl.cc
-index b82d9757e0ae..00f73388656e 100644
+index f2d704c09e6e..f55ee220d817 100644
 --- content/renderer/render_thread_impl.cc
 +++ content/renderer/render_thread_impl.cc
 @@ -821,6 +821,8 @@ void RenderThreadImpl::Init() {
