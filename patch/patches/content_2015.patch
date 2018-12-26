@@ -81,10 +81,10 @@ index b8e933d665cf..ef41dae49b39 100644
                  "WillFailRequest state should come before WillProcessResponse");
    return render_frame_host_;
 diff --git content/browser/frame_host/render_frame_host_impl.cc content/browser/frame_host/render_frame_host_impl.cc
-index cd6c8652cd4f..5477372abb7e 100644
+index 80f1a635ff52..3b8f65dddd74 100644
 --- content/browser/frame_host/render_frame_host_impl.cc
 +++ content/browser/frame_host/render_frame_host_impl.cc
-@@ -1998,6 +1998,7 @@ void RenderFrameHostImpl::OnDidFailProvisionalLoadWithError(
+@@ -1999,6 +1999,7 @@ void RenderFrameHostImpl::OnDidFailProvisionalLoadWithError(
    if (GetNavigationHandle()) {
      GetNavigationHandle()->set_net_error_code(
          static_cast<net::Error>(params.error_code));
@@ -92,7 +92,7 @@ index cd6c8652cd4f..5477372abb7e 100644
    }
  
    frame_tree_node_->navigator()->DidFailProvisionalLoadWithError(this, params);
-@@ -4604,9 +4605,9 @@ void RenderFrameHostImpl::CommitNavigation(
+@@ -4606,9 +4607,9 @@ void RenderFrameHostImpl::CommitNavigation(
        DCHECK(base::FeatureList::IsEnabled(network::features::kNetworkService) ||
               base::FeatureList::IsEnabled(
                   blink::features::kServiceWorkerServicification));
@@ -105,10 +105,10 @@ index cd6c8652cd4f..5477372abb7e 100644
            FROM_HERE, {BrowserThread::IO},
            base::BindOnce(&PrefetchURLLoaderService::GetFactory,
 diff --git content/browser/frame_host/render_frame_message_filter.cc content/browser/frame_host/render_frame_message_filter.cc
-index 324ed2f8b851..8170ac190ea5 100644
+index 541ce8cfca70..fce9bc74a3ad 100644
 --- content/browser/frame_host/render_frame_message_filter.cc
 +++ content/browser/frame_host/render_frame_message_filter.cc
-@@ -658,6 +658,7 @@ void RenderFrameMessageFilter::GetCookies(int render_frame_id,
+@@ -680,6 +680,7 @@ void RenderFrameMessageFilter::GetCookies(int render_frame_id,
  void RenderFrameMessageFilter::OnGetPluginInfo(
      int render_frame_id,
      const GURL& url,
@@ -116,7 +116,7 @@ index 324ed2f8b851..8170ac190ea5 100644
      const url::Origin& main_frame_origin,
      const std::string& mime_type,
      bool* found,
-@@ -666,8 +667,8 @@ void RenderFrameMessageFilter::OnGetPluginInfo(
+@@ -691,8 +692,8 @@ void RenderFrameMessageFilter::OnGetPluginInfo(
    bool allow_wildcard = true;
    *found = plugin_service_->GetPluginInfo(
        render_process_id_, render_frame_id, resource_context_, url,
@@ -128,10 +128,10 @@ index 324ed2f8b851..8170ac190ea5 100644
  
  void RenderFrameMessageFilter::OnOpenChannelToPepperPlugin(
 diff --git content/browser/frame_host/render_frame_message_filter.h content/browser/frame_host/render_frame_message_filter.h
-index 91a7d32dbe78..f99bc501c8b1 100644
+index 8280d104a6d9..ba3a682fdcee 100644
 --- content/browser/frame_host/render_frame_message_filter.h
 +++ content/browser/frame_host/render_frame_message_filter.h
-@@ -146,6 +146,7 @@ class CONTENT_EXPORT RenderFrameMessageFilter
+@@ -149,6 +149,7 @@ class CONTENT_EXPORT RenderFrameMessageFilter
  #if BUILDFLAG(ENABLE_PLUGINS)
    void OnGetPluginInfo(int render_frame_id,
                         const GURL& url,

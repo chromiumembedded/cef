@@ -1,8 +1,8 @@
 diff --git content/browser/web_contents/web_contents_impl.cc content/browser/web_contents/web_contents_impl.cc
-index 8d1eaa3e779c..2ccd1ac08b69 100644
+index b7fed5f660c7..13a4680e9fa9 100644
 --- content/browser/web_contents/web_contents_impl.cc
 +++ content/browser/web_contents/web_contents_impl.cc
-@@ -1973,21 +1973,30 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
+@@ -1980,21 +1980,30 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
    std::string unique_name;
    frame_tree_.root()->SetFrameName(params.main_frame_name, unique_name);
  
@@ -45,7 +45,7 @@ index 8d1eaa3e779c..2ccd1ac08b69 100644
    CHECK(render_view_host_delegate_view_);
    CHECK(view_.get());
  
-@@ -2681,6 +2690,15 @@ void WebContentsImpl::CreateNewWindow(
+@@ -2688,6 +2697,15 @@ void WebContentsImpl::CreateNewWindow(
    create_params.renderer_initiated_creation =
        main_frame_route_id != MSG_ROUTING_NONE;
  
@@ -61,7 +61,7 @@ index 8d1eaa3e779c..2ccd1ac08b69 100644
    std::unique_ptr<WebContents> new_contents;
    if (!is_guest) {
      create_params.context = view_->GetNativeView();
-@@ -2713,7 +2731,7 @@ void WebContentsImpl::CreateNewWindow(
+@@ -2720,7 +2738,7 @@ void WebContentsImpl::CreateNewWindow(
        // TODO(brettw): It seems bogus that we have to call this function on the
        // newly created object and give it one of its own member variables.
        new_view->CreateViewForWidget(
@@ -70,7 +70,7 @@ index 8d1eaa3e779c..2ccd1ac08b69 100644
      }
      // Save the created window associated with the route so we can show it
      // later.
-@@ -6157,7 +6175,7 @@ InterstitialPageImpl* WebContentsImpl::GetInterstitialForRenderManager() {
+@@ -6166,7 +6184,7 @@ InterstitialPageImpl* WebContentsImpl::GetInterstitialForRenderManager() {
  void WebContentsImpl::CreateRenderWidgetHostViewForRenderManager(
      RenderViewHost* render_view_host) {
    RenderWidgetHostViewBase* rwh_view =
@@ -122,7 +122,7 @@ index 060e2194d9ea..7a81678de3d4 100644
      // the value that'll be returned by GetLastActiveTime(). If this is left
      // default initialized then the value is not passed on to the WebContents
 diff --git content/public/browser/web_contents_delegate.h content/public/browser/web_contents_delegate.h
-index b26e4ea873f6..d07e068233b2 100644
+index e37e9b8658ab..60be0cac0af9 100644
 --- content/public/browser/web_contents_delegate.h
 +++ content/public/browser/web_contents_delegate.h
 @@ -54,10 +54,12 @@ class FileSelectListener;

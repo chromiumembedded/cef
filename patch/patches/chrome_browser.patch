@@ -1,5 +1,5 @@
 diff --git chrome/browser/BUILD.gn chrome/browser/BUILD.gn
-index e0fd47a70c7b..d56e7a6b8bec 100644
+index 08572d5b14f9..e4124d00fa83 100644
 --- chrome/browser/BUILD.gn
 +++ chrome/browser/BUILD.gn
 @@ -8,6 +8,7 @@ import("//build/config/features.gni")
@@ -29,7 +29,7 @@ index e0fd47a70c7b..d56e7a6b8bec 100644
    if (is_android) {
      sources += [
        "after_startup_task_utils_android.cc",
-@@ -3629,7 +3635,7 @@ jumbo_split_static_library("browser") {
+@@ -3636,7 +3642,7 @@ jumbo_split_static_library("browser") {
      ]
    }
  

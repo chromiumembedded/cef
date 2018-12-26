@@ -102,10 +102,10 @@ index 50eaca5b18eb..038d866fd8d1 100644
  };
  
 diff --git ui/views/animation/ink_drop_host_view.h ui/views/animation/ink_drop_host_view.h
-index 282d1136b02c..e70023d433a1 100644
+index f374839b019d..02b90ca5afb6 100644
 --- ui/views/animation/ink_drop_host_view.h
 +++ ui/views/animation/ink_drop_host_view.h
-@@ -116,6 +116,8 @@ class VIEWS_EXPORT InkDropHostView : public View {
+@@ -115,6 +115,8 @@ class VIEWS_EXPORT InkDropHostView : public View {
    // them.
    void AnimateInkDrop(InkDropState state, const ui::LocatedEvent* event);
  

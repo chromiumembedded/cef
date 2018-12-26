@@ -1,5 +1,5 @@
 diff --git content/public/common/common_param_traits_macros.h content/public/common/common_param_traits_macros.h
-index 7772eb5cff36..909382b8e896 100644
+index 1ebd5ba221f6..03ebb6daa6eb 100644
 --- content/public/common/common_param_traits_macros.h
 +++ content/public/common/common_param_traits_macros.h
 @@ -188,6 +188,7 @@ IPC_STRUCT_TRAITS_BEGIN(content::WebPreferences)
@@ -23,7 +23,7 @@ index e648532ff596..570861ca3306 100644
        record_whole_document(false),
        save_previous_document_resources(SavePreviousDocumentResources::NEVER),
 diff --git content/public/common/web_preferences.h content/public/common/web_preferences.h
-index 40c92b166696..e59e73012b69 100644
+index 3a44d907096b..2ed43c383cd6 100644
 --- content/public/common/web_preferences.h
 +++ content/public/common/web_preferences.h
 @@ -203,6 +203,7 @@ struct CONTENT_EXPORT WebPreferences {
@@ -35,10 +35,10 @@ index 40c92b166696..e59e73012b69 100644
    bool record_whole_document;
    SavePreviousDocumentResources save_previous_document_resources;
 diff --git content/renderer/render_view_impl.cc content/renderer/render_view_impl.cc
-index 5e97250f926d..c68129d1c24e 100644
+index 7bf71ed5baaf..4f385c0d1284 100644
 --- content/renderer/render_view_impl.cc
 +++ content/renderer/render_view_impl.cc
-@@ -1007,6 +1007,8 @@ void RenderView::ApplyWebPreferences(const WebPreferences& prefs,
+@@ -1009,6 +1009,8 @@ void RenderView::ApplyWebPreferences(const WebPreferences& prefs,
  #endif
  
    WebRuntimeFeatures::EnableTranslateService(prefs.translate_service_available);
