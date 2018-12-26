@@ -14,7 +14,7 @@ index e9a87e03c..f4cd02c2d 100644
  
  # Targets below this are only visible within this file (and to the
 diff --git fpdfsdk/fpdf_view.cpp fpdfsdk/fpdf_view.cpp
-index 769ff2ae8..0566a2b6a 100644
+index bcb9e35c1..5df6e300c 100644
 --- fpdfsdk/fpdf_view.cpp
 +++ fpdfsdk/fpdf_view.cpp
 @@ -38,6 +38,7 @@

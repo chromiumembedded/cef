@@ -1,8 +1,8 @@
 diff --git net/url_request/url_request.h net/url_request/url_request.h
-index 6e9a7fb7cbf3..39b7ae2de1a9 100644
+index 12ce9b653092..976a7a5a5ce9 100644
 --- net/url_request/url_request.h
 +++ net/url_request/url_request.h
-@@ -742,10 +742,10 @@ class NET_EXPORT URLRequest : public base::SupportsUserData {
+@@ -743,10 +743,10 @@ class NET_EXPORT URLRequest : public base::SupportsUserData {
  
    base::WeakPtr<URLRequest> GetWeakPtr();
  

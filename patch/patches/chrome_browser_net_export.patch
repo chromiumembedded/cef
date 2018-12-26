@@ -24,10 +24,10 @@ index cac72c6a2fd1..2ed83a4af1b3 100644
    // network quality change events.
    virtual network::NetworkQualityTracker* network_quality_tracker() = 0;
 diff --git chrome/browser/browser_process_impl.cc chrome/browser/browser_process_impl.cc
-index 529239220bcc..fc9cdcd330c2 100644
+index 9178909e6ce3..7656cbbb99c0 100644
 --- chrome/browser/browser_process_impl.cc
 +++ chrome/browser/browser_process_impl.cc
-@@ -660,6 +660,10 @@ BrowserProcessImpl::system_network_context_manager() {
+@@ -665,6 +665,10 @@ BrowserProcessImpl::system_network_context_manager() {
    return SystemNetworkContextManager::GetInstance();
  }
  
@@ -39,10 +39,10 @@ index 529239220bcc..fc9cdcd330c2 100644
  BrowserProcessImpl::shared_url_loader_factory() {
    return system_network_context_manager()->GetSharedURLLoaderFactory();
 diff --git chrome/browser/browser_process_impl.h chrome/browser/browser_process_impl.h
-index 8cd716593b19..28f8a70167af 100644
+index 143e7442ca05..896829d2836f 100644
 --- chrome/browser/browser_process_impl.h
 +++ chrome/browser/browser_process_impl.h
-@@ -139,6 +139,7 @@ class BrowserProcessImpl : public BrowserProcess,
+@@ -140,6 +140,7 @@ class BrowserProcessImpl : public BrowserProcess,
    // TODO(qinmin): Remove this method as callers can retrieve the global
    // instance from SystemNetworkContextManager directly.
    SystemNetworkContextManager* system_network_context_manager() override;

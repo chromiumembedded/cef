@@ -1,19 +1,19 @@
 diff --git base/message_loop/message_loop.cc base/message_loop/message_loop.cc
-index d53d5928a3fe..bcfb656ea23f 100644
+index dcc9f8d1163a..a0681ac47fc3 100644
 --- base/message_loop/message_loop.cc
 +++ base/message_loop/message_loop.cc
-@@ -294,6 +294,9 @@ MessageLoopForUI::MessageLoopForUI(Type type) : MessageLoop(type) {
- #endif
- }
+@@ -177,6 +177,9 @@ MessageLoopBase* MessageLoop::GetMessageLoopBase() {
+ 
+ //------------------------------------------------------------------------------
  
 +MessageLoopForUI::MessageLoopForUI(std::unique_ptr<MessagePump> pump)
 +    : MessageLoop(TYPE_UI, BindOnce(&ReturnPump, std::move(pump))) {}
 +
  // static
- MessageLoopCurrentForUI MessageLoopForUI::current() {
-   return MessageLoopCurrentForUI::Get();
+ std::unique_ptr<MessageLoop> MessageLoop::CreateUnbound(
+     Type type,
 diff --git base/message_loop/message_loop.h base/message_loop/message_loop.h
-index 04d45ae30fa8..d4dfc58c8df9 100644
+index 1adfd4cd1904..80befbbb7aa1 100644
 --- base/message_loop/message_loop.h
 +++ base/message_loop/message_loop.h
 @@ -294,6 +294,9 @@ class BASE_EXPORT MessageLoop {
@@ -32,8 +32,8 @@ index 04d45ae30fa8..d4dfc58c8df9 100644
    explicit MessageLoopForUI(Type type = TYPE_UI);
 +  explicit MessageLoopForUI(std::unique_ptr<MessagePump> pump);
  
-   // TODO(gab): Mass migrate callers to MessageLoopCurrentForUI::Get()/IsSet().
-   static MessageLoopCurrentForUI current();
+ #if defined(OS_IOS)
+   // On iOS, the main message loop cannot be Run().  Instead call Attach(),
 diff --git base/message_loop/message_loop_current.cc base/message_loop/message_loop_current.cc
 index dca465455e36..bc2dc7c33110 100644
 --- base/message_loop/message_loop_current.cc

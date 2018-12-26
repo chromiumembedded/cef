@@ -66,11 +66,6 @@ void CefResourceContext::RemoveUserData(const void* key) {
     content::ResourceContext::RemoveUserData(key);
 }
 
-net::URLRequestContext* CefResourceContext::GetRequestContext() {
-  CHECK(getter_.get());
-  return getter_->GetURLRequestContext();
-}
-
 std::unique_ptr<net::ClientCertStore>
 CefResourceContext::CreateClientCertStore() {
 #if defined(USE_NSS_CERTS)
@@ -94,12 +89,6 @@ void CefResourceContext::set_extensions_info_map(
     extensions::InfoMap* extensions_info_map) {
   DCHECK(!extension_info_map_);
   extension_info_map_ = extensions_info_map;
-}
-
-void CefResourceContext::set_url_request_context_getter(
-    CefURLRequestContextGetter* getter) {
-  DCHECK(!getter_.get());
-  getter_ = getter;
 }
 
 void CefResourceContext::set_parent(CefResourceContext* parent) {

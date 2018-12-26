@@ -27,6 +27,7 @@
 #include "libcef/renderer/thread_util.h"
 #include "libcef/renderer/v8_impl.h"
 
+#include "content/public/renderer/render_frame.h"
 #include "third_party/blink/public/platform/web_data.h"
 #include "third_party/blink/public/platform/web_string.h"
 #include "third_party/blink/public/platform/web_url.h"
@@ -35,6 +36,7 @@
 #include "third_party/blink/public/web/web_document_loader.h"
 #include "third_party/blink/public/web/web_frame_content_dumper.h"
 #include "third_party/blink/public/web/web_local_frame.h"
+#include "third_party/blink/public/web/web_navigation_control.h"
 #include "third_party/blink/public/web/web_script_source.h"
 #include "third_party/blink/public/web/web_view.h"
 
@@ -152,7 +154,9 @@ void CefFrameImpl::LoadString(const CefString& string, const CefString& url) {
 
   if (frame_) {
     GURL gurl = GURL(url.ToString());
-    frame_->LoadHTMLString(string.ToString(), gurl);
+    content::RenderFrame::FromWebFrame(frame_)->LoadHTMLString(
+        string.ToString(), gurl, "UTF-8", GURL(),
+        false /* replace_current_item */);
   }
 }
 

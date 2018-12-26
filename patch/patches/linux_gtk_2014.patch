@@ -68,10 +68,10 @@ index d44c7feaabec..5f1992335a38 100644
  
  void ChromeBrowserMainExtraPartsViewsLinux::ToolkitInitialized() {
 diff --git chrome/test/BUILD.gn chrome/test/BUILD.gn
-index 188dfd74d03a..b500f87fa5c7 100644
+index 96a7dc9c5be9..12318f88f99d 100644
 --- chrome/test/BUILD.gn
 +++ chrome/test/BUILD.gn
-@@ -3885,7 +3885,7 @@ test("unit_tests") {
+@@ -3905,7 +3905,7 @@ test("unit_tests") {
        "../browser/ui/input_method/input_method_engine_unittest.cc",
      ]
    }
@@ -80,7 +80,7 @@ index 188dfd74d03a..b500f87fa5c7 100644
      sources +=
          [ "../browser/ui/libgtkui/select_file_dialog_impl_gtk_unittest.cc" ]
      deps += [ "//build/config/linux/gtk" ]
-@@ -3906,7 +3906,7 @@ test("unit_tests") {
+@@ -3926,7 +3926,7 @@ test("unit_tests") {
    if (use_gio) {
      configs += [ "//build/linux:gio_config" ]
    }
@@ -89,7 +89,7 @@ index 188dfd74d03a..b500f87fa5c7 100644
      deps += [ "//chrome/browser/ui/libgtkui" ]
    }
  
-@@ -4892,7 +4892,7 @@ if (!is_android) {
+@@ -4911,7 +4911,7 @@ if (!is_android) {
            # suites, it seems like one or another starts timing out too.
            "../browser/ui/views/keyboard_access_browsertest.cc",
          ]
@@ -99,10 +99,10 @@ index 188dfd74d03a..b500f87fa5c7 100644
              "../browser/ui/libgtkui/select_file_dialog_interactive_uitest.cc",
            ]
 diff --git remoting/host/BUILD.gn remoting/host/BUILD.gn
-index c49188e58c90..162851b97cef 100644
+index 67e7d8371649..98a8d379060d 100644
 --- remoting/host/BUILD.gn
 +++ remoting/host/BUILD.gn
-@@ -342,7 +342,7 @@ static_library("host") {
+@@ -345,7 +345,7 @@ static_library("host") {
        "//build/config/linux:xrandr",
      ]
      deps += [ "//remoting/host/linux:x11" ]
@@ -111,7 +111,7 @@ index c49188e58c90..162851b97cef 100644
        deps += [ "//build/config/linux/gtk" ]
      }
    } else {
-@@ -723,7 +723,7 @@ if (enable_me2me_host) {
+@@ -727,7 +727,7 @@ if (enable_me2me_host) {
        deps += [ "//components/policy:generated" ]
      }
  

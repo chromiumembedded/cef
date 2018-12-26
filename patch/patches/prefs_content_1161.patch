@@ -35,10 +35,10 @@ index 40c92b166696..e59e73012b69 100644
    bool record_whole_document;
    SavePreviousDocumentResources save_previous_document_resources;
 diff --git content/renderer/render_view_impl.cc content/renderer/render_view_impl.cc
-index 53ae7cb8d17f..80381f15849c 100644
+index 5e97250f926d..c68129d1c24e 100644
 --- content/renderer/render_view_impl.cc
 +++ content/renderer/render_view_impl.cc
-@@ -1005,6 +1005,8 @@ void RenderView::ApplyWebPreferences(const WebPreferences& prefs,
+@@ -1007,6 +1007,8 @@ void RenderView::ApplyWebPreferences(const WebPreferences& prefs,
  #endif
  
    WebRuntimeFeatures::EnableTranslateService(prefs.translate_service_available);

@@ -1,5 +1,5 @@
 diff --git third_party/blink/renderer/core/input/pointer_event_manager.cc third_party/blink/renderer/core/input/pointer_event_manager.cc
-index 6480104f7b21..2abecbbadeb8 100644
+index fffde3296b65..c57f7ec9f148 100644
 --- third_party/blink/renderer/core/input/pointer_event_manager.cc
 +++ third_party/blink/renderer/core/input/pointer_event_manager.cc
 @@ -281,7 +281,7 @@ void PointerEventManager::HandlePointerInterruption(

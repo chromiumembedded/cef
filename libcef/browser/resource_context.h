@@ -37,13 +37,9 @@ class CefResourceContext : public content::ResourceContext {
   void SetUserData(const void* key, std::unique_ptr<Data> data) override;
   void RemoveUserData(const void* key) override;
 
-  // ResourceContext implementation.
-  net::URLRequestContext* GetRequestContext() override;
-
   std::unique_ptr<net::ClientCertStore> CreateClientCertStore();
 
   void set_extensions_info_map(extensions::InfoMap* extensions_info_map);
-  void set_url_request_context_getter(CefURLRequestContextGetter* getter);
   void set_parent(CefResourceContext* parent);
 
   // Remember the plugin load decision for plugin status requests that arrive
@@ -71,8 +67,6 @@ class CefResourceContext : public content::ResourceContext {
   CefRefPtr<CefRequestContextHandler> GetHandler() const { return handler_; }
 
  private:
-  scoped_refptr<CefURLRequestContextGetter> getter_;
-
   // Non-NULL when this object is owned by a CefBrowserContextProxy. |parent_|
   // is guaranteed to outlive this object because CefBrowserContextProxy has a
   // refptr to the CefBrowserContextImpl that owns |parent_|.

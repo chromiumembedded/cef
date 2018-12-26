@@ -472,7 +472,6 @@ net::URLRequestContextGetter* CefBrowserContextImpl::CreateRequestContext(
   url_request_getter_ = new CefURLRequestContextGetterImpl(
       settings_, GetPrefs(), io_thread_runner, protocol_handlers,
       std::move(proxy_config_service), std::move(request_interceptors));
-  resource_context()->set_url_request_context_getter(url_request_getter_.get());
   return url_request_getter_.get();
 }
 

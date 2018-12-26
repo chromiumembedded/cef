@@ -150,11 +150,11 @@ class CefDelegatedFrameHostClient : public content::DelegatedFrameHostClient {
     return view_->GetDeviceScaleFactor();
   }
 
-  void AllocateNewSurfaceIdOnEviction() override {}
-
   std::vector<viz::SurfaceId> CollectSurfaceIdsForEviction() override {
     return view_->render_widget_host()->CollectSurfaceIdsForEviction();
   }
+
+  void InvalidateLocalSurfaceIdOnEviction() override {}
 
  private:
   CefRenderWidgetHostViewOSR* const view_;

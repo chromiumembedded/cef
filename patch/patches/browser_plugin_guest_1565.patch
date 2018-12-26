@@ -37,7 +37,7 @@ index e706efbc6219..3b6f60660650 100644
  
    attached_ = true;
 diff --git content/browser/frame_host/interstitial_page_impl.cc content/browser/frame_host/interstitial_page_impl.cc
-index babcf10c37d0..b0261ed77ef0 100644
+index a97648ef717b..b82895c89f77 100644
 --- content/browser/frame_host/interstitial_page_impl.cc
 +++ content/browser/frame_host/interstitial_page_impl.cc
 @@ -632,7 +632,7 @@ WebContentsView* InterstitialPageImpl::CreateWebContentsView() {
@@ -221,10 +221,10 @@ index 5317a1895671..770d05a9c4a9 100644
        RenderWidgetHost* render_widget_host) override;
    void SetPageTitle(const base::string16& title) override;
 diff --git content/browser/web_contents/web_contents_view_mac.mm content/browser/web_contents/web_contents_view_mac.mm
-index ed6586cff68c..731a51629a2c 100644
+index 18f85330beaf..bf220383e368 100644
 --- content/browser/web_contents/web_contents_view_mac.mm
 +++ content/browser/web_contents/web_contents_view_mac.mm
-@@ -336,7 +336,8 @@ void WebContentsViewMac::CreateView(
+@@ -337,7 +337,8 @@ void WebContentsViewMac::CreateView(
  }
  
  RenderWidgetHostViewBase* WebContentsViewMac::CreateViewForWidget(
@@ -234,7 +234,7 @@ index ed6586cff68c..731a51629a2c 100644
    if (render_widget_host->GetView()) {
      // During testing, the view will already be set up in most cases to the
      // test view, so we don't want to clobber it with a real one. To verify that
-@@ -348,6 +349,7 @@ RenderWidgetHostViewBase* WebContentsViewMac::CreateViewForWidget(
+@@ -349,6 +350,7 @@ RenderWidgetHostViewBase* WebContentsViewMac::CreateViewForWidget(
          render_widget_host->GetView());
    }
  

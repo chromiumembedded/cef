@@ -58,10 +58,10 @@ index f61ff0d0564a..e6727c7b1cbc 100644
  
  }  // namespace certificate_transparency
 diff --git net/http/transport_security_state.cc net/http/transport_security_state.cc
-index f2b3b7609ee7..d99c6d3b0901 100644
+index fe433909de14..f49d9d7bbae8 100644
 --- net/http/transport_security_state.cc
 +++ net/http/transport_security_state.cc
-@@ -1095,8 +1095,10 @@ void TransportSecurityState::ClearReportCachesForTesting() {
+@@ -1099,8 +1099,10 @@ void TransportSecurityState::ClearReportCachesForTesting() {
    sent_expect_ct_reports_cache_.Clear();
  }
  
@@ -75,10 +75,10 @@ index f2b3b7609ee7..d99c6d3b0901 100644
    // We consider built-in information to be timely for 10 weeks.
    return (base::Time::Now() - build_time).InDays() < 70 /* 10 weeks */;
 diff --git net/http/transport_security_state.h net/http/transport_security_state.h
-index 5617c50f3909..fc55b6b8c76c 100644
+index 5e772fd78b5d..fb5fd04fbaf9 100644
 --- net/http/transport_security_state.h
 +++ net/http/transport_security_state.h
-@@ -525,6 +525,10 @@ class NET_EXPORT TransportSecurityState {
+@@ -530,6 +530,10 @@ class NET_EXPORT TransportSecurityState {
    void EnableStaticPinsForTesting() { enable_static_pins_ = true; }
    bool has_dynamic_pkp_state() const { return !enabled_pkp_hosts_.empty(); }
  
@@ -89,7 +89,7 @@ index 5617c50f3909..fc55b6b8c76c 100644
   private:
    friend class TransportSecurityStateTest;
    friend class TransportSecurityStateStaticFuzzer;
-@@ -543,7 +547,7 @@ class NET_EXPORT TransportSecurityState {
+@@ -548,7 +552,7 @@ class NET_EXPORT TransportSecurityState {
    // IsBuildTimely returns true if the current build is new enough ensure that
    // built in security information (i.e. HSTS preloading and pinning
    // information) is timely.
@@ -98,7 +98,7 @@ index 5617c50f3909..fc55b6b8c76c 100644
  
    // Helper method for actually checking pins.
    PKPStatus CheckPublicKeyPinsImpl(
-@@ -641,6 +645,8 @@ class NET_EXPORT TransportSecurityState {
+@@ -646,6 +650,8 @@ class NET_EXPORT TransportSecurityState {
    // True if public key pinning bypass is enabled for local trust anchors.
    bool enable_pkp_bypass_for_local_trust_anchors_;
  

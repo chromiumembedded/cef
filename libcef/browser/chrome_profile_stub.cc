@@ -73,10 +73,10 @@ PrefService* ChromeProfileStub::GetOffTheRecordPrefs() {
 base::OnceCallback<net::CookieStore*()>
 ChromeProfileStub::GetExtensionsCookieStoreGetter() {
   return base::BindOnce(
-      [](content::ResourceContext* context) {
-        return context->GetRequestContext()->cookie_store();
+      [](scoped_refptr<net::URLRequestContextGetter> context) {
+        return context->GetURLRequestContext()->cookie_store();
       },
-      GetResourceContext());
+      base::WrapRefCounted(GetRequestContext()));
 }
 
 bool ChromeProfileStub::IsSameProfile(Profile* profile) {

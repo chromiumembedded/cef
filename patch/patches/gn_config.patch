@@ -1,8 +1,8 @@
 diff --git .gn .gn
-index 8fb99cedf0c1..719848a1b320 100644
+index 6f2772973179..34099faa8a27 100644
 --- .gn
 +++ .gn
-@@ -678,6 +678,8 @@ exec_script_whitelist =
+@@ -677,6 +677,8 @@ exec_script_whitelist =
        # in the Chromium repo outside of //build.
        "//build_overrides/build.gni",
  
@@ -12,7 +12,7 @@ index 8fb99cedf0c1..719848a1b320 100644
        # https://crbug.com/474506.
        "//clank/java/BUILD.gn",
 diff --git BUILD.gn BUILD.gn
-index 46bcfd07499e..39b0c2c449f1 100644
+index dbe4b22ba39a..1cd9399196a7 100644
 --- BUILD.gn
 +++ BUILD.gn
 @@ -185,6 +185,7 @@ group("gn_all") {
@@ -56,27 +56,27 @@ index 982fbe8d3f0d..e757be4688f1 100644
 +         "studio path")
  }
 diff --git build/toolchain/win/BUILD.gn build/toolchain/win/BUILD.gn
-index 43fecc65da80..3f1ecf73ce0c 100644
+index 07319b798998..27118d68d109 100644
 --- build/toolchain/win/BUILD.gn
 +++ build/toolchain/win/BUILD.gn
-@@ -6,6 +6,7 @@ import("//build/config/clang/clang.gni")
- import("//build/config/compiler/compiler.gni")
+@@ -7,6 +7,7 @@ import("//build/config/compiler/compiler.gni")
  import("//build/config/sanitizers/sanitizers.gni")
  import("//build/config/win/visual_studio_version.gni")
+ import("//build/toolchain/cc_wrapper.gni")
 +import("//build/toolchain/cc_wrapper.gni")
  import("//build/toolchain/clang_static_analyzer.gni")
  import("//build/toolchain/goma.gni")
  import("//build/toolchain/toolchain.gni")
-@@ -28,6 +29,8 @@ if (use_goma) {
-   } else {
+@@ -30,6 +31,8 @@ if (use_goma) {
      goma_prefix = "$goma_dir/gomacc "
    }
+   clang_prefix = goma_prefix
 +} else if (cc_wrapper != "") {
 +  goma_prefix = "$cc_wrapper "
  } else {
    goma_prefix = ""
- }
-@@ -114,7 +117,7 @@ template("msvc_toolchain") {
+   if (cc_wrapper != "") {
+@@ -121,7 +124,7 @@ template("msvc_toolchain") {
  
        # lld-link includes a replacement for lib.exe that can produce thin
        # archives and understands bitcode (for lto builds).
@@ -86,16 +86,17 @@ index 43fecc65da80..3f1ecf73ce0c 100644
        if (host_os != "win") {
          # See comment adding --rsp-quoting to $cl above for more information.
 diff --git build/toolchain/win/setup_toolchain.py build/toolchain/win/setup_toolchain.py
-index 1ba5533c3efb..abfd55a2c703 100644
+index 2c8675206f31..d3e419d8fe98 100644
 --- build/toolchain/win/setup_toolchain.py
 +++ build/toolchain/win/setup_toolchain.py
-@@ -134,25 +134,28 @@ def _LoadToolchainEnv(cpu, sdk_dir, target_store):
+@@ -134,22 +134,25 @@ def _LoadToolchainEnv(cpu, sdk_dir, target_store):
        # variable.
        if 'VSINSTALLDIR' in os.environ:
          del os.environ['VSINSTALLDIR']
 -      other_path = os.path.normpath(os.path.join(
--                                        os.environ['GYP_MSVS_OVERRIDE_PATH'],
--                                        'VC/Auxiliary/Build/vcvarsall.bat'))
++      script_path = os.path.normpath(os.path.join(
+                                         os.environ['GYP_MSVS_OVERRIDE_PATH'],
+                                         'VC/Auxiliary/Build/vcvarsall.bat'))
 -      if not os.path.exists(other_path):
 -        raise Exception('%s is missing - make sure VC++ tools are installed.' %
 -                        script_path)
@@ -108,13 +109,7 @@ index 1ba5533c3efb..abfd55a2c703 100644
 -    # Store target must come before any SDK version declaration
 -    if (target_store):
 -      args.append(['store'])
--    # Chromium requires the 10.0.17134.0 SDK - previous versions don't have
--    # all of the required declarations.
--    args.append('10.0.17134.0')
 -    variables = _LoadEnvFromBat(args)
-+      script_path = os.path.normpath(os.path.join(
-+                                         os.environ['GYP_MSVS_OVERRIDE_PATH'],
-+                                         'VC/Auxiliary/Build/vcvarsall.bat'))
 +    if os.path.exists(script_path):
 +      cpu_arg = "amd64"
 +      if (cpu != 'x64'):
@@ -124,9 +119,6 @@ index 1ba5533c3efb..abfd55a2c703 100644
 +      # Store target must come before any SDK version declaration
 +      if (target_store):
 +        args.append(['store'])
-+      # Chromium requires the 10.0.17134.0 SDK - previous versions don't have
-+      # all of the required declarations.
-+      args.append('10.0.17134.0')
 +      variables = _LoadEnvFromBat(args)
 +    else:
 +      variables = []
@@ -138,10 +130,10 @@ index 1ba5533c3efb..abfd55a2c703 100644
  
  
 diff --git build/vs_toolchain.py build/vs_toolchain.py
-index 03684978da6f..6fdad5882117 100755
+index e613b88e5351..3f1d4f06f36a 100755
 --- build/vs_toolchain.py
 +++ build/vs_toolchain.py
-@@ -71,11 +71,18 @@ def SetEnvironmentAndGetRuntimeDllDirs():
+@@ -73,11 +73,18 @@ def SetEnvironmentAndGetRuntimeDllDirs():
      runtime_path = os.path.pathsep.join(vs_runtime_dll_dirs)
      os.environ['PATH'] = runtime_path + os.path.pathsep + os.environ['PATH']
    elif sys.platform == 'win32' and not depot_tools_win_toolchain:

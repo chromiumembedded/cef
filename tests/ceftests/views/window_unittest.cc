@@ -258,11 +258,8 @@ void VerifyMinimize(CefRefPtr<CefWindow> window) {
   EXPECT_TRUE(window->IsMinimized());
   EXPECT_FALSE(window->IsMaximized());
   EXPECT_FALSE(window->IsFullscreen());
-
-  // This result is a bit unexpected, but I guess the platform considers a
-  // window to be visible even when it's minimized.
-  EXPECT_TRUE(window->IsVisible());
-  EXPECT_TRUE(window->IsDrawn());
+  EXPECT_FALSE(window->IsVisible());
+  EXPECT_FALSE(window->IsDrawn());
 
   window->Restore();
   CefPostDelayedTask(TID_UI, base::Bind(VerifyRestore, window), kStateDelayMS);

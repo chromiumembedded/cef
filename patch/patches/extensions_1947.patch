@@ -57,10 +57,10 @@ index fd7d05e26fa5..2ddb3a8ec86f 100644
    // If |new_instance| is a new SiteInstance for a subframe that requires a
    // dedicated process, set its process reuse policy so that such subframes are
 diff --git content/public/browser/content_browser_client.h content/public/browser/content_browser_client.h
-index 030b808a20ff..d43f2c640fca 100644
+index ff83421f2bb8..50bf5d594401 100644
 --- content/public/browser/content_browser_client.h
 +++ content/public/browser/content_browser_client.h
-@@ -447,6 +447,13 @@ class CONTENT_EXPORT ContentBrowserClient {
+@@ -450,6 +450,13 @@ class CONTENT_EXPORT ContentBrowserClient {
    // Returns true if error page should be isolated in its own process.
    virtual bool ShouldIsolateErrorPage(bool in_main_frame);
  
@@ -219,7 +219,7 @@ index 5a2533dc788f..b21e25a9af25 100644
    // once each time the extensions system is loaded per browser_context. The
    // implementation may wish to use the BrowserContext to record the current
 diff --git extensions/browser/process_manager.cc extensions/browser/process_manager.cc
-index 5be5c1b09b6d..1222df412848 100644
+index fde870c09c6e..b5a285cecb86 100644
 --- extensions/browser/process_manager.cc
 +++ extensions/browser/process_manager.cc
 @@ -357,9 +357,16 @@ bool ProcessManager::CreateBackgroundHost(const Extension* extension,

@@ -45,7 +45,7 @@ index bcf172e645a2..f879aa745adf 100644
  // on the given |command_line|.
  void SetCrashKeysFromCommandLine(const base::CommandLine& command_line);
 diff --git chrome_elf/BUILD.gn chrome_elf/BUILD.gn
-index 7f780b54b9fa..a54fda966d36 100644
+index 61efc526eed9..b8d101eda7fd 100644
 --- chrome_elf/BUILD.gn
 +++ chrome_elf/BUILD.gn
 @@ -7,6 +7,7 @@
@@ -388,10 +388,10 @@ index 485c2c8bf638..7eb175c43b6c 100644
  
  }  // namespace crash_reporter
 diff --git components/crash/content/app/crashpad.cc components/crash/content/app/crashpad.cc
-index c6a98292bb5e..7cf360d3b340 100644
+index 5cf5818c879d..c085c84c8a16 100644
 --- components/crash/content/app/crashpad.cc
 +++ components/crash/content/app/crashpad.cc
-@@ -147,7 +147,8 @@ void InitializeCrashpadImpl(bool initial_client,
+@@ -149,7 +149,8 @@ void InitializeCrashpadImpl(bool initial_client,
    // fallback. Forwarding is turned off for debug-mode builds even for the
    // browser process, because the system's crash reporter can take a very long
    // time to chew on symbols.
@@ -402,7 +402,7 @@ index c6a98292bb5e..7cf360d3b340 100644
          ->set_system_crash_reporter_forwarding(crashpad::TriState::kDisabled);
    }
 diff --git components/crash/content/app/crashpad_mac.mm components/crash/content/app/crashpad_mac.mm
-index f06d903c2f41..6ec1442323e9 100644
+index f079174b3586..ff9a19e259fb 100644
 --- components/crash/content/app/crashpad_mac.mm
 +++ components/crash/content/app/crashpad_mac.mm
 @@ -16,11 +16,14 @@
@@ -472,7 +472,7 @@ index f06d903c2f41..6ec1442323e9 100644
      }  // @autoreleasepool
      return process_annotations;
    }();
-@@ -119,9 +139,10 @@ base::FilePath PlatformCrashpadInitialization(bool initial_client,
+@@ -122,9 +142,10 @@ base::FilePath PlatformCrashpadInitialization(
  
    if (initial_client) {
      @autoreleasepool {
@@ -486,7 +486,7 @@ index f06d903c2f41..6ec1442323e9 100644
  
        // Is there a way to recover if this fails?
        CrashReporterClient* crash_reporter_client = GetCrashReporterClient();
-@@ -133,7 +154,7 @@ base::FilePath PlatformCrashpadInitialization(bool initial_client,
+@@ -136,7 +157,7 @@ base::FilePath PlatformCrashpadInitialization(
        // crash server won't have symbols for any other build types.
        std::string url = "https://clients2.google.com/cr/report";
  #else
@@ -495,7 +495,7 @@ index f06d903c2f41..6ec1442323e9 100644
  #endif
  
        std::vector<std::string> arguments;
-@@ -156,6 +177,12 @@ base::FilePath PlatformCrashpadInitialization(bool initial_client,
+@@ -159,6 +180,12 @@ base::FilePath PlatformCrashpadInitialization(
              "--reset-own-crash-exception-port-to-system-default");
        }
  
@@ -509,7 +509,7 @@ index f06d903c2f41..6ec1442323e9 100644
            handler_path, database_path, metrics_path, url,
            GetProcessSimpleAnnotations(), arguments, true, false);
 diff --git components/crash/content/app/crashpad_win.cc components/crash/content/app/crashpad_win.cc
-index 4902d87bd171..a573e9557666 100644
+index 8b55f0a521f1..d58dcbce5af4 100644
 --- components/crash/content/app/crashpad_win.cc
 +++ components/crash/content/app/crashpad_win.cc
 @@ -34,8 +34,8 @@ void GetPlatformCrashpadAnnotations(
@@ -535,7 +535,7 @@ index 4902d87bd171..a573e9557666 100644
  #endif
  }
  
-@@ -62,7 +62,9 @@ base::FilePath PlatformCrashpadInitialization(bool initial_client,
+@@ -64,7 +64,9 @@ base::FilePath PlatformCrashpadInitialization(
    base::FilePath metrics_path;  // Only valid in the browser process.
  
    const char kPipeNameVar[] = "CHROME_CRASHPAD_PIPE_NAME";
@@ -545,7 +545,7 @@ index 4902d87bd171..a573e9557666 100644
    std::unique_ptr<base::Environment> env(base::Environment::Create());
    if (initial_client) {
      CrashReporterClient* crash_reporter_client = GetCrashReporterClient();
-@@ -82,13 +84,13 @@ base::FilePath PlatformCrashpadInitialization(bool initial_client,
+@@ -84,13 +86,13 @@ base::FilePath PlatformCrashpadInitialization(
  
  #if defined(GOOGLE_CHROME_BUILD)
      std::string url = "https://clients2.google.com/cr/report";
@@ -562,14 +562,14 @@ index 4902d87bd171..a573e9557666 100644
  
      base::FilePath exe_file(exe_path);
      if (exe_file.empty()) {
-@@ -106,13 +108,14 @@ base::FilePath PlatformCrashpadInitialization(bool initial_client,
+@@ -108,13 +110,14 @@ base::FilePath PlatformCrashpadInitialization(
                crashpad::TriState::kEnabled, kIndirectMemoryLimit);
      }
  
 -    // If the handler is embedded in the binary (e.g. chrome, setup), we
 -    // reinvoke it with --type=crashpad-handler. Otherwise, we use the
 -    // standalone crashpad_handler.exe (for tests, etc.).
-     std::vector<std::string> start_arguments;
+     std::vector<std::string> start_arguments(initial_arguments);
 +
 +    // Always add --type=crashpad-handler because the value is expected by
 +    // CefExecuteProcess.
@@ -582,7 +582,7 @@ index 4902d87bd171..a573e9557666 100644
        if (!user_data_dir.empty()) {
          start_arguments.push_back(std::string("--user-data-dir=") +
                                    user_data_dir);
-@@ -123,9 +126,12 @@ base::FilePath PlatformCrashpadInitialization(bool initial_client,
+@@ -125,9 +128,12 @@ base::FilePath PlatformCrashpadInitialization(
        start_arguments.push_back("/prefetch:7");
      } else {
        base::FilePath exe_dir = exe_file.DirName();

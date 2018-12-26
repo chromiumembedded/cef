@@ -233,8 +233,6 @@ CefBrowserContextProxy::GetOrCreateStoragePartitionProxy(
     scoped_refptr<CefURLRequestContextGetterProxy> url_request_getter =
         new CefURLRequestContextGetterProxy(handler_,
                                             parent_->request_context_getter());
-    resource_context()->set_url_request_context_getter(
-        url_request_getter.get());
     storage_partition_proxy_.reset(
         new CefStoragePartitionProxy(partition_impl, url_request_getter.get()));
 

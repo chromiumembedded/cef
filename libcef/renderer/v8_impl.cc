@@ -1330,7 +1330,12 @@ CefRefPtr<CefV8Value> CefV8Value::CreateObject(
 
     tmpl->SetIndexedPropertyHandler(InterceptorGetterCallbackImpl<uint32_t>,
                                     InterceptorSetterCallbackImpl<uint32_t>);
-    obj = tmpl->NewInstance();
+
+    v8::MaybeLocal<v8::Object> maybe_object = tmpl->NewInstance(context);
+    if (!maybe_object.ToLocal<v8::Object>(&obj)) {
+      NOTREACHED() << "Failed to create V8 Object with interceptor";
+      return NULL;
+    }
   } else {
     obj = v8::Object::New(isolate);
   }
@@ -1435,8 +1440,9 @@ CefRefPtr<CefV8Value> CefV8Value::CreateFunction(
       v8::FunctionTemplate::New(isolate, FunctionCallbackImpl, function_data);
 
   // Retrieve the function object and set the name.
-  v8::Local<v8::Function> func = tmpl->GetFunction();
-  if (func.IsEmpty()) {
+  v8::MaybeLocal<v8::Function> maybe_func = tmpl->GetFunction(context);
+  v8::Local<v8::Function> func;
+  if (!maybe_func.ToLocal(&func)) {
     NOTREACHED() << "failed to create V8 function";
     return NULL;
   }

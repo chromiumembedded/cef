@@ -39,7 +39,7 @@ index fb958b187f0b..131f2fe7490e 100644
    virtual void MenuWillShow() {}
  
 diff --git ui/gfx/render_text.cc ui/gfx/render_text.cc
-index 2b4458cf4f6a..8442cdfbf9a0 100644
+index 46dd6934bdac..f99138041495 100644
 --- ui/gfx/render_text.cc
 +++ ui/gfx/render_text.cc
 @@ -509,6 +509,14 @@ void RenderText::SetElideBehavior(ElideBehavior elide_behavior) {
@@ -102,10 +102,10 @@ index 50eaca5b18eb..038d866fd8d1 100644
  };
  
 diff --git ui/views/animation/ink_drop_host_view.h ui/views/animation/ink_drop_host_view.h
-index 572573c3c114..427fbad4413a 100644
+index 282d1136b02c..e70023d433a1 100644
 --- ui/views/animation/ink_drop_host_view.h
 +++ ui/views/animation/ink_drop_host_view.h
-@@ -115,6 +115,8 @@ class VIEWS_EXPORT InkDropHostView : public View {
+@@ -116,6 +116,8 @@ class VIEWS_EXPORT InkDropHostView : public View {
    // them.
    void AnimateInkDrop(InkDropState state, const ui::LocatedEvent* event);
  
@@ -238,10 +238,10 @@ index 9c78b30ab3a0..999eb4048f5c 100644
    std::unique_ptr<SelectionController> selection_controller_;
  
 diff --git ui/views/controls/menu/menu_controller.cc ui/views/controls/menu/menu_controller.cc
-index b0f4756d729f..0c8a9f3f2f44 100644
+index 237a19181f21..92b5c9e3e349 100644
 --- ui/views/controls/menu/menu_controller.cc
 +++ ui/views/controls/menu/menu_controller.cc
-@@ -2457,8 +2457,13 @@ MenuItemView* MenuController::FindNextSelectableMenuItem(
+@@ -2501,8 +2501,13 @@ MenuItemView* MenuController::FindNextSelectableMenuItem(
  
  void MenuController::OpenSubmenuChangeSelectionIfCan() {
    MenuItemView* item = pending_state_.item;
@@ -256,7 +256,7 @@ index b0f4756d729f..0c8a9f3f2f44 100644
    MenuItemView* to_select = NULL;
    if (item->GetSubmenu()->GetMenuItemCount() > 0)
      to_select = FindInitialSelectableMenuItem(item, INCREMENT_SELECTION_DOWN);
-@@ -2473,8 +2478,10 @@ void MenuController::OpenSubmenuChangeSelectionIfCan() {
+@@ -2517,8 +2522,10 @@ void MenuController::OpenSubmenuChangeSelectionIfCan() {
  void MenuController::CloseSubmenu() {
    MenuItemView* item = state_.item;
    DCHECK(item);

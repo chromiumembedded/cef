@@ -23,6 +23,7 @@
 #include "base/strings/string_util.h"
 #include "base/strings/utf_string_conversions.h"
 #include "content/public/renderer/document_state.h"
+#include "content/public/renderer/render_frame.h"
 #include "content/public/renderer/render_view.h"
 #include "content/renderer/navigation_state.h"
 #include "third_party/blink/public/platform/web_string.h"
@@ -625,7 +626,9 @@ void CefBrowserImpl::OnRequest(const Cef_Request_Params& params) {
         params.arguments.GetString(0, &string);
         params.arguments.GetString(1, &url);
 
-        web_frame->LoadHTMLString(string, GURL(url));
+        content::RenderFrame::FromWebFrame(web_frame)->LoadHTMLString(
+            string, GURL(url), "UTF-8", GURL(),
+            false /* replace_current_item */);
       }
     }
   } else {

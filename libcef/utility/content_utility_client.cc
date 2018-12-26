@@ -60,11 +60,6 @@ bool CefContentUtilityClient::OnMessageReceived(const IPC::Message& message) {
 }
 
 void CefContentUtilityClient::RegisterServices(StaticServiceMap* services) {
-  service_manager::EmbeddedServiceInfo pdf_compositor_info;
-  pdf_compositor_info.factory =
-      base::Bind(&printing::CreatePdfCompositorService, std::string());
-  services->emplace(printing::mojom::kServiceName, pdf_compositor_info);
-
   {
     service_manager::EmbeddedServiceInfo printing_info;
     printing_info.factory =
@@ -80,4 +75,15 @@ void CefContentUtilityClient::RegisterServices(StaticServiceMap* services) {
       base::Bind(&proxy_resolver::ProxyResolverService::CreateService);
   services->emplace(proxy_resolver::mojom::kProxyResolverServiceName,
                     proxy_resolver_info);
+}
+
+std::unique_ptr<service_manager::Service>
+CefContentUtilityClient::HandleServiceRequest(
+    const std::string& service_name,
+    service_manager::mojom::ServiceRequest request) {
+  if (service_name == printing::mojom::kServiceName) {
+    return printing::CreatePdfCompositorService(std::string(),
+                                                std::move(request));
+  }
+  return nullptr;
 }
