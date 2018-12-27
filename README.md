@@ -7,6 +7,7 @@ The Chromium Embedded Framework (CEF) is a simple framework for embedding Chromi
 * General Usage - https://bitbucket.org/chromiumembedded/cef/wiki/GeneralUsage
 * Master Build Quick-Start - https://bitbucket.org/chromiumembedded/cef/wiki/MasterBuildQuickStart
 * Branches and Building - https://bitbucket.org/chromiumembedded/cef/wiki/BranchesAndBuilding
+* Announcements - https://groups.google.com/forum/#!forum/cef-announce
 * Support Forum - http://www.magpcss.org/ceforum/
 * CEF1 C++ API Docs - http://magpcss.org/ceforum/apidocs/
 * CEF3 C++ API Docs - http://magpcss.org/ceforum/apidocs3/
@@ -49,6 +50,7 @@ The base CEF framework includes support for the C and C++ programming languages.
 * Delphi (CEF1) - http://code.google.com/p/delphichromiumembedded/
 * Delphi (CEF3) - https://github.com/hgourvest/dcef3
 * Delphi (CEF3) - https://github.com/salvadordf/CEF4Delphi
+* Go - https://github.com/richardwilkes/cef
 * Go - https://github.com/CzarekTomczak/cef2go
 * Java - https://bitbucket.org/chromiumembedded/java-cef
 * Java - http://code.google.com/p/javacef/
