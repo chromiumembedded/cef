@@ -3,6 +3,7 @@
 # can be found in the LICENSE file.
 
 from date_util import *
+from exec_util import exec_cmd
 from file_util import *
 from make_cmake import process_cmake_template
 from optparse import OptionParser
@@ -301,13 +302,56 @@ def copy_files_list(build_dir, dst_dir, paths):
         raise Exception('Missing required path: %s' % source_path)
 
 
+def get_exported_symbols(file):
+  """ Returns the global symbols exported by |file|. """
+  symbols = []
+
+  # Each symbol line has a value is like:
+  # 0000000000000000 T _cef_sandbox_initialize
+  cmdline = 'nm -g -U %s' % file
+  result = exec_cmd(cmdline, os.path.join(cef_dir, 'tools'))
+  if len(result['err']) > 0:
+    raise Exception('ERROR: nm failed: %s' % result['err'])
+  for line in result['out'].split('\n'):
+    if line.find(' T ') < 0:
+      continue
+    symbol = line[line.rfind(' ') + 1:]
+    symbols.append(symbol)
+
+  return symbols
+
+
 def combine_libs(platform, build_dir, libs, dest_lib):
   """ Combine multiple static libraries into a single static library. """
+  intermediate_obj = None
   if platform == 'windows':
     cmdline = 'msvs_env.bat win%s python combine_libs.py -o "%s"' % (
         platform_arch, dest_lib)
-  else:
-    cmdline = 'libtool -static -o "%s"' % dest_lib
+  elif platform == 'macosx':
+    # Find CEF_EXPORT symbols from libcef_sandbox.a (include/cef_sandbox_mac.h)
+    # Export only symbols that include these strings.
+    symbol_match = [
+        '_cef_',  # C symbols
+        'Cef',  # C++ symbols
+    ]
+
+    print 'Finding exported symbols...'
+    assert 'libcef_sandbox.a' in libs[0], libs[0]
+    symbols = []
+    for symbol in get_exported_symbols(os.path.join(build_dir, libs[0])):
+      for match in symbol_match:
+        if symbol.find(match) >= 0:
+          symbols.append(symbol)
+          break
+    assert len(symbols) > 0
+
+    # Create an intermediate object file that combines all other object files.
+    # Symbols not identified above will be made private (local).
+    intermediate_obj = os.path.splitext(dest_lib)[0] + '.o'
+    cmdline = 'ld -arch x86_64 -r -o "%s"' % intermediate_obj
+    for symbol in symbols:
+      cmdline += ' -exported_symbol %s' % symbol
+
   for lib in libs:
     lib_path = os.path.join(build_dir, lib)
     for path in get_files(lib_path):  # Expand wildcards in |lib_path|.
@@ -315,6 +359,20 @@ def combine_libs(platform, build_dir, libs, dest_lib):
         raise Exception('File not found: ' + path)
       cmdline += ' "%s"' % path
   run(cmdline, os.path.join(cef_dir, 'tools'))
+
+  if not intermediate_obj is None:
+    # Create an archive file containing the new object file.
+    cmdline = 'libtool -static -o "%s" "%s"' % (dest_lib, intermediate_obj)
+    run(cmdline, os.path.join(cef_dir, 'tools'))
+    remove_file(intermediate_obj)
+
+    # Verify that only the expected symbols are exported from the archive file.
+    print 'Verifying exported symbols...'
+    result_symbols = get_exported_symbols(dest_lib)
+    if set(symbols) != set(result_symbols):
+      print 'Expected', symbols
+      print 'Got', result_symbols
+      raise Exception('Failure verifying exported symbols')
 
 
 def run(command_line, working_dir):
@@ -406,7 +464,7 @@ parser.add_option(
     action='store_true',
     dest='sandbox',
     default=False,
-    help='include only the cef_sandbox static library (Windows only)')
+    help='include only the cef_sandbox static library (macOS and Windows only)')
 parser.add_option(
     '-q',
     '--quiet',
@@ -444,8 +502,8 @@ if options.armbuild and platform != 'linux':
   print '--arm-build is only supported on Linux.'
   sys.exit()
 
-if options.sandbox and platform != 'windows':
-  print '--sandbox is only supported on Windows.'
+if options.sandbox and not platform in ('macosx', 'windows'):
+  print '--sandbox is only supported on macOS and Windows.'
   sys.exit()
 
 if not options.ninjabuild:
