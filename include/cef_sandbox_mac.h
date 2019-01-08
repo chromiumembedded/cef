@@ -32,6 +32,7 @@
 #pragma once
 
 #include "include/base/cef_build.h"
+#include "include/internal/cef_export.h"
 
 #if defined(OS_MACOSX)
 
@@ -56,12 +57,12 @@ extern "C" {
 // handle on success or NULL on failure. The returned handle should be
 // passed to cef_sandbox_destroy() immediately before process termination.
 ///
-void* cef_sandbox_initialize(int argc, char** argv);
+CEF_EXPORT void* cef_sandbox_initialize(int argc, char** argv);
 
 ///
 // Destroy the specified sandbox context handle.
 ///
-void cef_sandbox_destroy(void* sandbox_context);
+CEF_EXPORT void cef_sandbox_destroy(void* sandbox_context);
 
 #ifdef __cplusplus
 }
@@ -69,7 +70,7 @@ void cef_sandbox_destroy(void* sandbox_context);
 ///
 // Scoped helper for managing the life span of a sandbox context handle.
 ///
-class CefScopedSandboxContext {
+class CEF_EXPORT CefScopedSandboxContext {
  public:
   CefScopedSandboxContext();
   ~CefScopedSandboxContext();
