@@ -48,11 +48,14 @@ class CefMainDelegate : public content::ContentMainDelegate {
   content::ContentRendererClient* CreateContentRendererClient() override;
   content::ContentUtilityClient* CreateContentUtilityClient() override;
 
+  bool CreateUIThread();
+
   // Shut down the browser runner.
   void ShutdownBrowser();
 
   CefContentBrowserClient* browser_client() { return browser_client_.get(); }
   CefContentClient* content_client() { return &content_client_; }
+  base::Thread* ui_thread() { return ui_thread_.get(); }
 
  private:
   void InitializeResourceBundle();
