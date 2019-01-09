@@ -259,21 +259,24 @@ bool IsScaleFactorSupported(ui::ScaleFactor scale_factor) {
 // Used to run the UI on a separate thread.
 class CefUIThread : public base::Thread {
  public:
-  CefUIThread(const content::MainFunctionParams& main_function_params)
-      : base::Thread("CefUIThread"),
-        main_function_params_(main_function_params) {}
+  CefUIThread() : base::Thread("CefUIThread") {}
 
   void Init() override {
 #if defined(OS_WIN)
     // Initializes the COM library on the current thread.
     CoInitialize(NULL);
 #endif
+  }
+
+  void InitializeBrowserRunner(
+      const content::MainFunctionParams& main_function_params) {
+    DCHECK(task_runner()->BelongsToCurrentThread());
 
     // Use our own browser process runner.
     browser_runner_.reset(content::BrowserMainRunner::Create());
 
-    // Initialize browser process state. Uses the current thread's mesage loop.
-    int exit_code = browser_runner_->Initialize(main_function_params_);
+    // Initialize browser process state. Uses the current thread's message loop.
+    int exit_code = browser_runner_->Initialize(main_function_params);
     CHECK_EQ(exit_code, -1);
   }
 
@@ -298,7 +301,6 @@ class CefUIThread : public base::Thread {
   }
 
  protected:
-  content::MainFunctionParams main_function_params_;
   std::unique_ptr<content::BrowserMainRunner> browser_runner_;
 };
 
@@ -315,8 +317,10 @@ CefMainDelegate::CefMainDelegate(CefRefPtr<CefApp> application)
 CefMainDelegate::~CefMainDelegate() {}
 
 void CefMainDelegate::PreCreateMainMessageLoop() {
-  // Create the main message loop.
-  message_loop_.reset(new CefBrowserMessageLoop());
+  if (!message_loop_) {
+    // Create the main message loop.
+    message_loop_.reset(new CefBrowserMessageLoop());
+  }
 }
 
 bool CefMainDelegate::BasicStartupComplete(int* exit_code) {
@@ -591,23 +595,35 @@ int CefMainDelegate::RunProcess(
       if (exit_code >= 0)
         return exit_code;
     } else {
-      // Run the UI on a separate thread.
-      std::unique_ptr<base::Thread> thread;
-      thread.reset(new CefUIThread(main_function_params));
-      base::Thread::Options options;
-      options.message_loop_type = base::MessageLoop::TYPE_UI;
-      if (!thread->StartWithOptions(options)) {
-        NOTREACHED() << "failed to start UI thread";
-        return 1;
-      }
-      thread->WaitUntilThreadStarted();
-      ui_thread_.swap(thread);
+      // Running on the separate UI thread.
+      DCHECK(ui_thread_);
+      static_cast<CefUIThread*>(ui_thread_.get())
+          ->InitializeBrowserRunner(main_function_params);
     }
 
     return 0;
   }
 
   return -1;
+}
+
+bool CefMainDelegate::CreateUIThread() {
+  DCHECK(!ui_thread_);
+  DCHECK(!message_loop_);
+
+  std::unique_ptr<base::Thread> thread;
+  thread.reset(new CefUIThread());
+  base::Thread::Options options;
+  options.message_loop_type = base::MessageLoop::TYPE_UI;
+  if (!thread->StartWithOptions(options)) {
+    NOTREACHED() << "failed to start UI thread";
+    return false;
+  }
+  thread->WaitUntilThreadStarted();
+  ui_thread_.swap(thread);
+
+  message_loop_.reset(new CefBrowserMessageLoop());
+  return true;
 }
 
 void CefMainDelegate::ProcessExiting(const std::string& process_type) {

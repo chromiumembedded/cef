@@ -24,6 +24,7 @@
 #include "base/synchronization/waitable_event.h"
 #include "components/network_session_configurator/common/network_switches.h"
 #include "content/app/content_service_manager_main_delegate.h"
+#include "content/browser/startup_helper.h"
 #include "content/public/browser/notification_service.h"
 #include "content/public/browser/notification_types.h"
 #include "content/public/browser/render_process_host.h"
@@ -123,7 +124,7 @@ int RunAsCrashpadHandler(const base::CommandLine& command_line) {
   argv.insert(argv.begin(), command_line.GetProgram().value());
 #endif
 
-  std::unique_ptr<char* []> argv_as_utf8(new char*[argv.size() + 1]);
+  std::unique_ptr<char*[]> argv_as_utf8(new char*[argv.size() + 1]);
   std::vector<std::string> storage;
   storage.reserve(argv.size());
   for (size_t i = 0; i < argv.size(); ++i) {
@@ -409,11 +410,38 @@ bool CefContext::Initialize(const CefMainArgs& args,
 
   static_cast<ChromeBrowserProcessStub*>(g_browser_process)->Initialize();
 
-  // Run the process. Results in a call to CefMainDelegate::RunProcess() which
-  // will create the browser runner and message loop without blocking.
-  exit_code = service_manager::MainRun(*sm_main_params_);
+  if (settings.multi_threaded_message_loop) {
+    base::WaitableEvent uithread_startup_event(
+        base::WaitableEvent::ResetPolicy::AUTOMATIC,
+        base::WaitableEvent::InitialState::NOT_SIGNALED);
 
-  initialized_ = true;
+    // This is required because creating a base::Thread as starting it will
+    // check some feature flags this will cause a CHECK failure later when this
+    // gets called by some call down the line of service_manager::MainRun.
+    content::SetUpFieldTrialsAndFeatureList();
+
+    if (!main_delegate_->CreateUIThread()) {
+      return false;
+    }
+
+    initialized_ = true;
+
+    // Can't use CEF_POST_TASK here yet, because the TaskRunner is not yet set.
+    main_delegate_->ui_thread()->task_runner()->PostTask(
+        FROM_HERE,
+        base::BindOnce(
+            [](CefContext* context, base::WaitableEvent* event) {
+              service_manager::MainRun(*context->sm_main_params_);
+              event->Signal();
+            },
+            base::Unretained(this), base::Unretained(&uithread_startup_event)));
+
+    // We need to wait until service_manager::MainRun has finished.
+    uithread_startup_event.Wait();
+  } else {
+    initialized_ = true;
+    service_manager::MainRun(*sm_main_params_);
+  }
 
   if (CEF_CURRENTLY_ON_UIT()) {
     OnContextInitialized();
