@@ -13,20 +13,29 @@ index dcc9f8d1163a..a0681ac47fc3 100644
  std::unique_ptr<MessageLoop> MessageLoop::CreateUnbound(
      Type type,
 diff --git base/message_loop/message_loop.h base/message_loop/message_loop.h
-index 1adfd4cd1904..80befbbb7aa1 100644
+index 1adfd4cd1904..acfc0886003c 100644
 --- base/message_loop/message_loop.h
 +++ base/message_loop/message_loop.h
-@@ -294,6 +294,9 @@ class BASE_EXPORT MessageLoop {
+@@ -188,6 +188,8 @@ class BASE_EXPORT MessageLoopBase {
+   // can post other tasks when destructed.
+   virtual void DeletePendingTasks() = 0;
+ 
++  virtual void ReleasePump() = 0;
++
+  protected:
+   friend class MessageLoop;
+   friend class MessageLoopForUI;
+@@ -294,6 +296,9 @@ class BASE_EXPORT MessageLoop {
      SEQUENCE_MANAGER,
    };
  
 +  // Called from Thread::CleanUp() to release resources.
-+  void ReleasePump() { pump_ = nullptr; }
++  void ReleasePump() { pump_ = nullptr; backend_->ReleasePump(); }
 +
    //----------------------------------------------------------------------------
   protected:
    using MessagePumpFactoryCallback =
-@@ -402,6 +405,7 @@ class BASE_EXPORT MessageLoop {
+@@ -402,6 +407,7 @@ class BASE_EXPORT MessageLoop {
  class BASE_EXPORT MessageLoopForUI : public MessageLoop {
   public:
    explicit MessageLoopForUI(Type type = TYPE_UI);
@@ -98,6 +107,19 @@ index 56c147d1e739..4afd37ba5b10 100644
  };
  
  #if !defined(OS_NACL)
+diff --git base/message_loop/message_loop_impl.h base/message_loop/message_loop_impl.h
+index cefa94ff52d6..13acc90d10dc 100644
+--- base/message_loop/message_loop_impl.h
++++ base/message_loop/message_loop_impl.h
+@@ -77,6 +77,8 @@ class BASE_EXPORT MessageLoopImpl : public MessageLoopBase,
+   void DeletePendingTasks() override;
+   bool HasTasks() override;
+ 
++  void ReleasePump() override { pump_ = nullptr; }
++
+   // Gets the TaskRunner associated with this message loop.
+   const scoped_refptr<SingleThreadTaskRunner>& task_runner() const {
+     return task_runner_;
 diff --git base/message_loop/message_pump_win.cc base/message_loop/message_pump_win.cc
 index 1d6748e0e88a..1598fb65484e 100644
 --- base/message_loop/message_pump_win.cc
@@ -151,3 +173,16 @@ index 1d6748e0e88a..1598fb65484e 100644
    DCHECK(!have_message || kMsgHaveWork != msg.message ||
           msg.hwnd != message_window_.hwnd());
  
+diff --git base/task/sequence_manager/sequence_manager_impl.h base/task/sequence_manager/sequence_manager_impl.h
+index 593a17981f0b..9af6995c4d51 100644
+--- base/task/sequence_manager/sequence_manager_impl.h
++++ base/task/sequence_manager/sequence_manager_impl.h
+@@ -163,6 +163,8 @@ class BASE_EXPORT SequenceManagerImpl
+   void BindToCurrentThread(std::unique_ptr<MessagePump> pump) override;
+   void DeletePendingTasks() override;
+   bool HasTasks() override;
++  
++  void ReleasePump() override { }
+ 
+   // Requests that a task to process work is posted on the main task runner.
+   // These tasks are de-duplicated in two buckets: main-thread and all other
