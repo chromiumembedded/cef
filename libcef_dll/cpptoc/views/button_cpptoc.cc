@@ -1,4 +1,4 @@
-// Copyright (c) 2018 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2019 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=54c08ec36e8c8c7300bd3ad456eccc7d2f505d16$
+// $hash=923f9d903634b18aff96ca61d9d4bc402e3be551$
 //
 
 #include "libcef_dll/cpptoc/views/button_cpptoc.h"

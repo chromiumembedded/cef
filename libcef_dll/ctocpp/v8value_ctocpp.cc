@@ -1,4 +1,4 @@
-// Copyright (c) 2018 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2019 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=367192c891fb6d8c4cd329b9e356bdc2d4c1b7c8$
+// $hash=700904d273996990c0c0130f5043df492fb1ad76$
 //
 
 #include "libcef_dll/ctocpp/v8value_ctocpp.h"
@@ -847,8 +847,8 @@ NO_SANITIZE("cfi-icall") int CefV8ValueCToCpp::GetArrayLength() {
 }
 
 NO_SANITIZE("cfi-icall")
-CefRefPtr<CefV8ArrayBufferReleaseCallback>
-CefV8ValueCToCpp::GetArrayBufferReleaseCallback() {
+CefRefPtr<CefV8ArrayBufferReleaseCallback> CefV8ValueCToCpp::
+    GetArrayBufferReleaseCallback() {
   cef_v8value_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_array_buffer_release_callback))
     return NULL;

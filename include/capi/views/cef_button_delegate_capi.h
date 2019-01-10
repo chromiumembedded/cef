@@ -1,4 +1,4 @@
-// Copyright (c) 2018 Marshall A. Greenblatt. All rights reserved.
+// Copyright (c) 2019 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=9bc4176c48c0275e5950523eff35c35e988a4198$
+// $hash=f63985088a498b2b0a7568adfc960eba1794a6c9$
 //
 
 #ifndef CEF_INCLUDE_CAPI_VIEWS_CEF_BUTTON_DELEGATE_CAPI_H_

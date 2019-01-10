@@ -1,4 +1,4 @@
-// Copyright (c) 2018 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2019 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=cae800bd46aede148cd2f899f79f5fc6c33f43a2$
+// $hash=6389a8402fade5483d5d7bef8c360e60b091e3a9$
 //
 
 #include "libcef_dll/ctocpp/waitable_event_ctocpp.h"
