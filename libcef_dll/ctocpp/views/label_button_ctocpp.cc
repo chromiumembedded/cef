@@ -1,4 +1,4 @@
-// Copyright (c) 2018 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2019 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=df397b3a4babf96a930733c55ea3752cd1f07189$
+// $hash=df23ba2ae9bbf4668735af7e81b3fde171e3795b$
 //
 
 #include "libcef_dll/ctocpp/views/label_button_ctocpp.h"

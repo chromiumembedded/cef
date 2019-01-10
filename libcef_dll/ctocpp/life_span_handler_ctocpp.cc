@@ -1,4 +1,4 @@
-// Copyright (c) 2018 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2019 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=8ff36f4b6be6a1f2c15fc1ad7a0f7eea6af84844$
+// $hash=5ca0dcecb510fc40906043821ecdd6021060ec29$
 //
 
 #include "libcef_dll/ctocpp/life_span_handler_ctocpp.h"

@@ -1,4 +1,4 @@
-// Copyright (c) 2018 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2019 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=14df1b4e62bc8d726d2d2b2546a1a9ce944beed3$
+// $hash=b4d995b4c2d814259613e2d14d868a0a5ff7984c$
 //
 
 #include "libcef_dll/ctocpp/response_filter_ctocpp.h"
@@ -31,13 +31,13 @@ NO_SANITIZE("cfi-icall") bool CefResponseFilterCToCpp::InitFilter() {
 }
 
 NO_SANITIZE("cfi-icall")
-CefResponseFilter::FilterStatus CefResponseFilterCToCpp::Filter(
-    void* data_in,
-    size_t data_in_size,
-    size_t& data_in_read,
-    void* data_out,
-    size_t data_out_size,
-    size_t& data_out_written) {
+CefResponseFilter::FilterStatus
+    CefResponseFilterCToCpp::Filter(void* data_in,
+                                    size_t data_in_size,
+                                    size_t& data_in_read,
+                                    void* data_out,
+                                    size_t data_out_size,
+                                    size_t& data_out_written) {
   cef_response_filter_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, filter))
     return RESPONSE_FILTER_ERROR;

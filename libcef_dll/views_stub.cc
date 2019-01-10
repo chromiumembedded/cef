@@ -1,4 +1,4 @@
-// Copyright (c) 2018 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2019 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=6b033757107a97e1c1953cb75652962b214f46e8$
+// $hash=3639cede4bdba16cae273a2137867f9c5ac53fe8$
 //
 
 #include "include/views/cef_browser_view.h"

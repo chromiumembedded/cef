@@ -1,4 +1,4 @@
-// Copyright (c) 2018 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2019 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=5e86ec91814c99916e87d1f105da0d9d25b257eb$
+// $hash=42ff674e90448b09757c4f8cd202204a429bf0d6$
 //
 
 #include "libcef_dll/ctocpp/context_menu_params_ctocpp.h"
@@ -205,7 +205,7 @@ CefContextMenuParams::MediaType CefContextMenuParamsCToCpp::GetMediaType() {
 
 NO_SANITIZE("cfi-icall")
 CefContextMenuParams::MediaStateFlags
-CefContextMenuParamsCToCpp::GetMediaStateFlags() {
+    CefContextMenuParamsCToCpp::GetMediaStateFlags() {
   cef_context_menu_params_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_media_state_flags))
     return CM_MEDIAFLAG_NONE;
@@ -314,7 +314,7 @@ bool CefContextMenuParamsCToCpp::IsSpellCheckEnabled() {
 
 NO_SANITIZE("cfi-icall")
 CefContextMenuParams::EditStateFlags
-CefContextMenuParamsCToCpp::GetEditStateFlags() {
+    CefContextMenuParamsCToCpp::GetEditStateFlags() {
   cef_context_menu_params_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_edit_state_flags))
     return CM_EDITFLAG_NONE;
