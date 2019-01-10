@@ -1,4 +1,4 @@
-// Copyright (c) 2018 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2019 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=1cb6eeb5a43ef7c45a7ec8e781511ae0f1a1cbc4$
+// $hash=1d3b699d96cc8b90d1922f44ff817167d374d7f8$
 //
 
 #include "libcef_dll/ctocpp/navigation_entry_ctocpp.h"
@@ -97,7 +97,7 @@ NO_SANITIZE("cfi-icall") CefString CefNavigationEntryCToCpp::GetTitle() {
 
 NO_SANITIZE("cfi-icall")
 CefNavigationEntry::TransitionType
-CefNavigationEntryCToCpp::GetTransitionType() {
+    CefNavigationEntryCToCpp::GetTransitionType() {
   cef_navigation_entry_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_transition_type))
     return TT_EXPLICIT;

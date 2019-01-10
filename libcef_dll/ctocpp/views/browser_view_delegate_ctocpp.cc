@@ -1,4 +1,4 @@
-// Copyright (c) 2018 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2019 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=20a8f848a32320063e366b0ddc589d91cee0bfa5$
+// $hash=9aa44f1335f77dcfd50f906bac15196cf510e69b$
 //
 
 #include "libcef_dll/ctocpp/views/browser_view_delegate_ctocpp.h"
@@ -70,12 +70,11 @@ void CefBrowserViewDelegateCToCpp::OnBrowserDestroyed(
 }
 
 NO_SANITIZE("cfi-icall")
-CefRefPtr<CefBrowserViewDelegate>
-CefBrowserViewDelegateCToCpp::GetDelegateForPopupBrowserView(
-    CefRefPtr<CefBrowserView> browser_view,
-    const CefBrowserSettings& settings,
-    CefRefPtr<CefClient> client,
-    bool is_devtools) {
+CefRefPtr<CefBrowserViewDelegate> CefBrowserViewDelegateCToCpp::
+    GetDelegateForPopupBrowserView(CefRefPtr<CefBrowserView> browser_view,
+                                   const CefBrowserSettings& settings,
+                                   CefRefPtr<CefClient> client,
+                                   bool is_devtools) {
   cef_browser_view_delegate_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_delegate_for_popup_browser_view))
     return NULL;
@@ -131,8 +130,8 @@ bool CefBrowserViewDelegateCToCpp::OnPopupBrowserViewCreated(
 }
 
 NO_SANITIZE("cfi-icall")
-CefSize CefBrowserViewDelegateCToCpp::GetPreferredSize(
-    CefRefPtr<CefView> view) {
+CefSize
+    CefBrowserViewDelegateCToCpp::GetPreferredSize(CefRefPtr<CefView> view) {
   cef_view_delegate_t* _struct =
       reinterpret_cast<cef_view_delegate_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, get_preferred_size))

@@ -1,4 +1,4 @@
-// Copyright (c) 2018 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2019 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=ceb923a42bf790b29309bc5d558621e1d51f0678$
+// $hash=8e84654b0f8ed2388392637114e95988af23f6e0$
 //
 
 #include "libcef_dll/ctocpp/test/translator_test_ref_ptr_library_child_ctocpp.h"
@@ -18,8 +18,9 @@
 // STATIC METHODS - Body may be edited by hand.
 
 NO_SANITIZE("cfi-icall")
-CefRefPtr<CefTranslatorTestRefPtrLibraryChild>
-CefTranslatorTestRefPtrLibraryChild::Create(int value, int other_value) {
+CefRefPtr<
+    CefTranslatorTestRefPtrLibraryChild> CefTranslatorTestRefPtrLibraryChild::
+    Create(int value, int other_value) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
