@@ -12,10 +12,10 @@ index baa7d79aec2e..06bec45c6538 100644
      version.SetString("V8-Version", V8_VERSION_STRING);
      std::string host = info.headers["host"];
 diff --git content/public/common/content_client.h content/public/common/content_client.h
-index b939bc2a9edf..b37302c0d8cf 100644
+index 618a328b4767..79aaa0fac1d2 100644
 --- content/public/common/content_client.h
 +++ content/public/common/content_client.h
-@@ -151,6 +151,10 @@ class CONTENT_EXPORT ContentClient {
+@@ -156,6 +156,10 @@ class CONTENT_EXPORT ContentClient {
    // Used as part of the user agent string.
    virtual std::string GetProduct() const;
  
