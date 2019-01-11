@@ -16,7 +16,7 @@ namespace {
 
 // MessagePump implementation that delegates to OnScheduleMessagePumpWork() for
 // scheduling.
-class MessagePumpExternal : public base::MessagePump {
+class MessagePumpExternal : public base::MessagePumpForUI {
  public:
   MessagePumpExternal(float max_time_slice,
                       CefRefPtr<CefBrowserProcessHandler> handler)
