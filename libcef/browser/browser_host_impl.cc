@@ -1648,7 +1648,8 @@ CefRefPtr<CefFrame> CefBrowserHostImpl::GetFrameForRequest(
   // The value of |IsMainFrame| is unreliable in these cases.
   const bool is_main_frame_state_flaky =
       info->IsDownload() ||
-      info->GetResourceType() == content::RESOURCE_TYPE_XHR;
+      info->GetResourceType() == content::RESOURCE_TYPE_XHR ||
+      info->GetResourceType() == content::RESOURCE_TYPE_SCRIPT;
   return GetOrCreateFrame(info->GetRenderFrameID(), info->GetFrameTreeNodeId(),
                           CefFrameHostImpl::kUnspecifiedFrameId,
                           info->IsMainFrame(), is_main_frame_state_flaky,
