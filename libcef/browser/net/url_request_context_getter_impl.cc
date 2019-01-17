@@ -101,7 +101,7 @@ class CefHttpUserAgentSettings : public net::HttpUserAgentSettings {
 
   std::string GetUserAgent() const override {
     CEF_REQUIRE_IOT();
-    return CefContentClient::Get()->GetUserAgent();
+    return CefContentClient::Get()->browser()->GetUserAgent();
   }
 
  private:
@@ -405,7 +405,9 @@ net::URLRequestContext* CefURLRequestContextGetterImpl::GetURLRequestContext() {
     network_session_configurator::ParseCommandLineAndFieldTrials(
         *base::CommandLine::ForCurrentProcess(),
         false /* is_quic_force_disabled */,
-        CefContentClient::Get()->GetUserAgent() /* quic_user_agent_id */,
+        CefContentClient::Get()
+            ->browser()
+            ->GetUserAgent() /* quic_user_agent_id */,
         &network_session_params);
     network_session_params.ignore_certificate_errors =
         settings_.ignore_certificate_errors ? true : false;

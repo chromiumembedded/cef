@@ -55,13 +55,15 @@ class CefWebURLLoaderClient : public blink::WebURLLoaderClient {
                int64_t total_encoded_data_length,
                int64_t total_encoded_body_length,
                int64_t total_decoded_body_length) override;
-  bool WillFollowRedirect(const WebURL& new_url,
-                          const WebURL& new_site_for_cookies,
-                          const WebString& new_referrer,
-                          network::mojom::ReferrerPolicy new_referrer_policy,
-                          const WebString& new_method,
-                          const WebURLResponse& passed_redirect_response,
-                          bool& report_raw_headers) override;
+  bool WillFollowRedirect(
+      const WebURL& new_url,
+      const WebURL& new_site_for_cookies,
+      const base::Optional<blink::WebSecurityOrigin>& new_top_frame_origin,
+      const WebString& new_referrer,
+      network::mojom::ReferrerPolicy new_referrer_policy,
+      const WebString& new_method,
+      const WebURLResponse& passed_redirect_response,
+      bool& report_raw_headers) override;
 
  protected:
   // The context_ pointer will outlive this object.
@@ -315,6 +317,7 @@ void CefWebURLLoaderClient::DidFail(const WebURLError& error,
 bool CefWebURLLoaderClient::WillFollowRedirect(
     const WebURL& new_url,
     const WebURL& new_site_for_cookies,
+    const base::Optional<blink::WebSecurityOrigin>& new_top_frame_origin,
     const WebString& new_referrer,
     network::mojom::ReferrerPolicy new_referrer_policy,
     const WebString& new_method,

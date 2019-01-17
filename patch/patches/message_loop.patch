@@ -1,5 +1,5 @@
 diff --git base/message_loop/message_loop.cc base/message_loop/message_loop.cc
-index dcc9f8d1163a..a0681ac47fc3 100644
+index f72f17d9317c..40c421ad4dcb 100644
 --- base/message_loop/message_loop.cc
 +++ base/message_loop/message_loop.cc
 @@ -177,6 +177,9 @@ MessageLoopBase* MessageLoop::GetMessageLoopBase() {

@@ -597,8 +597,15 @@ void CefServerImpl::ShutdownOnUIThread() {
   if (thread_) {
     // Stop the handler thread as a background task so the UI thread isn't
     // blocked.
-    CEF_POST_BACKGROUND_TASK(
-        BindOnce([](std::unique_ptr<base::Thread>) {}, std::move(thread_)));
+    CEF_POST_BACKGROUND_TASK(BindOnce(
+        [](std::unique_ptr<base::Thread> thread) {
+          // Calling PlatformThread::Join() on the UI thread is otherwise
+          // disallowed.
+          base::ScopedAllowBaseSyncPrimitivesForTesting
+              scoped_allow_sync_primitives;
+          thread.reset();
+        },
+        std::move(thread_)));
 
     // Release the reference that was added in StartupOnUIThread().
     Release();

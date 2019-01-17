@@ -314,6 +314,7 @@ static_library("libcef_static") {
     "libcef/browser/browser_util.h",
     "libcef/browser/chrome_browser_process_stub.cc",
     "libcef/browser/chrome_browser_process_stub.h",
+    "libcef/browser/chrome_crash_reporter_client_stub.cc",
     "libcef/browser/chrome_profile_manager_stub.cc",
     "libcef/browser/chrome_profile_manager_stub.h",
     "libcef/browser/chrome_profile_stub.cc",
@@ -786,6 +787,10 @@ static_library("libcef_static") {
       "comctl32.lib",
       # For D3D11_DECODER_PROFILE_H264_VLD_NOFGT.
       "dxguid.lib",
+    ]
+
+    data_deps = [
+      "//chrome/elevation_service",
     ]
   }
 

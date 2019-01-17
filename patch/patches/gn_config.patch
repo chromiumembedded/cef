@@ -1,8 +1,8 @@
 diff --git .gn .gn
-index 6f2772973179..34099faa8a27 100644
+index ea7a2f467dc8..42c3557ad301 100644
 --- .gn
 +++ .gn
-@@ -677,6 +677,8 @@ exec_script_whitelist =
+@@ -674,6 +674,8 @@ exec_script_whitelist =
        # in the Chromium repo outside of //build.
        "//build_overrides/build.gni",
  
@@ -12,7 +12,7 @@ index 6f2772973179..34099faa8a27 100644
        # https://crbug.com/474506.
        "//clank/java/BUILD.gn",
 diff --git BUILD.gn BUILD.gn
-index dbe4b22ba39a..1cd9399196a7 100644
+index 662dea503b3d..767805033c69 100644
 --- BUILD.gn
 +++ BUILD.gn
 @@ -185,6 +185,7 @@ group("gn_all") {
@@ -55,36 +55,6 @@ index 982fbe8d3f0d..e757be4688f1 100644
 +         "You must set the visual_studio_runtime_dirs if you set the visual " +
 +         "studio path")
  }
-diff --git build/toolchain/win/BUILD.gn build/toolchain/win/BUILD.gn
-index 07319b798998..27118d68d109 100644
---- build/toolchain/win/BUILD.gn
-+++ build/toolchain/win/BUILD.gn
-@@ -7,6 +7,7 @@ import("//build/config/compiler/compiler.gni")
- import("//build/config/sanitizers/sanitizers.gni")
- import("//build/config/win/visual_studio_version.gni")
- import("//build/toolchain/cc_wrapper.gni")
-+import("//build/toolchain/cc_wrapper.gni")
- import("//build/toolchain/clang_static_analyzer.gni")
- import("//build/toolchain/goma.gni")
- import("//build/toolchain/toolchain.gni")
-@@ -30,6 +31,8 @@ if (use_goma) {
-     goma_prefix = "$goma_dir/gomacc "
-   }
-   clang_prefix = goma_prefix
-+} else if (cc_wrapper != "") {
-+  goma_prefix = "$cc_wrapper "
- } else {
-   goma_prefix = ""
-   if (cc_wrapper != "") {
-@@ -121,7 +124,7 @@ template("msvc_toolchain") {
- 
-       # lld-link includes a replacement for lib.exe that can produce thin
-       # archives and understands bitcode (for lto builds).
--      lib = "$prefix/$lld_link /lib /llvmlibthin"
-+      lib = "$prefix/$lld_link /lib"
-       link = "$prefix/$lld_link"
-       if (host_os != "win") {
-         # See comment adding --rsp-quoting to $cl above for more information.
 diff --git build/toolchain/win/setup_toolchain.py build/toolchain/win/setup_toolchain.py
 index 2c8675206f31..d3e419d8fe98 100644
 --- build/toolchain/win/setup_toolchain.py
@@ -130,7 +100,7 @@ index 2c8675206f31..d3e419d8fe98 100644
  
  
 diff --git build/vs_toolchain.py build/vs_toolchain.py
-index e613b88e5351..3f1d4f06f36a 100755
+index eb47863e6b22..5b8bedb6ab45 100755
 --- build/vs_toolchain.py
 +++ build/vs_toolchain.py
 @@ -73,11 +73,18 @@ def SetEnvironmentAndGetRuntimeDllDirs():
@@ -166,10 +136,10 @@ index 8f2e40286155..42bb53db9aa8 100644
      if (is_mac) {
        output_locales = locales_as_mac_outputs
 diff --git chrome/installer/mini_installer/BUILD.gn chrome/installer/mini_installer/BUILD.gn
-index 931761ff27de..a181fbeadc86 100644
+index 8d19c74ebe9d..7470cc298e36 100644
 --- chrome/installer/mini_installer/BUILD.gn
 +++ chrome/installer/mini_installer/BUILD.gn
-@@ -133,7 +133,7 @@ template("generate_mini_installer") {
+@@ -134,7 +134,7 @@ template("generate_mini_installer") {
      inputs = [
        "$chrome_dll_file",
        "$root_out_dir/chrome.exe",

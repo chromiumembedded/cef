@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <utility>
 
+#include "include/cef_version.h"
 #include "libcef/browser/browser_context_impl.h"
 #include "libcef/browser/browser_host_impl.h"
 #include "libcef/browser/browser_info.h"
@@ -75,6 +76,7 @@
 #include "content/public/common/content_switches.h"
 #include "content/public/common/service_names.mojom.h"
 #include "content/public/common/storage_quota_params.h"
+#include "content/public/common/user_agent.h"
 #include "content/public/common/web_preferences.h"
 #include "extensions/browser/api/web_request/web_request_api.h"
 #include "extensions/browser/extension_message_filter.h"
@@ -606,8 +608,7 @@ void CefContentBrowserClient::SiteInstanceDeleting(
                           site_instance->GetId()));
 }
 
-void CefContentBrowserClient::RegisterInProcessServices(
-    StaticServiceMap* services,
+void CefContentBrowserClient::RegisterIOThreadServiceHandlers(
     content::ServiceManagerConnection* connection) {
   // For spell checking.
   connection->AddServiceRequestHandler(
@@ -626,8 +627,8 @@ void CefContentBrowserClient::RegisterOutOfProcessServices(
                           IDS_UTILITY_PROCESS_PROXY_RESOLVER_NAME);
 }
 
-std::unique_ptr<base::Value> CefContentBrowserClient::GetServiceManifestOverlay(
-    base::StringPiece name) {
+base::Optional<service_manager::Manifest>
+CefContentBrowserClient::GetServiceManifestOverlay(base::StringPiece name) {
   int id = -1;
   if (name == content::mojom::kBrowserServiceName)
     id = IDR_CEF_BROWSER_MANIFEST_OVERLAY;
@@ -638,12 +639,13 @@ std::unique_ptr<base::Value> CefContentBrowserClient::GetServiceManifestOverlay(
   else if (name == content::mojom::kUtilityServiceName)
     id = IDR_CEF_UTILITY_MANIFEST_OVERLAY;
   if (id == -1)
-    return nullptr;
+    return {};
 
   base::StringPiece manifest_contents =
       ui::ResourceBundle::GetSharedInstance().GetRawDataResourceForScale(
           id, ui::ScaleFactor::SCALE_FACTOR_NONE);
-  return base::JSONReader::Read(manifest_contents);
+  return service_manager::Manifest::FromValueDeprecated(
+      base::JSONReader::Read(manifest_contents));
 }
 
 std::vector<content::ContentBrowserClient::ServiceManifestInfo>
@@ -916,7 +918,7 @@ bool CefContentBrowserClient::CanCreateWindow(
     content::RenderFrameHost* opener,
     const GURL& opener_url,
     const GURL& opener_top_level_frame_url,
-    const GURL& source_origin,
+    const url::Origin& source_origin,
     content::mojom::WindowContainerType container_type,
     const GURL& target_url,
     const content::Referrer& referrer,
@@ -1133,6 +1135,30 @@ bool CefContentBrowserClient::HandleExternalProtocol(
               &CefContentBrowserClient::HandleExternalProtocolOnUIThread),
           url, web_contents_getter));
   return false;
+}
+
+std::string CefContentBrowserClient::GetProduct() const {
+  const base::CommandLine* command_line =
+      base::CommandLine::ForCurrentProcess();
+  if (command_line->HasSwitch(switches::kProductVersion))
+    return command_line->GetSwitchValueASCII(switches::kProductVersion);
+
+  return GetChromeProduct();
+}
+
+std::string CefContentBrowserClient::GetChromeProduct() const {
+  return base::StringPrintf("Chrome/%d.%d.%d.%d", CHROME_VERSION_MAJOR,
+                            CHROME_VERSION_MINOR, CHROME_VERSION_BUILD,
+                            CHROME_VERSION_PATCH);
+}
+
+std::string CefContentBrowserClient::GetUserAgent() const {
+  const base::CommandLine* command_line =
+      base::CommandLine::ForCurrentProcess();
+  if (command_line->HasSwitch(switches::kUserAgent))
+    return command_line->GetSwitchValueASCII(switches::kUserAgent);
+
+  return content::BuildUserAgentFromProduct(GetProduct());
 }
 
 void CefContentBrowserClient::RegisterCustomScheme(const std::string& scheme) {

@@ -31,10 +31,10 @@ namespace {
 
 #if defined(OS_WIN)
 
-class GLImageDXGISharedHandle : public gl::GLImageDXGIBase {
+class GLImageDXGISharedHandle : public gl::GLImageDXGI {
  public:
   GLImageDXGISharedHandle(const gfx::Size& size)
-      : GLImageDXGIBase(size),
+      : GLImageDXGI(size, nullptr),
         handle_((HANDLE)0),
         surface_(EGL_NO_SURFACE),
         texture_id_(0) {}

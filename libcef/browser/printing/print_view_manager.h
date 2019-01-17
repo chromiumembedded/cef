@@ -63,7 +63,7 @@ class CefPrintViewManager
   int next_pdf_request_id_ = -1;
   struct PdfPrintState;
   std::unique_ptr<PdfPrintState> pdf_print_state_;
-
+  WEB_CONTENTS_USER_DATA_KEY_DECL();
   DISALLOW_COPY_AND_ASSIGN(CefPrintViewManager);
 };
 

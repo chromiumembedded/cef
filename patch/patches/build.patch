@@ -1,5 +1,5 @@
 diff --git build/config/compiler/BUILD.gn build/config/compiler/BUILD.gn
-index 87968b38e005..e597aecf436d 100644
+index 91e3033ec161..fe01d2192b2c 100644
 --- build/config/compiler/BUILD.gn
 +++ build/config/compiler/BUILD.gn
 @@ -163,7 +163,7 @@ declare_args() {
@@ -9,5 +9,14 @@ index 87968b38e005..e597aecf436d 100644
 -              ((!is_android && linux_use_bundled_binutils) || is_chromeos ||
 +              ((!is_android && linux_use_bundled_binutils && current_cpu != "x86") || is_chromeos ||
                 !(current_cpu == "x86" || current_cpu == "x64"))))
+ }
+ 
+@@ -1693,8 +1693,6 @@ config("thin_archive") {
+   # archive names to 16 characters, which is not what we want).
+   if ((is_posix && !is_nacl && !is_mac && !is_ios) || is_fuchsia) {
+     arflags = [ "-T" ]
+-  } else if (is_win && use_lld) {
+-    arflags = [ "/llvmlibthin" ]
+   }
  }
  

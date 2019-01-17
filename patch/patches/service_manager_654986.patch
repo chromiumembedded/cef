@@ -1,9 +1,9 @@
 diff --git services/service_manager/embedder/main.cc services/service_manager/embedder/main.cc
-index bc7399c23728..b0e3867ea39f 100644
+index 06e62473c316..a2b545246009 100644
 --- services/service_manager/embedder/main.cc
 +++ services/service_manager/embedder/main.cc
-@@ -300,22 +300,36 @@ int RunService(MainDelegate* delegate) {
-   return exit_code;
+@@ -289,22 +289,36 @@ int RunService(MainDelegate* delegate) {
+   return 0;
  }
  
 +ProcessType GetProcessType(MainDelegate* delegate,
@@ -43,7 +43,7 @@ index bc7399c23728..b0e3867ea39f 100644
  
    // A flag to indicate whether Main() has been called before. On Android, we
    // may re-run Main() without restarting the browser process. This flag
-@@ -391,12 +405,7 @@ int Main(const MainParams& params) {
+@@ -380,12 +394,7 @@ int Main(const MainParams& params) {
      MainDelegate::InitializeParams init_params;
  
  #if defined(OS_MACOSX)
@@ -57,7 +57,7 @@ index bc7399c23728..b0e3867ea39f 100644
      InitializeMac();
  #endif
  
-@@ -440,18 +449,16 @@ int Main(const MainParams& params) {
+@@ -429,18 +438,16 @@ int Main(const MainParams& params) {
      }
    }
  
@@ -85,7 +85,7 @@ index bc7399c23728..b0e3867ea39f 100644
    switch (process_type) {
      case ProcessType::kDefault:
        NOTREACHED();
-@@ -473,6 +480,8 @@ int Main(const MainParams& params) {
+@@ -462,6 +469,8 @@ int Main(const MainParams& params) {
        break;
    }
  
@@ -94,7 +94,7 @@ index bc7399c23728..b0e3867ea39f 100644
    if (tracker) {
      if (exit_code == 0) {
        tracker->SetProcessPhaseIfEnabled(
-@@ -484,13 +493,38 @@ int Main(const MainParams& params) {
+@@ -473,13 +482,38 @@ int Main(const MainParams& params) {
      }
    }
  
@@ -135,7 +135,7 @@ index bc7399c23728..b0e3867ea39f 100644
  }
  
 diff --git services/service_manager/embedder/main.h services/service_manager/embedder/main.h
-index d2359a7723df..14cc0078619a 100644
+index 57e88aa85dfe..5ed6ec2abfda 100644
 --- services/service_manager/embedder/main.h
 +++ services/service_manager/embedder/main.h
 @@ -5,9 +5,15 @@
@@ -144,8 +144,8 @@ index d2359a7723df..14cc0078619a 100644
  
 +#include <memory>
 +
+ #include "base/component_export.h"
  #include "build/build_config.h"
- #include "services/service_manager/embedder/service_manager_embedder_export.h"
  
 +#if defined(OS_MACOSX)
 +#include "base/mac/scoped_nsautorelease_pool.h"
@@ -154,7 +154,7 @@ index d2359a7723df..14cc0078619a 100644
  namespace service_manager {
  
  class MainDelegate;
-@@ -22,11 +28,20 @@ struct SERVICE_MANAGER_EMBEDDER_EXPORT MainParams {
+@@ -22,11 +28,22 @@ struct COMPONENT_EXPORT(SERVICE_MANAGER_EMBEDDER) MainParams {
    int argc = 0;
    const char** argv = nullptr;
  #endif
@@ -165,14 +165,16 @@ index d2359a7723df..14cc0078619a 100644
  };
  
 +// Split Main() into separate stages.
-+int SERVICE_MANAGER_EMBEDDER_EXPORT MainInitialize(MainParams& params);
-+int SERVICE_MANAGER_EMBEDDER_EXPORT MainRun(MainParams& params);
-+void SERVICE_MANAGER_EMBEDDER_EXPORT MainShutdown(MainParams& params);
++int COMPONENT_EXPORT(SERVICE_MANAGER_EMBEDDER)
++    MainInitialize(MainParams& params);
++int COMPONENT_EXPORT(SERVICE_MANAGER_EMBEDDER) MainRun(MainParams& params);
++void COMPONENT_EXPORT(SERVICE_MANAGER_EMBEDDER)
++    MainShutdown(MainParams& params);
 +
  // Main function which should be called as early as possible by any executable
  // embedding the service manager.
--int SERVICE_MANAGER_EMBEDDER_EXPORT Main(const MainParams& params);
-+int SERVICE_MANAGER_EMBEDDER_EXPORT Main(MainParams& params);
+-int COMPONENT_EXPORT(SERVICE_MANAGER_EMBEDDER) Main(const MainParams& params);
++int COMPONENT_EXPORT(SERVICE_MANAGER_EMBEDDER) Main(MainParams& params);
  
  }  // namespace service_manager
  

@@ -37,9 +37,6 @@ class CefContentClient : public content::ContentClient,
       std::vector<content::CdmInfo>* cdms,
       std::vector<media::CdmHostFilePath>* cdm_host_file_paths) override;
   void AddAdditionalSchemes(Schemes* schemes) override;
-  std::string GetProduct() const override;
-  std::string GetChromeProduct() const override;
-  std::string GetUserAgent() const override;
   base::string16 GetLocalizedString(int message_id) const override;
   base::StringPiece GetDataResource(
       int resource_id,

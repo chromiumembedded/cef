@@ -1,8 +1,8 @@
 diff --git content/browser/web_contents/web_contents_impl.cc content/browser/web_contents/web_contents_impl.cc
-index 8d1eaa3e779c..2ccd1ac08b69 100644
+index 2b435929ac89..78418193cac8 100644
 --- content/browser/web_contents/web_contents_impl.cc
 +++ content/browser/web_contents/web_contents_impl.cc
-@@ -1973,21 +1973,30 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
+@@ -2026,21 +2026,30 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
    std::string unique_name;
    frame_tree_.root()->SetFrameName(params.main_frame_name, unique_name);
  
@@ -45,7 +45,7 @@ index 8d1eaa3e779c..2ccd1ac08b69 100644
    CHECK(render_view_host_delegate_view_);
    CHECK(view_.get());
  
-@@ -2681,6 +2690,15 @@ void WebContentsImpl::CreateNewWindow(
+@@ -2734,6 +2743,15 @@ void WebContentsImpl::CreateNewWindow(
    create_params.renderer_initiated_creation =
        main_frame_route_id != MSG_ROUTING_NONE;
  
@@ -61,7 +61,7 @@ index 8d1eaa3e779c..2ccd1ac08b69 100644
    std::unique_ptr<WebContents> new_contents;
    if (!is_guest) {
      create_params.context = view_->GetNativeView();
-@@ -2713,7 +2731,7 @@ void WebContentsImpl::CreateNewWindow(
+@@ -2766,7 +2784,7 @@ void WebContentsImpl::CreateNewWindow(
        // TODO(brettw): It seems bogus that we have to call this function on the
        // newly created object and give it one of its own member variables.
        new_view->CreateViewForWidget(
@@ -70,7 +70,7 @@ index 8d1eaa3e779c..2ccd1ac08b69 100644
      }
      // Save the created window associated with the route so we can show it
      // later.
-@@ -6157,7 +6175,7 @@ InterstitialPageImpl* WebContentsImpl::GetInterstitialForRenderManager() {
+@@ -6259,7 +6277,7 @@ InterstitialPageImpl* WebContentsImpl::GetInterstitialForRenderManager() {
  void WebContentsImpl::CreateRenderWidgetHostViewForRenderManager(
      RenderViewHost* render_view_host) {
    RenderWidgetHostViewBase* rwh_view =
@@ -95,7 +95,7 @@ index df508da0aef2..f6f4bf42b108 100644
  WebContents::CreateParams::CreateParams(const CreateParams& other) = default;
  
 diff --git content/public/browser/web_contents.h content/public/browser/web_contents.h
-index 060e2194d9ea..7a81678de3d4 100644
+index e6b4cd044895..3d7e8bb57f45 100644
 --- content/public/browser/web_contents.h
 +++ content/public/browser/web_contents.h
 @@ -73,9 +73,11 @@ class BrowserPluginGuestDelegate;
@@ -122,10 +122,10 @@ index 060e2194d9ea..7a81678de3d4 100644
      // the value that'll be returned by GetLastActiveTime(). If this is left
      // default initialized then the value is not passed on to the WebContents
 diff --git content/public/browser/web_contents_delegate.h content/public/browser/web_contents_delegate.h
-index b26e4ea873f6..d07e068233b2 100644
+index 2c162df8ccea..5ea120f7e521 100644
 --- content/public/browser/web_contents_delegate.h
 +++ content/public/browser/web_contents_delegate.h
-@@ -54,10 +54,12 @@ class FileSelectListener;
+@@ -55,10 +55,12 @@ class FileSelectListener;
  class JavaScriptDialogManager;
  class RenderFrameHost;
  class RenderProcessHost;
@@ -138,7 +138,7 @@ index b26e4ea873f6..d07e068233b2 100644
  struct ContextMenuParams;
  struct DropData;
  struct NativeWebKeyboardEvent;
-@@ -318,6 +320,14 @@ class CONTENT_EXPORT WebContentsDelegate {
+@@ -319,6 +321,14 @@ class CONTENT_EXPORT WebContentsDelegate {
        const std::string& partition_id,
        SessionStorageNamespace* session_storage_namespace);
  

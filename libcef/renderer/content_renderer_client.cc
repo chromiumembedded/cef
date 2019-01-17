@@ -20,6 +20,7 @@
 #endif
 #endif
 
+#include "libcef/browser/content_browser_client.h"
 #include "libcef/browser/context.h"
 #include "libcef/common/cef_messages.h"
 #include "libcef/common/cef_switches.h"
@@ -84,7 +85,6 @@
 #include "printing/print_settings.h"
 #include "services/service_manager/public/cpp/connector.h"
 #include "services/service_manager/public/cpp/interface_provider.h"
-#include "services/service_manager/public/cpp/service_context.h"
 #include "third_party/blink/public/common/associated_interfaces/associated_interface_provider.h"
 #include "third_party/blink/public/platform/platform.h"
 #include "third_party/blink/public/platform/scheduler/web_renderer_process_type.h"
@@ -173,8 +173,6 @@ CefContentRendererClient::CefContentRendererClient()
     extensions::ExtensionsRendererClient::Set(
         extensions_renderer_client_.get());
   }
-
-  printing::SetAgent(CefContentClient::Get()->GetUserAgent());
 }
 
 CefContentRendererClient::~CefContentRendererClient() {}

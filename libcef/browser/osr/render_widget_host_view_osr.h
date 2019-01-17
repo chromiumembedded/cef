@@ -119,7 +119,7 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
   void Show() override;
   void Hide() override;
   bool IsShowing() override;
-  void EnsureSurfaceSynchronizedForLayoutTest() override;
+  void EnsureSurfaceSynchronizedForWebTest() override;
   gfx::Rect GetViewBounds() const override;
   void SetBackgroundColor(SkColor color) override;
   base::Optional<SkColor> GetBackgroundColor() const override;

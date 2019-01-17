@@ -149,7 +149,7 @@ class CaptionlessFrameView : public views::NonClientFrameView {
     return HTCAPTION;
   }
 
-  void GetWindowMask(const gfx::Size& size, gfx::Path* window_mask) override {
+  void GetWindowMask(const gfx::Size& size, SkPath* window_mask) override {
     // Nothing to do here.
   }
 

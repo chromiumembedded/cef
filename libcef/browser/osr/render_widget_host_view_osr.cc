@@ -376,18 +376,13 @@ CefRenderWidgetHostViewOSR::CefRenderWidgetHostViewOSR(
   compositor_.reset(new ui::Compositor(
       context_factory_private->AllocateFrameSinkId(),
       content::GetContextFactory(), context_factory_private,
-      base::ThreadTaskRunnerHandle::Get(),
-      features::IsSurfaceSynchronizationEnabled(),
-      false /* enable_pixel_canvas */, use_external_begin_frame));
+      base::ThreadTaskRunnerHandle::Get(), false /* enable_pixel_canvas */,
+      use_external_begin_frame ? this : nullptr, use_external_begin_frame));
   compositor_->SetAcceleratedWidget(compositor_widget_);
 
   // Tell the compositor to use shared textures if the client can handle
   // OnAcceleratedPaint.
   compositor_->EnableSharedTexture(use_shared_texture);
-
-  if (use_external_begin_frame) {
-    compositor_->SetExternalBeginFrameClient(this);
-  }
 
   compositor_->SetDelegate(this);
   compositor_->SetRootLayer(root_layer_.get());
@@ -407,13 +402,6 @@ CefRenderWidgetHostViewOSR::~CefRenderWidgetHostViewOSR() {
   if (is_showing_)
     browser_compositor_->SetRenderWidgetHostIsHidden(true);
 #else
-  if (external_begin_frame_enabled_) {
-    ui::Compositor* compositor = GetCompositor();
-    if (compositor) {
-      compositor->SetExternalBeginFrameClient(nullptr);
-    }
-  }
-
   // Marking the DelegatedFrameHost as removed from the window hierarchy is
   // necessary to remove all connections to its old ui::Compositor.
   if (is_showing_)
@@ -525,7 +513,7 @@ bool CefRenderWidgetHostViewOSR::IsShowing() {
   return is_showing_;
 }
 
-void CefRenderWidgetHostViewOSR::EnsureSurfaceSynchronizedForLayoutTest() {
+void CefRenderWidgetHostViewOSR::EnsureSurfaceSynchronizedForWebTest() {
   ++latest_capture_sequence_number_;
   SynchronizeVisualProperties();
 }
@@ -556,19 +544,14 @@ void CefRenderWidgetHostViewOSR::SetBackgroundColor(SkColor color) {
 
   DCHECK(SkColorGetA(color) == SK_AlphaOPAQUE ||
          SkColorGetA(color) == SK_AlphaTRANSPARENT);
-  if (render_widget_host_) {
-    render_widget_host_->SetBackgroundOpaque(SkColorGetA(color) ==
-                                             SK_AlphaOPAQUE);
-  }
+  content::RenderWidgetHostViewBase::SetBackgroundColor(color);
 }
 
 base::Optional<SkColor> CefRenderWidgetHostViewOSR::GetBackgroundColor() const {
   return background_color_;
 }
 
-void CefRenderWidgetHostViewOSR::UpdateBackgroundColor() {
-  NOTREACHED();
-}
+void CefRenderWidgetHostViewOSR::UpdateBackgroundColor() {}
 
 bool CefRenderWidgetHostViewOSR::LockMouse() {
   return false;
@@ -724,7 +707,6 @@ void CefRenderWidgetHostViewOSR::SubmitCompositorFrame(
         AddDamageRect(presentation_token_, damage_rect);
 
         frame.metadata.frame_token = presentation_token_;
-        frame.metadata.request_presentation_feedback = true;
       }
 
       // We would normally call BrowserCompositorMac::SubmitCompositorFrame on
@@ -1270,7 +1252,8 @@ void CefRenderWidgetHostViewOSR::SendExternalBeginFrame() {
   begin_frame_number_++;
 
   if (renderer_compositor_frame_sink_) {
-    GetCompositor()->IssueExternalBeginFrame(begin_frame_args);
+    GetCompositor()->context_factory_private()->IssueExternalBeginFrame(
+        GetCompositor(), begin_frame_args);
     renderer_compositor_frame_sink_->OnBeginFrame(begin_frame_args, {});
   }
 

@@ -20,9 +20,9 @@
 #include "net/base/filename_util.h"
 #include "third_party/blink/public/mojom/choosers/file_chooser.mojom.h"
 
-using download::DownloadItem;
 using content::DownloadManager;
 using content::WebContents;
+using download::DownloadItem;
 
 namespace {
 
@@ -233,7 +233,7 @@ class CefDownloadItemCallbackImpl : public CefDownloadItemCallback {
     if (manager_) {
       DownloadItem* item = manager_->GetDownload(download_id_);
       if (item && item->CanResume())
-        item->Resume();
+        item->Resume(true);
     }
   }
 

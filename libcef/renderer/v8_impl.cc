@@ -59,10 +59,12 @@ void SetPrivate(v8::Local<v8::Context> context,
                 const char* key,
                 v8::Local<v8::Value> value) {
   v8::Isolate* isolate = context->GetIsolate();
-  obj->SetPrivate(
-         context,
-         v8::Private::ForApi(isolate, v8::String::NewFromUtf8(isolate, key)),
-         value)
+  obj->SetPrivate(context,
+                  v8::Private::ForApi(
+                      isolate, v8::String::NewFromUtf8(
+                                   isolate, key, v8::NewStringType::kNormal)
+                                   .ToLocalChecked()),
+                  value)
       .FromJust();
 }
 
@@ -72,8 +74,11 @@ bool GetPrivate(v8::Local<v8::Context> context,
                 v8::Local<v8::Value>* result) {
   v8::Isolate* isolate = context->GetIsolate();
   return obj
-      ->GetPrivate(context, v8::Private::ForApi(
-                                isolate, v8::String::NewFromUtf8(isolate, key)))
+      ->GetPrivate(context,
+                   v8::Private::ForApi(
+                       isolate, v8::String::NewFromUtf8(
+                                    isolate, key, v8::NewStringType::kNormal)
+                                    .ToLocalChecked()))
       .ToLocal(result);
 }
 
@@ -932,7 +937,8 @@ CefRefPtr<CefV8Context> CefV8Context::GetEnteredContext() {
   v8::Isolate* isolate = GetIsolateManager()->isolate();
   if (isolate->InContext()) {
     v8::HandleScope handle_scope(isolate);
-    context = new CefV8ContextImpl(isolate, isolate->GetEnteredContext());
+    context =
+        new CefV8ContextImpl(isolate, isolate->GetEnteredOrMicrotaskContext());
   }
   return context;
 }

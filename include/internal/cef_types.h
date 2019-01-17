@@ -2489,7 +2489,7 @@ typedef enum {
   REFERRER_POLICY_NO_REFERRER,
 
   // Always the last value in this enumeration.
-  REFERRER_POLICY_LAST_VALUE,
+  REFERRER_POLICY_LAST_VALUE = REFERRER_POLICY_NO_REFERRER,
 } cef_referrer_policy_t;
 
 ///

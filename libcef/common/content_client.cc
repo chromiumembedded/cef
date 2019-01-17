@@ -33,7 +33,6 @@
 #include "content/public/common/content_constants.h"
 #include "content/public/common/content_switches.h"
 #include "content/public/common/pepper_plugin_info.h"
-#include "content/public/common/user_agent.h"
 #include "ppapi/shared_impl/ppapi_permissions.h"
 #include "third_party/widevine/cdm/buildflags.h"
 #include "ui/base/resource/resource_bundle.h"
@@ -232,30 +231,6 @@ void CefContentClient::AddAdditionalSchemes(Schemes* schemes) {
   scheme::AddInternalSchemes(schemes);
 
   scheme_info_list_locked_ = true;
-}
-
-std::string CefContentClient::GetProduct() const {
-  const base::CommandLine* command_line =
-      base::CommandLine::ForCurrentProcess();
-  if (command_line->HasSwitch(switches::kProductVersion))
-    return command_line->GetSwitchValueASCII(switches::kProductVersion);
-
-  return GetChromeProduct();
-}
-
-std::string CefContentClient::GetChromeProduct() const {
-  return base::StringPrintf("Chrome/%d.%d.%d.%d", CHROME_VERSION_MAJOR,
-                            CHROME_VERSION_MINOR, CHROME_VERSION_BUILD,
-                            CHROME_VERSION_PATCH);
-}
-
-std::string CefContentClient::GetUserAgent() const {
-  const base::CommandLine* command_line =
-      base::CommandLine::ForCurrentProcess();
-  if (command_line->HasSwitch(switches::kUserAgent))
-    return command_line->GetSwitchValueASCII(switches::kUserAgent);
-
-  return content::BuildUserAgentFromProduct(GetProduct());
 }
 
 base::string16 CefContentClient::GetLocalizedString(int message_id) const {

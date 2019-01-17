@@ -35,7 +35,6 @@
 #include "net/url_request/url_fetcher.h"
 #include "net/url_request/url_request.h"
 #include "services/network/public/cpp/network_switches.h"
-#include "third_party/blink/public/platform/modules/fetch/fetch_api_request.mojom-shared.h"
 #include "third_party/blink/public/platform/web_security_origin.h"
 #include "third_party/blink/public/platform/web_string.h"
 #include "third_party/blink/public/platform/web_url.h"
@@ -825,9 +824,6 @@ CefRequestImpl::NetReferrerPolicyToBlinkReferrerPolicy(
       return network::mojom::ReferrerPolicy::kStrictOrigin;
     case REFERRER_POLICY_NO_REFERRER:
       return network::mojom::ReferrerPolicy::kNever;
-    case REFERRER_POLICY_LAST_VALUE:
-      NOTREACHED();
-      return network::mojom::ReferrerPolicy::kDefault;
   }
   NOTREACHED();
   return network::mojom::ReferrerPolicy::kDefault;

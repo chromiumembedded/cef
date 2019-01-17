@@ -50,9 +50,6 @@ class ExecuteCodeInTabFunction : public ExecuteCodeFunction {
  protected:
   ~ExecuteCodeInTabFunction() override;
 
-  // ExtensionFunction:
-  bool HasPermission() override;
-
   // Initializes |execute_tab_id_| and |details_|.
   InitResult Init() override;
   bool CanExecuteScriptOnPage(std::string* error) override;

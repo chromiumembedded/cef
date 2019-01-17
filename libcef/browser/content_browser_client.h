@@ -51,11 +51,10 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
   bool IsHandledURL(const GURL& url) override;
   void SiteInstanceGotProcess(content::SiteInstance* site_instance) override;
   void SiteInstanceDeleting(content::SiteInstance* site_instance) override;
-  void RegisterInProcessServices(
-      StaticServiceMap* services,
+  void RegisterIOThreadServiceHandlers(
       content::ServiceManagerConnection* connection) override;
   void RegisterOutOfProcessServices(OutOfProcessServiceMap* services) override;
-  std::unique_ptr<base::Value> GetServiceManifestOverlay(
+  base::Optional<service_manager::Manifest> GetServiceManifestOverlay(
       base::StringPiece name) override;
   std::vector<ServiceManifestInfo> GetExtraServiceManifests() override;
   bool IsSameBrowserContext(content::BrowserContext* context1,
@@ -92,7 +91,7 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
   bool CanCreateWindow(content::RenderFrameHost* opener,
                        const GURL& opener_url,
                        const GURL& opener_top_level_frame_url,
-                       const GURL& source_origin,
+                       const url::Origin& source_origin,
                        content::mojom::WindowContainerType container_type,
                        const GURL& target_url,
                        const content::Referrer& referrer,
@@ -160,6 +159,9 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
       bool has_user_gesture,
       const std::string& method,
       const net::HttpRequestHeaders& headers) override;
+  std::string GetProduct() const override;
+  std::string GetChromeProduct() const override;
+  std::string GetUserAgent() const override;
 
   // Perform browser process registration for the custom scheme.
   void RegisterCustomScheme(const std::string& scheme);

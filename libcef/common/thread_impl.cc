@@ -13,7 +13,7 @@ namespace {
 
 void StopAndDestroy(base::Thread* thread) {
   // Calling PlatformThread::Join() on the UI thread is otherwise disallowed.
-  base::ThreadRestrictions::ScopedAllowIO scoped_allow_io;
+  base::ScopedAllowBaseSyncPrimitivesForTesting scoped_allow_sync_primitives;
 
   // Deleting |thread| will implicitly stop and join it.
   delete thread;

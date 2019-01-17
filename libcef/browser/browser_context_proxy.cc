@@ -19,6 +19,7 @@
 #include "content/browser/streams/stream_context.h"
 #include "content/browser/webui/url_data_manager.h"
 #include "content/public/browser/storage_partition.h"
+#include "services/service_manager/public/cpp/service.h"
 
 namespace {
 
@@ -191,9 +192,11 @@ CefBrowserContextProxy::CreateRequestContextForStoragePartition(
   return nullptr;
 }
 
-void CefBrowserContextProxy::RegisterInProcessServices(
-    StaticServiceMap* services) {
-  parent_->RegisterInProcessServices(services);
+std::unique_ptr<service_manager::Service>
+CefBrowserContextProxy::HandleServiceRequest(
+    const std::string& service_name,
+    service_manager::mojom::ServiceRequest request) {
+  return parent_->HandleServiceRequest(service_name, std::move(request));
 }
 
 PrefService* CefBrowserContextProxy::GetPrefs() {

@@ -202,7 +202,7 @@ void CefResponseImpl::Set(const blink::WebURLResponse& response) {
   status_text_ = str.Utf16();
   str = response.MimeType();
   mime_type_ = str.Utf16();
-  str = response.Url().GetString();
+  str = response.CurrentRequestUrl().GetString();
   url_ = str.Utf16();
 
   class HeaderVisitor : public blink::WebHTTPHeaderVisitor {

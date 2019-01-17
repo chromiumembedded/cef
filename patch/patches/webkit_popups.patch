@@ -1,29 +1,20 @@
 diff --git third_party/blink/public/web/web_view.h third_party/blink/public/web/web_view.h
-index e14420e78971..04bcef2abebf 100644
+index 8d2733739f0e..3d82c096be58 100644
 --- third_party/blink/public/web/web_view.h
 +++ third_party/blink/public/web/web_view.h
-@@ -329,6 +329,7 @@ class WebView {
+@@ -338,6 +338,7 @@ class WebView {
  
    // Sets whether select popup menus should be rendered by the browser.
    BLINK_EXPORT static void SetUseExternalPopupMenus(bool);
 +  virtual void SetUseExternalPopupMenusThisInstance(bool) = 0;
  
-   // Hides any popup (suggestions, selects...) that might be showing.
-   virtual void HidePopups() = 0;
-@@ -353,6 +354,8 @@ class WebView {
-                                   unsigned inactive_background_color,
-                                   unsigned inactive_foreground_color) = 0;
- 
-+  virtual void SetBaseBackgroundColor(SkColor color) = 0;
-+
-   // Modal dialog support ------------------------------------------------
- 
-   // Call these methods before and after running a nested, modal event loop
+   // Cancels and hides the current popup (datetime, select...) if any.
+   virtual void CancelPagePopup() = 0;
 diff --git third_party/blink/renderer/core/exported/web_view_impl.cc third_party/blink/renderer/core/exported/web_view_impl.cc
-index 9246cf14bcae..73af3c519b82 100644
+index 29cf8ebbb260..ce102fd3a9f4 100644
 --- third_party/blink/renderer/core/exported/web_view_impl.cc
 +++ third_party/blink/renderer/core/exported/web_view_impl.cc
-@@ -234,8 +234,13 @@ void WebView::SetUseExternalPopupMenus(bool use_external_popup_menus) {
+@@ -235,8 +235,13 @@ void WebView::SetUseExternalPopupMenus(bool use_external_popup_menus) {
    g_should_use_external_popup_menus = use_external_popup_menus;
  }
  
@@ -48,10 +39,10 @@ index 9246cf14bcae..73af3c519b82 100644
        suppress_next_keypress_event_(false),
        ime_accept_events_(true),
 diff --git third_party/blink/renderer/core/exported/web_view_impl.h third_party/blink/renderer/core/exported/web_view_impl.h
-index a3c6109531c1..d3a605ff2f09 100644
+index c258d4b6a5c3..932ecbbccd9e 100644
 --- third_party/blink/renderer/core/exported/web_view_impl.h
 +++ third_party/blink/renderer/core/exported/web_view_impl.h
-@@ -107,7 +107,8 @@ class CORE_EXPORT WebViewImpl final : public WebView,
+@@ -108,7 +108,8 @@ class CORE_EXPORT WebViewImpl final : public WebView,
    static HashSet<WebViewImpl*>& AllInstances();
    // Returns true if popup menus should be rendered by the browser, false if
    // they should be rendered by WebKit (which is the default).
@@ -59,18 +50,9 @@ index a3c6109531c1..d3a605ff2f09 100644
 +  void SetUseExternalPopupMenusThisInstance(bool) override;
 +  bool UseExternalPopupMenus() const;
  
-   // WebWidget methods:
-   void SetLayerTreeView(WebLayerTreeView*) override;
-@@ -250,7 +251,7 @@ class CORE_EXPORT WebViewImpl final : public WebView,
-   HitTestResult CoreHitTestResultAt(const gfx::Point&);
-   void InvalidateRect(const IntRect&);
- 
--  void SetBaseBackgroundColor(SkColor);
-+  void SetBaseBackgroundColor(SkColor) override;
-   void SetBaseBackgroundColorOverride(SkColor);
-   void ClearBaseBackgroundColorOverride();
-   void SetBackgroundColorOverride(SkColor);
-@@ -599,6 +600,8 @@ class CORE_EXPORT WebViewImpl final : public WebView,
+   // WebView methods:
+   void SetPrerendererClient(WebPrerendererClient*) override;
+@@ -612,6 +613,8 @@ class CORE_EXPORT WebViewImpl final : public WebView,
    float fake_page_scale_animation_page_scale_factor_;
    bool fake_page_scale_animation_use_anchor_;
  
@@ -80,10 +62,10 @@ index a3c6109531c1..d3a605ff2f09 100644
    TransformationMatrix device_emulation_transform_;
  
 diff --git third_party/blink/renderer/core/page/chrome_client_impl.cc third_party/blink/renderer/core/page/chrome_client_impl.cc
-index c7b9280cc19c..b8e22e79f957 100644
+index 07371aae5776..a2a31493c10c 100644
 --- third_party/blink/renderer/core/page/chrome_client_impl.cc
 +++ third_party/blink/renderer/core/page/chrome_client_impl.cc
-@@ -801,7 +801,7 @@ bool ChromeClientImpl::HasOpenedPopup() const {
+@@ -809,7 +809,7 @@ bool ChromeClientImpl::HasOpenedPopup() const {
  PopupMenu* ChromeClientImpl::OpenPopupMenu(LocalFrame& frame,
                                             HTMLSelectElement& select) {
    NotifyPopupOpeningObservers();

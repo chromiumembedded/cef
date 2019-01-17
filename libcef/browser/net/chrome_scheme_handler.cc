@@ -12,6 +12,7 @@
 
 #include "include/cef_version.h"
 #include "include/cef_web_plugin.h"
+#include "libcef/browser/content_browser_client.h"
 #include "libcef/browser/extensions/chrome_api_registration.h"
 #include "libcef/browser/frame_host_impl.h"
 #include "libcef/browser/net/internal_scheme_handler.h"
@@ -83,7 +84,8 @@ const char* kAllowedWebUIHosts[] = {
 // Hosts that don't have useful output when linked directly. They'll be excluded
 // from the "chrome://webui-hosts" listing.
 const char* kUnlistedHosts[] = {
-    content::kChromeUINetworkErrorHost, content::kChromeUIResourcesHost,
+    content::kChromeUINetworkErrorHost,
+    content::kChromeUIResourcesHost,
 };
 
 enum ChromeHostId {
@@ -634,7 +636,7 @@ class Delegate : public InternalHandlerDelegate {
     parser.Add("WEBKIT", content::GetWebKitVersion());
     parser.Add("JAVASCRIPT", v8::V8::GetVersion());
     parser.Add("FLASH", std::string());  // Value populated asynchronously.
-    parser.Add("USERAGENT", CefContentClient::Get()->GetUserAgent());
+    parser.Add("USERAGENT", CefContentClient::Get()->browser()->GetUserAgent());
     parser.Add("COMMANDLINE", GetCommandLine());
     parser.Add("MODULEPATH", GetModulePath());
     parser.Add("CACHEPATH",

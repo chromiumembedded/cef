@@ -53,6 +53,7 @@ void FillInDictionaryFromPdfPrintSettings(
   print_settings.SetBoolean(kSettingPreviewModifiable, false);
   print_settings.SetInteger(kSettingDpiHorizontal, 0);
   print_settings.SetInteger(kSettingDpiVertical, 0);
+  print_settings.SetInteger(kSettingPagesPerSheet, 1);
 
   // User defined settings.
   print_settings.SetBoolean(kSettingLandscape, !!pdf_settings.landscape);
@@ -285,4 +286,5 @@ void CefPrintViewManager::TerminatePdfPrintJob() {
   pdf_print_state_.reset();
 }
 
+WEB_CONTENTS_USER_DATA_KEY_IMPL(CefPrintViewManager)
 }  // namespace printing

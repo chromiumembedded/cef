@@ -469,6 +469,30 @@ bool CefMainDelegate::BasicStartupComplete(int* exit_code) {
           switches::kUncaughtExceptionStackSize,
           base::IntToString(settings.uncaught_exception_stack_size));
     }
+
+    std::vector<std::string> disable_features;
+
+    if (settings.windowless_rendering_enabled) {
+      // Disable VizDisplayCompositor when OSR is enabled until
+      // we have implemented Viz support
+      if (features::kVizDisplayCompositor.default_state ==
+          base::FEATURE_ENABLED_BY_DEFAULT) {
+        disable_features.push_back(features::kVizDisplayCompositor.name);
+      }
+    }
+
+    if (!disable_features.empty()) {
+      DCHECK(!base::FeatureList::GetInstance());
+      std::string disable_features_str =
+          command_line->GetSwitchValueASCII(switches::kDisableFeatures);
+      for (auto feature_str : disable_features) {
+        if (!disable_features_str.empty())
+          disable_features_str += ",";
+        disable_features_str += feature_str;
+      }
+      command_line->AppendSwitchASCII(switches::kDisableFeatures,
+                                      disable_features_str);
+    }
   }
 
   if (content_client_.application().get()) {

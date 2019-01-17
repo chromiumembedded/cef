@@ -40,10 +40,10 @@ index 6dac5f3002b3..34f5ee111d3d 100644
    virtual ~PruneCondition() {}
  
 diff --git third_party/crashpad/crashpad/client/settings.cc third_party/crashpad/crashpad/client/settings.cc
-index 20bd2581cd97..16d63af65e2f 100644
+index f6db78dbb8ca..30b0cf88d47a 100644
 --- third_party/crashpad/crashpad/client/settings.cc
 +++ third_party/crashpad/crashpad/client/settings.cc
-@@ -85,7 +85,7 @@ void ScopedLockedFileHandleTraits::Free(FileHandle handle) {
+@@ -86,7 +86,7 @@ void ScopedLockedFileHandleTraits::Free(FileHandle handle) {
  
  struct Settings::Data {
    static const uint32_t kSettingsMagic = 'CPds';
@@ -52,7 +52,7 @@ index 20bd2581cd97..16d63af65e2f 100644
  
    enum Options : uint32_t {
      kUploadsEnabled = 1 << 0,
-@@ -96,6 +96,9 @@ struct Settings::Data {
+@@ -97,6 +97,9 @@ struct Settings::Data {
             options(0),
             padding_0(0),
             last_upload_attempt_time(0),
@@ -62,7 +62,7 @@ index 20bd2581cd97..16d63af65e2f 100644
             client_id() {}
  
    uint32_t magic;
-@@ -103,6 +106,9 @@ struct Settings::Data {
+@@ -104,6 +107,9 @@ struct Settings::Data {
    uint32_t options;
    uint32_t padding_0;
    int64_t last_upload_attempt_time;  // time_t
@@ -72,7 +72,7 @@ index 20bd2581cd97..16d63af65e2f 100644
    UUID client_id;
  };
  
-@@ -186,6 +192,56 @@ bool Settings::SetLastUploadAttemptTime(time_t time) {
+@@ -187,6 +193,56 @@ bool Settings::SetLastUploadAttemptTime(time_t time) {
    return WriteSettings(handle.get(), settings);
  }
  
