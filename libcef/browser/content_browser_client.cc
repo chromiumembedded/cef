@@ -705,6 +705,7 @@ void CefContentBrowserClient::AppendExtraCommandLineSwitches(
         switches::kPpapiFlashPath,
         switches::kPpapiFlashVersion,
         switches::kUncaughtExceptionStackSize,
+        switches::kUnsafelyTreatInsecureOriginAsSecure,
     };
     command_line->CopySwitchesFrom(*browser_cmd, kSwitchNames,
                                    arraysize(kSwitchNames));

@@ -51,6 +51,7 @@
 #include "build/build_config.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/constants.mojom.h"
+#include "chrome/common/secure_origin_whitelist.h"
 #include "chrome/common/url_constants.h"
 #include "chrome/renderer/chrome_content_renderer_client.h"
 #include "chrome/renderer/loadtimes_extension_bindings.h"
@@ -407,6 +408,12 @@ void CefContentRendererClient::RenderThreadStarted() {
   if (extensions::PdfExtensionEnabled()) {
     pdf_print_client_.reset(new ChromePDFPrintClient());
     pdf::PepperPDFHost::SetPrintClient(pdf_print_client_.get());
+  }
+
+  for (auto& origin_or_hostname_pattern :
+       secure_origin_whitelist::GetWhitelist()) {
+    blink::WebSecurityPolicy::AddOriginTrustworthyWhiteList(
+        blink::WebString::FromUTF8(origin_or_hostname_pattern));
   }
 
   if (extensions::ExtensionsEnabled())
