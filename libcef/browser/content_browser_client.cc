@@ -113,6 +113,11 @@
 #include "content/public/common/content_descriptors.h"
 #endif
 
+#if defined(OS_MACOSX)
+#include "services/audio/public/mojom/constants.mojom.h"
+#include "services/video_capture/public/mojom/constants.mojom.h"
+#endif
+
 #if defined(OS_WIN)
 #include "sandbox/win/src/sandbox_policy.h"
 #endif
@@ -774,6 +779,19 @@ void CefContentBrowserClient::AppendExtraCommandLineSwitches(
       commandLinePtr->Detach(NULL);
     }
   }
+}
+
+void CefContentBrowserClient::AdjustUtilityServiceProcessCommandLine(
+    const service_manager::Identity& identity,
+    base::CommandLine* command_line) {
+#if defined(OS_MACOSX)
+  // On Mac, the video-capture and audio services require a CFRunLoop, provided
+  // by a UI message loop, to run AVFoundation and CoreAudio code.
+  // See https://crbug.com/834581
+  if (identity.name() == video_capture::mojom::kServiceName ||
+      identity.name() == audio::mojom::kServiceName)
+    command_line->AppendSwitch(switches::kMessageLoopTypeUi);
+#endif
 }
 
 bool CefContentBrowserClient::ShouldEnableStrictSiteIsolation() {
