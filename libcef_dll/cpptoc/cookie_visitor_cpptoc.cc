@@ -9,10 +9,11 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=ed863426c415b3afc459808cca150e7c4b60f29b$
+// $hash=393d7d0a8816b40c26ee5fd8fb4d50664d606131$
 //
 
 #include "libcef_dll/cpptoc/cookie_visitor_cpptoc.h"
+#include "libcef_dll/shutdown_checker.h"
 
 namespace {
 
@@ -23,6 +24,8 @@ int CEF_CALLBACK cookie_visitor_visit(struct _cef_cookie_visitor_t* self,
                                       int count,
                                       int total,
                                       int* deleteCookie) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -62,6 +65,12 @@ int CEF_CALLBACK cookie_visitor_visit(struct _cef_cookie_visitor_t* self,
 
 CefCookieVisitorCppToC::CefCookieVisitorCppToC() {
   GetStruct()->visit = cookie_visitor_visit;
+}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefCookieVisitorCppToC::~CefCookieVisitorCppToC() {
+  shutdown_checker::AssertNotShutdown();
 }
 
 template <>

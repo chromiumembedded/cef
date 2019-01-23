@@ -9,16 +9,19 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=cb3f8d55a7fdb927a54ec7d013788e10acf0f6ec$
+// $hash=220f7b5743c011145e526be76882461ff64d387b$
 //
 
 #include "libcef_dll/cpptoc/process_message_cpptoc.h"
 #include "libcef_dll/cpptoc/list_value_cpptoc.h"
+#include "libcef_dll/shutdown_checker.h"
 
 // GLOBAL FUNCTIONS - Body may be edited by hand.
 
 CEF_EXPORT cef_process_message_t* cef_process_message_create(
     const cef_string_t* name) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: name; type: string_byref_const
@@ -39,6 +42,8 @@ namespace {
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
 int CEF_CALLBACK process_message_is_valid(struct _cef_process_message_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -54,6 +59,8 @@ int CEF_CALLBACK process_message_is_valid(struct _cef_process_message_t* self) {
 
 int CEF_CALLBACK
 process_message_is_read_only(struct _cef_process_message_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -69,6 +76,8 @@ process_message_is_read_only(struct _cef_process_message_t* self) {
 
 struct _cef_process_message_t* CEF_CALLBACK
 process_message_copy(struct _cef_process_message_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -85,6 +94,8 @@ process_message_copy(struct _cef_process_message_t* self) {
 
 cef_string_userfree_t CEF_CALLBACK
 process_message_get_name(struct _cef_process_message_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -100,6 +111,8 @@ process_message_get_name(struct _cef_process_message_t* self) {
 
 struct _cef_list_value_t* CEF_CALLBACK
 process_message_get_argument_list(struct _cef_process_message_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -124,6 +137,12 @@ CefProcessMessageCppToC::CefProcessMessageCppToC() {
   GetStruct()->copy = process_message_copy;
   GetStruct()->get_name = process_message_get_name;
   GetStruct()->get_argument_list = process_message_get_argument_list;
+}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefProcessMessageCppToC::~CefProcessMessageCppToC() {
+  shutdown_checker::AssertNotShutdown();
 }
 
 template <>

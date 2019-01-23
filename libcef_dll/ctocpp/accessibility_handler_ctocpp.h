@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=af559ea113e73a5ec2f7601df449fa0d16dbeff3$
+// $hash=39efeb85718f40c3e155eb1ab237b220f9a21e7b$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_ACCESSIBILITY_HANDLER_CTOCPP_H_
@@ -32,6 +32,7 @@ class CefAccessibilityHandlerCToCpp
                                  cef_accessibility_handler_t> {
  public:
   CefAccessibilityHandlerCToCpp();
+  virtual ~CefAccessibilityHandlerCToCpp();
 
   // CefAccessibilityHandler methods.
   void OnAccessibilityTreeChange(CefRefPtr<CefValue> value) override;

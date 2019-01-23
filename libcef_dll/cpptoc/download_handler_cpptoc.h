@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=27520878d8fae88d096cb8f2507a733b4e90cfc1$
+// $hash=b4fc76252c6f97753ee46df6d4d5cd198cca82ff$
 //
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_DOWNLOAD_HANDLER_CPPTOC_H_
@@ -32,6 +32,7 @@ class CefDownloadHandlerCppToC
                                  cef_download_handler_t> {
  public:
   CefDownloadHandlerCppToC();
+  virtual ~CefDownloadHandlerCppToC();
 };
 
 #endif  // CEF_LIBCEF_DLL_CPPTOC_DOWNLOAD_HANDLER_CPPTOC_H_

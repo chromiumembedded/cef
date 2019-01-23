@@ -9,16 +9,19 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=2859a79d30af061e8c779910c222fb0f0334d802$
+// $hash=e483a5336ac0f838ebd51e3db32c2bef4895a5ac$
 //
 
 #include "libcef_dll/cpptoc/waitable_event_cpptoc.h"
+#include "libcef_dll/shutdown_checker.h"
 
 // GLOBAL FUNCTIONS - Body may be edited by hand.
 
 CEF_EXPORT cef_waitable_event_t* cef_waitable_event_create(
     int automatic_reset,
     int initially_signaled) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
@@ -34,6 +37,8 @@ namespace {
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
 void CEF_CALLBACK waitable_event_reset(struct _cef_waitable_event_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -45,6 +50,8 @@ void CEF_CALLBACK waitable_event_reset(struct _cef_waitable_event_t* self) {
 }
 
 void CEF_CALLBACK waitable_event_signal(struct _cef_waitable_event_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -57,6 +64,8 @@ void CEF_CALLBACK waitable_event_signal(struct _cef_waitable_event_t* self) {
 
 int CEF_CALLBACK
 waitable_event_is_signaled(struct _cef_waitable_event_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -71,6 +80,8 @@ waitable_event_is_signaled(struct _cef_waitable_event_t* self) {
 }
 
 void CEF_CALLBACK waitable_event_wait(struct _cef_waitable_event_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -83,6 +94,8 @@ void CEF_CALLBACK waitable_event_wait(struct _cef_waitable_event_t* self) {
 
 int CEF_CALLBACK waitable_event_timed_wait(struct _cef_waitable_event_t* self,
                                            int64 max_ms) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -106,6 +119,12 @@ CefWaitableEventCppToC::CefWaitableEventCppToC() {
   GetStruct()->is_signaled = waitable_event_is_signaled;
   GetStruct()->wait = waitable_event_wait;
   GetStruct()->timed_wait = waitable_event_timed_wait;
+}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefWaitableEventCppToC::~CefWaitableEventCppToC() {
+  shutdown_checker::AssertNotShutdown();
 }
 
 template <>

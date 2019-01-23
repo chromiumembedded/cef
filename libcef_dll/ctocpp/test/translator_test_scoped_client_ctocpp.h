@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=e7d58771e8d5e3b6cd30ce292206203180b65ce2$
+// $hash=3b6903a04ba605c8e5df9ded8bab20838f2641ce$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_TEST_TRANSLATOR_TEST_SCOPED_CLIENT_CTOCPP_H_
@@ -32,6 +32,7 @@ class CefTranslatorTestScopedClientCToCpp
                              cef_translator_test_scoped_client_t> {
  public:
   CefTranslatorTestScopedClientCToCpp();
+  virtual ~CefTranslatorTestScopedClientCToCpp();
 
   // CefTranslatorTestScopedClient methods.
   int GetValue() override;

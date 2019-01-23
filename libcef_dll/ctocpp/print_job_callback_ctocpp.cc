@@ -9,14 +9,17 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=0435585cf71c7cb630cdf8d4f14e5ac8f6f999f2$
+// $hash=a5280392662a279ab4872bcaa400cc399f5699f4$
 //
 
 #include "libcef_dll/ctocpp/print_job_callback_ctocpp.h"
+#include "libcef_dll/shutdown_checker.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
 NO_SANITIZE("cfi-icall") void CefPrintJobCallbackCToCpp::Continue() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_print_job_callback_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, cont))
     return;
@@ -30,6 +33,12 @@ NO_SANITIZE("cfi-icall") void CefPrintJobCallbackCToCpp::Continue() {
 // CONSTRUCTOR - Do not edit by hand.
 
 CefPrintJobCallbackCToCpp::CefPrintJobCallbackCToCpp() {}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefPrintJobCallbackCToCpp::~CefPrintJobCallbackCToCpp() {
+  shutdown_checker::AssertNotShutdown();
+}
 
 template <>
 cef_print_job_callback_t* CefCToCppRefCounted<

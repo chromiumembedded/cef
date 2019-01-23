@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=223d6219bab467db783dd58463a34444dd513ae2$
+// $hash=c48abc409ae9bae3a8d47647db107320d543b528$
 //
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_CALLBACK_CPPTOC_H_
@@ -31,6 +31,7 @@ class CefCallbackCppToC : public CefCppToCRefCounted<CefCallbackCppToC,
                                                      cef_callback_t> {
  public:
   CefCallbackCppToC();
+  virtual ~CefCallbackCppToC();
 };
 
 #endif  // CEF_LIBCEF_DLL_CPPTOC_CALLBACK_CPPTOC_H_

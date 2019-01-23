@@ -9,14 +9,17 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=45a48d5d97bd0239b2af24e1527211c89d5dec78$
+// $hash=302e7fb07a9a9c9d494e5b99b1b93a079047d67f$
 //
 
 #include "libcef_dll/ctocpp/web_plugin_info_ctocpp.h"
+#include "libcef_dll/shutdown_checker.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
 NO_SANITIZE("cfi-icall") CefString CefWebPluginInfoCToCpp::GetName() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_web_plugin_info_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_name))
     return CefString();
@@ -33,6 +36,8 @@ NO_SANITIZE("cfi-icall") CefString CefWebPluginInfoCToCpp::GetName() {
 }
 
 NO_SANITIZE("cfi-icall") CefString CefWebPluginInfoCToCpp::GetPath() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_web_plugin_info_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_path))
     return CefString();
@@ -49,6 +54,8 @@ NO_SANITIZE("cfi-icall") CefString CefWebPluginInfoCToCpp::GetPath() {
 }
 
 NO_SANITIZE("cfi-icall") CefString CefWebPluginInfoCToCpp::GetVersion() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_web_plugin_info_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_version))
     return CefString();
@@ -65,6 +72,8 @@ NO_SANITIZE("cfi-icall") CefString CefWebPluginInfoCToCpp::GetVersion() {
 }
 
 NO_SANITIZE("cfi-icall") CefString CefWebPluginInfoCToCpp::GetDescription() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_web_plugin_info_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_description))
     return CefString();
@@ -83,6 +92,12 @@ NO_SANITIZE("cfi-icall") CefString CefWebPluginInfoCToCpp::GetDescription() {
 // CONSTRUCTOR - Do not edit by hand.
 
 CefWebPluginInfoCToCpp::CefWebPluginInfoCToCpp() {}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefWebPluginInfoCToCpp::~CefWebPluginInfoCToCpp() {
+  shutdown_checker::AssertNotShutdown();
+}
 
 template <>
 cef_web_plugin_info_t*

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=0ceb6624f04b4560f64f6977970c70c675533bbf$
+// $hash=681a5d98bc6bf5a9dd75dec86257cff092e2e1e5$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_APP_CTOCPP_H_
@@ -30,6 +30,7 @@ class CefAppCToCpp
     : public CefCToCppRefCounted<CefAppCToCpp, CefApp, cef_app_t> {
  public:
   CefAppCToCpp();
+  virtual ~CefAppCToCpp();
 
   // CefApp methods.
   void OnBeforeCommandLineProcessing(

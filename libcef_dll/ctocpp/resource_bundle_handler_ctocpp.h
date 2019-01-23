@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=80ac8bb053f80dc2f4cf0b4aadb322c1e60a7915$
+// $hash=93110caad5f789a84d7621e71afc6ffd11e6ce1a$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_RESOURCE_BUNDLE_HANDLER_CTOCPP_H_
@@ -32,6 +32,7 @@ class CefResourceBundleHandlerCToCpp
                                  cef_resource_bundle_handler_t> {
  public:
   CefResourceBundleHandlerCToCpp();
+  virtual ~CefResourceBundleHandlerCToCpp();
 
   // CefResourceBundleHandler methods.
   bool GetLocalizedString(int string_id, CefString& string) override;

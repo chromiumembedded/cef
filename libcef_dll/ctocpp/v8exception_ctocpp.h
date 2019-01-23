@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=c5c0720dbc9db9e9b5e11eedfaf6a35c7f0e602a$
+// $hash=6acc7cc1441d7aff945bbe23e57209808c167753$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_V8EXCEPTION_CTOCPP_H_
@@ -31,6 +31,7 @@ class CefV8ExceptionCToCpp : public CefCToCppRefCounted<CefV8ExceptionCToCpp,
                                                         cef_v8exception_t> {
  public:
   CefV8ExceptionCToCpp();
+  virtual ~CefV8ExceptionCToCpp();
 
   // CefV8Exception methods.
   CefString GetMessage() OVERRIDE;

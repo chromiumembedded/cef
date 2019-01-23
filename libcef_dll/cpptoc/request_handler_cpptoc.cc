@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=4476db944b857d3233fe82f63a7b0373bcc9196a$
+// $hash=3a4f8e344764af0514dda39a273c0d98dbd5ed79$
 //
 
 #include "libcef_dll/cpptoc/request_handler_cpptoc.h"
@@ -24,6 +24,7 @@
 #include "libcef_dll/ctocpp/select_client_certificate_callback_ctocpp.h"
 #include "libcef_dll/ctocpp/sslinfo_ctocpp.h"
 #include "libcef_dll/ctocpp/x509certificate_ctocpp.h"
+#include "libcef_dll/shutdown_checker.h"
 
 namespace {
 
@@ -36,6 +37,8 @@ request_handler_on_before_browse(struct _cef_request_handler_t* self,
                                  cef_request_t* request,
                                  int user_gesture,
                                  int is_redirect) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -71,6 +74,8 @@ int CEF_CALLBACK request_handler_on_open_urlfrom_tab(
     const cef_string_t* target_url,
     cef_window_open_disposition_t target_disposition,
     int user_gesture) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -104,6 +109,8 @@ request_handler_on_before_resource_load(struct _cef_request_handler_t* self,
                                         cef_frame_t* frame,
                                         cef_request_t* request,
                                         cef_request_callback_t* callback) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -142,6 +149,8 @@ request_handler_get_resource_handler(struct _cef_request_handler_t* self,
                                      cef_browser_t* browser,
                                      cef_frame_t* frame,
                                      cef_request_t* request) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -177,6 +186,8 @@ request_handler_on_resource_redirect(struct _cef_request_handler_t* self,
                                      cef_request_t* request,
                                      struct _cef_response_t* response,
                                      cef_string_t* new_url) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -219,6 +230,8 @@ request_handler_on_resource_response(struct _cef_request_handler_t* self,
                                      cef_frame_t* frame,
                                      cef_request_t* request,
                                      struct _cef_response_t* response) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -257,6 +270,8 @@ request_handler_get_resource_response_filter(
     cef_frame_t* frame,
     cef_request_t* request,
     struct _cef_response_t* response) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -297,6 +312,8 @@ request_handler_on_resource_load_complete(struct _cef_request_handler_t* self,
                                           struct _cef_response_t* response,
                                           cef_urlrequest_status_t status,
                                           int64 received_content_length) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -336,6 +353,8 @@ request_handler_get_auth_credentials(struct _cef_request_handler_t* self,
                                      const cef_string_t* realm,
                                      const cef_string_t* scheme,
                                      cef_auth_callback_t* callback) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -374,6 +393,8 @@ request_handler_can_get_cookies(struct _cef_request_handler_t* self,
                                 cef_browser_t* browser,
                                 cef_frame_t* frame,
                                 cef_request_t* request) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -407,6 +428,8 @@ request_handler_can_set_cookie(struct _cef_request_handler_t* self,
                                cef_frame_t* frame,
                                cef_request_t* request,
                                const struct _cef_cookie_t* cookie) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -449,6 +472,8 @@ request_handler_on_quota_request(struct _cef_request_handler_t* self,
                                  const cef_string_t* origin_url,
                                  int64 new_size,
                                  cef_request_callback_t* callback) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -481,6 +506,8 @@ request_handler_on_protocol_execution(struct _cef_request_handler_t* self,
                                       cef_browser_t* browser,
                                       const cef_string_t* url,
                                       int* allow_os_execution) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -519,6 +546,8 @@ request_handler_on_certificate_error(struct _cef_request_handler_t* self,
                                      const cef_string_t* request_url,
                                      struct _cef_sslinfo_t* ssl_info,
                                      cef_request_callback_t* callback) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -560,6 +589,8 @@ int CEF_CALLBACK request_handler_on_select_client_certificate(
     size_t certificatesCount,
     struct _cef_x509certificate_t* const* certificates,
     cef_select_client_certificate_callback_t* callback) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -606,6 +637,8 @@ void CEF_CALLBACK
 request_handler_on_plugin_crashed(struct _cef_request_handler_t* self,
                                   cef_browser_t* browser,
                                   const cef_string_t* plugin_path) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -628,6 +661,8 @@ request_handler_on_plugin_crashed(struct _cef_request_handler_t* self,
 void CEF_CALLBACK
 request_handler_on_render_view_ready(struct _cef_request_handler_t* self,
                                      cef_browser_t* browser) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -647,6 +682,8 @@ void CEF_CALLBACK request_handler_on_render_process_terminated(
     struct _cef_request_handler_t* self,
     cef_browser_t* browser,
     cef_termination_status_t status) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -690,6 +727,12 @@ CefRequestHandlerCppToC::CefRequestHandlerCppToC() {
   GetStruct()->on_render_view_ready = request_handler_on_render_view_ready;
   GetStruct()->on_render_process_terminated =
       request_handler_on_render_process_terminated;
+}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefRequestHandlerCppToC::~CefRequestHandlerCppToC() {
+  shutdown_checker::AssertNotShutdown();
 }
 
 template <>

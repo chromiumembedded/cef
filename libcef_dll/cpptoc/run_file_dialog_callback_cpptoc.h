@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=fc8b1d63b8744210c8643e3e47774d7001fd1263$
+// $hash=627ba61af128628e06baafb2218934d61a9638fb$
 //
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_RUN_FILE_DIALOG_CALLBACK_CPPTOC_H_
@@ -34,6 +34,7 @@ class CefRunFileDialogCallbackCppToC
                                  cef_run_file_dialog_callback_t> {
  public:
   CefRunFileDialogCallbackCppToC();
+  virtual ~CefRunFileDialogCallbackCppToC();
 };
 
 #endif  // CEF_LIBCEF_DLL_CPPTOC_RUN_FILE_DIALOG_CALLBACK_CPPTOC_H_

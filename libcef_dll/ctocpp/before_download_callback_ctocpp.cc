@@ -9,16 +9,19 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=f554dcaf4d279e662f6dad4a6fe2b4cae9082c27$
+// $hash=26958e33f8c5428edc461d6e58fe8b31ebc8037c$
 //
 
 #include "libcef_dll/ctocpp/before_download_callback_ctocpp.h"
+#include "libcef_dll/shutdown_checker.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
 NO_SANITIZE("cfi-icall")
 void CefBeforeDownloadCallbackCToCpp::Continue(const CefString& download_path,
                                                bool show_dialog) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_before_download_callback_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, cont))
     return;
@@ -34,6 +37,12 @@ void CefBeforeDownloadCallbackCToCpp::Continue(const CefString& download_path,
 // CONSTRUCTOR - Do not edit by hand.
 
 CefBeforeDownloadCallbackCToCpp::CefBeforeDownloadCallbackCToCpp() {}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefBeforeDownloadCallbackCToCpp::~CefBeforeDownloadCallbackCToCpp() {
+  shutdown_checker::AssertNotShutdown();
+}
 
 template <>
 cef_before_download_callback_t* CefCToCppRefCounted<

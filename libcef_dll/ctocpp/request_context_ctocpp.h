@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=c9a5aa045f6c6db055c2fada824e60713a287315$
+// $hash=376c88ccfd6a48b8d46d7b0493a36a6dc5c1e3b8$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_REQUEST_CONTEXT_CTOCPP_H_
@@ -35,6 +35,7 @@ class CefRequestContextCToCpp
                                  cef_request_context_t> {
  public:
   CefRequestContextCToCpp();
+  virtual ~CefRequestContextCToCpp();
 
   // CefRequestContext methods.
   bool IsSame(CefRefPtr<CefRequestContext> other) OVERRIDE;

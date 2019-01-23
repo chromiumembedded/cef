@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=700904d273996990c0c0130f5043df492fb1ad76$
+// $hash=87cce927c0e5e71a89fb50c001aade011a58606d$
 //
 
 #include "libcef_dll/ctocpp/v8value_ctocpp.h"
@@ -847,8 +847,8 @@ NO_SANITIZE("cfi-icall") int CefV8ValueCToCpp::GetArrayLength() {
 }
 
 NO_SANITIZE("cfi-icall")
-CefRefPtr<CefV8ArrayBufferReleaseCallback> CefV8ValueCToCpp::
-    GetArrayBufferReleaseCallback() {
+CefRefPtr<CefV8ArrayBufferReleaseCallback>
+CefV8ValueCToCpp::GetArrayBufferReleaseCallback() {
   cef_v8value_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_array_buffer_release_callback))
     return NULL;
@@ -991,6 +991,10 @@ CefRefPtr<CefV8Value> CefV8ValueCToCpp::ExecuteFunctionWithContext(
 // CONSTRUCTOR - Do not edit by hand.
 
 CefV8ValueCToCpp::CefV8ValueCToCpp() {}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefV8ValueCToCpp::~CefV8ValueCToCpp() {}
 
 template <>
 cef_v8value_t*

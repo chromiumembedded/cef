@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=e137621cadd8abb7931665e6add6d41104d84bc3$
+// $hash=61e1710e77b49f83d0881b5a81621ffbce4b06b7$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_V8VALUE_CTOCPP_H_
@@ -31,6 +31,7 @@ class CefV8ValueCToCpp
     : public CefCToCppRefCounted<CefV8ValueCToCpp, CefV8Value, cef_v8value_t> {
  public:
   CefV8ValueCToCpp();
+  virtual ~CefV8ValueCToCpp();
 
   // CefV8Value methods.
   bool IsValid() OVERRIDE;

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=0fb3a032a91b41bf31ee3b714fda4f0db881d6ad$
+// $hash=9fe337283d31b9818ce687c75c9394ee4d380a5e$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_VIEWS_MENU_BUTTON_CTOCPP_H_
@@ -31,6 +31,7 @@ class CefMenuButtonCToCpp : public CefCToCppRefCounted<CefMenuButtonCToCpp,
                                                        cef_menu_button_t> {
  public:
   CefMenuButtonCToCpp();
+  virtual ~CefMenuButtonCToCpp();
 
   // CefMenuButton methods.
   void ShowMenu(CefRefPtr<CefMenuModel> menu_model,

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=88887f8f5df0688904bd938f857a02123c5598f9$
+// $hash=db45a94d5d69b3f6abf9d304d1e87bcfe1f2f6ab$
 //
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_JSDIALOG_HANDLER_CPPTOC_H_
@@ -32,6 +32,7 @@ class CefJSDialogHandlerCppToC
                                  cef_jsdialog_handler_t> {
  public:
   CefJSDialogHandlerCppToC();
+  virtual ~CefJSDialogHandlerCppToC();
 };
 
 #endif  // CEF_LIBCEF_DLL_CPPTOC_JSDIALOG_HANDLER_CPPTOC_H_

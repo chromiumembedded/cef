@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=a4dc585544b1b40d19e00a0ec37e7b21f792139f$
+// $hash=2363533e3c6b78e16b93dd428121cd45b797ce6a$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_COOKIE_MANAGER_CTOCPP_H_
@@ -33,6 +33,7 @@ class CefCookieManagerCToCpp
                                  cef_cookie_manager_t> {
  public:
   CefCookieManagerCToCpp();
+  virtual ~CefCookieManagerCToCpp();
 
   // CefCookieManager methods.
   void SetSupportedSchemes(const std::vector<CefString>& schemes,

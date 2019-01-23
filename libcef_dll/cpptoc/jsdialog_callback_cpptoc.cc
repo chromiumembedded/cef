@@ -9,10 +9,11 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=31a3da96b7a9021bec0cd6ceda39773afcb6a93f$
+// $hash=8f763ca4fc24cb5d5f4189b685e1b7662b5e7824$
 //
 
 #include "libcef_dll/cpptoc/jsdialog_callback_cpptoc.h"
+#include "libcef_dll/shutdown_checker.h"
 
 namespace {
 
@@ -21,6 +22,8 @@ namespace {
 void CEF_CALLBACK jsdialog_callback_cont(struct _cef_jsdialog_callback_t* self,
                                          int success,
                                          const cef_string_t* user_input) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -39,6 +42,12 @@ void CEF_CALLBACK jsdialog_callback_cont(struct _cef_jsdialog_callback_t* self,
 
 CefJSDialogCallbackCppToC::CefJSDialogCallbackCppToC() {
   GetStruct()->cont = jsdialog_callback_cont;
+}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefJSDialogCallbackCppToC::~CefJSDialogCallbackCppToC() {
+  shutdown_checker::AssertNotShutdown();
 }
 
 template <>

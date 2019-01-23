@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=acff174ea1b6cb3647525884f6380228f3666a13$
+// $hash=c7bb5b2c5ee7c445407e3c83ad9f1634bc6e6273$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_DIALOG_HANDLER_CTOCPP_H_
@@ -33,6 +33,7 @@ class CefDialogHandlerCToCpp
                                  cef_dialog_handler_t> {
  public:
   CefDialogHandlerCToCpp();
+  virtual ~CefDialogHandlerCToCpp();
 
   // CefDialogHandler methods.
   bool OnFileDialog(CefRefPtr<CefBrowser> browser,

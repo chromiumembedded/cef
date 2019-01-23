@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=64ec1b5ad0a46ef68026ba895976bcf8876d7016$
+// $hash=37a8d66e02899f11a6ed7b955aee537307597797$
 //
 
 #include "libcef_dll/ctocpp/v8handler_ctocpp.h"
@@ -80,6 +80,10 @@ bool CefV8HandlerCToCpp::Execute(const CefString& name,
 // CONSTRUCTOR - Do not edit by hand.
 
 CefV8HandlerCToCpp::CefV8HandlerCToCpp() {}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefV8HandlerCToCpp::~CefV8HandlerCToCpp() {}
 
 template <>
 cef_v8handler_t*

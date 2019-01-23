@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=27d2a33fb1009537916eb56d89b6ac18760696ce$
+// $hash=795f7c4a5926767eb80460ead3551196db4c9d64$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_VIEWS_BUTTON_CTOCPP_H_
@@ -32,6 +32,7 @@ class CefButtonCToCpp
     : public CefCToCppRefCounted<CefButtonCToCpp, CefButton, cef_button_t> {
  public:
   CefButtonCToCpp();
+  virtual ~CefButtonCToCpp();
 
   // CefButton methods.
   CefRefPtr<CefLabelButton> AsLabelButton() OVERRIDE;

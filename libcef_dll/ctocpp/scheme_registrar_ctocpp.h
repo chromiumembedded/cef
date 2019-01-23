@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=78be224ecf2427abc51e7006d031861baee0435d$
+// $hash=b3cac10a32964e7c29eb39cfb7e2fda4c3f869f9$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_SCHEME_REGISTRAR_CTOCPP_H_
@@ -32,6 +32,7 @@ class CefSchemeRegistrarCToCpp
                              cef_scheme_registrar_t> {
  public:
   CefSchemeRegistrarCToCpp();
+  virtual ~CefSchemeRegistrarCToCpp();
 
   // CefSchemeRegistrar methods.
   bool AddCustomScheme(const CefString& scheme_name,

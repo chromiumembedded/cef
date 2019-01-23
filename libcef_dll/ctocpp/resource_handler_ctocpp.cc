@@ -9,19 +9,22 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=579902bac9b286b09da0e6b17b0c77fe0d536f23$
+// $hash=3d6f8227ad3d75b4e831da743c5d96f5bfd14a5c$
 //
 
 #include "libcef_dll/ctocpp/resource_handler_ctocpp.h"
 #include "libcef_dll/cpptoc/callback_cpptoc.h"
 #include "libcef_dll/cpptoc/request_cpptoc.h"
 #include "libcef_dll/cpptoc/response_cpptoc.h"
+#include "libcef_dll/shutdown_checker.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
 NO_SANITIZE("cfi-icall")
 bool CefResourceHandlerCToCpp::ProcessRequest(CefRefPtr<CefRequest> request,
                                               CefRefPtr<CefCallback> callback) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_resource_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, process_request))
     return false;
@@ -51,6 +54,8 @@ void CefResourceHandlerCToCpp::GetResponseHeaders(
     CefRefPtr<CefResponse> response,
     int64& response_length,
     CefString& redirectUrl) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_resource_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_response_headers))
     return;
@@ -73,6 +78,8 @@ bool CefResourceHandlerCToCpp::ReadResponse(void* data_out,
                                             int bytes_to_read,
                                             int& bytes_read,
                                             CefRefPtr<CefCallback> callback) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_resource_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, read_response))
     return false;
@@ -99,6 +106,8 @@ bool CefResourceHandlerCToCpp::ReadResponse(void* data_out,
 
 NO_SANITIZE("cfi-icall")
 bool CefResourceHandlerCToCpp::CanGetCookie(const CefCookie& cookie) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_resource_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, can_get_cookie))
     return false;
@@ -114,6 +123,8 @@ bool CefResourceHandlerCToCpp::CanGetCookie(const CefCookie& cookie) {
 
 NO_SANITIZE("cfi-icall")
 bool CefResourceHandlerCToCpp::CanSetCookie(const CefCookie& cookie) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_resource_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, can_set_cookie))
     return false;
@@ -128,6 +139,8 @@ bool CefResourceHandlerCToCpp::CanSetCookie(const CefCookie& cookie) {
 }
 
 NO_SANITIZE("cfi-icall") void CefResourceHandlerCToCpp::Cancel() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_resource_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, cancel))
     return;
@@ -141,6 +154,12 @@ NO_SANITIZE("cfi-icall") void CefResourceHandlerCToCpp::Cancel() {
 // CONSTRUCTOR - Do not edit by hand.
 
 CefResourceHandlerCToCpp::CefResourceHandlerCToCpp() {}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefResourceHandlerCToCpp::~CefResourceHandlerCToCpp() {
+  shutdown_checker::AssertNotShutdown();
+}
 
 template <>
 cef_resource_handler_t* CefCToCppRefCounted<

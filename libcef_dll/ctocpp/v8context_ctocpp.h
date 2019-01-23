@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=b72bd1cba6b34f471bb678c04cf6d1978b2481eb$
+// $hash=b4d9ec1e74a0e91c058e662fbdad6a2678c42812$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_V8CONTEXT_CTOCPP_H_
@@ -31,6 +31,7 @@ class CefV8ContextCToCpp : public CefCToCppRefCounted<CefV8ContextCToCpp,
                                                       cef_v8context_t> {
  public:
   CefV8ContextCToCpp();
+  virtual ~CefV8ContextCToCpp();
 
   // CefV8Context methods.
   CefRefPtr<CefTaskRunner> GetTaskRunner() OVERRIDE;

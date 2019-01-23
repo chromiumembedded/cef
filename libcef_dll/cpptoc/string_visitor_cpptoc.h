@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=fef2b2a1cb43707be89e2a20baf3536a9d2939d2$
+// $hash=d249edca7f589faa38db0d25e8852f7aa391c1c9$
 //
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_STRING_VISITOR_CPPTOC_H_
@@ -32,6 +32,7 @@ class CefStringVisitorCppToC
                                  cef_string_visitor_t> {
  public:
   CefStringVisitorCppToC();
+  virtual ~CefStringVisitorCppToC();
 };
 
 #endif  // CEF_LIBCEF_DLL_CPPTOC_STRING_VISITOR_CPPTOC_H_

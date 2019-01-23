@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=904d9a64d7afbfb3adfea9069c6b5340d511a08f$
+// $hash=87fdfab045038e939a688294888138220b99f012$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_EXTENSION_CTOCPP_H_
@@ -35,6 +35,7 @@ class CefExtensionCToCpp : public CefCToCppRefCounted<CefExtensionCToCpp,
                                                       cef_extension_t> {
  public:
   CefExtensionCToCpp();
+  virtual ~CefExtensionCToCpp();
 
   // CefExtension methods.
   CefString GetIdentifier() OVERRIDE;

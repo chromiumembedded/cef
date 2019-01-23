@@ -9,13 +9,14 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=e63407d8b685d6ec0d5786c18bbe48345165f15f$
+// $hash=a5715373212cdcfb2c42cb520b3e11a6d90a71cf$
 //
 
 #include "libcef_dll/cpptoc/life_span_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/client_cpptoc.h"
 #include "libcef_dll/ctocpp/browser_ctocpp.h"
 #include "libcef_dll/ctocpp/frame_ctocpp.h"
+#include "libcef_dll/shutdown_checker.h"
 
 namespace {
 
@@ -34,6 +35,8 @@ int CEF_CALLBACK life_span_handler_on_before_popup(
     cef_client_t** client,
     struct _cef_browser_settings_t* settings,
     int* no_javascript_access) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -124,6 +127,8 @@ int CEF_CALLBACK life_span_handler_on_before_popup(
 void CEF_CALLBACK
 life_span_handler_on_after_created(struct _cef_life_span_handler_t* self,
                                    cef_browser_t* browser) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -142,6 +147,8 @@ life_span_handler_on_after_created(struct _cef_life_span_handler_t* self,
 int CEF_CALLBACK
 life_span_handler_do_close(struct _cef_life_span_handler_t* self,
                            cef_browser_t* browser) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -163,6 +170,8 @@ life_span_handler_do_close(struct _cef_life_span_handler_t* self,
 void CEF_CALLBACK
 life_span_handler_on_before_close(struct _cef_life_span_handler_t* self,
                                   cef_browser_t* browser) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -187,6 +196,12 @@ CefLifeSpanHandlerCppToC::CefLifeSpanHandlerCppToC() {
   GetStruct()->on_after_created = life_span_handler_on_after_created;
   GetStruct()->do_close = life_span_handler_do_close;
   GetStruct()->on_before_close = life_span_handler_on_before_close;
+}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefLifeSpanHandlerCppToC::~CefLifeSpanHandlerCppToC() {
+  shutdown_checker::AssertNotShutdown();
 }
 
 template <>

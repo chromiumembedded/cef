@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=c5dc59223f19f543dd404a5303e15f5e77486e3a$
+// $hash=6684419c997eeb24a3b7e646e51f8164aa98694f$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_LIFE_SPAN_HANDLER_CTOCPP_H_
@@ -34,6 +34,7 @@ class CefLifeSpanHandlerCToCpp
                                  cef_life_span_handler_t> {
  public:
   CefLifeSpanHandlerCToCpp();
+  virtual ~CefLifeSpanHandlerCToCpp();
 
   // CefLifeSpanHandler methods.
   bool OnBeforePopup(CefRefPtr<CefBrowser> browser,

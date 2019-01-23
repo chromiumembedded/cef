@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=ae9ed8e07ec2a271e16e47a3391b1083a4f4fe3b$
+// $hash=142d5f3ad64aba6a5be4f790a5a66bf393b0748f$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_TEST_TRANSLATOR_TEST_REF_PTR_CLIENT_CHILD_CTOCPP_H_
@@ -32,6 +32,7 @@ class CefTranslatorTestRefPtrClientChildCToCpp
                                  cef_translator_test_ref_ptr_client_child_t> {
  public:
   CefTranslatorTestRefPtrClientChildCToCpp();
+  virtual ~CefTranslatorTestRefPtrClientChildCToCpp();
 
   // CefTranslatorTestRefPtrClientChild methods.
   int GetOtherValue() override;

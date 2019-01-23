@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=8f56aeb476b2f1e8c13d448f24557eb91d9b7e68$
+// $hash=1d41c5fb4e26863326fd9597789afb7c0b33438f$
 //
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_DRAG_HANDLER_CPPTOC_H_
@@ -31,6 +31,7 @@ class CefDragHandlerCppToC : public CefCppToCRefCounted<CefDragHandlerCppToC,
                                                         cef_drag_handler_t> {
  public:
   CefDragHandlerCppToC();
+  virtual ~CefDragHandlerCppToC();
 };
 
 #endif  // CEF_LIBCEF_DLL_CPPTOC_DRAG_HANDLER_CPPTOC_H_

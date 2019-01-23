@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=ca906b2ea84bb6bfeab3976d8e444668570fe25a$
+// $hash=240cea5f2c68ff9ba01149e354ece03a17058755$
 //
 
 #include "libcef_dll/cpptoc/views/panel_cpptoc.h"
@@ -24,10 +24,13 @@
 #include "libcef_dll/cpptoc/views/window_cpptoc.h"
 #include "libcef_dll/ctocpp/views/panel_delegate_ctocpp.h"
 #include "libcef_dll/ctocpp/views/view_delegate_ctocpp.h"
+#include "libcef_dll/shutdown_checker.h"
 
 // GLOBAL FUNCTIONS - Body may be edited by hand.
 
 CEF_EXPORT cef_panel_t* cef_panel_create(cef_panel_delegate_t* delegate) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Unverified params: delegate
@@ -45,6 +48,8 @@ namespace {
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
 struct _cef_window_t* CEF_CALLBACK panel_as_window(struct _cef_panel_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -60,6 +65,8 @@ struct _cef_window_t* CEF_CALLBACK panel_as_window(struct _cef_panel_t* self) {
 
 cef_fill_layout_t* CEF_CALLBACK
 panel_set_to_fill_layout(struct _cef_panel_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -77,6 +84,8 @@ panel_set_to_fill_layout(struct _cef_panel_t* self) {
 cef_box_layout_t* CEF_CALLBACK
 panel_set_to_box_layout(struct _cef_panel_t* self,
                         const struct _cef_box_layout_settings_t* settings) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -101,6 +110,8 @@ panel_set_to_box_layout(struct _cef_panel_t* self,
 }
 
 cef_layout_t* CEF_CALLBACK panel_get_layout(struct _cef_panel_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -115,6 +126,8 @@ cef_layout_t* CEF_CALLBACK panel_get_layout(struct _cef_panel_t* self) {
 }
 
 void CEF_CALLBACK panel_layout(struct _cef_panel_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -127,6 +140,8 @@ void CEF_CALLBACK panel_layout(struct _cef_panel_t* self) {
 
 void CEF_CALLBACK panel_add_child_view(struct _cef_panel_t* self,
                                        struct _cef_view_t* view) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -144,6 +159,8 @@ void CEF_CALLBACK panel_add_child_view(struct _cef_panel_t* self,
 void CEF_CALLBACK panel_add_child_view_at(struct _cef_panel_t* self,
                                           struct _cef_view_t* view,
                                           int index) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -165,6 +182,8 @@ void CEF_CALLBACK panel_add_child_view_at(struct _cef_panel_t* self,
 void CEF_CALLBACK panel_reorder_child_view(struct _cef_panel_t* self,
                                            struct _cef_view_t* view,
                                            int index) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -182,6 +201,8 @@ void CEF_CALLBACK panel_reorder_child_view(struct _cef_panel_t* self,
 
 void CEF_CALLBACK panel_remove_child_view(struct _cef_panel_t* self,
                                           struct _cef_view_t* view) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -197,6 +218,8 @@ void CEF_CALLBACK panel_remove_child_view(struct _cef_panel_t* self,
 }
 
 void CEF_CALLBACK panel_remove_all_child_views(struct _cef_panel_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -208,6 +231,8 @@ void CEF_CALLBACK panel_remove_all_child_views(struct _cef_panel_t* self) {
 }
 
 size_t CEF_CALLBACK panel_get_child_view_count(struct _cef_panel_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -223,6 +248,8 @@ size_t CEF_CALLBACK panel_get_child_view_count(struct _cef_panel_t* self) {
 
 struct _cef_view_t* CEF_CALLBACK
 panel_get_child_view_at(struct _cef_panel_t* self, int index) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -242,6 +269,8 @@ panel_get_child_view_at(struct _cef_panel_t* self, int index) {
 
 cef_browser_view_t* CEF_CALLBACK
 panel_as_browser_view(struct _cef_view_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -258,6 +287,8 @@ panel_as_browser_view(struct _cef_view_t* self) {
 }
 
 cef_button_t* CEF_CALLBACK panel_as_button(struct _cef_view_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -273,6 +304,8 @@ cef_button_t* CEF_CALLBACK panel_as_button(struct _cef_view_t* self) {
 }
 
 cef_panel_t* CEF_CALLBACK panel_as_panel(struct _cef_view_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -288,6 +321,8 @@ cef_panel_t* CEF_CALLBACK panel_as_panel(struct _cef_view_t* self) {
 }
 
 cef_scroll_view_t* CEF_CALLBACK panel_as_scroll_view(struct _cef_view_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -303,6 +338,8 @@ cef_scroll_view_t* CEF_CALLBACK panel_as_scroll_view(struct _cef_view_t* self) {
 }
 
 cef_textfield_t* CEF_CALLBACK panel_as_textfield(struct _cef_view_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -319,6 +356,8 @@ cef_textfield_t* CEF_CALLBACK panel_as_textfield(struct _cef_view_t* self) {
 
 cef_string_userfree_t CEF_CALLBACK
 panel_get_type_string(struct _cef_view_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -335,6 +374,8 @@ panel_get_type_string(struct _cef_view_t* self) {
 
 cef_string_userfree_t CEF_CALLBACK panel_to_string(struct _cef_view_t* self,
                                                    int include_children) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -350,6 +391,8 @@ cef_string_userfree_t CEF_CALLBACK panel_to_string(struct _cef_view_t* self,
 }
 
 int CEF_CALLBACK panel_is_valid(struct _cef_view_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -365,6 +408,8 @@ int CEF_CALLBACK panel_is_valid(struct _cef_view_t* self) {
 }
 
 int CEF_CALLBACK panel_is_attached(struct _cef_view_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -381,6 +426,8 @@ int CEF_CALLBACK panel_is_attached(struct _cef_view_t* self) {
 
 int CEF_CALLBACK panel_is_same(struct _cef_view_t* self,
                                struct _cef_view_t* that) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -401,6 +448,8 @@ int CEF_CALLBACK panel_is_same(struct _cef_view_t* self,
 
 struct _cef_view_delegate_t* CEF_CALLBACK
 panel_get_delegate(struct _cef_view_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -416,6 +465,8 @@ panel_get_delegate(struct _cef_view_t* self) {
 }
 
 struct _cef_window_t* CEF_CALLBACK panel_get_window(struct _cef_view_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -431,6 +482,8 @@ struct _cef_window_t* CEF_CALLBACK panel_get_window(struct _cef_view_t* self) {
 }
 
 int CEF_CALLBACK panel_get_id(struct _cef_view_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -446,6 +499,8 @@ int CEF_CALLBACK panel_get_id(struct _cef_view_t* self) {
 }
 
 void CEF_CALLBACK panel_set_id(struct _cef_view_t* self, int id) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -457,6 +512,8 @@ void CEF_CALLBACK panel_set_id(struct _cef_view_t* self, int id) {
 }
 
 int CEF_CALLBACK panel_get_group_id(struct _cef_view_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -472,6 +529,8 @@ int CEF_CALLBACK panel_get_group_id(struct _cef_view_t* self) {
 }
 
 void CEF_CALLBACK panel_set_group_id(struct _cef_view_t* self, int group_id) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -485,6 +544,8 @@ void CEF_CALLBACK panel_set_group_id(struct _cef_view_t* self, int group_id) {
 
 struct _cef_view_t* CEF_CALLBACK
 panel_get_parent_view(struct _cef_view_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -502,6 +563,8 @@ panel_get_parent_view(struct _cef_view_t* self) {
 
 struct _cef_view_t* CEF_CALLBACK panel_get_view_for_id(struct _cef_view_t* self,
                                                        int id) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -519,6 +582,8 @@ struct _cef_view_t* CEF_CALLBACK panel_get_view_for_id(struct _cef_view_t* self,
 
 void CEF_CALLBACK panel_set_bounds(struct _cef_view_t* self,
                                    const cef_rect_t* bounds) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -538,6 +603,8 @@ void CEF_CALLBACK panel_set_bounds(struct _cef_view_t* self,
 }
 
 cef_rect_t CEF_CALLBACK panel_get_bounds(struct _cef_view_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -553,6 +620,8 @@ cef_rect_t CEF_CALLBACK panel_get_bounds(struct _cef_view_t* self) {
 }
 
 cef_rect_t CEF_CALLBACK panel_get_bounds_in_screen(struct _cef_view_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -569,6 +638,8 @@ cef_rect_t CEF_CALLBACK panel_get_bounds_in_screen(struct _cef_view_t* self) {
 
 void CEF_CALLBACK panel_set_size(struct _cef_view_t* self,
                                  const cef_size_t* size) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -587,6 +658,8 @@ void CEF_CALLBACK panel_set_size(struct _cef_view_t* self,
 }
 
 cef_size_t CEF_CALLBACK panel_get_size(struct _cef_view_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -603,6 +676,8 @@ cef_size_t CEF_CALLBACK panel_get_size(struct _cef_view_t* self) {
 
 void CEF_CALLBACK panel_set_position(struct _cef_view_t* self,
                                      const cef_point_t* position) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -622,6 +697,8 @@ void CEF_CALLBACK panel_set_position(struct _cef_view_t* self,
 }
 
 cef_point_t CEF_CALLBACK panel_get_position(struct _cef_view_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -637,6 +714,8 @@ cef_point_t CEF_CALLBACK panel_get_position(struct _cef_view_t* self) {
 }
 
 cef_size_t CEF_CALLBACK panel_get_preferred_size(struct _cef_view_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -652,6 +731,8 @@ cef_size_t CEF_CALLBACK panel_get_preferred_size(struct _cef_view_t* self) {
 }
 
 void CEF_CALLBACK panel_size_to_preferred_size(struct _cef_view_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -664,6 +745,8 @@ void CEF_CALLBACK panel_size_to_preferred_size(struct _cef_view_t* self) {
 }
 
 cef_size_t CEF_CALLBACK panel_get_minimum_size(struct _cef_view_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -679,6 +762,8 @@ cef_size_t CEF_CALLBACK panel_get_minimum_size(struct _cef_view_t* self) {
 }
 
 cef_size_t CEF_CALLBACK panel_get_maximum_size(struct _cef_view_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -695,6 +780,8 @@ cef_size_t CEF_CALLBACK panel_get_maximum_size(struct _cef_view_t* self) {
 
 int CEF_CALLBACK panel_get_height_for_width(struct _cef_view_t* self,
                                             int width) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -710,6 +797,8 @@ int CEF_CALLBACK panel_get_height_for_width(struct _cef_view_t* self,
 }
 
 void CEF_CALLBACK panel_invalidate_layout(struct _cef_view_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -721,6 +810,8 @@ void CEF_CALLBACK panel_invalidate_layout(struct _cef_view_t* self) {
 }
 
 void CEF_CALLBACK panel_set_visible(struct _cef_view_t* self, int visible) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -733,6 +824,8 @@ void CEF_CALLBACK panel_set_visible(struct _cef_view_t* self, int visible) {
 }
 
 int CEF_CALLBACK panel_is_visible(struct _cef_view_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -748,6 +841,8 @@ int CEF_CALLBACK panel_is_visible(struct _cef_view_t* self) {
 }
 
 int CEF_CALLBACK panel_is_drawn(struct _cef_view_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -763,6 +858,8 @@ int CEF_CALLBACK panel_is_drawn(struct _cef_view_t* self) {
 }
 
 void CEF_CALLBACK panel_set_enabled(struct _cef_view_t* self, int enabled) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -775,6 +872,8 @@ void CEF_CALLBACK panel_set_enabled(struct _cef_view_t* self, int enabled) {
 }
 
 int CEF_CALLBACK panel_is_enabled(struct _cef_view_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -790,6 +889,8 @@ int CEF_CALLBACK panel_is_enabled(struct _cef_view_t* self) {
 }
 
 void CEF_CALLBACK panel_set_focusable(struct _cef_view_t* self, int focusable) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -802,6 +903,8 @@ void CEF_CALLBACK panel_set_focusable(struct _cef_view_t* self, int focusable) {
 }
 
 int CEF_CALLBACK panel_is_focusable(struct _cef_view_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -817,6 +920,8 @@ int CEF_CALLBACK panel_is_focusable(struct _cef_view_t* self) {
 }
 
 int CEF_CALLBACK panel_is_accessibility_focusable(struct _cef_view_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -832,6 +937,8 @@ int CEF_CALLBACK panel_is_accessibility_focusable(struct _cef_view_t* self) {
 }
 
 void CEF_CALLBACK panel_request_focus(struct _cef_view_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -844,6 +951,8 @@ void CEF_CALLBACK panel_request_focus(struct _cef_view_t* self) {
 
 void CEF_CALLBACK panel_set_background_color(struct _cef_view_t* self,
                                              cef_color_t color) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -856,6 +965,8 @@ void CEF_CALLBACK panel_set_background_color(struct _cef_view_t* self,
 }
 
 cef_color_t CEF_CALLBACK panel_get_background_color(struct _cef_view_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -873,6 +984,8 @@ cef_color_t CEF_CALLBACK panel_get_background_color(struct _cef_view_t* self) {
 
 int CEF_CALLBACK panel_convert_point_to_screen(struct _cef_view_t* self,
                                                cef_point_t* point) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -900,6 +1013,8 @@ int CEF_CALLBACK panel_convert_point_to_screen(struct _cef_view_t* self,
 
 int CEF_CALLBACK panel_convert_point_from_screen(struct _cef_view_t* self,
                                                  cef_point_t* point) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -927,6 +1042,8 @@ int CEF_CALLBACK panel_convert_point_from_screen(struct _cef_view_t* self,
 
 int CEF_CALLBACK panel_convert_point_to_window(struct _cef_view_t* self,
                                                cef_point_t* point) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -954,6 +1071,8 @@ int CEF_CALLBACK panel_convert_point_to_window(struct _cef_view_t* self,
 
 int CEF_CALLBACK panel_convert_point_from_window(struct _cef_view_t* self,
                                                  cef_point_t* point) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -982,6 +1101,8 @@ int CEF_CALLBACK panel_convert_point_from_window(struct _cef_view_t* self,
 int CEF_CALLBACK panel_convert_point_to_view(struct _cef_view_t* self,
                                              struct _cef_view_t* view,
                                              cef_point_t* point) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -1015,6 +1136,8 @@ int CEF_CALLBACK panel_convert_point_to_view(struct _cef_view_t* self,
 int CEF_CALLBACK panel_convert_point_from_view(struct _cef_view_t* self,
                                                struct _cef_view_t* view,
                                                cef_point_t* point) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -1111,6 +1234,12 @@ CefPanelCppToC::CefPanelCppToC() {
   GetStruct()->base.convert_point_from_window = panel_convert_point_from_window;
   GetStruct()->base.convert_point_to_view = panel_convert_point_to_view;
   GetStruct()->base.convert_point_from_view = panel_convert_point_from_view;
+}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefPanelCppToC::~CefPanelCppToC() {
+  shutdown_checker::AssertNotShutdown();
 }
 
 template <>

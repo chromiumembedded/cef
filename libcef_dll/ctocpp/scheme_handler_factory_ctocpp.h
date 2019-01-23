@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=4b9bbade23a6ae46a8858bb24a9ac9cb9c0fc6d9$
+// $hash=ec3bef3aece33547fc4d42aef8589001340e6c37$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_SCHEME_HANDLER_FACTORY_CTOCPP_H_
@@ -32,6 +32,7 @@ class CefSchemeHandlerFactoryCToCpp
                                  cef_scheme_handler_factory_t> {
  public:
   CefSchemeHandlerFactoryCToCpp();
+  virtual ~CefSchemeHandlerFactoryCToCpp();
 
   // CefSchemeHandlerFactory methods.
   CefRefPtr<CefResourceHandler> Create(CefRefPtr<CefBrowser> browser,

@@ -9,10 +9,11 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=4d5ddec8ccdc06aae8af94c7c3656148e5782d03$
+// $hash=b2bfbc295ed265014feea4c49f2cf663f7bf5bc2$
 //
 
 #include "libcef_dll/cpptoc/write_handler_cpptoc.h"
+#include "libcef_dll/shutdown_checker.h"
 
 namespace {
 
@@ -22,6 +23,8 @@ size_t CEF_CALLBACK write_handler_write(struct _cef_write_handler_t* self,
                                         const void* ptr,
                                         size_t size,
                                         size_t n) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -42,6 +45,8 @@ size_t CEF_CALLBACK write_handler_write(struct _cef_write_handler_t* self,
 int CEF_CALLBACK write_handler_seek(struct _cef_write_handler_t* self,
                                     int64 offset,
                                     int whence) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -56,6 +61,8 @@ int CEF_CALLBACK write_handler_seek(struct _cef_write_handler_t* self,
 }
 
 int64 CEF_CALLBACK write_handler_tell(struct _cef_write_handler_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -70,6 +77,8 @@ int64 CEF_CALLBACK write_handler_tell(struct _cef_write_handler_t* self) {
 }
 
 int CEF_CALLBACK write_handler_flush(struct _cef_write_handler_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -84,6 +93,8 @@ int CEF_CALLBACK write_handler_flush(struct _cef_write_handler_t* self) {
 }
 
 int CEF_CALLBACK write_handler_may_block(struct _cef_write_handler_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -107,6 +118,12 @@ CefWriteHandlerCppToC::CefWriteHandlerCppToC() {
   GetStruct()->tell = write_handler_tell;
   GetStruct()->flush = write_handler_flush;
   GetStruct()->may_block = write_handler_may_block;
+}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefWriteHandlerCppToC::~CefWriteHandlerCppToC() {
+  shutdown_checker::AssertNotShutdown();
 }
 
 template <>

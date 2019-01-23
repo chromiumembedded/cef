@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=291349e2aac1209e36b277400bc8229076655cad$
+// $hash=30a6c8e9611309b983215cfc687b088ca5fad757$
 //
 
 #include "libcef_dll/cpptoc/test/translator_test_cpptoc.h"
@@ -22,11 +22,14 @@
 #include "libcef_dll/ctocpp/test/translator_test_ref_ptr_client_ctocpp.h"
 #include "libcef_dll/ctocpp/test/translator_test_scoped_client_child_ctocpp.h"
 #include "libcef_dll/ctocpp/test/translator_test_scoped_client_ctocpp.h"
+#include "libcef_dll/shutdown_checker.h"
 #include "libcef_dll/transfer_util.h"
 
 // GLOBAL FUNCTIONS - Body may be edited by hand.
 
 CEF_EXPORT cef_translator_test_t* cef_translator_test_create() {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
@@ -42,6 +45,8 @@ namespace {
 
 void CEF_CALLBACK
 translator_test_get_void(struct _cef_translator_test_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -53,6 +58,8 @@ translator_test_get_void(struct _cef_translator_test_t* self) {
 }
 
 int CEF_CALLBACK translator_test_get_bool(struct _cef_translator_test_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -67,6 +74,8 @@ int CEF_CALLBACK translator_test_get_bool(struct _cef_translator_test_t* self) {
 }
 
 int CEF_CALLBACK translator_test_get_int(struct _cef_translator_test_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -82,6 +91,8 @@ int CEF_CALLBACK translator_test_get_int(struct _cef_translator_test_t* self) {
 
 double CEF_CALLBACK
 translator_test_get_double(struct _cef_translator_test_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -97,6 +108,8 @@ translator_test_get_double(struct _cef_translator_test_t* self) {
 
 long CEF_CALLBACK
 translator_test_get_long(struct _cef_translator_test_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -112,6 +125,8 @@ translator_test_get_long(struct _cef_translator_test_t* self) {
 
 size_t CEF_CALLBACK
 translator_test_get_sizet(struct _cef_translator_test_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -126,6 +141,8 @@ translator_test_get_sizet(struct _cef_translator_test_t* self) {
 }
 
 int CEF_CALLBACK translator_test_set_void(struct _cef_translator_test_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -141,6 +158,8 @@ int CEF_CALLBACK translator_test_set_void(struct _cef_translator_test_t* self) {
 
 int CEF_CALLBACK translator_test_set_bool(struct _cef_translator_test_t* self,
                                           int val) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -157,6 +176,8 @@ int CEF_CALLBACK translator_test_set_bool(struct _cef_translator_test_t* self,
 
 int CEF_CALLBACK translator_test_set_int(struct _cef_translator_test_t* self,
                                          int val) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -172,6 +193,8 @@ int CEF_CALLBACK translator_test_set_int(struct _cef_translator_test_t* self,
 
 int CEF_CALLBACK translator_test_set_double(struct _cef_translator_test_t* self,
                                             double val) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -187,6 +210,8 @@ int CEF_CALLBACK translator_test_set_double(struct _cef_translator_test_t* self,
 
 int CEF_CALLBACK translator_test_set_long(struct _cef_translator_test_t* self,
                                           long val) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -202,6 +227,8 @@ int CEF_CALLBACK translator_test_set_long(struct _cef_translator_test_t* self,
 
 int CEF_CALLBACK translator_test_set_sizet(struct _cef_translator_test_t* self,
                                            size_t val) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -219,6 +246,8 @@ int CEF_CALLBACK
 translator_test_set_int_list(struct _cef_translator_test_t* self,
                              size_t valCount,
                              int const* val) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -249,6 +278,8 @@ int CEF_CALLBACK
 translator_test_get_int_list_by_ref(struct _cef_translator_test_t* self,
                                     size_t* valCount,
                                     int* val) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -286,6 +317,8 @@ translator_test_get_int_list_by_ref(struct _cef_translator_test_t* self,
 
 size_t CEF_CALLBACK
 translator_test_get_int_list_size(struct _cef_translator_test_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -301,6 +334,8 @@ translator_test_get_int_list_size(struct _cef_translator_test_t* self) {
 
 cef_string_userfree_t CEF_CALLBACK
 translator_test_get_string(struct _cef_translator_test_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -316,6 +351,8 @@ translator_test_get_string(struct _cef_translator_test_t* self) {
 
 int CEF_CALLBACK translator_test_set_string(struct _cef_translator_test_t* self,
                                             const cef_string_t* val) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -336,6 +373,8 @@ int CEF_CALLBACK translator_test_set_string(struct _cef_translator_test_t* self,
 void CEF_CALLBACK
 translator_test_get_string_by_ref(struct _cef_translator_test_t* self,
                                   cef_string_t* val) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -356,6 +395,8 @@ translator_test_get_string_by_ref(struct _cef_translator_test_t* self,
 int CEF_CALLBACK
 translator_test_set_string_list(struct _cef_translator_test_t* self,
                                 cef_string_list_t val) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -380,6 +421,8 @@ translator_test_set_string_list(struct _cef_translator_test_t* self,
 int CEF_CALLBACK
 translator_test_get_string_list_by_ref(struct _cef_translator_test_t* self,
                                        cef_string_list_t val) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -409,6 +452,8 @@ translator_test_get_string_list_by_ref(struct _cef_translator_test_t* self,
 int CEF_CALLBACK
 translator_test_set_string_map(struct _cef_translator_test_t* self,
                                cef_string_map_t val) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -433,6 +478,8 @@ translator_test_set_string_map(struct _cef_translator_test_t* self,
 int CEF_CALLBACK
 translator_test_get_string_map_by_ref(struct _cef_translator_test_t* self,
                                       cef_string_map_t val) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -461,6 +508,8 @@ translator_test_get_string_map_by_ref(struct _cef_translator_test_t* self,
 int CEF_CALLBACK
 translator_test_set_string_multimap(struct _cef_translator_test_t* self,
                                     cef_string_multimap_t val) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -486,6 +535,8 @@ translator_test_set_string_multimap(struct _cef_translator_test_t* self,
 int CEF_CALLBACK
 translator_test_get_string_multimap_by_ref(struct _cef_translator_test_t* self,
                                            cef_string_multimap_t val) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -514,6 +565,8 @@ translator_test_get_string_multimap_by_ref(struct _cef_translator_test_t* self,
 
 cef_point_t CEF_CALLBACK
 translator_test_get_point(struct _cef_translator_test_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -529,6 +582,8 @@ translator_test_get_point(struct _cef_translator_test_t* self) {
 
 int CEF_CALLBACK translator_test_set_point(struct _cef_translator_test_t* self,
                                            const cef_point_t* val) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -552,6 +607,8 @@ int CEF_CALLBACK translator_test_set_point(struct _cef_translator_test_t* self,
 void CEF_CALLBACK
 translator_test_get_point_by_ref(struct _cef_translator_test_t* self,
                                  cef_point_t* val) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -577,6 +634,8 @@ int CEF_CALLBACK
 translator_test_set_point_list(struct _cef_translator_test_t* self,
                                size_t valCount,
                                cef_point_t const* val) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -607,6 +666,8 @@ int CEF_CALLBACK
 translator_test_get_point_list_by_ref(struct _cef_translator_test_t* self,
                                       size_t* valCount,
                                       cef_point_t* val) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -644,6 +705,8 @@ translator_test_get_point_list_by_ref(struct _cef_translator_test_t* self,
 
 size_t CEF_CALLBACK
 translator_test_get_point_list_size(struct _cef_translator_test_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -660,6 +723,8 @@ translator_test_get_point_list_size(struct _cef_translator_test_t* self) {
 struct _cef_translator_test_ref_ptr_library_t* CEF_CALLBACK
 translator_test_get_ref_ptr_library(struct _cef_translator_test_t* self,
                                     int val) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -677,6 +742,8 @@ translator_test_get_ref_ptr_library(struct _cef_translator_test_t* self,
 int CEF_CALLBACK translator_test_set_ref_ptr_library(
     struct _cef_translator_test_t* self,
     struct _cef_translator_test_ref_ptr_library_t* val) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -699,6 +766,8 @@ struct _cef_translator_test_ref_ptr_library_t* CEF_CALLBACK
 translator_test_set_ref_ptr_library_and_return(
     struct _cef_translator_test_t* self,
     struct _cef_translator_test_ref_ptr_library_t* val) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -721,6 +790,8 @@ translator_test_set_ref_ptr_library_and_return(
 int CEF_CALLBACK translator_test_set_child_ref_ptr_library(
     struct _cef_translator_test_t* self,
     struct _cef_translator_test_ref_ptr_library_child_t* val) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -743,6 +814,8 @@ struct _cef_translator_test_ref_ptr_library_t* CEF_CALLBACK
 translator_test_set_child_ref_ptr_library_and_return_parent(
     struct _cef_translator_test_t* self,
     struct _cef_translator_test_ref_ptr_library_child_t* val) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -768,6 +841,8 @@ int CEF_CALLBACK translator_test_set_ref_ptr_library_list(
     struct _cef_translator_test_ref_ptr_library_t* const* val,
     int val1,
     int val2) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -802,6 +877,8 @@ int CEF_CALLBACK translator_test_get_ref_ptr_library_list_by_ref(
     struct _cef_translator_test_ref_ptr_library_t** val,
     int val1,
     int val2) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -840,6 +917,8 @@ int CEF_CALLBACK translator_test_get_ref_ptr_library_list_by_ref(
 
 size_t CEF_CALLBACK translator_test_get_ref_ptr_library_list_size(
     struct _cef_translator_test_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -857,6 +936,8 @@ size_t CEF_CALLBACK translator_test_get_ref_ptr_library_list_size(
 int CEF_CALLBACK translator_test_set_ref_ptr_client(
     struct _cef_translator_test_t* self,
     struct _cef_translator_test_ref_ptr_client_t* val) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -879,6 +960,8 @@ struct _cef_translator_test_ref_ptr_client_t* CEF_CALLBACK
 translator_test_set_ref_ptr_client_and_return(
     struct _cef_translator_test_t* self,
     struct _cef_translator_test_ref_ptr_client_t* val) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -901,6 +984,8 @@ translator_test_set_ref_ptr_client_and_return(
 int CEF_CALLBACK translator_test_set_child_ref_ptr_client(
     struct _cef_translator_test_t* self,
     struct _cef_translator_test_ref_ptr_client_child_t* val) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -923,6 +1008,8 @@ struct _cef_translator_test_ref_ptr_client_t* CEF_CALLBACK
 translator_test_set_child_ref_ptr_client_and_return_parent(
     struct _cef_translator_test_t* self,
     struct _cef_translator_test_ref_ptr_client_child_t* val) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -948,6 +1035,8 @@ int CEF_CALLBACK translator_test_set_ref_ptr_client_list(
     struct _cef_translator_test_ref_ptr_client_t* const* val,
     int val1,
     int val2) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -982,6 +1071,8 @@ int CEF_CALLBACK translator_test_get_ref_ptr_client_list_by_ref(
     struct _cef_translator_test_ref_ptr_client_t** val,
     struct _cef_translator_test_ref_ptr_client_t* val1,
     struct _cef_translator_test_ref_ptr_client_t* val2) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -1029,6 +1120,8 @@ int CEF_CALLBACK translator_test_get_ref_ptr_client_list_by_ref(
 
 size_t CEF_CALLBACK translator_test_get_ref_ptr_client_list_size(
     struct _cef_translator_test_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -1046,6 +1139,8 @@ size_t CEF_CALLBACK translator_test_get_ref_ptr_client_list_size(
 struct _cef_translator_test_scoped_library_t* CEF_CALLBACK
 translator_test_get_own_ptr_library(struct _cef_translator_test_t* self,
                                     int val) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -1063,6 +1158,8 @@ translator_test_get_own_ptr_library(struct _cef_translator_test_t* self,
 int CEF_CALLBACK translator_test_set_own_ptr_library(
     struct _cef_translator_test_t* self,
     struct _cef_translator_test_scoped_library_t* val) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -1085,6 +1182,8 @@ struct _cef_translator_test_scoped_library_t* CEF_CALLBACK
 translator_test_set_own_ptr_library_and_return(
     struct _cef_translator_test_t* self,
     struct _cef_translator_test_scoped_library_t* val) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -1107,6 +1206,8 @@ translator_test_set_own_ptr_library_and_return(
 int CEF_CALLBACK translator_test_set_child_own_ptr_library(
     struct _cef_translator_test_t* self,
     struct _cef_translator_test_scoped_library_child_t* val) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -1129,6 +1230,8 @@ struct _cef_translator_test_scoped_library_t* CEF_CALLBACK
 translator_test_set_child_own_ptr_library_and_return_parent(
     struct _cef_translator_test_t* self,
     struct _cef_translator_test_scoped_library_child_t* val) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -1151,6 +1254,8 @@ translator_test_set_child_own_ptr_library_and_return_parent(
 int CEF_CALLBACK translator_test_set_own_ptr_client(
     struct _cef_translator_test_t* self,
     struct _cef_translator_test_scoped_client_t* val) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -1177,6 +1282,8 @@ struct _cef_translator_test_scoped_client_t* CEF_CALLBACK
 translator_test_set_own_ptr_client_and_return(
     struct _cef_translator_test_t* self,
     struct _cef_translator_test_scoped_client_t* val) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -1203,6 +1310,8 @@ translator_test_set_own_ptr_client_and_return(
 int CEF_CALLBACK translator_test_set_child_own_ptr_client(
     struct _cef_translator_test_t* self,
     struct _cef_translator_test_scoped_client_child_t* val) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -1229,6 +1338,8 @@ struct _cef_translator_test_scoped_client_t* CEF_CALLBACK
 translator_test_set_child_own_ptr_client_and_return_parent(
     struct _cef_translator_test_t* self,
     struct _cef_translator_test_scoped_client_child_t* val) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -1255,6 +1366,8 @@ translator_test_set_child_own_ptr_client_and_return_parent(
 int CEF_CALLBACK translator_test_set_raw_ptr_library(
     struct _cef_translator_test_t* self,
     struct _cef_translator_test_scoped_library_t* val) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -1276,6 +1389,8 @@ int CEF_CALLBACK translator_test_set_raw_ptr_library(
 int CEF_CALLBACK translator_test_set_child_raw_ptr_library(
     struct _cef_translator_test_t* self,
     struct _cef_translator_test_scoped_library_child_t* val) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -1300,6 +1415,8 @@ int CEF_CALLBACK translator_test_set_raw_ptr_library_list(
     struct _cef_translator_test_scoped_library_t* const* val,
     int val1,
     int val2) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -1331,6 +1448,8 @@ int CEF_CALLBACK translator_test_set_raw_ptr_library_list(
 int CEF_CALLBACK translator_test_set_raw_ptr_client(
     struct _cef_translator_test_t* self,
     struct _cef_translator_test_scoped_client_t* val) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -1356,6 +1475,8 @@ int CEF_CALLBACK translator_test_set_raw_ptr_client(
 int CEF_CALLBACK translator_test_set_child_raw_ptr_client(
     struct _cef_translator_test_t* self,
     struct _cef_translator_test_scoped_client_child_t* val) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -1384,6 +1505,8 @@ int CEF_CALLBACK translator_test_set_raw_ptr_client_list(
     struct _cef_translator_test_scoped_client_t* const* val,
     int val1,
     int val2) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -1507,6 +1630,12 @@ CefTranslatorTestCppToC::CefTranslatorTestCppToC() {
       translator_test_set_child_raw_ptr_client;
   GetStruct()->set_raw_ptr_client_list =
       translator_test_set_raw_ptr_client_list;
+}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefTranslatorTestCppToC::~CefTranslatorTestCppToC() {
+  shutdown_checker::AssertNotShutdown();
 }
 
 template <>

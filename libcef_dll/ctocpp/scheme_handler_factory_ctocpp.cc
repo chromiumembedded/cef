@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=bc66f40917445e9ad3e8db14e4a49d3b79db716d$
+// $hash=cc1c431f55b6c2efa1a6e614baae484216d4a425$
 //
 
 #include "libcef_dll/ctocpp/scheme_handler_factory_ctocpp.h"
@@ -54,6 +54,10 @@ CefRefPtr<CefResourceHandler> CefSchemeHandlerFactoryCToCpp::Create(
 // CONSTRUCTOR - Do not edit by hand.
 
 CefSchemeHandlerFactoryCToCpp::CefSchemeHandlerFactoryCToCpp() {}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefSchemeHandlerFactoryCToCpp::~CefSchemeHandlerFactoryCToCpp() {}
 
 template <>
 cef_scheme_handler_factory_t* CefCToCppRefCounted<

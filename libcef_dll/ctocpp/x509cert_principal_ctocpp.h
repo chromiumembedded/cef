@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=1191741f09eb45e66b23bb2552014b7b9fc9e57e$
+// $hash=4ec23d382ee5cf9636ef2b181716e845d4f4313e$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_X509CERT_PRINCIPAL_CTOCPP_H_
@@ -33,6 +33,7 @@ class CefX509CertPrincipalCToCpp
                                  cef_x509cert_principal_t> {
  public:
   CefX509CertPrincipalCToCpp();
+  virtual ~CefX509CertPrincipalCToCpp();
 
   // CefX509CertPrincipal methods.
   CefString GetDisplayName() OVERRIDE;

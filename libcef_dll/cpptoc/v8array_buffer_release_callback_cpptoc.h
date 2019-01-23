@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=5af3a556386cd8521e6be1929bd191ffe521a388$
+// $hash=fdfef700eb94ae8981ddb9dd9f46c4bc08903e1c$
 //
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_V8ARRAY_BUFFER_RELEASE_CALLBACK_CPPTOC_H_
@@ -32,6 +32,7 @@ class CefV8ArrayBufferReleaseCallbackCppToC
                                  cef_v8array_buffer_release_callback_t> {
  public:
   CefV8ArrayBufferReleaseCallbackCppToC();
+  virtual ~CefV8ArrayBufferReleaseCallbackCppToC();
 };
 
 #endif  // CEF_LIBCEF_DLL_CPPTOC_V8ARRAY_BUFFER_RELEASE_CALLBACK_CPPTOC_H_

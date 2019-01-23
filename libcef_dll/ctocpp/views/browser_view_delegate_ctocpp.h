@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=41ef44145792a22f367cb97c214847eb340b17b5$
+// $hash=a3cab28932579f03783dad3e9c754ba1b845b373$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_VIEWS_BROWSER_VIEW_DELEGATE_CTOCPP_H_
@@ -36,6 +36,7 @@ class CefBrowserViewDelegateCToCpp
                                  cef_browser_view_delegate_t> {
  public:
   CefBrowserViewDelegateCToCpp();
+  virtual ~CefBrowserViewDelegateCToCpp();
 
   // CefBrowserViewDelegate methods.
   void OnBrowserCreated(CefRefPtr<CefBrowserView> browser_view,

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=5b89a001c69aafb7ea8929a155a352c5c21f545d$
+// $hash=805b8d1743259584baff4a4a9c3eb39fa14d0d68$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_IMAGE_CTOCPP_H_
@@ -30,6 +30,7 @@ class CefImageCToCpp
     : public CefCToCppRefCounted<CefImageCToCpp, CefImage, cef_image_t> {
  public:
   CefImageCToCpp();
+  virtual ~CefImageCToCpp();
 
   // CefImage methods.
   bool IsEmpty() OVERRIDE;

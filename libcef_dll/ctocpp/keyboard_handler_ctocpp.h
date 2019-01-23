@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=d816d397970c0e3a6fb4030f6d9dfa61d6fe5e1f$
+// $hash=6a1dcbe2905a9b08ae2103f54ed7247e5de13a94$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_KEYBOARD_HANDLER_CTOCPP_H_
@@ -32,6 +32,7 @@ class CefKeyboardHandlerCToCpp
                                  cef_keyboard_handler_t> {
  public:
   CefKeyboardHandlerCToCpp();
+  virtual ~CefKeyboardHandlerCToCpp();
 
   // CefKeyboardHandler methods.
   bool OnPreKeyEvent(CefRefPtr<CefBrowser> browser,

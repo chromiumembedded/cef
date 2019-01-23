@@ -9,17 +9,20 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=b1cc282e9de9329406c9a2197a2d251d28412928$
+// $hash=c61826a0c2b4f67e7c70b7dd7c734d0fc66062f8$
 //
 
 #include "libcef_dll/cpptoc/drag_data_cpptoc.h"
 #include "libcef_dll/cpptoc/image_cpptoc.h"
 #include "libcef_dll/cpptoc/stream_writer_cpptoc.h"
+#include "libcef_dll/shutdown_checker.h"
 #include "libcef_dll/transfer_util.h"
 
 // GLOBAL FUNCTIONS - Body may be edited by hand.
 
 CEF_EXPORT cef_drag_data_t* cef_drag_data_create() {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
@@ -35,6 +38,8 @@ namespace {
 
 struct _cef_drag_data_t* CEF_CALLBACK
 drag_data_clone(struct _cef_drag_data_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -49,6 +54,8 @@ drag_data_clone(struct _cef_drag_data_t* self) {
 }
 
 int CEF_CALLBACK drag_data_is_read_only(struct _cef_drag_data_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -63,6 +70,8 @@ int CEF_CALLBACK drag_data_is_read_only(struct _cef_drag_data_t* self) {
 }
 
 int CEF_CALLBACK drag_data_is_link(struct _cef_drag_data_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -77,6 +86,8 @@ int CEF_CALLBACK drag_data_is_link(struct _cef_drag_data_t* self) {
 }
 
 int CEF_CALLBACK drag_data_is_fragment(struct _cef_drag_data_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -91,6 +102,8 @@ int CEF_CALLBACK drag_data_is_fragment(struct _cef_drag_data_t* self) {
 }
 
 int CEF_CALLBACK drag_data_is_file(struct _cef_drag_data_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -106,6 +119,8 @@ int CEF_CALLBACK drag_data_is_file(struct _cef_drag_data_t* self) {
 
 cef_string_userfree_t CEF_CALLBACK
 drag_data_get_link_url(struct _cef_drag_data_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -121,6 +136,8 @@ drag_data_get_link_url(struct _cef_drag_data_t* self) {
 
 cef_string_userfree_t CEF_CALLBACK
 drag_data_get_link_title(struct _cef_drag_data_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -136,6 +153,8 @@ drag_data_get_link_title(struct _cef_drag_data_t* self) {
 
 cef_string_userfree_t CEF_CALLBACK
 drag_data_get_link_metadata(struct _cef_drag_data_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -151,6 +170,8 @@ drag_data_get_link_metadata(struct _cef_drag_data_t* self) {
 
 cef_string_userfree_t CEF_CALLBACK
 drag_data_get_fragment_text(struct _cef_drag_data_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -166,6 +187,8 @@ drag_data_get_fragment_text(struct _cef_drag_data_t* self) {
 
 cef_string_userfree_t CEF_CALLBACK
 drag_data_get_fragment_html(struct _cef_drag_data_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -181,6 +204,8 @@ drag_data_get_fragment_html(struct _cef_drag_data_t* self) {
 
 cef_string_userfree_t CEF_CALLBACK
 drag_data_get_fragment_base_url(struct _cef_drag_data_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -196,6 +221,8 @@ drag_data_get_fragment_base_url(struct _cef_drag_data_t* self) {
 
 cef_string_userfree_t CEF_CALLBACK
 drag_data_get_file_name(struct _cef_drag_data_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -212,6 +239,8 @@ drag_data_get_file_name(struct _cef_drag_data_t* self) {
 size_t CEF_CALLBACK
 drag_data_get_file_contents(struct _cef_drag_data_t* self,
                             struct _cef_stream_writer_t* writer) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -229,6 +258,8 @@ drag_data_get_file_contents(struct _cef_drag_data_t* self,
 
 int CEF_CALLBACK drag_data_get_file_names(struct _cef_drag_data_t* self,
                                           cef_string_list_t names) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -256,6 +287,8 @@ int CEF_CALLBACK drag_data_get_file_names(struct _cef_drag_data_t* self,
 
 void CEF_CALLBACK drag_data_set_link_url(struct _cef_drag_data_t* self,
                                          const cef_string_t* url) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -269,6 +302,8 @@ void CEF_CALLBACK drag_data_set_link_url(struct _cef_drag_data_t* self,
 
 void CEF_CALLBACK drag_data_set_link_title(struct _cef_drag_data_t* self,
                                            const cef_string_t* title) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -282,6 +317,8 @@ void CEF_CALLBACK drag_data_set_link_title(struct _cef_drag_data_t* self,
 
 void CEF_CALLBACK drag_data_set_link_metadata(struct _cef_drag_data_t* self,
                                               const cef_string_t* data) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -295,6 +332,8 @@ void CEF_CALLBACK drag_data_set_link_metadata(struct _cef_drag_data_t* self,
 
 void CEF_CALLBACK drag_data_set_fragment_text(struct _cef_drag_data_t* self,
                                               const cef_string_t* text) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -308,6 +347,8 @@ void CEF_CALLBACK drag_data_set_fragment_text(struct _cef_drag_data_t* self,
 
 void CEF_CALLBACK drag_data_set_fragment_html(struct _cef_drag_data_t* self,
                                               const cef_string_t* html) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -322,6 +363,8 @@ void CEF_CALLBACK drag_data_set_fragment_html(struct _cef_drag_data_t* self,
 void CEF_CALLBACK
 drag_data_set_fragment_base_url(struct _cef_drag_data_t* self,
                                 const cef_string_t* base_url) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -334,6 +377,8 @@ drag_data_set_fragment_base_url(struct _cef_drag_data_t* self,
 }
 
 void CEF_CALLBACK drag_data_reset_file_contents(struct _cef_drag_data_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -347,6 +392,8 @@ void CEF_CALLBACK drag_data_reset_file_contents(struct _cef_drag_data_t* self) {
 void CEF_CALLBACK drag_data_add_file(struct _cef_drag_data_t* self,
                                      const cef_string_t* path,
                                      const cef_string_t* display_name) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -365,6 +412,8 @@ void CEF_CALLBACK drag_data_add_file(struct _cef_drag_data_t* self,
 
 struct _cef_image_t* CEF_CALLBACK
 drag_data_get_image(struct _cef_drag_data_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -380,6 +429,8 @@ drag_data_get_image(struct _cef_drag_data_t* self) {
 
 cef_point_t CEF_CALLBACK
 drag_data_get_image_hotspot(struct _cef_drag_data_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -394,6 +445,8 @@ drag_data_get_image_hotspot(struct _cef_drag_data_t* self) {
 }
 
 int CEF_CALLBACK drag_data_has_image(struct _cef_drag_data_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -437,6 +490,12 @@ CefDragDataCppToC::CefDragDataCppToC() {
   GetStruct()->get_image = drag_data_get_image;
   GetStruct()->get_image_hotspot = drag_data_get_image_hotspot;
   GetStruct()->has_image = drag_data_has_image;
+}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefDragDataCppToC::~CefDragDataCppToC() {
+  shutdown_checker::AssertNotShutdown();
 }
 
 template <>

@@ -9,17 +9,20 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=1d79e81aa15b006ce503e69d797018197d0fc7a2$
+// $hash=c5ce367ea1e8754b04b07012ca8355c2fa62f203$
 //
 
 #include "libcef_dll/ctocpp/zip_reader_ctocpp.h"
 #include "libcef_dll/ctocpp/stream_reader_ctocpp.h"
+#include "libcef_dll/shutdown_checker.h"
 
 // STATIC METHODS - Body may be edited by hand.
 
 NO_SANITIZE("cfi-icall")
 CefRefPtr<CefZipReader> CefZipReader::Create(
     CefRefPtr<CefStreamReader> stream) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: stream; type: refptr_same
@@ -38,6 +41,8 @@ CefRefPtr<CefZipReader> CefZipReader::Create(
 // VIRTUAL METHODS - Body may be edited by hand.
 
 NO_SANITIZE("cfi-icall") bool CefZipReaderCToCpp::MoveToFirstFile() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_zip_reader_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, move_to_first_file))
     return false;
@@ -52,6 +57,8 @@ NO_SANITIZE("cfi-icall") bool CefZipReaderCToCpp::MoveToFirstFile() {
 }
 
 NO_SANITIZE("cfi-icall") bool CefZipReaderCToCpp::MoveToNextFile() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_zip_reader_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, move_to_next_file))
     return false;
@@ -68,6 +75,8 @@ NO_SANITIZE("cfi-icall") bool CefZipReaderCToCpp::MoveToNextFile() {
 NO_SANITIZE("cfi-icall")
 bool CefZipReaderCToCpp::MoveToFile(const CefString& fileName,
                                     bool caseSensitive) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_zip_reader_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, move_to_file))
     return false;
@@ -88,6 +97,8 @@ bool CefZipReaderCToCpp::MoveToFile(const CefString& fileName,
 }
 
 NO_SANITIZE("cfi-icall") bool CefZipReaderCToCpp::Close() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_zip_reader_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, close))
     return false;
@@ -102,6 +113,8 @@ NO_SANITIZE("cfi-icall") bool CefZipReaderCToCpp::Close() {
 }
 
 NO_SANITIZE("cfi-icall") CefString CefZipReaderCToCpp::GetFileName() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_zip_reader_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_file_name))
     return CefString();
@@ -118,6 +131,8 @@ NO_SANITIZE("cfi-icall") CefString CefZipReaderCToCpp::GetFileName() {
 }
 
 NO_SANITIZE("cfi-icall") int64 CefZipReaderCToCpp::GetFileSize() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_zip_reader_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_file_size))
     return 0;
@@ -132,6 +147,8 @@ NO_SANITIZE("cfi-icall") int64 CefZipReaderCToCpp::GetFileSize() {
 }
 
 NO_SANITIZE("cfi-icall") CefTime CefZipReaderCToCpp::GetFileLastModified() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_zip_reader_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_file_last_modified))
     return CefTime();
@@ -147,6 +164,8 @@ NO_SANITIZE("cfi-icall") CefTime CefZipReaderCToCpp::GetFileLastModified() {
 
 NO_SANITIZE("cfi-icall")
 bool CefZipReaderCToCpp::OpenFile(const CefString& password) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_zip_reader_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, open_file))
     return false;
@@ -163,6 +182,8 @@ bool CefZipReaderCToCpp::OpenFile(const CefString& password) {
 }
 
 NO_SANITIZE("cfi-icall") bool CefZipReaderCToCpp::CloseFile() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_zip_reader_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, close_file))
     return false;
@@ -178,6 +199,8 @@ NO_SANITIZE("cfi-icall") bool CefZipReaderCToCpp::CloseFile() {
 
 NO_SANITIZE("cfi-icall")
 int CefZipReaderCToCpp::ReadFile(void* buffer, size_t bufferSize) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_zip_reader_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, read_file))
     return 0;
@@ -197,6 +220,8 @@ int CefZipReaderCToCpp::ReadFile(void* buffer, size_t bufferSize) {
 }
 
 NO_SANITIZE("cfi-icall") int64 CefZipReaderCToCpp::Tell() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_zip_reader_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, tell))
     return 0;
@@ -211,6 +236,8 @@ NO_SANITIZE("cfi-icall") int64 CefZipReaderCToCpp::Tell() {
 }
 
 NO_SANITIZE("cfi-icall") bool CefZipReaderCToCpp::Eof() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_zip_reader_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, eof))
     return false;
@@ -227,6 +254,12 @@ NO_SANITIZE("cfi-icall") bool CefZipReaderCToCpp::Eof() {
 // CONSTRUCTOR - Do not edit by hand.
 
 CefZipReaderCToCpp::CefZipReaderCToCpp() {}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefZipReaderCToCpp::~CefZipReaderCToCpp() {
+  shutdown_checker::AssertNotShutdown();
+}
 
 template <>
 cef_zip_reader_t*

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=bea9daf42740ccd53e0696008f1a8fc1de194687$
+// $hash=6533981bee56064d41536225997c0cd73e2b67e3$
 //
 
 #include "libcef_dll/ctocpp/extension_handler_ctocpp.h"
@@ -17,11 +17,14 @@
 #include "libcef_dll/cpptoc/extension_cpptoc.h"
 #include "libcef_dll/cpptoc/get_extension_resource_callback_cpptoc.h"
 #include "libcef_dll/ctocpp/client_ctocpp.h"
+#include "libcef_dll/shutdown_checker.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
 NO_SANITIZE("cfi-icall")
 void CefExtensionHandlerCToCpp::OnExtensionLoadFailed(cef_errorcode_t result) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_extension_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_extension_load_failed))
     return;
@@ -35,6 +38,8 @@ void CefExtensionHandlerCToCpp::OnExtensionLoadFailed(cef_errorcode_t result) {
 NO_SANITIZE("cfi-icall")
 void CefExtensionHandlerCToCpp::OnExtensionLoaded(
     CefRefPtr<CefExtension> extension) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_extension_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_extension_loaded))
     return;
@@ -53,6 +58,8 @@ void CefExtensionHandlerCToCpp::OnExtensionLoaded(
 NO_SANITIZE("cfi-icall")
 void CefExtensionHandlerCToCpp::OnExtensionUnloaded(
     CefRefPtr<CefExtension> extension) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_extension_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_extension_unloaded))
     return;
@@ -74,6 +81,8 @@ bool CefExtensionHandlerCToCpp::OnBeforeBackgroundBrowser(
     const CefString& url,
     CefRefPtr<CefClient>& client,
     CefBrowserSettings& settings) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_extension_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_before_background_browser))
     return false;
@@ -124,6 +133,8 @@ bool CefExtensionHandlerCToCpp::OnBeforeBrowser(
     CefWindowInfo& windowInfo,
     CefRefPtr<CefClient>& client,
     CefBrowserSettings& settings) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_extension_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_before_browser))
     return false;
@@ -177,6 +188,8 @@ CefRefPtr<CefBrowser> CefExtensionHandlerCToCpp::GetActiveBrowser(
     CefRefPtr<CefExtension> extension,
     CefRefPtr<CefBrowser> browser,
     bool include_incognito) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_extension_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_active_browser))
     return NULL;
@@ -207,6 +220,8 @@ bool CefExtensionHandlerCToCpp::CanAccessBrowser(
     CefRefPtr<CefBrowser> browser,
     bool include_incognito,
     CefRefPtr<CefBrowser> target_browser) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_extension_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, can_access_browser))
     return false;
@@ -242,6 +257,8 @@ bool CefExtensionHandlerCToCpp::GetExtensionResource(
     CefRefPtr<CefBrowser> browser,
     const CefString& file,
     CefRefPtr<CefGetExtensionResourceCallback> callback) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_extension_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_extension_resource))
     return false;
@@ -278,6 +295,12 @@ bool CefExtensionHandlerCToCpp::GetExtensionResource(
 // CONSTRUCTOR - Do not edit by hand.
 
 CefExtensionHandlerCToCpp::CefExtensionHandlerCToCpp() {}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefExtensionHandlerCToCpp::~CefExtensionHandlerCToCpp() {
+  shutdown_checker::AssertNotShutdown();
+}
 
 template <>
 cef_extension_handler_t* CefCToCppRefCounted<

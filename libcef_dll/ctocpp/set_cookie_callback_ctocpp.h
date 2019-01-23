@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=a4ff20aee06bfc88879ac9e5cc65c9aac887c5f5$
+// $hash=48f20f8d8d764c34b220ff92248a39572af46887$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_SET_COOKIE_CALLBACK_CTOCPP_H_
@@ -32,6 +32,7 @@ class CefSetCookieCallbackCToCpp
                                  cef_set_cookie_callback_t> {
  public:
   CefSetCookieCallbackCToCpp();
+  virtual ~CefSetCookieCallbackCToCpp();
 
   // CefSetCookieCallback methods.
   void OnComplete(bool success) override;

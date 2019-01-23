@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=3965ee5c93c1e186b58dbbc28db91e1ad1274f97$
+// $hash=1e63ea8bd5144f92f0f7d6f029b34a2672f337ae$
 //
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_DOMDOCUMENT_CPPTOC_H_
@@ -31,6 +31,7 @@ class CefDOMDocumentCppToC : public CefCppToCRefCounted<CefDOMDocumentCppToC,
                                                         cef_domdocument_t> {
  public:
   CefDOMDocumentCppToC();
+  virtual ~CefDOMDocumentCppToC();
 };
 
 #endif  // CEF_LIBCEF_DLL_CPPTOC_DOMDOCUMENT_CPPTOC_H_

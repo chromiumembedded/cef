@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=a4a46936eb9009b219b9f3e912a02a69d0de62aa$
+// $hash=20a96394a559d98532ad12bfab14b030c5d23710$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_DISPLAY_HANDLER_CTOCPP_H_
@@ -33,6 +33,7 @@ class CefDisplayHandlerCToCpp
                                  cef_display_handler_t> {
  public:
   CefDisplayHandlerCToCpp();
+  virtual ~CefDisplayHandlerCToCpp();
 
   // CefDisplayHandler methods.
   void OnAddressChange(CefRefPtr<CefBrowser> browser,

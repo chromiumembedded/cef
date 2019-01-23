@@ -9,10 +9,11 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=5675c17f7fd606f7b99d1b72021cc6c7de1de1d5$
+// $hash=33dd3be38d10acb86c72fc60b21549353113e126$
 //
 
 #include "libcef_dll/cpptoc/x509cert_principal_cpptoc.h"
+#include "libcef_dll/shutdown_checker.h"
 #include "libcef_dll/transfer_util.h"
 
 namespace {
@@ -21,6 +22,8 @@ namespace {
 
 cef_string_userfree_t CEF_CALLBACK
 x509cert_principal_get_display_name(struct _cef_x509cert_principal_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -36,6 +39,8 @@ x509cert_principal_get_display_name(struct _cef_x509cert_principal_t* self) {
 
 cef_string_userfree_t CEF_CALLBACK
 x509cert_principal_get_common_name(struct _cef_x509cert_principal_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -51,6 +56,8 @@ x509cert_principal_get_common_name(struct _cef_x509cert_principal_t* self) {
 
 cef_string_userfree_t CEF_CALLBACK
 x509cert_principal_get_locality_name(struct _cef_x509cert_principal_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -67,6 +74,8 @@ x509cert_principal_get_locality_name(struct _cef_x509cert_principal_t* self) {
 cef_string_userfree_t CEF_CALLBACK
 x509cert_principal_get_state_or_province_name(
     struct _cef_x509cert_principal_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -83,6 +92,8 @@ x509cert_principal_get_state_or_province_name(
 
 cef_string_userfree_t CEF_CALLBACK
 x509cert_principal_get_country_name(struct _cef_x509cert_principal_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -99,6 +110,8 @@ x509cert_principal_get_country_name(struct _cef_x509cert_principal_t* self) {
 void CEF_CALLBACK
 x509cert_principal_get_street_addresses(struct _cef_x509cert_principal_t* self,
                                         cef_string_list_t addresses) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -124,6 +137,8 @@ x509cert_principal_get_street_addresses(struct _cef_x509cert_principal_t* self,
 void CEF_CALLBACK x509cert_principal_get_organization_names(
     struct _cef_x509cert_principal_t* self,
     cef_string_list_t names) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -149,6 +164,8 @@ void CEF_CALLBACK x509cert_principal_get_organization_names(
 void CEF_CALLBACK x509cert_principal_get_organization_unit_names(
     struct _cef_x509cert_principal_t* self,
     cef_string_list_t names) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -174,6 +191,8 @@ void CEF_CALLBACK x509cert_principal_get_organization_unit_names(
 void CEF_CALLBACK
 x509cert_principal_get_domain_components(struct _cef_x509cert_principal_t* self,
                                          cef_string_list_t components) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -213,6 +232,12 @@ CefX509CertPrincipalCppToC::CefX509CertPrincipalCppToC() {
   GetStruct()->get_organization_unit_names =
       x509cert_principal_get_organization_unit_names;
   GetStruct()->get_domain_components = x509cert_principal_get_domain_components;
+}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefX509CertPrincipalCppToC::~CefX509CertPrincipalCppToC() {
+  shutdown_checker::AssertNotShutdown();
 }
 
 template <>

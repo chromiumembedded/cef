@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=f530e076e576e7206b679740d9fc8381017b3fe2$
+// $hash=f637f19e554e1965c168ec7eec7de8dcf0505adc$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_POST_DATA_CTOCPP_H_
@@ -31,6 +31,7 @@ class CefPostDataCToCpp : public CefCToCppRefCounted<CefPostDataCToCpp,
                                                      cef_post_data_t> {
  public:
   CefPostDataCToCpp();
+  virtual ~CefPostDataCToCpp();
 
   // CefPostData methods.
   bool IsReadOnly() OVERRIDE;

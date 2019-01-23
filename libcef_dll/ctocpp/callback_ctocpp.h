@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=86c41d34e961da5c065e13c6faede50294cf4050$
+// $hash=43e81996fa631df9a05493e8ca020a90a2831b96$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_CALLBACK_CTOCPP_H_
@@ -31,6 +31,7 @@ class CefCallbackCToCpp : public CefCToCppRefCounted<CefCallbackCToCpp,
                                                      cef_callback_t> {
  public:
   CefCallbackCToCpp();
+  virtual ~CefCallbackCToCpp();
 
   // CefCallback methods.
   void Continue() OVERRIDE;

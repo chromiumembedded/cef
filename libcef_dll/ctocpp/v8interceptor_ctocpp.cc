@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=6e4162e6007e804890bf7606bb332367740e5b68$
+// $hash=bc691b460680cb230a5b8a13a1a4f9d6afa1d0aa$
 //
 
 #include "libcef_dll/ctocpp/v8interceptor_ctocpp.h"
@@ -174,6 +174,10 @@ bool CefV8InterceptorCToCpp::Set(int index,
 // CONSTRUCTOR - Do not edit by hand.
 
 CefV8InterceptorCToCpp::CefV8InterceptorCToCpp() {}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefV8InterceptorCToCpp::~CefV8InterceptorCToCpp() {}
 
 template <>
 cef_v8interceptor_t*

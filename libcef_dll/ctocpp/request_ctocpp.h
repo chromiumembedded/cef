@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=c5ac268a3cdd1edda4319668306a814dc71bd4a0$
+// $hash=98cf46c3682e03594e72a7304dfa0ddd8b8cf3d8$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_REQUEST_CTOCPP_H_
@@ -30,6 +30,7 @@ class CefRequestCToCpp
     : public CefCToCppRefCounted<CefRequestCToCpp, CefRequest, cef_request_t> {
  public:
   CefRequestCToCpp();
+  virtual ~CefRequestCToCpp();
 
   // CefRequest methods.
   bool IsReadOnly() OVERRIDE;

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=46710eeb65a3626da72cf0e003b71c3c5a29342a$
+// $hash=b6a5f3fd596f4e256062768297ba5b93d2d2c176$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_FILE_DIALOG_CALLBACK_CTOCPP_H_
@@ -33,6 +33,7 @@ class CefFileDialogCallbackCToCpp
                                  cef_file_dialog_callback_t> {
  public:
   CefFileDialogCallbackCToCpp();
+  virtual ~CefFileDialogCallbackCToCpp();
 
   // CefFileDialogCallback methods.
   void Continue(int selected_accept_filter,

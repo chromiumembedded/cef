@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=621d3cb47ff1522d4df263d6f9c63fa8bdfb51f7$
+// $hash=3710964ee91febb36938956d5d5e23ba0d4a686b$
 //
 
 #include "libcef_dll/ctocpp/test/translator_test_scoped_library_child_ctocpp.h"
@@ -18,9 +18,8 @@
 // STATIC METHODS - Body may be edited by hand.
 
 NO_SANITIZE("cfi-icall")
-CefOwnPtr<
-    CefTranslatorTestScopedLibraryChild> CefTranslatorTestScopedLibraryChild::
-    Create(int value, int other_value) {
+CefOwnPtr<CefTranslatorTestScopedLibraryChild>
+CefTranslatorTestScopedLibraryChild::Create(int value, int other_value) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
@@ -93,6 +92,11 @@ void CefTranslatorTestScopedLibraryChildCToCpp::SetValue(int value) {
 
 CefTranslatorTestScopedLibraryChildCToCpp::
     CefTranslatorTestScopedLibraryChildCToCpp() {}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefTranslatorTestScopedLibraryChildCToCpp::
+    ~CefTranslatorTestScopedLibraryChildCToCpp() {}
 
 template <>
 cef_translator_test_scoped_library_child_t*

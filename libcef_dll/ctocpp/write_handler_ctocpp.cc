@@ -9,15 +9,18 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=536427dc9c0e3db93170b1308bfed09a99da0a17$
+// $hash=f0e23086a6138f7cbaabfb496b0b2acf592f58c7$
 //
 
 #include "libcef_dll/ctocpp/write_handler_ctocpp.h"
+#include "libcef_dll/shutdown_checker.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
 NO_SANITIZE("cfi-icall")
 size_t CefWriteHandlerCToCpp::Write(const void* ptr, size_t size, size_t n) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_write_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, write))
     return 0;
@@ -38,6 +41,8 @@ size_t CefWriteHandlerCToCpp::Write(const void* ptr, size_t size, size_t n) {
 
 NO_SANITIZE("cfi-icall")
 int CefWriteHandlerCToCpp::Seek(int64 offset, int whence) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_write_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, seek))
     return 0;
@@ -52,6 +57,8 @@ int CefWriteHandlerCToCpp::Seek(int64 offset, int whence) {
 }
 
 NO_SANITIZE("cfi-icall") int64 CefWriteHandlerCToCpp::Tell() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_write_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, tell))
     return 0;
@@ -66,6 +73,8 @@ NO_SANITIZE("cfi-icall") int64 CefWriteHandlerCToCpp::Tell() {
 }
 
 NO_SANITIZE("cfi-icall") int CefWriteHandlerCToCpp::Flush() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_write_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, flush))
     return 0;
@@ -80,6 +89,8 @@ NO_SANITIZE("cfi-icall") int CefWriteHandlerCToCpp::Flush() {
 }
 
 NO_SANITIZE("cfi-icall") bool CefWriteHandlerCToCpp::MayBlock() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_write_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, may_block))
     return false;
@@ -96,6 +107,12 @@ NO_SANITIZE("cfi-icall") bool CefWriteHandlerCToCpp::MayBlock() {
 // CONSTRUCTOR - Do not edit by hand.
 
 CefWriteHandlerCToCpp::CefWriteHandlerCToCpp() {}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefWriteHandlerCToCpp::~CefWriteHandlerCToCpp() {
+  shutdown_checker::AssertNotShutdown();
+}
 
 template <>
 cef_write_handler_t*

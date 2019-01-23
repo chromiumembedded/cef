@@ -9,16 +9,19 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=e8b9b7bd8427618e29a5efef0909f1d05f90873e$
+// $hash=0bb0ebfc663b748946d77c55266525be9948e9ec$
 //
 
 #include "libcef_dll/ctocpp/pdf_print_callback_ctocpp.h"
+#include "libcef_dll/shutdown_checker.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
 NO_SANITIZE("cfi-icall")
 void CefPdfPrintCallbackCToCpp::OnPdfPrintFinished(const CefString& path,
                                                    bool ok) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_pdf_print_callback_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_pdf_print_finished))
     return;
@@ -37,6 +40,12 @@ void CefPdfPrintCallbackCToCpp::OnPdfPrintFinished(const CefString& path,
 // CONSTRUCTOR - Do not edit by hand.
 
 CefPdfPrintCallbackCToCpp::CefPdfPrintCallbackCToCpp() {}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefPdfPrintCallbackCToCpp::~CefPdfPrintCallbackCToCpp() {
+  shutdown_checker::AssertNotShutdown();
+}
 
 template <>
 cef_pdf_print_callback_t* CefCToCppRefCounted<

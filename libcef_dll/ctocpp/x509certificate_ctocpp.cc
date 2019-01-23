@@ -9,18 +9,21 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=1d3225e378b79ddd0f93eb3cf5e0633d9c887fa6$
+// $hash=da3fb122fef7a7fc6a035f63fc5cb97443270ba1$
 //
 
 #include "libcef_dll/ctocpp/x509certificate_ctocpp.h"
 #include <algorithm>
 #include "libcef_dll/ctocpp/binary_value_ctocpp.h"
 #include "libcef_dll/ctocpp/x509cert_principal_ctocpp.h"
+#include "libcef_dll/shutdown_checker.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
 NO_SANITIZE("cfi-icall")
 CefRefPtr<CefX509CertPrincipal> CefX509CertificateCToCpp::GetSubject() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_x509certificate_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_subject))
     return NULL;
@@ -36,6 +39,8 @@ CefRefPtr<CefX509CertPrincipal> CefX509CertificateCToCpp::GetSubject() {
 
 NO_SANITIZE("cfi-icall")
 CefRefPtr<CefX509CertPrincipal> CefX509CertificateCToCpp::GetIssuer() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_x509certificate_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_issuer))
     return NULL;
@@ -51,6 +56,8 @@ CefRefPtr<CefX509CertPrincipal> CefX509CertificateCToCpp::GetIssuer() {
 
 NO_SANITIZE("cfi-icall")
 CefRefPtr<CefBinaryValue> CefX509CertificateCToCpp::GetSerialNumber() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_x509certificate_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_serial_number))
     return NULL;
@@ -65,6 +72,8 @@ CefRefPtr<CefBinaryValue> CefX509CertificateCToCpp::GetSerialNumber() {
 }
 
 NO_SANITIZE("cfi-icall") CefTime CefX509CertificateCToCpp::GetValidStart() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_x509certificate_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_valid_start))
     return CefTime();
@@ -79,6 +88,8 @@ NO_SANITIZE("cfi-icall") CefTime CefX509CertificateCToCpp::GetValidStart() {
 }
 
 NO_SANITIZE("cfi-icall") CefTime CefX509CertificateCToCpp::GetValidExpiry() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_x509certificate_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_valid_expiry))
     return CefTime();
@@ -94,6 +105,8 @@ NO_SANITIZE("cfi-icall") CefTime CefX509CertificateCToCpp::GetValidExpiry() {
 
 NO_SANITIZE("cfi-icall")
 CefRefPtr<CefBinaryValue> CefX509CertificateCToCpp::GetDEREncoded() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_x509certificate_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_derencoded))
     return NULL;
@@ -109,6 +122,8 @@ CefRefPtr<CefBinaryValue> CefX509CertificateCToCpp::GetDEREncoded() {
 
 NO_SANITIZE("cfi-icall")
 CefRefPtr<CefBinaryValue> CefX509CertificateCToCpp::GetPEMEncoded() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_x509certificate_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_pemencoded))
     return NULL;
@@ -123,6 +138,8 @@ CefRefPtr<CefBinaryValue> CefX509CertificateCToCpp::GetPEMEncoded() {
 }
 
 NO_SANITIZE("cfi-icall") size_t CefX509CertificateCToCpp::GetIssuerChainSize() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_x509certificate_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_issuer_chain_size))
     return 0;
@@ -139,6 +156,8 @@ NO_SANITIZE("cfi-icall") size_t CefX509CertificateCToCpp::GetIssuerChainSize() {
 NO_SANITIZE("cfi-icall")
 void CefX509CertificateCToCpp::GetDEREncodedIssuerChain(
     IssuerChainBinaryList& chain) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_x509certificate_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_derencoded_issuer_chain))
     return;
@@ -178,6 +197,8 @@ void CefX509CertificateCToCpp::GetDEREncodedIssuerChain(
 NO_SANITIZE("cfi-icall")
 void CefX509CertificateCToCpp::GetPEMEncodedIssuerChain(
     IssuerChainBinaryList& chain) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_x509certificate_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_pemencoded_issuer_chain))
     return;
@@ -217,6 +238,12 @@ void CefX509CertificateCToCpp::GetPEMEncodedIssuerChain(
 // CONSTRUCTOR - Do not edit by hand.
 
 CefX509CertificateCToCpp::CefX509CertificateCToCpp() {}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefX509CertificateCToCpp::~CefX509CertificateCToCpp() {
+  shutdown_checker::AssertNotShutdown();
+}
 
 template <>
 cef_x509certificate_t* CefCToCppRefCounted<

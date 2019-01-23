@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=1151bdb0cf9e5ae8e35e4152472c30c9e481f881$
+// $hash=54f78bfc6bf2274b47730a80b2f54e49ba5d5b49$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_NAVIGATION_ENTRY_CTOCPP_H_
@@ -32,6 +32,7 @@ class CefNavigationEntryCToCpp
                                  cef_navigation_entry_t> {
  public:
   CefNavigationEntryCToCpp();
+  virtual ~CefNavigationEntryCToCpp();
 
   // CefNavigationEntry methods.
   bool IsValid() OVERRIDE;

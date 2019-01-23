@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=f42212334c625272aa1650179293a6d0fdacc307$
+// $hash=34357b331204e4b652bcb550da777fb1d7a1f694$
 //
 
 #include "libcef_dll/ctocpp/v8stack_frame_ctocpp.h"
@@ -139,6 +139,10 @@ NO_SANITIZE("cfi-icall") bool CefV8StackFrameCToCpp::IsConstructor() {
 // CONSTRUCTOR - Do not edit by hand.
 
 CefV8StackFrameCToCpp::CefV8StackFrameCToCpp() {}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefV8StackFrameCToCpp::~CefV8StackFrameCToCpp() {}
 
 template <>
 cef_v8stack_frame_t*

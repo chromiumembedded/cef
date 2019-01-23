@@ -9,11 +9,12 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=dad73b1e53163b971788f9f7c9a79fa1159218e8$
+// $hash=6851cc688ae36e0355eb16cc6ef73c8273bed44e$
 //
 
 #include "libcef_dll/cpptoc/download_image_callback_cpptoc.h"
 #include "libcef_dll/ctocpp/image_ctocpp.h"
+#include "libcef_dll/shutdown_checker.h"
 
 namespace {
 
@@ -24,6 +25,8 @@ void CEF_CALLBACK download_image_callback_on_download_image_finished(
     const cef_string_t* image_url,
     int http_status_code,
     struct _cef_image_t* image) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -47,6 +50,12 @@ void CEF_CALLBACK download_image_callback_on_download_image_finished(
 CefDownloadImageCallbackCppToC::CefDownloadImageCallbackCppToC() {
   GetStruct()->on_download_image_finished =
       download_image_callback_on_download_image_finished;
+}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefDownloadImageCallbackCppToC::~CefDownloadImageCallbackCppToC() {
+  shutdown_checker::AssertNotShutdown();
 }
 
 template <>

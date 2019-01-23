@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=b35a35cf7c729b333843001e424e13d9e91dc41c$
+// $hash=caed6f3b379daa361a3435a4810df25cdbf829a8$
 //
 
 #include "libcef_dll/ctocpp/scheme_registrar_ctocpp.h"
@@ -49,6 +49,10 @@ bool CefSchemeRegistrarCToCpp::AddCustomScheme(const CefString& scheme_name,
 // CONSTRUCTOR - Do not edit by hand.
 
 CefSchemeRegistrarCToCpp::CefSchemeRegistrarCToCpp() {}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefSchemeRegistrarCToCpp::~CefSchemeRegistrarCToCpp() {}
 
 template <>
 cef_scheme_registrar_t* CefCToCppScoped<

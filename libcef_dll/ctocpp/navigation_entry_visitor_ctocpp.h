@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=b45fa0336c4694cc4b0fc59593bb56b96517ae69$
+// $hash=003788411327c22d2ff3c1aab7f5ed24eec36d2b$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_NAVIGATION_ENTRY_VISITOR_CTOCPP_H_
@@ -34,6 +34,7 @@ class CefNavigationEntryVisitorCToCpp
                                  cef_navigation_entry_visitor_t> {
  public:
   CefNavigationEntryVisitorCToCpp();
+  virtual ~CefNavigationEntryVisitorCToCpp();
 
   // CefNavigationEntryVisitor methods.
   bool Visit(CefRefPtr<CefNavigationEntry> entry,

@@ -158,7 +158,7 @@ class CefSchemeRegistrar : public CefBaseScoped {
 // Class that creates CefResourceHandler instances for handling scheme requests.
 // The methods of this class will always be called on the IO thread.
 ///
-/*--cef(source=client)--*/
+/*--cef(source=client,no_debugct_check)--*/
 class CefSchemeHandlerFactory : public virtual CefBaseRefCounted {
  public:
   ///

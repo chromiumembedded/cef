@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=aa0637ec0541e926371ab5d89a1b9157adc29320$
+// $hash=b2fe2dc3b7f7b98715127c75ad6fa2f0980e36f5$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_CONTEXT_MENU_HANDLER_CTOCPP_H_
@@ -32,6 +32,7 @@ class CefContextMenuHandlerCToCpp
                                  cef_context_menu_handler_t> {
  public:
   CefContextMenuHandlerCToCpp();
+  virtual ~CefContextMenuHandlerCToCpp();
 
   // CefContextMenuHandler methods.
   void OnBeforeContextMenu(CefRefPtr<CefBrowser> browser,

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=bf7c09d3ce6778f188b0ded7c16bde93b3875a8b$
+// $hash=602d9ae37bbd54ba2e8acb3ac2103f418aa65657$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_CLIENT_CTOCPP_H_
@@ -30,6 +30,7 @@ class CefClientCToCpp
     : public CefCToCppRefCounted<CefClientCToCpp, CefClient, cef_client_t> {
  public:
   CefClientCToCpp();
+  virtual ~CefClientCToCpp();
 
   // CefClient methods.
   CefRefPtr<CefContextMenuHandler> GetContextMenuHandler() override;

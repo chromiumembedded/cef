@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=beaf05cc70c6586ef1297178523f542b8e8ba9b0$
+// $hash=64f116a617afd01284ebb5cc0587c3cb7576451d$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_VIEWS_WINDOW_DELEGATE_CTOCPP_H_
@@ -34,6 +34,7 @@ class CefWindowDelegateCToCpp
                                  cef_window_delegate_t> {
  public:
   CefWindowDelegateCToCpp();
+  virtual ~CefWindowDelegateCToCpp();
 
   // CefWindowDelegate methods.
   void OnWindowCreated(CefRefPtr<CefWindow> window) override;

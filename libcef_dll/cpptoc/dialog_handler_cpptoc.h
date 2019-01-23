@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=80b4a3a136c90bb0cecb745af603b60cb16ebb2d$
+// $hash=149ef0ad3cd29c210c3ddfa923d546b3b1663be0$
 //
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_DIALOG_HANDLER_CPPTOC_H_
@@ -32,6 +32,7 @@ class CefDialogHandlerCppToC
                                  cef_dialog_handler_t> {
  public:
   CefDialogHandlerCppToC();
+  virtual ~CefDialogHandlerCppToC();
 };
 
 #endif  // CEF_LIBCEF_DLL_CPPTOC_DIALOG_HANDLER_CPPTOC_H_

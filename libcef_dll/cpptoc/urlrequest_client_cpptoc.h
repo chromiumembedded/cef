@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=2751952eca164a5c5444b8615c2d6d2de14e62ea$
+// $hash=aedbe10438794be3417c4bda28e1f3f1541e3ddf$
 //
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_URLREQUEST_CLIENT_CPPTOC_H_
@@ -32,6 +32,7 @@ class CefURLRequestClientCppToC
                                  cef_urlrequest_client_t> {
  public:
   CefURLRequestClientCppToC();
+  virtual ~CefURLRequestClientCppToC();
 };
 
 #endif  // CEF_LIBCEF_DLL_CPPTOC_URLREQUEST_CLIENT_CPPTOC_H_

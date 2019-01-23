@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=cb2373876547c8f8e0315043a37b80b9f3d91d48$
+// $hash=9965360aa4fabed5c6550b97ff32445652d24cb6$
 //
 
 #include "libcef_dll/cpptoc/views/menu_button_cpptoc.h"
@@ -25,6 +25,7 @@
 #include "libcef_dll/cpptoc/views/window_cpptoc.h"
 #include "libcef_dll/ctocpp/views/menu_button_delegate_ctocpp.h"
 #include "libcef_dll/ctocpp/views/view_delegate_ctocpp.h"
+#include "libcef_dll/shutdown_checker.h"
 
 // GLOBAL FUNCTIONS - Body may be edited by hand.
 
@@ -32,6 +33,8 @@ CEF_EXPORT cef_menu_button_t* cef_menu_button_create(
     cef_menu_button_delegate_t* delegate,
     const cef_string_t* text,
     int with_frame) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: delegate; type: refptr_diff
@@ -58,6 +61,8 @@ menu_button_show_menu(struct _cef_menu_button_t* self,
                       cef_menu_model_t* menu_model,
                       const cef_point_t* screen_point,
                       cef_menu_anchor_position_t anchor_position) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -81,6 +86,8 @@ menu_button_show_menu(struct _cef_menu_button_t* self,
 }
 
 void CEF_CALLBACK menu_button_trigger_menu(struct _cef_menu_button_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -93,6 +100,8 @@ void CEF_CALLBACK menu_button_trigger_menu(struct _cef_menu_button_t* self) {
 
 cef_menu_button_t* CEF_CALLBACK
 menu_button_as_menu_button(struct _cef_label_button_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -110,6 +119,8 @@ menu_button_as_menu_button(struct _cef_label_button_t* self) {
 
 void CEF_CALLBACK menu_button_set_text(struct _cef_label_button_t* self,
                                        const cef_string_t* text) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -127,6 +138,8 @@ void CEF_CALLBACK menu_button_set_text(struct _cef_label_button_t* self,
 
 cef_string_userfree_t CEF_CALLBACK
 menu_button_get_text(struct _cef_label_button_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -145,6 +158,8 @@ menu_button_get_text(struct _cef_label_button_t* self) {
 void CEF_CALLBACK menu_button_set_image(struct _cef_label_button_t* self,
                                         cef_button_state_t button_state,
                                         cef_image_t* image) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -160,6 +175,8 @@ void CEF_CALLBACK menu_button_set_image(struct _cef_label_button_t* self,
 cef_image_t* CEF_CALLBACK
 menu_button_get_image(struct _cef_label_button_t* self,
                       cef_button_state_t button_state) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -178,6 +195,8 @@ menu_button_get_image(struct _cef_label_button_t* self,
 void CEF_CALLBACK menu_button_set_text_color(struct _cef_label_button_t* self,
                                              cef_button_state_t for_state,
                                              cef_color_t color) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -192,6 +211,8 @@ void CEF_CALLBACK menu_button_set_text_color(struct _cef_label_button_t* self,
 void CEF_CALLBACK
 menu_button_set_enabled_text_colors(struct _cef_label_button_t* self,
                                     cef_color_t color) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -205,6 +226,8 @@ menu_button_set_enabled_text_colors(struct _cef_label_button_t* self,
 
 void CEF_CALLBACK menu_button_set_font_list(struct _cef_label_button_t* self,
                                             const cef_string_t* font_list) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -223,6 +246,8 @@ void CEF_CALLBACK menu_button_set_font_list(struct _cef_label_button_t* self,
 void CEF_CALLBACK
 menu_button_set_horizontal_alignment(struct _cef_label_button_t* self,
                                      cef_horizontal_alignment_t alignment) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -236,6 +261,8 @@ menu_button_set_horizontal_alignment(struct _cef_label_button_t* self,
 
 void CEF_CALLBACK menu_button_set_minimum_size(struct _cef_label_button_t* self,
                                                const cef_size_t* size) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -256,6 +283,8 @@ void CEF_CALLBACK menu_button_set_minimum_size(struct _cef_label_button_t* self,
 
 void CEF_CALLBACK menu_button_set_maximum_size(struct _cef_label_button_t* self,
                                                const cef_size_t* size) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -276,6 +305,8 @@ void CEF_CALLBACK menu_button_set_maximum_size(struct _cef_label_button_t* self,
 
 cef_label_button_t* CEF_CALLBACK
 menu_button_as_label_button(struct _cef_button_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -293,6 +324,8 @@ menu_button_as_label_button(struct _cef_button_t* self) {
 
 void CEF_CALLBACK menu_button_set_state(struct _cef_button_t* self,
                                         cef_button_state_t state) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -306,6 +339,8 @@ void CEF_CALLBACK menu_button_set_state(struct _cef_button_t* self,
 
 cef_button_state_t CEF_CALLBACK
 menu_button_get_state(struct _cef_button_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -323,6 +358,8 @@ menu_button_get_state(struct _cef_button_t* self) {
 
 void CEF_CALLBACK menu_button_set_ink_drop_enabled(struct _cef_button_t* self,
                                                    int enabled) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -337,6 +374,8 @@ void CEF_CALLBACK menu_button_set_ink_drop_enabled(struct _cef_button_t* self,
 void CEF_CALLBACK
 menu_button_set_tooltip_text(struct _cef_button_t* self,
                              const cef_string_t* tooltip_text) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -354,6 +393,8 @@ menu_button_set_tooltip_text(struct _cef_button_t* self,
 
 void CEF_CALLBACK menu_button_set_accessible_name(struct _cef_button_t* self,
                                                   const cef_string_t* name) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -371,6 +412,8 @@ void CEF_CALLBACK menu_button_set_accessible_name(struct _cef_button_t* self,
 
 cef_browser_view_t* CEF_CALLBACK
 menu_button_as_browser_view(struct _cef_view_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -387,6 +430,8 @@ menu_button_as_browser_view(struct _cef_view_t* self) {
 }
 
 cef_button_t* CEF_CALLBACK menu_button_as_button(struct _cef_view_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -403,6 +448,8 @@ cef_button_t* CEF_CALLBACK menu_button_as_button(struct _cef_view_t* self) {
 }
 
 cef_panel_t* CEF_CALLBACK menu_button_as_panel(struct _cef_view_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -420,6 +467,8 @@ cef_panel_t* CEF_CALLBACK menu_button_as_panel(struct _cef_view_t* self) {
 
 cef_scroll_view_t* CEF_CALLBACK
 menu_button_as_scroll_view(struct _cef_view_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -437,6 +486,8 @@ menu_button_as_scroll_view(struct _cef_view_t* self) {
 
 cef_textfield_t* CEF_CALLBACK
 menu_button_as_textfield(struct _cef_view_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -454,6 +505,8 @@ menu_button_as_textfield(struct _cef_view_t* self) {
 
 cef_string_userfree_t CEF_CALLBACK
 menu_button_get_type_string(struct _cef_view_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -471,6 +524,8 @@ menu_button_get_type_string(struct _cef_view_t* self) {
 
 cef_string_userfree_t CEF_CALLBACK
 menu_button_to_string(struct _cef_view_t* self, int include_children) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -487,6 +542,8 @@ menu_button_to_string(struct _cef_view_t* self, int include_children) {
 }
 
 int CEF_CALLBACK menu_button_is_valid(struct _cef_view_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -503,6 +560,8 @@ int CEF_CALLBACK menu_button_is_valid(struct _cef_view_t* self) {
 }
 
 int CEF_CALLBACK menu_button_is_attached(struct _cef_view_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -520,6 +579,8 @@ int CEF_CALLBACK menu_button_is_attached(struct _cef_view_t* self) {
 
 int CEF_CALLBACK menu_button_is_same(struct _cef_view_t* self,
                                      struct _cef_view_t* that) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -541,6 +602,8 @@ int CEF_CALLBACK menu_button_is_same(struct _cef_view_t* self,
 
 struct _cef_view_delegate_t* CEF_CALLBACK
 menu_button_get_delegate(struct _cef_view_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -558,6 +621,8 @@ menu_button_get_delegate(struct _cef_view_t* self) {
 
 struct _cef_window_t* CEF_CALLBACK
 menu_button_get_window(struct _cef_view_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -574,6 +639,8 @@ menu_button_get_window(struct _cef_view_t* self) {
 }
 
 int CEF_CALLBACK menu_button_get_id(struct _cef_view_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -590,6 +657,8 @@ int CEF_CALLBACK menu_button_get_id(struct _cef_view_t* self) {
 }
 
 void CEF_CALLBACK menu_button_set_id(struct _cef_view_t* self, int id) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -602,6 +671,8 @@ void CEF_CALLBACK menu_button_set_id(struct _cef_view_t* self, int id) {
 }
 
 int CEF_CALLBACK menu_button_get_group_id(struct _cef_view_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -619,6 +690,8 @@ int CEF_CALLBACK menu_button_get_group_id(struct _cef_view_t* self) {
 
 void CEF_CALLBACK menu_button_set_group_id(struct _cef_view_t* self,
                                            int group_id) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -632,6 +705,8 @@ void CEF_CALLBACK menu_button_set_group_id(struct _cef_view_t* self,
 
 struct _cef_view_t* CEF_CALLBACK
 menu_button_get_parent_view(struct _cef_view_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -649,6 +724,8 @@ menu_button_get_parent_view(struct _cef_view_t* self) {
 
 struct _cef_view_t* CEF_CALLBACK
 menu_button_get_view_for_id(struct _cef_view_t* self, int id) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -666,6 +743,8 @@ menu_button_get_view_for_id(struct _cef_view_t* self, int id) {
 
 void CEF_CALLBACK menu_button_set_bounds(struct _cef_view_t* self,
                                          const cef_rect_t* bounds) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -685,6 +764,8 @@ void CEF_CALLBACK menu_button_set_bounds(struct _cef_view_t* self,
 }
 
 cef_rect_t CEF_CALLBACK menu_button_get_bounds(struct _cef_view_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -702,6 +783,8 @@ cef_rect_t CEF_CALLBACK menu_button_get_bounds(struct _cef_view_t* self) {
 
 cef_rect_t CEF_CALLBACK
 menu_button_get_bounds_in_screen(struct _cef_view_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -719,6 +802,8 @@ menu_button_get_bounds_in_screen(struct _cef_view_t* self) {
 
 void CEF_CALLBACK menu_button_set_size(struct _cef_view_t* self,
                                        const cef_size_t* size) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -738,6 +823,8 @@ void CEF_CALLBACK menu_button_set_size(struct _cef_view_t* self,
 }
 
 cef_size_t CEF_CALLBACK menu_button_get_size(struct _cef_view_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -755,6 +842,8 @@ cef_size_t CEF_CALLBACK menu_button_get_size(struct _cef_view_t* self) {
 
 void CEF_CALLBACK menu_button_set_position(struct _cef_view_t* self,
                                            const cef_point_t* position) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -774,6 +863,8 @@ void CEF_CALLBACK menu_button_set_position(struct _cef_view_t* self,
 }
 
 cef_point_t CEF_CALLBACK menu_button_get_position(struct _cef_view_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -791,6 +882,8 @@ cef_point_t CEF_CALLBACK menu_button_get_position(struct _cef_view_t* self) {
 
 cef_size_t CEF_CALLBACK
 menu_button_get_preferred_size(struct _cef_view_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -807,6 +900,8 @@ menu_button_get_preferred_size(struct _cef_view_t* self) {
 }
 
 void CEF_CALLBACK menu_button_size_to_preferred_size(struct _cef_view_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -819,6 +914,8 @@ void CEF_CALLBACK menu_button_size_to_preferred_size(struct _cef_view_t* self) {
 }
 
 cef_size_t CEF_CALLBACK menu_button_get_minimum_size(struct _cef_view_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -835,6 +932,8 @@ cef_size_t CEF_CALLBACK menu_button_get_minimum_size(struct _cef_view_t* self) {
 }
 
 cef_size_t CEF_CALLBACK menu_button_get_maximum_size(struct _cef_view_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -852,6 +951,8 @@ cef_size_t CEF_CALLBACK menu_button_get_maximum_size(struct _cef_view_t* self) {
 
 int CEF_CALLBACK menu_button_get_height_for_width(struct _cef_view_t* self,
                                                   int width) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -868,6 +969,8 @@ int CEF_CALLBACK menu_button_get_height_for_width(struct _cef_view_t* self,
 }
 
 void CEF_CALLBACK menu_button_invalidate_layout(struct _cef_view_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -881,6 +984,8 @@ void CEF_CALLBACK menu_button_invalidate_layout(struct _cef_view_t* self) {
 
 void CEF_CALLBACK menu_button_set_visible(struct _cef_view_t* self,
                                           int visible) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -893,6 +998,8 @@ void CEF_CALLBACK menu_button_set_visible(struct _cef_view_t* self,
 }
 
 int CEF_CALLBACK menu_button_is_visible(struct _cef_view_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -909,6 +1016,8 @@ int CEF_CALLBACK menu_button_is_visible(struct _cef_view_t* self) {
 }
 
 int CEF_CALLBACK menu_button_is_drawn(struct _cef_view_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -926,6 +1035,8 @@ int CEF_CALLBACK menu_button_is_drawn(struct _cef_view_t* self) {
 
 void CEF_CALLBACK menu_button_set_enabled(struct _cef_view_t* self,
                                           int enabled) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -938,6 +1049,8 @@ void CEF_CALLBACK menu_button_set_enabled(struct _cef_view_t* self,
 }
 
 int CEF_CALLBACK menu_button_is_enabled(struct _cef_view_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -955,6 +1068,8 @@ int CEF_CALLBACK menu_button_is_enabled(struct _cef_view_t* self) {
 
 void CEF_CALLBACK menu_button_set_focusable(struct _cef_view_t* self,
                                             int focusable) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -967,6 +1082,8 @@ void CEF_CALLBACK menu_button_set_focusable(struct _cef_view_t* self,
 }
 
 int CEF_CALLBACK menu_button_is_focusable(struct _cef_view_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -984,6 +1101,8 @@ int CEF_CALLBACK menu_button_is_focusable(struct _cef_view_t* self) {
 
 int CEF_CALLBACK
 menu_button_is_accessibility_focusable(struct _cef_view_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -1000,6 +1119,8 @@ menu_button_is_accessibility_focusable(struct _cef_view_t* self) {
 }
 
 void CEF_CALLBACK menu_button_request_focus(struct _cef_view_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -1013,6 +1134,8 @@ void CEF_CALLBACK menu_button_request_focus(struct _cef_view_t* self) {
 
 void CEF_CALLBACK menu_button_set_background_color(struct _cef_view_t* self,
                                                    cef_color_t color) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -1026,6 +1149,8 @@ void CEF_CALLBACK menu_button_set_background_color(struct _cef_view_t* self,
 
 cef_color_t CEF_CALLBACK
 menu_button_get_background_color(struct _cef_view_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -1043,6 +1168,8 @@ menu_button_get_background_color(struct _cef_view_t* self) {
 
 int CEF_CALLBACK menu_button_convert_point_to_screen(struct _cef_view_t* self,
                                                      cef_point_t* point) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -1071,6 +1198,8 @@ int CEF_CALLBACK menu_button_convert_point_to_screen(struct _cef_view_t* self,
 
 int CEF_CALLBACK menu_button_convert_point_from_screen(struct _cef_view_t* self,
                                                        cef_point_t* point) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -1099,6 +1228,8 @@ int CEF_CALLBACK menu_button_convert_point_from_screen(struct _cef_view_t* self,
 
 int CEF_CALLBACK menu_button_convert_point_to_window(struct _cef_view_t* self,
                                                      cef_point_t* point) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -1127,6 +1258,8 @@ int CEF_CALLBACK menu_button_convert_point_to_window(struct _cef_view_t* self,
 
 int CEF_CALLBACK menu_button_convert_point_from_window(struct _cef_view_t* self,
                                                        cef_point_t* point) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -1156,6 +1289,8 @@ int CEF_CALLBACK menu_button_convert_point_from_window(struct _cef_view_t* self,
 int CEF_CALLBACK menu_button_convert_point_to_view(struct _cef_view_t* self,
                                                    struct _cef_view_t* view,
                                                    cef_point_t* point) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -1189,6 +1324,8 @@ int CEF_CALLBACK menu_button_convert_point_to_view(struct _cef_view_t* self,
 int CEF_CALLBACK menu_button_convert_point_from_view(struct _cef_view_t* self,
                                                      struct _cef_view_t* view,
                                                      cef_point_t* point) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -1307,6 +1444,12 @@ CefMenuButtonCppToC::CefMenuButtonCppToC() {
       menu_button_convert_point_to_view;
   GetStruct()->base.base.base.convert_point_from_view =
       menu_button_convert_point_from_view;
+}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefMenuButtonCppToC::~CefMenuButtonCppToC() {
+  shutdown_checker::AssertNotShutdown();
 }
 
 template <>

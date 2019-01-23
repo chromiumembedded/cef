@@ -9,11 +9,12 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=d18415c27d19d26c645ce02b90576388da5ccd50$
+// $hash=150b04443f01c6f7302905a40df23aadfae0aed4$
 //
 
 #include "libcef_dll/ctocpp/find_handler_ctocpp.h"
 #include "libcef_dll/cpptoc/browser_cpptoc.h"
+#include "libcef_dll/shutdown_checker.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
@@ -24,6 +25,8 @@ void CefFindHandlerCToCpp::OnFindResult(CefRefPtr<CefBrowser> browser,
                                         const CefRect& selectionRect,
                                         int activeMatchOrdinal,
                                         bool finalUpdate) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_find_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_find_result))
     return;
@@ -44,6 +47,12 @@ void CefFindHandlerCToCpp::OnFindResult(CefRefPtr<CefBrowser> browser,
 // CONSTRUCTOR - Do not edit by hand.
 
 CefFindHandlerCToCpp::CefFindHandlerCToCpp() {}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefFindHandlerCToCpp::~CefFindHandlerCToCpp() {
+  shutdown_checker::AssertNotShutdown();
+}
 
 template <>
 cef_find_handler_t*

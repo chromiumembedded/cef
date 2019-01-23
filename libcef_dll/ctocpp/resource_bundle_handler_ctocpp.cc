@@ -9,16 +9,19 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=adeed7873d1a6bb35d28bfc8179b923e84e346e0$
+// $hash=822f9c1cf7f3d02c847829907217a1213afb292e$
 //
 
 #include "libcef_dll/ctocpp/resource_bundle_handler_ctocpp.h"
+#include "libcef_dll/shutdown_checker.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
 NO_SANITIZE("cfi-icall")
 bool CefResourceBundleHandlerCToCpp::GetLocalizedString(int string_id,
                                                         CefString& string) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_resource_bundle_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_localized_string))
     return false;
@@ -37,6 +40,8 @@ NO_SANITIZE("cfi-icall")
 bool CefResourceBundleHandlerCToCpp::GetDataResource(int resource_id,
                                                      void*& data,
                                                      size_t& data_size) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_resource_bundle_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_data_resource))
     return false;
@@ -57,6 +62,8 @@ bool CefResourceBundleHandlerCToCpp::GetDataResourceForScale(
     ScaleFactor scale_factor,
     void*& data,
     size_t& data_size) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_resource_bundle_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_data_resource_for_scale))
     return false;
@@ -74,6 +81,12 @@ bool CefResourceBundleHandlerCToCpp::GetDataResourceForScale(
 // CONSTRUCTOR - Do not edit by hand.
 
 CefResourceBundleHandlerCToCpp::CefResourceBundleHandlerCToCpp() {}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefResourceBundleHandlerCToCpp::~CefResourceBundleHandlerCToCpp() {
+  shutdown_checker::AssertNotShutdown();
+}
 
 template <>
 cef_resource_bundle_handler_t* CefCToCppRefCounted<

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=16b8910c5ac13520e43c3449d28b515f6732f39f$
+// $hash=7a34fb72f1e0e39673410b1dbd9b4af364b37f21$
 //
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_VIEWS_LABEL_BUTTON_CPPTOC_H_
@@ -33,6 +33,7 @@ class CefLabelButtonCppToC : public CefCppToCRefCounted<CefLabelButtonCppToC,
                                                         cef_label_button_t> {
  public:
   CefLabelButtonCppToC();
+  virtual ~CefLabelButtonCppToC();
 };
 
 #endif  // CEF_LIBCEF_DLL_CPPTOC_VIEWS_LABEL_BUTTON_CPPTOC_H_

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=47b12230d85a8cb21c4d1d76a5dff05b36f39a19$
+// $hash=dd70682960c16f775b302972cac83d54e6ee0b87$
 //
 
 #include "libcef_dll/ctocpp/response_ctocpp.h"
@@ -265,6 +265,10 @@ NO_SANITIZE("cfi-icall") void CefResponseCToCpp::SetURL(const CefString& url) {
 // CONSTRUCTOR - Do not edit by hand.
 
 CefResponseCToCpp::CefResponseCToCpp() {}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefResponseCToCpp::~CefResponseCToCpp() {}
 
 template <>
 cef_response_t*

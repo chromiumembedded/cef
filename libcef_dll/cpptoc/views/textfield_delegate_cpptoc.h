@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=bec7ac1f85c4bef867e477b6dad64792398b1e9f$
+// $hash=e2f3df2338b4d4d20dd1eee34b04ec041e02db0f$
 //
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_VIEWS_TEXTFIELD_DELEGATE_CPPTOC_H_
@@ -34,6 +34,7 @@ class CefTextfieldDelegateCppToC
                                  cef_textfield_delegate_t> {
  public:
   CefTextfieldDelegateCppToC();
+  virtual ~CefTextfieldDelegateCppToC();
 };
 
 #endif  // CEF_LIBCEF_DLL_CPPTOC_VIEWS_TEXTFIELD_DELEGATE_CPPTOC_H_

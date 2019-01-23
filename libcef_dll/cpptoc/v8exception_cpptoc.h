@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=595c6881fad90c14f5ebd23c7a0c4a9748d98a91$
+// $hash=c67956da550243ba1a5af5a6c416f03e8827f8c0$
 //
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_V8EXCEPTION_CPPTOC_H_
@@ -31,6 +31,7 @@ class CefV8ExceptionCppToC : public CefCppToCRefCounted<CefV8ExceptionCppToC,
                                                         cef_v8exception_t> {
  public:
   CefV8ExceptionCppToC();
+  virtual ~CefV8ExceptionCppToC();
 };
 
 #endif  // CEF_LIBCEF_DLL_CPPTOC_V8EXCEPTION_CPPTOC_H_

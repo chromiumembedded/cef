@@ -73,6 +73,7 @@ def make_cpptoc_header(header, clsname):
              '    : public ' + template_class + '<'+clsname+'CppToC, '+clsname+', '+capiname+'> {\n'+ \
              ' public:\n'+ \
              '  '+clsname+'CppToC();\n'+ \
+             '  virtual ~'+clsname+'CppToC();\n'+ \
              '};\n\n'
 
   result += '#endif  // CEF_LIBCEF_DLL_CPPTOC_' + defname + '_CPPTOC_H_'

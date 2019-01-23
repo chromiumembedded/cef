@@ -9,10 +9,11 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=5ae62286e325193f309f0c7faef103cc3ff31ff1$
+// $hash=e3c8147d25d629b82d638becfcb0fd4dcbd82bba$
 //
 
 #include "libcef_dll/ctocpp/run_file_dialog_callback_ctocpp.h"
+#include "libcef_dll/shutdown_checker.h"
 #include "libcef_dll/transfer_util.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
@@ -21,6 +22,8 @@ NO_SANITIZE("cfi-icall")
 void CefRunFileDialogCallbackCToCpp::OnFileDialogDismissed(
     int selected_accept_filter,
     const std::vector<CefString>& file_paths) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_run_file_dialog_callback_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_file_dialog_dismissed))
     return;
@@ -51,6 +54,12 @@ void CefRunFileDialogCallbackCToCpp::OnFileDialogDismissed(
 // CONSTRUCTOR - Do not edit by hand.
 
 CefRunFileDialogCallbackCToCpp::CefRunFileDialogCallbackCToCpp() {}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefRunFileDialogCallbackCToCpp::~CefRunFileDialogCallbackCToCpp() {
+  shutdown_checker::AssertNotShutdown();
+}
 
 template <>
 cef_run_file_dialog_callback_t* CefCToCppRefCounted<

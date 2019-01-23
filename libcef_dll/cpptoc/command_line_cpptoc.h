@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=562f3031673d13d45e465c300a1a8237197cccb0$
+// $hash=0023e5e8ad31eb9b11590cc7d8b6d7da45db245c$
 //
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_COMMAND_LINE_CPPTOC_H_
@@ -31,6 +31,7 @@ class CefCommandLineCppToC : public CefCppToCRefCounted<CefCommandLineCppToC,
                                                         cef_command_line_t> {
  public:
   CefCommandLineCppToC();
+  virtual ~CefCommandLineCppToC();
 };
 
 #endif  // CEF_LIBCEF_DLL_CPPTOC_COMMAND_LINE_CPPTOC_H_

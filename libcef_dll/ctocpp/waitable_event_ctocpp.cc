@@ -9,10 +9,11 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=6389a8402fade5483d5d7bef8c360e60b091e3a9$
+// $hash=6adad274838ecda1d695602455642eceebaeecf5$
 //
 
 #include "libcef_dll/ctocpp/waitable_event_ctocpp.h"
+#include "libcef_dll/shutdown_checker.h"
 
 // STATIC METHODS - Body may be edited by hand.
 
@@ -20,6 +21,8 @@ NO_SANITIZE("cfi-icall")
 CefRefPtr<CefWaitableEvent> CefWaitableEvent::CreateWaitableEvent(
     bool automatic_reset,
     bool initially_signaled) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
@@ -33,6 +36,8 @@ CefRefPtr<CefWaitableEvent> CefWaitableEvent::CreateWaitableEvent(
 // VIRTUAL METHODS - Body may be edited by hand.
 
 NO_SANITIZE("cfi-icall") void CefWaitableEventCToCpp::Reset() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_waitable_event_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, reset))
     return;
@@ -44,6 +49,8 @@ NO_SANITIZE("cfi-icall") void CefWaitableEventCToCpp::Reset() {
 }
 
 NO_SANITIZE("cfi-icall") void CefWaitableEventCToCpp::Signal() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_waitable_event_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, signal))
     return;
@@ -55,6 +62,8 @@ NO_SANITIZE("cfi-icall") void CefWaitableEventCToCpp::Signal() {
 }
 
 NO_SANITIZE("cfi-icall") bool CefWaitableEventCToCpp::IsSignaled() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_waitable_event_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, is_signaled))
     return false;
@@ -69,6 +78,8 @@ NO_SANITIZE("cfi-icall") bool CefWaitableEventCToCpp::IsSignaled() {
 }
 
 NO_SANITIZE("cfi-icall") void CefWaitableEventCToCpp::Wait() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_waitable_event_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, wait))
     return;
@@ -80,6 +91,8 @@ NO_SANITIZE("cfi-icall") void CefWaitableEventCToCpp::Wait() {
 }
 
 NO_SANITIZE("cfi-icall") bool CefWaitableEventCToCpp::TimedWait(int64 max_ms) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_waitable_event_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, timed_wait))
     return false;
@@ -96,6 +109,12 @@ NO_SANITIZE("cfi-icall") bool CefWaitableEventCToCpp::TimedWait(int64 max_ms) {
 // CONSTRUCTOR - Do not edit by hand.
 
 CefWaitableEventCToCpp::CefWaitableEventCToCpp() {}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefWaitableEventCToCpp::~CefWaitableEventCToCpp() {
+  shutdown_checker::AssertNotShutdown();
+}
 
 template <>
 cef_waitable_event_t*

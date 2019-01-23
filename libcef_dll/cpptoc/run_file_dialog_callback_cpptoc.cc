@@ -9,10 +9,11 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=636f1185e6adc987324f44724e38545c40cf2ad1$
+// $hash=4f23ac8a141103c1153d08aab850c1753bf5899d$
 //
 
 #include "libcef_dll/cpptoc/run_file_dialog_callback_cpptoc.h"
+#include "libcef_dll/shutdown_checker.h"
 #include "libcef_dll/transfer_util.h"
 
 namespace {
@@ -23,6 +24,8 @@ void CEF_CALLBACK run_file_dialog_callback_on_file_dialog_dismissed(
     struct _cef_run_file_dialog_callback_t* self,
     int selected_accept_filter,
     cef_string_list_t file_paths) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -50,6 +53,12 @@ void CEF_CALLBACK run_file_dialog_callback_on_file_dialog_dismissed(
 CefRunFileDialogCallbackCppToC::CefRunFileDialogCallbackCppToC() {
   GetStruct()->on_file_dialog_dismissed =
       run_file_dialog_callback_on_file_dialog_dismissed;
+}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefRunFileDialogCallbackCppToC::~CefRunFileDialogCallbackCppToC() {
+  shutdown_checker::AssertNotShutdown();
 }
 
 template <>

@@ -47,7 +47,7 @@
 // Class used to implement browser process callbacks. The methods of this class
 // will be called on the browser process main thread unless otherwise indicated.
 ///
-/*--cef(source=client)--*/
+/*--cef(source=client,no_debugct_check)--*/
 class CefBrowserProcessHandler : public virtual CefBaseRefCounted {
  public:
   ///

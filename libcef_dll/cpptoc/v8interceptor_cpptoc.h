@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=3765c5f9b184d9b83b48c7a70db46fa8e5b946b0$
+// $hash=f1aa0d5b3328c69c25d4e2b721dfe23fc4b8dd67$
 //
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_V8INTERCEPTOR_CPPTOC_H_
@@ -32,6 +32,7 @@ class CefV8InterceptorCppToC
                                  cef_v8interceptor_t> {
  public:
   CefV8InterceptorCppToC();
+  virtual ~CefV8InterceptorCppToC();
 };
 
 #endif  // CEF_LIBCEF_DLL_CPPTOC_V8INTERCEPTOR_CPPTOC_H_

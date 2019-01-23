@@ -9,10 +9,11 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=9e3155c80cd3a5d97432d328650896af3c93a896$
+// $hash=f37a0feaf54c6943ef0e397982f9d047ac40574d$
 //
 
 #include "libcef_dll/cpptoc/register_cdm_callback_cpptoc.h"
+#include "libcef_dll/shutdown_checker.h"
 
 namespace {
 
@@ -22,6 +23,8 @@ void CEF_CALLBACK register_cdm_callback_on_cdm_registration_complete(
     struct _cef_register_cdm_callback_t* self,
     cef_cdm_registration_error_t result,
     const cef_string_t* error_message) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -41,6 +44,12 @@ void CEF_CALLBACK register_cdm_callback_on_cdm_registration_complete(
 CefRegisterCdmCallbackCppToC::CefRegisterCdmCallbackCppToC() {
   GetStruct()->on_cdm_registration_complete =
       register_cdm_callback_on_cdm_registration_complete;
+}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefRegisterCdmCallbackCppToC::~CefRegisterCdmCallbackCppToC() {
+  shutdown_checker::AssertNotShutdown();
 }
 
 template <>

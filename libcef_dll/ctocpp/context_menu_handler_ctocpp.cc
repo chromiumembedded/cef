@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=4fd9a1c6a93d830bbf774e19230de1142f798746$
+// $hash=411f3c8711e8f5ebdfd9db99ceb041f1a5a3302b$
 //
 
 #include "libcef_dll/ctocpp/context_menu_handler_ctocpp.h"
@@ -18,6 +18,7 @@
 #include "libcef_dll/cpptoc/frame_cpptoc.h"
 #include "libcef_dll/cpptoc/menu_model_cpptoc.h"
 #include "libcef_dll/cpptoc/run_context_menu_callback_cpptoc.h"
+#include "libcef_dll/shutdown_checker.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
@@ -27,6 +28,8 @@ void CefContextMenuHandlerCToCpp::OnBeforeContextMenu(
     CefRefPtr<CefFrame> frame,
     CefRefPtr<CefContextMenuParams> params,
     CefRefPtr<CefMenuModel> model) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_context_menu_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_before_context_menu))
     return;
@@ -64,6 +67,8 @@ bool CefContextMenuHandlerCToCpp::RunContextMenu(
     CefRefPtr<CefContextMenuParams> params,
     CefRefPtr<CefMenuModel> model,
     CefRefPtr<CefRunContextMenuCallback> callback) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_context_menu_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, run_context_menu))
     return false;
@@ -108,6 +113,8 @@ bool CefContextMenuHandlerCToCpp::OnContextMenuCommand(
     CefRefPtr<CefContextMenuParams> params,
     int command_id,
     EventFlags event_flags) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_context_menu_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_context_menu_command))
     return false;
@@ -140,6 +147,8 @@ NO_SANITIZE("cfi-icall")
 void CefContextMenuHandlerCToCpp::OnContextMenuDismissed(
     CefRefPtr<CefBrowser> browser,
     CefRefPtr<CefFrame> frame) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_context_menu_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_context_menu_dismissed))
     return;
@@ -163,6 +172,12 @@ void CefContextMenuHandlerCToCpp::OnContextMenuDismissed(
 // CONSTRUCTOR - Do not edit by hand.
 
 CefContextMenuHandlerCToCpp::CefContextMenuHandlerCToCpp() {}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefContextMenuHandlerCToCpp::~CefContextMenuHandlerCToCpp() {
+  shutdown_checker::AssertNotShutdown();
+}
 
 template <>
 cef_context_menu_handler_t* CefCToCppRefCounted<

@@ -9,16 +9,19 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=f0726f007fd7ead352058c1301d19cda693e940c$
+// $hash=09aa28001ce5c27be8aabaaac447ffd425649774$
 //
 
 #include "libcef_dll/ctocpp/auth_callback_ctocpp.h"
+#include "libcef_dll/shutdown_checker.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
 NO_SANITIZE("cfi-icall")
 void CefAuthCallbackCToCpp::Continue(const CefString& username,
                                      const CefString& password) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_auth_callback_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, cont))
     return;
@@ -32,6 +35,8 @@ void CefAuthCallbackCToCpp::Continue(const CefString& username,
 }
 
 NO_SANITIZE("cfi-icall") void CefAuthCallbackCToCpp::Cancel() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_auth_callback_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, cancel))
     return;
@@ -45,6 +50,12 @@ NO_SANITIZE("cfi-icall") void CefAuthCallbackCToCpp::Cancel() {
 // CONSTRUCTOR - Do not edit by hand.
 
 CefAuthCallbackCToCpp::CefAuthCallbackCToCpp() {}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefAuthCallbackCToCpp::~CefAuthCallbackCToCpp() {
+  shutdown_checker::AssertNotShutdown();
+}
 
 template <>
 cef_auth_callback_t*

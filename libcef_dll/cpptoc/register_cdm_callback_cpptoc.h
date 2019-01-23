@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=263c6430813c172218873a3ec1e29bb1a11eeb35$
+// $hash=6be76ea998e3de0a650a4e3d03a9f7c84bf4a913$
 //
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_REGISTER_CDM_CALLBACK_CPPTOC_H_
@@ -34,6 +34,7 @@ class CefRegisterCdmCallbackCppToC
                                  cef_register_cdm_callback_t> {
  public:
   CefRegisterCdmCallbackCppToC();
+  virtual ~CefRegisterCdmCallbackCppToC();
 };
 
 #endif  // CEF_LIBCEF_DLL_CPPTOC_REGISTER_CDM_CALLBACK_CPPTOC_H_

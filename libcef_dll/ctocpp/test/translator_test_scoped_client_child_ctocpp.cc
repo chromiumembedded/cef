@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=cfa77d128bcd4fec72160579243859b9a034366e$
+// $hash=f53dbe9257dcb58c5a00b166cb6db4a2545d32fb$
 //
 
 #include "libcef_dll/ctocpp/test/translator_test_scoped_client_child_ctocpp.h"
@@ -51,6 +51,11 @@ int CefTranslatorTestScopedClientChildCToCpp::GetValue() {
 
 CefTranslatorTestScopedClientChildCToCpp::
     CefTranslatorTestScopedClientChildCToCpp() {}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefTranslatorTestScopedClientChildCToCpp::
+    ~CefTranslatorTestScopedClientChildCToCpp() {}
 
 template <>
 cef_translator_test_scoped_client_child_t*

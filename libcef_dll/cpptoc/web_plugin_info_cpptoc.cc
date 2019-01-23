@@ -9,10 +9,11 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=57cefda57397d39812a4b72c7e929e5ce07cd576$
+// $hash=96938638213bc6f72dba268295fd175b90ff3d2e$
 //
 
 #include "libcef_dll/cpptoc/web_plugin_info_cpptoc.h"
+#include "libcef_dll/shutdown_checker.h"
 
 namespace {
 
@@ -20,6 +21,8 @@ namespace {
 
 cef_string_userfree_t CEF_CALLBACK
 web_plugin_info_get_name(struct _cef_web_plugin_info_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -35,6 +38,8 @@ web_plugin_info_get_name(struct _cef_web_plugin_info_t* self) {
 
 cef_string_userfree_t CEF_CALLBACK
 web_plugin_info_get_path(struct _cef_web_plugin_info_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -50,6 +55,8 @@ web_plugin_info_get_path(struct _cef_web_plugin_info_t* self) {
 
 cef_string_userfree_t CEF_CALLBACK
 web_plugin_info_get_version(struct _cef_web_plugin_info_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -65,6 +72,8 @@ web_plugin_info_get_version(struct _cef_web_plugin_info_t* self) {
 
 cef_string_userfree_t CEF_CALLBACK
 web_plugin_info_get_description(struct _cef_web_plugin_info_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -87,6 +96,12 @@ CefWebPluginInfoCppToC::CefWebPluginInfoCppToC() {
   GetStruct()->get_path = web_plugin_info_get_path;
   GetStruct()->get_version = web_plugin_info_get_version;
   GetStruct()->get_description = web_plugin_info_get_description;
+}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefWebPluginInfoCppToC::~CefWebPluginInfoCppToC() {
+  shutdown_checker::AssertNotShutdown();
 }
 
 template <>

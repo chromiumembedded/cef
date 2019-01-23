@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=65d358de7621307bf3babe90b447c45bc4866eac$
+// $hash=be4a097e4a08f7b3101401dadc9d77465dcfc14d$
 //
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_IMAGE_CPPTOC_H_
@@ -30,6 +30,7 @@ class CefImageCppToC
     : public CefCppToCRefCounted<CefImageCppToC, CefImage, cef_image_t> {
  public:
   CefImageCppToC();
+  virtual ~CefImageCppToC();
 };
 
 #endif  // CEF_LIBCEF_DLL_CPPTOC_IMAGE_CPPTOC_H_

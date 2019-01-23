@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=afd4d970c72ca973e55083a29ec5267dd9451697$
+// $hash=dadda752a23cc7c0e21ebc9e0fb39d3cdc1e05a1$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_COMMAND_LINE_CTOCPP_H_
@@ -32,6 +32,7 @@ class CefCommandLineCToCpp : public CefCToCppRefCounted<CefCommandLineCToCpp,
                                                         cef_command_line_t> {
  public:
   CefCommandLineCToCpp();
+  virtual ~CefCommandLineCToCpp();
 
   // CefCommandLine methods.
   bool IsValid() OVERRIDE;

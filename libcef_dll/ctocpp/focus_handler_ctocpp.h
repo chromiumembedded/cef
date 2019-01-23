@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=6a0187a1aa314ce2dbc5bfbc49476dcfb142313f$
+// $hash=2b09698f8724b5835272e7785f97aad23ce5fffc$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_FOCUS_HANDLER_CTOCPP_H_
@@ -31,6 +31,7 @@ class CefFocusHandlerCToCpp : public CefCToCppRefCounted<CefFocusHandlerCToCpp,
                                                          cef_focus_handler_t> {
  public:
   CefFocusHandlerCToCpp();
+  virtual ~CefFocusHandlerCToCpp();
 
   // CefFocusHandler methods.
   void OnTakeFocus(CefRefPtr<CefBrowser> browser, bool next) override;

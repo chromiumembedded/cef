@@ -9,11 +9,12 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=06724af41957d6c39acf526b8373cf74cb59c4f5$
+// $hash=3fd4aede0fb57f64a9adb3515f7b6c29bb96314d$
 //
 
 #include "libcef_dll/cpptoc/sslinfo_cpptoc.h"
 #include "libcef_dll/cpptoc/x509certificate_cpptoc.h"
+#include "libcef_dll/shutdown_checker.h"
 
 namespace {
 
@@ -21,6 +22,8 @@ namespace {
 
 cef_cert_status_t CEF_CALLBACK
 sslinfo_get_cert_status(struct _cef_sslinfo_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -36,6 +39,8 @@ sslinfo_get_cert_status(struct _cef_sslinfo_t* self) {
 
 struct _cef_x509certificate_t* CEF_CALLBACK
 sslinfo_get_x509certificate(struct _cef_sslinfo_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -57,6 +62,12 @@ sslinfo_get_x509certificate(struct _cef_sslinfo_t* self) {
 CefSSLInfoCppToC::CefSSLInfoCppToC() {
   GetStruct()->get_cert_status = sslinfo_get_cert_status;
   GetStruct()->get_x509certificate = sslinfo_get_x509certificate;
+}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefSSLInfoCppToC::~CefSSLInfoCppToC() {
+  shutdown_checker::AssertNotShutdown();
 }
 
 template <>

@@ -9,10 +9,11 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=274a14b75985c6978883d28aaae5aad2a67a6349$
+// $hash=7f0e3752a37c93b83c8a3a258e782b9f39eb7255$
 //
 
 #include "libcef_dll/ctocpp/register_cdm_callback_ctocpp.h"
+#include "libcef_dll/shutdown_checker.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
@@ -20,6 +21,8 @@ NO_SANITIZE("cfi-icall")
 void CefRegisterCdmCallbackCToCpp::OnCdmRegistrationComplete(
     cef_cdm_registration_error_t result,
     const CefString& error_message) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_register_cdm_callback_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_cdm_registration_complete))
     return;
@@ -36,6 +39,12 @@ void CefRegisterCdmCallbackCToCpp::OnCdmRegistrationComplete(
 // CONSTRUCTOR - Do not edit by hand.
 
 CefRegisterCdmCallbackCToCpp::CefRegisterCdmCallbackCToCpp() {}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefRegisterCdmCallbackCToCpp::~CefRegisterCdmCallbackCToCpp() {
+  shutdown_checker::AssertNotShutdown();
+}
 
 template <>
 cef_register_cdm_callback_t* CefCToCppRefCounted<

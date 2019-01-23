@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=4a9b257479de86f401867d1d9642d895a9f61b80$
+// $hash=743dc7e1b4deb76a1a738f29fc3eb9cf5ff36174$
 //
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_RUN_CONTEXT_MENU_CALLBACK_CPPTOC_H_
@@ -32,6 +32,7 @@ class CefRunContextMenuCallbackCppToC
                                  cef_run_context_menu_callback_t> {
  public:
   CefRunContextMenuCallbackCppToC();
+  virtual ~CefRunContextMenuCallbackCppToC();
 };
 
 #endif  // CEF_LIBCEF_DLL_CPPTOC_RUN_CONTEXT_MENU_CALLBACK_CPPTOC_H_

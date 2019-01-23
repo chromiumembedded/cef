@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=3d19f31088ea54b780a85fb2edca690600879aaa$
+// $hash=e18fcb63ca6b094867221ea99b7a3efed1433200$
 //
 
 #include "libcef_dll/cpptoc/post_data_element_cpptoc.h"
@@ -173,6 +173,10 @@ CefPostDataElementCppToC::CefPostDataElementCppToC() {
   GetStruct()->get_bytes_count = post_data_element_get_bytes_count;
   GetStruct()->get_bytes = post_data_element_get_bytes;
 }
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefPostDataElementCppToC::~CefPostDataElementCppToC() {}
 
 template <>
 CefRefPtr<CefPostDataElement> CefCppToCRefCounted<

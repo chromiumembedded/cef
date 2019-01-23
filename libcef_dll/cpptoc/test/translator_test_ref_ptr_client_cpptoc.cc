@@ -9,11 +9,12 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=a482c2a108a1f2a04a1342fabf285392df54479a$
+// $hash=94dda0368c29eee3e0fcb3a1429755649cbdd245$
 //
 
 #include "libcef_dll/cpptoc/test/translator_test_ref_ptr_client_cpptoc.h"
 #include "libcef_dll/cpptoc/test/translator_test_ref_ptr_client_child_cpptoc.h"
+#include "libcef_dll/shutdown_checker.h"
 
 namespace {
 
@@ -21,6 +22,8 @@ namespace {
 
 int CEF_CALLBACK translator_test_ref_ptr_client_get_value(
     struct _cef_translator_test_ref_ptr_client_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -40,6 +43,12 @@ int CEF_CALLBACK translator_test_ref_ptr_client_get_value(
 
 CefTranslatorTestRefPtrClientCppToC::CefTranslatorTestRefPtrClientCppToC() {
   GetStruct()->get_value = translator_test_ref_ptr_client_get_value;
+}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefTranslatorTestRefPtrClientCppToC::~CefTranslatorTestRefPtrClientCppToC() {
+  shutdown_checker::AssertNotShutdown();
 }
 
 template <>

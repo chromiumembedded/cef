@@ -9,18 +9,21 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=89e33c2a6451beb23b49e36c938e498df558b8b9$
+// $hash=1e2d5a383bb11a734d6c6d9b5297270cc69e388f$
 //
 
 #include "libcef_dll/ctocpp/urlrequest_client_ctocpp.h"
 #include "libcef_dll/cpptoc/auth_callback_cpptoc.h"
 #include "libcef_dll/cpptoc/urlrequest_cpptoc.h"
+#include "libcef_dll/shutdown_checker.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
 NO_SANITIZE("cfi-icall")
 void CefURLRequestClientCToCpp::OnRequestComplete(
     CefRefPtr<CefURLRequest> request) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_urlrequest_client_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_request_complete))
     return;
@@ -41,6 +44,8 @@ void CefURLRequestClientCToCpp::OnUploadProgress(
     CefRefPtr<CefURLRequest> request,
     int64 current,
     int64 total) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_urlrequest_client_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_upload_progress))
     return;
@@ -62,6 +67,8 @@ void CefURLRequestClientCToCpp::OnDownloadProgress(
     CefRefPtr<CefURLRequest> request,
     int64 current,
     int64 total) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_urlrequest_client_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_download_progress))
     return;
@@ -82,6 +89,8 @@ NO_SANITIZE("cfi-icall")
 void CefURLRequestClientCToCpp::OnDownloadData(CefRefPtr<CefURLRequest> request,
                                                const void* data,
                                                size_t data_length) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_urlrequest_client_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_download_data))
     return;
@@ -110,6 +119,8 @@ bool CefURLRequestClientCToCpp::GetAuthCredentials(
     const CefString& realm,
     const CefString& scheme,
     CefRefPtr<CefAuthCallback> callback) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_urlrequest_client_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_auth_credentials))
     return false;
@@ -142,6 +153,12 @@ bool CefURLRequestClientCToCpp::GetAuthCredentials(
 // CONSTRUCTOR - Do not edit by hand.
 
 CefURLRequestClientCToCpp::CefURLRequestClientCToCpp() {}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefURLRequestClientCToCpp::~CefURLRequestClientCToCpp() {
+  shutdown_checker::AssertNotShutdown();
+}
 
 template <>
 cef_urlrequest_client_t* CefCToCppRefCounted<

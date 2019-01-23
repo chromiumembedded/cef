@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=da9ea2c81acf92e57317fb932b0b5cc44cce52f1$
+// $hash=c9deebb14dbcd8fdfca29de1a286f834eccdd196$
 //
 
 #include "libcef_dll/ctocpp/request_ctocpp.h"
@@ -378,6 +378,10 @@ NO_SANITIZE("cfi-icall") uint64 CefRequestCToCpp::GetIdentifier() {
 // CONSTRUCTOR - Do not edit by hand.
 
 CefRequestCToCpp::CefRequestCToCpp() {}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefRequestCToCpp::~CefRequestCToCpp() {}
 
 template <>
 cef_request_t*

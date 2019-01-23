@@ -9,14 +9,21 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=3c9f08184ec1e44891975a6c3a5e4e18bacb81c3$
+// $hash=c20a84601d2c24d8925303f55784f5515f783e60$
 //
 
 #include "libcef_dll/cpptoc/views/menu_button_pressed_lock_cpptoc.h"
+#include "libcef_dll/shutdown_checker.h"
 
 // CONSTRUCTOR - Do not edit by hand.
 
 CefMenuButtonPressedLockCppToC::CefMenuButtonPressedLockCppToC() {}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefMenuButtonPressedLockCppToC::~CefMenuButtonPressedLockCppToC() {
+  shutdown_checker::AssertNotShutdown();
+}
 
 template <>
 CefRefPtr<CefMenuButtonPressedLock>

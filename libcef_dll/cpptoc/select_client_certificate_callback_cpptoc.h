@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=7ef6e79db84bf1449ce317ef307ffc618ae110de$
+// $hash=3848fb013e590e574b8071d85a6cb5805867e8c7$
 //
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_SELECT_CLIENT_CERTIFICATE_CALLBACK_CPPTOC_H_
@@ -32,6 +32,7 @@ class CefSelectClientCertificateCallbackCppToC
                                  cef_select_client_certificate_callback_t> {
  public:
   CefSelectClientCertificateCallbackCppToC();
+  virtual ~CefSelectClientCertificateCallbackCppToC();
 };
 
 #endif  // CEF_LIBCEF_DLL_CPPTOC_SELECT_CLIENT_CERTIFICATE_CALLBACK_CPPTOC_H_

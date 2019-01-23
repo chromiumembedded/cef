@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=aa3633109ffcac405d7d4e2182aa7af9891dfcc1$
+// $hash=a1df4ee1e2349b84e3748b22558d0c61a353662c$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_REQUEST_HANDLER_CTOCPP_H_
@@ -32,6 +32,7 @@ class CefRequestHandlerCToCpp
                                  cef_request_handler_t> {
  public:
   CefRequestHandlerCToCpp();
+  virtual ~CefRequestHandlerCToCpp();
 
   // CefRequestHandler methods.
   bool OnBeforeBrowse(CefRefPtr<CefBrowser> browser,

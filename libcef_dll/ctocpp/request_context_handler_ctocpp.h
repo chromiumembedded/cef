@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=f042631a1e21ecffac4426b2419d74fcd2675b58$
+// $hash=f60c9110cba752df545af2fe5905a01d30ff588e$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_REQUEST_CONTEXT_HANDLER_CTOCPP_H_
@@ -34,6 +34,7 @@ class CefRequestContextHandlerCToCpp
                                  cef_request_context_handler_t> {
  public:
   CefRequestContextHandlerCToCpp();
+  virtual ~CefRequestContextHandlerCToCpp();
 
   // CefRequestContextHandler methods.
   void OnRequestContextInitialized(

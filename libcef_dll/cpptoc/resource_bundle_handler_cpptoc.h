@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=74eaeb37ad51666e70a00fd37d28f95a009a392d$
+// $hash=97a25287d825dcafa6c926a42df3ecfbbe6f09e4$
 //
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_RESOURCE_BUNDLE_HANDLER_CPPTOC_H_
@@ -32,6 +32,7 @@ class CefResourceBundleHandlerCppToC
                                  cef_resource_bundle_handler_t> {
  public:
   CefResourceBundleHandlerCppToC();
+  virtual ~CefResourceBundleHandlerCppToC();
 };
 
 #endif  // CEF_LIBCEF_DLL_CPPTOC_RESOURCE_BUNDLE_HANDLER_CPPTOC_H_

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=827f412320d7025eccd1aa0da102e07bf133b32c$
+// $hash=25ab9f78144a59d194393649435040a62aa9f85c$
 //
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_VIEWS_TEXTFIELD_CPPTOC_H_
@@ -31,6 +31,7 @@ class CefTextfieldCppToC : public CefCppToCRefCounted<CefTextfieldCppToC,
                                                       cef_textfield_t> {
  public:
   CefTextfieldCppToC();
+  virtual ~CefTextfieldCppToC();
 };
 
 #endif  // CEF_LIBCEF_DLL_CPPTOC_VIEWS_TEXTFIELD_CPPTOC_H_

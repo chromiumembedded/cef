@@ -9,11 +9,12 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=461272d12d9d2eff32f8a7d04c8177efb6c0b6a0$
+// $hash=f20894b110772883b57dbb90bf2361525c2669aa$
 //
 
 #include "libcef_dll/cpptoc/focus_handler_cpptoc.h"
 #include "libcef_dll/ctocpp/browser_ctocpp.h"
+#include "libcef_dll/shutdown_checker.h"
 
 namespace {
 
@@ -22,6 +23,8 @@ namespace {
 void CEF_CALLBACK focus_handler_on_take_focus(struct _cef_focus_handler_t* self,
                                               cef_browser_t* browser,
                                               int next) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -40,6 +43,8 @@ void CEF_CALLBACK focus_handler_on_take_focus(struct _cef_focus_handler_t* self,
 int CEF_CALLBACK focus_handler_on_set_focus(struct _cef_focus_handler_t* self,
                                             cef_browser_t* browser,
                                             cef_focus_source_t source) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -60,6 +65,8 @@ int CEF_CALLBACK focus_handler_on_set_focus(struct _cef_focus_handler_t* self,
 
 void CEF_CALLBACK focus_handler_on_got_focus(struct _cef_focus_handler_t* self,
                                              cef_browser_t* browser) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -82,6 +89,12 @@ CefFocusHandlerCppToC::CefFocusHandlerCppToC() {
   GetStruct()->on_take_focus = focus_handler_on_take_focus;
   GetStruct()->on_set_focus = focus_handler_on_set_focus;
   GetStruct()->on_got_focus = focus_handler_on_got_focus;
+}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefFocusHandlerCppToC::~CefFocusHandlerCppToC() {
+  shutdown_checker::AssertNotShutdown();
 }
 
 template <>

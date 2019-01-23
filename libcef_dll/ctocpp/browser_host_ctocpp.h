@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=b12307f9b88f1fe1fd7ec6ba2c17d1599b679618$
+// $hash=afb348f0b0421d4d4202fac43edc2378c5a2d92c$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_BROWSER_HOST_CTOCPP_H_
@@ -34,6 +34,7 @@ class CefBrowserHostCToCpp : public CefCToCppRefCounted<CefBrowserHostCToCpp,
                                                         cef_browser_host_t> {
  public:
   CefBrowserHostCToCpp();
+  virtual ~CefBrowserHostCToCpp();
 
   // CefBrowserHost methods.
   CefRefPtr<CefBrowser> GetBrowser() OVERRIDE;

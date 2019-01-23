@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=093f66d058984e4c97894ecb674843a18524fda2$
+// $hash=337daf51d9b692a9ae1c5690311d7784b05abecc$
 //
 
 #include "libcef_dll/ctocpp/test/translator_test_scoped_client_ctocpp.h"
@@ -34,6 +34,10 @@ NO_SANITIZE("cfi-icall") int CefTranslatorTestScopedClientCToCpp::GetValue() {
 // CONSTRUCTOR - Do not edit by hand.
 
 CefTranslatorTestScopedClientCToCpp::CefTranslatorTestScopedClientCToCpp() {}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefTranslatorTestScopedClientCToCpp::~CefTranslatorTestScopedClientCToCpp() {}
 
 template <>
 cef_translator_test_scoped_client_t*

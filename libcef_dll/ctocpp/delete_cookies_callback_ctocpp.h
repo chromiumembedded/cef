@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=0669e7e94e509f84ae0b3a773dd4440e27744a53$
+// $hash=bb30745842421f2bd23704b57cc105ae9b5246f8$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_DELETE_COOKIES_CALLBACK_CTOCPP_H_
@@ -32,6 +32,7 @@ class CefDeleteCookiesCallbackCToCpp
                                  cef_delete_cookies_callback_t> {
  public:
   CefDeleteCookiesCallbackCToCpp();
+  virtual ~CefDeleteCookiesCallbackCToCpp();
 
   // CefDeleteCookiesCallback methods.
   void OnComplete(int num_deleted) override;

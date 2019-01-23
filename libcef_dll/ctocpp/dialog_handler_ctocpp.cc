@@ -9,12 +9,13 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=2ea9fcfc1d97de23b310d45db666b9ee973ac837$
+// $hash=81b96c346a7a258ed32d0a0d07ab4d021cb819f3$
 //
 
 #include "libcef_dll/ctocpp/dialog_handler_ctocpp.h"
 #include "libcef_dll/cpptoc/browser_cpptoc.h"
 #include "libcef_dll/cpptoc/file_dialog_callback_cpptoc.h"
+#include "libcef_dll/shutdown_checker.h"
 #include "libcef_dll/transfer_util.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
@@ -28,6 +29,8 @@ bool CefDialogHandlerCToCpp::OnFileDialog(
     const std::vector<CefString>& accept_filters,
     int selected_accept_filter,
     CefRefPtr<CefFileDialogCallback> callback) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_dialog_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_file_dialog))
     return false;
@@ -71,6 +74,12 @@ bool CefDialogHandlerCToCpp::OnFileDialog(
 // CONSTRUCTOR - Do not edit by hand.
 
 CefDialogHandlerCToCpp::CefDialogHandlerCToCpp() {}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefDialogHandlerCToCpp::~CefDialogHandlerCToCpp() {
+  shutdown_checker::AssertNotShutdown();
+}
 
 template <>
 cef_dialog_handler_t*

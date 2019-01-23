@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=c3d8adff25c82d351b798649a480cf03459c18b1$
+// $hash=ffb88cfe6b2e62b3141b974fb8b95134efe7e41d$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_VIEWS_VIEW_CTOCPP_H_
@@ -42,6 +42,7 @@ class CefViewCToCpp
     : public CefCToCppRefCounted<CefViewCToCpp, CefView, cef_view_t> {
  public:
   CefViewCToCpp();
+  virtual ~CefViewCToCpp();
 
   // CefView methods.
   CefRefPtr<CefBrowserView> AsBrowserView() OVERRIDE;

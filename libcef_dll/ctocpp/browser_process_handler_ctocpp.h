@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=e495f891a565efe8f5cd7cddeea84a8ab7e5bbc4$
+// $hash=5d14d0a2f4c73edfec24c56998bdb66c8646d23a$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_BROWSER_PROCESS_HANDLER_CTOCPP_H_
@@ -32,6 +32,7 @@ class CefBrowserProcessHandlerCToCpp
                                  cef_browser_process_handler_t> {
  public:
   CefBrowserProcessHandlerCToCpp();
+  virtual ~CefBrowserProcessHandlerCToCpp();
 
   // CefBrowserProcessHandler methods.
   void OnContextInitialized() override;

@@ -9,17 +9,20 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=88479e1a1971eaf4dc6d0e5c07d755be5e07ba3b$
+// $hash=6bab076c88e4f3fa1337dde16e9784b993a0599c$
 //
 
 #include "libcef_dll/ctocpp/focus_handler_ctocpp.h"
 #include "libcef_dll/cpptoc/browser_cpptoc.h"
+#include "libcef_dll/shutdown_checker.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
 NO_SANITIZE("cfi-icall")
 void CefFocusHandlerCToCpp::OnTakeFocus(CefRefPtr<CefBrowser> browser,
                                         bool next) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_focus_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_take_focus))
     return;
@@ -38,6 +41,8 @@ void CefFocusHandlerCToCpp::OnTakeFocus(CefRefPtr<CefBrowser> browser,
 NO_SANITIZE("cfi-icall")
 bool CefFocusHandlerCToCpp::OnSetFocus(CefRefPtr<CefBrowser> browser,
                                        FocusSource source) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_focus_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_set_focus))
     return false;
@@ -59,6 +64,8 @@ bool CefFocusHandlerCToCpp::OnSetFocus(CefRefPtr<CefBrowser> browser,
 
 NO_SANITIZE("cfi-icall")
 void CefFocusHandlerCToCpp::OnGotFocus(CefRefPtr<CefBrowser> browser) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_focus_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_got_focus))
     return;
@@ -77,6 +84,12 @@ void CefFocusHandlerCToCpp::OnGotFocus(CefRefPtr<CefBrowser> browser) {
 // CONSTRUCTOR - Do not edit by hand.
 
 CefFocusHandlerCToCpp::CefFocusHandlerCToCpp() {}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefFocusHandlerCToCpp::~CefFocusHandlerCToCpp() {
+  shutdown_checker::AssertNotShutdown();
+}
 
 template <>
 cef_focus_handler_t*

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=b70e87a5f87deaf74d8b2628cc71571e87fcfb96$
+// $hash=061099097cc12fc47ec0209e2fbd99aba21632bd$
 //
 
 #include "libcef_dll/ctocpp/request_context_ctocpp.h"
@@ -548,6 +548,10 @@ CefRefPtr<CefExtension> CefRequestContextCToCpp::GetExtension(
 // CONSTRUCTOR - Do not edit by hand.
 
 CefRequestContextCToCpp::CefRequestContextCToCpp() {}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefRequestContextCToCpp::~CefRequestContextCToCpp() {}
 
 template <>
 cef_request_context_t* CefCToCppRefCounted<

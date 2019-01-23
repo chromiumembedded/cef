@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=27d5e08f9615b50980d997ca790e72ddcf08a483$
+// $hash=868be959561516e109ba5346553b8e2778b5bb4b$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_STRING_VISITOR_CTOCPP_H_
@@ -32,6 +32,7 @@ class CefStringVisitorCToCpp
                                  cef_string_visitor_t> {
  public:
   CefStringVisitorCToCpp();
+  virtual ~CefStringVisitorCToCpp();
 
   // CefStringVisitor methods.
   void Visit(const CefString& string) override;

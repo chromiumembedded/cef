@@ -9,18 +9,21 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=1fb303e08bb1bae37cd3e15947815d0f0020f663$
+// $hash=5d4ac15bce882a74bb53fb52c0203475d596a2f7$
 //
 
 #include "libcef_dll/cpptoc/dictionary_value_cpptoc.h"
 #include "libcef_dll/cpptoc/binary_value_cpptoc.h"
 #include "libcef_dll/cpptoc/list_value_cpptoc.h"
 #include "libcef_dll/cpptoc/value_cpptoc.h"
+#include "libcef_dll/shutdown_checker.h"
 #include "libcef_dll/transfer_util.h"
 
 // GLOBAL FUNCTIONS - Body may be edited by hand.
 
 CEF_EXPORT cef_dictionary_value_t* cef_dictionary_value_create() {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
@@ -36,6 +39,8 @@ namespace {
 
 int CEF_CALLBACK
 dictionary_value_is_valid(struct _cef_dictionary_value_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -51,6 +56,8 @@ dictionary_value_is_valid(struct _cef_dictionary_value_t* self) {
 
 int CEF_CALLBACK
 dictionary_value_is_owned(struct _cef_dictionary_value_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -66,6 +73,8 @@ dictionary_value_is_owned(struct _cef_dictionary_value_t* self) {
 
 int CEF_CALLBACK
 dictionary_value_is_read_only(struct _cef_dictionary_value_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -82,6 +91,8 @@ dictionary_value_is_read_only(struct _cef_dictionary_value_t* self) {
 int CEF_CALLBACK
 dictionary_value_is_same(struct _cef_dictionary_value_t* self,
                          struct _cef_dictionary_value_t* that) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -103,6 +114,8 @@ dictionary_value_is_same(struct _cef_dictionary_value_t* self,
 int CEF_CALLBACK
 dictionary_value_is_equal(struct _cef_dictionary_value_t* self,
                           struct _cef_dictionary_value_t* that) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -124,6 +137,8 @@ dictionary_value_is_equal(struct _cef_dictionary_value_t* self,
 struct _cef_dictionary_value_t* CEF_CALLBACK
 dictionary_value_copy(struct _cef_dictionary_value_t* self,
                       int exclude_empty_children) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -141,6 +156,8 @@ dictionary_value_copy(struct _cef_dictionary_value_t* self,
 
 size_t CEF_CALLBACK
 dictionary_value_get_size(struct _cef_dictionary_value_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -155,6 +172,8 @@ dictionary_value_get_size(struct _cef_dictionary_value_t* self) {
 }
 
 int CEF_CALLBACK dictionary_value_clear(struct _cef_dictionary_value_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -170,6 +189,8 @@ int CEF_CALLBACK dictionary_value_clear(struct _cef_dictionary_value_t* self) {
 
 int CEF_CALLBACK dictionary_value_has_key(struct _cef_dictionary_value_t* self,
                                           const cef_string_t* key) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -189,6 +210,8 @@ int CEF_CALLBACK dictionary_value_has_key(struct _cef_dictionary_value_t* self,
 
 int CEF_CALLBACK dictionary_value_get_keys(struct _cef_dictionary_value_t* self,
                                            cef_string_list_t keys) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -216,6 +239,8 @@ int CEF_CALLBACK dictionary_value_get_keys(struct _cef_dictionary_value_t* self,
 
 int CEF_CALLBACK dictionary_value_remove(struct _cef_dictionary_value_t* self,
                                          const cef_string_t* key) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -236,6 +261,8 @@ int CEF_CALLBACK dictionary_value_remove(struct _cef_dictionary_value_t* self,
 cef_value_type_t CEF_CALLBACK
 dictionary_value_get_type(struct _cef_dictionary_value_t* self,
                           const cef_string_t* key) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -257,6 +284,8 @@ dictionary_value_get_type(struct _cef_dictionary_value_t* self,
 cef_value_t* CEF_CALLBACK
 dictionary_value_get_value(struct _cef_dictionary_value_t* self,
                            const cef_string_t* key) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -277,6 +306,8 @@ dictionary_value_get_value(struct _cef_dictionary_value_t* self,
 
 int CEF_CALLBACK dictionary_value_get_bool(struct _cef_dictionary_value_t* self,
                                            const cef_string_t* key) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -296,6 +327,8 @@ int CEF_CALLBACK dictionary_value_get_bool(struct _cef_dictionary_value_t* self,
 
 int CEF_CALLBACK dictionary_value_get_int(struct _cef_dictionary_value_t* self,
                                           const cef_string_t* key) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -316,6 +349,8 @@ int CEF_CALLBACK dictionary_value_get_int(struct _cef_dictionary_value_t* self,
 double CEF_CALLBACK
 dictionary_value_get_double(struct _cef_dictionary_value_t* self,
                             const cef_string_t* key) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -337,6 +372,8 @@ dictionary_value_get_double(struct _cef_dictionary_value_t* self,
 cef_string_userfree_t CEF_CALLBACK
 dictionary_value_get_string(struct _cef_dictionary_value_t* self,
                             const cef_string_t* key) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -358,6 +395,8 @@ dictionary_value_get_string(struct _cef_dictionary_value_t* self,
 cef_binary_value_t* CEF_CALLBACK
 dictionary_value_get_binary(struct _cef_dictionary_value_t* self,
                             const cef_string_t* key) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -379,6 +418,8 @@ dictionary_value_get_binary(struct _cef_dictionary_value_t* self,
 struct _cef_dictionary_value_t* CEF_CALLBACK
 dictionary_value_get_dictionary(struct _cef_dictionary_value_t* self,
                                 const cef_string_t* key) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -400,6 +441,8 @@ dictionary_value_get_dictionary(struct _cef_dictionary_value_t* self,
 struct _cef_list_value_t* CEF_CALLBACK
 dictionary_value_get_list(struct _cef_dictionary_value_t* self,
                           const cef_string_t* key) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -422,6 +465,8 @@ int CEF_CALLBACK
 dictionary_value_set_value(struct _cef_dictionary_value_t* self,
                            const cef_string_t* key,
                            cef_value_t* value) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -446,6 +491,8 @@ dictionary_value_set_value(struct _cef_dictionary_value_t* self,
 
 int CEF_CALLBACK dictionary_value_set_null(struct _cef_dictionary_value_t* self,
                                            const cef_string_t* key) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -466,6 +513,8 @@ int CEF_CALLBACK dictionary_value_set_null(struct _cef_dictionary_value_t* self,
 int CEF_CALLBACK dictionary_value_set_bool(struct _cef_dictionary_value_t* self,
                                            const cef_string_t* key,
                                            int value) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -487,6 +536,8 @@ int CEF_CALLBACK dictionary_value_set_bool(struct _cef_dictionary_value_t* self,
 int CEF_CALLBACK dictionary_value_set_int(struct _cef_dictionary_value_t* self,
                                           const cef_string_t* key,
                                           int value) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -509,6 +560,8 @@ int CEF_CALLBACK
 dictionary_value_set_double(struct _cef_dictionary_value_t* self,
                             const cef_string_t* key,
                             double value) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -531,6 +584,8 @@ int CEF_CALLBACK
 dictionary_value_set_string(struct _cef_dictionary_value_t* self,
                             const cef_string_t* key,
                             const cef_string_t* value) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -554,6 +609,8 @@ int CEF_CALLBACK
 dictionary_value_set_binary(struct _cef_dictionary_value_t* self,
                             const cef_string_t* key,
                             cef_binary_value_t* value) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -580,6 +637,8 @@ int CEF_CALLBACK
 dictionary_value_set_dictionary(struct _cef_dictionary_value_t* self,
                                 const cef_string_t* key,
                                 struct _cef_dictionary_value_t* value) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -605,6 +664,8 @@ dictionary_value_set_dictionary(struct _cef_dictionary_value_t* self,
 int CEF_CALLBACK dictionary_value_set_list(struct _cef_dictionary_value_t* self,
                                            const cef_string_t* key,
                                            struct _cef_list_value_t* value) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -661,6 +722,12 @@ CefDictionaryValueCppToC::CefDictionaryValueCppToC() {
   GetStruct()->set_binary = dictionary_value_set_binary;
   GetStruct()->set_dictionary = dictionary_value_set_dictionary;
   GetStruct()->set_list = dictionary_value_set_list;
+}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefDictionaryValueCppToC::~CefDictionaryValueCppToC() {
+  shutdown_checker::AssertNotShutdown();
 }
 
 template <>

@@ -9,19 +9,22 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=058d877f8a940f551a6479bc79e177be8aad716c$
+// $hash=36c007f5921b2b41b2a5931e453ad465e7768037$
 //
 
 #include "libcef_dll/ctocpp/dictionary_value_ctocpp.h"
 #include "libcef_dll/ctocpp/binary_value_ctocpp.h"
 #include "libcef_dll/ctocpp/list_value_ctocpp.h"
 #include "libcef_dll/ctocpp/value_ctocpp.h"
+#include "libcef_dll/shutdown_checker.h"
 #include "libcef_dll/transfer_util.h"
 
 // STATIC METHODS - Body may be edited by hand.
 
 NO_SANITIZE("cfi-icall")
 CefRefPtr<CefDictionaryValue> CefDictionaryValue::Create() {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
@@ -34,6 +37,8 @@ CefRefPtr<CefDictionaryValue> CefDictionaryValue::Create() {
 // VIRTUAL METHODS - Body may be edited by hand.
 
 NO_SANITIZE("cfi-icall") bool CefDictionaryValueCToCpp::IsValid() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_dictionary_value_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, is_valid))
     return false;
@@ -48,6 +53,8 @@ NO_SANITIZE("cfi-icall") bool CefDictionaryValueCToCpp::IsValid() {
 }
 
 NO_SANITIZE("cfi-icall") bool CefDictionaryValueCToCpp::IsOwned() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_dictionary_value_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, is_owned))
     return false;
@@ -62,6 +69,8 @@ NO_SANITIZE("cfi-icall") bool CefDictionaryValueCToCpp::IsOwned() {
 }
 
 NO_SANITIZE("cfi-icall") bool CefDictionaryValueCToCpp::IsReadOnly() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_dictionary_value_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, is_read_only))
     return false;
@@ -77,6 +86,8 @@ NO_SANITIZE("cfi-icall") bool CefDictionaryValueCToCpp::IsReadOnly() {
 
 NO_SANITIZE("cfi-icall")
 bool CefDictionaryValueCToCpp::IsSame(CefRefPtr<CefDictionaryValue> that) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_dictionary_value_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, is_same))
     return false;
@@ -98,6 +109,8 @@ bool CefDictionaryValueCToCpp::IsSame(CefRefPtr<CefDictionaryValue> that) {
 
 NO_SANITIZE("cfi-icall")
 bool CefDictionaryValueCToCpp::IsEqual(CefRefPtr<CefDictionaryValue> that) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_dictionary_value_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, is_equal))
     return false;
@@ -120,6 +133,8 @@ bool CefDictionaryValueCToCpp::IsEqual(CefRefPtr<CefDictionaryValue> that) {
 NO_SANITIZE("cfi-icall")
 CefRefPtr<CefDictionaryValue> CefDictionaryValueCToCpp::Copy(
     bool exclude_empty_children) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_dictionary_value_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, copy))
     return NULL;
@@ -135,6 +150,8 @@ CefRefPtr<CefDictionaryValue> CefDictionaryValueCToCpp::Copy(
 }
 
 NO_SANITIZE("cfi-icall") size_t CefDictionaryValueCToCpp::GetSize() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_dictionary_value_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_size))
     return 0;
@@ -149,6 +166,8 @@ NO_SANITIZE("cfi-icall") size_t CefDictionaryValueCToCpp::GetSize() {
 }
 
 NO_SANITIZE("cfi-icall") bool CefDictionaryValueCToCpp::Clear() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_dictionary_value_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, clear))
     return false;
@@ -164,6 +183,8 @@ NO_SANITIZE("cfi-icall") bool CefDictionaryValueCToCpp::Clear() {
 
 NO_SANITIZE("cfi-icall")
 bool CefDictionaryValueCToCpp::HasKey(const CefString& key) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_dictionary_value_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, has_key))
     return false;
@@ -183,6 +204,8 @@ bool CefDictionaryValueCToCpp::HasKey(const CefString& key) {
 }
 
 NO_SANITIZE("cfi-icall") bool CefDictionaryValueCToCpp::GetKeys(KeyList& keys) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_dictionary_value_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_keys))
     return false;
@@ -211,6 +234,8 @@ NO_SANITIZE("cfi-icall") bool CefDictionaryValueCToCpp::GetKeys(KeyList& keys) {
 
 NO_SANITIZE("cfi-icall")
 bool CefDictionaryValueCToCpp::Remove(const CefString& key) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_dictionary_value_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, remove))
     return false;
@@ -231,6 +256,8 @@ bool CefDictionaryValueCToCpp::Remove(const CefString& key) {
 
 NO_SANITIZE("cfi-icall")
 CefValueType CefDictionaryValueCToCpp::GetType(const CefString& key) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_dictionary_value_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_type))
     return VTYPE_INVALID;
@@ -251,6 +278,8 @@ CefValueType CefDictionaryValueCToCpp::GetType(const CefString& key) {
 
 NO_SANITIZE("cfi-icall")
 CefRefPtr<CefValue> CefDictionaryValueCToCpp::GetValue(const CefString& key) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_dictionary_value_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_value))
     return NULL;
@@ -271,6 +300,8 @@ CefRefPtr<CefValue> CefDictionaryValueCToCpp::GetValue(const CefString& key) {
 
 NO_SANITIZE("cfi-icall")
 bool CefDictionaryValueCToCpp::GetBool(const CefString& key) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_dictionary_value_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_bool))
     return false;
@@ -291,6 +322,8 @@ bool CefDictionaryValueCToCpp::GetBool(const CefString& key) {
 
 NO_SANITIZE("cfi-icall")
 int CefDictionaryValueCToCpp::GetInt(const CefString& key) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_dictionary_value_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_int))
     return 0;
@@ -311,6 +344,8 @@ int CefDictionaryValueCToCpp::GetInt(const CefString& key) {
 
 NO_SANITIZE("cfi-icall")
 double CefDictionaryValueCToCpp::GetDouble(const CefString& key) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_dictionary_value_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_double))
     return 0;
@@ -331,6 +366,8 @@ double CefDictionaryValueCToCpp::GetDouble(const CefString& key) {
 
 NO_SANITIZE("cfi-icall")
 CefString CefDictionaryValueCToCpp::GetString(const CefString& key) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_dictionary_value_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_string))
     return CefString();
@@ -354,6 +391,8 @@ CefString CefDictionaryValueCToCpp::GetString(const CefString& key) {
 NO_SANITIZE("cfi-icall")
 CefRefPtr<CefBinaryValue> CefDictionaryValueCToCpp::GetBinary(
     const CefString& key) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_dictionary_value_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_binary))
     return NULL;
@@ -375,6 +414,8 @@ CefRefPtr<CefBinaryValue> CefDictionaryValueCToCpp::GetBinary(
 NO_SANITIZE("cfi-icall")
 CefRefPtr<CefDictionaryValue> CefDictionaryValueCToCpp::GetDictionary(
     const CefString& key) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_dictionary_value_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_dictionary))
     return NULL;
@@ -397,6 +438,8 @@ CefRefPtr<CefDictionaryValue> CefDictionaryValueCToCpp::GetDictionary(
 NO_SANITIZE("cfi-icall")
 CefRefPtr<CefListValue> CefDictionaryValueCToCpp::GetList(
     const CefString& key) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_dictionary_value_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_list))
     return NULL;
@@ -418,6 +461,8 @@ CefRefPtr<CefListValue> CefDictionaryValueCToCpp::GetList(
 NO_SANITIZE("cfi-icall")
 bool CefDictionaryValueCToCpp::SetValue(const CefString& key,
                                         CefRefPtr<CefValue> value) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_dictionary_value_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, set_value))
     return false;
@@ -443,6 +488,8 @@ bool CefDictionaryValueCToCpp::SetValue(const CefString& key,
 
 NO_SANITIZE("cfi-icall")
 bool CefDictionaryValueCToCpp::SetNull(const CefString& key) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_dictionary_value_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, set_null))
     return false;
@@ -463,6 +510,8 @@ bool CefDictionaryValueCToCpp::SetNull(const CefString& key) {
 
 NO_SANITIZE("cfi-icall")
 bool CefDictionaryValueCToCpp::SetBool(const CefString& key, bool value) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_dictionary_value_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, set_bool))
     return false;
@@ -483,6 +532,8 @@ bool CefDictionaryValueCToCpp::SetBool(const CefString& key, bool value) {
 
 NO_SANITIZE("cfi-icall")
 bool CefDictionaryValueCToCpp::SetInt(const CefString& key, int value) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_dictionary_value_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, set_int))
     return false;
@@ -503,6 +554,8 @@ bool CefDictionaryValueCToCpp::SetInt(const CefString& key, int value) {
 
 NO_SANITIZE("cfi-icall")
 bool CefDictionaryValueCToCpp::SetDouble(const CefString& key, double value) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_dictionary_value_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, set_double))
     return false;
@@ -524,6 +577,8 @@ bool CefDictionaryValueCToCpp::SetDouble(const CefString& key, double value) {
 NO_SANITIZE("cfi-icall")
 bool CefDictionaryValueCToCpp::SetString(const CefString& key,
                                          const CefString& value) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_dictionary_value_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, set_string))
     return false;
@@ -547,6 +602,8 @@ bool CefDictionaryValueCToCpp::SetString(const CefString& key,
 NO_SANITIZE("cfi-icall")
 bool CefDictionaryValueCToCpp::SetBinary(const CefString& key,
                                          CefRefPtr<CefBinaryValue> value) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_dictionary_value_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, set_binary))
     return false;
@@ -574,6 +631,8 @@ NO_SANITIZE("cfi-icall")
 bool CefDictionaryValueCToCpp::SetDictionary(
     const CefString& key,
     CefRefPtr<CefDictionaryValue> value) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_dictionary_value_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, set_dictionary))
     return false;
@@ -600,6 +659,8 @@ bool CefDictionaryValueCToCpp::SetDictionary(
 NO_SANITIZE("cfi-icall")
 bool CefDictionaryValueCToCpp::SetList(const CefString& key,
                                        CefRefPtr<CefListValue> value) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_dictionary_value_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, set_list))
     return false;
@@ -626,6 +687,12 @@ bool CefDictionaryValueCToCpp::SetList(const CefString& key,
 // CONSTRUCTOR - Do not edit by hand.
 
 CefDictionaryValueCToCpp::CefDictionaryValueCToCpp() {}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefDictionaryValueCToCpp::~CefDictionaryValueCToCpp() {
+  shutdown_checker::AssertNotShutdown();
+}
 
 template <>
 cef_dictionary_value_t* CefCToCppRefCounted<

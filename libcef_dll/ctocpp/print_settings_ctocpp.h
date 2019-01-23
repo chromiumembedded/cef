@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=2b46b666c9d57fb722a9b4c2650a99042a4e558e$
+// $hash=d031ce1331738df412c61dd9bf4c6d36f94b82a8$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_PRINT_SETTINGS_CTOCPP_H_
@@ -32,6 +32,7 @@ class CefPrintSettingsCToCpp
                                  cef_print_settings_t> {
  public:
   CefPrintSettingsCToCpp();
+  virtual ~CefPrintSettingsCToCpp();
 
   // CefPrintSettings methods.
   bool IsValid() OVERRIDE;

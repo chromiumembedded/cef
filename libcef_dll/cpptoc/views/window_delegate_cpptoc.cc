@@ -9,12 +9,13 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=a84d05f2898ac722925601819bd230a4d1126e26$
+// $hash=8f19f7715fef7895bfb1a18b72fdca41d965a415$
 //
 
 #include "libcef_dll/cpptoc/views/window_delegate_cpptoc.h"
 #include "libcef_dll/ctocpp/views/view_ctocpp.h"
 #include "libcef_dll/ctocpp/views/window_ctocpp.h"
+#include "libcef_dll/shutdown_checker.h"
 
 namespace {
 
@@ -23,6 +24,8 @@ namespace {
 void CEF_CALLBACK
 window_delegate_on_window_created(struct _cef_window_delegate_t* self,
                                   cef_window_t* window) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -41,6 +44,8 @@ window_delegate_on_window_created(struct _cef_window_delegate_t* self,
 void CEF_CALLBACK
 window_delegate_on_window_destroyed(struct _cef_window_delegate_t* self,
                                     cef_window_t* window) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -61,6 +66,8 @@ window_delegate_get_parent_window(struct _cef_window_delegate_t* self,
                                   cef_window_t* window,
                                   int* is_menu,
                                   int* can_activate_menu) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -104,6 +111,8 @@ window_delegate_get_parent_window(struct _cef_window_delegate_t* self,
 int CEF_CALLBACK
 window_delegate_is_frameless(struct _cef_window_delegate_t* self,
                              cef_window_t* window) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -124,6 +133,8 @@ window_delegate_is_frameless(struct _cef_window_delegate_t* self,
 
 int CEF_CALLBACK window_delegate_can_resize(struct _cef_window_delegate_t* self,
                                             cef_window_t* window) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -145,6 +156,8 @@ int CEF_CALLBACK window_delegate_can_resize(struct _cef_window_delegate_t* self,
 int CEF_CALLBACK
 window_delegate_can_maximize(struct _cef_window_delegate_t* self,
                              cef_window_t* window) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -166,6 +179,8 @@ window_delegate_can_maximize(struct _cef_window_delegate_t* self,
 int CEF_CALLBACK
 window_delegate_can_minimize(struct _cef_window_delegate_t* self,
                              cef_window_t* window) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -186,6 +201,8 @@ window_delegate_can_minimize(struct _cef_window_delegate_t* self,
 
 int CEF_CALLBACK window_delegate_can_close(struct _cef_window_delegate_t* self,
                                            cef_window_t* window) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -208,6 +225,8 @@ int CEF_CALLBACK
 window_delegate_on_accelerator(struct _cef_window_delegate_t* self,
                                cef_window_t* window,
                                int command_id) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -230,6 +249,8 @@ int CEF_CALLBACK
 window_delegate_on_key_event(struct _cef_window_delegate_t* self,
                              cef_window_t* window,
                              const struct _cef_key_event_t* event) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -260,6 +281,8 @@ window_delegate_on_key_event(struct _cef_window_delegate_t* self,
 cef_size_t CEF_CALLBACK
 window_delegate_get_preferred_size(struct _cef_view_delegate_t* self,
                                    cef_view_t* view) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -282,6 +305,8 @@ window_delegate_get_preferred_size(struct _cef_view_delegate_t* self,
 cef_size_t CEF_CALLBACK
 window_delegate_get_minimum_size(struct _cef_view_delegate_t* self,
                                  cef_view_t* view) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -304,6 +329,8 @@ window_delegate_get_minimum_size(struct _cef_view_delegate_t* self,
 cef_size_t CEF_CALLBACK
 window_delegate_get_maximum_size(struct _cef_view_delegate_t* self,
                                  cef_view_t* view) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -327,6 +354,8 @@ int CEF_CALLBACK
 window_delegate_get_height_for_width(struct _cef_view_delegate_t* self,
                                      cef_view_t* view,
                                      int width) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -351,6 +380,8 @@ window_delegate_on_parent_view_changed(struct _cef_view_delegate_t* self,
                                        cef_view_t* view,
                                        int added,
                                        cef_view_t* parent) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -376,6 +407,8 @@ window_delegate_on_child_view_changed(struct _cef_view_delegate_t* self,
                                       cef_view_t* view,
                                       int added,
                                       cef_view_t* child) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -398,6 +431,8 @@ window_delegate_on_child_view_changed(struct _cef_view_delegate_t* self,
 
 void CEF_CALLBACK window_delegate_on_focus(struct _cef_view_delegate_t* self,
                                            cef_view_t* view) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -415,6 +450,8 @@ void CEF_CALLBACK window_delegate_on_focus(struct _cef_view_delegate_t* self,
 
 void CEF_CALLBACK window_delegate_on_blur(struct _cef_view_delegate_t* self,
                                           cef_view_t* view) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -457,6 +494,12 @@ CefWindowDelegateCppToC::CefWindowDelegateCppToC() {
       window_delegate_on_child_view_changed;
   GetStruct()->base.base.on_focus = window_delegate_on_focus;
   GetStruct()->base.base.on_blur = window_delegate_on_blur;
+}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefWindowDelegateCppToC::~CefWindowDelegateCppToC() {
+  shutdown_checker::AssertNotShutdown();
 }
 
 template <>

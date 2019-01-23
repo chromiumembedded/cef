@@ -9,10 +9,11 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=530531f83b742d65b4640152418728a36394bea6$
+// $hash=729169758ef588e50632a4d46083fbdc68385a9b$
 //
 
 #include "libcef_dll/ctocpp/resolve_callback_ctocpp.h"
+#include "libcef_dll/shutdown_checker.h"
 #include "libcef_dll/transfer_util.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
@@ -21,6 +22,8 @@ NO_SANITIZE("cfi-icall")
 void CefResolveCallbackCToCpp::OnResolveCompleted(
     cef_errorcode_t result,
     const std::vector<CefString>& resolved_ips) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_resolve_callback_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_resolve_completed))
     return;
@@ -46,6 +49,12 @@ void CefResolveCallbackCToCpp::OnResolveCompleted(
 // CONSTRUCTOR - Do not edit by hand.
 
 CefResolveCallbackCToCpp::CefResolveCallbackCToCpp() {}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefResolveCallbackCToCpp::~CefResolveCallbackCToCpp() {
+  shutdown_checker::AssertNotShutdown();
+}
 
 template <>
 cef_resolve_callback_t* CefCToCppRefCounted<

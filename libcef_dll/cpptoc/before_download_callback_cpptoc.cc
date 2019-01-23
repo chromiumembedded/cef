@@ -9,10 +9,11 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=dc4a3c132fd8fd1c82998a7da135ed672b93b6cc$
+// $hash=65ff24a6eea2a6f55773a4e8117fd56ecb8d5d8a$
 //
 
 #include "libcef_dll/cpptoc/before_download_callback_cpptoc.h"
+#include "libcef_dll/shutdown_checker.h"
 
 namespace {
 
@@ -22,6 +23,8 @@ void CEF_CALLBACK
 before_download_callback_cont(struct _cef_before_download_callback_t* self,
                               const cef_string_t* download_path,
                               int show_dialog) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -40,6 +43,12 @@ before_download_callback_cont(struct _cef_before_download_callback_t* self,
 
 CefBeforeDownloadCallbackCppToC::CefBeforeDownloadCallbackCppToC() {
   GetStruct()->cont = before_download_callback_cont;
+}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefBeforeDownloadCallbackCppToC::~CefBeforeDownloadCallbackCppToC() {
+  shutdown_checker::AssertNotShutdown();
 }
 
 template <>

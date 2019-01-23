@@ -9,10 +9,11 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=7314e990762cfec272aa0cb3226ad7a053c5a89d$
+// $hash=dfc3c17cbe81e73f1f9fea2bde9bb863e7c7edb6$
 //
 
 #include "libcef_dll/cpptoc/pdf_print_callback_cpptoc.h"
+#include "libcef_dll/shutdown_checker.h"
 
 namespace {
 
@@ -22,6 +23,8 @@ void CEF_CALLBACK
 pdf_print_callback_on_pdf_print_finished(struct _cef_pdf_print_callback_t* self,
                                          const cef_string_t* path,
                                          int ok) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -43,6 +46,12 @@ pdf_print_callback_on_pdf_print_finished(struct _cef_pdf_print_callback_t* self,
 
 CefPdfPrintCallbackCppToC::CefPdfPrintCallbackCppToC() {
   GetStruct()->on_pdf_print_finished = pdf_print_callback_on_pdf_print_finished;
+}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefPdfPrintCallbackCppToC::~CefPdfPrintCallbackCppToC() {
+  shutdown_checker::AssertNotShutdown();
 }
 
 template <>

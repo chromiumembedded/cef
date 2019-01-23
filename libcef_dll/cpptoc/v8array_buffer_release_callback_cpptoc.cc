@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=122eea25273a143a2fc5aa7a8878839f5988d81b$
+// $hash=5eb3e58534c487e992240a5891dd0d706fbe2ab5$
 //
 
 #include "libcef_dll/cpptoc/v8array_buffer_release_callback_cpptoc.h"
@@ -42,6 +42,11 @@ void CEF_CALLBACK v8array_buffer_release_callback_release_buffer(
 CefV8ArrayBufferReleaseCallbackCppToC::CefV8ArrayBufferReleaseCallbackCppToC() {
   GetStruct()->release_buffer = v8array_buffer_release_callback_release_buffer;
 }
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefV8ArrayBufferReleaseCallbackCppToC::
+    ~CefV8ArrayBufferReleaseCallbackCppToC() {}
 
 template <>
 CefRefPtr<CefV8ArrayBufferReleaseCallback>

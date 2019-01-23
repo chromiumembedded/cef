@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=45d17287722f6da7d1c957ca9018ae1a6eca28e9$
+// $hash=7ee8da384ebeacb520200f1b8ec82af2d97d38ec$
 //
 
 #include "libcef_dll/cpptoc/request_context_cpptoc.h"
@@ -594,6 +594,10 @@ CefRequestContextCppToC::CefRequestContextCppToC() {
   GetStruct()->get_extensions = request_context_get_extensions;
   GetStruct()->get_extension = request_context_get_extension;
 }
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefRequestContextCppToC::~CefRequestContextCppToC() {}
 
 template <>
 CefRefPtr<CefRequestContext> CefCppToCRefCounted<

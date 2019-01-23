@@ -9,12 +9,13 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=eeb56bfa516f8b030846f9df60b65c28c58559bd$
+// $hash=5697b97e0a0ff1e70026b29c7e8ced60b6c60b35$
 //
 
 #include "libcef_dll/cpptoc/urlrequest_client_cpptoc.h"
 #include "libcef_dll/ctocpp/auth_callback_ctocpp.h"
 #include "libcef_dll/ctocpp/urlrequest_ctocpp.h"
+#include "libcef_dll/shutdown_checker.h"
 
 namespace {
 
@@ -23,6 +24,8 @@ namespace {
 void CEF_CALLBACK
 urlrequest_client_on_request_complete(struct _cef_urlrequest_client_t* self,
                                       cef_urlrequest_t* request) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -43,6 +46,8 @@ urlrequest_client_on_upload_progress(struct _cef_urlrequest_client_t* self,
                                      cef_urlrequest_t* request,
                                      int64 current,
                                      int64 total) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -63,6 +68,8 @@ urlrequest_client_on_download_progress(struct _cef_urlrequest_client_t* self,
                                        cef_urlrequest_t* request,
                                        int64 current,
                                        int64 total) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -83,6 +90,8 @@ urlrequest_client_on_download_data(struct _cef_urlrequest_client_t* self,
                                    cef_urlrequest_t* request,
                                    const void* data,
                                    size_t data_length) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -110,6 +119,8 @@ urlrequest_client_get_auth_credentials(struct _cef_urlrequest_client_t* self,
                                        const cef_string_t* realm,
                                        const cef_string_t* scheme,
                                        cef_auth_callback_t* callback) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -148,6 +159,12 @@ CefURLRequestClientCppToC::CefURLRequestClientCppToC() {
   GetStruct()->on_download_progress = urlrequest_client_on_download_progress;
   GetStruct()->on_download_data = urlrequest_client_on_download_data;
   GetStruct()->get_auth_credentials = urlrequest_client_get_auth_credentials;
+}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefURLRequestClientCppToC::~CefURLRequestClientCppToC() {
+  shutdown_checker::AssertNotShutdown();
 }
 
 template <>

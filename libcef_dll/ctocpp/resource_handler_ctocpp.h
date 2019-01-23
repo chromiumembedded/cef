@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=a7057c774faf1ecafdbf823624c96f784517c062$
+// $hash=803469f8ec84d5c38aa2efa63247f46b15fd926e$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_RESOURCE_HANDLER_CTOCPP_H_
@@ -32,6 +32,7 @@ class CefResourceHandlerCToCpp
                                  cef_resource_handler_t> {
  public:
   CefResourceHandlerCToCpp();
+  virtual ~CefResourceHandlerCToCpp();
 
   // CefResourceHandler methods.
   bool ProcessRequest(CefRefPtr<CefRequest> request,

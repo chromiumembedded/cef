@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=181e8b0947bacdb7c5d175fae008d845940eb71f$
+// $hash=ea7be9dafca4989f997679dce4b0c3818ec4ecb4$
 //
 
 #include "libcef_dll/cpptoc/v8handler_cpptoc.h"
@@ -95,6 +95,10 @@ int CEF_CALLBACK v8handler_execute(struct _cef_v8handler_t* self,
 CefV8HandlerCppToC::CefV8HandlerCppToC() {
   GetStruct()->execute = v8handler_execute;
 }
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefV8HandlerCppToC::~CefV8HandlerCppToC() {}
 
 template <>
 CefRefPtr<CefV8Handler>

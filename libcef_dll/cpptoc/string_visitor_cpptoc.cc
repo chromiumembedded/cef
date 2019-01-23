@@ -9,10 +9,11 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=72a7304568cf07d548571c6dd008b4fed0cdd77e$
+// $hash=ee8e0b077363331416ad3a2cad554bd853d5bf1b$
 //
 
 #include "libcef_dll/cpptoc/string_visitor_cpptoc.h"
+#include "libcef_dll/shutdown_checker.h"
 
 namespace {
 
@@ -20,6 +21,8 @@ namespace {
 
 void CEF_CALLBACK string_visitor_visit(struct _cef_string_visitor_t* self,
                                        const cef_string_t* string) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -37,6 +40,12 @@ void CEF_CALLBACK string_visitor_visit(struct _cef_string_visitor_t* self,
 
 CefStringVisitorCppToC::CefStringVisitorCppToC() {
   GetStruct()->visit = string_visitor_visit;
+}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefStringVisitorCppToC::~CefStringVisitorCppToC() {
+  shutdown_checker::AssertNotShutdown();
 }
 
 template <>

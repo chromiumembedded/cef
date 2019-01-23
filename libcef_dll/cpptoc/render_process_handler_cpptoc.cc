@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=e255ea7161c6d8ebb8c6c9011d2519b27e338a2e$
+// $hash=8aff66256b6d967cecddcd730f72f1e6e25eee4c$
 //
 
 #include "libcef_dll/cpptoc/render_process_handler_cpptoc.h"
@@ -280,6 +280,10 @@ CefRenderProcessHandlerCppToC::CefRenderProcessHandlerCppToC() {
   GetStruct()->on_process_message_received =
       render_process_handler_on_process_message_received;
 }
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefRenderProcessHandlerCppToC::~CefRenderProcessHandlerCppToC() {}
 
 template <>
 CefRefPtr<CefRenderProcessHandler> CefCppToCRefCounted<

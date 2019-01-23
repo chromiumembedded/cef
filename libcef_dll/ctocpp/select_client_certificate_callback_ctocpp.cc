@@ -9,17 +9,20 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=b8c542f7498b9579ac4d169f0b73660af2f959c5$
+// $hash=cbc4f3b0339a6d0eff4254b4733e4e972c2c3b92$
 //
 
 #include "libcef_dll/ctocpp/select_client_certificate_callback_ctocpp.h"
 #include "libcef_dll/ctocpp/x509certificate_ctocpp.h"
+#include "libcef_dll/shutdown_checker.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
 NO_SANITIZE("cfi-icall")
 void CefSelectClientCertificateCallbackCToCpp::Select(
     CefRefPtr<CefX509Certificate> cert) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_select_client_certificate_callback_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, select))
     return;
@@ -36,6 +39,13 @@ void CefSelectClientCertificateCallbackCToCpp::Select(
 
 CefSelectClientCertificateCallbackCToCpp::
     CefSelectClientCertificateCallbackCToCpp() {}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefSelectClientCertificateCallbackCToCpp::
+    ~CefSelectClientCertificateCallbackCToCpp() {
+  shutdown_checker::AssertNotShutdown();
+}
 
 template <>
 cef_select_client_certificate_callback_t*

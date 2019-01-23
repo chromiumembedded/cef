@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=ec0059711db0aa8e96a2a06e431a6342be11acd2$
+// $hash=f68bbf707b7cb2fdf231c0186efae2343daa1b64$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_WEB_PLUGIN_INFO_VISITOR_CTOCPP_H_
@@ -34,6 +34,7 @@ class CefWebPluginInfoVisitorCToCpp
                                  cef_web_plugin_info_visitor_t> {
  public:
   CefWebPluginInfoVisitorCToCpp();
+  virtual ~CefWebPluginInfoVisitorCToCpp();
 
   // CefWebPluginInfoVisitor methods.
   bool Visit(CefRefPtr<CefWebPluginInfo> info, int count, int total) override;

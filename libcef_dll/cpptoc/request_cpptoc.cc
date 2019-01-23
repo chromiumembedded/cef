@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=694a74a9a032ca5b0c8b6afdd6e2006e67b4440b$
+// $hash=97ceef0a54a773e251d575e4dda16a62c2f1b99a$
 //
 
 #include "libcef_dll/cpptoc/request_cpptoc.h"
@@ -395,6 +395,10 @@ CefRequestCppToC::CefRequestCppToC() {
   GetStruct()->get_transition_type = request_get_transition_type;
   GetStruct()->get_identifier = request_get_identifier;
 }
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefRequestCppToC::~CefRequestCppToC() {}
 
 template <>
 CefRefPtr<CefRequest>

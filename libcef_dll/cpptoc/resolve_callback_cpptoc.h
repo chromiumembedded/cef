@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=c7c8f6c8ede5dfb7dff01e7549e38a37f3a3fb61$
+// $hash=a3b2f47a5c8ea53d6eb4b4e35abb429c2736434c$
 //
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_RESOLVE_CALLBACK_CPPTOC_H_
@@ -34,6 +34,7 @@ class CefResolveCallbackCppToC
                                  cef_resolve_callback_t> {
  public:
   CefResolveCallbackCppToC();
+  virtual ~CefResolveCallbackCppToC();
 };
 
 #endif  // CEF_LIBCEF_DLL_CPPTOC_RESOLVE_CALLBACK_CPPTOC_H_

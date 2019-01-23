@@ -9,18 +9,21 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=bbe6563b5645c4d9c9ef38be7570bfa825b3dfb7$
+// $hash=13c568e0e5acfbb24da30fa9ff4516ab9b7a449e$
 //
 
 #include "libcef_dll/ctocpp/views/textfield_delegate_ctocpp.h"
 #include "libcef_dll/cpptoc/views/textfield_cpptoc.h"
 #include "libcef_dll/cpptoc/views/view_cpptoc.h"
+#include "libcef_dll/shutdown_checker.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
 NO_SANITIZE("cfi-icall")
 bool CefTextfieldDelegateCToCpp::OnKeyEvent(CefRefPtr<CefTextfield> textfield,
                                             const CefKeyEvent& event) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_textfield_delegate_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_key_event))
     return false;
@@ -43,6 +46,8 @@ bool CefTextfieldDelegateCToCpp::OnKeyEvent(CefRefPtr<CefTextfield> textfield,
 NO_SANITIZE("cfi-icall")
 void CefTextfieldDelegateCToCpp::OnAfterUserAction(
     CefRefPtr<CefTextfield> textfield) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_textfield_delegate_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_after_user_action))
     return;
@@ -60,6 +65,8 @@ void CefTextfieldDelegateCToCpp::OnAfterUserAction(
 
 NO_SANITIZE("cfi-icall")
 CefSize CefTextfieldDelegateCToCpp::GetPreferredSize(CefRefPtr<CefView> view) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_view_delegate_t* _struct =
       reinterpret_cast<cef_view_delegate_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, get_preferred_size))
@@ -82,6 +89,8 @@ CefSize CefTextfieldDelegateCToCpp::GetPreferredSize(CefRefPtr<CefView> view) {
 
 NO_SANITIZE("cfi-icall")
 CefSize CefTextfieldDelegateCToCpp::GetMinimumSize(CefRefPtr<CefView> view) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_view_delegate_t* _struct =
       reinterpret_cast<cef_view_delegate_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, get_minimum_size))
@@ -104,6 +113,8 @@ CefSize CefTextfieldDelegateCToCpp::GetMinimumSize(CefRefPtr<CefView> view) {
 
 NO_SANITIZE("cfi-icall")
 CefSize CefTextfieldDelegateCToCpp::GetMaximumSize(CefRefPtr<CefView> view) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_view_delegate_t* _struct =
       reinterpret_cast<cef_view_delegate_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, get_maximum_size))
@@ -127,6 +138,8 @@ CefSize CefTextfieldDelegateCToCpp::GetMaximumSize(CefRefPtr<CefView> view) {
 NO_SANITIZE("cfi-icall")
 int CefTextfieldDelegateCToCpp::GetHeightForWidth(CefRefPtr<CefView> view,
                                                   int width) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_view_delegate_t* _struct =
       reinterpret_cast<cef_view_delegate_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, get_height_for_width))
@@ -152,6 +165,8 @@ void CefTextfieldDelegateCToCpp::OnParentViewChanged(
     CefRefPtr<CefView> view,
     bool added,
     CefRefPtr<CefView> parent) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_view_delegate_t* _struct =
       reinterpret_cast<cef_view_delegate_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, on_parent_view_changed))
@@ -177,6 +192,8 @@ NO_SANITIZE("cfi-icall")
 void CefTextfieldDelegateCToCpp::OnChildViewChanged(CefRefPtr<CefView> view,
                                                     bool added,
                                                     CefRefPtr<CefView> child) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_view_delegate_t* _struct =
       reinterpret_cast<cef_view_delegate_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, on_child_view_changed))
@@ -200,6 +217,8 @@ void CefTextfieldDelegateCToCpp::OnChildViewChanged(CefRefPtr<CefView> view,
 
 NO_SANITIZE("cfi-icall")
 void CefTextfieldDelegateCToCpp::OnFocus(CefRefPtr<CefView> view) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_view_delegate_t* _struct =
       reinterpret_cast<cef_view_delegate_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, on_focus))
@@ -218,6 +237,8 @@ void CefTextfieldDelegateCToCpp::OnFocus(CefRefPtr<CefView> view) {
 
 NO_SANITIZE("cfi-icall")
 void CefTextfieldDelegateCToCpp::OnBlur(CefRefPtr<CefView> view) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_view_delegate_t* _struct =
       reinterpret_cast<cef_view_delegate_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, on_blur))
@@ -237,6 +258,12 @@ void CefTextfieldDelegateCToCpp::OnBlur(CefRefPtr<CefView> view) {
 // CONSTRUCTOR - Do not edit by hand.
 
 CefTextfieldDelegateCToCpp::CefTextfieldDelegateCToCpp() {}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefTextfieldDelegateCToCpp::~CefTextfieldDelegateCToCpp() {
+  shutdown_checker::AssertNotShutdown();
+}
 
 template <>
 cef_textfield_delegate_t* CefCToCppRefCounted<

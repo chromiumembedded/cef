@@ -52,7 +52,7 @@
 // will be called on the render process main thread (TID_RENDERER) unless
 // otherwise indicated.
 ///
-/*--cef(source=client)--*/
+/*--cef(source=client,no_debugct_check)--*/
 class CefRenderProcessHandler : public virtual CefBaseRefCounted {
  public:
   typedef cef_navigation_type_t NavigationType;

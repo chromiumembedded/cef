@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=79feb7cd9bdf332ae3769d941936a66686a9cb42$
+// $hash=81ba31714d71e1358273fa10e12881912fabc446$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_VIEWS_BUTTON_DELEGATE_CTOCPP_H_
@@ -34,6 +34,7 @@ class CefButtonDelegateCToCpp
                                  cef_button_delegate_t> {
  public:
   CefButtonDelegateCToCpp();
+  virtual ~CefButtonDelegateCToCpp();
 
   // CefButtonDelegate methods.
   void OnButtonPressed(CefRefPtr<CefButton> button) override;

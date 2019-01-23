@@ -9,14 +9,17 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=507008786167dc93b7e0c23f37948494d3ada86c$
+// $hash=022eec3794b62fef9b0610a509f12faebbbc853a$
 //
 
 #include "libcef_dll/ctocpp/download_item_callback_ctocpp.h"
+#include "libcef_dll/shutdown_checker.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
 NO_SANITIZE("cfi-icall") void CefDownloadItemCallbackCToCpp::Cancel() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_download_item_callback_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, cancel))
     return;
@@ -28,6 +31,8 @@ NO_SANITIZE("cfi-icall") void CefDownloadItemCallbackCToCpp::Cancel() {
 }
 
 NO_SANITIZE("cfi-icall") void CefDownloadItemCallbackCToCpp::Pause() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_download_item_callback_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, pause))
     return;
@@ -39,6 +44,8 @@ NO_SANITIZE("cfi-icall") void CefDownloadItemCallbackCToCpp::Pause() {
 }
 
 NO_SANITIZE("cfi-icall") void CefDownloadItemCallbackCToCpp::Resume() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_download_item_callback_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, resume))
     return;
@@ -52,6 +59,12 @@ NO_SANITIZE("cfi-icall") void CefDownloadItemCallbackCToCpp::Resume() {
 // CONSTRUCTOR - Do not edit by hand.
 
 CefDownloadItemCallbackCToCpp::CefDownloadItemCallbackCToCpp() {}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefDownloadItemCallbackCToCpp::~CefDownloadItemCallbackCToCpp() {
+  shutdown_checker::AssertNotShutdown();
+}
 
 template <>
 cef_download_item_callback_t* CefCToCppRefCounted<

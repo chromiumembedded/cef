@@ -9,14 +9,17 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=d3fdd40153d21d06a0797791a71ac877dc8563d0$
+// $hash=6396d8906ae30f670b9ad387f83c400133591d58$
 //
 
 #include "libcef_dll/ctocpp/callback_ctocpp.h"
+#include "libcef_dll/shutdown_checker.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
 NO_SANITIZE("cfi-icall") void CefCallbackCToCpp::Continue() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_callback_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, cont))
     return;
@@ -28,6 +31,8 @@ NO_SANITIZE("cfi-icall") void CefCallbackCToCpp::Continue() {
 }
 
 NO_SANITIZE("cfi-icall") void CefCallbackCToCpp::Cancel() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_callback_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, cancel))
     return;
@@ -41,6 +46,12 @@ NO_SANITIZE("cfi-icall") void CefCallbackCToCpp::Cancel() {
 // CONSTRUCTOR - Do not edit by hand.
 
 CefCallbackCToCpp::CefCallbackCToCpp() {}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefCallbackCToCpp::~CefCallbackCToCpp() {
+  shutdown_checker::AssertNotShutdown();
+}
 
 template <>
 cef_callback_t*

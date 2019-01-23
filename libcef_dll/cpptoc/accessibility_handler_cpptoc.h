@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=a7bd53b0f936750abeded7f96d1bd9b08743b210$
+// $hash=9e3dc01d67ab9ee155d338f458363e8a3025d733$
 //
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_ACCESSIBILITY_HANDLER_CPPTOC_H_
@@ -32,6 +32,7 @@ class CefAccessibilityHandlerCppToC
                                  cef_accessibility_handler_t> {
  public:
   CefAccessibilityHandlerCppToC();
+  virtual ~CefAccessibilityHandlerCppToC();
 };
 
 #endif  // CEF_LIBCEF_DLL_CPPTOC_ACCESSIBILITY_HANDLER_CPPTOC_H_

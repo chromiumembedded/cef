@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=c17ffc9433d72bc86a6ba0a5bd603ebb549bb18d$
+// $hash=6f71ae783e4b56110ae2806c943c4492406674aa$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_CONTEXT_MENU_PARAMS_CTOCPP_H_
@@ -33,6 +33,7 @@ class CefContextMenuParamsCToCpp
                                  cef_context_menu_params_t> {
  public:
   CefContextMenuParamsCToCpp();
+  virtual ~CefContextMenuParamsCToCpp();
 
   // CefContextMenuParams methods.
   int GetXCoord() OVERRIDE;

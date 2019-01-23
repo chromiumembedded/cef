@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=38beda5a32f3283d8f253a2f465f3227468c00e5$
+// $hash=78f4c316f837573dc42702821deefc4d6c0e0860$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_DICTIONARY_VALUE_CTOCPP_H_
@@ -32,6 +32,7 @@ class CefDictionaryValueCToCpp
                                  cef_dictionary_value_t> {
  public:
   CefDictionaryValueCToCpp();
+  virtual ~CefDictionaryValueCToCpp();
 
   // CefDictionaryValue methods.
   bool IsValid() OVERRIDE;

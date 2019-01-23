@@ -9,11 +9,12 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=a5f0b19bb86eb3dd73b290d0dbf80c5f0717aa27$
+// $hash=62c442a9d509a5fb044f72db699e7a0eb68cc856$
 //
 
 #include "libcef_dll/ctocpp/thread_ctocpp.h"
 #include "libcef_dll/ctocpp/task_runner_ctocpp.h"
+#include "libcef_dll/shutdown_checker.h"
 
 // STATIC METHODS - Body may be edited by hand.
 
@@ -24,6 +25,8 @@ CefRefPtr<CefThread> CefThread::CreateThread(
     cef_message_loop_type_t message_loop_type,
     bool stoppable,
     cef_com_init_mode_t com_init_mode) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Unverified params: display_name
@@ -41,6 +44,8 @@ CefRefPtr<CefThread> CefThread::CreateThread(
 
 NO_SANITIZE("cfi-icall")
 CefRefPtr<CefTaskRunner> CefThreadCToCpp::GetTaskRunner() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_thread_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_task_runner))
     return NULL;
@@ -56,6 +61,8 @@ CefRefPtr<CefTaskRunner> CefThreadCToCpp::GetTaskRunner() {
 
 NO_SANITIZE("cfi-icall")
 cef_platform_thread_id_t CefThreadCToCpp::GetPlatformThreadId() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_thread_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_platform_thread_id))
     return kInvalidPlatformThreadId;
@@ -70,6 +77,8 @@ cef_platform_thread_id_t CefThreadCToCpp::GetPlatformThreadId() {
 }
 
 NO_SANITIZE("cfi-icall") void CefThreadCToCpp::Stop() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_thread_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, stop))
     return;
@@ -81,6 +90,8 @@ NO_SANITIZE("cfi-icall") void CefThreadCToCpp::Stop() {
 }
 
 NO_SANITIZE("cfi-icall") bool CefThreadCToCpp::IsRunning() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_thread_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, is_running))
     return false;
@@ -97,6 +108,12 @@ NO_SANITIZE("cfi-icall") bool CefThreadCToCpp::IsRunning() {
 // CONSTRUCTOR - Do not edit by hand.
 
 CefThreadCToCpp::CefThreadCToCpp() {}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefThreadCToCpp::~CefThreadCToCpp() {
+  shutdown_checker::AssertNotShutdown();
+}
 
 template <>
 cef_thread_t*

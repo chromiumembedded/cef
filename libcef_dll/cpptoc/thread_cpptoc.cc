@@ -9,11 +9,12 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=09da054aa0a5b5e09bf6b96d03c5679d7673b633$
+// $hash=f0eafe36b23b4c121ebaaead7039a987e4a4f372$
 //
 
 #include "libcef_dll/cpptoc/thread_cpptoc.h"
 #include "libcef_dll/cpptoc/task_runner_cpptoc.h"
+#include "libcef_dll/shutdown_checker.h"
 
 // GLOBAL FUNCTIONS - Body may be edited by hand.
 
@@ -23,6 +24,8 @@ CEF_EXPORT cef_thread_t* cef_thread_create(
     cef_message_loop_type_t message_loop_type,
     int stoppable,
     cef_com_init_mode_t com_init_mode) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Unverified params: display_name
@@ -42,6 +45,8 @@ namespace {
 
 cef_task_runner_t* CEF_CALLBACK
 thread_get_task_runner(struct _cef_thread_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -58,6 +63,8 @@ thread_get_task_runner(struct _cef_thread_t* self) {
 
 cef_platform_thread_id_t CEF_CALLBACK
 thread_get_platform_thread_id(struct _cef_thread_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -73,6 +80,8 @@ thread_get_platform_thread_id(struct _cef_thread_t* self) {
 }
 
 void CEF_CALLBACK thread_stop(struct _cef_thread_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -84,6 +93,8 @@ void CEF_CALLBACK thread_stop(struct _cef_thread_t* self) {
 }
 
 int CEF_CALLBACK thread_is_running(struct _cef_thread_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -106,6 +117,12 @@ CefThreadCppToC::CefThreadCppToC() {
   GetStruct()->get_platform_thread_id = thread_get_platform_thread_id;
   GetStruct()->stop = thread_stop;
   GetStruct()->is_running = thread_is_running;
+}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefThreadCppToC::~CefThreadCppToC() {
+  shutdown_checker::AssertNotShutdown();
 }
 
 template <>

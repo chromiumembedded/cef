@@ -9,12 +9,13 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=dcb4befb6077f91893895ff5ab844d1b2572278b$
+// $hash=40e0a9efeebef0613823c2fb04eef6102fc331f0$
 //
 
 #include "libcef_dll/cpptoc/jsdialog_handler_cpptoc.h"
 #include "libcef_dll/ctocpp/browser_ctocpp.h"
 #include "libcef_dll/ctocpp/jsdialog_callback_ctocpp.h"
+#include "libcef_dll/shutdown_checker.h"
 
 namespace {
 
@@ -29,6 +30,8 @@ jsdialog_handler_on_jsdialog(struct _cef_jsdialog_handler_t* self,
                              const cef_string_t* default_prompt_text,
                              cef_jsdialog_callback_t* callback,
                              int* suppress_message) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -72,6 +75,8 @@ jsdialog_handler_on_before_unload_dialog(struct _cef_jsdialog_handler_t* self,
                                          const cef_string_t* message_text,
                                          int is_reload,
                                          cef_jsdialog_callback_t* callback) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -99,6 +104,8 @@ jsdialog_handler_on_before_unload_dialog(struct _cef_jsdialog_handler_t* self,
 void CEF_CALLBACK
 jsdialog_handler_on_reset_dialog_state(struct _cef_jsdialog_handler_t* self,
                                        cef_browser_t* browser) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -117,6 +124,8 @@ jsdialog_handler_on_reset_dialog_state(struct _cef_jsdialog_handler_t* self,
 void CEF_CALLBACK
 jsdialog_handler_on_dialog_closed(struct _cef_jsdialog_handler_t* self,
                                   cef_browser_t* browser) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -142,6 +151,12 @@ CefJSDialogHandlerCppToC::CefJSDialogHandlerCppToC() {
       jsdialog_handler_on_before_unload_dialog;
   GetStruct()->on_reset_dialog_state = jsdialog_handler_on_reset_dialog_state;
   GetStruct()->on_dialog_closed = jsdialog_handler_on_dialog_closed;
+}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefJSDialogHandlerCppToC::~CefJSDialogHandlerCppToC() {
+  shutdown_checker::AssertNotShutdown();
 }
 
 template <>

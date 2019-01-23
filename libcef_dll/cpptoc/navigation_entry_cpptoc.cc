@@ -9,11 +9,12 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=184c2b8b8a3e7a33d4f2f8682659d07b9778cb61$
+// $hash=d8f94042ef236d6db05e5d1b7ea680c22a5faf0e$
 //
 
 #include "libcef_dll/cpptoc/navigation_entry_cpptoc.h"
 #include "libcef_dll/cpptoc/sslstatus_cpptoc.h"
+#include "libcef_dll/shutdown_checker.h"
 
 namespace {
 
@@ -21,6 +22,8 @@ namespace {
 
 int CEF_CALLBACK
 navigation_entry_is_valid(struct _cef_navigation_entry_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -36,6 +39,8 @@ navigation_entry_is_valid(struct _cef_navigation_entry_t* self) {
 
 cef_string_userfree_t CEF_CALLBACK
 navigation_entry_get_url(struct _cef_navigation_entry_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -51,6 +56,8 @@ navigation_entry_get_url(struct _cef_navigation_entry_t* self) {
 
 cef_string_userfree_t CEF_CALLBACK
 navigation_entry_get_display_url(struct _cef_navigation_entry_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -66,6 +73,8 @@ navigation_entry_get_display_url(struct _cef_navigation_entry_t* self) {
 
 cef_string_userfree_t CEF_CALLBACK
 navigation_entry_get_original_url(struct _cef_navigation_entry_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -81,6 +90,8 @@ navigation_entry_get_original_url(struct _cef_navigation_entry_t* self) {
 
 cef_string_userfree_t CEF_CALLBACK
 navigation_entry_get_title(struct _cef_navigation_entry_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -96,6 +107,8 @@ navigation_entry_get_title(struct _cef_navigation_entry_t* self) {
 
 cef_transition_type_t CEF_CALLBACK
 navigation_entry_get_transition_type(struct _cef_navigation_entry_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -112,6 +125,8 @@ navigation_entry_get_transition_type(struct _cef_navigation_entry_t* self) {
 
 int CEF_CALLBACK
 navigation_entry_has_post_data(struct _cef_navigation_entry_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -127,6 +142,8 @@ navigation_entry_has_post_data(struct _cef_navigation_entry_t* self) {
 
 cef_time_t CEF_CALLBACK
 navigation_entry_get_completion_time(struct _cef_navigation_entry_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -142,6 +159,8 @@ navigation_entry_get_completion_time(struct _cef_navigation_entry_t* self) {
 
 int CEF_CALLBACK
 navigation_entry_get_http_status_code(struct _cef_navigation_entry_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -157,6 +176,8 @@ navigation_entry_get_http_status_code(struct _cef_navigation_entry_t* self) {
 
 struct _cef_sslstatus_t* CEF_CALLBACK
 navigation_entry_get_sslstatus(struct _cef_navigation_entry_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -186,6 +207,12 @@ CefNavigationEntryCppToC::CefNavigationEntryCppToC() {
   GetStruct()->get_completion_time = navigation_entry_get_completion_time;
   GetStruct()->get_http_status_code = navigation_entry_get_http_status_code;
   GetStruct()->get_sslstatus = navigation_entry_get_sslstatus;
+}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefNavigationEntryCppToC::~CefNavigationEntryCppToC() {
+  shutdown_checker::AssertNotShutdown();
 }
 
 template <>

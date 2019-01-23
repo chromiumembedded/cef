@@ -9,11 +9,12 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=dcb4e070b6e929839efd757a245505c03dbf97df$
+// $hash=0b567fcc9961c3640ad6040e1ed4c6d9717f8034$
 //
 
 #include "libcef_dll/ctocpp/keyboard_handler_ctocpp.h"
 #include "libcef_dll/cpptoc/browser_cpptoc.h"
+#include "libcef_dll/shutdown_checker.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
@@ -22,6 +23,8 @@ bool CefKeyboardHandlerCToCpp::OnPreKeyEvent(CefRefPtr<CefBrowser> browser,
                                              const CefKeyEvent& event,
                                              CefEventHandle os_event,
                                              bool* is_keyboard_shortcut) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_keyboard_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_pre_key_event))
     return false;
@@ -58,6 +61,8 @@ NO_SANITIZE("cfi-icall")
 bool CefKeyboardHandlerCToCpp::OnKeyEvent(CefRefPtr<CefBrowser> browser,
                                           const CefKeyEvent& event,
                                           CefEventHandle os_event) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_keyboard_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_key_event))
     return false;
@@ -80,6 +85,12 @@ bool CefKeyboardHandlerCToCpp::OnKeyEvent(CefRefPtr<CefBrowser> browser,
 // CONSTRUCTOR - Do not edit by hand.
 
 CefKeyboardHandlerCToCpp::CefKeyboardHandlerCToCpp() {}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefKeyboardHandlerCToCpp::~CefKeyboardHandlerCToCpp() {
+  shutdown_checker::AssertNotShutdown();
+}
 
 template <>
 cef_keyboard_handler_t* CefCToCppRefCounted<

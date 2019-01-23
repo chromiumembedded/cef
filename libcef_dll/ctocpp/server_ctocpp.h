@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=1b52d8dda791fd538bbaa7a397dc6e7b4bb078ca$
+// $hash=d3e3ac31099d907a471d495d1888896d6643a623$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_SERVER_CTOCPP_H_
@@ -30,6 +30,7 @@ class CefServerCToCpp
     : public CefCToCppRefCounted<CefServerCToCpp, CefServer, cef_server_t> {
  public:
   CefServerCToCpp();
+  virtual ~CefServerCToCpp();
 
   // CefServer methods.
   CefRefPtr<CefTaskRunner> GetTaskRunner() OVERRIDE;

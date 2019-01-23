@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=43922eb5a9740a37e20f35cacf4771beefe34ef2$
+// $hash=44a73e5a0632c0d3d3c4b1e5f3f929cf4834f054$
 //
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_FRAME_CPPTOC_H_
@@ -34,6 +34,7 @@ class CefFrameCppToC
     : public CefCppToCRefCounted<CefFrameCppToC, CefFrame, cef_frame_t> {
  public:
   CefFrameCppToC();
+  virtual ~CefFrameCppToC();
 };
 
 #endif  // CEF_LIBCEF_DLL_CPPTOC_FRAME_CPPTOC_H_

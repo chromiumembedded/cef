@@ -9,10 +9,11 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=cc7953100a41fe56e8ac1391557b47db8235e0ce$
+// $hash=694484dc32c906f1f06a9255b26b92ebe1965194$
 //
 
 #include "libcef_dll/ctocpp/cookie_visitor_ctocpp.h"
+#include "libcef_dll/shutdown_checker.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
@@ -21,6 +22,8 @@ bool CefCookieVisitorCToCpp::Visit(const CefCookie& cookie,
                                    int count,
                                    int total,
                                    bool& deleteCookie) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_cookie_visitor_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, visit))
     return false;
@@ -44,6 +47,12 @@ bool CefCookieVisitorCToCpp::Visit(const CefCookie& cookie,
 // CONSTRUCTOR - Do not edit by hand.
 
 CefCookieVisitorCToCpp::CefCookieVisitorCToCpp() {}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefCookieVisitorCToCpp::~CefCookieVisitorCToCpp() {
+  shutdown_checker::AssertNotShutdown();
+}
 
 template <>
 cef_cookie_visitor_t*

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=73eb00459c1666846ffdb155f8794a4683805815$
+// $hash=5e86714a2c9fa13e5ff7dc221900215f78caa2a6$
 //
 
 #include "libcef_dll/ctocpp/views/view_delegate_ctocpp.h"
@@ -20,11 +20,14 @@
 #include "libcef_dll/ctocpp/views/panel_delegate_ctocpp.h"
 #include "libcef_dll/ctocpp/views/textfield_delegate_ctocpp.h"
 #include "libcef_dll/ctocpp/views/window_delegate_ctocpp.h"
+#include "libcef_dll/shutdown_checker.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
 NO_SANITIZE("cfi-icall")
 CefSize CefViewDelegateCToCpp::GetPreferredSize(CefRefPtr<CefView> view) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_view_delegate_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_preferred_size))
     return CefSize();
@@ -46,6 +49,8 @@ CefSize CefViewDelegateCToCpp::GetPreferredSize(CefRefPtr<CefView> view) {
 
 NO_SANITIZE("cfi-icall")
 CefSize CefViewDelegateCToCpp::GetMinimumSize(CefRefPtr<CefView> view) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_view_delegate_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_minimum_size))
     return CefSize();
@@ -67,6 +72,8 @@ CefSize CefViewDelegateCToCpp::GetMinimumSize(CefRefPtr<CefView> view) {
 
 NO_SANITIZE("cfi-icall")
 CefSize CefViewDelegateCToCpp::GetMaximumSize(CefRefPtr<CefView> view) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_view_delegate_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_maximum_size))
     return CefSize();
@@ -89,6 +96,8 @@ CefSize CefViewDelegateCToCpp::GetMaximumSize(CefRefPtr<CefView> view) {
 NO_SANITIZE("cfi-icall")
 int CefViewDelegateCToCpp::GetHeightForWidth(CefRefPtr<CefView> view,
                                              int width) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_view_delegate_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_height_for_width))
     return 0;
@@ -112,6 +121,8 @@ NO_SANITIZE("cfi-icall")
 void CefViewDelegateCToCpp::OnParentViewChanged(CefRefPtr<CefView> view,
                                                 bool added,
                                                 CefRefPtr<CefView> parent) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_view_delegate_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_parent_view_changed))
     return;
@@ -136,6 +147,8 @@ NO_SANITIZE("cfi-icall")
 void CefViewDelegateCToCpp::OnChildViewChanged(CefRefPtr<CefView> view,
                                                bool added,
                                                CefRefPtr<CefView> child) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_view_delegate_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_child_view_changed))
     return;
@@ -158,6 +171,8 @@ void CefViewDelegateCToCpp::OnChildViewChanged(CefRefPtr<CefView> view,
 
 NO_SANITIZE("cfi-icall")
 void CefViewDelegateCToCpp::OnFocus(CefRefPtr<CefView> view) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_view_delegate_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_focus))
     return;
@@ -175,6 +190,8 @@ void CefViewDelegateCToCpp::OnFocus(CefRefPtr<CefView> view) {
 
 NO_SANITIZE("cfi-icall")
 void CefViewDelegateCToCpp::OnBlur(CefRefPtr<CefView> view) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_view_delegate_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_blur))
     return;
@@ -193,6 +210,12 @@ void CefViewDelegateCToCpp::OnBlur(CefRefPtr<CefView> view) {
 // CONSTRUCTOR - Do not edit by hand.
 
 CefViewDelegateCToCpp::CefViewDelegateCToCpp() {}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefViewDelegateCToCpp::~CefViewDelegateCToCpp() {
+  shutdown_checker::AssertNotShutdown();
+}
 
 template <>
 cef_view_delegate_t*

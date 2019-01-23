@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=6b116414aad7732aabd1aaec10e10ef71a129fd3$
+// $hash=34498fb3fa5c4ee4d54e44e627ae9fc79e3144c4$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_VIEWS_PANEL_CTOCPP_H_
@@ -38,6 +38,7 @@ class CefPanelCToCpp
     : public CefCToCppRefCounted<CefPanelCToCpp, CefPanel, cef_panel_t> {
  public:
   CefPanelCToCpp();
+  virtual ~CefPanelCToCpp();
 
   // CefPanel methods.
   CefRefPtr<CefWindow> AsWindow() OVERRIDE;

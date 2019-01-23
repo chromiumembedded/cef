@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=15ca717a0543e9779ac3bb38e280a6b4d7fd7b28$
+// $hash=809440906ef69e6b95fa7271449ba353948b368b$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_TEST_TRANSLATOR_TEST_CTOCPP_H_
@@ -34,6 +34,7 @@ class CefTranslatorTestCToCpp
                                  cef_translator_test_t> {
  public:
   CefTranslatorTestCToCpp();
+  virtual ~CefTranslatorTestCToCpp();
 
   // CefTranslatorTest methods.
   void GetVoid() OVERRIDE;

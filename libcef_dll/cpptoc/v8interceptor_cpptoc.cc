@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=9b775e012d72038e096787192045ebe998ce7b47$
+// $hash=fa20f67da33ad4b66be31ca63d7fe65addd3d47f$
 //
 
 #include "libcef_dll/cpptoc/v8interceptor_cpptoc.h"
@@ -215,6 +215,10 @@ CefV8InterceptorCppToC::CefV8InterceptorCppToC() {
   GetStruct()->set_byname = v8interceptor_set_byname;
   GetStruct()->set_byindex = v8interceptor_set_byindex;
 }
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefV8InterceptorCppToC::~CefV8InterceptorCppToC() {}
 
 template <>
 CefRefPtr<CefV8Interceptor> CefCppToCRefCounted<

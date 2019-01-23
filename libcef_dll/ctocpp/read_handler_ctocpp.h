@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=8109e4aff44168d65f579aea7f71b0b39e657fc5$
+// $hash=fd7fb4a60cbd0d699654b012445d7dd3d50b86b5$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_READ_HANDLER_CTOCPP_H_
@@ -31,6 +31,7 @@ class CefReadHandlerCToCpp : public CefCToCppRefCounted<CefReadHandlerCToCpp,
                                                         cef_read_handler_t> {
  public:
   CefReadHandlerCToCpp();
+  virtual ~CefReadHandlerCToCpp();
 
   // CefReadHandler methods.
   size_t Read(void* ptr, size_t size, size_t n) override;

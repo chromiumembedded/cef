@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=717cb62ab007871b500dc42b4ec07ee898ecd9af$
+// $hash=7a1d9167c083721572cedc99f89ace69364abca8$
 //
 
 #include "libcef_dll/cpptoc/app_cpptoc.h"
@@ -124,6 +124,10 @@ CefAppCppToC::CefAppCppToC() {
   GetStruct()->get_browser_process_handler = app_get_browser_process_handler;
   GetStruct()->get_render_process_handler = app_get_render_process_handler;
 }
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefAppCppToC::~CefAppCppToC() {}
 
 template <>
 CefRefPtr<CefApp>

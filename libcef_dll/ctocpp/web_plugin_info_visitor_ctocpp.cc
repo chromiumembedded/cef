@@ -9,11 +9,12 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=4f157c64f2ab929cebcca896d2bf9c8dfca474f8$
+// $hash=2c4278425b993d2b7b8c2bbb545bef9e27f4caaa$
 //
 
 #include "libcef_dll/ctocpp/web_plugin_info_visitor_ctocpp.h"
 #include "libcef_dll/cpptoc/web_plugin_info_cpptoc.h"
+#include "libcef_dll/shutdown_checker.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
@@ -21,6 +22,8 @@ NO_SANITIZE("cfi-icall")
 bool CefWebPluginInfoVisitorCToCpp::Visit(CefRefPtr<CefWebPluginInfo> info,
                                           int count,
                                           int total) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_web_plugin_info_visitor_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, visit))
     return false;
@@ -43,6 +46,12 @@ bool CefWebPluginInfoVisitorCToCpp::Visit(CefRefPtr<CefWebPluginInfo> info,
 // CONSTRUCTOR - Do not edit by hand.
 
 CefWebPluginInfoVisitorCToCpp::CefWebPluginInfoVisitorCToCpp() {}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefWebPluginInfoVisitorCToCpp::~CefWebPluginInfoVisitorCToCpp() {
+  shutdown_checker::AssertNotShutdown();
+}
 
 template <>
 cef_web_plugin_info_visitor_t* CefCToCppRefCounted<

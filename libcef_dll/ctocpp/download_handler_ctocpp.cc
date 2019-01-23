@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=a33091f27a4e35291e8647d0ba652e8bdf955dcb$
+// $hash=27b40a80b45391aee6e294d1c6100ebc5aa7b72a$
 //
 
 #include "libcef_dll/ctocpp/download_handler_ctocpp.h"
@@ -17,6 +17,7 @@
 #include "libcef_dll/cpptoc/browser_cpptoc.h"
 #include "libcef_dll/cpptoc/download_item_callback_cpptoc.h"
 #include "libcef_dll/cpptoc/download_item_cpptoc.h"
+#include "libcef_dll/shutdown_checker.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
@@ -26,6 +27,8 @@ void CefDownloadHandlerCToCpp::OnBeforeDownload(
     CefRefPtr<CefDownloadItem> download_item,
     const CefString& suggested_name,
     CefRefPtr<CefBeforeDownloadCallback> callback) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_download_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_before_download))
     return;
@@ -61,6 +64,8 @@ void CefDownloadHandlerCToCpp::OnDownloadUpdated(
     CefRefPtr<CefBrowser> browser,
     CefRefPtr<CefDownloadItem> download_item,
     CefRefPtr<CefDownloadItemCallback> callback) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_download_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_download_updated))
     return;
@@ -89,6 +94,12 @@ void CefDownloadHandlerCToCpp::OnDownloadUpdated(
 // CONSTRUCTOR - Do not edit by hand.
 
 CefDownloadHandlerCToCpp::CefDownloadHandlerCToCpp() {}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefDownloadHandlerCToCpp::~CefDownloadHandlerCToCpp() {
+  shutdown_checker::AssertNotShutdown();
+}
 
 template <>
 cef_download_handler_t* CefCToCppRefCounted<

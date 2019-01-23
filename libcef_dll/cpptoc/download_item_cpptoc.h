@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=bdc5428227801593f7ba0073207cc57ffd3a3765$
+// $hash=9476e0585d9889fc9e51bc2e1ba837a43e16adb4$
 //
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_DOWNLOAD_ITEM_CPPTOC_H_
@@ -31,6 +31,7 @@ class CefDownloadItemCppToC : public CefCppToCRefCounted<CefDownloadItemCppToC,
                                                          cef_download_item_t> {
  public:
   CefDownloadItemCppToC();
+  virtual ~CefDownloadItemCppToC();
 };
 
 #endif  // CEF_LIBCEF_DLL_CPPTOC_DOWNLOAD_ITEM_CPPTOC_H_

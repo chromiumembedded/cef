@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=6f18157d1d37565ceedd0627590bf92f9618496e$
+// $hash=c541060df59d42a2cddd0e9142ec4eee2495eafa$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_WEB_PLUGIN_UNSTABLE_CALLBACK_CTOCPP_H_
@@ -34,6 +34,7 @@ class CefWebPluginUnstableCallbackCToCpp
                                  cef_web_plugin_unstable_callback_t> {
  public:
   CefWebPluginUnstableCallbackCToCpp();
+  virtual ~CefWebPluginUnstableCallbackCToCpp();
 
   // CefWebPluginUnstableCallback methods.
   void IsUnstable(const CefString& path, bool unstable) override;

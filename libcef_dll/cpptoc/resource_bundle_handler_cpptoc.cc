@@ -9,10 +9,11 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=b4bb26e2027b1b031397ecb2d76df3c789d303ac$
+// $hash=ca1390d8a0125af46f5b4ffae3359ee16ad0e5a9$
 //
 
 #include "libcef_dll/cpptoc/resource_bundle_handler_cpptoc.h"
+#include "libcef_dll/shutdown_checker.h"
 
 namespace {
 
@@ -22,6 +23,8 @@ int CEF_CALLBACK resource_bundle_handler_get_localized_string(
     struct _cef_resource_bundle_handler_t* self,
     int string_id,
     cef_string_t* string) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -48,6 +51,8 @@ int CEF_CALLBACK resource_bundle_handler_get_data_resource(
     int resource_id,
     void** data,
     size_t* data_size) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -88,6 +93,8 @@ int CEF_CALLBACK resource_bundle_handler_get_data_resource_for_scale(
     cef_scale_factor_t scale_factor,
     void** data,
     size_t* data_size) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -133,6 +140,12 @@ CefResourceBundleHandlerCppToC::CefResourceBundleHandlerCppToC() {
   GetStruct()->get_data_resource = resource_bundle_handler_get_data_resource;
   GetStruct()->get_data_resource_for_scale =
       resource_bundle_handler_get_data_resource_for_scale;
+}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefResourceBundleHandlerCppToC::~CefResourceBundleHandlerCppToC() {
+  shutdown_checker::AssertNotShutdown();
 }
 
 template <>

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=d74f2b562f5b8276bef67003cdc641bd6b0dc5b3$
+// $hash=90d9d5420cb532a187a78fba2a29dc9e2933b114$
 //
 
 #include "libcef_dll/cpptoc/browser_process_handler_cpptoc.h"
@@ -115,6 +115,10 @@ CefBrowserProcessHandlerCppToC::CefBrowserProcessHandlerCppToC() {
   GetStruct()->on_schedule_message_pump_work =
       browser_process_handler_on_schedule_message_pump_work;
 }
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefBrowserProcessHandlerCppToC::~CefBrowserProcessHandlerCppToC() {}
 
 template <>
 CefRefPtr<CefBrowserProcessHandler> CefCppToCRefCounted<

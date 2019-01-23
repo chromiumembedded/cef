@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=fd97694fbfe9825b3d62200ae27fa0c4d1925791$
+// $hash=e37ed0bb1da97f687f27b923ef1c3f9f3a5d2e21$
 //
 
 #include "libcef_dll/cpptoc/context_menu_handler_cpptoc.h"
@@ -18,6 +18,7 @@
 #include "libcef_dll/ctocpp/frame_ctocpp.h"
 #include "libcef_dll/ctocpp/menu_model_ctocpp.h"
 #include "libcef_dll/ctocpp/run_context_menu_callback_ctocpp.h"
+#include "libcef_dll/shutdown_checker.h"
 
 namespace {
 
@@ -29,6 +30,8 @@ void CEF_CALLBACK context_menu_handler_on_before_context_menu(
     struct _cef_frame_t* frame,
     struct _cef_context_menu_params_t* params,
     struct _cef_menu_model_t* model) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -65,6 +68,8 @@ int CEF_CALLBACK context_menu_handler_run_context_menu(
     struct _cef_context_menu_params_t* params,
     struct _cef_menu_model_t* model,
     cef_run_context_menu_callback_t* callback) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -108,6 +113,8 @@ int CEF_CALLBACK context_menu_handler_on_context_menu_command(
     struct _cef_context_menu_params_t* params,
     int command_id,
     cef_event_flags_t event_flags) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -139,6 +146,8 @@ void CEF_CALLBACK context_menu_handler_on_context_menu_dismissed(
     struct _cef_context_menu_handler_t* self,
     cef_browser_t* browser,
     struct _cef_frame_t* frame) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -170,6 +179,12 @@ CefContextMenuHandlerCppToC::CefContextMenuHandlerCppToC() {
       context_menu_handler_on_context_menu_command;
   GetStruct()->on_context_menu_dismissed =
       context_menu_handler_on_context_menu_dismissed;
+}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefContextMenuHandlerCppToC::~CefContextMenuHandlerCppToC() {
+  shutdown_checker::AssertNotShutdown();
 }
 
 template <>

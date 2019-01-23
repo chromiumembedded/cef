@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=c132272a5808e10d27b10f4393bfc248c53ba76d$
+// $hash=d4eb9d13b07ad780b4941fa4122a45cde2684d21$
 //
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_VIEWS_LAYOUT_CPPTOC_H_
@@ -34,6 +34,7 @@ class CefLayoutCppToC
     : public CefCppToCRefCounted<CefLayoutCppToC, CefLayout, cef_layout_t> {
  public:
   CefLayoutCppToC();
+  virtual ~CefLayoutCppToC();
 };
 
 #endif  // CEF_LIBCEF_DLL_CPPTOC_VIEWS_LAYOUT_CPPTOC_H_

@@ -9,15 +9,18 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=ccf057f59143c8d801da426b54063745c9946a24$
+// $hash=db82cc3707fcd49f569426adab05792f61150fed$
 //
 
 #include "libcef_dll/ctocpp/test/translator_test_ref_ptr_client_child_ctocpp.h"
+#include "libcef_dll/shutdown_checker.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
 NO_SANITIZE("cfi-icall")
 int CefTranslatorTestRefPtrClientChildCToCpp::GetOtherValue() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_translator_test_ref_ptr_client_child_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_other_value))
     return 0;
@@ -33,6 +36,8 @@ int CefTranslatorTestRefPtrClientChildCToCpp::GetOtherValue() {
 
 NO_SANITIZE("cfi-icall")
 int CefTranslatorTestRefPtrClientChildCToCpp::GetValue() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_translator_test_ref_ptr_client_t* _struct =
       reinterpret_cast<cef_translator_test_ref_ptr_client_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, get_value))
@@ -51,6 +56,13 @@ int CefTranslatorTestRefPtrClientChildCToCpp::GetValue() {
 
 CefTranslatorTestRefPtrClientChildCToCpp::
     CefTranslatorTestRefPtrClientChildCToCpp() {}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefTranslatorTestRefPtrClientChildCToCpp::
+    ~CefTranslatorTestRefPtrClientChildCToCpp() {
+  shutdown_checker::AssertNotShutdown();
+}
 
 template <>
 cef_translator_test_ref_ptr_client_child_t*

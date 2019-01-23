@@ -9,10 +9,11 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=5f023a0cff19ee1e700c3149139aa9daea3d36d4$
+// $hash=d73a9cabfb1e5749e422dd6584024a7c9cff89d8$
 //
 
 #include "libcef_dll/cpptoc/run_context_menu_callback_cpptoc.h"
+#include "libcef_dll/shutdown_checker.h"
 
 namespace {
 
@@ -22,6 +23,8 @@ void CEF_CALLBACK
 run_context_menu_callback_cont(struct _cef_run_context_menu_callback_t* self,
                                int command_id,
                                cef_event_flags_t event_flags) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -34,6 +37,8 @@ run_context_menu_callback_cont(struct _cef_run_context_menu_callback_t* self,
 
 void CEF_CALLBACK run_context_menu_callback_cancel(
     struct _cef_run_context_menu_callback_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -51,6 +56,12 @@ void CEF_CALLBACK run_context_menu_callback_cancel(
 CefRunContextMenuCallbackCppToC::CefRunContextMenuCallbackCppToC() {
   GetStruct()->cont = run_context_menu_callback_cont;
   GetStruct()->cancel = run_context_menu_callback_cancel;
+}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefRunContextMenuCallbackCppToC::~CefRunContextMenuCallbackCppToC() {
+  shutdown_checker::AssertNotShutdown();
 }
 
 template <>

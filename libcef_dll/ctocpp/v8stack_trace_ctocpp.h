@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=290999bd7031e84e5fc7867aed2cd07d9b52e9b6$
+// $hash=d37f45601064f850420d24e814903baba17c9135$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_V8STACK_TRACE_CTOCPP_H_
@@ -31,6 +31,7 @@ class CefV8StackTraceCToCpp : public CefCToCppRefCounted<CefV8StackTraceCToCpp,
                                                          cef_v8stack_trace_t> {
  public:
   CefV8StackTraceCToCpp();
+  virtual ~CefV8StackTraceCToCpp();
 
   // CefV8StackTrace methods.
   bool IsValid() OVERRIDE;

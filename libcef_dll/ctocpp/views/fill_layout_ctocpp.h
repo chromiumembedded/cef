@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=8334de1c3d4224bb22c1766bd0c16a73b565653b$
+// $hash=2f607017eb3ed6707746ed6610f331e31548de7b$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_VIEWS_FILL_LAYOUT_CTOCPP_H_
@@ -31,6 +31,7 @@ class CefFillLayoutCToCpp : public CefCToCppRefCounted<CefFillLayoutCToCpp,
                                                        cef_fill_layout_t> {
  public:
   CefFillLayoutCToCpp();
+  virtual ~CefFillLayoutCToCpp();
 
   // CefFillLayout methods.
 

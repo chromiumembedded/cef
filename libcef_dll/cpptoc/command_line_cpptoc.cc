@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=97b50ed12b43f9807b67f716089da2477b58310a$
+// $hash=745c869d4a8bb07633e5aff8a313a642503bd84f$
 //
 
 #include "libcef_dll/cpptoc/command_line_cpptoc.h"
@@ -412,6 +412,10 @@ CefCommandLineCppToC::CefCommandLineCppToC() {
   GetStruct()->append_argument = command_line_append_argument;
   GetStruct()->prepend_wrapper = command_line_prepend_wrapper;
 }
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefCommandLineCppToC::~CefCommandLineCppToC() {}
 
 template <>
 CefRefPtr<CefCommandLine>

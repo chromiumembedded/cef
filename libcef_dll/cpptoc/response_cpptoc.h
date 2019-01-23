@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=589e060e6671ea3b3286fd4ea46720fee2d905c6$
+// $hash=d871b5cc42ef5c9b447f1d5722c28a2d68200242$
 //
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_RESPONSE_CPPTOC_H_
@@ -31,6 +31,7 @@ class CefResponseCppToC : public CefCppToCRefCounted<CefResponseCppToC,
                                                      cef_response_t> {
  public:
   CefResponseCppToC();
+  virtual ~CefResponseCppToC();
 };
 
 #endif  // CEF_LIBCEF_DLL_CPPTOC_RESPONSE_CPPTOC_H_

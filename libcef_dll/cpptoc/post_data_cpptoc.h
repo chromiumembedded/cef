@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=66c36ea44bc2b8c14f11d6f8641acd87f1cca7c2$
+// $hash=64428da94522d39fa83c604866c9162a70456fbf$
 //
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_POST_DATA_CPPTOC_H_
@@ -31,6 +31,7 @@ class CefPostDataCppToC : public CefCppToCRefCounted<CefPostDataCppToC,
                                                      cef_post_data_t> {
  public:
   CefPostDataCppToC();
+  virtual ~CefPostDataCppToC();
 };
 
 #endif  // CEF_LIBCEF_DLL_CPPTOC_POST_DATA_CPPTOC_H_

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=cc6519f0303e67f9c5bb230909a0e3dec896950b$
+// $hash=16ff454a480c329617fea13843f8ed1c7cc21a1e$
 //
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_VIEWS_BROWSER_VIEW_CPPTOC_H_
@@ -31,6 +31,7 @@ class CefBrowserViewCppToC : public CefCppToCRefCounted<CefBrowserViewCppToC,
                                                         cef_browser_view_t> {
  public:
   CefBrowserViewCppToC();
+  virtual ~CefBrowserViewCppToC();
 };
 
 #endif  // CEF_LIBCEF_DLL_CPPTOC_VIEWS_BROWSER_VIEW_CPPTOC_H_

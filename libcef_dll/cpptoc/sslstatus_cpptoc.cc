@@ -9,17 +9,20 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=b77e2ed77eb3dfdc9236c42e281d98b31839de0d$
+// $hash=59c7f9afad5cd40b62f93291f49d26fa858e20c7$
 //
 
 #include "libcef_dll/cpptoc/sslstatus_cpptoc.h"
 #include "libcef_dll/cpptoc/x509certificate_cpptoc.h"
+#include "libcef_dll/shutdown_checker.h"
 
 namespace {
 
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
 int CEF_CALLBACK sslstatus_is_secure_connection(struct _cef_sslstatus_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -35,6 +38,8 @@ int CEF_CALLBACK sslstatus_is_secure_connection(struct _cef_sslstatus_t* self) {
 
 cef_cert_status_t CEF_CALLBACK
 sslstatus_get_cert_status(struct _cef_sslstatus_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -50,6 +55,8 @@ sslstatus_get_cert_status(struct _cef_sslstatus_t* self) {
 
 cef_ssl_version_t CEF_CALLBACK
 sslstatus_get_sslversion(struct _cef_sslstatus_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -65,6 +72,8 @@ sslstatus_get_sslversion(struct _cef_sslstatus_t* self) {
 
 cef_ssl_content_status_t CEF_CALLBACK
 sslstatus_get_content_status(struct _cef_sslstatus_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -81,6 +90,8 @@ sslstatus_get_content_status(struct _cef_sslstatus_t* self) {
 
 struct _cef_x509certificate_t* CEF_CALLBACK
 sslstatus_get_x509certificate(struct _cef_sslstatus_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -105,6 +116,12 @@ CefSSLStatusCppToC::CefSSLStatusCppToC() {
   GetStruct()->get_sslversion = sslstatus_get_sslversion;
   GetStruct()->get_content_status = sslstatus_get_content_status;
   GetStruct()->get_x509certificate = sslstatus_get_x509certificate;
+}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefSSLStatusCppToC::~CefSSLStatusCppToC() {
+  shutdown_checker::AssertNotShutdown();
 }
 
 template <>

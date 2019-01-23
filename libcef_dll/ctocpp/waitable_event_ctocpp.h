@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=40bf1c21e96f1643f6253f9ac02ed3e2b47b0a96$
+// $hash=4cd46b2c619b3f89830c4703169521c6f4ad6ee9$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_WAITABLE_EVENT_CTOCPP_H_
@@ -32,6 +32,7 @@ class CefWaitableEventCToCpp
                                  cef_waitable_event_t> {
  public:
   CefWaitableEventCToCpp();
+  virtual ~CefWaitableEventCToCpp();
 
   // CefWaitableEvent methods.
   void Reset() OVERRIDE;

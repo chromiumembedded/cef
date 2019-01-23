@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=bf4d037daf01402a27da95a1804ac7ee659178ef$
+// $hash=379bec786c84a6b1ea1060a10a9a277369dc35ea$
 //
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_BROWSER_PROCESS_HANDLER_CPPTOC_H_
@@ -32,6 +32,7 @@ class CefBrowserProcessHandlerCppToC
                                  cef_browser_process_handler_t> {
  public:
   CefBrowserProcessHandlerCppToC();
+  virtual ~CefBrowserProcessHandlerCppToC();
 };
 
 #endif  // CEF_LIBCEF_DLL_CPPTOC_BROWSER_PROCESS_HANDLER_CPPTOC_H_

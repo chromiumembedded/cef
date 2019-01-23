@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=2bb785cef5ad691760cb51e5c93b148a4e945a98$
+// $hash=ce00a8514532f6218eabebdc138831103fb303a5$
 //
 
 #include "libcef_dll/cpptoc/views/scroll_view_cpptoc.h"
@@ -20,11 +20,14 @@
 #include "libcef_dll/cpptoc/views/view_cpptoc.h"
 #include "libcef_dll/cpptoc/views/window_cpptoc.h"
 #include "libcef_dll/ctocpp/views/view_delegate_ctocpp.h"
+#include "libcef_dll/shutdown_checker.h"
 
 // GLOBAL FUNCTIONS - Body may be edited by hand.
 
 CEF_EXPORT cef_scroll_view_t* cef_scroll_view_create(
     struct _cef_view_delegate_t* delegate) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Unverified params: delegate
@@ -43,6 +46,8 @@ namespace {
 
 void CEF_CALLBACK scroll_view_set_content_view(struct _cef_scroll_view_t* self,
                                                struct _cef_view_t* view) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -59,6 +64,8 @@ void CEF_CALLBACK scroll_view_set_content_view(struct _cef_scroll_view_t* self,
 
 struct _cef_view_t* CEF_CALLBACK
 scroll_view_get_content_view(struct _cef_scroll_view_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -74,6 +81,8 @@ scroll_view_get_content_view(struct _cef_scroll_view_t* self) {
 
 cef_rect_t CEF_CALLBACK
 scroll_view_get_visible_content_rect(struct _cef_scroll_view_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -89,6 +98,8 @@ scroll_view_get_visible_content_rect(struct _cef_scroll_view_t* self) {
 
 int CEF_CALLBACK
 scroll_view_has_horizontal_scrollbar(struct _cef_scroll_view_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -104,6 +115,8 @@ scroll_view_has_horizontal_scrollbar(struct _cef_scroll_view_t* self) {
 
 int CEF_CALLBACK
 scroll_view_get_horizontal_scrollbar_height(struct _cef_scroll_view_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -119,6 +132,8 @@ scroll_view_get_horizontal_scrollbar_height(struct _cef_scroll_view_t* self) {
 
 int CEF_CALLBACK
 scroll_view_has_vertical_scrollbar(struct _cef_scroll_view_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -134,6 +149,8 @@ scroll_view_has_vertical_scrollbar(struct _cef_scroll_view_t* self) {
 
 int CEF_CALLBACK
 scroll_view_get_vertical_scrollbar_width(struct _cef_scroll_view_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -149,6 +166,8 @@ scroll_view_get_vertical_scrollbar_width(struct _cef_scroll_view_t* self) {
 
 cef_browser_view_t* CEF_CALLBACK
 scroll_view_as_browser_view(struct _cef_view_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -165,6 +184,8 @@ scroll_view_as_browser_view(struct _cef_view_t* self) {
 }
 
 cef_button_t* CEF_CALLBACK scroll_view_as_button(struct _cef_view_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -181,6 +202,8 @@ cef_button_t* CEF_CALLBACK scroll_view_as_button(struct _cef_view_t* self) {
 }
 
 cef_panel_t* CEF_CALLBACK scroll_view_as_panel(struct _cef_view_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -198,6 +221,8 @@ cef_panel_t* CEF_CALLBACK scroll_view_as_panel(struct _cef_view_t* self) {
 
 cef_scroll_view_t* CEF_CALLBACK
 scroll_view_as_scroll_view(struct _cef_view_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -215,6 +240,8 @@ scroll_view_as_scroll_view(struct _cef_view_t* self) {
 
 cef_textfield_t* CEF_CALLBACK
 scroll_view_as_textfield(struct _cef_view_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -232,6 +259,8 @@ scroll_view_as_textfield(struct _cef_view_t* self) {
 
 cef_string_userfree_t CEF_CALLBACK
 scroll_view_get_type_string(struct _cef_view_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -249,6 +278,8 @@ scroll_view_get_type_string(struct _cef_view_t* self) {
 
 cef_string_userfree_t CEF_CALLBACK
 scroll_view_to_string(struct _cef_view_t* self, int include_children) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -265,6 +296,8 @@ scroll_view_to_string(struct _cef_view_t* self, int include_children) {
 }
 
 int CEF_CALLBACK scroll_view_is_valid(struct _cef_view_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -281,6 +314,8 @@ int CEF_CALLBACK scroll_view_is_valid(struct _cef_view_t* self) {
 }
 
 int CEF_CALLBACK scroll_view_is_attached(struct _cef_view_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -298,6 +333,8 @@ int CEF_CALLBACK scroll_view_is_attached(struct _cef_view_t* self) {
 
 int CEF_CALLBACK scroll_view_is_same(struct _cef_view_t* self,
                                      struct _cef_view_t* that) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -319,6 +356,8 @@ int CEF_CALLBACK scroll_view_is_same(struct _cef_view_t* self,
 
 struct _cef_view_delegate_t* CEF_CALLBACK
 scroll_view_get_delegate(struct _cef_view_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -336,6 +375,8 @@ scroll_view_get_delegate(struct _cef_view_t* self) {
 
 struct _cef_window_t* CEF_CALLBACK
 scroll_view_get_window(struct _cef_view_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -352,6 +393,8 @@ scroll_view_get_window(struct _cef_view_t* self) {
 }
 
 int CEF_CALLBACK scroll_view_get_id(struct _cef_view_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -368,6 +411,8 @@ int CEF_CALLBACK scroll_view_get_id(struct _cef_view_t* self) {
 }
 
 void CEF_CALLBACK scroll_view_set_id(struct _cef_view_t* self, int id) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -380,6 +425,8 @@ void CEF_CALLBACK scroll_view_set_id(struct _cef_view_t* self, int id) {
 }
 
 int CEF_CALLBACK scroll_view_get_group_id(struct _cef_view_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -397,6 +444,8 @@ int CEF_CALLBACK scroll_view_get_group_id(struct _cef_view_t* self) {
 
 void CEF_CALLBACK scroll_view_set_group_id(struct _cef_view_t* self,
                                            int group_id) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -410,6 +459,8 @@ void CEF_CALLBACK scroll_view_set_group_id(struct _cef_view_t* self,
 
 struct _cef_view_t* CEF_CALLBACK
 scroll_view_get_parent_view(struct _cef_view_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -427,6 +478,8 @@ scroll_view_get_parent_view(struct _cef_view_t* self) {
 
 struct _cef_view_t* CEF_CALLBACK
 scroll_view_get_view_for_id(struct _cef_view_t* self, int id) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -444,6 +497,8 @@ scroll_view_get_view_for_id(struct _cef_view_t* self, int id) {
 
 void CEF_CALLBACK scroll_view_set_bounds(struct _cef_view_t* self,
                                          const cef_rect_t* bounds) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -463,6 +518,8 @@ void CEF_CALLBACK scroll_view_set_bounds(struct _cef_view_t* self,
 }
 
 cef_rect_t CEF_CALLBACK scroll_view_get_bounds(struct _cef_view_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -480,6 +537,8 @@ cef_rect_t CEF_CALLBACK scroll_view_get_bounds(struct _cef_view_t* self) {
 
 cef_rect_t CEF_CALLBACK
 scroll_view_get_bounds_in_screen(struct _cef_view_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -497,6 +556,8 @@ scroll_view_get_bounds_in_screen(struct _cef_view_t* self) {
 
 void CEF_CALLBACK scroll_view_set_size(struct _cef_view_t* self,
                                        const cef_size_t* size) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -516,6 +577,8 @@ void CEF_CALLBACK scroll_view_set_size(struct _cef_view_t* self,
 }
 
 cef_size_t CEF_CALLBACK scroll_view_get_size(struct _cef_view_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -533,6 +596,8 @@ cef_size_t CEF_CALLBACK scroll_view_get_size(struct _cef_view_t* self) {
 
 void CEF_CALLBACK scroll_view_set_position(struct _cef_view_t* self,
                                            const cef_point_t* position) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -552,6 +617,8 @@ void CEF_CALLBACK scroll_view_set_position(struct _cef_view_t* self,
 }
 
 cef_point_t CEF_CALLBACK scroll_view_get_position(struct _cef_view_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -569,6 +636,8 @@ cef_point_t CEF_CALLBACK scroll_view_get_position(struct _cef_view_t* self) {
 
 cef_size_t CEF_CALLBACK
 scroll_view_get_preferred_size(struct _cef_view_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -585,6 +654,8 @@ scroll_view_get_preferred_size(struct _cef_view_t* self) {
 }
 
 void CEF_CALLBACK scroll_view_size_to_preferred_size(struct _cef_view_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -597,6 +668,8 @@ void CEF_CALLBACK scroll_view_size_to_preferred_size(struct _cef_view_t* self) {
 }
 
 cef_size_t CEF_CALLBACK scroll_view_get_minimum_size(struct _cef_view_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -613,6 +686,8 @@ cef_size_t CEF_CALLBACK scroll_view_get_minimum_size(struct _cef_view_t* self) {
 }
 
 cef_size_t CEF_CALLBACK scroll_view_get_maximum_size(struct _cef_view_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -630,6 +705,8 @@ cef_size_t CEF_CALLBACK scroll_view_get_maximum_size(struct _cef_view_t* self) {
 
 int CEF_CALLBACK scroll_view_get_height_for_width(struct _cef_view_t* self,
                                                   int width) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -646,6 +723,8 @@ int CEF_CALLBACK scroll_view_get_height_for_width(struct _cef_view_t* self,
 }
 
 void CEF_CALLBACK scroll_view_invalidate_layout(struct _cef_view_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -659,6 +738,8 @@ void CEF_CALLBACK scroll_view_invalidate_layout(struct _cef_view_t* self) {
 
 void CEF_CALLBACK scroll_view_set_visible(struct _cef_view_t* self,
                                           int visible) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -671,6 +752,8 @@ void CEF_CALLBACK scroll_view_set_visible(struct _cef_view_t* self,
 }
 
 int CEF_CALLBACK scroll_view_is_visible(struct _cef_view_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -687,6 +770,8 @@ int CEF_CALLBACK scroll_view_is_visible(struct _cef_view_t* self) {
 }
 
 int CEF_CALLBACK scroll_view_is_drawn(struct _cef_view_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -704,6 +789,8 @@ int CEF_CALLBACK scroll_view_is_drawn(struct _cef_view_t* self) {
 
 void CEF_CALLBACK scroll_view_set_enabled(struct _cef_view_t* self,
                                           int enabled) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -716,6 +803,8 @@ void CEF_CALLBACK scroll_view_set_enabled(struct _cef_view_t* self,
 }
 
 int CEF_CALLBACK scroll_view_is_enabled(struct _cef_view_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -733,6 +822,8 @@ int CEF_CALLBACK scroll_view_is_enabled(struct _cef_view_t* self) {
 
 void CEF_CALLBACK scroll_view_set_focusable(struct _cef_view_t* self,
                                             int focusable) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -745,6 +836,8 @@ void CEF_CALLBACK scroll_view_set_focusable(struct _cef_view_t* self,
 }
 
 int CEF_CALLBACK scroll_view_is_focusable(struct _cef_view_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -762,6 +855,8 @@ int CEF_CALLBACK scroll_view_is_focusable(struct _cef_view_t* self) {
 
 int CEF_CALLBACK
 scroll_view_is_accessibility_focusable(struct _cef_view_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -778,6 +873,8 @@ scroll_view_is_accessibility_focusable(struct _cef_view_t* self) {
 }
 
 void CEF_CALLBACK scroll_view_request_focus(struct _cef_view_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -791,6 +888,8 @@ void CEF_CALLBACK scroll_view_request_focus(struct _cef_view_t* self) {
 
 void CEF_CALLBACK scroll_view_set_background_color(struct _cef_view_t* self,
                                                    cef_color_t color) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -804,6 +903,8 @@ void CEF_CALLBACK scroll_view_set_background_color(struct _cef_view_t* self,
 
 cef_color_t CEF_CALLBACK
 scroll_view_get_background_color(struct _cef_view_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -821,6 +922,8 @@ scroll_view_get_background_color(struct _cef_view_t* self) {
 
 int CEF_CALLBACK scroll_view_convert_point_to_screen(struct _cef_view_t* self,
                                                      cef_point_t* point) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -849,6 +952,8 @@ int CEF_CALLBACK scroll_view_convert_point_to_screen(struct _cef_view_t* self,
 
 int CEF_CALLBACK scroll_view_convert_point_from_screen(struct _cef_view_t* self,
                                                        cef_point_t* point) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -877,6 +982,8 @@ int CEF_CALLBACK scroll_view_convert_point_from_screen(struct _cef_view_t* self,
 
 int CEF_CALLBACK scroll_view_convert_point_to_window(struct _cef_view_t* self,
                                                      cef_point_t* point) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -905,6 +1012,8 @@ int CEF_CALLBACK scroll_view_convert_point_to_window(struct _cef_view_t* self,
 
 int CEF_CALLBACK scroll_view_convert_point_from_window(struct _cef_view_t* self,
                                                        cef_point_t* point) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -934,6 +1043,8 @@ int CEF_CALLBACK scroll_view_convert_point_from_window(struct _cef_view_t* self,
 int CEF_CALLBACK scroll_view_convert_point_to_view(struct _cef_view_t* self,
                                                    struct _cef_view_t* view,
                                                    cef_point_t* point) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -967,6 +1078,8 @@ int CEF_CALLBACK scroll_view_convert_point_to_view(struct _cef_view_t* self,
 int CEF_CALLBACK scroll_view_convert_point_from_view(struct _cef_view_t* self,
                                                      struct _cef_view_t* view,
                                                      cef_point_t* point) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -1065,6 +1178,12 @@ CefScrollViewCppToC::CefScrollViewCppToC() {
   GetStruct()->base.convert_point_to_view = scroll_view_convert_point_to_view;
   GetStruct()->base.convert_point_from_view =
       scroll_view_convert_point_from_view;
+}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefScrollViewCppToC::~CefScrollViewCppToC() {
+  shutdown_checker::AssertNotShutdown();
 }
 
 template <>

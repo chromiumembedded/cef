@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=6f93be2614acf11078bc37e77bae08a2275bba95$
+// $hash=2ca8fa808e192f52dd9df44bd424096890d4fedf$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_VIEWS_TEXTFIELD_CTOCPP_H_
@@ -31,6 +31,7 @@ class CefTextfieldCToCpp : public CefCToCppRefCounted<CefTextfieldCToCpp,
                                                       cef_textfield_t> {
  public:
   CefTextfieldCToCpp();
+  virtual ~CefTextfieldCToCpp();
 
   // CefTextfield methods.
   void SetPasswordInput(bool password_input) OVERRIDE;

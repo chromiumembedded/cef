@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=9928411a0fa0c4b8423e7bec6d42c5e6c291efb6$
+// $hash=208b31bc64dd9d47ac6272304bce2dab1686f071$
 //
 
 #include "libcef_dll/cpptoc/cookie_manager_cpptoc.h"
@@ -245,6 +245,10 @@ CefCookieManagerCppToC::CefCookieManagerCppToC() {
   GetStruct()->set_storage_path = cookie_manager_set_storage_path;
   GetStruct()->flush_store = cookie_manager_flush_store;
 }
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefCookieManagerCppToC::~CefCookieManagerCppToC() {}
 
 template <>
 CefRefPtr<CefCookieManager> CefCppToCRefCounted<

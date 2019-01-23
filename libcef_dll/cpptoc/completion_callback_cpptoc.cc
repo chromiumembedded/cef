@@ -9,10 +9,11 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=db9319896cf61ca39a127c00f4d6b0ee801d7938$
+// $hash=e483812d8e14d27960b8b3ab2d4d8e9968c0bc5b$
 //
 
 #include "libcef_dll/cpptoc/completion_callback_cpptoc.h"
+#include "libcef_dll/shutdown_checker.h"
 
 namespace {
 
@@ -20,6 +21,8 @@ namespace {
 
 void CEF_CALLBACK
 completion_callback_on_complete(struct _cef_completion_callback_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -36,6 +39,12 @@ completion_callback_on_complete(struct _cef_completion_callback_t* self) {
 
 CefCompletionCallbackCppToC::CefCompletionCallbackCppToC() {
   GetStruct()->on_complete = completion_callback_on_complete;
+}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefCompletionCallbackCppToC::~CefCompletionCallbackCppToC() {
+  shutdown_checker::AssertNotShutdown();
 }
 
 template <>

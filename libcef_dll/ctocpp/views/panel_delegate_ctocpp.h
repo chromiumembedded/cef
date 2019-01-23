@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=16b3edf7d8189bab9cf60fc7e5b20d1d88a83185$
+// $hash=199687c4d23ad4e7c9cf62012d12576abc8d4863$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_VIEWS_PANEL_DELEGATE_CTOCPP_H_
@@ -32,6 +32,7 @@ class CefPanelDelegateCToCpp
                                  cef_panel_delegate_t> {
  public:
   CefPanelDelegateCToCpp();
+  virtual ~CefPanelDelegateCToCpp();
 
   // CefPanelDelegate methods.
 

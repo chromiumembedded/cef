@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=53fb90d3e0329893467cddc18225c50926fc12d7$
+// $hash=bfe2b659fc2fd899a0f06e3608831a4132912564$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_WRITE_HANDLER_CTOCPP_H_
@@ -31,6 +31,7 @@ class CefWriteHandlerCToCpp : public CefCToCppRefCounted<CefWriteHandlerCToCpp,
                                                          cef_write_handler_t> {
  public:
   CefWriteHandlerCToCpp();
+  virtual ~CefWriteHandlerCToCpp();
 
   // CefWriteHandler methods.
   size_t Write(const void* ptr, size_t size, size_t n) override;

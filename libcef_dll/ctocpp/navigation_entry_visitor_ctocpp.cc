@@ -9,11 +9,12 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=2874253ada3fe250f674d8439b2c3ce3b4bec856$
+// $hash=d8da57d4f6870310d539cdf9eab5fd96c660cb44$
 //
 
 #include "libcef_dll/ctocpp/navigation_entry_visitor_ctocpp.h"
 #include "libcef_dll/cpptoc/navigation_entry_cpptoc.h"
+#include "libcef_dll/shutdown_checker.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
@@ -22,6 +23,8 @@ bool CefNavigationEntryVisitorCToCpp::Visit(CefRefPtr<CefNavigationEntry> entry,
                                             bool current,
                                             int index,
                                             int total) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_navigation_entry_visitor_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, visit))
     return false;
@@ -44,6 +47,12 @@ bool CefNavigationEntryVisitorCToCpp::Visit(CefRefPtr<CefNavigationEntry> entry,
 // CONSTRUCTOR - Do not edit by hand.
 
 CefNavigationEntryVisitorCToCpp::CefNavigationEntryVisitorCToCpp() {}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefNavigationEntryVisitorCToCpp::~CefNavigationEntryVisitorCToCpp() {
+  shutdown_checker::AssertNotShutdown();
+}
 
 template <>
 cef_navigation_entry_visitor_t* CefCToCppRefCounted<

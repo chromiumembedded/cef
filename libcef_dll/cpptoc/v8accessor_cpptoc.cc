@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=46c357e1515d937bd41402a6f7f4b0e06f31cf37$
+// $hash=8c5fee62ad2b30c57d6046ae1f869d46e5455da9$
 //
 
 #include "libcef_dll/cpptoc/v8accessor_cpptoc.h"
@@ -120,6 +120,10 @@ CefV8AccessorCppToC::CefV8AccessorCppToC() {
   GetStruct()->get = v8accessor_get;
   GetStruct()->set = v8accessor_set;
 }
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefV8AccessorCppToC::~CefV8AccessorCppToC() {}
 
 template <>
 CefRefPtr<CefV8Accessor>

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=02578d941a071b3970098ebe7b56d068f0a80ad1$
+// $hash=e6db8ce4c0f4d808255daeb59ce3c8faeaa16e93$
 //
 
 #include "libcef_dll/cpptoc/resource_bundle_cpptoc.h"
@@ -136,6 +136,10 @@ CefResourceBundleCppToC::CefResourceBundleCppToC() {
   GetStruct()->get_data_resource_for_scale =
       resource_bundle_get_data_resource_for_scale;
 }
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefResourceBundleCppToC::~CefResourceBundleCppToC() {}
 
 template <>
 CefRefPtr<CefResourceBundle> CefCppToCRefCounted<

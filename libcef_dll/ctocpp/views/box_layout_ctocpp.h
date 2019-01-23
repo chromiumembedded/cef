@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=480c684fd32d5f20061f2d991512bea0c3b64c36$
+// $hash=1fb982d98cd8936ef4804b74635e351c79162fe2$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_VIEWS_BOX_LAYOUT_CTOCPP_H_
@@ -33,6 +33,7 @@ class CefBoxLayoutCToCpp : public CefCToCppRefCounted<CefBoxLayoutCToCpp,
                                                       cef_box_layout_t> {
  public:
   CefBoxLayoutCToCpp();
+  virtual ~CefBoxLayoutCToCpp();
 
   // CefBoxLayout methods.
   void SetFlexForView(CefRefPtr<CefView> view, int flex) OVERRIDE;

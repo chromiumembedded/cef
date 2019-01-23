@@ -9,10 +9,11 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=0736a907753bbb95634bcecf7415b5dce8a79a86$
+// $hash=9252ddf87a04506b78a438821fbed2916d769e3b$
 //
 
 #include "libcef_dll/cpptoc/resolve_callback_cpptoc.h"
+#include "libcef_dll/shutdown_checker.h"
 #include "libcef_dll/transfer_util.h"
 
 namespace {
@@ -23,6 +24,8 @@ void CEF_CALLBACK
 resolve_callback_on_resolve_completed(struct _cef_resolve_callback_t* self,
                                       cef_errorcode_t result,
                                       cef_string_list_t resolved_ips) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -45,6 +48,12 @@ resolve_callback_on_resolve_completed(struct _cef_resolve_callback_t* self,
 
 CefResolveCallbackCppToC::CefResolveCallbackCppToC() {
   GetStruct()->on_resolve_completed = resolve_callback_on_resolve_completed;
+}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefResolveCallbackCppToC::~CefResolveCallbackCppToC() {
+  shutdown_checker::AssertNotShutdown();
 }
 
 template <>

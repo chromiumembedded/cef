@@ -9,15 +9,18 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=3ec06c4011d2c5ca752c2375fe98ec96ec517e13$
+// $hash=a57097c640e7a3fe39c3dcd42118cc556207b1fa$
 //
 
 #include "libcef_dll/ctocpp/read_handler_ctocpp.h"
+#include "libcef_dll/shutdown_checker.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
 NO_SANITIZE("cfi-icall")
 size_t CefReadHandlerCToCpp::Read(void* ptr, size_t size, size_t n) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_read_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, read))
     return 0;
@@ -38,6 +41,8 @@ size_t CefReadHandlerCToCpp::Read(void* ptr, size_t size, size_t n) {
 
 NO_SANITIZE("cfi-icall")
 int CefReadHandlerCToCpp::Seek(int64 offset, int whence) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_read_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, seek))
     return 0;
@@ -52,6 +57,8 @@ int CefReadHandlerCToCpp::Seek(int64 offset, int whence) {
 }
 
 NO_SANITIZE("cfi-icall") int64 CefReadHandlerCToCpp::Tell() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_read_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, tell))
     return 0;
@@ -66,6 +73,8 @@ NO_SANITIZE("cfi-icall") int64 CefReadHandlerCToCpp::Tell() {
 }
 
 NO_SANITIZE("cfi-icall") int CefReadHandlerCToCpp::Eof() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_read_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, eof))
     return 0;
@@ -80,6 +89,8 @@ NO_SANITIZE("cfi-icall") int CefReadHandlerCToCpp::Eof() {
 }
 
 NO_SANITIZE("cfi-icall") bool CefReadHandlerCToCpp::MayBlock() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_read_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, may_block))
     return false;
@@ -96,6 +107,12 @@ NO_SANITIZE("cfi-icall") bool CefReadHandlerCToCpp::MayBlock() {
 // CONSTRUCTOR - Do not edit by hand.
 
 CefReadHandlerCToCpp::CefReadHandlerCToCpp() {}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefReadHandlerCToCpp::~CefReadHandlerCToCpp() {
+  shutdown_checker::AssertNotShutdown();
+}
 
 template <>
 cef_read_handler_t*

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=6bdbfe239243cdbd51217bca1e17a103bbee6300$
+// $hash=8fc049139785b1d13e944d3a50eed9bc70537edf$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_THREAD_CTOCPP_H_
@@ -30,6 +30,7 @@ class CefThreadCToCpp
     : public CefCToCppRefCounted<CefThreadCToCpp, CefThread, cef_thread_t> {
  public:
   CefThreadCToCpp();
+  virtual ~CefThreadCToCpp();
 
   // CefThread methods.
   CefRefPtr<CefTaskRunner> GetTaskRunner() OVERRIDE;

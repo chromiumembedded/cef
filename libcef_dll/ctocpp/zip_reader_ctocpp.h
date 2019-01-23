@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=bef7d549790a313452bb3c137a43dc5fe5817999$
+// $hash=326b507d5065261a9cf824f4bf32e97099971e55$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_ZIP_READER_CTOCPP_H_
@@ -31,6 +31,7 @@ class CefZipReaderCToCpp : public CefCToCppRefCounted<CefZipReaderCToCpp,
                                                       cef_zip_reader_t> {
  public:
   CefZipReaderCToCpp();
+  virtual ~CefZipReaderCToCpp();
 
   // CefZipReader methods.
   bool MoveToFirstFile() OVERRIDE;

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=f5752db21b318d181410e008a428aef4e2ecb416$
+// $hash=1ce579d444fdca10747e3b66aff26a0efa36b197$
 //
 
 #include "libcef_dll/cpptoc/v8exception_cpptoc.h"
@@ -148,6 +148,10 @@ CefV8ExceptionCppToC::CefV8ExceptionCppToC() {
   GetStruct()->get_start_column = v8exception_get_start_column;
   GetStruct()->get_end_column = v8exception_get_end_column;
 }
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefV8ExceptionCppToC::~CefV8ExceptionCppToC() {}
 
 template <>
 CefRefPtr<CefV8Exception>

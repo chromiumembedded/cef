@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=734dfcd9580c5da03978cc96650446b9ba617fd6$
+// $hash=be12ab8330a040e2b02ae47119ac78cb3767363f$
 //
 
 #include "libcef_dll/cpptoc/v8value_cpptoc.h"
@@ -1038,6 +1038,10 @@ CefV8ValueCppToC::CefV8ValueCppToC() {
   GetStruct()->execute_function_with_context =
       v8value_execute_function_with_context;
 }
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefV8ValueCppToC::~CefV8ValueCppToC() {}
 
 template <>
 CefRefPtr<CefV8Value>

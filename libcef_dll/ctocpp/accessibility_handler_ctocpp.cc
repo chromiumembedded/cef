@@ -9,17 +9,20 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=0191a03a4fde402c6c3949f8f8b86e7066ff0308$
+// $hash=1f6d487d87b69001c7d312d54e07131b9c572a01$
 //
 
 #include "libcef_dll/ctocpp/accessibility_handler_ctocpp.h"
 #include "libcef_dll/cpptoc/value_cpptoc.h"
+#include "libcef_dll/shutdown_checker.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
 NO_SANITIZE("cfi-icall")
 void CefAccessibilityHandlerCToCpp::OnAccessibilityTreeChange(
     CefRefPtr<CefValue> value) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_accessibility_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_accessibility_tree_change))
     return;
@@ -38,6 +41,8 @@ void CefAccessibilityHandlerCToCpp::OnAccessibilityTreeChange(
 NO_SANITIZE("cfi-icall")
 void CefAccessibilityHandlerCToCpp::OnAccessibilityLocationChange(
     CefRefPtr<CefValue> value) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_accessibility_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_accessibility_location_change))
     return;
@@ -57,6 +62,12 @@ void CefAccessibilityHandlerCToCpp::OnAccessibilityLocationChange(
 // CONSTRUCTOR - Do not edit by hand.
 
 CefAccessibilityHandlerCToCpp::CefAccessibilityHandlerCToCpp() {}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefAccessibilityHandlerCToCpp::~CefAccessibilityHandlerCToCpp() {
+  shutdown_checker::AssertNotShutdown();
+}
 
 template <>
 cef_accessibility_handler_t* CefCToCppRefCounted<

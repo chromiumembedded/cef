@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=cd0dfc94369aa40b2b2f3a0b4a90038c98d8ae05$
+// $hash=6f84d0c49f6fe82937b22d80a5a76239d87b0796$
 //
 
 #include "libcef_dll/cpptoc/scheme_handler_factory_cpptoc.h"
@@ -60,6 +60,10 @@ scheme_handler_factory_create(struct _cef_scheme_handler_factory_t* self,
 CefSchemeHandlerFactoryCppToC::CefSchemeHandlerFactoryCppToC() {
   GetStruct()->create = scheme_handler_factory_create;
 }
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefSchemeHandlerFactoryCppToC::~CefSchemeHandlerFactoryCppToC() {}
 
 template <>
 CefRefPtr<CefSchemeHandlerFactory> CefCppToCRefCounted<

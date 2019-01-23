@@ -9,16 +9,19 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=125ee09b935c0f1701b359a81b75558a5439f576$
+// $hash=e36ec82777cd8eb831debef2c9f5310bf175526e$
 //
 
 #include "libcef_dll/cpptoc/zip_reader_cpptoc.h"
 #include "libcef_dll/cpptoc/stream_reader_cpptoc.h"
+#include "libcef_dll/shutdown_checker.h"
 
 // GLOBAL FUNCTIONS - Body may be edited by hand.
 
 CEF_EXPORT cef_zip_reader_t* cef_zip_reader_create(
     cef_stream_reader_t* stream) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: stream; type: refptr_same
@@ -39,6 +42,8 @@ namespace {
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
 int CEF_CALLBACK zip_reader_move_to_first_file(struct _cef_zip_reader_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -53,6 +58,8 @@ int CEF_CALLBACK zip_reader_move_to_first_file(struct _cef_zip_reader_t* self) {
 }
 
 int CEF_CALLBACK zip_reader_move_to_next_file(struct _cef_zip_reader_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -69,6 +76,8 @@ int CEF_CALLBACK zip_reader_move_to_next_file(struct _cef_zip_reader_t* self) {
 int CEF_CALLBACK zip_reader_move_to_file(struct _cef_zip_reader_t* self,
                                          const cef_string_t* fileName,
                                          int caseSensitive) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -88,6 +97,8 @@ int CEF_CALLBACK zip_reader_move_to_file(struct _cef_zip_reader_t* self,
 }
 
 int CEF_CALLBACK zip_reader_close(struct _cef_zip_reader_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -103,6 +114,8 @@ int CEF_CALLBACK zip_reader_close(struct _cef_zip_reader_t* self) {
 
 cef_string_userfree_t CEF_CALLBACK
 zip_reader_get_file_name(struct _cef_zip_reader_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -117,6 +130,8 @@ zip_reader_get_file_name(struct _cef_zip_reader_t* self) {
 }
 
 int64 CEF_CALLBACK zip_reader_get_file_size(struct _cef_zip_reader_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -132,6 +147,8 @@ int64 CEF_CALLBACK zip_reader_get_file_size(struct _cef_zip_reader_t* self) {
 
 cef_time_t CEF_CALLBACK
 zip_reader_get_file_last_modified(struct _cef_zip_reader_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -147,6 +164,8 @@ zip_reader_get_file_last_modified(struct _cef_zip_reader_t* self) {
 
 int CEF_CALLBACK zip_reader_open_file(struct _cef_zip_reader_t* self,
                                       const cef_string_t* password) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -162,6 +181,8 @@ int CEF_CALLBACK zip_reader_open_file(struct _cef_zip_reader_t* self,
 }
 
 int CEF_CALLBACK zip_reader_close_file(struct _cef_zip_reader_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -178,6 +199,8 @@ int CEF_CALLBACK zip_reader_close_file(struct _cef_zip_reader_t* self) {
 int CEF_CALLBACK zip_reader_read_file(struct _cef_zip_reader_t* self,
                                       void* buffer,
                                       size_t bufferSize) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -196,6 +219,8 @@ int CEF_CALLBACK zip_reader_read_file(struct _cef_zip_reader_t* self,
 }
 
 int64 CEF_CALLBACK zip_reader_tell(struct _cef_zip_reader_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -210,6 +235,8 @@ int64 CEF_CALLBACK zip_reader_tell(struct _cef_zip_reader_t* self) {
 }
 
 int CEF_CALLBACK zip_reader_eof(struct _cef_zip_reader_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -240,6 +267,12 @@ CefZipReaderCppToC::CefZipReaderCppToC() {
   GetStruct()->read_file = zip_reader_read_file;
   GetStruct()->tell = zip_reader_tell;
   GetStruct()->eof = zip_reader_eof;
+}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefZipReaderCppToC::~CefZipReaderCppToC() {
+  shutdown_checker::AssertNotShutdown();
 }
 
 template <>

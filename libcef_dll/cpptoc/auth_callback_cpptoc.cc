@@ -9,10 +9,11 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=97fbe821be0b86728980f0694894a66d4bb7afc2$
+// $hash=103cb371ed4b96f94928587d464f1c5b459ca24c$
 //
 
 #include "libcef_dll/cpptoc/auth_callback_cpptoc.h"
+#include "libcef_dll/shutdown_checker.h"
 
 namespace {
 
@@ -21,6 +22,8 @@ namespace {
 void CEF_CALLBACK auth_callback_cont(struct _cef_auth_callback_t* self,
                                      const cef_string_t* username,
                                      const cef_string_t* password) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -34,6 +37,8 @@ void CEF_CALLBACK auth_callback_cont(struct _cef_auth_callback_t* self,
 }
 
 void CEF_CALLBACK auth_callback_cancel(struct _cef_auth_callback_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -51,6 +56,12 @@ void CEF_CALLBACK auth_callback_cancel(struct _cef_auth_callback_t* self) {
 CefAuthCallbackCppToC::CefAuthCallbackCppToC() {
   GetStruct()->cont = auth_callback_cont;
   GetStruct()->cancel = auth_callback_cancel;
+}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefAuthCallbackCppToC::~CefAuthCallbackCppToC() {
+  shutdown_checker::AssertNotShutdown();
 }
 
 template <>

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=5ef9d37d67b0bc2b3ef678ba9314ea36641be65c$
+// $hash=77d84010ec7af52afbac561313613dec341ab33e$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_LOAD_HANDLER_CTOCPP_H_
@@ -31,6 +31,7 @@ class CefLoadHandlerCToCpp : public CefCToCppRefCounted<CefLoadHandlerCToCpp,
                                                         cef_load_handler_t> {
  public:
   CefLoadHandlerCToCpp();
+  virtual ~CefLoadHandlerCToCpp();
 
   // CefLoadHandler methods.
   void OnLoadingStateChange(CefRefPtr<CefBrowser> browser,

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=824a78e502417eccd79d65691b35b9a965d72778$
+// $hash=8af691e6af858c05e00d4899d8f35a6a4a7109af$
 //
 
 #include "include/capi/cef_app_capi.h"
@@ -86,11 +86,7 @@
 #include "libcef_dll/cpptoc/test/translator_test_scoped_library_cpptoc.h"
 #include "libcef_dll/cpptoc/thread_cpptoc.h"
 #include "libcef_dll/cpptoc/urlrequest_cpptoc.h"
-#include "libcef_dll/cpptoc/v8context_cpptoc.h"
-#include "libcef_dll/cpptoc/v8exception_cpptoc.h"
-#include "libcef_dll/cpptoc/v8stack_frame_cpptoc.h"
 #include "libcef_dll/cpptoc/v8stack_trace_cpptoc.h"
-#include "libcef_dll/cpptoc/v8value_cpptoc.h"
 #include "libcef_dll/cpptoc/value_cpptoc.h"
 #include "libcef_dll/cpptoc/views/box_layout_cpptoc.h"
 #include "libcef_dll/cpptoc/views/browser_view_cpptoc.h"
@@ -114,7 +110,6 @@
 #include "libcef_dll/cpptoc/zip_reader_cpptoc.h"
 #include "libcef_dll/ctocpp/accessibility_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/app_ctocpp.h"
-#include "libcef_dll/ctocpp/browser_process_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/completion_callback_ctocpp.h"
 #include "libcef_dll/ctocpp/context_menu_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/cookie_visitor_ctocpp.h"
@@ -140,7 +135,6 @@
 #include "libcef_dll/ctocpp/read_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/register_cdm_callback_ctocpp.h"
 #include "libcef_dll/ctocpp/render_handler_ctocpp.h"
-#include "libcef_dll/ctocpp/render_process_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/request_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/resolve_callback_ctocpp.h"
 #include "libcef_dll/ctocpp/resource_bundle_handler_ctocpp.h"
@@ -157,10 +151,7 @@
 #include "libcef_dll/ctocpp/test/translator_test_scoped_client_child_ctocpp.h"
 #include "libcef_dll/ctocpp/test/translator_test_scoped_client_ctocpp.h"
 #include "libcef_dll/ctocpp/urlrequest_client_ctocpp.h"
-#include "libcef_dll/ctocpp/v8accessor_ctocpp.h"
-#include "libcef_dll/ctocpp/v8array_buffer_release_callback_ctocpp.h"
 #include "libcef_dll/ctocpp/v8handler_ctocpp.h"
-#include "libcef_dll/ctocpp/v8interceptor_ctocpp.h"
 #include "libcef_dll/ctocpp/views/browser_view_delegate_ctocpp.h"
 #include "libcef_dll/ctocpp/views/button_delegate_ctocpp.h"
 #include "libcef_dll/ctocpp/views/menu_button_delegate_ctocpp.h"
@@ -171,6 +162,7 @@
 #include "libcef_dll/ctocpp/web_plugin_info_visitor_ctocpp.h"
 #include "libcef_dll/ctocpp/web_plugin_unstable_callback_ctocpp.h"
 #include "libcef_dll/ctocpp/write_handler_ctocpp.h"
+#include "libcef_dll/shutdown_checker.h"
 #include "libcef_dll/transfer_util.h"
 
 // GLOBAL FUNCTIONS - Body may be edited by hand.
@@ -236,11 +228,15 @@ CEF_EXPORT int cef_initialize(const struct _cef_main_args_t* args,
 CEF_EXPORT void cef_shutdown() {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
+#if DCHECK_IS_ON()
+  shutdown_checker::SetIsShutdown();
+#endif
+
   // Execute
   CefShutdown();
 
 #if DCHECK_IS_ON()
-  // Check that all wrapper objects have been destroyed
+  // Check that all wrapper objects have been destroyed.
   DCHECK(
       base::AtomicRefCountIsZero(&CefAccessibilityHandlerCToCpp::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefAuthCallbackCppToC::DebugObjCt));
@@ -250,8 +246,6 @@ CEF_EXPORT void cef_shutdown() {
   DCHECK(base::AtomicRefCountIsZero(&CefBoxLayoutCppToC::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefBrowserCppToC::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefBrowserHostCppToC::DebugObjCt));
-  DCHECK(
-      base::AtomicRefCountIsZero(&CefBrowserProcessHandlerCToCpp::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefBrowserViewCppToC::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefBrowserViewDelegateCToCpp::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefButtonCppToC::DebugObjCt));
@@ -317,8 +311,6 @@ CEF_EXPORT void cef_shutdown() {
   DCHECK(base::AtomicRefCountIsZero(&CefReadHandlerCToCpp::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefRegisterCdmCallbackCToCpp::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefRenderHandlerCToCpp::DebugObjCt));
-  DCHECK(
-      base::AtomicRefCountIsZero(&CefRenderProcessHandlerCToCpp::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefRequestCallbackCppToC::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefRequestHandlerCToCpp::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefResolveCallbackCToCpp::DebugObjCt));
@@ -332,8 +324,6 @@ CEF_EXPORT void cef_shutdown() {
       base::AtomicRefCountIsZero(&CefRunFileDialogCallbackCToCpp::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefSSLInfoCppToC::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefSSLStatusCppToC::DebugObjCt));
-  DCHECK(
-      base::AtomicRefCountIsZero(&CefSchemeHandlerFactoryCToCpp::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefSchemeRegistrarCppToC::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefScrollViewCppToC::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(
@@ -344,7 +334,6 @@ CEF_EXPORT void cef_shutdown() {
   DCHECK(base::AtomicRefCountIsZero(&CefStreamReaderCppToC::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefStreamWriterCppToC::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefStringVisitorCToCpp::DebugObjCt));
-  DCHECK(base::AtomicRefCountIsZero(&CefTaskCToCpp::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefTaskRunnerCppToC::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefTextfieldCppToC::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefTextfieldDelegateCToCpp::DebugObjCt));
@@ -372,16 +361,7 @@ CEF_EXPORT void cef_shutdown() {
       &CefTranslatorTestScopedLibraryCppToC::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefURLRequestClientCToCpp::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefURLRequestCppToC::DebugObjCt));
-  DCHECK(base::AtomicRefCountIsZero(&CefV8AccessorCToCpp::DebugObjCt));
-  DCHECK(base::AtomicRefCountIsZero(
-      &CefV8ArrayBufferReleaseCallbackCToCpp::DebugObjCt));
-  DCHECK(base::AtomicRefCountIsZero(&CefV8ContextCppToC::DebugObjCt));
-  DCHECK(base::AtomicRefCountIsZero(&CefV8ExceptionCppToC::DebugObjCt));
-  DCHECK(base::AtomicRefCountIsZero(&CefV8HandlerCToCpp::DebugObjCt));
-  DCHECK(base::AtomicRefCountIsZero(&CefV8InterceptorCToCpp::DebugObjCt));
-  DCHECK(base::AtomicRefCountIsZero(&CefV8StackFrameCppToC::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefV8StackTraceCppToC::DebugObjCt));
-  DCHECK(base::AtomicRefCountIsZero(&CefV8ValueCppToC::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefValueCppToC::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefViewCppToC::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefViewDelegateCToCpp::DebugObjCt));

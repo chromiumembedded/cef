@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=604beee3bb133ec29ebaabd1199311c6d3e8730a$
+// $hash=a6b45e734c24e3157437bc0ff368ae54f53e90ca$
 //
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_TASK_RUNNER_CPPTOC_H_
@@ -31,6 +31,7 @@ class CefTaskRunnerCppToC : public CefCppToCRefCounted<CefTaskRunnerCppToC,
                                                        cef_task_runner_t> {
  public:
   CefTaskRunnerCppToC();
+  virtual ~CefTaskRunnerCppToC();
 };
 
 #endif  // CEF_LIBCEF_DLL_CPPTOC_TASK_RUNNER_CPPTOC_H_

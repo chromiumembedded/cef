@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=d56da9bf3cc0f6418629a12b54bc072d2eb5baaf$
+// $hash=a602f4f6b80980bc86d8bb814e6ce34d07a2e4b6$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_DRAG_HANDLER_CTOCPP_H_
@@ -32,6 +32,7 @@ class CefDragHandlerCToCpp : public CefCToCppRefCounted<CefDragHandlerCToCpp,
                                                         cef_drag_handler_t> {
  public:
   CefDragHandlerCToCpp();
+  virtual ~CefDragHandlerCToCpp();
 
   // CefDragHandler methods.
   bool OnDragEnter(CefRefPtr<CefBrowser> browser,

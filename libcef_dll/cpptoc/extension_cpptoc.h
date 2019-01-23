@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=dc3a7d0122346963b281f1e49d193c02ca09d4b4$
+// $hash=905a73e6a0d3dc3a860a51d51d57ae0d11e5cabe$
 //
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_EXTENSION_CPPTOC_H_
@@ -35,6 +35,7 @@ class CefExtensionCppToC : public CefCppToCRefCounted<CefExtensionCppToC,
                                                       cef_extension_t> {
  public:
   CefExtensionCppToC();
+  virtual ~CefExtensionCppToC();
 };
 
 #endif  // CEF_LIBCEF_DLL_CPPTOC_EXTENSION_CPPTOC_H_

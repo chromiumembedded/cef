@@ -9,10 +9,11 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=b3e7dd73edf957adb75d82ef517e242561212cc7$
+// $hash=b5a14bd3df9a4712d5cb68686bac8c4dfb3bfeba$
 //
 
 #include "libcef_dll/cpptoc/file_dialog_callback_cpptoc.h"
+#include "libcef_dll/shutdown_checker.h"
 #include "libcef_dll/transfer_util.h"
 
 namespace {
@@ -23,6 +24,8 @@ void CEF_CALLBACK
 file_dialog_callback_cont(struct _cef_file_dialog_callback_t* self,
                           int selected_accept_filter,
                           cef_string_list_t file_paths) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -45,6 +48,8 @@ file_dialog_callback_cont(struct _cef_file_dialog_callback_t* self,
 
 void CEF_CALLBACK
 file_dialog_callback_cancel(struct _cef_file_dialog_callback_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -62,6 +67,12 @@ file_dialog_callback_cancel(struct _cef_file_dialog_callback_t* self) {
 CefFileDialogCallbackCppToC::CefFileDialogCallbackCppToC() {
   GetStruct()->cont = file_dialog_callback_cont;
   GetStruct()->cancel = file_dialog_callback_cancel;
+}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefFileDialogCallbackCppToC::~CefFileDialogCallbackCppToC() {
+  shutdown_checker::AssertNotShutdown();
 }
 
 template <>

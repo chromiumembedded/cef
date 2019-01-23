@@ -9,13 +9,14 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=b56766a3f166ad3191d37815d12f83bd9da0690e$
+// $hash=4527ed93583d01dd187f5f40e2adce17c613ca42$
 //
 
 #include "libcef_dll/cpptoc/extension_cpptoc.h"
 #include "libcef_dll/cpptoc/dictionary_value_cpptoc.h"
 #include "libcef_dll/cpptoc/request_context_cpptoc.h"
 #include "libcef_dll/ctocpp/extension_handler_ctocpp.h"
+#include "libcef_dll/shutdown_checker.h"
 
 namespace {
 
@@ -23,6 +24,8 @@ namespace {
 
 cef_string_userfree_t CEF_CALLBACK
 extension_get_identifier(struct _cef_extension_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -38,6 +41,8 @@ extension_get_identifier(struct _cef_extension_t* self) {
 
 cef_string_userfree_t CEF_CALLBACK
 extension_get_path(struct _cef_extension_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -53,6 +58,8 @@ extension_get_path(struct _cef_extension_t* self) {
 
 struct _cef_dictionary_value_t* CEF_CALLBACK
 extension_get_manifest(struct _cef_extension_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -69,6 +76,8 @@ extension_get_manifest(struct _cef_extension_t* self) {
 
 int CEF_CALLBACK extension_is_same(struct _cef_extension_t* self,
                                    struct _cef_extension_t* that) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -89,6 +98,8 @@ int CEF_CALLBACK extension_is_same(struct _cef_extension_t* self,
 
 struct _cef_extension_handler_t* CEF_CALLBACK
 extension_get_handler(struct _cef_extension_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -105,6 +116,8 @@ extension_get_handler(struct _cef_extension_t* self) {
 
 struct _cef_request_context_t* CEF_CALLBACK
 extension_get_loader_context(struct _cef_extension_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -120,6 +133,8 @@ extension_get_loader_context(struct _cef_extension_t* self) {
 }
 
 int CEF_CALLBACK extension_is_loaded(struct _cef_extension_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -134,6 +149,8 @@ int CEF_CALLBACK extension_is_loaded(struct _cef_extension_t* self) {
 }
 
 void CEF_CALLBACK extension_unload(struct _cef_extension_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -157,6 +174,12 @@ CefExtensionCppToC::CefExtensionCppToC() {
   GetStruct()->get_loader_context = extension_get_loader_context;
   GetStruct()->is_loaded = extension_is_loaded;
   GetStruct()->unload = extension_unload;
+}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefExtensionCppToC::~CefExtensionCppToC() {
+  shutdown_checker::AssertNotShutdown();
 }
 
 template <>

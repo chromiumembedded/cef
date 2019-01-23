@@ -9,11 +9,12 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=c876f88d1d07661bd2578c0b4f54f923f2215773$
+// $hash=ff7b4fdefa520e80c9a84e165e23e916409fb441$
 //
 
 #include "libcef_dll/cpptoc/print_dialog_callback_cpptoc.h"
 #include "libcef_dll/cpptoc/print_settings_cpptoc.h"
+#include "libcef_dll/shutdown_checker.h"
 
 namespace {
 
@@ -22,6 +23,8 @@ namespace {
 void CEF_CALLBACK
 print_dialog_callback_cont(struct _cef_print_dialog_callback_t* self,
                            struct _cef_print_settings_t* settings) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -39,6 +42,8 @@ print_dialog_callback_cont(struct _cef_print_dialog_callback_t* self,
 
 void CEF_CALLBACK
 print_dialog_callback_cancel(struct _cef_print_dialog_callback_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -56,6 +61,12 @@ print_dialog_callback_cancel(struct _cef_print_dialog_callback_t* self) {
 CefPrintDialogCallbackCppToC::CefPrintDialogCallbackCppToC() {
   GetStruct()->cont = print_dialog_callback_cont;
   GetStruct()->cancel = print_dialog_callback_cancel;
+}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefPrintDialogCallbackCppToC::~CefPrintDialogCallbackCppToC() {
+  shutdown_checker::AssertNotShutdown();
 }
 
 template <>

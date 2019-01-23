@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=960798f18beb873e0e734bd7d39bdb60036a7f63$
+// $hash=95fec7879b0944afdcf9cd04b3b5d5bab1b9c134$
 //
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_REQUEST_CALLBACK_CPPTOC_H_
@@ -32,6 +32,7 @@ class CefRequestCallbackCppToC
                                  cef_request_callback_t> {
  public:
   CefRequestCallbackCppToC();
+  virtual ~CefRequestCallbackCppToC();
 };
 
 #endif  // CEF_LIBCEF_DLL_CPPTOC_REQUEST_CALLBACK_CPPTOC_H_

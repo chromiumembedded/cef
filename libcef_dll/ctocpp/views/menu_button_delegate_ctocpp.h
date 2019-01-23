@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=9260b1fa3a14695d316dab84bb9d69fe6fea5cf1$
+// $hash=03e994c04ec653af668e9ec40b6616d9929ff283$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_VIEWS_MENU_BUTTON_DELEGATE_CTOCPP_H_
@@ -34,6 +34,7 @@ class CefMenuButtonDelegateCToCpp
                                  cef_menu_button_delegate_t> {
  public:
   CefMenuButtonDelegateCToCpp();
+  virtual ~CefMenuButtonDelegateCToCpp();
 
   // CefMenuButtonDelegate methods.
   void OnMenuButtonPressed(

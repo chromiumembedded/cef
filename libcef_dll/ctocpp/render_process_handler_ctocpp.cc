@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=10641031d8be405dbaf43db3ea9ac52812343737$
+// $hash=5bd00d533fc7a078555fc5ccd7b54d0db89136d7$
 //
 
 #include "libcef_dll/ctocpp/render_process_handler_ctocpp.h"
@@ -263,6 +263,10 @@ bool CefRenderProcessHandlerCToCpp::OnProcessMessageReceived(
 // CONSTRUCTOR - Do not edit by hand.
 
 CefRenderProcessHandlerCToCpp::CefRenderProcessHandlerCToCpp() {}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefRenderProcessHandlerCToCpp::~CefRenderProcessHandlerCToCpp() {}
 
 template <>
 cef_render_process_handler_t* CefCToCppRefCounted<

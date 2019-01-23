@@ -9,16 +9,19 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=114700e3ee39709caa421116a5c0df66f5cbe696$
+// $hash=ce88b4cc3355ff64bc26dbab4c85957714baf97c$
 //
 
 #include "libcef_dll/cpptoc/stream_reader_cpptoc.h"
 #include "libcef_dll/ctocpp/read_handler_ctocpp.h"
+#include "libcef_dll/shutdown_checker.h"
 
 // GLOBAL FUNCTIONS - Body may be edited by hand.
 
 CEF_EXPORT cef_stream_reader_t* cef_stream_reader_create_for_file(
     const cef_string_t* fileName) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: fileName; type: string_byref_const
@@ -36,6 +39,8 @@ CEF_EXPORT cef_stream_reader_t* cef_stream_reader_create_for_file(
 
 CEF_EXPORT cef_stream_reader_t* cef_stream_reader_create_for_data(void* data,
                                                                   size_t size) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: data; type: simple_byaddr
@@ -53,6 +58,8 @@ CEF_EXPORT cef_stream_reader_t* cef_stream_reader_create_for_data(void* data,
 
 CEF_EXPORT cef_stream_reader_t* cef_stream_reader_create_for_handler(
     cef_read_handler_t* handler) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: handler; type: refptr_diff
@@ -76,6 +83,8 @@ size_t CEF_CALLBACK stream_reader_read(struct _cef_stream_reader_t* self,
                                        void* ptr,
                                        size_t size,
                                        size_t n) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -96,6 +105,8 @@ size_t CEF_CALLBACK stream_reader_read(struct _cef_stream_reader_t* self,
 int CEF_CALLBACK stream_reader_seek(struct _cef_stream_reader_t* self,
                                     int64 offset,
                                     int whence) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -110,6 +121,8 @@ int CEF_CALLBACK stream_reader_seek(struct _cef_stream_reader_t* self,
 }
 
 int64 CEF_CALLBACK stream_reader_tell(struct _cef_stream_reader_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -124,6 +137,8 @@ int64 CEF_CALLBACK stream_reader_tell(struct _cef_stream_reader_t* self) {
 }
 
 int CEF_CALLBACK stream_reader_eof(struct _cef_stream_reader_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -138,6 +153,8 @@ int CEF_CALLBACK stream_reader_eof(struct _cef_stream_reader_t* self) {
 }
 
 int CEF_CALLBACK stream_reader_may_block(struct _cef_stream_reader_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -161,6 +178,12 @@ CefStreamReaderCppToC::CefStreamReaderCppToC() {
   GetStruct()->tell = stream_reader_tell;
   GetStruct()->eof = stream_reader_eof;
   GetStruct()->may_block = stream_reader_may_block;
+}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefStreamReaderCppToC::~CefStreamReaderCppToC() {
+  shutdown_checker::AssertNotShutdown();
 }
 
 template <>

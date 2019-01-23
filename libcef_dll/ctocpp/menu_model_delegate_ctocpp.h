@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=1ec2988228ed4c7cbfec79af2b10f45676bbee9f$
+// $hash=2fa8b1062941bc646f40eeb612b62a76c1329e0e$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_MENU_MODEL_DELEGATE_CTOCPP_H_
@@ -34,6 +34,7 @@ class CefMenuModelDelegateCToCpp
                                  cef_menu_model_delegate_t> {
  public:
   CefMenuModelDelegateCToCpp();
+  virtual ~CefMenuModelDelegateCToCpp();
 
   // CefMenuModelDelegate methods.
   void ExecuteCommand(CefRefPtr<CefMenuModel> menu_model,

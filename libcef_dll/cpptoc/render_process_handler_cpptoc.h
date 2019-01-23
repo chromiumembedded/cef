@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=8e5e66da043e5d17c0e8de7b74e5fba3c106d367$
+// $hash=c1339e8481d3e1d9823b19580f84082a3e307977$
 //
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_RENDER_PROCESS_HANDLER_CPPTOC_H_
@@ -32,6 +32,7 @@ class CefRenderProcessHandlerCppToC
                                  cef_render_process_handler_t> {
  public:
   CefRenderProcessHandlerCppToC();
+  virtual ~CefRenderProcessHandlerCppToC();
 };
 
 #endif  // CEF_LIBCEF_DLL_CPPTOC_RENDER_PROCESS_HANDLER_CPPTOC_H_

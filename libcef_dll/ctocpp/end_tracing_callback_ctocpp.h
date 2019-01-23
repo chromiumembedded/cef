@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=73b02285c96babd4305aa35285d07a2feb197918$
+// $hash=686620ac38f250297b0b15afcfb595e3ed3c1314$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_END_TRACING_CALLBACK_CTOCPP_H_
@@ -32,6 +32,7 @@ class CefEndTracingCallbackCToCpp
                                  cef_end_tracing_callback_t> {
  public:
   CefEndTracingCallbackCToCpp();
+  virtual ~CefEndTracingCallbackCToCpp();
 
   // CefEndTracingCallback methods.
   void OnEndTracingComplete(const CefString& tracing_file) override;

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=d1fdba612856fe12b9d2e0a60eaba401c6bef7a0$
+// $hash=8b185152941d6f9ef8fab012132be059941efae7$
 //
 
 #include "libcef_dll/ctocpp/post_data_ctocpp.h"
@@ -166,6 +166,10 @@ NO_SANITIZE("cfi-icall") void CefPostDataCToCpp::RemoveElements() {
 // CONSTRUCTOR - Do not edit by hand.
 
 CefPostDataCToCpp::CefPostDataCToCpp() {}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefPostDataCToCpp::~CefPostDataCToCpp() {}
 
 template <>
 cef_post_data_t*

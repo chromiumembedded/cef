@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=6965906076435bc2538bb274628977002dbb2134$
+// $hash=a5997964cc3aadb9b1880fb73b99d1c62230673e$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_PRINT_HANDLER_CTOCPP_H_
@@ -31,6 +31,7 @@ class CefPrintHandlerCToCpp : public CefCToCppRefCounted<CefPrintHandlerCToCpp,
                                                          cef_print_handler_t> {
  public:
   CefPrintHandlerCToCpp();
+  virtual ~CefPrintHandlerCToCpp();
 
   // CefPrintHandler methods.
   void OnPrintStart(CefRefPtr<CefBrowser> browser) override;

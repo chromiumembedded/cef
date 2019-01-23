@@ -9,13 +9,14 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=4759c2358de324fbdbfa4ae052a0ec50503607f7$
+// $hash=dde104d729355720a66995dbf947c1c58e27d707$
 //
 
 #include "libcef_dll/cpptoc/views/button_delegate_cpptoc.h"
 #include "libcef_dll/cpptoc/views/menu_button_delegate_cpptoc.h"
 #include "libcef_dll/ctocpp/views/button_ctocpp.h"
 #include "libcef_dll/ctocpp/views/view_ctocpp.h"
+#include "libcef_dll/shutdown_checker.h"
 
 namespace {
 
@@ -24,6 +25,8 @@ namespace {
 void CEF_CALLBACK
 button_delegate_on_button_pressed(struct _cef_button_delegate_t* self,
                                   cef_button_t* button) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -42,6 +45,8 @@ button_delegate_on_button_pressed(struct _cef_button_delegate_t* self,
 void CEF_CALLBACK
 button_delegate_on_button_state_changed(struct _cef_button_delegate_t* self,
                                         cef_button_t* button) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -60,6 +65,8 @@ button_delegate_on_button_state_changed(struct _cef_button_delegate_t* self,
 cef_size_t CEF_CALLBACK
 button_delegate_get_preferred_size(struct _cef_view_delegate_t* self,
                                    cef_view_t* view) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -82,6 +89,8 @@ button_delegate_get_preferred_size(struct _cef_view_delegate_t* self,
 cef_size_t CEF_CALLBACK
 button_delegate_get_minimum_size(struct _cef_view_delegate_t* self,
                                  cef_view_t* view) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -104,6 +113,8 @@ button_delegate_get_minimum_size(struct _cef_view_delegate_t* self,
 cef_size_t CEF_CALLBACK
 button_delegate_get_maximum_size(struct _cef_view_delegate_t* self,
                                  cef_view_t* view) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -127,6 +138,8 @@ int CEF_CALLBACK
 button_delegate_get_height_for_width(struct _cef_view_delegate_t* self,
                                      cef_view_t* view,
                                      int width) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -151,6 +164,8 @@ button_delegate_on_parent_view_changed(struct _cef_view_delegate_t* self,
                                        cef_view_t* view,
                                        int added,
                                        cef_view_t* parent) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -176,6 +191,8 @@ button_delegate_on_child_view_changed(struct _cef_view_delegate_t* self,
                                       cef_view_t* view,
                                       int added,
                                       cef_view_t* child) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -198,6 +215,8 @@ button_delegate_on_child_view_changed(struct _cef_view_delegate_t* self,
 
 void CEF_CALLBACK button_delegate_on_focus(struct _cef_view_delegate_t* self,
                                            cef_view_t* view) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -215,6 +234,8 @@ void CEF_CALLBACK button_delegate_on_focus(struct _cef_view_delegate_t* self,
 
 void CEF_CALLBACK button_delegate_on_blur(struct _cef_view_delegate_t* self,
                                           cef_view_t* view) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -248,6 +269,12 @@ CefButtonDelegateCppToC::CefButtonDelegateCppToC() {
       button_delegate_on_child_view_changed;
   GetStruct()->base.on_focus = button_delegate_on_focus;
   GetStruct()->base.on_blur = button_delegate_on_blur;
+}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefButtonDelegateCppToC::~CefButtonDelegateCppToC() {
+  shutdown_checker::AssertNotShutdown();
 }
 
 template <>

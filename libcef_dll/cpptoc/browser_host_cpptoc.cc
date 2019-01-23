@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=24122606bad0381fccb91003b12c14fc24f355de$
+// $hash=40639710b864280e2288d7532309f327c92f2216$
 //
 
 #include "libcef_dll/cpptoc/browser_host_cpptoc.h"
@@ -23,6 +23,7 @@
 #include "libcef_dll/ctocpp/navigation_entry_visitor_ctocpp.h"
 #include "libcef_dll/ctocpp/pdf_print_callback_ctocpp.h"
 #include "libcef_dll/ctocpp/run_file_dialog_callback_ctocpp.h"
+#include "libcef_dll/shutdown_checker.h"
 #include "libcef_dll/transfer_util.h"
 
 // GLOBAL FUNCTIONS - Body may be edited by hand.
@@ -33,6 +34,8 @@ CEF_EXPORT int cef_browser_host_create_browser(
     const cef_string_t* url,
     const struct _cef_browser_settings_t* settings,
     struct _cef_request_context_t* request_context) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: windowInfo; type: struct_byref_const
@@ -69,6 +72,8 @@ CEF_EXPORT cef_browser_t* cef_browser_host_create_browser_sync(
     const cef_string_t* url,
     const struct _cef_browser_settings_t* settings,
     struct _cef_request_context_t* request_context) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: windowInfo; type: struct_byref_const
@@ -105,6 +110,8 @@ namespace {
 
 cef_browser_t* CEF_CALLBACK
 browser_host_get_browser(struct _cef_browser_host_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -120,6 +127,8 @@ browser_host_get_browser(struct _cef_browser_host_t* self) {
 
 void CEF_CALLBACK browser_host_close_browser(struct _cef_browser_host_t* self,
                                              int force_close) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -132,6 +141,8 @@ void CEF_CALLBACK browser_host_close_browser(struct _cef_browser_host_t* self,
 
 int CEF_CALLBACK
 browser_host_try_close_browser(struct _cef_browser_host_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -147,6 +158,8 @@ browser_host_try_close_browser(struct _cef_browser_host_t* self) {
 
 void CEF_CALLBACK browser_host_set_focus(struct _cef_browser_host_t* self,
                                          int focus) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -159,6 +172,8 @@ void CEF_CALLBACK browser_host_set_focus(struct _cef_browser_host_t* self,
 
 cef_window_handle_t CEF_CALLBACK
 browser_host_get_window_handle(struct _cef_browser_host_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -175,6 +190,8 @@ browser_host_get_window_handle(struct _cef_browser_host_t* self) {
 
 cef_window_handle_t CEF_CALLBACK
 browser_host_get_opener_window_handle(struct _cef_browser_host_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -190,6 +207,8 @@ browser_host_get_opener_window_handle(struct _cef_browser_host_t* self) {
 }
 
 int CEF_CALLBACK browser_host_has_view(struct _cef_browser_host_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -205,6 +224,8 @@ int CEF_CALLBACK browser_host_has_view(struct _cef_browser_host_t* self) {
 
 struct _cef_client_t* CEF_CALLBACK
 browser_host_get_client(struct _cef_browser_host_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -220,6 +241,8 @@ browser_host_get_client(struct _cef_browser_host_t* self) {
 
 struct _cef_request_context_t* CEF_CALLBACK
 browser_host_get_request_context(struct _cef_browser_host_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -236,6 +259,8 @@ browser_host_get_request_context(struct _cef_browser_host_t* self) {
 
 double CEF_CALLBACK
 browser_host_get_zoom_level(struct _cef_browser_host_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -251,6 +276,8 @@ browser_host_get_zoom_level(struct _cef_browser_host_t* self) {
 
 void CEF_CALLBACK browser_host_set_zoom_level(struct _cef_browser_host_t* self,
                                               double zoomLevel) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -269,6 +296,8 @@ browser_host_run_file_dialog(struct _cef_browser_host_t* self,
                              cef_string_list_t accept_filters,
                              int selected_accept_filter,
                              cef_run_file_dialog_callback_t* callback) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -296,6 +325,8 @@ browser_host_run_file_dialog(struct _cef_browser_host_t* self,
 
 void CEF_CALLBACK browser_host_start_download(struct _cef_browser_host_t* self,
                                               const cef_string_t* url) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -317,6 +348,8 @@ browser_host_download_image(struct _cef_browser_host_t* self,
                             uint32 max_image_size,
                             int bypass_cache,
                             cef_download_image_callback_t* callback) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -339,6 +372,8 @@ browser_host_download_image(struct _cef_browser_host_t* self,
 }
 
 void CEF_CALLBACK browser_host_print(struct _cef_browser_host_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -354,6 +389,8 @@ browser_host_print_to_pdf(struct _cef_browser_host_t* self,
                           const cef_string_t* path,
                           const struct _cef_pdf_print_settings_t* settings,
                           cef_pdf_print_callback_t* callback) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -385,6 +422,8 @@ void CEF_CALLBACK browser_host_find(struct _cef_browser_host_t* self,
                                     int forward,
                                     int matchCase,
                                     int findNext) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -403,6 +442,8 @@ void CEF_CALLBACK browser_host_find(struct _cef_browser_host_t* self,
 
 void CEF_CALLBACK browser_host_stop_finding(struct _cef_browser_host_t* self,
                                             int clearSelection) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -419,6 +460,8 @@ browser_host_show_dev_tools(struct _cef_browser_host_t* self,
                             struct _cef_client_t* client,
                             const struct _cef_browser_settings_t* settings,
                             const cef_point_t* inspect_element_at) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -446,6 +489,8 @@ browser_host_show_dev_tools(struct _cef_browser_host_t* self,
 
 void CEF_CALLBACK
 browser_host_close_dev_tools(struct _cef_browser_host_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -457,6 +502,8 @@ browser_host_close_dev_tools(struct _cef_browser_host_t* self) {
 }
 
 int CEF_CALLBACK browser_host_has_dev_tools(struct _cef_browser_host_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -474,6 +521,8 @@ void CEF_CALLBACK
 browser_host_get_navigation_entries(struct _cef_browser_host_t* self,
                                     cef_navigation_entry_visitor_t* visitor,
                                     int current_only) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -493,6 +542,8 @@ browser_host_get_navigation_entries(struct _cef_browser_host_t* self,
 void CEF_CALLBACK
 browser_host_set_mouse_cursor_change_disabled(struct _cef_browser_host_t* self,
                                               int disabled) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -506,6 +557,8 @@ browser_host_set_mouse_cursor_change_disabled(struct _cef_browser_host_t* self,
 
 int CEF_CALLBACK
 browser_host_is_mouse_cursor_change_disabled(struct _cef_browser_host_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -522,6 +575,8 @@ browser_host_is_mouse_cursor_change_disabled(struct _cef_browser_host_t* self) {
 void CEF_CALLBACK
 browser_host_replace_misspelling(struct _cef_browser_host_t* self,
                                  const cef_string_t* word) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -539,6 +594,8 @@ browser_host_replace_misspelling(struct _cef_browser_host_t* self,
 void CEF_CALLBACK
 browser_host_add_word_to_dictionary(struct _cef_browser_host_t* self,
                                     const cef_string_t* word) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -555,6 +612,8 @@ browser_host_add_word_to_dictionary(struct _cef_browser_host_t* self,
 
 int CEF_CALLBACK
 browser_host_is_window_rendering_disabled(struct _cef_browser_host_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -569,6 +628,8 @@ browser_host_is_window_rendering_disabled(struct _cef_browser_host_t* self) {
 }
 
 void CEF_CALLBACK browser_host_was_resized(struct _cef_browser_host_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -581,6 +642,8 @@ void CEF_CALLBACK browser_host_was_resized(struct _cef_browser_host_t* self) {
 
 void CEF_CALLBACK browser_host_was_hidden(struct _cef_browser_host_t* self,
                                           int hidden) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -593,6 +656,8 @@ void CEF_CALLBACK browser_host_was_hidden(struct _cef_browser_host_t* self,
 
 void CEF_CALLBACK
 browser_host_notify_screen_info_changed(struct _cef_browser_host_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -605,6 +670,8 @@ browser_host_notify_screen_info_changed(struct _cef_browser_host_t* self) {
 
 void CEF_CALLBACK browser_host_invalidate(struct _cef_browser_host_t* self,
                                           cef_paint_element_type_t type) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -617,6 +684,8 @@ void CEF_CALLBACK browser_host_invalidate(struct _cef_browser_host_t* self,
 
 void CEF_CALLBACK
 browser_host_send_external_begin_frame(struct _cef_browser_host_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -630,6 +699,8 @@ browser_host_send_external_begin_frame(struct _cef_browser_host_t* self) {
 void CEF_CALLBACK
 browser_host_send_key_event(struct _cef_browser_host_t* self,
                             const struct _cef_key_event_t* event) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -655,6 +726,8 @@ browser_host_send_mouse_click_event(struct _cef_browser_host_t* self,
                                     cef_mouse_button_type_t type,
                                     int mouseUp,
                                     int clickCount) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -679,6 +752,8 @@ void CEF_CALLBACK
 browser_host_send_mouse_move_event(struct _cef_browser_host_t* self,
                                    const struct _cef_mouse_event_t* event,
                                    int mouseLeave) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -704,6 +779,8 @@ browser_host_send_mouse_wheel_event(struct _cef_browser_host_t* self,
                                     const struct _cef_mouse_event_t* event,
                                     int deltaX,
                                     int deltaY) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -726,6 +803,8 @@ browser_host_send_mouse_wheel_event(struct _cef_browser_host_t* self,
 
 void CEF_CALLBACK
 browser_host_send_focus_event(struct _cef_browser_host_t* self, int setFocus) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -738,6 +817,8 @@ browser_host_send_focus_event(struct _cef_browser_host_t* self, int setFocus) {
 
 void CEF_CALLBACK
 browser_host_send_capture_lost_event(struct _cef_browser_host_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -750,6 +831,8 @@ browser_host_send_capture_lost_event(struct _cef_browser_host_t* self) {
 
 void CEF_CALLBACK
 browser_host_notify_move_or_resize_started(struct _cef_browser_host_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -762,6 +845,8 @@ browser_host_notify_move_or_resize_started(struct _cef_browser_host_t* self) {
 
 int CEF_CALLBACK
 browser_host_get_windowless_frame_rate(struct _cef_browser_host_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -778,6 +863,8 @@ browser_host_get_windowless_frame_rate(struct _cef_browser_host_t* self) {
 void CEF_CALLBACK
 browser_host_set_windowless_frame_rate(struct _cef_browser_host_t* self,
                                        int frame_rate) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -795,6 +882,8 @@ browser_host_ime_set_composition(struct _cef_browser_host_t* self,
                                  cef_composition_underline_t const* underlines,
                                  const cef_range_t* replacement_range,
                                  const cef_range_t* selection_range) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -835,6 +924,8 @@ browser_host_ime_commit_text(struct _cef_browser_host_t* self,
                              const cef_string_t* text,
                              const cef_range_t* replacement_range,
                              int relative_cursor_pos) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -858,6 +949,8 @@ browser_host_ime_commit_text(struct _cef_browser_host_t* self,
 void CEF_CALLBACK
 browser_host_ime_finish_composing_text(struct _cef_browser_host_t* self,
                                        int keep_selection) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -871,6 +964,8 @@ browser_host_ime_finish_composing_text(struct _cef_browser_host_t* self,
 
 void CEF_CALLBACK
 browser_host_ime_cancel_composition(struct _cef_browser_host_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -886,6 +981,8 @@ browser_host_drag_target_drag_enter(struct _cef_browser_host_t* self,
                                     struct _cef_drag_data_t* drag_data,
                                     const struct _cef_mouse_event_t* event,
                                     cef_drag_operations_mask_t allowed_ops) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -914,6 +1011,8 @@ void CEF_CALLBACK
 browser_host_drag_target_drag_over(struct _cef_browser_host_t* self,
                                    const struct _cef_mouse_event_t* event,
                                    cef_drag_operations_mask_t allowed_ops) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -935,6 +1034,8 @@ browser_host_drag_target_drag_over(struct _cef_browser_host_t* self,
 
 void CEF_CALLBACK
 browser_host_drag_target_drag_leave(struct _cef_browser_host_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -948,6 +1049,8 @@ browser_host_drag_target_drag_leave(struct _cef_browser_host_t* self) {
 void CEF_CALLBACK
 browser_host_drag_target_drop(struct _cef_browser_host_t* self,
                               const struct _cef_mouse_event_t* event) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -972,6 +1075,8 @@ browser_host_drag_source_ended_at(struct _cef_browser_host_t* self,
                                   int x,
                                   int y,
                                   cef_drag_operations_mask_t op) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -984,6 +1089,8 @@ browser_host_drag_source_ended_at(struct _cef_browser_host_t* self,
 
 void CEF_CALLBACK
 browser_host_drag_source_system_drag_ended(struct _cef_browser_host_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -996,6 +1103,8 @@ browser_host_drag_source_system_drag_ended(struct _cef_browser_host_t* self) {
 
 struct _cef_navigation_entry_t* CEF_CALLBACK
 browser_host_get_visible_navigation_entry(struct _cef_browser_host_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -1013,6 +1122,8 @@ browser_host_get_visible_navigation_entry(struct _cef_browser_host_t* self) {
 void CEF_CALLBACK
 browser_host_set_accessibility_state(struct _cef_browser_host_t* self,
                                      cef_state_t accessibility_state) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -1028,6 +1139,8 @@ browser_host_set_auto_resize_enabled(struct _cef_browser_host_t* self,
                                      int enabled,
                                      const cef_size_t* min_size,
                                      const cef_size_t* max_size) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -1054,6 +1167,8 @@ browser_host_set_auto_resize_enabled(struct _cef_browser_host_t* self,
 
 struct _cef_extension_t* CEF_CALLBACK
 browser_host_get_extension(struct _cef_browser_host_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -1070,6 +1185,8 @@ browser_host_get_extension(struct _cef_browser_host_t* self) {
 
 int CEF_CALLBACK
 browser_host_is_background_host(struct _cef_browser_host_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -1155,6 +1272,12 @@ CefBrowserHostCppToC::CefBrowserHostCppToC() {
   GetStruct()->set_auto_resize_enabled = browser_host_set_auto_resize_enabled;
   GetStruct()->get_extension = browser_host_get_extension;
   GetStruct()->is_background_host = browser_host_is_background_host;
+}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefBrowserHostCppToC::~CefBrowserHostCppToC() {
+  shutdown_checker::AssertNotShutdown();
 }
 
 template <>

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=684a87e946ab4d8739be2ce0152b2cfe68f42efc$
+// $hash=9e244dc913b52c3b7691da16788ee40014b922b9$
 //
 
 #include "libcef_dll/cpptoc/print_handler_cpptoc.h"
@@ -17,6 +17,7 @@
 #include "libcef_dll/ctocpp/print_dialog_callback_ctocpp.h"
 #include "libcef_dll/ctocpp/print_job_callback_ctocpp.h"
 #include "libcef_dll/ctocpp/print_settings_ctocpp.h"
+#include "libcef_dll/shutdown_checker.h"
 
 namespace {
 
@@ -25,6 +26,8 @@ namespace {
 void CEF_CALLBACK
 print_handler_on_print_start(struct _cef_print_handler_t* self,
                              cef_browser_t* browser) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -45,6 +48,8 @@ print_handler_on_print_settings(struct _cef_print_handler_t* self,
                                 cef_browser_t* browser,
                                 struct _cef_print_settings_t* settings,
                                 int get_defaults) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -70,6 +75,8 @@ print_handler_on_print_dialog(struct _cef_print_handler_t* self,
                               cef_browser_t* browser,
                               int has_selection,
                               cef_print_dialog_callback_t* callback) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -99,6 +106,8 @@ print_handler_on_print_job(struct _cef_print_handler_t* self,
                            const cef_string_t* document_name,
                            const cef_string_t* pdf_file_path,
                            cef_print_job_callback_t* callback) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -133,6 +142,8 @@ print_handler_on_print_job(struct _cef_print_handler_t* self,
 void CEF_CALLBACK
 print_handler_on_print_reset(struct _cef_print_handler_t* self,
                              cef_browser_t* browser) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -151,6 +162,8 @@ print_handler_on_print_reset(struct _cef_print_handler_t* self,
 cef_size_t CEF_CALLBACK
 print_handler_get_pdf_paper_size(struct _cef_print_handler_t* self,
                                  int device_units_per_inch) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -176,6 +189,12 @@ CefPrintHandlerCppToC::CefPrintHandlerCppToC() {
   GetStruct()->on_print_job = print_handler_on_print_job;
   GetStruct()->on_print_reset = print_handler_on_print_reset;
   GetStruct()->get_pdf_paper_size = print_handler_get_pdf_paper_size;
+}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefPrintHandlerCppToC::~CefPrintHandlerCppToC() {
+  shutdown_checker::AssertNotShutdown();
 }
 
 template <>

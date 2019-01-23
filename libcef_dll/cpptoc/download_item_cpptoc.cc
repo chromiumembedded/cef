@@ -9,16 +9,19 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=ff23ba3ab91188294f816fcadee929a0316846fc$
+// $hash=904cfa3f93325c49918233b16163c7334beb454f$
 //
 
 #include "libcef_dll/cpptoc/download_item_cpptoc.h"
+#include "libcef_dll/shutdown_checker.h"
 
 namespace {
 
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
 int CEF_CALLBACK download_item_is_valid(struct _cef_download_item_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -34,6 +37,8 @@ int CEF_CALLBACK download_item_is_valid(struct _cef_download_item_t* self) {
 
 int CEF_CALLBACK
 download_item_is_in_progress(struct _cef_download_item_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -48,6 +53,8 @@ download_item_is_in_progress(struct _cef_download_item_t* self) {
 }
 
 int CEF_CALLBACK download_item_is_complete(struct _cef_download_item_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -62,6 +69,8 @@ int CEF_CALLBACK download_item_is_complete(struct _cef_download_item_t* self) {
 }
 
 int CEF_CALLBACK download_item_is_canceled(struct _cef_download_item_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -77,6 +86,8 @@ int CEF_CALLBACK download_item_is_canceled(struct _cef_download_item_t* self) {
 
 int64 CEF_CALLBACK
 download_item_get_current_speed(struct _cef_download_item_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -92,6 +103,8 @@ download_item_get_current_speed(struct _cef_download_item_t* self) {
 
 int CEF_CALLBACK
 download_item_get_percent_complete(struct _cef_download_item_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -107,6 +120,8 @@ download_item_get_percent_complete(struct _cef_download_item_t* self) {
 
 int64 CEF_CALLBACK
 download_item_get_total_bytes(struct _cef_download_item_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -122,6 +137,8 @@ download_item_get_total_bytes(struct _cef_download_item_t* self) {
 
 int64 CEF_CALLBACK
 download_item_get_received_bytes(struct _cef_download_item_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -137,6 +154,8 @@ download_item_get_received_bytes(struct _cef_download_item_t* self) {
 
 cef_time_t CEF_CALLBACK
 download_item_get_start_time(struct _cef_download_item_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -152,6 +171,8 @@ download_item_get_start_time(struct _cef_download_item_t* self) {
 
 cef_time_t CEF_CALLBACK
 download_item_get_end_time(struct _cef_download_item_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -167,6 +188,8 @@ download_item_get_end_time(struct _cef_download_item_t* self) {
 
 cef_string_userfree_t CEF_CALLBACK
 download_item_get_full_path(struct _cef_download_item_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -181,6 +204,8 @@ download_item_get_full_path(struct _cef_download_item_t* self) {
 }
 
 uint32 CEF_CALLBACK download_item_get_id(struct _cef_download_item_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -196,6 +221,8 @@ uint32 CEF_CALLBACK download_item_get_id(struct _cef_download_item_t* self) {
 
 cef_string_userfree_t CEF_CALLBACK
 download_item_get_url(struct _cef_download_item_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -211,6 +238,8 @@ download_item_get_url(struct _cef_download_item_t* self) {
 
 cef_string_userfree_t CEF_CALLBACK
 download_item_get_original_url(struct _cef_download_item_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -226,6 +255,8 @@ download_item_get_original_url(struct _cef_download_item_t* self) {
 
 cef_string_userfree_t CEF_CALLBACK
 download_item_get_suggested_file_name(struct _cef_download_item_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -241,6 +272,8 @@ download_item_get_suggested_file_name(struct _cef_download_item_t* self) {
 
 cef_string_userfree_t CEF_CALLBACK
 download_item_get_content_disposition(struct _cef_download_item_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -256,6 +289,8 @@ download_item_get_content_disposition(struct _cef_download_item_t* self) {
 
 cef_string_userfree_t CEF_CALLBACK
 download_item_get_mime_type(struct _cef_download_item_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -291,6 +326,12 @@ CefDownloadItemCppToC::CefDownloadItemCppToC() {
   GetStruct()->get_suggested_file_name = download_item_get_suggested_file_name;
   GetStruct()->get_content_disposition = download_item_get_content_disposition;
   GetStruct()->get_mime_type = download_item_get_mime_type;
+}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefDownloadItemCppToC::~CefDownloadItemCppToC() {
+  shutdown_checker::AssertNotShutdown();
 }
 
 template <>

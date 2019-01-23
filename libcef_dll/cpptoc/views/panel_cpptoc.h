@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=dc46be461e44ff5b7e3a70ac9b0e7a08dd62fe08$
+// $hash=a897631d429250fbb701247e659eeebc8385f400$
 //
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_VIEWS_PANEL_CPPTOC_H_
@@ -38,6 +38,7 @@ class CefPanelCppToC
     : public CefCppToCRefCounted<CefPanelCppToC, CefPanel, cef_panel_t> {
  public:
   CefPanelCppToC();
+  virtual ~CefPanelCppToC();
 };
 
 #endif  // CEF_LIBCEF_DLL_CPPTOC_VIEWS_PANEL_CPPTOC_H_

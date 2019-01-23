@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=f653271e88b2c40b1fcfc331a4dc54f4b77b5921$
+// $hash=0d2e25f73053bccb5dee306ed2f71473b43eb3ab$
 //
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_AUTH_CALLBACK_CPPTOC_H_
@@ -31,6 +31,7 @@ class CefAuthCallbackCppToC : public CefCppToCRefCounted<CefAuthCallbackCppToC,
                                                          cef_auth_callback_t> {
  public:
   CefAuthCallbackCppToC();
+  virtual ~CefAuthCallbackCppToC();
 };
 
 #endif  // CEF_LIBCEF_DLL_CPPTOC_AUTH_CALLBACK_CPPTOC_H_

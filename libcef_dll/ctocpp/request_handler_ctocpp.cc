@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=bf3a5c536bedb8b74ecd06383b9f1e56347c3ce7$
+// $hash=015081f57475317bfa80c5aae29b519063902734$
 //
 
 #include "libcef_dll/ctocpp/request_handler_ctocpp.h"
@@ -24,6 +24,7 @@
 #include "libcef_dll/cpptoc/x509certificate_cpptoc.h"
 #include "libcef_dll/ctocpp/resource_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/response_filter_ctocpp.h"
+#include "libcef_dll/shutdown_checker.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
@@ -33,6 +34,8 @@ bool CefRequestHandlerCToCpp::OnBeforeBrowse(CefRefPtr<CefBrowser> browser,
                                              CefRefPtr<CefRequest> request,
                                              bool user_gesture,
                                              bool is_redirect) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_request_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_before_browse))
     return false;
@@ -68,6 +71,8 @@ bool CefRequestHandlerCToCpp::OnOpenURLFromTab(
     const CefString& target_url,
     WindowOpenDisposition target_disposition,
     bool user_gesture) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_request_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_open_urlfrom_tab))
     return false;
@@ -102,6 +107,8 @@ CefRequestHandler::ReturnValue CefRequestHandlerCToCpp::OnBeforeResourceLoad(
     CefRefPtr<CefFrame> frame,
     CefRefPtr<CefRequest> request,
     CefRefPtr<CefRequestCallback> callback) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_request_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_before_resource_load))
     return RV_CONTINUE;
@@ -140,6 +147,8 @@ CefRefPtr<CefResourceHandler> CefRequestHandlerCToCpp::GetResourceHandler(
     CefRefPtr<CefBrowser> browser,
     CefRefPtr<CefFrame> frame,
     CefRefPtr<CefRequest> request) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_request_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_resource_handler))
     return NULL;
@@ -175,6 +184,8 @@ void CefRequestHandlerCToCpp::OnResourceRedirect(
     CefRefPtr<CefRequest> request,
     CefRefPtr<CefResponse> response,
     CefString& new_url) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_request_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_resource_redirect))
     return;
@@ -211,6 +222,8 @@ bool CefRequestHandlerCToCpp::OnResourceResponse(
     CefRefPtr<CefFrame> frame,
     CefRefPtr<CefRequest> request,
     CefRefPtr<CefResponse> response) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_request_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_resource_response))
     return false;
@@ -249,6 +262,8 @@ CefRefPtr<CefResponseFilter> CefRequestHandlerCToCpp::GetResourceResponseFilter(
     CefRefPtr<CefFrame> frame,
     CefRefPtr<CefRequest> request,
     CefRefPtr<CefResponse> response) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_request_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_resource_response_filter))
     return NULL;
@@ -289,6 +304,8 @@ void CefRequestHandlerCToCpp::OnResourceLoadComplete(
     CefRefPtr<CefResponse> response,
     URLRequestStatus status,
     int64 received_content_length) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_request_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_resource_load_complete))
     return;
@@ -329,6 +346,8 @@ bool CefRequestHandlerCToCpp::GetAuthCredentials(
     const CefString& realm,
     const CefString& scheme,
     CefRefPtr<CefAuthCallback> callback) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_request_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_auth_credentials))
     return false;
@@ -367,6 +386,8 @@ NO_SANITIZE("cfi-icall")
 bool CefRequestHandlerCToCpp::CanGetCookies(CefRefPtr<CefBrowser> browser,
                                             CefRefPtr<CefFrame> frame,
                                             CefRefPtr<CefRequest> request) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_request_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, can_get_cookies))
     return false;
@@ -400,6 +421,8 @@ bool CefRequestHandlerCToCpp::CanSetCookie(CefRefPtr<CefBrowser> browser,
                                            CefRefPtr<CefFrame> frame,
                                            CefRefPtr<CefRequest> request,
                                            const CefCookie& cookie) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_request_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, can_set_cookie))
     return false;
@@ -434,6 +457,8 @@ bool CefRequestHandlerCToCpp::OnQuotaRequest(
     const CefString& origin_url,
     int64 new_size,
     CefRefPtr<CefRequestCallback> callback) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_request_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_quota_request))
     return false;
@@ -466,6 +491,8 @@ NO_SANITIZE("cfi-icall")
 void CefRequestHandlerCToCpp::OnProtocolExecution(CefRefPtr<CefBrowser> browser,
                                                   const CefString& url,
                                                   bool& allow_os_execution) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_request_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_protocol_execution))
     return;
@@ -499,6 +526,8 @@ bool CefRequestHandlerCToCpp::OnCertificateError(
     const CefString& request_url,
     CefRefPtr<CefSSLInfo> ssl_info,
     CefRefPtr<CefRequestCallback> callback) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_request_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_certificate_error))
     return false;
@@ -540,6 +569,8 @@ bool CefRequestHandlerCToCpp::OnSelectClientCertificate(
     int port,
     const X509CertificateList& certificates,
     CefRefPtr<CefSelectClientCertificateCallback> callback) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_request_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_select_client_certificate))
     return false;
@@ -589,6 +620,8 @@ bool CefRequestHandlerCToCpp::OnSelectClientCertificate(
 NO_SANITIZE("cfi-icall")
 void CefRequestHandlerCToCpp::OnPluginCrashed(CefRefPtr<CefBrowser> browser,
                                               const CefString& plugin_path) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_request_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_plugin_crashed))
     return;
@@ -611,6 +644,8 @@ void CefRequestHandlerCToCpp::OnPluginCrashed(CefRefPtr<CefBrowser> browser,
 
 NO_SANITIZE("cfi-icall")
 void CefRequestHandlerCToCpp::OnRenderViewReady(CefRefPtr<CefBrowser> browser) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_request_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_render_view_ready))
     return;
@@ -630,6 +665,8 @@ NO_SANITIZE("cfi-icall")
 void CefRequestHandlerCToCpp::OnRenderProcessTerminated(
     CefRefPtr<CefBrowser> browser,
     TerminationStatus status) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_request_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_render_process_terminated))
     return;
@@ -649,6 +686,12 @@ void CefRequestHandlerCToCpp::OnRenderProcessTerminated(
 // CONSTRUCTOR - Do not edit by hand.
 
 CefRequestHandlerCToCpp::CefRequestHandlerCToCpp() {}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefRequestHandlerCToCpp::~CefRequestHandlerCToCpp() {
+  shutdown_checker::AssertNotShutdown();
+}
 
 template <>
 cef_request_handler_t* CefCToCppRefCounted<

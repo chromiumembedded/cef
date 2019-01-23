@@ -9,15 +9,18 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=4c81dfc4238cfb3c1e3a920ec4d3f4639f264960$
+// $hash=c593d32edf120253e3b3ce95f49dca53e6b6fbea$
 //
 
 #include "libcef_dll/cpptoc/task_runner_cpptoc.h"
 #include "libcef_dll/ctocpp/task_ctocpp.h"
+#include "libcef_dll/shutdown_checker.h"
 
 // GLOBAL FUNCTIONS - Body may be edited by hand.
 
 CEF_EXPORT cef_task_runner_t* cef_task_runner_get_for_current_thread() {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
@@ -29,6 +32,8 @@ CEF_EXPORT cef_task_runner_t* cef_task_runner_get_for_current_thread() {
 
 CEF_EXPORT cef_task_runner_t* cef_task_runner_get_for_thread(
     cef_thread_id_t threadId) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
@@ -44,6 +49,8 @@ namespace {
 
 int CEF_CALLBACK task_runner_is_same(struct _cef_task_runner_t* self,
                                      struct _cef_task_runner_t* that) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -64,6 +71,8 @@ int CEF_CALLBACK task_runner_is_same(struct _cef_task_runner_t* self,
 
 int CEF_CALLBACK
 task_runner_belongs_to_current_thread(struct _cef_task_runner_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -79,6 +88,8 @@ task_runner_belongs_to_current_thread(struct _cef_task_runner_t* self) {
 
 int CEF_CALLBACK task_runner_belongs_to_thread(struct _cef_task_runner_t* self,
                                                cef_thread_id_t threadId) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -94,6 +105,8 @@ int CEF_CALLBACK task_runner_belongs_to_thread(struct _cef_task_runner_t* self,
 
 int CEF_CALLBACK task_runner_post_task(struct _cef_task_runner_t* self,
                                        cef_task_t* task) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -115,6 +128,8 @@ int CEF_CALLBACK task_runner_post_task(struct _cef_task_runner_t* self,
 int CEF_CALLBACK task_runner_post_delayed_task(struct _cef_task_runner_t* self,
                                                cef_task_t* task,
                                                int64 delay_ms) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -144,6 +159,12 @@ CefTaskRunnerCppToC::CefTaskRunnerCppToC() {
   GetStruct()->belongs_to_thread = task_runner_belongs_to_thread;
   GetStruct()->post_task = task_runner_post_task;
   GetStruct()->post_delayed_task = task_runner_post_delayed_task;
+}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefTaskRunnerCppToC::~CefTaskRunnerCppToC() {
+  shutdown_checker::AssertNotShutdown();
 }
 
 template <>

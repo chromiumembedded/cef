@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=4733700c909455722e13e510b8455c0c6943c575$
+// $hash=48ecf12e406c38ec0401872055a75cff0495f4d3$
 //
 
 #include "libcef_dll/ctocpp/cookie_manager_ctocpp.h"
@@ -236,6 +236,10 @@ bool CefCookieManagerCToCpp::FlushStore(
 // CONSTRUCTOR - Do not edit by hand.
 
 CefCookieManagerCToCpp::CefCookieManagerCToCpp() {}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefCookieManagerCToCpp::~CefCookieManagerCToCpp() {}
 
 template <>
 cef_cookie_manager_t*

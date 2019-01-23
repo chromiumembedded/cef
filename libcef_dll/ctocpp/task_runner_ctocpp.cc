@@ -9,16 +9,19 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=43b6d2b9373dd2e97133fec6234840ffec170b39$
+// $hash=7fde43475329d8b158cd0325a0382ba3cc49cda0$
 //
 
 #include "libcef_dll/ctocpp/task_runner_ctocpp.h"
 #include "libcef_dll/cpptoc/task_cpptoc.h"
+#include "libcef_dll/shutdown_checker.h"
 
 // STATIC METHODS - Body may be edited by hand.
 
 NO_SANITIZE("cfi-icall")
 CefRefPtr<CefTaskRunner> CefTaskRunner::GetForCurrentThread() {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
@@ -30,6 +33,8 @@ CefRefPtr<CefTaskRunner> CefTaskRunner::GetForCurrentThread() {
 
 NO_SANITIZE("cfi-icall")
 CefRefPtr<CefTaskRunner> CefTaskRunner::GetForThread(CefThreadId threadId) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
@@ -43,6 +48,8 @@ CefRefPtr<CefTaskRunner> CefTaskRunner::GetForThread(CefThreadId threadId) {
 
 NO_SANITIZE("cfi-icall")
 bool CefTaskRunnerCToCpp::IsSame(CefRefPtr<CefTaskRunner> that) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_task_runner_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, is_same))
     return false;
@@ -62,6 +69,8 @@ bool CefTaskRunnerCToCpp::IsSame(CefRefPtr<CefTaskRunner> that) {
 }
 
 NO_SANITIZE("cfi-icall") bool CefTaskRunnerCToCpp::BelongsToCurrentThread() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_task_runner_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, belongs_to_current_thread))
     return false;
@@ -77,6 +86,8 @@ NO_SANITIZE("cfi-icall") bool CefTaskRunnerCToCpp::BelongsToCurrentThread() {
 
 NO_SANITIZE("cfi-icall")
 bool CefTaskRunnerCToCpp::BelongsToThread(CefThreadId threadId) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_task_runner_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, belongs_to_thread))
     return false;
@@ -92,6 +103,8 @@ bool CefTaskRunnerCToCpp::BelongsToThread(CefThreadId threadId) {
 
 NO_SANITIZE("cfi-icall")
 bool CefTaskRunnerCToCpp::PostTask(CefRefPtr<CefTask> task) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_task_runner_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, post_task))
     return false;
@@ -113,6 +126,8 @@ bool CefTaskRunnerCToCpp::PostTask(CefRefPtr<CefTask> task) {
 NO_SANITIZE("cfi-icall")
 bool CefTaskRunnerCToCpp::PostDelayedTask(CefRefPtr<CefTask> task,
                                           int64 delay_ms) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_task_runner_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, post_delayed_task))
     return false;
@@ -135,6 +150,12 @@ bool CefTaskRunnerCToCpp::PostDelayedTask(CefRefPtr<CefTask> task,
 // CONSTRUCTOR - Do not edit by hand.
 
 CefTaskRunnerCToCpp::CefTaskRunnerCToCpp() {}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefTaskRunnerCToCpp::~CefTaskRunnerCToCpp() {
+  shutdown_checker::AssertNotShutdown();
+}
 
 template <>
 cef_task_runner_t*

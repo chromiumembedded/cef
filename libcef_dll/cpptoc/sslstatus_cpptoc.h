@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=cb18abd3355722d97bf8d1aa1f4bd45d75a3aa27$
+// $hash=5282ffcdc9368e6fdf8223775a53d4d2e5f913b2$
 //
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_SSLSTATUS_CPPTOC_H_
@@ -31,6 +31,7 @@ class CefSSLStatusCppToC : public CefCppToCRefCounted<CefSSLStatusCppToC,
                                                       cef_sslstatus_t> {
  public:
   CefSSLStatusCppToC();
+  virtual ~CefSSLStatusCppToC();
 };
 
 #endif  // CEF_LIBCEF_DLL_CPPTOC_SSLSTATUS_CPPTOC_H_

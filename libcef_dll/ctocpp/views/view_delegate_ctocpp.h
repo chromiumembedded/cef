@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=a8cc79320df55e024bbb9d67dac7af188ab34a6b$
+// $hash=f02fed16af877075aef5870e09624a1df0dbf429$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_VIEWS_VIEW_DELEGATE_CTOCPP_H_
@@ -33,6 +33,7 @@ class CefViewDelegateCToCpp : public CefCToCppRefCounted<CefViewDelegateCToCpp,
                                                          cef_view_delegate_t> {
  public:
   CefViewDelegateCToCpp();
+  virtual ~CefViewDelegateCToCpp();
 
   // CefViewDelegate methods.
   CefSize GetPreferredSize(CefRefPtr<CefView> view) override;

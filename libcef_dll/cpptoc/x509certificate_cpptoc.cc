@@ -9,13 +9,14 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=73f0a2483ecfc0f9045b9c82a6b2508aade9672c$
+// $hash=fb0be9b1da38b7322058fd4785321fd104f0a81c$
 //
 
 #include "libcef_dll/cpptoc/x509certificate_cpptoc.h"
 #include <algorithm>
 #include "libcef_dll/cpptoc/binary_value_cpptoc.h"
 #include "libcef_dll/cpptoc/x509cert_principal_cpptoc.h"
+#include "libcef_dll/shutdown_checker.h"
 
 namespace {
 
@@ -23,6 +24,8 @@ namespace {
 
 cef_x509cert_principal_t* CEF_CALLBACK
 x509certificate_get_subject(struct _cef_x509certificate_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -39,6 +42,8 @@ x509certificate_get_subject(struct _cef_x509certificate_t* self) {
 
 cef_x509cert_principal_t* CEF_CALLBACK
 x509certificate_get_issuer(struct _cef_x509certificate_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -55,6 +60,8 @@ x509certificate_get_issuer(struct _cef_x509certificate_t* self) {
 
 cef_binary_value_t* CEF_CALLBACK
 x509certificate_get_serial_number(struct _cef_x509certificate_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -71,6 +78,8 @@ x509certificate_get_serial_number(struct _cef_x509certificate_t* self) {
 
 cef_time_t CEF_CALLBACK
 x509certificate_get_valid_start(struct _cef_x509certificate_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -86,6 +95,8 @@ x509certificate_get_valid_start(struct _cef_x509certificate_t* self) {
 
 cef_time_t CEF_CALLBACK
 x509certificate_get_valid_expiry(struct _cef_x509certificate_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -101,6 +112,8 @@ x509certificate_get_valid_expiry(struct _cef_x509certificate_t* self) {
 
 cef_binary_value_t* CEF_CALLBACK
 x509certificate_get_derencoded(struct _cef_x509certificate_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -117,6 +130,8 @@ x509certificate_get_derencoded(struct _cef_x509certificate_t* self) {
 
 cef_binary_value_t* CEF_CALLBACK
 x509certificate_get_pemencoded(struct _cef_x509certificate_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -133,6 +148,8 @@ x509certificate_get_pemencoded(struct _cef_x509certificate_t* self) {
 
 size_t CEF_CALLBACK
 x509certificate_get_issuer_chain_size(struct _cef_x509certificate_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -150,6 +167,8 @@ void CEF_CALLBACK
 x509certificate_get_derencoded_issuer_chain(struct _cef_x509certificate_t* self,
                                             size_t* chainCount,
                                             cef_binary_value_t** chain) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -186,6 +205,8 @@ void CEF_CALLBACK
 x509certificate_get_pemencoded_issuer_chain(struct _cef_x509certificate_t* self,
                                             size_t* chainCount,
                                             cef_binary_value_t** chain) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -235,6 +256,12 @@ CefX509CertificateCppToC::CefX509CertificateCppToC() {
       x509certificate_get_derencoded_issuer_chain;
   GetStruct()->get_pemencoded_issuer_chain =
       x509certificate_get_pemencoded_issuer_chain;
+}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefX509CertificateCppToC::~CefX509CertificateCppToC() {
+  shutdown_checker::AssertNotShutdown();
 }
 
 template <>

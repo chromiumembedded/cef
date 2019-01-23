@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=12047a7b797b349b954f40de4eabe6ca4ee7acbe$
+// $hash=6011ba51ef34b7ff0287a83c23b0a586a966bc04$
 //
 
 #include "libcef_dll/ctocpp/app_ctocpp.h"
@@ -116,6 +116,10 @@ CefRefPtr<CefRenderProcessHandler> CefAppCToCpp::GetRenderProcessHandler() {
 // CONSTRUCTOR - Do not edit by hand.
 
 CefAppCToCpp::CefAppCToCpp() {}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefAppCToCpp::~CefAppCToCpp() {}
 
 template <>
 cef_app_t* CefCToCppRefCounted<CefAppCToCpp, CefApp, cef_app_t>::UnwrapDerived(

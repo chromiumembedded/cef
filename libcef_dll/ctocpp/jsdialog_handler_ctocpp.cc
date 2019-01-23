@@ -9,12 +9,13 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=d278db8250349062e4d1f815b9dc19c5ec93da73$
+// $hash=111270fc06dea87c9f4e4fd6c56eea3f019bbb71$
 //
 
 #include "libcef_dll/ctocpp/jsdialog_handler_ctocpp.h"
 #include "libcef_dll/cpptoc/browser_cpptoc.h"
 #include "libcef_dll/cpptoc/jsdialog_callback_cpptoc.h"
+#include "libcef_dll/shutdown_checker.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
@@ -27,6 +28,8 @@ bool CefJSDialogHandlerCToCpp::OnJSDialog(
     const CefString& default_prompt_text,
     CefRefPtr<CefJSDialogCallback> callback,
     bool& suppress_message) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_jsdialog_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_jsdialog))
     return false;
@@ -65,6 +68,8 @@ bool CefJSDialogHandlerCToCpp::OnBeforeUnloadDialog(
     const CefString& message_text,
     bool is_reload,
     CefRefPtr<CefJSDialogCallback> callback) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_jsdialog_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_before_unload_dialog))
     return false;
@@ -93,6 +98,8 @@ bool CefJSDialogHandlerCToCpp::OnBeforeUnloadDialog(
 NO_SANITIZE("cfi-icall")
 void CefJSDialogHandlerCToCpp::OnResetDialogState(
     CefRefPtr<CefBrowser> browser) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_jsdialog_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_reset_dialog_state))
     return;
@@ -110,6 +117,8 @@ void CefJSDialogHandlerCToCpp::OnResetDialogState(
 
 NO_SANITIZE("cfi-icall")
 void CefJSDialogHandlerCToCpp::OnDialogClosed(CefRefPtr<CefBrowser> browser) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_jsdialog_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_dialog_closed))
     return;
@@ -128,6 +137,12 @@ void CefJSDialogHandlerCToCpp::OnDialogClosed(CefRefPtr<CefBrowser> browser) {
 // CONSTRUCTOR - Do not edit by hand.
 
 CefJSDialogHandlerCToCpp::CefJSDialogHandlerCToCpp() {}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefJSDialogHandlerCToCpp::~CefJSDialogHandlerCToCpp() {
+  shutdown_checker::AssertNotShutdown();
+}
 
 template <>
 cef_jsdialog_handler_t* CefCToCppRefCounted<

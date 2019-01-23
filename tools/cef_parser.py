@@ -274,6 +274,9 @@ def format_translation_includes(header, body):
     result += '#include "libcef_dll/ctocpp/'+directory+ \
               get_capi_name(item[3:], False)+'_ctocpp.h"\n'
 
+  if body.find('shutdown_checker') > 0:
+    result += '#include "libcef_dll/shutdown_checker.h"\n'
+
   if body.find('transfer_') > 0:
     result += '#include "libcef_dll/transfer_util.h"\n'
 

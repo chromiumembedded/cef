@@ -9,10 +9,11 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=55f242d9e8ad072130b55f2f0b308934a3a23284$
+// $hash=d5483aff907aea5974de15ba3d429186b774888f$
 //
 
 #include "libcef_dll/cpptoc/print_job_callback_cpptoc.h"
+#include "libcef_dll/shutdown_checker.h"
 
 namespace {
 
@@ -20,6 +21,8 @@ namespace {
 
 void CEF_CALLBACK
 print_job_callback_cont(struct _cef_print_job_callback_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -36,6 +39,12 @@ print_job_callback_cont(struct _cef_print_job_callback_t* self) {
 
 CefPrintJobCallbackCppToC::CefPrintJobCallbackCppToC() {
   GetStruct()->cont = print_job_callback_cont;
+}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefPrintJobCallbackCppToC::~CefPrintJobCallbackCppToC() {
+  shutdown_checker::AssertNotShutdown();
 }
 
 template <>

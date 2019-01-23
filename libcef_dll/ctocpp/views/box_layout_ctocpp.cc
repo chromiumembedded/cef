@@ -9,17 +9,20 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=b9265a23c995bbb6f5120dd8c5ccff5eaf1d0f91$
+// $hash=d02bac0bc9c81917244c63bc182ef94cb2bdf741$
 //
 
 #include "libcef_dll/ctocpp/views/box_layout_ctocpp.h"
 #include "libcef_dll/ctocpp/views/fill_layout_ctocpp.h"
 #include "libcef_dll/ctocpp/views/view_ctocpp.h"
+#include "libcef_dll/shutdown_checker.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
 NO_SANITIZE("cfi-icall")
 void CefBoxLayoutCToCpp::SetFlexForView(CefRefPtr<CefView> view, int flex) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_box_layout_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, set_flex_for_view))
     return;
@@ -37,6 +40,8 @@ void CefBoxLayoutCToCpp::SetFlexForView(CefRefPtr<CefView> view, int flex) {
 
 NO_SANITIZE("cfi-icall")
 void CefBoxLayoutCToCpp::ClearFlexForView(CefRefPtr<CefView> view) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_box_layout_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, clear_flex_for_view))
     return;
@@ -54,6 +59,8 @@ void CefBoxLayoutCToCpp::ClearFlexForView(CefRefPtr<CefView> view) {
 
 NO_SANITIZE("cfi-icall")
 CefRefPtr<CefBoxLayout> CefBoxLayoutCToCpp::AsBoxLayout() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_layout_t* _struct = reinterpret_cast<cef_layout_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, as_box_layout))
     return NULL;
@@ -69,6 +76,8 @@ CefRefPtr<CefBoxLayout> CefBoxLayoutCToCpp::AsBoxLayout() {
 
 NO_SANITIZE("cfi-icall")
 CefRefPtr<CefFillLayout> CefBoxLayoutCToCpp::AsFillLayout() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_layout_t* _struct = reinterpret_cast<cef_layout_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, as_fill_layout))
     return NULL;
@@ -83,6 +92,8 @@ CefRefPtr<CefFillLayout> CefBoxLayoutCToCpp::AsFillLayout() {
 }
 
 NO_SANITIZE("cfi-icall") bool CefBoxLayoutCToCpp::IsValid() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_layout_t* _struct = reinterpret_cast<cef_layout_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, is_valid))
     return false;
@@ -99,6 +110,12 @@ NO_SANITIZE("cfi-icall") bool CefBoxLayoutCToCpp::IsValid() {
 // CONSTRUCTOR - Do not edit by hand.
 
 CefBoxLayoutCToCpp::CefBoxLayoutCToCpp() {}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefBoxLayoutCToCpp::~CefBoxLayoutCToCpp() {
+  shutdown_checker::AssertNotShutdown();
+}
 
 template <>
 cef_box_layout_t*

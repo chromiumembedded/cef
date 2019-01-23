@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=45737a7e991711566b6f46499ccdc6fe9b1e0317$
+// $hash=f76bdd2d055df74b08fe6c77b40b68d908f20dc9$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_RENDER_HANDLER_CTOCPP_H_
@@ -32,6 +32,7 @@ class CefRenderHandlerCToCpp
                                  cef_render_handler_t> {
  public:
   CefRenderHandlerCToCpp();
+  virtual ~CefRenderHandlerCToCpp();
 
   // CefRenderHandler methods.
   CefRefPtr<CefAccessibilityHandler> GetAccessibilityHandler() override;

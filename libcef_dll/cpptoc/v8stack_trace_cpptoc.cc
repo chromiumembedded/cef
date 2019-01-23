@@ -9,15 +9,18 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=adb00d94ca911b63cf7ec5636ed13fbda1d375dc$
+// $hash=4d02d621b4112b1c18d5218cb04b189672c053a9$
 //
 
 #include "libcef_dll/cpptoc/v8stack_trace_cpptoc.h"
 #include "libcef_dll/cpptoc/v8stack_frame_cpptoc.h"
+#include "libcef_dll/shutdown_checker.h"
 
 // GLOBAL FUNCTIONS - Body may be edited by hand.
 
 CEF_EXPORT cef_v8stack_trace_t* cef_v8stack_trace_get_current(int frame_limit) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
@@ -32,6 +35,8 @@ namespace {
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
 int CEF_CALLBACK v8stack_trace_is_valid(struct _cef_v8stack_trace_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -47,6 +52,8 @@ int CEF_CALLBACK v8stack_trace_is_valid(struct _cef_v8stack_trace_t* self) {
 
 int CEF_CALLBACK
 v8stack_trace_get_frame_count(struct _cef_v8stack_trace_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -62,6 +69,8 @@ v8stack_trace_get_frame_count(struct _cef_v8stack_trace_t* self) {
 
 struct _cef_v8stack_frame_t* CEF_CALLBACK
 v8stack_trace_get_frame(struct _cef_v8stack_trace_t* self, int index) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -84,6 +93,12 @@ CefV8StackTraceCppToC::CefV8StackTraceCppToC() {
   GetStruct()->is_valid = v8stack_trace_is_valid;
   GetStruct()->get_frame_count = v8stack_trace_get_frame_count;
   GetStruct()->get_frame = v8stack_trace_get_frame;
+}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefV8StackTraceCppToC::~CefV8StackTraceCppToC() {
+  shutdown_checker::AssertNotShutdown();
 }
 
 template <>

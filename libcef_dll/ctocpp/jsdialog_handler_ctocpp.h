@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=dae0cf5900784ba7163c44486a19008830f1d754$
+// $hash=a0adffaa0f96264e5e73d9e78f121f22f8bff30b$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_JSDIALOG_HANDLER_CTOCPP_H_
@@ -32,6 +32,7 @@ class CefJSDialogHandlerCToCpp
                                  cef_jsdialog_handler_t> {
  public:
   CefJSDialogHandlerCToCpp();
+  virtual ~CefJSDialogHandlerCToCpp();
 
   // CefJSDialogHandler methods.
   bool OnJSDialog(CefRefPtr<CefBrowser> browser,

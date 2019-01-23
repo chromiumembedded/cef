@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=24b1db8c15738ac26c939483ad49f5a406d414f2$
+// $hash=871f55efe7003a7c59cb3907e1a2af0e7e2a882b$
 //
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_SSLINFO_CPPTOC_H_
@@ -30,6 +30,7 @@ class CefSSLInfoCppToC
     : public CefCppToCRefCounted<CefSSLInfoCppToC, CefSSLInfo, cef_sslinfo_t> {
  public:
   CefSSLInfoCppToC();
+  virtual ~CefSSLInfoCppToC();
 };
 
 #endif  // CEF_LIBCEF_DLL_CPPTOC_SSLINFO_CPPTOC_H_

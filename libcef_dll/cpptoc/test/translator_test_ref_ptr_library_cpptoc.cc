@@ -9,17 +9,20 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=618e448ef2beca6f47467cfb9c1ba9f646f70f6a$
+// $hash=7a5ff53a90627d3079306c77cd5b6af90c2b5db3$
 //
 
 #include "libcef_dll/cpptoc/test/translator_test_ref_ptr_library_cpptoc.h"
 #include "libcef_dll/cpptoc/test/translator_test_ref_ptr_library_child_child_cpptoc.h"
 #include "libcef_dll/cpptoc/test/translator_test_ref_ptr_library_child_cpptoc.h"
+#include "libcef_dll/shutdown_checker.h"
 
 // GLOBAL FUNCTIONS - Body may be edited by hand.
 
 CEF_EXPORT cef_translator_test_ref_ptr_library_t*
 cef_translator_test_ref_ptr_library_create(int value) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
@@ -36,6 +39,8 @@ namespace {
 
 int CEF_CALLBACK translator_test_ref_ptr_library_get_value(
     struct _cef_translator_test_ref_ptr_library_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -52,6 +57,8 @@ int CEF_CALLBACK translator_test_ref_ptr_library_get_value(
 void CEF_CALLBACK translator_test_ref_ptr_library_set_value(
     struct _cef_translator_test_ref_ptr_library_t* self,
     int value) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -69,6 +76,12 @@ void CEF_CALLBACK translator_test_ref_ptr_library_set_value(
 CefTranslatorTestRefPtrLibraryCppToC::CefTranslatorTestRefPtrLibraryCppToC() {
   GetStruct()->get_value = translator_test_ref_ptr_library_get_value;
   GetStruct()->set_value = translator_test_ref_ptr_library_set_value;
+}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefTranslatorTestRefPtrLibraryCppToC::~CefTranslatorTestRefPtrLibraryCppToC() {
+  shutdown_checker::AssertNotShutdown();
 }
 
 template <>

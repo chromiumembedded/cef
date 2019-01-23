@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=a057b8eb4034f0729ae4bc116f9551dbad8b0c83$
+// $hash=b86619b4f41af3789ebda417d82762b7e53fb1c5$
 //
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_FIND_HANDLER_CPPTOC_H_
@@ -31,6 +31,7 @@ class CefFindHandlerCppToC : public CefCppToCRefCounted<CefFindHandlerCppToC,
                                                         cef_find_handler_t> {
  public:
   CefFindHandlerCppToC();
+  virtual ~CefFindHandlerCppToC();
 };
 
 #endif  // CEF_LIBCEF_DLL_CPPTOC_FIND_HANDLER_CPPTOC_H_

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=aa3fb0bea5b9b6c3dfb2ec8726930c9986d28c2e$
+// $hash=6297235868055fdedc13fe91527afa260211501c$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_XML_READER_CTOCPP_H_
@@ -31,6 +31,7 @@ class CefXmlReaderCToCpp : public CefCToCppRefCounted<CefXmlReaderCToCpp,
                                                       cef_xml_reader_t> {
  public:
   CefXmlReaderCToCpp();
+  virtual ~CefXmlReaderCToCpp();
 
   // CefXmlReader methods.
   bool MoveToNextNode() OVERRIDE;

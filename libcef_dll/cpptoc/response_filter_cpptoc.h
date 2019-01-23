@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=1698817a7ed34c9ee458f76d059887bdd10291cd$
+// $hash=98e8ce6d61888d2d4792fd4c362f98374a73753c$
 //
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_RESPONSE_FILTER_CPPTOC_H_
@@ -32,6 +32,7 @@ class CefResponseFilterCppToC
                                  cef_response_filter_t> {
  public:
   CefResponseFilterCppToC();
+  virtual ~CefResponseFilterCppToC();
 };
 
 #endif  // CEF_LIBCEF_DLL_CPPTOC_RESPONSE_FILTER_CPPTOC_H_

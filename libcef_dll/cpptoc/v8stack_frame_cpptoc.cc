@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=2247f5b77fea9056b5f0ef16b34c5a4595c45bd7$
+// $hash=d21f89f23c3b5678bb1ed2db3bbf30c957fb3e0a$
 //
 
 #include "libcef_dll/cpptoc/v8stack_frame_cpptoc.h"
@@ -151,6 +151,10 @@ CefV8StackFrameCppToC::CefV8StackFrameCppToC() {
   GetStruct()->is_eval = v8stack_frame_is_eval;
   GetStruct()->is_constructor = v8stack_frame_is_constructor;
 }
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefV8StackFrameCppToC::~CefV8StackFrameCppToC() {}
 
 template <>
 CefRefPtr<CefV8StackFrame> CefCppToCRefCounted<

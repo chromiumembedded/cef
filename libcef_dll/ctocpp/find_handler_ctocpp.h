@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=a2dd80312492ec3e22fa80da2120b251b293cc5b$
+// $hash=fad2428820baf2c2e4b06dfa206cd40b41bbf729$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_FIND_HANDLER_CTOCPP_H_
@@ -31,6 +31,7 @@ class CefFindHandlerCToCpp : public CefCToCppRefCounted<CefFindHandlerCToCpp,
                                                         cef_find_handler_t> {
  public:
   CefFindHandlerCToCpp();
+  virtual ~CefFindHandlerCToCpp();
 
   // CefFindHandler methods.
   void OnFindResult(CefRefPtr<CefBrowser> browser,

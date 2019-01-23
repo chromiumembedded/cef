@@ -9,11 +9,12 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=a4f6021bc0bdc310c849364e52dad35ccb82dd6d$
+// $hash=1030036a2a5b321e8fd22f7913c827c5b7b9cea1$
 //
 
 #include "libcef_dll/cpptoc/find_handler_cpptoc.h"
 #include "libcef_dll/ctocpp/browser_ctocpp.h"
+#include "libcef_dll/shutdown_checker.h"
 
 namespace {
 
@@ -26,6 +27,8 @@ void CEF_CALLBACK find_handler_on_find_result(struct _cef_find_handler_t* self,
                                               const cef_rect_t* selectionRect,
                                               int activeMatchOrdinal,
                                               int finalUpdate) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -55,6 +58,12 @@ void CEF_CALLBACK find_handler_on_find_result(struct _cef_find_handler_t* self,
 
 CefFindHandlerCppToC::CefFindHandlerCppToC() {
   GetStruct()->on_find_result = find_handler_on_find_result;
+}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefFindHandlerCppToC::~CefFindHandlerCppToC() {
+  shutdown_checker::AssertNotShutdown();
 }
 
 template <>

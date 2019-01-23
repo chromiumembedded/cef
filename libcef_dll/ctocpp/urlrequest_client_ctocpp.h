@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=101fb8b9e02d23a7ca1b1d19fcf098b08240c3df$
+// $hash=0f1c052a56070b32dfa23274c0c2f03dabc9173f$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_URLREQUEST_CLIENT_CTOCPP_H_
@@ -32,6 +32,7 @@ class CefURLRequestClientCToCpp
                                  cef_urlrequest_client_t> {
  public:
   CefURLRequestClientCToCpp();
+  virtual ~CefURLRequestClientCToCpp();
 
   // CefURLRequestClient methods.
   void OnRequestComplete(CefRefPtr<CefURLRequest> request) override;

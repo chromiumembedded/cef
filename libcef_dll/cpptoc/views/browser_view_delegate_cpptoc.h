@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=76e7ebaa4de60da787cbda41be1b00dd080cd621$
+// $hash=81e89b48c869a73e0a132889f43088bb589bfc5a$
 //
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_VIEWS_BROWSER_VIEW_DELEGATE_CPPTOC_H_
@@ -36,6 +36,7 @@ class CefBrowserViewDelegateCppToC
                                  cef_browser_view_delegate_t> {
  public:
   CefBrowserViewDelegateCppToC();
+  virtual ~CefBrowserViewDelegateCppToC();
 };
 
 #endif  // CEF_LIBCEF_DLL_CPPTOC_VIEWS_BROWSER_VIEW_DELEGATE_CPPTOC_H_

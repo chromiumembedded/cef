@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=3234ba2fa2ca9fcb4e5062ad1e8f048cee0a2043$
+// $hash=d670b45c86f780e4113755c97679cafe089680fb$
 //
 
 #include "libcef_dll/cpptoc/browser_cpptoc.h"
@@ -17,6 +17,7 @@
 #include "libcef_dll/cpptoc/browser_host_cpptoc.h"
 #include "libcef_dll/cpptoc/frame_cpptoc.h"
 #include "libcef_dll/cpptoc/process_message_cpptoc.h"
+#include "libcef_dll/shutdown_checker.h"
 #include "libcef_dll/transfer_util.h"
 
 namespace {
@@ -25,6 +26,8 @@ namespace {
 
 struct _cef_browser_host_t* CEF_CALLBACK
 browser_get_host(struct _cef_browser_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -39,6 +42,8 @@ browser_get_host(struct _cef_browser_t* self) {
 }
 
 int CEF_CALLBACK browser_can_go_back(struct _cef_browser_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -53,6 +58,8 @@ int CEF_CALLBACK browser_can_go_back(struct _cef_browser_t* self) {
 }
 
 void CEF_CALLBACK browser_go_back(struct _cef_browser_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -64,6 +71,8 @@ void CEF_CALLBACK browser_go_back(struct _cef_browser_t* self) {
 }
 
 int CEF_CALLBACK browser_can_go_forward(struct _cef_browser_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -78,6 +87,8 @@ int CEF_CALLBACK browser_can_go_forward(struct _cef_browser_t* self) {
 }
 
 void CEF_CALLBACK browser_go_forward(struct _cef_browser_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -89,6 +100,8 @@ void CEF_CALLBACK browser_go_forward(struct _cef_browser_t* self) {
 }
 
 int CEF_CALLBACK browser_is_loading(struct _cef_browser_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -103,6 +116,8 @@ int CEF_CALLBACK browser_is_loading(struct _cef_browser_t* self) {
 }
 
 void CEF_CALLBACK browser_reload(struct _cef_browser_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -114,6 +129,8 @@ void CEF_CALLBACK browser_reload(struct _cef_browser_t* self) {
 }
 
 void CEF_CALLBACK browser_reload_ignore_cache(struct _cef_browser_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -125,6 +142,8 @@ void CEF_CALLBACK browser_reload_ignore_cache(struct _cef_browser_t* self) {
 }
 
 void CEF_CALLBACK browser_stop_load(struct _cef_browser_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -136,6 +155,8 @@ void CEF_CALLBACK browser_stop_load(struct _cef_browser_t* self) {
 }
 
 int CEF_CALLBACK browser_get_identifier(struct _cef_browser_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -151,6 +172,8 @@ int CEF_CALLBACK browser_get_identifier(struct _cef_browser_t* self) {
 
 int CEF_CALLBACK browser_is_same(struct _cef_browser_t* self,
                                  struct _cef_browser_t* that) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -170,6 +193,8 @@ int CEF_CALLBACK browser_is_same(struct _cef_browser_t* self,
 }
 
 int CEF_CALLBACK browser_is_popup(struct _cef_browser_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -184,6 +209,8 @@ int CEF_CALLBACK browser_is_popup(struct _cef_browser_t* self) {
 }
 
 int CEF_CALLBACK browser_has_document(struct _cef_browser_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -199,6 +226,8 @@ int CEF_CALLBACK browser_has_document(struct _cef_browser_t* self) {
 
 struct _cef_frame_t* CEF_CALLBACK
 browser_get_main_frame(struct _cef_browser_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -214,6 +243,8 @@ browser_get_main_frame(struct _cef_browser_t* self) {
 
 struct _cef_frame_t* CEF_CALLBACK
 browser_get_focused_frame(struct _cef_browser_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -229,6 +260,8 @@ browser_get_focused_frame(struct _cef_browser_t* self) {
 
 struct _cef_frame_t* CEF_CALLBACK
 browser_get_frame_byident(struct _cef_browser_t* self, int64 identifier) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -245,6 +278,8 @@ browser_get_frame_byident(struct _cef_browser_t* self, int64 identifier) {
 
 struct _cef_frame_t* CEF_CALLBACK browser_get_frame(struct _cef_browser_t* self,
                                                     const cef_string_t* name) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -261,6 +296,8 @@ struct _cef_frame_t* CEF_CALLBACK browser_get_frame(struct _cef_browser_t* self,
 }
 
 size_t CEF_CALLBACK browser_get_frame_count(struct _cef_browser_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -277,6 +314,8 @@ size_t CEF_CALLBACK browser_get_frame_count(struct _cef_browser_t* self) {
 void CEF_CALLBACK browser_get_frame_identifiers(struct _cef_browser_t* self,
                                                 size_t* identifiersCount,
                                                 int64* identifiers) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -311,6 +350,8 @@ void CEF_CALLBACK browser_get_frame_identifiers(struct _cef_browser_t* self,
 
 void CEF_CALLBACK browser_get_frame_names(struct _cef_browser_t* self,
                                           cef_string_list_t names) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -337,6 +378,8 @@ int CEF_CALLBACK
 browser_send_process_message(struct _cef_browser_t* self,
                              cef_process_id_t target_process,
                              struct _cef_process_message_t* message) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -381,6 +424,12 @@ CefBrowserCppToC::CefBrowserCppToC() {
   GetStruct()->get_frame_identifiers = browser_get_frame_identifiers;
   GetStruct()->get_frame_names = browser_get_frame_names;
   GetStruct()->send_process_message = browser_send_process_message;
+}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefBrowserCppToC::~CefBrowserCppToC() {
+  shutdown_checker::AssertNotShutdown();
 }
 
 template <>

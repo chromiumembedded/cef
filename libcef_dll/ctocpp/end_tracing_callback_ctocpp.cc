@@ -9,16 +9,19 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=67be49662843b260fb51d6b63474ed11ddcebeed$
+// $hash=e058040d92110f4c34e8e3dbfdeb6ea7083648c3$
 //
 
 #include "libcef_dll/ctocpp/end_tracing_callback_ctocpp.h"
+#include "libcef_dll/shutdown_checker.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
 NO_SANITIZE("cfi-icall")
 void CefEndTracingCallbackCToCpp::OnEndTracingComplete(
     const CefString& tracing_file) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_end_tracing_callback_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_end_tracing_complete))
     return;
@@ -37,6 +40,12 @@ void CefEndTracingCallbackCToCpp::OnEndTracingComplete(
 // CONSTRUCTOR - Do not edit by hand.
 
 CefEndTracingCallbackCToCpp::CefEndTracingCallbackCToCpp() {}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefEndTracingCallbackCToCpp::~CefEndTracingCallbackCToCpp() {
+  shutdown_checker::AssertNotShutdown();
+}
 
 template <>
 cef_end_tracing_callback_t* CefCToCppRefCounted<

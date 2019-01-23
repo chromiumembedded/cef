@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=4e2063730c3607673b332251c47593bd42cff29e$
+// $hash=6a38bf30fbbe1de396314d51b794d7286e4d2847$
 //
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_VIEWS_SCROLL_VIEW_CPPTOC_H_
@@ -31,6 +31,7 @@ class CefScrollViewCppToC : public CefCppToCRefCounted<CefScrollViewCppToC,
                                                        cef_scroll_view_t> {
  public:
   CefScrollViewCppToC();
+  virtual ~CefScrollViewCppToC();
 };
 
 #endif  // CEF_LIBCEF_DLL_CPPTOC_VIEWS_SCROLL_VIEW_CPPTOC_H_

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=e51efc688ca9b8786a46f3ffd0eca5b7255c112e$
+// $hash=76b8765bc1a94b95fdac5bbdf27f3f93dc9b1b37$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_X509CERTIFICATE_CTOCPP_H_
@@ -32,6 +32,7 @@ class CefX509CertificateCToCpp
                                  cef_x509certificate_t> {
  public:
   CefX509CertificateCToCpp();
+  virtual ~CefX509CertificateCToCpp();
 
   // CefX509Certificate methods.
   CefRefPtr<CefX509CertPrincipal> GetSubject() OVERRIDE;

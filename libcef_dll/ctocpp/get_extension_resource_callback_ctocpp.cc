@@ -9,17 +9,20 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=1ef68f8867b2479a9832a1b132f37380630079a1$
+// $hash=57baa0469fab143d1598ab18cf8b92891751c8b0$
 //
 
 #include "libcef_dll/ctocpp/get_extension_resource_callback_ctocpp.h"
 #include "libcef_dll/ctocpp/stream_reader_ctocpp.h"
+#include "libcef_dll/shutdown_checker.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
 NO_SANITIZE("cfi-icall")
 void CefGetExtensionResourceCallbackCToCpp::Continue(
     CefRefPtr<CefStreamReader> stream) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_get_extension_resource_callback_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, cont))
     return;
@@ -33,6 +36,8 @@ void CefGetExtensionResourceCallbackCToCpp::Continue(
 }
 
 NO_SANITIZE("cfi-icall") void CefGetExtensionResourceCallbackCToCpp::Cancel() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_get_extension_resource_callback_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, cancel))
     return;
@@ -46,6 +51,13 @@ NO_SANITIZE("cfi-icall") void CefGetExtensionResourceCallbackCToCpp::Cancel() {
 // CONSTRUCTOR - Do not edit by hand.
 
 CefGetExtensionResourceCallbackCToCpp::CefGetExtensionResourceCallbackCToCpp() {
+}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefGetExtensionResourceCallbackCToCpp::
+    ~CefGetExtensionResourceCallbackCToCpp() {
+  shutdown_checker::AssertNotShutdown();
 }
 
 template <>

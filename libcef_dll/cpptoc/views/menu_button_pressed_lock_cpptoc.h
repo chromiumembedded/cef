@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=ff1d8d710ed44125cb88f6eda21e44d74e9b8426$
+// $hash=28affe08d2caa2c601575f23bf5c2c757ca3d9d7$
 //
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_VIEWS_MENU_BUTTON_PRESSED_LOCK_CPPTOC_H_
@@ -34,6 +34,7 @@ class CefMenuButtonPressedLockCppToC
                                  cef_menu_button_pressed_lock_t> {
  public:
   CefMenuButtonPressedLockCppToC();
+  virtual ~CefMenuButtonPressedLockCppToC();
 };
 
 #endif  // CEF_LIBCEF_DLL_CPPTOC_VIEWS_MENU_BUTTON_PRESSED_LOCK_CPPTOC_H_

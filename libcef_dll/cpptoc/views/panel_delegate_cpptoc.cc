@@ -9,12 +9,13 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=c5ec9b06b8a6dca099c8cb56929c11bd17314580$
+// $hash=8d53561e0ce0fcfc46d9a6803c2ed6a7c300a670$
 //
 
 #include "libcef_dll/cpptoc/views/panel_delegate_cpptoc.h"
 #include "libcef_dll/cpptoc/views/window_delegate_cpptoc.h"
 #include "libcef_dll/ctocpp/views/view_ctocpp.h"
+#include "libcef_dll/shutdown_checker.h"
 
 namespace {
 
@@ -23,6 +24,8 @@ namespace {
 cef_size_t CEF_CALLBACK
 panel_delegate_get_preferred_size(struct _cef_view_delegate_t* self,
                                   cef_view_t* view) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -45,6 +48,8 @@ panel_delegate_get_preferred_size(struct _cef_view_delegate_t* self,
 cef_size_t CEF_CALLBACK
 panel_delegate_get_minimum_size(struct _cef_view_delegate_t* self,
                                 cef_view_t* view) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -67,6 +72,8 @@ panel_delegate_get_minimum_size(struct _cef_view_delegate_t* self,
 cef_size_t CEF_CALLBACK
 panel_delegate_get_maximum_size(struct _cef_view_delegate_t* self,
                                 cef_view_t* view) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -90,6 +97,8 @@ int CEF_CALLBACK
 panel_delegate_get_height_for_width(struct _cef_view_delegate_t* self,
                                     cef_view_t* view,
                                     int width) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -114,6 +123,8 @@ panel_delegate_on_parent_view_changed(struct _cef_view_delegate_t* self,
                                       cef_view_t* view,
                                       int added,
                                       cef_view_t* parent) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -139,6 +150,8 @@ panel_delegate_on_child_view_changed(struct _cef_view_delegate_t* self,
                                      cef_view_t* view,
                                      int added,
                                      cef_view_t* child) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -161,6 +174,8 @@ panel_delegate_on_child_view_changed(struct _cef_view_delegate_t* self,
 
 void CEF_CALLBACK panel_delegate_on_focus(struct _cef_view_delegate_t* self,
                                           cef_view_t* view) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -178,6 +193,8 @@ void CEF_CALLBACK panel_delegate_on_focus(struct _cef_view_delegate_t* self,
 
 void CEF_CALLBACK panel_delegate_on_blur(struct _cef_view_delegate_t* self,
                                          cef_view_t* view) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -208,6 +225,12 @@ CefPanelDelegateCppToC::CefPanelDelegateCppToC() {
       panel_delegate_on_child_view_changed;
   GetStruct()->base.on_focus = panel_delegate_on_focus;
   GetStruct()->base.on_blur = panel_delegate_on_blur;
+}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefPanelDelegateCppToC::~CefPanelDelegateCppToC() {
+  shutdown_checker::AssertNotShutdown();
 }
 
 template <>

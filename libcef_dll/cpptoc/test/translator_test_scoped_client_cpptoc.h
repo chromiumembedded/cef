@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=55a7943ecaff5f45d80eaf4603f91351a3e23833$
+// $hash=a878f6dc013076b562ea3e5aa108ddc2b91eedc8$
 //
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_TEST_TRANSLATOR_TEST_SCOPED_CLIENT_CPPTOC_H_
@@ -32,6 +32,7 @@ class CefTranslatorTestScopedClientCppToC
                              cef_translator_test_scoped_client_t> {
  public:
   CefTranslatorTestScopedClientCppToC();
+  virtual ~CefTranslatorTestScopedClientCppToC();
 };
 
 #endif  // CEF_LIBCEF_DLL_CPPTOC_TEST_TRANSLATOR_TEST_SCOPED_CLIENT_CPPTOC_H_

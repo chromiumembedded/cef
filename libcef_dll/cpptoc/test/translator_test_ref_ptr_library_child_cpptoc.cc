@@ -9,16 +9,19 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=d518a02838933a5fcb2ed8a7405644e1eb70b456$
+// $hash=bb730076e72ba699a3a07b26f8eaa7ed4e61882f$
 //
 
 #include "libcef_dll/cpptoc/test/translator_test_ref_ptr_library_child_cpptoc.h"
 #include "libcef_dll/cpptoc/test/translator_test_ref_ptr_library_child_child_cpptoc.h"
+#include "libcef_dll/shutdown_checker.h"
 
 // GLOBAL FUNCTIONS - Body may be edited by hand.
 
 CEF_EXPORT cef_translator_test_ref_ptr_library_child_t*
 cef_translator_test_ref_ptr_library_child_create(int value, int other_value) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
@@ -35,6 +38,8 @@ namespace {
 
 int CEF_CALLBACK translator_test_ref_ptr_library_child_get_other_value(
     struct _cef_translator_test_ref_ptr_library_child_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -52,6 +57,8 @@ int CEF_CALLBACK translator_test_ref_ptr_library_child_get_other_value(
 void CEF_CALLBACK translator_test_ref_ptr_library_child_set_other_value(
     struct _cef_translator_test_ref_ptr_library_child_t* self,
     int value) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -64,6 +71,8 @@ void CEF_CALLBACK translator_test_ref_ptr_library_child_set_other_value(
 
 int CEF_CALLBACK translator_test_ref_ptr_library_child_get_value(
     struct _cef_translator_test_ref_ptr_library_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -83,6 +92,8 @@ int CEF_CALLBACK translator_test_ref_ptr_library_child_get_value(
 void CEF_CALLBACK translator_test_ref_ptr_library_child_set_value(
     struct _cef_translator_test_ref_ptr_library_t* self,
     int value) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -107,6 +118,13 @@ CefTranslatorTestRefPtrLibraryChildCppToC::
       translator_test_ref_ptr_library_child_set_other_value;
   GetStruct()->base.get_value = translator_test_ref_ptr_library_child_get_value;
   GetStruct()->base.set_value = translator_test_ref_ptr_library_child_set_value;
+}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefTranslatorTestRefPtrLibraryChildCppToC::
+    ~CefTranslatorTestRefPtrLibraryChildCppToC() {
+  shutdown_checker::AssertNotShutdown();
 }
 
 template <>

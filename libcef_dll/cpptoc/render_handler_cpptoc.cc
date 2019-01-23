@@ -9,13 +9,14 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=adb6d28a466b3de0fc13958c55ef0045eeeb9b89$
+// $hash=53ba7fafebb1f43c5c91b1a8a53fa0c7fab0a8ff$
 //
 
 #include "libcef_dll/cpptoc/render_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/accessibility_handler_cpptoc.h"
 #include "libcef_dll/ctocpp/browser_ctocpp.h"
 #include "libcef_dll/ctocpp/drag_data_ctocpp.h"
+#include "libcef_dll/shutdown_checker.h"
 
 namespace {
 
@@ -23,6 +24,8 @@ namespace {
 
 cef_accessibility_handler_t* CEF_CALLBACK
 render_handler_get_accessibility_handler(struct _cef_render_handler_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -41,6 +44,8 @@ int CEF_CALLBACK
 render_handler_get_root_screen_rect(struct _cef_render_handler_t* self,
                                     cef_browser_t* browser,
                                     cef_rect_t* rect) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -74,6 +79,8 @@ void CEF_CALLBACK
 render_handler_get_view_rect(struct _cef_render_handler_t* self,
                              cef_browser_t* browser,
                              cef_rect_t* rect) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -107,6 +114,8 @@ render_handler_get_screen_point(struct _cef_render_handler_t* self,
                                 int viewY,
                                 int* screenX,
                                 int* screenY) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -149,6 +158,8 @@ int CEF_CALLBACK
 render_handler_get_screen_info(struct _cef_render_handler_t* self,
                                cef_browser_t* browser,
                                struct _cef_screen_info_t* screen_info) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -184,6 +195,8 @@ void CEF_CALLBACK
 render_handler_on_popup_show(struct _cef_render_handler_t* self,
                              cef_browser_t* browser,
                              int show) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -203,6 +216,8 @@ void CEF_CALLBACK
 render_handler_on_popup_size(struct _cef_render_handler_t* self,
                              cef_browser_t* browser,
                              const cef_rect_t* rect) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -233,6 +248,8 @@ void CEF_CALLBACK render_handler_on_paint(struct _cef_render_handler_t* self,
                                           const void* buffer,
                                           int width,
                                           int height) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -273,6 +290,8 @@ render_handler_on_accelerated_paint(struct _cef_render_handler_t* self,
                                     size_t dirtyRectsCount,
                                     cef_rect_t const* dirtyRects,
                                     void* shared_handle) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -311,6 +330,8 @@ void CEF_CALLBACK render_handler_on_cursor_change(
     cef_cursor_handle_t cursor,
     cef_cursor_type_t type,
     const struct _cef_cursor_info_t* custom_cursor_info) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -342,6 +363,8 @@ render_handler_start_dragging(struct _cef_render_handler_t* self,
                               cef_drag_operations_mask_t allowed_ops,
                               int x,
                               int y) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -369,6 +392,8 @@ void CEF_CALLBACK
 render_handler_update_drag_cursor(struct _cef_render_handler_t* self,
                                   cef_browser_t* browser,
                                   cef_drag_operations_mask_t operation) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -389,6 +414,8 @@ render_handler_on_scroll_offset_changed(struct _cef_render_handler_t* self,
                                         cef_browser_t* browser,
                                         double x,
                                         double y) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -410,6 +437,8 @@ void CEF_CALLBACK render_handler_on_ime_composition_range_changed(
     const cef_range_t* selected_range,
     size_t character_boundsCount,
     cef_rect_t const* character_bounds) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -449,6 +478,8 @@ render_handler_on_text_selection_changed(struct _cef_render_handler_t* self,
                                          cef_browser_t* browser,
                                          const cef_string_t* selected_text,
                                          const cef_range_t* selected_range) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -493,6 +524,12 @@ CefRenderHandlerCppToC::CefRenderHandlerCppToC() {
       render_handler_on_ime_composition_range_changed;
   GetStruct()->on_text_selection_changed =
       render_handler_on_text_selection_changed;
+}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefRenderHandlerCppToC::~CefRenderHandlerCppToC() {
+  shutdown_checker::AssertNotShutdown();
 }
 
 template <>

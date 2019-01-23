@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=2a398bf6e1a3ad03fae156e3ce4a06f752062c9d$
+// $hash=bd182d62d1138afebe9555f38206758c9c642ef3$
 //
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_CONTEXT_MENU_HANDLER_CPPTOC_H_
@@ -32,6 +32,7 @@ class CefContextMenuHandlerCppToC
                                  cef_context_menu_handler_t> {
  public:
   CefContextMenuHandlerCppToC();
+  virtual ~CefContextMenuHandlerCppToC();
 };
 
 #endif  // CEF_LIBCEF_DLL_CPPTOC_CONTEXT_MENU_HANDLER_CPPTOC_H_

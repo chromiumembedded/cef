@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=0dea3c72fc25391dee433ed53eb4f5e64b8cde05$
+// $hash=7e9a55e827274278c30ee0a17b6271089f660199$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_VIEWS_TEXTFIELD_DELEGATE_CTOCPP_H_
@@ -34,6 +34,7 @@ class CefTextfieldDelegateCToCpp
                                  cef_textfield_delegate_t> {
  public:
   CefTextfieldDelegateCToCpp();
+  virtual ~CefTextfieldDelegateCToCpp();
 
   // CefTextfieldDelegate methods.
   bool OnKeyEvent(CefRefPtr<CefTextfield> textfield,

@@ -9,10 +9,11 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=a19cac14ca6d1a334920a83e092ff2accb7a0d4c$
+// $hash=be2c5bdbd772cac7345acb05b976a3cf2e05b8b0$
 //
 
 #include "libcef_dll/cpptoc/end_tracing_callback_cpptoc.h"
+#include "libcef_dll/shutdown_checker.h"
 
 namespace {
 
@@ -21,6 +22,8 @@ namespace {
 void CEF_CALLBACK end_tracing_callback_on_end_tracing_complete(
     struct _cef_end_tracing_callback_t* self,
     const cef_string_t* tracing_file) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -43,6 +46,12 @@ void CEF_CALLBACK end_tracing_callback_on_end_tracing_complete(
 CefEndTracingCallbackCppToC::CefEndTracingCallbackCppToC() {
   GetStruct()->on_end_tracing_complete =
       end_tracing_callback_on_end_tracing_complete;
+}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefEndTracingCallbackCppToC::~CefEndTracingCallbackCppToC() {
+  shutdown_checker::AssertNotShutdown();
 }
 
 template <>

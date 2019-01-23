@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=c4f45d6ab409176c8ef5c395502607998b5e0d2f$
+// $hash=93064da792b47d7eca6f6b8fba73baa07fbe16ab$
 //
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_POST_DATA_ELEMENT_CPPTOC_H_
@@ -32,6 +32,7 @@ class CefPostDataElementCppToC
                                  cef_post_data_element_t> {
  public:
   CefPostDataElementCppToC();
+  virtual ~CefPostDataElementCppToC();
 };
 
 #endif  // CEF_LIBCEF_DLL_CPPTOC_POST_DATA_ELEMENT_CPPTOC_H_

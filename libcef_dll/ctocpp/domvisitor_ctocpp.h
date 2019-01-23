@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=f8391f0b198f21e05fedada30434dad8b7c322a9$
+// $hash=767f2131dcef4b3cf1df5c8f04b3a417da0ff7de$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_DOMVISITOR_CTOCPP_H_
@@ -31,6 +31,7 @@ class CefDOMVisitorCToCpp : public CefCToCppRefCounted<CefDOMVisitorCToCpp,
                                                        cef_domvisitor_t> {
  public:
   CefDOMVisitorCToCpp();
+  virtual ~CefDOMVisitorCToCpp();
 
   // CefDOMVisitor methods.
   void Visit(CefRefPtr<CefDOMDocument> document) override;

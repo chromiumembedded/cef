@@ -9,13 +9,14 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=5ca0dcecb510fc40906043821ecdd6021060ec29$
+// $hash=62a4635c56e709876e99f0e3286ee769b6158c3e$
 //
 
 #include "libcef_dll/ctocpp/life_span_handler_ctocpp.h"
 #include "libcef_dll/cpptoc/browser_cpptoc.h"
 #include "libcef_dll/cpptoc/frame_cpptoc.h"
 #include "libcef_dll/ctocpp/client_ctocpp.h"
+#include "libcef_dll/shutdown_checker.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
@@ -32,6 +33,8 @@ bool CefLifeSpanHandlerCToCpp::OnBeforePopup(
     CefRefPtr<CefClient>& client,
     CefBrowserSettings& settings,
     bool* no_javascript_access) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_life_span_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_before_popup))
     return false;
@@ -86,6 +89,8 @@ bool CefLifeSpanHandlerCToCpp::OnBeforePopup(
 
 NO_SANITIZE("cfi-icall")
 void CefLifeSpanHandlerCToCpp::OnAfterCreated(CefRefPtr<CefBrowser> browser) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_life_span_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_after_created))
     return;
@@ -103,6 +108,8 @@ void CefLifeSpanHandlerCToCpp::OnAfterCreated(CefRefPtr<CefBrowser> browser) {
 
 NO_SANITIZE("cfi-icall")
 bool CefLifeSpanHandlerCToCpp::DoClose(CefRefPtr<CefBrowser> browser) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_life_span_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, do_close))
     return false;
@@ -123,6 +130,8 @@ bool CefLifeSpanHandlerCToCpp::DoClose(CefRefPtr<CefBrowser> browser) {
 
 NO_SANITIZE("cfi-icall")
 void CefLifeSpanHandlerCToCpp::OnBeforeClose(CefRefPtr<CefBrowser> browser) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_life_span_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_before_close))
     return;
@@ -141,6 +150,12 @@ void CefLifeSpanHandlerCToCpp::OnBeforeClose(CefRefPtr<CefBrowser> browser) {
 // CONSTRUCTOR - Do not edit by hand.
 
 CefLifeSpanHandlerCToCpp::CefLifeSpanHandlerCToCpp() {}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefLifeSpanHandlerCToCpp::~CefLifeSpanHandlerCToCpp() {
+  shutdown_checker::AssertNotShutdown();
+}
 
 template <>
 cef_life_span_handler_t* CefCToCppRefCounted<

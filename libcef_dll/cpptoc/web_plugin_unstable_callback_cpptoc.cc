@@ -9,10 +9,11 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=64b74fdba92d155efb568bc26d927fdd08fe7edb$
+// $hash=77094a5641deaba588ae54340b4b2a4a67a63fb9$
 //
 
 #include "libcef_dll/cpptoc/web_plugin_unstable_callback_cpptoc.h"
+#include "libcef_dll/shutdown_checker.h"
 
 namespace {
 
@@ -22,6 +23,8 @@ void CEF_CALLBACK web_plugin_unstable_callback_is_unstable(
     struct _cef_web_plugin_unstable_callback_t* self,
     const cef_string_t* path,
     int unstable) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -43,6 +46,12 @@ void CEF_CALLBACK web_plugin_unstable_callback_is_unstable(
 
 CefWebPluginUnstableCallbackCppToC::CefWebPluginUnstableCallbackCppToC() {
   GetStruct()->is_unstable = web_plugin_unstable_callback_is_unstable;
+}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefWebPluginUnstableCallbackCppToC::~CefWebPluginUnstableCallbackCppToC() {
+  shutdown_checker::AssertNotShutdown();
 }
 
 template <>

@@ -9,12 +9,13 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=ff8fa574035e68e700fcb134ffef674bc7d72f1a$
+// $hash=4109a221d676024ebcd41ce7b3ce617ba72a64b8$
 //
 
 #include "libcef_dll/ctocpp/display_handler_ctocpp.h"
 #include "libcef_dll/cpptoc/browser_cpptoc.h"
 #include "libcef_dll/cpptoc/frame_cpptoc.h"
+#include "libcef_dll/shutdown_checker.h"
 #include "libcef_dll/transfer_util.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
@@ -23,6 +24,8 @@ NO_SANITIZE("cfi-icall")
 void CefDisplayHandlerCToCpp::OnAddressChange(CefRefPtr<CefBrowser> browser,
                                               CefRefPtr<CefFrame> frame,
                                               const CefString& url) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_display_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_address_change))
     return;
@@ -50,6 +53,8 @@ void CefDisplayHandlerCToCpp::OnAddressChange(CefRefPtr<CefBrowser> browser,
 NO_SANITIZE("cfi-icall")
 void CefDisplayHandlerCToCpp::OnTitleChange(CefRefPtr<CefBrowser> browser,
                                             const CefString& title) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_display_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_title_change))
     return;
@@ -71,6 +76,8 @@ NO_SANITIZE("cfi-icall")
 void CefDisplayHandlerCToCpp::OnFaviconURLChange(
     CefRefPtr<CefBrowser> browser,
     const std::vector<CefString>& icon_urls) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_display_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_favicon_urlchange))
     return;
@@ -102,6 +109,8 @@ NO_SANITIZE("cfi-icall")
 void CefDisplayHandlerCToCpp::OnFullscreenModeChange(
     CefRefPtr<CefBrowser> browser,
     bool fullscreen) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_display_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_fullscreen_mode_change))
     return;
@@ -121,6 +130,8 @@ void CefDisplayHandlerCToCpp::OnFullscreenModeChange(
 NO_SANITIZE("cfi-icall")
 bool CefDisplayHandlerCToCpp::OnTooltip(CefRefPtr<CefBrowser> browser,
                                         CefString& text) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_display_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_tooltip))
     return false;
@@ -144,6 +155,8 @@ bool CefDisplayHandlerCToCpp::OnTooltip(CefRefPtr<CefBrowser> browser,
 NO_SANITIZE("cfi-icall")
 void CefDisplayHandlerCToCpp::OnStatusMessage(CefRefPtr<CefBrowser> browser,
                                               const CefString& value) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_display_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_status_message))
     return;
@@ -167,6 +180,8 @@ bool CefDisplayHandlerCToCpp::OnConsoleMessage(CefRefPtr<CefBrowser> browser,
                                                const CefString& message,
                                                const CefString& source,
                                                int line) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_display_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_console_message))
     return false;
@@ -191,6 +206,8 @@ bool CefDisplayHandlerCToCpp::OnConsoleMessage(CefRefPtr<CefBrowser> browser,
 NO_SANITIZE("cfi-icall")
 bool CefDisplayHandlerCToCpp::OnAutoResize(CefRefPtr<CefBrowser> browser,
                                            const CefSize& new_size) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_display_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_auto_resize))
     return false;
@@ -214,6 +231,8 @@ NO_SANITIZE("cfi-icall")
 void CefDisplayHandlerCToCpp::OnLoadingProgressChange(
     CefRefPtr<CefBrowser> browser,
     double progress) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_display_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_loading_progress_change))
     return;
@@ -233,6 +252,12 @@ void CefDisplayHandlerCToCpp::OnLoadingProgressChange(
 // CONSTRUCTOR - Do not edit by hand.
 
 CefDisplayHandlerCToCpp::CefDisplayHandlerCToCpp() {}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefDisplayHandlerCToCpp::~CefDisplayHandlerCToCpp() {
+  shutdown_checker::AssertNotShutdown();
+}
 
 template <>
 cef_display_handler_t* CefCToCppRefCounted<

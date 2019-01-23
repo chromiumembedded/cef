@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=6cd10944ae4d86c4870ecbe3482c79e9c7c0b3f4$
+// $hash=ccc05cceb0dddb4e586e5605cf64b776e6a62b85$
 //
 
 #include "libcef_dll/ctocpp/post_data_element_ctocpp.h"
@@ -156,6 +156,10 @@ size_t CefPostDataElementCToCpp::GetBytes(size_t size, void* bytes) {
 // CONSTRUCTOR - Do not edit by hand.
 
 CefPostDataElementCToCpp::CefPostDataElementCToCpp() {}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefPostDataElementCToCpp::~CefPostDataElementCToCpp() {}
 
 template <>
 cef_post_data_element_t* CefCToCppRefCounted<

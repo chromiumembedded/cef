@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=2bfbd665c6b19cad203442ef31e9b9ce034766e2$
+// $hash=e3a4e0ec89854791f0f84a88af6161d51c98a274$
 //
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_REQUEST_CONTEXT_CPPTOC_H_
@@ -34,6 +34,7 @@ class CefRequestContextCppToC
                                  cef_request_context_t> {
  public:
   CefRequestContextCppToC();
+  virtual ~CefRequestContextCppToC();
 };
 
 #endif  // CEF_LIBCEF_DLL_CPPTOC_REQUEST_CONTEXT_CPPTOC_H_

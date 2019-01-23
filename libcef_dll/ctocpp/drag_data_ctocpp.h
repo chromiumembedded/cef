@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=8aa0e18eefedd1198250d499326c30b8882491cf$
+// $hash=6e3784bb8fd9a3af1009dd8eb15ec053c454b509$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_DRAG_DATA_CTOCPP_H_
@@ -32,6 +32,7 @@ class CefDragDataCToCpp : public CefCToCppRefCounted<CefDragDataCToCpp,
                                                      cef_drag_data_t> {
  public:
   CefDragDataCToCpp();
+  virtual ~CefDragDataCToCpp();
 
   // CefDragData methods.
   CefRefPtr<CefDragData> Clone() OVERRIDE;

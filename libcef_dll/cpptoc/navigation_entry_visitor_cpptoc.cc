@@ -9,11 +9,12 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=ec3c7ec133dc954dc3f61081f6a765b375fcc9bf$
+// $hash=64deb213617efb32c6c092dc6cca900f67322b68$
 //
 
 #include "libcef_dll/cpptoc/navigation_entry_visitor_cpptoc.h"
 #include "libcef_dll/ctocpp/navigation_entry_ctocpp.h"
+#include "libcef_dll/shutdown_checker.h"
 
 namespace {
 
@@ -25,6 +26,8 @@ navigation_entry_visitor_visit(struct _cef_navigation_entry_visitor_t* self,
                                int current,
                                int index,
                                int total) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -50,6 +53,12 @@ navigation_entry_visitor_visit(struct _cef_navigation_entry_visitor_t* self,
 
 CefNavigationEntryVisitorCppToC::CefNavigationEntryVisitorCppToC() {
   GetStruct()->visit = navigation_entry_visitor_visit;
+}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefNavigationEntryVisitorCppToC::~CefNavigationEntryVisitorCppToC() {
+  shutdown_checker::AssertNotShutdown();
 }
 
 template <>

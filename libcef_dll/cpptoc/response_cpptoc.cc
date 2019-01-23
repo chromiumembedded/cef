@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=d102b4d8ce35a02ea58fe3f5de953800c09586aa$
+// $hash=bdc31be4b01e64649ad32c12c6a9262392206210$
 //
 
 #include "libcef_dll/cpptoc/response_cpptoc.h"
@@ -273,6 +273,10 @@ CefResponseCppToC::CefResponseCppToC() {
   GetStruct()->get_url = response_get_url;
   GetStruct()->set_url = response_set_url;
 }
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefResponseCppToC::~CefResponseCppToC() {}
 
 template <>
 CefRefPtr<CefResponse>

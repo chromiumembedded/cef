@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=57e588531e5b86a9290a506d37a4e4198a7dc26b$
+// $hash=90d6a53956c2d81e9ab271ff02f8f857f250c0e9$
 //
 
 #include "libcef_dll/cpptoc/test/translator_test_scoped_client_child_cpptoc.h"
@@ -62,6 +62,11 @@ CefTranslatorTestScopedClientChildCppToC::
       translator_test_scoped_client_child_get_other_value;
   GetStruct()->base.get_value = translator_test_scoped_client_child_get_value;
 }
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefTranslatorTestScopedClientChildCppToC::
+    ~CefTranslatorTestScopedClientChildCppToC() {}
 
 template <>
 CefOwnPtr<CefTranslatorTestScopedClientChild>

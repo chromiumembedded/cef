@@ -9,17 +9,20 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=2ef9d00940facc5274c7c72720be4df0ff4fa2fe$
+// $hash=52c596cce6ec67ca96eaf2550d9a6b456e7536d1$
 //
 
 #include "libcef_dll/ctocpp/menu_model_ctocpp.h"
 #include "libcef_dll/cpptoc/menu_model_delegate_cpptoc.h"
+#include "libcef_dll/shutdown_checker.h"
 
 // STATIC METHODS - Body may be edited by hand.
 
 NO_SANITIZE("cfi-icall")
 CefRefPtr<CefMenuModel> CefMenuModel::CreateMenuModel(
     CefRefPtr<CefMenuModelDelegate> delegate) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: delegate; type: refptr_diff
@@ -38,6 +41,8 @@ CefRefPtr<CefMenuModel> CefMenuModel::CreateMenuModel(
 // VIRTUAL METHODS - Body may be edited by hand.
 
 NO_SANITIZE("cfi-icall") bool CefMenuModelCToCpp::IsSubMenu() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_menu_model_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, is_sub_menu))
     return false;
@@ -52,6 +57,8 @@ NO_SANITIZE("cfi-icall") bool CefMenuModelCToCpp::IsSubMenu() {
 }
 
 NO_SANITIZE("cfi-icall") bool CefMenuModelCToCpp::Clear() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_menu_model_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, clear))
     return false;
@@ -66,6 +73,8 @@ NO_SANITIZE("cfi-icall") bool CefMenuModelCToCpp::Clear() {
 }
 
 NO_SANITIZE("cfi-icall") int CefMenuModelCToCpp::GetCount() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_menu_model_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_count))
     return 0;
@@ -80,6 +89,8 @@ NO_SANITIZE("cfi-icall") int CefMenuModelCToCpp::GetCount() {
 }
 
 NO_SANITIZE("cfi-icall") bool CefMenuModelCToCpp::AddSeparator() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_menu_model_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, add_separator))
     return false;
@@ -95,6 +106,8 @@ NO_SANITIZE("cfi-icall") bool CefMenuModelCToCpp::AddSeparator() {
 
 NO_SANITIZE("cfi-icall")
 bool CefMenuModelCToCpp::AddItem(int command_id, const CefString& label) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_menu_model_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, add_item))
     return false;
@@ -115,6 +128,8 @@ bool CefMenuModelCToCpp::AddItem(int command_id, const CefString& label) {
 
 NO_SANITIZE("cfi-icall")
 bool CefMenuModelCToCpp::AddCheckItem(int command_id, const CefString& label) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_menu_model_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, add_check_item))
     return false;
@@ -137,6 +152,8 @@ NO_SANITIZE("cfi-icall")
 bool CefMenuModelCToCpp::AddRadioItem(int command_id,
                                       const CefString& label,
                                       int group_id) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_menu_model_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, add_radio_item))
     return false;
@@ -159,6 +176,8 @@ bool CefMenuModelCToCpp::AddRadioItem(int command_id,
 NO_SANITIZE("cfi-icall")
 CefRefPtr<CefMenuModel> CefMenuModelCToCpp::AddSubMenu(int command_id,
                                                        const CefString& label) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_menu_model_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, add_sub_menu))
     return NULL;
@@ -179,6 +198,8 @@ CefRefPtr<CefMenuModel> CefMenuModelCToCpp::AddSubMenu(int command_id,
 }
 
 NO_SANITIZE("cfi-icall") bool CefMenuModelCToCpp::InsertSeparatorAt(int index) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_menu_model_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, insert_separator_at))
     return false;
@@ -196,6 +217,8 @@ NO_SANITIZE("cfi-icall")
 bool CefMenuModelCToCpp::InsertItemAt(int index,
                                       int command_id,
                                       const CefString& label) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_menu_model_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, insert_item_at))
     return false;
@@ -219,6 +242,8 @@ NO_SANITIZE("cfi-icall")
 bool CefMenuModelCToCpp::InsertCheckItemAt(int index,
                                            int command_id,
                                            const CefString& label) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_menu_model_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, insert_check_item_at))
     return false;
@@ -243,6 +268,8 @@ bool CefMenuModelCToCpp::InsertRadioItemAt(int index,
                                            int command_id,
                                            const CefString& label,
                                            int group_id) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_menu_model_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, insert_radio_item_at))
     return false;
@@ -267,6 +294,8 @@ CefRefPtr<CefMenuModel> CefMenuModelCToCpp::InsertSubMenuAt(
     int index,
     int command_id,
     const CefString& label) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_menu_model_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, insert_sub_menu_at))
     return NULL;
@@ -287,6 +316,8 @@ CefRefPtr<CefMenuModel> CefMenuModelCToCpp::InsertSubMenuAt(
 }
 
 NO_SANITIZE("cfi-icall") bool CefMenuModelCToCpp::Remove(int command_id) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_menu_model_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, remove))
     return false;
@@ -301,6 +332,8 @@ NO_SANITIZE("cfi-icall") bool CefMenuModelCToCpp::Remove(int command_id) {
 }
 
 NO_SANITIZE("cfi-icall") bool CefMenuModelCToCpp::RemoveAt(int index) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_menu_model_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, remove_at))
     return false;
@@ -315,6 +348,8 @@ NO_SANITIZE("cfi-icall") bool CefMenuModelCToCpp::RemoveAt(int index) {
 }
 
 NO_SANITIZE("cfi-icall") int CefMenuModelCToCpp::GetIndexOf(int command_id) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_menu_model_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_index_of))
     return 0;
@@ -329,6 +364,8 @@ NO_SANITIZE("cfi-icall") int CefMenuModelCToCpp::GetIndexOf(int command_id) {
 }
 
 NO_SANITIZE("cfi-icall") int CefMenuModelCToCpp::GetCommandIdAt(int index) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_menu_model_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_command_id_at))
     return 0;
@@ -344,6 +381,8 @@ NO_SANITIZE("cfi-icall") int CefMenuModelCToCpp::GetCommandIdAt(int index) {
 
 NO_SANITIZE("cfi-icall")
 bool CefMenuModelCToCpp::SetCommandIdAt(int index, int command_id) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_menu_model_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, set_command_id_at))
     return false;
@@ -359,6 +398,8 @@ bool CefMenuModelCToCpp::SetCommandIdAt(int index, int command_id) {
 
 NO_SANITIZE("cfi-icall")
 CefString CefMenuModelCToCpp::GetLabel(int command_id) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_menu_model_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_label))
     return CefString();
@@ -375,6 +416,8 @@ CefString CefMenuModelCToCpp::GetLabel(int command_id) {
 }
 
 NO_SANITIZE("cfi-icall") CefString CefMenuModelCToCpp::GetLabelAt(int index) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_menu_model_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_label_at))
     return CefString();
@@ -392,6 +435,8 @@ NO_SANITIZE("cfi-icall") CefString CefMenuModelCToCpp::GetLabelAt(int index) {
 
 NO_SANITIZE("cfi-icall")
 bool CefMenuModelCToCpp::SetLabel(int command_id, const CefString& label) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_menu_model_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, set_label))
     return false;
@@ -412,6 +457,8 @@ bool CefMenuModelCToCpp::SetLabel(int command_id, const CefString& label) {
 
 NO_SANITIZE("cfi-icall")
 bool CefMenuModelCToCpp::SetLabelAt(int index, const CefString& label) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_menu_model_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, set_label_at))
     return false;
@@ -432,6 +479,8 @@ bool CefMenuModelCToCpp::SetLabelAt(int index, const CefString& label) {
 
 NO_SANITIZE("cfi-icall")
 CefMenuModel::MenuItemType CefMenuModelCToCpp::GetType(int command_id) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_menu_model_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_type))
     return MENUITEMTYPE_NONE;
@@ -447,6 +496,8 @@ CefMenuModel::MenuItemType CefMenuModelCToCpp::GetType(int command_id) {
 
 NO_SANITIZE("cfi-icall")
 CefMenuModel::MenuItemType CefMenuModelCToCpp::GetTypeAt(int index) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_menu_model_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_type_at))
     return MENUITEMTYPE_NONE;
@@ -461,6 +512,8 @@ CefMenuModel::MenuItemType CefMenuModelCToCpp::GetTypeAt(int index) {
 }
 
 NO_SANITIZE("cfi-icall") int CefMenuModelCToCpp::GetGroupId(int command_id) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_menu_model_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_group_id))
     return 0;
@@ -475,6 +528,8 @@ NO_SANITIZE("cfi-icall") int CefMenuModelCToCpp::GetGroupId(int command_id) {
 }
 
 NO_SANITIZE("cfi-icall") int CefMenuModelCToCpp::GetGroupIdAt(int index) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_menu_model_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_group_id_at))
     return 0;
@@ -490,6 +545,8 @@ NO_SANITIZE("cfi-icall") int CefMenuModelCToCpp::GetGroupIdAt(int index) {
 
 NO_SANITIZE("cfi-icall")
 bool CefMenuModelCToCpp::SetGroupId(int command_id, int group_id) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_menu_model_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, set_group_id))
     return false;
@@ -505,6 +562,8 @@ bool CefMenuModelCToCpp::SetGroupId(int command_id, int group_id) {
 
 NO_SANITIZE("cfi-icall")
 bool CefMenuModelCToCpp::SetGroupIdAt(int index, int group_id) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_menu_model_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, set_group_id_at))
     return false;
@@ -520,6 +579,8 @@ bool CefMenuModelCToCpp::SetGroupIdAt(int index, int group_id) {
 
 NO_SANITIZE("cfi-icall")
 CefRefPtr<CefMenuModel> CefMenuModelCToCpp::GetSubMenu(int command_id) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_menu_model_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_sub_menu))
     return NULL;
@@ -535,6 +596,8 @@ CefRefPtr<CefMenuModel> CefMenuModelCToCpp::GetSubMenu(int command_id) {
 
 NO_SANITIZE("cfi-icall")
 CefRefPtr<CefMenuModel> CefMenuModelCToCpp::GetSubMenuAt(int index) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_menu_model_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_sub_menu_at))
     return NULL;
@@ -549,6 +612,8 @@ CefRefPtr<CefMenuModel> CefMenuModelCToCpp::GetSubMenuAt(int index) {
 }
 
 NO_SANITIZE("cfi-icall") bool CefMenuModelCToCpp::IsVisible(int command_id) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_menu_model_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, is_visible))
     return false;
@@ -563,6 +628,8 @@ NO_SANITIZE("cfi-icall") bool CefMenuModelCToCpp::IsVisible(int command_id) {
 }
 
 NO_SANITIZE("cfi-icall") bool CefMenuModelCToCpp::IsVisibleAt(int index) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_menu_model_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, is_visible_at))
     return false;
@@ -578,6 +645,8 @@ NO_SANITIZE("cfi-icall") bool CefMenuModelCToCpp::IsVisibleAt(int index) {
 
 NO_SANITIZE("cfi-icall")
 bool CefMenuModelCToCpp::SetVisible(int command_id, bool visible) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_menu_model_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, set_visible))
     return false;
@@ -593,6 +662,8 @@ bool CefMenuModelCToCpp::SetVisible(int command_id, bool visible) {
 
 NO_SANITIZE("cfi-icall")
 bool CefMenuModelCToCpp::SetVisibleAt(int index, bool visible) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_menu_model_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, set_visible_at))
     return false;
@@ -607,6 +678,8 @@ bool CefMenuModelCToCpp::SetVisibleAt(int index, bool visible) {
 }
 
 NO_SANITIZE("cfi-icall") bool CefMenuModelCToCpp::IsEnabled(int command_id) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_menu_model_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, is_enabled))
     return false;
@@ -621,6 +694,8 @@ NO_SANITIZE("cfi-icall") bool CefMenuModelCToCpp::IsEnabled(int command_id) {
 }
 
 NO_SANITIZE("cfi-icall") bool CefMenuModelCToCpp::IsEnabledAt(int index) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_menu_model_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, is_enabled_at))
     return false;
@@ -636,6 +711,8 @@ NO_SANITIZE("cfi-icall") bool CefMenuModelCToCpp::IsEnabledAt(int index) {
 
 NO_SANITIZE("cfi-icall")
 bool CefMenuModelCToCpp::SetEnabled(int command_id, bool enabled) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_menu_model_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, set_enabled))
     return false;
@@ -651,6 +728,8 @@ bool CefMenuModelCToCpp::SetEnabled(int command_id, bool enabled) {
 
 NO_SANITIZE("cfi-icall")
 bool CefMenuModelCToCpp::SetEnabledAt(int index, bool enabled) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_menu_model_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, set_enabled_at))
     return false;
@@ -665,6 +744,8 @@ bool CefMenuModelCToCpp::SetEnabledAt(int index, bool enabled) {
 }
 
 NO_SANITIZE("cfi-icall") bool CefMenuModelCToCpp::IsChecked(int command_id) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_menu_model_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, is_checked))
     return false;
@@ -679,6 +760,8 @@ NO_SANITIZE("cfi-icall") bool CefMenuModelCToCpp::IsChecked(int command_id) {
 }
 
 NO_SANITIZE("cfi-icall") bool CefMenuModelCToCpp::IsCheckedAt(int index) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_menu_model_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, is_checked_at))
     return false;
@@ -694,6 +777,8 @@ NO_SANITIZE("cfi-icall") bool CefMenuModelCToCpp::IsCheckedAt(int index) {
 
 NO_SANITIZE("cfi-icall")
 bool CefMenuModelCToCpp::SetChecked(int command_id, bool checked) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_menu_model_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, set_checked))
     return false;
@@ -709,6 +794,8 @@ bool CefMenuModelCToCpp::SetChecked(int command_id, bool checked) {
 
 NO_SANITIZE("cfi-icall")
 bool CefMenuModelCToCpp::SetCheckedAt(int index, bool checked) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_menu_model_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, set_checked_at))
     return false;
@@ -724,6 +811,8 @@ bool CefMenuModelCToCpp::SetCheckedAt(int index, bool checked) {
 
 NO_SANITIZE("cfi-icall")
 bool CefMenuModelCToCpp::HasAccelerator(int command_id) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_menu_model_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, has_accelerator))
     return false;
@@ -738,6 +827,8 @@ bool CefMenuModelCToCpp::HasAccelerator(int command_id) {
 }
 
 NO_SANITIZE("cfi-icall") bool CefMenuModelCToCpp::HasAcceleratorAt(int index) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_menu_model_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, has_accelerator_at))
     return false;
@@ -757,6 +848,8 @@ bool CefMenuModelCToCpp::SetAccelerator(int command_id,
                                         bool shift_pressed,
                                         bool ctrl_pressed,
                                         bool alt_pressed) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_menu_model_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, set_accelerator))
     return false;
@@ -777,6 +870,8 @@ bool CefMenuModelCToCpp::SetAcceleratorAt(int index,
                                           bool shift_pressed,
                                           bool ctrl_pressed,
                                           bool alt_pressed) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_menu_model_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, set_accelerator_at))
     return false;
@@ -793,6 +888,8 @@ bool CefMenuModelCToCpp::SetAcceleratorAt(int index,
 
 NO_SANITIZE("cfi-icall")
 bool CefMenuModelCToCpp::RemoveAccelerator(int command_id) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_menu_model_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, remove_accelerator))
     return false;
@@ -808,6 +905,8 @@ bool CefMenuModelCToCpp::RemoveAccelerator(int command_id) {
 
 NO_SANITIZE("cfi-icall")
 bool CefMenuModelCToCpp::RemoveAcceleratorAt(int index) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_menu_model_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, remove_accelerator_at))
     return false;
@@ -827,6 +926,8 @@ bool CefMenuModelCToCpp::GetAccelerator(int command_id,
                                         bool& shift_pressed,
                                         bool& ctrl_pressed,
                                         bool& alt_pressed) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_menu_model_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_accelerator))
     return false;
@@ -862,6 +963,8 @@ bool CefMenuModelCToCpp::GetAcceleratorAt(int index,
                                           bool& shift_pressed,
                                           bool& ctrl_pressed,
                                           bool& alt_pressed) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_menu_model_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_accelerator_at))
     return false;
@@ -895,6 +998,8 @@ NO_SANITIZE("cfi-icall")
 bool CefMenuModelCToCpp::SetColor(int command_id,
                                   cef_menu_color_type_t color_type,
                                   cef_color_t color) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_menu_model_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, set_color))
     return false;
@@ -912,6 +1017,8 @@ NO_SANITIZE("cfi-icall")
 bool CefMenuModelCToCpp::SetColorAt(int index,
                                     cef_menu_color_type_t color_type,
                                     cef_color_t color) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_menu_model_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, set_color_at))
     return false;
@@ -929,6 +1036,8 @@ NO_SANITIZE("cfi-icall")
 bool CefMenuModelCToCpp::GetColor(int command_id,
                                   cef_menu_color_type_t color_type,
                                   cef_color_t& color) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_menu_model_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_color))
     return false;
@@ -946,6 +1055,8 @@ NO_SANITIZE("cfi-icall")
 bool CefMenuModelCToCpp::GetColorAt(int index,
                                     cef_menu_color_type_t color_type,
                                     cef_color_t& color) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_menu_model_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_color_at))
     return false;
@@ -962,6 +1073,8 @@ bool CefMenuModelCToCpp::GetColorAt(int index,
 NO_SANITIZE("cfi-icall")
 bool CefMenuModelCToCpp::SetFontList(int command_id,
                                      const CefString& font_list) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_menu_model_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, set_font_list))
     return false;
@@ -980,6 +1093,8 @@ bool CefMenuModelCToCpp::SetFontList(int command_id,
 
 NO_SANITIZE("cfi-icall")
 bool CefMenuModelCToCpp::SetFontListAt(int index, const CefString& font_list) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_menu_model_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, set_font_list_at))
     return false;
@@ -999,6 +1114,12 @@ bool CefMenuModelCToCpp::SetFontListAt(int index, const CefString& font_list) {
 // CONSTRUCTOR - Do not edit by hand.
 
 CefMenuModelCToCpp::CefMenuModelCToCpp() {}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefMenuModelCToCpp::~CefMenuModelCToCpp() {
+  shutdown_checker::AssertNotShutdown();
+}
 
 template <>
 cef_menu_model_t*

@@ -9,11 +9,12 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=d724378fed459f63276c4177c77b5de98ad33178$
+// $hash=442e82aaa1bff33b07278869c3bee2354ce9e8f1$
 //
 
 #include "libcef_dll/cpptoc/menu_model_delegate_cpptoc.h"
 #include "libcef_dll/ctocpp/menu_model_ctocpp.h"
+#include "libcef_dll/shutdown_checker.h"
 
 namespace {
 
@@ -24,6 +25,8 @@ menu_model_delegate_execute_command(struct _cef_menu_model_delegate_t* self,
                                     cef_menu_model_t* menu_model,
                                     int command_id,
                                     cef_event_flags_t event_flags) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -43,6 +46,8 @@ void CEF_CALLBACK
 menu_model_delegate_mouse_outside_menu(struct _cef_menu_model_delegate_t* self,
                                        cef_menu_model_t* menu_model,
                                        const cef_point_t* screen_point) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -69,6 +74,8 @@ void CEF_CALLBACK menu_model_delegate_unhandled_open_submenu(
     struct _cef_menu_model_delegate_t* self,
     cef_menu_model_t* menu_model,
     int is_rtl) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -88,6 +95,8 @@ void CEF_CALLBACK menu_model_delegate_unhandled_close_submenu(
     struct _cef_menu_model_delegate_t* self,
     cef_menu_model_t* menu_model,
     int is_rtl) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -106,6 +115,8 @@ void CEF_CALLBACK menu_model_delegate_unhandled_close_submenu(
 void CEF_CALLBACK
 menu_model_delegate_menu_will_show(struct _cef_menu_model_delegate_t* self,
                                    cef_menu_model_t* menu_model) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -124,6 +135,8 @@ menu_model_delegate_menu_will_show(struct _cef_menu_model_delegate_t* self,
 void CEF_CALLBACK
 menu_model_delegate_menu_closed(struct _cef_menu_model_delegate_t* self,
                                 cef_menu_model_t* menu_model) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -143,6 +156,8 @@ int CEF_CALLBACK
 menu_model_delegate_format_label(struct _cef_menu_model_delegate_t* self,
                                  cef_menu_model_t* menu_model,
                                  cef_string_t* label) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -182,6 +197,12 @@ CefMenuModelDelegateCppToC::CefMenuModelDelegateCppToC() {
   GetStruct()->menu_will_show = menu_model_delegate_menu_will_show;
   GetStruct()->menu_closed = menu_model_delegate_menu_closed;
   GetStruct()->format_label = menu_model_delegate_format_label;
+}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefMenuModelDelegateCppToC::~CefMenuModelDelegateCppToC() {
+  shutdown_checker::AssertNotShutdown();
 }
 
 template <>

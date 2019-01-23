@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=65f24706f4bc8093440f6f88c654ab74211be056$
+// $hash=18e1d22e6d292ec6a38b1f58f4de3e07a3ccf66a$
 //
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_THREAD_CPPTOC_H_
@@ -30,6 +30,7 @@ class CefThreadCppToC
     : public CefCppToCRefCounted<CefThreadCppToC, CefThread, cef_thread_t> {
  public:
   CefThreadCppToC();
+  virtual ~CefThreadCppToC();
 };
 
 #endif  // CEF_LIBCEF_DLL_CPPTOC_THREAD_CPPTOC_H_

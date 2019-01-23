@@ -9,11 +9,12 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=cd6b32c4ac1068b054fa977b3833f2d80b042bfb$
+// $hash=967b251d6a1cc2488facf53dfd2c2183c3c61b43$
 //
 
 #include "libcef_dll/cpptoc/get_extension_resource_callback_cpptoc.h"
 #include "libcef_dll/cpptoc/stream_reader_cpptoc.h"
+#include "libcef_dll/shutdown_checker.h"
 
 namespace {
 
@@ -22,6 +23,8 @@ namespace {
 void CEF_CALLBACK get_extension_resource_callback_cont(
     struct _cef_get_extension_resource_callback_t* self,
     struct _cef_stream_reader_t* stream) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -36,6 +39,8 @@ void CEF_CALLBACK get_extension_resource_callback_cont(
 
 void CEF_CALLBACK get_extension_resource_callback_cancel(
     struct _cef_get_extension_resource_callback_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -53,6 +58,13 @@ void CEF_CALLBACK get_extension_resource_callback_cancel(
 CefGetExtensionResourceCallbackCppToC::CefGetExtensionResourceCallbackCppToC() {
   GetStruct()->cont = get_extension_resource_callback_cont;
   GetStruct()->cancel = get_extension_resource_callback_cancel;
+}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefGetExtensionResourceCallbackCppToC::
+    ~CefGetExtensionResourceCallbackCppToC() {
+  shutdown_checker::AssertNotShutdown();
 }
 
 template <>

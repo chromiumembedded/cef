@@ -9,17 +9,20 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=86431dec54edf22c5c0dd1d60f3ed889297be073$
+// $hash=b293e7aab991af4d9643913f36fce298093c64ca$
 //
 
 #include "libcef_dll/ctocpp/views/window_delegate_ctocpp.h"
 #include "libcef_dll/cpptoc/views/view_cpptoc.h"
 #include "libcef_dll/cpptoc/views/window_cpptoc.h"
+#include "libcef_dll/shutdown_checker.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
 NO_SANITIZE("cfi-icall")
 void CefWindowDelegateCToCpp::OnWindowCreated(CefRefPtr<CefWindow> window) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_window_delegate_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_window_created))
     return;
@@ -37,6 +40,8 @@ void CefWindowDelegateCToCpp::OnWindowCreated(CefRefPtr<CefWindow> window) {
 
 NO_SANITIZE("cfi-icall")
 void CefWindowDelegateCToCpp::OnWindowDestroyed(CefRefPtr<CefWindow> window) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_window_delegate_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_window_destroyed))
     return;
@@ -57,6 +62,8 @@ CefRefPtr<CefWindow> CefWindowDelegateCToCpp::GetParentWindow(
     CefRefPtr<CefWindow> window,
     bool* is_menu,
     bool* can_activate_menu) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_window_delegate_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_parent_window))
     return NULL;
@@ -99,6 +106,8 @@ CefRefPtr<CefWindow> CefWindowDelegateCToCpp::GetParentWindow(
 
 NO_SANITIZE("cfi-icall")
 bool CefWindowDelegateCToCpp::IsFrameless(CefRefPtr<CefWindow> window) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_window_delegate_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, is_frameless))
     return false;
@@ -119,6 +128,8 @@ bool CefWindowDelegateCToCpp::IsFrameless(CefRefPtr<CefWindow> window) {
 
 NO_SANITIZE("cfi-icall")
 bool CefWindowDelegateCToCpp::CanResize(CefRefPtr<CefWindow> window) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_window_delegate_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, can_resize))
     return false;
@@ -139,6 +150,8 @@ bool CefWindowDelegateCToCpp::CanResize(CefRefPtr<CefWindow> window) {
 
 NO_SANITIZE("cfi-icall")
 bool CefWindowDelegateCToCpp::CanMaximize(CefRefPtr<CefWindow> window) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_window_delegate_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, can_maximize))
     return false;
@@ -159,6 +172,8 @@ bool CefWindowDelegateCToCpp::CanMaximize(CefRefPtr<CefWindow> window) {
 
 NO_SANITIZE("cfi-icall")
 bool CefWindowDelegateCToCpp::CanMinimize(CefRefPtr<CefWindow> window) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_window_delegate_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, can_minimize))
     return false;
@@ -179,6 +194,8 @@ bool CefWindowDelegateCToCpp::CanMinimize(CefRefPtr<CefWindow> window) {
 
 NO_SANITIZE("cfi-icall")
 bool CefWindowDelegateCToCpp::CanClose(CefRefPtr<CefWindow> window) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_window_delegate_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, can_close))
     return false;
@@ -200,6 +217,8 @@ bool CefWindowDelegateCToCpp::CanClose(CefRefPtr<CefWindow> window) {
 NO_SANITIZE("cfi-icall")
 bool CefWindowDelegateCToCpp::OnAccelerator(CefRefPtr<CefWindow> window,
                                             int command_id) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_window_delegate_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_accelerator))
     return false;
@@ -222,6 +241,8 @@ bool CefWindowDelegateCToCpp::OnAccelerator(CefRefPtr<CefWindow> window,
 NO_SANITIZE("cfi-icall")
 bool CefWindowDelegateCToCpp::OnKeyEvent(CefRefPtr<CefWindow> window,
                                          const CefKeyEvent& event) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_window_delegate_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_key_event))
     return false;
@@ -243,6 +264,8 @@ bool CefWindowDelegateCToCpp::OnKeyEvent(CefRefPtr<CefWindow> window,
 
 NO_SANITIZE("cfi-icall")
 CefSize CefWindowDelegateCToCpp::GetPreferredSize(CefRefPtr<CefView> view) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_view_delegate_t* _struct =
       reinterpret_cast<cef_view_delegate_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, get_preferred_size))
@@ -265,6 +288,8 @@ CefSize CefWindowDelegateCToCpp::GetPreferredSize(CefRefPtr<CefView> view) {
 
 NO_SANITIZE("cfi-icall")
 CefSize CefWindowDelegateCToCpp::GetMinimumSize(CefRefPtr<CefView> view) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_view_delegate_t* _struct =
       reinterpret_cast<cef_view_delegate_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, get_minimum_size))
@@ -287,6 +312,8 @@ CefSize CefWindowDelegateCToCpp::GetMinimumSize(CefRefPtr<CefView> view) {
 
 NO_SANITIZE("cfi-icall")
 CefSize CefWindowDelegateCToCpp::GetMaximumSize(CefRefPtr<CefView> view) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_view_delegate_t* _struct =
       reinterpret_cast<cef_view_delegate_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, get_maximum_size))
@@ -310,6 +337,8 @@ CefSize CefWindowDelegateCToCpp::GetMaximumSize(CefRefPtr<CefView> view) {
 NO_SANITIZE("cfi-icall")
 int CefWindowDelegateCToCpp::GetHeightForWidth(CefRefPtr<CefView> view,
                                                int width) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_view_delegate_t* _struct =
       reinterpret_cast<cef_view_delegate_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, get_height_for_width))
@@ -334,6 +363,8 @@ NO_SANITIZE("cfi-icall")
 void CefWindowDelegateCToCpp::OnParentViewChanged(CefRefPtr<CefView> view,
                                                   bool added,
                                                   CefRefPtr<CefView> parent) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_view_delegate_t* _struct =
       reinterpret_cast<cef_view_delegate_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, on_parent_view_changed))
@@ -359,6 +390,8 @@ NO_SANITIZE("cfi-icall")
 void CefWindowDelegateCToCpp::OnChildViewChanged(CefRefPtr<CefView> view,
                                                  bool added,
                                                  CefRefPtr<CefView> child) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_view_delegate_t* _struct =
       reinterpret_cast<cef_view_delegate_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, on_child_view_changed))
@@ -382,6 +415,8 @@ void CefWindowDelegateCToCpp::OnChildViewChanged(CefRefPtr<CefView> view,
 
 NO_SANITIZE("cfi-icall")
 void CefWindowDelegateCToCpp::OnFocus(CefRefPtr<CefView> view) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_view_delegate_t* _struct =
       reinterpret_cast<cef_view_delegate_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, on_focus))
@@ -400,6 +435,8 @@ void CefWindowDelegateCToCpp::OnFocus(CefRefPtr<CefView> view) {
 
 NO_SANITIZE("cfi-icall")
 void CefWindowDelegateCToCpp::OnBlur(CefRefPtr<CefView> view) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_view_delegate_t* _struct =
       reinterpret_cast<cef_view_delegate_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, on_blur))
@@ -419,6 +456,12 @@ void CefWindowDelegateCToCpp::OnBlur(CefRefPtr<CefView> view) {
 // CONSTRUCTOR - Do not edit by hand.
 
 CefWindowDelegateCToCpp::CefWindowDelegateCToCpp() {}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefWindowDelegateCToCpp::~CefWindowDelegateCToCpp() {
+  shutdown_checker::AssertNotShutdown();
+}
 
 template <>
 cef_window_delegate_t* CefCToCppRefCounted<

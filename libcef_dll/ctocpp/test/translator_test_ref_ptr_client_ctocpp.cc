@@ -9,15 +9,18 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=f1850e566a29fb39cb8cef656235564f965fd19d$
+// $hash=62db5b865590f2242bea5ff7b5ec26c5730b9cd9$
 //
 
 #include "libcef_dll/ctocpp/test/translator_test_ref_ptr_client_ctocpp.h"
 #include "libcef_dll/ctocpp/test/translator_test_ref_ptr_client_child_ctocpp.h"
+#include "libcef_dll/shutdown_checker.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
 NO_SANITIZE("cfi-icall") int CefTranslatorTestRefPtrClientCToCpp::GetValue() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_translator_test_ref_ptr_client_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_value))
     return 0;
@@ -34,6 +37,12 @@ NO_SANITIZE("cfi-icall") int CefTranslatorTestRefPtrClientCToCpp::GetValue() {
 // CONSTRUCTOR - Do not edit by hand.
 
 CefTranslatorTestRefPtrClientCToCpp::CefTranslatorTestRefPtrClientCToCpp() {}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefTranslatorTestRefPtrClientCToCpp::~CefTranslatorTestRefPtrClientCToCpp() {
+  shutdown_checker::AssertNotShutdown();
+}
 
 template <>
 cef_translator_test_ref_ptr_client_t*

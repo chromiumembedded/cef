@@ -9,11 +9,12 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=39933d7b184df9c48a64f3aeabd4be6d8365b44a$
+// $hash=5524afc164e5f8baf765fa91e5064105dd34b212$
 //
 
 #include "libcef_dll/cpptoc/accessibility_handler_cpptoc.h"
 #include "libcef_dll/ctocpp/value_ctocpp.h"
+#include "libcef_dll/shutdown_checker.h"
 
 namespace {
 
@@ -22,6 +23,8 @@ namespace {
 void CEF_CALLBACK accessibility_handler_on_accessibility_tree_change(
     struct _cef_accessibility_handler_t* self,
     struct _cef_value_t* value) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -40,6 +43,8 @@ void CEF_CALLBACK accessibility_handler_on_accessibility_tree_change(
 void CEF_CALLBACK accessibility_handler_on_accessibility_location_change(
     struct _cef_accessibility_handler_t* self,
     struct _cef_value_t* value) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -64,6 +69,12 @@ CefAccessibilityHandlerCppToC::CefAccessibilityHandlerCppToC() {
       accessibility_handler_on_accessibility_tree_change;
   GetStruct()->on_accessibility_location_change =
       accessibility_handler_on_accessibility_location_change;
+}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefAccessibilityHandlerCppToC::~CefAccessibilityHandlerCppToC() {
+  shutdown_checker::AssertNotShutdown();
 }
 
 template <>

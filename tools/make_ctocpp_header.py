@@ -115,7 +115,8 @@ def make_ctocpp_header(header, clsname):
   result +=   'class '+clsname+'CToCpp\n'+ \
               '    : public ' + template_class + '<'+clsname+'CToCpp, '+clsname+', '+capiname+'> {\n'+ \
               ' public:\n'+ \
-              '  '+clsname+'CToCpp();\n\n'
+              '  '+clsname+'CToCpp();\n'+ \
+              '  virtual ~'+clsname+'CToCpp();\n\n'
 
   result += func_body
   result += '};\n\n'

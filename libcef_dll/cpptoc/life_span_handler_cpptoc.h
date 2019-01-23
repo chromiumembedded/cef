@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=d6d093665566c71dea6728edf89cc61ff7c5f98d$
+// $hash=f9df484aca7313808ce702bcf13691498934a47e$
 //
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_LIFE_SPAN_HANDLER_CPPTOC_H_
@@ -34,6 +34,7 @@ class CefLifeSpanHandlerCppToC
                                  cef_life_span_handler_t> {
  public:
   CefLifeSpanHandlerCppToC();
+  virtual ~CefLifeSpanHandlerCppToC();
 };
 
 #endif  // CEF_LIBCEF_DLL_CPPTOC_LIFE_SPAN_HANDLER_CPPTOC_H_

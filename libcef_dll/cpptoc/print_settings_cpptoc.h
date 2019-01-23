@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=3936d687fe94cf74e15412e27898b78382b993f7$
+// $hash=7b6191ab593545568b0791869b7818e0a7ad5bf1$
 //
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_PRINT_SETTINGS_CPPTOC_H_
@@ -32,6 +32,7 @@ class CefPrintSettingsCppToC
                                  cef_print_settings_t> {
  public:
   CefPrintSettingsCppToC();
+  virtual ~CefPrintSettingsCppToC();
 };
 
 #endif  // CEF_LIBCEF_DLL_CPPTOC_PRINT_SETTINGS_CPPTOC_H_

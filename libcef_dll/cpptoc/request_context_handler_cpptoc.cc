@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=c5e0e08d8c307ec03a1d321ced47f1675ac21d53$
+// $hash=c7a79d49c001ad3cc28c1cfa41078366e62c6816$
 //
 
 #include "libcef_dll/cpptoc/request_context_handler_cpptoc.h"
@@ -103,6 +103,10 @@ CefRequestContextHandlerCppToC::CefRequestContextHandlerCppToC() {
   GetStruct()->on_before_plugin_load =
       request_context_handler_on_before_plugin_load;
 }
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefRequestContextHandlerCppToC::~CefRequestContextHandlerCppToC() {}
 
 template <>
 CefRefPtr<CefRequestContextHandler> CefCppToCRefCounted<

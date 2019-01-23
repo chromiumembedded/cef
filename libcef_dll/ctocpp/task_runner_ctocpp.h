@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=62845b31727d7aaa09b12314d898723aead66a0c$
+// $hash=629b07ed292651bd4226b5e98a420f0da7a28874$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_TASK_RUNNER_CTOCPP_H_
@@ -31,6 +31,7 @@ class CefTaskRunnerCToCpp : public CefCToCppRefCounted<CefTaskRunnerCToCpp,
                                                        cef_task_runner_t> {
  public:
   CefTaskRunnerCToCpp();
+  virtual ~CefTaskRunnerCToCpp();
 
   // CefTaskRunner methods.
   bool IsSame(CefRefPtr<CefTaskRunner> that) OVERRIDE;

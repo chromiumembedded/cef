@@ -9,12 +9,13 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=17464b2b28c8fa2ae7f67978f93e2d8bc13fe1ed$
+// $hash=1871dbf9adbb5c92705ff30b72ac19735928ce4b$
 //
 
 #include "libcef_dll/cpptoc/views/layout_cpptoc.h"
 #include "libcef_dll/cpptoc/views/box_layout_cpptoc.h"
 #include "libcef_dll/cpptoc/views/fill_layout_cpptoc.h"
+#include "libcef_dll/shutdown_checker.h"
 
 namespace {
 
@@ -22,6 +23,8 @@ namespace {
 
 cef_box_layout_t* CEF_CALLBACK
 layout_as_box_layout(struct _cef_layout_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -37,6 +40,8 @@ layout_as_box_layout(struct _cef_layout_t* self) {
 
 cef_fill_layout_t* CEF_CALLBACK
 layout_as_fill_layout(struct _cef_layout_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -51,6 +56,8 @@ layout_as_fill_layout(struct _cef_layout_t* self) {
 }
 
 int CEF_CALLBACK layout_is_valid(struct _cef_layout_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -72,6 +79,12 @@ CefLayoutCppToC::CefLayoutCppToC() {
   GetStruct()->as_box_layout = layout_as_box_layout;
   GetStruct()->as_fill_layout = layout_as_fill_layout;
   GetStruct()->is_valid = layout_is_valid;
+}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefLayoutCppToC::~CefLayoutCppToC() {
+  shutdown_checker::AssertNotShutdown();
 }
 
 template <>

@@ -9,11 +9,12 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=3ac710c118a913c65b0ceb3774e53f3bf87a6d27$
+// $hash=6631dc10b7d3aaad5b5478006120a7219b076e0f$
 //
 
 #include "libcef_dll/ctocpp/download_image_callback_ctocpp.h"
 #include "libcef_dll/cpptoc/image_cpptoc.h"
+#include "libcef_dll/shutdown_checker.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
@@ -22,6 +23,8 @@ void CefDownloadImageCallbackCToCpp::OnDownloadImageFinished(
     const CefString& image_url,
     int http_status_code,
     CefRefPtr<CefImage> image) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_download_image_callback_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_download_image_finished))
     return;
@@ -43,6 +46,12 @@ void CefDownloadImageCallbackCToCpp::OnDownloadImageFinished(
 // CONSTRUCTOR - Do not edit by hand.
 
 CefDownloadImageCallbackCToCpp::CefDownloadImageCallbackCToCpp() {}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefDownloadImageCallbackCToCpp::~CefDownloadImageCallbackCToCpp() {
+  shutdown_checker::AssertNotShutdown();
+}
 
 template <>
 cef_download_image_callback_t* CefCToCppRefCounted<

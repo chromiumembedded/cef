@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=d692048ad6d97b5353c4c019c56be916aedd6126$
+// $hash=5001150c8cfb85270eee1da2f2fa1a0dc57d2728$
 //
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_JSDIALOG_CALLBACK_CPPTOC_H_
@@ -32,6 +32,7 @@ class CefJSDialogCallbackCppToC
                                  cef_jsdialog_callback_t> {
  public:
   CefJSDialogCallbackCppToC();
+  virtual ~CefJSDialogCallbackCppToC();
 };
 
 #endif  // CEF_LIBCEF_DLL_CPPTOC_JSDIALOG_CALLBACK_CPPTOC_H_

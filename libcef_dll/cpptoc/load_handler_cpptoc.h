@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=7fe148a4c53b451455dc998d5beb9ecdd9c5d0e3$
+// $hash=1e6e0c693130e141b71f292682143041aac0e7d9$
 //
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_LOAD_HANDLER_CPPTOC_H_
@@ -31,6 +31,7 @@ class CefLoadHandlerCppToC : public CefCppToCRefCounted<CefLoadHandlerCppToC,
                                                         cef_load_handler_t> {
  public:
   CefLoadHandlerCppToC();
+  virtual ~CefLoadHandlerCppToC();
 };
 
 #endif  // CEF_LIBCEF_DLL_CPPTOC_LOAD_HANDLER_CPPTOC_H_

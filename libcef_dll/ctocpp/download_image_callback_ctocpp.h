@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=af0d745cfae7d0a4fdbe5887e2fcdab8f0bd942d$
+// $hash=f5388d9c8ba3267d8ad2b566f4128f1674410ea2$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_DOWNLOAD_IMAGE_CALLBACK_CTOCPP_H_
@@ -34,6 +34,7 @@ class CefDownloadImageCallbackCToCpp
                                  cef_download_image_callback_t> {
  public:
   CefDownloadImageCallbackCToCpp();
+  virtual ~CefDownloadImageCallbackCToCpp();
 
   // CefDownloadImageCallback methods.
   void OnDownloadImageFinished(const CefString& image_url,

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=8460ceaa3e43ec8e41eefcfe923e1b52ae553f07$
+// $hash=9350d6fd92f52722653a6a02bfea148c099a096a$
 //
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_WAITABLE_EVENT_CPPTOC_H_
@@ -32,6 +32,7 @@ class CefWaitableEventCppToC
                                  cef_waitable_event_t> {
  public:
   CefWaitableEventCppToC();
+  virtual ~CefWaitableEventCppToC();
 };
 
 #endif  // CEF_LIBCEF_DLL_CPPTOC_WAITABLE_EVENT_CPPTOC_H_

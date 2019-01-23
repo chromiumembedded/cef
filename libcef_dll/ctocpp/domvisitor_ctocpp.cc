@@ -9,16 +9,19 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=ac477bcaad45bdd6044b25caa961e365f3911e78$
+// $hash=ffd387c34bd079a23947b6e4a73cf8b48ad073d2$
 //
 
 #include "libcef_dll/ctocpp/domvisitor_ctocpp.h"
 #include "libcef_dll/cpptoc/domdocument_cpptoc.h"
+#include "libcef_dll/shutdown_checker.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
 NO_SANITIZE("cfi-icall")
 void CefDOMVisitorCToCpp::Visit(CefRefPtr<CefDOMDocument> document) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_domvisitor_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, visit))
     return;
@@ -37,6 +40,12 @@ void CefDOMVisitorCToCpp::Visit(CefRefPtr<CefDOMDocument> document) {
 // CONSTRUCTOR - Do not edit by hand.
 
 CefDOMVisitorCToCpp::CefDOMVisitorCToCpp() {}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefDOMVisitorCToCpp::~CefDOMVisitorCToCpp() {
+  shutdown_checker::AssertNotShutdown();
+}
 
 template <>
 cef_domvisitor_t*

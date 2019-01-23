@@ -9,16 +9,19 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=a1ff97873ff99c6b200a1f497bce56dede1b3c29$
+// $hash=fa4bd24cb16fc046045edf192a66b514e5665ae4$
 //
 
 #include "libcef_dll/ctocpp/web_plugin_unstable_callback_ctocpp.h"
+#include "libcef_dll/shutdown_checker.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
 NO_SANITIZE("cfi-icall")
 void CefWebPluginUnstableCallbackCToCpp::IsUnstable(const CefString& path,
                                                     bool unstable) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_web_plugin_unstable_callback_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, is_unstable))
     return;
@@ -37,6 +40,12 @@ void CefWebPluginUnstableCallbackCToCpp::IsUnstable(const CefString& path,
 // CONSTRUCTOR - Do not edit by hand.
 
 CefWebPluginUnstableCallbackCToCpp::CefWebPluginUnstableCallbackCToCpp() {}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefWebPluginUnstableCallbackCToCpp::~CefWebPluginUnstableCallbackCToCpp() {
+  shutdown_checker::AssertNotShutdown();
+}
 
 template <>
 cef_web_plugin_unstable_callback_t*

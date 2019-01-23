@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=0b773abc0bd785ae9acbbf9b39c5fab25bf30543$
+// $hash=1121a4846b9db54632899b5a1f37d5bf6fcb48d5$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_V8ACCESSOR_CTOCPP_H_
@@ -31,6 +31,7 @@ class CefV8AccessorCToCpp : public CefCToCppRefCounted<CefV8AccessorCToCpp,
                                                        cef_v8accessor_t> {
  public:
   CefV8AccessorCToCpp();
+  virtual ~CefV8AccessorCToCpp();
 
   // CefV8Accessor methods.
   bool Get(const CefString& name,

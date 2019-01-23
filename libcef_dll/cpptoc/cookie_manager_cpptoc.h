@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=7d38f1590643afacc25127d79938ef0bbcba6317$
+// $hash=5504193da129ccc183f585b0ae640cd4e32ce733$
 //
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_COOKIE_MANAGER_CPPTOC_H_
@@ -32,6 +32,7 @@ class CefCookieManagerCppToC
                                  cef_cookie_manager_t> {
  public:
   CefCookieManagerCppToC();
+  virtual ~CefCookieManagerCppToC();
 };
 
 #endif  // CEF_LIBCEF_DLL_CPPTOC_COOKIE_MANAGER_CPPTOC_H_

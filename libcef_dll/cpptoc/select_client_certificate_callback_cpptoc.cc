@@ -9,11 +9,12 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=4d0bcfb4123d37b0e9fd61b31e574c697f8258ba$
+// $hash=da9f690c63b5d0b1d512b338f822439e2830804a$
 //
 
 #include "libcef_dll/cpptoc/select_client_certificate_callback_cpptoc.h"
 #include "libcef_dll/cpptoc/x509certificate_cpptoc.h"
+#include "libcef_dll/shutdown_checker.h"
 
 namespace {
 
@@ -22,6 +23,8 @@ namespace {
 void CEF_CALLBACK select_client_certificate_callback_select(
     struct _cef_select_client_certificate_callback_t* self,
     struct _cef_x509certificate_t* cert) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -41,6 +44,13 @@ void CEF_CALLBACK select_client_certificate_callback_select(
 CefSelectClientCertificateCallbackCppToC::
     CefSelectClientCertificateCallbackCppToC() {
   GetStruct()->select = select_client_certificate_callback_select;
+}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefSelectClientCertificateCallbackCppToC::
+    ~CefSelectClientCertificateCallbackCppToC() {
+  shutdown_checker::AssertNotShutdown();
 }
 
 template <>

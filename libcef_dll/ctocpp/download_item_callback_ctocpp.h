@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=3c0ec9b914eaa9a61e5b9e598204c959a5475299$
+// $hash=31b30ec0fc431a4d7dd9d2e1c3025065b2001987$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_DOWNLOAD_ITEM_CALLBACK_CTOCPP_H_
@@ -32,6 +32,7 @@ class CefDownloadItemCallbackCToCpp
                                  cef_download_item_callback_t> {
  public:
   CefDownloadItemCallbackCToCpp();
+  virtual ~CefDownloadItemCallbackCToCpp();
 
   // CefDownloadItemCallback methods.
   void Cancel() OVERRIDE;

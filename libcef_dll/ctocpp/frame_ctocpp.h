@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=556b030d238229c5be92688fb9dc9899ef686b72$
+// $hash=756629986a078c1403693255503cc6307215126b$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_FRAME_CTOCPP_H_
@@ -34,6 +34,7 @@ class CefFrameCToCpp
     : public CefCToCppRefCounted<CefFrameCToCpp, CefFrame, cef_frame_t> {
  public:
   CefFrameCToCpp();
+  virtual ~CefFrameCToCpp();
 
   // CefFrame methods.
   bool IsValid() OVERRIDE;

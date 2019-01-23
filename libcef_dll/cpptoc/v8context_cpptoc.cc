@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=faf2d0c64ba4feb9e9b63e913303e7b2fa54faf8$
+// $hash=cb008fc420a8f5dcdc10c3bed1905d695c2c5d18$
 //
 
 #include "libcef_dll/cpptoc/v8context_cpptoc.h"
@@ -258,6 +258,10 @@ CefV8ContextCppToC::CefV8ContextCppToC() {
   GetStruct()->is_same = v8context_is_same;
   GetStruct()->eval = v8context_eval;
 }
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefV8ContextCppToC::~CefV8ContextCppToC() {}
 
 template <>
 CefRefPtr<CefV8Context>

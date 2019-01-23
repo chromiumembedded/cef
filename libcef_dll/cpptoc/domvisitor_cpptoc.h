@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=c2a7ebb82765531e5de28cacfe52213f3890c57d$
+// $hash=f30290b82fb925e9ac6cc7927d23d7d1fa929592$
 //
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_DOMVISITOR_CPPTOC_H_
@@ -31,6 +31,7 @@ class CefDOMVisitorCppToC : public CefCppToCRefCounted<CefDOMVisitorCppToC,
                                                        cef_domvisitor_t> {
  public:
   CefDOMVisitorCppToC();
+  virtual ~CefDOMVisitorCppToC();
 };
 
 #endif  // CEF_LIBCEF_DLL_CPPTOC_DOMVISITOR_CPPTOC_H_

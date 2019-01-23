@@ -9,11 +9,12 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=b25ff95e39d77a42daa4be355bbfaafc0d0e9e53$
+// $hash=0ce2ec6db857aedcf142792f764fb1720e112ce1$
 //
 
 #include "libcef_dll/cpptoc/keyboard_handler_cpptoc.h"
 #include "libcef_dll/ctocpp/browser_ctocpp.h"
+#include "libcef_dll/shutdown_checker.h"
 
 namespace {
 
@@ -25,6 +26,8 @@ keyboard_handler_on_pre_key_event(struct _cef_keyboard_handler_t* self,
                                   const struct _cef_key_event_t* event,
                                   cef_event_handle_t os_event,
                                   int* is_keyboard_shortcut) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -69,6 +72,8 @@ keyboard_handler_on_key_event(struct _cef_keyboard_handler_t* self,
                               cef_browser_t* browser,
                               const struct _cef_key_event_t* event,
                               cef_event_handle_t os_event) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -103,6 +108,12 @@ keyboard_handler_on_key_event(struct _cef_keyboard_handler_t* self,
 CefKeyboardHandlerCppToC::CefKeyboardHandlerCppToC() {
   GetStruct()->on_pre_key_event = keyboard_handler_on_pre_key_event;
   GetStruct()->on_key_event = keyboard_handler_on_key_event;
+}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefKeyboardHandlerCppToC::~CefKeyboardHandlerCppToC() {
+  shutdown_checker::AssertNotShutdown();
 }
 
 template <>

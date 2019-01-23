@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=ec7c8675c627a735b16d4b1dddfb880ea376e25a$
+// $hash=6f275e66e6c9ad024935d52a4fe7e8141cbf6d57$
 //
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_WEB_PLUGIN_UNSTABLE_CALLBACK_CPPTOC_H_
@@ -34,6 +34,7 @@ class CefWebPluginUnstableCallbackCppToC
                                  cef_web_plugin_unstable_callback_t> {
  public:
   CefWebPluginUnstableCallbackCppToC();
+  virtual ~CefWebPluginUnstableCallbackCppToC();
 };
 
 #endif  // CEF_LIBCEF_DLL_CPPTOC_WEB_PLUGIN_UNSTABLE_CALLBACK_CPPTOC_H_

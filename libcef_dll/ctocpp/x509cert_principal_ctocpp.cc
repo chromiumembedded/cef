@@ -9,16 +9,19 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=623cadf0650f3e44162d02ff05e54aa6793960a4$
+// $hash=5bc1c7f31098cee8e16b1dd17b1e85f93bdb8f86$
 //
 
 #include "libcef_dll/ctocpp/x509cert_principal_ctocpp.h"
+#include "libcef_dll/shutdown_checker.h"
 #include "libcef_dll/transfer_util.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
 NO_SANITIZE("cfi-icall")
 CefString CefX509CertPrincipalCToCpp::GetDisplayName() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_x509cert_principal_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_display_name))
     return CefString();
@@ -35,6 +38,8 @@ CefString CefX509CertPrincipalCToCpp::GetDisplayName() {
 }
 
 NO_SANITIZE("cfi-icall") CefString CefX509CertPrincipalCToCpp::GetCommonName() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_x509cert_principal_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_common_name))
     return CefString();
@@ -52,6 +57,8 @@ NO_SANITIZE("cfi-icall") CefString CefX509CertPrincipalCToCpp::GetCommonName() {
 
 NO_SANITIZE("cfi-icall")
 CefString CefX509CertPrincipalCToCpp::GetLocalityName() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_x509cert_principal_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_locality_name))
     return CefString();
@@ -69,6 +76,8 @@ CefString CefX509CertPrincipalCToCpp::GetLocalityName() {
 
 NO_SANITIZE("cfi-icall")
 CefString CefX509CertPrincipalCToCpp::GetStateOrProvinceName() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_x509cert_principal_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_state_or_province_name))
     return CefString();
@@ -86,6 +95,8 @@ CefString CefX509CertPrincipalCToCpp::GetStateOrProvinceName() {
 
 NO_SANITIZE("cfi-icall")
 CefString CefX509CertPrincipalCToCpp::GetCountryName() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_x509cert_principal_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_country_name))
     return CefString();
@@ -104,6 +115,8 @@ CefString CefX509CertPrincipalCToCpp::GetCountryName() {
 NO_SANITIZE("cfi-icall")
 void CefX509CertPrincipalCToCpp::GetStreetAddresses(
     std::vector<CefString>& addresses) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_x509cert_principal_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_street_addresses))
     return;
@@ -130,6 +143,8 @@ void CefX509CertPrincipalCToCpp::GetStreetAddresses(
 NO_SANITIZE("cfi-icall")
 void CefX509CertPrincipalCToCpp::GetOrganizationNames(
     std::vector<CefString>& names) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_x509cert_principal_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_organization_names))
     return;
@@ -156,6 +171,8 @@ void CefX509CertPrincipalCToCpp::GetOrganizationNames(
 NO_SANITIZE("cfi-icall")
 void CefX509CertPrincipalCToCpp::GetOrganizationUnitNames(
     std::vector<CefString>& names) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_x509cert_principal_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_organization_unit_names))
     return;
@@ -182,6 +199,8 @@ void CefX509CertPrincipalCToCpp::GetOrganizationUnitNames(
 NO_SANITIZE("cfi-icall")
 void CefX509CertPrincipalCToCpp::GetDomainComponents(
     std::vector<CefString>& components) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_x509cert_principal_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_domain_components))
     return;
@@ -208,6 +227,12 @@ void CefX509CertPrincipalCToCpp::GetDomainComponents(
 // CONSTRUCTOR - Do not edit by hand.
 
 CefX509CertPrincipalCToCpp::CefX509CertPrincipalCToCpp() {}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefX509CertPrincipalCToCpp::~CefX509CertPrincipalCToCpp() {
+  shutdown_checker::AssertNotShutdown();
+}
 
 template <>
 cef_x509cert_principal_t* CefCToCppRefCounted<

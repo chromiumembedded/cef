@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=1b1682d32eebdeeaac23aa92227d871f49fa7707$
+// $hash=27f76f8f3e56a348adc0c8466f171db8180e32ba$
 //
 
 #include "libcef_dll/ctocpp/browser_process_handler_ctocpp.h"
@@ -99,6 +99,10 @@ void CefBrowserProcessHandlerCToCpp::OnScheduleMessagePumpWork(int64 delay_ms) {
 // CONSTRUCTOR - Do not edit by hand.
 
 CefBrowserProcessHandlerCToCpp::CefBrowserProcessHandlerCToCpp() {}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefBrowserProcessHandlerCToCpp::~CefBrowserProcessHandlerCToCpp() {}
 
 template <>
 cef_browser_process_handler_t* CefCToCppRefCounted<

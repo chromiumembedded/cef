@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=e4938a46b6be2a5efcc9a8a84a92fabddfeb6113$
+// $hash=1d6360a9081c8c22ee3251c25af75983ac53a466$
 //
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_VIEWS_MENU_BUTTON_DELEGATE_CPPTOC_H_
@@ -34,6 +34,7 @@ class CefMenuButtonDelegateCppToC
                                  cef_menu_button_delegate_t> {
  public:
   CefMenuButtonDelegateCppToC();
+  virtual ~CefMenuButtonDelegateCppToC();
 };
 
 #endif  // CEF_LIBCEF_DLL_CPPTOC_VIEWS_MENU_BUTTON_DELEGATE_CPPTOC_H_

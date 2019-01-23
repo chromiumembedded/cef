@@ -9,16 +9,19 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=5d50ba68a4b4dd379a7739f4ab0cad69cbaba657$
+// $hash=a09bd43deaabfddb25d3ddb325e301727c1e84b6$
 //
 
 #include "libcef_dll/ctocpp/v8stack_trace_ctocpp.h"
 #include "libcef_dll/ctocpp/v8stack_frame_ctocpp.h"
+#include "libcef_dll/shutdown_checker.h"
 
 // STATIC METHODS - Body may be edited by hand.
 
 NO_SANITIZE("cfi-icall")
 CefRefPtr<CefV8StackTrace> CefV8StackTrace::GetCurrent(int frame_limit) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
@@ -31,6 +34,8 @@ CefRefPtr<CefV8StackTrace> CefV8StackTrace::GetCurrent(int frame_limit) {
 // VIRTUAL METHODS - Body may be edited by hand.
 
 NO_SANITIZE("cfi-icall") bool CefV8StackTraceCToCpp::IsValid() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_v8stack_trace_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, is_valid))
     return false;
@@ -45,6 +50,8 @@ NO_SANITIZE("cfi-icall") bool CefV8StackTraceCToCpp::IsValid() {
 }
 
 NO_SANITIZE("cfi-icall") int CefV8StackTraceCToCpp::GetFrameCount() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_v8stack_trace_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_frame_count))
     return 0;
@@ -60,6 +67,8 @@ NO_SANITIZE("cfi-icall") int CefV8StackTraceCToCpp::GetFrameCount() {
 
 NO_SANITIZE("cfi-icall")
 CefRefPtr<CefV8StackFrame> CefV8StackTraceCToCpp::GetFrame(int index) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_v8stack_trace_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_frame))
     return NULL;
@@ -76,6 +85,12 @@ CefRefPtr<CefV8StackFrame> CefV8StackTraceCToCpp::GetFrame(int index) {
 // CONSTRUCTOR - Do not edit by hand.
 
 CefV8StackTraceCToCpp::CefV8StackTraceCToCpp() {}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefV8StackTraceCToCpp::~CefV8StackTraceCToCpp() {
+  shutdown_checker::AssertNotShutdown();
+}
 
 template <>
 cef_v8stack_trace_t*

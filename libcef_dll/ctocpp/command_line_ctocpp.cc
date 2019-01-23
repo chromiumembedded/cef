@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=1c498e2873d5fc44f66de6a1faa1cb786465c293$
+// $hash=c50cd1a504c4f58009b0a54ccf5c87ffd8e2bbbd$
 //
 
 #include "libcef_dll/ctocpp/command_line_ctocpp.h"
@@ -417,6 +417,10 @@ void CefCommandLineCToCpp::PrependWrapper(const CefString& wrapper) {
 // CONSTRUCTOR - Do not edit by hand.
 
 CefCommandLineCToCpp::CefCommandLineCToCpp() {}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefCommandLineCToCpp::~CefCommandLineCToCpp() {}
 
 template <>
 cef_command_line_t*

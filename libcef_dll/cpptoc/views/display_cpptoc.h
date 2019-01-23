@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=ec2f756b6c13b2442865c1b91fd000007967e76b$
+// $hash=ab108dbcd1d5aa62d37a545e5b7e4aad22e708b9$
 //
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_VIEWS_DISPLAY_CPPTOC_H_
@@ -30,6 +30,7 @@ class CefDisplayCppToC
     : public CefCppToCRefCounted<CefDisplayCppToC, CefDisplay, cef_display_t> {
  public:
   CefDisplayCppToC();
+  virtual ~CefDisplayCppToC();
 };
 
 #endif  // CEF_LIBCEF_DLL_CPPTOC_VIEWS_DISPLAY_CPPTOC_H_

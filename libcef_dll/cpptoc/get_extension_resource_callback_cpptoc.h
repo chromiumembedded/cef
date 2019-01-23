@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=200739875373679e735feb17dc7c65a8a2da7f96$
+// $hash=4eab4cd81440e73e3426e9af757c88bf926f60d7$
 //
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_GET_EXTENSION_RESOURCE_CALLBACK_CPPTOC_H_
@@ -34,6 +34,7 @@ class CefGetExtensionResourceCallbackCppToC
                                  cef_get_extension_resource_callback_t> {
  public:
   CefGetExtensionResourceCallbackCppToC();
+  virtual ~CefGetExtensionResourceCallbackCppToC();
 };
 
 #endif  // CEF_LIBCEF_DLL_CPPTOC_GET_EXTENSION_RESOURCE_CALLBACK_CPPTOC_H_

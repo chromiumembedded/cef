@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=2e5c68727b26b0947ba16878275a09f5beee684e$
+// $hash=2602ada83129023b288002fede3c7aaf898d0e47$
 //
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_WEB_PLUGIN_INFO_VISITOR_CPPTOC_H_
@@ -34,6 +34,7 @@ class CefWebPluginInfoVisitorCppToC
                                  cef_web_plugin_info_visitor_t> {
  public:
   CefWebPluginInfoVisitorCppToC();
+  virtual ~CefWebPluginInfoVisitorCppToC();
 };
 
 #endif  // CEF_LIBCEF_DLL_CPPTOC_WEB_PLUGIN_INFO_VISITOR_CPPTOC_H_

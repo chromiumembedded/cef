@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=5570a3bae3b8b0dc9ead66a6ba86c76f11fe6872$
+// $hash=bddd5a95a7868c9bf8bc45e53a2bb75aa1890fc0$
 //
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_PRINT_HANDLER_CPPTOC_H_
@@ -31,6 +31,7 @@ class CefPrintHandlerCppToC : public CefCppToCRefCounted<CefPrintHandlerCppToC,
                                                          cef_print_handler_t> {
  public:
   CefPrintHandlerCppToC();
+  virtual ~CefPrintHandlerCppToC();
 };
 
 #endif  // CEF_LIBCEF_DLL_CPPTOC_PRINT_HANDLER_CPPTOC_H_

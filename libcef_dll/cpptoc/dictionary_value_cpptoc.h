@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=ca1032baec7333c9b8565b481350ec1b73086790$
+// $hash=2463eae0214d2f52564dbb760957c3141750fcbf$
 //
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_DICTIONARY_VALUE_CPPTOC_H_
@@ -32,6 +32,7 @@ class CefDictionaryValueCppToC
                                  cef_dictionary_value_t> {
  public:
   CefDictionaryValueCppToC();
+  virtual ~CefDictionaryValueCppToC();
 };
 
 #endif  // CEF_LIBCEF_DLL_CPPTOC_DICTIONARY_VALUE_CPPTOC_H_

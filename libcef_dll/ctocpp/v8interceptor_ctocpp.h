@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=0fab7d9b7703028d9606f2bd55c501cfca14beb3$
+// $hash=be0c393ee2a1d2c86bcd18c90954ec4f55663d40$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_V8INTERCEPTOR_CTOCPP_H_
@@ -32,6 +32,7 @@ class CefV8InterceptorCToCpp
                                  cef_v8interceptor_t> {
  public:
   CefV8InterceptorCToCpp();
+  virtual ~CefV8InterceptorCToCpp();
 
   // CefV8Interceptor methods.
   bool Get(const CefString& name,

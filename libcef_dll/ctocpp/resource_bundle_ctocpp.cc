@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=0868f65c60e3ec88606d37180138eb504f0e90f8$
+// $hash=5077a70845e7b6a7ef8a3ccb901dd24a12e98808$
 //
 
 #include "libcef_dll/ctocpp/resource_bundle_ctocpp.h"
@@ -87,6 +87,10 @@ bool CefResourceBundleCToCpp::GetDataResourceForScale(int resource_id,
 // CONSTRUCTOR - Do not edit by hand.
 
 CefResourceBundleCToCpp::CefResourceBundleCToCpp() {}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefResourceBundleCToCpp::~CefResourceBundleCToCpp() {}
 
 template <>
 cef_resource_bundle_t* CefCToCppRefCounted<

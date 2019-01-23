@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=b44164cc5471bfa19045cc8fb47f1cd402d10f9f$
+// $hash=d8b0ff4ef1493f3e9bb536ea3c88b568a0dbf1ac$
 //
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_CONTEXT_MENU_PARAMS_CPPTOC_H_
@@ -32,6 +32,7 @@ class CefContextMenuParamsCppToC
                                  cef_context_menu_params_t> {
  public:
   CefContextMenuParamsCppToC();
+  virtual ~CefContextMenuParamsCppToC();
 };
 
 #endif  // CEF_LIBCEF_DLL_CPPTOC_CONTEXT_MENU_PARAMS_CPPTOC_H_

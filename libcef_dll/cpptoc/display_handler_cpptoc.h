@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=94521cae896c3bafe81737cc4d42de4447767a46$
+// $hash=7cfb499516b7e7d9872fe6b91cbc8802d56ebe07$
 //
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_DISPLAY_HANDLER_CPPTOC_H_
@@ -32,6 +32,7 @@ class CefDisplayHandlerCppToC
                                  cef_display_handler_t> {
  public:
   CefDisplayHandlerCppToC();
+  virtual ~CefDisplayHandlerCppToC();
 };
 
 #endif  // CEF_LIBCEF_DLL_CPPTOC_DISPLAY_HANDLER_CPPTOC_H_

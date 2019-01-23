@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=c97a097f98118f8d3b5229141a7065385080b4e1$
+// $hash=df2e29ce3f4dbed69447e10ddde7d73ef7aceaf1$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_RESPONSE_CTOCPP_H_
@@ -31,6 +31,7 @@ class CefResponseCToCpp : public CefCToCppRefCounted<CefResponseCToCpp,
                                                      cef_response_t> {
  public:
   CefResponseCToCpp();
+  virtual ~CefResponseCToCpp();
 
   // CefResponse methods.
   bool IsReadOnly() OVERRIDE;

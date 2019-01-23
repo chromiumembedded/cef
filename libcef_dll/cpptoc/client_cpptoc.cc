@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=9a46adab7d328c9d33c759cc02f28d15fb23e2c2$
+// $hash=ddbd026586c4d4cac686b8e046891d1d4363549b$
 //
 
 #include "libcef_dll/cpptoc/client_cpptoc.h"
@@ -289,6 +289,10 @@ CefClientCppToC::CefClientCppToC() {
   GetStruct()->get_request_handler = client_get_request_handler;
   GetStruct()->on_process_message_received = client_on_process_message_received;
 }
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefClientCppToC::~CefClientCppToC() {}
 
 template <>
 CefRefPtr<CefClient>

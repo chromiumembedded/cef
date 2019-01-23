@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=0ae76d6298e598184ca015a8a29d53eff7b217f9$
+// $hash=171f8151ba684dc1846ddc44664c6ab514e3ec9a$
 //
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_REQUEST_CPPTOC_H_
@@ -30,6 +30,7 @@ class CefRequestCppToC
     : public CefCppToCRefCounted<CefRequestCppToC, CefRequest, cef_request_t> {
  public:
   CefRequestCppToC();
+  virtual ~CefRequestCppToC();
 };
 
 #endif  // CEF_LIBCEF_DLL_CPPTOC_REQUEST_CPPTOC_H_

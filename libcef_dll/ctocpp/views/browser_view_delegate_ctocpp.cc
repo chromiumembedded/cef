@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=9aa44f1335f77dcfd50f906bac15196cf510e69b$
+// $hash=af0cd8029cdda8d2693381c10ec00460a85e47b8$
 //
 
 #include "libcef_dll/ctocpp/views/browser_view_delegate_ctocpp.h"
@@ -17,6 +17,7 @@
 #include "libcef_dll/cpptoc/views/browser_view_cpptoc.h"
 #include "libcef_dll/cpptoc/views/view_cpptoc.h"
 #include "libcef_dll/ctocpp/client_ctocpp.h"
+#include "libcef_dll/shutdown_checker.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
@@ -24,6 +25,8 @@ NO_SANITIZE("cfi-icall")
 void CefBrowserViewDelegateCToCpp::OnBrowserCreated(
     CefRefPtr<CefBrowserView> browser_view,
     CefRefPtr<CefBrowser> browser) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_browser_view_delegate_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_browser_created))
     return;
@@ -48,6 +51,8 @@ NO_SANITIZE("cfi-icall")
 void CefBrowserViewDelegateCToCpp::OnBrowserDestroyed(
     CefRefPtr<CefBrowserView> browser_view,
     CefRefPtr<CefBrowser> browser) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_browser_view_delegate_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_browser_destroyed))
     return;
@@ -70,11 +75,14 @@ void CefBrowserViewDelegateCToCpp::OnBrowserDestroyed(
 }
 
 NO_SANITIZE("cfi-icall")
-CefRefPtr<CefBrowserViewDelegate> CefBrowserViewDelegateCToCpp::
-    GetDelegateForPopupBrowserView(CefRefPtr<CefBrowserView> browser_view,
-                                   const CefBrowserSettings& settings,
-                                   CefRefPtr<CefClient> client,
-                                   bool is_devtools) {
+CefRefPtr<CefBrowserViewDelegate>
+CefBrowserViewDelegateCToCpp::GetDelegateForPopupBrowserView(
+    CefRefPtr<CefBrowserView> browser_view,
+    const CefBrowserSettings& settings,
+    CefRefPtr<CefClient> client,
+    bool is_devtools) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_browser_view_delegate_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_delegate_for_popup_browser_view))
     return NULL;
@@ -105,6 +113,8 @@ bool CefBrowserViewDelegateCToCpp::OnPopupBrowserViewCreated(
     CefRefPtr<CefBrowserView> browser_view,
     CefRefPtr<CefBrowserView> popup_browser_view,
     bool is_devtools) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_browser_view_delegate_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_popup_browser_view_created))
     return false;
@@ -130,8 +140,10 @@ bool CefBrowserViewDelegateCToCpp::OnPopupBrowserViewCreated(
 }
 
 NO_SANITIZE("cfi-icall")
-CefSize
-    CefBrowserViewDelegateCToCpp::GetPreferredSize(CefRefPtr<CefView> view) {
+CefSize CefBrowserViewDelegateCToCpp::GetPreferredSize(
+    CefRefPtr<CefView> view) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_view_delegate_t* _struct =
       reinterpret_cast<cef_view_delegate_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, get_preferred_size))
@@ -154,6 +166,8 @@ CefSize
 
 NO_SANITIZE("cfi-icall")
 CefSize CefBrowserViewDelegateCToCpp::GetMinimumSize(CefRefPtr<CefView> view) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_view_delegate_t* _struct =
       reinterpret_cast<cef_view_delegate_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, get_minimum_size))
@@ -176,6 +190,8 @@ CefSize CefBrowserViewDelegateCToCpp::GetMinimumSize(CefRefPtr<CefView> view) {
 
 NO_SANITIZE("cfi-icall")
 CefSize CefBrowserViewDelegateCToCpp::GetMaximumSize(CefRefPtr<CefView> view) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_view_delegate_t* _struct =
       reinterpret_cast<cef_view_delegate_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, get_maximum_size))
@@ -199,6 +215,8 @@ CefSize CefBrowserViewDelegateCToCpp::GetMaximumSize(CefRefPtr<CefView> view) {
 NO_SANITIZE("cfi-icall")
 int CefBrowserViewDelegateCToCpp::GetHeightForWidth(CefRefPtr<CefView> view,
                                                     int width) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_view_delegate_t* _struct =
       reinterpret_cast<cef_view_delegate_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, get_height_for_width))
@@ -224,6 +242,8 @@ void CefBrowserViewDelegateCToCpp::OnParentViewChanged(
     CefRefPtr<CefView> view,
     bool added,
     CefRefPtr<CefView> parent) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_view_delegate_t* _struct =
       reinterpret_cast<cef_view_delegate_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, on_parent_view_changed))
@@ -250,6 +270,8 @@ void CefBrowserViewDelegateCToCpp::OnChildViewChanged(
     CefRefPtr<CefView> view,
     bool added,
     CefRefPtr<CefView> child) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_view_delegate_t* _struct =
       reinterpret_cast<cef_view_delegate_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, on_child_view_changed))
@@ -273,6 +295,8 @@ void CefBrowserViewDelegateCToCpp::OnChildViewChanged(
 
 NO_SANITIZE("cfi-icall")
 void CefBrowserViewDelegateCToCpp::OnFocus(CefRefPtr<CefView> view) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_view_delegate_t* _struct =
       reinterpret_cast<cef_view_delegate_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, on_focus))
@@ -291,6 +315,8 @@ void CefBrowserViewDelegateCToCpp::OnFocus(CefRefPtr<CefView> view) {
 
 NO_SANITIZE("cfi-icall")
 void CefBrowserViewDelegateCToCpp::OnBlur(CefRefPtr<CefView> view) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_view_delegate_t* _struct =
       reinterpret_cast<cef_view_delegate_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, on_blur))
@@ -310,6 +336,12 @@ void CefBrowserViewDelegateCToCpp::OnBlur(CefRefPtr<CefView> view) {
 // CONSTRUCTOR - Do not edit by hand.
 
 CefBrowserViewDelegateCToCpp::CefBrowserViewDelegateCToCpp() {}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefBrowserViewDelegateCToCpp::~CefBrowserViewDelegateCToCpp() {
+  shutdown_checker::AssertNotShutdown();
+}
 
 template <>
 cef_browser_view_delegate_t* CefCToCppRefCounted<

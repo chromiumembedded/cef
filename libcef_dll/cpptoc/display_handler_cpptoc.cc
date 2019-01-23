@@ -9,12 +9,13 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=07ae3c3e3960a9dce5b6186173f76f765c564bc8$
+// $hash=350b86d1f5e2912141666328a21b2d4498424cca$
 //
 
 #include "libcef_dll/cpptoc/display_handler_cpptoc.h"
 #include "libcef_dll/ctocpp/browser_ctocpp.h"
 #include "libcef_dll/ctocpp/frame_ctocpp.h"
+#include "libcef_dll/shutdown_checker.h"
 #include "libcef_dll/transfer_util.h"
 
 namespace {
@@ -26,6 +27,8 @@ display_handler_on_address_change(struct _cef_display_handler_t* self,
                                   cef_browser_t* browser,
                                   struct _cef_frame_t* frame,
                                   const cef_string_t* url) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -54,6 +57,8 @@ void CEF_CALLBACK
 display_handler_on_title_change(struct _cef_display_handler_t* self,
                                 cef_browser_t* browser,
                                 const cef_string_t* title) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -74,6 +79,8 @@ void CEF_CALLBACK
 display_handler_on_favicon_urlchange(struct _cef_display_handler_t* self,
                                      cef_browser_t* browser,
                                      cef_string_list_t icon_urls) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -98,6 +105,8 @@ void CEF_CALLBACK
 display_handler_on_fullscreen_mode_change(struct _cef_display_handler_t* self,
                                           cef_browser_t* browser,
                                           int fullscreen) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -116,6 +125,8 @@ display_handler_on_fullscreen_mode_change(struct _cef_display_handler_t* self,
 int CEF_CALLBACK display_handler_on_tooltip(struct _cef_display_handler_t* self,
                                             cef_browser_t* browser,
                                             cef_string_t* text) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -142,6 +153,8 @@ void CEF_CALLBACK
 display_handler_on_status_message(struct _cef_display_handler_t* self,
                                   cef_browser_t* browser,
                                   const cef_string_t* value) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -165,6 +178,8 @@ display_handler_on_console_message(struct _cef_display_handler_t* self,
                                    const cef_string_t* message,
                                    const cef_string_t* source,
                                    int line) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -189,6 +204,8 @@ int CEF_CALLBACK
 display_handler_on_auto_resize(struct _cef_display_handler_t* self,
                                cef_browser_t* browser,
                                const cef_size_t* new_size) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -218,6 +235,8 @@ void CEF_CALLBACK
 display_handler_on_loading_progress_change(struct _cef_display_handler_t* self,
                                            cef_browser_t* browser,
                                            double progress) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -249,6 +268,12 @@ CefDisplayHandlerCppToC::CefDisplayHandlerCppToC() {
   GetStruct()->on_auto_resize = display_handler_on_auto_resize;
   GetStruct()->on_loading_progress_change =
       display_handler_on_loading_progress_change;
+}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefDisplayHandlerCppToC::~CefDisplayHandlerCppToC() {
+  shutdown_checker::AssertNotShutdown();
 }
 
 template <>

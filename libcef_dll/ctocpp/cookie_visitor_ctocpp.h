@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=26537555798a2df22868e97a4fe66a9e28dec046$
+// $hash=0fcf5888e6b01a827a3336e3976b47abbc2e48a1$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_COOKIE_VISITOR_CTOCPP_H_
@@ -32,6 +32,7 @@ class CefCookieVisitorCToCpp
                                  cef_cookie_visitor_t> {
  public:
   CefCookieVisitorCToCpp();
+  virtual ~CefCookieVisitorCToCpp();
 
   // CefCookieVisitor methods.
   bool Visit(const CefCookie& cookie,

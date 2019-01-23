@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=2459dbc7838acfc44ce6cd779a1bc55566e99a3b$
+// $hash=ff4e4040706d4e5d56dd7bb457973203d37bd795$
 //
 
 #include "libcef_dll/ctocpp/request_context_handler_ctocpp.h"
@@ -94,6 +94,10 @@ bool CefRequestContextHandlerCToCpp::OnBeforePluginLoad(
 // CONSTRUCTOR - Do not edit by hand.
 
 CefRequestContextHandlerCToCpp::CefRequestContextHandlerCToCpp() {}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefRequestContextHandlerCToCpp::~CefRequestContextHandlerCToCpp() {}
 
 template <>
 cef_request_context_handler_t* CefCToCppRefCounted<

@@ -9,10 +9,11 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=670201522c9da2460608fcdd0dc07815cb134459$
+// $hash=2b234af34b1b6b739d7f948ca534b2f69bfc384a$
 //
 
 #include "libcef_dll/cpptoc/set_cookie_callback_cpptoc.h"
+#include "libcef_dll/shutdown_checker.h"
 
 namespace {
 
@@ -21,6 +22,8 @@ namespace {
 void CEF_CALLBACK
 set_cookie_callback_on_complete(struct _cef_set_cookie_callback_t* self,
                                 int success) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -37,6 +40,12 @@ set_cookie_callback_on_complete(struct _cef_set_cookie_callback_t* self,
 
 CefSetCookieCallbackCppToC::CefSetCookieCallbackCppToC() {
   GetStruct()->on_complete = set_cookie_callback_on_complete;
+}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefSetCookieCallbackCppToC::~CefSetCookieCallbackCppToC() {
+  shutdown_checker::AssertNotShutdown();
 }
 
 template <>

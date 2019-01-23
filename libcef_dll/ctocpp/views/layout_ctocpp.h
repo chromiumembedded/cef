@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=e224f1c810c06c20f54b6d4227417a26f589d0fb$
+// $hash=5235b7d9baf0e83f2b7f926f9a97b2f5bb1ae0eb$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_VIEWS_LAYOUT_CTOCPP_H_
@@ -34,6 +34,7 @@ class CefLayoutCToCpp
     : public CefCToCppRefCounted<CefLayoutCToCpp, CefLayout, cef_layout_t> {
  public:
   CefLayoutCToCpp();
+  virtual ~CefLayoutCToCpp();
 
   // CefLayout methods.
   CefRefPtr<CefBoxLayout> AsBoxLayout() OVERRIDE;

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=449d87f51627999388402fb81e921d2260d129d2$
+// $hash=d595053c7f504c985e1e0e723d0a9a707246af75$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_VIEWS_SCROLL_VIEW_CTOCPP_H_
@@ -31,6 +31,7 @@ class CefScrollViewCToCpp : public CefCToCppRefCounted<CefScrollViewCToCpp,
                                                        cef_scroll_view_t> {
  public:
   CefScrollViewCToCpp();
+  virtual ~CefScrollViewCToCpp();
 
   // CefScrollView methods.
   void SetContentView(CefRefPtr<CefView> view) OVERRIDE;

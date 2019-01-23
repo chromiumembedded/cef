@@ -9,13 +9,14 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=ac24ac471bb51b89d2641c909c538c1fe2e5d6a9$
+// $hash=0a480a3fdea0c87b79aab89ff20400415f910d78$
 //
 
 #include "libcef_dll/cpptoc/resource_handler_cpptoc.h"
 #include "libcef_dll/ctocpp/callback_ctocpp.h"
 #include "libcef_dll/ctocpp/request_ctocpp.h"
 #include "libcef_dll/ctocpp/response_ctocpp.h"
+#include "libcef_dll/shutdown_checker.h"
 
 namespace {
 
@@ -25,6 +26,8 @@ int CEF_CALLBACK
 resource_handler_process_request(struct _cef_resource_handler_t* self,
                                  cef_request_t* request,
                                  cef_callback_t* callback) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -52,6 +55,8 @@ resource_handler_get_response_headers(struct _cef_resource_handler_t* self,
                                       struct _cef_response_t* response,
                                       int64* response_length,
                                       cef_string_t* redirectUrl) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -90,6 +95,8 @@ resource_handler_read_response(struct _cef_resource_handler_t* self,
                                int bytes_to_read,
                                int* bytes_read,
                                cef_callback_t* callback) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -127,6 +134,8 @@ resource_handler_read_response(struct _cef_resource_handler_t* self,
 int CEF_CALLBACK
 resource_handler_can_get_cookie(struct _cef_resource_handler_t* self,
                                 const struct _cef_cookie_t* cookie) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -152,6 +161,8 @@ resource_handler_can_get_cookie(struct _cef_resource_handler_t* self,
 int CEF_CALLBACK
 resource_handler_can_set_cookie(struct _cef_resource_handler_t* self,
                                 const struct _cef_cookie_t* cookie) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -176,6 +187,8 @@ resource_handler_can_set_cookie(struct _cef_resource_handler_t* self,
 
 void CEF_CALLBACK
 resource_handler_cancel(struct _cef_resource_handler_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -197,6 +210,12 @@ CefResourceHandlerCppToC::CefResourceHandlerCppToC() {
   GetStruct()->can_get_cookie = resource_handler_can_get_cookie;
   GetStruct()->can_set_cookie = resource_handler_can_set_cookie;
   GetStruct()->cancel = resource_handler_cancel;
+}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefResourceHandlerCppToC::~CefResourceHandlerCppToC() {
+  shutdown_checker::AssertNotShutdown();
 }
 
 template <>

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=2f79804767b1c08a00f87b918190f33a1734b346$
+// $hash=9a7b0cec74d47d2ae9f9279d08cce06ce7b5ef98$
 //
 
 #include "libcef_dll/cpptoc/scheme_registrar_cpptoc.h"
@@ -56,6 +56,10 @@ scheme_registrar_add_custom_scheme(struct _cef_scheme_registrar_t* self,
 CefSchemeRegistrarCppToC::CefSchemeRegistrarCppToC() {
   GetStruct()->add_custom_scheme = scheme_registrar_add_custom_scheme;
 }
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefSchemeRegistrarCppToC::~CefSchemeRegistrarCppToC() {}
 
 template <>
 CefOwnPtr<CefSchemeRegistrar> CefCppToCScoped<

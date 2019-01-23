@@ -49,7 +49,7 @@ typedef cef_thread_id_t CefThreadId;
 // the target thread. For this reason be cautious when performing work in the
 // task object destructor.
 ///
-/*--cef(source=client)--*/
+/*--cef(source=client,no_debugct_check)--*/
 class CefTask : public virtual CefBaseRefCounted {
  public:
   ///

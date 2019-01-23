@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=62f186c4241b43f21b1a3a889484c0138a73e904$
+// $hash=d56012ec5f684560de78c23682e080544f44f3fc$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_SERVER_HANDLER_CTOCPP_H_
@@ -32,6 +32,7 @@ class CefServerHandlerCToCpp
                                  cef_server_handler_t> {
  public:
   CefServerHandlerCToCpp();
+  virtual ~CefServerHandlerCToCpp();
 
   // CefServerHandler methods.
   void OnServerCreated(CefRefPtr<CefServer> server) override;

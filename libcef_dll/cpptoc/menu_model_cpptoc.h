@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=f391ec2d2223565671f949504580a0bfba7dc4df$
+// $hash=da4c3ebdb697ea98d11d5bd2744641cb94818711$
 //
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_MENU_MODEL_CPPTOC_H_
@@ -31,6 +31,7 @@ class CefMenuModelCppToC : public CefCppToCRefCounted<CefMenuModelCppToC,
                                                       cef_menu_model_t> {
  public:
   CefMenuModelCppToC();
+  virtual ~CefMenuModelCppToC();
 };
 
 #endif  // CEF_LIBCEF_DLL_CPPTOC_MENU_MODEL_CPPTOC_H_

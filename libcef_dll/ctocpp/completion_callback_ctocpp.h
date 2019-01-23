@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=b9fff0d790b5a757539db1e5afa3bc025a2d8300$
+// $hash=7b743cd250ceb6111d8504cdd68783c53fad46e5$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_COMPLETION_CALLBACK_CTOCPP_H_
@@ -32,6 +32,7 @@ class CefCompletionCallbackCToCpp
                                  cef_completion_callback_t> {
  public:
   CefCompletionCallbackCToCpp();
+  virtual ~CefCompletionCallbackCToCpp();
 
   // CefCompletionCallback methods.
   void OnComplete() override;

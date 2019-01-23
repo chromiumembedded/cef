@@ -9,10 +9,11 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=078b2fa07434acfcc3b9d604bd6bc26ca8feb2f6$
+// $hash=078411b74defc684f7f7a56d04658585053e3683$
 //
 
 #include "libcef_dll/cpptoc/download_item_callback_cpptoc.h"
+#include "libcef_dll/shutdown_checker.h"
 
 namespace {
 
@@ -20,6 +21,8 @@ namespace {
 
 void CEF_CALLBACK
 download_item_callback_cancel(struct _cef_download_item_callback_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -32,6 +35,8 @@ download_item_callback_cancel(struct _cef_download_item_callback_t* self) {
 
 void CEF_CALLBACK
 download_item_callback_pause(struct _cef_download_item_callback_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -44,6 +49,8 @@ download_item_callback_pause(struct _cef_download_item_callback_t* self) {
 
 void CEF_CALLBACK
 download_item_callback_resume(struct _cef_download_item_callback_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -62,6 +69,12 @@ CefDownloadItemCallbackCppToC::CefDownloadItemCallbackCppToC() {
   GetStruct()->cancel = download_item_callback_cancel;
   GetStruct()->pause = download_item_callback_pause;
   GetStruct()->resume = download_item_callback_resume;
+}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefDownloadItemCallbackCppToC::~CefDownloadItemCallbackCppToC() {
+  shutdown_checker::AssertNotShutdown();
 }
 
 template <>

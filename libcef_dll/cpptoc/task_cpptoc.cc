@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=486dd17f5430a2fc73a30bfa94887134445b347e$
+// $hash=6c30de6fd4234579268912484326cab6431e4264$
 //
 
 #include "libcef_dll/cpptoc/task_cpptoc.h"
@@ -36,6 +36,10 @@ void CEF_CALLBACK task_execute(struct _cef_task_t* self) {
 CefTaskCppToC::CefTaskCppToC() {
   GetStruct()->execute = task_execute;
 }
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefTaskCppToC::~CefTaskCppToC() {}
 
 template <>
 CefRefPtr<CefTask>

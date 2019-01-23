@@ -9,12 +9,13 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=1fcc60d4d317c92b3d54e05f2e04daac60330cd9$
+// $hash=dabe15dc36f41ee10d0bd236b22dfa256695189a$
 //
 
 #include "libcef_dll/ctocpp/load_handler_ctocpp.h"
 #include "libcef_dll/cpptoc/browser_cpptoc.h"
 #include "libcef_dll/cpptoc/frame_cpptoc.h"
+#include "libcef_dll/shutdown_checker.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
@@ -23,6 +24,8 @@ void CefLoadHandlerCToCpp::OnLoadingStateChange(CefRefPtr<CefBrowser> browser,
                                                 bool isLoading,
                                                 bool canGoBack,
                                                 bool canGoForward) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_load_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_loading_state_change))
     return;
@@ -43,6 +46,8 @@ NO_SANITIZE("cfi-icall")
 void CefLoadHandlerCToCpp::OnLoadStart(CefRefPtr<CefBrowser> browser,
                                        CefRefPtr<CefFrame> frame,
                                        TransitionType transition_type) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_load_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_load_start))
     return;
@@ -67,6 +72,8 @@ NO_SANITIZE("cfi-icall")
 void CefLoadHandlerCToCpp::OnLoadEnd(CefRefPtr<CefBrowser> browser,
                                      CefRefPtr<CefFrame> frame,
                                      int httpStatusCode) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_load_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_load_end))
     return;
@@ -93,6 +100,8 @@ void CefLoadHandlerCToCpp::OnLoadError(CefRefPtr<CefBrowser> browser,
                                        ErrorCode errorCode,
                                        const CefString& errorText,
                                        const CefString& failedUrl) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_load_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_load_error))
     return;
@@ -122,6 +131,12 @@ void CefLoadHandlerCToCpp::OnLoadError(CefRefPtr<CefBrowser> browser,
 // CONSTRUCTOR - Do not edit by hand.
 
 CefLoadHandlerCToCpp::CefLoadHandlerCToCpp() {}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefLoadHandlerCToCpp::~CefLoadHandlerCToCpp() {
+  shutdown_checker::AssertNotShutdown();
+}
 
 template <>
 cef_load_handler_t*

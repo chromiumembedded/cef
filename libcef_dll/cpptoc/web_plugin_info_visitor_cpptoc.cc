@@ -9,11 +9,12 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=999ed19695c3bae10f0aa9d145e66f69a9e41074$
+// $hash=0dca8341eda3c55d479561f2ddce5de0e2c4a4bd$
 //
 
 #include "libcef_dll/cpptoc/web_plugin_info_visitor_cpptoc.h"
 #include "libcef_dll/ctocpp/web_plugin_info_ctocpp.h"
+#include "libcef_dll/shutdown_checker.h"
 
 namespace {
 
@@ -24,6 +25,8 @@ web_plugin_info_visitor_visit(struct _cef_web_plugin_info_visitor_t* self,
                               cef_web_plugin_info_t* info,
                               int count,
                               int total) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -48,6 +51,12 @@ web_plugin_info_visitor_visit(struct _cef_web_plugin_info_visitor_t* self,
 
 CefWebPluginInfoVisitorCppToC::CefWebPluginInfoVisitorCppToC() {
   GetStruct()->visit = web_plugin_info_visitor_visit;
+}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefWebPluginInfoVisitorCppToC::~CefWebPluginInfoVisitorCppToC() {
+  shutdown_checker::AssertNotShutdown();
 }
 
 template <>

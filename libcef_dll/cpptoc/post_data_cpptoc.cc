@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=0304b9dba958be2bc7b35ed0396c6ded437898f2$
+// $hash=d16df738599a1e71e96f4d3cc1afaa206b666d7b$
 //
 
 #include "libcef_dll/cpptoc/post_data_cpptoc.h"
@@ -177,6 +177,10 @@ CefPostDataCppToC::CefPostDataCppToC() {
   GetStruct()->add_element = post_data_add_element;
   GetStruct()->remove_elements = post_data_remove_elements;
 }
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefPostDataCppToC::~CefPostDataCppToC() {}
 
 template <>
 CefRefPtr<CefPostData>

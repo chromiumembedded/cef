@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=bfa1396bd439183b8ffc6289db2974d11bd7ba13$
+// $hash=da357fbd2928a41597a056f80551b406b859ab1b$
 //
 
 #include "libcef_dll/ctocpp/task_ctocpp.h"
@@ -30,6 +30,10 @@ NO_SANITIZE("cfi-icall") void CefTaskCToCpp::Execute() {
 // CONSTRUCTOR - Do not edit by hand.
 
 CefTaskCToCpp::CefTaskCToCpp() {}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefTaskCToCpp::~CefTaskCToCpp() {}
 
 template <>
 cef_task_t*

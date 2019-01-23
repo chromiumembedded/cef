@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=b8d11d717c384265295648ae25409eb177a9f7d8$
+// $hash=471e6df9211981ee64116142913c5bcee29fdfda$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_PDF_PRINT_CALLBACK_CTOCPP_H_
@@ -34,6 +34,7 @@ class CefPdfPrintCallbackCToCpp
                                  cef_pdf_print_callback_t> {
  public:
   CefPdfPrintCallbackCToCpp();
+  virtual ~CefPdfPrintCallbackCToCpp();
 
   // CefPdfPrintCallback methods.
   void OnPdfPrintFinished(const CefString& path, bool ok) override;

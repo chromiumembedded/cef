@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=a79fd3786abe785d767f83088e083774625510d4$
+// $hash=660faa70210239490765580900c343a164945914$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_EXTENSION_HANDLER_CTOCPP_H_
@@ -34,6 +34,7 @@ class CefExtensionHandlerCToCpp
                                  cef_extension_handler_t> {
  public:
   CefExtensionHandlerCToCpp();
+  virtual ~CefExtensionHandlerCToCpp();
 
   // CefExtensionHandler methods.
   void OnExtensionLoadFailed(cef_errorcode_t result) override;

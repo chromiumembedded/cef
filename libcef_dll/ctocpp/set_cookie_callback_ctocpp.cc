@@ -9,15 +9,18 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=4a247df94da6f7d258982f2518db3d909d727a47$
+// $hash=9cc7eb52611e6b972ec6cd4dc036409c0e6875df$
 //
 
 #include "libcef_dll/ctocpp/set_cookie_callback_ctocpp.h"
+#include "libcef_dll/shutdown_checker.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
 NO_SANITIZE("cfi-icall")
 void CefSetCookieCallbackCToCpp::OnComplete(bool success) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_set_cookie_callback_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_complete))
     return;
@@ -31,6 +34,12 @@ void CefSetCookieCallbackCToCpp::OnComplete(bool success) {
 // CONSTRUCTOR - Do not edit by hand.
 
 CefSetCookieCallbackCToCpp::CefSetCookieCallbackCToCpp() {}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefSetCookieCallbackCToCpp::~CefSetCookieCallbackCToCpp() {
+  shutdown_checker::AssertNotShutdown();
+}
 
 template <>
 cef_set_cookie_callback_t* CefCToCppRefCounted<

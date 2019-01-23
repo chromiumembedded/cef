@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=4e2b6675b9105aa028260b76075bde88b226ca33$
+// $hash=dc669eaed42b1df11eb0df08dc22af0e825a991f$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_RENDER_PROCESS_HANDLER_CTOCPP_H_
@@ -32,6 +32,7 @@ class CefRenderProcessHandlerCToCpp
                                  cef_render_process_handler_t> {
  public:
   CefRenderProcessHandlerCToCpp();
+  virtual ~CefRenderProcessHandlerCToCpp();
 
   // CefRenderProcessHandler methods.
   void OnRenderThreadCreated(CefRefPtr<CefListValue> extra_info) override;

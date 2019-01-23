@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=f8159bd9c97f68a45faf3c797b4441d6344357ca$
+// $hash=f4f8c6ede01fbe93a60b731e26ce3c727e7df6af$
 //
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_PRINT_DIALOG_CALLBACK_CPPTOC_H_
@@ -32,6 +32,7 @@ class CefPrintDialogCallbackCppToC
                                  cef_print_dialog_callback_t> {
  public:
   CefPrintDialogCallbackCppToC();
+  virtual ~CefPrintDialogCallbackCppToC();
 };
 
 #endif  // CEF_LIBCEF_DLL_CPPTOC_PRINT_DIALOG_CALLBACK_CPPTOC_H_

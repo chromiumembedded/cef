@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=64d606fe81c821bbbdf9d149e807172aeb45a1ec$
+// $hash=e771cbc54e0080ff4da0f913641a499ede33d39c$
 //
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_NAVIGATION_ENTRY_CPPTOC_H_
@@ -32,6 +32,7 @@ class CefNavigationEntryCppToC
                                  cef_navigation_entry_t> {
  public:
   CefNavigationEntryCppToC();
+  virtual ~CefNavigationEntryCppToC();
 };
 
 #endif  // CEF_LIBCEF_DLL_CPPTOC_NAVIGATION_ENTRY_CPPTOC_H_

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=d4e6a7db24b55b1ffecf43c91a6f816d96ea71b7$
+// $hash=2c470dab1ef6ff3674da8fa6fc15ee14660bebac$
 //
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_X509CERTIFICATE_CPPTOC_H_
@@ -32,6 +32,7 @@ class CefX509CertificateCppToC
                                  cef_x509certificate_t> {
  public:
   CefX509CertificateCppToC();
+  virtual ~CefX509CertificateCppToC();
 };
 
 #endif  // CEF_LIBCEF_DLL_CPPTOC_X509CERTIFICATE_CPPTOC_H_

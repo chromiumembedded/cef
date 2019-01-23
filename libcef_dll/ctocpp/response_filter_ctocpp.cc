@@ -9,14 +9,17 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=b4d995b4c2d814259613e2d14d868a0a5ff7984c$
+// $hash=ea88635aa4e6f26eb41b62a077cddccda1e0c2ed$
 //
 
 #include "libcef_dll/ctocpp/response_filter_ctocpp.h"
+#include "libcef_dll/shutdown_checker.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
 NO_SANITIZE("cfi-icall") bool CefResponseFilterCToCpp::InitFilter() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_response_filter_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, init_filter))
     return false;
@@ -31,13 +34,15 @@ NO_SANITIZE("cfi-icall") bool CefResponseFilterCToCpp::InitFilter() {
 }
 
 NO_SANITIZE("cfi-icall")
-CefResponseFilter::FilterStatus
-    CefResponseFilterCToCpp::Filter(void* data_in,
-                                    size_t data_in_size,
-                                    size_t& data_in_read,
-                                    void* data_out,
-                                    size_t data_out_size,
-                                    size_t& data_out_written) {
+CefResponseFilter::FilterStatus CefResponseFilterCToCpp::Filter(
+    void* data_in,
+    size_t data_in_size,
+    size_t& data_in_read,
+    void* data_out,
+    size_t data_out_size,
+    size_t& data_out_written) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_response_filter_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, filter))
     return RESPONSE_FILTER_ERROR;
@@ -62,6 +67,12 @@ CefResponseFilter::FilterStatus
 // CONSTRUCTOR - Do not edit by hand.
 
 CefResponseFilterCToCpp::CefResponseFilterCToCpp() {}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefResponseFilterCToCpp::~CefResponseFilterCToCpp() {
+  shutdown_checker::AssertNotShutdown();
+}
 
 template <>
 cef_response_filter_t* CefCToCppRefCounted<

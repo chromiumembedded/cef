@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=0676dd9b06865f2af5658d905e2c4c5d9d9a105e$
+// $hash=66db828db84ce2b0eecba5dabca17001f6bda98e$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_VIEWS_DISPLAY_CTOCPP_H_
@@ -30,6 +30,7 @@ class CefDisplayCToCpp
     : public CefCToCppRefCounted<CefDisplayCToCpp, CefDisplay, cef_display_t> {
  public:
   CefDisplayCToCpp();
+  virtual ~CefDisplayCToCpp();
 
   // CefDisplay methods.
   int64 GetID() OVERRIDE;

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=beae419588b1c5068e503301940230556491987c$
+// $hash=b27ffeffd0ee7daf113b3179e865a469e48a8810$
 //
 
 #include "libcef_dll/ctocpp/v8accessor_ctocpp.h"
@@ -97,6 +97,10 @@ bool CefV8AccessorCToCpp::Set(const CefString& name,
 // CONSTRUCTOR - Do not edit by hand.
 
 CefV8AccessorCToCpp::CefV8AccessorCToCpp() {}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefV8AccessorCToCpp::~CefV8AccessorCToCpp() {}
 
 template <>
 cef_v8accessor_t*

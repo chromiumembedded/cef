@@ -9,16 +9,19 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=334f209cf51e0659c0b0ab9196f7a404f01461e5$
+// $hash=6703175d02d6a1fbbbe931ebc000081e037fb507$
 //
 
 #include "libcef_dll/cpptoc/callback_cpptoc.h"
+#include "libcef_dll/shutdown_checker.h"
 
 namespace {
 
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
 void CEF_CALLBACK callback_cont(struct _cef_callback_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -30,6 +33,8 @@ void CEF_CALLBACK callback_cont(struct _cef_callback_t* self) {
 }
 
 void CEF_CALLBACK callback_cancel(struct _cef_callback_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -47,6 +52,12 @@ void CEF_CALLBACK callback_cancel(struct _cef_callback_t* self) {
 CefCallbackCppToC::CefCallbackCppToC() {
   GetStruct()->cont = callback_cont;
   GetStruct()->cancel = callback_cancel;
+}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefCallbackCppToC::~CefCallbackCppToC() {
+  shutdown_checker::AssertNotShutdown();
 }
 
 template <>

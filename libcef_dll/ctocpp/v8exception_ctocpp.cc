@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=400342415189c9fb509f144b0ed74e28419deb16$
+// $hash=7a602017eaee19b78e048ac1e80f7a7c235ffac9$
 //
 
 #include "libcef_dll/ctocpp/v8exception_ctocpp.h"
@@ -138,6 +138,10 @@ NO_SANITIZE("cfi-icall") int CefV8ExceptionCToCpp::GetEndColumn() {
 // CONSTRUCTOR - Do not edit by hand.
 
 CefV8ExceptionCToCpp::CefV8ExceptionCToCpp() {}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefV8ExceptionCToCpp::~CefV8ExceptionCToCpp() {}
 
 template <>
 cef_v8exception_t*

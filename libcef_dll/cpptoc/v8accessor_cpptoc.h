@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=74fe0a1d5896cd334f9982e97daad1b147ede77d$
+// $hash=b50529b3976ed590641e709fe98109319b47ca5e$
 //
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_V8ACCESSOR_CPPTOC_H_
@@ -31,6 +31,7 @@ class CefV8AccessorCppToC : public CefCppToCRefCounted<CefV8AccessorCppToC,
                                                        cef_v8accessor_t> {
  public:
   CefV8AccessorCppToC();
+  virtual ~CefV8AccessorCppToC();
 };
 
 #endif  // CEF_LIBCEF_DLL_CPPTOC_V8ACCESSOR_CPPTOC_H_

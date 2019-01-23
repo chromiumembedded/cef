@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=aaaf37e4a40f966ab8f7f94b6573b7961c6dc468$
+// $hash=480b6a47d341f2ec9e977f9b50f2305507e2cc40$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_DOMNODE_CTOCPP_H_
@@ -30,6 +30,7 @@ class CefDOMNodeCToCpp
     : public CefCToCppRefCounted<CefDOMNodeCToCpp, CefDOMNode, cef_domnode_t> {
  public:
   CefDOMNodeCToCpp();
+  virtual ~CefDOMNodeCToCpp();
 
   // CefDOMNode methods.
   Type GetType() OVERRIDE;

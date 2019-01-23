@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=179f75853f115673b26a1e9ff857289e000fc529$
+// $hash=1e04ddcff8f7d50d52e1d21c0d20c9b246ff8b67$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_VIEWS_WINDOW_CTOCPP_H_
@@ -31,6 +31,7 @@ class CefWindowCToCpp
     : public CefCToCppRefCounted<CefWindowCToCpp, CefWindow, cef_window_t> {
  public:
   CefWindowCToCpp();
+  virtual ~CefWindowCToCpp();
 
   // CefWindow methods.
   void Show() OVERRIDE;

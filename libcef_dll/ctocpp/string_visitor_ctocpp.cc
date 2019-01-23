@@ -9,15 +9,18 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=f131442386d9aeda3b4a9e7484faa1bdbf88276a$
+// $hash=9d300b4e0391a921a05a01599c91cf7f700a3e63$
 //
 
 #include "libcef_dll/ctocpp/string_visitor_ctocpp.h"
+#include "libcef_dll/shutdown_checker.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
 NO_SANITIZE("cfi-icall")
 void CefStringVisitorCToCpp::Visit(const CefString& string) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_string_visitor_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, visit))
     return;
@@ -33,6 +36,12 @@ void CefStringVisitorCToCpp::Visit(const CefString& string) {
 // CONSTRUCTOR - Do not edit by hand.
 
 CefStringVisitorCToCpp::CefStringVisitorCToCpp() {}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefStringVisitorCToCpp::~CefStringVisitorCToCpp() {
+  shutdown_checker::AssertNotShutdown();
+}
 
 template <>
 cef_string_visitor_t*

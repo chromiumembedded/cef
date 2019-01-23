@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=206c9d8f26cdcf1d7a879aab7c92712c3c10781c$
+// $hash=2f337e1a32d2f421fe8fcfc046b5992e5a1ce8c0$
 //
 
 #include "libcef_dll/ctocpp/client_ctocpp.h"
@@ -259,6 +259,10 @@ bool CefClientCToCpp::OnProcessMessageReceived(
 // CONSTRUCTOR - Do not edit by hand.
 
 CefClientCToCpp::CefClientCToCpp() {}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefClientCToCpp::~CefClientCToCpp() {}
 
 template <>
 cef_client_t*

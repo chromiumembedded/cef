@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=3a32f1847cb1c2ead583d404a0e58988943c968f$
+// $hash=d29d64b071af07c578a2d39b6bd3d5cb50b7ce3a$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_REGISTER_CDM_CALLBACK_CTOCPP_H_
@@ -34,6 +34,7 @@ class CefRegisterCdmCallbackCToCpp
                                  cef_register_cdm_callback_t> {
  public:
   CefRegisterCdmCallbackCToCpp();
+  virtual ~CefRegisterCdmCallbackCToCpp();
 
   // CefRegisterCdmCallback methods.
   void OnCdmRegistrationComplete(cef_cdm_registration_error_t result,

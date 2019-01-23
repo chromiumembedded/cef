@@ -9,15 +9,18 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=4ae1f2c5eb73a7dff5d96bc42750bbf8034e6ddb$
+// $hash=d2496fe2f83679ec93768c1fb73b1c66499ebc5b$
 //
 
 #include "libcef_dll/ctocpp/sslinfo_ctocpp.h"
 #include "libcef_dll/ctocpp/x509certificate_ctocpp.h"
+#include "libcef_dll/shutdown_checker.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
 NO_SANITIZE("cfi-icall") cef_cert_status_t CefSSLInfoCToCpp::GetCertStatus() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_sslinfo_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_cert_status))
     return CERT_STATUS_NONE;
@@ -33,6 +36,8 @@ NO_SANITIZE("cfi-icall") cef_cert_status_t CefSSLInfoCToCpp::GetCertStatus() {
 
 NO_SANITIZE("cfi-icall")
 CefRefPtr<CefX509Certificate> CefSSLInfoCToCpp::GetX509Certificate() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_sslinfo_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_x509certificate))
     return NULL;
@@ -49,6 +54,12 @@ CefRefPtr<CefX509Certificate> CefSSLInfoCToCpp::GetX509Certificate() {
 // CONSTRUCTOR - Do not edit by hand.
 
 CefSSLInfoCToCpp::CefSSLInfoCToCpp() {}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefSSLInfoCToCpp::~CefSSLInfoCToCpp() {
+  shutdown_checker::AssertNotShutdown();
+}
 
 template <>
 cef_sslinfo_t*

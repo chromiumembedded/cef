@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=5c8004f121da58d6e1eeb489323bc48bbc865305$
+// $hash=b75b8de681ae667e415fee498faa4a6bb74adc08$
 //
 
 #include "libcef_dll/ctocpp/v8array_buffer_release_callback_ctocpp.h"
@@ -37,6 +37,11 @@ void CefV8ArrayBufferReleaseCallbackCToCpp::ReleaseBuffer(void* buffer) {
 
 CefV8ArrayBufferReleaseCallbackCToCpp::CefV8ArrayBufferReleaseCallbackCToCpp() {
 }
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefV8ArrayBufferReleaseCallbackCToCpp::
+    ~CefV8ArrayBufferReleaseCallbackCToCpp() {}
 
 template <>
 cef_v8array_buffer_release_callback_t*

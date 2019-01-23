@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=174d5360b58b425027ef57045508f2c4eb002497$
+// $hash=ce6ef363aa61810d560fa08e4d1917fd2375ecf9$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_GET_EXTENSION_RESOURCE_CALLBACK_CTOCPP_H_
@@ -34,6 +34,7 @@ class CefGetExtensionResourceCallbackCToCpp
                                  cef_get_extension_resource_callback_t> {
  public:
   CefGetExtensionResourceCallbackCToCpp();
+  virtual ~CefGetExtensionResourceCallbackCToCpp();
 
   // CefGetExtensionResourceCallback methods.
   void Continue(CefRefPtr<CefStreamReader> stream) OVERRIDE;

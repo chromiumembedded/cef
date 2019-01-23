@@ -9,18 +9,21 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=25b8a484e4e00c1004b1b8c30638d2d6faf963d6$
+// $hash=381eba12e69c8beedb92ada87ab54a3764be4230$
 //
 
 #include "libcef_dll/ctocpp/server_handler_ctocpp.h"
 #include "libcef_dll/cpptoc/callback_cpptoc.h"
 #include "libcef_dll/cpptoc/request_cpptoc.h"
 #include "libcef_dll/cpptoc/server_cpptoc.h"
+#include "libcef_dll/shutdown_checker.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
 NO_SANITIZE("cfi-icall")
 void CefServerHandlerCToCpp::OnServerCreated(CefRefPtr<CefServer> server) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_server_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_server_created))
     return;
@@ -38,6 +41,8 @@ void CefServerHandlerCToCpp::OnServerCreated(CefRefPtr<CefServer> server) {
 
 NO_SANITIZE("cfi-icall")
 void CefServerHandlerCToCpp::OnServerDestroyed(CefRefPtr<CefServer> server) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_server_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_server_destroyed))
     return;
@@ -56,6 +61,8 @@ void CefServerHandlerCToCpp::OnServerDestroyed(CefRefPtr<CefServer> server) {
 NO_SANITIZE("cfi-icall")
 void CefServerHandlerCToCpp::OnClientConnected(CefRefPtr<CefServer> server,
                                                int connection_id) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_server_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_client_connected))
     return;
@@ -75,6 +82,8 @@ void CefServerHandlerCToCpp::OnClientConnected(CefRefPtr<CefServer> server,
 NO_SANITIZE("cfi-icall")
 void CefServerHandlerCToCpp::OnClientDisconnected(CefRefPtr<CefServer> server,
                                                   int connection_id) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_server_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_client_disconnected))
     return;
@@ -96,6 +105,8 @@ void CefServerHandlerCToCpp::OnHttpRequest(CefRefPtr<CefServer> server,
                                            int connection_id,
                                            const CefString& client_address,
                                            CefRefPtr<CefRequest> request) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_server_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_http_request))
     return;
@@ -128,6 +139,8 @@ void CefServerHandlerCToCpp::OnWebSocketRequest(
     const CefString& client_address,
     CefRefPtr<CefRequest> request,
     CefRefPtr<CefCallback> callback) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_server_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_web_socket_request))
     return;
@@ -161,6 +174,8 @@ void CefServerHandlerCToCpp::OnWebSocketRequest(
 NO_SANITIZE("cfi-icall")
 void CefServerHandlerCToCpp::OnWebSocketConnected(CefRefPtr<CefServer> server,
                                                   int connection_id) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_server_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_web_socket_connected))
     return;
@@ -182,6 +197,8 @@ void CefServerHandlerCToCpp::OnWebSocketMessage(CefRefPtr<CefServer> server,
                                                 int connection_id,
                                                 const void* data,
                                                 size_t data_size) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_server_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_web_socket_message))
     return;
@@ -205,6 +222,12 @@ void CefServerHandlerCToCpp::OnWebSocketMessage(CefRefPtr<CefServer> server,
 // CONSTRUCTOR - Do not edit by hand.
 
 CefServerHandlerCToCpp::CefServerHandlerCToCpp() {}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefServerHandlerCToCpp::~CefServerHandlerCToCpp() {
+  shutdown_checker::AssertNotShutdown();
+}
 
 template <>
 cef_server_handler_t*

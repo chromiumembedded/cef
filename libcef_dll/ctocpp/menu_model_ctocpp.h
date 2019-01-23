@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=df5bd43d8df66ae12a661d082a40520246fb0618$
+// $hash=f2b1e20d398edfe2ab1caf79af86163b992e14e0$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_MENU_MODEL_CTOCPP_H_
@@ -31,6 +31,7 @@ class CefMenuModelCToCpp : public CefCToCppRefCounted<CefMenuModelCToCpp,
                                                       cef_menu_model_t> {
  public:
   CefMenuModelCToCpp();
+  virtual ~CefMenuModelCToCpp();
 
   // CefMenuModel methods.
   bool IsSubMenu() OVERRIDE;

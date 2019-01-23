@@ -9,12 +9,13 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=b267b6f6b92f40479ba91e67f0981bd05063a29c$
+// $hash=cc6ff684cc894dc40ea04848eb61ac4f3b87da20$
 //
 
 #include "libcef_dll/cpptoc/drag_handler_cpptoc.h"
 #include "libcef_dll/ctocpp/browser_ctocpp.h"
 #include "libcef_dll/ctocpp/drag_data_ctocpp.h"
+#include "libcef_dll/shutdown_checker.h"
 
 namespace {
 
@@ -24,6 +25,8 @@ int CEF_CALLBACK drag_handler_on_drag_enter(struct _cef_drag_handler_t* self,
                                             cef_browser_t* browser,
                                             cef_drag_data_t* dragData,
                                             cef_drag_operations_mask_t mask) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -51,6 +54,8 @@ void CEF_CALLBACK drag_handler_on_draggable_regions_changed(
     cef_browser_t* browser,
     size_t regionsCount,
     cef_draggable_region_t const* regions) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -87,6 +92,12 @@ CefDragHandlerCppToC::CefDragHandlerCppToC() {
   GetStruct()->on_drag_enter = drag_handler_on_drag_enter;
   GetStruct()->on_draggable_regions_changed =
       drag_handler_on_draggable_regions_changed;
+}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefDragHandlerCppToC::~CefDragHandlerCppToC() {
+  shutdown_checker::AssertNotShutdown();
 }
 
 template <>

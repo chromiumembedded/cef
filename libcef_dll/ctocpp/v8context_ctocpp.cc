@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=0231f57ce3cd74e7516a9ec0dd34584ac3064b4c$
+// $hash=86e28bebd3f230510195fb5677898ae3b2e96151$
 //
 
 #include "libcef_dll/ctocpp/v8context_ctocpp.h"
@@ -232,6 +232,10 @@ bool CefV8ContextCToCpp::Eval(const CefString& code,
 // CONSTRUCTOR - Do not edit by hand.
 
 CefV8ContextCToCpp::CefV8ContextCToCpp() {}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefV8ContextCToCpp::~CefV8ContextCToCpp() {}
 
 template <>
 cef_v8context_t*

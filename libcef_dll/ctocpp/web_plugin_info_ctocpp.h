@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=079e2fb47dd6c02cac0bf1b24f6224889028e673$
+// $hash=669af6b0ead815bbca49f74892f5241857b948c8$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_WEB_PLUGIN_INFO_CTOCPP_H_
@@ -34,6 +34,7 @@ class CefWebPluginInfoCToCpp
                                  cef_web_plugin_info_t> {
  public:
   CefWebPluginInfoCToCpp();
+  virtual ~CefWebPluginInfoCToCpp();
 
   // CefWebPluginInfo methods.
   CefString GetName() OVERRIDE;

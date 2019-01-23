@@ -9,16 +9,19 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=3ad4477ab13234da7dcaad9b2486e759eac48a39$
+// $hash=d64872738297fd38a5cda226d88d0e2a57d5508f$
 //
 
 #include "libcef_dll/ctocpp/jsdialog_callback_ctocpp.h"
+#include "libcef_dll/shutdown_checker.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
 NO_SANITIZE("cfi-icall")
 void CefJSDialogCallbackCToCpp::Continue(bool success,
                                          const CefString& user_input) {
+  shutdown_checker::AssertNotShutdown();
+
   cef_jsdialog_callback_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, cont))
     return;
@@ -34,6 +37,12 @@ void CefJSDialogCallbackCToCpp::Continue(bool success,
 // CONSTRUCTOR - Do not edit by hand.
 
 CefJSDialogCallbackCToCpp::CefJSDialogCallbackCToCpp() {}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefJSDialogCallbackCToCpp::~CefJSDialogCallbackCToCpp() {
+  shutdown_checker::AssertNotShutdown();
+}
 
 template <>
 cef_jsdialog_callback_t* CefCToCppRefCounted<

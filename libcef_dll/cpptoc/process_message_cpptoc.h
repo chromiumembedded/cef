@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=bf726374d47cfe7b9c46624c1f7b5cb87d7277fd$
+// $hash=8d417f1b1c6bff70d8c55aeb02fd4cf03112e5bb$
 //
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_PROCESS_MESSAGE_CPPTOC_H_
@@ -32,6 +32,7 @@ class CefProcessMessageCppToC
                                  cef_process_message_t> {
  public:
   CefProcessMessageCppToC();
+  virtual ~CefProcessMessageCppToC();
 };
 
 #endif  // CEF_LIBCEF_DLL_CPPTOC_PROCESS_MESSAGE_CPPTOC_H_

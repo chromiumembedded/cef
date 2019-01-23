@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=9aa6305fd24196112fde60ae14e4ccc9ec375393$
+// $hash=c7ddac9461ac3345bc96b469c79cbe7669fb3173$
 //
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_V8STACK_TRACE_CPPTOC_H_
@@ -31,6 +31,7 @@ class CefV8StackTraceCppToC : public CefCppToCRefCounted<CefV8StackTraceCppToC,
                                                          cef_v8stack_trace_t> {
  public:
   CefV8StackTraceCppToC();
+  virtual ~CefV8StackTraceCppToC();
 };
 
 #endif  // CEF_LIBCEF_DLL_CPPTOC_V8STACK_TRACE_CPPTOC_H_

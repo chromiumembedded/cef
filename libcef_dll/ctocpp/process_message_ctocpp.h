@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=ae1107931ad5137402ccbef07796db2afab4174d$
+// $hash=845fefd8be50141bfc58045b1a0807b4d1204e0d$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_PROCESS_MESSAGE_CTOCPP_H_
@@ -32,6 +32,7 @@ class CefProcessMessageCToCpp
                                  cef_process_message_t> {
  public:
   CefProcessMessageCToCpp();
+  virtual ~CefProcessMessageCToCpp();
 
   // CefProcessMessage methods.
   bool IsValid() OVERRIDE;

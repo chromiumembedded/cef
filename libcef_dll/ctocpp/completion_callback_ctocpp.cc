@@ -9,14 +9,17 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=09314c7eb39354c47d9e48fdda3d89764ad05dad$
+// $hash=c34c782c8c4d8bfacaeeb06f7e824afead5cf8ed$
 //
 
 #include "libcef_dll/ctocpp/completion_callback_ctocpp.h"
+#include "libcef_dll/shutdown_checker.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
 NO_SANITIZE("cfi-icall") void CefCompletionCallbackCToCpp::OnComplete() {
+  shutdown_checker::AssertNotShutdown();
+
   cef_completion_callback_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_complete))
     return;
@@ -30,6 +33,12 @@ NO_SANITIZE("cfi-icall") void CefCompletionCallbackCToCpp::OnComplete() {
 // CONSTRUCTOR - Do not edit by hand.
 
 CefCompletionCallbackCToCpp::CefCompletionCallbackCToCpp() {}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefCompletionCallbackCToCpp::~CefCompletionCallbackCToCpp() {
+  shutdown_checker::AssertNotShutdown();
+}
 
 template <>
 cef_completion_callback_t* CefCToCppRefCounted<

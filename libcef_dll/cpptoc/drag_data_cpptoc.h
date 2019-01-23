@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=1e1a8174dc3c0655245c12da94b57c2133d134b5$
+// $hash=af7662cb4499269d80ca8d8ac73a4a73d856c689$
 //
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_DRAG_DATA_CPPTOC_H_
@@ -31,6 +31,7 @@ class CefDragDataCppToC : public CefCppToCRefCounted<CefDragDataCppToC,
                                                      cef_drag_data_t> {
  public:
   CefDragDataCppToC();
+  virtual ~CefDragDataCppToC();
 };
 
 #endif  // CEF_LIBCEF_DLL_CPPTOC_DRAG_DATA_CPPTOC_H_

@@ -9,10 +9,11 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=3a53b94873fae44d1bdca822049f46474fd925bf$
+// $hash=2026723cdae10f4845d8239f14b8048d90252405$
 //
 
 #include "libcef_dll/cpptoc/response_filter_cpptoc.h"
+#include "libcef_dll/shutdown_checker.h"
 
 namespace {
 
@@ -20,6 +21,8 @@ namespace {
 
 int CEF_CALLBACK
 response_filter_init_filter(struct _cef_response_filter_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -41,6 +44,8 @@ response_filter_filter(struct _cef_response_filter_t* self,
                        void* data_out,
                        size_t data_out_size,
                        size_t* data_out_written) {
+  shutdown_checker::AssertNotShutdown();
+
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -89,6 +94,12 @@ response_filter_filter(struct _cef_response_filter_t* self,
 CefResponseFilterCppToC::CefResponseFilterCppToC() {
   GetStruct()->init_filter = response_filter_init_filter;
   GetStruct()->filter = response_filter_filter;
+}
+
+// DESTRUCTOR - Do not edit by hand.
+
+CefResponseFilterCppToC::~CefResponseFilterCppToC() {
+  shutdown_checker::AssertNotShutdown();
 }
 
 template <>

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=a01e5ab9f31111068c9686451b7bdfa2c58915ae$
+// $hash=32ac4f32c8814afed03162e97a0012493d51e649$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_V8ARRAY_BUFFER_RELEASE_CALLBACK_CTOCPP_H_
@@ -32,6 +32,7 @@ class CefV8ArrayBufferReleaseCallbackCToCpp
                                  cef_v8array_buffer_release_callback_t> {
  public:
   CefV8ArrayBufferReleaseCallbackCToCpp();
+  virtual ~CefV8ArrayBufferReleaseCallbackCToCpp();
 
   // CefV8ArrayBufferReleaseCallback methods.
   void ReleaseBuffer(void* buffer) override;
