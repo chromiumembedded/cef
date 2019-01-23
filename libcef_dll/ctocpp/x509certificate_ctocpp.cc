@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=da3fb122fef7a7fc6a035f63fc5cb97443270ba1$
+// $hash=7c3d2fdce89c468fc5d2baeabb43e0bb7b667574$
 //
 
 #include "libcef_dll/ctocpp/x509certificate_ctocpp.h"
@@ -254,14 +254,6 @@ cef_x509certificate_t* CefCToCppRefCounted<
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
-
-#if DCHECK_IS_ON()
-template <>
-base::AtomicRefCount CefCToCppRefCounted<CefX509CertificateCToCpp,
-                                         CefX509Certificate,
-                                         cef_x509certificate_t>::DebugObjCt
-    ATOMIC_DECLARATION;
-#endif
 
 template <>
 CefWrapperType CefCToCppRefCounted<CefX509CertificateCToCpp,

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=dabe15dc36f41ee10d0bd236b22dfa256695189a$
+// $hash=ccfc51999ab71b5e4c6caddb292951ba07e23897$
 //
 
 #include "libcef_dll/ctocpp/load_handler_ctocpp.h"
@@ -145,14 +145,6 @@ CefCToCppRefCounted<CefLoadHandlerCToCpp, CefLoadHandler, cef_load_handler_t>::
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
-
-#if DCHECK_IS_ON()
-template <>
-base::AtomicRefCount CefCToCppRefCounted<CefLoadHandlerCToCpp,
-                                         CefLoadHandler,
-                                         cef_load_handler_t>::DebugObjCt
-    ATOMIC_DECLARATION;
-#endif
 
 template <>
 CefWrapperType CefCToCppRefCounted<CefLoadHandlerCToCpp,

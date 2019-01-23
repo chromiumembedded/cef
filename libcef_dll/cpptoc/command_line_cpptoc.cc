@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=745c869d4a8bb07633e5aff8a313a642503bd84f$
+// $hash=2eec49f4f266de3ab29041d1140b213bd3dd564d$
 //
 
 #include "libcef_dll/cpptoc/command_line_cpptoc.h"
@@ -424,14 +424,6 @@ CefCppToCRefCounted<CefCommandLineCppToC, CefCommandLine, cef_command_line_t>::
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
-
-#if DCHECK_IS_ON()
-template <>
-base::AtomicRefCount CefCppToCRefCounted<CefCommandLineCppToC,
-                                         CefCommandLine,
-                                         cef_command_line_t>::DebugObjCt
-    ATOMIC_DECLARATION;
-#endif
 
 template <>
 CefWrapperType CefCppToCRefCounted<CefCommandLineCppToC,

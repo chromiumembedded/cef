@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=8827e9696495ddbc282995d853cca1f9564de792$
+// $hash=c5801a89a6794754ecacf9b7cab082c8ce38486d$
 //
 
 #include "libcef_dll/ctocpp/views/button_delegate_ctocpp.h"
@@ -274,14 +274,6 @@ cef_button_delegate_t* CefCToCppRefCounted<
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
-
-#if DCHECK_IS_ON()
-template <>
-base::AtomicRefCount CefCToCppRefCounted<CefButtonDelegateCToCpp,
-                                         CefButtonDelegate,
-                                         cef_button_delegate_t>::DebugObjCt
-    ATOMIC_DECLARATION;
-#endif
 
 template <>
 CefWrapperType CefCToCppRefCounted<CefButtonDelegateCToCpp,

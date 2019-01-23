@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=fa4bd24cb16fc046045edf192a66b514e5665ae4$
+// $hash=eacdf503ca3d7670150ca09a164f6a8c1b03e9c9$
 //
 
 #include "libcef_dll/ctocpp/web_plugin_unstable_callback_ctocpp.h"
@@ -56,14 +56,6 @@ CefCToCppRefCounted<CefWebPluginUnstableCallbackCToCpp,
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
-
-#if DCHECK_IS_ON()
-template <>
-base::AtomicRefCount CefCToCppRefCounted<
-    CefWebPluginUnstableCallbackCToCpp,
-    CefWebPluginUnstableCallback,
-    cef_web_plugin_unstable_callback_t>::DebugObjCt ATOMIC_DECLARATION;
-#endif
 
 template <>
 CefWrapperType

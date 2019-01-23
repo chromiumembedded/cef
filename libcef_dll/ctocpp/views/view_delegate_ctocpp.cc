@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=5e86714a2c9fa13e5ff7dc221900215f78caa2a6$
+// $hash=b8cb932adba945dac32c88e92cdb4d9be023ac33$
 //
 
 #include "libcef_dll/ctocpp/views/view_delegate_ctocpp.h"
@@ -255,14 +255,6 @@ CefCToCppRefCounted<CefViewDelegateCToCpp,
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
-
-#if DCHECK_IS_ON()
-template <>
-base::AtomicRefCount CefCToCppRefCounted<CefViewDelegateCToCpp,
-                                         CefViewDelegate,
-                                         cef_view_delegate_t>::DebugObjCt
-    ATOMIC_DECLARATION;
-#endif
 
 template <>
 CefWrapperType CefCToCppRefCounted<CefViewDelegateCToCpp,

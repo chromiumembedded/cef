@@ -6,7 +6,6 @@
 #define CEF_LIBCEF_DLL_CPPTOC_CPPTOC_REF_COUNTED_H_
 #pragma once
 
-#include "include/base/cef_atomic_ref_count.h"
 #include "include/base/cef_logging.h"
 #include "include/base/cef_macros.h"
 #include "include/capi/cef_base_capi.h"
@@ -91,11 +90,6 @@ class CefCppToCRefCounted : public CefBaseRefCounted {
   bool HasOneRef() const { return UnderlyingHasOneRef(); }
   bool HasAtLeastOneRef() const { return UnderlyingHasAtLeastOneRef(); }
 
-#if DCHECK_IS_ON()
-  // Simple tracking of allocated objects.
-  static base::AtomicRefCount DebugObjCt;
-#endif
-
  protected:
   CefCppToCRefCounted() {
     wrapper_struct_.type_ = kWrapperType;
@@ -109,17 +103,9 @@ class CefCppToCRefCounted : public CefBaseRefCounted {
     base->release = struct_release;
     base->has_one_ref = struct_has_one_ref;
     base->has_at_least_one_ref = struct_has_at_least_one_ref;
-
-#if DCHECK_IS_ON()
-    base::AtomicRefCountInc(&DebugObjCt);
-#endif
   }
 
-  virtual ~CefCppToCRefCounted() {
-#if DCHECK_IS_ON()
-    base::AtomicRefCountDec(&DebugObjCt);
-#endif
-  }
+  virtual ~CefCppToCRefCounted() {}
 
  private:
   // Used to associate this wrapper object, the underlying object instance and

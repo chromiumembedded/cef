@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=6533981bee56064d41536225997c0cd73e2b67e3$
+// $hash=d3697504c87bfdcb6391d6e02e8f8bc6d070f0d3$
 //
 
 #include "libcef_dll/ctocpp/extension_handler_ctocpp.h"
@@ -311,14 +311,6 @@ cef_extension_handler_t* CefCToCppRefCounted<
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
-
-#if DCHECK_IS_ON()
-template <>
-base::AtomicRefCount CefCToCppRefCounted<CefExtensionHandlerCToCpp,
-                                         CefExtensionHandler,
-                                         cef_extension_handler_t>::DebugObjCt
-    ATOMIC_DECLARATION;
-#endif
 
 template <>
 CefWrapperType CefCToCppRefCounted<CefExtensionHandlerCToCpp,

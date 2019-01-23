@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=ab0bf369a9ba09450fd8adc5a3c040f62f90ffaa$
+// $hash=5dcf22a90a9ba43c10917c041f546652df4bc360$
 //
 
 #include "libcef_dll/ctocpp/views/textfield_ctocpp.h"
@@ -1329,13 +1329,6 @@ CefCToCppRefCounted<CefTextfieldCToCpp, CefTextfield, cef_textfield_t>::
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
-
-#if DCHECK_IS_ON()
-template <>
-base::AtomicRefCount
-    CefCToCppRefCounted<CefTextfieldCToCpp, CefTextfield, cef_textfield_t>::
-        DebugObjCt ATOMIC_DECLARATION;
-#endif
 
 template <>
 CefWrapperType CefCToCppRefCounted<CefTextfieldCToCpp,

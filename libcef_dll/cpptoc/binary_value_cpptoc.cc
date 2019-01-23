@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=1a09058e8a846ec1ecb223d7883d44e6d36600f1$
+// $hash=bfd709c1b6abba557eaa0775293fbcb3b7fd674f$
 //
 
 #include "libcef_dll/cpptoc/binary_value_cpptoc.h"
@@ -199,14 +199,6 @@ CefCppToCRefCounted<CefBinaryValueCppToC, CefBinaryValue, cef_binary_value_t>::
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
-
-#if DCHECK_IS_ON()
-template <>
-base::AtomicRefCount CefCppToCRefCounted<CefBinaryValueCppToC,
-                                         CefBinaryValue,
-                                         cef_binary_value_t>::DebugObjCt
-    ATOMIC_DECLARATION;
-#endif
 
 template <>
 CefWrapperType CefCppToCRefCounted<CefBinaryValueCppToC,

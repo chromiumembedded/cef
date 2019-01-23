@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=694484dc32c906f1f06a9255b26b92ebe1965194$
+// $hash=682b7f364ac05bb1dd17d4e28f631245a5f4585e$
 //
 
 #include "libcef_dll/ctocpp/cookie_visitor_ctocpp.h"
@@ -63,14 +63,6 @@ CefCToCppRefCounted<CefCookieVisitorCToCpp,
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
-
-#if DCHECK_IS_ON()
-template <>
-base::AtomicRefCount CefCToCppRefCounted<CefCookieVisitorCToCpp,
-                                         CefCookieVisitor,
-                                         cef_cookie_visitor_t>::DebugObjCt
-    ATOMIC_DECLARATION;
-#endif
 
 template <>
 CefWrapperType CefCToCppRefCounted<CefCookieVisitorCToCpp,

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=7a1d9167c083721572cedc99f89ace69364abca8$
+// $hash=afc09ddf708d525254959882f8ecb9190190c8c2$
 //
 
 #include "libcef_dll/cpptoc/app_cpptoc.h"
@@ -137,13 +137,6 @@ CefCppToCRefCounted<CefAppCppToC, CefApp, cef_app_t>::UnwrapDerived(
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
-
-#if DCHECK_IS_ON()
-template <>
-base::AtomicRefCount
-    CefCppToCRefCounted<CefAppCppToC, CefApp, cef_app_t>::DebugObjCt
-        ATOMIC_DECLARATION;
-#endif
 
 template <>
 CefWrapperType

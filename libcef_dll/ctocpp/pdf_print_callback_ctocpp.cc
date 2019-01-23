@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=0bb0ebfc663b748946d77c55266525be9948e9ec$
+// $hash=a31b3289523009122f8fd9568cfaa860bf5d702c$
 //
 
 #include "libcef_dll/ctocpp/pdf_print_callback_ctocpp.h"
@@ -56,14 +56,6 @@ cef_pdf_print_callback_t* CefCToCppRefCounted<
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
-
-#if DCHECK_IS_ON()
-template <>
-base::AtomicRefCount CefCToCppRefCounted<CefPdfPrintCallbackCToCpp,
-                                         CefPdfPrintCallback,
-                                         cef_pdf_print_callback_t>::DebugObjCt
-    ATOMIC_DECLARATION;
-#endif
 
 template <>
 CefWrapperType CefCToCppRefCounted<CefPdfPrintCallbackCToCpp,

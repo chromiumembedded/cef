@@ -16,14 +16,6 @@ cef_base_ref_counted_t* CefCToCppRefCounted<
   return NULL;
 }
 
-#if DCHECK_IS_ON()
-template <>
-base::AtomicRefCount CefCToCppRefCounted<CefBaseRefCountedCToCpp,
-                                         CefBaseRefCounted,
-                                         cef_base_ref_counted_t>::DebugObjCt
-    ATOMIC_DECLARATION;
-#endif
-
 template <>
 CefWrapperType CefCToCppRefCounted<CefBaseRefCountedCToCpp,
                                    CefBaseRefCounted,

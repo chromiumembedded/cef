@@ -6,7 +6,6 @@
 #define CEF_LIBCEF_DLL_CTOCPP_CTOCPP_REF_COUNTED_H_
 #pragma once
 
-#include "include/base/cef_atomic_ref_count.h"
 #include "include/base/cef_logging.h"
 #include "include/base/cef_macros.h"
 #include "include/capi/cef_base_capi.h"
@@ -37,23 +36,9 @@ class CefCToCppRefCounted : public BaseName {
   bool HasOneRef() const { return UnderlyingHasOneRef(); }
   bool HasAtLeastOneRef() const { return UnderlyingHasAtLeastOneRef(); }
 
-#if DCHECK_IS_ON()
-  // Simple tracking of allocated objects.
-  static base::AtomicRefCount DebugObjCt;
-#endif
-
  protected:
-  CefCToCppRefCounted() {
-#if DCHECK_IS_ON()
-    base::AtomicRefCountInc(&DebugObjCt);
-#endif
-  }
-
-  virtual ~CefCToCppRefCounted() {
-#if DCHECK_IS_ON()
-    base::AtomicRefCountDec(&DebugObjCt);
-#endif
-  }
+  CefCToCppRefCounted() {}
+  virtual ~CefCToCppRefCounted() {}
 
   // If returning the structure across the DLL boundary use Unwrap() instead.
   StructName* GetStruct() const {

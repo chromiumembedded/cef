@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=77094a5641deaba588ae54340b4b2a4a67a63fb9$
+// $hash=3100cdafda973a57edde1a8b4859b0fca55c73d2$
 //
 
 #include "libcef_dll/cpptoc/web_plugin_unstable_callback_cpptoc.h"
@@ -63,14 +63,6 @@ CefCppToCRefCounted<CefWebPluginUnstableCallbackCppToC,
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
-
-#if DCHECK_IS_ON()
-template <>
-base::AtomicRefCount CefCppToCRefCounted<
-    CefWebPluginUnstableCallbackCppToC,
-    CefWebPluginUnstableCallback,
-    cef_web_plugin_unstable_callback_t>::DebugObjCt ATOMIC_DECLARATION;
-#endif
 
 template <>
 CefWrapperType

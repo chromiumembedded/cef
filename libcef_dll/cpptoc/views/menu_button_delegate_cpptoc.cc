@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=b65d9f74e43387e0439b39b8d08d55bb2ee0037b$
+// $hash=71b2ee7a873d327800d3e959d94f8e01fb4efd81$
 //
 
 #include "libcef_dll/cpptoc/views/menu_button_delegate_cpptoc.h"
@@ -335,14 +335,6 @@ CefRefPtr<CefMenuButtonDelegate> CefCppToCRefCounted<
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
-
-#if DCHECK_IS_ON()
-template <>
-base::AtomicRefCount CefCppToCRefCounted<CefMenuButtonDelegateCppToC,
-                                         CefMenuButtonDelegate,
-                                         cef_menu_button_delegate_t>::DebugObjCt
-    ATOMIC_DECLARATION;
-#endif
 
 template <>
 CefWrapperType CefCppToCRefCounted<CefMenuButtonDelegateCppToC,

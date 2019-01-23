@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=47cd7676abd406c2197567df8fc522c5257ecdf0$
+// $hash=cac075ea53c263078dc31f941cd61f3cd6b4525b$
 //
 
 #include "libcef_dll/ctocpp/views/button_ctocpp.h"
@@ -920,13 +920,6 @@ CefCToCppRefCounted<CefButtonCToCpp, CefButton, cef_button_t>::UnwrapDerived(
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
-
-#if DCHECK_IS_ON()
-template <>
-base::AtomicRefCount
-    CefCToCppRefCounted<CefButtonCToCpp, CefButton, cef_button_t>::DebugObjCt
-        ATOMIC_DECLARATION;
-#endif
 
 template <>
 CefWrapperType CefCToCppRefCounted<CefButtonCToCpp, CefButton, cef_button_t>::

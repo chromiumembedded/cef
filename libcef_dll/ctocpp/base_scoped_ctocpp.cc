@@ -22,13 +22,6 @@ CefCToCppScoped<CefBaseScopedCToCpp, CefBaseScoped, cef_base_scoped_t>::
   return NULL;
 }
 
-#if DCHECK_IS_ON()
-template <>
-base::AtomicRefCount
-    CefCToCppScoped<CefBaseScopedCToCpp, CefBaseScoped, cef_base_scoped_t>::
-        DebugObjCt ATOMIC_DECLARATION;
-#endif
-
 template <>
 CefWrapperType CefCToCppScoped<CefBaseScopedCToCpp,
                                CefBaseScoped,

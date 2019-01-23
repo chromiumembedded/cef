@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=2b22c5afac64be1b40029064da32b16f84e8fe27$
+// $hash=508f93be9a503484355f90305c69416ffde029d9$
 //
 
 #include "libcef_dll/ctocpp/value_ctocpp.h"
@@ -441,13 +441,6 @@ CefCToCppRefCounted<CefValueCToCpp, CefValue, cef_value_t>::UnwrapDerived(
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
-
-#if DCHECK_IS_ON()
-template <>
-base::AtomicRefCount
-    CefCToCppRefCounted<CefValueCToCpp, CefValue, cef_value_t>::DebugObjCt
-        ATOMIC_DECLARATION;
-#endif
 
 template <>
 CefWrapperType

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=1f6d487d87b69001c7d312d54e07131b9c572a01$
+// $hash=b8dab1b86b616fbdd9c96c2ac7be91b3a19ad0a3$
 //
 
 #include "libcef_dll/ctocpp/accessibility_handler_ctocpp.h"
@@ -78,14 +78,6 @@ cef_accessibility_handler_t* CefCToCppRefCounted<
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
-
-#if DCHECK_IS_ON()
-template <>
-base::AtomicRefCount CefCToCppRefCounted<
-    CefAccessibilityHandlerCToCpp,
-    CefAccessibilityHandler,
-    cef_accessibility_handler_t>::DebugObjCt ATOMIC_DECLARATION;
-#endif
 
 template <>
 CefWrapperType CefCToCppRefCounted<CefAccessibilityHandlerCToCpp,

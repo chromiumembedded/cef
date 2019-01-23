@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=220f7b5743c011145e526be76882461ff64d387b$
+// $hash=c1deb143dda280fdd644abac7a9265d5ae61861e$
 //
 
 #include "libcef_dll/cpptoc/process_message_cpptoc.h"
@@ -154,14 +154,6 @@ CefRefPtr<CefProcessMessage> CefCppToCRefCounted<
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
-
-#if DCHECK_IS_ON()
-template <>
-base::AtomicRefCount CefCppToCRefCounted<CefProcessMessageCppToC,
-                                         CefProcessMessage,
-                                         cef_process_message_t>::DebugObjCt
-    ATOMIC_DECLARATION;
-#endif
 
 template <>
 CefWrapperType CefCppToCRefCounted<CefProcessMessageCppToC,

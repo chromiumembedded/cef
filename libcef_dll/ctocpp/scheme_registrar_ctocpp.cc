@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=caed6f3b379daa361a3435a4810df25cdbf829a8$
+// $hash=cd85708cf16cdb2b3359094b1a9645ab6338c059$
 //
 
 #include "libcef_dll/ctocpp/scheme_registrar_ctocpp.h"
@@ -73,14 +73,6 @@ cef_scheme_registrar_t* CefCToCppScoped<
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
-
-#if DCHECK_IS_ON()
-template <>
-base::AtomicRefCount CefCToCppScoped<CefSchemeRegistrarCToCpp,
-                                     CefSchemeRegistrar,
-                                     cef_scheme_registrar_t>::DebugObjCt
-    ATOMIC_DECLARATION;
-#endif
 
 template <>
 CefWrapperType CefCToCppScoped<CefSchemeRegistrarCToCpp,

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=0b567fcc9961c3640ad6040e1ed4c6d9717f8034$
+// $hash=0490127ae756590a0d525af6ac87b0aa4f2558ad$
 //
 
 #include "libcef_dll/ctocpp/keyboard_handler_ctocpp.h"
@@ -101,14 +101,6 @@ cef_keyboard_handler_t* CefCToCppRefCounted<
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
-
-#if DCHECK_IS_ON()
-template <>
-base::AtomicRefCount CefCToCppRefCounted<CefKeyboardHandlerCToCpp,
-                                         CefKeyboardHandler,
-                                         cef_keyboard_handler_t>::DebugObjCt
-    ATOMIC_DECLARATION;
-#endif
 
 template <>
 CefWrapperType CefCToCppRefCounted<CefKeyboardHandlerCToCpp,

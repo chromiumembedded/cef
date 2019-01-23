@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=ea88635aa4e6f26eb41b62a077cddccda1e0c2ed$
+// $hash=3e3ea1d20835ee05232d7111616eb9fa64238f57$
 //
 
 #include "libcef_dll/ctocpp/response_filter_ctocpp.h"
@@ -83,14 +83,6 @@ cef_response_filter_t* CefCToCppRefCounted<
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
-
-#if DCHECK_IS_ON()
-template <>
-base::AtomicRefCount CefCToCppRefCounted<CefResponseFilterCToCpp,
-                                         CefResponseFilter,
-                                         cef_response_filter_t>::DebugObjCt
-    ATOMIC_DECLARATION;
-#endif
 
 template <>
 CefWrapperType CefCToCppRefCounted<CefResponseFilterCToCpp,

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=bbbbf904786232880d26213bfc922ca278a4ea22$
+// $hash=3a2fc11634093382ba9354ca64a2da50bb677e9f$
 //
 
 #include "libcef_dll/ctocpp/browser_ctocpp.h"
@@ -416,13 +416,6 @@ CefCToCppRefCounted<CefBrowserCToCpp, CefBrowser, cef_browser_t>::UnwrapDerived(
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
-
-#if DCHECK_IS_ON()
-template <>
-base::AtomicRefCount
-    CefCToCppRefCounted<CefBrowserCToCpp, CefBrowser, cef_browser_t>::DebugObjCt
-        ATOMIC_DECLARATION;
-#endif
 
 template <>
 CefWrapperType CefCToCppRefCounted<CefBrowserCToCpp,

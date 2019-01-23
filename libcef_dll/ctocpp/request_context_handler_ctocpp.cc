@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=ff4e4040706d4e5d56dd7bb457973203d37bd795$
+// $hash=80c600e8a2f2035219c00bad1bf28a58b6dabf53$
 //
 
 #include "libcef_dll/ctocpp/request_context_handler_ctocpp.h"
@@ -108,14 +108,6 @@ cef_request_context_handler_t* CefCToCppRefCounted<
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
-
-#if DCHECK_IS_ON()
-template <>
-base::AtomicRefCount CefCToCppRefCounted<
-    CefRequestContextHandlerCToCpp,
-    CefRequestContextHandler,
-    cef_request_context_handler_t>::DebugObjCt ATOMIC_DECLARATION;
-#endif
 
 template <>
 CefWrapperType

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=6f84d0c49f6fe82937b22d80a5a76239d87b0796$
+// $hash=43d586b5f868ea7e08eb7ba1297f50649e418a1d$
 //
 
 #include "libcef_dll/cpptoc/scheme_handler_factory_cpptoc.h"
@@ -75,14 +75,6 @@ CefRefPtr<CefSchemeHandlerFactory> CefCppToCRefCounted<
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
-
-#if DCHECK_IS_ON()
-template <>
-base::AtomicRefCount CefCppToCRefCounted<
-    CefSchemeHandlerFactoryCppToC,
-    CefSchemeHandlerFactory,
-    cef_scheme_handler_factory_t>::DebugObjCt ATOMIC_DECLARATION;
-#endif
 
 template <>
 CefWrapperType CefCppToCRefCounted<CefSchemeHandlerFactoryCppToC,

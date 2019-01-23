@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=c20a84601d2c24d8925303f55784f5515f783e60$
+// $hash=eb1b836516db87b3ebf64c95b44f53ea89f1b5aa$
 //
 
 #include "libcef_dll/cpptoc/views/menu_button_pressed_lock_cpptoc.h"
@@ -34,14 +34,6 @@ CefCppToCRefCounted<CefMenuButtonPressedLockCppToC,
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
-
-#if DCHECK_IS_ON()
-template <>
-base::AtomicRefCount CefCppToCRefCounted<
-    CefMenuButtonPressedLockCppToC,
-    CefMenuButtonPressedLock,
-    cef_menu_button_pressed_lock_t>::DebugObjCt ATOMIC_DECLARATION;
-#endif
 
 template <>
 CefWrapperType

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=b75b8de681ae667e415fee498faa4a6bb74adc08$
+// $hash=b6310002a8851a2dc198ba8a88730becc7fb5c45$
 //
 
 #include "libcef_dll/ctocpp/v8array_buffer_release_callback_ctocpp.h"
@@ -52,14 +52,6 @@ CefCToCppRefCounted<CefV8ArrayBufferReleaseCallbackCToCpp,
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
-
-#if DCHECK_IS_ON()
-template <>
-base::AtomicRefCount CefCToCppRefCounted<
-    CefV8ArrayBufferReleaseCallbackCToCpp,
-    CefV8ArrayBufferReleaseCallback,
-    cef_v8array_buffer_release_callback_t>::DebugObjCt ATOMIC_DECLARATION;
-#endif
 
 template <>
 CefWrapperType

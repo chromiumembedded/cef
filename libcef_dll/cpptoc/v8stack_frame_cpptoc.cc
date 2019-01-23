@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=d21f89f23c3b5678bb1ed2db3bbf30c957fb3e0a$
+// $hash=f702392aae28cc565aeeb7401d7dec1deaeb080e$
 //
 
 #include "libcef_dll/cpptoc/v8stack_frame_cpptoc.h"
@@ -165,14 +165,6 @@ CefRefPtr<CefV8StackFrame> CefCppToCRefCounted<
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
-
-#if DCHECK_IS_ON()
-template <>
-base::AtomicRefCount CefCppToCRefCounted<CefV8StackFrameCppToC,
-                                         CefV8StackFrame,
-                                         cef_v8stack_frame_t>::DebugObjCt
-    ATOMIC_DECLARATION;
-#endif
 
 template <>
 CefWrapperType CefCppToCRefCounted<CefV8StackFrameCppToC,

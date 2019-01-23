@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=1e2d5a383bb11a734d6c6d9b5297270cc69e388f$
+// $hash=b5d8bad14c65e3ec014941f5ee407715b7f4c5d2$
 //
 
 #include "libcef_dll/ctocpp/urlrequest_client_ctocpp.h"
@@ -169,14 +169,6 @@ cef_urlrequest_client_t* CefCToCppRefCounted<
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
-
-#if DCHECK_IS_ON()
-template <>
-base::AtomicRefCount CefCToCppRefCounted<CefURLRequestClientCToCpp,
-                                         CefURLRequestClient,
-                                         cef_urlrequest_client_t>::DebugObjCt
-    ATOMIC_DECLARATION;
-#endif
 
 template <>
 CefWrapperType CefCToCppRefCounted<CefURLRequestClientCToCpp,

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=09aa28001ce5c27be8aabaaac447ffd425649774$
+// $hash=ba2dbf45a65134c64d05c028ba656c7c19fdfa54$
 //
 
 #include "libcef_dll/ctocpp/auth_callback_ctocpp.h"
@@ -66,14 +66,6 @@ CefCToCppRefCounted<CefAuthCallbackCToCpp,
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
-
-#if DCHECK_IS_ON()
-template <>
-base::AtomicRefCount CefCToCppRefCounted<CefAuthCallbackCToCpp,
-                                         CefAuthCallback,
-                                         cef_auth_callback_t>::DebugObjCt
-    ATOMIC_DECLARATION;
-#endif
 
 template <>
 CefWrapperType CefCToCppRefCounted<CefAuthCallbackCToCpp,

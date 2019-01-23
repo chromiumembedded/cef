@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=3710964ee91febb36938956d5d5e23ba0d4a686b$
+// $hash=09e48707a11e7e1bd833e5efd7fe34de0576ee12$
 //
 
 #include "libcef_dll/ctocpp/test/translator_test_scoped_library_child_ctocpp.h"
@@ -133,14 +133,6 @@ CefCToCppScoped<CefTranslatorTestScopedLibraryChildCToCpp,
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
-
-#if DCHECK_IS_ON()
-template <>
-base::AtomicRefCount CefCToCppScoped<
-    CefTranslatorTestScopedLibraryChildCToCpp,
-    CefTranslatorTestScopedLibraryChild,
-    cef_translator_test_scoped_library_child_t>::DebugObjCt ATOMIC_DECLARATION;
-#endif
 
 template <>
 CefWrapperType

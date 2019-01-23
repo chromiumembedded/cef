@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=e1690d77fecfe97501a97d341778f14ccc4df12c$
+// $hash=62015a9688921953d24c8e54fd4538299e33540d$
 //
 
 #include "libcef_dll/cpptoc/stream_writer_cpptoc.h"
@@ -176,14 +176,6 @@ CefRefPtr<CefStreamWriter> CefCppToCRefCounted<
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
-
-#if DCHECK_IS_ON()
-template <>
-base::AtomicRefCount CefCppToCRefCounted<CefStreamWriterCppToC,
-                                         CefStreamWriter,
-                                         cef_stream_writer_t>::DebugObjCt
-    ATOMIC_DECLARATION;
-#endif
 
 template <>
 CefWrapperType CefCppToCRefCounted<CefStreamWriterCppToC,

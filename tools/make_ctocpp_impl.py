@@ -461,27 +461,6 @@ def make_ctocpp_function_impl_new(clsname, name, func, base_scoped):
     result += '\n'
   result_len = len(result)
 
-  if is_cef_shutdown:
-    classes = func.parent.get_classes()
-
-    names = []
-    for cls in classes:
-      if cls.has_attrib('no_debugct_check'):
-        continue
-
-      if cls.is_library_side():
-        names.append(cls.get_name() + 'CToCpp')
-      else:
-        names.append(cls.get_name() + 'CppToC')
-
-    if len(names) > 0:
-      names = sorted(names)
-      result += '\n#if DCHECK_IS_ON()'\
-                '\n  // Check that all wrapper objects have been destroyed.'
-      for name in names:
-        result += '\n  DCHECK(base::AtomicRefCountIsZero(&' + name + '::DebugObjCt));'
-      result += '\n#endif  // DCHECK_IS_ON()'
-
   if len(result) != result_len:
     result += '\n'
   result_len = len(result)
@@ -669,10 +648,8 @@ def make_ctocpp_class_impl(header, clsname, impl):
              '  return NULL;\n'+ \
              '}\n\n'
 
-  const += '#if DCHECK_IS_ON()\n'+ \
-           'template<> base::AtomicRefCount '+parent_sig+'::DebugObjCt ATOMIC_DECLARATION;\n'+ \
-           '#endif\n\n'+ \
-           'template<> CefWrapperType '+parent_sig+'::kWrapperType = '+get_wrapper_type_enum(clsname)+';'
+  const += 'template<> CefWrapperType ' + parent_sig + '::kWrapperType = ' + get_wrapper_type_enum(
+      clsname) + ';'
 
   result += const
 

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=b293e7aab991af4d9643913f36fce298093c64ca$
+// $hash=9455341ab826d747338458f3c407ff896a1f81b9$
 //
 
 #include "libcef_dll/ctocpp/views/window_delegate_ctocpp.h"
@@ -472,14 +472,6 @@ cef_window_delegate_t* CefCToCppRefCounted<
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
-
-#if DCHECK_IS_ON()
-template <>
-base::AtomicRefCount CefCToCppRefCounted<CefWindowDelegateCToCpp,
-                                         CefWindowDelegate,
-                                         cef_window_delegate_t>::DebugObjCt
-    ATOMIC_DECLARATION;
-#endif
 
 template <>
 CefWrapperType CefCToCppRefCounted<CefWindowDelegateCToCpp,

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=cc1c431f55b6c2efa1a6e614baae484216d4a425$
+// $hash=546612b4bf07f9acb66ace8f00d296de1342b14f$
 //
 
 #include "libcef_dll/ctocpp/scheme_handler_factory_ctocpp.h"
@@ -68,14 +68,6 @@ cef_scheme_handler_factory_t* CefCToCppRefCounted<
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
-
-#if DCHECK_IS_ON()
-template <>
-base::AtomicRefCount CefCToCppRefCounted<
-    CefSchemeHandlerFactoryCToCpp,
-    CefSchemeHandlerFactory,
-    cef_scheme_handler_factory_t>::DebugObjCt ATOMIC_DECLARATION;
-#endif
 
 template <>
 CefWrapperType CefCToCppRefCounted<CefSchemeHandlerFactoryCToCpp,

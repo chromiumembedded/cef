@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=bd71a129987045a4287adb96f27e3cfc858dda46$
+// $hash=d0ceaaf01cbd0d23d7e5762fa01d8a73d218620a$
 //
 
 #include "libcef_dll/ctocpp/stream_reader_ctocpp.h"
@@ -185,14 +185,6 @@ CefCToCppRefCounted<CefStreamReaderCToCpp,
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
-
-#if DCHECK_IS_ON()
-template <>
-base::AtomicRefCount CefCToCppRefCounted<CefStreamReaderCToCpp,
-                                         CefStreamReader,
-                                         cef_stream_reader_t>::DebugObjCt
-    ATOMIC_DECLARATION;
-#endif
 
 template <>
 CefWrapperType CefCToCppRefCounted<CefStreamReaderCToCpp,

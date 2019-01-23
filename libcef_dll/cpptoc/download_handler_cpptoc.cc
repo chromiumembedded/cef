@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=b6003acc60ff3f4271abc37847707254ddd5dd98$
+// $hash=30aa5c48e2b7cf8ee53de8ef24e3807d66761f41$
 //
 
 #include "libcef_dll/cpptoc/download_handler_cpptoc.h"
@@ -116,14 +116,6 @@ CefRefPtr<CefDownloadHandler> CefCppToCRefCounted<
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
-
-#if DCHECK_IS_ON()
-template <>
-base::AtomicRefCount CefCppToCRefCounted<CefDownloadHandlerCppToC,
-                                         CefDownloadHandler,
-                                         cef_download_handler_t>::DebugObjCt
-    ATOMIC_DECLARATION;
-#endif
 
 template <>
 CefWrapperType CefCppToCRefCounted<CefDownloadHandlerCppToC,

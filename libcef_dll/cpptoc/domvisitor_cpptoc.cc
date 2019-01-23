@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=57874472aeb7e1ba3d8fd2d1a5a8cd0a3a3d496f$
+// $hash=b0d8c21f39de025e572e493d765c05b19810eb20$
 //
 
 #include "libcef_dll/cpptoc/domvisitor_cpptoc.h"
@@ -59,13 +59,6 @@ CefCppToCRefCounted<CefDOMVisitorCppToC, CefDOMVisitor, cef_domvisitor_t>::
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
-
-#if DCHECK_IS_ON()
-template <>
-base::AtomicRefCount
-    CefCppToCRefCounted<CefDOMVisitorCppToC, CefDOMVisitor, cef_domvisitor_t>::
-        DebugObjCt ATOMIC_DECLARATION;
-#endif
 
 template <>
 CefWrapperType CefCppToCRefCounted<CefDOMVisitorCppToC,

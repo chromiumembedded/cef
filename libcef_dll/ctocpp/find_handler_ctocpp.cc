@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=150b04443f01c6f7302905a40df23aadfae0aed4$
+// $hash=587e6ec3ff0056e1183c4f1e85b0ff7bb9d11e48$
 //
 
 #include "libcef_dll/ctocpp/find_handler_ctocpp.h"
@@ -61,14 +61,6 @@ CefCToCppRefCounted<CefFindHandlerCToCpp, CefFindHandler, cef_find_handler_t>::
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
-
-#if DCHECK_IS_ON()
-template <>
-base::AtomicRefCount CefCToCppRefCounted<CefFindHandlerCToCpp,
-                                         CefFindHandler,
-                                         cef_find_handler_t>::DebugObjCt
-    ATOMIC_DECLARATION;
-#endif
 
 template <>
 CefWrapperType CefCToCppRefCounted<CefFindHandlerCToCpp,

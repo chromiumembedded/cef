@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=96938638213bc6f72dba268295fd175b90ff3d2e$
+// $hash=c821cd12b65dc68db46fdb077648e0586bfca7f6$
 //
 
 #include "libcef_dll/cpptoc/web_plugin_info_cpptoc.h"
@@ -113,14 +113,6 @@ CefRefPtr<CefWebPluginInfo> CefCppToCRefCounted<
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
-
-#if DCHECK_IS_ON()
-template <>
-base::AtomicRefCount CefCppToCRefCounted<CefWebPluginInfoCppToC,
-                                         CefWebPluginInfo,
-                                         cef_web_plugin_info_t>::DebugObjCt
-    ATOMIC_DECLARATION;
-#endif
 
 template <>
 CefWrapperType CefCppToCRefCounted<CefWebPluginInfoCppToC,

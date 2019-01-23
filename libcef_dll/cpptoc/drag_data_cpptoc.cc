@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=c61826a0c2b4f67e7c70b7dd7c734d0fc66062f8$
+// $hash=bec8d794d1eab86c8f94313274c64f399707b6a0$
 //
 
 #include "libcef_dll/cpptoc/drag_data_cpptoc.h"
@@ -505,13 +505,6 @@ CefCppToCRefCounted<CefDragDataCppToC, CefDragData, cef_drag_data_t>::
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
-
-#if DCHECK_IS_ON()
-template <>
-base::AtomicRefCount
-    CefCppToCRefCounted<CefDragDataCppToC, CefDragData, cef_drag_data_t>::
-        DebugObjCt ATOMIC_DECLARATION;
-#endif
 
 template <>
 CefWrapperType CefCppToCRefCounted<CefDragDataCppToC,

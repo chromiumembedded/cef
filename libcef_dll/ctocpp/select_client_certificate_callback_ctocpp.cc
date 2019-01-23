@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=cbc4f3b0339a6d0eff4254b4733e4e972c2c3b92$
+// $hash=fb7fca5b07fadcd8481d446b578af061d9d1f993$
 //
 
 #include "libcef_dll/ctocpp/select_client_certificate_callback_ctocpp.h"
@@ -56,14 +56,6 @@ CefCToCppRefCounted<CefSelectClientCertificateCallbackCToCpp,
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
-
-#if DCHECK_IS_ON()
-template <>
-base::AtomicRefCount CefCToCppRefCounted<
-    CefSelectClientCertificateCallbackCToCpp,
-    CefSelectClientCertificateCallback,
-    cef_select_client_certificate_callback_t>::DebugObjCt ATOMIC_DECLARATION;
-#endif
 
 template <>
 CefWrapperType CefCToCppRefCounted<

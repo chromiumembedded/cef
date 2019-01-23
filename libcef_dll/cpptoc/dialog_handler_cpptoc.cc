@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=c9420b059e61e810cde99f46f1f162450c5e83c5$
+// $hash=76ce77c2503ece27838b7b83d3e5644d76a48a2d$
 //
 
 #include "libcef_dll/cpptoc/dialog_handler_cpptoc.h"
@@ -89,14 +89,6 @@ CefRefPtr<CefDialogHandler> CefCppToCRefCounted<
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
-
-#if DCHECK_IS_ON()
-template <>
-base::AtomicRefCount CefCppToCRefCounted<CefDialogHandlerCppToC,
-                                         CefDialogHandler,
-                                         cef_dialog_handler_t>::DebugObjCt
-    ATOMIC_DECLARATION;
-#endif
 
 template <>
 CefWrapperType CefCppToCRefCounted<CefDialogHandlerCppToC,

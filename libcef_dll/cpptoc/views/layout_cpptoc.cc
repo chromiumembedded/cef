@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=1871dbf9adbb5c92705ff30b72ac19735928ce4b$
+// $hash=840c5bc52326178568f0e5bee65f5e3a23738150$
 //
 
 #include "libcef_dll/cpptoc/views/layout_cpptoc.h"
@@ -101,13 +101,6 @@ CefCppToCRefCounted<CefLayoutCppToC, CefLayout, cef_layout_t>::UnwrapDerived(
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
-
-#if DCHECK_IS_ON()
-template <>
-base::AtomicRefCount
-    CefCppToCRefCounted<CefLayoutCppToC, CefLayout, cef_layout_t>::DebugObjCt
-        ATOMIC_DECLARATION;
-#endif
 
 template <>
 CefWrapperType CefCppToCRefCounted<CefLayoutCppToC, CefLayout, cef_layout_t>::

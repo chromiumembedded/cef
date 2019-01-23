@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=552d7b3e60ccba53db5da76e2c8f29bcadce2c1b$
+// $hash=a2c9ba189a4b77f4ad94eef43e05866df435c0ef$
 //
 
 #include "libcef_dll/ctocpp/xml_reader_ctocpp.h"
@@ -601,13 +601,6 @@ CefCToCppRefCounted<CefXmlReaderCToCpp, CefXmlReader, cef_xml_reader_t>::
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
-
-#if DCHECK_IS_ON()
-template <>
-base::AtomicRefCount
-    CefCToCppRefCounted<CefXmlReaderCToCpp, CefXmlReader, cef_xml_reader_t>::
-        DebugObjCt ATOMIC_DECLARATION;
-#endif
 
 template <>
 CefWrapperType CefCToCppRefCounted<CefXmlReaderCToCpp,

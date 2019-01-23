@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=8f763ca4fc24cb5d5f4189b685e1b7662b5e7824$
+// $hash=094966ae3f6137686814fbf098b80721e4f5bab6$
 //
 
 #include "libcef_dll/cpptoc/jsdialog_callback_cpptoc.h"
@@ -59,14 +59,6 @@ CefRefPtr<CefJSDialogCallback> CefCppToCRefCounted<
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
-
-#if DCHECK_IS_ON()
-template <>
-base::AtomicRefCount CefCppToCRefCounted<CefJSDialogCallbackCppToC,
-                                         CefJSDialogCallback,
-                                         cef_jsdialog_callback_t>::DebugObjCt
-    ATOMIC_DECLARATION;
-#endif
 
 template <>
 CefWrapperType CefCppToCRefCounted<CefJSDialogCallbackCppToC,

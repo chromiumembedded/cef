@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=fa20f67da33ad4b66be31ca63d7fe65addd3d47f$
+// $hash=311b52ea5209e680395a4e1029645a6ea005b37b$
 //
 
 #include "libcef_dll/cpptoc/v8interceptor_cpptoc.h"
@@ -229,14 +229,6 @@ CefRefPtr<CefV8Interceptor> CefCppToCRefCounted<
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
-
-#if DCHECK_IS_ON()
-template <>
-base::AtomicRefCount CefCppToCRefCounted<CefV8InterceptorCppToC,
-                                         CefV8Interceptor,
-                                         cef_v8interceptor_t>::DebugObjCt
-    ATOMIC_DECLARATION;
-#endif
 
 template <>
 CefWrapperType CefCppToCRefCounted<CefV8InterceptorCppToC,

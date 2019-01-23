@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=7fde43475329d8b158cd0325a0382ba3cc49cda0$
+// $hash=1a131c57d2764e6ce0004585e3401c53c4342386$
 //
 
 #include "libcef_dll/ctocpp/task_runner_ctocpp.h"
@@ -164,13 +164,6 @@ CefCToCppRefCounted<CefTaskRunnerCToCpp, CefTaskRunner, cef_task_runner_t>::
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
-
-#if DCHECK_IS_ON()
-template <>
-base::AtomicRefCount
-    CefCToCppRefCounted<CefTaskRunnerCToCpp, CefTaskRunner, cef_task_runner_t>::
-        DebugObjCt ATOMIC_DECLARATION;
-#endif
 
 template <>
 CefWrapperType CefCToCppRefCounted<CefTaskRunnerCToCpp,

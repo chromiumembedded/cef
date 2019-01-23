@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=f20894b110772883b57dbb90bf2361525c2669aa$
+// $hash=22e8a4be47b39f319f40eabc5f4cafccb7fd1e1a$
 //
 
 #include "libcef_dll/cpptoc/focus_handler_cpptoc.h"
@@ -106,14 +106,6 @@ CefRefPtr<CefFocusHandler> CefCppToCRefCounted<
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
-
-#if DCHECK_IS_ON()
-template <>
-base::AtomicRefCount CefCppToCRefCounted<CefFocusHandlerCppToC,
-                                         CefFocusHandler,
-                                         cef_focus_handler_t>::DebugObjCt
-    ATOMIC_DECLARATION;
-#endif
 
 template <>
 CefWrapperType CefCppToCRefCounted<CefFocusHandlerCppToC,

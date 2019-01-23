@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=33dd3be38d10acb86c72fc60b21549353113e126$
+// $hash=10e67215da0587997bd81c8c7715c10a3a406029$
 //
 
 #include "libcef_dll/cpptoc/x509cert_principal_cpptoc.h"
@@ -249,14 +249,6 @@ CefRefPtr<CefX509CertPrincipal> CefCppToCRefCounted<
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
-
-#if DCHECK_IS_ON()
-template <>
-base::AtomicRefCount CefCppToCRefCounted<CefX509CertPrincipalCppToC,
-                                         CefX509CertPrincipal,
-                                         cef_x509cert_principal_t>::DebugObjCt
-    ATOMIC_DECLARATION;
-#endif
 
 template <>
 CefWrapperType CefCppToCRefCounted<CefX509CertPrincipalCppToC,

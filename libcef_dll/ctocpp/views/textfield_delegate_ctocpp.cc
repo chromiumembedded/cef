@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=13c568e0e5acfbb24da30fa9ff4516ab9b7a449e$
+// $hash=8f8796a40b010ff58a52183d6edf5be55e0ed9c6$
 //
 
 #include "libcef_dll/ctocpp/views/textfield_delegate_ctocpp.h"
@@ -274,14 +274,6 @@ cef_textfield_delegate_t* CefCToCppRefCounted<
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
-
-#if DCHECK_IS_ON()
-template <>
-base::AtomicRefCount CefCToCppRefCounted<CefTextfieldDelegateCToCpp,
-                                         CefTextfieldDelegate,
-                                         cef_textfield_delegate_t>::DebugObjCt
-    ATOMIC_DECLARATION;
-#endif
 
 template <>
 CefWrapperType CefCToCppRefCounted<CefTextfieldDelegateCToCpp,

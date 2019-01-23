@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=e483a5336ac0f838ebd51e3db32c2bef4895a5ac$
+// $hash=c982a5fcdc4a9331ad967b3174ac255b0d0036c9$
 //
 
 #include "libcef_dll/cpptoc/waitable_event_cpptoc.h"
@@ -136,14 +136,6 @@ CefRefPtr<CefWaitableEvent> CefCppToCRefCounted<
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
-
-#if DCHECK_IS_ON()
-template <>
-base::AtomicRefCount CefCppToCRefCounted<CefWaitableEventCppToC,
-                                         CefWaitableEvent,
-                                         cef_waitable_event_t>::DebugObjCt
-    ATOMIC_DECLARATION;
-#endif
 
 template <>
 CefWrapperType CefCppToCRefCounted<CefWaitableEventCppToC,

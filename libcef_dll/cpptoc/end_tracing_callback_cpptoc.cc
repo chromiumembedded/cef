@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=be2c5bdbd772cac7345acb05b976a3cf2e05b8b0$
+// $hash=2b002577e48c487b99031dbe70665ee2b0d5f299$
 //
 
 #include "libcef_dll/cpptoc/end_tracing_callback_cpptoc.h"
@@ -63,14 +63,6 @@ CefRefPtr<CefEndTracingCallback> CefCppToCRefCounted<
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
-
-#if DCHECK_IS_ON()
-template <>
-base::AtomicRefCount CefCppToCRefCounted<CefEndTracingCallbackCppToC,
-                                         CefEndTracingCallback,
-                                         cef_end_tracing_callback_t>::DebugObjCt
-    ATOMIC_DECLARATION;
-#endif
 
 template <>
 CefWrapperType CefCppToCRefCounted<CefEndTracingCallbackCppToC,

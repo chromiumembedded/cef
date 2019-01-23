@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=d73a9cabfb1e5749e422dd6584024a7c9cff89d8$
+// $hash=4a9714d7f46917454c0a017405139af8654f6602$
 //
 
 #include "libcef_dll/cpptoc/run_context_menu_callback_cpptoc.h"
@@ -73,14 +73,6 @@ CefCppToCRefCounted<CefRunContextMenuCallbackCppToC,
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
-
-#if DCHECK_IS_ON()
-template <>
-base::AtomicRefCount CefCppToCRefCounted<
-    CefRunContextMenuCallbackCppToC,
-    CefRunContextMenuCallback,
-    cef_run_context_menu_callback_t>::DebugObjCt ATOMIC_DECLARATION;
-#endif
 
 template <>
 CefWrapperType

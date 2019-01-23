@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=c34c782c8c4d8bfacaeeb06f7e824afead5cf8ed$
+// $hash=1a7718d07067ca673cee1afa55fba8687d91e2f7$
 //
 
 #include "libcef_dll/ctocpp/completion_callback_ctocpp.h"
@@ -49,14 +49,6 @@ cef_completion_callback_t* CefCToCppRefCounted<
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
-
-#if DCHECK_IS_ON()
-template <>
-base::AtomicRefCount CefCToCppRefCounted<CefCompletionCallbackCToCpp,
-                                         CefCompletionCallback,
-                                         cef_completion_callback_t>::DebugObjCt
-    ATOMIC_DECLARATION;
-#endif
 
 template <>
 CefWrapperType CefCToCppRefCounted<CefCompletionCallbackCToCpp,

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=a5715373212cdcfb2c42cb520b3e11a6d90a71cf$
+// $hash=90eb7cfa5e3f294b4b732e705ebe53072f22e8e2$
 //
 
 #include "libcef_dll/cpptoc/life_span_handler_cpptoc.h"
@@ -213,14 +213,6 @@ CefRefPtr<CefLifeSpanHandler> CefCppToCRefCounted<
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
-
-#if DCHECK_IS_ON()
-template <>
-base::AtomicRefCount CefCppToCRefCounted<CefLifeSpanHandlerCppToC,
-                                         CefLifeSpanHandler,
-                                         cef_life_span_handler_t>::DebugObjCt
-    ATOMIC_DECLARATION;
-#endif
 
 template <>
 CefWrapperType CefCppToCRefCounted<CefLifeSpanHandlerCppToC,

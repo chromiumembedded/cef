@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=82c491148522bb4cd6a0b67af90200f40655c93e$
+// $hash=675b86a6d1605b9585c851038c15d1c159f68756$
 //
 
 #include "libcef_dll/ctocpp/views/panel_ctocpp.h"
@@ -1048,13 +1048,6 @@ CefCToCppRefCounted<CefPanelCToCpp, CefPanel, cef_panel_t>::UnwrapDerived(
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
-
-#if DCHECK_IS_ON()
-template <>
-base::AtomicRefCount
-    CefCToCppRefCounted<CefPanelCToCpp, CefPanel, cef_panel_t>::DebugObjCt
-        ATOMIC_DECLARATION;
-#endif
 
 template <>
 CefWrapperType

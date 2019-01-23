@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=3a89cd3f08de55473dcc11d60add91c6005282ca$
+// $hash=e7530e230047a16346c63340acf5afe795fe4d7a$
 //
 
 #include "libcef_dll/cpptoc/views/window_cpptoc.h"
@@ -1893,13 +1893,6 @@ CefCppToCRefCounted<CefWindowCppToC, CefWindow, cef_window_t>::UnwrapDerived(
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
-
-#if DCHECK_IS_ON()
-template <>
-base::AtomicRefCount
-    CefCppToCRefCounted<CefWindowCppToC, CefWindow, cef_window_t>::DebugObjCt
-        ATOMIC_DECLARATION;
-#endif
 
 template <>
 CefWrapperType CefCppToCRefCounted<CefWindowCppToC, CefWindow, cef_window_t>::

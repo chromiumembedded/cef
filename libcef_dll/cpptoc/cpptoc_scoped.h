@@ -154,30 +154,17 @@ class CefCppToCScoped : public CefBaseScoped {
   // call UnderlyingRelease() on the wrapping CefCToCpp object.
   StructName* GetStruct() { return &wrapper_struct_.struct_; }
 
-#if DCHECK_IS_ON()
-  // Simple tracking of allocated objects.
-  static base::AtomicRefCount DebugObjCt;
-#endif
-
  protected:
   CefCppToCScoped() {
     wrapper_struct_.type_ = kWrapperType;
     wrapper_struct_.wrapper_ = this;
     memset(GetStruct(), 0, sizeof(StructName));
-
-#if DCHECK_IS_ON()
-    base::AtomicRefCountInc(&DebugObjCt);
-#endif
   }
 
   virtual ~CefCppToCScoped() {
     // Only delete the underlying object if we own it.
     if (owned_ && wrapper_struct_.object_)
       delete wrapper_struct_.object_;
-
-#if DCHECK_IS_ON()
-    base::AtomicRefCountDec(&DebugObjCt);
-#endif
   }
 
  private:

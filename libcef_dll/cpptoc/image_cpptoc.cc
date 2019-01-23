@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=c5faaf475b1cf107d5b7df2e976ff29607401549$
+// $hash=f9f7f73c3b2084ba25a9ef38c4546330526b1c87$
 //
 
 #include "libcef_dll/cpptoc/image_cpptoc.h"
@@ -427,13 +427,6 @@ CefCppToCRefCounted<CefImageCppToC, CefImage, cef_image_t>::UnwrapDerived(
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
-
-#if DCHECK_IS_ON()
-template <>
-base::AtomicRefCount
-    CefCppToCRefCounted<CefImageCppToC, CefImage, cef_image_t>::DebugObjCt
-        ATOMIC_DECLARATION;
-#endif
 
 template <>
 CefWrapperType

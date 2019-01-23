@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=ca1390d8a0125af46f5b4ffae3359ee16ad0e5a9$
+// $hash=4b6738ea60e68ceb47f47f3a1a67f74b3d8d4439$
 //
 
 #include "libcef_dll/cpptoc/resource_bundle_handler_cpptoc.h"
@@ -158,14 +158,6 @@ CefRefPtr<CefResourceBundleHandler> CefCppToCRefCounted<
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
-
-#if DCHECK_IS_ON()
-template <>
-base::AtomicRefCount CefCppToCRefCounted<
-    CefResourceBundleHandlerCppToC,
-    CefResourceBundleHandler,
-    cef_resource_bundle_handler_t>::DebugObjCt ATOMIC_DECLARATION;
-#endif
 
 template <>
 CefWrapperType

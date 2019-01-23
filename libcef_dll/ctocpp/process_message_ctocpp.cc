@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=9f4094e7dc406dcf2be2c4b5f5968ad5362b377b$
+// $hash=d048a58af52b66863c3081e63dd2e0f8b615d35a$
 //
 
 #include "libcef_dll/ctocpp/process_message_ctocpp.h"
@@ -141,14 +141,6 @@ cef_process_message_t* CefCToCppRefCounted<
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
-
-#if DCHECK_IS_ON()
-template <>
-base::AtomicRefCount CefCToCppRefCounted<CefProcessMessageCToCpp,
-                                         CefProcessMessage,
-                                         cef_process_message_t>::DebugObjCt
-    ATOMIC_DECLARATION;
-#endif
 
 template <>
 CefWrapperType CefCToCppRefCounted<CefProcessMessageCToCpp,

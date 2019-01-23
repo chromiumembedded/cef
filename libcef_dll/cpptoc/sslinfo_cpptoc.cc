@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=3fd4aede0fb57f64a9adb3515f7b6c29bb96314d$
+// $hash=8390fcbf8c0f725c8fae8f66347b7ff15b5d7c26$
 //
 
 #include "libcef_dll/cpptoc/sslinfo_cpptoc.h"
@@ -78,13 +78,6 @@ CefCppToCRefCounted<CefSSLInfoCppToC, CefSSLInfo, cef_sslinfo_t>::UnwrapDerived(
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
-
-#if DCHECK_IS_ON()
-template <>
-base::AtomicRefCount
-    CefCppToCRefCounted<CefSSLInfoCppToC, CefSSLInfo, cef_sslinfo_t>::DebugObjCt
-        ATOMIC_DECLARATION;
-#endif
 
 template <>
 CefWrapperType CefCppToCRefCounted<CefSSLInfoCppToC,

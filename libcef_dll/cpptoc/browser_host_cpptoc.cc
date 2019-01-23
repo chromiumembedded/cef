@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=40639710b864280e2288d7532309f327c92f2216$
+// $hash=1a1e9d55adac010523c7c8fdd2de03d9d081ba85$
 //
 
 #include "libcef_dll/cpptoc/browser_host_cpptoc.h"
@@ -1287,14 +1287,6 @@ CefCppToCRefCounted<CefBrowserHostCppToC, CefBrowserHost, cef_browser_host_t>::
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
-
-#if DCHECK_IS_ON()
-template <>
-base::AtomicRefCount CefCppToCRefCounted<CefBrowserHostCppToC,
-                                         CefBrowserHost,
-                                         cef_browser_host_t>::DebugObjCt
-    ATOMIC_DECLARATION;
-#endif
 
 template <>
 CefWrapperType CefCppToCRefCounted<CefBrowserHostCppToC,

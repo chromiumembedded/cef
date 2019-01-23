@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=c5ce367ea1e8754b04b07012ca8355c2fa62f203$
+// $hash=ce6e43f2c38373f4b46ed57bdfb7d81f84261206$
 //
 
 #include "libcef_dll/ctocpp/zip_reader_ctocpp.h"
@@ -268,13 +268,6 @@ CefCToCppRefCounted<CefZipReaderCToCpp, CefZipReader, cef_zip_reader_t>::
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
-
-#if DCHECK_IS_ON()
-template <>
-base::AtomicRefCount
-    CefCToCppRefCounted<CefZipReaderCToCpp, CefZipReader, cef_zip_reader_t>::
-        DebugObjCt ATOMIC_DECLARATION;
-#endif
 
 template <>
 CefWrapperType CefCToCppRefCounted<CefZipReaderCToCpp,

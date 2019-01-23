@@ -16,14 +16,6 @@ CefRefPtr<CefBaseRefCounted> CefCppToCRefCounted<
   return NULL;
 }
 
-#if DCHECK_IS_ON()
-template <>
-base::AtomicRefCount CefCppToCRefCounted<CefBaseRefCountedCppToC,
-                                         CefBaseRefCounted,
-                                         cef_base_ref_counted_t>::DebugObjCt
-    ATOMIC_DECLARATION;
-#endif
-
 template <>
 CefWrapperType CefCppToCRefCounted<CefBaseRefCountedCppToC,
                                    CefBaseRefCounted,

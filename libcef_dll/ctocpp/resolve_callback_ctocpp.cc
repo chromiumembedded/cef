@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=729169758ef588e50632a4d46083fbdc68385a9b$
+// $hash=f221d6800f531c0cd35e0fe07ab68022c950a628$
 //
 
 #include "libcef_dll/ctocpp/resolve_callback_ctocpp.h"
@@ -65,14 +65,6 @@ cef_resolve_callback_t* CefCToCppRefCounted<
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
-
-#if DCHECK_IS_ON()
-template <>
-base::AtomicRefCount CefCToCppRefCounted<CefResolveCallbackCToCpp,
-                                         CefResolveCallback,
-                                         cef_resolve_callback_t>::DebugObjCt
-    ATOMIC_DECLARATION;
-#endif
 
 template <>
 CefWrapperType CefCToCppRefCounted<CefResolveCallbackCToCpp,

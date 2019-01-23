@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=e7f505db2d3f4d4ff400675a8b167b4d027ed50c$
+// $hash=29ed31b8d18e1bad8d1419b8b147ee958be056f6$
 //
 
 #include "libcef_dll/ctocpp/print_dialog_callback_ctocpp.h"
@@ -70,14 +70,6 @@ cef_print_dialog_callback_t* CefCToCppRefCounted<
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
-
-#if DCHECK_IS_ON()
-template <>
-base::AtomicRefCount CefCToCppRefCounted<
-    CefPrintDialogCallbackCToCpp,
-    CefPrintDialogCallback,
-    cef_print_dialog_callback_t>::DebugObjCt ATOMIC_DECLARATION;
-#endif
 
 template <>
 CefWrapperType CefCToCppRefCounted<CefPrintDialogCallbackCToCpp,

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=2b234af34b1b6b739d7f948ca534b2f69bfc384a$
+// $hash=772e4a0488feeed3132dd7c8c6bbcf9510195e37$
 //
 
 #include "libcef_dll/cpptoc/set_cookie_callback_cpptoc.h"
@@ -57,14 +57,6 @@ CefRefPtr<CefSetCookieCallback> CefCppToCRefCounted<
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
-
-#if DCHECK_IS_ON()
-template <>
-base::AtomicRefCount CefCppToCRefCounted<CefSetCookieCallbackCppToC,
-                                         CefSetCookieCallback,
-                                         cef_set_cookie_callback_t>::DebugObjCt
-    ATOMIC_DECLARATION;
-#endif
 
 template <>
 CefWrapperType CefCppToCRefCounted<CefSetCookieCallbackCppToC,

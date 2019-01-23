@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=e3c8147d25d629b82d638becfcb0fd4dcbd82bba$
+// $hash=46040ab250829be7dd678c8e1a6f70988071253f$
 //
 
 #include "libcef_dll/ctocpp/run_file_dialog_callback_ctocpp.h"
@@ -71,14 +71,6 @@ cef_run_file_dialog_callback_t* CefCToCppRefCounted<
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
-
-#if DCHECK_IS_ON()
-template <>
-base::AtomicRefCount CefCToCppRefCounted<
-    CefRunFileDialogCallbackCToCpp,
-    CefRunFileDialogCallback,
-    cef_run_file_dialog_callback_t>::DebugObjCt ATOMIC_DECLARATION;
-#endif
 
 template <>
 CefWrapperType
