@@ -323,6 +323,9 @@ class DownloadTestHandler : public TestHandler {
                          CefRefPtr<CefDownloadItemCallback> callback) override {
     EXPECT_TRUE(CefCurrentlyOn(TID_UI));
 
+    if (destroyed_)
+      return;
+
     got_on_download_updated_.yes();
 
     EXPECT_TRUE(browser->IsSame(GetBrowser()));
@@ -366,8 +369,10 @@ class DownloadTestHandler : public TestHandler {
       EXPECT_LE(0LL, download_item->GetReceivedBytes());
     }
 
-    if (test_mode_ == PENDING)
+    if (test_mode_ == PENDING) {
+      download_item_callback_ = callback;
       ContinuePendingIfReady();
+    }
   }
 
   void VerifyResultsOnFileThread() {
@@ -395,6 +400,14 @@ class DownloadTestHandler : public TestHandler {
           TID_FILE,
           base::Bind(&DownloadTestHandler::VerifyResultsOnFileThread, this));
       return;
+    }
+
+    destroyed_ = true;
+
+    if (download_item_callback_) {
+      // Cancel the pending download to avoid leaking request objects.
+      download_item_callback_->Cancel();
+      download_item_callback_ = nullptr;
     }
 
     if (request_context_) {
@@ -448,13 +461,17 @@ class DownloadTestHandler : public TestHandler {
 
   CefRefPtr<CefRequestContext> request_context_;
 
-  // Used with NAVIGATED test mode.
+  // Used with NAVIGATED and PENDING test modes.
   CefRefPtr<CefCallback> delay_callback_;
+
+  // Used with PENDING test mode.
+  CefRefPtr<CefDownloadItemCallback> download_item_callback_;
 
   CefScopedTempDir temp_dir_;
   std::string test_path_;
   uint32 download_id_;
   bool verified_results_;
+  bool destroyed_ = false;
 
   TrackCallback got_download_request_;
   TrackCallback got_on_before_download_;
