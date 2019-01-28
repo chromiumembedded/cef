@@ -996,7 +996,7 @@ void CefRenderWidgetHostViewOSR::ImeSetComposition(
         ui::ImeTextSpan::Type::kComposition, line.range.from, line.range.to,
         line.thick ? ui::ImeTextSpan::Thickness::kThick
                    : ui::ImeTextSpan::Thickness::kThin,
-        line.color, line.background_color, std::vector<std::string>()));
+        line.background_color, line.color, std::vector<std::string>()));
   }
   gfx::Range range(replacement_range.from, replacement_range.to);
 
