@@ -422,6 +422,9 @@ bool CefMainDelegate::BasicStartupComplete(int* exit_code) {
         case LOGSEVERITY_ERROR:
           log_severity = switches::kLogSeverity_Error;
           break;
+        case LOGSEVERITY_FATAL:
+          log_severity = switches::kLogSeverity_Fatal;
+          break;
         case LOGSEVERITY_DISABLE:
           log_severity = switches::kLogSeverity_Disable;
           break;
@@ -530,6 +533,9 @@ bool CefMainDelegate::BasicStartupComplete(int* exit_code) {
                                           switches::kLogSeverity_Error)) {
       log_severity = logging::LOG_ERROR;
     } else if (base::LowerCaseEqualsASCII(log_severity_str,
+                                          switches::kLogSeverity_Fatal)) {
+      log_severity = logging::LOG_FATAL;
+    } else if (base::LowerCaseEqualsASCII(log_severity_str,
                                           switches::kLogSeverity_Disable)) {
       log_severity = LOGSEVERITY_DISABLE;
     }
@@ -537,6 +543,10 @@ bool CefMainDelegate::BasicStartupComplete(int* exit_code) {
 
   if (log_severity == LOGSEVERITY_DISABLE) {
     log_settings.logging_dest = logging::LOG_NONE;
+    // By default, ERROR and FATAL messages will always be output to stderr due
+    // to the kAlwaysPrintErrorLevel value in base/logging.cc. We change the log
+    // level here so that only FATAL messages are output.
+    logging::SetMinLogLevel(logging::LOG_FATAL);
   } else {
     log_settings.logging_dest = logging::LOG_TO_ALL;
     logging::SetMinLogLevel(log_severity);

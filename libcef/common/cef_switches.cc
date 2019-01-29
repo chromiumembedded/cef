@@ -12,6 +12,7 @@ const char kLogSeverity_Verbose[] = "verbose";
 const char kLogSeverity_Info[] = "info";
 const char kLogSeverity_Warning[] = "warning";
 const char kLogSeverity_Error[] = "error";
+const char kLogSeverity_Fatal[] = "fatal";
 const char kLogSeverity_Disable[] = "disable";
 
 // Path to resources directory.
