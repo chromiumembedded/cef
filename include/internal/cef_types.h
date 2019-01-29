@@ -115,7 +115,13 @@ typedef enum {
   LOGSEVERITY_ERROR,
 
   ///
-  // Completely disable logging.
+  // FATAL logging.
+  ///
+  LOGSEVERITY_FATAL,
+
+  ///
+  // Disable logging to file for all messages, and to stderr for messages with
+  // severity less than FATAL.
   ///
   LOGSEVERITY_DISABLE = 99
 } cef_log_severity_t;
@@ -290,9 +296,10 @@ typedef struct _cef_settings_t {
 
   ///
   // The log severity. Only messages of this severity level or higher will be
-  // logged. Also configurable using the "log-severity" command-line switch with
-  // a value of "verbose", "info", "warning", "error", "error-report" or
-  // "disable".
+  // logged. When set to DISABLE no messages will be written to the log file,
+  // but FATAL messages will still be output to stderr. Also configurable using
+  // the "log-severity" command-line switch with a value of "verbose", "info",
+  // "warning", "error", "fatal" or "disable".
   ///
   cef_log_severity_t log_severity;
 
