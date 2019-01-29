@@ -81,17 +81,15 @@ class CefCompositorFrameSinkClient
 
   void DidReceiveCompositorFrameAck(
       const std::vector<viz::ReturnedResource>& resources) override {
+    if (render_widget_host_view_) {
+      render_widget_host_view_->OnPresentCompositorFrame();
+    }
     forward_->DidReceiveCompositorFrameAck(resources);
   }
 
   void OnBeginFrame(const viz::BeginFrameArgs& args,
                     const base::flat_map<uint32_t, gfx::PresentationFeedback>&
                         feedbacks) override {
-    if (render_widget_host_view_) {
-      for (const auto& pair : feedbacks) {
-        render_widget_host_view_->OnPresentCompositorFrame(pair.first);
-      }
-    }
     forward_->OnBeginFrame(args, feedbacks);
   }
 
@@ -585,8 +583,7 @@ void CefRenderWidgetHostViewOSR::DidCreateNewRendererCompositorFrameSink(
   }
 }
 
-void CefRenderWidgetHostViewOSR::OnPresentCompositorFrame(
-    uint32_t presentation_token) {
+void CefRenderWidgetHostViewOSR::OnPresentCompositorFrame() {
   // Is Chromium rendering to a shared texture?
   void* shared_texture = nullptr;
   ui::Compositor* compositor = GetCompositor();
@@ -606,10 +603,13 @@ void CefRenderWidgetHostViewOSR::OnPresentCompositorFrame(
       // view size for a full redraw.
       base::AutoLock lock_scope(damage_rect_lock_);
 
+      // TODO: in the future we need to correlate the presentation
+      // notification with the sequence number from BeginFrame
       gfx::Rect damage;
-      auto const i = damage_rects_.find(presentation_token);
+      auto const i = damage_rects_.begin();
       if (i != damage_rects_.end()) {
         damage = i->second;
+        damage_rects_.erase(i);
       } else {
         damage = GetViewBounds();
       }
@@ -623,7 +623,7 @@ void CefRenderWidgetHostViewOSR::OnPresentCompositorFrame(
   }
 }
 
-void CefRenderWidgetHostViewOSR::AddDamageRect(uint32_t presentation_token,
+void CefRenderWidgetHostViewOSR::AddDamageRect(uint32_t sequence,
                                                const gfx::Rect& rect) {
   // Associate the given damage rect with the presentation token.
   // For OnAcceleratedPaint we'll lookup the corresponding damage area based on
@@ -636,7 +636,7 @@ void CefRenderWidgetHostViewOSR::AddDamageRect(uint32_t presentation_token,
   while (damage_rects_.size() >= kMaxDamageRects) {
     damage_rects_.erase(damage_rects_.begin());
   }
-  damage_rects_[presentation_token] = rect;
+  damage_rects_[sequence] = rect;
 }
 
 void CefRenderWidgetHostViewOSR::SubmitCompositorFrame(
@@ -700,13 +700,8 @@ void CefRenderWidgetHostViewOSR::SubmitCompositorFrame(
       damage_rect.Intersect(gfx::Rect(frame_size));
 
       if (shared_texture) {
-        // Indicate that we want feedback every frame.
-        if (!++presentation_token_)
-          ++presentation_token_;
-
-        AddDamageRect(presentation_token_, damage_rect);
-
-        frame.metadata.frame_token = presentation_token_;
+        AddDamageRect(frame.metadata.begin_frame_ack.sequence_number,
+                      damage_rect);
       }
 
       // We would normally call BrowserCompositorMac::SubmitCompositorFrame on

@@ -267,7 +267,7 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
   }
 #endif
 
-  void OnPresentCompositorFrame(uint32_t presentation_token);
+  void OnPresentCompositorFrame();
 
  private:
   content::DelegatedFrameHost* GetDelegatedFrameHost() const;
@@ -301,7 +301,7 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
 
   viz::FrameSinkId AllocateFrameSinkId(bool is_guest_view_hack);
 
-  void AddDamageRect(uint32_t presentation_token, const gfx::Rect& rect);
+  void AddDamageRect(uint32_t sequence, const gfx::Rect& rect);
 
   // Applies background color without notifying the RenderWidget about
   // opaqueness changes.
@@ -394,7 +394,6 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
   bool is_showing_;
   bool is_destroyed_;
   gfx::Rect popup_position_;
-  uint32_t presentation_token_ = 0;
   base::Lock damage_rect_lock_;
   std::map<uint32_t, gfx::Rect> damage_rects_;
 
