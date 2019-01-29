@@ -17,6 +17,7 @@ extern const char kLogSeverity_Verbose[];
 extern const char kLogSeverity_Info[];
 extern const char kLogSeverity_Warning[];
 extern const char kLogSeverity_Error[];
+extern const char kLogSeverity_Fatal[];
 extern const char kLogSeverity_Disable[];
 extern const char kResourcesDirPath[];
 extern const char kLocalesDirPath[];
