@@ -9,6 +9,7 @@ CefNavigateParams::CefNavigateParams(const GURL& a_url,
                                      ui::PageTransition a_transition)
     : url(a_url),
       frame_id(-1),
+      load_flags(0),
       disposition(WindowOpenDisposition::CURRENT_TAB),
       transition(a_transition),
       is_renderer_initiated(false),
