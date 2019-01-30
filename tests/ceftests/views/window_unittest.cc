@@ -258,8 +258,8 @@ void VerifyMinimize(CefRefPtr<CefWindow> window) {
   EXPECT_TRUE(window->IsMinimized());
   EXPECT_FALSE(window->IsMaximized());
   EXPECT_FALSE(window->IsFullscreen());
-  EXPECT_FALSE(window->IsVisible());
-  EXPECT_FALSE(window->IsDrawn());
+  EXPECT_TRUE(window->IsVisible());
+  EXPECT_TRUE(window->IsDrawn());
 
   window->Restore();
   CefPostDelayedTask(TID_UI, base::Bind(VerifyRestore, window), kStateDelayMS);

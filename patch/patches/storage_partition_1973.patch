@@ -251,7 +251,7 @@ index c771efab4ae1..d07321aba204 100644
          CreateDownloadURLLoaderFactoryGetter(storage_partition, rfh, true);
    }
 diff --git content/browser/loader/navigation_url_loader_impl.cc content/browser/loader/navigation_url_loader_impl.cc
-index cb7dca2aceae..57419f9b0f16 100644
+index 3bc6b039b975..1b98f6d26461 100644
 --- content/browser/loader/navigation_url_loader_impl.cc
 +++ content/browser/loader/navigation_url_loader_impl.cc
 @@ -386,7 +386,7 @@ class AboutURLLoaderFactory : public network::mojom::URLLoaderFactory {
@@ -263,7 +263,7 @@ index cb7dca2aceae..57419f9b0f16 100644
    DCHECK_CURRENTLY_ON(BrowserThread::UI);
    network::mojom::URLLoaderFactoryPtrInfo factory_info;
    network::mojom::URLLoaderFactoryParamsPtr params =
-@@ -1248,7 +1248,7 @@ class NavigationURLLoaderImpl::URLLoaderRequestController
+@@ -1249,7 +1249,7 @@ class NavigationURLLoaderImpl::URLLoaderRequestController
      // path does as well for navigations.
      bool has_plugin = PluginService::GetInstance()->GetPluginInfo(
          -1 /* render_process_id */, -1 /* render_frame_id */, resource_context_,
@@ -272,7 +272,7 @@ index cb7dca2aceae..57419f9b0f16 100644
          false /* allow_wildcard */, &stale, &plugin, nullptr);
  
      if (stale) {
-@@ -1616,7 +1616,7 @@ NavigationURLLoaderImpl::NavigationURLLoaderImpl(
+@@ -1617,7 +1617,7 @@ NavigationURLLoaderImpl::NavigationURLLoaderImpl(
        CreateResourceRequest(request_info.get(), frame_tree_node_id,
                              IsNavigationDownloadAllowed(download_policy_));
  

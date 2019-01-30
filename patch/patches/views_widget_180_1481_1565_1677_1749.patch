@@ -135,7 +135,7 @@ index f772f64d656e..7d13f9f81b6c 100644
    return host ? host->GetAcceleratedWidget() : NULL;
  }
 diff --git ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc
-index 13328844822d..39120a96bed8 100644
+index c16d7368315b..e50508f4b0dc 100644
 --- ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc
 +++ ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc
 @@ -89,6 +89,7 @@ DesktopWindowTreeHostWin::DesktopWindowTreeHostWin(
@@ -160,7 +160,7 @@ index 13328844822d..39120a96bed8 100644
  
    remove_standard_frame_ = params.remove_standard_frame;
    has_non_client_view_ = Widget::RequiresNonClientView(params.type);
-@@ -889,11 +894,15 @@ void DesktopWindowTreeHostWin::HandleFrameChanged() {
+@@ -877,11 +882,15 @@ void DesktopWindowTreeHostWin::HandleFrameChanged() {
  }
  
  void DesktopWindowTreeHostWin::HandleNativeFocus(HWND last_focused_window) {
@@ -179,7 +179,7 @@ index 13328844822d..39120a96bed8 100644
  
  bool DesktopWindowTreeHostWin::HandleMouseEvent(ui::MouseEvent* event) {
 diff --git ui/views/widget/desktop_aura/desktop_window_tree_host_win.h ui/views/widget/desktop_aura/desktop_window_tree_host_win.h
-index 1def35f1eb39..360d10ce2927 100644
+index ecb84e76ae20..5e61312ad0fd 100644
 --- ui/views/widget/desktop_aura/desktop_window_tree_host_win.h
 +++ ui/views/widget/desktop_aura/desktop_window_tree_host_win.h
 @@ -286,6 +286,10 @@ class VIEWS_EXPORT DesktopWindowTreeHostWin
@@ -335,7 +335,7 @@ index c547609abf03..5092e2a38b67 100644
    base::WeakPtrFactory<DesktopWindowTreeHostX11> weak_factory_;
  
 diff --git ui/views/widget/widget.cc ui/views/widget/widget.cc
-index fff5a5d1556a..f936eaffbbbd 100644
+index 0353201e7933..557446296e18 100644
 --- ui/views/widget/widget.cc
 +++ ui/views/widget/widget.cc
 @@ -137,6 +137,7 @@ Widget::InitParams::InitParams(Type type)
@@ -369,7 +369,7 @@ index fff5a5d1556a..f936eaffbbbd 100644
    }
    // This must come after SetContentsView() or it might not be able to find
    // the correct NativeTheme (on Linux). See http://crbug.com/384492
-@@ -1118,10 +1124,16 @@ void Widget::OnNativeWidgetDestroyed() {
+@@ -1114,10 +1120,16 @@ void Widget::OnNativeWidgetDestroyed() {
  }
  
  gfx::Size Widget::GetMinimumSize() const {
@@ -387,7 +387,7 @@ index fff5a5d1556a..f936eaffbbbd 100644
  }
  
 diff --git ui/views/widget/widget.h ui/views/widget/widget.h
-index 30a7c67d7566..92b71e568b63 100644
+index e7116c1b21d8..2d654367a1a6 100644
 --- ui/views/widget/widget.h
 +++ ui/views/widget/widget.h
 @@ -240,6 +240,7 @@ class VIEWS_EXPORT Widget : public internal::NativeWidgetDelegate,
@@ -427,10 +427,10 @@ index c7296fed234d..244d0034a1c4 100644
        if (native_widget_delegate->IsDialogBox()) {
          *style |= DS_MODALFRAME;
 diff --git ui/views/win/hwnd_message_handler.cc ui/views/win/hwnd_message_handler.cc
-index 97448327fa37..e69b494dbfeb 100644
+index 322315fb109b..50e22293abb5 100644
 --- ui/views/win/hwnd_message_handler.cc
 +++ ui/views/win/hwnd_message_handler.cc
-@@ -2895,10 +2895,13 @@ LRESULT HWNDMessageHandler::HandleMouseEventInternal(UINT message,
+@@ -2903,10 +2903,13 @@ LRESULT HWNDMessageHandler::HandleMouseEventInternal(UINT message,
    } else if (event.type() == ui::ET_MOUSEWHEEL) {
      ui::MouseWheelEvent mouse_wheel_event(msg);
      // Reroute the mouse wheel to the window under the pointer if applicable.
