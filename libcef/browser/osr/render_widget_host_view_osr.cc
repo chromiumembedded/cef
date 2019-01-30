@@ -81,15 +81,15 @@ class CefCompositorFrameSinkClient
 
   void DidReceiveCompositorFrameAck(
       const std::vector<viz::ReturnedResource>& resources) override {
-    if (render_widget_host_view_) {
-      render_widget_host_view_->OnPresentCompositorFrame();
-    }
     forward_->DidReceiveCompositorFrameAck(resources);
   }
 
   void OnBeginFrame(const viz::BeginFrameArgs& args,
                     const base::flat_map<uint32_t, gfx::PresentationFeedback>&
                         feedbacks) override {
+    if (render_widget_host_view_) {
+      render_widget_host_view_->OnPresentCompositorFrame();
+    }
     forward_->OnBeginFrame(args, feedbacks);
   }
 
