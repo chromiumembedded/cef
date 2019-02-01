@@ -141,6 +141,13 @@ if(OS_LINUX)
   include(CheckCCompilerFlag)
   include(CheckCXXCompilerFlag)
 
+  CHECK_CXX_COMPILER_FLAG(-Wno-undefined-var-template COMPILER_SUPPORTS_NO_UNDEFINED_VAR_TEMPLATE)
+  if(COMPILER_SUPPORTS_NO_UNDEFINED_VAR_TEMPLATE)
+    list(APPEND CEF_CXX_COMPILER_FLAGS
+      -Wno-undefined-var-template   # Don't warn about potentially uninstantiated static members
+      )
+  endif()
+
   CHECK_C_COMPILER_FLAG(-Wno-unused-local-typedefs COMPILER_SUPPORTS_NO_UNUSED_LOCAL_TYPEDEFS)
   if(COMPILER_SUPPORTS_NO_UNUSED_LOCAL_TYPEDEFS)
     list(APPEND CEF_C_COMPILER_FLAGS
