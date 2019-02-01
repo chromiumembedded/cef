@@ -658,11 +658,9 @@ CefContentBrowserClient::GetServiceManifestOverlay(base::StringPiece name) {
   return base::nullopt;
 }
 
-std::vector<content::ContentBrowserClient::ServiceManifestInfo>
+std::vector<service_manager::Manifest>
 CefContentBrowserClient::GetExtraServiceManifests() {
-  return std::vector<ServiceManifestInfo>({
-      {chrome::mojom::kRendererServiceName, -1, GetCefRendererManifest()},
-  });
+  return std::vector<service_manager::Manifest>{GetCefRendererManifest()};
 }
 
 bool CefContentBrowserClient::IsSameBrowserContext(

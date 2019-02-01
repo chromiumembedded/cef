@@ -79,7 +79,7 @@ index 5426d600906c..4bf4537514eb 100644
    // Creates a new View that holds a non-top-level widget and receives messages
    // for it.
 diff --git content/browser/web_contents/web_contents_view_aura.cc content/browser/web_contents/web_contents_view_aura.cc
-index 8e02ca39a947..b9ec33465141 100644
+index 68fb77a4a2f6..19478931e111 100644
 --- content/browser/web_contents/web_contents_view_aura.cc
 +++ content/browser/web_contents/web_contents_view_aura.cc
 @@ -867,7 +867,8 @@ void WebContentsViewAura::CreateView(const gfx::Size& initial_size,
@@ -208,7 +208,7 @@ index 1f0e661628aa..f896c842ff0d 100644
        RenderWidgetHost* render_widget_host) override;
    void SetPageTitle(const base::string16& title) override;
 diff --git content/browser/web_contents/web_contents_view_mac.h content/browser/web_contents/web_contents_view_mac.h
-index 18fbea9e4446..cf6b26edfa4d 100644
+index c0c553023138..39b8fe0bd57c 100644
 --- content/browser/web_contents/web_contents_view_mac.h
 +++ content/browser/web_contents/web_contents_view_mac.h
 @@ -74,7 +74,7 @@ class WebContentsViewMac : public WebContentsView,
@@ -221,10 +221,10 @@ index 18fbea9e4446..cf6b26edfa4d 100644
        RenderWidgetHost* render_widget_host) override;
    void SetPageTitle(const base::string16& title) override;
 diff --git content/browser/web_contents/web_contents_view_mac.mm content/browser/web_contents/web_contents_view_mac.mm
-index 699e8709c74d..9f94a4efd45d 100644
+index d4f6a36dce63..ba6382ee43ea 100644
 --- content/browser/web_contents/web_contents_view_mac.mm
 +++ content/browser/web_contents/web_contents_view_mac.mm
-@@ -315,7 +315,8 @@ void WebContentsViewMac::CreateView(
+@@ -313,7 +313,8 @@ void WebContentsViewMac::CreateView(
  }
  
  RenderWidgetHostViewBase* WebContentsViewMac::CreateViewForWidget(
@@ -234,7 +234,7 @@ index 699e8709c74d..9f94a4efd45d 100644
    if (render_widget_host->GetView()) {
      // During testing, the view will already be set up in most cases to the
      // test view, so we don't want to clobber it with a real one. To verify that
-@@ -327,6 +328,7 @@ RenderWidgetHostViewBase* WebContentsViewMac::CreateViewForWidget(
+@@ -325,6 +326,7 @@ RenderWidgetHostViewBase* WebContentsViewMac::CreateViewForWidget(
          render_widget_host->GetView());
    }
  

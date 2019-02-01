@@ -1,8 +1,8 @@
 diff --git .gn .gn
-index a0cba4a846c1..1196ae6ef30a 100644
+index a8956fd54ce7..b7254af29760 100644
 --- .gn
 +++ .gn
-@@ -674,6 +674,8 @@ exec_script_whitelist =
+@@ -672,6 +672,8 @@ exec_script_whitelist =
        # in the Chromium repo outside of //build.
        "//build_overrides/build.gni",
  
@@ -12,7 +12,7 @@ index a0cba4a846c1..1196ae6ef30a 100644
        # https://crbug.com/474506.
        "//clank/java/BUILD.gn",
 diff --git BUILD.gn BUILD.gn
-index ea376e895eb1..78569ded3e5e 100644
+index 7ac0e16e1e14..40e3b2a3e305 100644
 --- BUILD.gn
 +++ BUILD.gn
 @@ -184,6 +184,7 @@ group("gn_all") {

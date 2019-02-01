@@ -1,8 +1,8 @@
 diff --git content/browser/appcache/appcache_internals_ui.cc content/browser/appcache/appcache_internals_ui.cc
-index 6e0a207374fa..ea7bfcdbc378 100644
+index f03f5472f99d..004aeb3d9b69 100644
 --- content/browser/appcache/appcache_internals_ui.cc
 +++ content/browser/appcache/appcache_internals_ui.cc
-@@ -383,8 +383,8 @@ void AppCacheInternalsUI::CreateProxyForPartition(
+@@ -384,8 +384,8 @@ void AppCacheInternalsUI::CreateProxyForPartition(
      StoragePartition* storage_partition) {
    scoped_refptr<Proxy> proxy =
        new Proxy(weak_ptr_factory_.GetWeakPtr(), storage_partition->GetPath());
@@ -83,10 +83,10 @@ index 4728c4f008b5..07dc19b2240a 100644
        partition->GetBluetoothAllowedDevicesMap();
    return allowed_devices_map->GetOrCreateAllowedDevices(GetOrigin());
 diff --git content/browser/browser_context.cc content/browser/browser_context.cc
-index 617683c9e47e..9ad01edc2ea7 100644
+index 0c58a53ac435..aa462081c726 100644
 --- content/browser/browser_context.cc
 +++ content/browser/browser_context.cc
-@@ -257,11 +257,18 @@ StoragePartition* GetStoragePartitionFromConfig(
+@@ -209,11 +209,18 @@ StoragePartition* GetStoragePartitionFromConfig(
    StoragePartitionImplMap* partition_map =
        GetStoragePartitionMap(browser_context);
  
@@ -108,9 +108,9 @@ index 617683c9e47e..9ad01edc2ea7 100644
  }
  
  void SaveSessionStateOnIOThread(
-@@ -821,6 +828,11 @@ BrowserContext::BrowserContext()
-                   new SharedCorsOriginAccessListImpl()));
- }
+@@ -731,6 +738,11 @@ ServiceManagerConnection* BrowserContext::GetServiceManagerConnectionFor(
+ BrowserContext::BrowserContext()
+     : unique_id_(base::UnguessableToken::Create().ToString()) {}
  
 +// static
 +const void* BrowserContext::GetStoragePartitionMapUserDataKey() {
@@ -121,7 +121,7 @@ index 617683c9e47e..9ad01edc2ea7 100644
    CHECK(GetUserData(kServiceInstanceGroup))
        << "Attempting to destroy a BrowserContext that never called "
 diff --git content/browser/devtools/protocol/network_handler.cc content/browser/devtools/protocol/network_handler.cc
-index d82370f5d7ff..a586244eaef0 100644
+index 6ff1be0aed25..140a59ba3ac0 100644
 --- content/browser/devtools/protocol/network_handler.cc
 +++ content/browser/devtools/protocol/network_handler.cc
 @@ -804,8 +804,7 @@ class BackgroundSyncRestorer {
@@ -171,7 +171,7 @@ index ec9ab86d0ca6..0fe5219f1e84 100644
    base::WeakPtrFactory<ServiceWorkerHandler> weak_factory_;
  
 diff --git content/browser/download/download_manager_impl.cc content/browser/download/download_manager_impl.cc
-index 163932d9f686..8a2ecaa1c157 100644
+index 941eb49f0283..c693adf52068 100644
 --- content/browser/download/download_manager_impl.cc
 +++ content/browser/download/download_manager_impl.cc
 @@ -99,9 +99,9 @@ void DeleteDownloadedFileOnUIThread(const base::FilePath& file_path) {
@@ -251,7 +251,7 @@ index 163932d9f686..8a2ecaa1c157 100644
          CreateDownloadURLLoaderFactoryGetter(storage_partition, rfh, true);
    }
 diff --git content/browser/loader/navigation_url_loader_impl.cc content/browser/loader/navigation_url_loader_impl.cc
-index e399585bcab0..ba922d93d58e 100644
+index eb08165b2708..149abb4b4e79 100644
 --- content/browser/loader/navigation_url_loader_impl.cc
 +++ content/browser/loader/navigation_url_loader_impl.cc
 @@ -387,7 +387,7 @@ class AboutURLLoaderFactory : public network::mojom::URLLoaderFactory {
@@ -263,7 +263,7 @@ index e399585bcab0..ba922d93d58e 100644
    DCHECK_CURRENTLY_ON(BrowserThread::UI);
    network::mojom::URLLoaderFactoryPtrInfo factory_info;
    network::mojom::URLLoaderFactoryParamsPtr params =
-@@ -1257,7 +1257,7 @@ class NavigationURLLoaderImpl::URLLoaderRequestController
+@@ -1259,7 +1259,7 @@ class NavigationURLLoaderImpl::URLLoaderRequestController
      // path does as well for navigations.
      bool has_plugin = PluginService::GetInstance()->GetPluginInfo(
          -1 /* render_process_id */, -1 /* render_frame_id */, resource_context_,
@@ -272,7 +272,7 @@ index e399585bcab0..ba922d93d58e 100644
          false /* allow_wildcard */, &stale, &plugin, nullptr);
  
      if (stale) {
-@@ -1607,7 +1607,7 @@ NavigationURLLoaderImpl::NavigationURLLoaderImpl(
+@@ -1608,7 +1608,7 @@ NavigationURLLoaderImpl::NavigationURLLoaderImpl(
        CreateResourceRequest(request_info.get(), frame_tree_node_id,
                              IsNavigationDownloadAllowed(download_policy_));
  
@@ -328,7 +328,7 @@ index d821dc59609c..58ff1bc59fed 100644
        partition->GetPaymentAppContext();
  
 diff --git content/browser/renderer_host/render_process_host_impl.cc content/browser/renderer_host/render_process_host_impl.cc
-index e27ad6494834..ee5d5c309d45 100644
+index 2841e44002e7..de25b4bb3067 100644
 --- content/browser/renderer_host/render_process_host_impl.cc
 +++ content/browser/renderer_host/render_process_host_impl.cc
 @@ -747,11 +747,10 @@ class DefaultSubframeProcessHostHolder : public base::SupportsUserData::Data,
@@ -428,7 +428,7 @@ index e27ad6494834..ee5d5c309d45 100644
 -        storage_partition_impl_->GetServiceWorkerContext(),
 +        service_worker_context,
          storage_partition_impl_->GetPrefetchURLLoaderService(),
-         BrowserContext::GetSharedCorsOriginAccessList(browser_context),
+         browser_context->GetSharedCorsOriginAccessList(),
          std::move(get_contexts_callback),
 @@ -2027,8 +2038,7 @@ void RenderProcessHostImpl::CreateMessageFilters() {
      AddFilter(resource_message_filter_.get());
@@ -741,7 +741,7 @@ index 9ec4836022bb..57a6480bfd95 100644
                             std::move(client), creation_context_type,
                             blink::MessagePortChannel(std::move(message_port)),
 diff --git content/browser/worker_host/worker_script_fetch_initiator.cc content/browser/worker_host/worker_script_fetch_initiator.cc
-index 482499bdbb5e..c95d3c61847f 100644
+index 1b69f17bd2e3..186f36148565 100644
 --- content/browser/worker_host/worker_script_fetch_initiator.cc
 +++ content/browser/worker_host/worker_script_fetch_initiator.cc
 @@ -98,7 +98,7 @@ void WorkerScriptFetchInitiator::Start(
@@ -754,10 +754,10 @@ index 482499bdbb5e..c95d3c61847f 100644
            std::move(subresource_loader_factories),
            std::move(service_worker_context), appcache_handle_core,
 diff --git content/public/browser/browser_context.h content/public/browser/browser_context.h
-index 9df16c695fcf..599cc201d9d5 100644
+index 6e1403e84d1d..3d3e81335260 100644
 --- content/public/browser/browser_context.h
 +++ content/public/browser/browser_context.h
-@@ -242,6 +242,8 @@ class CONTENT_EXPORT BrowserContext : public base::SupportsUserData {
+@@ -227,6 +227,8 @@ class CONTENT_EXPORT BrowserContext : public base::SupportsUserData {
  
    BrowserContext();
  
@@ -766,7 +766,7 @@ index 9df16c695fcf..599cc201d9d5 100644
    ~BrowserContext() override;
  
    // Shuts down the storage partitions associated to this browser context.
-@@ -366,6 +368,13 @@ class CONTENT_EXPORT BrowserContext : public base::SupportsUserData {
+@@ -362,6 +364,13 @@ class CONTENT_EXPORT BrowserContext : public base::SupportsUserData {
    virtual download::InProgressDownloadManager*
    RetriveInProgressDownloadManager();
  

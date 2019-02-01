@@ -40,6 +40,12 @@ bool CefComponentExtensionResourceManager::IsComponentExtensionResource(
   return entry != path_to_resource_id_.end();
 }
 
+const ui::TemplateReplacements*
+CefComponentExtensionResourceManager::GetTemplateReplacementsForExtension(
+    const std::string& extension_id) const {
+  return nullptr;
+}
+
 void CefComponentExtensionResourceManager::AddComponentResourceEntries(
     const GritResourceMap* entries,
     size_t size) {

@@ -26,7 +26,7 @@ index bfc4a95febcf..1d06dbbb09b0 100644
    static void InitializeCommon(Platform* platform,
                                 std::unique_ptr<Thread> main_thread);
 diff --git third_party/blink/renderer/core/dom/dom_implementation.cc third_party/blink/renderer/core/dom/dom_implementation.cc
-index 3dac1a5a6f61..4fff23e66f2c 100644
+index 31d7915a56b1..3867128de143 100644
 --- third_party/blink/renderer/core/dom/dom_implementation.cc
 +++ third_party/blink/renderer/core/dom/dom_implementation.cc
 @@ -243,10 +243,11 @@ Document* DOMImplementation::createDocument(const String& type,
@@ -44,10 +44,10 @@ index 3dac1a5a6f61..4fff23e66f2c 100644
                                                          .Top()
                                                          .GetSecurityContext()
 diff --git third_party/blink/renderer/core/frame/local_frame.cc third_party/blink/renderer/core/frame/local_frame.cc
-index e07ace500ef1..76683aefc31f 100644
+index 9c8ffb99f78e..baa128f55603 100644
 --- third_party/blink/renderer/core/frame/local_frame.cc
 +++ third_party/blink/renderer/core/frame/local_frame.cc
-@@ -1322,7 +1322,7 @@ FrameResourceCoordinator* LocalFrame::GetFrameResourceCoordinator() {
+@@ -1323,7 +1323,7 @@ FrameResourceCoordinator* LocalFrame::GetFrameResourceCoordinator() {
  PluginData* LocalFrame::GetPluginData() const {
    if (!Loader().AllowPlugins(kNotAboutToInstantiatePlugin))
      return nullptr;

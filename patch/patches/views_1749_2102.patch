@@ -39,7 +39,7 @@ index bb53c043a8fe..e1427ac3a1ef 100644
    virtual void MenuWillShow() {}
  
 diff --git ui/gfx/render_text.cc ui/gfx/render_text.cc
-index 1b7f2cf2ad75..e22afc917f7a 100644
+index 68b99d49658d..a2f3a9c0819b 100644
 --- ui/gfx/render_text.cc
 +++ ui/gfx/render_text.cc
 @@ -514,6 +514,14 @@ void RenderText::SetElideBehavior(ElideBehavior elide_behavior) {
@@ -70,7 +70,7 @@ index 1b7f2cf2ad75..e22afc917f7a 100644
 +        gfx::RemoveAcceleratorChar(layout_text_, '&', &char_pos, &char_span);
 +    if (char_pos != -1) {
 +      gfx::Range range(char_pos, char_pos + char_span);
-+      styles_[gfx::UNDERLINE].ApplyValue(true, range);
++      styles_[TEXT_STYLE_UNDERLINE].ApplyValue(true, range);
 +    }
 +  }
 +
@@ -154,7 +154,7 @@ index 0200201196b2..6e1617c927ba 100644
    ImageView* image() const { return image_; }
    Label* label() const;
 diff --git ui/views/controls/label.cc ui/views/controls/label.cc
-index ef1ed1092eb4..acd4f37446c6 100644
+index ef1ed1092eb4..e913d9d50741 100644
 --- ui/views/controls/label.cc
 +++ ui/views/controls/label.cc
 @@ -43,6 +43,22 @@ bool IsOpaque(SkColor color) {
@@ -207,7 +207,7 @@ index ef1ed1092eb4..acd4f37446c6 100644
 +    render_text->SetText(text_str);
 +    if (range.IsValid()) {
 +      render_text->SetDisplayRect(bounds());
-+      render_text->ApplyStyle(gfx::UNDERLINE, true, range);
++      render_text->ApplyStyle(gfx::TEXT_STYLE_UNDERLINE, true, range);
 +    }
 +  } else {
 +    render_text->SetText(text());
@@ -240,7 +240,7 @@ index 771034ccebbe..79e3026f6870 100644
    std::unique_ptr<SelectionController> selection_controller_;
  
 diff --git ui/views/controls/menu/menu_controller.cc ui/views/controls/menu/menu_controller.cc
-index d813c85b96d8..0fdaa9830c5f 100644
+index f30abb99f6f0..2d1ecf4a198b 100644
 --- ui/views/controls/menu/menu_controller.cc
 +++ ui/views/controls/menu/menu_controller.cc
 @@ -2508,8 +2508,13 @@ MenuItemView* MenuController::FindNextSelectableMenuItem(
@@ -271,7 +271,7 @@ index d813c85b96d8..0fdaa9830c5f 100644
      SetSelection(item, SELECTION_UPDATE_IMMEDIATELY);
    else if (item->GetParentMenuItem()->GetParentMenuItem())
 diff --git ui/views/controls/menu/menu_delegate.h ui/views/controls/menu/menu_delegate.h
-index 234ef7e070c2..33e628613c5f 100644
+index 921aef245bf3..4b7474c01c0e 100644
 --- ui/views/controls/menu/menu_delegate.h
 +++ ui/views/controls/menu/menu_delegate.h
 @@ -81,6 +81,22 @@ class VIEWS_EXPORT MenuDelegate {
@@ -297,7 +297,7 @@ index 234ef7e070c2..33e628613c5f 100644
    // The tooltip shown for the menu item. This is invoked when the user
    // hovers over the item, and no tooltip text has been set for that item.
    virtual base::string16 GetTooltipText(int id,
-@@ -209,6 +225,11 @@ class VIEWS_EXPORT MenuDelegate {
+@@ -208,6 +224,11 @@ class VIEWS_EXPORT MenuDelegate {
                                         bool* has_mnemonics,
                                         MenuButton** button);
  
@@ -482,7 +482,7 @@ index 0180b30d383a..c0724b6b80a7 100644
        // Move the cursor because EnterNotify/LeaveNotify are generated with the
        // current mouse position as a result of XGrabPointer()
 diff --git ui/views/view.h ui/views/view.h
-index a46a3b0f795e..45f265ef98ed 100644
+index 2aa7df41f179..206fedae27ba 100644
 --- ui/views/view.h
 +++ ui/views/view.h
 @@ -19,6 +19,7 @@
@@ -493,7 +493,7 @@ index a46a3b0f795e..45f265ef98ed 100644
  #include "build/build_config.h"
  #include "third_party/skia/include/core/SkPath.h"
  #include "ui/accessibility/ax_enums.mojom.h"
-@@ -118,7 +119,8 @@ class VIEWS_EXPORT View : public ui::LayerDelegate,
+@@ -119,7 +120,8 @@ class VIEWS_EXPORT View : public ui::LayerDelegate,
                            public ui::AcceleratorTarget,
                            public ui::EventTarget,
                            public ui::EventHandler,

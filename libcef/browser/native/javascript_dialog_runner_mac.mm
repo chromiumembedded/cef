@@ -13,7 +13,7 @@
 
 // Helper object that receives the notification that the dialog/sheet is
 // going away. Is responsible for cleaning itself up.
-@interface CefJavaScriptDialogHelper : NSObject<NSAlertDelegate> {
+@interface CefJavaScriptDialogHelper : NSObject <NSAlertDelegate> {
  @private
   base::scoped_nsobject<NSAlert> alert_;
   NSTextField* textField_;  // WEAK; owned by alert_
@@ -26,9 +26,8 @@
     (CefJavaScriptDialogRunner::DialogClosedCallback)callback;
 - (NSAlert*)alert;
 - (NSTextField*)textField;
-- (void)alertDidEnd:(NSAlert*)alert
-         returnCode:(int)returnCode
-        contextInfo:(void*)contextInfo;
+- (void)alertDidEndWithResult:(NSModalResponse)returnCode
+                       dialog:(CefJavaScriptDialogRunnerMac*)dialog;
 - (void)cancel;
 
 @end
@@ -58,10 +57,9 @@
   return textField_;
 }
 
-- (void)alertDidEnd:(NSAlert*)alert
-         returnCode:(int)returnCode
-        contextInfo:(void*)contextInfo {
-  if (returnCode == NSRunStoppedResponse)
+- (void)alertDidEndWithResult:(NSModalResponse)returnCode
+                       dialog:(CefJavaScriptDialogRunnerMac*)dialog {
+  if (returnCode == NSModalResponseStop)
     return;
 
   bool success = returnCode == NSAlertFirstButtonReturn;
@@ -143,9 +141,9 @@ void CefJavaScriptDialogRunnerMac::Run(
   // discussion.
   id nilArg = nil;
   [alert beginSheetModalForWindow:nilArg  // nil here makes it app-modal
-                    modalDelegate:helper_
-                   didEndSelector:@selector(alertDidEnd:returnCode:contextInfo:)
-                      contextInfo:this];
+                completionHandler:^void(NSModalResponse returnCode) {
+                  [helper_ alertDidEndWithResult:returnCode dialog:this];
+                }];
 
   if ([alert accessoryView])
     [[alert window] makeFirstResponder:[alert accessoryView]];

@@ -973,7 +973,7 @@ index 740a8dcd3d8c..65c88077908e 100644
  GL_APICALL void         GL_APIENTRY glInvalidateReadbackBufferShadowDataCHROMIUM (GLidBuffer buffer_id);
  // (used for CHROMIUM_nonblocking_readback implementation)
 diff --git gpu/command_buffer/service/BUILD.gn gpu/command_buffer/service/BUILD.gn
-index bd70014dabac..dd2b46994692 100644
+index c0fd9edb8ad3..6df357123182 100644
 --- gpu/command_buffer/service/BUILD.gn
 +++ gpu/command_buffer/service/BUILD.gn
 @@ -106,6 +106,8 @@ target(link_target_type, "gles2_sources") {
@@ -986,7 +986,7 @@ index bd70014dabac..dd2b46994692 100644
      "buffer_manager.cc",
      "buffer_manager.h",
 diff --git gpu/command_buffer/service/gles2_cmd_decoder.cc gpu/command_buffer/service/gles2_cmd_decoder.cc
-index 97b7598ccc4f..fb3c20384c9c 100644
+index a3caf17ca6af..64ee2559e638 100644
 --- gpu/command_buffer/service/gles2_cmd_decoder.cc
 +++ gpu/command_buffer/service/gles2_cmd_decoder.cc
 @@ -36,6 +36,7 @@
@@ -1020,7 +1020,7 @@ index 97b7598ccc4f..fb3c20384c9c 100644
    base::flat_set<scoped_refptr<Buffer>> writes_submitted_but_not_completed_;
  
    // The format of the back buffer_
-@@ -5522,6 +5532,59 @@ error::Error GLES2DecoderImpl::HandleDestroyGpuFenceCHROMIUM(
+@@ -5524,6 +5534,59 @@ error::Error GLES2DecoderImpl::HandleDestroyGpuFenceCHROMIUM(
    return error::kNoError;
  }
  
@@ -1191,10 +1191,10 @@ index ed682013976b..4bc28fe68a5d 100644
    size_t active_texture_unit_;
  
 diff --git ui/compositor/compositor.cc ui/compositor/compositor.cc
-index 5d3c2bf5cd8e..c6b20fa563ce 100644
+index 74e8d5b78d53..c169a5672ac1 100644
 --- ui/compositor/compositor.cc
 +++ ui/compositor/compositor.cc
-@@ -502,6 +502,16 @@ scoped_refptr<CompositorVSyncManager> Compositor::vsync_manager() const {
+@@ -516,6 +516,16 @@ scoped_refptr<CompositorVSyncManager> Compositor::vsync_manager() const {
    return vsync_manager_;
  }
  
@@ -1212,7 +1212,7 @@ index 5d3c2bf5cd8e..c6b20fa563ce 100644
    observer_list_.AddObserver(observer);
  }
 diff --git ui/compositor/compositor.h ui/compositor/compositor.h
-index a445b569ede1..0d7cface5026 100644
+index 313431f82ee7..e71fb0739ffc 100644
 --- ui/compositor/compositor.h
 +++ ui/compositor/compositor.h
 @@ -25,6 +25,7 @@
@@ -1271,7 +1271,7 @@ index a445b569ede1..0d7cface5026 100644
    // Compositor does not own observers. It is the responsibility of the
    // observer to remove itself when it is done observing.
    void AddObserver(CompositorObserver* observer);
-@@ -440,6 +461,8 @@ class COMPOSITOR_EXPORT Compositor : public cc::LayerTreeHostClient,
+@@ -442,6 +463,8 @@ class COMPOSITOR_EXPORT Compositor : public cc::LayerTreeHostClient,
    ui::ContextFactory* context_factory_;
    ui::ContextFactoryPrivate* context_factory_private_;
  
@@ -1280,7 +1280,7 @@ index a445b569ede1..0d7cface5026 100644
    // The root of the Layer tree drawn by this compositor.
    Layer* root_layer_ = nullptr;
  
-@@ -474,6 +497,8 @@ class COMPOSITOR_EXPORT Compositor : public cc::LayerTreeHostClient,
+@@ -476,6 +499,8 @@ class COMPOSITOR_EXPORT Compositor : public cc::LayerTreeHostClient,
  
    ExternalBeginFrameClient* const external_begin_frame_client_;
  

@@ -51,7 +51,7 @@ index b6da8e846a2a..dd7ec1be2556 100644
      return nullptr;
    }
 diff --git chrome/browser/ui/views/frame/browser_root_view.cc chrome/browser/ui/views/frame/browser_root_view.cc
-index 8b08e6168124..7ea95c421b91 100644
+index ebf8531af849..fff277b7e62b 100644
 --- chrome/browser/ui/views/frame/browser_root_view.cc
 +++ chrome/browser/ui/views/frame/browser_root_view.cc
 @@ -69,7 +69,7 @@ void OnFindURLMimeType(const GURL& url,
@@ -64,10 +64,10 @@ index 8b08e6168124..7ea95c421b91 100644
  }
  
 diff --git content/browser/frame_host/navigation_handle_impl.cc content/browser/frame_host/navigation_handle_impl.cc
-index 8593b6ef033e..31d89020a659 100644
+index 244992176f0f..a238f052d468 100644
 --- content/browser/frame_host/navigation_handle_impl.cc
 +++ content/browser/frame_host/navigation_handle_impl.cc
-@@ -390,12 +390,6 @@ net::Error NavigationHandleImpl::GetNetErrorCode() {
+@@ -391,12 +391,6 @@ net::Error NavigationHandleImpl::GetNetErrorCode() {
  }
  
  RenderFrameHostImpl* NavigationHandleImpl::GetRenderFrameHost() {
@@ -81,10 +81,10 @@ index 8593b6ef033e..31d89020a659 100644
                  "WillFailRequest state should come before WillProcessResponse");
    return render_frame_host_;
 diff --git content/browser/frame_host/render_frame_host_impl.cc content/browser/frame_host/render_frame_host_impl.cc
-index 1a023385a3d2..52af01625703 100644
+index a6c9e15b29af..6fa7cbe3de6b 100644
 --- content/browser/frame_host/render_frame_host_impl.cc
 +++ content/browser/frame_host/render_frame_host_impl.cc
-@@ -2140,6 +2140,7 @@ void RenderFrameHostImpl::OnDidFailProvisionalLoadWithError(
+@@ -2153,6 +2153,7 @@ void RenderFrameHostImpl::OnDidFailProvisionalLoadWithError(
    if (GetNavigationHandle()) {
      GetNavigationHandle()->set_net_error_code(
          static_cast<net::Error>(params.error_code));
@@ -92,7 +92,7 @@ index 1a023385a3d2..52af01625703 100644
    }
  
    frame_tree_node_->navigator()->DidFailProvisionalLoadWithError(this, params);
-@@ -4808,9 +4809,9 @@ void RenderFrameHostImpl::CommitNavigation(
+@@ -4834,9 +4835,9 @@ void RenderFrameHostImpl::CommitNavigation(
        DCHECK(base::FeatureList::IsEnabled(network::features::kNetworkService) ||
               base::FeatureList::IsEnabled(
                   blink::features::kServiceWorkerServicification));
@@ -340,10 +340,10 @@ index 8136604d267a..be7fde2f1a38 100644
    virtual void FocusedNodeChanged(const blink::WebNode& node) {}
  
 diff --git content/renderer/render_frame_impl.cc content/renderer/render_frame_impl.cc
-index a716d1262cdf..9e6fb547f168 100644
+index 5b45214bdb34..8d654d142309 100644
 --- content/renderer/render_frame_impl.cc
 +++ content/renderer/render_frame_impl.cc
-@@ -3701,7 +3701,8 @@ blink::WebPlugin* RenderFrameImpl::CreatePlugin(
+@@ -3689,7 +3689,8 @@ blink::WebPlugin* RenderFrameImpl::CreatePlugin(
    std::string mime_type;
    bool found = false;
    Send(new FrameHostMsg_GetPluginInfo(
@@ -353,7 +353,7 @@ index a716d1262cdf..9e6fb547f168 100644
        params.mime_type.Utf8(), &found, &info, &mime_type));
    if (!found)
      return nullptr;
-@@ -4084,6 +4085,8 @@ void RenderFrameImpl::FrameDetached(DetachType type) {
+@@ -4072,6 +4073,8 @@ void RenderFrameImpl::FrameDetached(DetachType type) {
  
  void RenderFrameImpl::FrameFocused() {
    Send(new FrameHostMsg_FrameFocused(routing_id_));

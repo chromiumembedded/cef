@@ -97,17 +97,6 @@ void CefPrintingMessageFilter::ShutdownOnUIThread() {
   printing_shutdown_notifier_.reset();
 }
 
-void CefPrintingMessageFilter::OverrideThreadForMessage(
-    const IPC::Message& message,
-    BrowserThread::ID* thread) {
-#if defined(OS_ANDROID)
-  if (message.type() == PrintHostMsg_AllocateTempFileForPrinting::ID ||
-      message.type() == PrintHostMsg_TempFileForPrintingWritten::ID) {
-    *thread = BrowserThread::UI;
-  }
-#endif
-}
-
 void CefPrintingMessageFilter::OnDestruct() const {
   BrowserThread::DeleteOnUIThread::Destruct(this);
 }
@@ -201,11 +190,6 @@ void CefPrintingMessageFilter::OnScriptedPrintReply(
     scoped_refptr<PrinterQuery> printer_query,
     IPC::Message* reply_msg) {
   PrintMsg_PrintPages_Params params;
-#if defined(OS_ANDROID)
-  // We need to save the routing ID here because Send method below deletes the
-  // |reply_msg| before we can get the routing ID for the Android code.
-  int routing_id = reply_msg->routing_id();
-#endif
   if (printer_query->last_status() != PrintingContext::OK ||
       !printer_query->settings().dpi()) {
     params.Reset();
@@ -217,16 +201,6 @@ void CefPrintingMessageFilter::OnScriptedPrintReply(
   PrintHostMsg_ScriptedPrint::WriteReplyParams(reply_msg, params);
   Send(reply_msg);
   if (!params.params.dpi.IsEmpty() && params.params.document_cookie) {
-#if defined(OS_ANDROID)
-    int file_descriptor;
-    const base::string16& device_name = printer_query->settings().device_name();
-    if (base::StringToInt(device_name, &file_descriptor)) {
-      base::PostTaskWithTraits(
-          FROM_HERE, {BrowserThread::UI},
-          base::Bind(&CefPrintingMessageFilter::UpdateFileDescriptor, this,
-                     routing_id, file_descriptor));
-    }
-#endif
     queue_->QueuePrinterQuery(printer_query.get());
   } else {
     printer_query->StopWorker();

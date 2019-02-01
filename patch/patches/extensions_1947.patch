@@ -57,7 +57,7 @@ index 53586512b68f..3a7ba906571a 100644
    // If |new_instance| is a new SiteInstance for a subframe that requires a
    // dedicated process, set its process reuse policy so that such subframes are
 diff --git content/public/browser/content_browser_client.h content/public/browser/content_browser_client.h
-index 92425b0bded1..3db10cbe9ea0 100644
+index 694796bf8dbb..86c9088c1721 100644
 --- content/public/browser/content_browser_client.h
 +++ content/public/browser/content_browser_client.h
 @@ -452,6 +452,13 @@ class CONTENT_EXPORT ContentBrowserClient {
@@ -74,7 +74,7 @@ index 92425b0bded1..3db10cbe9ea0 100644
    // Returns true if the passed in URL should be assigned as the site of the
    // current SiteInstance, if it does not yet have a site.
    virtual bool ShouldAssignSiteForURL(const GURL& url);
-@@ -1471,6 +1478,10 @@ class CONTENT_EXPORT ContentBrowserClient {
+@@ -1460,6 +1467,10 @@ class CONTENT_EXPORT ContentBrowserClient {
    // Used as part of the user agent string.
    virtual std::string GetProduct() const;
  

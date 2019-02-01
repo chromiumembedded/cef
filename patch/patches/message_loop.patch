@@ -108,10 +108,10 @@ index 56c147d1e739..4afd37ba5b10 100644
  
  #if !defined(OS_NACL)
 diff --git base/message_loop/message_loop_impl.h base/message_loop/message_loop_impl.h
-index cefa94ff52d6..13acc90d10dc 100644
+index bfcdf0c9694b..d0009f6a88d0 100644
 --- base/message_loop/message_loop_impl.h
 +++ base/message_loop/message_loop_impl.h
-@@ -77,6 +77,8 @@ class BASE_EXPORT MessageLoopImpl : public MessageLoopBase,
+@@ -78,6 +78,8 @@ class BASE_EXPORT MessageLoopImpl : public MessageLoopBase,
    void DeletePendingTasks() override;
    bool HasTasks() override;
  
@@ -121,7 +121,7 @@ index cefa94ff52d6..13acc90d10dc 100644
    const scoped_refptr<SingleThreadTaskRunner>& task_runner() const {
      return task_runner_;
 diff --git base/message_loop/message_pump_win.cc base/message_loop/message_pump_win.cc
-index 1d6748e0e88a..1598fb65484e 100644
+index 5d917056f2e2..4aee732f1b71 100644
 --- base/message_loop/message_pump_win.cc
 +++ base/message_loop/message_pump_win.cc
 @@ -11,6 +11,7 @@
@@ -132,7 +132,7 @@ index 1d6748e0e88a..1598fb65484e 100644
  #include "base/metrics/histogram_macros.h"
  #include "base/strings/stringprintf.h"
  #include "base/trace_event/trace_event.h"
-@@ -384,20 +385,28 @@ bool MessagePumpForUI::ProcessMessageHelper(const MSG& msg) {
+@@ -385,20 +386,28 @@ bool MessagePumpForUI::ProcessMessageHelper(const MSG& msg) {
  }
  
  bool MessagePumpForUI::ProcessPumpReplacementMessage() {
@@ -174,10 +174,10 @@ index 1d6748e0e88a..1598fb65484e 100644
           msg.hwnd != message_window_.hwnd());
  
 diff --git base/task/sequence_manager/sequence_manager_impl.h base/task/sequence_manager/sequence_manager_impl.h
-index 8dafb175bb5e..291cdc9c1cd3 100644
+index e3838c1b33bd..ded869d57924 100644
 --- base/task/sequence_manager/sequence_manager_impl.h
 +++ base/task/sequence_manager/sequence_manager_impl.h
-@@ -164,6 +164,8 @@ class BASE_EXPORT SequenceManagerImpl
+@@ -165,6 +165,8 @@ class BASE_EXPORT SequenceManagerImpl
    void BindToCurrentThread(std::unique_ptr<MessagePump> pump) override;
    void DeletePendingTasks() override;
    bool HasTasks() override;

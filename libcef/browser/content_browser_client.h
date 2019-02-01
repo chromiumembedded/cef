@@ -56,7 +56,7 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
   void RegisterOutOfProcessServices(OutOfProcessServiceMap* services) override;
   base::Optional<service_manager::Manifest> GetServiceManifestOverlay(
       base::StringPiece name) override;
-  std::vector<ServiceManifestInfo> GetExtraServiceManifests() override;
+  std::vector<service_manager::Manifest> GetExtraServiceManifests() override;
   bool IsSameBrowserContext(content::BrowserContext* context1,
                             content::BrowserContext* context2) override;
   void AppendExtraCommandLineSwitches(base::CommandLine* command_line,

@@ -292,10 +292,13 @@ void CefPrintViewManagerBase::OnNotifyPrintJobEvent(
       ShouldQuitFromInnerMessageLoop();
       break;
     }
-    case JobEventDetails::NEW_DOC:
 #if defined(OS_WIN)
     case JobEventDetails::PAGE_DONE:
 #endif
+    case JobEventDetails::NEW_DOC: {
+      // Don't care about the actual printing process.
+      break;
+    }
     case JobEventDetails::DOC_DONE: {
       // Don't care about the actual printing process.
       break;
@@ -458,11 +461,11 @@ bool CefPrintViewManagerBase::RunInnerMessageLoop() {
   // - If we're looping because of renderer page generation, the renderer could
   // be CPU bound, the page overly complex/large or the system just
   // memory-bound.
-  static const int kPrinterSettingsTimeout = 60000;
+  static constexpr base::TimeDelta kPrinterSettingsTimeout =
+      base::TimeDelta::FromSeconds(60);
   base::OneShotTimer quit_timer;
   base::RunLoop run_loop;
-  quit_timer.Start(FROM_HERE,
-                   TimeDelta::FromMilliseconds(kPrinterSettingsTimeout),
+  quit_timer.Start(FROM_HERE, kPrinterSettingsTimeout,
                    run_loop.QuitWhenIdleClosure());
 
   inside_inner_message_loop_ = true;

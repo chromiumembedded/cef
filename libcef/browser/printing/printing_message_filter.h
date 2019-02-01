@@ -36,8 +36,6 @@ class CefPrintingMessageFilter : public content::BrowserMessageFilter {
   static void EnsureShutdownNotifierFactoryBuilt();
 
   // content::BrowserMessageFilter methods.
-  void OverrideThreadForMessage(const IPC::Message& message,
-                                content::BrowserThread::ID* thread) override;
   void OnDestruct() const override;
   bool OnMessageReceived(const IPC::Message& message) override;
 

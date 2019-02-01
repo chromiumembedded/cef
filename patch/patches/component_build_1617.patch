@@ -34,7 +34,7 @@ index fc252b6ceffd..b0dfd847ec03 100644
    MouseWheelPhaseHandler(RenderWidgetHostViewBase* const host_view);
    ~MouseWheelPhaseHandler() {}
 diff --git third_party/blink/renderer/controller/BUILD.gn third_party/blink/renderer/controller/BUILD.gn
-index c9f9a18f1188..ecba73d54a30 100644
+index 7668f3725200..665e8e579c54 100644
 --- third_party/blink/renderer/controller/BUILD.gn
 +++ third_party/blink/renderer/controller/BUILD.gn
 @@ -25,6 +25,7 @@ component("controller") {
@@ -45,10 +45,10 @@ index c9f9a18f1188..ecba73d54a30 100644
      "//third_party/blink/renderer:config",
      "//third_party/blink/renderer:inside_blink",
      "//third_party/blink/renderer:non_test_config",
-@@ -43,6 +44,8 @@ component("controller") {
-     "controller_export.h",
-     "dev_tools_frontend_impl.cc",
-     "dev_tools_frontend_impl.h",
+@@ -47,6 +48,8 @@ component("controller") {
+     "memory_usage_monitor.h",
+     "memory_usage_monitor_android.cc",
+     "memory_usage_monitor_android.h",
 +    "//cef/libcef/renderer/blink_glue.cc",
 +    "//cef/libcef/renderer/blink_glue.h",
    ]
