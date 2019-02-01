@@ -15,12 +15,6 @@
 
       <!-- Extension features supported by CEF. -->
       <include name="IDR_CEF_EXTENSION_API_FEATURES" file="..\common\extensions\api\_api_features.json" type="BINDATA" />
-
-      <!-- Service manifests. -->
-      <include name="IDR_CEF_BROWSER_MANIFEST_OVERLAY" file="${root_gen_dir}\cef\cef_browser_manifest_overlay.json" use_base_dir="false" type="BINDATA" />
-      <include name="IDR_CEF_PACKAGED_SERVICES_MANIFEST_OVERLAY" file="${root_gen_dir}\cef\cef_packaged_services_manifest_overlay.json" use_base_dir="false" type="BINDATA" />
-      <include name="IDR_CEF_RENDERER_MANIFEST_OVERLAY" file="${root_gen_dir}\cef\cef_renderer_manifest_overlay.json" use_base_dir="false" type="BINDATA" />
-      <include name="IDR_CEF_UTILITY_MANIFEST_OVERLAY" file="${root_gen_dir}\cef\cef_utility_manifest_overlay.json" use_base_dir="false" type="BINDATA" />
     </includes>
   </release>
 </grit>

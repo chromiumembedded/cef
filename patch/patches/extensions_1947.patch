@@ -27,7 +27,7 @@ index 9e81f0a33ede..b796e79ae7ef 100644
    auto* browser_context = web_contents->GetBrowserContext();
  
 diff --git content/browser/frame_host/render_frame_host_manager.cc content/browser/frame_host/render_frame_host_manager.cc
-index 5a0b3cf31119..625a7d1f07ad 100644
+index 53586512b68f..3a7ba906571a 100644
 --- content/browser/frame_host/render_frame_host_manager.cc
 +++ content/browser/frame_host/render_frame_host_manager.cc
 @@ -945,10 +945,11 @@ bool RenderFrameHostManager::ShouldSwapBrowsingInstancesForNavigation(
@@ -57,7 +57,7 @@ index 5a0b3cf31119..625a7d1f07ad 100644
    // If |new_instance| is a new SiteInstance for a subframe that requires a
    // dedicated process, set its process reuse policy so that such subframes are
 diff --git content/public/browser/content_browser_client.h content/public/browser/content_browser_client.h
-index cde35f745f61..7b2e477a6aae 100644
+index 92425b0bded1..3db10cbe9ea0 100644
 --- content/public/browser/content_browser_client.h
 +++ content/public/browser/content_browser_client.h
 @@ -452,6 +452,13 @@ class CONTENT_EXPORT ContentBrowserClient {
@@ -74,7 +74,7 @@ index cde35f745f61..7b2e477a6aae 100644
    // Returns true if the passed in URL should be assigned as the site of the
    // current SiteInstance, if it does not yet have a site.
    virtual bool ShouldAssignSiteForURL(const GURL& url);
-@@ -1457,6 +1464,10 @@ class CONTENT_EXPORT ContentBrowserClient {
+@@ -1471,6 +1478,10 @@ class CONTENT_EXPORT ContentBrowserClient {
    // Used as part of the user agent string.
    virtual std::string GetProduct() const;
  
@@ -84,9 +84,9 @@ index cde35f745f61..7b2e477a6aae 100644
 +
    // Returns the user agent.  Content may cache this value.
    virtual std::string GetUserAgent() const;
- };
+ 
 diff --git extensions/browser/extension_host.cc extensions/browser/extension_host.cc
-index 6cf7f34bfbd7..a2dcdb88fbe3 100644
+index 0714c63350c8..c1acbd8bd531 100644
 --- extensions/browser/extension_host.cc
 +++ extensions/browser/extension_host.cc
 @@ -67,11 +67,12 @@ ExtensionHost::ExtensionHost(const Extension* extension,
@@ -156,10 +156,10 @@ index 6cf7f34bfbd7..a2dcdb88fbe3 100644
    ExtensionRegistry::Get(browser_context_)->RemoveObserver(this);
  
 diff --git extensions/browser/extension_host.h extensions/browser/extension_host.h
-index ad1ef1bd0b8f..8014a61c5083 100644
+index 4027505469b8..de8258562bb2 100644
 --- extensions/browser/extension_host.h
 +++ extensions/browser/extension_host.h
-@@ -51,13 +51,19 @@ class ExtensionHost : public DeferredStartRenderHost,
+@@ -52,13 +52,19 @@ class ExtensionHost : public DeferredStartRenderHost,
    ExtensionHost(const Extension* extension,
                  content::SiteInstance* site_instance,
                  const GURL& url, ViewType host_type);
@@ -180,7 +180,7 @@ index ad1ef1bd0b8f..8014a61c5083 100644
    content::RenderViewHost* render_view_host() const;
    content::RenderProcessHost* render_process_host() const;
    bool has_loaded_once() const { return has_loaded_once_; }
-@@ -178,7 +184,8 @@ class ExtensionHost : public DeferredStartRenderHost,
+@@ -180,7 +186,8 @@ class ExtensionHost : public DeferredStartRenderHost,
    content::BrowserContext* browser_context_;
  
    // The host for our HTML content.
@@ -230,7 +230,7 @@ index 380b2d3326f6..733918754949 100644
    // once each time the extensions system is loaded per browser_context. The
    // implementation may wish to use the BrowserContext to record the current
 diff --git extensions/browser/process_manager.cc extensions/browser/process_manager.cc
-index 67b3acf91900..e1200aa01778 100644
+index f9b216c59808..e36d9afc6cdf 100644
 --- extensions/browser/process_manager.cc
 +++ extensions/browser/process_manager.cc
 @@ -359,9 +359,16 @@ bool ProcessManager::CreateBackgroundHost(const Extension* extension,

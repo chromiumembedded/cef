@@ -9,6 +9,7 @@
 #include <utility>
 
 #include "base/json/string_escape.h"
+#include "base/stl_util.h"
 #include "base/strings/string_number_conversions.h"
 #include "base/strings/stringprintf.h"
 #include "content/public/browser/ax_event_notification_details.h"
@@ -184,7 +185,7 @@ struct PopulateAxNodeAttributes {
         CefRefPtr<CefListValue> list = CefListValue::Create();
         int index = 0;
         // Iterate and find which states are set.
-        for (unsigned i = 0; i < arraysize(textStyleArr); i++) {
+        for (unsigned i = 0; i < base::size(textStyleArr); i++) {
           if (attr.second & static_cast<int>(textStyleArr[i]))
             list->SetString(index++, ToString(textStyleArr[i]));
         }
@@ -230,7 +231,7 @@ struct PopulateAxNodeAttributes {
               ax::mojom::MarkerType::kTextMatch};
 
           // Iterate and find which markers are set.
-          for (unsigned j = 0; j < arraysize(marktypeArr); j++) {
+          for (unsigned j = 0; j < base::size(marktypeArr); j++) {
             if (attr.second[i] & static_cast<int>(marktypeArr[j]))
               list->SetString(index++, ToString(marktypeArr[j]));
           }

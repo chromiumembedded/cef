@@ -1,5 +1,5 @@
 diff --git chrome/common/chrome_content_client.cc chrome/common/chrome_content_client.cc
-index b22c1ffaa216..f9d154b57827 100644
+index 6f0e5c53c37a..63551a75cbf7 100644
 --- chrome/common/chrome_content_client.cc
 +++ chrome/common/chrome_content_client.cc
 @@ -97,7 +97,8 @@
@@ -13,7 +13,7 @@ index b22c1ffaa216..f9d154b57827 100644
  #include "third_party/widevine/cdm/widevine_cdm_common.h"  // nogncheck
  // TODO(crbug.com/663554): Needed for WIDEVINE_CDM_VERSION_STRING. Support
 diff --git third_party/widevine/cdm/BUILD.gn third_party/widevine/cdm/BUILD.gn
-index 4826777cffd2..a5835928dbad 100644
+index 27b3e9150832..bf5b96c5f69f 100644
 --- third_party/widevine/cdm/BUILD.gn
 +++ third_party/widevine/cdm/BUILD.gn
 @@ -5,6 +5,7 @@

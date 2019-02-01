@@ -174,10 +174,10 @@ index 1d6748e0e88a..1598fb65484e 100644
           msg.hwnd != message_window_.hwnd());
  
 diff --git base/task/sequence_manager/sequence_manager_impl.h base/task/sequence_manager/sequence_manager_impl.h
-index 593a17981f0b..9af6995c4d51 100644
+index 8dafb175bb5e..291cdc9c1cd3 100644
 --- base/task/sequence_manager/sequence_manager_impl.h
 +++ base/task/sequence_manager/sequence_manager_impl.h
-@@ -163,6 +163,8 @@ class BASE_EXPORT SequenceManagerImpl
+@@ -164,6 +164,8 @@ class BASE_EXPORT SequenceManagerImpl
    void BindToCurrentThread(std::unique_ptr<MessagePump> pump) override;
    void DeletePendingTasks() override;
    bool HasTasks() override;

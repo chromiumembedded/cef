@@ -939,8 +939,7 @@ void CefBrowserHostImpl::GetNavigationEntries(
   if (!web_contents())
     return;
 
-  const content::NavigationController& controller =
-      web_contents()->GetController();
+  content::NavigationController& controller = web_contents()->GetController();
   const int total = controller.GetEntryCount();
   const int current = controller.GetCurrentEntryIndex();
 
@@ -2615,24 +2614,24 @@ void CefBrowserHostImpl::RequestMediaAccessPermission(
     content::MediaResponseCallback callback) {
   CEF_REQUIRE_UIT();
 
-  content::MediaStreamDevices devices;
+  blink::MediaStreamDevices devices;
 
   const base::CommandLine* command_line =
       base::CommandLine::ForCurrentProcess();
   if (!command_line->HasSwitch(switches::kEnableMediaStream)) {
     // Cancel the request.
-    std::move(callback).Run(devices, content::MEDIA_DEVICE_PERMISSION_DENIED,
+    std::move(callback).Run(devices, blink::MEDIA_DEVICE_PERMISSION_DENIED,
                             std::unique_ptr<content::MediaStreamUI>());
     return;
   }
 
   // Based on chrome/browser/media/media_stream_devices_controller.cc
   bool microphone_requested =
-      (request.audio_type == content::MEDIA_DEVICE_AUDIO_CAPTURE);
+      (request.audio_type == blink::MEDIA_DEVICE_AUDIO_CAPTURE);
   bool webcam_requested =
-      (request.video_type == content::MEDIA_DEVICE_VIDEO_CAPTURE);
+      (request.video_type == blink::MEDIA_DEVICE_VIDEO_CAPTURE);
   bool screen_requested =
-      (request.video_type == content::MEDIA_GUM_DESKTOP_VIDEO_CAPTURE);
+      (request.video_type == blink::MEDIA_GUM_DESKTOP_VIDEO_CAPTURE);
   if (microphone_requested || webcam_requested || screen_requested) {
     // Pick the desired device or fall back to the first available of the
     // given type.
@@ -2655,19 +2654,19 @@ void CefBrowserHostImpl::RequestMediaAccessPermission(
             content::DesktopMediaID::Parse(request.requested_video_device_id);
       }
       devices.push_back(
-          content::MediaStreamDevice(content::MEDIA_GUM_DESKTOP_VIDEO_CAPTURE,
-                                     media_id.ToString(), "Screen"));
+          blink::MediaStreamDevice(blink::MEDIA_GUM_DESKTOP_VIDEO_CAPTURE,
+                                   media_id.ToString(), "Screen"));
     }
   }
 
-  std::move(callback).Run(devices, content::MEDIA_DEVICE_OK,
+  std::move(callback).Run(devices, blink::MEDIA_DEVICE_OK,
                           std::unique_ptr<content::MediaStreamUI>());
 }
 
 bool CefBrowserHostImpl::CheckMediaAccessPermission(
     content::RenderFrameHost* render_frame_host,
     const GURL& security_origin,
-    content::MediaStreamType type) {
+    blink::MediaStreamType type) {
   // Check media access permission without prompting the user. This is called
   // when loading the Pepper Flash plugin.
   const base::CommandLine* command_line =

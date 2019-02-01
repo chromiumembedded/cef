@@ -44,7 +44,7 @@ index 3dac1a5a6f61..4fff23e66f2c 100644
                                                          .Top()
                                                          .GetSecurityContext()
 diff --git third_party/blink/renderer/core/frame/local_frame.cc third_party/blink/renderer/core/frame/local_frame.cc
-index 49b450b48616..712c619c566b 100644
+index e07ace500ef1..76683aefc31f 100644
 --- third_party/blink/renderer/core/frame/local_frame.cc
 +++ third_party/blink/renderer/core/frame/local_frame.cc
 @@ -1322,7 +1322,7 @@ FrameResourceCoordinator* LocalFrame::GetFrameResourceCoordinator() {
@@ -85,10 +85,10 @@ index 347b9a74d341..aa71fb8de4a4 100644
  
  void DevToolsSession::FlushProtocolNotifications() {
 diff --git third_party/blink/renderer/core/page/page.cc third_party/blink/renderer/core/page/page.cc
-index 20b9122919b3..54b35153c528 100644
+index ff579698b831..b42856d0d3c9 100644
 --- third_party/blink/renderer/core/page/page.cc
 +++ third_party/blink/renderer/core/page/page.cc
-@@ -168,7 +168,8 @@ Page::Page(PageClients& page_clients)
+@@ -170,7 +170,8 @@ Page::Page(PageClients& page_clients)
        overscroll_controller_(
            OverscrollController::Create(GetVisualViewport(), GetChromeClient())),
        link_highlights_(LinkHighlights::Create(*this)),
@@ -98,7 +98,7 @@ index 20b9122919b3..54b35153c528 100644
        // TODO(pdr): Initialize |validation_message_client_| lazily.
        validation_message_client_(ValidationMessageClientImpl::Create(*this)),
        opened_by_dom_(false),
-@@ -316,21 +317,40 @@ void Page::InitialStyleChanged() {
+@@ -325,21 +326,40 @@ void Page::InitialStyleChanged() {
    }
  }
  
@@ -148,9 +148,9 @@ index 20b9122919b3..54b35153c528 100644
        page->NotifyPluginsChanged();
      }
    }
-@@ -716,7 +736,8 @@ void Page::Trace(blink::Visitor* visitor) {
-   visitor->Trace(overscroll_controller_);
+@@ -734,7 +754,8 @@ void Page::Trace(blink::Visitor* visitor) {
    visitor->Trace(link_highlights_);
+   visitor->Trace(spatial_navigation_controller_);
    visitor->Trace(main_frame_);
 -  visitor->Trace(plugin_data_);
 +  visitor->Trace(plugin_data_main_frame_);
@@ -159,10 +159,10 @@ index 20b9122919b3..54b35153c528 100644
    visitor->Trace(plugins_changed_observers_);
    visitor->Trace(next_related_page_);
 diff --git third_party/blink/renderer/core/page/page.h third_party/blink/renderer/core/page/page.h
-index f315b62643fd..69acf15ee1f9 100644
+index 616470be36dd..55e162ddf99f 100644
 --- third_party/blink/renderer/core/page/page.h
 +++ third_party/blink/renderer/core/page/page.h
-@@ -135,7 +135,8 @@ class CORE_EXPORT Page final : public GarbageCollectedFinalized<Page>,
+@@ -136,7 +136,8 @@ class CORE_EXPORT Page final : public GarbageCollectedFinalized<Page>,
    ViewportDescription GetViewportDescription() const;
  
    // Returns the plugin data associated with |main_frame_origin|.
@@ -172,9 +172,9 @@ index f315b62643fd..69acf15ee1f9 100644
  
    // Resets the plugin data for all pages in the renderer process and notifies
    // PluginsChangedObservers.
-@@ -353,7 +354,8 @@ class CORE_EXPORT Page final : public GarbageCollectedFinalized<Page>,
-   const Member<OverscrollController> overscroll_controller_;
+@@ -356,7 +357,8 @@ class CORE_EXPORT Page final : public GarbageCollectedFinalized<Page>,
    const Member<LinkHighlights> link_highlights_;
+   Member<SpatialNavigationController> spatial_navigation_controller_;
  
 -  Member<PluginData> plugin_data_;
 +  Member<PluginData> plugin_data_main_frame_;

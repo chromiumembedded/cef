@@ -27,6 +27,8 @@
   # Files in the chromium/src directory that should be evaluated for changes.
   # Similar changes may need to be applied to the CEF source code.
   'files': [
+    'chrome/app/chrome_*_manifest.*',
+    'chrome/app/chrome_*_manifests.*',
     'chrome/browser/browser_process.h',
     'chrome/browser/extensions/api/tabs/tabs_api.*',
     'chrome/browser/extensions/chrome_component_extension_resource_manager.*',

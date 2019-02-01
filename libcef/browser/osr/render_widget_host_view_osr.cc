@@ -154,6 +154,8 @@ class CefDelegatedFrameHostClient : public content::DelegatedFrameHostClient {
 
   void InvalidateLocalSurfaceIdOnEviction() override {}
 
+  bool ShouldShowStaleContentOnEviction() override { return false; };
+
  private:
   CefRenderWidgetHostViewOSR* const view_;
 
@@ -1330,7 +1332,7 @@ void CefRenderWidgetHostViewOSR::SendMouseWheelEvent(
 
   blink::WebMouseWheelEvent mouse_wheel_event(event);
 
-  mouse_wheel_phase_handler_.SendWheelEndForTouchpadScrollingIfNeeded();
+  mouse_wheel_phase_handler_.SendWheelEndForTouchpadScrollingIfNeeded(false);
   mouse_wheel_phase_handler_.AddPhaseIfNeededAndScheduleEndEvent(
       mouse_wheel_event, false);
 

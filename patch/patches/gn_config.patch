@@ -1,5 +1,5 @@
 diff --git .gn .gn
-index ea7a2f467dc8..42c3557ad301 100644
+index a0cba4a846c1..1196ae6ef30a 100644
 --- .gn
 +++ .gn
 @@ -674,6 +674,8 @@ exec_script_whitelist =
@@ -12,10 +12,10 @@ index ea7a2f467dc8..42c3557ad301 100644
        # https://crbug.com/474506.
        "//clank/java/BUILD.gn",
 diff --git BUILD.gn BUILD.gn
-index 662dea503b3d..767805033c69 100644
+index ea376e895eb1..78569ded3e5e 100644
 --- BUILD.gn
 +++ BUILD.gn
-@@ -185,6 +185,7 @@ group("gn_all") {
+@@ -184,6 +184,7 @@ group("gn_all") {
  
    if (!is_ios && !is_fuchsia) {
      deps += [
@@ -100,7 +100,7 @@ index 2c8675206f31..d3e419d8fe98 100644
  
  
 diff --git build/vs_toolchain.py build/vs_toolchain.py
-index eb47863e6b22..5b8bedb6ab45 100755
+index e088f609c6fe..09409c7cfb99 100755
 --- build/vs_toolchain.py
 +++ build/vs_toolchain.py
 @@ -73,11 +73,18 @@ def SetEnvironmentAndGetRuntimeDllDirs():
@@ -123,10 +123,10 @@ index eb47863e6b22..5b8bedb6ab45 100755
      # directory in order to run binaries locally, but they are needed in order
      # to create isolates or the mini_installer. Copying them to the output
 diff --git chrome/chrome_paks.gni chrome/chrome_paks.gni
-index 8f2e40286155..42bb53db9aa8 100644
+index 4c790d3ee4e6..e9f3768c20d6 100644
 --- chrome/chrome_paks.gni
 +++ chrome/chrome_paks.gni
-@@ -263,7 +263,7 @@ template("chrome_paks") {
+@@ -265,7 +265,7 @@ template("chrome_paks") {
      }
  
      input_locales = locales

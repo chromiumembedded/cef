@@ -82,7 +82,7 @@ CEF_BUTTON_IMPL_T void CEF_BUTTON_IMPL_D::SetInkDropEnabled(bool enabled) {
               : views::InkDropHostView::InkDropMode::OFF);
   if (enabled) {
     ParentClass::root_view()->set_ink_drop_base_color(
-        color_utils::BlendTowardOppositeLuma(
+        color_utils::BlendTowardMaxContrast(
             ParentClass::root_view()->background()->get_color(), 0x61));
   }
 }

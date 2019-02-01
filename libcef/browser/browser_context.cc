@@ -109,6 +109,11 @@ content::ResourceContext* CefBrowserContext::GetResourceContext() {
   return resource_context_.get();
 }
 
+content::ClientHintsControllerDelegate*
+CefBrowserContext::GetClientHintsControllerDelegate() {
+  return nullptr;
+}
+
 net::URLRequestContextGetter* CefBrowserContext::GetRequestContext() {
   CEF_REQUIRE_UIT();
   return GetDefaultStoragePartition(this)->GetURLRequestContext();

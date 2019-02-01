@@ -2102,8 +2102,9 @@ bool CefV8ValueImpl::GetKeys(std::vector<CefString>& keys) {
 
   v8::Local<v8::Value> value = handle_->GetNewV8Handle(false);
   v8::Local<v8::Object> obj = value->ToObject(context).ToLocalChecked();
+  v8::Local<v8::Array> arr_keys =
+      obj->GetPropertyNames(context).ToLocalChecked();
 
-  v8::Local<v8::Array> arr_keys = obj->GetPropertyNames();
   uint32_t len = arr_keys->Length();
   for (uint32_t i = 0; i < len; ++i) {
     v8::Local<v8::Value> value = arr_keys->Get(v8::Integer::New(isolate, i));

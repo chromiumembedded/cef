@@ -27,10 +27,21 @@ std::string GetResourcesPath() {
 // Internal extension paths may be prefixed with PK_DIR_RESOURCES and always
 // use forward slash as path separator.
 std::string GetInternalPath(const std::string& extension_path) {
-  const std::string& resources_path = GetResourcesPath();
+  std::string resources_path_lower = GetResourcesPath();
+  std::string extension_path_lower = extension_path;
+
+#if defined(OS_WIN)
+  // Convert to lower-case, since Windows paths are case-insensitive.
+  std::transform(resources_path_lower.begin(), resources_path_lower.end(),
+                 resources_path_lower.begin(), ::tolower);
+  std::transform(extension_path_lower.begin(), extension_path_lower.end(),
+                 extension_path_lower.begin(), ::tolower);
+#endif
+
   std::string internal_path;
-  if (!resources_path.empty() && extension_path.find(resources_path) == 0U) {
-    internal_path = extension_path.substr(resources_path.size());
+  if (!resources_path_lower.empty() &&
+      extension_path_lower.find(extension_path_lower) == 0U) {
+    internal_path = extension_path.substr(resources_path_lower.size());
   } else {
     internal_path = extension_path;
   }

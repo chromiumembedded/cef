@@ -179,17 +179,6 @@ class CefNativeMenuWin::MenuHostWindow {
       model->ActivatedAt(position);
   }
 
-  // Called as the user moves their mouse or arrows through the contents of the
-  // menu.
-  void OnMenuSelect(WPARAM w_param, HMENU menu) {
-    if (!menu)
-      return;  // menu is null when closing on XP.
-
-    int position = GetMenuItemIndexFromWPARAM(menu, w_param);
-    if (position >= 0)
-      GetCefNativeMenuWinFromHMENU(menu)->model_->HighlightChangedTo(position);
-  }
-
   // Called by Windows to measure the size of an owner-drawn menu item.
   void OnMeasureItem(WPARAM w_param, MEASUREITEMSTRUCT* measure_item_struct) {
     CefNativeMenuWin::ItemData* data =
@@ -357,7 +346,6 @@ class CefNativeMenuWin::MenuHostWindow {
         *l_result = 0;
         return true;
       case WM_MENUSELECT:
-        OnMenuSelect(LOWORD(w_param), reinterpret_cast<HMENU>(l_param));
         *l_result = 0;
         return true;
       case WM_MEASUREITEM:

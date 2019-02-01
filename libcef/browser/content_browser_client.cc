@@ -35,12 +35,19 @@
 #include "libcef/common/extensions/extensions_util.h"
 #include "libcef/common/net/scheme_registration.h"
 #include "libcef/common/request_impl.h"
+#include "libcef/common/service_manifests/cef_content_browser_overlay_manifest.h"
+#include "libcef/common/service_manifests/cef_content_gpu_overlay_manifest.h"
+#include "libcef/common/service_manifests/cef_content_renderer_overlay_manifest.h"
+#include "libcef/common/service_manifests/cef_content_utility_overlay_manifest.h"
+#include "libcef/common/service_manifests/cef_packaged_service_manifests.h"
+#include "libcef/common/service_manifests/cef_renderer_manifest.h"
 
 #include "base/base_switches.h"
 #include "base/command_line.h"
 #include "base/files/file_path.h"
 #include "base/json/json_reader.h"
 #include "base/path_service.h"
+#include "base/stl_util.h"
 #include "cef/grit/cef_resources.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/chrome_service.h"
@@ -634,31 +641,27 @@ void CefContentBrowserClient::RegisterOutOfProcessServices(
 
 base::Optional<service_manager::Manifest>
 CefContentBrowserClient::GetServiceManifestOverlay(base::StringPiece name) {
-  int id = -1;
-  if (name == content::mojom::kBrowserServiceName)
-    id = IDR_CEF_BROWSER_MANIFEST_OVERLAY;
-  else if (name == content::mojom::kPackagedServicesServiceName)
-    id = IDR_CEF_PACKAGED_SERVICES_MANIFEST_OVERLAY;
-  else if (name == content::mojom::kRendererServiceName)
-    id = IDR_CEF_RENDERER_MANIFEST_OVERLAY;
-  else if (name == content::mojom::kUtilityServiceName)
-    id = IDR_CEF_UTILITY_MANIFEST_OVERLAY;
-  if (id == -1)
-    return {};
+  if (name == content::mojom::kBrowserServiceName) {
+    return GetCefContentBrowserOverlayManifest();
+  } else if (name == content::mojom::kGpuServiceName) {
+    return GetCefContentGpuOverlayManifest();
+  } else if (name == content::mojom::kPackagedServicesServiceName) {
+    service_manager::Manifest overlay;
+    overlay.packaged_services = GetCefPackagedServiceManifests();
+    return overlay;
+  } else if (name == content::mojom::kRendererServiceName) {
+    return GetCefContentRendererOverlayManifest();
+  } else if (name == content::mojom::kUtilityServiceName) {
+    return GetCefContentUtilityOverlayManifest();
+  }
 
-  base::StringPiece manifest_contents =
-      ui::ResourceBundle::GetSharedInstance().GetRawDataResourceForScale(
-          id, ui::ScaleFactor::SCALE_FACTOR_NONE);
-  return service_manager::Manifest::FromValueDeprecated(
-      base::JSONReader::Read(manifest_contents));
+  return base::nullopt;
 }
 
 std::vector<content::ContentBrowserClient::ServiceManifestInfo>
 CefContentBrowserClient::GetExtraServiceManifests() {
   return std::vector<ServiceManifestInfo>({
-      {printing::mojom::kServiceName, IDR_PDF_COMPOSITOR_MANIFEST},
-      {chrome::mojom::kRendererServiceName,
-       IDR_CHROME_RENDERER_SERVICE_MANIFEST},
+      {chrome::mojom::kRendererServiceName, -1, GetCefRendererManifest()},
   });
 }
 
@@ -690,7 +693,7 @@ void CefContentBrowserClient::AppendExtraCommandLineSwitches(
       switches::kUserAgent,
     };
     command_line->CopySwitchesFrom(*browser_cmd, kSwitchNames,
-                                   arraysize(kSwitchNames));
+                                   base::size(kSwitchNames));
   }
 
   const std::string& process_type =
@@ -713,7 +716,7 @@ void CefContentBrowserClient::AppendExtraCommandLineSwitches(
         switches::kUnsafelyTreatInsecureOriginAsSecure,
     };
     command_line->CopySwitchesFrom(*browser_cmd, kSwitchNames,
-                                   arraysize(kSwitchNames));
+                                   base::size(kSwitchNames));
 
     if (extensions::ExtensionsEnabled()) {
       // Based on ChromeContentBrowserClientExtensionsPart::
@@ -734,7 +737,7 @@ void CefContentBrowserClient::AppendExtraCommandLineSwitches(
         switches::kLang,
     };
     command_line->CopySwitchesFrom(*browser_cmd, kSwitchNames,
-                                   arraysize(kSwitchNames));
+                                   base::size(kSwitchNames));
   }
 
 #if defined(OS_LINUX)
@@ -746,7 +749,7 @@ void CefContentBrowserClient::AppendExtraCommandLineSwitches(
         switches::kPpapiFlashVersion,
     };
     command_line->CopySwitchesFrom(*browser_cmd, kSwitchNames,
-                                   arraysize(kSwitchNames));
+                                   base::size(kSwitchNames));
 
 #if BUILDFLAG(ENABLE_WIDEVINE) && BUILDFLAG(ENABLE_LIBRARY_CDMS)
     if (!browser_cmd->HasSwitch(service_manager::switches::kNoSandbox)) {

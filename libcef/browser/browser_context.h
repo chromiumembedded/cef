@@ -138,6 +138,8 @@ class CefBrowserContext : public ChromeProfileStub {
 
   // BrowserContext methods.
   content::ResourceContext* GetResourceContext() override;
+  content::ClientHintsControllerDelegate* GetClientHintsControllerDelegate()
+      override;
   net::URLRequestContextGetter* GetRequestContext() override;
   net::URLRequestContextGetter* CreateMediaRequestContext() override;
   net::URLRequestContextGetter* CreateMediaRequestContextForStoragePartition(

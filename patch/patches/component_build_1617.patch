@@ -13,7 +13,7 @@ index 864f2a5a315a..78b71d523e86 100644
    explicit ContentServiceManagerMainDelegate(const ContentMainParams& params);
    ~ContentServiceManagerMainDelegate() override;
 diff --git content/browser/renderer_host/input/mouse_wheel_phase_handler.h content/browser/renderer_host/input/mouse_wheel_phase_handler.h
-index 305095fc420e..f5ca4eda4a66 100644
+index fc252b6ceffd..b0dfd847ec03 100644
 --- content/browser/renderer_host/input/mouse_wheel_phase_handler.h
 +++ content/browser/renderer_host/input/mouse_wheel_phase_handler.h
 @@ -7,6 +7,7 @@

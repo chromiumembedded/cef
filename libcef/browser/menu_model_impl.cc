@@ -119,8 +119,6 @@ class CefSimpleMenuModel : public ui::MenuModel {
     return impl_->IsVisibleAt(index);
   }
 
-  void HighlightChangedTo(int index) override {}
-
   void ActivatedAt(int index) override { ActivatedAt(index, 0); }
 
   void ActivatedAt(int index, int event_flags) override {

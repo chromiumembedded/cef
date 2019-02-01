@@ -10,18 +10,18 @@
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/media_capture_devices.h"
 
+using blink::MediaStreamDevices;
 using content::BrowserThread;
-using content::MediaStreamDevices;
 
 namespace {
 
-const content::MediaStreamDevice* FindDefaultDeviceWithId(
-    const content::MediaStreamDevices& devices,
+const blink::MediaStreamDevice* FindDefaultDeviceWithId(
+    const blink::MediaStreamDevices& devices,
     const std::string& device_id) {
   if (devices.empty())
     return NULL;
 
-  content::MediaStreamDevices::const_iterator iter = devices.begin();
+  blink::MediaStreamDevices::const_iterator iter = devices.begin();
   for (; iter != devices.end(); ++iter) {
     if (iter->id == device_id) {
       return &(*iter);
@@ -54,7 +54,7 @@ void CefMediaCaptureDevicesDispatcher::GetDefaultDevices(
     PrefService* prefs,
     bool audio,
     bool video,
-    content::MediaStreamDevices* devices) {
+    blink::MediaStreamDevices* devices) {
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
   DCHECK(audio || video);
 
@@ -74,20 +74,20 @@ void CefMediaCaptureDevicesDispatcher::GetRequestedDevice(
     const std::string& requested_device_id,
     bool audio,
     bool video,
-    content::MediaStreamDevices* devices) {
+    blink::MediaStreamDevices* devices) {
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
   DCHECK(audio || video);
 
   if (audio) {
-    const content::MediaStreamDevices& audio_devices = GetAudioCaptureDevices();
-    const content::MediaStreamDevice* const device =
+    const blink::MediaStreamDevices& audio_devices = GetAudioCaptureDevices();
+    const blink::MediaStreamDevice* const device =
         FindDefaultDeviceWithId(audio_devices, requested_device_id);
     if (device)
       devices->push_back(*device);
   }
   if (video) {
-    const content::MediaStreamDevices& video_devices = GetVideoCaptureDevices();
-    const content::MediaStreamDevice* const device =
+    const blink::MediaStreamDevices& video_devices = GetVideoCaptureDevices();
+    const blink::MediaStreamDevice* const device =
         FindDefaultDeviceWithId(video_devices, requested_device_id);
     if (device)
       devices->push_back(*device);
@@ -103,7 +103,7 @@ void CefMediaCaptureDevicesDispatcher::OnMediaRequestStateChanged(
     int render_frame_id,
     int page_request_id,
     const GURL& security_origin,
-    content::MediaStreamType stream_type,
+    blink::MediaStreamType stream_type,
     content::MediaRequestState state) {}
 
 void CefMediaCaptureDevicesDispatcher::OnCreatingAudioStream(
@@ -114,7 +114,7 @@ void CefMediaCaptureDevicesDispatcher::OnSetCapturingLinkSecured(
     int render_process_id,
     int render_frame_id,
     int page_request_id,
-    content::MediaStreamType stream_type,
+    blink::MediaStreamType stream_type,
     bool is_secure) {}
 
 const MediaStreamDevices&

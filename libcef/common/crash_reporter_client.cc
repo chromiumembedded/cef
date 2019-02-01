@@ -12,6 +12,7 @@
 
 #include "base/environment.h"
 #include "base/logging.h"
+#include "base/stl_util.h"
 #include "base/strings/string16.h"
 #include "base/strings/string_number_conversions.h"
 #include "base/strings/string_split.h"
@@ -494,14 +495,14 @@ bool CefCrashReporterClient::ReadCrashConfigFile() {
     };
 
     // Make sure we can fit all possible name/value pairs.
-    static_assert(arraysize(ids) * crashpad::Annotation::kValueMaxSize >=
+    static_assert(base::size(ids) * crashpad::Annotation::kValueMaxSize >=
                       3 * 26 /* sizes (small, medium, large) * slots (A to Z) */
                           * (3 + 2 /* key size ("S-A") + delim size ("=,") */
                              + crashpad::Annotation::kNameMaxLength),
                   "Not enough storage for key map");
 
     size_t offset = 0;
-    for (size_t i = 0; i < arraysize(ids); ++i) {
+    for (size_t i = 0; i < base::size(ids); ++i) {
       size_t length = std::min(map_keys.size() - offset,
                                crashpad::Annotation::kValueMaxSize);
       ids[i].Set(base::StringPiece(map_keys.data() + offset, length));
@@ -745,13 +746,13 @@ CefCrashReporterClient::ParameterMap CefCrashReporterClient::FilterParameters(
       IDKEY(n "-V"), IDKEY(n "-W"), IDKEY(n "-X"), IDKEY(n "-Y"),            \
       IDKEY(n "-Z")
 
-#define IDKEY_FUNCTION(name, size)                                           \
-  static_assert(size <= crashpad::Annotation::kValueMaxSize,                 \
+#define IDKEY_FUNCTION(name, size_)                                          \
+  static_assert(size_ <= crashpad::Annotation::kValueMaxSize,                \
                 "Annotation size is too large.");                            \
   bool Set##name##Annotation(size_t index, const base::StringPiece& value) { \
-    using IDKey = crash_reporter::CrashKeyString<size>;                      \
+    using IDKey = crash_reporter::CrashKeyString<size_>;                     \
     static IDKey ids[] = {IDKEY_ENTRIES(#name)};                             \
-    if (index < arraysize(ids)) {                                            \
+    if (index < base::size(ids)) {                                           \
       if (value.empty()) {                                                   \
         ids[index].Clear();                                                  \
       } else {                                                               \

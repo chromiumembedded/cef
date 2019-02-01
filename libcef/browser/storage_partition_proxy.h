@@ -35,6 +35,7 @@ class CefStoragePartitionProxy : public content::StoragePartition {
   storage::FileSystemContext* GetFileSystemContext() override;
   storage::DatabaseTracker* GetDatabaseTracker() override;
   content::DOMStorageContext* GetDOMStorageContext() override;
+  content::IdleManager* GetIdleManager() override;
   content::LockManager* GetLockManager() override;
   content::IndexedDBContext* GetIndexedDBContext() override;
   content::ServiceWorkerContext* GetServiceWorkerContext() override;
@@ -88,6 +89,7 @@ class CefStoragePartitionProxy : public content::StoragePartition {
       int process_id,
       mojo::InterfaceRequest<blink::mojom::StoragePartitionService> request)
       override;
+  void Unbind(mojo::BindingId binding_id) override;
   void set_site_for_service_worker(
       const GURL& site_for_service_worker) override;
   const GURL& site_for_service_worker() const override;

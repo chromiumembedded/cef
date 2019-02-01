@@ -277,7 +277,7 @@ if (is_win) {
       "//chrome/common:buildflags",
       "//ppapi/buildflags:buildflags",
       "//printing/buildflags:buildflags",
-      "//ui/base:ui_features",
+      "//ui/base:buildflags",
     ]
   }
 }
@@ -643,6 +643,7 @@ static_library("libcef_static") {
 
   deps = [
     ":cef_make_headers",
+    ":cef_service_manifests",
 
     # Generate API bindings for extensions.
     # TODO(cef): Enable if/when CEF exposes its own Mojo APIs. See
@@ -1047,45 +1048,142 @@ if (is_mac) {
   }
 }
 
-
 #
 # Service manifests.
 #
 
-cef_packaged_services = [
-  "//chrome/app:chrome_manifest",  # For spell checking.
-  "//chrome/app:chrome_renderer_manifest",  # For spell checking.
-  "//chrome/services/printing:manifest",
-  "//services/metrics:manifest",
-  "//services/proxy_resolver:proxy_resolver_manifest",
-]
+source_set("cef_content_browser_overlay_manifest") {
+  sources = [
+    "libcef/common/service_manifests/cef_content_browser_overlay_manifest.cc",
+    "libcef/common/service_manifests/cef_content_browser_overlay_manifest.h",
+  ]
 
-service_manifest("cef_packaged_services_manifest_overlay") {
-  source = "libcef/common/service_manifests/packaged_services_manifest_overlay.json"
-  packaged_services = cef_packaged_services
-}
+  configs += [
+    "libcef/features:config"
+  ]
 
-service_manifest("cef_browser_manifest_overlay") {
-  source = "libcef/common/service_manifests/browser_manifest_overlay.json"
-}
-
-service_manifest("cef_renderer_manifest_overlay") {
-  source = "libcef/common/service_manifests/renderer_manifest_overlay.json"
-}
-
-service_manifest("cef_utility_manifest_overlay") {
-  source = "libcef/common/service_manifests/utility_manifest_overlay.json"
-}
-
-group("cef_manifest_overlays") {
   deps = [
-    ":cef_packaged_services_manifest_overlay",
-    ":cef_browser_manifest_overlay",
-    ":cef_renderer_manifest_overlay",
-    ":cef_utility_manifest_overlay",
+    "//base",
+    "//components/services/heap_profiling/public/mojom",
+    "//extensions/buildflags",
+    "//extensions/common:mojo",
+    "//extensions/common/api:mojom",
+    "//services/service_manager/public/cpp",
+    "//third_party/blink/public/common",
   ]
 }
 
+source_set("cef_content_gpu_overlay_manifest") {
+  sources = [
+    "libcef/common/service_manifests/cef_content_gpu_overlay_manifest.cc",
+    "libcef/common/service_manifests/cef_content_gpu_overlay_manifest.h",
+  ]
+
+  configs += [
+    "libcef/features:config"
+  ]
+
+  deps = [
+    "//base",
+    "//components/services/heap_profiling/public/mojom",
+    "//services/service_manager/public/cpp",
+  ]
+}
+
+source_set("cef_content_renderer_overlay_manifest") {
+  sources = [
+    "libcef/common/service_manifests/cef_content_renderer_overlay_manifest.cc",
+    "libcef/common/service_manifests/cef_content_renderer_overlay_manifest.h",
+  ]
+
+  configs += [
+    "libcef/features:config"
+  ]
+
+  deps = [
+    "//base",
+    "//components/services/heap_profiling/public/mojom",
+    "//components/subresource_filter/content/mojom",
+    "//extensions/buildflags",
+    "//extensions/common:mojo",
+    "//services/service_manager/public/cpp",
+    "//third_party/blink/public/common",
+  ]
+
+  if (is_mac) {
+    deps += [ "//components/spellcheck/common:interfaces" ]
+  }
+}
+
+source_set("cef_content_utility_overlay_manifest") {
+  sources = [
+    "libcef/common/service_manifests/cef_content_utility_overlay_manifest.cc",
+    "libcef/common/service_manifests/cef_content_utility_overlay_manifest.h",
+  ]
+
+  configs += [
+    "libcef/features:config"
+  ]
+
+  deps = [
+    "//base",
+    "//components/services/heap_profiling/public/mojom",
+    "//services/service_manager/public/cpp",
+  ]
+}
+
+source_set("cef_packaged_service_manifests") {
+  sources = [
+    "libcef/common/service_manifests/cef_packaged_service_manifests.cc",
+    "libcef/common/service_manifests/cef_packaged_service_manifests.h",
+  ]
+
+  configs += [
+    "libcef/features:config"
+  ]
+
+  deps = [
+    "//base",
+    "//chrome/common:mojo_bindings",
+    "//chrome/services/printing:manifest",
+    "//components/services/pdf_compositor:pdf_compositor_manifest",
+    "//components/spellcheck/common:interfaces",
+    "//components/startup_metric_utils/common:interfaces",
+    "//extensions/buildflags",
+    "//printing/buildflags",
+    "//services/proxy_resolver:proxy_resolver_manifest",
+    "//services/service_manager/public/cpp",
+  ]
+}
+
+source_set("cef_renderer_manifest") {
+  sources = [
+    "libcef/common/service_manifests/cef_renderer_manifest.cc",
+    "libcef/common/service_manifests/cef_renderer_manifest.h",
+  ]
+
+  configs += [
+    "libcef/features:config"
+  ]
+
+  deps = [
+    "//base",
+    "//chrome/common:mojo_bindings",
+    "//components/spellcheck/common:interfaces",
+    "//services/service_manager/public/cpp",
+  ]
+}
+
+source_set("cef_service_manifests") {
+  public_deps = [
+    ":cef_content_browser_overlay_manifest",
+    ":cef_content_gpu_overlay_manifest",
+    ":cef_content_renderer_overlay_manifest",
+    ":cef_content_utility_overlay_manifest",
+    ":cef_packaged_service_manifests",
+    ":cef_renderer_manifest",
+  ]
+}
 
 #
 # Resource grit/pack targets.
@@ -1231,7 +1329,6 @@ grit("cef_resources") {
     "-E",
     "root_gen_dir=" + rebase_path(root_gen_dir, root_build_dir),
   ]
-  deps = [ ":cef_manifest_overlays" ]
 }
 
 # Generate cef.pak.

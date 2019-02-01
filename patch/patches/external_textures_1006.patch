@@ -27,10 +27,10 @@ index 941d70bd2a7e..ef14a7dd7d4f 100644
    virtual void OnReflectorChanged();
  
 diff --git content/browser/compositor/gpu_process_transport_factory.cc content/browser/compositor/gpu_process_transport_factory.cc
-index 9d960547e17c..c5a24852224b 100644
+index 5aeda7bd9caf..1f18a5599bec 100644
 --- content/browser/compositor/gpu_process_transport_factory.cc
 +++ content/browser/compositor/gpu_process_transport_factory.cc
-@@ -215,6 +215,18 @@ GpuProcessTransportFactory::~GpuProcessTransportFactory() {
+@@ -216,6 +216,18 @@ GpuProcessTransportFactory::~GpuProcessTransportFactory() {
    task_graph_runner_->Shutdown();
  }
  
@@ -49,7 +49,7 @@ index 9d960547e17c..c5a24852224b 100644
  std::unique_ptr<viz::SoftwareOutputDevice>
  GpuProcessTransportFactory::CreateSoftwareOutputDevice(
      gfx::AcceleratedWidget widget,
-@@ -482,11 +494,20 @@ void GpuProcessTransportFactory::EstablishedGpuChannel(
+@@ -485,11 +497,20 @@ void GpuProcessTransportFactory::EstablishedGpuChannel(
          // surfaces as they are not following the correct mode.
          DisableGpuCompositing(compositor.get());
        }
@@ -73,7 +73,7 @@ index 9d960547e17c..c5a24852224b 100644
      } else {
        DCHECK(context_provider);
        const auto& capabilities = context_provider->ContextCapabilities();
-@@ -494,7 +515,8 @@ void GpuProcessTransportFactory::EstablishedGpuChannel(
+@@ -497,7 +518,8 @@ void GpuProcessTransportFactory::EstablishedGpuChannel(
          display_output_surface =
              std::make_unique<OffscreenBrowserCompositorOutputSurface>(
                  context_provider, std::move(vsync_callback),
@@ -83,7 +83,7 @@ index 9d960547e17c..c5a24852224b 100644
        } else if (capabilities.surfaceless) {
  #if defined(OS_MACOSX)
          const auto& gpu_feature_info = context_provider->GetGpuFeatureInfo();
-@@ -941,7 +963,8 @@ GpuProcessTransportFactory::CreatePerCompositorData(
+@@ -944,7 +966,8 @@ GpuProcessTransportFactory::CreatePerCompositorData(
    gfx::AcceleratedWidget widget = compositor->widget();
  
    auto data = std::make_unique<PerCompositorData>();
@@ -498,10 +498,10 @@ index 4b936cbc4d26..d78b47046a8a 100644
                                                 GLint shm_id,
                                                 GLuint shm_offset,
 diff --git gpu/command_buffer/client/gles2_implementation.cc gpu/command_buffer/client/gles2_implementation.cc
-index e857907ab719..c2b3c35fd23c 100644
+index a5ca58fb6e5e..9d1d4a70070b 100644
 --- gpu/command_buffer/client/gles2_implementation.cc
 +++ gpu/command_buffer/client/gles2_implementation.cc
-@@ -7456,6 +7456,22 @@ void GLES2Implementation::Viewport(GLint x,
+@@ -7429,6 +7429,22 @@ void GLES2Implementation::Viewport(GLint x,
    CheckGLError();
  }
  
@@ -986,7 +986,7 @@ index bd70014dabac..dd2b46994692 100644
      "buffer_manager.cc",
      "buffer_manager.h",
 diff --git gpu/command_buffer/service/gles2_cmd_decoder.cc gpu/command_buffer/service/gles2_cmd_decoder.cc
-index 164f32146e32..59f7e3136a52 100644
+index 97b7598ccc4f..fb3c20384c9c 100644
 --- gpu/command_buffer/service/gles2_cmd_decoder.cc
 +++ gpu/command_buffer/service/gles2_cmd_decoder.cc
 @@ -36,6 +36,7 @@
@@ -997,7 +997,7 @@ index 164f32146e32..59f7e3136a52 100644
  #include "gpu/command_buffer/common/debug_marker_manager.h"
  #include "gpu/command_buffer/common/gles2_cmd_format.h"
  #include "gpu/command_buffer/common/gles2_cmd_utils.h"
-@@ -900,6 +901,13 @@ class GLES2DecoderImpl : public GLES2Decoder, public ErrorStateClient {
+@@ -901,6 +902,13 @@ class GLES2DecoderImpl : public GLES2Decoder, public ErrorStateClient {
      return group_->mailbox_manager();
    }
  
@@ -1011,7 +1011,7 @@ index 164f32146e32..59f7e3136a52 100644
    ImageManager* image_manager() { return group_->image_manager(); }
  
    VertexArrayManager* vertex_array_manager() {
-@@ -2604,6 +2612,8 @@ class GLES2DecoderImpl : public GLES2Decoder, public ErrorStateClient {
+@@ -2606,6 +2614,8 @@ class GLES2DecoderImpl : public GLES2Decoder, public ErrorStateClient {
  
    std::unique_ptr<VertexArrayManager> vertex_array_manager_;
  
@@ -1020,7 +1020,7 @@ index 164f32146e32..59f7e3136a52 100644
    base::flat_set<scoped_refptr<Buffer>> writes_submitted_but_not_completed_;
  
    // The format of the back buffer_
-@@ -5518,6 +5528,59 @@ error::Error GLES2DecoderImpl::HandleDestroyGpuFenceCHROMIUM(
+@@ -5522,6 +5532,59 @@ error::Error GLES2DecoderImpl::HandleDestroyGpuFenceCHROMIUM(
    return error::kNoError;
  }
  
@@ -1081,7 +1081,7 @@ index 164f32146e32..59f7e3136a52 100644
    for (auto it = saved_back_textures_.begin(); it != saved_back_textures_.end();
         ++it) {
 diff --git gpu/command_buffer/service/gles2_cmd_decoder_passthrough.cc gpu/command_buffer/service/gles2_cmd_decoder_passthrough.cc
-index 0a27c82ac77a..b9b52a766d51 100644
+index f2b5153e3a36..afe5c7621f51 100644
 --- gpu/command_buffer/service/gles2_cmd_decoder_passthrough.cc
 +++ gpu/command_buffer/service/gles2_cmd_decoder_passthrough.cc
 @@ -10,6 +10,7 @@
@@ -1092,7 +1092,7 @@ index 0a27c82ac77a..b9b52a766d51 100644
  #include "gpu/command_buffer/service/command_buffer_service.h"
  #include "gpu/command_buffer/service/decoder_client.h"
  #include "gpu/command_buffer/service/feature_info.h"
-@@ -2490,6 +2491,67 @@ error::Error GLES2DecoderPassthroughImpl::CheckSwapBuffersResult(
+@@ -2499,6 +2500,67 @@ error::Error GLES2DecoderPassthroughImpl::CheckSwapBuffersResult(
    return error::kNoError;
  }
  
@@ -1161,7 +1161,7 @@ index 0a27c82ac77a..b9b52a766d51 100644
  GLES2DecoderPassthroughImpl::TextureTarget
  GLES2DecoderPassthroughImpl::GLenumToTextureTarget(GLenum target) {
 diff --git gpu/command_buffer/service/gles2_cmd_decoder_passthrough.h gpu/command_buffer/service/gles2_cmd_decoder_passthrough.h
-index c2d06e1300d8..0645f6ccd975 100644
+index ed682013976b..4bc28fe68a5d 100644
 --- gpu/command_buffer/service/gles2_cmd_decoder_passthrough.h
 +++ gpu/command_buffer/service/gles2_cmd_decoder_passthrough.h
 @@ -45,6 +45,7 @@ class SharedImageRepresentationGLTexturePassthrough;
@@ -1172,7 +1172,7 @@ index c2d06e1300d8..0645f6ccd975 100644
  class GPUTracer;
  class MultiDrawManager;
  class PassthroughAbstractTextureImpl;
-@@ -375,6 +376,8 @@ class GPU_GLES2_EXPORT GLES2DecoderPassthroughImpl : public GLES2Decoder {
+@@ -377,6 +378,8 @@ class GPU_GLES2_EXPORT GLES2DecoderPassthroughImpl : public GLES2Decoder {
  
    void SetOptionalExtensionsRequestedForTesting(bool request_extensions);
  
@@ -1181,7 +1181,7 @@ index c2d06e1300d8..0645f6ccd975 100644
    void* GetScratchMemory(size_t size);
  
    template <typename T>
-@@ -578,6 +581,8 @@ class GPU_GLES2_EXPORT GLES2DecoderPassthroughImpl : public GLES2Decoder {
+@@ -580,6 +583,8 @@ class GPU_GLES2_EXPORT GLES2DecoderPassthroughImpl : public GLES2Decoder {
  
    std::unique_ptr<MultiDrawManager> multi_draw_manager_;
  
@@ -1212,10 +1212,10 @@ index 5d3c2bf5cd8e..c6b20fa563ce 100644
    observer_list_.AddObserver(observer);
  }
 diff --git ui/compositor/compositor.h ui/compositor/compositor.h
-index 3c19916a9c40..88ea3a3e8ba2 100644
+index a445b569ede1..0d7cface5026 100644
 --- ui/compositor/compositor.h
 +++ ui/compositor/compositor.h
-@@ -26,6 +26,7 @@
+@@ -25,6 +25,7 @@
  #include "components/viz/common/surfaces/frame_sink_id.h"
  #include "components/viz/common/surfaces/local_surface_id.h"
  #include "components/viz/host/host_frame_sink_client.h"
@@ -1223,7 +1223,7 @@ index 3c19916a9c40..88ea3a3e8ba2 100644
  #include "third_party/skia/include/core/SkColor.h"
  #include "third_party/skia/include/core/SkMatrix44.h"
  #include "ui/compositor/compositor_animation_observer.h"
-@@ -159,6 +160,8 @@ class COMPOSITOR_EXPORT ContextFactoryPrivate {
+@@ -158,6 +159,8 @@ class COMPOSITOR_EXPORT ContextFactoryPrivate {
                                         const viz::BeginFrameArgs& args) = 0;
  
    virtual void SetOutputIsSecure(Compositor* compositor, bool secure) = 0;
@@ -1232,7 +1232,7 @@ index 3c19916a9c40..88ea3a3e8ba2 100644
  };
  
  // This class abstracts the creation of the 3D context for the compositor. It is
-@@ -194,6 +197,17 @@ class COMPOSITOR_EXPORT ContextFactory {
+@@ -193,6 +196,17 @@ class COMPOSITOR_EXPORT ContextFactory {
    virtual bool SyncTokensRequiredForDisplayCompositor() = 0;
  };
  
@@ -1250,7 +1250,7 @@ index 3c19916a9c40..88ea3a3e8ba2 100644
  // Compositor object to take care of GPU painting.
  // A Browser compositor object is responsible for generating the final
  // displayable form of pixels comprising a single widget's contents. It draws an
-@@ -233,6 +247,9 @@ class COMPOSITOR_EXPORT Compositor : public cc::LayerTreeHostClient,
+@@ -232,6 +246,9 @@ class COMPOSITOR_EXPORT Compositor : public cc::LayerTreeHostClient,
    // Schedules a redraw of the layer tree associated with this compositor.
    void ScheduleDraw();
  
@@ -1260,7 +1260,7 @@ index 3c19916a9c40..88ea3a3e8ba2 100644
    // Sets the root of the layer tree drawn by this Compositor. The root layer
    // must have no parent. The compositor's root layer is reset if the root layer
    // is destroyed. NULL can be passed to reset the root layer, in which case the
-@@ -335,6 +352,10 @@ class COMPOSITOR_EXPORT Compositor : public cc::LayerTreeHostClient,
+@@ -334,6 +351,10 @@ class COMPOSITOR_EXPORT Compositor : public cc::LayerTreeHostClient,
      return task_runner_;
    }
  
@@ -1271,7 +1271,7 @@ index 3c19916a9c40..88ea3a3e8ba2 100644
    // Compositor does not own observers. It is the responsibility of the
    // observer to remove itself when it is done observing.
    void AddObserver(CompositorObserver* observer);
-@@ -436,6 +457,8 @@ class COMPOSITOR_EXPORT Compositor : public cc::LayerTreeHostClient,
+@@ -440,6 +461,8 @@ class COMPOSITOR_EXPORT Compositor : public cc::LayerTreeHostClient,
    ui::ContextFactory* context_factory_;
    ui::ContextFactoryPrivate* context_factory_private_;
  
@@ -1280,7 +1280,7 @@ index 3c19916a9c40..88ea3a3e8ba2 100644
    // The root of the Layer tree drawn by this compositor.
    Layer* root_layer_ = nullptr;
  
-@@ -470,6 +493,8 @@ class COMPOSITOR_EXPORT Compositor : public cc::LayerTreeHostClient,
+@@ -474,6 +497,8 @@ class COMPOSITOR_EXPORT Compositor : public cc::LayerTreeHostClient,
  
    ExternalBeginFrameClient* const external_begin_frame_client_;
  
@@ -1290,10 +1290,10 @@ index 3c19916a9c40..88ea3a3e8ba2 100644
  
    // The device scale factor of the monitor that this compositor is compositing
 diff --git ui/compositor/host/host_context_factory_private.cc ui/compositor/host/host_context_factory_private.cc
-index 40ec1e11cd9f..49ad034ebbf5 100644
+index 8297e1aabe3b..6acb9fa6cdfb 100644
 --- ui/compositor/host/host_context_factory_private.cc
 +++ ui/compositor/host/host_context_factory_private.cc
-@@ -257,6 +257,10 @@ void HostContextFactoryPrivate::SetOutputIsSecure(Compositor* compositor,
+@@ -255,6 +255,10 @@ void HostContextFactoryPrivate::SetOutputIsSecure(Compositor* compositor,
      iter->second.display_private->SetOutputIsSecure(secure);
  }
  

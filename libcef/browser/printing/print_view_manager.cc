@@ -253,6 +253,9 @@ void CefPrintViewManager::OnMetafileReadyForPrinting(
   if (!pdf_print_state_)
     return;
 
+  pdf_print_state_->printing_rfh_->Send(new PrintMsg_ClosePrintPreviewDialog(
+      pdf_print_state_->printing_rfh_->GetRoutingID()));
+
   auto shared_buf = base::RefCountedSharedMemoryMapping::CreateFromWholeRegion(
       params.content.metafile_data_region);
   if (!shared_buf) {

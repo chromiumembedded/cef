@@ -368,6 +368,7 @@ void CefPrintViewManagerBase::ShouldQuitFromInnerMessageLoop() {
 }
 
 bool CefPrintViewManagerBase::CreateNewPrintJob(PrinterQuery* query) {
+  DCHECK_CURRENTLY_ON(content::BrowserThread::UI);
   DCHECK(!inside_inner_message_loop_);
   DCHECK(query);
 

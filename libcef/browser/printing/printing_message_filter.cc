@@ -233,12 +233,9 @@ void CefPrintingMessageFilter::OnScriptedPrintReply(
   }
 }
 
-void CefPrintingMessageFilter::OnUpdatePrintSettings(
-    int document_cookie,
-    const base::DictionaryValue& job_settings,
-    IPC::Message* reply_msg) {
-  std::unique_ptr<base::DictionaryValue> new_settings(job_settings.DeepCopy());
-
+void CefPrintingMessageFilter::OnUpdatePrintSettings(int document_cookie,
+                                                     base::Value job_settings,
+                                                     IPC::Message* reply_msg) {
   scoped_refptr<PrinterQuery> printer_query;
   if (!is_printing_enabled_.GetValue()) {
     // Reply with NULL query.
@@ -251,7 +248,7 @@ void CefPrintingMessageFilter::OnUpdatePrintSettings(
         content::ChildProcessHost::kInvalidUniqueID, MSG_ROUTING_NONE);
   }
   printer_query->SetSettings(
-      std::move(new_settings),
+      std::move(job_settings),
       base::Bind(&CefPrintingMessageFilter::OnUpdatePrintSettingsReply, this,
                  printer_query, reply_msg));
 }

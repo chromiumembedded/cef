@@ -73,7 +73,7 @@ index b7febba61de2..ce9de3b369f9 100644
    FRIEND_TEST_ALL_PREFIXES(
        BrowserSideFlingBrowserTest,
 diff --git content/browser/renderer_host/render_widget_host_view_event_handler.cc content/browser/renderer_host/render_widget_host_view_event_handler.cc
-index 1191efc74c2b..d7b133791c97 100644
+index c362e6be4c35..a63527310e05 100644
 --- content/browser/renderer_host/render_widget_host_view_event_handler.cc
 +++ content/browser/renderer_host/render_widget_host_view_event_handler.cc
 @@ -32,6 +32,10 @@
@@ -87,7 +87,7 @@ index 1191efc74c2b..d7b133791c97 100644
  #if defined(OS_WIN)
  #include "content/browser/frame_host/render_frame_host_impl.h"
  #include "content/public/common/context_menu_params.h"
-@@ -877,6 +881,14 @@ void RenderWidgetHostViewEventHandler::SetKeyboardFocus() {
+@@ -878,6 +882,14 @@ void RenderWidgetHostViewEventHandler::SetKeyboardFocus() {
          ::SetFocus(hwnd);
      }
    }
@@ -335,7 +335,7 @@ index c547609abf03..5092e2a38b67 100644
    base::WeakPtrFactory<DesktopWindowTreeHostX11> weak_factory_;
  
 diff --git ui/views/widget/widget.cc ui/views/widget/widget.cc
-index 16d18d4bdbc6..ecd276fbeceb 100644
+index 496e7240e2c4..43b4053f11d6 100644
 --- ui/views/widget/widget.cc
 +++ ui/views/widget/widget.cc
 @@ -138,6 +138,7 @@ Widget::InitParams::InitParams(Type type)
@@ -369,7 +369,7 @@ index 16d18d4bdbc6..ecd276fbeceb 100644
    }
    // This must come after SetContentsView() or it might not be able to find
    // the correct NativeTheme (on Linux). See http://crbug.com/384492
-@@ -1126,10 +1132,16 @@ void Widget::OnNativeWidgetDestroyed() {
+@@ -1130,10 +1136,16 @@ void Widget::OnNativeWidgetDestroyed() {
  }
  
  gfx::Size Widget::GetMinimumSize() const {
@@ -387,7 +387,7 @@ index 16d18d4bdbc6..ecd276fbeceb 100644
  }
  
 diff --git ui/views/widget/widget.h ui/views/widget/widget.h
-index b46f249e8027..9276f5bc9d1c 100644
+index 0323bbb17b19..5d2b6129c930 100644
 --- ui/views/widget/widget.h
 +++ ui/views/widget/widget.h
 @@ -255,6 +255,7 @@ class VIEWS_EXPORT Widget : public internal::NativeWidgetDelegate,
@@ -427,10 +427,10 @@ index 5bcb8d8b9bae..020fa85573aa 100644
        if (native_widget_delegate->IsDialogBox()) {
          *style |= DS_MODALFRAME;
 diff --git ui/views/win/hwnd_message_handler.cc ui/views/win/hwnd_message_handler.cc
-index a15550b204e8..dbf3d981cafd 100644
+index f3523d2a05c3..3c16a7fdd4a3 100644
 --- ui/views/win/hwnd_message_handler.cc
 +++ ui/views/win/hwnd_message_handler.cc
-@@ -2904,10 +2904,13 @@ LRESULT HWNDMessageHandler::HandleMouseEventInternal(UINT message,
+@@ -2896,10 +2896,13 @@ LRESULT HWNDMessageHandler::HandleMouseEventInternal(UINT message,
    } else if (event.type() == ui::ET_MOUSEWHEEL) {
      ui::MouseWheelEvent mouse_wheel_event(msg);
      // Reroute the mouse wheel to the window under the pointer if applicable.

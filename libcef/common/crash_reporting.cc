@@ -10,6 +10,7 @@
 #include "base/base_switches.h"
 #include "base/command_line.h"
 #include "base/debug/crash_logging.h"
+#include "base/stl_util.h"
 #include "base/strings/string_piece.h"
 #include "base/strings/string_util.h"
 #include "chrome/common/crash_keys.h"
@@ -152,8 +153,10 @@ bool IsBoringCEFSwitch(const std::string& flag) {
       switches::kLogFile,
 
       // Chromium internals.
-      "content-image-texture-target", "mojo-platform-channel-handle",
-      "primordial-pipe-token", "service-pipe-token",
+      "content-image-texture-target",
+      "mojo-platform-channel-handle",
+      "primordial-pipe-token",
+      "service-pipe-token",
       "service-request-channel-token",
   };
 
@@ -162,7 +165,7 @@ bool IsBoringCEFSwitch(const std::string& flag) {
 
   size_t end = flag.find("=");
   size_t len = (end == std::string::npos) ? flag.length() - 2 : end - 2;
-  for (size_t i = 0; i < arraysize(kIgnoreSwitches); ++i) {
+  for (size_t i = 0; i < base::size(kIgnoreSwitches); ++i) {
     if (flag.compare(2, len, kIgnoreSwitches[i]) == 0)
       return true;
   }

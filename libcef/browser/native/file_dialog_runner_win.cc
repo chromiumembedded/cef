@@ -14,6 +14,7 @@
 #include "libcef/browser/browser_host_impl.h"
 
 #include "base/files/file_util.h"
+#include "base/stl_util.h"
 #include "base/strings/string_split.h"
 #include "base/strings/string_util.h"
 #include "base/strings/utf_string_conversions.h"
@@ -140,7 +141,7 @@ std::wstring GetDescriptionFromMimeType(const std::string& mime_type) {
       {"video", IDS_VIDEO_FILES},
   };
 
-  for (size_t i = 0; i < arraysize(kWildCardMimeTypes); ++i) {
+  for (size_t i = 0; i < base::size(kWildCardMimeTypes); ++i) {
     if (mime_type == std::string(kWildCardMimeTypes[i].mime_type) + "/*")
       return l10n_util::GetStringUTF16(kWildCardMimeTypes[i].string_id);
   }
@@ -230,7 +231,7 @@ bool RunOpenFileDialog(const CefFileDialogRunner::FileChooserParams& params,
     } else {
       // The value is a file name and possibly a directory.
       base::wcslcpy(filename, params.default_file_name.value().c_str(),
-                    arraysize(filename));
+                    base::size(filename));
       directory = params.default_file_name.DirName().value();
     }
   }
@@ -445,7 +446,7 @@ bool RunSaveFileDialog(const CefFileDialogRunner::FileChooserParams& params,
     } else {
       // The value is a file name and possibly a directory.
       base::wcslcpy(filename, params.default_file_name.value().c_str(),
-                    arraysize(filename));
+                    base::size(filename));
       directory = params.default_file_name.DirName().value();
     }
   }

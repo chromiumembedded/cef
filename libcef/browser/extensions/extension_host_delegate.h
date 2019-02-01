@@ -32,7 +32,7 @@ class CefExtensionHostDelegate : public ExtensionHostDelegate {
                                  const Extension* extension) override;
   bool CheckMediaAccessPermission(content::RenderFrameHost* render_frame_host,
                                   const GURL& security_origin,
-                                  content::MediaStreamType type,
+                                  blink::MediaStreamType type,
                                   const Extension* extension) override;
   ExtensionHostQueue* GetExtensionHostQueue() const override;
   gfx::Size EnterPictureInPicture(content::WebContents* web_contents,

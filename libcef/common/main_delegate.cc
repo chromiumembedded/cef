@@ -19,6 +19,7 @@
 #include "base/files/file_path.h"
 #include "base/files/file_util.h"
 #include "base/path_service.h"
+#include "base/stl_util.h"
 #include "base/strings/string_number_conversions.h"
 #include "base/strings/string_util.h"
 #include "base/synchronization/waitable_event.h"
@@ -75,7 +76,7 @@ namespace {
 const char* const kNonWildcardDomainNonPortSchemes[] = {
     extensions::kExtensionScheme};
 const size_t kNonWildcardDomainNonPortSchemesSize =
-    arraysize(kNonWildcardDomainNonPortSchemes);
+    base::size(kNonWildcardDomainNonPortSchemes);
 
 #if defined(OS_MACOSX)
 
@@ -273,7 +274,7 @@ class CefUIThread : public base::Thread {
     DCHECK(task_runner()->BelongsToCurrentThread());
 
     // Use our own browser process runner.
-    browser_runner_.reset(content::BrowserMainRunner::Create());
+    browser_runner_ = content::BrowserMainRunner::Create();
 
     // Initialize browser process state. Uses the current thread's message loop.
     int exit_code = browser_runner_->Initialize(main_function_params);
@@ -620,7 +621,7 @@ int CefMainDelegate::RunProcess(
     const CefSettings& settings = CefContext::Get()->settings();
     if (!settings.multi_threaded_message_loop) {
       // Use our own browser process runner.
-      browser_runner_.reset(content::BrowserMainRunner::Create());
+      browser_runner_ = content::BrowserMainRunner::Create();
 
       // Initialize browser process state. Results in a call to
       // CefBrowserMain::PreMainMessageLoopStart() which creates the UI message

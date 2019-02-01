@@ -65,6 +65,10 @@ content::DOMStorageContext* CefStoragePartitionProxy::GetDOMStorageContext() {
   return parent_->GetDOMStorageContext();
 }
 
+content::IdleManager* CefStoragePartitionProxy::GetIdleManager() {
+  return parent_->GetIdleManager();
+}
+
 content::LockManager* CefStoragePartitionProxy::GetLockManager() {
   return parent_->GetLockManager();
 }
@@ -227,6 +231,10 @@ mojo::BindingId CefStoragePartitionProxy::Bind(
     int process_id,
     mojo::InterfaceRequest<blink::mojom::StoragePartitionService> request) {
   return parent_->Bind(process_id, std::move(request));
+}
+
+void CefStoragePartitionProxy::Unbind(mojo::BindingId binding_id) {
+  parent_->Unbind(binding_id);
 }
 
 void CefStoragePartitionProxy::set_site_for_service_worker(

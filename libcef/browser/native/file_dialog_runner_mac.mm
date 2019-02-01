@@ -11,6 +11,7 @@
 #include "libcef/browser/browser_host_impl.h"
 
 #include "base/mac/mac_util.h"
+#include "base/stl_util.h"
 #include "base/strings/string_split.h"
 #include "base/strings/string_util.h"
 #include "base/strings/sys_string_conversions.h"
@@ -36,7 +37,7 @@ base::string16 GetDescriptionFromMimeType(const std::string& mime_type) {
       {"video", IDS_VIDEO_FILES},
   };
 
-  for (size_t i = 0; i < arraysize(kWildCardMimeTypes); ++i) {
+  for (size_t i = 0; i < base::size(kWildCardMimeTypes); ++i) {
     if (mime_type == std::string(kWildCardMimeTypes[i].mime_type) + "/*")
       return l10n_util::GetStringUTF16(kWildCardMimeTypes[i].string_id);
   }

@@ -15,7 +15,7 @@ CefNavigationEntryImpl::CefNavigationEntryImpl(content::NavigationEntry* value)
           value,
           NULL,
           kOwnerNoDelete,
-          true,
+          false,
           new CefValueControllerNonThreadSafe()) {
   // Indicate that this object owns the controller.
   SetOwnsController();
@@ -27,47 +27,47 @@ bool CefNavigationEntryImpl::IsValid() {
 
 CefString CefNavigationEntryImpl::GetURL() {
   CEF_VALUE_VERIFY_RETURN(false, CefString());
-  return const_value().GetURL().spec();
+  return mutable_value()->GetURL().spec();
 }
 
 CefString CefNavigationEntryImpl::GetDisplayURL() {
   CEF_VALUE_VERIFY_RETURN(false, CefString());
-  return const_value().GetVirtualURL().spec();
+  return mutable_value()->GetVirtualURL().spec();
 }
 
 CefString CefNavigationEntryImpl::GetOriginalURL() {
   CEF_VALUE_VERIFY_RETURN(false, CefString());
-  return const_value().GetUserTypedURL().spec();
+  return mutable_value()->GetUserTypedURL().spec();
 }
 
 CefString CefNavigationEntryImpl::GetTitle() {
   CEF_VALUE_VERIFY_RETURN(false, CefString());
-  return const_value().GetTitle();
+  return mutable_value()->GetTitle();
 }
 
 CefNavigationEntry::TransitionType CefNavigationEntryImpl::GetTransitionType() {
   CEF_VALUE_VERIFY_RETURN(false, TT_EXPLICIT);
-  return static_cast<TransitionType>(const_value().GetTransitionType());
+  return static_cast<TransitionType>(mutable_value()->GetTransitionType());
 }
 
 bool CefNavigationEntryImpl::HasPostData() {
   CEF_VALUE_VERIFY_RETURN(false, false);
-  return const_value().GetHasPostData();
+  return mutable_value()->GetHasPostData();
 }
 
 CefTime CefNavigationEntryImpl::GetCompletionTime() {
   CefTime time;
   CEF_VALUE_VERIFY_RETURN(false, time);
-  cef_time_from_basetime(const_value().GetTimestamp(), time);
+  cef_time_from_basetime(mutable_value()->GetTimestamp(), time);
   return time;
 }
 
 int CefNavigationEntryImpl::GetHttpStatusCode() {
   CEF_VALUE_VERIFY_RETURN(false, 0);
-  return const_value().GetHttpStatusCode();
+  return mutable_value()->GetHttpStatusCode();
 }
 
 CefRefPtr<CefSSLStatus> CefNavigationEntryImpl::GetSSLStatus() {
   CEF_VALUE_VERIFY_RETURN(false, nullptr);
-  return new CefSSLStatusImpl(const_value().GetSSL());
+  return new CefSSLStatusImpl(mutable_value()->GetSSL());
 }

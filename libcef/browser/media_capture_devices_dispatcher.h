@@ -9,7 +9,7 @@
 #include "base/memory/singleton.h"
 #include "base/observer_list.h"
 #include "content/public/browser/media_observer.h"
-#include "content/public/common/media_stream_request.h"
+#include "content/public/browser/media_stream_request.h"
 
 class PrefRegistrySimple;
 class PrefService;
@@ -29,7 +29,7 @@ class CefMediaCaptureDevicesDispatcher : public content::MediaObserver {
   void GetDefaultDevices(PrefService* prefs,
                          bool audio,
                          bool video,
-                         content::MediaStreamDevices* devices);
+                         blink::MediaStreamDevices* devices);
 
   // Helper for picking the device that was requested for an OpenDevice request.
   // If the device requested is not available it will revert to using the first
@@ -38,7 +38,7 @@ class CefMediaCaptureDevicesDispatcher : public content::MediaObserver {
   void GetRequestedDevice(const std::string& requested_device_id,
                           bool audio,
                           bool video,
-                          content::MediaStreamDevices* devices);
+                          blink::MediaStreamDevices* devices);
 
   // Overridden from content::MediaObserver:
   void OnAudioCaptureDevicesChanged() override;
@@ -47,14 +47,14 @@ class CefMediaCaptureDevicesDispatcher : public content::MediaObserver {
                                   int render_frame_id,
                                   int page_request_id,
                                   const GURL& security_origin,
-                                  content::MediaStreamType stream_type,
+                                  blink::MediaStreamType stream_type,
                                   content::MediaRequestState state) override;
   void OnCreatingAudioStream(int render_process_id,
                              int render_view_id) override;
   void OnSetCapturingLinkSecured(int render_process_id,
                                  int render_frame_id,
                                  int page_request_id,
-                                 content::MediaStreamType stream_type,
+                                 blink::MediaStreamType stream_type,
                                  bool is_secure) override;
 
  private:
@@ -63,8 +63,8 @@ class CefMediaCaptureDevicesDispatcher : public content::MediaObserver {
   CefMediaCaptureDevicesDispatcher();
   ~CefMediaCaptureDevicesDispatcher() override;
 
-  const content::MediaStreamDevices& GetAudioCaptureDevices();
-  const content::MediaStreamDevices& GetVideoCaptureDevices();
+  const blink::MediaStreamDevices& GetAudioCaptureDevices();
+  const blink::MediaStreamDevices& GetVideoCaptureDevices();
 };
 
 #endif  // CEF_LIBCEF_BROWSER_MEDIA_CAPTURE_DEVICES_DISPATCHER_H_
