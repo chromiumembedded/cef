@@ -364,7 +364,12 @@ net::URLRequestContext* CefURLRequestContextGetterImpl::GetURLRequestContext() {
     io_state_->storage_->set_http_auth_handler_factory(
         net::HttpAuthHandlerRegistryFactory::Create(
             io_state_->url_request_context_->host_resolver(),
-            io_state_->http_auth_preferences_.get(), supported_schemes));
+            io_state_->http_auth_preferences_.get(), supported_schemes
+#if defined(OS_POSIX) && !defined(OS_ANDROID)
+            ,
+            io_state_->gsapi_library_name_
+#endif
+            ));
     io_state_->storage_->set_http_server_properties(
         base::WrapUnique(new net::HttpServerPropertiesImpl));
 
