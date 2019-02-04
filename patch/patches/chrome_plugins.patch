@@ -125,7 +125,7 @@ index 989d5d02cedb..e05810db6824 100644
    // If we broke out of the loop, we have found an enabled plugin.
    bool enabled = i < matching_plugins.size();
 diff --git chrome/renderer/chrome_content_renderer_client.cc chrome/renderer/chrome_content_renderer_client.cc
-index 9136ab583964..1839ce97c7e4 100644
+index 93512757d137..63105b158100 100644
 --- chrome/renderer/chrome_content_renderer_client.cc
 +++ chrome/renderer/chrome_content_renderer_client.cc
 @@ -781,6 +781,7 @@ WebPlugin* ChromeContentRendererClient::CreatePlugin(
