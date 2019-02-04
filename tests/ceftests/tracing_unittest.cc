@@ -78,24 +78,20 @@ class TracingTestHandler : public CefEndTracingCallback,
     completion_event_ = CefWaitableEvent::CreateWaitableEvent(true, false);
   }
 
-  void ReadTracingFile(const std::string& file_path) {
-    EXPECT_FILE_THREAD();
+  void ExecuteTest() {
+    // Run the test.
+    CefPostTask(TID_UI, base::Bind(&TracingTestHandler::BeginTracing, this));
 
-    EXPECT_TRUE(client::file_util::ReadFileToString(file_path, &trace_data_));
-    EXPECT_TRUE(CefDeleteFile(file_path, false));
+    // Wait for the test to complete.
+    completion_event_->Wait();
 
-    completion_event_->Signal();
+    // Verify the results.
+    EXPECT_TRUE(!trace_data_.empty());
+    EXPECT_TRUE(trace_type_ != NULL);
+    EXPECT_TRUE(strstr(trace_data_.c_str(), trace_type_) != NULL);
   }
 
-  // CefEndTracingCallback method:
-  void OnEndTracingComplete(const CefString& tracing_file) override {
-    EXPECT_UI_THREAD();
-
-    CefPostTask(TID_FILE, base::Bind(&TracingTestHandler::ReadTracingFile, this,
-                                     tracing_file));
-  }
-
-  void RunTracing() {
+  void BeginTracing() {
     EXPECT_UI_THREAD();
 
     // Results in a call to OnComplete.
@@ -103,6 +99,14 @@ class TracingTestHandler : public CefEndTracingCallback,
   }
 
   void OnComplete() override {
+    EXPECT_UI_THREAD();
+
+    // Add some delay to avoid timing-related test failures.
+    CefPostDelayedTask(TID_UI,
+                       base::Bind(&TracingTestHandler::TestTracing, this), 50);
+  }
+
+  void TestTracing() {
     EXPECT_UI_THREAD();
 
     switch (type_) {
@@ -311,17 +315,20 @@ class TracingTestHandler : public CefEndTracingCallback,
     CefEndTracing(CefString(), this);
   }
 
-  void ExecuteTest() {
-    // Run the test.
-    CefPostTask(TID_UI, base::Bind(&TracingTestHandler::RunTracing, this));
+  void OnEndTracingComplete(const CefString& tracing_file) override {
+    EXPECT_UI_THREAD();
 
-    // Wait for the test to complete.
-    completion_event_->Wait();
+    CefPostTask(TID_FILE, base::Bind(&TracingTestHandler::ReadTracingFile, this,
+                                     tracing_file));
+  }
 
-    // Verify the results.
-    EXPECT_TRUE(!trace_data_.empty());
-    EXPECT_TRUE(trace_type_ != NULL);
-    EXPECT_TRUE(strstr(trace_data_.c_str(), trace_type_) != NULL);
+  void ReadTracingFile(const std::string& file_path) {
+    EXPECT_FILE_THREAD();
+
+    EXPECT_TRUE(client::file_util::ReadFileToString(file_path, &trace_data_));
+    EXPECT_TRUE(CefDeleteFile(file_path, false));
+
+    completion_event_->Signal();
   }
 
  private:
