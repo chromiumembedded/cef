@@ -18,7 +18,7 @@
 #include <X11/keysym.h>
 
 #include "include/base/cef_logging.h"
-#include "include/cef_macros.h"
+#include "include/base/cef_macros.h"
 #include "include/wrapper/cef_closure_task.h"
 #include "tests/cefclient/browser/util_gtk.h"
 #include "tests/shared/browser/geometry_util.h"
