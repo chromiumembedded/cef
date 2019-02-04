@@ -269,6 +269,8 @@ void CefContentRendererClient::WebKitInitialized() {
         blink::WebSecurityPolicy::RegisterURLSchemeAsDisplayIsolated(scheme);
       if (info.is_secure)
         blink_glue::RegisterURLSchemeAsSecure(scheme);
+      if (info.is_fetch_enabled)
+        blink_glue::RegisterURLSchemeAsSupportingFetchAPI(scheme);
     }
   }
 

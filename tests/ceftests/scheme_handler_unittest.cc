@@ -449,6 +449,66 @@ void SetUpXHR(const XHRTestSettings& settings) {
   g_TestResults.exit_url = "http://tests/exit";
 }
 
+struct FetchTestSettings {
+  FetchTestSettings() {}
+
+  std::string url;
+  std::string sub_url;
+  std::string sub_allow_origin;
+  std::string sub_redirect_url;
+};
+
+void SetUpFetch(const FetchTestSettings& settings) {
+  g_TestResults.sub_url = settings.sub_url;
+  g_TestResults.sub_html = "SUCCESS";
+  g_TestResults.sub_status_code = 200;
+  g_TestResults.sub_allow_origin = settings.sub_allow_origin;
+  g_TestResults.sub_redirect_url = settings.sub_redirect_url;
+
+  std::string request_url;
+  if (!settings.sub_redirect_url.empty())
+    request_url = settings.sub_redirect_url;
+  else
+    request_url = settings.sub_url;
+
+  g_TestResults.url = settings.url;
+  std::stringstream ss;
+  ss << "<html><head>"
+        "<script language=\"JavaScript\">"
+        "function onResult(val) {"
+        "  document.location = \"http://tests/exit?result=\"+val;"
+        "}"
+        "function execFetchHttpRequest() {";
+  ss << "fetch('" << request_url.c_str()
+     << "')"
+        ".then(function(response) {"
+        "  if (response.status === 200) {"
+        "      response.text().then(function(text) {"
+        "          onResult(text);"
+        "      }).catch(function(e) {"
+        "          console.log('FetchHttpRequest failed with error ' + e);"
+        "          onResult('FAILURE');        "
+        "      });"
+        "  } else {"
+        "      console.log('XMLHttpRequest failed with status ' + "
+        "      response.status);"
+        "      onResult('FAILURE');"
+        "  }"
+        "}).catch(function(e) {"
+        "  console.log('FetchHttpRequest failed with error ' + e);"
+        "  onResult('FAILURE');"
+        "});"
+     << "}"
+        "</script>"
+        "</head><body onload=\"execFetchHttpRequest();\">"
+        "Running execFetchHttpRequest..."
+        "</body></html>";
+  g_TestResults.html = ss.str();
+  g_TestResults.status_code = 200;
+
+  g_TestResults.exit_url = "http://tests/exit";
+}  // namespace
+
 void SetUpXSS(const std::string& url,
               const std::string& sub_url,
               const std::string& domain = std::string()) {
@@ -898,6 +958,78 @@ TEST(SchemeHandlerTest, CustomNonStandardXHRSameOriginAsync) {
   ClearTestSchemes();
 }
 
+// Test that a non fetch enabled custom standard scheme can't generate same
+// origin Fetch requests.
+TEST(SchemeHandlerTest, CustomStandardFetchSameOrigin) {
+  RegisterTestScheme("customstd", "test");
+
+  FetchTestSettings settings;
+  settings.url = "customstd://test/run.html";
+  settings.sub_url = "customstd://test/fetch.html";
+  SetUpFetch(settings);
+
+  CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
+  handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
+
+  EXPECT_TRUE(g_TestResults.got_request);
+  EXPECT_TRUE(g_TestResults.got_read);
+  EXPECT_TRUE(g_TestResults.got_output);
+  EXPECT_FALSE(g_TestResults.got_sub_request);
+  EXPECT_FALSE(g_TestResults.got_sub_read);
+  EXPECT_FALSE(g_TestResults.got_sub_success);
+
+  ClearTestSchemes();
+}
+
+// Test that a fetch enabled custom standard scheme can generate same origin
+// Fetch requests.
+TEST(SchemeHandlerTest, FetchCustomStandardFetchSameOrigin) {
+  RegisterTestScheme("customstdfetch", "test");
+
+  FetchTestSettings settings;
+  settings.url = "customstdfetch://test/run.html";
+  settings.sub_url = "customstdfetch://test/fetch.html";
+  SetUpFetch(settings);
+
+  CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
+  handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
+
+  EXPECT_TRUE(g_TestResults.got_request);
+  EXPECT_TRUE(g_TestResults.got_read);
+  EXPECT_TRUE(g_TestResults.got_output);
+  EXPECT_TRUE(g_TestResults.got_sub_request);
+  EXPECT_TRUE(g_TestResults.got_sub_read);
+  EXPECT_TRUE(g_TestResults.got_sub_success);
+
+  ClearTestSchemes();
+}
+
+// Test that custom nonstandard schemes are treated as unique origins that
+// cannot generate Fetch requests.
+TEST(SchemeHandlerTest, CustomNonStandardFetchSameOrigin) {
+  RegisterTestScheme("customnonstd", std::string());
+
+  FetchTestSettings settings;
+  settings.url = "customnonstd:some%20value";
+  settings.sub_url = "customnonstd:xhr%20value";
+  SetUpFetch(settings);
+
+  CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
+  handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
+
+  EXPECT_TRUE(g_TestResults.got_request);
+  EXPECT_TRUE(g_TestResults.got_read);
+  EXPECT_TRUE(g_TestResults.got_output);
+  EXPECT_FALSE(g_TestResults.got_sub_request);
+  EXPECT_FALSE(g_TestResults.got_sub_read);
+  EXPECT_FALSE(g_TestResults.got_sub_success);
+
+  ClearTestSchemes();
+}
+
 // Test that a custom standard scheme can generate same origin XSS requests.
 TEST(SchemeHandlerTest, CustomStandardXSSSameOrigin) {
   RegisterTestScheme("customstd", "test");
@@ -988,6 +1120,31 @@ TEST(SchemeHandlerTest, CustomStandardXHRDifferentOriginAsync) {
   ClearTestSchemes();
 }
 
+// Test that a custom standard scheme cannot generate cross-domain Fetch
+// requests by default. Behavior should be the same as with HTTP.
+TEST(SchemeHandlerTest, CustomStandardFetchDifferentOrigin) {
+  RegisterTestScheme("customstdfetch", "test1");
+  RegisterTestScheme("customstdfetch", "test2");
+
+  FetchTestSettings settings;
+  settings.url = "customstdfetch://test1/run.html";
+  settings.sub_url = "customstdfetch://test2/fetch.html";
+  SetUpFetch(settings);
+
+  CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
+  handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
+
+  EXPECT_TRUE(g_TestResults.got_request);
+  EXPECT_TRUE(g_TestResults.got_read);
+  EXPECT_TRUE(g_TestResults.got_output);
+  EXPECT_TRUE(g_TestResults.got_sub_request);
+  EXPECT_TRUE(g_TestResults.got_sub_read);
+  EXPECT_FALSE(g_TestResults.got_sub_success);
+
+  ClearTestSchemes();
+}
+
 // Test that a custom standard scheme cannot generate cross-domain XSS requests
 // by default.
 TEST(SchemeHandlerTest, CustomStandardXSSDifferentOrigin) {
@@ -1045,6 +1202,31 @@ TEST(SchemeHandlerTest, HttpXHRDifferentOriginAsync) {
   settings.sub_url = "http://test2/xhr.html";
   settings.synchronous = false;
   SetUpXHR(settings);
+
+  CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
+  handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
+
+  EXPECT_TRUE(g_TestResults.got_request);
+  EXPECT_TRUE(g_TestResults.got_read);
+  EXPECT_TRUE(g_TestResults.got_output);
+  EXPECT_TRUE(g_TestResults.got_sub_request);
+  EXPECT_TRUE(g_TestResults.got_sub_read);
+  EXPECT_FALSE(g_TestResults.got_sub_success);
+
+  ClearTestSchemes();
+}
+
+// Test that an HTTP scheme cannot generate cross-domain Fetch requests by
+// default.
+TEST(SchemeHandlerTest, HttpFetchDifferentOriginAsync) {
+  RegisterTestScheme("http", "test1");
+  RegisterTestScheme("http", "test2");
+
+  FetchTestSettings settings;
+  settings.url = "http://test1/run.html";
+  settings.sub_url = "http://test2/fetch.html";
+  SetUpFetch(settings);
 
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
   handler->ExecuteTest();
@@ -1121,6 +1303,33 @@ TEST(SchemeHandlerTest, CustomStandardXHRDifferentOriginWithHeaderAsync) {
   settings.sub_allow_origin = "customstd://test1";
   settings.synchronous = false;
   SetUpXHR(settings);
+
+  CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
+  handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
+
+  EXPECT_TRUE(g_TestResults.got_request);
+  EXPECT_TRUE(g_TestResults.got_read);
+  EXPECT_TRUE(g_TestResults.got_output);
+  EXPECT_TRUE(g_TestResults.got_sub_request);
+  EXPECT_TRUE(g_TestResults.got_sub_read);
+  EXPECT_TRUE(g_TestResults.got_sub_success);
+
+  ClearTestSchemes();
+}
+
+// Test that a custom standard scheme can generate cross-domain Fetch requests
+// when setting the Access-Control-Allow-Origin header. Should behave the same
+// as HTTP.
+TEST(SchemeHandlerTest, CustomStandardFetchDifferentOriginWithHeader) {
+  RegisterTestScheme("customstdfetch", "test1");
+  RegisterTestScheme("customstdfetch", "test2");
+
+  FetchTestSettings settings;
+  settings.url = "customstdfetch://test1/run.html";
+  settings.sub_url = "customstdfetch://test2/fetch.html";
+  settings.sub_allow_origin = "customstdfetch://test1";
+  SetUpFetch(settings);
 
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
   handler->ExecuteTest();
@@ -1327,6 +1536,100 @@ TEST(SchemeHandlerTest, CustomStandardXHRDifferentOriginWithWhitelistAsync3) {
   ClearTestSchemes();
 }
 
+// Test that a custom standard scheme can generate cross-domain Fetch requests
+// when using the cross-origin whitelist.
+TEST(SchemeHandlerTest, CustomStandardFetchDifferentOriginWithWhitelist1) {
+  RegisterTestScheme("customstdfetch", "test1");
+  RegisterTestScheme("customstdfetch", "test2");
+
+  FetchTestSettings settings;
+  settings.url = "customstdfetch://test1/run.html";
+  settings.sub_url = "customstdfetch://test2/fetch.html";
+  SetUpFetch(settings);
+
+  EXPECT_TRUE(CefAddCrossOriginWhitelistEntry(
+      "customstdfetch://test1", "customstdfetch", "test2", false));
+  WaitForUIThread();
+
+  CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
+  handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
+
+  EXPECT_TRUE(g_TestResults.got_request);
+  EXPECT_TRUE(g_TestResults.got_read);
+  EXPECT_TRUE(g_TestResults.got_output);
+  EXPECT_TRUE(g_TestResults.got_sub_request);
+  EXPECT_TRUE(g_TestResults.got_sub_read);
+  EXPECT_TRUE(g_TestResults.got_sub_success);
+
+  EXPECT_TRUE(CefClearCrossOriginWhitelist());
+  WaitForUIThread();
+
+  ClearTestSchemes();
+}
+
+// Same as above but origin whitelist matches any domain.
+TEST(SchemeHandlerTest, CustomStandardFetchDifferentOriginWithWhitelist2) {
+  RegisterTestScheme("customstdfetch", "test1");
+  RegisterTestScheme("customstdfetch", "test2");
+
+  FetchTestSettings settings;
+  settings.url = "customstdfetch://test1/run.html";
+  settings.sub_url = "customstdfetch://test2/fetch.html";
+  SetUpFetch(settings);
+
+  EXPECT_TRUE(CefAddCrossOriginWhitelistEntry(
+      "customstdfetch://test1", "customstdfetch", CefString(), true));
+  WaitForUIThread();
+
+  CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
+  handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
+
+  EXPECT_TRUE(g_TestResults.got_request);
+  EXPECT_TRUE(g_TestResults.got_read);
+  EXPECT_TRUE(g_TestResults.got_output);
+  EXPECT_TRUE(g_TestResults.got_sub_request);
+  EXPECT_TRUE(g_TestResults.got_sub_read);
+  EXPECT_TRUE(g_TestResults.got_sub_success);
+
+  EXPECT_TRUE(CefClearCrossOriginWhitelist());
+  WaitForUIThread();
+
+  ClearTestSchemes();
+}
+
+// Same as above but origin whitelist matches sub-domains.
+TEST(SchemeHandlerTest, CustomStandardFetchDifferentOriginWithWhitelist3) {
+  RegisterTestScheme("customstdfetch", "test1");
+  RegisterTestScheme("customstdfetch", "a.test2.foo");
+
+  FetchTestSettings settings;
+  settings.url = "customstdfetch://test1/run.html";
+  settings.sub_url = "customstdfetch://a.test2.foo/fetch.html";
+  SetUpFetch(settings);
+
+  EXPECT_TRUE(CefAddCrossOriginWhitelistEntry(
+      "customstdfetch://test1", "customstdfetch", "test2.foo", true));
+  WaitForUIThread();
+
+  CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
+  handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
+
+  EXPECT_TRUE(g_TestResults.got_request);
+  EXPECT_TRUE(g_TestResults.got_read);
+  EXPECT_TRUE(g_TestResults.got_output);
+  EXPECT_TRUE(g_TestResults.got_sub_request);
+  EXPECT_TRUE(g_TestResults.got_sub_read);
+  EXPECT_TRUE(g_TestResults.got_sub_success);
+
+  EXPECT_TRUE(CefClearCrossOriginWhitelist());
+  WaitForUIThread();
+
+  ClearTestSchemes();
+}
+
 // Test that an HTTP scheme can generate cross-domain XHR requests when setting
 // the Access-Control-Allow-Origin header.
 TEST(SchemeHandlerTest, HttpXHRDifferentOriginWithHeaderSync) {
@@ -1365,6 +1668,32 @@ TEST(SchemeHandlerTest, HttpXHRDifferentOriginWithHeaderAsync) {
   settings.sub_allow_origin = "http://test1";
   settings.synchronous = false;
   SetUpXHR(settings);
+
+  CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
+  handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
+
+  EXPECT_TRUE(g_TestResults.got_request);
+  EXPECT_TRUE(g_TestResults.got_read);
+  EXPECT_TRUE(g_TestResults.got_output);
+  EXPECT_TRUE(g_TestResults.got_sub_request);
+  EXPECT_TRUE(g_TestResults.got_sub_read);
+  EXPECT_TRUE(g_TestResults.got_sub_success);
+
+  ClearTestSchemes();
+}
+
+// Test that an HTTP scheme can generate cross-domain XHR requests when setting
+// the Access-Control-Allow-Origin header.
+TEST(SchemeHandlerTest, HttpFetchDifferentOriginWithHeader) {
+  RegisterTestScheme("http", "test1");
+  RegisterTestScheme("http", "test2");
+
+  FetchTestSettings settings;
+  settings.url = "http://test1/run.html";
+  settings.sub_url = "http://test2/fetch.html";
+  settings.sub_allow_origin = "http://test1";
+  SetUpFetch(settings);
 
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
   handler->ExecuteTest();
@@ -1463,6 +1792,33 @@ TEST(SchemeHandlerTest, CustomStandardXHRDifferentOriginRedirectAsync) {
   settings.sub_redirect_url = "customstd://test1/xhr.html";
   settings.synchronous = false;
   SetUpXHR(settings);
+
+  CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
+  handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
+
+  EXPECT_TRUE(g_TestResults.got_request);
+  EXPECT_TRUE(g_TestResults.got_read);
+  EXPECT_TRUE(g_TestResults.got_output);
+  EXPECT_TRUE(g_TestResults.got_sub_redirect);
+  EXPECT_TRUE(g_TestResults.got_sub_request);
+  EXPECT_TRUE(g_TestResults.got_sub_read);
+  EXPECT_FALSE(g_TestResults.got_sub_success);
+
+  ClearTestSchemes();
+}
+
+// Test that a custom standard scheme cannot generate cross-domain Fetch
+// requests that perform redirects.
+TEST(SchemeHandlerTest, CustomStandardFetchDifferentOriginRedirect) {
+  RegisterTestScheme("customstdfetch", "test1");
+  RegisterTestScheme("customstdfetch", "test2");
+
+  FetchTestSettings settings;
+  settings.url = "customstdfetch://test1/run.html";
+  settings.sub_url = "customstdfetch://test2/fetch.html";
+  settings.sub_redirect_url = "customstdfetch://test1/fetch.html";
+  SetUpFetch(settings);
 
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
   handler->ExecuteTest();
@@ -1623,6 +1979,112 @@ TEST(SchemeHandlerTest,
   ClearTestSchemes();
 }
 
+// Test that a custom standard scheme can generate cross-domain Fetch requests
+// that perform redirects when using the cross-origin whitelist. This is
+// because we add an "Access-Control-Allow-Origin" header internally in
+// CefResourceDispatcherHostDelegate::OnRequestRedirected() for the redirect
+// request.
+TEST(SchemeHandlerTest,
+     CustomStandardFetchDifferentOriginRedirectWithWhitelist1) {
+  RegisterTestScheme("customstdfetch", "test1");
+  RegisterTestScheme("customstdfetch", "test2");
+
+  FetchTestSettings settings;
+  settings.url = "customstdfetch://test1/run.html";
+  settings.sub_url = "customstdfetch://test2/fetch.html";
+  settings.sub_redirect_url = "customstdfetch://test1/fetch.html";
+  SetUpFetch(settings);
+
+  EXPECT_TRUE(CefAddCrossOriginWhitelistEntry(
+      "customstdfetch://test1", "customstdfetch", "test2", false));
+  WaitForUIThread();
+
+  CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
+  handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
+
+  EXPECT_TRUE(g_TestResults.got_request);
+  EXPECT_TRUE(g_TestResults.got_read);
+  EXPECT_TRUE(g_TestResults.got_output);
+  EXPECT_TRUE(g_TestResults.got_sub_redirect);
+  EXPECT_TRUE(g_TestResults.got_sub_request);
+  EXPECT_TRUE(g_TestResults.got_sub_read);
+  EXPECT_TRUE(g_TestResults.got_sub_success);
+
+  EXPECT_TRUE(CefClearCrossOriginWhitelist());
+  WaitForUIThread();
+
+  ClearTestSchemes();
+}
+
+// Same as above but origin whitelist matches any domain.
+TEST(SchemeHandlerTest,
+     CustomStandardFetchDifferentOriginRedirectWithWhitelist2) {
+  RegisterTestScheme("customstdfetch", "test1");
+  RegisterTestScheme("customstdfetch", "test2");
+
+  FetchTestSettings settings;
+  settings.url = "customstdfetch://test1/run.html";
+  settings.sub_url = "customstdfetch://test2/fetch.html";
+  settings.sub_redirect_url = "customstdfetch://test1/fetch.html";
+  SetUpFetch(settings);
+
+  EXPECT_TRUE(CefAddCrossOriginWhitelistEntry(
+      "customstdfetch://test1", "customstdfetch", CefString(), true));
+  WaitForUIThread();
+
+  CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
+  handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
+
+  EXPECT_TRUE(g_TestResults.got_request);
+  EXPECT_TRUE(g_TestResults.got_read);
+  EXPECT_TRUE(g_TestResults.got_output);
+  EXPECT_TRUE(g_TestResults.got_sub_redirect);
+  EXPECT_TRUE(g_TestResults.got_sub_request);
+  EXPECT_TRUE(g_TestResults.got_sub_read);
+  EXPECT_TRUE(g_TestResults.got_sub_success);
+
+  EXPECT_TRUE(CefClearCrossOriginWhitelist());
+  WaitForUIThread();
+
+  ClearTestSchemes();
+}
+
+// Same as above but origin whitelist matches sub-domains.
+TEST(SchemeHandlerTest,
+     CustomStandardFetchDifferentOriginRedirectWithWhitelist3) {
+  RegisterTestScheme("customstdfetch", "test1");
+  RegisterTestScheme("customstdfetch", "a.test2.foo");
+
+  FetchTestSettings settings;
+  settings.url = "customstdfetch://test1/run.html";
+  settings.sub_url = "customstdfetch://a.test2.foo/fetch.html";
+  settings.sub_redirect_url = "customstdfetch://test1/fetch.html";
+  SetUpFetch(settings);
+
+  EXPECT_TRUE(CefAddCrossOriginWhitelistEntry(
+      "customstdfetch://test1", "customstdfetch", "test2.foo", true));
+  WaitForUIThread();
+
+  CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
+  handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
+
+  EXPECT_TRUE(g_TestResults.got_request);
+  EXPECT_TRUE(g_TestResults.got_read);
+  EXPECT_TRUE(g_TestResults.got_output);
+  EXPECT_TRUE(g_TestResults.got_sub_redirect);
+  EXPECT_TRUE(g_TestResults.got_sub_request);
+  EXPECT_TRUE(g_TestResults.got_sub_read);
+  EXPECT_TRUE(g_TestResults.got_sub_success);
+
+  EXPECT_TRUE(CefClearCrossOriginWhitelist());
+  WaitForUIThread();
+
+  ClearTestSchemes();
+}
+
 // Test per-browser setting of Accept-Language.
 TEST(SchemeHandlerTest, AcceptLanguage) {
   RegisterTestScheme("customstd", "test");
@@ -1653,8 +2115,12 @@ void RegisterSchemeHandlerCustomSchemes(
     std::vector<CefString>& cookiable_schemes) {
   // Add a custom standard scheme.
   registrar->AddCustomScheme("customstd", true, false, false, false, true,
-                             false);
-  // Ad a custom non-standard scheme.
+                             false, false);
+  registrar->AddCustomScheme("customstdfetch", true, false, false, false, true,
+                             false, true);
+  // Add a custom non-standard scheme.
   registrar->AddCustomScheme("customnonstd", false, false, false, false, false,
-                             false);
+                             false, false);
+  registrar->AddCustomScheme("customnonstdfetch", false, false, false, false,
+                             false, false, true);
 }

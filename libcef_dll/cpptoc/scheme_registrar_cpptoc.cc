@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=9371355cdf8f8baca16fdb8558074b4198561b0c$
+// $hash=2f79804767b1c08a00f87b918190f33a1734b346$
 //
 
 #include "libcef_dll/cpptoc/scheme_registrar_cpptoc.h"
@@ -26,7 +26,8 @@ scheme_registrar_add_custom_scheme(struct _cef_scheme_registrar_t* self,
                                    int is_display_isolated,
                                    int is_secure,
                                    int is_cors_enabled,
-                                   int is_csp_bypassing) {
+                                   int is_csp_bypassing,
+                                   int is_fetch_enabled) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -42,7 +43,7 @@ scheme_registrar_add_custom_scheme(struct _cef_scheme_registrar_t* self,
       CefString(scheme_name), is_standard ? true : false,
       is_local ? true : false, is_display_isolated ? true : false,
       is_secure ? true : false, is_cors_enabled ? true : false,
-      is_csp_bypassing ? true : false);
+      is_csp_bypassing ? true : false, is_fetch_enabled ? true : false);
 
   // Return type: bool
   return _retval;
