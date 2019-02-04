@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=f83c72ec43f10f19eba82d9d3c284cc436cdbd23$
+// $hash=ba3b03834e2db16056cd2be805ec9f116a92e14e$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_SCHEME_CAPI_H_
@@ -117,6 +117,9 @@ typedef struct _cef_scheme_registrar_t {
   // Policy (CSP) checks. This value should be false (0) in most cases where
   // |is_standard| is true (1).
   //
+  // If |is_fetch_enabled| is true (1) the scheme can perform Fetch API
+  // requests.
+  //
   // This function may be called on any thread. It should only be called once
   // per unique |scheme_name| value. If |scheme_name| is already registered or
   // if an error occurs this function will return false (0).
@@ -128,7 +131,8 @@ typedef struct _cef_scheme_registrar_t {
                                        int is_display_isolated,
                                        int is_secure,
                                        int is_cors_enabled,
-                                       int is_csp_bypassing);
+                                       int is_csp_bypassing,
+                                       int is_fetch_enabled);
 } cef_scheme_registrar_t;
 
 ///

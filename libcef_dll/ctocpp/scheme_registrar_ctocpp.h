@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=5ce8d9f062d527c665f33c4508da01da9dbf277d$
+// $hash=78be224ecf2427abc51e7006d031861baee0435d$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_SCHEME_REGISTRAR_CTOCPP_H_
@@ -40,7 +40,8 @@ class CefSchemeRegistrarCToCpp
                        bool is_display_isolated,
                        bool is_secure,
                        bool is_cors_enabled,
-                       bool is_csp_bypassing) OVERRIDE;
+                       bool is_csp_bypassing,
+                       bool is_fetch_enabled) OVERRIDE;
 };
 
 #endif  // CEF_LIBCEF_DLL_CTOCPP_SCHEME_REGISTRAR_CTOCPP_H_

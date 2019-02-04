@@ -477,6 +477,8 @@ class TypeTestHandler : public TestHandler {
                 "font/ttf");
     AddResource(std::string(kTypeTestOrigin) + "xhr.html", "<html>XHR</html>",
                 "text/html");
+    AddResource(std::string(kTypeTestOrigin) + "fetch.html",
+                "<html>Fetch</html>", "text/html");
 
     CreateBrowser(std::string(kTypeTestOrigin) + "main.html");
 

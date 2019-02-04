@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=e7d830a10e5beeb36640297489468dae63df32e3$
+// $hash=b35a35cf7c729b333843001e424e13d9e91dc41c$
 //
 
 #include "libcef_dll/ctocpp/scheme_registrar_ctocpp.h"
@@ -23,7 +23,8 @@ bool CefSchemeRegistrarCToCpp::AddCustomScheme(const CefString& scheme_name,
                                                bool is_display_isolated,
                                                bool is_secure,
                                                bool is_cors_enabled,
-                                               bool is_csp_bypassing) {
+                                               bool is_csp_bypassing,
+                                               bool is_fetch_enabled) {
   cef_scheme_registrar_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, add_custom_scheme))
     return false;
@@ -38,7 +39,8 @@ bool CefSchemeRegistrarCToCpp::AddCustomScheme(const CefString& scheme_name,
   // Execute
   int _retval = _struct->add_custom_scheme(
       _struct, scheme_name.GetStruct(), is_standard, is_local,
-      is_display_isolated, is_secure, is_cors_enabled, is_csp_bypassing);
+      is_display_isolated, is_secure, is_cors_enabled, is_csp_bypassing,
+      is_fetch_enabled);
 
   // Return type: bool
   return _retval ? true : false;

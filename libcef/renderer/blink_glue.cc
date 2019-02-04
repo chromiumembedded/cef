@@ -216,6 +216,10 @@ void RegisterURLSchemeAsSecure(const blink::WebString& scheme) {
   blink::SchemeRegistry::RegisterURLSchemeAsSecure(scheme);
 }
 
+void RegisterURLSchemeAsSupportingFetchAPI(const blink::WebString& scheme) {
+  blink::SchemeRegistry::RegisterURLSchemeAsSupportingFetchAPI(scheme);
+}
+
 struct CefScriptForbiddenScope::Impl {
   blink::ScriptForbiddenScope scope_;
 };

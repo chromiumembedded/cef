@@ -69,6 +69,9 @@ BLINK_EXPORT bool IsScriptForbidden();
 BLINK_EXPORT void RegisterURLSchemeAsLocal(const blink::WebString& scheme);
 BLINK_EXPORT void RegisterURLSchemeAsSecure(const blink::WebString& scheme);
 
+BLINK_EXPORT void RegisterURLSchemeAsSupportingFetchAPI(
+    const blink::WebString& scheme);
+
 // Wrapper for blink::ScriptForbiddenScope.
 class BLINK_EXPORT CefScriptForbiddenScope final {
  public:

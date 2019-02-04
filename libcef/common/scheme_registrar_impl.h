@@ -24,7 +24,8 @@ class CefSchemeRegistrarImpl : public CefSchemeRegistrar {
                        bool is_display_isolated,
                        bool is_secure,
                        bool is_cors_enabled,
-                       bool is_csp_bypassing) override;
+                       bool is_csp_bypassing,
+                       bool is_fetch_enabled) override;
 
   void GetSchemes(content::ContentClient::Schemes* schemes);
 
