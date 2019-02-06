@@ -169,6 +169,12 @@ if(OS_LINUX)
       )
   endif()
 
+  if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+    list(APPEND CEF_CXX_COMPILER_FLAGS
+      -Wno-attributes             # The cfi-icall attribute is not supported by the GNU C++ compiler
+      )
+  endif()
+
   if(PROJECT_ARCH STREQUAL "x86_64")
     # 64-bit architecture.
     list(APPEND CEF_COMPILER_FLAGS
