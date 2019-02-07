@@ -26,6 +26,11 @@ void BrowserWindowStdWin::CreateBrowser(
   RECT wnd_rect = {rect.x, rect.y, rect.x + rect.width, rect.y + rect.height};
   window_info.SetAsChild(parent_handle, wnd_rect);
 
+  if (GetWindowLongPtr(parent_handle, GWL_EXSTYLE) & WS_EX_NOACTIVATE) {
+    // Don't activate the browser window on creation.
+    window_info.ex_style |= WS_EX_NOACTIVATE;
+  }
+
   CefBrowserHost::CreateBrowser(window_info, client_handler_,
                                 client_handler_->startup_url(), settings,
                                 request_context);
@@ -39,6 +44,10 @@ void BrowserWindowStdWin::GetPopupConfig(CefWindowHandle temp_handle,
 
   // The window will be properly sized after the browser is created.
   windowInfo.SetAsChild(temp_handle, RECT());
+
+  // Don't activate the hidden browser window on creation.
+  windowInfo.ex_style |= WS_EX_NOACTIVATE;
+
   client = client_handler_;
 }
 
@@ -53,8 +62,11 @@ void BrowserWindowStdWin::ShowPopup(ClientWindowHandle parent_handle,
   if (hwnd) {
     SetParent(hwnd, parent_handle);
     SetWindowPos(hwnd, NULL, x, y, static_cast<int>(width),
-                 static_cast<int>(height), SWP_NOZORDER);
-    ShowWindow(hwnd, SW_SHOW);
+                 static_cast<int>(height), SWP_NOZORDER | SWP_NOACTIVATE);
+
+    const bool no_activate =
+        GetWindowLongPtr(parent_handle, GWL_EXSTYLE) & WS_EX_NOACTIVATE;
+    ShowWindow(hwnd, no_activate ? SW_SHOWNOACTIVATE : SW_SHOW);
   }
 }
 

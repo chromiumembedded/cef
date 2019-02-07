@@ -249,7 +249,8 @@ ClientHandler::ClientHandler(Delegate* delegate,
       browser_count_(0),
       console_log_file_(MainContext::Get()->GetConsoleLogPath()),
       first_console_message_(true),
-      focus_on_editable_field_(false) {
+      focus_on_editable_field_(false),
+      initial_navigation_(true) {
   DCHECK(!console_log_file_.empty());
 
 #if defined(OS_LINUX)
@@ -497,6 +498,22 @@ void ClientHandler::OnTakeFocus(CefRefPtr<CefBrowser> browser, bool next) {
   NotifyTakeFocus(next);
 }
 
+bool ClientHandler::OnSetFocus(CefRefPtr<CefBrowser> browser,
+                               FocusSource source) {
+  CEF_REQUIRE_UI_THREAD();
+
+  if (initial_navigation_) {
+    CefRefPtr<CefCommandLine> command_line =
+        CefCommandLine::GetGlobalCommandLine();
+    if (command_line->HasSwitch(switches::kNoActivate)) {
+      // Don't give focus to the browser on creation.
+      return true;
+    }
+  }
+
+  return false;
+}
+
 bool ClientHandler::OnPreKeyEvent(CefRefPtr<CefBrowser> browser,
                                   const CefKeyEvent& event,
                                   CefEventHandle os_event,
@@ -605,6 +622,10 @@ void ClientHandler::OnLoadingStateChange(CefRefPtr<CefBrowser> browser,
                                          bool canGoBack,
                                          bool canGoForward) {
   CEF_REQUIRE_UI_THREAD();
+
+  if (!isLoading && initial_navigation_) {
+    initial_navigation_ = false;
+  }
 
   NotifyLoadingState(isLoading, canGoBack, canGoForward);
 }

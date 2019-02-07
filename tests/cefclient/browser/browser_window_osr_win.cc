@@ -41,6 +41,9 @@ void BrowserWindowOsrWin::GetPopupConfig(CefWindowHandle temp_handle,
   windowInfo.external_begin_frame_enabled =
       osr_window_->settings().external_begin_frame_enabled;
 
+  // Don't activate the hidden browser on creation.
+  windowInfo.ex_style |= WS_EX_NOACTIVATE;
+
   client = client_handler_;
 }
 
