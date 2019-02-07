@@ -150,6 +150,7 @@ class RootWindow
     ShowNormal,
     ShowMinimized,
     ShowMaximized,
+    ShowNoActivate,
   };
 
   // Show the window.

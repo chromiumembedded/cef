@@ -37,6 +37,7 @@ extern const char kWidevineCdmPath[];
 extern const char kSslClientCertificate[];
 extern const char kCRLSetsPath[];
 extern const char kLoadExtension[];
+extern const char kNoActivate[];
 
 }  // namespace switches
 }  // namespace client

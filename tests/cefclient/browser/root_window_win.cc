@@ -226,6 +226,9 @@ void RootWindowWin::Show(ShowMode mode) {
     case ShowMaximized:
       nCmdShow = SW_SHOWMAXIMIZED;
       break;
+    case ShowNoActivate:
+      nCmdShow = SW_SHOWNOACTIVATE;
+      break;
     default:
       break;
   }
@@ -334,8 +337,16 @@ void RootWindowWin::CreateRootWindow(const CefBrowserSettings& settings,
   find_message_id_ = RegisterWindowMessage(FINDMSGSTRING);
   CHECK(find_message_id_);
 
+  CefRefPtr<CefCommandLine> command_line =
+      CefCommandLine::GetGlobalCommandLine();
+  const bool no_activate = command_line->HasSwitch(switches::kNoActivate);
+
   const DWORD dwStyle = WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN;
-  const DWORD dwExStyle = always_on_top_ ? WS_EX_TOPMOST : 0;
+  DWORD dwExStyle = always_on_top_ ? WS_EX_TOPMOST : 0;
+  if (no_activate) {
+    // Don't activate the browser window on creation.
+    dwExStyle |= WS_EX_NOACTIVATE;
+  }
 
   int x, y, width, height;
   if (::IsRectEmpty(&start_rect_)) {
@@ -373,7 +384,7 @@ void RootWindowWin::CreateRootWindow(const CefBrowserSettings& settings,
 
   if (!initially_hidden) {
     // Show this window.
-    Show(ShowNormal);
+    Show(no_activate ? ShowNoActivate : ShowNormal);
   }
 }
 
@@ -1068,6 +1079,22 @@ void RootWindowWin::OnSetLoadingState(bool isLoading,
     EnableWindow(reload_hwnd_, !isLoading);
     EnableWindow(stop_hwnd_, isLoading);
     EnableWindow(edit_hwnd_, TRUE);
+  }
+
+  if (!isLoading && GetWindowLongPtr(hwnd_, GWL_EXSTYLE) & WS_EX_NOACTIVATE) {
+    // Done with the initial navigation. Remove the WS_EX_NOACTIVATE style so
+    // that future mouse clicks inside the browser correctly activate and focus
+    // the window. For the top-level window removing this style causes Windows
+    // to display the task bar button.
+    SetWindowLongPtr(hwnd_, GWL_EXSTYLE,
+                     GetWindowLongPtr(hwnd_, GWL_EXSTYLE) & ~WS_EX_NOACTIVATE);
+
+    if (browser_window_) {
+      HWND browser_hwnd = browser_window_->GetWindowHandle();
+      SetWindowLongPtr(
+          browser_hwnd, GWL_EXSTYLE,
+          GetWindowLongPtr(browser_hwnd, GWL_EXSTYLE) & ~WS_EX_NOACTIVATE);
+    }
   }
 }
 

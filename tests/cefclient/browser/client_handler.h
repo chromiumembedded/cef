@@ -169,6 +169,7 @@ class ClientHandler : public CefClient,
 
   // CefFocusHandler methods
   void OnTakeFocus(CefRefPtr<CefBrowser> browser, bool next) OVERRIDE;
+  bool OnSetFocus(CefRefPtr<CefBrowser> browser, FocusSource source) OVERRIDE;
 
   // CefKeyboardHandler methods
   bool OnPreKeyEvent(CefRefPtr<CefBrowser> browser,
@@ -369,6 +370,9 @@ class ClientHandler : public CefClient,
 
   // True if an editable field currently has focus.
   bool focus_on_editable_field_;
+
+  // True for the initial navigation after browser creation.
+  bool initial_navigation_;
 
   // Set of Handlers registered with the message router.
   MessageHandlerSet message_handler_set_;
