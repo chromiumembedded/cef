@@ -76,6 +76,11 @@ void OsrWindowWin::CreateBrowser(HWND parent_hwnd,
   CefWindowInfo window_info;
   window_info.SetAsWindowless(hwnd_);
 
+  if (GetWindowLongPtr(parent_hwnd, GWL_EXSTYLE) & WS_EX_NOACTIVATE) {
+    // Don't activate the browser window on creation.
+    window_info.ex_style |= WS_EX_NOACTIVATE;
+  }
+
   window_info.shared_texture_enabled = settings_.shared_texture_enabled;
   window_info.external_begin_frame_enabled =
       settings_.external_begin_frame_enabled;
@@ -220,10 +225,16 @@ void OsrWindowWin::Create(HWND parent_hwnd, const RECT& rect) {
 
   RegisterOsrClass(hInst, background_brush);
 
+  DWORD ex_style = 0;
+  if (GetWindowLongPtr(parent_hwnd, GWL_EXSTYLE) & WS_EX_NOACTIVATE) {
+    // Don't activate the browser window on creation.
+    ex_style |= WS_EX_NOACTIVATE;
+  }
+
   // Create the native window with a border so it's easier to visually identify
   // OSR windows.
-  hwnd_ = ::CreateWindow(
-      kWndClass, 0,
+  hwnd_ = ::CreateWindowEx(
+      ex_style, kWndClass, 0,
       WS_BORDER | WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WS_VISIBLE,
       rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top,
       parent_hwnd, 0, hInst, 0);

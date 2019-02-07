@@ -43,6 +43,7 @@ const char kWidevineCdmPath[] = "widevine-cdm-path";
 const char kSslClientCertificate[] = "ssl-client-certificate";
 const char kCRLSetsPath[] = "crl-sets-path";
 const char kLoadExtension[] = "load-extension";
+const char kNoActivate[] = "no-activate";
 
 }  // namespace switches
 }  // namespace client

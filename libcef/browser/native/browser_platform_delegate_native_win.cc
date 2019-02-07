@@ -207,7 +207,26 @@ bool CefBrowserPlatformDelegateNativeWin::CreateHostWindow() {
                       gfx::Rect(0, 0, point.x(), point.y()));
 
   window_widget_ = delegate_view->GetWidget();
+
+  const HWND widget_hwnd = HWNDForWidget(window_widget_);
+  DCHECK(widget_hwnd);
+  const DWORD widget_ex_styles = GetWindowLongPtr(widget_hwnd, GWL_EXSTYLE);
+
+  if (window_info_.ex_style & WS_EX_NOACTIVATE) {
+    // Add the WS_EX_NOACTIVATE style on the DesktopWindowTreeHostWin HWND
+    // so that HWNDMessageHandler::Show() called via Widget::Show() does not
+    // activate the window.
+    SetWindowLongPtr(widget_hwnd, GWL_EXSTYLE,
+                     widget_ex_styles | WS_EX_NOACTIVATE);
+  }
+
   window_widget_->Show();
+
+  if (window_info_.ex_style & WS_EX_NOACTIVATE) {
+    // Remove the WS_EX_NOACTIVATE style so that future mouse clicks inside the
+    // browser correctly activate and focus the window.
+    SetWindowLongPtr(widget_hwnd, GWL_EXSTYLE, widget_ex_styles);
+  }
 
   return true;
 }
