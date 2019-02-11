@@ -1,0 +1,146 @@
+diff --git content/app/content_service_manager_main_delegate.h content/app/content_service_manager_main_delegate.h
+index 864f2a5a315a..78b71d523e86 100644
+--- content/app/content_service_manager_main_delegate.h
++++ content/app/content_service_manager_main_delegate.h
+@@ -18,7 +18,8 @@ namespace content {
+ 
+ class ContentMainRunnerImpl;
+ 
+-class ContentServiceManagerMainDelegate : public service_manager::MainDelegate {
++class CONTENT_EXPORT ContentServiceManagerMainDelegate :
++    public service_manager::MainDelegate {
+  public:
+   explicit ContentServiceManagerMainDelegate(const ContentMainParams& params);
+   ~ContentServiceManagerMainDelegate() override;
+diff --git content/browser/renderer_host/input/mouse_wheel_phase_handler.h content/browser/renderer_host/input/mouse_wheel_phase_handler.h
+index fc252b6ceffd..b0dfd847ec03 100644
+--- content/browser/renderer_host/input/mouse_wheel_phase_handler.h
++++ content/browser/renderer_host/input/mouse_wheel_phase_handler.h
+@@ -7,6 +7,7 @@
+ 
+ #include "base/timer/timer.h"
+ #include "content/browser/renderer_host/render_widget_host_delegate.h"
++#include "content/common/content_export.h"
+ #include "content/public/common/input_event_ack_state.h"
+ #include "third_party/blink/public/platform/web_mouse_wheel_event.h"
+ 
+@@ -55,7 +56,7 @@ enum class FirstScrollUpdateAckState {
+ // The MouseWheelPhaseHandler is responsible for adding the proper phase to
+ // wheel events. Phase information is necessary for wheel scrolling since it
+ // shows the start and end of a scrolling sequence.
+-class MouseWheelPhaseHandler {
++class CONTENT_EXPORT MouseWheelPhaseHandler {
+  public:
+   MouseWheelPhaseHandler(RenderWidgetHostViewBase* const host_view);
+   ~MouseWheelPhaseHandler() {}
+diff --git third_party/blink/renderer/controller/BUILD.gn third_party/blink/renderer/controller/BUILD.gn
+index 7668f3725200..665e8e579c54 100644
+--- third_party/blink/renderer/controller/BUILD.gn
++++ third_party/blink/renderer/controller/BUILD.gn
+@@ -25,6 +25,7 @@ component("controller") {
+ 
+   configs += [
+     "//build/config/compiler:wexit_time_destructors",
++    "//cef/libcef/features:config",
+     "//third_party/blink/renderer:config",
+     "//third_party/blink/renderer:inside_blink",
+     "//third_party/blink/renderer:non_test_config",
+@@ -47,6 +48,8 @@ component("controller") {
+     "memory_usage_monitor.h",
+     "memory_usage_monitor_android.cc",
+     "memory_usage_monitor_android.h",
++    "//cef/libcef/renderer/blink_glue.cc",
++    "//cef/libcef/renderer/blink_glue.h",
+   ]
+ 
+   if (is_android) {
+diff --git ui/events/keycodes/BUILD.gn ui/events/keycodes/BUILD.gn
+index 1e6d31cc0c92..9ba27b68203d 100644
+--- ui/events/keycodes/BUILD.gn
++++ ui/events/keycodes/BUILD.gn
+@@ -14,6 +14,8 @@ jumbo_source_set("xkb") {
+     "xkb_keysym.h",
+   ]
+ 
++  defines = [ "KEYCODES_XKB_IMPLEMENTATION" ]
++
+   deps = [
+     "//base",
+     "//ui/base:buildflags",
+diff --git ui/events/keycodes/keyboard_code_conversion_xkb.h ui/events/keycodes/keyboard_code_conversion_xkb.h
+index a1f9b78704fb..6d7001c25905 100644
+--- ui/events/keycodes/keyboard_code_conversion_xkb.h
++++ ui/events/keycodes/keyboard_code_conversion_xkb.h
+@@ -9,6 +9,7 @@
+ 
+ #include "base/strings/string16.h"
+ #include "ui/events/keycodes/dom/dom_key.h"
++#include "ui/events/keycodes/keycodes_xkb_export.h"
+ #include "ui/events/keycodes/xkb_keysym.h"
+ 
+ namespace ui {
+@@ -24,7 +25,7 @@ DomKey NonPrintableXKeySymToDomKey(xkb_keysym_t keysym);
+ // base::char16 DeadXKeySymToCombiningCharacter(xkb_keysym_t keysym);
+ 
+ // Return the DomKey determined by the XKB layout result (keysym, character).
+-DomKey XKeySymToDomKey(xkb_keysym_t keysym, base::char16 character);
++KEYCODES_XKB_EXPORT DomKey XKeySymToDomKey(xkb_keysym_t keysym, base::char16 character);
+ 
+ }  // namespace ui
+ 
+diff --git ui/events/keycodes/keycodes_xkb_export.h ui/events/keycodes/keycodes_xkb_export.h
+index e69de29bb2d1..dc0e8939f597 100644
+--- ui/events/keycodes/keycodes_xkb_export.h
++++ ui/events/keycodes/keycodes_xkb_export.h
+@@ -0,0 +1,29 @@
++// Copyright 2016 The Chromium Authors. All rights reserved.
++// Use of this source code is governed by a BSD-style license that can be
++// found in the LICENSE file.
++
++#ifndef UI_EVENTS_KEYCODES_KEYCODES_XKB_EXPORT_H_
++#define UI_EVENTS_KEYCODES_KEYCODES_XKB_EXPORT_H_
++
++#if defined(COMPONENT_BUILD)
++#if defined(WIN32)
++
++#if defined(KEYCODES_XKB_IMPLEMENTATION)
++#define KEYCODES_XKB_EXPORT __declspec(dllexport)
++#else
++#define KEYCODES_XKB_EXPORT __declspec(dllimport)
++#endif  // defined(KEYCODES_XKB_IMPLEMENTATION)
++
++#else  // defined(WIN32)
++#if defined(KEYCODES_XKB_IMPLEMENTATION)
++#define KEYCODES_XKB_EXPORT __attribute__((visibility("default")))
++#else
++#define KEYCODES_XKB_EXPORT
++#endif
++#endif
++
++#else  // defined(COMPONENT_BUILD)
++#define KEYCODES_XKB_EXPORT
++#endif
++
++#endif  // UI_EVENTS_KEYCODES_KEYCODES_XKB_EXPORT_H_
+diff --git ui/events/keycodes/keysym_to_unicode.h ui/events/keycodes/keysym_to_unicode.h
+index a7983d179832..2bbee48e57ac 100644
+--- ui/events/keycodes/keysym_to_unicode.h
++++ ui/events/keycodes/keysym_to_unicode.h
+@@ -5,6 +5,8 @@
+ #ifndef UI_EVENTS_KEYCODES_KEYSYM_TO_UNICODE_H_
+ #define UI_EVENTS_KEYCODES_KEYSYM_TO_UNICODE_H_
+ 
++#include "ui/events/keycodes/keycodes_x_export.h"
++
+ #include <stdint.h>
+ 
+ namespace ui {
+@@ -13,7 +15,7 @@ namespace ui {
+ // |keysym| doesn't represent a printable character, returns zero.  We don't
+ // support characters outside the Basic Plane, and this function returns zero
+ // in that case.
+-uint16_t GetUnicodeCharacterFromXKeySym(unsigned long keysym);
++KEYCODES_X_EXPORT uint16_t GetUnicodeCharacterFromXKeySym(unsigned long keysym);
+ 
+ }  // namespace ui
+ 
