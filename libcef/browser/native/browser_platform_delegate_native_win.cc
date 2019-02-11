@@ -707,7 +707,10 @@ LRESULT CALLBACK CefBrowserPlatformDelegateNativeWin::WndProc(HWND hwnd,
       return 0;
 
     case WM_SETFOCUS:
-      if (browser)
+      // Selecting "Close window" from the task bar menu may send a focus
+      // notification even though the window is currently disabled (e.g. while
+      // a modal JS dialog is displayed).
+      if (browser && ::IsWindowEnabled(hwnd))
         browser->SetFocus(true);
       return 0;
 

@@ -26,6 +26,8 @@ class CefJavaScriptDialogRunnerWin : public CefJavaScriptDialogRunner {
   void Cancel() override;
 
  private:
+  void CloseDialog(bool success, const base::string16& user_input);
+
   HWND dialog_win_;
   HWND parent_win_;
 
