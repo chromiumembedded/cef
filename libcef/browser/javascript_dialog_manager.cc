@@ -72,7 +72,6 @@ CefJavaScriptDialogManager::~CefJavaScriptDialogManager() {}
 
 void CefJavaScriptDialogManager::Destroy() {
   if (runner_.get()) {
-    DCHECK(!dialog_running_);
     runner_.reset(NULL);
   }
 }
