@@ -39,8 +39,7 @@ INT_PTR CALLBACK CefJavaScriptDialogRunnerWin::DialogProc(HWND dialog,
           reinterpret_cast<CefJavaScriptDialogRunnerWin*>(
               GetWindowLongPtr(dialog, DWLP_USER));
       if (owner) {
-        owner->Cancel();
-        owner->callback_.Run(false, base::string16());
+        owner->CloseDialog(false, base::string16());
 
         // No need for the system to call DestroyWindow() because it will be
         // called by the Cancel() method.
@@ -74,8 +73,7 @@ INT_PTR CALLBACK CefJavaScriptDialogRunnerWin::DialogProc(HWND dialog,
           break;
       }
       if (finish) {
-        owner->Cancel();
-        owner->callback_.Run(result, user_input);
+        owner->CloseDialog(result, user_input);
       }
       break;
     }
@@ -153,12 +151,9 @@ void CefJavaScriptDialogRunnerWin::Run(
 }
 
 void CefJavaScriptDialogRunnerWin::Cancel() {
-  HWND parent = NULL;
-
   // Re-enable the parent before closing the popup to avoid focus/activation/
   // z-order issues.
   if (parent_win_ && IsWindow(parent_win_) && !IsWindowEnabled(parent_win_)) {
-    parent = parent_win_;
     EnableWindow(parent_win_, TRUE);
     parent_win_ = NULL;
   }
@@ -169,14 +164,22 @@ void CefJavaScriptDialogRunnerWin::Cancel() {
     dialog_win_ = NULL;
   }
 
-  // Return focus to the parent window.
-  if (parent)
-    SetFocus(parent);
-
   if (hook_installed_) {
     UninstallMessageHook();
     hook_installed_ = false;
   }
+}
+
+void CefJavaScriptDialogRunnerWin::CloseDialog(
+    bool success,
+    const base::string16& user_input) {
+  // Run the callback first so that RenderProcessHostImpl::IsBlocked is
+  // cleared. Otherwise, RenderWidgetHostImpl::IsIgnoringInputEvents will
+  // return true and RenderWidgetHostViewAura::OnWindowFocused will fail to
+  // re-assign browser focus.
+  callback_.Run(success, user_input);
+  callback_.Reset();
+  Cancel();
 }
 
 // static
