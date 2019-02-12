@@ -190,6 +190,7 @@ CefDevToolsFrontend::CefDevToolsFrontend(
       frontend_browser_(frontend_browser),
       inspected_contents_(inspected_contents),
       inspect_element_at_(inspect_element_at),
+      file_manager_(frontend_browser.get(), GetPrefs()),
       weak_factory_(this) {}
 
 CefDevToolsFrontend::~CefDevToolsFrontend() {
@@ -355,6 +356,22 @@ void CefDevToolsFrontend::HandleMessageFromDevToolsFrontend(
     if (!params->GetString(0, &origin) || !params->GetString(1, &script))
       return;
     extensions_api_[origin + "/"] = script;
+  } else if (method == "save" && params->GetSize() == 3) {
+    std::string url;
+    std::string content;
+    bool save_as;
+    if (!params->GetString(0, &url) || !params->GetString(1, &content) ||
+        !params->GetBoolean(2, &save_as)) {
+      return;
+    }
+    file_manager_.SaveToFile(url, content, save_as);
+  } else if (method == "append" && params->GetSize() == 2) {
+    std::string url;
+    std::string content;
+    if (!params->GetString(0, &url) || !params->GetString(1, &content)) {
+      return;
+    }
+    file_manager_.AppendToFile(url, content);
   } else {
     return;
   }

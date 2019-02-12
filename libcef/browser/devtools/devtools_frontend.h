@@ -8,6 +8,7 @@
 #include <memory>
 
 #include "libcef/browser/browser_host_impl.h"
+#include "libcef/browser/devtools/devtools_file_manager.h"
 
 #include "base/compiler_specific.h"
 #include "base/macros.h"
@@ -93,6 +94,7 @@ class CefDevToolsFrontend : public content::WebContentsObserver,
   PendingRequestsMap pending_requests_;
   using ExtensionsAPIs = std::map<std::string, std::string>;
   ExtensionsAPIs extensions_api_;
+  CefDevToolsFileManager file_manager_;
   base::WeakPtrFactory<CefDevToolsFrontend> weak_factory_;
 
   DISALLOW_COPY_AND_ASSIGN(CefDevToolsFrontend);
