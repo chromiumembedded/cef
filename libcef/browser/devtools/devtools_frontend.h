@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CEF_LIBCEF_BROWSER_DEVTOOLS_FRONTEND_H_
-#define CEF_LIBCEF_BROWSER_DEVTOOLS_FRONTEND_H_
+#ifndef CEF_LIBCEF_BROWSER_DEVTOOLS_DEVTOOLS_FRONTEND_H_
+#define CEF_LIBCEF_BROWSER_DEVTOOLS_DEVTOOLS_FRONTEND_H_
 
 #include <memory>
 
@@ -98,4 +98,4 @@ class CefDevToolsFrontend : public content::WebContentsObserver,
   DISALLOW_COPY_AND_ASSIGN(CefDevToolsFrontend);
 };
 
-#endif  // CEF_LIBCEF_BROWSER_DEVTOOLS_FRONTEND_H_
+#endif  // CEF_LIBCEF_BROWSER_DEVTOOLS_DEVTOOLS_FRONTEND_H_

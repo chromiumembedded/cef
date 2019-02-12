@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CEF_LIBCEF_BROWSER_DEVTOOLS_MANAGER_DELEGATE_H_
-#define CEF_LIBCEF_BROWSER_DEVTOOLS_MANAGER_DELEGATE_H_
+#ifndef CEF_LIBCEF_BROWSER_DEVTOOLS_DEVTOOLS_MANAGER_DELEGATE_H_
+#define CEF_LIBCEF_BROWSER_DEVTOOLS_DEVTOOLS_MANAGER_DELEGATE_H_
 
 #include "base/compiler_specific.h"
 #include "base/macros.h"
@@ -31,4 +31,4 @@ class CefDevToolsManagerDelegate : public content::DevToolsManagerDelegate {
   DISALLOW_COPY_AND_ASSIGN(CefDevToolsManagerDelegate);
 };
 
-#endif  // CEF_LIBCEF_BROWSER_DEVTOOLS_MANAGER_DELEGATE_H_
+#endif  // CEF_LIBCEF_BROWSER_DEVTOOLS_DEVTOOLS_MANAGER_DELEGATE_H_

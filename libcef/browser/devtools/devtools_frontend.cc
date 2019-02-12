@@ -2,14 +2,14 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "libcef/browser/devtools_frontend.h"
+#include "libcef/browser/devtools/devtools_frontend.h"
 
 #include <stddef.h>
 
 #include <utility>
 
 #include "libcef/browser/browser_context.h"
-#include "libcef/browser/devtools_manager_delegate.h"
+#include "libcef/browser/devtools/devtools_manager_delegate.h"
 #include "libcef/browser/net/devtools_scheme_handler.h"
 
 #include "base/guid.h"
