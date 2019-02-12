@@ -192,6 +192,7 @@ std::unique_ptr<PrefService> CreatePrefService(Profile* profile,
   // DevTools preferences.
   // Based on DevToolsWindow::RegisterProfilePrefs.
   registry->RegisterDictionaryPref(prefs::kDevToolsPreferences);
+  registry->RegisterDictionaryPref(prefs::kDevToolsEditedFiles);
 
   if (command_line->HasSwitch(switches::kEnablePreferenceTesting)) {
     // Preferences used with unit tests.

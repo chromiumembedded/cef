@@ -327,6 +327,8 @@ static_library("libcef_static") {
     "libcef/browser/context_menu_params_impl.h",
     "libcef/browser/cookie_manager_impl.cc",
     "libcef/browser/cookie_manager_impl.h",
+    "libcef/browser/devtools/devtools_file_manager.cc",
+    "libcef/browser/devtools/devtools_file_manager.h",
     "libcef/browser/devtools/devtools_frontend.cc",
     "libcef/browser/devtools/devtools_frontend.h",
     "libcef/browser/devtools/devtools_manager_delegate.cc",
