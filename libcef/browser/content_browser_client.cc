@@ -16,7 +16,7 @@
 #include "libcef/browser/browser_message_filter.h"
 #include "libcef/browser/browser_platform_delegate.h"
 #include "libcef/browser/context.h"
-#include "libcef/browser/devtools_manager_delegate.h"
+#include "libcef/browser/devtools/devtools_manager_delegate.h"
 #include "libcef/browser/extensions/extension_system.h"
 #include "libcef/browser/media_capture_devices_dispatcher.h"
 #include "libcef/browser/net/chrome_scheme_handler.h"
