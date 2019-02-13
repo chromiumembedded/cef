@@ -253,6 +253,9 @@ ErrnoLogMessage::~ErrnoLogMessage() {
 }
 #endif  // OS_WIN
 
+}  // namespace logging
+}  // namespace cef
+
 std::ostream& operator<<(std::ostream& out, const wchar_t* wstr) {
   cef_string_utf8_t str = {0};
   std::wstring tmp_str(wstr);
@@ -261,6 +264,3 @@ std::ostream& operator<<(std::ostream& out, const wchar_t* wstr) {
   cef_string_utf8_clear(&str);
   return out;
 }
-
-}  // namespace logging
-}  // namespace cef
