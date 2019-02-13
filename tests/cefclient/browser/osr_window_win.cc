@@ -1002,6 +1002,8 @@ CefBrowserHost::DragOperationsMask OsrWindowWin::OnDrop(
   return current_drag_op_;
 }
 
+#endif  // defined(CEF_USE_ATL)
+
 void OsrWindowWin::EnsureRenderHandler() {
   CEF_REQUIRE_UI_THREAD();
   if (!render_handler_) {
@@ -1026,7 +1028,5 @@ void OsrWindowWin::EnsureRenderHandler() {
     }
   }
 }
-
-#endif  // defined(CEF_USE_ATL)
 
 }  // namespace client
