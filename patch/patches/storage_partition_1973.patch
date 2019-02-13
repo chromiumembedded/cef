@@ -171,7 +171,7 @@ index ec9ab86d0ca6..0fe5219f1e84 100644
    base::WeakPtrFactory<ServiceWorkerHandler> weak_factory_;
  
 diff --git content/browser/download/download_manager_impl.cc content/browser/download/download_manager_impl.cc
-index 941eb49f0283..c693adf52068 100644
+index 2d45e9e41f49..fabc2af20806 100644
 --- content/browser/download/download_manager_impl.cc
 +++ content/browser/download/download_manager_impl.cc
 @@ -99,9 +99,9 @@ void DeleteDownloadedFileOnUIThread(const base::FilePath& file_path) {

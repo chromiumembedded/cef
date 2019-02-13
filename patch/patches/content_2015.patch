@@ -81,7 +81,7 @@ index 244992176f0f..a238f052d468 100644
                  "WillFailRequest state should come before WillProcessResponse");
    return render_frame_host_;
 diff --git content/browser/frame_host/render_frame_host_impl.cc content/browser/frame_host/render_frame_host_impl.cc
-index a6c9e15b29af..6fa7cbe3de6b 100644
+index b4a3b637fa67..bc7b8a4a39c9 100644
 --- content/browser/frame_host/render_frame_host_impl.cc
 +++ content/browser/frame_host/render_frame_host_impl.cc
 @@ -2153,6 +2153,7 @@ void RenderFrameHostImpl::OnDidFailProvisionalLoadWithError(
@@ -92,7 +92,7 @@ index a6c9e15b29af..6fa7cbe3de6b 100644
    }
  
    frame_tree_node_->navigator()->DidFailProvisionalLoadWithError(this, params);
-@@ -4834,9 +4835,9 @@ void RenderFrameHostImpl::CommitNavigation(
+@@ -4846,9 +4847,9 @@ void RenderFrameHostImpl::CommitNavigation(
        DCHECK(base::FeatureList::IsEnabled(network::features::kNetworkService) ||
               base::FeatureList::IsEnabled(
                   blink::features::kServiceWorkerServicification));
@@ -376,10 +376,10 @@ index 44df5d5461c7..b3a7d92a547e 100644
        base::Bind(&RenderThreadImpl::OnRendererInterfaceRequest,
                   base::Unretained(this)));
 diff --git content/renderer/renderer_blink_platform_impl.cc content/renderer/renderer_blink_platform_impl.cc
-index 704ee01d0a30..6ad832e8f492 100644
+index 4f7bbf765f92..9d33375d66b5 100644
 --- content/renderer/renderer_blink_platform_impl.cc
 +++ content/renderer/renderer_blink_platform_impl.cc
-@@ -1051,6 +1051,14 @@ void RendererBlinkPlatformImpl::SetMemoryPressureNotificationsSuppressed(
+@@ -1061,6 +1061,14 @@ void RendererBlinkPlatformImpl::SetMemoryPressureNotificationsSuppressed(
    base::MemoryPressureListener::SetNotificationsSuppressed(suppressed);
  }
  
@@ -395,10 +395,10 @@ index 704ee01d0a30..6ad832e8f492 100644
    if (!web_database_host_) {
      web_database_host_ = blink::mojom::ThreadSafeWebDatabaseHostPtr::Create(
 diff --git content/renderer/renderer_blink_platform_impl.h content/renderer/renderer_blink_platform_impl.h
-index 0052cff07aec..e1920c231d9c 100644
+index a65c2138b708..1277b75e3f0b 100644
 --- content/renderer/renderer_blink_platform_impl.h
 +++ content/renderer/renderer_blink_platform_impl.h
-@@ -229,6 +229,9 @@ class CONTENT_EXPORT RendererBlinkPlatformImpl : public BlinkPlatformImpl {
+@@ -231,6 +231,9 @@ class CONTENT_EXPORT RendererBlinkPlatformImpl : public BlinkPlatformImpl {
    void RequestPurgeMemory() override;
    void SetMemoryPressureNotificationsSuppressed(bool suppressed) override;
  

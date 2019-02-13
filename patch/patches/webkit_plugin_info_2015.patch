@@ -80,10 +80,10 @@ index 92e9cb865204..e3d51ec6263e 100644
 +  GetPlugins(bool refresh, bool is_main_frame, url.mojom.Origin main_frame_origin) => (array<PluginInfo> plugins);
 +};
 diff --git third_party/blink/public/platform/platform.h third_party/blink/public/platform/platform.h
-index bfc4a95febcf..1d06dbbb09b0 100644
+index 3b36d5710b08..d44f62901985 100644
 --- third_party/blink/public/platform/platform.h
 +++ third_party/blink/public/platform/platform.h
-@@ -754,6 +754,11 @@ class BLINK_PLATFORM_EXPORT Platform {
+@@ -759,6 +759,11 @@ class BLINK_PLATFORM_EXPORT Platform {
    // runs during Chromium's build step).
    virtual bool IsTakingV8ContextSnapshot() { return false; }
  

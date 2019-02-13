@@ -1,5 +1,5 @@
 diff --git content/public/common/common_param_traits_macros.h content/public/common/common_param_traits_macros.h
-index 242b0628f54e..0538943b4f20 100644
+index c97cf2650a99..54b13c9a587b 100644
 --- content/public/common/common_param_traits_macros.h
 +++ content/public/common/common_param_traits_macros.h
 @@ -189,6 +189,7 @@ IPC_STRUCT_TRAITS_BEGIN(content::WebPreferences)
@@ -23,7 +23,7 @@ index 8ce9ab728194..22305856b974 100644
        record_whole_document(false),
        cookie_enabled(true),
 diff --git content/public/common/web_preferences.h content/public/common/web_preferences.h
-index 32cc528cd938..91bc866edddb 100644
+index 52edd1acaa28..a508264986d8 100644
 --- content/public/common/web_preferences.h
 +++ content/public/common/web_preferences.h
 @@ -192,6 +192,7 @@ struct CONTENT_EXPORT WebPreferences {
@@ -35,7 +35,7 @@ index 32cc528cd938..91bc866edddb 100644
    bool record_whole_document;
  
 diff --git content/renderer/render_view_impl.cc content/renderer/render_view_impl.cc
-index 77b93bd04c8b..512bf7ab5922 100644
+index 676b344fe809..e816955e4c60 100644
 --- content/renderer/render_view_impl.cc
 +++ content/renderer/render_view_impl.cc
 @@ -1013,6 +1013,8 @@ void RenderView::ApplyWebPreferences(const WebPreferences& prefs,
