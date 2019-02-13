@@ -443,6 +443,10 @@ def GetConfigArgsSandbox(platform, args, is_debug, cpu):
       'is_official_build': False
   }
 
+  if is_debug:
+    # Enable iterator debugging (_ITERATOR_DEBUG_LEVEL=2).
+    add_args['enable_iterator_debugging'] = True
+
   result = MergeDicts(args, add_args, {
       'is_debug': is_debug,
       'target_cpu': cpu,
