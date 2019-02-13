@@ -55,27 +55,27 @@ index 7668f3725200..665e8e579c54 100644
  
    if (is_android) {
 diff --git ui/events/keycodes/BUILD.gn ui/events/keycodes/BUILD.gn
-index 1e6d31cc0c92..9ba27b68203d 100644
+index 1e6d31cc0c92..36f3283291d9 100644
 --- ui/events/keycodes/BUILD.gn
 +++ ui/events/keycodes/BUILD.gn
 @@ -14,6 +14,8 @@ jumbo_source_set("xkb") {
      "xkb_keysym.h",
    ]
  
-+  defines = [ "KEYCODES_XKB_IMPLEMENTATION" ]
++  defines = [ "KEYCODES_X_IMPLEMENTATION" ]
 +
    deps = [
      "//base",
      "//ui/base:buildflags",
 diff --git ui/events/keycodes/keyboard_code_conversion_xkb.h ui/events/keycodes/keyboard_code_conversion_xkb.h
-index a1f9b78704fb..6d7001c25905 100644
+index a1f9b78704fb..c7d3558251d9 100644
 --- ui/events/keycodes/keyboard_code_conversion_xkb.h
 +++ ui/events/keycodes/keyboard_code_conversion_xkb.h
 @@ -9,6 +9,7 @@
  
  #include "base/strings/string16.h"
  #include "ui/events/keycodes/dom/dom_key.h"
-+#include "ui/events/keycodes/keycodes_xkb_export.h"
++#include "ui/events/keycodes/keycodes_x_export.h"
  #include "ui/events/keycodes/xkb_keysym.h"
  
  namespace ui {
@@ -84,44 +84,10 @@ index a1f9b78704fb..6d7001c25905 100644
  
  // Return the DomKey determined by the XKB layout result (keysym, character).
 -DomKey XKeySymToDomKey(xkb_keysym_t keysym, base::char16 character);
-+KEYCODES_XKB_EXPORT DomKey XKeySymToDomKey(xkb_keysym_t keysym, base::char16 character);
++KEYCODES_X_EXPORT DomKey XKeySymToDomKey(xkb_keysym_t keysym, base::char16 character);
  
  }  // namespace ui
  
-diff --git ui/events/keycodes/keycodes_xkb_export.h ui/events/keycodes/keycodes_xkb_export.h
-index e69de29bb2d1..dc0e8939f597 100644
---- ui/events/keycodes/keycodes_xkb_export.h
-+++ ui/events/keycodes/keycodes_xkb_export.h
-@@ -0,0 +1,29 @@
-+// Copyright 2016 The Chromium Authors. All rights reserved.
-+// Use of this source code is governed by a BSD-style license that can be
-+// found in the LICENSE file.
-+
-+#ifndef UI_EVENTS_KEYCODES_KEYCODES_XKB_EXPORT_H_
-+#define UI_EVENTS_KEYCODES_KEYCODES_XKB_EXPORT_H_
-+
-+#if defined(COMPONENT_BUILD)
-+#if defined(WIN32)
-+
-+#if defined(KEYCODES_XKB_IMPLEMENTATION)
-+#define KEYCODES_XKB_EXPORT __declspec(dllexport)
-+#else
-+#define KEYCODES_XKB_EXPORT __declspec(dllimport)
-+#endif  // defined(KEYCODES_XKB_IMPLEMENTATION)
-+
-+#else  // defined(WIN32)
-+#if defined(KEYCODES_XKB_IMPLEMENTATION)
-+#define KEYCODES_XKB_EXPORT __attribute__((visibility("default")))
-+#else
-+#define KEYCODES_XKB_EXPORT
-+#endif
-+#endif
-+
-+#else  // defined(COMPONENT_BUILD)
-+#define KEYCODES_XKB_EXPORT
-+#endif
-+
-+#endif  // UI_EVENTS_KEYCODES_KEYCODES_XKB_EXPORT_H_
 diff --git ui/events/keycodes/keysym_to_unicode.h ui/events/keycodes/keysym_to_unicode.h
 index a7983d179832..2bbee48e57ac 100644
 --- ui/events/keycodes/keysym_to_unicode.h
