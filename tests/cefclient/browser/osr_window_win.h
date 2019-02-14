@@ -169,7 +169,7 @@ class OsrWindowWin
 
   const OsrRendererSettings settings_;
   HWND hwnd_;
-  std::unique_ptr<OsrRenderHandlerWin> render_handler_;
+  scoped_ptr<OsrRenderHandlerWin> render_handler_;
 
   // Class that encapsulates IMM32 APIs and controls IMEs attached to a window.
   scoped_ptr<OsrImeHandlerWin> ime_handler_;
