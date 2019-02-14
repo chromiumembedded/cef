@@ -9,6 +9,7 @@
 #include "base/macros.h"
 #include "base/memory/weak_ptr.h"
 
+#include <map>
 #include <string>
 
 namespace base {
