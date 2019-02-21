@@ -40,7 +40,8 @@ class VisitCookiesCallback : public base::RefCounted<VisitCookiesCallback> {
       CefRefPtr<CefCookieVisitor> visitor)
       : cookie_store_getter_(cookie_store_getter), visitor_(visitor) {}
 
-  void Run(const net::CookieList& list) {
+  void Run(const net::CookieList& list,
+           const net::CookieStatusList& excluded_list) {
     CEF_REQUIRE_IOT();
 
     int total = list.size(), count = 0;
@@ -591,8 +592,11 @@ void CefCookieManagerImpl::DeleteCookiesInternal(
         delete_info, base::Bind(DeleteCookiesCallbackImpl, callback));
   } else {
     // Delete all matching host and domain cookies.
-    cookie_store->DeleteCookieAsync(
-        url, cookie_name, base::Bind(DeleteCookiesCallbackImpl, callback, -1));
+    net::CookieDeletionInfo delete_info;
+    delete_info.url = url;
+    delete_info.name = cookie_name;
+    cookie_store->DeleteAllMatchingInfoAsync(
+        delete_info, base::Bind(DeleteCookiesCallbackImpl, callback));
   }
 }
 

@@ -221,7 +221,7 @@ class CefDeleteCookiesCallback : public virtual CefBaseRefCounted {
  public:
   ///
   // Method that will be called upon completion. |num_deleted| will be the
-  // number of cookies that were deleted or -1 if unknown.
+  // number of cookies that were deleted.
   ///
   /*--cef()--*/
   virtual void OnComplete(int num_deleted) = 0;

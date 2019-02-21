@@ -157,7 +157,6 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
   void Destroy() override;
   void SetTooltipText(const base::string16& tooltip_text) override;
   content::CursorManager* GetCursorManager() override;
-
   gfx::Size GetCompositorViewportPixelSize() const override;
   void CopyFromSurface(
       const gfx::Rect& src_rect,
@@ -174,14 +173,13 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
   content::BrowserAccessibilityManager* CreateBrowserAccessibilityManager(
       content::BrowserAccessibilityDelegate* delegate,
       bool for_root_frame) override;
-
   void ImeCompositionRangeChanged(
       const gfx::Range& range,
       const std::vector<gfx::Rect>& character_bounds) override;
-
+  std::unique_ptr<content::SyntheticGestureTarget>
+  CreateSyntheticGestureTarget() override;
   void SetNeedsBeginFrames(bool enabled) override;
   void SetWantsAnimateOnlyBeginFrames() override;
-
   bool TransformPointToLocalCoordSpaceLegacy(
       const gfx::PointF& point,
       const viz::SurfaceId& original_surface,
@@ -192,11 +190,9 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
       gfx::PointF* transformed_point,
       viz::EventSource source = viz::EventSource::ANY) override;
   void DidNavigate() override;
-
   void SelectionChanged(const base::string16& text,
                         size_t offset,
                         const gfx::Range& range) override;
-
   const viz::LocalSurfaceIdAllocation& GetLocalSurfaceIdAllocation()
       const override;
   const viz::FrameSinkId& GetFrameSinkId() const override;

@@ -340,7 +340,7 @@ void TestMultipleCookies(CefRefPtr<CefCookieManager> manager,
   cookies.clear();
 
   // Delete the 2nd cookie.
-  DeleteCookies(manager, kTestUrl, CefString("my_cookie1"), -1, event);
+  DeleteCookies(manager, kTestUrl, CefString("my_cookie1"), 1, event);
 
   // Verify that the cookie has been deleted.
   VisitUrlCookies(manager, kTestUrl, false, cookies, false, event);

@@ -849,10 +849,10 @@ bool CefRegisterExtension(const CefString& extension_name,
     isolate_manager->AddGlobalTrackObject(object);
   }
 
-  ExtensionWrapper* wrapper =
-      new ExtensionWrapper(name->GetString(), code->GetString(), handler.get());
+  std::unique_ptr<v8::Extension> wrapper(new ExtensionWrapper(
+      name->GetString(), code->GetString(), handler.get()));
 
-  content::RenderThread::Get()->RegisterExtension(wrapper);
+  content::RenderThread::Get()->RegisterExtension(std::move(wrapper));
   return true;
 }
 

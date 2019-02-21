@@ -8,19 +8,18 @@
 #include "build/build_config.h"
 #include "chrome/common/buildflags.h"
 #include "chrome/common/constants.mojom.h"
+#include "chrome/services/printing/public/cpp/manifest.h"
+#include "components/services/pdf_compositor/public/cpp/manifest.h"  // nogncheck
 #include "components/spellcheck/common/spellcheck.mojom.h"
 #include "components/startup_metric_utils/common/startup_metric.mojom.h"
 #include "extensions/buildflags/buildflags.h"
 #include "printing/buildflags/buildflags.h"
-#include "services/proxy_resolver/proxy_resolver_manifest.h"
+#include "services/proxy_resolver/public/cpp/manifest.h"
 #include "services/service_manager/public/cpp/manifest_builder.h"
 
 #if defined(OS_MACOSX)
 #include "components/spellcheck/common/spellcheck_panel.mojom.h"
 #endif
-
-#include "chrome/services/printing/manifest.h"
-#include "components/services/pdf_compositor/pdf_compositor_manifest.h"  // nogncheck
 
 namespace {
 
@@ -55,8 +54,8 @@ const std::vector<service_manager::Manifest>& GetCefPackagedServiceManifests() {
   static base::NoDestructor<std::vector<service_manager::Manifest>> manifests{{
       GetCefManifest(),
       proxy_resolver::GetManifest(),
-      pdf_compositor::GetManifest(),
-      chrome_printing::GetManifest(),
+      printing::GetPdfCompositorManifest(),
+      GetChromePrintingManifest(),
   }};
   return *manifests;
 }

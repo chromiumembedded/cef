@@ -14,6 +14,7 @@
 #include "libcef/common/request_impl.h"
 #include "libcef/common/response_impl.h"
 
+#include "base/bind.h"
 #include "base/logging.h"
 #include "base/strings/string_util.h"
 #include "net/base/io_buffer.h"
@@ -448,7 +449,8 @@ void CefResourceRequestJob::DoLoadCookies() {
 }
 
 void CefResourceRequestJob::CheckCookiePolicyAndLoad(
-    const net::CookieList& cookie_list) {
+    const net::CookieList& cookie_list,
+    const net::CookieStatusList& excluded_list) {
   bool can_get_cookies = !cookie_list.empty() && CanGetCookies(cookie_list);
   if (can_get_cookies) {
     net::CookieList::const_iterator it = cookie_list.begin();
@@ -469,7 +471,8 @@ void CefResourceRequestJob::CheckCookiePolicyAndLoad(
 }
 
 void CefResourceRequestJob::OnCookiesLoaded(
-    const net::CookieList& cookie_list) {
+    const net::CookieList& cookie_list,
+    const net::CookieStatusList& excluded_list) {
   if (!cookie_list.empty()) {
     const std::string& cookie_line =
         net::CanonicalCookie::BuildCookieLine(cookie_list);

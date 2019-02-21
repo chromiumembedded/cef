@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=8e5c27c998b6aabcaf43a4cc7f97064d49eaf8b9$
+// $hash=48b5fa68109eed1ea30fa0c805218ebd258c0573$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_COOKIE_CAPI_H_
@@ -237,7 +237,7 @@ typedef struct _cef_delete_cookies_callback_t {
 
   ///
   // Method that will be called upon completion. |num_deleted| will be the
-  // number of cookies that were deleted or -1 if unknown.
+  // number of cookies that were deleted.
   ///
   void(CEF_CALLBACK* on_complete)(struct _cef_delete_cookies_callback_t* self,
                                   int num_deleted);

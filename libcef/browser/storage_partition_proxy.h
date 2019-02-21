@@ -69,7 +69,11 @@ class CefStoragePartitionProxy : public content::StoragePartition {
       const base::Time end,
       const base::Callback<bool(const GURL&)>& url_matcher,
       base::OnceClosure callback) override;
-  void ClearCodeCaches(base::OnceClosure callback) override;
+  void ClearCodeCaches(
+      base::Time begin,
+      base::Time end,
+      const base::RepeatingCallback<bool(const GURL&)>& url_matcher,
+      base::OnceClosure callback) override;
   void Flush() override;
   void ResetURLLoaderFactories() override;
   void ClearBluetoothAllowedDevicesMapForTesting() override;
@@ -83,6 +87,8 @@ class CefStoragePartitionProxy : public content::StoragePartition {
   content::BlobRegistryWrapper* GetBlobRegistry() override;
   content::PrefetchURLLoaderService* GetPrefetchURLLoaderService() override;
   content::CookieStoreContext* GetCookieStoreContext() override;
+  content::DevToolsBackgroundServicesContext*
+  GetDevToolsBackgroundServicesContext() override;
   content::URLLoaderFactoryGetter* url_loader_factory_getter() override;
   content::BrowserContext* browser_context() const override;
   mojo::BindingId Bind(

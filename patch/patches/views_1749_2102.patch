@@ -1,5 +1,5 @@
 diff --git ui/base/models/menu_model.h ui/base/models/menu_model.h
-index bb53c043a8fe..e1427ac3a1ef 100644
+index cce16a111356..9f0a8b73adb5 100644
 --- ui/base/models/menu_model.h
 +++ ui/base/models/menu_model.h
 @@ -15,6 +15,7 @@
@@ -10,7 +10,7 @@ index bb53c043a8fe..e1427ac3a1ef 100644
  struct VectorIcon;
  }
  
-@@ -120,6 +121,27 @@ class UI_BASE_EXPORT MenuModel {
+@@ -122,6 +123,27 @@ class UI_BASE_EXPORT MenuModel {
    // |event_flags| is a bit mask of ui::EventFlags.
    virtual void ActivatedAt(int index, int event_flags);
  
@@ -140,10 +140,10 @@ index 79b6dca32725..9dbb179ee3a4 100644
    const gfx::Size previous_image_size(image_->GetPreferredSize());
    UpdateImage();
 diff --git ui/views/controls/button/label_button.h ui/views/controls/button/label_button.h
-index 0200201196b2..6e1617c927ba 100644
+index 01dfb90dca0a..048da0d3b631 100644
 --- ui/views/controls/button/label_button.h
 +++ ui/views/controls/button/label_button.h
-@@ -97,6 +97,9 @@ class VIEWS_EXPORT LabelButton : public Button, public NativeThemeDelegate {
+@@ -100,6 +100,9 @@ class VIEWS_EXPORT LabelButton : public Button, public NativeThemeDelegate {
    void RemoveInkDropLayer(ui::Layer* ink_drop_layer) override;
    void GetAccessibleNodeData(ui::AXNodeData* node_data) override;
  
@@ -240,10 +240,10 @@ index 771034ccebbe..79e3026f6870 100644
    std::unique_ptr<SelectionController> selection_controller_;
  
 diff --git ui/views/controls/menu/menu_controller.cc ui/views/controls/menu/menu_controller.cc
-index f30abb99f6f0..2d1ecf4a198b 100644
+index 2164c847f795..5083a47ebc4b 100644
 --- ui/views/controls/menu/menu_controller.cc
 +++ ui/views/controls/menu/menu_controller.cc
-@@ -2508,8 +2508,13 @@ MenuItemView* MenuController::FindNextSelectableMenuItem(
+@@ -2575,8 +2575,13 @@ MenuItemView* MenuController::FindNextSelectableMenuItem(
  
  void MenuController::OpenSubmenuChangeSelectionIfCan() {
    MenuItemView* item = pending_state_.item;
@@ -258,7 +258,7 @@ index f30abb99f6f0..2d1ecf4a198b 100644
    MenuItemView* to_select = NULL;
    if (item->GetSubmenu()->GetMenuItemCount() > 0)
      to_select = FindInitialSelectableMenuItem(item, INCREMENT_SELECTION_DOWN);
-@@ -2524,8 +2529,10 @@ void MenuController::OpenSubmenuChangeSelectionIfCan() {
+@@ -2595,8 +2600,10 @@ void MenuController::OpenSubmenuChangeSelectionIfCan() {
  void MenuController::CloseSubmenu() {
    MenuItemView* item = state_.item;
    DCHECK(item);
@@ -310,10 +310,10 @@ index 921aef245bf3..4b7474c01c0e 100644
    virtual int GetMaxWidthForMenu(MenuItemView* menu);
  
 diff --git ui/views/controls/menu/menu_item_view.cc ui/views/controls/menu/menu_item_view.cc
-index 72346e78c5bd..5772433fd741 100644
+index 9e1b05f914c2..d071aa7ab9c5 100644
 --- ui/views/controls/menu/menu_item_view.cc
 +++ ui/views/controls/menu/menu_item_view.cc
-@@ -1044,6 +1044,15 @@ void MenuItemView::PaintBackground(gfx::Canvas* canvas,
+@@ -1055,6 +1055,15 @@ void MenuItemView::PaintBackground(gfx::Canvas* canvas,
      spilling_rect.set_y(spilling_rect.y() - corner_radius_);
      spilling_rect.set_height(spilling_rect.height() + corner_radius_);
      canvas->DrawRoundRect(spilling_rect, corner_radius_, flags);
@@ -329,7 +329,7 @@ index 72346e78c5bd..5772433fd741 100644
    } else if (render_selection) {
      gfx::Rect item_bounds = GetLocalBounds();
      if (type_ == ACTIONABLE_SUBMENU) {
-@@ -1110,6 +1119,13 @@ void MenuItemView::PaintMinorIconAndText(
+@@ -1121,6 +1130,13 @@ void MenuItemView::PaintMinorIconAndText(
  }
  
  SkColor MenuItemView::GetTextColor(bool minor, bool render_selection) const {
@@ -344,10 +344,10 @@ index 72346e78c5bd..5772433fd741 100644
        minor ? ui::NativeTheme::kColorId_MenuItemMinorTextColor
              : ui::NativeTheme::kColorId_EnabledMenuItemForegroundColor;
 diff --git ui/views/controls/menu/menu_model_adapter.cc ui/views/controls/menu/menu_model_adapter.cc
-index c91415cb1e92..4af5835550dd 100644
+index 03186888c8de..1382571e8d8c 100644
 --- ui/views/controls/menu/menu_model_adapter.cc
 +++ ui/views/controls/menu/menu_model_adapter.cc
-@@ -220,6 +220,77 @@ bool MenuModelAdapter::IsItemChecked(int id) const {
+@@ -224,6 +224,77 @@ bool MenuModelAdapter::IsItemChecked(int id) const {
    return false;
  }
  
@@ -426,10 +426,10 @@ index c91415cb1e92..4af5835550dd 100644
    // Look up the menu model for this menu.
    const std::map<MenuItemView*, ui::MenuModel*>::const_iterator map_iterator =
 diff --git ui/views/controls/menu/menu_model_adapter.h ui/views/controls/menu/menu_model_adapter.h
-index a35987190633..c34c905b708b 100644
+index 240525c22b8b..6dcaa7045c3b 100644
 --- ui/views/controls/menu/menu_model_adapter.h
 +++ ui/views/controls/menu/menu_model_adapter.h
-@@ -75,6 +75,20 @@ class VIEWS_EXPORT MenuModelAdapter : public MenuDelegate {
+@@ -84,6 +84,20 @@ class VIEWS_EXPORT MenuModelAdapter : public MenuDelegate,
    bool IsCommandEnabled(int id) const override;
    bool IsCommandVisible(int id) const override;
    bool IsItemChecked(int id) const override;
@@ -482,7 +482,7 @@ index 0180b30d383a..c0724b6b80a7 100644
        // Move the cursor because EnterNotify/LeaveNotify are generated with the
        // current mouse position as a result of XGrabPointer()
 diff --git ui/views/view.h ui/views/view.h
-index 2aa7df41f179..206fedae27ba 100644
+index 4c10e9872aa7..0adbfab904b1 100644
 --- ui/views/view.h
 +++ ui/views/view.h
 @@ -19,6 +19,7 @@

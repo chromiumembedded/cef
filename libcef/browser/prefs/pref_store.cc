@@ -52,7 +52,7 @@ bool CefPrefStore::IsInitializationComplete() const {
 void CefPrefStore::SetValue(const std::string& key,
                             std::unique_ptr<base::Value> value,
                             uint32_t flags) {
-  if (prefs_.SetValue(key, std::move(value))) {
+  if (prefs_.SetValue(key, base::Value::FromUniquePtrValue(std::move(value)))) {
     committed_ = false;
     NotifyPrefValueChanged(key);
   }
@@ -61,7 +61,7 @@ void CefPrefStore::SetValue(const std::string& key,
 void CefPrefStore::SetValueSilently(const std::string& key,
                                     std::unique_ptr<base::Value> value,
                                     uint32_t flags) {
-  if (prefs_.SetValue(key, std::move(value)))
+  if (prefs_.SetValue(key, base::Value::FromUniquePtrValue(std::move(value))))
     committed_ = false;
 }
 

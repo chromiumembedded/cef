@@ -40,8 +40,6 @@ class CefNativeMenuWin : public MenuWrapper {
   void UpdateStates() override;
   HMENU GetNativeMenu() const override;
   MenuAction GetMenuAction() const override;
-  void AddMenuListener(MenuListener* listener) override;
-  void RemoveMenuListener(MenuListener* listener) override;
   void SetMinimumWidth(int width) override;
 
  private:
@@ -138,13 +136,6 @@ class CefNativeMenuWin : public MenuWrapper {
 
   // The action that took place during the call to RunMenuAt.
   MenuAction menu_action_;
-
-  // A list of listeners to call when the menu opens.
-  base::ObserverList<MenuListener>::Unchecked listeners_;
-
-  // Keep track of whether the listeners have already been called at least
-  // once.
-  bool listeners_called_;
 
   // See comment in MenuMessageHook for details on these.
   CefNativeMenuWin* menu_to_select_;

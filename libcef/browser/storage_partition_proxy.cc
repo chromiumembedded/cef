@@ -4,6 +4,8 @@
 
 #include "libcef/browser/storage_partition_proxy.h"
 
+#include "services/network/public/mojom/cookie_manager.mojom.h"
+
 CefStoragePartitionProxy::CefStoragePartitionProxy(
     content::StoragePartition* parent,
     CefURLRequestContextGetterProxy* url_request_context)
@@ -156,8 +158,12 @@ void CefStoragePartitionProxy::ClearHttpAndMediaCaches(
                                    std::move(callback));
 }
 
-void CefStoragePartitionProxy::ClearCodeCaches(base::OnceClosure callback) {
-  parent_->ClearCodeCaches(std::move(callback));
+void CefStoragePartitionProxy::ClearCodeCaches(
+    base::Time begin,
+    base::Time end,
+    const base::RepeatingCallback<bool(const GURL&)>& url_matcher,
+    base::OnceClosure callback) {
+  parent_->ClearCodeCaches(begin, end, url_matcher, std::move(callback));
 }
 
 void CefStoragePartitionProxy::Flush() {
@@ -216,6 +222,11 @@ CefStoragePartitionProxy::GetPrefetchURLLoaderService() {
 
 content::CookieStoreContext* CefStoragePartitionProxy::GetCookieStoreContext() {
   return parent_->GetCookieStoreContext();
+}
+
+content::DevToolsBackgroundServicesContext*
+CefStoragePartitionProxy::GetDevToolsBackgroundServicesContext() {
+  return parent_->GetDevToolsBackgroundServicesContext();
 }
 
 content::URLLoaderFactoryGetter*

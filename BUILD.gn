@@ -105,8 +105,6 @@ import("//media/media_options.gni")
 import("//mojo/public/tools/bindings/mojom.gni")
 import("//ppapi/buildflags/buildflags.gni")
 import("//printing/buildflags/buildflags.gni")
-import("//services/catalog/public/tools/catalog.gni")
-import("//services/service_manager/public/service_manifest.gni")
 import("//third_party/icu/config.gni")
 import("//third_party/widevine/cdm/widevine.gni")
 import("//tools/grit/repack.gni")
@@ -685,7 +683,6 @@ static_library("libcef_static") {
     "//components/printing/renderer",
     "//components/proxy_config",
     "//components/safe_browsing/db:test_database_manager",
-    "//components/services/pdf_compositor:pdf_compositor_manifest",
     "//components/services/pdf_compositor/public/cpp:factory",
     "//components/services/pdf_compositor/public/interfaces",
     "//components/tracing",
@@ -726,7 +723,6 @@ static_library("libcef_static") {
     "//services/network/public/cpp",
     "//services/service_manager/embedder",
     "//services/service_manager/public/cpp",
-    "//services/service_manager/runner/common",
     "//skia",
     "//storage/browser",
     "//third_party/blink/public:blink",
@@ -1147,13 +1143,13 @@ source_set("cef_packaged_service_manifests") {
   deps = [
     "//base",
     "//chrome/common:mojo_bindings",
-    "//chrome/services/printing:manifest",
-    "//components/services/pdf_compositor:pdf_compositor_manifest",
+    "//chrome/services/printing/public/cpp:manifest",
+    "//components/services/pdf_compositor/public/cpp:manifest",
     "//components/spellcheck/common:interfaces",
     "//components/startup_metric_utils/common:interfaces",
     "//extensions/buildflags",
     "//printing/buildflags",
-    "//services/proxy_resolver:proxy_resolver_manifest",
+    "//services/proxy_resolver/public/cpp:manifest",
     "//services/service_manager/public/cpp",
   ]
 }

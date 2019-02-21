@@ -18,7 +18,6 @@ class MenuModel;
 namespace views {
 
 class MenuInsertionDelegateWin;
-class MenuListener;
 
 // An interface that wraps an object that implements a menu.
 class MenuWrapper {
@@ -57,12 +56,6 @@ class MenuWrapper {
   // item was selected, the user navigated to a next or previous menu, or
   // nothing.
   virtual MenuAction GetMenuAction() const = 0;
-
-  // Add a listener to receive a callback when the menu opens.
-  virtual void AddMenuListener(MenuListener* listener) = 0;
-
-  // Remove a menu listener.
-  virtual void RemoveMenuListener(MenuListener* listener) = 0;
 
   // Sets the minimum width of the menu.
   virtual void SetMinimumWidth(int width) = 0;

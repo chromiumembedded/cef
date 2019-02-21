@@ -1,8 +1,8 @@
 diff --git services/service_manager/embedder/main.cc services/service_manager/embedder/main.cc
-index 06e62473c316..a2b545246009 100644
+index 46ae0545c0a9..c6f193b7c6dd 100644
 --- services/service_manager/embedder/main.cc
 +++ services/service_manager/embedder/main.cc
-@@ -289,22 +289,36 @@ int RunService(MainDelegate* delegate) {
+@@ -244,22 +244,36 @@ int RunService(MainDelegate* delegate) {
    return 0;
  }
  
@@ -43,7 +43,7 @@ index 06e62473c316..a2b545246009 100644
  
    // A flag to indicate whether Main() has been called before. On Android, we
    // may re-run Main() without restarting the browser process. This flag
-@@ -380,12 +394,7 @@ int Main(const MainParams& params) {
+@@ -335,12 +349,7 @@ int Main(const MainParams& params) {
      MainDelegate::InitializeParams init_params;
  
  #if defined(OS_MACOSX)
@@ -57,7 +57,7 @@ index 06e62473c316..a2b545246009 100644
      InitializeMac();
  #endif
  
-@@ -429,18 +438,16 @@ int Main(const MainParams& params) {
+@@ -384,18 +393,16 @@ int Main(const MainParams& params) {
      }
    }
  
@@ -85,7 +85,7 @@ index 06e62473c316..a2b545246009 100644
    switch (process_type) {
      case ProcessType::kDefault:
        NOTREACHED();
-@@ -462,6 +469,8 @@ int Main(const MainParams& params) {
+@@ -417,6 +424,8 @@ int Main(const MainParams& params) {
        break;
    }
  
@@ -94,7 +94,7 @@ index 06e62473c316..a2b545246009 100644
    if (tracker) {
      if (exit_code == 0) {
        tracker->SetProcessPhaseIfEnabled(
-@@ -473,13 +482,38 @@ int Main(const MainParams& params) {
+@@ -428,13 +437,38 @@ int Main(const MainParams& params) {
      }
    }
  

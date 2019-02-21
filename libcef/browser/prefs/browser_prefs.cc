@@ -31,6 +31,7 @@
 #include "components/content_settings/core/browser/host_content_settings_map.h"
 #include "components/google/core/browser/google_url_tracker.h"
 #include "components/keyed_service/content/browser_context_dependency_manager.h"
+#include "components/language/core/browser/language_prefs.h"
 #include "components/pref_registry/pref_registry_syncable.h"
 #include "components/prefs/json_pref_store.h"
 #include "components/prefs/pref_filter.h"
@@ -151,6 +152,7 @@ std::unique_ptr<PrefService> CreatePrefService(Profile* profile,
   extensions::ExtensionPrefs::RegisterProfilePrefs(registry.get());
   GoogleURLTracker::RegisterProfilePrefs(registry.get());
   HostContentSettingsMap::RegisterProfilePrefs(registry.get());
+  language::RegisterProfilePrefs(registry.get());
   PluginInfoHostImpl::RegisterUserPrefs(registry.get());
   PrefProxyConfigTrackerImpl::RegisterPrefs(registry.get());
   renderer_prefs::RegisterProfilePrefs(registry.get());

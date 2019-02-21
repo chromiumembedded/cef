@@ -92,7 +92,7 @@ void CefCookieStoreProxy::GetCookieListWithOptionsAsync(
     cookie_store->GetCookieListWithOptionsAsync(url, options,
                                                 std::move(callback));
   } else if (!callback.is_null()) {
-    std::move(callback).Run(net::CookieList());
+    std::move(callback).Run(net::CookieList(), net::CookieStatusList());
   }
 }
 
@@ -101,18 +101,7 @@ void CefCookieStoreProxy::GetAllCookiesAsync(GetCookieListCallback callback) {
   if (cookie_store) {
     cookie_store->GetAllCookiesAsync(std::move(callback));
   } else if (!callback.is_null()) {
-    std::move(callback).Run(net::CookieList());
-  }
-}
-
-void CefCookieStoreProxy::DeleteCookieAsync(const GURL& url,
-                                            const std::string& cookie_name,
-                                            base::OnceClosure callback) {
-  net::CookieStore* cookie_store = GetCookieStore();
-  if (cookie_store) {
-    cookie_store->DeleteCookieAsync(url, cookie_name, std::move(callback));
-  } else if (!callback.is_null()) {
-    std::move(callback).Run();
+    std::move(callback).Run(net::CookieList(), net::CookieStatusList());
   }
 }
 

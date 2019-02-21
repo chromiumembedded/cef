@@ -39,7 +39,7 @@ index 31234258792d..36ba13242a9c 100644
  BrowserProcessImpl::shared_url_loader_factory() {
    return system_network_context_manager()->GetSharedURLLoaderFactory();
 diff --git chrome/browser/browser_process_impl.h chrome/browser/browser_process_impl.h
-index d70dd33f4f41..3d4db9e49933 100644
+index 7168c719aa25..bae7162a539c 100644
 --- chrome/browser/browser_process_impl.h
 +++ chrome/browser/browser_process_impl.h
 @@ -140,6 +140,7 @@ class BrowserProcessImpl : public BrowserProcess,

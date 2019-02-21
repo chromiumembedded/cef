@@ -1,8 +1,8 @@
 diff --git content/browser/renderer_host/render_widget_host_view_child_frame.cc content/browser/renderer_host/render_widget_host_view_child_frame.cc
-index 5825f9515121..2d2faa456e66 100644
+index 5d42110bf368..146cc5c81eba 100644
 --- content/browser/renderer_host/render_widget_host_view_child_frame.cc
 +++ content/browser/renderer_host/render_widget_host_view_child_frame.cc
-@@ -641,6 +641,7 @@ void RenderWidgetHostViewChildFrame::SubmitCompositorFrame(
+@@ -652,6 +652,7 @@ void RenderWidgetHostViewChildFrame::SubmitCompositorFrame(
                 "RenderWidgetHostViewChildFrame::OnSwapCompositorFrame");
    support_->SubmitCompositorFrame(local_surface_id, std::move(frame),
                                    std::move(hit_test_region_list));
@@ -10,7 +10,7 @@ index 5825f9515121..2d2faa456e66 100644
  }
  
  void RenderWidgetHostViewChildFrame::OnDidNotProduceFrame(
-@@ -649,6 +650,15 @@ void RenderWidgetHostViewChildFrame::OnDidNotProduceFrame(
+@@ -660,6 +661,15 @@ void RenderWidgetHostViewChildFrame::OnDidNotProduceFrame(
    support_->DidNotProduceFrame(ack);
  }
  
@@ -26,7 +26,7 @@ index 5825f9515121..2d2faa456e66 100644
  void RenderWidgetHostViewChildFrame::TransformPointToRootSurface(
      gfx::PointF* point) {
    // This function is called by RenderWidgetHostInputEventRouter only for
-@@ -834,6 +844,11 @@ void RenderWidgetHostViewChildFrame::ShowDefinitionForSelection() {
+@@ -845,6 +855,11 @@ void RenderWidgetHostViewChildFrame::ShowDefinitionForSelection() {
  void RenderWidgetHostViewChildFrame::SpeakSelection() {}
  #endif  // defined(OS_MACOSX)
  

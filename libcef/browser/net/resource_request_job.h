@@ -50,8 +50,10 @@ class CefResourceRequestJob : public net::URLRequestJob {
   // Used for sending cookies with the request.
   void AddCookieHeaderAndStart();
   void DoLoadCookies();
-  void CheckCookiePolicyAndLoad(const net::CookieList& cookie_list);
-  void OnCookiesLoaded(const net::CookieList& cookie_list);
+  void CheckCookiePolicyAndLoad(const net::CookieList& cookie_list,
+                                const net::CookieStatusList& excluded_list);
+  void OnCookiesLoaded(const net::CookieList& cookie_list,
+                       const net::CookieStatusList& excluded_list);
   void DoStartTransaction();
   void StartTransaction();
 

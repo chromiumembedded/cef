@@ -5,7 +5,6 @@
 #include "libcef/browser/native/menu_2.h"
 
 #include "ui/base/models/menu_model.h"
-#include "ui/views/controls/menu/menu_listener.h"
 
 namespace views {
 
@@ -44,16 +43,8 @@ MenuWrapper::MenuAction Menu2::GetMenuAction() const {
   return wrapper_->GetMenuAction();
 }
 
-void Menu2::AddMenuListener(MenuListener* listener) {
-  wrapper_->AddMenuListener(listener);
-}
-
-void Menu2::RemoveMenuListener(MenuListener* listener) {
-  wrapper_->RemoveMenuListener(listener);
-}
-
 void Menu2::SetMinimumWidth(int width) {
   wrapper_->SetMinimumWidth(width);
 }
 
-}  // namespace
+}  // namespace views

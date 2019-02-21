@@ -67,12 +67,6 @@ class Menu2 {
   // nothing.
   MenuWrapper::MenuAction GetMenuAction() const;
 
-  // Add a listener to receive a callback when the menu opens.
-  void AddMenuListener(MenuListener* listener);
-
-  // Remove a menu listener.
-  void RemoveMenuListener(MenuListener* listener);
-
   // Accessors.
   ui::MenuModel* model() const { return model_; }
 

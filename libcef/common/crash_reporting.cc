@@ -33,7 +33,7 @@
 
 #if defined(OS_POSIX) && !defined(OS_MACOSX)
 #include "components/crash/content/app/breakpad_linux.h"
-#include "v8/include/v8.h"
+#include "v8/include/v8-wasm-trap-handler-posix.h"
 #endif
 
 namespace crash_reporting {
@@ -199,7 +199,7 @@ void BasicStartupComplete(base::CommandLine* command_line) {
     // Breakpad requires this switch.
     command_line->AppendSwitch(switches::kEnableCrashReporter);
 
-    breakpad::SetFirstChanceExceptionHandler(v8::V8::TryHandleSignal);
+    breakpad::SetFirstChanceExceptionHandler(v8::TryHandleWebAssemblyTrapPosix);
 #endif
   }
 }

@@ -125,10 +125,10 @@ index 989d5d02cedb..e05810db6824 100644
    // If we broke out of the loop, we have found an enabled plugin.
    bool enabled = i < matching_plugins.size();
 diff --git chrome/renderer/chrome_content_renderer_client.cc chrome/renderer/chrome_content_renderer_client.cc
-index 9136ab583964..1839ce97c7e4 100644
+index 2e90fc9add69..9d644676e15f 100644
 --- chrome/renderer/chrome_content_renderer_client.cc
 +++ chrome/renderer/chrome_content_renderer_client.cc
-@@ -781,6 +781,7 @@ WebPlugin* ChromeContentRendererClient::CreatePlugin(
+@@ -785,6 +785,7 @@ WebPlugin* ChromeContentRendererClient::CreatePlugin(
  
      if ((status == chrome::mojom::PluginStatus::kUnauthorized ||
           status == chrome::mojom::PluginStatus::kBlocked) &&
@@ -136,7 +136,7 @@ index 9136ab583964..1839ce97c7e4 100644
          observer->IsPluginTemporarilyAllowed(identifier)) {
        status = chrome::mojom::PluginStatus::kAllowed;
      }
-@@ -968,7 +969,8 @@ WebPlugin* ChromeContentRendererClient::CreatePlugin(
+@@ -969,7 +970,8 @@ WebPlugin* ChromeContentRendererClient::CreatePlugin(
          render_frame->GetRemoteAssociatedInterfaces()->GetInterface(
              &plugin_auth_host);
          plugin_auth_host->BlockedUnauthorizedPlugin(group_name, identifier);
@@ -146,7 +146,7 @@ index 9136ab583964..1839ce97c7e4 100644
          break;
        }
        case chrome::mojom::PluginStatus::kBlocked: {
-@@ -977,7 +979,8 @@ WebPlugin* ChromeContentRendererClient::CreatePlugin(
+@@ -978,7 +980,8 @@ WebPlugin* ChromeContentRendererClient::CreatePlugin(
              l10n_util::GetStringFUTF16(IDS_PLUGIN_BLOCKED, group_name));
          placeholder->AllowLoading();
          RenderThread::Get()->RecordAction(UserMetricsAction("Plugin_Blocked"));
@@ -156,7 +156,7 @@ index 9136ab583964..1839ce97c7e4 100644
          break;
        }
        case chrome::mojom::PluginStatus::kBlockedByPolicy: {
-@@ -987,7 +990,8 @@ WebPlugin* ChromeContentRendererClient::CreatePlugin(
+@@ -988,7 +991,8 @@ WebPlugin* ChromeContentRendererClient::CreatePlugin(
                                         group_name));
          RenderThread::Get()->RecordAction(
              UserMetricsAction("Plugin_BlockedByPolicy"));
@@ -166,7 +166,7 @@ index 9136ab583964..1839ce97c7e4 100644
          break;
        }
        case chrome::mojom::PluginStatus::kBlockedNoLoading: {
-@@ -995,7 +999,8 @@ WebPlugin* ChromeContentRendererClient::CreatePlugin(
+@@ -996,7 +1000,8 @@ WebPlugin* ChromeContentRendererClient::CreatePlugin(
              IDR_BLOCKED_PLUGIN_HTML,
              l10n_util::GetStringFUTF16(IDS_PLUGIN_BLOCKED_NO_LOADING,
                                         group_name));
@@ -177,7 +177,7 @@ index 9136ab583964..1839ce97c7e4 100644
        }
        case chrome::mojom::PluginStatus::kComponentUpdateRequired: {
 diff --git chrome/renderer/plugins/chrome_plugin_placeholder.cc chrome/renderer/plugins/chrome_plugin_placeholder.cc
-index ddec5604dc24..d91befbf6e2c 100644
+index eac14f9ae0d2..f6a3c8f0039b 100644
 --- chrome/renderer/plugins/chrome_plugin_placeholder.cc
 +++ chrome/renderer/plugins/chrome_plugin_placeholder.cc
 @@ -350,8 +350,11 @@ void ChromePluginPlaceholder::OnBlockedContent(

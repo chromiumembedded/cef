@@ -1,8 +1,8 @@
 diff --git .gn .gn
-index a8956fd54ce7..b7254af29760 100644
+index b3587587786f..8d3ff106d714 100644
 --- .gn
 +++ .gn
-@@ -672,6 +672,8 @@ exec_script_whitelist =
+@@ -671,6 +671,8 @@ exec_script_whitelist =
        # in the Chromium repo outside of //build.
        "//build_overrides/build.gni",
  
@@ -12,10 +12,10 @@ index a8956fd54ce7..b7254af29760 100644
        # https://crbug.com/474506.
        "//clank/java/BUILD.gn",
 diff --git BUILD.gn BUILD.gn
-index 7ac0e16e1e14..40e3b2a3e305 100644
+index b7227438d469..c879fd3d071d 100644
 --- BUILD.gn
 +++ BUILD.gn
-@@ -184,6 +184,7 @@ group("gn_all") {
+@@ -188,6 +188,7 @@ group("gn_all") {
  
    if (!is_ios && !is_fuchsia) {
      deps += [
@@ -100,10 +100,10 @@ index 2c8675206f31..d3e419d8fe98 100644
  
  
 diff --git build/vs_toolchain.py build/vs_toolchain.py
-index e088f609c6fe..09409c7cfb99 100755
+index 83b5e25dfa87..65186ae4780c 100755
 --- build/vs_toolchain.py
 +++ build/vs_toolchain.py
-@@ -73,11 +73,18 @@ def SetEnvironmentAndGetRuntimeDllDirs():
+@@ -76,11 +76,18 @@ def SetEnvironmentAndGetRuntimeDllDirs():
      runtime_path = os.path.pathsep.join(vs_runtime_dll_dirs)
      os.environ['PATH'] = runtime_path + os.path.pathsep + os.environ['PATH']
    elif sys.platform == 'win32' and not depot_tools_win_toolchain:

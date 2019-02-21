@@ -432,10 +432,9 @@ void CefBrowserImpl::OnDestruct() {
 
 void CefBrowserImpl::DidFinishLoad(blink::WebLocalFrame* frame) {
   blink::WebDocumentLoader* dl = frame->GetDocumentLoader();
-  Send(new CefHostMsg_DidFinishLoad(routing_id(),
-                                    render_frame_util::GetIdentifier(frame),
-                                    dl->GetRequest().Url(), !frame->Parent(),
-                                    dl->GetResponse().HttpStatusCode()));
+  Send(new CefHostMsg_DidFinishLoad(
+      routing_id(), render_frame_util::GetIdentifier(frame), dl->GetUrl(),
+      !frame->Parent(), dl->GetResponse().HttpStatusCode()));
   OnLoadEnd(frame);
 }
 

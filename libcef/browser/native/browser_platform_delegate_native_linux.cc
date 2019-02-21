@@ -17,7 +17,6 @@
 #include "content/browser/renderer_host/render_widget_host_impl.h"
 #include "content/public/browser/native_web_keyboard_event.h"
 #include "content/public/browser/render_view_host.h"
-#include "content/public/common/renderer_preferences.h"
 #include "ui/events/keycodes/dom/dom_key.h"
 #include "ui/events/keycodes/dom/keycode_converter.h"
 #include "ui/events/keycodes/keyboard_code_conversion_x.h"
@@ -26,6 +25,7 @@
 #include "ui/gfx/font_render_params.h"
 #include "ui/views/widget/desktop_aura/desktop_window_tree_host_x11.h"
 #include "ui/views/widget/widget.h"
+#include "third_party/blink/public/mojom/renderer_preferences.mojom.h"
 
 namespace {
 
@@ -94,7 +94,7 @@ bool CefBrowserPlatformDelegateNativeLinux::CreateHostWindow() {
 
   // As an additional requirement on Linux, we must set the colors for the
   // render widgets in webkit.
-  content::RendererPreferences* prefs =
+  blink::mojom::RendererPreferences* prefs =
       browser_->web_contents()->GetMutableRendererPrefs();
   prefs->focus_ring_color = SkColorSetARGB(255, 229, 151, 0);
 

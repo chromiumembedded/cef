@@ -58,10 +58,10 @@ index f61ff0d0564a..e6727c7b1cbc 100644
  
  }  // namespace certificate_transparency
 diff --git net/http/transport_security_state.cc net/http/transport_security_state.cc
-index fe433909de14..f49d9d7bbae8 100644
+index b7a2bca7bf42..d0952ba4a4d7 100644
 --- net/http/transport_security_state.cc
 +++ net/http/transport_security_state.cc
-@@ -1099,8 +1099,10 @@ void TransportSecurityState::ClearReportCachesForTesting() {
+@@ -1100,8 +1100,10 @@ void TransportSecurityState::ClearReportCachesForTesting() {
    sent_expect_ct_reports_cache_.Clear();
  }
  
@@ -75,7 +75,7 @@ index fe433909de14..f49d9d7bbae8 100644
    // We consider built-in information to be timely for 10 weeks.
    return (base::Time::Now() - build_time).InDays() < 70 /* 10 weeks */;
 diff --git net/http/transport_security_state.h net/http/transport_security_state.h
-index 5e772fd78b5d..fb5fd04fbaf9 100644
+index 48ccb74e2e1d..79dc9958d1de 100644
 --- net/http/transport_security_state.h
 +++ net/http/transport_security_state.h
 @@ -530,6 +530,10 @@ class NET_EXPORT TransportSecurityState {

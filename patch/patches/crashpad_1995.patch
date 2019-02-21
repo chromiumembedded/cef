@@ -127,7 +127,7 @@ index fdc51ab22807..cb0a99dd190c 100644
    g_crash_helper_enabled = true;
    return true;
 diff --git components/crash/content/app/breakpad_linux.cc components/crash/content/app/breakpad_linux.cc
-index a7378204ffaa..7efc255eb1b4 100644
+index ecc7d66acb03..abc4371f429b 100644
 --- components/crash/content/app/breakpad_linux.cc
 +++ components/crash/content/app/breakpad_linux.cc
 @@ -28,6 +28,7 @@
@@ -227,10 +227,10 @@ index a7378204ffaa..7efc255eb1b4 100644
  void InitNonBrowserCrashReporterForAndroid(const std::string& process_type) {
    SanitizationInfo sanitization_info;
 diff --git components/crash/content/app/breakpad_linux.h components/crash/content/app/breakpad_linux.h
-index 9ee85554812c..7af55ddda8fe 100644
+index 6e95af6ca7f5..061fb189d60f 100644
 --- components/crash/content/app/breakpad_linux.h
 +++ components/crash/content/app/breakpad_linux.h
-@@ -19,6 +19,9 @@ extern void InitCrashReporter(const std::string& process_type);
+@@ -20,6 +20,9 @@ extern void InitCrashReporter(const std::string& process_type);
  // Sets the product/distribution channel crash key.
  void SetChannelCrashKey(const std::string& channel);
  
@@ -388,10 +388,10 @@ index caebf67a7e0f..5e7cf3d8c1a6 100644
  
  }  // namespace crash_reporter
 diff --git components/crash/content/app/crashpad.cc components/crash/content/app/crashpad.cc
-index a04a4d843004..366a687c352d 100644
+index 72c9703b692d..6f0464a78012 100644
 --- components/crash/content/app/crashpad.cc
 +++ components/crash/content/app/crashpad.cc
-@@ -150,7 +150,8 @@ void InitializeCrashpadImpl(bool initial_client,
+@@ -151,7 +151,8 @@ void InitializeCrashpadImpl(bool initial_client,
    // fallback. Forwarding is turned off for debug-mode builds even for the
    // browser process, because the system's crash reporter can take a very long
    // time to chew on symbols.
@@ -402,7 +402,7 @@ index a04a4d843004..366a687c352d 100644
          ->set_system_crash_reporter_forwarding(crashpad::TriState::kDisabled);
    }
 diff --git components/crash/content/app/crashpad_mac.mm components/crash/content/app/crashpad_mac.mm
-index f079174b3586..ff9a19e259fb 100644
+index a76d264648d2..ff9a19e259fb 100644
 --- components/crash/content/app/crashpad_mac.mm
 +++ components/crash/content/app/crashpad_mac.mm
 @@ -16,11 +16,14 @@
@@ -472,13 +472,14 @@ index f079174b3586..ff9a19e259fb 100644
      }  // @autoreleasepool
      return process_annotations;
    }();
-@@ -122,9 +142,10 @@ base::FilePath PlatformCrashpadInitialization(
+@@ -122,10 +142,10 @@ base::FilePath PlatformCrashpadInitialization(
  
    if (initial_client) {
      @autoreleasepool {
 -      base::FilePath framework_bundle_path = base::mac::FrameworkBundlePath();
 -      base::FilePath handler_path =
--          framework_bundle_path.Append("Helpers").Append("crashpad_handler");
+-          framework_bundle_path.Append("Helpers").Append(
+-              "chrome_crashpad_handler");
 +      // Use the same subprocess helper exe.
 +      base::FilePath handler_path;
 +      base::PathService::Get(content::CHILD_PROCESS_EXE, &handler_path);
@@ -486,7 +487,7 @@ index f079174b3586..ff9a19e259fb 100644
  
        // Is there a way to recover if this fails?
        CrashReporterClient* crash_reporter_client = GetCrashReporterClient();
-@@ -136,7 +157,7 @@ base::FilePath PlatformCrashpadInitialization(
+@@ -137,7 +157,7 @@ base::FilePath PlatformCrashpadInitialization(
        // crash server won't have symbols for any other build types.
        std::string url = "https://clients2.google.com/cr/report";
  #else
@@ -495,7 +496,7 @@ index f079174b3586..ff9a19e259fb 100644
  #endif
  
        std::vector<std::string> arguments;
-@@ -159,6 +180,12 @@ base::FilePath PlatformCrashpadInitialization(
+@@ -160,6 +180,12 @@ base::FilePath PlatformCrashpadInitialization(
              "--reset-own-crash-exception-port-to-system-default");
        }
  
@@ -597,10 +598,10 @@ index cc16c40ea320..3bb03459adf4 100644
  
      if (crash_reporter_client->ShouldMonitorCrashHandlerExpensively()) {
 diff --git content/browser/frame_host/debug_urls.cc content/browser/frame_host/debug_urls.cc
-index d396b2fc0309..e1451174d705 100644
+index 8dd06415ce2f..b809cf14d9d1 100644
 --- content/browser/frame_host/debug_urls.cc
 +++ content/browser/frame_host/debug_urls.cc
-@@ -134,7 +134,9 @@ bool HandleDebugURL(const GURL& url, ui::PageTransition transition) {
+@@ -135,7 +135,9 @@ bool HandleDebugURL(const GURL& url, ui::PageTransition transition) {
            cc::switches::kEnableGpuBenchmarking) &&
        (PageTransitionCoreTypeIs(transition, ui::PAGE_TRANSITION_TYPED));
  

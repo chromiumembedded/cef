@@ -30,8 +30,7 @@ class CefSimpleMenuModel : public ui::MenuModel {
  public:
   // The Delegate can be NULL, though if it is items can't be checked or
   // disabled.
-  explicit CefSimpleMenuModel(CefMenuModelImpl* impl)
-      : impl_(impl), menu_model_delegate_(NULL) {}
+  explicit CefSimpleMenuModel(CefMenuModelImpl* impl) : impl_(impl) {}
 
   // MenuModel methods.
   bool HasIcons() const override { return false; }
@@ -161,18 +160,8 @@ class CefSimpleMenuModel : public ui::MenuModel {
 
   void MenuWillClose() override { impl_->MenuWillClose(); }
 
-  void SetMenuModelDelegate(
-      ui::MenuModelDelegate* menu_model_delegate) override {
-    menu_model_delegate_ = menu_model_delegate;
-  }
-
-  ui::MenuModelDelegate* GetMenuModelDelegate() const override {
-    return menu_model_delegate_;
-  }
-
  private:
   CefMenuModelImpl* impl_;
-  ui::MenuModelDelegate* menu_model_delegate_;
 
   DISALLOW_COPY_AND_ASSIGN(CefSimpleMenuModel);
 };

@@ -473,7 +473,7 @@ class OSRTestHandler : public RoutingTestHandler,
         break;
       case OSR_TEST_TAKE_FOCUS:
         if (StartTest() || started()) {
-// Tab traversal across HTML element
+          // Tab traversal across HTML element
 
 #if defined(OS_WIN)
           SendKeyEvent(browser, VK_TAB);
@@ -559,9 +559,11 @@ class OSRTestHandler : public RoutingTestHandler,
           browser->GetHost()->Invalidate(PET_VIEW);
         } else {
           EXPECT_EQ(dirtyRects.size(), 1U);
-          EXPECT_EQ(dirtyRects[0],
-                    GetScaledRect(CefRect(0, 0, kOsrWidth, kOsrHeight)));
-          DestroySucceededTestSoon();
+          const CefRect& expected_rect =
+              GetScaledRect(CefRect(0, 0, kOsrWidth, kOsrHeight));
+          // There may be some partial repaints before the full repaint.
+          if (dirtyRects[0] == expected_rect)
+            DestroySucceededTestSoon();
         }
         break;
       }
@@ -703,7 +705,7 @@ class OSRTestHandler : public RoutingTestHandler,
             EXPECT_GT(dirtyRects[0].height, kExpandedSelectRect.height);
           }
 
-// first pixel of border
+          // first pixel of border
 
 #if defined(OS_MACOSX)
           EXPECT_EQ(0xff5d99d6U, *(reinterpret_cast<const uint32*>(buffer)));
@@ -741,11 +743,12 @@ class OSRTestHandler : public RoutingTestHandler,
             const CefRect& expanded_select_rect =
                 GetScaledRect(kExpandedSelectRect);
             EXPECT_EQ(dirtyRects.size(), 1U);
-            EXPECT_EQ(0, dirtyRects[0].x);
-            EXPECT_EQ(0, dirtyRects[0].y);
+            // dirtyRects[0] has a 1px inset.
+            EXPECT_EQ(1, dirtyRects[0].x);
+            EXPECT_EQ(1, dirtyRects[0].y);
             if (ExpectComputedPopupSize()) {
-              EXPECT_EQ(expanded_select_rect.width, dirtyRects[0].width);
-              EXPECT_EQ(expanded_select_rect.height, dirtyRects[0].height);
+              EXPECT_EQ(expanded_select_rect.width - 2, dirtyRects[0].width);
+              EXPECT_EQ(expanded_select_rect.height - 2, dirtyRects[0].height);
             } else {
               EXPECT_GT(dirtyRects[0].width, kExpandedSelectRect.width);
               EXPECT_GT(dirtyRects[0].height, kExpandedSelectRect.height);

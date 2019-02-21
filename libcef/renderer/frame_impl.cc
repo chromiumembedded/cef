@@ -231,7 +231,7 @@ CefString CefFrameImpl::GetURL() {
       // the provisional document URL instead.
       blink::WebDocumentLoader* loader = frame_->GetProvisionalDocumentLoader();
       if (loader)
-        gurl = loader->GetRequest().Url();
+        gurl = loader->GetUrl();
     }
     url = gurl.spec();
   }

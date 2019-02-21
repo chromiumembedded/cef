@@ -10,14 +10,13 @@
 #include "components/metrics/public/interfaces/call_stack_profile_collector.mojom.h"
 #include "components/services/heap_profiling/public/mojom/heap_profiling_client.mojom.h"
 #include "extensions/buildflags/buildflags.h"
+#include "extensions/common/api/mime_handler.mojom.h"  // nogncheck
+#include "extensions/common/mojo/keep_alive.mojom.h"   // nogncheck
 #include "services/service_manager/public/cpp/manifest_builder.h"
 
 #if defined(OS_WIN)
 #include "chrome/common/conflicts/module_event_sink_win.mojom.h"
 #endif
-
-#include "extensions/common/api/mime_handler.mojom.h"  // nogncheck
-#include "extensions/common/mojo/keep_alive.mojom.h"   // nogncheck
 
 const service_manager::Manifest& GetCefContentBrowserOverlayManifest() {
   static base::NoDestructor<service_manager::Manifest> manifest {

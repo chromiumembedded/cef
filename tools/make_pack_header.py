@@ -26,8 +26,19 @@ def MakeFileSegment(input, all_names):
 
   contents = read_file(input)
 
+  # Format for Windows builds with resource whitelisting enabled [1]:
+  #   #define IDR_RESOURCE_NAME (::ui::WhitelistedResource<12345>(), 12345)
+  # Format for other builds:
+  #   #define IDR_RESOURCE_NAME 12345
+  # [1] See https://crbug.com/684788#c18
+
+  regex = '#define\s([A-Za-z0-9_]{1,})\s'
+  if contents.find('ui::WhitelistedResource') > 0:
+    regex += '.*<'
+  regex += '([0-9]{1,})'
+
   # identify the defines in the file
-  p = re.compile('#define\s([A-Za-z0-9_]{1,})\s([0-9]{1,})')
+  p = re.compile(regex)
   list = p.findall(contents)
   for name, id in list:
     # If the same define exists in multiple files add a suffix.

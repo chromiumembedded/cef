@@ -31,7 +31,6 @@
 #include "ui/native_theme/native_theme.h"
 #include "ui/views/controls/menu/menu_config.h"
 #include "ui/views/controls/menu/menu_insertion_delegate_win.h"
-#include "ui/views/controls/menu/menu_listener.h"
 
 using ui::NativeTheme;
 
@@ -323,7 +322,6 @@ class CefNativeMenuWin::MenuHostWindow {
                     2,
             NULL);
       }
-
     } else {
       // Draw the separator
       draw_item_struct->rcItem.top +=
@@ -438,10 +436,6 @@ void CefNativeMenuWin::RunMenuAt(const gfx::Point& point, int alignment) {
   HHOOK hhook = SetWindowsHookEx(WH_MSGFILTER, MenuMessageHook,
                                  GetModuleHandle(NULL), ::GetCurrentThreadId());
 
-  // Mark that any registered listeners have not been called for this particular
-  // opening of the menu.
-  listeners_called_ = false;
-
   // Command dispatch is done through WM_MENUCOMMAND, handled by the host
   // window.
   menu_to_select_ = NULL;
@@ -520,14 +514,6 @@ CefNativeMenuWin::MenuAction CefNativeMenuWin::GetMenuAction() const {
   return menu_action_;
 }
 
-void CefNativeMenuWin::AddMenuListener(MenuListener* listener) {
-  listeners_.AddObserver(listener);
-}
-
-void CefNativeMenuWin::RemoveMenuListener(MenuListener* listener) {
-  listeners_.RemoveObserver(listener);
-}
-
 void CefNativeMenuWin::SetMinimumWidth(int width) {
   NOTIMPLEMENTED();
 }
@@ -575,14 +561,6 @@ LRESULT CALLBACK CefNativeMenuWin::MenuMessageHook(int n_code,
   CefNativeMenuWin* this_ptr = open_native_menu_win_;
   if (!this_ptr)
     return result;
-
-  // The first time this hook is called, that means the menu has successfully
-  // opened, so call the callback function on all of our listeners.
-  if (!this_ptr->listeners_called_) {
-    for (auto& observer : this_ptr->listeners_)
-      observer.OnMenuOpened();
-    this_ptr->listeners_called_ = true;
-  }
 
   MSG* msg = reinterpret_cast<MSG*>(l_param);
   if (msg->message == WM_LBUTTONUP || msg->message == WM_RBUTTONUP) {

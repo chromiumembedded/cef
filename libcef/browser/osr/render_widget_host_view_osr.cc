@@ -31,6 +31,7 @@
 #include "content/browser/renderer_host/cursor_manager.h"
 #include "content/browser/renderer_host/delegated_frame_host.h"
 #include "content/browser/renderer_host/dip_util.h"
+#include "content/browser/renderer_host/input/synthetic_gesture_target_base.h"
 #include "content/browser/renderer_host/render_widget_host_delegate.h"
 #include "content/browser/renderer_host/render_widget_host_impl.h"
 #include "content/common/input_messages.h"
@@ -1076,6 +1077,14 @@ CefRenderWidgetHostViewOSR::GetLocalSurfaceIdAllocation() const {
 
 const viz::FrameSinkId& CefRenderWidgetHostViewOSR::GetFrameSinkId() const {
   return GetDelegatedFrameHost()->frame_sink_id();
+}
+
+std::unique_ptr<content::SyntheticGestureTarget>
+CefRenderWidgetHostViewOSR::CreateSyntheticGestureTarget() {
+  // TODO(cef): This is likely incorrect for OOPIF.
+  // See https://crrev.com/5375957bb5.
+  return std::unique_ptr<content::SyntheticGestureTarget>(
+      new content::SyntheticGestureTargetBase(host()));
 }
 
 void CefRenderWidgetHostViewOSR::SetNeedsBeginFrames(bool enabled) {

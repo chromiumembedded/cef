@@ -33,11 +33,33 @@ index fc252b6ceffd..b0dfd847ec03 100644
   public:
    MouseWheelPhaseHandler(RenderWidgetHostViewBase* const host_view);
    ~MouseWheelPhaseHandler() {}
+diff --git content/browser/renderer_host/input/synthetic_gesture_target_base.h content/browser/renderer_host/input/synthetic_gesture_target_base.h
+index 53476354343e..fd1a7a24455b 100644
+--- content/browser/renderer_host/input/synthetic_gesture_target_base.h
++++ content/browser/renderer_host/input/synthetic_gesture_target_base.h
+@@ -8,6 +8,7 @@
+ #include "base/macros.h"
+ #include "base/time/time.h"
+ #include "content/browser/renderer_host/input/synthetic_gesture_target.h"
++#include "content/common/content_export.h"
+ 
+ namespace ui {
+ class LatencyInfo;
+@@ -24,7 +25,8 @@ namespace content {
+ 
+ class RenderWidgetHostImpl;
+ 
+-class SyntheticGestureTargetBase : public SyntheticGestureTarget {
++class CONTENT_EXPORT SyntheticGestureTargetBase :
++    public SyntheticGestureTarget {
+  public:
+   explicit SyntheticGestureTargetBase(RenderWidgetHostImpl* host);
+   ~SyntheticGestureTargetBase() override;
 diff --git third_party/blink/renderer/controller/BUILD.gn third_party/blink/renderer/controller/BUILD.gn
-index 7668f3725200..665e8e579c54 100644
+index 65c03e2a2f7d..f44826c38236 100644
 --- third_party/blink/renderer/controller/BUILD.gn
 +++ third_party/blink/renderer/controller/BUILD.gn
-@@ -25,6 +25,7 @@ component("controller") {
+@@ -26,6 +26,7 @@ jumbo_component("controller") {
  
    configs += [
      "//build/config/compiler:wexit_time_destructors",
@@ -45,28 +67,28 @@ index 7668f3725200..665e8e579c54 100644
      "//third_party/blink/renderer:config",
      "//third_party/blink/renderer:inside_blink",
      "//third_party/blink/renderer:non_test_config",
-@@ -47,6 +48,8 @@ component("controller") {
+@@ -46,6 +47,8 @@ jumbo_component("controller") {
+     "dev_tools_frontend_impl.h",
+     "memory_usage_monitor.cc",
      "memory_usage_monitor.h",
-     "memory_usage_monitor_android.cc",
-     "memory_usage_monitor_android.h",
 +    "//cef/libcef/renderer/blink_glue.cc",
 +    "//cef/libcef/renderer/blink_glue.h",
    ]
  
    if (is_android) {
 diff --git ui/events/keycodes/BUILD.gn ui/events/keycodes/BUILD.gn
-index 1e6d31cc0c92..36f3283291d9 100644
+index 97e5fd499c81..8508a8fbcc8e 100644
 --- ui/events/keycodes/BUILD.gn
 +++ ui/events/keycodes/BUILD.gn
-@@ -14,6 +14,8 @@ jumbo_source_set("xkb") {
-     "xkb_keysym.h",
+@@ -18,6 +18,8 @@ jumbo_source_set("xkb") {
+     "//ui/base:buildflags",
    ]
  
 +  defines = [ "KEYCODES_X_IMPLEMENTATION" ]
 +
    deps = [
      "//base",
-     "//ui/base:buildflags",
+     "//ui/events:dom_keycode_converter",
 diff --git ui/events/keycodes/keyboard_code_conversion_xkb.h ui/events/keycodes/keyboard_code_conversion_xkb.h
 index a1f9b78704fb..c7d3558251d9 100644
 --- ui/events/keycodes/keyboard_code_conversion_xkb.h

@@ -1,8 +1,8 @@
 diff --git chrome/browser/ui/BUILD.gn chrome/browser/ui/BUILD.gn
-index 46bee4c2a411..182b9b7ccc32 100644
+index 6a0e84303ff0..4d5e821d2624 100644
 --- chrome/browser/ui/BUILD.gn
 +++ chrome/browser/ui/BUILD.gn
-@@ -362,6 +362,7 @@ jumbo_split_static_library("ui") {
+@@ -365,6 +365,7 @@ jumbo_split_static_library("ui") {
      "//base:i18n",
      "//base/allocator:buildflags",
      "//cc/paint",
@@ -10,7 +10,7 @@ index 46bee4c2a411..182b9b7ccc32 100644
      "//chrome:extra_resources",
      "//chrome:resources",
      "//chrome:strings",
-@@ -2311,7 +2312,7 @@ jumbo_split_static_library("ui") {
+@@ -2309,7 +2310,7 @@ jumbo_split_static_library("ui") {
          "views/frame/native_browser_frame_factory_ozone.cc",
        ]
      } else {
@@ -263,7 +263,7 @@ index 1802034a6e15..ae0d479ecafa 100644
  
  #endif  // COMPONENTS_PRINTING_COMMON_PRINT_MESSAGES_H_
 diff --git components/printing/renderer/print_render_frame_helper.cc components/printing/renderer/print_render_frame_helper.cc
-index cd9306860bba..3b7b505aff73 100644
+index 56e2dd5faf2b..9428db8c616d 100644
 --- components/printing/renderer/print_render_frame_helper.cc
 +++ components/printing/renderer/print_render_frame_helper.cc
 @@ -351,7 +351,6 @@ bool IsPrintingFrameset(const blink::WebLocalFrame* frame) {

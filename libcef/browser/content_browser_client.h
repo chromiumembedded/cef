@@ -165,6 +165,7 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
   std::string GetProduct() const override;
   std::string GetChromeProduct() const override;
   std::string GetUserAgent() const override;
+  blink::UserAgentMetadata GetUserAgentMetadata() const override;
 
   // Perform browser process registration for the custom scheme.
   void RegisterCustomScheme(const std::string& scheme);

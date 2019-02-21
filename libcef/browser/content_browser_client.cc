@@ -62,6 +62,7 @@
 #include "components/navigation_interception/intercept_navigation_throttle.h"
 #include "components/navigation_interception/navigation_params.h"
 #include "components/services/pdf_compositor/public/interfaces/pdf_compositor.mojom.h"
+#include "components/version_info/version_info.h"
 #include "content/browser/frame_host/navigation_handle_impl.h"
 #include "content/browser/frame_host/render_frame_host_impl.h"
 #include "content/browser/plugin_service_impl.h"
@@ -821,7 +822,8 @@ void CefContentBrowserClient::GetQuotaSettings(
     storage::OptionalQuotaSettingsCallback callback) {
   const base::FilePath& cache_path = partition->GetPath();
   storage::GetNominalDynamicSettings(
-      cache_path, cache_path.empty() /* is_incognito */, std::move(callback));
+      cache_path, cache_path.empty() /* is_incognito */,
+      storage::GetDefaultDiskInfoHelper(), std::move(callback));
 }
 
 content::MediaObserver* CefContentBrowserClient::GetMediaObserver() {
@@ -1025,10 +1027,14 @@ CefContentBrowserClient::CreateThrottlesForNavigation(
       frame_id = CefFrameHostImpl::kInvalidFrameId;
   }
 
+  // Must use SynchronyMode::kSync to ensure that OnBeforeBrowse is always
+  // called before OnBeforeResourceLoad.
   std::unique_ptr<content::NavigationThrottle> throttle =
       std::make_unique<navigation_interception::InterceptNavigationThrottle>(
-          navigation_handle, base::Bind(&NavigationOnUIThread, is_main_frame,
-                                        frame_id, parent_frame_id));
+          navigation_handle,
+          base::Bind(&NavigationOnUIThread, is_main_frame, frame_id,
+                     parent_frame_id),
+          navigation_interception::SynchronyMode::kSync);
   throttles.push_back(std::move(throttle));
 
   return throttles;
@@ -1179,6 +1185,20 @@ std::string CefContentBrowserClient::GetUserAgent() const {
     return command_line->GetSwitchValueASCII(switches::kUserAgent);
 
   return content::BuildUserAgentFromProduct(GetProduct());
+}
+
+blink::UserAgentMetadata CefContentBrowserClient::GetUserAgentMetadata() const {
+  blink::UserAgentMetadata metadata;
+
+  metadata.brand = version_info::GetProductName();
+  metadata.version = version_info::GetVersionNumber();
+  metadata.platform = version_info::GetOSType();
+
+  // TODO(mkwst): Poke at BuildUserAgentFromProduct to split out these pieces.
+  metadata.architecture = "";
+  metadata.model = "";
+
+  return metadata;
 }
 
 void CefContentBrowserClient::RegisterCustomScheme(const std::string& scheme) {
