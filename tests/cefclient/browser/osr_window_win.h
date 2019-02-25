@@ -93,6 +93,7 @@ class OsrWindowWin
   void OnKeyEvent(UINT message, WPARAM wParam, LPARAM lParam);
   void OnPaint();
   bool OnEraseBkgnd();
+  bool OnTouchEvent(UINT message, WPARAM wParam, LPARAM lParam);
 
   void OnIMESetContext(UINT message, WPARAM wParam, LPARAM lParam);
   void OnIMEStartComposition();

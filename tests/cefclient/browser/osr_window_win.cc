@@ -27,6 +27,29 @@ namespace {
 
 const wchar_t kWndClass[] = L"Client_OsrWindow";
 
+// Helper funtion to check if it is Windows8 or greater.
+// https://msdn.microsoft.com/en-us/library/ms724833(v=vs.85).aspx
+inline BOOL IsWindows_8_Or_Newer() {
+  OSVERSIONINFOEX osvi = {0};
+  osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
+  osvi.dwMajorVersion = 6;
+  osvi.dwMinorVersion = 2;
+  DWORDLONG dwlConditionMask = 0;
+  VER_SET_CONDITION(dwlConditionMask, VER_MAJORVERSION, VER_GREATER_EQUAL);
+  VER_SET_CONDITION(dwlConditionMask, VER_MINORVERSION, VER_GREATER_EQUAL);
+  return ::VerifyVersionInfo(&osvi, VER_MAJORVERSION | VER_MINORVERSION,
+                             dwlConditionMask);
+}
+
+// Helper function to detect mouse messages coming from emulation of touch
+// events. These should be ignored.
+bool IsMouseEventFromTouch(UINT message) {
+#define MOUSEEVENTF_FROMTOUCH 0xFF515700
+  return (message >= WM_MOUSEFIRST) && (message <= WM_MOUSELAST) &&
+         (GetMessageExtraInfo() & MOUSEEVENTF_FROMTOUCH) ==
+             MOUSEEVENTF_FROMTOUCH;
+}
+
 }  // namespace
 
 OsrWindowWin::OsrWindowWin(Delegate* delegate,
@@ -256,6 +279,10 @@ void OsrWindowWin::Create(HWND parent_hwnd, const RECT& rect) {
 
   ime_handler_.reset(new OsrImeHandlerWin(hwnd_));
 
+  // Enable Touch Events if requested
+  if (client::MainContext::Get()->TouchEventsEnabled())
+    RegisterTouchWindow(hwnd_, 0);
+
   // Notify the window owner.
   NotifyNativeWindowCreated(hwnd_);
 }
@@ -476,6 +503,15 @@ LRESULT CALLBACK OsrWindowWin::OsrWndProc(HWND hWnd,
       // Don't erase the background.
       return 0;
 
+    // If your application does not require Win7 support, please do consider
+    // using WM_POINTER* messages instead of WM_TOUCH. WM_POINTER are more
+    // intutive, complete and simpler to code.
+    // https://msdn.microsoft.com/en-us/library/hh454903(v=vs.85).aspx
+    case WM_TOUCH:
+      if (self->OnTouchEvent(message, wParam, lParam))
+        return 0;
+      break;
+
     case WM_NCDESTROY:
       // Clear the reference to |self|.
       SetUserDataPtr(hWnd, NULL);
@@ -487,6 +523,9 @@ LRESULT CALLBACK OsrWindowWin::OsrWndProc(HWND hWnd,
 }
 
 void OsrWindowWin::OnMouseEvent(UINT message, WPARAM wParam, LPARAM lParam) {
+  if (IsMouseEventFromTouch(message))
+    return;
+
   CefRefPtr<CefBrowserHost> browser_host;
   if (browser_)
     browser_host = browser_->GetHost();
@@ -731,6 +770,63 @@ void OsrWindowWin::OnPaint() {
 bool OsrWindowWin::OnEraseBkgnd() {
   // Erase the background when the browser does not exist.
   return (browser_ == NULL);
+}
+
+bool OsrWindowWin::OnTouchEvent(UINT message, WPARAM wParam, LPARAM lParam) {
+  // Handle touch events on Windows.
+  int num_points = LOWORD(wParam);
+  // Chromium only supports upto 16 touch points.
+  if (num_points < 0 || num_points > 16)
+    return false;
+  std::unique_ptr<TOUCHINPUT[]> input(new TOUCHINPUT[num_points]);
+  if (GetTouchInputInfo(reinterpret_cast<HTOUCHINPUT>(lParam), num_points,
+                        input.get(), sizeof(TOUCHINPUT))) {
+    CefTouchEvent touch_event;
+    for (int i = 0; i < num_points; ++i) {
+      POINT point;
+      point.x = TOUCH_COORD_TO_PIXEL(input[i].x);
+      point.y = TOUCH_COORD_TO_PIXEL(input[i].y);
+
+      if (!IsWindows_8_Or_Newer()) {
+        // Windows 7 sends touch events for touches in the non-client area,
+        // whereas Windows 8 does not. In order to unify the behaviour, always
+        // ignore touch events in the non-client area.
+        LPARAM l_param_ht = MAKELPARAM(point.x, point.y);
+        LRESULT hittest = SendMessage(hwnd_, WM_NCHITTEST, 0, l_param_ht);
+        if (hittest != HTCLIENT)
+          return false;
+      }
+
+      ScreenToClient(hwnd_, &point);
+      touch_event.x = DeviceToLogical(point.x, device_scale_factor_);
+      touch_event.y = DeviceToLogical(point.y, device_scale_factor_);
+
+      // Touch point identifier stays consistent in a touch contact sequence
+      touch_event.id = input[i].dwID;
+
+      if (input[i].dwFlags & TOUCHEVENTF_DOWN) {
+        touch_event.type = CEF_TET_PRESSED;
+      } else if (input[i].dwFlags & TOUCHEVENTF_MOVE) {
+        touch_event.type = CEF_TET_MOVED;
+      } else if (input[i].dwFlags & TOUCHEVENTF_UP) {
+        touch_event.type = CEF_TET_RELEASED;
+      }
+
+      touch_event.radius_x = 0;
+      touch_event.radius_y = 0;
+      touch_event.rotation_angle = 0;
+      touch_event.pressure = 0;
+      touch_event.modifiers = 0;
+
+      // Notify the browser of touch event
+      if (browser_)
+        browser_->GetHost()->SendTouchEvent(touch_event);
+    }
+    CloseTouchInputHandle(reinterpret_cast<HTOUCHINPUT>(lParam));
+    return true;
+  }
+
+  return false;
 }
 
 bool OsrWindowWin::IsOverPopupWidget(int x, int y) const {

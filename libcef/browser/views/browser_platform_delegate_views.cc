@@ -204,6 +204,9 @@ void CefBrowserPlatformDelegateViews::SendMouseWheelEvent(
     host->GetWidget()->ForwardWheelEvent(event);
 }
 
+void CefBrowserPlatformDelegateViews::SendTouchEvent(
+    const CefTouchEvent& event) {}
+
 void CefBrowserPlatformDelegateViews::SendFocusEvent(bool setFocus) {
   // Will result in a call to WebContents::Focus().
   if (setFocus && browser_view_->root_view())

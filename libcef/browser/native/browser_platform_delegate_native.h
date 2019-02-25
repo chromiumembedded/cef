@@ -32,6 +32,7 @@ class CefBrowserPlatformDelegateNative : public CefBrowserPlatformDelegate {
   void SendKeyEvent(const content::NativeWebKeyboardEvent& event) override;
   void SendMouseEvent(const blink::WebMouseEvent& event) override;
   void SendMouseWheelEvent(const blink::WebMouseWheelEvent& event) override;
+  void SendTouchEvent(const CefTouchEvent& event) override;
   bool IsWindowless() const override;
   bool IsViewsHosted() const override;
 

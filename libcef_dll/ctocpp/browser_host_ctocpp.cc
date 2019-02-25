@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=f57448cbd63f9fdff85b1dbf22a09db3f6ecdea1$
+// $hash=5b3acb2cb74ef6b6b42bade4e0515d39e4609319$
 //
 
 #include "libcef_dll/ctocpp/browser_host_ctocpp.h"
@@ -620,6 +620,18 @@ void CefBrowserHostCToCpp::SendMouseWheelEvent(const CefMouseEvent& event,
 
   // Execute
   _struct->send_mouse_wheel_event(_struct, &event, deltaX, deltaY);
+}
+
+NO_SANITIZE("cfi-icall")
+void CefBrowserHostCToCpp::SendTouchEvent(const CefTouchEvent& event) {
+  cef_browser_host_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, send_touch_event))
+    return;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  _struct->send_touch_event(_struct, &event);
 }
 
 NO_SANITIZE("cfi-icall")

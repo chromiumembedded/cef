@@ -14,6 +14,8 @@
 #include "include/cef_base.h"
 #include "include/cef_browser.h"
 
+#include "libcef/browser/osr/motion_event_osr.h"
+
 #include "base/memory/weak_ptr.h"
 #include "build/build_config.h"
 #include "components/viz/common/frame_sinks/begin_frame_source.h"
@@ -24,6 +26,10 @@
 #include "content/public/common/widget_type.h"
 #include "ui/compositor/compositor.h"
 #include "ui/compositor/external_begin_frame_client.h"
+#include "ui/events/base_event_utils.h"
+#include "ui/events/gesture_detection/filtered_gesture_provider.h"
+#include "ui/events/gesture_detection/gesture_configuration.h"
+#include "ui/events/gesture_detection/motion_event_generic.h"
 #include "ui/gfx/geometry/rect.h"
 
 #if defined(OS_LINUX)
@@ -98,7 +104,8 @@ class MacHelper;
 class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
                                    public ui::ExternalBeginFrameClient,
                                    public ui::CompositorDelegate,
-                                   public content::TextInputManager::Observer {
+                                   public content::TextInputManager::Observer,
+                                   public ui::GestureProviderClient {
  public:
   CefRenderWidgetHostViewOSR(SkColor background_color,
                              bool use_shared_texture,
@@ -202,6 +209,7 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
   const viz::LocalSurfaceIdAllocation& GetLocalSurfaceIdAllocation()
       const override;
   const viz::FrameSinkId& GetFrameSinkId() const override;
+  viz::FrameSinkId GetRootFrameSinkId() override;
 
   // ui::ExternalBeginFrameClient implementation:
   void OnDisplayDidFinishFrame(const viz::BeginFrameAck& ack) override;
@@ -217,6 +225,11 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
       RenderWidgetHostViewBase* updated_view,
       bool did_update_state) override;
 
+  // ui::GestureProviderClient implementation.
+  void ProcessAckedTouchEvent(const content::TouchEventWithLatencyInfo& touch,
+                              content::InputEventAckState ack_result) override;
+  void OnGestureEvent(const ui::GestureEventData& gesture) override;
+
   bool InstallTransparency();
 
   void SynchronizeVisualProperties();
@@ -226,6 +239,8 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
   void SendKeyEvent(const content::NativeWebKeyboardEvent& event);
   void SendMouseEvent(const blink::WebMouseEvent& event);
   void SendMouseWheelEvent(const blink::WebMouseWheelEvent& event);
+  void SendTouchEvent(const CefTouchEvent& event);
+  bool ShouldRouteEvents() const;
   void SendFocusEvent(bool focus);
   void UpdateFrameRate();
 
@@ -257,6 +272,8 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
   }
 
   void set_popup_host_view(CefRenderWidgetHostViewOSR* popup_view) {
+    if (popup_view != popup_host_view_)
+      forward_touch_to_popup_ = false;
     popup_host_view_ = popup_view;
   }
   void set_child_host_view(CefRenderWidgetHostViewOSR* popup_view) {
@@ -358,8 +375,8 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
   std::unique_ptr<content::BrowserCompositorMac> browser_compositor_;
   MacHelper* mac_helper_;
 #elif defined(USE_X11)
-  CefWindowX11* window_;
-  std::unique_ptr<ui::XScopedCursor> invisible_cursor_;
+CefWindowX11* window_;
+std::unique_ptr<ui::XScopedCursor> invisible_cursor_;
 #endif
 
   std::unique_ptr<content::CursorManager> cursor_manager_;
@@ -405,6 +422,10 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
   base::Lock damage_rect_lock_;
   std::map<uint32_t, gfx::Rect> damage_rects_;
 
+  // Whether pinch-to-zoom should be enabled and pinch events forwarded to the
+  // renderer.
+  bool pinch_zoom_enabled_;
+
   // The last scroll offset of the view.
   gfx::Vector2dF last_scroll_offset_;
   bool is_scroll_offset_changed_pending_;
@@ -418,6 +439,12 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
   // requests surfaces be synchronized via
   // EnsureSurfaceSynchronizedForLayoutTest().
   uint32_t latest_capture_sequence_number_ = 0u;
+
+  // ui::GestureProviderClient implementation.
+  ui::FilteredGestureProvider gesture_provider_;
+
+  CefMotionEventOSR pointer_state_;
+  bool forward_touch_to_popup_;
 
   base::WeakPtrFactory<CefRenderWidgetHostViewOSR> weak_ptr_factory_;
 

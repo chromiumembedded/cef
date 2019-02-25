@@ -33,7 +33,7 @@ CefTextInputClientOSRMac* GetInputClientFromContext(
 }  // namespace
 
 @interface BrowserOpenGLView
-    : NSOpenGLView<NSDraggingSource, NSDraggingDestination, NSAccessibility> {
+    : NSOpenGLView <NSDraggingSource, NSDraggingDestination, NSAccessibility> {
  @private
   NSTrackingArea* tracking_area_;
   client::BrowserWindowOsrMac* browser_window_;
@@ -238,8 +238,8 @@ NSPoint ConvertPointFromWindowToScreen(NSWindow* window, NSPoint point) {
   point = [self convertPointToBackingInternal:point];
 
   if (!isUp) {
-    was_last_mouse_down_on_view_ =
-        ![self isOverPopupWidgetX:point.x andY:point.y];
+    was_last_mouse_down_on_view_ = ![self isOverPopupWidgetX:point.x
+                                                        andY:point.y];
   } else if (was_last_mouse_down_on_view_ &&
              [self isOverPopupWidgetX:point.x andY:point.y] &&
              ([self getPopupXOffset] || [self getPopupYOffset])) {
@@ -359,6 +359,110 @@ NSPoint ConvertPointFromWindowToScreen(NSWindow* window, NSPoint point) {
       [client HandleKeyEventAfterTextInputClient:keyEvent];
     }
   }
+
+  // Check for Caps lock and Toggle Touch Emulation
+  if (client::MainContext::Get()->TouchEventsEnabled())
+    [self toggleTouchEmulation:event];
+}
+
+// OSX does not have touch screens, so we emulate it by mapping multitouch
+// events on TrackPad to Touch Events on Screen. To ensure it does not
+// interfere with other Trackpad events, this mapping is only enabled if
+// touch-events=enabled commandline is passed and caps lock key is on.
+- (void)toggleTouchEmulation:(NSEvent*)event {
+  if ([event type] == NSFlagsChanged && [event keyCode] == 0x39) {
+    NSUInteger flags = [event modifierFlags];
+    BOOL touch_enabled = flags & NSAlphaShiftKeyMask ? YES : NO;
+    [self setAcceptsTouchEvents:touch_enabled];
+  }
+}
+
+- (cef_touch_event_type_t)getTouchPhase:(NSTouchPhase)phase {
+  cef_touch_event_type_t event_type = CEF_TET_RELEASED;
+  switch (phase) {
+    case NSTouchPhaseBegan:
+      event_type = CEF_TET_PRESSED;
+      break;
+    case NSTouchPhaseMoved:
+      event_type = CEF_TET_MOVED;
+      break;
+    case NSTouchPhaseEnded:
+      event_type = CEF_TET_RELEASED;
+      break;
+    case NSTouchPhaseCancelled:
+      event_type = CEF_TET_CANCELLED;
+      break;
+    default:
+      break;
+  }
+  return event_type;
+}
+
+// Translate NSTouch events to CefTouchEvents and send to browser.
+- (void)sendTouchEvent:(NSEvent*)event touchPhase:(NSTouchPhase)phase {
+  int modifiers = [self getModifiersForEvent:event];
+  CefRefPtr<CefBrowser> browser = [self getBrowser];
+
+  NSSet* touches = [event touchesMatchingPhase:phase inView:self];
+
+  for (NSTouch* touch in touches) {
+    // Convert NSTouch to CefTouchEvent.
+    CefTouchEvent touch_event;
+
+    // NSTouch.identity is unique during the life of the touch
+    touch_event.id = touch.identity.hash;
+    touch_event.type = [self getTouchPhase:phase];
+
+    NSPoint scaled_pos = [touch normalizedPosition];
+    NSSize view_size = [self bounds].size;
+
+    // Map point on Touch Device to View coordinates.
+    NSPoint touch_point = NSMakePoint(scaled_pos.x * view_size.width,
+                                      scaled_pos.y * view_size.height);
+
+    NSPoint contentLocal = [self convertPoint:touch_point fromView:nil];
+    NSPoint point;
+    point.x = contentLocal.x;
+    point.y = [self frame].size.height - contentLocal.y;  // Flip y.
+
+    // Convert to device coordinates.
+    point = [self convertPointToBackingInternal:point];
+
+    int device_x = point.x;
+    int device_y = point.y;
+
+    const float device_scale_factor = [self getDeviceScaleFactor];
+    // Convert to browser view coordinates.
+    touch_event.x = client::DeviceToLogical(device_x, device_scale_factor);
+    touch_event.y = client::DeviceToLogical(device_y, device_scale_factor);
+
+    touch_event.radius_x = 0;
+    touch_event.radius_y = 0;
+
+    touch_event.rotation_angle = 0;
+    touch_event.pressure = 0;
+
+    touch_event.modifiers = modifiers;
+
+    // Notify the browser of touch event.
+    browser->GetHost()->SendTouchEvent(touch_event);
+  }
+}
+
+- (void)touchesBeganWithEvent:(NSEvent*)event {
+  [self sendTouchEvent:event touchPhase:NSTouchPhaseBegan];
+}
+
+- (void)touchesMovedWithEvent:(NSEvent*)event {
+  [self sendTouchEvent:event touchPhase:NSTouchPhaseMoved];
+}
+
+- (void)touchesEndedWithEvent:(NSEvent*)event {
+  [self sendTouchEvent:event touchPhase:NSTouchPhaseEnded];
+}
+
+- (void)touchesCancelledWithEvent:(NSEvent*)event {
+  [self sendTouchEvent:event touchPhase:NSTouchPhaseCancelled];
 }
 
 - (void)keyUp:(NSEvent*)event {
@@ -490,7 +594,7 @@ NSPoint ConvertPointFromWindowToScreen(NSWindow* window, NSPoint point) {
     browser->GetFocusedFrame()->Paste();
 }
 
-- (void) delete:(id)sender {
+- (void)delete:(id)sender {
   CefRefPtr<CefBrowser> browser = [self getBrowser];
   if (browser.get())
     browser->GetFocusedFrame()->Delete();

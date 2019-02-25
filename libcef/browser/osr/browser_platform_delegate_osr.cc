@@ -17,6 +17,7 @@
 #include "content/browser/renderer_host/render_widget_host_input_event_router.h"
 #include "content/browser/web_contents/web_contents_impl.h"
 #include "content/public/browser/render_view_host.h"
+#include "ui/events/base_event_utils.h"
 
 CefBrowserPlatformDelegateOsr::CefBrowserPlatformDelegateOsr(
     std::unique_ptr<CefBrowserPlatformDelegateNative> native_delegate)
@@ -107,6 +108,12 @@ void CefBrowserPlatformDelegateOsr::SendMouseWheelEvent(
   CefRenderWidgetHostViewOSR* view = GetOSRHostView();
   if (view)
     view->SendMouseWheelEvent(event);
+}
+
+void CefBrowserPlatformDelegateOsr::SendTouchEvent(const CefTouchEvent& event) {
+  CefRenderWidgetHostViewOSR* view = GetOSRHostView();
+  if (view)
+    view->SendTouchEvent(event);
 }
 
 void CefBrowserPlatformDelegateOsr::SendFocusEvent(bool setFocus) {

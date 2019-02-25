@@ -481,6 +481,25 @@ struct CefMouseEventTraits {
 ///
 typedef CefStructBase<CefMouseEventTraits> CefMouseEvent;
 
+struct CefTouchEventTraits {
+  typedef cef_touch_event_t struct_type;
+
+  static inline void init(struct_type* s) {}
+
+  static inline void clear(struct_type* s) {}
+
+  static inline void set(const struct_type* src,
+                         struct_type* target,
+                         bool copy) {
+    *target = *src;
+  }
+};
+
+///
+// Class representing a touch event.
+///
+typedef CefStructBase<CefTouchEventTraits> CefTouchEvent;
+
 struct CefPopupFeaturesTraits {
   typedef cef_popup_features_t struct_type;
 
