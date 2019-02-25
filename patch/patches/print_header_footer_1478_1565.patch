@@ -1,24 +1,3 @@
-diff --git chrome/browser/ui/BUILD.gn chrome/browser/ui/BUILD.gn
-index 46bee4c2a411..182b9b7ccc32 100644
---- chrome/browser/ui/BUILD.gn
-+++ chrome/browser/ui/BUILD.gn
-@@ -362,6 +362,7 @@ jumbo_split_static_library("ui") {
-     "//base:i18n",
-     "//base/allocator:buildflags",
-     "//cc/paint",
-+    "//cef/libcef/features",
-     "//chrome:extra_resources",
-     "//chrome:resources",
-     "//chrome:strings",
-@@ -2311,7 +2312,7 @@ jumbo_split_static_library("ui") {
-         "views/frame/native_browser_frame_factory_ozone.cc",
-       ]
-     } else {
--      if (use_aura) {
-+      if (use_aura && use_gtk) {
-         # This is the only component that can interact with gtk.
-         deps += [ "//chrome/browser/ui/libgtkui" ]
-       }
 diff --git chrome/browser/ui/cocoa/applescript/tab_applescript.mm chrome/browser/ui/cocoa/applescript/tab_applescript.mm
 index 71abc5c50e42..20429f93760a 100644
 --- chrome/browser/ui/cocoa/applescript/tab_applescript.mm
