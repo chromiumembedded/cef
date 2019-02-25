@@ -88,7 +88,6 @@ enum V8TestMode {
   V8TEST_CONTEXT_EVAL_CSP_BYPASS_UNSAFE_EVAL,
   V8TEST_CONTEXT_EVAL_CSP_BYPASS_SANDBOX,
   V8TEST_CONTEXT_ENTERED,
-  V8TEST_CONTEXT_INVALID,
   V8TEST_BINDING,
   V8TEST_STACK_TRACE,
   V8TEST_ON_UNCAUGHT_EXCEPTION,
@@ -253,10 +252,6 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
         break;
       case V8TEST_CONTEXT_ENTERED:
         RunContextEnteredTest();
-        break;
-      case V8TEST_CONTEXT_INVALID:
-        // The test is triggered when the context is released.
-        browser_->GetMainFrame()->LoadURL(kV8NavTestUrl);
         break;
       case V8TEST_BINDING:
         RunBindingTest();
@@ -2686,21 +2681,6 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
     }
   }
 
-  void OnContextReleased(CefRefPtr<ClientAppRenderer> app,
-                         CefRefPtr<CefBrowser> browser,
-                         CefRefPtr<CefFrame> frame,
-                         CefRefPtr<CefV8Context> context) override {
-    if (test_mode_ == V8TEST_NONE)
-      return;
-
-    if (test_mode_ == V8TEST_CONTEXT_INVALID &&
-        frame->GetURL().ToString() == kV8TestUrl) {
-      test_context_ = browser_->GetMainFrame()->GetV8Context();
-      test_object_ = CefV8Value::CreateArray(10);
-      CefPostTask(TID_RENDERER, base::Bind(&V8RendererTest::DestroyTest, this));
-    }
-  }
-
   void OnUncaughtException(CefRefPtr<ClientAppRenderer> app,
                            CefRefPtr<CefBrowser> browser,
                            CefRefPtr<CefFrame> frame,
@@ -2818,13 +2798,6 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
   // Return from the test.
   void DestroyTest() {
     EXPECT_TRUE(CefCurrentlyOn(TID_RENDERER));
-
-    if (test_mode_ == V8TEST_CONTEXT_INVALID) {
-      // Verify that objects related to a particular context are not valid after
-      // OnContextReleased is called for that context.
-      EXPECT_FALSE(test_context_->IsValid());
-      EXPECT_FALSE(test_object_->IsValid());
-    }
 
     // Check if the test has failed.
     bool result = !TestFailed();
@@ -3128,7 +3101,6 @@ V8_TEST_EX(ContextEvalCspBypassSandbox,
            V8TEST_CONTEXT_EVAL_CSP_BYPASS_SANDBOX,
            kV8ContextEvalCspBypassSandbox);
 V8_TEST_EX(ContextEntered, V8TEST_CONTEXT_ENTERED, NULL);
-V8_TEST(ContextInvalid, V8TEST_CONTEXT_INVALID);
 V8_TEST_EX(Binding, V8TEST_BINDING, kV8BindingTestUrl);
 V8_TEST(StackTrace, V8TEST_STACK_TRACE);
 V8_TEST(OnUncaughtException, V8TEST_ON_UNCAUGHT_EXCEPTION);
