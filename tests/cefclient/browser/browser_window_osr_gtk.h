@@ -20,6 +20,8 @@ namespace client {
 class BrowserWindowOsrGtk : public BrowserWindow,
                             public ClientHandlerOsr::OsrDelegate {
  public:
+  typedef void* CefXIDeviceEvent;
+
   // Constructor may be called on any thread.
   // |delegate| must outlive this object.
   BrowserWindowOsrGtk(BrowserWindow::Delegate* delegate,
@@ -114,6 +116,9 @@ class BrowserWindowOsrGtk : public BrowserWindow,
                          GdkEventFocus* event,
                          BrowserWindowOsrGtk* self);
 
+  void TouchEvent(CefXIDeviceEvent event);
+  void RegisterTouch();
+
   bool IsOverPopupWidget(int x, int y) const;
   int GetPopupXOffset() const;
   int GetPopupYOffset() const;
@@ -166,6 +171,10 @@ class BrowserWindowOsrGtk : public BrowserWindow,
                                guint info,
                                guint time,
                                BrowserWindowOsrGtk* self);
+  static GdkFilterReturn EventFilter(GdkXEvent* gdk_xevent,
+                                     GdkEvent* event,
+                                     gpointer data);
+  static void InitializeXinput(XDisplay* xdisplay);
 
   XDisplay* xdisplay_;
 

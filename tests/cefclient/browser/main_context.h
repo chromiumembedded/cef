@@ -44,6 +44,9 @@ class MainContext {
   // Returns true if windowless (off-screen) rendering will be used.
   virtual bool UseWindowlessRendering() = 0;
 
+  // Returns true if touch events are enabled.
+  virtual bool TouchEventsEnabled() = 0;
+
   // Populate |settings| based on command-line arguments.
   virtual void PopulateSettings(CefSettings* settings) = 0;
   virtual void PopulateBrowserSettings(CefBrowserSettings* settings) = 0;

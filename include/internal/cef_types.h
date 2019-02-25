@@ -1697,6 +1697,74 @@ typedef struct _cef_mouse_event_t {
 } cef_mouse_event_t;
 
 ///
+// Touch points states types.
+///
+typedef enum {
+  CEF_TET_RELEASED = 0,
+  CEF_TET_PRESSED,
+  CEF_TET_MOVED,
+  CEF_TET_CANCELLED
+} cef_touch_event_type_t;
+
+///
+// Structure representing touch event information.
+///
+typedef struct _cef_touch_event_t {
+  ///
+  // Id of a touch point. Must be unique per touch, can be any number except -1.
+  // Note that a maximum of 16 concurrent touches will be tracked; touches
+  // beyond that will be ignored.
+  ///
+  int id;
+
+  ///
+  // X coordinate relative to the left side of the view.
+  ///
+  float x;
+
+  ///
+  // Y coordinate relative to the top side of the view.
+  ///
+  float y;
+
+  ///
+  // X radius in pixels. Set to 0 if not applicable.
+  ///
+  float radius_x;
+
+  ///
+  // Y radius in pixels. Set to 0 if not applicable.
+  ///
+  float radius_y;
+
+  ///
+  // Rotation angle in radians. Set to 0 if not applicable.
+  ///
+  float rotation_angle;
+
+  ///
+  // The normalized pressure of the pointer input in the range of [0,1].
+  // Set to 0 if not applicable.
+  ///
+  float pressure;
+
+  ///
+  // The state of the touch point. Touches begin with one CEF_TET_PRESSED event
+  // followed by zero or more CEF_TET_MOVED events and finally one
+  // CEF_TET_RELEASED or CEF_TET_CANCELLED event. Events not respecting this
+  // order will be ignored.
+  ///
+  cef_touch_event_type_t type;
+
+  ///
+  // Bit flags describing any pressed modifier keys. See
+  // cef_event_flags_t for values.
+  ///
+  uint32 modifiers;
+
+} cef_touch_event_t;
+
+///
 // Paint element types.
 ///
 typedef enum {

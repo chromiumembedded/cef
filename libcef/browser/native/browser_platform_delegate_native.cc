@@ -59,6 +59,9 @@ void CefBrowserPlatformDelegateNative::SendMouseWheelEvent(
     host->GetWidget()->ForwardWheelEvent(event);
 }
 
+void CefBrowserPlatformDelegateNative::SendTouchEvent(
+    const CefTouchEvent& event) {}
+
 bool CefBrowserPlatformDelegateNative::IsWindowless() const {
   return false;
 }

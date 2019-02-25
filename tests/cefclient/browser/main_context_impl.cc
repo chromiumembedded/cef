@@ -163,6 +163,10 @@ bool MainContextImpl::UseWindowlessRendering() {
   return use_windowless_rendering_;
 }
 
+bool MainContextImpl::TouchEventsEnabled() {
+  return command_line_->GetSwitchValue("touch-events") == "enabled";
+}
+
 void MainContextImpl::PopulateSettings(CefSettings* settings) {
 #if defined(OS_WIN) || defined(OS_LINUX)
   settings->multi_threaded_message_loop =

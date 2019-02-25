@@ -33,6 +33,19 @@ index fc252b6ceffd..b0dfd847ec03 100644
   public:
    MouseWheelPhaseHandler(RenderWidgetHostViewBase* const host_view);
    ~MouseWheelPhaseHandler() {}
+diff --git content/common/content_switches_internal.h content/common/content_switches_internal.h
+index 886bdf0edf8f..1d714000cce5 100644
+--- content/common/content_switches_internal.h
++++ content/common/content_switches_internal.h
+@@ -15,7 +15,7 @@ class CommandLine;
+ 
+ namespace content {
+ 
+-bool IsPinchToZoomEnabled();
++CONTENT_EXPORT bool IsPinchToZoomEnabled();
+ 
+ blink::mojom::V8CacheOptions GetV8CacheOptions();
+ 
 diff --git content/browser/renderer_host/input/synthetic_gesture_target_base.h content/browser/renderer_host/input/synthetic_gesture_target_base.h
 index 53476354343e..fd1a7a24455b 100644
 --- content/browser/renderer_host/input/synthetic_gesture_target_base.h

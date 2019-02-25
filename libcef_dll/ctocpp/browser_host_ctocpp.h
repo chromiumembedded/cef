@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=14cebadd19516a54e746345f42adc90fbeed0a2d$
+// $hash=d9a6d69ef996bfb961d0b675fe37e5a2b23b12cc$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_BROWSER_HOST_CTOCPP_H_
@@ -97,6 +97,7 @@ class CefBrowserHostCToCpp : public CefCToCppRefCounted<CefBrowserHostCToCpp,
   void SendMouseWheelEvent(const CefMouseEvent& event,
                            int deltaX,
                            int deltaY) OVERRIDE;
+  void SendTouchEvent(const CefTouchEvent& event) OVERRIDE;
   void SendFocusEvent(bool setFocus) OVERRIDE;
   void SendCaptureLostEvent() OVERRIDE;
   void NotifyMoveOrResizeStarted() OVERRIDE;

@@ -22,6 +22,7 @@ namespace blink {
 class WebMouseEvent;
 class WebMouseWheelEvent;
 class WebInputEvent;
+class WebTouchEvent;
 }  // namespace blink
 
 namespace content {
@@ -149,6 +150,9 @@ class CefBrowserPlatformDelegate {
   virtual void SendKeyEvent(const content::NativeWebKeyboardEvent& event) = 0;
   virtual void SendMouseEvent(const blink::WebMouseEvent& event) = 0;
   virtual void SendMouseWheelEvent(const blink::WebMouseWheelEvent& event) = 0;
+
+  // Send touch events.
+  virtual void SendTouchEvent(const CefTouchEvent& event) = 0;
 
   // Send focus event. The browser's WebContents may be NULL when this method is
   // called.

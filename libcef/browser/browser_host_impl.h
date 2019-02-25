@@ -222,6 +222,7 @@ class CefBrowserHostImpl : public CefBrowserHost,
   void SendMouseWheelEvent(const CefMouseEvent& event,
                            int deltaX,
                            int deltaY) override;
+  void SendTouchEvent(const CefTouchEvent& event) override;
   void SendFocusEvent(bool setFocus) override;
   void SendCaptureLostEvent() override;
   void NotifyMoveOrResizeStarted() override;

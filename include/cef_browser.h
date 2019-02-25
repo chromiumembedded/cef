@@ -639,6 +639,12 @@ class CefBrowserHost : public virtual CefBaseRefCounted {
                                    int deltaY) = 0;
 
   ///
+  // Send a touch event to the browser for a windowless browser.
+  ///
+  /*--cef()--*/
+  virtual void SendTouchEvent(const CefTouchEvent& event) = 0;
+
+  ///
   // Send a focus event to the browser.
   ///
   /*--cef()--*/

@@ -25,6 +25,13 @@
     left: 7px;
     opacity: 0.4;
   }
+  #touchdiv {
+    width: 100px;
+    height: 50px;
+    background-color: red;
+    float: left;
+    margin-left: 10px;
+  }
   </style>
   <script>
   function getElement(id) { return document.getElementById(id); }
@@ -53,6 +60,7 @@
     elems.push(getElementBounds('btnnavigate'));
     elems.push(getElementBounds('dropdiv'));
     elems.push(getElementBounds('dragdiv'));
+    elems.push(getElementBounds('touchdiv'));
 
     if (window.testQuery)
       window.testQuery({request: JSON.stringify(param)});
@@ -115,6 +123,21 @@
     selection.removeAllRanges();
     selection.addRange(range);
   }
+
+  function onTouchEvent(ev) {
+    var param = 'osr' + ev.type;
+    // For Touch start also include touch points.
+    if (event.type == "touchstart")
+      param += ev.touches.length;
+    // For Touch Move include the touches that changed.
+    if (event.type == "touchmove")
+      param += ev.changedTouches.length;
+
+    // Results in a call to the OnQuery method in os_rendering_unittest.cc.
+    if (window.testQuery)
+      window.testQuery({request: param});
+  }
+
   </script>
   <body onfocus='onEventTest(event)' onblur='onEventTest(event)' onload='load();'>
   <h1 id='LI00' onclick="onEventTest(event)">
@@ -146,11 +169,14 @@
   <li id='LI11' onclick='selectText(event)'>SELECTED_TEXT_RANGE</li>
   <li><input id='email' type='text' size=10 inputmode='email'></li>
   </ol>
+
   <div class="dropdiv" id="dropdiv" ondrop="drop(event)" ondragover="allowDrop(event)">
     <span id="draghere">Drag here</span>
   </div>
   <div class="dropdiv">
     <div id="dragdiv" draggable="true" ondragstart="drag(event)"></div>
+  </div>
+  <div id="touchdiv" ontouchstart="onTouchEvent(event)" ontouchend="onTouchEvent(event)" ontouchmove="onTouchEvent(event)" ontouchcancel="onTouchEvent(event)">
   </div>
   <br />
   <br />

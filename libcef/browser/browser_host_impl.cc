@@ -3697,3 +3697,21 @@ bool CefBrowserHostImpl::Send(IPC::Message* message) {
   delete message;
   return false;
 }
+
+void CefBrowserHostImpl::SendTouchEvent(const CefTouchEvent& event) {
+  if (!IsWindowless()) {
+    NOTREACHED() << "Window rendering is not disabled";
+    return;
+  }
+
+  if (!CEF_CURRENTLY_ON_UIT()) {
+    CEF_POST_TASK(CEF_UIT,
+                  base::Bind(&CefBrowserHostImpl::SendTouchEvent, this, event));
+    return;
+  }
+
+  if (!web_contents() || !platform_delegate_)
+    return;
+
+  platform_delegate_->SendTouchEvent(event);
+}

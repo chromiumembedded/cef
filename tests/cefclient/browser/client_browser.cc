@@ -3,6 +3,7 @@
 // can be found in the LICENSE file.
 
 #include "tests/cefclient/browser/client_browser.h"
+#include "tests/cefclient/browser/main_context.h"
 
 #include "include/cef_command_line.h"
 #include "include/cef_crash_util.h"
@@ -37,6 +38,14 @@ class ClientBrowserDelegate : public ClientAppBrowser::Delegate {
       // Load the CRLSets file from the specified path.
       CefLoadCRLSetsFile(crl_sets_path);
     }
+  }
+
+  void OnBeforeCommandLineProcessing(
+      CefRefPtr<ClientAppBrowser> app,
+      CefRefPtr<CefCommandLine> command_line) OVERRIDE {
+    // Append Chromium command line parameters if touch events are enabled
+    if (client::MainContext::Get()->TouchEventsEnabled())
+      command_line->AppendSwitchWithValue("touch-events", "enabled");
   }
 
  private:

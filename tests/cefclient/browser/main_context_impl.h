@@ -29,6 +29,7 @@ class MainContextImpl : public MainContext {
   cef_color_t GetBackgroundColor() OVERRIDE;
   bool UseViews() OVERRIDE;
   bool UseWindowlessRendering() OVERRIDE;
+  bool TouchEventsEnabled() OVERRIDE;
   void PopulateSettings(CefSettings* settings) OVERRIDE;
   void PopulateBrowserSettings(CefBrowserSettings* settings) OVERRIDE;
   void PopulateOsrSettings(OsrRendererSettings* settings) OVERRIDE;
@@ -70,6 +71,7 @@ class MainContextImpl : public MainContext {
   bool use_windowless_rendering_;
   int windowless_frame_rate_;
   bool use_views_;
+  bool touch_events_enabled_;
 
   scoped_ptr<RootWindowManager> root_window_manager_;
 

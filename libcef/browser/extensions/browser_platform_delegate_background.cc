@@ -66,6 +66,11 @@ void CefBrowserPlatformDelegateBackground::SendMouseWheelEvent(
   // Nothing to do here.
 }
 
+void CefBrowserPlatformDelegateBackground::SendTouchEvent(
+    const CefTouchEvent& event) {
+  // Nothing to do here.
+}
+
 void CefBrowserPlatformDelegateBackground::SendFocusEvent(bool setFocus) {
   // Nothing to do here.
 }

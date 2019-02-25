@@ -443,6 +443,8 @@ static_library("libcef_static") {
     "libcef/browser/origin_whitelist_impl.h",
     "libcef/browser/osr/browser_platform_delegate_osr.cc",
     "libcef/browser/osr/browser_platform_delegate_osr.h",
+    "libcef/browser/osr/motion_event_osr.cc",
+    "libcef/browser/osr/motion_event_osr.h",
     "libcef/browser/osr/osr_accessibility_util.cc",
     "libcef/browser/osr/osr_accessibility_util.h",
     "libcef/browser/osr/osr_util.cc",
@@ -1993,6 +1995,7 @@ if (is_mac) {
         "gtk+-2.0",
         "gthread-2.0",
         "gtk+-unix-print-2.0",
+        "xi",
       ]
     }
 
