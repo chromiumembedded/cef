@@ -2114,13 +2114,14 @@ void RegisterSchemeHandlerCustomSchemes(
     CefRawPtr<CefSchemeRegistrar> registrar,
     std::vector<CefString>& cookiable_schemes) {
   // Add a custom standard scheme.
-  registrar->AddCustomScheme("customstd", true, false, false, false, true,
-                             false, false);
-  registrar->AddCustomScheme("customstdfetch", true, false, false, false, true,
-                             false, true);
+  registrar->AddCustomScheme(
+      "customstd", CEF_SCHEME_OPTION_STANDARD | CEF_SCHEME_OPTION_CORS_ENABLED);
+  registrar->AddCustomScheme("customstdfetch",
+                             CEF_SCHEME_OPTION_STANDARD |
+                                 CEF_SCHEME_OPTION_CORS_ENABLED |
+                                 CEF_SCHEME_OPTION_FETCH_ENABLED);
   // Add a custom non-standard scheme.
-  registrar->AddCustomScheme("customnonstd", false, false, false, false, false,
-                             false, false);
-  registrar->AddCustomScheme("customnonstdfetch", false, false, false, false,
-                             false, false, true);
+  registrar->AddCustomScheme("customnonstd", CEF_SCHEME_OPTION_NONE);
+  registrar->AddCustomScheme("customnonstdfetch",
+                             CEF_SCHEME_OPTION_FETCH_ENABLED);
 }
