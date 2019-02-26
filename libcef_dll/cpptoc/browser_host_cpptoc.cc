@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=1a1e9d55adac010523c7c8fdd2de03d9d081ba85$
+// $hash=db01cea0d5a144e6998c6f897df832b992034646$
 //
 
 #include "libcef_dll/cpptoc/browser_host_cpptoc.h"
@@ -1200,6 +1200,36 @@ browser_host_is_background_host(struct _cef_browser_host_t* self) {
   return _retval;
 }
 
+void CEF_CALLBACK browser_host_set_audio_muted(struct _cef_browser_host_t* self,
+                                               int mute) {
+  shutdown_checker::AssertNotShutdown();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return;
+
+  // Execute
+  CefBrowserHostCppToC::Get(self)->SetAudioMuted(mute ? true : false);
+}
+
+int CEF_CALLBACK browser_host_is_audio_muted(struct _cef_browser_host_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return 0;
+
+  // Execute
+  bool _retval = CefBrowserHostCppToC::Get(self)->IsAudioMuted();
+
+  // Return type: bool
+  return _retval;
+}
+
 }  // namespace
 
 // CONSTRUCTOR - Do not edit by hand.
@@ -1272,6 +1302,8 @@ CefBrowserHostCppToC::CefBrowserHostCppToC() {
   GetStruct()->set_auto_resize_enabled = browser_host_set_auto_resize_enabled;
   GetStruct()->get_extension = browser_host_get_extension;
   GetStruct()->is_background_host = browser_host_is_background_host;
+  GetStruct()->set_audio_muted = browser_host_set_audio_muted;
+  GetStruct()->is_audio_muted = browser_host_is_audio_muted;
 }
 
 // DESTRUCTOR - Do not edit by hand.

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=846e281b136abb262dd052316ea58288ae002a86$
+// $hash=5774cd86b6aa84a3e3e4982d578200c11fdde391$
 //
 
 #include "libcef_dll/ctocpp/browser_host_ctocpp.h"
@@ -950,8 +950,8 @@ void CefBrowserHostCToCpp::DragSourceSystemDragEnded() {
 }
 
 NO_SANITIZE("cfi-icall")
-CefRefPtr<CefNavigationEntry>
-CefBrowserHostCToCpp::GetVisibleNavigationEntry() {
+CefRefPtr<
+    CefNavigationEntry> CefBrowserHostCToCpp::GetVisibleNavigationEntry() {
   shutdown_checker::AssertNotShutdown();
 
   cef_browser_host_t* _struct = GetStruct();
@@ -1027,6 +1027,35 @@ NO_SANITIZE("cfi-icall") bool CefBrowserHostCToCpp::IsBackgroundHost() {
 
   // Execute
   int _retval = _struct->is_background_host(_struct);
+
+  // Return type: bool
+  return _retval ? true : false;
+}
+
+NO_SANITIZE("cfi-icall") void CefBrowserHostCToCpp::SetAudioMuted(bool mute) {
+  shutdown_checker::AssertNotShutdown();
+
+  cef_browser_host_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, set_audio_muted))
+    return;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  _struct->set_audio_muted(_struct, mute);
+}
+
+NO_SANITIZE("cfi-icall") bool CefBrowserHostCToCpp::IsAudioMuted() {
+  shutdown_checker::AssertNotShutdown();
+
+  cef_browser_host_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, is_audio_muted))
+    return false;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  int _retval = _struct->is_audio_muted(_struct);
 
   // Return type: bool
   return _retval ? true : false;

@@ -245,6 +245,8 @@ class CefBrowserHostImpl : public CefBrowserHost,
   void DragTargetDrop(const CefMouseEvent& event) override;
   void DragSourceSystemDragEnded() override;
   void DragSourceEndedAt(int x, int y, DragOperationsMask op) override;
+  void SetAudioMuted(bool mute) override;
+  bool IsAudioMuted() override;
   CefRefPtr<CefNavigationEntry> GetVisibleNavigationEntry() override;
   void SetAccessibilityState(cef_state_t accessibility_state) override;
   void SetAutoResizeEnabled(bool enabled,

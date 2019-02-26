@@ -415,6 +415,11 @@ void PrintToPDF(CefRefPtr<CefBrowser> browser) {
   new Client(browser);
 }
 
+void MuteAudio(CefRefPtr<CefBrowser> browser, bool mute) {
+  CefRefPtr<CefBrowserHost> host = browser->GetHost();
+  host->SetAudioMuted(mute);
+}
+
 void RunOtherTests(CefRefPtr<CefBrowser> browser) {
   browser->GetMainFrame()->LoadURL("http://tests/other_tests");
 }
@@ -537,6 +542,12 @@ void RunTest(CefRefPtr<CefBrowser> browser, int id) {
       break;
     case ID_TESTS_PRINT_TO_PDF:
       PrintToPDF(browser);
+      break;
+    case ID_TESTS_MUTE_AUDIO:
+      MuteAudio(browser, true);
+      break;
+    case ID_TESTS_UNMUTE_AUDIO:
+      MuteAudio(browser, false);
       break;
     case ID_TESTS_OTHER_TESTS:
       RunOtherTests(browser);
