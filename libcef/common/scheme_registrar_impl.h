@@ -18,14 +18,7 @@ class CefSchemeRegistrarImpl : public CefSchemeRegistrar {
   CefSchemeRegistrarImpl();
 
   // CefSchemeRegistrar methods.
-  bool AddCustomScheme(const CefString& scheme_name,
-                       bool is_standard,
-                       bool is_local,
-                       bool is_display_isolated,
-                       bool is_secure,
-                       bool is_cors_enabled,
-                       bool is_csp_bypassing,
-                       bool is_fetch_enabled) override;
+  bool AddCustomScheme(const CefString& scheme_name, int options) override;
 
   void GetSchemes(content::ContentClient::Schemes* schemes);
 

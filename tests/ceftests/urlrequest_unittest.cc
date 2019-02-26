@@ -2246,8 +2246,8 @@ void RegisterURLRequestCustomSchemes(
     CefRawPtr<CefSchemeRegistrar> registrar,
     std::vector<CefString>& cookiable_schemes) {
   const std::string& scheme = GetRequestScheme(false);
-  registrar->AddCustomScheme(scheme, true, false, false, false, true, false,
-                             false);
+  registrar->AddCustomScheme(
+      scheme, CEF_SCHEME_OPTION_STANDARD | CEF_SCHEME_OPTION_CORS_ENABLED);
   cookiable_schemes.push_back(scheme);
 }
 

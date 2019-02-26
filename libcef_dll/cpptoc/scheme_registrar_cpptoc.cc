@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=2f79804767b1c08a00f87b918190f33a1734b346$
+// $hash=66aacd7ba2ae54b43ed5e6f55b8dbcd9608e8543$
 //
 
 #include "libcef_dll/cpptoc/scheme_registrar_cpptoc.h"
@@ -21,13 +21,7 @@ namespace {
 int CEF_CALLBACK
 scheme_registrar_add_custom_scheme(struct _cef_scheme_registrar_t* self,
                                    const cef_string_t* scheme_name,
-                                   int is_standard,
-                                   int is_local,
-                                   int is_display_isolated,
-                                   int is_secure,
-                                   int is_cors_enabled,
-                                   int is_csp_bypassing,
-                                   int is_fetch_enabled) {
+                                   int options) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -40,10 +34,7 @@ scheme_registrar_add_custom_scheme(struct _cef_scheme_registrar_t* self,
 
   // Execute
   bool _retval = CefSchemeRegistrarCppToC::Get(self)->AddCustomScheme(
-      CefString(scheme_name), is_standard ? true : false,
-      is_local ? true : false, is_display_isolated ? true : false,
-      is_secure ? true : false, is_cors_enabled ? true : false,
-      is_csp_bypassing ? true : false, is_fetch_enabled ? true : false);
+      CefString(scheme_name), options);
 
   // Return type: bool
   return _retval;
