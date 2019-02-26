@@ -38,6 +38,7 @@
 #define CEF_INCLUDE_CEF_CLIENT_H_
 #pragma once
 
+#include "include/cef_audio_handler.h"
 #include "include/cef_base.h"
 #include "include/cef_context_menu_handler.h"
 #include "include/cef_dialog_handler.h"
@@ -60,6 +61,12 @@
 /*--cef(source=client,no_debugct_check)--*/
 class CefClient : public virtual CefBaseRefCounted {
  public:
+  ///
+  // Return the handler for audio rendering events.
+  ///
+  /*--cef()--*/
+  virtual CefRefPtr<CefAudioHandler> GetAudioHandler() { return NULL; }
+
   ///
   // Return the handler for context menus. If no handler is provided the default
   // implementation will be used.
