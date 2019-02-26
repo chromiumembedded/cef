@@ -48,6 +48,7 @@
     elems.push(getElementBounds('LI10'));
     elems.push(getElementBounds('LI11'));
     elems.push(getElementBounds('LI11select'));
+    elems.push(getElementBounds('email'));
     elems.push(getElementBounds('editbox'));
     elems.push(getElementBounds('btnnavigate'));
     elems.push(getElementBounds('dropdiv'));
@@ -143,6 +144,7 @@
   <li id='LI10' title='EXPECTED_TOOLTIP'>Mouse over this element will
       trigger show a tooltip</li>
   <li id='LI11' onclick='selectText(event)'>SELECTED_TEXT_RANGE</li>
+  <li><input id='email' type='text' size=10 inputmode='email'></li>
   </ol>
   <div class="dropdiv" id="dropdiv" ondrop="drop(event)" ondragover="allowDrop(event)">
     <span id="draghere">Drag here</span>

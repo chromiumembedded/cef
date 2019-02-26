@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=cf5dc6f6d2c64d5dc706edd5adc5cf6c7c752750$
+// $hash=0640490eead86e5631e8db67f3a0de8b43c10640$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_RENDER_HANDLER_CAPI_H_
@@ -231,6 +231,17 @@ typedef struct _cef_render_handler_t {
       struct _cef_browser_t* browser,
       const cef_string_t* selected_text,
       const cef_range_t* selected_range);
+
+  ///
+  // Called when an on-screen keyboard should be shown or hidden for the
+  // specified |browser|. |input_mode| specifies what kind of keyboard should be
+  // opened. If |input_mode| is CEF_TEXT_INPUT_MODE_NONE, any existing keyboard
+  // for this browser should be hidden.
+  ///
+  void(CEF_CALLBACK* on_virtual_keyboard_requested)(
+      struct _cef_render_handler_t* self,
+      struct _cef_browser_t* browser,
+      cef_text_input_mode_t input_mode);
 } cef_render_handler_t;
 
 #ifdef __cplusplus
