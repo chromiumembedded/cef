@@ -158,6 +158,8 @@ enum OSRTestType {
   OSR_TEST_IME_CANCEL_COMPOSITION,
   // text selection range changed
   OSR_TEST_TEXT_SELECTION_CHANGE,
+  // clicking on text input will call OnVirtualKeyboardRequested
+  OSR_TEST_VIRTUAL_KEYBOARD,
 
   // Define the range for popup tests.
   OSR_TEST_POPUP_FIRST = OSR_TEST_POPUP_PAINT,
@@ -948,6 +950,19 @@ class OSRTestHandler : public RoutingTestHandler,
                                                   1);
         }
       } break;
+      case OSR_TEST_VIRTUAL_KEYBOARD: {
+        if (StartTest()) {
+          CefMouseEvent mouse_event;
+          const CefRect& input = GetElementBounds("email");
+          mouse_event.x = MiddleX(input);
+          mouse_event.y = MiddleY(input);
+          mouse_event.modifiers = 0;
+          browser->GetHost()->SendMouseClickEvent(mouse_event, MBT_LEFT, false,
+                                                  1);
+          browser->GetHost()->SendMouseClickEvent(mouse_event, MBT_LEFT, true,
+                                                  1);
+        }
+      } break;
       default:
         break;
     }
@@ -1098,6 +1113,28 @@ class OSRTestHandler : public RoutingTestHandler,
         got_initial_text_selection_event_.yes();
       } else {
         EXPECT_STREQ("SELECTED_TEXT_RANGE", selected_text.ToString().c_str());
+        DestroySucceededTestSoon();
+      }
+    }
+  }
+
+  void OnVirtualKeyboardRequested(CefRefPtr<CefBrowser> browser,
+                                  TextInputMode input_mode) override {
+    if (test_type_ == OSR_TEST_VIRTUAL_KEYBOARD && started()) {
+      if (!got_virtual_keyboard_event_.isSet()) {
+        got_virtual_keyboard_event_.yes();
+        EXPECT_EQ(CEF_TEXT_INPUT_MODE_EMAIL, input_mode);
+
+        CefMouseEvent mouse_event;
+        const CefRect& input = GetElementBounds("LI01");
+        mouse_event.x = MiddleX(input);
+        mouse_event.y = MiddleY(input);
+        mouse_event.modifiers = 0;
+        browser->GetHost()->SendMouseClickEvent(mouse_event, MBT_LEFT, false,
+                                                1);
+        browser->GetHost()->SendMouseClickEvent(mouse_event, MBT_LEFT, true, 1);
+      } else {
+        EXPECT_EQ(CEF_TEXT_INPUT_MODE_NONE, input_mode);
         DestroySucceededTestSoon();
       }
     }
@@ -1319,6 +1356,7 @@ class OSRTestHandler : public RoutingTestHandler,
   TrackCallback got_navigation_focus_event_;
   TrackCallback got_system_focus_event_;
   TrackCallback got_initial_text_selection_event_;
+  TrackCallback got_virtual_keyboard_event_;
 
   typedef std::map<std::string, CefRect> ElementBoundsMap;
   ElementBoundsMap element_bounds_;
@@ -1405,3 +1443,4 @@ OSR_TEST(IMECancelComposition, OSR_TEST_IME_CANCEL_COMPOSITION, 1.0f);
 OSR_TEST(IMECancelComposition2x, OSR_TEST_IME_CANCEL_COMPOSITION, 2.0f);
 OSR_TEST(TextSelectionChanged, OSR_TEST_TEXT_SELECTION_CHANGE, 1.0f);
 OSR_TEST(TextSelectionChanged2x, OSR_TEST_TEXT_SELECTION_CHANGE, 2.0f);
+OSR_TEST(VirtualKeyboard, OSR_TEST_VIRTUAL_KEYBOARD, 1.0f);

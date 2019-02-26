@@ -20,6 +20,7 @@
 #include "components/viz/common/surfaces/parent_local_surface_id_allocator.h"
 #include "content/browser/renderer_host/input/mouse_wheel_phase_handler.h"
 #include "content/browser/renderer_host/render_widget_host_view_base.h"
+#include "content/browser/renderer_host/text_input_manager.h"
 #include "content/public/common/widget_type.h"
 #include "ui/compositor/compositor.h"
 #include "ui/compositor/external_begin_frame_client.h"
@@ -96,7 +97,8 @@ class MacHelper;
 
 class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
                                    public ui::ExternalBeginFrameClient,
-                                   public ui::CompositorDelegate {
+                                   public ui::CompositorDelegate,
+                                   public content::TextInputManager::Observer {
  public:
   CefRenderWidgetHostViewOSR(SkColor background_color,
                              bool use_shared_texture,
@@ -204,6 +206,12 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
   // ui::CompositorDelegate implementation.
   std::unique_ptr<viz::SoftwareOutputDevice> CreateSoftwareOutputDevice(
       ui::Compositor* compositor) override;
+
+  // TextInputManager::Observer implementation.
+  void OnUpdateTextInputStateCalled(
+      content::TextInputManager* text_input_manager,
+      RenderWidgetHostViewBase* updated_view,
+      bool did_update_state) override;
 
   bool InstallTransparency();
 

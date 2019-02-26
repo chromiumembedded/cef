@@ -995,6 +995,25 @@ typedef enum {
 } cef_drag_operations_mask_t;
 
 ///
+// Input mode of a virtual keyboard. These constants match their equivalents
+// in Chromium's text_input_mode.h and should not be renumbered.
+// See https://html.spec.whatwg.org/#input-modalities:-the-inputmode-attribute
+///
+typedef enum {
+  CEF_TEXT_INPUT_MODE_DEFAULT,
+  CEF_TEXT_INPUT_MODE_NONE,
+  CEF_TEXT_INPUT_MODE_TEXT,
+  CEF_TEXT_INPUT_MODE_TEL,
+  CEF_TEXT_INPUT_MODE_URL,
+  CEF_TEXT_INPUT_MODE_EMAIL,
+  CEF_TEXT_INPUT_MODE_NUMERIC,
+  CEF_TEXT_INPUT_MODE_DECIMAL,
+  CEF_TEXT_INPUT_MODE_SEARCH,
+
+  CEF_TEXT_INPUT_MODE_MAX = CEF_TEXT_INPUT_MODE_SEARCH,
+} cef_text_input_mode_t;
+
+///
 // V8 access control values.
 ///
 typedef enum {

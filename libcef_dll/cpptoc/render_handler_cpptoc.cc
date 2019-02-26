@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=7af995d59f8f171a08ea92b3b0c3428fb26f93ad$
+// $hash=94f5afecaaa5c9c534438a1c97a4af27a97d148c$
 //
 
 #include "libcef_dll/cpptoc/render_handler_cpptoc.h"
@@ -500,6 +500,27 @@ render_handler_on_text_selection_changed(struct _cef_render_handler_t* self,
       selected_rangeVal);
 }
 
+void CEF_CALLBACK
+render_handler_on_virtual_keyboard_requested(struct _cef_render_handler_t* self,
+                                             cef_browser_t* browser,
+                                             cef_text_input_mode_t input_mode) {
+  shutdown_checker::AssertNotShutdown();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return;
+  // Verify param: browser; type: refptr_diff
+  DCHECK(browser);
+  if (!browser)
+    return;
+
+  // Execute
+  CefRenderHandlerCppToC::Get(self)->OnVirtualKeyboardRequested(
+      CefBrowserCToCpp::Wrap(browser), input_mode);
+}
+
 }  // namespace
 
 // CONSTRUCTOR - Do not edit by hand.
@@ -524,6 +545,8 @@ CefRenderHandlerCppToC::CefRenderHandlerCppToC() {
       render_handler_on_ime_composition_range_changed;
   GetStruct()->on_text_selection_changed =
       render_handler_on_text_selection_changed;
+  GetStruct()->on_virtual_keyboard_requested =
+      render_handler_on_virtual_keyboard_requested;
 }
 
 // DESTRUCTOR - Do not edit by hand.

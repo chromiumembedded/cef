@@ -396,6 +396,9 @@ CefRenderWidgetHostViewOSR::CefRenderWidgetHostViewOSR(
 
   // Do this last because it may result in a call to SetNeedsBeginFrames.
   render_widget_host_->SetView(this);
+
+  if (GetTextInputManager())
+    GetTextInputManager()->AddObserver(this);
 }
 
 CefRenderWidgetHostViewOSR::~CefRenderWidgetHostViewOSR() {
@@ -425,6 +428,9 @@ CefRenderWidgetHostViewOSR::~CefRenderWidgetHostViewOSR() {
   DCHECK(popup_host_view_ == NULL);
   DCHECK(child_host_view_ == NULL);
   DCHECK(guest_host_views_.empty());
+
+  if (text_input_manager_)
+    text_input_manager_->RemoveObserver(this);
 }
 
 // Called for full-screen widgets.
@@ -1422,6 +1428,31 @@ void CefRenderWidgetHostViewOSR::SendFocusEvent(bool focus) {
     widget->SetActive(false);
     widget->LostFocus();
   }
+}
+
+void CefRenderWidgetHostViewOSR::OnUpdateTextInputStateCalled(
+    content::TextInputManager* text_input_manager,
+    content::RenderWidgetHostViewBase* updated_view,
+    bool did_update_state) {
+  const content::TextInputState* state =
+      text_input_manager->GetTextInputState();
+  if (state && !state->show_ime_if_needed)
+    return;
+
+  CefRenderHandler::TextInputMode mode = CEF_TEXT_INPUT_MODE_NONE;
+  if (state && state->type != ui::TEXT_INPUT_TYPE_NONE) {
+    static_assert(
+        static_cast<int>(CEF_TEXT_INPUT_MODE_MAX) ==
+            static_cast<int>(ui::TEXT_INPUT_MODE_MAX),
+        "Enum values in cef_text_input_mode_t must match ui::TextInputMode");
+    mode = static_cast<CefRenderHandler::TextInputMode>(state->mode);
+  }
+
+  CefRefPtr<CefRenderHandler> handler =
+      browser_impl_->GetClient()->GetRenderHandler();
+  CHECK(handler);
+
+  handler->OnVirtualKeyboardRequested(browser_impl_->GetBrowser(), mode);
 }
 
 void CefRenderWidgetHostViewOSR::UpdateFrameRate() {

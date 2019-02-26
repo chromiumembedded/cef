@@ -57,6 +57,7 @@ class CefRenderHandler : public virtual CefBaseRefCounted {
   typedef cef_drag_operations_mask_t DragOperationsMask;
   typedef cef_paint_element_type_t PaintElementType;
   typedef std::vector<CefRect> RectList;
+  typedef cef_text_input_mode_t TextInputMode;
 
   ///
   // Return the handler for accessibility notifications. If no handler is
@@ -231,6 +232,16 @@ class CefRenderHandler : public virtual CefBaseRefCounted {
   virtual void OnTextSelectionChanged(CefRefPtr<CefBrowser> browser,
                                       const CefString& selected_text,
                                       const CefRange& selected_range) {}
+
+  ///
+  // Called when an on-screen keyboard should be shown or hidden for the
+  // specified |browser|. |input_mode| specifies what kind of keyboard
+  // should be opened. If |input_mode| is CEF_TEXT_INPUT_MODE_NONE, any
+  // existing keyboard for this browser should be hidden.
+  ///
+  /*--cef()--*/
+  virtual void OnVirtualKeyboardRequested(CefRefPtr<CefBrowser> browser,
+                                          TextInputMode input_mode) {}
 };
 
 #endif  // CEF_INCLUDE_CEF_RENDER_HANDLER_H_

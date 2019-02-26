@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=bb77b018f638f1bc43208d48a84b02696b9c055c$
+// $hash=9a7d89bc978623c025c82f438eec0da543aaa7a6$
 //
 
 #include "libcef_dll/ctocpp/render_handler_ctocpp.h"
@@ -429,6 +429,28 @@ void CefRenderHandlerCToCpp::OnTextSelectionChanged(
   _struct->on_text_selection_changed(_struct, CefBrowserCppToC::Wrap(browser),
                                      selected_text.GetStruct(),
                                      &selected_range);
+}
+
+NO_SANITIZE("cfi-icall")
+void CefRenderHandlerCToCpp::OnVirtualKeyboardRequested(
+    CefRefPtr<CefBrowser> browser,
+    TextInputMode input_mode) {
+  shutdown_checker::AssertNotShutdown();
+
+  cef_render_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, on_virtual_keyboard_requested))
+    return;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: browser; type: refptr_diff
+  DCHECK(browser.get());
+  if (!browser.get())
+    return;
+
+  // Execute
+  _struct->on_virtual_keyboard_requested(
+      _struct, CefBrowserCppToC::Wrap(browser), input_mode);
 }
 
 // CONSTRUCTOR - Do not edit by hand.
