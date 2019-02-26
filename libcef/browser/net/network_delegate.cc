@@ -30,6 +30,9 @@
 
 namespace {
 
+const void* kAuthCallbackHolderUserDataKey =
+    static_cast<const void*>(&kAuthCallbackHolderUserDataKey);
+
 class CefBeforeResourceLoadCallbackImpl : public CefRequestCallback {
  public:
   typedef net::CompletionOnceCallback CallbackType;
@@ -223,6 +226,19 @@ class CefAuthCallbackImpl : public CefAuthCallback {
   IMPLEMENT_REFCOUNTING(CefAuthCallbackImpl);
 };
 
+// Invalidates CefAuthCallbackImpl::callback_ if the URLRequest is deleted
+// before the callback.
+class AuthCallbackHolder : public base::SupportsUserData::Data {
+ public:
+  explicit AuthCallbackHolder(CefRefPtr<CefAuthCallbackImpl> callback)
+      : callback_(callback) {}
+
+  ~AuthCallbackHolder() override { callback_->Disconnect().Reset(); }
+
+ private:
+  CefRefPtr<CefAuthCallbackImpl> callback_;
+};
+
 }  // namespace
 
 CefNetworkDelegate::CefNetworkDelegate() : force_google_safesearch_(nullptr) {}
@@ -401,6 +417,9 @@ net::NetworkDelegate::AuthRequiredResponse CefNetworkDelegate::OnAuthRequired(
                 browser.get(), frame, auth_info.is_proxy,
                 auth_info.challenger.host(), auth_info.challenger.port(),
                 auth_info.realm, auth_info.scheme, callbackPtr.get())) {
+          request->SetUserData(
+              kAuthCallbackHolderUserDataKey,
+              std::make_unique<AuthCallbackHolder>(callbackPtr));
           return AUTH_REQUIRED_RESPONSE_IO_PENDING;
         } else {
           callback = callbackPtr->Disconnect();
@@ -421,6 +440,8 @@ net::NetworkDelegate::AuthRequiredResponse CefNetworkDelegate::OnAuthRequired(
               auth_info.is_proxy, auth_info.challenger.host(),
               auth_info.challenger.port(), auth_info.realm, auth_info.scheme,
               callbackPtr.get())) {
+        request->SetUserData(kAuthCallbackHolderUserDataKey,
+                             std::make_unique<AuthCallbackHolder>(callbackPtr));
         return AUTH_REQUIRED_RESPONSE_IO_PENDING;
       } else {
         callback = callbackPtr->Disconnect();
