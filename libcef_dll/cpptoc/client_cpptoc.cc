@@ -9,10 +9,11 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=0471e5598bd81ceae0416d644bcfed875005a4f8$
+// $hash=47ed1f92a294b94c071f554621484722483c3bd6$
 //
 
 #include "libcef_dll/cpptoc/client_cpptoc.h"
+#include "libcef_dll/cpptoc/audio_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/context_menu_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/dialog_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/display_handler_cpptoc.h"
@@ -32,6 +33,22 @@
 namespace {
 
 // MEMBER FUNCTIONS - Body may be edited by hand.
+
+cef_audio_handler_t* CEF_CALLBACK
+client_get_audio_handler(struct _cef_client_t* self) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return NULL;
+
+  // Execute
+  CefRefPtr<CefAudioHandler> _retval =
+      CefClientCppToC::Get(self)->GetAudioHandler();
+
+  // Return type: refptr_same
+  return CefAudioHandlerCppToC::Wrap(_retval);
+}
 
 struct _cef_context_menu_handler_t* CEF_CALLBACK
 client_get_context_menu_handler(struct _cef_client_t* self) {
@@ -274,6 +291,7 @@ client_on_process_message_received(struct _cef_client_t* self,
 // CONSTRUCTOR - Do not edit by hand.
 
 CefClientCppToC::CefClientCppToC() {
+  GetStruct()->get_audio_handler = client_get_audio_handler;
   GetStruct()->get_context_menu_handler = client_get_context_menu_handler;
   GetStruct()->get_dialog_handler = client_get_dialog_handler;
   GetStruct()->get_display_handler = client_get_display_handler;

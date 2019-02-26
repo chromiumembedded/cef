@@ -9,12 +9,13 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=8731491cde7c6f223fa53e986c15e7b7acb68042$
+// $hash=69de5a63c075f401a8bfc34b9b30d7cec595d432$
 //
 
 #include "libcef_dll/ctocpp/client_ctocpp.h"
 #include "libcef_dll/cpptoc/browser_cpptoc.h"
 #include "libcef_dll/cpptoc/process_message_cpptoc.h"
+#include "libcef_dll/ctocpp/audio_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/context_menu_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/dialog_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/display_handler_ctocpp.h"
@@ -30,6 +31,21 @@
 #include "libcef_dll/ctocpp/request_handler_ctocpp.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
+
+NO_SANITIZE("cfi-icall")
+CefRefPtr<CefAudioHandler> CefClientCToCpp::GetAudioHandler() {
+  cef_client_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_audio_handler))
+    return NULL;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  cef_audio_handler_t* _retval = _struct->get_audio_handler(_struct);
+
+  // Return type: refptr_same
+  return CefAudioHandlerCToCpp::Wrap(_retval);
+}
 
 NO_SANITIZE("cfi-icall")
 CefRefPtr<CefContextMenuHandler> CefClientCToCpp::GetContextMenuHandler() {
