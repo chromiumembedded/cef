@@ -2204,6 +2204,27 @@ void CefBrowserHostImpl::DragSourceEndedAt(
   platform_delegate_->DragSourceEndedAt(x, y, op);
 }
 
+void CefBrowserHostImpl::SetAudioMuted(bool mute) {
+  if (!CEF_CURRENTLY_ON_UIT()) {
+    CEF_POST_TASK(CEF_UIT,
+                  base::Bind(&CefBrowserHostImpl::SetAudioMuted, this, mute));
+    return;
+  }
+  if (!web_contents())
+    return;
+  web_contents()->SetAudioMuted(mute);
+}
+
+bool CefBrowserHostImpl::IsAudioMuted() {
+  if (!CEF_CURRENTLY_ON_UIT()) {
+    NOTREACHED() << "called on invalid thread";
+    return false;
+  }
+  if (!web_contents())
+    return false;
+  return web_contents()->IsAudioMuted();
+}
+
 // content::WebContentsDelegate methods.
 // -----------------------------------------------------------------------------
 

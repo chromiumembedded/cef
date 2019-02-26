@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=faac9d17d7efae3a72c4cc44474071027596c843$
+// $hash=f99ba0878f8b6313adc7a43ad1fa295304fa9bcb$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_BROWSER_CAPI_H_
@@ -844,6 +844,18 @@ typedef struct _cef_browser_host_t {
   // cef_request_tContext::LoadExtension for details.
   ///
   int(CEF_CALLBACK* is_background_host)(struct _cef_browser_host_t* self);
+
+  ///
+  //  Set whether the browser's audio is muted.
+  ///
+  void(CEF_CALLBACK* set_audio_muted)(struct _cef_browser_host_t* self,
+                                      int mute);
+
+  ///
+  // Returns true (1) if the browser's audio is muted.  This function can only
+  // be called on the UI thread.
+  ///
+  int(CEF_CALLBACK* is_audio_muted)(struct _cef_browser_host_t* self);
 } cef_browser_host_t;
 
 ///

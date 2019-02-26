@@ -103,6 +103,8 @@ BEGIN
         MENUITEM "End Tracing",                 ID_TESTS_TRACING_END
         MENUITEM "Print",                       ID_TESTS_PRINT
         MENUITEM "Print to PDF",                ID_TESTS_PRINT_TO_PDF
+        MENUITEM "Mute Audio",                  ID_TESTS_MUTE_AUDIO
+        MENUITEM "Unmute Audio",                ID_TESTS_UNMUTE_AUDIO
         MENUITEM "Other Tests",                 ID_TESTS_OTHER_TESTS
    END
 END

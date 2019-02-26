@@ -40,7 +40,7 @@ NSMenuItem* GetMenuItemWithAction(NSMenu* menu, SEL action_selector) {
 }  // namespace
 
 // Receives notifications from the application. Will delete itself when done.
-@interface ClientAppDelegate : NSObject<NSApplicationDelegate> {
+@interface ClientAppDelegate : NSObject <NSApplicationDelegate> {
  @private
   bool with_controls_;
   bool with_osr_;
@@ -65,12 +65,14 @@ NSMenuItem* GetMenuItemWithAction(NSMenu* menu, SEL action_selector) {
 - (IBAction)menuTestsTracingEnd:(id)sender;
 - (IBAction)menuTestsPrint:(id)sender;
 - (IBAction)menuTestsPrintToPdf:(id)sender;
+- (IBAction)menuTestsMuteAudio:(id)sender;
+- (IBAction)menuTestsUnmuteAudio:(id)sender;
 - (IBAction)menuTestsOtherTests:(id)sender;
 - (void)enableAccessibility:(bool)bEnable;
 @end
 
 // Provide the CefAppProtocol implementation required by CEF.
-@interface ClientApplication : NSApplication<CefAppProtocol> {
+@interface ClientApplication : NSApplication <CefAppProtocol> {
  @private
   BOOL handlingSendEvent_;
 }
@@ -306,6 +308,14 @@ NSMenuItem* GetMenuItemWithAction(NSMenu* menu, SEL action_selector) {
 
 - (IBAction)menuTestsPrintToPdf:(id)sender {
   [self testsItemSelected:ID_TESTS_PRINT_TO_PDF];
+}
+
+- (IBAction)menuTestsMuteAudio:(id)sender {
+  [self testsItemSelected:ID_TESTS_MUTE_AUDIO];
+}
+
+- (IBAction)menuTestsUnmuteAudio:(id)sender {
+  [self testsItemSelected:ID_TESTS_UNMUTE_AUDIO];
 }
 
 - (IBAction)menuTestsOtherTests:(id)sender {

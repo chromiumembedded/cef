@@ -865,6 +865,19 @@ class CefBrowserHost : public virtual CefBaseRefCounted {
   ///
   /*--cef()--*/
   virtual bool IsBackgroundHost() = 0;
+
+  ///
+  //  Set whether the browser's audio is muted.
+  ///
+  /*--cef()--*/
+  virtual void SetAudioMuted(bool mute) = 0;
+
+  ///
+  // Returns true if the browser's audio is muted.  This method can only be
+  // called on the UI thread.
+  ///
+  /*--cef()--*/
+  virtual bool IsAudioMuted() = 0;
 };
 
 #endif  // CEF_INCLUDE_CEF_BROWSER_H_
