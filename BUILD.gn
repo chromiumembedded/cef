@@ -2092,7 +2092,13 @@ if (is_mac) {
         ]
       }
 
-      if (!is_component_build) {
+      if (is_component_build) {
+        if (use_allocator=="tcmalloc") {
+          # Link to base to initialize tcmalloc allocator shims, otherwise
+          # base::allocator::IsAllocatorInitialized check fails
+          deps += [ "//base" ]
+        }
+      } else {
         # Set rpath to find our own libfreetype even in a non-component build.
         configs += [ "//build/config/gcc:rpath_for_built_shared_libraries" ]
       }
