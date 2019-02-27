@@ -29,7 +29,8 @@ class CefWindowX11 : public ui::PlatformEventDispatcher {
  public:
   CefWindowX11(CefRefPtr<CefBrowserHostImpl> browser,
                ::Window parent_xwindow,
-               const gfx::Rect& bounds);
+               const gfx::Rect& bounds,
+               const std::string& title);
   ~CefWindowX11() override;
 
   void Close();

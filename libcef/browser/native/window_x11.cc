@@ -21,10 +21,12 @@ namespace {
 const char kAtom[] = "ATOM";
 const char kWMDeleteWindow[] = "WM_DELETE_WINDOW";
 const char kWMProtocols[] = "WM_PROTOCOLS";
+const char kNetWMName[] = "_NET_WM_NAME";
 const char kNetWMPid[] = "_NET_WM_PID";
 const char kNetWMPing[] = "_NET_WM_PING";
 const char kNetWMState[] = "_NET_WM_STATE";
 const char kXdndProxy[] = "XdndProxy";
+const char kUTF8String[] = "UTF8_STRING";
 
 ::Window FindEventTarget(const ui::PlatformEvent& xev) {
   ::Window target = xev->xany.window;
@@ -81,7 +83,8 @@ CEF_EXPORT XDisplay* cef_get_xdisplay() {
 
 CefWindowX11::CefWindowX11(CefRefPtr<CefBrowserHostImpl> browser,
                            ::Window parent_xwindow,
-                           const gfx::Rect& bounds)
+                           const gfx::Rect& bounds,
+                           const std::string& title)
     : browser_(browser),
       xdisplay_(gfx::GetXDisplay()),
       parent_xwindow_(parent_xwindow),
@@ -133,6 +136,14 @@ CefWindowX11::CefWindowX11(CefRefPtr<CefBrowserHostImpl> browser,
   long pid = getpid();
   XChangeProperty(xdisplay_, xwindow_, gfx::GetAtom(kNetWMPid), XA_CARDINAL, 32,
                   PropModeReplace, reinterpret_cast<unsigned char*>(&pid), 1);
+
+  // Set the initial window name, if provided.
+  if (!title.empty()) {
+    XChangeProperty(xdisplay_, xwindow_, gfx::GetAtom(kNetWMName),
+                    gfx::GetAtom(kUTF8String), 8, PropModeReplace,
+                    reinterpret_cast<const unsigned char*>(title.c_str()),
+                    title.size());
+  }
 }
 
 CefWindowX11::~CefWindowX11() {
