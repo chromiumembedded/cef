@@ -167,7 +167,7 @@ XCursorCache* cursor_cache = nullptr;
 void CefRenderWidgetHostViewOSR::PlatformCreateCompositorWidget(
     bool is_guest_view_hack) {
   // Create a hidden 1x1 window. It will delete itself on close.
-  window_ = new CefWindowX11(NULL, None, gfx::Rect(0, 0, 1, 1));
+  window_ = new CefWindowX11(NULL, None, gfx::Rect(0, 0, 1, 1), "");
   compositor_widget_ = window_->xwindow();
 }
 
