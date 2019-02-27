@@ -36,6 +36,10 @@
 #include "ui/base/material_design/material_design_controller.h"
 #include "ui/base/resource/resource_bundle.h"
 
+#if defined(USE_AURA) && defined(USE_X11)
+#include "ui/events/devices/x11/touch_factory_x11.h"
+#endif
+
 #if defined(USE_AURA)
 #include "ui/aura/env.h"
 #include "ui/display/screen.h"
@@ -107,6 +111,10 @@ void CefBrowserMainParts::ToolkitInitialized() {
 }
 
 void CefBrowserMainParts::PreMainMessageLoopStart() {
+#if defined(USE_AURA) && defined(USE_X11)
+  ui::TouchFactory::SetTouchDeviceListFromCommandLine();
+#endif
+
   for (size_t i = 0; i < chrome_extra_parts_.size(); ++i)
     chrome_extra_parts_[i]->PreMainMessageLoopStart();
 }
