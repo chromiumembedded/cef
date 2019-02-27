@@ -1255,7 +1255,7 @@ void CefRenderWidgetHostViewOSR::OnScreenInfoChanged() {
   if (!render_widget_host_)
     return;
 
-  // TODO(OSR): Update the backing store.
+  SynchronizeVisualProperties();
 
   if (render_widget_host_->delegate())
     render_widget_host_->delegate()->SendScreenRects();
