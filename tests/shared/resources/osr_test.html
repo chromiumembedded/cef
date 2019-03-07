@@ -25,7 +25,7 @@
     left: 7px;
     opacity: 0.4;
   }
-  #touchdiv {
+  #touchdiv, #pointerdiv {
     width: 100px;
     height: 50px;
     background-color: red;
@@ -61,6 +61,7 @@
     elems.push(getElementBounds('dropdiv'));
     elems.push(getElementBounds('dragdiv'));
     elems.push(getElementBounds('touchdiv'));
+    elems.push(getElementBounds('pointerdiv'));
 
     if (window.testQuery)
       window.testQuery({request: JSON.stringify(param)});
@@ -138,6 +139,12 @@
       window.testQuery({request: param});
   }
 
+  function onPointerEvent(ev) {
+    var param = 'osr' +  ev.type + ' ' + ev.pointerType;
+    if (window.testQuery)
+      window.testQuery({request: param});
+  }
+
   </script>
   <body onfocus='onEventTest(event)' onblur='onEventTest(event)' onload='load();'>
   <h1 id='LI00' onclick="onEventTest(event)">
@@ -177,6 +184,8 @@
     <div id="dragdiv" draggable="true" ondragstart="drag(event)"></div>
   </div>
   <div id="touchdiv" ontouchstart="onTouchEvent(event)" ontouchend="onTouchEvent(event)" ontouchmove="onTouchEvent(event)" ontouchcancel="onTouchEvent(event)">
+  </div>
+  <div id="pointerdiv" onpointerdown="onPointerEvent(event)" onpointerup="onPointerEvent(event)" onpointermove="onPointerEvent(event)" onpointercancel="onPointerEvent(event)">
   </div>
   <br />
   <br />
