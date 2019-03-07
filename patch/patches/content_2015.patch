@@ -81,7 +81,7 @@ index b8e933d665cf..ef41dae49b39 100644
                  "WillFailRequest state should come before WillProcessResponse");
    return render_frame_host_;
 diff --git content/browser/frame_host/render_frame_host_impl.cc content/browser/frame_host/render_frame_host_impl.cc
-index e738789b56a3..1e491a88b368 100644
+index eeb80f8b0763..ded6478fb29c 100644
 --- content/browser/frame_host/render_frame_host_impl.cc
 +++ content/browser/frame_host/render_frame_host_impl.cc
 @@ -2002,6 +2002,7 @@ void RenderFrameHostImpl::OnDidFailProvisionalLoadWithError(
@@ -92,7 +92,7 @@ index e738789b56a3..1e491a88b368 100644
    }
  
    frame_tree_node_->navigator()->DidFailProvisionalLoadWithError(this, params);
-@@ -4609,9 +4610,9 @@ void RenderFrameHostImpl::CommitNavigation(
+@@ -4611,9 +4612,9 @@ void RenderFrameHostImpl::CommitNavigation(
        DCHECK(base::FeatureList::IsEnabled(network::features::kNetworkService) ||
               base::FeatureList::IsEnabled(
                   blink::features::kServiceWorkerServicification));
@@ -340,7 +340,7 @@ index 8136604d267a..be7fde2f1a38 100644
    virtual void FocusedNodeChanged(const blink::WebNode& node) {}
  
 diff --git content/renderer/render_frame_impl.cc content/renderer/render_frame_impl.cc
-index a3919b6df597..60f564dfbe47 100644
+index 692bf7f87256..ec510db56534 100644
 --- content/renderer/render_frame_impl.cc
 +++ content/renderer/render_frame_impl.cc
 @@ -3645,7 +3645,8 @@ blink::WebPlugin* RenderFrameImpl::CreatePlugin(
