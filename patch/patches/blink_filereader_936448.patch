@@ -1,0 +1,28 @@
+diff --git third_party/blink/renderer/core/fileapi/file_reader_loader.cc third_party/blink/renderer/core/fileapi/file_reader_loader.cc
+index 173a43dfbd05..f7f0154954d0 100644
+--- third_party/blink/renderer/core/fileapi/file_reader_loader.cc
++++ third_party/blink/renderer/core/fileapi/file_reader_loader.cc
+@@ -142,14 +142,16 @@ DOMArrayBuffer* FileReaderLoader::ArrayBufferResult() {
+   if (!raw_data_ || error_code_)
+     return nullptr;
+ 
+-  DOMArrayBuffer* result = DOMArrayBuffer::Create(raw_data_->ToArrayBuffer());
+-  if (finished_loading_) {
+-    array_buffer_result_ = result;
+-    AdjustReportedMemoryUsageToV8(
+-        -1 * static_cast<int64_t>(raw_data_->ByteLength()));
+-    raw_data_.reset();
++  if (!finished_loading_) {
++    return DOMArrayBuffer::Create(
++        ArrayBuffer::Create(raw_data_->Data(), raw_data_->ByteLength()));
+   }
+-  return result;
++
++  array_buffer_result_ = DOMArrayBuffer::Create(raw_data_->ToArrayBuffer());
++  AdjustReportedMemoryUsageToV8(-1 *
++                                static_cast<int64_t>(raw_data_->ByteLength()));
++  raw_data_.reset();
++  return array_buffer_result_;
+ }
+ 
+ String FileReaderLoader::StringResult() {
