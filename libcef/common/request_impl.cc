@@ -48,11 +48,13 @@ const char kReferrerLowerCase[] = "referer";
 const char kContentTypeLowerCase[] = "content-type";
 const char kCacheControlLowerCase[] = "cache-control";
 const char kCacheControlDirectiveNoCacheLowerCase[] = "no-cache";
+const char kCacheControlDirectiveNoStoreLowerCase[] = "no-store";
 const char kCacheControlDirectiveOnlyIfCachedLowerCase[] = "only-if-cached";
 const char kApplicationFormURLEncoded[] = "application/x-www-form-urlencoded";
 
 // Mask of values that configure the cache policy.
-const int kURCachePolicyMask = (UR_FLAG_SKIP_CACHE | UR_FLAG_ONLY_FROM_CACHE);
+const int kURCachePolicyMask =
+    (UR_FLAG_SKIP_CACHE | UR_FLAG_ONLY_FROM_CACHE | UR_FLAG_DISABLE_CACHE);
 
 // A subclass of net::UploadBytesElementReader that keeps the associated
 // UploadElement alive until the request completes.
@@ -142,6 +144,9 @@ int GetCacheControlHeaderPolicy(CefRequest::HeaderMap headerMap) {
       } else if (base::LowerCaseEqualsASCII(
                      piece, kCacheControlDirectiveOnlyIfCachedLowerCase)) {
         flags |= UR_FLAG_ONLY_FROM_CACHE;
+      } else if (base::LowerCaseEqualsASCII(
+                     piece, kCacheControlDirectiveNoStoreLowerCase)) {
+        flags |= UR_FLAG_DISABLE_CACHE;
       }
     }
   }
@@ -151,12 +156,17 @@ int GetCacheControlHeaderPolicy(CefRequest::HeaderMap headerMap) {
 
 // Convert cef_urlrequest_flags_t to blink::WebCachePolicy.
 blink::mojom::FetchCacheMode GetFetchCacheMode(int ur_flags) {
-  if ((ur_flags & kURCachePolicyMask) == kURCachePolicyMask) {
+  const bool skip_cache{ur_flags & UR_FLAG_SKIP_CACHE};
+  const bool only_from_cache{ur_flags & UR_FLAG_ONLY_FROM_CACHE};
+  const bool disable_cache{ur_flags & UR_FLAG_DISABLE_CACHE};
+  if (only_from_cache && (skip_cache || disable_cache)) {
     return blink::mojom::FetchCacheMode::kUnspecifiedForceCacheMiss;
-  } else if (ur_flags & UR_FLAG_SKIP_CACHE) {
+  } else if (skip_cache) {
     return blink::mojom::FetchCacheMode::kBypassCache;
-  } else if (ur_flags & UR_FLAG_ONLY_FROM_CACHE) {
+  } else if (only_from_cache) {
     return blink::mojom::FetchCacheMode::kOnlyIfCached;
+  } else if (disable_cache) {
+    return blink::mojom::FetchCacheMode::kNoStore;
   }
   return blink::mojom::FetchCacheMode::kDefault;
 }
@@ -755,6 +765,9 @@ void CefRequestImpl::Get(net::URLFetcher& fetcher,
   }
   if (flags & UR_FLAG_ONLY_FROM_CACHE) {
     net_flags |= net::LOAD_ONLY_FROM_CACHE | net::LOAD_SKIP_CACHE_VALIDATION;
+  }
+  if (flags & UR_FLAG_DISABLE_CACHE) {
+    net_flags |= net::LOAD_DISABLE_CACHE;
   }
 
   if (!(flags & UR_FLAG_ALLOW_STORED_CREDENTIALS)) {

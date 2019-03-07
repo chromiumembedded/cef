@@ -1261,38 +1261,47 @@ typedef enum {
   // If set the request will fail if it cannot be served from the cache (or some
   // equivalent local store). Setting this value is equivalent to specifying the
   // "Cache-Control: only-if-cached" request header. Setting this value in
-  // combination with UR_FLAG_SKIP_CACHE will cause the request to fail.
+  // combination with UR_FLAG_SKIP_CACHE or UR_FLAG_DISABLE_CACHE will cause the
+  // request to fail.
   ///
   UR_FLAG_ONLY_FROM_CACHE = 1 << 1,
+
+  ///
+  // If set the cache will not be used at all. Setting this value is equivalent
+  // to specifying the "Cache-Control: no-store" request header. Setting this
+  // value in combination with UR_FLAG_ONLY_FROM_CACHE will cause the request to
+  // fail.
+  ///
+  UR_FLAG_DISABLE_CACHE = 1 << 2,
 
   ///
   // If set user name, password, and cookies may be sent with the request, and
   // cookies may be saved from the response.
   ///
-  UR_FLAG_ALLOW_STORED_CREDENTIALS = 1 << 2,
+  UR_FLAG_ALLOW_STORED_CREDENTIALS = 1 << 3,
 
   ///
   // If set upload progress events will be generated when a request has a body.
   ///
-  UR_FLAG_REPORT_UPLOAD_PROGRESS = 1 << 3,
+  UR_FLAG_REPORT_UPLOAD_PROGRESS = 1 << 4,
 
   ///
   // If set the CefURLRequestClient::OnDownloadData method will not be called.
   ///
-  UR_FLAG_NO_DOWNLOAD_DATA = 1 << 4,
+  UR_FLAG_NO_DOWNLOAD_DATA = 1 << 5,
 
   ///
   // If set 5XX redirect errors will be propagated to the observer instead of
   // automatically re-tried. This currently only applies for requests
   // originated in the browser process.
   ///
-  UR_FLAG_NO_RETRY_ON_5XX = 1 << 5,
+  UR_FLAG_NO_RETRY_ON_5XX = 1 << 6,
 
   ///
   // If set 3XX responses will cause the fetch to halt immediately rather than
   // continue through the redirect.
   ///
-  UR_FLAG_STOP_ON_REDIRECT = 1 << 6,
+  UR_FLAG_STOP_ON_REDIRECT = 1 << 7,
 } cef_urlrequest_flags_t;
 
 ///
