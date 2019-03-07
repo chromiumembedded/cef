@@ -3,6 +3,11 @@
 // found in the LICENSE file.
 
 #include "libcef/common/main_delegate.h"
+
+#if defined(OS_LINUX)
+#include <dlfcn.h>
+#endif
+
 #include "libcef/browser/browser_message_loop.h"
 #include "libcef/browser/content_browser_client.h"
 #include "libcef/browser/context.h"
@@ -257,6 +262,18 @@ bool IsScaleFactorSupported(ui::ScaleFactor scale_factor) {
                    scale_factor) != supported_scale_factors.end();
 }
 
+#if defined(OS_LINUX)
+// Look for the *.dat and *.bin files next to libcef instead of the exe on
+// Linux. This is already the default on Windows.
+void OverrideAssetPath() {
+  Dl_info dl_info;
+  if (dladdr(reinterpret_cast<const void*>(&OverrideAssetPath), &dl_info)) {
+    base::FilePath path = base::FilePath(dl_info.dli_fname).DirName();
+    base::PathService::Override(base::DIR_ASSETS, path);
+  }
+}
+#endif
+
 // Used to run the UI on a separate thread.
 class CefUIThread : public base::Thread {
  public:
@@ -313,6 +330,10 @@ CefMainDelegate::CefMainDelegate(CefRefPtr<CefApp> application)
   // in the binary.
   extern void base_impl_stub();
   base_impl_stub();
+
+#if defined(OS_LINUX)
+  OverrideAssetPath();
+#endif
 }
 
 CefMainDelegate::~CefMainDelegate() {}
