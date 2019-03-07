@@ -1130,6 +1130,17 @@ viz::FrameSinkId CefRenderWidgetHostViewOSR::GetRootFrameSinkId() {
 #endif
 }
 
+#if !defined(OS_MACOSX)
+viz::ScopedSurfaceIdAllocator
+CefRenderWidgetHostViewOSR::DidUpdateVisualProperties(
+    const cc::RenderFrameMetadata& metadata) {
+  base::OnceCallback<void()> allocation_task =
+      base::BindOnce(&CefRenderWidgetHostViewOSR::SynchronizeVisualProperties,
+                     weak_ptr_factory_.GetWeakPtr());
+  return viz::ScopedSurfaceIdAllocator(std::move(allocation_task));
+}
+#endif
+
 void CefRenderWidgetHostViewOSR::SetNeedsBeginFrames(bool enabled) {
   SetFrameRate();
 
