@@ -72,6 +72,8 @@ enum RequestTestMode {
   REQTEST_CACHE_ONLY_FAILURE_HEADER,
   REQTEST_CACHE_ONLY_SUCCESS_FLAG,
   REQTEST_CACHE_ONLY_SUCCESS_HEADER,
+  REQTEST_CACHE_DISABLE_FLAG,
+  REQTEST_CACHE_DISABLE_HEADER,
 };
 
 enum ContextTestMode {
@@ -1086,6 +1088,10 @@ class RequestTestRunner : public base::RefCountedThreadSafe<RequestTestRunner> {
                   SetupCacheOnlySuccessFlagTest, MultipleRunTest);
     REGISTER_TEST(REQTEST_CACHE_ONLY_SUCCESS_HEADER,
                   SetupCacheOnlySuccessHeaderTest, MultipleRunTest);
+    REGISTER_TEST(REQTEST_CACHE_DISABLE_FLAG, SetupCacheDisableFlagTest,
+                  MultipleRunTest);
+    REGISTER_TEST(REQTEST_CACHE_DISABLE_HEADER, SetupCacheDisableHeaderTest,
+                  MultipleRunTest);
   }
 
   void Destroy() {
@@ -1466,11 +1472,49 @@ class RequestTestRunner : public base::RefCountedThreadSafe<RequestTestRunner> {
     SetupCacheShared("CacheSkipFlagTest.html", true);
 
     // Skip the cache despite the the Cache-Control response header.
+    // This will not read from the cache, but still write to the cache.
     settings_.request->SetFlags(UR_FLAG_SKIP_CACHE);
 
-    // Send multiple requests. All should be received.
+    // Send multiple requests. The 1st request will be handled normally,
+    // but not result in any reads from the cache. The 2nd request will
+    // expect a cached response and the 3nd request will skip the cache
+    // again.
     settings_.expected_send_count = 3;
-    settings_.expected_receive_count = 3;
+    settings_.expected_receive_count = 2;
+    settings_.setup_next_request =
+        base::Bind(&RequestTestRunner::SetupCacheSkipFlagTestNext, this);
+
+    complete_callback.Run();
+  }
+
+  void SetupCacheSkipFlagTestNext(int next_send_count,
+                                  const base::Closure& complete_callback) {
+    // Recreate the request object because the existing object will now be
+    // read-only.
+    EXPECT_TRUE(settings_.request->IsReadOnly());
+    SetupCacheShared("CacheSkipFlagTest.html", true);
+
+    // Expect a cached response.
+    settings_.expect_response_was_cached = true;
+    settings_.setup_next_request =
+        base::Bind(&RequestTestRunner::SetupCacheSkipFlagTestLast, this);
+
+    complete_callback.Run();
+  }
+
+  void SetupCacheSkipFlagTestLast(int next_send_count,
+                                  const base::Closure& complete_callback) {
+    // Recreate the request object because the existing object will now be
+    // read-only.
+    EXPECT_TRUE(settings_.request->IsReadOnly());
+    SetupCacheShared("CacheSkipFlagTest.html", true);
+
+    // Skip the cache despite the the Cache-Control response header.
+    settings_.request->SetFlags(UR_FLAG_SKIP_CACHE);
+
+    // Expect the cache to be skipped.
+    settings_.expect_response_was_cached = false;
+    settings_.setup_next_request.Reset();
 
     complete_callback.Run();
   }
@@ -1479,13 +1523,51 @@ class RequestTestRunner : public base::RefCountedThreadSafe<RequestTestRunner> {
     SetupCacheShared("CacheSkipHeaderTest.html", true);
 
     // Skip the cache despite the the Cache-Control response header.
+    // This will not read from the cache, but still write to the cache.
     CefRequest::HeaderMap headerMap;
     headerMap.insert(std::make_pair(kCacheControlHeader, "no-cache"));
     settings_.request->SetHeaderMap(headerMap);
 
-    // Send multiple requests. All should be received.
+    // Send multiple requests. The 1st request will be handled normally,
+    // but not result in any reads from the cache. The 2nd request will
+    // expect a cached response and the 3nd request will skip the cache
+    // again.
     settings_.expected_send_count = 3;
-    settings_.expected_receive_count = 3;
+    settings_.expected_receive_count = 2;
+    settings_.setup_next_request =
+        base::Bind(&RequestTestRunner::SetupCacheSkipHeaderTestNext, this);
+
+    complete_callback.Run();
+  }
+
+  void SetupCacheSkipHeaderTestNext(int next_send_count,
+                                    const base::Closure& complete_callback) {
+    // Recreate the request object because the existing object will now be
+    // read-only.
+    EXPECT_TRUE(settings_.request->IsReadOnly());
+    SetupCacheShared("CacheSkipHeaderTest.html", true);
+
+    // Expect a cached response.
+    settings_.expect_response_was_cached = true;
+    settings_.setup_next_request =
+        base::Bind(&RequestTestRunner::SetupCacheSkipHeaderTestLast, this);
+
+    complete_callback.Run();
+  }
+
+  void SetupCacheSkipHeaderTestLast(int next_send_count,
+                                    const base::Closure& complete_callback) {
+    // Recreate the request object because the existing object will now be
+    // read-only.
+    EXPECT_TRUE(settings_.request->IsReadOnly());
+    SetupCacheShared("CacheSkipHeaderTest.html", true);
+
+    // Skip the cache despite the the Cache-Control response header.
+    settings_.request->SetFlags(UR_FLAG_SKIP_CACHE);
+
+    // Expect the cache to be skipped.
+    settings_.expect_response_was_cached = false;
+    settings_.setup_next_request.Reset();
 
     complete_callback.Run();
   }
@@ -1584,6 +1666,86 @@ class RequestTestRunner : public base::RefCountedThreadSafe<RequestTestRunner> {
     headerMap.insert(std::make_pair(kCacheControlHeader, "only-if-cached"));
     settings_.request->SetHeaderMap(headerMap);
     settings_.expect_response_was_cached = true;
+
+    // The following requests will use the same setup, so no more callbacks
+    // are required.
+    settings_.setup_next_request.Reset();
+
+    complete_callback.Run();
+  }
+
+  void SetupCacheDisableFlagTest(const base::Closure& complete_callback) {
+    SetupCacheShared("CacheDisableFlagTest.html", true);
+
+    // Disable the cache despite the the Cache-Control response header.
+    settings_.request->SetFlags(UR_FLAG_DISABLE_CACHE);
+
+    // Send multiple requests. The 1st request will be handled normally,
+    // but not result in any reads from or writes to the cache.
+    // Therefore all following requests that are set to be only handled
+    // from the cache should fail.
+    settings_.expected_send_count = 3;
+    settings_.expected_receive_count = 1;
+    settings_.setup_next_request =
+        base::Bind(&RequestTestRunner::SetupCacheDisableFlagTestNext, this);
+
+    complete_callback.Run();
+  }
+
+  void SetupCacheDisableFlagTestNext(int next_send_count,
+                                     const base::Closure& complete_callback) {
+    // Recreate the request object because the existing object will now be
+    // read-only.
+    EXPECT_TRUE(settings_.request->IsReadOnly());
+    SetupCacheShared("CacheDisableFlagTest.html", true);
+
+    // Only handle from the cache.
+    settings_.request->SetFlags(UR_FLAG_ONLY_FROM_CACHE);
+
+    // The request is expected to fail.
+    settings_.SetRequestFailureExpected(ERR_CACHE_MISS);
+
+    // The following requests will use the same setup, so no more callbacks
+    // are required.
+    settings_.setup_next_request.Reset();
+
+    complete_callback.Run();
+  }
+
+  void SetupCacheDisableHeaderTest(const base::Closure& complete_callback) {
+    SetupCacheShared("CacheDisableHeaderTest.html", true);
+
+    // Disable the cache despite the the Cache-Control response header.
+    CefRequest::HeaderMap headerMap;
+    headerMap.insert(std::make_pair(kCacheControlHeader, "no-store"));
+    settings_.request->SetHeaderMap(headerMap);
+
+    // Send multiple requests. The 1st request will be handled normally,
+    // but not result in any reads from or writes to the cache.
+    // Therefore all following requests that are set to be only handled
+    // from the cache should fail.
+    settings_.expected_send_count = 3;
+    settings_.expected_receive_count = 1;
+    settings_.setup_next_request =
+        base::Bind(&RequestTestRunner::SetupCacheDisableHeaderTestNext, this);
+
+    complete_callback.Run();
+  }
+
+  void SetupCacheDisableHeaderTestNext(int next_send_count,
+                                       const base::Closure& complete_callback) {
+    // Recreate the request object because the existing object will now be
+    // read-only.
+    EXPECT_TRUE(settings_.request->IsReadOnly());
+    SetupCacheShared("CacheDisableHeaderTest.html", true);
+
+    // Only handle from the cache.
+    CefRequest::HeaderMap headerMap;
+    headerMap.insert(std::make_pair(kCacheControlHeader, "only-if-cached"));
+    settings_.request->SetHeaderMap(headerMap);
+
+    // The request is expected to fail.
+    settings_.SetRequestFailureExpected(ERR_CACHE_MISS);
 
     // The following requests will use the same setup, so no more callbacks
     // are required.
@@ -2320,39 +2482,47 @@ REQ_TEST_SET(ContextInMemoryServer, CONTEXT_INMEMORY, true);
 REQ_TEST_SET(ContextOnDiskServer, CONTEXT_ONDISK, true);
 
 // Cache tests can only be run with the server backend.
-#define REQ_TEST_CACHE_SET(suffix, context_mode)                            \
-  REQ_TEST(BrowserGETCacheWithControl##suffix, REQTEST_CACHE_WITH_CONTROL,  \
-           context_mode, true, true);                                       \
-  REQ_TEST(BrowserGETCacheWithoutControl##suffix,                           \
-           REQTEST_CACHE_WITHOUT_CONTROL, context_mode, true, true);        \
-  REQ_TEST(BrowserGETCacheSkipFlag##suffix, REQTEST_CACHE_SKIP_FLAG,        \
-           context_mode, true, true);                                       \
-  REQ_TEST(BrowserGETCacheSkipHeader##suffix, REQTEST_CACHE_SKIP_HEADER,    \
-           context_mode, true, true);                                       \
-  REQ_TEST(BrowserGETCacheOnlyFailureFlag##suffix,                          \
-           REQTEST_CACHE_ONLY_FAILURE_FLAG, context_mode, true, true);      \
-  REQ_TEST(BrowserGETCacheOnlyFailureHeader##suffix,                        \
-           REQTEST_CACHE_ONLY_FAILURE_HEADER, context_mode, true, true);    \
-  REQ_TEST(BrowserGETCacheOnlySuccessFlag##suffix,                          \
-           REQTEST_CACHE_ONLY_SUCCESS_FLAG, context_mode, true, true)       \
-  REQ_TEST(BrowserGETCacheOnlySuccessHeader##suffix,                        \
-           REQTEST_CACHE_ONLY_SUCCESS_HEADER, context_mode, true, true)     \
-  REQ_TEST(RendererGETCacheWithControl##suffix, REQTEST_CACHE_WITH_CONTROL, \
-           context_mode, false, true);                                      \
-  REQ_TEST(RendererGETCacheWithoutControl##suffix,                          \
-           REQTEST_CACHE_WITHOUT_CONTROL, context_mode, false, true);       \
-  REQ_TEST(RendererGETCacheSkipFlag##suffix, REQTEST_CACHE_SKIP_FLAG,       \
-           context_mode, false, true);                                      \
-  REQ_TEST(RendererGETCacheSkipHeader##suffix, REQTEST_CACHE_SKIP_HEADER,   \
-           context_mode, false, true);                                      \
-  REQ_TEST(RendererGETCacheOnlyFailureFlag##suffix,                         \
-           REQTEST_CACHE_ONLY_FAILURE_FLAG, context_mode, false, true);     \
-  REQ_TEST(RendererGETCacheOnlyFailureHeader##suffix,                       \
-           REQTEST_CACHE_ONLY_FAILURE_HEADER, context_mode, false, true);   \
-  REQ_TEST(RendererGETCacheOnlySuccessFlag##suffix,                         \
-           REQTEST_CACHE_ONLY_SUCCESS_FLAG, context_mode, false, true);     \
-  REQ_TEST(RendererGETCacheOnlySuccessHeader##suffix,                       \
-           REQTEST_CACHE_ONLY_SUCCESS_HEADER, context_mode, false, true)
+#define REQ_TEST_CACHE_SET(suffix, context_mode)                               \
+  REQ_TEST(BrowserGETCacheWithControl##suffix, REQTEST_CACHE_WITH_CONTROL,     \
+           context_mode, true, true);                                          \
+  REQ_TEST(BrowserGETCacheWithoutControl##suffix,                              \
+           REQTEST_CACHE_WITHOUT_CONTROL, context_mode, true, true);           \
+  REQ_TEST(BrowserGETCacheSkipFlag##suffix, REQTEST_CACHE_SKIP_FLAG,           \
+           context_mode, true, true);                                          \
+  REQ_TEST(BrowserGETCacheSkipHeader##suffix, REQTEST_CACHE_SKIP_HEADER,       \
+           context_mode, true, true);                                          \
+  REQ_TEST(BrowserGETCacheOnlyFailureFlag##suffix,                             \
+           REQTEST_CACHE_ONLY_FAILURE_FLAG, context_mode, true, true);         \
+  REQ_TEST(BrowserGETCacheOnlyFailureHeader##suffix,                           \
+           REQTEST_CACHE_ONLY_FAILURE_HEADER, context_mode, true, true);       \
+  REQ_TEST(BrowserGETCacheOnlySuccessFlag##suffix,                             \
+           REQTEST_CACHE_ONLY_SUCCESS_FLAG, context_mode, true, true)          \
+  REQ_TEST(BrowserGETCacheOnlySuccessHeader##suffix,                           \
+           REQTEST_CACHE_ONLY_SUCCESS_HEADER, context_mode, true, true)        \
+  REQ_TEST(BrowserGETCacheDisableFlag##suffix, REQTEST_CACHE_DISABLE_FLAG,     \
+           context_mode, true, true);                                          \
+  REQ_TEST(BrowserGETCacheDisableHeader##suffix, REQTEST_CACHE_DISABLE_HEADER, \
+           context_mode, true, true);                                          \
+  REQ_TEST(RendererGETCacheWithControl##suffix, REQTEST_CACHE_WITH_CONTROL,    \
+           context_mode, false, true);                                         \
+  REQ_TEST(RendererGETCacheWithoutControl##suffix,                             \
+           REQTEST_CACHE_WITHOUT_CONTROL, context_mode, false, true);          \
+  REQ_TEST(RendererGETCacheSkipFlag##suffix, REQTEST_CACHE_SKIP_FLAG,          \
+           context_mode, false, true);                                         \
+  REQ_TEST(RendererGETCacheSkipHeader##suffix, REQTEST_CACHE_SKIP_HEADER,      \
+           context_mode, false, true);                                         \
+  REQ_TEST(RendererGETCacheOnlyFailureFlag##suffix,                            \
+           REQTEST_CACHE_ONLY_FAILURE_FLAG, context_mode, false, true);        \
+  REQ_TEST(RendererGETCacheOnlyFailureHeader##suffix,                          \
+           REQTEST_CACHE_ONLY_FAILURE_HEADER, context_mode, false, true);      \
+  REQ_TEST(RendererGETCacheOnlySuccessFlag##suffix,                            \
+           REQTEST_CACHE_ONLY_SUCCESS_FLAG, context_mode, false, true);        \
+  REQ_TEST(RendererGETCacheOnlySuccessHeader##suffix,                          \
+           REQTEST_CACHE_ONLY_SUCCESS_HEADER, context_mode, false, true)       \
+  REQ_TEST(RendererGETCacheDisableFlag##suffix, REQTEST_CACHE_DISABLE_FLAG,    \
+           context_mode, false, true);                                         \
+  REQ_TEST(RendererGETCacheDisableHeader##suffix,                              \
+           REQTEST_CACHE_DISABLE_HEADER, context_mode, false, true);
 
 REQ_TEST_CACHE_SET(ContextGlobalServer, CONTEXT_GLOBAL);
 REQ_TEST_CACHE_SET(ContextInMemoryServer, CONTEXT_INMEMORY);
