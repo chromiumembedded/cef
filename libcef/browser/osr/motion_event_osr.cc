@@ -10,6 +10,28 @@
 #include "ui/events/base_event_utils.h"
 #include "ui/events/gesture_detection/gesture_configuration.h"
 
+namespace {
+
+ui::MotionEvent::ToolType CefPointerTypeToMotionEventToolType(
+    cef_pointer_type_t pointer_type) {
+  switch (pointer_type) {
+    case CEF_POINTER_TYPE_TOUCH:
+      return ui::MotionEvent::ToolType::FINGER;
+    case CEF_POINTER_TYPE_MOUSE:
+      return ui::MotionEvent::ToolType::MOUSE;
+    case CEF_POINTER_TYPE_PEN:
+      return ui::MotionEvent::ToolType::STYLUS;
+    case CEF_POINTER_TYPE_ERASER:
+      return ui::MotionEvent::ToolType::ERASER;
+    case CEF_POINTER_TYPE_UNKNOWN:
+      return ui::MotionEvent::ToolType::UNKNOWN;
+  }
+  NOTREACHED();
+  return ui::MotionEvent::ToolType::UNKNOWN;
+}
+
+}  // namespace
+
 CefMotionEventOSR::CefMotionEventOSR() {
   std::fill(id_map_, id_map_ + blink::WebTouchEvent::kTouchesLengthCap, -1);
 }
@@ -205,14 +227,25 @@ ui::PointerProperties CefMotionEventOSR::GetPointerPropertiesFromTouchEvent(
   pointer_properties.SetAxesAndOrientation(touch.radius_x, touch.radius_y,
                                            touch.rotation_angle);
   if (!pointer_properties.touch_major) {
-    pointer_properties.touch_major =
-        2.f * ui::GestureConfiguration::GetInstance()->default_radius();
-    pointer_properties.touch_minor =
-        2.f * ui::GestureConfiguration::GetInstance()->default_radius();
+    float default_size;
+    switch (touch.pointer_type) {
+      case CEF_POINTER_TYPE_PEN:
+      case CEF_POINTER_TYPE_ERASER:
+        // Default size for stylus events is 1x1.
+        default_size = 1;
+        break;
+      default:
+        default_size =
+            2.f * ui::GestureConfiguration::GetInstance()->default_radius();
+        break;
+    }
+    pointer_properties.touch_major = pointer_properties.touch_minor =
+        default_size;
     pointer_properties.orientation = 0;
   }
 
-  pointer_properties.tool_type = ui::MotionEvent::ToolType::FINGER;
+  pointer_properties.tool_type =
+      CefPointerTypeToMotionEventToolType(touch.pointer_type);
 
   return pointer_properties;
 }

@@ -168,6 +168,8 @@ enum OSRTestType {
   OSR_TEST_TOUCH_END,
   // touchCancel is triggered on dismissing
   OSR_TEST_TOUCH_CANCEL,
+  // CEF_POINTER_TYPE_PEN is mapped to pen pointer event
+  OSR_TEST_PEN,
   // Define the range for popup tests.
   OSR_TEST_POPUP_FIRST = OSR_TEST_POPUP_PAINT,
   OSR_TEST_POPUP_LAST = OSR_TEST_POPUP_SCROLL_INSIDE,
@@ -314,6 +316,28 @@ class OSRTestHandler : public RoutingTestHandler,
               }
             }
           } break;
+          default:
+            break;
+        }
+      } break;
+      case OSR_TEST_PEN: {
+        switch (touch_state_) {
+          case CEF_TET_CANCELLED:
+            // The first message expected is pointerdown.
+            EXPECT_STREQ(messageStr.c_str(), "osrpointerdown pen");
+            touch_state_ = CEF_TET_PRESSED;
+            break;
+          case CEF_TET_PRESSED:
+            EXPECT_STREQ(messageStr.c_str(), "osrpointermove pen");
+            touch_state_ = CEF_TET_MOVED;
+            break;
+          case CEF_TET_MOVED:
+            // There might be multiple pointermove events, ignore.
+            if (messageStr != "osrpointermove pen") {
+              EXPECT_STREQ(messageStr.c_str(), "osrpointerup pen");
+              DestroySucceededTestSoon();
+            }
+            break;
           default:
             break;
         }
@@ -1062,6 +1086,27 @@ class OSRTestHandler : public RoutingTestHandler,
           browser->GetHost()->SendTouchEvent(touch_event2);
         }
       } break;
+      case OSR_TEST_PEN: {
+        if (StartTest()) {
+          const CefRect& pointerdiv = GetElementBounds("pointerdiv");
+          CefTouchEvent touch_event;
+          touch_event.x = MiddleX(pointerdiv) - 45;
+          touch_event.y = MiddleY(pointerdiv);
+          touch_event.type = CEF_TET_PRESSED;
+          touch_event.pointer_type = CEF_POINTER_TYPE_PEN;
+
+          browser->GetHost()->SendTouchEvent(touch_event);
+
+          touch_event.type = CEF_TET_MOVED;
+          for (size_t i = 0; i < 40; i++) {
+            touch_event.x++;
+            browser->GetHost()->SendTouchEvent(touch_event);
+          }
+
+          touch_event.type = CEF_TET_RELEASED;
+          browser->GetHost()->SendTouchEvent(touch_event);
+        }
+      } break;
       default:
         break;
     }
@@ -1552,3 +1597,4 @@ OSR_TEST(TouchEnd, OSR_TEST_TOUCH_END, 1.0f);
 OSR_TEST(TouchEnd2X, OSR_TEST_TOUCH_END, 2.0f);
 OSR_TEST(TouchCancel, OSR_TEST_TOUCH_CANCEL, 1.0f);
 OSR_TEST(TouchCancel2X, OSR_TEST_TOUCH_CANCEL, 2.0f);
+OSR_TEST(PenEvent, OSR_TEST_PEN, 1.0f);

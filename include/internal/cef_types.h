@@ -1716,6 +1716,17 @@ typedef enum {
 } cef_touch_event_type_t;
 
 ///
+// The device type that caused the event.
+///
+typedef enum {
+  CEF_POINTER_TYPE_TOUCH = 0,
+  CEF_POINTER_TYPE_MOUSE,
+  CEF_POINTER_TYPE_PEN,
+  CEF_POINTER_TYPE_ERASER,
+  CEF_POINTER_TYPE_UNKNOWN
+} cef_pointer_type_t;
+
+///
 // Structure representing touch event information.
 ///
 typedef struct _cef_touch_event_t {
@@ -1770,6 +1781,11 @@ typedef struct _cef_touch_event_t {
   // cef_event_flags_t for values.
   ///
   uint32 modifiers;
+
+  ///
+  // The device type that caused the event.
+  ///
+  cef_pointer_type_t pointer_type;
 
 } cef_touch_event_t;
 
