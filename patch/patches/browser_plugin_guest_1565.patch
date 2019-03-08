@@ -37,7 +37,7 @@ index fa03ea14330e..c1bd1b67ce21 100644
  
    attached_ = true;
 diff --git content/browser/frame_host/interstitial_page_impl.cc content/browser/frame_host/interstitial_page_impl.cc
-index a97648ef717b..b82895c89f77 100644
+index de100cad56f2..32fc6c09ca14 100644
 --- content/browser/frame_host/interstitial_page_impl.cc
 +++ content/browser/frame_host/interstitial_page_impl.cc
 @@ -632,7 +632,7 @@ WebContentsView* InterstitialPageImpl::CreateWebContentsView() {

@@ -135,7 +135,7 @@ index f772f64d656e..7d13f9f81b6c 100644
    return host ? host->GetAcceleratedWidget() : NULL;
  }
 diff --git ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc
-index e43193ea912c..457f019db4c4 100644
+index f35f4a627542..685038053195 100644
 --- ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc
 +++ ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc
 @@ -89,6 +89,7 @@ DesktopWindowTreeHostWin::DesktopWindowTreeHostWin(
@@ -160,7 +160,7 @@ index e43193ea912c..457f019db4c4 100644
  
    remove_standard_frame_ = params.remove_standard_frame;
    has_non_client_view_ = Widget::RequiresNonClientView(params.type);
-@@ -894,11 +899,15 @@ void DesktopWindowTreeHostWin::HandleFrameChanged() {
+@@ -891,11 +896,15 @@ void DesktopWindowTreeHostWin::HandleFrameChanged() {
  }
  
  void DesktopWindowTreeHostWin::HandleNativeFocus(HWND last_focused_window) {

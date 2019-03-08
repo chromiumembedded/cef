@@ -64,7 +64,7 @@ index ebf8531af849..fff277b7e62b 100644
  }
  
 diff --git content/browser/frame_host/navigation_handle_impl.cc content/browser/frame_host/navigation_handle_impl.cc
-index 244992176f0f..a238f052d468 100644
+index 9381de48eafa..dfcdcb29feb5 100644
 --- content/browser/frame_host/navigation_handle_impl.cc
 +++ content/browser/frame_host/navigation_handle_impl.cc
 @@ -391,12 +391,6 @@ net::Error NavigationHandleImpl::GetNetErrorCode() {
@@ -81,7 +81,7 @@ index 244992176f0f..a238f052d468 100644
                  "WillFailRequest state should come before WillProcessResponse");
    return render_frame_host_;
 diff --git content/browser/frame_host/render_frame_host_impl.cc content/browser/frame_host/render_frame_host_impl.cc
-index b4a3b637fa67..bc7b8a4a39c9 100644
+index 75069cf3ad35..27657e669453 100644
 --- content/browser/frame_host/render_frame_host_impl.cc
 +++ content/browser/frame_host/render_frame_host_impl.cc
 @@ -2153,6 +2153,7 @@ void RenderFrameHostImpl::OnDidFailProvisionalLoadWithError(
@@ -92,7 +92,7 @@ index b4a3b637fa67..bc7b8a4a39c9 100644
    }
  
    frame_tree_node_->navigator()->DidFailProvisionalLoadWithError(this, params);
-@@ -4846,9 +4847,9 @@ void RenderFrameHostImpl::CommitNavigation(
+@@ -4850,9 +4851,9 @@ void RenderFrameHostImpl::CommitNavigation(
        DCHECK(base::FeatureList::IsEnabled(network::features::kNetworkService) ||
               base::FeatureList::IsEnabled(
                   blink::features::kServiceWorkerServicification));
@@ -105,10 +105,10 @@ index b4a3b637fa67..bc7b8a4a39c9 100644
            FROM_HERE, {BrowserThread::IO},
            base::BindOnce(&PrefetchURLLoaderService::GetFactory,
 diff --git content/browser/frame_host/render_frame_message_filter.cc content/browser/frame_host/render_frame_message_filter.cc
-index 789c40612628..17c30e0b5d57 100644
+index ec1c286b4218..1155fe29166b 100644
 --- content/browser/frame_host/render_frame_message_filter.cc
 +++ content/browser/frame_host/render_frame_message_filter.cc
-@@ -699,6 +699,7 @@ void RenderFrameMessageFilter::GetCookies(int render_frame_id,
+@@ -705,6 +705,7 @@ void RenderFrameMessageFilter::GetCookies(int render_frame_id,
  void RenderFrameMessageFilter::OnGetPluginInfo(
      int render_frame_id,
      const GURL& url,
@@ -116,7 +116,7 @@ index 789c40612628..17c30e0b5d57 100644
      const url::Origin& main_frame_origin,
      const std::string& mime_type,
      bool* found,
-@@ -710,8 +711,8 @@ void RenderFrameMessageFilter::OnGetPluginInfo(
+@@ -716,8 +717,8 @@ void RenderFrameMessageFilter::OnGetPluginInfo(
    bool allow_wildcard = true;
    *found = plugin_service_->GetPluginInfo(
        render_process_id_, render_frame_id, resource_context_, url,
@@ -363,7 +363,7 @@ index 5b45214bdb34..8d654d142309 100644
  
  void RenderFrameImpl::WillCommitProvisionalLoad() {
 diff --git content/renderer/render_thread_impl.cc content/renderer/render_thread_impl.cc
-index 44df5d5461c7..b3a7d92a547e 100644
+index f376c3cbbce1..8618d73fe1e3 100644
 --- content/renderer/render_thread_impl.cc
 +++ content/renderer/render_thread_impl.cc
 @@ -815,6 +815,8 @@ void RenderThreadImpl::Init() {

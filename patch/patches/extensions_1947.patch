@@ -27,10 +27,10 @@ index 9e81f0a33ede..b796e79ae7ef 100644
    auto* browser_context = web_contents->GetBrowserContext();
  
 diff --git content/browser/frame_host/render_frame_host_manager.cc content/browser/frame_host/render_frame_host_manager.cc
-index dce34d553156..e42e6bc5e1af 100644
+index f9f8e5204d1d..e35a65860293 100644
 --- content/browser/frame_host/render_frame_host_manager.cc
 +++ content/browser/frame_host/render_frame_host_manager.cc
-@@ -955,10 +955,11 @@ bool RenderFrameHostManager::ShouldSwapBrowsingInstancesForNavigation(
+@@ -953,10 +953,11 @@ bool RenderFrameHostManager::ShouldSwapBrowsingInstancesForNavigation(
    // TODO(alexmos): This check should've been enforced earlier in the
    // navigation, in chrome::Navigate().  Verify this, and then convert this to
    // a CHECK and remove the fallback.
@@ -46,7 +46,7 @@ index dce34d553156..e42e6bc5e1af 100644
      return true;
    }
  
-@@ -1097,7 +1098,8 @@ RenderFrameHostManager::GetSiteInstanceForNavigation(
+@@ -1095,7 +1096,8 @@ RenderFrameHostManager::GetSiteInstanceForNavigation(
  
    // Double-check that the new SiteInstance is associated with the right
    // BrowserContext.
