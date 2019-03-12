@@ -38,7 +38,7 @@ index a19d29165970..aaf918cd4b71 100644
            render_frame_host->GetLastCommittedOrigin(),
            render_frame_host->GetFrameTreeNodeId(), std::move(wc_getter),
 diff --git content/browser/blob_storage/chrome_blob_storage_context.cc content/browser/blob_storage/chrome_blob_storage_context.cc
-index 5610c0df1c7d..7440b58504ec 100644
+index 5610c0df1c7d..6e039a0dc018 100644
 --- content/browser/blob_storage/chrome_blob_storage_context.cc
 +++ content/browser/blob_storage/chrome_blob_storage_context.cc
 @@ -88,6 +88,11 @@ class BlobHandleImpl : public BlobHandle {
@@ -53,6 +53,16 @@ index 5610c0df1c7d..7440b58504ec 100644
  // static
  ChromeBlobStorageContext* ChromeBlobStorageContext::GetFor(
      BrowserContext* context) {
+@@ -117,7 +122,8 @@ ChromeBlobStorageContext* ChromeBlobStorageContext::GetFor(
+ 
+     // If we're not incognito mode, schedule all of our file tasks to enable
+     // disk on the storage context.
+-    if (!context->IsOffTheRecord() && io_thread_valid) {
++    if (!context->GetPath().empty() && !context->IsOffTheRecord() &&
++        io_thread_valid) {
+       file_task_runner = base::CreateTaskRunnerWithTraits(
+           {base::MayBlock(), base::TaskPriority::BEST_EFFORT,
+            base::TaskShutdownBehavior::SKIP_ON_SHUTDOWN});
 diff --git content/browser/blob_storage/chrome_blob_storage_context.h content/browser/blob_storage/chrome_blob_storage_context.h
 index afd21be63a9a..8ac63336f6e7 100644
 --- content/browser/blob_storage/chrome_blob_storage_context.h
@@ -83,10 +93,18 @@ index 6952610f8c88..fd8babeb99fd 100644
        partition->GetBluetoothAllowedDevicesMap();
    return allowed_devices_map->GetOrCreateAllowedDevices(GetOrigin());
 diff --git content/browser/browser_context.cc content/browser/browser_context.cc
-index b2b3920da3b0..8ab540f00d3d 100644
+index b2b3920da3b0..134f8b20d9b7 100644
 --- content/browser/browser_context.cc
 +++ content/browser/browser_context.cc
-@@ -211,11 +211,18 @@ StoragePartition* GetStoragePartitionFromConfig(
+@@ -56,6 +56,7 @@
+ #include "content/public/common/content_switches.h"
+ #include "content/public/common/service_manager_connection.h"
+ #include "content/public/common/service_names.mojom.h"
++#include "media/capabilities/in_memory_video_decode_stats_db_impl.h"
+ #include "media/capabilities/video_decode_stats_db_impl.h"
+ #include "media/mojo/services/video_decode_perf_history.h"
+ #include "net/cookies/cookie_store.h"
+@@ -211,11 +212,18 @@ StoragePartition* GetStoragePartitionFromConfig(
    StoragePartitionImplMap* partition_map =
        GetStoragePartitionMap(browser_context);
  
@@ -108,7 +126,7 @@ index b2b3920da3b0..8ab540f00d3d 100644
  }
  
  void SaveSessionStateOnIOThread(
-@@ -741,6 +748,11 @@ ServiceManagerConnection* BrowserContext::GetServiceManagerConnectionFor(
+@@ -741,6 +749,11 @@ ServiceManagerConnection* BrowserContext::GetServiceManagerConnectionFor(
  BrowserContext::BrowserContext()
      : unique_id_(base::UnguessableToken::Create().ToString()) {}
  
@@ -120,6 +138,24 @@ index b2b3920da3b0..8ab540f00d3d 100644
  BrowserContext::~BrowserContext() {
    CHECK(GetUserData(kServiceInstanceGroup))
        << "Attempting to destroy a BrowserContext that never called "
+@@ -790,9 +803,14 @@ media::VideoDecodePerfHistory* BrowserContext::GetVideoDecodePerfHistory() {
+   // occurs later upon first VideoDecodePerfHistory API request that requires DB
+   // access. DB operations will not block the UI thread.
+   if (!decode_history) {
+-    std::unique_ptr<media::VideoDecodeStatsDBImpl> stats_db =
+-        media::VideoDecodeStatsDBImpl::Create(
+-            GetPath().Append(FILE_PATH_LITERAL("VideoDecodeStats")));
++    std::unique_ptr<media::VideoDecodeStatsDB> stats_db;
++    if (GetPath().empty()) {
++      stats_db =
++          std::make_unique<media::InMemoryVideoDecodeStatsDBImpl>(nullptr);
++    } else {
++      stats_db = media::VideoDecodeStatsDBImpl::Create(
++          GetPath().Append(FILE_PATH_LITERAL("VideoDecodeStats")));
++    }
+     auto new_decode_history = std::make_unique<media::VideoDecodePerfHistory>(
+         std::move(stats_db), BrowserFeatureProvider::GetFactoryCB());
+     decode_history = new_decode_history.get();
 diff --git content/browser/devtools/protocol/background_service_handler.cc content/browser/devtools/protocol/background_service_handler.cc
 index af047913e230..849eeddcfcc5 100644
 --- content/browser/devtools/protocol/background_service_handler.cc
