@@ -1,8 +1,8 @@
 diff --git third_party/blink/public/web/web_view.h third_party/blink/public/web/web_view.h
-index 79f633d3c8d0..b8ee1de999d5 100644
+index 61ea5ce43940..776eb720aaae 100644
 --- third_party/blink/public/web/web_view.h
 +++ third_party/blink/public/web/web_view.h
-@@ -344,6 +344,7 @@ class WebView {
+@@ -358,6 +358,7 @@ class WebView {
  
    // Sets whether select popup menus should be rendered by the browser.
    BLINK_EXPORT static void SetUseExternalPopupMenus(bool);
@@ -11,10 +11,10 @@ index 79f633d3c8d0..b8ee1de999d5 100644
    // Cancels and hides the current popup (datetime, select...) if any.
    virtual void CancelPagePopup() = 0;
 diff --git third_party/blink/renderer/core/exported/web_view_impl.cc third_party/blink/renderer/core/exported/web_view_impl.cc
-index 86caa260d408..c0791f605d0d 100644
+index 8dd8d5e381cf..6b8d2d3c2e19 100644
 --- third_party/blink/renderer/core/exported/web_view_impl.cc
 +++ third_party/blink/renderer/core/exported/web_view_impl.cc
-@@ -236,8 +236,13 @@ void WebView::SetUseExternalPopupMenus(bool use_external_popup_menus) {
+@@ -234,8 +234,13 @@ void WebView::SetUseExternalPopupMenus(bool use_external_popup_menus) {
    g_should_use_external_popup_menus = use_external_popup_menus;
  }
  
@@ -30,7 +30,7 @@ index 86caa260d408..c0791f605d0d 100644
  }
  
  namespace {
-@@ -299,6 +304,7 @@ WebViewImpl::WebViewImpl(WebViewClient* client,
+@@ -297,6 +302,7 @@ WebViewImpl::WebViewImpl(WebViewClient* client,
        chrome_client_(ChromeClientImpl::Create(this)),
        minimum_zoom_level_(ZoomFactorToZoomLevel(kMinTextSizeMultiplier)),
        maximum_zoom_level_(ZoomFactorToZoomLevel(kMaxTextSizeMultiplier)),
@@ -39,7 +39,7 @@ index 86caa260d408..c0791f605d0d 100644
        fullscreen_controller_(FullscreenController::Create(this)) {
    if (!AsView().client) {
 diff --git third_party/blink/renderer/core/exported/web_view_impl.h third_party/blink/renderer/core/exported/web_view_impl.h
-index 60d70f5bebd0..a4b78f823f49 100644
+index 52b62bace7a8..3d962d2880c3 100644
 --- third_party/blink/renderer/core/exported/web_view_impl.h
 +++ third_party/blink/renderer/core/exported/web_view_impl.h
 @@ -106,7 +106,8 @@ class CORE_EXPORT WebViewImpl final : public WebView,
@@ -51,8 +51,8 @@ index 60d70f5bebd0..a4b78f823f49 100644
 +  bool UseExternalPopupMenus() const;
  
    // WebView methods:
-   void SetWebWidgetClient(WebWidgetClient*) override;
-@@ -613,6 +614,8 @@ class CORE_EXPORT WebViewImpl final : public WebView,
+   void DidAttachLocalMainFrame(WebWidgetClient*) override;
+@@ -614,6 +615,8 @@ class CORE_EXPORT WebViewImpl final : public WebView,
    float fake_page_scale_animation_page_scale_factor_ = 0.f;
    bool fake_page_scale_animation_use_anchor_ = false;
  
@@ -62,7 +62,7 @@ index 60d70f5bebd0..a4b78f823f49 100644
    TransformationMatrix device_emulation_transform_;
  
 diff --git third_party/blink/renderer/core/page/chrome_client_impl.cc third_party/blink/renderer/core/page/chrome_client_impl.cc
-index 99da78636e16..55296b806d54 100644
+index cb0aa3034bad..88cdd25b427b 100644
 --- third_party/blink/renderer/core/page/chrome_client_impl.cc
 +++ third_party/blink/renderer/core/page/chrome_client_impl.cc
 @@ -801,7 +801,7 @@ bool ChromeClientImpl::HasOpenedPopup() const {

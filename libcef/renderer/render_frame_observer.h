@@ -21,8 +21,6 @@ class CefRenderFrameObserver : public content::RenderFrameObserver {
   void OnInterfaceRequestForFrame(
       const std::string& interface_name,
       mojo::ScopedMessagePipeHandle* interface_pipe) override;
-  void DidStartProvisionalLoad(blink::WebDocumentLoader* document_loader,
-                               bool is_content_initiated) override;
   void DidFinishLoad() override;
   void FrameDetached() override;
   void FrameFocused() override;

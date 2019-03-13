@@ -1,5 +1,5 @@
 diff --git chrome/renderer/BUILD.gn chrome/renderer/BUILD.gn
-index 80146842a974..24cbe9d80640 100644
+index 245a7102ec7b..6ca00c19f881 100644
 --- chrome/renderer/BUILD.gn
 +++ chrome/renderer/BUILD.gn
 @@ -4,6 +4,7 @@
@@ -18,7 +18,7 @@ index 80146842a974..24cbe9d80640 100644
      "//chrome:resources",
      "//chrome:strings",
      "//chrome/common",
-@@ -186,6 +188,10 @@ jumbo_static_library("renderer") {
+@@ -187,6 +189,10 @@ jumbo_static_library("renderer") {
  
    configs += [ "//build/config/compiler:wexit_time_destructors" ]
  

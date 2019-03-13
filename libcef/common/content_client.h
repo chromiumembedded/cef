@@ -38,6 +38,9 @@ class CefContentClient : public content::ContentClient,
       std::vector<media::CdmHostFilePath>* cdm_host_file_paths) override;
   void AddAdditionalSchemes(Schemes* schemes) override;
   base::string16 GetLocalizedString(int message_id) const override;
+  base::string16 GetLocalizedString(
+      int message_id,
+      const base::string16& replacement) const override;
   base::StringPiece GetDataResource(
       int resource_id,
       ui::ScaleFactor scale_factor) const override;

@@ -236,7 +236,7 @@ class CreateAlarmTestHandler : public AlarmsTestHandler {
 };
 }  // namespace
 
-ALARMS_TEST_GROUP_ALL(CreateAlarm, CreateAlarmTestHandler);
+ALARMS_TEST_GROUP_ALL(CreateAlarm, CreateAlarmTestHandler)
 
 namespace {
 
@@ -260,7 +260,7 @@ class GetAlarmTestHandler : public AlarmsTestHandler {
 };
 }  // namespace
 
-ALARMS_TEST_GROUP_MINIMAL(GetAlarm, GetAlarmTestHandler);
+ALARMS_TEST_GROUP_MINIMAL(GetAlarm, GetAlarmTestHandler)
 
 namespace {
 
@@ -286,7 +286,7 @@ class GetAllAlarmsTestHandler : public AlarmsTestHandler {
 };
 }  // namespace
 
-ALARMS_TEST_GROUP_MINIMAL(GetAllAlarms, GetAllAlarmsTestHandler);
+ALARMS_TEST_GROUP_MINIMAL(GetAllAlarms, GetAllAlarmsTestHandler)
 
 namespace {
 
@@ -311,7 +311,7 @@ class ClearAlarmTestHandler : public AlarmsTestHandler {
 };
 }  // namespace
 
-ALARMS_TEST_GROUP_MINIMAL(ClearAlarm, ClearAlarmTestHandler);
+ALARMS_TEST_GROUP_MINIMAL(ClearAlarm, ClearAlarmTestHandler)
 
 namespace {
 
@@ -337,4 +337,4 @@ class ClearAllAlarmsTestHandler : public AlarmsTestHandler {
 };
 }  // namespace
 
-ALARMS_TEST_GROUP_MINIMAL(ClearAllAlarms, ClearAllAlarmsTestHandler);
+ALARMS_TEST_GROUP_MINIMAL(ClearAllAlarms, ClearAllAlarmsTestHandler)

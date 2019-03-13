@@ -1,52 +1,22 @@
 diff --git base/message_loop/message_loop.cc base/message_loop/message_loop.cc
-index cec3a133889d..4b25f540a4af 100644
+index fff922d36819..28fea401be5f 100644
 --- base/message_loop/message_loop.cc
 +++ base/message_loop/message_loop.cc
-@@ -151,6 +151,10 @@ void MessageLoop::RemoveTaskObserver(TaskObserver* task_observer) {
- }
- 
- bool MessageLoop::IsBoundToCurrentThread() const {
-+  if (!pump_) {
-+    // Avoid DCHECKs in the MessageLoop destructor after we call ReleasePump().
-+    return false;
-+  }
-   return backend_->IsBoundToCurrentThread();
- }
- 
-@@ -164,6 +168,9 @@ MessageLoopBase* MessageLoop::GetMessageLoopBase() {
+@@ -163,6 +163,9 @@ MessageLoopBase* MessageLoop::GetMessageLoopBase() {
  
  //------------------------------------------------------------------------------
  
 +MessageLoopForUI::MessageLoopForUI(std::unique_ptr<MessagePump> pump)
-+    : MessageLoop(TYPE_UI, BindOnce(&ReturnPump, std::move(pump))) {}
++    : MessageLoop(TYPE_UI, std::move(pump)) {}
 +
  // static
- std::unique_ptr<MessageLoop> MessageLoop::CreateUnbound(
-     Type type,
+ std::unique_ptr<MessageLoop> MessageLoop::CreateUnbound(Type type) {
+   return WrapUnique(new MessageLoop(type, nullptr));
 diff --git base/message_loop/message_loop.h base/message_loop/message_loop.h
-index f49f56285de7..159e645a0c9f 100644
+index 46782b49a7f0..78ebaf71cbdf 100644
 --- base/message_loop/message_loop.h
 +++ base/message_loop/message_loop.h
-@@ -185,6 +185,8 @@ class BASE_EXPORT MessageLoopBase {
-   // can post other tasks when destructed.
-   virtual void DeletePendingTasks() = 0;
- 
-+  virtual void ReleasePump() = 0;
-+
-  protected:
-   friend class MessageLoop;
-   friend class MessageLoopForUI;
-@@ -286,6 +288,9 @@ class BASE_EXPORT MessageLoop {
- 
-   MessageLoopBase* GetMessageLoopBase();
- 
-+  // Called from Thread::CleanUp() to release resources.
-+  void ReleasePump() { pump_ = nullptr; backend_->ReleasePump(); }
-+
-   //----------------------------------------------------------------------------
-  protected:
-   using MessagePumpFactoryCallback =
-@@ -374,6 +379,7 @@ class BASE_EXPORT MessageLoop {
+@@ -377,6 +377,7 @@ class BASE_EXPORT MessageLoop {
  class BASE_EXPORT MessageLoopForUI : public MessageLoop {
   public:
    explicit MessageLoopForUI(Type type = TYPE_UI);
@@ -55,7 +25,7 @@ index f49f56285de7..159e645a0c9f 100644
  #if defined(OS_IOS)
    // On iOS, the main message loop cannot be Run().  Instead call Attach(),
 diff --git base/message_loop/message_loop_current.cc base/message_loop/message_loop_current.cc
-index e669669c72f5..84cc1bee2c74 100644
+index c0b2ff7e0ad6..75802589ca01 100644
 --- base/message_loop/message_loop_current.cc
 +++ base/message_loop/message_loop_current.cc
 @@ -49,6 +49,8 @@ void MessageLoopCurrent::AddDestructionObserver(
@@ -68,43 +38,23 @@ index e669669c72f5..84cc1bee2c74 100644
    current_->RemoveDestructionObserver(destruction_observer);
  }
 diff --git base/message_loop/message_loop_current.h base/message_loop/message_loop_current.h
-index d469a7214001..76ae4cb77c8e 100644
+index bcab89d6e2e7..3160b321990e 100644
 --- base/message_loop/message_loop_current.h
 +++ base/message_loop/message_loop_current.h
-@@ -134,6 +134,16 @@ class BASE_EXPORT MessageLoopCurrent {
+@@ -133,6 +133,12 @@ class BASE_EXPORT MessageLoopCurrent {
    // posted tasks.
    void SetAddQueueTimeToTasks(bool enable);
  
 +#if defined(OS_WIN)
-+  void set_os_modal_loop(bool os_modal_loop) {
-+    os_modal_loop_ = os_modal_loop;
-+  }
++  void set_os_modal_loop(bool os_modal_loop) { os_modal_loop_ = os_modal_loop; }
 +
-+  bool os_modal_loop() const {
-+    return os_modal_loop_;
-+  }
++  bool os_modal_loop() const { return os_modal_loop_; }
 +#endif  // OS_WIN
 +
    // Enables or disables the recursive task processing. This happens in the case
    // of recursive message loops. Some unwanted message loops may occur when
    // using common controls or printer functions. By default, recursive task
-@@ -187,7 +197,6 @@ class BASE_EXPORT MessageLoopCurrent {
-   // level.
-   bool IsIdleForTesting();
- 
-- protected:
-   // Binds |current| to the current thread. It will from then on be the
-   // MessageLoop driven by MessageLoopCurrent on this thread. This is only meant
-   // to be invoked by the MessageLoop itself.
-@@ -198,6 +207,7 @@ class BASE_EXPORT MessageLoopCurrent {
-   // meant to be invoked by the MessageLoop itself.
-   static void UnbindFromCurrentThreadInternal(MessageLoopBase* current);
- 
-+ protected:
-   explicit MessageLoopCurrent(MessageLoopBase* current) : current_(current) {}
- 
-   friend class MessageLoopImpl;
-@@ -215,6 +225,13 @@ class BASE_EXPORT MessageLoopCurrent {
+@@ -213,6 +219,13 @@ class BASE_EXPORT MessageLoopCurrent {
    MessageLoopBase* ToMessageLoopBaseDeprecated() const { return current_; }
  
    MessageLoopBase* current_;
@@ -119,43 +69,24 @@ index d469a7214001..76ae4cb77c8e 100644
  
  #if !defined(OS_NACL)
 diff --git base/message_loop/message_pump_win.cc base/message_loop/message_pump_win.cc
-index 9de7721c9cfb..13b9bf8660ed 100644
+index 3e9562cc4cc5..cf4a700364d3 100644
 --- base/message_loop/message_pump_win.cc
 +++ base/message_loop/message_pump_win.cc
-@@ -12,6 +12,7 @@
- #include "base/bind.h"
- #include "base/debug/alias.h"
- #include "base/memory/ptr_util.h"
-+#include "base/message_loop/message_loop_current.h"
- #include "base/metrics/histogram_macros.h"
- #include "base/strings/stringprintf.h"
- #include "base/trace_event/trace_event.h"
-@@ -390,20 +391,28 @@ bool MessagePumpForUI::ProcessMessageHelper(const MSG& msg) {
- }
+@@ -2,6 +2,7 @@
+ // Use of this source code is governed by a BSD-style license that can be
+ // found in the LICENSE file.
  
- bool MessagePumpForUI::ProcessPumpReplacementMessage() {
--  // When we encounter a kMsgHaveWork message, this method is called to peek and
--  // process a replacement message. The goal is to make the kMsgHaveWork as non-
--  // intrusive as possible, even though a continuous stream of such messages are
--  // posted. This method carefully peeks a message while there is no chance for
--  // a kMsgHaveWork to be pending, then resets the |have_work_| flag (allowing a
--  // replacement kMsgHaveWork to possibly be posted), and finally dispatches
--  // that peeked replacement. Note that the re-post of kMsgHaveWork may be
--  // asynchronous to this thread!!
--
-+  // When we encounter a kMsgHaveWork message, this method is called to peek
-+  // and process a replacement message, such as a WM_PAINT or WM_TIMER.  The
-+  // goal is to make the kMsgHaveWork as non-intrusive as possible, even though
-+  // a continuous stream of such messages are posted.  This method carefully
-+  // peeks a message while there is no chance for a kMsgHaveWork to be pending,
-+  // then resets the have_work_ flag (allowing a replacement kMsgHaveWork to
-+  // possibly be posted), and finally dispatches that peeked replacement.  Note
-+  // that the re-post of kMsgHaveWork may be asynchronous to this thread!!
-+
-+  bool have_message = false;
++#include "base/message_loop/message_loop_current.h"
+ #include "base/message_loop/message_pump_win.h"
+ 
+ #include <algorithm>
+@@ -493,10 +494,18 @@ bool MessagePumpForUI::ProcessPumpReplacementMessage() {
+   // asynchronous to this thread!!
+ 
    MSG msg;
 -  const bool have_message =
 -      ::PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE) != FALSE;
++  bool have_message = false;
 +  // We should not process all window messages if we are in the context of an
 +  // OS modal loop, i.e. in the context of a windows API call like MessageBox.
 +  // This is to ensure that these messages are peeked out by the OS modal loop.
@@ -171,16 +102,3 @@ index 9de7721c9cfb..13b9bf8660ed 100644
    DCHECK(!have_message || kMsgHaveWork != msg.message ||
           msg.hwnd != message_window_.hwnd());
  
-diff --git base/task/sequence_manager/sequence_manager_impl.h base/task/sequence_manager/sequence_manager_impl.h
-index 6c5c85f0e62f..78d400e609dc 100644
---- base/task/sequence_manager/sequence_manager_impl.h
-+++ base/task/sequence_manager/sequence_manager_impl.h
-@@ -155,6 +155,8 @@ class BASE_EXPORT SequenceManagerImpl
-   void BindToCurrentThread(std::unique_ptr<MessagePump> pump) override;
-   void DeletePendingTasks() override;
-   bool HasTasks() override;
-+  
-+  void ReleasePump() override {}
- 
-   // Requests that a task to process work is scheduled.
-   void ScheduleWork();

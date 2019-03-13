@@ -46,7 +46,7 @@ bool CefResourceDispatcherHostDelegate::ShouldInterceptResourceAsStream(
   if (!extensions::ExtensionsEnabled())
     return false;
 
-  const content::ResourceRequestInfo* info =
+  content::ResourceRequestInfo* info =
       content::ResourceRequestInfo::ForRequest(request);
   CefResourceContext* context =
       static_cast<CefResourceContext*>(info->GetContext());
@@ -91,7 +91,7 @@ void CefResourceDispatcherHostDelegate::OnStreamCreated(
     net::URLRequest* request,
     std::unique_ptr<content::StreamInfo> stream) {
   DCHECK(extensions::ExtensionsEnabled());
-  const content::ResourceRequestInfo* info =
+  content::ResourceRequestInfo* info =
       content::ResourceRequestInfo::ForRequest(request);
   std::map<net::URLRequest*, StreamTargetInfo>::iterator ix =
       stream_target_info_.find(request);

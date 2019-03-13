@@ -249,7 +249,7 @@ void CefDevToolsFrontend::HandleMessageFromDevToolsFrontend(
   std::string method;
   base::ListValue* params = NULL;
   base::DictionaryValue* dict = NULL;
-  std::unique_ptr<base::Value> parsed_message = base::JSONReader::Read(message);
+  base::Optional<base::Value> parsed_message = base::JSONReader::Read(message);
   if (!parsed_message || !parsed_message->GetAsDictionary(&dict) ||
       !dict->GetString("method", &method)) {
     return;

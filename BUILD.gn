@@ -457,6 +457,8 @@ static_library("libcef_static") {
     "libcef/browser/osr/render_widget_host_view_osr.h",
     "libcef/browser/osr/software_output_device_osr.cc",
     "libcef/browser/osr/software_output_device_osr.h",
+    "libcef/browser/osr/synthetic_gesture_target_osr.cc",
+    "libcef/browser/osr/synthetic_gesture_target_osr.h",
     "libcef/browser/osr/web_contents_view_osr.cc",
     "libcef/browser/osr/web_contents_view_osr.h",
     "libcef/browser/path_util_impl.cc",

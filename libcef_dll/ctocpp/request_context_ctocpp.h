@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=376c88ccfd6a48b8d46d7b0493a36a6dc5c1e3b8$
+// $hash=52475096e498cd28cbd25676eaab24e14c1438b0$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_REQUEST_CONTEXT_CTOCPP_H_
@@ -64,9 +64,6 @@ class CefRequestContextCToCpp
   void CloseAllConnections(CefRefPtr<CefCompletionCallback> callback) OVERRIDE;
   void ResolveHost(const CefString& origin,
                    CefRefPtr<CefResolveCallback> callback) OVERRIDE;
-  cef_errorcode_t ResolveHostCached(
-      const CefString& origin,
-      std::vector<CefString>& resolved_ips) OVERRIDE;
   void LoadExtension(const CefString& root_directory,
                      CefRefPtr<CefDictionaryValue> manifest,
                      CefRefPtr<CefExtensionHandler> handler) OVERRIDE;

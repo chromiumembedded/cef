@@ -4,21 +4,7 @@
 
 #ifndef CEF_LIBCEF_BROWSER_BROWSER_MESSAGE_LOOP_H_
 #define CEF_LIBCEF_BROWSER_BROWSER_MESSAGE_LOOP_H_
-#pragma once
 
-#include "base/macros.h"
-#include "base/message_loop/message_loop.h"
-
-// Class used to process events on the current message loop.
-class CefBrowserMessageLoop : public base::MessageLoopForUI {
-  typedef base::MessageLoopForUI inherited;
-
- public:
-  CefBrowserMessageLoop();
-  ~CefBrowserMessageLoop() override;
-
- private:
-  DISALLOW_COPY_AND_ASSIGN(CefBrowserMessageLoop);
-};
+void InitMessagePumpFactoryForUI();
 
 #endif  // CEF_LIBCEF_BROWSER_BROWSER_MESSAGE_LOOP_H_

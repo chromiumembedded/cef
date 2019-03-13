@@ -40,8 +40,8 @@ class CefWebURLLoaderClient : public blink::WebURLLoaderClient {
   ~CefWebURLLoaderClient() override;
 
   // blink::WebURLLoaderClient methods.
-  void DidSendData(unsigned long long bytesSent,
-                   unsigned long long totalBytesToBeSent) override;
+  void DidSendData(uint64_t bytes_sent,
+                   uint64_t total_bytes_to_be_sent) override;
   void DidReceiveResponse(const WebURLResponse& response) override;
   void DidReceiveData(const char* data, int dataLength) override;
   void DidFinishLoading(
@@ -280,10 +280,10 @@ CefWebURLLoaderClient::CefWebURLLoaderClient(
 
 CefWebURLLoaderClient::~CefWebURLLoaderClient() {}
 
-void CefWebURLLoaderClient::DidSendData(unsigned long long bytesSent,
-                                        unsigned long long totalBytesToBeSent) {
+void CefWebURLLoaderClient::DidSendData(uint64_t bytes_sent,
+                                        uint64_t total_bytes_to_be_sent) {
   if (request_flags_ & UR_FLAG_REPORT_UPLOAD_PROGRESS)
-    context_->OnUploadProgress(bytesSent, totalBytesToBeSent);
+    context_->OnUploadProgress(bytes_sent, total_bytes_to_be_sent);
 }
 
 void CefWebURLLoaderClient::DidReceiveResponse(const WebURLResponse& response) {

@@ -34,10 +34,13 @@ int GetJSONWriterOptions(cef_json_writer_options_t options) {
 CefRefPtr<CefValue> CefParseJSON(const CefString& json_string,
                                  cef_json_parser_options_t options) {
   const std::string& json = json_string.ToString();
-  std::unique_ptr<base::Value> parse_result =
+  base::Optional<base::Value> parse_result =
       base::JSONReader::Read(json, GetJSONReaderOptions(options));
-  if (parse_result)
-    return new CefValueImpl(parse_result.release());
+  if (parse_result) {
+    return new CefValueImpl(
+        base::Value::ToUniquePtrValue(std::move(parse_result.value()))
+            .release());
+  }
   return NULL;
 }
 
@@ -48,16 +51,19 @@ CefRefPtr<CefValue> CefParseJSONAndReturnError(
     CefString& error_msg_out) {
   const std::string& json = json_string.ToString();
 
-  int error_code;
   std::string error_msg;
-  std::unique_ptr<base::Value> parse_result =
-      base::JSONReader::ReadAndReturnError(json, GetJSONReaderOptions(options),
-                                           &error_code, &error_msg);
-  if (parse_result)
-    return new CefValueImpl(parse_result.release());
+  base::JSONReader::ValueWithError value_and_error =
+      base::JSONReader::ReadAndReturnValueWithError(
+          json, GetJSONReaderOptions(options));
+  if (value_and_error.value) {
+    return new CefValueImpl(
+        base::Value::ToUniquePtrValue(std::move(value_and_error.value.value()))
+            .release());
+  }
 
-  error_code_out = static_cast<cef_json_parser_error_t>(error_code);
-  error_msg_out = error_msg;
+  error_code_out =
+      static_cast<cef_json_parser_error_t>(value_and_error.error_code);
+  error_msg_out = value_and_error.error_message;
   return NULL;
 }
 

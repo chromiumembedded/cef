@@ -305,7 +305,6 @@ void CefMenuManager::CreateDefaultModel() {
     model_->AddItem(MENU_ID_CUT, GetLabel(IDS_CONTENT_CONTEXT_CUT));
     model_->AddItem(MENU_ID_COPY, GetLabel(IDS_CONTENT_CONTEXT_COPY));
     model_->AddItem(MENU_ID_PASTE, GetLabel(IDS_CONTENT_CONTEXT_PASTE));
-    model_->AddItem(MENU_ID_DELETE, GetLabel(IDS_CONTENT_CONTEXT_DELETE));
 
     model_->AddSeparator();
     model_->AddItem(MENU_ID_SELECT_ALL,

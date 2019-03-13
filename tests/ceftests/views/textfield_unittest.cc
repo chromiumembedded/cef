@@ -163,8 +163,8 @@ void TextfieldStyleImpl() {
 }  // namespace
 
 // Test Textfield getters/setters.
-TEXTFIELD_TEST(TextfieldContents);
-TEXTFIELD_TEST(TextfieldStyle);
+TEXTFIELD_TEST(TextfieldContents)
+TEXTFIELD_TEST(TextfieldStyle)
 
 namespace {
 
@@ -287,4 +287,4 @@ void TextfieldKeyEventImpl(CefRefPtr<CefWaitableEvent> event) {
 // Test Textfield input and events. This is primarily to exercise exposed CEF
 // APIs and is not intended to comprehensively test Textfield-related behavior
 // (which we presume that Chromium is testing).
-TEXTFIELD_TEST_ASYNC(TextfieldKeyEvent);
+TEXTFIELD_TEST_ASYNC(TextfieldKeyEvent)

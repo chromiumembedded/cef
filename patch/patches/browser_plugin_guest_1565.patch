@@ -50,7 +50,7 @@ index dbc6281ef737..e413bf418b25 100644
    render_view_host_->GetMainFrame()->AllowBindings(
        BINDINGS_POLICY_DOM_AUTOMATION);
 diff --git content/browser/web_contents/web_contents_view.h content/browser/web_contents/web_contents_view.h
-index 5426d600906c..4bf4537514eb 100644
+index 2960f298ff54..218743f1847c 100644
 --- content/browser/web_contents/web_contents_view.h
 +++ content/browser/web_contents/web_contents_view.h
 @@ -24,7 +24,7 @@ struct ScreenInfo;
@@ -114,7 +114,7 @@ index c917d912bbdf..36b9d9b8e3e9 100644
        RenderWidgetHost* render_widget_host) override;
    void SetPageTitle(const base::string16& title) override;
 diff --git content/browser/web_contents/web_contents_view_child_frame.cc content/browser/web_contents/web_contents_view_child_frame.cc
-index 7b339bf9407a..ffb0668ecf74 100644
+index 1a68298648a2..a54af8a7f735 100644
 --- content/browser/web_contents/web_contents_view_child_frame.cc
 +++ content/browser/web_contents/web_contents_view_child_frame.cc
 @@ -84,7 +84,7 @@ void WebContentsViewChildFrame::CreateView(const gfx::Size& initial_size,
@@ -127,7 +127,7 @@ index 7b339bf9407a..ffb0668ecf74 100644
  }
  
 diff --git content/browser/web_contents/web_contents_view_child_frame.h content/browser/web_contents/web_contents_view_child_frame.h
-index e82cced4364b..7ed27a6b39b3 100644
+index 8aaa80183dd1..b9df8a87be07 100644
 --- content/browser/web_contents/web_contents_view_child_frame.h
 +++ content/browser/web_contents/web_contents_view_child_frame.h
 @@ -40,7 +40,7 @@ class WebContentsViewChildFrame : public WebContentsView,
@@ -140,7 +140,7 @@ index e82cced4364b..7ed27a6b39b3 100644
        RenderWidgetHost* render_widget_host) override;
    void SetPageTitle(const base::string16& title) override;
 diff --git content/browser/web_contents/web_contents_view_guest.cc content/browser/web_contents/web_contents_view_guest.cc
-index 5de4d7cf8a7a..e24e5c88d8dc 100644
+index 9d91d225fd9f..381b5a1743ae 100644
 --- content/browser/web_contents/web_contents_view_guest.cc
 +++ content/browser/web_contents/web_contents_view_guest.cc
 @@ -69,6 +69,8 @@ gfx::NativeWindow WebContentsViewGuest::GetTopLevelNativeWindow() const {
@@ -195,7 +195,7 @@ index 5de4d7cf8a7a..e24e5c88d8dc 100644
  
  RenderWidgetHostViewBase* WebContentsViewGuest::CreateViewForChildWidget(
 diff --git content/browser/web_contents/web_contents_view_guest.h content/browser/web_contents/web_contents_view_guest.h
-index 1f0e661628aa..f896c842ff0d 100644
+index 913fbc4bb00e..731a81c72803 100644
 --- content/browser/web_contents/web_contents_view_guest.h
 +++ content/browser/web_contents/web_contents_view_guest.h
 @@ -58,7 +58,7 @@ class WebContentsViewGuest : public WebContentsView,
@@ -208,7 +208,7 @@ index 1f0e661628aa..f896c842ff0d 100644
        RenderWidgetHost* render_widget_host) override;
    void SetPageTitle(const base::string16& title) override;
 diff --git content/browser/web_contents/web_contents_view_mac.h content/browser/web_contents/web_contents_view_mac.h
-index c0c553023138..39b8fe0bd57c 100644
+index be73ba6b3aca..3ba5aba86462 100644
 --- content/browser/web_contents/web_contents_view_mac.h
 +++ content/browser/web_contents/web_contents_view_mac.h
 @@ -74,7 +74,7 @@ class WebContentsViewMac : public WebContentsView,
@@ -221,10 +221,10 @@ index c0c553023138..39b8fe0bd57c 100644
        RenderWidgetHost* render_widget_host) override;
    void SetPageTitle(const base::string16& title) override;
 diff --git content/browser/web_contents/web_contents_view_mac.mm content/browser/web_contents/web_contents_view_mac.mm
-index 7f4308b56a14..d17b8b8ef44d 100644
+index 92ac389639d8..83a2ddb344ba 100644
 --- content/browser/web_contents/web_contents_view_mac.mm
 +++ content/browser/web_contents/web_contents_view_mac.mm
-@@ -312,7 +312,8 @@ void WebContentsViewMac::CreateView(
+@@ -319,7 +319,8 @@ void WebContentsViewMac::CreateView(
  }
  
  RenderWidgetHostViewBase* WebContentsViewMac::CreateViewForWidget(
@@ -234,7 +234,7 @@ index 7f4308b56a14..d17b8b8ef44d 100644
    if (render_widget_host->GetView()) {
      // During testing, the view will already be set up in most cases to the
      // test view, so we don't want to clobber it with a real one. To verify that
-@@ -324,6 +325,7 @@ RenderWidgetHostViewBase* WebContentsViewMac::CreateViewForWidget(
+@@ -331,6 +332,7 @@ RenderWidgetHostViewBase* WebContentsViewMac::CreateViewForWidget(
          render_widget_host->GetView());
    }
  
@@ -266,10 +266,10 @@ index bf2226b53dd7..782a320ab788 100644
    // a BrowserPlugin even when we are using cross process frames for guests. It
    // should be removed after resolving https://crbug.com/642826).
 diff --git extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc
-index 7a1f8c1caffd..a6bff0e50a04 100644
+index 5bc11895ea38..656fa0f62114 100644
 --- extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc
 +++ extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc
-@@ -208,6 +208,8 @@ void MimeHandlerViewGuest::CreateWebContents(
+@@ -211,6 +211,8 @@ void MimeHandlerViewGuest::CreateWebContents(
    WebContents::CreateParams params(browser_context(),
                                     guest_site_instance.get());
    params.guest_delegate = this;
@@ -278,7 +278,7 @@ index 7a1f8c1caffd..a6bff0e50a04 100644
    // TODO(erikchen): Fix ownership semantics for guest views.
    // https://crbug.com/832879.
    std::move(callback).Run(
-@@ -252,6 +254,18 @@ bool MimeHandlerViewGuest::ShouldDestroyOnDetach() const {
+@@ -255,6 +257,18 @@ bool MimeHandlerViewGuest::ShouldDestroyOnDetach() const {
    return true;
  }
  
@@ -298,10 +298,10 @@ index 7a1f8c1caffd..a6bff0e50a04 100644
      WebContents* source,
      const content::OpenURLParams& params) {
 diff --git extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.h extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.h
-index cfa759b4b826..4d53d6bcc492 100644
+index a0e702bdfd0c..a389ca9b948a 100644
 --- extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.h
 +++ extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.h
-@@ -114,6 +114,10 @@ class MimeHandlerViewGuest
+@@ -119,6 +119,10 @@ class MimeHandlerViewGuest
    bool ZoomPropagatesFromEmbedderToGuest() const final;
    bool ShouldDestroyOnDetach() const final;
  

@@ -102,7 +102,7 @@ index 18e57f9823d0..4ec5cb20dabb 100644
  };
  
 diff --git ui/views/animation/ink_drop_host_view.h ui/views/animation/ink_drop_host_view.h
-index b137d7ff80e3..d6aefad0affb 100644
+index 4e20d534c103..096015a4038b 100644
 --- ui/views/animation/ink_drop_host_view.h
 +++ ui/views/animation/ink_drop_host_view.h
 @@ -119,6 +119,8 @@ class VIEWS_EXPORT InkDropHostView : public View {
@@ -115,7 +115,7 @@ index b137d7ff80e3..d6aefad0affb 100644
    // Size used for the default SquareInkDropRipple.
    static constexpr int kDefaultInkDropSize = 24;
 diff --git ui/views/controls/button/label_button.cc ui/views/controls/button/label_button.cc
-index 79b6dca32725..9dbb179ee3a4 100644
+index ae8d430460a2..fcf82329ac10 100644
 --- ui/views/controls/button/label_button.cc
 +++ ui/views/controls/button/label_button.cc
 @@ -185,6 +185,7 @@ gfx::Size LabelButton::CalculatePreferredSize() const {
@@ -140,7 +140,7 @@ index 79b6dca32725..9dbb179ee3a4 100644
    const gfx::Size previous_image_size(image_->GetPreferredSize());
    UpdateImage();
 diff --git ui/views/controls/button/label_button.h ui/views/controls/button/label_button.h
-index 01dfb90dca0a..048da0d3b631 100644
+index 46f81be3d27a..249edf8cc5f8 100644
 --- ui/views/controls/button/label_button.h
 +++ ui/views/controls/button/label_button.h
 @@ -100,6 +100,9 @@ class VIEWS_EXPORT LabelButton : public Button, public NativeThemeDelegate {
@@ -240,10 +240,10 @@ index 771034ccebbe..79e3026f6870 100644
    std::unique_ptr<SelectionController> selection_controller_;
  
 diff --git ui/views/controls/menu/menu_controller.cc ui/views/controls/menu/menu_controller.cc
-index 2164c847f795..5083a47ebc4b 100644
+index 8a302b528875..8125b5af96c5 100644
 --- ui/views/controls/menu/menu_controller.cc
 +++ ui/views/controls/menu/menu_controller.cc
-@@ -2575,8 +2575,13 @@ MenuItemView* MenuController::FindNextSelectableMenuItem(
+@@ -2618,8 +2618,13 @@ MenuItemView* MenuController::FindNextSelectableMenuItem(
  
  void MenuController::OpenSubmenuChangeSelectionIfCan() {
    MenuItemView* item = pending_state_.item;
@@ -258,7 +258,7 @@ index 2164c847f795..5083a47ebc4b 100644
    MenuItemView* to_select = NULL;
    if (item->GetSubmenu()->GetMenuItemCount() > 0)
      to_select = FindInitialSelectableMenuItem(item, INCREMENT_SELECTION_DOWN);
-@@ -2595,8 +2600,10 @@ void MenuController::OpenSubmenuChangeSelectionIfCan() {
+@@ -2638,8 +2643,10 @@ void MenuController::OpenSubmenuChangeSelectionIfCan() {
  void MenuController::CloseSubmenu() {
    MenuItemView* item = state_.item;
    DCHECK(item);
@@ -310,10 +310,10 @@ index 921aef245bf3..4b7474c01c0e 100644
    virtual int GetMaxWidthForMenu(MenuItemView* menu);
  
 diff --git ui/views/controls/menu/menu_item_view.cc ui/views/controls/menu/menu_item_view.cc
-index 9e1b05f914c2..d071aa7ab9c5 100644
+index e609b8521842..73971df2a441 100644
 --- ui/views/controls/menu/menu_item_view.cc
 +++ ui/views/controls/menu/menu_item_view.cc
-@@ -1055,6 +1055,15 @@ void MenuItemView::PaintBackground(gfx::Canvas* canvas,
+@@ -1063,6 +1063,15 @@ void MenuItemView::PaintBackground(gfx::Canvas* canvas,
      spilling_rect.set_y(spilling_rect.y() - corner_radius_);
      spilling_rect.set_height(spilling_rect.height() + corner_radius_);
      canvas->DrawRoundRect(spilling_rect, corner_radius_, flags);
@@ -329,7 +329,7 @@ index 9e1b05f914c2..d071aa7ab9c5 100644
    } else if (render_selection) {
      gfx::Rect item_bounds = GetLocalBounds();
      if (type_ == ACTIONABLE_SUBMENU) {
-@@ -1121,6 +1130,13 @@ void MenuItemView::PaintMinorIconAndText(
+@@ -1129,6 +1138,13 @@ void MenuItemView::PaintMinorIconAndText(
  }
  
  SkColor MenuItemView::GetTextColor(bool minor, bool render_selection) const {
@@ -482,7 +482,7 @@ index 0180b30d383a..c0724b6b80a7 100644
        // Move the cursor because EnterNotify/LeaveNotify are generated with the
        // current mouse position as a result of XGrabPointer()
 diff --git ui/views/view.h ui/views/view.h
-index 4c10e9872aa7..0adbfab904b1 100644
+index b0f106e272a6..c89b37be9b63 100644
 --- ui/views/view.h
 +++ ui/views/view.h
 @@ -19,6 +19,7 @@

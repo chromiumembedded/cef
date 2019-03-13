@@ -21,8 +21,8 @@
 #include "extensions/browser/extension_function_dispatcher.h"
 #include "extensions/common/error_utils.h"
 
-using content::WebContents;
 using content::RenderViewHost;
+using content::WebContents;
 
 namespace extensions {
 
@@ -92,7 +92,7 @@ class CefGetExtensionLoadFileCallbackImpl
   static std::unique_ptr<std::string> LoadFileFromStream(
       const std::string& file,
       CefRefPtr<CefStreamReader> stream) {
-    base::AssertBlockingAllowedDeprecated();
+    CEF_REQUIRE_BLOCKING();
 
     // Move to the end of the stream.
     stream->Seek(0, SEEK_END);

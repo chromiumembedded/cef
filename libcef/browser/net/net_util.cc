@@ -19,4 +19,4 @@ bool IsInternalRequest(const net::URLRequest* request) {
   return false;
 }
 
-};  // namespace net_util
+}  // namespace net_util

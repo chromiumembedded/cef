@@ -214,7 +214,7 @@ class ViewLoadUnloadTestHandler : public ExtensionTestHandler {
 
 }  // namespace
 
-EXTENSION_TEST_GROUP_ALL(ViewLoadUnload, ViewLoadUnloadTestHandler);
+EXTENSION_TEST_GROUP_ALL(ViewLoadUnload, ViewLoadUnloadTestHandler)
 
 namespace {
 
@@ -238,4 +238,4 @@ class ViewLoadNoUnloadTestHandler : public ViewLoadUnloadTestHandler {
 }  // namespace
 
 EXTENSION_TEST_GROUP_MINIMAL_CUSTOM(ViewLoadNoUnload,
-                                    ViewLoadNoUnloadTestHandler);
+                                    ViewLoadNoUnloadTestHandler)

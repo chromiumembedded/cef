@@ -438,11 +438,6 @@ void CefBrowserImpl::DidFinishLoad(blink::WebLocalFrame* frame) {
   OnLoadEnd(frame);
 }
 
-void CefBrowserImpl::DidStartProvisionalLoad(blink::WebLocalFrame* frame) {
-  // Send the frame creation notification if necessary.
-  GetWebFrameImpl(frame);
-}
-
 void CefBrowserImpl::DidFailProvisionalLoad(blink::WebLocalFrame* frame,
                                             const blink::WebURLError& error) {
   OnLoadError(frame, error);

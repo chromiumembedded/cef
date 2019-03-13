@@ -107,11 +107,14 @@ void DeleteCookiesCallbackImpl(CefRefPtr<CefDeleteCookiesCallback> callback,
 
 // Always execute the callback asynchronously.
 void SetCookieCallbackImpl(CefRefPtr<CefSetCookieCallback> callback,
-                           bool success) {
+                           net::CanonicalCookie::CookieInclusionStatus status) {
   if (!callback.get())
     return;
-  CEF_POST_TASK(CEF_IOT, base::Bind(&CefSetCookieCallback::OnComplete,
-                                    callback.get(), success));
+  CEF_POST_TASK(
+      CEF_IOT,
+      base::Bind(
+          &CefSetCookieCallback::OnComplete, callback.get(),
+          status == net::CanonicalCookie::CookieInclusionStatus::INCLUDE));
 }
 
 net::CookieStore* GetExistingCookieStoreHelper(
@@ -560,7 +563,7 @@ void CefCookieManagerImpl::SetCookieInternal(
           base::Time(),  // Last access time.
           cookie.secure ? true : false, cookie.httponly ? true : false,
           net::CookieSameSite::DEFAULT_MODE, net::COOKIE_PRIORITY_DEFAULT),
-      cookie.secure ? true : false, cookie.httponly ? true : false,
+      url.scheme(), cookie.httponly ? true : false,
       base::Bind(SetCookieCallbackImpl, callback));
 }
 

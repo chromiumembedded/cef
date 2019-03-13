@@ -19,4 +19,8 @@ void CefPDFWebContentsHelperClient::OnPDFHasUnsupportedFeature(
 
 void CefPDFWebContentsHelperClient::OnSaveURL(content::WebContents* contents) {}
 
+void CefPDFWebContentsHelperClient::SetPluginCanSave(
+    content::WebContents* contents,
+    bool can_save) {}
+
 }  // namespace extensions

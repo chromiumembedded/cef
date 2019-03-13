@@ -12,42 +12,8 @@ index 864f2a5a315a..78b71d523e86 100644
   public:
    explicit ContentServiceManagerMainDelegate(const ContentMainParams& params);
    ~ContentServiceManagerMainDelegate() override;
-diff --git content/browser/renderer_host/input/mouse_wheel_phase_handler.h content/browser/renderer_host/input/mouse_wheel_phase_handler.h
-index fc252b6ceffd..b0dfd847ec03 100644
---- content/browser/renderer_host/input/mouse_wheel_phase_handler.h
-+++ content/browser/renderer_host/input/mouse_wheel_phase_handler.h
-@@ -7,6 +7,7 @@
- 
- #include "base/timer/timer.h"
- #include "content/browser/renderer_host/render_widget_host_delegate.h"
-+#include "content/common/content_export.h"
- #include "content/public/common/input_event_ack_state.h"
- #include "third_party/blink/public/platform/web_mouse_wheel_event.h"
- 
-@@ -55,7 +56,7 @@ enum class FirstScrollUpdateAckState {
- // The MouseWheelPhaseHandler is responsible for adding the proper phase to
- // wheel events. Phase information is necessary for wheel scrolling since it
- // shows the start and end of a scrolling sequence.
--class MouseWheelPhaseHandler {
-+class CONTENT_EXPORT MouseWheelPhaseHandler {
-  public:
-   MouseWheelPhaseHandler(RenderWidgetHostViewBase* const host_view);
-   ~MouseWheelPhaseHandler() {}
-diff --git content/common/content_switches_internal.h content/common/content_switches_internal.h
-index 886bdf0edf8f..1d714000cce5 100644
---- content/common/content_switches_internal.h
-+++ content/common/content_switches_internal.h
-@@ -15,7 +15,7 @@ class CommandLine;
- 
- namespace content {
- 
--bool IsPinchToZoomEnabled();
-+CONTENT_EXPORT bool IsPinchToZoomEnabled();
- 
- blink::mojom::V8CacheOptions GetV8CacheOptions();
- 
 diff --git content/browser/renderer_host/input/synthetic_gesture_target_base.h content/browser/renderer_host/input/synthetic_gesture_target_base.h
-index 53476354343e..fd1a7a24455b 100644
+index 33a2d55e47ac..1700b3df2468 100644
 --- content/browser/renderer_host/input/synthetic_gesture_target_base.h
 +++ content/browser/renderer_host/input/synthetic_gesture_target_base.h
 @@ -8,6 +8,7 @@
@@ -68,6 +34,19 @@ index 53476354343e..fd1a7a24455b 100644
   public:
    explicit SyntheticGestureTargetBase(RenderWidgetHostImpl* host);
    ~SyntheticGestureTargetBase() override;
+diff --git content/common/content_switches_internal.h content/common/content_switches_internal.h
+index 886bdf0edf8f..1d714000cce5 100644
+--- content/common/content_switches_internal.h
++++ content/common/content_switches_internal.h
+@@ -15,7 +15,7 @@ class CommandLine;
+ 
+ namespace content {
+ 
+-bool IsPinchToZoomEnabled();
++CONTENT_EXPORT bool IsPinchToZoomEnabled();
+ 
+ blink::mojom::V8CacheOptions GetV8CacheOptions();
+ 
 diff --git third_party/blink/renderer/controller/BUILD.gn third_party/blink/renderer/controller/BUILD.gn
 index 65c03e2a2f7d..f44826c38236 100644
 --- third_party/blink/renderer/controller/BUILD.gn

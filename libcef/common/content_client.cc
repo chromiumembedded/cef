@@ -35,6 +35,7 @@
 #include "content/public/common/pepper_plugin_info.h"
 #include "ppapi/shared_impl/ppapi_permissions.h"
 #include "third_party/widevine/cdm/buildflags.h"
+#include "ui/base/l10n/l10n_util.h"
 #include "ui/base/resource/resource_bundle.h"
 
 #if defined(OS_LINUX)
@@ -161,8 +162,10 @@ bool GetSystemPepperFlash(content::PepperPluginInfo* plugin) {
   std::string manifest_data;
   if (!base::ReadFileToString(manifest_path, &manifest_data))
     return false;
-  std::unique_ptr<base::Value> manifest_value(
-      base::JSONReader::Read(manifest_data, base::JSON_ALLOW_TRAILING_COMMAS));
+  std::unique_ptr<base::Value> manifest_value(base::Value::ToUniquePtrValue(
+      std::move(base::JSONReader::Read(manifest_data,
+                                       base::JSON_ALLOW_TRAILING_COMMAS)
+                    .value())));
   if (!manifest_value.get())
     return false;
   base::DictionaryValue* manifest = NULL;
@@ -237,6 +240,16 @@ base::string16 CefContentClient::GetLocalizedString(int message_id) const {
   base::string16 value =
       ui::ResourceBundle::GetSharedInstance().GetLocalizedString(message_id);
   if (value.empty())
+    LOG(ERROR) << "No localized string available for id " << message_id;
+
+  return value;
+}
+
+base::string16 CefContentClient::GetLocalizedString(
+    int message_id,
+    const base::string16& replacement) const {
+  base::string16 value = l10n_util::GetStringFUTF16(message_id, replacement);
+   if (value.empty())
     LOG(ERROR) << "No localized string available for id " << message_id;
 
   return value;

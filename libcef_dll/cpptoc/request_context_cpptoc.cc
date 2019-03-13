@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=3de63a7f85158f967dd780e98a171b6665f1edb0$
+// $hash=f4724d1d945c06c5113ba9e1b7f7ad8d4b735b9c$
 //
 
 #include "libcef_dll/cpptoc/request_context_cpptoc.h"
@@ -411,41 +411,6 @@ request_context_resolve_host(struct _cef_request_context_t* self,
       CefString(origin), CefResolveCallbackCToCpp::Wrap(callback));
 }
 
-cef_errorcode_t CEF_CALLBACK
-request_context_resolve_host_cached(struct _cef_request_context_t* self,
-                                    const cef_string_t* origin,
-                                    cef_string_list_t resolved_ips) {
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  DCHECK(self);
-  if (!self)
-    return ERR_FAILED;
-  // Verify param: origin; type: string_byref_const
-  DCHECK(origin);
-  if (!origin)
-    return ERR_FAILED;
-  // Verify param: resolved_ips; type: string_vec_byref
-  DCHECK(resolved_ips);
-  if (!resolved_ips)
-    return ERR_FAILED;
-
-  // Translate param: resolved_ips; type: string_vec_byref
-  std::vector<CefString> resolved_ipsList;
-  transfer_string_list_contents(resolved_ips, resolved_ipsList);
-
-  // Execute
-  cef_errorcode_t _retval =
-      CefRequestContextCppToC::Get(self)->ResolveHostCached(CefString(origin),
-                                                            resolved_ipsList);
-
-  // Restore param: resolved_ips; type: string_vec_byref
-  cef_string_list_clear(resolved_ips);
-  transfer_string_list_contents(resolved_ipsList, resolved_ips);
-
-  // Return type: simple
-  return _retval;
-}
-
 void CEF_CALLBACK
 request_context_load_extension(struct _cef_request_context_t* self,
                                const cef_string_t* root_directory,
@@ -587,7 +552,6 @@ CefRequestContextCppToC::CefRequestContextCppToC() {
       request_context_clear_certificate_exceptions;
   GetStruct()->close_all_connections = request_context_close_all_connections;
   GetStruct()->resolve_host = request_context_resolve_host;
-  GetStruct()->resolve_host_cached = request_context_resolve_host_cached;
   GetStruct()->load_extension = request_context_load_extension;
   GetStruct()->did_load_extension = request_context_did_load_extension;
   GetStruct()->has_extension = request_context_has_extension;

@@ -16,6 +16,6 @@ namespace net_util {
 // the CEF API.
 bool IsInternalRequest(const net::URLRequest* request);
 
-};  // namespace net_util
+}  // namespace net_util
 
 #endif  // CEF_LIBCEF_BROWSER_NET_NET_UTIL_H_

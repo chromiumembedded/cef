@@ -22,7 +22,7 @@ class GURL;
 
 namespace blink {
 class WebLocalFrame;
-};
+}
 
 // Call after a V8 Isolate has been created and entered for the first time.
 void CefV8IsolateCreated();

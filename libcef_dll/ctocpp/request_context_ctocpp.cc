@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=37d522682ec51c38bb9b4f0e94a46a49c3820046$
+// $hash=ed414e127773ef135584c3c61a386615177feb59$
 //
 
 #include "libcef_dll/ctocpp/request_context_ctocpp.h"
@@ -393,42 +393,6 @@ void CefRequestContextCToCpp::ResolveHost(
   // Execute
   _struct->resolve_host(_struct, origin.GetStruct(),
                         CefResolveCallbackCppToC::Wrap(callback));
-}
-
-NO_SANITIZE("cfi-icall")
-cef_errorcode_t CefRequestContextCToCpp::ResolveHostCached(
-    const CefString& origin,
-    std::vector<CefString>& resolved_ips) {
-  cef_request_context_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, resolve_host_cached))
-    return ERR_FAILED;
-
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Verify param: origin; type: string_byref_const
-  DCHECK(!origin.empty());
-  if (origin.empty())
-    return ERR_FAILED;
-
-  // Translate param: resolved_ips; type: string_vec_byref
-  cef_string_list_t resolved_ipsList = cef_string_list_alloc();
-  DCHECK(resolved_ipsList);
-  if (resolved_ipsList)
-    transfer_string_list_contents(resolved_ips, resolved_ipsList);
-
-  // Execute
-  cef_errorcode_t _retval = _struct->resolve_host_cached(
-      _struct, origin.GetStruct(), resolved_ipsList);
-
-  // Restore param:resolved_ips; type: string_vec_byref
-  if (resolved_ipsList) {
-    resolved_ips.clear();
-    transfer_string_list_contents(resolved_ipsList, resolved_ips);
-    cef_string_list_free(resolved_ipsList);
-  }
-
-  // Return type: simple
-  return _retval;
 }
 
 NO_SANITIZE("cfi-icall")

@@ -490,17 +490,17 @@ class DownloadTestHandler : public TestHandler {
   RC_TEST_GROUP_ALL(DownloadTest, test_name, DownloadTestHandler, test_mode)
 
 // Test a programmatic download.
-DOWNLOAD_TEST_GROUP(Programmatic, PROGAMMATIC);
+DOWNLOAD_TEST_GROUP(Programmatic, PROGAMMATIC)
 
 // Test a clicked download.
-DOWNLOAD_TEST_GROUP(Clicked, CLICKED);
+DOWNLOAD_TEST_GROUP(Clicked, CLICKED)
 
 // Test a clicked download where the protocol is invalid and therefore rejected.
 // There will be no resulting CefDownloadHandler callbacks.
-DOWNLOAD_TEST_GROUP(ClickedRejected, CLICKED_REJECTED);
+DOWNLOAD_TEST_GROUP(ClickedRejected, CLICKED_REJECTED)
 
 // Test where the download completes after cross-origin navigation.
-DOWNLOAD_TEST_GROUP(Navigated, NAVIGATED);
+DOWNLOAD_TEST_GROUP(Navigated, NAVIGATED)
 
 // Test where the download is still pending when the browser is destroyed.
-DOWNLOAD_TEST_GROUP(Pending, PENDING);
+DOWNLOAD_TEST_GROUP(Pending, PENDING)

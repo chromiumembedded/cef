@@ -115,7 +115,6 @@ class CefBrowserImpl : public CefBrowser, public content::RenderViewObserver {
 
   // Forwarded from CefRenderFrameObserver.
   void DidFinishLoad(blink::WebLocalFrame* frame);
-  void DidStartProvisionalLoad(blink::WebLocalFrame* frame);
   void FrameDetached(blink::WebLocalFrame* frame);
   void FocusedNodeChanged(const blink::WebNode& node);
   void DraggableRegionsChanged(blink::WebLocalFrame* frame);

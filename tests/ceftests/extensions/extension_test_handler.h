@@ -165,7 +165,7 @@ class ExtensionTestHandler : public RoutingTestHandler,
 // tested functionality the first test should use the ALL macro and the others
 // should use the MINIMAL macro.
 #define EXTENSION_TEST_GROUP_ALL(name, test_class)                             \
-  EXTENSION_TEST(name##RCGlobal, test_class, 0);                               \
+  EXTENSION_TEST(name##RCGlobal, test_class, 0)                                \
   EXTENSION_TEST(name##RCGlobalLoadWithHandler, test_class,                    \
                  ExtensionTestHandler::RC_TYPE_FLAG_LOAD_WITH_HANDLER)         \
   EXTENSION_TEST(name##RCGlobalWithHandler, test_class,                        \
@@ -217,7 +217,7 @@ class ExtensionTestHandler : public RoutingTestHandler,
                      ExtensionTestHandler::RC_TYPE_FLAG_LOAD_WITHOUT_HANDLER)
 
 #define EXTENSION_TEST_GROUP_MINIMAL_GLOBAL(name, test_class) \
-  EXTENSION_TEST(name##RCGlobal, test_class, 0);              \
+  EXTENSION_TEST(name##RCGlobal, test_class, 0)               \
   EXTENSION_TEST(name##RCGlobalWithHandler, test_class,       \
                  ExtensionTestHandler::RC_TYPE_FLAG_WITH_HANDLER)
 

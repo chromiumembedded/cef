@@ -420,21 +420,17 @@ bool CefContext::Initialize(const CefMainArgs& args,
     // gets called by some call down the line of service_manager::MainRun.
     content::SetUpFieldTrialsAndFeatureList();
 
-    if (!main_delegate_->CreateUIThread()) {
-      return false;
-    }
-
-    initialized_ = true;
-
-    // Can't use CEF_POST_TASK here yet, because the TaskRunner is not yet set.
-    main_delegate_->ui_thread()->task_runner()->PostTask(
-        FROM_HERE,
-        base::BindOnce(
+    if (!main_delegate_->CreateUIThread(base::BindOnce(
             [](CefContext* context, base::WaitableEvent* event) {
               service_manager::MainRun(*context->sm_main_params_);
               event->Signal();
             },
-            base::Unretained(this), base::Unretained(&uithread_startup_event)));
+            base::Unretained(this),
+            base::Unretained(&uithread_startup_event)))) {
+      return false;
+    }
+
+    initialized_ = true;
 
     // We need to wait until service_manager::MainRun has finished.
     uithread_startup_event.Wait();

@@ -194,8 +194,7 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
   bool TransformPointToCoordSpaceForView(
       const gfx::PointF& point,
       RenderWidgetHostViewBase* target_view,
-      gfx::PointF* transformed_point,
-      viz::EventSource source = viz::EventSource::ANY) override;
+      gfx::PointF* transformed_point) override;
   void DidNavigate() override;
   void SelectionChanged(const base::string16& text,
                         size_t offset,
@@ -369,8 +368,8 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
   std::unique_ptr<content::BrowserCompositorMac> browser_compositor_;
   MacHelper* mac_helper_;
 #elif defined(USE_X11)
-CefWindowX11* window_;
-std::unique_ptr<ui::XScopedCursor> invisible_cursor_;
+  CefWindowX11* window_;
+  std::unique_ptr<ui::XScopedCursor> invisible_cursor_;
 #endif
 
   std::unique_ptr<content::CursorManager> cursor_manager_;

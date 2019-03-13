@@ -500,6 +500,10 @@ const PrefService* CefBrowserContextImpl::GetPrefs() const {
   return pref_service_.get();
 }
 
+SimpleFactoryKey* CefBrowserContextImpl::GetSimpleFactoryKey() const {
+  return nullptr;
+}
+
 CefRequestContextImpl* CefBrowserContextImpl::GetCefRequestContext() const {
   return GetCefRequestContext(false);
 }

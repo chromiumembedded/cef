@@ -9,6 +9,7 @@
 #include <vector>
 
 #include "include/cef_callback.h"
+#include "include/cef_parser.h"
 #include "libcef/browser/cookie_manager_impl.h"
 #include "libcef/browser/thread_util.h"
 #include "libcef/common/request_impl.h"
@@ -565,7 +566,7 @@ void CefResourceRequestJob::SaveNextCookie() {
 
   if (can_set_cookie) {
     request_->context()->cookie_store()->SetCanonicalCookieAsync(
-        std::move(cookie), request_->url().SchemeIsCryptographic(),
+        std::move(cookie), request_->url().scheme(),
         !options.exclude_httponly(),
         base::Bind(&CefResourceRequestJob::OnCookieSaved,
                    weak_factory_.GetWeakPtr()));
@@ -575,7 +576,8 @@ void CefResourceRequestJob::SaveNextCookie() {
   CookieHandled();
 }
 
-void CefResourceRequestJob::OnCookieSaved(bool cookie_status) {
+void CefResourceRequestJob::OnCookieSaved(
+    net::CanonicalCookie::CookieInclusionStatus status) {
   CookieHandled();
 }
 

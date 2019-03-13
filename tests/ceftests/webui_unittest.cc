@@ -179,24 +179,24 @@ void RunWebUITest(const std::string& url) {
     RunWebUITest("chrome://" + name_str + "/");               \
   }
 
-WEBUI_TEST(appcache_internals);
-WEBUI_TEST(accessibility);
-WEBUI_TEST(blob_internals);
-WEBUI_TEST(credits);
-WEBUI_TEST(extensions_support);
-WEBUI_TEST(gpu);
-WEBUI_TEST(histograms);
-WEBUI_TEST(indexeddb_internals);
-WEBUI_TEST(license);
-WEBUI_TEST(media_internals);
-WEBUI_TEST(net_export);
-WEBUI_TEST(network_errors);
-WEBUI_TEST(serviceworker_internals);
-WEBUI_TEST(system);
-WEBUI_TEST(tracing);
-WEBUI_TEST(version);
-WEBUI_TEST(webrtc_internals);
-WEBUI_TEST(webui_hosts);
+WEBUI_TEST(appcache_internals)
+WEBUI_TEST(accessibility)
+WEBUI_TEST(blob_internals)
+WEBUI_TEST(credits)
+WEBUI_TEST(extensions_support)
+WEBUI_TEST(gpu)
+WEBUI_TEST(histograms)
+WEBUI_TEST(indexeddb_internals)
+WEBUI_TEST(license)
+WEBUI_TEST(media_internals)
+WEBUI_TEST(net_export)
+WEBUI_TEST(network_errors)
+WEBUI_TEST(serviceworker_internals)
+WEBUI_TEST(system)
+WEBUI_TEST(tracing)
+WEBUI_TEST(version)
+WEBUI_TEST(webrtc_internals)
+WEBUI_TEST(webui_hosts)
 
 // Test hosts with multiple URLs.
 

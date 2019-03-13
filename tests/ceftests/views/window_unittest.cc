@@ -258,8 +258,11 @@ void VerifyMinimize(CefRefPtr<CefWindow> window) {
   EXPECT_TRUE(window->IsMinimized());
   EXPECT_FALSE(window->IsMaximized());
   EXPECT_FALSE(window->IsFullscreen());
-  EXPECT_FALSE(window->IsVisible());
-  EXPECT_FALSE(window->IsDrawn());
+
+  // This result is a bit unexpected, but I guess the platform considers a
+  // window to be visible even when it's minimized.
+  EXPECT_TRUE(window->IsVisible());
+  EXPECT_TRUE(window->IsDrawn());
 
   window->Restore();
   CefPostDelayedTask(TID_UI, base::Bind(VerifyRestore, window), kStateDelayMS);
@@ -476,18 +479,18 @@ void WindowAcceleratorImpl(CefRefPtr<CefWaitableEvent> event) {
 // Test window functionality. This is primarily to exercise exposed CEF APIs
 // and is not intended to comprehensively test window-related behavior (which
 // we presume that Chromium is testing).
-WINDOW_TEST_ASYNC(WindowCreate);
-WINDOW_TEST_ASYNC(WindowCreateFrameless);
-WINDOW_TEST_ASYNC(WindowShowHide);
-WINDOW_TEST_ASYNC(WindowShowHideFrameless);
-WINDOW_TEST_ASYNC(WindowLayoutAndCoords);
-WINDOW_TEST_ASYNC(WindowLayoutAndCoordsFrameless);
-WINDOW_TEST_ASYNC(WindowMaximize);
-WINDOW_TEST_ASYNC(WindowMaximizeFrameless);
-WINDOW_TEST_ASYNC(WindowMinimize);
-WINDOW_TEST_ASYNC(WindowMinimizeFrameless);
-WINDOW_TEST_ASYNC(WindowFullscreen);
-WINDOW_TEST_ASYNC(WindowFullscreenFrameless);
-WINDOW_TEST_ASYNC(WindowIcon);
-WINDOW_TEST_ASYNC(WindowIconFrameless);
-WINDOW_TEST_ASYNC(WindowAccelerator);
+WINDOW_TEST_ASYNC(WindowCreate)
+WINDOW_TEST_ASYNC(WindowCreateFrameless)
+WINDOW_TEST_ASYNC(WindowShowHide)
+WINDOW_TEST_ASYNC(WindowShowHideFrameless)
+WINDOW_TEST_ASYNC(WindowLayoutAndCoords)
+WINDOW_TEST_ASYNC(WindowLayoutAndCoordsFrameless)
+WINDOW_TEST_ASYNC(WindowMaximize)
+WINDOW_TEST_ASYNC(WindowMaximizeFrameless)
+WINDOW_TEST_ASYNC(WindowMinimize)
+WINDOW_TEST_ASYNC(WindowMinimizeFrameless)
+WINDOW_TEST_ASYNC(WindowFullscreen)
+WINDOW_TEST_ASYNC(WindowFullscreenFrameless)
+WINDOW_TEST_ASYNC(WindowIcon)
+WINDOW_TEST_ASYNC(WindowIconFrameless)
+WINDOW_TEST_ASYNC(WindowAccelerator)

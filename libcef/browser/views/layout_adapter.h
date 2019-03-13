@@ -10,7 +10,7 @@
 
 namespace views {
 class LayoutManager;
-};
+}
 
 // Exposes a common interface from all CefLayout implementation objects to
 // simplify the layout_util implementation. See comments in view_impl.h for a

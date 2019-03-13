@@ -151,11 +151,9 @@ void CefWebContentsViewOSR::RenderViewHostChanged(
 void CefWebContentsViewOSR::SetOverscrollControllerEnabled(bool enabled) {}
 
 #if defined(OS_MACOSX)
-bool CefWebContentsViewOSR::IsEventTracking() const {
+bool CefWebContentsViewOSR::CloseTabAfterEventTrackingIfNeeded() {
   return false;
 }
-
-void CefWebContentsViewOSR::CloseTabAfterEventTracking() {}
 #endif  // defined(OS_MACOSX)
 
 void CefWebContentsViewOSR::StartDragging(

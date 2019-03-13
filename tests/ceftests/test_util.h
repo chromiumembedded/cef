@@ -109,24 +109,23 @@ CefRefPtr<CefRequestContext> CreateTestRequestContext(
 #define RC_TEST_GROUP_IN_MEMORY(test_case_name, test_name, test_class,     \
                                 test_mode)                                 \
   RC_TEST_BASE(test_case_name, test_name##RCNone, test_class, test_mode,   \
-               TEST_RC_MODE_NONE, false);                                  \
+               TEST_RC_MODE_NONE, false)                                   \
   RC_TEST_BASE(test_case_name, test_name##RCGlobal, test_class, test_mode, \
-               TEST_RC_MODE_GLOBAL, false);                                \
+               TEST_RC_MODE_GLOBAL, false)                                 \
   RC_TEST_BASE(test_case_name, test_name##RCGlobalWithHandler, test_class, \
-               test_mode, TEST_RC_MODE_GLOBAL_WITH_HANDLER, false);        \
+               test_mode, TEST_RC_MODE_GLOBAL_WITH_HANDLER, false)         \
   RC_TEST_BASE(test_case_name, test_name##RCCustomInMemory, test_class,    \
-               test_mode, TEST_RC_MODE_CUSTOM, false);                     \
+               test_mode, TEST_RC_MODE_CUSTOM, false)                      \
   RC_TEST_BASE(test_case_name, test_name##RCCustomInMemoryWithHandler,     \
-               test_class, test_mode, TEST_RC_MODE_CUSTOM_WITH_HANDLER,    \
-               false);
+               test_class, test_mode, TEST_RC_MODE_CUSTOM_WITH_HANDLER, false)
 
 // RequestContextModes that operate on disk.
 #define RC_TEST_GROUP_ON_DISK(test_case_name, test_name, test_class,  \
                               test_mode)                              \
   RC_TEST_BASE(test_case_name, test_name##RCCustomOnDisk, test_class, \
-               test_mode, TEST_RC_MODE_CUSTOM, true);                 \
+               test_mode, TEST_RC_MODE_CUSTOM, true)                  \
   RC_TEST_BASE(test_case_name, test_name##RCCustomOnDiskWithHandler,  \
-               test_class, test_mode, TEST_RC_MODE_CUSTOM_WITH_HANDLER, true);
+               test_class, test_mode, TEST_RC_MODE_CUSTOM_WITH_HANDLER, true)
 
 // Helper macro for testing all valid combinations of RequestContextMode values.
 // For example:

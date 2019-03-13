@@ -48,6 +48,8 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
       service_manager::mojom::ServiceRequest* service_request) override;
   bool ShouldUseProcessPerSite(content::BrowserContext* browser_context,
                                const GURL& effective_url) override;
+  bool DoesSiteRequireDedicatedProcess(content::BrowserContext* browser_context,
+                                       const GURL& effective_site_url) override;
   bool IsHandledURL(const GURL& url) override;
   void SiteInstanceGotProcess(content::SiteInstance* site_instance) override;
   void SiteInstanceDeleting(content::SiteInstance* site_instance) override;
@@ -147,6 +149,7 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
       content::RenderFrameHost* frame,
       int render_process_id,
       bool is_navigation,
+      bool is_download,
       const url::Origin& request_initiator,
       network::mojom::URLLoaderFactoryRequest* factory_request,
       network::mojom::TrustedURLLoaderHeaderClientPtrInfo* header_client,

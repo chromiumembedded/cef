@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=cd2b70b906b9f07923d69d9ec0b32488125b0af3$
+// $hash=f7f1ec971c726a6a74bcc7f5cee7a8eb1911078d$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_REQUEST_CONTEXT_CAPI_H_
@@ -258,17 +258,6 @@ typedef struct _cef_request_context_t {
   void(CEF_CALLBACK* resolve_host)(struct _cef_request_context_t* self,
                                    const cef_string_t* origin,
                                    struct _cef_resolve_callback_t* callback);
-
-  ///
-  // Attempts to resolve |origin| to a list of associated IP addresses using
-  // cached data. |resolved_ips| will be populated with the list of resolved IP
-  // addresses or NULL if no cached data is available. Returns ERR_NONE on
-  // success. This function must be called on the browser process IO thread.
-  ///
-  cef_errorcode_t(CEF_CALLBACK* resolve_host_cached)(
-      struct _cef_request_context_t* self,
-      const cef_string_t* origin,
-      cef_string_list_t resolved_ips);
 
   ///
   // Load an extension.

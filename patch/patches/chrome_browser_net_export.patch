@@ -24,7 +24,7 @@ index cac72c6a2fd1..2ed83a4af1b3 100644
    // network quality change events.
    virtual network::NetworkQualityTracker* network_quality_tracker() = 0;
 diff --git chrome/browser/browser_process_impl.cc chrome/browser/browser_process_impl.cc
-index 31234258792d..36ba13242a9c 100644
+index 27092f6375c4..b8ce740e4a08 100644
 --- chrome/browser/browser_process_impl.cc
 +++ chrome/browser/browser_process_impl.cc
 @@ -665,6 +665,10 @@ BrowserProcessImpl::system_network_context_manager() {
@@ -51,7 +51,7 @@ index 7168c719aa25..bae7162a539c 100644
        override;
    network::NetworkQualityTracker* network_quality_tracker() override;
 diff --git chrome/browser/ui/BUILD.gn chrome/browser/ui/BUILD.gn
-index 6a0e84303ff0..8a902419f474 100644
+index 911e49e41313..eecbca982a92 100644
 --- chrome/browser/ui/BUILD.gn
 +++ chrome/browser/ui/BUILD.gn
 @@ -9,6 +9,7 @@ import("//build/config/features.gni")
@@ -62,7 +62,7 @@ index 6a0e84303ff0..8a902419f474 100644
  import("//chrome/common/features.gni")
  import("//chromeos/assistant/assistant.gni")
  import("//components/feature_engagement/features.gni")
-@@ -349,6 +350,10 @@ jumbo_split_static_library("ui") {
+@@ -350,6 +351,10 @@ jumbo_split_static_library("ui") {
      "//build/config/compiler:wexit_time_destructors",
    ]
  
@@ -73,7 +73,7 @@ index 6a0e84303ff0..8a902419f474 100644
    # Since browser and browser_ui actually depend on each other,
    # we must omit the dependency from browser_ui to browser.
    # However, this means browser_ui and browser should more or less
-@@ -365,6 +370,7 @@ jumbo_split_static_library("ui") {
+@@ -366,6 +371,7 @@ jumbo_split_static_library("ui") {
      "//base:i18n",
      "//base/allocator:buildflags",
      "//cc/paint",
@@ -91,7 +91,7 @@ index 6a0e84303ff0..8a902419f474 100644
          deps += [ "//chrome/browser/ui/libgtkui" ]
        }
 diff --git chrome/browser/ui/webui/net_export_ui.cc chrome/browser/ui/webui/net_export_ui.cc
-index 62796358a2a7..8ba23a87b982 100644
+index 6357cea3ca36..9ac953d5a885 100644
 --- chrome/browser/ui/webui/net_export_ui.cc
 +++ chrome/browser/ui/webui/net_export_ui.cc
 @@ -20,14 +20,13 @@

@@ -22,10 +22,10 @@ index 49fe875c7d22..c1e3df840dc0 100644
    THREAD_CHECKER(thread_checker_);
  
 diff --git net/url_request/url_request_job.cc net/url_request/url_request_job.cc
-index dc7c3d2fd023..e2b348746816 100644
+index 85a188974509..ec9a15fc9fa5 100644
 --- net/url_request/url_request_job.cc
 +++ net/url_request/url_request_job.cc
-@@ -467,6 +467,12 @@ void URLRequestJob::NotifyHeadersComplete() {
+@@ -466,6 +466,12 @@ void URLRequestJob::NotifyHeadersComplete() {
      DCHECK(!source_stream_);
      source_stream_ = SetUpSourceStream();
  

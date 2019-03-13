@@ -87,7 +87,9 @@ class CefBrowserContextImpl : public CefBrowserContext,
 
   // Profile methods.
   PrefService* GetPrefs() override;
+  bool AllowsBrowserWindows() const override { return false; }
   const PrefService* GetPrefs() const override;
+  SimpleFactoryKey* GetSimpleFactoryKey() const override;
 
   // CefBrowserContext methods.
   CefRequestContextImpl* GetCefRequestContext() const override;

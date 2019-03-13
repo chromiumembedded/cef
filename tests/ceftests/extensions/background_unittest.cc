@@ -262,7 +262,7 @@ class BackgroundLoadUnloadTestHandler : public ExtensionTestHandler {
 
 }  // namespace
 
-EXTENSION_TEST_GROUP_ALL(BackgroundLoadUnload, BackgroundLoadUnloadTestHandler);
+EXTENSION_TEST_GROUP_ALL(BackgroundLoadUnload, BackgroundLoadUnloadTestHandler)
 
 namespace {
 
@@ -288,4 +288,4 @@ class BackgroundLoadNoUnloadTestHandler
 }  // namespace
 
 EXTENSION_TEST_GROUP_MINIMAL_CUSTOM(BackgroundLoadNoUnload,
-                                    BackgroundLoadNoUnloadTestHandler);
+                                    BackgroundLoadNoUnloadTestHandler)

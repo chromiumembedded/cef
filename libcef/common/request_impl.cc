@@ -448,7 +448,7 @@ void CefRequestImpl::Set(const net::URLRequest* request) {
 
   site_for_cookies_ = request->site_for_cookies();
 
-  const content::ResourceRequestInfo* info =
+  content::ResourceRequestInfo* info =
       content::ResourceRequestInfo::ForRequest(request);
   if (info) {
     resource_type_ = static_cast<cef_resource_type_t>(info->GetResourceType());

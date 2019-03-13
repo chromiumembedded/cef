@@ -608,32 +608,32 @@ class PluginTestHandler : public RoutingTestHandler,
     ReleaseAndWaitForDestructor(handler);                    \
   }
 
-RUN_TEST(GlobalDefaultPdfDirect, GLOBAL_DEFAULT, kPdfDirectUrl);
-RUN_TEST(GlobalDefaultPdfHtml, GLOBAL_DEFAULT, kPdfHtmlUrl);
+RUN_TEST(GlobalDefaultPdfDirect, GLOBAL_DEFAULT, kPdfDirectUrl)
+RUN_TEST(GlobalDefaultPdfHtml, GLOBAL_DEFAULT, kPdfHtmlUrl)
 
-RUN_TEST(GlobalNoHandlerPdfDirect, GLOBAL_NO_HANDLER, kPdfDirectUrl);
-RUN_TEST(GlobalNoHandlerPdfHtml, GLOBAL_NO_HANDLER, kPdfHtmlUrl);
-RUN_TEST(GlobalAllowPdfDirect, GLOBAL_ALLOW, kPdfDirectUrl);
-RUN_TEST(GlobalAllowPdfHtml, GLOBAL_ALLOW, kPdfHtmlUrl);
-RUN_TEST(GlobalBlockThenLoadPdfDirect, GLOBAL_BLOCK_LOAD, kPdfDirectUrl);
-RUN_TEST(GlobalBlockThenLoadPdfHtml, GLOBAL_BLOCK_LOAD, kPdfHtmlUrl);
-RUN_TEST(GlobalBlockThenHidePdfDirect, GLOBAL_BLOCK_HIDE, kPdfDirectUrl);
-RUN_TEST(GlobalBlockThenHidePdfHtml, GLOBAL_BLOCK_HIDE, kPdfHtmlUrl);
-RUN_TEST(GlobalDisableThenHidePdfDirect, GLOBAL_DISABLE_HIDE, kPdfDirectUrl);
-RUN_TEST(GlobalDisableThenHidePdfHtml, GLOBAL_DISABLE_HIDE, kPdfHtmlUrl);
-RUN_TEST(GlobalNoListHtml, GLOBAL_NO_LIST, kPdfHtmlUrl);
+RUN_TEST(GlobalNoHandlerPdfDirect, GLOBAL_NO_HANDLER, kPdfDirectUrl)
+RUN_TEST(GlobalNoHandlerPdfHtml, GLOBAL_NO_HANDLER, kPdfHtmlUrl)
+RUN_TEST(GlobalAllowPdfDirect, GLOBAL_ALLOW, kPdfDirectUrl)
+RUN_TEST(GlobalAllowPdfHtml, GLOBAL_ALLOW, kPdfHtmlUrl)
+RUN_TEST(GlobalBlockThenLoadPdfDirect, GLOBAL_BLOCK_LOAD, kPdfDirectUrl)
+RUN_TEST(GlobalBlockThenLoadPdfHtml, GLOBAL_BLOCK_LOAD, kPdfHtmlUrl)
+RUN_TEST(GlobalBlockThenHidePdfDirect, GLOBAL_BLOCK_HIDE, kPdfDirectUrl)
+RUN_TEST(GlobalBlockThenHidePdfHtml, GLOBAL_BLOCK_HIDE, kPdfHtmlUrl)
+RUN_TEST(GlobalDisableThenHidePdfDirect, GLOBAL_DISABLE_HIDE, kPdfDirectUrl)
+RUN_TEST(GlobalDisableThenHidePdfHtml, GLOBAL_DISABLE_HIDE, kPdfHtmlUrl)
+RUN_TEST(GlobalNoListHtml, GLOBAL_NO_LIST, kPdfHtmlUrl)
 
-RUN_TEST(CustomNoHandlerPdfDirect, CUSTOM_NO_HANDLER, kPdfDirectUrl);
-RUN_TEST(CustomNoHandlerPdfHtml, CUSTOM_NO_HANDLER, kPdfHtmlUrl);
-RUN_TEST(CustomAllowPdfDirect, CUSTOM_ALLOW, kPdfDirectUrl);
-RUN_TEST(CustomAllowPdfHtml, CUSTOM_ALLOW, kPdfHtmlUrl);
-RUN_TEST(CustomBlockThenLoadPdfDirect, CUSTOM_BLOCK_LOAD, kPdfDirectUrl);
-RUN_TEST(CustomBlockThenLoadPdfHtml, CUSTOM_BLOCK_LOAD, kPdfHtmlUrl);
-RUN_TEST(CustomBlockThenHidePdfDirect, CUSTOM_BLOCK_HIDE, kPdfDirectUrl);
-RUN_TEST(CustomBlockThenHidePdfHtml, CUSTOM_BLOCK_HIDE, kPdfHtmlUrl);
-RUN_TEST(CustomDisableThenHidePdfDirect, CUSTOM_DISABLE_HIDE, kPdfDirectUrl);
-RUN_TEST(CustomDisableThenHidePdfHtml, CUSTOM_DISABLE_HIDE, kPdfHtmlUrl);
-RUN_TEST(CustomNoListHtml, CUSTOM_NO_LIST, kPdfHtmlUrl);
+RUN_TEST(CustomNoHandlerPdfDirect, CUSTOM_NO_HANDLER, kPdfDirectUrl)
+RUN_TEST(CustomNoHandlerPdfHtml, CUSTOM_NO_HANDLER, kPdfHtmlUrl)
+RUN_TEST(CustomAllowPdfDirect, CUSTOM_ALLOW, kPdfDirectUrl)
+RUN_TEST(CustomAllowPdfHtml, CUSTOM_ALLOW, kPdfHtmlUrl)
+RUN_TEST(CustomBlockThenLoadPdfDirect, CUSTOM_BLOCK_LOAD, kPdfDirectUrl)
+RUN_TEST(CustomBlockThenLoadPdfHtml, CUSTOM_BLOCK_LOAD, kPdfHtmlUrl)
+RUN_TEST(CustomBlockThenHidePdfDirect, CUSTOM_BLOCK_HIDE, kPdfDirectUrl)
+RUN_TEST(CustomBlockThenHidePdfHtml, CUSTOM_BLOCK_HIDE, kPdfHtmlUrl)
+RUN_TEST(CustomDisableThenHidePdfDirect, CUSTOM_DISABLE_HIDE, kPdfDirectUrl)
+RUN_TEST(CustomDisableThenHidePdfHtml, CUSTOM_DISABLE_HIDE, kPdfHtmlUrl)
+RUN_TEST(CustomNoListHtml, CUSTOM_NO_LIST, kPdfHtmlUrl)
 
 // Entry point for creating plugin browser test objects.
 // Called from client_app_delegates.cc.

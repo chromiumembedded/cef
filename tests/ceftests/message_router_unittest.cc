@@ -267,7 +267,7 @@ class MRTestHandler : public TestHandler {
 
   CefRefPtr<CefMessageRouterBrowserSide> GetRouter() const {
     return message_router_;
-  };
+  }
 
  protected:
   virtual void RunMRTest() = 0;
@@ -1953,35 +1953,35 @@ class MultiQuerySingleFrameTestHandler : public SingleLoadTestHandler,
 // Test the query types individually.
 MULTI_QUERY_SINGLE_FRAME_TYPE_TEST(MultiQuerySingleFrameSyncSuccess,
                                    SUCCESS,
-                                   true);
+                                   true)
 MULTI_QUERY_SINGLE_FRAME_TYPE_TEST(MultiQuerySingleFrameAsyncSuccess,
                                    SUCCESS,
-                                   false);
+                                   false)
 MULTI_QUERY_SINGLE_FRAME_TYPE_TEST(MultiQuerySingleFrameSyncFailure,
                                    FAILURE,
-                                   true);
+                                   true)
 MULTI_QUERY_SINGLE_FRAME_TYPE_TEST(MultiQuerySingleFrameAsyncFailure,
                                    FAILURE,
-                                   false);
+                                   false)
 MULTI_QUERY_SINGLE_FRAME_TYPE_TEST(MultiQuerySingleFrameSyncPersistentSuccess,
                                    PERSISTENT_SUCCESS,
-                                   true);
+                                   true)
 MULTI_QUERY_SINGLE_FRAME_TYPE_TEST(MultiQuerySingleFrameAsyncPersistentSuccess,
                                    PERSISTENT_SUCCESS,
-                                   false);
+                                   false)
 MULTI_QUERY_SINGLE_FRAME_TYPE_TEST(MultiQuerySingleFrameSyncPersistentFailure,
                                    PERSISTENT_FAILURE,
-                                   true);
+                                   true)
 MULTI_QUERY_SINGLE_FRAME_TYPE_TEST(MultiQuerySingleFrameAsyncPersistentFailure,
                                    PERSISTENT_FAILURE,
-                                   false);
-MULTI_QUERY_SINGLE_FRAME_TYPE_TEST(MultiQuerySingleFrameCancel, CANCEL, true);
+                                   false)
+MULTI_QUERY_SINGLE_FRAME_TYPE_TEST(MultiQuerySingleFrameCancel, CANCEL, true)
 MULTI_QUERY_SINGLE_FRAME_TYPE_TEST(MultiQuerySingleFrameAutoCancel,
                                    AUTOCANCEL,
-                                   true);
+                                   true)
 MULTI_QUERY_SINGLE_FRAME_TYPE_TEST(MultiQuerySingleFramePersistentAutoCancel,
                                    PERSISTENT_AUTOCANCEL,
-                                   true);
+                                   true)
 
 // Test that one frame can run some queries successfully in a synchronous
 // manner.

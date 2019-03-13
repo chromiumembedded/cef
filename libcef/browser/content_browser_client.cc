@@ -553,6 +553,34 @@ bool CefContentBrowserClient::ShouldUseProcessPerSite(
   return true;
 }
 
+// Based on
+// ChromeContentBrowserClientExtensionsPart::DoesSiteRequireDedicatedProcess.
+bool CefContentBrowserClient::DoesSiteRequireDedicatedProcess(
+    content::BrowserContext* browser_context,
+    const GURL& effective_site_url) {
+  if (!extensions::ExtensionsEnabled())
+    return false;
+
+  extensions::ExtensionRegistry* registry =
+      extensions::ExtensionRegistry::Get(browser_context);
+  const extensions::Extension* extension =
+      registry->enabled_extensions().GetExtensionOrAppByURL(effective_site_url);
+  if (!extension)
+    return false;
+
+  // Always isolate Chrome Web Store.
+  if (extension->id() == extensions::kWebStoreAppId)
+    return true;
+
+  // Extensions should be isolated, except for hosted apps. Isolating hosted
+  // apps is a good idea, but ought to be a separate knob.
+  if (extension->is_hosted_app())
+    return false;
+
+  // Isolate all extensions.
+  return true;
+}
+
 bool CefContentBrowserClient::IsHandledURL(const GURL& url) {
   if (!url.is_valid())
     return false;
@@ -1126,6 +1154,7 @@ bool CefContentBrowserClient::WillCreateURLLoaderFactory(
     content::RenderFrameHost* frame,
     int render_process_id,
     bool is_navigation,
+    bool is_download,
     const url::Origin& request_initiator,
     network::mojom::URLLoaderFactoryRequest* factory_request,
     network::mojom::TrustedURLLoaderHeaderClientPtrInfo* header_client,
@@ -1137,8 +1166,8 @@ bool CefContentBrowserClient::WillCreateURLLoaderFactory(
       extensions::BrowserContextKeyedAPIFactory<extensions::WebRequestAPI>::Get(
           browser_context);
   bool use_proxy = web_request_api->MaybeProxyURLLoaderFactory(
-      browser_context, frame, render_process_id, is_navigation, factory_request,
-      header_client);
+      browser_context, frame, render_process_id, is_navigation, is_download,
+      factory_request, header_client);
   if (bypass_redirect_checks)
     *bypass_redirect_checks = use_proxy;
   return use_proxy;
@@ -1191,7 +1220,7 @@ blink::UserAgentMetadata CefContentBrowserClient::GetUserAgentMetadata() const {
   blink::UserAgentMetadata metadata;
 
   metadata.brand = version_info::GetProductName();
-  metadata.version = version_info::GetVersionNumber();
+  metadata.full_version = version_info::GetVersionNumber();
   metadata.platform = version_info::GetOSType();
 
   // TODO(mkwst): Poke at BuildUserAgentFromProduct to split out these pieces.

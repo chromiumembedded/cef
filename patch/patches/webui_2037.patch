@@ -1,5 +1,5 @@
 diff --git chrome/browser/feedback/system_logs/log_sources/chrome_internal_log_source.cc chrome/browser/feedback/system_logs/log_sources/chrome_internal_log_source.cc
-index 6a943ceb13bc..44db1b8a2371 100644
+index 8f60e60d6ad3..ff85f58185f2 100644
 --- chrome/browser/feedback/system_logs/log_sources/chrome_internal_log_source.cc
 +++ chrome/browser/feedback/system_logs/log_sources/chrome_internal_log_source.cc
 @@ -19,6 +19,7 @@
@@ -20,7 +20,7 @@ index 6a943ceb13bc..44db1b8a2371 100644
 +
    // We are only interested in sync logs for the primary user profile.
    Profile* profile = ProfileManager::GetPrimaryUserProfile();
-   if (!profile || !ProfileSyncServiceFactory::HasProfileSyncService(profile))
+   if (!profile || !ProfileSyncServiceFactory::HasSyncService(profile))
 @@ -309,6 +314,12 @@ void ChromeInternalLogSource::PopulateExtensionInfoLogs(
    if (!profile)
      return;

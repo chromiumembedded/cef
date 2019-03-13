@@ -27,6 +27,7 @@ class BrowserMainRunner;
 class CefContentBrowserClient;
 class CefContentRendererClient;
 class CefContentUtilityClient;
+class CefUIThread;
 
 class CefMainDelegate : public content::ContentMainDelegate {
  public:
@@ -48,21 +49,19 @@ class CefMainDelegate : public content::ContentMainDelegate {
   content::ContentRendererClient* CreateContentRendererClient() override;
   content::ContentUtilityClient* CreateContentUtilityClient() override;
 
-  bool CreateUIThread();
+  bool CreateUIThread(base::OnceClosure setup_callback);
 
   // Shut down the browser runner.
   void ShutdownBrowser();
 
   CefContentBrowserClient* browser_client() { return browser_client_.get(); }
   CefContentClient* content_client() { return &content_client_; }
-  base::Thread* ui_thread() { return ui_thread_.get(); }
 
  private:
   void InitializeResourceBundle();
 
-  std::unique_ptr<base::MessageLoop> message_loop_;
   std::unique_ptr<content::BrowserMainRunner> browser_runner_;
-  std::unique_ptr<base::Thread> ui_thread_;
+  std::unique_ptr<CefUIThread> ui_thread_;
 
   std::unique_ptr<CefContentBrowserClient> browser_client_;
   std::unique_ptr<CefContentRendererClient> renderer_client_;

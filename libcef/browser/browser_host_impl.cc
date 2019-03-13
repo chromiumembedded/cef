@@ -512,7 +512,7 @@ CefRefPtr<CefBrowserHostImpl> CefBrowserHostImpl::GetBrowserForRequest(
     return GetBrowserForFrame(render_process_id, render_frame_id);
   }
 
-  const content::ResourceRequestInfo* request_info =
+  content::ResourceRequestInfo* request_info =
       content::ResourceRequestInfo::ForRequest(request);
   if (request_info)
     return GetBrowserForFrameTreeNode(request_info->GetFrameTreeNodeId());
@@ -1644,7 +1644,7 @@ void CefBrowserHostImpl::CancelContextMenu() {
 CefRefPtr<CefFrame> CefBrowserHostImpl::GetFrameForRequest(
     const net::URLRequest* request) {
   CEF_REQUIRE_IOT();
-  const content::ResourceRequestInfo* info =
+  content::ResourceRequestInfo* info =
       content::ResourceRequestInfo::ForRequest(request);
   if (!info)
     return nullptr;
@@ -2435,6 +2435,7 @@ bool CefBrowserHostImpl::TakeFocus(content::WebContents* source, bool reverse) {
 }
 
 bool CefBrowserHostImpl::HandleContextMenu(
+    content::RenderFrameHost* render_frame_host,
     const content::ContextMenuParams& params) {
   return HandleContextMenu(web_contents(), params);
 }

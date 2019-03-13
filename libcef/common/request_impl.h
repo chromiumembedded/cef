@@ -29,7 +29,7 @@ class UploadElement;
 class UploadElementReader;
 class URLFetcher;
 class URLRequest;
-};  // namespace net
+}  // namespace net
 
 namespace blink {
 class WebURLRequest;

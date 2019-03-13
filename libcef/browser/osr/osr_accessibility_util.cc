@@ -191,6 +191,9 @@ struct PopulateAxNodeAttributes {
         }
         attributes->SetList(ToString(attr.first), list);
       } break;
+      case ax::mojom::IntAttribute::kImageAnnotationStatus: {
+        // TODO(cef): Implement support for Image Annotation Status
+      } break;
     }
   }
 

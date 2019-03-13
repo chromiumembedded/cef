@@ -14,7 +14,7 @@
 
 namespace extensions {
 class Extension;
-};
+}
 
 // CefNavigationEntry implementation
 class CefExtensionImpl : public CefExtension {

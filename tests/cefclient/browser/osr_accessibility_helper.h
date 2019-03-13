@@ -31,7 +31,7 @@ class OsrAccessibilityHelper {
     return browser_->GetHost()->GetWindowHandle();
   }
 
-  CefRefPtr<CefBrowser> GetBrowser() const { return browser_; };
+  CefRefPtr<CefBrowser> GetBrowser() const { return browser_; }
 
   OsrAXNode* GetNode(int nodeId) const;
 

@@ -139,7 +139,7 @@ class CefRefCount {
   }                                                                  \
                                                                      \
  private:                                                            \
-  CefRefCount ref_count_;
+  CefRefCount ref_count_
 
 ///
 // Macro that provides a locking implementation. Use the Lock() and Unlock()

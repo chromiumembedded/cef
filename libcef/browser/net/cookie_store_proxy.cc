@@ -64,22 +64,24 @@ void CefCookieStoreProxy::SetCookieWithOptionsAsync(
     cookie_store->SetCookieWithOptionsAsync(url, cookie_line, options,
                                             std::move(callback));
   } else if (!callback.is_null()) {
-    std::move(callback).Run(false);
+    std::move(callback).Run(
+        net::CanonicalCookie::CookieInclusionStatus::EXCLUDE_FAILURE_TO_STORE);
   }
 }
 
 void CefCookieStoreProxy::SetCanonicalCookieAsync(
     std::unique_ptr<net::CanonicalCookie> cookie,
-    bool secure_source,
+    std::string source_scheme,
     bool modify_http_only,
     SetCookiesCallback callback) {
   net::CookieStore* cookie_store = GetCookieStore();
   if (cookie_store) {
-    cookie_store->SetCanonicalCookieAsync(std::move(cookie), secure_source,
+    cookie_store->SetCanonicalCookieAsync(std::move(cookie), source_scheme,
                                           modify_http_only,
                                           std::move(callback));
   } else if (!callback.is_null()) {
-    std::move(callback).Run(false);
+    std::move(callback).Run(
+        net::CanonicalCookie::CookieInclusionStatus::EXCLUDE_FAILURE_TO_STORE);
   }
 }
 

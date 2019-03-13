@@ -37,6 +37,7 @@
 #include "components/content_settings/core/common/content_settings_pattern.h"
 #include "components/viz/common/features.h"
 #include "content/browser/browser_process_sub_thread.h"
+#include "content/browser/scheduler/browser_task_executor.h"
 #include "content/public/browser/browser_main_runner.h"
 #include "content/public/browser/render_process_host.h"
 #include "content/public/common/content_features.h"
@@ -45,6 +46,7 @@
 #include "extensions/common/constants.h"
 #include "ipc/ipc_buildflags.h"
 #include "pdf/pdf_ppapi.h"
+#include "services/network/public/cpp/features.h"
 #include "services/service_manager/sandbox/switches.h"
 #include "ui/base/layout.h"
 #include "ui/base/resource/resource_bundle.h"
@@ -274,22 +276,52 @@ void OverrideAssetPath() {
 }
 #endif
 
-// Used to run the UI on a separate thread.
-class CefUIThread : public base::Thread {
- public:
-  CefUIThread() : base::Thread("CefUIThread") {}
+}  // namespace
 
-  void Init() override {
-#if defined(OS_WIN)
-    // Initializes the COM library on the current thread.
-    CoInitialize(NULL);
-#endif
+// Used to run the UI on a separate thread.
+class CefUIThread : public base::PlatformThread::Delegate {
+ public:
+  explicit CefUIThread(base::OnceClosure setup_callback)
+      : setup_callback_(std::move(setup_callback)) {}
+  ~CefUIThread() override { Stop(); }
+
+  void Start() {
+    base::AutoLock lock(thread_lock_);
+    bool success = base::PlatformThread::CreateWithPriority(
+        0, this, &thread_, base::ThreadPriority::NORMAL);
+    if (!success) {
+      LOG(FATAL) << "failed to UI create thread";
+    }
+  }
+
+  void Stop() {
+    base::AutoLock lock(thread_lock_);
+
+    if (!stopping_) {
+      stopping_ = true;
+      base::PostTaskWithTraits(
+          FROM_HERE, {content::BrowserThread::UI},
+          base::BindOnce(&CefUIThread::ThreadQuitHelper, Unretained(this)));
+    }
+
+    // Can't join if the |thread_| is either already gone or is non-joinable.
+    if (thread_.is_null())
+      return;
+
+    base::PlatformThread::Join(thread_);
+    thread_ = base::PlatformThreadHandle();
+
+    stopping_ = false;
+  }
+
+  bool WaitUntilThreadStarted() const {
+    DCHECK(owning_sequence_checker_.CalledOnValidSequence());
+    start_event_.Wait();
+    return true;
   }
 
   void InitializeBrowserRunner(
       const content::MainFunctionParams& main_function_params) {
-    DCHECK(task_runner()->BelongsToCurrentThread());
-
     // Use our own browser process runner.
     browser_runner_ = content::BrowserMainRunner::Create();
 
@@ -298,15 +330,27 @@ class CefUIThread : public base::Thread {
     CHECK_EQ(exit_code, -1);
   }
 
-  void CleanUp() override {
+ protected:
+  void ThreadMain() override {
+    base::PlatformThread::SetName("CefUIThread");
+
+#if defined(OS_WIN)
+    // Initializes the COM library on the current thread.
+    CoInitialize(NULL);
+#endif
+
+    start_event_.Signal();
+
+    std::move(setup_callback_).Run();
+
+    base::RunLoop run_loop;
+    run_loop_ = &run_loop;
+    run_loop.Run();
+
     browser_runner_->Shutdown();
     browser_runner_.reset(NULL);
 
-    // Release MessagePump resources registered with the AtExitManager.
-    base::MessageLoop* ml = const_cast<base::MessageLoop*>(message_loop());
-    base::MessageLoopCurrent::UnbindFromCurrentThreadInternal(
-        ml->GetMessageLoopBase());
-    ml->ReleasePump();
+    content::BrowserTaskExecutor::Shutdown();
 
     // Run exit callbacks on the UI thread to avoid sequence check failures.
     base::AtExitManager::ProcessCallbacksNow();
@@ -316,13 +360,32 @@ class CefUIThread : public base::Thread {
     // be balanced by a corresponding call to CoUninitialize.
     CoUninitialize();
 #endif
+
+    run_loop_ = nullptr;
   }
 
- protected:
-  std::unique_ptr<content::BrowserMainRunner> browser_runner_;
-};
+  void ThreadQuitHelper() {
+    DCHECK(run_loop_);
+    run_loop_->QuitWhenIdle();
+  }
 
-}  // namespace
+  std::unique_ptr<content::BrowserMainRunner> browser_runner_;
+  base::OnceClosure setup_callback_;
+
+  bool stopping_ = false;
+
+  // The thread's handle.
+  base::PlatformThreadHandle thread_;
+  mutable base::Lock thread_lock_;  // Protects |thread_|.
+
+  base::RunLoop* run_loop_ = nullptr;
+
+  mutable base::WaitableEvent start_event_;
+
+  // This class is not thread-safe, use this to verify access from the owning
+  // sequence of the Thread.
+  base::SequenceChecker owning_sequence_checker_;
+};
 
 CefMainDelegate::CefMainDelegate(CefRefPtr<CefApp> application)
     : content_client_(application) {
@@ -339,10 +402,7 @@ CefMainDelegate::CefMainDelegate(CefRefPtr<CefApp> application)
 CefMainDelegate::~CefMainDelegate() {}
 
 void CefMainDelegate::PreCreateMainMessageLoop() {
-  if (!message_loop_) {
-    // Create the main message loop.
-    message_loop_.reset(new CefBrowserMessageLoop());
-  }
+  InitMessagePumpFactoryForUI();
 }
 
 bool CefMainDelegate::BasicStartupComplete(int* exit_code) {
@@ -506,6 +566,13 @@ bool CefMainDelegate::BasicStartupComplete(int* exit_code) {
       }
     }
 
+    // Disable NetworkService for now
+    // TODO(cef): Implement the required changes for network service
+    if (network::features::kNetworkService.default_state ==
+        base::FEATURE_ENABLED_BY_DEFAULT) {
+      disable_features.push_back(network::features::kNetworkService.name);
+    }
+
     if (!disable_features.empty()) {
       DCHECK(!base::FeatureList::GetInstance());
       std::string disable_features_str =
@@ -653,8 +720,7 @@ int CefMainDelegate::RunProcess(
     } else {
       // Running on the separate UI thread.
       DCHECK(ui_thread_);
-      static_cast<CefUIThread*>(ui_thread_.get())
-          ->InitializeBrowserRunner(main_function_params);
+      ui_thread_->InitializeBrowserRunner(main_function_params);
     }
 
     return 0;
@@ -663,22 +729,16 @@ int CefMainDelegate::RunProcess(
   return -1;
 }
 
-bool CefMainDelegate::CreateUIThread() {
+bool CefMainDelegate::CreateUIThread(base::OnceClosure setup_callback) {
   DCHECK(!ui_thread_);
-  DCHECK(!message_loop_);
 
-  std::unique_ptr<base::Thread> thread;
-  thread.reset(new CefUIThread());
-  base::Thread::Options options;
-  options.message_loop_type = base::MessageLoop::TYPE_UI;
-  if (!thread->StartWithOptions(options)) {
-    NOTREACHED() << "failed to start UI thread";
-    return false;
-  }
+  std::unique_ptr<CefUIThread> thread;
+  thread.reset(new CefUIThread(std::move(setup_callback)));
+  thread->Start();
   thread->WaitUntilThreadStarted();
   ui_thread_.swap(thread);
 
-  message_loop_.reset(new CefBrowserMessageLoop());
+  InitMessagePumpFactoryForUI();
   return true;
 }
 
@@ -716,8 +776,6 @@ void CefMainDelegate::ShutdownBrowser() {
     browser_runner_->Shutdown();
     browser_runner_.reset(NULL);
   }
-
-  message_loop_.reset();
 
   if (ui_thread_.get()) {
     // Blocks until the thread has stopped.

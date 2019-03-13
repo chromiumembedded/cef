@@ -12,6 +12,7 @@
 #include "libcef/browser/browser_host_impl.h"
 #include "libcef/browser/osr/osr_util.h"
 #include "libcef/browser/osr/software_output_device_osr.h"
+#include "libcef/browser/osr/synthetic_gesture_target_osr.h"
 #include "libcef/browser/thread_util.h"
 
 #include "base/callback_helpers.h"
@@ -161,7 +162,7 @@ class CefDelegatedFrameHostClient : public content::DelegatedFrameHostClient {
 
   void InvalidateLocalSurfaceIdOnEviction() override {}
 
-  bool ShouldShowStaleContentOnEviction() override { return false; };
+  bool ShouldShowStaleContentOnEviction() override { return false; }
 
  private:
   CefRenderWidgetHostViewOSR* const view_;
@@ -1133,10 +1134,7 @@ viz::FrameSinkId CefRenderWidgetHostViewOSR::GetRootFrameSinkId() {
 
 std::unique_ptr<content::SyntheticGestureTarget>
 CefRenderWidgetHostViewOSR::CreateSyntheticGestureTarget() {
-  // TODO(cef): This is likely incorrect for OOPIF.
-  // See https://crrev.com/5375957bb5.
-  return std::unique_ptr<content::SyntheticGestureTarget>(
-      new content::SyntheticGestureTargetBase(host()));
+  return std::make_unique<CefSyntheticGestureTargetOSR>(host());
 }
 
 #if !defined(OS_MACOSX)
@@ -1193,8 +1191,7 @@ bool CefRenderWidgetHostViewOSR::TransformPointToLocalCoordSpaceLegacy(
 bool CefRenderWidgetHostViewOSR::TransformPointToCoordSpaceForView(
     const gfx::PointF& point,
     RenderWidgetHostViewBase* target_view,
-    gfx::PointF* transformed_point,
-    viz::EventSource source) {
+    gfx::PointF* transformed_point) {
   if (target_view == this) {
     *transformed_point = point;
     return true;

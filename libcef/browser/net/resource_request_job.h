@@ -61,7 +61,7 @@ class CefResourceRequestJob : public net::URLRequestJob {
   net::HttpResponseHeaders* GetResponseHeaders();
   void SaveCookiesAndNotifyHeadersComplete();
   void SaveNextCookie();
-  void OnCookieSaved(bool cookie_status);
+  void OnCookieSaved(net::CanonicalCookie::CookieInclusionStatus status);
   void CookieHandled();
   void FetchResponseCookies(std::vector<std::string>* cookies);
 

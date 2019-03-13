@@ -208,8 +208,16 @@ PrefService* CefBrowserContextProxy::GetPrefs() {
   return parent_->GetPrefs();
 }
 
+bool CefBrowserContextProxy::AllowsBrowserWindows() const {
+  return parent_->AllowsBrowserWindows();
+}
+
 const PrefService* CefBrowserContextProxy::GetPrefs() const {
   return parent_->GetPrefs();
+}
+
+SimpleFactoryKey* CefBrowserContextProxy::GetSimpleFactoryKey() const {
+  return parent_->GetSimpleFactoryKey();
 }
 
 CefRequestContextImpl* CefBrowserContextProxy::GetCefRequestContext() const {

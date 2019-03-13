@@ -17,6 +17,6 @@ typedef CefRequest::HeaderMap HeaderMap;
 std::string GenerateHeaders(const HeaderMap& map);
 void ParseHeaders(const std::string& header_str, HeaderMap& map);
 
-};  // namespace HttpHeaderUtils
+}  // namespace HttpHeaderUtils
 
 #endif  // CEF_LIBCEF_COMMON_NET_HTTP_HEADER_UTILS_H_

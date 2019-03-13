@@ -789,7 +789,7 @@ class OSRTestHandler : public RoutingTestHandler,
           // first pixel of border
 
 #if defined(OS_MACOSX)
-          EXPECT_EQ(0xff5d99d6U, *(reinterpret_cast<const uint32*>(buffer)));
+          EXPECT_EQ(0xff3979d1U, *(reinterpret_cast<const uint32*>(buffer)));
 #else
           EXPECT_EQ(0xff6497eaU, *(reinterpret_cast<const uint32*>(buffer)));
 #endif
@@ -825,11 +825,18 @@ class OSRTestHandler : public RoutingTestHandler,
                 GetScaledRect(kExpandedSelectRect);
             EXPECT_EQ(dirtyRects.size(), 1U);
             // dirtyRects[0] has a 1px inset.
-            EXPECT_EQ(1, dirtyRects[0].x);
-            EXPECT_EQ(1, dirtyRects[0].y);
+#if defined(OS_MACOSX)
+            const int inset = GetScaledInt(1);
+#else
+            const int inset = 1;
+#endif
+            EXPECT_EQ(inset, dirtyRects[0].x);
+            EXPECT_EQ(inset, dirtyRects[0].y);
             if (ExpectComputedPopupSize()) {
-              EXPECT_EQ(expanded_select_rect.width - 2, dirtyRects[0].width);
-              EXPECT_EQ(expanded_select_rect.height - 2, dirtyRects[0].height);
+              EXPECT_EQ(expanded_select_rect.width - inset * 2,
+                        dirtyRects[0].width);
+              EXPECT_EQ(expanded_select_rect.height - inset * 2,
+                        dirtyRects[0].height);
             } else {
               EXPECT_GT(dirtyRects[0].width, kExpandedSelectRect.width);
               EXPECT_GT(dirtyRects[0].height, kExpandedSelectRect.height);
@@ -1522,79 +1529,79 @@ class OSRTestHandler : public RoutingTestHandler,
   }
 
 // tests
-OSR_TEST(Windowless, OSR_TEST_IS_WINDOWLESS, 1.0f);
-OSR_TEST(Windowless2x, OSR_TEST_IS_WINDOWLESS, 2.0f);
-OSR_TEST(Focus, OSR_TEST_FOCUS, 1.0f);
-OSR_TEST(Focus2x, OSR_TEST_FOCUS, 2.0f);
-OSR_TEST(TakeFocus, OSR_TEST_TAKE_FOCUS, 1.0f);
-OSR_TEST(TakeFocus2x, OSR_TEST_TAKE_FOCUS, 2.0f);
-OSR_TEST(GotFocus, OSR_TEST_GOT_FOCUS, 1.0f);
-OSR_TEST(GotFocus2x, OSR_TEST_GOT_FOCUS, 2.0f);
-OSR_TEST(Paint, OSR_TEST_PAINT, 1.0f);
-OSR_TEST(Paint2x, OSR_TEST_PAINT, 2.0f);
-OSR_TEST(TransparentPaint, OSR_TEST_TRANSPARENCY, 1.0f);
-OSR_TEST(TransparentPaint2x, OSR_TEST_TRANSPARENCY, 2.0f);
-OSR_TEST(Cursor, OSR_TEST_CURSOR, 1.0f);
-OSR_TEST(Cursor2x, OSR_TEST_CURSOR, 2.0f);
-OSR_TEST(MouseMove, OSR_TEST_MOUSE_MOVE, 1.0f);
-OSR_TEST(MouseMove2x, OSR_TEST_MOUSE_MOVE, 2.0f);
-OSR_TEST(MouseRightClick, OSR_TEST_CLICK_RIGHT, 1.0f);
-OSR_TEST(MouseRightClick2x, OSR_TEST_CLICK_RIGHT, 2.0f);
-OSR_TEST(MouseLeftClick, OSR_TEST_CLICK_LEFT, 1.0f);
-OSR_TEST(MouseLeftClick2x, OSR_TEST_CLICK_LEFT, 2.0f);
-OSR_TEST(ScreenPoint, OSR_TEST_SCREEN_POINT, 1.0f);
-OSR_TEST(ScreenPoint2x, OSR_TEST_SCREEN_POINT, 2.0f);
-OSR_TEST(Resize, OSR_TEST_RESIZE, 1.0f);
-OSR_TEST(Resize2x, OSR_TEST_RESIZE, 2.0f);
-OSR_TEST(Invalidate, OSR_TEST_INVALIDATE, 1.0f);
-OSR_TEST(Invalidate2x, OSR_TEST_INVALIDATE, 2.0f);
-OSR_TEST(KeyEvents, OSR_TEST_KEY_EVENTS, 1.0f);
-OSR_TEST(KeyEvents2x, OSR_TEST_KEY_EVENTS, 2.0f);
-OSR_TEST(Tooltip, OSR_TEST_TOOLTIP, 1.0f);
-OSR_TEST(Tooltip2x, OSR_TEST_TOOLTIP, 2.0f);
-OSR_TEST(Scrolling, OSR_TEST_SCROLLING, 1.0f);
-OSR_TEST(Scrolling2x, OSR_TEST_SCROLLING, 2.0f);
-OSR_TEST(ContextMenu, OSR_TEST_CONTEXT_MENU, 1.0f);
-OSR_TEST(ContextMenu2x, OSR_TEST_CONTEXT_MENU, 2.0f);
-OSR_TEST(PopupPaint, OSR_TEST_POPUP_PAINT, 1.0f);
-OSR_TEST(PopupPaint2x, OSR_TEST_POPUP_PAINT, 2.0f);
-OSR_TEST(PopupShow, OSR_TEST_POPUP_SHOW, 1.0f);
-OSR_TEST(PopupShow2x, OSR_TEST_POPUP_SHOW, 2.0f);
-OSR_TEST(PopupSize, OSR_TEST_POPUP_SIZE, 1.0f);
-OSR_TEST(PopupSize2x, OSR_TEST_POPUP_SIZE, 2.0f);
-OSR_TEST(PopupHideOnBlur, OSR_TEST_POPUP_HIDE_ON_BLUR, 1.0f);
-OSR_TEST(PopupHideOnBlur2x, OSR_TEST_POPUP_HIDE_ON_BLUR, 2.0f);
-OSR_TEST(PopupHideOnClick, OSR_TEST_POPUP_HIDE_ON_CLICK, 1.0f);
-OSR_TEST(PopupHideOnClick2x, OSR_TEST_POPUP_HIDE_ON_CLICK, 2.0f);
-OSR_TEST(PopupHideOnScroll, OSR_TEST_POPUP_HIDE_ON_SCROLL, 1.0f);
-OSR_TEST(PopupHideOnScroll2x, OSR_TEST_POPUP_HIDE_ON_SCROLL, 2.0f);
-OSR_TEST(PopupHideOnEsc, OSR_TEST_POPUP_HIDE_ON_ESC, 1.0f);
-OSR_TEST(PopupHideOnEsc2x, OSR_TEST_POPUP_HIDE_ON_ESC, 2.0f);
-OSR_TEST(PopupScrollInside, OSR_TEST_POPUP_SCROLL_INSIDE, 1.0f);
-OSR_TEST(PopupScrollInside2x, OSR_TEST_POPUP_SCROLL_INSIDE, 2.0f);
-OSR_TEST(DragDropStartDragging, OSR_TEST_DRAG_DROP_START_DRAGGING, 1.0f);
-OSR_TEST(DragDropStartDragging2x, OSR_TEST_DRAG_DROP_START_DRAGGING, 2.0f);
-OSR_TEST(DragDropUpdateCursor, OSR_TEST_DRAG_DROP_UPDATE_CURSOR, 1.0f);
-OSR_TEST(DragDropUpdateCursor2x, OSR_TEST_DRAG_DROP_UPDATE_CURSOR, 2.0f);
-OSR_TEST(DragDropDropElement, OSR_TEST_DRAG_DROP_DROP, 1.0f);
-OSR_TEST(DragDropDropElement2x, OSR_TEST_DRAG_DROP_DROP, 2.0f);
-OSR_TEST(IMESetComposition, OSR_TEST_IME_SET_COMPOSITION, 1.0f);
-OSR_TEST(IMESetComposition2x, OSR_TEST_IME_SET_COMPOSITION, 2.0f);
-OSR_TEST(IMECommitText, OSR_TEST_IME_COMMIT_TEXT, 1.0f);
-OSR_TEST(IMECommitText2x, OSR_TEST_IME_COMMIT_TEXT, 2.0f);
-OSR_TEST(IMEFinishComposition, OSR_TEST_IME_FINISH_COMPOSITION, 1.0f);
-OSR_TEST(IMEFinishComposition2x, OSR_TEST_IME_FINISH_COMPOSITION, 2.0f);
-OSR_TEST(IMECancelComposition, OSR_TEST_IME_CANCEL_COMPOSITION, 1.0f);
-OSR_TEST(IMECancelComposition2x, OSR_TEST_IME_CANCEL_COMPOSITION, 2.0f);
-OSR_TEST(TextSelectionChanged, OSR_TEST_TEXT_SELECTION_CHANGE, 1.0f);
-OSR_TEST(TextSelectionChanged2x, OSR_TEST_TEXT_SELECTION_CHANGE, 2.0f);
-OSR_TEST(VirtualKeyboard, OSR_TEST_VIRTUAL_KEYBOARD, 1.0f);
-OSR_TEST(TouchStart, OSR_TEST_TOUCH_START, 1.0f);
-OSR_TEST(TouchStart2X, OSR_TEST_TOUCH_START, 2.0f);
-OSR_TEST(TouchMove, OSR_TEST_TOUCH_MOVE, 1.0f);
-OSR_TEST(TouchMove2X, OSR_TEST_TOUCH_MOVE, 2.0f);
-OSR_TEST(TouchEnd, OSR_TEST_TOUCH_END, 1.0f);
-OSR_TEST(TouchEnd2X, OSR_TEST_TOUCH_END, 2.0f);
-OSR_TEST(TouchCancel, OSR_TEST_TOUCH_CANCEL, 1.0f);
-OSR_TEST(TouchCancel2X, OSR_TEST_TOUCH_CANCEL, 2.0f);
-OSR_TEST(PenEvent, OSR_TEST_PEN, 1.0f);
+OSR_TEST(Windowless, OSR_TEST_IS_WINDOWLESS, 1.0f)
+OSR_TEST(Windowless2x, OSR_TEST_IS_WINDOWLESS, 2.0f)
+OSR_TEST(Focus, OSR_TEST_FOCUS, 1.0f)
+OSR_TEST(Focus2x, OSR_TEST_FOCUS, 2.0f)
+OSR_TEST(TakeFocus, OSR_TEST_TAKE_FOCUS, 1.0f)
+OSR_TEST(TakeFocus2x, OSR_TEST_TAKE_FOCUS, 2.0f)
+OSR_TEST(GotFocus, OSR_TEST_GOT_FOCUS, 1.0f)
+OSR_TEST(GotFocus2x, OSR_TEST_GOT_FOCUS, 2.0f)
+OSR_TEST(Paint, OSR_TEST_PAINT, 1.0f)
+OSR_TEST(Paint2x, OSR_TEST_PAINT, 2.0f)
+OSR_TEST(TransparentPaint, OSR_TEST_TRANSPARENCY, 1.0f)
+OSR_TEST(TransparentPaint2x, OSR_TEST_TRANSPARENCY, 2.0f)
+OSR_TEST(Cursor, OSR_TEST_CURSOR, 1.0f)
+OSR_TEST(Cursor2x, OSR_TEST_CURSOR, 2.0f)
+OSR_TEST(MouseMove, OSR_TEST_MOUSE_MOVE, 1.0f)
+OSR_TEST(MouseMove2x, OSR_TEST_MOUSE_MOVE, 2.0f)
+OSR_TEST(MouseRightClick, OSR_TEST_CLICK_RIGHT, 1.0f)
+OSR_TEST(MouseRightClick2x, OSR_TEST_CLICK_RIGHT, 2.0f)
+OSR_TEST(MouseLeftClick, OSR_TEST_CLICK_LEFT, 1.0f)
+OSR_TEST(MouseLeftClick2x, OSR_TEST_CLICK_LEFT, 2.0f)
+OSR_TEST(ScreenPoint, OSR_TEST_SCREEN_POINT, 1.0f)
+OSR_TEST(ScreenPoint2x, OSR_TEST_SCREEN_POINT, 2.0f)
+OSR_TEST(Resize, OSR_TEST_RESIZE, 1.0f)
+OSR_TEST(Resize2x, OSR_TEST_RESIZE, 2.0f)
+OSR_TEST(Invalidate, OSR_TEST_INVALIDATE, 1.0f)
+OSR_TEST(Invalidate2x, OSR_TEST_INVALIDATE, 2.0f)
+OSR_TEST(KeyEvents, OSR_TEST_KEY_EVENTS, 1.0f)
+OSR_TEST(KeyEvents2x, OSR_TEST_KEY_EVENTS, 2.0f)
+OSR_TEST(Tooltip, OSR_TEST_TOOLTIP, 1.0f)
+OSR_TEST(Tooltip2x, OSR_TEST_TOOLTIP, 2.0f)
+OSR_TEST(Scrolling, OSR_TEST_SCROLLING, 1.0f)
+OSR_TEST(Scrolling2x, OSR_TEST_SCROLLING, 2.0f)
+OSR_TEST(ContextMenu, OSR_TEST_CONTEXT_MENU, 1.0f)
+OSR_TEST(ContextMenu2x, OSR_TEST_CONTEXT_MENU, 2.0f)
+OSR_TEST(PopupPaint, OSR_TEST_POPUP_PAINT, 1.0f)
+OSR_TEST(PopupPaint2x, OSR_TEST_POPUP_PAINT, 2.0f)
+OSR_TEST(PopupShow, OSR_TEST_POPUP_SHOW, 1.0f)
+OSR_TEST(PopupShow2x, OSR_TEST_POPUP_SHOW, 2.0f)
+OSR_TEST(PopupSize, OSR_TEST_POPUP_SIZE, 1.0f)
+OSR_TEST(PopupSize2x, OSR_TEST_POPUP_SIZE, 2.0f)
+OSR_TEST(PopupHideOnBlur, OSR_TEST_POPUP_HIDE_ON_BLUR, 1.0f)
+OSR_TEST(PopupHideOnBlur2x, OSR_TEST_POPUP_HIDE_ON_BLUR, 2.0f)
+OSR_TEST(PopupHideOnClick, OSR_TEST_POPUP_HIDE_ON_CLICK, 1.0f)
+OSR_TEST(PopupHideOnClick2x, OSR_TEST_POPUP_HIDE_ON_CLICK, 2.0f)
+OSR_TEST(PopupHideOnScroll, OSR_TEST_POPUP_HIDE_ON_SCROLL, 1.0f)
+OSR_TEST(PopupHideOnScroll2x, OSR_TEST_POPUP_HIDE_ON_SCROLL, 2.0f)
+OSR_TEST(PopupHideOnEsc, OSR_TEST_POPUP_HIDE_ON_ESC, 1.0f)
+OSR_TEST(PopupHideOnEsc2x, OSR_TEST_POPUP_HIDE_ON_ESC, 2.0f)
+OSR_TEST(PopupScrollInside, OSR_TEST_POPUP_SCROLL_INSIDE, 1.0f)
+OSR_TEST(PopupScrollInside2x, OSR_TEST_POPUP_SCROLL_INSIDE, 2.0f)
+OSR_TEST(DragDropStartDragging, OSR_TEST_DRAG_DROP_START_DRAGGING, 1.0f)
+OSR_TEST(DragDropStartDragging2x, OSR_TEST_DRAG_DROP_START_DRAGGING, 2.0f)
+OSR_TEST(DragDropUpdateCursor, OSR_TEST_DRAG_DROP_UPDATE_CURSOR, 1.0f)
+OSR_TEST(DragDropUpdateCursor2x, OSR_TEST_DRAG_DROP_UPDATE_CURSOR, 2.0f)
+OSR_TEST(DragDropDropElement, OSR_TEST_DRAG_DROP_DROP, 1.0f)
+OSR_TEST(DragDropDropElement2x, OSR_TEST_DRAG_DROP_DROP, 2.0f)
+OSR_TEST(IMESetComposition, OSR_TEST_IME_SET_COMPOSITION, 1.0f)
+OSR_TEST(IMESetComposition2x, OSR_TEST_IME_SET_COMPOSITION, 2.0f)
+OSR_TEST(IMECommitText, OSR_TEST_IME_COMMIT_TEXT, 1.0f)
+OSR_TEST(IMECommitText2x, OSR_TEST_IME_COMMIT_TEXT, 2.0f)
+OSR_TEST(IMEFinishComposition, OSR_TEST_IME_FINISH_COMPOSITION, 1.0f)
+OSR_TEST(IMEFinishComposition2x, OSR_TEST_IME_FINISH_COMPOSITION, 2.0f)
+OSR_TEST(IMECancelComposition, OSR_TEST_IME_CANCEL_COMPOSITION, 1.0f)
+OSR_TEST(IMECancelComposition2x, OSR_TEST_IME_CANCEL_COMPOSITION, 2.0f)
+OSR_TEST(TextSelectionChanged, OSR_TEST_TEXT_SELECTION_CHANGE, 1.0f)
+OSR_TEST(TextSelectionChanged2x, OSR_TEST_TEXT_SELECTION_CHANGE, 2.0f)
+OSR_TEST(VirtualKeyboard, OSR_TEST_VIRTUAL_KEYBOARD, 1.0f)
+OSR_TEST(TouchStart, OSR_TEST_TOUCH_START, 1.0f)
+OSR_TEST(TouchStart2X, OSR_TEST_TOUCH_START, 2.0f)
+OSR_TEST(TouchMove, OSR_TEST_TOUCH_MOVE, 1.0f)
+OSR_TEST(TouchMove2X, OSR_TEST_TOUCH_MOVE, 2.0f)
+OSR_TEST(TouchEnd, OSR_TEST_TOUCH_END, 1.0f)
+OSR_TEST(TouchEnd2X, OSR_TEST_TOUCH_END, 2.0f)
+OSR_TEST(TouchCancel, OSR_TEST_TOUCH_CANCEL, 1.0f)
+OSR_TEST(TouchCancel2X, OSR_TEST_TOUCH_CANCEL, 2.0f)
+OSR_TEST(PenEvent, OSR_TEST_PEN, 1.0f)

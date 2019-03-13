@@ -2432,101 +2432,101 @@ void RegisterURLRequestCustomSchemes(
 // Define the tests.
 #define REQ_TEST_SET(suffix, context_mode, test_server_backend)                \
   REQ_TEST(BrowserGET##suffix, REQTEST_GET, context_mode, true,                \
-           test_server_backend);                                               \
+           test_server_backend)                                                \
   REQ_TEST(BrowserGETNoData##suffix, REQTEST_GET_NODATA, context_mode, true,   \
-           test_server_backend);                                               \
+           test_server_backend)                                                \
   REQ_TEST(BrowserGETAllowCookies##suffix, REQTEST_GET_ALLOWCOOKIES,           \
-           context_mode, true, test_server_backend);                           \
+           context_mode, true, test_server_backend)                            \
   REQ_TEST(BrowserGETRedirect##suffix, REQTEST_GET_REDIRECT, context_mode,     \
-           true, test_server_backend);                                         \
+           true, test_server_backend)                                          \
   REQ_TEST(BrowserGETRedirectStop##suffix, REQTEST_GET_REDIRECT_STOP,          \
-           context_mode, true, test_server_backend);                           \
+           context_mode, true, test_server_backend)                            \
   REQ_TEST(BrowserGETRedirectLocation##suffix, REQTEST_GET_REDIRECT_LOCATION,  \
-           context_mode, true, test_server_backend);                           \
+           context_mode, true, test_server_backend)                            \
   REQ_TEST(BrowserGETReferrer##suffix, REQTEST_GET_REFERRER, context_mode,     \
-           true, test_server_backend);                                         \
+           true, test_server_backend)                                          \
   REQ_TEST(BrowserPOST##suffix, REQTEST_POST, context_mode, true,              \
-           test_server_backend);                                               \
+           test_server_backend)                                                \
   REQ_TEST(BrowserPOSTFile##suffix, REQTEST_POST_FILE, context_mode, true,     \
-           test_server_backend);                                               \
+           test_server_backend)                                                \
   REQ_TEST(BrowserPOSTWithProgress##suffix, REQTEST_POST_WITHPROGRESS,         \
-           context_mode, true, test_server_backend);                           \
+           context_mode, true, test_server_backend)                            \
   REQ_TEST(BrowserHEAD##suffix, REQTEST_HEAD, context_mode, true,              \
-           test_server_backend);                                               \
+           test_server_backend)                                                \
   REQ_TEST(RendererGET##suffix, REQTEST_GET, context_mode, false,              \
-           test_server_backend);                                               \
+           test_server_backend)                                                \
   REQ_TEST(RendererGETNoData##suffix, REQTEST_GET_NODATA, context_mode, false, \
-           test_server_backend);                                               \
+           test_server_backend)                                                \
   REQ_TEST(RendererGETAllowCookies##suffix, REQTEST_GET_ALLOWCOOKIES,          \
-           context_mode, false, test_server_backend);                          \
+           context_mode, false, test_server_backend)                           \
   REQ_TEST(RendererGETRedirect##suffix, REQTEST_GET_REDIRECT, context_mode,    \
-           false, test_server_backend);                                        \
+           false, test_server_backend)                                         \
   REQ_TEST(RendererGETRedirectStop##suffix, REQTEST_GET_REDIRECT_STOP,         \
-           context_mode, false, test_server_backend);                          \
+           context_mode, false, test_server_backend)                           \
   REQ_TEST(RendererGETRedirectLocation##suffix, REQTEST_GET_REDIRECT_LOCATION, \
-           context_mode, false, test_server_backend);                          \
+           context_mode, false, test_server_backend)                           \
   REQ_TEST(RendererGETReferrer##suffix, REQTEST_GET_REFERRER, context_mode,    \
-           false, test_server_backend);                                        \
+           false, test_server_backend)                                         \
   REQ_TEST(RendererPOST##suffix, REQTEST_POST, context_mode, false,            \
-           test_server_backend);                                               \
+           test_server_backend)                                                \
   REQ_TEST(RendererPOSTWithProgress##suffix, REQTEST_POST_WITHPROGRESS,        \
-           context_mode, false, test_server_backend);                          \
+           context_mode, false, test_server_backend)                           \
   REQ_TEST(RendererHEAD##suffix, REQTEST_HEAD, context_mode, false,            \
            test_server_backend)
 
-REQ_TEST_SET(ContextGlobalCustom, CONTEXT_GLOBAL, false);
-REQ_TEST_SET(ContextInMemoryCustom, CONTEXT_INMEMORY, false);
-REQ_TEST_SET(ContextOnDiskCustom, CONTEXT_ONDISK, false);
-REQ_TEST_SET(ContextGlobalServer, CONTEXT_GLOBAL, true);
-REQ_TEST_SET(ContextInMemoryServer, CONTEXT_INMEMORY, true);
-REQ_TEST_SET(ContextOnDiskServer, CONTEXT_ONDISK, true);
+REQ_TEST_SET(ContextGlobalCustom, CONTEXT_GLOBAL, false)
+REQ_TEST_SET(ContextInMemoryCustom, CONTEXT_INMEMORY, false)
+REQ_TEST_SET(ContextOnDiskCustom, CONTEXT_ONDISK, false)
+REQ_TEST_SET(ContextGlobalServer, CONTEXT_GLOBAL, true)
+REQ_TEST_SET(ContextInMemoryServer, CONTEXT_INMEMORY, true)
+REQ_TEST_SET(ContextOnDiskServer, CONTEXT_ONDISK, true)
 
 // Cache tests can only be run with the server backend.
 #define REQ_TEST_CACHE_SET(suffix, context_mode)                               \
   REQ_TEST(BrowserGETCacheWithControl##suffix, REQTEST_CACHE_WITH_CONTROL,     \
-           context_mode, true, true);                                          \
+           context_mode, true, true)                                           \
   REQ_TEST(BrowserGETCacheWithoutControl##suffix,                              \
-           REQTEST_CACHE_WITHOUT_CONTROL, context_mode, true, true);           \
+           REQTEST_CACHE_WITHOUT_CONTROL, context_mode, true, true)            \
   REQ_TEST(BrowserGETCacheSkipFlag##suffix, REQTEST_CACHE_SKIP_FLAG,           \
-           context_mode, true, true);                                          \
+           context_mode, true, true)                                           \
   REQ_TEST(BrowserGETCacheSkipHeader##suffix, REQTEST_CACHE_SKIP_HEADER,       \
-           context_mode, true, true);                                          \
+           context_mode, true, true)                                           \
   REQ_TEST(BrowserGETCacheOnlyFailureFlag##suffix,                             \
-           REQTEST_CACHE_ONLY_FAILURE_FLAG, context_mode, true, true);         \
+           REQTEST_CACHE_ONLY_FAILURE_FLAG, context_mode, true, true)          \
   REQ_TEST(BrowserGETCacheOnlyFailureHeader##suffix,                           \
-           REQTEST_CACHE_ONLY_FAILURE_HEADER, context_mode, true, true);       \
+           REQTEST_CACHE_ONLY_FAILURE_HEADER, context_mode, true, true)        \
   REQ_TEST(BrowserGETCacheOnlySuccessFlag##suffix,                             \
            REQTEST_CACHE_ONLY_SUCCESS_FLAG, context_mode, true, true)          \
   REQ_TEST(BrowserGETCacheOnlySuccessHeader##suffix,                           \
            REQTEST_CACHE_ONLY_SUCCESS_HEADER, context_mode, true, true)        \
   REQ_TEST(BrowserGETCacheDisableFlag##suffix, REQTEST_CACHE_DISABLE_FLAG,     \
-           context_mode, true, true);                                          \
+           context_mode, true, true)                                           \
   REQ_TEST(BrowserGETCacheDisableHeader##suffix, REQTEST_CACHE_DISABLE_HEADER, \
-           context_mode, true, true);                                          \
+           context_mode, true, true)                                           \
   REQ_TEST(RendererGETCacheWithControl##suffix, REQTEST_CACHE_WITH_CONTROL,    \
-           context_mode, false, true);                                         \
+           context_mode, false, true)                                          \
   REQ_TEST(RendererGETCacheWithoutControl##suffix,                             \
-           REQTEST_CACHE_WITHOUT_CONTROL, context_mode, false, true);          \
+           REQTEST_CACHE_WITHOUT_CONTROL, context_mode, false, true)           \
   REQ_TEST(RendererGETCacheSkipFlag##suffix, REQTEST_CACHE_SKIP_FLAG,          \
-           context_mode, false, true);                                         \
+           context_mode, false, true)                                          \
   REQ_TEST(RendererGETCacheSkipHeader##suffix, REQTEST_CACHE_SKIP_HEADER,      \
-           context_mode, false, true);                                         \
+           context_mode, false, true)                                          \
   REQ_TEST(RendererGETCacheOnlyFailureFlag##suffix,                            \
-           REQTEST_CACHE_ONLY_FAILURE_FLAG, context_mode, false, true);        \
+           REQTEST_CACHE_ONLY_FAILURE_FLAG, context_mode, false, true)         \
   REQ_TEST(RendererGETCacheOnlyFailureHeader##suffix,                          \
-           REQTEST_CACHE_ONLY_FAILURE_HEADER, context_mode, false, true);      \
+           REQTEST_CACHE_ONLY_FAILURE_HEADER, context_mode, false, true)       \
   REQ_TEST(RendererGETCacheOnlySuccessFlag##suffix,                            \
-           REQTEST_CACHE_ONLY_SUCCESS_FLAG, context_mode, false, true);        \
+           REQTEST_CACHE_ONLY_SUCCESS_FLAG, context_mode, false, true)         \
   REQ_TEST(RendererGETCacheOnlySuccessHeader##suffix,                          \
            REQTEST_CACHE_ONLY_SUCCESS_HEADER, context_mode, false, true)       \
   REQ_TEST(RendererGETCacheDisableFlag##suffix, REQTEST_CACHE_DISABLE_FLAG,    \
-           context_mode, false, true);                                         \
+           context_mode, false, true)                                          \
   REQ_TEST(RendererGETCacheDisableHeader##suffix,                              \
-           REQTEST_CACHE_DISABLE_HEADER, context_mode, false, true);
+           REQTEST_CACHE_DISABLE_HEADER, context_mode, false, true)
 
-REQ_TEST_CACHE_SET(ContextGlobalServer, CONTEXT_GLOBAL);
-REQ_TEST_CACHE_SET(ContextInMemoryServer, CONTEXT_INMEMORY);
-REQ_TEST_CACHE_SET(ContextOnDiskServer, CONTEXT_ONDISK);
+REQ_TEST_CACHE_SET(ContextGlobalServer, CONTEXT_GLOBAL)
+REQ_TEST_CACHE_SET(ContextInMemoryServer, CONTEXT_INMEMORY)
+REQ_TEST_CACHE_SET(ContextOnDiskServer, CONTEXT_ONDISK)
 
 namespace {
 

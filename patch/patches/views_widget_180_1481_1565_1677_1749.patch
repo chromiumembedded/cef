@@ -1,5 +1,5 @@
 diff --git content/browser/renderer_host/render_widget_host_view_base.cc content/browser/renderer_host/render_widget_host_view_base.cc
-index 68d55c2f9e2d..6965fc87237a 100644
+index 2672a26d934d..d911db336c0f 100644
 --- content/browser/renderer_host/render_widget_host_view_base.cc
 +++ content/browser/renderer_host/render_widget_host_view_base.cc
 @@ -571,6 +571,14 @@ float RenderWidgetHostViewBase::GetDeviceScaleFactor() const {
@@ -18,7 +18,7 @@ index 68d55c2f9e2d..6965fc87237a 100644
    return renderer_frame_number_;
  }
 diff --git content/browser/renderer_host/render_widget_host_view_base.h content/browser/renderer_host/render_widget_host_view_base.h
-index 148c980a6f60..fc88fd4bebe0 100644
+index 8cdb72afa1bc..ab32e9e06b8c 100644
 --- content/browser/renderer_host/render_widget_host_view_base.h
 +++ content/browser/renderer_host/render_widget_host_view_base.h
 @@ -84,6 +84,7 @@ class CursorManager;
@@ -48,7 +48,7 @@ index 148c980a6f60..fc88fd4bebe0 100644
    TouchSelectionControllerClientManager*
    GetTouchSelectionControllerClientManager() override;
  
-@@ -477,6 +483,12 @@ class CONTENT_EXPORT RenderWidgetHostViewBase
+@@ -474,6 +480,12 @@ class CONTENT_EXPORT RenderWidgetHostViewBase
    // helps to position the full screen widget on the correct monitor.
    virtual void InitAsFullscreen(RenderWidgetHostView* reference_host_view) = 0;
  
@@ -61,7 +61,7 @@ index 148c980a6f60..fc88fd4bebe0 100644
    // Sets the cursor for this view to the one associated with the specified
    // cursor_type.
    virtual void UpdateCursor(const WebCursor& cursor) = 0;
-@@ -678,6 +690,10 @@ class CONTENT_EXPORT RenderWidgetHostViewBase
+@@ -675,6 +687,10 @@ class CONTENT_EXPORT RenderWidgetHostViewBase
  
    bool is_currently_scrolling_viewport_ = false;
  
@@ -135,7 +135,7 @@ index f772f64d656e..7d13f9f81b6c 100644
    return host ? host->GetAcceleratedWidget() : NULL;
  }
 diff --git ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc
-index 3072635b1d3f..8f95501e27e1 100644
+index 383a23422e76..cf788070202d 100644
 --- ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc
 +++ ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc
 @@ -90,6 +90,7 @@ DesktopWindowTreeHostWin::DesktopWindowTreeHostWin(
@@ -194,7 +194,7 @@ index 57fdabdb047a..db7c6b027452 100644
    // a reference.
    corewm::TooltipWin* tooltip_;
 diff --git ui/views/widget/desktop_aura/desktop_window_tree_host_x11.cc ui/views/widget/desktop_aura/desktop_window_tree_host_x11.cc
-index 42c4658fe75f..17e47e1b61ba 100644
+index 6f9892830001..1369d7e367ea 100644
 --- ui/views/widget/desktop_aura/desktop_window_tree_host_x11.cc
 +++ ui/views/widget/desktop_aura/desktop_window_tree_host_x11.cc
 @@ -146,6 +146,7 @@ DesktopWindowTreeHostX11::DesktopWindowTreeHostX11(
@@ -335,7 +335,7 @@ index c547609abf03..5092e2a38b67 100644
    base::WeakPtrFactory<DesktopWindowTreeHostX11> weak_factory_;
  
 diff --git ui/views/widget/widget.cc ui/views/widget/widget.cc
-index 04a14bf90d58..db1f16c72f37 100644
+index c6c267383674..c66481e65a72 100644
 --- ui/views/widget/widget.cc
 +++ ui/views/widget/widget.cc
 @@ -138,6 +138,7 @@ Widget::InitParams::InitParams(Type type)
@@ -369,7 +369,7 @@ index 04a14bf90d58..db1f16c72f37 100644
    }
    // This must come after SetContentsView() or it might not be able to find
    // the correct NativeTheme (on Linux). See http://crbug.com/384492
-@@ -1135,10 +1141,16 @@ void Widget::OnNativeWidgetDestroyed() {
+@@ -1150,10 +1156,16 @@ void Widget::OnNativeWidgetDestroyed() {
  }
  
  gfx::Size Widget::GetMinimumSize() const {
@@ -387,7 +387,7 @@ index 04a14bf90d58..db1f16c72f37 100644
  }
  
 diff --git ui/views/widget/widget.h ui/views/widget/widget.h
-index bb13f4e9ff1a..c8535665cea7 100644
+index d04ca53ec52e..f47caf483a7e 100644
 --- ui/views/widget/widget.h
 +++ ui/views/widget/widget.h
 @@ -255,6 +255,7 @@ class VIEWS_EXPORT Widget : public internal::NativeWidgetDelegate,
@@ -427,7 +427,7 @@ index 5bcb8d8b9bae..020fa85573aa 100644
        if (native_widget_delegate->IsDialogBox()) {
          *style |= DS_MODALFRAME;
 diff --git ui/views/win/hwnd_message_handler.cc ui/views/win/hwnd_message_handler.cc
-index a71728f78327..aff700c1ace0 100644
+index 3703f163d237..83db8b82f960 100644
 --- ui/views/win/hwnd_message_handler.cc
 +++ ui/views/win/hwnd_message_handler.cc
 @@ -2916,10 +2916,13 @@ LRESULT HWNDMessageHandler::HandleMouseEventInternal(UINT message,

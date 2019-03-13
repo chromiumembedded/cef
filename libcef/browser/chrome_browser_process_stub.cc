@@ -75,11 +75,11 @@ void ChromeBrowserProcessStub::Shutdown() {
 
 void ChromeBrowserProcessStub::ResourceDispatcherHostCreated() {
   NOTREACHED();
-};
+}
 
 void ChromeBrowserProcessStub::EndSession() {
   NOTREACHED();
-};
+}
 
 void ChromeBrowserProcessStub::FlushLocalStateAndReply(
     base::OnceClosure reply) {

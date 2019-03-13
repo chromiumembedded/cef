@@ -9,6 +9,7 @@
 #include "base/location.h"
 #include "base/logging.h"
 #include "base/task/post_task.h"
+#include "base/threading/scoped_blocking_call.h"
 #include "base/threading/thread_restrictions.h"
 #include "content/public/browser/browser_task_traits.h"
 #include "content/public/browser/browser_thread.h"
@@ -73,7 +74,9 @@
   CEF_POST_BLOCKING_TASK(base::TaskPriority::BEST_EFFORT, task)
 
 // Assert that blocking is allowed on the current thread.
-#define CEF_REQUIRE_BLOCKING() base::AssertBlockingAllowedDeprecated()
+#define CEF_REQUIRE_BLOCKING()                   \
+  base::ScopedBlockingCall scoped_blocking_call( \
+      FROM_HERE, base::BlockingType::WILL_BLOCK)
 
 // Same as IMPLEMENT_REFCOUNTING() but using the specified Destructor.
 #define IMPLEMENT_REFCOUNTING_EX(ClassName, Destructor)              \
@@ -92,7 +95,7 @@
   }                                                                  \
                                                                      \
  private:                                                            \
-  CefRefCount ref_count_;
+  CefRefCount ref_count_
 
 #define IMPLEMENT_REFCOUNTING_DELETE_ON_UIT(ClassName) \
   IMPLEMENT_REFCOUNTING_EX(ClassName, content::BrowserThread::DeleteOnUIThread)

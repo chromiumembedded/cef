@@ -39,18 +39,6 @@ void CefRenderFrameObserver::OnInterfaceRequestForFrame(
   registry_.TryBindInterface(interface_name, interface_pipe);
 }
 
-void CefRenderFrameObserver::DidStartProvisionalLoad(
-    blink::WebDocumentLoader* document_loader,
-    bool is_content_initiated) {
-  blink::WebLocalFrame* frame = render_frame()->GetWebFrame();
-  CefRefPtr<CefBrowserImpl> browserPtr =
-      CefBrowserImpl::GetBrowserForMainFrame(frame->Top());
-  if (!browserPtr.get())
-    return;
-
-  browserPtr->DidStartProvisionalLoad(frame);
-}
-
 void CefRenderFrameObserver::DidFinishLoad() {
   blink::WebLocalFrame* frame = render_frame()->GetWebFrame();
   CefRefPtr<CefBrowserImpl> browserPtr =

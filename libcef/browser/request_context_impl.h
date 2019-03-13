@@ -77,9 +77,6 @@ class CefRequestContextImpl : public CefRequestContext {
   void CloseAllConnections(CefRefPtr<CefCompletionCallback> callback) override;
   void ResolveHost(const CefString& origin,
                    CefRefPtr<CefResolveCallback> callback) override;
-  cef_errorcode_t ResolveHostCached(
-      const CefString& origin,
-      std::vector<CefString>& resolved_ips) override;
   void LoadExtension(const CefString& root_directory,
                      CefRefPtr<CefDictionaryValue> manifest,
                      CefRefPtr<CefExtensionHandler> handler) override;

@@ -7,10 +7,15 @@
 #include "libcef/common/content_client.h"
 
 #include "base/memory/ptr_util.h"
+#include "base/message_loop/message_loop.h"
+#include "base/message_loop/message_pump_for_ui.h"
 
 #if defined(OS_MACOSX)
 #include "base/mac/scoped_nsautorelease_pool.h"
+#include "base/message_loop/message_pump_mac.h"
 #endif
+
+#include "content/public/browser/browser_thread.h"
 
 namespace {
 
@@ -82,23 +87,27 @@ CefRefPtr<CefBrowserProcessHandler> GetBrowserProcessHandler() {
   return nullptr;
 }
 
-std::unique_ptr<base::MessagePump> CreatePump() {
-  const CefSettings& settings = CefContext::Get()->settings();
-  if (settings.external_message_pump) {
+std::unique_ptr<base::MessagePump> MessagePumpFactoryForUI() {
+  if (!content::BrowserThread::IsThreadInitialized(
+          content::BrowserThread::UI) ||
+      content::BrowserThread::CurrentlyOn(content::BrowserThread::UI)) {
     CefRefPtr<CefBrowserProcessHandler> handler = GetBrowserProcessHandler();
     if (handler)
-      return base::WrapUnique(new MessagePumpExternal(0.01f, handler));
+      return std::make_unique<MessagePumpExternal>(0.01f, handler);
   }
 
-  return base::MessageLoop::CreateMessagePumpForType(
-      base::MessageLoop::TYPE_UI);
+#if defined(OS_MACOSX)
+  return base::MessagePumpMac::Create();
+#else
+  return std::make_unique<base::MessagePumpForUI>();
+#endif
 }
 
 }  // namespace
 
-CefBrowserMessageLoop::CefBrowserMessageLoop()
-    : base::MessageLoopForUI(CreatePump()) {
-  BindToCurrentThread();
+void InitMessagePumpFactoryForUI() {
+  const CefSettings& settings = CefContext::Get()->settings();
+  if (settings.external_message_pump) {
+    base::MessageLoop::InitMessagePumpForUIFactory(MessagePumpFactoryForUI);
+  }
 }
-
-CefBrowserMessageLoop::~CefBrowserMessageLoop() {}

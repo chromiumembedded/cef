@@ -877,32 +877,32 @@ class PopupNavTestHandler : public TestHandler {
                           PopupNavTestHandler, test_mode)
 
 // Test allowing popups and closing the popup browser first.
-POPUP_TEST_GROUP(AllowClosePopupFirst, ALLOW_CLOSE_POPUP_FIRST);
+POPUP_TEST_GROUP(AllowClosePopupFirst, ALLOW_CLOSE_POPUP_FIRST)
 
 // Test allowing popups and closing the main browser first to verify
 // that internal objects are tracked correctly (see issue #2162).
-POPUP_TEST_GROUP(AllowClosePopupLast, ALLOW_CLOSE_POPUP_LAST);
+POPUP_TEST_GROUP(AllowClosePopupLast, ALLOW_CLOSE_POPUP_LAST)
 
 // Test denying popups.
-POPUP_TEST_GROUP(Deny, DENY);
+POPUP_TEST_GROUP(Deny, DENY)
 
 // Test navigation to a different origin after popup creation to
 // verify that internal objects are tracked correctly (see issue
 // #1392).
-POPUP_TEST_GROUP(NavigateAfterCreation, NAVIGATE_AFTER_CREATION);
+POPUP_TEST_GROUP(NavigateAfterCreation, NAVIGATE_AFTER_CREATION)
 
 // Test destroying the parent browser during or immediately after
 // popup creation to verify that internal objects are tracked
 // correctly (see issue #2041).
-POPUP_TEST_GROUP(DestroyParentBeforeCreation, DESTROY_PARENT_BEFORE_CREATION);
+POPUP_TEST_GROUP(DestroyParentBeforeCreation, DESTROY_PARENT_BEFORE_CREATION)
 POPUP_TEST_GROUP(DestroyParentBeforeCreationForce,
-                 DESTROY_PARENT_BEFORE_CREATION_FORCE);
-POPUP_TEST_GROUP(DestroyParentDuringCreation, DESTROY_PARENT_DURING_CREATION);
+                 DESTROY_PARENT_BEFORE_CREATION_FORCE)
+POPUP_TEST_GROUP(DestroyParentDuringCreation, DESTROY_PARENT_DURING_CREATION)
 POPUP_TEST_GROUP(DestroyParentDuringCreationForce,
-                 DESTROY_PARENT_DURING_CREATION_FORCE);
-POPUP_TEST_GROUP(DestroyParentAfterCreation, DESTROY_PARENT_AFTER_CREATION);
+                 DESTROY_PARENT_DURING_CREATION_FORCE)
+POPUP_TEST_GROUP(DestroyParentAfterCreation, DESTROY_PARENT_AFTER_CREATION)
 POPUP_TEST_GROUP(DestroyParentAfterCreationForce,
-                 DESTROY_PARENT_AFTER_CREATION_FORCE);
+                 DESTROY_PARENT_AFTER_CREATION_FORCE)
 
 namespace {
 
@@ -993,27 +993,7 @@ class MethodTestHandler : public TestHandler {
     EXPECT_FALSE(got_completion_callback_);
     got_completion_callback_.yes();
 
-    if (method_ == METHOD_RESOLVE_HOST) {
-      // Now try a cached request.
-      CefPostTask(TID_IO, base::Bind(&MethodTestHandler::ResolveHostCached,
-                                     this, browser));
-    } else {
-      DestroyTest();
-    }
-  }
-
-  void ResolveHostCached(CefRefPtr<CefBrowser> browser) {
-    EXPECT_IO_THREAD();
-
-    CefRefPtr<CefRequestContext> context =
-        browser->GetHost()->GetRequestContext();
-    std::vector<CefString> resolved_ips;
-    cef_errorcode_t result =
-        context->ResolveHostCached(kResolveOrigin, resolved_ips);
-    EXPECT_EQ(ERR_NONE, result);
-    EXPECT_TRUE(!resolved_ips.empty());
-
-    CefPostTask(TID_UI, base::Bind(&MethodTestHandler::DestroyTest, this));
+    DestroyTest();
   }
 
  private:

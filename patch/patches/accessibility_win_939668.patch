@@ -1,0 +1,31 @@
+diff --git content/browser/accessibility/accessibility_tree_formatter_win.cc content/browser/accessibility/accessibility_tree_formatter_win.cc
+index 59f85adf85c3..a60cb7aa874c 100644
+--- content/browser/accessibility/accessibility_tree_formatter_win.cc
++++ content/browser/accessibility/accessibility_tree_formatter_win.cc
+@@ -35,7 +35,7 @@
+ #include "ui/base/win/atl_module.h"
+ #include "ui/gfx/win/hwnd_util.h"
+ 
+-namespace {
++namespace internal {
+ 
+ struct HwndWithProcId {
+   HwndWithProcId(const base::ProcessId id) : pid(id), hwnd(nullptr) {}
+@@ -60,7 +60,7 @@ HWND GetHwndForProcess(base::ProcessId pid) {
+   return hwnd_with_proc_id.hwnd;
+ }
+ 
+-}  // namespace
++}  // namespace internal
+ 
+ namespace content {
+ 
+@@ -354,7 +354,7 @@ std::unique_ptr<base::DictionaryValue>
+ AccessibilityTreeFormatterWin::BuildAccessibilityTreeForProcess(
+     base::ProcessId pid) {
+   // Get HWND for process id.
+-  HWND hwnd = GetHwndForProcess(pid);
++  HWND hwnd = ::internal::GetHwndForProcess(pid);
+   return BuildAccessibilityTreeForWindow(hwnd);
+ }
+ 

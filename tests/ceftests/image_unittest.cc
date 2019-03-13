@@ -285,16 +285,16 @@ void SaveJPEGMultiImpl() {
 
 #define IMAGE_TEST(name) UI_THREAD_TEST(ImageTest, name)
 
-IMAGE_TEST(Empty);
-IMAGE_TEST(Scale1x);
-IMAGE_TEST(Scale2x);
-IMAGE_TEST(ScaleMulti);
-IMAGE_TEST(SaveBitmap1x);
-IMAGE_TEST(SaveBitmap2x);
-IMAGE_TEST(SaveBitmapMulti);
-IMAGE_TEST(SavePNG1x);
-IMAGE_TEST(SavePNG2x);
-IMAGE_TEST(SavePNGMulti);
-IMAGE_TEST(SaveJPEG1x);
-IMAGE_TEST(SaveJPEG2x);
-IMAGE_TEST(SaveJPEGMulti);
+IMAGE_TEST(Empty)
+IMAGE_TEST(Scale1x)
+IMAGE_TEST(Scale2x)
+IMAGE_TEST(ScaleMulti)
+IMAGE_TEST(SaveBitmap1x)
+IMAGE_TEST(SaveBitmap2x)
+IMAGE_TEST(SaveBitmapMulti)
+IMAGE_TEST(SavePNG1x)
+IMAGE_TEST(SavePNG2x)
+IMAGE_TEST(SavePNGMulti)
+IMAGE_TEST(SaveJPEG1x)
+IMAGE_TEST(SaveJPEG2x)
+IMAGE_TEST(SaveJPEGMulti)

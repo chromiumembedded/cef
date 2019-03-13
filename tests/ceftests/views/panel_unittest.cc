@@ -81,8 +81,8 @@ void CreatePanelWithDelegateImpl() {
 }  // namespace
 
 // Test creation.
-PANEL_TEST(CreatePanelNoDelegate);
-PANEL_TEST(CreatePanelWithDelegate);
+PANEL_TEST(CreatePanelNoDelegate)
+PANEL_TEST(CreatePanelWithDelegate)
 
 namespace {
 
@@ -580,11 +580,11 @@ void ChildDrawnImpl() {
 }  // namespace
 
 // Test child behaviors.
-PANEL_TEST(ChildAddRemoveSingle);
-PANEL_TEST(ChildAddRemoveMultiple);
-PANEL_TEST(ChildOrder);
-PANEL_TEST(ChildVisible);
-PANEL_TEST(ChildDrawn);
+PANEL_TEST(ChildAddRemoveSingle)
+PANEL_TEST(ChildAddRemoveMultiple)
+PANEL_TEST(ChildOrder)
+PANEL_TEST(ChildVisible)
+PANEL_TEST(ChildDrawn)
 
 namespace {
 
@@ -742,8 +742,8 @@ void SizeWithDelegateImpl() {
 }  // namespace
 
 // Test sizing.
-PANEL_TEST(SizeNoDelegate);
-PANEL_TEST(SizeWithDelegate);
+PANEL_TEST(SizeNoDelegate)
+PANEL_TEST(SizeWithDelegate)
 
 namespace {
 
@@ -913,11 +913,11 @@ void FillLayoutSizeHierarchyFromChildWithDelegateImpl() {
 }  // namespace
 
 // Test FillLayout.
-PANEL_TEST(FillLayoutCreate);
-PANEL_TEST(FillLayoutSizeToPreferredSize);
-PANEL_TEST(FillLayoutSizeHierarchy);
-PANEL_TEST(FillLayoutSizeHierarchyFromParentWithDelegate);
-PANEL_TEST(FillLayoutSizeHierarchyFromChildWithDelegate);
+PANEL_TEST(FillLayoutCreate)
+PANEL_TEST(FillLayoutSizeToPreferredSize)
+PANEL_TEST(FillLayoutSizeHierarchy)
+PANEL_TEST(FillLayoutSizeHierarchyFromParentWithDelegate)
+PANEL_TEST(FillLayoutSizeHierarchyFromChildWithDelegate)
 
 namespace {
 
@@ -1364,24 +1364,24 @@ void BoxLayoutSizeHierarchyHorizontalStretchFlexBothWithDelegateImpl() {
 
 // Test BoxLayout. The BoxLayoutSizeHierarchy* tests are representative but not
 // comprehensive (e.g. not all possible configurations are tested).
-PANEL_TEST(BoxLayoutCreate);
-PANEL_TEST(BoxLayoutSizeHierarchyVerticalStretch);
-PANEL_TEST(BoxLayoutSizeHierarchyVerticalStretchWithDelegate);
-PANEL_TEST(BoxLayoutSizeHierarchyHorizontalStretch);
-PANEL_TEST(BoxLayoutSizeHierarchyHorizontalStretchWithDelegate);
-PANEL_TEST(BoxLayoutSizeHierarchyVerticalCenter);
-PANEL_TEST(BoxLayoutSizeHierarchyVerticalCenterWithDelegate);
-PANEL_TEST(BoxLayoutSizeHierarchyHorizontalCenter);
-PANEL_TEST(BoxLayoutSizeHierarchyHorizontalCenterWithDelegate);
-PANEL_TEST(BoxLayoutSizeHierarchyVerticalCenterCenter);
-PANEL_TEST(BoxLayoutSizeHierarchyVerticalCenterCenterWithDelegate);
-PANEL_TEST(BoxLayoutSizeHierarchyHorizontalCenterCenter);
-PANEL_TEST(BoxLayoutSizeHierarchyHorizontalCenterCenterWithDelegate);
-PANEL_TEST(BoxLayoutSizeHierarchyVerticalStretchFlexOne);
-PANEL_TEST(BoxLayoutSizeHierarchyVerticalStretchFlexOneWithDelegate);
-PANEL_TEST(BoxLayoutSizeHierarchyHorizontalStretchFlexOne);
-PANEL_TEST(BoxLayoutSizeHierarchyHorizontalStretchFlexOneWithDelegate);
-PANEL_TEST(BoxLayoutSizeHierarchyVerticalStretchFlexBoth);
-PANEL_TEST(BoxLayoutSizeHierarchyVerticalStretchFlexBothWithDelegate);
-PANEL_TEST(BoxLayoutSizeHierarchyHorizontalStretchFlexBoth);
-PANEL_TEST(BoxLayoutSizeHierarchyHorizontalStretchFlexBothWithDelegate);
+PANEL_TEST(BoxLayoutCreate)
+PANEL_TEST(BoxLayoutSizeHierarchyVerticalStretch)
+PANEL_TEST(BoxLayoutSizeHierarchyVerticalStretchWithDelegate)
+PANEL_TEST(BoxLayoutSizeHierarchyHorizontalStretch)
+PANEL_TEST(BoxLayoutSizeHierarchyHorizontalStretchWithDelegate)
+PANEL_TEST(BoxLayoutSizeHierarchyVerticalCenter)
+PANEL_TEST(BoxLayoutSizeHierarchyVerticalCenterWithDelegate)
+PANEL_TEST(BoxLayoutSizeHierarchyHorizontalCenter)
+PANEL_TEST(BoxLayoutSizeHierarchyHorizontalCenterWithDelegate)
+PANEL_TEST(BoxLayoutSizeHierarchyVerticalCenterCenter)
+PANEL_TEST(BoxLayoutSizeHierarchyVerticalCenterCenterWithDelegate)
+PANEL_TEST(BoxLayoutSizeHierarchyHorizontalCenterCenter)
+PANEL_TEST(BoxLayoutSizeHierarchyHorizontalCenterCenterWithDelegate)
+PANEL_TEST(BoxLayoutSizeHierarchyVerticalStretchFlexOne)
+PANEL_TEST(BoxLayoutSizeHierarchyVerticalStretchFlexOneWithDelegate)
+PANEL_TEST(BoxLayoutSizeHierarchyHorizontalStretchFlexOne)
+PANEL_TEST(BoxLayoutSizeHierarchyHorizontalStretchFlexOneWithDelegate)
+PANEL_TEST(BoxLayoutSizeHierarchyVerticalStretchFlexBoth)
+PANEL_TEST(BoxLayoutSizeHierarchyVerticalStretchFlexBothWithDelegate)
+PANEL_TEST(BoxLayoutSizeHierarchyHorizontalStretchFlexBoth)
+PANEL_TEST(BoxLayoutSizeHierarchyHorizontalStretchFlexBothWithDelegate)

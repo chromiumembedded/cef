@@ -59,8 +59,7 @@ class CefWebContentsViewOSR : public content::WebContentsView,
   void SetOverscrollControllerEnabled(bool enabled) override;
 
 #if defined(OS_MACOSX)
-  bool IsEventTracking() const override;
-  void CloseTabAfterEventTracking() override;
+  bool CloseTabAfterEventTrackingIfNeeded() override;
 #endif
 
   // RenderViewHostDelegateView methods.

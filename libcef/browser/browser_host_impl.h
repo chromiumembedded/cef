@@ -426,7 +426,9 @@ class CefBrowserHostImpl : public CefBrowserHost,
                          bool proceed,
                          bool* proceed_to_fire_unload) override;
   bool TakeFocus(content::WebContents* source, bool reverse) override;
-  bool HandleContextMenu(const content::ContextMenuParams& params) override;
+
+  bool HandleContextMenu(content::RenderFrameHost* render_frame_host,
+                         const content::ContextMenuParams& params) override;
   content::KeyboardEventProcessingResult PreHandleKeyboardEvent(
       content::WebContents* source,
       const content::NativeWebKeyboardEvent& event) override;

@@ -85,7 +85,7 @@ class CefBrowserInfo : public base::RefCountedThreadSafe<CefBrowserInfo> {
 
   CefBrowserInfo(int browser_id, bool is_popup);
 
-  int browser_id() const { return browser_id_; };
+  int browser_id() const { return browser_id_; }
   bool is_popup() const { return is_popup_; }
   bool is_windowless() const { return is_windowless_; }
 

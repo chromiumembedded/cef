@@ -12,7 +12,7 @@
 namespace blink {
 class WebLocalFrame;
 class WebNode;
-};  // namespace blink
+}  // namespace blink
 
 class CefBrowserImpl;
 

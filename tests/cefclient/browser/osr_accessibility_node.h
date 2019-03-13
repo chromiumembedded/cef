@@ -56,7 +56,7 @@ class OsrAXNode {
 
   OsrAccessibilityHelper* GetAccessibilityHelper() const {
     return accessibility_helper_;
-  };
+  }
 
   int GetChildCount() const { return static_cast<int>(child_ids_.size()); }
 

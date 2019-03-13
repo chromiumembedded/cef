@@ -271,17 +271,6 @@ class CefRequestContext : public virtual CefBaseRefCounted {
                            CefRefPtr<CefResolveCallback> callback) = 0;
 
   ///
-  // Attempts to resolve |origin| to a list of associated IP addresses using
-  // cached data. |resolved_ips| will be populated with the list of resolved IP
-  // addresses or empty if no cached data is available. Returns ERR_NONE on
-  // success. This method must be called on the browser process IO thread.
-  ///
-  /*--cef(default_retval=ERR_FAILED)--*/
-  virtual cef_errorcode_t ResolveHostCached(
-      const CefString& origin,
-      std::vector<CefString>& resolved_ips) = 0;
-
-  ///
   // Load an extension.
   //
   // If extension resources will be read from disk using the default load

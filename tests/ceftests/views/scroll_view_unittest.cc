@@ -148,5 +148,5 @@ void ScrollViewLayoutNoDelegateImpl(CefRefPtr<CefWaitableEvent> event) {
 // Test ScrollView layout. This is primarily to exercise exposed CEF APIs and is
 // not intended to comprehensively test ScrollView-related behavior (which we
 // presume that Chromium is testing).
-SCROLL_VIEW_TEST_ASYNC(ScrollViewLayoutWithDelegate);
-SCROLL_VIEW_TEST_ASYNC(ScrollViewLayoutNoDelegate);
+SCROLL_VIEW_TEST_ASYNC(ScrollViewLayoutWithDelegate)
+SCROLL_VIEW_TEST_ASYNC(ScrollViewLayoutNoDelegate)

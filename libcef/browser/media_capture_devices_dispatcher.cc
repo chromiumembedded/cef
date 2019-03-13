@@ -29,7 +29,7 @@ const blink::MediaStreamDevice* FindDefaultDeviceWithId(
   }
 
   return &(*devices.begin());
-};
+}
 
 }  // namespace
 

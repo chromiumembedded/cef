@@ -17,7 +17,7 @@
 namespace content {
 class RenderFrameHost;
 class WebContents;
-};
+}  // namespace content
 
 class CefBrowserHostImpl;
 class CefRunContextMenuCallback;

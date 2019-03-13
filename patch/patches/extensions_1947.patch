@@ -27,10 +27,10 @@ index 9e81f0a33ede..b796e79ae7ef 100644
    auto* browser_context = web_contents->GetBrowserContext();
  
 diff --git content/browser/frame_host/render_frame_host_manager.cc content/browser/frame_host/render_frame_host_manager.cc
-index 11643f592dee..687e9da19789 100644
+index cc7c7b4ffab5..24cab4f980a5 100644
 --- content/browser/frame_host/render_frame_host_manager.cc
 +++ content/browser/frame_host/render_frame_host_manager.cc
-@@ -955,10 +955,11 @@ bool RenderFrameHostManager::ShouldSwapBrowsingInstancesForNavigation(
+@@ -967,10 +967,11 @@ bool RenderFrameHostManager::ShouldSwapBrowsingInstancesForNavigation(
    // TODO(alexmos): This check should've been enforced earlier in the
    // navigation, in chrome::Navigate().  Verify this, and then convert this to
    // a CHECK and remove the fallback.
@@ -46,7 +46,7 @@ index 11643f592dee..687e9da19789 100644
      return true;
    }
  
-@@ -1097,7 +1098,8 @@ RenderFrameHostManager::GetSiteInstanceForNavigation(
+@@ -1109,7 +1110,8 @@ RenderFrameHostManager::GetSiteInstanceForNavigation(
  
    // Double-check that the new SiteInstance is associated with the right
    // BrowserContext.
@@ -57,10 +57,10 @@ index 11643f592dee..687e9da19789 100644
    // If |new_instance| is a new SiteInstance for a subframe that requires a
    // dedicated process, set its process reuse policy so that such subframes are
 diff --git content/public/browser/content_browser_client.h content/public/browser/content_browser_client.h
-index a013031c6e2a..d43890a109e9 100644
+index 7fc0a70f4e79..96a887d5e8e5 100644
 --- content/public/browser/content_browser_client.h
 +++ content/public/browser/content_browser_client.h
-@@ -456,6 +456,13 @@ class CONTENT_EXPORT ContentBrowserClient {
+@@ -460,6 +460,13 @@ class CONTENT_EXPORT ContentBrowserClient {
    // Returns true if error page should be isolated in its own process.
    virtual bool ShouldIsolateErrorPage(bool in_main_frame);
  
@@ -74,7 +74,7 @@ index a013031c6e2a..d43890a109e9 100644
    // Returns true if the passed in URL should be assigned as the site of the
    // current SiteInstance, if it does not yet have a site.
    virtual bool ShouldAssignSiteForURL(const GURL& url);
-@@ -1461,6 +1468,10 @@ class CONTENT_EXPORT ContentBrowserClient {
+@@ -1491,6 +1498,10 @@ class CONTENT_EXPORT ContentBrowserClient {
    // Used as part of the user agent string.
    virtual std::string GetProduct() const;
  
@@ -230,10 +230,10 @@ index 93dce1cad08c..fdb7ad2193d7 100644
    // once each time the extensions system is loaded per browser_context. The
    // implementation may wish to use the BrowserContext to record the current
 diff --git extensions/browser/process_manager.cc extensions/browser/process_manager.cc
-index 30847850a812..9b59574c1bf1 100644
+index 14fa00f41564..9487425a5627 100644
 --- extensions/browser/process_manager.cc
 +++ extensions/browser/process_manager.cc
-@@ -382,9 +382,16 @@ bool ProcessManager::CreateBackgroundHost(const Extension* extension,
+@@ -383,9 +383,16 @@ bool ProcessManager::CreateBackgroundHost(const Extension* extension,
      return true;  // TODO(kalman): return false here? It might break things...
  
    DVLOG(1) << "CreateBackgroundHost " << extension->id();

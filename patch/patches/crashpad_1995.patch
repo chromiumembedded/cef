@@ -241,7 +241,7 @@ index 6e95af6ca7f5..061fb189d60f 100644
  extern void InitCrashKeysForTesting();
  
 diff --git components/crash/content/app/crash_reporter_client.cc components/crash/content/app/crash_reporter_client.cc
-index b3b09cee8d6f..4bc2afc7bd6e 100644
+index c3c3f9db07d4..c532a5a46740 100644
 --- components/crash/content/app/crash_reporter_client.cc
 +++ components/crash/content/app/crash_reporter_client.cc
 @@ -88,7 +88,7 @@ int CrashReporterClient::GetResultCodeRespawnFailed() {
@@ -300,7 +300,7 @@ index b3b09cee8d6f..4bc2afc7bd6e 100644
 +#endif
 +
  #if defined(OS_ANDROID)
- unsigned int CrashReporterClient::GetCrashDumpPercentageForWebView() {
+ unsigned int CrashReporterClient::GetCrashDumpPercentage() {
    return 100;
 @@ -194,9 +222,11 @@ bool CrashReporterClient::ShouldMonitorCrashHandlerExpensively() {
    return false;
@@ -318,7 +318,7 @@ index b3b09cee8d6f..4bc2afc7bd6e 100644
  
  }  // namespace crash_reporter
 diff --git components/crash/content/app/crash_reporter_client.h components/crash/content/app/crash_reporter_client.h
-index caebf67a7e0f..5e7cf3d8c1a6 100644
+index 1d35caa36716..7b96fb687b98 100644
 --- components/crash/content/app/crash_reporter_client.h
 +++ components/crash/content/app/crash_reporter_client.h
 @@ -5,7 +5,9 @@
@@ -388,10 +388,10 @@ index caebf67a7e0f..5e7cf3d8c1a6 100644
  
  }  // namespace crash_reporter
 diff --git components/crash/content/app/crashpad.cc components/crash/content/app/crashpad.cc
-index 72c9703b692d..6f0464a78012 100644
+index 5eba3742684b..9bc66b0dbfb9 100644
 --- components/crash/content/app/crashpad.cc
 +++ components/crash/content/app/crashpad.cc
-@@ -151,7 +151,8 @@ void InitializeCrashpadImpl(bool initial_client,
+@@ -152,7 +152,8 @@ void InitializeCrashpadImpl(bool initial_client,
    // fallback. Forwarding is turned off for debug-mode builds even for the
    // browser process, because the system's crash reporter can take a very long
    // time to chew on symbols.
@@ -598,10 +598,10 @@ index cc16c40ea320..3bb03459adf4 100644
  
      if (crash_reporter_client->ShouldMonitorCrashHandlerExpensively()) {
 diff --git content/browser/frame_host/debug_urls.cc content/browser/frame_host/debug_urls.cc
-index 8dd06415ce2f..b809cf14d9d1 100644
+index d47b0305167e..d5941ed0e2af 100644
 --- content/browser/frame_host/debug_urls.cc
 +++ content/browser/frame_host/debug_urls.cc
-@@ -135,7 +135,9 @@ bool HandleDebugURL(const GURL& url, ui::PageTransition transition) {
+@@ -136,7 +136,9 @@ bool HandleDebugURL(const GURL& url, ui::PageTransition transition) {
            cc::switches::kEnableGpuBenchmarking) &&
        (PageTransitionCoreTypeIs(transition, ui::PAGE_TRANSITION_TYPED));
  
