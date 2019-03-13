@@ -1120,6 +1120,7 @@ bool CefContentBrowserClient::WillCreateURLLoaderFactory(
     content::RenderFrameHost* frame,
     int render_process_id,
     bool is_navigation,
+    bool is_download,
     const url::Origin& request_initiator,
     network::mojom::URLLoaderFactoryRequest* factory_request,
     network::mojom::TrustedURLLoaderHeaderClientPtrInfo* header_client,
@@ -1131,8 +1132,8 @@ bool CefContentBrowserClient::WillCreateURLLoaderFactory(
       extensions::BrowserContextKeyedAPIFactory<extensions::WebRequestAPI>::Get(
           browser_context);
   bool use_proxy = web_request_api->MaybeProxyURLLoaderFactory(
-      browser_context, frame, render_process_id, is_navigation, factory_request,
-      header_client);
+      browser_context, frame, render_process_id, is_navigation, is_download,
+      factory_request, header_client);
   if (bypass_redirect_checks)
     *bypass_redirect_checks = use_proxy;
   return use_proxy;

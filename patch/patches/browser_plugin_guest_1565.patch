@@ -221,7 +221,7 @@ index c0c553023138..39b8fe0bd57c 100644
        RenderWidgetHost* render_widget_host) override;
    void SetPageTitle(const base::string16& title) override;
 diff --git content/browser/web_contents/web_contents_view_mac.mm content/browser/web_contents/web_contents_view_mac.mm
-index 7f4308b56a14..d17b8b8ef44d 100644
+index 2ff03cf86f72..c7fed51cee68 100644
 --- content/browser/web_contents/web_contents_view_mac.mm
 +++ content/browser/web_contents/web_contents_view_mac.mm
 @@ -312,7 +312,8 @@ void WebContentsViewMac::CreateView(

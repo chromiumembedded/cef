@@ -241,7 +241,7 @@ index 9ee85554812c..7af55ddda8fe 100644
  extern void InitCrashKeysForTesting();
  
 diff --git components/crash/content/app/crash_reporter_client.cc components/crash/content/app/crash_reporter_client.cc
-index b3b09cee8d6f..4bc2afc7bd6e 100644
+index c3c3f9db07d4..c532a5a46740 100644
 --- components/crash/content/app/crash_reporter_client.cc
 +++ components/crash/content/app/crash_reporter_client.cc
 @@ -88,7 +88,7 @@ int CrashReporterClient::GetResultCodeRespawnFailed() {
@@ -300,7 +300,7 @@ index b3b09cee8d6f..4bc2afc7bd6e 100644
 +#endif
 +
  #if defined(OS_ANDROID)
- unsigned int CrashReporterClient::GetCrashDumpPercentageForWebView() {
+ unsigned int CrashReporterClient::GetCrashDumpPercentage() {
    return 100;
 @@ -194,9 +222,11 @@ bool CrashReporterClient::ShouldMonitorCrashHandlerExpensively() {
    return false;
@@ -318,7 +318,7 @@ index b3b09cee8d6f..4bc2afc7bd6e 100644
  
  }  // namespace crash_reporter
 diff --git components/crash/content/app/crash_reporter_client.h components/crash/content/app/crash_reporter_client.h
-index caebf67a7e0f..5e7cf3d8c1a6 100644
+index 1d35caa36716..7b96fb687b98 100644
 --- components/crash/content/app/crash_reporter_client.h
 +++ components/crash/content/app/crash_reporter_client.h
 @@ -5,7 +5,9 @@

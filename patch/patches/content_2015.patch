@@ -81,10 +81,10 @@ index 9381de48eafa..dfcdcb29feb5 100644
                  "WillFailRequest state should come before WillProcessResponse");
    return render_frame_host_;
 diff --git content/browser/frame_host/render_frame_host_impl.cc content/browser/frame_host/render_frame_host_impl.cc
-index 75069cf3ad35..27657e669453 100644
+index 9727a15ac2b7..e0dc811e626c 100644
 --- content/browser/frame_host/render_frame_host_impl.cc
 +++ content/browser/frame_host/render_frame_host_impl.cc
-@@ -2153,6 +2153,7 @@ void RenderFrameHostImpl::OnDidFailProvisionalLoadWithError(
+@@ -2175,6 +2175,7 @@ void RenderFrameHostImpl::OnDidFailProvisionalLoadWithError(
    if (GetNavigationHandle()) {
      GetNavigationHandle()->set_net_error_code(
          static_cast<net::Error>(params.error_code));
@@ -92,7 +92,7 @@ index 75069cf3ad35..27657e669453 100644
    }
  
    frame_tree_node_->navigator()->DidFailProvisionalLoadWithError(this, params);
-@@ -4850,9 +4851,9 @@ void RenderFrameHostImpl::CommitNavigation(
+@@ -4882,9 +4883,9 @@ void RenderFrameHostImpl::CommitNavigation(
        DCHECK(base::FeatureList::IsEnabled(network::features::kNetworkService) ||
               base::FeatureList::IsEnabled(
                   blink::features::kServiceWorkerServicification));
@@ -340,10 +340,10 @@ index 8136604d267a..be7fde2f1a38 100644
    virtual void FocusedNodeChanged(const blink::WebNode& node) {}
  
 diff --git content/renderer/render_frame_impl.cc content/renderer/render_frame_impl.cc
-index 5b45214bdb34..8d654d142309 100644
+index 73c2e6af3d98..de435a4a8b5f 100644
 --- content/renderer/render_frame_impl.cc
 +++ content/renderer/render_frame_impl.cc
-@@ -3689,7 +3689,8 @@ blink::WebPlugin* RenderFrameImpl::CreatePlugin(
+@@ -3700,7 +3700,8 @@ blink::WebPlugin* RenderFrameImpl::CreatePlugin(
    std::string mime_type;
    bool found = false;
    Send(new FrameHostMsg_GetPluginInfo(
@@ -353,7 +353,7 @@ index 5b45214bdb34..8d654d142309 100644
        params.mime_type.Utf8(), &found, &info, &mime_type));
    if (!found)
      return nullptr;
-@@ -4072,6 +4073,8 @@ void RenderFrameImpl::FrameDetached(DetachType type) {
+@@ -4083,6 +4084,8 @@ void RenderFrameImpl::FrameDetached(DetachType type) {
  
  void RenderFrameImpl::FrameFocused() {
    Send(new FrameHostMsg_FrameFocused(routing_id_));
