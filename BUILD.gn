@@ -166,45 +166,14 @@ if (is_mac) {
 #
 
 if (is_mac) {
-  cef_commit_number = exec_script(
-    "//cef/tools/commit_number.py",
-    [ rebase_path("//cef", root_build_dir) ],
-    "trim string", [])
-
-  cef_version_file = "//cef/VERSION.in"
-
   # The tweak_info_plist.py script requires a version number with 4 parts. CEF
   # uses a version number with 3 parts so just set the last part to 0.
   cef_plist_version = exec_script(
-    "//build/util/version.py",
-    [
-      "-f",
-      rebase_path(cef_version_file, root_build_dir),
-      "-f",
-      rebase_path(chrome_version_file, root_build_dir),
-      "-t",
-      "@CEF_MAJOR@.@BUILD@.${cef_commit_number}.0",
-    ],
-    "trim string",
-    [ cef_version_file, chrome_version_file ])
+    "//cef/tools/cef_version.py", [ "plist" ], "trim string", [])
 
   # Need to be creative to match dylib version formatting requirements.
   cef_dylib_version = exec_script(
-    "//build/util/version.py",
-    [
-      "-f",
-      rebase_path(cef_version_file, root_build_dir),
-      "-f",
-      rebase_path(chrome_version_file, root_build_dir),
-      "-t",
-      "@CEF_MAJOR@${cef_commit_number}.@BUILD_HI@.@BUILD_LO@",
-      "-e",
-      "BUILD_HI=int(BUILD)/256",
-      "-e",
-      "BUILD_LO=int(BUILD)%256",
-    ],
-    "trim string",
-    [ cef_version_file, chrome_version_file ])
+    "//cef/tools/cef_version.py", [ "dylib" ], "trim string", [])
 }
 
 # Read file lists from gypi files. The gypi_to_gn.py script does not support
