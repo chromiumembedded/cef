@@ -44,6 +44,7 @@ class cef_api_hash:
     self.included_files = []
 
     self.excluded_files = [
+        "cef_api_hash.h",
         "cef_version.h",
         "internal/cef_tuple.h",
         "internal/cef_types_wrappers.h",

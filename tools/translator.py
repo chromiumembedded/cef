@@ -7,6 +7,7 @@ from cef_parser import *
 from clang_util import clang_format
 from file_util import *
 import hashlib
+from make_api_hash_header import *
 from make_capi_header import *
 from make_cpptoc_header import *
 from make_cpptoc_impl import *
@@ -72,6 +73,7 @@ cpp_header_dir = os.path.join(root_dir, 'include')
 cpp_header_test_dir = os.path.join(cpp_header_dir, 'test')
 cpp_header_views_dir = os.path.join(cpp_header_dir, 'views')
 capi_header_dir = os.path.join(cpp_header_dir, 'capi')
+api_hash_header = os.path.join(cpp_header_dir, 'cef_api_hash.h')
 libcef_dll_dir = os.path.join(root_dir, 'libcef_dll')
 cpptoc_global_impl = os.path.join(libcef_dll_dir, 'libcef_dll.cc')
 ctocpp_global_impl = os.path.join(libcef_dll_dir, 'wrapper',
@@ -96,7 +98,7 @@ header = obj_header()
 
 # add include files to be processed
 header.set_root_directory(cpp_header_dir)
-excluded_files = ['cef_application_mac.h', 'cef_version.h']
+excluded_files = ['cef_api_hash.h', 'cef_application_mac.h', 'cef_version.h']
 header.add_directory(cpp_header_dir, excluded_files)
 header.add_directory(cpp_header_test_dir)
 header.add_directory(cpp_header_views_dir)
@@ -235,6 +237,12 @@ update_file(*write_views_stub_impl(header, views_stub_impl))
 if not options.quiet:
   sys.stdout.write('Generating ' + libcef_dll_dylib_impl + ' file...\n')
 update_file(*write_libcef_dll_dylib_impl(header, libcef_dll_dylib_impl))
+
+# Output the API hash header file. This must be done last because it reads files
+# that were potentially written by proceeding operations.
+if not options.quiet:
+  sys.stdout.write('Generating API hash header...\n')
+update_file(*write_api_hash_header(api_hash_header, cpp_header_dir))
 
 if not options.quiet:
   sys.stdout.write('Done - Wrote ' + str(writect) + ' files.\n')

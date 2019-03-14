@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=ef8269462464beba6718a2e0d03e0f1cb41901bf$
+// $hash=4a4744491587c5f5b1ce8726d8dd08ad04646b92$
 //
 
 #include <dlfcn.h>
@@ -58,6 +58,7 @@
 #include "include/capi/views/cef_scroll_view_capi.h"
 #include "include/capi/views/cef_textfield_capi.h"
 #include "include/capi/views/cef_window_capi.h"
+#include "include/cef_api_hash.h"
 #include "include/cef_version.h"
 #include "include/internal/cef_logging_internal.h"
 #include "include/internal/cef_string_list.h"
@@ -333,8 +334,8 @@ typedef struct _cef_textfield_t* (*cef_textfield_create_ptr)(
     struct _cef_textfield_delegate_t*);
 typedef struct _cef_window_t* (*cef_window_create_top_level_ptr)(
     struct _cef_window_delegate_t*);
-typedef int (*cef_version_info_ptr)(int);
 typedef const char* (*cef_api_hash_ptr)(int);
+typedef int (*cef_version_info_ptr)(int);
 typedef int (*cef_get_min_log_level_ptr)();
 typedef int (*cef_get_vlog_level_ptr)(const char*, size_t);
 typedef void (*cef_log_ptr)(const char*, int, int, const char*);
@@ -656,8 +657,8 @@ struct libcef_pointers {
   cef_scroll_view_create_ptr cef_scroll_view_create;
   cef_textfield_create_ptr cef_textfield_create;
   cef_window_create_top_level_ptr cef_window_create_top_level;
-  cef_version_info_ptr cef_version_info;
   cef_api_hash_ptr cef_api_hash;
+  cef_version_info_ptr cef_version_info;
   cef_get_min_log_level_ptr cef_get_min_log_level;
   cef_get_vlog_level_ptr cef_get_vlog_level;
   cef_log_ptr cef_log;
@@ -864,8 +865,8 @@ int libcef_init_pointers(const char* path) {
   INIT_ENTRY(cef_scroll_view_create);
   INIT_ENTRY(cef_textfield_create);
   INIT_ENTRY(cef_window_create_top_level);
-  INIT_ENTRY(cef_version_info);
   INIT_ENTRY(cef_api_hash);
+  INIT_ENTRY(cef_version_info);
   INIT_ENTRY(cef_get_min_log_level);
   INIT_ENTRY(cef_get_vlog_level);
   INIT_ENTRY(cef_log);
@@ -1098,8 +1099,8 @@ int cef_create_url(const struct _cef_urlparts_t* parts, cef_string_t* url) {
 }
 
 NO_SANITIZE("cfi-icall")
-cef_string_userfree_t
-    cef_format_url_for_security_display(const cef_string_t* origin_url) {
+cef_string_userfree_t cef_format_url_for_security_display(
+    const cef_string_t* origin_url) {
   return g_libcef_pointers.cef_format_url_for_security_display(origin_url);
 }
 
@@ -1590,54 +1591,46 @@ struct _cef_translator_test_t* cef_translator_test_create() {
 }
 
 NO_SANITIZE("cfi-icall")
-struct
-    _cef_translator_test_ref_ptr_library_t* cef_translator_test_ref_ptr_library_create(
-        int value) {
+struct _cef_translator_test_ref_ptr_library_t*
+cef_translator_test_ref_ptr_library_create(int value) {
   return g_libcef_pointers.cef_translator_test_ref_ptr_library_create(value);
 }
 
 NO_SANITIZE("cfi-icall")
-struct
-    _cef_translator_test_ref_ptr_library_child_t* cef_translator_test_ref_ptr_library_child_create(
-        int value,
-        int other_value) {
+struct _cef_translator_test_ref_ptr_library_child_t*
+cef_translator_test_ref_ptr_library_child_create(int value, int other_value) {
   return g_libcef_pointers.cef_translator_test_ref_ptr_library_child_create(
       value, other_value);
 }
 
 NO_SANITIZE("cfi-icall")
-struct
-    _cef_translator_test_ref_ptr_library_child_child_t* cef_translator_test_ref_ptr_library_child_child_create(
-        int value,
-        int other_value,
-        int other_other_value) {
+struct _cef_translator_test_ref_ptr_library_child_child_t*
+cef_translator_test_ref_ptr_library_child_child_create(int value,
+                                                       int other_value,
+                                                       int other_other_value) {
   return g_libcef_pointers
       .cef_translator_test_ref_ptr_library_child_child_create(
           value, other_value, other_other_value);
 }
 
 NO_SANITIZE("cfi-icall")
-struct
-    _cef_translator_test_scoped_library_t* cef_translator_test_scoped_library_create(
-        int value) {
+struct _cef_translator_test_scoped_library_t*
+cef_translator_test_scoped_library_create(int value) {
   return g_libcef_pointers.cef_translator_test_scoped_library_create(value);
 }
 
 NO_SANITIZE("cfi-icall")
-struct
-    _cef_translator_test_scoped_library_child_t* cef_translator_test_scoped_library_child_create(
-        int value,
-        int other_value) {
+struct _cef_translator_test_scoped_library_child_t*
+cef_translator_test_scoped_library_child_create(int value, int other_value) {
   return g_libcef_pointers.cef_translator_test_scoped_library_child_create(
       value, other_value);
 }
 
 NO_SANITIZE("cfi-icall")
-struct
-    _cef_translator_test_scoped_library_child_child_t* cef_translator_test_scoped_library_child_child_create(
-        int value,
-        int other_value,
-        int other_other_value) {
+struct _cef_translator_test_scoped_library_child_child_t*
+cef_translator_test_scoped_library_child_child_create(int value,
+                                                      int other_value,
+                                                      int other_other_value) {
   return g_libcef_pointers
       .cef_translator_test_scoped_library_child_child_create(value, other_value,
                                                              other_other_value);
@@ -1727,12 +1720,12 @@ struct _cef_window_t* cef_window_create_top_level(
   return g_libcef_pointers.cef_window_create_top_level(delegate);
 }
 
-NO_SANITIZE("cfi-icall") int cef_version_info(int entry) {
-  return g_libcef_pointers.cef_version_info(entry);
-}
-
 NO_SANITIZE("cfi-icall") const char* cef_api_hash(int entry) {
   return g_libcef_pointers.cef_api_hash(entry);
+}
+
+NO_SANITIZE("cfi-icall") int cef_version_info(int entry) {
+  return g_libcef_pointers.cef_version_info(entry);
 }
 
 NO_SANITIZE("cfi-icall") int cef_get_min_log_level() {

@@ -4,6 +4,7 @@
 //
 
 #include <cstddef>
+#include "include/cef_api_hash.h"
 #include "include/cef_version.h"
 
 CEF_EXPORT int cef_version_info(int entry) {

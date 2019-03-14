@@ -87,7 +87,7 @@ if __name__ == "__main__":
   # Create the header object. Should match the logic in translator.py.
   header = obj_header()
   header.set_root_directory(cpp_header_dir)
-  excluded_files = ['cef_application_mac.h', 'cef_version.h']
+  excluded_files = ['cef_api_hash.h', 'cef_application_mac.h', 'cef_version.h']
   header.add_directory(cpp_header_dir, excluded_files)
   header.add_directory(os.path.join(cpp_header_dir, 'views'))
 
