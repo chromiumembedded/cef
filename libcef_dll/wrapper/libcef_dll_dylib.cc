@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=ef8269462464beba6718a2e0d03e0f1cb41901bf$
+// $hash=55141875850aab1e8d72877838b06bd2f503a8f0$
 //
 
 #include <dlfcn.h>
@@ -58,6 +58,7 @@
 #include "include/capi/views/cef_scroll_view_capi.h"
 #include "include/capi/views/cef_textfield_capi.h"
 #include "include/capi/views/cef_window_capi.h"
+#include "include/cef_api_hash.h"
 #include "include/cef_version.h"
 #include "include/internal/cef_logging_internal.h"
 #include "include/internal/cef_string_list.h"
@@ -333,6 +334,7 @@ typedef struct _cef_textfield_t* (*cef_textfield_create_ptr)(
     struct _cef_textfield_delegate_t*);
 typedef struct _cef_window_t* (*cef_window_create_top_level_ptr)(
     struct _cef_window_delegate_t*);
+typedef const char* (*cef_api_hash_ptr)(int);
 typedef int (*cef_version_info_ptr)(int);
 typedef const char* (*cef_api_hash_ptr)(int);
 typedef int (*cef_get_min_log_level_ptr)();
@@ -656,6 +658,7 @@ struct libcef_pointers {
   cef_scroll_view_create_ptr cef_scroll_view_create;
   cef_textfield_create_ptr cef_textfield_create;
   cef_window_create_top_level_ptr cef_window_create_top_level;
+  cef_api_hash_ptr cef_api_hash;
   cef_version_info_ptr cef_version_info;
   cef_api_hash_ptr cef_api_hash;
   cef_get_min_log_level_ptr cef_get_min_log_level;
@@ -864,6 +867,7 @@ int libcef_init_pointers(const char* path) {
   INIT_ENTRY(cef_scroll_view_create);
   INIT_ENTRY(cef_textfield_create);
   INIT_ENTRY(cef_window_create_top_level);
+  INIT_ENTRY(cef_api_hash);
   INIT_ENTRY(cef_version_info);
   INIT_ENTRY(cef_api_hash);
   INIT_ENTRY(cef_get_min_log_level);
@@ -1725,6 +1729,10 @@ NO_SANITIZE("cfi-icall")
 struct _cef_window_t* cef_window_create_top_level(
     struct _cef_window_delegate_t* delegate) {
   return g_libcef_pointers.cef_window_create_top_level(delegate);
+}
+
+NO_SANITIZE("cfi-icall") const char* cef_api_hash(int entry) {
+  return g_libcef_pointers.cef_api_hash(entry);
 }
 
 NO_SANITIZE("cfi-icall") int cef_version_info(int entry) {

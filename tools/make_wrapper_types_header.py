@@ -42,7 +42,7 @@ if __name__ == "__main__":
 
   # create the header object
   header = obj_header()
-  excluded_files = ['cef_application_mac.h', 'cef_version.h']
+  excluded_files = ['cef_api_hash.h', 'cef_application_mac.h', 'cef_version.h']
   header.add_directory(sys.argv[1], excluded_files)
 
   # dump the result to stdout
