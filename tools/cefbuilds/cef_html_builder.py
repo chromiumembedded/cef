@@ -154,7 +154,13 @@ class cef_html_builder:
 
   @staticmethod
   def _get_cef_source_url(cef_version):
-    branch = cef_version.split('.')[1]
+    if cef_version.find('+chromium') > 0:
+      # New-style CEF version numbers include the Chromium version number.
+      # Example: 74.0.1+g62d140e+chromium-74.0.3729.6
+      chromium_version = cef_version[cef_version.rfind('-') + 1:]
+      branch = chromium_version.split('.')[2]
+    else:
+      branch = cef_version.split('.')[1]
     return 'https://bitbucket.org/chromiumembedded/cef/get/%s.tar.bz2' % branch
 
   @staticmethod
