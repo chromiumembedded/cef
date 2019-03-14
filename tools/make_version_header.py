@@ -5,7 +5,6 @@
 from date_util import *
 from file_util import *
 from optparse import OptionParser
-from cef_api_hash import cef_api_hash
 import git_util as git
 import sys
 
@@ -36,11 +35,6 @@ parser.add_option(
     metavar='FILE',
     help='input Chrome version config file [required]')
 parser.add_option(
-    '--cpp_header_dir',
-    dest='cpp_header_dir',
-    metavar='DIR',
-    help='input directory for C++ header files [required]')
-parser.add_option(
     '-q',
     '--quiet',
     action='store_true',
@@ -50,12 +44,12 @@ parser.add_option(
 (options, args) = parser.parse_args()
 
 # the header option is required
-if options.header is None or options.cef_version is None or options.chrome_version is None or options.cpp_header_dir is None:
+if options.header is None or options.cef_version is None or options.chrome_version is None:
   parser.print_help(sys.stdout)
   sys.exit()
 
 
-def write_version_header(header, chrome_version, cef_version, cpp_header_dir):
+def write_version_header(header, chrome_version, cef_version):
   """ Creates the header file for the current revision and Chrome version information
        if the information has changed or if the file doesn't already exist. """
 
@@ -83,10 +77,6 @@ def write_version_header(header, chrome_version, cef_version, cpp_header_dir):
   commit_hash = git.get_hash()
   version = '%s.%s.%s.g%s' % (args['CEF_MAJOR'], args['BUILD'], commit_number,
                               commit_hash[:7])
-
-  # calculate api hashes
-  api_hash_calculator = cef_api_hash(cpp_header_dir, verbose=False)
-  api_hashes = api_hash_calculator.calculate()
 
   newcontents = '// Copyright (c) '+year+' Marshall A. Greenblatt. All rights reserved.\n'+\
                 '//\n'+\
@@ -139,20 +129,6 @@ def write_version_header(header, chrome_version, cef_version, cpp_header_dir):
                 '#ifdef __cplusplus\n'+\
                 'extern "C" {\n'+\
                 '#endif\n\n'+\
-                '// The API hash is created by analyzing CEF header files for C API type\n'+\
-                '// definitions. The hash value will change when header files are modified\n'+\
-                '// in a way that may cause binary incompatibility with other builds. The\n'+\
-                '// universal hash value will change if any platform is affected whereas the\n'+\
-                '// platform hash values will change only if that particular platform is\n'+\
-                '// affected.\n'+\
-                '#define CEF_API_HASH_UNIVERSAL "' + api_hashes['universal'] + '"\n'+\
-                '#if defined(OS_WIN)\n'+\
-                '#define CEF_API_HASH_PLATFORM "' + api_hashes['windows'] + '"\n'+\
-                '#elif defined(OS_MACOSX)\n'+\
-                '#define CEF_API_HASH_PLATFORM "' + api_hashes['macosx'] + '"\n'+\
-                '#elif defined(OS_LINUX)\n'+\
-                '#define CEF_API_HASH_PLATFORM "' + api_hashes['linux'] + '"\n'+\
-                '#endif\n\n'+\
                 '// Returns CEF version information for the libcef library. The |entry|\n'+\
                 '// parameter describes which version component will be returned:\n'+\
                 '// 0 - CEF_VERSION_MAJOR\n'+\
@@ -163,15 +139,6 @@ def write_version_header(header, chrome_version, cef_version, cpp_header_dir):
                 '// 5 - CHROME_VERSION_PATCH\n'+\
                 '///\n'+\
                 'CEF_EXPORT int cef_version_info(int entry);\n\n'+\
-                '///\n'+\
-                '// Returns CEF API hashes for the libcef library. The returned string is owned\n'+\
-                '// by the library and should not be freed. The |entry| parameter describes which\n'+\
-                '// hash value will be returned:\n'+\
-                '// 0 - CEF_API_HASH_PLATFORM\n'+\
-                '// 1 - CEF_API_HASH_UNIVERSAL\n'+\
-                '// 2 - CEF_COMMIT_HASH\n'+\
-                '///\n'+\
-                'CEF_EXPORT const char* cef_api_hash(int entry);\n\n'+\
                 '#ifdef __cplusplus\n'+\
                 '}\n'+\
                 '#endif\n\n'+\
@@ -185,7 +152,7 @@ def write_version_header(header, chrome_version, cef_version, cpp_header_dir):
 
 
 written = write_version_header(options.header, options.chrome_version,
-                               options.cef_version, options.cpp_header_dir)
+                               options.cef_version)
 if not options.quiet:
   if written:
     sys.stdout.write('File ' + options.header + ' updated.\n')

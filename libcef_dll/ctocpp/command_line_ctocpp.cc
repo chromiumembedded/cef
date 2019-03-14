@@ -9,11 +9,11 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=a87daf3d3e3bd604ac3c008561676181d42f3266$
+// $hash=0e24c6b07a7377337132b09396d9e5f3e4eca517$
 //
 
 #include "libcef_dll/ctocpp/command_line_ctocpp.h"
-#include "include/cef_version.h"
+#include "include/cef_api_hash.h"
 #include "libcef_dll/transfer_util.h"
 
 // STATIC METHODS - Body may be edited by hand.

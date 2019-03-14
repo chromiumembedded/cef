@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=a53efd61643236ca14fddb5541f23ef2d9d1dc54$
+// $hash=32eea715f2566d1b6a4e3d263e35400cf7c53869$
 //
 
 #include "include/capi/cef_app_capi.h"
@@ -26,6 +26,7 @@
 #include "include/capi/cef_v8_capi.h"
 #include "include/capi/cef_web_plugin_capi.h"
 #include "include/capi/test/cef_test_helpers_capi.h"
+#include "include/cef_api_hash.h"
 #include "include/cef_app.h"
 #include "include/cef_crash_util.h"
 #include "include/cef_file_util.h"
@@ -38,7 +39,6 @@
 #include "include/cef_task.h"
 #include "include/cef_trace.h"
 #include "include/cef_v8.h"
-#include "include/cef_version.h"
 #include "include/cef_web_plugin.h"
 #include "include/test/cef_test_helpers.h"
 #include "libcef_dll/cpptoc/app_cpptoc.h"
