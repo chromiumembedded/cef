@@ -28,8 +28,7 @@ else:
 print "\nGenerating CEF version header file..."
 cmd = [
     'python', 'tools/make_version_header.py', '--header',
-    'include/cef_version.h', '--cef_version', 'VERSION.in', '--chrome_version',
-    '../chrome/VERSION'
+    'include/cef_version.h'
 ]
 RunAction(cef_dir, cmd)
 

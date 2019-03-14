@@ -27,6 +27,27 @@ def get_hash(path='.', branch='HEAD'):
   return 'Unknown'
 
 
+def get_branch_name(path='.', branch='HEAD'):
+  """ Returns the branch name for the specified branch/tag/hash. """
+  # Returns the branch name if not in detached HEAD state, else an empty string
+  # or "HEAD".
+  cmd = "%s rev-parse --abbrev-ref %s" % (git_exe, branch)
+  result = exec_cmd(cmd, path)
+  if result['out'] != '':
+    name = result['out'].strip()
+    if len(name) > 0 and name != 'HEAD':
+      return name
+
+    # Returns a value like "(HEAD, origin/3729, 3729)".
+    # Ubuntu 14.04 uses Git version 1.9.1 which does not support %D (which
+    # provides the same output but without the parentheses).
+    cmd = "%s log -n 1 --pretty=%%d %s" % (git_exe, branch)
+    result = exec_cmd(cmd, path)
+    if result['out'] != '':
+      return result['out'].strip()[1:-1].split(', ')[-1]
+  return 'Unknown'
+
+
 def get_url(path='.'):
   """ Returns the origin url for the specified path. """
   cmd = "%s config --get remote.origin.url" % git_exe
@@ -60,6 +81,21 @@ def get_changed_files(path, hash):
       # Convert to Unix line endings.
       files = files.replace('\r\n', '\n')
     return files.strip().split("\n")
+  return []
+
+
+def get_branch_hashes(path='.', branch='HEAD', ref='origin/master'):
+  """ Returns an ordered list of hashes for commits that have been applied since
+      branching from ref. """
+  cmd = "%s cherry %s %s" % (git_exe, ref, branch)
+  result = exec_cmd(cmd, path)
+  if result['out'] != '':
+    hashes = result['out']
+    if sys.platform == 'win32':
+      # Convert to Unix line endings.
+      hashes = hashes.replace('\r\n', '\n')
+    # Remove the "+ " or "- " prefix.
+    return [line[2:] for line in hashes.strip().split('\n')]
   return []
 
 
