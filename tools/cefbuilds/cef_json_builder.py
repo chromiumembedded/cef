@@ -67,6 +67,18 @@ class cef_json_encoder(json.JSONEncoder):
     return o
 
 
+_chromium_version_regex = '[1-9]{1}[0-9]{1,2}\.0\.[1-9]{1}[0-9]{2,4}\.(0|[1-9]{1}[0-9]{0,2})'
+_cef_hash_regex = 'g[0-9a-f]{7}'
+_cef_number_regex = '[0-9]{1,5}\.[0-9]{1,5}\.[0-9]{1,5}'
+
+# Example: 3.2704.1414.g185cd6c
+_cef_old_version_regex = _cef_number_regex + '\.' + _cef_hash_regex
+# Example: 74.0.1+g62d140e+chromium-74.0.3729.6
+_cef_version_release_regex = _cef_number_regex + '\+' + _cef_hash_regex + '\+chromium\-' + _chromium_version_regex
+# Example: 74.0.0-master.1920+g725ed88+chromium-74.0.3729.0
+_cef_version_dev_regex = _cef_number_regex + '\-\w+\.[0-9]{1,7}\+' + _cef_hash_regex + '\+chromium\-' + _chromium_version_regex
+
+
 class cef_json_builder:
   """ Class used to build the cefbuilds JSON file. """
 
@@ -91,8 +103,11 @@ class cef_json_builder:
   @staticmethod
   def is_valid_version(version):
     """ Returns true if the specified CEF version is fully qualified and valid. """
-    return bool(
-        re.compile('^3.[0-9]{4,5}.[0-9]{4,5}.g[0-9a-f]{7}$').match(version))
+    if version is None:
+      return False
+    return bool(re.compile('^' + _cef_old_version_regex + '$').match(version)) \
+        or bool(re.compile('^' + _cef_version_release_regex + '$').match(version)) \
+        or bool(re.compile('^' + _cef_version_dev_regex + '$').match(version))
 
   @staticmethod
   def is_valid_chromium_version(version):
@@ -100,7 +115,7 @@ class cef_json_builder:
     if version is None:
       return False
     return version == 'master' or \
-        re.compile('^[1-9]{1}[0-9]{1}\.0\.[0-9]{4,5}.[0-9]{1,3}$').match(version)
+        bool(re.compile('^' + _chromium_version_regex + '$').match(version))
 
   @staticmethod
   def get_file_name(version, platform, type):
@@ -143,6 +158,36 @@ class cef_json_builder:
     """ Returns the number of queries sent while building. """
     return self._queryct
 
+  def _query_chromium_version(self, cef_version):
+    """ Try to remotely query the Chromium version for old-style CEF version
+        numbers. """
+    chromium_version = 'master'
+    git_hash = cef_version[-7:]
+    query_url = 'https://bitbucket.org/chromiumembedded/cef/raw/%s/CHROMIUM_BUILD_COMPATIBILITY.txt' % git_hash
+    self._queryct = self._queryct + 1
+    if not self._silent:
+      print 'Reading %s' % query_url
+
+    try:
+      # Read the remote URL contents.
+      handle = urllib.urlopen(query_url)
+      compat_value = handle.read().strip()
+      handle.close()
+
+      # Parse the contents.
+      config = eval(compat_value, {'__builtins__': None}, None)
+      if not 'chromium_checkout' in config:
+        raise Exception('Unexpected contents')
+
+      val = config['chromium_checkout']
+      if val.find('refs/tags/') == 0:
+        chromium_version = val[10:]
+    except Exception, e:
+      print 'Failed to read Chromium version information'
+      raise
+
+    return chromium_version
+
   def set_chromium_version(self, cef_version, chromium_version=None):
     """ Set the matching Chromium version. If the specified Chromium version is
         invalid then it will be queried remotely. """
@@ -154,31 +199,12 @@ class cef_json_builder:
         # Keep the Chromium version that we already know about.
         return self._versions[cef_version]
 
-      # Try to identify the Chromium version.
-      chromium_version = 'master'
-      git_hash = cef_version[-7:]
-      query_url = 'https://bitbucket.org/chromiumembedded/cef/raw/%s/CHROMIUM_BUILD_COMPATIBILITY.txt' % git_hash
-      self._queryct = self._queryct + 1
-      if not self._silent:
-        print 'Reading %s' % query_url
-
-      try:
-        # Read the remote URL contents.
-        handle = urllib.urlopen(query_url)
-        compat_value = handle.read().strip()
-        handle.close()
-
-        # Parse the contents.
-        config = eval(compat_value, {'__builtins__': None}, None)
-        if not 'chromium_checkout' in config:
-          raise Exception('Unexpected contents')
-
-        val = config['chromium_checkout']
-        if val.find('refs/tags/') == 0:
-          chromium_version = val[10:]
-      except Exception, e:
-        print 'Failed to read Chromium version information'
-        raise
+      if cef_version.find('+chromium') > 0:
+        # New-style CEF version numbers include the Chromium version number.
+        # Example: 74.0.1+g62d140e+chromium-74.0.3729.6
+        chromium_version = cef_version[cef_version.rfind('-') + 1:]
+      else:
+        chromium_version = self._query_chromium_version(cef_version)
 
     if not self.is_valid_chromium_version(chromium_version):
       raise Exception('Invalid Chromium version: %s' % chromium_version)
@@ -188,7 +214,7 @@ class cef_json_builder:
 
   def get_chromium_version(self, cef_version):
     """ Return the matching Chromium version. If not currently known it will
-        be queried remotely. """
+        be parsed from the CEF version or queried remotely. """
     if cef_version in self._versions:
       return self._versions[cef_version]
     # Identify the Chromium version.
