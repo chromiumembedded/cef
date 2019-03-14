@@ -2,10 +2,12 @@
 # reserved. Use of this source code is governed by a BSD-style license that
 # can be found in the LICENSE file.
 
+from cef_version import VersionFormatter
 from date_util import *
 from file_util import *
 from optparse import OptionParser
 import git_util as git
+import os
 import sys
 
 # cannot be loaded as a module
@@ -25,16 +27,6 @@ parser.add_option(
     metavar='FILE',
     help='output version header file [required]')
 parser.add_option(
-    '--cef_version',
-    dest='cef_version',
-    metavar='FILE',
-    help='input CEF version config file [required]')
-parser.add_option(
-    '--chrome_version',
-    dest='chrome_version',
-    metavar='FILE',
-    help='input Chrome version config file [required]')
-parser.add_option(
     '-q',
     '--quiet',
     action='store_true',
@@ -44,24 +36,17 @@ parser.add_option(
 (options, args) = parser.parse_args()
 
 # the header option is required
-if options.header is None or options.cef_version is None or options.chrome_version is None:
+if options.header is None:
   parser.print_help(sys.stdout)
   sys.exit()
 
 
-def write_version_header(header, chrome_version, cef_version):
+def write_version_header(header):
   """ Creates the header file for the current revision and Chrome version information
        if the information has changed or if the file doesn't already exist. """
 
-  if not path_exists(chrome_version):
-    raise Exception('Chrome version file ' + chrome_version +
-                    ' does not exist.')
-  if not path_exists(cef_version):
-    raise Exception('CEF version file ' + cef_version + ' does not exist.')
-
-  args = {}
-  read_version_file(chrome_version, args)
-  read_version_file(cef_version, args)
+  if not git.is_checkout('.'):
+    raise Exception('Not a valid checkout')
 
   if path_exists(header):
     oldcontents = read_file(header)
@@ -69,14 +54,16 @@ def write_version_header(header, chrome_version, cef_version):
     oldcontents = ''
 
   year = get_year()
+  formatter = VersionFormatter()
+  commit_hash = formatter.get_cef_commit_components()['HASH']
+  commit_number = formatter.get_cef_commit_components()['NUMBER']
+  version = formatter.get_version_string()
+  version_parts = formatter.get_version_parts()
+  chrome = formatter.get_chrome_version_components()
 
-  if not git.is_checkout('.'):
-    raise Exception('Not a valid checkout')
-
-  commit_number = git.get_commit_number()
-  commit_hash = git.get_hash()
-  version = '%s.%s.%s.g%s' % (args['CEF_MAJOR'], args['BUILD'], commit_number,
-                              commit_hash[:7])
+  version_defines = '#define CEF_VERSION "%s"\n' % version
+  for key in ('MAJOR', 'MINOR', 'PATCH'):
+    version_defines += '#define CEF_VERSION_%s %d\n' % (key, version_parts[key])
 
   newcontents = '// Copyright (c) '+year+' Marshall A. Greenblatt. All rights reserved.\n'+\
                 '//\n'+\
@@ -113,15 +100,14 @@ def write_version_header(header, chrome_version, cef_version):
                 '//\n\n'+\
                 '#ifndef CEF_INCLUDE_CEF_VERSION_H_\n'+\
                 '#define CEF_INCLUDE_CEF_VERSION_H_\n\n'+\
-                '#define CEF_VERSION "' + version + '"\n'+\
-                '#define CEF_VERSION_MAJOR ' + args['CEF_MAJOR'] + '\n'+\
+                version_defines+\
                 '#define CEF_COMMIT_NUMBER ' + commit_number + '\n'+\
                 '#define CEF_COMMIT_HASH "' + commit_hash + '"\n'+\
                 '#define COPYRIGHT_YEAR ' + year + '\n\n'+\
-                '#define CHROME_VERSION_MAJOR ' + args['MAJOR'] + '\n'+\
-                '#define CHROME_VERSION_MINOR ' + args['MINOR'] + '\n'+\
-                '#define CHROME_VERSION_BUILD ' + args['BUILD'] + '\n'+\
-                '#define CHROME_VERSION_PATCH ' + args['PATCH'] + '\n\n'+\
+                '#define CHROME_VERSION_MAJOR ' + chrome['MAJOR'] + '\n'+\
+                '#define CHROME_VERSION_MINOR ' + chrome['MINOR'] + '\n'+\
+                '#define CHROME_VERSION_BUILD ' + chrome['BUILD'] + '\n'+\
+                '#define CHROME_VERSION_PATCH ' + chrome['PATCH'] + '\n\n'+\
                 '#define DO_MAKE_STRING(p) #p\n'+\
                 '#define MAKE_STRING(p) DO_MAKE_STRING(p)\n\n'+\
                 '#ifndef APSTUDIO_HIDDEN_SYMBOLS\n\n'\
@@ -132,11 +118,13 @@ def write_version_header(header, chrome_version, cef_version):
                 '// Returns CEF version information for the libcef library. The |entry|\n'+\
                 '// parameter describes which version component will be returned:\n'+\
                 '// 0 - CEF_VERSION_MAJOR\n'+\
-                '// 1 - CEF_COMMIT_NUMBER\n'+\
-                '// 2 - CHROME_VERSION_MAJOR\n'+\
-                '// 3 - CHROME_VERSION_MINOR\n'+\
-                '// 4 - CHROME_VERSION_BUILD\n'+\
-                '// 5 - CHROME_VERSION_PATCH\n'+\
+                '// 1 - CEF_VERSION_MINOR\n'+\
+                '// 2 - CEF_VERSION_PATCH\n'+\
+                '// 3 - CEF_COMMIT_NUMBER\n'+\
+                '// 4 - CHROME_VERSION_MAJOR\n'+\
+                '// 5 - CHROME_VERSION_MINOR\n'+\
+                '// 6 - CHROME_VERSION_BUILD\n'+\
+                '// 7 - CHROME_VERSION_PATCH\n'+\
                 '///\n'+\
                 'CEF_EXPORT int cef_version_info(int entry);\n\n'+\
                 '#ifdef __cplusplus\n'+\
@@ -151,8 +139,7 @@ def write_version_header(header, chrome_version, cef_version):
   return False
 
 
-written = write_version_header(options.header, options.chrome_version,
-                               options.cef_version)
+written = write_version_header(options.header)
 if not options.quiet:
   if written:
     sys.stdout.write('File ' + options.header + ' updated.\n')

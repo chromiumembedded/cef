@@ -2,6 +2,7 @@
 # reserved. Use of this source code is governed by a BSD-style license that
 # can be found in the LICENSE file.
 
+from cef_version import VersionFormatter
 from date_util import *
 from exec_util import exec_cmd
 from file_util import *
@@ -536,14 +537,10 @@ chromium_rev = git.get_hash(src_dir)
 
 date = get_date()
 
-# Read and parse the version file (key=value pairs, one per line)
-args = {}
-read_version_file(os.path.join(cef_dir, 'VERSION.in'), args)
-read_version_file(os.path.join(cef_dir, '../chrome/VERSION'), args)
-
-cef_ver = '%s.%s.%s.g%s' % (args['CEF_MAJOR'], args['BUILD'], cef_commit_number,
-                            cef_rev[:7])
-chromium_ver = args['MAJOR'] + '.' + args['MINOR'] + '.' + args['BUILD'] + '.' + args['PATCH']
+# format version strings
+formatter = VersionFormatter()
+cef_ver = formatter.get_version_string()
+chromium_ver = formatter.get_chromium_version_string()
 
 # list of output directories to be archived
 archive_dirs = []

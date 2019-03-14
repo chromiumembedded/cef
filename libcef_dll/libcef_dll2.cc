@@ -12,14 +12,18 @@ CEF_EXPORT int cef_version_info(int entry) {
     case 0:
       return CEF_VERSION_MAJOR;
     case 1:
-      return CEF_COMMIT_NUMBER;
+      return CEF_VERSION_MINOR;
     case 2:
-      return CHROME_VERSION_MAJOR;
+      return CEF_VERSION_PATCH;
     case 3:
-      return CHROME_VERSION_MINOR;
+      return CEF_COMMIT_NUMBER;
     case 4:
-      return CHROME_VERSION_BUILD;
+      return CHROME_VERSION_MAJOR;
     case 5:
+      return CHROME_VERSION_MINOR;
+    case 6:
+      return CHROME_VERSION_BUILD;
+    case 7:
       return CHROME_VERSION_PATCH;
     default:
       return 0;
