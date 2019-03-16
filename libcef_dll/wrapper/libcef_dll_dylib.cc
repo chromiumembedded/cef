@@ -336,7 +336,6 @@ typedef struct _cef_window_t* (*cef_window_create_top_level_ptr)(
     struct _cef_window_delegate_t*);
 typedef const char* (*cef_api_hash_ptr)(int);
 typedef int (*cef_version_info_ptr)(int);
-typedef const char* (*cef_api_hash_ptr)(int);
 typedef int (*cef_get_min_log_level_ptr)();
 typedef int (*cef_get_vlog_level_ptr)(const char*, size_t);
 typedef void (*cef_log_ptr)(const char*, int, int, const char*);
@@ -660,7 +659,6 @@ struct libcef_pointers {
   cef_window_create_top_level_ptr cef_window_create_top_level;
   cef_api_hash_ptr cef_api_hash;
   cef_version_info_ptr cef_version_info;
-  cef_api_hash_ptr cef_api_hash;
   cef_get_min_log_level_ptr cef_get_min_log_level;
   cef_get_vlog_level_ptr cef_get_vlog_level;
   cef_log_ptr cef_log;
@@ -869,7 +867,6 @@ int libcef_init_pointers(const char* path) {
   INIT_ENTRY(cef_window_create_top_level);
   INIT_ENTRY(cef_api_hash);
   INIT_ENTRY(cef_version_info);
-  INIT_ENTRY(cef_api_hash);
   INIT_ENTRY(cef_get_min_log_level);
   INIT_ENTRY(cef_get_vlog_level);
   INIT_ENTRY(cef_log);
@@ -1737,10 +1734,6 @@ NO_SANITIZE("cfi-icall") const char* cef_api_hash(int entry) {
 
 NO_SANITIZE("cfi-icall") int cef_version_info(int entry) {
   return g_libcef_pointers.cef_version_info(entry);
-}
-
-NO_SANITIZE("cfi-icall") const char* cef_api_hash(int entry) {
-  return g_libcef_pointers.cef_api_hash(entry);
 }
 
 NO_SANITIZE("cfi-icall") int cef_get_min_log_level() {
