@@ -307,7 +307,7 @@ def get_exported_symbols(file):
   """ Returns the global symbols exported by |file|. """
   symbols = []
 
-  # Each symbol line has a value is like:
+  # Each symbol line has a value like:
   # 0000000000000000 T _cef_sandbox_initialize
   cmdline = 'nm -g -U %s' % file
   result = exec_cmd(cmdline, os.path.join(cef_dir, 'tools'))
@@ -317,6 +317,25 @@ def get_exported_symbols(file):
     if line.find(' T ') < 0:
       continue
     symbol = line[line.rfind(' ') + 1:]
+    symbols.append(symbol)
+
+  return symbols
+
+
+def get_undefined_symbols(file):
+  """ Returns the undefined symbols imported by |file|. """
+  symbols = []
+
+  # Each symbol line has a value like:
+  # cef_sandbox.a:cef_sandbox.o: _memcpy
+  cmdline = 'nm -u -A %s' % file
+  result = exec_cmd(cmdline, os.path.join(cef_dir, 'tools'))
+  if len(result['err']) > 0:
+    raise Exception('ERROR: nm failed: %s' % result['err'])
+  for line in result['out'].split('\n'):
+    if line.find(': ') < 0:
+      continue
+    symbol = line[line.rfind(': ') + 2:]
     symbols.append(symbol)
 
   return symbols
@@ -374,6 +393,17 @@ def combine_libs(platform, build_dir, libs, dest_lib):
       print 'Expected', symbols
       print 'Got', result_symbols
       raise Exception('Failure verifying exported symbols')
+
+    # Verify that no C++ symbols are imported by the archive file. If the
+    # archive imports C++ symbols and the client app links an incompatible C++
+    # library, the result will be undefined behavior.
+    print 'Verifying imported (undefined) symbols...'
+    undefined_symbols = get_undefined_symbols(dest_lib)
+    cpp_symbols = list(filter(lambda symbol: symbol.startswith('__Z'),
+                              undefined_symbols))
+    if cpp_symbols:
+      print 'Found C++ symbols:', cpp_symbols
+      raise Exception('Failure verifying imported (undefined) symbols')
 
 
 def run(command_line, working_dir):
@@ -913,6 +943,8 @@ elif platform == 'macosx':
       'obj/sandbox/mac/libseatbelt.a',
       'obj/sandbox/mac/libseatbelt_proto.a',
       'obj/third_party/protobuf/libprotobuf_lite.a',
+      'obj/buildtools/third_party/libc++/libc++/*.o',
+      'obj/buildtools/third_party/libc++abi/libc++abi/*.o',
   ]
 
   # Generate the cef_sandbox.a merged library. A separate *_sandbox build
