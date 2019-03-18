@@ -2306,8 +2306,10 @@ void CefBrowserHostImpl::LoadingStateChanged(content::WebContents* source,
 
     // This method may be called multiple times in a row with |is_loading| true
     // as a result of https://crrev.com/5e750ad0. Ignore the 2nd+ times.
-    if (is_loading_ == is_loading)
+    if (is_loading_ == is_loading && can_go_back_ == can_go_back &&
+        can_go_forward_ == can_go_forward) {
       return;
+    }
 
     is_loading_ = is_loading;
     can_go_back_ = can_go_back;
