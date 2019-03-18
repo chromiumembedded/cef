@@ -344,6 +344,7 @@ CefRenderWidgetHostViewOSR::CefRenderWidgetHostViewOSR(
       software_output_device_(NULL),
       hold_resize_(false),
       pending_resize_(false),
+      pending_resize_force_(false),
       render_widget_host_(content::RenderWidgetHostImpl::From(widget)),
       has_parent_(parent_host_view != NULL),
       parent_host_view_(parent_host_view),
@@ -1142,9 +1143,11 @@ CefRenderWidgetHostViewOSR::CreateSyntheticGestureTarget() {
 viz::ScopedSurfaceIdAllocator
 CefRenderWidgetHostViewOSR::DidUpdateVisualProperties(
     const cc::RenderFrameMetadata& metadata) {
+  bool force =
+      local_surface_id_allocation_ != metadata.local_surface_id_allocation;
   base::OnceCallback<void()> allocation_task =
       base::BindOnce(&CefRenderWidgetHostViewOSR::SynchronizeVisualProperties,
-                     weak_ptr_factory_.GetWeakPtr());
+                     weak_ptr_factory_.GetWeakPtr(), force);
   return viz::ScopedSurfaceIdAllocator(std::move(allocation_task));
 }
 #endif
@@ -1249,14 +1252,16 @@ bool CefRenderWidgetHostViewOSR::InstallTransparency() {
   return false;
 }
 
-void CefRenderWidgetHostViewOSR::SynchronizeVisualProperties() {
+void CefRenderWidgetHostViewOSR::SynchronizeVisualProperties(bool force) {
   if (hold_resize_) {
     if (!pending_resize_)
       pending_resize_ = true;
+    if (force)
+      pending_resize_force_ = true;
     return;
   }
 
-  ResizeRootLayer(false);
+  ResizeRootLayer(force);
 }
 
 void CefRenderWidgetHostViewOSR::OnScreenInfoChanged() {
@@ -1637,11 +1642,13 @@ void CefRenderWidgetHostViewOSR::ReleaseResize() {
 
   hold_resize_ = false;
   if (pending_resize_) {
+    bool force = pending_resize_force_;
     pending_resize_ = false;
+    pending_resize_force_ = false;
     CEF_POST_TASK(
         CEF_UIT,
         base::Bind(&CefRenderWidgetHostViewOSR::SynchronizeVisualProperties,
-                   weak_ptr_factory_.GetWeakPtr()));
+                   weak_ptr_factory_.GetWeakPtr(), force));
   }
 }
 
