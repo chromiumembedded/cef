@@ -381,7 +381,7 @@ CefRenderWidgetHostViewOSR::CefRenderWidgetHostViewOSR(
   delegated_frame_host_ = std::make_unique<content::DelegatedFrameHost>(
       AllocateFrameSinkId(is_guest_view_hack),
       delegated_frame_host_client_.get(),
-      true /* should_register_frame_sink_id */);
+      false /* should_register_frame_sink_id */);
 
   root_layer_.reset(new ui::Layer(ui::LAYER_SOLID_COLOR));
 #endif
@@ -414,6 +414,7 @@ CefRenderWidgetHostViewOSR::CefRenderWidgetHostViewOSR(
 
   compositor_->SetDelegate(this);
   compositor_->SetRootLayer(root_layer_.get());
+  compositor_->AddChildFrameSink(GetFrameSinkId());
 #endif
 
   if (browser_impl_.get())
