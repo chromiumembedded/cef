@@ -230,7 +230,7 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
 
   bool InstallTransparency();
 
-  void SynchronizeVisualProperties();
+  void SynchronizeVisualProperties(bool force = false);
   void OnScreenInfoChanged();
   void Invalidate(CefBrowserHost::PaintElementType type);
   void SendExternalBeginFrame();
@@ -400,6 +400,7 @@ std::unique_ptr<ui::XScopedCursor> invisible_cursor_;
 
   bool hold_resize_;
   bool pending_resize_;
+  bool pending_resize_force_;
 
   // The associated Model.  While |this| is being Destroyed,
   // |render_widget_host_| is NULL and the message loop is run one last time
