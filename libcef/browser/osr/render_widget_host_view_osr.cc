@@ -1323,6 +1323,9 @@ void CefRenderWidgetHostViewOSR::SendExternalBeginFrame() {
   DCHECK(begin_frame_args.IsValid());
   begin_frame_number_++;
 
+  if (render_widget_host_)
+    render_widget_host_->ProgressFlingIfNeeded(frame_time);
+
   if (renderer_compositor_frame_sink_) {
     GetCompositor()->context_factory_private()->IssueExternalBeginFrame(
         GetCompositor(), begin_frame_args);
