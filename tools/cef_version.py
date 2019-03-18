@@ -24,7 +24,7 @@ class VersionFormatter:
 
     # Whether to use the old version format by default.
     self._old_format_default = \
-        bool(int(os.environ.get('CEF_OLD_VERSION_FORMAT', '1')))
+        bool(int(os.environ.get('CEF_OLD_VERSION_FORMAT', '0')))
 
     self.reset()
 
