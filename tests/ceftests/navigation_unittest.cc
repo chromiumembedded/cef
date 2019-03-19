@@ -1216,7 +1216,8 @@ class OrderNavRendererTest : public ClientAppRenderer::Delegate,
   }
 
   void OnBrowserCreated(CefRefPtr<ClientAppRenderer> app,
-                        CefRefPtr<CefBrowser> browser) override {
+                        CefRefPtr<CefBrowser> browser,
+                        CefRefPtr<CefDictionaryValue> extra_info) override {
     if (!run_test_)
       return;
 
@@ -1706,7 +1707,8 @@ class LoadNavRendererTest : public ClientAppRenderer::Delegate,
   }
 
   void OnBrowserCreated(CefRefPtr<ClientAppRenderer> app,
-                        CefRefPtr<CefBrowser> browser) override {
+                        CefRefPtr<CefBrowser> browser,
+                        CefRefPtr<CefDictionaryValue> extra_info) override {
     if (!run_test_)
       return;
 
@@ -2251,6 +2253,7 @@ class PopupSimultaneousTestHandler : public TestHandler {
                      CefWindowInfo& windowInfo,
                      CefRefPtr<CefClient>& client,
                      CefBrowserSettings& settings,
+                     CefRefPtr<CefDictionaryValue>& extra_info,
                      bool* no_javascript_access) override {
     const std::string& url = target_url;
     EXPECT_LT(before_popup_ct_, kSimultPopupCount);
@@ -2392,6 +2395,7 @@ class PopupJSWindowOpenTestHandler : public TestHandler {
                      CefWindowInfo& windowInfo,
                      CefRefPtr<CefClient>& client,
                      CefBrowserSettings& settings,
+                     CefRefPtr<CefDictionaryValue>& extra_info,
                      bool* no_javascript_access) override {
     before_popup_ct_++;
     return false;
@@ -2529,6 +2533,7 @@ class PopupJSWindowEmptyTestHandler : public TestHandler {
                      CefWindowInfo& windowInfo,
                      CefRefPtr<CefClient>& client,
                      CefBrowserSettings& settings,
+                     CefRefPtr<CefDictionaryValue>& extra_info,
                      bool* no_javascript_access) override {
     got_before_popup_.yes();
     return false;
@@ -3415,12 +3420,206 @@ TEST(NavigationTest, CancelAfterCommit) {
   ReleaseAndWaitForDestructor(handler);
 }
 
+namespace {
+
+const char kExtraInfoUrl[] = "http://tests-extrainfonav.com/extra.html";
+const char kExtraInfoPopupUrl[] =
+    "http://tests-extrainfonav.com/extra_popup.html";
+const char kExtraInfoNavMsg[] = "NavigationTest.ExtraInfoNav";
+
+bool g_extra_info_nav_test = false;
+
+void SetBrowserExtraInfo(CefRefPtr<CefDictionaryValue> extra_info) {
+  // Arbitrary data for testing.
+  extra_info->SetBool("bool", true);
+  CefRefPtr<CefDictionaryValue> dict = CefDictionaryValue::Create();
+  dict->SetInt("key1", 5);
+  dict->SetString("key2", "test string");
+  extra_info->SetDictionary("dictionary", dict);
+  extra_info->SetDouble("double", 5.43322);
+  extra_info->SetString("string", "some string");
+}
+
+// Browser side.
+class ExtraInfoNavBrowserTest : public ClientAppBrowser::Delegate {
+ public:
+  ExtraInfoNavBrowserTest() {}
+
+  void OnBeforeChildProcessLaunch(
+      CefRefPtr<ClientAppBrowser> app,
+      CefRefPtr<CefCommandLine> command_line) override {
+    if (!g_extra_info_nav_test)
+      return;
+
+    // Indicate to the render process that the test should be run.
+    command_line->AppendSwitchWithValue("test", kExtraInfoNavMsg);
+  }
+
+ protected:
+  IMPLEMENT_REFCOUNTING(ExtraInfoNavBrowserTest);
+};
+
+// Renderer side
+class ExtraInfoNavRendererTest : public ClientAppRenderer::Delegate {
+ public:
+  ExtraInfoNavRendererTest() : run_test_(false) {}
+
+  void OnRenderThreadCreated(CefRefPtr<ClientAppRenderer> app,
+                             CefRefPtr<CefListValue> extra_info) override {
+    // Check that the test should be run.
+    CefRefPtr<CefCommandLine> command_line =
+        CefCommandLine::GetGlobalCommandLine();
+    const std::string& test = command_line->GetSwitchValue("test");
+    if (test != kExtraInfoNavMsg)
+      return;
+
+    run_test_ = true;
+  }
+
+  void OnBrowserCreated(CefRefPtr<ClientAppRenderer> app,
+                        CefRefPtr<CefBrowser> browser,
+                        CefRefPtr<CefDictionaryValue> extra_info) override {
+    if (!run_test_)
+      return;
+
+    CefRefPtr<CefDictionaryValue> expected = CefDictionaryValue::Create();
+    SetBrowserExtraInfo(expected);
+    TestDictionaryEqual(expected, extra_info);
+
+    SendTestResults(browser);
+  }
+
+ protected:
+  // Send the test results.
+  void SendTestResults(CefRefPtr<CefBrowser> browser) {
+    // Check if the test has failed.
+    bool result = !TestFailed();
+
+    CefRefPtr<CefProcessMessage> return_msg =
+        CefProcessMessage::Create(kExtraInfoNavMsg);
+    CefRefPtr<CefListValue> args = return_msg->GetArgumentList();
+    EXPECT_TRUE(args.get());
+    EXPECT_TRUE(args->SetBool(0, result));
+    EXPECT_TRUE(args->SetBool(1, browser->IsPopup()));
+    EXPECT_TRUE(browser->SendProcessMessage(PID_BROWSER, return_msg));
+  }
+
+  bool run_test_;
+
+  IMPLEMENT_REFCOUNTING(ExtraInfoNavRendererTest);
+};
+
+class ExtraInfoNavTestHandler : public TestHandler {
+ public:
+  ExtraInfoNavTestHandler() : popup_opened_(false) {}
+
+  void RunTest() override {
+    AddResource(kExtraInfoUrl,
+                "<html><head></head><body>ExtraInfo</body></html>",
+                "text/html");
+    AddResource(kExtraInfoPopupUrl, "<html>ExtraInfoPopup</html>", "text/html");
+
+    CefRefPtr<CefDictionaryValue> extra = CefDictionaryValue::Create();
+    SetBrowserExtraInfo(extra);
+
+    // Create the browser.
+    CreateBrowser(kExtraInfoUrl, NULL, extra);
+
+    // Time out the test after a reasonable period of time.
+    SetTestTimeout();
+  }
+
+  void OnLoadEnd(CefRefPtr<CefBrowser> browser,
+                 CefRefPtr<CefFrame> frame,
+                 int httpStatusCode) override {
+    if (popup_opened_) {
+      DestroyTest();
+    } else {
+      browser->GetMainFrame()->ExecuteJavaScript(
+          "window.open('" + std::string(kExtraInfoPopupUrl) + "');",
+          CefString(), 0);
+    }
+  }
+
+  bool OnBeforePopup(CefRefPtr<CefBrowser> browser,
+                     CefRefPtr<CefFrame> frame,
+                     const CefString& target_url,
+                     const CefString& target_frame_name,
+                     cef_window_open_disposition_t target_disposition,
+                     bool user_gesture,
+                     const CefPopupFeatures& popupFeatures,
+                     CefWindowInfo& windowInfo,
+                     CefRefPtr<CefClient>& client,
+                     CefBrowserSettings& settings,
+                     CefRefPtr<CefDictionaryValue>& extra_info,
+                     bool* no_javascript_access) override {
+    const std::string& url = target_url;
+    EXPECT_FALSE(popup_opened_);
+    EXPECT_STREQ(kExtraInfoPopupUrl, url.c_str());
+
+    CefRefPtr<CefDictionaryValue> extra = CefDictionaryValue::Create();
+    SetBrowserExtraInfo(extra);
+
+    extra_info = extra;
+
+    popup_opened_ = true;
+    return false;
+  }
+
+  bool OnProcessMessageReceived(CefRefPtr<CefBrowser> browser,
+                                CefProcessId source_process,
+                                CefRefPtr<CefProcessMessage> message) override {
+    if (message->GetName().ToString() == kExtraInfoNavMsg) {
+      // Test that the renderer side succeeded.
+      CefRefPtr<CefListValue> args = message->GetArgumentList();
+      EXPECT_TRUE(args.get());
+      EXPECT_TRUE(args->GetBool(0));
+      if (popup_opened_) {
+        EXPECT_TRUE(args->GetBool(1));
+        got_process_message_popup_.yes();
+      } else {
+        EXPECT_FALSE(args->GetBool(1));
+        got_process_message_main_.yes();
+      }
+      return true;
+    }
+
+    // Message not handled.
+    return false;
+  }
+
+ protected:
+  bool popup_opened_;
+  TrackCallback got_process_message_main_;
+  TrackCallback got_process_message_popup_;
+
+  void DestroyTest() override {
+    // Verify test expectations.
+    EXPECT_TRUE(got_process_message_main_);
+    EXPECT_TRUE(got_process_message_popup_);
+
+    TestHandler::DestroyTest();
+  }
+
+  IMPLEMENT_REFCOUNTING(ExtraInfoNavTestHandler);
+};
+}  // namespace
+
+TEST(NavigationTest, ExtraInfo) {
+  g_extra_info_nav_test = true;
+  CefRefPtr<ExtraInfoNavTestHandler> handler = new ExtraInfoNavTestHandler();
+  handler->ExecuteTest();
+  g_extra_info_nav_test = false;
+  ReleaseAndWaitForDestructor(handler);
+}
+
 // Entry point for creating navigation browser test objects.
 // Called from client_app_delegates.cc.
 void CreateNavigationBrowserTests(ClientAppBrowser::DelegateSet& delegates) {
   delegates.insert(new HistoryNavBrowserTest);
   delegates.insert(new OrderNavBrowserTest);
   delegates.insert(new LoadNavBrowserTest);
+  delegates.insert(new ExtraInfoNavBrowserTest);
 }
 
 // Entry point for creating navigation renderer test objects.
@@ -3429,4 +3628,5 @@ void CreateNavigationRendererTests(ClientAppRenderer::DelegateSet& delegates) {
   delegates.insert(new HistoryNavRendererTest);
   delegates.insert(new OrderNavRendererTest);
   delegates.insert(new LoadNavRendererTest);
+  delegates.insert(new ExtraInfoNavRendererTest);
 }

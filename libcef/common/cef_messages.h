@@ -188,6 +188,7 @@ IPC_STRUCT_BEGIN(CefProcessHostMsg_GetNewBrowserInfo_Params)
   IPC_STRUCT_MEMBER(bool, is_popup)
   IPC_STRUCT_MEMBER(bool, is_windowless)
   IPC_STRUCT_MEMBER(bool, is_guest_view)
+  IPC_STRUCT_MEMBER(base::DictionaryValue, extra_info)
 IPC_STRUCT_END()
 
 // Retrieve information about a newly created browser.

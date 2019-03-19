@@ -190,6 +190,7 @@ class ClientHandler : public CefClient,
       CefWindowInfo& windowInfo,
       CefRefPtr<CefClient>& client,
       CefBrowserSettings& settings,
+      CefRefPtr<CefDictionaryValue>& extra_info,
       bool* no_javascript_access) OVERRIDE;
   void OnAfterCreated(CefRefPtr<CefBrowser> browser) OVERRIDE;
   bool DoClose(CefRefPtr<CefBrowser> browser) OVERRIDE;

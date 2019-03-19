@@ -135,6 +135,8 @@ class CefBrowserHostImpl : public CefBrowserHost,
     // request context will be used.
     CefRefPtr<CefRequestContext> request_context;
 
+    CefRefPtr<CefDictionaryValue> extra_info;
+
     // Used when explicitly creating the browser as an extension host via
     // ProcessManager::CreateBackgroundHost.
     const extensions::Extension* extension = nullptr;

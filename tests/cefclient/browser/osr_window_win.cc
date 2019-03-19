@@ -50,6 +50,35 @@ bool IsMouseEventFromTouch(UINT message) {
              MOUSEEVENTF_FROMTOUCH;
 }
 
+class CreateBrowserHelper {
+ public:
+  CreateBrowserHelper(HWND hwnd,
+                      const RECT& rect,
+                      CefRefPtr<CefClient> handler,
+                      const std::string& url,
+                      const CefBrowserSettings& settings,
+                      CefRefPtr<CefDictionaryValue> extra_info,
+                      CefRefPtr<CefRequestContext> request_context,
+                      OsrWindowWin* osr_window_win)
+      : hwnd_(hwnd),
+        rect_(rect),
+        handler_(handler),
+        url_(url),
+        settings_(settings),
+        extra_info_(extra_info),
+        request_context_(request_context),
+        osr_window_win_(osr_window_win) {}
+
+  HWND hwnd_;
+  RECT rect_;
+  CefRefPtr<CefClient> handler_;
+  std::string url_;
+  CefBrowserSettings settings_;
+  CefRefPtr<CefDictionaryValue> extra_info_;
+  CefRefPtr<CefRequestContext> request_context_;
+  OsrWindowWin* osr_window_win_;
+};
+
 }  // namespace
 
 OsrWindowWin::OsrWindowWin(Delegate* delegate,
@@ -79,17 +108,26 @@ OsrWindowWin::~OsrWindowWin() {
   DCHECK(!hwnd_ && !render_handler_.get());
 }
 
+void CreateBrowserWithHelper(CreateBrowserHelper* helper) {
+  helper->osr_window_win_->CreateBrowser(
+      helper->hwnd_, helper->rect_, helper->handler_, helper->settings_,
+      helper->extra_info_, helper->request_context_, helper->url_);
+  delete helper;
+}
+
 void OsrWindowWin::CreateBrowser(HWND parent_hwnd,
                                  const RECT& rect,
                                  CefRefPtr<CefClient> handler,
                                  const CefBrowserSettings& settings,
+                                 CefRefPtr<CefDictionaryValue> extra_info,
                                  CefRefPtr<CefRequestContext> request_context,
                                  const std::string& startup_url) {
   if (!CefCurrentlyOn(TID_UI)) {
     // Execute this method on the UI thread.
-    CefPostTask(TID_UI, base::Bind(&OsrWindowWin::CreateBrowser, this,
-                                   parent_hwnd, rect, handler, settings,
-                                   request_context, startup_url));
+    CreateBrowserHelper* helper =
+        new CreateBrowserHelper(parent_hwnd, rect, handler, startup_url,
+                                settings, extra_info, request_context, this);
+    CefPostTask(TID_UI, base::Bind(CreateBrowserWithHelper, helper));
     return;
   }
 
@@ -110,7 +148,7 @@ void OsrWindowWin::CreateBrowser(HWND parent_hwnd,
 
   // Create the browser asynchronously.
   CefBrowserHost::CreateBrowser(window_info, handler, startup_url, settings,
-                                request_context);
+                                extra_info, request_context);
 }
 
 void OsrWindowWin::ShowPopup(HWND parent_hwnd,

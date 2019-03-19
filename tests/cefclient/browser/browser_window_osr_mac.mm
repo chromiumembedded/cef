@@ -1374,6 +1374,7 @@ void BrowserWindowOsrMacImpl::CreateBrowser(
     ClientWindowHandle parent_handle,
     const CefRect& rect,
     const CefBrowserSettings& settings,
+    CefRefPtr<CefDictionaryValue> extra_info,
     CefRefPtr<CefRequestContext> request_context) {
   REQUIRE_MAIN_THREAD();
 
@@ -1387,7 +1388,7 @@ void BrowserWindowOsrMacImpl::CreateBrowser(
   // Create the browser asynchronously.
   CefBrowserHost::CreateBrowser(window_info, browser_window_.client_handler_,
                                 browser_window_.client_handler_->startup_url(),
-                                settings, request_context);
+                                settings, extra_info, request_context);
 }
 
 void BrowserWindowOsrMacImpl::GetPopupConfig(CefWindowHandle temp_handle,

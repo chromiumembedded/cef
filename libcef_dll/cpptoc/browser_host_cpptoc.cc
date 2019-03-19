@@ -9,11 +9,12 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=48d8640bfbc9fede99ac411c163b2717ad84d373$
+// $hash=efa046db24821251ee93d40d36516d11b915325c$
 //
 
 #include "libcef_dll/cpptoc/browser_host_cpptoc.h"
 #include "libcef_dll/cpptoc/browser_cpptoc.h"
+#include "libcef_dll/cpptoc/dictionary_value_cpptoc.h"
 #include "libcef_dll/cpptoc/drag_data_cpptoc.h"
 #include "libcef_dll/cpptoc/extension_cpptoc.h"
 #include "libcef_dll/cpptoc/navigation_entry_cpptoc.h"
@@ -33,6 +34,7 @@ CEF_EXPORT int cef_browser_host_create_browser(
     struct _cef_client_t* client,
     const cef_string_t* url,
     const struct _cef_browser_settings_t* settings,
+    struct _cef_dictionary_value_t* extra_info,
     struct _cef_request_context_t* request_context) {
   shutdown_checker::AssertNotShutdown();
 
@@ -46,7 +48,7 @@ CEF_EXPORT int cef_browser_host_create_browser(
   DCHECK(settings);
   if (!settings)
     return 0;
-  // Unverified params: client, url, request_context
+  // Unverified params: client, url, extra_info, request_context
 
   // Translate param: windowInfo; type: struct_byref_const
   CefWindowInfo windowInfoObj;
@@ -60,6 +62,7 @@ CEF_EXPORT int cef_browser_host_create_browser(
   // Execute
   bool _retval = CefBrowserHost::CreateBrowser(
       windowInfoObj, CefClientCToCpp::Wrap(client), CefString(url), settingsObj,
+      CefDictionaryValueCppToC::Unwrap(extra_info),
       CefRequestContextCppToC::Unwrap(request_context));
 
   // Return type: bool
@@ -71,6 +74,7 @@ CEF_EXPORT cef_browser_t* cef_browser_host_create_browser_sync(
     struct _cef_client_t* client,
     const cef_string_t* url,
     const struct _cef_browser_settings_t* settings,
+    struct _cef_dictionary_value_t* extra_info,
     struct _cef_request_context_t* request_context) {
   shutdown_checker::AssertNotShutdown();
 
@@ -84,7 +88,7 @@ CEF_EXPORT cef_browser_t* cef_browser_host_create_browser_sync(
   DCHECK(settings);
   if (!settings)
     return NULL;
-  // Unverified params: client, url, request_context
+  // Unverified params: client, url, extra_info, request_context
 
   // Translate param: windowInfo; type: struct_byref_const
   CefWindowInfo windowInfoObj;
@@ -98,6 +102,7 @@ CEF_EXPORT cef_browser_t* cef_browser_host_create_browser_sync(
   // Execute
   CefRefPtr<CefBrowser> _retval = CefBrowserHost::CreateBrowserSync(
       windowInfoObj, CefClientCToCpp::Wrap(client), CefString(url), settingsObj,
+      CefDictionaryValueCppToC::Unwrap(extra_info),
       CefRequestContextCppToC::Unwrap(request_context));
 
   // Return type: refptr_same

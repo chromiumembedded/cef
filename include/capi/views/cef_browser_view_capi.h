@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=c499099d6f628e58d2eed207537817758161af5d$
+// $hash=400746f8fac7fa3dba7ee889c10ae6ca22b93fe1$
 //
 
 #ifndef CEF_INCLUDE_CAPI_VIEWS_CEF_BROWSER_VIEW_CAPI_H_
@@ -80,12 +80,16 @@ typedef struct _cef_browser_view_t {
 
 ///
 // Create a new BrowserView. The underlying cef_browser_t will not be created
-// until this view is added to the views hierarchy.
+// until this view is added to the views hierarchy. The optional |extra_info|
+// parameter provides an opportunity to specify extra information specific to
+// the created browser that will be passed to
+// cef_render_process_handler_t::on_browser_created() in the render process.
 ///
 CEF_EXPORT cef_browser_view_t* cef_browser_view_create(
     struct _cef_client_t* client,
     const cef_string_t* url,
     const struct _cef_browser_settings_t* settings,
+    struct _cef_dictionary_value_t* extra_info,
     struct _cef_request_context_t* request_context,
     struct _cef_browser_view_delegate_t* delegate);
 

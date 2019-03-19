@@ -679,8 +679,12 @@ void CefContentRendererClient::BrowserCreated(
   if (application.get()) {
     CefRefPtr<CefRenderProcessHandler> handler =
         application->GetRenderProcessHandler();
-    if (handler.get())
-      handler->OnBrowserCreated(browser.get());
+    if (handler.get()) {
+      CefRefPtr<CefDictionaryValueImpl> dictValuePtr(
+          new CefDictionaryValueImpl(&params.extra_info, false, true));
+      handler->OnBrowserCreated(browser.get(), dictValuePtr.get());
+      dictValuePtr->Detach(NULL);
+    }
   }
 }
 

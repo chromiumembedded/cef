@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=034f21943c2bddc00cb1b7da090bef19b6ca6065$
+// $hash=38a50fce9d7126ab95a471e1de31809792ce50da$
 //
 
 #include "libcef_dll/ctocpp/views/browser_view_ctocpp.h"
@@ -17,6 +17,7 @@
 #include "libcef_dll/cpptoc/views/browser_view_delegate_cpptoc.h"
 #include "libcef_dll/cpptoc/views/view_delegate_cpptoc.h"
 #include "libcef_dll/ctocpp/browser_ctocpp.h"
+#include "libcef_dll/ctocpp/dictionary_value_ctocpp.h"
 #include "libcef_dll/ctocpp/request_context_ctocpp.h"
 #include "libcef_dll/ctocpp/views/button_ctocpp.h"
 #include "libcef_dll/ctocpp/views/panel_ctocpp.h"
@@ -33,17 +34,19 @@ CefRefPtr<CefBrowserView> CefBrowserView::CreateBrowserView(
     CefRefPtr<CefClient> client,
     const CefString& url,
     const CefBrowserSettings& settings,
+    CefRefPtr<CefDictionaryValue> extra_info,
     CefRefPtr<CefRequestContext> request_context,
     CefRefPtr<CefBrowserViewDelegate> delegate) {
   shutdown_checker::AssertNotShutdown();
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
-  // Unverified params: client, url, request_context, delegate
+  // Unverified params: client, url, extra_info, request_context, delegate
 
   // Execute
   cef_browser_view_t* _retval = cef_browser_view_create(
       CefClientCppToC::Wrap(client), url.GetStruct(), &settings,
+      CefDictionaryValueCToCpp::Unwrap(extra_info),
       CefRequestContextCToCpp::Unwrap(request_context),
       CefBrowserViewDelegateCppToC::Wrap(delegate));
 

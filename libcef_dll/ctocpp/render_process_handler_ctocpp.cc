@@ -9,11 +9,12 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=fd9981ab9019e2386f8546d1aad794f2e5862eef$
+// $hash=366d6e567451af19ce5a4cc5f6f06791f504af26$
 //
 
 #include "libcef_dll/ctocpp/render_process_handler_ctocpp.h"
 #include "libcef_dll/cpptoc/browser_cpptoc.h"
+#include "libcef_dll/cpptoc/dictionary_value_cpptoc.h"
 #include "libcef_dll/cpptoc/domnode_cpptoc.h"
 #include "libcef_dll/cpptoc/frame_cpptoc.h"
 #include "libcef_dll/cpptoc/list_value_cpptoc.h"
@@ -58,7 +59,8 @@ void CefRenderProcessHandlerCToCpp::OnWebKitInitialized() {
 
 NO_SANITIZE("cfi-icall")
 void CefRenderProcessHandlerCToCpp::OnBrowserCreated(
-    CefRefPtr<CefBrowser> browser) {
+    CefRefPtr<CefBrowser> browser,
+    CefRefPtr<CefDictionaryValue> extra_info) {
   cef_render_process_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_browser_created))
     return;
@@ -69,9 +71,14 @@ void CefRenderProcessHandlerCToCpp::OnBrowserCreated(
   DCHECK(browser.get());
   if (!browser.get())
     return;
+  // Verify param: extra_info; type: refptr_diff
+  DCHECK(extra_info.get());
+  if (!extra_info.get())
+    return;
 
   // Execute
-  _struct->on_browser_created(_struct, CefBrowserCppToC::Wrap(browser));
+  _struct->on_browser_created(_struct, CefBrowserCppToC::Wrap(browser),
+                              CefDictionaryValueCppToC::Wrap(extra_info));
 }
 
 NO_SANITIZE("cfi-icall")

@@ -9,11 +9,12 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=c203333e32d83a2cfdbbf2aa777f377e1b14ed62$
+// $hash=c90fb460b250ed3b0a8a7f9c1142e51918cedcd5$
 //
 
 #include "libcef_dll/ctocpp/life_span_handler_ctocpp.h"
 #include "libcef_dll/cpptoc/browser_cpptoc.h"
+#include "libcef_dll/cpptoc/dictionary_value_cpptoc.h"
 #include "libcef_dll/cpptoc/frame_cpptoc.h"
 #include "libcef_dll/ctocpp/client_ctocpp.h"
 #include "libcef_dll/shutdown_checker.h"
@@ -32,6 +33,7 @@ bool CefLifeSpanHandlerCToCpp::OnBeforePopup(
     CefWindowInfo& windowInfo,
     CefRefPtr<CefClient>& client,
     CefBrowserSettings& settings,
+    CefRefPtr<CefDictionaryValue>& extra_info,
     bool* no_javascript_access) {
   shutdown_checker::AssertNotShutdown();
 
@@ -60,6 +62,11 @@ bool CefLifeSpanHandlerCToCpp::OnBeforePopup(
   if (client.get())
     clientStruct = CefClientCToCpp::Unwrap(client);
   cef_client_t* clientOrig = clientStruct;
+  // Translate param: extra_info; type: refptr_diff_byref
+  cef_dictionary_value_t* extra_infoStruct = NULL;
+  if (extra_info.get())
+    extra_infoStruct = CefDictionaryValueCppToC::Wrap(extra_info);
+  cef_dictionary_value_t* extra_infoOrig = extra_infoStruct;
   // Translate param: no_javascript_access; type: bool_byaddr
   int no_javascript_accessInt =
       no_javascript_access ? *no_javascript_access : 0;
@@ -69,7 +76,7 @@ bool CefLifeSpanHandlerCToCpp::OnBeforePopup(
       _struct, CefBrowserCppToC::Wrap(browser), CefFrameCppToC::Wrap(frame),
       target_url.GetStruct(), target_frame_name.GetStruct(), target_disposition,
       user_gesture, &popupFeatures, &windowInfo, &clientStruct, &settings,
-      &no_javascript_accessInt);
+      &extra_infoStruct, &no_javascript_accessInt);
 
   // Restore param:client; type: refptr_same_byref
   if (clientStruct) {
@@ -78,6 +85,14 @@ bool CefLifeSpanHandlerCToCpp::OnBeforePopup(
     }
   } else {
     client = NULL;
+  }
+  // Restore param:extra_info; type: refptr_diff_byref
+  if (extra_infoStruct) {
+    if (extra_infoStruct != extra_infoOrig) {
+      extra_info = CefDictionaryValueCppToC::Unwrap(extra_infoStruct);
+    }
+  } else {
+    extra_info = NULL;
   }
   // Restore param:no_javascript_access; type: bool_byaddr
   if (no_javascript_access)

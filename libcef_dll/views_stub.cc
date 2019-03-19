@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=3639cede4bdba16cae273a2137867f9c5ac53fe8$
+// $hash=03444846894791bdea24dbd8b059570cda5b801f$
 //
 
 #include "include/views/cef_browser_view.h"
@@ -30,6 +30,7 @@ CefRefPtr<CefBrowserView> CefBrowserView::CreateBrowserView(
     CefRefPtr<CefClient> client,
     const CefString& url,
     const CefBrowserSettings& settings,
+    CefRefPtr<CefDictionaryValue> extra_info,
     CefRefPtr<CefRequestContext> request_context,
     CefRefPtr<CefBrowserViewDelegate> delegate) {
   NOTIMPLEMENTED();

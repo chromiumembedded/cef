@@ -91,7 +91,7 @@ void SimpleApp::OnContextInitialized() {
   if (use_views) {
     // Create the BrowserView.
     CefRefPtr<CefBrowserView> browser_view = CefBrowserView::CreateBrowserView(
-        handler, url, browser_settings, NULL, NULL);
+        handler, url, browser_settings, NULL, NULL, NULL);
 
     // Create the Window. It will show itself after creation.
     CefWindow::CreateTopLevelWindow(new SimpleWindowDelegate(browser_view));
@@ -107,6 +107,6 @@ void SimpleApp::OnContextInitialized() {
 
     // Create the first browser window.
     CefBrowserHost::CreateBrowser(window_info, handler, url, browser_settings,
-                                  NULL);
+                                  NULL, NULL);
   }
 }

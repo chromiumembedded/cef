@@ -380,7 +380,7 @@ void RootWindowGtk::CreateRootWindow(const CefBrowserSettings& settings,
 
   if (!is_popup_) {
     // Create the browser window.
-    browser_window_->CreateBrowser(parent, browser_bounds_, settings,
+    browser_window_->CreateBrowser(parent, browser_bounds_, settings, NULL,
                                    delegate_->GetRequestContext(this));
   } else {
     // With popups we already have a browser window. Parent the browser window

@@ -9,12 +9,13 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=75233e51355652a53c7dcdae740eba004e76605e$
+// $hash=7b918e87169c8fee39d93a9093ac700eceb6a061$
 //
 
 #include "libcef_dll/cpptoc/render_process_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/load_handler_cpptoc.h"
 #include "libcef_dll/ctocpp/browser_ctocpp.h"
+#include "libcef_dll/ctocpp/dictionary_value_ctocpp.h"
 #include "libcef_dll/ctocpp/domnode_ctocpp.h"
 #include "libcef_dll/ctocpp/frame_ctocpp.h"
 #include "libcef_dll/ctocpp/list_value_ctocpp.h"
@@ -59,7 +60,8 @@ void CEF_CALLBACK render_process_handler_on_web_kit_initialized(
 
 void CEF_CALLBACK render_process_handler_on_browser_created(
     struct _cef_render_process_handler_t* self,
-    cef_browser_t* browser) {
+    cef_browser_t* browser,
+    struct _cef_dictionary_value_t* extra_info) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -69,10 +71,15 @@ void CEF_CALLBACK render_process_handler_on_browser_created(
   DCHECK(browser);
   if (!browser)
     return;
+  // Verify param: extra_info; type: refptr_diff
+  DCHECK(extra_info);
+  if (!extra_info)
+    return;
 
   // Execute
   CefRenderProcessHandlerCppToC::Get(self)->OnBrowserCreated(
-      CefBrowserCToCpp::Wrap(browser));
+      CefBrowserCToCpp::Wrap(browser),
+      CefDictionaryValueCToCpp::Wrap(extra_info));
 }
 
 void CEF_CALLBACK render_process_handler_on_browser_destroyed(

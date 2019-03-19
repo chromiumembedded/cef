@@ -6,6 +6,7 @@
 
 #include "libcef/browser/browser_host_impl.h"
 #include "libcef/browser/thread_util.h"
+#include "libcef/common/values_impl.h"
 
 #include "ipc/ipc_message.h"
 
@@ -118,13 +119,16 @@ bool CefBrowserInfo::FrameTreeNodeIDManager::is_frame_tree_node_id_match(
 
 // CefBrowserInfo
 
-CefBrowserInfo::CefBrowserInfo(int browser_id, bool is_popup)
+CefBrowserInfo::CefBrowserInfo(int browser_id,
+                               bool is_popup,
+                               CefRefPtr<CefDictionaryValue> extra_info)
     : browser_id_(browser_id),
       is_popup_(is_popup),
       is_windowless_(false),
       render_id_manager_(&lock_),
       guest_render_id_manager_(&lock_),
-      frame_tree_node_id_manager_(&lock_) {
+      frame_tree_node_id_manager_(&lock_),
+      extra_info_(extra_info) {
   DCHECK_GT(browser_id, 0);
 }
 

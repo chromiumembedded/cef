@@ -487,7 +487,7 @@ void RootWindowMacImpl::CreateRootWindow(const CefBrowserSettings& settings,
     // Create the browser window.
     browser_window_->CreateBrowser(
         CAST_NSVIEW_TO_CEF_WINDOW_HANDLE(contentView),
-        CefRect(0, 0, width, height), settings,
+        CefRect(0, 0, width, height), settings, NULL,
         root_window_.delegate_->GetRequestContext(&root_window_));
   } else {
     // With popups we already have a browser window. Parent the browser window

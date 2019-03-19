@@ -826,10 +826,8 @@ class OSRTestHandler : public RoutingTestHandler,
             EXPECT_EQ(0, dirtyRects[0].x);
             EXPECT_EQ(0, dirtyRects[0].y);
             if (ExpectComputedPopupSize()) {
-              EXPECT_EQ(expanded_select_rect.width,
-                        dirtyRects[0].width);
-              EXPECT_EQ(expanded_select_rect.height,
-                        dirtyRects[0].height);
+              EXPECT_EQ(expanded_select_rect.width, dirtyRects[0].width);
+              EXPECT_EQ(expanded_select_rect.height, dirtyRects[0].height);
             } else {
               EXPECT_GT(dirtyRects[0].width, kExpandedSelectRect.width);
               EXPECT_GT(dirtyRects[0].height, kExpandedSelectRect.height);
@@ -1333,7 +1331,7 @@ class OSRTestHandler : public RoutingTestHandler,
 #else
 #error "Unsupported platform"
 #endif
-    CefBrowserHost::CreateBrowser(windowInfo, this, url, settings, NULL);
+    CefBrowserHost::CreateBrowser(windowInfo, this, url, settings, NULL, NULL);
   }
 
   CefRect GetScaledRect(const CefRect& rect) const {

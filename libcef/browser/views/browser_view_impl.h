@@ -31,6 +31,7 @@ class CefBrowserViewImpl : public CefViewImpl<CefBrowserViewView,
       CefRefPtr<CefClient> client,
       const CefString& url,
       const CefBrowserSettings& settings,
+      CefRefPtr<CefDictionaryValue> extra_info,
       CefRefPtr<CefRequestContext> request_context,
       CefRefPtr<CefBrowserViewDelegate> delegate);
 
@@ -76,6 +77,7 @@ class CefBrowserViewImpl : public CefViewImpl<CefBrowserViewView,
       CefRefPtr<CefClient> client,
       const CefString& url,
       const CefBrowserSettings& settings,
+      CefRefPtr<CefDictionaryValue> extra_info,
       CefRefPtr<CefRequestContext> request_context);
 
   void SetDefaults(const CefBrowserSettings& settings);

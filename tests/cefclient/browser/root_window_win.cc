@@ -949,7 +949,7 @@ void RootWindowWin::OnCreate(LPCREATESTRUCT lpCreateStruct) {
     // Create the browser window.
     CefRect cef_rect(rect.left, rect.top, rect.right - rect.left,
                      rect.bottom - rect.top);
-    browser_window_->CreateBrowser(hwnd_, cef_rect, browser_settings_,
+    browser_window_->CreateBrowser(hwnd_, cef_rect, browser_settings_, NULL,
                                    delegate_->GetRequestContext(this));
   } else {
     // With popups we already have a browser window. Parent the browser window

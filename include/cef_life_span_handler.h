@@ -73,7 +73,10 @@ class CefLifeSpanHandler : public virtual CefBaseRefCounted {
   // |windowInfo| will be ignored if the parent browser is wrapped in a
   // CefBrowserView. Popup browser creation will be canceled if the parent
   // browser is destroyed before the popup browser creation completes (indicated
-  // by a call to OnAfterCreated for the popup browser).
+  // by a call to OnAfterCreated for the popup browser). The |extra_info|
+  // parameter provides an opportunity to specify extra information specific
+  // to the created popup browser that will be passed to
+  // CefRenderProcessHandler::OnBrowserCreated() in the render process.
   ///
   /*--cef(optional_param=target_url,optional_param=target_frame_name)--*/
   virtual bool OnBeforePopup(CefRefPtr<CefBrowser> browser,
@@ -86,6 +89,7 @@ class CefLifeSpanHandler : public virtual CefBaseRefCounted {
                              CefWindowInfo& windowInfo,
                              CefRefPtr<CefClient>& client,
                              CefBrowserSettings& settings,
+                             CefRefPtr<CefDictionaryValue>& extra_info,
                              bool* no_javascript_access) {
     return false;
   }

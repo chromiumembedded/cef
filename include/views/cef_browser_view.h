@@ -51,14 +51,19 @@ class CefBrowserView : public CefView {
  public:
   ///
   // Create a new BrowserView. The underlying CefBrowser will not be created
-  // until this view is added to the views hierarchy.
+  // until this view is added to the views hierarchy. The optional |extra_info|
+  // parameter provides an opportunity to specify extra information specific
+  // to the created browser that will be passed to
+  // CefRenderProcessHandler::OnBrowserCreated() in the render process.
   ///
   /*--cef(optional_param=client,optional_param=url,
-          optional_param=request_context,optional_param=delegate)--*/
+          optional_param=request_context,optional_param=delegate,
+          optional_param=extra_info)--*/
   static CefRefPtr<CefBrowserView> CreateBrowserView(
       CefRefPtr<CefClient> client,
       const CefString& url,
       const CefBrowserSettings& settings,
+      CefRefPtr<CefDictionaryValue> extra_info,
       CefRefPtr<CefRequestContext> request_context,
       CefRefPtr<CefBrowserViewDelegate> delegate);
 

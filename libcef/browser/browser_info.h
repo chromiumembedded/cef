@@ -9,9 +9,11 @@
 #include <set>
 
 #include "include/internal/cef_ptr.h"
+#include "libcef/common/values_impl.h"
 
 #include "base/memory/ref_counted.h"
 #include "base/synchronization/lock.h"
+#include "base/values.h"
 
 class CefBrowserHostImpl;
 
@@ -83,11 +85,15 @@ class CefBrowserInfo : public base::RefCountedThreadSafe<CefBrowserInfo> {
     FrameTreeNodeIdSet frame_tree_node_id_set_;
   };
 
-  CefBrowserInfo(int browser_id, bool is_popup);
+  CefBrowserInfo(int browser_id,
+                 bool is_popup,
+                 CefRefPtr<CefDictionaryValue> extra_info);
 
   int browser_id() const { return browser_id_; }
   bool is_popup() const { return is_popup_; }
   bool is_windowless() const { return is_windowless_; }
+
+  CefRefPtr<CefDictionaryValue> extra_info() const { return extra_info_; }
 
   void set_windowless(bool windowless);
 
@@ -128,6 +134,8 @@ class CefBrowserInfo : public base::RefCountedThreadSafe<CefBrowserInfo> {
   // May be NULL if the browser has not yet been created or if the browser has
   // been destroyed.
   CefRefPtr<CefBrowserHostImpl> browser_;
+
+  CefRefPtr<CefDictionaryValue> extra_info_;
 
   DISALLOW_COPY_AND_ASSIGN(CefBrowserInfo);
 };

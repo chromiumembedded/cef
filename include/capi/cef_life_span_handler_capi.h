@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=a1648c803a6d72e004e523cd4c02530702635d1e$
+// $hash=9756fec933d13ecb320b0ec8c3bd8c9fcddfef47$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_LIFE_SPAN_HANDLER_CAPI_H_
@@ -80,7 +80,10 @@ typedef struct _cef_life_span_handler_t {
   // modifications to |windowInfo| will be ignored if the parent browser is
   // wrapped in a cef_browser_view_t. Popup browser creation will be canceled if
   // the parent browser is destroyed before the popup browser creation completes
-  // (indicated by a call to OnAfterCreated for the popup browser).
+  // (indicated by a call to OnAfterCreated for the popup browser). The
+  // |extra_info| parameter provides an opportunity to specify extra information
+  // specific to the created popup browser that will be passed to
+  // cef_render_process_handler_t::on_browser_created() in the render process.
   ///
   int(CEF_CALLBACK* on_before_popup)(
       struct _cef_life_span_handler_t* self,
@@ -94,6 +97,7 @@ typedef struct _cef_life_span_handler_t {
       struct _cef_window_info_t* windowInfo,
       struct _cef_client_t** client,
       struct _cef_browser_settings_t* settings,
+      struct _cef_dictionary_value_t** extra_info,
       int* no_javascript_access);
 
   ///

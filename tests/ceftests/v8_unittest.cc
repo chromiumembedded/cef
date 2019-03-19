@@ -2498,7 +2498,8 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
   }
 
   void OnBrowserCreated(CefRefPtr<ClientAppRenderer> app,
-                        CefRefPtr<CefBrowser> browser) override {
+                        CefRefPtr<CefBrowser> browser,
+                        CefRefPtr<CefDictionaryValue> extra_info) override {
     test_mode_ = g_current_test_mode;
     if (test_mode_ == V8TEST_NONE) {
       // Retrieve the test mode from the command line.

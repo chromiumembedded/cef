@@ -18,10 +18,11 @@ CefRefPtr<CefBrowserView> CefBrowserView::CreateBrowserView(
     CefRefPtr<CefClient> client,
     const CefString& url,
     const CefBrowserSettings& settings,
+    CefRefPtr<CefDictionaryValue> extra_info,
     CefRefPtr<CefRequestContext> request_context,
     CefRefPtr<CefBrowserViewDelegate> delegate) {
-  return CefBrowserViewImpl::Create(client, url, settings, request_context,
-                                    delegate);
+  return CefBrowserViewImpl::Create(client, url, settings, extra_info,
+                                    request_context, delegate);
 }
 
 // static
@@ -40,11 +41,12 @@ CefRefPtr<CefBrowserViewImpl> CefBrowserViewImpl::Create(
     CefRefPtr<CefClient> client,
     const CefString& url,
     const CefBrowserSettings& settings,
+    CefRefPtr<CefDictionaryValue> extra_info,
     CefRefPtr<CefRequestContext> request_context,
     CefRefPtr<CefBrowserViewDelegate> delegate) {
   CEF_REQUIRE_UIT_RETURN(nullptr);
   CefRefPtr<CefBrowserViewImpl> browser_view = new CefBrowserViewImpl(delegate);
-  browser_view->SetPendingBrowserCreateParams(client, url, settings,
+  browser_view->SetPendingBrowserCreateParams(client, url, settings, extra_info,
                                               request_context);
   browser_view->Initialize();
   browser_view->SetDefaults(settings);
@@ -171,12 +173,14 @@ void CefBrowserViewImpl::SetPendingBrowserCreateParams(
     CefRefPtr<CefClient> client,
     const CefString& url,
     const CefBrowserSettings& settings,
+    CefRefPtr<CefDictionaryValue> extra_info,
     CefRefPtr<CefRequestContext> request_context) {
   DCHECK(!pending_browser_create_params_);
   pending_browser_create_params_.reset(new CefBrowserHostImpl::CreateParams());
   pending_browser_create_params_->client = client;
   pending_browser_create_params_->url = GURL(url.ToString());
   pending_browser_create_params_->settings = settings;
+  pending_browser_create_params_->extra_info = extra_info;
   pending_browser_create_params_->request_context = request_context;
 }
 

@@ -49,8 +49,10 @@ class CefBrowserInfoManager : public content::RenderProcessHostObserver {
 
   // Called from CefBrowserHostImpl::Create when a new browser is being created
   // directly. In this case |is_popup| will be true only for DevTools browsers.
-  scoped_refptr<CefBrowserInfo> CreateBrowserInfo(bool is_popup,
-                                                  bool is_windowless);
+  scoped_refptr<CefBrowserInfo> CreateBrowserInfo(
+      bool is_popup,
+      bool is_windowless,
+      CefRefPtr<CefDictionaryValue> extra_info);
 
   // Called from CefBrowserHostImpl::WebContentsCreated when a new browser is
   // being created for a traditional popup (e.g. window.open() or targeted
@@ -58,7 +60,8 @@ class CefBrowserInfoManager : public content::RenderProcessHostObserver {
   // response will be sent when this method is called.
   scoped_refptr<CefBrowserInfo> CreatePopupBrowserInfo(
       content::WebContents* new_contents,
-      bool is_windowless);
+      bool is_windowless,
+      CefRefPtr<CefDictionaryValue> extra_info);
 
   // Called from CefContentBrowserClient::CanCreateWindow. See comments on
   // PendingPopup for more information.
@@ -89,7 +92,8 @@ class CefBrowserInfoManager : public content::RenderProcessHostObserver {
       int opener_render_frame_id,
       CefBrowserSettings& settings,
       CefRefPtr<CefClient>& client,
-      std::unique_ptr<CefBrowserPlatformDelegate>& platform_delegate);
+      std::unique_ptr<CefBrowserPlatformDelegate>& platform_delegate,
+      CefRefPtr<CefDictionaryValue>& extra_info);
 
   // Called from CefBrowserMessageFilter::OnGetNewBrowserInfo for delivering
   // browser info to the renderer process. If the browser info already exists
@@ -168,6 +172,7 @@ class CefBrowserInfoManager : public content::RenderProcessHostObserver {
     // Values specified by OnBeforePopup.
     CefBrowserSettings settings;
     CefRefPtr<CefClient> client;
+    CefRefPtr<CefDictionaryValue> extra_info;
 
     // Platform delegate specific to the new popup.
     std::unique_ptr<CefBrowserPlatformDelegate> platform_delegate;

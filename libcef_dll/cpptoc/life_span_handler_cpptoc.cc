@@ -9,12 +9,13 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=90eb7cfa5e3f294b4b732e705ebe53072f22e8e2$
+// $hash=c6b5f1dca6503df7cb9de7b5351969ad008df340$
 //
 
 #include "libcef_dll/cpptoc/life_span_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/client_cpptoc.h"
 #include "libcef_dll/ctocpp/browser_ctocpp.h"
+#include "libcef_dll/ctocpp/dictionary_value_ctocpp.h"
 #include "libcef_dll/ctocpp/frame_ctocpp.h"
 #include "libcef_dll/shutdown_checker.h"
 
@@ -34,6 +35,7 @@ int CEF_CALLBACK life_span_handler_on_before_popup(
     cef_window_info_t* windowInfo,
     cef_client_t** client,
     struct _cef_browser_settings_t* settings,
+    struct _cef_dictionary_value_t** extra_info,
     int* no_javascript_access) {
   shutdown_checker::AssertNotShutdown();
 
@@ -66,6 +68,10 @@ int CEF_CALLBACK life_span_handler_on_before_popup(
   DCHECK(settings);
   if (!settings)
     return 0;
+  // Verify param: extra_info; type: refptr_diff_byref
+  DCHECK(extra_info);
+  if (!extra_info)
+    return 0;
   // Verify param: no_javascript_access; type: bool_byaddr
   DCHECK(no_javascript_access);
   if (!no_javascript_access)
@@ -89,6 +95,11 @@ int CEF_CALLBACK life_span_handler_on_before_popup(
   CefBrowserSettings settingsObj;
   if (settings)
     settingsObj.AttachTo(*settings);
+  // Translate param: extra_info; type: refptr_diff_byref
+  CefRefPtr<CefDictionaryValue> extra_infoPtr;
+  if (extra_info && *extra_info)
+    extra_infoPtr = CefDictionaryValueCToCpp::Wrap(*extra_info);
+  CefDictionaryValue* extra_infoOrig = extra_infoPtr.get();
   // Translate param: no_javascript_access; type: bool_byaddr
   bool no_javascript_accessBool =
       (no_javascript_access && *no_javascript_access) ? true : false;
@@ -98,7 +109,7 @@ int CEF_CALLBACK life_span_handler_on_before_popup(
       CefBrowserCToCpp::Wrap(browser), CefFrameCToCpp::Wrap(frame),
       CefString(target_url), CefString(target_frame_name), target_disposition,
       user_gesture ? true : false, popupFeaturesObj, windowInfoObj, clientPtr,
-      settingsObj, &no_javascript_accessBool);
+      settingsObj, extra_infoPtr, &no_javascript_accessBool);
 
   // Restore param: windowInfo; type: struct_byref
   if (windowInfo)
@@ -116,6 +127,16 @@ int CEF_CALLBACK life_span_handler_on_before_popup(
   // Restore param: settings; type: struct_byref
   if (settings)
     settingsObj.DetachTo(*settings);
+  // Restore param: extra_info; type: refptr_diff_byref
+  if (extra_info) {
+    if (extra_infoPtr.get()) {
+      if (extra_infoPtr.get() != extra_infoOrig) {
+        *extra_info = CefDictionaryValueCToCpp::Unwrap(extra_infoPtr);
+      }
+    } else {
+      *extra_info = NULL;
+    }
+  }
   // Restore param: no_javascript_access; type: bool_byaddr
   if (no_javascript_access)
     *no_javascript_access = no_javascript_accessBool ? true : false;

@@ -127,24 +127,27 @@ class CreateBrowserHelper {
                       CefRefPtr<CefClient> client,
                       const CefString& url,
                       const CefBrowserSettings& settings,
+                      CefRefPtr<CefDictionaryValue> extra_info,
                       CefRefPtr<CefRequestContext> request_context)
       : window_info_(windowInfo),
         client_(client),
         url_(url),
         settings_(settings),
+        extra_info_(extra_info),
         request_context_(request_context) {}
 
   CefWindowInfo window_info_;
   CefRefPtr<CefClient> client_;
   CefString url_;
   CefBrowserSettings settings_;
+  CefRefPtr<CefDictionaryValue> extra_info_;
   CefRefPtr<CefRequestContext> request_context_;
 };
 
 void CreateBrowserWithHelper(CreateBrowserHelper* helper) {
-  CefBrowserHost::CreateBrowserSync(helper->window_info_, helper->client_,
-                                    helper->url_, helper->settings_,
-                                    helper->request_context_);
+  CefBrowserHost::CreateBrowserSync(
+      helper->window_info_, helper->client_, helper->url_, helper->settings_,
+      helper->extra_info_, helper->request_context_);
   delete helper;
 }
 
@@ -207,6 +210,7 @@ bool CefBrowserHost::CreateBrowser(
     CefRefPtr<CefClient> client,
     const CefString& url,
     const CefBrowserSettings& settings,
+    CefRefPtr<CefDictionaryValue> extra_info,
     CefRefPtr<CefRequestContext> request_context) {
   // Verify that the context is in a valid state.
   if (!CONTEXT_STATE_VALID()) {
@@ -236,7 +240,7 @@ bool CefBrowserHost::CreateBrowser(
 
   // Create the browser on the UI thread.
   CreateBrowserHelper* helper = new CreateBrowserHelper(
-      windowInfo, client, url, settings, request_context);
+      windowInfo, client, url, settings, extra_info, request_context);
   CEF_POST_TASK(CEF_UIT, base::BindOnce(CreateBrowserWithHelper, helper));
 
   return true;
@@ -248,6 +252,7 @@ CefRefPtr<CefBrowser> CefBrowserHost::CreateBrowserSync(
     CefRefPtr<CefClient> client,
     const CefString& url,
     const CefBrowserSettings& settings,
+    CefRefPtr<CefDictionaryValue> extra_info,
     CefRefPtr<CefRequestContext> request_context) {
   // Verify that the context is in a valid state.
   if (!CONTEXT_STATE_VALID()) {
@@ -284,6 +289,7 @@ CefRefPtr<CefBrowser> CefBrowserHost::CreateBrowserSync(
     create_params.url = GURL(new_url);
   }
   create_params.settings = settings;
+  create_params.extra_info = extra_info;
   create_params.request_context = request_context;
 
   CefRefPtr<CefBrowserHostImpl> browser =
@@ -305,7 +311,8 @@ CefRefPtr<CefBrowserHostImpl> CefBrowserHostImpl::Create(
 
   scoped_refptr<CefBrowserInfo> info =
       CefBrowserInfoManager::GetInstance()->CreateBrowserInfo(
-          is_devtools_popup, platform_delegate->IsWindowless());
+          is_devtools_popup, platform_delegate->IsWindowless(),
+          create_params.extra_info);
 
   // Get or create the request context and browser context.
   CefRefPtr<CefRequestContextImpl> request_context_impl =
@@ -2549,14 +2556,15 @@ void CefBrowserHostImpl::WebContentsCreated(
   CefBrowserSettings settings;
   CefRefPtr<CefClient> client;
   std::unique_ptr<CefBrowserPlatformDelegate> platform_delegate;
+  CefRefPtr<CefDictionaryValue> extra_info;
 
   CefBrowserInfoManager::GetInstance()->WebContentsCreated(
       target_url, opener_render_process_id, opener_render_frame_id, settings,
-      client, platform_delegate);
+      client, platform_delegate, extra_info);
 
   scoped_refptr<CefBrowserInfo> info =
       CefBrowserInfoManager::GetInstance()->CreatePopupBrowserInfo(
-          new_contents, platform_delegate->IsWindowless());
+          new_contents, platform_delegate->IsWindowless(), extra_info);
   DCHECK(info.get());
   DCHECK(info->is_popup());
 

@@ -246,7 +246,8 @@ class TestHandler : public CefClient,
   virtual void PopulateBrowserSettings(CefBrowserSettings* settings) {}
 
   void CreateBrowser(const CefString& url,
-                     CefRefPtr<CefRequestContext> request_context = NULL);
+                     CefRefPtr<CefRequestContext> request_context = NULL,
+                     CefRefPtr<CefDictionaryValue> extra_info = NULL);
   static void CloseBrowser(CefRefPtr<CefBrowser> browser, bool force_close);
 
   void AddResource(const std::string& url,

@@ -287,6 +287,7 @@ class PopupTestHandler : public TestHandler {
                      CefWindowInfo& windowInfo,
                      CefRefPtr<CefClient>& client,
                      CefBrowserSettings& settings,
+                     CefRefPtr<CefDictionaryValue>& extra_info,
                      bool* no_javascript_access) override {
     got_on_before_popup_.yes();
 
@@ -499,6 +500,7 @@ class PopupNavTestHandler : public TestHandler {
                      CefWindowInfo& windowInfo,
                      CefRefPtr<CefClient>& client,
                      CefBrowserSettings& settings,
+                     CefRefPtr<CefDictionaryValue>& extra_info,
                      bool* no_javascript_access) override {
     EXPECT_FALSE(got_on_before_popup_);
     got_on_before_popup_.yes();

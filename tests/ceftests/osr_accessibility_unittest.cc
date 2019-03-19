@@ -224,7 +224,7 @@ class AccessibilityTestHandler : public TestHandler,
 #else
 #error "Unsupported platform"
 #endif
-    CefBrowserHost::CreateBrowser(windowInfo, this, url, settings, NULL);
+    CefBrowserHost::CreateBrowser(windowInfo, this, url, settings, NULL, NULL);
   }
 
   void HideEditBox(CefRefPtr<CefBrowser> browser) {

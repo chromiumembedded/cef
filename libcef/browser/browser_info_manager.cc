@@ -12,6 +12,7 @@
 #include "libcef/browser/thread_util.h"
 #include "libcef/common/cef_messages.h"
 #include "libcef/common/extensions/extensions_util.h"
+#include "libcef/common/values_impl.h"
 
 #include "base/logging.h"
 #include "content/common/view_messages.h"
@@ -60,11 +61,12 @@ CefBrowserInfoManager* CefBrowserInfoManager::GetInstance() {
 
 scoped_refptr<CefBrowserInfo> CefBrowserInfoManager::CreateBrowserInfo(
     bool is_popup,
-    bool is_windowless) {
+    bool is_windowless,
+    CefRefPtr<CefDictionaryValue> extra_info) {
   base::AutoLock lock_scope(browser_info_lock_);
 
   scoped_refptr<CefBrowserInfo> browser_info =
-      new CefBrowserInfo(++next_browser_id_, is_popup);
+      new CefBrowserInfo(++next_browser_id_, is_popup, extra_info);
   browser_info_list_.push_back(browser_info);
 
   if (is_windowless)
@@ -75,7 +77,8 @@ scoped_refptr<CefBrowserInfo> CefBrowserInfoManager::CreateBrowserInfo(
 
 scoped_refptr<CefBrowserInfo> CefBrowserInfoManager::CreatePopupBrowserInfo(
     content::WebContents* new_contents,
-    bool is_windowless) {
+    bool is_windowless,
+    CefRefPtr<CefDictionaryValue> extra_info) {
   base::AutoLock lock_scope(browser_info_lock_);
 
   content::RenderFrameHost* frame_host = new_contents->GetMainFrame();
@@ -83,7 +86,7 @@ scoped_refptr<CefBrowserInfo> CefBrowserInfoManager::CreatePopupBrowserInfo(
   const int render_frame_routing_id = frame_host->GetRoutingID();
 
   scoped_refptr<CefBrowserInfo> browser_info =
-      new CefBrowserInfo(++next_browser_id_, true);
+      new CefBrowserInfo(++next_browser_id_, true, extra_info);
   browser_info->render_id_manager()->add_render_frame_id(
       render_process_id, render_frame_routing_id);
   browser_info_list_.push_back(browser_info);
@@ -191,7 +194,8 @@ bool CefBrowserInfoManager::CanCreateWindow(
           pending_popup->target_frame_name,
           static_cast<cef_window_open_disposition_t>(disposition), user_gesture,
           cef_features, *window_info, pending_popup->client,
-          pending_popup->settings, no_javascript_access);
+          pending_popup->settings, pending_popup->extra_info,
+          no_javascript_access);
     }
   }
 
@@ -203,6 +207,7 @@ bool CefBrowserInfoManager::CanCreateWindow(
 
     create_params.settings = pending_popup->settings;
     create_params.client = pending_popup->client;
+    create_params.extra_info = pending_popup->extra_info;
 
     pending_popup->platform_delegate =
         CefBrowserPlatformDelegate::Create(create_params);
@@ -252,7 +257,8 @@ void CefBrowserInfoManager::WebContentsCreated(
     int opener_render_frame_id,
     CefBrowserSettings& settings,
     CefRefPtr<CefClient>& client,
-    std::unique_ptr<CefBrowserPlatformDelegate>& platform_delegate) {
+    std::unique_ptr<CefBrowserPlatformDelegate>& platform_delegate,
+    CefRefPtr<CefDictionaryValue>& extra_info) {
   CEF_REQUIRE_UIT();
 
   std::unique_ptr<CefBrowserInfoManager::PendingPopup> pending_popup =
@@ -265,6 +271,7 @@ void CefBrowserInfoManager::WebContentsCreated(
   settings = pending_popup->settings;
   client = pending_popup->client;
   platform_delegate = std::move(pending_popup->platform_delegate);
+  extra_info = pending_popup->extra_info;
 }
 
 void CefBrowserInfoManager::OnGetNewBrowserInfo(int render_process_id,
@@ -512,6 +519,14 @@ void CefBrowserInfoManager::SendNewBrowserInfoResponse(
   params.is_windowless = browser_info->is_windowless();
   params.is_popup = browser_info->is_popup();
   params.is_guest_view = is_guest_view;
+
+  auto extra_info = browser_info->extra_info();
+  if (extra_info) {
+    auto extra_info_impl =
+        static_cast<CefDictionaryValueImpl*>(extra_info.get());
+    auto extra_info_value = extra_info_impl->CopyValue();
+    extra_info_value->Swap(&params.extra_info);
+  }
 
   CefProcessHostMsg_GetNewBrowserInfo::WriteReplyParams(reply_msg, params);
   host->Send(reply_msg);

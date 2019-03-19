@@ -92,6 +92,7 @@ def get_comment(body, name):
   result = []
 
   pos = body.find(name)
+  in_block_comment = False
   while pos > 0:
     data = get_prev_line(body, pos)
     line = string.strip(data['line'])
@@ -104,7 +105,18 @@ def get_comment(body, name):
         result.append(None)
       else:
         break
-    elif line[0:2] == '/*' or line[-2:] == '*/':
+    # single line /*--cef()--*/
+    elif line[0:2] == '/*' and line[-2:] == '*/':
+      continue
+    # start of multi line /*--cef()--*/
+    elif in_block_comment and line[0:2] == '/*':
+      in_block_comment = False
+      continue
+    # end of multi line /*--cef()--*/
+    elif not in_block_comment and line[-2:] == '*/':
+      in_block_comment = True
+      continue
+    elif in_block_comment:
       continue
     elif line[0:2] == '//':
       # keep the comment line including any leading spaces

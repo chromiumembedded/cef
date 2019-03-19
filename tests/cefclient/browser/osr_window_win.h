@@ -52,6 +52,7 @@ class OsrWindowWin
                      const RECT& rect,
                      CefRefPtr<CefClient> handler,
                      const CefBrowserSettings& settings,
+                     CefRefPtr<CefDictionaryValue> extra_info,
                      CefRefPtr<CefRequestContext> request_context,
                      const std::string& startup_url);
 

@@ -35,6 +35,7 @@ class BrowserWindowOsrGtk : public BrowserWindow,
   void CreateBrowser(ClientWindowHandle parent_handle,
                      const CefRect& rect,
                      const CefBrowserSettings& settings,
+                     CefRefPtr<CefDictionaryValue> extra_info,
                      CefRefPtr<CefRequestContext> request_context) OVERRIDE;
   void GetPopupConfig(CefWindowHandle temp_handle,
                       CefWindowInfo& windowInfo,

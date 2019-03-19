@@ -116,7 +116,7 @@ CefRefPtr<ViewsWindow> ViewsWindow::Create(
 
   // Create a new BrowserView.
   CefRefPtr<CefBrowserView> browser_view = CefBrowserView::CreateBrowserView(
-      client, url, settings, request_context, views_window);
+      client, url, settings, NULL, request_context, views_window);
 
   // Associate the BrowserView with the ViewsWindow.
   views_window->SetBrowserView(browser_view);

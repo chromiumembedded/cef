@@ -286,29 +286,37 @@ class CefBrowserHost : public virtual CefBaseRefCounted {
   // |windowInfo|. All values will be copied internally and the actual window
   // will be created on the UI thread. If |request_context| is empty the
   // global request context will be used. This method can be called on any
-  // browser process thread and will not block.
+  // browser process thread and will not block. The optional |extra_info|
+  // parameter provides an opportunity to specify extra information specific
+  // to the created browser that will be passed to
+  // CefRenderProcessHandler::OnBrowserCreated() in the render process.
   ///
   /*--cef(optional_param=client,optional_param=url,
-          optional_param=request_context)--*/
+          optional_param=request_context,optional_param=extra_info)--*/
   static bool CreateBrowser(const CefWindowInfo& windowInfo,
                             CefRefPtr<CefClient> client,
                             const CefString& url,
                             const CefBrowserSettings& settings,
+                            CefRefPtr<CefDictionaryValue> extra_info,
                             CefRefPtr<CefRequestContext> request_context);
 
   ///
   // Create a new browser window using the window parameters specified by
   // |windowInfo|. If |request_context| is empty the global request context
   // will be used. This method can only be called on the browser process UI
-  // thread.
+  // thread. The optional |extra_info| parameter provides an opportunity to
+  // specify extra information specific to the created browser that will be
+  // passed to CefRenderProcessHandler::OnBrowserCreated() in the render
+  // process.
   ///
   /*--cef(optional_param=client,optional_param=url,
-          optional_param=request_context)--*/
+          optional_param=request_context,optional_param=extra_info)--*/
   static CefRefPtr<CefBrowser> CreateBrowserSync(
       const CefWindowInfo& windowInfo,
       CefRefPtr<CefClient> client,
       const CefString& url,
       const CefBrowserSettings& settings,
+      CefRefPtr<CefDictionaryValue> extra_info,
       CefRefPtr<CefRequestContext> request_context);
 
   ///

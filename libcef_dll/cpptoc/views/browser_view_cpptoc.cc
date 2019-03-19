@@ -9,11 +9,12 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=c7258f6b27af82d278f8cff4105cfddfebb33658$
+// $hash=4b17017a80d32d5b9b4968206b6ce22254625d5a$
 //
 
 #include "libcef_dll/cpptoc/views/browser_view_cpptoc.h"
 #include "libcef_dll/cpptoc/browser_cpptoc.h"
+#include "libcef_dll/cpptoc/dictionary_value_cpptoc.h"
 #include "libcef_dll/cpptoc/request_context_cpptoc.h"
 #include "libcef_dll/cpptoc/views/button_cpptoc.h"
 #include "libcef_dll/cpptoc/views/panel_cpptoc.h"
@@ -32,6 +33,7 @@ CEF_EXPORT cef_browser_view_t* cef_browser_view_create(
     cef_client_t* client,
     const cef_string_t* url,
     const struct _cef_browser_settings_t* settings,
+    cef_dictionary_value_t* extra_info,
     cef_request_context_t* request_context,
     cef_browser_view_delegate_t* delegate) {
   shutdown_checker::AssertNotShutdown();
@@ -42,7 +44,7 @@ CEF_EXPORT cef_browser_view_t* cef_browser_view_create(
   DCHECK(settings);
   if (!settings)
     return NULL;
-  // Unverified params: client, url, request_context, delegate
+  // Unverified params: client, url, extra_info, request_context, delegate
 
   // Translate param: settings; type: struct_byref_const
   CefBrowserSettings settingsObj;
@@ -52,6 +54,7 @@ CEF_EXPORT cef_browser_view_t* cef_browser_view_create(
   // Execute
   CefRefPtr<CefBrowserView> _retval = CefBrowserView::CreateBrowserView(
       CefClientCToCpp::Wrap(client), CefString(url), settingsObj,
+      CefDictionaryValueCppToC::Unwrap(extra_info),
       CefRequestContextCppToC::Unwrap(request_context),
       CefBrowserViewDelegateCToCpp::Wrap(delegate));
 

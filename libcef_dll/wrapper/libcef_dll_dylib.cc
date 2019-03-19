@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=7c87ef36c39355a02bb9544b8228acac7a7abee9$
+// $hash=436002ae114825124a9a52a24928a974fcf5408a$
 //
 
 #include <dlfcn.h>
@@ -186,12 +186,14 @@ typedef int (*cef_browser_host_create_browser_ptr)(
     struct _cef_client_t*,
     const cef_string_t*,
     const struct _cef_browser_settings_t*,
+    struct _cef_dictionary_value_t*,
     struct _cef_request_context_t*);
 typedef struct _cef_browser_t* (*cef_browser_host_create_browser_sync_ptr)(
     const struct _cef_window_info_t*,
     struct _cef_client_t*,
     const cef_string_t*,
     const struct _cef_browser_settings_t*,
+    struct _cef_dictionary_value_t*,
     struct _cef_request_context_t*);
 typedef struct _cef_command_line_t* (*cef_command_line_create_ptr)();
 typedef struct _cef_command_line_t* (*cef_command_line_get_global_ptr)();
@@ -301,6 +303,7 @@ typedef struct _cef_browser_view_t* (*cef_browser_view_create_ptr)(
     struct _cef_client_t*,
     const cef_string_t*,
     const struct _cef_browser_settings_t*,
+    struct _cef_dictionary_value_t*,
     struct _cef_request_context_t*,
     struct _cef_browser_view_delegate_t*);
 typedef struct _cef_browser_view_t* (*cef_browser_view_get_for_browser_ptr)(
@@ -1267,9 +1270,10 @@ int cef_browser_host_create_browser(
     struct _cef_client_t* client,
     const cef_string_t* url,
     const struct _cef_browser_settings_t* settings,
+    struct _cef_dictionary_value_t* extra_info,
     struct _cef_request_context_t* request_context) {
   return g_libcef_pointers.cef_browser_host_create_browser(
-      windowInfo, client, url, settings, request_context);
+      windowInfo, client, url, settings, extra_info, request_context);
 }
 
 NO_SANITIZE("cfi-icall")
@@ -1278,9 +1282,10 @@ struct _cef_browser_t* cef_browser_host_create_browser_sync(
     struct _cef_client_t* client,
     const cef_string_t* url,
     const struct _cef_browser_settings_t* settings,
+    struct _cef_dictionary_value_t* extra_info,
     struct _cef_request_context_t* request_context) {
   return g_libcef_pointers.cef_browser_host_create_browser_sync(
-      windowInfo, client, url, settings, request_context);
+      windowInfo, client, url, settings, extra_info, request_context);
 }
 
 NO_SANITIZE("cfi-icall") struct _cef_command_line_t* cef_command_line_create() {
@@ -1616,10 +1621,11 @@ struct _cef_browser_view_t* cef_browser_view_create(
     struct _cef_client_t* client,
     const cef_string_t* url,
     const struct _cef_browser_settings_t* settings,
+    struct _cef_dictionary_value_t* extra_info,
     struct _cef_request_context_t* request_context,
     struct _cef_browser_view_delegate_t* delegate) {
-  return g_libcef_pointers.cef_browser_view_create(client, url, settings,
-                                                   request_context, delegate);
+  return g_libcef_pointers.cef_browser_view_create(
+      client, url, settings, extra_info, request_context, delegate);
 }
 
 NO_SANITIZE("cfi-icall")
