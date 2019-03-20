@@ -5,8 +5,8 @@ cmake       Contains CMake configuration files shared by all targets.
 
 Debug       Contains libcef.so and other components required to run the debug
             version of CEF-based applications. By default these files should be
-            placed in the same directory as the executable and will be copied
-            there as part of the build process.
+            placed in the same directory as libcef.so and will be copied there
+            as part of the build process.
 
 include     Contains all required CEF header files.
 
@@ -15,8 +15,8 @@ libcef_dll  Contains the source code for the libcef_dll_wrapper static library
 
 Release     Contains libcef.so and other components required to run the release
             version of CEF-based applications. By default these files should be
-            placed in the same directory as the executable and will be copied
-            there as part of the build process.
+            placed in the same directory as libcef.so and will be copied there
+            as part of the build process.
 
 Resources   Contains resources required by libcef.so. By default these files
             should be placed in the same directory as libcef.so and will be
