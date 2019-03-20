@@ -1,0 +1,35 @@
+diff --git sandbox/linux/suid/client/setuid_sandbox_host.cc sandbox/linux/suid/client/setuid_sandbox_host.cc
+index 7a103bf7f13c..cd3167ebed09 100644
+--- sandbox/linux/suid/client/setuid_sandbox_host.cc
++++ sandbox/linux/suid/client/setuid_sandbox_host.cc
+@@ -120,7 +120,7 @@ bool SetuidSandboxHost::IsDisabledViaEnvironment() {
+ base::FilePath SetuidSandboxHost::GetSandboxBinaryPath() {
+   base::FilePath sandbox_binary;
+   base::FilePath exe_dir;
+-  if (base::PathService::Get(base::DIR_EXE, &exe_dir)) {
++  if (base::PathService::Get(base::DIR_ASSETS, &exe_dir)) {
+     base::FilePath sandbox_candidate = exe_dir.AppendASCII("chrome-sandbox");
+     if (base::PathExists(sandbox_candidate))
+       sandbox_binary = sandbox_candidate;
+diff --git ui/gl/init/gl_initializer_x11.cc ui/gl/init/gl_initializer_x11.cc
+index e3c481b97d89..5fde4a0bb388 100644
+--- ui/gl/init/gl_initializer_x11.cc
++++ ui/gl/init/gl_initializer_x11.cc
+@@ -88,7 +88,7 @@ bool InitializeStaticEGLInternal(GLImplementation implementation) {
+   if (implementation == kGLImplementationSwiftShaderGL) {
+ #if BUILDFLAG(ENABLE_SWIFTSHADER)
+     base::FilePath module_path;
+-    if (!base::PathService::Get(base::DIR_MODULE, &module_path))
++    if (!base::PathService::Get(base::DIR_ASSETS, &module_path))
+       return false;
+     module_path = module_path.Append("swiftshader/");
+ 
+@@ -100,7 +100,7 @@ bool InitializeStaticEGLInternal(GLImplementation implementation) {
+   } else if (cmd->GetSwitchValueASCII(switches::kUseGL) ==
+              kGLImplementationANGLEName) {
+     base::FilePath module_path;
+-    if (!base::PathService::Get(base::DIR_MODULE, &module_path))
++    if (!base::PathService::Get(base::DIR_ASSETS, &module_path))
+       return false;
+ 
+     glesv2_path = module_path.Append(kGLESv2ANGLELibraryName);
