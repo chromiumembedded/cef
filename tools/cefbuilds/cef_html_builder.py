@@ -171,11 +171,11 @@ class cef_html_builder:
 
   @staticmethod
   def _get_file_url(platform, cef_version, file):
-    return file['name']
+    return file['name'].replace('+', '%2B')
 
   @staticmethod
   def _get_sha1_url(platform, cef_version, file):
-    return file['name'] + '.sha1'
+    return cef_html_builder._get_file_url(platform, cef_version, file) + '.sha1'
 
   @staticmethod
   def _get_tooltip_text(platform, cef_version, file):
