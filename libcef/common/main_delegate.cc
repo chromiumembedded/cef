@@ -139,7 +139,7 @@ void OverrideChildProcessPath() {
 
 base::FilePath GetResourcesFilePath() {
   base::FilePath pak_dir;
-  base::PathService::Get(base::DIR_MODULE, &pak_dir);
+  base::PathService::Get(base::DIR_ASSETS, &pak_dir);
   return pak_dir;
 }
 
@@ -265,8 +265,9 @@ bool IsScaleFactorSupported(ui::ScaleFactor scale_factor) {
 }
 
 #if defined(OS_LINUX)
-// Look for the *.dat and *.bin files next to libcef instead of the exe on
-// Linux. This is already the default on Windows.
+// Look for binary files (*.bin, *.dat, *.pak, chrome-sandbox, libGLESv2.so,
+// libEGL.so, locales/*.pak, swiftshader/*.so) next to libcef instead of the exe
+// on Linux. This is already the default on Windows.
 void OverrideAssetPath() {
   Dl_info dl_info;
   if (dladdr(reinterpret_cast<const void*>(&OverrideAssetPath), &dl_info)) {
