@@ -34,6 +34,7 @@
 #include "libcef/common/content_client.h"
 #include "libcef/common/extensions/extensions_util.h"
 #include "libcef/common/net/scheme_registration.h"
+#include "libcef/common/net_service/util.h"
 #include "libcef/common/request_impl.h"
 #include "libcef/common/service_manifests/cef_content_browser_overlay_manifest.h"
 #include "libcef/common/service_manifests/cef_content_gpu_overlay_manifest.h"
@@ -51,9 +52,12 @@
 #include "cef/grit/cef_resources.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/chrome_service.h"
+#include "chrome/browser/net/system_network_context_manager.h"
 #include "chrome/browser/plugins/plugin_info_host_impl.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/renderer_host/pepper/chrome_browser_pepper_host_factory.h"
+#include "chrome/common/chrome_paths.h"
+#include "chrome/common/chrome_paths_internal.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/constants.mojom.h"
 #include "chrome/grit/browser_resources.h"
@@ -839,6 +843,26 @@ std::string CefContentBrowserClient::GetApplicationLocale() {
   return g_browser_process->GetApplicationLocale();
 }
 
+scoped_refptr<network::SharedURLLoaderFactory>
+CefContentBrowserClient::GetSystemSharedURLLoaderFactory() {
+  DCHECK(
+      content::BrowserThread::CurrentlyOn(content::BrowserThread::UI) ||
+      !content::BrowserThread::IsThreadInitialized(content::BrowserThread::UI));
+
+  if (!SystemNetworkContextManager::GetInstance())
+    return nullptr;
+
+  return SystemNetworkContextManager::GetInstance()
+      ->GetSharedURLLoaderFactory();
+}
+
+network::mojom::NetworkContext*
+CefContentBrowserClient::GetSystemNetworkContext() {
+  DCHECK_CURRENTLY_ON(content::BrowserThread::UI);
+  DCHECK(SystemNetworkContextManager::GetInstance());
+  return SystemNetworkContextManager::GetInstance()->GetContext();
+}
+
 content::QuotaPermissionContext*
 CefContentBrowserClient::CreateQuotaPermissionContext() {
   return new CefQuotaPermissionContext();
@@ -1171,6 +1195,51 @@ bool CefContentBrowserClient::WillCreateURLLoaderFactory(
   if (bypass_redirect_checks)
     *bypass_redirect_checks = use_proxy;
   return use_proxy;
+}
+
+void CefContentBrowserClient::OnNetworkServiceCreated(
+    network::mojom::NetworkService* network_service) {
+  if (!net_service::IsEnabled())
+    return;
+
+  DCHECK(g_browser_process);
+  PrefService* local_state = g_browser_process->local_state();
+  DCHECK(local_state);
+
+  if (!SystemNetworkContextManager::GetInstance()) {
+    SystemNetworkContextManager::CreateInstance(local_state);
+  }
+  // Need to set up global NetworkService state before anything else uses it.
+  SystemNetworkContextManager::GetInstance()->OnNetworkServiceCreated(
+      network_service);
+}
+
+network::mojom::NetworkContextPtr CefContentBrowserClient::CreateNetworkContext(
+    content::BrowserContext* context,
+    bool in_memory,
+    const base::FilePath& relative_partition_path) {
+  Profile* profile = Profile::FromBrowserContext(context);
+  return profile->CreateNetworkContext(in_memory, relative_partition_path);
+}
+
+std::vector<base::FilePath>
+CefContentBrowserClient::GetNetworkContextsParentDirectory() {
+  base::FilePath user_data_dir;
+  base::PathService::Get(chrome::DIR_USER_DATA, &user_data_dir);
+  DCHECK(!user_data_dir.empty());
+
+  // TODO(cef): Do we really want to create a cache directory underneath
+  // DIR_USER_DATA?
+  base::FilePath cache_dir;
+  chrome::GetUserCacheDirectory(user_data_dir, &cache_dir);
+  DCHECK(!cache_dir.empty());
+
+  // On some platforms, the cache is a child of the user_data_dir so only
+  // return the one path.
+  if (user_data_dir.IsParent(cache_dir))
+    return {user_data_dir};
+
+  return {user_data_dir, cache_dir};
 }
 
 bool CefContentBrowserClient::HandleExternalProtocol(

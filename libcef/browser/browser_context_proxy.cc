@@ -9,6 +9,7 @@
 #include "libcef/browser/net/url_request_context_getter_proxy.h"
 #include "libcef/browser/storage_partition_proxy.h"
 #include "libcef/browser/thread_util.h"
+#include "libcef/common/net_service/util.h"
 
 #include "base/logging.h"
 #include "chrome/browser/font_family_cache.h"
@@ -246,9 +247,11 @@ CefBrowserContextProxy::GetOrCreateStoragePartitionProxy(
   CEF_REQUIRE_UIT();
 
   if (!storage_partition_proxy_) {
-    scoped_refptr<CefURLRequestContextGetterProxy> url_request_getter =
-        new CefURLRequestContextGetterProxy(handler_,
-                                            parent_->request_context_getter());
+    scoped_refptr<CefURLRequestContextGetterProxy> url_request_getter;
+    if (!net_service::IsEnabled()) {
+      url_request_getter = new CefURLRequestContextGetterProxy(
+          handler_, parent_->request_context_getter());
+    }
     storage_partition_proxy_.reset(
         new CefStoragePartitionProxy(partition_impl, url_request_getter.get()));
 

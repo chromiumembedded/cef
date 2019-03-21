@@ -522,6 +522,8 @@ static_library("libcef_static") {
     "libcef/common/net/upload_data.h",
     "libcef/common/net/upload_element.cc",
     "libcef/common/net/upload_element.h",
+    "libcef/common/net_service/util.cc",
+    "libcef/common/net_service/util.h",
     "libcef/common/parser_impl.cc",
     "libcef/common/process_message_impl.cc",
     "libcef/common/process_message_impl.h",

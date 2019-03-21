@@ -240,7 +240,7 @@ CefURLRequestContextGetterImpl::~CefURLRequestContextGetterImpl() {
 // static
 void CefURLRequestContextGetterImpl::RegisterPrefs(
     PrefRegistrySimple* registry) {
-// Based on IOThread::RegisterPrefs.
+  // Based on IOThread::RegisterPrefs.
 #if defined(OS_POSIX) && !defined(OS_ANDROID)
   registry->RegisterStringPref(prefs::kGSSAPILibraryName, std::string());
 #endif
@@ -249,6 +249,10 @@ void CefURLRequestContextGetterImpl::RegisterPrefs(
 
   // Based on ProfileImpl::RegisterProfilePrefs.
   registry->RegisterBooleanPref(prefs::kForceGoogleSafeSearch, false);
+
+  // Based on IOThread::RegisterPrefs.
+  registry->RegisterStringPref(prefs::kAuthServerWhitelist, "");
+  registry->RegisterStringPref(prefs::kAuthNegotiateDelegateWhitelist, "");
 }
 
 void CefURLRequestContextGetterImpl::ShutdownOnUIThread() {

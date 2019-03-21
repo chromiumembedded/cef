@@ -7,6 +7,7 @@
 #include "libcef/browser/extensions/extension_system.h"
 #include "libcef/browser/thread_util.h"
 #include "libcef/common/extensions/extensions_util.h"
+#include "libcef/common/net_service/util.h"
 
 #include "base/logging.h"
 #include "chrome/browser/plugins/chrome_plugin_service_filter.h"
@@ -116,6 +117,7 @@ CefBrowserContext::GetClientHintsControllerDelegate() {
 
 net::URLRequestContextGetter* CefBrowserContext::GetRequestContext() {
   CEF_REQUIRE_UIT();
+  DCHECK(!net_service::IsEnabled());
   return GetDefaultStoragePartition(this)->GetURLRequestContext();
 }
 

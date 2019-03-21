@@ -12,6 +12,7 @@
 #include "libcef/browser/context.h"
 #include "libcef/browser/net/cookie_store_source.h"
 #include "libcef/browser/net/network_delegate.h"
+#include "libcef/common/net_service/util.h"
 #include "libcef/common/task_runner_impl.h"
 #include "libcef/common/time_util.h"
 
@@ -141,9 +142,13 @@ void CefCookieManagerImpl::Initialize(
   CHECK(!is_blocking_);
   if (request_context.get()) {
     request_context_ = request_context;
-    request_context_->GetRequestContextImpl(
-        base::CreateSingleThreadTaskRunnerWithTraits({BrowserThread::IO}),
-        base::Bind(&CefCookieManagerImpl::InitWithContext, this, callback));
+    if (!net_service::IsEnabled()) {
+      request_context_->GetRequestContextImpl(
+          base::CreateSingleThreadTaskRunnerWithTraits({BrowserThread::IO}),
+          base::Bind(&CefCookieManagerImpl::InitWithContext, this, callback));
+    } else {
+      RunAsyncCompletionOnIOThread(callback);
+    }
   } else {
     SetStoragePath(path, persist_session_cookies, callback);
   }
@@ -477,9 +482,14 @@ void CefCookieManagerImpl::SetSupportedSchemesInternal(
   CEF_REQUIRE_IOT();
 
   if (HasContext()) {
-    RunMethodWithContext(
-        base::Bind(&CefCookieManagerImpl::SetSupportedSchemesWithContext, this,
-                   schemes, callback));
+    if (!net_service::IsEnabled()) {
+      RunMethodWithContext(
+          base::Bind(&CefCookieManagerImpl::SetSupportedSchemesWithContext,
+                     this, schemes, callback));
+    } else {
+      NOTIMPLEMENTED();
+      RunAsyncCompletionOnIOThread(callback);
+    }
     return;
   }
 

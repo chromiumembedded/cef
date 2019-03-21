@@ -4,15 +4,21 @@
 
 #include "libcef/browser/storage_partition_proxy.h"
 
+#include "libcef/common/net_service/util.h"
+
+#include "base/logging.h"
 #include "services/network/public/mojom/cookie_manager.mojom.h"
 
 CefStoragePartitionProxy::CefStoragePartitionProxy(
     content::StoragePartition* parent,
     CefURLRequestContextGetterProxy* url_request_context)
-    : parent_(parent), url_request_context_(url_request_context) {}
+    : parent_(parent), url_request_context_(url_request_context) {
+  DCHECK(net_service::IsEnabled() || url_request_context_);
+}
 
 CefStoragePartitionProxy::~CefStoragePartitionProxy() {
-  url_request_context_->ShutdownOnUIThread();
+  if (url_request_context_)
+    url_request_context_->ShutdownOnUIThread();
 }
 
 base::FilePath CefStoragePartitionProxy::GetPath() {

@@ -570,7 +570,8 @@ bool CefMainDelegate::BasicStartupComplete(int* exit_code) {
     // Disable NetworkService for now
     // TODO(cef): Implement the required changes for network service
     if (network::features::kNetworkService.default_state ==
-        base::FEATURE_ENABLED_BY_DEFAULT) {
+            base::FEATURE_ENABLED_BY_DEFAULT &&
+        !command_line->HasSwitch(switches::kEnableNetworkService)) {
       disable_features.push_back(network::features::kNetworkService.name);
     }
 

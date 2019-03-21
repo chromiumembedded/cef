@@ -18,6 +18,7 @@
 #include "libcef/browser/thread_util.h"
 #include "libcef/common/cef_switches.h"
 #include "libcef/common/extensions/extensions_util.h"
+#include "libcef/common/net_service/util.h"
 
 #include "base/command_line.h"
 #include "base/files/file_util.h"
@@ -290,12 +291,14 @@ void CefBrowserContextImpl::Initialize() {
 
   CefBrowserContext::PostInitialize();
 
-  // Create the CefURLRequestContextGetterImpl via an indirect call to
-  // CreateRequestContext. Triggers a call to CefURLRequestContextGetterImpl::
-  // GetURLRequestContext() on the IO thread which creates the
-  // CefURLRequestContextImpl.
-  GetRequestContext();
-  DCHECK(url_request_getter_.get());
+  if (!net_service::IsEnabled()) {
+    // Create the CefURLRequestContextGetterImpl via an indirect call to
+    // CreateRequestContext. Triggers a call to CefURLRequestContextGetterImpl::
+    // GetURLRequestContext() on the IO thread which creates the
+    // CefURLRequestContextImpl.
+    GetRequestContext();
+    DCHECK(url_request_getter_.get());
+  }
 
   // Create the StoragePartitionImplMap and StoragePartitionImpl for this
   // object. This must be done before the first WebContents is created using a
@@ -444,6 +447,7 @@ net::URLRequestContextGetter* CefBrowserContextImpl::CreateRequestContext(
     content::ProtocolHandlerMap* protocol_handlers,
     content::URLRequestInterceptorScopedVector request_interceptors) {
   CEF_REQUIRE_UIT();
+  DCHECK(!net_service::IsEnabled());
   DCHECK(!url_request_getter_.get());
 
   auto io_thread_runner =

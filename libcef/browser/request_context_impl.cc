@@ -11,6 +11,7 @@
 #include "libcef/browser/extensions/extension_system.h"
 #include "libcef/browser/thread_util.h"
 #include "libcef/common/extensions/extensions_util.h"
+#include "libcef/common/net_service/util.h"
 #include "libcef/common/task_runner_impl.h"
 #include "libcef/common/values_impl.h"
 
@@ -194,6 +195,7 @@ void CefRequestContextImpl::GetBrowserContext(
 void CefRequestContextImpl::GetRequestContextImpl(
     scoped_refptr<base::SingleThreadTaskRunner> task_runner,
     const RequestContextCallback& callback) {
+  DCHECK(!net_service::IsEnabled());
   if (!task_runner.get())
     task_runner = CefTaskRunnerImpl::GetCurrentTaskRunner();
   if (request_context_getter_impl_) {
@@ -305,6 +307,10 @@ bool CefRequestContextImpl::RegisterSchemeHandlerFactory(
     const CefString& scheme_name,
     const CefString& domain_name,
     CefRefPtr<CefSchemeHandlerFactory> factory) {
+  if (net_service::IsEnabled()) {
+    NOTIMPLEMENTED();
+    return false;
+  }
   GetRequestContextImpl(
       base::CreateSingleThreadTaskRunnerWithTraits({BrowserThread::IO}),
       base::Bind(&CefRequestContextImpl::RegisterSchemeHandlerFactoryInternal,
@@ -313,6 +319,10 @@ bool CefRequestContextImpl::RegisterSchemeHandlerFactory(
 }
 
 bool CefRequestContextImpl::ClearSchemeHandlerFactories() {
+  if (net_service::IsEnabled()) {
+    NOTIMPLEMENTED();
+    return false;
+  }
   GetRequestContextImpl(
       base::CreateSingleThreadTaskRunnerWithTraits({BrowserThread::IO}),
       base::Bind(&CefRequestContextImpl::ClearSchemeHandlerFactoriesInternal,
@@ -614,14 +624,16 @@ void CefRequestContextImpl::Initialize() {
     DCHECK(!config_.is_global);
   }
 
-  request_context_getter_impl_ =
-      browser_context_impl_->request_context_getter().get();
-  DCHECK(request_context_getter_impl_);
+  if (!net_service::IsEnabled()) {
+    request_context_getter_impl_ =
+        browser_context_impl_->request_context_getter().get();
+    DCHECK(request_context_getter_impl_);
 
-  if (config_.handler.get()) {
-    // Keep the handler alive until the associated request context is
-    // destroyed.
-    request_context_getter_impl_->AddHandler(config_.handler);
+    if (config_.handler.get()) {
+      // Keep the handler alive until the associated request context is
+      // destroyed.
+      request_context_getter_impl_->AddHandler(config_.handler);
+    }
   }
 
   if (config_.other) {
@@ -640,7 +652,7 @@ void CefRequestContextImpl::EnsureBrowserContext() {
   if (!browser_context())
     Initialize();
   DCHECK(browser_context());
-  DCHECK(request_context_getter_impl_);
+  DCHECK(net_service::IsEnabled() || request_context_getter_impl_);
 }
 
 void CefRequestContextImpl::GetBrowserContextOnUIThread(
@@ -677,6 +689,7 @@ void CefRequestContextImpl::GetRequestContextImplOnIOThread(
     return;
   }
 
+  DCHECK(!net_service::IsEnabled());
   DCHECK(request_context_getter_impl_);
 
   // Make sure the request context exists.

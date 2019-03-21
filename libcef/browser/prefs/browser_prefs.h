@@ -20,6 +20,7 @@ namespace browser_prefs {
 extern const char kUserPrefsFileName[];
 
 // Create the PrefService used to manage pref registration and storage.
+// |profile| will be nullptr for the system-level PrefService.
 std::unique_ptr<PrefService> CreatePrefService(Profile* profile,
                                                const base::FilePath& cache_path,
                                                bool persist_user_preferences);

@@ -7,14 +7,18 @@
 
 #include "libcef/browser/browser_context_impl.h"
 #include "libcef/browser/chrome_profile_manager_stub.h"
+#include "libcef/browser/prefs/browser_prefs.h"
 #include "libcef/browser/thread_util.h"
 #include "libcef/common/cef_switches.h"
 
 #include "base/command_line.h"
 #include "chrome/browser/net/chrome_net_log_helper.h"
+#include "chrome/browser/net/system_network_context_manager.h"
+#include "chrome/browser/policy/chrome_browser_policy_connector.h"
 #include "chrome/browser/printing/print_job_manager.h"
 #include "components/net_log/chrome_net_log.h"
 #include "components/net_log/net_export_file_writer.h"
+#include "components/prefs/pref_service.h"
 #include "content/public/common/content_switches.h"
 #include "services/network/public/cpp/network_switches.h"
 #include "services/network/public/cpp/shared_url_loader_factory.h"
@@ -37,6 +41,12 @@ void ChromeBrowserProcessStub::Initialize() {
   DCHECK(!initialized_);
   DCHECK(!context_initialized_);
   DCHECK(!shutdown_);
+
+  // Used for very early NetworkService initialization.
+  // TODO(cef): These preferences could be persisted in the DIR_USER_DATA
+  // directory.
+  local_state_ =
+      browser_prefs::CreatePrefService(nullptr, base::FilePath(), false);
 
   initialized_ = true;
 }
@@ -69,6 +79,9 @@ void ChromeBrowserProcessStub::Shutdown() {
 
   profile_manager_.reset();
   event_router_forwarder_ = nullptr;
+
+  local_state_.reset();
+  browser_policy_connector_.reset();
 
   shutdown_ = true;
 }
@@ -108,8 +121,8 @@ IOThread* ChromeBrowserProcessStub::io_thread() {
 
 SystemNetworkContextManager*
 ChromeBrowserProcessStub::system_network_context_manager() {
-  NOTREACHED();
-  return NULL;
+  DCHECK(SystemNetworkContextManager::GetInstance());
+  return SystemNetworkContextManager::GetInstance();
 }
 
 net_log::NetExportFileWriter*
@@ -137,9 +150,8 @@ ProfileManager* ChromeBrowserProcessStub::profile_manager() {
 }
 
 PrefService* ChromeBrowserProcessStub::local_state() {
-  DCHECK(context_initialized_);
-  return profile_manager_->GetLastUsedProfile(profile_manager_->user_data_dir())
-      ->GetPrefs();
+  DCHECK(initialized_);
+  return local_state_.get();
 }
 
 net::URLRequestContextGetter*
@@ -183,13 +195,15 @@ ChromeBrowserProcessStub::notification_platform_bridge() {
 
 policy::ChromeBrowserPolicyConnector*
 ChromeBrowserProcessStub::browser_policy_connector() {
-  NOTREACHED();
-  return NULL;
+  if (!browser_policy_connector_) {
+    browser_policy_connector_ =
+        std::make_unique<policy::ChromeBrowserPolicyConnector>();
+  }
+  return browser_policy_connector_.get();
 }
 
 policy::PolicyService* ChromeBrowserProcessStub::policy_service() {
-  NOTREACHED();
-  return NULL;
+  return browser_policy_connector()->GetPolicyService();
 }
 
 IconManager* ChromeBrowserProcessStub::icon_manager() {

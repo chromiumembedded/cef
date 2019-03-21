@@ -126,6 +126,10 @@ class ChromeBrowserProcessStub : public BrowserProcess,
   scoped_refptr<extensions::EventRouterForwarder> event_router_forwarder_;
   std::unique_ptr<net_log::ChromeNetLog> net_log_;
   std::unique_ptr<net_log::NetExportFileWriter> net_export_file_writer_;
+  std::unique_ptr<PrefService> local_state_;
+  // Must be destroyed after |local_state_|.
+  std::unique_ptr<policy::ChromeBrowserPolicyConnector>
+      browser_policy_connector_;
 
   DISALLOW_COPY_AND_ASSIGN(ChromeBrowserProcessStub);
 };
