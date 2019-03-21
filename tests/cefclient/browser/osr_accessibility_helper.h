@@ -12,6 +12,24 @@
 namespace client {
 
 class OsrAXNode;
+class OsrAccessibilityHelper;
+
+class OsrAXTree {
+ public:
+  OsrAXTree();
+  OsrAXNode* GetNode(int nodeId) const;
+  void EraseNode(int nodeId);
+  void UpdateTreeData(CefRefPtr<CefDictionaryValue> value);
+  void AddNode(OsrAXNode* node);
+  int GetParentTreeId() const { return parent_tree_id_; }
+  int GetRootNodeId() const { return root_node_id_; }
+  void SetRootNodeId(int nodeId) { root_node_id_ = nodeId; }
+
+ private:
+  int parent_tree_id_;
+  int root_node_id_;
+  std::map<int, OsrAXNode*> node_map_;
+};
 
 // Helper class that abstracts Renderer Accessibility tree and provides a
 // uniform interface to be consumed by IAccessible interface on Windows and
@@ -23,9 +41,11 @@ class OsrAccessibilityHelper {
 
   void UpdateAccessibilityTree(CefRefPtr<CefValue> value);
 
-  OsrAXNode* GetRootNode() const { return GetNode(root_node_id_); }
+  void UpdateAccessibilityLocation(CefRefPtr<CefValue> value);
 
-  OsrAXNode* GetFocusedNode() const { return GetNode(focused_node_id_); }
+  OsrAXNode* GetRootNode() const;
+
+  OsrAXNode* GetFocusedNode() const;
 
   CefWindowHandle GetWindowHandle() const {
     return browser_->GetHost()->GetWindowHandle();
@@ -33,23 +53,26 @@ class OsrAccessibilityHelper {
 
   CefRefPtr<CefBrowser> GetBrowser() const { return browser_; }
 
-  OsrAXNode* GetNode(int nodeId) const;
+  OsrAXNode* GetNode(int treeId, int nodeId) const;
+
+  OsrAXNode* GetTreeRootNode(int treeId) const;
+
+  static int CastToInt(CefRefPtr<CefValue> value);
 
  private:
-  OsrAXNode* CreateNode(OsrAXNode* parent, CefRefPtr<CefDictionaryValue> value);
-
   void Reset();
 
-  void UpdateLayout(CefRefPtr<CefDictionaryValue> update);
+  void UpdateLayout(int treeId, CefRefPtr<CefDictionaryValue> update);
 
-  void UpdateFocusedNode(CefRefPtr<CefDictionaryValue> update);
+  void UpdateFocusedNode(int treeId, int nodeId);
 
   // Destroy the node and remove from Map
   void DestroyNode(OsrAXNode* node);
-  int root_node_id_;
+  int root_tree_id_;
+  int focused_tree_id_;
   int focused_node_id_;
   CefRefPtr<CefBrowser> browser_;
-  std::map<int, OsrAXNode*> accessibility_node_map_;
+  std::map<int, OsrAXTree> accessibility_node_map_;
 };
 
 }  // namespace client

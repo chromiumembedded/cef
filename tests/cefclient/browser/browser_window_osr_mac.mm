@@ -109,6 +109,7 @@ CefTextInputClientOSRMac* GetInputClientFromContext(
               character_bounds:
                   (const CefRenderHandler::RectList&)character_bounds;
 - (void)UpdateAccessibilityTree:(CefRefPtr<CefValue>)value;
+- (void)UpdateAccessibilityLocation:(CefRefPtr<CefValue>)value;
 @end
 
 namespace {
@@ -1298,6 +1299,18 @@ NSPoint ConvertPointFromWindowToScreen(NSWindow* window, NSPoint point) {
         new client::OsrAccessibilityHelper(value, [self getBrowser]);
   } else {
     accessibility_helper_->UpdateAccessibilityTree(value);
+  }
+
+  if (accessibility_helper_) {
+    NSAccessibilityPostNotification(self,
+                                    NSAccessibilityValueChangedNotification);
+  }
+  return;
+}
+
+- (void)UpdateAccessibilityLocation:(CefRefPtr<CefValue>)value {
+  if (accessibility_helper_) {
+    accessibility_helper_->UpdateAccessibilityLocation(value);
   }
 
   if (accessibility_helper_) {

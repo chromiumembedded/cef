@@ -68,6 +68,8 @@ class ClientHandlerOsr : public ClientHandler,
 
     virtual void UpdateAccessibilityTree(CefRefPtr<CefValue> value) = 0;
 
+    virtual void UpdateAccessibilityLocation(CefRefPtr<CefValue> value) = 0;
+
    protected:
     virtual ~OsrDelegate() {}
   };
@@ -130,7 +132,7 @@ class ClientHandlerOsr : public ClientHandler,
 
   // CefAccessibilityHandler methods.
   void OnAccessibilityTreeChange(CefRefPtr<CefValue> value) OVERRIDE;
-  void OnAccessibilityLocationChange(CefRefPtr<CefValue> value) OVERRIDE {}
+  void OnAccessibilityLocationChange(CefRefPtr<CefValue> value) OVERRIDE;
 
  private:
   // Only accessed on the UI thread.

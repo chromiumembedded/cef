@@ -1058,6 +1058,16 @@ void OsrWindowWin::UpdateAccessibilityTree(CefRefPtr<CefValue> value) {
 #endif  // defined(CEF_USE_ATL)
 }
 
+void OsrWindowWin::UpdateAccessibilityLocation(CefRefPtr<CefValue> value) {
+  CEF_REQUIRE_UI_THREAD();
+
+#if defined(CEF_USE_ATL)
+  if (accessibility_handler_) {
+    accessibility_handler_->UpdateAccessibilityLocation(value);
+  }
+#endif  // defined(CEF_USE_ATL)
+}
+
 #if defined(CEF_USE_ATL)
 
 CefBrowserHost::DragOperationsMask OsrWindowWin::OnDragEnter(

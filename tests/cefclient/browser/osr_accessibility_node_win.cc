@@ -347,7 +347,7 @@ STDMETHODIMP CefIAccessible::get_accName(VARIANT varChild, BSTR* pszName) {
   HRESULT retCode = DATACHECK(node_);
   if (SUCCEEDED(retCode)) {
     if (pszName && VALID_CHILDID(varChild)) {
-      std::string name = node_->AxName();
+      std::wstring name = node_->AxName();
       CComBSTR bstrResult(name.c_str());
       *pszName = bstrResult.Detach();
     }
@@ -362,7 +362,7 @@ STDMETHODIMP CefIAccessible::get_accValue(VARIANT varChild, BSTR* pszValue) {
   HRESULT retCode = DATACHECK(node_);
   if (SUCCEEDED(retCode)) {
     if (pszValue && VALID_CHILDID(varChild)) {
-      std::string name = node_->AxValue();
+      std::wstring name = node_->AxValue();
       CComBSTR bstrResult(name.c_str());
       *pszValue = bstrResult.Detach();
     }
@@ -378,7 +378,7 @@ STDMETHODIMP CefIAccessible::get_accDescription(VARIANT varChild,
   HRESULT retCode = DATACHECK(node_);
   if (SUCCEEDED(retCode)) {
     if (pszDescription && VALID_CHILDID(varChild)) {
-      std::string name = node_->AxDescription();
+      std::wstring name = node_->AxDescription();
       CComBSTR bstrResult(name.c_str());
       *pszDescription = bstrResult.Detach();
     }

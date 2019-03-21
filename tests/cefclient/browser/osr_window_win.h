@@ -146,7 +146,9 @@ class OsrWindowWin
       const CefRange& selection_range,
       const CefRenderHandler::RectList& character_bounds) OVERRIDE;
 
-  void UpdateAccessibilityTree(CefRefPtr<CefValue> value);
+  void UpdateAccessibilityTree(CefRefPtr<CefValue> value) OVERRIDE;
+
+  void UpdateAccessibilityLocation(CefRefPtr<CefValue> value) OVERRIDE;
 
 #if defined(CEF_USE_ATL)
   // OsrDragEvents methods.

@@ -167,4 +167,12 @@ void ClientHandlerOsr::OnAccessibilityTreeChange(CefRefPtr<CefValue> value) {
   osr_delegate_->UpdateAccessibilityTree(value);
 }
 
+void ClientHandlerOsr::OnAccessibilityLocationChange(
+    CefRefPtr<CefValue> value) {
+  CEF_REQUIRE_UI_THREAD();
+  if (!osr_delegate_)
+    return;
+  osr_delegate_->UpdateAccessibilityLocation(value);
+}
+
 }  // namespace client
