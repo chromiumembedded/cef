@@ -5,7 +5,7 @@
 
 #include "libcef/browser/chrome_profile_manager_stub.h"
 
-#include "libcef/browser/browser_context_impl.h"
+#include "libcef/browser/browser_context.h"
 #include "libcef/browser/content_browser_client.h"
 
 namespace {
@@ -20,8 +20,8 @@ namespace {
 // context for the currently active browser (e.g. the browser with input focus).
 // Return the main context for now since we don't currently have a good way to
 // determine that.
-CefBrowserContextImpl* GetActiveBrowserContext() {
-  return static_cast<CefBrowserContextImpl*>(
+CefBrowserContext* GetActiveBrowserContext() {
+  return static_cast<CefBrowserContext*>(
       CefContentBrowserClient::Get()->request_context()->GetBrowserContext());
 }
 
@@ -34,8 +34,8 @@ ChromeProfileManagerStub::~ChromeProfileManagerStub() {}
 
 Profile* ChromeProfileManagerStub::GetProfile(
     const base::FilePath& profile_dir) {
-  CefBrowserContextImpl* browser_context =
-      CefBrowserContextImpl::GetForCachePath(profile_dir);
+  CefBrowserContext* browser_context =
+      CefBrowserContext::GetForCachePath(profile_dir);
   if (!browser_context) {
     // ProfileManager makes assumptions about profile directory paths that do
     // not match CEF usage. For example, the default Chrome profile name is
@@ -51,7 +51,7 @@ Profile* ChromeProfileManagerStub::GetProfile(
 bool ChromeProfileManagerStub::IsValidProfile(const void* profile) {
   if (!profile)
     return false;
-  return !!CefBrowserContextImpl::GetForContext(
+  return !!CefBrowserContext::GetForContext(
       reinterpret_cast<content::BrowserContext*>(const_cast<void*>(profile)));
 }
 

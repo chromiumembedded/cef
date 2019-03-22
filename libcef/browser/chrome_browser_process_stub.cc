@@ -5,7 +5,7 @@
 
 #include "libcef/browser/chrome_browser_process_stub.h"
 
-#include "libcef/browser/browser_context_impl.h"
+#include "libcef/browser/browser_context.h"
 #include "libcef/browser/chrome_profile_manager_stub.h"
 #include "libcef/browser/prefs/browser_prefs.h"
 #include "libcef/browser/thread_util.h"
@@ -389,7 +389,7 @@ ChromeBrowserProcessStub::pref_service_factory() const {
 content::BrowserContext*
 ChromeBrowserProcessStub::GetBrowserContextRedirectedInIncognito(
     content::BrowserContext* context) {
-  return CefBrowserContextImpl::GetForContext(context);
+  return CefBrowserContext::GetForContext(context);
 }
 
 content::BrowserContext*

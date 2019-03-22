@@ -10,7 +10,7 @@
 #include <utility>
 
 #include "include/cef_request_context_handler.h"
-#include "libcef/browser/net/url_request_context_getter_impl.h"
+#include "libcef/browser/net/url_request_context_getter.h"
 #include "libcef/browser/request_context_impl.h"
 
 #include "base/macros.h"

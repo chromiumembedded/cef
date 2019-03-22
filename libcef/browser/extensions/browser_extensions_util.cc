@@ -4,7 +4,7 @@
 
 #include "libcef/browser/extensions/browser_extensions_util.h"
 
-#include "libcef/browser/browser_context_impl.h"
+#include "libcef/browser/browser_context.h"
 #include "libcef/browser/browser_info_manager.h"
 #include "libcef/browser/thread_util.h"
 #include "libcef/common/extensions/extensions_util.h"
@@ -140,8 +140,8 @@ CefRefPtr<CefBrowserHostImpl> GetBrowserForTabId(
   if (tab_id < 0 || !browser_context)
     return nullptr;
 
-  CefBrowserContextImpl* browser_context_impl =
-      CefBrowserContextImpl::GetForContext(browser_context);
+  CefBrowserContext* browser_context_impl =
+      CefBrowserContext::GetForContext(browser_context);
 
   CefBrowserInfoManager::BrowserInfoList list;
   CefBrowserInfoManager::GetInstance()->GetBrowserInfoList(list);
@@ -149,7 +149,7 @@ CefRefPtr<CefBrowserHostImpl> GetBrowserForTabId(
     CefRefPtr<CefBrowserHostImpl> current_browser = browser_info->browser();
     if (current_browser && current_browser->GetIdentifier() == tab_id) {
       // Make sure we're operating in the same BrowserContextImpl.
-      if (CefBrowserContextImpl::GetForContext(
+      if (CefBrowserContext::GetForContext(
               current_browser->GetBrowserContext()) == browser_context_impl) {
         return current_browser;
       } else {

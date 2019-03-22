@@ -8,7 +8,7 @@
 #include <utility>
 
 #include "include/cef_version.h"
-#include "libcef/browser/browser_context_impl.h"
+#include "libcef/browser/browser_context.h"
 #include "libcef/browser/browser_host_impl.h"
 #include "libcef/browser/browser_info.h"
 #include "libcef/browser/browser_info_manager.h"
@@ -699,8 +699,8 @@ CefContentBrowserClient::GetExtraServiceManifests() {
 bool CefContentBrowserClient::IsSameBrowserContext(
     content::BrowserContext* context1,
     content::BrowserContext* context2) {
-  return CefBrowserContextImpl::GetForContext(context1) ==
-         CefBrowserContextImpl::GetForContext(context2);
+  return CefBrowserContext::GetForContext(context1) ==
+         CefBrowserContext::GetForContext(context2);
 }
 
 void CefContentBrowserClient::AppendExtraCommandLineSwitches(

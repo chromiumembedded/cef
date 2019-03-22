@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=4a4744491587c5f5b1ce8726d8dd08ad04646b92$
+// $hash=7c87ef36c39355a02bb9544b8228acac7a7abee9$
 //
 
 #include <dlfcn.h>
@@ -197,12 +197,6 @@ typedef struct _cef_command_line_t* (*cef_command_line_create_ptr)();
 typedef struct _cef_command_line_t* (*cef_command_line_get_global_ptr)();
 typedef struct _cef_cookie_manager_t* (
     *cef_cookie_manager_get_global_manager_ptr)(
-    struct _cef_completion_callback_t*);
-typedef struct _cef_cookie_manager_t* (
-    *cef_cookie_manager_get_blocking_manager_ptr)();
-typedef struct _cef_cookie_manager_t* (*cef_cookie_manager_create_manager_ptr)(
-    const cef_string_t*,
-    int,
     struct _cef_completion_callback_t*);
 typedef struct _cef_drag_data_t* (*cef_drag_data_create_ptr)();
 typedef struct _cef_image_t* (*cef_image_create_ptr)();
@@ -580,9 +574,6 @@ struct libcef_pointers {
   cef_command_line_get_global_ptr cef_command_line_get_global;
   cef_cookie_manager_get_global_manager_ptr
       cef_cookie_manager_get_global_manager;
-  cef_cookie_manager_get_blocking_manager_ptr
-      cef_cookie_manager_get_blocking_manager;
-  cef_cookie_manager_create_manager_ptr cef_cookie_manager_create_manager;
   cef_drag_data_create_ptr cef_drag_data_create;
   cef_image_create_ptr cef_image_create;
   cef_menu_model_create_ptr cef_menu_model_create;
@@ -797,8 +788,6 @@ int libcef_init_pointers(const char* path) {
   INIT_ENTRY(cef_command_line_create);
   INIT_ENTRY(cef_command_line_get_global);
   INIT_ENTRY(cef_cookie_manager_get_global_manager);
-  INIT_ENTRY(cef_cookie_manager_get_blocking_manager);
-  INIT_ENTRY(cef_cookie_manager_create_manager);
   INIT_ENTRY(cef_drag_data_create);
   INIT_ENTRY(cef_image_create);
   INIT_ENTRY(cef_menu_model_create);
@@ -1307,20 +1296,6 @@ NO_SANITIZE("cfi-icall")
 struct _cef_cookie_manager_t* cef_cookie_manager_get_global_manager(
     struct _cef_completion_callback_t* callback) {
   return g_libcef_pointers.cef_cookie_manager_get_global_manager(callback);
-}
-
-NO_SANITIZE("cfi-icall")
-struct _cef_cookie_manager_t* cef_cookie_manager_get_blocking_manager() {
-  return g_libcef_pointers.cef_cookie_manager_get_blocking_manager();
-}
-
-NO_SANITIZE("cfi-icall")
-struct _cef_cookie_manager_t* cef_cookie_manager_create_manager(
-    const cef_string_t* path,
-    int persist_session_cookies,
-    struct _cef_completion_callback_t* callback) {
-  return g_libcef_pointers.cef_cookie_manager_create_manager(
-      path, persist_session_cookies, callback);
 }
 
 NO_SANITIZE("cfi-icall") struct _cef_drag_data_t* cef_drag_data_create() {

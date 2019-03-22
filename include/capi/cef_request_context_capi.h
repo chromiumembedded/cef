@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=f7f1ec971c726a6a74bcc7f5cee7a8eb1911078d$
+// $hash=1038c0c3db89ce0b829d66e166b063c96b15992d$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_REQUEST_CONTEXT_CAPI_H_
@@ -130,14 +130,11 @@ typedef struct _cef_request_context_t {
       struct _cef_request_context_t* self);
 
   ///
-  // Returns the default cookie manager for this object. This will be the global
-  // cookie manager if this object is the global request context. Otherwise,
-  // this will be the default cookie manager used when this request context does
-  // not receive a value via cef_request_tContextHandler::get_cookie_manager().
-  // If |callback| is non-NULL it will be executed asnychronously on the IO
-  // thread after the manager's storage has been initialized.
+  // Returns the cookie manager for this object. If |callback| is non-NULL it
+  // will be executed asnychronously on the IO thread after the manager's
+  // storage has been initialized.
   ///
-  struct _cef_cookie_manager_t*(CEF_CALLBACK* get_default_cookie_manager)(
+  struct _cef_cookie_manager_t*(CEF_CALLBACK* get_cookie_manager)(
       struct _cef_request_context_t* self,
       struct _cef_completion_callback_t* callback);
 

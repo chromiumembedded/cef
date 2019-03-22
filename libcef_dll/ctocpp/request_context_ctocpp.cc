@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=ed414e127773ef135584c3c61a386615177feb59$
+// $hash=8155639f093ff697fd30a9e330ae3470108251e5$
 //
 
 #include "libcef_dll/ctocpp/request_context_ctocpp.h"
@@ -165,10 +165,10 @@ NO_SANITIZE("cfi-icall") CefString CefRequestContextCToCpp::GetCachePath() {
 }
 
 NO_SANITIZE("cfi-icall")
-CefRefPtr<CefCookieManager> CefRequestContextCToCpp::GetDefaultCookieManager(
+CefRefPtr<CefCookieManager> CefRequestContextCToCpp::GetCookieManager(
     CefRefPtr<CefCompletionCallback> callback) {
   cef_request_context_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_default_cookie_manager))
+  if (CEF_MEMBER_MISSING(_struct, get_cookie_manager))
     return NULL;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -176,7 +176,7 @@ CefRefPtr<CefCookieManager> CefRequestContextCToCpp::GetDefaultCookieManager(
   // Unverified params: callback
 
   // Execute
-  cef_cookie_manager_t* _retval = _struct->get_default_cookie_manager(
+  cef_cookie_manager_t* _retval = _struct->get_cookie_manager(
       _struct, CefCompletionCallbackCppToC::Wrap(callback));
 
   // Return type: refptr_same

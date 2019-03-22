@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=03c829d89f0b5b7ab12634fa2f11c4903cd8edb2$
+// $hash=2bf745d270f474b3d5b36fc3fc2fca2b508ec16f$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_REQUEST_CONTEXT_HANDLER_CAPI_H_
@@ -41,7 +41,6 @@
 #pragma once
 
 #include "include/capi/cef_base_capi.h"
-#include "include/capi/cef_cookie_capi.h"
 #include "include/capi/cef_web_plugin_capi.h"
 
 #ifdef __cplusplus
@@ -68,14 +67,6 @@ typedef struct _cef_request_context_handler_t {
   void(CEF_CALLBACK* on_request_context_initialized)(
       struct _cef_request_context_handler_t* self,
       struct _cef_request_context_t* request_context);
-
-  ///
-  // Called on the browser process IO thread to retrieve the cookie manager. If
-  // this function returns NULL the default cookie manager retrievable via
-  // cef_request_tContext::get_default_cookie_manager() will be used.
-  ///
-  struct _cef_cookie_manager_t*(CEF_CALLBACK* get_cookie_manager)(
-      struct _cef_request_context_handler_t* self);
 
   ///
   // Called on multiple browser process threads before a plugin instance is

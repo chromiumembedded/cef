@@ -9,7 +9,7 @@
 #include <utility>
 
 #include "libcef/browser/audio_mirror_destination.h"
-#include "libcef/browser/browser_context_impl.h"
+#include "libcef/browser/browser_context.h"
 #include "libcef/browser/browser_info.h"
 #include "libcef/browser/browser_info_manager.h"
 #include "libcef/browser/browser_platform_delegate.h"
@@ -317,7 +317,7 @@ CefRefPtr<CefBrowserHostImpl> CefBrowserHostImpl::Create(
   DCHECK(browser_context);
 
   // A StoragePartitionImplMap must already exist for the BrowserContext. See
-  // additional comments in CefBrowserContextImpl::Initialize().
+  // additional comments in CefBrowserContext::Initialize().
   DCHECK(browser_context->GetUserData(
       content::BrowserContext::GetStoragePartitionMapUserDataKey()));
 
@@ -3353,16 +3353,11 @@ void CefBrowserHostImpl::CreateExtensionHost(
     extensions::ViewType host_type) {
   DCHECK(!extension_host_);
 
-  // Use the *Impl context because ProcessManager expects it for notification
-  // registration.
-  CefBrowserContextImpl* impl_context =
-      CefBrowserContextImpl::GetForContext(browser_context);
-
   if (host_type == extensions::VIEW_TYPE_EXTENSION_DIALOG ||
       host_type == extensions::VIEW_TYPE_EXTENSION_POPUP) {
     // Create an extension host that we own.
     extension_host_ = new extensions::CefExtensionViewHost(
-        this, extension, impl_context, host_contents, url, host_type);
+        this, extension, browser_context, host_contents, url, host_type);
     // Trigger load of the extension URL.
     extension_host_->CreateRenderViewSoon();
   } else if (host_type == extensions::VIEW_TYPE_EXTENSION_BACKGROUND_PAGE) {
@@ -3370,7 +3365,7 @@ void CefBrowserHostImpl::CreateExtensionHost(
     // Create an extension host that will be owned by ProcessManager.
     extension_host_ = new extensions::CefExtensionBackgroundHost(
         this, base::BindOnce(&CefBrowserHostImpl::OnExtensionHostDeleted, this),
-        extension, impl_context, host_contents, url, host_type);
+        extension, browser_context, host_contents, url, host_type);
     // Load will be triggered by ProcessManager::CreateBackgroundHost.
   } else {
     NOTREACHED() << " Unsupported extension host type: " << host_type;

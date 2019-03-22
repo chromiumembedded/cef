@@ -343,7 +343,7 @@ void SetTestCookie(CefRefPtr<CefRequestContext> request_context,
   CefString(&cookie.domain) = GetRequestHost(server_backend, false);
   CefString(&cookie.path) = "/";
   cookie.has_expires = false;
-  EXPECT_TRUE(request_context->GetDefaultCookieManager(NULL)->SetCookie(
+  EXPECT_TRUE(request_context->GetCookieManager(NULL)->SetCookie(
       GetRequestOrigin(server_backend), cookie, new Callback(callback)));
 }
 
@@ -383,7 +383,7 @@ void GetTestCookie(CefRefPtr<CefRequestContext> request_context,
   };
 
   CefRefPtr<CefCookieManager> cookie_manager =
-      request_context->GetDefaultCookieManager(NULL);
+      request_context->GetCookieManager(NULL);
   cookie_manager->VisitUrlCookies(GetRequestOrigin(server_backend), true,
                                   new Visitor(callback));
 }
@@ -2183,7 +2183,7 @@ class RequestTestHandler : public TestHandler {
         supported_schemes.push_back(GetRequestScheme(false));
 
         // Continue the test once supported schemes has been set.
-        request_context->GetDefaultCookieManager(NULL)->SetSupportedSchemes(
+        request_context->GetCookieManager(NULL)->SetSupportedSchemes(
             supported_schemes,
             new SupportedSchemesCompletionCallback(
                 base::Bind(&RequestTestHandler::PreSetupComplete, this)));

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=52475096e498cd28cbd25676eaab24e14c1438b0$
+// $hash=73f229f21f0d9ce78f3897fd8a2ec94261a52f48$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_REQUEST_CONTEXT_CTOCPP_H_
@@ -43,7 +43,7 @@ class CefRequestContextCToCpp
   bool IsGlobal() OVERRIDE;
   CefRefPtr<CefRequestContextHandler> GetHandler() OVERRIDE;
   CefString GetCachePath() OVERRIDE;
-  CefRefPtr<CefCookieManager> GetDefaultCookieManager(
+  CefRefPtr<CefCookieManager> GetCookieManager(
       CefRefPtr<CefCompletionCallback> callback) OVERRIDE;
   bool RegisterSchemeHandlerFactory(
       const CefString& scheme_name,

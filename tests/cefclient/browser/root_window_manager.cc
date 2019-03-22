@@ -22,14 +22,7 @@ namespace {
 class ClientRequestContextHandler : public CefRequestContextHandler,
                                     public CefExtensionHandler {
  public:
-  ClientRequestContextHandler() {
-    CefRefPtr<CefCommandLine> command_line =
-        CefCommandLine::GetGlobalCommandLine();
-    if (command_line->HasSwitch(switches::kRequestContextBlockCookies)) {
-      // Use a cookie manager that neither stores nor retrieves cookies.
-      cookie_manager_ = CefCookieManager::GetBlockingManager();
-    }
-  }
+  ClientRequestContextHandler() {}
 
   // CefRequestContextHandler methods:
   bool OnBeforePluginLoad(const CefString& mime_type,
@@ -80,10 +73,6 @@ class ClientRequestContextHandler : public CefRequestContextHandler,
     }
   }
 
-  CefRefPtr<CefCookieManager> GetCookieManager() OVERRIDE {
-    return cookie_manager_;
-  }
-
   // CefExtensionHandler methods:
   void OnExtensionLoaded(CefRefPtr<CefExtension> extension) OVERRIDE {
     CEF_REQUIRE_UI_THREAD();
@@ -110,8 +99,6 @@ class ClientRequestContextHandler : public CefRequestContextHandler,
   }
 
  private:
-  CefRefPtr<CefCookieManager> cookie_manager_;
-
   IMPLEMENT_REFCOUNTING(ClientRequestContextHandler);
   DISALLOW_COPY_AND_ASSIGN(ClientRequestContextHandler);
 };

@@ -39,7 +39,6 @@
 #pragma once
 
 #include "include/cef_base.h"
-#include "include/cef_cookie.h"
 #include "include/cef_web_plugin.h"
 
 class CefRequestContext;
@@ -61,14 +60,6 @@ class CefRequestContextHandler : public virtual CefBaseRefCounted {
   /*--cef()--*/
   virtual void OnRequestContextInitialized(
       CefRefPtr<CefRequestContext> request_context) {}
-
-  ///
-  // Called on the browser process IO thread to retrieve the cookie manager. If
-  // this method returns NULL the default cookie manager retrievable via
-  // CefRequestContext::GetDefaultCookieManager() will be used.
-  ///
-  /*--cef()--*/
-  virtual CefRefPtr<CefCookieManager> GetCookieManager() { return NULL; }
 
   ///
   // Called on multiple browser process threads before a plugin instance is

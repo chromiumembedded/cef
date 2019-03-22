@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=f4724d1d945c06c5113ba9e1b7f7ad8d4b735b9c$
+// $hash=29ac900a92c4ec966cc115aae96c49b545bc9db9$
 //
 
 #include "libcef_dll/cpptoc/request_context_cpptoc.h"
@@ -171,9 +171,9 @@ request_context_get_cache_path(struct _cef_request_context_t* self) {
   return _retval.DetachToUserFree();
 }
 
-cef_cookie_manager_t* CEF_CALLBACK request_context_get_default_cookie_manager(
-    struct _cef_request_context_t* self,
-    cef_completion_callback_t* callback) {
+cef_cookie_manager_t* CEF_CALLBACK
+request_context_get_cookie_manager(struct _cef_request_context_t* self,
+                                   cef_completion_callback_t* callback) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -183,7 +183,7 @@ cef_cookie_manager_t* CEF_CALLBACK request_context_get_default_cookie_manager(
 
   // Execute
   CefRefPtr<CefCookieManager> _retval =
-      CefRequestContextCppToC::Get(self)->GetDefaultCookieManager(
+      CefRequestContextCppToC::Get(self)->GetCookieManager(
           CefCompletionCallbackCToCpp::Wrap(callback));
 
   // Return type: refptr_same
@@ -535,8 +535,7 @@ CefRequestContextCppToC::CefRequestContextCppToC() {
   GetStruct()->is_global = request_context_is_global;
   GetStruct()->get_handler = request_context_get_handler;
   GetStruct()->get_cache_path = request_context_get_cache_path;
-  GetStruct()->get_default_cookie_manager =
-      request_context_get_default_cookie_manager;
+  GetStruct()->get_cookie_manager = request_context_get_cookie_manager;
   GetStruct()->register_scheme_handler_factory =
       request_context_register_scheme_handler_factory;
   GetStruct()->clear_scheme_handler_factories =

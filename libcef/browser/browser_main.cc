@@ -8,7 +8,7 @@
 
 #include <string>
 
-#include "libcef/browser/browser_context_impl.h"
+#include "libcef/browser/browser_context.h"
 #include "libcef/browser/browser_context_keyed_service_factories.h"
 #include "libcef/browser/content_browser_client.h"
 #include "libcef/browser/context.h"
@@ -198,7 +198,7 @@ void CefBrowserMainParts::PreMainMessageLoopRun() {
   // Create the global RequestContext.
   global_request_context_ =
       CefRequestContextImpl::CreateGlobalRequestContext(settings);
-  CefBrowserContextImpl* browser_context = static_cast<CefBrowserContextImpl*>(
+  CefBrowserContext* browser_context = static_cast<CefBrowserContext*>(
       global_request_context_->GetBrowserContext());
 
   PostProfileInit();

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=f60c9110cba752df545af2fe5905a01d30ff588e$
+// $hash=3cf1dba9c137bc586d91149920ff4558bce74a58$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_REQUEST_CONTEXT_HANDLER_CTOCPP_H_
@@ -39,7 +39,6 @@ class CefRequestContextHandlerCToCpp
   // CefRequestContextHandler methods.
   void OnRequestContextInitialized(
       CefRefPtr<CefRequestContext> request_context) override;
-  CefRefPtr<CefCookieManager> GetCookieManager() override;
   bool OnBeforePluginLoad(const CefString& mime_type,
                           const CefString& plugin_url,
                           bool is_main_frame,

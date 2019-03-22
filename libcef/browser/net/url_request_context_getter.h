@@ -1,30 +1,138 @@
-// Copyright (c) 2015 The Chromium Authors. All rights reserved.
+// Copyright (c) 2011 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CEF_LIBCEF_BROWSER_NET_URL_REQUEST_CONTEXT_GETTER_H_
-#define CEF_LIBCEF_BROWSER_NET_URL_REQUEST_CONTEXT_GETTER_H_
+#ifndef CEF_LIBCEF_BROWSER_NET_URL_REQUEST_CONTEXT_GETTER_IMPL_H_
+#define CEF_LIBCEF_BROWSER_NET_URL_REQUEST_CONTEXT_GETTER_IMPL_H_
 #pragma once
 
-#include "net/url_request/url_request_context_getter.h"
+#include <set>
+#include <string>
 
-namespace net {
-class HostResolver;
+#include "include/internal/cef_types_wrappers.h"
+#include "libcef/browser/net/url_request_context.h"
+#include "libcef/browser/net/url_request_manager.h"
+
+#include "base/compiler_specific.h"
+#include "base/files/file_path.h"
+#include "base/memory/ref_counted.h"
+#include "chrome/browser/net/chrome_mojo_proxy_resolver_factory.h"
+#include "components/prefs/pref_member.h"
+#include "content/public/browser/browser_context.h"
+#include "net/url_request/url_request_context_getter.h"
+#include "net/url_request/url_request_job_factory.h"
+
+class PrefRegistrySimple;
+class PrefService;
+
+namespace base {
+class MessageLoop;
 }
 
-// Responsible for creating and owning the URLRequestContext and all network-
-// related functionality. Life span is primarily controlled by
-// CefResourceContext*. See browser_context.h for an object relationship
-// diagram.
+namespace net {
+class CookieMonster;
+class FtpTransactionFactory;
+class HttpAuthPreferences;
+class ProxyConfigService;
+class URLRequestContextStorage;
+class URLRequestJobFactory;
+class URLRequestJobFactoryImpl;
+}  // namespace net
+
+// Isolated URLRequestContextGetter implementation. Life span is primarily
+// controlled by CefResourceContext and (for the global context)
+// CefBrowserMainParts. Created on the UI thread but accessed and destroyed on
+// the IO thread. See browser_context.h for an object relationship diagram.
 class CefURLRequestContextGetter : public net::URLRequestContextGetter {
  public:
-  CefURLRequestContextGetter() {}
+  CefURLRequestContextGetter(
+      const CefRequestContextSettings& settings,
+      PrefService* pref_service,
+      scoped_refptr<base::SingleThreadTaskRunner> io_task_runner,
+      content::ProtocolHandlerMap* protocol_handlers,
+      std::unique_ptr<net::ProxyConfigService> proxy_config_service,
+      content::URLRequestInterceptorScopedVector request_interceptors);
+  ~CefURLRequestContextGetter() override;
 
-  // Called from CefResourceContext::GetHostResolver().
-  virtual net::HostResolver* GetHostResolver() const = 0;
+  // Register preferences. Called from browser_prefs::CreatePrefService().
+  static void RegisterPrefs(PrefRegistrySimple* registry);
+
+  // Called when the BrowserContextImpl is destroyed.
+  void ShutdownOnUIThread();
+
+  // net::URLRequestContextGetter implementation.
+  net::URLRequestContext* GetURLRequestContext() override;
+  scoped_refptr<base::SingleThreadTaskRunner> GetNetworkTaskRunner()
+      const override;
+
+  // CefURLRequestContextGetter implementation.
+  net::HostResolver* GetHostResolver() const;
+
+  void SetCookieSupportedSchemes(const std::vector<std::string>& schemes);
+
+  // Keep a reference to all handlers sharing this context so that they'll be
+  // kept alive until the context is destroyed.
+  void AddHandler(CefRefPtr<CefRequestContextHandler> handler);
+
+  // Returns the existing cookie store object. Logs an error if the cookie
+  // store does not yet exist. Must be called on the IO thread.
+  net::CookieStore* GetExistingCookieStore() const;
+
+  CefURLRequestManager* request_manager() const {
+    return io_state_->url_request_manager_.get();
+  }
 
  private:
+  void SetCookieStoragePath(const base::FilePath& path,
+                            bool persist_session_cookies);
+
+  void UpdateServerWhitelist();
+  void UpdateDelegateWhitelist();
+
+  void ShutdownOnIOThread();
+
+  const CefRequestContextSettings settings_;
+
+  bool shutting_down_ = false;
+
+  // State that is only accessed on the IO thread and will be reset in
+  // ShutdownOnIOThread().
+  struct IOState {
+    net::NetLog* net_log_ = nullptr;  // Guaranteed to outlive this object.
+
+    scoped_refptr<base::SingleThreadTaskRunner> io_task_runner_;
+
+#if defined(OS_POSIX) && !defined(OS_ANDROID)
+    std::string gsapi_library_name_;
+#endif
+
+    std::unique_ptr<net::ProxyConfigService> proxy_config_service_;
+    std::unique_ptr<net::URLRequestContextStorage> storage_;
+    std::unique_ptr<net::HttpAuthPreferences> http_auth_preferences_;
+    std::unique_ptr<CefURLRequestContext> url_request_context_;
+    std::unique_ptr<CefURLRequestManager> url_request_manager_;
+    content::ProtocolHandlerMap protocol_handlers_;
+    content::URLRequestInterceptorScopedVector request_interceptors_;
+
+    base::FilePath cookie_store_path_;
+    std::vector<std::string> cookie_supported_schemes_;
+
+    std::vector<CefRefPtr<CefRequestContextHandler>> handler_list_;
+
+    proxy_resolver::mojom::ProxyResolverFactoryPtr proxy_resolver_factory_;
+  };
+  std::unique_ptr<IOState> io_state_;
+
+  BooleanPrefMember quick_check_enabled_;
+  BooleanPrefMember pac_https_url_stripping_enabled_;
+
+  // Member variables which are pointed to by the various context objects.
+  mutable BooleanPrefMember force_google_safesearch_;
+
+  StringPrefMember auth_server_whitelist_;
+  StringPrefMember auth_negotiate_delegate_whitelist_;
+
   DISALLOW_COPY_AND_ASSIGN(CefURLRequestContextGetter);
 };
 
-#endif  // CEF_LIBCEF_BROWSER_NET_URL_REQUEST_CONTEXT_GETTER_H_
+#endif  // CEF_LIBCEF_BROWSER_NET_URL_REQUEST_CONTEXT_GETTER_IMPL_H_

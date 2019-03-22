@@ -24,7 +24,6 @@ extern const char kExternalBeginFrameEnabled[];
 extern const char kMouseCursorChangeDisabled[];
 extern const char kRequestContextPerBrowser[];
 extern const char kRequestContextSharedCache[];
-extern const char kRequestContextBlockCookies[];
 extern const char kBackgroundColor[];
 extern const char kEnableGPU[];
 extern const char kFilterURL[];

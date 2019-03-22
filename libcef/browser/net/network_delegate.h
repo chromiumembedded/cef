@@ -51,7 +51,7 @@ class CefNetworkDelegate : public net::NetworkDelegateImpl {
                        const base::FilePath& original_path,
                        const base::FilePath& absolute_path) const override;
 
-  // Weak, owned by our owner (CefURLRequestContextGetterImpl).
+  // Weak, owned by our owner (CefURLRequestContextGetter).
   BooleanPrefMember* force_google_safesearch_;
 
   DISALLOW_COPY_AND_ASSIGN(CefNetworkDelegate);

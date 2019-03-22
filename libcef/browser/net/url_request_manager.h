@@ -15,7 +15,7 @@ class NetworkDelegate;
 class URLRequest;
 class URLRequestJob;
 class URLRequestJobFactoryImpl;
-}
+}  // namespace net
 
 class CefProtocolHandler;
 
@@ -66,7 +66,7 @@ class CefURLRequestManager {
                                     const std::string& scheme);
 
   // Life span of |job_factory_| is guaranteed by
-  // CefURLRequestContextGetterImpl which also owns this object.
+  // CefURLRequestContextGetter which also owns this object.
   net::URLRequestJobFactoryImpl* job_factory_;
 
   // Map (scheme, domain) to factories.

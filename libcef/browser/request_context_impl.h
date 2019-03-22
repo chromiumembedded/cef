@@ -10,8 +10,7 @@
 #include "libcef/browser/browser_context.h"
 #include "libcef/browser/thread_util.h"
 
-class CefBrowserContextImpl;
-class CefBrowserContextProxy;
+class CefBrowserContext;
 
 // Implementation of the CefRequestContext interface. All methods are thread-
 // safe unless otherwise indicated. Will be deleted on the UI thread.
@@ -45,7 +44,7 @@ class CefRequestContextImpl : public CefRequestContext {
   // context object when it's available. If |task_runner| is NULL the callback
   // will be executed on the originating thread. The resulting context object
   // can only be accessed on the IO thread.
-  typedef base::Callback<void(scoped_refptr<CefURLRequestContextGetterImpl>)>
+  typedef base::Callback<void(scoped_refptr<CefURLRequestContextGetter>)>
       RequestContextCallback;
   void GetRequestContextImpl(
       scoped_refptr<base::SingleThreadTaskRunner> task_runner,
@@ -56,7 +55,7 @@ class CefRequestContextImpl : public CefRequestContext {
   bool IsGlobal() override;
   CefRefPtr<CefRequestContextHandler> GetHandler() override;
   CefString GetCachePath() override;
-  CefRefPtr<CefCookieManager> GetDefaultCookieManager(
+  CefRefPtr<CefCookieManager> GetCookieManager(
       CefRefPtr<CefCompletionCallback> callback) override;
   bool RegisterSchemeHandlerFactory(
       const CefString& scheme_name,
@@ -101,8 +100,7 @@ class CefRequestContextImpl : public CefRequestContext {
     CefRequestContextSettings settings;
     CefRefPtr<CefRequestContextImpl> other;
 
-    // Optionally use this handler, in which case a CefBrowserContextProxy will
-    // be created.
+    // Optionally use this handler.
     CefRefPtr<CefRequestContextHandler> handler;
 
     // Used to uniquely identify CefRequestContext objects before an associated
@@ -133,9 +131,9 @@ class CefRequestContextImpl : public CefRequestContext {
       const CefString& scheme_name,
       const CefString& domain_name,
       CefRefPtr<CefSchemeHandlerFactory> factory,
-      scoped_refptr<CefURLRequestContextGetterImpl> request_context);
+      scoped_refptr<CefURLRequestContextGetter> request_context);
   void ClearSchemeHandlerFactoriesInternal(
-      scoped_refptr<CefURLRequestContextGetterImpl> request_context);
+      scoped_refptr<CefURLRequestContextGetter> request_context);
   void PurgePluginListCacheInternal(bool reload_pages,
                                     CefBrowserContext* browser_context);
   void ClearCertificateExceptionsInternal(
@@ -143,23 +141,21 @@ class CefRequestContextImpl : public CefRequestContext {
       CefBrowserContext* browser_context);
   void CloseAllConnectionsInternal(
       CefRefPtr<CefCompletionCallback> callback,
-      scoped_refptr<CefURLRequestContextGetterImpl> request_context);
+      scoped_refptr<CefURLRequestContextGetter> request_context);
   void ResolveHostInternal(
       const CefString& origin,
       CefRefPtr<CefResolveCallback> callback,
-      scoped_refptr<CefURLRequestContextGetterImpl> request_context);
+      scoped_refptr<CefURLRequestContextGetter> request_context);
 
   CefBrowserContext* browser_context() const;
 
-  // If *Impl then we must disassociate from it on destruction.
-  CefBrowserContextImpl* browser_context_impl_ = nullptr;
-  // If *Proxy then we own it.
-  std::unique_ptr<CefBrowserContextProxy> browser_context_proxy_;
+  // We must disassociate from this on destruction.
+  CefBrowserContext* browser_context_ = nullptr;
 
   Config config_;
 
   // Owned by the CefBrowserContext.
-  CefURLRequestContextGetterImpl* request_context_getter_impl_ = nullptr;
+  CefURLRequestContextGetter* request_context_getter_ = nullptr;
 
   IMPLEMENT_REFCOUNTING_DELETE_ON_UIT(CefRequestContextImpl);
   DISALLOW_COPY_AND_ASSIGN(CefRequestContextImpl);

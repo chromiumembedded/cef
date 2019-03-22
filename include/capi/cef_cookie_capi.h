@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=48b5fa68109eed1ea30fa0c805218ebd258c0573$
+// $hash=fd4529fcb0b4cebf7e94a5160854f13ee05bbab0$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_COOKIE_CAPI_H_
@@ -124,22 +124,6 @@ typedef struct _cef_cookie_manager_t {
       struct _cef_delete_cookies_callback_t* callback);
 
   ///
-  // Sets the directory path that will be used for storing cookie data. If
-  // |path| is NULL data will be stored in memory only. Otherwise, data will be
-  // stored at the specified |path|. To persist session cookies (cookies without
-  // an expiry date or validity interval) set |persist_session_cookies| to true
-  // (1). Session cookies are generally intended to be transient and most Web
-  // browsers do not persist them. If |callback| is non-NULL it will be executed
-  // asnychronously on the IO thread after the manager's storage has been
-  // initialized. Returns false (0) if cookies cannot be accessed.
-  ///
-  int(CEF_CALLBACK* set_storage_path)(
-      struct _cef_cookie_manager_t* self,
-      const cef_string_t* path,
-      int persist_session_cookies,
-      struct _cef_completion_callback_t* callback);
-
-  ///
   // Flush the backing store (if any) to disk. If |callback| is non-NULL it will
   // be executed asnychronously on the IO thread after the flush is complete.
   // Returns false (0) if cookies cannot be accessed.
@@ -153,34 +137,10 @@ typedef struct _cef_cookie_manager_t {
 // CefSettings.cache_path if specified or in memory otherwise. If |callback| is
 // non-NULL it will be executed asnychronously on the IO thread after the
 // manager's storage has been initialized. Using this function is equivalent to
-// calling cef_request_tContext::cef_request_context_get_global_context()->get_d
-// efault_cookie_manager().
+// calling cef_request_tContext::cef_request_context_get_global_context()->GetDe
+// faultCookieManager().
 ///
 CEF_EXPORT cef_cookie_manager_t* cef_cookie_manager_get_global_manager(
-    struct _cef_completion_callback_t* callback);
-
-///
-// Returns a cookie manager that neither stores nor retrieves cookies. All usage
-// of cookies will be blocked including cookies accessed via the network
-// (request/response headers), via JavaScript (document.cookie), and via
-// cef_cookie_manager_t functions. No cookies will be displayed in DevTools. If
-// you wish to only block cookies sent via the network use the
-// cef_request_tHandler CanGetCookies and CanSetCookie functions instead.
-///
-CEF_EXPORT cef_cookie_manager_t* cef_cookie_manager_get_blocking_manager();
-
-///
-// Creates a new cookie manager. If |path| is NULL data will be stored in memory
-// only. Otherwise, data will be stored at the specified |path|. To persist
-// session cookies (cookies without an expiry date or validity interval) set
-// |persist_session_cookies| to true (1). Session cookies are generally intended
-// to be transient and most Web browsers do not persist them. If |callback| is
-// non-NULL it will be executed asnychronously on the IO thread after the
-// manager's storage has been initialized.
-///
-CEF_EXPORT cef_cookie_manager_t* cef_cookie_manager_create_manager(
-    const cef_string_t* path,
-    int persist_session_cookies,
     struct _cef_completion_callback_t* callback);
 
 ///

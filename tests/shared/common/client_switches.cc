@@ -30,7 +30,6 @@ const char kExternalBeginFrameEnabled[] = "external-begin-frame-enabled";
 const char kMouseCursorChangeDisabled[] = "mouse-cursor-change-disabled";
 const char kRequestContextPerBrowser[] = "request-context-per-browser";
 const char kRequestContextSharedCache[] = "request-context-shared-cache";
-const char kRequestContextBlockCookies[] = "request-context-block-cookies";
 const char kBackgroundColor[] = "background-color";
 const char kEnableGPU[] = "enable-gpu";
 const char kFilterURL[] = "filter-url";

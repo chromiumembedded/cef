@@ -7,7 +7,7 @@
 
 #include <utility>
 
-#include "libcef/browser/browser_context_impl.h"
+#include "libcef/browser/browser_context.h"
 #include "libcef/browser/browser_host_impl.h"
 #include "libcef/browser/extensions/component_extension_resource_manager.h"
 #include "libcef/browser/extensions/extension_system.h"
@@ -65,13 +65,13 @@ bool CefExtensionsBrowserClient::AreExtensionsDisabled(
 }
 
 bool CefExtensionsBrowserClient::IsValidContext(BrowserContext* context) {
-  return CefBrowserContextImpl::GetForContext(context) != NULL;
+  return CefBrowserContext::GetForContext(context) != NULL;
 }
 
 bool CefExtensionsBrowserClient::IsSameContext(BrowserContext* first,
                                                BrowserContext* second) {
   // Returns true if |first| and |second| share the same underlying
-  // CefBrowserContextImpl.
+  // CefBrowserContext.
   return GetCefImplContext(first) == GetCefImplContext(second);
 }
 
@@ -93,7 +93,7 @@ BrowserContext* CefExtensionsBrowserClient::GetOriginalContext(
 
 BrowserContext* CefExtensionsBrowserClient::GetCefImplContext(
     BrowserContext* context) {
-  return CefBrowserContextImpl::GetForContext(context);
+  return CefBrowserContext::GetForContext(context);
 }
 
 bool CefExtensionsBrowserClient::IsGuestSession(BrowserContext* context) const {
@@ -196,10 +196,8 @@ bool CefExtensionsBrowserClient::CreateBackgroundExtensionHost(
     content::BrowserContext* browser_context,
     const GURL& url,
     ExtensionHost** host) {
-  // The BrowserContext referenced by ProcessManager should always be an *Impl.
-  DCHECK(!static_cast<CefBrowserContext*>(browser_context)->is_proxy());
-  CefBrowserContextImpl* browser_context_impl =
-      CefBrowserContextImpl::GetForContext(browser_context);
+  CefBrowserContext* browser_context_impl =
+      CefBrowserContext::GetForContext(browser_context);
 
   // A CEF representation should always exist.
   CefRefPtr<CefExtension> cef_extension =
@@ -211,7 +209,6 @@ bool CefExtensionsBrowserClient::CreateBackgroundExtensionHost(
   }
 
   // Always use the same request context that the extension was registered with.
-  // May represent an *Impl or *Proxy BrowserContext.
   // GetLoaderContext() will return NULL for internal extensions.
   CefRefPtr<CefRequestContext> request_context =
       cef_extension->GetLoaderContext();

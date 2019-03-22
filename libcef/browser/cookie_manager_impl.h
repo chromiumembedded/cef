@@ -15,12 +15,10 @@
 #include "base/memory/weak_ptr.h"
 #include "net/cookies/cookie_monster.h"
 
-class CefCookieStoreOwnerSource;
-
 // Implementation of the CefCookieManager interface.
 class CefCookieManagerImpl : public CefCookieManager {
  public:
-  explicit CefCookieManagerImpl(bool is_blocking);
+  CefCookieManagerImpl();
   ~CefCookieManagerImpl() override;
 
   // Must be called immediately after this object is created when |is_blocking|
@@ -57,9 +55,6 @@ class CefCookieManagerImpl : public CefCookieManager {
   bool DeleteCookies(const CefString& url,
                      const CefString& cookie_name,
                      CefRefPtr<CefDeleteCookiesCallback> callback) override;
-  bool SetStoragePath(const CefString& path,
-                      bool persist_session_cookies,
-                      CefRefPtr<CefCompletionCallback> callback) override;
   bool FlushStore(CefRefPtr<CefCompletionCallback> callback) override;
 
   static bool GetCefCookie(const net::CanonicalCookie& cc, CefCookie& cookie);
@@ -73,29 +68,21 @@ class CefCookieManagerImpl : public CefCookieManager {
                                       const std::vector<std::string>& schemes);
 
  private:
-  // Returns true if a context is or will be available.
-  bool HasContext();
-
   // Execute |method| on the IO thread once the request context is available.
   void RunMethodWithContext(
       const CefRequestContextImpl::RequestContextCallback& method);
 
   void InitWithContext(
       CefRefPtr<CefCompletionCallback> callback,
-      scoped_refptr<CefURLRequestContextGetterImpl> request_context);
-  void SetStoragePathWithContext(
-      const CefString& path,
-      bool persist_session_cookies,
-      CefRefPtr<CefCompletionCallback> callback,
-      scoped_refptr<CefURLRequestContextGetterImpl> request_context);
+      scoped_refptr<CefURLRequestContextGetter> request_context);
   void SetSupportedSchemesWithContext(
       const std::vector<std::string>& schemes,
       CefRefPtr<CefCompletionCallback> callback,
-      scoped_refptr<CefURLRequestContextGetterImpl> request_context);
+      scoped_refptr<CefURLRequestContextGetter> request_context);
   void GetCookieStoreWithContext(
       scoped_refptr<base::SingleThreadTaskRunner> task_runner,
       const CookieStoreCallback& callback,
-      scoped_refptr<CefURLRequestContextGetterImpl> request_context);
+      scoped_refptr<CefURLRequestContextGetter> request_context);
 
   void SetSupportedSchemesInternal(const std::vector<std::string>& schemes,
                                    CefRefPtr<CefCompletionCallback> callback);
@@ -116,15 +103,9 @@ class CefCookieManagerImpl : public CefCookieManager {
   void FlushStoreInternal(CefRefPtr<CefCompletionCallback> callback,
                           const CookieStoreGetter& cookie_store_getter);
 
-  // If true all cookies will be blocked.
-  const bool is_blocking_;
-
-  // Used for cookie monsters owned by the context.
+  // Context that owns the cookie monster.
   CefRefPtr<CefRequestContextImpl> request_context_;
-  scoped_refptr<CefURLRequestContextGetterImpl> request_context_impl_;
-
-  // Used for cookie monsters owned by this object.
-  std::unique_ptr<CefCookieStoreOwnerSource> cookie_source_;
+  scoped_refptr<CefURLRequestContextGetter> request_context_impl_;
 
   // Must be the last member.
   base::WeakPtrFactory<CefCookieManagerImpl> weak_ptr_factory_;

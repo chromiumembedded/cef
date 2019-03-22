@@ -23,48 +23,12 @@
 #include "net/ssl/client_cert_store_mac.h"
 #endif
 
-namespace {
-
-bool ShouldProxyUserData(const void* key) {
-  // If this value is not proxied WebUI will fail to load.
-  if (key == content::GetURLDataManagerBackendUserDataKey())
-    return true;
-
-  return false;
-}
-
-}  // namespace
-
 CefResourceContext::CefResourceContext(
     bool is_off_the_record,
     CefRefPtr<CefRequestContextHandler> handler)
-    : parent_(nullptr),
-      is_off_the_record_(is_off_the_record),
-      handler_(handler) {}
+    : is_off_the_record_(is_off_the_record), handler_(handler) {}
 
 CefResourceContext::~CefResourceContext() {}
-
-base::SupportsUserData::Data* CefResourceContext::GetUserData(
-    const void* key) const {
-  if (parent_ && ShouldProxyUserData(key))
-    return parent_->GetUserData(key);
-  return content::ResourceContext::GetUserData(key);
-}
-
-void CefResourceContext::SetUserData(const void* key,
-                                     std::unique_ptr<Data> data) {
-  if (parent_ && ShouldProxyUserData(key))
-    parent_->SetUserData(key, std::move(data));
-  else
-    content::ResourceContext::SetUserData(key, std::move(data));
-}
-
-void CefResourceContext::RemoveUserData(const void* key) {
-  if (parent_ && ShouldProxyUserData(key))
-    parent_->RemoveUserData(key);
-  else
-    content::ResourceContext::RemoveUserData(key);
-}
 
 std::unique_ptr<net::ClientCertStore>
 CefResourceContext::CreateClientCertStore() {
@@ -89,12 +53,6 @@ void CefResourceContext::set_extensions_info_map(
     extensions::InfoMap* extensions_info_map) {
   DCHECK(!extension_info_map_);
   extension_info_map_ = extensions_info_map;
-}
-
-void CefResourceContext::set_parent(CefResourceContext* parent) {
-  DCHECK(!parent_);
-  DCHECK(parent);
-  parent_ = parent;
 }
 
 void CefResourceContext::AddPluginLoadDecision(

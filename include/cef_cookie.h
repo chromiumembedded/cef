@@ -65,32 +65,6 @@ class CefCookieManager : public virtual CefBaseRefCounted {
       CefRefPtr<CefCompletionCallback> callback);
 
   ///
-  // Returns a cookie manager that neither stores nor retrieves cookies. All
-  // usage of cookies will be blocked including cookies accessed via the network
-  // (request/response headers), via JavaScript (document.cookie), and via
-  // CefCookieManager methods. No cookies will be displayed in DevTools. If you
-  // wish to only block cookies sent via the network use the CefRequestHandler
-  // CanGetCookies and CanSetCookie methods instead.
-  ///
-  /*--cef()--*/
-  static CefRefPtr<CefCookieManager> GetBlockingManager();
-
-  ///
-  // Creates a new cookie manager. If |path| is empty data will be stored in
-  // memory only. Otherwise, data will be stored at the specified |path|. To
-  // persist session cookies (cookies without an expiry date or validity
-  // interval) set |persist_session_cookies| to true. Session cookies are
-  // generally intended to be transient and most Web browsers do not persist
-  // them. If |callback| is non-NULL it will be executed asnychronously on the
-  // IO thread after the manager's storage has been initialized.
-  ///
-  /*--cef(optional_param=path,optional_param=callback)--*/
-  static CefRefPtr<CefCookieManager> CreateManager(
-      const CefString& path,
-      bool persist_session_cookies,
-      CefRefPtr<CefCompletionCallback> callback);
-
-  ///
   // Set the schemes supported by this manager. The default schemes ("http",
   // "https", "ws" and "wss") will always be supported. If |callback| is non-
   // NULL it will be executed asnychronously on the IO thread after the change
@@ -151,21 +125,6 @@ class CefCookieManager : public virtual CefBaseRefCounted {
   virtual bool DeleteCookies(const CefString& url,
                              const CefString& cookie_name,
                              CefRefPtr<CefDeleteCookiesCallback> callback) = 0;
-
-  ///
-  // Sets the directory path that will be used for storing cookie data. If
-  // |path| is empty data will be stored in memory only. Otherwise, data will be
-  // stored at the specified |path|. To persist session cookies (cookies without
-  // an expiry date or validity interval) set |persist_session_cookies| to true.
-  // Session cookies are generally intended to be transient and most Web
-  // browsers do not persist them. If |callback| is non-NULL it will be executed
-  // asnychronously on the IO thread after the manager's storage has been
-  // initialized. Returns false if cookies cannot be accessed.
-  ///
-  /*--cef(optional_param=path,optional_param=callback)--*/
-  virtual bool SetStoragePath(const CefString& path,
-                              bool persist_session_cookies,
-                              CefRefPtr<CefCompletionCallback> callback) = 0;
 
   ///
   // Flush the backing store (if any) to disk. If |callback| is non-NULL it will

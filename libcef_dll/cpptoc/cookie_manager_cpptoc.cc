@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=229d455bfe9f7c8536f7bc03734eaf29e9e637b1$
+// $hash=a672fab541f9c28f77a06c31d89f5a9d66c78751$
 //
 
 #include "libcef_dll/cpptoc/cookie_manager_cpptoc.h"
@@ -29,33 +29,6 @@ CEF_EXPORT cef_cookie_manager_t* cef_cookie_manager_get_global_manager(
 
   // Execute
   CefRefPtr<CefCookieManager> _retval = CefCookieManager::GetGlobalManager(
-      CefCompletionCallbackCToCpp::Wrap(callback));
-
-  // Return type: refptr_same
-  return CefCookieManagerCppToC::Wrap(_retval);
-}
-
-CEF_EXPORT cef_cookie_manager_t* cef_cookie_manager_get_blocking_manager() {
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Execute
-  CefRefPtr<CefCookieManager> _retval = CefCookieManager::GetBlockingManager();
-
-  // Return type: refptr_same
-  return CefCookieManagerCppToC::Wrap(_retval);
-}
-
-CEF_EXPORT cef_cookie_manager_t* cef_cookie_manager_create_manager(
-    const cef_string_t* path,
-    int persist_session_cookies,
-    cef_completion_callback_t* callback) {
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Unverified params: path, callback
-
-  // Execute
-  CefRefPtr<CefCookieManager> _retval = CefCookieManager::CreateManager(
-      CefString(path), persist_session_cookies ? true : false,
       CefCompletionCallbackCToCpp::Wrap(callback));
 
   // Return type: refptr_same
@@ -194,27 +167,6 @@ cookie_manager_delete_cookies(struct _cef_cookie_manager_t* self,
 }
 
 int CEF_CALLBACK
-cookie_manager_set_storage_path(struct _cef_cookie_manager_t* self,
-                                const cef_string_t* path,
-                                int persist_session_cookies,
-                                cef_completion_callback_t* callback) {
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  DCHECK(self);
-  if (!self)
-    return 0;
-  // Unverified params: path, callback
-
-  // Execute
-  bool _retval = CefCookieManagerCppToC::Get(self)->SetStoragePath(
-      CefString(path), persist_session_cookies ? true : false,
-      CefCompletionCallbackCToCpp::Wrap(callback));
-
-  // Return type: bool
-  return _retval;
-}
-
-int CEF_CALLBACK
 cookie_manager_flush_store(struct _cef_cookie_manager_t* self,
                            cef_completion_callback_t* callback) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -242,7 +194,6 @@ CefCookieManagerCppToC::CefCookieManagerCppToC() {
   GetStruct()->visit_url_cookies = cookie_manager_visit_url_cookies;
   GetStruct()->set_cookie = cookie_manager_set_cookie;
   GetStruct()->delete_cookies = cookie_manager_delete_cookies;
-  GetStruct()->set_storage_path = cookie_manager_set_storage_path;
   GetStruct()->flush_store = cookie_manager_flush_store;
 }
 

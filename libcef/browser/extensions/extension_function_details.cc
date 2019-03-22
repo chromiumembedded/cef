@@ -4,7 +4,7 @@
 
 #include "libcef/browser/extensions/extension_function_details.h"
 
-#include "libcef/browser/browser_context_impl.h"
+#include "libcef/browser/browser_context.h"
 #include "libcef/browser/extensions/browser_extensions_util.h"
 #include "libcef/browser/extensions/extension_system.h"
 #include "libcef/browser/navigate_params.h"
@@ -168,9 +168,8 @@ CefRefPtr<CefBrowserHostImpl> CefExtensionFunctionDetails::GetCurrentBrowser()
             static_cast<CefBrowserHostImpl*>(active_browser.get());
 
         // Make sure we're operating in the same BrowserContextImpl.
-        if (CefBrowserContextImpl::GetForContext(
-                browser->GetBrowserContext()) ==
-            CefBrowserContextImpl::GetForContext(
+        if (CefBrowserContext::GetForContext(browser->GetBrowserContext()) ==
+            CefBrowserContext::GetForContext(
                 active_browser_impl->GetBrowserContext())) {
           browser = active_browser_impl;
         } else {
@@ -349,8 +348,8 @@ base::DictionaryValue* CefExtensionFunctionDetails::OpenTab(
   if (params.index.get())
     index = *params.index;
 
-  CefBrowserContextImpl* browser_context_impl =
-      CefBrowserContextImpl::GetForContext(active_browser->GetBrowserContext());
+  CefBrowserContext* browser_context_impl =
+      CefBrowserContext::GetForContext(active_browser->GetBrowserContext());
 
   // A CEF representation should always exist.
   CefRefPtr<CefExtension> cef_extension =
@@ -361,7 +360,6 @@ base::DictionaryValue* CefExtensionFunctionDetails::OpenTab(
     return nullptr;
 
   // Always use the same request context that the extension was registered with.
-  // May represent an *Impl or *Proxy BrowserContext.
   // GetLoaderContext() will return NULL for internal extensions.
   CefRefPtr<CefRequestContext> request_context =
       cef_extension->GetLoaderContext();

@@ -5,7 +5,7 @@
 #include "libcef/browser/prefs/browser_prefs.h"
 
 #include "libcef/browser/media_capture_devices_dispatcher.h"
-#include "libcef/browser/net/url_request_context_getter_impl.h"
+#include "libcef/browser/net/url_request_context_getter.h"
 #include "libcef/browser/prefs/pref_store.h"
 #include "libcef/browser/prefs/renderer_prefs.h"
 #include "libcef/common/cef_switches.h"
@@ -153,7 +153,7 @@ std::unique_ptr<PrefService> CreatePrefService(Profile* profile,
   update_client::RegisterPrefs(registry.get());
 
   if (!command_line->HasSwitch(switches::kEnableNetworkService)) {
-    CefURLRequestContextGetterImpl::RegisterPrefs(registry.get());
+    CefURLRequestContextGetter::RegisterPrefs(registry.get());
   } else if (!profile) {
     SystemNetworkContextManager::RegisterPrefs(registry.get());
   }

@@ -180,11 +180,7 @@ void ExtensionTestHandler::VerifyExtensionInContext(
   EXPECT_FALSE(extension_id.empty());
 
   if (has_access) {
-    if (is_loader) {
-      EXPECT_TRUE(context->DidLoadExtension(extension_id));
-    } else {
-      EXPECT_FALSE(context->DidLoadExtension(extension_id));
-    }
+    EXPECT_TRUE(context->DidLoadExtension(extension_id));
     EXPECT_TRUE(context->HasExtension(extension_id));
   } else {
     EXPECT_FALSE(context->DidLoadExtension(extension_id));

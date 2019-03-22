@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "libcef/browser/net/url_request_context_getter_impl.h"
+#include "libcef/browser/net/url_request_context_getter.h"
 
 #include <string>
 #include <utility>
@@ -10,8 +10,6 @@
 
 #include "libcef/browser/content_browser_client.h"
 #include "libcef/browser/cookie_manager_impl.h"
-#include "libcef/browser/net/cookie_store_proxy.h"
-#include "libcef/browser/net/cookie_store_source.h"
 #include "libcef/browser/net/network_delegate.h"
 #include "libcef/browser/net/scheme_handler.h"
 #include "libcef/browser/net/url_request_interceptor.h"
@@ -20,6 +18,7 @@
 #include "libcef/common/content_client.h"
 
 #include "base/command_line.h"
+#include "base/files/file_util.h"
 #include "base/logging.h"
 #include "base/memory/ptr_util.h"
 #include "base/stl_util.h"
@@ -45,6 +44,7 @@
 #include "net/cert/multi_log_ct_verifier.h"
 #include "net/cookies/cookie_monster.h"
 #include "net/dns/host_resolver.h"
+#include "net/extras/sqlite/sqlite_persistent_cookie_store.h"
 #include "net/ftp/ftp_network_layer.h"
 #include "net/http/http_auth_handler_factory.h"
 #include "net/http/http_auth_preferences.h"
@@ -179,7 +179,7 @@ CreateLogVerifiersForKnownLogs() {
 
 }  // namespace
 
-CefURLRequestContextGetterImpl::CefURLRequestContextGetterImpl(
+CefURLRequestContextGetter::CefURLRequestContextGetter(
     const CefRequestContextSettings& settings,
     PrefService* pref_service,
     scoped_refptr<base::SingleThreadTaskRunner> io_task_runner,
@@ -220,26 +220,25 @@ CefURLRequestContextGetterImpl::CefURLRequestContextGetterImpl(
 
   auth_server_whitelist_.Init(
       prefs::kAuthServerWhitelist, pref_service,
-      base::Bind(&CefURLRequestContextGetterImpl::UpdateServerWhitelist,
+      base::Bind(&CefURLRequestContextGetter::UpdateServerWhitelist,
                  base::Unretained(this)));
   auth_server_whitelist_.MoveToThread(io_thread_proxy);
 
   auth_negotiate_delegate_whitelist_.Init(
       prefs::kAuthNegotiateDelegateWhitelist, pref_service,
-      base::Bind(&CefURLRequestContextGetterImpl::UpdateDelegateWhitelist,
+      base::Bind(&CefURLRequestContextGetter::UpdateDelegateWhitelist,
                  base::Unretained(this)));
   auth_negotiate_delegate_whitelist_.MoveToThread(io_thread_proxy);
 }
 
-CefURLRequestContextGetterImpl::~CefURLRequestContextGetterImpl() {
+CefURLRequestContextGetter::~CefURLRequestContextGetter() {
   CEF_REQUIRE_IOT();
   // This destructor may not be called during shutdown. Perform any required
   // shutdown in ShutdownOnIOThread() instead.
 }
 
 // static
-void CefURLRequestContextGetterImpl::RegisterPrefs(
-    PrefRegistrySimple* registry) {
+void CefURLRequestContextGetter::RegisterPrefs(PrefRegistrySimple* registry) {
   // Based on IOThread::RegisterPrefs.
 #if defined(OS_POSIX) && !defined(OS_ANDROID)
   registry->RegisterStringPref(prefs::kGSSAPILibraryName, std::string());
@@ -255,7 +254,7 @@ void CefURLRequestContextGetterImpl::RegisterPrefs(
   registry->RegisterStringPref(prefs::kAuthNegotiateDelegateWhitelist, "");
 }
 
-void CefURLRequestContextGetterImpl::ShutdownOnUIThread() {
+void CefURLRequestContextGetter::ShutdownOnUIThread() {
   CEF_REQUIRE_UIT();
   quick_check_enabled_.Destroy();
   pac_https_url_stripping_enabled_.Destroy();
@@ -265,10 +264,10 @@ void CefURLRequestContextGetterImpl::ShutdownOnUIThread() {
 
   CEF_POST_TASK(
       CEF_IOT,
-      base::Bind(&CefURLRequestContextGetterImpl::ShutdownOnIOThread, this));
+      base::Bind(&CefURLRequestContextGetter::ShutdownOnIOThread, this));
 }
 
-void CefURLRequestContextGetterImpl::ShutdownOnIOThread() {
+void CefURLRequestContextGetter::ShutdownOnIOThread() {
   CEF_REQUIRE_IOT();
 
   shutting_down_ = true;
@@ -282,7 +281,7 @@ void CefURLRequestContextGetterImpl::ShutdownOnIOThread() {
   NotifyContextShuttingDown();
 }
 
-net::URLRequestContext* CefURLRequestContextGetterImpl::GetURLRequestContext() {
+net::URLRequestContext* CefURLRequestContextGetter::GetURLRequestContext() {
   CEF_REQUIRE_IOT();
 
   if (shutting_down_)
@@ -296,7 +295,7 @@ net::URLRequestContext* CefURLRequestContextGetterImpl::GetURLRequestContext() {
     if (settings_.cache_path.length > 0)
       cache_path = base::FilePath(CefString(&settings_.cache_path));
 
-    io_state_->url_request_context_.reset(new CefURLRequestContextImpl());
+    io_state_->url_request_context_.reset(new CefURLRequestContext());
     io_state_->url_request_context_->set_net_log(io_state_->net_log_);
     io_state_->url_request_context_->set_enable_brotli(true);
 
@@ -472,63 +471,95 @@ net::URLRequestContext* CefURLRequestContextGetterImpl::GetURLRequestContext() {
 }
 
 scoped_refptr<base::SingleThreadTaskRunner>
-CefURLRequestContextGetterImpl::GetNetworkTaskRunner() const {
+CefURLRequestContextGetter::GetNetworkTaskRunner() const {
   return base::CreateSingleThreadTaskRunnerWithTraits({BrowserThread::IO});
 }
 
-net::HostResolver* CefURLRequestContextGetterImpl::GetHostResolver() const {
+net::HostResolver* CefURLRequestContextGetter::GetHostResolver() const {
   return io_state_->url_request_context_->host_resolver();
 }
 
-void CefURLRequestContextGetterImpl::SetCookieStoragePath(
-    const base::FilePath& path,
-    bool persist_session_cookies) {
-  CEF_REQUIRE_IOT();
-  if (!io_state_->cookie_source_) {
-    // Use a proxy because we can't change the URLRequestContext's CookieStore
-    // during runtime.
-    io_state_->cookie_source_ = new CefCookieStoreOwnerSource();
-    io_state_->storage_->set_cookie_store(std::make_unique<CefCookieStoreProxy>(
-        base::WrapUnique(io_state_->cookie_source_)));
-  }
-  io_state_->cookie_source_->SetCookieStoragePath(path, persist_session_cookies,
-                                                  io_state_->net_log_);
-}
-
-void CefURLRequestContextGetterImpl::SetCookieSupportedSchemes(
+void CefURLRequestContextGetter::SetCookieSupportedSchemes(
     const std::vector<std::string>& schemes) {
   CEF_REQUIRE_IOT();
-  io_state_->cookie_source_->SetCookieSupportedSchemes(schemes);
+
+  io_state_->cookie_supported_schemes_ = schemes;
+  CefCookieManagerImpl::SetCookieMonsterSchemes(
+      static_cast<net::CookieMonster*>(GetExistingCookieStore()),
+      io_state_->cookie_supported_schemes_);
 }
 
-void CefURLRequestContextGetterImpl::AddHandler(
+void CefURLRequestContextGetter::AddHandler(
     CefRefPtr<CefRequestContextHandler> handler) {
   if (!CEF_CURRENTLY_ON_IOT()) {
-    CEF_POST_TASK(
-        CEF_IOT,
-        base::Bind(&CefURLRequestContextGetterImpl::AddHandler, this, handler));
+    CEF_POST_TASK(CEF_IOT, base::Bind(&CefURLRequestContextGetter::AddHandler,
+                                      this, handler));
     return;
   }
   io_state_->handler_list_.push_back(handler);
 }
 
-net::CookieStore* CefURLRequestContextGetterImpl::GetExistingCookieStore()
-    const {
+net::CookieStore* CefURLRequestContextGetter::GetExistingCookieStore() const {
   CEF_REQUIRE_IOT();
-  if (io_state_->cookie_source_) {
-    return io_state_->cookie_source_->GetCookieStore();
+  if (io_state_->url_request_context_ &&
+      io_state_->url_request_context_->cookie_store()) {
+    return io_state_->url_request_context_->cookie_store();
   }
 
   LOG(ERROR) << "Cookie store does not exist";
   return nullptr;
 }
 
-void CefURLRequestContextGetterImpl::UpdateServerWhitelist() {
+void CefURLRequestContextGetter::SetCookieStoragePath(
+    const base::FilePath& path,
+    bool persist_session_cookies) {
+  CEF_REQUIRE_IOT();
+
+  // The cookie store can't be changed during runtime.
+  DCHECK(!io_state_->url_request_context_->cookie_store());
+
+  scoped_refptr<net::SQLitePersistentCookieStore> persistent_store;
+  if (!path.empty()) {
+    // TODO(cef): Move directory creation to the blocking pool instead of
+    // allowing file IO on this thread.
+    base::ThreadRestrictions::ScopedAllowIO allow_io;
+    if (base::DirectoryExists(path) || base::CreateDirectory(path)) {
+      const base::FilePath& cookie_path = path.AppendASCII("Cookies");
+      persistent_store = new net::SQLitePersistentCookieStore(
+          cookie_path,
+          base::CreateSingleThreadTaskRunnerWithTraits({BrowserThread::IO}),
+          // Intentionally using the background task runner exposed by CEF to
+          // facilitate unit test expectations. This task runner MUST be
+          // configured with BLOCK_SHUTDOWN.
+          CefContentBrowserClient::Get()->background_task_runner(),
+          persist_session_cookies, NULL);
+    } else {
+      NOTREACHED() << "The cookie storage directory could not be created";
+    }
+  }
+
+  // Set the new cookie store that will be used for all new requests. The old
+  // cookie store, if any, will be automatically flushed and closed when no
+  // longer referenced.
+  std::unique_ptr<net::CookieMonster> cookie_monster(new net::CookieMonster(
+      persistent_store.get(), nullptr, io_state_->net_log_));
+  if (persistent_store.get() && persist_session_cookies)
+    cookie_monster->SetPersistSessionCookies(true);
+  io_state_->cookie_store_path_ = path;
+
+  // Restore the previously supported schemes.
+  CefCookieManagerImpl::SetCookieMonsterSchemes(
+      cookie_monster.get(), io_state_->cookie_supported_schemes_);
+
+  io_state_->storage_->set_cookie_store(std::move(cookie_monster));
+}
+
+void CefURLRequestContextGetter::UpdateServerWhitelist() {
   io_state_->http_auth_preferences_->SetServerWhitelist(
       auth_server_whitelist_.GetValue());
 }
 
-void CefURLRequestContextGetterImpl::UpdateDelegateWhitelist() {
+void CefURLRequestContextGetter::UpdateDelegateWhitelist() {
   io_state_->http_auth_preferences_->SetDelegateWhitelist(
       auth_negotiate_delegate_whitelist_.GetValue());
 }
