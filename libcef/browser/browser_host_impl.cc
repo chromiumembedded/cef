@@ -374,8 +374,8 @@ CefRefPtr<CefBrowserHostImpl> CefBrowserHostImpl::Create(
   CefRefPtr<CefBrowserHostImpl> browser = CreateInternal(
       create_params.settings, create_params.client, web_contents.release(),
       true, info, create_params.devtools_opener, is_devtools_popup,
-      create_params.request_context, std::move(platform_delegate),
-      cef_extension);
+      static_cast<CefRequestContextImpl*>(create_params.request_context.get()),
+      std::move(platform_delegate), cef_extension);
   if (!browser)
     return nullptr;
 
@@ -401,7 +401,7 @@ CefRefPtr<CefBrowserHostImpl> CefBrowserHostImpl::CreateInternal(
     scoped_refptr<CefBrowserInfo> browser_info,
     CefRefPtr<CefBrowserHostImpl> opener,
     bool is_devtools_popup,
-    CefRefPtr<CefRequestContext> request_context,
+    CefRefPtr<CefRequestContextImpl> request_context,
     std::unique_ptr<CefBrowserPlatformDelegate> platform_delegate,
     CefRefPtr<CefExtension> extension) {
   CEF_REQUIRE_UIT();
@@ -2565,17 +2565,15 @@ void CefBrowserHostImpl::WebContentsCreated(
   if (!opener.get())
     return;
 
-  // Popups must share the same BrowserContext as the parent.
-  CefBrowserContext* browser_context =
-      static_cast<CefBrowserContext*>(new_contents->GetBrowserContext());
-  DCHECK(browser_context);
+  // Popups must share the same RequestContext as the parent.
+  CefRefPtr<CefRequestContextImpl> request_context = opener->request_context();
+  DCHECK(request_context);
 
   // We don't officially own |new_contents| until AddNewContents() is called.
   // However, we need to install observers/delegates here.
   CefRefPtr<CefBrowserHostImpl> browser =
       CreateInternal(settings, client, new_contents, false, info, opener, false,
-                     browser_context->GetCefRequestContext(),
-                     std::move(platform_delegate), nullptr);
+                     request_context, std::move(platform_delegate), nullptr);
 }
 
 void CefBrowserHostImpl::DidNavigateMainFramePostCommit(
@@ -2727,6 +2725,10 @@ void CefBrowserHostImpl::RenderFrameCreated(
     browser_info_->frame_tree_node_id_manager()->add_frame_tree_node_id(
         frame_tree_node_id);
   }
+
+  const bool is_main_frame = (render_frame_host->GetParent() == nullptr);
+  request_context_->OnRenderFrameCreated(render_process_id, render_routing_id,
+                                         is_main_frame, false);
 }
 
 void CefBrowserHostImpl::RenderFrameHostChanged(
@@ -2748,15 +2750,9 @@ void CefBrowserHostImpl::FrameDeleted(
   browser_info_->frame_tree_node_id_manager()->remove_frame_tree_node_id(
       frame_tree_node_id);
 
-  if (web_contents()) {
-    const bool is_main_frame = (render_frame_host->GetParent() == nullptr);
-    CefBrowserContext* context =
-        static_cast<CefBrowserContext*>(web_contents()->GetBrowserContext());
-    if (context) {
-      context->OnRenderFrameDeleted(render_process_id, render_routing_id,
-                                    is_main_frame, false);
-    }
-  }
+  const bool is_main_frame = (render_frame_host->GetParent() == nullptr);
+  request_context_->OnRenderFrameDeleted(render_process_id, render_routing_id,
+                                         is_main_frame, false);
 
   base::AutoLock lock_scope(state_lock_);
 
@@ -3250,7 +3246,7 @@ CefBrowserHostImpl::CefBrowserHostImpl(
     content::WebContents* web_contents,
     scoped_refptr<CefBrowserInfo> browser_info,
     CefRefPtr<CefBrowserHostImpl> opener,
-    CefRefPtr<CefRequestContext> request_context,
+    CefRefPtr<CefRequestContextImpl> request_context,
     std::unique_ptr<CefBrowserPlatformDelegate> platform_delegate,
     CefRefPtr<CefExtension> extension)
     : content::WebContentsObserver(web_contents),

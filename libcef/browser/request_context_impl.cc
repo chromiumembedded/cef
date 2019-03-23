@@ -543,6 +543,22 @@ CefRefPtr<CefExtension> CefRequestContextImpl::GetExtension(
   return GetBrowserContext()->extension_system()->GetExtension(extension_id);
 }
 
+void CefRequestContextImpl::OnRenderFrameCreated(int render_process_id,
+                                                 int render_frame_id,
+                                                 bool is_main_frame,
+                                                 bool is_guest_view) {
+  browser_context_->OnRenderFrameCreated(
+      this, render_process_id, render_frame_id, is_main_frame, is_guest_view);
+}
+
+void CefRequestContextImpl::OnRenderFrameDeleted(int render_process_id,
+                                                 int render_frame_id,
+                                                 bool is_main_frame,
+                                                 bool is_guest_view) {
+  browser_context_->OnRenderFrameDeleted(
+      this, render_process_id, render_frame_id, is_main_frame, is_guest_view);
+}
+
 // static
 CefRefPtr<CefRequestContextImpl>
 CefRequestContextImpl::GetOrCreateRequestContext(const Config& config) {

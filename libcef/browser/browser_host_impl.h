@@ -22,6 +22,7 @@
 #include "libcef/browser/frame_host_impl.h"
 #include "libcef/browser/javascript_dialog_manager.h"
 #include "libcef/browser/menu_manager.h"
+#include "libcef/browser/request_context_impl.h"
 #include "libcef/common/response_manager.h"
 
 #include "base/observer_list.h"
@@ -369,6 +370,9 @@ class CefBrowserHostImpl : public CefBrowserHost,
   CefRefPtr<CefClient> client() const { return client_; }
   scoped_refptr<CefBrowserInfo> browser_info() const { return browser_info_; }
   int browser_id() const;
+  CefRefPtr<CefRequestContextImpl> request_context() const {
+    return request_context_;
+  }
 
   // Accessors that must be called on the UI thread.
   content::BrowserContext* GetBrowserContext();
@@ -558,7 +562,7 @@ class CefBrowserHostImpl : public CefBrowserHost,
       scoped_refptr<CefBrowserInfo> browser_info,
       CefRefPtr<CefBrowserHostImpl> opener,
       bool is_devtools_popup,
-      CefRefPtr<CefRequestContext> request_context,
+      CefRefPtr<CefRequestContextImpl> request_context,
       std::unique_ptr<CefBrowserPlatformDelegate> platform_delegate,
       CefRefPtr<CefExtension> extension);
 
@@ -588,7 +592,7 @@ class CefBrowserHostImpl : public CefBrowserHost,
       content::WebContents* web_contents,
       scoped_refptr<CefBrowserInfo> browser_info,
       CefRefPtr<CefBrowserHostImpl> opener,
-      CefRefPtr<CefRequestContext> request_context,
+      CefRefPtr<CefRequestContextImpl> request_context,
       std::unique_ptr<CefBrowserPlatformDelegate> platform_delegate,
       CefRefPtr<CefExtension> extension);
 
@@ -672,7 +676,7 @@ class CefBrowserHostImpl : public CefBrowserHost,
   CefRefPtr<CefClient> client_;
   scoped_refptr<CefBrowserInfo> browser_info_;
   CefWindowHandle opener_;
-  CefRefPtr<CefRequestContext> request_context_;
+  CefRefPtr<CefRequestContextImpl> request_context_;
   std::unique_ptr<CefBrowserPlatformDelegate> platform_delegate_;
   const bool is_windowless_;
   const bool is_views_hosted_;

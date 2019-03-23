@@ -287,8 +287,7 @@ void CefBrowserContext::Initialize() {
 
   content::BrowserContext::Initialize(this, GetPath());
 
-  resource_context_.reset(
-      new CefResourceContext(IsOffTheRecord(), GetHandler()));
+  resource_context_.reset(new CefResourceContext(IsOffTheRecord()));
 
   // This must be called before creating any services to avoid hitting
   // DependencyManager::AssertContextWasntDestroyed when creating/destroying
@@ -367,19 +366,6 @@ void CefBrowserContext::RemoveCefRequestContext(
   // Delete ourselves when the reference count reaches zero.
   if (request_context_set_.empty())
     delete this;
-}
-
-CefRequestContextImpl* CefBrowserContext::GetCefRequestContext(
-    bool impl_only) const {
-  CEF_REQUIRE_UIT();
-  // First try to find a non-proxy RequestContext.
-  for (CefRequestContextImpl* impl : request_context_set_) {
-    if (!impl->GetHandler())
-      return impl;
-  }
-  if (impl_only)
-    return nullptr;
-  return *request_context_set_.begin();
 }
 
 // static
@@ -572,10 +558,6 @@ SimpleFactoryKey* CefBrowserContext::GetSimpleFactoryKey() const {
   return nullptr;
 }
 
-CefRequestContextImpl* CefBrowserContext::GetCefRequestContext() const {
-  return GetCefRequestContext(false);
-}
-
 const CefRequestContextSettings& CefBrowserContext::GetSettings() const {
   return settings_;
 }
@@ -625,11 +607,44 @@ void CefBrowserContext::RebuildTable(
   enumerator->OnComplete(true);
 }
 
-void CefBrowserContext::OnRenderFrameDeleted(int render_process_id,
-                                             int render_frame_id,
-                                             bool is_main_frame,
-                                             bool is_guest_view) {
+void CefBrowserContext::OnRenderFrameCreated(
+    CefRequestContextImpl* request_context,
+    int render_process_id,
+    int render_frame_id,
+    bool is_main_frame,
+    bool is_guest_view) {
   CEF_REQUIRE_UIT();
+  CefRefPtr<CefRequestContextHandler> handler = request_context->GetHandler();
+  if (handler && resource_context_) {
+    DCHECK_GE(render_process_id, 0);
+    // Using base::Unretained() is safe because both this callback and possible
+    // deletion of |resource_context_| will execute on the IO thread, and this
+    // callback will be executed first.
+    CEF_POST_TASK(CEF_IOT,
+                  base::Bind(&CefResourceContext::AddHandler,
+                             base::Unretained(resource_context_.get()),
+                             render_process_id, render_frame_id, handler));
+  }
+}
+
+void CefBrowserContext::OnRenderFrameDeleted(
+    CefRequestContextImpl* request_context,
+    int render_process_id,
+    int render_frame_id,
+    bool is_main_frame,
+    bool is_guest_view) {
+  CEF_REQUIRE_UIT();
+  CefRefPtr<CefRequestContextHandler> handler = request_context->GetHandler();
+  if (handler && resource_context_) {
+    DCHECK_GE(render_process_id, 0);
+    // Using base::Unretained() is safe because both this callback and possible
+    // deletion of |resource_context_| will execute on the IO thread, and this
+    // callback will be executed first.
+    CEF_POST_TASK(CEF_IOT, base::Bind(&CefResourceContext::RemoveHandler,
+                                      base::Unretained(resource_context_.get()),
+                                      render_process_id, render_frame_id));
+  }
+
   if (resource_context_ && is_main_frame) {
     DCHECK_GE(render_process_id, 0);
     // Using base::Unretained() is safe because both this callback and possible

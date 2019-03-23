@@ -86,6 +86,22 @@ class CefRequestContextImpl : public CefRequestContext {
 
   const CefRequestContextSettings& settings() const { return config_.settings; }
 
+  // Called from CefBrowserHostImpl::RenderFrameCreated or
+  // CefMimeHandlerViewGuestDelegate::OnGuestAttached when a render frame is
+  // created.
+  void OnRenderFrameCreated(int render_process_id,
+                            int render_frame_id,
+                            bool is_main_frame,
+                            bool is_guest_view);
+
+  // Called from CefBrowserHostImpl::FrameDeleted or
+  // CefMimeHandlerViewGuestDelegate::OnGuestDetached when a render frame is
+  // deleted.
+  void OnRenderFrameDeleted(int render_process_id,
+                            int render_frame_id,
+                            bool is_main_frame,
+                            bool is_guest_view);
+
  private:
   friend class CefRequestContext;
 

@@ -23,10 +23,8 @@
 #include "net/ssl/client_cert_store_mac.h"
 #endif
 
-CefResourceContext::CefResourceContext(
-    bool is_off_the_record,
-    CefRefPtr<CefRequestContextHandler> handler)
-    : is_off_the_record_(is_off_the_record), handler_(handler) {}
+CefResourceContext::CefResourceContext(bool is_off_the_record)
+    : is_off_the_record_(is_off_the_record) {}
 
 CefResourceContext::~CefResourceContext() {}
 
@@ -53,6 +51,52 @@ void CefResourceContext::set_extensions_info_map(
     extensions::InfoMap* extensions_info_map) {
   DCHECK(!extension_info_map_);
   extension_info_map_ = extensions_info_map;
+}
+
+void CefResourceContext::AddHandler(
+    int render_process_id,
+    int render_frame_id,
+    CefRefPtr<CefRequestContextHandler> handler) {
+  CEF_REQUIRE_IOT();
+  DCHECK_GE(render_process_id, 0);
+  DCHECK(handler);
+
+  handler_map_.insert(std::make_pair(
+      std::make_pair(render_process_id, render_frame_id), handler));
+}
+
+void CefResourceContext::RemoveHandler(int render_process_id,
+                                       int render_frame_id) {
+  CEF_REQUIRE_IOT();
+  DCHECK_GE(render_process_id, 0);
+
+  HandlerMap::iterator it =
+      handler_map_.find(std::make_pair(render_process_id, render_frame_id));
+  if (it != handler_map_.end())
+    handler_map_.erase(it);
+}
+
+CefRefPtr<CefRequestContextHandler> CefResourceContext::GetHandler(
+    int render_process_id,
+    int render_frame_id,
+    bool require_frame_match) {
+  CEF_REQUIRE_IOT();
+  DCHECK_GE(render_process_id, 0);
+
+  HandlerMap::const_iterator it =
+      handler_map_.find(std::make_pair(render_process_id, render_frame_id));
+  if (it != handler_map_.end())
+    return it->second;
+
+  if (!require_frame_match) {
+    // Choose an arbitrary handler for the same process.
+    for (auto& kv : handler_map_) {
+      if (kv.first.first == render_process_id)
+        return kv.second;
+    }
+  }
+
+  return nullptr;
 }
 
 void CefResourceContext::AddPluginLoadDecision(

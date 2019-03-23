@@ -134,7 +134,6 @@ class CefBrowserContext : public ChromeProfileStub,
   // itself when the count reaches zero.
   void AddCefRequestContext(CefRequestContextImpl* context);
   void RemoveCefRequestContext(CefRequestContextImpl* context);
-  CefRequestContextImpl* GetCefRequestContext(bool impl_only) const;
 
   // BrowserContext methods.
   content::ResourceContext* GetResourceContext() override;
@@ -185,10 +184,6 @@ class CefBrowserContext : public ChromeProfileStub,
   // visitedlink::VisitedLinkDelegate methods.
   void RebuildTable(const scoped_refptr<URLEnumerator>& enumerator) override;
 
-  // Returns the first RequestContext without a handler, if one exists,
-  // otherwise the first RequestContext.
-  CefRequestContextImpl* GetCefRequestContext() const;
-
   // Returns the settings associated with this object. Safe to call from any
   // thread.
   const CefRequestContextSettings& GetSettings() const;
@@ -204,10 +199,16 @@ class CefBrowserContext : public ChromeProfileStub,
   // visited links.
   void AddVisitedURLs(const std::vector<GURL>& urls);
 
-  // Called from CefBrowserHostImpl::RenderFrameDeleted or
-  // CefMimeHandlerViewGuestDelegate::OnGuestDetached when a render frame is
-  // deleted.
-  void OnRenderFrameDeleted(int render_process_id,
+  // Called from CefRequestContextImpl::OnRenderFrameCreated.
+  void OnRenderFrameCreated(CefRequestContextImpl* request_context,
+                            int render_process_id,
+                            int render_frame_id,
+                            bool is_main_frame,
+                            bool is_guest_view);
+
+  // Called from CefRequestContextImpl::OnRenderFrameDeleted.
+  void OnRenderFrameDeleted(CefRequestContextImpl* request_context,
+                            int render_process_id,
                             int render_frame_id,
                             bool is_main_frame,
                             bool is_guest_view);

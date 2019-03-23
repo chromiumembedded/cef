@@ -28,13 +28,24 @@ class CefURLRequestContextGetter;
 // See browser_context.h for an object relationship diagram.
 class CefResourceContext : public content::ResourceContext {
  public:
-  CefResourceContext(bool is_off_the_record,
-                     CefRefPtr<CefRequestContextHandler> handler);
+  explicit CefResourceContext(bool is_off_the_record);
   ~CefResourceContext() override;
 
   std::unique_ptr<net::ClientCertStore> CreateClientCertStore();
 
   void set_extensions_info_map(extensions::InfoMap* extensions_info_map);
+
+  // Keep track of handlers associated with specific frames. This information
+  // originates from frame create/delete notifications in CefBrowserHostImpl or
+  // CefMimeHandlerViewGuestDelegate which are forwarded via
+  // CefRequestContextImpl and CefBrowserContext.
+  void AddHandler(int render_process_id,
+                  int render_frame_id,
+                  CefRefPtr<CefRequestContextHandler> handler);
+  void RemoveHandler(int render_process_id, int render_frame_id);
+  CefRefPtr<CefRequestContextHandler> GetHandler(int render_process_id,
+                                                 int render_frame_id,
+                                                 bool require_frame_match);
 
   // Remember the plugin load decision for plugin status requests that arrive
   // via CefPluginServiceFilter::IsPluginAvailable.
@@ -58,13 +69,16 @@ class CefResourceContext : public content::ResourceContext {
   const extensions::InfoMap* GetExtensionInfoMap() const {
     return extension_info_map_.get();
   }
-  CefRefPtr<CefRequestContextHandler> GetHandler() const { return handler_; }
 
  private:
   // Only accessed on the IO thread.
   bool is_off_the_record_;
   scoped_refptr<extensions::InfoMap> extension_info_map_;
-  CefRefPtr<CefRequestContextHandler> handler_;
+
+  // Map of (render_process_id, render_frame_id) to handler.
+  typedef std::map<std::pair<int, int>, CefRefPtr<CefRequestContextHandler>>
+      HandlerMap;
+  HandlerMap handler_map_;
 
   // Map (render_process_id, plugin_path, is_main_frame, main_frame_origin) to
   // plugin load decision.
