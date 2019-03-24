@@ -12,6 +12,7 @@
 #include "tests/cefclient/browser/main_context.h"
 #include "tests/cefclient/browser/test_runner.h"
 #include "tests/shared/browser/extension_util.h"
+#include "tests/shared/browser/file_util.h"
 #include "tests/shared/browser/resource_util.h"
 #include "tests/shared/common/client_switches.h"
 
@@ -335,7 +336,7 @@ CefRefPtr<CefRequestContext> RootWindowManager::GetRequestContext(
         // isolated context objects.
         std::stringstream ss;
         ss << command_line->GetSwitchValue(switches::kCachePath).ToString()
-           << time(NULL);
+           << file_util::kPathSep << time(NULL);
         CefString(&settings.cache_path) = ss.str();
       }
     }

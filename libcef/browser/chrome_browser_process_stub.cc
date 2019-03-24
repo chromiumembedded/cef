@@ -7,6 +7,7 @@
 
 #include "libcef/browser/browser_context.h"
 #include "libcef/browser/chrome_profile_manager_stub.h"
+#include "libcef/browser/context.h"
 #include "libcef/browser/prefs/browser_prefs.h"
 #include "libcef/browser/thread_util.h"
 #include "libcef/common/cef_switches.h"
@@ -39,11 +40,13 @@ void ChromeBrowserProcessStub::Initialize() {
   DCHECK(!context_initialized_);
   DCHECK(!shutdown_);
 
+  const CefSettings& settings = CefContext::Get()->settings();
+  const base::FilePath& cache_path =
+      base::FilePath(CefString(&settings.cache_path));
+
   // Used for very early NetworkService initialization.
-  // TODO(cef): These preferences could be persisted in the DIR_USER_DATA
-  // directory.
-  local_state_ =
-      browser_prefs::CreatePrefService(nullptr, base::FilePath(), false);
+  local_state_ = browser_prefs::CreatePrefService(
+      nullptr, cache_path, !!settings.persist_user_preferences);
 
   initialized_ = true;
 }

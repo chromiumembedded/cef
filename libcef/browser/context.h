@@ -73,9 +73,12 @@ class CefContext {
 
   CefTraceSubscriber* GetTraceSubscriber();
 
-  // Populate the request context settings based on CefSettings and command-
-  // line flags.
+  // Populate request context settings for the global system context based on
+  // CefSettings and command-line flags.
   void PopulateRequestContextSettings(CefRequestContextSettings* settings);
+
+  // Verify that |cache_path| is valid and create it if necessary.
+  bool ValidateCachePath(const base::FilePath& cache_path);
 
  private:
   void OnContextInitialized();

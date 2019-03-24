@@ -22,6 +22,7 @@
 #include "base/files/file_util.h"
 #include "base/run_loop.h"
 #include "base/synchronization/waitable_event.h"
+#include "base/threading/thread_restrictions.h"
 #include "components/network_session_configurator/common/network_switches.h"
 #include "content/app/content_service_manager_main_delegate.h"
 #include "content/browser/startup_helper.h"
@@ -370,6 +371,18 @@ bool CefContext::Initialize(const CefMainArgs& args,
   SignalChromeElf();
 #endif
 
+  base::FilePath cache_path = base::FilePath(CefString(&settings_.cache_path));
+  if (!ValidateCachePath(cache_path)) {
+    // Reset to in-memory storage.
+    CefString(&settings_.cache_path).clear();
+    cache_path = base::FilePath();
+  }
+  const base::FilePath& root_cache_path =
+      base::FilePath(CefString(&settings_.root_cache_path));
+  if (root_cache_path.empty() && !cache_path.empty()) {
+    CefString(&settings_.root_cache_path) = CefString(&settings_.cache_path);
+  }
+
   main_delegate_.reset(new CefMainDelegate(application));
   browser_info_manager_.reset(new CefBrowserInfoManager);
 
@@ -531,6 +544,31 @@ void CefContext::PopulateRequestContextSettings(
       command_line->HasSwitch(switches::kEnableNetSecurityExpiration);
   CefString(&settings->accept_language_list) =
       CefString(&settings_.accept_language_list);
+}
+
+bool CefContext::ValidateCachePath(const base::FilePath& cache_path) {
+  if (cache_path.empty())
+    return true;
+
+  const base::FilePath& root_cache_path =
+      base::FilePath(CefString(&settings_.root_cache_path));
+  if (!root_cache_path.empty() && root_cache_path != cache_path &&
+      !root_cache_path.IsParent(cache_path)) {
+    LOG(ERROR) << "The cache_path directory (" << cache_path.value()
+               << ") is not a child of the root_cache_path directory ("
+               << root_cache_path.value() << ")";
+    return false;
+  }
+
+  base::ThreadRestrictions::ScopedAllowIO allow_io;
+  if (!base::DirectoryExists(cache_path) &&
+      !base::CreateDirectory(cache_path)) {
+    LOG(ERROR) << "The cache_path directory (" << cache_path.value()
+               << ") could not be created.";
+    return false;
+  }
+
+  return true;
 }
 
 void CefContext::OnContextInitialized() {

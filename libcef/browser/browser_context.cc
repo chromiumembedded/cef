@@ -24,7 +24,6 @@
 #include "base/lazy_instance.h"
 #include "base/logging.h"
 #include "base/strings/string_util.h"
-#include "base/threading/thread_restrictions.h"
 #include "chrome/browser/font_family_cache.h"
 #include "chrome/browser/plugins/chrome_plugin_service_filter.h"
 #include "chrome/browser/ui/zoom/chrome_zoom_level_prefs.h"
@@ -260,16 +259,13 @@ CefBrowserContext::~CefBrowserContext() {
 }
 
 void CefBrowserContext::Initialize() {
+  CefContext* context = CefContext::Get();
+
   cache_path_ = base::FilePath(CefString(&settings_.cache_path));
-  if (!cache_path_.empty()) {
-    base::ThreadRestrictions::ScopedAllowIO allow_io;
-    if (!base::DirectoryExists(cache_path_) &&
-        !base::CreateDirectory(cache_path_)) {
-      LOG(ERROR) << "The cache_path directory could not be created: "
-                 << cache_path_.value();
-      cache_path_ = base::FilePath();
-      CefString(&settings_.cache_path).clear();
-    }
+  if (!context->ValidateCachePath(cache_path_)) {
+    // Reset to in-memory storage.
+    CefString(&settings_.cache_path).clear();
+    cache_path_ = base::FilePath();
   }
 
   if (!cache_path_.empty())
@@ -278,7 +274,7 @@ void CefBrowserContext::Initialize() {
   if (settings_.accept_language_list.length == 0) {
     // Use the global language list setting.
     CefString(&settings_.accept_language_list) =
-        CefString(&CefContext::Get()->settings().accept_language_list);
+        CefString(&context->settings().accept_language_list);
   }
 
   // Initialize the PrefService object.

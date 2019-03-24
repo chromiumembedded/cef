@@ -49,6 +49,7 @@
 #include "base/json/json_reader.h"
 #include "base/path_service.h"
 #include "base/stl_util.h"
+#include "base/threading/thread_restrictions.h"
 #include "cef/grit/cef_resources.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/chrome_service.h"
@@ -57,7 +58,6 @@
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/renderer_host/pepper/chrome_browser_pepper_host_factory.h"
 #include "chrome/common/chrome_paths.h"
-#include "chrome/common/chrome_paths_internal.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/constants.mojom.h"
 #include "chrome/grit/browser_resources.h"
@@ -1200,6 +1200,11 @@ void CefContentBrowserClient::OnNetworkServiceCreated(
   DCHECK(local_state);
 
   if (!SystemNetworkContextManager::GetInstance()) {
+    // TODO(network): This triggers creation of ChromeBrowserPolicyConnector via
+    // ChromeBrowserProcessStub::policy_service() which loads some system DLLs
+    // on Windows. Determine the correct initialization timing to avoid the need
+    // for ScopedAllowIO here.
+    base::ThreadRestrictions::ScopedAllowIO allow_io;
     SystemNetworkContextManager::CreateInstance(local_state);
   }
   // Need to set up global NetworkService state before anything else uses it.
@@ -1215,24 +1220,26 @@ network::mojom::NetworkContextPtr CefContentBrowserClient::CreateNetworkContext(
   return profile->CreateNetworkContext(in_memory, relative_partition_path);
 }
 
+// The sandbox may block read/write access from the NetworkService to
+// directories that are not returned by this method.
 std::vector<base::FilePath>
 CefContentBrowserClient::GetNetworkContextsParentDirectory() {
-  base::FilePath user_data_dir;
-  base::PathService::Get(chrome::DIR_USER_DATA, &user_data_dir);
-  DCHECK(!user_data_dir.empty());
+  base::FilePath user_data_path;
+  base::PathService::Get(chrome::DIR_USER_DATA, &user_data_path);
+  DCHECK(!user_data_path.empty());
 
-  // TODO(cef): Do we really want to create a cache directory underneath
-  // DIR_USER_DATA?
-  base::FilePath cache_dir;
-  chrome::GetUserCacheDirectory(user_data_dir, &cache_dir);
-  DCHECK(!cache_dir.empty());
+  // The CefContext::ValidateCachePath method enforces the requirement that all
+  // cache_path values be either equal to or a child of root_cache_path.
+  const base::FilePath& root_cache_path =
+      base::FilePath(CefString(&CefContext::Get()->settings().root_cache_path));
 
-  // On some platforms, the cache is a child of the user_data_dir so only
-  // return the one path.
-  if (user_data_dir.IsParent(cache_dir))
-    return {user_data_dir};
+  // root_cache_path may sometimes be empty or a child of user_data_path, so
+  // only return the one path in that case.
+  if (root_cache_path.empty() || user_data_path.IsParent(root_cache_path)) {
+    return {user_data_path};
+  }
 
-  return {user_data_dir, cache_dir};
+  return {user_data_path, root_cache_path};
 }
 
 bool CefContentBrowserClient::HandleExternalProtocol(

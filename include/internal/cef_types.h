@@ -219,14 +219,26 @@ typedef struct _cef_settings_t {
   int command_line_args_disabled;
 
   ///
-  // The location where cache data will be stored on disk. If empty then
-  // browsers will be created in "incognito mode" where in-memory caches are
-  // used for storage and no data is persisted to disk. HTML5 databases such as
-  // localStorage will only persist across sessions if a cache path is
-  // specified. Can be overridden for individual CefRequestContext instances via
-  // the CefRequestContextSettings.cache_path value.
+  // The location where data for the global browser cache will be stored on
+  // disk. In non-empty this must be either equal to or a child directory of
+  // CefSettings.root_cache_path. If empty then browsers will be created in
+  // "incognito mode" where in-memory caches are used for storage and no data is
+  // persisted to disk. HTML5 databases such as localStorage will only persist
+  // across sessions if a cache path is specified. Can be overridden for
+  // individual CefRequestContext instances via the
+  // CefRequestContextSettings.cache_path value.
   ///
   cef_string_t cache_path;
+
+  ///
+  // The root directory that all CefSettings.cache_path and
+  // CefRequestContextSettings.cache_path values must have in common. If this
+  // value is empty and CefSettings.cache_path is non-empty then this value will
+  // default to the CefSettings.cache_path value. Failure to set this value
+  // correctly may result in the sandbox blocking read/write access to the
+  // cache_path directory.
+  ///
+  cef_string_t root_cache_path;
 
   ///
   // The location where user data such as spell checking dictionary files will
@@ -413,12 +425,14 @@ typedef struct _cef_request_context_settings_t {
   size_t size;
 
   ///
-  // The location where cache data will be stored on disk. If empty then
-  // browsers will be created in "incognito mode" where in-memory caches are
-  // used for storage and no data is persisted to disk. HTML5 databases such as
-  // localStorage will only persist across sessions if a cache path is
-  // specified. To share the global browser cache and related configuration set
-  // this value to match the CefSettings.cache_path value.
+  // The location where cache data for this request context will be stored on
+  // disk. If non-empty this must be either equal to or a child directory of
+  // CefSettings.root_cache_path. If empty then browsers will be created in
+  // "incognito mode" where in-memory caches are used for storage and no data is
+  // persisted to disk. HTML5 databases such as localStorage will only persist
+  // across sessions if a cache path is specified. To share the global browser
+  // cache and related configuration set this value to match the
+  // CefSettings.cache_path value.
   ///
   cef_string_t cache_path;
 

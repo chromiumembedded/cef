@@ -193,6 +193,12 @@ std::unique_ptr<PrefService> CreatePrefService(Profile* profile,
     // Based on ProfileImpl::RegisterProfilePrefs.
     registry->RegisterBooleanPref(prefs::kPrintingEnabled, true);
 
+    // Cache preferences.
+    // Based on ProfileImpl::RegisterProfilePrefs.
+    registry->RegisterFilePathPref(prefs::kDiskCacheDir, cache_path);
+    registry->RegisterIntegerPref(prefs::kDiskCacheSize, 0);
+    registry->RegisterIntegerPref(prefs::kMediaCacheSize, 0);
+
     // Spell checking preferences.
     // Modify defaults from SpellcheckServiceFactory::RegisterProfilePrefs.
     std::string spellcheck_lang =
