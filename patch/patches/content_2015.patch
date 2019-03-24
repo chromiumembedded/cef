@@ -82,22 +82,6 @@ index 1e912186c32c..38d03aafc8b0 100644
    static_assert(WILL_FAIL_REQUEST < WILL_PROCESS_RESPONSE,
                  "WillFailRequest state should come before WillProcessResponse");
    return navigation_request_->render_frame_host();
-diff --git content/browser/frame_host/render_frame_host_impl.cc content/browser/frame_host/render_frame_host_impl.cc
-index 21f84cc3f922..020017584cd9 100644
---- content/browser/frame_host/render_frame_host_impl.cc
-+++ content/browser/frame_host/render_frame_host_impl.cc
-@@ -4777,9 +4777,9 @@ void RenderFrameHostImpl::CommitNavigation(
-       // factories. TODO(kinuko): Consider setting this up only when prefetch
-       // is used. Currently we have this here to make sure we have non-racy
-       // situation (https://crbug.com/849929).
--      auto* storage_partition = static_cast<StoragePartitionImpl*>(
-+      auto* storage_partition =
-           BrowserContext::GetStoragePartition(
--              GetSiteInstance()->GetBrowserContext(), GetSiteInstance()));
-+              GetSiteInstance()->GetBrowserContext(), GetSiteInstance());
-       base::PostTaskWithTraits(
-           FROM_HERE, {BrowserThread::IO},
-           base::BindOnce(&PrefetchURLLoaderService::GetFactory,
 diff --git content/browser/frame_host/render_frame_message_filter.cc content/browser/frame_host/render_frame_message_filter.cc
 index 09095ba2dc8e..2fb0becabf88 100644
 --- content/browser/frame_host/render_frame_message_filter.cc
@@ -148,6 +132,19 @@ index 31aa4bc38442..0314343499d3 100644
  
    if (stale) {
      // Refresh the plugins asynchronously.
+diff --git content/browser/loader/navigation_url_loader_impl.cc content/browser/loader/navigation_url_loader_impl.cc
+index 161ab06fa1dd..fddb3557b3c7 100644
+--- content/browser/loader/navigation_url_loader_impl.cc
++++ content/browser/loader/navigation_url_loader_impl.cc
+@@ -1141,7 +1141,7 @@ class NavigationURLLoaderImpl::URLLoaderRequestController
+     // path does as well for navigations.
+     bool has_plugin = PluginService::GetInstance()->GetPluginInfo(
+         -1 /* render_process_id */, -1 /* render_frame_id */, resource_context_,
+-        resource_request_->url, url::Origin(), head.mime_type,
++        resource_request_->url, true, url::Origin(), head.mime_type,
+         false /* allow_wildcard */, &stale, &plugin, nullptr);
+ 
+     if (stale) {
 diff --git content/browser/plugin_service_impl.cc content/browser/plugin_service_impl.cc
 index a599f989065f..115867edec92 100644
 --- content/browser/plugin_service_impl.cc

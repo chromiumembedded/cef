@@ -61,15 +61,5 @@
   ],
   # Patterns that should not be found in the chromium/src directory after
   # applying patch files.
-  'patterns': [
-    {
-      # New instances of this static_cast are added to the Chromium sources with
-      # some regularity. If unfixed they will result in runtime crashes.
-      'pattern': 'static_cast<StoragePartitionImpl\*>(',
-      'exclude_matches': '^(.+?)test(.+?):',
-      'message': 'New instances in non-test files should be converted to ' +\
-                 'call StoragePartition methods.' +\
-                 '\nSee storage_partition_1973.patch.',
-    },
-  ],
+  'patterns': [],
 }

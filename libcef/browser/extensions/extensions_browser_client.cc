@@ -65,14 +65,14 @@ bool CefExtensionsBrowserClient::AreExtensionsDisabled(
 }
 
 bool CefExtensionsBrowserClient::IsValidContext(BrowserContext* context) {
-  return CefBrowserContext::GetForContext(context) != NULL;
+  return GetOriginalContext(context) != NULL;
 }
 
 bool CefExtensionsBrowserClient::IsSameContext(BrowserContext* first,
                                                BrowserContext* second) {
   // Returns true if |first| and |second| share the same underlying
   // CefBrowserContext.
-  return GetCefImplContext(first) == GetCefImplContext(second);
+  return GetOriginalContext(first) == GetOriginalContext(second);
 }
 
 bool CefExtensionsBrowserClient::HasOffTheRecordContext(
@@ -87,11 +87,6 @@ BrowserContext* CefExtensionsBrowserClient::GetOffTheRecordContext(
 }
 
 BrowserContext* CefExtensionsBrowserClient::GetOriginalContext(
-    BrowserContext* context) {
-  return GetCefImplContext(context);
-}
-
-BrowserContext* CefExtensionsBrowserClient::GetCefImplContext(
     BrowserContext* context) {
   return CefBrowserContext::GetForContext(context);
 }

@@ -15,7 +15,6 @@
 #include "base/compiler_specific.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/extensions/event_router_forwarder.h"
-#include "chrome/browser/profiles/incognito_helpers.h"
 #include "media/media_buildflags.h"
 
 class ChromeProfileManagerStub;
@@ -29,8 +28,7 @@ class BackgroundModeManager {
   DISALLOW_COPY_AND_ASSIGN(BackgroundModeManager);
 };
 
-class ChromeBrowserProcessStub : public BrowserProcess,
-                                 public chrome::BrowserContextIncognitoHelper {
+class ChromeBrowserProcessStub : public BrowserProcess {
  public:
   ChromeBrowserProcessStub();
   ~ChromeBrowserProcessStub() override;
@@ -108,12 +106,6 @@ class ChromeBrowserProcessStub : public BrowserProcess,
   resource_coordinator::ResourceCoordinatorParts* resource_coordinator_parts()
       override;
   prefs::InProcessPrefServiceFactory* pref_service_factory() const override;
-
-  // BrowserContextIncognitoHelper implementation.
-  content::BrowserContext* GetBrowserContextRedirectedInIncognito(
-      content::BrowserContext* context) override;
-  content::BrowserContext* GetBrowserContextOwnInstanceInIncognito(
-      content::BrowserContext* context) override;
 
  private:
   bool initialized_;

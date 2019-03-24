@@ -26,55 +26,11 @@ index 9e81f0a33ede..b796e79ae7ef 100644
  
    auto* browser_context = web_contents->GetBrowserContext();
  
-diff --git content/browser/frame_host/render_frame_host_manager.cc content/browser/frame_host/render_frame_host_manager.cc
-index cc7c7b4ffab5..24cab4f980a5 100644
---- content/browser/frame_host/render_frame_host_manager.cc
-+++ content/browser/frame_host/render_frame_host_manager.cc
-@@ -967,10 +967,11 @@ bool RenderFrameHostManager::ShouldSwapBrowsingInstancesForNavigation(
-   // TODO(alexmos): This check should've been enforced earlier in the
-   // navigation, in chrome::Navigate().  Verify this, and then convert this to
-   // a CHECK and remove the fallback.
--  DCHECK_EQ(browser_context,
--            render_frame_host_->GetSiteInstance()->GetBrowserContext());
--  if (browser_context !=
--      render_frame_host_->GetSiteInstance()->GetBrowserContext()) {
-+  const bool is_same = GetContentClient()->browser()->IsSameBrowserContext(
-+      browser_context,
-+      render_frame_host_->GetSiteInstance()->GetBrowserContext());
-+  DCHECK(is_same);
-+  if (!is_same) {
-     return true;
-   }
- 
-@@ -1109,7 +1110,8 @@ RenderFrameHostManager::GetSiteInstanceForNavigation(
- 
-   // Double-check that the new SiteInstance is associated with the right
-   // BrowserContext.
--  DCHECK_EQ(new_instance->GetBrowserContext(), browser_context);
-+  DCHECK(GetContentClient()->browser()->IsSameBrowserContext(
-+      new_instance->GetBrowserContext(), browser_context));
- 
-   // If |new_instance| is a new SiteInstance for a subframe that requires a
-   // dedicated process, set its process reuse policy so that such subframes are
 diff --git content/public/browser/content_browser_client.h content/public/browser/content_browser_client.h
-index 7fc0a70f4e79..96a887d5e8e5 100644
+index 7fc0a70f4e79..7d9a334c06d4 100644
 --- content/public/browser/content_browser_client.h
 +++ content/public/browser/content_browser_client.h
-@@ -460,6 +460,13 @@ class CONTENT_EXPORT ContentBrowserClient {
-   // Returns true if error page should be isolated in its own process.
-   virtual bool ShouldIsolateErrorPage(bool in_main_frame);
- 
-+  // Returns true if two browser contexts should be considered the same. CEF
-+  // uses this to treat *Impl and *Proxy contexts as the same.
-+  virtual bool IsSameBrowserContext(BrowserContext* context1,
-+                                    BrowserContext* context2) {
-+    return context1 == context2;
-+  }
-+
-   // Returns true if the passed in URL should be assigned as the site of the
-   // current SiteInstance, if it does not yet have a site.
-   virtual bool ShouldAssignSiteForURL(const GURL& url);
-@@ -1491,6 +1498,10 @@ class CONTENT_EXPORT ContentBrowserClient {
+@@ -1491,6 +1491,10 @@ class CONTENT_EXPORT ContentBrowserClient {
    // Used as part of the user agent string.
    virtual std::string GetProduct() const;
  
@@ -191,7 +147,7 @@ index 4027505469b8..de8258562bb2 100644
    // A weak pointer to the current or pending RenderViewHost. We don't access
    // this through the host_contents because we want to deal with the pending
 diff --git extensions/browser/extensions_browser_client.h extensions/browser/extensions_browser_client.h
-index 93dce1cad08c..fdb7ad2193d7 100644
+index 93dce1cad08c..1eef00b03063 100644
 --- extensions/browser/extensions_browser_client.h
 +++ extensions/browser/extensions_browser_client.h
 @@ -62,6 +62,7 @@ class ComponentExtensionResourceManager;
@@ -202,19 +158,7 @@ index 93dce1cad08c..fdb7ad2193d7 100644
  class ExtensionHostDelegate;
  class ExtensionPrefsObserver;
  class ExtensionApiFrameIdMap;
-@@ -134,6 +135,11 @@ class ExtensionsBrowserClient {
-   virtual content::BrowserContext* GetOriginalContext(
-       content::BrowserContext* context) = 0;
- 
-+  // Returns the CEF *Impl context. Used in cases where we want special CEF
-+  // handling without interfering with the side-by-side Chrome build.
-+  virtual content::BrowserContext* GetCefImplContext(
-+      content::BrowserContext* context) { return nullptr; }
-+
- #if defined(OS_CHROMEOS)
-   // Returns a user id hash from |context| or an empty string if no hash could
-   // be extracted.
-@@ -216,6 +222,14 @@ class ExtensionsBrowserClient {
+@@ -216,6 +217,14 @@ class ExtensionsBrowserClient {
    virtual std::unique_ptr<ExtensionHostDelegate>
    CreateExtensionHostDelegate() = 0;
  
@@ -253,28 +197,3 @@ index 14fa00f41564..9487425a5627 100644
    host->CreateRenderViewSoon();
    OnBackgroundHostCreated(host);
    return true;
-diff --git extensions/browser/process_manager_factory.cc extensions/browser/process_manager_factory.cc
-index e8929c5da255..5ae43b4361a4 100644
---- extensions/browser/process_manager_factory.cc
-+++ extensions/browser/process_manager_factory.cc
-@@ -5,6 +5,7 @@
- #include "extensions/browser/process_manager_factory.h"
- 
- #include "components/keyed_service/content/browser_context_dependency_manager.h"
-+#include "extensions/browser/extensions_browser_client.h"
- #include "extensions/browser/extension_registry_factory.h"
- #include "extensions/browser/lazy_background_task_queue_factory.h"
- #include "extensions/browser/process_manager.h"
-@@ -50,6 +51,12 @@ KeyedService* ProcessManagerFactory::BuildServiceInstanceFor(
- 
- BrowserContext* ProcessManagerFactory::GetBrowserContextToUse(
-     BrowserContext* context) const {
-+  // CEF wants all extension state routed to the *Impl context.
-+  content::BrowserContext* cef_context =
-+      ExtensionsBrowserClient::Get()->GetCefImplContext(context);
-+  if (cef_context)
-+    return cef_context;
-+
-   // ProcessManager::Create handles guest and incognito profiles, returning an
-   // IncognitoProcessManager in incognito mode.
-   return context;

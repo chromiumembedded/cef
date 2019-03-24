@@ -696,13 +696,6 @@ CefContentBrowserClient::GetExtraServiceManifests() {
   return std::vector<service_manager::Manifest>{GetCefRendererManifest()};
 }
 
-bool CefContentBrowserClient::IsSameBrowserContext(
-    content::BrowserContext* context1,
-    content::BrowserContext* context2) {
-  return CefBrowserContext::GetForContext(context1) ==
-         CefBrowserContext::GetForContext(context2);
-}
-
 void CefContentBrowserClient::AppendExtraCommandLineSwitches(
     base::CommandLine* command_line,
     int child_process_id) {

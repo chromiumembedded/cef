@@ -27,14 +27,11 @@ ChromeBrowserProcessStub::ChromeBrowserProcessStub()
     : initialized_(false),
       context_initialized_(false),
       shutdown_(false),
-      locale_("en-US") {
-  chrome::SetBrowserContextIncognitoHelper(this);
-}
+      locale_("en-US") {}
 
 ChromeBrowserProcessStub::~ChromeBrowserProcessStub() {
   DCHECK((!initialized_ && !context_initialized_) || shutdown_);
   g_browser_process = NULL;
-  chrome::SetBrowserContextIncognitoHelper(nullptr);
 }
 
 void ChromeBrowserProcessStub::Initialize() {
@@ -384,16 +381,4 @@ prefs::InProcessPrefServiceFactory*
 ChromeBrowserProcessStub::pref_service_factory() const {
   NOTREACHED();
   return NULL;
-}
-
-content::BrowserContext*
-ChromeBrowserProcessStub::GetBrowserContextRedirectedInIncognito(
-    content::BrowserContext* context) {
-  return CefBrowserContext::GetForContext(context);
-}
-
-content::BrowserContext*
-ChromeBrowserProcessStub::GetBrowserContextOwnInstanceInIncognito(
-    content::BrowserContext* context) {
-  return GetBrowserContextRedirectedInIncognito(context);
 }

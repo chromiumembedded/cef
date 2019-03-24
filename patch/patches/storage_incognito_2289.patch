@@ -1,0 +1,80 @@
+diff --git content/browser/blob_storage/chrome_blob_storage_context.cc content/browser/blob_storage/chrome_blob_storage_context.cc
+index 5610c0df1c7d..0f2ed42e6451 100644
+--- content/browser/blob_storage/chrome_blob_storage_context.cc
++++ content/browser/blob_storage/chrome_blob_storage_context.cc
+@@ -117,7 +117,8 @@ ChromeBlobStorageContext* ChromeBlobStorageContext::GetFor(
+ 
+     // If we're not incognito mode, schedule all of our file tasks to enable
+     // disk on the storage context.
+-    if (!context->IsOffTheRecord() && io_thread_valid) {
++    if (!context->GetPath().empty() && !context->IsOffTheRecord() &&
++        io_thread_valid) {
+       file_task_runner = base::CreateTaskRunnerWithTraits(
+           {base::MayBlock(), base::TaskPriority::BEST_EFFORT,
+            base::TaskShutdownBehavior::SKIP_ON_SHUTDOWN});
+diff --git content/browser/browser_context.cc content/browser/browser_context.cc
+index b2b3920da3b0..686afc464b42 100644
+--- content/browser/browser_context.cc
++++ content/browser/browser_context.cc
+@@ -56,6 +56,7 @@
+ #include "content/public/common/content_switches.h"
+ #include "content/public/common/service_manager_connection.h"
+ #include "content/public/common/service_names.mojom.h"
++#include "media/capabilities/in_memory_video_decode_stats_db_impl.h"
+ #include "media/capabilities/video_decode_stats_db_impl.h"
+ #include "media/mojo/services/video_decode_perf_history.h"
+ #include "net/cookies/cookie_store.h"
+@@ -211,7 +212,7 @@ StoragePartition* GetStoragePartitionFromConfig(
+   StoragePartitionImplMap* partition_map =
+       GetStoragePartitionMap(browser_context);
+ 
+-  if (browser_context->IsOffTheRecord())
++  if (browser_context->IsOffTheRecord() || browser_context->GetPath().empty())
+     in_memory = true;
+ 
+   return partition_map->Get(partition_domain, partition_name, in_memory,
+@@ -790,9 +791,14 @@ media::VideoDecodePerfHistory* BrowserContext::GetVideoDecodePerfHistory() {
+   // occurs later upon first VideoDecodePerfHistory API request that requires DB
+   // access. DB operations will not block the UI thread.
+   if (!decode_history) {
+-    std::unique_ptr<media::VideoDecodeStatsDBImpl> stats_db =
+-        media::VideoDecodeStatsDBImpl::Create(
+-            GetPath().Append(FILE_PATH_LITERAL("VideoDecodeStats")));
++    std::unique_ptr<media::VideoDecodeStatsDB> stats_db;
++    if (GetPath().empty()) {
++      stats_db =
++          std::make_unique<media::InMemoryVideoDecodeStatsDBImpl>(nullptr);
++    } else {
++      stats_db = media::VideoDecodeStatsDBImpl::Create(
++          GetPath().Append(FILE_PATH_LITERAL("VideoDecodeStats")));
++    }
+     auto new_decode_history = std::make_unique<media::VideoDecodePerfHistory>(
+         std::move(stats_db), BrowserFeatureProvider::GetFactoryCB());
+     decode_history = new_decode_history.get();
+diff --git content/browser/renderer_host/render_process_host_impl.cc content/browser/renderer_host/render_process_host_impl.cc
+index 221dc8424f85..0366d1682ca7 100644
+--- content/browser/renderer_host/render_process_host_impl.cc
++++ content/browser/renderer_host/render_process_host_impl.cc
+@@ -2222,6 +2222,9 @@ void RenderProcessHostImpl::RegisterMojoInterfaces() {
+     plugin_registry_.reset(
+         new PluginRegistryImpl(GetBrowserContext()->GetResourceContext()));
+   }
++  // Needed for proper routing of IsPluginAvailable callbacks.
++  DCHECK_GE(GetID(), 0);
++  plugin_registry_->set_render_process_id(GetID());
+   registry->AddInterface(base::BindRepeating(
+       &PluginRegistryImpl::Bind, base::Unretained(plugin_registry_.get())));
+ #endif
+diff --git storage/browser/database/database_tracker.cc storage/browser/database/database_tracker.cc
+index 18f8b0a11438..a10ab23aaceb 100644
+--- storage/browser/database/database_tracker.cc
++++ storage/browser/database/database_tracker.cc
+@@ -509,7 +509,7 @@ bool DatabaseTracker::LazyInit() {
+     meta_table_.reset(new sql::MetaTable());
+ 
+     is_initialized_ =
+-        base::CreateDirectory(db_dir_) &&
++        (is_incognito_ ? true : base::CreateDirectory(db_dir_)) &&
+         (db_->is_open() ||
+          (is_incognito_ ? db_->OpenInMemory() :
+           db_->Open(kTrackerDatabaseFullPath))) &&

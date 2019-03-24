@@ -316,11 +316,6 @@ CefRefPtr<CefBrowserHostImpl> CefBrowserHostImpl::Create(
       request_context_impl->GetBrowserContext();
   DCHECK(browser_context);
 
-  // A StoragePartitionImplMap must already exist for the BrowserContext. See
-  // additional comments in CefBrowserContext::Initialize().
-  DCHECK(browser_context->GetUserData(
-      content::BrowserContext::GetStoragePartitionMapUserDataKey()));
-
   if (!create_params.request_context) {
     // Using the global request context.
     create_params.request_context = request_context_impl.get();
