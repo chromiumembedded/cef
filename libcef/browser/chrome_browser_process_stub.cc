@@ -11,6 +11,7 @@
 #include "libcef/browser/prefs/browser_prefs.h"
 #include "libcef/browser/thread_util.h"
 #include "libcef/common/cef_switches.h"
+#include "libcef/common/net_service/util.h"
 
 #include "base/command_line.h"
 #include "chrome/browser/net/chrome_net_log_helper.h"
@@ -79,6 +80,10 @@ void ChromeBrowserProcessStub::Shutdown() {
 
   profile_manager_.reset();
   event_router_forwarder_ = nullptr;
+
+  if (net_service::IsEnabled()) {
+    SystemNetworkContextManager::DeleteInstance();
+  }
 
   local_state_.reset();
   browser_policy_connector_.reset();

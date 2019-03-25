@@ -9,7 +9,7 @@
 
 #include "include/cef_urlrequest.h"
 #include "libcef/browser/browser_host_impl.h"
-#include "libcef/browser/cookie_manager_impl.h"
+#include "libcef/browser/net/cookie_manager_old_impl.h"
 #include "libcef/browser/net/net_util.h"
 #include "libcef/browser/net/source_stream.h"
 #include "libcef/browser/net/url_request_user_data.h"
@@ -504,7 +504,7 @@ bool CefNetworkDelegate::OnCanSetCookie(const net::URLRequest& request,
         cefRequest->SetReadOnly(true);
 
         CefCookie cefCookie;
-        if (!CefCookieManagerImpl::GetCefCookie(cookie, cefCookie))
+        if (!CefCookieManagerOldImpl::GetCefCookie(cookie, cefCookie))
           return true;
 
         return handler->CanSetCookie(browser.get(), frame, cefRequest.get(),

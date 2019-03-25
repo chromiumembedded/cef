@@ -10,7 +10,7 @@
 
 #include "include/cef_callback.h"
 #include "include/cef_parser.h"
-#include "libcef/browser/cookie_manager_impl.h"
+#include "libcef/browser/net/cookie_manager_old_impl.h"
 #include "libcef/browser/thread_util.h"
 #include "libcef/common/request_impl.h"
 #include "libcef/common/response_impl.h"
@@ -457,7 +457,7 @@ void CefResourceRequestJob::CheckCookiePolicyAndLoad(
     net::CookieList::const_iterator it = cookie_list.begin();
     for (; it != cookie_list.end(); ++it) {
       CefCookie cookie;
-      if (!CefCookieManagerImpl::GetCefCookie(*it, cookie) ||
+      if (!CefCookieManagerOldImpl::GetCefCookie(*it, cookie) ||
           !handler_->CanGetCookie(cookie)) {
         can_get_cookies = false;
         break;
@@ -556,8 +556,8 @@ void CefResourceRequestJob::SaveNextCookie() {
   bool can_set_cookie = cookie && CanSetCookie(*cookie, &options);
   if (can_set_cookie) {
     CefCookie cef_cookie;
-    if (CefCookieManagerImpl::GetCefCookie(request_->url(), cookie_line,
-                                           cef_cookie)) {
+    if (CefCookieManagerOldImpl::GetCefCookie(request_->url(), cookie_line,
+                                              cef_cookie)) {
       can_set_cookie = handler_->CanSetCookie(cef_cookie);
     } else {
       can_set_cookie = false;

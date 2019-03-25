@@ -2,8 +2,8 @@
 // reserved. Use of this source code is governed by a BSD-style license that can
 // be found in the LICENSE file.
 
-#ifndef CEF_LIBCEF_BROWSER_COOKIE_MANAGER_IMPL_H_
-#define CEF_LIBCEF_BROWSER_COOKIE_MANAGER_IMPL_H_
+#ifndef CEF_LIBCEF_BROWSER_NET_COOKIE_MANAGER_OLD_IMPL_H_
+#define CEF_LIBCEF_BROWSER_NET_COOKIE_MANAGER_OLD_IMPL_H_
 
 #include <set>
 
@@ -12,14 +12,13 @@
 #include "libcef/browser/thread_util.h"
 
 #include "base/files/file_path.h"
-#include "base/memory/weak_ptr.h"
 #include "net/cookies/cookie_monster.h"
 
 // Implementation of the CefCookieManager interface.
-class CefCookieManagerImpl : public CefCookieManager {
+class CefCookieManagerOldImpl : public CefCookieManager {
  public:
-  CefCookieManagerImpl();
-  ~CefCookieManagerImpl() override;
+  CefCookieManagerOldImpl();
+  ~CefCookieManagerOldImpl() override;
 
   // Must be called immediately after this object is created when |is_blocking|
   // is false.
@@ -107,10 +106,7 @@ class CefCookieManagerImpl : public CefCookieManager {
   CefRefPtr<CefRequestContextImpl> request_context_;
   scoped_refptr<CefURLRequestContextGetter> request_context_impl_;
 
-  // Must be the last member.
-  base::WeakPtrFactory<CefCookieManagerImpl> weak_ptr_factory_;
-
-  IMPLEMENT_REFCOUNTING_DELETE_ON_IOT(CefCookieManagerImpl);
+  IMPLEMENT_REFCOUNTING_DELETE_ON_IOT(CefCookieManagerOldImpl);
 };
 
-#endif  // CEF_LIBCEF_BROWSER_COOKIE_MANAGER_IMPL_H_
+#endif  // CEF_LIBCEF_BROWSER_NET_COOKIE_MANAGER_OLD_IMPL_H_

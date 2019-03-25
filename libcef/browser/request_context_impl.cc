@@ -6,8 +6,9 @@
 #include "libcef/browser/browser_context.h"
 #include "libcef/browser/content_browser_client.h"
 #include "libcef/browser/context.h"
-#include "libcef/browser/cookie_manager_impl.h"
 #include "libcef/browser/extensions/extension_system.h"
+#include "libcef/browser/net/cookie_manager_old_impl.h"
+#include "libcef/browser/net_service/cookie_manager_impl.h"
 #include "libcef/browser/thread_util.h"
 #include "libcef/common/extensions/extensions_util.h"
 #include "libcef/common/net_service/util.h"
@@ -281,9 +282,16 @@ CefString CefRequestContextImpl::GetCachePath() {
 
 CefRefPtr<CefCookieManager> CefRequestContextImpl::GetCookieManager(
     CefRefPtr<CefCompletionCallback> callback) {
-  CefRefPtr<CefCookieManagerImpl> cookie_manager = new CefCookieManagerImpl();
-  cookie_manager->Initialize(this, CefString(), false, callback);
-  return cookie_manager.get();
+  if (!net_service::IsEnabled()) {
+    CefRefPtr<CefCookieManagerOldImpl> cookie_manager =
+        new CefCookieManagerOldImpl();
+    cookie_manager->Initialize(this, CefString(), false, callback);
+    return cookie_manager.get();
+  } else {
+    CefRefPtr<CefCookieManagerImpl> cookie_manager = new CefCookieManagerImpl();
+    cookie_manager->Initialize(this, callback);
+    return cookie_manager.get();
+  }
 }
 
 bool CefRequestContextImpl::RegisterSchemeHandlerFactory(

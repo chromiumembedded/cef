@@ -9,7 +9,7 @@
 #include <vector>
 
 #include "libcef/browser/content_browser_client.h"
-#include "libcef/browser/cookie_manager_impl.h"
+#include "libcef/browser/net/cookie_manager_old_impl.h"
 #include "libcef/browser/net/network_delegate.h"
 #include "libcef/browser/net/scheme_handler.h"
 #include "libcef/browser/net/url_request_interceptor.h"
@@ -484,7 +484,7 @@ void CefURLRequestContextGetter::SetCookieSupportedSchemes(
   CEF_REQUIRE_IOT();
 
   io_state_->cookie_supported_schemes_ = schemes;
-  CefCookieManagerImpl::SetCookieMonsterSchemes(
+  CefCookieManagerOldImpl::SetCookieMonsterSchemes(
       static_cast<net::CookieMonster*>(GetExistingCookieStore()),
       io_state_->cookie_supported_schemes_);
 }
@@ -548,7 +548,7 @@ void CefURLRequestContextGetter::SetCookieStoragePath(
   io_state_->cookie_store_path_ = path;
 
   // Restore the previously supported schemes.
-  CefCookieManagerImpl::SetCookieMonsterSchemes(
+  CefCookieManagerOldImpl::SetCookieMonsterSchemes(
       cookie_monster.get(), io_state_->cookie_supported_schemes_);
 
   io_state_->storage_->set_cookie_store(std::move(cookie_monster));
