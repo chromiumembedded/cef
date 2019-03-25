@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=fd4529fcb0b4cebf7e94a5160854f13ee05bbab0$
+// $hash=7ec5f39057b2a75576fe732fc7bff7b953956fe6$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_COOKIE_CAPI_H_
@@ -64,7 +64,7 @@ typedef struct _cef_cookie_manager_t {
   ///
   // Set the schemes supported by this manager. The default schemes ("http",
   // "https", "ws" and "wss") will always be supported. If |callback| is non-
-  // NULL it will be executed asnychronously on the IO thread after the change
+  // NULL it will be executed asnychronously on the UI thread after the change
   // has been applied. Must be called before any cookies are accessed.
   ///
   void(CEF_CALLBACK* set_supported_schemes)(
@@ -73,7 +73,7 @@ typedef struct _cef_cookie_manager_t {
       struct _cef_completion_callback_t* callback);
 
   ///
-  // Visit all cookies on the IO thread. The returned cookies are ordered by
+  // Visit all cookies on the UI thread. The returned cookies are ordered by
   // longest path, then by earliest creation date. Returns false (0) if cookies
   // cannot be accessed.
   ///
@@ -81,7 +81,7 @@ typedef struct _cef_cookie_manager_t {
                                        struct _cef_cookie_visitor_t* visitor);
 
   ///
-  // Visit a subset of cookies on the IO thread. The results are filtered by the
+  // Visit a subset of cookies on the UI thread. The results are filtered by the
   // given url scheme, host, domain and path. If |includeHttpOnly| is true (1)
   // HTTP-only cookies will also be included in the results. The returned
   // cookies are ordered by longest path, then by earliest creation date.
@@ -98,7 +98,7 @@ typedef struct _cef_cookie_manager_t {
   // check for disallowed characters (e.g. the ';' character is disallowed
   // within the cookie value attribute) and fail without setting the cookie if
   // such characters are found. If |callback| is non-NULL it will be executed
-  // asnychronously on the IO thread after the cookie has been set. Returns
+  // asnychronously on the UI thread after the cookie has been set. Returns
   // false (0) if an invalid URL is specified or if cookies cannot be accessed.
   ///
   int(CEF_CALLBACK* set_cookie)(struct _cef_cookie_manager_t* self,
@@ -112,7 +112,7 @@ typedef struct _cef_cookie_manager_t {
   // both will be deleted. If only |url| is specified all host cookies (but not
   // domain cookies) irrespective of path will be deleted. If |url| is NULL all
   // cookies for all hosts and domains will be deleted. If |callback| is non-
-  // NULL it will be executed asnychronously on the IO thread after the cookies
+  // NULL it will be executed asnychronously on the UI thread after the cookies
   // have been deleted. Returns false (0) if a non-NULL invalid URL is specified
   // or if cookies cannot be accessed. Cookies can alternately be deleted using
   // the Visit*Cookies() functions.
@@ -125,7 +125,7 @@ typedef struct _cef_cookie_manager_t {
 
   ///
   // Flush the backing store (if any) to disk. If |callback| is non-NULL it will
-  // be executed asnychronously on the IO thread after the flush is complete.
+  // be executed asnychronously on the UI thread after the flush is complete.
   // Returns false (0) if cookies cannot be accessed.
   ///
   int(CEF_CALLBACK* flush_store)(struct _cef_cookie_manager_t* self,
@@ -135,7 +135,7 @@ typedef struct _cef_cookie_manager_t {
 ///
 // Returns the global cookie manager. By default data will be stored at
 // CefSettings.cache_path if specified or in memory otherwise. If |callback| is
-// non-NULL it will be executed asnychronously on the IO thread after the
+// non-NULL it will be executed asnychronously on the UI thread after the
 // manager's storage has been initialized. Using this function is equivalent to
 // calling cef_request_tContext::cef_request_context_get_global_context()->GetDe
 // faultCookieManager().
@@ -145,7 +145,7 @@ CEF_EXPORT cef_cookie_manager_t* cef_cookie_manager_get_global_manager(
 
 ///
 // Structure to implement for visiting cookie values. The functions of this
-// structure will always be called on the IO thread.
+// structure will always be called on the UI thread.
 ///
 typedef struct _cef_cookie_visitor_t {
   ///

@@ -25,10 +25,10 @@ CookieManager* GetCookieManager(CefRequestContextImpl* request_context) {
 }
 
 // Always execute the callback asynchronously.
-void RunAsyncCompletionOnIOThread(CefRefPtr<CefCompletionCallback> callback) {
+void RunAsyncCompletionOnUIThread(CefRefPtr<CefCompletionCallback> callback) {
   if (!callback.get())
     return;
-  CEF_POST_TASK(CEF_IOT,
+  CEF_POST_TASK(CEF_UIT,
                 base::Bind(&CefCompletionCallback::OnComplete, callback.get()));
 }
 
@@ -37,7 +37,7 @@ void SetCookieCallbackImpl(CefRefPtr<CefSetCookieCallback> callback,
                            bool success) {
   if (!callback.get())
     return;
-  CEF_POST_TASK(CEF_IOT, base::Bind(&CefSetCookieCallback::OnComplete,
+  CEF_POST_TASK(CEF_UIT, base::Bind(&CefSetCookieCallback::OnComplete,
                                     callback.get(), success));
 }
 
@@ -46,7 +46,7 @@ void DeleteCookiesCallbackImpl(CefRefPtr<CefDeleteCookiesCallback> callback,
                                uint32_t num_deleted) {
   if (!callback.get())
     return;
-  CEF_POST_TASK(CEF_IOT, base::Bind(&CefDeleteCookiesCallback::OnComplete,
+  CEF_POST_TASK(CEF_UIT, base::Bind(&CefDeleteCookiesCallback::OnComplete,
                                     callback.get(), num_deleted));
 }
 
@@ -64,23 +64,12 @@ void GetCefCookie(const net::CanonicalCookie& cc, CefCookie& cookie) {
     cef_time_from_basetime(cc.ExpiryDate(), cookie.expires);
 }
 
-void DeleteCanonicalCookie(CefRefPtr<CefRequestContextImpl> request_context,
-                           const net::CanonicalCookie& cc) {
-  if (!CEF_CURRENTLY_ON_UIT()) {
-    CEF_POST_TASK(CEF_UIT,
-                  base::Bind(&DeleteCanonicalCookie, request_context, cc));
-    return;
-  }
-
-  GetCookieManager(request_context.get())
-      ->DeleteCanonicalCookie(cc,
-                              CookieManager::DeleteCanonicalCookieCallback());
-}
-
 void ExecuteVisitor(CefRefPtr<CefCookieVisitor> visitor,
                     CefRefPtr<CefRequestContextImpl> request_context,
                     const std::vector<net::CanonicalCookie>& cookies) {
-  CEF_REQUIRE_IOT();
+  CEF_REQUIRE_UIT();
+
+  CookieManager* cookie_manager = GetCookieManager(request_context.get());
 
   int total = cookies.size(), count = 0;
   for (const auto& cc : cookies) {
@@ -90,7 +79,8 @@ void ExecuteVisitor(CefRefPtr<CefCookieVisitor> visitor,
     bool deleteCookie = false;
     bool keepLooping = visitor->Visit(cookie, count, total, deleteCookie);
     if (deleteCookie) {
-      DeleteCanonicalCookie(request_context, cc);
+      cookie_manager->DeleteCanonicalCookie(
+          cc, CookieManager::DeleteCanonicalCookieCallback());
     }
     if (!keepLooping)
       break;
@@ -102,7 +92,7 @@ void ExecuteVisitor(CefRefPtr<CefCookieVisitor> visitor,
 void GetCookiesCallbackImpl(CefRefPtr<CefCookieVisitor> visitor,
                             CefRefPtr<CefRequestContextImpl> request_context,
                             const std::vector<net::CanonicalCookie>& cookies) {
-  CEF_POST_TASK(CEF_IOT,
+  CEF_POST_TASK(CEF_UIT,
                 base::Bind(&ExecuteVisitor, visitor, request_context, cookies));
 }
 
@@ -116,7 +106,7 @@ void CefCookieManagerImpl::Initialize(
   DCHECK(request_context);
   DCHECK(!request_context_);
   request_context_ = request_context;
-  RunAsyncCompletionOnIOThread(callback);
+  RunAsyncCompletionOnUIThread(callback);
 }
 
 void CefCookieManagerImpl::SetSupportedSchemes(
@@ -132,7 +122,7 @@ void CefCookieManagerImpl::SetSupportedSchemes(
   // TODO(network): Figure out how to route this to
   // CookieMonster::SetCookieableSchemes via the NetworkService.
   NOTIMPLEMENTED();
-  RunAsyncCompletionOnIOThread(callback);
+  RunAsyncCompletionOnUIThread(callback);
 }
 
 bool CefCookieManagerImpl::VisitAllCookies(
@@ -271,7 +261,7 @@ bool CefCookieManagerImpl::FlushStore(
   }
 
   GetCookieManager(request_context_.get())
-      ->FlushCookieStore(base::Bind(RunAsyncCompletionOnIOThread, callback));
+      ->FlushCookieStore(base::Bind(RunAsyncCompletionOnUIThread, callback));
   return true;
 }
 

@@ -30,7 +30,10 @@ class TestCompletionCallback : public CefCompletionCallback {
   explicit TestCompletionCallback(CefRefPtr<CefWaitableEvent> event)
       : event_(event) {}
 
-  void OnComplete() override { event_->Signal(); }
+  void OnComplete() override {
+    EXPECT_TRUE(CefCurrentlyOn(TID_UI));
+    event_->Signal();
+  }
 
  private:
   CefRefPtr<CefWaitableEvent> event_;
@@ -46,6 +49,7 @@ class TestSetCookieCallback : public CefSetCookieCallback {
       : expected_success_(expected_success), event_(event) {}
 
   void OnComplete(bool success) override {
+    EXPECT_TRUE(CefCurrentlyOn(TID_UI));
     EXPECT_EQ(expected_success_, success);
     event_->Signal();
   }
@@ -65,6 +69,7 @@ class TestDeleteCookiesCallback : public CefDeleteCookiesCallback {
       : expected_num_deleted_(expected_num_deleted), event_(event) {}
 
   void OnComplete(int num_deleted) override {
+    EXPECT_TRUE(CefCurrentlyOn(TID_UI));
     if (expected_num_deleted_ != kIgnoreNumDeleted) {
       EXPECT_EQ(expected_num_deleted_, num_deleted);
     }
@@ -94,6 +99,7 @@ class TestVisitor : public CefCookieVisitor {
              int count,
              int total,
              bool& deleteCookie) override {
+    EXPECT_TRUE(CefCurrentlyOn(TID_UI));
     cookies_->push_back(cookie);
     if (delete_cookies_)
       deleteCookie = true;

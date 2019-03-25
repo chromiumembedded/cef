@@ -32,7 +32,8 @@ using content::BrowserThread;
 namespace {
 
 // Callback class for visiting cookies.
-class VisitCookiesCallback : public base::RefCounted<VisitCookiesCallback> {
+class VisitCookiesCallback
+    : public base::RefCountedThreadSafe<VisitCookiesCallback> {
  public:
   explicit VisitCookiesCallback(
       const CefCookieManagerOldImpl::CookieStoreGetter& cookie_store_getter,
@@ -41,7 +42,11 @@ class VisitCookiesCallback : public base::RefCounted<VisitCookiesCallback> {
 
   void Run(const net::CookieList& list,
            const net::CookieStatusList& excluded_list) {
-    CEF_REQUIRE_IOT();
+    if (!CEF_CURRENTLY_ON_UIT()) {
+      CEF_POST_TASK(CEF_UIT, base::Bind(&VisitCookiesCallback::Run, this, list,
+                                        excluded_list));
+      return;
+    }
 
     int total = list.size(), count = 0;
 
@@ -54,11 +59,9 @@ class VisitCookiesCallback : public base::RefCounted<VisitCookiesCallback> {
       bool deleteCookie = false;
       bool keepLooping = visitor_->Visit(cookie, count, total, deleteCookie);
       if (deleteCookie) {
-        net::CookieStore* cookie_store = cookie_store_getter_.Run();
-        if (cookie_store) {
-          cookie_store->DeleteCanonicalCookieAsync(
-              cc, net::CookieMonster::DeleteCallback());
-        }
+        CEF_POST_TASK(
+            CEF_IOT,
+            base::Bind(&VisitCookiesCallback::DeleteOnIOThread, this, cc));
       }
       if (!keepLooping)
         break;
@@ -66,9 +69,17 @@ class VisitCookiesCallback : public base::RefCounted<VisitCookiesCallback> {
   }
 
  private:
-  friend class base::RefCounted<VisitCookiesCallback>;
+  friend class base::RefCountedThreadSafe<VisitCookiesCallback>;
 
   ~VisitCookiesCallback() {}
+
+  void DeleteOnIOThread(const net::CanonicalCookie& cc) {
+    net::CookieStore* cookie_store = cookie_store_getter_.Run();
+    if (cookie_store) {
+      cookie_store->DeleteCanonicalCookieAsync(
+          cc, net::CookieMonster::DeleteCallback());
+    }
+  }
 
   CefCookieManagerOldImpl::CookieStoreGetter cookie_store_getter_;
   CefRefPtr<CefCookieVisitor> visitor_;
@@ -88,10 +99,10 @@ bool GetCookieDomain(const GURL& url,
 }
 
 // Always execute the callback asynchronously.
-void RunAsyncCompletionOnIOThread(CefRefPtr<CefCompletionCallback> callback) {
+void RunAsyncCompletionOnUIThread(CefRefPtr<CefCompletionCallback> callback) {
   if (!callback.get())
     return;
-  CEF_POST_TASK(CEF_IOT,
+  CEF_POST_TASK(CEF_UIT,
                 base::Bind(&CefCompletionCallback::OnComplete, callback.get()));
 }
 
@@ -100,7 +111,7 @@ void DeleteCookiesCallbackImpl(CefRefPtr<CefDeleteCookiesCallback> callback,
                                uint32_t num_deleted) {
   if (!callback.get())
     return;
-  CEF_POST_TASK(CEF_IOT, base::Bind(&CefDeleteCookiesCallback::OnComplete,
+  CEF_POST_TASK(CEF_UIT, base::Bind(&CefDeleteCookiesCallback::OnComplete,
                                     callback.get(), num_deleted));
 }
 
@@ -110,7 +121,7 @@ void SetCookieCallbackImpl(CefRefPtr<CefSetCookieCallback> callback,
   if (!callback.get())
     return;
   CEF_POST_TASK(
-      CEF_IOT,
+      CEF_UIT,
       base::Bind(
           &CefSetCookieCallback::OnComplete, callback.get(),
           status == net::CanonicalCookie::CookieInclusionStatus::INCLUDE));
@@ -344,7 +355,7 @@ void CefCookieManagerOldImpl::InitWithContext(
   // reference to this object) and this object.
   request_context_ = NULL;
 
-  RunAsyncCompletionOnIOThread(callback);
+  RunAsyncCompletionOnUIThread(callback);
 }
 
 void CefCookieManagerOldImpl::SetSupportedSchemesWithContext(
@@ -355,7 +366,7 @@ void CefCookieManagerOldImpl::SetSupportedSchemesWithContext(
 
   request_context->SetCookieSupportedSchemes(schemes);
 
-  RunAsyncCompletionOnIOThread(callback);
+  RunAsyncCompletionOnUIThread(callback);
 }
 
 void CefCookieManagerOldImpl::GetCookieStoreWithContext(
@@ -506,9 +517,9 @@ void CefCookieManagerOldImpl::FlushStoreInternal(
 
   net::CookieStore* cookie_store = cookie_store_getter.Run();
   if (!cookie_store) {
-    RunAsyncCompletionOnIOThread(callback);
+    RunAsyncCompletionOnUIThread(callback);
     return;
   }
 
-  cookie_store->FlushStore(base::Bind(RunAsyncCompletionOnIOThread, callback));
+  cookie_store->FlushStore(base::Bind(RunAsyncCompletionOnUIThread, callback));
 }
