@@ -1686,6 +1686,15 @@ void BrowserWindowOsrMac::UpdateAccessibilityTree(CefRefPtr<CefValue> value) {
   }
 }
 
+void BrowserWindowOsrMac::UpdateAccessibilityLocation(
+    scoped_refptr<CefValue> value) {
+  CEF_REQUIRE_UI_THREAD();
+
+  if (nsview_) {
+    [GLView(nsview_) UpdateAccessibilityLocation:value];
+  }
+}
+
 void BrowserWindowOsrMac::Create(ClientWindowHandle parent_handle,
                                  const CefRect& rect) {
   REQUIRE_MAIN_THREAD();
