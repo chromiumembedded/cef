@@ -90,7 +90,6 @@
 #include "content/public/common/storage_quota_params.h"
 #include "content/public/common/user_agent.h"
 #include "content/public/common/web_preferences.h"
-#include "extensions/browser/api/web_request/web_request_api.h"
 #include "extensions/browser/extension_message_filter.h"
 #include "extensions/browser/extension_protocols.h"
 #include "extensions/browser/extension_registry.h"
@@ -1176,18 +1175,7 @@ bool CefContentBrowserClient::WillCreateURLLoaderFactory(
     network::mojom::URLLoaderFactoryRequest* factory_request,
     network::mojom::TrustedURLLoaderHeaderClientPtrInfo* header_client,
     bool* bypass_redirect_checks) {
-  if (!extensions::ExtensionsEnabled())
-    return false;
-
-  auto* web_request_api =
-      extensions::BrowserContextKeyedAPIFactory<extensions::WebRequestAPI>::Get(
-          browser_context);
-  bool use_proxy = web_request_api->MaybeProxyURLLoaderFactory(
-      browser_context, frame, render_process_id, is_navigation, is_download,
-      factory_request, header_client);
-  if (bypass_redirect_checks)
-    *bypass_redirect_checks = use_proxy;
-  return use_proxy;
+  return false;
 }
 
 void CefContentBrowserClient::OnNetworkServiceCreated(
