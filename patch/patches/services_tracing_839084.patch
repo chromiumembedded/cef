@@ -1,0 +1,24 @@
+diff --git services/tracing/public/cpp/tracing_features.cc services/tracing/public/cpp/tracing_features.cc
+index 08887d9243d6..c098a44cf1ad 100644
+--- services/tracing/public/cpp/tracing_features.cc
++++ services/tracing/public/cpp/tracing_features.cc
+@@ -34,9 +34,16 @@ const base::Feature kTracingServiceInProcess {
+ namespace tracing {
+ 
+ bool TracingUsesPerfettoBackend() {
+-  return base::CommandLine::ForCurrentProcess()->HasSwitch(
+-             switches::kEnablePerfetto) ||
+-         base::FeatureList::IsEnabled(features::kTracingPerfettoBackend);
++  if (base::CommandLine::ForCurrentProcess()->HasSwitch(
++          switches::kEnablePerfetto)) {
++    return true;
++  }
++
++  if (base::FeatureList::GetInstance()) {
++    return base::FeatureList::IsEnabled(features::kTracingPerfettoBackend);
++  }
++
++  return false;
+ }
+ 
+ }  // namespace tracing
