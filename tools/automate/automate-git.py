@@ -1284,25 +1284,25 @@ if not os.path.exists(gclient_file) or options.forceconfig:
   # Exclude unnecessary directories. Intentionally written without newlines.
   gclient_spec = \
       "solutions = [{"+\
-        "u'managed': False,"+\
-        "u'name': u'src', "+\
-        "u'url': u'" + chromium_url + "', "+\
-        "u'custom_deps': {"+\
-          "u'build': None, "+\
-          "u'build/scripts/command_wrapper/bin': None, "+\
-          "u'build/scripts/gsd_generate_index': None, "+\
-          "u'build/scripts/private/data/reliability': None, "+\
-          "u'build/scripts/tools/deps2git': None, "+\
-          "u'build/third_party/lighttpd': None, "+\
-          "u'commit-queue': None, "+\
-          "u'depot_tools': None, "+\
-          "u'src/chrome_frame/tools/test/reference_build/chrome': None, "+\
-          "u'src/chrome/tools/test/reference_build/chrome_linux': None, "+\
-          "u'src/chrome/tools/test/reference_build/chrome_mac': None, "+\
-          "u'src/chrome/tools/test/reference_build/chrome_win': None, "+\
+        "'managed': False,"+\
+        "'name': 'src', "+\
+        "'url': '" + chromium_url + "', "+\
+        "'custom_deps': {"+\
+          "'build': None, "+\
+          "'build/scripts/command_wrapper/bin': None, "+\
+          "'build/scripts/gsd_generate_index': None, "+\
+          "'build/scripts/private/data/reliability': None, "+\
+          "'build/scripts/tools/deps2git': None, "+\
+          "'build/third_party/lighttpd': None, "+\
+          "'commit-queue': None, "+\
+          "'depot_tools': None, "+\
+          "'src/chrome_frame/tools/test/reference_build/chrome': None, "+\
+          "'src/chrome/tools/test/reference_build/chrome_linux': None, "+\
+          "'src/chrome/tools/test/reference_build/chrome_mac': None, "+\
+          "'src/chrome/tools/test/reference_build/chrome_win': None, "+\
         "}, "+\
-        "u'deps_file': u'" + deps_file + "', "+\
-        "u'safesync_url': u''"+\
+        "'deps_file': '" + deps_file + "', "+\
+        "'safesync_url': ''"+\
       "}]"
 
   msg('Writing file: %s' % gclient_file)
