@@ -535,6 +535,8 @@ void CefRenderWidgetHostViewOSR::Hide() {
   if (!is_showing_)
     return;
 
+  is_showing_ = false;
+
   if (browser_impl_.get())
     browser_impl_->CancelContextMenu();
 
@@ -547,8 +549,6 @@ void CefRenderWidgetHostViewOSR::Hide() {
   GetDelegatedFrameHost()->WasHidden();
   GetDelegatedFrameHost()->DetachFromCompositor();
 #endif
-
-  is_showing_ = false;
 }
 
 bool CefRenderWidgetHostViewOSR::IsShowing() {
