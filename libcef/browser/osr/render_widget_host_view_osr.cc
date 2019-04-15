@@ -406,7 +406,7 @@ CefRenderWidgetHostViewOSR::CefRenderWidgetHostViewOSR(
       context_factory_private->AllocateFrameSinkId(),
       content::GetContextFactory(), context_factory_private,
       base::ThreadTaskRunnerHandle::Get(), false /* enable_pixel_canvas */,
-      use_external_begin_frame ? this : nullptr, use_external_begin_frame));
+      use_external_begin_frame ? this : nullptr));
   compositor_->SetAcceleratedWidget(compositor_widget_);
 
   // Tell the compositor to use shared textures if the client can handle
@@ -694,7 +694,9 @@ void CefRenderWidgetHostViewOSR::SubmitCompositorFrame(
   // the frame rate to something other than the default of 60Hz.
   if (sync_frame_rate_) {
     if (frame_rate_threshold_us_ != 0) {
-      // TODO(cef): Figure out how to set the VSync interval. See issue #2517.
+      GetCompositor()->SetDisplayVSyncParameters(
+          base::TimeTicks::Now(),
+          base::TimeDelta::FromMicroseconds(frame_rate_threshold_us_));
     }
     sync_frame_rate_ = false;
   }
@@ -1731,7 +1733,9 @@ void CefRenderWidgetHostViewOSR::SetFrameRate() {
   frame_rate_threshold_us_ = 1000000 / frame_rate;
 
   if (compositor) {
-    // TODO(cef): Figure out how to set the VSync interval. See issue #2517.
+    compositor->vsync_manager()->UpdateVSyncParameters(
+        base::TimeTicks::Now(),
+        base::TimeDelta::FromMicroseconds(frame_rate_threshold_us_));
   }
 
   if (copy_frame_generator_.get()) {
