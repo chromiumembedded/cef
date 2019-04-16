@@ -28,7 +28,7 @@ index 547b42fb5c66..0eae3470e1bb 100644
  
  # Additional dependent variables -----------------------------------------------
 diff --git chrome/browser/ui/views/chrome_browser_main_extra_parts_views_linux.cc chrome/browser/ui/views/chrome_browser_main_extra_parts_views_linux.cc
-index faae7805435a..5101e0d51bf2 100644
+index 79c24d729c08..1c2b19b75e6b 100644
 --- chrome/browser/ui/views/chrome_browser_main_extra_parts_views_linux.cc
 +++ chrome/browser/ui/views/chrome_browser_main_extra_parts_views_linux.cc
 @@ -6,6 +6,7 @@
@@ -61,17 +61,17 @@ index faae7805435a..5101e0d51bf2 100644
  void ChromeBrowserMainExtraPartsViewsLinux::PreEarlyInitialization() {
 +#if !BUILDFLAG(ENABLE_CEF)
    views::LinuxUI* gtk_ui = BuildGtkUi();
-   gtk_ui->SetNativeThemeOverride(base::Bind(&GetNativeThemeForWindow));
+   gtk_ui->SetNativeThemeOverride(base::BindRepeating(&GetNativeThemeForWindow));
    views::LinuxUI::SetInstance(gtk_ui);
 +#endif
  }
  
  void ChromeBrowserMainExtraPartsViewsLinux::ToolkitInitialized() {
 diff --git chrome/test/BUILD.gn chrome/test/BUILD.gn
-index fd7f3e60a599..9678ad4828cf 100644
+index a4bd99bf7cd1..13b7b96609bf 100644
 --- chrome/test/BUILD.gn
 +++ chrome/test/BUILD.gn
-@@ -4115,7 +4115,7 @@ test("unit_tests") {
+@@ -4146,7 +4146,7 @@ test("unit_tests") {
        "../browser/ui/input_method/input_method_engine_unittest.cc",
      ]
    }
@@ -80,7 +80,7 @@ index fd7f3e60a599..9678ad4828cf 100644
      sources +=
          [ "../browser/ui/libgtkui/select_file_dialog_impl_gtk_unittest.cc" ]
      deps += [ "//build/config/linux/gtk" ]
-@@ -4136,7 +4136,7 @@ test("unit_tests") {
+@@ -4167,7 +4167,7 @@ test("unit_tests") {
    if (use_gio) {
      configs += [ "//build/linux:gio_config" ]
    }
@@ -89,7 +89,7 @@ index fd7f3e60a599..9678ad4828cf 100644
      deps += [ "//chrome/browser/ui/libgtkui" ]
    }
  
-@@ -5152,7 +5152,7 @@ if (!is_android) {
+@@ -5184,7 +5184,7 @@ if (!is_android) {
            # suites, it seems like one or another starts timing out too.
            "../browser/ui/views/keyboard_access_browsertest.cc",
          ]
@@ -99,7 +99,7 @@ index fd7f3e60a599..9678ad4828cf 100644
              "../browser/ui/libgtkui/select_file_dialog_interactive_uitest.cc",
            ]
 diff --git remoting/host/BUILD.gn remoting/host/BUILD.gn
-index 647f01cfae49..fdbc8f8d49aa 100644
+index 7aeefa7b1b89..13fc19218a4c 100644
 --- remoting/host/BUILD.gn
 +++ remoting/host/BUILD.gn
 @@ -351,7 +351,7 @@ static_library("common") {
@@ -111,7 +111,7 @@ index 647f01cfae49..fdbc8f8d49aa 100644
        deps += [ "//build/config/linux/gtk" ]
      }
    } else {
-@@ -733,7 +733,7 @@ if (enable_me2me_host) {
+@@ -734,7 +734,7 @@ if (enable_me2me_host) {
        deps += [ "//components/policy:generated" ]
      }
  
@@ -134,10 +134,10 @@ index ffaaa0b5b423..9fc7f88859a9 100644
      deps += [ "//build/config/linux/gtk" ]
    }
 diff --git remoting/host/it2me/BUILD.gn remoting/host/it2me/BUILD.gn
-index 39dc46737578..e5cb11d5ef04 100644
+index e6298a0cb0b2..cee7134af3ec 100644
 --- remoting/host/it2me/BUILD.gn
 +++ remoting/host/it2me/BUILD.gn
-@@ -53,7 +53,7 @@ source_set("common") {
+@@ -56,7 +56,7 @@ source_set("common") {
      "//remoting/resources",
      "//remoting/signaling",
    ]
@@ -146,7 +146,7 @@ index 39dc46737578..e5cb11d5ef04 100644
      deps += [
        "//build/config/linux/gtk",
  
-@@ -247,7 +247,7 @@ if (!is_chromeos && enable_remoting_host) {
+@@ -250,7 +250,7 @@ if (!is_chromeos && enable_remoting_host) {
          }
        }
  

@@ -206,9 +206,12 @@ bool CefCookieManagerImpl::SetCookie(const CefString& url,
       cookie.secure ? true : false, cookie.httponly ? true : false,
       net::CookieSameSite::DEFAULT_MODE, net::COOKIE_PRIORITY_DEFAULT);
 
+  net::CookieOptions options;
+  if (cookie.httponly)
+    options.set_include_httponly();
+
   GetCookieManager(request_context_.get())
-      ->SetCanonicalCookie(*canonical_cookie, gurl.scheme(),
-                           cookie.httponly ? true : false,
+      ->SetCanonicalCookie(*canonical_cookie, gurl.scheme(), options,
                            base::Bind(SetCookieCallbackImpl, callback));
   return true;
 }

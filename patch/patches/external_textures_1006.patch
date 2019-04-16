@@ -27,10 +27,10 @@ index 3c4d448b972f..fa3f01f59484 100644
    virtual void OnReflectorChanged();
  
 diff --git content/browser/compositor/gpu_process_transport_factory.cc content/browser/compositor/gpu_process_transport_factory.cc
-index 4768ac1a3bac..9432533a3db2 100644
+index 0da5e9c1ecbc..49c79455b4aa 100644
 --- content/browser/compositor/gpu_process_transport_factory.cc
 +++ content/browser/compositor/gpu_process_transport_factory.cc
-@@ -209,6 +209,18 @@ GpuProcessTransportFactory::~GpuProcessTransportFactory() {
+@@ -208,6 +208,18 @@ GpuProcessTransportFactory::~GpuProcessTransportFactory() {
    task_graph_runner_->Shutdown();
  }
  
@@ -49,7 +49,7 @@ index 4768ac1a3bac..9432533a3db2 100644
  std::unique_ptr<viz::SoftwareOutputDevice>
  GpuProcessTransportFactory::CreateSoftwareOutputDevice(
      gfx::AcceleratedWidget widget,
-@@ -452,11 +464,20 @@ void GpuProcessTransportFactory::EstablishedGpuChannel(
+@@ -450,11 +462,20 @@ void GpuProcessTransportFactory::EstablishedGpuChannel(
        // surfaces as they are not following the correct mode.
        DisableGpuCompositing(compositor.get());
      }
@@ -73,7 +73,7 @@ index 4768ac1a3bac..9432533a3db2 100644
    } else {
      DCHECK(context_provider);
      const auto& capabilities = context_provider->ContextCapabilities();
-@@ -464,7 +485,8 @@ void GpuProcessTransportFactory::EstablishedGpuChannel(
+@@ -462,7 +483,8 @@ void GpuProcessTransportFactory::EstablishedGpuChannel(
        display_output_surface =
            std::make_unique<OffscreenBrowserCompositorOutputSurface>(
                context_provider, std::move(vsync_callback),
@@ -83,7 +83,7 @@ index 4768ac1a3bac..9432533a3db2 100644
      } else if (capabilities.surfaceless) {
  #if defined(OS_MACOSX)
        const auto& gpu_feature_info = context_provider->GetGpuFeatureInfo();
-@@ -909,7 +931,8 @@ GpuProcessTransportFactory::CreatePerCompositorData(
+@@ -914,7 +936,8 @@ GpuProcessTransportFactory::CreatePerCompositorData(
    gfx::AcceleratedWidget widget = compositor->widget();
  
    auto data = std::make_unique<PerCompositorData>();
@@ -94,10 +94,10 @@ index 4768ac1a3bac..9432533a3db2 100644
    } else {
  #if defined(GPU_SURFACE_HANDLE_IS_ACCELERATED_WINDOW)
 diff --git content/browser/compositor/gpu_process_transport_factory.h content/browser/compositor/gpu_process_transport_factory.h
-index 4c4548058be5..335099597a9d 100644
+index 525fa0c06b33..1f95b4f53496 100644
 --- content/browser/compositor/gpu_process_transport_factory.h
 +++ content/browser/compositor/gpu_process_transport_factory.h
-@@ -99,6 +99,7 @@ class GpuProcessTransportFactory : public ui::ContextFactory,
+@@ -101,6 +101,7 @@ class GpuProcessTransportFactory : public ui::ContextFactory,
    void IssueExternalBeginFrame(ui::Compositor* compositor,
                                 const viz::BeginFrameArgs& args) override;
    void SetOutputIsSecure(ui::Compositor* compositor, bool secure) override;
@@ -449,7 +449,7 @@ index b68942087179..2248762fcd77 100644
          "glInvalidateReadbackBufferShadowDataCHROMIUM",
          reinterpret_cast<GLES2FunctionPointer>(
 diff --git gpu/command_buffer/client/gles2_cmd_helper_autogen.h gpu/command_buffer/client/gles2_cmd_helper_autogen.h
-index 02f89cdad67c..a2da1b7c518a 100644
+index e2ac01959e22..83fb39054432 100644
 --- gpu/command_buffer/client/gles2_cmd_helper_autogen.h
 +++ gpu/command_buffer/client/gles2_cmd_helper_autogen.h
 @@ -3521,6 +3521,42 @@ void DestroyGpuFenceCHROMIUM(GLuint gpu_fence_id) {
@@ -496,10 +496,10 @@ index 02f89cdad67c..a2da1b7c518a 100644
                                                 GLint shm_id,
                                                 GLuint shm_offset,
 diff --git gpu/command_buffer/client/gles2_implementation.cc gpu/command_buffer/client/gles2_implementation.cc
-index 985e6324567b..d2e067f28521 100644
+index e748a48a8e2a..a92b41df54d3 100644
 --- gpu/command_buffer/client/gles2_implementation.cc
 +++ gpu/command_buffer/client/gles2_implementation.cc
-@@ -7680,6 +7680,22 @@ void GLES2Implementation::Viewport(GLint x,
+@@ -7687,6 +7687,22 @@ void GLES2Implementation::Viewport(GLint x,
    CheckGLError();
  }
  
@@ -682,7 +682,7 @@ index 4b7932e147b0..b0f5f2cafae3 100644
      GLuint buffer_id) {
    TRACE_EVENT_BINARY_EFFICIENT0(
 diff --git gpu/command_buffer/common/gles2_cmd_format_autogen.h gpu/command_buffer/common/gles2_cmd_format_autogen.h
-index 68d9861198e0..98e8772b2993 100644
+index 2a59e11c2d25..fbb6c4551d70 100644
 --- gpu/command_buffer/common/gles2_cmd_format_autogen.h
 +++ gpu/command_buffer/common/gles2_cmd_format_autogen.h
 @@ -17336,6 +17336,193 @@ static_assert(offsetof(DestroyGpuFenceCHROMIUM, header) == 0,
@@ -880,7 +880,7 @@ index 68d9861198e0..98e8772b2993 100644
    typedef SetReadbackBufferShadowAllocationINTERNAL ValueType;
    static const CommandId kCmdId = kSetReadbackBufferShadowAllocationINTERNAL;
 diff --git gpu/command_buffer/common/gles2_cmd_format_test_autogen.h gpu/command_buffer/common/gles2_cmd_format_test_autogen.h
-index 790e72622c7d..bf87d86d9386 100644
+index 128473360af0..b4947682c816 100644
 --- gpu/command_buffer/common/gles2_cmd_format_test_autogen.h
 +++ gpu/command_buffer/common/gles2_cmd_format_test_autogen.h
 @@ -5721,6 +5721,52 @@ TEST_F(GLES2FormatTest, DestroyGpuFenceCHROMIUM) {
@@ -954,7 +954,7 @@ index b3dd9b38feba..bcb3656e4481 100644
  enum CommandId {
    kOneBeforeStartPoint =
 diff --git gpu/command_buffer/gles2_cmd_buffer_functions.txt gpu/command_buffer/gles2_cmd_buffer_functions.txt
-index aa55852d05dd..4638d070c48c 100644
+index 2f9b93fda757..9897a2790587 100644
 --- gpu/command_buffer/gles2_cmd_buffer_functions.txt
 +++ gpu/command_buffer/gles2_cmd_buffer_functions.txt
 @@ -417,6 +417,12 @@ GL_APICALL GLuint       GL_APIENTRY glCreateClientGpuFenceCHROMIUM (ClientGpuFen
@@ -971,7 +971,7 @@ index aa55852d05dd..4638d070c48c 100644
  GL_APICALL void         GL_APIENTRY glInvalidateReadbackBufferShadowDataCHROMIUM (GLidBuffer buffer_id);
  // (used for CHROMIUM_nonblocking_readback implementation)
 diff --git gpu/command_buffer/service/BUILD.gn gpu/command_buffer/service/BUILD.gn
-index 6955858281e7..045dee3185bf 100644
+index bbf81312c8d9..817a6b6fa421 100644
 --- gpu/command_buffer/service/BUILD.gn
 +++ gpu/command_buffer/service/BUILD.gn
 @@ -107,6 +107,8 @@ target(link_target_type, "gles2_sources") {
@@ -981,10 +981,10 @@ index 6955858281e7..045dee3185bf 100644
 +    "//cef/libcef/browser/gpu/external_texture_manager.cc",
 +    "//cef/libcef/browser/gpu/external_texture_manager.h",
      "abstract_texture.h",
-     "buffer_manager.cc",
-     "buffer_manager.h",
+     "abstract_texture_impl_shared_context_state.cc",
+     "abstract_texture_impl_shared_context_state.h",
 diff --git gpu/command_buffer/service/gles2_cmd_decoder.cc gpu/command_buffer/service/gles2_cmd_decoder.cc
-index d7197fe6455c..bfb072283725 100644
+index 5bb86a2a5d32..5439662701af 100644
 --- gpu/command_buffer/service/gles2_cmd_decoder.cc
 +++ gpu/command_buffer/service/gles2_cmd_decoder.cc
 @@ -38,6 +38,7 @@
@@ -1009,7 +1009,7 @@ index d7197fe6455c..bfb072283725 100644
    ImageManager* image_manager() { return group_->image_manager(); }
  
    VertexArrayManager* vertex_array_manager() {
-@@ -2643,6 +2651,8 @@ class GLES2DecoderImpl : public GLES2Decoder, public ErrorStateClient {
+@@ -2644,6 +2652,8 @@ class GLES2DecoderImpl : public GLES2Decoder, public ErrorStateClient {
  
    std::unique_ptr<VertexArrayManager> vertex_array_manager_;
  
@@ -1018,7 +1018,7 @@ index d7197fe6455c..bfb072283725 100644
    base::flat_set<scoped_refptr<Buffer>> writes_submitted_but_not_completed_;
  
    // The format of the back buffer_
-@@ -5618,6 +5628,59 @@ error::Error GLES2DecoderImpl::HandleDestroyGpuFenceCHROMIUM(
+@@ -5619,6 +5629,59 @@ error::Error GLES2DecoderImpl::HandleDestroyGpuFenceCHROMIUM(
    return error::kNoError;
  }
  
@@ -1079,7 +1079,7 @@ index d7197fe6455c..bfb072283725 100644
    for (auto it = saved_back_textures_.begin(); it != saved_back_textures_.end();
         ++it) {
 diff --git gpu/command_buffer/service/gles2_cmd_decoder_passthrough.cc gpu/command_buffer/service/gles2_cmd_decoder_passthrough.cc
-index 805d9ae94712..6723682670e4 100644
+index 2766bcbc5418..417f26076423 100644
 --- gpu/command_buffer/service/gles2_cmd_decoder_passthrough.cc
 +++ gpu/command_buffer/service/gles2_cmd_decoder_passthrough.cc
 @@ -11,6 +11,7 @@
@@ -1090,7 +1090,7 @@ index 805d9ae94712..6723682670e4 100644
  #include "gpu/command_buffer/service/command_buffer_service.h"
  #include "gpu/command_buffer/service/decoder_client.h"
  #include "gpu/command_buffer/service/feature_info.h"
-@@ -2501,6 +2502,67 @@ error::Error GLES2DecoderPassthroughImpl::CheckSwapBuffersResult(
+@@ -2512,6 +2513,67 @@ error::Error GLES2DecoderPassthroughImpl::CheckSwapBuffersResult(
    return error::kNoError;
  }
  
@@ -1210,7 +1210,7 @@ index 311c26b6e0ea..8583fdfecc19 100644
    observer_list_.AddObserver(observer);
  }
 diff --git ui/compositor/compositor.h ui/compositor/compositor.h
-index 29784c677f4b..6e82af0d6aab 100644
+index 4e28277f7750..cd283ca49bd7 100644
 --- ui/compositor/compositor.h
 +++ ui/compositor/compositor.h
 @@ -25,6 +25,7 @@
@@ -1221,7 +1221,7 @@ index 29784c677f4b..6e82af0d6aab 100644
  #include "third_party/skia/include/core/SkColor.h"
  #include "third_party/skia/include/core/SkMatrix44.h"
  #include "ui/compositor/compositor_animation_observer.h"
-@@ -158,6 +159,8 @@ class COMPOSITOR_EXPORT ContextFactoryPrivate {
+@@ -160,6 +161,8 @@ class COMPOSITOR_EXPORT ContextFactoryPrivate {
                                         const viz::BeginFrameArgs& args) = 0;
  
    virtual void SetOutputIsSecure(Compositor* compositor, bool secure) = 0;
@@ -1230,7 +1230,7 @@ index 29784c677f4b..6e82af0d6aab 100644
  };
  
  // This class abstracts the creation of the 3D context for the compositor. It is
-@@ -193,6 +196,17 @@ class COMPOSITOR_EXPORT ContextFactory {
+@@ -200,6 +203,17 @@ class COMPOSITOR_EXPORT ContextFactory {
    virtual bool SyncTokensRequiredForDisplayCompositor() = 0;
  };
  
@@ -1248,7 +1248,7 @@ index 29784c677f4b..6e82af0d6aab 100644
  // Compositor object to take care of GPU painting.
  // A Browser compositor object is responsible for generating the final
  // displayable form of pixels comprising a single widget's contents. It draws an
-@@ -235,6 +249,9 @@ class COMPOSITOR_EXPORT Compositor : public cc::LayerTreeHostClient,
+@@ -242,6 +256,9 @@ class COMPOSITOR_EXPORT Compositor : public cc::LayerTreeHostClient,
    // Schedules a redraw of the layer tree associated with this compositor.
    void ScheduleDraw();
  
@@ -1258,7 +1258,7 @@ index 29784c677f4b..6e82af0d6aab 100644
    // Sets the root of the layer tree drawn by this Compositor. The root layer
    // must have no parent. The compositor's root layer is reset if the root layer
    // is destroyed. NULL can be passed to reset the root layer, in which case the
-@@ -348,6 +365,10 @@ class COMPOSITOR_EXPORT Compositor : public cc::LayerTreeHostClient,
+@@ -355,6 +372,10 @@ class COMPOSITOR_EXPORT Compositor : public cc::LayerTreeHostClient,
      return task_runner_;
    }
  
@@ -1269,7 +1269,7 @@ index 29784c677f4b..6e82af0d6aab 100644
    // Compositor does not own observers. It is the responsibility of the
    // observer to remove itself when it is done observing.
    void AddObserver(CompositorObserver* observer);
-@@ -458,6 +479,8 @@ class COMPOSITOR_EXPORT Compositor : public cc::LayerTreeHostClient,
+@@ -465,6 +486,8 @@ class COMPOSITOR_EXPORT Compositor : public cc::LayerTreeHostClient,
    ui::ContextFactory* context_factory_;
    ui::ContextFactoryPrivate* context_factory_private_;
  
@@ -1278,7 +1278,7 @@ index 29784c677f4b..6e82af0d6aab 100644
    // The root of the Layer tree drawn by this compositor.
    Layer* root_layer_ = nullptr;
  
-@@ -492,6 +515,8 @@ class COMPOSITOR_EXPORT Compositor : public cc::LayerTreeHostClient,
+@@ -499,6 +522,8 @@ class COMPOSITOR_EXPORT Compositor : public cc::LayerTreeHostClient,
  
    ExternalBeginFrameClient* const external_begin_frame_client_;
  
@@ -1288,10 +1288,10 @@ index 29784c677f4b..6e82af0d6aab 100644
  
    // The device scale factor of the monitor that this compositor is compositing
 diff --git ui/compositor/host/host_context_factory_private.cc ui/compositor/host/host_context_factory_private.cc
-index 8297e1aabe3b..6acb9fa6cdfb 100644
+index 2b23ed42a933..109841847888 100644
 --- ui/compositor/host/host_context_factory_private.cc
 +++ ui/compositor/host/host_context_factory_private.cc
-@@ -255,6 +255,10 @@ void HostContextFactoryPrivate::SetOutputIsSecure(Compositor* compositor,
+@@ -254,6 +254,10 @@ void HostContextFactoryPrivate::SetOutputIsSecure(Compositor* compositor,
      iter->second.display_private->SetOutputIsSecure(secure);
  }
  
@@ -1303,7 +1303,7 @@ index 8297e1aabe3b..6acb9fa6cdfb 100644
    // When running with viz there is no FrameSinkManagerImpl in the browser
    // process. FrameSinkManagerImpl runs in the GPU process instead. Anything in
 diff --git ui/compositor/host/host_context_factory_private.h ui/compositor/host/host_context_factory_private.h
-index a74630258fd5..3a370c422e21 100644
+index 18cd096449d2..aa25ea058925 100644
 --- ui/compositor/host/host_context_factory_private.h
 +++ ui/compositor/host/host_context_factory_private.h
 @@ -50,6 +50,8 @@ class HostContextFactoryPrivate : public ContextFactoryPrivate {

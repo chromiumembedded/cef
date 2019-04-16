@@ -176,7 +176,7 @@ std::unique_ptr<PrefService> CreatePrefService(Profile* profile,
     // Call RegisterProfilePrefs() for all services listed by
     // EnsureBrowserContextKeyedServiceFactoriesBuilt().
     BrowserContextDependencyManager::GetInstance()
-        ->RegisterProfilePrefsForServices(profile, registry.get());
+        ->RegisterProfilePrefsForServices(registry.get());
 
     // Default profile preferences.
     AccessibilityUIMessageHandler::RegisterProfilePrefs(registry.get());
@@ -185,7 +185,7 @@ std::unique_ptr<PrefService> CreatePrefService(Profile* profile,
     extensions::ExtensionPrefs::RegisterProfilePrefs(registry.get());
     GoogleURLTracker::RegisterProfilePrefs(registry.get());
     HostContentSettingsMap::RegisterProfilePrefs(registry.get());
-    language::RegisterProfilePrefs(registry.get());
+    language::LanguagePrefs::RegisterProfilePrefs(registry.get());
     ProfileNetworkContextService::RegisterProfilePrefs(registry.get());
     renderer_prefs::RegisterProfilePrefs(registry.get());
 

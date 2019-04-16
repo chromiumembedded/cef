@@ -50,10 +50,10 @@ index dbc6281ef737..e413bf418b25 100644
    render_view_host_->GetMainFrame()->AllowBindings(
        BINDINGS_POLICY_DOM_AUTOMATION);
 diff --git content/browser/web_contents/web_contents_view.h content/browser/web_contents/web_contents_view.h
-index 2960f298ff54..218743f1847c 100644
+index bfb918a2cba3..a193b5a0fed8 100644
 --- content/browser/web_contents/web_contents_view.h
 +++ content/browser/web_contents/web_contents_view.h
-@@ -24,7 +24,7 @@ struct ScreenInfo;
+@@ -23,7 +23,7 @@ struct DropData;
  // The WebContentsView is an interface that is implemented by the platform-
  // dependent web contents views. The WebContents uses this interface to talk to
  // them.
@@ -62,7 +62,7 @@ index 2960f298ff54..218743f1847c 100644
   public:
    virtual ~WebContentsView() {}
  
-@@ -88,13 +88,9 @@ class WebContentsView {
+@@ -84,13 +84,9 @@ class WebContentsView {
    // Sets up the View that holds the rendered web page, receives messages for
    // it and contains page plugins. The host view should be sized to the current
    // size of the WebContents.
@@ -79,10 +79,10 @@ index 2960f298ff54..218743f1847c 100644
    // Creates a new View that holds a non-top-level widget and receives messages
    // for it.
 diff --git content/browser/web_contents/web_contents_view_aura.cc content/browser/web_contents/web_contents_view_aura.cc
-index 3ae2cd85d98e..d1eaec9bd939 100644
+index 0c15633445d7..e6224d9a7612 100644
 --- content/browser/web_contents/web_contents_view_aura.cc
 +++ content/browser/web_contents/web_contents_view_aura.cc
-@@ -867,7 +867,8 @@ void WebContentsViewAura::CreateView(const gfx::Size& initial_size,
+@@ -763,7 +763,8 @@ void WebContentsViewAura::CreateView(const gfx::Size& initial_size,
  }
  
  RenderWidgetHostViewBase* WebContentsViewAura::CreateViewForWidget(
@@ -92,7 +92,7 @@ index 3ae2cd85d98e..d1eaec9bd939 100644
    if (render_widget_host->GetView()) {
      // During testing, the view will already be set up in most cases to the
      // test view, so we don't want to clobber it with a real one. To verify that
-@@ -879,6 +880,7 @@ RenderWidgetHostViewBase* WebContentsViewAura::CreateViewForWidget(
+@@ -775,6 +776,7 @@ RenderWidgetHostViewBase* WebContentsViewAura::CreateViewForWidget(
          render_widget_host->GetView());
    }
  
@@ -101,10 +101,10 @@ index 3ae2cd85d98e..d1eaec9bd939 100644
        g_create_render_widget_host_view
            ? g_create_render_widget_host_view(render_widget_host,
 diff --git content/browser/web_contents/web_contents_view_aura.h content/browser/web_contents/web_contents_view_aura.h
-index c917d912bbdf..36b9d9b8e3e9 100644
+index a1395dab81d4..b8c33779fef4 100644
 --- content/browser/web_contents/web_contents_view_aura.h
 +++ content/browser/web_contents/web_contents_view_aura.h
-@@ -110,7 +110,7 @@ class CONTENT_EXPORT WebContentsViewAura
+@@ -109,7 +109,7 @@ class CONTENT_EXPORT WebContentsViewAura
                    gfx::NativeView context) override;
    RenderWidgetHostViewBase* CreateViewForWidget(
        RenderWidgetHost* render_widget_host,
@@ -208,7 +208,7 @@ index 913fbc4bb00e..731a81c72803 100644
        RenderWidgetHost* render_widget_host) override;
    void SetPageTitle(const base::string16& title) override;
 diff --git content/browser/web_contents/web_contents_view_mac.h content/browser/web_contents/web_contents_view_mac.h
-index be73ba6b3aca..3ba5aba86462 100644
+index 4266d4c817d4..7bcede99bca1 100644
 --- content/browser/web_contents/web_contents_view_mac.h
 +++ content/browser/web_contents/web_contents_view_mac.h
 @@ -74,7 +74,7 @@ class WebContentsViewMac : public WebContentsView,
@@ -221,7 +221,7 @@ index be73ba6b3aca..3ba5aba86462 100644
        RenderWidgetHost* render_widget_host) override;
    void SetPageTitle(const base::string16& title) override;
 diff --git content/browser/web_contents/web_contents_view_mac.mm content/browser/web_contents/web_contents_view_mac.mm
-index 92ac389639d8..83a2ddb344ba 100644
+index 011c81a25cb6..2d2a744a582c 100644
 --- content/browser/web_contents/web_contents_view_mac.mm
 +++ content/browser/web_contents/web_contents_view_mac.mm
 @@ -319,7 +319,8 @@ void WebContentsViewMac::CreateView(

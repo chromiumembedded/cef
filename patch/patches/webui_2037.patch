@@ -1,16 +1,16 @@
 diff --git chrome/browser/feedback/system_logs/log_sources/chrome_internal_log_source.cc chrome/browser/feedback/system_logs/log_sources/chrome_internal_log_source.cc
-index 8f60e60d6ad3..ff85f58185f2 100644
+index ea311eb90f4d..9e4a6ff96c56 100644
 --- chrome/browser/feedback/system_logs/log_sources/chrome_internal_log_source.cc
 +++ chrome/browser/feedback/system_logs/log_sources/chrome_internal_log_source.cc
-@@ -19,6 +19,7 @@
+@@ -21,6 +21,7 @@
  #include "chrome/browser/profiles/profile_manager.h"
  #include "chrome/browser/sync/profile_sync_service_factory.h"
  #include "chrome/common/channel_info.h"
 +#include "chrome/common/chrome_switches.h"
- #include "chrome/common/pref_names.h"
  #include "components/prefs/pref_service.h"
  #include "components/sync/driver/about_sync_util.h"
-@@ -267,6 +268,10 @@ void ChromeInternalLogSource::Fetch(SysLogsSourceCallback callback) {
+ #include "components/sync/driver/sync_service.h"
+@@ -268,6 +269,10 @@ void ChromeInternalLogSource::Fetch(SysLogsSourceCallback callback) {
  }
  
  void ChromeInternalLogSource::PopulateSyncLogs(SystemLogsResponse* response) {
@@ -21,7 +21,7 @@ index 8f60e60d6ad3..ff85f58185f2 100644
    // We are only interested in sync logs for the primary user profile.
    Profile* profile = ProfileManager::GetPrimaryUserProfile();
    if (!profile || !ProfileSyncServiceFactory::HasSyncService(profile))
-@@ -309,6 +314,12 @@ void ChromeInternalLogSource::PopulateExtensionInfoLogs(
+@@ -310,6 +315,12 @@ void ChromeInternalLogSource::PopulateExtensionInfoLogs(
    if (!profile)
      return;
  

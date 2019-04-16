@@ -39,6 +39,7 @@
 #include "content/public/common/content_client.h"
 #include "content/public/common/content_switches.h"
 #include "content/public/common/url_constants.h"
+#include "net/base/http_user_agent_settings.h"
 #include "net/cert/cert_verifier.h"
 #include "net/cert/ct_log_verifier.h"
 #include "net/cert/multi_log_ct_verifier.h"
@@ -56,7 +57,6 @@
 #include "net/proxy_resolution/pac_file_fetcher_impl.h"
 #include "net/proxy_resolution/proxy_resolution_service.h"
 #include "net/ssl/ssl_config_service_defaults.h"
-#include "net/url_request/http_user_agent_settings.h"
 #include "net/url_request/url_request.h"
 #include "net/url_request/url_request_context.h"
 #include "net/url_request/url_request_context_storage.h"
@@ -318,7 +318,7 @@ net::URLRequestContext* CefURLRequestContextGetter::GetURLRequestContext() {
         base::WrapUnique(new CefHttpUserAgentSettings(accept_language)));
 
     io_state_->storage_->set_host_resolver(
-        net::HostResolver::CreateDefaultResolver(io_state_->net_log_));
+        net::HostResolver::CreateStandaloneResolver(io_state_->net_log_));
     io_state_->storage_->set_cert_verifier(net::CertVerifier::CreateDefault());
 
     std::unique_ptr<net::TransportSecurityState> transport_security_state(
@@ -542,7 +542,7 @@ void CefURLRequestContextGetter::SetCookieStoragePath(
   // cookie store, if any, will be automatically flushed and closed when no
   // longer referenced.
   std::unique_ptr<net::CookieMonster> cookie_monster(new net::CookieMonster(
-      persistent_store.get(), nullptr, io_state_->net_log_));
+      persistent_store.get(), io_state_->net_log_));
   if (persistent_store.get() && persist_session_cookies)
     cookie_monster->SetPersistSessionCookies(true);
   io_state_->cookie_store_path_ = path;

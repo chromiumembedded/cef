@@ -49,6 +49,8 @@ const char* GetTypeString(base::Value::Type type) {
       return "DICTIONARY";
     case base::Value::Type::LIST:
       return "LIST";
+    case base::Value::Type::DEAD:
+      return "DEAD";
   }
 
   NOTREACHED();

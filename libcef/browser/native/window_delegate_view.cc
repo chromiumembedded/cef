@@ -67,7 +67,7 @@ void CefWindowDelegateView::InitContent() {
 }
 
 void CefWindowDelegateView::ViewHierarchyChanged(
-    const ViewHierarchyChangedDetails& details) {
+    const views::ViewHierarchyChangedDetails& details) {
   if (details.is_add && details.child == this)
     InitContent();
 }

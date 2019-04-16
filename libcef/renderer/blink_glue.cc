@@ -9,6 +9,7 @@
 #include "third_party/blink/public/platform/web_url_response.h"
 #include "third_party/blink/public/web/web_document.h"
 #include "third_party/blink/public/web/web_element.h"
+#include "third_party/blink/public/web/web_local_frame_client.h"
 #include "third_party/blink/public/web/web_node.h"
 #include "third_party/blink/public/web/web_view_client.h"
 
@@ -54,17 +55,29 @@ bool CanGoForward(blink::WebView* view) {
 void GoBack(blink::WebView* view) {
   if (!view)
     return;
-  blink::WebViewImpl* impl = reinterpret_cast<blink::WebViewImpl*>(view);
-  if (impl->Client()->HistoryBackListCount() > 0)
-    impl->Client()->NavigateBackForwardSoon(-1, true /* has_user_gesture */);
+
+  blink::WebFrame* main_frame = view->MainFrame();
+  if (main_frame && main_frame->IsWebLocalFrame()) {
+    blink::WebViewImpl* view_impl = reinterpret_cast<blink::WebViewImpl*>(view);
+    if (view_impl->Client()->HistoryBackListCount() > 0) {
+      main_frame->ToWebLocalFrame()->Client()->NavigateBackForwardSoon(
+          -1, true /* has_user_gesture */);
+    }
+  }
 }
 
 void GoForward(blink::WebView* view) {
   if (!view)
     return;
-  blink::WebViewImpl* impl = reinterpret_cast<blink::WebViewImpl*>(view);
-  if (impl->Client()->HistoryForwardListCount() > 0)
-    impl->Client()->NavigateBackForwardSoon(1, true /* has_user_gesture */);
+
+  blink::WebFrame* main_frame = view->MainFrame();
+  if (main_frame && main_frame->IsWebLocalFrame()) {
+    blink::WebViewImpl* view_impl = reinterpret_cast<blink::WebViewImpl*>(view);
+    if (view_impl->Client()->HistoryForwardListCount() > 0) {
+      main_frame->ToWebLocalFrame()->Client()->NavigateBackForwardSoon(
+          1, true /* has_user_gesture */);
+    }
+  }
 }
 
 std::string DumpDocumentText(blink::WebLocalFrame* frame) {

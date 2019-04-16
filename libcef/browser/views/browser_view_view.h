@@ -40,7 +40,7 @@ class CefBrowserViewView
 
   // View methods:
   void ViewHierarchyChanged(
-      const ViewHierarchyChangedDetails& details) override;
+      const views::ViewHierarchyChangedDetails& details) override;
 
  private:
   // Not owned by this object.

@@ -461,7 +461,7 @@ bool CefWindowView::MaybeGetMaximumSize(gfx::Size* size) const {
 }
 
 void CefWindowView::ViewHierarchyChanged(
-    const views::View::ViewHierarchyChangedDetails& details) {
+    const views::ViewHierarchyChangedDetails& details) {
   if (details.child == this) {
     // This View's parent types (RootView, ClientView) are not exposed via the
     // CEF API. Therefore don't send notifications about this View's parent

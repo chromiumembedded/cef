@@ -3010,8 +3010,8 @@ class CancelBeforeNavTestHandler : public TestHandler {
 
     got_get_resource_handler_.yes();
 
-    CefPostDelayedTask(
-        TID_UI, base::Bind(&CancelBeforeNavTestHandler::CancelLoad, this), 100);
+    CefPostTask(TID_UI,
+                base::Bind(&CancelBeforeNavTestHandler::CancelLoad, this));
 
     return new UnstartedSchemeHandler();
   }
@@ -3035,7 +3035,10 @@ class CancelBeforeNavTestHandler : public TestHandler {
                    ErrorCode errorCode,
                    const CefString& errorText,
                    const CefString& failedUrl) override {
-    EXPECT_TRUE(false);  // Not reached.
+    EXPECT_EQ(GetBrowserId(), browser->GetIdentifier());
+    EXPECT_STREQ("", frame->GetURL().ToString().c_str());
+    EXPECT_EQ(ERR_ABORTED, errorCode);
+    EXPECT_STREQ(kCancelPageUrl, failedUrl.ToString().c_str());
     got_load_error_.yes();
   }
 
@@ -3064,7 +3067,7 @@ class CancelBeforeNavTestHandler : public TestHandler {
       EXPECT_TRUE(got_get_resource_handler_);
       EXPECT_FALSE(got_load_start_);
       EXPECT_TRUE(got_cancel_load_);
-      EXPECT_FALSE(got_load_error_);
+      EXPECT_TRUE(got_load_error_);
       EXPECT_FALSE(got_load_end_);
       EXPECT_FALSE(got_loading_state_changed_end_);
 
@@ -3090,7 +3093,7 @@ class CancelBeforeNavTestHandler : public TestHandler {
     EXPECT_TRUE(got_get_resource_handler_);
     EXPECT_FALSE(got_load_start_);
     EXPECT_TRUE(got_cancel_load_);
-    EXPECT_FALSE(got_load_error_);
+    EXPECT_TRUE(got_load_error_);
     EXPECT_FALSE(got_load_end_);
     EXPECT_TRUE(got_loading_state_changed_end_);
 

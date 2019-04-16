@@ -178,7 +178,7 @@ CEF_PANEL_IMPL_T void CEF_PANEL_IMPL_D::RemoveChildView(
 
 CEF_PANEL_IMPL_T void CEF_PANEL_IMPL_D::RemoveAllChildViews() {
   CEF_REQUIRE_VALID_RETURN_VOID();
-  while (ParentClass::content_view()->has_children()) {
+  while (!ParentClass::content_view()->children().empty()) {
     CefRefPtr<CefView> view =
         view_util::GetFor(ParentClass::content_view()->child_at(0), false);
     RemoveChildView(view);

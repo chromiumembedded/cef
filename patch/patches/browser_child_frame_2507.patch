@@ -1,5 +1,5 @@
 diff --git content/browser/renderer_host/render_widget_host_view_child_frame.cc content/browser/renderer_host/render_widget_host_view_child_frame.cc
-index 1e2a66d449be..639bb2096cf4 100644
+index 88681456e180..aec9ee42e21b 100644
 --- content/browser/renderer_host/render_widget_host_view_child_frame.cc
 +++ content/browser/renderer_host/render_widget_host_view_child_frame.cc
 @@ -650,6 +650,7 @@ void RenderWidgetHostViewChildFrame::SubmitCompositorFrame(

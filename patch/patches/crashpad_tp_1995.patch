@@ -1,5 +1,5 @@
 diff --git third_party/crashpad/crashpad/client/prune_crash_reports.cc third_party/crashpad/crashpad/client/prune_crash_reports.cc
-index d045eb6a65a0..bc347a30ea26 100644
+index c6fa389ba88f..8912e2169972 100644
 --- third_party/crashpad/crashpad/client/prune_crash_reports.cc
 +++ third_party/crashpad/crashpad/client/prune_crash_reports.cc
 @@ -66,13 +66,19 @@ void PruneCrashReportDatabase(CrashReportDatabase* database,
@@ -146,7 +146,7 @@ index a2b0c74636f4..01370fdc20d9 100644
    struct Data;
  
 diff --git third_party/crashpad/crashpad/handler/BUILD.gn third_party/crashpad/crashpad/handler/BUILD.gn
-index b22ab2c4b912..223e43e910d7 100644
+index e1e673e26a01..ae0224dd847d 100644
 --- third_party/crashpad/crashpad/handler/BUILD.gn
 +++ third_party/crashpad/crashpad/handler/BUILD.gn
 @@ -12,6 +12,7 @@

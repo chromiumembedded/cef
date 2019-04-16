@@ -38,7 +38,7 @@ class CefWindowDelegateView : public views::WidgetDelegateView {
 
   // View methods:
   void ViewHierarchyChanged(
-      const ViewHierarchyChangedDetails& details) override;
+      const views::ViewHierarchyChangedDetails& details) override;
 
  private:
   SkColor background_color_;

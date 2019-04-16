@@ -14,10 +14,10 @@ namespace {
 class ButtonPressedLock : public CefMenuButtonPressedLock {
  public:
   explicit ButtonPressedLock(views::MenuButton* menu_button)
-      : pressed_lock_(menu_button->menu_button_event_handler()) {}
+      : pressed_lock_(menu_button->menu_button_controller()) {}
 
  private:
-  views::MenuButtonEventHandler::PressedLock pressed_lock_;
+  views::MenuButtonController::PressedLock pressed_lock_;
 
   IMPLEMENT_REFCOUNTING_DELETE_ON_UIT(ButtonPressedLock);
   DISALLOW_COPY_AND_ASSIGN(ButtonPressedLock);

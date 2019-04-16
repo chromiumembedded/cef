@@ -18,11 +18,11 @@
 #include "base/bind.h"
 #include "base/logging.h"
 #include "base/strings/string_util.h"
+#include "net/base/http_user_agent_settings.h"
 #include "net/base/io_buffer.h"
 #include "net/base/load_flags.h"
 #include "net/base/mime_util.h"
 #include "net/http/http_response_headers.h"
-#include "net/url_request/http_user_agent_settings.h"
 #include "net/url_request/url_request.h"
 #include "net/url_request/url_request_context.h"
 
@@ -566,8 +566,7 @@ void CefResourceRequestJob::SaveNextCookie() {
 
   if (can_set_cookie) {
     request_->context()->cookie_store()->SetCanonicalCookieAsync(
-        std::move(cookie), request_->url().scheme(),
-        !options.exclude_httponly(),
+        std::move(cookie), request_->url().scheme(), options,
         base::Bind(&CefResourceRequestJob::OnCookieSaved,
                    weak_factory_.GetWeakPtr()));
     return;

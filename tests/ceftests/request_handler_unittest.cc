@@ -1222,6 +1222,10 @@ class ResponseFilterTestBase : public CefResponseFilter {
     EXPECT_GT(filter_count_, 0U);
   }
 
+  virtual void VerifyStatusCode(int httpStatusCode) const {
+    EXPECT_TRUE(httpStatusCode == 0 || httpStatusCode == 200) << httpStatusCode;
+  }
+
  protected:
   TrackCallback got_init_filter_;
   size_t filter_count_;
@@ -1490,12 +1494,15 @@ class ResponseFilterError : public ResponseFilterTestBase {
     EXPECT_EQ(UR_FAILED, status);
 
     // Expect empty content.
-    const std::string& output = std::string(kInputHeader) + kInputFooter;
-    EXPECT_STREQ(output.c_str(), received_content.c_str());
+    EXPECT_STREQ("", received_content.c_str());
     EXPECT_EQ(0U, received_content_length);
 
     // Expect to only be called one time.
     EXPECT_EQ(filter_count_, 1U);
+  }
+
+  void VerifyStatusCode(int httpStatusCode) const override {
+    EXPECT_EQ(ERR_CONTENT_DECODING_FAILED, httpStatusCode);
   }
 };
 
@@ -1550,7 +1557,7 @@ class ResponseFilterTestHandler : public TestHandler {
     DCHECK(!got_load_end_);
     got_load_end_.yes();
 
-    EXPECT_TRUE(httpStatusCode == 0 || httpStatusCode == 200);
+    response_filter_->VerifyStatusCode(httpStatusCode);
 
     GetOutputContent(frame);
   }

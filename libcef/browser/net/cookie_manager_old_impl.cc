@@ -323,7 +323,8 @@ void CefCookieManagerOldImpl::SetCookieMonsterSchemes(
   all_schemes.push_back("ws");
   all_schemes.push_back("wss");
 
-  cookie_monster->SetCookieableSchemes(all_schemes);
+  cookie_monster->SetCookieableSchemes(
+      all_schemes, net::CookieStore::SetCookieableSchemesCallback());
 }
 
 void CefCookieManagerOldImpl::RunMethodWithContext(
@@ -462,6 +463,10 @@ void CefCookieManagerOldImpl::SetCookieInternal(
   if (cookie.has_expires)
     cef_time_to_basetime(cookie.expires, expiration_time);
 
+  net::CookieOptions options;
+  if (cookie.httponly)
+    options.set_include_httponly();
+
   cookie_store->SetCanonicalCookieAsync(
       net::CanonicalCookie::CreateSanitizedCookie(
           url, name, value, domain, path,
@@ -470,8 +475,7 @@ void CefCookieManagerOldImpl::SetCookieInternal(
           base::Time(),  // Last access time.
           cookie.secure ? true : false, cookie.httponly ? true : false,
           net::CookieSameSite::DEFAULT_MODE, net::COOKIE_PRIORITY_DEFAULT),
-      url.scheme(), cookie.httponly ? true : false,
-      base::Bind(SetCookieCallbackImpl, callback));
+      url.scheme(), options, base::Bind(SetCookieCallbackImpl, callback));
 }
 
 void CefCookieManagerOldImpl::DeleteCookiesInternal(

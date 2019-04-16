@@ -51,7 +51,6 @@
 #include "build/build_config.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/constants.mojom.h"
-#include "chrome/common/secure_origin_whitelist.h"
 #include "chrome/common/url_constants.h"
 #include "chrome/renderer/chrome_content_renderer_client.h"
 #include "chrome/renderer/loadtimes_extension_bindings.h"
@@ -84,6 +83,7 @@
 #include "ipc/ipc_sync_channel.h"
 #include "media/base/media.h"
 #include "printing/print_settings.h"
+#include "services/network/public/cpp/is_potentially_trustworthy.h"
 #include "services/service_manager/public/cpp/connector.h"
 #include "services/service_manager/public/cpp/interface_provider.h"
 #include "third_party/blink/public/common/associated_interfaces/associated_interface_provider.h"
@@ -412,8 +412,7 @@ void CefContentRendererClient::RenderThreadStarted() {
     pdf::PepperPDFHost::SetPrintClient(pdf_print_client_.get());
   }
 
-  for (auto& origin_or_hostname_pattern :
-       secure_origin_whitelist::GetWhitelist()) {
+  for (auto& origin_or_hostname_pattern : network::GetSecureOriginAllowlist()) {
     blink::WebSecurityPolicy::AddOriginTrustworthyWhiteList(
         blink::WebString::FromUTF8(origin_or_hostname_pattern));
   }
@@ -541,14 +540,13 @@ void CefContentRendererClient::WillSendRequest(
   }
 }
 
-unsigned long long CefContentRendererClient::VisitedLinkHash(
-    const char* canonical_url,
-    size_t length) {
+uint64_t CefContentRendererClient::VisitedLinkHash(const char* canonical_url,
+                                                   size_t length) {
   return observer_->visited_link_slave()->ComputeURLFingerprint(canonical_url,
                                                                 length);
 }
 
-bool CefContentRendererClient::IsLinkVisited(unsigned long long link_hash) {
+bool CefContentRendererClient::IsLinkVisited(uint64_t link_hash) {
   return observer_->visited_link_slave()->IsVisited(link_hash);
 }
 

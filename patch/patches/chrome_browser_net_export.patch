@@ -24,7 +24,7 @@ index cac72c6a2fd1..2ed83a4af1b3 100644
    // network quality change events.
    virtual network::NetworkQualityTracker* network_quality_tracker() = 0;
 diff --git chrome/browser/browser_process_impl.cc chrome/browser/browser_process_impl.cc
-index 27092f6375c4..b8ce740e4a08 100644
+index 6699792348cc..5a550106043d 100644
 --- chrome/browser/browser_process_impl.cc
 +++ chrome/browser/browser_process_impl.cc
 @@ -665,6 +665,10 @@ BrowserProcessImpl::system_network_context_manager() {
@@ -39,10 +39,10 @@ index 27092f6375c4..b8ce740e4a08 100644
  BrowserProcessImpl::shared_url_loader_factory() {
    return system_network_context_manager()->GetSharedURLLoaderFactory();
 diff --git chrome/browser/browser_process_impl.h chrome/browser/browser_process_impl.h
-index 7168c719aa25..bae7162a539c 100644
+index 9bf48b759148..90d455eae40d 100644
 --- chrome/browser/browser_process_impl.h
 +++ chrome/browser/browser_process_impl.h
-@@ -140,6 +140,7 @@ class BrowserProcessImpl : public BrowserProcess,
+@@ -141,6 +141,7 @@ class BrowserProcessImpl : public BrowserProcess,
    // TODO(qinmin): Remove this method as callers can retrieve the global
    // instance from SystemNetworkContextManager directly.
    SystemNetworkContextManager* system_network_context_manager() override;
@@ -51,7 +51,7 @@ index 7168c719aa25..bae7162a539c 100644
        override;
    network::NetworkQualityTracker* network_quality_tracker() override;
 diff --git chrome/browser/ui/BUILD.gn chrome/browser/ui/BUILD.gn
-index 911e49e41313..eecbca982a92 100644
+index dba025da98a5..c6d4e2998bf4 100644
 --- chrome/browser/ui/BUILD.gn
 +++ chrome/browser/ui/BUILD.gn
 @@ -9,6 +9,7 @@ import("//build/config/features.gni")
@@ -81,7 +81,7 @@ index 911e49e41313..eecbca982a92 100644
      "//chrome:extra_resources",
      "//chrome:resources",
      "//chrome:strings",
-@@ -2309,7 +2315,7 @@ jumbo_split_static_library("ui") {
+@@ -2322,7 +2328,7 @@ jumbo_split_static_library("ui") {
          "views/frame/native_browser_frame_factory_ozone.cc",
        ]
      } else {

@@ -1,5 +1,5 @@
 diff --git base/message_loop/message_loop.cc base/message_loop/message_loop.cc
-index fff922d36819..28fea401be5f 100644
+index ae58f829393d..453368e55bb7 100644
 --- base/message_loop/message_loop.cc
 +++ base/message_loop/message_loop.cc
 @@ -163,6 +163,9 @@ MessageLoopBase* MessageLoop::GetMessageLoopBase() {
@@ -25,10 +25,10 @@ index 46782b49a7f0..78ebaf71cbdf 100644
  #if defined(OS_IOS)
    // On iOS, the main message loop cannot be Run().  Instead call Attach(),
 diff --git base/message_loop/message_loop_current.cc base/message_loop/message_loop_current.cc
-index c0b2ff7e0ad6..75802589ca01 100644
+index 7dcab95f6838..4a6ec38e051a 100644
 --- base/message_loop/message_loop_current.cc
 +++ base/message_loop/message_loop_current.cc
-@@ -49,6 +49,8 @@ void MessageLoopCurrent::AddDestructionObserver(
+@@ -46,6 +46,8 @@ void MessageLoopCurrent::AddDestructionObserver(
  
  void MessageLoopCurrent::RemoveDestructionObserver(
      DestructionObserver* destruction_observer) {
@@ -38,7 +38,7 @@ index c0b2ff7e0ad6..75802589ca01 100644
    current_->RemoveDestructionObserver(destruction_observer);
  }
 diff --git base/message_loop/message_loop_current.h base/message_loop/message_loop_current.h
-index bcab89d6e2e7..3160b321990e 100644
+index 1809f870d188..d0e8e645e3a7 100644
 --- base/message_loop/message_loop_current.h
 +++ base/message_loop/message_loop_current.h
 @@ -133,6 +133,12 @@ class BASE_EXPORT MessageLoopCurrent {
@@ -54,8 +54,8 @@ index bcab89d6e2e7..3160b321990e 100644
    // Enables or disables the recursive task processing. This happens in the case
    // of recursive message loops. Some unwanted message loops may occur when
    // using common controls or printer functions. By default, recursive task
-@@ -213,6 +219,13 @@ class BASE_EXPORT MessageLoopCurrent {
-   MessageLoopBase* ToMessageLoopBaseDeprecated() const { return current_; }
+@@ -200,6 +206,13 @@ class BASE_EXPORT MessageLoopCurrent {
+   friend class web::TestWebThreadBundle;
  
    MessageLoopBase* current_;
 +

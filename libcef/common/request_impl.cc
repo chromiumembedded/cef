@@ -218,7 +218,7 @@ void SetHeaderMap(const CefRequest::HeaderMap& map,
                   blink::WebURLRequest& request) {
   CefRequest::HeaderMap::const_iterator it = map.begin();
   for (; it != map.end(); ++it) {
-    request.SetHTTPHeaderField(
+    request.SetHttpHeaderField(
         blink::WebString::FromUTF16(it->first.ToString16()),
         blink::WebString::FromUTF16(it->second.ToString16()));
   }
@@ -595,7 +595,7 @@ void CefRequestImpl::Get(const CefMsg_LoadRequest_Params& params,
     for (net::HttpUtil::HeadersIterator i(params.headers.begin(),
                                           params.headers.end(), "\n\r");
          i.GetNext();) {
-      request.AddHTTPHeaderField(blink::WebString::FromUTF8(i.name()),
+      request.AddHttpHeaderField(blink::WebString::FromUTF8(i.name()),
                                  blink::WebString::FromUTF8(i.values()));
       headerMap.insert(std::make_pair(i.name(), i.values()));
     }
@@ -613,7 +613,7 @@ void CefRequestImpl::Get(const CefMsg_LoadRequest_Params& params,
             .HttpHeaderField(blink::WebString::FromASCII(
                 net::HttpRequestHeaders::kContentType))
             .length() == 0) {
-      request.SetHTTPHeaderField(
+      request.SetHttpHeaderField(
           blink::WebString::FromASCII(net::HttpRequestHeaders::kContentType),
           blink::WebString::FromASCII(kApplicationFormURLEncoded));
     }

@@ -824,18 +824,12 @@ class OSRTestHandler : public RoutingTestHandler,
             const CefRect& expanded_select_rect =
                 GetScaledRect(kExpandedSelectRect);
             EXPECT_EQ(dirtyRects.size(), 1U);
-            // dirtyRects[0] has a 1px inset.
-#if defined(OS_MACOSX)
-            const int inset = GetScaledInt(1);
-#else
-            const int inset = 1;
-#endif
-            EXPECT_EQ(inset, dirtyRects[0].x);
-            EXPECT_EQ(inset, dirtyRects[0].y);
+            EXPECT_EQ(0, dirtyRects[0].x);
+            EXPECT_EQ(0, dirtyRects[0].y);
             if (ExpectComputedPopupSize()) {
-              EXPECT_EQ(expanded_select_rect.width - inset * 2,
+              EXPECT_EQ(expanded_select_rect.width,
                         dirtyRects[0].width);
-              EXPECT_EQ(expanded_select_rect.height - inset * 2,
+              EXPECT_EQ(expanded_select_rect.height,
                         dirtyRects[0].height);
             } else {
               EXPECT_GT(dirtyRects[0].width, kExpandedSelectRect.width);

@@ -13,7 +13,7 @@ CefBrowserViewView::CefBrowserViewView(CefBrowserViewDelegate* cef_delegate,
 }
 
 void CefBrowserViewView::ViewHierarchyChanged(
-    const ViewHierarchyChangedDetails& details) {
+    const views::ViewHierarchyChangedDetails& details) {
   ParentClass::ViewHierarchyChanged(details);
   if (details.is_add && details.child == this) {
     gfx::Size size = GetPreferredSize();

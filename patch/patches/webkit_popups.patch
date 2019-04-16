@@ -1,5 +1,5 @@
 diff --git third_party/blink/public/web/web_view.h third_party/blink/public/web/web_view.h
-index 61ea5ce43940..776eb720aaae 100644
+index 36d767e51b2f..4425dfeaa786 100644
 --- third_party/blink/public/web/web_view.h
 +++ third_party/blink/public/web/web_view.h
 @@ -358,6 +358,7 @@ class WebView {
@@ -11,7 +11,7 @@ index 61ea5ce43940..776eb720aaae 100644
    // Cancels and hides the current popup (datetime, select...) if any.
    virtual void CancelPagePopup() = 0;
 diff --git third_party/blink/renderer/core/exported/web_view_impl.cc third_party/blink/renderer/core/exported/web_view_impl.cc
-index 8dd8d5e381cf..6b8d2d3c2e19 100644
+index 92529f378bb2..7ec3894f996c 100644
 --- third_party/blink/renderer/core/exported/web_view_impl.cc
 +++ third_party/blink/renderer/core/exported/web_view_impl.cc
 @@ -234,8 +234,13 @@ void WebView::SetUseExternalPopupMenus(bool use_external_popup_menus) {
@@ -36,10 +36,10 @@ index 8dd8d5e381cf..6b8d2d3c2e19 100644
        maximum_zoom_level_(ZoomFactorToZoomLevel(kMaxTextSizeMultiplier)),
 +      should_use_external_popup_menus_(g_should_use_external_popup_menus),
        does_composite_(does_composite),
-       fullscreen_controller_(FullscreenController::Create(this)) {
+       fullscreen_controller_(std::make_unique<FullscreenController>(this)) {
    if (!AsView().client) {
 diff --git third_party/blink/renderer/core/exported/web_view_impl.h third_party/blink/renderer/core/exported/web_view_impl.h
-index 52b62bace7a8..3d962d2880c3 100644
+index d161ab3cf8af..6b655c488a0a 100644
 --- third_party/blink/renderer/core/exported/web_view_impl.h
 +++ third_party/blink/renderer/core/exported/web_view_impl.h
 @@ -106,7 +106,8 @@ class CORE_EXPORT WebViewImpl final : public WebView,
@@ -52,7 +52,7 @@ index 52b62bace7a8..3d962d2880c3 100644
  
    // WebView methods:
    void DidAttachLocalMainFrame(WebWidgetClient*) override;
-@@ -614,6 +615,8 @@ class CORE_EXPORT WebViewImpl final : public WebView,
+@@ -616,6 +617,8 @@ class CORE_EXPORT WebViewImpl final : public WebView,
    float fake_page_scale_animation_page_scale_factor_ = 0.f;
    bool fake_page_scale_animation_use_anchor_ = false;
  
@@ -62,10 +62,10 @@ index 52b62bace7a8..3d962d2880c3 100644
    TransformationMatrix device_emulation_transform_;
  
 diff --git third_party/blink/renderer/core/page/chrome_client_impl.cc third_party/blink/renderer/core/page/chrome_client_impl.cc
-index cb0aa3034bad..88cdd25b427b 100644
+index c9e907264bfe..4b4395144ba5 100644
 --- third_party/blink/renderer/core/page/chrome_client_impl.cc
 +++ third_party/blink/renderer/core/page/chrome_client_impl.cc
-@@ -801,7 +801,7 @@ bool ChromeClientImpl::HasOpenedPopup() const {
+@@ -823,7 +823,7 @@ bool ChromeClientImpl::HasOpenedPopup() const {
  PopupMenu* ChromeClientImpl::OpenPopupMenu(LocalFrame& frame,
                                             HTMLSelectElement& select) {
    NotifyPopupOpeningObservers();

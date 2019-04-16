@@ -16,7 +16,7 @@
 
 #include "base/synchronization/lock.h"
 #include "content/public/browser/render_process_host_observer.h"
-#include "third_party/blink/public/web/window_features.mojom.h"
+#include "third_party/blink/public/mojom/window_features/window_features.mojom.h"
 #include "ui/base/window_open_disposition.h"
 #include "url/gurl.h"
 

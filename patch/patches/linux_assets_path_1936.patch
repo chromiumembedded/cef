@@ -1,5 +1,5 @@
 diff --git sandbox/linux/suid/client/setuid_sandbox_host.cc sandbox/linux/suid/client/setuid_sandbox_host.cc
-index 7a103bf7f13c..cd3167ebed09 100644
+index a277ffa5eb59..3935b9f8c17c 100644
 --- sandbox/linux/suid/client/setuid_sandbox_host.cc
 +++ sandbox/linux/suid/client/setuid_sandbox_host.cc
 @@ -120,7 +120,7 @@ bool SetuidSandboxHost::IsDisabledViaEnvironment() {

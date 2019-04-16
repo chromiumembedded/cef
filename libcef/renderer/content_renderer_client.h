@@ -121,9 +121,8 @@ class CefContentRendererClient
                        const url::Origin* initiator_origin,
                        GURL* new_url,
                        bool* attach_same_site_cookies) override;
-  unsigned long long VisitedLinkHash(const char* canonical_url,
-                                     size_t length) override;
-  bool IsLinkVisited(unsigned long long link_hash) override;
+  uint64_t VisitedLinkHash(const char* canonical_url, size_t length) override;
+  bool IsLinkVisited(uint64_t link_hash) override;
   bool IsOriginIsolatedPepperPlugin(const base::FilePath& plugin_path) override;
   content::BrowserPluginDelegate* CreateBrowserPluginDelegate(
       content::RenderFrame* render_frame,

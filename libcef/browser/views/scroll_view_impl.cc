@@ -27,8 +27,7 @@ void CefScrollViewImpl::SetContentView(CefRefPtr<CefView> view) {
   if (!view.get() || !view->IsValid() || view->IsAttached())
     return;
 
-  std::unique_ptr<views::View> view_ptr = view_util::PassOwnership(view);
-  root_view()->SetContents(view_ptr.release());
+  root_view()->SetContents(view_util::PassOwnership(view));
 }
 
 CefRefPtr<CefView> CefScrollViewImpl::GetContentView() {

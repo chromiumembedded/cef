@@ -492,8 +492,7 @@ void CefServerImpl::OnWebSocketRequest(
       CreateRequest(address_, request_info, true), callback);
 }
 
-void CefServerImpl::OnWebSocketMessage(int connection_id,
-                                       const std::string& data) {
+void CefServerImpl::OnWebSocketMessage(int connection_id, std::string data) {
   CEF_REQUIRE_HT();
 
   ConnectionInfo* info = GetConnectionInfo(connection_id);

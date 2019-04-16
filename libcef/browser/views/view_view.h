@@ -69,7 +69,7 @@ CEF_VIEW_VIEW_T class CefViewView : public ViewsViewClass {
   int GetHeightForWidth(int w) const override;
   void Layout() override;
   void ViewHierarchyChanged(
-      const views::View::ViewHierarchyChangedDetails& details) override;
+      const views::ViewHierarchyChangedDetails& details) override;
   void OnFocus() override;
   void OnBlur() override;
 
@@ -79,9 +79,9 @@ CEF_VIEW_VIEW_T class CefViewView : public ViewsViewClass {
 
  private:
   void NotifyChildViewChanged(
-      const views::View::ViewHierarchyChangedDetails& details);
+      const views::ViewHierarchyChangedDetails& details);
   void NotifyParentViewChanged(
-      const views::View::ViewHierarchyChangedDetails& details);
+      const views::ViewHierarchyChangedDetails& details);
 
   // Not owned by this object.
   CefViewDelegateClass* cef_delegate_;
@@ -156,7 +156,7 @@ CEF_VIEW_VIEW_T void CEF_VIEW_VIEW_D::Layout() {
 }
 
 CEF_VIEW_VIEW_T void CEF_VIEW_VIEW_D::ViewHierarchyChanged(
-    const views::View::ViewHierarchyChangedDetails& details) {
+    const views::ViewHierarchyChangedDetails& details) {
   NotifyChildViewChanged(details);
   NotifyParentViewChanged(details);
   ParentClass::ViewHierarchyChanged(details);
@@ -175,7 +175,7 @@ CEF_VIEW_VIEW_T void CEF_VIEW_VIEW_D::OnBlur() {
 }
 
 CEF_VIEW_VIEW_T void CEF_VIEW_VIEW_D::NotifyChildViewChanged(
-    const views::View::ViewHierarchyChangedDetails& details) {
+    const views::ViewHierarchyChangedDetails& details) {
   if (!cef_delegate())
     return;
 
@@ -192,7 +192,7 @@ CEF_VIEW_VIEW_T void CEF_VIEW_VIEW_D::NotifyChildViewChanged(
 }
 
 CEF_VIEW_VIEW_T void CEF_VIEW_VIEW_D::NotifyParentViewChanged(
-    const views::View::ViewHierarchyChangedDetails& details) {
+    const views::ViewHierarchyChangedDetails& details) {
   if (!cef_delegate())
     return;
 

@@ -748,6 +748,8 @@ CefValueType CefDictionaryValueImpl::GetType(const CefString& key) {
         return VTYPE_DICTIONARY;
       case base::Value::Type::LIST:
         return VTYPE_LIST;
+      case base::Value::Type::DEAD:
+        return VTYPE_INVALID;
     }
   }
 
@@ -1156,6 +1158,8 @@ CefValueType CefListValueImpl::GetType(size_t index) {
         return VTYPE_DICTIONARY;
       case base::Value::Type::LIST:
         return VTYPE_LIST;
+      case base::Value::Type::DEAD:
+        return VTYPE_INVALID;
     }
   }
 

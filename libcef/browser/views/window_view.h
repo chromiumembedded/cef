@@ -73,7 +73,7 @@ class CefWindowView
 
   // views::View methods:
   void ViewHierarchyChanged(
-      const views::View::ViewHierarchyChangedDetails& details) override;
+      const views::ViewHierarchyChangedDetails& details) override;
 
   // Returns the Display containing this Window.
   display::Display GetDisplay() const;

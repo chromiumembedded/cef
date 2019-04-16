@@ -199,5 +199,5 @@ void CefDevToolsFileManager::CallClientFunction(
   }
   javascript.append(");");
   browser_impl_->web_contents()->GetMainFrame()->ExecuteJavaScript(
-      base::UTF8ToUTF16(javascript));
+      base::UTF8ToUTF16(javascript), base::NullCallback());
 }

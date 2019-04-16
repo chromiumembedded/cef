@@ -101,6 +101,7 @@
 #include "extensions/common/switches.h"
 #include "net/ssl/ssl_cert_request_info.h"
 #include "ppapi/host/ppapi_host.h"
+#include "services/network/public/cpp/network_switches.h"
 #include "services/service_manager/embedder/switches.h"
 #include "services/service_manager/public/mojom/connector.mojom.h"
 #include "services/service_manager/sandbox/switches.h"
@@ -736,7 +737,7 @@ void CefContentBrowserClient::AppendExtraCommandLineSwitches(
         switches::kPpapiFlashPath,
         switches::kPpapiFlashVersion,
         switches::kUncaughtExceptionStackSize,
-        switches::kUnsafelyTreatInsecureOriginAsSecure,
+        network::switches::kUnsafelyTreatInsecureOriginAsSecure,
     };
     command_line->CopySwitchesFrom(*browser_cmd, kSwitchNames,
                                    base::size(kSwitchNames));
@@ -1239,7 +1240,9 @@ bool CefContentBrowserClient::HandleExternalProtocol(
     ui::PageTransition page_transition,
     bool has_user_gesture,
     const std::string& method,
-    const net::HttpRequestHeaders& headers) {
+    const net::HttpRequestHeaders& headers,
+    network::mojom::URLLoaderFactoryRequest* factory_request,
+    network::mojom::URLLoaderFactory*& out_factory) {
   CEF_POST_TASK(
       CEF_UIT,
       base::Bind(

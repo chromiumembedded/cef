@@ -55,6 +55,8 @@ class CefWebURLLoaderClient : public blink::WebURLLoaderClient {
                int64_t total_encoded_data_length,
                int64_t total_encoded_body_length,
                int64_t total_decoded_body_length) override;
+  void DidStartLoadingResponseBody(
+      mojo::ScopedDataPipeConsumerHandle response_body) override;
   bool WillFollowRedirect(
       const WebURL& new_url,
       const WebURL& new_site_for_cookies,
@@ -87,6 +89,7 @@ class CefRenderURLRequest::Context
         task_runner_(CefTaskRunnerImpl::GetCurrentTaskRunner()),
         status_(UR_IO_PENDING),
         error_code_(ERR_NONE),
+        body_watcher_(FROM_HERE, mojo::SimpleWatcher::ArmingPolicy::MANUAL),
         response_was_cached_(false),
         upload_data_size_(0),
         got_upload_progress_complete_(false),
@@ -189,6 +192,10 @@ class CefRenderURLRequest::Context
   void OnComplete() {
     DCHECK(CalledOnValidThread());
 
+    if (body_handle_.is_valid()) {
+      return;
+    }
+
     if (status_ == UR_IO_PENDING) {
       status_ = UR_SUCCESS;
       NotifyUploadProgressIfNecessary();
@@ -202,6 +209,61 @@ class CefRenderURLRequest::Context
 
     // This may result in the Context object being deleted.
     url_request_ = NULL;
+  }
+
+  void OnBodyReadable(MojoResult, const mojo::HandleSignalsState&) {
+    const void* buffer = nullptr;
+    uint32_t read_bytes = 0;
+    MojoResult result = body_handle_->BeginReadData(&buffer, &read_bytes,
+                                                    MOJO_READ_DATA_FLAG_NONE);
+    if (result == MOJO_RESULT_SHOULD_WAIT) {
+      body_watcher_.ArmOrNotify();
+      return;
+    }
+
+    if (result == MOJO_RESULT_FAILED_PRECONDITION) {
+      // Whole body has been read.
+      body_handle_.reset();
+      body_watcher_.Cancel();
+      OnComplete();
+      return;
+    }
+
+    if (result != MOJO_RESULT_OK) {
+      // Something went wrong.
+      body_handle_.reset();
+      body_watcher_.Cancel();
+      OnComplete();
+      return;
+    }
+
+    download_data_received_ += read_bytes;
+
+    client_->OnDownloadProgress(url_request_.get(), download_data_received_,
+                                download_data_total_);
+
+    if (!(request_->GetFlags() & UR_FLAG_NO_DOWNLOAD_DATA)) {
+      client_->OnDownloadData(url_request_.get(), buffer, read_bytes);
+    }
+
+    body_handle_->EndReadData(read_bytes);
+    body_watcher_.ArmOrNotify();
+  }
+
+  void OnStartLoadingResponseBody(
+      mojo::ScopedDataPipeConsumerHandle response_body) {
+    DCHECK(CalledOnValidThread());
+    DCHECK(response_body);
+    DCHECK(!body_handle_);
+    body_handle_ = std::move(response_body);
+
+    body_watcher_.Watch(
+        body_handle_.get(),
+        MOJO_HANDLE_SIGNAL_READABLE | MOJO_HANDLE_SIGNAL_PEER_CLOSED,
+        MOJO_TRIGGER_CONDITION_SIGNALS_SATISFIED,
+        base::BindRepeating(&CefRenderURLRequest::Context::OnBodyReadable,
+                            base::Unretained(this)));
+    body_watcher_.ArmOrNotify();
   }
 
   void OnDownloadProgress(int64_t current) {
@@ -260,6 +322,8 @@ class CefRenderURLRequest::Context
   CefURLRequest::Status status_;
   CefURLRequest::ErrorCode error_code_;
   CefRefPtr<CefResponse> response_;
+  mojo::ScopedDataPipeConsumerHandle body_handle_;
+  mojo::SimpleWatcher body_watcher_;
   bool response_was_cached_;
   std::unique_ptr<blink::WebURLLoader> loader_;
   std::unique_ptr<CefWebURLLoaderClient> url_client_;
@@ -312,6 +376,11 @@ void CefWebURLLoaderClient::DidFail(const WebURLError& error,
                                     int64_t total_encoded_body_length,
                                     int64_t total_decoded_body_length) {
   context_->OnError(error);
+}
+
+void CefWebURLLoaderClient::DidStartLoadingResponseBody(
+    mojo::ScopedDataPipeConsumerHandle response_body) {
+  context_->OnStartLoadingResponseBody(std::move(response_body));
 }
 
 bool CefWebURLLoaderClient::WillFollowRedirect(

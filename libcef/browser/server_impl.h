@@ -71,7 +71,7 @@ class CefServerImpl : public CefServer, net::HttpServer::Delegate {
   void OnWebSocketRequest(
       int connection_id,
       const net::HttpServerRequestInfo& request_info) override;
-  void OnWebSocketMessage(int connection_id, const std::string& data) override;
+  void OnWebSocketMessage(int connection_id, std::string data) override;
   void OnClose(int connection_id) override;
 
   void StartOnUIThread(const std::string& address, uint16 port, int backlog);
