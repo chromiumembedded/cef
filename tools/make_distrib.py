@@ -679,9 +679,10 @@ if mode == 'standard' or mode == 'minimal':
   transfer_gypi_files(cef_dir, cef_paths['autogen_client_side'], \
                       'libcef_dll/', libcef_dll_dir, options.quiet)
 
-  # transfer additional files
-  transfer_files(cef_dir, script_dir, os.path.join(script_dir, 'distrib'), \
-                 mode, output_dir, options.quiet)
+  if mode == 'standard' or mode == 'minimal':
+    # transfer additional files
+    transfer_files(cef_dir, script_dir, os.path.join(script_dir, 'distrib'), \
+                   mode, output_dir, options.quiet)
 
   # process cmake templates
   variables = dict(cef_paths.items() + cef_paths2.items())
