@@ -43,6 +43,10 @@ class SimpleWindowDelegate : public CefWindowDelegate {
     return true;
   }
 
+  CefSize GetPreferredSize(CefRefPtr<CefView> view) OVERRIDE {
+    return CefSize(800, 600);
+  }
+
  private:
   CefRefPtr<CefBrowserView> browser_view_;
 

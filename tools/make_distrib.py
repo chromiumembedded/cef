@@ -497,6 +497,12 @@ parser.add_option(
     default=False,
     help='include only the cef_sandbox static library (macOS and Windows only)')
 parser.add_option(
+    '--ozone',
+    action='store_true',
+    dest='ozone',
+    default=False,
+    help='include ozone build related files (Linux only)')
+parser.add_option(
     '-q',
     '--quiet',
     action='store_true',
@@ -539,6 +545,10 @@ if options.sandbox and not platform in ('macosx', 'windows'):
 
 if not options.ninjabuild:
   print 'Ninja build is required on all platforms'
+  sys.exit()
+
+if options.ozone and platform != 'linux':
+  print '--ozone is only supported on Linux.'
   sys.exit()
 
 # script directory
@@ -601,6 +611,9 @@ elif options.sandbox:
   output_dir_name = output_dir_name + '_sandbox'
 else:
   mode = 'standard'
+
+if options.ozone:
+  output_dir_name = output_dir_name + '_ozone'
 
 output_dir = create_output_dir(output_dir_name, options.outputdir)
 
@@ -711,9 +724,10 @@ if mode == 'standard':
   shared_dir = os.path.join(tests_dir, 'shared')
   make_dir(shared_dir, options.quiet)
 
-  # create the tests/cefclient directory
-  cefclient_dir = os.path.join(tests_dir, 'cefclient')
-  make_dir(cefclient_dir, options.quiet)
+  if not options.ozone:
+    # create the tests/cefclient directory
+    cefclient_dir = os.path.join(tests_dir, 'cefclient')
+    make_dir(cefclient_dir, options.quiet)
 
   # create the tests/cefsimple directory
   cefsimple_dir = os.path.join(tests_dir, 'cefsimple')
@@ -733,17 +747,18 @@ if mode == 'standard':
   transfer_gypi_files(cef_dir, cef_paths2['shared_sources_resources'], \
                       'tests/shared/', shared_dir, options.quiet)
 
-  # transfer common cefclient files
-  transfer_gypi_files(cef_dir, cef_paths2['cefclient_sources_browser'], \
-                      'tests/cefclient/', cefclient_dir, options.quiet)
-  transfer_gypi_files(cef_dir, cef_paths2['cefclient_sources_common'], \
-                      'tests/cefclient/', cefclient_dir, options.quiet)
-  transfer_gypi_files(cef_dir, cef_paths2['cefclient_sources_renderer'], \
-                      'tests/cefclient/', cefclient_dir, options.quiet)
-  transfer_gypi_files(cef_dir, cef_paths2['cefclient_sources_resources'], \
-                      'tests/cefclient/', cefclient_dir, options.quiet)
-  transfer_gypi_files(cef_dir, cef_paths2['cefclient_sources_resources_extensions_set_page_color'], \
-                      'tests/cefclient/', cefclient_dir, options.quiet)
+  if not options.ozone:
+     # transfer common cefclient files
+     transfer_gypi_files(cef_dir, cef_paths2['cefclient_sources_browser'], \
+                         'tests/cefclient/', cefclient_dir, options.quiet)
+     transfer_gypi_files(cef_dir, cef_paths2['cefclient_sources_common'], \
+                         'tests/cefclient/', cefclient_dir, options.quiet)
+     transfer_gypi_files(cef_dir, cef_paths2['cefclient_sources_renderer'], \
+                         'tests/cefclient/', cefclient_dir, options.quiet)
+     transfer_gypi_files(cef_dir, cef_paths2['cefclient_sources_resources'], \
+                         'tests/cefclient/', cefclient_dir, options.quiet)
+     transfer_gypi_files(cef_dir, cef_paths2['cefclient_sources_resources_extensions_set_page_color'], \
+                         'tests/cefclient/', cefclient_dir, options.quiet)
 
   # transfer common cefsimple files
   transfer_gypi_files(cef_dir, cef_paths2['cefsimple_sources_common'], \
@@ -757,9 +772,10 @@ if mode == 'standard':
   create_fuzed_gtest(tests_dir)
 
   # process cmake templates
-  process_cmake_template(os.path.join(cef_dir, 'tests', 'cefclient', 'CMakeLists.txt.in'), \
-                         os.path.join(cefclient_dir, 'CMakeLists.txt'), \
-                         variables, options.quiet)
+  if not options.ozone:
+    process_cmake_template(os.path.join(cef_dir, 'tests', 'cefclient', 'CMakeLists.txt.in'), \
+                           os.path.join(cefclient_dir, 'CMakeLists.txt'), \
+                           variables, options.quiet)
   process_cmake_template(os.path.join(cef_dir, 'tests', 'cefsimple', 'CMakeLists.txt.in'), \
                          os.path.join(cefsimple_dir, 'CMakeLists.txt'), \
                          variables, options.quiet)
@@ -1101,6 +1117,8 @@ elif platform == 'linux':
       {'path': 'swiftshader/libGLESv2.so'},
   ]
   # yapf: enable
+  if options.ozone:
+    binaries.append({'path': 'libminigbm.so', 'conditional': True})
 
   if mode == 'client':
     binaries.append({'path': 'cefsimple'})
@@ -1163,9 +1181,10 @@ elif platform == 'linux':
     transfer_gypi_files(cef_dir, cef_paths2['shared_sources_linux'], \
                         'tests/shared/', shared_dir, options.quiet)
 
-    # transfer cefclient files
-    transfer_gypi_files(cef_dir, cef_paths2['cefclient_sources_linux'], \
-                        'tests/cefclient/', cefclient_dir, options.quiet)
+    if not options.ozone:
+      # transfer cefclient files
+      transfer_gypi_files(cef_dir, cef_paths2['cefclient_sources_linux'], \
+                          'tests/cefclient/', cefclient_dir, options.quiet)
 
     # transfer cefsimple files
     transfer_gypi_files(cef_dir, cef_paths2['cefsimple_sources_linux'], \

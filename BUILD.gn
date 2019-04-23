@@ -196,10 +196,13 @@ gypi_paths2 = exec_script("//cef/tools/gypi_to_gn.py",
 group("cef") {
   testonly = true
   deps = [
-    ":cefclient",
     ":cefsimple",
     ":ceftests",
   ]
+
+  if (!is_linux || use_x11) {
+    deps += [ ":cefclient" ]
+  }
 }
 
 
@@ -769,14 +772,25 @@ static_library("libcef_static") {
       "libcef/browser/osr/render_widget_host_view_osr_linux.cc",
       "libcef/browser/printing/print_dialog_linux.cc",
       "libcef/browser/printing/print_dialog_linux.h",
-      "libcef/browser/native/window_x11.cc",
-      "libcef/browser/native/window_x11.h",
     ]
+
+    if (use_x11) {
+      sources += [
+        "libcef/browser/native/window_x11.cc",
+        "libcef/browser/native/window_x11.h",
+      ]
+    }
 
     deps += [
       "//build/config/freetype",
       "//third_party/fontconfig",
     ]
+
+    if (is_linux && !use_x11) {
+      deps += [
+        "//third_party/angle:libEGL",
+      ]
+    }
   }
 
   if (is_mac) {
@@ -894,6 +908,15 @@ static_library("libcef_static") {
       "//ui/aura/test/ui_controls_factory_aura.h",
     ]
 
+    if (is_linux && !use_x11) {
+      sources += [
+        "//ui/aura/test/mus/window_tree_client_test_api.h",
+        "//ui/aura/test/mus/window_tree_client_test_api.cc",
+        "//ui/aura/test/ui_controls_factory_ozone.cc",
+        "//ui/events/test/events_test_utils.cc"
+      ]
+    }
+
     deps += [
       "//ui/aura",
       "//ui/events",
@@ -931,16 +954,23 @@ static_library("libcef_static") {
         # Part of //ui/aura:test_support which is testingonly.
         "//ui/aura/test/aura_test_utils.cc",
         "//ui/aura/test/aura_test_utils.h",
-        "//ui/aura/test/ui_controls_factory_aurax11.cc",
-        "//ui/aura/test/x11_event_sender.cc",
-        "//ui/aura/test/x11_event_sender.h",
         # Part of //ui/events:test_support which is testingonly.
         "//ui/events/test/platform_event_waiter.cc",
         "//ui/events/test/platform_event_waiter.h",
-        # Part of //ui/views:test_support which is testingonly.
-        "//ui/views/test/ui_controls_factory_desktop_aurax11.cc",
-        "//ui/views/test/ui_controls_factory_desktop_aurax11.h",
       ]
+
+      if (use_x11) {
+        sources += [
+          # Support for UI input events.
+          # Part of //ui/aura:test_support which is testingonly.
+          "//ui/aura/test/ui_controls_factory_aurax11.cc",
+          "//ui/aura/test/x11_event_sender.cc",
+          "//ui/aura/test/x11_event_sender.h",
+          # Part of //ui/views:test_support which is testingonly.
+          "//ui/views/test/ui_controls_factory_desktop_aurax11.cc",
+          "//ui/views/test/ui_controls_factory_desktop_aurax11.h",
+        ]
+      }
     }
   } else {
     sources += [
@@ -1952,6 +1982,12 @@ if (is_mac) {
   # The cefclient target depends on packages that are not available in the
   # default sysroot environment.
   if (is_linux && !use_sysroot) {
+    pkg_config("glib") {
+      packages = [
+        "glib-2.0",
+      ]
+    }
+
     pkg_config("gtk") {
       packages = [
         "gmodule-2.0",
@@ -2111,9 +2147,11 @@ if (is_mac) {
       sources += gypi_paths2.includes_linux +
                  gypi_paths2.cefsimple_sources_linux
 
-      libs = [
-        "X11",
-      ]
+      if (use_x11) {
+        libs = [
+          "X11",
+        ]
+      }
 
       if (!is_component_build) {
         # Set rpath to find our own libfreetype even in a non-component build.
@@ -2170,9 +2208,15 @@ if (is_mac) {
       sources += gypi_paths2.shared_sources_linux +
                  gypi_paths2.ceftests_sources_linux
 
-      libs = [
-        "X11",
-      ]
+      if (use_x11) {
+        libs = [
+          "X11",
+        ]
+      } else {
+        if (!use_sysroot) {
+          configs += [ ":glib" ]
+        }
+      }
 
       deps += [
         ":copy_ceftests_files",

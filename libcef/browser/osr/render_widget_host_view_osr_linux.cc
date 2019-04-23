@@ -5,16 +5,20 @@
 
 #include "libcef/browser/osr/render_widget_host_view_osr.h"
 
+#include "third_party/blink/public/platform/web_cursor_info.h"
+
+#if defined(USE_X11)
 #include <X11/Xlib.h>
 #include <X11/cursorfont.h>
 #undef Status  // Avoid conflicts with url_request_status.h
 
 #include "libcef/browser/native/window_x11.h"
 
-#include "third_party/blink/public/platform/web_cursor_info.h"
 #include "ui/base/x/x11_util.h"
 #include "ui/gfx/x/x11_types.h"
+#endif  // defined(USE_X11)
 
+#if defined(USE_X11)
 namespace {
 
 // Based on ui/base/cursor/cursor_loader_x11.cc.
@@ -163,25 +167,31 @@ XCursorCache* cursor_cache = nullptr;
 }
 
 }  // namespace
+#endif  // defined(USE_X11)
 
 void CefRenderWidgetHostViewOSR::PlatformCreateCompositorWidget(
     bool is_guest_view_hack) {
+#if defined(USE_X11)
   // Create a hidden 1x1 window. It will delete itself on close.
   window_ = new CefWindowX11(NULL, None, gfx::Rect(0, 0, 1, 1), "");
   compositor_widget_ = window_->xwindow();
+#endif
 }
 
 void CefRenderWidgetHostViewOSR::PlatformResizeCompositorWidget(
     const gfx::Size&) {}
 
 void CefRenderWidgetHostViewOSR::PlatformDestroyCompositorWidget() {
+#if defined(USE_X11)
   DCHECK(window_);
   window_->Close();
+#endif
   compositor_widget_ = gfx::kNullAcceleratedWidget;
 }
 
 ui::PlatformCursor CefRenderWidgetHostViewOSR::GetPlatformCursor(
     blink::WebCursorInfo::Type type) {
+#if defined(USE_X11)
   if (type == WebCursorInfo::kTypeNone) {
     if (!invisible_cursor_) {
       invisible_cursor_.reset(new ui::XScopedCursor(ui::CreateInvisibleCursor(),
@@ -191,4 +201,6 @@ ui::PlatformCursor CefRenderWidgetHostViewOSR::GetPlatformCursor(
   } else {
     return GetXCursor(ToCursorID(type));
   }
+#endif  // defined(USE_X11)
+  return 0;
 }

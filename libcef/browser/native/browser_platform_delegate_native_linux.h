@@ -7,7 +7,9 @@
 
 #include "libcef/browser/native/browser_platform_delegate_native.h"
 
+#if defined(USE_X11)
 class CefWindowX11;
+#endif
 
 // Windowed browser implementation for Linux.
 class CefBrowserPlatformDelegateNativeLinux
@@ -60,7 +62,9 @@ class CefBrowserPlatformDelegateNativeLinux
   // associated root window is destroyed.
   views::Widget* window_widget_;
 
-  CefWindowX11* window_x11_;
+#if defined(USE_X11)
+  CefWindowX11* window_x11_ = nullptr;
+#endif
 };
 
 #endif  // CEF_LIBCEF_BROWSER_NATIVE_BROWSER_PLATFORM_DELEGATE_NATIVE_LINUX_H_

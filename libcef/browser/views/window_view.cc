@@ -13,7 +13,7 @@
 #include "ui/views/widget/widget.h"
 #include "ui/views/window/native_frame_view.h"
 
-#if defined(OS_LINUX)
+#if defined(OS_LINUX) && defined(USE_X11)
 #include <X11/Xlib.h>
 #include "ui/gfx/x/x11_types.h"
 #endif
@@ -250,6 +250,7 @@ void CefWindowView::CreateWidget() {
   views::Widget::InitParams params;
   params.delegate = this;
   params.type = views::Widget::InitParams::TYPE_WINDOW;
+  params.bounds = gfx::Rect(CalculatePreferredSize());
   bool can_activate = true;
 
   if (cef_delegate()) {
@@ -294,7 +295,7 @@ void CefWindowView::CreateWidget() {
     DCHECK(widget->widget_delegate()->CanActivate());
   }
 
-#if defined(OS_LINUX)
+#if defined(OS_LINUX) && defined(USE_X11)
   if (is_frameless_) {
     ::Window window = view_util::GetWindowHandle(widget);
     DCHECK(window);
@@ -329,7 +330,7 @@ void CefWindowView::CreateWidget() {
     XChangeProperty(display, window, mwmHintsProperty, mwmHintsProperty, 32,
                     PropModeReplace, (unsigned char*)&hints, 5);
   }
-#endif  // defined(OS_LINUX)
+#endif  // defined(OS_LINUX) && defined(USE_X11)
 }
 
 CefRefPtr<CefWindow> CefWindowView::GetCefWindow() const {

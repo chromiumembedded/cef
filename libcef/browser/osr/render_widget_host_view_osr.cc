@@ -9,7 +9,6 @@
 
 #include <utility>
 
-#include "libcef/browser/browser_host_impl.h"
 #include "libcef/browser/osr/osr_util.h"
 #include "libcef/browser/osr/software_output_device_osr.h"
 #include "libcef/browser/osr/synthetic_gesture_target_osr.h"
