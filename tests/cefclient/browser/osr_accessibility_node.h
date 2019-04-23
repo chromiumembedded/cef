@@ -11,12 +11,19 @@
 #include "include/cef_browser.h"
 
 #if defined(OS_MACOSX)
-#ifdef __OBJC__
-@class NSObject;
-#else
-class NSObject;
-#endif
-typedef NSObject CefNativeAccessible;
+typedef void CefNativeAccessible;
+#if __OBJC__
+#if __has_feature(objc_arc)
+#define CAST_CEF_NATIVE_ACCESSIBLE_TO_NSOBJECT(accessible) \
+  (__bridge NSObject*)accessible
+#define CAST_NSOBJECT_TO_CEF_NATIVE_ACCESSIBLE(object) \
+  (__bridge CefNativeAccessible*)object
+#else  // __has_feature(objc_arc)
+#define CAST_CEF_NATIVE_ACCESSIBLE_TO_NSOBJECT(accessible) (NSObject*)accessible
+#define CAST_NSOBJECT_TO_CEF_NATIVE_ACCESSIBLE(object) \
+  (__bridge CefNativeAccessible*)object
+#endif  // __has_feature(objc_arc)
+#endif  // __OBJC__
 #elif defined(OS_WIN)
 struct IAccessible;
 typedef IAccessible CefNativeAccessible;

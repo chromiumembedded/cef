@@ -52,11 +52,11 @@ void BrowserWindowStdMac::ShowPopup(ClientWindowHandle parent_handle,
                                     size_t height) {
   REQUIRE_MAIN_THREAD();
 
-  NSView* browser_view = GetWindowHandle();
+  NSView* browser_view = CAST_CEF_WINDOW_HANDLE_TO_NSVIEW(GetWindowHandle());
 
   // Re-parent |browser_view| to |parent_handle|.
   [browser_view removeFromSuperview];
-  [parent_handle addSubview:browser_view];
+  [CAST_CEF_WINDOW_HANDLE_TO_NSVIEW(parent_handle) addSubview:browser_view];
 
   NSSize size = NSMakeSize(static_cast<int>(width), static_cast<int>(height));
   [browser_view setFrameSize:size];

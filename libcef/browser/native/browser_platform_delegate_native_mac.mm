@@ -56,7 +56,7 @@
 @end
 
 // Receives notifications from the browser window. Will delete itself when done.
-@interface CefWindowDelegate : NSObject<NSWindowDelegate> {
+@interface CefWindowDelegate : NSObject <NSWindowDelegate> {
  @private
   CefBrowserHostImpl* browser_;  // weak
   NSWindow* window_;
@@ -165,7 +165,8 @@ bool CefBrowserPlatformDelegateNativeMac::CreateHostWindow() {
 
   NSWindow* newWnd = nil;
 
-  NSView* parentView = window_info_.parent_view;
+  NSView* parentView =
+      CAST_CEF_WINDOW_HANDLE_TO_NSVIEW(window_info_.parent_view);
   NSRect contentRect = {{window_info_.x, window_info_.y},
                         {window_info_.width, window_info_.height}};
   if (parentView == nil) {
@@ -239,11 +240,11 @@ bool CefBrowserPlatformDelegateNativeMac::CreateHostWindow() {
 }
 
 void CefBrowserPlatformDelegateNativeMac::CloseHostWindow() {
-  if (window_info_.view != nil) {
-    [[window_info_.view window]
-        performSelectorOnMainThread:@selector(performClose:)
-                         withObject:nil
-                      waitUntilDone:NO];
+  NSView* nsview = CAST_CEF_WINDOW_HANDLE_TO_NSVIEW(window_info_.view);
+  if (nsview != nil) {
+    [[nsview window] performSelectorOnMainThread:@selector(performClose:)
+                                      withObject:nil
+                                   waitUntilDone:NO];
   }
 }
 
@@ -275,7 +276,7 @@ gfx::Point CefBrowserPlatformDelegateNativeMac::GetScreenPoint(
   if (windowless_handler_)
     return windowless_handler_->GetParentScreenPoint(view);
 
-  NSView* nsview = window_info_.parent_view;
+  NSView* nsview = CAST_CEF_WINDOW_HANDLE_TO_NSVIEW(window_info_.parent_view);
   if (nsview) {
     NSRect bounds = [nsview bounds];
     NSPoint view_pt = {view.x(), bounds.size.height - view.y()};
@@ -336,8 +337,8 @@ void CefBrowserPlatformDelegateNativeMac::TranslateKeyEvent(
       [[[NSString alloc] initWithCharacters:&key_event.unmodified_character
                                      length:1] autorelease];
   NSString* characters =
-      [[[NSString alloc] initWithCharacters:&key_event.character length:1]
-          autorelease];
+      [[[NSString alloc] initWithCharacters:&key_event.character
+                                     length:1] autorelease];
 
   NSEvent* synthetic_event =
       [NSEvent keyEventWithType:event_type

@@ -15,7 +15,8 @@ namespace window_test {
 namespace {
 
 NSWindow* GetWindow(CefRefPtr<CefBrowser> browser) {
-  NSView* view = (NSView*)browser->GetHost()->GetWindowHandle();
+  NSView* view =
+      CAST_CEF_WINDOW_HANDLE_TO_NSVIEW(browser->GetHost()->GetWindowHandle());
   return [view window];
 }
 

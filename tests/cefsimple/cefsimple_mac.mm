@@ -12,13 +12,13 @@
 #include "tests/cefsimple/simple_handler.h"
 
 // Receives notifications from the application.
-@interface SimpleAppDelegate : NSObject<NSApplicationDelegate>
+@interface SimpleAppDelegate : NSObject <NSApplicationDelegate>
 - (void)createApplication:(id)object;
 - (void)tryToTerminateApplication:(NSApplication*)app;
 @end
 
 // Provide the CefAppProtocol implementation required by CEF.
-@interface SimpleApplication : NSApplication<CefAppProtocol> {
+@interface SimpleApplication : NSApplication <CefAppProtocol> {
  @private
   BOOL handlingSendEvent_;
 }
@@ -119,48 +119,47 @@ int main(int argc, char* argv[]) {
   // Provide CEF with command-line arguments.
   CefMainArgs main_args(argc, argv);
 
-  // Initialize the AutoRelease pool.
-  NSAutoreleasePool* autopool = [[NSAutoreleasePool alloc] init];
+  @autoreleasepool {
+    // Initialize the SimpleApplication instance.
+    [SimpleApplication sharedApplication];
 
-  // Initialize the SimpleApplication instance.
-  [SimpleApplication sharedApplication];
+    // Specify CEF global settings here.
+    CefSettings settings;
 
-  // Specify CEF global settings here.
-  CefSettings settings;
-
-// When generating projects with CMake the CEF_USE_SANDBOX value will be defined
-// automatically. Pass -DUSE_SANDBOX=OFF to the CMake command-line to disable
-// use of the sandbox.
+    // When generating projects with CMake the CEF_USE_SANDBOX value will be
+    // defined automatically. Pass -DUSE_SANDBOX=OFF to the CMake command-line
+    // to disable use of the sandbox.
 #if !defined(CEF_USE_SANDBOX)
-  settings.no_sandbox = true;
+    settings.no_sandbox = true;
 #endif
 
-  // SimpleApp implements application-level callbacks for the browser process.
-  // It will create the first browser instance in OnContextInitialized() after
-  // CEF has initialized.
-  CefRefPtr<SimpleApp> app(new SimpleApp);
+    // SimpleApp implements application-level callbacks for the browser process.
+    // It will create the first browser instance in OnContextInitialized() after
+    // CEF has initialized.
+    CefRefPtr<SimpleApp> app(new SimpleApp);
 
-  // Initialize CEF for the browser process.
-  CefInitialize(main_args, settings, app.get(), NULL);
+    // Initialize CEF for the browser process.
+    CefInitialize(main_args, settings, app.get(), NULL);
 
-  // Create the application delegate.
-  NSObject* delegate = [[SimpleAppDelegate alloc] init];
-  [delegate performSelectorOnMainThread:@selector(createApplication:)
-                             withObject:nil
-                          waitUntilDone:NO];
+    // Create the application delegate.
+    NSObject* delegate = [[SimpleAppDelegate alloc] init];
+    [delegate performSelectorOnMainThread:@selector(createApplication:)
+                               withObject:nil
+                            waitUntilDone:NO];
 
-  // Run the CEF message loop. This will block until CefQuitMessageLoop() is
-  // called.
-  CefRunMessageLoop();
+    // Run the CEF message loop. This will block until CefQuitMessageLoop() is
+    // called.
+    CefRunMessageLoop();
 
-  // Shut down CEF.
-  CefShutdown();
+    // Shut down CEF.
+    CefShutdown();
 
-  // Release the delegate.
-  [delegate release];
-
-  // Release the AutoRelease pool.
-  [autopool release];
+    // Release the delegate.
+#if !__has_feature(objc_arc)
+    [delegate release];
+#endif  // !__has_feature(objc_arc)
+    delegate = nil;
+  }  // @autoreleasepool
 
   return 0;
 }

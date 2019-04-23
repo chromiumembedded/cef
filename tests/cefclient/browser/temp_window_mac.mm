@@ -17,29 +17,43 @@ TempWindowMac* g_temp_window = NULL;
 
 }  // namespace
 
-TempWindowMac::TempWindowMac() : window_(nil) {
-  DCHECK(!g_temp_window);
-  g_temp_window = this;
+class TempWindowMacImpl {
+ public:
+  TempWindowMacImpl() {
+    // Create a borderless non-visible 1x1 window.
+    window_ = [[NSWindow alloc] initWithContentRect:NSMakeRect(0, 0, 1, 1)
+                                          styleMask:NSBorderlessWindowMask
+                                            backing:NSBackingStoreBuffered
+                                              defer:NO];
+    CHECK(window_);
+  }
+  ~TempWindowMacImpl() {
+    DCHECK(window_);
+    [window_ close];
+  }
 
-  // Create a borderless non-visible 1x1 window.
-  window_ = [[NSWindow alloc] initWithContentRect:NSMakeRect(0, 0, 1, 1)
-                                        styleMask:NSBorderlessWindowMask
-                                          backing:NSBackingStoreBuffered
-                                            defer:NO];
-  CHECK(window_);
+ private:
+  NSWindow* window_;
+
+  friend class TempWindowMac;
+};
+
+TempWindowMac::TempWindowMac() {
+  DCHECK(!g_temp_window);
+  impl_.reset(new TempWindowMacImpl);
+  g_temp_window = this;
 }
 
 TempWindowMac::~TempWindowMac() {
+  impl_.reset();
   g_temp_window = NULL;
-  DCHECK(window_);
-
-  [window_ close];
 }
 
 // static
 CefWindowHandle TempWindowMac::GetWindowHandle() {
   DCHECK(g_temp_window);
-  return [g_temp_window->window_ contentView];
+  return CAST_NSVIEW_TO_CEF_WINDOW_HANDLE(
+      g_temp_window->impl_->window_.contentView);
 }
 
 }  // namespace client

@@ -387,7 +387,7 @@ void CefFileDialogRunnerMac::Run(CefBrowserHostImpl* browser,
                                  const FileChooserParams& params,
                                  RunFileChooserCallback callback) {
   int filter_index = params.selected_accept_filter;
-  NSView* owner = browser->GetWindowHandle();
+  NSView* owner = CAST_CEF_WINDOW_HANDLE_TO_NSVIEW(browser->GetWindowHandle());
 
   if (params.mode == blink::mojom::FileChooserParams::Mode::kOpen ||
       params.mode == blink::mojom::FileChooserParams::Mode::kOpenMultiple ||

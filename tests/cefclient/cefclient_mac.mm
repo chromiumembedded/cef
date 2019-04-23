@@ -355,71 +355,77 @@ int RunMain(int argc, char* argv[]) {
   if (!library_loader.LoadInMain())
     return 1;
 
+  int result = -1;
+
   CefMainArgs main_args(argc, argv);
 
-  // Initialize the AutoRelease pool.
-  NSAutoreleasePool* autopool = [[NSAutoreleasePool alloc] init];
+  @autoreleasepool {
+    // Initialize the ClientApplication instance.
+    [ClientApplication sharedApplication];
 
-  // Initialize the ClientApplication instance.
-  [ClientApplication sharedApplication];
+    // Parse command-line arguments.
+    CefRefPtr<CefCommandLine> command_line =
+        CefCommandLine::CreateCommandLine();
+    command_line->InitFromArgv(argc, argv);
 
-  // Parse command-line arguments.
-  CefRefPtr<CefCommandLine> command_line = CefCommandLine::CreateCommandLine();
-  command_line->InitFromArgv(argc, argv);
+    // Create a ClientApp of the correct type.
+    CefRefPtr<CefApp> app;
+    ClientApp::ProcessType process_type =
+        ClientApp::GetProcessType(command_line);
+    if (process_type == ClientApp::BrowserProcess)
+      app = new ClientAppBrowser();
 
-  // Create a ClientApp of the correct type.
-  CefRefPtr<CefApp> app;
-  ClientApp::ProcessType process_type = ClientApp::GetProcessType(command_line);
-  if (process_type == ClientApp::BrowserProcess)
-    app = new ClientAppBrowser();
+    // Create the main context object.
+    scoped_ptr<MainContextImpl> context(
+        new MainContextImpl(command_line, true));
 
-  // Create the main context object.
-  scoped_ptr<MainContextImpl> context(new MainContextImpl(command_line, true));
-
-  CefSettings settings;
+    CefSettings settings;
 
 // When generating projects with CMake the CEF_USE_SANDBOX value will be defined
 // automatically. Pass -DUSE_SANDBOX=OFF to the CMake command-line to disable
 // use of the sandbox.
 #if !defined(CEF_USE_SANDBOX)
-  settings.no_sandbox = true;
+    settings.no_sandbox = true;
 #endif
 
-  // Populate the settings based on command line arguments.
-  context->PopulateSettings(&settings);
+    // Populate the settings based on command line arguments.
+    context->PopulateSettings(&settings);
 
-  // Create the main message loop object.
-  scoped_ptr<MainMessageLoop> message_loop;
-  if (settings.external_message_pump)
-    message_loop = MainMessageLoopExternalPump::Create();
-  else
-    message_loop.reset(new MainMessageLoopStd);
+    // Create the main message loop object.
+    scoped_ptr<MainMessageLoop> message_loop;
+    if (settings.external_message_pump)
+      message_loop = MainMessageLoopExternalPump::Create();
+    else
+      message_loop.reset(new MainMessageLoopStd);
 
-  // Initialize CEF.
-  context->Initialize(main_args, settings, app, NULL);
+    // Initialize CEF.
+    context->Initialize(main_args, settings, app, NULL);
 
-  // Register scheme handlers.
-  test_runner::RegisterSchemeHandlers();
+    // Register scheme handlers.
+    test_runner::RegisterSchemeHandlers();
 
-  // Create the application delegate and window.
-  ClientAppDelegate* delegate = [[ClientAppDelegate alloc]
-      initWithControls:!command_line->HasSwitch(switches::kHideControls)
-                andOsr:settings.windowless_rendering_enabled ? true : false];
-  [delegate performSelectorOnMainThread:@selector(createApplication:)
-                             withObject:nil
-                          waitUntilDone:NO];
+    // Create the application delegate and window.
+    ClientAppDelegate* delegate = [[ClientAppDelegate alloc]
+        initWithControls:!command_line->HasSwitch(switches::kHideControls)
+                  andOsr:settings.windowless_rendering_enabled ? true : false];
+    [delegate performSelectorOnMainThread:@selector(createApplication:)
+                               withObject:nil
+                            waitUntilDone:NO];
 
-  // Run the message loop. This will block until Quit() is called.
-  int result = message_loop->Run();
+    // Run the message loop. This will block until Quit() is called.
+    result = message_loop->Run();
 
-  // Shut down CEF.
-  context->Shutdown();
+    // Shut down CEF.
+    context->Shutdown();
 
-  // Release objects in reverse order of creation.
-  [delegate release];
-  message_loop.reset();
-  context.reset();
-  [autopool release];
+    // Release objects in reverse order of creation.
+#if !__has_feature(objc_arc)
+    [delegate release];
+#endif  // !__has_feature(objc_arc)
+    delegate = nil;
+    message_loop.reset();
+    context.reset();
+  }  // @autoreleasepool
 
   return result;
 }

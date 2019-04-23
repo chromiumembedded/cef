@@ -37,28 +37,36 @@
 #include "include/internal/cef_string.h"
 
 // Handle types.
-#ifdef __cplusplus
-#ifdef __OBJC__
-@class NSCursor;
-@class NSEvent;
-@class NSView;
-#else
-class NSCursor;
-class NSEvent;
-struct NSView;
-#endif
-#define cef_cursor_handle_t NSCursor*
-#define cef_event_handle_t NSEvent*
-#define cef_window_handle_t NSView*
-#else
+// Actually NSCursor*
 #define cef_cursor_handle_t void*
+// Acutally NSEvent*
 #define cef_event_handle_t void*
+// Actually NSView*
 #define cef_window_handle_t void*
-#endif
 
 #define kNullCursorHandle NULL
 #define kNullEventHandle NULL
 #define kNullWindowHandle NULL
+
+#ifdef __OBJC__
+#if __has_feature(objc_arc)
+#define CAST_CEF_CURSOR_HANDLE_TO_NSCURSOR(handle) ((__bridge NSCursor*)handle)
+#define CAST_CEF_EVENT_HANDLE_TO_NSEVENT(handle) ((__bridge NSEvent*)handle)
+#define CAST_CEF_WINDOW_HANDLE_TO_NSVIEW(handle) ((__bridge NSView*)handle)
+
+#define CAST_NSCURSOR_TO_CEF_CURSOR_HANDLE(cursor) ((__bridge void*)cursor)
+#define CAST_NSEVENT_TO_CEF_EVENT_HANDLE(event) ((__bridge void*)event)
+#define CAST_NSVIEW_TO_CEF_WINDOW_HANDLE(view) ((__bridge void*)view)
+#else  // __has_feature(objc_arc)
+#define CAST_CEF_CURSOR_HANDLE_TO_NSCURSOR(handle) ((NSCursor*)handle)
+#define CAST_CEF_EVENT_HANDLE_TO_NSEVENT(handle) ((NSEvent*)handle)
+#define CAST_CEF_WINDOW_HANDLE_TO_NSVIEW(handle) ((NSView*)handle)
+
+#define CAST_NSCURSOR_TO_CEF_CURSOR_HANDLE(cursor) ((void*)cursor)
+#define CAST_NSEVENT_TO_CEF_EVENT_HANDLE(event) ((void*)event)
+#define CAST_NSVIEW_TO_CEF_WINDOW_HANDLE(view) ((void*)view)
+#endif  // __has_feature(objc_arc)
+#endif  // __OBJC__
 
 #ifdef __cplusplus
 extern "C" {

@@ -82,14 +82,21 @@ class MainMessageLoopExternalPumpMac : public MainMessageLoopExternalPump {
 namespace client {
 
 MainMessageLoopExternalPumpMac::MainMessageLoopExternalPumpMac()
-    : owner_thread_([[NSThread currentThread] retain]), timer_(nil) {
-  event_handler_ = [[[EventHandler alloc] initWithPump:this] retain];
+    : owner_thread_([NSThread currentThread]), timer_(nil) {
+#if !__has_feature(objc_arc)
+  [owner_thread_ retain];
+#endif  // !__has_feature(objc_arc)
+  event_handler_ = [[EventHandler alloc] initWithPump:this];
 }
 
 MainMessageLoopExternalPumpMac::~MainMessageLoopExternalPumpMac() {
   KillTimer();
+#if !__has_feature(objc_arc)
   [owner_thread_ release];
   [event_handler_ release];
+#endif  // !__has_feature(objc_arc)
+  owner_thread_ = nil;
+  event_handler_ = nil;
 }
 
 void MainMessageLoopExternalPumpMac::Quit() {
@@ -140,11 +147,14 @@ void MainMessageLoopExternalPumpMac::SetTimer(int64 delay_ms) {
   DCHECK(!timer_);
 
   const double delay_s = static_cast<double>(delay_ms) / 1000.0;
-  timer_ = [[NSTimer timerWithTimeInterval:delay_s
-                                    target:event_handler_
-                                  selector:@selector(timerTimeout:)
-                                  userInfo:nil
-                                   repeats:NO] retain];
+  timer_ = [NSTimer timerWithTimeInterval:delay_s
+                                   target:event_handler_
+                                 selector:@selector(timerTimeout:)
+                                 userInfo:nil
+                                  repeats:NO];
+#if !__has_feature(objc_arc)
+  [timer_ retain];
+#endif  // !__has_feature(objc_arc)
 
   // Add the timer to default and tracking runloop modes.
   NSRunLoop* owner_runloop = [NSRunLoop currentRunLoop];
@@ -155,7 +165,9 @@ void MainMessageLoopExternalPumpMac::SetTimer(int64 delay_ms) {
 void MainMessageLoopExternalPumpMac::KillTimer() {
   if (timer_ != nil) {
     [timer_ invalidate];
+#if !__has_feature(objc_arc)
     [timer_ release];
+#endif  // !__has_feature(objc_arc)
     timer_ = nil;
   }
 }

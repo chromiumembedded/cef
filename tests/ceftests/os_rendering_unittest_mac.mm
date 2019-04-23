@@ -12,7 +12,7 @@ CefWindowHandle GetFakeView() {
   NSScreen* mainScreen = [NSScreen mainScreen];
   NSRect screenRect = [mainScreen visibleFrame];
   NSView* fakeView = [[NSView alloc] initWithFrame:screenRect];
-  return fakeView;
+  return CAST_NSVIEW_TO_CEF_WINDOW_HANDLE(fakeView);
 }
 
 }  // namespace osr_unittests

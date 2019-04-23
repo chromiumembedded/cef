@@ -10,6 +10,8 @@
 
 namespace client {
 
+class TempWindowMacImpl;
+
 // Represents a singleton hidden window that acts as a temporary parent for
 // popup browsers. Only accessed on the UI thread.
 class TempWindowMac {
@@ -26,7 +28,7 @@ class TempWindowMac {
   TempWindowMac();
   ~TempWindowMac();
 
-  NSWindow* window_;
+  scoped_ptr<TempWindowMacImpl> impl_;
 
   DISALLOW_COPY_AND_ASSIGN(TempWindowMac);
 };
