@@ -44,7 +44,7 @@ index eff68a91b185..e2487f1aa0dc 100644
                                                          .Top()
                                                          .GetSecurityContext()
 diff --git third_party/blink/renderer/core/frame/local_frame.cc third_party/blink/renderer/core/frame/local_frame.cc
-index c6cc53beb1d4..469869b0ff60 100644
+index a7b483e821fe..211b53d0eadb 100644
 --- third_party/blink/renderer/core/frame/local_frame.cc
 +++ third_party/blink/renderer/core/frame/local_frame.cc
 @@ -1359,7 +1359,7 @@ FrameResourceCoordinator* LocalFrame::GetFrameResourceCoordinator() {

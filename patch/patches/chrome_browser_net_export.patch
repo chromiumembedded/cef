@@ -51,7 +51,7 @@ index 7168c719aa25..bae7162a539c 100644
        override;
    network::NetworkQualityTracker* network_quality_tracker() override;
 diff --git chrome/browser/ui/BUILD.gn chrome/browser/ui/BUILD.gn
-index 911e49e41313..eecbca982a92 100644
+index d4ff15d0fcd9..33d5ac2c2321 100644
 --- chrome/browser/ui/BUILD.gn
 +++ chrome/browser/ui/BUILD.gn
 @@ -9,6 +9,7 @@ import("//build/config/features.gni")

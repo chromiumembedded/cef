@@ -171,10 +171,10 @@ index af047913e230..849eeddcfcc5 100644
    DCHECK(devtools_context_);
  }
 diff --git content/browser/devtools/protocol/network_handler.cc content/browser/devtools/protocol/network_handler.cc
-index 4fa2f08b626c..84c3be6138c0 100644
+index cfef1021a1ee..8721df15412b 100644
 --- content/browser/devtools/protocol/network_handler.cc
 +++ content/browser/devtools/protocol/network_handler.cc
-@@ -816,8 +816,8 @@ class BackgroundSyncRestorer {
+@@ -818,8 +818,8 @@ class BackgroundSyncRestorer {
      scoped_refptr<ServiceWorkerDevToolsAgentHost> service_worker_host =
          static_cast<ServiceWorkerDevToolsAgentHost*>(host.get());
      scoped_refptr<BackgroundSyncContextImpl> sync_context =
@@ -232,7 +232,7 @@ index ec9ab86d0ca6..0fe5219f1e84 100644
    base::WeakPtrFactory<ServiceWorkerHandler> weak_factory_;
  
 diff --git content/browser/download/download_manager_impl.cc content/browser/download/download_manager_impl.cc
-index 5ed0f15fe47b..5452066f9e73 100644
+index dd4924bd5f0c..e7f52e6f51d6 100644
 --- content/browser/download/download_manager_impl.cc
 +++ content/browser/download/download_manager_impl.cc
 @@ -102,9 +102,9 @@ void DeleteDownloadedFileOnUIThread(const base::FilePath& file_path) {
@@ -276,7 +276,7 @@ index 5ed0f15fe47b..5452066f9e73 100644
        std::move(proxy_factory_ptr_info), std::move(proxy_factory_request));
  }
  
-@@ -1252,7 +1251,7 @@ void DownloadManagerImpl::InterceptNavigationOnChecksComplete(
+@@ -1258,7 +1257,7 @@ void DownloadManagerImpl::InterceptNavigationOnChecksComplete(
        tab_referrer_url = entry->GetReferrer().url;
      }
    }
@@ -285,7 +285,7 @@ index 5ed0f15fe47b..5452066f9e73 100644
        GetStoragePartition(browser_context_, render_process_id, render_frame_id);
    in_progress_manager_->InterceptDownloadFromNavigation(
        std::move(resource_request), render_process_id, render_frame_id, site_url,
-@@ -1303,10 +1302,8 @@ void DownloadManagerImpl::BeginResourceDownloadOnChecksComplete(
+@@ -1309,10 +1308,8 @@ void DownloadManagerImpl::BeginResourceDownloadOnChecksComplete(
          base::MakeRefCounted<WebUIDownloadURLLoaderFactoryGetter>(
              rfh, params->url());
    } else if (rfh && params->url().SchemeIsFileSystem()) {
@@ -298,7 +298,7 @@ index 5ed0f15fe47b..5452066f9e73 100644
      std::string storage_domain;
      auto* site_instance = rfh->GetSiteInstance();
      if (site_instance) {
-@@ -1350,10 +1347,8 @@ void DownloadManagerImpl::BeginResourceDownloadOnChecksComplete(
+@@ -1356,10 +1353,8 @@ void DownloadManagerImpl::BeginResourceDownloadOnChecksComplete(
                std::move(wrapper_factory));
      }
    } else {
@@ -402,7 +402,7 @@ index 9d3bee713440..38cc82d730a5 100644
        partition->GetPaymentAppContext();
  
 diff --git content/browser/renderer_host/render_process_host_impl.cc content/browser/renderer_host/render_process_host_impl.cc
-index 221dc8424f85..840a5533db90 100644
+index fda6b51d9bc7..213da23441a9 100644
 --- content/browser/renderer_host/render_process_host_impl.cc
 +++ content/browser/renderer_host/render_process_host_impl.cc
 @@ -700,11 +700,10 @@ class DefaultSubframeProcessHostHolder : public base::SupportsUserData::Data,
@@ -477,7 +477,7 @@ index 221dc8424f85..840a5533db90 100644
  
    AddObserver(indexed_db_factory_.get());
    AddObserver(service_worker_dispatcher_host_.get());
-@@ -1868,6 +1870,15 @@ void RenderProcessHostImpl::ResetChannelProxy() {
+@@ -1861,6 +1863,15 @@ void RenderProcessHostImpl::ResetChannelProxy() {
  
  void RenderProcessHostImpl::CreateMessageFilters() {
    DCHECK_CURRENTLY_ON(BrowserThread::UI);
@@ -493,7 +493,7 @@ index 221dc8424f85..840a5533db90 100644
    MediaInternals* media_internals = MediaInternals::GetInstance();
    // Add BrowserPluginMessageFilter to ensure it gets the first stab at messages
    // from guests.
-@@ -1907,10 +1918,10 @@ void RenderProcessHostImpl::CreateMessageFilters() {
+@@ -1900,10 +1911,10 @@ void RenderProcessHostImpl::CreateMessageFilters() {
                     media_request_context));
  
      resource_message_filter_ = new ResourceMessageFilter(
@@ -506,7 +506,7 @@ index 221dc8424f85..840a5533db90 100644
          storage_partition_impl_->GetPrefetchURLLoaderService(),
          browser_context->GetSharedCorsOriginAccessList(),
          std::move(get_contexts_callback),
-@@ -1919,8 +1930,7 @@ void RenderProcessHostImpl::CreateMessageFilters() {
+@@ -1912,8 +1923,7 @@ void RenderProcessHostImpl::CreateMessageFilters() {
      AddFilter(resource_message_filter_.get());
    }
  
@@ -516,7 +516,7 @@ index 221dc8424f85..840a5533db90 100644
  
    peer_connection_tracker_host_ = new PeerConnectionTrackerHost(GetID());
    AddFilter(peer_connection_tracker_host_.get());
-@@ -1937,10 +1947,6 @@ void RenderProcessHostImpl::CreateMessageFilters() {
+@@ -1930,10 +1940,6 @@ void RenderProcessHostImpl::CreateMessageFilters() {
  
    AddFilter(new TraceMessageFilter(GetID()));
    AddFilter(new ResolveProxyMsgHelper(GetID()));
@@ -527,7 +527,7 @@ index 221dc8424f85..840a5533db90 100644
  }
  
  void RenderProcessHostImpl::BindCacheStorage(
-@@ -1952,7 +1958,8 @@ void RenderProcessHostImpl::BindCacheStorage(
+@@ -1945,7 +1951,8 @@ void RenderProcessHostImpl::BindCacheStorage(
      cache_storage_dispatcher_host_ =
          base::MakeRefCounted<CacheStorageDispatcherHost>();
      cache_storage_dispatcher_host_->Init(
@@ -537,7 +537,7 @@ index 221dc8424f85..840a5533db90 100644
    }
    // Send the binding to IO thread, because Cache Storage handles Mojo IPC on IO
    // thread entirely.
-@@ -2068,7 +2075,8 @@ void RenderProcessHostImpl::RegisterMojoInterfaces() {
+@@ -2061,7 +2068,8 @@ void RenderProcessHostImpl::RegisterMojoInterfaces() {
        base::BindRepeating(
            &BackgroundSyncContextImpl::CreateService,
            base::Unretained(
@@ -547,7 +547,7 @@ index 221dc8424f85..840a5533db90 100644
    AddUIThreadInterface(
        registry.get(),
        base::BindRepeating(&RenderProcessHostImpl::CreateStoragePartitionService,
-@@ -2164,7 +2172,8 @@ void RenderProcessHostImpl::RegisterMojoInterfaces() {
+@@ -2157,7 +2165,8 @@ void RenderProcessHostImpl::RegisterMojoInterfaces() {
  
    registry->AddInterface(base::BindRepeating(
        &CodeCacheHostImpl::Create, GetID(),
@@ -557,7 +557,7 @@ index 221dc8424f85..840a5533db90 100644
        base::RetainedRef(
            storage_partition_impl_->GetGeneratedCodeCacheContext())));
  
-@@ -2176,7 +2185,8 @@ void RenderProcessHostImpl::RegisterMojoInterfaces() {
+@@ -2169,7 +2178,8 @@ void RenderProcessHostImpl::RegisterMojoInterfaces() {
  
    registry->AddInterface(base::BindRepeating(
        &ChromeAppCacheService::CreateBackend,
@@ -567,7 +567,7 @@ index 221dc8424f85..840a5533db90 100644
        GetID()));
  
    AddUIThreadInterface(
-@@ -2222,6 +2232,9 @@ void RenderProcessHostImpl::RegisterMojoInterfaces() {
+@@ -2215,6 +2225,9 @@ void RenderProcessHostImpl::RegisterMojoInterfaces() {
      plugin_registry_.reset(
          new PluginRegistryImpl(GetBrowserContext()->GetResourceContext()));
    }
@@ -578,7 +578,7 @@ index 221dc8424f85..840a5533db90 100644
        &PluginRegistryImpl::Bind, base::Unretained(plugin_registry_.get())));
  #endif
 diff --git content/browser/renderer_host/render_process_host_impl.h content/browser/renderer_host/render_process_host_impl.h
-index a746e1dae051..59e4316ab2ae 100644
+index ca57359fee34..44d4a5f56a46 100644
 --- content/browser/renderer_host/render_process_host_impl.h
 +++ content/browser/renderer_host/render_process_host_impl.h
 @@ -101,7 +101,6 @@ class ServiceWorkerDispatcherHost;
@@ -598,7 +598,7 @@ index a746e1dae051..59e4316ab2ae 100644
        SiteInstance* site_instance,
        bool is_for_guests_only);
  
-@@ -518,7 +517,7 @@ class CONTENT_EXPORT RenderProcessHostImpl
+@@ -523,7 +522,7 @@ class CONTENT_EXPORT RenderProcessHostImpl
    // Use CreateRenderProcessHost() instead of calling this constructor
    // directly.
    RenderProcessHostImpl(BrowserContext* browser_context,
@@ -607,7 +607,7 @@ index a746e1dae051..59e4316ab2ae 100644
                          bool is_for_guests_only);
  
    // Initializes a new IPC::ChannelProxy in |channel_|, which will be connected
-@@ -787,10 +786,10 @@ class CONTENT_EXPORT RenderProcessHostImpl
+@@ -792,10 +791,10 @@ class CONTENT_EXPORT RenderProcessHostImpl
    // The globally-unique identifier for this RPH.
    const int id_;
  
@@ -621,7 +621,7 @@ index a746e1dae051..59e4316ab2ae 100644
    // Keeps track of the BindingIds  returned by storage_partition_impl_->Bind()
    // calls so we can Unbind() them on cleanup.
 diff --git content/browser/renderer_interface_binders.cc content/browser/renderer_interface_binders.cc
-index 8e4df0b15aeb..02bcdca69af9 100644
+index b317a37b4fa1..a0d9e850c5ec 100644
 --- content/browser/renderer_interface_binders.cc
 +++ content/browser/renderer_interface_binders.cc
 @@ -140,7 +140,7 @@ void RendererInterfaceBinders::InitializeParameterizedBinderRegistry() {
@@ -813,7 +813,7 @@ index 63fe0125ca1c..698378600723 100644
  
    RenderFrameHost* render_frame_host_;
 diff --git content/browser/worker_host/dedicated_worker_host.cc content/browser/worker_host/dedicated_worker_host.cc
-index d55172625502..22abdeec0c94 100644
+index 1897061418d5..3bfd0efff201 100644
 --- content/browser/worker_host/dedicated_worker_host.cc
 +++ content/browser/worker_host/dedicated_worker_host.cc
 @@ -76,8 +76,7 @@ class DedicatedWorkerHost : public service_manager::mojom::InterfaceProvider {

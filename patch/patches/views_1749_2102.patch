@@ -154,7 +154,7 @@ index 46f81be3d27a..249edf8cc5f8 100644
    ImageView* image() const { return image_; }
    Label* label() const;
 diff --git ui/views/controls/label.cc ui/views/controls/label.cc
-index ef1ed1092eb4..e913d9d50741 100644
+index 0889f38dcfcb..90339b135ac0 100644
 --- ui/views/controls/label.cc
 +++ ui/views/controls/label.cc
 @@ -43,6 +43,22 @@ bool IsOpaque(SkColor color) {
@@ -180,7 +180,7 @@ index ef1ed1092eb4..e913d9d50741 100644
  const char Label::kViewClassName[] = "Label";
  
  Label::Label() : Label(base::string16()) {
-@@ -202,6 +218,14 @@ void Label::SetElideBehavior(gfx::ElideBehavior elide_behavior) {
+@@ -205,6 +221,14 @@ void Label::SetElideBehavior(gfx::ElideBehavior elide_behavior) {
    ResetLayout();
  }
  
@@ -195,7 +195,7 @@ index ef1ed1092eb4..e913d9d50741 100644
  void Label::SetTooltipText(const base::string16& tooltip_text) {
    DCHECK(handles_tooltips_);
    tooltip_text_ = tooltip_text;
-@@ -430,7 +454,19 @@ std::unique_ptr<gfx::RenderText> Label::CreateRenderText() const {
+@@ -433,7 +457,19 @@ std::unique_ptr<gfx::RenderText> Label::CreateRenderText() const {
    render_text->SetFontList(font_list());
    render_text->set_shadows(shadows());
    render_text->SetCursorEnabled(false);
@@ -217,10 +217,10 @@ index ef1ed1092eb4..e913d9d50741 100644
    render_text->SetMaxLines(multi_line() ? max_lines() : 0);
    render_text->SetWordWrapBehavior(full_text_->word_wrap_behavior());
 diff --git ui/views/controls/label.h ui/views/controls/label.h
-index 771034ccebbe..79e3026f6870 100644
+index ae3a1d6636f6..ee6fc25eca90 100644
 --- ui/views/controls/label.h
 +++ ui/views/controls/label.h
-@@ -154,6 +154,10 @@ class VIEWS_EXPORT Label : public View,
+@@ -159,6 +159,10 @@ class VIEWS_EXPORT Label : public View,
    void SetElideBehavior(gfx::ElideBehavior elide_behavior);
    gfx::ElideBehavior elide_behavior() const { return elide_behavior_; }
  
@@ -231,7 +231,7 @@ index 771034ccebbe..79e3026f6870 100644
    // Sets the tooltip text.  Default behavior for a label (single-line) is to
    // show the full text if it is wider than its bounds.  Calling this overrides
    // the default behavior and lets you set a custom tooltip.  To revert to
-@@ -378,6 +382,7 @@ class VIEWS_EXPORT Label : public View,
+@@ -385,6 +389,7 @@ class VIEWS_EXPORT Label : public View,
    bool collapse_when_hidden_;
    int fixed_width_;
    int max_width_;
@@ -240,10 +240,10 @@ index 771034ccebbe..79e3026f6870 100644
    std::unique_ptr<SelectionController> selection_controller_;
  
 diff --git ui/views/controls/menu/menu_controller.cc ui/views/controls/menu/menu_controller.cc
-index 8a302b528875..8125b5af96c5 100644
+index c66b33a62519..ab81a1c632fd 100644
 --- ui/views/controls/menu/menu_controller.cc
 +++ ui/views/controls/menu/menu_controller.cc
-@@ -2618,8 +2618,13 @@ MenuItemView* MenuController::FindNextSelectableMenuItem(
+@@ -2623,8 +2623,13 @@ MenuItemView* MenuController::FindNextSelectableMenuItem(
  
  void MenuController::OpenSubmenuChangeSelectionIfCan() {
    MenuItemView* item = pending_state_.item;
@@ -258,7 +258,7 @@ index 8a302b528875..8125b5af96c5 100644
    MenuItemView* to_select = NULL;
    if (item->GetSubmenu()->GetMenuItemCount() > 0)
      to_select = FindInitialSelectableMenuItem(item, INCREMENT_SELECTION_DOWN);
-@@ -2638,8 +2643,10 @@ void MenuController::OpenSubmenuChangeSelectionIfCan() {
+@@ -2643,8 +2648,10 @@ void MenuController::OpenSubmenuChangeSelectionIfCan() {
  void MenuController::CloseSubmenu() {
    MenuItemView* item = state_.item;
    DCHECK(item);
@@ -310,10 +310,10 @@ index 921aef245bf3..4b7474c01c0e 100644
    virtual int GetMaxWidthForMenu(MenuItemView* menu);
  
 diff --git ui/views/controls/menu/menu_item_view.cc ui/views/controls/menu/menu_item_view.cc
-index e609b8521842..73971df2a441 100644
+index 99cbf309d57c..695c5bb92172 100644
 --- ui/views/controls/menu/menu_item_view.cc
 +++ ui/views/controls/menu/menu_item_view.cc
-@@ -1063,6 +1063,15 @@ void MenuItemView::PaintBackground(gfx::Canvas* canvas,
+@@ -1057,6 +1057,15 @@ void MenuItemView::PaintBackground(gfx::Canvas* canvas,
      spilling_rect.set_y(spilling_rect.y() - corner_radius_);
      spilling_rect.set_height(spilling_rect.height() + corner_radius_);
      canvas->DrawRoundRect(spilling_rect, corner_radius_, flags);
@@ -329,7 +329,7 @@ index e609b8521842..73971df2a441 100644
    } else if (render_selection) {
      gfx::Rect item_bounds = GetLocalBounds();
      if (type_ == ACTIONABLE_SUBMENU) {
-@@ -1129,6 +1138,13 @@ void MenuItemView::PaintMinorIconAndText(
+@@ -1123,6 +1132,13 @@ void MenuItemView::PaintMinorIconAndText(
  }
  
  SkColor MenuItemView::GetTextColor(bool minor, bool render_selection) const {
