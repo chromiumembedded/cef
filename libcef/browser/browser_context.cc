@@ -558,10 +558,6 @@ const CefRequestContextSettings& CefBrowserContext::GetSettings() const {
   return settings_;
 }
 
-CefRefPtr<CefRequestContextHandler> CefBrowserContext::GetHandler() const {
-  return NULL;
-}
-
 HostContentSettingsMap* CefBrowserContext::GetHostContentSettingsMap() {
   DCHECK_CURRENTLY_ON(BrowserThread::UI);
   if (!host_content_settings_map_.get()) {
@@ -607,19 +603,24 @@ void CefBrowserContext::OnRenderFrameCreated(
     CefRequestContextImpl* request_context,
     int render_process_id,
     int render_frame_id,
+    int frame_tree_node_id,
     bool is_main_frame,
     bool is_guest_view) {
   CEF_REQUIRE_UIT();
+  DCHECK_GE(render_process_id, 0);
+  DCHECK_GE(render_frame_id, 0);
+  DCHECK_GE(frame_tree_node_id, 0);
+
   CefRefPtr<CefRequestContextHandler> handler = request_context->GetHandler();
   if (handler && resource_context_) {
     DCHECK_GE(render_process_id, 0);
     // Using base::Unretained() is safe because both this callback and possible
     // deletion of |resource_context_| will execute on the IO thread, and this
     // callback will be executed first.
-    CEF_POST_TASK(CEF_IOT,
-                  base::Bind(&CefResourceContext::AddHandler,
-                             base::Unretained(resource_context_.get()),
-                             render_process_id, render_frame_id, handler));
+    CEF_POST_TASK(CEF_IOT, base::Bind(&CefResourceContext::AddHandler,
+                                      base::Unretained(resource_context_.get()),
+                                      render_process_id, render_frame_id,
+                                      frame_tree_node_id, handler));
   }
 }
 
@@ -627,9 +628,14 @@ void CefBrowserContext::OnRenderFrameDeleted(
     CefRequestContextImpl* request_context,
     int render_process_id,
     int render_frame_id,
+    int frame_tree_node_id,
     bool is_main_frame,
     bool is_guest_view) {
   CEF_REQUIRE_UIT();
+  DCHECK_GE(render_process_id, 0);
+  DCHECK_GE(render_frame_id, 0);
+  DCHECK_GE(frame_tree_node_id, 0);
+
   CefRefPtr<CefRequestContextHandler> handler = request_context->GetHandler();
   if (handler && resource_context_) {
     DCHECK_GE(render_process_id, 0);
@@ -638,7 +644,8 @@ void CefBrowserContext::OnRenderFrameDeleted(
     // callback will be executed first.
     CEF_POST_TASK(CEF_IOT, base::Bind(&CefResourceContext::RemoveHandler,
                                       base::Unretained(resource_context_.get()),
-                                      render_process_id, render_frame_id));
+                                      render_process_id, render_frame_id,
+                                      frame_tree_node_id));
   }
 
   if (resource_context_ && is_main_frame) {
@@ -662,5 +669,31 @@ void CefBrowserContext::OnPurgePluginListCache() {
     CEF_POST_TASK(CEF_IOT,
                   base::Bind(&CefResourceContext::ClearPluginLoadDecision,
                              base::Unretained(resource_context_.get()), -1));
+  }
+}
+
+void CefBrowserContext::RegisterSchemeHandlerFactory(
+    const std::string& scheme_name,
+    const std::string& domain_name,
+    CefRefPtr<CefSchemeHandlerFactory> factory) {
+  if (resource_context_) {
+    // Using base::Unretained() is safe because both this callback and possible
+    // deletion of |resource_context_| will execute on the IO thread, and this
+    // callback will be executed first.
+    CEF_POST_TASK(CEF_IOT,
+                  base::Bind(&CefResourceContext::RegisterSchemeHandlerFactory,
+                             base::Unretained(resource_context_.get()),
+                             scheme_name, domain_name, factory));
+  }
+}
+
+void CefBrowserContext::ClearSchemeHandlerFactories() {
+  if (resource_context_) {
+    // Using base::Unretained() is safe because both this callback and possible
+    // deletion of |resource_context_| will execute on the IO thread, and this
+    // callback will be executed first.
+    CEF_POST_TASK(CEF_IOT,
+                  base::Bind(&CefResourceContext::ClearSchemeHandlerFactories,
+                             base::Unretained(resource_context_.get())));
   }
 }

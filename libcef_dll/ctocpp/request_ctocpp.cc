@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=d03733ad63f8893ab03663ea46aec6ae92354efd$
+// $hash=8f57157cf8f05f46b5ae96335584b5e9df02b200$
 //
 
 #include "libcef_dll/ctocpp/request_ctocpp.h"
@@ -235,6 +235,53 @@ void CefRequestCToCpp::SetHeaderMap(const HeaderMap& headerMap) {
   // Restore param:headerMap; type: string_map_multi_byref_const
   if (headerMapMultimap)
     cef_string_multimap_free(headerMapMultimap);
+}
+
+NO_SANITIZE("cfi-icall")
+CefString CefRequestCToCpp::GetHeaderByName(const CefString& name) {
+  cef_request_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_header_by_name))
+    return CefString();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: name; type: string_byref_const
+  DCHECK(!name.empty());
+  if (name.empty())
+    return CefString();
+
+  // Execute
+  cef_string_userfree_t _retval =
+      _struct->get_header_by_name(_struct, name.GetStruct());
+
+  // Return type: string
+  CefString _retvalStr;
+  _retvalStr.AttachToUserFree(_retval);
+  return _retvalStr;
+}
+
+NO_SANITIZE("cfi-icall")
+void CefRequestCToCpp::SetHeaderByName(const CefString& name,
+                                       const CefString& value,
+                                       bool overwrite) {
+  cef_request_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, set_header_by_name))
+    return;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: name; type: string_byref_const
+  DCHECK(!name.empty());
+  if (name.empty())
+    return;
+  // Verify param: value; type: string_byref_const
+  DCHECK(!value.empty());
+  if (value.empty())
+    return;
+
+  // Execute
+  _struct->set_header_by_name(_struct, name.GetStruct(), value.GetStruct(),
+                              overwrite);
 }
 
 NO_SANITIZE("cfi-icall")

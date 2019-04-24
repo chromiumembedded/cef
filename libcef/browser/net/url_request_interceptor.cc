@@ -33,27 +33,18 @@ net::URLRequestJob* CefRequestInterceptor::MaybeInterceptRequest(
   if (net_util::IsInternalRequest(request))
     return nullptr;
 
-  CefRefPtr<CefBrowserHostImpl> browser =
-      CefBrowserHostImpl::GetBrowserForRequest(request);
-  if (browser.get()) {
-    CefRefPtr<CefClient> client = browser->GetClient();
-    if (client.get()) {
-      CefRefPtr<CefRequestHandler> handler = client->GetRequestHandler();
-      if (handler.get()) {
-        CefRefPtr<CefFrame> frame = browser->GetFrameForRequest(request);
-
-        // Populate the request data.
-        CefRefPtr<CefRequest> req(CefRequest::Create());
-        static_cast<CefRequestImpl*>(req.get())->Set(request);
-
-        // Give the client an opportunity to replace the request.
-        CefRefPtr<CefResourceHandler> resourceHandler =
-            handler->GetResourceHandler(browser.get(), frame, req);
-        if (resourceHandler.get()) {
-          return new CefResourceRequestJob(request, network_delegate,
-                                           resourceHandler);
-        }
-      }
+  CefRefPtr<CefRequestImpl> requestPtr;
+  CefRefPtr<CefBrowser> browser;
+  CefRefPtr<CefFrame> frame;
+  CefRefPtr<CefResourceRequestHandler> handler =
+      net_util::GetResourceRequestHandler(request, requestPtr, browser, frame);
+  if (handler) {
+    // Give the client an opportunity to replace the request.
+    CefRefPtr<CefResourceHandler> resourceHandler =
+        handler->GetResourceHandler(browser, frame, requestPtr.get());
+    if (resourceHandler) {
+      return new CefResourceRequestJob(request, network_delegate,
+                                       resourceHandler);
     }
   }
 
@@ -67,36 +58,27 @@ net::URLRequestJob* CefRequestInterceptor::MaybeInterceptRedirect(
   if (net_util::IsInternalRequest(request))
     return nullptr;
 
-  CefRefPtr<CefBrowserHostImpl> browser =
-      CefBrowserHostImpl::GetBrowserForRequest(request);
-  if (browser.get()) {
-    CefRefPtr<CefClient> client = browser->GetClient();
-    if (client.get()) {
-      CefRefPtr<CefRequestHandler> handler = client->GetRequestHandler();
-      if (handler.get()) {
-        CefRefPtr<CefFrame> frame = browser->GetFrameForRequest(request);
+  CefRefPtr<CefRequestImpl> requestPtr;
+  CefRefPtr<CefBrowser> browser;
+  CefRefPtr<CefFrame> frame;
+  CefRefPtr<CefResourceRequestHandler> handler =
+      net_util::GetResourceRequestHandler(request, requestPtr, browser, frame);
+  if (handler) {
+    CefRefPtr<CefResponseImpl> responsePtr = new CefResponseImpl();
+    responsePtr->Set(request);
+    responsePtr->SetReadOnly(true);
 
-        CefRefPtr<CefRequest> cefRequest = new CefRequestImpl();
-        static_cast<CefRequestImpl*>(cefRequest.get())->Set(request);
-        static_cast<CefRequestImpl*>(cefRequest.get())->SetReadOnly(true);
-
-        CefRefPtr<CefResponse> cefResponse = new CefResponseImpl();
-        static_cast<CefResponseImpl*>(cefResponse.get())->Set(request);
-        static_cast<CefResponseImpl*>(cefResponse.get())->SetReadOnly(true);
-
-        // Give the client an opportunity to redirect the request.
-        CefString newUrlStr = location.spec();
-        handler->OnResourceRedirect(browser.get(), frame, cefRequest,
-                                    cefResponse, newUrlStr);
-        if (newUrlStr != location.spec()) {
-          const GURL new_url = GURL(newUrlStr.ToString());
-          if (!new_url.is_empty() && new_url.is_valid()) {
-            return new net::URLRequestRedirectJob(
-                request, network_delegate, new_url,
-                net::URLRequestRedirectJob::REDIRECT_307_TEMPORARY_REDIRECT,
-                "Resource Redirect");
-          }
-        }
+    // Give the client an opportunity to redirect the request.
+    CefString newUrlStr = location.spec();
+    handler->OnResourceRedirect(browser, frame, requestPtr.get(),
+                                responsePtr.get(), newUrlStr);
+    if (newUrlStr != location.spec()) {
+      const GURL new_url = GURL(newUrlStr.ToString());
+      if (!new_url.is_empty() && new_url.is_valid()) {
+        return new net::URLRequestRedirectJob(
+            request, network_delegate, new_url,
+            net::URLRequestRedirectJob::REDIRECT_307_TEMPORARY_REDIRECT,
+            "Resource Redirect");
       }
     }
   }
@@ -110,32 +92,27 @@ net::URLRequestJob* CefRequestInterceptor::MaybeInterceptResponse(
   if (net_util::IsInternalRequest(request))
     return nullptr;
 
-  CefRefPtr<CefBrowserHostImpl> browser =
-      CefBrowserHostImpl::GetBrowserForRequest(request);
-  if (!browser.get())
+  CefRefPtr<CefRequestImpl> requestPtr;
+  CefRefPtr<CefBrowser> browser;
+  CefRefPtr<CefFrame> frame;
+  CefRefPtr<CefResourceRequestHandler> handler =
+      net_util::GetResourceRequestHandler(request, requestPtr, browser, frame);
+  if (!handler)
     return nullptr;
 
-  CefRefPtr<CefClient> client = browser->GetClient();
-  if (!client.get())
-    return nullptr;
+  // The below callback allows modification of the request object.
+  requestPtr->SetReadOnly(false);
+  requestPtr->SetTrackChanges(true);
 
-  CefRefPtr<CefRequestHandler> handler = client->GetRequestHandler();
-  if (!handler.get())
-    return nullptr;
+  CefRefPtr<CefResponseImpl> responsePtr = new CefResponseImpl();
+  responsePtr->Set(request);
+  responsePtr->SetReadOnly(true);
 
-  CefRefPtr<CefFrame> frame = browser->GetFrameForRequest(request);
-
-  CefRefPtr<CefRequestImpl> cefRequest = new CefRequestImpl();
-  cefRequest->Set(request);
-  cefRequest->SetTrackChanges(true);
-
-  CefRefPtr<CefResponseImpl> cefResponse = new CefResponseImpl();
-  cefResponse->Set(request);
-  cefResponse->SetReadOnly(true);
+  const GURL old_url = request->url();
 
   // Give the client an opportunity to retry or redirect the request.
-  if (!handler->OnResourceResponse(browser.get(), frame, cefRequest.get(),
-                                   cefResponse.get())) {
+  if (!handler->OnResourceResponse(browser, frame, requestPtr.get(),
+                                   responsePtr.get())) {
     return nullptr;
   }
 
@@ -146,16 +123,17 @@ net::URLRequestJob* CefRequestInterceptor::MaybeInterceptResponse(
 
   // Update the URLRequest with only the values that have been changed by the
   // client.
-  cefRequest->Get(request, true);
+  requestPtr->Get(request, true);
 
   // If the URL was changed then redirect the request.
-  if (!!(cefRequest->GetChanges() & CefRequestImpl::kChangedUrl)) {
-    const GURL url(cefRequest->GetURL().ToString());
-    DCHECK_NE(url, request->url());
-    return new net::URLRequestRedirectJob(
-        request, network_delegate, url,
-        net::URLRequestRedirectJob::REDIRECT_307_TEMPORARY_REDIRECT,
-        "Resource Redirect");
+  if (!!(requestPtr->GetChanges() & CefRequestImpl::kChangedUrl)) {
+    const GURL new_url = old_url.Resolve(requestPtr->GetURL().ToString());
+    if (new_url != old_url) {
+      return new net::URLRequestRedirectJob(
+          request, network_delegate, new_url,
+          net::URLRequestRedirectJob::REDIRECT_307_TEMPORARY_REDIRECT,
+          "Resource Redirect");
+    }
   }
 
   // Otherwise queue a new job.

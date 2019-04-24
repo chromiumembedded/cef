@@ -16,6 +16,7 @@
 #include "content/browser/renderer_host/render_widget_host_impl.h"
 #include "content/public/browser/native_web_keyboard_event.h"
 #include "content/public/browser/render_view_host.h"
+#include "third_party/blink/public/mojom/renderer_preferences.mojom.h"
 #include "ui/events/keycodes/dom/dom_key.h"
 #include "ui/events/keycodes/dom/keycode_converter.h"
 #include "ui/events/keycodes/keyboard_code_conversion_x.h"
@@ -23,7 +24,6 @@
 #include "ui/events/keycodes/keysym_to_unicode.h"
 #include "ui/gfx/font_render_params.h"
 #include "ui/views/widget/widget.h"
-#include "third_party/blink/public/mojom/renderer_preferences.mojom.h"
 
 #if defined(USE_X11)
 #include "libcef/browser/native/window_x11.h"
@@ -78,8 +78,9 @@ bool CefBrowserPlatformDelegateNativeLinux::CreateHostWindow() {
   DCHECK(!window_x11_);
   // Create a new window object. It will delete itself when the associated X11
   // window is destroyed.
-  window_x11_ = new CefWindowX11(browser_, window_info_.parent_window, rect,
-                                 CefString(&window_info_.window_name).ToString());
+  window_x11_ =
+      new CefWindowX11(browser_, window_info_.parent_window, rect,
+                       CefString(&window_info_.window_name).ToString());
   window_info_.window = window_x11_->xwindow();
 
   host_window_created_ = true;
@@ -251,8 +252,8 @@ bool CefBrowserPlatformDelegateNativeLinux::HandleKeyboardEvent(
   return false;
 }
 
-void CefBrowserPlatformDelegateNativeLinux::HandleExternalProtocol(
-    const GURL& url) {}
+// static
+void CefBrowserPlatformDelegate::HandleExternalProtocol(const GURL& url) {}
 
 void CefBrowserPlatformDelegateNativeLinux::TranslateKeyEvent(
     content::NativeWebKeyboardEvent& result,

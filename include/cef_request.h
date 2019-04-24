@@ -141,6 +141,25 @@ class CefRequest : public virtual CefBaseRefCounted {
   virtual void SetHeaderMap(const HeaderMap& headerMap) = 0;
 
   ///
+  // Returns the first header value for |name| or an empty string if not found.
+  // Will not return the Referer value if any. Use GetHeaderMap instead if
+  // |name| might have multiple values.
+  ///
+  /*--cef()--*/
+  virtual CefString GetHeaderByName(const CefString& name) = 0;
+
+  ///
+  // Set the header |name| to |value|. If |overwrite| is true any existing
+  // values will be replaced with the new value. If |overwrite| is false any
+  // existing values will not be overwritten. The Referer value cannot be set
+  // using this method.
+  ///
+  /*--cef()--*/
+  virtual void SetHeaderByName(const CefString& name,
+                               const CefString& value,
+                               bool overwrite) = 0;
+
+  ///
   // Set all values at one time.
   ///
   /*--cef(optional_param=postData)--*/
@@ -194,8 +213,8 @@ class CefRequest : public virtual CefBaseRefCounted {
 
   ///
   // Returns the globally unique identifier for this request or 0 if not
-  // specified. Can be used by CefRequestHandler implementations in the browser
-  // process to track a single request across multiple callbacks.
+  // specified. Can be used by CefResourceRequestHandler implementations in the
+  // browser process to track a single request across multiple callbacks.
   ///
   /*--cef()--*/
   virtual uint64 GetIdentifier() = 0;

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=babd63d2abc0812c13f7228094f601851ea0679f$
+// $hash=7e25b74bd376dbed878c6b477ad89960c82f6cb1$
 //
 
 #ifndef CEF_LIBCEF_DLL_WRAPPER_TYPES_H_
@@ -103,6 +103,9 @@ enum CefWrapperType {
   WT_RESOURCE_BUNDLE,
   WT_RESOURCE_BUNDLE_HANDLER,
   WT_RESOURCE_HANDLER,
+  WT_RESOURCE_READ_CALLBACK,
+  WT_RESOURCE_REQUEST_HANDLER,
+  WT_RESOURCE_SKIP_CALLBACK,
   WT_RESPONSE,
   WT_RESPONSE_FILTER,
   WT_RUN_CONTEXT_MENU_CALLBACK,

@@ -386,8 +386,7 @@ class OSRTestHandler : public RoutingTestHandler,
     return this;
   }
 
-  CefRefPtr<CefRequestHandler> GetRequestHandler() override { return this; }
-
+  // CefResourceRequestHandler methods
   CefRefPtr<CefResourceHandler> GetResourceHandler(
       CefRefPtr<CefBrowser> browser,
       CefRefPtr<CefFrame> frame,

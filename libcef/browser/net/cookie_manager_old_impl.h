@@ -56,11 +56,6 @@ class CefCookieManagerOldImpl : public CefCookieManager {
                      CefRefPtr<CefDeleteCookiesCallback> callback) override;
   bool FlushStore(CefRefPtr<CefCompletionCallback> callback) override;
 
-  static bool GetCefCookie(const net::CanonicalCookie& cc, CefCookie& cookie);
-  static bool GetCefCookie(const GURL& url,
-                           const std::string& cookie_line,
-                           CefCookie& cookie);
-
   // Set the schemes supported by |cookie_monster|. Default schemes will always
   // be supported.
   static void SetCookieMonsterSchemes(net::CookieMonster* cookie_monster,

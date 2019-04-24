@@ -1636,6 +1636,29 @@ void CefBrowserHostImpl::CancelContextMenu() {
     menu_manager_->CancelContextMenu();
 }
 
+CefRefPtr<CefFrame> CefBrowserHostImpl::GetFrameForHost(
+    const content::RenderFrameHost* host_const) {
+  CEF_REQUIRE_UIT();
+  if (!host_const)
+    return nullptr;
+  content::RenderFrameHost* host =
+      const_cast<content::RenderFrameHost*>(host_const);
+  content::RenderFrameHost* parent = host->GetParent();
+  return GetOrCreateFrame(
+      host->GetRoutingID(), host->GetFrameTreeNodeId(),
+      parent ? parent->GetRoutingID() : CefFrameHostImpl::kUnspecifiedFrameId,
+      parent == nullptr /* is_main_frame */,
+      false /* is_main_frame_state_flaky */, base::string16(), GURL());
+}
+
+CefRefPtr<CefFrame> CefBrowserHostImpl::GetFrameForHostRoutingId(
+    int render_frame_id) {
+  return GetOrCreateFrame(
+      render_frame_id, kUnspecifiedFrameTreeNodeId,
+      CefFrameHostImpl::kUnspecifiedFrameId, false /* is_main_frame */,
+      true /* is_main_frame_state_flaky */, base::string16(), GURL());
+}
+
 CefRefPtr<CefFrame> CefBrowserHostImpl::GetFrameForRequest(
     const net::URLRequest* request) {
   CEF_REQUIRE_IOT();
@@ -1876,25 +1899,6 @@ void CefBrowserHostImpl::ViewText(const std::string& text) {
 
   if (platform_delegate_)
     platform_delegate_->ViewText(text);
-}
-
-void CefBrowserHostImpl::HandleExternalProtocol(const GURL& url) {
-  if (CEF_CURRENTLY_ON_UIT()) {
-    bool allow_os_execution = false;
-
-    if (client_.get()) {
-      CefRefPtr<CefRequestHandler> handler = client_->GetRequestHandler();
-      if (handler.get())
-        handler->OnProtocolExecution(this, url.spec(), allow_os_execution);
-    }
-
-    if (allow_os_execution && platform_delegate_)
-      platform_delegate_->HandleExternalProtocol(url);
-  } else {
-    CEF_POST_TASK(
-        CEF_UIT,
-        base::BindOnce(&CefBrowserHostImpl::HandleExternalProtocol, this, url));
-  }
 }
 
 SkColor CefBrowserHostImpl::GetBackgroundColor() const {
@@ -2723,7 +2727,8 @@ void CefBrowserHostImpl::RenderFrameCreated(
 
   const bool is_main_frame = (render_frame_host->GetParent() == nullptr);
   request_context_->OnRenderFrameCreated(render_process_id, render_routing_id,
-                                         is_main_frame, false);
+                                         frame_tree_node_id, is_main_frame,
+                                         false);
 }
 
 void CefBrowserHostImpl::RenderFrameHostChanged(
@@ -2747,7 +2752,8 @@ void CefBrowserHostImpl::FrameDeleted(
 
   const bool is_main_frame = (render_frame_host->GetParent() == nullptr);
   request_context_->OnRenderFrameDeleted(render_process_id, render_routing_id,
-                                         is_main_frame, false);
+                                         frame_tree_node_id, is_main_frame,
+                                         false);
 
   base::AutoLock lock_scope(state_lock_);
 

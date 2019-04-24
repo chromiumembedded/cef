@@ -174,6 +174,13 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
       const net::HttpRequestHeaders& headers,
       network::mojom::URLLoaderFactoryRequest* factory_request,
       network::mojom::URLLoaderFactory*& out_factory) override;
+  bool HandleExternalProtocol(
+      content::ResourceRequestInfo::WebContentsGetter web_contents_getter,
+      int frame_tree_node_id,
+      content::NavigationUIData* navigation_data,
+      const network::ResourceRequest& request,
+      network::mojom::URLLoaderFactoryRequest* factory_request,
+      network::mojom::URLLoaderFactory*& out_factory) override;
   std::string GetProduct() const override;
   std::string GetChromeProduct() const override;
   std::string GetUserAgent() const override;
@@ -193,11 +200,6 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
   // Returns the extension or app associated with |site_instance| or NULL.
   const extensions::Extension* GetExtension(
       content::SiteInstance* site_instance);
-
-  static void HandleExternalProtocolOnUIThread(
-      const GURL& url,
-      const content::ResourceRequestInfo::WebContentsGetter&
-          web_contents_getter);
 
   CefBrowserMainParts* browser_main_parts_;
 

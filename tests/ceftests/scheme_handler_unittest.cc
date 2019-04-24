@@ -11,23 +11,24 @@
 #include "include/wrapper/cef_closure_task.h"
 #include "tests/ceftests/test_handler.h"
 #include "tests/ceftests/test_suite.h"
+#include "tests/ceftests/test_util.h"
 
 namespace {
 
 class TestResults {
  public:
-  TestResults() : status_code(0), sub_status_code(0), delay(0) {}
+  TestResults() : status_code(200), sub_status_code(200), delay(0) {}
 
   void reset() {
     url.clear();
     html.clear();
-    status_code = 0;
+    status_code = 200;
     response_error_code = ERR_NONE;
     expected_error_code = ERR_NONE;
     redirect_url.clear();
     sub_url.clear();
     sub_html.clear();
-    sub_status_code = 0;
+    sub_status_code = 200;
     sub_allow_origin.clear();
     exit_url.clear();
     accept_language.clear();
@@ -140,8 +141,7 @@ class TestSchemeHandler : public TestHandler {
                  CefRefPtr<CefFrame> frame,
                  int httpStatusCode) override {
     std::string url = frame->GetURL();
-    if (url == test_results_->url || (test_results_->status_code != 200 &&
-                                      test_results_->status_code != 0)) {
+    if (url == test_results_->url || test_results_->status_code != 200) {
       test_results_->got_output.yes();
 
       // Test that the status code is correct.
@@ -161,7 +161,8 @@ class TestSchemeHandler : public TestHandler {
     // Tests sometimes also fail with ERR_ABORTED.
     if (!(test_results_->expected_error_code == 0 &&
           errorCode == ERR_ABORTED)) {
-      EXPECT_EQ(test_results_->expected_error_code, errorCode);
+      EXPECT_EQ(test_results_->expected_error_code, errorCode)
+          << failedUrl.ToString();
     }
     DestroyTest();
   }
@@ -387,7 +388,6 @@ struct XHRTestSettings {
 void SetUpXHR(const XHRTestSettings& settings) {
   g_TestResults.sub_url = settings.sub_url;
   g_TestResults.sub_html = "SUCCESS";
-  g_TestResults.sub_status_code = 200;
   g_TestResults.sub_allow_origin = settings.sub_allow_origin;
   g_TestResults.sub_redirect_url = settings.sub_redirect_url;
 
@@ -444,7 +444,6 @@ void SetUpXHR(const XHRTestSettings& settings) {
         "Running execXMLHttpRequest..."
         "</body></html>";
   g_TestResults.html = ss.str();
-  g_TestResults.status_code = 200;
 
   g_TestResults.exit_url = "http://tests/exit";
 }
@@ -461,7 +460,6 @@ struct FetchTestSettings {
 void SetUpFetch(const FetchTestSettings& settings) {
   g_TestResults.sub_url = settings.sub_url;
   g_TestResults.sub_html = "SUCCESS";
-  g_TestResults.sub_status_code = 200;
   g_TestResults.sub_allow_origin = settings.sub_allow_origin;
   g_TestResults.sub_redirect_url = settings.sub_redirect_url;
 
@@ -504,7 +502,6 @@ void SetUpFetch(const FetchTestSettings& settings) {
         "Running execFetchHttpRequest..."
         "</body></html>";
   g_TestResults.html = ss.str();
-  g_TestResults.status_code = 200;
 
   g_TestResults.exit_url = "http://tests/exit";
 }  // namespace
@@ -541,7 +538,6 @@ void SetUpXSS(const std::string& url,
         "Running execXSSRequest..."
         "</body></html>";
   g_TestResults.sub_html = ss.str();
-  g_TestResults.sub_status_code = 200;
 
   g_TestResults.url = url;
   ss.str("");
@@ -562,7 +558,6 @@ void SetUpXSS(const std::string& url,
      << "\" id=\"s\">"
         "</body></html>";
   g_TestResults.html = ss.str();
-  g_TestResults.status_code = 200;
 
   g_TestResults.exit_url = "http://tests/exit";
 }
@@ -575,7 +570,6 @@ TEST(SchemeHandlerTest, Registration) {
   g_TestResults.url = "customstd://test/run.html";
   g_TestResults.html =
       "<html><head></head><body><h1>Success!</h1></body></html>";
-  g_TestResults.status_code = 200;
 
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
   handler->ExecuteTest();
@@ -624,7 +618,6 @@ TEST(SchemeHandlerTest, CustomStandardNormalResponse) {
   g_TestResults.url = "customstd://test/run.html";
   g_TestResults.html =
       "<html><head></head><body><h1>Success!</h1></body></html>";
-  g_TestResults.status_code = 200;
 
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
   handler->ExecuteTest();
@@ -644,7 +637,6 @@ TEST(SchemeHandlerTest, CustomStandardNormalResponseDelayed) {
   g_TestResults.url = "customstd://test/run.html";
   g_TestResults.html =
       "<html><head></head><body><h1>Success!</h1></body></html>";
-  g_TestResults.status_code = 200;
   g_TestResults.delay = 100;
 
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
@@ -664,7 +656,6 @@ TEST(SchemeHandlerTest, CustomNonStandardNormalResponse) {
   g_TestResults.url = "customnonstd:some%20value";
   g_TestResults.html =
       "<html><head></head><body><h1>Success!</h1></body></html>";
-  g_TestResults.status_code = 200;
 
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
   handler->ExecuteTest();
@@ -776,7 +767,8 @@ TEST(SchemeHandlerTest, CustomNonStandardNameNotHandled) {
 TEST(SchemeHandlerTest, CustomStandardDomainNotHandled) {
   RegisterTestScheme("customstd", "test");
   g_TestResults.url = "customstd://noexist/run.html";
-  g_TestResults.expected_error_code = ERR_FAILED;
+  g_TestResults.expected_error_code =
+      IsNetworkServiceEnabled() ? ERR_UNKNOWN_URL_SCHEME : ERR_FAILED;
 
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
   handler->ExecuteTest();
@@ -2091,7 +2083,6 @@ TEST(SchemeHandlerTest, AcceptLanguage) {
   g_TestResults.url = "customstd://test/run.html";
   g_TestResults.html =
       "<html><head></head><body><h1>Success!</h1></body></html>";
-  g_TestResults.status_code = 200;
 
   // Value that will be set via CefBrowserSettings.accept_language in
   // PopulateBrowserSettings().

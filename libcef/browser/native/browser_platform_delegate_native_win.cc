@@ -399,8 +399,8 @@ bool CefBrowserPlatformDelegateNativeWin::HandleKeyboardEvent(
   }
 }
 
-void CefBrowserPlatformDelegateNativeWin::HandleExternalProtocol(
-    const GURL& url) {
+// static
+void CefBrowserPlatformDelegate::HandleExternalProtocol(const GURL& url) {
   CEF_POST_USER_VISIBLE_TASK(base::Bind(ExecuteExternalProtocol, url));
 }
 

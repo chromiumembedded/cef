@@ -144,10 +144,6 @@ bool CefBrowserPlatformDelegateOsr::HandleKeyboardEvent(
   return native_delegate_->HandleKeyboardEvent(event);
 }
 
-void CefBrowserPlatformDelegateOsr::HandleExternalProtocol(const GURL& url) {
-  native_delegate_->HandleExternalProtocol(url);
-}
-
 void CefBrowserPlatformDelegateOsr::TranslateKeyEvent(
     content::NativeWebKeyboardEvent& result,
     const CefKeyEvent& key_event) const {

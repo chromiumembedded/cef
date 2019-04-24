@@ -300,26 +300,53 @@ bool CefRequestContextImpl::RegisterSchemeHandlerFactory(
     const CefString& scheme_name,
     const CefString& domain_name,
     CefRefPtr<CefSchemeHandlerFactory> factory) {
-  if (net_service::IsEnabled()) {
-    NOTIMPLEMENTED();
-    return false;
+  if (!net_service::IsEnabled()) {
+    GetRequestContextImpl(
+        base::CreateSingleThreadTaskRunnerWithTraits({BrowserThread::IO}),
+        base::Bind(&CefRequestContextImpl::RegisterSchemeHandlerFactoryInternal,
+                   this, scheme_name, domain_name, factory));
+    return true;
   }
-  GetRequestContextImpl(
-      base::CreateSingleThreadTaskRunnerWithTraits({BrowserThread::IO}),
-      base::Bind(&CefRequestContextImpl::RegisterSchemeHandlerFactoryInternal,
-                 this, scheme_name, domain_name, factory));
+
+  if (!CEF_CURRENTLY_ON_UIT()) {
+    CEF_POST_TASK(CEF_UIT,
+                  base::BindOnce(
+                      base::IgnoreResult(
+                          &CefRequestContextImpl::RegisterSchemeHandlerFactory),
+                      this, scheme_name, domain_name, factory));
+    return true;
+  }
+
+  // Make sure the browser context exists.
+  EnsureBrowserContext();
+
+  browser_context()->RegisterSchemeHandlerFactory(scheme_name, domain_name,
+                                                  factory);
   return true;
 }
 
 bool CefRequestContextImpl::ClearSchemeHandlerFactories() {
-  if (net_service::IsEnabled()) {
-    NOTIMPLEMENTED();
-    return false;
+  if (!net_service::IsEnabled()) {
+    GetRequestContextImpl(
+        base::CreateSingleThreadTaskRunnerWithTraits({BrowserThread::IO}),
+        base::Bind(&CefRequestContextImpl::ClearSchemeHandlerFactoriesInternal,
+                   this));
+    return true;
   }
-  GetRequestContextImpl(
-      base::CreateSingleThreadTaskRunnerWithTraits({BrowserThread::IO}),
-      base::Bind(&CefRequestContextImpl::ClearSchemeHandlerFactoriesInternal,
-                 this));
+
+  if (!CEF_CURRENTLY_ON_UIT()) {
+    CEF_POST_TASK(
+        CEF_UIT,
+        base::BindOnce(base::IgnoreResult(
+                           &CefRequestContextImpl::ClearSchemeHandlerFactories),
+                       this));
+    return true;
+  }
+
+  // Make sure the browser context exists.
+  EnsureBrowserContext();
+
+  browser_context()->ClearSchemeHandlerFactories();
   return true;
 }
 
@@ -555,18 +582,22 @@ CefRefPtr<CefExtension> CefRequestContextImpl::GetExtension(
 
 void CefRequestContextImpl::OnRenderFrameCreated(int render_process_id,
                                                  int render_frame_id,
+                                                 int frame_tree_node_id,
                                                  bool is_main_frame,
                                                  bool is_guest_view) {
-  browser_context_->OnRenderFrameCreated(
-      this, render_process_id, render_frame_id, is_main_frame, is_guest_view);
+  browser_context_->OnRenderFrameCreated(this, render_process_id,
+                                         render_frame_id, frame_tree_node_id,
+                                         is_main_frame, is_guest_view);
 }
 
 void CefRequestContextImpl::OnRenderFrameDeleted(int render_process_id,
                                                  int render_frame_id,
+                                                 int frame_tree_node_id,
                                                  bool is_main_frame,
                                                  bool is_guest_view) {
-  browser_context_->OnRenderFrameDeleted(
-      this, render_process_id, render_frame_id, is_main_frame, is_guest_view);
+  browser_context_->OnRenderFrameDeleted(this, render_process_id,
+                                         render_frame_id, frame_tree_node_id,
+                                         is_main_frame, is_guest_view);
 }
 
 // static

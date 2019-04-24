@@ -26,21 +26,6 @@ index 9e81f0a33ede..b796e79ae7ef 100644
  
    auto* browser_context = web_contents->GetBrowserContext();
  
-diff --git content/public/browser/content_browser_client.h content/public/browser/content_browser_client.h
-index b89c08735e10..8a63d21d6771 100644
---- content/public/browser/content_browser_client.h
-+++ content/public/browser/content_browser_client.h
-@@ -1506,6 +1506,10 @@ class CONTENT_EXPORT ContentBrowserClient {
-   // Used as part of the user agent string.
-   virtual std::string GetProduct() const;
- 
-+  // Returns the Chrome-specific product string. This is used for compatibility
-+  // purposes with external tools like Selenium.
-+  virtual std::string GetChromeProduct() const { return GetProduct(); }
-+
-   // Returns the user agent.  Content may cache this value.
-   virtual std::string GetUserAgent() const;
- 
 diff --git extensions/browser/extension_host.cc extensions/browser/extension_host.cc
 index 8cc9503fc131..b74c385b40a2 100644
 --- extensions/browser/extension_host.cc

@@ -875,7 +875,7 @@ class RedirectTestHandler : public TestHandler {
 
       EXPECT_EQ(302, response->GetStatus());
       EXPECT_STREQ("Found", response->GetStatusText().ToString().c_str());
-      EXPECT_STREQ("text/html", response->GetMimeType().ToString().c_str());
+      EXPECT_STREQ("", response->GetMimeType().ToString().c_str());
       EXPECT_STREQ(kRNav2, response->GetHeader("Location").ToString().c_str());
 
       // Change the redirect to the 3rd URL.

@@ -39,9 +39,11 @@
 #pragma once
 
 #include "include/cef_base.h"
+#include "include/cef_browser.h"
+#include "include/cef_frame.h"
+#include "include/cef_request.h"
+#include "include/cef_resource_request_handler.h"
 #include "include/cef_web_plugin.h"
-
-class CefRequestContext;
 
 ///
 // Implement this interface to provide handler implementations. The handler
@@ -87,6 +89,37 @@ class CefRequestContextHandler : public virtual CefBaseRefCounted {
                                   CefRefPtr<CefWebPluginInfo> plugin_info,
                                   PluginPolicy* plugin_policy) {
     return false;
+  }
+
+  ///
+  // Called on the browser process IO thread before a resource request is
+  // initiated. The |browser| and |frame| values represent the source of the
+  // request, and may be NULL for requests originating from service workers.
+  // |request| represents the request contents and cannot be modified in this
+  // callback. |is_navigation| will be true if the resource request is a
+  // navigation. |is_download| will be true if the resource request is a
+  // download. |request_initiator| is the origin (scheme + domain) of the page
+  // that initiated the request. Set |disable_default_handling| to true to
+  // disable default handling of the request, in which case it will need to be
+  // handled via CefResourceRequestHandler::GetResourceHandler or it will be
+  // canceled. To allow the resource load to proceed with default handling
+  // return NULL. To specify a handler for the resource return a
+  // CefResourceRequestHandler object. This method will not be called if the
+  // client associated with |browser| returns a non-NULL value from
+  // CefRequestHandler::GetResourceRequestHandler for the same request
+  // (identified by CefRequest::GetIdentifier).
+  ///
+  /*--cef(optional_param=browser,optional_param=frame,
+          optional_param=request_initiator)--*/
+  virtual CefRefPtr<CefResourceRequestHandler> GetResourceRequestHandler(
+      CefRefPtr<CefBrowser> browser,
+      CefRefPtr<CefFrame> frame,
+      CefRefPtr<CefRequest> request,
+      bool is_navigation,
+      bool is_download,
+      const CefString& request_initiator,
+      bool& disable_default_handling) {
+    return NULL;
   }
 };
 

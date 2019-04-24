@@ -4,6 +4,7 @@
 
 #include "libcef/browser/net_service/cookie_manager_impl.h"
 
+#include "libcef/common/net_service/net_service_util.h"
 #include "libcef/common/time_util.h"
 
 #include "base/bind.h"
@@ -50,20 +51,6 @@ void DeleteCookiesCallbackImpl(CefRefPtr<CefDeleteCookiesCallback> callback,
                                     callback.get(), num_deleted));
 }
 
-void GetCefCookie(const net::CanonicalCookie& cc, CefCookie& cookie) {
-  CefString(&cookie.name).FromString(cc.Name());
-  CefString(&cookie.value).FromString(cc.Value());
-  CefString(&cookie.domain).FromString(cc.Domain());
-  CefString(&cookie.path).FromString(cc.Path());
-  cookie.secure = cc.IsSecure();
-  cookie.httponly = cc.IsHttpOnly();
-  cef_time_from_basetime(cc.CreationDate(), cookie.creation);
-  cef_time_from_basetime(cc.LastAccessDate(), cookie.last_access);
-  cookie.has_expires = cc.IsPersistent();
-  if (cookie.has_expires)
-    cef_time_from_basetime(cc.ExpiryDate(), cookie.expires);
-}
-
 void ExecuteVisitor(CefRefPtr<CefCookieVisitor> visitor,
                     CefRefPtr<CefRequestContextImpl> request_context,
                     const std::vector<net::CanonicalCookie>& cookies) {
@@ -74,7 +61,7 @@ void ExecuteVisitor(CefRefPtr<CefCookieVisitor> visitor,
   int total = cookies.size(), count = 0;
   for (const auto& cc : cookies) {
     CefCookie cookie;
-    GetCefCookie(cc, cookie);
+    net_service::MakeCefCookie(cc, cookie);
 
     bool deleteCookie = false;
     bool keepLooping = visitor->Visit(cookie, count, total, deleteCookie);
@@ -119,9 +106,20 @@ void CefCookieManagerImpl::SetSupportedSchemes(
     return;
   }
 
-  // TODO(network): Figure out how to route this to
-  // CookieMonster::SetCookieableSchemes via the NetworkService.
-  NOTIMPLEMENTED();
+  std::vector<std::string> all_schemes;
+  for (const auto& scheme : schemes)
+    all_schemes.push_back(scheme);
+
+  // This list should match CookieMonster::kDefaultCookieableSchemes.
+  all_schemes.push_back("http");
+  all_schemes.push_back("https");
+  all_schemes.push_back("ws");
+  all_schemes.push_back("wss");
+
+  // This will be forwarded to the CookieMonster that lives in the
+  // NetworkService process when the NetworkContext is created via
+  // CefContentBrowserClient::CreateNetworkContext.
+  request_context_->GetBrowserContext()->set_cookieable_schemes(all_schemes);
   RunAsyncCompletionOnUIThread(callback);
 }
 

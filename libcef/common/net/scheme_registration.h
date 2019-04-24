@@ -26,6 +26,9 @@ bool IsInternalHandledScheme(const std::string& scheme);
 // always be a lower-case string.
 bool IsInternalProtectedScheme(const std::string& scheme);
 
+// Returns true if the specified |scheme| is a registered standard scheme.
+bool IsStandardScheme(const std::string& scheme);
+
 }  // namespace scheme
 
 #endif  // CEF_LIBCEF_COMMON_NET_SCHEME_REGISTRATION_H_

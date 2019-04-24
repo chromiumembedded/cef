@@ -4,6 +4,7 @@
 
 #include "tests/ceftests/extensions/extension_test_handler.h"
 
+#include "include/cef_request_context_handler.h"
 #include "tests/ceftests/test_suite.h"
 #include "tests/ceftests/test_util.h"
 

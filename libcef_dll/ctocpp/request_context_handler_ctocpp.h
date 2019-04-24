@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=3cf1dba9c137bc586d91149920ff4558bce74a58$
+// $hash=be43dedb9d443b51103d1e38e144078afc631f76$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_REQUEST_CONTEXT_HANDLER_CTOCPP_H_
@@ -20,9 +20,7 @@
 #error This file can be included DLL-side only
 #endif
 
-#include "include/capi/cef_request_context_capi.h"
 #include "include/capi/cef_request_context_handler_capi.h"
-#include "include/cef_request_context.h"
 #include "include/cef_request_context_handler.h"
 #include "libcef_dll/ctocpp/ctocpp_ref_counted.h"
 
@@ -45,6 +43,14 @@ class CefRequestContextHandlerCToCpp
                           const CefString& top_origin_url,
                           CefRefPtr<CefWebPluginInfo> plugin_info,
                           PluginPolicy* plugin_policy) override;
+  CefRefPtr<CefResourceRequestHandler> GetResourceRequestHandler(
+      CefRefPtr<CefBrowser> browser,
+      CefRefPtr<CefFrame> frame,
+      CefRefPtr<CefRequest> request,
+      bool is_navigation,
+      bool is_download,
+      const CefString& request_initiator,
+      bool& disable_default_handling) override;
 };
 
 #endif  // CEF_LIBCEF_DLL_CTOCPP_REQUEST_CONTEXT_HANDLER_CTOCPP_H_

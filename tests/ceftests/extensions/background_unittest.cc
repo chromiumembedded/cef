@@ -129,7 +129,7 @@ class BackgroundLoadUnloadTestHandler : public ExtensionTestHandler {
     }
   }
 
-  // CefRequestHandler methods:
+  // CefResourceRequestHandler methods:
   CefRefPtr<CefResourceHandler> GetResourceHandler(
       CefRefPtr<CefBrowser> browser,
       CefRefPtr<CefFrame> frame,

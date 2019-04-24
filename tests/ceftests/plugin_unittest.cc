@@ -4,6 +4,7 @@
 
 #include "include/base/cef_bind.h"
 #include "include/cef_pack_resources.h"
+#include "include/cef_request_context_handler.h"
 #include "include/cef_resource_bundle.h"
 #include "include/wrapper/cef_closure_task.h"
 #include "include/wrapper/cef_stream_resource_handler.h"

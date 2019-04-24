@@ -112,6 +112,18 @@ class CefResponse : public virtual CefBaseRefCounted {
   virtual void SetMimeType(const CefString& mimeType) = 0;
 
   ///
+  // Get the response charset.
+  ///
+  /*--cef()--*/
+  virtual CefString GetCharset() = 0;
+
+  ///
+  // Set the response charset.
+  ///
+  /*--cef()--*/
+  virtual void SetCharset(const CefString& charset) = 0;
+
+  ///
   // Get the value for the specified response header field.
   ///
   /*--cef()--*/

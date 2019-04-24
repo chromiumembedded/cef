@@ -11,7 +11,7 @@
 #include "tests/ceftests/test_util.h"
 #include "tests/gtest/include/gtest/gtest.h"
 
-TEST(RequestContextTest, GetGlobalContext) {
+TEST(RequestContextTest, BasicGetGlobal) {
   CefRefPtr<CefRequestContext> context1 = CefRequestContext::GetGlobalContext();
   EXPECT_TRUE(context1.get());
   EXPECT_TRUE(context1->IsGlobal());
@@ -30,7 +30,7 @@ TEST(RequestContextTest, GetGlobalContext) {
   EXPECT_TRUE(context2->IsSharingWith(context1));
 }
 
-TEST(RequestContextTest, CreateContext) {
+TEST(RequestContextTest, BasicCreate) {
   class Handler : public CefRequestContextHandler {
    public:
     Handler() {}
@@ -76,7 +76,7 @@ TEST(RequestContextTest, CreateContext) {
   EXPECT_FALSE(context2->IsSharingWith(context3));
 }
 
-TEST(RequestContextTest, CreateContextNoHandler) {
+TEST(RequestContextTest, BasicCreateNoHandler) {
   CefRequestContextSettings settings;
 
   CefRefPtr<CefRequestContext> context1 =
@@ -112,7 +112,7 @@ TEST(RequestContextTest, CreateContextNoHandler) {
   EXPECT_FALSE(context2->IsSharingWith(context3));
 }
 
-TEST(RequestContextTest, CreateContextSharedGlobal) {
+TEST(RequestContextTest, BasicCreateSharedGlobal) {
   CefRequestContextSettings settings;
 
   CefRefPtr<CefRequestContext> context1 = CefRequestContext::GetGlobalContext();
@@ -134,7 +134,7 @@ TEST(RequestContextTest, CreateContextSharedGlobal) {
   EXPECT_TRUE(context1->IsSharingWith(context2));
 }
 
-TEST(RequestContextTest, CreateContextSharedOnDisk) {
+TEST(RequestContextTest, BasicCreateSharedOnDisk) {
   CefScopedTempDir tempdir;
   EXPECT_TRUE(tempdir.CreateUniqueTempDir());
 
@@ -393,14 +393,14 @@ class PopupTestHandler : public TestHandler {
 
 // Test that a popup created using window.open() will get the same request
 // context as the parent browser.
-TEST(RequestContextTest, WindowOpenSameOrigin) {
+TEST(RequestContextTest, PopupBasicWindowOpenSameOrigin) {
   CefRefPtr<PopupTestHandler> handler =
       new PopupTestHandler(true, PopupTestHandler::MODE_WINDOW_OPEN);
   handler->ExecuteTest();
   ReleaseAndWaitForDestructor(handler);
 }
 
-TEST(RequestContextTest, WindowOpenDifferentOrigin) {
+TEST(RequestContextTest, PopupBasicWindowOpenDifferentOrigin) {
   CefRefPtr<PopupTestHandler> handler =
       new PopupTestHandler(false, PopupTestHandler::MODE_WINDOW_OPEN);
   handler->ExecuteTest();
@@ -409,14 +409,14 @@ TEST(RequestContextTest, WindowOpenDifferentOrigin) {
 
 // Test that a popup created using a targeted link will get the same request
 // context as the parent browser.
-TEST(RequestContextTest, TargetedLinkSameOrigin) {
+TEST(RequestContextTest, PopupBasicTargetedLinkSameOrigin) {
   CefRefPtr<PopupTestHandler> handler =
       new PopupTestHandler(true, PopupTestHandler::MODE_TARGETED_LINK);
   handler->ExecuteTest();
   ReleaseAndWaitForDestructor(handler);
 }
 
-TEST(RequestContextTest, TargetedLinkDifferentOrigin) {
+TEST(RequestContextTest, PopupBasicTargetedLinkDifferentOrigin) {
   CefRefPtr<PopupTestHandler> handler =
       new PopupTestHandler(false, PopupTestHandler::MODE_TARGETED_LINK);
   handler->ExecuteTest();
@@ -426,14 +426,14 @@ TEST(RequestContextTest, TargetedLinkDifferentOrigin) {
 // Test that a popup created using a noreferrer link will get the same
 // request context as the parent browser. A new render process will
 // be created for the popup browser.
-TEST(RequestContextTest, NoReferrerLinkSameOrigin) {
+TEST(RequestContextTest, PopupBasicNoReferrerLinkSameOrigin) {
   CefRefPtr<PopupTestHandler> handler =
       new PopupTestHandler(true, PopupTestHandler::MODE_NOREFERRER_LINK);
   handler->ExecuteTest();
   ReleaseAndWaitForDestructor(handler);
 }
 
-TEST(RequestContextTest, NoReferrerLinkDifferentOrigin) {
+TEST(RequestContextTest, PopupBasicNoReferrerLinkDifferentOrigin) {
   CefRefPtr<PopupTestHandler> handler =
       new PopupTestHandler(false, PopupTestHandler::MODE_NOREFERRER_LINK);
   handler->ExecuteTest();
@@ -713,8 +713,8 @@ class PopupNavTestHandler : public TestHandler {
 };
 
 }  // namespace
-#define POPUP_TEST_GROUP(test_name, test_mode)                  \
-  RC_TEST_GROUP_IN_MEMORY(RequestContextTest, Popup##test_name, \
+#define POPUP_TEST_GROUP(test_name, test_mode)                     \
+  RC_TEST_GROUP_IN_MEMORY(RequestContextTest, PopupNav##test_name, \
                           PopupNavTestHandler, test_mode)
 
 // Test allowing popups and closing the popup browser first.

@@ -9,16 +9,54 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=502f311e29a4eb404db6f0f81cbd62685010f1a3$
+// $hash=bad7476938f349b5b34be6c99e6d2d65e80de30c$
 //
 
 #include "libcef_dll/ctocpp/resource_handler_ctocpp.h"
 #include "libcef_dll/cpptoc/callback_cpptoc.h"
 #include "libcef_dll/cpptoc/request_cpptoc.h"
+#include "libcef_dll/cpptoc/resource_read_callback_cpptoc.h"
+#include "libcef_dll/cpptoc/resource_skip_callback_cpptoc.h"
 #include "libcef_dll/cpptoc/response_cpptoc.h"
 #include "libcef_dll/shutdown_checker.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
+
+NO_SANITIZE("cfi-icall")
+bool CefResourceHandlerCToCpp::Open(CefRefPtr<CefRequest> request,
+                                    bool& handle_request,
+                                    CefRefPtr<CefCallback> callback) {
+  shutdown_checker::AssertNotShutdown();
+
+  cef_resource_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, open))
+    return false;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: request; type: refptr_diff
+  DCHECK(request.get());
+  if (!request.get())
+    return false;
+  // Verify param: callback; type: refptr_diff
+  DCHECK(callback.get());
+  if (!callback.get())
+    return false;
+
+  // Translate param: handle_request; type: bool_byref
+  int handle_requestInt = handle_request;
+
+  // Execute
+  int _retval =
+      _struct->open(_struct, CefRequestCppToC::Wrap(request),
+                    &handle_requestInt, CefCallbackCppToC::Wrap(callback));
+
+  // Restore param:handle_request; type: bool_byref
+  handle_request = handle_requestInt ? true : false;
+
+  // Return type: bool
+  return _retval ? true : false;
+}
 
 NO_SANITIZE("cfi-icall")
 bool CefResourceHandlerCToCpp::ProcessRequest(CefRefPtr<CefRequest> request,
@@ -74,6 +112,63 @@ void CefResourceHandlerCToCpp::GetResponseHeaders(
 }
 
 NO_SANITIZE("cfi-icall")
+bool CefResourceHandlerCToCpp::Skip(
+    int64 bytes_to_skip,
+    int64& bytes_skipped,
+    CefRefPtr<CefResourceSkipCallback> callback) {
+  shutdown_checker::AssertNotShutdown();
+
+  cef_resource_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, skip))
+    return false;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: callback; type: refptr_diff
+  DCHECK(callback.get());
+  if (!callback.get())
+    return false;
+
+  // Execute
+  int _retval = _struct->skip(_struct, bytes_to_skip, &bytes_skipped,
+                              CefResourceSkipCallbackCppToC::Wrap(callback));
+
+  // Return type: bool
+  return _retval ? true : false;
+}
+
+NO_SANITIZE("cfi-icall")
+bool CefResourceHandlerCToCpp::Read(
+    void* data_out,
+    int bytes_to_read,
+    int& bytes_read,
+    CefRefPtr<CefResourceReadCallback> callback) {
+  shutdown_checker::AssertNotShutdown();
+
+  cef_resource_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, read))
+    return false;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: data_out; type: simple_byaddr
+  DCHECK(data_out);
+  if (!data_out)
+    return false;
+  // Verify param: callback; type: refptr_diff
+  DCHECK(callback.get());
+  if (!callback.get())
+    return false;
+
+  // Execute
+  int _retval = _struct->read(_struct, data_out, bytes_to_read, &bytes_read,
+                              CefResourceReadCallbackCppToC::Wrap(callback));
+
+  // Return type: bool
+  return _retval ? true : false;
+}
+
+NO_SANITIZE("cfi-icall")
 bool CefResourceHandlerCToCpp::ReadResponse(void* data_out,
                                             int bytes_to_read,
                                             int& bytes_read,
@@ -99,40 +194,6 @@ bool CefResourceHandlerCToCpp::ReadResponse(void* data_out,
   int _retval =
       _struct->read_response(_struct, data_out, bytes_to_read, &bytes_read,
                              CefCallbackCppToC::Wrap(callback));
-
-  // Return type: bool
-  return _retval ? true : false;
-}
-
-NO_SANITIZE("cfi-icall")
-bool CefResourceHandlerCToCpp::CanGetCookie(const CefCookie& cookie) {
-  shutdown_checker::AssertNotShutdown();
-
-  cef_resource_handler_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, can_get_cookie))
-    return false;
-
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Execute
-  int _retval = _struct->can_get_cookie(_struct, &cookie);
-
-  // Return type: bool
-  return _retval ? true : false;
-}
-
-NO_SANITIZE("cfi-icall")
-bool CefResourceHandlerCToCpp::CanSetCookie(const CefCookie& cookie) {
-  shutdown_checker::AssertNotShutdown();
-
-  cef_resource_handler_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, can_set_cookie))
-    return false;
-
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Execute
-  int _retval = _struct->can_set_cookie(_struct, &cookie);
 
   // Return type: bool
   return _retval ? true : false;

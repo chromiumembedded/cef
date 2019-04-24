@@ -10,6 +10,7 @@
 #include "extensions/common/constants.h"
 #include "net/net_buildflags.h"
 #include "url/url_constants.h"
+#include "url/url_util.h"
 
 namespace scheme {
 
@@ -50,16 +51,22 @@ void AddInternalSchemes(content::ContentClient::Schemes* schemes) {
 
 bool IsInternalHandledScheme(const std::string& scheme) {
   static const char* schemes[] = {
+    url::kAboutScheme,
     url::kBlobScheme,
     content::kChromeDevToolsScheme,
     content::kChromeUIScheme,
-    extensions::kExtensionScheme,
     url::kDataScheme,
+    extensions::kExtensionScheme,
     url::kFileScheme,
     url::kFileSystemScheme,
 #if !BUILDFLAG(DISABLE_FTP_SUPPORT)
     url::kFtpScheme,
 #endif
+    url::kHttpScheme,
+    url::kHttpsScheme,
+    url::kJavaScriptScheme,
+    url::kWsScheme,
+    url::kWssScheme,
   };
 
   for (size_t i = 0; i < sizeof(schemes) / sizeof(schemes[0]); ++i) {
@@ -77,13 +84,14 @@ bool IsInternalProtectedScheme(const std::string& scheme) {
   static const char* schemes[] = {
     url::kBlobScheme,
     content::kChromeUIScheme,
-    extensions::kExtensionScheme,
     url::kDataScheme,
+    extensions::kExtensionScheme,
     url::kFileScheme,
     url::kFileSystemScheme,
 #if !BUILDFLAG(DISABLE_FTP_SUPPORT)
     url::kFtpScheme,
 #endif
+    url::kJavaScriptScheme,
   };
 
   for (size_t i = 0; i < sizeof(schemes) / sizeof(schemes[0]); ++i) {
@@ -92,6 +100,11 @@ bool IsInternalProtectedScheme(const std::string& scheme) {
   }
 
   return false;
+}
+
+bool IsStandardScheme(const std::string& scheme) {
+  url::Component scheme_comp(0, scheme.length());
+  return url::IsStandard(scheme.c_str(), scheme_comp);
 }
 
 }  // namespace scheme

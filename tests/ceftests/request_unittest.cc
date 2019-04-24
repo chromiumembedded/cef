@@ -120,6 +120,70 @@ TEST(RequestTest, SetGet) {
   TestPostDataEqual(postData, request->GetPostData());
 }
 
+TEST(RequestTest, SetGetHeaderByName) {
+  CefRefPtr<CefRequest> request(CefRequest::Create());
+  EXPECT_TRUE(request.get() != NULL);
+
+  CefRequest::HeaderMap headers, expectedHeaders;
+
+  request->SetHeaderByName("HeaderA", "ValueA", false);
+  request->SetHeaderByName("HeaderB", "ValueB", false);
+
+  expectedHeaders.insert(std::make_pair("HeaderA", "ValueA"));
+  expectedHeaders.insert(std::make_pair("HeaderB", "ValueB"));
+
+  // Case insensitive retrieval.
+  EXPECT_STREQ("ValueA",
+               request->GetHeaderByName("headera").ToString().c_str());
+  EXPECT_STREQ("ValueB",
+               request->GetHeaderByName("headerb").ToString().c_str());
+  EXPECT_STREQ("", request->GetHeaderByName("noexist").ToString().c_str());
+
+  request->GetHeaderMap(headers);
+  TestMapEqual(expectedHeaders, headers, false);
+
+  // Replace an existing value.
+  request->SetHeaderByName("HeaderA", "ValueANew", true);
+
+  expectedHeaders.clear();
+  expectedHeaders.insert(std::make_pair("HeaderA", "ValueANew"));
+  expectedHeaders.insert(std::make_pair("HeaderB", "ValueB"));
+
+  // Case insensitive retrieval.
+  EXPECT_STREQ("ValueANew",
+               request->GetHeaderByName("headerA").ToString().c_str());
+
+  request->GetHeaderMap(headers);
+  TestMapEqual(expectedHeaders, headers, false);
+
+  // Header with multiple values.
+  expectedHeaders.clear();
+  expectedHeaders.insert(std::make_pair("HeaderA", "ValueA1"));
+  expectedHeaders.insert(std::make_pair("HeaderA", "ValueA2"));
+  expectedHeaders.insert(std::make_pair("HeaderB", "ValueB"));
+  request->SetHeaderMap(expectedHeaders);
+
+  // When there are multiple values only the first is returned.
+  EXPECT_STREQ("ValueA1",
+               request->GetHeaderByName("headera").ToString().c_str());
+
+  // Don't overwrite the value.
+  request->SetHeaderByName("HeaderA", "ValueANew", false);
+
+  request->GetHeaderMap(headers);
+  TestMapEqual(expectedHeaders, headers, false);
+
+  // Overwrite the value (remove the duplicates).
+  request->SetHeaderByName("HeaderA", "ValueANew", true);
+
+  expectedHeaders.clear();
+  expectedHeaders.insert(std::make_pair("HeaderA", "ValueANew"));
+  expectedHeaders.insert(std::make_pair("HeaderB", "ValueB"));
+
+  request->GetHeaderMap(headers);
+  TestMapEqual(expectedHeaders, headers, false);
+}
+
 namespace {
 
 const char kTestUrl[] = "http://tests.com/run.html";
@@ -201,7 +265,7 @@ class RequestSendRecvTestHandler : public TestHandler {
     EXPECT_IO_THREAD();
 
     TestRequest(request);
-    EXPECT_FALSE(request->IsReadOnly());
+    EXPECT_TRUE(request->IsReadOnly());
 
     got_resource_handler_.yes();
 
@@ -278,7 +342,12 @@ class RequestSendRecvTestHandler : public TestHandler {
     EXPECT_TRUE(got_before_resource_load_);
     EXPECT_TRUE(got_resource_handler_);
     EXPECT_TRUE(got_resource_response_);
-    EXPECT_TRUE(got_resource_response_filter_);
+    if (IsNetworkServiceEnabled()) {
+      // TODO(network): Add support for GetResourceResponseFilter.
+      EXPECT_FALSE(got_resource_response_filter_);
+    } else {
+      EXPECT_TRUE(got_resource_response_filter_);
+    }
     EXPECT_TRUE(got_resource_load_complete_);
 
     TestHandler::DestroyTest();

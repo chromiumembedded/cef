@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=e3a4e0ec89854791f0f84a88af6161d51c98a274$
+// $hash=8a1bcfce1784b99aa054c80eea510730c7b6c704$
 //
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_REQUEST_CONTEXT_CPPTOC_H_
@@ -21,8 +21,10 @@
 #endif
 
 #include "include/capi/cef_request_context_capi.h"
+#include "include/capi/cef_request_context_handler_capi.h"
 #include "include/capi/cef_scheme_capi.h"
 #include "include/cef_request_context.h"
+#include "include/cef_request_context_handler.h"
 #include "include/cef_scheme.h"
 #include "libcef_dll/cpptoc/cpptoc_ref_counted.h"
 

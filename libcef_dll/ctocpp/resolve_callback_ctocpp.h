@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=ebbe4bdaf0b530c72bd81e4981d979d5f72bb959$
+// $hash=06de6cb6999bd9437bbd5ce4a743f5f4c7371bc6$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_RESOLVE_CALLBACK_CTOCPP_H_
@@ -22,8 +22,10 @@
 
 #include <vector>
 #include "include/capi/cef_request_context_capi.h"
+#include "include/capi/cef_request_context_handler_capi.h"
 #include "include/capi/cef_scheme_capi.h"
 #include "include/cef_request_context.h"
+#include "include/cef_request_context_handler.h"
 #include "include/cef_scheme.h"
 #include "libcef_dll/ctocpp/ctocpp_ref_counted.h"
 

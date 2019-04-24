@@ -32,7 +32,6 @@ class CefBrowserPlatformDelegateNativeLinux
   void ViewText(const std::string& text) override;
   bool HandleKeyboardEvent(
       const content::NativeWebKeyboardEvent& event) override;
-  void HandleExternalProtocol(const GURL& url) override;
   void TranslateKeyEvent(content::NativeWebKeyboardEvent& result,
                          const CefKeyEvent& key_event) const override;
   void TranslateClickEvent(blink::WebMouseEvent& result,

@@ -12,6 +12,7 @@
 #include "include/cef_parser.h"
 #include "libcef/browser/net/cookie_manager_old_impl.h"
 #include "libcef/browser/thread_util.h"
+#include "libcef/common/net_service/net_service_util.h"
 #include "libcef/common/request_impl.h"
 #include "libcef/common/response_impl.h"
 
@@ -337,8 +338,7 @@ bool CefResourceRequestJob::IsRedirectResponse(
     // Set the correct response status. This avoids a DCHECK in
     // RedirectInfo::ComputeRedirectInfo.
     request_->response_headers()->ReplaceStatusLine(
-        *http_status_code == 302 ? "HTTP/1.1 302 Found"
-                                 : "HTTP/1.1 303 See Other");
+        net_service::MakeStatusLine(*http_status_code, std::string(), true));
   }
 
   return redirect;
@@ -452,19 +452,8 @@ void CefResourceRequestJob::DoLoadCookies() {
 void CefResourceRequestJob::CheckCookiePolicyAndLoad(
     const net::CookieList& cookie_list,
     const net::CookieStatusList& excluded_list) {
-  bool can_get_cookies = !cookie_list.empty() && CanGetCookies(cookie_list);
-  if (can_get_cookies) {
-    net::CookieList::const_iterator it = cookie_list.begin();
-    for (; it != cookie_list.end(); ++it) {
-      CefCookie cookie;
-      if (!CefCookieManagerOldImpl::GetCefCookie(*it, cookie) ||
-          !handler_->CanGetCookie(cookie)) {
-        can_get_cookies = false;
-        break;
-      }
-    }
-  }
-
+  const bool can_get_cookies =
+      !cookie_list.empty() && CanGetCookies(cookie_list);
   if (can_get_cookies)
     DoLoadCookies();
   else
@@ -553,17 +542,7 @@ void CefResourceRequestJob::SaveNextCookie() {
   std::unique_ptr<net::CanonicalCookie> cookie = net::CanonicalCookie::Create(
       request_->url(), cookie_line, base::Time::Now(), options);
 
-  bool can_set_cookie = cookie && CanSetCookie(*cookie, &options);
-  if (can_set_cookie) {
-    CefCookie cef_cookie;
-    if (CefCookieManagerOldImpl::GetCefCookie(request_->url(), cookie_line,
-                                              cef_cookie)) {
-      can_set_cookie = handler_->CanSetCookie(cef_cookie);
-    } else {
-      can_set_cookie = false;
-    }
-  }
-
+  const bool can_set_cookie = cookie && CanSetCookie(*cookie, &options);
   if (can_set_cookie) {
     request_->context()->cookie_store()->SetCanonicalCookieAsync(
         std::move(cookie), request_->url().scheme(), options,

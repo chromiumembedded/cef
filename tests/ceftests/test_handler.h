@@ -62,7 +62,8 @@ class TestHandler : public CefClient,
                     public CefJSDialogHandler,
                     public CefLifeSpanHandler,
                     public CefLoadHandler,
-                    public CefRequestHandler {
+                    public CefRequestHandler,
+                    public CefResourceRequestHandler {
  public:
   // Tracks the completion state of related test runs.
   class CompletionState {
@@ -177,6 +178,18 @@ class TestHandler : public CefClient,
   void OnBeforeClose(CefRefPtr<CefBrowser> browser) override;
 
   // CefRequestHandler methods
+  CefRefPtr<CefResourceRequestHandler> GetResourceRequestHandler(
+      CefRefPtr<CefBrowser> browser,
+      CefRefPtr<CefFrame> frame,
+      CefRefPtr<CefRequest> request,
+      bool is_navigation,
+      bool is_download,
+      const CefString& request_initiator,
+      bool& disable_default_handling) override {
+    return this;
+  }
+
+  // CefResourceRequestHandler methods
   CefRefPtr<CefResourceHandler> GetResourceHandler(
       CefRefPtr<CefBrowser> browser,
       CefRefPtr<CefFrame> frame,

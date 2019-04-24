@@ -128,7 +128,7 @@ class TabsTestHandler : public ExtensionTestHandler {
     }
   }
 
-  // CefRequestHandler methods:
+  // CefResourceRequestHandler methods:
   CefRefPtr<CefResourceHandler> GetResourceHandler(
       CefRefPtr<CefBrowser> browser,
       CefRefPtr<CefFrame> frame,
@@ -729,7 +729,7 @@ class ExecuteScriptResourceTabTestHandler : public ExecuteScriptTestHandler {
       RequestContextType request_context_type)
       : ExecuteScriptTestHandler(request_context_type) {}
 
-  // CefRequestHandler methods:
+  // CefResourceRequestHandler methods:
   CefRefPtr<CefResourceHandler> GetResourceHandler(
       CefRefPtr<CefBrowser> browser,
       CefRefPtr<CefFrame> frame,
@@ -975,7 +975,7 @@ class InsertCSSResourceTabTestHandler : public InsertCSSTestHandler {
       RequestContextType request_context_type)
       : InsertCSSTestHandler(request_context_type) {}
 
-  // CefRequestHandler methods:
+  // CefResourceRequestHandler methods:
   CefRefPtr<CefResourceHandler> GetResourceHandler(
       CefRefPtr<CefBrowser> browser,
       CefRefPtr<CefFrame> frame,

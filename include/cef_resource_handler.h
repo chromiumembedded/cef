@@ -46,22 +46,78 @@
 #include "include/cef_response.h"
 
 ///
+// Callback for asynchronous continuation of CefResourceHandler::Skip().
+///
+/*--cef(source=library)--*/
+class CefResourceSkipCallback : public virtual CefBaseRefCounted {
+ public:
+  ///
+  // Callback for asynchronous continuation of Skip(). If |bytes_skipped| > 0
+  // then either Skip() will be called again until the requested number of
+  // bytes have been skipped or the request will proceed. If |bytes_skipped|
+  // <= 0 the request will fail with ERR_REQUEST_RANGE_NOT_SATISFIABLE.
+  ///
+  /*--cef(capi_name=cont)--*/
+  virtual void Continue(int64 bytes_skipped) = 0;
+};
+
+///
+// Callback for asynchronous continuation of CefResourceHandler::Read().
+///
+/*--cef(source=library)--*/
+class CefResourceReadCallback : public virtual CefBaseRefCounted {
+ public:
+  ///
+  // Callback for asynchronous continuation of Read(). If |bytes_read| == 0
+  // the response will be considered complete. If |bytes_read| > 0 then Read()
+  // will be called again until the request is complete (based on either the
+  // result or the expected content length). If |bytes_read| < 0 then the
+  // request will fail and the |bytes_read| value will be treated as the error
+  // code.
+  ///
+  /*--cef(capi_name=cont)--*/
+  virtual void Continue(int bytes_read) = 0;
+};
+
+///
 // Class used to implement a custom request handler interface. The methods of
-// this class will always be called on the IO thread.
+// this class will be called on the IO thread unless otherwise indicated.
 ///
 /*--cef(source=client)--*/
 class CefResourceHandler : public virtual CefBaseRefCounted {
  public:
+  ///
+  // Open the response stream. To handle the request immediately set
+  // |handle_request| to true and return true. To decide at a later time set
+  // |handle_request| to false, return true, and execute |callback| to continue
+  // or cancel the request. To cancel the request immediately set
+  // |handle_request| to true and return false. This method will be called in
+  // sequence but not from a dedicated thread. For backwards compatibility set
+  // |handle_request| to false and return false and the ProcessRequest method
+  // will be called.
+  ///
+  /*--cef()--*/
+  virtual bool Open(CefRefPtr<CefRequest> request,
+                    bool& handle_request,
+                    CefRefPtr<CefCallback> callback) {
+    handle_request = false;
+    return false;
+  }
+
   ///
   // Begin processing the request. To handle the request return true and call
   // CefCallback::Continue() once the response header information is available
   // (CefCallback::Continue() can also be called from inside this method if
   // header information is available immediately). To cancel the request return
   // false.
+  //
+  // WARNING: This method is deprecated. Use Open instead.
   ///
   /*--cef()--*/
   virtual bool ProcessRequest(CefRefPtr<CefRequest> request,
-                              CefRefPtr<CefCallback> callback) = 0;
+                              CefRefPtr<CefCallback> callback) {
+    return false;
+  }
 
   ///
   // Retrieve response header information. If the response length is not known
@@ -84,32 +140,61 @@ class CefResourceHandler : public virtual CefBaseRefCounted {
                                   CefString& redirectUrl) = 0;
 
   ///
+  // Skip response data when requested by a Range header. Skip over and discard
+  // |bytes_to_skip| bytes of response data. If data is available immediately
+  // set |bytes_skipped| to the number of of bytes skipped and return true. To
+  // read the data at a later time set |bytes_skipped| to 0, return true and
+  // execute |callback| when the data is available. To indicate failure set
+  // |bytes_skipped| to < 0 (e.g. -2 for ERR_FAILED) and return false. This
+  // method will be called in sequence but not from a dedicated thread.
+  ///
+  /*--cef()--*/
+  virtual bool Skip(int64 bytes_to_skip,
+                    int64& bytes_skipped,
+                    CefRefPtr<CefResourceSkipCallback> callback) {
+    bytes_skipped = -2;
+    return false;
+  }
+
+  ///
+  // Read response data. If data is available immediately copy up to
+  // |bytes_to_read| bytes into |data_out|, set |bytes_read| to the number of
+  // bytes copied, and return true. To read the data at a later time keep a
+  // pointer to |data_out|, set |bytes_read| to 0, return true and execute
+  // |callback| when the data is available (|data_out| will remain valid until
+  // the callback is executed). To indicate response completion set |bytes_read|
+  // to 0 and return false. To indicate failure set |bytes_read| to < 0 (e.g. -2
+  // for ERR_FAILED) and return false. This method will be called in sequence
+  // but not from a dedicated thread. For backwards compatibility set
+  // |bytes_read| to -1 and return false and the ReadResponse method will be
+  // called.
+  ///
+  /*--cef()--*/
+  virtual bool Read(void* data_out,
+                    int bytes_to_read,
+                    int& bytes_read,
+                    CefRefPtr<CefResourceReadCallback> callback) {
+    bytes_read = -1;
+    return false;
+  }
+
+  ///
   // Read response data. If data is available immediately copy up to
   // |bytes_to_read| bytes into |data_out|, set |bytes_read| to the number of
   // bytes copied, and return true. To read the data at a later time set
   // |bytes_read| to 0, return true and call CefCallback::Continue() when the
   // data is available. To indicate response completion return false.
+  //
+  // WARNING: This method is deprecated. Use Skip and Read instead.
   ///
   /*--cef()--*/
   virtual bool ReadResponse(void* data_out,
                             int bytes_to_read,
                             int& bytes_read,
-                            CefRefPtr<CefCallback> callback) = 0;
-
-  ///
-  // Return true if the specified cookie can be sent with the request or false
-  // otherwise. If false is returned for any cookie then no cookies will be sent
-  // with the request.
-  ///
-  /*--cef()--*/
-  virtual bool CanGetCookie(const CefCookie& cookie) { return true; }
-
-  ///
-  // Return true if the specified cookie returned with the response can be set
-  // or false otherwise.
-  ///
-  /*--cef()--*/
-  virtual bool CanSetCookie(const CefCookie& cookie) { return true; }
+                            CefRefPtr<CefCallback> callback) {
+    bytes_read = -2;
+    return false;
+  }
 
   ///
   // Request processing has been canceled.

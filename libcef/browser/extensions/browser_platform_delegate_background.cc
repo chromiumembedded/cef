@@ -91,11 +91,6 @@ bool CefBrowserPlatformDelegateBackground::HandleKeyboardEvent(
   return false;
 }
 
-void CefBrowserPlatformDelegateBackground::HandleExternalProtocol(
-    const GURL& url) {
-  native_delegate_->HandleExternalProtocol(url);
-}
-
 void CefBrowserPlatformDelegateBackground::TranslateKeyEvent(
     content::NativeWebKeyboardEvent& result,
     const CefKeyEvent& key_event) const {

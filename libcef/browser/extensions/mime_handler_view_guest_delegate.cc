@@ -71,7 +71,8 @@ void CefMimeHandlerViewGuestDelegate::OnGuestAttached(
 
   const bool is_main_frame = (main_frame_host->GetParent() == nullptr);
   owner_browser->request_context()->OnRenderFrameCreated(
-      render_process_id, render_frame_id, is_main_frame, true);
+      render_process_id, render_frame_id, frame_tree_node_id, is_main_frame,
+      true);
 }
 
 void CefMimeHandlerViewGuestDelegate::OnGuestDetached(
@@ -96,7 +97,8 @@ void CefMimeHandlerViewGuestDelegate::OnGuestDetached(
 
   const bool is_main_frame = (main_frame_host->GetParent() == nullptr);
   owner_browser->request_context()->OnRenderFrameDeleted(
-      render_process_id, render_frame_id, is_main_frame, true);
+      render_process_id, render_frame_id, frame_tree_node_id, is_main_frame,
+      true);
 }
 
 bool CefMimeHandlerViewGuestDelegate::HandleContextMenu(

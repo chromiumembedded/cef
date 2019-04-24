@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=0c99415ddb1bf7d10135545c7b0ccfb7eec2264d$
+// $hash=cc5ec5ca76adb568adb08c3b58fb3289a94b2ecd$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_RESPONSE_CAPI_H_
@@ -108,6 +108,19 @@ typedef struct _cef_response_t {
   ///
   void(CEF_CALLBACK* set_mime_type)(struct _cef_response_t* self,
                                     const cef_string_t* mimeType);
+
+  ///
+  // Get the response charset.
+  ///
+  // The resulting string must be freed by calling cef_string_userfree_free().
+  cef_string_userfree_t(CEF_CALLBACK* get_charset)(
+      struct _cef_response_t* self);
+
+  ///
+  // Set the response charset.
+  ///
+  void(CEF_CALLBACK* set_charset)(struct _cef_response_t* self,
+                                  const cef_string_t* charset);
 
   ///
   // Get the value for the specified response header field.

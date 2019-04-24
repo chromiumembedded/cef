@@ -45,31 +45,10 @@
 #include "include/cef_browser.h"
 #include "include/cef_frame.h"
 #include "include/cef_request.h"
-#include "include/cef_resource_handler.h"
-#include "include/cef_response.h"
-#include "include/cef_response_filter.h"
+#include "include/cef_request_callback.h"
+#include "include/cef_resource_request_handler.h"
 #include "include/cef_ssl_info.h"
 #include "include/cef_x509_certificate.h"
-
-///
-// Callback interface used for asynchronous continuation of url requests.
-///
-/*--cef(source=library)--*/
-class CefRequestCallback : public virtual CefBaseRefCounted {
- public:
-  ///
-  // Continue the url request. If |allow| is true the request will be continued.
-  // Otherwise, the request will be canceled.
-  ///
-  /*--cef(capi_name=cont)--*/
-  virtual void Continue(bool allow) = 0;
-
-  ///
-  // Cancel the url request.
-  ///
-  /*--cef()--*/
-  virtual void Cancel() = 0;
-};
 
 ///
 // Callback interface used to select a client certificate for authentication.
@@ -92,9 +71,7 @@ class CefSelectClientCertificateCallback : public virtual CefBaseRefCounted {
 /*--cef(source=client)--*/
 class CefRequestHandler : public virtual CefBaseRefCounted {
  public:
-  typedef cef_return_value_t ReturnValue;
   typedef cef_termination_status_t TerminationStatus;
-  typedef cef_urlrequest_status_t URLRequestStatus;
   typedef cef_window_open_disposition_t WindowOpenDisposition;
   typedef std::vector<CefRefPtr<CefX509Certificate>> X509CertificateList;
 
@@ -145,92 +122,31 @@ class CefRequestHandler : public virtual CefBaseRefCounted {
   }
 
   ///
-  // Called on the IO thread before a resource request is loaded. The |request|
-  // object may be modified. Return RV_CONTINUE to continue the request
-  // immediately. Return RV_CONTINUE_ASYNC and call CefRequestCallback::
-  // Continue() at a later time to continue or cancel the request
-  // asynchronously. Return RV_CANCEL to cancel the request immediately.
-  //
+  // Called on the browser process IO thread before a resource request is
+  // initiated. The |browser| and |frame| values represent the source of the
+  // request. |request| represents the request contents and cannot be modified
+  // in this callback. |is_navigation| will be true if the resource request is a
+  // navigation. |is_download| will be true if the resource request is a
+  // download. |request_initiator| is the origin (scheme + domain) of the page
+  // that initiated the request. Set |disable_default_handling| to true to
+  // disable default handling of the request, in which case it will need to be
+  // handled via CefResourceRequestHandler::GetResourceHandler or it will be
+  // canceled. To allow the resource load to proceed with default handling
+  // return NULL. To specify a handler for the resource return a
+  // CefResourceRequestHandler object. If this callback returns NULL the same
+  // method will be called on the associated CefRequestContextHandler, if any.
   ///
-  /*--cef(default_retval=RV_CONTINUE)--*/
-  virtual ReturnValue OnBeforeResourceLoad(
+  /*--cef(optional_param=request_initiator)--*/
+  virtual CefRefPtr<CefResourceRequestHandler> GetResourceRequestHandler(
       CefRefPtr<CefBrowser> browser,
       CefRefPtr<CefFrame> frame,
       CefRefPtr<CefRequest> request,
-      CefRefPtr<CefRequestCallback> callback) {
-    return RV_CONTINUE;
-  }
-
-  ///
-  // Called on the IO thread before a resource is loaded. To allow the resource
-  // to load normally return NULL. To specify a handler for the resource return
-  // a CefResourceHandler object. The |request| object should not be modified in
-  // this callback.
-  ///
-  /*--cef()--*/
-  virtual CefRefPtr<CefResourceHandler> GetResourceHandler(
-      CefRefPtr<CefBrowser> browser,
-      CefRefPtr<CefFrame> frame,
-      CefRefPtr<CefRequest> request) {
+      bool is_navigation,
+      bool is_download,
+      const CefString& request_initiator,
+      bool& disable_default_handling) {
     return NULL;
   }
-
-  ///
-  // Called on the IO thread when a resource load is redirected. The |request|
-  // parameter will contain the old URL and other request-related information.
-  // The |response| parameter will contain the response that resulted in the
-  // redirect. The |new_url| parameter will contain the new URL and can be
-  // changed if desired. The |request| object cannot be modified in this
-  // callback.
-  ///
-  /*--cef()--*/
-  virtual void OnResourceRedirect(CefRefPtr<CefBrowser> browser,
-                                  CefRefPtr<CefFrame> frame,
-                                  CefRefPtr<CefRequest> request,
-                                  CefRefPtr<CefResponse> response,
-                                  CefString& new_url) {}
-
-  ///
-  // Called on the IO thread when a resource response is received. To allow the
-  // resource to load normally return false. To redirect or retry the resource
-  // modify |request| (url, headers or post body) and return true. The
-  // |response| object cannot be modified in this callback.
-  ///
-  /*--cef()--*/
-  virtual bool OnResourceResponse(CefRefPtr<CefBrowser> browser,
-                                  CefRefPtr<CefFrame> frame,
-                                  CefRefPtr<CefRequest> request,
-                                  CefRefPtr<CefResponse> response) {
-    return false;
-  }
-
-  ///
-  // Called on the IO thread to optionally filter resource response content.
-  // |request| and |response| represent the request and response respectively
-  // and cannot be modified in this callback.
-  ///
-  /*--cef()--*/
-  virtual CefRefPtr<CefResponseFilter> GetResourceResponseFilter(
-      CefRefPtr<CefBrowser> browser,
-      CefRefPtr<CefFrame> frame,
-      CefRefPtr<CefRequest> request,
-      CefRefPtr<CefResponse> response) {
-    return NULL;
-  }
-
-  ///
-  // Called on the IO thread when a resource load has completed. |request| and
-  // |response| represent the request and response respectively and cannot be
-  // modified in this callback. |status| indicates the load completion status.
-  // |received_content_length| is the number of response bytes actually read.
-  ///
-  /*--cef()--*/
-  virtual void OnResourceLoadComplete(CefRefPtr<CefBrowser> browser,
-                                      CefRefPtr<CefFrame> frame,
-                                      CefRefPtr<CefRequest> request,
-                                      CefRefPtr<CefResponse> response,
-                                      URLRequestStatus status,
-                                      int64 received_content_length) {}
 
   ///
   // Called on the IO thread when the browser needs credentials from the user.
@@ -256,33 +172,6 @@ class CefRequestHandler : public virtual CefBaseRefCounted {
   }
 
   ///
-  // Called on the IO thread before sending a network request with a "Cookie"
-  // request header. Return true to allow cookies to be included in the network
-  // request or false to block cookies. The |request| object should not be
-  // modified in this callback.
-  ///
-  /*--cef()--*/
-  virtual bool CanGetCookies(CefRefPtr<CefBrowser> browser,
-                             CefRefPtr<CefFrame> frame,
-                             CefRefPtr<CefRequest> request) {
-    return true;
-  }
-
-  ///
-  // Called on the IO thread when receiving a network request with a
-  // "Set-Cookie" response header value represented by |cookie|. Return true to
-  // allow the cookie to be stored or false to block the cookie. The |request|
-  // object should not be modified in this callback.
-  ///
-  /*--cef()--*/
-  virtual bool CanSetCookie(CefRefPtr<CefBrowser> browser,
-                            CefRefPtr<CefFrame> frame,
-                            CefRefPtr<CefRequest> request,
-                            const CefCookie& cookie) {
-    return true;
-  }
-
-  ///
   // Called on the IO thread when JavaScript requests a specific storage quota
   // size via the webkitStorageInfo.requestQuota function. |origin_url| is the
   // origin of the page making the request. |new_size| is the requested quota
@@ -297,18 +186,6 @@ class CefRequestHandler : public virtual CefBaseRefCounted {
                               CefRefPtr<CefRequestCallback> callback) {
     return false;
   }
-
-  ///
-  // Called on the UI thread to handle requests for URLs with an unknown
-  // protocol component. Set |allow_os_execution| to true to attempt execution
-  // via the registered OS protocol handler, if any.
-  // SECURITY WARNING: YOU SHOULD USE THIS METHOD TO ENFORCE RESTRICTIONS BASED
-  // ON SCHEME, HOST OR OTHER URL ANALYSIS BEFORE ALLOWING OS EXECUTION.
-  ///
-  /*--cef()--*/
-  virtual void OnProtocolExecution(CefRefPtr<CefBrowser> browser,
-                                   const CefString& url,
-                                   bool& allow_os_execution) {}
 
   ///
   // Called on the UI thread to handle requests for URLs with an invalid

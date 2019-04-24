@@ -96,8 +96,8 @@ bool CefPluginServiceFilter::IsPluginAvailable(
 
   // The |render_frame_id| value may not be valid, so allow matches with any
   // handler that shares the same |render_process_id| value.
-  CefRefPtr<CefRequestContextHandler> handler =
-      resource_context->GetHandler(render_process_id, render_frame_id, false);
+  CefRefPtr<CefRequestContextHandler> handler = resource_context->GetHandler(
+      render_process_id, render_frame_id, -1, false);
   if (!handler) {
     // No handler so go with the default plugin load decision.
     return *status != chrome::mojom::PluginStatus::kDisabled;

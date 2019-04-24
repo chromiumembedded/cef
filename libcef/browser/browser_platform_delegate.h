@@ -184,7 +184,7 @@ class CefBrowserPlatformDelegate {
       const content::NativeWebKeyboardEvent& event) = 0;
 
   // Invoke platform specific handling for the external protocol.
-  virtual void HandleExternalProtocol(const GURL& url) = 0;
+  static void HandleExternalProtocol(const GURL& url);
 
   // Translate CEF events to Chromium/Blink events.
   virtual void TranslateKeyEvent(content::NativeWebKeyboardEvent& result,

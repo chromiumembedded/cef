@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=ce5154d248eed30bca03ae2eb2b21b5cecd3dc0a$
+// $hash=fc10026d8f3e77868d19807ea625f9449678da60$
 //
 
 #include "libcef_dll/cpptoc/request_cpptoc.h"
@@ -231,6 +231,50 @@ void CEF_CALLBACK request_set_header_map(struct _cef_request_t* self,
   CefRequestCppToC::Get(self)->SetHeaderMap(headerMapMultimap);
 }
 
+cef_string_userfree_t CEF_CALLBACK
+request_get_header_by_name(struct _cef_request_t* self,
+                           const cef_string_t* name) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return NULL;
+  // Verify param: name; type: string_byref_const
+  DCHECK(name);
+  if (!name)
+    return NULL;
+
+  // Execute
+  CefString _retval =
+      CefRequestCppToC::Get(self)->GetHeaderByName(CefString(name));
+
+  // Return type: string
+  return _retval.DetachToUserFree();
+}
+
+void CEF_CALLBACK request_set_header_by_name(struct _cef_request_t* self,
+                                             const cef_string_t* name,
+                                             const cef_string_t* value,
+                                             int overwrite) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return;
+  // Verify param: name; type: string_byref_const
+  DCHECK(name);
+  if (!name)
+    return;
+  // Verify param: value; type: string_byref_const
+  DCHECK(value);
+  if (!value)
+    return;
+
+  // Execute
+  CefRequestCppToC::Get(self)->SetHeaderByName(
+      CefString(name), CefString(value), overwrite ? true : false);
+}
+
 void CEF_CALLBACK request_set(struct _cef_request_t* self,
                               const cef_string_t* url,
                               const cef_string_t* method,
@@ -384,6 +428,8 @@ CefRequestCppToC::CefRequestCppToC() {
   GetStruct()->set_post_data = request_set_post_data;
   GetStruct()->get_header_map = request_get_header_map;
   GetStruct()->set_header_map = request_set_header_map;
+  GetStruct()->get_header_by_name = request_get_header_by_name;
+  GetStruct()->set_header_by_name = request_set_header_by_name;
   GetStruct()->set = request_set;
   GetStruct()->get_flags = request_get_flags;
   GetStruct()->set_flags = request_set_flags;

@@ -44,9 +44,9 @@
 #include "include/cef_cookie.h"
 #include "include/cef_extension.h"
 #include "include/cef_extension_handler.h"
-#include "include/cef_request_context_handler.h"
 #include "include/cef_values.h"
 
+class CefRequestContextHandler;
 class CefSchemeHandlerFactory;
 
 ///

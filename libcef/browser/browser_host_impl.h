@@ -309,6 +309,12 @@ class CefBrowserHostImpl : public CefBrowserHost,
   CefRefPtr<CefBrowserView> GetBrowserView() const;
 #endif
 
+  // Returns the frame associated with the specified RenderFrameHost.
+  CefRefPtr<CefFrame> GetFrameForHost(const content::RenderFrameHost* host);
+
+  // Returns the frame associated with the specified RenderFrameHost routing ID.
+  CefRefPtr<CefFrame> GetFrameForHostRoutingId(int render_frame_id);
+
   // Returns the frame associated with the specified URLRequest.
   CefRefPtr<CefFrame> GetFrameForRequest(const net::URLRequest* request);
 
@@ -348,9 +354,6 @@ class CefBrowserHostImpl : public CefBrowserHost,
 
   // Open the specified text in the default text editor.
   void ViewText(const std::string& text);
-
-  // Handler for URLs involving external protocols.
-  void HandleExternalProtocol(const GURL& url);
 
   // Convert from view coordinates to screen coordinates. Potential display
   // scaling will be applied to the result.

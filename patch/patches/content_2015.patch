@@ -65,6 +65,19 @@ index be77d0e074e9..949873b9bb22 100644
                false, nullptr, &plugin, nullptr));
  }
  
+diff --git content/browser/devtools/devtools_http_handler.cc content/browser/devtools/devtools_http_handler.cc
+index 94892dd57d36..1d4036fdedf8 100644
+--- content/browser/devtools/devtools_http_handler.cc
++++ content/browser/devtools/devtools_http_handler.cc
+@@ -572,7 +572,7 @@ void DevToolsHttpHandler::OnJsonRequest(
+     version.SetString("Protocol-Version",
+                       DevToolsAgentHost::GetProtocolVersion());
+     version.SetString("WebKit-Version", GetWebKitVersion());
+-    version.SetString("Browser", GetContentClient()->browser()->GetProduct());
++    version.SetString("Browser", GetContentClient()->browser()->GetChromeProduct());
+     version.SetString("User-Agent",
+                       GetContentClient()->browser()->GetUserAgent());
+     version.SetString("V8-Version", V8_VERSION_STRING);
 diff --git content/browser/frame_host/navigation_handle_impl.cc content/browser/frame_host/navigation_handle_impl.cc
 index 8191262c3815..0fc558a96b1b 100644
 --- content/browser/frame_host/navigation_handle_impl.cc
@@ -133,10 +146,23 @@ index 31aa4bc38442..0314343499d3 100644
    if (stale) {
      // Refresh the plugins asynchronously.
 diff --git content/browser/loader/navigation_url_loader_impl.cc content/browser/loader/navigation_url_loader_impl.cc
-index f9d3104fa375..729b6886e9df 100644
+index f9d3104fa375..719b84b88615 100644
 --- content/browser/loader/navigation_url_loader_impl.cc
 +++ content/browser/loader/navigation_url_loader_impl.cc
-@@ -1156,7 +1156,7 @@ class NavigationURLLoaderImpl::URLLoaderRequestController
+@@ -927,6 +927,12 @@ class NavigationURLLoaderImpl::URLLoaderRequestController
+             resource_request_->has_user_gesture, resource_request_->method,
+             resource_request_->headers, &proxied_factory_request_,
+             external_protocol_factory);
++        if (!handled) {
++          handled = GetContentClient()->browser()->HandleExternalProtocol(
++              web_contents_getter_, frame_tree_node_id_,
++              navigation_ui_data_.get(), *resource_request_,
++              &proxied_factory_request_, external_protocol_factory);
++        }
+ 
+         if (external_protocol_factory) {
+           factory =
+@@ -1156,7 +1162,7 @@ class NavigationURLLoaderImpl::URLLoaderRequestController
      // path does as well for navigations.
      bool has_plugin = PluginService::GetInstance()->GetPluginInfo(
          -1 /* render_process_id */, -1 /* render_frame_id */, resource_context_,
@@ -268,6 +294,37 @@ index 5ea18183cc12..a40b09f2e0e4 100644
                              url::Origin /* main_frame_origin */,
                              std::string /* mime_type */,
                              bool /* found */,
+diff --git content/public/browser/content_browser_client.h content/public/browser/content_browser_client.h
+index b89c08735e10..4a319326afb9 100644
+--- content/public/browser/content_browser_client.h
++++ content/public/browser/content_browser_client.h
+@@ -1439,6 +1439,15 @@ class CONTENT_EXPORT ContentBrowserClient {
+       network::mojom::URLLoaderFactoryRequest* factory_request,
+       network::mojom::URLLoaderFactory*& out_factory);
+ 
++  // Same as above, but exposing the whole ResourceRequest object.
++  virtual bool HandleExternalProtocol(
++      ResourceRequestInfo::WebContentsGetter web_contents_getter,
++      int frame_tree_node_id,
++      NavigationUIData* navigation_data,
++      const network::ResourceRequest& request,
++      network::mojom::URLLoaderFactoryRequest* factory_request,
++      network::mojom::URLLoaderFactory*& out_factory) { return false; }
++
+   // Creates an OverlayWindow to be used for Picture-in-Picture. This window
+   // will house the content shown when in Picture-in-Picture mode. This will
+   // return a new OverlayWindow.
+@@ -1506,6 +1515,10 @@ class CONTENT_EXPORT ContentBrowserClient {
+   // Used as part of the user agent string.
+   virtual std::string GetProduct() const;
+ 
++  // Returns the Chrome-specific product string. This is used for compatibility
++  // purposes with external tools like Selenium.
++  virtual std::string GetChromeProduct() const { return GetProduct(); }
++
+   // Returns the user agent.  Content may cache this value.
+   virtual std::string GetUserAgent() const;
+ 
 diff --git content/public/browser/plugin_service.h content/public/browser/plugin_service.h
 index aed3085c7794..3b31542094d4 100644
 --- content/public/browser/plugin_service.h

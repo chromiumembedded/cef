@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=1038c0c3db89ce0b829d66e166b063c96b15992d$
+// $hash=59376c6298df4489ecc34f3509a8d0e77e9d97f7$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_REQUEST_CONTEXT_CAPI_H_
@@ -44,13 +44,13 @@
 #include "include/capi/cef_cookie_capi.h"
 #include "include/capi/cef_extension_capi.h"
 #include "include/capi/cef_extension_handler_capi.h"
-#include "include/capi/cef_request_context_handler_capi.h"
 #include "include/capi/cef_values_capi.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+struct _cef_request_context_handler_t;
 struct _cef_scheme_handler_factory_t;
 
 ///

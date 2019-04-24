@@ -14,6 +14,7 @@
 #include "libcef/browser/net/source_stream.h"
 #include "libcef/browser/net/url_request_user_data.h"
 #include "libcef/browser/thread_util.h"
+#include "libcef/common/net_service/net_service_util.h"
 #include "libcef/common/request_impl.h"
 #include "libcef/common/response_impl.h"
 
@@ -251,33 +252,23 @@ std::unique_ptr<net::SourceStream> CefNetworkDelegate::CreateSourceStream(
   if (net_util::IsInternalRequest(request))
     return upstream;
 
-  CefRefPtr<CefResponseFilter> cef_filter;
+  CefRefPtr<CefRequestImpl> requestPtr;
+  CefRefPtr<CefBrowser> browser;
+  CefRefPtr<CefFrame> frame;
+  CefRefPtr<CefResourceRequestHandler> handler =
+      net_util::GetResourceRequestHandler(request, requestPtr, browser, frame);
+  if (handler) {
+    CefRefPtr<CefResponseImpl> responsePtr = new CefResponseImpl();
+    responsePtr->Set(request);
+    responsePtr->SetReadOnly(true);
 
-  CefRefPtr<CefBrowserHostImpl> browser =
-      CefBrowserHostImpl::GetBrowserForRequest(request);
-  if (browser.get()) {
-    CefRefPtr<CefClient> client = browser->GetClient();
-    if (client.get()) {
-      CefRefPtr<CefRequestHandler> handler = client->GetRequestHandler();
-      if (handler.get()) {
-        CefRefPtr<CefFrame> frame = browser->GetFrameForRequest(request);
-
-        CefRefPtr<CefRequestImpl> cefRequest = new CefRequestImpl();
-        cefRequest->Set(request);
-        cefRequest->SetReadOnly(true);
-
-        CefRefPtr<CefResponseImpl> cefResponse = new CefResponseImpl();
-        cefResponse->Set(request);
-        cefResponse->SetReadOnly(true);
-
-        cef_filter = handler->GetResourceResponseFilter(
-            browser.get(), frame, cefRequest.get(), cefResponse.get());
-      }
+    CefRefPtr<CefResponseFilter> cef_filter =
+        handler->GetResourceResponseFilter(browser, frame, requestPtr.get(),
+                                           responsePtr.get());
+    if (cef_filter && cef_filter->InitFilter()) {
+      return std::make_unique<CefSourceStream>(cef_filter, std::move(upstream));
     }
   }
-
-  if (cef_filter && cef_filter->InitFilter())
-    return std::make_unique<CefSourceStream>(cef_filter, std::move(upstream));
 
   return upstream;
 }
@@ -291,48 +282,51 @@ int CefNetworkDelegate::OnBeforeURLRequest(net::URLRequest* request,
   const bool force_google_safesearch =
       (force_google_safesearch_ && force_google_safesearch_->GetValue());
 
-  CefRefPtr<CefBrowserHostImpl> browser =
-      CefBrowserHostImpl::GetBrowserForRequest(request);
-  if (browser.get()) {
-    const CefBrowserSettings& browser_settings = browser->settings();
-    if (browser_settings.accept_language_list.length > 0) {
-      const std::string& accept_language =
-          net::HttpUtil::GenerateAcceptLanguageHeader(
-              CefString(&browser_settings.accept_language_list));
-      request->SetExtraRequestHeaderByName(
-          net::HttpRequestHeaders::kAcceptLanguage, accept_language, false);
-    }
-    CefRefPtr<CefClient> client = browser->GetClient();
-    if (client.get()) {
-      CefRefPtr<CefRequestHandler> handler = client->GetRequestHandler();
-      if (handler.get()) {
-        CefRefPtr<CefFrame> frame = browser->GetFrameForRequest(request);
+  CefRefPtr<CefRequestImpl> requestPtr;
+  CefRefPtr<CefBrowser> browser;
+  CefRefPtr<CefFrame> frame;
+  CefRefPtr<CefResourceRequestHandler> handler =
+      net_util::GetResourceRequestHandler(request, requestPtr, browser, frame);
 
-        // Populate the request data.
-        CefRefPtr<CefRequestImpl> requestPtr(new CefRequestImpl());
-        requestPtr->Set(request);
-        requestPtr->SetTrackChanges(true);
+  if (handler) {
+    // The following callback allows modification of the request object.
+    requestPtr->SetReadOnly(false);
 
-        CefRefPtr<CefBeforeResourceLoadCallbackImpl> callbackImpl(
-            new CefBeforeResourceLoadCallbackImpl(requestPtr, new_url, request,
-                                                  force_google_safesearch,
-                                                  std::move(callback)));
-
-        // Give the client an opportunity to evaluate the request.
-        cef_return_value_t retval = handler->OnBeforeResourceLoad(
-            browser.get(), frame, requestPtr.get(), callbackImpl.get());
-        if (retval == RV_CANCEL) {
-          // Cancel the request.
-          callbackImpl->Continue(false);
-        } else if (retval == RV_CONTINUE) {
-          // Continue the request.
-          callbackImpl->Continue(true);
-        }
-
-        // Continue or cancel the request asynchronously.
-        return net::ERR_IO_PENDING;
+    CefBrowserHostImpl* browser_impl =
+        static_cast<CefBrowserHostImpl*>(browser.get());
+    if (browser_impl) {
+      const CefBrowserSettings& browser_settings = browser_impl->settings();
+      if (browser_settings.accept_language_list.length > 0) {
+        const std::string& accept_language =
+            net::HttpUtil::GenerateAcceptLanguageHeader(
+                CefString(&browser_settings.accept_language_list));
+        request->SetExtraRequestHeaderByName(
+            net::HttpRequestHeaders::kAcceptLanguage, accept_language, false);
+        requestPtr->SetHeaderByName(net::HttpRequestHeaders::kAcceptLanguage,
+                                    accept_language, false);
       }
     }
+
+    requestPtr->SetTrackChanges(true);
+
+    CefRefPtr<CefBeforeResourceLoadCallbackImpl> callbackImpl(
+        new CefBeforeResourceLoadCallbackImpl(requestPtr, new_url, request,
+                                              force_google_safesearch,
+                                              std::move(callback)));
+
+    // Give the client an opportunity to evaluate the request.
+    cef_return_value_t retval = handler->OnBeforeResourceLoad(
+        browser, frame, requestPtr.get(), callbackImpl.get());
+    if (retval == RV_CANCEL) {
+      // Cancel the request.
+      callbackImpl->Continue(false);
+    } else if (retval == RV_CONTINUE) {
+      // Continue the request.
+      callbackImpl->Continue(true);
+    }
+
+    // Continue or cancel the request asynchronously.
+    return net::ERR_IO_PENDING;
   }
 
   if (force_google_safesearch && new_url->is_empty())
@@ -351,47 +345,39 @@ void CefNetworkDelegate::OnCompleted(net::URLRequest* request,
   if (!started)
     return;
 
-  CefRefPtr<CefBrowserHostImpl> browser =
-      CefBrowserHostImpl::GetBrowserForRequest(request);
-  if (browser.get()) {
-    CefRefPtr<CefClient> client = browser->GetClient();
-    if (client.get()) {
-      CefRefPtr<CefRequestHandler> handler = client->GetRequestHandler();
-      if (handler.get()) {
-        CefRefPtr<CefFrame> frame = browser->GetFrameForRequest(request);
+  CefRefPtr<CefRequestImpl> requestPtr;
+  CefRefPtr<CefBrowser> browser;
+  CefRefPtr<CefFrame> frame;
+  CefRefPtr<CefResourceRequestHandler> handler =
+      net_util::GetResourceRequestHandler(request, requestPtr, browser, frame);
+  if (!handler)
+    return;
 
-        CefRefPtr<CefRequestImpl> cefRequest = new CefRequestImpl();
-        cefRequest->Set(request);
-        cefRequest->SetReadOnly(true);
+  CefRefPtr<CefResponseImpl> responsePtr = new CefResponseImpl();
+  responsePtr->Set(request);
+  responsePtr->SetReadOnly(true);
 
-        CefRefPtr<CefResponseImpl> cefResponse = new CefResponseImpl();
-        cefResponse->Set(request);
-        cefResponse->SetReadOnly(true);
-
-        cef_urlrequest_status_t status = UR_UNKNOWN;
-        switch (request->status().status()) {
-          case net::URLRequestStatus::SUCCESS:
-            status = UR_SUCCESS;
-            break;
-          case net::URLRequestStatus::CANCELED:
-            status = UR_CANCELED;
-            break;
-          case net::URLRequestStatus::FAILED:
-            status = UR_FAILED;
-            break;
-          default:
-            NOTREACHED();
-            break;
-        }
-
-        const int64 received_content_length =
-            request->received_response_content_length();
-        handler->OnResourceLoadComplete(browser.get(), frame, cefRequest.get(),
-                                        cefResponse.get(), status,
-                                        received_content_length);
-      }
-    }
+  cef_urlrequest_status_t status = UR_UNKNOWN;
+  switch (request->status().status()) {
+    case net::URLRequestStatus::SUCCESS:
+      status = UR_SUCCESS;
+      break;
+    case net::URLRequestStatus::CANCELED:
+      status = UR_CANCELED;
+      break;
+    case net::URLRequestStatus::FAILED:
+      status = UR_FAILED;
+      break;
+    default:
+      NOTREACHED();
+      break;
   }
+
+  const int64 received_content_length =
+      request->received_response_content_length();
+  handler->OnResourceLoadComplete(browser, frame, requestPtr.get(),
+                                  responsePtr.get(), status,
+                                  received_content_length);
 }
 
 net::NetworkDelegate::AuthRequiredResponse CefNetworkDelegate::OnAuthRequired(
@@ -460,25 +446,27 @@ bool CefNetworkDelegate::OnCanGetCookies(const net::URLRequest& request,
   if (net_util::IsInternalRequest(&request))
     return true;
 
-  CefRefPtr<CefBrowserHostImpl> browser =
-      CefBrowserHostImpl::GetBrowserForRequest(&request);
-  if (browser.get()) {
-    CefRefPtr<CefClient> client = browser->GetClient();
-    if (client.get()) {
-      CefRefPtr<CefRequestHandler> handler = client->GetRequestHandler();
-      if (handler.get()) {
-        CefRefPtr<CefFrame> frame = browser->GetFrameForRequest(&request);
+  CefRefPtr<CefRequestImpl> requestPtr;
+  CefRefPtr<CefBrowser> browser;
+  CefRefPtr<CefFrame> frame;
+  CefRefPtr<CefResourceRequestHandler> handler =
+      net_util::GetResourceRequestHandler(&request, requestPtr, browser, frame);
+  if (!handler)
+    return true;
 
-        CefRefPtr<CefRequestImpl> cefRequest = new CefRequestImpl();
-        cefRequest->Set(&request);
-        cefRequest->SetReadOnly(true);
+  bool cookie_blocked = false;
 
-        return handler->CanGetCookies(browser.get(), frame, cefRequest.get());
-      }
+  for (const auto& cookie : cookie_list) {
+    CefCookie cef_cookie;
+    if (!net_service::MakeCefCookie(cookie, cef_cookie))
+      continue;
+    if (!handler->CanSendCookie(browser, frame, requestPtr.get(), cef_cookie)) {
+      if (!cookie_blocked)
+        cookie_blocked = true;
     }
   }
 
-  return true;
+  return !cookie_blocked;
 }
 
 bool CefNetworkDelegate::OnCanSetCookie(const net::URLRequest& request,
@@ -490,30 +478,24 @@ bool CefNetworkDelegate::OnCanSetCookie(const net::URLRequest& request,
   if (net_util::IsInternalRequest(&request))
     return true;
 
-  CefRefPtr<CefBrowserHostImpl> browser =
-      CefBrowserHostImpl::GetBrowserForRequest(&request);
-  if (browser.get()) {
-    CefRefPtr<CefClient> client = browser->GetClient();
-    if (client.get()) {
-      CefRefPtr<CefRequestHandler> handler = client->GetRequestHandler();
-      if (handler.get()) {
-        CefRefPtr<CefFrame> frame = browser->GetFrameForRequest(&request);
+  CefRefPtr<CefRequestImpl> requestPtr;
+  CefRefPtr<CefBrowser> browser;
+  CefRefPtr<CefFrame> frame;
+  CefRefPtr<CefResourceRequestHandler> handler =
+      net_util::GetResourceRequestHandler(&request, requestPtr, browser, frame);
+  if (!handler)
+    return true;
 
-        CefRefPtr<CefRequestImpl> cefRequest = new CefRequestImpl();
-        cefRequest->Set(&request);
-        cefRequest->SetReadOnly(true);
+  CefCookie cef_cookie;
+  if (!net_service::MakeCefCookie(cookie, cef_cookie))
+    return true;
 
-        CefCookie cefCookie;
-        if (!CefCookieManagerOldImpl::GetCefCookie(cookie, cefCookie))
-          return true;
+  CefRefPtr<CefResponseImpl> responsePtr = new CefResponseImpl();
+  responsePtr->Set(&request);
+  responsePtr->SetReadOnly(true);
 
-        return handler->CanSetCookie(browser.get(), frame, cefRequest.get(),
-                                     cefCookie);
-      }
-    }
-  }
-
-  return true;
+  return handler->CanSaveCookie(browser, frame, requestPtr.get(),
+                                responsePtr.get(), cef_cookie);
 }
 
 bool CefNetworkDelegate::OnCanAccessFile(

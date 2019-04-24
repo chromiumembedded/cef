@@ -1,0 +1,86 @@
+diff --git chrome/browser/net/profile_network_context_service.cc chrome/browser/net/profile_network_context_service.cc
+index 2b24d1ac1b5b..f2d97cd93fb1 100644
+--- chrome/browser/net/profile_network_context_service.cc
++++ chrome/browser/net/profile_network_context_service.cc
+@@ -411,6 +411,8 @@ ProfileNetworkContextService::CreateNetworkContextParams(
+       CONTENT_SETTINGS_TYPE_COOKIES, std::string(), &settings);
+   network_context_params->cookie_manager_params->settings = std::move(settings);
+ 
++  network_context_params->cookieable_schemes = profile_->GetCookieableSchemes();
++
+   // Configure on-disk storage for non-OTR profiles. OTR profiles just use
+   // default behavior (in memory storage, default sizes).
+   PrefService* prefs = profile_->GetPrefs();
+diff --git chrome/browser/profiles/profile.h chrome/browser/profiles/profile.h
+index c70a4c0f48ac..8aaadf324a0e 100644
+--- chrome/browser/profiles/profile.h
++++ chrome/browser/profiles/profile.h
+@@ -310,6 +310,11 @@ class Profile : public content::BrowserContext {
+   virtual bool ShouldRestoreOldSessionCookies();
+   virtual bool ShouldPersistSessionCookies();
+ 
++  // Returns schemes that should be cookieable, if other than the defaults.
++  virtual std::vector<std::string> GetCookieableSchemes() {
++    return std::vector<std::string>();
++  }
++
+   // Creates NetworkContext for the specified isolated app (or for the profile
+   // itself, if |relative_path| is empty).
+   virtual network::mojom::NetworkContextPtr CreateNetworkContext(
+diff --git services/network/network_context.cc services/network/network_context.cc
+index b882aa825923..f1921814e1d8 100644
+--- services/network/network_context.cc
++++ services/network/network_context.cc
+@@ -1733,6 +1733,7 @@ URLRequestContextOwner NetworkContext::ApplyContextParamsToBuilder(
+   }
+ 
+   scoped_refptr<SessionCleanupCookieStore> session_cleanup_cookie_store;
++  std::unique_ptr<net::CookieMonster> cookie_store;
+   if (params_->cookie_path) {
+     scoped_refptr<base::SequencedTaskRunner> client_task_runner =
+         base::MessageLoopCurrent::Get()->task_runner();
+@@ -1760,18 +1761,27 @@ URLRequestContextOwner NetworkContext::ApplyContextParamsToBuilder(
+     session_cleanup_cookie_store =
+         base::MakeRefCounted<SessionCleanupCookieStore>(sqlite_store);
+ 
+-    std::unique_ptr<net::CookieMonster> cookie_store =
++    cookie_store =
+         std::make_unique<net::CookieMonster>(session_cleanup_cookie_store.get(),
+                                              net_log);
+     if (params_->persist_session_cookies)
+       cookie_store->SetPersistSessionCookies(true);
+-
+-    builder->SetCookieStore(std::move(cookie_store));
+   } else {
+     DCHECK(!params_->restore_old_session_cookies);
+     DCHECK(!params_->persist_session_cookies);
++
++    cookie_store =
++        std::make_unique<net::CookieMonster>(nullptr /* store */, net_log);
+   }
+ 
++  if (!params_->cookieable_schemes.empty()) {
++    cookie_store->SetCookieableSchemes(
++        params_->cookieable_schemes,
++        net::CookieStore::SetCookieableSchemesCallback());
++  }
++
++  builder->SetCookieStore(std::move(cookie_store));
++
+   std::unique_ptr<net::StaticHttpUserAgentSettings> user_agent_settings =
+       std::make_unique<net::StaticHttpUserAgentSettings>(
+           params_->accept_language, params_->user_agent);
+diff --git services/network/public/mojom/network_context.mojom services/network/public/mojom/network_context.mojom
+index 864e55731cdf..9fea7361d730 100644
+--- services/network/public/mojom/network_context.mojom
++++ services/network/public/mojom/network_context.mojom
+@@ -189,6 +189,9 @@ struct NetworkContextParams {
+   // cookies. Otherwise it should be false.
+   bool persist_session_cookies = false;
+ 
++  // Schemes that will be passed to CookieMonster::SetCookieableSchemes.
++  array<string> cookieable_schemes;
++
+   // True if an HTTP cache should be used.
+   bool http_cache_enabled = true;
+   // Maximum size of the HTTP cache. 0 means to use the default size.

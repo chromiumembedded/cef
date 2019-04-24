@@ -8,7 +8,7 @@
 # by hand. See the translator.README.txt file in the tools directory for
 # more information.
 #
-# $hash=61795daa573f965b6b94dea5b8220eeca37f62a0$
+# $hash=ce19444fe9b2ed5ae2a614f3d00ca3262d75ca98$
 #
 
 {
@@ -57,12 +57,14 @@
       'include/cef_render_handler.h',
       'include/cef_render_process_handler.h',
       'include/cef_request.h',
+      'include/cef_request_callback.h',
       'include/cef_request_context.h',
       'include/cef_request_context_handler.h',
       'include/cef_request_handler.h',
       'include/cef_resource_bundle.h',
       'include/cef_resource_bundle_handler.h',
       'include/cef_resource_handler.h',
+      'include/cef_resource_request_handler.h',
       'include/cef_response.h',
       'include/cef_response_filter.h',
       'include/cef_scheme.h',
@@ -149,12 +151,14 @@
       'include/capi/cef_render_handler_capi.h',
       'include/capi/cef_render_process_handler_capi.h',
       'include/capi/cef_request_capi.h',
+      'include/capi/cef_request_callback_capi.h',
       'include/capi/cef_request_context_capi.h',
       'include/capi/cef_request_context_handler_capi.h',
       'include/capi/cef_request_handler_capi.h',
       'include/capi/cef_resource_bundle_capi.h',
       'include/capi/cef_resource_bundle_handler_capi.h',
       'include/capi/cef_resource_handler_capi.h',
+      'include/capi/cef_resource_request_handler_capi.h',
       'include/capi/cef_response_capi.h',
       'include/capi/cef_response_filter_capi.h',
       'include/capi/cef_scheme_capi.h',
@@ -366,6 +370,12 @@
       'libcef_dll/ctocpp/resource_bundle_handler_ctocpp.h',
       'libcef_dll/ctocpp/resource_handler_ctocpp.cc',
       'libcef_dll/ctocpp/resource_handler_ctocpp.h',
+      'libcef_dll/cpptoc/resource_read_callback_cpptoc.cc',
+      'libcef_dll/cpptoc/resource_read_callback_cpptoc.h',
+      'libcef_dll/ctocpp/resource_request_handler_ctocpp.cc',
+      'libcef_dll/ctocpp/resource_request_handler_ctocpp.h',
+      'libcef_dll/cpptoc/resource_skip_callback_cpptoc.cc',
+      'libcef_dll/cpptoc/resource_skip_callback_cpptoc.h',
       'libcef_dll/cpptoc/response_cpptoc.cc',
       'libcef_dll/cpptoc/response_cpptoc.h',
       'libcef_dll/ctocpp/response_filter_ctocpp.cc',
@@ -650,6 +660,12 @@
       'libcef_dll/cpptoc/resource_bundle_handler_cpptoc.h',
       'libcef_dll/cpptoc/resource_handler_cpptoc.cc',
       'libcef_dll/cpptoc/resource_handler_cpptoc.h',
+      'libcef_dll/ctocpp/resource_read_callback_ctocpp.cc',
+      'libcef_dll/ctocpp/resource_read_callback_ctocpp.h',
+      'libcef_dll/cpptoc/resource_request_handler_cpptoc.cc',
+      'libcef_dll/cpptoc/resource_request_handler_cpptoc.h',
+      'libcef_dll/ctocpp/resource_skip_callback_ctocpp.cc',
+      'libcef_dll/ctocpp/resource_skip_callback_ctocpp.h',
       'libcef_dll/ctocpp/response_ctocpp.cc',
       'libcef_dll/ctocpp/response_ctocpp.h',
       'libcef_dll/cpptoc/response_filter_cpptoc.cc',

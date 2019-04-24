@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=67d244b48d02049dcf75c7ae45b223c756d61aa7$
+// $hash=4573a140180f11230e688f73e8c09503f9123c3d$
 //
 
 #include "libcef_dll/cpptoc/response_cpptoc.h"
@@ -160,6 +160,37 @@ void CEF_CALLBACK response_set_mime_type(struct _cef_response_t* self,
 }
 
 cef_string_userfree_t CEF_CALLBACK
+response_get_charset(struct _cef_response_t* self) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return NULL;
+
+  // Execute
+  CefString _retval = CefResponseCppToC::Get(self)->GetCharset();
+
+  // Return type: string
+  return _retval.DetachToUserFree();
+}
+
+void CEF_CALLBACK response_set_charset(struct _cef_response_t* self,
+                                       const cef_string_t* charset) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return;
+  // Verify param: charset; type: string_byref_const
+  DCHECK(charset);
+  if (!charset)
+    return;
+
+  // Execute
+  CefResponseCppToC::Get(self)->SetCharset(CefString(charset));
+}
+
+cef_string_userfree_t CEF_CALLBACK
 response_get_header(struct _cef_response_t* self, const cef_string_t* name) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -267,6 +298,8 @@ CefResponseCppToC::CefResponseCppToC() {
   GetStruct()->set_status_text = response_set_status_text;
   GetStruct()->get_mime_type = response_get_mime_type;
   GetStruct()->set_mime_type = response_set_mime_type;
+  GetStruct()->get_charset = response_get_charset;
+  GetStruct()->set_charset = response_set_charset;
   GetStruct()->get_header = response_get_header;
   GetStruct()->get_header_map = response_get_header_map;
   GetStruct()->set_header_map = response_set_header_map;

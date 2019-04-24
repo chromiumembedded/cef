@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=580e0e91bf4052f0e996dc42f63079ca1a6390cf$
+// $hash=3a1ab8264989d7f68504dc60ad6dc52c31d323a4$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_REQUEST_CAPI_H_
@@ -137,6 +137,27 @@ typedef struct _cef_request_t {
                                      cef_string_multimap_t headerMap);
 
   ///
+  // Returns the first header value for |name| or an NULL string if not found.
+  // Will not return the Referer value if any. Use GetHeaderMap instead if
+  // |name| might have multiple values.
+  ///
+  // The resulting string must be freed by calling cef_string_userfree_free().
+  cef_string_userfree_t(CEF_CALLBACK* get_header_by_name)(
+      struct _cef_request_t* self,
+      const cef_string_t* name);
+
+  ///
+  // Set the header |name| to |value|. If |overwrite| is true (1) any existing
+  // values will be replaced with the new value. If |overwrite| is false (0) any
+  // existing values will not be overwritten. The Referer value cannot be set
+  // using this function.
+  ///
+  void(CEF_CALLBACK* set_header_by_name)(struct _cef_request_t* self,
+                                         const cef_string_t* name,
+                                         const cef_string_t* value,
+                                         int overwrite);
+
+  ///
   // Set all values at one time.
   ///
   void(CEF_CALLBACK* set)(struct _cef_request_t* self,
@@ -189,8 +210,8 @@ typedef struct _cef_request_t {
 
   ///
   // Returns the globally unique identifier for this request or 0 if not
-  // specified. Can be used by cef_request_tHandler implementations in the
-  // browser process to track a single request across multiple callbacks.
+  // specified. Can be used by cef_resource_request_handler_t implementations in
+  // the browser process to track a single request across multiple callbacks.
   ///
   uint64(CEF_CALLBACK* get_identifier)(struct _cef_request_t* self);
 } cef_request_t;

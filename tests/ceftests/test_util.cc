@@ -3,6 +3,8 @@
 // can be found in the LICENSE file.
 
 #include "tests/ceftests/test_util.h"
+#include "include/cef_command_line.h"
+#include "include/cef_request_context_handler.h"
 #include "tests/gtest/include/gtest/gtest.h"
 
 void TestMapEqual(const CefRequest::HeaderMap& map1,
@@ -18,12 +20,15 @@ void TestMapEqual(const CefRequest::HeaderMap& map1,
   CefRequest::HeaderMap::const_iterator it1, it2;
 
   for (it1 = map1.begin(); it1 != map1.end(); ++it1) {
-    it2 = map2.find(it1->first);
-    EXPECT_TRUE(it2 != map2.end());
-    if (it2 != map2.end()) {
-      EXPECT_STREQ(it1->second.ToString().c_str(),
-                   it2->second.ToString().c_str());
+    bool found = false;
+    for (it2 = map2.begin(); it2 != map2.end(); ++it2) {
+      if (it1->first == it2->first && it1->second == it2->second) {
+        found = true;
+        break;
+      }
     }
+    EXPECT_TRUE(found) << "No entry for " << it1->first.ToString() << ": "
+                       << it1->second.ToString();
   }
 }
 
@@ -260,6 +265,16 @@ void TestStringVectorEqual(const std::vector<CefString>& val1,
 
   for (size_t i = 0; i < val1.size(); ++i)
     EXPECT_STREQ(val1[i].ToString().c_str(), val2[i].ToString().c_str());
+}
+
+bool IsNetworkServiceEnabled() {
+  static int state = -1;
+  if (state == -1) {
+    CefRefPtr<CefCommandLine> command_line =
+        CefCommandLine::GetGlobalCommandLine();
+    state = command_line->HasSwitch("enable-network-service") ? 1 : 0;
+  }
+  return state ? true : false;
 }
 
 CefRefPtr<CefRequestContext> CreateTestRequestContext(

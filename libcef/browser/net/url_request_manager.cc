@@ -32,11 +32,6 @@ using net::URLRequestStatus;
 
 namespace {
 
-bool IsStandardScheme(const std::string& scheme) {
-  url::Component scheme_comp(0, scheme.length());
-  return url::IsStandard(scheme.c_str(), scheme_comp);
-}
-
 // Copied from net/url_request/url_request_job_manager.cc.
 struct SchemeToFactory {
   const char* scheme;
@@ -127,7 +122,7 @@ bool CefURLRequestManager::AddFactory(
   std::string domain_lower = ToLower(domain);
 
   // Hostname is only supported for standard schemes.
-  if (!IsStandardScheme(scheme_lower))
+  if (!scheme::IsStandardScheme(scheme_lower))
     domain_lower.clear();
 
   SetProtocolHandlerIfNecessary(scheme_lower, true);
@@ -145,7 +140,7 @@ void CefURLRequestManager::RemoveFactory(const std::string& scheme,
   std::string domain_lower = ToLower(domain);
 
   // Hostname is only supported for standard schemes.
-  if (!IsStandardScheme(scheme_lower))
+  if (!scheme::IsStandardScheme(scheme_lower))
     domain_lower.clear();
 
   HandlerMap::iterator iter =
@@ -223,7 +218,7 @@ CefRefPtr<CefSchemeHandlerFactory> CefURLRequestManager::GetHandlerFactory(
     const std::string& scheme) {
   CefRefPtr<CefSchemeHandlerFactory> factory;
 
-  if (request->url().is_valid() && IsStandardScheme(scheme)) {
+  if (request->url().is_valid() && scheme::IsStandardScheme(scheme)) {
     // Check for a match with a domain first.
     const std::string& domain = request->url().host();
 

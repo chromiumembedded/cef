@@ -487,6 +487,7 @@
       'tests/ceftests/request_unittest.cc',
       'tests/ceftests/resource.h',
       'tests/ceftests/resource_manager_unittest.cc',
+      'tests/ceftests/resource_request_handler_unittest.cc',
       'tests/ceftests/routing_test_handler.cc',
       'tests/ceftests/routing_test_handler.h',
       'tests/ceftests/run_all_unittests.cc',

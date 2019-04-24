@@ -11,6 +11,7 @@
 #include "libcef/browser/content_browser_client.h"
 #include "libcef/browser/context.h"
 #include "libcef/browser/net/network_delegate.h"
+#include "libcef/common/net_service/net_service_util.h"
 #include "libcef/common/task_runner_impl.h"
 #include "libcef/common/time_util.h"
 
@@ -22,8 +23,6 @@
 #include "components/net_log/chrome_net_log.h"
 #include "content/browser/storage_partition_impl.h"
 #include "content/public/browser/browser_task_traits.h"
-#include "net/cookies/cookie_util.h"
-#include "net/cookies/parsed_cookie.h"
 #include "net/url_request/url_request_context.h"
 #include "url/gurl.h"
 
@@ -54,7 +53,7 @@ class VisitCookiesCallback
     for (; it != list.end(); ++it, ++count) {
       CefCookie cookie;
       const net::CanonicalCookie& cc = *(it);
-      CefCookieManagerOldImpl::GetCefCookie(cc, cookie);
+      net_service::MakeCefCookie(cc, cookie);
 
       bool deleteCookie = false;
       bool keepLooping = visitor_->Visit(cookie, count, total, deleteCookie);
@@ -84,19 +83,6 @@ class VisitCookiesCallback
   CefCookieManagerOldImpl::CookieStoreGetter cookie_store_getter_;
   CefRefPtr<CefCookieVisitor> visitor_;
 };
-
-// Methods extracted from net/cookies/cookie_store.cc
-
-// Determine the cookie domain to use for setting the specified cookie.
-bool GetCookieDomain(const GURL& url,
-                     const net::ParsedCookie& pc,
-                     std::string* result) {
-  std::string domain_string;
-  if (pc.HasDomain())
-    domain_string = pc.Domain();
-  return net::cookie_util::GetCookieDomainWithString(url, domain_string,
-                                                     result);
-}
 
 // Always execute the callback asynchronously.
 void RunAsyncCompletionOnUIThread(CefRefPtr<CefCompletionCallback> callback) {
@@ -251,61 +237,6 @@ bool CefCookieManagerOldImpl::FlushStore(
   GetCookieStore(
       base::CreateSingleThreadTaskRunnerWithTraits({BrowserThread::IO}),
       base::Bind(&CefCookieManagerOldImpl::FlushStoreInternal, this, callback));
-  return true;
-}
-
-// static
-bool CefCookieManagerOldImpl::GetCefCookie(const net::CanonicalCookie& cc,
-                                           CefCookie& cookie) {
-  CefString(&cookie.name).FromString(cc.Name());
-  CefString(&cookie.value).FromString(cc.Value());
-  CefString(&cookie.domain).FromString(cc.Domain());
-  CefString(&cookie.path).FromString(cc.Path());
-  cookie.secure = cc.IsSecure();
-  cookie.httponly = cc.IsHttpOnly();
-  cef_time_from_basetime(cc.CreationDate(), cookie.creation);
-  cef_time_from_basetime(cc.LastAccessDate(), cookie.last_access);
-  cookie.has_expires = cc.IsPersistent();
-  if (cookie.has_expires)
-    cef_time_from_basetime(cc.ExpiryDate(), cookie.expires);
-
-  return true;
-}
-
-// static
-bool CefCookieManagerOldImpl::GetCefCookie(const GURL& url,
-                                           const std::string& cookie_line,
-                                           CefCookie& cookie) {
-  // Parse the cookie.
-  net::ParsedCookie pc(cookie_line);
-  if (!pc.IsValid())
-    return false;
-
-  std::string cookie_domain;
-  if (!GetCookieDomain(url, pc, &cookie_domain))
-    return false;
-
-  std::string path_string;
-  if (pc.HasPath())
-    path_string = pc.Path();
-  std::string cookie_path =
-      net::CanonicalCookie::CanonPathWithString(url, path_string);
-  base::Time creation_time = base::Time::Now();
-  base::Time cookie_expires =
-      net::CanonicalCookie::CanonExpiration(pc, creation_time, creation_time);
-
-  CefString(&cookie.name).FromString(pc.Name());
-  CefString(&cookie.value).FromString(pc.Value());
-  CefString(&cookie.domain).FromString(cookie_domain);
-  CefString(&cookie.path).FromString(cookie_path);
-  cookie.secure = pc.IsSecure();
-  cookie.httponly = pc.IsHttpOnly();
-  cef_time_from_basetime(creation_time, cookie.creation);
-  cef_time_from_basetime(creation_time, cookie.last_access);
-  cookie.has_expires = !cookie_expires.is_null();
-  if (cookie.has_expires)
-    cef_time_from_basetime(cookie_expires, cookie.expires);
-
   return true;
 }
 

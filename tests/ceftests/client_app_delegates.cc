@@ -109,6 +109,12 @@ void RegisterCustomSchemes(CefRawPtr<CefSchemeRegistrar> registrar,
       CefRawPtr<CefSchemeRegistrar> registrar,
       std::vector<CefString> & cookiable_schemes);
   RegisterURLRequestCustomSchemes(registrar, cookiable_schemes);
+
+  // Bring in the resource request handler tests.
+  extern void RegisterResourceRequestHandlerCustomSchemes(
+      CefRawPtr<CefSchemeRegistrar> registrar,
+      std::vector<CefString> & cookiable_schemes);
+  RegisterResourceRequestHandlerCustomSchemes(registrar, cookiable_schemes);
 }
 
 namespace client {

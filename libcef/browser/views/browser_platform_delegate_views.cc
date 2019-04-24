@@ -234,10 +234,6 @@ bool CefBrowserPlatformDelegateViews::HandleKeyboardEvent(
   return browser_view_->HandleKeyboardEvent(event);
 }
 
-void CefBrowserPlatformDelegateViews::HandleExternalProtocol(const GURL& url) {
-  native_delegate_->HandleExternalProtocol(url);
-}
-
 void CefBrowserPlatformDelegateViews::TranslateKeyEvent(
     content::NativeWebKeyboardEvent& result,
     const CefKeyEvent& key_event) const {

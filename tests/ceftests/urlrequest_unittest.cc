@@ -7,6 +7,7 @@
 #include <sstream>
 
 #include "include/base/cef_bind.h"
+#include "include/cef_request_context_handler.h"
 #include "include/cef_scheme.h"
 #include "include/cef_server.h"
 #include "include/cef_task.h"

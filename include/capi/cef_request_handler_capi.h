@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=64631c0b1776a951da838f8b08a4c71ef33a15cc$
+// $hash=fce8beb9d3e8709a512077681455cb4ef92ef76d$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_REQUEST_HANDLER_CAPI_H_
@@ -44,37 +44,15 @@
 #include "include/capi/cef_base_capi.h"
 #include "include/capi/cef_browser_capi.h"
 #include "include/capi/cef_frame_capi.h"
+#include "include/capi/cef_request_callback_capi.h"
 #include "include/capi/cef_request_capi.h"
-#include "include/capi/cef_resource_handler_capi.h"
-#include "include/capi/cef_response_capi.h"
-#include "include/capi/cef_response_filter_capi.h"
+#include "include/capi/cef_resource_request_handler_capi.h"
 #include "include/capi/cef_ssl_info_capi.h"
 #include "include/capi/cef_x509_certificate_capi.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-///
-// Callback structure used for asynchronous continuation of url requests.
-///
-typedef struct _cef_request_callback_t {
-  ///
-  // Base structure.
-  ///
-  cef_base_ref_counted_t base;
-
-  ///
-  // Continue the url request. If |allow| is true (1) the request will be
-  // continued. Otherwise, the request will be canceled.
-  ///
-  void(CEF_CALLBACK* cont)(struct _cef_request_callback_t* self, int allow);
-
-  ///
-  // Cancel the url request.
-  ///
-  void(CEF_CALLBACK* cancel)(struct _cef_request_callback_t* self);
-} cef_request_callback_t;
 
 ///
 // Callback structure used to select a client certificate for authentication.
@@ -148,85 +126,31 @@ typedef struct _cef_request_handler_t {
       int user_gesture);
 
   ///
-  // Called on the IO thread before a resource request is loaded. The |request|
-  // object may be modified. Return RV_CONTINUE to continue the request
-  // immediately. Return RV_CONTINUE_ASYNC and call cef_request_tCallback::
-  // cont() at a later time to continue or cancel the request asynchronously.
-  // Return RV_CANCEL to cancel the request immediately.
-  //
+  // Called on the browser process IO thread before a resource request is
+  // initiated. The |browser| and |frame| values represent the source of the
+  // request. |request| represents the request contents and cannot be modified
+  // in this callback. |is_navigation| will be true (1) if the resource request
+  // is a navigation. |is_download| will be true (1) if the resource request is
+  // a download. |request_initiator| is the origin (scheme + domain) of the page
+  // that initiated the request. Set |disable_default_handling| to true (1) to
+  // disable default handling of the request, in which case it will need to be
+  // handled via cef_resource_request_handler_t::GetResourceHandler or it will
+  // be canceled. To allow the resource load to proceed with default handling
+  // return NULL. To specify a handler for the resource return a
+  // cef_resource_request_handler_t object. If this callback returns NULL the
+  // same function will be called on the associated cef_request_tContextHandler,
+  // if any.
   ///
-  cef_return_value_t(CEF_CALLBACK* on_before_resource_load)(
+  struct _cef_resource_request_handler_t*(
+      CEF_CALLBACK* get_resource_request_handler)(
       struct _cef_request_handler_t* self,
       struct _cef_browser_t* browser,
       struct _cef_frame_t* frame,
       struct _cef_request_t* request,
-      struct _cef_request_callback_t* callback);
-
-  ///
-  // Called on the IO thread before a resource is loaded. To allow the resource
-  // to load normally return NULL. To specify a handler for the resource return
-  // a cef_resource_handler_t object. The |request| object should not be
-  // modified in this callback.
-  ///
-  struct _cef_resource_handler_t*(CEF_CALLBACK* get_resource_handler)(
-      struct _cef_request_handler_t* self,
-      struct _cef_browser_t* browser,
-      struct _cef_frame_t* frame,
-      struct _cef_request_t* request);
-
-  ///
-  // Called on the IO thread when a resource load is redirected. The |request|
-  // parameter will contain the old URL and other request-related information.
-  // The |response| parameter will contain the response that resulted in the
-  // redirect. The |new_url| parameter will contain the new URL and can be
-  // changed if desired. The |request| object cannot be modified in this
-  // callback.
-  ///
-  void(CEF_CALLBACK* on_resource_redirect)(struct _cef_request_handler_t* self,
-                                           struct _cef_browser_t* browser,
-                                           struct _cef_frame_t* frame,
-                                           struct _cef_request_t* request,
-                                           struct _cef_response_t* response,
-                                           cef_string_t* new_url);
-
-  ///
-  // Called on the IO thread when a resource response is received. To allow the
-  // resource to load normally return false (0). To redirect or retry the
-  // resource modify |request| (url, headers or post body) and return true (1).
-  // The |response| object cannot be modified in this callback.
-  ///
-  int(CEF_CALLBACK* on_resource_response)(struct _cef_request_handler_t* self,
-                                          struct _cef_browser_t* browser,
-                                          struct _cef_frame_t* frame,
-                                          struct _cef_request_t* request,
-                                          struct _cef_response_t* response);
-
-  ///
-  // Called on the IO thread to optionally filter resource response content.
-  // |request| and |response| represent the request and response respectively
-  // and cannot be modified in this callback.
-  ///
-  struct _cef_response_filter_t*(CEF_CALLBACK* get_resource_response_filter)(
-      struct _cef_request_handler_t* self,
-      struct _cef_browser_t* browser,
-      struct _cef_frame_t* frame,
-      struct _cef_request_t* request,
-      struct _cef_response_t* response);
-
-  ///
-  // Called on the IO thread when a resource load has completed. |request| and
-  // |response| represent the request and response respectively and cannot be
-  // modified in this callback. |status| indicates the load completion status.
-  // |received_content_length| is the number of response bytes actually read.
-  ///
-  void(CEF_CALLBACK* on_resource_load_complete)(
-      struct _cef_request_handler_t* self,
-      struct _cef_browser_t* browser,
-      struct _cef_frame_t* frame,
-      struct _cef_request_t* request,
-      struct _cef_response_t* response,
-      cef_urlrequest_status_t status,
-      int64 received_content_length);
+      int is_navigation,
+      int is_download,
+      const cef_string_t* request_initiator,
+      int* disable_default_handling);
 
   ///
   // Called on the IO thread when the browser needs credentials from the user.
@@ -251,29 +175,6 @@ typedef struct _cef_request_handler_t {
       struct _cef_auth_callback_t* callback);
 
   ///
-  // Called on the IO thread before sending a network request with a "Cookie"
-  // request header. Return true (1) to allow cookies to be included in the
-  // network request or false (0) to block cookies. The |request| object should
-  // not be modified in this callback.
-  ///
-  int(CEF_CALLBACK* can_get_cookies)(struct _cef_request_handler_t* self,
-                                     struct _cef_browser_t* browser,
-                                     struct _cef_frame_t* frame,
-                                     struct _cef_request_t* request);
-
-  ///
-  // Called on the IO thread when receiving a network request with a "Set-
-  // Cookie" response header value represented by |cookie|. Return true (1) to
-  // allow the cookie to be stored or false (0) to block the cookie. The
-  // |request| object should not be modified in this callback.
-  ///
-  int(CEF_CALLBACK* can_set_cookie)(struct _cef_request_handler_t* self,
-                                    struct _cef_browser_t* browser,
-                                    struct _cef_frame_t* frame,
-                                    struct _cef_request_t* request,
-                                    const struct _cef_cookie_t* cookie);
-
-  ///
   // Called on the IO thread when JavaScript requests a specific storage quota
   // size via the webkitStorageInfo.requestQuota function. |origin_url| is the
   // origin of the page making the request. |new_size| is the requested quota
@@ -287,18 +188,6 @@ typedef struct _cef_request_handler_t {
                                       const cef_string_t* origin_url,
                                       int64 new_size,
                                       struct _cef_request_callback_t* callback);
-
-  ///
-  // Called on the UI thread to handle requests for URLs with an unknown
-  // protocol component. Set |allow_os_execution| to true (1) to attempt
-  // execution via the registered OS protocol handler, if any. SECURITY WARNING:
-  // YOU SHOULD USE THIS METHOD TO ENFORCE RESTRICTIONS BASED ON SCHEME, HOST OR
-  // OTHER URL ANALYSIS BEFORE ALLOWING OS EXECUTION.
-  ///
-  void(CEF_CALLBACK* on_protocol_execution)(struct _cef_request_handler_t* self,
-                                            struct _cef_browser_t* browser,
-                                            const cef_string_t* url,
-                                            int* allow_os_execution);
 
   ///
   // Called on the UI thread to handle requests for URLs with an invalid SSL

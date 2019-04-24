@@ -686,35 +686,16 @@ bool ClientHandler::OnOpenURLFromTab(
   return false;
 }
 
-cef_return_value_t ClientHandler::OnBeforeResourceLoad(
+CefRefPtr<CefResourceRequestHandler> ClientHandler::GetResourceRequestHandler(
     CefRefPtr<CefBrowser> browser,
     CefRefPtr<CefFrame> frame,
     CefRefPtr<CefRequest> request,
-    CefRefPtr<CefRequestCallback> callback) {
+    bool is_navigation,
+    bool is_download,
+    const CefString& request_initiator,
+    bool& disable_default_handling) {
   CEF_REQUIRE_IO_THREAD();
-
-  return resource_manager_->OnBeforeResourceLoad(browser, frame, request,
-                                                 callback);
-}
-
-CefRefPtr<CefResourceHandler> ClientHandler::GetResourceHandler(
-    CefRefPtr<CefBrowser> browser,
-    CefRefPtr<CefFrame> frame,
-    CefRefPtr<CefRequest> request) {
-  CEF_REQUIRE_IO_THREAD();
-
-  return resource_manager_->GetResourceHandler(browser, frame, request);
-}
-
-CefRefPtr<CefResponseFilter> ClientHandler::GetResourceResponseFilter(
-    CefRefPtr<CefBrowser> browser,
-    CefRefPtr<CefFrame> frame,
-    CefRefPtr<CefRequest> request,
-    CefRefPtr<CefResponse> response) {
-  CEF_REQUIRE_IO_THREAD();
-
-  return test_runner::GetResourceResponseFilter(browser, frame, request,
-                                                response);
+  return this;
 }
 
 bool ClientHandler::OnQuotaRequest(CefRefPtr<CefBrowser> browser,
@@ -728,18 +709,6 @@ bool ClientHandler::OnQuotaRequest(CefRefPtr<CefBrowser> browser,
   // Grant the quota request if the size is reasonable.
   callback->Continue(new_size <= max_size);
   return true;
-}
-
-void ClientHandler::OnProtocolExecution(CefRefPtr<CefBrowser> browser,
-                                        const CefString& url,
-                                        bool& allow_os_execution) {
-  CEF_REQUIRE_UI_THREAD();
-
-  std::string urlStr = url;
-
-  // Allow OS execution of Spotify URIs.
-  if (urlStr.find("spotify:") == 0)
-    allow_os_execution = true;
 }
 
 bool ClientHandler::OnCertificateError(CefRefPtr<CefBrowser> browser,
@@ -832,6 +801,50 @@ void ClientHandler::OnRenderProcessTerminated(CefRefPtr<CefBrowser> browser,
     return;
 
   frame->LoadURL(startup_url_);
+}
+
+cef_return_value_t ClientHandler::OnBeforeResourceLoad(
+    CefRefPtr<CefBrowser> browser,
+    CefRefPtr<CefFrame> frame,
+    CefRefPtr<CefRequest> request,
+    CefRefPtr<CefRequestCallback> callback) {
+  CEF_REQUIRE_IO_THREAD();
+
+  return resource_manager_->OnBeforeResourceLoad(browser, frame, request,
+                                                 callback);
+}
+
+CefRefPtr<CefResourceHandler> ClientHandler::GetResourceHandler(
+    CefRefPtr<CefBrowser> browser,
+    CefRefPtr<CefFrame> frame,
+    CefRefPtr<CefRequest> request) {
+  CEF_REQUIRE_IO_THREAD();
+
+  return resource_manager_->GetResourceHandler(browser, frame, request);
+}
+
+CefRefPtr<CefResponseFilter> ClientHandler::GetResourceResponseFilter(
+    CefRefPtr<CefBrowser> browser,
+    CefRefPtr<CefFrame> frame,
+    CefRefPtr<CefRequest> request,
+    CefRefPtr<CefResponse> response) {
+  CEF_REQUIRE_IO_THREAD();
+
+  return test_runner::GetResourceResponseFilter(browser, frame, request,
+                                                response);
+}
+
+void ClientHandler::OnProtocolExecution(CefRefPtr<CefBrowser> browser,
+                                        CefRefPtr<CefFrame> frame,
+                                        CefRefPtr<CefRequest> request,
+                                        bool& allow_os_execution) {
+  CEF_REQUIRE_IO_THREAD();
+
+  std::string urlStr = request->GetURL();
+
+  // Allow OS execution of Spotify URIs.
+  if (urlStr.find("spotify:") == 0)
+    allow_os_execution = true;
 }
 
 int ClientHandler::GetBrowserCount() const {

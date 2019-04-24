@@ -33,11 +33,6 @@ class CefResourceDispatcherHostDelegate
                            network::ResourceResponse* response) override;
 
  private:
-  void HandleExternalProtocolOnUIThread(
-      const GURL& url,
-      const content::ResourceRequestInfo::WebContentsGetter&
-          web_contents_getter);
-
   struct StreamTargetInfo {
     std::string extension_id;
     std::string view_id;

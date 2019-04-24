@@ -91,6 +91,7 @@ class CefRequestContextImpl : public CefRequestContext {
   // created.
   void OnRenderFrameCreated(int render_process_id,
                             int render_frame_id,
+                            int frame_tree_node_id,
                             bool is_main_frame,
                             bool is_guest_view);
 
@@ -99,6 +100,7 @@ class CefRequestContextImpl : public CefRequestContext {
   // deleted.
   void OnRenderFrameDeleted(int render_process_id,
                             int render_frame_id,
+                            int frame_tree_node_id,
                             bool is_main_frame,
                             bool is_guest_view);
 

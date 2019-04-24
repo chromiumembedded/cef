@@ -34,7 +34,8 @@ class ClientHandler : public CefClient,
                       public CefKeyboardHandler,
                       public CefLifeSpanHandler,
                       public CefLoadHandler,
-                      public CefRequestHandler {
+                      public CefRequestHandler,
+                      public CefResourceRequestHandler {
  public:
   // Implement this interface to receive notification of ClientHandler
   // events. The methods of this class will be called on the main thread unless
@@ -217,27 +218,18 @@ class ClientHandler : public CefClient,
       const CefString& target_url,
       CefRequestHandler::WindowOpenDisposition target_disposition,
       bool user_gesture) OVERRIDE;
-  cef_return_value_t OnBeforeResourceLoad(
+  CefRefPtr<CefResourceRequestHandler> GetResourceRequestHandler(
       CefRefPtr<CefBrowser> browser,
       CefRefPtr<CefFrame> frame,
       CefRefPtr<CefRequest> request,
-      CefRefPtr<CefRequestCallback> callback) OVERRIDE;
-  CefRefPtr<CefResourceHandler> GetResourceHandler(
-      CefRefPtr<CefBrowser> browser,
-      CefRefPtr<CefFrame> frame,
-      CefRefPtr<CefRequest> request) OVERRIDE;
-  CefRefPtr<CefResponseFilter> GetResourceResponseFilter(
-      CefRefPtr<CefBrowser> browser,
-      CefRefPtr<CefFrame> frame,
-      CefRefPtr<CefRequest> request,
-      CefRefPtr<CefResponse> response) OVERRIDE;
+      bool is_navigation,
+      bool is_download,
+      const CefString& request_initiator,
+      bool& disable_default_handling) OVERRIDE;
   bool OnQuotaRequest(CefRefPtr<CefBrowser> browser,
                       const CefString& origin_url,
                       int64 new_size,
                       CefRefPtr<CefRequestCallback> callback) OVERRIDE;
-  void OnProtocolExecution(CefRefPtr<CefBrowser> browser,
-                           const CefString& url,
-                           bool& allow_os_execution) OVERRIDE;
   bool OnCertificateError(CefRefPtr<CefBrowser> browser,
                           ErrorCode cert_error,
                           const CefString& request_url,
@@ -252,6 +244,26 @@ class ClientHandler : public CefClient,
       CefRefPtr<CefSelectClientCertificateCallback> callback) OVERRIDE;
   void OnRenderProcessTerminated(CefRefPtr<CefBrowser> browser,
                                  TerminationStatus status) OVERRIDE;
+
+  // CefResourceRequestHandler methods
+  cef_return_value_t OnBeforeResourceLoad(
+      CefRefPtr<CefBrowser> browser,
+      CefRefPtr<CefFrame> frame,
+      CefRefPtr<CefRequest> request,
+      CefRefPtr<CefRequestCallback> callback) OVERRIDE;
+  CefRefPtr<CefResourceHandler> GetResourceHandler(
+      CefRefPtr<CefBrowser> browser,
+      CefRefPtr<CefFrame> frame,
+      CefRefPtr<CefRequest> request) OVERRIDE;
+  CefRefPtr<CefResponseFilter> GetResourceResponseFilter(
+      CefRefPtr<CefBrowser> browser,
+      CefRefPtr<CefFrame> frame,
+      CefRefPtr<CefRequest> request,
+      CefRefPtr<CefResponse> response) OVERRIDE;
+  void OnProtocolExecution(CefRefPtr<CefBrowser> browser,
+                           CefRefPtr<CefFrame> frame,
+                           CefRefPtr<CefRequest> request,
+                           bool& allow_os_execution) OVERRIDE;
 
   // Returns the number of browsers currently using this handler. Can only be
   // called on the CEF UI thread.

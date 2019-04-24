@@ -81,7 +81,7 @@ void ChromeBrowserProcessStub::Shutdown() {
   profile_manager_.reset();
   event_router_forwarder_ = nullptr;
 
-  if (net_service::IsEnabled()) {
+  if (net_service::IsEnabled() && SystemNetworkContextManager::GetInstance()) {
     SystemNetworkContextManager::DeleteInstance();
   }
 

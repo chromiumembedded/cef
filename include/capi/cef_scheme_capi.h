@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=1d4a363735a7274fb957905f47841c63301507f0$
+// $hash=bf5c2a51aa80e831382bfe08e8dd5ec6331f0fdc$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_SCHEME_CAPI_H_
@@ -94,7 +94,7 @@ typedef struct _cef_scheme_handler_factory_t {
   // will be the browser window and frame respectively that originated the
   // request or NULL if the request did not originate from a browser window (for
   // example, if the request came from cef_urlrequest_t). The |request| object
-  // passed to this function will not contain cookie data.
+  // passed to this function cannot be modified.
   ///
   struct _cef_resource_handler_t*(CEF_CALLBACK* create)(
       struct _cef_scheme_handler_factory_t* self,

@@ -20,6 +20,9 @@
 #include "libcef/browser/extensions/extension_system.h"
 #include "libcef/browser/media_capture_devices_dispatcher.h"
 #include "libcef/browser/net/chrome_scheme_handler.h"
+#include "libcef/browser/net/net_util.h"
+#include "libcef/browser/net_service/proxy_url_loader_factory.h"
+#include "libcef/browser/net_service/resource_request_handler_wrapper.h"
 #include "libcef/browser/plugins/plugin_service_filter.h"
 #include "libcef/browser/prefs/renderer_prefs.h"
 #include "libcef/browser/printing/printing_message_filter.h"
@@ -1176,7 +1179,17 @@ bool CefContentBrowserClient::WillCreateURLLoaderFactory(
     network::mojom::URLLoaderFactoryRequest* factory_request,
     network::mojom::TrustedURLLoaderHeaderClientPtrInfo* header_client,
     bool* bypass_redirect_checks) {
-  return false;
+  if (!net_service::IsEnabled())
+    return false;
+
+  auto request_handler = net_service::CreateInterceptedRequestHandler(
+      browser_context, frame, render_process_id, is_navigation, is_download,
+      request_initiator);
+
+  net_service::ProxyURLLoaderFactory::CreateProxy(
+      browser_context, factory_request, header_client,
+      std::move(request_handler));
+  return true;
 }
 
 void CefContentBrowserClient::OnNetworkServiceCreated(
@@ -1243,13 +1256,36 @@ bool CefContentBrowserClient::HandleExternalProtocol(
     const net::HttpRequestHeaders& headers,
     network::mojom::URLLoaderFactoryRequest* factory_request,
     network::mojom::URLLoaderFactory*& out_factory) {
-  CEF_POST_TASK(
-      CEF_UIT,
-      base::Bind(
-          base::IgnoreResult(
-              &CefContentBrowserClient::HandleExternalProtocolOnUIThread),
-          url, web_contents_getter));
+  if (net_service::IsEnabled()) {
+    // Call the other HandleExternalProtocol variant.
+    return false;
+  }
+
+  CefRefPtr<CefRequestImpl> requestPtr = new CefRequestImpl();
+  requestPtr->SetURL(url.spec());
+  requestPtr->SetMethod(method);
+  requestPtr->Set(headers);
+  requestPtr->SetReadOnly(true);
+
+  net_util::HandleExternalProtocol(requestPtr, web_contents_getter);
   return false;
+}
+
+bool CefContentBrowserClient::HandleExternalProtocol(
+    content::ResourceRequestInfo::WebContentsGetter web_contents_getter,
+    int frame_tree_node_id,
+    content::NavigationUIData* navigation_data,
+    const network::ResourceRequest& request,
+    network::mojom::URLLoaderFactoryRequest* factory_request,
+    network::mojom::URLLoaderFactory*& out_factory) {
+  DCHECK(net_service::IsEnabled());
+  // CefBrowserPlatformDelegate::HandleExternalProtocol may be called if
+  // nothing handles the request.
+  auto request_handler = net_service::CreateInterceptedRequestHandler(
+      web_contents_getter, frame_tree_node_id, request);
+  out_factory = net_service::ProxyURLLoaderFactory::CreateProxy(
+      web_contents_getter, factory_request, std::move(request_handler));
+  return true;
 }
 
 std::string CefContentBrowserClient::GetProduct() const {
@@ -1332,19 +1368,4 @@ const extensions::Extension* CefContentBrowserClient::GetExtension(
     return nullptr;
   return registry->enabled_extensions().GetExtensionOrAppByURL(
       site_instance->GetSiteURL());
-}
-
-// static
-void CefContentBrowserClient::HandleExternalProtocolOnUIThread(
-    const GURL& url,
-    const content::ResourceRequestInfo::WebContentsGetter&
-        web_contents_getter) {
-  CEF_REQUIRE_UIT();
-  content::WebContents* web_contents = web_contents_getter.Run();
-  if (web_contents) {
-    CefRefPtr<CefBrowserHostImpl> browser =
-        CefBrowserHostImpl::GetBrowserForContents(web_contents);
-    if (browser.get())
-      browser->HandleExternalProtocol(url);
-  }
 }

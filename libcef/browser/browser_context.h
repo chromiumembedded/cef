@@ -181,16 +181,21 @@ class CefBrowserContext : public ChromeProfileStub,
   const PrefService* GetPrefs() const override;
   SimpleFactoryKey* GetSimpleFactoryKey() const override;
 
+  // Values checked in ProfileNetworkContextService::CreateNetworkContextParams
+  // when creating the NetworkContext.
+  bool ShouldPersistSessionCookies() override {
+    return should_persist_session_cookies_;
+  }
+  std::vector<std::string> GetCookieableSchemes() override {
+    return cookieable_schemes_;
+  }
+
   // visitedlink::VisitedLinkDelegate methods.
   void RebuildTable(const scoped_refptr<URLEnumerator>& enumerator) override;
 
   // Returns the settings associated with this object. Safe to call from any
   // thread.
   const CefRequestContextSettings& GetSettings() const;
-
-  // Returns the handler associated with this object. Safe to call from any
-  // thread.
-  CefRefPtr<CefRequestContextHandler> GetHandler() const;
 
   // Settings for plugins and extensions.
   HostContentSettingsMap* GetHostContentSettingsMap();
@@ -203,6 +208,7 @@ class CefBrowserContext : public ChromeProfileStub,
   void OnRenderFrameCreated(CefRequestContextImpl* request_context,
                             int render_process_id,
                             int render_frame_id,
+                            int frame_tree_node_id,
                             bool is_main_frame,
                             bool is_guest_view);
 
@@ -210,12 +216,26 @@ class CefBrowserContext : public ChromeProfileStub,
   void OnRenderFrameDeleted(CefRequestContextImpl* request_context,
                             int render_process_id,
                             int render_frame_id,
+                            int frame_tree_node_id,
                             bool is_main_frame,
                             bool is_guest_view);
 
   // Called from CefRequestContextImpl::PurgePluginListCacheInternal when the
   // plugin list cache should be purged.
   void OnPurgePluginListCache();
+
+  // Called from CefRequestContextImpl methods of the same name.
+  void RegisterSchemeHandlerFactory(const std::string& scheme_name,
+                                    const std::string& domain_name,
+                                    CefRefPtr<CefSchemeHandlerFactory> factory);
+  void ClearSchemeHandlerFactories();
+
+  void set_should_persist_session_cookies(bool value) {
+    should_persist_session_cookies_ = value;
+  }
+  void set_cookieable_schemes(const std::vector<std::string>& schemes) {
+    cookieable_schemes_ = schemes;
+  }
 
   CefResourceContext* resource_context() const {
     return resource_context_.get();
@@ -252,6 +272,8 @@ class CefBrowserContext : public ChromeProfileStub,
   std::unique_ptr<visitedlink::VisitedLinkMaster> visitedlink_master_;
   // |visitedlink_listener_| is owned by visitedlink_master_.
   CefVisitedLinkListener* visitedlink_listener_;
+  bool should_persist_session_cookies_ = false;
+  std::vector<std::string> cookieable_schemes_;
 
   std::unique_ptr<CefResourceContext> resource_context_;
 

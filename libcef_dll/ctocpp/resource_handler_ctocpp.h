@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=803469f8ec84d5c38aa2efa63247f46b15fd926e$
+// $hash=60f3c4f7291221f0d15ceb2822ba4cf874864fe1$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_RESOURCE_HANDLER_CTOCPP_H_
@@ -35,17 +35,25 @@ class CefResourceHandlerCToCpp
   virtual ~CefResourceHandlerCToCpp();
 
   // CefResourceHandler methods.
+  bool Open(CefRefPtr<CefRequest> request,
+            bool& handle_request,
+            CefRefPtr<CefCallback> callback) override;
   bool ProcessRequest(CefRefPtr<CefRequest> request,
                       CefRefPtr<CefCallback> callback) override;
   void GetResponseHeaders(CefRefPtr<CefResponse> response,
                           int64& response_length,
                           CefString& redirectUrl) override;
+  bool Skip(int64 bytes_to_skip,
+            int64& bytes_skipped,
+            CefRefPtr<CefResourceSkipCallback> callback) override;
+  bool Read(void* data_out,
+            int bytes_to_read,
+            int& bytes_read,
+            CefRefPtr<CefResourceReadCallback> callback) override;
   bool ReadResponse(void* data_out,
                     int bytes_to_read,
                     int& bytes_read,
                     CefRefPtr<CefCallback> callback) override;
-  bool CanGetCookie(const CefCookie& cookie) override;
-  bool CanSetCookie(const CefCookie& cookie) override;
   void Cancel() override;
 };
 

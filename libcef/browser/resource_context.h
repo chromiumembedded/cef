@@ -41,10 +41,20 @@ class CefResourceContext : public content::ResourceContext {
   // CefRequestContextImpl and CefBrowserContext.
   void AddHandler(int render_process_id,
                   int render_frame_id,
+                  int frame_tree_node_id,
                   CefRefPtr<CefRequestContextHandler> handler);
-  void RemoveHandler(int render_process_id, int render_frame_id);
+  void RemoveHandler(int render_process_id,
+                     int render_frame_id,
+                     int frame_tree_node_id);
+
+  // Returns the handler that matches the specified IDs. Pass -1 for unknown
+  // values. If |require_frame_match| is true only exact matches will be
+  // returned. If |require_frame_match| is false, and there is not an exact
+  // match, then the first handler for the same |render_process_id| will be
+  // returned.
   CefRefPtr<CefRequestContextHandler> GetHandler(int render_process_id,
                                                  int render_frame_id,
+                                                 int frame_tree_node_id,
                                                  bool require_frame_match);
 
   // Remember the plugin load decision for plugin status requests that arrive
@@ -64,6 +74,13 @@ class CefResourceContext : public content::ResourceContext {
   // plugin load decisions if |render_process_id| is -1.
   void ClearPluginLoadDecision(int render_process_id);
 
+  // Manage scheme handler factories associated with this context.
+  void RegisterSchemeHandlerFactory(const std::string& scheme_name,
+                                    const std::string& domain_name,
+                                    CefRefPtr<CefSchemeHandlerFactory> factory);
+  void ClearSchemeHandlerFactories();
+  CefRefPtr<CefSchemeHandlerFactory> GetSchemeHandlerFactory(const GURL& url);
+
   // State transferred from the BrowserContext for use on the IO thread.
   bool IsOffTheRecord() const { return is_off_the_record_; }
   const extensions::InfoMap* GetExtensionInfoMap() const {
@@ -77,8 +94,15 @@ class CefResourceContext : public content::ResourceContext {
 
   // Map of (render_process_id, render_frame_id) to handler.
   typedef std::map<std::pair<int, int>, CefRefPtr<CefRequestContextHandler>>
-      HandlerMap;
-  HandlerMap handler_map_;
+      RenderIdHandlerMap;
+  RenderIdHandlerMap render_id_handler_map_;
+
+  // Map of frame_tree_node_id to handler. Keeping this map is necessary
+  // because, when navigating the main frame, a new (pre-commit) URLRequest
+  // will be created before the RenderFrameHost. Consequently we can't rely
+  // on valid render IDs. See https://crbug.com/776884 for background.
+  typedef std::map<int, CefRefPtr<CefRequestContextHandler>> NodeIdHandlerMap;
+  NodeIdHandlerMap node_id_handler_map_;
 
   // Map (render_process_id, plugin_path, is_main_frame, main_frame_origin) to
   // plugin load decision.
@@ -87,6 +111,12 @@ class CefResourceContext : public content::ResourceContext {
       chrome::mojom::PluginStatus>
       PluginLoadDecisionMap;
   PluginLoadDecisionMap plugin_load_decision_map_;
+
+  // Map (scheme, domain) to factories.
+  typedef std::map<std::pair<std::string, std::string>,
+                   CefRefPtr<CefSchemeHandlerFactory>>
+      SchemeHandlerFactoryMap;
+  SchemeHandlerFactoryMap scheme_handler_factory_map_;
 
   DISALLOW_COPY_AND_ASSIGN(CefResourceContext);
 };

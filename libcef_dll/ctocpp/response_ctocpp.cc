@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=4a9ff86018ea7b82b0b46f7f187d410ffebe3dc7$
+// $hash=781ea7e9b24023e8bdcc80ed93b27eb7ef80aa69$
 //
 
 #include "libcef_dll/ctocpp/response_ctocpp.h"
@@ -158,6 +158,39 @@ void CefResponseCToCpp::SetMimeType(const CefString& mimeType) {
 
   // Execute
   _struct->set_mime_type(_struct, mimeType.GetStruct());
+}
+
+NO_SANITIZE("cfi-icall") CefString CefResponseCToCpp::GetCharset() {
+  cef_response_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_charset))
+    return CefString();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  cef_string_userfree_t _retval = _struct->get_charset(_struct);
+
+  // Return type: string
+  CefString _retvalStr;
+  _retvalStr.AttachToUserFree(_retval);
+  return _retvalStr;
+}
+
+NO_SANITIZE("cfi-icall")
+void CefResponseCToCpp::SetCharset(const CefString& charset) {
+  cef_response_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, set_charset))
+    return;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: charset; type: string_byref_const
+  DCHECK(!charset.empty());
+  if (charset.empty())
+    return;
+
+  // Execute
+  _struct->set_charset(_struct, charset.GetStruct());
 }
 
 NO_SANITIZE("cfi-icall")

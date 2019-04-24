@@ -301,8 +301,8 @@ bool CefBrowserPlatformDelegateNativeMac::HandleKeyboardEvent(
   return false;
 }
 
-void CefBrowserPlatformDelegateNativeMac::HandleExternalProtocol(
-    const GURL& url) {}
+// static
+void CefBrowserPlatformDelegate::HandleExternalProtocol(const GURL& url) {}
 
 void CefBrowserPlatformDelegateNativeMac::TranslateKeyEvent(
     content::NativeWebKeyboardEvent& result,

@@ -109,7 +109,7 @@ class CefSchemeHandlerFactory : public virtual CefBaseRefCounted {
   // will be the browser window and frame respectively that originated the
   // request or NULL if the request did not originate from a browser window
   // (for example, if the request came from CefURLRequest). The |request| object
-  // passed to this method will not contain cookie data.
+  // passed to this method cannot be modified.
   ///
   /*--cef(optional_param=browser,optional_param=frame)--*/
   virtual CefRefPtr<CefResourceHandler> Create(

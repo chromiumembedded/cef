@@ -9,12 +9,16 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=4b25ca3feb69361cc3b6525fdc0c3a56710b65ec$
+// $hash=4427c3dce042fac34640c02c4b07fcf6b5902f34$
 //
 
 #include "libcef_dll/ctocpp/request_context_handler_ctocpp.h"
+#include "libcef_dll/cpptoc/browser_cpptoc.h"
+#include "libcef_dll/cpptoc/frame_cpptoc.h"
 #include "libcef_dll/cpptoc/request_context_cpptoc.h"
+#include "libcef_dll/cpptoc/request_cpptoc.h"
 #include "libcef_dll/cpptoc/web_plugin_info_cpptoc.h"
+#include "libcef_dll/ctocpp/resource_request_handler_ctocpp.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
@@ -73,6 +77,44 @@ bool CefRequestContextHandlerCToCpp::OnBeforePluginLoad(
 
   // Return type: bool
   return _retval ? true : false;
+}
+
+NO_SANITIZE("cfi-icall")
+CefRefPtr<CefResourceRequestHandler> CefRequestContextHandlerCToCpp::
+    GetResourceRequestHandler(CefRefPtr<CefBrowser> browser,
+                              CefRefPtr<CefFrame> frame,
+                              CefRefPtr<CefRequest> request,
+                              bool is_navigation,
+                              bool is_download,
+                              const CefString& request_initiator,
+                              bool& disable_default_handling) {
+  cef_request_context_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_resource_request_handler))
+    return NULL;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: request; type: refptr_diff
+  DCHECK(request.get());
+  if (!request.get())
+    return NULL;
+  // Unverified params: browser, frame, request_initiator
+
+  // Translate param: disable_default_handling; type: bool_byref
+  int disable_default_handlingInt = disable_default_handling;
+
+  // Execute
+  cef_resource_request_handler_t* _retval =
+      _struct->get_resource_request_handler(
+          _struct, CefBrowserCppToC::Wrap(browser), CefFrameCppToC::Wrap(frame),
+          CefRequestCppToC::Wrap(request), is_navigation, is_download,
+          request_initiator.GetStruct(), &disable_default_handlingInt);
+
+  // Restore param:disable_default_handling; type: bool_byref
+  disable_default_handling = disable_default_handlingInt ? true : false;
+
+  // Return type: refptr_same
+  return CefResourceRequestHandlerCToCpp::Wrap(_retval);
 }
 
 // CONSTRUCTOR - Do not edit by hand.
