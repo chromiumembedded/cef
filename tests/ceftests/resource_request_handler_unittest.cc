@@ -275,7 +275,7 @@ class BasicResponseTest : public TestHandler {
       CefRefPtr<CefBrowser> browser,
       CefRefPtr<CefFrame> frame,
       CefRefPtr<CefRequest> request,
-      CefRefPtr<CefResponse> response) {
+      CefRefPtr<CefResponse> response) override {
     EXPECT_IO_THREAD();
     EXPECT_EQ(browser_id_, browser->GetIdentifier());
     EXPECT_TRUE(frame->IsMain());
@@ -1080,7 +1080,7 @@ class SubresourceResponseTest : public RoutingTestHandler {
       CefRefPtr<CefBrowser> browser,
       CefRefPtr<CefFrame> frame,
       CefRefPtr<CefRequest> request,
-      CefRefPtr<CefResponse> response) {
+      CefRefPtr<CefResponse> response) override {
     EXPECT_IO_THREAD();
     EXPECT_EQ(browser_id_, browser->GetIdentifier());
 
@@ -2221,7 +2221,7 @@ class RedirectResponseTest : public TestHandler {
         CefRefPtr<CefBrowser> browser,
         CefRefPtr<CefFrame> frame,
         CefRefPtr<CefRequest> request,
-        CefRefPtr<CefResponse> response) {
+        CefRefPtr<CefResponse> response) override {
       EXPECT_IO_THREAD();
       EXPECT_TRUE(browser.get());
       EXPECT_EQ(test_->browser_id_, browser->GetIdentifier());
