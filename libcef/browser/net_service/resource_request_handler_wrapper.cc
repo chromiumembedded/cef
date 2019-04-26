@@ -221,6 +221,14 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
 
     CefRefPtr<CefSchemeHandlerFactory> scheme_factory =
         resource_context_->GetSchemeHandlerFactory(request->url);
+    if (scheme_factory && !requestPtr) {
+      requestPtr = MakeRequest(request, id.hash(), true);
+    }
+
+    // True if there's a possibility that the client might handle the request.
+    const bool maybe_intercept_request = handler || scheme_factory;
+    if (!maybe_intercept_request && requestPtr)
+      requestPtr = nullptr;
 
     // May have a handler and/or scheme factory.
     state->Reset(handler, scheme_factory, requestPtr, request_was_redirected);
@@ -230,9 +238,15 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
           GetBrowser(), frame_, requestPtr.get());
     }
 
-    auto exec_callback = base::BindOnce(
-        std::move(callback), handler || scheme_factory /* intercept_request */,
-        is_external_ ? true : intercept_only);
+    auto exec_callback =
+        base::BindOnce(std::move(callback), maybe_intercept_request,
+                       is_external_ ? true : intercept_only);
+
+    if (!maybe_intercept_request) {
+      // Cookies will be handled by the NetworkService.
+      std::move(exec_callback).Run();
+      return;
+    }
 
     MaybeLoadCookies(state, request, std::move(exec_callback));
   }
@@ -438,8 +452,11 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
 
     RequestState* state = GetState(id);
     DCHECK(state);
-    if (!state->handler_)
+    if (!state->handler_) {
+      InterceptedRequestHandler::OnRequestResponse(
+          id, request, head, redirect_info, std::move(callback));
       return;
+    }
 
     DCHECK(state->pending_request_);
     DCHECK(state->pending_response_);

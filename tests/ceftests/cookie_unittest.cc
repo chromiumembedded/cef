@@ -1458,6 +1458,9 @@ class CookieAccessTestHandler : public RoutingTestHandler,
     BLOCK_WRITE = 1 << 1,
     BLOCK_READ_WRITE = BLOCK_READ | BLOCK_WRITE,
     ALLOW_NO_FILTER = 1 << 2,
+
+    // Can only be used in combination with the SERVER backend.
+    ALLOW_NO_HANDLER = 1 << 3,
   };
 
   enum TestBackend {
@@ -1501,7 +1504,7 @@ class CookieAccessTestHandler : public RoutingTestHandler,
 
     EXPECT_FALSE(got_cookie_manager_);
 
-    if (test_mode_ == ALLOW_NO_FILTER) {
+    if (test_mode_ == ALLOW_NO_FILTER || test_mode_ == ALLOW_NO_HANDLER) {
       EXPECT_EQ(0, can_save_cookie1_ct_);
       EXPECT_EQ(0, can_send_cookie2_ct_);
     } else {
@@ -1565,6 +1568,22 @@ class CookieAccessTestHandler : public RoutingTestHandler,
 
     if (test_mode_ == ALLOW_NO_FILTER)
       return nullptr;
+
+    return this;
+  }
+
+  CefRefPtr<CefResourceRequestHandler> GetResourceRequestHandler(
+      CefRefPtr<CefBrowser> browser,
+      CefRefPtr<CefFrame> frame,
+      CefRefPtr<CefRequest> request,
+      bool is_navigation,
+      bool is_download,
+      const CefString& request_initiator,
+      bool& disable_default_handling) override {
+    if (test_mode_ == ALLOW_NO_HANDLER) {
+      DCHECK_EQ(SERVER, test_backend_);
+      return nullptr;
+    }
 
     return this;
   }
@@ -1847,6 +1866,8 @@ class CookieAccessTestHandler : public RoutingTestHandler,
   ACCESS_TEST(name##BlockRead, BLOCK_READ, backend_mode)          \
   ACCESS_TEST(name##BlockWrite, BLOCK_WRITE, backend_mode)        \
   ACCESS_TEST(name##BlockReadWrite, BLOCK_READ_WRITE, backend_mode)
+
+ACCESS_TEST(ServerAllowNoHandler, ALLOW_NO_HANDLER, SERVER)
 
 ACCESS_TEST_ALL_MODES(Server, SERVER)
 ACCESS_TEST_ALL_MODES(Scheme, SCHEME_HANDLER)
