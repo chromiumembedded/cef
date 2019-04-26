@@ -25,7 +25,6 @@
 #include "base/threading/thread_restrictions.h"
 #include "components/network_session_configurator/common/network_switches.h"
 #include "content/app/content_service_manager_main_delegate.h"
-#include "content/browser/startup_helper.h"
 #include "content/public/browser/notification_service.h"
 #include "content/public/browser/notification_types.h"
 #include "content/public/browser/render_process_host.h"
@@ -427,11 +426,6 @@ bool CefContext::Initialize(const CefMainArgs& args,
     base::WaitableEvent uithread_startup_event(
         base::WaitableEvent::ResetPolicy::AUTOMATIC,
         base::WaitableEvent::InitialState::NOT_SIGNALED);
-
-    // This is required because creating a base::Thread as starting it will
-    // check some feature flags this will cause a CHECK failure later when this
-    // gets called by some call down the line of service_manager::MainRun.
-    content::SetUpFieldTrialsAndFeatureList();
 
     if (!main_delegate_->CreateUIThread(base::BindOnce(
             [](CefContext* context, base::WaitableEvent* event) {
