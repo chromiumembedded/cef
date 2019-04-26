@@ -45,14 +45,6 @@ void ChromeBrowserProcessStub::Initialize() {
   // Initialize this early before any code tries to check feature flags.
   content::SetUpFieldTrialsAndFeatureList();
 
-  const CefSettings& settings = CefContext::Get()->settings();
-  const base::FilePath& cache_path =
-      base::FilePath(CefString(&settings.cache_path));
-
-  // Used for very early NetworkService initialization.
-  local_state_ = browser_prefs::CreatePrefService(
-      nullptr, cache_path, !!settings.persist_user_preferences);
-
   initialized_ = true;
 }
 
@@ -160,6 +152,15 @@ ProfileManager* ChromeBrowserProcessStub::profile_manager() {
 
 PrefService* ChromeBrowserProcessStub::local_state() {
   DCHECK(initialized_);
+  if (!local_state_) {
+    const CefSettings& settings = CefContext::Get()->settings();
+    const base::FilePath& cache_path =
+        base::FilePath(CefString(&settings.cache_path));
+
+    // Used for very early NetworkService initialization.
+    local_state_ = browser_prefs::CreatePrefService(
+        nullptr, cache_path, !!settings.persist_user_preferences);
+  }
   return local_state_.get();
 }
 
