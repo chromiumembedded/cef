@@ -1055,7 +1055,7 @@ class CookieAccessSchemeHandler : public CefResourceHandler {
 
   bool ProcessRequest(CefRefPtr<CefRequest> request,
                       CefRefPtr<CefCallback> callback) override {
-    EXPECT_TRUE(CefCurrentlyOn(TID_IO));
+    EXPECT_IO_THREAD();
 
     CefRequest::HeaderMap headerMap;
     request->GetHeaderMap(headerMap);
@@ -1070,7 +1070,7 @@ class CookieAccessSchemeHandler : public CefResourceHandler {
   void GetResponseHeaders(CefRefPtr<CefResponse> response,
                           int64& response_length,
                           CefString& redirectUrl) override {
-    EXPECT_TRUE(CefCurrentlyOn(TID_IO));
+    EXPECT_IO_THREAD();
 
     response->SetStatus(data_->response->GetStatus());
     response->SetStatusText(data_->response->GetStatusText());
@@ -1087,7 +1087,7 @@ class CookieAccessSchemeHandler : public CefResourceHandler {
                     int bytes_to_read,
                     int& bytes_read,
                     CefRefPtr<CefCallback> callback) override {
-    EXPECT_TRUE(CefCurrentlyOn(TID_IO));
+    EXPECT_IO_THREAD();
 
     bool has_data = false;
     bytes_read = 0;
@@ -1107,7 +1107,7 @@ class CookieAccessSchemeHandler : public CefResourceHandler {
     return has_data;
   }
 
-  void Cancel() override { EXPECT_TRUE(CefCurrentlyOn(TID_IO)); }
+  void Cancel() override { EXPECT_IO_THREAD(); }
 
  private:
   static void TestCookie(const CefCookie& cookie,
@@ -1143,7 +1143,7 @@ class CookieAccessSchemeHandlerFactory : public CefSchemeHandlerFactory,
                                        CefRefPtr<CefFrame> frame,
                                        const CefString& scheme_name,
                                        CefRefPtr<CefRequest> request) override {
-    EXPECT_TRUE(CefCurrentlyOn(TID_IO));
+    EXPECT_IO_THREAD();
     const std::string& url = request->GetURL();
     ResponseDataMap::const_iterator it = data_map_.find(url);
     if (it != data_map_.end()) {
@@ -1449,17 +1449,30 @@ class CookieAccessServerHandler : public CefServerHandler,
   DISALLOW_COPY_AND_ASSIGN(CookieAccessServerHandler);
 };
 
-class CookieAccessTestHandler : public RoutingTestHandler {
+class CookieAccessTestHandler : public RoutingTestHandler,
+                                public CefCookieAccessFilter {
  public:
   enum TestMode {
     ALLOW = 0,
     BLOCK_READ = 1 << 0,
     BLOCK_WRITE = 1 << 1,
     BLOCK_READ_WRITE = BLOCK_READ | BLOCK_WRITE,
+    ALLOW_NO_FILTER = 1 << 2,
   };
 
-  CookieAccessTestHandler(TestMode test_mode, bool server_backend)
-      : test_mode_(test_mode), server_backend_(server_backend) {}
+  enum TestBackend {
+    // Test an HTTP server backend.
+    SERVER,
+
+    // Test a custom scheme handler backend.
+    SCHEME_HANDLER,
+
+    // Test that GetResourceHandler behaves the same as a custom scheme handler.
+    RESOURCE_HANDLER,
+  };
+
+  CookieAccessTestHandler(TestMode test_mode, TestBackend test_backend)
+      : test_mode_(test_mode), test_backend_(test_backend) {}
 
   void RunTest() override {
     cookie_manager_ = CefCookieManager::GetGlobalManager(nullptr);
@@ -1488,17 +1501,22 @@ class CookieAccessTestHandler : public RoutingTestHandler {
 
     EXPECT_FALSE(got_cookie_manager_);
 
-    // Get 1 call to CanSaveCookie for the 1st network request due to the
-    // network cookie.
-    EXPECT_EQ(1, can_save_cookie1_ct_);
-    if (test_mode_ & BLOCK_WRITE) {
-      // Get 1 calls to CanSendCookie for the 2nd network request due to the
-      // JS cookie (network cookie is blocked).
-      EXPECT_EQ(1, can_send_cookie2_ct_);
+    if (test_mode_ == ALLOW_NO_FILTER) {
+      EXPECT_EQ(0, can_save_cookie1_ct_);
+      EXPECT_EQ(0, can_send_cookie2_ct_);
     } else {
-      // Get 2 calls to CanSendCookie for the 2nd network request due to the
-      // network cookie + JS cookie.
-      EXPECT_EQ(2, can_send_cookie2_ct_);
+      // Get 1 call to CanSaveCookie for the 1st network request due to the
+      // network cookie.
+      EXPECT_EQ(1, can_save_cookie1_ct_);
+      if (test_mode_ & BLOCK_WRITE) {
+        // Get 1 calls to CanSendCookie for the 2nd network request due to the
+        // JS cookie (network cookie is blocked).
+        EXPECT_EQ(1, can_send_cookie2_ct_);
+      } else {
+        // Get 2 calls to CanSendCookie for the 2nd network request due to the
+        // network cookie + JS cookie.
+        EXPECT_EQ(2, can_send_cookie2_ct_);
+      }
     }
 
     // Always get the JS cookie via JS.
@@ -1539,14 +1557,38 @@ class CookieAccessTestHandler : public RoutingTestHandler {
     TestHandler::DestroyTest();
   }
 
+  CefRefPtr<CefCookieAccessFilter> GetCookieAccessFilter(
+      CefRefPtr<CefBrowser> browser,
+      CefRefPtr<CefFrame> frame,
+      CefRefPtr<CefRequest> request) override {
+    EXPECT_IO_THREAD();
+
+    if (test_mode_ == ALLOW_NO_FILTER)
+      return nullptr;
+
+    return this;
+  }
+
+  CefRefPtr<CefResourceHandler> GetResourceHandler(
+      CefRefPtr<CefBrowser> browser,
+      CefRefPtr<CefFrame> frame,
+      CefRefPtr<CefRequest> request) override {
+    if (test_backend_ == RESOURCE_HANDLER) {
+      return scheme_factory_->Create(browser, frame, kCookieAccessScheme,
+                                     request);
+    }
+
+    return nullptr;
+  }
+
   bool CanSendCookie(CefRefPtr<CefBrowser> browser,
                      CefRefPtr<CefFrame> frame,
                      CefRefPtr<CefRequest> request,
                      const CefCookie& cookie) override {
-    EXPECT_TRUE(CefCurrentlyOn(TID_IO));
+    EXPECT_IO_THREAD();
 
     const std::string& url = request->GetURL();
-    if (url == GetCookieAccessUrl2(server_backend_)) {
+    if (url == GetCookieAccessUrl2(test_backend_ == SERVER)) {
       can_send_cookie2_ct_++;
     } else {
       ADD_FAILURE() << "Unexpected url: " << url;
@@ -1560,14 +1602,14 @@ class CookieAccessTestHandler : public RoutingTestHandler {
                      CefRefPtr<CefRequest> request,
                      CefRefPtr<CefResponse> response,
                      const CefCookie& cookie) override {
-    EXPECT_TRUE(CefCurrentlyOn(TID_IO));
+    EXPECT_IO_THREAD();
 
     // Expecting the network cookie only.
     EXPECT_STREQ("name_net", CefString(&cookie.name).ToString().c_str());
     EXPECT_STREQ("value_net", CefString(&cookie.value).ToString().c_str());
 
     const std::string& url = request->GetURL();
-    if (url == GetCookieAccessUrl1(server_backend_)) {
+    if (url == GetCookieAccessUrl1(test_backend_ == SERVER)) {
       can_save_cookie1_ct_++;
     } else {
       ADD_FAILURE() << "Unexpected url: " << url;
@@ -1584,10 +1626,11 @@ class CookieAccessTestHandler : public RoutingTestHandler {
                CefRefPtr<Callback> callback) override {
     const std::string& url = frame->GetURL();
     const std::string& cookie_str = request.ToString();
-    if (url == GetCookieAccessUrl1(server_backend_)) {
+    if (url == GetCookieAccessUrl1(test_backend_ == SERVER)) {
       TestCookieString(cookie_str, got_cookie_js1_, got_cookie_net1_);
-      browser->GetMainFrame()->LoadURL(GetCookieAccessUrl2(server_backend_));
-    } else if (url == GetCookieAccessUrl2(server_backend_)) {
+      browser->GetMainFrame()->LoadURL(
+          GetCookieAccessUrl2(test_backend_ == SERVER));
+    } else if (url == GetCookieAccessUrl2(test_backend_ == SERVER)) {
       TestCookieString(cookie_str, got_cookie_js2_, got_cookie_net2_);
       FinishTest();
     } else {
@@ -1619,7 +1662,8 @@ class CookieAccessTestHandler : public RoutingTestHandler {
           "</script>"
           "</head><body>COOKIE ACCESS TEST 1</body></html>";
 
-      handler->AddResponse(GetCookieAccessUrl1(server_backend_), &data1_);
+      handler->AddResponse(GetCookieAccessUrl1(test_backend_ == SERVER),
+                           &data1_);
     }
 
     // 2nd request retrieves the cookies via JS.
@@ -1636,12 +1680,13 @@ class CookieAccessTestHandler : public RoutingTestHandler {
           "</script>"
           "</head><body>COOKIE ACCESS TEST 2</body></html>";
 
-      handler->AddResponse(GetCookieAccessUrl2(server_backend_), &data2_);
+      handler->AddResponse(GetCookieAccessUrl2(test_backend_ == SERVER),
+                           &data2_);
     }
   }
 
   void StartBackend(const base::Closure& complete_callback) {
-    if (server_backend_) {
+    if (test_backend_ == SERVER) {
       StartServer(complete_callback);
     } else {
       StartSchemeHandler(complete_callback);
@@ -1660,12 +1705,14 @@ class CookieAccessTestHandler : public RoutingTestHandler {
     // Add the factory registration.
     scheme_factory_ = new CookieAccessSchemeHandlerFactory();
     AddResponses(scheme_factory_.get());
-    if (context_) {
-      context_->RegisterSchemeHandlerFactory(
-          kCookieAccessScheme, kCookieAccessDomain, scheme_factory_.get());
-    } else {
-      CefRegisterSchemeHandlerFactory(kCookieAccessScheme, kCookieAccessDomain,
-                                      scheme_factory_.get());
+    if (test_backend_ == SCHEME_HANDLER) {
+      if (context_) {
+        context_->RegisterSchemeHandlerFactory(
+            kCookieAccessScheme, kCookieAccessDomain, scheme_factory_.get());
+      } else {
+        CefRegisterSchemeHandlerFactory(
+            kCookieAccessScheme, kCookieAccessDomain, scheme_factory_.get());
+      }
     }
 
     complete_callback.Run();
@@ -1678,7 +1725,7 @@ class CookieAccessTestHandler : public RoutingTestHandler {
       return;
     }
 
-    CreateBrowser(GetCookieAccessUrl1(server_backend_), context_);
+    CreateBrowser(GetCookieAccessUrl1(test_backend_ == SERVER), context_);
   }
 
   void FinishTest() {
@@ -1722,7 +1769,7 @@ class CookieAccessTestHandler : public RoutingTestHandler {
   }
 
   void ShutdownBackend(const base::Closure& complete_callback) {
-    if (server_backend_) {
+    if (test_backend_ == SERVER) {
       ShutdownServer(complete_callback);
     } else {
       ShutdownSchemeHandler(complete_callback);
@@ -1739,19 +1786,21 @@ class CookieAccessTestHandler : public RoutingTestHandler {
   void ShutdownSchemeHandler(const base::Closure& complete_callback) {
     EXPECT_TRUE(scheme_factory_);
 
-    if (context_) {
-      context_->RegisterSchemeHandlerFactory(kCookieAccessScheme,
-                                             kCookieAccessDomain, nullptr);
-    } else {
-      CefRegisterSchemeHandlerFactory(kCookieAccessScheme, kCookieAccessDomain,
-                                      nullptr);
+    if (test_backend_ == SCHEME_HANDLER) {
+      if (context_) {
+        context_->RegisterSchemeHandlerFactory(kCookieAccessScheme,
+                                               kCookieAccessDomain, nullptr);
+      } else {
+        CefRegisterSchemeHandlerFactory(kCookieAccessScheme,
+                                        kCookieAccessDomain, nullptr);
+      }
     }
     scheme_factory_->Shutdown(complete_callback);
     scheme_factory_ = nullptr;
   }
 
-  TestMode test_mode_;
-  bool server_backend_;
+  const TestMode test_mode_;
+  const TestBackend test_backend_;
   CefRefPtr<CefRequestContext> context_;
   CefRefPtr<CefCookieManager> cookie_manager_;
 
@@ -1783,69 +1832,25 @@ class CookieAccessTestHandler : public RoutingTestHandler {
 
 }  // namespace
 
-// Allow reading and writing of cookies with server backend.
-TEST(CookieTest, AccessServerAllow) {
-  CefRefPtr<CookieAccessTestHandler> handler =
-      new CookieAccessTestHandler(CookieAccessTestHandler::ALLOW, true);
-  handler->ExecuteTest();
-  ReleaseAndWaitForDestructor(handler);
-}
+#define ACCESS_TEST(name, test_mode, backend_mode)                          \
+  TEST(CookieTest, Access##name) {                                          \
+    CefRefPtr<CookieAccessTestHandler> handler =                            \
+        new CookieAccessTestHandler(CookieAccessTestHandler::test_mode,     \
+                                    CookieAccessTestHandler::backend_mode); \
+    handler->ExecuteTest();                                                 \
+    ReleaseAndWaitForDestructor(handler);                                   \
+  }
 
-// Block reading of cookies with server backend.
-TEST(CookieTest, AccessServerBlockRead) {
-  CefRefPtr<CookieAccessTestHandler> handler =
-      new CookieAccessTestHandler(CookieAccessTestHandler::BLOCK_READ, true);
-  handler->ExecuteTest();
-  ReleaseAndWaitForDestructor(handler);
-}
+#define ACCESS_TEST_ALL_MODES(name, backend_mode)                 \
+  ACCESS_TEST(name##Allow, ALLOW, backend_mode)                   \
+  ACCESS_TEST(name##AllowNoFilter, ALLOW_NO_FILTER, backend_mode) \
+  ACCESS_TEST(name##BlockRead, BLOCK_READ, backend_mode)          \
+  ACCESS_TEST(name##BlockWrite, BLOCK_WRITE, backend_mode)        \
+  ACCESS_TEST(name##BlockReadWrite, BLOCK_READ_WRITE, backend_mode)
 
-// Block writing of cookies with server backend.
-TEST(CookieTest, AccessServerBlockWrite) {
-  CefRefPtr<CookieAccessTestHandler> handler =
-      new CookieAccessTestHandler(CookieAccessTestHandler::BLOCK_WRITE, true);
-  handler->ExecuteTest();
-  ReleaseAndWaitForDestructor(handler);
-}
-
-// Block reading and writing of cookies with server backend.
-TEST(CookieTest, AccessServerBlockReadWrite) {
-  CefRefPtr<CookieAccessTestHandler> handler = new CookieAccessTestHandler(
-      CookieAccessTestHandler::BLOCK_READ_WRITE, true);
-  handler->ExecuteTest();
-  ReleaseAndWaitForDestructor(handler);
-}
-
-// Allow reading and writing of cookies with scheme handler backend.
-TEST(CookieTest, AccessSchemeAllow) {
-  CefRefPtr<CookieAccessTestHandler> handler =
-      new CookieAccessTestHandler(CookieAccessTestHandler::ALLOW, false);
-  handler->ExecuteTest();
-  ReleaseAndWaitForDestructor(handler);
-}
-
-// Block reading of cookies with scheme handler backend.
-TEST(CookieTest, AccessSchemeBlockRead) {
-  CefRefPtr<CookieAccessTestHandler> handler =
-      new CookieAccessTestHandler(CookieAccessTestHandler::BLOCK_READ, false);
-  handler->ExecuteTest();
-  ReleaseAndWaitForDestructor(handler);
-}
-
-// Block writing of cookies with scheme handler backend.
-TEST(CookieTest, AccessSchemeBlockWrite) {
-  CefRefPtr<CookieAccessTestHandler> handler =
-      new CookieAccessTestHandler(CookieAccessTestHandler::BLOCK_WRITE, false);
-  handler->ExecuteTest();
-  ReleaseAndWaitForDestructor(handler);
-}
-
-// Block reading and writing of cookies with scheme handler backend.
-TEST(CookieTest, AccessSchemeBlockReadWrite) {
-  CefRefPtr<CookieAccessTestHandler> handler = new CookieAccessTestHandler(
-      CookieAccessTestHandler::BLOCK_READ_WRITE, false);
-  handler->ExecuteTest();
-  ReleaseAndWaitForDestructor(handler);
-}
+ACCESS_TEST_ALL_MODES(Server, SERVER)
+ACCESS_TEST_ALL_MODES(Scheme, SCHEME_HANDLER)
+ACCESS_TEST_ALL_MODES(Resource, RESOURCE_HANDLER)
 
 // Entry point for registering custom schemes.
 // Called from client_app_delegates.cc.

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=c3f205b1da3b2dc0651ca836dee242588068ceff$
+// $hash=217e200e9197054500554d62765c3c145bebfea7$
 //
 
 #include "libcef_dll/ctocpp/resource_request_handler_ctocpp.h"
@@ -18,11 +18,41 @@
 #include "libcef_dll/cpptoc/request_callback_cpptoc.h"
 #include "libcef_dll/cpptoc/request_cpptoc.h"
 #include "libcef_dll/cpptoc/response_cpptoc.h"
+#include "libcef_dll/ctocpp/cookie_access_filter_ctocpp.h"
 #include "libcef_dll/ctocpp/resource_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/response_filter_ctocpp.h"
 #include "libcef_dll/shutdown_checker.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
+
+NO_SANITIZE("cfi-icall")
+CefRefPtr<CefCookieAccessFilter>
+CefResourceRequestHandlerCToCpp::GetCookieAccessFilter(
+    CefRefPtr<CefBrowser> browser,
+    CefRefPtr<CefFrame> frame,
+    CefRefPtr<CefRequest> request) {
+  shutdown_checker::AssertNotShutdown();
+
+  cef_resource_request_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_cookie_access_filter))
+    return NULL;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: request; type: refptr_diff
+  DCHECK(request.get());
+  if (!request.get())
+    return NULL;
+  // Unverified params: browser, frame
+
+  // Execute
+  cef_cookie_access_filter_t* _retval = _struct->get_cookie_access_filter(
+      _struct, CefBrowserCppToC::Wrap(browser), CefFrameCppToC::Wrap(frame),
+      CefRequestCppToC::Wrap(request));
+
+  // Return type: refptr_same
+  return CefCookieAccessFilterCToCpp::Wrap(_retval);
+}
 
 NO_SANITIZE("cfi-icall")
 CefResourceRequestHandler::ReturnValue
@@ -250,70 +280,6 @@ void CefResourceRequestHandlerCToCpp::OnProtocolExecution(
 
   // Restore param:allow_os_execution; type: bool_byref
   allow_os_execution = allow_os_executionInt ? true : false;
-}
-
-NO_SANITIZE("cfi-icall")
-bool CefResourceRequestHandlerCToCpp::CanSendCookie(
-    CefRefPtr<CefBrowser> browser,
-    CefRefPtr<CefFrame> frame,
-    CefRefPtr<CefRequest> request,
-    const CefCookie& cookie) {
-  shutdown_checker::AssertNotShutdown();
-
-  cef_resource_request_handler_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, can_send_cookie))
-    return false;
-
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Verify param: request; type: refptr_diff
-  DCHECK(request.get());
-  if (!request.get())
-    return false;
-  // Unverified params: browser, frame
-
-  // Execute
-  int _retval = _struct->can_send_cookie(
-      _struct, CefBrowserCppToC::Wrap(browser), CefFrameCppToC::Wrap(frame),
-      CefRequestCppToC::Wrap(request), &cookie);
-
-  // Return type: bool
-  return _retval ? true : false;
-}
-
-NO_SANITIZE("cfi-icall")
-bool CefResourceRequestHandlerCToCpp::CanSaveCookie(
-    CefRefPtr<CefBrowser> browser,
-    CefRefPtr<CefFrame> frame,
-    CefRefPtr<CefRequest> request,
-    CefRefPtr<CefResponse> response,
-    const CefCookie& cookie) {
-  shutdown_checker::AssertNotShutdown();
-
-  cef_resource_request_handler_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, can_save_cookie))
-    return false;
-
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Verify param: request; type: refptr_diff
-  DCHECK(request.get());
-  if (!request.get())
-    return false;
-  // Verify param: response; type: refptr_diff
-  DCHECK(response.get());
-  if (!response.get())
-    return false;
-  // Unverified params: browser, frame
-
-  // Execute
-  int _retval = _struct->can_save_cookie(
-      _struct, CefBrowserCppToC::Wrap(browser), CefFrameCppToC::Wrap(frame),
-      CefRequestCppToC::Wrap(request), CefResponseCppToC::Wrap(response),
-      &cookie);
-
-  // Return type: bool
-  return _retval ? true : false;
 }
 
 // CONSTRUCTOR - Do not edit by hand.

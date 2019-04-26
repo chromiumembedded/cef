@@ -454,13 +454,19 @@ bool CefNetworkDelegate::OnCanGetCookies(const net::URLRequest& request,
   if (!handler)
     return true;
 
+  CefRefPtr<CefCookieAccessFilter> cookie_filter =
+      handler->GetCookieAccessFilter(browser, frame, requestPtr.get());
+  if (!cookie_filter)
+    return true;
+
   bool cookie_blocked = false;
 
   for (const auto& cookie : cookie_list) {
     CefCookie cef_cookie;
     if (!net_service::MakeCefCookie(cookie, cef_cookie))
       continue;
-    if (!handler->CanSendCookie(browser, frame, requestPtr.get(), cef_cookie)) {
+    if (!cookie_filter->CanSendCookie(browser, frame, requestPtr.get(),
+                                      cef_cookie)) {
       if (!cookie_blocked)
         cookie_blocked = true;
     }
@@ -486,6 +492,11 @@ bool CefNetworkDelegate::OnCanSetCookie(const net::URLRequest& request,
   if (!handler)
     return true;
 
+  CefRefPtr<CefCookieAccessFilter> cookie_filter =
+      handler->GetCookieAccessFilter(browser, frame, requestPtr.get());
+  if (!cookie_filter)
+    return true;
+
   CefCookie cef_cookie;
   if (!net_service::MakeCefCookie(cookie, cef_cookie))
     return true;
@@ -494,8 +505,8 @@ bool CefNetworkDelegate::OnCanSetCookie(const net::URLRequest& request,
   responsePtr->Set(&request);
   responsePtr->SetReadOnly(true);
 
-  return handler->CanSaveCookie(browser, frame, requestPtr.get(),
-                                responsePtr.get(), cef_cookie);
+  return cookie_filter->CanSaveCookie(browser, frame, requestPtr.get(),
+                                      responsePtr.get(), cef_cookie);
 }
 
 bool CefNetworkDelegate::OnCanAccessFile(

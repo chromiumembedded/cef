@@ -129,6 +129,21 @@ class BasicResponseTest : public TestHandler {
     return this;
   }
 
+  CefRefPtr<CefCookieAccessFilter> GetCookieAccessFilter(
+      CefRefPtr<CefBrowser> browser,
+      CefRefPtr<CefFrame> frame,
+      CefRefPtr<CefRequest> request) override {
+    EXPECT_IO_THREAD();
+    EXPECT_EQ(browser_id_, browser->GetIdentifier());
+    EXPECT_TRUE(frame->IsMain());
+
+    VerifyState(kGetCookieAccessFilter, request, nullptr);
+
+    get_cookie_access_filter_ct_++;
+
+    return NULL;
+  }
+
   cef_return_value_t OnBeforeResourceLoad(
       CefRefPtr<CefBrowser> browser,
       CefRefPtr<CefFrame> frame,
@@ -355,13 +370,17 @@ class BasicResponseTest : public TestHandler {
                     get_resource_response_filter_ct_ +
                     on_resource_load_complete_ct_,
                 get_resource_request_handler_ct_);
+
+      // Only called at the time we handle cookies.
+      EXPECT_EQ(0, get_cookie_access_filter_ct_);
     }
 
     if (mode_ == LOAD || mode_ == MODIFY_BEFORE_RESOURCE_LOAD) {
+      EXPECT_EQ(1, on_before_browse_ct_);
       if (IsNetworkServiceEnabled()) {
         EXPECT_EQ(1, get_resource_request_handler_ct_);
+        EXPECT_EQ(1, get_cookie_access_filter_ct_);
       }
-      EXPECT_EQ(1, on_before_browse_ct_);
       EXPECT_EQ(1, on_before_resource_load_ct_);
       EXPECT_EQ(1, get_resource_handler_ct_);
       EXPECT_EQ(0, on_resource_redirect_ct_);
@@ -377,11 +396,10 @@ class BasicResponseTest : public TestHandler {
       else
         EXPECT_EQ(1, on_resource_response_ct_);
     } else if (mode_ == RESTART_RESOURCE_RESPONSE) {
-      if (IsNetworkServiceEnabled()) {
-        EXPECT_EQ(2, get_resource_request_handler_ct_);
-      }
       EXPECT_EQ(1, on_before_browse_ct_);
       if (IsNetworkServiceEnabled()) {
+        EXPECT_EQ(2, get_resource_request_handler_ct_);
+        EXPECT_EQ(2, get_cookie_access_filter_ct_);
         EXPECT_EQ(2, on_before_resource_load_ct_);
       } else {
         // This seems like a bug in the old network implementation.
@@ -402,10 +420,14 @@ class BasicResponseTest : public TestHandler {
       else
         EXPECT_EQ(2, on_resource_response_ct_);
     } else if (IsRedirect()) {
+      EXPECT_EQ(2, on_before_browse_ct_);
       if (IsNetworkServiceEnabled()) {
         EXPECT_EQ(2, get_resource_request_handler_ct_);
+        EXPECT_EQ(2, get_cookie_access_filter_ct_);
+      } else {
+        // Called at the time that we handle cookies.
+        EXPECT_EQ(0, get_cookie_access_filter_ct_);
       }
-      EXPECT_EQ(2, on_before_browse_ct_);
       EXPECT_EQ(2, on_before_resource_load_ct_);
       if (mode_ == REDIRECT_BEFORE_RESOURCE_LOAD)
         EXPECT_EQ(1, get_resource_handler_ct_);
@@ -553,6 +575,7 @@ class BasicResponseTest : public TestHandler {
   enum Callback {
     kOnBeforeBrowse,
     kGetResourceRequestHandler,
+    kGetCookieAccessFilter,
     kOnBeforeResourceLoad,
     kGetResourceHandler,
     kOnResourceRedirect,
@@ -699,6 +722,7 @@ class BasicResponseTest : public TestHandler {
 
   int get_resource_request_handler_ct_ = 0;
   int on_before_resource_load_ct_ = 0;
+  int get_cookie_access_filter_ct_ = 0;
   int get_resource_handler_ct_ = 0;
   int on_resource_redirect_ct_ = 0;
   int on_resource_response_ct_ = 0;
@@ -896,6 +920,31 @@ class SubresourceResponseTest : public RoutingTestHandler {
     get_resource_request_handler_ct_++;
 
     return this;
+  }
+
+  CefRefPtr<CefCookieAccessFilter> GetCookieAccessFilter(
+      CefRefPtr<CefBrowser> browser,
+      CefRefPtr<CefFrame> frame,
+      CefRefPtr<CefRequest> request) override {
+    EXPECT_IO_THREAD();
+    EXPECT_EQ(browser_id_, browser->GetIdentifier());
+
+    if (IsMainURL(request->GetURL())) {
+      EXPECT_TRUE(frame->IsMain());
+      return NULL;
+    } else if (IsSubURL(request->GetURL())) {
+      EXPECT_FALSE(frame->IsMain());
+      EXPECT_TRUE(subframe_);
+      return NULL;
+    }
+
+    VerifyFrame(kGetCookieAccessFilter, frame);
+
+    VerifyState(kGetCookieAccessFilter, request, nullptr);
+
+    get_cookie_access_filter_ct_++;
+
+    return NULL;
   }
 
   cef_return_value_t OnBeforeResourceLoad(
@@ -1216,6 +1265,9 @@ class SubresourceResponseTest : public RoutingTestHandler {
                     get_resource_response_filter_ct_ +
                     on_resource_load_complete_ct_,
                 get_resource_request_handler_ct_);
+
+      // Only called at the time we handle cookies.
+      EXPECT_EQ(0, get_cookie_access_filter_ct_);
     }
 
     // Only called for the main and/or sub frame load.
@@ -1227,6 +1279,7 @@ class SubresourceResponseTest : public RoutingTestHandler {
     if (mode_ == LOAD || mode_ == MODIFY_BEFORE_RESOURCE_LOAD) {
       if (IsNetworkServiceEnabled()) {
         EXPECT_EQ(1, get_resource_request_handler_ct_);
+        EXPECT_EQ(1, get_cookie_access_filter_ct_);
       }
       EXPECT_EQ(1, on_before_resource_load_ct_);
       EXPECT_EQ(1, get_resource_handler_ct_);
@@ -1247,6 +1300,7 @@ class SubresourceResponseTest : public RoutingTestHandler {
         EXPECT_EQ(2, get_resource_request_handler_ct_);
       }
       if (IsNetworkServiceEnabled()) {
+        EXPECT_EQ(2, get_cookie_access_filter_ct_);
         EXPECT_EQ(2, on_before_resource_load_ct_);
       } else {
         // This seems like a bug in the old network implementation.
@@ -1269,6 +1323,7 @@ class SubresourceResponseTest : public RoutingTestHandler {
     } else if (IsRedirect()) {
       if (IsNetworkServiceEnabled()) {
         EXPECT_EQ(2, get_resource_request_handler_ct_);
+        EXPECT_EQ(2, get_cookie_access_filter_ct_);
       }
       EXPECT_EQ(2, on_before_resource_load_ct_);
       if (mode_ == REDIRECT_BEFORE_RESOURCE_LOAD)
@@ -1502,6 +1557,7 @@ class SubresourceResponseTest : public RoutingTestHandler {
   // Resource-related callbacks.
   enum Callback {
     kGetResourceRequestHandler,
+    kGetCookieAccessFilter,
     kOnBeforeResourceLoad,
     kGetResourceHandler,
     kOnResourceRedirect,
@@ -1671,6 +1727,7 @@ class SubresourceResponseTest : public RoutingTestHandler {
   int on_query_ct_ = 0;
 
   int get_resource_request_handler_ct_ = 0;
+  int get_cookie_access_filter_ct_ = 0;
   int on_before_resource_load_ct_ = 0;
   int get_resource_handler_ct_ = 0;
   int on_resource_redirect_ct_ = 0;

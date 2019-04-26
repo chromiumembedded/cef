@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=af361d45eb9009a2cbca2024d2ede6d43d8d440f$
+// $hash=07e185ca89ea4b4db129a5d3650a55311e582fc4$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_RESOURCE_REQUEST_HANDLER_CAPI_H_
@@ -54,6 +54,8 @@
 extern "C" {
 #endif
 
+struct _cef_cookie_access_filter_t;
+
 ///
 // Implement this structure to handle events related to browser requests. The
 // functions of this structure will be called on the IO thread unless otherwise
@@ -64,6 +66,19 @@ typedef struct _cef_resource_request_handler_t {
   // Base structure.
   ///
   cef_base_ref_counted_t base;
+
+  ///
+  // Called on the IO thread before a resource request is loaded. The |browser|
+  // and |frame| values represent the source of the request, and may be NULL for
+  // requests originating from service workers. To optionally filter cookies for
+  // the request return a cef_cookie_access_filter_t object. The |request|
+  // object cannot not be modified in this callback.
+  ///
+  struct _cef_cookie_access_filter_t*(CEF_CALLBACK* get_cookie_access_filter)(
+      struct _cef_resource_request_handler_t* self,
+      struct _cef_browser_t* browser,
+      struct _cef_frame_t* frame,
+      struct _cef_request_t* request);
 
   ///
   // Called on the IO thread before a resource request is loaded. The |browser|
@@ -89,7 +104,7 @@ typedef struct _cef_resource_request_handler_t {
   // requests originating from service workers. To allow the resource to load
   // using the default network loader return NULL. To specify a handler for the
   // resource return a cef_resource_handler_t object. The |request| object
-  // should not be modified in this callback.
+  // cannot not be modified in this callback.
   ///
   struct _cef_resource_handler_t*(CEF_CALLBACK* get_resource_handler)(
       struct _cef_resource_request_handler_t* self,
@@ -167,7 +182,7 @@ typedef struct _cef_resource_request_handler_t {
 
   ///
   // Called on the IO thread to handle requests for URLs with an unknown
-  // protocol component.  The |browser| and |frame| values represent the source
+  // protocol component. The |browser| and |frame| values represent the source
   // of the request, and may be NULL for requests originating from service
   // workers. |request| cannot be modified in this callback. Set
   // |allow_os_execution| to true (1) to attempt execution via the registered OS
@@ -181,32 +196,46 @@ typedef struct _cef_resource_request_handler_t {
       struct _cef_frame_t* frame,
       struct _cef_request_t* request,
       int* allow_os_execution);
-
-  ///
-  // Called on the IO thread before a resource request is sent. Return true (1)
-  // if the specified cookie can be sent with the request or false (0)
-  // otherwise.
-  ///
-  int(CEF_CALLBACK* can_send_cookie)(
-      struct _cef_resource_request_handler_t* self,
-      struct _cef_browser_t* browser,
-      struct _cef_frame_t* frame,
-      struct _cef_request_t* request,
-      const struct _cef_cookie_t* cookie);
-
-  ///
-  // Called on the IO thread after a resource response is received. Return true
-  // (1) if the specified cookie returned with the response can be saved or
-  // false (0) otherwise.
-  ///
-  int(CEF_CALLBACK* can_save_cookie)(
-      struct _cef_resource_request_handler_t* self,
-      struct _cef_browser_t* browser,
-      struct _cef_frame_t* frame,
-      struct _cef_request_t* request,
-      struct _cef_response_t* response,
-      const struct _cef_cookie_t* cookie);
 } cef_resource_request_handler_t;
+
+///
+// Implement this structure to filter cookies that may be sent or received from
+// resource requests. The functions of this structure will be called on the IO
+// thread unless otherwise indicated.
+///
+typedef struct _cef_cookie_access_filter_t {
+  ///
+  // Base structure.
+  ///
+  cef_base_ref_counted_t base;
+
+  ///
+  // Called on the IO thread before a resource request is sent. The |browser|
+  // and |frame| values represent the source of the request, and may be NULL for
+  // requests originating from service workers. |request| cannot be modified in
+  // this callback. Return true (1) if the specified cookie can be sent with the
+  // request or false (0) otherwise.
+  ///
+  int(CEF_CALLBACK* can_send_cookie)(struct _cef_cookie_access_filter_t* self,
+                                     struct _cef_browser_t* browser,
+                                     struct _cef_frame_t* frame,
+                                     struct _cef_request_t* request,
+                                     const struct _cef_cookie_t* cookie);
+
+  ///
+  // Called on the IO thread after a resource response is received. The
+  // |browser| and |frame| values represent the source of the request, and may
+  // be NULL for requests originating from service workers. |request| cannot be
+  // modified in this callback. Return true (1) if the specified cookie returned
+  // with the response can be saved or false (0) otherwise.
+  ///
+  int(CEF_CALLBACK* can_save_cookie)(struct _cef_cookie_access_filter_t* self,
+                                     struct _cef_browser_t* browser,
+                                     struct _cef_frame_t* frame,
+                                     struct _cef_request_t* request,
+                                     struct _cef_response_t* response,
+                                     const struct _cef_cookie_t* cookie);
+} cef_cookie_access_filter_t;
 
 #ifdef __cplusplus
 }

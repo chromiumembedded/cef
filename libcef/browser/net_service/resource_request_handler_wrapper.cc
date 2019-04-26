@@ -96,16 +96,20 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
                bool request_was_redirected) {
       handler_ = handler;
       scheme_factory_ = scheme_factory;
+      cookie_filter_ = nullptr;
       pending_request_ = request;
       pending_response_ = nullptr;
       request_was_redirected_ = request_was_redirected;
+      was_custom_handled_ = false;
     }
 
     CefRefPtr<CefResourceRequestHandler> handler_;
     CefRefPtr<CefSchemeHandlerFactory> scheme_factory_;
+    CefRefPtr<CefCookieAccessFilter> cookie_filter_;
     CefRefPtr<CefRequestImpl> pending_request_;
     CefRefPtr<CefResponseImpl> pending_response_;
     bool request_was_redirected_ = false;
+    bool was_custom_handled_ = false;
   };
 
   struct PendingRequest {
@@ -221,6 +225,11 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
     // May have a handler and/or scheme factory.
     state->Reset(handler, scheme_factory, requestPtr, request_was_redirected);
 
+    if (handler) {
+      state->cookie_filter_ = handler->GetCookieAccessFilter(
+          GetBrowser(), frame_, requestPtr.get());
+    }
+
     auto exec_callback = base::BindOnce(
         std::move(callback), handler || scheme_factory /* intercept_request */,
         is_external_ ? true : intercept_only);
@@ -233,6 +242,8 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
                         base::OnceClosure callback) {
     CEF_REQUIRE_IOT();
 
+    // We need to load/save cookies ourselves for custom-handled requests, or
+    // if we're using a cookie filter.
     auto allow_cookie_callback =
         base::BindRepeating(&InterceptedRequestHandlerWrapper::AllowCookieLoad,
                             weak_ptr_factory_.GetWeakPtr(), state);
@@ -248,9 +259,14 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
                        bool* allow) {
     CEF_REQUIRE_IOT();
 
+    if (!state->cookie_filter_) {
+      *allow = true;
+      return;
+    }
+
     CefCookie cef_cookie;
     if (net_service::MakeCefCookie(cookie, cef_cookie)) {
-      *allow = state->handler_->CanSendCookie(
+      *allow = state->cookie_filter_->CanSendCookie(
           GetBrowser(), frame_, state->pending_request_.get(), cef_cookie);
     }
   }
@@ -262,24 +278,23 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
                                  net::CookieList allowed_cookies) {
     CEF_REQUIRE_IOT();
 
-    if (state->handler_) {
-      // Add the Cookie header ourselves instead of letting the NetworkService
-      // do it.
-      request->load_flags |= net::LOAD_DO_NOT_SEND_COOKIES;
-      if (!allowed_cookies.empty()) {
-        const std::string& cookie_line =
-            net::CanonicalCookie::BuildCookieLine(allowed_cookies);
-        request->headers.SetHeader(net::HttpRequestHeaders::kCookie,
-                                   cookie_line);
+    if (state->cookie_filter_) {
+      // Also add/save cookies ourselves for default-handled network requests
+      // so that we can filter them. This will be a no-op for custom-handled
+      // requests.
+      request->load_flags |=
+          net::LOAD_DO_NOT_SEND_COOKIES | net::LOAD_DO_NOT_SAVE_COOKIES;
+    }
 
-        state->pending_request_->SetReadOnly(false);
-        state->pending_request_->SetHeaderByName(
-            net::HttpRequestHeaders::kCookie, cookie_line, true);
-        state->pending_request_->SetReadOnly(true);
-      }
+    if (!allowed_cookies.empty()) {
+      const std::string& cookie_line =
+          net::CanonicalCookie::BuildCookieLine(allowed_cookies);
+      request->headers.SetHeader(net::HttpRequestHeaders::kCookie, cookie_line);
 
-      // Save cookies ourselves instead of letting the NetworkService do it.
-      request->load_flags |= net::LOAD_DO_NOT_SAVE_COOKIES;
+      state->pending_request_->SetReadOnly(false);
+      state->pending_request_->SetHeaderByName(net::HttpRequestHeaders::kCookie,
+                                               cookie_line, true);
+      state->pending_request_->SetReadOnly(true);
     }
 
     std::move(callback).Run();
@@ -382,6 +397,8 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
     std::unique_ptr<ResourceResponse> resource_response;
     if (resource_handler) {
       resource_response = CreateResourceResponse(id, resource_handler);
+      DCHECK(resource_response);
+      state->was_custom_handled_ = true;
     }
 
     // Continue the request.
@@ -427,17 +444,16 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
     DCHECK(state->pending_request_);
     DCHECK(state->pending_response_);
 
-    // This flag should always be set.
-    DCHECK(request->load_flags | net::LOAD_DO_NOT_SAVE_COOKIES);
-
     if (redirect_info.has_value()) {
-      HandleRedirect(state, *redirect_info, std::move(callback));
+      HandleRedirect(state, request, head, *redirect_info, std::move(callback));
     } else {
       HandleResponse(state, request, head, std::move(callback));
     }
   }
 
   void HandleRedirect(RequestState* state,
+                      network::ResourceRequest* request,
+                      const network::ResourceResponseHead& head,
                       const net::RedirectInfo& redirect_info,
                       OnRequestResponseResultCallback callback) {
     GURL new_url = redirect_info.new_url;
@@ -464,7 +480,10 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
     }
     state->pending_request_->SetReadOnly(true);
 
-    std::move(callback).Run(ResponseMode::CONTINUE, nullptr, new_url);
+    auto exec_callback = base::BindOnce(
+        std::move(callback), ResponseMode::CONTINUE, nullptr, new_url);
+
+    MaybeSaveCookies(state, request, head, std::move(exec_callback));
   }
 
   void HandleResponse(RequestState* state,
@@ -507,7 +526,7 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
         base::BindOnce(std::move(callback), response_mode, nullptr, new_url);
 
     if (response_mode == ResponseMode::RESTART) {
-      // Continue without saving cookies. We'll get them after the restart.
+      // Get any cookies after the restart.
       std::move(exec_callback).Run();
       return;
     }
@@ -521,6 +540,14 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
                         base::OnceClosure callback) {
     CEF_REQUIRE_IOT();
 
+    if (!state->cookie_filter_ && !state->was_custom_handled_) {
+      // The NetworkService saves the cookies for default-handled requests.
+      std::move(callback).Run();
+      return;
+    }
+
+    // We need to load/save cookies ourselves for custom-handled requests, or
+    // if we're using a cookie filter.
     auto allow_cookie_callback =
         base::BindRepeating(&InterceptedRequestHandlerWrapper::AllowCookieSave,
                             weak_ptr_factory_.GetWeakPtr(), state);
@@ -537,9 +564,14 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
                        bool* allow) {
     CEF_REQUIRE_IOT();
 
+    if (!state->cookie_filter_) {
+      *allow = true;
+      return;
+    }
+
     CefCookie cef_cookie;
     if (net_service::MakeCefCookie(cookie, cef_cookie)) {
-      *allow = state->handler_->CanSaveCookie(
+      *allow = state->cookie_filter_->CanSaveCookie(
           GetBrowser(), frame_, state->pending_request_.get(),
           state->pending_response_.get(), cef_cookie);
     }

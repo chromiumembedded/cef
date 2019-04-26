@@ -9,10 +9,11 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=d923eabb6aa1e7a54966da940db39e308a71763f$
+// $hash=533f1f8905a3079efe14fba7cb4e20ab59ea667f$
 //
 
 #include "libcef_dll/cpptoc/resource_request_handler_cpptoc.h"
+#include "libcef_dll/cpptoc/cookie_access_filter_cpptoc.h"
 #include "libcef_dll/cpptoc/resource_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/response_filter_cpptoc.h"
 #include "libcef_dll/ctocpp/browser_ctocpp.h"
@@ -25,6 +26,35 @@
 namespace {
 
 // MEMBER FUNCTIONS - Body may be edited by hand.
+
+struct _cef_cookie_access_filter_t* CEF_CALLBACK
+resource_request_handler_get_cookie_access_filter(
+    struct _cef_resource_request_handler_t* self,
+    cef_browser_t* browser,
+    cef_frame_t* frame,
+    cef_request_t* request) {
+  shutdown_checker::AssertNotShutdown();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return NULL;
+  // Verify param: request; type: refptr_diff
+  DCHECK(request);
+  if (!request)
+    return NULL;
+  // Unverified params: browser, frame
+
+  // Execute
+  CefRefPtr<CefCookieAccessFilter> _retval =
+      CefResourceRequestHandlerCppToC::Get(self)->GetCookieAccessFilter(
+          CefBrowserCToCpp::Wrap(browser), CefFrameCToCpp::Wrap(frame),
+          CefRequestCToCpp::Wrap(request));
+
+  // Return type: refptr_same
+  return CefCookieAccessFilterCppToC::Wrap(_retval);
+}
 
 cef_return_value_t CEF_CALLBACK
 resource_request_handler_on_before_resource_load(
@@ -263,91 +293,13 @@ void CEF_CALLBACK resource_request_handler_on_protocol_execution(
     *allow_os_execution = allow_os_executionBool ? true : false;
 }
 
-int CEF_CALLBACK resource_request_handler_can_send_cookie(
-    struct _cef_resource_request_handler_t* self,
-    cef_browser_t* browser,
-    cef_frame_t* frame,
-    cef_request_t* request,
-    const struct _cef_cookie_t* cookie) {
-  shutdown_checker::AssertNotShutdown();
-
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  DCHECK(self);
-  if (!self)
-    return 0;
-  // Verify param: request; type: refptr_diff
-  DCHECK(request);
-  if (!request)
-    return 0;
-  // Verify param: cookie; type: struct_byref_const
-  DCHECK(cookie);
-  if (!cookie)
-    return 0;
-  // Unverified params: browser, frame
-
-  // Translate param: cookie; type: struct_byref_const
-  CefCookie cookieObj;
-  if (cookie)
-    cookieObj.Set(*cookie, false);
-
-  // Execute
-  bool _retval = CefResourceRequestHandlerCppToC::Get(self)->CanSendCookie(
-      CefBrowserCToCpp::Wrap(browser), CefFrameCToCpp::Wrap(frame),
-      CefRequestCToCpp::Wrap(request), cookieObj);
-
-  // Return type: bool
-  return _retval;
-}
-
-int CEF_CALLBACK resource_request_handler_can_save_cookie(
-    struct _cef_resource_request_handler_t* self,
-    cef_browser_t* browser,
-    cef_frame_t* frame,
-    cef_request_t* request,
-    struct _cef_response_t* response,
-    const struct _cef_cookie_t* cookie) {
-  shutdown_checker::AssertNotShutdown();
-
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  DCHECK(self);
-  if (!self)
-    return 0;
-  // Verify param: request; type: refptr_diff
-  DCHECK(request);
-  if (!request)
-    return 0;
-  // Verify param: response; type: refptr_diff
-  DCHECK(response);
-  if (!response)
-    return 0;
-  // Verify param: cookie; type: struct_byref_const
-  DCHECK(cookie);
-  if (!cookie)
-    return 0;
-  // Unverified params: browser, frame
-
-  // Translate param: cookie; type: struct_byref_const
-  CefCookie cookieObj;
-  if (cookie)
-    cookieObj.Set(*cookie, false);
-
-  // Execute
-  bool _retval = CefResourceRequestHandlerCppToC::Get(self)->CanSaveCookie(
-      CefBrowserCToCpp::Wrap(browser), CefFrameCToCpp::Wrap(frame),
-      CefRequestCToCpp::Wrap(request), CefResponseCToCpp::Wrap(response),
-      cookieObj);
-
-  // Return type: bool
-  return _retval;
-}
-
 }  // namespace
 
 // CONSTRUCTOR - Do not edit by hand.
 
 CefResourceRequestHandlerCppToC::CefResourceRequestHandlerCppToC() {
+  GetStruct()->get_cookie_access_filter =
+      resource_request_handler_get_cookie_access_filter;
   GetStruct()->on_before_resource_load =
       resource_request_handler_on_before_resource_load;
   GetStruct()->get_resource_handler =
@@ -362,8 +314,6 @@ CefResourceRequestHandlerCppToC::CefResourceRequestHandlerCppToC() {
       resource_request_handler_on_resource_load_complete;
   GetStruct()->on_protocol_execution =
       resource_request_handler_on_protocol_execution;
-  GetStruct()->can_send_cookie = resource_request_handler_can_send_cookie;
-  GetStruct()->can_save_cookie = resource_request_handler_can_save_cookie;
 }
 
 // DESTRUCTOR - Do not edit by hand.

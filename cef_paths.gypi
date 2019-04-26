@@ -8,7 +8,7 @@
 # by hand. See the translator.README.txt file in the tools directory for
 # more information.
 #
-# $hash=ce19444fe9b2ed5ae2a614f3d00ca3262d75ca98$
+# $hash=a8e80ae73a0d30776c2e6aaceaf9dbd4031f6c74$
 #
 
 {
@@ -242,6 +242,8 @@
       'libcef_dll/ctocpp/context_menu_handler_ctocpp.h',
       'libcef_dll/cpptoc/context_menu_params_cpptoc.cc',
       'libcef_dll/cpptoc/context_menu_params_cpptoc.h',
+      'libcef_dll/ctocpp/cookie_access_filter_ctocpp.cc',
+      'libcef_dll/ctocpp/cookie_access_filter_ctocpp.h',
       'libcef_dll/cpptoc/cookie_manager_cpptoc.cc',
       'libcef_dll/cpptoc/cookie_manager_cpptoc.h',
       'libcef_dll/ctocpp/cookie_visitor_ctocpp.cc',
@@ -532,6 +534,8 @@
       'libcef_dll/cpptoc/context_menu_handler_cpptoc.h',
       'libcef_dll/ctocpp/context_menu_params_ctocpp.cc',
       'libcef_dll/ctocpp/context_menu_params_ctocpp.h',
+      'libcef_dll/cpptoc/cookie_access_filter_cpptoc.cc',
+      'libcef_dll/cpptoc/cookie_access_filter_cpptoc.h',
       'libcef_dll/ctocpp/cookie_manager_ctocpp.cc',
       'libcef_dll/ctocpp/cookie_manager_ctocpp.h',
       'libcef_dll/cpptoc/cookie_visitor_cpptoc.cc',

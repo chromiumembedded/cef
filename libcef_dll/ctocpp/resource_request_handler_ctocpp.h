@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=544c856b8f70d9339c976863f77951d29a09c7e8$
+// $hash=6e56582a287f701c84376a154e4f01247a4914f6$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_RESOURCE_REQUEST_HANDLER_CTOCPP_H_
@@ -35,6 +35,10 @@ class CefResourceRequestHandlerCToCpp
   virtual ~CefResourceRequestHandlerCToCpp();
 
   // CefResourceRequestHandler methods.
+  CefRefPtr<CefCookieAccessFilter> GetCookieAccessFilter(
+      CefRefPtr<CefBrowser> browser,
+      CefRefPtr<CefFrame> frame,
+      CefRefPtr<CefRequest> request) override;
   ReturnValue OnBeforeResourceLoad(
       CefRefPtr<CefBrowser> browser,
       CefRefPtr<CefFrame> frame,
@@ -68,15 +72,6 @@ class CefResourceRequestHandlerCToCpp
                            CefRefPtr<CefFrame> frame,
                            CefRefPtr<CefRequest> request,
                            bool& allow_os_execution) override;
-  bool CanSendCookie(CefRefPtr<CefBrowser> browser,
-                     CefRefPtr<CefFrame> frame,
-                     CefRefPtr<CefRequest> request,
-                     const CefCookie& cookie) override;
-  bool CanSaveCookie(CefRefPtr<CefBrowser> browser,
-                     CefRefPtr<CefFrame> frame,
-                     CefRefPtr<CefRequest> request,
-                     CefRefPtr<CefResponse> response,
-                     const CefCookie& cookie) override;
 };
 
 #endif  // CEF_LIBCEF_DLL_CTOCPP_RESOURCE_REQUEST_HANDLER_CTOCPP_H_
