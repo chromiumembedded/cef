@@ -52,6 +52,10 @@
 #include "extensions/buildflags/buildflags.h"
 #include "ui/base/l10n/l10n_util.h"
 
+#if defined(OS_MACOSX)
+#include "components/os_crypt/os_crypt.h"
+#endif
+
 namespace browser_prefs {
 
 const char kUserPrefsFileName[] = "UserPrefs.json";
@@ -156,6 +160,9 @@ std::unique_ptr<PrefService> CreatePrefService(Profile* profile,
     CefURLRequestContextGetter::RegisterPrefs(registry.get());
   } else if (!profile) {
     SystemNetworkContextManager::RegisterPrefs(registry.get());
+#if defined(OS_MACOSX)
+    OSCrypt::RegisterLocalPrefs(registry.get());
+#endif
   }
 
   // Browser UI preferences.

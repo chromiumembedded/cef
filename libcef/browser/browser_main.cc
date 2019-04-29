@@ -21,6 +21,7 @@
 #include "libcef/common/extensions/extensions_client.h"
 #include "libcef/common/extensions/extensions_util.h"
 #include "libcef/common/net/net_resource_provider.h"
+#include "libcef/common/net_service/util.h"
 
 #include "base/bind.h"
 #include "base/message_loop/message_loop.h"
@@ -58,6 +59,11 @@
 
 #if defined(OS_LINUX)
 #include "libcef/browser/printing/print_dialog_linux.h"
+#endif
+
+#if defined(OS_MACOSX)
+#include "chrome/browser/browser_process.h"
+#include "components/os_crypt/os_crypt.h"
 #endif
 
 CefBrowserMainParts::CefBrowserMainParts(
@@ -113,6 +119,15 @@ void CefBrowserMainParts::ToolkitInitialized() {
 void CefBrowserMainParts::PreMainMessageLoopStart() {
 #if defined(USE_AURA) && defined(USE_X11)
   ui::TouchFactory::SetTouchDeviceListFromCommandLine();
+#endif
+
+#if defined(OS_MACOSX)
+  if (net_service::IsEnabled()) {
+    // Initialize the OSCrypt.
+    PrefService* local_state = g_browser_process->local_state();
+    DCHECK(local_state);
+    OSCrypt::Init(local_state);
+  }
 #endif
 
   for (size_t i = 0; i < chrome_extra_parts_.size(); ++i)

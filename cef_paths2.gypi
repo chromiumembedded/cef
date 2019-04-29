@@ -557,6 +557,7 @@
       'tests/ceftests/process_message_unittest.cc',
       'tests/ceftests/request_handler_unittest.cc',
       'tests/ceftests/request_unittest.cc',
+      'tests/ceftests/resource_request_handler_unittest.cc',
       'tests/ceftests/routing_test_handler.cc',
       'tests/ceftests/routing_test_handler.h',
       'tests/ceftests/scheme_handler_unittest.cc',
