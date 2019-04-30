@@ -7,6 +7,7 @@
 #include "include/wrapper/cef_closure_task.h"
 #include "include/wrapper/cef_stream_resource_handler.h"
 #include "tests/ceftests/test_handler.h"
+#include "tests/ceftests/test_util.h"
 #include "tests/gtest/include/gtest/gtest.h"
 #include "tests/shared/browser/client_app_browser.h"
 #include "tests/shared/renderer/client_app_renderer.h"
@@ -864,10 +865,11 @@ bool VerifySingleBrowserFrame(CefRefPtr<CefBrowser> browser,
   V_DECLARE();
   V_EXPECT_TRUE(frame.get());
   V_EXPECT_TRUE(frame->IsValid());
+  const int64 frame_id = frame->GetIdentifier();
   if (frame_should_exist) {
-    V_EXPECT_TRUE(frame->GetIdentifier() >= 0);
+    V_EXPECT_TRUE(frame_id >= 0) << frame_id;
   } else {
-    V_EXPECT_TRUE(frame->GetIdentifier() == -4);  // kInvalidFrameId
+    V_EXPECT_TRUE(frame_id == -4) << frame_id;  // kInvalidFrameId
   }
   V_EXPECT_TRUE(frame->IsValid());
   V_EXPECT_TRUE(frame->IsMain());
@@ -1001,10 +1003,10 @@ class FrameNavExpectationsBrowserTestSingleNav
   bool GetResourceHandler(CefRefPtr<CefBrowser> browser,
                           CefRefPtr<CefFrame> frame) override {
     V_DECLARE();
-    // When browser-side navigation is enabled this method will be called
-    // before the frame is created.
-    V_EXPECT_TRUE(
-        VerifySingleBrowserFrames(browser, frame, false, std::string()));
+    // When browser-side navigation is enabled, and NetworkService is disabled,
+    // this method will be called before the frame is created.
+    V_EXPECT_TRUE(VerifySingleBrowserFrames(
+        browser, frame, IsNetworkServiceEnabled(), std::string()));
     V_EXPECT_TRUE(parent::GetResourceHandler(browser, frame));
     V_RETURN();
   }
@@ -1512,10 +1514,12 @@ class FrameNavExpectationsBrowserTestMultiNav
     std::string expected_url;
     if (nav() > 0)
       expected_url = GetPreviousMainURL();
-    // When browser-side navigation is enabled this method will be called
-    // before the frame is created for the first navigation.
+    // When browser-side navigation is enabled, and NetworkService is disabled,
+    // this method will be called before the frame is created for the first
+    // navigation.
     V_EXPECT_TRUE(VerifySingleBrowserFrames(
-        browser, frame, nav() == 0 ? false : true, expected_url));
+        browser, frame, nav() == 0 ? IsNetworkServiceEnabled() : true,
+        expected_url));
     V_EXPECT_TRUE(parent::GetResourceHandler(browser, frame));
     V_RETURN();
   }
