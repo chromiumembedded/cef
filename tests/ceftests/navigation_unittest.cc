@@ -893,9 +893,16 @@ class RedirectTestHandler : public TestHandler {
       // Called due to the nav3 redirect response.
       got_nav3_redirect_.yes();
 
-      EXPECT_EQ(303, response->GetStatus());
-      EXPECT_STREQ("See Other", response->GetStatusText().ToString().c_str());
-      EXPECT_STREQ("text/html", response->GetMimeType().ToString().c_str());
+      if (IsNetworkServiceEnabled()) {
+        EXPECT_EQ(307, response->GetStatus());
+        EXPECT_STREQ("Temporary Redirect",
+                     response->GetStatusText().ToString().c_str());
+        EXPECT_STREQ("", response->GetMimeType().ToString().c_str());
+      } else {
+        EXPECT_EQ(303, response->GetStatus());
+        EXPECT_STREQ("See Other", response->GetStatusText().ToString().c_str());
+        EXPECT_STREQ("text/html", response->GetMimeType().ToString().c_str());
+      }
     } else {
       got_invalid_redirect_.yes();
     }
@@ -1005,7 +1012,12 @@ TEST(NavigationTest, Redirect) {
   ASSERT_TRUE(handler->got_nav4_load_end_);
   ASSERT_FALSE(handler->got_invalid_load_end_);
   ASSERT_TRUE(handler->got_nav1_redirect_);
-  ASSERT_TRUE(handler->got_nav2_redirect_);
+  if (IsNetworkServiceEnabled()) {
+    ASSERT_FALSE(handler->got_nav2_redirect_);
+  } else {
+    // This seems like a bug in the old network implementation.
+    ASSERT_TRUE(handler->got_nav2_redirect_);
+  }
   ASSERT_TRUE(handler->got_nav3_redirect_);
   ASSERT_FALSE(handler->got_invalid_redirect_);
   ASSERT_TRUE(g_got_nav1_request);
