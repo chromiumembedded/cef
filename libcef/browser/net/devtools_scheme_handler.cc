@@ -8,6 +8,7 @@
 
 #include "libcef/browser/net/internal_scheme_handler.h"
 #include "libcef/browser/net/url_request_manager.h"
+#include "libcef/browser/resource_context.h"
 
 #include "base/memory/ptr_util.h"
 #include "base/strings/string_util.h"
@@ -42,6 +43,12 @@ class Delegate : public InternalHandlerDelegate {
 
 void RegisterChromeDevToolsHandler(CefURLRequestManager* request_manager) {
   request_manager->AddFactory(
+      content::kChromeDevToolsScheme, kChromeDevToolsHost,
+      CreateInternalHandlerFactory(base::WrapUnique(new Delegate())));
+}
+
+void RegisterChromeDevToolsHandler(CefResourceContext* resource_context) {
+  resource_context->RegisterSchemeHandlerFactory(
       content::kChromeDevToolsScheme, kChromeDevToolsHost,
       CreateInternalHandlerFactory(base::WrapUnique(new Delegate())));
 }

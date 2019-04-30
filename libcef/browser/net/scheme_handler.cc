@@ -8,6 +8,7 @@
 
 #include "libcef/browser/net/chrome_scheme_handler.h"
 #include "libcef/browser/net/devtools_scheme_handler.h"
+#include "libcef/browser/resource_context.h"
 #include "libcef/common/net/scheme_registration.h"
 
 #include "base/memory/ptr_util.h"
@@ -72,8 +73,11 @@ void InstallInternalProtectedHandlers(
 }
 
 void RegisterInternalHandlers(CefURLRequestManager* request_manager) {
-  scheme::RegisterChromeHandler(request_manager);
   scheme::RegisterChromeDevToolsHandler(request_manager);
+}
+
+void RegisterInternalHandlers(CefResourceContext* resource_context) {
+  scheme::RegisterChromeDevToolsHandler(resource_context);
 }
 
 void DidFinishLoad(CefRefPtr<CefFrame> frame, const GURL& validated_url) {

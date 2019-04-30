@@ -88,6 +88,8 @@ class CefResourceContext : public content::ResourceContext {
   }
 
  private:
+  void InitOnIOThread();
+
   // Only accessed on the IO thread.
   bool is_off_the_record_;
   scoped_refptr<extensions::InfoMap> extension_info_map_;

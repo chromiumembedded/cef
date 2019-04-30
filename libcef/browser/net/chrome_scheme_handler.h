@@ -23,14 +23,15 @@ namespace content {
 class BrowserURLHandler;
 }
 
+namespace url {
+class Origin;
+}
+
 class CefURLRequestManager;
 
 namespace scheme {
 
 extern const char kChromeURL[];
-
-// Register the chrome scheme handler.
-void RegisterChromeHandler(CefURLRequestManager* request_manager);
 
 // Register the WebUI controller factory.
 void RegisterWebUIControllerFactory();
@@ -40,6 +41,9 @@ void BrowserURLHandlerCreated(content::BrowserURLHandler* handler);
 
 // Used to fire any asynchronous content updates.
 void DidFinishChromeLoad(CefRefPtr<CefFrame> frame, const GURL& validated_url);
+
+// Returns true if WebUI is allowed to make network requests.
+bool IsWebUIAllowedToMakeNetworkRequests(const url::Origin& origin);
 
 // Create a new ProtocolHandler that will filter the URLs passed to the default
 // "chrome" protocol handler and forward the rest to CEF's handler.

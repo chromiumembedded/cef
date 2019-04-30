@@ -50,6 +50,13 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
                                const GURL& effective_url) override;
   bool DoesSiteRequireDedicatedProcess(content::BrowserContext* browser_context,
                                        const GURL& effective_site_url) override;
+  void GetAdditionalWebUISchemes(
+      std::vector<std::string>* additional_schemes) override;
+  void GetAdditionalViewSourceSchemes(
+      std::vector<std::string>* additional_schemes) override;
+  void GetAdditionalAllowedSchemesForFileSystem(
+      std::vector<std::string>* additional_allowed_schemes) override;
+  bool IsWebUIAllowedToMakeNetworkRequests(const url::Origin& origin) override;
   bool IsHandledURL(const GURL& url) override;
   void SiteInstanceGotProcess(content::SiteInstance* site_instance) override;
   void SiteInstanceDeleting(content::SiteInstance* site_instance) override;

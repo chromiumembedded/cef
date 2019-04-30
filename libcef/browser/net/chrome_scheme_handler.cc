@@ -37,6 +37,7 @@
 #include "content/browser/frame_host/debug_urls.h"
 #include "content/browser/webui/content_web_ui_controller_factory.h"
 #include "content/public/browser/browser_url_handler.h"
+#include "content/public/browser/url_data_source.h"
 #include "content/public/browser/web_ui_controller.h"
 #include "content/public/common/url_constants.h"
 #include "content/public/common/url_utils.h"
@@ -57,6 +58,15 @@ const char kChromeUIExtensionsSupportHost[] = "extensions-support";
 const char kChromeUILicenseHost[] = "license";
 const char kChromeUIWebUIHostsHost[] = "webui-hosts";
 
+// TODO(network): Consider handling content::kChromeDevToolsScheme via WebUI
+// (DevToolsUI class) with the following changes:
+// 1. Add an entry for content::kChromeDevToolsScheme in
+//    CefContentBrowserClient::GetAdditionalWebUISchemes.
+// 2. Allow the scheme in CefWebUIControllerFactory::AllowWebUIForURL.
+// 3. Add an entry for chrome::kChromeUIDevToolsHost in kAllowedWebUIHosts and
+//    kUnlistedHosts.
+// 4. Remove scheme::RegisterInternalHandlers and related plumbing.
+
 // Chrome hosts implemented by WebUI.
 // Some WebUI handlers have Chrome dependencies that may fail in CEF without
 // additional changes. Do not add new hosts to this list without also manually
@@ -66,9 +76,11 @@ const char* kAllowedWebUIHosts[] = {
     chrome::kChromeUIAccessibilityHost,
     content::kChromeUIBlobInternalsHost,
     chrome::kChromeUICreditsHost,
+    kChromeUIExtensionsSupportHost,
     content::kChromeUIGpuHost,
     content::kChromeUIHistogramHost,
     content::kChromeUIIndexedDBInternalsHost,
+    kChromeUILicenseHost,
     content::kChromeUIMediaInternalsHost,
     chrome::kChromeUINetExportHost,
     chrome::kChromeUINetInternalsHost,
@@ -78,7 +90,9 @@ const char* kAllowedWebUIHosts[] = {
     content::kChromeUIServiceWorkerInternalsHost,
     chrome::kChromeUISystemInfoHost,
     content::kChromeUITracingHost,
+    chrome::kChromeUIVersionHost,
     content::kChromeUIWebRTCInternalsHost,
+    kChromeUIWebUIHostsHost,
 };
 
 // Hosts that don't have useful output when linked directly. They'll be excluded
@@ -119,15 +133,8 @@ ChromeHostId GetChromeHostId(const std::string& host) {
   return CHROME_UNKNOWN;
 }
 
-// Returns CEF and WebUI hosts. Does not include chrome debug hosts (for
-// crashing, etc).
+// Returns WebUI hosts. Does not include chrome debug hosts (for crashing, etc).
 void GetAllowedHosts(std::vector<std::string>* hosts) {
-  // Hosts implemented by CEF.
-  for (size_t i = 0; i < sizeof(kAllowedCefHosts) / sizeof(kAllowedCefHosts[0]);
-       ++i) {
-    hosts->push_back(kAllowedCefHosts[i].host);
-  }
-
   // Explicitly whitelisted WebUI hosts.
   for (size_t i = 0;
        i < sizeof(kAllowedWebUIHosts) / sizeof(kAllowedWebUIHosts[0]); ++i) {
@@ -199,6 +206,327 @@ void GetDebugURLs(std::vector<std::string>* urls) {
   }
 }
 
+std::string GetOSType() {
+#if defined(OS_WIN)
+  return "Windows";
+#elif defined(OS_MACOSX)
+  return "Mac OS X";
+#elif defined(OS_CHROMEOS)
+  return "Chromium OS";
+#elif defined(OS_ANDROID)
+  return "Android";
+#elif defined(OS_LINUX)
+  return "Linux";
+#elif defined(OS_FREEBSD)
+  return "FreeBSD";
+#elif defined(OS_OPENBSD)
+  return "OpenBSD";
+#elif defined(OS_SOLARIS)
+  return "Solaris";
+#else
+  return "Unknown";
+#endif
+}
+
+std::string GetCommandLine() {
+#if defined(OS_WIN)
+  return base::WideToUTF8(
+      base::CommandLine::ForCurrentProcess()->GetCommandLineString());
+#elif defined(OS_POSIX)
+  std::string command_line = "";
+  typedef std::vector<std::string> ArgvList;
+  const ArgvList& argv = base::CommandLine::ForCurrentProcess()->argv();
+  for (ArgvList::const_iterator iter = argv.begin(); iter != argv.end(); iter++)
+    command_line += " " + *iter;
+  // TODO(viettrungluu): |command_line| could really have any encoding, whereas
+  // below we assumes it's UTF-8.
+  return command_line;
+#endif
+}
+
+std::string GetModulePath() {
+  base::FilePath path;
+  if (base::PathService::Get(base::FILE_MODULE, &path))
+    return CefString(path.value());
+  return std::string();
+}
+
+class TemplateParser {
+ public:
+  TemplateParser() : ident_start_("$$"), ident_end_("$$") {}
+
+  TemplateParser(const std::string& ident_start, const std::string& ident_end)
+      : ident_start_(ident_start), ident_end_(ident_end) {}
+
+  void Add(const std::string& key, const std::string& value) {
+    values_.insert(std::make_pair(key, value));
+  }
+
+  void Parse(std::string* tmpl) {
+    int start_pos, end_pos = 0;
+    int ident_start_len = ident_start_.length();
+    int ident_end_len = ident_end_.length();
+
+    while (true) {
+      start_pos = tmpl->find(ident_start_, end_pos);
+      if (start_pos >= 0) {
+        end_pos = tmpl->find(ident_end_, start_pos + ident_start_len);
+        if (end_pos >= 0) {
+          // Found an identifier. Check if a substitution exists.
+          std::string key = tmpl->substr(start_pos + ident_start_len,
+                                         end_pos - start_pos - ident_start_len);
+          KeyMap::const_iterator it = values_.find(key);
+          if (it != values_.end()) {
+            // Peform the substitution.
+            tmpl->replace(start_pos, end_pos + ident_end_len - start_pos,
+                          it->second);
+            end_pos = start_pos + it->second.length();
+          } else {
+            // Leave the unknown identifier in place.
+            end_pos += ident_end_len;
+          }
+
+          if (end_pos >= static_cast<int>(tmpl->length()) - ident_start_len -
+                             ident_end_len) {
+            // Not enough room remaining for more identifiers.
+            break;
+          }
+        } else {
+          // No end identifier found.
+          break;
+        }
+      } else {
+        // No start identifier found.
+        break;
+      }
+    }
+  }
+
+ private:
+  typedef std::map<std::string, std::string> KeyMap;
+  KeyMap values_;
+  std::string ident_start_;
+  std::string ident_end_;
+};
+
+bool OnExtensionsSupportUI(std::string* mime_type, std::string* output) {
+  static const char kDevURL[] = "https://developer.chrome.com/extensions/";
+
+  std::string html =
+      "<html>\n<head><title>Extensions Support</title></head>\n"
+      "<body bgcolor=\"white\"><h3>Supported Chrome Extensions "
+      "APIs</h3>\nFollow <a "
+      "href=\"https://bitbucket.org/chromiumembedded/cef/issues/1947\" "
+      "target=\"new\">issue #1947</a> for development progress.\n<ul>\n";
+
+  bool has_top_level_name = false;
+  for (size_t i = 0; kSupportedAPIs[i] != nullptr; ++i) {
+    const std::string& api_name = kSupportedAPIs[i];
+    if (api_name.find("Private") != std::string::npos) {
+      // Don't list private APIs.
+      continue;
+    }
+
+    const size_t dot_pos = api_name.find('.');
+    if (dot_pos == std::string::npos) {
+      if (has_top_level_name) {
+        // End the previous top-level API entry.
+        html += "</ul></li>\n";
+      } else {
+        has_top_level_name = true;
+      }
+
+      // Start a new top-level API entry.
+      html += "<li><a href=\"" + std::string(kDevURL) + api_name +
+              "\" target=\"new\">" + api_name + "</a><ul>\n";
+    } else {
+      // Function name.
+      const std::string& group_name = api_name.substr(0, dot_pos);
+      const std::string& function_name = api_name.substr(dot_pos + 1);
+      html += "\t<li><a href=\"" + std::string(kDevURL) + group_name +
+              "#method-" + function_name + "\" target=\"new\">" + api_name +
+              "</a></li>\n";
+    }
+  }
+
+  if (has_top_level_name) {
+    // End the last top-level API entry.
+    html += "</ul></li>\n";
+  }
+
+  html += "</ul>\n</body>\n</html>";
+
+  *mime_type = "text/html";
+  *output = html;
+
+  return true;
+}
+
+bool OnLicenseUI(std::string* mime_type, std::string* output) {
+  base::StringPiece piece = CefContentClient::Get()->GetDataResource(
+      IDR_CEF_LICENSE_TXT, ui::SCALE_FACTOR_NONE);
+  if (piece.empty()) {
+    NOTREACHED() << "Failed to load license txt resource.";
+    return false;
+  }
+
+  *mime_type = "text/html";
+  *output = "<html><head><title>License</title></head><body><pre>" +
+            piece.as_string() + "</pre></body></html>";
+
+  return true;
+}
+
+bool OnVersionUI(Profile* profile,
+                 std::string* mime_type,
+                 std::string* output) {
+  base::StringPiece piece = CefContentClient::Get()->GetDataResource(
+      IDR_CEF_VERSION_HTML, ui::SCALE_FACTOR_NONE);
+  if (piece.empty()) {
+    NOTREACHED() << "Failed to load version html resource.";
+    return false;
+  }
+
+  TemplateParser parser;
+  parser.Add("YEAR", MAKE_STRING(COPYRIGHT_YEAR));
+  parser.Add("CEF", CEF_VERSION);
+  parser.Add("CHROMIUM",
+             base::StringPrintf("%d.%d.%d.%d", CHROME_VERSION_MAJOR,
+                                CHROME_VERSION_MINOR, CHROME_VERSION_BUILD,
+                                CHROME_VERSION_PATCH));
+  parser.Add("OS", GetOSType());
+  parser.Add("WEBKIT", content::GetWebKitVersion());
+  parser.Add("JAVASCRIPT", v8::V8::GetVersion());
+  parser.Add("FLASH", std::string());  // Value populated asynchronously.
+  parser.Add("USERAGENT", CefContentClient::Get()->browser()->GetUserAgent());
+  parser.Add("COMMANDLINE", GetCommandLine());
+  parser.Add("MODULEPATH", GetModulePath());
+  parser.Add("CACHEPATH", CefString(profile->GetPath().value()));
+
+  std::string tmpl = piece.as_string();
+  parser.Parse(&tmpl);
+
+  *mime_type = "text/html";
+  *output = tmpl;
+
+  return true;
+}
+
+bool OnWebUIHostsUI(std::string* mime_type, std::string* output) {
+  std::string html =
+      "<html>\n<head><title>WebUI Hosts</title></head>\n"
+      "<body bgcolor=\"white\"><h3>WebUI Hosts</h3>\n<ul>\n";
+
+  std::vector<std::string> list;
+  GetAllowedHosts(&list);
+  std::sort(list.begin(), list.end());
+
+  for (size_t i = 0U; i < list.size(); ++i) {
+    if (IsUnlistedHost(list[i]))
+      continue;
+
+    html += "<li><a href=\"chrome://" + list[i] + "\">chrome://" + list[i] +
+            "</a></li>\n";
+  }
+
+  list.clear();
+  GetDebugURLs(&list);
+  std::sort(list.begin(), list.end());
+
+  html +=
+      "</ul>\n<h3>For Debug</h3>\n"
+      "<p>The following pages are for debugging purposes only. Because they "
+      "crash or hang the renderer, they're not linked directly; you can type "
+      "them into the address bar if you need them.</p>\n<ul>\n";
+  for (size_t i = 0U; i < list.size(); ++i) {
+    html += "<li>" + std::string(list[i]) + "</li>\n";
+  }
+  html += "</ul>\n";
+
+  html += "</body>\n</html>";
+
+  *mime_type = "text/html";
+  *output = html;
+
+  return true;
+}
+
+const content::WebUI::TypeID kCefWebUITypeID = &kCefWebUITypeID;
+
+class CefURLDataSource : public content::URLDataSource {
+ public:
+  CefURLDataSource(const std::string& host,
+                   ChromeHostId host_id,
+                   Profile* profile)
+      : host_(host), host_id_(host_id), profile_(profile) {
+    CEF_REQUIRE_UIT();
+    output_ = new base::RefCountedString();
+    bool handled = false;
+    switch (host_id_) {
+      case CHROME_EXTENSIONS_SUPPORT:
+        handled = OnExtensionsSupportUI(&mime_type_, &output_->data());
+        break;
+      case CHROME_LICENSE:
+        handled = OnLicenseUI(&mime_type_, &output_->data());
+        break;
+      case CHROME_VERSION:
+        handled = OnVersionUI(profile_, &mime_type_, &output_->data());
+        break;
+      case CHROME_WEBUI_HOSTS:
+        handled = OnWebUIHostsUI(&mime_type_, &output_->data());
+        break;
+      default:
+        break;
+    }
+    DCHECK(handled) << "Unhandled WebUI host: " << host;
+  }
+
+  ~CefURLDataSource() override = default;
+
+  // content::URLDataSource implementation.
+  std::string GetSource() const override { return host_; }
+
+  void StartDataRequest(
+      const std::string& path,
+      const content::ResourceRequestInfo::WebContentsGetter& wc_getter,
+      const content::URLDataSource::GotDataCallback& callback) override {
+    callback.Run(output_);
+  }
+
+  std::string GetMimeType(const std::string& path) const override {
+    return mime_type_;
+  }
+
+  bool AllowCaching() const override { return false; }
+
+ private:
+  const std::string host_;
+  const ChromeHostId host_id_;
+  Profile* const profile_;
+
+  std::string mime_type_;
+  scoped_refptr<base::RefCountedString> output_;
+
+  DISALLOW_COPY_AND_ASSIGN(CefURLDataSource);
+};
+
+class CefWebUIController : public content::WebUIController {
+ public:
+  CefWebUIController(content::WebUI* web_ui,
+                     const std::string& host,
+                     ChromeHostId host_id)
+      : content::WebUIController(web_ui) {
+    Profile* profile = Profile::FromWebUI(web_ui);
+    content::URLDataSource::Add(
+        profile, std::make_unique<CefURLDataSource>(host, host_id, profile));
+  }
+
+  ~CefWebUIController() override = default;
+
+ private:
+  DISALLOW_COPY_AND_ASSIGN(CefWebUIController);
+};
+
 // Intercepts all WebUI calls and either blocks them or forwards them to the
 // Content or Chrome WebUI factory as appropriate.
 class CefWebUIControllerFactory : public content::WebUIControllerFactory {
@@ -214,12 +542,30 @@ class CefWebUIControllerFactory : public content::WebUIControllerFactory {
     return false;
   }
 
+  // Returns true if WebUI is allowed to make network requests.
+  static bool IsWebUIAllowedToMakeNetworkRequests(const url::Origin& origin) {
+    if (!AllowWebUIForURL(origin.GetURL()))
+      return false;
+
+    if (ChromeWebUIControllerFactory::IsWebUIAllowedToMakeNetworkRequests(
+            origin)) {
+      return true;
+    }
+
+    return false;
+  }
+
   std::unique_ptr<content::WebUIController> CreateWebUIControllerForURL(
       content::WebUI* web_ui,
       const GURL& url) const override {
     std::unique_ptr<content::WebUIController> controller;
     if (!AllowWebUIForURL(url))
       return controller;
+
+    const auto host_id = GetChromeHostId(url.host());
+    if (host_id != CHROME_UNKNOWN) {
+      return std::make_unique<CefWebUIController>(web_ui, url.host(), host_id);
+    }
 
     controller = content::ContentWebUIControllerFactory::GetInstance()
                      ->CreateWebUIControllerForURL(web_ui, url);
@@ -235,6 +581,11 @@ class CefWebUIControllerFactory : public content::WebUIControllerFactory {
     content::WebUI::TypeID type = content::WebUI::kNoWebUI;
     if (!AllowWebUIForURL(url))
       return type;
+
+    const auto host_id = GetChromeHostId(url.host());
+    if (host_id != CHROME_UNKNOWN) {
+      return kCefWebUITypeID;
+    }
 
     type = content::ContentWebUIControllerFactory::GetInstance()->GetWebUIType(
         browser_context, url);
@@ -254,6 +605,11 @@ class CefWebUIControllerFactory : public content::WebUIControllerFactory {
     if (!AllowWebUIForURL(url))
       return false;
 
+    const auto host_id = GetChromeHostId(url.host());
+    if (host_id != CHROME_UNKNOWN) {
+      return true;
+    }
+
     if (content::ContentWebUIControllerFactory::GetInstance()->UseWebUIForURL(
             browser_context, url) ||
         ChromeWebUIControllerFactory::GetInstance()->UseWebUIForURL(
@@ -268,6 +624,12 @@ class CefWebUIControllerFactory : public content::WebUIControllerFactory {
                               const GURL& url) const override {
     if (!AllowWebUIForURL(url))
       return false;
+
+    const auto host_id = GetChromeHostId(url.host());
+    if (host_id != CHROME_UNKNOWN) {
+      // TODO(network): Use WebUI bindings to implement DidFinishChromeLoad.
+      return false;
+    }
 
     if (content::ContentWebUIControllerFactory::GetInstance()
             ->UseWebUIBindingsForURL(browser_context, url) ||
@@ -396,307 +758,6 @@ CefWebUIControllerFactory* CefWebUIControllerFactory::GetInstance() {
   return &g_web_ui_controller_factory.Get();
 }
 
-std::string GetOSType() {
-#if defined(OS_WIN)
-  return "Windows";
-#elif defined(OS_MACOSX)
-  return "Mac OS X";
-#elif defined(OS_CHROMEOS)
-  return "Chromium OS";
-#elif defined(OS_ANDROID)
-  return "Android";
-#elif defined(OS_LINUX)
-  return "Linux";
-#elif defined(OS_FREEBSD)
-  return "FreeBSD";
-#elif defined(OS_OPENBSD)
-  return "OpenBSD";
-#elif defined(OS_SOLARIS)
-  return "Solaris";
-#else
-  return "Unknown";
-#endif
-}
-
-std::string GetCommandLine() {
-#if defined(OS_WIN)
-  return base::WideToUTF8(
-      base::CommandLine::ForCurrentProcess()->GetCommandLineString());
-#elif defined(OS_POSIX)
-  std::string command_line = "";
-  typedef std::vector<std::string> ArgvList;
-  const ArgvList& argv = base::CommandLine::ForCurrentProcess()->argv();
-  for (ArgvList::const_iterator iter = argv.begin(); iter != argv.end(); iter++)
-    command_line += " " + *iter;
-  // TODO(viettrungluu): |command_line| could really have any encoding, whereas
-  // below we assumes it's UTF-8.
-  return command_line;
-#endif
-}
-
-std::string GetModulePath() {
-  base::FilePath path;
-  if (base::PathService::Get(base::FILE_MODULE, &path))
-    return CefString(path.value());
-  return std::string();
-}
-
-class TemplateParser {
- public:
-  TemplateParser() : ident_start_("$$"), ident_end_("$$") {}
-
-  TemplateParser(const std::string& ident_start, const std::string& ident_end)
-      : ident_start_(ident_start), ident_end_(ident_end) {}
-
-  void Add(const std::string& key, const std::string& value) {
-    values_.insert(std::make_pair(key, value));
-  }
-
-  void Parse(std::string* tmpl) {
-    int start_pos, end_pos = 0;
-    int ident_start_len = ident_start_.length();
-    int ident_end_len = ident_end_.length();
-
-    while (true) {
-      start_pos = tmpl->find(ident_start_, end_pos);
-      if (start_pos >= 0) {
-        end_pos = tmpl->find(ident_end_, start_pos + ident_start_len);
-        if (end_pos >= 0) {
-          // Found an identifier. Check if a substitution exists.
-          std::string key = tmpl->substr(start_pos + ident_start_len,
-                                         end_pos - start_pos - ident_start_len);
-          KeyMap::const_iterator it = values_.find(key);
-          if (it != values_.end()) {
-            // Peform the substitution.
-            tmpl->replace(start_pos, end_pos + ident_end_len - start_pos,
-                          it->second);
-            end_pos = start_pos + it->second.length();
-          } else {
-            // Leave the unknown identifier in place.
-            end_pos += ident_end_len;
-          }
-
-          if (end_pos >= static_cast<int>(tmpl->length()) - ident_start_len -
-                             ident_end_len) {
-            // Not enough room remaining for more identifiers.
-            break;
-          }
-        } else {
-          // No end identifier found.
-          break;
-        }
-      } else {
-        // No start identifier found.
-        break;
-      }
-    }
-  }
-
- private:
-  typedef std::map<std::string, std::string> KeyMap;
-  KeyMap values_;
-  std::string ident_start_;
-  std::string ident_end_;
-};
-
-class Delegate : public InternalHandlerDelegate {
- public:
-  Delegate() {}
-
-  bool OnRequest(CefRefPtr<CefBrowser> browser,
-                 CefRefPtr<CefRequest> request,
-                 Action* action) override {
-    GURL url = GURL(request->GetURL().ToString());
-    std::string path = url.path();
-    if (path.length() > 0)
-      path = path.substr(1);
-
-    bool handled = false;
-
-    ChromeHostId host_id = GetChromeHostId(url.host());
-    switch (host_id) {
-      case CHROME_EXTENSIONS_SUPPORT:
-        handled = OnExtensionsSupport(action);
-        break;
-      case CHROME_LICENSE:
-        handled = OnLicense(action);
-        break;
-      case CHROME_VERSION:
-        handled = OnVersion(browser, action);
-        break;
-      case CHROME_WEBUI_HOSTS:
-        handled = OnWebUIHosts(action);
-        break;
-      default:
-        break;
-    }
-
-    if (!handled && host_id != CHROME_VERSION) {
-      LOG(INFO) << "Reguest for unknown chrome resource: "
-                << url.spec().c_str();
-
-      action->redirect_url =
-          GURL(std::string(kChromeURL) + chrome::kChromeUIVersionHost);
-      return true;
-    }
-
-    return handled;
-  }
-
-  bool OnExtensionsSupport(Action* action) {
-    static const char kDevURL[] = "https://developer.chrome.com/extensions/";
-
-    std::string html =
-        "<html>\n<head><title>Extensions Support</title></head>\n"
-        "<body bgcolor=\"white\"><h3>Supported Chrome Extensions "
-        "APIs</h3>\nFollow <a "
-        "href=\"https://bitbucket.org/chromiumembedded/cef/issues/1947\" "
-        "target=\"new\">issue #1947</a> for development progress.\n<ul>\n";
-
-    bool has_top_level_name = false;
-    for (size_t i = 0; kSupportedAPIs[i] != nullptr; ++i) {
-      const std::string& api_name = kSupportedAPIs[i];
-      if (api_name.find("Private") != std::string::npos) {
-        // Don't list private APIs.
-        continue;
-      }
-
-      const size_t dot_pos = api_name.find('.');
-      if (dot_pos == std::string::npos) {
-        if (has_top_level_name) {
-          // End the previous top-level API entry.
-          html += "</ul></li>\n";
-        } else {
-          has_top_level_name = true;
-        }
-
-        // Start a new top-level API entry.
-        html += "<li><a href=\"" + std::string(kDevURL) + api_name +
-                "\" target=\"new\">" + api_name + "</a><ul>\n";
-      } else {
-        // Function name.
-        const std::string& group_name = api_name.substr(0, dot_pos);
-        const std::string& function_name = api_name.substr(dot_pos + 1);
-        html += "\t<li><a href=\"" + std::string(kDevURL) + group_name +
-                "#method-" + function_name + "\" target=\"new\">" + api_name +
-                "</a></li>\n";
-      }
-    }
-
-    if (has_top_level_name) {
-      // End the last top-level API entry.
-      html += "</ul></li>\n";
-    }
-
-    html += "</ul>\n</body>\n</html>";
-
-    action->mime_type = "text/html";
-    action->stream = CefStreamReader::CreateForData(
-        const_cast<char*>(html.c_str()), html.length());
-    action->stream_size = html.length();
-
-    return true;
-  }
-
-  bool OnLicense(Action* action) {
-    base::StringPiece piece = CefContentClient::Get()->GetDataResource(
-        IDR_CEF_LICENSE_TXT, ui::SCALE_FACTOR_NONE);
-    if (piece.empty()) {
-      NOTREACHED() << "Failed to load license txt resource.";
-      return false;
-    }
-
-    std::string html = "<html><head><title>License</title></head><body><pre>" +
-                       piece.as_string() + "</pre></body></html>";
-
-    action->mime_type = "text/html";
-    action->stream = CefStreamReader::CreateForData(
-        const_cast<char*>(html.c_str()), html.length());
-    action->stream_size = html.length();
-
-    return true;
-  }
-
-  bool OnVersion(CefRefPtr<CefBrowser> browser, Action* action) {
-    base::StringPiece piece = CefContentClient::Get()->GetDataResource(
-        IDR_CEF_VERSION_HTML, ui::SCALE_FACTOR_NONE);
-    if (piece.empty()) {
-      NOTREACHED() << "Failed to load version html resource.";
-      return false;
-    }
-
-    TemplateParser parser;
-    parser.Add("YEAR", MAKE_STRING(COPYRIGHT_YEAR));
-    parser.Add("CEF", CEF_VERSION);
-    parser.Add("CHROMIUM",
-               base::StringPrintf("%d.%d.%d.%d", CHROME_VERSION_MAJOR,
-                                  CHROME_VERSION_MINOR, CHROME_VERSION_BUILD,
-                                  CHROME_VERSION_PATCH));
-    parser.Add("OS", GetOSType());
-    parser.Add("WEBKIT", content::GetWebKitVersion());
-    parser.Add("JAVASCRIPT", v8::V8::GetVersion());
-    parser.Add("FLASH", std::string());  // Value populated asynchronously.
-    parser.Add("USERAGENT", CefContentClient::Get()->browser()->GetUserAgent());
-    parser.Add("COMMANDLINE", GetCommandLine());
-    parser.Add("MODULEPATH", GetModulePath());
-    parser.Add("CACHEPATH",
-               browser.get()
-                   ? browser->GetHost()->GetRequestContext()->GetCachePath()
-                   : "");
-
-    std::string tmpl = piece.as_string();
-    parser.Parse(&tmpl);
-
-    action->mime_type = "text/html";
-    action->stream = CefStreamReader::CreateForData(
-        const_cast<char*>(tmpl.c_str()), tmpl.length());
-    action->stream_size = tmpl.length();
-
-    return true;
-  }
-
-  bool OnWebUIHosts(Action* action) {
-    std::string html =
-        "<html>\n<head><title>WebUI Hosts</title></head>\n"
-        "<body bgcolor=\"white\"><h3>WebUI Hosts</h3>\n<ul>\n";
-
-    std::vector<std::string> list;
-    GetAllowedHosts(&list);
-    std::sort(list.begin(), list.end());
-
-    for (size_t i = 0U; i < list.size(); ++i) {
-      if (IsUnlistedHost(list[i]))
-        continue;
-
-      html += "<li><a href=\"chrome://" + list[i] + "\">chrome://" + list[i] +
-              "</a></li>\n";
-    }
-
-    list.clear();
-    GetDebugURLs(&list);
-    std::sort(list.begin(), list.end());
-
-    html +=
-        "</ul>\n<h3>For Debug</h3>\n"
-        "<p>The following pages are for debugging purposes only. Because they "
-        "crash or hang the renderer, they're not linked directly; you can type "
-        "them into the address bar if you need them.</p>\n<ul>\n";
-    for (size_t i = 0U; i < list.size(); ++i) {
-      html += "<li>" + std::string(list[i]) + "</li>\n";
-    }
-    html += "</ul>\n";
-
-    html += "</body>\n</html>";
-
-    action->mime_type = "text/html";
-    action->stream = CefStreamReader::CreateForData(
-        const_cast<char*>(html.c_str()), html.length());
-    action->stream_size = html.length();
-
-    return true;
-  }
-};
-
 void DidFinishChromeVersionLoad(CefRefPtr<CefFrame> frame) {
   // Retieve Flash version information and update asynchronously.
   class Visitor : public CefWebPluginInfoVisitor {
@@ -768,12 +829,6 @@ class ChromeProtocolHandlerWrapper
 
 }  // namespace
 
-void RegisterChromeHandler(CefURLRequestManager* request_manager) {
-  request_manager->AddFactory(
-      content::kChromeUIScheme, std::string(),
-      CreateInternalHandlerFactory(base::WrapUnique(new Delegate())));
-}
-
 void RegisterWebUIControllerFactory() {
   // Channel all WebUI handling through CefWebUIControllerFactory.
   content::WebUIControllerFactory::UnregisterFactoryForTesting(
@@ -796,6 +851,10 @@ void DidFinishChromeLoad(CefRefPtr<CefFrame> frame, const GURL& validated_url) {
     default:
       break;
   }
+}
+
+bool IsWebUIAllowedToMakeNetworkRequests(const url::Origin& origin) {
+  return CefWebUIControllerFactory::IsWebUIAllowedToMakeNetworkRequests(origin);
 }
 
 std::unique_ptr<net::URLRequestJobFactory::ProtocolHandler>

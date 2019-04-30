@@ -14,8 +14,9 @@
 namespace net {
 class HostResolver;
 class URLRequestJobFactoryImpl;
-}
+}  // namespace net
 
+class CefResourceContext;
 class CefURLRequestManager;
 
 namespace scheme {
@@ -30,6 +31,7 @@ void InstallInternalProtectedHandlers(
 
 // Register the internal scheme handlers that can be overridden.
 void RegisterInternalHandlers(CefURLRequestManager* request_manager);
+void RegisterInternalHandlers(CefResourceContext* resource_context);
 
 // Used to fire any asynchronous content updates.
 void DidFinishLoad(CefRefPtr<CefFrame> frame, const GURL& validated_url);

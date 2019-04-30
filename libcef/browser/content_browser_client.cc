@@ -91,6 +91,7 @@
 #include "content/public/common/content_switches.h"
 #include "content/public/common/service_names.mojom.h"
 #include "content/public/common/storage_quota_params.h"
+#include "content/public/common/url_constants.h"
 #include "content/public/common/user_agent.h"
 #include "content/public/common/web_preferences.h"
 #include "extensions/browser/extension_message_filter.h"
@@ -586,6 +587,33 @@ bool CefContentBrowserClient::DoesSiteRequireDedicatedProcess(
 
   // Isolate all extensions.
   return true;
+}
+
+void CefContentBrowserClient::GetAdditionalWebUISchemes(
+    std::vector<std::string>* additional_schemes) {
+  // Any schemes listed here are treated as WebUI schemes but do not get WebUI
+  // bindings. Also, view-source is allowed for these schemes. WebUI schemes
+  // will not be passed to HandleExternalProtocol.
+}
+
+void CefContentBrowserClient::GetAdditionalViewSourceSchemes(
+    std::vector<std::string>* additional_schemes) {
+  GetAdditionalWebUISchemes(additional_schemes);
+
+  additional_schemes->push_back(extensions::kExtensionScheme);
+}
+
+void CefContentBrowserClient::GetAdditionalAllowedSchemesForFileSystem(
+    std::vector<std::string>* additional_allowed_schemes) {
+  ContentBrowserClient::GetAdditionalAllowedSchemesForFileSystem(
+      additional_allowed_schemes);
+  additional_allowed_schemes->push_back(content::kChromeDevToolsScheme);
+  additional_allowed_schemes->push_back(content::kChromeUIScheme);
+}
+
+bool CefContentBrowserClient::IsWebUIAllowedToMakeNetworkRequests(
+    const url::Origin& origin) {
+  return scheme::IsWebUIAllowedToMakeNetworkRequests(origin);
 }
 
 bool CefContentBrowserClient::IsHandledURL(const GURL& url) {
