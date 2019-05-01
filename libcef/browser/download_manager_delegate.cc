@@ -317,13 +317,9 @@ void CefDownloadManagerDelegate::OnDownloadDestroyed(DownloadItem* item) {
 
 void CefDownloadManagerDelegate::OnDownloadCreated(DownloadManager* manager,
                                                    DownloadItem* item) {
-  CefBrowserHostImpl* browser = nullptr;
-  content::WebContents* contents =
-      content::DownloadItemUtils::GetWebContents(item);
-  if (contents) {
-    browser = CefBrowserHostImpl::GetBrowserForContents(contents).get();
-    DCHECK(browser);
-  }
+  // When NetworkService is enabled this callback may arrive after
+  // DetermineDownloadTarget, so we allow association from either method.
+  CefRefPtr<CefBrowserHostImpl> browser = GetOrAssociateBrowser(item);
   if (!browser) {
     // If the download is rejected (e.g. ALT+click on an invalid protocol link)
     // then an "interrupted" download will be started via DownloadManagerImpl::
@@ -336,17 +332,7 @@ void CefDownloadManagerDelegate::OnDownloadCreated(DownloadManager* manager,
       LOG(INFO) << "Rejected download of " << url_chain.back().spec();
     }
     item->Cancel(true);
-    return;
   }
-
-  item->AddObserver(this);
-
-  item_browser_map_.insert(std::make_pair(item, browser));
-
-  // Register as an observer so that we can cancel associated DownloadItems when
-  // the browser is destroyed.
-  if (!browser->HasObserver(this))
-    browser->AddObserver(this);
 }
 
 void CefDownloadManagerDelegate::ManagerGoingDown(DownloadManager* manager) {
@@ -368,7 +354,9 @@ bool CefDownloadManagerDelegate::DetermineDownloadTarget(
     return true;
   }
 
-  CefRefPtr<CefBrowserHostImpl> browser = GetBrowser(item);
+  // When NetworkService is enabled this callback may arrive before
+  // OnDownloadCreated, so we allow association from either method.
+  CefRefPtr<CefBrowserHostImpl> browser = GetOrAssociateBrowser(item);
   CefRefPtr<CefDownloadHandler> handler;
   if (browser.get())
     handler = GetDownloadHandler(browser);
@@ -410,6 +398,34 @@ void CefDownloadManagerDelegate::OnBrowserDestroyed(
       it->second = nullptr;
     }
   }
+}
+
+CefBrowserHostImpl* CefDownloadManagerDelegate::GetOrAssociateBrowser(
+    download::DownloadItem* item) {
+  ItemBrowserMap::const_iterator it = item_browser_map_.find(item);
+  if (it != item_browser_map_.end())
+    return it->second;
+
+  CefBrowserHostImpl* browser = nullptr;
+  content::WebContents* contents =
+      content::DownloadItemUtils::GetWebContents(item);
+  if (contents) {
+    browser = CefBrowserHostImpl::GetBrowserForContents(contents).get();
+    DCHECK(browser);
+  }
+  if (!browser)
+    return nullptr;
+
+  item->AddObserver(this);
+
+  item_browser_map_.insert(std::make_pair(item, browser));
+
+  // Register as an observer so that we can cancel associated DownloadItems when
+  // the browser is destroyed.
+  if (!browser->HasObserver(this))
+    browser->AddObserver(this);
+
+  return browser;
 }
 
 CefBrowserHostImpl* CefDownloadManagerDelegate::GetBrowser(DownloadItem* item) {

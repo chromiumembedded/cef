@@ -43,6 +43,7 @@ class CefDownloadManagerDelegate : public download::DownloadItem::Observer,
   // CefBrowserHostImpl::Observer methods.
   void OnBrowserDestroyed(CefBrowserHostImpl* browser) override;
 
+  CefBrowserHostImpl* GetOrAssociateBrowser(download::DownloadItem* item);
   CefBrowserHostImpl* GetBrowser(download::DownloadItem* item);
 
   content::DownloadManager* manager_;

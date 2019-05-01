@@ -888,8 +888,9 @@ std::unique_ptr<InterceptedRequestHandler> CreateInterceptedRequestHandler(
   }
 
   // Flag subresource loads of custom schemes.
-  const bool is_external = !is_navigation && !scheme::IsInternalHandledScheme(
-                                                 request_initiator.scheme());
+  const bool is_external =
+      !is_navigation && !is_download && !request_initiator.scheme().empty() &&
+      !scheme::IsInternalHandledScheme(request_initiator.scheme());
 
   wrapper->Initialize(browser_context, browserPtr, framePtr, render_process_id,
                       render_frame_id, frame_tree_node_id, is_navigation,

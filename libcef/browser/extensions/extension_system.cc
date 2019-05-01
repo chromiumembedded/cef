@@ -191,6 +191,7 @@ void CefExtensionSystem::Init() {
   // 3. A page requests a resource with the "application/pdf" mime type. For
   //    example, by loading a PDF file.
   // 4. CefResourceDispatcherHostDelegate::ShouldInterceptResourceAsStream
+  //    or PluginResponseInterceptorURLLoaderThrottle (NetworkService)
   //    intercepts the PDF resource load in the browser process, generates a
   //    unique View ID that is associated with the resource request for later
   //    retrieval via MimeHandlerStreamManager and the
@@ -212,8 +213,10 @@ void CefExtensionSystem::Init() {
   // 8. Access to PDF extension resources is checked by
   //    CefExtensionsBrowserClient::AllowCrossRendererResourceLoad.
   // 9. PDF extension resources are provided from bundle via
-  //    CefExtensionsBrowserClient::MaybeCreateResourceBundleRequestJob and
-  //    CefComponentExtensionResourceManager.
+  //    CefExtensionsBrowserClient::MaybeCreateResourceBundleRequestJob or
+  //    CefExtensionsBrowserClient::LoadResourceFromResourceBundle,
+  //    CefContentBrowserClient::RegisterNonNetworkSubresourceURLLoaderFactories
+  //    (NetworkService) and CefComponentExtensionResourceManager.
   // 10.The PDF extension (chrome/browser/resources/pdf/browser_api.js) calls
   //    chrome.mimeHandlerPrivate.getStreamInfo to retrieve the PDF resource
   //    stream. This API is implemented using Mojo as described in

@@ -124,6 +124,63 @@ index e699f1feb070..f5fcc878c246 100644
  
    // If we broke out of the loop, we have found an enabled plugin.
    bool enabled = i < matching_plugins.size();
+diff --git chrome/browser/plugins/plugin_utils.cc chrome/browser/plugins/plugin_utils.cc
+index 68e7057b7cf6..102caf10e68c 100644
+--- chrome/browser/plugins/plugin_utils.cc
++++ chrome/browser/plugins/plugin_utils.cc
+@@ -5,6 +5,7 @@
+ #include "chrome/browser/plugins/plugin_utils.h"
+ 
+ #include "base/values.h"
++#include "cef/libcef/features/features.h"
+ #include "chrome/browser/profiles/profile_io_data.h"
+ #include "chrome/common/plugin_utils.h"
+ #include "components/content_settings/core/browser/host_content_settings_map.h"
+@@ -14,6 +15,11 @@
+ #include "url/gurl.h"
+ #include "url/origin.h"
+ 
++#if BUILDFLAG(ENABLE_CEF)
++#include "cef/libcef/browser/resource_context.h"
++#include "cef/libcef/common/extensions/extensions_util.h"
++#endif
++
+ #if BUILDFLAG(ENABLE_EXTENSIONS)
+ #include "extensions/browser/info_map.h"
+ #include "extensions/common/constants.h"
+@@ -158,10 +164,23 @@ PluginUtils::GetMimeTypeToExtensionIdMap(
+     content::ResourceContext* resource_context) {
+   base::flat_map<std::string, std::string> mime_type_to_extension_id_map;
+ #if BUILDFLAG(ENABLE_EXTENSIONS)
++
++#if BUILDFLAG(ENABLE_CEF)
++  CefResourceContext* context =
++      static_cast<CefResourceContext*>(resource_context);
++  bool profile_is_off_the_record = context->IsOffTheRecord();
++  const scoped_refptr<const extensions::InfoMap> extension_info_map(
++      context->GetExtensionInfoMap());
++  bool always_open_pdf_externally = !extensions::PdfExtensionEnabled();
++#else
+   ProfileIOData* io_data = ProfileIOData::FromResourceContext(resource_context);
+   bool profile_is_off_the_record = io_data->IsOffTheRecord();
+   const scoped_refptr<const extensions::InfoMap> extension_info_map(
+       io_data->GetExtensionInfoMap());
++  bool always_open_pdf_externally =
++      io_data->always_open_pdf_externally()->GetValue();
++#endif
++
+   std::vector<std::string> whitelist = MimeTypesHandler::GetMIMETypeWhitelist();
+   // Go through the white-listed extensions and try to use them to intercept
+   // the URL request.
+@@ -176,7 +195,7 @@ PluginUtils::GetMimeTypeToExtensionIdMap(
+     }
+ 
+     if (extension_id == extension_misc::kPdfExtensionId &&
+-        io_data->always_open_pdf_externally()->GetValue()) {
++        always_open_pdf_externally) {
+       continue;
+     }
+ 
 diff --git chrome/renderer/chrome_content_renderer_client.cc chrome/renderer/chrome_content_renderer_client.cc
 index a838fabbdfcb..93ccc1cbdb35 100644
 --- chrome/renderer/chrome_content_renderer_client.cc

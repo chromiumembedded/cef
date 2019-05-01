@@ -122,20 +122,22 @@ CefExtensionsBrowserClient::MaybeCreateResourceBundleRequestJob(
 base::FilePath CefExtensionsBrowserClient::GetBundleResourcePath(
     const network::ResourceRequest& request,
     const base::FilePath& extension_resources_path,
-    ComponentExtensionResourceInfo* resource_id) const {
-  *resource_id = {0};
-  return base::FilePath();
+    ComponentExtensionResourceInfo* resource_info) const {
+  return chrome_url_request_util::GetBundleResourcePath(
+      request, extension_resources_path, resource_info);
 }
 
 void CefExtensionsBrowserClient::LoadResourceFromResourceBundle(
     const network::ResourceRequest& request,
     network::mojom::URLLoaderRequest loader,
     const base::FilePath& resource_relative_path,
-    const ComponentExtensionResourceInfo& resource_id,
+    const ComponentExtensionResourceInfo& resource_info,
     const std::string& content_security_policy,
     network::mojom::URLLoaderClientPtr client,
     bool send_cors_header) {
-  NOTREACHED() << "Load resources from bundles not supported.";
+  chrome_url_request_util::LoadResourceFromResourceBundle(
+      request, std::move(loader), resource_relative_path, resource_info,
+      content_security_policy, std::move(client), send_cors_header);
 }
 
 bool CefExtensionsBrowserClient::AllowCrossRendererResourceLoad(
@@ -147,13 +149,6 @@ bool CefExtensionsBrowserClient::AllowCrossRendererResourceLoad(
     const Extension* extension,
     const ExtensionSet& extensions,
     const ProcessMap& process_map) {
-  // TODO(cef): This bypasses additional checks added to
-  // AllowCrossRendererResourceLoad() in https://crrev.com/5cf9d45c. Figure out
-  // why permission is not being granted based on "web_accessible_resources"
-  // specified in the PDF extension manifest.json file.
-  if (extension && extension->id() == extension_misc::kPdfExtensionId)
-    return true;
-
   bool allowed = false;
   if (url_request_util::AllowCrossRendererResourceLoad(
           url, resource_type, page_transition, child_id, is_incognito,

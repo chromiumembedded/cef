@@ -18,6 +18,7 @@
 #include "libcef/browser/context.h"
 #include "libcef/browser/devtools/devtools_manager_delegate.h"
 #include "libcef/browser/extensions/extension_system.h"
+#include "libcef/browser/extensions/extension_web_contents_observer.h"
 #include "libcef/browser/media_capture_devices_dispatcher.h"
 #include "libcef/browser/net/chrome_scheme_handler.h"
 #include "libcef/browser/net/net_util.h"
@@ -58,11 +59,13 @@
 #include "chrome/browser/chrome_service.h"
 #include "chrome/browser/net/system_network_context_manager.h"
 #include "chrome/browser/plugins/plugin_info_host_impl.h"
+#include "chrome/browser/plugins/plugin_response_interceptor_url_loader_throttle.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/renderer_host/pepper/chrome_browser_pepper_host_factory.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/constants.mojom.h"
+#include "chrome/common/webui_url_constants.h"
 #include "chrome/grit/browser_resources.h"
 #include "chrome/grit/generated_resources.h"
 #include "chrome/services/printing/public/mojom/constants.mojom.h"
@@ -88,6 +91,7 @@
 #include "content/public/browser/render_widget_host_view.h"
 #include "content/public/browser/resource_dispatcher_host.h"
 #include "content/public/browser/storage_partition.h"
+#include "content/public/browser/web_ui_url_loader_factory.h"
 #include "content/public/common/content_switches.h"
 #include "content/public/common/service_names.mojom.h"
 #include "content/public/common/storage_quota_params.h"
@@ -1116,6 +1120,26 @@ CefContentBrowserClient::CreateThrottlesForNavigation(
   return throttles;
 }
 
+std::vector<std::unique_ptr<content::URLLoaderThrottle>>
+CefContentBrowserClient::CreateURLLoaderThrottles(
+    const network::ResourceRequest& request,
+    content::ResourceContext* resource_context,
+    const base::RepeatingCallback<content::WebContents*()>& wc_getter,
+    content::NavigationUIData* navigation_ui_data,
+    int frame_tree_node_id) {
+  CEF_REQUIRE_IOT();
+  std::vector<std::unique_ptr<content::URLLoaderThrottle>> result;
+
+  if (net_service::IsEnabled()) {
+    // Used to substitute View ID for PDF contents when using the PDF plugin.
+    result.push_back(
+        std::make_unique<PluginResponseInterceptorURLLoaderThrottle>(
+            resource_context, request.resource_type, frame_tree_node_id));
+  }
+
+  return result;
+}
+
 #if defined(OS_LINUX)
 void CefContentBrowserClient::GetAdditionalMappedFilesForChildProcess(
     const base::CommandLine& command_line,
@@ -1195,6 +1219,43 @@ void CefContentBrowserClient::RegisterNonNetworkSubresourceURLLoaderFactories(
                                                              render_frame_id);
   if (factory)
     factories->emplace(extensions::kExtensionScheme, std::move(factory));
+
+  content::RenderFrameHost* frame_host =
+      content::RenderFrameHost::FromID(render_process_id, render_frame_id);
+  content::WebContents* web_contents =
+      content::WebContents::FromRenderFrameHost(frame_host);
+  if (!web_contents)
+    return;
+
+  extensions::CefExtensionWebContentsObserver* web_observer =
+      extensions::CefExtensionWebContentsObserver::FromWebContents(
+          web_contents);
+
+  // There is nothing to do if no CefExtensionWebContentsObserver is attached
+  // to the |web_contents|.
+  if (!web_observer)
+    return;
+
+  const extensions::Extension* extension =
+      web_observer->GetExtensionFromFrame(frame_host, false);
+  if (!extension)
+    return;
+
+  std::vector<std::string> allowed_webui_hosts;
+  // Support for chrome:// scheme if appropriate.
+  if ((extension->is_extension() || extension->is_platform_app()) &&
+      extensions::Manifest::IsComponentLocation(extension->location())) {
+    // Components of chrome that are implemented as extensions or platform apps
+    // are allowed to use chrome://resources/ and chrome://theme/ URLs.
+    allowed_webui_hosts.emplace_back(content::kChromeUIResourcesHost);
+    allowed_webui_hosts.emplace_back(chrome::kChromeUIThemeHost);
+  }
+  if (!allowed_webui_hosts.empty()) {
+    factories->emplace(
+        content::kChromeUIScheme,
+        content::CreateWebUIURLLoader(frame_host, content::kChromeUIScheme,
+                                      std::move(allowed_webui_hosts)));
+  }
 }
 
 bool CefContentBrowserClient::WillCreateURLLoaderFactory(

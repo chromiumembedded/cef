@@ -4,6 +4,7 @@
 
 #include "libcef/browser/extensions/extension_web_contents_observer.h"
 
+#include "chrome/common/webui_url_constants.h"
 #include "content/public/browser/child_process_security_policy.h"
 #include "content/public/browser/render_frame_host.h"
 #include "content/public/browser/render_process_host.h"
@@ -40,11 +41,13 @@ void CefExtensionWebContentsObserver::RenderFrameCreated(
   auto policy = content::ChildProcessSecurityPolicy::GetInstance();
 
   // Components of chrome that are implemented as extensions or platform apps
-  // are allowed to use chrome://resources/ URLs.
+  // are allowed to use chrome://resources/ and chrome://theme/ URLs.
   if ((extension->is_extension() || extension->is_platform_app()) &&
       Manifest::IsComponentLocation(extension->location())) {
     policy->GrantRequestOrigin(
         process_id, url::Origin::Create(GURL(content::kChromeUIResourcesURL)));
+    policy->GrantRequestOrigin(
+        process_id, url::Origin::Create(GURL(chrome::kChromeUIThemeURL)));
   }
 }
 
