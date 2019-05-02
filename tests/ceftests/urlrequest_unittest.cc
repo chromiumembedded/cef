@@ -2185,7 +2185,7 @@ class RequestTestHandler : public TestHandler {
 
         // Continue the test once supported schemes has been set.
         request_context->GetCookieManager(NULL)->SetSupportedSchemes(
-            supported_schemes,
+            supported_schemes, true,
             new SupportedSchemesCompletionCallback(
                 base::Bind(&RequestTestHandler::PreSetupComplete, this)));
       } else {

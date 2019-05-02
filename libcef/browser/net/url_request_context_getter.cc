@@ -480,13 +480,15 @@ net::HostResolver* CefURLRequestContextGetter::GetHostResolver() const {
 }
 
 void CefURLRequestContextGetter::SetCookieSupportedSchemes(
-    const std::vector<std::string>& schemes) {
+    const std::vector<std::string>& schemes,
+    bool include_defaults) {
   CEF_REQUIRE_IOT();
 
   io_state_->cookie_supported_schemes_ = schemes;
+  io_state_->include_defaults_ = include_defaults;
   CefCookieManagerOldImpl::SetCookieMonsterSchemes(
-      static_cast<net::CookieMonster*>(GetExistingCookieStore()),
-      io_state_->cookie_supported_schemes_);
+      static_cast<net::CookieMonster*>(GetExistingCookieStore()), schemes,
+      include_defaults);
 }
 
 void CefURLRequestContextGetter::AddHandler(
@@ -541,15 +543,16 @@ void CefURLRequestContextGetter::SetCookieStoragePath(
   // Set the new cookie store that will be used for all new requests. The old
   // cookie store, if any, will be automatically flushed and closed when no
   // longer referenced.
-  std::unique_ptr<net::CookieMonster> cookie_monster(new net::CookieMonster(
-      persistent_store.get(), io_state_->net_log_));
+  std::unique_ptr<net::CookieMonster> cookie_monster(
+      new net::CookieMonster(persistent_store.get(), io_state_->net_log_));
   if (persistent_store.get() && persist_session_cookies)
     cookie_monster->SetPersistSessionCookies(true);
   io_state_->cookie_store_path_ = path;
 
   // Restore the previously supported schemes.
   CefCookieManagerOldImpl::SetCookieMonsterSchemes(
-      cookie_monster.get(), io_state_->cookie_supported_schemes_);
+      cookie_monster.get(), io_state_->cookie_supported_schemes_,
+      io_state_->include_defaults_);
 
   io_state_->storage_->set_cookie_store(std::move(cookie_monster));
 }

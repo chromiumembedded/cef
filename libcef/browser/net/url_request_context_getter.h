@@ -68,7 +68,8 @@ class CefURLRequestContextGetter : public net::URLRequestContextGetter {
   // CefURLRequestContextGetter implementation.
   net::HostResolver* GetHostResolver() const;
 
-  void SetCookieSupportedSchemes(const std::vector<std::string>& schemes);
+  void SetCookieSupportedSchemes(const std::vector<std::string>& schemes,
+                                 bool include_defaults);
 
   // Keep a reference to all handlers sharing this context so that they'll be
   // kept alive until the context is destroyed.
@@ -116,6 +117,7 @@ class CefURLRequestContextGetter : public net::URLRequestContextGetter {
 
     base::FilePath cookie_store_path_;
     std::vector<std::string> cookie_supported_schemes_;
+    bool include_defaults_ = true;
 
     std::vector<CefRefPtr<CefRequestContextHandler>> handler_list_;
 

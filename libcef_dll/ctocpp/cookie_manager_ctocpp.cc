@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=fdbb50cba70b9638aaaadc2e4040b18390ae3a6d$
+// $hash=87369bed5916a070a4f1a7f4bb9fcff5885cd31f$
 //
 
 #include "libcef_dll/ctocpp/cookie_manager_ctocpp.h"
@@ -41,6 +41,7 @@ CefRefPtr<CefCookieManager> CefCookieManager::GetGlobalManager(
 NO_SANITIZE("cfi-icall")
 void CefCookieManagerCToCpp::SetSupportedSchemes(
     const std::vector<CefString>& schemes,
+    bool include_defaults,
     CefRefPtr<CefCompletionCallback> callback) {
   cef_cookie_manager_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, set_supported_schemes))
@@ -57,7 +58,7 @@ void CefCookieManagerCToCpp::SetSupportedSchemes(
     transfer_string_list_contents(schemes, schemesList);
 
   // Execute
-  _struct->set_supported_schemes(_struct, schemesList,
+  _struct->set_supported_schemes(_struct, schemesList, include_defaults,
                                  CefCompletionCallbackCppToC::Wrap(callback));
 
   // Restore param:schemes; type: string_vec_byref_const

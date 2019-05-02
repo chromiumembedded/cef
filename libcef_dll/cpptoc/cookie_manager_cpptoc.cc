@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=a672fab541f9c28f77a06c31d89f5a9d66c78751$
+// $hash=887754026eb62e631a0279fbba8fb1c370f0bcf7$
 //
 
 #include "libcef_dll/cpptoc/cookie_manager_cpptoc.h"
@@ -42,6 +42,7 @@ namespace {
 void CEF_CALLBACK
 cookie_manager_set_supported_schemes(struct _cef_cookie_manager_t* self,
                                      cef_string_list_t schemes,
+                                     int include_defaults,
                                      cef_completion_callback_t* callback) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -60,7 +61,8 @@ cookie_manager_set_supported_schemes(struct _cef_cookie_manager_t* self,
 
   // Execute
   CefCookieManagerCppToC::Get(self)->SetSupportedSchemes(
-      schemesList, CefCompletionCallbackCToCpp::Wrap(callback));
+      schemesList, include_defaults ? true : false,
+      CefCompletionCallbackCToCpp::Wrap(callback));
 }
 
 int CEF_CALLBACK

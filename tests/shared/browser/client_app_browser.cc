@@ -59,7 +59,7 @@ void ClientAppBrowser::OnContextInitialized() {
     CefRefPtr<CefCookieManager> manager =
         CefCookieManager::GetGlobalManager(NULL);
     DCHECK(manager.get());
-    manager->SetSupportedSchemes(cookieable_schemes_, NULL);
+    manager->SetSupportedSchemes(cookieable_schemes_, true, NULL);
   }
 
   print_handler_ = CreatePrintHandler();

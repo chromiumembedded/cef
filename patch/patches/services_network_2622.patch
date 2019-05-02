@@ -35,7 +35,7 @@ index 2b24d1ac1b5b..6577495d87a9 100644
          base_cache_path.Append(chrome::kCacheDirname);
      network_context_params->http_cache_max_size =
 diff --git chrome/browser/profiles/profile.h chrome/browser/profiles/profile.h
-index c70a4c0f48ac..8aaadf324a0e 100644
+index c70a4c0f48ac..f76776fb39bf 100644
 --- chrome/browser/profiles/profile.h
 +++ chrome/browser/profiles/profile.h
 @@ -310,6 +310,11 @@ class Profile : public content::BrowserContext {
@@ -43,15 +43,15 @@ index c70a4c0f48ac..8aaadf324a0e 100644
    virtual bool ShouldPersistSessionCookies();
  
 +  // Returns schemes that should be cookieable, if other than the defaults.
-+  virtual std::vector<std::string> GetCookieableSchemes() {
-+    return std::vector<std::string>();
++  virtual base::Optional<std::vector<std::string>> GetCookieableSchemes() {
++    return base::nullopt;
 +  }
 +
    // Creates NetworkContext for the specified isolated app (or for the profile
    // itself, if |relative_path| is empty).
    virtual network::mojom::NetworkContextPtr CreateNetworkContext(
 diff --git services/network/network_context.cc services/network/network_context.cc
-index b882aa825923..f1921814e1d8 100644
+index b882aa825923..eedf167ee32b 100644
 --- services/network/network_context.cc
 +++ services/network/network_context.cc
 @@ -1733,6 +1733,7 @@ URLRequestContextOwner NetworkContext::ApplyContextParamsToBuilder(
@@ -82,9 +82,9 @@ index b882aa825923..f1921814e1d8 100644
 +        std::make_unique<net::CookieMonster>(nullptr /* store */, net_log);
    }
  
-+  if (!params_->cookieable_schemes.empty()) {
++  if (params_->cookieable_schemes.has_value()) {
 +    cookie_store->SetCookieableSchemes(
-+        params_->cookieable_schemes,
++        *params_->cookieable_schemes,
 +        net::CookieStore::SetCookieableSchemesCallback());
 +  }
 +
@@ -94,7 +94,7 @@ index b882aa825923..f1921814e1d8 100644
        std::make_unique<net::StaticHttpUserAgentSettings>(
            params_->accept_language, params_->user_agent);
 diff --git services/network/public/mojom/network_context.mojom services/network/public/mojom/network_context.mojom
-index 864e55731cdf..9fea7361d730 100644
+index 864e55731cdf..ef70c6f30168 100644
 --- services/network/public/mojom/network_context.mojom
 +++ services/network/public/mojom/network_context.mojom
 @@ -189,6 +189,9 @@ struct NetworkContextParams {
@@ -102,7 +102,7 @@ index 864e55731cdf..9fea7361d730 100644
    bool persist_session_cookies = false;
  
 +  // Schemes that will be passed to CookieMonster::SetCookieableSchemes.
-+  array<string> cookieable_schemes;
++  array<string>? cookieable_schemes;
 +
    // True if an HTTP cache should be used.
    bool http_cache_enabled = true;

@@ -98,11 +98,12 @@ void CefCookieManagerImpl::Initialize(
 
 void CefCookieManagerImpl::SetSupportedSchemes(
     const std::vector<CefString>& schemes,
+    bool include_defaults,
     CefRefPtr<CefCompletionCallback> callback) {
   if (!CEF_CURRENTLY_ON_UIT()) {
     CEF_POST_TASK(CEF_UIT,
                   base::Bind(&CefCookieManagerImpl::SetSupportedSchemes, this,
-                             schemes, callback));
+                             schemes, include_defaults, callback));
     return;
   }
 
@@ -110,16 +111,20 @@ void CefCookieManagerImpl::SetSupportedSchemes(
   for (const auto& scheme : schemes)
     all_schemes.push_back(scheme);
 
-  // This list should match CookieMonster::kDefaultCookieableSchemes.
-  all_schemes.push_back("http");
-  all_schemes.push_back("https");
-  all_schemes.push_back("ws");
-  all_schemes.push_back("wss");
+  if (include_defaults) {
+    // Add default schemes that should always support cookies.
+    // This list should match CookieMonster::kDefaultCookieableSchemes.
+    all_schemes.push_back("http");
+    all_schemes.push_back("https");
+    all_schemes.push_back("ws");
+    all_schemes.push_back("wss");
+  }
 
   // This will be forwarded to the CookieMonster that lives in the
   // NetworkService process when the NetworkContext is created via
   // CefContentBrowserClient::CreateNetworkContext.
-  request_context_->GetBrowserContext()->set_cookieable_schemes(all_schemes);
+  request_context_->GetBrowserContext()->set_cookieable_schemes(
+      base::make_optional(all_schemes));
   RunAsyncCompletionOnUIThread(callback);
 }
 

@@ -453,8 +453,12 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
     RequestState* state = GetState(id);
     DCHECK(state);
     if (!state->handler_) {
-      InterceptedRequestHandler::OnRequestResponse(
-          id, request, head, redirect_info, std::move(callback));
+      // Cookies may come from a scheme handler.
+      MaybeSaveCookies(
+          state, request, head,
+          base::BindOnce(
+              std::move(callback), ResponseMode::CONTINUE, nullptr,
+              redirect_info.has_value() ? redirect_info->new_url : GURL()));
       return;
     }
 

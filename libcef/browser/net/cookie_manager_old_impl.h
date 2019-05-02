@@ -43,6 +43,7 @@ class CefCookieManagerOldImpl : public CefCookieManager {
 
   // CefCookieManager methods.
   void SetSupportedSchemes(const std::vector<CefString>& schemes,
+                           bool include_defaults,
                            CefRefPtr<CefCompletionCallback> callback) override;
   bool VisitAllCookies(CefRefPtr<CefCookieVisitor> visitor) override;
   bool VisitUrlCookies(const CefString& url,
@@ -56,10 +57,10 @@ class CefCookieManagerOldImpl : public CefCookieManager {
                      CefRefPtr<CefDeleteCookiesCallback> callback) override;
   bool FlushStore(CefRefPtr<CefCompletionCallback> callback) override;
 
-  // Set the schemes supported by |cookie_monster|. Default schemes will always
-  // be supported.
+  // Set the schemes supported by |cookie_monster|.
   static void SetCookieMonsterSchemes(net::CookieMonster* cookie_monster,
-                                      const std::vector<std::string>& schemes);
+                                      const std::vector<std::string>& schemes,
+                                      bool include_defaults);
 
  private:
   // Execute |method| on the IO thread once the request context is available.
@@ -71,6 +72,7 @@ class CefCookieManagerOldImpl : public CefCookieManager {
       scoped_refptr<CefURLRequestContextGetter> request_context);
   void SetSupportedSchemesWithContext(
       const std::vector<std::string>& schemes,
+      bool include_defaults,
       CefRefPtr<CefCompletionCallback> callback,
       scoped_refptr<CefURLRequestContextGetter> request_context);
   void GetCookieStoreWithContext(
@@ -79,6 +81,7 @@ class CefCookieManagerOldImpl : public CefCookieManager {
       scoped_refptr<CefURLRequestContextGetter> request_context);
 
   void SetSupportedSchemesInternal(const std::vector<std::string>& schemes,
+                                   bool include_defaults,
                                    CefRefPtr<CefCompletionCallback> callback);
   void VisitAllCookiesInternal(CefRefPtr<CefCookieVisitor> visitor,
                                const CookieStoreGetter& cookie_store_getter);

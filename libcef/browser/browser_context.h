@@ -186,7 +186,7 @@ class CefBrowserContext : public ChromeProfileStub,
   bool ShouldPersistSessionCookies() override {
     return should_persist_session_cookies_;
   }
-  std::vector<std::string> GetCookieableSchemes() override {
+  base::Optional<std::vector<std::string>> GetCookieableSchemes() override {
     return cookieable_schemes_;
   }
 
@@ -233,7 +233,8 @@ class CefBrowserContext : public ChromeProfileStub,
   void set_should_persist_session_cookies(bool value) {
     should_persist_session_cookies_ = value;
   }
-  void set_cookieable_schemes(const std::vector<std::string>& schemes) {
+  void set_cookieable_schemes(
+      base::Optional<std::vector<std::string>> schemes) {
     cookieable_schemes_ = schemes;
   }
 
@@ -273,7 +274,7 @@ class CefBrowserContext : public ChromeProfileStub,
   // |visitedlink_listener_| is owned by visitedlink_master_.
   CefVisitedLinkListener* visitedlink_listener_;
   bool should_persist_session_cookies_ = false;
-  std::vector<std::string> cookieable_schemes_;
+  base::Optional<std::vector<std::string>> cookieable_schemes_;
 
   std::unique_ptr<CefResourceContext> resource_context_;
 

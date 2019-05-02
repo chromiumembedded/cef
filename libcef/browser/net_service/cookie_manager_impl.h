@@ -23,6 +23,7 @@ class CefCookieManagerImpl : public CefCookieManager {
 
   // CefCookieManager methods.
   void SetSupportedSchemes(const std::vector<CefString>& schemes,
+                           bool include_defaults,
                            CefRefPtr<CefCompletionCallback> callback) override;
   bool VisitAllCookies(CefRefPtr<CefCookieVisitor> visitor) override;
   bool VisitUrlCookies(const CefString& url,
