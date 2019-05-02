@@ -27,7 +27,9 @@
 #include "base/message_loop/message_loop.h"
 #include "base/strings/string_number_conversions.h"
 #include "base/task/post_task.h"
+#include "chrome/browser/browser_process.h"
 #include "chrome/browser/chrome_browser_main_extra_parts.h"
+#include "chrome/browser/net/system_network_context_manager.h"
 #include "chrome/browser/plugins/plugin_finder.h"
 #include "content/public/browser/gpu_data_manager.h"
 #include "extensions/browser/extension_system.h"
@@ -153,9 +155,13 @@ int CefBrowserMainParts::PreCreateThreads() {
 
   net::NetModule::SetResourceProvider(&NetResourceProvider);
 
-  // Initialize the GpuDataManager before IO access restrictions are applied and
+  // Initialize these objects before IO access restrictions are applied and
   // before the IO thread is started.
   content::GpuDataManager::GetInstance();
+  if (net_service::IsEnabled()) {
+    SystemNetworkContextManager::CreateInstance(
+        g_browser_process->local_state());
+  }
 
   for (size_t i = 0; i < chrome_extra_parts_.size(); ++i)
     chrome_extra_parts_[i]->PreCreateThreads();

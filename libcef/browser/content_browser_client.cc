@@ -1290,15 +1290,8 @@ void CefContentBrowserClient::OnNetworkServiceCreated(
   PrefService* local_state = g_browser_process->local_state();
   DCHECK(local_state);
 
-  if (!SystemNetworkContextManager::GetInstance()) {
-    // TODO(network): This triggers creation of ChromeBrowserPolicyConnector via
-    // ChromeBrowserProcessStub::policy_service() which loads some system DLLs
-    // on Windows. Determine the correct initialization timing to avoid the need
-    // for ScopedAllowIO here.
-    base::ThreadRestrictions::ScopedAllowIO allow_io;
-    SystemNetworkContextManager::CreateInstance(local_state);
-  }
   // Need to set up global NetworkService state before anything else uses it.
+  DCHECK(SystemNetworkContextManager::GetInstance());
   SystemNetworkContextManager::GetInstance()->OnNetworkServiceCreated(
       network_service);
 }
