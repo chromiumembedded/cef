@@ -56,6 +56,7 @@
 #include "base/threading/thread_restrictions.h"
 #include "cef/grit/cef_resources.h"
 #include "chrome/browser/browser_process.h"
+#include "chrome/browser/chrome_content_browser_client.h"
 #include "chrome/browser/chrome_service.h"
 #include "chrome/browser/net/system_network_context_manager.h"
 #include "chrome/browser/plugins/plugin_info_host_impl.h"
@@ -1371,27 +1372,19 @@ bool CefContentBrowserClient::HandleExternalProtocol(
 }
 
 std::string CefContentBrowserClient::GetProduct() const {
-  const base::CommandLine* command_line =
-      base::CommandLine::ForCurrentProcess();
-  if (command_line->HasSwitch(switches::kProductVersion))
-    return command_line->GetSwitchValueASCII(switches::kProductVersion);
-
-  return GetChromeProduct();
+  // Match the logic in chrome_content_browser_client.cc GetProduct() which
+  // will be called when the NetworkService is enabled.
+  return ::GetProduct();
 }
 
 std::string CefContentBrowserClient::GetChromeProduct() const {
-  return base::StringPrintf("Chrome/%d.%d.%d.%d", CHROME_VERSION_MAJOR,
-                            CHROME_VERSION_MINOR, CHROME_VERSION_BUILD,
-                            CHROME_VERSION_PATCH);
+  return version_info::GetProductNameAndVersionForUserAgent();
 }
 
 std::string CefContentBrowserClient::GetUserAgent() const {
-  const base::CommandLine* command_line =
-      base::CommandLine::ForCurrentProcess();
-  if (command_line->HasSwitch(switches::kUserAgent))
-    return command_line->GetSwitchValueASCII(switches::kUserAgent);
-
-  return content::BuildUserAgentFromProduct(GetProduct());
+  // Match the logic in chrome_content_browser_client.cc GetUserAgent() which
+  // will be called when the NetworkService is enabled.
+  return ::GetUserAgent();
 }
 
 blink::UserAgentMetadata CefContentBrowserClient::GetUserAgentMetadata() const {

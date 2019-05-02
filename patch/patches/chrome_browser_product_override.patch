@@ -1,0 +1,37 @@
+diff --git chrome/browser/chrome_content_browser_client.cc chrome/browser/chrome_content_browser_client.cc
+index 52a1a31ee131..5a1e29fec9c8 100644
+--- chrome/browser/chrome_content_browser_client.cc
++++ chrome/browser/chrome_content_browser_client.cc
+@@ -1033,12 +1033,16 @@ void LaunchURL(
+   }
+ }
+ 
++}  // namespace
++
+ std::string GetProduct() {
++  base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
++  if (command_line->HasSwitch(switches::kProductVersion))
++    return command_line->GetSwitchValueASCII(switches::kProductVersion);
++
+   return version_info::GetProductNameAndVersionForUserAgent();
+ }
+ 
+-}  // namespace
+-
+ std::string GetUserAgent() {
+   base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
+   if (command_line->HasSwitch(switches::kUserAgent)) {
+diff --git chrome/browser/chrome_content_browser_client.h chrome/browser/chrome_content_browser_client.h
+index cbf1e2218e91..a42d2a4d71bb 100644
+--- chrome/browser/chrome_content_browser_client.h
++++ chrome/browser/chrome_content_browser_client.h
+@@ -77,7 +77,8 @@ class Origin;
+ 
+ class ChromeSerialDelegate;
+ 
+-// Returns the user agent of Chrome.
++// Returns the product and user agent of Chrome.
++std::string GetProduct();
+ std::string GetUserAgent();
+ 
+ blink::UserAgentMetadata GetUserAgentMetadata();
