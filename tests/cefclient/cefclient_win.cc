@@ -76,6 +76,10 @@ int RunMain(HINSTANCE hInstance, int nCmdShow) {
   settings.no_sandbox = true;
 #endif
 
+  // Applications should specify a unique GUID here to enable trusted downloads.
+  CefString(&settings.application_client_id_for_file_scanning)
+      .FromString("9A8DE24D-B822-4C6C-8259-5A848FEA1E68");
+
   // Populate the settings based on command line arguments.
   context->PopulateSettings(&settings);
 

@@ -553,6 +553,7 @@ struct CefSettingsTraits {
     cef_string_clear(&s->resources_dir_path);
     cef_string_clear(&s->locales_dir_path);
     cef_string_clear(&s->accept_language_list);
+    cef_string_clear(&s->application_client_id_for_file_scanning);
   }
 
   static inline void set(const struct_type* src,
@@ -603,6 +604,9 @@ struct CefSettingsTraits {
     cef_string_set(src->accept_language_list.str,
                    src->accept_language_list.length,
                    &target->accept_language_list, copy);
+    cef_string_set(src->application_client_id_for_file_scanning.str,
+                   src->application_client_id_for_file_scanning.length,
+                   &target->application_client_id_for_file_scanning, copy);
   }
 };
 

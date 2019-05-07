@@ -5,6 +5,7 @@
 #include "libcef/browser/download_manager_delegate.h"
 
 #include "include/cef_download_handler.h"
+#include "libcef/browser/context.h"
 #include "libcef/browser/download_item_impl.h"
 #include "libcef/browser/thread_util.h"
 
@@ -14,6 +15,7 @@
 #include "base/path_service.h"
 #include "base/strings/string_util.h"
 #include "base/strings/utf_string_conversions.h"
+#include "chrome/common/chrome_constants.h"
 #include "content/public/browser/browser_context.h"
 #include "content/public/browser/download_item_utils.h"
 #include "content/public/browser/web_contents.h"
@@ -385,6 +387,16 @@ void CefDownloadManagerDelegate::GetNextId(
     const content::DownloadIdCallback& callback) {
   static uint32 next_id = DownloadItem::kInvalidId + 1;
   callback.Run(next_id++);
+}
+
+std::string CefDownloadManagerDelegate::ApplicationClientIdForFileScanning()
+    const {
+  const CefSettings& settings = CefContext::Get()->settings();
+  if (settings.application_client_id_for_file_scanning.length > 0) {
+    return CefString(&settings.application_client_id_for_file_scanning)
+        .ToString();
+  }
+  return std::string();
 }
 
 void CefDownloadManagerDelegate::OnBrowserDestroyed(
