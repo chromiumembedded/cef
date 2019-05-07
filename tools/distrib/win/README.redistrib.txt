@@ -60,7 +60,6 @@ run but any related functionality may become broken or disabled.
     Tools. Without this file Chrome Developer Tools will not function.
 
 * Angle and Direct3D support.
-  * d3dcompiler_43.dll (required for Windows XP)
   * d3dcompiler_47.dll (required for Windows Vista and newer)
   * libEGL.dll
   * libGLESv2.dll
