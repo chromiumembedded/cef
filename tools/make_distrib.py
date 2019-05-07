@@ -799,7 +799,6 @@ if platform == 'windows':
   # yapf: disable
   binaries = [
       {'path': 'chrome_elf.dll'},
-      {'path': 'd3dcompiler_47.dll'},
       {'path': libcef_dll},
       {'path': 'libEGL.dll'},
       {'path': 'libGLESv2.dll'},
