@@ -20,11 +20,11 @@ int GetJSONReaderOptions(cef_json_parser_options_t options) {
 
 int GetJSONWriterOptions(cef_json_writer_options_t options) {
   int op = 0;
-  if (op & JSON_WRITER_OMIT_BINARY_VALUES)
+  if (options & JSON_WRITER_OMIT_BINARY_VALUES)
     op |= base::JSONWriter::OPTIONS_OMIT_BINARY_VALUES;
-  if (op & JSON_WRITER_OMIT_DOUBLE_TYPE_PRESERVATION)
+  if (options & JSON_WRITER_OMIT_DOUBLE_TYPE_PRESERVATION)
     op |= base::JSONWriter::OPTIONS_OMIT_DOUBLE_TYPE_PRESERVATION;
-  if (op & JSON_WRITER_PRETTY_PRINT)
+  if (options & JSON_WRITER_PRETTY_PRINT)
     op |= base::JSONWriter::OPTIONS_PRETTY_PRINT;
   return op;
 }
