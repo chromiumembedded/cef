@@ -209,6 +209,11 @@ bool CefCookieManagerImpl::SetCookie(const CefString& url,
       cookie.secure ? true : false, cookie.httponly ? true : false,
       net::CookieSameSite::DEFAULT_MODE, net::COOKIE_PRIORITY_DEFAULT);
 
+  if (!canonical_cookie) {
+    SetCookieCallbackImpl(callback, false);
+    return true;
+  }
+
   net::CookieOptions options;
   if (cookie.httponly)
     options.set_include_httponly();

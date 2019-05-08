@@ -300,6 +300,22 @@ void TestHostCookie(CefRefPtr<CefCookieManager> manager,
   VerifyNoCookies(manager, event, true);
 }
 
+void TestInvalidCookie(CefRefPtr<CefCookieManager> manager,
+                       CefRefPtr<CefWaitableEvent> event) {
+  CookieVector cookies;
+
+  CefCookie cookie;
+  const char* kUrl = "http://www.xyz.com";
+  CefString(&cookie.name).FromASCII("invalid1");
+  CefString(&cookie.value).FromASCII("invalid1");
+  CefString(&cookie.domain).FromASCII(".zyx.com");  // domain mismatch
+
+  cookies.push_back(cookie);
+
+  // No cookies will be set due to non canonical cookie
+  SetCookies(manager, kUrl, cookies, false, event);
+}
+
 void TestMultipleCookies(CefRefPtr<CefCookieManager> manager,
                          CefRefPtr<CefWaitableEvent> event) {
   std::stringstream ss;
@@ -473,6 +489,19 @@ void TestAllCookies(CefRefPtr<CefCookieManager> manager,
 }
 
 }  // namespace
+
+// Test creation of a invalid cookie.
+TEST(CookieTest, BasicInvalidCookie) {
+  CefRefPtr<CefWaitableEvent> event =
+      CefWaitableEvent::CreateWaitableEvent(true, false);
+
+  CefRefPtr<CefCookieManager> manager =
+      CefCookieManager::GetGlobalManager(new TestCompletionCallback(event));
+  event->Wait();
+  EXPECT_TRUE(manager.get());
+
+  TestInvalidCookie(manager, event);
+}
 
 // Test creation of a domain cookie.
 TEST(CookieTest, BasicDomainCookie) {

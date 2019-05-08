@@ -400,18 +400,26 @@ void CefCookieManagerOldImpl::SetCookieInternal(
   if (cookie.has_expires)
     cef_time_to_basetime(cookie.expires, expiration_time);
 
+  auto canonical_cookie = net::CanonicalCookie::CreateSanitizedCookie(
+      url, name, value, domain, path,
+      base::Time(),  // Creation time.
+      expiration_time,
+      base::Time(),  // Last access time.
+      cookie.secure ? true : false, cookie.httponly ? true : false,
+      net::CookieSameSite::DEFAULT_MODE, net::COOKIE_PRIORITY_DEFAULT);
+
   net::CookieOptions options;
   if (cookie.httponly)
     options.set_include_httponly();
 
-  cookie_store->SetCanonicalCookieAsync(
-      net::CanonicalCookie::CreateSanitizedCookie(
-          url, name, value, domain, path,
-          base::Time(),  // Creation time.
-          expiration_time,
-          base::Time(),  // Last access time.
-          cookie.secure ? true : false, cookie.httponly ? true : false,
-          net::CookieSameSite::DEFAULT_MODE, net::COOKIE_PRIORITY_DEFAULT),
+  if (!canonical_cookie) {
+    SetCookieCallbackImpl(
+        callback,
+        net::CanonicalCookie::CookieInclusionStatus::EXCLUDE_UNKNOWN_ERROR);
+    return;
+  }
+
+  cookie_store->SetCanonicalCookieAsync(std::move(canonical_cookie),
       url.scheme(), options, base::Bind(SetCookieCallbackImpl, callback));
 }
 
