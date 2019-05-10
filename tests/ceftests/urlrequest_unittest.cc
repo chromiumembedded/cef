@@ -417,9 +417,10 @@ void VerifyNormalRequest(const RequestRunSettings* settings,
   // Check if the default headers were sent.
   EXPECT_FALSE(GetHeaderValue(headerMap, "user-agent").empty());
 
-  // Verify that we get the value that was set via
-  // CefSettings.accept_language_list in CefTestSuite::GetSettings().
-  EXPECT_STREQ(CEF_SETTINGS_ACCEPT_LANGUAGE,
+  // CEF_SETTINGS_ACCEPT_LANGUAGE value from CefSettings.accept_language_list
+  // set in CefTestSuite::GetSettings() and expanded internally by
+  // ComputeAcceptLanguageFromPref.
+  EXPECT_STREQ(IsNetworkServiceEnabled() ? "en-GB,en;q=0.9" : "en-GB",
                GetHeaderValue(headerMap, "accept-language").c_str());
 
   if (server_backend) {
@@ -1022,8 +1023,8 @@ class RequestClient : public CefURLRequestClient {
   int download_progress_ct_;
   int download_data_ct_;
 
-  uint64 upload_total_;
-  uint64 download_total_;
+  int64 upload_total_;
+  int64 download_total_;
   std::string download_data_;
   CefRefPtr<CefRequest> request_;
   CefURLRequest::Status status_;
@@ -1044,9 +1045,11 @@ class RequestTestRunner : public base::RefCountedThreadSafe<RequestTestRunner> {
 
   RequestTestRunner(bool is_browser_process,
                     bool is_server_backend,
+                    bool use_frame_method,
                     bool run_in_browser_process)
       : is_browser_process_(is_browser_process),
         is_server_backend_(is_server_backend),
+        use_frame_method_(use_frame_method),
         run_in_browser_process_(run_in_browser_process) {
     owner_task_runner_ = CefTaskRunner::GetForCurrentThread();
     EXPECT_TRUE(owner_task_runner_.get());
@@ -1130,8 +1133,11 @@ class RequestTestRunner : public base::RefCountedThreadSafe<RequestTestRunner> {
 
   // Called in either the browser or render process to run the test.
   void RunTest(RequestTestMode test_mode,
+               CefRefPtr<CefFrame> frame,
                const base::Closure& complete_callback) {
     EXPECT_TRUE(owner_task_runner_->BelongsToCurrentThread());
+
+    frame_ = frame;
 
     const base::Closure& safe_complete_callback = base::Bind(
         &RequestTestRunner::CompleteOnCorrectThread, this, complete_callback);
@@ -1266,6 +1272,9 @@ class RequestTestRunner : public base::RefCountedThreadSafe<RequestTestRunner> {
     // on stop redirects.
     settings_.response = CefResponse::Create();
     settings_.response->SetStatus(302);
+    if (IsNetworkServiceEnabled()) {
+      settings_.response->SetStatusText("Found");
+    }
 
     // Add a redirect request.
     settings_.redirect_request = CefRequest::Create();
@@ -1766,7 +1775,12 @@ class RequestTestRunner : public base::RefCountedThreadSafe<RequestTestRunner> {
     EXPECT_TRUE(request.get());
 
     CefRefPtr<RequestClient> client = new RequestClient(complete_callback);
-    CefURLRequest::Create(request, client.get(), request_context_);
+    if (use_frame_method_) {
+      EXPECT_TRUE(frame_);
+      frame_->CreateURLRequest(request, client.get());
+    } else {
+      CefURLRequest::Create(request, client.get(), request_context_);
+    }
   }
 
   // Verify a response.
@@ -1807,7 +1821,7 @@ class RequestTestRunner : public base::RefCountedThreadSafe<RequestTestRunner> {
       EXPECT_EQ(upload_data.size(), client->upload_total_);
     } else {
       EXPECT_EQ(0, client->upload_progress_ct_);
-      EXPECT_EQ((uint64)0, client->upload_total_);
+      EXPECT_EQ(0, client->upload_total_);
     }
 
     if (settings_.expect_download_progress) {
@@ -1815,7 +1829,7 @@ class RequestTestRunner : public base::RefCountedThreadSafe<RequestTestRunner> {
       EXPECT_EQ(settings_.response_data.size(), client->download_total_);
     } else {
       EXPECT_EQ(0, client->download_progress_ct_);
-      EXPECT_EQ((uint64)0, client->download_total_);
+      EXPECT_EQ(0, client->download_total_);
     }
 
     if (settings_.expect_download_data) {
@@ -1999,9 +2013,10 @@ class RequestTestRunner : public base::RefCountedThreadSafe<RequestTestRunner> {
     scheme_factory_ = nullptr;
   }
 
-  bool is_browser_process_;
-  bool is_server_backend_;
-  bool run_in_browser_process_;
+  const bool is_browser_process_;
+  const bool is_server_backend_;
+  const bool use_frame_method_;
+  const bool run_in_browser_process_;
 
   // Primary thread runner for the object that owns us. In the browser process
   // this will be the UI thread and in the renderer process this will be the
@@ -2009,6 +2024,9 @@ class RequestTestRunner : public base::RefCountedThreadSafe<RequestTestRunner> {
   CefRefPtr<CefTaskRunner> owner_task_runner_;
 
   CefRefPtr<CefRequestContext> request_context_;
+
+  // Frame that originates the request. May be nullptr.
+  CefRefPtr<CefFrame> frame_;
 
   struct TestEntry {
     TestCallback setup;
@@ -2045,10 +2063,17 @@ class RequestRendererTest : public ClientAppRenderer::Delegate {
 
       app_ = app;
       browser_ = browser;
+      frame_ = nullptr;
 
       CefRefPtr<CefListValue> args = message->GetArgumentList();
+
+      const bool use_frame_method = args->GetBool(2);
+      if (use_frame_method)
+        frame_ = browser->GetMainFrame();
+
       test_mode_ = static_cast<RequestTestMode>(args->GetInt(0));
-      test_runner_ = new RequestTestRunner(false, args->GetBool(1), false);
+      test_runner_ = new RequestTestRunner(false, args->GetBool(1),
+                                           use_frame_method, false);
 
       // Setup the test. This will create the objects that we test against but
       // not register any backend (because we're in the render process).
@@ -2068,7 +2093,8 @@ class RequestRendererTest : public ClientAppRenderer::Delegate {
 
     // Run the test.
     test_runner_->RunTest(
-        test_mode_, base::Bind(&RequestRendererTest::OnRunComplete, this));
+        test_mode_, frame_,
+        base::Bind(&RequestRendererTest::OnRunComplete, this));
   }
 
   void OnRunComplete() {
@@ -2097,6 +2123,7 @@ class RequestRendererTest : public ClientAppRenderer::Delegate {
 
   CefRefPtr<ClientAppRenderer> app_;
   CefRefPtr<CefBrowser> browser_;
+  CefRefPtr<CefFrame> frame_;
   RequestTestMode test_mode_;
 
   scoped_refptr<RequestTestRunner> test_runner_;
@@ -2112,11 +2139,13 @@ class RequestTestHandler : public TestHandler {
                      ContextTestMode context_mode,
                      bool test_in_browser,
                      bool test_server_backend,
+                     bool test_frame_method,
                      const char* test_url)
       : test_mode_(test_mode),
         context_mode_(context_mode),
         test_in_browser_(test_in_browser),
         test_server_backend_(test_server_backend),
+        test_frame_method_(test_frame_method),
         test_url_(test_url) {}
 
   void RunTest() override {
@@ -2148,8 +2177,8 @@ class RequestTestHandler : public TestHandler {
   void PreSetupContinue() {
     EXPECT_TRUE(CefCurrentlyOn(TID_UI));
 
-    test_runner_ =
-        new RequestTestRunner(true, test_server_backend_, test_in_browser_);
+    test_runner_ = new RequestTestRunner(true, test_server_backend_,
+                                         test_frame_method_, test_in_browser_);
 
     // Get or create the request context.
     if (context_mode_ == CONTEXT_GLOBAL) {
@@ -2222,9 +2251,20 @@ class RequestTestHandler : public TestHandler {
     }
 
     if (test_in_browser_) {
-      // Run the test now.
-      test_runner_->RunTest(
-          test_mode_, base::Bind(&RequestTestHandler::OnRunComplete, this));
+      if (test_frame_method_) {
+        EXPECT_TRUE(test_url_ != NULL);
+        AddResource(test_url_, "<html><body>TEST</body></html>", "text/html");
+
+        // Create the browser who's main frame will be the initiator for the
+        // request.
+        CreateBrowser(test_url_, test_runner_->GetRequestContext());
+      } else {
+        // Run the test now.
+        test_running_ = true;
+        test_runner_->RunTest(
+            test_mode_, nullptr /* frame */,
+            base::Bind(&RequestTestHandler::OnRunComplete, this));
+      }
     } else {
       EXPECT_TRUE(test_url_ != NULL);
       AddResource(test_url_, "<html><body>TEST</body></html>", "text/html");
@@ -2234,9 +2274,33 @@ class RequestTestHandler : public TestHandler {
     }
   }
 
+  ReturnValue OnBeforeResourceLoad(
+      CefRefPtr<CefBrowser> browser,
+      CefRefPtr<CefFrame> frame,
+      CefRefPtr<CefRequest> request,
+      CefRefPtr<CefRequestCallback> callback) override {
+    if (test_running_ && test_frame_method_) {
+      EXPECT_TRUE(frame);
+      EXPECT_EQ(test_frame_->GetIdentifier(), frame->GetIdentifier());
+      test_frame_resource_load_ct_++;
+    }
+
+    return TestHandler::OnBeforeResourceLoad(browser, frame, request, callback);
+  }
+
   void OnLoadEnd(CefRefPtr<CefBrowser> browser,
                  CefRefPtr<CefFrame> frame,
                  int httpStatusCode) override {
+    if (test_in_browser_ && test_frame_method_) {
+      // Run the test now.
+      test_frame_ = frame;
+      test_running_ = true;
+      test_runner_->RunTest(
+          test_mode_, frame,
+          base::Bind(&RequestTestHandler::OnRunComplete, this));
+      return;
+    }
+
     EXPECT_FALSE(test_in_browser_);
     if (frame->IsMain()) {
       CefRefPtr<CefProcessMessage> test_message =
@@ -2244,6 +2308,11 @@ class RequestTestHandler : public TestHandler {
       CefRefPtr<CefListValue> args = test_message->GetArgumentList();
       EXPECT_TRUE(args->SetInt(0, test_mode_));
       EXPECT_TRUE(args->SetBool(1, test_server_backend_));
+      EXPECT_TRUE(args->SetBool(2, test_frame_method_));
+
+      if (test_frame_method_)
+        test_frame_ = frame;
+      test_running_ = true;
 
       // Send a message to the renderer process to run the test.
       EXPECT_TRUE(browser->SendProcessMessage(PID_RENDERER, test_message));
@@ -2296,14 +2365,22 @@ class RequestTestHandler : public TestHandler {
       EXPECT_TRUE(got_success_);
     }
 
+    if (IsNetworkServiceEnabled()) {
+      if (test_frame_method_) {
+        // Expect at least 1 call to OnBeforeResourceLoad for every test.
+        // Redirect tests may get multiple calls.
+        EXPECT_LE(1, test_frame_resource_load_ct_);
+      }
+    }
+
     TestHandler::DestroyTest();
 
     // Need to call TestComplete() explicitly if testing in the browser and
     // using the global context. Otherwise, TestComplete() will be called when
     // the browser is destroyed (for render test + global context) or when the
     // temporary context is destroyed.
-    const bool call_test_complete =
-        (test_in_browser_ && context_mode_ == CONTEXT_GLOBAL);
+    const bool call_test_complete = (test_in_browser_ && !test_frame_method_ &&
+                                     context_mode_ == CONTEXT_GLOBAL);
 
     // Release our reference to the context. Do not access any object members
     // after this call because |this| might be deleted.
@@ -2376,13 +2453,19 @@ class RequestTestHandler : public TestHandler {
     IMPLEMENT_REFCOUNTING(SupportedSchemesCompletionCallback);
   };
 
-  RequestTestMode test_mode_;
-  ContextTestMode context_mode_;
-  bool test_in_browser_;
-  bool test_server_backend_;
-  const char* test_url_;
+  const RequestTestMode test_mode_;
+  const ContextTestMode context_mode_;
+  const bool test_in_browser_;
+  const bool test_server_backend_;
+  const bool test_frame_method_;
+  const char* const test_url_;
 
   scoped_refptr<RequestTestRunner> test_runner_;
+
+  bool test_running_ = false;
+
+  CefRefPtr<CefFrame> test_frame_;
+  int test_frame_resource_load_ct_ = 0;
 
   CefScopedTempDir context_tmpdir_;
   CefString context_tmpdir_path_;
@@ -2394,6 +2477,21 @@ class RequestTestHandler : public TestHandler {
 
   IMPLEMENT_REFCOUNTING(RequestTestHandler);
 };
+
+bool IsTestSupported(RequestTestMode test_mode,
+                     ContextTestMode context_mode,
+                     bool test_in_browser,
+                     bool test_server_backend,
+                     bool test_frame_method) {
+  if (IsNetworkServiceEnabled() && !test_in_browser && !test_server_backend &&
+      !test_frame_method) {
+    // When NetworkService is enabled requests from the render process can only
+    // reach non-server backends when using the CefFrame::CreateURLRequest
+    // method.
+    return false;
+  }
+  return true;
+}
 
 }  // namespace
 
@@ -2415,119 +2513,152 @@ void RegisterURLRequestCustomSchemes(
 }
 
 // Helpers for defining URLRequest tests.
-#define REQ_TEST_EX(name, test_mode, context_mode, test_in_browser,      \
-                    test_server_backend, test_url)                       \
-  TEST(URLRequestTest, name) {                                           \
-    CefRefPtr<RequestTestHandler> handler =                              \
-        new RequestTestHandler(test_mode, context_mode, test_in_browser, \
-                               test_server_backend, test_url);           \
-    handler->ExecuteTest();                                              \
-    ReleaseAndWaitForDestructor(handler);                                \
+#define REQ_TEST_EX(name, test_mode, context_mode, test_in_browser,    \
+                    test_server_backend, test_frame_method, test_url)  \
+  TEST(URLRequestTest, name) {                                         \
+    if (!IsTestSupported(test_mode, context_mode, test_in_browser,     \
+                         test_server_backend, test_frame_method)) {    \
+      return;                                                          \
+    }                                                                  \
+    CefRefPtr<RequestTestHandler> handler = new RequestTestHandler(    \
+        test_mode, context_mode, test_in_browser, test_server_backend, \
+        test_frame_method, test_url);                                  \
+    handler->ExecuteTest();                                            \
+    ReleaseAndWaitForDestructor(handler);                              \
   }
 
 #define REQ_TEST(name, test_mode, context_mode, test_in_browser, \
-                 test_server_backend)                            \
+                 test_server_backend, test_frame_method)         \
   REQ_TEST_EX(name, test_mode, context_mode, test_in_browser,    \
-              test_server_backend, kRequestTestUrl)
+              test_server_backend, test_frame_method, kRequestTestUrl)
 
 // Define the tests.
-#define REQ_TEST_SET(suffix, context_mode, test_server_backend)                \
+#define REQ_TEST_SET_EX(suffix, context_mode, test_server_backend,             \
+                        test_frame_method)                                     \
   REQ_TEST(BrowserGET##suffix, REQTEST_GET, context_mode, true,                \
-           test_server_backend)                                                \
+           test_server_backend, test_frame_method)                             \
   REQ_TEST(BrowserGETNoData##suffix, REQTEST_GET_NODATA, context_mode, true,   \
-           test_server_backend)                                                \
+           test_server_backend, test_frame_method)                             \
   REQ_TEST(BrowserGETAllowCookies##suffix, REQTEST_GET_ALLOWCOOKIES,           \
-           context_mode, true, test_server_backend)                            \
+           context_mode, true, test_server_backend, test_frame_method)         \
   REQ_TEST(BrowserGETRedirect##suffix, REQTEST_GET_REDIRECT, context_mode,     \
-           true, test_server_backend)                                          \
+           true, test_server_backend, test_frame_method)                       \
   REQ_TEST(BrowserGETRedirectStop##suffix, REQTEST_GET_REDIRECT_STOP,          \
-           context_mode, true, test_server_backend)                            \
+           context_mode, true, test_server_backend, test_frame_method)         \
   REQ_TEST(BrowserGETRedirectLocation##suffix, REQTEST_GET_REDIRECT_LOCATION,  \
-           context_mode, true, test_server_backend)                            \
+           context_mode, true, test_server_backend, test_frame_method)         \
   REQ_TEST(BrowserGETReferrer##suffix, REQTEST_GET_REFERRER, context_mode,     \
-           true, test_server_backend)                                          \
+           true, test_server_backend, test_frame_method)                       \
   REQ_TEST(BrowserPOST##suffix, REQTEST_POST, context_mode, true,              \
-           test_server_backend)                                                \
+           test_server_backend, test_frame_method)                             \
   REQ_TEST(BrowserPOSTFile##suffix, REQTEST_POST_FILE, context_mode, true,     \
-           test_server_backend)                                                \
+           test_server_backend, test_frame_method)                             \
   REQ_TEST(BrowserPOSTWithProgress##suffix, REQTEST_POST_WITHPROGRESS,         \
-           context_mode, true, test_server_backend)                            \
+           context_mode, true, test_server_backend, test_frame_method)         \
   REQ_TEST(BrowserHEAD##suffix, REQTEST_HEAD, context_mode, true,              \
-           test_server_backend)                                                \
+           test_server_backend, test_frame_method)                             \
   REQ_TEST(RendererGET##suffix, REQTEST_GET, context_mode, false,              \
-           test_server_backend)                                                \
+           test_server_backend, test_frame_method)                             \
   REQ_TEST(RendererGETNoData##suffix, REQTEST_GET_NODATA, context_mode, false, \
-           test_server_backend)                                                \
+           test_server_backend, test_frame_method)                             \
   REQ_TEST(RendererGETAllowCookies##suffix, REQTEST_GET_ALLOWCOOKIES,          \
-           context_mode, false, test_server_backend)                           \
+           context_mode, false, test_server_backend, test_frame_method)        \
   REQ_TEST(RendererGETRedirect##suffix, REQTEST_GET_REDIRECT, context_mode,    \
-           false, test_server_backend)                                         \
+           false, test_server_backend, test_frame_method)                      \
   REQ_TEST(RendererGETRedirectStop##suffix, REQTEST_GET_REDIRECT_STOP,         \
-           context_mode, false, test_server_backend)                           \
+           context_mode, false, test_server_backend, test_frame_method)        \
   REQ_TEST(RendererGETRedirectLocation##suffix, REQTEST_GET_REDIRECT_LOCATION, \
-           context_mode, false, test_server_backend)                           \
+           context_mode, false, test_server_backend, test_frame_method)        \
   REQ_TEST(RendererGETReferrer##suffix, REQTEST_GET_REFERRER, context_mode,    \
-           false, test_server_backend)                                         \
+           false, test_server_backend, test_frame_method)                      \
   REQ_TEST(RendererPOST##suffix, REQTEST_POST, context_mode, false,            \
-           test_server_backend)                                                \
+           test_server_backend, test_frame_method)                             \
   REQ_TEST(RendererPOSTWithProgress##suffix, REQTEST_POST_WITHPROGRESS,        \
-           context_mode, false, test_server_backend)                           \
+           context_mode, false, test_server_backend, test_frame_method)        \
   REQ_TEST(RendererHEAD##suffix, REQTEST_HEAD, context_mode, false,            \
-           test_server_backend)
+           test_server_backend, test_frame_method)
 
-REQ_TEST_SET(ContextGlobalCustom, CONTEXT_GLOBAL, false)
-REQ_TEST_SET(ContextInMemoryCustom, CONTEXT_INMEMORY, false)
-REQ_TEST_SET(ContextOnDiskCustom, CONTEXT_ONDISK, false)
-REQ_TEST_SET(ContextGlobalServer, CONTEXT_GLOBAL, true)
-REQ_TEST_SET(ContextInMemoryServer, CONTEXT_INMEMORY, true)
-REQ_TEST_SET(ContextOnDiskServer, CONTEXT_ONDISK, true)
+#define REQ_TEST_SET(suffix, test_frame_method)                           \
+  REQ_TEST_SET_EX(ContextGlobalCustom##suffix, CONTEXT_GLOBAL, false,     \
+                  test_frame_method)                                      \
+  REQ_TEST_SET_EX(ContextInMemoryCustom##suffix, CONTEXT_INMEMORY, false, \
+                  test_frame_method)                                      \
+  REQ_TEST_SET_EX(ContextOnDiskCustom##suffix, CONTEXT_ONDISK, false,     \
+                  test_frame_method)                                      \
+  REQ_TEST_SET_EX(ContextGlobalServer##suffix, CONTEXT_GLOBAL, true,      \
+                  test_frame_method)                                      \
+  REQ_TEST_SET_EX(ContextInMemoryServer##suffix, CONTEXT_INMEMORY, true,  \
+                  test_frame_method)                                      \
+  REQ_TEST_SET_EX(ContextOnDiskServer##suffix, CONTEXT_ONDISK, true,      \
+                  test_frame_method)
+
+REQ_TEST_SET(WithoutFrame, false)
+REQ_TEST_SET(WithFrame, true)
 
 // Cache tests can only be run with the server backend.
-#define REQ_TEST_CACHE_SET(suffix, context_mode)                               \
+#define REQ_TEST_CACHE_SET_EX(suffix, context_mode, test_frame_method)         \
   REQ_TEST(BrowserGETCacheWithControl##suffix, REQTEST_CACHE_WITH_CONTROL,     \
-           context_mode, true, true)                                           \
+           context_mode, true, true, test_frame_method)                        \
   REQ_TEST(BrowserGETCacheWithoutControl##suffix,                              \
-           REQTEST_CACHE_WITHOUT_CONTROL, context_mode, true, true)            \
+           REQTEST_CACHE_WITHOUT_CONTROL, context_mode, true, true,            \
+           test_frame_method)                                                  \
   REQ_TEST(BrowserGETCacheSkipFlag##suffix, REQTEST_CACHE_SKIP_FLAG,           \
-           context_mode, true, true)                                           \
+           context_mode, true, true, test_frame_method)                        \
   REQ_TEST(BrowserGETCacheSkipHeader##suffix, REQTEST_CACHE_SKIP_HEADER,       \
-           context_mode, true, true)                                           \
+           context_mode, true, true, test_frame_method)                        \
   REQ_TEST(BrowserGETCacheOnlyFailureFlag##suffix,                             \
-           REQTEST_CACHE_ONLY_FAILURE_FLAG, context_mode, true, true)          \
+           REQTEST_CACHE_ONLY_FAILURE_FLAG, context_mode, true, true,          \
+           test_frame_method)                                                  \
   REQ_TEST(BrowserGETCacheOnlyFailureHeader##suffix,                           \
-           REQTEST_CACHE_ONLY_FAILURE_HEADER, context_mode, true, true)        \
+           REQTEST_CACHE_ONLY_FAILURE_HEADER, context_mode, true, true,        \
+           test_frame_method)                                                  \
   REQ_TEST(BrowserGETCacheOnlySuccessFlag##suffix,                             \
-           REQTEST_CACHE_ONLY_SUCCESS_FLAG, context_mode, true, true)          \
+           REQTEST_CACHE_ONLY_SUCCESS_FLAG, context_mode, true, true,          \
+           test_frame_method)                                                  \
   REQ_TEST(BrowserGETCacheOnlySuccessHeader##suffix,                           \
-           REQTEST_CACHE_ONLY_SUCCESS_HEADER, context_mode, true, true)        \
+           REQTEST_CACHE_ONLY_SUCCESS_HEADER, context_mode, true, true,        \
+           test_frame_method)                                                  \
   REQ_TEST(BrowserGETCacheDisableFlag##suffix, REQTEST_CACHE_DISABLE_FLAG,     \
-           context_mode, true, true)                                           \
+           context_mode, true, true, test_frame_method)                        \
   REQ_TEST(BrowserGETCacheDisableHeader##suffix, REQTEST_CACHE_DISABLE_HEADER, \
-           context_mode, true, true)                                           \
+           context_mode, true, true, test_frame_method)                        \
   REQ_TEST(RendererGETCacheWithControl##suffix, REQTEST_CACHE_WITH_CONTROL,    \
-           context_mode, false, true)                                          \
+           context_mode, false, true, test_frame_method)                       \
   REQ_TEST(RendererGETCacheWithoutControl##suffix,                             \
-           REQTEST_CACHE_WITHOUT_CONTROL, context_mode, false, true)           \
+           REQTEST_CACHE_WITHOUT_CONTROL, context_mode, false, true,           \
+           test_frame_method)                                                  \
   REQ_TEST(RendererGETCacheSkipFlag##suffix, REQTEST_CACHE_SKIP_FLAG,          \
-           context_mode, false, true)                                          \
+           context_mode, false, true, test_frame_method)                       \
   REQ_TEST(RendererGETCacheSkipHeader##suffix, REQTEST_CACHE_SKIP_HEADER,      \
-           context_mode, false, true)                                          \
+           context_mode, false, true, test_frame_method)                       \
   REQ_TEST(RendererGETCacheOnlyFailureFlag##suffix,                            \
-           REQTEST_CACHE_ONLY_FAILURE_FLAG, context_mode, false, true)         \
+           REQTEST_CACHE_ONLY_FAILURE_FLAG, context_mode, false, true,         \
+           test_frame_method)                                                  \
   REQ_TEST(RendererGETCacheOnlyFailureHeader##suffix,                          \
-           REQTEST_CACHE_ONLY_FAILURE_HEADER, context_mode, false, true)       \
+           REQTEST_CACHE_ONLY_FAILURE_HEADER, context_mode, false, true,       \
+           test_frame_method)                                                  \
   REQ_TEST(RendererGETCacheOnlySuccessFlag##suffix,                            \
-           REQTEST_CACHE_ONLY_SUCCESS_FLAG, context_mode, false, true)         \
+           REQTEST_CACHE_ONLY_SUCCESS_FLAG, context_mode, false, true,         \
+           test_frame_method)                                                  \
   REQ_TEST(RendererGETCacheOnlySuccessHeader##suffix,                          \
-           REQTEST_CACHE_ONLY_SUCCESS_HEADER, context_mode, false, true)       \
+           REQTEST_CACHE_ONLY_SUCCESS_HEADER, context_mode, false, true,       \
+           test_frame_method)                                                  \
   REQ_TEST(RendererGETCacheDisableFlag##suffix, REQTEST_CACHE_DISABLE_FLAG,    \
-           context_mode, false, true)                                          \
+           context_mode, false, true, test_frame_method)                       \
   REQ_TEST(RendererGETCacheDisableHeader##suffix,                              \
-           REQTEST_CACHE_DISABLE_HEADER, context_mode, false, true)
+           REQTEST_CACHE_DISABLE_HEADER, context_mode, false, true,            \
+           test_frame_method)
 
-REQ_TEST_CACHE_SET(ContextGlobalServer, CONTEXT_GLOBAL)
-REQ_TEST_CACHE_SET(ContextInMemoryServer, CONTEXT_INMEMORY)
-REQ_TEST_CACHE_SET(ContextOnDiskServer, CONTEXT_ONDISK)
+#define REQ_TEST_CACHE_SET(suffix, test_frame_method)                    \
+  REQ_TEST_CACHE_SET_EX(ContextGlobalServer##suffix, CONTEXT_GLOBAL,     \
+                        test_frame_method)                               \
+  REQ_TEST_CACHE_SET_EX(ContextInMemoryServer##suffix, CONTEXT_INMEMORY, \
+                        test_frame_method)                               \
+  REQ_TEST_CACHE_SET_EX(ContextOnDiskServer##suffix, CONTEXT_ONDISK,     \
+                        test_frame_method)
+
+REQ_TEST_CACHE_SET(WithoutFrame, false)
+REQ_TEST_CACHE_SET(WithFrame, true)
 
 namespace {
 
@@ -2546,6 +2677,9 @@ class InvalidURLTestClient : public CefURLRequestClient {
 
   void OnRequestComplete(CefRefPtr<CefURLRequest> client) override {
     EXPECT_EQ(UR_FAILED, client->GetRequestStatus());
+    if (IsNetworkServiceEnabled()) {
+      EXPECT_EQ(ERR_UNKNOWN_URL_SCHEME, client->GetRequestError());
+    }
 
     // Let the call stack unwind before signaling completion.
     CefPostTask(TID_UI,

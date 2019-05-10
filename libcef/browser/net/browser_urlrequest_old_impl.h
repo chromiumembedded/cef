@@ -2,25 +2,21 @@
 // reserved. Use of this source code is governed by a BSD-style license that can
 // be found in the LICENSE file.
 
-#ifndef CEF_LIBCEF_RENDERER_RENDER_URLREQUEST_IMPL_H_
-#define CEF_LIBCEF_RENDERER_RENDER_URLREQUEST_IMPL_H_
+#ifndef CEF_LIBCEF_BROWSER_NET_BROWSER_URLREQUEST_OLD_IMPL_H_
+#define CEF_LIBCEF_BROWSER_NET_BROWSER_URLREQUEST_OLD_IMPL_H_
 
-#include "include/cef_frame.h"
 #include "include/cef_urlrequest.h"
 
 #include "base/memory/ref_counted.h"
 
-class CefRenderURLRequest : public CefURLRequest {
+class CefBrowserURLRequestOld : public CefURLRequest {
  public:
   class Context;
 
-  // If |frame| is nullptr the default URLLoaderFactory will be used. That
-  // factory only supports http(s) and blob requests that cannot be
-  // intercepted in the browser process.
-  CefRenderURLRequest(CefRefPtr<CefFrame> frame,
-                      CefRefPtr<CefRequest> request,
-                      CefRefPtr<CefURLRequestClient> client);
-  ~CefRenderURLRequest() override;
+  CefBrowserURLRequestOld(CefRefPtr<CefRequest> request,
+                          CefRefPtr<CefURLRequestClient> client,
+                          CefRefPtr<CefRequestContext> request_context);
+  ~CefBrowserURLRequestOld() override;
 
   bool Start();
 
@@ -38,7 +34,7 @@ class CefRenderURLRequest : public CefURLRequest {
 
   scoped_refptr<Context> context_;
 
-  IMPLEMENT_REFCOUNTING(CefRenderURLRequest);
+  IMPLEMENT_REFCOUNTING(CefBrowserURLRequestOld);
 };
 
-#endif  // CEF_LIBCEF_RENDERER_RENDER_URLREQUEST_IMPL_H_
+#endif  // CEF_LIBCEF_BROWSER_NET_BROWSER_URLREQUEST_OLD_IMPL_H_

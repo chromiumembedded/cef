@@ -243,6 +243,15 @@ void CefContentRendererClient::OnGuestViewDestroyed(CefGuestView* guest_view) {
   NOTREACHED();
 }
 
+blink::WebURLLoaderFactory*
+CefContentRendererClient::GetDefaultURLLoaderFactory() {
+  if (!default_url_loader_factory_) {
+    default_url_loader_factory_ =
+        blink::Platform::Current()->CreateDefaultURLLoaderFactory();
+  }
+  return default_url_loader_factory_.get();
+}
+
 void CefContentRendererClient::WebKitInitialized() {
   const base::CommandLine* command_line =
       base::CommandLine::ForCurrentProcess();
@@ -301,9 +310,6 @@ void CefContentRendererClient::WebKitInitialized() {
       CefV8SetUncaughtExceptionStackSize(uncaught_exception_stack_size_);
     }
   }
-
-  url_loader_factory_ =
-      blink::Platform::Current()->CreateDefaultURLLoaderFactory();
 
   // Notify the render process handler.
   CefRefPtr<CefApp> application = CefContentClient::Get()->application();

@@ -204,6 +204,8 @@ class InterceptedRequest : public network::mojom::URLLoader,
 
   void SendErrorCallback(int error_code, bool safebrowsing_hit);
 
+  void OnUploadProgressACK();
+
   ProxyURLLoaderFactory* const factory_;
   const RequestId id_;
   const uint32_t options_;
@@ -222,6 +224,9 @@ class InterceptedRequest : public network::mojom::URLLoader,
 
   network::URLLoaderCompletionStatus status_;
   bool got_loader_error_ = false;
+
+  // Used for rate limiting OnUploadProgress callbacks.
+  bool waiting_for_upload_progress_ack_ = false;
 
   network::ResourceRequest request_;
   network::ResourceResponseHead current_response_;
@@ -486,8 +491,25 @@ void InterceptedRequest::OnReceiveRedirect(
 void InterceptedRequest::OnUploadProgress(int64_t current_position,
                                           int64_t total_size,
                                           OnUploadProgressCallback callback) {
-  target_client_->OnUploadProgress(current_position, total_size,
-                                   std::move(callback));
+  // Implement our own rate limiting for OnUploadProgress calls.
+  if (!waiting_for_upload_progress_ack_) {
+    waiting_for_upload_progress_ack_ = true;
+    target_client_->OnUploadProgress(
+        current_position, total_size,
+        base::BindOnce(&InterceptedRequest::OnUploadProgressACK,
+                       weak_factory_.GetWeakPtr()));
+  }
+
+  // Always execute the callback immediately to avoid a race between
+  // URLLoaderClient_OnUploadProgress_ProxyToResponder::Run() (which would
+  // otherwise be blocked on the target client executing the callback) and
+  // CallOnComplete(). If CallOnComplete() is executed first the interface pipe
+  // will be closed and the callback destructor will generate an assertion like:
+  // "URLLoaderClient::OnUploadProgressCallback was destroyed without first
+  // either being run or its corresponding binding being closed. It is an error
+  // to drop response callbacks which still correspond to an open interface
+  // pipe."
+  std::move(callback).Run();
 }
 
 void InterceptedRequest::OnReceiveCachedMetadata(
@@ -524,16 +546,15 @@ void InterceptedRequest::FollowRedirect(
   OnProcessRequestHeaders(new_url.value_or(GURL()), &modified_headers,
                           &removed_headers);
 
-  if (target_loader_) {
-    target_loader_->FollowRedirect(removed_headers, modified_headers, new_url);
-  }
-
   // If |OnURLLoaderClientError| was called then we're just waiting for the
   // connection error handler of |proxied_loader_binding_|. Don't restart the
   // job since that'll create another URLLoader.
   if (!target_client_)
     return;
 
+  // Normally we would call FollowRedirect on the target loader and it would
+  // begin loading the redirected request. However, the client might want to
+  // intercept that request so restart the job instead.
   Restart();
 }
 
@@ -935,6 +956,11 @@ void InterceptedRequest::SendErrorCallback(int error_code,
   sent_error_callback_ = true;
   factory_->request_handler_->OnRequestError(id_, request_, error_code,
                                              safebrowsing_hit);
+}
+
+void InterceptedRequest::OnUploadProgressACK() {
+  DCHECK(waiting_for_upload_progress_ack_);
+  waiting_for_upload_progress_ack_ = false;
 }
 
 //==============================

@@ -24,10 +24,11 @@
 #include "libcef/renderer/browser_impl.h"
 #include "libcef/renderer/dom_document_impl.h"
 #include "libcef/renderer/render_frame_util.h"
+#include "libcef/renderer/render_urlrequest_impl.h"
 #include "libcef/renderer/thread_util.h"
 #include "libcef/renderer/v8_impl.h"
 
-#include "content/public/renderer/render_frame.h"
+#include "content/renderer/render_frame_impl.h"
 #include "third_party/blink/public/platform/web_data.h"
 #include "third_party/blink/public/platform/web_string.h"
 #include "third_party/blink/public/platform/web_url.h"
@@ -275,9 +276,36 @@ void CefFrameImpl::VisitDOM(CefRefPtr<CefDOMVisitor> visitor) {
     documentImpl->Detach();
 }
 
+CefRefPtr<CefURLRequest> CefFrameImpl::CreateURLRequest(
+    CefRefPtr<CefRequest> request,
+    CefRefPtr<CefURLRequestClient> client) {
+  CEF_REQUIRE_RT_RETURN(NULL);
+
+  if (!request || !client || !frame_)
+    return NULL;
+
+  CefRefPtr<CefRenderURLRequest> impl =
+      new CefRenderURLRequest(this, request, client);
+  if (impl->Start())
+    return impl.get();
+  return NULL;
+}
+
+blink::WebURLLoaderFactory* CefFrameImpl::GetURLLoaderFactory() {
+  CEF_REQUIRE_RT();
+  if (!url_loader_factory_ && frame_) {
+    auto render_frame = content::RenderFrameImpl::FromWebFrame(frame_);
+    if (render_frame) {
+      url_loader_factory_ = render_frame->CreateURLLoaderFactory();
+    }
+  }
+  return url_loader_factory_.get();
+}
+
 void CefFrameImpl::Detach() {
   browser_ = NULL;
   frame_ = NULL;
+  url_loader_factory_.reset();
 }
 
 void CefFrameImpl::ExecuteCommand(const std::string& command) {

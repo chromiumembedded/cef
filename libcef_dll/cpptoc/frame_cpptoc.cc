@@ -9,15 +9,17 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=a30b10a968d268b0fb84c189d78c37e599361c05$
+// $hash=eaff0c45fa3549df59bb9e64d5ac189205136ed3$
 //
 
 #include "libcef_dll/cpptoc/frame_cpptoc.h"
 #include "libcef_dll/cpptoc/browser_cpptoc.h"
 #include "libcef_dll/cpptoc/request_cpptoc.h"
+#include "libcef_dll/cpptoc/urlrequest_cpptoc.h"
 #include "libcef_dll/cpptoc/v8context_cpptoc.h"
 #include "libcef_dll/ctocpp/domvisitor_ctocpp.h"
 #include "libcef_dll/ctocpp/string_visitor_ctocpp.h"
+#include "libcef_dll/ctocpp/urlrequest_client_ctocpp.h"
 #include "libcef_dll/shutdown_checker.h"
 
 namespace {
@@ -408,6 +410,36 @@ void CEF_CALLBACK frame_visit_dom(struct _cef_frame_t* self,
   CefFrameCppToC::Get(self)->VisitDOM(CefDOMVisitorCToCpp::Wrap(visitor));
 }
 
+struct _cef_urlrequest_t* CEF_CALLBACK
+frame_create_urlrequest(struct _cef_frame_t* self,
+                        struct _cef_request_t* request,
+                        struct _cef_urlrequest_client_t* client) {
+  shutdown_checker::AssertNotShutdown();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return NULL;
+  // Verify param: request; type: refptr_same
+  DCHECK(request);
+  if (!request)
+    return NULL;
+  // Verify param: client; type: refptr_diff
+  DCHECK(client);
+  if (!client)
+    return NULL;
+
+  // Execute
+  CefRefPtr<CefURLRequest> _retval =
+      CefFrameCppToC::Get(self)->CreateURLRequest(
+          CefRequestCppToC::Unwrap(request),
+          CefURLRequestClientCToCpp::Wrap(client));
+
+  // Return type: refptr_same
+  return CefURLRequestCppToC::Wrap(_retval);
+}
+
 }  // namespace
 
 // CONSTRUCTOR - Do not edit by hand.
@@ -437,6 +469,7 @@ CefFrameCppToC::CefFrameCppToC() {
   GetStruct()->get_browser = frame_get_browser;
   GetStruct()->get_v8context = frame_get_v8context;
   GetStruct()->visit_dom = frame_visit_dom;
+  GetStruct()->create_urlrequest = frame_create_urlrequest;
 }
 
 // DESTRUCTOR - Do not edit by hand.

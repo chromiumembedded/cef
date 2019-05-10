@@ -64,9 +64,9 @@ class CefResourceRequestHandler : public virtual CefBaseRefCounted {
   ///
   // Called on the IO thread before a resource request is loaded. The |browser|
   // and |frame| values represent the source of the request, and may be NULL for
-  // requests originating from service workers. To optionally filter cookies for
-  // the request return a CefCookieAccessFilter object. The |request| object
-  // cannot not be modified in this callback.
+  // requests originating from service workers or CefURLRequest. To optionally
+  // filter cookies for the request return a CefCookieAccessFilter object. The
+  // |request| object cannot not be modified in this callback.
   ///
   /*--cef(optional_param=browser,optional_param=frame)--*/
   virtual CefRefPtr<CefCookieAccessFilter> GetCookieAccessFilter(
@@ -79,12 +79,12 @@ class CefResourceRequestHandler : public virtual CefBaseRefCounted {
   ///
   // Called on the IO thread before a resource request is loaded. The |browser|
   // and |frame| values represent the source of the request, and may be NULL for
-  // requests originating from service workers. To redirect or change the
-  // resource load optionally modify |request|. Modification of the request URL
-  // will be treated as a redirect. Return RV_CONTINUE to continue the request
-  // immediately. Return RV_CONTINUE_ASYNC and call CefRequestCallback::
-  // Continue() at a later time to continue or cancel the request
-  // asynchronously. Return RV_CANCEL to cancel the request immediately.
+  // requests originating from service workers or CefURLRequest. To redirect or
+  // change the resource load optionally modify |request|. Modification of the
+  // request URL will be treated as a redirect. Return RV_CONTINUE to continue
+  // the request immediately. Return RV_CONTINUE_ASYNC and call
+  // CefRequestCallback:: Continue() at a later time to continue or cancel the
+  // request asynchronously. Return RV_CANCEL to cancel the request immediately.
   //
   ///
   /*--cef(optional_param=browser,optional_param=frame,
@@ -100,10 +100,10 @@ class CefResourceRequestHandler : public virtual CefBaseRefCounted {
   ///
   // Called on the IO thread before a resource is loaded. The |browser| and
   // |frame| values represent the source of the request, and may be NULL for
-  // requests originating from service workers. To allow the resource to load
-  // using the default network loader return NULL. To specify a handler for the
-  // resource return a CefResourceHandler object. The |request| object cannot
-  // not be modified in this callback.
+  // requests originating from service workers or CefURLRequest. To allow the
+  // resource to load using the default network loader return NULL. To specify a
+  // handler for the resource return a CefResourceHandler object. The |request|
+  // object cannot not be modified in this callback.
   ///
   /*--cef(optional_param=browser,optional_param=frame)--*/
   virtual CefRefPtr<CefResourceHandler> GetResourceHandler(
@@ -116,11 +116,12 @@ class CefResourceRequestHandler : public virtual CefBaseRefCounted {
   ///
   // Called on the IO thread when a resource load is redirected. The |browser|
   // and |frame| values represent the source of the request, and may be NULL for
-  // requests originating from service workers. The |request| parameter will
-  // contain the old URL and other request-related information. The |response|
-  // parameter will contain the response that resulted in the redirect. The
-  // |new_url| parameter will contain the new URL and can be changed if desired.
-  // The |request| and |response| objects cannot be modified in this callback.
+  // requests originating from service workers or CefURLRequest. The |request|
+  // parameter will contain the old URL and other request-related information.
+  // The |response| parameter will contain the response that resulted in the
+  // redirect. The |new_url| parameter will contain the new URL and can be
+  // changed if desired. The |request| and |response| objects cannot be modified
+  // in this callback.
   ///
   /*--cef(optional_param=browser,optional_param=frame)--*/
   virtual void OnResourceRedirect(CefRefPtr<CefBrowser> browser,
@@ -132,12 +133,12 @@ class CefResourceRequestHandler : public virtual CefBaseRefCounted {
   ///
   // Called on the IO thread when a resource response is received. The |browser|
   // and |frame| values represent the source of the request, and may be NULL for
-  // requests originating from service workers. To allow the resource load to
-  // proceed without modification return false. To redirect or retry the
-  // resource load optionally modify |request| and return true. Modification of
-  // the request URL will be treated as a redirect. Requests handled using the
-  // default network loader cannot be redirected in this callback. The
-  // |response| object cannot be modified in this callback.
+  // requests originating from service workers or CefURLRequest. To allow the
+  // resource load to proceed without modification return false. To redirect or
+  // retry the resource load optionally modify |request| and return true.
+  // Modification of the request URL will be treated as a redirect. Requests
+  // handled using the default network loader cannot be redirected in this
+  // callback. The |response| object cannot be modified in this callback.
   //
   // WARNING: Redirecting using this method is deprecated. Use
   // OnBeforeResourceLoad or GetResourceHandler to perform redirects.
@@ -153,9 +154,9 @@ class CefResourceRequestHandler : public virtual CefBaseRefCounted {
   ///
   // Called on the IO thread to optionally filter resource response content. The
   // |browser| and |frame| values represent the source of the request, and may
-  // be NULL for requests originating from service workers. |request| and
-  // |response| represent the request and response respectively and cannot be
-  // modified in this callback.
+  // be NULL for requests originating from service workers or CefURLRequest.
+  // |request| and |response| represent the request and response respectively
+  // and cannot be modified in this callback.
   ///
   /*--cef(optional_param=browser,optional_param=frame)--*/
   virtual CefRefPtr<CefResponseFilter> GetResourceResponseFilter(
@@ -169,9 +170,9 @@ class CefResourceRequestHandler : public virtual CefBaseRefCounted {
   ///
   // Called on the IO thread when a resource load has completed. The |browser|
   // and |frame| values represent the source of the request, and may be NULL for
-  // requests originating from service workers. |request| and |response|
-  // represent the request and response respectively and cannot be modified in
-  // this callback. |status| indicates the load completion status.
+  // requests originating from service workers or CefURLRequest. |request| and
+  // |response| represent the request and response respectively and cannot be
+  // modified in this callback. |status| indicates the load completion status.
   // |received_content_length| is the number of response bytes actually read.
   ///
   /*--cef(optional_param=browser,optional_param=frame)--*/
@@ -186,8 +187,8 @@ class CefResourceRequestHandler : public virtual CefBaseRefCounted {
   // Called on the IO thread to handle requests for URLs with an unknown
   // protocol component. The |browser| and |frame| values represent the source
   // of the request, and may be NULL for requests originating from service
-  // workers. |request| cannot be modified in this callback. Set
-  // |allow_os_execution| to true to attempt execution via the registered OS
+  // workers or CefURLRequest. |request| cannot be modified in this callback.
+  // Set |allow_os_execution| to true to attempt execution via the registered OS
   // protocol handler, if any.
   // SECURITY WARNING: YOU SHOULD USE THIS METHOD TO ENFORCE RESTRICTIONS BASED
   // ON SCHEME, HOST OR OTHER URL ANALYSIS BEFORE ALLOWING OS EXECUTION.
@@ -210,9 +211,9 @@ class CefCookieAccessFilter : public virtual CefBaseRefCounted {
   ///
   // Called on the IO thread before a resource request is sent. The |browser|
   // and |frame| values represent the source of the request, and may be NULL for
-  // requests originating from service workers. |request| cannot be modified in
-  // this callback. Return true if the specified cookie can be sent with the
-  // request or false otherwise.
+  // requests originating from service workers or CefURLRequest. |request|
+  // cannot be modified in this callback. Return true if the specified cookie
+  // can be sent with the request or false otherwise.
   ///
   /*--cef(optional_param=browser,optional_param=frame)--*/
   virtual bool CanSendCookie(CefRefPtr<CefBrowser> browser,
@@ -225,9 +226,9 @@ class CefCookieAccessFilter : public virtual CefBaseRefCounted {
   ///
   // Called on the IO thread after a resource response is received. The
   // |browser| and |frame| values represent the source of the request, and may
-  // be NULL for requests originating from service workers. |request| cannot be
-  // modified in this callback. Return true if the specified cookie returned
-  // with the response can be saved or false otherwise.
+  // be NULL for requests originating from service workers or CefURLRequest.
+  // |request| cannot be modified in this callback. Return true if the specified
+  // cookie returned with the response can be saved or false otherwise.
   ///
   /*--cef(optional_param=browser,optional_param=frame)--*/
   virtual bool CanSaveCookie(CefRefPtr<CefBrowser> browser,

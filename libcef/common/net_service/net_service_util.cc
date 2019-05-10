@@ -44,6 +44,9 @@ bool GetCookieDomain(const GURL& url,
 const char kHTTPLocationHeaderName[] = "Location";
 const char kHTTPSetCookieHeaderName[] = "Set-Cookie";
 
+const char kContentTypeApplicationFormURLEncoded[] =
+    "application/x-www-form-urlencoded";
+
 const char kHTTPHeaderSep[] = ": ";
 
 std::string MakeHeader(const std::string& name, const std::string& value) {

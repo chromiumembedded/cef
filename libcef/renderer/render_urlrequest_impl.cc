@@ -81,9 +81,11 @@ class CefRenderURLRequest::Context
     : public base::RefCountedThreadSafe<CefRenderURLRequest::Context> {
  public:
   Context(CefRefPtr<CefRenderURLRequest> url_request,
+          CefRefPtr<CefFrame> frame,
           CefRefPtr<CefRequest> request,
           CefRefPtr<CefURLRequestClient> client)
       : url_request_(url_request),
+        frame_(frame),
         request_(request),
         client_(client),
         task_runner_(CefTaskRunnerImpl::GetCurrentTaskRunner()),
@@ -121,10 +123,19 @@ class CefRenderURLRequest::Context
     urlRequest.SetRequestorOrigin(
         blink::WebSecurityOrigin::Create(urlRequest.Url()));
 
-    loader_ =
-        CefContentRendererClient::Get()->url_loader_factory()->CreateURLLoader(
-            urlRequest, blink::scheduler::WebResourceLoadingTaskRunnerHandle::
-                            CreateUnprioritized(task_runner_.get()));
+    blink::WebURLLoaderFactory* factory = nullptr;
+    if (frame_) {
+      // This factory supports all requests.
+      factory = static_cast<CefFrameImpl*>(frame_.get())->GetURLLoaderFactory();
+    }
+    if (!factory) {
+      // This factory only supports unintercepted http(s) and blob requests.
+      factory = CefContentRendererClient::Get()->GetDefaultURLLoaderFactory();
+    }
+
+    loader_ = factory->CreateURLLoader(
+        urlRequest, blink::scheduler::WebResourceLoadingTaskRunnerHandle::
+                        CreateUnprioritized(task_runner_.get()));
     loader_->LoadAsynchronously(urlRequest, url_client_.get());
     return true;
   }
@@ -316,6 +327,7 @@ class CefRenderURLRequest::Context
 
   // Members only accessed on the initialization thread.
   CefRefPtr<CefRenderURLRequest> url_request_;
+  CefRefPtr<CefFrame> frame_;
   CefRefPtr<CefRequest> request_;
   CefRefPtr<CefURLRequestClient> client_;
   scoped_refptr<base::SingleThreadTaskRunner> task_runner_;
@@ -404,9 +416,10 @@ bool CefWebURLLoaderClient::WillFollowRedirect(
 // CefRenderURLRequest --------------------------------------------------------
 
 CefRenderURLRequest::CefRenderURLRequest(
+    CefRefPtr<CefFrame> frame,
     CefRefPtr<CefRequest> request,
     CefRefPtr<CefURLRequestClient> client) {
-  context_ = new Context(this, request, client);
+  context_ = new Context(this, frame, request, client);
 }
 
 CefRenderURLRequest::~CefRenderURLRequest() {}

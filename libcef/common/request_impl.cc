@@ -12,6 +12,7 @@
 #include "libcef/common/cef_messages.h"
 #include "libcef/common/net/http_header_utils.h"
 #include "libcef/common/net/upload_data.h"
+#include "libcef/common/net_service/net_service_util.h"
 #include "libcef/common/request_impl.h"
 
 #include "base/command_line.h"
@@ -54,7 +55,6 @@ const char kCacheControlLowerCase[] = "cache-control";
 const char kCacheControlDirectiveNoCacheLowerCase[] = "no-cache";
 const char kCacheControlDirectiveNoStoreLowerCase[] = "no-store";
 const char kCacheControlDirectiveOnlyIfCachedLowerCase[] = "only-if-cached";
-const char kApplicationFormURLEncoded[] = "application/x-www-form-urlencoded";
 
 // Mask of values that configure the cache policy.
 const int kURCachePolicyMask =
@@ -549,6 +549,35 @@ void CefRequestImpl::Get(network::ResourceRequest* request,
       ShouldSet(kChangedFirstPartyForCookies, changed_only)) {
     request->site_for_cookies = first_party_for_cookies_;
   }
+
+  if (ShouldSet(kChangedFlags, changed_only)) {
+    int flags = flags_;
+    if (!(flags & kURCachePolicyMask)) {
+      // Only consider the Cache-Control directives when a cache policy is not
+      // explicitly set on the request.
+      flags |= GetCacheControlHeaderPolicy(headermap_);
+    }
+
+    int net_flags = 0;
+
+    if (flags & UR_FLAG_SKIP_CACHE) {
+      net_flags |= net::LOAD_BYPASS_CACHE;
+    }
+    if (flags & UR_FLAG_ONLY_FROM_CACHE) {
+      net_flags |= net::LOAD_ONLY_FROM_CACHE | net::LOAD_SKIP_CACHE_VALIDATION;
+    }
+    if (flags & UR_FLAG_DISABLE_CACHE) {
+      net_flags |= net::LOAD_DISABLE_CACHE;
+    }
+
+    if (!(flags & UR_FLAG_ALLOW_STORED_CREDENTIALS)) {
+      net_flags |= net::LOAD_DO_NOT_SEND_AUTH_DATA |
+                   net::LOAD_DO_NOT_SEND_COOKIES |
+                   net::LOAD_DO_NOT_SAVE_COOKIES;
+    }
+
+    request->load_flags = net_flags;
+  }
 }
 
 void CefRequestImpl::Set(const net::RedirectInfo& redirect_info) {
@@ -771,7 +800,8 @@ void CefRequestImpl::Get(const CefMsg_LoadRequest_Params& params,
             .length() == 0) {
       request.SetHttpHeaderField(
           blink::WebString::FromASCII(net::HttpRequestHeaders::kContentType),
-          blink::WebString::FromASCII(kApplicationFormURLEncoded));
+          blink::WebString::FromASCII(
+              net_service::kContentTypeApplicationFormURLEncoded));
     }
 
     blink::WebHTTPBody body;
@@ -869,7 +899,7 @@ void CefRequestImpl::Get(net::URLFetcher& fetcher,
     if (elements.size() == 1) {
       // Default to URL encoding if not specified.
       if (content_type.empty())
-        content_type = kApplicationFormURLEncoded;
+        content_type = net_service::kContentTypeApplicationFormURLEncoded;
 
       CefPostDataElementImpl* impl =
           static_cast<CefPostDataElementImpl*>(elements[0].get());

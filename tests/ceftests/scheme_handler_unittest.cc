@@ -217,9 +217,11 @@ class ClientSchemeHandler : public CefResourceHandler {
       EXPECT_STREQ(test_results_->accept_language.data(),
                    accept_language.data());
     } else {
-      // Value from CefSettings.accept_language set in
-      // CefTestSuite::GetSettings().
-      EXPECT_STREQ(CEF_SETTINGS_ACCEPT_LANGUAGE, accept_language.data());
+      // CEF_SETTINGS_ACCEPT_LANGUAGE value from
+      // CefSettings.accept_language_list set in CefTestSuite::GetSettings()
+      // and expanded internally by ComputeAcceptLanguageFromPref.
+      EXPECT_STREQ(IsNetworkServiceEnabled() ? "en-GB,en;q=0.9" : "en-GB",
+                   accept_language.data());
     }
 
     if (handled) {

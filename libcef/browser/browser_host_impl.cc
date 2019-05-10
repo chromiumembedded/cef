@@ -1868,35 +1868,6 @@ void CefBrowserHostImpl::SendCode(
   }
 }
 
-void CefBrowserHostImpl::ExecuteJavaScriptWithUserGestureForTests(
-    int64 frame_id,
-    const CefString& javascript) {
-  DCHECK(frame_id >= CefFrameHostImpl::kMainFrameId);
-
-  if (!CEF_CURRENTLY_ON_UIT()) {
-    CEF_POST_TASK(
-        CEF_UIT,
-        base::BindOnce(
-            &CefBrowserHostImpl::ExecuteJavaScriptWithUserGestureForTests, this,
-            frame_id, javascript));
-    return;
-  }
-
-  if (!web_contents())
-    return;
-
-  content::RenderFrameHost* rfh;
-  if (frame_id == CefFrameHostImpl::kMainFrameId) {
-    rfh = web_contents()->GetMainFrame();
-  } else {
-    rfh = content::RenderFrameHost::FromID(
-        web_contents()->GetRenderViewHost()->GetProcess()->GetID(), frame_id);
-  }
-
-  if (rfh)
-    rfh->ExecuteJavaScriptWithUserGestureForTests(javascript);
-}
-
 void CefBrowserHostImpl::ViewText(const std::string& text) {
   if (!CEF_CURRENTLY_ON_UIT()) {
     CEF_POST_TASK(CEF_UIT,

@@ -29,6 +29,9 @@ namespace net_service {
 extern const char kHTTPLocationHeaderName[];
 extern const char kHTTPSetCookieHeaderName[];
 
+// HTTP header values.
+extern const char kContentTypeApplicationFormURLEncoded[];
+
 // Make a header name/value pair.
 std::string MakeHeader(const std::string& name, const std::string& value);
 

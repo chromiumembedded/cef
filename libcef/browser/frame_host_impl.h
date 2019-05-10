@@ -13,6 +13,10 @@
 
 #include "base/synchronization/lock.h"
 
+namespace content {
+class RenderFrameHost;
+}
+
 class CefBrowserHostImpl;
 
 // Implementation of CefFrame. CefFrameHostImpl objects are owned by the
@@ -55,6 +59,9 @@ class CefFrameHostImpl : public CefFrame {
   CefRefPtr<CefBrowser> GetBrowser() override;
   CefRefPtr<CefV8Context> GetV8Context() override;
   void VisitDOM(CefRefPtr<CefDOMVisitor> visitor) override;
+  CefRefPtr<CefURLRequest> CreateURLRequest(
+      CefRefPtr<CefRequest> request,
+      CefRefPtr<CefURLRequestClient> client) override;
 
   void SetFocused(bool focused);
   void SetAttributes(bool is_main_frame,
@@ -68,6 +75,10 @@ class CefFrameHostImpl : public CefFrame {
                       int startLine);
 
   void ExecuteJavaScriptWithUserGestureForTests(const CefString& javascript);
+
+  // Returns the RFH associated with this frame. Must be called on the UI
+  // thread.
+  content::RenderFrameHost* GetRenderFrameHost();
 
   // Detach the frame from the browser.
   void Detach();

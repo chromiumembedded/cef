@@ -3,12 +3,20 @@
 // be found in the LICENSE file.
 
 #include "libcef/browser/frame_host_impl.h"
+
 #include "include/cef_request.h"
 #include "include/cef_stream.h"
 #include "include/cef_v8.h"
 #include "include/test/cef_test_helpers.h"
 #include "libcef/browser/browser_host_impl.h"
+#include "libcef/browser/net/browser_urlrequest_old_impl.h"
+#include "libcef/browser/net_service/browser_urlrequest_impl.h"
 #include "libcef/common/cef_messages.h"
+#include "libcef/common/net_service/util.h"
+#include "libcef/common/task_runner_impl.h"
+
+#include "content/public/browser/render_process_host.h"
+#include "content/public/browser/render_view_host.h"
 
 namespace {
 
@@ -235,6 +243,42 @@ void CefFrameHostImpl::VisitDOM(CefRefPtr<CefDOMVisitor> visitor) {
   NOTREACHED() << "VisitDOM cannot be called from the browser process";
 }
 
+CefRefPtr<CefURLRequest> CefFrameHostImpl::CreateURLRequest(
+    CefRefPtr<CefRequest> request,
+    CefRefPtr<CefURLRequestClient> client) {
+  if (!request || !client)
+    return NULL;
+
+  if (!CefTaskRunnerImpl::GetCurrentTaskRunner()) {
+    NOTREACHED() << "called on invalid thread";
+    return NULL;
+  }
+
+  CefRefPtr<CefBrowserHostImpl> browser;
+  {
+    base::AutoLock lock_scope(state_lock_);
+    browser = browser_;
+  }
+
+  if (!browser)
+    return NULL;
+
+  auto request_context = browser->request_context();
+
+  if (net_service::IsEnabled()) {
+    CefRefPtr<CefBrowserURLRequest> impl =
+        new CefBrowserURLRequest(this, request, client, request_context);
+    if (impl->Start())
+      return impl.get();
+  } else {
+    CefRefPtr<CefBrowserURLRequestOld> impl =
+        new CefBrowserURLRequestOld(request, client, request_context);
+    if (impl->Start())
+      return impl.get();
+  }
+  return NULL;
+}
+
 void CefFrameHostImpl::SendJavaScript(const std::string& jsCode,
                                       const std::string& scriptUrl,
                                       int startLine) {
@@ -262,6 +306,23 @@ void CefFrameHostImpl::SendJavaScript(const std::string& jsCode,
 
 void CefFrameHostImpl::ExecuteJavaScriptWithUserGestureForTests(
     const CefString& javascript) {
+  if (!CEF_CURRENTLY_ON_UIT()) {
+    CEF_POST_TASK(
+        CEF_UIT,
+        base::BindOnce(
+            &CefFrameHostImpl::ExecuteJavaScriptWithUserGestureForTests, this,
+            javascript));
+    return;
+  }
+
+  content::RenderFrameHost* rfh = GetRenderFrameHost();
+  if (rfh)
+    rfh->ExecuteJavaScriptWithUserGestureForTests(javascript);
+}
+
+content::RenderFrameHost* CefFrameHostImpl::GetRenderFrameHost() {
+  CEF_REQUIRE_UIT();
+
   CefRefPtr<CefBrowserHostImpl> browser;
   int64 frame_id;
 
@@ -271,8 +332,18 @@ void CefFrameHostImpl::ExecuteJavaScriptWithUserGestureForTests(
     frame_id = (is_main_frame_ ? kMainFrameId : frame_id_);
   }
 
-  if (browser.get() && frame_id != kInvalidFrameId)
-    browser->ExecuteJavaScriptWithUserGestureForTests(frame_id, javascript);
+  if (!browser || frame_id == kInvalidFrameId)
+    return nullptr;
+
+  auto web_contents = browser->web_contents();
+  if (!web_contents)
+    return nullptr;
+
+  if (frame_id == kMainFrameId)
+    return web_contents->GetMainFrame();
+
+  return content::RenderFrameHost::FromID(
+      web_contents->GetRenderViewHost()->GetProcess()->GetID(), frame_id);
 }
 
 void CefFrameHostImpl::Detach() {
@@ -300,5 +371,6 @@ void CefFrameHostImpl::SendCommand(
 void CefExecuteJavaScriptWithUserGestureForTests(CefRefPtr<CefFrame> frame,
                                                  const CefString& javascript) {
   CefFrameHostImpl* impl = static_cast<CefFrameHostImpl*>(frame.get());
-  impl->ExecuteJavaScriptWithUserGestureForTests(javascript);
+  if (impl)
+    impl->ExecuteJavaScriptWithUserGestureForTests(javascript);
 }

@@ -2,7 +2,7 @@
 // reserved. Use of this source code is governed by a BSD-style license that can
 // be found in the LICENSE file.
 
-#include "libcef/browser/browser_urlrequest_impl.h"
+#include "libcef/browser/net/browser_urlrequest_old_impl.h"
 
 #include <string>
 #include <utility>
@@ -36,7 +36,7 @@ namespace {
 
 class CefURLFetcherDelegate : public net::URLFetcherDelegate {
  public:
-  CefURLFetcherDelegate(CefBrowserURLRequest::Context* context,
+  CefURLFetcherDelegate(CefBrowserURLRequestOld::Context* context,
                         int request_flags);
   ~CefURLFetcherDelegate() override;
 
@@ -52,14 +52,14 @@ class CefURLFetcherDelegate : public net::URLFetcherDelegate {
 
  private:
   // The context_ pointer will outlive this object.
-  CefBrowserURLRequest::Context* context_;
+  CefBrowserURLRequestOld::Context* context_;
   int request_flags_;
 };
 
 class CefURLFetcherResponseWriter : public net::URLFetcherResponseWriter {
  public:
   CefURLFetcherResponseWriter(
-      CefRefPtr<CefBrowserURLRequest> url_request,
+      CefRefPtr<CefBrowserURLRequestOld> url_request,
       scoped_refptr<base::SequencedTaskRunner> task_runner)
       : url_request_(url_request), task_runner_(task_runner) {}
 
@@ -91,7 +91,7 @@ class CefURLFetcherResponseWriter : public net::URLFetcherResponseWriter {
 
  private:
   static void WriteOnClientThread(
-      CefRefPtr<CefBrowserURLRequest> url_request,
+      CefRefPtr<CefBrowserURLRequestOld> url_request,
       scoped_refptr<net::IOBuffer> buffer,
       int num_bytes,
       net::CompletionOnceCallback callback,
@@ -111,7 +111,7 @@ class CefURLFetcherResponseWriter : public net::URLFetcherResponseWriter {
     std::move(callback).Run(num_bytes);
   }
 
-  CefRefPtr<CefBrowserURLRequest> url_request_;
+  CefRefPtr<CefBrowserURLRequestOld> url_request_;
   scoped_refptr<base::SequencedTaskRunner> task_runner_;
 
   DISALLOW_COPY_AND_ASSIGN(CefURLFetcherResponseWriter);
@@ -124,12 +124,13 @@ std::unique_ptr<base::SupportsUserData::Data> CreateURLRequestUserData(
 
 }  // namespace
 
-// CefBrowserURLRequest::Context ----------------------------------------------
+// CefBrowserURLRequestOld::Context
+// ----------------------------------------------
 
-class CefBrowserURLRequest::Context
-    : public base::RefCountedThreadSafe<CefBrowserURLRequest::Context> {
+class CefBrowserURLRequestOld::Context
+    : public base::RefCountedThreadSafe<CefBrowserURLRequestOld::Context> {
  public:
-  Context(CefRefPtr<CefBrowserURLRequest> url_request,
+  Context(CefRefPtr<CefBrowserURLRequestOld> url_request,
           CefRefPtr<CefRequest> request,
           CefRefPtr<CefURLRequestClient> client,
           CefRefPtr<CefRequestContext> request_context)
@@ -177,10 +178,12 @@ class CefBrowserURLRequest::Context
 
     base::PostTaskWithTraitsAndReply(
         FROM_HERE, {BrowserThread::UI},
-        base::Bind(&CefBrowserURLRequest::Context::GetRequestContextOnUIThread,
-                   this),
-        base::Bind(&CefBrowserURLRequest::Context::ContinueOnOriginatingThread,
-                   this, url, request_type));
+        base::Bind(
+            &CefBrowserURLRequestOld::Context::GetRequestContextOnUIThread,
+            this),
+        base::Bind(
+            &CefBrowserURLRequestOld::Context::ContinueOnOriginatingThread,
+            this, url, request_type));
 
     return true;
   }
@@ -330,7 +333,7 @@ class CefBrowserURLRequest::Context
   bool response_was_cached() const { return response_was_cached_; }
 
  private:
-  friend class base::RefCountedThreadSafe<CefBrowserURLRequest::Context>;
+  friend class base::RefCountedThreadSafe<CefBrowserURLRequestOld::Context>;
 
   ~Context() {
     if (fetcher_.get()) {
@@ -369,7 +372,7 @@ class CefBrowserURLRequest::Context
   }
 
   // Members only accessed on the initialization thread.
-  CefRefPtr<CefBrowserURLRequest> url_request_;
+  CefRefPtr<CefBrowserURLRequestOld> url_request_;
   CefRefPtr<CefRequest> request_;
   CefRefPtr<CefURLRequestClient> client_;
   CefRefPtr<CefRequestContext> request_context_;
@@ -391,7 +394,7 @@ class CefBrowserURLRequest::Context
 namespace {
 
 CefURLFetcherDelegate::CefURLFetcherDelegate(
-    CefBrowserURLRequest::Context* context,
+    CefBrowserURLRequestOld::Context* context,
     int request_flags)
     : context_(context), request_flags_(request_flags) {}
 
@@ -402,7 +405,7 @@ void CefURLFetcherDelegate::OnURLFetchComplete(const net::URLFetcher* source) {
   // in the call stack.
   CefTaskRunnerImpl::GetCurrentTaskRunner()->PostTask(
       FROM_HERE,
-      base::Bind(&CefBrowserURLRequest::Context::OnComplete, context_));
+      base::Bind(&CefBrowserURLRequestOld::Context::OnComplete, context_));
 }
 
 void CefURLFetcherDelegate::OnURLFetchDownloadProgress(
@@ -423,66 +426,67 @@ void CefURLFetcherDelegate::OnURLFetchUploadProgress(
 
 }  // namespace
 
-// CefBrowserURLRequest -------------------------------------------------------
+// CefBrowserURLRequestOld
+// -------------------------------------------------------
 
-CefBrowserURLRequest::CefBrowserURLRequest(
+CefBrowserURLRequestOld::CefBrowserURLRequestOld(
     CefRefPtr<CefRequest> request,
     CefRefPtr<CefURLRequestClient> client,
     CefRefPtr<CefRequestContext> request_context) {
   context_ = new Context(this, request, client, request_context);
 }
 
-CefBrowserURLRequest::~CefBrowserURLRequest() {}
+CefBrowserURLRequestOld::~CefBrowserURLRequestOld() {}
 
-bool CefBrowserURLRequest::Start() {
+bool CefBrowserURLRequestOld::Start() {
   if (!VerifyContext())
     return false;
   return context_->Start();
 }
 
-CefRefPtr<CefRequest> CefBrowserURLRequest::GetRequest() {
+CefRefPtr<CefRequest> CefBrowserURLRequestOld::GetRequest() {
   if (!VerifyContext())
     return NULL;
   return context_->request();
 }
 
-CefRefPtr<CefURLRequestClient> CefBrowserURLRequest::GetClient() {
+CefRefPtr<CefURLRequestClient> CefBrowserURLRequestOld::GetClient() {
   if (!VerifyContext())
     return NULL;
   return context_->client();
 }
 
-CefURLRequest::Status CefBrowserURLRequest::GetRequestStatus() {
+CefURLRequest::Status CefBrowserURLRequestOld::GetRequestStatus() {
   if (!VerifyContext())
     return UR_UNKNOWN;
   return context_->status();
 }
 
-CefURLRequest::ErrorCode CefBrowserURLRequest::GetRequestError() {
+CefURLRequest::ErrorCode CefBrowserURLRequestOld::GetRequestError() {
   if (!VerifyContext())
     return ERR_NONE;
   return context_->error_code();
 }
 
-CefRefPtr<CefResponse> CefBrowserURLRequest::GetResponse() {
+CefRefPtr<CefResponse> CefBrowserURLRequestOld::GetResponse() {
   if (!VerifyContext())
     return NULL;
   return context_->response();
 }
 
-bool CefBrowserURLRequest::ResponseWasCached() {
+bool CefBrowserURLRequestOld::ResponseWasCached() {
   if (!VerifyContext())
     return false;
   return context_->response_was_cached();
 }
 
-void CefBrowserURLRequest::Cancel() {
+void CefBrowserURLRequestOld::Cancel() {
   if (!VerifyContext())
     return;
   return context_->Cancel();
 }
 
-bool CefBrowserURLRequest::VerifyContext() {
+bool CefBrowserURLRequestOld::VerifyContext() {
   DCHECK(context_.get());
   if (!context_->CalledOnValidThread()) {
     NOTREACHED() << "called on invalid thread";

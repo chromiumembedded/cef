@@ -4,6 +4,7 @@
 
 #include "libcef/browser/prefs/browser_prefs.h"
 
+#include "libcef/browser/browser_context.h"
 #include "libcef/browser/media_capture_devices_dispatcher.h"
 #include "libcef/browser/net/url_request_context_getter.h"
 #include "libcef/browser/prefs/pref_store.h"
@@ -36,6 +37,7 @@
 #include "components/google/core/browser/google_url_tracker.h"
 #include "components/keyed_service/content/browser_context_dependency_manager.h"
 #include "components/language/core/browser/language_prefs.h"
+#include "components/language/core/browser/pref_names.h"
 #include "components/pref_registry/pref_registry_syncable.h"
 #include "components/prefs/json_pref_store.h"
 #include "components/prefs/pref_filter.h"
@@ -57,6 +59,19 @@
 #endif
 
 namespace browser_prefs {
+
+namespace {
+
+std::string GetAcceptLanguageList(Profile* profile) {
+  const CefRequestContextSettings& context_settings =
+      static_cast<CefBrowserContext*>(profile)->GetSettings();
+  if (context_settings.accept_language_list.length > 0) {
+    return CefString(&context_settings.accept_language_list);
+  }
+  return std::string();
+}
+
+}  // namespace
 
 const char kUserPrefsFileName[] = "UserPrefs.json";
 
@@ -230,6 +245,14 @@ std::unique_ptr<PrefService> CreatePrefService(Profile* profile,
     // Based on DevToolsWindow::RegisterProfilePrefs.
     registry->RegisterDictionaryPref(prefs::kDevToolsPreferences);
     registry->RegisterDictionaryPref(prefs::kDevToolsEditedFiles);
+
+    // Language preferences. Used by ProfileNetworkContextService and
+    // InterceptedRequestHandlerWrapper.
+    const std::string& accept_language_list = GetAcceptLanguageList(profile);
+    if (!accept_language_list.empty()) {
+      registry->SetDefaultPrefValue(language::prefs::kAcceptLanguages,
+                                    base::Value(accept_language_list));
+    }
   }
 
   // Build the PrefService that manages the PrefRegistry and PrefStores.

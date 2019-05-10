@@ -87,10 +87,9 @@ class CefContentRendererClient
     return uncaught_exception_stack_size_;
   }
 
-  // Used by CefRenderURLRequest to create WebURLLoaders.
-  blink::WebURLLoaderFactory* url_loader_factory() const {
-    return url_loader_factory_.get();
-  }
+  // Returns a factory that only supports unintercepted http(s) and blob
+  // requests. Used by CefRenderURLRequest.
+  blink::WebURLLoaderFactory* GetDefaultURLLoaderFactory();
 
   void WebKitInitialized();
 
@@ -169,7 +168,8 @@ class CefContentRendererClient
   std::unique_ptr<CefRenderThreadObserver> observer_;
   std::unique_ptr<web_cache::WebCacheImpl> web_cache_impl_;
   std::unique_ptr<SpellCheck> spellcheck_;
-  std::unique_ptr<blink::WebURLLoaderFactory> url_loader_factory_;
+
+  std::unique_ptr<blink::WebURLLoaderFactory> default_url_loader_factory_;
 
   // Map of RenderView pointers to CefBrowserImpl references.
   typedef std::map<content::RenderView*, CefRefPtr<CefBrowserImpl>> BrowserMap;

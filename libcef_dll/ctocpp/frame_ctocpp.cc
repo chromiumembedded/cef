@@ -9,14 +9,16 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=e1e8b50b87dbf2cb7fa8b4d53fa5ff635c51bde3$
+// $hash=301b9573f13ede3bc9cb210caaae109fdf909130$
 //
 
 #include "libcef_dll/ctocpp/frame_ctocpp.h"
 #include "libcef_dll/cpptoc/domvisitor_cpptoc.h"
 #include "libcef_dll/cpptoc/string_visitor_cpptoc.h"
+#include "libcef_dll/cpptoc/urlrequest_client_cpptoc.h"
 #include "libcef_dll/ctocpp/browser_ctocpp.h"
 #include "libcef_dll/ctocpp/request_ctocpp.h"
+#include "libcef_dll/ctocpp/urlrequest_ctocpp.h"
 #include "libcef_dll/ctocpp/v8context_ctocpp.h"
 #include "libcef_dll/shutdown_checker.h"
 
@@ -414,6 +416,36 @@ void CefFrameCToCpp::VisitDOM(CefRefPtr<CefDOMVisitor> visitor) {
 
   // Execute
   _struct->visit_dom(_struct, CefDOMVisitorCppToC::Wrap(visitor));
+}
+
+NO_SANITIZE("cfi-icall")
+CefRefPtr<CefURLRequest> CefFrameCToCpp::CreateURLRequest(
+    CefRefPtr<CefRequest> request,
+    CefRefPtr<CefURLRequestClient> client) {
+  shutdown_checker::AssertNotShutdown();
+
+  cef_frame_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, create_urlrequest))
+    return NULL;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: request; type: refptr_same
+  DCHECK(request.get());
+  if (!request.get())
+    return NULL;
+  // Verify param: client; type: refptr_diff
+  DCHECK(client.get());
+  if (!client.get())
+    return NULL;
+
+  // Execute
+  cef_urlrequest_t* _retval =
+      _struct->create_urlrequest(_struct, CefRequestCToCpp::Unwrap(request),
+                                 CefURLRequestClientCppToC::Wrap(client));
+
+  // Return type: refptr_same
+  return CefURLRequestCToCpp::Wrap(_retval);
 }
 
 // CONSTRUCTOR - Do not edit by hand.

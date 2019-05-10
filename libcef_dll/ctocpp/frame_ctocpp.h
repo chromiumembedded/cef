@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=756629986a078c1403693255503cc6307215126b$
+// $hash=7479de0c460d69b7846c0c13df0ea50f3b9aeae1$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_FRAME_CTOCPP_H_
@@ -22,9 +22,11 @@
 
 #include "include/capi/cef_browser_capi.h"
 #include "include/capi/cef_frame_capi.h"
+#include "include/capi/cef_urlrequest_capi.h"
 #include "include/capi/cef_v8_capi.h"
 #include "include/cef_browser.h"
 #include "include/cef_frame.h"
+#include "include/cef_urlrequest.h"
 #include "include/cef_v8.h"
 #include "libcef_dll/ctocpp/ctocpp_ref_counted.h"
 
@@ -63,6 +65,9 @@ class CefFrameCToCpp
   CefRefPtr<CefBrowser> GetBrowser() OVERRIDE;
   CefRefPtr<CefV8Context> GetV8Context() OVERRIDE;
   void VisitDOM(CefRefPtr<CefDOMVisitor> visitor) OVERRIDE;
+  CefRefPtr<CefURLRequest> CreateURLRequest(
+      CefRefPtr<CefRequest> request,
+      CefRefPtr<CefURLRequestClient> client) OVERRIDE;
 };
 
 #endif  // CEF_LIBCEF_DLL_CTOCPP_FRAME_CTOCPP_H_

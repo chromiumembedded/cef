@@ -2,18 +2,21 @@
 // reserved. Use of this source code is governed by a BSD-style license that can
 // be found in the LICENSE file.
 
-#ifndef CEF_LIBCEF_BROWSER_BROWSER_URLREQUEST_IMPL_H_
-#define CEF_LIBCEF_BROWSER_BROWSER_URLREQUEST_IMPL_H_
+#ifndef CEF_LIBCEF_BROWSER_NET_SERVICE_BROWSER_URLREQUEST_IMPL_H_
+#define CEF_LIBCEF_BROWSER_NET_SERVICE_BROWSER_URLREQUEST_IMPL_H_
+
+#include <memory>
 
 #include "include/cef_urlrequest.h"
-
-#include "base/memory/ref_counted.h"
 
 class CefBrowserURLRequest : public CefURLRequest {
  public:
   class Context;
 
-  CefBrowserURLRequest(CefRefPtr<CefRequest> request,
+  // If |frame| is nullptr requests can still be intercepted but no
+  // browser/frame will be associated with them.
+  CefBrowserURLRequest(CefRefPtr<CefFrame> frame,
+                       CefRefPtr<CefRequest> request,
                        CefRefPtr<CefURLRequestClient> client,
                        CefRefPtr<CefRequestContext> request_context);
   ~CefBrowserURLRequest() override;
@@ -32,9 +35,9 @@ class CefBrowserURLRequest : public CefURLRequest {
  private:
   bool VerifyContext();
 
-  scoped_refptr<Context> context_;
+  std::unique_ptr<Context> context_;
 
   IMPLEMENT_REFCOUNTING(CefBrowserURLRequest);
 };
 
-#endif  // CEF_LIBCEF_BROWSER_BROWSER_URLREQUEST_IMPL_H_
+#endif  // CEF_LIBCEF_BROWSER_NET_SERVICE_BROWSER_URLREQUEST_IMPL_H_

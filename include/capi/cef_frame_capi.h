@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=d3fcf9a928adb588443a52d82a48c188a67d3231$
+// $hash=4e8384d7f289708b09f08be98c5477f2be3fde97$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_FRAME_CAPI_H_
@@ -51,6 +51,8 @@ extern "C" {
 #endif
 
 struct _cef_browser_t;
+struct _cef_urlrequest_client_t;
+struct _cef_urlrequest_t;
 struct _cef_v8context_t;
 
 ///
@@ -215,6 +217,33 @@ typedef struct _cef_frame_t {
   ///
   void(CEF_CALLBACK* visit_dom)(struct _cef_frame_t* self,
                                 struct _cef_domvisitor_t* visitor);
+
+  ///
+  // Create a new URL request that will be treated as originating from this
+  // frame and the associated browser. This request may be intercepted by the
+  // client via cef_resource_request_handler_t or cef_scheme_handler_factory_t.
+  // Use cef_urlrequest_t::Create instead if you do not want the request to have
+  // this association, in which case it may be handled differently (see
+  // documentation on that function). Requests may originate from both the
+  // browser process and the render process.
+  //
+  // For requests originating from the browser process:
+  //   - POST data may only contain a single element of type PDE_TYPE_FILE or
+  //     PDE_TYPE_BYTES.
+  // For requests originating from the render process:
+  //   - POST data may only contain a single element of type PDE_TYPE_BYTES.
+  //   - If the response contains Content-Disposition or Mime-Type header values
+  //     that would not normally be rendered then the response may receive
+  //     special handling inside the browser (for example, via the file download
+  //     code path instead of the URL request code path).
+  //
+  // The |request| object will be marked as read-only after calling this
+  // function.
+  ///
+  struct _cef_urlrequest_t*(CEF_CALLBACK* create_urlrequest)(
+      struct _cef_frame_t* self,
+      struct _cef_request_t* request,
+      struct _cef_urlrequest_client_t* client);
 } cef_frame_t;
 
 #ifdef __cplusplus

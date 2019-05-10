@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=fa6b1185c566277ff593e7e537dff2b8085d1f3a$
+// $hash=3d31b2d1bad50deeb68a5e6318344024c2f3f5be$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_URLREQUEST_CAPI_H_
@@ -112,19 +112,25 @@ typedef struct _cef_urlrequest_t {
 } cef_urlrequest_t;
 
 ///
-// Create a new URL request. Only GET, POST, HEAD, DELETE and PUT request
-// functions are supported. Multiple post data elements are not supported and
-// elements of type PDE_TYPE_FILE are only supported for requests originating
-// from the browser process. Requests originating from the render process will
-// receive the same handling as requests originating from Web content -- if the
-// response contains Content-Disposition or Mime-Type header values that would
-// not normally be rendered then the response may receive special handling
-// inside the browser (for example, via the file download code path instead of
-// the URL request code path). The |request| object will be marked as read-only
-// after calling this function. In the browser process if |request_context| is
-// NULL the global request context will be used. In the render process
-// |request_context| must be NULL and the context associated with the current
-// renderer process' browser will be used.
+// Create a new URL request that is not associated with a specific browser or
+// frame. Use cef_frame_t::CreateURLRequest instead if you want the request to
+// have this association, in which case it may be handled differently (see
+// documentation on that function). Requests may originate from the both browser
+// process and the render process.
+//
+// For requests originating from the browser process:
+//   - It may be intercepted by the client via CefResourceRequestHandler or
+//     CefSchemeHandlerFactory.
+//   - POST data may only contain only a single element of type PDE_TYPE_FILE
+//     or PDE_TYPE_BYTES.
+//   - If |request_context| is empty the global request context will be used.
+// For requests originating from the render process:
+//   - It cannot be intercepted by the client so only http(s) and blob schemes
+//     are supported.
+//   - POST data may only contain a single element of type PDE_TYPE_BYTES.
+//   - The |request_context| parameter must be NULL.
+//
+// The |request| object will be marked as read-only after calling this function.
 ///
 CEF_EXPORT cef_urlrequest_t* cef_urlrequest_create(
     struct _cef_request_t* request,

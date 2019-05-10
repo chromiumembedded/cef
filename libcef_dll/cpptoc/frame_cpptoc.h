@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=44a73e5a0632c0d3d3c4b1e5f3f929cf4834f054$
+// $hash=f85b5cfb8484052d8c0bc014dbdb27eb0f498dd9$
 //
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_FRAME_CPPTOC_H_
@@ -22,9 +22,11 @@
 
 #include "include/capi/cef_browser_capi.h"
 #include "include/capi/cef_frame_capi.h"
+#include "include/capi/cef_urlrequest_capi.h"
 #include "include/capi/cef_v8_capi.h"
 #include "include/cef_browser.h"
 #include "include/cef_frame.h"
+#include "include/cef_urlrequest.h"
 #include "include/cef_v8.h"
 #include "libcef_dll/cpptoc/cpptoc_ref_counted.h"
 

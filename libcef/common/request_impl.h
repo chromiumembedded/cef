@@ -93,7 +93,7 @@ class CefRequestImpl : public CefRequest {
   // Populate this object from the ResourceRequest object.
   void Set(const network::ResourceRequest* request, uint64 identifier);
 
-  // Populate the URLRequest object from this object.
+  // Populate the ResourceRequest object from this object.
   // If |changed_only| is true then only the changed fields will be updated.
   void Get(network::ResourceRequest* request, bool changed_only) const;
 
@@ -131,7 +131,8 @@ class CefRequestImpl : public CefRequest {
   void Get(CefNavigateParams& params) const;
 
   // Populate the URLFetcher object from this object.
-  // Called from CefBrowserURLRequest::Context::ContinueOnOriginatingThread().
+  // Called from
+  // CefBrowserURLRequestOld::Context::ContinueOnOriginatingThread().
   void Get(net::URLFetcher& fetcher, int64& upload_data_size) const;
 
   void SetReadOnly(bool read_only);

@@ -12,6 +12,27 @@ index 864f2a5a315a..78b71d523e86 100644
   public:
    explicit ContentServiceManagerMainDelegate(const ContentMainParams& params);
    ~ContentServiceManagerMainDelegate() override;
+diff --git content/browser/devtools/devtools_instrumentation.h content/browser/devtools/devtools_instrumentation.h
+index 605e388043ac..4566dd95f0b8 100644
+--- content/browser/devtools/devtools_instrumentation.h
++++ content/browser/devtools/devtools_instrumentation.h
+@@ -12,6 +12,7 @@
+ #include <vector>
+ 
+ #include "base/optional.h"
++#include "content/common/content_export.h"
+ #include "content/common/navigation_params.mojom.h"
+ #include "content/public/browser/certificate_request_result_type.h"
+ #include "services/network/public/mojom/url_loader_factory.mojom.h"
+@@ -49,7 +50,7 @@ void ApplyNetworkRequestOverrides(FrameTreeNode* frame_tree_node,
+                                   mojom::BeginNavigationParams* begin_params,
+                                   bool* report_raw_headers);
+ 
+-bool WillCreateURLLoaderFactory(
++CONTENT_EXPORT bool WillCreateURLLoaderFactory(
+     RenderFrameHostImpl* rfh,
+     bool is_navigation,
+     bool is_download,
 diff --git content/browser/renderer_host/input/synthetic_gesture_target_base.h content/browser/renderer_host/input/synthetic_gesture_target_base.h
 index 33a2d55e47ac..1700b3df2468 100644
 --- content/browser/renderer_host/input/synthetic_gesture_target_base.h

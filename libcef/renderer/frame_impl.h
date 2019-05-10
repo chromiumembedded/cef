@@ -14,7 +14,8 @@ class CefBrowserImpl;
 
 namespace blink {
 class WebLocalFrame;
-}
+class WebURLLoaderFactory;
+}  // namespace blink
 
 // Implementation of CefFrame. CefFrameImpl objects are owned by the
 // CefBrowerImpl and will be detached when the browser is notified that the
@@ -53,6 +54,12 @@ class CefFrameImpl : public CefFrame {
   CefRefPtr<CefBrowser> GetBrowser() override;
   CefRefPtr<CefV8Context> GetV8Context() override;
   void VisitDOM(CefRefPtr<CefDOMVisitor> visitor) override;
+  CefRefPtr<CefURLRequest> CreateURLRequest(
+      CefRefPtr<CefRequest> request,
+      CefRefPtr<CefURLRequestClient> client) override;
+
+  // Used by CefRenderURLRequest.
+  blink::WebURLLoaderFactory* GetURLLoaderFactory();
 
   void Detach();
 
@@ -64,6 +71,8 @@ class CefFrameImpl : public CefFrame {
   CefBrowserImpl* browser_;
   blink::WebLocalFrame* frame_;
   int64 frame_id_;
+
+  std::unique_ptr<blink::WebURLLoaderFactory> url_loader_factory_;
 
   IMPLEMENT_REFCOUNTING(CefFrameImpl);
   DISALLOW_COPY_AND_ASSIGN(CefFrameImpl);

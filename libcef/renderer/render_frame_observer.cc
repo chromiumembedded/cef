@@ -20,7 +20,7 @@
 #include "libcef/common/cef_messages.h"
 #include "libcef/common/content_client.h"
 #include "libcef/renderer/blink_glue.h"
-#include "libcef/renderer/content_renderer_client.h"
+#include "libcef/renderer/browser_impl.h"
 #include "libcef/renderer/v8_impl.h"
 
 #include "content/public/renderer/render_frame.h"

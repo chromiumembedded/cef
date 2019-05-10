@@ -60,19 +60,25 @@ class CefURLRequest : public virtual CefBaseRefCounted {
   typedef cef_errorcode_t ErrorCode;
 
   ///
-  // Create a new URL request. Only GET, POST, HEAD, DELETE and PUT request
-  // methods are supported. Multiple post data elements are not supported and
-  // elements of type PDE_TYPE_FILE are only supported for requests originating
-  // from the browser process. Requests originating from the render process will
-  // receive the same handling as requests originating from Web content -- if
-  // the response contains Content-Disposition or Mime-Type header values that
-  // would not normally be rendered then the response may receive special
-  // handling inside the browser (for example, via the file download code path
-  // instead of the URL request code path). The |request| object will be marked
-  // as read-only after calling this method. In the browser process if
-  // |request_context| is empty the global request context will be used. In the
-  // render process |request_context| must be empty and the context associated
-  // with the current renderer process' browser will be used.
+  // Create a new URL request that is not associated with a specific browser or
+  // frame. Use CefFrame::CreateURLRequest instead if you want the request to
+  // have this association, in which case it may be handled differently (see
+  // documentation on that method). Requests may originate from the both browser
+  // process and the render process.
+  //
+  // For requests originating from the browser process:
+  //   - It may be intercepted by the client via CefResourceRequestHandler or
+  //     CefSchemeHandlerFactory.
+  //   - POST data may only contain only a single element of type PDE_TYPE_FILE
+  //     or PDE_TYPE_BYTES.
+  //   - If |request_context| is empty the global request context will be used.
+  // For requests originating from the render process:
+  //   - It cannot be intercepted by the client so only http(s) and blob schemes
+  //     are supported.
+  //   - POST data may only contain a single element of type PDE_TYPE_BYTES.
+  //   - The |request_context| parameter must be NULL.
+  //
+  // The |request| object will be marked as read-only after calling this method.
   ///
   /*--cef(optional_param=request_context)--*/
   static CefRefPtr<CefURLRequest> Create(

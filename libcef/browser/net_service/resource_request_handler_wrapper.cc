@@ -18,6 +18,9 @@
 #include "libcef/common/request_impl.h"
 #include "libcef/common/response_impl.h"
 
+#include "chrome/common/chrome_features.h"
+#include "components/language/core/browser/pref_names.h"
+#include "components/prefs/pref_service.h"
 #include "content/public/browser/browser_context.h"
 #include "content/public/browser/render_frame_host.h"
 #include "content/public/browser/render_process_host.h"
@@ -77,12 +80,20 @@ std::string GetAcceptLanguageList(content::BrowserContext* browser_context,
       return CefString(&browser_settings.accept_language_list);
     }
   }
-  const CefRequestContextSettings& context_settings =
-      static_cast<CefBrowserContext*>(browser_context)->GetSettings();
-  if (context_settings.accept_language_list.length > 0) {
-    return CefString(&context_settings.accept_language_list);
-  }
-  return "en-US,en";
+
+  // This defaults to the value from CefRequestContextSettings via
+  // browser_prefs::CreatePrefService().
+  auto prefs = Profile::FromBrowserContext(browser_context)->GetPrefs();
+  return prefs->GetString(language::prefs::kAcceptLanguages);
+}
+
+// Match the logic in chrome/browser/net/profile_network_context_service.cc.
+std::string ComputeAcceptLanguageFromPref(const std::string& language_pref) {
+  std::string accept_languages_str =
+      base::FeatureList::IsEnabled(features::kUseNewAcceptLanguageHeader)
+          ? net::HttpUtil::ExpandLanguageList(language_pref)
+          : language_pref;
+  return net::HttpUtil::GenerateAcceptLanguageHeader(accept_languages_str);
 }
 
 class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
@@ -167,9 +178,11 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
     is_external_ = is_external;
 
     // Default values for standard headers.
-    accept_language_ = net::HttpUtil::GenerateAcceptLanguageHeader(
+    accept_language_ = ComputeAcceptLanguageFromPref(
         GetAcceptLanguageList(browser_context, browser));
+    DCHECK(!accept_language_.empty());
     user_agent_ = CefContentClient::Get()->browser()->GetUserAgent();
+    DCHECK(!user_agent_.empty());
 
     CEF_POST_TASK(
         CEF_IOT,

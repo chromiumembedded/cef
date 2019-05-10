@@ -162,10 +162,16 @@ void CefResponseImpl::SetResponseHeaders(
   status_code_ = headers.response_code();
   status_text_ = headers.GetStatusText();
 
-  std::string mime_type, charset;
-  headers.GetMimeTypeAndCharset(&mime_type, &charset);
-  mime_type_ = mime_type;
-  charset_ = charset;
+  if (headers.IsRedirect(nullptr)) {
+    // Don't report Content-Type header values for redirects.
+    mime_type_.clear();
+    charset_.clear();
+  } else {
+    std::string mime_type, charset;
+    headers.GetMimeTypeAndCharset(&mime_type, &charset);
+    mime_type_ = mime_type;
+    charset_ = charset;
+  }
 }
 
 void CefResponseImpl::Set(const blink::WebURLResponse& response) {

@@ -351,9 +351,6 @@ class CefBrowserHostImpl : public CefBrowserHost,
                 int script_start_line,
                 CefRefPtr<CefResponseManager::Handler> responseHandler);
 
-  void ExecuteJavaScriptWithUserGestureForTests(int64 frame_id,
-                                                const CefString& javascript);
-
   // Open the specified text in the default text editor.
   void ViewText(const std::string& text);
 
