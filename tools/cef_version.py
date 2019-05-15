@@ -172,11 +172,18 @@ class VersionFormatter:
     cef_commit = self.get_cef_commit_components()
     cef_commit_hash = self._format_commit_hash(cef_commit['HASH'])
 
-    # Remove the remote name prefix, if any.
-    cef_branch_name = git.get_branch_name(self.cef_path).split('/')[-1]
+    # Determine whether the current commit is on a release branch. For example,
+    # if using Chrome build 3683, are we on CEF branch "3683" or "origin/3683"?
+    release_branch = chrome_version['BUILD']
+    on_release_branch = (
+        git.is_ancestor(self.cef_path, 'HEAD', release_branch) or
+        git.is_ancestor(self.cef_path, 'HEAD', 'origin/' + release_branch))
 
-    if cef_branch_name != chrome_version['BUILD']:
-      # Not on an official named release branch.
+    if not on_release_branch:
+      # Not on a commit that is part of an official named release branch. See
+      # if we can get the name of the branch we are on (may be just "HEAD").
+      cef_branch_name = git.get_branch_name(self.cef_path).split('/')[-1]
+
       self._version_parts = {'MAJOR': int(chrome_major), 'MINOR': 0, 'PATCH': 0}
       self._version_string = '%s.0.0-%s.%s+%s+%s' % \
              (chrome_major, cef_branch_name, cef_commit['NUMBER'],
