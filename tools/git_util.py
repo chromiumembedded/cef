@@ -18,6 +18,13 @@ def is_checkout(path):
   return os.path.isdir(os.path.join(path, '.git'))
 
 
+def is_ancestor(path='.', commit1='HEAD', commit2='master'):
+  """ Returns whether |commit1| is an ancestor of |commit2|. """
+  cmd = "%s merge-base --is-ancestor %s %s" % (git_exe, commit1, commit2)
+  result = exec_cmd(cmd, path)
+  return result['ret'] == 0
+
+
 def get_hash(path='.', branch='HEAD'):
   """ Returns the git hash for the specified branch/tag/hash. """
   cmd = "%s rev-parse %s" % (git_exe, branch)
