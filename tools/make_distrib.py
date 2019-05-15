@@ -399,8 +399,8 @@ def combine_libs(platform, build_dir, libs, dest_lib):
     # library, the result will be undefined behavior.
     print 'Verifying imported (undefined) symbols...'
     undefined_symbols = get_undefined_symbols(dest_lib)
-    cpp_symbols = list(filter(lambda symbol: symbol.startswith('__Z'),
-                              undefined_symbols))
+    cpp_symbols = list(
+        filter(lambda symbol: symbol.startswith('__Z'), undefined_symbols))
     if cpp_symbols:
       print 'Found C++ symbols:', cpp_symbols
       raise Exception('Failure verifying imported (undefined) symbols')
@@ -586,11 +586,18 @@ chromium_ver = formatter.get_chromium_version_string()
 archive_dirs = []
 
 if options.x64build:
-  platform_arch = '64'
+  if options.armbuild:
+    platform_arch = 'arm64'
+    binary_arch = 'arm64'
+  else:
+    platform_arch = '64'
+    binary_arch = 'x64'
 elif options.armbuild:
   platform_arch = 'arm'
+  binary_arch = 'arm'
 else:
   platform_arch = '32'
+  binary_arch = 'x86'
 
 # output directory
 output_dir_base = 'cef_binary_' + cef_ver
@@ -748,17 +755,17 @@ if mode == 'standard':
                       'tests/shared/', shared_dir, options.quiet)
 
   if not options.ozone:
-     # transfer common cefclient files
-     transfer_gypi_files(cef_dir, cef_paths2['cefclient_sources_browser'], \
-                         'tests/cefclient/', cefclient_dir, options.quiet)
-     transfer_gypi_files(cef_dir, cef_paths2['cefclient_sources_common'], \
-                         'tests/cefclient/', cefclient_dir, options.quiet)
-     transfer_gypi_files(cef_dir, cef_paths2['cefclient_sources_renderer'], \
-                         'tests/cefclient/', cefclient_dir, options.quiet)
-     transfer_gypi_files(cef_dir, cef_paths2['cefclient_sources_resources'], \
-                         'tests/cefclient/', cefclient_dir, options.quiet)
-     transfer_gypi_files(cef_dir, cef_paths2['cefclient_sources_resources_extensions_set_page_color'], \
-                         'tests/cefclient/', cefclient_dir, options.quiet)
+    # transfer common cefclient files
+    transfer_gypi_files(cef_dir, cef_paths2['cefclient_sources_browser'], \
+                        'tests/cefclient/', cefclient_dir, options.quiet)
+    transfer_gypi_files(cef_dir, cef_paths2['cefclient_sources_common'], \
+                        'tests/cefclient/', cefclient_dir, options.quiet)
+    transfer_gypi_files(cef_dir, cef_paths2['cefclient_sources_renderer'], \
+                        'tests/cefclient/', cefclient_dir, options.quiet)
+    transfer_gypi_files(cef_dir, cef_paths2['cefclient_sources_resources'], \
+                        'tests/cefclient/', cefclient_dir, options.quiet)
+    transfer_gypi_files(cef_dir, cef_paths2['cefclient_sources_resources_extensions_set_page_color'], \
+                        'tests/cefclient/', cefclient_dir, options.quiet)
 
   # transfer common cefsimple files
   transfer_gypi_files(cef_dir, cef_paths2['cefsimple_sources_common'], \
@@ -864,7 +871,8 @@ if platform == 'windows':
       dst_dir = os.path.join(output_dir, 'Debug')
       copy_files_list(build_dir, dst_dir, binaries)
       copy_files(
-          os.path.join(script_dir, 'distrib/win/*.dll'), dst_dir, options.quiet)
+          os.path.join(script_dir, 'distrib/win/%s/*.dll' % binary_arch),
+          dst_dir, options.quiet)
 
       if not options.nosymbols:
         # create the symbol output directory
@@ -886,7 +894,8 @@ if platform == 'windows':
       dst_dir = os.path.join(output_dir, 'Release')
       copy_files_list(build_dir, dst_dir, binaries)
       copy_files(
-          os.path.join(script_dir, 'distrib/win/*.dll'), dst_dir, options.quiet)
+          os.path.join(script_dir, 'distrib/win/%s/*.dll' % binary_arch),
+          dst_dir, options.quiet)
 
       if not options.nosymbols:
         # create the symbol output directory
