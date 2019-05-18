@@ -230,6 +230,8 @@ class CefBrowserContext : public ChromeProfileStub,
                                     CefRefPtr<CefSchemeHandlerFactory> factory);
   void ClearSchemeHandlerFactories();
 
+  network::mojom::NetworkContext* GetNetworkContext();
+
   void set_should_persist_session_cookies(bool value) {
     should_persist_session_cookies_ = value;
   }

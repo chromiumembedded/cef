@@ -697,3 +697,9 @@ void CefBrowserContext::ClearSchemeHandlerFactories() {
                              base::Unretained(resource_context_.get())));
   }
 }
+
+network::mojom::NetworkContext* CefBrowserContext::GetNetworkContext() {
+  CEF_REQUIRE_UIT();
+  DCHECK(net_service::IsEnabled());
+  return GetDefaultStoragePartition(this)->GetNetworkContext();
+}

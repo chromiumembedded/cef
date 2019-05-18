@@ -157,10 +157,15 @@ class CefRequestContextImpl : public CefRequestContext {
   void ClearCertificateExceptionsInternal(
       CefRefPtr<CefCompletionCallback> callback,
       CefBrowserContext* browser_context);
-  void CloseAllConnectionsInternal(
+  void CloseAllConnectionsInternal(CefRefPtr<CefCompletionCallback> callback,
+                                   CefBrowserContext* browser_context);
+  void CloseAllConnectionsInternalOld(
       CefRefPtr<CefCompletionCallback> callback,
       scoped_refptr<CefURLRequestContextGetter> request_context);
-  void ResolveHostInternal(
+  void ResolveHostInternal(const CefString& origin,
+                           CefRefPtr<CefResolveCallback> callback,
+                           CefBrowserContext* browser_context);
+  void ResolveHostInternalOld(
       const CefString& origin,
       CefRefPtr<CefResolveCallback> callback,
       scoped_refptr<CefURLRequestContextGetter> request_context);

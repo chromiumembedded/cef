@@ -22,8 +22,10 @@
 #include "content/public/browser/browser_task_traits.h"
 #include "content/public/browser/plugin_service.h"
 #include "content/public/browser/ssl_host_state_delegate.h"
+#include "mojo/public/cpp/bindings/binding.h"
 #include "net/http/http_cache.h"
 #include "net/http/http_transaction_factory.h"
+#include "services/network/public/cpp/resolve_host_client_base.h"
 
 using content::BrowserThread;
 
@@ -58,8 +60,8 @@ const char* GetTypeString(base::Value::Type type) {
 }
 
 // Helper for HostResolver::Resolve.
-struct ResolveHostHelper {
-  explicit ResolveHostHelper(CefRefPtr<CefResolveCallback> callback)
+struct ResolveHostHelperOld {
+  explicit ResolveHostHelperOld(CefRefPtr<CefResolveCallback> callback)
       : callback_(callback) {}
 
   void OnResolveCompleted(int result) {
@@ -81,6 +83,61 @@ struct ResolveHostHelper {
 
   CefRefPtr<CefResolveCallback> callback_;
   std::unique_ptr<net::HostResolver::ResolveHostRequest> request_;
+};
+
+class ResolveHostHelper : public network::ResolveHostClientBase {
+ public:
+  explicit ResolveHostHelper(CefRefPtr<CefResolveCallback> callback)
+      : callback_(callback), binding_(this) {}
+
+  void Start(CefBrowserContext* browser_context, const CefString& origin) {
+    CEF_REQUIRE_UIT();
+
+    network::mojom::HostResolverPtrInfo host_resolver_info;
+    browser_context->GetNetworkContext()->CreateHostResolver(
+        base::nullopt, mojo::MakeRequest(&host_resolver_info));
+
+    network::mojom::ResolveHostClientPtr client_ptr;
+    binding_.Bind(mojo::MakeRequest(&client_ptr));
+    binding_.set_connection_error_handler(
+        base::BindOnce(&ResolveHostHelper::OnComplete, base::Unretained(this),
+                       net::ERR_FAILED, base::nullopt));
+    host_resolver_ =
+        network::mojom::HostResolverPtr(std::move(host_resolver_info));
+    host_resolver_->ResolveHost(
+        net::HostPortPair::FromURL(GURL(origin.ToString())), nullptr,
+        std::move(client_ptr));
+  }
+
+ private:
+  void OnComplete(
+      int result,
+      const base::Optional<net::AddressList>& resolved_addresses) override {
+    CEF_REQUIRE_UIT();
+
+    host_resolver_.reset();
+    binding_.Close();
+
+    std::vector<CefString> resolved_ips;
+
+    if (result == net::OK) {
+      DCHECK(resolved_addresses && !resolved_addresses->empty());
+      for (const auto& value : resolved_addresses.value()) {
+        resolved_ips.push_back(value.ToStringWithoutPort());
+      }
+    }
+
+    callback_->OnResolveCompleted(static_cast<cef_errorcode_t>(result),
+                                  resolved_ips);
+    delete this;
+  }
+
+  CefRefPtr<CefResolveCallback> callback_;
+
+  network::mojom::HostResolverPtr host_resolver_;
+  mojo::Binding<network::mojom::ResolveHostClient> binding_;
+
+  DISALLOW_COPY_AND_ASSIGN(ResolveHostHelper);
 };
 
 }  // namespace
@@ -491,19 +548,33 @@ void CefRequestContextImpl::ClearCertificateExceptions(
 
 void CefRequestContextImpl::CloseAllConnections(
     CefRefPtr<CefCompletionCallback> callback) {
-  GetRequestContextImpl(
-      base::CreateSingleThreadTaskRunnerWithTraits({BrowserThread::IO}),
-      base::Bind(&CefRequestContextImpl::CloseAllConnectionsInternal, this,
-                 callback));
+  if (net_service::IsEnabled()) {
+    GetBrowserContext(
+        base::CreateSingleThreadTaskRunnerWithTraits({BrowserThread::UI}),
+        base::Bind(&CefRequestContextImpl::CloseAllConnectionsInternal, this,
+                   callback));
+  } else {
+    GetRequestContextImpl(
+        base::CreateSingleThreadTaskRunnerWithTraits({BrowserThread::IO}),
+        base::Bind(&CefRequestContextImpl::CloseAllConnectionsInternalOld, this,
+                   callback));
+  }
 }
 
 void CefRequestContextImpl::ResolveHost(
     const CefString& origin,
     CefRefPtr<CefResolveCallback> callback) {
-  GetRequestContextImpl(
-      base::CreateSingleThreadTaskRunnerWithTraits({BrowserThread::IO}),
-      base::Bind(&CefRequestContextImpl::ResolveHostInternal, this, origin,
-                 callback));
+  if (net_service::IsEnabled()) {
+    GetBrowserContext(
+        base::CreateSingleThreadTaskRunnerWithTraits({BrowserThread::UI}),
+        base::Bind(&CefRequestContextImpl::ResolveHostInternal, this, origin,
+                   callback));
+  } else {
+    GetRequestContextImpl(
+        base::CreateSingleThreadTaskRunnerWithTraits({BrowserThread::IO}),
+        base::Bind(&CefRequestContextImpl::ResolveHostInternalOld, this, origin,
+                   callback));
+  }
 }
 
 void CefRequestContextImpl::LoadExtension(
@@ -778,6 +849,15 @@ void CefRequestContextImpl::ClearCertificateExceptionsInternal(
 
 void CefRequestContextImpl::CloseAllConnectionsInternal(
     CefRefPtr<CefCompletionCallback> callback,
+    CefBrowserContext* browser_context) {
+  CEF_REQUIRE_UIT();
+
+  browser_context->GetNetworkContext()->CloseAllConnections(
+      base::Bind(&CefCompletionCallback::OnComplete, callback));
+}
+
+void CefRequestContextImpl::CloseAllConnectionsInternalOld(
+    CefRefPtr<CefCompletionCallback> callback,
     scoped_refptr<CefURLRequestContextGetter> request_context) {
   CEF_REQUIRE_IOT();
 
@@ -801,13 +881,24 @@ void CefRequestContextImpl::CloseAllConnectionsInternal(
 void CefRequestContextImpl::ResolveHostInternal(
     const CefString& origin,
     CefRefPtr<CefResolveCallback> callback,
+    CefBrowserContext* browser_context) {
+  CEF_REQUIRE_UIT();
+
+  // |helper| will be deleted in ResolveHostHelper::OnComplete().
+  ResolveHostHelper* helper = new ResolveHostHelper(callback);
+  helper->Start(browser_context, origin);
+}
+
+void CefRequestContextImpl::ResolveHostInternalOld(
+    const CefString& origin,
+    CefRefPtr<CefResolveCallback> callback,
     scoped_refptr<CefURLRequestContextGetter> request_context) {
   CEF_REQUIRE_IOT();
 
   int retval = ERR_FAILED;
 
-  // |helper| will be deleted in ResolveHostHelper::OnResolveCompleted().
-  ResolveHostHelper* helper = new ResolveHostHelper(callback);
+  // |helper| will be deleted in ResolveHostHelperOld::OnResolveCompleted().
+  ResolveHostHelperOld* helper = new ResolveHostHelperOld(callback);
 
   net::HostResolver* host_resolver = request_context->GetHostResolver();
   if (host_resolver) {
@@ -815,7 +906,7 @@ void CefRequestContextImpl::ResolveHostInternal(
         net::HostPortPair::FromURL(GURL(origin.ToString())),
         net::NetLogWithSource(), {});
     retval = helper->request_->Start(base::Bind(
-        &ResolveHostHelper::OnResolveCompleted, base::Unretained(helper)));
+        &ResolveHostHelperOld::OnResolveCompleted, base::Unretained(helper)));
     if (retval == net::ERR_IO_PENDING) {
       // The result will be delivered asynchronously via the callback.
       return;
