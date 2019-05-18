@@ -1283,6 +1283,7 @@ class BrowserWindowOsrMacImpl {
   void CreateBrowser(ClientWindowHandle parent_handle,
                      const CefRect& rect,
                      const CefBrowserSettings& settings,
+                     CefRefPtr<CefDictionaryValue> extra_info,
                      CefRefPtr<CefRequestContext> request_context);
   void GetPopupConfig(CefWindowHandle temp_handle,
                       CefWindowInfo& windowInfo,
@@ -1774,8 +1775,10 @@ void BrowserWindowOsrMac::CreateBrowser(
     ClientWindowHandle parent_handle,
     const CefRect& rect,
     const CefBrowserSettings& settings,
+    CefRefPtr<CefDictionaryValue> extra_info,
     CefRefPtr<CefRequestContext> request_context) {
-  impl_->CreateBrowser(parent_handle, rect, settings, request_context);
+  impl_->CreateBrowser(parent_handle, rect, settings, extra_info,
+                       request_context);
 }
 
 void BrowserWindowOsrMac::GetPopupConfig(CefWindowHandle temp_handle,

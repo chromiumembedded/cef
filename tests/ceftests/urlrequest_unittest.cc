@@ -1818,7 +1818,7 @@ class RequestTestRunner : public base::RefCountedThreadSafe<RequestTestRunner> {
 
       std::string upload_data;
       GetUploadData(expected_request, upload_data);
-      EXPECT_EQ(upload_data.size(), client->upload_total_);
+      EXPECT_EQ((int64)upload_data.size(), client->upload_total_);
     } else {
       EXPECT_EQ(0, client->upload_progress_ct_);
       EXPECT_EQ(0, client->upload_total_);
@@ -1826,7 +1826,7 @@ class RequestTestRunner : public base::RefCountedThreadSafe<RequestTestRunner> {
 
     if (settings_.expect_download_progress) {
       EXPECT_LE(1, client->download_progress_ct_);
-      EXPECT_EQ(settings_.response_data.size(), client->download_total_);
+      EXPECT_EQ((int64)settings_.response_data.size(), client->download_total_);
     } else {
       EXPECT_EQ(0, client->download_progress_ct_);
       EXPECT_EQ(0, client->download_total_);
