@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=217e200e9197054500554d62765c3c145bebfea7$
+// $hash=ad04f871a623e36f715e7742bda6c0bb3d0eb28e$
 //
 
 #include "libcef_dll/ctocpp/resource_request_handler_ctocpp.h"
@@ -21,7 +21,6 @@
 #include "libcef_dll/ctocpp/cookie_access_filter_ctocpp.h"
 #include "libcef_dll/ctocpp/resource_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/response_filter_ctocpp.h"
-#include "libcef_dll/shutdown_checker.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
@@ -31,8 +30,6 @@ CefResourceRequestHandlerCToCpp::GetCookieAccessFilter(
     CefRefPtr<CefBrowser> browser,
     CefRefPtr<CefFrame> frame,
     CefRefPtr<CefRequest> request) {
-  shutdown_checker::AssertNotShutdown();
-
   cef_resource_request_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_cookie_access_filter))
     return NULL;
@@ -61,8 +58,6 @@ CefResourceRequestHandlerCToCpp::OnBeforeResourceLoad(
     CefRefPtr<CefFrame> frame,
     CefRefPtr<CefRequest> request,
     CefRefPtr<CefRequestCallback> callback) {
-  shutdown_checker::AssertNotShutdown();
-
   cef_resource_request_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_before_resource_load))
     return RV_CONTINUE;
@@ -95,8 +90,6 @@ CefResourceRequestHandlerCToCpp::GetResourceHandler(
     CefRefPtr<CefBrowser> browser,
     CefRefPtr<CefFrame> frame,
     CefRefPtr<CefRequest> request) {
-  shutdown_checker::AssertNotShutdown();
-
   cef_resource_request_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_resource_handler))
     return NULL;
@@ -125,8 +118,6 @@ void CefResourceRequestHandlerCToCpp::OnResourceRedirect(
     CefRefPtr<CefRequest> request,
     CefRefPtr<CefResponse> response,
     CefString& new_url) {
-  shutdown_checker::AssertNotShutdown();
-
   cef_resource_request_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_resource_redirect))
     return;
@@ -156,8 +147,6 @@ bool CefResourceRequestHandlerCToCpp::OnResourceResponse(
     CefRefPtr<CefFrame> frame,
     CefRefPtr<CefRequest> request,
     CefRefPtr<CefResponse> response) {
-  shutdown_checker::AssertNotShutdown();
-
   cef_resource_request_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_resource_response))
     return false;
@@ -190,8 +179,6 @@ CefResourceRequestHandlerCToCpp::GetResourceResponseFilter(
     CefRefPtr<CefFrame> frame,
     CefRefPtr<CefRequest> request,
     CefRefPtr<CefResponse> response) {
-  shutdown_checker::AssertNotShutdown();
-
   cef_resource_request_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_resource_response_filter))
     return NULL;
@@ -225,8 +212,6 @@ void CefResourceRequestHandlerCToCpp::OnResourceLoadComplete(
     CefRefPtr<CefResponse> response,
     URLRequestStatus status,
     int64 received_content_length) {
-  shutdown_checker::AssertNotShutdown();
-
   cef_resource_request_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_resource_load_complete))
     return;
@@ -256,8 +241,6 @@ void CefResourceRequestHandlerCToCpp::OnProtocolExecution(
     CefRefPtr<CefFrame> frame,
     CefRefPtr<CefRequest> request,
     bool& allow_os_execution) {
-  shutdown_checker::AssertNotShutdown();
-
   cef_resource_request_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_protocol_execution))
     return;
@@ -288,9 +271,7 @@ CefResourceRequestHandlerCToCpp::CefResourceRequestHandlerCToCpp() {}
 
 // DESTRUCTOR - Do not edit by hand.
 
-CefResourceRequestHandlerCToCpp::~CefResourceRequestHandlerCToCpp() {
-  shutdown_checker::AssertNotShutdown();
-}
+CefResourceRequestHandlerCToCpp::~CefResourceRequestHandlerCToCpp() {}
 
 template <>
 cef_resource_request_handler_t* CefCToCppRefCounted<

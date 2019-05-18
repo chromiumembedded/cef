@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=f79e09e667e0fd7447f63a5b02c17ba6f287d8d9$
+// $hash=09b3c8fb5fae6f4e8e47f8056a0ce1b98f8e38e0$
 //
 
 #include "libcef_dll/ctocpp/cookie_access_filter_ctocpp.h"
@@ -17,7 +17,6 @@
 #include "libcef_dll/cpptoc/frame_cpptoc.h"
 #include "libcef_dll/cpptoc/request_cpptoc.h"
 #include "libcef_dll/cpptoc/response_cpptoc.h"
-#include "libcef_dll/shutdown_checker.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
@@ -26,8 +25,6 @@ bool CefCookieAccessFilterCToCpp::CanSendCookie(CefRefPtr<CefBrowser> browser,
                                                 CefRefPtr<CefFrame> frame,
                                                 CefRefPtr<CefRequest> request,
                                                 const CefCookie& cookie) {
-  shutdown_checker::AssertNotShutdown();
-
   cef_cookie_access_filter_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, can_send_cookie))
     return false;
@@ -55,8 +52,6 @@ bool CefCookieAccessFilterCToCpp::CanSaveCookie(CefRefPtr<CefBrowser> browser,
                                                 CefRefPtr<CefRequest> request,
                                                 CefRefPtr<CefResponse> response,
                                                 const CefCookie& cookie) {
-  shutdown_checker::AssertNotShutdown();
-
   cef_cookie_access_filter_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, can_save_cookie))
     return false;
@@ -89,9 +84,7 @@ CefCookieAccessFilterCToCpp::CefCookieAccessFilterCToCpp() {}
 
 // DESTRUCTOR - Do not edit by hand.
 
-CefCookieAccessFilterCToCpp::~CefCookieAccessFilterCToCpp() {
-  shutdown_checker::AssertNotShutdown();
-}
+CefCookieAccessFilterCToCpp::~CefCookieAccessFilterCToCpp() {}
 
 template <>
 cef_cookie_access_filter_t* CefCToCppRefCounted<

@@ -25,30 +25,31 @@ class InterceptedRequest;
 class ResourceContextData;
 
 // Implement this interface to to evaluate requests. All methods are called on
-// the IO thread.
+// the IO thread, and all callbacks must be executed on the IO thread.
 class InterceptedRequestHandler {
  public:
   InterceptedRequestHandler();
   virtual ~InterceptedRequestHandler();
 
-  // Optionally modify |request| and return true to proceed. Set
-  // |intercept_request| to false if the request will not be intercepted.
-  // Set |intercept_only| to true if the loader should not proceed unless
-  // the request is intercepted. Return false to abort the request with
-  // net::ERR_ACCESS_DENIED.
+  // Optionally modify |request| and execute |callback| to continue the request.
+  // Set |intercept_request| to false if the request will not be intercepted.
+  // Set |intercept_only| to true if the loader should not proceed unless the
+  // request is intercepted. Keep a reference to |cancel_callback| and execute
+  // at any time to cancel the request.
   using OnBeforeRequestResultCallback =
       base::OnceCallback<void(bool /* intercept_request */,
                               bool /* intercept_only */)>;
+  using CancelRequestCallback = base::OnceClosure;
   virtual void OnBeforeRequest(const RequestId& id,
                                network::ResourceRequest* request,
                                bool request_was_redirected,
-                               OnBeforeRequestResultCallback callback);
+                               OnBeforeRequestResultCallback callback,
+                               CancelRequestCallback cancel_callback);
 
-  // Optionally modify |request| and execute |callback| on the IO thread after
-  // determining if the request hould be intercepted.
+  // Optionally modify |request| and execute |callback| after determining if the
+  // request hould be intercepted.
   using ShouldInterceptRequestResultCallback =
-      base::OnceCallback<void(std::unique_ptr<ResourceResponse>,
-                              bool /* cancel_request */)>;
+      base::OnceCallback<void(std::unique_ptr<ResourceResponse>)>;
   virtual void ShouldInterceptRequest(
       const RequestId& id,
       network::ResourceRequest* request,

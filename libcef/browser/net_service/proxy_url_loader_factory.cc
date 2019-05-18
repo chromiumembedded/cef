@@ -157,8 +157,7 @@ class InterceptedRequest : public network::mojom::URLLoader,
                              bool intercept_request,
                              bool intercept_only);
   void InterceptResponseReceived(const GURL& original_url,
-                                 std::unique_ptr<ResourceResponse> response,
-                                 bool cancel_request);
+                                 std::unique_ptr<ResourceResponse> response);
   void ContinueAfterIntercept();
   void ContinueAfterInterceptWithOverride(
       std::unique_ptr<ResourceResponse> response);
@@ -351,7 +350,9 @@ void InterceptedRequest::Restart() {
   factory_->request_handler_->OnBeforeRequest(
       id_, &request_, request_was_redirected_,
       base::BindOnce(&InterceptedRequest::BeforeRequestReceived,
-                     weak_factory_.GetWeakPtr(), original_url));
+                     weak_factory_.GetWeakPtr(), original_url),
+      base::BindOnce(&InterceptedRequest::SendErrorAndCompleteImmediately,
+                     weak_factory_.GetWeakPtr(), net::ERR_ABORTED));
 }
 
 void InterceptedRequest::OnLoaderCreated(
@@ -589,8 +590,7 @@ void InterceptedRequest::BeforeRequestReceived(const GURL& original_url,
 
   if (input_stream_previously_failed_ || !intercept_request_) {
     // Equivalent to no interception.
-    InterceptResponseReceived(original_url, nullptr,
-                              false /* cancel_request */);
+    InterceptResponseReceived(original_url, nullptr);
   } else {
     if (request_.referrer.is_valid()) {
       // Intentionally override if referrer header already exists.
@@ -610,16 +610,7 @@ void InterceptedRequest::BeforeRequestReceived(const GURL& original_url,
 
 void InterceptedRequest::InterceptResponseReceived(
     const GURL& original_url,
-    std::unique_ptr<ResourceResponse> response,
-    bool cancel_request) {
-  if (cancel_request) {
-    // A response object shouldn't be created if we're canceling.
-    DCHECK(!response);
-
-    SendErrorAndCompleteImmediately(net::ERR_ABORTED);
-    return;
-  }
-
+    std::unique_ptr<ResourceResponse> response) {
   if (request_.url != original_url) {
     // A response object shouldn't be created if we're redirecting.
     DCHECK(!response);
@@ -974,7 +965,8 @@ void InterceptedRequestHandler::OnBeforeRequest(
     const RequestId& id,
     network::ResourceRequest* request,
     bool request_was_redirected,
-    OnBeforeRequestResultCallback callback) {
+    OnBeforeRequestResultCallback callback,
+    CancelRequestCallback cancel_callback) {
   std::move(callback).Run(false, false);
 }
 
@@ -982,7 +974,7 @@ void InterceptedRequestHandler::ShouldInterceptRequest(
     const RequestId& id,
     network::ResourceRequest* request,
     ShouldInterceptRequestResultCallback callback) {
-  std::move(callback).Run(nullptr, false);
+  std::move(callback).Run(nullptr);
 }
 
 void InterceptedRequestHandler::OnRequestResponse(

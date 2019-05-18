@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=533f1f8905a3079efe14fba7cb4e20ab59ea667f$
+// $hash=70457d6e92ff60ee9955d451f5d3d78b70535510$
 //
 
 #include "libcef_dll/cpptoc/resource_request_handler_cpptoc.h"
@@ -21,7 +21,6 @@
 #include "libcef_dll/ctocpp/request_callback_ctocpp.h"
 #include "libcef_dll/ctocpp/request_ctocpp.h"
 #include "libcef_dll/ctocpp/response_ctocpp.h"
-#include "libcef_dll/shutdown_checker.h"
 
 namespace {
 
@@ -33,8 +32,6 @@ resource_request_handler_get_cookie_access_filter(
     cef_browser_t* browser,
     cef_frame_t* frame,
     cef_request_t* request) {
-  shutdown_checker::AssertNotShutdown();
-
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -63,8 +60,6 @@ resource_request_handler_on_before_resource_load(
     cef_frame_t* frame,
     cef_request_t* request,
     cef_request_callback_t* callback) {
-  shutdown_checker::AssertNotShutdown();
-
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -97,8 +92,6 @@ resource_request_handler_get_resource_handler(
     cef_browser_t* browser,
     cef_frame_t* frame,
     cef_request_t* request) {
-  shutdown_checker::AssertNotShutdown();
-
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -127,8 +120,6 @@ void CEF_CALLBACK resource_request_handler_on_resource_redirect(
     cef_request_t* request,
     struct _cef_response_t* response,
     cef_string_t* new_url) {
-  shutdown_checker::AssertNotShutdown();
-
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -164,8 +155,6 @@ int CEF_CALLBACK resource_request_handler_on_resource_response(
     cef_frame_t* frame,
     cef_request_t* request,
     struct _cef_response_t* response) {
-  shutdown_checker::AssertNotShutdown();
-
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -197,8 +186,6 @@ resource_request_handler_get_resource_response_filter(
     cef_frame_t* frame,
     cef_request_t* request,
     struct _cef_response_t* response) {
-  shutdown_checker::AssertNotShutdown();
-
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -232,8 +219,6 @@ void CEF_CALLBACK resource_request_handler_on_resource_load_complete(
     struct _cef_response_t* response,
     cef_urlrequest_status_t status,
     int64 received_content_length) {
-  shutdown_checker::AssertNotShutdown();
-
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -262,8 +247,6 @@ void CEF_CALLBACK resource_request_handler_on_protocol_execution(
     cef_frame_t* frame,
     cef_request_t* request,
     int* allow_os_execution) {
-  shutdown_checker::AssertNotShutdown();
-
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -318,9 +301,7 @@ CefResourceRequestHandlerCppToC::CefResourceRequestHandlerCppToC() {
 
 // DESTRUCTOR - Do not edit by hand.
 
-CefResourceRequestHandlerCppToC::~CefResourceRequestHandlerCppToC() {
-  shutdown_checker::AssertNotShutdown();
-}
+CefResourceRequestHandlerCppToC::~CefResourceRequestHandlerCppToC() {}
 
 template <>
 CefRefPtr<CefResourceRequestHandler>

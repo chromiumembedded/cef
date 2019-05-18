@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=c9c6c2cd02b565596a1173e95654655da80e1ef2$
+// $hash=86c8103564d3acb6cc76510c7c0b015fc0605d80$
 //
 
 #include "libcef_dll/cpptoc/cookie_access_filter_cpptoc.h"
@@ -17,7 +17,6 @@
 #include "libcef_dll/ctocpp/frame_ctocpp.h"
 #include "libcef_dll/ctocpp/request_ctocpp.h"
 #include "libcef_dll/ctocpp/response_ctocpp.h"
-#include "libcef_dll/shutdown_checker.h"
 
 namespace {
 
@@ -29,8 +28,6 @@ cookie_access_filter_can_send_cookie(struct _cef_cookie_access_filter_t* self,
                                      cef_frame_t* frame,
                                      cef_request_t* request,
                                      const struct _cef_cookie_t* cookie) {
-  shutdown_checker::AssertNotShutdown();
-
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -67,8 +64,6 @@ cookie_access_filter_can_save_cookie(struct _cef_cookie_access_filter_t* self,
                                      cef_request_t* request,
                                      struct _cef_response_t* response,
                                      const struct _cef_cookie_t* cookie) {
-  shutdown_checker::AssertNotShutdown();
-
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -114,9 +109,7 @@ CefCookieAccessFilterCppToC::CefCookieAccessFilterCppToC() {
 
 // DESTRUCTOR - Do not edit by hand.
 
-CefCookieAccessFilterCppToC::~CefCookieAccessFilterCppToC() {
-  shutdown_checker::AssertNotShutdown();
-}
+CefCookieAccessFilterCppToC::~CefCookieAccessFilterCppToC() {}
 
 template <>
 CefRefPtr<CefCookieAccessFilter> CefCppToCRefCounted<

@@ -55,7 +55,7 @@ class CefCookieAccessFilter;
 // methods of this class will be called on the IO thread unless otherwise
 // indicated.
 ///
-/*--cef(source=client)--*/
+/*--cef(source=client,no_debugct_check)--*/
 class CefResourceRequestHandler : public virtual CefBaseRefCounted {
  public:
   typedef cef_return_value_t ReturnValue;
@@ -205,7 +205,7 @@ class CefResourceRequestHandler : public virtual CefBaseRefCounted {
 // resource requests. The methods of this class will be called on the IO thread
 // unless otherwise indicated.
 ///
-/*--cef(source=client)--*/
+/*--cef(source=client,no_debugct_check)--*/
 class CefCookieAccessFilter : public virtual CefBaseRefCounted {
  public:
   ///
