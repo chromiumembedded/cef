@@ -211,11 +211,10 @@ class CefBrowserURLRequest::Context
       }
     }
 
-    if (request_flags & UR_FLAG_NO_RETRY_ON_5XX) {
-      // No retries is the default setting, so we don't need to configure that.
-      // Allow delivery of non-2xx response bodies.
-      loader_->SetAllowHttpErrorResults(true);
-    } else {
+    // Allow delivery of non-2xx response bodies.
+    loader_->SetAllowHttpErrorResults(true);
+
+    if (!(request_flags & UR_FLAG_NO_RETRY_ON_5XX)) {
       // Allow 2 retries on 5xx response or network change.
       // TODO(network): Consider exposing configuration of max retries and/or
       // RETRY_ON_NETWORK_CHANGE as a separate flag.

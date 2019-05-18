@@ -952,6 +952,8 @@ class StaticHttpRequestRunner : public HttpTestRunner::RequestRunner {
   static scoped_ptr<HttpTestRunner::RequestRunner> Create500(
       const std::string& path) {
     CefRefPtr<CefRequest> request = CreateTestServerRequest(path, "GET");
+    // Don't retry the request.
+    request->SetFlags(UR_FLAG_NO_RETRY_ON_5XX);
     HttpServerResponse response(HttpServerResponse::TYPE_500);
     response.error_message = "Something went wrong!";
     return make_scoped_ptr<HttpTestRunner::RequestRunner>(

@@ -3057,7 +3057,7 @@ TEST(ResourceRequestHandlerTest, FilterPassThruReadAll) {
 }
 
 // Pass through contents unchanged. Read limited input.
-TEST(ResouseRequestHandlerTest, FilterPassThruReadLimited) {
+TEST(ResourceRequestHandlerTest, FilterPassThruReadLimited) {
   CefRefPtr<ResponseFilterTestHandler> handler =
       new ResponseFilterTestHandler(new ResponseFilterPassThru(true));
   handler->ExecuteTest();
