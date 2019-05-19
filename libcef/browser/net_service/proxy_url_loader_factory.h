@@ -39,7 +39,7 @@ class InterceptedRequestHandler {
   using OnBeforeRequestResultCallback =
       base::OnceCallback<void(bool /* intercept_request */,
                               bool /* intercept_only */)>;
-  using CancelRequestCallback = base::OnceClosure;
+  using CancelRequestCallback = base::OnceCallback<void(int /* error_code */)>;
   virtual void OnBeforeRequest(const RequestId& id,
                                network::ResourceRequest* request,
                                bool request_was_redirected,
@@ -101,6 +101,12 @@ class InterceptedRequestHandler {
       const network::ResourceResponseHead& head,
       base::Optional<net::RedirectInfo> redirect_info,
       OnRequestResponseResultCallback callback);
+
+  // Called to optionally filter the response body.
+  virtual mojo::ScopedDataPipeConsumerHandle OnFilterResponseBody(
+      const RequestId& id,
+      const network::ResourceRequest& request,
+      mojo::ScopedDataPipeConsumerHandle body);
 
   // Called on completion notification from the loader (successful or not).
   virtual void OnRequestComplete(

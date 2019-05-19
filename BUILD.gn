@@ -413,6 +413,8 @@ static_library("libcef_static") {
     "libcef/browser/net_service/resource_handler_wrapper.h",
     "libcef/browser/net_service/resource_request_handler_wrapper.cc",
     "libcef/browser/net_service/resource_request_handler_wrapper.h",
+    "libcef/browser/net_service/response_filter_wrapper.cc",
+    "libcef/browser/net_service/response_filter_wrapper.h",
     "libcef/browser/net_service/stream_reader_url_loader.cc",
     "libcef/browser/net_service/stream_reader_url_loader.h",
     "libcef/browser/net_service/url_loader_factory_getter.cc",

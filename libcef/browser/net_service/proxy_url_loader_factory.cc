@@ -352,7 +352,7 @@ void InterceptedRequest::Restart() {
       base::BindOnce(&InterceptedRequest::BeforeRequestReceived,
                      weak_factory_.GetWeakPtr(), original_url),
       base::BindOnce(&InterceptedRequest::SendErrorAndCompleteImmediately,
-                     weak_factory_.GetWeakPtr(), net::ERR_ABORTED));
+                     weak_factory_.GetWeakPtr()));
 }
 
 void InterceptedRequest::OnLoaderCreated(
@@ -524,7 +524,9 @@ void InterceptedRequest::OnTransferSizeUpdated(int32_t transfer_size_diff) {
 
 void InterceptedRequest::OnStartLoadingResponseBody(
     mojo::ScopedDataPipeConsumerHandle body) {
-  target_client_->OnStartLoadingResponseBody(std::move(body));
+  target_client_->OnStartLoadingResponseBody(
+      factory_->request_handler_->OnFilterResponseBody(id_, request_,
+                                                       std::move(body)));
 }
 
 void InterceptedRequest::OnComplete(
@@ -986,6 +988,14 @@ void InterceptedRequestHandler::OnRequestResponse(
   std::move(callback).Run(
       ResponseMode::CONTINUE, nullptr,
       redirect_info.has_value() ? redirect_info->new_url : GURL());
+}
+
+mojo::ScopedDataPipeConsumerHandle
+InterceptedRequestHandler::OnFilterResponseBody(
+    const RequestId& id,
+    const network::ResourceRequest& request,
+    mojo::ScopedDataPipeConsumerHandle body) {
+  return body;
 }
 
 //==============================

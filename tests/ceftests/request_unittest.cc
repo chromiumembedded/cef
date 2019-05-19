@@ -342,12 +342,7 @@ class RequestSendRecvTestHandler : public TestHandler {
     EXPECT_TRUE(got_before_resource_load_);
     EXPECT_TRUE(got_resource_handler_);
     EXPECT_TRUE(got_resource_response_);
-    if (IsNetworkServiceEnabled()) {
-      // TODO(network): Add support for GetResourceResponseFilter.
-      EXPECT_FALSE(got_resource_response_filter_);
-    } else {
-      EXPECT_TRUE(got_resource_response_filter_);
-    }
+    EXPECT_TRUE(got_resource_response_filter_);
     EXPECT_TRUE(got_resource_load_complete_);
 
     TestHandler::DestroyTest();

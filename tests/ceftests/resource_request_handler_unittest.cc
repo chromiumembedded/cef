@@ -385,8 +385,11 @@ class BasicResponseTest : public TestHandler {
       EXPECT_EQ(1, get_resource_handler_ct_);
       EXPECT_EQ(0, on_resource_redirect_ct_);
       if (IsNetworkServiceEnabled()) {
-        // TODO(network): Add support for GetResourceResponseFilter.
-        EXPECT_EQ(0, get_resource_response_filter_ct_);
+        // Unhandled requests won't see a call to GetResourceResponseFilter.
+        if (unhandled_)
+          EXPECT_EQ(0, get_resource_response_filter_ct_);
+        else
+          EXPECT_EQ(1, get_resource_response_filter_ct_);
       } else {
         EXPECT_EQ(1, get_resource_response_filter_ct_);
       }
@@ -408,8 +411,11 @@ class BasicResponseTest : public TestHandler {
       EXPECT_EQ(2, get_resource_handler_ct_);
       EXPECT_EQ(0, on_resource_redirect_ct_);
       if (IsNetworkServiceEnabled()) {
-        // TODO(network): Add support for GetResourceResponseFilter.
-        EXPECT_EQ(0, get_resource_response_filter_ct_);
+        // Unhandled requests won't see a call to GetResourceResponseFilter.
+        if (unhandled_)
+          EXPECT_EQ(0, get_resource_response_filter_ct_);
+        else
+          EXPECT_EQ(1, get_resource_response_filter_ct_);
       } else {
         EXPECT_EQ(2, get_resource_response_filter_ct_);
       }
@@ -444,8 +450,11 @@ class BasicResponseTest : public TestHandler {
         }
       }
       if (IsNetworkServiceEnabled()) {
-        // TODO(network): Add support for GetResourceResponseFilter.
-        EXPECT_EQ(0, get_resource_response_filter_ct_);
+        // Unhandled requests won't see a call to GetResourceResponseFilter.
+        if (unhandled_)
+          EXPECT_EQ(0, get_resource_response_filter_ct_);
+        else
+          EXPECT_EQ(1, get_resource_response_filter_ct_);
       } else {
         if (mode_ == REDIRECT_RESOURCE_RESPONSE)
           EXPECT_EQ(2, get_resource_response_filter_ct_);
@@ -1285,8 +1294,11 @@ class SubresourceResponseTest : public RoutingTestHandler {
       EXPECT_EQ(1, get_resource_handler_ct_);
       EXPECT_EQ(0, on_resource_redirect_ct_);
       if (IsNetworkServiceEnabled()) {
-        // TODO(network): Add support for GetResourceResponseFilter.
-        EXPECT_EQ(0, get_resource_response_filter_ct_);
+        // Unhandled requests won't see a call to GetResourceResponseFilter.
+        if (unhandled_)
+          EXPECT_EQ(0, get_resource_response_filter_ct_);
+        else
+          EXPECT_EQ(1, get_resource_response_filter_ct_);
       } else {
         EXPECT_EQ(1, get_resource_response_filter_ct_);
       }
@@ -1309,8 +1321,11 @@ class SubresourceResponseTest : public RoutingTestHandler {
       EXPECT_EQ(2, get_resource_handler_ct_);
       EXPECT_EQ(0, on_resource_redirect_ct_);
       if (IsNetworkServiceEnabled()) {
-        // TODO(network): Add support for GetResourceResponseFilter.
-        EXPECT_EQ(0, get_resource_response_filter_ct_);
+        // Unhandled requests won't see a call to GetResourceResponseFilter.
+        if (unhandled_)
+          EXPECT_EQ(0, get_resource_response_filter_ct_);
+        else
+          EXPECT_EQ(1, get_resource_response_filter_ct_);
       } else {
         EXPECT_EQ(2, get_resource_response_filter_ct_);
       }
@@ -1341,8 +1356,11 @@ class SubresourceResponseTest : public RoutingTestHandler {
         }
       }
       if (IsNetworkServiceEnabled()) {
-        // TODO(network): Add support for GetResourceResponseFilter.
-        EXPECT_EQ(0, get_resource_response_filter_ct_);
+        // Unhandled requests won't see a call to GetResourceResponseFilter.
+        if (unhandled_)
+          EXPECT_EQ(0, get_resource_response_filter_ct_);
+        else
+          EXPECT_EQ(1, get_resource_response_filter_ct_);
       } else {
         if (mode_ == REDIRECT_RESOURCE_RESPONSE)
           EXPECT_EQ(2, get_resource_response_filter_ct_);
@@ -2000,8 +2018,8 @@ class RedirectResponseTest : public TestHandler {
       EXPECT_EQ(expected_resource_response_ct_, resource_response_ct_);
       EXPECT_EQ(expected_resource_response_ct_, get_resource_handler_ct_);
       if (IsNetworkServiceEnabled()) {
-        // TODO(network): Add support for GetResourceResponseFilter.
-        EXPECT_EQ(0U, get_resource_response_filter_ct_);
+        EXPECT_EQ(expected_resource_load_complete_ct_,
+                  get_resource_response_filter_ct_);
       } else {
         EXPECT_EQ(expected_resource_response_ct_,
                   get_resource_response_filter_ct_);
@@ -2563,7 +2581,17 @@ namespace {
 // - Filter error.
 
 const char kResponseFilterTestUrl[] = "http://tests.com/response_filter.html";
-const size_t kResponseBufferSize = 1024 * 32;  // 32kb
+
+size_t GetResponseBufferSize() {
+  if (IsNetworkServiceEnabled()) {
+    // Match the default |capacity_num_bytes| value from
+    // mojo::Core::CreateDataPipe.
+    return 64 * 1024;  // 64kb
+  } else {
+    // Match |kBufferSize| from net/filter/filter_source_stream.cc.
+    return 32 * 1024;  // 32kb
+  }
+}
 
 const char kInputHeader[] = "<html><head></head><body>";
 const char kInputFooter[] = "</body></html>";
@@ -2691,7 +2719,7 @@ class ResponseFilterPassThru : public ResponseFilterTestBase {
   }
 
   std::string GetInput() override {
-    input_ = CreateInput("FOOBAR ", kResponseBufferSize * 2U);
+    input_ = CreateInput("FOOBAR ", GetResponseBufferSize() * 2U + 1);
     return input_;
   }
 
@@ -2702,12 +2730,12 @@ class ResponseFilterPassThru : public ResponseFilterTestBase {
                                          received_content);
 
     if (limit_read_)
-      // Expected to read 2 full buffers of kResponseBufferSize at 1kb
-      // increments (2 * 32) and one partial buffer.
-      EXPECT_EQ(2U * 32U + 1U, filter_count_);
+      // Expected to read 2 full buffers of GetResponseBufferSize() at 1kb
+      // increments and one partial buffer.
+      EXPECT_EQ(2U * (GetResponseBufferSize() / 1024) + 1U, filter_count_);
     else {
-      // Expected to read 2 full buffers of kResponseBufferSize and one partial
-      // buffer.
+      // Expected to read 2 full buffers of GetResponseBufferSize() and one
+      // partial buffer.
       EXPECT_EQ(3U, filter_count_);
     }
     EXPECT_STREQ(input_.c_str(), received_content.c_str());
@@ -2812,8 +2840,9 @@ class ResponseFilterNeedMore : public ResponseFilterTestBase {
   }
 
   std::string GetInput() override {
-    const std::string& input = CreateInput(
-        std::string(kFindString) + " ", kResponseBufferSize * 2U, &repeat_ct_);
+    const std::string& input =
+        CreateInput(std::string(kFindString) + " ",
+                    GetResponseBufferSize() * 2U + 1, &repeat_ct_);
     input_size_ = input.size();
 
     const size_t find_size = sizeof(kFindString) - 1;
@@ -2842,8 +2871,8 @@ class ResponseFilterNeedMore : public ResponseFilterTestBase {
     // Filtered content length should be the output size.
     EXPECT_EQ(output.size(), received_content.size());
 
-    // Expected to read 2 full buffers of kResponseBufferSize and one partial
-    // buffer, and then one additional call to drain the overflow.
+    // Expected to read 2 full buffers of GetResponseBufferSize() and one
+    // partial buffer, and then one additional call to drain the overflow.
     EXPECT_EQ(4U, filter_count_);
   }
 

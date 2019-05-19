@@ -10,6 +10,7 @@
 #include "libcef/browser/net_service/cookie_helper.h"
 #include "libcef/browser/net_service/proxy_url_loader_factory.h"
 #include "libcef/browser/net_service/resource_handler_wrapper.h"
+#include "libcef/browser/net_service/response_filter_wrapper.h"
 #include "libcef/browser/resource_context.h"
 #include "libcef/browser/thread_util.h"
 #include "libcef/common/content_client.h"
@@ -478,7 +479,7 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
 
       if (!allow) {
         // Cancel the request.
-        std::move(state->cancel_callback_).Run();
+        std::move(state->cancel_callback_).Run(net::ERR_ABORTED);
         return;
       }
 
@@ -713,6 +714,43 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
     std::move(callback).Run();
   }
 
+  mojo::ScopedDataPipeConsumerHandle OnFilterResponseBody(
+      const RequestId& id,
+      const network::ResourceRequest& request,
+      mojo::ScopedDataPipeConsumerHandle body) override {
+    CEF_REQUIRE_IOT();
+
+    RequestState* state = GetState(id);
+    DCHECK(state);
+
+    if (state->handler_) {
+      auto filter = state->handler_->GetResourceResponseFilter(
+          GetBrowser(), frame_, state->pending_request_.get(),
+          state->pending_response_.get());
+      if (filter) {
+        return CreateResponseFilterHandler(
+            filter, std::move(body),
+            base::BindOnce(&InterceptedRequestHandlerWrapper::OnFilterError,
+                           weak_ptr_factory_.GetWeakPtr(), id));
+      }
+    }
+
+    return body;
+  }
+
+  void OnFilterError(const RequestId& id) {
+    CEF_REQUIRE_IOT();
+
+    RequestState* state = GetState(id);
+    if (!state) {
+      // The request may have been canceled while the async callback was
+      // pending.
+      return;
+    }
+
+    std::move(state->cancel_callback_).Run(net::ERR_CONTENT_DECODING_FAILED);
+  }
+
   void OnRequestComplete(
       const RequestId& id,
       const network::ResourceRequest& request,
@@ -852,7 +890,8 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
     // Cancel any pending requests.
     while (!request_map_.empty()) {
       // Results in a call to RemoveState().
-      std::move(request_map_.begin()->second->cancel_callback_).Run();
+      std::move(request_map_.begin()->second->cancel_callback_)
+          .Run(net::ERR_ABORTED);
     }
   }
 
