@@ -1272,7 +1272,7 @@ class RequestTestRunner : public base::RefCountedThreadSafe<RequestTestRunner> {
     // on stop redirects.
     settings_.response = CefResponse::Create();
     settings_.response->SetStatus(302);
-    if (IsNetworkServiceEnabled()) {
+    if (IsNetworkServiceEnabled() && is_browser_process_) {
       settings_.response->SetStatusText("Found");
     }
 

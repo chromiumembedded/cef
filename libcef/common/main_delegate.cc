@@ -46,7 +46,6 @@
 #include "extensions/common/constants.h"
 #include "ipc/ipc_buildflags.h"
 #include "pdf/pdf_ppapi.h"
-#include "services/network/public/cpp/features.h"
 #include "services/service_manager/sandbox/switches.h"
 #include "ui/base/layout.h"
 #include "ui/base/resource/resource_bundle.h"
@@ -565,14 +564,6 @@ bool CefMainDelegate::BasicStartupComplete(int* exit_code) {
           base::FEATURE_ENABLED_BY_DEFAULT) {
         disable_features.push_back(features::kVizDisplayCompositor.name);
       }
-    }
-
-    // Disable NetworkService for now
-    // TODO(cef): Implement the required changes for network service
-    if (network::features::kNetworkService.default_state ==
-            base::FEATURE_ENABLED_BY_DEFAULT &&
-        !command_line->HasSwitch(switches::kEnableNetworkService)) {
-      disable_features.push_back(network::features::kNetworkService.name);
     }
 
     if (!disable_features.empty()) {

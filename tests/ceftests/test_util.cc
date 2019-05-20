@@ -272,7 +272,8 @@ bool IsNetworkServiceEnabled() {
   if (state == -1) {
     CefRefPtr<CefCommandLine> command_line =
         CefCommandLine::GetGlobalCommandLine();
-    state = command_line->HasSwitch("enable-network-service") ? 1 : 0;
+    const std::string& value = command_line->GetSwitchValue("disable-features");
+    state = value.find("NetworkService") == std::string::npos ? 1 : 0;
   }
   return state ? true : false;
 }
