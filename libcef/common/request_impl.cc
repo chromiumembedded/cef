@@ -168,13 +168,16 @@ blink::mojom::FetchCacheMode GetFetchCacheMode(int ur_flags) {
   const bool only_from_cache{ur_flags & UR_FLAG_ONLY_FROM_CACHE};
   const bool disable_cache{ur_flags & UR_FLAG_DISABLE_CACHE};
   if (only_from_cache && (skip_cache || disable_cache)) {
+    // The request will always fail because only_from_cache and
+    // skip_cache/disable_cache are mutually exclusive.
     return blink::mojom::FetchCacheMode::kUnspecifiedForceCacheMiss;
+  } else if (disable_cache) {
+    // This additionally implies the skip_cache behavior.
+    return blink::mojom::FetchCacheMode::kNoStore;
   } else if (skip_cache) {
     return blink::mojom::FetchCacheMode::kBypassCache;
   } else if (only_from_cache) {
     return blink::mojom::FetchCacheMode::kOnlyIfCached;
-  } else if (disable_cache) {
-    return blink::mojom::FetchCacheMode::kNoStore;
   }
   return blink::mojom::FetchCacheMode::kDefault;
 }
