@@ -334,8 +334,8 @@ class CefQuotaPermissionContext : public content::QuotaPermissionContext {
     bool handled = false;
 
     CefRefPtr<CefBrowserHostImpl> browser =
-        CefBrowserHostImpl::GetBrowserForFrame(render_process_id,
-                                               params.render_frame_id);
+        CefBrowserHostImpl::GetBrowserForFrameRoute(render_process_id,
+                                                    params.render_frame_id);
     if (browser.get()) {
       CefRefPtr<CefClient> client = browser->GetClient();
       if (client.get()) {
@@ -427,8 +427,8 @@ int GetCrashSignalFD(const base::CommandLine& command_line) {
 // |is_main_frame| argument once this problem is fixed.
 bool NavigationOnUIThread(
     bool is_main_frame,
-    int64 frame_id,
-    int64 parent_frame_id,
+    int64_t frame_id,
+    int64_t parent_frame_id,
     content::WebContents* source,
     const navigation_interception::NavigationParams& params) {
   CEF_REQUIRE_UIT();
@@ -448,12 +448,11 @@ bool NavigationOnUIThread(
         } else if (frame_id >= 0) {
           frame = browser->GetFrame(frame_id);
           DCHECK(frame);
-        } else {
+        }
+        if (!frame) {
           // Create a temporary frame object for navigation of sub-frames that
           // don't yet exist.
-          frame = new CefFrameHostImpl(
-              browser.get(), CefFrameHostImpl::kInvalidFrameId, false,
-              CefString(), CefString(), parent_frame_id);
+          frame = browser->browser_info()->CreateTempSubFrame(parent_frame_id);
         }
 
         CefRefPtr<CefRequestImpl> request = new CefRequestImpl();
@@ -1089,24 +1088,16 @@ CefContentBrowserClient::CreateThrottlesForNavigation(
 
   const bool is_main_frame = navigation_handle->IsInMainFrame();
 
-  int64 parent_frame_id = CefFrameHostImpl::kUnspecifiedFrameId;
-  if (!is_main_frame) {
-    // Identify the RenderFrameHost that originated the navigation.
-    content::RenderFrameHost* parent_frame_host =
-        navigation_handle->GetParentFrame();
-    DCHECK(parent_frame_host);
-    if (parent_frame_host)
-      parent_frame_id = parent_frame_host->GetRoutingID();
-    if (parent_frame_id < 0)
-      parent_frame_id = CefFrameHostImpl::kUnspecifiedFrameId;
-  }
+  // Identify the RenderFrameHost that originated the navigation.
+  const int64_t parent_frame_id =
+      !is_main_frame
+          ? CefFrameHostImpl::MakeFrameId(navigation_handle->GetParentFrame())
+          : CefFrameHostImpl::kInvalidFrameId;
 
-  int64 frame_id = CefFrameHostImpl::kInvalidFrameId;
-  if (!is_main_frame && navigation_handle->HasCommitted()) {
-    frame_id = navigation_handle->GetRenderFrameHost()->GetRoutingID();
-    if (frame_id < 0)
-      frame_id = CefFrameHostImpl::kInvalidFrameId;
-  }
+  const int64_t frame_id = !is_main_frame && navigation_handle->HasCommitted()
+                               ? CefFrameHostImpl::MakeFrameId(
+                                     navigation_handle->GetRenderFrameHost())
+                               : CefFrameHostImpl::kInvalidFrameId;
 
   // Must use SynchronyMode::kSync to ensure that OnBeforeBrowse is always
   // called before OnBeforeResourceLoad.

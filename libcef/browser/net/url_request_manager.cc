@@ -9,6 +9,7 @@
 #include "include/cef_scheme.h"
 #include "libcef/browser/browser_context.h"
 #include "libcef/browser/browser_host_impl.h"
+#include "libcef/browser/net/net_util.h"
 #include "libcef/browser/net/resource_request_job.h"
 #include "libcef/browser/net/scheme_handler.h"
 #include "libcef/browser/thread_util.h"
@@ -247,10 +248,11 @@ net::URLRequestJob* CefURLRequestManager::GetRequestJob(
       GetHandlerFactory(request, scheme);
   if (factory.get()) {
     CefRefPtr<CefBrowserHostImpl> browser =
-        CefBrowserHostImpl::GetBrowserForRequest(request);
+        net_util::GetBrowserForRequest(request);
     CefRefPtr<CefFrame> frame;
-    if (browser.get())
-      frame = browser->GetFrameForRequest(request);
+    if (browser.get()) {
+      frame = net_util::GetFrameForRequest(browser->browser_info(), request);
+    }
 
     // Populate the request data.
     CefRefPtr<CefRequestImpl> requestPtr(new CefRequestImpl());

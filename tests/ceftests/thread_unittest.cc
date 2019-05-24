@@ -323,14 +323,16 @@ class RenderThreadTestHandler : public TestHandler {
       // Return the test in the render process.
       CefRefPtr<CefProcessMessage> msg =
           CefProcessMessage::Create(kRenderThreadTestMsg);
-      EXPECT_TRUE(browser->SendProcessMessage(PID_RENDERER, msg));
+      browser->GetMainFrame()->SendProcessMessage(PID_RENDERER, msg);
     }
   }
 
   bool OnProcessMessageReceived(CefRefPtr<CefBrowser> browser,
+                                CefRefPtr<CefFrame> frame,
                                 CefProcessId source_process,
                                 CefRefPtr<CefProcessMessage> message) override {
     EXPECT_TRUE(browser.get());
+    EXPECT_TRUE(frame.get());
     EXPECT_EQ(PID_RENDERER, source_process);
     EXPECT_TRUE(message.get());
     EXPECT_TRUE(message->IsReadOnly());
@@ -371,6 +373,7 @@ class RenderThreadRendererTest : public ClientAppRenderer::Delegate {
 
   bool OnProcessMessageReceived(CefRefPtr<ClientAppRenderer> app,
                                 CefRefPtr<CefBrowser> browser,
+                                CefRefPtr<CefFrame> frame,
                                 CefProcessId source_process,
                                 CefRefPtr<CefProcessMessage> message) override {
     if (message->GetName().ToString() == kRenderThreadTestMsg) {
@@ -408,7 +411,7 @@ class RenderThreadRendererTest : public ClientAppRenderer::Delegate {
     CefRefPtr<CefProcessMessage> return_msg =
         CefProcessMessage::Create(kRenderThreadTestMsg);
     EXPECT_TRUE(return_msg->GetArgumentList()->SetBool(0, result));
-    EXPECT_TRUE(browser_->SendProcessMessage(PID_BROWSER, return_msg));
+    browser_->GetMainFrame()->SendProcessMessage(PID_BROWSER, return_msg);
 
     browser_ = nullptr;
   }

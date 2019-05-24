@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=2385e0531c91a419fe7f4036b5a59da743b1622e$
+// $hash=623d324a1ef5637353ae74761fdc04eac4d99716$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_BROWSER_CAPI_H_
@@ -45,7 +45,6 @@
 #include "include/capi/cef_frame_capi.h"
 #include "include/capi/cef_image_capi.h"
 #include "include/capi/cef_navigation_entry_capi.h"
-#include "include/capi/cef_process_message_capi.h"
 #include "include/capi/cef_request_context_capi.h"
 
 #ifdef __cplusplus
@@ -179,15 +178,6 @@ typedef struct _cef_browser_t {
   ///
   void(CEF_CALLBACK* get_frame_names)(struct _cef_browser_t* self,
                                       cef_string_list_t names);
-
-  ///
-  // Send a message to the specified |target_process|. Returns true (1) if the
-  // message was sent successfully.
-  ///
-  int(CEF_CALLBACK* send_process_message)(
-      struct _cef_browser_t* self,
-      cef_process_id_t target_process,
-      struct _cef_process_message_t* message);
 } cef_browser_t;
 
 ///

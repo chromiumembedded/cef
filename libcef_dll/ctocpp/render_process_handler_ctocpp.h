@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=c8931d822a351fe827ffd29ba89b888e3e44f6ea$
+// $hash=56503073200b87c109a84c0161dda30f01285c66$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_RENDER_PROCESS_HANDLER_CTOCPP_H_
@@ -56,6 +56,7 @@ class CefRenderProcessHandlerCToCpp
                             CefRefPtr<CefFrame> frame,
                             CefRefPtr<CefDOMNode> node) override;
   bool OnProcessMessageReceived(CefRefPtr<CefBrowser> browser,
+                                CefRefPtr<CefFrame> frame,
                                 CefProcessId source_process,
                                 CefRefPtr<CefProcessMessage> message) override;
 };

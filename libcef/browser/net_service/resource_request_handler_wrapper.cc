@@ -959,7 +959,6 @@ void InitOnUIThread(
       web_contents->GetRenderViewHost()->GetProcess()->GetID();
 
   content::RenderFrameHost* frame = nullptr;
-  bool get_frame_by_route = false;
 
   if (request.render_frame_id >= 0) {
     // TODO(network): Are these main frame checks equivalent?
@@ -977,11 +976,9 @@ void InitOnUIThread(
                                                          render_process_id);
       }
       if (!frame) {
-        // Use the main frame for the CefBrowserHost, but choose a more
-        // appropriate CefFrame for the route.
+        // Use the main frame for the CefBrowserHost.
         frame = web_contents->GetMainFrame();
         DCHECK(frame);
-        get_frame_by_route = true;
       }
     }
   }
@@ -992,7 +989,7 @@ void InitOnUIThread(
   // |frame| may be null for service worker requests.
   if (frame) {
 #if DCHECK_IS_ON()
-    if (frame_tree_node_id >= 0 && !get_frame_by_route) {
+    if (frame_tree_node_id >= 0) {
       // Sanity check that we ended up with the expected frame.
       DCHECK_EQ(frame_tree_node_id, frame->GetFrameTreeNodeId());
     }
@@ -1000,15 +997,9 @@ void InitOnUIThread(
 
     browserPtr = CefBrowserHostImpl::GetBrowserForHost(frame);
     if (browserPtr) {
-      if (get_frame_by_route) {
-        framePtr =
-            browserPtr->GetFrameForHostRoutingId(request.render_frame_id);
-        frame_tree_node_id = -1;
-      } else {
-        framePtr = browserPtr->GetFrameForHost(frame);
-        if (frame_tree_node_id < 0)
-          frame_tree_node_id = frame->GetFrameTreeNodeId();
-      }
+      framePtr = browserPtr->GetFrameForHost(frame);
+      if (frame_tree_node_id < 0)
+        frame_tree_node_id = frame->GetFrameTreeNodeId();
       DCHECK(framePtr);
     }
   }

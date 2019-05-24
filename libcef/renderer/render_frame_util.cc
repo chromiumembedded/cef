@@ -5,9 +5,11 @@
 
 #include "libcef/renderer/render_frame_util.h"
 
+#include "libcef/common/frame_util.h"
 #include "libcef/renderer/blink_glue.h"
 
 #include "base/logging.h"
+#include "content/public/renderer/render_view.h"
 #include "content/renderer/render_frame_impl.h"
 #include "third_party/blink/public/web/web_local_frame.h"
 
@@ -18,17 +20,16 @@ int64_t GetIdentifier(blink::WebLocalFrame* frame) {
   // routing IDs are unique within a given renderer process.
   content::RenderFrame* render_frame =
       content::RenderFrame::FromWebFrame(frame);
-  DCHECK(render_frame);
-  if (render_frame)
-    return render_frame->GetRoutingID();
-  return blink_glue::kInvalidFrameId;
+  return frame_util::MakeFrameId(render_frame->GetRenderView()->GetRoutingID(),
+                                 render_frame->GetRoutingID());
 }
 
 std::string GetName(blink::WebLocalFrame* frame) {
   DCHECK(frame);
   // Return the assigned name if it is non-empty. This represents the name
   // property on the frame DOM element. If the assigned name is empty, revert to
-  // the internal unique name.
+  // the internal unique name. This matches the logic in
+  // CefFrameHostImpl::RefreshAttributes.
   if (frame->AssignedName().length() > 0) {
     return frame->AssignedName().Utf8();
   }

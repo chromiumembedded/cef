@@ -125,6 +125,64 @@ bool IsInternalRequest(const net::URLRequest* request) {
   return false;
 }
 
+CefRefPtr<CefBrowserHostImpl> GetBrowserForRequest(
+    const net::URLRequest* request) {
+  DCHECK(request);
+  CEF_REQUIRE_IOT();
+
+  // When navigating the main frame a new (pre-commit) URLRequest will be
+  // created before the RenderFrameHost. Consequently we can't rely on
+  // ResourceRequestInfo::GetRenderFrameForRequest returning a valid frame
+  // ID. See https://crbug.com/776884 for background.
+  int render_process_id = -1;
+  int render_frame_id = MSG_ROUTING_NONE;
+  if (content::ResourceRequestInfo::GetRenderFrameForRequest(
+          request, &render_process_id, &render_frame_id) &&
+      render_process_id >= 0 && render_frame_id >= 0) {
+    return CefBrowserHostImpl::GetBrowserForFrameRoute(render_process_id,
+                                                       render_frame_id);
+  }
+
+  content::ResourceRequestInfo* request_info =
+      content::ResourceRequestInfo::ForRequest(request);
+  if (request_info) {
+    return CefBrowserHostImpl::GetBrowserForFrameTreeNode(
+        request_info->GetFrameTreeNodeId());
+  }
+
+  return nullptr;
+}
+
+CefRefPtr<CefFrame> GetFrameForRequest(
+    scoped_refptr<CefBrowserInfo> browser_info,
+    const net::URLRequest* request) {
+  CEF_REQUIRE_IOT();
+  content::ResourceRequestInfo* info =
+      content::ResourceRequestInfo::ForRequest(request);
+  if (!info)
+    return nullptr;
+
+  // Try to locate the most reasonable match by ID.
+  auto frame =
+      browser_info->GetFrameForFrameTreeNode(info->GetFrameTreeNodeId());
+  if (!frame) {
+    frame = browser_info->GetFrameForRoute(info->GetRouteID(),
+                                           info->GetRenderFrameID());
+  }
+  if (frame)
+    return frame;
+
+  // The IsMainFrame() flag isn't completely reliable, so do this after
+  // searching by ID.
+  if (info->IsMainFrame())
+    return browser_info->GetMainFrame();
+
+  // Create a temporary frame object for requests referencing sub-frames that
+  // don't yet exist. Use the main frame as the parent because we don't know
+  // the real parent.
+  return browser_info->CreateTempSubFrame(CefFrameHostImpl::kInvalidFrameId);
+}
+
 CefRefPtr<CefResourceRequestHandler> GetResourceRequestHandler(
     const net::URLRequest* request,
     CefRefPtr<CefRequestImpl>& cef_request,
@@ -153,15 +211,14 @@ CefRefPtr<CefResourceRequestHandler> GetResourceRequestHandler(
 
   CefRefPtr<CefResourceRequestHandler> resource_request_handler;
 
-  CefRefPtr<CefBrowserHostImpl> browser =
-      CefBrowserHostImpl::GetBrowserForRequest(request);
+  CefRefPtr<CefBrowserHostImpl> browser = GetBrowserForRequest(request);
   CefRefPtr<CefFrame> frame;
   CefRefPtr<CefRequestImpl> requestPtr;
 
   // Give the browser handler a chance first.
   if (browser) {
     // A frame should always exist, or be created.
-    frame = browser->GetFrameForRequest(request);
+    frame = GetFrameForRequest(browser->browser_info(), request);
     DCHECK(frame);
 
     CefRefPtr<CefClient> client = browser->GetClient();

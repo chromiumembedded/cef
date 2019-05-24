@@ -66,6 +66,7 @@ class ClientAppRenderer : public ClientApp, public CefRenderProcessHandler {
     virtual bool OnProcessMessageReceived(
         CefRefPtr<ClientAppRenderer> app,
         CefRefPtr<CefBrowser> browser,
+        CefRefPtr<CefFrame> frame,
         CefProcessId source_process,
         CefRefPtr<CefProcessMessage> message) {
       return false;
@@ -108,6 +109,7 @@ class ClientAppRenderer : public ClientApp, public CefRenderProcessHandler {
                             CefRefPtr<CefFrame> frame,
                             CefRefPtr<CefDOMNode> node) OVERRIDE;
   bool OnProcessMessageReceived(CefRefPtr<CefBrowser> browser,
+                                CefRefPtr<CefFrame> frame,
                                 CefProcessId source_process,
                                 CefRefPtr<CefProcessMessage> message) OVERRIDE;
 

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=366d6e567451af19ce5a4cc5f6f06791f504af26$
+// $hash=3983c8f521d444195dc52b4605840b51289e77e0$
 //
 
 #include "libcef_dll/ctocpp/render_process_handler_ctocpp.h"
@@ -241,6 +241,7 @@ void CefRenderProcessHandlerCToCpp::OnFocusedNodeChanged(
 NO_SANITIZE("cfi-icall")
 bool CefRenderProcessHandlerCToCpp::OnProcessMessageReceived(
     CefRefPtr<CefBrowser> browser,
+    CefRefPtr<CefFrame> frame,
     CefProcessId source_process,
     CefRefPtr<CefProcessMessage> message) {
   cef_render_process_handler_t* _struct = GetStruct();
@@ -253,6 +254,10 @@ bool CefRenderProcessHandlerCToCpp::OnProcessMessageReceived(
   DCHECK(browser.get());
   if (!browser.get())
     return false;
+  // Verify param: frame; type: refptr_diff
+  DCHECK(frame.get());
+  if (!frame.get())
+    return false;
   // Verify param: message; type: refptr_diff
   DCHECK(message.get());
   if (!message.get())
@@ -260,8 +265,8 @@ bool CefRenderProcessHandlerCToCpp::OnProcessMessageReceived(
 
   // Execute
   int _retval = _struct->on_process_message_received(
-      _struct, CefBrowserCppToC::Wrap(browser), source_process,
-      CefProcessMessageCppToC::Wrap(message));
+      _struct, CefBrowserCppToC::Wrap(browser), CefFrameCppToC::Wrap(frame),
+      source_process, CefProcessMessageCppToC::Wrap(message));
 
   // Return type: bool
   return _retval ? true : false;

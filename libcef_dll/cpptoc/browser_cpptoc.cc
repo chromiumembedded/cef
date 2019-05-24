@@ -9,14 +9,13 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=97f834d04878d403755dd16060a55dd53a6c7b1a$
+// $hash=2124256e7c33c16c141e46243eec1a815539199d$
 //
 
 #include "libcef_dll/cpptoc/browser_cpptoc.h"
 #include <algorithm>
 #include "libcef_dll/cpptoc/browser_host_cpptoc.h"
 #include "libcef_dll/cpptoc/frame_cpptoc.h"
-#include "libcef_dll/cpptoc/process_message_cpptoc.h"
 #include "libcef_dll/shutdown_checker.h"
 #include "libcef_dll/transfer_util.h"
 
@@ -374,30 +373,6 @@ void CEF_CALLBACK browser_get_frame_names(struct _cef_browser_t* self,
   transfer_string_list_contents(namesList, names);
 }
 
-int CEF_CALLBACK
-browser_send_process_message(struct _cef_browser_t* self,
-                             cef_process_id_t target_process,
-                             struct _cef_process_message_t* message) {
-  shutdown_checker::AssertNotShutdown();
-
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  DCHECK(self);
-  if (!self)
-    return 0;
-  // Verify param: message; type: refptr_same
-  DCHECK(message);
-  if (!message)
-    return 0;
-
-  // Execute
-  bool _retval = CefBrowserCppToC::Get(self)->SendProcessMessage(
-      target_process, CefProcessMessageCppToC::Unwrap(message));
-
-  // Return type: bool
-  return _retval;
-}
-
 }  // namespace
 
 // CONSTRUCTOR - Do not edit by hand.
@@ -423,7 +398,6 @@ CefBrowserCppToC::CefBrowserCppToC() {
   GetStruct()->get_frame_count = browser_get_frame_count;
   GetStruct()->get_frame_identifiers = browser_get_frame_identifiers;
   GetStruct()->get_frame_names = browser_get_frame_names;
-  GetStruct()->send_process_message = browser_send_process_message;
 }
 
 // DESTRUCTOR - Do not edit by hand.

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=47ed1f92a294b94c071f554621484722483c3bd6$
+// $hash=64b2576447d3776b829e06007036acf579b2c47c$
 //
 
 #include "libcef_dll/cpptoc/client_cpptoc.h"
@@ -28,6 +28,7 @@
 #include "libcef_dll/cpptoc/render_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/request_handler_cpptoc.h"
 #include "libcef_dll/ctocpp/browser_ctocpp.h"
+#include "libcef_dll/ctocpp/frame_ctocpp.h"
 #include "libcef_dll/ctocpp/process_message_ctocpp.h"
 
 namespace {
@@ -261,6 +262,7 @@ client_get_request_handler(struct _cef_client_t* self) {
 int CEF_CALLBACK
 client_on_process_message_received(struct _cef_client_t* self,
                                    cef_browser_t* browser,
+                                   struct _cef_frame_t* frame,
                                    cef_process_id_t source_process,
                                    struct _cef_process_message_t* message) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -272,6 +274,10 @@ client_on_process_message_received(struct _cef_client_t* self,
   DCHECK(browser);
   if (!browser)
     return 0;
+  // Verify param: frame; type: refptr_diff
+  DCHECK(frame);
+  if (!frame)
+    return 0;
   // Verify param: message; type: refptr_diff
   DCHECK(message);
   if (!message)
@@ -279,8 +285,8 @@ client_on_process_message_received(struct _cef_client_t* self,
 
   // Execute
   bool _retval = CefClientCppToC::Get(self)->OnProcessMessageReceived(
-      CefBrowserCToCpp::Wrap(browser), source_process,
-      CefProcessMessageCToCpp::Wrap(message));
+      CefBrowserCToCpp::Wrap(browser), CefFrameCToCpp::Wrap(frame),
+      source_process, CefProcessMessageCToCpp::Wrap(message));
 
   // Return type: bool
   return _retval;

@@ -17,7 +17,7 @@
 #include "ui/base/window_open_disposition.h"
 #include "url/gurl.h"
 
-// Parameters that tell CefBrowserHostImpl::Navigate() what to do.
+// Parameters that tell CefFrameHostImpl::Navigate() what to do.
 struct CefNavigateParams {
   CefNavigateParams(const GURL& a_url, ui::PageTransition a_transition);
   ~CefNavigateParams();
@@ -32,9 +32,6 @@ struct CefNavigateParams {
   GURL url;
   content::Referrer referrer;
 
-  // The frame that the request should be loaded in or -1 to use the main frame.
-  int64_t frame_id;
-
   // Usually the URL of the document in the top-level window, which may be
   // checked by the third-party cookie blocking policy. Leaving it empty may
   // lead to undesired cookie blocking. Third-party cookie blocking can be
@@ -46,7 +43,7 @@ struct CefNavigateParams {
   std::string headers;
 
   // net::URLRequest load flags (0 by default).
-  int load_flags;
+  int load_flags = 0;
 
   // Upload data (may be NULL).
   scoped_refptr<net::UploadData> upload_data;
@@ -56,20 +53,20 @@ struct CefNavigateParams {
   // ---------------------------------------------------------------------------
 
   // The disposition requested by the navigation source. Default is CURRENT_TAB.
-  WindowOpenDisposition disposition;
+  WindowOpenDisposition disposition = WindowOpenDisposition::CURRENT_TAB;
 
   // The transition type of the navigation.
   ui::PageTransition transition;
 
   // Whether this navigation was initiated by the renderer process.
-  bool is_renderer_initiated;
+  bool is_renderer_initiated = false;
 
   // If non-empty, the new tab contents encoding is overriden by this value.
   std::string override_encoding;
 
   // If false then the navigation was not initiated by a user gesture. Default
   // is true.
-  bool user_gesture;
+  bool user_gesture = true;
 
   // Refers to a navigation that was parked in the browser in order to be
   // transferred to another RVH. Only used in case of a redirection of a request

@@ -44,7 +44,6 @@
 #include "include/cef_frame.h"
 #include "include/cef_image.h"
 #include "include/cef_navigation_entry.h"
-#include "include/cef_process_message.h"
 #include "include/cef_request_context.h"
 
 class CefBrowserHost;
@@ -181,14 +180,6 @@ class CefBrowser : public virtual CefBaseRefCounted {
   ///
   /*--cef()--*/
   virtual void GetFrameNames(std::vector<CefString>& names) = 0;
-
-  ///
-  // Send a message to the specified |target_process|. Returns true if the
-  // message was sent successfully.
-  ///
-  /*--cef()--*/
-  virtual bool SendProcessMessage(CefProcessId target_process,
-                                  CefRefPtr<CefProcessMessage> message) = 0;
 };
 
 ///

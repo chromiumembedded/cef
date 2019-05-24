@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=301b9573f13ede3bc9cb210caaae109fdf909130$
+// $hash=957f55c65387757a411f9b898827bdef95531c45$
 //
 
 #include "libcef_dll/ctocpp/frame_ctocpp.h"
@@ -17,6 +17,7 @@
 #include "libcef_dll/cpptoc/string_visitor_cpptoc.h"
 #include "libcef_dll/cpptoc/urlrequest_client_cpptoc.h"
 #include "libcef_dll/ctocpp/browser_ctocpp.h"
+#include "libcef_dll/ctocpp/process_message_ctocpp.h"
 #include "libcef_dll/ctocpp/request_ctocpp.h"
 #include "libcef_dll/ctocpp/urlrequest_ctocpp.h"
 #include "libcef_dll/ctocpp/v8context_ctocpp.h"
@@ -446,6 +447,27 @@ CefRefPtr<CefURLRequest> CefFrameCToCpp::CreateURLRequest(
 
   // Return type: refptr_same
   return CefURLRequestCToCpp::Wrap(_retval);
+}
+
+NO_SANITIZE("cfi-icall")
+void CefFrameCToCpp::SendProcessMessage(CefProcessId target_process,
+                                        CefRefPtr<CefProcessMessage> message) {
+  shutdown_checker::AssertNotShutdown();
+
+  cef_frame_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, send_process_message))
+    return;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: message; type: refptr_same
+  DCHECK(message.get());
+  if (!message.get())
+    return;
+
+  // Execute
+  _struct->send_process_message(_struct, target_process,
+                                CefProcessMessageCToCpp::Unwrap(message));
 }
 
 // CONSTRUCTOR - Do not edit by hand.

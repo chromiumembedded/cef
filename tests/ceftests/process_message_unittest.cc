@@ -47,17 +47,19 @@ class SendRecvRendererTest : public ClientAppRenderer::Delegate {
 
   bool OnProcessMessageReceived(CefRefPtr<ClientAppRenderer> app,
                                 CefRefPtr<CefBrowser> browser,
+                                CefRefPtr<CefFrame> frame,
                                 CefProcessId source_process,
                                 CefRefPtr<CefProcessMessage> message) override {
     if (message->GetName() == kSendRecvMsg) {
       EXPECT_TRUE(browser.get());
+      EXPECT_TRUE(frame.get());
       EXPECT_EQ(PID_BROWSER, source_process);
       EXPECT_TRUE(message.get());
 
-      std::string url = browser->GetMainFrame()->GetURL();
+      const std::string& url = frame->GetURL();
       if (url == kSendRecvUrl) {
         // Echo the message back to the sender natively.
-        EXPECT_TRUE(browser->SendProcessMessage(PID_BROWSER, message));
+        frame->SendProcessMessage(PID_BROWSER, message);
         return true;
       }
     }
@@ -92,18 +94,20 @@ class SendRecvTestHandler : public TestHandler {
 
     // Send the message to the renderer process.
     if (!CefCurrentlyOn(send_thread_)) {
-      CefPostTask(send_thread_,
-                  base::Bind(&SendRecvTestHandler::SendMessage, this, browser));
+      CefPostTask(send_thread_, base::Bind(&SendRecvTestHandler::SendMessage,
+                                           this, browser, frame));
     } else {
-      SendMessage(browser);
+      SendMessage(browser, frame);
     }
   }
 
   bool OnProcessMessageReceived(CefRefPtr<CefBrowser> browser,
+                                CefRefPtr<CefFrame> frame,
                                 CefProcessId source_process,
                                 CefRefPtr<CefProcessMessage> message) override {
     EXPECT_TRUE(CefCurrentlyOn(TID_UI));
     EXPECT_TRUE(browser.get());
+    EXPECT_TRUE(frame.get());
     EXPECT_EQ(PID_RENDERER, source_process);
     EXPECT_TRUE(message.get());
     EXPECT_TRUE(message->IsReadOnly());
@@ -126,9 +130,9 @@ class SendRecvTestHandler : public TestHandler {
   }
 
  private:
-  void SendMessage(CefRefPtr<CefBrowser> browser) {
+  void SendMessage(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame) {
     EXPECT_TRUE(CefCurrentlyOn(send_thread_));
-    EXPECT_TRUE(browser->SendProcessMessage(PID_RENDERER, message_));
+    frame->SendProcessMessage(PID_RENDERER, message_);
   }
 
   cef_thread_id_t send_thread_;

@@ -61,9 +61,10 @@ content::WebContents* GetOwnerForGuestContents(content::WebContents* guest) {
   return NULL;
 }
 
-CefRefPtr<CefBrowserHostImpl> GetOwnerBrowserForFrame(int render_process_id,
-                                                      int render_routing_id,
-                                                      bool* is_guest_view) {
+CefRefPtr<CefBrowserHostImpl> GetOwnerBrowserForFrameRoute(
+    int render_process_id,
+    int render_routing_id,
+    bool* is_guest_view) {
   if (CEF_CURRENTLY_ON_UIT()) {
     // Use the non-thread-safe but potentially faster approach.
     content::RenderFrameHost* host =
@@ -74,7 +75,7 @@ CefRefPtr<CefBrowserHostImpl> GetOwnerBrowserForFrame(int render_process_id,
   } else {
     // Use the thread-safe approach.
     scoped_refptr<CefBrowserInfo> info =
-        CefBrowserInfoManager::GetInstance()->GetBrowserInfoForFrame(
+        CefBrowserInfoManager::GetInstance()->GetBrowserInfoForFrameRoute(
             render_process_id, render_routing_id, is_guest_view);
     if (info.get()) {
       CefRefPtr<CefBrowserHostImpl> browser = info->browser();
@@ -143,9 +144,8 @@ CefRefPtr<CefBrowserHostImpl> GetBrowserForTabId(
   CefBrowserContext* browser_context_impl =
       CefBrowserContext::GetForContext(browser_context);
 
-  CefBrowserInfoManager::BrowserInfoList list;
-  CefBrowserInfoManager::GetInstance()->GetBrowserInfoList(list);
-  for (auto browser_info : list) {
+  for (const auto& browser_info :
+       CefBrowserInfoManager::GetInstance()->GetBrowserInfoList()) {
     CefRefPtr<CefBrowserHostImpl> current_browser = browser_info->browser();
     if (current_browser && current_browser->GetIdentifier() == tab_id) {
       // Make sure we're operating in the same BrowserContextImpl.

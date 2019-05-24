@@ -56,19 +56,13 @@ class MRRenderDelegate : public ClientAppRenderer::Delegate {
 
         const CefString& msg = arguments[0]->GetStringValue();
         CefRefPtr<CefV8Context> context = CefV8Context::GetCurrentContext();
-        CefRefPtr<CefBrowser> browser = context->GetBrowser();
         CefRefPtr<CefFrame> frame = context->GetFrame();
-        const int64 frame_id = frame->GetIdentifier();
-        const bool is_main_frame = frame->IsMain();
 
         CefRefPtr<CefProcessMessage> message =
             CefProcessMessage::Create(kDoneMessageName);
         CefRefPtr<CefListValue> args = message->GetArgumentList();
-        args->SetInt(0, CefInt64GetLow(frame_id));
-        args->SetInt(1, CefInt64GetHigh(frame_id));
-        args->SetBool(2, is_main_frame);
-        args->SetString(3, msg);
-        EXPECT_TRUE(browser->SendProcessMessage(PID_BROWSER, message));
+        args->SetString(0, msg);
+        frame->SendProcessMessage(PID_BROWSER, message);
         return true;
       } else {
         EXPECT_EQ(1U, arguments.size());
@@ -166,14 +160,15 @@ class MRRenderDelegate : public ClientAppRenderer::Delegate {
 
   bool OnProcessMessageReceived(CefRefPtr<ClientAppRenderer> app,
                                 CefRefPtr<CefBrowser> browser,
+                                CefRefPtr<CefFrame> frame,
                                 CefProcessId source_process,
                                 CefRefPtr<CefProcessMessage> message) override {
     const std::string& url = browser->GetMainFrame()->GetURL();
     if (url.find(kTestDomainRoot) != 0)
       return false;
 
-    return message_router_->OnProcessMessageReceived(browser, source_process,
-                                                     message);
+    return message_router_->OnProcessMessageReceived(browser, frame,
+                                                     source_process, message);
   }
 
  private:
@@ -237,32 +232,20 @@ class MRTestHandler : public TestHandler {
 
   // Returns true if the router handled the navigation.
   bool OnProcessMessageReceived(CefRefPtr<CefBrowser> browser,
+                                CefRefPtr<CefFrame> frame,
                                 CefProcessId source_process,
                                 CefRefPtr<CefProcessMessage> message) override {
     const std::string& message_name = message->GetName();
     if (message_name == kDoneMessageName) {
       CefRefPtr<CefListValue> args = message->GetArgumentList();
-      EXPECT_EQ(4U, args->GetSize());
-      EXPECT_EQ(VTYPE_INT, args->GetType(0));
-      EXPECT_EQ(VTYPE_INT, args->GetType(1));
-      EXPECT_EQ(VTYPE_BOOL, args->GetType(2));
-      EXPECT_EQ(VTYPE_STRING, args->GetType(3));
-
-      const int64 frame_id = CefInt64Set(args->GetInt(0), args->GetInt(1));
-      const bool is_main_frame = args->GetBool(2);
-      CefRefPtr<CefFrame> frame;
-      if (is_main_frame)
-        frame = browser->GetMainFrame();
-      else
-        frame = browser->GetFrame(frame_id);
-      EXPECT_TRUE(frame.get());
-
-      OnNotify(browser, frame, args->GetString(3));
+      EXPECT_EQ(1U, args->GetSize());
+      EXPECT_EQ(VTYPE_STRING, args->GetType(0));
+      OnNotify(browser, frame, args->GetString(0));
       return true;
     }
 
-    return message_router_->OnProcessMessageReceived(browser, source_process,
-                                                     message);
+    return message_router_->OnProcessMessageReceived(browser, frame,
+                                                     source_process, message);
   }
 
   CefRefPtr<CefMessageRouterBrowserSide> GetRouter() const {

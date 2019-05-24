@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=4e8384d7f289708b09f08be98c5477f2be3fde97$
+// $hash=6bef924a259845dbf03e9cf5084ff7feb2771034$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_FRAME_CAPI_H_
@@ -42,6 +42,7 @@
 
 #include "include/capi/cef_base_capi.h"
 #include "include/capi/cef_dom_capi.h"
+#include "include/capi/cef_process_message_capi.h"
 #include "include/capi/cef_request_capi.h"
 #include "include/capi/cef_stream_capi.h"
 #include "include/capi/cef_string_visitor_capi.h"
@@ -244,6 +245,17 @@ typedef struct _cef_frame_t {
       struct _cef_frame_t* self,
       struct _cef_request_t* request,
       struct _cef_urlrequest_client_t* client);
+
+  ///
+  // Send a message to the specified |target_process|. Message delivery is not
+  // guaranteed in all cases (for example, if the browser is closing,
+  // navigating, or if the target process crashes). Send an ACK message back
+  // from the target process if confirmation is required.
+  ///
+  void(CEF_CALLBACK* send_process_message)(
+      struct _cef_frame_t* self,
+      cef_process_id_t target_process,
+      struct _cef_process_message_t* message);
 } cef_frame_t;
 
 #ifdef __cplusplus

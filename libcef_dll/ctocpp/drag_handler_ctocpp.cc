@@ -9,12 +9,13 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=c8a4667e566076b36af39a83ba15cb1015821da9$
+// $hash=ed9ec27e4e93df6821437ee0d49da3ebd122bed3$
 //
 
 #include "libcef_dll/ctocpp/drag_handler_ctocpp.h"
 #include "libcef_dll/cpptoc/browser_cpptoc.h"
 #include "libcef_dll/cpptoc/drag_data_cpptoc.h"
+#include "libcef_dll/cpptoc/frame_cpptoc.h"
 #include "libcef_dll/shutdown_checker.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
@@ -51,6 +52,7 @@ bool CefDragHandlerCToCpp::OnDragEnter(CefRefPtr<CefBrowser> browser,
 NO_SANITIZE("cfi-icall")
 void CefDragHandlerCToCpp::OnDraggableRegionsChanged(
     CefRefPtr<CefBrowser> browser,
+    CefRefPtr<CefFrame> frame,
     const std::vector<CefDraggableRegion>& regions) {
   shutdown_checker::AssertNotShutdown();
 
@@ -63,6 +65,10 @@ void CefDragHandlerCToCpp::OnDraggableRegionsChanged(
   // Verify param: browser; type: refptr_diff
   DCHECK(browser.get());
   if (!browser.get())
+    return;
+  // Verify param: frame; type: refptr_diff
+  DCHECK(frame.get());
+  if (!frame.get())
     return;
 
   // Translate param: regions; type: simple_vec_byref_const
@@ -80,7 +86,8 @@ void CefDragHandlerCToCpp::OnDraggableRegionsChanged(
 
   // Execute
   _struct->on_draggable_regions_changed(
-      _struct, CefBrowserCppToC::Wrap(browser), regionsCount, regionsList);
+      _struct, CefBrowserCppToC::Wrap(browser), CefFrameCppToC::Wrap(frame),
+      regionsCount, regionsList);
 
   // Restore param:regions; type: simple_vec_byref_const
   if (regionsList)

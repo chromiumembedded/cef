@@ -9,11 +9,12 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=eaff0c45fa3549df59bb9e64d5ac189205136ed3$
+// $hash=49a9d7412f4d9b8d5d7e15ce9f6f62e1b03ea248$
 //
 
 #include "libcef_dll/cpptoc/frame_cpptoc.h"
 #include "libcef_dll/cpptoc/browser_cpptoc.h"
+#include "libcef_dll/cpptoc/process_message_cpptoc.h"
 #include "libcef_dll/cpptoc/request_cpptoc.h"
 #include "libcef_dll/cpptoc/urlrequest_cpptoc.h"
 #include "libcef_dll/cpptoc/v8context_cpptoc.h"
@@ -440,6 +441,27 @@ frame_create_urlrequest(struct _cef_frame_t* self,
   return CefURLRequestCppToC::Wrap(_retval);
 }
 
+void CEF_CALLBACK
+frame_send_process_message(struct _cef_frame_t* self,
+                           cef_process_id_t target_process,
+                           struct _cef_process_message_t* message) {
+  shutdown_checker::AssertNotShutdown();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return;
+  // Verify param: message; type: refptr_same
+  DCHECK(message);
+  if (!message)
+    return;
+
+  // Execute
+  CefFrameCppToC::Get(self)->SendProcessMessage(
+      target_process, CefProcessMessageCppToC::Unwrap(message));
+}
+
 }  // namespace
 
 // CONSTRUCTOR - Do not edit by hand.
@@ -470,6 +492,7 @@ CefFrameCppToC::CefFrameCppToC() {
   GetStruct()->get_v8context = frame_get_v8context;
   GetStruct()->visit_dom = frame_visit_dom;
   GetStruct()->create_urlrequest = frame_create_urlrequest;
+  GetStruct()->send_process_message = frame_send_process_message;
 }
 
 // DESTRUCTOR - Do not edit by hand.

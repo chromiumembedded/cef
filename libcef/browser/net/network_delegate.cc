@@ -389,13 +389,14 @@ net::NetworkDelegate::AuthRequiredResponse CefNetworkDelegate::OnAuthRequired(
     return AUTH_REQUIRED_RESPONSE_NO_ACTION;
 
   CefRefPtr<CefBrowserHostImpl> browser =
-      CefBrowserHostImpl::GetBrowserForRequest(request);
+      net_util::GetBrowserForRequest(request);
   if (browser.get()) {
     CefRefPtr<CefClient> client = browser->GetClient();
     if (client.get()) {
       CefRefPtr<CefRequestHandler> handler = client->GetRequestHandler();
       if (handler.get()) {
-        CefRefPtr<CefFrame> frame = browser->GetFrameForRequest(request);
+        CefRefPtr<CefFrame> frame =
+            net_util::GetFrameForRequest(browser->browser_info(), request);
 
         CefRefPtr<CefAuthCallbackImpl> callbackPtr(
             new CefAuthCallbackImpl(std::move(callback), credentials));

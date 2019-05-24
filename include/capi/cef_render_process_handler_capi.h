@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=a3cf58db4b29d7395975ab8d63461b5ea8aad064$
+// $hash=6c6efd722dda7480a5449ef31f1d6d9a16fd3465$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_RENDER_PROCESS_HANDLER_CAPI_H_
@@ -166,6 +166,7 @@ typedef struct _cef_render_process_handler_t {
   int(CEF_CALLBACK* on_process_message_received)(
       struct _cef_render_process_handler_t* self,
       struct _cef_browser_t* browser,
+      struct _cef_frame_t* frame,
       cef_process_id_t source_process,
       struct _cef_process_message_t* message);
 } cef_render_process_handler_t;

@@ -36,9 +36,10 @@ content::WebContents* GetOwnerForGuestContents(content::WebContents* guest);
 // routing IDs, if any. |is_guest_view| will be set to true if the IDs
 // match a guest view associated with the returned browser instead of the
 // browser itself.
-CefRefPtr<CefBrowserHostImpl> GetOwnerBrowserForFrame(int render_process_id,
-                                                      int render_routing_id,
-                                                      bool* is_guest_view);
+CefRefPtr<CefBrowserHostImpl> GetOwnerBrowserForFrameRoute(
+    int render_process_id,
+    int render_routing_id,
+    bool* is_guest_view);
 
 // Returns the CefBrowserHostImpl that owns the specified |host|, if any.
 // |is_guest_view| will be set to true if the host matches a guest view

@@ -2056,10 +2056,12 @@ class RequestRendererTest : public ClientAppRenderer::Delegate {
 
   bool OnProcessMessageReceived(CefRefPtr<ClientAppRenderer> app,
                                 CefRefPtr<CefBrowser> browser,
+                                CefRefPtr<CefFrame> frame,
                                 CefProcessId source_process,
                                 CefRefPtr<CefProcessMessage> message) override {
     if (message->GetName() == kRequestTestMsg) {
       EXPECT_TRUE(CefCurrentlyOn(TID_RENDERER));
+      EXPECT_TRUE(frame->IsMain());
 
       app_ = app;
       browser_ = browser;
@@ -2069,7 +2071,7 @@ class RequestRendererTest : public ClientAppRenderer::Delegate {
 
       const bool use_frame_method = args->GetBool(2);
       if (use_frame_method)
-        frame_ = browser->GetMainFrame();
+        frame_ = frame;
 
       test_mode_ = static_cast<RequestTestMode>(args->GetInt(0));
       test_runner_ = new RequestTestRunner(false, args->GetBool(1),
@@ -2115,7 +2117,7 @@ class RequestRendererTest : public ClientAppRenderer::Delegate {
     CefRefPtr<CefProcessMessage> return_msg =
         CefProcessMessage::Create(kRequestTestMsg);
     EXPECT_TRUE(return_msg->GetArgumentList()->SetBool(0, result));
-    EXPECT_TRUE(browser_->SendProcessMessage(PID_BROWSER, return_msg));
+    browser_->GetMainFrame()->SendProcessMessage(PID_BROWSER, return_msg);
 
     app_ = NULL;
     browser_ = NULL;
@@ -2315,14 +2317,16 @@ class RequestTestHandler : public TestHandler {
       test_running_ = true;
 
       // Send a message to the renderer process to run the test.
-      EXPECT_TRUE(browser->SendProcessMessage(PID_RENDERER, test_message));
+      frame->SendProcessMessage(PID_RENDERER, test_message);
     }
   }
 
   bool OnProcessMessageReceived(CefRefPtr<CefBrowser> browser,
+                                CefRefPtr<CefFrame> frame,
                                 CefProcessId source_process,
                                 CefRefPtr<CefProcessMessage> message) override {
     EXPECT_TRUE(browser.get());
+    EXPECT_TRUE(frame.get());
     EXPECT_EQ(PID_RENDERER, source_process);
     EXPECT_TRUE(message.get());
     EXPECT_TRUE(message->IsReadOnly());

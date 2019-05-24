@@ -8,7 +8,6 @@
 #pragma once
 
 #include <map>
-#include <queue>
 #include <string>
 #include <vector>
 
@@ -23,7 +22,6 @@
 #include "libcef/browser/javascript_dialog_manager.h"
 #include "libcef/browser/menu_manager.h"
 #include "libcef/browser/request_context_impl.h"
-#include "libcef/common/response_manager.h"
 
 #include "base/observer_list.h"
 #include "base/strings/string16.h"
@@ -45,24 +43,16 @@ class Extension;
 class ExtensionHost;
 }  // namespace extensions
 
-namespace net {
-class URLRequest;
-}
-
 #if defined(USE_AURA)
 namespace views {
 class Widget;
 }
 #endif  // defined(USE_AURA)
 
-struct Cef_DraggableRegion_Params;
-struct Cef_Request_Params;
-struct Cef_Response_Params;
 class CefAudioMirrorDestination;
 class CefBrowserInfo;
 class CefBrowserPlatformDelegate;
 class CefDevToolsFrontend;
-struct CefNavigateParams;
 class SiteInstance;
 
 // Implementation of CefBrowser.
@@ -155,14 +145,11 @@ class CefBrowserHostImpl : public CefBrowserHost,
   // Returns the browser associated with the specified WebContents.
   static CefRefPtr<CefBrowserHostImpl> GetBrowserForContents(
       const content::WebContents* contents);
-  // Returns the browser associated with the specified URLRequest.
-  static CefRefPtr<CefBrowserHostImpl> GetBrowserForRequest(
-      const net::URLRequest* request);
-  // Returns the browser associated with the specified FrameTreeNode.
+  // Returns the browser associated with the specified FrameTreeNode ID.
   static CefRefPtr<CefBrowserHostImpl> GetBrowserForFrameTreeNode(
       int frame_tree_node_id);
   // Returns the browser associated with the specified frame routing IDs.
-  static CefRefPtr<CefBrowserHostImpl> GetBrowserForFrame(
+  static CefRefPtr<CefBrowserHostImpl> GetBrowserForFrameRoute(
       int render_process_id,
       int render_routing_id);
 
@@ -282,8 +269,6 @@ class CefBrowserHostImpl : public CefBrowserHost,
   size_t GetFrameCount() override;
   void GetFrameIdentifiers(std::vector<int64>& identifiers) override;
   void GetFrameNames(std::vector<CefString>& names) override;
-  bool SendProcessMessage(CefProcessId target_process,
-                          CefRefPtr<CefProcessMessage> message) override;
 
   // Returns true if windowless rendering is enabled.
   bool IsWindowless() const;
@@ -314,42 +299,17 @@ class CefBrowserHostImpl : public CefBrowserHost,
   // Returns the frame associated with the specified RenderFrameHost.
   CefRefPtr<CefFrame> GetFrameForHost(const content::RenderFrameHost* host);
 
-  // Returns the frame associated with the specified RenderFrameHost routing ID.
-  CefRefPtr<CefFrame> GetFrameForHostRoutingId(int render_frame_id);
+  // Load the specified URL in the main frame.
+  void LoadMainFrameURL(const std::string& url,
+                        const content::Referrer& referrer,
+                        ui::PageTransition transition,
+                        const std::string& extra_headers);
 
-  // Returns the frame associated with the specified URLRequest.
-  CefRefPtr<CefFrame> GetFrameForRequest(const net::URLRequest* request);
-
-  // Navigate as specified by the |params| argument.
-  void Navigate(const CefNavigateParams& params);
-
-  // Load the specified request.
-  void LoadRequest(int64 frame_id, CefRefPtr<CefRequest> request);
-
-  // Load the specified URL.
-  void LoadURL(int64 frame_id,
-               const std::string& url,
-               const content::Referrer& referrer,
-               ui::PageTransition transition,
-               const std::string& extra_headers);
-
-  // Load the specified string.
-  void LoadString(int64 frame_id,
-                  const std::string& string,
-                  const std::string& url);
-
-  // Send a command to the renderer for execution.
-  void SendCommand(int64 frame_id,
-                   const std::string& command,
-                   CefRefPtr<CefResponseManager::Handler> responseHandler);
-
-  // Send code to the renderer for execution.
-  void SendCode(int64 frame_id,
-                bool is_javascript,
-                const std::string& code,
-                const std::string& script_url,
-                int script_start_line,
-                CefRefPtr<CefResponseManager::Handler> responseHandler);
+  // Called from CefFrameHostImpl.
+  void OnFrameFocused(CefRefPtr<CefFrameHostImpl> frame);
+  void OnDidFinishLoad(CefRefPtr<CefFrameHostImpl> frame,
+                       const GURL& validated_url,
+                       int http_status_code);
 
   // Open the specified text in the default text editor.
   void ViewText(const std::string& text);
@@ -500,7 +460,7 @@ class CefBrowserHostImpl : public CefBrowserHost,
   void RenderFrameCreated(content::RenderFrameHost* render_frame_host) override;
   void RenderFrameHostChanged(content::RenderFrameHost* old_host,
                               content::RenderFrameHost* new_host) override;
-  void FrameDeleted(content::RenderFrameHost* render_frame_host) override;
+  void RenderFrameDeleted(content::RenderFrameHost* render_frame_host) override;
   void RenderViewCreated(content::RenderViewHost* render_view_host) override;
   void RenderViewDeleted(content::RenderViewHost* render_view_host) override;
   void RenderViewReady() override;
@@ -568,21 +528,6 @@ class CefBrowserHostImpl : public CefBrowserHost,
       std::unique_ptr<CefBrowserPlatformDelegate> platform_delegate,
       CefRefPtr<CefExtension> extension);
 
-  // content::WebContentsObserver::OnMessageReceived() message handlers.
-  void OnFrameIdentified(int64 frame_id,
-                         int64 parent_frame_id,
-                         base::string16 name);
-  void OnFrameFocused(content::RenderFrameHost* render_frame_host);
-  void OnDidFinishLoad(int64 frame_id,
-                       const GURL& validated_url,
-                       bool is_main_frame,
-                       int http_status_code);
-  void OnUpdateDraggableRegions(
-      const std::vector<Cef_DraggableRegion_Params>& regions);
-  void OnRequest(const Cef_Request_Params& params);
-  void OnResponse(const Cef_Response_Params& params);
-  void OnResponseAck(int request_id);
-
   // content::NotificationObserver methods.
   void Observe(int type,
                const content::NotificationSource& source,
@@ -617,42 +562,7 @@ class CefBrowserHostImpl : public CefBrowserHost,
   // Action to be executed once the navigation lock is released.
   void set_pending_navigation_action(base::OnceClosure action);
 
-  // Update or create a frame object. |frame_id| (renderer routing id) will be
-  // >= 0 if the frame currently exists in the renderer process. |frame_id| will
-  // be < 0 for the main frame if it has not yet navigated for the first time,
-  // or for sub-frames if PlzNavigate is enabled and the sub-frame does not yet
-  // have a renderer process representation. |frame_tree_node_id| will be
-  // kUnspecifiedFrameTreeNodeId for calls that originate from the renderer
-  // process (meaning that |frame_id| should be >= 0); kUnusedFrameTreeNodeId
-  // if PlzNavigate is disabled; or >= 0 otherwise. |parent_frame_id| will be
-  // CefFrameHostImpl::kUnspecifiedFrameId if unknown. In cases where |frame_id|
-  // is < 0 either the existing main frame object or a pending object will be
-  // returned depending on current state. If |is_main_frame_state_flaky| is true
-  // then the value of |is_main_frame| cannot be relied on.
-  CefRefPtr<CefFrame> GetOrCreateFrame(int64 frame_id,
-                                       int frame_tree_node_id,
-                                       int64 parent_frame_id,
-                                       bool is_main_frame,
-                                       bool is_main_frame_state_flaky,
-                                       base::string16 frame_name,
-                                       const GURL& frame_url);
-
-  // Returns a pending frame object. If the main frame has not yet navigated for
-  // the first time then |frame_tree_node_id| will be kMainFrameTreeNodeId and a
-  // single pending object will be returned. Otherwise, this method will be
-  // called with a |frame_tree_node_id| value >= 0 when PlzNavigate is enabled
-  // and there will then be one pending object for each frame that does not yet
-  // have a renderer process representation. |parent_frame_id| will be
-  // CefFrameHostImpl::kUnspecifiedFrameId if unknown. |created| will be set to
-  // true if |created| is non-nullptr and the frame object was created.
-  CefRefPtr<CefFrameHostImpl> GetOrCreatePendingFrame(int frame_tree_node_id,
-                                                      int64 parent_frame_id,
-                                                      bool* created);
-
-  // Remove the references to all frames and mark them as detached.
-  void DetachAllFrames();
-
-  void OnAddressChange(CefRefPtr<CefFrame> frame, const GURL& url);
+  void OnAddressChange(const GURL& url);
   void OnLoadStart(CefRefPtr<CefFrame> frame,
                    ui::PageTransition transition_type);
   void OnLoadError(CefRefPtr<CefFrame> frame, const GURL& url, int error_code);
@@ -668,11 +578,6 @@ class CefBrowserHostImpl : public CefBrowserHost,
   void EnsureFileDialogManager();
 
   void ConfigureAutoResize();
-
-  // Send a message to the RenderViewHost associated with this browser.
-  // TODO(cef): With the introduction of OOPIFs, WebContents can span multiple
-  // processes. Messages should be sent to specific RenderFrameHosts instead.
-  bool Send(IPC::Message* message);
 
   CefBrowserSettings settings_;
   CefRefPtr<CefClient> client_;
@@ -698,26 +603,8 @@ class CefBrowserHostImpl : public CefBrowserHost,
   bool has_document_;
   bool is_fullscreen_;
 
-  // Messages we queue while waiting for the RenderView to be ready. We queue
-  // them here instead of in the RenderProcessHost to ensure that they're sent
-  // after the CefRenderViewObserver has been created on the renderer side.
-  std::queue<IPC::Message*> queued_messages_;
-  bool queue_messages_;
-
-  // Map of frame tree node id to CefFrameHostImpl. These are frames that do not
-  // yet have a renderer process representation.
-  typedef std::map<int, CefRefPtr<CefFrameHostImpl>> FrameTreeNodeIdMap;
-  FrameTreeNodeIdMap pending_frames_;
-
-  // Map of unique frame id (renderer routing id) to CefFrameHostImpl. These are
-  // frames that do have a renderer process representation.
-  typedef std::map<int64, CefRefPtr<CefFrameHostImpl>> FrameIdMap;
-  FrameIdMap frames_;
-
-  // The unique frame id currently identified as the main frame.
-  int64 main_frame_id_;
-  // The unique frame id currently identified as the focused frame.
-  int64 focused_frame_id_;
+  // The currently focused frame, or nullptr if the main frame is focused.
+  CefRefPtr<CefFrameHostImpl> focused_frame_;
 
   // Represents the current browser destruction state. Only accessed on the UI
   // thread.
@@ -746,9 +633,6 @@ class CefBrowserHostImpl : public CefBrowserHost,
 
   // Used for managing notification subscriptions.
   std::unique_ptr<content::NotificationRegistrar> registrar_;
-
-  // Manages response registrations.
-  std::unique_ptr<CefResponseManager> response_manager_;
 
   // Used for creating and managing file dialogs.
   std::unique_ptr<CefFileDialogManager> file_dialog_manager_;

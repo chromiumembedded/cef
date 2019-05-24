@@ -51,9 +51,6 @@ IPC_STRUCT_BEGIN(Cef_Request_Params)
   // Unique request id to match requests and responses.
   IPC_STRUCT_MEMBER(int, request_id)
 
-  // Unique id of the target frame. -1 if unknown / invalid.
-  IPC_STRUCT_MEMBER(int64_t, frame_id)
-
   // True if the request is user-initiated instead of internal.
   IPC_STRUCT_MEMBER(bool, user_initiated)
 
@@ -111,10 +108,6 @@ IPC_STRUCT_BEGIN(CefMsg_LoadRequest_Params)
   IPC_STRUCT_MEMBER(GURL, referrer)
   // One of the cef_referrer_policy_t values.
   IPC_STRUCT_MEMBER(int, referrer_policy)
-
-  // Identifies the frame within the RenderView that sent the request.
-  // -1 if unknown / invalid.
-  IPC_STRUCT_MEMBER(int64_t, frame_id)
 
   // Usually the URL of the document in the top-level window, which may be
   // checked by the third-party cookie blocking policy. Leaving it empty may
@@ -197,20 +190,15 @@ IPC_SYNC_MESSAGE_CONTROL1_1(
     int /* render_frame_routing_id */,
     CefProcessHostMsg_GetNewBrowserInfo_Params /* params*/)
 
-// Sent when a frame is identified for the first time.
-IPC_MESSAGE_ROUTED3(CefHostMsg_FrameIdentified,
-                    int64_t /* frame_id */,
-                    int64_t /* parent_frame_id */,
-                    base::string16 /* frame_name */)
+// Sent by the renderer when the frame can begin receiving messages.
+IPC_MESSAGE_ROUTED0(CefHostMsg_FrameAttached)
 
 // Sent by the renderer when the frame becomes focused.
 IPC_MESSAGE_ROUTED0(CefHostMsg_FrameFocused)
 
 // Sent when a frame has finished loading. Based on ViewHostMsg_DidFinishLoad.
-IPC_MESSAGE_ROUTED4(CefHostMsg_DidFinishLoad,
-                    int64_t /* frame_id */,
+IPC_MESSAGE_ROUTED2(CefHostMsg_DidFinishLoad,
                     GURL /* validated_url */,
-                    bool /* is_main_frame */,
                     int /* http_status_code */)
 
 // Sent when the renderer has a request for the browser. The browser may respond

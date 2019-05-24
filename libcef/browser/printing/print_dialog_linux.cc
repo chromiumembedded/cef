@@ -149,8 +149,9 @@ void CefPrintDialogLinux::OnPrintStart(int render_process_id,
   if (!handler.get())
     return;
 
-  CefRefPtr<CefBrowserHostImpl> browser = extensions::GetOwnerBrowserForFrame(
-      render_process_id, render_routing_id, NULL);
+  CefRefPtr<CefBrowserHostImpl> browser =
+      extensions::GetOwnerBrowserForFrameRoute(render_process_id,
+                                               render_routing_id, NULL);
   if (browser.get())
     handler->OnPrintStart(browser.get());
 }
@@ -158,7 +159,7 @@ void CefPrintDialogLinux::OnPrintStart(int render_process_id,
 CefPrintDialogLinux::CefPrintDialogLinux(PrintingContextLinux* context)
     : context_(context) {
   DCHECK(context_);
-  browser_ = extensions::GetOwnerBrowserForFrame(
+  browser_ = extensions::GetOwnerBrowserForFrameRoute(
       context_->render_process_id(), context_->render_frame_id(), NULL);
   DCHECK(browser_);
 }

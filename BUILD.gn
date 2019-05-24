@@ -514,6 +514,8 @@ static_library("libcef_static") {
     "libcef/common/extensions/extensions_util.cc",
     "libcef/common/extensions/extensions_util.h",
     "libcef/common/file_util_impl.cc",
+    "libcef/common/frame_util.cc",
+    "libcef/common/frame_util.h",
     "libcef/common/json_impl.cc",
     "libcef/common/main_delegate.cc",
     "libcef/common/main_delegate.h",

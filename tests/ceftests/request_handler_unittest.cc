@@ -6,6 +6,7 @@
 #include <cmath>
 #include <sstream>
 #include <string>
+#include <vector>
 
 #include "include/base/cef_bind.h"
 #include "include/base/cef_scoped_ptr.h"
@@ -199,10 +200,10 @@ class NetNotifyTestHandler : public TestHandler {
           CefRefPtr<CefListValue> args = message->GetArgumentList();
           args->SetInt(0, test_type_);
           args->SetString(1, url);
-          EXPECT_TRUE(browser->SendProcessMessage(PID_RENDERER, message));
+          frame->SendProcessMessage(PID_RENDERER, message);
         } else {
           // Load the URL from the browser process.
-          browser->GetMainFrame()->LoadURL(url);
+          frame->LoadURL(url);
         }
 
         // Cancel the load.
@@ -232,6 +233,7 @@ class NetNotifyTestHandler : public TestHandler {
   }
 
   bool OnProcessMessageReceived(CefRefPtr<CefBrowser> browser,
+                                CefRefPtr<CefFrame> frame,
                                 CefProcessId source_process,
                                 CefRefPtr<CefProcessMessage> message) override {
     if (message->GetName().ToString() == kNetNotifyMsg) {
@@ -405,11 +407,12 @@ class NetNotifyRendererTest : public ClientAppRenderer::Delegate,
         CefProcessMessage::Create(kNetNotifyMsg);
     CefRefPtr<CefListValue> args = message->GetArgumentList();
     args->SetString(0, url);
-    EXPECT_TRUE(browser->SendProcessMessage(PID_BROWSER, message));
+    frame->SendProcessMessage(PID_BROWSER, message);
   }
 
   bool OnProcessMessageReceived(CefRefPtr<ClientAppRenderer> app,
                                 CefRefPtr<CefBrowser> browser,
+                                CefRefPtr<CefFrame> frame,
                                 CefProcessId source_process,
                                 CefRefPtr<CefProcessMessage> message) override {
     if (message->GetName().ToString() == kNetNotifyMsg) {
@@ -423,7 +426,7 @@ class NetNotifyRendererTest : public ClientAppRenderer::Delegate,
       const std::string& url = args->GetString(1);
 
       // Load the URL from the render process.
-      browser->GetMainFrame()->LoadURL(url);
+      frame->LoadURL(url);
       return true;
     }
 
@@ -437,28 +440,29 @@ class NetNotifyRendererTest : public ClientAppRenderer::Delegate,
   IMPLEMENT_REFCOUNTING(NetNotifyRendererTest);
 };
 
-void RunNetNotifyTest(NetNotifyTestType test_type, bool same_origin) {
+void RunNetNotifyTest(NetNotifyTestType test_type,
+                      bool same_origin,
+                      size_t count = 3U) {
   g_net_notify_test = true;
 
-  TestHandler::CompletionState completion_state(3);
-
-  CefRefPtr<NetNotifyTestHandler> handler1 =
-      new NetNotifyTestHandler(&completion_state, test_type, same_origin);
-  CefRefPtr<NetNotifyTestHandler> handler2 =
-      new NetNotifyTestHandler(&completion_state, test_type, same_origin);
-  CefRefPtr<NetNotifyTestHandler> handler3 =
-      new NetNotifyTestHandler(&completion_state, test_type, same_origin);
-
+  TestHandler::CompletionState completion_state(count);
   TestHandler::Collection collection(&completion_state);
-  collection.AddTestHandler(handler1.get());
-  collection.AddTestHandler(handler2.get());
-  collection.AddTestHandler(handler3.get());
+
+  std::vector<CefRefPtr<NetNotifyTestHandler>> handlers;
+  for (size_t i = 0U; i < count; ++i) {
+    CefRefPtr<NetNotifyTestHandler> handler =
+        new NetNotifyTestHandler(&completion_state, test_type, same_origin);
+    collection.AddTestHandler(handler);
+    handlers.push_back(handler);
+  }
 
   collection.ExecuteTests();
 
-  ReleaseAndWaitForDestructor(handler1);
-  ReleaseAndWaitForDestructor(handler2);
-  ReleaseAndWaitForDestructor(handler3);
+  while (!handlers.empty()) {
+    auto handler = handlers.front();
+    handlers.erase(handlers.begin());
+    ReleaseAndWaitForDestructor(handler);
+  }
 
   g_net_notify_test = false;
 }

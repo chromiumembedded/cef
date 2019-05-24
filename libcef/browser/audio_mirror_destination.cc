@@ -68,8 +68,8 @@ void CefAudioMirrorDestination::QueryForMatchesOnUIThread(
   std::set<content::GlobalFrameRoutingId> matches;
   for (auto& candidate : candidates) {
     CefRefPtr<CefBrowserHostImpl> browser =
-        CefBrowserHostImpl::GetBrowserForFrame(candidate.child_id,
-                                               candidate.frame_routing_id);
+        CefBrowserHostImpl::GetBrowserForFrameRoute(candidate.child_id,
+                                                    candidate.frame_routing_id);
     if (browser == browser_) {
       matches.insert(candidate);
     }

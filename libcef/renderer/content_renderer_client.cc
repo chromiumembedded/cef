@@ -476,14 +476,20 @@ void CefContentRendererClient::RenderFrameCreated(
     new SpellCheckProvider(render_frame, spellcheck_.get(), this);
   }
 
-  BrowserCreated(render_frame->GetRenderView(), render_frame);
+  auto browser =
+      MaybeCreateBrowser(render_frame->GetRenderView(), render_frame);
+  if (browser) {
+    // Attach the frame to the observer for message routing purposes.
+    render_frame_observer->AttachFrame(
+        browser->GetWebFrameImpl(render_frame->GetWebFrame()).get());
+  }
 }
 
 void CefContentRendererClient::RenderViewCreated(
     content::RenderView* render_view) {
   new CefPrerendererClient(render_view);
 
-  BrowserCreated(render_view, render_view->GetMainRenderFrame());
+  MaybeCreateBrowser(render_view, render_view->GetMainRenderFrame());
 }
 
 bool CefContentRendererClient::OverrideCreatePlugin(
@@ -637,16 +643,20 @@ void CefContentRendererClient::WillDestroyCurrentMessageLoop() {
   single_process_cleanup_complete_ = true;
 }
 
-void CefContentRendererClient::BrowserCreated(
+CefRefPtr<CefBrowserImpl> CefContentRendererClient::MaybeCreateBrowser(
     content::RenderView* render_view,
     content::RenderFrame* render_frame) {
   if (!render_view || !render_frame)
-    return;
+    return nullptr;
 
   // Don't create another browser or guest view object if one already exists for
   // the view.
-  if (GetBrowserForView(render_view).get() || HasGuestViewForView(render_view))
-    return;
+  auto browser = GetBrowserForView(render_view);
+  if (browser)
+    return browser;
+
+  if (HasGuestViewForView(render_view))
+    return nullptr;
 
   const int render_frame_routing_id = render_frame->GetRoutingID();
 
@@ -657,14 +667,14 @@ void CefContentRendererClient::BrowserCreated(
       render_frame_routing_id, &params));
   if (params.browser_id == 0) {
     // The popup may have been canceled during creation.
-    return;
+    return nullptr;
   }
 
   if (params.is_guest_view) {
     // Don't create a CefBrowser for guest views.
     guest_views_.insert(std::make_pair(
         render_view, std::make_unique<CefGuestView>(render_view)));
-    return;
+    return nullptr;
   }
 
 #if defined(OS_MACOSX)
@@ -676,8 +686,8 @@ void CefContentRendererClient::BrowserCreated(
       !params.is_windowless);
 #endif
 
-  CefRefPtr<CefBrowserImpl> browser = new CefBrowserImpl(
-      render_view, params.browser_id, params.is_popup, params.is_windowless);
+  browser = new CefBrowserImpl(render_view, params.browser_id, params.is_popup,
+                               params.is_windowless);
   browsers_.insert(std::make_pair(render_view, browser));
 
   // Notify the render process handler.
@@ -692,6 +702,8 @@ void CefContentRendererClient::BrowserCreated(
       dictValuePtr->Detach(NULL);
     }
   }
+
+  return browser;
 }
 
 void CefContentRendererClient::RunSingleProcessCleanupOnUIThread() {

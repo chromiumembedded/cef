@@ -40,6 +40,7 @@
 
 #include "include/cef_base.h"
 #include "include/cef_dom.h"
+#include "include/cef_process_message.h"
 #include "include/cef_request.h"
 #include "include/cef_stream.h"
 #include "include/cef_string_visitor.h"
@@ -248,6 +249,16 @@ class CefFrame : public virtual CefBaseRefCounted {
   virtual CefRefPtr<CefURLRequest> CreateURLRequest(
       CefRefPtr<CefRequest> request,
       CefRefPtr<CefURLRequestClient> client) = 0;
+
+  ///
+  // Send a message to the specified |target_process|. Message delivery is not
+  // guaranteed in all cases (for example, if the browser is closing,
+  // navigating, or if the target process crashes). Send an ACK message back
+  // from the target process if confirmation is required.
+  ///
+  /*--cef()--*/
+  virtual void SendProcessMessage(CefProcessId target_process,
+                                  CefRefPtr<CefProcessMessage> message) = 0;
 };
 
 #endif  // CEF_INCLUDE_CEF_FRAME_H_

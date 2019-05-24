@@ -110,6 +110,7 @@ class ClientHandler : public CefClient,
   CefRefPtr<CefLoadHandler> GetLoadHandler() OVERRIDE { return this; }
   CefRefPtr<CefRequestHandler> GetRequestHandler() OVERRIDE { return this; }
   bool OnProcessMessageReceived(CefRefPtr<CefBrowser> browser,
+                                CefRefPtr<CefFrame> frame,
                                 CefProcessId source_process,
                                 CefRefPtr<CefProcessMessage> message) OVERRIDE;
 
@@ -166,6 +167,7 @@ class ClientHandler : public CefClient,
                    CefDragHandler::DragOperationsMask mask) OVERRIDE;
   void OnDraggableRegionsChanged(
       CefRefPtr<CefBrowser> browser,
+      CefRefPtr<CefFrame> frame,
       const std::vector<CefDraggableRegion>& regions) OVERRIDE;
 
   // CefFocusHandler methods

@@ -120,7 +120,7 @@ class HistoryNavRendererTest : public ClientAppRenderer::Delegate,
       got_loading_state_start_.yes();
     } else {
       got_loading_state_end_.yes();
-      SendTestResultsIfDone(browser);
+      SendTestResultsIfDone(browser, browser->GetMainFrame());
     }
   }
 
@@ -153,17 +153,19 @@ class HistoryNavRendererTest : public ClientAppRenderer::Delegate,
     EXPECT_EQ(item.can_go_back, browser->CanGoBack());
     EXPECT_EQ(item.can_go_forward, browser->CanGoForward());
 
-    SendTestResultsIfDone(browser);
+    SendTestResultsIfDone(browser, frame);
   }
 
  protected:
-  void SendTestResultsIfDone(CefRefPtr<CefBrowser> browser) {
+  void SendTestResultsIfDone(CefRefPtr<CefBrowser> browser,
+                             CefRefPtr<CefFrame> frame) {
     if (got_load_end_ && got_loading_state_end_)
-      SendTestResults(browser);
+      SendTestResults(browser, frame);
   }
 
   // Send the test results.
-  void SendTestResults(CefRefPtr<CefBrowser> browser) {
+  void SendTestResults(CefRefPtr<CefBrowser> browser,
+                       CefRefPtr<CefFrame> frame) {
     EXPECT_TRUE(got_loading_state_start_);
     EXPECT_TRUE(got_loading_state_end_);
     EXPECT_TRUE(got_load_start_);
@@ -179,7 +181,7 @@ class HistoryNavRendererTest : public ClientAppRenderer::Delegate,
     EXPECT_TRUE(args.get());
     EXPECT_TRUE(args->SetInt(0, nav_));
     EXPECT_TRUE(args->SetBool(1, result));
-    EXPECT_TRUE(browser->SendProcessMessage(PID_BROWSER, return_msg));
+    frame->SendProcessMessage(PID_BROWSER, return_msg);
 
     // Reset the test results for the next navigation.
     got_loading_state_start_.reset();
@@ -489,6 +491,7 @@ class HistoryNavTestHandler : public TestHandler {
   }
 
   bool OnProcessMessageReceived(CefRefPtr<CefBrowser> browser,
+                                CefRefPtr<CefFrame> frame,
                                 CefProcessId source_process,
                                 CefRefPtr<CefProcessMessage> message) override {
     if (message->GetName().ToString() == kHistoryNavMsg) {
@@ -1263,7 +1266,8 @@ class OrderNavRendererTest : public ClientAppRenderer::Delegate,
       EXPECT_GT(browser->GetIdentifier(), 0);
 
       // Use |browser_main_| to send the message otherwise it will fail.
-      SendTestResults(browser_main_, kOrderNavClosedMsg);
+      SendTestResults(browser_main_, browser_main_->GetMainFrame(),
+                      kOrderNavClosedMsg);
     } else {
       EXPECT_TRUE(got_browser_created_main_);
       EXPECT_FALSE(got_browser_destroyed_main_);
@@ -1307,7 +1311,7 @@ class OrderNavRendererTest : public ClientAppRenderer::Delegate,
     }
 
     if (!isLoading)
-      SendTestResultsIfDone(browser);
+      SendTestResultsIfDone(browser, browser->GetMainFrame());
   }
 
   void OnLoadStart(CefRefPtr<CefBrowser> browser,
@@ -1347,7 +1351,7 @@ class OrderNavRendererTest : public ClientAppRenderer::Delegate,
       state_main_.OnLoadEnd(browser, frame, httpStatusCode);
     }
 
-    SendTestResultsIfDone(browser);
+    SendTestResultsIfDone(browser, frame);
   }
 
   void OnLoadError(CefRefPtr<CefBrowser> browser,
@@ -1360,7 +1364,8 @@ class OrderNavRendererTest : public ClientAppRenderer::Delegate,
   }
 
  protected:
-  void SendTestResultsIfDone(CefRefPtr<CefBrowser> browser) {
+  void SendTestResultsIfDone(CefRefPtr<CefBrowser> browser,
+                             CefRefPtr<CefFrame> frame) {
     bool done = false;
     if (browser->IsPopup())
       done = state_popup_.IsDone();
@@ -1368,11 +1373,13 @@ class OrderNavRendererTest : public ClientAppRenderer::Delegate,
       done = state_main_.IsDone();
 
     if (done)
-      SendTestResults(browser, kOrderNavMsg);
+      SendTestResults(browser, frame, kOrderNavMsg);
   }
 
   // Send the test results.
-  void SendTestResults(CefRefPtr<CefBrowser> browser, const char* msg_name) {
+  void SendTestResults(CefRefPtr<CefBrowser> browser,
+                       CefRefPtr<CefFrame> frame,
+                       const char* msg_name) {
     // Check if the test has failed.
     bool result = !TestFailed();
 
@@ -1386,7 +1393,7 @@ class OrderNavRendererTest : public ClientAppRenderer::Delegate,
       EXPECT_TRUE(args->SetInt(1, browser_id_popup_));
     else
       EXPECT_TRUE(args->SetInt(1, browser_id_main_));
-    EXPECT_TRUE(browser->SendProcessMessage(PID_BROWSER, return_msg));
+    frame->SendProcessMessage(PID_BROWSER, return_msg);
   }
 
   bool run_test_;
@@ -1566,6 +1573,7 @@ class OrderNavTestHandler : public TestHandler {
   }
 
   bool OnProcessMessageReceived(CefRefPtr<CefBrowser> browser,
+                                CefRefPtr<CefFrame> frame,
                                 CefProcessId source_process,
                                 CefRefPtr<CefProcessMessage> message) override {
     if (browser->IsPopup()) {
@@ -1759,13 +1767,14 @@ class LoadNavRendererTest : public ClientAppRenderer::Delegate,
       EXPECT_EQ(browser_id_, browser->GetIdentifier());
 
       load_ct_++;
-      SendTestResults(browser);
+      SendTestResults(browser, browser->GetMainFrame());
     }
   }
 
  protected:
   // Send the test results.
-  void SendTestResults(CefRefPtr<CefBrowser> browser) {
+  void SendTestResults(CefRefPtr<CefBrowser> browser,
+                       CefRefPtr<CefFrame> frame) {
     // Check if the test has failed.
     bool result = !TestFailed();
 
@@ -1777,7 +1786,7 @@ class LoadNavRendererTest : public ClientAppRenderer::Delegate,
     EXPECT_TRUE(args->SetBool(0, result));
     EXPECT_TRUE(args->SetInt(1, browser->GetIdentifier()));
     EXPECT_TRUE(args->SetInt(2, load_ct_));
-    EXPECT_TRUE(browser->SendProcessMessage(PID_BROWSER, return_msg));
+    frame->SendProcessMessage(PID_BROWSER, return_msg);
   }
 
   bool run_test_;
@@ -2015,6 +2024,7 @@ class LoadNavTestHandler : public TestHandler {
   }
 
   bool OnProcessMessageReceived(CefRefPtr<CefBrowser> browser,
+                                CefRefPtr<CefFrame> frame,
                                 CefProcessId source_process,
                                 CefRefPtr<CefProcessMessage> message) override {
     EXPECT_GT(browser_id_current_, 0);
@@ -3486,12 +3496,13 @@ class ExtraInfoNavRendererTest : public ClientAppRenderer::Delegate {
     SetBrowserExtraInfo(expected);
     TestDictionaryEqual(expected, extra_info);
 
-    SendTestResults(browser);
+    SendTestResults(browser, browser->GetMainFrame());
   }
 
  protected:
   // Send the test results.
-  void SendTestResults(CefRefPtr<CefBrowser> browser) {
+  void SendTestResults(CefRefPtr<CefBrowser> browser,
+                       CefRefPtr<CefFrame> frame) {
     // Check if the test has failed.
     bool result = !TestFailed();
 
@@ -3501,7 +3512,7 @@ class ExtraInfoNavRendererTest : public ClientAppRenderer::Delegate {
     EXPECT_TRUE(args.get());
     EXPECT_TRUE(args->SetBool(0, result));
     EXPECT_TRUE(args->SetBool(1, browser->IsPopup()));
-    EXPECT_TRUE(browser->SendProcessMessage(PID_BROWSER, return_msg));
+    frame->SendProcessMessage(PID_BROWSER, return_msg);
   }
 
   bool run_test_;
@@ -3567,6 +3578,7 @@ class ExtraInfoNavTestHandler : public TestHandler {
   }
 
   bool OnProcessMessageReceived(CefRefPtr<CefBrowser> browser,
+                                CefRefPtr<CefFrame> frame,
                                 CefProcessId source_process,
                                 CefRefPtr<CefProcessMessage> message) override {
     if (message->GetName().ToString() == kExtraInfoNavMsg) {

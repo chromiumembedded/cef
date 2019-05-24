@@ -12,6 +12,8 @@ namespace content {
 class RenderFrame;
 }
 
+class CefFrameImpl;
+
 class CefRenderFrameObserver : public content::RenderFrameObserver {
  public:
   explicit CefRenderFrameObserver(content::RenderFrame* render_frame);
@@ -31,11 +33,15 @@ class CefRenderFrameObserver : public content::RenderFrameObserver {
   void WillReleaseScriptContext(v8::Handle<v8::Context> context,
                                 int world_id) override;
   void OnDestruct() override;
+  bool OnMessageReceived(const IPC::Message& message) override;
 
   service_manager::BinderRegistry* registry() { return &registry_; }
 
+  void AttachFrame(CefFrameImpl* frame);
+
  private:
   service_manager::BinderRegistry registry_;
+  CefFrameImpl* frame_ = nullptr;
 
   DISALLOW_COPY_AND_ASSIGN(CefRenderFrameObserver);
 };

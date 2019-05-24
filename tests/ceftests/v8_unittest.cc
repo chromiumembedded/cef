@@ -2715,6 +2715,7 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
 
   bool OnProcessMessageReceived(CefRefPtr<ClientAppRenderer> app,
                                 CefRefPtr<CefBrowser> browser,
+                                CefRefPtr<CefFrame> frame,
                                 CefProcessId source_process,
                                 CefRefPtr<CefProcessMessage> message) override {
     if (test_mode_ == V8TEST_NONE)
@@ -2807,7 +2808,7 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
     CefRefPtr<CefProcessMessage> return_msg =
         CefProcessMessage::Create(kV8TestMsg);
     EXPECT_TRUE(return_msg->GetArgumentList()->SetBool(0, result));
-    EXPECT_TRUE(browser_->SendProcessMessage(PID_BROWSER, return_msg));
+    browser_->GetMainFrame()->SendProcessMessage(PID_BROWSER, return_msg);
 
     app_ = NULL;
     browser_ = NULL;
@@ -2994,14 +2995,17 @@ class V8TestHandler : public TestHandler {
       // Run the test.
       CefRefPtr<CefProcessMessage> return_msg =
           CefProcessMessage::Create(kV8RunTestMsg);
-      EXPECT_TRUE(browser->SendProcessMessage(PID_RENDERER, return_msg));
+      frame->SendProcessMessage(PID_RENDERER, return_msg);
     }
   }
 
   bool OnProcessMessageReceived(CefRefPtr<CefBrowser> browser,
+                                CefRefPtr<CefFrame> frame,
                                 CefProcessId source_process,
                                 CefRefPtr<CefProcessMessage> message) override {
     EXPECT_TRUE(browser.get());
+    EXPECT_TRUE(frame.get());
+    EXPECT_TRUE(frame->IsMain());
     EXPECT_EQ(PID_RENDERER, source_process);
     EXPECT_TRUE(message.get());
     EXPECT_TRUE(message->IsReadOnly());

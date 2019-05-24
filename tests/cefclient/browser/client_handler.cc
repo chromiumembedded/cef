@@ -281,11 +281,12 @@ void ClientHandler::DetachDelegate() {
 
 bool ClientHandler::OnProcessMessageReceived(
     CefRefPtr<CefBrowser> browser,
+    CefRefPtr<CefFrame> frame,
     CefProcessId source_process,
     CefRefPtr<CefProcessMessage> message) {
   CEF_REQUIRE_UI_THREAD();
 
-  if (message_router_->OnProcessMessageReceived(browser, source_process,
+  if (message_router_->OnProcessMessageReceived(browser, frame, source_process,
                                                 message)) {
     return true;
   }
@@ -486,6 +487,7 @@ bool ClientHandler::OnDragEnter(CefRefPtr<CefBrowser> browser,
 
 void ClientHandler::OnDraggableRegionsChanged(
     CefRefPtr<CefBrowser> browser,
+    CefRefPtr<CefFrame> frame,
     const std::vector<CefDraggableRegion>& regions) {
   CEF_REQUIRE_UI_THREAD();
 

@@ -152,8 +152,11 @@ class CefContentRendererClient
   void WillDestroyCurrentMessageLoop() override;
 
  private:
-  void BrowserCreated(content::RenderView* render_view,
-                      content::RenderFrame* render_frame);
+  // Maybe create a new browser object, return the existing one, or return
+  // nullptr for guest views.
+  CefRefPtr<CefBrowserImpl> MaybeCreateBrowser(
+      content::RenderView* render_view,
+      content::RenderFrame* render_frame);
 
   // Perform cleanup work for single-process mode.
   void RunSingleProcessCleanupOnUIThread();

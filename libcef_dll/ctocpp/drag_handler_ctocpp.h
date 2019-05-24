@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=a602f4f6b80980bc86d8bb814e6ce34d07a2e4b6$
+// $hash=dc795e4c004c83502c99e5dcced1bcd322b25d3d$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_DRAG_HANDLER_CTOCPP_H_
@@ -40,6 +40,7 @@ class CefDragHandlerCToCpp : public CefCToCppRefCounted<CefDragHandlerCToCpp,
                    DragOperationsMask mask) override;
   void OnDraggableRegionsChanged(
       CefRefPtr<CefBrowser> browser,
+      CefRefPtr<CefFrame> frame,
       const std::vector<CefDraggableRegion>& regions) override;
 };
 

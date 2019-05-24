@@ -10,12 +10,8 @@
 
 #include "libcef/common/cef_messages.h"
 #include "libcef/common/content_client.h"
-#include "libcef/common/process_message_impl.h"
-#include "libcef/common/request_impl.h"
-#include "libcef/common/response_manager.h"
 #include "libcef/renderer/blink_glue.h"
 #include "libcef/renderer/content_renderer_client.h"
-#include "libcef/renderer/dom_document_impl.h"
 #include "libcef/renderer/render_frame_util.h"
 #include "libcef/renderer/thread_util.h"
 
@@ -27,24 +23,14 @@
 #include "content/public/renderer/render_view.h"
 #include "content/renderer/navigation_state.h"
 #include "third_party/blink/public/platform/web_string.h"
-#include "third_party/blink/public/platform/web_url.h"
 #include "third_party/blink/public/platform/web_url_error.h"
 #include "third_party/blink/public/platform/web_url_response.h"
 #include "third_party/blink/public/web/web_document.h"
 #include "third_party/blink/public/web/web_frame.h"
 #include "third_party/blink/public/web/web_frame_content_dumper.h"
 #include "third_party/blink/public/web/web_local_frame.h"
-#include "third_party/blink/public/web/web_node.h"
-#include "third_party/blink/public/web/web_script_source.h"
 #include "third_party/blink/public/web/web_security_policy.h"
 #include "third_party/blink/public/web/web_view.h"
-
-using blink::WebFrame;
-using blink::WebLocalFrame;
-using blink::WebScriptSource;
-using blink::WebString;
-using blink::WebURL;
-using blink::WebView;
 
 // CefBrowserImpl static methods.
 // -----------------------------------------------------------------------------
@@ -108,7 +94,7 @@ void CefBrowserImpl::Reload() {
   CEF_REQUIRE_RT_RETURN_VOID();
 
   if (render_view()->GetWebView()) {
-    WebFrame* main_frame = render_view()->GetWebView()->MainFrame();
+    blink::WebFrame* main_frame = render_view()->GetWebView()->MainFrame();
     if (main_frame && main_frame->IsWebLocalFrame()) {
       main_frame->ToWebLocalFrame()->StartReload(
           blink::WebFrameLoadType::kReload);
@@ -120,7 +106,7 @@ void CefBrowserImpl::ReloadIgnoreCache() {
   CEF_REQUIRE_RT_RETURN_VOID();
 
   if (render_view()->GetWebView()) {
-    WebFrame* main_frame = render_view()->GetWebView()->MainFrame();
+    blink::WebFrame* main_frame = render_view()->GetWebView()->MainFrame();
     if (main_frame && main_frame->IsWebLocalFrame()) {
       main_frame->ToWebLocalFrame()->StartReload(
           blink::WebFrameLoadType::kReloadBypassingCache);
@@ -132,7 +118,7 @@ void CefBrowserImpl::StopLoad() {
   CEF_REQUIRE_RT_RETURN_VOID();
 
   if (render_view()->GetWebView()) {
-    WebFrame* main_frame = render_view()->GetWebView()->MainFrame();
+    blink::WebFrame* main_frame = render_view()->GetWebView()->MainFrame();
     if (main_frame && main_frame->IsWebLocalFrame()) {
       main_frame->ToWebLocalFrame()->StopLoading();
     }
@@ -162,7 +148,7 @@ bool CefBrowserImpl::HasDocument() {
   CEF_REQUIRE_RT_RETURN(false);
 
   if (render_view()->GetWebView()) {
-    WebFrame* main_frame = render_view()->GetWebView()->MainFrame();
+    blink::WebFrame* main_frame = render_view()->GetWebView()->MainFrame();
     if (main_frame && main_frame->IsWebLocalFrame()) {
       return !main_frame->ToWebLocalFrame()->GetDocument().IsNull();
     }
@@ -174,7 +160,7 @@ CefRefPtr<CefFrame> CefBrowserImpl::GetMainFrame() {
   CEF_REQUIRE_RT_RETURN(nullptr);
 
   if (render_view()->GetWebView()) {
-    WebFrame* main_frame = render_view()->GetWebView()->MainFrame();
+    blink::WebFrame* main_frame = render_view()->GetWebView()->MainFrame();
     if (main_frame && main_frame->IsWebLocalFrame()) {
       return GetWebFrameImpl(main_frame->ToWebLocalFrame()).get();
     }
@@ -206,13 +192,13 @@ CefRefPtr<CefFrame> CefBrowserImpl::GetFrame(const CefString& name) {
     const blink::WebString& frame_name =
         blink::WebString::FromUTF16(name.ToString16());
     // Search by assigned frame name (Frame::name).
-    WebFrame* frame = web_view->MainFrame();
+    blink::WebFrame* frame = web_view->MainFrame();
     if (frame && frame->IsWebLocalFrame())
       frame = frame->ToWebLocalFrame()->FindFrameByName(frame_name);
     if (!frame) {
       // Search by unique frame name (Frame::uniqueName).
       const std::string& searchname = name;
-      for (WebFrame* cur_frame = web_view->MainFrame(); cur_frame;
+      for (blink::WebFrame* cur_frame = web_view->MainFrame(); cur_frame;
            cur_frame = cur_frame->TraverseNext()) {
         if (cur_frame->IsWebLocalFrame() &&
             render_frame_util::GetName(cur_frame->ToWebLocalFrame()) ==
@@ -235,8 +221,8 @@ size_t CefBrowserImpl::GetFrameCount() {
   int count = 0;
 
   if (render_view()->GetWebView()) {
-    for (WebFrame* frame = render_view()->GetWebView()->MainFrame(); frame;
-         frame = frame->TraverseNext()) {
+    for (blink::WebFrame* frame = render_view()->GetWebView()->MainFrame();
+         frame; frame = frame->TraverseNext()) {
       count++;
     }
   }
@@ -251,8 +237,8 @@ void CefBrowserImpl::GetFrameIdentifiers(std::vector<int64>& identifiers) {
     identifiers.clear();
 
   if (render_view()->GetWebView()) {
-    for (WebFrame* frame = render_view()->GetWebView()->MainFrame(); frame;
-         frame = frame->TraverseNext()) {
+    for (blink::WebFrame* frame = render_view()->GetWebView()->MainFrame();
+         frame; frame = frame->TraverseNext()) {
       if (frame->IsWebLocalFrame())
         identifiers.push_back(
             render_frame_util::GetIdentifier(frame->ToWebLocalFrame()));
@@ -267,25 +253,12 @@ void CefBrowserImpl::GetFrameNames(std::vector<CefString>& names) {
     names.clear();
 
   if (render_view()->GetWebView()) {
-    for (WebFrame* frame = render_view()->GetWebView()->MainFrame(); frame;
-         frame = frame->TraverseNext()) {
+    for (blink::WebFrame* frame = render_view()->GetWebView()->MainFrame();
+         frame; frame = frame->TraverseNext()) {
       if (frame->IsWebLocalFrame())
         names.push_back(render_frame_util::GetName(frame->ToWebLocalFrame()));
     }
   }
-}
-
-bool CefBrowserImpl::SendProcessMessage(CefProcessId target_process,
-                                        CefRefPtr<CefProcessMessage> message) {
-  Cef_Request_Params params;
-  CefProcessMessageImpl* impl =
-      static_cast<CefProcessMessageImpl*>(message.get());
-  if (impl->CopyTo(params)) {
-    return SendProcessMessage(target_process, params.name, &params.arguments,
-                              true);
-  }
-
-  return false;
 }
 
 // CefBrowserImpl public methods.
@@ -298,43 +271,9 @@ CefBrowserImpl::CefBrowserImpl(content::RenderView* render_view,
     : content::RenderViewObserver(render_view),
       browser_id_(browser_id),
       is_popup_(is_popup),
-      is_windowless_(is_windowless) {
-  response_manager_.reset(new CefResponseManager);
-}
+      is_windowless_(is_windowless) {}
 
 CefBrowserImpl::~CefBrowserImpl() {}
-
-void CefBrowserImpl::LoadRequest(const CefMsg_LoadRequest_Params& params) {
-  CefRefPtr<CefFrameImpl> framePtr = GetWebFrameImpl(params.frame_id);
-  if (!framePtr.get())
-    return;
-
-  WebLocalFrame* web_frame = framePtr->web_frame();
-
-  blink::WebURLRequest request;
-  CefRequestImpl::Get(params, request);
-
-  web_frame->StartNavigation(request);
-}
-
-bool CefBrowserImpl::SendProcessMessage(CefProcessId target_process,
-                                        const std::string& name,
-                                        base::ListValue* arguments,
-                                        bool user_initiated) {
-  DCHECK_EQ(PID_BROWSER, target_process);
-  DCHECK(!name.empty());
-
-  Cef_Request_Params params;
-  params.name = name;
-  if (arguments)
-    params.arguments.Swap(arguments);
-  params.frame_id = -1;
-  params.user_initiated = user_initiated;
-  params.request_id = -1;
-  params.expect_response = false;
-
-  return Send(new CefHostMsg_Request(routing_id(), params));
-}
 
 CefRefPtr<CefFrameImpl> CefBrowserImpl::GetWebFrameImpl(
     blink::WebLocalFrame* frame) {
@@ -349,25 +288,13 @@ CefRefPtr<CefFrameImpl> CefBrowserImpl::GetWebFrameImpl(
   CefRefPtr<CefFrameImpl> framePtr(new CefFrameImpl(this, frame, frame_id));
   frames_.insert(std::make_pair(frame_id, framePtr));
 
-  const int64_t parent_id = frame->Parent() == NULL
-                                ? blink_glue::kInvalidFrameId
-                                : frame->Parent()->IsWebLocalFrame()
-                                      ? render_frame_util::GetIdentifier(
-                                            frame->Parent()->ToWebLocalFrame())
-                                      : blink_glue::kInvalidFrameId;
-  const base::string16& name =
-      base::UTF8ToUTF16(render_frame_util::GetName(frame));
-
-  // Notify the browser that the frame has been identified.
-  Send(new CefHostMsg_FrameIdentified(routing_id(), frame_id, parent_id, name));
-
   return framePtr;
 }
 
 CefRefPtr<CefFrameImpl> CefBrowserImpl::GetWebFrameImpl(int64_t frame_id) {
   if (frame_id == blink_glue::kInvalidFrameId) {
     if (render_view()->GetWebView()) {
-      WebFrame* main_frame = render_view()->GetWebView()->MainFrame();
+      blink::WebFrame* main_frame = render_view()->GetWebView()->MainFrame();
       if (main_frame && main_frame->IsWebLocalFrame()) {
         return GetWebFrameImpl(main_frame->ToWebLocalFrame());
       }
@@ -382,8 +309,8 @@ CefRefPtr<CefFrameImpl> CefBrowserImpl::GetWebFrameImpl(int64_t frame_id) {
 
   if (render_view()->GetWebView()) {
     // Check if the frame exists but we don't know about it yet.
-    for (WebFrame* frame = render_view()->GetWebView()->MainFrame(); frame;
-         frame = frame->TraverseNext()) {
+    for (blink::WebFrame* frame = render_view()->GetWebView()->MainFrame();
+         frame; frame = frame->TraverseNext()) {
       if (frame->IsWebLocalFrame() &&
           render_frame_util::GetIdentifier(frame->ToWebLocalFrame()) ==
               frame_id) {
@@ -425,17 +352,7 @@ void CefBrowserImpl::OnDestruct() {
       handler->OnBrowserDestroyed(this);
   }
 
-  response_manager_.reset();
-
   CefContentRendererClient::Get()->OnBrowserDestroyed(this);
-}
-
-void CefBrowserImpl::DidFinishLoad(blink::WebLocalFrame* frame) {
-  blink::WebDocumentLoader* dl = frame->GetDocumentLoader();
-  Send(new CefHostMsg_DidFinishLoad(
-      routing_id(), render_frame_util::GetIdentifier(frame), dl->GetUrl(),
-      !frame->Parent(), dl->GetResponse().HttpStatusCode()));
-  OnLoadEnd(frame);
 }
 
 void CefBrowserImpl::DidFailProvisionalLoad(blink::WebLocalFrame* frame,
@@ -451,14 +368,11 @@ void CefBrowserImpl::DidCommitProvisionalLoad(blink::WebLocalFrame* frame,
   OnLoadStart(frame);
 }
 
-void CefBrowserImpl::FrameDetached(WebLocalFrame* frame) {
-  int64_t frame_id = render_frame_util::GetIdentifier(frame);
-
+void CefBrowserImpl::FrameDetached(int64_t frame_id) {
   if (!frames_.empty()) {
     // Remove the frame from the map.
     FrameMap::iterator it = frames_.find(frame_id);
     if (it != frames_.end()) {
-      it->second->Detach();
       frames_.erase(it);
     }
   }
@@ -471,192 +385,6 @@ void CefBrowserImpl::FrameDetached(WebLocalFrame* frame) {
   }
 }
 
-void CefBrowserImpl::FocusedNodeChanged(const blink::WebNode& node) {
-  // Notify the handler.
-  CefRefPtr<CefApp> app = CefContentClient::Get()->application();
-  if (app.get()) {
-    CefRefPtr<CefRenderProcessHandler> handler = app->GetRenderProcessHandler();
-    if (handler.get()) {
-      if (node.IsNull()) {
-        handler->OnFocusedNodeChanged(this, GetFocusedFrame(), NULL);
-      } else {
-        const blink::WebDocument& document = node.GetDocument();
-        if (!document.IsNull()) {
-          blink::WebFrame* frame = document.GetFrame();
-          if (!frame->IsWebLocalFrame())
-            return;
-          CefRefPtr<CefDOMDocumentImpl> documentImpl =
-              new CefDOMDocumentImpl(this, frame->ToWebLocalFrame());
-          handler->OnFocusedNodeChanged(
-              this, GetWebFrameImpl(frame->ToWebLocalFrame()).get(),
-              documentImpl->GetOrCreateNode(node));
-          documentImpl->Detach();
-        }
-      }
-    }
-  }
-}
-
-// Based on ExtensionHelper::DraggableRegionsChanged.
-void CefBrowserImpl::DraggableRegionsChanged(blink::WebLocalFrame* frame) {
-  blink::WebVector<blink::WebDraggableRegion> webregions =
-      frame->GetDocument().DraggableRegions();
-  std::vector<Cef_DraggableRegion_Params> regions;
-  for (size_t i = 0; i < webregions.size(); ++i) {
-    Cef_DraggableRegion_Params region;
-    render_view()->ConvertViewportToWindowViaWidget(&webregions[i].bounds);
-    region.bounds = webregions[i].bounds;
-    region.draggable = webregions[i].draggable;
-    regions.push_back(region);
-  }
-  Send(new CefHostMsg_UpdateDraggableRegions(routing_id(), regions));
-}
-
-bool CefBrowserImpl::OnMessageReceived(const IPC::Message& message) {
-  bool handled = true;
-  IPC_BEGIN_MESSAGE_MAP(CefBrowserImpl, message)
-    IPC_MESSAGE_HANDLER(CefMsg_Request, OnRequest)
-    IPC_MESSAGE_HANDLER(CefMsg_Response, OnResponse)
-    IPC_MESSAGE_HANDLER(CefMsg_ResponseAck, OnResponseAck)
-    IPC_MESSAGE_HANDLER(CefMsg_LoadRequest, LoadRequest)
-    IPC_MESSAGE_HANDLER(CefMsg_DidStopLoading, OnDidStopLoading)
-    IPC_MESSAGE_UNHANDLED(handled = false)
-  IPC_END_MESSAGE_MAP()
-  return handled;
-}
-
-// RenderViewObserver::OnMessageReceived message handlers.
-// -----------------------------------------------------------------------------
-
-void CefBrowserImpl::OnRequest(const Cef_Request_Params& params) {
-  bool success = false;
-  std::string response;
-  bool expect_response_ack = false;
-
-  TRACE_EVENT2("cef", "CefBrowserImpl::OnRequest", "request_id",
-               params.request_id, "expect_response",
-               params.expect_response ? 1 : 0);
-
-  if (params.user_initiated) {
-    // Give the user a chance to handle the request.
-    CefRefPtr<CefApp> app = CefContentClient::Get()->application();
-    if (app.get()) {
-      CefRefPtr<CefRenderProcessHandler> handler =
-          app->GetRenderProcessHandler();
-      if (handler.get()) {
-        CefRefPtr<CefProcessMessageImpl> message(new CefProcessMessageImpl(
-            const_cast<Cef_Request_Params*>(&params), false, true));
-        success =
-            handler->OnProcessMessageReceived(this, PID_BROWSER, message.get());
-        message->Detach(nullptr);
-      }
-    }
-  } else if (params.name == "execute-code") {
-    // Execute code.
-    CefRefPtr<CefFrameImpl> framePtr = GetWebFrameImpl(params.frame_id);
-    if (framePtr.get()) {
-      WebLocalFrame* web_frame = framePtr->web_frame();
-      if (web_frame) {
-        DCHECK_EQ(params.arguments.GetSize(), (size_t)4);
-
-        bool is_javascript = false;
-        std::string code, script_url;
-        int script_start_line = 0;
-
-        params.arguments.GetBoolean(0, &is_javascript);
-        params.arguments.GetString(1, &code);
-        DCHECK(!code.empty());
-        params.arguments.GetString(2, &script_url);
-        params.arguments.GetInteger(3, &script_start_line);
-        DCHECK_GE(script_start_line, 0);
-
-        if (is_javascript) {
-          web_frame->ExecuteScript(
-              WebScriptSource(blink::WebString::FromUTF8(code),
-                              GURL(script_url), script_start_line));
-          success = true;
-        } else {
-          // TODO(cef): implement support for CSS code.
-          NOTIMPLEMENTED();
-        }
-      }
-    }
-  } else if (params.name == "execute-command") {
-    // Execute command.
-    CefRefPtr<CefFrameImpl> framePtr = GetWebFrameImpl(params.frame_id);
-    if (framePtr.get()) {
-      WebLocalFrame* web_frame = framePtr->web_frame();
-      if (web_frame) {
-        DCHECK_EQ(params.arguments.GetSize(), (size_t)1);
-
-        std::string command;
-
-        params.arguments.GetString(0, &command);
-        DCHECK(!command.empty());
-
-        if (base::LowerCaseEqualsASCII(command, "getsource")) {
-          response =
-              blink::WebFrameContentDumper::DumpAsMarkup(web_frame).Utf8();
-          success = true;
-        } else if (base::LowerCaseEqualsASCII(command, "gettext")) {
-          response = blink_glue::DumpDocumentText(web_frame);
-          success = true;
-        } else if (web_frame->ExecuteCommand(
-                       blink::WebString::FromUTF8(command))) {
-          success = true;
-        }
-      }
-    }
-  } else if (params.name == "load-string") {
-    // Load a string.
-    CefRefPtr<CefFrameImpl> framePtr = GetWebFrameImpl(params.frame_id);
-    if (framePtr.get()) {
-      WebLocalFrame* web_frame = framePtr->web_frame();
-      if (web_frame) {
-        DCHECK_EQ(params.arguments.GetSize(), (size_t)2);
-
-        std::string string, url;
-
-        params.arguments.GetString(0, &string);
-        params.arguments.GetString(1, &url);
-
-        content::RenderFrame::FromWebFrame(web_frame)->LoadHTMLString(
-            string, GURL(url), "UTF-8", GURL(),
-            false /* replace_current_item */);
-      }
-    }
-  } else {
-    // Invalid request.
-    NOTREACHED();
-  }
-
-  if (params.expect_response) {
-    DCHECK_GE(params.request_id, 0);
-
-    // Send a response to the browser.
-    Cef_Response_Params response_params;
-    response_params.request_id = params.request_id;
-    response_params.success = success;
-    response_params.response = response;
-    response_params.expect_response_ack = expect_response_ack;
-    Send(new CefHostMsg_Response(routing_id(), response_params));
-  }
-}
-
-void CefBrowserImpl::OnResponse(const Cef_Response_Params& params) {
-  response_manager_->RunHandler(params);
-  if (params.expect_response_ack)
-    Send(new CefHostMsg_ResponseAck(routing_id(), params.request_id));
-}
-
-void CefBrowserImpl::OnResponseAck(int request_id) {
-  response_manager_->RunAckHandler(request_id);
-}
-
-void CefBrowserImpl::OnDidStopLoading() {
-  OnLoadingStateChange(false);
-}
-
 void CefBrowserImpl::OnLoadingStateChange(bool isLoading) {
   CefRefPtr<CefApp> app = CefContentClient::Get()->application();
   if (app.get()) {
@@ -664,12 +392,22 @@ void CefBrowserImpl::OnLoadingStateChange(bool isLoading) {
     if (handler.get()) {
       CefRefPtr<CefLoadHandler> load_handler = handler->GetLoadHandler();
       if (load_handler.get()) {
-        WebView* web_view = render_view()->GetWebView();
+        blink::WebView* web_view = render_view()->GetWebView();
         const bool canGoBack = blink_glue::CanGoBack(web_view);
         const bool canGoForward = blink_glue::CanGoForward(web_view);
 
+        // Don't call OnLoadingStateChange multiple times with the same status.
+        // This can occur in cases where there are multiple highest-level
+        // LocalFrames in-process for the same browser.
+        if (last_loading_state_ &&
+            last_loading_state_->IsMatch(isLoading, canGoBack, canGoForward)) {
+          return;
+        }
+
         load_handler->OnLoadingStateChange(this, isLoading, canGoBack,
                                            canGoForward);
+        last_loading_state_.reset(
+            new LoadingState(isLoading, canGoBack, canGoForward));
       }
     }
   }
@@ -684,22 +422,6 @@ void CefBrowserImpl::OnLoadStart(blink::WebLocalFrame* frame) {
       if (load_handler.get()) {
         CefRefPtr<CefFrameImpl> cef_frame = GetWebFrameImpl(frame);
         load_handler->OnLoadStart(this, cef_frame.get(), TT_EXPLICIT);
-      }
-    }
-  }
-}
-
-void CefBrowserImpl::OnLoadEnd(blink::WebLocalFrame* frame) {
-  CefRefPtr<CefApp> app = CefContentClient::Get()->application();
-  if (app.get()) {
-    CefRefPtr<CefRenderProcessHandler> handler = app->GetRenderProcessHandler();
-    if (handler.get()) {
-      CefRefPtr<CefLoadHandler> load_handler = handler->GetLoadHandler();
-      if (load_handler.get()) {
-        CefRefPtr<CefFrameImpl> cef_frame = GetWebFrameImpl(frame);
-        int httpStatusCode =
-            frame->GetDocumentLoader()->GetResponse().HttpStatusCode();
-        load_handler->OnLoadEnd(this, cef_frame.get(), httpStatusCode);
       }
     }
   }

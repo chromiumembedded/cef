@@ -17,15 +17,17 @@
 
 #include "libcef/renderer/render_frame_observer.h"
 
-#include "libcef/common/cef_messages.h"
 #include "libcef/common/content_client.h"
 #include "libcef/renderer/blink_glue.h"
 #include "libcef/renderer/browser_impl.h"
+#include "libcef/renderer/dom_document_impl.h"
 #include "libcef/renderer/v8_impl.h"
 
 #include "content/public/renderer/render_frame.h"
 #include "third_party/blink/public/web/blink.h"
+#include "third_party/blink/public/web/web_document.h"
 #include "third_party/blink/public/web/web_local_frame.h"
+#include "third_party/blink/public/web/web_node.h"
 
 CefRenderFrameObserver::CefRenderFrameObserver(
     content::RenderFrame* render_frame)
@@ -40,47 +42,59 @@ void CefRenderFrameObserver::OnInterfaceRequestForFrame(
 }
 
 void CefRenderFrameObserver::DidFinishLoad() {
-  blink::WebLocalFrame* frame = render_frame()->GetWebFrame();
-  CefRefPtr<CefBrowserImpl> browserPtr =
-      CefBrowserImpl::GetBrowserForMainFrame(frame->Top());
-  if (!browserPtr.get())
-    return;
-
-  browserPtr->DidFinishLoad(frame);
+  if (frame_) {
+    frame_->OnDidFinishLoad();
+  }
 }
 
 void CefRenderFrameObserver::FrameDetached() {
-  blink::WebLocalFrame* frame = render_frame()->GetWebFrame();
-  CefRefPtr<CefBrowserImpl> browserPtr =
-      CefBrowserImpl::GetBrowserForMainFrame(frame->Top());
-  if (!browserPtr.get())
-    return;
-
-  browserPtr->FrameDetached(frame);
+  if (frame_) {
+    frame_->OnDetached();
+    frame_ = nullptr;
+  }
 }
 
 void CefRenderFrameObserver::FrameFocused() {
-  Send(new CefHostMsg_FrameFocused(render_frame()->GetRoutingID()));
+  if (frame_) {
+    frame_->OnFocused();
+  }
 }
 
 void CefRenderFrameObserver::FocusedNodeChanged(const blink::WebNode& node) {
   blink::WebLocalFrame* frame = render_frame()->GetWebFrame();
   CefRefPtr<CefBrowserImpl> browserPtr =
       CefBrowserImpl::GetBrowserForMainFrame(frame->Top());
-  if (!browserPtr.get())
+  if (!browserPtr)
     return;
 
-  browserPtr->FocusedNodeChanged(node);
+  CefRefPtr<CefRenderProcessHandler> handler;
+  CefRefPtr<CefApp> application = CefContentClient::Get()->application();
+  if (application)
+    handler = application->GetRenderProcessHandler();
+  if (!handler)
+    return;
+
+  CefRefPtr<CefFrameImpl> framePtr = browserPtr->GetWebFrameImpl(frame);
+
+  if (node.IsNull()) {
+    handler->OnFocusedNodeChanged(browserPtr.get(), framePtr.get(), nullptr);
+    return;
+  }
+
+  if (node.GetDocument().IsNull())
+    return;
+
+  CefRefPtr<CefDOMDocumentImpl> documentImpl =
+      new CefDOMDocumentImpl(browserPtr.get(), frame);
+  handler->OnFocusedNodeChanged(browserPtr.get(), framePtr.get(),
+                                documentImpl->GetOrCreateNode(node));
+  documentImpl->Detach();
 }
 
 void CefRenderFrameObserver::DraggableRegionsChanged() {
-  blink::WebLocalFrame* frame = render_frame()->GetWebFrame();
-  CefRefPtr<CefBrowserImpl> browserPtr =
-      CefBrowserImpl::GetBrowserForMainFrame(frame->Top());
-  if (!browserPtr.get())
-    return;
-
-  browserPtr->DraggableRegionsChanged(frame);
+  if (frame_) {
+    frame_->OnDraggableRegionsChanged();
+  }
 }
 
 void CefRenderFrameObserver::DidCreateScriptContext(
@@ -89,14 +103,14 @@ void CefRenderFrameObserver::DidCreateScriptContext(
   blink::WebLocalFrame* frame = render_frame()->GetWebFrame();
   CefRefPtr<CefBrowserImpl> browserPtr =
       CefBrowserImpl::GetBrowserForMainFrame(frame->Top());
-  if (!browserPtr.get())
+  if (!browserPtr)
     return;
 
   CefRefPtr<CefRenderProcessHandler> handler;
   CefRefPtr<CefApp> application = CefContentClient::Get()->application();
-  if (application.get())
+  if (application)
     handler = application->GetRenderProcessHandler();
-  if (!handler.get())
+  if (!handler)
     return;
 
   CefRefPtr<CefFrameImpl> framePtr = browserPtr->GetWebFrameImpl(frame);
@@ -118,12 +132,12 @@ void CefRenderFrameObserver::WillReleaseScriptContext(
   blink::WebLocalFrame* frame = render_frame()->GetWebFrame();
   CefRefPtr<CefBrowserImpl> browserPtr =
       CefBrowserImpl::GetBrowserForMainFrame(frame->Top());
-  if (browserPtr.get()) {
+  if (browserPtr) {
     CefRefPtr<CefApp> application = CefContentClient::Get()->application();
-    if (application.get()) {
+    if (application) {
       CefRefPtr<CefRenderProcessHandler> handler =
           application->GetRenderProcessHandler();
-      if (handler.get()) {
+      if (handler) {
         CefRefPtr<CefFrameImpl> framePtr = browserPtr->GetWebFrameImpl(frame);
 
         v8::Isolate* isolate = blink::MainThreadIsolate();
@@ -148,6 +162,20 @@ void CefRenderFrameObserver::WillReleaseScriptContext(
 
 void CefRenderFrameObserver::OnDestruct() {
   delete this;
+}
+
+bool CefRenderFrameObserver::OnMessageReceived(const IPC::Message& message) {
+  if (frame_) {
+    return frame_->OnMessageReceived(message);
+  }
+  return false;
+}
+
+void CefRenderFrameObserver::AttachFrame(CefFrameImpl* frame) {
+  DCHECK(frame);
+  DCHECK(!frame_);
+  frame_ = frame;
+  frame_->OnAttached();
 }
 
 // Enable deprecation warnings on Windows. See http://crbug.com/585142.

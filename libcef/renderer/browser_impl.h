@@ -10,6 +10,7 @@
 #include <stdint.h>
 
 #include <map>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -20,17 +21,6 @@
 
 #include "content/public/renderer/render_view_observer.h"
 
-class GURL;
-struct CefMsg_LoadRequest_Params;
-struct Cef_Request_Params;
-struct Cef_Response_Params;
-class CefContentRendererClient;
-class CefResponseManager;
-
-namespace base {
-class ListValue;
-}
-
 namespace blink {
 class WebFrame;
 class WebNode;
@@ -40,11 +30,7 @@ class WebNode;
 // between RenderView on the renderer side and RenderViewHost on the browser
 // side.
 //
-// RenderViewObserver: Interface for observing RenderView notifications and IPC
-// messages. IPC messages received by the RenderView will be forwarded to this
-// RenderViewObserver implementation. IPC messages sent using
-// RenderViewObserver::Send() will be forwarded to the RenderView. Use
-// RenderViewObserver::routing_id() when sending IPC messages.
+// RenderViewObserver: Interface for observing RenderView notifications.
 class CefBrowserImpl : public CefBrowser, public content::RenderViewObserver {
  public:
   // Returns the browser associated with the specified RenderView.
@@ -74,22 +60,12 @@ class CefBrowserImpl : public CefBrowser, public content::RenderViewObserver {
   size_t GetFrameCount() override;
   void GetFrameIdentifiers(std::vector<int64>& identifiers) override;
   void GetFrameNames(std::vector<CefString>& names) override;
-  bool SendProcessMessage(CefProcessId target_process,
-                          CefRefPtr<CefProcessMessage> message) override;
 
   CefBrowserImpl(content::RenderView* render_view,
                  int browser_id,
                  bool is_popup,
                  bool is_windowless);
   ~CefBrowserImpl() override;
-
-  void LoadRequest(const CefMsg_LoadRequest_Params& params);
-
-  // Avoids unnecessary string type conversions.
-  bool SendProcessMessage(CefProcessId target_process,
-                          const std::string& name,
-                          base::ListValue* arguments,
-                          bool user_initiated);
 
   // Returns the matching CefFrameImpl reference or creates a new one.
   CefRefPtr<CefFrameImpl> GetWebFrameImpl(blink::WebLocalFrame* frame);
@@ -111,24 +87,13 @@ class CefBrowserImpl : public CefBrowser, public content::RenderViewObserver {
                               const blink::WebURLError& error) override;
   void DidCommitProvisionalLoad(blink::WebLocalFrame* frame,
                                 bool is_new_navigation) override;
-  bool OnMessageReceived(const IPC::Message& message) override;
 
-  // Forwarded from CefRenderFrameObserver.
-  void DidFinishLoad(blink::WebLocalFrame* frame);
-  void FrameDetached(blink::WebLocalFrame* frame);
-  void FocusedNodeChanged(const blink::WebNode& node);
-  void DraggableRegionsChanged(blink::WebLocalFrame* frame);
-
- private:
-  // RenderViewObserver::OnMessageReceived message handlers.
-  void OnRequest(const Cef_Request_Params& params);
-  void OnResponse(const Cef_Response_Params& params);
-  void OnResponseAck(int request_id);
-  void OnDidStopLoading();
+  void FrameDetached(int64_t frame_id);
 
   void OnLoadingStateChange(bool isLoading);
+
+ private:
   void OnLoadStart(blink::WebLocalFrame* frame);
-  void OnLoadEnd(blink::WebLocalFrame* frame);
   void OnLoadError(blink::WebLocalFrame* frame,
                    const blink::WebURLError& error);
 
@@ -148,8 +113,22 @@ class CefBrowserImpl : public CefBrowser, public content::RenderViewObserver {
   typedef std::map<int64, CefRefPtr<CefTrackManager>> FrameObjectMap;
   FrameObjectMap frame_objects_;
 
-  // Manages response registrations.
-  std::unique_ptr<CefResponseManager> response_manager_;
+  struct LoadingState {
+    LoadingState(bool is_loading, bool can_go_back, bool can_go_forward)
+        : is_loading_(is_loading),
+          can_go_back_(can_go_back),
+          can_go_forward_(can_go_forward) {}
+
+    bool IsMatch(bool is_loading, bool can_go_back, bool can_go_forward) const {
+      return is_loading_ == is_loading && can_go_back_ == can_go_back &&
+             can_go_forward_ == can_go_forward;
+    }
+
+    bool is_loading_;
+    bool can_go_back_;
+    bool can_go_forward_;
+  };
+  std::unique_ptr<LoadingState> last_loading_state_;
 
   IMPLEMENT_REFCOUNTING(CefBrowserImpl);
   DISALLOW_COPY_AND_ASSIGN(CefBrowserImpl);

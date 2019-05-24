@@ -17,11 +17,23 @@ class URLRequest;
 
 class GURL;
 
+class CefBrowserHostImpl;
+class CefBrowserInfo;
+
 namespace net_util {
 
 // Returns true if |request| is handled internally and should not be exposed via
 // the CEF API.
 bool IsInternalRequest(const net::URLRequest* request);
+
+// Returns the browser associated with the specified URLRequest.
+CefRefPtr<CefBrowserHostImpl> GetBrowserForRequest(
+    const net::URLRequest* request);
+
+// Returns the frame associated with the specified URLRequest.
+CefRefPtr<CefFrame> GetFrameForRequest(
+    scoped_refptr<CefBrowserInfo> browser_info,
+    const net::URLRequest* request);
 
 // Returns the appropriate CefResourceRequestHandler as determined by the
 // associated CefBrowser/CefRequestHandler and/or CefRequestContextHandler, if

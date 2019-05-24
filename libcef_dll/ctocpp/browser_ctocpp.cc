@@ -9,14 +9,13 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=3a2fc11634093382ba9354ca64a2da50bb677e9f$
+// $hash=cfc1a36565ce6b7c8db6a26532319da2fbef9f2a$
 //
 
 #include "libcef_dll/ctocpp/browser_ctocpp.h"
 #include <algorithm>
 #include "libcef_dll/ctocpp/browser_host_ctocpp.h"
 #include "libcef_dll/ctocpp/frame_ctocpp.h"
-#include "libcef_dll/ctocpp/process_message_ctocpp.h"
 #include "libcef_dll/shutdown_checker.h"
 #include "libcef_dll/transfer_util.h"
 
@@ -371,31 +370,6 @@ void CefBrowserCToCpp::GetFrameNames(std::vector<CefString>& names) {
     transfer_string_list_contents(namesList, names);
     cef_string_list_free(namesList);
   }
-}
-
-NO_SANITIZE("cfi-icall")
-bool CefBrowserCToCpp::SendProcessMessage(
-    CefProcessId target_process,
-    CefRefPtr<CefProcessMessage> message) {
-  shutdown_checker::AssertNotShutdown();
-
-  cef_browser_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, send_process_message))
-    return false;
-
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Verify param: message; type: refptr_same
-  DCHECK(message.get());
-  if (!message.get())
-    return false;
-
-  // Execute
-  int _retval = _struct->send_process_message(
-      _struct, target_process, CefProcessMessageCToCpp::Unwrap(message));
-
-  // Return type: bool
-  return _retval ? true : false;
 }
 
 // CONSTRUCTOR - Do not edit by hand.

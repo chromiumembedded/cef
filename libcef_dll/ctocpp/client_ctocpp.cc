@@ -9,11 +9,12 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=69de5a63c075f401a8bfc34b9b30d7cec595d432$
+// $hash=4cf201c5e2c106fe4054cb3704114f937e763295$
 //
 
 #include "libcef_dll/ctocpp/client_ctocpp.h"
 #include "libcef_dll/cpptoc/browser_cpptoc.h"
+#include "libcef_dll/cpptoc/frame_cpptoc.h"
 #include "libcef_dll/cpptoc/process_message_cpptoc.h"
 #include "libcef_dll/ctocpp/audio_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/context_menu_handler_ctocpp.h"
@@ -246,6 +247,7 @@ CefRefPtr<CefRequestHandler> CefClientCToCpp::GetRequestHandler() {
 NO_SANITIZE("cfi-icall")
 bool CefClientCToCpp::OnProcessMessageReceived(
     CefRefPtr<CefBrowser> browser,
+    CefRefPtr<CefFrame> frame,
     CefProcessId source_process,
     CefRefPtr<CefProcessMessage> message) {
   cef_client_t* _struct = GetStruct();
@@ -258,6 +260,10 @@ bool CefClientCToCpp::OnProcessMessageReceived(
   DCHECK(browser.get());
   if (!browser.get())
     return false;
+  // Verify param: frame; type: refptr_diff
+  DCHECK(frame.get());
+  if (!frame.get())
+    return false;
   // Verify param: message; type: refptr_diff
   DCHECK(message.get());
   if (!message.get())
@@ -265,8 +271,8 @@ bool CefClientCToCpp::OnProcessMessageReceived(
 
   // Execute
   int _retval = _struct->on_process_message_received(
-      _struct, CefBrowserCppToC::Wrap(browser), source_process,
-      CefProcessMessageCppToC::Wrap(message));
+      _struct, CefBrowserCppToC::Wrap(browser), CefFrameCppToC::Wrap(frame),
+      source_process, CefProcessMessageCppToC::Wrap(message));
 
   // Return type: bool
   return _retval ? true : false;

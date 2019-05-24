@@ -54,25 +54,9 @@ void CefMimeHandlerViewGuestDelegate::OnGuestAttached(
   content::WebContents* web_contents = guest_->web_contents();
   DCHECK(web_contents);
 
-  CefRefPtr<CefBrowserHostImpl> owner_browser = GetOwnerBrowser(guest_);
-
   // Associate guest state information with the owner browser.
-  scoped_refptr<CefBrowserInfo> info = owner_browser->browser_info();
-  content::RenderFrameHost* main_frame_host = web_contents->GetMainFrame();
-
-  const int render_process_id = main_frame_host->GetProcess()->GetID();
-  const int render_frame_id = main_frame_host->GetRoutingID();
-  info->guest_render_id_manager()->add_render_frame_id(render_process_id,
-                                                       render_frame_id);
-
-  const int frame_tree_node_id = main_frame_host->GetFrameTreeNodeId();
-  info->frame_tree_node_id_manager()->add_frame_tree_node_id(
-      frame_tree_node_id);
-
-  const bool is_main_frame = (main_frame_host->GetParent() == nullptr);
-  owner_browser->request_context()->OnRenderFrameCreated(
-      render_process_id, render_frame_id, frame_tree_node_id, is_main_frame,
-      true);
+  GetOwnerBrowser(guest_)->browser_info()->MaybeCreateFrame(
+      web_contents->GetMainFrame(), true /* is_guest_view */);
 }
 
 void CefMimeHandlerViewGuestDelegate::OnGuestDetached(
@@ -80,25 +64,9 @@ void CefMimeHandlerViewGuestDelegate::OnGuestDetached(
   content::WebContents* web_contents = guest_->web_contents();
   DCHECK(web_contents);
 
-  CefRefPtr<CefBrowserHostImpl> owner_browser = GetOwnerBrowser(guest_);
-
   // Disassociate guest state information with the owner browser.
-  scoped_refptr<CefBrowserInfo> info = owner_browser->browser_info();
-  content::RenderFrameHost* main_frame_host = web_contents->GetMainFrame();
-
-  const int render_process_id = main_frame_host->GetProcess()->GetID();
-  const int render_frame_id = main_frame_host->GetRoutingID();
-  info->guest_render_id_manager()->remove_render_frame_id(render_process_id,
-                                                          render_frame_id);
-
-  const int frame_tree_node_id = main_frame_host->GetFrameTreeNodeId();
-  info->frame_tree_node_id_manager()->remove_frame_tree_node_id(
-      frame_tree_node_id);
-
-  const bool is_main_frame = (main_frame_host->GetParent() == nullptr);
-  owner_browser->request_context()->OnRenderFrameDeleted(
-      render_process_id, render_frame_id, frame_tree_node_id, is_main_frame,
-      true);
+  GetOwnerBrowser(guest_)->browser_info()->RemoveFrame(
+      web_contents->GetMainFrame());
 }
 
 bool CefMimeHandlerViewGuestDelegate::HandleContextMenu(

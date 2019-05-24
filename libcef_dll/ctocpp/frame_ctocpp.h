@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=7479de0c460d69b7846c0c13df0ea50f3b9aeae1$
+// $hash=1f9305ea3945990271795caf303c11ae09f662a4$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_FRAME_CTOCPP_H_
@@ -68,6 +68,8 @@ class CefFrameCToCpp
   CefRefPtr<CefURLRequest> CreateURLRequest(
       CefRefPtr<CefRequest> request,
       CefRefPtr<CefURLRequestClient> client) OVERRIDE;
+  void SendProcessMessage(CefProcessId target_process,
+                          CefRefPtr<CefProcessMessage> message) OVERRIDE;
 };
 
 #endif  // CEF_LIBCEF_DLL_CTOCPP_FRAME_CTOCPP_H_
