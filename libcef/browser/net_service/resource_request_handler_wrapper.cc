@@ -479,7 +479,9 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
 
       if (!allow) {
         // Cancel the request.
-        std::move(state->cancel_callback_).Run(net::ERR_ABORTED);
+        if (state->cancel_callback_) {
+          std::move(state->cancel_callback_).Run(net::ERR_ABORTED);
+        }
         return;
       }
 
@@ -748,7 +750,9 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
       return;
     }
 
-    std::move(state->cancel_callback_).Run(net::ERR_CONTENT_DECODING_FAILED);
+    if (state->cancel_callback_) {
+      std::move(state->cancel_callback_).Run(net::ERR_CONTENT_DECODING_FAILED);
+    }
   }
 
   void OnRequestComplete(
@@ -758,7 +762,10 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
     CEF_REQUIRE_IOT();
 
     RequestState* state = GetState(id);
-    DCHECK(state);
+    if (!state) {
+      // The request may have been canceled.
+      return;
+    }
 
     // Redirection of standard custom schemes is handled with a restart, so we
     // get completion notifications for both the original (redirected) request
@@ -889,9 +896,14 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
 
     // Cancel any pending requests.
     while (!request_map_.empty()) {
-      // Results in a call to RemoveState().
-      std::move(request_map_.begin()->second->cancel_callback_)
-          .Run(net::ERR_ABORTED);
+      auto cancel_callback =
+          std::move(request_map_.begin()->second->cancel_callback_);
+      if (cancel_callback) {
+        // Results in a call to RemoveState().
+        std::move(cancel_callback).Run(net::ERR_ABORTED);
+      } else {
+        RemoveState(request_map_.begin()->first);
+      }
     }
   }
 
