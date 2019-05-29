@@ -5,6 +5,7 @@
 
 #include "libcef/browser/net_service/proxy_url_loader_factory.h"
 
+#include "libcef/browser/context.h"
 #include "libcef/browser/thread_util.h"
 #include "libcef/common/net_service/net_service_util.h"
 
@@ -1107,6 +1108,12 @@ void ProxyURLLoaderFactory::CreateLoaderAndStart(
     network::mojom::URLLoaderClientPtr client,
     const net::MutableNetworkTrafficAnnotationTag& traffic_annotation) {
   CEF_REQUIRE_IOT();
+
+  if (!CONTEXT_STATE_VALID()) {
+    // Don't start a request while we're shutting down.
+    return;
+  }
+
   bool pass_through = false;
   if (pass_through) {
     // This is the so-called pass-through, no-op option.
@@ -1138,8 +1145,8 @@ void ProxyURLLoaderFactory::OnLoaderCreated(
     network::mojom::TrustedHeaderClientRequest request) {
   CEF_REQUIRE_IOT();
   auto request_it = requests_.find(request_id);
-  DCHECK(request_it != requests_.end());
-  request_it->second->OnLoaderCreated(std::move(request));
+  if (request_it != requests_.end())
+    request_it->second->OnLoaderCreated(std::move(request));
 }
 
 void ProxyURLLoaderFactory::OnTargetFactoryError() {
