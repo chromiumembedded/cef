@@ -225,6 +225,8 @@ class StreamReaderURLLoader : public network::mojom::URLLoader {
 
   scoped_refptr<base::SequencedTaskRunner> stream_work_task_runner_;
 
+  base::OnceClosure open_cancel_callback_;
+
   base::WeakPtrFactory<StreamReaderURLLoader> weak_factory_;
 
   DISALLOW_COPY_AND_ASSIGN(StreamReaderURLLoader);

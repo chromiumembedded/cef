@@ -195,9 +195,13 @@ class CefLifeSpanHandler : public virtual CefBaseRefCounted {
   ///
   // Called just before a browser is destroyed. Release all references to the
   // browser object and do not attempt to execute any methods on the browser
-  // object after this callback returns. This callback will be the last
-  // notification that references |browser|. See DoClose() documentation for
-  // additional usage information.
+  // object (other than GetIdentifier or IsSame) after this callback returns.
+  // This callback will be the last notification that references |browser| on
+  // the UI thread. Any in-progress network requests associated with |browser|
+  // will be aborted when the browser is destroyed, and
+  // CefResourceRequestHandler callbacks related to those requests may still
+  // arrive on the IO thread after this method is called. See DoClose()
+  // documentation for additional usage information.
   ///
   /*--cef()--*/
   virtual void OnBeforeClose(CefRefPtr<CefBrowser> browser) {}

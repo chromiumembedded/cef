@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=8d92ad3e0836dffa44a4b35a6b277e963af8144c$
+// $hash=af8ddd4d2d19e5b64d0a40778cb3c62fd5f1d8c9$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_RESOURCE_REQUEST_HANDLER_CAPI_H_
@@ -172,7 +172,14 @@ typedef struct _cef_resource_request_handler_t {
   // and |response| represent the request and response respectively and cannot
   // be modified in this callback. |status| indicates the load completion
   // status. |received_content_length| is the number of response bytes actually
-  // read.
+  // read. This function will be called for all requests, including requests
+  // that are aborted due to CEF shutdown or destruction of the associated
+  // browser. In cases where the associated browser is destroyed this callback
+  // may arrive after the cef_life_span_handler_t::OnBeforeClose callback for
+  // that browser. The cef_frame_t::IsValid function can be used to test for
+  // this situation, and care should be taken not to call |browser| or |frame|
+  // functions that modify state (like LoadURL, SendProcessMessage, etc.) if the
+  // frame is invalid.
   ///
   void(CEF_CALLBACK* on_resource_load_complete)(
       struct _cef_resource_request_handler_t* self,

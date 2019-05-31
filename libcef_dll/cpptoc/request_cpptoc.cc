@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=fc10026d8f3e77868d19807ea625f9449678da60$
+// $hash=65f76c903a9c9f245ffe2b3275472d7d3d464f93$
 //
 
 #include "libcef_dll/cpptoc/request_cpptoc.h"
@@ -116,10 +116,7 @@ void CEF_CALLBACK request_set_referrer(struct _cef_request_t* self,
   DCHECK(self);
   if (!self)
     return;
-  // Verify param: referrer_url; type: string_byref_const
-  DCHECK(referrer_url);
-  if (!referrer_url)
-    return;
+  // Unverified params: referrer_url
 
   // Execute
   CefRequestCppToC::Get(self)->SetReferrer(CefString(referrer_url), policy);
@@ -265,10 +262,7 @@ void CEF_CALLBACK request_set_header_by_name(struct _cef_request_t* self,
   DCHECK(name);
   if (!name)
     return;
-  // Verify param: value; type: string_byref_const
-  DCHECK(value);
-  if (!value)
-    return;
+  // Unverified params: value
 
   // Execute
   CefRequestCppToC::Get(self)->SetHeaderByName(
@@ -357,10 +351,7 @@ request_set_first_party_for_cookies(struct _cef_request_t* self,
   DCHECK(self);
   if (!self)
     return;
-  // Verify param: url; type: string_byref_const
-  DCHECK(url);
-  if (!url)
-    return;
+  // Unverified params: url
 
   // Execute
   CefRequestCppToC::Get(self)->SetFirstPartyForCookies(CefString(url));

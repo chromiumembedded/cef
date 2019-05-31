@@ -34,12 +34,16 @@ using OnInputStreamOpenedCallback =
 class OpenInputStreamWrapper
     : public base::RefCountedThreadSafe<OpenInputStreamWrapper> {
  public:
-  static void Open(
+  static base::OnceClosure Open(
       std::unique_ptr<StreamReaderURLLoader::Delegate> delegate,
       scoped_refptr<base::SequencedTaskRunner> work_thread_task_runner,
       const RequestId& request_id,
       const network::ResourceRequest& request,
-      OnInputStreamOpenedCallback callback) {
+      OnInputStreamOpenedCallback callback) WARN_UNUSED_RESULT {
+    scoped_refptr<OpenInputStreamWrapper> wrapper = new OpenInputStreamWrapper(
+        std::move(delegate), base::ThreadTaskRunnerHandle::Get(),
+        std::move(callback));
+
     work_thread_task_runner->PostTask(
         FROM_HERE,
         base::BindOnce(OpenInputStreamWrapper::OpenOnWorkThread,
@@ -47,8 +51,9 @@ class OpenInputStreamWrapper
                        // while the callback is executing on the background
                        // thread. The delegate will be "returned" to the loader
                        // once the InputStream open attempt is completed.
-                       std::move(delegate), base::ThreadTaskRunnerHandle::Get(),
-                       request_id, request, std::move(callback)));
+                       wrapper, request_id, request));
+
+    return wrapper->GetCancelCallback();
   }
 
  private:
@@ -63,18 +68,24 @@ class OpenInputStreamWrapper
         callback_(std::move(callback)) {}
   virtual ~OpenInputStreamWrapper() {}
 
-  static void OpenOnWorkThread(
-      std::unique_ptr<StreamReaderURLLoader::Delegate> delegate,
-      scoped_refptr<base::SingleThreadTaskRunner> job_thread_task_runner,
-      const RequestId& request_id,
-      const network::ResourceRequest& request,
-      OnInputStreamOpenedCallback callback) {
+  static void OpenOnWorkThread(scoped_refptr<OpenInputStreamWrapper> wrapper,
+                               const RequestId& request_id,
+                               const network::ResourceRequest& request) {
     DCHECK(!CEF_CURRENTLY_ON_IOT());
     DCHECK(!CEF_CURRENTLY_ON_UIT());
 
-    scoped_refptr<OpenInputStreamWrapper> wrapper = new OpenInputStreamWrapper(
-        std::move(delegate), job_thread_task_runner, std::move(callback));
     wrapper->Open(request_id, request);
+  }
+
+  base::OnceClosure GetCancelCallback() {
+    return base::BindOnce(&OpenInputStreamWrapper::Cancel,
+                          base::WrapRefCounted(this));
+  }
+
+  void Cancel() {
+    DCHECK(job_thread_task_runner_->RunsTasksInCurrentSequence());
+    delegate_.reset();
+    callback_.Reset();
   }
 
   void Open(const RequestId& request_id,
@@ -96,7 +107,7 @@ class OpenInputStreamWrapper
       return;
     }
 
-    DCHECK(!callback_.is_null());
+    // May be null if we were canceled.
     if (callback_.is_null())
       return;
 
@@ -470,7 +481,12 @@ StreamReaderURLLoader::StreamReaderURLLoader(
       base::CreateSequencedTaskRunnerWithTraits({base::MayBlock()});
 }
 
-StreamReaderURLLoader::~StreamReaderURLLoader() {}
+StreamReaderURLLoader::~StreamReaderURLLoader() {
+  if (open_cancel_callback_) {
+    // Release the Delegate held by OpenInputStreamWrapper.
+    std::move(open_cancel_callback_).Run();
+  }
+}
 
 void StreamReaderURLLoader::Start() {
   DCHECK(thread_checker_.CalledOnValidThread());
@@ -503,7 +519,7 @@ void StreamReaderURLLoader::ContinueWithRequestHeaders(
     request_.headers = *headers;
   }
 
-  OpenInputStreamWrapper::Open(
+  open_cancel_callback_ = OpenInputStreamWrapper::Open(
       // This is intentional - the loader could be deleted while
       // the callback is executing on the background thread. The
       // delegate will be "returned" to the loader once the
@@ -536,6 +552,7 @@ void StreamReaderURLLoader::OnInputStreamOpened(
   DCHECK(thread_checker_.CalledOnValidThread());
   DCHECK(returned_delegate);
   response_delegate_ = std::move(returned_delegate);
+  open_cancel_callback_.Reset();
 
   if (!input_stream) {
     bool restarted = false;

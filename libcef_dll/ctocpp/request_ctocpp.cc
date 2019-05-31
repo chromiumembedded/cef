@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=8f57157cf8f05f46b5ae96335584b5e9df02b200$
+// $hash=30da50026aa5654b04de874040b194dcc87a7e30$
 //
 
 #include "libcef_dll/ctocpp/request_ctocpp.h"
@@ -118,10 +118,7 @@ void CefRequestCToCpp::SetReferrer(const CefString& referrer_url,
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
-  // Verify param: referrer_url; type: string_byref_const
-  DCHECK(!referrer_url.empty());
-  if (referrer_url.empty())
-    return;
+  // Unverified params: referrer_url
 
   // Execute
   _struct->set_referrer(_struct, referrer_url.GetStruct(), policy);
@@ -274,10 +271,7 @@ void CefRequestCToCpp::SetHeaderByName(const CefString& name,
   DCHECK(!name.empty());
   if (name.empty())
     return;
-  // Verify param: value; type: string_byref_const
-  DCHECK(!value.empty());
-  if (value.empty())
-    return;
+  // Unverified params: value
 
   // Execute
   _struct->set_header_by_name(_struct, name.GetStruct(), value.GetStruct(),
@@ -369,10 +363,7 @@ void CefRequestCToCpp::SetFirstPartyForCookies(const CefString& url) {
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
-  // Verify param: url; type: string_byref_const
-  DCHECK(!url.empty());
-  if (url.empty())
-    return;
+  // Unverified params: url
 
   // Execute
   _struct->set_first_party_for_cookies(_struct, url.GetStruct());

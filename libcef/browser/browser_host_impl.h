@@ -496,6 +496,7 @@ class CefBrowserHostImpl : public CefBrowserHost,
   void AddObserver(Observer* observer);
   void RemoveObserver(Observer* observer);
   bool HasObserver(Observer* observer) const;
+
   bool StartAudioMirroring();
   bool StopAudioMirroring();
 

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=4573a140180f11230e688f73e8c09503f9123c3d$
+// $hash=5c6b14610ef7bcadf5e4936a262c660896a32526$
 //
 
 #include "libcef_dll/cpptoc/response_cpptoc.h"
@@ -119,10 +119,7 @@ void CEF_CALLBACK response_set_status_text(struct _cef_response_t* self,
   DCHECK(self);
   if (!self)
     return;
-  // Verify param: statusText; type: string_byref_const
-  DCHECK(statusText);
-  if (!statusText)
-    return;
+  // Unverified params: statusText
 
   // Execute
   CefResponseCppToC::Get(self)->SetStatusText(CefString(statusText));
@@ -150,10 +147,7 @@ void CEF_CALLBACK response_set_mime_type(struct _cef_response_t* self,
   DCHECK(self);
   if (!self)
     return;
-  // Verify param: mimeType; type: string_byref_const
-  DCHECK(mimeType);
-  if (!mimeType)
-    return;
+  // Unverified params: mimeType
 
   // Execute
   CefResponseCppToC::Get(self)->SetMimeType(CefString(mimeType));
@@ -181,10 +175,7 @@ void CEF_CALLBACK response_set_charset(struct _cef_response_t* self,
   DCHECK(self);
   if (!self)
     return;
-  // Verify param: charset; type: string_byref_const
-  DCHECK(charset);
-  if (!charset)
-    return;
+  // Unverified params: charset
 
   // Execute
   CefResponseCppToC::Get(self)->SetCharset(CefString(charset));
@@ -275,10 +266,7 @@ void CEF_CALLBACK response_set_url(struct _cef_response_t* self,
   DCHECK(self);
   if (!self)
     return;
-  // Verify param: url; type: string_byref_const
-  DCHECK(url);
-  if (!url)
-    return;
+  // Unverified params: url
 
   // Execute
   CefResponseCppToC::Get(self)->SetURL(CefString(url));

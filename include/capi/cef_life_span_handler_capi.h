@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=9756fec933d13ecb320b0ec8c3bd8c9fcddfef47$
+// $hash=85d9f30e93e1c3759213074cc5876f848cf4b012$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_LIFE_SPAN_HANDLER_CAPI_H_
@@ -202,9 +202,13 @@ typedef struct _cef_life_span_handler_t {
   ///
   // Called just before a browser is destroyed. Release all references to the
   // browser object and do not attempt to execute any functions on the browser
-  // object after this callback returns. This callback will be the last
-  // notification that references |browser|. See do_close() documentation for
-  // additional usage information.
+  // object (other than GetIdentifier or IsSame) after this callback returns.
+  // This callback will be the last notification that references |browser| on
+  // the UI thread. Any in-progress network requests associated with |browser|
+  // will be aborted when the browser is destroyed, and
+  // cef_resource_request_handler_t callbacks related to those requests may
+  // still arrive on the IO thread after this function is called. See do_close()
+  // documentation for additional usage information.
   ///
   void(CEF_CALLBACK* on_before_close)(struct _cef_life_span_handler_t* self,
                                       struct _cef_browser_t* browser);

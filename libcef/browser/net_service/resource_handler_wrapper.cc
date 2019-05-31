@@ -24,7 +24,9 @@ class SkipCallbackWrapper : public CefResourceSkipCallback {
 
   ~SkipCallbackWrapper() override {
     if (!callback_.is_null()) {
-      std::move(callback_).Run(net::ERR_FAILED);
+      // Make sure it executes on the correct thread.
+      work_thread_task_runner_->PostTask(
+          FROM_HERE, base::BindOnce(std::move(callback_), net::ERR_FAILED));
     }
   }
 
@@ -32,7 +34,7 @@ class SkipCallbackWrapper : public CefResourceSkipCallback {
     if (!work_thread_task_runner_->RunsTasksInCurrentSequence()) {
       work_thread_task_runner_->PostTask(
           FROM_HERE,
-          base::Bind(&SkipCallbackWrapper::Continue, this, bytes_skipped));
+          base::BindOnce(&SkipCallbackWrapper::Continue, this, bytes_skipped));
       return;
     }
     if (!callback_.is_null()) {
@@ -59,7 +61,9 @@ class ReadCallbackWrapper : public CefResourceReadCallback {
 
   ~ReadCallbackWrapper() override {
     if (!callback_.is_null()) {
-      std::move(callback_).Run(net::ERR_FAILED);
+      // Make sure it executes on the correct thread.
+      work_thread_task_runner_->PostTask(
+          FROM_HERE, base::BindOnce(std::move(callback_), net::ERR_FAILED));
     }
   }
 
@@ -67,7 +71,7 @@ class ReadCallbackWrapper : public CefResourceReadCallback {
     if (!work_thread_task_runner_->RunsTasksInCurrentSequence()) {
       work_thread_task_runner_->PostTask(
           FROM_HERE,
-          base::Bind(&ReadCallbackWrapper::Continue, this, bytes_read));
+          base::BindOnce(&ReadCallbackWrapper::Continue, this, bytes_read));
       return;
     }
     if (!callback_.is_null()) {
@@ -86,47 +90,89 @@ class ReadCallbackWrapper : public CefResourceReadCallback {
   DISALLOW_COPY_AND_ASSIGN(ReadCallbackWrapper);
 };
 
+// Helper for accessing a CefResourceHandler without creating reference loops.
+class HandlerProvider : public base::RefCountedThreadSafe<HandlerProvider> {
+ public:
+  explicit HandlerProvider(CefRefPtr<CefResourceHandler> handler)
+      : handler_(handler) {
+    DCHECK(handler_);
+  }
+  virtual ~HandlerProvider() {
+    // Detach should have been called.
+    DCHECK(!handler_);
+  }
+
+  CefRefPtr<CefResourceHandler> handler() const {
+    base::AutoLock lock_scope(lock_);
+    return handler_;
+  }
+
+  void Detach() {
+    base::AutoLock lock_scope(lock_);
+    if (!handler_)
+      return;
+
+    // Execute on the expected thread.
+    CEF_POST_TASK(CEF_IOT,
+                  base::BindOnce(&CefResourceHandler::Cancel, handler_));
+
+    handler_ = nullptr;
+  }
+
+ private:
+  mutable base::Lock lock_;
+  CefRefPtr<CefResourceHandler> handler_;
+};
+
 class ReadResponseCallbackWrapper : public CefCallback {
  public:
   ~ReadResponseCallbackWrapper() override {
     if (callback_) {
+      // This will post to the correct thread if necessary.
       callback_->Continue(net::ERR_FAILED);
     }
   }
 
   void Continue() override {
     CEF_POST_TASK(CEF_IOT,
-                  base::Bind(&ReadResponseCallbackWrapper::DoRead, this));
+                  base::BindOnce(&ReadResponseCallbackWrapper::DoRead, this));
   }
 
   void Cancel() override {
     CEF_POST_TASK(CEF_IOT,
-                  base::Bind(&ReadResponseCallbackWrapper::DoCancel, this));
+                  base::BindOnce(&ReadResponseCallbackWrapper::DoCancel, this));
   }
 
-  static void ReadResponse(CefRefPtr<CefResourceHandler> handler,
+  static void ReadResponse(scoped_refptr<HandlerProvider> handler_provider,
                            net::IOBuffer* dest,
                            int length,
                            CefRefPtr<ReadCallbackWrapper> callback) {
     CEF_POST_TASK(
-        CEF_IOT, base::Bind(ReadResponseCallbackWrapper::ReadResponseOnIOThread,
-                            handler, base::Unretained(dest), length, callback));
+        CEF_IOT,
+        base::BindOnce(ReadResponseCallbackWrapper::ReadResponseOnIOThread,
+                       handler_provider, base::Unretained(dest), length,
+                       callback));
   }
 
  private:
-  ReadResponseCallbackWrapper(CefRefPtr<CefResourceHandler> handler,
+  ReadResponseCallbackWrapper(scoped_refptr<HandlerProvider> handler_provider,
                               net::IOBuffer* dest,
                               int length,
                               CefRefPtr<ReadCallbackWrapper> callback)
-      : handler_(handler), dest_(dest), length_(length), callback_(callback) {}
+      : handler_provider_(handler_provider),
+        dest_(dest),
+        length_(length),
+        callback_(callback) {}
 
-  static void ReadResponseOnIOThread(CefRefPtr<CefResourceHandler> handler,
-                                     net::IOBuffer* dest,
-                                     int length,
-                                     CefRefPtr<ReadCallbackWrapper> callback) {
+  static void ReadResponseOnIOThread(
+      scoped_refptr<HandlerProvider> handler_provider,
+      net::IOBuffer* dest,
+      int length,
+      CefRefPtr<ReadCallbackWrapper> callback) {
     CEF_REQUIRE_IOT();
     CefRefPtr<ReadResponseCallbackWrapper> callbackWrapper =
-        new ReadResponseCallbackWrapper(handler, dest, length, callback);
+        new ReadResponseCallbackWrapper(handler_provider, dest, length,
+                                        callback);
     callbackWrapper->DoRead();
   }
 
@@ -135,9 +181,15 @@ class ReadResponseCallbackWrapper : public CefCallback {
     if (!callback_)
       return;
 
+    auto handler = handler_provider_->handler();
+    if (!handler) {
+      DoCancel();
+      return;
+    }
+
     int bytes_read = 0;
     bool result =
-        handler_->ReadResponse(dest_->data(), length_, bytes_read, this);
+        handler->ReadResponse(dest_->data(), length_, bytes_read, this);
     if (result) {
       if (bytes_read > 0) {
         // Continue immediately.
@@ -160,7 +212,7 @@ class ReadResponseCallbackWrapper : public CefCallback {
     }
   }
 
-  CefRefPtr<CefResourceHandler> handler_;
+  scoped_refptr<HandlerProvider> handler_provider_;
   net::IOBuffer* const dest_;
   int length_;
   CefRefPtr<ReadCallbackWrapper> callback_;
@@ -171,15 +223,23 @@ class ReadResponseCallbackWrapper : public CefCallback {
 
 class InputStreamWrapper : public InputStream {
  public:
-  explicit InputStreamWrapper(CefRefPtr<CefResourceHandler> handler)
-      : handler_(handler) {}
-  ~InputStreamWrapper() override {}
+  explicit InputStreamWrapper(scoped_refptr<HandlerProvider> handler_provider)
+      : handler_provider_(handler_provider) {}
+
+  ~InputStreamWrapper() override { Cancel(); }
 
   // InputStream methods:
   bool Skip(int64_t n, int64_t* bytes_skipped, SkipCallback callback) override {
+    auto handler = handler_provider_->handler();
+    if (!handler) {
+      // Cancel immediately.
+      *bytes_skipped = net::ERR_FAILED;
+      return false;
+    }
+
     CefRefPtr<SkipCallbackWrapper> callbackWrapper =
         new SkipCallbackWrapper(std::move(callback));
-    bool result = handler_->Skip(n, *bytes_skipped, callbackWrapper.get());
+    bool result = handler->Skip(n, *bytes_skipped, callbackWrapper.get());
     if (result) {
       if (*bytes_skipped > 0) {
         // Continue immediately.
@@ -196,10 +256,17 @@ class InputStreamWrapper : public InputStream {
             int length,
             int* bytes_read,
             ReadCallback callback) override {
+    auto handler = handler_provider_->handler();
+    if (!handler) {
+      // Cancel immediately.
+      *bytes_read = net::ERR_FAILED;
+      return false;
+    }
+
     CefRefPtr<ReadCallbackWrapper> callbackWrapper =
         new ReadCallbackWrapper(std::move(callback));
-    bool result = handler_->Read(dest->data(), length, *bytes_read,
-                                 callbackWrapper.get());
+    bool result =
+        handler->Read(dest->data(), length, *bytes_read, callbackWrapper.get());
     if (result) {
       if (*bytes_read > 0) {
         // Continue immediately.
@@ -210,7 +277,7 @@ class InputStreamWrapper : public InputStream {
 
     if (*bytes_read == -1) {
       // Call ReadResponse on the IO thread.
-      ReadResponseCallbackWrapper::ReadResponse(handler_, dest, length,
+      ReadResponseCallbackWrapper::ReadResponse(handler_provider_, dest, length,
                                                 callbackWrapper);
       *bytes_read = 0;
       return true;
@@ -220,8 +287,13 @@ class InputStreamWrapper : public InputStream {
     return false;
   }
 
+  void Cancel() {
+    // Triggers a call to Cancel on the handler.
+    handler_provider_->Detach();
+  }
+
  private:
-  CefRefPtr<CefResourceHandler> handler_;
+  scoped_refptr<HandlerProvider> handler_provider_;
 
   DISALLOW_COPY_AND_ASSIGN(InputStreamWrapper);
 };
@@ -236,14 +308,18 @@ class OpenCallbackWrapper : public CefCallback {
 
   ~OpenCallbackWrapper() override {
     if (!callback_.is_null()) {
-      Execute(std::move(callback_), std::move(stream_), false);
+      // Make sure it executes on the correct thread.
+      work_thread_task_runner_->PostTask(
+          FROM_HERE,
+          base::BindOnce(&OpenCallbackWrapper::Execute, std::move(callback_),
+                         std::move(stream_), false));
     }
   }
 
   void Continue() override {
     if (!work_thread_task_runner_->RunsTasksInCurrentSequence()) {
       work_thread_task_runner_->PostTask(
-          FROM_HERE, base::Bind(&OpenCallbackWrapper::Continue, this));
+          FROM_HERE, base::BindOnce(&OpenCallbackWrapper::Continue, this));
       return;
     }
     if (!callback_.is_null()) {
@@ -254,7 +330,7 @@ class OpenCallbackWrapper : public CefCallback {
   void Cancel() override {
     if (!work_thread_task_runner_->RunsTasksInCurrentSequence()) {
       work_thread_task_runner_->PostTask(
-          FROM_HERE, base::Bind(&OpenCallbackWrapper::Cancel, this));
+          FROM_HERE, base::BindOnce(&OpenCallbackWrapper::Cancel, this));
       return;
     }
     if (!callback_.is_null()) {
@@ -279,10 +355,16 @@ class OpenCallbackWrapper : public CefCallback {
 };
 
 void CallProcessRequestOnIOThread(
-    CefRefPtr<CefResourceHandler> handler,
+    scoped_refptr<HandlerProvider> handler_provider,
     CefRefPtr<CefRequestImpl> request,
     CefRefPtr<OpenCallbackWrapper> callbackWrapper) {
   CEF_REQUIRE_IOT();
+  auto handler = handler_provider->handler();
+  if (!handler) {
+    callbackWrapper->Cancel();
+    return;
+  }
+
   if (!handler->ProcessRequest(request.get(), callbackWrapper.get())) {
     callbackWrapper->Cancel();
   }
@@ -292,10 +374,13 @@ class ResourceResponseWrapper : public ResourceResponse {
  public:
   ResourceResponseWrapper(const RequestId request_id,
                           CefRefPtr<CefResourceHandler> handler)
-      : request_id_(request_id), handler_(handler) {
-    DCHECK(handler_);
+      : request_id_(request_id),
+        handler_provider_(new HandlerProvider(handler)) {}
+
+  ~ResourceResponseWrapper() override {
+    // Triggers a call to Cancel on the handler.
+    handler_provider_->Detach();
   }
-  ~ResourceResponseWrapper() override {}
 
   // ResourceResponse methods:
   bool OpenInputStream(const RequestId& request_id,
@@ -303,16 +388,23 @@ class ResourceResponseWrapper : public ResourceResponse {
                        OpenCallback callback) override {
     DCHECK_EQ(request_id, request_id_);
 
+    auto handler = handler_provider_->handler();
+    if (!handler) {
+      // Cancel immediately.
+      return false;
+    }
+
     // May be recreated on redirect.
     request_ = new CefRequestImpl();
     request_->Set(&request, request_id.hash());
     request_->SetReadOnly(true);
 
     CefRefPtr<OpenCallbackWrapper> callbackWrapper = new OpenCallbackWrapper(
-        std::move(callback), std::make_unique<InputStreamWrapper>(handler_));
+        std::move(callback),
+        std::make_unique<InputStreamWrapper>(handler_provider_));
     bool handle_request = false;
     bool result =
-        handler_->Open(request_.get(), handle_request, callbackWrapper.get());
+        handler->Open(request_.get(), handle_request, callbackWrapper.get());
     if (result) {
       if (handle_request) {
         // Continue immediately.
@@ -328,8 +420,9 @@ class ResourceResponseWrapper : public ResourceResponse {
     }
 
     // Call ProcessRequest on the IO thread.
-    CEF_POST_TASK(CEF_IOT, base::Bind(CallProcessRequestOnIOThread, handler_,
-                                      request_, callbackWrapper));
+    CEF_POST_TASK(
+        CEF_IOT, base::BindOnce(CallProcessRequestOnIOThread, handler_provider_,
+                                request_, callbackWrapper));
     return true;
   }
 
@@ -343,10 +436,17 @@ class ResourceResponseWrapper : public ResourceResponse {
     DCHECK_EQ(request_id, request_id_);
     CEF_REQUIRE_IOT();
 
+    auto handler = handler_provider_->handler();
+    if (!handler) {
+      // Cancel immediately.
+      *status_code = net::ERR_FAILED;
+      return;
+    }
+
     CefRefPtr<CefResponse> response = CefResponse::Create();
     int64_t response_length = -1;
     CefString redirect_url;
-    handler_->GetResponseHeaders(response, response_length, redirect_url);
+    handler->GetResponseHeaders(response, response_length, redirect_url);
 
     const auto error_code = response->GetError();
     if (error_code != ERR_NONE) {
@@ -390,7 +490,7 @@ class ResourceResponseWrapper : public ResourceResponse {
   const RequestId request_id_;
 
   CefRefPtr<CefRequestImpl> request_;
-  CefRefPtr<CefResourceHandler> handler_;
+  scoped_refptr<HandlerProvider> handler_provider_;
 
   DISALLOW_COPY_AND_ASSIGN(ResourceResponseWrapper);
 };

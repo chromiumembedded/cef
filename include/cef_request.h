@@ -99,7 +99,7 @@ class CefRequest : public virtual CefBaseRefCounted {
   // fully qualified with an HTTP or HTTPS scheme component. Any username,
   // password or ref component will be removed.
   ///
-  /*--cef()--*/
+  /*--cef(optional_param=referrer_url)--*/
   virtual void SetReferrer(const CefString& referrer_url,
                            ReferrerPolicy policy) = 0;
 
@@ -154,7 +154,7 @@ class CefRequest : public virtual CefBaseRefCounted {
   // existing values will not be overwritten. The Referer value cannot be set
   // using this method.
   ///
-  /*--cef()--*/
+  /*--cef(optional_param=value)--*/
   virtual void SetHeaderByName(const CefString& name,
                                const CefString& value,
                                bool overwrite) = 0;
@@ -193,7 +193,7 @@ class CefRequest : public virtual CefBaseRefCounted {
   // Set the URL to the first party for cookies used in combination with
   // CefURLRequest.
   ///
-  /*--cef()--*/
+  /*--cef(optional_param=url)--*/
   virtual void SetFirstPartyForCookies(const CefString& url) = 0;
 
   ///

@@ -20,17 +20,164 @@
 
 namespace {
 
+// Normal stream resource handler implementation that additionally verifies
+// calls to Cancel.
+class NormalResourceHandler : public CefStreamResourceHandler {
+ public:
+  NormalResourceHandler(int status_code,
+                        const CefString& status_text,
+                        const CefString& mime_type,
+                        CefResponse::HeaderMap header_map,
+                        CefRefPtr<CefStreamReader> stream,
+                        const base::Closure& destroy_callback)
+      : CefStreamResourceHandler(status_code,
+                                 status_text,
+                                 mime_type,
+                                 header_map,
+                                 stream),
+        destroy_callback_(destroy_callback) {}
+
+  ~NormalResourceHandler() override {
+    if (IsNetworkServiceEnabled())
+      EXPECT_EQ(1, cancel_ct_);
+    else
+      EXPECT_EQ(0, cancel_ct_);
+    destroy_callback_.Run();
+  }
+
+  void Cancel() override {
+    EXPECT_IO_THREAD();
+    cancel_ct_++;
+  }
+
+ private:
+  const base::Closure destroy_callback_;
+  int cancel_ct_ = 0;
+
+  DISALLOW_COPY_AND_ASSIGN(NormalResourceHandler);
+};
+
+// Resource handler implementation that never completes. Used to test
+// destruction handling behavior for in-progress requests.
+class IncompleteResourceHandler : public CefResourceHandler {
+ public:
+  enum TestMode {
+    BLOCK_PROCESS_REQUEST,
+    BLOCK_READ_RESPONSE,
+  };
+
+  IncompleteResourceHandler(TestMode test_mode,
+                            const std::string& mime_type,
+                            const base::Closure& destroy_callback)
+      : test_mode_(test_mode),
+        mime_type_(mime_type),
+        destroy_callback_(destroy_callback) {}
+
+  ~IncompleteResourceHandler() override {
+    EXPECT_EQ(1, process_request_ct_);
+
+    if (IsNetworkServiceEnabled())
+      EXPECT_EQ(1, cancel_ct_);
+    else
+      EXPECT_EQ(0, cancel_ct_);
+
+    if (test_mode_ == BLOCK_READ_RESPONSE) {
+      EXPECT_EQ(1, get_response_headers_ct_);
+      EXPECT_EQ(1, read_response_ct_);
+    } else {
+      EXPECT_EQ(0, get_response_headers_ct_);
+      EXPECT_EQ(0, read_response_ct_);
+    }
+
+    destroy_callback_.Run();
+  }
+
+  bool ProcessRequest(CefRefPtr<CefRequest> request,
+                      CefRefPtr<CefCallback> callback) override {
+    EXPECT_IO_THREAD();
+
+    process_request_ct_++;
+
+    if (test_mode_ == BLOCK_PROCESS_REQUEST) {
+      // Never release or execute this callback.
+      incomplete_callback_ = callback;
+    } else {
+      callback->Continue();
+    }
+    return true;
+  }
+
+  void GetResponseHeaders(CefRefPtr<CefResponse> response,
+                          int64& response_length,
+                          CefString& redirectUrl) override {
+    EXPECT_IO_THREAD();
+    EXPECT_EQ(test_mode_, BLOCK_READ_RESPONSE);
+
+    get_response_headers_ct_++;
+
+    response->SetStatus(200);
+    response->SetStatusText("OK");
+    response->SetMimeType(mime_type_);
+    response_length = 100;
+  }
+
+  bool ReadResponse(void* data_out,
+                    int bytes_to_read,
+                    int& bytes_read,
+                    CefRefPtr<CefCallback> callback) override {
+    EXPECT_IO_THREAD();
+    EXPECT_EQ(test_mode_, BLOCK_READ_RESPONSE);
+
+    read_response_ct_++;
+
+    // Never release or execute this callback.
+    incomplete_callback_ = callback;
+    bytes_read = 0;
+    return true;
+  }
+
+  void Cancel() override {
+    EXPECT_IO_THREAD();
+    cancel_ct_++;
+  }
+
+ private:
+  const TestMode test_mode_;
+  const std::string mime_type_;
+  const base::Closure destroy_callback_;
+
+  int process_request_ct_ = 0;
+  int get_response_headers_ct_ = 0;
+  int read_response_ct_ = 0;
+  int cancel_ct_ = 0;
+
+  CefRefPtr<CefCallback> incomplete_callback_;
+
+  IMPLEMENT_REFCOUNTING(IncompleteResourceHandler);
+  DISALLOW_COPY_AND_ASSIGN(IncompleteResourceHandler);
+};
+
 class BasicResponseTest : public TestHandler {
  public:
   enum TestMode {
     // Normal load, nothing fancy.
     LOAD,
 
+    // Don't continue from OnBeforeResourceLoad, then close the browser to
+    // verify destruction handling of in-progress requests.
+    INCOMPLETE_BEFORE_RESOURCE_LOAD,
+
     // Modify the request (add headers) in OnBeforeResourceLoad.
     MODIFY_BEFORE_RESOURCE_LOAD,
 
     // Redirect the request (change the URL) in OnBeforeResourceLoad.
     REDIRECT_BEFORE_RESOURCE_LOAD,
+
+    // Return a CefResourceHandler from GetResourceHandler that never completes,
+    // then close the browser to verify destruction handling of in-progress
+    // requests.
+    INCOMPLETE_REQUEST_HANDLER_PROCESS_REQUEST,
+    INCOMPLETE_REQUEST_HANDLER_READ_RESPONSE,
 
     // Redirect the request using a CefResourceHandler returned from
     // GetResourceHandler.
@@ -157,6 +304,14 @@ class BasicResponseTest : public TestHandler {
 
     on_before_resource_load_ct_++;
 
+    if (mode_ == INCOMPLETE_BEFORE_RESOURCE_LOAD) {
+      incomplete_callback_ = callback;
+
+      // Close the browser asynchronously to complete the test.
+      CloseBrowserAsync();
+      return RV_CONTINUE_ASYNC;
+    }
+
     if (mode_ == MODIFY_BEFORE_RESOURCE_LOAD) {
       // Expect this data in the request for future callbacks.
       SetCustomHeader(request);
@@ -181,6 +336,12 @@ class BasicResponseTest : public TestHandler {
     VerifyState(kGetResourceHandler, request, nullptr);
 
     get_resource_handler_ct_++;
+
+    if (IsIncompleteRequestHandler()) {
+      // Close the browser asynchronously to complete the test.
+      CloseBrowserAsync();
+      return GetIncompleteResource();
+    }
 
     const std::string& url = request->GetURL();
     if (url == GetURL(RESULT_HTML) && mode_ == RESTART_RESOURCE_RESPONSE) {
@@ -314,7 +475,7 @@ class BasicResponseTest : public TestHandler {
 
     VerifyState(kOnResourceLoadComplete, request, response);
 
-    if (unhandled_) {
+    if (unhandled_ || IsIncomplete()) {
       EXPECT_EQ(UR_FAILED, status);
       EXPECT_EQ(0, received_content_length);
     } else {
@@ -324,6 +485,10 @@ class BasicResponseTest : public TestHandler {
     }
 
     on_resource_load_complete_ct_++;
+
+    if (IsIncomplete()) {
+      MaybeDestroyTest(false);
+    }
   }
 
   void OnProtocolExecution(CefRefPtr<CefBrowser> browser,
@@ -474,19 +639,51 @@ class BasicResponseTest : public TestHandler {
         else
           EXPECT_EQ(1, on_resource_response_ct_);
       }
+    } else if (IsIncomplete()) {
+      EXPECT_EQ(1, on_before_browse_ct_);
+      if (IsNetworkServiceEnabled()) {
+        EXPECT_EQ(1, get_resource_request_handler_ct_);
+        EXPECT_EQ(1, get_cookie_access_filter_ct_);
+      }
+      EXPECT_EQ(1, on_before_resource_load_ct_);
+
+      if (IsIncompleteRequestHandler())
+        EXPECT_EQ(1, get_resource_handler_ct_);
+      else
+        EXPECT_EQ(0, get_resource_handler_ct_);
+
+      EXPECT_EQ(0, on_resource_redirect_ct_);
+
+      if (mode_ == INCOMPLETE_REQUEST_HANDLER_READ_RESPONSE) {
+        EXPECT_EQ(1, get_resource_response_filter_ct_);
+        EXPECT_EQ(1, on_resource_response_ct_);
+      } else {
+        EXPECT_EQ(0, get_resource_response_filter_ct_);
+        EXPECT_EQ(0, on_resource_response_ct_);
+      }
     } else {
       NOTREACHED();
     }
 
+    EXPECT_EQ(resource_handler_created_ct_, resource_handler_destroyed_ct_);
     EXPECT_EQ(1, on_resource_load_complete_ct_);
-    EXPECT_EQ(1, on_load_end_ct_);
 
-    if (custom_scheme_ && unhandled_)
+    if (IsIncomplete())
+      EXPECT_EQ(0, on_load_end_ct_);
+    else
+      EXPECT_EQ(1, on_load_end_ct_);
+
+    if (custom_scheme_ && unhandled_ && !IsIncomplete())
       EXPECT_EQ(1, on_protocol_execution_ct_);
     else
       EXPECT_EQ(0, on_protocol_execution_ct_);
 
     TestHandler::DestroyTest();
+
+    if (!SignalCompletionWhenAllBrowsersClose()) {
+      // Complete asynchronously so the call stack has a chance to unwind.
+      CefPostTask(TID_UI, base::Bind(&BasicResponseTest::TestComplete, this));
+    }
   }
 
  private:
@@ -518,7 +715,7 @@ class BasicResponseTest : public TestHandler {
   }
 
   const char* GetStartupURL() const {
-    if (IsLoad()) {
+    if (IsLoad() || IsIncomplete()) {
       return GetURL(RESULT_HTML);
     } else if (mode_ == REDIRECT_RESOURCE_REDIRECT) {
       return GetURL(REDIRECT2_HTML);
@@ -537,17 +734,23 @@ class BasicResponseTest : public TestHandler {
     return "<html><body>Redirect</body></html>";
   }
 
-  CefRefPtr<CefResourceHandler> GetOKResource() const {
+  base::Closure GetResourceDestroyCallback() {
+    resource_handler_created_ct_++;
+    return base::Bind(&BasicResponseTest::MaybeDestroyTest, this, true);
+  }
+
+  CefRefPtr<CefResourceHandler> GetOKResource() {
     const std::string& body = GetResponseBody();
     CefRefPtr<CefStreamReader> stream = CefStreamReader::CreateForData(
         const_cast<char*>(body.c_str()), body.size());
 
-    return new CefStreamResourceHandler(200, "OK", "text/html",
-                                        CefResponse::HeaderMap(), stream);
+    return new NormalResourceHandler(200, "OK", "text/html",
+                                     CefResponse::HeaderMap(), stream,
+                                     GetResourceDestroyCallback());
   }
 
   CefRefPtr<CefResourceHandler> GetRedirectResource(
-      const std::string& redirect_url) const {
+      const std::string& redirect_url) {
     const std::string& body = GetRedirectBody();
     CefRefPtr<CefStreamReader> stream = CefStreamReader::CreateForData(
         const_cast<char*>(body.c_str()), body.size());
@@ -555,13 +758,32 @@ class BasicResponseTest : public TestHandler {
     CefResponse::HeaderMap headerMap;
     headerMap.insert(std::make_pair("Location", redirect_url));
 
-    return new CefStreamResourceHandler(307, "Temporary Redirect", "text/html",
-                                        headerMap, stream);
+    return new NormalResourceHandler(307, "Temporary Redirect", "text/html",
+                                     headerMap, stream,
+                                     GetResourceDestroyCallback());
+  }
+
+  CefRefPtr<CefResourceHandler> GetIncompleteResource() {
+    return new IncompleteResourceHandler(
+        mode_ == INCOMPLETE_REQUEST_HANDLER_PROCESS_REQUEST
+            ? IncompleteResourceHandler::BLOCK_PROCESS_REQUEST
+            : IncompleteResourceHandler::BLOCK_READ_RESPONSE,
+        "text/html", GetResourceDestroyCallback());
   }
 
   bool IsLoad() const {
     return mode_ == LOAD || mode_ == MODIFY_BEFORE_RESOURCE_LOAD ||
            mode_ == RESTART_RESOURCE_RESPONSE;
+  }
+
+  bool IsIncompleteRequestHandler() const {
+    return mode_ == INCOMPLETE_REQUEST_HANDLER_PROCESS_REQUEST ||
+           mode_ == INCOMPLETE_REQUEST_HANDLER_READ_RESPONSE;
+  }
+
+  bool IsIncomplete() const {
+    return mode_ == INCOMPLETE_BEFORE_RESOURCE_LOAD ||
+           IsIncompleteRequestHandler();
   }
 
   bool IsRedirect() const {
@@ -630,7 +852,7 @@ class BasicResponseTest : public TestHandler {
       EXPECT_EQ(request_id_, request->GetIdentifier()) << callback;
     }
 
-    if (IsLoad()) {
+    if (IsLoad() || IsIncomplete()) {
       EXPECT_STREQ("GET", request->GetMethod().ToString().c_str()) << callback;
       EXPECT_STREQ(GetURL(RESULT_HTML), request->GetURL().ToString().c_str())
           << callback;
@@ -686,8 +908,18 @@ class BasicResponseTest : public TestHandler {
                                      mode_ == RESTART_RESOURCE_RESPONSE) &&
                                     get_resource_handler_ct_ == 1;
 
-    if (unhandled_ && !override_unhandled) {
-      EXPECT_EQ(ERR_UNKNOWN_URL_SCHEME, response->GetError()) << callback;
+    // True for tests where the request will be incomplete and never receive a
+    // response.
+    const bool incomplete_unhandled =
+        (mode_ == INCOMPLETE_BEFORE_RESOURCE_LOAD ||
+         mode_ == INCOMPLETE_REQUEST_HANDLER_PROCESS_REQUEST);
+
+    if ((unhandled_ && !override_unhandled) || incomplete_unhandled) {
+      if (incomplete_unhandled) {
+        EXPECT_EQ(ERR_ABORTED, response->GetError()) << callback;
+      } else {
+        EXPECT_EQ(ERR_UNKNOWN_URL_SCHEME, response->GetError()) << callback;
+      }
       EXPECT_EQ(0, response->GetStatus()) << callback;
       EXPECT_STREQ("", response->GetStatusText().ToString().c_str())
           << callback;
@@ -695,7 +927,13 @@ class BasicResponseTest : public TestHandler {
       EXPECT_STREQ("", response->GetMimeType().ToString().c_str()) << callback;
       EXPECT_STREQ("", response->GetCharset().ToString().c_str()) << callback;
     } else {
-      EXPECT_EQ(ERR_NONE, response->GetError()) << callback;
+      if (mode_ == INCOMPLETE_REQUEST_HANDLER_READ_RESPONSE &&
+          callback == kOnResourceLoadComplete) {
+        // We got a response, but we also got aborted.
+        EXPECT_EQ(ERR_ABORTED, response->GetError()) << callback;
+      } else {
+        EXPECT_EQ(ERR_NONE, response->GetError()) << callback;
+      }
       EXPECT_EQ(200, response->GetStatus()) << callback;
       EXPECT_STREQ("OK", response->GetStatusText().ToString().c_str())
           << callback;
@@ -719,12 +957,53 @@ class BasicResponseTest : public TestHandler {
     EXPECT_STREQ("", response->GetCharset().ToString().c_str()) << callback;
   }
 
+  void CloseBrowserAsync() {
+    EXPECT_TRUE(IsIncomplete());
+    SetSignalCompletionWhenAllBrowsersClose(false);
+    CefPostDelayedTask(
+        TID_UI, base::Bind(&TestHandler::CloseBrowser, GetBrowser(), false),
+        100);
+  }
+
+  void MaybeDestroyTest(bool from_handler) {
+    if (!CefCurrentlyOn(TID_UI)) {
+      CefPostTask(TID_UI, base::Bind(&BasicResponseTest::MaybeDestroyTest, this,
+                                     from_handler));
+      return;
+    }
+
+    if (from_handler) {
+      resource_handler_destroyed_ct_++;
+    }
+
+    bool destroy_test = false;
+    if (IsIncomplete()) {
+      // Destroy the test if we got OnResourceLoadComplete and either the
+      // resource handler will never complete or it was destroyed.
+      destroy_test =
+          on_resource_load_complete_ct_ > 0 &&
+          (!IsIncompleteRequestHandler() ||
+           resource_handler_destroyed_ct_ == resource_handler_created_ct_);
+    } else {
+      // Destroy the test if we got OnLoadEnd and the expected number of
+      // resource handlers were destroyed.
+      destroy_test = on_load_end_ct_ > 0 && resource_handler_destroyed_ct_ ==
+                                                resource_handler_created_ct_;
+    }
+
+    if (destroy_test) {
+      DestroyTest();
+    }
+  }
+
   const TestMode mode_;
   const bool custom_scheme_;
   const bool unhandled_;
 
   int browser_id_ = 0;
   uint64 request_id_ = 0U;
+
+  int resource_handler_created_ct_ = 0;
 
   int on_before_browse_ct_ = 0;
   int on_load_end_ct_ = 0;
@@ -738,6 +1017,10 @@ class BasicResponseTest : public TestHandler {
   int get_resource_response_filter_ct_ = 0;
   int on_resource_load_complete_ct_ = 0;
   int on_protocol_execution_ct_ = 0;
+  int resource_handler_destroyed_ct_ = 0;
+
+  // Used with INCOMPLETE_BEFORE_RESOURCE_LOAD.
+  CefRefPtr<CefRequestCallback> incomplete_callback_;
 
   DISALLOW_COPY_AND_ASSIGN(BasicResponseTest);
   IMPLEMENT_REFCOUNTING(BasicResponseTest);
@@ -746,10 +1029,21 @@ class BasicResponseTest : public TestHandler {
 bool IsTestSupported(BasicResponseTest::TestMode test_mode,
                      bool custom_scheme,
                      bool unhandled) {
-  if (!IsNetworkServiceEnabled() && (custom_scheme || unhandled)) {
-    // The old network implementation does not support the same functionality
-    // for custom schemes and unhandled requests.
-    return false;
+  if (!IsNetworkServiceEnabled()) {
+    if (custom_scheme || unhandled) {
+      // The old network implementation does not support the same functionality
+      // for custom schemes and unhandled requests.
+      return false;
+    }
+    if (test_mode == BasicResponseTest::INCOMPLETE_BEFORE_RESOURCE_LOAD ||
+        test_mode ==
+            BasicResponseTest::INCOMPLETE_REQUEST_HANDLER_PROCESS_REQUEST ||
+        test_mode ==
+            BasicResponseTest::INCOMPLETE_REQUEST_HANDLER_READ_RESPONSE) {
+      // The old network implementation does not support the same behavior
+      // for canceling incomplete requests.
+      return false;
+    }
   }
   return true;
 }
@@ -782,10 +1076,22 @@ bool IsTestSupported(BasicResponseTest::TestMode test_mode,
   BASIC_TEST(name##RestartResourceResponse, RESTART_RESOURCE_RESPONSE, custom, \
              unhandled)
 
+// Tests only supported in handled mode.
+#define BASIC_TEST_HANDLED_MODES(name, custom)                          \
+  BASIC_TEST(name##IncompleteBeforeResourceLoad,                        \
+             INCOMPLETE_BEFORE_RESOURCE_LOAD, custom, false)            \
+  BASIC_TEST(name##IncompleteRequestHandlerProcessRequest,              \
+             INCOMPLETE_REQUEST_HANDLER_PROCESS_REQUEST, custom, false) \
+  BASIC_TEST(name##IncompleteRequestHandlerReadResponse,                \
+             INCOMPLETE_REQUEST_HANDLER_READ_RESPONSE, custom, false)
+
 BASIC_TEST_ALL_MODES(StandardHandled, false, false)
 BASIC_TEST_ALL_MODES(StandardUnhandled, false, true)
 BASIC_TEST_ALL_MODES(CustomHandled, true, false)
 BASIC_TEST_ALL_MODES(CustomUnhandled, true, true)
+
+BASIC_TEST_HANDLED_MODES(StandardHandled, false)
+BASIC_TEST_HANDLED_MODES(CustomHandled, true)
 
 namespace {
 
@@ -797,11 +1103,21 @@ class SubresourceResponseTest : public RoutingTestHandler {
     // Normal load, nothing fancy.
     LOAD,
 
+    // Don't continue from OnBeforeResourceLoad, then close the browser to
+    // verify destruction handling of in-progress requests.
+    INCOMPLETE_BEFORE_RESOURCE_LOAD,
+
     // Modify the request (add headers) in OnBeforeResourceLoad.
     MODIFY_BEFORE_RESOURCE_LOAD,
 
     // Redirect the request (change the URL) in OnBeforeResourceLoad.
     REDIRECT_BEFORE_RESOURCE_LOAD,
+
+    // Return a CefResourceHandler from GetResourceHandler that never completes,
+    // then close the browser to verify destruction handling of in-progress
+    // requests.
+    INCOMPLETE_REQUEST_HANDLER_PROCESS_REQUEST,
+    INCOMPLETE_REQUEST_HANDLER_READ_RESPONSE,
 
     // Redirect the request using a CefResourceHandler returned from
     // GetResourceHandler.
@@ -979,6 +1295,14 @@ class SubresourceResponseTest : public RoutingTestHandler {
 
     on_before_resource_load_ct_++;
 
+    if (mode_ == INCOMPLETE_BEFORE_RESOURCE_LOAD) {
+      incomplete_callback_ = callback;
+
+      // Close the browser asynchronously to complete the test.
+      CloseBrowserAsync();
+      return RV_CONTINUE_ASYNC;
+    }
+
     if (mode_ == MODIFY_BEFORE_RESOURCE_LOAD) {
       // Expect this data in the request for future callbacks.
       SetCustomHeader(request);
@@ -1013,6 +1337,12 @@ class SubresourceResponseTest : public RoutingTestHandler {
     VerifyState(kGetResourceHandler, request, nullptr);
 
     get_resource_handler_ct_++;
+
+    if (IsIncompleteRequestHandler()) {
+      // Close the browser asynchronously to complete the test.
+      CloseBrowserAsync();
+      return GetIncompleteResource();
+    }
 
     const std::string& url = request->GetURL();
     if (url == GetURL(RESULT_JS) && mode_ == RESTART_RESOURCE_RESPONSE) {
@@ -1188,7 +1518,7 @@ class SubresourceResponseTest : public RoutingTestHandler {
 
     VerifyState(kOnResourceLoadComplete, request, response);
 
-    if (unhandled_) {
+    if (unhandled_ || IsIncomplete()) {
       EXPECT_EQ(UR_FAILED, status);
       EXPECT_EQ(0, received_content_length);
     } else {
@@ -1198,6 +1528,10 @@ class SubresourceResponseTest : public RoutingTestHandler {
     }
 
     on_resource_load_complete_ct_++;
+
+    if (IsIncomplete()) {
+      MaybeDestroyTest(false);
+    }
   }
 
   void OnProtocolExecution(CefRefPtr<CefBrowser> browser,
@@ -1235,7 +1569,7 @@ class SubresourceResponseTest : public RoutingTestHandler {
     on_load_end_ct_++;
 
     TestHandler::OnLoadEnd(browser, frame, httpStatusCode);
-    MaybeDestroyTest();
+    MaybeDestroyTest(false);
   }
 
   bool OnQuery(CefRefPtr<CefBrowser> browser,
@@ -1254,16 +1588,9 @@ class SubresourceResponseTest : public RoutingTestHandler {
     callback->Success("");
 
     on_query_ct_++;
-    MaybeDestroyTest();
+    MaybeDestroyTest(false);
 
     return true;
-  }
-
-  void MaybeDestroyTest() {
-    if (on_load_end_ct_ > (subframe_ ? 1 : 0) &&
-        (on_query_ct_ > 0 || unhandled_)) {
-      DestroyTest();
-    }
   }
 
   void DestroyTest() override {
@@ -1380,29 +1707,61 @@ class SubresourceResponseTest : public RoutingTestHandler {
         else
           EXPECT_EQ(1, on_resource_response_ct_);
       }
+    } else if (IsIncomplete()) {
+      if (IsNetworkServiceEnabled()) {
+        EXPECT_EQ(1, get_resource_request_handler_ct_);
+        EXPECT_EQ(1, get_cookie_access_filter_ct_);
+      }
+      EXPECT_EQ(1, on_before_resource_load_ct_);
+
+      if (IsIncompleteRequestHandler())
+        EXPECT_EQ(1, get_resource_handler_ct_);
+      else
+        EXPECT_EQ(0, get_resource_handler_ct_);
+
+      EXPECT_EQ(0, on_resource_redirect_ct_);
+
+      if (mode_ == INCOMPLETE_REQUEST_HANDLER_READ_RESPONSE) {
+        EXPECT_EQ(1, get_resource_response_filter_ct_);
+        EXPECT_EQ(1, on_resource_response_ct_);
+      } else {
+        EXPECT_EQ(0, get_resource_response_filter_ct_);
+        EXPECT_EQ(0, on_resource_response_ct_);
+      }
     } else {
       NOTREACHED();
     }
 
+    EXPECT_EQ(resource_handler_created_ct_, resource_handler_destroyed_ct_);
     EXPECT_EQ(1, on_resource_load_complete_ct_);
 
     // Only called for the main and/or sub frame load.
-    if (subframe_)
-      EXPECT_EQ(2, on_load_end_ct_);
-    else
-      EXPECT_EQ(1, on_load_end_ct_);
+    if (IsIncomplete()) {
+      EXPECT_EQ(0, on_load_end_ct_);
+    } else {
+      if (subframe_)
+        EXPECT_EQ(2, on_load_end_ct_);
+      else
+        EXPECT_EQ(1, on_load_end_ct_);
+    }
 
-    if (unhandled_)
+    if (unhandled_ || IsIncomplete())
       EXPECT_EQ(0, on_query_ct_);
     else
       EXPECT_EQ(1, on_query_ct_);
 
-    if (custom_scheme_ && unhandled_)
+    if (custom_scheme_ && unhandled_ && !IsIncomplete())
       EXPECT_EQ(1, on_protocol_execution_ct_);
     else
       EXPECT_EQ(0, on_protocol_execution_ct_);
 
     TestHandler::DestroyTest();
+
+    if (!SignalCompletionWhenAllBrowsersClose()) {
+      // Complete asynchronously so the call stack has a chance to unwind.
+      CefPostTask(TID_UI,
+                  base::Bind(&SubresourceResponseTest::TestComplete, this));
+    }
   }
 
  private:
@@ -1461,7 +1820,7 @@ class SubresourceResponseTest : public RoutingTestHandler {
   }
 
   const char* GetStartupURL() const {
-    if (IsLoad()) {
+    if (IsLoad() || IsIncomplete()) {
       return GetURL(RESULT_JS);
     } else if (mode_ == REDIRECT_RESOURCE_REDIRECT) {
       return GetURL(REDIRECT2_JS);
@@ -1511,35 +1870,43 @@ class SubresourceResponseTest : public RoutingTestHandler {
     return "<html><body>Redirect</body></html>";
   }
 
-  CefRefPtr<CefResourceHandler> GetMainResource() const {
+  base::Closure GetResourceDestroyCallback() {
+    resource_handler_created_ct_++;
+    return base::Bind(&SubresourceResponseTest::MaybeDestroyTest, this, true);
+  }
+
+  CefRefPtr<CefResourceHandler> GetMainResource() {
     const std::string& body = GetMainResponseBody();
     CefRefPtr<CefStreamReader> stream = CefStreamReader::CreateForData(
         const_cast<char*>(body.c_str()), body.size());
 
-    return new CefStreamResourceHandler(200, "OK", "text/html",
-                                        CefResponse::HeaderMap(), stream);
+    return new NormalResourceHandler(200, "OK", "text/html",
+                                     CefResponse::HeaderMap(), stream,
+                                     GetResourceDestroyCallback());
   }
 
-  CefRefPtr<CefResourceHandler> GetSubResource() const {
+  CefRefPtr<CefResourceHandler> GetSubResource() {
     const std::string& body = GetSubResponseBody();
     CefRefPtr<CefStreamReader> stream = CefStreamReader::CreateForData(
         const_cast<char*>(body.c_str()), body.size());
 
-    return new CefStreamResourceHandler(200, "OK", "text/html",
-                                        CefResponse::HeaderMap(), stream);
+    return new NormalResourceHandler(200, "OK", "text/html",
+                                     CefResponse::HeaderMap(), stream,
+                                     GetResourceDestroyCallback());
   }
 
-  CefRefPtr<CefResourceHandler> GetOKResource() const {
+  CefRefPtr<CefResourceHandler> GetOKResource() {
     const std::string& body = GetResponseBody();
     CefRefPtr<CefStreamReader> stream = CefStreamReader::CreateForData(
         const_cast<char*>(body.c_str()), body.size());
 
-    return new CefStreamResourceHandler(200, "OK", "text/javascript",
-                                        CefResponse::HeaderMap(), stream);
+    return new NormalResourceHandler(200, "OK", "text/javascript",
+                                     CefResponse::HeaderMap(), stream,
+                                     GetResourceDestroyCallback());
   }
 
   CefRefPtr<CefResourceHandler> GetRedirectResource(
-      const std::string& redirect_url) const {
+      const std::string& redirect_url) {
     const std::string& body = GetRedirectBody();
     CefRefPtr<CefStreamReader> stream = CefStreamReader::CreateForData(
         const_cast<char*>(body.c_str()), body.size());
@@ -1547,13 +1914,32 @@ class SubresourceResponseTest : public RoutingTestHandler {
     CefResponse::HeaderMap headerMap;
     headerMap.insert(std::make_pair("Location", redirect_url));
 
-    return new CefStreamResourceHandler(307, "Temporary Redirect",
-                                        "text/javascript", headerMap, stream);
+    return new NormalResourceHandler(307, "Temporary Redirect",
+                                     "text/javascript", headerMap, stream,
+                                     GetResourceDestroyCallback());
+  }
+
+  CefRefPtr<CefResourceHandler> GetIncompleteResource() {
+    return new IncompleteResourceHandler(
+        mode_ == INCOMPLETE_REQUEST_HANDLER_PROCESS_REQUEST
+            ? IncompleteResourceHandler::BLOCK_PROCESS_REQUEST
+            : IncompleteResourceHandler::BLOCK_READ_RESPONSE,
+        "text/javascript", GetResourceDestroyCallback());
   }
 
   bool IsLoad() const {
     return mode_ == LOAD || mode_ == MODIFY_BEFORE_RESOURCE_LOAD ||
            mode_ == RESTART_RESOURCE_RESPONSE;
+  }
+
+  bool IsIncompleteRequestHandler() const {
+    return mode_ == INCOMPLETE_REQUEST_HANDLER_PROCESS_REQUEST ||
+           mode_ == INCOMPLETE_REQUEST_HANDLER_READ_RESPONSE;
+  }
+
+  bool IsIncomplete() const {
+    return mode_ == INCOMPLETE_BEFORE_RESOURCE_LOAD ||
+           IsIncompleteRequestHandler();
   }
 
   bool IsRedirect() const {
@@ -1633,7 +2019,7 @@ class SubresourceResponseTest : public RoutingTestHandler {
       EXPECT_EQ(request_id_, request->GetIdentifier()) << callback;
     }
 
-    if (IsLoad()) {
+    if (IsLoad() || IsIncomplete()) {
       EXPECT_STREQ("GET", request->GetMethod().ToString().c_str()) << callback;
       EXPECT_STREQ(GetURL(RESULT_JS), request->GetURL().ToString().c_str())
           << callback;
@@ -1697,8 +2083,18 @@ class SubresourceResponseTest : public RoutingTestHandler {
                                      mode_ == RESTART_RESOURCE_RESPONSE) &&
                                     get_resource_handler_ct_ == 1;
 
-    if (unhandled_ && !override_unhandled) {
-      EXPECT_EQ(ERR_UNKNOWN_URL_SCHEME, response->GetError()) << callback;
+    // True for tests where the request will be incomplete and never receive a
+    // response.
+    const bool incomplete_unhandled =
+        (mode_ == INCOMPLETE_BEFORE_RESOURCE_LOAD ||
+         mode_ == INCOMPLETE_REQUEST_HANDLER_PROCESS_REQUEST);
+
+    if ((unhandled_ && !override_unhandled) || incomplete_unhandled) {
+      if (incomplete_unhandled) {
+        EXPECT_EQ(ERR_ABORTED, response->GetError()) << callback;
+      } else {
+        EXPECT_EQ(ERR_UNKNOWN_URL_SCHEME, response->GetError()) << callback;
+      }
       EXPECT_EQ(0, response->GetStatus()) << callback;
       EXPECT_STREQ("", response->GetStatusText().ToString().c_str())
           << callback;
@@ -1706,7 +2102,13 @@ class SubresourceResponseTest : public RoutingTestHandler {
       EXPECT_STREQ("", response->GetMimeType().ToString().c_str()) << callback;
       EXPECT_STREQ("", response->GetCharset().ToString().c_str()) << callback;
     } else {
-      EXPECT_EQ(ERR_NONE, response->GetError()) << callback;
+      if (mode_ == INCOMPLETE_REQUEST_HANDLER_READ_RESPONSE &&
+          callback == kOnResourceLoadComplete) {
+        // We got a response, but we also got aborted.
+        EXPECT_EQ(ERR_ABORTED, response->GetError()) << callback;
+      } else {
+        EXPECT_EQ(ERR_NONE, response->GetError()) << callback;
+      }
       EXPECT_EQ(200, response->GetStatus()) << callback;
       EXPECT_STREQ("OK", response->GetStatusText().ToString().c_str())
           << callback;
@@ -1731,6 +2133,47 @@ class SubresourceResponseTest : public RoutingTestHandler {
     EXPECT_STREQ("", response->GetCharset().ToString().c_str()) << callback;
   }
 
+  void CloseBrowserAsync() {
+    EXPECT_TRUE(IsIncomplete());
+    SetSignalCompletionWhenAllBrowsersClose(false);
+    CefPostDelayedTask(
+        TID_UI, base::Bind(&TestHandler::CloseBrowser, GetBrowser(), false),
+        100);
+  }
+
+  void MaybeDestroyTest(bool from_handler) {
+    if (!CefCurrentlyOn(TID_UI)) {
+      CefPostTask(TID_UI, base::Bind(&SubresourceResponseTest::MaybeDestroyTest,
+                                     this, from_handler));
+      return;
+    }
+
+    if (from_handler) {
+      resource_handler_destroyed_ct_++;
+    }
+
+    bool destroy_test = false;
+    if (IsIncomplete()) {
+      // Destroy the test if we got OnResourceLoadComplete and either the
+      // resource handler will never complete or it was destroyed.
+      destroy_test =
+          on_resource_load_complete_ct_ > 0 &&
+          (!IsIncompleteRequestHandler() ||
+           resource_handler_destroyed_ct_ == resource_handler_created_ct_);
+    } else {
+      // Destroy the test if we got the expected number of OnLoadEnd and
+      // OnQuery, and the expected number of resource handlers were destroyed.
+      destroy_test =
+          on_load_end_ct_ > (subframe_ ? 1 : 0) &&
+          (on_query_ct_ > 0 || unhandled_) &&
+          resource_handler_destroyed_ct_ == resource_handler_created_ct_;
+    }
+
+    if (destroy_test) {
+      DestroyTest();
+    }
+  }
+
   const TestMode mode_;
   const bool custom_scheme_;
   const bool unhandled_;
@@ -1739,6 +2182,8 @@ class SubresourceResponseTest : public RoutingTestHandler {
   int browser_id_ = 0;
   int64 frame_id_ = 0;
   uint64 request_id_ = 0U;
+
+  int resource_handler_created_ct_ = 0;
 
   int on_before_browse_ct_ = 0;
   int on_load_end_ct_ = 0;
@@ -1753,6 +2198,10 @@ class SubresourceResponseTest : public RoutingTestHandler {
   int get_resource_response_filter_ct_ = 0;
   int on_resource_load_complete_ct_ = 0;
   int on_protocol_execution_ct_ = 0;
+  int resource_handler_destroyed_ct_ = 0;
+
+  // Used with INCOMPLETE_BEFORE_RESOURCE_LOAD.
+  CefRefPtr<CefRequestCallback> incomplete_callback_;
 
   DISALLOW_COPY_AND_ASSIGN(SubresourceResponseTest);
   IMPLEMENT_REFCOUNTING(SubresourceResponseTest);
@@ -1762,10 +2211,21 @@ bool IsTestSupported(SubresourceResponseTest::TestMode test_mode,
                      bool custom_scheme,
                      bool unhandled,
                      bool subframe) {
-  if (!IsNetworkServiceEnabled() && (custom_scheme || unhandled)) {
-    // The old network implementation does not support the same functionality
-    // for custom schemes and unhandled requests.
-    return false;
+  if (!IsNetworkServiceEnabled()) {
+    if (custom_scheme || unhandled) {
+      // The old network implementation does not support the same functionality
+      // for custom schemes and unhandled requests.
+      return false;
+    }
+    if (test_mode == SubresourceResponseTest::INCOMPLETE_BEFORE_RESOURCE_LOAD ||
+        test_mode == SubresourceResponseTest::
+                         INCOMPLETE_REQUEST_HANDLER_PROCESS_REQUEST ||
+        test_mode ==
+            SubresourceResponseTest::INCOMPLETE_REQUEST_HANDLER_READ_RESPONSE) {
+      // The old network implementation does not support the same behavior
+      // for canceling incomplete requests.
+      return false;
+    }
   }
   return true;
 }
@@ -1799,6 +2259,17 @@ bool IsTestSupported(SubresourceResponseTest::TestMode test_mode,
   SUBRESOURCE_TEST(name##RestartResourceResponse, RESTART_RESOURCE_RESPONSE,   \
                    custom, unhandled, subframe)
 
+// Tests only supported in handled mode.
+#define SUBRESOURCE_TEST_HANDLED_MODES(name, custom, subframe)                \
+  SUBRESOURCE_TEST(name##IncompleteBeforeResourceLoad,                        \
+                   INCOMPLETE_BEFORE_RESOURCE_LOAD, custom, false, subframe)  \
+  SUBRESOURCE_TEST(name##IncompleteRequestHandlerProcessRequest,              \
+                   INCOMPLETE_REQUEST_HANDLER_PROCESS_REQUEST, custom, false, \
+                   subframe)                                                  \
+  SUBRESOURCE_TEST(name##IncompleteRequestHandlerReadResponse,                \
+                   INCOMPLETE_REQUEST_HANDLER_READ_RESPONSE, custom, false,   \
+                   subframe)
+
 SUBRESOURCE_TEST_ALL_MODES(StandardHandledMainFrame, false, false, false)
 SUBRESOURCE_TEST_ALL_MODES(StandardUnhandledMainFrame, false, true, false)
 SUBRESOURCE_TEST_ALL_MODES(CustomHandledMainFrame, true, false, false)
@@ -1808,6 +2279,12 @@ SUBRESOURCE_TEST_ALL_MODES(StandardHandledSubFrame, false, false, true)
 SUBRESOURCE_TEST_ALL_MODES(StandardUnhandledSubFrame, false, true, true)
 SUBRESOURCE_TEST_ALL_MODES(CustomHandledSubFrame, true, false, true)
 SUBRESOURCE_TEST_ALL_MODES(CustomUnhandledSubFrame, true, true, true)
+
+SUBRESOURCE_TEST_HANDLED_MODES(StandardHandledMainFrame, false, false)
+SUBRESOURCE_TEST_HANDLED_MODES(CustomHandledMainFrame, true, false)
+
+SUBRESOURCE_TEST_HANDLED_MODES(StandardHandledSubFrame, false, true)
+SUBRESOURCE_TEST_HANDLED_MODES(CustomHandledSubFrame, true, true)
 
 namespace {
 

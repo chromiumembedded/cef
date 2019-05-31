@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=781ea7e9b24023e8bdcc80ed93b27eb7ef80aa69$
+// $hash=0c197661e7e3e905b90bec127ff7b1ff23240fa2$
 //
 
 #include "libcef_dll/ctocpp/response_ctocpp.h"
@@ -118,10 +118,7 @@ void CefResponseCToCpp::SetStatusText(const CefString& statusText) {
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
-  // Verify param: statusText; type: string_byref_const
-  DCHECK(!statusText.empty());
-  if (statusText.empty())
-    return;
+  // Unverified params: statusText
 
   // Execute
   _struct->set_status_text(_struct, statusText.GetStruct());
@@ -151,10 +148,7 @@ void CefResponseCToCpp::SetMimeType(const CefString& mimeType) {
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
-  // Verify param: mimeType; type: string_byref_const
-  DCHECK(!mimeType.empty());
-  if (mimeType.empty())
-    return;
+  // Unverified params: mimeType
 
   // Execute
   _struct->set_mime_type(_struct, mimeType.GetStruct());
@@ -184,10 +178,7 @@ void CefResponseCToCpp::SetCharset(const CefString& charset) {
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
-  // Verify param: charset; type: string_byref_const
-  DCHECK(!charset.empty());
-  if (charset.empty())
-    return;
+  // Unverified params: charset
 
   // Execute
   _struct->set_charset(_struct, charset.GetStruct());
@@ -286,10 +277,7 @@ NO_SANITIZE("cfi-icall") void CefResponseCToCpp::SetURL(const CefString& url) {
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
-  // Verify param: url; type: string_byref_const
-  DCHECK(!url.empty());
-  if (url.empty())
-    return;
+  // Unverified params: url
 
   // Execute
   _struct->set_url(_struct, url.GetStruct());

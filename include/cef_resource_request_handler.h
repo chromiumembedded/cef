@@ -174,6 +174,13 @@ class CefResourceRequestHandler : public virtual CefBaseRefCounted {
   // |response| represent the request and response respectively and cannot be
   // modified in this callback. |status| indicates the load completion status.
   // |received_content_length| is the number of response bytes actually read.
+  // This method will be called for all requests, including requests that are
+  // aborted due to CEF shutdown or destruction of the associated browser. In
+  // cases where the associated browser is destroyed this callback may arrive
+  // after the CefLifeSpanHandler::OnBeforeClose callback for that browser. The
+  // CefFrame::IsValid method can be used to test for this situation, and care
+  // should be taken not to call |browser| or |frame| methods that modify state
+  // (like LoadURL, SendProcessMessage, etc.) if the frame is invalid.
   ///
   /*--cef(optional_param=browser,optional_param=frame)--*/
   virtual void OnResourceLoadComplete(CefRefPtr<CefBrowser> browser,

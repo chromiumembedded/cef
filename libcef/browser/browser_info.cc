@@ -353,6 +353,17 @@ void CefBrowserInfo::RemoveAllFrames() {
   frame_id_map_.clear();
   frame_tree_node_id_map_.clear();
 
+  // Explicitly Detach main frames.
+  for (auto& info : frame_info_set_) {
+    if (info->frame_ && info->is_main_frame_)
+      info->frame_->Detach();
+  }
+
+  if (main_frame_) {
+    main_frame_->Detach();
+    main_frame_ = nullptr;
+  }
+
   // And finally delete the frame info.
   frame_info_set_.clear();
 }

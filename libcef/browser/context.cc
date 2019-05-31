@@ -565,6 +565,21 @@ bool CefContext::ValidateCachePath(const base::FilePath& cache_path) {
   return true;
 }
 
+void CefContext::AddObserver(Observer* observer) {
+  CEF_REQUIRE_UIT();
+  observers_.AddObserver(observer);
+}
+
+void CefContext::RemoveObserver(Observer* observer) {
+  CEF_REQUIRE_UIT();
+  observers_.RemoveObserver(observer);
+}
+
+bool CefContext::HasObserver(Observer* observer) const {
+  CEF_REQUIRE_UIT();
+  return observers_.HasObserver(observer);
+}
+
 void CefContext::OnContextInitialized() {
   CEF_REQUIRE_UIT();
 
@@ -590,6 +605,9 @@ void CefContext::FinishShutdownOnUIThread(
   CEF_REQUIRE_UIT();
 
   browser_info_manager_->DestroyAllBrowsers();
+
+  for (auto& observer : observers_)
+    observer.OnContextDestroyed();
 
   if (trace_subscriber_.get())
     trace_subscriber_.reset(NULL);

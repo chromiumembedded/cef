@@ -113,14 +113,20 @@ class CefBrowserURLRequest::Context
         request_context_impl->GetBrowserContext();
     DCHECK(browser_context);
 
-    content::RenderFrameHost* rfh = nullptr;
+    scoped_refptr<net_service::URLLoaderFactoryGetter> loader_factory_getter;
     if (frame) {
-      // The request will be associated with this frame/browser.
-      rfh = static_cast<CefFrameHostImpl*>(frame.get())->GetRenderFrameHost();
+      // The request will be associated with this frame/browser if it's valid,
+      // otherwise the request will be canceled.
+      content::RenderFrameHost* rfh =
+          static_cast<CefFrameHostImpl*>(frame.get())->GetRenderFrameHost();
+      if (rfh) {
+        loader_factory_getter =
+            net_service::URLLoaderFactoryGetter::Create(rfh, browser_context);
+      }
+    } else {
+      loader_factory_getter =
+          net_service::URLLoaderFactoryGetter::Create(nullptr, browser_context);
     }
-
-    auto loader_factory_getter =
-        net_service::URLLoaderFactoryGetter::Create(rfh, browser_context);
 
     task_runner->PostTask(
         FROM_HERE,
@@ -137,6 +143,12 @@ class CefBrowserURLRequest::Context
     // The request may have been canceled.
     if (!url_request_)
       return;
+
+    if (!loader_factory_getter) {
+      // Cancel the request immediately.
+      Cancel();
+      return;
+    }
 
     DCHECK_EQ(status_, UR_IO_PENDING);
 
