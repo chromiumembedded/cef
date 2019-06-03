@@ -128,6 +128,7 @@ std::string GetSSLVersionString(cef_ssl_version_t version) {
   VALUE(version, SSL_CONNECTION_VERSION_TLS1);
   VALUE(version, SSL_CONNECTION_VERSION_TLS1_1);
   VALUE(version, SSL_CONNECTION_VERSION_TLS1_2);
+  VALUE(version, SSL_CONNECTION_VERSION_TLS1_3);
   VALUE(version, SSL_CONNECTION_VERSION_QUIC);
   return std::string();
 }
