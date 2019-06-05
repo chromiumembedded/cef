@@ -90,8 +90,14 @@ class CefDevToolsFrontend : public content::WebContentsObserver,
   scoped_refptr<content::DevToolsAgentHost> agent_host_;
   CefPoint inspect_element_at_;
   std::unique_ptr<content::DevToolsFrontendHost> frontend_host_;
+
   using PendingRequestsMap = std::map<const net::URLFetcher*, int>;
   PendingRequestsMap pending_requests_;
+
+  class NetworkResourceLoader;
+  std::set<std::unique_ptr<NetworkResourceLoader>, base::UniquePtrComparator>
+      loaders_;
+
   using ExtensionsAPIs = std::map<std::string, std::string>;
   ExtensionsAPIs extensions_api_;
   CefDevToolsFileManager file_manager_;
