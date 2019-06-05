@@ -829,7 +829,8 @@ void InterceptedRequest::ContinueToResponseStarted(int error_code) {
 
   std::string location;
   const bool is_redirect = redirect_url.is_valid() ||
-                           current_response_.headers->IsRedirect(&location);
+                           (current_response_.headers &&
+                            current_response_.headers->IsRedirect(&location));
   if (stream_loader_ && is_redirect) {
     // Redirecting from OnReceiveResponse generally isn't supported by the
     // NetworkService, so we can only support it when using a custom loader.
