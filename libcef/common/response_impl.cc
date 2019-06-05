@@ -203,7 +203,7 @@ void CefResponseImpl::Set(const blink::WebURLResponse& response) {
   };
 
   HeaderVisitor visitor(&header_map_);
-  response.VisitHTTPHeaderFields(&visitor);
+  response.VisitHttpHeaderFields(&visitor);
 }
 
 void CefResponseImpl::Set(const net::URLRequest* request) {

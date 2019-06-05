@@ -144,9 +144,9 @@ bool ExecuteCodeInTabFunction::CanExecuteScriptOnPage(std::string* error) {
       ExtensionApiFrameIdMap::GetRenderFrameHostById(browser->web_contents(),
                                                      frame_id);
   if (!rfh) {
-    *error = ErrorUtils::FormatErrorMessage(keys::kFrameNotFoundError,
-                                            base::IntToString(frame_id),
-                                            base::IntToString(execute_tab_id_));
+    *error = ErrorUtils::FormatErrorMessage(
+        keys::kFrameNotFoundError, base::NumberToString(frame_id),
+        base::NumberToString(execute_tab_id_));
     return false;
   }
 

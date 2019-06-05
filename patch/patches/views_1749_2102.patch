@@ -39,7 +39,7 @@ index cce16a111356..9f0a8b73adb5 100644
    virtual void MenuWillShow() {}
  
 diff --git ui/gfx/render_text.cc ui/gfx/render_text.cc
-index 68b99d49658d..a2f3a9c0819b 100644
+index 9c38cd6d4fdb..dcd34308a8bc 100644
 --- ui/gfx/render_text.cc
 +++ ui/gfx/render_text.cc
 @@ -514,6 +514,14 @@ void RenderText::SetElideBehavior(ElideBehavior elide_behavior) {
@@ -115,7 +115,7 @@ index cb9ef740c6f3..aa7de6bb1924 100644
    // Size used for the default SquareInkDropRipple.
    static constexpr int kDefaultInkDropSize = 24;
 diff --git ui/views/controls/button/label_button.cc ui/views/controls/button/label_button.cc
-index 2be096ee8083..c5510fe90d9c 100644
+index da6d3116cf1c..362610e5bc6f 100644
 --- ui/views/controls/button/label_button.cc
 +++ ui/views/controls/button/label_button.cc
 @@ -184,6 +184,7 @@ gfx::Size LabelButton::CalculatePreferredSize() const {
@@ -154,7 +154,7 @@ index 46f81be3d27a..249edf8cc5f8 100644
    ImageView* image() const { return image_; }
    Label* label() const;
 diff --git ui/views/controls/label.cc ui/views/controls/label.cc
-index 09c24be5fab2..c36455ea1f42 100644
+index bba449033e54..f9545546d580 100644
 --- ui/views/controls/label.cc
 +++ ui/views/controls/label.cc
 @@ -44,6 +44,22 @@ bool IsOpaque(SkColor color) {
@@ -240,10 +240,10 @@ index 9df5c850d12d..e7007ffbb762 100644
    std::unique_ptr<SelectionController> selection_controller_;
  
 diff --git ui/views/controls/menu/menu_controller.cc ui/views/controls/menu/menu_controller.cc
-index cdbd697838bd..18d5d3273a18 100644
+index 5e630a1a5f47..a3725641c2db 100644
 --- ui/views/controls/menu/menu_controller.cc
 +++ ui/views/controls/menu/menu_controller.cc
-@@ -2573,8 +2573,13 @@ MenuItemView* MenuController::FindNextSelectableMenuItem(
+@@ -2570,8 +2570,13 @@ MenuItemView* MenuController::FindNextSelectableMenuItem(
  
  void MenuController::OpenSubmenuChangeSelectionIfCan() {
    MenuItemView* item = pending_state_.item;
@@ -256,9 +256,9 @@ index cdbd697838bd..18d5d3273a18 100644
      return;
 +  }
    MenuItemView* to_select = nullptr;
-   if (item->GetSubmenu()->GetMenuItemCount() > 0)
+   if (!item->GetSubmenu()->GetMenuItems().empty())
      to_select = FindInitialSelectableMenuItem(item, INCREMENT_SELECTION_DOWN);
-@@ -2593,8 +2598,10 @@ void MenuController::OpenSubmenuChangeSelectionIfCan() {
+@@ -2590,8 +2595,10 @@ void MenuController::OpenSubmenuChangeSelectionIfCan() {
  void MenuController::CloseSubmenu() {
    MenuItemView* item = state_.item;
    DCHECK(item);
@@ -310,10 +310,10 @@ index 921aef245bf3..4b7474c01c0e 100644
    virtual int GetMaxWidthForMenu(MenuItemView* menu);
  
 diff --git ui/views/controls/menu/menu_item_view.cc ui/views/controls/menu/menu_item_view.cc
-index 57962a8ba4ba..49d84f7c1497 100644
+index 21379b8d3299..50bd688a01f3 100644
 --- ui/views/controls/menu/menu_item_view.cc
 +++ ui/views/controls/menu/menu_item_view.cc
-@@ -1054,6 +1054,15 @@ void MenuItemView::PaintBackground(gfx::Canvas* canvas,
+@@ -1060,6 +1060,15 @@ void MenuItemView::PaintBackground(gfx::Canvas* canvas,
      spilling_rect.set_y(spilling_rect.y() - corner_radius_);
      spilling_rect.set_height(spilling_rect.height() + corner_radius_);
      canvas->DrawRoundRect(spilling_rect, corner_radius_, flags);
@@ -329,7 +329,7 @@ index 57962a8ba4ba..49d84f7c1497 100644
    } else if (render_selection) {
      gfx::Rect item_bounds = GetLocalBounds();
      if (type_ == ACTIONABLE_SUBMENU) {
-@@ -1120,6 +1129,13 @@ void MenuItemView::PaintMinorIconAndText(
+@@ -1126,6 +1135,13 @@ void MenuItemView::PaintMinorIconAndText(
  }
  
  SkColor MenuItemView::GetTextColor(bool minor, bool render_selection) const {
@@ -344,10 +344,10 @@ index 57962a8ba4ba..49d84f7c1497 100644
        minor ? ui::NativeTheme::kColorId_MenuItemMinorTextColor
              : ui::NativeTheme::kColorId_EnabledMenuItemForegroundColor;
 diff --git ui/views/controls/menu/menu_model_adapter.cc ui/views/controls/menu/menu_model_adapter.cc
-index 8b75a57af027..9af49374fd4b 100644
+index bae77a21e0d5..ac01a8a5c52c 100644
 --- ui/views/controls/menu/menu_model_adapter.cc
 +++ ui/views/controls/menu/menu_model_adapter.cc
-@@ -223,6 +223,77 @@ bool MenuModelAdapter::IsItemChecked(int id) const {
+@@ -225,6 +225,77 @@ bool MenuModelAdapter::IsItemChecked(int id) const {
    return false;
  }
  
@@ -426,7 +426,7 @@ index 8b75a57af027..9af49374fd4b 100644
    // Look up the menu model for this menu.
    const std::map<MenuItemView*, ui::MenuModel*>::const_iterator map_iterator =
 diff --git ui/views/controls/menu/menu_model_adapter.h ui/views/controls/menu/menu_model_adapter.h
-index 2e4b8f9cdbe8..6b797f0b4dc8 100644
+index 78f832fd3acf..cb030c991614 100644
 --- ui/views/controls/menu/menu_model_adapter.h
 +++ ui/views/controls/menu/menu_model_adapter.h
 @@ -84,6 +84,20 @@ class VIEWS_EXPORT MenuModelAdapter : public MenuDelegate,
@@ -451,7 +451,7 @@ index 2e4b8f9cdbe8..6b797f0b4dc8 100644
    void WillHideMenu(MenuItemView* menu) override;
    void OnMenuClosed(MenuItemView* menu) override;
 diff --git ui/views/controls/menu/menu_scroll_view_container.cc ui/views/controls/menu/menu_scroll_view_container.cc
-index 85ae4ec99e76..144c872ec894 100644
+index f3ff29e3b7aa..12a8833b4fb3 100644
 --- ui/views/controls/menu/menu_scroll_view_container.cc
 +++ ui/views/controls/menu/menu_scroll_view_container.cc
 @@ -181,6 +181,11 @@ MenuScrollViewContainer::MenuScrollViewContainer(SubmenuView* content_view)
@@ -467,10 +467,10 @@ index 85ae4ec99e76..144c872ec894 100644
        content_view_->GetMenuItem()->GetMenuController()->GetAnchorPosition());
  
 diff --git ui/views/test/ui_controls_factory_desktop_aurax11.cc ui/views/test/ui_controls_factory_desktop_aurax11.cc
-index df718d54917a..43f53750879d 100644
+index b251f90a2e24..f0986338d883 100644
 --- ui/views/test/ui_controls_factory_desktop_aurax11.cc
 +++ ui/views/test/ui_controls_factory_desktop_aurax11.cc
-@@ -140,10 +140,6 @@ class UIControlsDesktopX11 : public UIControlsAura {
+@@ -143,10 +143,6 @@ class UIControlsDesktopX11 : public UIControlsAura {
          aura::test::QueryLatestMousePositionRequestInHost(host);
      host->ConvertPixelsToDIP(&root_current_location);
  
@@ -482,10 +482,10 @@ index df718d54917a..43f53750879d 100644
        // Move the cursor because EnterNotify/LeaveNotify are generated with the
        // current mouse position as a result of XGrabPointer()
 diff --git ui/views/view.h ui/views/view.h
-index a93aec7c4493..2d0126bc627d 100644
+index b0d94c023392..20f671a0c35f 100644
 --- ui/views/view.h
 +++ ui/views/view.h
-@@ -19,6 +19,7 @@
+@@ -22,6 +22,7 @@
  #include "base/i18n/rtl.h"
  #include "base/logging.h"
  #include "base/macros.h"
@@ -493,12 +493,12 @@ index a93aec7c4493..2d0126bc627d 100644
  #include "build/build_config.h"
  #include "third_party/skia/include/core/SkPath.h"
  #include "ui/accessibility/ax_enums.mojom.h"
-@@ -148,7 +149,8 @@ class VIEWS_EXPORT View : public ui::LayerDelegate,
-                           public ui::AcceleratorTarget,
+@@ -270,7 +271,8 @@ class VIEWS_EXPORT View : public ui::LayerDelegate,
                            public ui::EventTarget,
                            public ui::EventHandler,
--                          public ui::PropertyHandler {
-+                          public ui::PropertyHandler,
+                           public ui::PropertyHandler,
+-                          public views::metadata::MetaDataProvider {
++                          public views::metadata::MetaDataProvider,
 +                          public base::SupportsUserData {
   public:
    using Views = std::vector<View*>;

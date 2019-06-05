@@ -1,8 +1,8 @@
 diff --git base/message_loop/message_loop.cc base/message_loop/message_loop.cc
-index ae58f829393d..453368e55bb7 100644
+index afcf04d5882a..69f9f85cba84 100644
 --- base/message_loop/message_loop.cc
 +++ base/message_loop/message_loop.cc
-@@ -163,6 +163,9 @@ MessageLoopBase* MessageLoop::GetMessageLoopBase() {
+@@ -149,6 +149,9 @@ bool MessageLoop::IsIdleForTesting() {
  
  //------------------------------------------------------------------------------
  
@@ -13,10 +13,10 @@ index ae58f829393d..453368e55bb7 100644
  std::unique_ptr<MessageLoop> MessageLoop::CreateUnbound(Type type) {
    return WrapUnique(new MessageLoop(type, nullptr));
 diff --git base/message_loop/message_loop.h base/message_loop/message_loop.h
-index 46782b49a7f0..78ebaf71cbdf 100644
+index ddfed508baef..f332d1823667 100644
 --- base/message_loop/message_loop.h
 +++ base/message_loop/message_loop.h
-@@ -377,6 +377,7 @@ class BASE_EXPORT MessageLoop {
+@@ -275,6 +275,7 @@ class BASE_EXPORT MessageLoop {
  class BASE_EXPORT MessageLoopForUI : public MessageLoop {
   public:
    explicit MessageLoopForUI(Type type = TYPE_UI);
@@ -25,10 +25,10 @@ index 46782b49a7f0..78ebaf71cbdf 100644
  #if defined(OS_IOS)
    // On iOS, the main message loop cannot be Run().  Instead call Attach(),
 diff --git base/message_loop/message_loop_current.cc base/message_loop/message_loop_current.cc
-index 7dcab95f6838..4a6ec38e051a 100644
+index 2e2adfa55fa4..1370d8484d8f 100644
 --- base/message_loop/message_loop_current.cc
 +++ base/message_loop/message_loop_current.cc
-@@ -46,6 +46,8 @@ void MessageLoopCurrent::AddDestructionObserver(
+@@ -47,6 +47,8 @@ void MessageLoopCurrent::AddDestructionObserver(
  
  void MessageLoopCurrent::RemoveDestructionObserver(
      DestructionObserver* destruction_observer) {
@@ -38,10 +38,10 @@ index 7dcab95f6838..4a6ec38e051a 100644
    current_->RemoveDestructionObserver(destruction_observer);
  }
 diff --git base/message_loop/message_loop_current.h base/message_loop/message_loop_current.h
-index 1809f870d188..d0e8e645e3a7 100644
+index 270c6593e789..520cb0e3198a 100644
 --- base/message_loop/message_loop_current.h
 +++ base/message_loop/message_loop_current.h
-@@ -133,6 +133,12 @@ class BASE_EXPORT MessageLoopCurrent {
+@@ -132,6 +132,12 @@ class BASE_EXPORT MessageLoopCurrent {
    // posted tasks.
    void SetAddQueueTimeToTasks(bool enable);
  
@@ -54,10 +54,10 @@ index 1809f870d188..d0e8e645e3a7 100644
    // Enables or disables the recursive task processing. This happens in the case
    // of recursive message loops. Some unwanted message loops may occur when
    // using common controls or printer functions. By default, recursive task
-@@ -200,6 +206,13 @@ class BASE_EXPORT MessageLoopCurrent {
+@@ -202,6 +208,13 @@ class BASE_EXPORT MessageLoopCurrent {
    friend class web::TestWebThreadBundle;
  
-   MessageLoopBase* current_;
+   sequence_manager::internal::SequenceManagerImpl* current_;
 +
 +#if defined(OS_WIN)
 + private:

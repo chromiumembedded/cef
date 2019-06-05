@@ -96,7 +96,7 @@ void CefResourceDispatcherHostDelegate::OnStreamCreated(
   std::map<net::URLRequest*, StreamTargetInfo>::iterator ix =
       stream_target_info_.find(request);
   CHECK(ix != stream_target_info_.end());
-  bool embedded = info->GetResourceType() != content::RESOURCE_TYPE_MAIN_FRAME;
+  bool embedded = info->GetResourceType() != content::ResourceType::kMainFrame;
   base::PostTaskWithTraits(
       FROM_HERE, {content::BrowserThread::UI},
       base::BindOnce(

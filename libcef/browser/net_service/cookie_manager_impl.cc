@@ -35,11 +35,14 @@ void RunAsyncCompletionOnUIThread(CefRefPtr<CefCompletionCallback> callback) {
 
 // Always execute the callback asynchronously.
 void SetCookieCallbackImpl(CefRefPtr<CefSetCookieCallback> callback,
-                           bool success) {
+                           net::CanonicalCookie::CookieInclusionStatus status) {
   if (!callback.get())
     return;
-  CEF_POST_TASK(CEF_UIT, base::Bind(&CefSetCookieCallback::OnComplete,
-                                    callback.get(), success));
+  CEF_POST_TASK(
+      CEF_UIT,
+      base::Bind(
+          &CefSetCookieCallback::OnComplete, callback.get(),
+          status == net::CanonicalCookie::CookieInclusionStatus::INCLUDE));
 }
 
 // Always execute the callback asynchronously.
@@ -78,9 +81,17 @@ void ExecuteVisitor(CefRefPtr<CefCookieVisitor> visitor,
 // Always execute the callback asynchronously.
 void GetCookiesCallbackImpl(CefRefPtr<CefCookieVisitor> visitor,
                             CefRefPtr<CefRequestContextImpl> request_context,
-                            const std::vector<net::CanonicalCookie>& cookies) {
+                            const net::CookieList& cookies,
+                            const net::CookieStatusList&) {
   CEF_POST_TASK(CEF_UIT,
                 base::Bind(&ExecuteVisitor, visitor, request_context, cookies));
+}
+
+void GetAllCookiesCallbackImpl(CefRefPtr<CefCookieVisitor> visitor,
+                               CefRefPtr<CefRequestContextImpl> request_context,
+                               const net::CookieList& cookies) {
+  GetCookiesCallbackImpl(visitor, request_context, cookies,
+                         net::CookieStatusList());
 }
 
 }  // namespace
@@ -143,7 +154,7 @@ bool CefCookieManagerImpl::VisitAllCookies(
 
   GetCookieManager(request_context_.get())
       ->GetAllCookies(
-          base::Bind(&GetCookiesCallbackImpl, visitor, request_context_));
+          base::Bind(&GetAllCookiesCallbackImpl, visitor, request_context_));
   return true;
 }
 
@@ -207,10 +218,12 @@ bool CefCookieManagerImpl::SetCookie(const CefString& url,
       expiration_time,
       base::Time(),  // Last access time.
       cookie.secure ? true : false, cookie.httponly ? true : false,
-      net::CookieSameSite::DEFAULT_MODE, net::COOKIE_PRIORITY_DEFAULT);
+      net::CookieSameSite::UNSPECIFIED, net::COOKIE_PRIORITY_DEFAULT);
 
   if (!canonical_cookie) {
-    SetCookieCallbackImpl(callback, false);
+    SetCookieCallbackImpl(
+        callback,
+        net::CanonicalCookie::CookieInclusionStatus::EXCLUDE_UNKNOWN_ERROR);
     return true;
   }
 

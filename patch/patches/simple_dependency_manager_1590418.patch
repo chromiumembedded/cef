@@ -1,0 +1,49 @@
+diff --git chrome/browser/profiles/profile_key.cc chrome/browser/profiles/profile_key.cc
+index b225f2b..946403e 100644
+--- chrome/browser/profiles/profile_key.cc
++++ chrome/browser/profiles/profile_key.cc
+@@ -5,9 +5,12 @@
+ #include "chrome/browser/profiles/profile_key.h"
+ 
+ #include "base/logging.h"
++#include "components/keyed_service/core/simple_dependency_manager.h"
+ 
+ ProfileKey::ProfileKey(const base::FilePath& path, ProfileKey* original_key)
+-    : SimpleFactoryKey(path), prefs_(nullptr), original_key_(original_key) {}
++    : SimpleFactoryKey(path), prefs_(nullptr), original_key_(original_key) {
++  SimpleDependencyManager::GetInstance()->MarkContextLive(this);
++}
+ 
+ ProfileKey::~ProfileKey() = default;
+ 
+diff --git components/keyed_service/core/simple_dependency_manager.cc components/keyed_service/core/simple_dependency_manager.cc
+index 254c6ef..57d20b9 100644
+--- components/keyed_service/core/simple_dependency_manager.cc
++++ components/keyed_service/core/simple_dependency_manager.cc
+@@ -43,6 +43,10 @@
+   DependencyManager::CreateContextServices(key, true);
+ }
+ 
++void SimpleDependencyManager::MarkContextLive(SimpleFactoryKey* key) {
++  DependencyManager::MarkContextLive(key);
++}
++
+ SimpleDependencyManager::SimpleDependencyManager() = default;
+ 
+ SimpleDependencyManager::~SimpleDependencyManager() = default;
+diff --git components/keyed_service/core/simple_dependency_manager.h components/keyed_service/core/simple_dependency_manager.h
+index 72fa74c..480f971 100644
+--- components/keyed_service/core/simple_dependency_manager.h
++++ components/keyed_service/core/simple_dependency_manager.h
+@@ -35,6 +35,11 @@
+   // ServiceIsNULLWhileTesting().
+   void CreateServicesForTest(SimpleFactoryKey* key);
+ 
++  // Marks |context| as live (i.e., not stale).  This method can be called as a
++  // safeguard against |AssertContextWasntDestroyed()| checks going off due to
++  // |context| aliasing an instance from a prior construction.
++  void MarkContextLive(SimpleFactoryKey* key);
++
+  private:
+   ~SimpleDependencyManager() override;
+ 

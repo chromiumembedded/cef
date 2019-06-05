@@ -443,19 +443,22 @@ v8::Local<v8::String> GetV8String(v8::Isolate* isolate, const CefString& str) {
 #if defined(CEF_STRING_TYPE_UTF16)
   // Already a UTF16 string.
   return v8::String::NewFromTwoByte(
-      isolate,
-      reinterpret_cast<uint16_t*>(
-          const_cast<CefString::char_type*>(str.c_str())),
-      v8::String::kNormalString, str.length());
+             isolate,
+             reinterpret_cast<uint16_t*>(
+                 const_cast<CefString::char_type*>(str.c_str())),
+             v8::NewStringType::kNormal, str.length())
+      .ToLocalChecked();
 #elif defined(CEF_STRING_TYPE_UTF8)
   // Already a UTF8 string.
   return v8::String::NewFromUtf8(isolate, const_cast<char*>(str.c_str()),
-                                 v8::String::kNormalString, str.length());
+                                 v8::NewStringType::kNormal, str.length())
+      .ToLocalChecked();
 #else
   // Convert the string to UTF8.
   std::string tmpStr = str;
   return v8::String::NewFromUtf8(isolate, tmpStr.c_str(),
-                                 v8::String::kNormalString, tmpStr.length());
+                                 v8::NewStringType::kNormal, tmpStr.length())
+      .ToLocalChecked();
 #endif
 }
 
@@ -1503,7 +1506,7 @@ void CefV8ValueImpl::InitFromV8Value(v8::Local<v8::Context> context,
   } else if (value->IsFalse()) {
     InitBool(false);
   } else if (value->IsBoolean()) {
-    InitBool(value->ToBoolean(context).ToLocalChecked()->Value());
+    InitBool(value->ToBoolean(context->GetIsolate())->Value());
   } else if (value->IsInt32()) {
     InitInt(value->ToInt32(context).ToLocalChecked()->Value());
   } else if (value->IsUint32()) {

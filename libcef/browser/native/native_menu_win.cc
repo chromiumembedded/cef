@@ -12,6 +12,7 @@
 #include "base/message_loop/message_loop.h"
 #include "base/stl_util.h"
 #include "base/strings/string_util.h"
+#include "base/strings/utf_string_conversions.h"
 #include "base/threading/thread_task_runner_handle.h"
 #include "base/win/wrapped_window_proc.h"
 #include "skia/ext/platform_canvas.h"
@@ -75,6 +76,23 @@ void DrawToNativeContext(SkCanvas* canvas,
   skia::CopyHDC(skia::GetNativeDrawingContext(canvas), destination_hdc, x, y,
                 canvas->imageInfo().isOpaque(), *src_rect,
                 canvas->getTotalMatrix());
+}
+
+HFONT CreateNativeFont(const gfx::Font& font) {
+  // Extracts |fonts| properties.
+  const DWORD italic = (font.GetStyle() & gfx::Font::ITALIC) ? TRUE : FALSE;
+  const DWORD underline =
+      (font.GetStyle() & gfx::Font::UNDERLINE) ? TRUE : FALSE;
+  // The font mapper matches its absolute value against the character height of
+  // the available fonts.
+  const int height = -font.GetFontSize();
+
+  // Select the primary font which forces a mapping to a physical font.
+  return ::CreateFont(height, 0, 0, 0, static_cast<int>(font.GetWeight()),
+                      italic, underline, FALSE, DEFAULT_CHARSET,
+                      OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
+                      DEFAULT_PITCH | FF_DONTCARE,
+                      base::UTF8ToUTF16(font.GetFontName()).c_str());
 }
 
 }  // namespace
@@ -240,8 +258,8 @@ class CefNativeMenuWin::MenuHostWindow {
       if (!underline_mnemonics)
         format |= DT_HIDEPREFIX;
       gfx::FontList font_list;
-      HGDIOBJ old_font = static_cast<HFONT>(
-          SelectObject(dc, font_list.GetPrimaryFont().GetNativeFont()));
+      HFONT new_font = CreateNativeFont(font_list.GetPrimaryFont());
+      HGDIOBJ old_font = SelectObject(dc, new_font);
 
       // If an accelerator is specified (with a tab delimiting the rest of the
       // label from the accelerator), we have to justify the fist part on the
@@ -257,11 +275,13 @@ class CefNativeMenuWin::MenuHostWindow {
       }
       DrawTextEx(dc, const_cast<wchar_t*>(label.data()),
                  static_cast<int>(label.size()), &rect, format | DT_LEFT, NULL);
-      if (!accel.empty())
+      if (!accel.empty()) {
         DrawTextEx(dc, const_cast<wchar_t*>(accel.data()),
                    static_cast<int>(accel.size()), &rect, format | DT_RIGHT,
                    NULL);
+      }
       SelectObject(dc, old_font);
+      DeleteObject(new_font);
 
       ui::MenuModel::ItemType type =
           data->native_menu_win->model_->GetTypeAt(data->model_index);

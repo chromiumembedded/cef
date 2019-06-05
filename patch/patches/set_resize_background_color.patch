@@ -1,8 +1,8 @@
 diff --git ui/views/controls/native/native_view_host.cc ui/views/controls/native/native_view_host.cc
-index e64c679eccb4..85d0824e86b9 100644
+index 3ec401eabdd3..49a3d5f9fd33 100644
 --- ui/views/controls/native/native_view_host.cc
 +++ ui/views/controls/native/native_view_host.cc
-@@ -146,7 +146,7 @@ void NativeViewHost::OnPaint(gfx::Canvas* canvas) {
+@@ -152,7 +152,7 @@ void NativeViewHost::OnPaint(gfx::Canvas* canvas) {
    // It would be nice if this used some approximation of the page's
    // current background color.
    if (native_wrapper_->HasInstalledClip())

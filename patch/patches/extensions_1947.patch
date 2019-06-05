@@ -159,7 +159,7 @@ index 93dce1cad08c..1eef00b03063 100644
    // once each time the extensions system is loaded per browser_context. The
    // implementation may wish to use the BrowserContext to record the current
 diff --git extensions/browser/process_manager.cc extensions/browser/process_manager.cc
-index 14fa00f41564..9487425a5627 100644
+index b203c136597a..4967c176f9b8 100644
 --- extensions/browser/process_manager.cc
 +++ extensions/browser/process_manager.cc
 @@ -383,9 +383,16 @@ bool ProcessManager::CreateBackgroundHost(const Extension* extension,

@@ -119,8 +119,7 @@ std::unique_ptr<net::ProxyResolutionService> CreateProxyResolutionService(
     proxy_resolver::mojom::ProxyResolverFactoryPtr proxy_resolver_factory,
     std::unique_ptr<net::ProxyConfigService> proxy_config_service,
     const base::CommandLine& command_line,
-    bool quick_check_enabled,
-    bool pac_https_url_stripping_enabled) {
+    bool quick_check_enabled) {
   DCHECK_CURRENTLY_ON(BrowserThread::IO);
   bool use_v8 = !command_line.HasSwitch(switches::kWinHttpProxyResolver);
   // TODO(eroman): Figure out why this doesn't work in single-process mode.
@@ -148,10 +147,6 @@ std::unique_ptr<net::ProxyResolutionService> CreateProxyResolutionService(
   }
 
   proxy_service->set_quick_check_enabled(quick_check_enabled);
-  proxy_service->set_sanitize_url_policy(
-      pac_https_url_stripping_enabled
-          ? net::ProxyResolutionService::SanitizeUrlPolicy::SAFE
-          : net::ProxyResolutionService::SanitizeUrlPolicy::UNSAFE);
 
   return proxy_service;
 }
@@ -206,10 +201,6 @@ CefURLRequestContextGetter::CefURLRequestContextGetter(
   quick_check_enabled_.Init(prefs::kQuickCheckEnabled, pref_service);
   quick_check_enabled_.MoveToThread(io_thread_proxy);
 
-  pac_https_url_stripping_enabled_.Init(prefs::kPacHttpsUrlStrippingEnabled,
-                                        pref_service);
-  pac_https_url_stripping_enabled_.MoveToThread(io_thread_proxy);
-
   force_google_safesearch_.Init(prefs::kForceGoogleSafeSearch, pref_service);
   force_google_safesearch_.MoveToThread(io_thread_proxy);
 
@@ -244,7 +235,6 @@ void CefURLRequestContextGetter::RegisterPrefs(PrefRegistrySimple* registry) {
   registry->RegisterStringPref(prefs::kGSSAPILibraryName, std::string());
 #endif
   registry->RegisterBooleanPref(prefs::kQuickCheckEnabled, true);
-  registry->RegisterBooleanPref(prefs::kPacHttpsUrlStrippingEnabled, true);
 
   // Based on ProfileImpl::RegisterProfilePrefs.
   registry->RegisterBooleanPref(prefs::kForceGoogleSafeSearch, false);
@@ -257,7 +247,6 @@ void CefURLRequestContextGetter::RegisterPrefs(PrefRegistrySimple* registry) {
 void CefURLRequestContextGetter::ShutdownOnUIThread() {
   CEF_REQUIRE_UIT();
   quick_check_enabled_.Destroy();
-  pac_https_url_stripping_enabled_.Destroy();
   force_google_safesearch_.Destroy();
   auth_server_whitelist_.Destroy();
   auth_negotiate_delegate_whitelist_.Destroy();
@@ -348,8 +337,7 @@ net::URLRequestContext* CefURLRequestContextGetter::GetURLRequestContext() {
             io_state_->url_request_context_->network_delegate(),
             std::move(io_state_->proxy_resolver_factory_),
             std::move(io_state_->proxy_config_service_), *command_line,
-            quick_check_enabled_.GetValue(),
-            pac_https_url_stripping_enabled_.GetValue());
+            quick_check_enabled_.GetValue());
     io_state_->storage_->set_proxy_resolution_service(
         std::move(system_proxy_service));
 

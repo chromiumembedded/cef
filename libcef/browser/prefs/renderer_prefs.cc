@@ -294,8 +294,9 @@ void SetCommandLinePrefDefaults(CommandLinePrefStore* prefs) {
     SetBool(prefs, prefs::kWebKitPluginsEnabled, false);
 }
 
-void RegisterProfilePrefs(user_prefs::PrefRegistrySyncable* registry) {
-  PrefsTabHelper::RegisterProfilePrefs(registry);
+void RegisterProfilePrefs(user_prefs::PrefRegistrySyncable* registry,
+                          const std::string& locale) {
+  PrefsTabHelper::RegisterProfilePrefs(registry, locale);
   RegisterAnimationPolicyPrefs(registry);
 
   // From chrome::RegisterBrowserUserPrefs.

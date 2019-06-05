@@ -474,6 +474,30 @@ bool NavigationOnUIThread(
   return ignore_navigation;
 }
 
+const extensions::ExtensionSet* GetEnabledExtensions(
+    content::BrowserContext* context) {
+  auto registry = extensions::ExtensionRegistry::Get(context);
+  return &registry->enabled_extensions();
+}
+
+const extensions::ExtensionSet* GetEnabledExtensions(
+    content::ResourceContext* context) {
+  auto cef_context = static_cast<CefResourceContext*>(context);
+  if (!cef_context)
+    return nullptr;
+
+  return &cef_context->GetExtensionInfoMap()->extensions();
+}
+
+const extensions::ExtensionSet* GetEnabledExtensions(
+    content::BrowserOrResourceContext context) {
+  if (content::BrowserThread::CurrentlyOn(content::BrowserThread::UI)) {
+    return GetEnabledExtensions(context.ToBrowserContext());
+  }
+  DCHECK(content::BrowserThread::CurrentlyOn(content::BrowserThread::IO));
+  return GetEnabledExtensions(context.ToResourceContext());
+}
+
 }  // namespace
 
 CefContentBrowserClient::CefContentBrowserClient() : browser_main_parts_(NULL) {
@@ -568,29 +592,15 @@ bool CefContentBrowserClient::ShouldUseProcessPerSite(
 // Based on
 // ChromeContentBrowserClientExtensionsPart::DoesSiteRequireDedicatedProcess.
 bool CefContentBrowserClient::DoesSiteRequireDedicatedProcess(
-    content::BrowserContext* browser_context,
+    content::BrowserOrResourceContext browser_or_resource_context,
     const GURL& effective_site_url) {
   if (!extensions::ExtensionsEnabled())
     return false;
 
-  extensions::ExtensionRegistry* registry =
-      extensions::ExtensionRegistry::Get(browser_context);
-  const extensions::Extension* extension =
-      registry->enabled_extensions().GetExtensionOrAppByURL(effective_site_url);
-  if (!extension)
-    return false;
-
-  // Always isolate Chrome Web Store.
-  if (extension->id() == extensions::kWebStoreAppId)
-    return true;
-
-  // Extensions should be isolated, except for hosted apps. Isolating hosted
-  // apps is a good idea, but ought to be a separate knob.
-  if (extension->is_hosted_app())
-    return false;
-
+  auto extension = GetEnabledExtensions(browser_or_resource_context)
+                       ->GetExtensionOrAppByURL(effective_site_url);
   // Isolate all extensions.
-  return true;
+  return extension != nullptr;
 }
 
 void CefContentBrowserClient::GetAdditionalWebUISchemes(
@@ -891,7 +901,7 @@ CefContentBrowserClient::GetSystemNetworkContext() {
   return SystemNetworkContextManager::GetInstance()->GetContext();
 }
 
-content::QuotaPermissionContext*
+scoped_refptr<content::QuotaPermissionContext>
 CefContentBrowserClient::CreateQuotaPermissionContext() {
   return new CefQuotaPermissionContext();
 }
@@ -943,7 +953,7 @@ void CefContentBrowserClient::AllowCertificateError(
         callback) {
   CEF_REQUIRE_UIT();
 
-  if (resource_type != content::ResourceType::RESOURCE_TYPE_MAIN_FRAME) {
+  if (resource_type != content::ResourceType::kMainFrame) {
     // A sub-resource has a certificate error. The user doesn't really
     // have a context for making the right decision, so block the request
     // hard.

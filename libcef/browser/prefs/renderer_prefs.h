@@ -13,7 +13,7 @@ class CommandLinePrefStore;
 namespace content {
 class RenderViewHost;
 struct WebPreferences;
-}
+}  // namespace content
 
 namespace user_prefs {
 class PrefRegistrySyncable;
@@ -22,7 +22,8 @@ class PrefRegistrySyncable;
 namespace renderer_prefs {
 
 // Register additional renderer-related preferences.
-void RegisterProfilePrefs(user_prefs::PrefRegistrySyncable* registry);
+void RegisterProfilePrefs(user_prefs::PrefRegistrySyncable* registry,
+                          const std::string& locale);
 
 // Set default values based on CEF command-line flags for preferences that are
 // available via the PrefService. Chromium command-line flags should not exist

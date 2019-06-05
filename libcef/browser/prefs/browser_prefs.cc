@@ -54,6 +54,7 @@
 #include "extensions/browser/extension_prefs.h"
 #include "extensions/buildflags/buildflags.h"
 #include "ui/base/l10n/l10n_util.h"
+#include "ui/base/ui_base_switches.h"
 
 #if defined(OS_MACOSX)
 #include "components/os_crypt/os_crypt.h"
@@ -124,7 +125,8 @@ std::unique_ptr<PrefService> CreatePrefService(Profile* profile,
   if (profile) {
     // Used to store supervised user preferences.
     SupervisedUserSettingsService* supervised_user_settings =
-        SupervisedUserSettingsServiceFactory::GetForProfile(profile);
+        SupervisedUserSettingsServiceFactory::GetForKey(
+            profile->GetProfileKey());
 
     if (store_on_disk) {
       supervised_user_settings->Init(cache_path, sequenced_task_runner.get(),
@@ -210,7 +212,11 @@ std::unique_ptr<PrefService> CreatePrefService(Profile* profile,
     HostContentSettingsMap::RegisterProfilePrefs(registry.get());
     language::LanguagePrefs::RegisterProfilePrefs(registry.get());
     ProfileNetworkContextService::RegisterProfilePrefs(registry.get());
-    renderer_prefs::RegisterProfilePrefs(registry.get());
+
+    const std::string& locale =
+        command_line->GetSwitchValueASCII(switches::kLang);
+    DCHECK(!locale.empty());
+    renderer_prefs::RegisterProfilePrefs(registry.get(), locale);
 
     // Print preferences.
     // Based on ProfileImpl::RegisterProfilePrefs.

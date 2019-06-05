@@ -179,7 +179,7 @@ class CefBrowserContext : public ChromeProfileStub,
   PrefService* GetPrefs() override;
   bool AllowsBrowserWindows() const override { return false; }
   const PrefService* GetPrefs() const override;
-  SimpleFactoryKey* GetSimpleFactoryKey() const override;
+  ProfileKey* GetProfileKey() const override;
 
   // Values checked in ProfileNetworkContextService::CreateNetworkContextParams
   // when creating the NetworkContext.
@@ -282,6 +282,10 @@ class CefBrowserContext : public ChromeProfileStub,
 
   // Owned by the KeyedService system.
   extensions::CefExtensionSystem* extension_system_ = nullptr;
+
+  // The key to index KeyedService instances created by
+  // SimpleKeyedServiceFactory.
+  std::unique_ptr<ProfileKey> key_;
 
   DISALLOW_COPY_AND_ASSIGN(CefBrowserContext);
 };

@@ -69,7 +69,7 @@ index 886bdf0edf8f..1d714000cce5 100644
  blink::mojom::V8CacheOptions GetV8CacheOptions();
  
 diff --git third_party/blink/renderer/controller/BUILD.gn third_party/blink/renderer/controller/BUILD.gn
-index 65c03e2a2f7d..f44826c38236 100644
+index c62ad20e5ef9..6e43db6a2fda 100644
 --- third_party/blink/renderer/controller/BUILD.gn
 +++ third_party/blink/renderer/controller/BUILD.gn
 @@ -26,6 +26,7 @@ jumbo_component("controller") {
@@ -80,7 +80,7 @@ index 65c03e2a2f7d..f44826c38236 100644
      "//third_party/blink/renderer:config",
      "//third_party/blink/renderer:inside_blink",
      "//third_party/blink/renderer:non_test_config",
-@@ -46,6 +47,8 @@ jumbo_component("controller") {
+@@ -44,6 +45,8 @@ jumbo_component("controller") {
      "dev_tools_frontend_impl.h",
      "memory_usage_monitor.cc",
      "memory_usage_monitor.h",

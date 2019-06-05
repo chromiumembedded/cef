@@ -7,6 +7,7 @@
 #include "libcef/browser/thread_util.h"
 
 #include "ui/gfx/canvas.h"
+#include "ui/views/controls/button/menu_button_controller.h"
 #include "ui/views/controls/menu/menu_config.h"
 
 namespace {
@@ -14,7 +15,7 @@ namespace {
 class ButtonPressedLock : public CefMenuButtonPressedLock {
  public:
   explicit ButtonPressedLock(views::MenuButton* menu_button)
-      : pressed_lock_(menu_button->menu_button_controller()) {}
+      : pressed_lock_(menu_button->button_controller()) {}
 
  private:
   views::MenuButtonController::PressedLock pressed_lock_;
@@ -50,10 +51,10 @@ void CefMenuButtonView::SetDrawStringsFlags(int flags) {
   label()->SetDrawStringsFlags(flags);
 }
 
-void CefMenuButtonView::OnMenuButtonClicked(views::MenuButton* source,
+void CefMenuButtonView::OnMenuButtonClicked(views::Button* source,
                                             const gfx::Point& point,
                                             const ui::Event* event) {
-  cef_delegate()->OnMenuButtonPressed(GetCefMenuButton(),
-                                      CefPoint(point.x(), point.y()),
-                                      new ButtonPressedLock(source));
+  cef_delegate()->OnMenuButtonPressed(
+      GetCefMenuButton(), CefPoint(point.x(), point.y()),
+      new ButtonPressedLock(static_cast<views::MenuButton*>(source)));
 }

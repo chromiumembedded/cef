@@ -56,7 +56,7 @@
 #endif  // defined(USE_AURA)
 
 #if defined(USE_AURA) && defined(OS_LINUX)
-#include "ui/base/ime/input_method_initializer.h"
+#include "ui/base/ime/init/input_method_initializer.h"
 #endif
 
 #if defined(OS_LINUX)

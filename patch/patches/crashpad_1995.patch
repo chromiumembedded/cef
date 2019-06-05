@@ -510,7 +510,7 @@ index a76d264648d2..ff9a19e259fb 100644
            handler_path, database_path, metrics_path, url,
            GetProcessSimpleAnnotations(), arguments, true, false);
 diff --git components/crash/content/app/crashpad_win.cc components/crash/content/app/crashpad_win.cc
-index cc16c40ea320..3bb03459adf4 100644
+index 8f55759a6f4a..5d60fc3f84eb 100644
 --- components/crash/content/app/crashpad_win.cc
 +++ components/crash/content/app/crashpad_win.cc
 @@ -35,8 +35,8 @@ void GetPlatformCrashpadAnnotations(

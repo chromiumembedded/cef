@@ -444,7 +444,7 @@ void CefExtensionSystem::UnregisterExtensionWithRequestContexts(
       base::Bind(&InfoMap::RemoveExtension, info_map(), extension_id, reason));
 }
 
-const OneShotEvent& CefExtensionSystem::ready() const {
+const base::OneShotEvent& CefExtensionSystem::ready() const {
   return ready_;
 }
 

@@ -406,7 +406,7 @@ void CefCookieManagerOldImpl::SetCookieInternal(
       expiration_time,
       base::Time(),  // Last access time.
       cookie.secure ? true : false, cookie.httponly ? true : false,
-      net::CookieSameSite::DEFAULT_MODE, net::COOKIE_PRIORITY_DEFAULT);
+      net::CookieSameSite::UNSPECIFIED, net::COOKIE_PRIORITY_DEFAULT);
 
   net::CookieOptions options;
   if (cookie.httponly)
@@ -419,8 +419,9 @@ void CefCookieManagerOldImpl::SetCookieInternal(
     return;
   }
 
-  cookie_store->SetCanonicalCookieAsync(std::move(canonical_cookie),
-      url.scheme(), options, base::Bind(SetCookieCallbackImpl, callback));
+  cookie_store->SetCanonicalCookieAsync(
+      std::move(canonical_cookie), url.scheme(), options,
+      base::Bind(SetCookieCallbackImpl, callback));
 }
 
 void CefCookieManagerOldImpl::DeleteCookiesInternal(

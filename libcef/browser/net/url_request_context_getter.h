@@ -126,7 +126,6 @@ class CefURLRequestContextGetter : public net::URLRequestContextGetter {
   std::unique_ptr<IOState> io_state_;
 
   BooleanPrefMember quick_check_enabled_;
-  BooleanPrefMember pac_https_url_stripping_enabled_;
 
   // Member variables which are pointed to by the various context objects.
   mutable BooleanPrefMember force_google_safesearch_;

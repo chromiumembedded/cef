@@ -146,7 +146,7 @@ index a2b0c74636f4..01370fdc20d9 100644
    struct Data;
  
 diff --git third_party/crashpad/crashpad/handler/BUILD.gn third_party/crashpad/crashpad/handler/BUILD.gn
-index e1e673e26a01..ae0224dd847d 100644
+index dc32b94e651c..100a52ce25f9 100644
 --- third_party/crashpad/crashpad/handler/BUILD.gn
 +++ third_party/crashpad/crashpad/handler/BUILD.gn
 @@ -12,6 +12,7 @@
@@ -156,8 +156,8 @@ index e1e673e26a01..ae0224dd847d 100644
 +import("//cef/libcef/features/features.gni")
  import("../build/crashpad_buildconfig.gni")
  
- if (crashpad_is_in_chromium) {
-@@ -69,6 +70,17 @@ static_library("handler") {
+ static_library("handler") {
+@@ -65,6 +66,17 @@ static_library("handler") {
      ]
    }
  
@@ -175,7 +175,7 @@ index e1e673e26a01..ae0224dd847d 100644
    public_configs = [ "..:crashpad_config" ]
  
    public_deps = [
-@@ -81,6 +93,7 @@ static_library("handler") {
+@@ -77,6 +89,7 @@ static_library("handler") {
      "../minidump",
      "../snapshot",
      "../tools:tool_support",

@@ -136,6 +136,12 @@ struct PopulateAxNodeAttributes {
             ToString(attr.first),
             ToString(static_cast<ax::mojom::Restriction>(attr.second)));
         break;
+      case ax::mojom::IntAttribute::kListStyle: {
+        auto state = static_cast<ax::mojom::ListStyle>(attr.second);
+        if (ax::mojom::ListStyle::kNone != state) {
+          attributes->SetString(ToString(attr.first), ToString(state));
+        }
+      } break;
       case ax::mojom::IntAttribute::kSortDirection: {
         auto state = static_cast<ax::mojom::SortDirection>(attr.second);
         if (ax::mojom::SortDirection::kNone != state) {
@@ -180,7 +186,8 @@ struct PopulateAxNodeAttributes {
         static ax::mojom::TextStyle textStyleArr[] = {
             ax::mojom::TextStyle::kBold, ax::mojom::TextStyle::kItalic,
             ax::mojom::TextStyle::kUnderline,
-            ax::mojom::TextStyle::kLineThrough};
+            ax::mojom::TextStyle::kLineThrough,
+            ax::mojom::TextStyle::kOverline};
 
         CefRefPtr<CefListValue> list = CefListValue::Create();
         int index = 0;
@@ -190,6 +197,14 @@ struct PopulateAxNodeAttributes {
             list->SetString(index++, ToString(textStyleArr[i]));
         }
         attributes->SetList(ToString(attr.first), list);
+      } break;
+      case ax::mojom::IntAttribute::kTextOverlineStyle:
+      case ax::mojom::IntAttribute::kTextStrikethroughStyle:
+      case ax::mojom::IntAttribute::kTextUnderlineStyle: {
+        auto state = static_cast<ax::mojom::TextDecorationStyle>(attr.second);
+        if (ax::mojom::TextDecorationStyle::kNone != state) {
+          attributes->SetString(ToString(attr.first), ToString(state));
+        }
       } break;
       case ax::mojom::IntAttribute::kImageAnnotationStatus: {
         // TODO(cef): Implement support for Image Annotation Status

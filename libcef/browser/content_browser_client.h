@@ -48,8 +48,9 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
       service_manager::mojom::ServiceRequest* service_request) override;
   bool ShouldUseProcessPerSite(content::BrowserContext* browser_context,
                                const GURL& effective_url) override;
-  bool DoesSiteRequireDedicatedProcess(content::BrowserContext* browser_context,
-                                       const GURL& effective_site_url) override;
+  bool DoesSiteRequireDedicatedProcess(
+      content::BrowserOrResourceContext browser_or_resource_contexts,
+      const GURL& effective_site_url) override;
   void GetAdditionalWebUISchemes(
       std::vector<std::string>* additional_schemes) override;
   void GetAdditionalViewSourceSchemes(
@@ -76,7 +77,8 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
   scoped_refptr<network::SharedURLLoaderFactory>
   GetSystemSharedURLLoaderFactory() override;
   network::mojom::NetworkContext* GetSystemNetworkContext() override;
-  content::QuotaPermissionContext* CreateQuotaPermissionContext() override;
+  scoped_refptr<content::QuotaPermissionContext> CreateQuotaPermissionContext()
+      override;
   void GetQuotaSettings(
       content::BrowserContext* context,
       content::StoragePartition* partition,

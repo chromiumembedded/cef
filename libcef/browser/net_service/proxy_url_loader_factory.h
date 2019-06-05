@@ -10,7 +10,7 @@
 
 #include "base/callback.h"
 #include "base/containers/unique_ptr_adapters.h"
-#include "base/hash.h"
+#include "base/hash/hash.h"
 #include "base/macros.h"
 #include "base/strings/string_piece.h"
 #include "content/public/browser/content_browser_client.h"

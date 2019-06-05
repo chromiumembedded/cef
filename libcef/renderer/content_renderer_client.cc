@@ -419,7 +419,7 @@ void CefContentRendererClient::RenderThreadStarted() {
   }
 
   for (auto& origin_or_hostname_pattern : network::GetSecureOriginAllowlist()) {
-    blink::WebSecurityPolicy::AddOriginTrustworthyWhiteList(
+    blink::WebSecurityPolicy::AddOriginToTrustworthySafelist(
         blink::WebString::FromUTF8(origin_or_hostname_pattern));
   }
 

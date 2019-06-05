@@ -79,10 +79,10 @@ index bfb918a2cba3..a193b5a0fed8 100644
    // Creates a new View that holds a non-top-level widget and receives messages
    // for it.
 diff --git content/browser/web_contents/web_contents_view_aura.cc content/browser/web_contents/web_contents_view_aura.cc
-index 0c15633445d7..e6224d9a7612 100644
+index 74f537d11618..85110e2e6ecf 100644
 --- content/browser/web_contents/web_contents_view_aura.cc
 +++ content/browser/web_contents/web_contents_view_aura.cc
-@@ -763,7 +763,8 @@ void WebContentsViewAura::CreateView(const gfx::Size& initial_size,
+@@ -818,7 +818,8 @@ void WebContentsViewAura::CreateView(const gfx::Size& initial_size,
  }
  
  RenderWidgetHostViewBase* WebContentsViewAura::CreateViewForWidget(
@@ -92,7 +92,7 @@ index 0c15633445d7..e6224d9a7612 100644
    if (render_widget_host->GetView()) {
      // During testing, the view will already be set up in most cases to the
      // test view, so we don't want to clobber it with a real one. To verify that
-@@ -775,6 +776,7 @@ RenderWidgetHostViewBase* WebContentsViewAura::CreateViewForWidget(
+@@ -830,6 +831,7 @@ RenderWidgetHostViewBase* WebContentsViewAura::CreateViewForWidget(
          render_widget_host->GetView());
    }
  
@@ -221,7 +221,7 @@ index 4266d4c817d4..7bcede99bca1 100644
        RenderWidgetHost* render_widget_host) override;
    void SetPageTitle(const base::string16& title) override;
 diff --git content/browser/web_contents/web_contents_view_mac.mm content/browser/web_contents/web_contents_view_mac.mm
-index 011c81a25cb6..2d2a744a582c 100644
+index 2d24491812f5..bbba45c502e5 100644
 --- content/browser/web_contents/web_contents_view_mac.mm
 +++ content/browser/web_contents/web_contents_view_mac.mm
 @@ -319,7 +319,8 @@ void WebContentsViewMac::CreateView(

@@ -1,8 +1,8 @@
 diff --git build/config/compiler/compiler.gni build/config/compiler/compiler.gni
-index 2074800ce409..d99fadd7e5c4 100644
+index 3bdd85bf9758..b326e808f929 100644
 --- build/config/compiler/compiler.gni
 +++ build/config/compiler/compiler.gni
-@@ -253,16 +253,6 @@ if (symbol_level == -1) {
+@@ -250,18 +250,6 @@ if (symbol_level == -1) {
    }
  }
  
@@ -10,11 +10,13 @@ index 2074800ce409..d99fadd7e5c4 100644
 -# build times) and unsupported (some test binaries will fail with > 4 GB PDBs)
 -# combination. This is only checked when current_toolchain == default_toolchain
 -# because the is_component_build flag is set to false in various components of
--# the build (like nacl) and we don't want to assert on those. asan builds are
--# excluded because Mac ASAN Debug builds use this configuration.
--assert(symbol_level != 2 || current_toolchain != default_toolchain ||
--           is_component_build || !is_debug || is_asan,
--       "Can't do non-component debug builds at symbol_level=2")
+-# the build (like nacl) and we don't want to assert on those.
+-# iOS does not support component builds so add an exception for this platform.
+-if (build_with_chromium) {
+-  assert(symbol_level != 2 || current_toolchain != default_toolchain ||
+-             is_component_build || !is_debug || is_ios,
+-         "Can't do non-component debug builds at symbol_level=2")
+-}
 -
  # Assert that the configuration isn't going to hit https://crbug.com/648948.
  # An exception is made when target_os == "chromeos" as we only use the Android

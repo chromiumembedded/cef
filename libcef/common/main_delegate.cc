@@ -546,13 +546,13 @@ bool CefMainDelegate::BasicStartupComplete(int* exit_code) {
         settings.remote_debugging_port <= 65535) {
       command_line->AppendSwitchASCII(
           switches::kRemoteDebuggingPort,
-          base::IntToString(settings.remote_debugging_port));
+          base::NumberToString(settings.remote_debugging_port));
     }
 
     if (settings.uncaught_exception_stack_size > 0) {
       command_line->AppendSwitchASCII(
           switches::kUncaughtExceptionStackSize,
-          base::IntToString(settings.uncaught_exception_stack_size));
+          base::NumberToString(settings.uncaught_exception_stack_size));
     }
 
     std::vector<std::string> disable_features;

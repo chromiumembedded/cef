@@ -52,10 +52,10 @@ index b2b3920da3b0..686afc464b42 100644
          std::move(stats_db), BrowserFeatureProvider::GetFactoryCB());
      decode_history = new_decode_history.get();
 diff --git content/browser/renderer_host/render_process_host_impl.cc content/browser/renderer_host/render_process_host_impl.cc
-index 9f2665f0587c..514ec596582d 100644
+index f3a90e61f2b4..a9d322d66d86 100644
 --- content/browser/renderer_host/render_process_host_impl.cc
 +++ content/browser/renderer_host/render_process_host_impl.cc
-@@ -2205,6 +2205,9 @@ void RenderProcessHostImpl::RegisterMojoInterfaces() {
+@@ -2203,6 +2203,9 @@ void RenderProcessHostImpl::RegisterMojoInterfaces() {
      plugin_registry_.reset(
          new PluginRegistryImpl(GetBrowserContext()->GetResourceContext()));
    }

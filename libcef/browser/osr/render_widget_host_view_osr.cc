@@ -490,7 +490,7 @@ void CefRenderWidgetHostViewOSR::SetSize(const gfx::Size& size) {}
 
 void CefRenderWidgetHostViewOSR::SetBounds(const gfx::Rect& rect) {}
 
-gfx::NativeView CefRenderWidgetHostViewOSR::GetNativeView() const {
+gfx::NativeView CefRenderWidgetHostViewOSR::GetNativeView() {
   return gfx::NativeView();
 }
 
@@ -501,11 +501,11 @@ CefRenderWidgetHostViewOSR::GetNativeViewAccessible() {
 
 void CefRenderWidgetHostViewOSR::Focus() {}
 
-bool CefRenderWidgetHostViewOSR::HasFocus() const {
+bool CefRenderWidgetHostViewOSR::HasFocus() {
   return false;
 }
 
-bool CefRenderWidgetHostViewOSR::IsSurfaceAvailableForCopy() const {
+bool CefRenderWidgetHostViewOSR::IsSurfaceAvailableForCopy() {
   return GetDelegatedFrameHost()->CanCopyFromCompositingSurface();
 }
 
@@ -559,7 +559,7 @@ void CefRenderWidgetHostViewOSR::EnsureSurfaceSynchronizedForWebTest() {
   SynchronizeVisualProperties();
 }
 
-gfx::Rect CefRenderWidgetHostViewOSR::GetViewBounds() const {
+gfx::Rect CefRenderWidgetHostViewOSR::GetViewBounds() {
   if (IsPopupWidget())
     return popup_position_;
 
@@ -588,7 +588,7 @@ void CefRenderWidgetHostViewOSR::SetBackgroundColor(SkColor color) {
   content::RenderWidgetHostViewBase::SetBackgroundColor(color);
 }
 
-base::Optional<SkColor> CefRenderWidgetHostViewOSR::GetBackgroundColor() const {
+base::Optional<SkColor> CefRenderWidgetHostViewOSR::GetBackgroundColor() {
   return background_color_;
 }
 
@@ -836,13 +836,12 @@ void CefRenderWidgetHostViewOSR::UpdateCursor(
       browser_impl_->GetClient()->GetRenderHandler();
   CHECK(handler);
 
-  content::CursorInfo cursor_info;
-  cursor.GetCursorInfo(&cursor_info);
+  const content::CursorInfo& cursor_info = cursor.info();
 
   const cef_cursor_type_t cursor_type =
       static_cast<cef_cursor_type_t>(cursor_info.type);
   CefCursorInfo custom_cursor_info;
-  if (cursor.IsCustom()) {
+  if (cursor_info.type == blink::WebCursorInfo::kTypeCustom) {
     custom_cursor_info.hotspot.x = cursor_info.hotspot.x();
     custom_cursor_info.hotspot.y = cursor_info.hotspot.y();
     custom_cursor_info.image_scale_factor = cursor_info.image_scale_factor;
@@ -852,10 +851,10 @@ void CefRenderWidgetHostViewOSR::UpdateCursor(
   }
 
 #if defined(USE_AURA)
-  content::WebCursor web_cursor = cursor;
+  content::WebCursor web_cursor(cursor_info);
 
   ui::PlatformCursor platform_cursor;
-  if (web_cursor.IsCustom()) {
+  if (cursor_info.type == blink::WebCursorInfo::kTypeCustom) {
     ui::Cursor ui_cursor(ui::CursorType::kCustom);
     SkBitmap bitmap;
     gfx::Point hotspot;
@@ -876,7 +875,7 @@ void CefRenderWidgetHostViewOSR::UpdateCursor(
                           custom_cursor_info);
 #elif defined(OS_MACOSX)
   // |web_cursor| owns the resulting |native_cursor|.
-  content::WebCursor web_cursor = cursor;
+  content::WebCursor web_cursor(cursor);
   CefCursorHandle native_cursor = web_cursor.GetNativeCursor();
   handler->OnCursorChange(browser_impl_.get(), native_cursor, cursor_type,
                           custom_cursor_info);
@@ -944,7 +943,7 @@ void CefRenderWidgetHostViewOSR::SetTooltipText(
   }
 }
 
-gfx::Size CefRenderWidgetHostViewOSR::GetCompositorViewportPixelSize() const {
+gfx::Size CefRenderWidgetHostViewOSR::GetCompositorViewportPixelSize() {
   return gfx::ScaleToCeiledSize(GetRequestedRendererSize(),
                                 current_device_scale_factor_);
 }
@@ -961,8 +960,7 @@ void CefRenderWidgetHostViewOSR::CopyFromSurface(
                                                       std::move(callback));
 }
 
-void CefRenderWidgetHostViewOSR::GetScreenInfo(
-    content::ScreenInfo* results) const {
+void CefRenderWidgetHostViewOSR::GetScreenInfo(content::ScreenInfo* results) {
   if (!browser_impl_.get())
     return;
 

@@ -705,8 +705,8 @@ void CefRequestImpl::Get(blink::WebURLRequest& request,
   base::AutoLock lock_scope(lock_);
 
   request.SetRequestContext(blink::mojom::RequestContextType::INTERNAL);
-  request.SetURL(url_);
-  request.SetHTTPMethod(blink::WebString::FromUTF8(method_));
+  request.SetUrl(url_);
+  request.SetHttpMethod(blink::WebString::FromUTF8(method_));
 
   if (!referrer_url_.is_empty()) {
     const blink::WebString& referrer =
@@ -714,7 +714,7 @@ void CefRequestImpl::Get(blink::WebURLRequest& request,
             NetReferrerPolicyToBlinkReferrerPolicy(referrer_policy_), url_,
             blink::WebString::FromUTF8(referrer_url_.spec()));
     if (!referrer.IsEmpty()) {
-      request.SetHTTPReferrer(
+      request.SetHttpReferrer(
           referrer, NetReferrerPolicyToBlinkReferrerPolicy(referrer_policy_));
     }
   }
@@ -723,7 +723,7 @@ void CefRequestImpl::Get(blink::WebURLRequest& request,
     blink::WebHTTPBody body;
     body.Initialize();
     static_cast<CefPostDataImpl*>(postdata_.get())->Get(body);
-    request.SetHTTPBody(body);
+    request.SetHttpBody(body);
 
     if (flags_ & UR_FLAG_REPORT_UPLOAD_PROGRESS) {
       // Attempt to determine the upload data size.
@@ -759,10 +759,10 @@ void CefRequestImpl::Get(blink::WebURLRequest& request,
 // static
 void CefRequestImpl::Get(const CefMsg_LoadRequest_Params& params,
                          blink::WebURLRequest& request) {
-  request.SetURL(params.url);
+  request.SetUrl(params.url);
   request.SetRequestorOrigin(blink::WebSecurityOrigin::Create(params.url));
   if (!params.method.empty())
-    request.SetHTTPMethod(blink::WebString::FromASCII(params.method));
+    request.SetHttpMethod(blink::WebString::FromASCII(params.method));
 
   if (params.referrer.is_valid()) {
     const blink::WebString& referrer =
@@ -771,7 +771,7 @@ void CefRequestImpl::Get(const CefMsg_LoadRequest_Params& params,
                 static_cast<cef_referrer_policy_t>(params.referrer_policy)),
             params.url, blink::WebString::FromUTF8(params.referrer.spec()));
     if (!referrer.IsEmpty()) {
-      request.SetHTTPReferrer(
+      request.SetHttpReferrer(
           referrer,
           NetReferrerPolicyToBlinkReferrerPolicy(
               static_cast<cef_referrer_policy_t>(params.referrer_policy)));
@@ -793,7 +793,7 @@ void CefRequestImpl::Get(const CefMsg_LoadRequest_Params& params,
     const base::string16& method = request.HttpMethod().Utf16();
     if (method == base::ASCIIToUTF16("GET") ||
         method == base::ASCIIToUTF16("HEAD")) {
-      request.SetHTTPMethod(blink::WebString::FromASCII("POST"));
+      request.SetHttpMethod(blink::WebString::FromASCII("POST"));
     }
 
     // The comparison performed by httpHeaderField() is case insensitive.
@@ -823,7 +823,7 @@ void CefRequestImpl::Get(const CefMsg_LoadRequest_Params& params,
       }
     }
 
-    request.SetHTTPBody(body);
+    request.SetHttpBody(body);
   }
 
   if (params.site_for_cookies.is_valid())

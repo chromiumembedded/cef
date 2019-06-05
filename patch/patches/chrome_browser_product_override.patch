@@ -1,8 +1,8 @@
 diff --git chrome/browser/chrome_content_browser_client.cc chrome/browser/chrome_content_browser_client.cc
-index 52a1a31ee131..5a1e29fec9c8 100644
+index cf4250c7ba26..b8a05db7cced 100644
 --- chrome/browser/chrome_content_browser_client.cc
 +++ chrome/browser/chrome_content_browser_client.cc
-@@ -1033,12 +1033,16 @@ void LaunchURL(
+@@ -1049,12 +1049,16 @@ void LaunchURL(
    }
  }
  
@@ -22,7 +22,7 @@ index 52a1a31ee131..5a1e29fec9c8 100644
    base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
    if (command_line->HasSwitch(switches::kUserAgent)) {
 diff --git chrome/browser/chrome_content_browser_client.h chrome/browser/chrome_content_browser_client.h
-index cbf1e2218e91..a42d2a4d71bb 100644
+index 07e0e051ff1d..41337a1719a1 100644
 --- chrome/browser/chrome_content_browser_client.h
 +++ chrome/browser/chrome_content_browser_client.h
 @@ -77,7 +77,8 @@ class Origin;

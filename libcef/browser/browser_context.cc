@@ -30,6 +30,8 @@
 #include "components/content_settings/core/browser/host_content_settings_map.h"
 #include "components/guest_view/browser/guest_view_manager.h"
 #include "components/keyed_service/content/browser_context_dependency_manager.h"
+#include "components/keyed_service/core/simple_dependency_manager.h"
+#include "components/keyed_service/core/simple_key_map.h"
 #include "components/prefs/pref_service.h"
 #include "components/proxy_config/pref_proxy_config_tracker_impl.h"
 #include "components/user_prefs/user_prefs.h"
@@ -222,8 +224,16 @@ CefBrowserContext::~CefBrowserContext() {
 
   // Remove any BrowserContextKeyedServiceFactory associations. This must be
   // called before the ProxyService owned by CefBrowserContext is destroyed.
-  BrowserContextDependencyManager::GetInstance()->DestroyBrowserContextServices(
-      this);
+  // The SimpleDependencyManager should always be passed after the
+  // BrowserContextDependencyManager. This is because the KeyedService instances
+  // in the BrowserContextDependencyManager's dependency graph can depend on the
+  // ones in the SimpleDependencyManager's graph.
+  DependencyManager::PerformInterlockedTwoPhaseShutdown(
+      BrowserContextDependencyManager::GetInstance(), this,
+      SimpleDependencyManager::GetInstance(), key_.get());
+
+  key_.reset();
+  SimpleKeyMap::GetInstance()->Dissociate(this);
 
   // Shuts down the storage partitions associated with this browser context.
   // This must be called before the browser context is actually destroyed
@@ -277,6 +287,9 @@ void CefBrowserContext::Initialize() {
         CefString(&context->settings().accept_language_list);
   }
 
+  key_ = std::make_unique<ProfileKey>(GetPath());
+  SimpleKeyMap::GetInstance()->Associate(this, key_.get());
+
   // Initialize the PrefService object.
   pref_service_ = browser_prefs::CreatePrefService(
       this, cache_path_, !!settings_.persist_user_preferences);
@@ -327,6 +340,7 @@ void CefBrowserContext::Initialize() {
   PrefService* pref_service = GetPrefs();
   DCHECK(pref_service);
   user_prefs::UserPrefs::Set(this, pref_service);
+  key_->SetPrefs(pref_service);
 
   if (extensions_enabled)
     extension_system_->Init();
@@ -550,8 +564,9 @@ const PrefService* CefBrowserContext::GetPrefs() const {
   return pref_service_.get();
 }
 
-SimpleFactoryKey* CefBrowserContext::GetSimpleFactoryKey() const {
-  return nullptr;
+ProfileKey* CefBrowserContext::GetProfileKey() const {
+  DCHECK(key_);
+  return key_.get();
 }
 
 const CefRequestContextSettings& CefBrowserContext::GetSettings() const {

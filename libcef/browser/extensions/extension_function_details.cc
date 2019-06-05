@@ -225,7 +225,7 @@ CefExtensionFunctionDetails::GetBrowserForTabIdFirstTime(
     if (!browser || !browser->web_contents() || !CanAccessBrowser(browser)) {
       if (error_message) {
         *error_message = ErrorUtils::FormatErrorMessage(
-            keys::kTabNotFoundError, base::IntToString(tab_id));
+            keys::kTabNotFoundError, base::NumberToString(tab_id));
       }
       return nullptr;
     }
@@ -256,7 +256,7 @@ CefExtensionFunctionDetails::GetBrowserForTabIdAgain(
   if (!browser || !browser->web_contents()) {
     if (error_message) {
       *error_message = ErrorUtils::FormatErrorMessage(
-          keys::kTabNotFoundError, base::IntToString(tab_id));
+          keys::kTabNotFoundError, base::NumberToString(tab_id));
     }
   }
   return browser;

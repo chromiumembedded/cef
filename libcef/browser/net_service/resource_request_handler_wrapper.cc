@@ -1083,7 +1083,8 @@ void InitOnUIThread(
   if (request.render_frame_id >= 0) {
     // TODO(network): Are these main frame checks equivalent?
     if (request.is_main_frame ||
-        request.resource_type == content::RESOURCE_TYPE_MAIN_FRAME) {
+        static_cast<content::ResourceType>(request.resource_type) ==
+            content::ResourceType::kMainFrame) {
       frame = web_contents->GetMainFrame();
       DCHECK(frame);
     } else {

@@ -118,19 +118,19 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
   void InitAsChild(gfx::NativeView parent_view) override;
   void SetSize(const gfx::Size& size) override;
   void SetBounds(const gfx::Rect& rect) override;
-  gfx::NativeView GetNativeView() const override;
+  gfx::NativeView GetNativeView() override;
   gfx::NativeViewAccessible GetNativeViewAccessible() override;
   void Focus() override;
-  bool HasFocus() const override;
+  bool HasFocus() override;
   uint32_t GetCaptureSequenceNumber() const override;
-  bool IsSurfaceAvailableForCopy() const override;
+  bool IsSurfaceAvailableForCopy() override;
   void Show() override;
   void Hide() override;
   bool IsShowing() override;
   void EnsureSurfaceSynchronizedForWebTest() override;
-  gfx::Rect GetViewBounds() const override;
+  gfx::Rect GetViewBounds() override;
   void SetBackgroundColor(SkColor color) override;
-  base::Optional<SkColor> GetBackgroundColor() const override;
+  base::Optional<SkColor> GetBackgroundColor() override;
   void UpdateBackgroundColor() override;
   bool LockMouse() override;
   void UnlockMouse() override;
@@ -165,12 +165,12 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
   void Destroy() override;
   void SetTooltipText(const base::string16& tooltip_text) override;
   content::CursorManager* GetCursorManager() override;
-  gfx::Size GetCompositorViewportPixelSize() const override;
+  gfx::Size GetCompositorViewportPixelSize() override;
   void CopyFromSurface(
       const gfx::Rect& src_rect,
       const gfx::Size& output_size,
       base::OnceCallback<void(const SkBitmap&)> callback) override;
-  void GetScreenInfo(content::ScreenInfo* results) const override;
+  void GetScreenInfo(content::ScreenInfo* results) override;
   void TransformPointToRootSurface(gfx::PointF* point) override;
   gfx::Rect GetBoundsInRootWindow() override;
   viz::ScopedSurfaceIdAllocator DidUpdateVisualProperties(

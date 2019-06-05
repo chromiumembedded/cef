@@ -684,17 +684,17 @@ void CefCrashReporterClient::GetCrashOptionalArguments(
 
   if (max_uploads_ > 0) {
     arguments->push_back(std::string("--max-uploads=") +
-                         base::IntToString(max_uploads_));
+                         base::NumberToString(max_uploads_));
   }
 
   if (max_db_size_ > 0) {
     arguments->push_back(std::string("--max-db-size=") +
-                         base::IntToString(max_db_size_));
+                         base::NumberToString(max_db_size_));
   }
 
   if (max_db_age_ > 0) {
     arguments->push_back(std::string("--max-db-age=") +
-                         base::IntToString(max_db_age_));
+                         base::NumberToString(max_db_age_));
   }
 }
 

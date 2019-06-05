@@ -24,10 +24,10 @@ index cac72c6a2fd1..2ed83a4af1b3 100644
    // network quality change events.
    virtual network::NetworkQualityTracker* network_quality_tracker() = 0;
 diff --git chrome/browser/browser_process_impl.cc chrome/browser/browser_process_impl.cc
-index 6699792348cc..5a550106043d 100644
+index 0b15890653cb..175eb09c6dc7 100644
 --- chrome/browser/browser_process_impl.cc
 +++ chrome/browser/browser_process_impl.cc
-@@ -665,6 +665,10 @@ BrowserProcessImpl::system_network_context_manager() {
+@@ -681,6 +681,10 @@ BrowserProcessImpl::system_network_context_manager() {
    return SystemNetworkContextManager::GetInstance();
  }
  
@@ -39,7 +39,7 @@ index 6699792348cc..5a550106043d 100644
  BrowserProcessImpl::shared_url_loader_factory() {
    return system_network_context_manager()->GetSharedURLLoaderFactory();
 diff --git chrome/browser/browser_process_impl.h chrome/browser/browser_process_impl.h
-index 9bf48b759148..90d455eae40d 100644
+index 6c8e21f6f5fe..4496c5579265 100644
 --- chrome/browser/browser_process_impl.h
 +++ chrome/browser/browser_process_impl.h
 @@ -141,6 +141,7 @@ class BrowserProcessImpl : public BrowserProcess,
@@ -51,7 +51,7 @@ index 9bf48b759148..90d455eae40d 100644
        override;
    network::NetworkQualityTracker* network_quality_tracker() override;
 diff --git chrome/browser/ui/BUILD.gn chrome/browser/ui/BUILD.gn
-index dba025da98a5..c6d4e2998bf4 100644
+index 535c4f04c0f3..8cd8768022ae 100644
 --- chrome/browser/ui/BUILD.gn
 +++ chrome/browser/ui/BUILD.gn
 @@ -9,6 +9,7 @@ import("//build/config/features.gni")
@@ -62,7 +62,7 @@ index dba025da98a5..c6d4e2998bf4 100644
  import("//chrome/common/features.gni")
  import("//chromeos/assistant/assistant.gni")
  import("//components/feature_engagement/features.gni")
-@@ -350,6 +351,10 @@ jumbo_split_static_library("ui") {
+@@ -351,6 +352,10 @@ jumbo_split_static_library("ui") {
      "//build/config/compiler:wexit_time_destructors",
    ]
  
@@ -73,7 +73,7 @@ index dba025da98a5..c6d4e2998bf4 100644
    # Since browser and browser_ui actually depend on each other,
    # we must omit the dependency from browser_ui to browser.
    # However, this means browser_ui and browser should more or less
-@@ -366,6 +371,7 @@ jumbo_split_static_library("ui") {
+@@ -368,6 +373,7 @@ jumbo_split_static_library("ui") {
      "//base:i18n",
      "//base/allocator:buildflags",
      "//cc/paint",
@@ -81,7 +81,7 @@ index dba025da98a5..c6d4e2998bf4 100644
      "//chrome:extra_resources",
      "//chrome:resources",
      "//chrome:strings",
-@@ -2322,7 +2328,7 @@ jumbo_split_static_library("ui") {
+@@ -2347,7 +2353,7 @@ jumbo_split_static_library("ui") {
          "views/frame/native_browser_frame_factory_ozone.cc",
        ]
      } else {

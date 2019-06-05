@@ -49,7 +49,8 @@ void ContinueWithLoadedCookies(const AllowCookieCallback& allow_cookie_callback,
 
 void GetCookieListCallback(const AllowCookieCallback& allow_cookie_callback,
                            DoneCookieCallback done_callback,
-                           const net::CookieList& cookies) {
+                           const net::CookieList& cookies,
+                           const net::CookieStatusList&) {
   CEF_REQUIRE_UIT();
   CEF_POST_TASK(CEF_IOT,
                 base::BindOnce(ContinueWithLoadedCookies, allow_cookie_callback,
@@ -80,13 +81,15 @@ struct SaveCookiesProgress {
   int num_cookie_lines_left_;
 };
 
-void SetCanonicalCookieCallback(SaveCookiesProgress* progress,
-                                const net::CanonicalCookie& cookie,
-                                bool success) {
+void SetCanonicalCookieCallback(
+    SaveCookiesProgress* progress,
+    const net::CanonicalCookie& cookie,
+    net::CanonicalCookie::CookieInclusionStatus status) {
   CEF_REQUIRE_UIT();
   progress->num_cookie_lines_left_--;
-  if (success)
+  if (status == net::CanonicalCookie::CookieInclusionStatus::INCLUDE) {
     progress->allowed_cookies_.push_back(cookie);
+  }
 
   // If all the cookie lines have been handled the request can be continued.
   if (progress->num_cookie_lines_left_ == 0) {
@@ -128,7 +131,9 @@ void SaveCookiesOnUIThread(content::BrowserContext* browser_context,
                        cookie));
   }
 
-  SetCanonicalCookieCallback(progress, net::CanonicalCookie(), false);
+  SetCanonicalCookieCallback(
+      progress, net::CanonicalCookie(),
+      net::CanonicalCookie::CookieInclusionStatus::EXCLUDE_UNKNOWN_ERROR);
 }
 
 }  // namespace
