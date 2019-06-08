@@ -11,7 +11,7 @@ index f831c084e1d3..80dd4ea3a154 100644
    // Cancels and hides the current popup (datetime, select...) if any.
    virtual void CancelPagePopup() = 0;
 diff --git third_party/blink/renderer/core/exported/web_view_impl.cc third_party/blink/renderer/core/exported/web_view_impl.cc
-index fa2150289b4f..611dffb1ef7d 100644
+index 6ff1e3ca2f18..5da32fea5993 100644
 --- third_party/blink/renderer/core/exported/web_view_impl.cc
 +++ third_party/blink/renderer/core/exported/web_view_impl.cc
 @@ -238,8 +238,13 @@ void WebView::SetUseExternalPopupMenus(bool use_external_popup_menus) {
@@ -39,7 +39,7 @@ index fa2150289b4f..611dffb1ef7d 100644
        fullscreen_controller_(std::make_unique<FullscreenController>(this)) {
    if (!AsView().client) {
 diff --git third_party/blink/renderer/core/exported/web_view_impl.h third_party/blink/renderer/core/exported/web_view_impl.h
-index aaa17462ee65..647b51d8fddc 100644
+index 64a22db62dba..09713163f4a0 100644
 --- third_party/blink/renderer/core/exported/web_view_impl.h
 +++ third_party/blink/renderer/core/exported/web_view_impl.h
 @@ -105,7 +105,8 @@ class CORE_EXPORT WebViewImpl final : public WebView,

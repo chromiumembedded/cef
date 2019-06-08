@@ -278,10 +278,10 @@ index 8673d65844ea..7d13c72dca9b 100644
                              std::string /* mime_type */,
                              bool /* found */,
 diff --git content/public/browser/content_browser_client.h content/public/browser/content_browser_client.h
-index 0a1bf5d0b4d1..6dea4f0f4a44 100644
+index 39174b67d1d3..f5a825c113cf 100644
 --- content/public/browser/content_browser_client.h
 +++ content/public/browser/content_browser_client.h
-@@ -1460,6 +1460,15 @@ class CONTENT_EXPORT ContentBrowserClient {
+@@ -1466,6 +1466,15 @@ class CONTENT_EXPORT ContentBrowserClient {
        network::mojom::URLLoaderFactoryRequest* factory_request,
        network::mojom::URLLoaderFactory*& out_factory);
  
@@ -297,7 +297,7 @@ index 0a1bf5d0b4d1..6dea4f0f4a44 100644
    // Creates an OverlayWindow to be used for Picture-in-Picture. This window
    // will house the content shown when in Picture-in-Picture mode. This will
    // return a new OverlayWindow.
-@@ -1527,6 +1536,10 @@ class CONTENT_EXPORT ContentBrowserClient {
+@@ -1533,6 +1542,10 @@ class CONTENT_EXPORT ContentBrowserClient {
    // Used as part of the user agent string.
    virtual std::string GetProduct() const;
  

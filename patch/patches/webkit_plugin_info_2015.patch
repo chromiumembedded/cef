@@ -44,7 +44,7 @@ index a616fafed51f..dae131dad5de 100644
                                                          .Top()
                                                          .GetSecurityContext()
 diff --git third_party/blink/renderer/core/frame/local_frame.cc third_party/blink/renderer/core/frame/local_frame.cc
-index dd0e2f0df7b5..3c3ff59f72a9 100644
+index c1f7d53655bd..728fec52942f 100644
 --- third_party/blink/renderer/core/frame/local_frame.cc
 +++ third_party/blink/renderer/core/frame/local_frame.cc
 @@ -1257,7 +1257,7 @@ FrameResourceCoordinator* LocalFrame::GetFrameResourceCoordinator() {
@@ -85,10 +85,10 @@ index 6435384652b7..79bd103df30d 100644
  
  void DevToolsSession::FlushProtocolNotifications() {
 diff --git third_party/blink/renderer/core/page/page.cc third_party/blink/renderer/core/page/page.cc
-index 5480f0e29789..3bf2f35c9741 100644
+index 1c2e3dbbb014..4a01e801edde 100644
 --- third_party/blink/renderer/core/page/page.cc
 +++ third_party/blink/renderer/core/page/page.cc
-@@ -180,7 +180,8 @@ Page::Page(PageClients& page_clients)
+@@ -185,7 +185,8 @@ Page::Page(PageClients& page_clients)
            MakeGarbageCollected<OverscrollController>(GetVisualViewport(),
                                                       GetChromeClient())),
        link_highlights_(MakeGarbageCollected<LinkHighlights>(*this)),
@@ -98,7 +98,7 @@ index 5480f0e29789..3bf2f35c9741 100644
        // TODO(pdr): Initialize |validation_message_client_| lazily.
        validation_message_client_(
            MakeGarbageCollected<ValidationMessageClientImpl>(*this)),
-@@ -337,21 +338,40 @@ void Page::InitialStyleChanged() {
+@@ -346,21 +347,40 @@ void Page::InitialStyleChanged() {
    }
  }
  
@@ -148,7 +148,7 @@ index 5480f0e29789..3bf2f35c9741 100644
        page->NotifyPluginsChanged();
      }
    }
-@@ -786,7 +806,8 @@ void Page::Trace(blink::Visitor* visitor) {
+@@ -803,7 +823,8 @@ void Page::Trace(blink::Visitor* visitor) {
    visitor->Trace(link_highlights_);
    visitor->Trace(spatial_navigation_controller_);
    visitor->Trace(main_frame_);
@@ -159,7 +159,7 @@ index 5480f0e29789..3bf2f35c9741 100644
    visitor->Trace(plugins_changed_observers_);
    visitor->Trace(next_related_page_);
 diff --git third_party/blink/renderer/core/page/page.h third_party/blink/renderer/core/page/page.h
-index f3d748e4a3e7..3750ba015d76 100644
+index eb5e930c4653..3a12676266d3 100644
 --- third_party/blink/renderer/core/page/page.h
 +++ third_party/blink/renderer/core/page/page.h
 @@ -140,7 +140,8 @@ class CORE_EXPORT Page final : public GarbageCollectedFinalized<Page>,
@@ -172,7 +172,7 @@ index f3d748e4a3e7..3750ba015d76 100644
  
    // Resets the plugin data for all pages in the renderer process and notifies
    // PluginsChangedObservers.
-@@ -364,7 +365,8 @@ class CORE_EXPORT Page final : public GarbageCollectedFinalized<Page>,
+@@ -366,7 +367,8 @@ class CORE_EXPORT Page final : public GarbageCollectedFinalized<Page>,
    const Member<LinkHighlights> link_highlights_;
    Member<SpatialNavigationController> spatial_navigation_controller_;
  

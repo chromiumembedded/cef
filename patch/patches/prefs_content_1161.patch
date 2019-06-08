@@ -1,5 +1,5 @@
 diff --git content/public/common/common_param_traits_macros.h content/public/common/common_param_traits_macros.h
-index 24bded9417c5..cb5d04ab32ab 100644
+index c97b4e009baa..04dee2983825 100644
 --- content/public/common/common_param_traits_macros.h
 +++ content/public/common/common_param_traits_macros.h
 @@ -189,6 +189,7 @@ IPC_STRUCT_TRAITS_BEGIN(content::WebPreferences)
@@ -35,7 +35,7 @@ index a83015f3629a..fe79480e9af7 100644
    bool record_whole_document;
  
 diff --git content/renderer/render_view_impl.cc content/renderer/render_view_impl.cc
-index 3e328daa5827..7d0869aa29fd 100644
+index 83e40b6568da..b47165e7ac74 100644
 --- content/renderer/render_view_impl.cc
 +++ content/renderer/render_view_impl.cc
 @@ -1026,6 +1026,8 @@ void RenderView::ApplyWebPreferences(const WebPreferences& prefs,

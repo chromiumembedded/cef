@@ -35,7 +35,7 @@ index 2b24d1ac1b5b..6577495d87a9 100644
          base_cache_path.Append(chrome::kCacheDirname);
      network_context_params->http_cache_max_size =
 diff --git chrome/browser/profiles/profile.h chrome/browser/profiles/profile.h
-index e77d8abd6601..88331e9af5e0 100644
+index 737f5f8b8193..241edaa39671 100644
 --- chrome/browser/profiles/profile.h
 +++ chrome/browser/profiles/profile.h
 @@ -321,6 +321,11 @@ class Profile : public content::BrowserContext {
@@ -132,10 +132,10 @@ index 8be1b9dea5f7..30f23449ac51 100644
  
  void CookieManager::SetForceKeepSessionState() {
 diff --git services/network/network_context.cc services/network/network_context.cc
-index 9d6f7b930e11..c16e5ca90c14 100644
+index 9349b0bea419..167b6df982d0 100644
 --- services/network/network_context.cc
 +++ services/network/network_context.cc
-@@ -1742,6 +1742,7 @@ URLRequestContextOwner NetworkContext::ApplyContextParamsToBuilder(
+@@ -1753,6 +1753,7 @@ URLRequestContextOwner NetworkContext::ApplyContextParamsToBuilder(
    }
  
    scoped_refptr<SessionCleanupCookieStore> session_cleanup_cookie_store;
@@ -143,7 +143,7 @@ index 9d6f7b930e11..c16e5ca90c14 100644
    if (params_->cookie_path) {
      scoped_refptr<base::SequencedTaskRunner> client_task_runner =
          base::MessageLoopCurrent::Get()->task_runner();
-@@ -1769,18 +1770,27 @@ URLRequestContextOwner NetworkContext::ApplyContextParamsToBuilder(
+@@ -1780,18 +1781,27 @@ URLRequestContextOwner NetworkContext::ApplyContextParamsToBuilder(
      session_cleanup_cookie_store =
          base::MakeRefCounted<SessionCleanupCookieStore>(sqlite_store);
  

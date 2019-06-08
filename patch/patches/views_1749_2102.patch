@@ -39,7 +39,7 @@ index cce16a111356..9f0a8b73adb5 100644
    virtual void MenuWillShow() {}
  
 diff --git ui/gfx/render_text.cc ui/gfx/render_text.cc
-index 9c38cd6d4fdb..dcd34308a8bc 100644
+index 9d665b99613c..543f79f3beb7 100644
 --- ui/gfx/render_text.cc
 +++ ui/gfx/render_text.cc
 @@ -514,6 +514,14 @@ void RenderText::SetElideBehavior(ElideBehavior elide_behavior) {
@@ -240,7 +240,7 @@ index 9df5c850d12d..e7007ffbb762 100644
    std::unique_ptr<SelectionController> selection_controller_;
  
 diff --git ui/views/controls/menu/menu_controller.cc ui/views/controls/menu/menu_controller.cc
-index 5e630a1a5f47..a3725641c2db 100644
+index eb93ba807319..b558892cc737 100644
 --- ui/views/controls/menu/menu_controller.cc
 +++ ui/views/controls/menu/menu_controller.cc
 @@ -2570,8 +2570,13 @@ MenuItemView* MenuController::FindNextSelectableMenuItem(
