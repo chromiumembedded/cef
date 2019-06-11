@@ -440,7 +440,10 @@ def GetConfigArgsSandbox(platform, args, is_debug, cpu):
       'use_allocator_shim': False,
 
       # Avoid /LTCG linker warnings and generate smaller lib files.
-      'is_official_build': False
+      'is_official_build': False,
+
+      # Avoid Debug build linker errors caused by custom libc++.
+      'use_custom_libcxx': False,
   }
 
   if is_debug:
