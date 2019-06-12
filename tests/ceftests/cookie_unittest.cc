@@ -1067,13 +1067,13 @@ std::string GetCookieAccessUrl2(const std::string& scheme,
 }
 
 void TestCookieString(const std::string& cookie_str,
-                      TrackCallback& got_cookie_js,
-                      TrackCallback& got_cookie_net) {
+                      int& cookie_js_ct,
+                      int& cookie_net_ct) {
   if (cookie_str.find("name_js=value_js") != std::string::npos) {
-    got_cookie_js.yes();
+    cookie_js_ct++;
   }
   if (cookie_str.find("name_net=value_net") != std::string::npos) {
-    got_cookie_net.yes();
+    cookie_net_ct++;
   }
 }
 
@@ -1081,9 +1081,9 @@ struct CookieAccessData {
   CefRefPtr<CefResponse> response;
   std::string response_data;
 
-  TrackCallback got_request_;
-  TrackCallback got_cookie_js_;
-  TrackCallback got_cookie_net_;
+  int request_ct_ = 0;
+  int cookie_js_ct_ = 0;
+  int cookie_net_ct_ = 0;
 };
 
 class CookieAccessResponseHandler {
@@ -1116,7 +1116,7 @@ class CookieAccessSchemeHandler : public CefResourceHandler {
     CefRequest::HeaderMap headerMap;
     request->GetHeaderMap(headerMap);
     const std::string& cookie_str = GetHeaderValue(headerMap, "Cookie");
-    TestCookieString(cookie_str, data_->got_cookie_js_, data_->got_cookie_net_);
+    TestCookieString(cookie_str, data_->cookie_js_ct_, data_->cookie_net_ct_);
 
     // Continue immediately.
     callback->Continue();
@@ -1203,7 +1203,7 @@ class CookieAccessSchemeHandlerFactory : public CefSchemeHandlerFactory,
     const std::string& url = request->GetURL();
     ResponseDataMap::const_iterator it = data_map_.find(url);
     if (it != data_map_.end()) {
-      it->second->got_request_.yes();
+      it->second->request_ct_++;
 
       return new CookieAccessSchemeHandler(it->second);
     }
@@ -1425,13 +1425,13 @@ class CookieAccessServerHandler : public CefServerHandler,
     const std::string& url = request->GetURL();
     ResponseDataMap::const_iterator it = data_map_.find(url);
     if (it != data_map_.end()) {
-      it->second->got_request_.yes();
+      it->second->request_ct_++;
 
       CefRequest::HeaderMap headerMap;
       request->GetHeaderMap(headerMap);
       const std::string& cookie_str = GetHeaderValue(headerMap, "cookie");
-      TestCookieString(cookie_str, it->second->got_cookie_js_,
-                       it->second->got_cookie_net_);
+      TestCookieString(cookie_str, it->second->cookie_js_ct_,
+                       it->second->cookie_net_ct_);
 
       SendResponse(server, connection_id, it->second->response,
                    it->second->response_data);
@@ -1593,10 +1593,8 @@ class CookieAccessTestHandler : public RoutingTestHandler,
     context_ = NULL;
 
     // Got both network requests.
-    EXPECT_TRUE(data1_.got_request_);
-    EXPECT_TRUE(data2_.got_request_);
-
-    EXPECT_FALSE(got_cookie_manager_);
+    EXPECT_EQ(1, data1_.request_ct_);
+    EXPECT_EQ(1, data2_.request_ct_);
 
     if (test_mode_ == ALLOW_NO_FILTER || test_mode_ == ALLOW_NO_HANDLER) {
       EXPECT_EQ(0, can_save_cookie1_ct_);
@@ -1621,44 +1619,44 @@ class CookieAccessTestHandler : public RoutingTestHandler,
 
     if (test_mode_ == BLOCK_ALL_COOKIES) {
       // Never get the JS cookie via JS.
-      EXPECT_FALSE(got_cookie_js1_);
-      EXPECT_FALSE(got_cookie_js2_);
-      EXPECT_FALSE(got_cookie_js3_);
+      EXPECT_EQ(0, cookie_js1_ct_);
+      EXPECT_EQ(0, cookie_js2_ct_);
+      EXPECT_EQ(0, cookie_js3_ct_);
     } else {
       // Always get the JS cookie via JS.
-      EXPECT_TRUE(got_cookie_js1_);
-      EXPECT_TRUE(got_cookie_js2_);
-      EXPECT_TRUE(got_cookie_js3_);
+      EXPECT_EQ(1, cookie_js1_ct_);
+      EXPECT_EQ(1, cookie_js2_ct_);
+      EXPECT_EQ(1, cookie_js3_ct_);
     }
 
     // Only get the net cookie via JS if cookie write was allowed.
     if ((test_mode_ & BLOCK_WRITE) || test_mode_ == BLOCK_ALL_COOKIES) {
-      EXPECT_FALSE(got_cookie_net1_);
-      EXPECT_FALSE(got_cookie_net2_);
-      EXPECT_FALSE(got_cookie_net3_);
+      EXPECT_EQ(0, cookie_net1_ct_);
+      EXPECT_EQ(0, cookie_net2_ct_);
+      EXPECT_EQ(0, cookie_net3_ct_);
     } else {
-      EXPECT_TRUE(got_cookie_net1_);
-      EXPECT_TRUE(got_cookie_net2_);
-      EXPECT_TRUE(got_cookie_net3_);
+      EXPECT_EQ(1, cookie_net1_ct_);
+      EXPECT_EQ(1, cookie_net2_ct_);
+      EXPECT_EQ(1, cookie_net3_ct_);
     }
 
     // No cookies sent for the 1st network request.
-    EXPECT_FALSE(data1_.got_cookie_js_);
-    EXPECT_FALSE(data1_.got_cookie_net_);
+    EXPECT_EQ(0, data1_.cookie_js_ct_);
+    EXPECT_EQ(0, data1_.cookie_net_ct_);
 
     // 2nd network request...
     if ((test_mode_ & BLOCK_READ) || test_mode_ == BLOCK_ALL_COOKIES) {
       // No cookies sent if reading was blocked.
-      EXPECT_FALSE(data2_.got_cookie_js_);
-      EXPECT_FALSE(data2_.got_cookie_net_);
+      EXPECT_EQ(0, data2_.cookie_js_ct_);
+      EXPECT_EQ(0, data2_.cookie_net_ct_);
     } else if (test_mode_ & BLOCK_WRITE) {
       // Only JS cookie sent if writing was blocked.
-      EXPECT_TRUE(data2_.got_cookie_js_);
-      EXPECT_FALSE(data2_.got_cookie_net_);
+      EXPECT_EQ(1, data2_.cookie_js_ct_);
+      EXPECT_EQ(0, data2_.cookie_net_ct_);
     } else {
       // All cookies sent.
-      EXPECT_TRUE(data2_.got_cookie_js_);
-      EXPECT_TRUE(data2_.got_cookie_net_);
+      EXPECT_EQ(1, data2_.cookie_js_ct_);
+      EXPECT_EQ(1, data2_.cookie_net_ct_);
     }
 
     TestHandler::DestroyTest();
@@ -1747,11 +1745,11 @@ class CookieAccessTestHandler : public RoutingTestHandler,
     const std::string& url = frame->GetURL();
     const std::string& cookie_str = request.ToString();
     if (url == GetCookieAccessUrl1(scheme_, test_backend_ == SERVER)) {
-      TestCookieString(cookie_str, got_cookie_js1_, got_cookie_net1_);
+      TestCookieString(cookie_str, cookie_js1_ct_, cookie_net1_ct_);
       browser->GetMainFrame()->LoadURL(
           GetCookieAccessUrl2(scheme_, test_backend_ == SERVER));
     } else if (url == GetCookieAccessUrl2(scheme_, test_backend_ == SERVER)) {
-      TestCookieString(cookie_str, got_cookie_js2_, got_cookie_net2_);
+      TestCookieString(cookie_str, cookie_js2_ct_, cookie_net2_ct_);
       FinishTest();
     } else {
       ADD_FAILURE() << "Unexpected url: " << url;
@@ -1873,9 +1871,9 @@ class CookieAccessTestHandler : public RoutingTestHandler,
         const std::string& name = CefString(&cookie.name);
         const std::string& value = CefString(&cookie.value);
         if (name == "name_js" && value == "value_js")
-          handler_->got_cookie_js3_.yes();
+          handler_->cookie_js3_ct_++;
         else if (name == "name_net" && value == "value_net")
-          handler_->got_cookie_net3_.yes();
+          handler_->cookie_net3_ct_++;
 
         // Clean up the cookies.
         deleteCookie = true;
@@ -1930,21 +1928,19 @@ class CookieAccessTestHandler : public RoutingTestHandler,
   CookieAccessData data1_;
   CookieAccessData data2_;
 
-  TrackCallback got_cookie_manager_;
-
   // 1st request.
   int can_save_cookie1_ct_ = 0;
-  TrackCallback got_cookie_js1_;
-  TrackCallback got_cookie_net1_;
+  int cookie_js1_ct_ = 0;
+  int cookie_net1_ct_ = 0;
 
   // 2nd request.
   int can_send_cookie2_ct_ = 0;
-  TrackCallback got_cookie_js2_;
-  TrackCallback got_cookie_net2_;
+  int cookie_js2_ct_ = 0;
+  int cookie_net2_ct_ = 0;
 
   // From cookie manager.
-  TrackCallback got_cookie_js3_;
-  TrackCallback got_cookie_net3_;
+  int cookie_js3_ct_ = 0;
+  int cookie_net3_ct_ = 0;
 
   DISALLOW_COPY_AND_ASSIGN(CookieAccessTestHandler);
   IMPLEMENT_REFCOUNTING(CookieAccessTestHandler);
@@ -2025,6 +2021,397 @@ ACCESS_TEST_ALLOWNOHANDLER_MODES(SchemeStandard, SCHEME_HANDLER, false)
 
 ACCESS_TEST_CUSTOM(Resource, RESOURCE_HANDLER)
 ACCESS_TEST_STANDARD(Resource, RESOURCE_HANDLER)
+
+namespace {
+
+// Tests the behavior of restarting of a network request that sets cookies and
+// a network request that includes cookies.
+// 1. Begin loading URL1, then restart the request in OnResourceResponse.
+//    No cookies are saved.
+// 2. Load URL1 successfully. Network and JS cookies are saved.
+// 3. Begin loading URL2, then restart the request in OnResourceResponse.
+//    Cookies are sent with the request/response.
+// 4. Load URL2 successfully. Cookies are sent with the request/response.
+class CookieRestartTestHandler : public RoutingTestHandler,
+                                 public CefCookieAccessFilter {
+ public:
+  explicit CookieRestartTestHandler(bool use_global)
+      : scheme_(kCookieAccessScheme), use_global_(use_global) {}
+
+  void RunTest() override {
+    if (use_global_) {
+      context_ = CefRequestContext::GetGlobalContext();
+    } else {
+      // Create the request context that will use an in-memory cache.
+      CefRequestContextSettings settings;
+      context_ = CefRequestContext::CreateContext(settings, NULL);
+    }
+
+    cookie_manager_ = context_->GetCookieManager(nullptr);
+
+    SetTestTimeout();
+    RunTestSetupContinue();
+  }
+
+  void DestroyTest() override {
+    if (!CefCurrentlyOn(TID_UI)) {
+      CefPostTask(TID_UI,
+                  base::Bind(&CookieRestartTestHandler::DestroyTest, this));
+      return;
+    }
+
+    cookie_manager_ = NULL;
+    context_ = NULL;
+
+    // Get 2 network requests for each URL.
+    EXPECT_EQ(2, data1_.request_ct_);
+    EXPECT_EQ(2, data2_.request_ct_);
+
+    // Get resource request callbacks for all requests (2 for each URL).
+    EXPECT_EQ(4, before_resource_load_ct_);
+    EXPECT_EQ(4, resource_response_ct_);
+
+    // Get JS query callbacks for the successful requests (1 for each URL).
+    EXPECT_EQ(2, query_ct_);
+
+    // No cookies sent for the URL1 network requests because (a) we don't have
+    // any cookies set initially and (b) we don't save cookies from the 1st URL1
+    // request which is restarted.
+    EXPECT_EQ(0, data1_.cookie_js_ct_);
+    EXPECT_EQ(0, data1_.cookie_net_ct_);
+
+    // Net and JS cookies sent for both URL2 network requests.
+    EXPECT_EQ(2, data2_.cookie_js_ct_);
+    EXPECT_EQ(2, data2_.cookie_net_ct_);
+
+    // 1 call to CanSaveCookie for the net cookie returned by the successful
+    // URL1 request.
+    EXPECT_EQ(1, can_save_cookie_ct_);
+    // 4 calls to CanSendCookie because both net and JS cookies are sent for
+    // each URL2 request.
+    EXPECT_EQ(4, can_send_cookie_ct_);
+
+    // Get the net and JS cookies from the JS query for the successful requests
+    // (1 for each URL).
+    EXPECT_EQ(1, cookie_js1_ct_);
+    EXPECT_EQ(1, cookie_net1_ct_);
+    EXPECT_EQ(1, cookie_js2_ct_);
+    EXPECT_EQ(1, cookie_net2_ct_);
+
+    // Get the net and JS cookies from the cookie manager at the end.
+    EXPECT_EQ(1, cookie_manager_js_ct_);
+    EXPECT_EQ(1, cookie_manager_net_ct_);
+
+    TestHandler::DestroyTest();
+  }
+
+  CefRefPtr<CefCookieAccessFilter> GetCookieAccessFilter(
+      CefRefPtr<CefBrowser> browser,
+      CefRefPtr<CefFrame> frame,
+      CefRefPtr<CefRequest> request) override {
+    EXPECT_IO_THREAD();
+    return this;
+  }
+
+  CefRefPtr<CefResourceRequestHandler> GetResourceRequestHandler(
+      CefRefPtr<CefBrowser> browser,
+      CefRefPtr<CefFrame> frame,
+      CefRefPtr<CefRequest> request,
+      bool is_navigation,
+      bool is_download,
+      const CefString& request_initiator,
+      bool& disable_default_handling) override {
+    return this;
+  }
+
+  CefRefPtr<CefResourceHandler> GetResourceHandler(
+      CefRefPtr<CefBrowser> browser,
+      CefRefPtr<CefFrame> frame,
+      CefRefPtr<CefRequest> request) override {
+    return nullptr;
+  }
+
+  bool CanSendCookie(CefRefPtr<CefBrowser> browser,
+                     CefRefPtr<CefFrame> frame,
+                     CefRefPtr<CefRequest> request,
+                     const CefCookie& cookie) override {
+    EXPECT_IO_THREAD();
+    can_send_cookie_ct_++;
+
+    // Called before the URL2 network requests.
+    EXPECT_LE(2, before_resource_load_ct_);
+
+    return true;
+  }
+
+  bool CanSaveCookie(CefRefPtr<CefBrowser> browser,
+                     CefRefPtr<CefFrame> frame,
+                     CefRefPtr<CefRequest> request,
+                     CefRefPtr<CefResponse> response,
+                     const CefCookie& cookie) override {
+    EXPECT_IO_THREAD();
+    can_save_cookie_ct_++;
+
+    // Called after the successful URL1 network request.
+    EXPECT_EQ(2, before_resource_load_ct_);
+
+    // Expecting the network cookie only.
+    EXPECT_STREQ("name_net", CefString(&cookie.name).ToString().c_str());
+    EXPECT_STREQ("value_net", CefString(&cookie.value).ToString().c_str());
+
+    return true;
+  }
+
+  cef_return_value_t OnBeforeResourceLoad(
+      CefRefPtr<CefBrowser> browser,
+      CefRefPtr<CefFrame> frame,
+      CefRefPtr<CefRequest> request,
+      CefRefPtr<CefRequestCallback> callback) override {
+    EXPECT_IO_THREAD();
+    before_resource_load_ct_++;
+
+    const std::string& url = request->GetURL();
+
+    if (before_resource_load_ct_ <= 2) {
+      EXPECT_STREQ(GetCookieAccessUrl1(scheme_, true).c_str(), url.c_str());
+    } else {
+      EXPECT_STREQ(GetCookieAccessUrl2(scheme_, true).c_str(), url.c_str());
+    }
+
+    const std::string& cookie_str = request->GetHeaderByName("Cookie");
+    int cookie_js_ct = 0;
+    int cookie_net_ct = 0;
+    TestCookieString(cookie_str, cookie_js_ct, cookie_net_ct);
+
+    // Expect both cookies with the URL2 requests only.
+    if (before_resource_load_ct_ >= 3) {
+      EXPECT_EQ(1, cookie_js_ct);
+      EXPECT_EQ(1, cookie_net_ct);
+    } else {
+      EXPECT_EQ(0, cookie_js_ct);
+      EXPECT_EQ(0, cookie_net_ct);
+    }
+
+    return RV_CONTINUE;
+  }
+
+  bool OnResourceResponse(CefRefPtr<CefBrowser> browser,
+                          CefRefPtr<CefFrame> frame,
+                          CefRefPtr<CefRequest> request,
+                          CefRefPtr<CefResponse> response) override {
+    EXPECT_IO_THREAD();
+    resource_response_ct_++;
+
+    const std::string& url = request->GetURL();
+    const std::string& set_cookie_str = response->GetHeader("Set-Cookie");
+
+    // Expect the network cookie with URL1 requests only.
+    if (resource_response_ct_ <= 2) {
+      EXPECT_STREQ(GetCookieAccessUrl1(scheme_, true).c_str(), url.c_str());
+      EXPECT_STREQ("name_net=value_net", set_cookie_str.c_str());
+    } else {
+      EXPECT_STREQ(GetCookieAccessUrl2(scheme_, true).c_str(), url.c_str());
+      EXPECT_TRUE(set_cookie_str.empty());
+    }
+
+    if (resource_response_ct_ == 1 || resource_response_ct_ == 3) {
+      // Restart the request loading this data.
+      request->SetHeaderByName("X-Custom-Header", "value", false);
+      return true;
+    }
+    return false;
+  }
+
+  bool OnQuery(CefRefPtr<CefBrowser> browser,
+               CefRefPtr<CefFrame> frame,
+               int64 query_id,
+               const CefString& request,
+               bool persistent,
+               CefRefPtr<Callback> callback) override {
+    query_ct_++;
+
+    const std::string& url = frame->GetURL();
+    const std::string& cookie_str = request.ToString();
+    if (url == GetCookieAccessUrl1(scheme_, true)) {
+      TestCookieString(cookie_str, cookie_js1_ct_, cookie_net1_ct_);
+      browser->GetMainFrame()->LoadURL(GetCookieAccessUrl2(scheme_, true));
+    } else if (url == GetCookieAccessUrl2(scheme_, true)) {
+      TestCookieString(cookie_str, cookie_js2_ct_, cookie_net2_ct_);
+      FinishTest();
+    } else {
+      ADD_FAILURE() << "Unexpected url: " << url;
+    }
+    return true;
+  }
+
+ private:
+  void AddResponses(CookieAccessResponseHandler* handler) {
+    // Sets a cookie via net response headers and JS, then retrieves the cookies
+    // via JS.
+    {
+      data1_.response = CefResponse::Create();
+      data1_.response->SetMimeType("text/html");
+      data1_.response->SetStatus(200);
+      data1_.response->SetStatusText("OK");
+
+      CefResponse::HeaderMap headerMap;
+      data1_.response->GetHeaderMap(headerMap);
+      headerMap.insert(std::make_pair("Set-Cookie", "name_net=value_net"));
+      data1_.response->SetHeaderMap(headerMap);
+
+      data1_.response_data =
+          "<html><head>"
+          "<script>"
+          "document.cookie='name_js=value_js';"
+          "window.testQuery({request:document.cookie});"
+          "</script>"
+          "</head><body>COOKIE RESTART TEST1</body></html>";
+
+      handler->AddResponse(GetCookieAccessUrl1(scheme_, true), &data1_);
+    }
+
+    // Retrieves the cookies via JS.
+    {
+      data2_.response = CefResponse::Create();
+      data2_.response->SetMimeType("text/html");
+      data2_.response->SetStatus(200);
+      data2_.response->SetStatusText("OK");
+
+      data2_.response_data =
+          "<html><head>"
+          "<script>"
+          "window.testQuery({request:document.cookie});"
+          "</script>"
+          "</head><body>COOKIE RESTART TEST2</body></html>";
+
+      handler->AddResponse(GetCookieAccessUrl2(scheme_, true), &data2_);
+    }
+  }
+
+  void RunTestSetupContinue() {
+    CefPostTask(
+        TID_UI,
+        base::Bind(
+            &CookieRestartTestHandler::StartServer, this,
+            base::Bind(&CookieRestartTestHandler::RunTestContinue, this)));
+  }
+
+  void StartServer(const base::Closure& complete_callback) {
+    EXPECT_FALSE(server_handler_);
+
+    server_handler_ = new CookieAccessServerHandler();
+    AddResponses(server_handler_.get());
+    // 2 requests for each URL.
+    server_handler_->SetExpectedRequestCount(4);
+    server_handler_->CreateServer(complete_callback);
+  }
+
+  void RunTestContinue() {
+    if (!CefCurrentlyOn(TID_UI)) {
+      CefPostTask(TID_UI,
+                  base::Bind(&CookieRestartTestHandler::RunTestContinue, this));
+      return;
+    }
+
+    CreateBrowser(GetCookieAccessUrl1(scheme_, true), context_);
+  }
+
+  void FinishTest() {
+    // Verify that cookies were set correctly.
+    class TestVisitor : public CefCookieVisitor {
+     public:
+      explicit TestVisitor(CookieRestartTestHandler* handler)
+          : handler_(handler) {}
+      ~TestVisitor() override {
+        // Destroy the test.
+        CefPostTask(
+            TID_UI,
+            base::Bind(
+                &CookieRestartTestHandler::ShutdownServer, handler_,
+                base::Bind(&CookieRestartTestHandler::DestroyTest, handler_)));
+      }
+
+      bool Visit(const CefCookie& cookie,
+                 int count,
+                 int total,
+                 bool& deleteCookie) override {
+        const std::string& name = CefString(&cookie.name);
+        const std::string& value = CefString(&cookie.value);
+        if (name == "name_js" && value == "value_js")
+          handler_->cookie_manager_js_ct_++;
+        else if (name == "name_net" && value == "value_net")
+          handler_->cookie_manager_net_ct_++;
+
+        // Clean up the cookies.
+        deleteCookie = true;
+
+        return true;
+      }
+
+     private:
+      CookieRestartTestHandler* handler_;
+      IMPLEMENT_REFCOUNTING(TestVisitor);
+    };
+
+    cookie_manager_->VisitAllCookies(new TestVisitor(this));
+  }
+
+  void ShutdownServer(const base::Closure& complete_callback) {
+    EXPECT_TRUE(server_handler_);
+
+    server_handler_->ShutdownServer(complete_callback);
+    server_handler_ = nullptr;
+  }
+
+  const std::string scheme_;
+  const bool use_global_;
+  CefRefPtr<CefRequestContext> context_;
+  CefRefPtr<CefCookieManager> cookie_manager_;
+
+  CefRefPtr<CookieAccessServerHandler> server_handler_;
+
+  CookieAccessData data1_;
+  CookieAccessData data2_;
+
+  int before_resource_load_ct_ = 0;
+  int resource_response_ct_ = 0;
+  int query_ct_ = 0;
+
+  // From network requests.
+  int can_save_cookie_ct_ = 0;
+  int can_send_cookie_ct_ = 0;
+  int cookie_js1_ct_ = 0;
+  int cookie_net1_ct_ = 0;
+  int cookie_js2_ct_ = 0;
+  int cookie_net2_ct_ = 0;
+
+  // From cookie manager.
+  int cookie_manager_js_ct_ = 0;
+  int cookie_manager_net_ct_ = 0;
+
+  DISALLOW_COPY_AND_ASSIGN(CookieRestartTestHandler);
+  IMPLEMENT_REFCOUNTING(CookieRestartTestHandler);
+};
+
+}  // namespace
+
+TEST(CookieTest, RestartGlobal) {
+  if (!IsNetworkServiceEnabled())
+    return;
+  CefRefPtr<CookieRestartTestHandler> handler =
+      new CookieRestartTestHandler(true);
+  handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
+}
+
+TEST(CookieTest, RestartInMemory) {
+  if (!IsNetworkServiceEnabled())
+    return;
+  CefRefPtr<CookieRestartTestHandler> handler =
+      new CookieRestartTestHandler(false);
+  handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
+}
 
 // Entry point for registering custom schemes.
 // Called from client_app_delegates.cc.

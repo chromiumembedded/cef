@@ -36,6 +36,9 @@ namespace net_service {
 
 namespace {
 
+const int kLoadNoCookiesFlags =
+    net::LOAD_DO_NOT_SEND_COOKIES | net::LOAD_DO_NOT_SAVE_COOKIES;
+
 class RequestCallbackWrapper : public CefRequestCallback {
  public:
   using Callback = base::OnceCallback<void(bool /* allow */)>;
@@ -443,8 +446,7 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
       // Also add/save cookies ourselves for default-handled network requests
       // so that we can filter them. This will be a no-op for custom-handled
       // requests.
-      request->load_flags |=
-          net::LOAD_DO_NOT_SEND_COOKIES | net::LOAD_DO_NOT_SAVE_COOKIES;
+      request->load_flags |= kLoadNoCookiesFlags;
     }
 
     if (!allowed_cookies.empty()) {
@@ -713,6 +715,11 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
         base::BindOnce(std::move(callback), response_mode, nullptr, new_url);
 
     if (response_mode == ResponseMode::RESTART) {
+      if (state->cookie_filter_) {
+        // Remove the flags that were added in ContinueWithLoadedCookies.
+        request->load_flags &= ~kLoadNoCookiesFlags;
+      }
+
       // Get any cookies after the restart.
       std::move(exec_callback).Run();
       return;
