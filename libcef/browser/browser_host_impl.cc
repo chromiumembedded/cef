@@ -1576,6 +1576,11 @@ CefRefPtr<CefFrame> CefBrowserHostImpl::GetFrameForHost(
   return browser_info_->GetFrameForHost(host);
 }
 
+CefRefPtr<CefFrame> CefBrowserHostImpl::GetFrameForFrameTreeNode(
+    int frame_tree_node_id) {
+  return browser_info_->GetFrameForFrameTreeNode(frame_tree_node_id, nullptr);
+}
+
 void CefBrowserHostImpl::LoadMainFrameURL(const std::string& url,
                                           const content::Referrer& referrer,
                                           ui::PageTransition transition,

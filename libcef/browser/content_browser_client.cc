@@ -429,6 +429,7 @@ bool NavigationOnUIThread(
     bool is_main_frame,
     int64_t frame_id,
     int64_t parent_frame_id,
+    int frame_tree_node_id,
     content::WebContents* source,
     const navigation_interception::NavigationParams& params) {
   CEF_REQUIRE_UIT();
@@ -447,7 +448,9 @@ bool NavigationOnUIThread(
           frame = browser->GetMainFrame();
         } else if (frame_id >= 0) {
           frame = browser->GetFrame(frame_id);
-          DCHECK(frame);
+        }
+        if (!frame && frame_tree_node_id >= 0) {
+          frame = browser->GetFrameForFrameTreeNode(frame_tree_node_id);
         }
         if (!frame) {
           // Create a temporary frame object for navigation of sub-frames that
@@ -1115,7 +1118,7 @@ CefContentBrowserClient::CreateThrottlesForNavigation(
       std::make_unique<navigation_interception::InterceptNavigationThrottle>(
           navigation_handle,
           base::Bind(&NavigationOnUIThread, is_main_frame, frame_id,
-                     parent_frame_id),
+                     parent_frame_id, navigation_handle->GetFrameTreeNodeId()),
           navigation_interception::SynchronyMode::kSync);
   throttles.push_back(std::move(throttle));
 

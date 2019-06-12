@@ -299,6 +299,9 @@ class CefBrowserHostImpl : public CefBrowserHost,
   // Returns the frame associated with the specified RenderFrameHost.
   CefRefPtr<CefFrame> GetFrameForHost(const content::RenderFrameHost* host);
 
+  // Returns the frame associated with the specified FrameTreeNode ID.
+  CefRefPtr<CefFrame> GetFrameForFrameTreeNode(int frame_tree_node_id);
+
   // Load the specified URL in the main frame.
   void LoadMainFrameURL(const std::string& url,
                         const content::Referrer& referrer,
