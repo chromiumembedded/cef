@@ -441,14 +441,15 @@ def GetConfigArgsSandbox(platform, args, is_debug, cpu):
 
       # Avoid /LTCG linker warnings and generate smaller lib files.
       'is_official_build': False,
-
-      # Avoid Debug build linker errors caused by custom libc++.
-      'use_custom_libcxx': False,
   }
 
   if is_debug:
     # Enable iterator debugging (_ITERATOR_DEBUG_LEVEL=2).
     add_args['enable_iterator_debugging'] = True
+
+  if platform == 'windows':
+    # Avoid Debug build linker errors caused by custom libc++.
+    add_args['use_custom_libcxx'] = False
 
   result = MergeDicts(args, add_args, {
       'is_debug': is_debug,
