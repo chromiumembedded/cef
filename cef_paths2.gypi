@@ -88,6 +88,7 @@
     'includes_linux': [
       'include/base/internal/cef_atomicops_atomicword_compat.h',
       'include/base/internal/cef_atomicops_arm_gcc.h',
+      'include/base/internal/cef_atomicops_arm64_gcc.h',
       'include/base/internal/cef_atomicops_x86_gcc.h',
       'include/internal/cef_linux.h',
       'include/internal/cef_types_linux.h',

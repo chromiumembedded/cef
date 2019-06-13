@@ -92,8 +92,8 @@ class cef_json_builder:
   @staticmethod
   def get_platforms():
     """ Returns the list of supported platforms. """
-    return ('linux32', 'linux64', 'linuxarm', 'macosx64', 'windows32',
-            'windows64')
+    return ('linux32', 'linux64', 'linuxarm', 'linuxarm64', 'macosx64',
+            'windows32', 'windows64')
 
   @staticmethod
   def get_distrib_types():
