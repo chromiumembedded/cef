@@ -195,6 +195,7 @@ class ProxyURLLoaderFactory
 
   std::unique_ptr<InterceptedRequestHandler> request_handler_;
 
+  bool destroyed_ = false;
   DisconnectCallback on_disconnect_;
 
   // Map of request ID to request object.

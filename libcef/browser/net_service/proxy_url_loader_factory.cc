@@ -59,6 +59,12 @@ class ResourceContextData : public base::SupportsUserData::Data {
                        content::ResourceContext* resource_context) {
     CEF_REQUIRE_IOT();
 
+    // Maybe the proxy was destroyed while AddProxyOnUIThread was pending.
+    if (proxy->destroyed_) {
+      delete proxy;
+      return;
+    }
+
     auto* self = static_cast<ResourceContextData*>(
         resource_context->GetUserData(kResourceContextUserDataKey));
     if (!self) {
@@ -1046,6 +1052,7 @@ void ProxyURLLoaderFactory::CreateOnIOThread(
 void ProxyURLLoaderFactory::SetDisconnectCallback(
     DisconnectCallback on_disconnect) {
   CEF_REQUIRE_IOT();
+  DCHECK(!destroyed_);
   DCHECK(!on_disconnect_);
   on_disconnect_ = std::move(on_disconnect);
 }
@@ -1179,8 +1186,14 @@ void ProxyURLLoaderFactory::MaybeDestroySelf() {
   if (target_factory_.is_bound() || !requests_.empty())
     return;
 
-  // Deletes |this|.
-  std::move(on_disconnect_).Run(this);
+  CHECK(!destroyed_);
+  destroyed_ = true;
+
+  // In some cases we may be destroyed before SetDisconnectCallback is called.
+  if (on_disconnect_) {
+    // Deletes |this|.
+    std::move(on_disconnect_).Run(this);
+  }
 }
 
 }  // namespace net_service
