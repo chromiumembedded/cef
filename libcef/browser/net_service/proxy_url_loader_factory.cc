@@ -40,7 +40,14 @@ class ResourceContextData : public base::SupportsUserData::Data {
     CEF_REQUIRE_UIT();
 
     content::WebContents* web_contents = web_contents_getter.Run();
-    DCHECK(web_contents);
+
+    // Maybe the browser was destroyed while AddProxyOnUIThread was pending.
+    if (!web_contents) {
+      // Delete on the IO thread as expected by mojo bindings.
+      content::BrowserThread::DeleteSoon(content::BrowserThread::IO, FROM_HERE,
+                                         proxy);
+      return;
+    }
 
     content::BrowserContext* browser_context =
         web_contents->GetBrowserContext();
@@ -1033,7 +1040,9 @@ ProxyURLLoaderFactory::ProxyURLLoaderFactory(
     url_loader_header_client_binding_.Bind(std::move(header_client_request));
 }
 
-ProxyURLLoaderFactory::~ProxyURLLoaderFactory() {}
+ProxyURLLoaderFactory::~ProxyURLLoaderFactory() {
+  CEF_REQUIRE_IOT();
+}
 
 // static
 void ProxyURLLoaderFactory::CreateOnIOThread(

@@ -450,6 +450,11 @@ void TestHandler::SetTestTimeout(int timeout_ms, bool treat_as_error) {
     return;
   }
 
+  if (destroy_test_called_) {
+    // No need to set the timeout if the test has already completed.
+    return;
+  }
+
   if (treat_as_error && CefCommandLine::GetGlobalCommandLine()->HasSwitch(
                             "disable-test-timeout")) {
     return;
@@ -475,7 +480,7 @@ void TestHandler::TestComplete() {
 
 TestHandler::UIThreadHelper* TestHandler::GetUIThreadHelper() {
   EXPECT_UI_THREAD();
-  EXPECT_FALSE(destroy_test_called_);
+  CHECK(!destroy_test_called_);
 
   if (!ui_thread_helper_.get())
     ui_thread_helper_.reset(new UIThreadHelper());
