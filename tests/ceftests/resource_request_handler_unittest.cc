@@ -163,6 +163,14 @@ class BasicResponseTest : public TestHandler {
     // Normal load, nothing fancy.
     LOAD,
 
+    // Close the browser in OnAfterCreated to verify destruction handling of
+    // uninitialized requests.
+    ABORT_AFTER_CREATED,
+
+    // Close the browser in OnBeforeBrowse to verify destruction handling of
+    // uninitialized requests.
+    ABORT_BEFORE_BROWSE,
+
     // Don't continue from OnBeforeResourceLoad, then close the browser to
     // verify destruction handling of in-progress requests.
     INCOMPLETE_BEFORE_RESOURCE_LOAD,
@@ -207,6 +215,25 @@ class BasicResponseTest : public TestHandler {
     SetTestTimeout();
   }
 
+  void OnAfterCreated(CefRefPtr<CefBrowser> browser) override {
+    EXPECT_UI_THREAD();
+    TestHandler::OnAfterCreated(browser);
+
+    if (mode_ == ABORT_AFTER_CREATED) {
+      SetSignalCompletionWhenAllBrowsersClose(false);
+      CloseBrowser(browser, false);
+    }
+  }
+
+  void OnBeforeClose(CefRefPtr<CefBrowser> browser) override {
+    EXPECT_UI_THREAD();
+    TestHandler::OnBeforeClose(browser);
+
+    if (IsAborted()) {
+      DestroyTest();
+    }
+  }
+
   bool OnBeforeBrowse(CefRefPtr<CefBrowser> browser,
                       CefRefPtr<CefFrame> frame,
                       CefRefPtr<CefRequest> request,
@@ -232,6 +259,11 @@ class BasicResponseTest : public TestHandler {
     on_before_browse_ct_++;
 
     VerifyState(kOnBeforeBrowse, request, nullptr);
+
+    if (mode_ == ABORT_BEFORE_BROWSE) {
+      SetSignalCompletionWhenAllBrowsersClose(false);
+      CloseBrowser(browser, false);
+    }
 
     return false;
   }
@@ -475,7 +507,7 @@ class BasicResponseTest : public TestHandler {
 
     VerifyState(kOnResourceLoadComplete, request, response);
 
-    if (unhandled_ || IsIncomplete()) {
+    if (unhandled_ || IsIncomplete() || IsAborted()) {
       EXPECT_EQ(UR_FAILED, status);
       EXPECT_EQ(0, received_content_length);
     } else {
@@ -661,19 +693,36 @@ class BasicResponseTest : public TestHandler {
         EXPECT_EQ(0, get_resource_response_filter_ct_);
         EXPECT_EQ(0, on_resource_response_ct_);
       }
+    } else if (IsAborted()) {
+      EXPECT_EQ(1, on_before_browse_ct_);
+      if (custom_scheme_) {
+        EXPECT_EQ(0, get_resource_request_handler_ct_);
+        EXPECT_EQ(0, get_cookie_access_filter_ct_);
+      } else {
+        // The callbacks executed for standard schemes may vary based on timing.
+      }
+      EXPECT_EQ(0, on_before_resource_load_ct_);
+      EXPECT_EQ(0, get_resource_handler_ct_);
+      EXPECT_EQ(0, on_resource_redirect_ct_);
+      EXPECT_EQ(0, get_resource_response_filter_ct_);
+      EXPECT_EQ(0, on_resource_response_ct_);
     } else {
       NOTREACHED();
     }
 
     EXPECT_EQ(resource_handler_created_ct_, resource_handler_destroyed_ct_);
-    EXPECT_EQ(1, on_resource_load_complete_ct_);
 
-    if (IsIncomplete())
+    if (IsAborted())
+      EXPECT_EQ(0, on_resource_load_complete_ct_);
+    else
+      EXPECT_EQ(1, on_resource_load_complete_ct_);
+
+    if (IsIncomplete() || IsAborted())
       EXPECT_EQ(0, on_load_end_ct_);
     else
       EXPECT_EQ(1, on_load_end_ct_);
 
-    if (custom_scheme_ && unhandled_ && !IsIncomplete())
+    if (custom_scheme_ && unhandled_ && !(IsIncomplete() || IsAborted()))
       EXPECT_EQ(1, on_protocol_execution_ct_);
     else
       EXPECT_EQ(0, on_protocol_execution_ct_);
@@ -715,7 +764,7 @@ class BasicResponseTest : public TestHandler {
   }
 
   const char* GetStartupURL() const {
-    if (IsLoad() || IsIncomplete()) {
+    if (IsLoad() || IsIncomplete() || IsAborted()) {
       return GetURL(RESULT_HTML);
     } else if (mode_ == REDIRECT_RESOURCE_REDIRECT) {
       return GetURL(REDIRECT2_HTML);
@@ -786,6 +835,10 @@ class BasicResponseTest : public TestHandler {
            IsIncompleteRequestHandler();
   }
 
+  bool IsAborted() const {
+    return mode_ == ABORT_AFTER_CREATED || mode_ == ABORT_BEFORE_BROWSE;
+  }
+
   bool IsRedirect() const {
     return mode_ == REDIRECT_BEFORE_RESOURCE_LOAD ||
            mode_ == REDIRECT_REQUEST_HANDLER ||
@@ -852,7 +905,7 @@ class BasicResponseTest : public TestHandler {
       EXPECT_EQ(request_id_, request->GetIdentifier()) << callback;
     }
 
-    if (IsLoad() || IsIncomplete()) {
+    if (IsLoad() || IsIncomplete() || IsAborted()) {
       EXPECT_STREQ("GET", request->GetMethod().ToString().c_str()) << callback;
       EXPECT_STREQ(GetURL(RESULT_HTML), request->GetURL().ToString().c_str())
           << callback;
@@ -912,7 +965,8 @@ class BasicResponseTest : public TestHandler {
     // response.
     const bool incomplete_unhandled =
         (mode_ == INCOMPLETE_BEFORE_RESOURCE_LOAD ||
-         mode_ == INCOMPLETE_REQUEST_HANDLER_PROCESS_REQUEST);
+         mode_ == INCOMPLETE_REQUEST_HANDLER_PROCESS_REQUEST ||
+         (IsAborted() && !custom_scheme_));
 
     if ((unhandled_ && !override_unhandled) || incomplete_unhandled) {
       if (incomplete_unhandled) {
@@ -927,7 +981,7 @@ class BasicResponseTest : public TestHandler {
       EXPECT_STREQ("", response->GetMimeType().ToString().c_str()) << callback;
       EXPECT_STREQ("", response->GetCharset().ToString().c_str()) << callback;
     } else {
-      if (mode_ == INCOMPLETE_REQUEST_HANDLER_READ_RESPONSE &&
+      if ((mode_ == INCOMPLETE_REQUEST_HANDLER_READ_RESPONSE || IsAborted()) &&
           callback == kOnResourceLoadComplete) {
         // We got a response, but we also got aborted.
         EXPECT_EQ(ERR_ABORTED, response->GetError()) << callback;
@@ -1035,7 +1089,9 @@ bool IsTestSupported(BasicResponseTest::TestMode test_mode,
       // for custom schemes and unhandled requests.
       return false;
     }
-    if (test_mode == BasicResponseTest::INCOMPLETE_BEFORE_RESOURCE_LOAD ||
+    if (test_mode == BasicResponseTest::ABORT_AFTER_CREATED ||
+        test_mode == BasicResponseTest::ABORT_BEFORE_BROWSE ||
+        test_mode == BasicResponseTest::INCOMPLETE_BEFORE_RESOURCE_LOAD ||
         test_mode ==
             BasicResponseTest::INCOMPLETE_REQUEST_HANDLER_PROCESS_REQUEST ||
         test_mode ==
@@ -1063,6 +1119,8 @@ bool IsTestSupported(BasicResponseTest::TestMode test_mode,
 
 #define BASIC_TEST_ALL_MODES(name, custom, unhandled)                          \
   BASIC_TEST(name##Load, LOAD, custom, unhandled)                              \
+  BASIC_TEST(name##AbortAfterCreated, ABORT_AFTER_CREATED, custom, unhandled)  \
+  BASIC_TEST(name##AbortBeforeBrowse, ABORT_BEFORE_BROWSE, custom, unhandled)  \
   BASIC_TEST(name##ModifyBeforeResourceLoad, MODIFY_BEFORE_RESOURCE_LOAD,      \
              custom, unhandled)                                                \
   BASIC_TEST(name##RedirectBeforeResourceLoad, REDIRECT_BEFORE_RESOURCE_LOAD,  \
