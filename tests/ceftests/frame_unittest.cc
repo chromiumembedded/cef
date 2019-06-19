@@ -393,6 +393,11 @@ class FrameNavRendererTest : public ClientAppRenderer::Delegate,
     EXPECT_TRUE(args.get());
     EXPECT_TRUE(args->SetInt(0, nav_));
     EXPECT_TRUE(args->SetBool(1, result));
+
+    const int64 frame_id = frame->GetIdentifier();
+    EXPECT_TRUE(args->SetInt(2, CefInt64GetLow(frame_id)));
+    EXPECT_TRUE(args->SetInt(3, CefInt64GetHigh(frame_id)));
+
     frame->SendProcessMessage(PID_BROWSER, return_msg);
 
     nav_++;
@@ -527,6 +532,11 @@ class FrameNavTestHandler : public TestHandler {
       EXPECT_TRUE(expectations_->OnRendererComplete(
           browser, frame, args->GetInt(0), args->GetBool(1)))
           << "nav = " << nav_;
+
+      // Test that browser and render process frame IDs match.
+      const int64 frame_id = CefInt64Set(args->GetInt(2), args->GetInt(3));
+      EXPECT_EQ(frame->GetIdentifier(), frame_id);
+
       return true;
     }
 
