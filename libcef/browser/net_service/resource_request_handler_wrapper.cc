@@ -920,7 +920,19 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
 
     RequestState* state = GetState(id);
     if (!state) {
-      // The request may have been canceled during destruction.
+      // The request may have been aborted during initialization or canceled
+      // during destruction. This method will always be called before a request
+      // is deleted, so if the request is currently pending also remove it from
+      // the list.
+      if (!pending_requests_.empty()) {
+        PendingRequests::iterator it = pending_requests_.begin();
+        for (; it != pending_requests_.end(); ++it) {
+          if ((*it)->id_ == id) {
+            pending_requests_.erase(it);
+            break;
+          }
+        }
+      }
       return;
     }
 
