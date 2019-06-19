@@ -85,7 +85,7 @@ index 6435384652b7..79bd103df30d 100644
  
  void DevToolsSession::FlushProtocolNotifications() {
 diff --git third_party/blink/renderer/core/page/page.cc third_party/blink/renderer/core/page/page.cc
-index 1c2e3dbbb014..4a01e801edde 100644
+index 6cc6c5a6f38c..314334cde0d8 100644
 --- third_party/blink/renderer/core/page/page.cc
 +++ third_party/blink/renderer/core/page/page.cc
 @@ -185,7 +185,8 @@ Page::Page(PageClients& page_clients)
@@ -98,7 +98,7 @@ index 1c2e3dbbb014..4a01e801edde 100644
        // TODO(pdr): Initialize |validation_message_client_| lazily.
        validation_message_client_(
            MakeGarbageCollected<ValidationMessageClientImpl>(*this)),
-@@ -346,21 +347,40 @@ void Page::InitialStyleChanged() {
+@@ -344,21 +345,40 @@ void Page::InitialStyleChanged() {
    }
  }
  
@@ -148,7 +148,7 @@ index 1c2e3dbbb014..4a01e801edde 100644
        page->NotifyPluginsChanged();
      }
    }
-@@ -803,7 +823,8 @@ void Page::Trace(blink::Visitor* visitor) {
+@@ -801,7 +821,8 @@ void Page::Trace(blink::Visitor* visitor) {
    visitor->Trace(link_highlights_);
    visitor->Trace(spatial_navigation_controller_);
    visitor->Trace(main_frame_);

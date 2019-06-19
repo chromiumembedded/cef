@@ -262,10 +262,10 @@ index 3009401dac6b..b4c5a9e2db50 100644
  };
  
 diff --git content/common/frame_messages.h content/common/frame_messages.h
-index 8673d65844ea..7d13c72dca9b 100644
+index 91e10a619343..9eeb813ea6d7 100644
 --- content/common/frame_messages.h
 +++ content/common/frame_messages.h
-@@ -1286,9 +1286,10 @@ IPC_MESSAGE_ROUTED1(FrameHostMsg_PepperStopsPlayback,
+@@ -1289,9 +1289,10 @@ IPC_MESSAGE_ROUTED1(FrameHostMsg_PepperStopsPlayback,
  // type. If there is no matching plugin, |found| is false.
  // |actual_mime_type| is the actual mime type supported by the
  // found plugin.
@@ -372,10 +372,10 @@ index 8935697155f5..179b6ebf1360 100644
    virtual void FocusedNodeChanged(const blink::WebNode& node) {}
  
 diff --git content/renderer/render_frame_impl.cc content/renderer/render_frame_impl.cc
-index c75b6177f066..860bbe9e1c14 100644
+index dc3c7420d89d..7cf57b285d24 100644
 --- content/renderer/render_frame_impl.cc
 +++ content/renderer/render_frame_impl.cc
-@@ -3996,7 +3996,8 @@ blink::WebPlugin* RenderFrameImpl::CreatePlugin(
+@@ -4047,7 +4047,8 @@ blink::WebPlugin* RenderFrameImpl::CreatePlugin(
    std::string mime_type;
    bool found = false;
    Send(new FrameHostMsg_GetPluginInfo(
@@ -385,7 +385,7 @@ index c75b6177f066..860bbe9e1c14 100644
        params.mime_type.Utf8(), &found, &info, &mime_type));
    if (!found)
      return nullptr;
-@@ -4422,6 +4423,8 @@ void RenderFrameImpl::FrameDetached(DetachType type) {
+@@ -4473,6 +4474,8 @@ void RenderFrameImpl::FrameDetached(DetachType type) {
  
  void RenderFrameImpl::FrameFocused() {
    Send(new FrameHostMsg_FrameFocused(routing_id_));
