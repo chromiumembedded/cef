@@ -875,6 +875,9 @@ void InterceptedRequest::ContinueToResponseStarted(int error_code) {
 }
 
 void InterceptedRequest::OnDestroy() {
+  // We don't want any callbacks after this point.
+  weak_factory_.InvalidateWeakPtrs();
+
   factory_->request_handler_->OnRequestComplete(id_, request_, status_);
 
   // Destroys |this|.
