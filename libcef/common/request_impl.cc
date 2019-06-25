@@ -1133,9 +1133,10 @@ void CefRequestImpl::Changed(uint8_t changes) {
     }
     if ((changes & kChangedHeaderMap) &&
         !(backup_->backups_ & kChangedHeaderMap)) {
-      if (!backup_->headermap_)
-        backup_->headermap_.reset(new HeaderMap());
-      backup_->headermap_->swap(headermap_);
+      backup_->headermap_.reset(new HeaderMap());
+      if (!headermap_.empty()) {
+        backup_->headermap_->insert(headermap_.begin(), headermap_.end());
+      }
       backup_->backups_ |= kChangedHeaderMap;
     }
     if ((changes & kChangedFlags) && !(backup_->backups_ & kChangedFlags)) {
