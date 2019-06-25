@@ -241,8 +241,7 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
                     int frame_tree_node_id,
                     bool is_navigation,
                     bool is_download,
-                    const url::Origin& request_initiator,
-                    bool is_external) {
+                    const url::Origin& request_initiator) {
       CEF_REQUIRE_UIT();
 
       browser_context_ = browser_context;
@@ -271,7 +270,6 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
       is_navigation_ = is_navigation;
       is_download_ = is_download;
       request_initiator_ = request_initiator.Serialize();
-      is_external_ = is_external;
 
       // Default values for standard headers.
       accept_language_ = ComputeAcceptLanguageFromPref(
@@ -295,7 +293,6 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
     bool is_navigation_ = true;
     bool is_download_ = false;
     CefString request_initiator_;
-    bool is_external_ = false;
 
     // Default values for standard headers.
     std::string accept_language_;
@@ -417,8 +414,10 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
     request->headers.SetHeaderIfMissing(net::HttpRequestHeaders::kUserAgent,
                                         init_state_->user_agent_);
 
+    const bool is_external = IsExternalRequest(request);
+
     // External requests will not have a default handler.
-    bool intercept_only = init_state_->is_external_;
+    bool intercept_only = is_external;
 
     CefRefPtr<CefRequestImpl> requestPtr;
     CefRefPtr<CefResourceRequestHandler> handler =
@@ -446,7 +445,7 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
 
     auto exec_callback =
         base::BindOnce(std::move(callback), maybe_intercept_request,
-                       init_state_->is_external_ ? true : intercept_only);
+                       is_external ? true : intercept_only);
 
     if (!maybe_intercept_request) {
       // Cookies will be handled by the NetworkService.
@@ -936,11 +935,12 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
       return;
     }
 
+    const bool is_external = IsExternalRequest(&request);
+
     // Redirection of standard custom schemes is handled with a restart, so we
     // get completion notifications for both the original (redirected) request
     // and the final request. Don't report completion of the redirected request.
-    const bool ignore_result = init_state_->is_external_ &&
-                               request.url.IsStandard() &&
+    const bool ignore_result = is_external && request.url.IsStandard() &&
                                status.error_code == net::ERR_ABORTED &&
                                state->pending_response_.get() &&
                                net::HttpResponseHeaders::IsRedirectResponseCode(
@@ -951,7 +951,7 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
 
       CallHandlerOnComplete(state, status);
 
-      if (status.error_code != 0 && init_state_->is_external_) {
+      if (status.error_code != 0 && is_external) {
         bool allow_os_execution = false;
         state->handler_->OnProtocolExecution(
             init_state_->browser_, init_state_->frame_,
@@ -1128,6 +1128,11 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
     return requestPtr;
   }
 
+  // Returns true if |request| cannot be handled internally.
+  static bool IsExternalRequest(const network::ResourceRequest* request) {
+    return !scheme::IsInternalHandledScheme(request->url.scheme());
+  }
+
   scoped_refptr<InitHelper> init_helper_;
   std::unique_ptr<InitState> init_state_;
 
@@ -1224,7 +1229,7 @@ void InitOnUIThread(
   init_state->Initialize(browser_context, browserPtr, framePtr,
                          render_process_id, request.render_frame_id,
                          frame_tree_node_id, is_navigation, is_download,
-                         request_initiator, true /* is_external */);
+                         request_initiator);
 
   init_helper->MaybeSetInitialized(std::move(init_state));
 }
@@ -1255,17 +1260,11 @@ std::unique_ptr<InterceptedRequestHandler> CreateInterceptedRequestHandler(
     }
   }
 
-  // Flag subresource loads of custom schemes.
-  const bool is_external =
-      !is_navigation && !is_download && !request_initiator.scheme().empty() &&
-      !scheme::IsInternalHandledScheme(request_initiator.scheme());
-
   auto init_state =
       std::make_unique<InterceptedRequestHandlerWrapper::InitState>();
   init_state->Initialize(browser_context, browserPtr, framePtr,
                          render_process_id, render_frame_id, frame_tree_node_id,
-                         is_navigation, is_download, request_initiator,
-                         is_external);
+                         is_navigation, is_download, request_initiator);
 
   auto wrapper = std::make_unique<InterceptedRequestHandlerWrapper>();
   wrapper->init_helper()->MaybeSetInitialized(std::move(init_state));
