@@ -17,6 +17,7 @@
 #include "content/public/browser/resource_context.h"
 #include "content/public/browser/web_contents.h"
 #include "net/http/http_status_code.h"
+#include "services/network/public/cpp/cors/cors.h"
 
 namespace net_service {
 
@@ -608,12 +609,6 @@ void InterceptedRequest::BeforeRequestReceived(const GURL& original_url,
     // Equivalent to no interception.
     InterceptResponseReceived(original_url, nullptr);
   } else {
-    if (request_.referrer.is_valid()) {
-      // Intentionally override if referrer header already exists.
-      request_.headers.SetHeader(net::HttpRequestHeaders::kReferer,
-                                 request_.referrer.spec());
-    }
-
     // TODO(network): Verify the case when WebContents::RenderFrameDeleted is
     // called before network request is intercepted (i.e. if that's possible
     // and whether it can result in any issues).
@@ -641,6 +636,14 @@ void InterceptedRequest::InterceptResponseReceived(
 
     head.encoded_data_length = head.headers->raw_headers().length();
     head.content_length = head.encoded_body_length = 0;
+
+    std::string origin;
+    if (request_.headers.GetHeader(net::HttpRequestHeaders::kOrigin, &origin) &&
+        origin != url::Origin().Serialize()) {
+      // Allow redirects of cross-origin resource loads.
+      head.headers->AddHeader(MakeHeader(
+          network::cors::header_names::kAccessControlAllowOrigin, origin));
+    }
 
     current_response_ = head;
     const net::RedirectInfo& redirect_info =
