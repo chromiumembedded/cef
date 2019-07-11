@@ -68,6 +68,8 @@ enum RequestTestMode {
   REQTEST_POST,
   REQTEST_POST_FILE,
   REQTEST_POST_WITHPROGRESS,
+  REQTEST_POST_REDIRECT,
+  REQTEST_POST_REDIRECT_TOGET,
   REQTEST_HEAD,
   REQTEST_CACHE_WITH_CONTROL,
   REQTEST_CACHE_WITHOUT_CONTROL,
@@ -1251,6 +1253,9 @@ class RequestTestRunner : public base::RefCountedThreadSafe<RequestTestRunner> {
     REGISTER_TEST(REQTEST_POST_FILE, SetupPostFileTest, SingleRunTest);
     REGISTER_TEST(REQTEST_POST_WITHPROGRESS, SetupPostWithProgressTest,
                   SingleRunTest);
+    REGISTER_TEST(REQTEST_POST_REDIRECT, SetupPostRedirectTest, SingleRunTest);
+    REGISTER_TEST(REQTEST_POST_REDIRECT_TOGET, SetupPostRedirectToGetTest,
+                  SingleRunTest);
     REGISTER_TEST(REQTEST_HEAD, SetupHeadTest, SingleRunTest);
     REGISTER_TEST(REQTEST_CACHE_WITH_CONTROL, SetupCacheWithControlTest,
                   MultipleRunTest);
@@ -1585,6 +1590,58 @@ class RequestTestRunner : public base::RefCountedThreadSafe<RequestTestRunner> {
     settings_.request->SetFlags(UR_FLAG_REPORT_UPLOAD_PROGRESS);
 
     settings_.expect_upload_progress = true;
+
+    complete_callback.Run();
+  }
+
+  void SetupPostRedirectTest(const base::Closure& complete_callback) {
+    // Start with the normal post test.
+    SetupPostTestShared();
+
+    // Add a redirect request.
+    settings_.redirect_request = CefRequest::Create();
+    settings_.redirect_request->SetURL(GetTestURL("redirect.html"));
+    settings_.redirect_request->SetMethod("POST");
+    SetUploadData(settings_.redirect_request, "the_post_data");
+
+    settings_.redirect_response = CefResponse::Create();
+    settings_.redirect_response->SetMimeType("text/html");
+    // Only 307 is supported for redirecting the same method and post data.
+    settings_.redirect_response->SetStatus(307);
+    settings_.redirect_response->SetStatusText("Found");
+
+    CefResponse::HeaderMap headerMap;
+    headerMap.insert(std::make_pair("Location", settings_.request->GetURL()));
+    settings_.redirect_response->SetHeaderMap(headerMap);
+
+    complete_callback.Run();
+  }
+
+  void SetupPostRedirectToGetTest(const base::Closure& complete_callback) {
+    // Start with the normal post test.
+    SetupPostTestShared();
+
+    // The expected result after redirect is a GET request without POST data.
+    settings_.request = CefRequest::Create();
+    settings_.request->SetURL(GetTestURL("PostTest.html"));
+    settings_.request->SetMethod("GET");
+
+    // Add a redirect request.
+    settings_.redirect_request = CefRequest::Create();
+    settings_.redirect_request->SetURL(GetTestURL("redirect.html"));
+    settings_.redirect_request->SetMethod("POST");
+    SetUploadData(settings_.redirect_request, "the_post_data");
+
+    settings_.redirect_response = CefResponse::Create();
+    settings_.redirect_response->SetMimeType("text/html");
+    // Redirect codes other than 307 will cause conversion to GET and removal
+    // of POST data.
+    settings_.redirect_response->SetStatus(302);
+    settings_.redirect_response->SetStatusText("Found");
+
+    CefResponse::HeaderMap headerMap;
+    headerMap.insert(std::make_pair("Location", settings_.request->GetURL()));
+    settings_.redirect_response->SetHeaderMap(headerMap);
 
     complete_callback.Run();
   }
@@ -2873,6 +2930,10 @@ void RegisterURLRequestCustomSchemes(
            test_server_backend, test_frame_method)                             \
   REQ_TEST(BrowserPOSTWithProgress##suffix, REQTEST_POST_WITHPROGRESS,         \
            context_mode, true, test_server_backend, test_frame_method)         \
+  REQ_TEST(BrowserPOSTRedirect##suffix, REQTEST_POST_REDIRECT, context_mode,   \
+           true, test_server_backend, test_frame_method)                       \
+  REQ_TEST(BrowserPOSTRedirectToGET##suffix, REQTEST_POST_REDIRECT_TOGET,      \
+           context_mode, true, test_server_backend, test_frame_method)         \
   REQ_TEST(BrowserHEAD##suffix, REQTEST_HEAD, context_mode, true,              \
            test_server_backend, test_frame_method)                             \
   REQ_TEST(RendererGET##suffix, REQTEST_GET, context_mode, false,              \
@@ -2892,6 +2953,10 @@ void RegisterURLRequestCustomSchemes(
   REQ_TEST(RendererPOST##suffix, REQTEST_POST, context_mode, false,            \
            test_server_backend, test_frame_method)                             \
   REQ_TEST(RendererPOSTWithProgress##suffix, REQTEST_POST_WITHPROGRESS,        \
+           context_mode, false, test_server_backend, test_frame_method)        \
+  REQ_TEST(RendererPOSTRedirect##suffix, REQTEST_POST_REDIRECT, context_mode,  \
+           false, test_server_backend, test_frame_method)                      \
+  REQ_TEST(RendererPOSTRedirectToGET##suffix, REQTEST_POST_REDIRECT_TOGET,     \
            context_mode, false, test_server_backend, test_frame_method)        \
   REQ_TEST(RendererHEAD##suffix, REQTEST_HEAD, context_mode, false,            \
            test_server_backend, test_frame_method)
