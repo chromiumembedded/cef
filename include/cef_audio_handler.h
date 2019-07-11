@@ -53,7 +53,7 @@ class CefAudioHandler : public virtual CefBaseRefCounted {
   ///
   // Called when the stream identified by |audio_stream_id| has started.
   // |audio_stream_id| will uniquely identify the stream across all future
-  // CefAudioHandler callbacks. OnAudioSteamStopped will always be called after
+  // CefAudioHandler callbacks. OnAudioStreamStopped will always be called after
   // OnAudioStreamStarted; both methods may be called multiple times for the
   // same stream. |channels| is the number of channels, |channel_layout| is the
   // layout of the channels and |sample_rate| is the stream sample rate.
@@ -87,7 +87,7 @@ class CefAudioHandler : public virtual CefBaseRefCounted {
 
   ///
   // Called when the stream identified by |audio_stream_id| has stopped.
-  // OnAudioSteamStopped will always be called after OnAudioStreamStarted; both
+  // OnAudioStreamStopped will always be called after OnAudioStreamStarted; both
   // methods may be called multiple times for the same stream.
   ///
   /*--cef()--*/
