@@ -831,6 +831,11 @@ void InterceptedRequest::ContinueToBeforeRedirect(
   request_.site_for_cookies = redirect_info.new_site_for_cookies;
   request_.referrer = GURL(redirect_info.new_referrer);
   request_.referrer_policy = redirect_info.new_referrer_policy;
+
+  // The request method can be changed to "GET". In this case we need to
+  // reset the request body manually.
+  if (request_.method == net::HttpRequestHeaders::kGetMethod)
+    request_.request_body = nullptr;
 }
 
 void InterceptedRequest::ContinueToResponseStarted(int error_code) {
