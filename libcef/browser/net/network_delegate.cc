@@ -395,13 +395,10 @@ net::NetworkDelegate::AuthRequiredResponse CefNetworkDelegate::OnAuthRequired(
     if (client.get()) {
       CefRefPtr<CefRequestHandler> handler = client->GetRequestHandler();
       if (handler.get()) {
-        CefRefPtr<CefFrame> frame =
-            net_util::GetFrameForRequest(browser->browser_info(), request);
-
         CefRefPtr<CefAuthCallbackImpl> callbackPtr(
             new CefAuthCallbackImpl(std::move(callback), credentials));
         if (handler->GetAuthCredentials(
-                browser.get(), frame, auth_info.is_proxy,
+                browser.get(), request->url().spec(), auth_info.is_proxy,
                 auth_info.challenger.host(), auth_info.challenger.port(),
                 auth_info.realm, auth_info.scheme, callbackPtr.get())) {
           request->SetUserData(

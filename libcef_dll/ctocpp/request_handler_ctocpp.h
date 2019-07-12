@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=1e21398533e04c0dbd4143a3847b44fb43c64bc5$
+// $hash=dab1901a0bbeda97ef1efc8e5852964c318775f6$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_REQUEST_HANDLER_CTOCPP_H_
@@ -54,7 +54,7 @@ class CefRequestHandlerCToCpp
       const CefString& request_initiator,
       bool& disable_default_handling) override;
   bool GetAuthCredentials(CefRefPtr<CefBrowser> browser,
-                          CefRefPtr<CefFrame> frame,
+                          const CefString& origin_url,
                           bool isProxy,
                           const CefString& host,
                           int port,

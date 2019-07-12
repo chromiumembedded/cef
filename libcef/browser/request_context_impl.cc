@@ -546,6 +546,21 @@ void CefRequestContextImpl::ClearCertificateExceptions(
                  this, callback));
 }
 
+void CefRequestContextImpl::ClearHttpAuthCredentials(
+    CefRefPtr<CefCompletionCallback> callback) {
+  if (net_service::IsEnabled()) {
+    GetBrowserContext(
+        base::CreateSingleThreadTaskRunnerWithTraits({BrowserThread::UI}),
+        base::Bind(&CefRequestContextImpl::ClearHttpAuthCredentialsInternal,
+                   this, callback));
+  } else {
+    GetRequestContextImpl(
+        base::CreateSingleThreadTaskRunnerWithTraits({BrowserThread::IO}),
+        base::Bind(&CefRequestContextImpl::ClearHttpAuthCredentialsInternalOld,
+                   this, callback));
+  }
+}
+
 void CefRequestContextImpl::CloseAllConnections(
     CefRefPtr<CefCompletionCallback> callback) {
   if (net_service::IsEnabled()) {
@@ -840,6 +855,36 @@ void CefRequestContextImpl::ClearCertificateExceptionsInternal(
       browser_context->GetSSLHostStateDelegate();
   if (ssl_delegate)
     ssl_delegate->Clear(base::Callback<bool(const std::string&)>());
+
+  if (callback) {
+    CEF_POST_TASK(CEF_UIT,
+                  base::Bind(&CefCompletionCallback::OnComplete, callback));
+  }
+}
+
+void CefRequestContextImpl::ClearHttpAuthCredentialsInternal(
+    CefRefPtr<CefCompletionCallback> callback,
+    CefBrowserContext* browser_context) {
+  CEF_REQUIRE_UIT();
+
+  browser_context->GetNetworkContext()->ClearHttpAuthCache(
+      base::Time(), base::Bind(&CefCompletionCallback::OnComplete, callback));
+}
+
+void CefRequestContextImpl::ClearHttpAuthCredentialsInternalOld(
+    CefRefPtr<CefCompletionCallback> callback,
+    scoped_refptr<CefURLRequestContextGetter> request_context) {
+  CEF_REQUIRE_IOT();
+
+  net::URLRequestContext* url_context = request_context->GetURLRequestContext();
+  if (url_context) {
+    net::HttpNetworkSession* http_session =
+        url_context->http_transaction_factory()->GetSession();
+    DCHECK(http_session);
+
+    http_session->http_auth_cache()->ClearEntriesAddedSince(base::Time());
+    http_session->CloseAllConnections();
+  }
 
   if (callback) {
     CEF_POST_TASK(CEF_UIT,

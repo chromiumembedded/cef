@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=f286ec7520ee6b589b3ecafa409eb3f71c081e27$
+// $hash=ad2fb4fa8e7c8e265de6e03e2c8c8d3d28a7fd39$
 //
 
 #include "libcef_dll/ctocpp/request_handler_ctocpp.h"
@@ -151,7 +151,7 @@ CefRequestHandlerCToCpp::GetResourceRequestHandler(
 NO_SANITIZE("cfi-icall")
 bool CefRequestHandlerCToCpp::GetAuthCredentials(
     CefRefPtr<CefBrowser> browser,
-    CefRefPtr<CefFrame> frame,
+    const CefString& origin_url,
     bool isProxy,
     const CefString& host,
     int port,
@@ -170,9 +170,9 @@ bool CefRequestHandlerCToCpp::GetAuthCredentials(
   DCHECK(browser.get());
   if (!browser.get())
     return false;
-  // Verify param: frame; type: refptr_diff
-  DCHECK(frame.get());
-  if (!frame.get())
+  // Verify param: origin_url; type: string_byref_const
+  DCHECK(!origin_url.empty());
+  if (origin_url.empty())
     return false;
   // Verify param: host; type: string_byref_const
   DCHECK(!host.empty());
@@ -186,8 +186,8 @@ bool CefRequestHandlerCToCpp::GetAuthCredentials(
 
   // Execute
   int _retval = _struct->get_auth_credentials(
-      _struct, CefBrowserCppToC::Wrap(browser), CefFrameCppToC::Wrap(frame),
-      isProxy, host.GetStruct(), port, realm.GetStruct(), scheme.GetStruct(),
+      _struct, CefBrowserCppToC::Wrap(browser), origin_url.GetStruct(), isProxy,
+      host.GetStruct(), port, realm.GetStruct(), scheme.GetStruct(),
       CefAuthCallbackCppToC::Wrap(callback));
 
   // Return type: bool

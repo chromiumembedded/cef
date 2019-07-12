@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=370a54c21bec2aff5cf62b5897f5d43401e1ec31$
+// $hash=ab373b720fe3c700867f86ad29ffc8b3e518a92c$
 //
 
 #include "libcef_dll/cpptoc/request_handler_cpptoc.h"
@@ -159,7 +159,7 @@ request_handler_get_resource_request_handler(
 int CEF_CALLBACK
 request_handler_get_auth_credentials(struct _cef_request_handler_t* self,
                                      cef_browser_t* browser,
-                                     cef_frame_t* frame,
+                                     const cef_string_t* origin_url,
                                      int isProxy,
                                      const cef_string_t* host,
                                      int port,
@@ -177,9 +177,9 @@ request_handler_get_auth_credentials(struct _cef_request_handler_t* self,
   DCHECK(browser);
   if (!browser)
     return 0;
-  // Verify param: frame; type: refptr_diff
-  DCHECK(frame);
-  if (!frame)
+  // Verify param: origin_url; type: string_byref_const
+  DCHECK(origin_url);
+  if (!origin_url)
     return 0;
   // Verify param: host; type: string_byref_const
   DCHECK(host);
@@ -193,7 +193,7 @@ request_handler_get_auth_credentials(struct _cef_request_handler_t* self,
 
   // Execute
   bool _retval = CefRequestHandlerCppToC::Get(self)->GetAuthCredentials(
-      CefBrowserCToCpp::Wrap(browser), CefFrameCToCpp::Wrap(frame),
+      CefBrowserCToCpp::Wrap(browser), CefString(origin_url),
       isProxy ? true : false, CefString(host), port, CefString(realm),
       CefString(scheme), CefAuthCallbackCToCpp::Wrap(callback));
 

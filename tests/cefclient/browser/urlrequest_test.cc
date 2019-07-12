@@ -126,9 +126,10 @@ class Handler : public CefMessageRouterBrowserSide::Handler {
       const RequestClient::Callback& request_callback =
           base::Bind(&Handler::OnRequestComplete, base::Unretained(this));
 
-      // Create and start the new CefURLRequest.
-      urlrequest_ = CefURLRequest::Create(
-          cef_request, new RequestClient(request_callback), NULL);
+      // Create and start a new CefURLRequest associated with the frame, so
+      // that it shares authentication with ClientHandler::GetAuthCredentials.
+      urlrequest_ = frame->CreateURLRequest(
+          cef_request, new RequestClient(request_callback));
 
       return true;
     }

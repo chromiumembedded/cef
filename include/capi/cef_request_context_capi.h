@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=59376c6298df4489ecc34f3509a8d0e77e9d97f7$
+// $hash=fdfce3e4e33a1d4e1170497d2a476f0837994060$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_REQUEST_CONTEXT_CAPI_H_
@@ -235,6 +235,15 @@ typedef struct _cef_request_context_t {
   // completion.
   ///
   void(CEF_CALLBACK* clear_certificate_exceptions)(
+      struct _cef_request_context_t* self,
+      struct _cef_completion_callback_t* callback);
+
+  ///
+  // Clears all HTTP authentication credentials that were added as part of
+  // handling GetAuthCredentials. If |callback| is non-NULL it will be executed
+  // on the UI thread after completion.
+  ///
+  void(CEF_CALLBACK* clear_http_auth_credentials)(
       struct _cef_request_context_t* self,
       struct _cef_completion_callback_t* callback);
 

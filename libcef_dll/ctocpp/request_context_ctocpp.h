@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=00889895e17ac49f55668e395aa98a5f8312ee31$
+// $hash=dd07d0157b7e9128b240ed2b059f2358ebf9fc09$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_REQUEST_CONTEXT_CTOCPP_H_
@@ -62,6 +62,8 @@ class CefRequestContextCToCpp
                      CefRefPtr<CefValue> value,
                      CefString& error) OVERRIDE;
   void ClearCertificateExceptions(
+      CefRefPtr<CefCompletionCallback> callback) OVERRIDE;
+  void ClearHttpAuthCredentials(
       CefRefPtr<CefCompletionCallback> callback) OVERRIDE;
   void CloseAllConnections(CefRefPtr<CefCompletionCallback> callback) OVERRIDE;
   void ResolveHost(const CefString& origin,

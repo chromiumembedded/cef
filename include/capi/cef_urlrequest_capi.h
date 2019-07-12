@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=3d31b2d1bad50deeb68a5e6318344024c2f3f5be$
+// $hash=77ac3a2aaea32b649185a58e4c2bbb13b7fe0540$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_URLREQUEST_CAPI_H_
@@ -193,9 +193,11 @@ typedef struct _cef_urlrequest_client_t {
   // |isProxy| indicates whether the host is a proxy server. |host| contains the
   // hostname and |port| contains the port number. Return true (1) to continue
   // the request and call cef_auth_callback_t::cont() when the authentication
-  // information is available. Return false (0) to cancel the request. This
-  // function will only be called for requests initiated from the browser
-  // process.
+  // information is available. If the request has an associated browser/frame
+  // then returning false (0) will result in a call to GetAuthCredentials on the
+  // cef_request_tHandler associated with that browser, if any. Otherwise,
+  // returning false (0) will cancel the request immediately. This function will
+  // only be called for requests initiated from the browser process.
   ///
   int(CEF_CALLBACK* get_auth_credentials)(
       struct _cef_urlrequest_client_t* self,

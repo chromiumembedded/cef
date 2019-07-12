@@ -407,6 +407,8 @@ static_library("libcef_static") {
     "libcef/browser/net_service/cookie_helper.h",
     "libcef/browser/net_service/cookie_manager_impl.cc",
     "libcef/browser/net_service/cookie_manager_impl.h",
+    "libcef/browser/net_service/login_delegate.cc",
+    "libcef/browser/net_service/login_delegate.h",
     "libcef/browser/net_service/proxy_url_loader_factory.cc",
     "libcef/browser/net_service/proxy_url_loader_factory.h",
     "libcef/browser/net_service/resource_handler_wrapper.cc",
