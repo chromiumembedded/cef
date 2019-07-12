@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=8155639f093ff697fd30a9e330ae3470108251e5$
+// $hash=5036c24365fa0fdb3d7efc54670f3123a7104fa0$
 //
 
 #include "libcef_dll/ctocpp/request_context_ctocpp.h"
@@ -352,6 +352,22 @@ void CefRequestContextCToCpp::ClearCertificateExceptions(
 
   // Execute
   _struct->clear_certificate_exceptions(
+      _struct, CefCompletionCallbackCppToC::Wrap(callback));
+}
+
+NO_SANITIZE("cfi-icall")
+void CefRequestContextCToCpp::ClearHttpAuthCredentials(
+    CefRefPtr<CefCompletionCallback> callback) {
+  cef_request_context_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, clear_http_auth_credentials))
+    return;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Unverified params: callback
+
+  // Execute
+  _struct->clear_http_auth_credentials(
       _struct, CefCompletionCallbackCppToC::Wrap(callback));
 }
 

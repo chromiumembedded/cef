@@ -1,0 +1,84 @@
+diff --git content/browser/network_service_client.cc content/browser/network_service_client.cc
+index 2c2795aeaf51..7cded67a3fe3 100644
+--- content/browser/network_service_client.cc
++++ content/browser/network_service_client.cc
+@@ -205,10 +205,6 @@ class LoginHandlerDelegate {
+     }
+ 
+     WebContents* web_contents = web_contents_getter_.Run();
+-    if (!web_contents) {
+-      OnAuthCredentials(base::nullopt);
+-      return;
+-    }
+ 
+     // WeakPtr is not strictly necessary here due to OnRequestCancelled.
+     creating_login_delegate_ = true;
+@@ -500,11 +496,6 @@ void NetworkServiceClient::OnAuthRequired(
+   base::RepeatingCallback<WebContents*(void)> web_contents_getter =
+       base::BindRepeating(GetWebContents, process_id, routing_id);
+ 
+-  if (!web_contents_getter.Run()) {
+-    std::move(auth_challenge_responder)->OnAuthCredentials(base::nullopt);
+-    return;
+-  }
+-
+   bool is_request_for_main_frame = IsMainFrameRequest(process_id, routing_id);
+   new LoginHandlerDelegate(std::move(auth_challenge_responder),
+                            std::move(web_contents_getter), auth_info,
+diff --git services/network/public/cpp/simple_url_loader.cc services/network/public/cpp/simple_url_loader.cc
+index 068b86169fab..b8488726b6a7 100644
+--- services/network/public/cpp/simple_url_loader.cc
++++ services/network/public/cpp/simple_url_loader.cc
+@@ -227,6 +227,7 @@ class SimpleURLLoaderImpl : public SimpleURLLoader,
+       uint64_t length = std::numeric_limits<uint64_t>::max()) override;
+   void SetRetryOptions(int max_retries, int retry_mode) override;
+   void SetTimeoutDuration(base::TimeDelta timeout_duration) override;
++  void SetRequestId(int32_t request_id) override;
+ 
+   int NetError() const override;
+   const ResourceResponseHead* ResponseInfo() const override;
+@@ -344,6 +345,8 @@ class SimpleURLLoaderImpl : public SimpleURLLoader,
+   // The next values contain all the information required to restart the
+   // request.
+ 
++  int32_t request_id_ = 0;
++
+   // Populated in the constructor, and cleared once no longer needed, when no
+   // more retries are possible.
+   std::unique_ptr<ResourceRequest> resource_request_;
+@@ -1368,6 +1371,12 @@ void SimpleURLLoaderImpl::SetTimeoutDuration(base::TimeDelta timeout_duration) {
+   timeout_duration_ = timeout_duration;
+ }
+ 
++void SimpleURLLoaderImpl::SetRequestId(int32_t request_id) {
++  // Check if a request has not yet been started.
++  DCHECK(!body_handler_);
++  request_id_ = request_id;
++}
++
+ int SimpleURLLoaderImpl::NetError() const {
+   // Should only be called once the request is compelete.
+   DCHECK(request_state_->finished);
+@@ -1516,7 +1525,7 @@ void SimpleURLLoaderImpl::StartRequest(
+         string_upload_data_pipe_getter_->GetPtrForNewUpload());
+   }
+   url_loader_factory->CreateLoaderAndStart(
+-      mojo::MakeRequest(&url_loader_), 0 /* routing_id */, 0 /* request_id */,
++      mojo::MakeRequest(&url_loader_), 0 /* routing_id */, request_id_,
+       0 /* options */, *resource_request_, std::move(client_ptr),
+       net::MutableNetworkTrafficAnnotationTag(annotation_tag_));
+ 
+diff --git services/network/public/cpp/simple_url_loader.h services/network/public/cpp/simple_url_loader.h
+index f81788d25fda..ba8948be5ebf 100644
+--- services/network/public/cpp/simple_url_loader.h
++++ services/network/public/cpp/simple_url_loader.h
+@@ -324,6 +324,9 @@ class COMPONENT_EXPORT(NETWORK_CPP) SimpleURLLoader {
+   // as much time as it wants.
+   virtual void SetTimeoutDuration(base::TimeDelta timeout_duration) = 0;
+ 
++  // Set the ID that will be associated with the request.
++  virtual void SetRequestId(int32_t request_id) = 0;
++
+   // Returns the net::Error representing the final status of the request. May
+   // only be called once the loader has informed the caller of completion.
+   virtual int NetError() const = 0;

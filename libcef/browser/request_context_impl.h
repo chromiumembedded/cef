@@ -73,6 +73,8 @@ class CefRequestContextImpl : public CefRequestContext {
                      CefString& error) override;
   void ClearCertificateExceptions(
       CefRefPtr<CefCompletionCallback> callback) override;
+  void ClearHttpAuthCredentials(
+      CefRefPtr<CefCompletionCallback> callback) override;
   void CloseAllConnections(CefRefPtr<CefCompletionCallback> callback) override;
   void ResolveHost(const CefString& origin,
                    CefRefPtr<CefResolveCallback> callback) override;
@@ -157,6 +159,12 @@ class CefRequestContextImpl : public CefRequestContext {
   void ClearCertificateExceptionsInternal(
       CefRefPtr<CefCompletionCallback> callback,
       CefBrowserContext* browser_context);
+  void ClearHttpAuthCredentialsInternal(
+      CefRefPtr<CefCompletionCallback> callback,
+      CefBrowserContext* browser_context);
+  void ClearHttpAuthCredentialsInternalOld(
+      CefRefPtr<CefCompletionCallback> callback,
+      scoped_refptr<CefURLRequestContextGetter> request_context);
   void CloseAllConnectionsInternal(CefRefPtr<CefCompletionCallback> callback,
                                    CefBrowserContext* browser_context);
   void CloseAllConnectionsInternalOld(

@@ -150,18 +150,19 @@ class CefRequestHandler : public virtual CefBaseRefCounted {
 
   ///
   // Called on the IO thread when the browser needs credentials from the user.
-  // |isProxy| indicates whether the host is a proxy server. |host| contains the
-  // hostname and |port| contains the port number. |realm| is the realm of the
-  // challenge and may be empty. |scheme| is the authentication scheme used,
-  // such as "basic" or "digest", and will be empty if the source of the request
-  // is an FTP server. Return true to continue the request and call
+  // |origin_url| is the origin making this authentication request. |isProxy|
+  // indicates whether the host is a proxy server. |host| contains the hostname
+  // and |port| contains the port number. |realm| is the realm of the challenge
+  // and may be empty. |scheme| is the authentication scheme used, such as
+  // "basic" or "digest", and will be empty if the source of the request is an
+  // FTP server. Return true to continue the request and call
   // CefAuthCallback::Continue() either in this method or at a later time when
   // the authentication information is available. Return false to cancel the
   // request immediately.
   ///
   /*--cef(optional_param=realm,optional_param=scheme)--*/
   virtual bool GetAuthCredentials(CefRefPtr<CefBrowser> browser,
-                                  CefRefPtr<CefFrame> frame,
+                                  const CefString& origin_url,
                                   bool isProxy,
                                   const CefString& host,
                                   int port,

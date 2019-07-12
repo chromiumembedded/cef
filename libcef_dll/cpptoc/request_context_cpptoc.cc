@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=29ac900a92c4ec966cc115aae96c49b545bc9db9$
+// $hash=95cc8d1445764e1d1610b2047844b138e60542e6$
 //
 
 #include "libcef_dll/cpptoc/request_context_cpptoc.h"
@@ -373,6 +373,21 @@ void CEF_CALLBACK request_context_clear_certificate_exceptions(
       CefCompletionCallbackCToCpp::Wrap(callback));
 }
 
+void CEF_CALLBACK request_context_clear_http_auth_credentials(
+    struct _cef_request_context_t* self,
+    cef_completion_callback_t* callback) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return;
+  // Unverified params: callback
+
+  // Execute
+  CefRequestContextCppToC::Get(self)->ClearHttpAuthCredentials(
+      CefCompletionCallbackCToCpp::Wrap(callback));
+}
+
 void CEF_CALLBACK
 request_context_close_all_connections(struct _cef_request_context_t* self,
                                       cef_completion_callback_t* callback) {
@@ -549,6 +564,8 @@ CefRequestContextCppToC::CefRequestContextCppToC() {
   GetStruct()->set_preference = request_context_set_preference;
   GetStruct()->clear_certificate_exceptions =
       request_context_clear_certificate_exceptions;
+  GetStruct()->clear_http_auth_credentials =
+      request_context_clear_http_auth_credentials;
   GetStruct()->close_all_connections = request_context_close_all_connections;
   GetStruct()->resolve_host = request_context_resolve_host;
   GetStruct()->load_extension = request_context_load_extension;

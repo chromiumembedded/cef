@@ -22,6 +22,7 @@
 #include "libcef/browser/media_capture_devices_dispatcher.h"
 #include "libcef/browser/net/chrome_scheme_handler.h"
 #include "libcef/browser/net/net_util.h"
+#include "libcef/browser/net_service/login_delegate.h"
 #include "libcef/browser/net_service/proxy_url_loader_factory.h"
 #include "libcef/browser/net_service/resource_request_handler_wrapper.h"
 #include "libcef/browser/plugins/plugin_service_filter.h"
@@ -113,6 +114,7 @@
 #include "extensions/common/constants.h"
 #include "extensions/common/switches.h"
 #include "mojo/public/cpp/bindings/remote.h"
+#include "net/base/auth.h"
 #include "net/ssl/ssl_cert_request_info.h"
 #include "ppapi/host/ppapi_host.h"
 #include "services/network/public/cpp/network_switches.h"
@@ -1220,6 +1222,21 @@ CefContentBrowserClient::CreateClientCertStore(
     return nullptr;
   return static_cast<CefResourceContext*>(resource_context)
       ->CreateClientCertStore();
+}
+
+std::unique_ptr<content::LoginDelegate>
+CefContentBrowserClient::CreateLoginDelegate(
+    const net::AuthChallengeInfo& auth_info,
+    content::WebContents* web_contents,
+    const content::GlobalRequestID& request_id,
+    bool is_request_for_main_frame,
+    const GURL& url,
+    scoped_refptr<net::HttpResponseHeaders> response_headers,
+    bool first_auth_attempt,
+    LoginAuthRequiredCallback auth_required_callback) {
+  return std::make_unique<net_service::LoginDelegate>(
+      auth_info, web_contents, request_id, url,
+      std::move(auth_required_callback));
 }
 
 void CefContentBrowserClient::RegisterNonNetworkNavigationURLLoaderFactories(

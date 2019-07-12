@@ -7,6 +7,7 @@
 #include <sstream>
 
 #include "include/base/cef_bind.h"
+#include "include/cef_parser.h"
 #include "include/cef_request_context_handler.h"
 #include "include/cef_scheme.h"
 #include "include/cef_server.h"
@@ -65,6 +66,7 @@ enum RequestTestMode {
   REQTEST_GET_REDIRECT_STOP,
   REQTEST_GET_REDIRECT_LOCATION,
   REQTEST_GET_REFERRER,
+  REQTEST_GET_AUTH,
   REQTEST_POST,
   REQTEST_POST_FILE,
   REQTEST_POST_WITHPROGRESS,
@@ -143,6 +145,16 @@ struct RequestRunSettings {
 
   // If true the response cookie should be saved.
   bool expect_save_cookie = false;
+
+  // If true the test will begin by requiring Basic authentication and then
+  // continue with the actual request. The UR_FLAG_ALLOW_STORED_CREDENTIALS
+  // flag must be set on the request. When using the global request context
+  // CefRequestContext::ClearHttpAuthCredentials should be called to avoid
+  // leaking state across test runs. Authentication is only supported with
+  // browser-initiated requests and the server backend.
+  bool expect_authentication = false;
+  std::string username;
+  std::string password;
 
   // If specified the test will begin with this redirect request and response.
   CefRefPtr<CefRequest> redirect_request;
@@ -264,6 +276,24 @@ class RequestDataMap {
                    std::pair<CefRefPtr<CefRequest>, CefRefPtr<CefResponse>>>
       RedirectDataMap;
   RedirectDataMap redirect_data_map_;
+};
+
+class TestCompletionCallback : public CefCompletionCallback {
+ public:
+  explicit TestCompletionCallback(const base::Closure& complete_callback)
+      : complete_callback_(complete_callback) {
+    EXPECT_FALSE(complete_callback_.is_null());
+  }
+
+  void OnComplete() override {
+    complete_callback_.Run();
+    complete_callback_.Reset();
+  }
+
+ private:
+  base::Closure complete_callback_;
+
+  IMPLEMENT_REFCOUNTING(TestCompletionCallback);
 };
 
 std::string GetRequestScheme(bool server_backend) {
@@ -470,6 +500,47 @@ void GetNormalResponse(const RequestRunSettings* settings,
   }
 
   response->SetHeaderMap(headerMap);
+}
+
+// Based on https://en.wikipedia.org/wiki/Basic_access_authentication#Protocol
+void GetAuthResponse(CefRefPtr<CefResponse> response) {
+  response->SetStatus(401);
+  response->SetStatusText("Unauthorized");
+  response->SetMimeType("text/html");
+
+  CefResponse::HeaderMap headerMap;
+  headerMap.insert(
+      std::make_pair("WWW-Authenticate", "Basic realm=\"Test Realm\""));
+  response->SetHeaderMap(headerMap);
+}
+
+bool IsAuthorized(CefRefPtr<CefRequest> request,
+                  const std::string& username,
+                  const std::string& password) {
+  const std::string& authHeader = request->GetHeaderByName("Authorization");
+  if (authHeader.empty())
+    return false;
+
+  if (authHeader.find("Basic ") == 0) {
+    const std::string& base64 = authHeader.substr(6);
+    CefRefPtr<CefBinaryValue> data = CefBase64Decode(base64);
+    EXPECT_TRUE(data);
+    if (!data) {
+      LOG(ERROR) << "Failed to decode Authorization value: " << base64;
+      return false;
+    }
+
+    std::string decoded;
+    decoded.resize(data->GetSize());
+    data->GetData(&decoded[0], data->GetSize(), 0);
+
+    const std::string& expected = username + ":" + password;
+    EXPECT_STREQ(expected.c_str(), decoded.c_str());
+    return decoded == expected;
+  }
+
+  LOG(ERROR) << "Unexpected Authorization value: " << authHeader;
+  return false;
 }
 
 // SCHEME HANDLER BACKEND
@@ -1011,6 +1082,14 @@ class RequestServerHandler : public CefServerHandler {
                      CefRefPtr<CefRequest> request) {
     RequestDataMap::Entry entry = data_map_.Find(request->GetURL());
     if (entry.type == RequestDataMap::Entry::TYPE_NORMAL) {
+      const bool needs_auth = entry.settings->expect_authentication &&
+                              !IsAuthorized(request, entry.settings->username,
+                                            entry.settings->password);
+      if (needs_auth) {
+        HandleAuthRequest(server, connection_id, request);
+        return;
+      }
+
       HandleNormalRequest(server, connection_id, request, entry.settings);
     } else if (entry.type == RequestDataMap::Entry::TYPE_REDIRECT) {
       HandleRedirectRequest(server, connection_id, request,
@@ -1020,6 +1099,14 @@ class RequestServerHandler : public CefServerHandler {
       ADD_FAILURE() << "url: " << request->GetURL().ToString();
       server->SendHttp500Response(connection_id, "Unknown test");
     }
+  }
+
+  void HandleAuthRequest(CefRefPtr<CefServer> server,
+                         int connection_id,
+                         CefRefPtr<CefRequest> request) {
+    CefRefPtr<CefResponse> response = CefResponse::Create();
+    GetAuthResponse(response);
+    SendResponse(server, connection_id, response, std::string());
   }
 
   void HandleNormalRequest(CefRefPtr<CefServer> server,
@@ -1189,6 +1276,11 @@ class RequestClient : public CefURLRequestClient {
                           const CefString& realm,
                           const CefString& scheme,
                           CefRefPtr<CefAuthCallback> callback) override {
+    auth_credentials_ct_++;
+    if (has_authentication_) {
+      callback->Continue(username_, password_);
+      return true;
+    }
     return false;
   }
 
@@ -1196,10 +1288,15 @@ class RequestClient : public CefURLRequestClient {
   const RequestCompleteCallback complete_callback_;
 
  public:
+  bool has_authentication_ = false;
+  std::string username_;
+  std::string password_;
+
   int request_complete_ct_ = 0;
   int upload_progress_ct_ = 0;
   int download_progress_ct_ = 0;
   int download_data_ct_ = 0;
+  int auth_credentials_ct_ = 0;
 
   int64 upload_total_ = 0;
   int64 download_total_ = 0;
@@ -1251,6 +1348,7 @@ class RequestTestRunner : public base::RefCountedThreadSafe<RequestTestRunner> {
     REGISTER_TEST(REQTEST_GET_REDIRECT_LOCATION, SetupGetRedirectLocationTest,
                   SingleRunTest);
     REGISTER_TEST(REQTEST_GET_REFERRER, SetupGetReferrerTest, SingleRunTest);
+    REGISTER_TEST(REQTEST_GET_AUTH, SetupGetAuthTest, SingleRunTest);
     REGISTER_TEST(REQTEST_POST, SetupPostTest, SingleRunTest);
     REGISTER_TEST(REQTEST_POST_FILE, SetupPostFileTest, SingleRunTest);
     REGISTER_TEST(REQTEST_POST_WITHPROGRESS, SetupPostWithProgressTest,
@@ -1526,6 +1624,28 @@ class RequestTestRunner : public base::RefCountedThreadSafe<RequestTestRunner> {
     settings_.response->SetStatusText("OK");
 
     settings_.response_data = "GET TEST SUCCESS";
+
+    complete_callback.Run();
+  }
+
+  void SetupGetAuthTest(const base::Closure& complete_callback) {
+    // Start with the normal get test.
+    SetupGetTestShared();
+
+    // Require Basic authentication.
+    settings_.expect_authentication = true;
+    settings_.username = "user";
+    settings_.password = "pass";
+
+    // This flag is required to support credentials, which means we'll also get
+    // the cookies.
+    settings_.request->SetFlags(UR_FLAG_ALLOW_STORED_CREDENTIALS);
+    settings_.expect_save_cookie = true;
+    settings_.expect_send_cookie = true;
+
+    // The authentication request will come first, then the actual request.
+    settings_.expected_receive_count = 2;
+    settings_.expected_send_count = 2;
 
     complete_callback.Run();
   }
@@ -2053,6 +2173,16 @@ class RequestTestRunner : public base::RefCountedThreadSafe<RequestTestRunner> {
     EXPECT_TRUE(request.get());
 
     CefRefPtr<RequestClient> client = new RequestClient(complete_callback);
+
+    // Delegation to CefRequestHandler::GetAuthCredentials is only supported
+    // with NetworkService.
+    if ((!IsNetworkServiceEnabled() || !use_frame_method_) &&
+        settings_.expect_authentication) {
+      client->has_authentication_ = true;
+      client->username_ = settings_.username;
+      client->password_ = settings_.password;
+    }
+
     if (use_frame_method_) {
       EXPECT_TRUE(frame_);
       frame_->CreateURLRequest(request, client.get());
@@ -2122,6 +2252,12 @@ class RequestTestRunner : public base::RefCountedThreadSafe<RequestTestRunner> {
     } else {
       EXPECT_EQ(0, client->download_data_ct_);
       EXPECT_TRUE(client->download_data_.empty());
+    }
+
+    if (settings_.expect_authentication) {
+      EXPECT_EQ(1, client->auth_credentials_ct_);
+    } else {
+      EXPECT_EQ(0, client->auth_credentials_ct_);
     }
   }
 
@@ -2530,7 +2666,7 @@ class RequestTestHandler : public TestHandler {
         // Continue the test once supported schemes has been set.
         request_context->GetCookieManager(NULL)->SetSupportedSchemes(
             supported_schemes, true,
-            new SupportedSchemesCompletionCallback(
+            new TestCompletionCallback(
                 base::Bind(&RequestTestHandler::PreSetupComplete, this)));
       } else {
         PreSetupComplete();
@@ -2601,6 +2737,25 @@ class RequestTestHandler : public TestHandler {
     }
 
     return TestHandler::OnBeforeResourceLoad(browser, frame, request, callback);
+  }
+
+  bool GetAuthCredentials(CefRefPtr<CefBrowser> browser,
+                          const CefString& origin_url,
+                          bool isProxy,
+                          const CefString& host,
+                          int port,
+                          const CefString& realm,
+                          const CefString& scheme,
+                          CefRefPtr<CefAuthCallback> callback) override {
+    EXPECT_TRUE(test_in_browser_);
+    EXPECT_TRUE(test_frame_method_);
+    auth_credentials_ct_++;
+    if (test_runner_->settings_.expect_authentication) {
+      callback->Continue(test_runner_->settings_.username,
+                         test_runner_->settings_.password);
+      return true;
+    }
+    return false;
   }
 
   void OnLoadEnd(CefRefPtr<CefBrowser> browser,
@@ -2713,7 +2868,21 @@ class RequestTestHandler : public TestHandler {
 
     // Shut down the browser side of the test.
     test_runner_->ShutdownTest(
-        base::Bind(&RequestTestHandler::DestroyTest, this));
+        base::Bind(&RequestTestHandler::MaybeClearAuthCredentials, this));
+  }
+
+  void MaybeClearAuthCredentials() {
+    if (test_runner_->settings_.expect_authentication &&
+        context_mode_ == CONTEXT_GLOBAL) {
+      // Clear the HTTP authentication cache to avoid leaking state between
+      // test runs when using the global request context.
+      test_runner_->GetRequestContext()->ClearHttpAuthCredentials(
+          new TestCompletionCallback(
+              base::Bind(&RequestTestHandler::DestroyTest, this)));
+      return;
+    }
+
+    DestroyTest();
   }
 
   void DestroyTest() override {
@@ -2728,6 +2897,16 @@ class RequestTestHandler : public TestHandler {
         // Redirect tests may get multiple calls.
         EXPECT_LE(1, test_frame_resource_load_ct_);
       }
+    }
+
+    // CefRequestHandler::GetAuthCredentials should be called after
+    // CefURLRequestClient::GetAuthCredentials when the request has an
+    // associated frame.
+    if (IsNetworkServiceEnabled() && test_in_browser_ && test_frame_method_ &&
+        test_runner_->settings_.expect_authentication) {
+      EXPECT_EQ(1, auth_credentials_ct_);
+    } else {
+      EXPECT_EQ(0, auth_credentials_ct_);
     }
 
     TestHandler::DestroyTest();
@@ -2799,26 +2978,6 @@ class RequestTestHandler : public TestHandler {
     IMPLEMENT_REFCOUNTING(RequestContextHandler);
   };
 
-  // Continue the rest once supported schemes have been set.
-  class SupportedSchemesCompletionCallback : public CefCompletionCallback {
-   public:
-    explicit SupportedSchemesCompletionCallback(
-        const base::Closure& complete_callback)
-        : complete_callback_(complete_callback) {
-      EXPECT_FALSE(complete_callback_.is_null());
-    }
-
-    void OnComplete() override {
-      complete_callback_.Run();
-      complete_callback_.Reset();
-    }
-
-   private:
-    base::Closure complete_callback_;
-
-    IMPLEMENT_REFCOUNTING(SupportedSchemesCompletionCallback);
-  };
-
   const RequestTestMode test_mode_;
   const ContextTestMode context_mode_;
   const bool test_in_browser_;
@@ -2841,6 +3000,7 @@ class RequestTestHandler : public TestHandler {
   TrackCallback got_message_;
   TrackCallback got_success_;
 
+  int auth_credentials_ct_ = 0;
   TrackCallback got_on_test_complete_;
 
   IMPLEMENT_REFCOUNTING(RequestTestHandler);
@@ -3007,7 +3167,7 @@ REQ_TEST_SET(WithFrame, true)
 
 REQ_TEST_FRAME_SET()
 
-// Cache tests can only be run with the server backend.
+// Cache and authentication tests can only be run with the server backend.
 #define REQ_TEST_CACHE_SET_EX(suffix, context_mode, test_frame_method)         \
   REQ_TEST(BrowserGETCacheWithControl##suffix, REQTEST_CACHE_WITH_CONTROL,     \
            context_mode, true, true, test_frame_method)                        \
@@ -3038,6 +3198,8 @@ REQ_TEST_FRAME_SET()
            context_mode, false, true, test_frame_method)                       \
   REQ_TEST(RendererGETCacheWithoutControl##suffix,                             \
            REQTEST_CACHE_WITHOUT_CONTROL, context_mode, false, true,           \
+           test_frame_method)                                                  \
+  REQ_TEST(BrowserGETAuth##suffix, REQTEST_GET_AUTH, context_mode, true, true, \
            test_frame_method)                                                  \
   REQ_TEST(RendererGETCacheSkipFlag##suffix, REQTEST_CACHE_SKIP_FLAG,          \
            context_mode, false, true, test_frame_method)                       \

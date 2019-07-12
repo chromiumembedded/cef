@@ -702,6 +702,32 @@ CefRefPtr<CefResourceRequestHandler> ClientHandler::GetResourceRequestHandler(
   return this;
 }
 
+bool ClientHandler::GetAuthCredentials(CefRefPtr<CefBrowser> browser,
+                                       const CefString& origin_url,
+                                       bool isProxy,
+                                       const CefString& host,
+                                       int port,
+                                       const CefString& realm,
+                                       const CefString& scheme,
+                                       CefRefPtr<CefAuthCallback> callback) {
+  CEF_REQUIRE_IO_THREAD();
+
+  // Used for testing authentication with a proxy server.
+  // For example, CCProxy on Windows.
+  if (isProxy) {
+    callback->Continue("guest", "guest");
+    return true;
+  }
+
+  // Used for testing authentication with https://jigsaw.w3.org/HTTP/.
+  if (host == "jigsaw.w3.org") {
+    callback->Continue("guest", "guest");
+    return true;
+  }
+
+  return false;
+}
+
 bool ClientHandler::OnQuotaRequest(CefRefPtr<CefBrowser> browser,
                                    const CefString& origin_url,
                                    int64 new_size,
