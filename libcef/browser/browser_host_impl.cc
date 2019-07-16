@@ -2741,8 +2741,8 @@ bool CefBrowserHostImpl::StartAudioMirroring() {
   if (client_.get()) {
     CefRefPtr<CefAudioHandler> audio_handler = client_->GetAudioHandler();
     if (audio_handler.get()) {
-      audio_mirror_destination_.reset(new CefAudioMirrorDestination(
-          this, audio_handler, content::AudioMirroringManager::GetInstance()));
+      audio_mirror_destination_ = new CefAudioMirrorDestination(
+          this, audio_handler, content::AudioMirroringManager::GetInstance());
       audio_mirror_destination_->Start();
       return true;
     }

@@ -29,7 +29,7 @@ void CefAudioMirrorDestination::Start() {
       FROM_HERE, {content::BrowserThread::IO},
       base::BindOnce(&content::AudioMirroringManager::StartMirroring,
                      base::Unretained(mirroring_manager_),
-                     base::Unretained(this)));
+                     base::RetainedRef(this)));
 }
 
 void CefAudioMirrorDestination::Stop() {
@@ -39,7 +39,7 @@ void CefAudioMirrorDestination::Stop() {
       FROM_HERE, {content::BrowserThread::IO},
       base::BindOnce(&content::AudioMirroringManager::StopMirroring,
                      base::Unretained(mirroring_manager_),
-                     base::Unretained(this)));
+                     base::RetainedRef(this)));
 }
 
 // Asynchronously query whether this MirroringDestination wants to consume
@@ -56,7 +56,7 @@ void CefAudioMirrorDestination::QueryForMatches(
   base::PostTaskWithTraits(
       FROM_HERE, {content::BrowserThread::UI},
       base::BindOnce(&CefAudioMirrorDestination::QueryForMatchesOnUIThread,
-                     base::Unretained(this), candidates,
+                     base::RetainedRef(this), candidates,
                      media::BindToCurrentLoop(std::move(results_callback))));
 }
 
@@ -99,7 +99,7 @@ media::AudioPushSink* CefAudioMirrorDestination::AddPushInput(
   return new CefAudioPushSink(
       params, browser_, cef_audio_handler_,
       base::Bind(&CefAudioMirrorDestination::ReleasePushInput,
-                 base::Unretained(this)));
+                 base::RetainedRef(this)));
 }
 
 void CefAudioMirrorDestination::ReleasePushInput(CefAudioPushSink* sink) {

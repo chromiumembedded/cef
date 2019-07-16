@@ -666,7 +666,7 @@ class CefBrowserHostImpl : public CefBrowserHost,
   bool is_background_host_ = false;
 
   // Used to mirror audio streams
-  std::unique_ptr<CefAudioMirrorDestination> audio_mirror_destination_;
+  scoped_refptr<CefAudioMirrorDestination> audio_mirror_destination_;
 
   // Used with auto-resize.
   bool auto_resize_enabled_ = false;

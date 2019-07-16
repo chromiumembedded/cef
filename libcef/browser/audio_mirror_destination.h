@@ -22,13 +22,12 @@ class CefAudioPushSink;
 class CefBrowserHostImpl;
 
 class CefAudioMirrorDestination
-    : public content::AudioMirroringManager::MirroringDestination {
+    : public base::RefCountedThreadSafe<CefAudioMirrorDestination>,
+      public content::AudioMirroringManager::MirroringDestination {
  public:
   CefAudioMirrorDestination(CefRefPtr<CefBrowserHostImpl> browser,
                             CefRefPtr<CefAudioHandler> cef_audio_handler,
                             content::AudioMirroringManager* mirroring_manager);
-
-  virtual ~CefAudioMirrorDestination() = default;
 
   // Start mirroring. This needs to be triggered on the IO thread.
   void Start();
@@ -65,6 +64,10 @@ class CefAudioMirrorDestination
       const media::AudioParameters& params) override;
 
  private:
+  friend class base::RefCountedThreadSafe<CefAudioMirrorDestination>;
+
+  ~CefAudioMirrorDestination() override = default;
+
   void QueryForMatchesOnUIThread(
       const std::set<content::GlobalFrameRoutingId>& candidates,
       MatchesCallback results_callback);
