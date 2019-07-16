@@ -36,11 +36,11 @@ const int kOsrHeight = 400;
 
 // bounding client rects for edit box and navigate button
 #if defined(OS_WIN)
-const CefRect kExpandedSelectRect(463, 42, 81, 334);
+const CefRect kExpandedSelectRect(462, 42, 81, 334);
 #elif defined(OS_MACOSX)
-const CefRect kExpandedSelectRect(463, 42, 75, 286);
+const CefRect kExpandedSelectRect(462, 42, 75, 286);
 #elif defined(OS_LINUX)
-const CefRect kExpandedSelectRect(463, 42, 79, 334);
+const CefRect kExpandedSelectRect(462, 42, 79, 334);
 #else
 #error "Unsupported platform"
 #endif  // defined(OS_WIN)

@@ -558,15 +558,6 @@ bool CefMainDelegate::BasicStartupComplete(int* exit_code) {
 
     std::vector<std::string> disable_features;
 
-    if (settings.windowless_rendering_enabled) {
-      // Disable VizDisplayCompositor when OSR is enabled until
-      // we have implemented Viz support
-      if (features::kVizDisplayCompositor.default_state ==
-          base::FEATURE_ENABLED_BY_DEFAULT) {
-        disable_features.push_back(features::kVizDisplayCompositor.name);
-      }
-    }
-
     if (network::features::kOutOfBlinkCors.default_state ==
         base::FEATURE_ENABLED_BY_DEFAULT) {
       // TODO: Add support for out-of-Blink CORS (see issue #2716)

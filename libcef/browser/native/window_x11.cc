@@ -6,15 +6,15 @@
 #include "libcef/browser/native/window_x11.h"
 #include "libcef/browser/thread_util.h"
 
-#include <X11/Xatom.h>
-#include <X11/Xlib.h>
-#include <X11/Xutil.h>
-#include <X11/extensions/XInput2.h>
-
 #include "ui/base/x/x11_util.h"
 #include "ui/events/platform/platform_event_source.h"
 #include "ui/views/widget/desktop_aura/desktop_window_tree_host_x11.h"
 #include "ui/views/widget/desktop_aura/x11_topmost_window_finder.h"
+
+#include <X11/Xatom.h>
+#include <X11/Xlib.h>
+#include <X11/Xutil.h>
+#include <X11/extensions/XInput2.h>
 
 namespace {
 

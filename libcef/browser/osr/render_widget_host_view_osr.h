@@ -13,7 +13,8 @@
 
 #include "include/cef_base.h"
 #include "include/cef_browser.h"
-#include "libcef/browser/browser_host_impl.h"
+
+#include "libcef/browser/osr/host_display_client_osr.h"
 #include "libcef/browser/osr/motion_event_osr.h"
 
 #include "base/memory/weak_ptr.h"
@@ -59,20 +60,11 @@ class BackingStore;
 class CursorManager;
 }  // namespace content
 
-class CefBeginFrameTimer;
+class CefBrowserHostImpl;
 class CefCopyFrameGenerator;
 class CefSoftwareOutputDeviceOSR;
+class CefVideoConsumerOSR;
 class CefWebContentsViewOSR;
-
-#if defined(OS_MACOSX)
-#ifdef __OBJC__
-@class CALayer;
-@class NSWindow;
-#else
-class CALayer;
-class NSWindow;
-#endif
-#endif
 
 #if defined(USE_X11)
 class CefWindowX11;
@@ -172,8 +164,6 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
   void GetScreenInfo(content::ScreenInfo* results) override;
   void TransformPointToRootSurface(gfx::PointF* point) override;
   gfx::Rect GetBoundsInRootWindow() override;
-  viz::ScopedSurfaceIdAllocator DidUpdateVisualProperties(
-      const cc::RenderFrameMetadata& metadata) override;
   viz::SurfaceId GetCurrentSurfaceId() const override;
   content::BrowserAccessibilityManager* CreateBrowserAccessibilityManager(
       content::BrowserAccessibilityDelegate* delegate,
@@ -202,13 +192,12 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
   const viz::FrameSinkId& GetFrameSinkId() const override;
   viz::FrameSinkId GetRootFrameSinkId() override;
 
-  // ui::ExternalBeginFrameClient implementation:
+  // ui::ExternalBeginFrameClient implementation.
   void OnDisplayDidFinishFrame(const viz::BeginFrameAck& ack) override;
   void OnNeedsExternalBeginFrames(bool needs_begin_frames) override;
 
   // ui::CompositorDelegate implementation.
-  std::unique_ptr<viz::SoftwareOutputDevice> CreateSoftwareOutputDevice(
-      ui::Compositor* compositor) override;
+  std::unique_ptr<viz::HostDisplayClient> CreateHostDisplayClient() override;
 
   // TextInputManager::Observer implementation.
   void OnUpdateTextInputStateCalled(
@@ -238,10 +227,12 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
   void HoldResize();
   void ReleaseResize();
 
+  gfx::Size SizeInPixels();
   void OnPaint(const gfx::Rect& damage_rect,
-               int bitmap_width,
-               int bitmap_height,
-               void* bitmap_pixels);
+               const gfx::Size& pixel_size,
+               const void* pixels);
+
+  void OnBeginFame(base::TimeTicks frame_time);
 
   bool IsPopupWidget() const {
     return widget_type_ == content::WidgetType::kPopup;
@@ -277,12 +268,6 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
   }
   ui::Layer* GetRootLayer() const;
 
-#if defined(OS_MACOSX)
-  content::BrowserCompositorMac* browser_compositor() const {
-    return browser_compositor_.get();
-  }
-#endif
-
   void OnPresentCompositorFrame();
 
  private:
@@ -291,10 +276,6 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
   void SetFrameRate();
   void SetDeviceScaleFactor();
   void ResizeRootLayer(bool force);
-
-  // Called by CefBeginFrameTimer to send a BeginFrame request.
-  void OnBeginFrameTimerTick();
-  void SendBeginFrame(base::TimeTicks frame_time, base::TimeDelta vsync_period);
 
   void CancelWidget();
 
@@ -323,21 +304,6 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
   // opaqueness changes.
   void UpdateBackgroundColorFromRenderer(SkColor color);
 
-#if defined(OS_MACOSX)
-  display::Display GetDisplay();
-  void OnDidUpdateVisualPropertiesComplete(
-      const cc::RenderFrameMetadata& metadata);
-
-  friend class MacHelper;
-  bool UpdateNSViewAndDisplay();
-#endif  // defined(OS_MACOSX)
-
-  void PlatformCreateCompositorWidget(bool is_guest_view_hack);
-#if !defined(OS_MACOSX)
-  void PlatformResizeCompositorWidget(const gfx::Size& size);
-#endif
-  void PlatformDestroyCompositorWidget();
-
 #if defined(USE_AURA)
   ui::PlatformCursor GetPlatformCursor(blink::WebCursorInfo::Type type);
 #endif
@@ -347,34 +313,20 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
 
   int frame_rate_threshold_us_;
 
-#if !defined(OS_MACOSX)
   std::unique_ptr<ui::Compositor> compositor_;
-  gfx::AcceleratedWidget compositor_widget_;
   std::unique_ptr<content::DelegatedFrameHost> delegated_frame_host_;
   std::unique_ptr<content::DelegatedFrameHostClient>
       delegated_frame_host_client_;
   std::unique_ptr<ui::Layer> root_layer_;
   viz::LocalSurfaceIdAllocation local_surface_id_allocation_;
   viz::ParentLocalSurfaceIdAllocator local_surface_id_allocator_;
-#endif
+  viz::ParentLocalSurfaceIdAllocator compositor_local_surface_id_allocator_;
 
-#if defined(OS_WIN)
-  std::unique_ptr<gfx::WindowImpl> window_;
-#elif defined(OS_MACOSX)
-  NSWindow* window_;
-  CALayer* background_layer_;
-  std::unique_ptr<content::BrowserCompositorMac> browser_compositor_;
-  MacHelper* mac_helper_;
-#elif defined(USE_X11)
-  CefWindowX11* window_;
+#if defined(USE_X11)
   std::unique_ptr<ui::XScopedCursor> invisible_cursor_;
 #endif
 
   std::unique_ptr<content::CursorManager> cursor_manager_;
-
-  // Used to control the VSync rate in subprocesses when BeginFrame scheduling
-  // is enabled.
-  std::unique_ptr<CefBeginFrameTimer> begin_frame_timer_;
 
   // Provides |source_id| for BeginFrameArgs that we create.
   viz::StubBeginFrameSource begin_frame_source_;
@@ -384,12 +336,8 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
   bool external_begin_frame_enabled_ = false;
   bool needs_external_begin_frames_ = false;
 
-  // Used for direct rendering from the compositor when GPU compositing is
-  // disabled. This object is owned by the compositor.
-  CefSoftwareOutputDeviceOSR* software_output_device_;
-
-  // Used for managing copy requests when GPU compositing is enabled.
-  std::unique_ptr<CefCopyFrameGenerator> copy_frame_generator_;
+  CefHostDisplayClientOSR* host_display_client_;
+  std::unique_ptr<CefVideoConsumerOSR> video_consumer_;
 
   bool hold_resize_;
   bool pending_resize_;
