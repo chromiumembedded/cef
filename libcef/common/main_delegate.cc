@@ -723,11 +723,9 @@ int CefMainDelegate::RunProcess(
 bool CefMainDelegate::CreateUIThread(base::OnceClosure setup_callback) {
   DCHECK(!ui_thread_);
 
-  std::unique_ptr<CefUIThread> thread;
-  thread.reset(new CefUIThread(std::move(setup_callback)));
-  thread->Start();
-  thread->WaitUntilThreadStarted();
-  ui_thread_.swap(thread);
+  ui_thread_.reset(new CefUIThread(std::move(setup_callback)));
+  ui_thread_->Start();
+  ui_thread_->WaitUntilThreadStarted();
 
   InitMessagePumpFactoryForUI();
   return true;
