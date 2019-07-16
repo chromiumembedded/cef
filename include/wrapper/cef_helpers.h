@@ -97,8 +97,9 @@ class CefScopedArgArray {
   CefScopedArgArray(int argc, char* argv[]) {
     // argv should have (argc + 1) elements, the last one always being NULL.
     array_ = new char*[argc + 1];
+    values_.resize(argc);
     for (int i = 0; i < argc; ++i) {
-      values_.push_back(argv[i]);
+      values_[i] = argv[i];
       array_[i] = const_cast<char*>(values_[i].c_str());
     }
     array_[argc] = NULL;
