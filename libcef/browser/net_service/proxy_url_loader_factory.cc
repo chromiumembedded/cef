@@ -644,6 +644,12 @@ void InterceptedRequest::InterceptResponseReceived(
           network::cors::header_names::kAccessControlAllowOrigin, origin));
     }
 
+    if (request_.fetch_credentials_mode ==
+        network::mojom::FetchCredentialsMode::kInclude) {
+      head.headers->AddHeader(MakeHeader(
+          network::cors::header_names::kAccessControlAllowCredentials, "true"));
+    }
+
     current_response_ = head;
     const net::RedirectInfo& redirect_info =
         MakeRedirectInfo(request_, head.headers.get(), request_.url, 0);
