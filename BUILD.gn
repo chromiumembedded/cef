@@ -763,7 +763,7 @@ static_library("libcef_static") {
 
     deps += [
       "//chrome/install_static:secondary_module",
-      "//chrome_elf",
+      "//chrome/chrome_elf",
     ]
 
     if (is_component_build) {
@@ -1145,10 +1145,10 @@ source_set("cef_content_utility_overlay_manifest") {
   ]
 }
 
-source_set("cef_packaged_service_manifests") {
+source_set("builtin_service_manifests") {
   sources = [
-    "libcef/common/service_manifests/cef_packaged_service_manifests.cc",
-    "libcef/common/service_manifests/cef_packaged_service_manifests.h",
+    "libcef/common/service_manifests/builtin_service_manifests.cc",
+    "libcef/common/service_manifests/builtin_service_manifests.h",
   ]
 
   configs += [
@@ -1193,7 +1193,7 @@ source_set("cef_service_manifests") {
     ":cef_content_gpu_overlay_manifest",
     ":cef_content_renderer_overlay_manifest",
     ":cef_content_utility_overlay_manifest",
-    ":cef_packaged_service_manifests",
+    ":builtin_service_manifests",
     ":cef_renderer_manifest",
   ]
 }

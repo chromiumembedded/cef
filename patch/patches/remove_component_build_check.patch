@@ -1,8 +1,8 @@
 diff --git build/config/compiler/compiler.gni build/config/compiler/compiler.gni
-index 3bdd85bf9758..b326e808f929 100644
+index c351d6babb8d..db5b4f0b973a 100644
 --- build/config/compiler/compiler.gni
 +++ build/config/compiler/compiler.gni
-@@ -250,18 +250,6 @@ if (symbol_level == -1) {
+@@ -248,18 +248,6 @@ if (symbol_level == -1) {
    }
  }
  

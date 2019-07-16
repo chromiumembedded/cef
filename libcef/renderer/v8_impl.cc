@@ -1942,9 +1942,11 @@ CefRefPtr<CefV8Value> CefV8ValueImpl::GetValue(const CefString& key) {
 
   v8::TryCatch try_catch(isolate);
   try_catch.SetVerbose(true);
-  v8::Local<v8::Value> ret_value = obj->Get(GetV8String(isolate, key));
-  if (!HasCaught(context, try_catch) && !ret_value.IsEmpty())
-    return new CefV8ValueImpl(isolate, context, ret_value);
+  v8::MaybeLocal<v8::Value> ret_value =
+      obj->Get(context, GetV8String(isolate, key));
+  if (!HasCaught(context, try_catch) && !ret_value.IsEmpty()) {
+    return new CefV8ValueImpl(isolate, context, ret_value.ToLocalChecked());
+  }
   return NULL;
 }
 
@@ -1970,9 +1972,11 @@ CefRefPtr<CefV8Value> CefV8ValueImpl::GetValue(int index) {
 
   v8::TryCatch try_catch(isolate);
   try_catch.SetVerbose(true);
-  v8::Local<v8::Value> ret_value = obj->Get(v8::Number::New(isolate, index));
-  if (!HasCaught(context, try_catch) && !ret_value.IsEmpty())
-    return new CefV8ValueImpl(isolate, context, ret_value);
+  v8::MaybeLocal<v8::Value> ret_value =
+      obj->Get(context, v8::Number::New(isolate, index));
+  if (!HasCaught(context, try_catch) && !ret_value.IsEmpty()) {
+    return new CefV8ValueImpl(isolate, context, ret_value.ToLocalChecked());
+  }
   return NULL;
 }
 
@@ -2110,7 +2114,8 @@ bool CefV8ValueImpl::GetKeys(std::vector<CefString>& keys) {
 
   uint32_t len = arr_keys->Length();
   for (uint32_t i = 0; i < len; ++i) {
-    v8::Local<v8::Value> value = arr_keys->Get(v8::Integer::New(isolate, i));
+    v8::Local<v8::Value> value =
+        arr_keys->Get(context, v8::Integer::New(isolate, i)).ToLocalChecked();
     CefString str;
     GetCefString(isolate, value->ToString(context).ToLocalChecked(), str);
     keys.push_back(str);

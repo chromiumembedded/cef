@@ -24,6 +24,7 @@
 #include "libcef/renderer/v8_impl.h"
 
 #include "content/public/renderer/render_frame.h"
+#include "content/public/renderer/render_view.h"
 #include "third_party/blink/public/web/blink.h"
 #include "third_party/blink/public/web/web_document.h"
 #include "third_party/blink/public/web/web_local_frame.h"
@@ -39,6 +40,28 @@ void CefRenderFrameObserver::OnInterfaceRequestForFrame(
     const std::string& interface_name,
     mojo::ScopedMessagePipeHandle* interface_pipe) {
   registry_.TryBindInterface(interface_name, interface_pipe);
+}
+
+void CefRenderFrameObserver::DidCommitProvisionalLoad(
+    bool is_same_document_navigation,
+    ui::PageTransition transition) {
+  if (!frame_)
+    return;
+
+  if (frame_->GetParent() == nullptr) {
+    blink::WebLocalFrame* frame = render_frame()->GetWebFrame();
+    CefRefPtr<CefBrowserImpl> browserPtr =
+        CefBrowserImpl::GetBrowserForMainFrame(frame->Top());
+    browserPtr->OnLoadingStateChange(true);
+  }
+  OnLoadStart();
+}
+
+void CefRenderFrameObserver::DidFailProvisionalLoad(
+    const blink::WebURLError& error) {
+  if (frame_) {
+    OnLoadError(error);
+  }
 }
 
 void CefRenderFrameObserver::DidFinishLoad() {
@@ -60,7 +83,11 @@ void CefRenderFrameObserver::FrameFocused() {
   }
 }
 
-void CefRenderFrameObserver::FocusedNodeChanged(const blink::WebNode& node) {
+void CefRenderFrameObserver::FocusedElementChanged(
+    const blink::WebElement& element) {
+  if (!frame_)
+    return;
+
   blink::WebLocalFrame* frame = render_frame()->GetWebFrame();
   CefRefPtr<CefBrowserImpl> browserPtr =
       CefBrowserImpl::GetBrowserForMainFrame(frame->Top());
@@ -76,18 +103,18 @@ void CefRenderFrameObserver::FocusedNodeChanged(const blink::WebNode& node) {
 
   CefRefPtr<CefFrameImpl> framePtr = browserPtr->GetWebFrameImpl(frame);
 
-  if (node.IsNull()) {
+  if (element.IsNull()) {
     handler->OnFocusedNodeChanged(browserPtr.get(), framePtr.get(), nullptr);
     return;
   }
 
-  if (node.GetDocument().IsNull())
+  if (element.GetDocument().IsNull())
     return;
 
   CefRefPtr<CefDOMDocumentImpl> documentImpl =
       new CefDOMDocumentImpl(browserPtr.get(), frame);
   handler->OnFocusedNodeChanged(browserPtr.get(), framePtr.get(),
-                                documentImpl->GetOrCreateNode(node));
+                                documentImpl->GetOrCreateNode(element));
   documentImpl->Detach();
 }
 
@@ -100,6 +127,9 @@ void CefRenderFrameObserver::DraggableRegionsChanged() {
 void CefRenderFrameObserver::DidCreateScriptContext(
     v8::Handle<v8::Context> context,
     int world_id) {
+  if (!frame_)
+    return;
+
   blink::WebLocalFrame* frame = render_frame()->GetWebFrame();
   CefRefPtr<CefBrowserImpl> browserPtr =
       CefBrowserImpl::GetBrowserForMainFrame(frame->Top());
@@ -176,6 +206,43 @@ void CefRenderFrameObserver::AttachFrame(CefFrameImpl* frame) {
   DCHECK(!frame_);
   frame_ = frame;
   frame_->OnAttached();
+}
+
+void CefRenderFrameObserver::OnLoadStart() {
+  CefRefPtr<CefApp> app = CefContentClient::Get()->application();
+  if (app.get()) {
+    CefRefPtr<CefRenderProcessHandler> handler = app->GetRenderProcessHandler();
+    if (handler.get()) {
+      CefRefPtr<CefLoadHandler> load_handler = handler->GetLoadHandler();
+      if (load_handler.get()) {
+        blink::WebLocalFrame* frame = render_frame()->GetWebFrame();
+        CefRefPtr<CefBrowserImpl> browserPtr =
+            CefBrowserImpl::GetBrowserForMainFrame(frame->Top());
+        load_handler->OnLoadStart(browserPtr.get(), frame_, TT_EXPLICIT);
+      }
+    }
+  }
+}
+
+void CefRenderFrameObserver::OnLoadError(const blink::WebURLError& error) {
+  CefRefPtr<CefApp> app = CefContentClient::Get()->application();
+  if (app.get()) {
+    CefRefPtr<CefRenderProcessHandler> handler = app->GetRenderProcessHandler();
+    if (handler.get()) {
+      CefRefPtr<CefLoadHandler> load_handler = handler->GetLoadHandler();
+      if (load_handler.get()) {
+        const cef_errorcode_t errorCode =
+            static_cast<cef_errorcode_t>(error.reason());
+        const std::string& errorText = net::ErrorToString(error.reason());
+        const GURL& failedUrl = error.url();
+        blink::WebLocalFrame* frame = render_frame()->GetWebFrame();
+        CefRefPtr<CefBrowserImpl> browserPtr =
+            CefBrowserImpl::GetBrowserForMainFrame(frame->Top());
+        load_handler->OnLoadError(browserPtr.get(), frame_, errorCode,
+                                  errorText, failedUrl.spec());
+      }
+    }
+  }
 }
 
 // Enable deprecation warnings on Windows. See http://crbug.com/585142.

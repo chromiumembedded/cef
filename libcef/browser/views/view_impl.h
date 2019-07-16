@@ -344,7 +344,7 @@ CEF_VIEW_IMPL_T class CefViewImpl : public CefViewAdapter, public CefViewClass {
   void GetDebugInfo(base::DictionaryValue* info,
                     bool include_children) override {
     info->SetString("type", GetDebugType());
-    info->SetInteger("id", root_view()->id());
+    info->SetInteger("id", root_view()->GetID());
 
     // Use GetBounds() because some subclasses (like CefWindowImpl) override it.
     const CefRect& bounds = GetBounds();
@@ -493,12 +493,12 @@ CEF_VIEW_IMPL_T CefRefPtr<CefWindow> CEF_VIEW_IMPL_D::GetWindow() {
 
 CEF_VIEW_IMPL_T int CEF_VIEW_IMPL_D::GetID() {
   CEF_REQUIRE_VALID_RETURN(0);
-  return root_view()->id();
+  return root_view()->GetID();
 }
 
 CEF_VIEW_IMPL_T void CEF_VIEW_IMPL_D::SetID(int id) {
   CEF_REQUIRE_VALID_RETURN_VOID();
-  root_view()->set_id(id);
+  root_view()->SetID(id);
 }
 
 CEF_VIEW_IMPL_T int CEF_VIEW_IMPL_D::GetGroupID() {
@@ -611,7 +611,7 @@ CEF_VIEW_IMPL_T void CEF_VIEW_IMPL_D::SetVisible(bool visible) {
 
 CEF_VIEW_IMPL_T bool CEF_VIEW_IMPL_D::IsVisible() {
   CEF_REQUIRE_VALID_RETURN(false);
-  return root_view()->visible();
+  return root_view()->GetVisible();
 }
 
 CEF_VIEW_IMPL_T bool CEF_VIEW_IMPL_D::IsDrawn() {
@@ -626,7 +626,7 @@ CEF_VIEW_IMPL_T void CEF_VIEW_IMPL_D::SetEnabled(bool enabled) {
 
 CEF_VIEW_IMPL_T bool CEF_VIEW_IMPL_D::IsEnabled() {
   CEF_REQUIRE_VALID_RETURN(false);
-  return root_view()->enabled();
+  return root_view()->GetEnabled();
 }
 
 CEF_VIEW_IMPL_T void CEF_VIEW_IMPL_D::SetFocusable(bool focusable) {

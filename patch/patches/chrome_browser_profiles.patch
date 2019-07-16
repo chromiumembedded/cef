@@ -1,8 +1,8 @@
 diff --git chrome/browser/profiles/profile_manager.cc chrome/browser/profiles/profile_manager.cc
-index 376d23b7ca93..87b6418e8782 100644
+index 4cce9ca9fbf1..b1d578c0f8c2 100644
 --- chrome/browser/profiles/profile_manager.cc
 +++ chrome/browser/profiles/profile_manager.cc
-@@ -385,7 +385,7 @@ ProfileManager::ProfileManager(const base::FilePath& user_data_dir)
+@@ -388,7 +388,7 @@ ProfileManager::ProfileManager(const base::FilePath& user_data_dir)
        chrome::NOTIFICATION_BROWSER_CLOSE_CANCELLED,
        content::NotificationService::AllSources());
  
@@ -12,7 +12,7 @@ index 376d23b7ca93..87b6418e8782 100644
  }
  
 diff --git chrome/browser/profiles/profile_manager.h chrome/browser/profiles/profile_manager.h
-index 49a5dc4bca1e..a256899483d3 100644
+index 257e27caed9f..4d0c4fe116c6 100644
 --- chrome/browser/profiles/profile_manager.h
 +++ chrome/browser/profiles/profile_manager.h
 @@ -92,7 +92,7 @@ class ProfileManager : public content::NotificationObserver,

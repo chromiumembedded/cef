@@ -11,10 +11,10 @@ index 691c476708b6..f198e2d0584f 100644
  
  PrintJobWorker::~PrintJobWorker() {
 diff --git printing/printing_context.h printing/printing_context.h
-index a5879b5888c9..a46bfa474f47 100644
+index 9ccc1a6680bc..c0494a1cc2e2 100644
 --- printing/printing_context.h
 +++ printing/printing_context.h
-@@ -131,6 +131,13 @@ class PRINTING_EXPORT PrintingContext {
+@@ -129,6 +129,13 @@ class PRINTING_EXPORT PrintingContext {
  
    int job_id() const { return job_id_; }
  
@@ -28,7 +28,7 @@ index a5879b5888c9..a46bfa474f47 100644
   protected:
    explicit PrintingContext(Delegate* delegate);
  
-@@ -155,6 +162,10 @@ class PRINTING_EXPORT PrintingContext {
+@@ -153,6 +160,10 @@ class PRINTING_EXPORT PrintingContext {
    // The job id for the current job. The value is 0 if no jobs are active.
    int job_id_;
  

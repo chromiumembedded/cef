@@ -83,20 +83,11 @@ class CefBrowserImpl : public CefBrowser, public content::RenderViewObserver {
 
   // RenderViewObserver methods.
   void OnDestruct() override;
-  void DidFailProvisionalLoad(blink::WebLocalFrame* frame,
-                              const blink::WebURLError& error) override;
-  void DidCommitProvisionalLoad(blink::WebLocalFrame* frame,
-                                bool is_new_navigation) override;
-
   void FrameDetached(int64_t frame_id);
 
   void OnLoadingStateChange(bool isLoading);
 
  private:
-  void OnLoadStart(blink::WebLocalFrame* frame);
-  void OnLoadError(blink::WebLocalFrame* frame,
-                   const blink::WebURLError& error);
-
   // ID of the browser that this RenderView is associated with. During loading
   // of cross-origin requests multiple RenderViews may be associated with the
   // same browser ID.

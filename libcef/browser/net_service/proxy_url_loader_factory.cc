@@ -148,7 +148,7 @@ class InterceptedRequest : public network::mojom::URLLoader,
   void OnUploadProgress(int64_t current_position,
                         int64_t total_size,
                         OnUploadProgressCallback callback) override;
-  void OnReceiveCachedMetadata(const std::vector<uint8_t>& data) override;
+  void OnReceiveCachedMetadata(mojo_base::BigBuffer data) override;
   void OnTransferSizeUpdated(int32_t transfer_size_diff) override;
   void OnStartLoadingResponseBody(
       mojo::ScopedDataPipeConsumerHandle body) override;
@@ -528,9 +528,8 @@ void InterceptedRequest::OnUploadProgress(int64_t current_position,
   std::move(callback).Run();
 }
 
-void InterceptedRequest::OnReceiveCachedMetadata(
-    const std::vector<uint8_t>& data) {
-  target_client_->OnReceiveCachedMetadata(data);
+void InterceptedRequest::OnReceiveCachedMetadata(mojo_base::BigBuffer data) {
+  target_client_->OnReceiveCachedMetadata(std::move(data));
 }
 
 void InterceptedRequest::OnTransferSizeUpdated(int32_t transfer_size_diff) {

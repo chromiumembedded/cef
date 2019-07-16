@@ -12,6 +12,6 @@
 // Returns manifests for all shared (i.e. cross-profile) services packaged by
 // CEF but not packaged by Content. This includes both in- and out-of-process
 // services.
-const std::vector<service_manager::Manifest>& GetCefPackagedServiceManifests();
+const std::vector<service_manager::Manifest>& GetBuiltinServiceManifests();
 
 #endif  // CEF_LIBCEF_COMMON_SERVICE_MANIFESTS_CEF_PACKAGED_SERVICE_MANIFESTS_H_

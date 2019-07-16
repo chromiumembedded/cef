@@ -104,6 +104,7 @@ struct PopulateAxNodeAttributes {
       case ax::mojom::IntAttribute::kInPageLinkTargetId:
       case ax::mojom::IntAttribute::kErrormessageId:
       case ax::mojom::IntAttribute::kDetailsId:
+      case ax::mojom::IntAttribute::kDropeffect:
       case ax::mojom::IntAttribute::kMemberOfId:
       case ax::mojom::IntAttribute::kNextFocusId:
       case ax::mojom::IntAttribute::kNextOnLineId:
@@ -111,6 +112,7 @@ struct PopulateAxNodeAttributes {
       case ax::mojom::IntAttribute::kPreviousOnLineId:
       case ax::mojom::IntAttribute::kSetSize:
       case ax::mojom::IntAttribute::kPosInSet:
+      case ax::mojom::IntAttribute::kPopupForId:
         attributes->SetInt(ToString(attr.first), attr.second);
         break;
       case ax::mojom::IntAttribute::kDefaultActionVerb:

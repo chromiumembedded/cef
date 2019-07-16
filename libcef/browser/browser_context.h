@@ -180,6 +180,11 @@ class CefBrowserContext : public ChromeProfileStub,
   bool AllowsBrowserWindows() const override { return false; }
   const PrefService* GetPrefs() const override;
   ProfileKey* GetProfileKey() const override;
+  policy::SchemaRegistryService* GetPolicySchemaRegistryService() override;
+  policy::UserCloudPolicyManager* GetUserCloudPolicyManager() override;
+  policy::ProfilePolicyConnector* GetProfilePolicyConnector() override;
+  const policy::ProfilePolicyConnector* GetProfilePolicyConnector()
+      const override;
 
   // Values checked in ProfileNetworkContextService::CreateNetworkContextParams
   // when creating the NetworkContext.

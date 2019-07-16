@@ -1,34 +1,5 @@
-diff --git build/config/linux/gtk/BUILD.gn build/config/linux/gtk/BUILD.gn
-index d78f7407c179..0bb79883e16c 100644
---- build/config/linux/gtk/BUILD.gn
-+++ build/config/linux/gtk/BUILD.gn
-@@ -4,8 +4,10 @@
- 
- import("//build/config/linux/gtk/gtk.gni")
- import("//build/config/linux/pkg_config.gni")
-+import("//build/config/ui.gni")
- 
- assert(is_linux, "This file should only be referenced on Linux")
-+assert(use_gtk, "This file should only be referenced when GTK is enabled")
- 
- # GN doesn't check visibility for configs so we give this an obviously internal
- # name to discourage random targets from accidentally depending on this and
-diff --git build/config/ui.gni build/config/ui.gni
-index 547b42fb5c66..0eae3470e1bb 100644
---- build/config/ui.gni
-+++ build/config/ui.gni
-@@ -37,6 +37,9 @@ declare_args() {
-   # True means the UI is built using the "views" framework.
-   toolkit_views = (is_mac || is_win || is_chromeos || use_aura) &&
-                   !is_chromecast && !is_fuchsia
-+
-+  # Whether we should use GTK.
-+  use_gtk = use_aura && is_linux
- }
- 
- # Additional dependent variables -----------------------------------------------
 diff --git chrome/browser/ui/views/chrome_browser_main_extra_parts_views_linux.cc chrome/browser/ui/views/chrome_browser_main_extra_parts_views_linux.cc
-index c3511e3e6a66..3500f4a2b005 100644
+index 07f06ac694f5..831fd9f82dbe 100644
 --- chrome/browser/ui/views/chrome_browser_main_extra_parts_views_linux.cc
 +++ chrome/browser/ui/views/chrome_browser_main_extra_parts_views_linux.cc
 @@ -6,6 +6,7 @@
@@ -39,7 +10,7 @@ index c3511e3e6a66..3500f4a2b005 100644
  #include "chrome/browser/chrome_browser_main.h"
  #include "chrome/browser/profiles/profile.h"
  #include "chrome/browser/themes/theme_service.h"
-@@ -31,6 +32,7 @@
+@@ -29,6 +30,7 @@
  
  namespace {
  
@@ -47,7 +18,7 @@ index c3511e3e6a66..3500f4a2b005 100644
  ui::NativeTheme* GetNativeThemeForWindow(aura::Window* window) {
    if (!window)
      return nullptr;
-@@ -55,6 +57,7 @@ ui::NativeTheme* GetNativeThemeForWindow(aura::Window* window) {
+@@ -53,6 +55,7 @@ ui::NativeTheme* GetNativeThemeForWindow(aura::Window* window) {
  
    return ui::NativeTheme::GetInstanceForNativeUi();
  }
@@ -55,32 +26,23 @@ index c3511e3e6a66..3500f4a2b005 100644
  
  }  // namespace
  
-@@ -68,9 +71,11 @@ ChromeBrowserMainExtraPartsViewsLinux::
- }
+@@ -67,9 +70,11 @@ void ChromeBrowserMainExtraPartsViewsLinux::PreEarlyInitialization() {
+   if (!linux_ui)
+     return;
  
- void ChromeBrowserMainExtraPartsViewsLinux::PreEarlyInitialization() {
 +#if !BUILDFLAG(ENABLE_CEF)
-   views::LinuxUI* gtk_ui = BuildGtkUi();
-   gtk_ui->SetNativeThemeOverride(base::BindRepeating(&GetNativeThemeForWindow));
-   views::LinuxUI::SetInstance(gtk_ui);
+   linux_ui->SetNativeThemeOverride(
+       base::BindRepeating(&GetNativeThemeForWindow));
+   views::LinuxUI::SetInstance(linux_ui);
 +#endif
  }
  
  void ChromeBrowserMainExtraPartsViewsLinux::ToolkitInitialized() {
 diff --git chrome/test/BUILD.gn chrome/test/BUILD.gn
-index 5406779a17c2..b1ed0f2c970b 100644
+index 1fb3cf77f01c..dbb03ffe3333 100644
 --- chrome/test/BUILD.gn
 +++ chrome/test/BUILD.gn
-@@ -4159,7 +4159,7 @@ test("unit_tests") {
-       "../browser/ui/input_method/input_method_engine_unittest.cc",
-     ]
-   }
--  if (!is_chromeos && !is_chromecast && is_linux) {
-+  if (!is_chromeos && !is_chromecast && is_linux && use_gtk) {
-     sources +=
-         [ "../browser/ui/libgtkui/select_file_dialog_impl_gtk_unittest.cc" ]
-     deps += [ "//build/config/linux/gtk" ]
-@@ -4180,7 +4180,7 @@ test("unit_tests") {
+@@ -4286,7 +4286,7 @@ test("unit_tests") {
    if (use_gio) {
      configs += [ "//build/linux:gio_config" ]
    }
@@ -89,7 +51,7 @@ index 5406779a17c2..b1ed0f2c970b 100644
      deps += [ "//chrome/browser/ui/libgtkui" ]
    }
  
-@@ -5206,7 +5206,7 @@ if (!is_android) {
+@@ -5286,7 +5286,7 @@ if (!is_android) {
            # suites, it seems like one or another starts timing out too.
            "../browser/ui/views/keyboard_access_browsertest.cc",
          ]
@@ -98,86 +60,3 @@ index 5406779a17c2..b1ed0f2c970b 100644
            sources += [
              "../browser/ui/libgtkui/select_file_dialog_interactive_uitest.cc",
            ]
-diff --git remoting/host/BUILD.gn remoting/host/BUILD.gn
-index 229a7cb37e34..d51e249a7f9e 100644
---- remoting/host/BUILD.gn
-+++ remoting/host/BUILD.gn
-@@ -353,7 +353,7 @@ static_library("common") {
-       "//build/config/linux:xrandr",
-     ]
-     deps += [ "//remoting/host/linux:x11" ]
--    if (is_desktop_linux) {
-+    if (is_desktop_linux && use_gtk) {
-       deps += [ "//build/config/linux/gtk" ]
-     }
-   } else {
-@@ -737,7 +737,7 @@ if (enable_me2me_host) {
-       deps += [ "//components/policy:generated" ]
-     }
- 
--    if (is_desktop_linux) {
-+    if (is_desktop_linux && use_gtk) {
-       deps += [ "//build/config/linux/gtk" ]
-     }
-     if ((is_linux && !is_chromeos) || is_mac) {
-diff --git remoting/host/file_transfer/BUILD.gn remoting/host/file_transfer/BUILD.gn
-index ffaaa0b5b423..9fc7f88859a9 100644
---- remoting/host/file_transfer/BUILD.gn
-+++ remoting/host/file_transfer/BUILD.gn
-@@ -35,7 +35,7 @@ source_set("file_transfer") {
-     sources -= [ "get_desktop_directory.cc" ]
-   }
- 
--  if (is_desktop_linux) {
-+  if (is_desktop_linux && use_gtk) {
-     sources += [ "file_chooser_linux.cc" ]
-     deps += [ "//build/config/linux/gtk" ]
-   }
-diff --git remoting/host/it2me/BUILD.gn remoting/host/it2me/BUILD.gn
-index 39dc46737578..e5cb11d5ef04 100644
---- remoting/host/it2me/BUILD.gn
-+++ remoting/host/it2me/BUILD.gn
-@@ -53,7 +53,7 @@ source_set("common") {
-     "//remoting/resources",
-     "//remoting/signaling",
-   ]
--  if (is_desktop_linux) {
-+  if (is_desktop_linux && use_gtk) {
-     deps += [
-       "//build/config/linux/gtk",
- 
-@@ -247,7 +247,7 @@ if (!is_chromeos && enable_remoting_host) {
-         }
-       }
- 
--      if (is_desktop_linux) {
-+      if (is_desktop_linux && use_gtk) {
-         deps += [ "//build/config/linux/gtk" ]
-       }
-     }
-diff --git remoting/host/linux/BUILD.gn remoting/host/linux/BUILD.gn
-index a07f8b0254af..970c1a54b4d2 100644
---- remoting/host/linux/BUILD.gn
-+++ remoting/host/linux/BUILD.gn
-@@ -98,7 +98,7 @@ source_set("linux") {
-   if (use_x11) {
-     deps += [ ":x11" ]
-   }
--  if (is_desktop_linux) {
-+  if (is_desktop_linux && use_gtk) {
-     deps += [ "//build/config/linux/gtk" ]
-   }
- }
-diff --git remoting/test/BUILD.gn remoting/test/BUILD.gn
-index 57b7f3b4e507..e87a45273a21 100644
---- remoting/test/BUILD.gn
-+++ remoting/test/BUILD.gn
-@@ -158,7 +158,7 @@ if (enable_remoting_host && !is_android && !is_chromeos) {
-       ":it2me_standalone_host",
-     ]
- 
--    if (is_desktop_linux) {
-+    if (is_desktop_linux && use_gtk) {
-       deps += [ "//build/config/linux/gtk" ]
-     }
- 

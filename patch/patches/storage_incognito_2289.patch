@@ -1,5 +1,5 @@
 diff --git content/browser/blob_storage/chrome_blob_storage_context.cc content/browser/blob_storage/chrome_blob_storage_context.cc
-index 5610c0df1c7d..0f2ed42e6451 100644
+index 94588aa5822d..1c16a71c4524 100644
 --- content/browser/blob_storage/chrome_blob_storage_context.cc
 +++ content/browser/blob_storage/chrome_blob_storage_context.cc
 @@ -117,7 +117,8 @@ ChromeBlobStorageContext* ChromeBlobStorageContext::GetFor(
@@ -13,18 +13,18 @@ index 5610c0df1c7d..0f2ed42e6451 100644
            {base::MayBlock(), base::TaskPriority::BEST_EFFORT,
             base::TaskShutdownBehavior::SKIP_ON_SHUTDOWN});
 diff --git content/browser/browser_context.cc content/browser/browser_context.cc
-index b2b3920da3b0..686afc464b42 100644
+index 0d95af0ef882..463709a9152f 100644
 --- content/browser/browser_context.cc
 +++ content/browser/browser_context.cc
-@@ -56,6 +56,7 @@
+@@ -57,6 +57,7 @@
  #include "content/public/common/content_switches.h"
  #include "content/public/common/service_manager_connection.h"
  #include "content/public/common/service_names.mojom.h"
 +#include "media/capabilities/in_memory_video_decode_stats_db_impl.h"
+ #include "media/base/media_switches.h"
+ #include "media/capabilities/in_memory_video_decode_stats_db_impl.h"
  #include "media/capabilities/video_decode_stats_db_impl.h"
- #include "media/mojo/services/video_decode_perf_history.h"
- #include "net/cookies/cookie_store.h"
-@@ -211,7 +212,7 @@ StoragePartition* GetStoragePartitionFromConfig(
+@@ -213,7 +214,7 @@ StoragePartition* GetStoragePartitionFromConfig(
    StoragePartitionImplMap* partition_map =
        GetStoragePartitionMap(browser_context);
  
@@ -33,29 +33,20 @@ index b2b3920da3b0..686afc464b42 100644
      in_memory = true;
  
    return partition_map->Get(partition_domain, partition_name, in_memory,
-@@ -790,9 +791,14 @@ media::VideoDecodePerfHistory* BrowserContext::GetVideoDecodePerfHistory() {
-   // occurs later upon first VideoDecodePerfHistory API request that requires DB
-   // access. DB operations will not block the UI thread.
-   if (!decode_history) {
--    std::unique_ptr<media::VideoDecodeStatsDBImpl> stats_db =
--        media::VideoDecodeStatsDBImpl::Create(
--            GetPath().Append(FILE_PATH_LITERAL("VideoDecodeStats")));
-+    std::unique_ptr<media::VideoDecodeStatsDB> stats_db;
-+    if (GetPath().empty()) {
-+      stats_db =
-+          std::make_unique<media::InMemoryVideoDecodeStatsDBImpl>(nullptr);
-+    } else {
-+      stats_db = media::VideoDecodeStatsDBImpl::Create(
-+          GetPath().Append(FILE_PATH_LITERAL("VideoDecodeStats")));
-+    }
-     auto new_decode_history = std::make_unique<media::VideoDecodePerfHistory>(
-         std::move(stats_db), BrowserFeatureProvider::GetFactoryCB());
-     decode_history = new_decode_history.get();
+@@ -795,7 +796,7 @@ media::VideoDecodePerfHistory* BrowserContext::GetVideoDecodePerfHistory() {
+         kUseInMemoryDBDefault);
+ 
+     std::unique_ptr<media::VideoDecodeStatsDB> stats_db;
+-    if (use_in_memory_db) {
++    if (use_in_memory_db || GetPath().empty()) {
+       stats_db =
+           std::make_unique<media::InMemoryVideoDecodeStatsDBImpl>(nullptr);
+     } else {
 diff --git content/browser/renderer_host/render_process_host_impl.cc content/browser/renderer_host/render_process_host_impl.cc
-index f3a90e61f2b4..a9d322d66d86 100644
+index 1aa874a2cf34..ff3279cbc323 100644
 --- content/browser/renderer_host/render_process_host_impl.cc
 +++ content/browser/renderer_host/render_process_host_impl.cc
-@@ -2203,6 +2203,9 @@ void RenderProcessHostImpl::RegisterMojoInterfaces() {
+@@ -2178,6 +2178,9 @@ void RenderProcessHostImpl::RegisterMojoInterfaces() {
      plugin_registry_.reset(
          new PluginRegistryImpl(GetBrowserContext()->GetResourceContext()));
    }

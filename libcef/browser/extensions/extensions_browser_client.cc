@@ -122,21 +122,21 @@ CefExtensionsBrowserClient::MaybeCreateResourceBundleRequestJob(
 base::FilePath CefExtensionsBrowserClient::GetBundleResourcePath(
     const network::ResourceRequest& request,
     const base::FilePath& extension_resources_path,
-    ComponentExtensionResourceInfo* resource_info) const {
+    int* resource_id) const {
   return chrome_url_request_util::GetBundleResourcePath(
-      request, extension_resources_path, resource_info);
+      request, extension_resources_path, resource_id);
 }
 
 void CefExtensionsBrowserClient::LoadResourceFromResourceBundle(
     const network::ResourceRequest& request,
     network::mojom::URLLoaderRequest loader,
     const base::FilePath& resource_relative_path,
-    const ComponentExtensionResourceInfo& resource_info,
+    const int resource_id,
     const std::string& content_security_policy,
     network::mojom::URLLoaderClientPtr client,
     bool send_cors_header) {
   chrome_url_request_util::LoadResourceFromResourceBundle(
-      request, std::move(loader), resource_relative_path, resource_info,
+      request, std::move(loader), resource_relative_path, resource_id,
       content_security_policy, std::move(client), send_cors_header);
 }
 
@@ -167,7 +167,7 @@ PrefService* CefExtensionsBrowserClient::GetPrefServiceForContext(
 
 void CefExtensionsBrowserClient::GetEarlyExtensionPrefsObservers(
     content::BrowserContext* context,
-    std::vector<ExtensionPrefsObserver*>* observers) const {}
+    std::vector<EarlyExtensionPrefsObserver*>* observers) const {}
 
 ProcessManagerDelegate* CefExtensionsBrowserClient::GetProcessManagerDelegate()
     const {
@@ -297,10 +297,6 @@ void CefExtensionsBrowserClient::BroadcastEventToRenderers(
   g_browser_process->extension_event_router_forwarder()
       ->BroadcastEventToRenderers(histogram_value, event_name, std::move(args),
                                   GURL());
-}
-
-net::NetLog* CefExtensionsBrowserClient::GetNetLog() {
-  return NULL;
 }
 
 ExtensionCache* CefExtensionsBrowserClient::GetExtensionCache() {

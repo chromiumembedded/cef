@@ -130,7 +130,8 @@ CefString CefURIDecode(const CefString& text,
   const net::UnescapeRule::Type type =
       static_cast<net::UnescapeRule::Type>(unescape_rule);
   if (convert_to_utf8)
-    return net::UnescapeAndDecodeUTF8URLComponent(text.ToString(), type);
+    return net::UnescapeAndDecodeUTF8URLComponentWithAdjustments(
+        text.ToString(), type, NULL);
   else
     return net::UnescapeURLComponent(text.ToString(), type);
 }

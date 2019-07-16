@@ -25,8 +25,7 @@ class CefBasicLabelButtonImpl : public CefLabelButtonImpl<views::LabelButton,
   // Create a new CefLabelButton instance. |delegate| may be nullptr.
   static CefRefPtr<CefBasicLabelButtonImpl> Create(
       CefRefPtr<CefButtonDelegate> delegate,
-      const CefString& text,
-      bool with_frame);
+      const CefString& text);
 
   // CefViewAdapter methods:
   std::string GetDebugType() override { return "LabelButton"; }

@@ -248,7 +248,7 @@ index 2ec1147d2620..8ff9a72e0bd7 100644
    //! \brief Calls ProcessPendingReports() in response to ReportPending() having
    //!     been called on any thread, as well as periodically on a timer.
 diff --git third_party/crashpad/crashpad/handler/handler_main.cc third_party/crashpad/crashpad/handler/handler_main.cc
-index 31686b3eb899..f361f5759976 100644
+index 724168ee9657..ae31efb356a1 100644
 --- third_party/crashpad/crashpad/handler/handler_main.cc
 +++ third_party/crashpad/crashpad/handler/handler_main.cc
 @@ -36,8 +36,10 @@
@@ -273,7 +273,7 @@ index 31686b3eb899..f361f5759976 100644
  namespace crashpad {
  
  namespace {
-@@ -179,6 +185,9 @@ struct Options {
+@@ -185,6 +191,9 @@ struct Options {
    bool periodic_tasks;
    bool rate_limit;
    bool upload_gzip;
@@ -283,8 +283,8 @@ index 31686b3eb899..f361f5759976 100644
  };
  
  // Splits |key_value| on '=' and inserts the resulting key and value into |map|.
-@@ -553,6 +562,9 @@ int HandlerMain(int argc,
-     kOptionSanitizationInformation,
+@@ -562,6 +571,9 @@ int HandlerMain(int argc,
+     kOptionTraceParentWithException,
  #endif
      kOptionURL,
 +    kOptionMaxUploads,
@@ -293,7 +293,7 @@ index 31686b3eb899..f361f5759976 100644
  
      // Standard options.
      kOptionHelp = -2,
-@@ -614,6 +626,9 @@ int HandlerMain(int argc,
+@@ -629,6 +641,9 @@ int HandlerMain(int argc,
      {"url", required_argument, nullptr, kOptionURL},
      {"help", no_argument, nullptr, kOptionHelp},
      {"version", no_argument, nullptr, kOptionVersion},
@@ -303,7 +303,7 @@ index 31686b3eb899..f361f5759976 100644
      {nullptr, 0, nullptr, 0},
    };
  
-@@ -749,6 +764,27 @@ int HandlerMain(int argc,
+@@ -768,6 +783,27 @@ int HandlerMain(int argc,
          options.url = optarg;
          break;
        }
@@ -331,7 +331,7 @@ index 31686b3eb899..f361f5759976 100644
        case kOptionHelp: {
          Usage(me);
          MetricsRecordExit(Metrics::LifetimeMilestone::kExitedEarly);
-@@ -863,8 +899,14 @@ int HandlerMain(int argc,
+@@ -888,8 +924,14 @@ int HandlerMain(int argc,
      upload_thread_options.upload_gzip = options.upload_gzip;
      upload_thread_options.watch_pending_reports = options.periodic_tasks;
  
@@ -346,7 +346,7 @@ index 31686b3eb899..f361f5759976 100644
      upload_thread.Get()->Start();
    }
  
-@@ -892,7 +934,8 @@ int HandlerMain(int argc,
+@@ -917,7 +959,8 @@ int HandlerMain(int argc,
    ScopedStoppable prune_thread;
    if (options.periodic_tasks) {
      prune_thread.Reset(new PruneCrashReportThread(

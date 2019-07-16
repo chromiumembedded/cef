@@ -46,7 +46,7 @@
 #include "content/public/browser/render_view_host.h"
 #include "content/public/common/content_switches.h"
 #include "media/base/video_frame.h"
-#include "ui/compositor/compositor_vsync_manager.h"
+#include "ui/compositor/compositor.h"
 #include "ui/events/blink/blink_event_util.h"
 #include "ui/events/gesture_detection/gesture_provider_config_helper.h"
 #include "ui/events/gesture_detection/motion_event.h"
@@ -521,13 +521,14 @@ void CefRenderWidgetHostViewOSR::Show() {
   delegated_frame_host_->AttachToCompositor(compositor_.get());
   delegated_frame_host_->WasShown(
       GetLocalSurfaceIdAllocation().local_surface_id(),
-      GetRootLayer()->bounds().size(), false);
+      GetRootLayer()->bounds().size(), base::nullopt);
 #endif
 
   // Note that |render_widget_host_| will retrieve size parameters from the
   // DelegatedFrameHost, so it must have WasShown called after.
   if (render_widget_host_)
-    render_widget_host_->WasShown(false);
+    render_widget_host_->WasShown(
+        base::nullopt /* record_tab_switch_time_request */);
 }
 
 void CefRenderWidgetHostViewOSR::Hide() {
@@ -898,9 +899,7 @@ void CefRenderWidgetHostViewOSR::SetIsLoading(bool is_loading) {
   forward_touch_to_popup_ = false;
 }
 
-void CefRenderWidgetHostViewOSR::RenderProcessGone(
-    base::TerminationStatus status,
-    int error_code) {
+void CefRenderWidgetHostViewOSR::RenderProcessGone() {
   Destroy();
 }
 
@@ -1729,11 +1728,19 @@ void CefRenderWidgetHostViewOSR::SetFrameRate() {
 
   frame_rate_threshold_us_ = 1000000 / frame_rate;
 
-  if (compositor) {
-    compositor->vsync_manager()->UpdateVSyncParameters(
+#if defined(OS_MACOSX)
+  if (browser_compositor_) {
+    browser_compositor_->UpdateVSyncParameters(
         base::TimeTicks::Now(),
         base::TimeDelta::FromMicroseconds(frame_rate_threshold_us_));
   }
+#else
+  if (compositor) {
+    compositor->SetDisplayVSyncParameters(
+        base::TimeTicks::Now(),
+        base::TimeDelta::FromMicroseconds(frame_rate_threshold_us_));
+  }
+#endif
 
   if (copy_frame_generator_.get()) {
     copy_frame_generator_->set_frame_rate_threshold_us(

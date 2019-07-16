@@ -40,11 +40,11 @@
 #include "libcef/common/net/scheme_registration.h"
 #include "libcef/common/net_service/util.h"
 #include "libcef/common/request_impl.h"
+#include "libcef/common/service_manifests/builtin_service_manifests.h"
 #include "libcef/common/service_manifests/cef_content_browser_overlay_manifest.h"
 #include "libcef/common/service_manifests/cef_content_gpu_overlay_manifest.h"
 #include "libcef/common/service_manifests/cef_content_renderer_overlay_manifest.h"
 #include "libcef/common/service_manifests/cef_content_utility_overlay_manifest.h"
-#include "libcef/common/service_manifests/cef_packaged_service_manifests.h"
 #include "libcef/common/service_manifests/cef_renderer_manifest.h"
 
 #include "base/base_switches.h"
@@ -69,9 +69,13 @@
 #include "chrome/common/webui_url_constants.h"
 #include "chrome/grit/browser_resources.h"
 #include "chrome/grit/generated_resources.h"
+#include "chrome/services/printing/printing_service.h"
 #include "chrome/services/printing/public/mojom/constants.mojom.h"
 #include "components/navigation_interception/intercept_navigation_throttle.h"
 #include "components/navigation_interception/navigation_params.h"
+#include "components/services/heap_profiling/heap_profiling_service.h"
+#include "components/services/heap_profiling/public/mojom/constants.mojom.h"
+#include "components/services/pdf_compositor/public/cpp/pdf_compositor_service_factory.h"
 #include "components/services/pdf_compositor/public/interfaces/pdf_compositor.mojom.h"
 #include "components/version_info/version_info.h"
 #include "content/browser/frame_host/navigation_handle_impl.h"
@@ -108,9 +112,12 @@
 #include "extensions/browser/io_thread_extension_message_filter.h"
 #include "extensions/common/constants.h"
 #include "extensions/common/switches.h"
+#include "mojo/public/cpp/bindings/remote.h"
 #include "net/ssl/ssl_cert_request_info.h"
 #include "ppapi/host/ppapi_host.h"
 #include "services/network/public/cpp/network_switches.h"
+#include "services/proxy_resolver/proxy_resolver_service.h"
+#include "services/proxy_resolver/public/mojom/proxy_resolver.mojom.h"
 #include "services/service_manager/embedder/switches.h"
 #include "services/service_manager/public/mojom/connector.mojom.h"
 #include "services/service_manager/sandbox/switches.h"
@@ -519,12 +526,13 @@ CefContentBrowserClient* CefContentBrowserClient::Get() {
       CefContentClient::Get()->browser());
 }
 
-content::BrowserMainParts* CefContentBrowserClient::CreateBrowserMainParts(
+std::unique_ptr<content::BrowserMainParts>
+CefContentBrowserClient::CreateBrowserMainParts(
     const content::MainFunctionParams& parameters) {
   browser_main_parts_ = new CefBrowserMainParts(parameters);
   browser_main_parts_->AddParts(
       ChromeService::GetInstance()->CreateExtraParts());
-  return browser_main_parts_;
+  return base::WrapUnique(browser_main_parts_);
 }
 
 void CefContentBrowserClient::RenderProcessWillLaunch(
@@ -553,16 +561,16 @@ void CefContentBrowserClient::RenderProcessWillLaunch(
   host->Send(
       new CefProcessMsg_SetIsIncognitoProcess(profile->IsOffTheRecord()));
 
-  service_manager::mojom::ServicePtr service;
+  service_manager::mojom::ServicePtrInfo service;
   *service_request = mojo::MakeRequest(&service);
-  service_manager::mojom::PIDReceiverPtr pid_receiver;
   service_manager::Identity renderer_identity = host->GetChildIdentity();
+  mojo::Remote<service_manager::mojom::ProcessMetadata> metadata;
   ChromeService::GetInstance()->connector()->RegisterServiceInstance(
       service_manager::Identity(chrome::mojom::kRendererServiceName,
                                 renderer_identity.instance_group(),
                                 renderer_identity.instance_id(),
                                 base::Token::CreateRandom()),
-      std::move(service), mojo::MakeRequest(&pid_receiver));
+      std::move(service), metadata.BindNewPipeAndPassReceiver());
 }
 
 bool CefContentBrowserClient::ShouldUseProcessPerSite(
@@ -701,23 +709,41 @@ void CefContentBrowserClient::SiteInstanceDeleting(
                           site_instance->GetId()));
 }
 
-void CefContentBrowserClient::RegisterIOThreadServiceHandlers(
-    content::ServiceManagerConnection* connection) {
-  // For spell checking.
-  connection->AddServiceRequestHandler(
-      chrome::mojom::kServiceName,
-      ChromeService::GetInstance()->CreateChromeServiceRequestHandler());
+void CefContentBrowserClient::RunServiceInstance(
+    const service_manager::Identity& identity,
+    mojo::PendingReceiver<service_manager::mojom::Service>* receiver) {
+  const std::string& service_name = identity.name();
+  if (service_name == printing::mojom::kServiceName) {
+    service_manager::Service::RunAsyncUntilTermination(
+        printing::CreatePdfCompositorService(std::move(*receiver)));
+    return;
+  }
+  if (service_name == printing::mojom::kChromePrintingServiceName) {
+    service_manager::Service::RunAsyncUntilTermination(
+        std::make_unique<printing::PrintingService>(std::move(*receiver)));
+    return;
+  }
+  if (service_name == proxy_resolver::mojom::kProxyResolverServiceName) {
+    service_manager::Service::RunAsyncUntilTermination(
+        std::make_unique<proxy_resolver::ProxyResolverService>(
+            std::move(*receiver)));
+    return;
+  }
 }
 
-void CefContentBrowserClient::RegisterOutOfProcessServices(
-    OutOfProcessServiceMap* services) {
-  (*services)[printing::mojom::kServiceName] =
-      base::BindRepeating(&base::ASCIIToUTF16, "PDF Compositor Service");
-  (*services)[printing::mojom::kChromePrintingServiceName] =
-      base::BindRepeating(&base::ASCIIToUTF16, "Printing Service");
-  (*services)[proxy_resolver::mojom::kProxyResolverServiceName] =
-      base::BindRepeating(&l10n_util::GetStringUTF16,
-                          IDS_UTILITY_PROCESS_PROXY_RESOLVER_NAME);
+void CefContentBrowserClient::RunServiceInstanceOnIOThread(
+    const service_manager::Identity& identity,
+    mojo::PendingReceiver<service_manager::mojom::Service>* receiver) {
+  if (identity.name() == chrome::mojom::kServiceName) {
+    ChromeService::GetInstance()->CreateChromeServiceRequestHandler().Run(
+        std::move(*receiver));
+    return;
+  }
+  if (identity.name() == heap_profiling::mojom::kServiceName) {
+    heap_profiling::HeapProfilingService::GetServiceFactory().Run(
+        std::move(*receiver));
+    return;
+  }
 }
 
 base::Optional<service_manager::Manifest>
@@ -726,10 +752,6 @@ CefContentBrowserClient::GetServiceManifestOverlay(base::StringPiece name) {
     return GetCefContentBrowserOverlayManifest();
   } else if (name == content::mojom::kGpuServiceName) {
     return GetCefContentGpuOverlayManifest();
-  } else if (name == content::mojom::kPackagedServicesServiceName) {
-    service_manager::Manifest overlay;
-    overlay.packaged_services = GetCefPackagedServiceManifests();
-    return overlay;
   } else if (name == content::mojom::kRendererServiceName) {
     return GetCefContentRendererOverlayManifest();
   } else if (name == content::mojom::kUtilityServiceName) {
@@ -741,7 +763,9 @@ CefContentBrowserClient::GetServiceManifestOverlay(base::StringPiece name) {
 
 std::vector<service_manager::Manifest>
 CefContentBrowserClient::GetExtraServiceManifests() {
-  return std::vector<service_manager::Manifest>{GetCefRendererManifest()};
+  auto manifests = GetBuiltinServiceManifests();
+  manifests.push_back(GetCefRendererManifest());
+  return manifests;
 }
 
 void CefContentBrowserClient::AppendExtraCommandLineSwitches(
@@ -949,14 +973,14 @@ void CefContentBrowserClient::AllowCertificateError(
     int cert_error,
     const net::SSLInfo& ssl_info,
     const GURL& request_url,
-    content::ResourceType resource_type,
+    bool is_main_frame_request,
     bool strict_enforcement,
     bool expired_previous_decision,
     const base::Callback<void(content::CertificateRequestResultType)>&
         callback) {
   CEF_REQUIRE_UIT();
 
-  if (resource_type != content::ResourceType::kMainFrame) {
+  if (!is_main_frame_request) {
     // A sub-resource has a certificate error. The user doesn't really
     // have a context for making the right decision, so block the request
     // hard.
@@ -1339,8 +1363,6 @@ bool CefContentBrowserClient::HandleExternalProtocol(
     bool is_main_frame,
     ui::PageTransition page_transition,
     bool has_user_gesture,
-    const std::string& method,
-    const net::HttpRequestHeaders& headers,
     network::mojom::URLLoaderFactoryRequest* factory_request,
     network::mojom::URLLoaderFactory*& out_factory) {
   if (net_service::IsEnabled()) {
@@ -1350,8 +1372,6 @@ bool CefContentBrowserClient::HandleExternalProtocol(
 
   CefRefPtr<CefRequestImpl> requestPtr = new CefRequestImpl();
   requestPtr->SetURL(url.spec());
-  requestPtr->SetMethod(method);
-  requestPtr->Set(headers);
   requestPtr->SetReadOnly(true);
 
   net_util::HandleExternalProtocol(requestPtr, web_contents_getter);

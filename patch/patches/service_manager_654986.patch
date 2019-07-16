@@ -1,8 +1,8 @@
 diff --git services/service_manager/embedder/main.cc services/service_manager/embedder/main.cc
-index 2f1c18044c35..479cb45f09e1 100644
+index 0d1fa74a3f43..11c7b62ac2ad 100644
 --- services/service_manager/embedder/main.cc
 +++ services/service_manager/embedder/main.cc
-@@ -233,22 +233,36 @@ int RunService(MainDelegate* delegate) {
+@@ -240,22 +240,36 @@ int RunService(MainDelegate* delegate) {
    return 0;
  }
  
@@ -43,7 +43,7 @@ index 2f1c18044c35..479cb45f09e1 100644
  
    // A flag to indicate whether Main() has been called before. On Android, we
    // may re-run Main() without restarting the browser process. This flag
-@@ -334,12 +348,7 @@ int Main(const MainParams& params) {
+@@ -341,12 +355,7 @@ int Main(const MainParams& params) {
      MainDelegate::InitializeParams init_params;
  
  #if defined(OS_MACOSX)
@@ -57,7 +57,7 @@ index 2f1c18044c35..479cb45f09e1 100644
      InitializeMac();
  #endif
  
-@@ -383,18 +392,16 @@ int Main(const MainParams& params) {
+@@ -390,18 +399,16 @@ int Main(const MainParams& params) {
      }
    }
  
@@ -85,7 +85,7 @@ index 2f1c18044c35..479cb45f09e1 100644
    switch (process_type) {
      case ProcessType::kDefault:
        NOTREACHED();
-@@ -416,6 +423,8 @@ int Main(const MainParams& params) {
+@@ -423,6 +430,8 @@ int Main(const MainParams& params) {
        break;
    }
  
@@ -94,7 +94,7 @@ index 2f1c18044c35..479cb45f09e1 100644
    if (tracker) {
      if (exit_code == 0) {
        tracker->SetProcessPhaseIfEnabled(
-@@ -427,13 +436,38 @@ int Main(const MainParams& params) {
+@@ -434,13 +443,38 @@ int Main(const MainParams& params) {
      }
    }
  
@@ -125,7 +125,7 @@ index 2f1c18044c35..479cb45f09e1 100644
 +  params.autorelease_pool =
 +      std::make_unique<base::mac::ScopedNSAutoreleasePool>();
 +#endif
-+ 
++
 +  int exit_code = MainInitialize(params);
 +  if (exit_code >= 0)
 +    return exit_code;

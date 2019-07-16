@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=03444846894791bdea24dbd8b059570cda5b801f$
+// $hash=13555da36aa665884dfafb4c2d66d33f200e34c7$
 //
 
 #include "include/views/cef_browser_view.h"
@@ -78,8 +78,7 @@ void CefDisplay::GetAllDisplays(std::vector<CefRefPtr<CefDisplay>>& displays) {
 NO_SANITIZE("cfi-icall")
 CefRefPtr<CefLabelButton> CefLabelButton::CreateLabelButton(
     CefRefPtr<CefButtonDelegate> delegate,
-    const CefString& text,
-    bool with_frame) {
+    const CefString& text) {
   NOTIMPLEMENTED();
   return NULL;
 }
@@ -87,8 +86,7 @@ CefRefPtr<CefLabelButton> CefLabelButton::CreateLabelButton(
 NO_SANITIZE("cfi-icall")
 CefRefPtr<CefMenuButton> CefMenuButton::CreateMenuButton(
     CefRefPtr<CefMenuButtonDelegate> delegate,
-    const CefString& text,
-    bool with_frame) {
+    const CefString& text) {
   NOTIMPLEMENTED();
   return NULL;
 }

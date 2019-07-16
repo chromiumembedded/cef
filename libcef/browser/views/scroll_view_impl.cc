@@ -44,7 +44,7 @@ CefRect CefScrollViewImpl::GetVisibleContentRect() {
 bool CefScrollViewImpl::HasHorizontalScrollbar() {
   CEF_REQUIRE_VALID_RETURN(false);
   const views::ScrollBar* scrollbar = root_view()->horizontal_scroll_bar();
-  return scrollbar && scrollbar->visible();
+  return scrollbar && scrollbar->GetVisible();
 }
 
 int CefScrollViewImpl::GetHorizontalScrollbarHeight() {
@@ -55,7 +55,7 @@ int CefScrollViewImpl::GetHorizontalScrollbarHeight() {
 bool CefScrollViewImpl::HasVerticalScrollbar() {
   CEF_REQUIRE_VALID_RETURN(false);
   const views::ScrollBar* scrollbar = root_view()->vertical_scroll_bar();
-  return scrollbar && scrollbar->visible();
+  return scrollbar && scrollbar->GetVisible();
 }
 
 int CefScrollViewImpl::GetVerticalScrollbarWidth() {

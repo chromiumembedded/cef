@@ -9,25 +9,20 @@
 // static
 CefRefPtr<CefLabelButton> CefLabelButton::CreateLabelButton(
     CefRefPtr<CefButtonDelegate> delegate,
-    const CefString& text,
-    bool with_frame) {
-  return CefBasicLabelButtonImpl::Create(delegate, text, with_frame);
+    const CefString& text) {
+  return CefBasicLabelButtonImpl::Create(delegate, text);
 }
 
 // static
 CefRefPtr<CefBasicLabelButtonImpl> CefBasicLabelButtonImpl::Create(
     CefRefPtr<CefButtonDelegate> delegate,
-    const CefString& text,
-    bool with_frame) {
+    const CefString& text) {
   CEF_REQUIRE_UIT_RETURN(nullptr);
   CefRefPtr<CefBasicLabelButtonImpl> label_button =
       new CefBasicLabelButtonImpl(delegate);
   label_button->Initialize();
   if (!text.empty())
     label_button->SetText(text);
-  if (with_frame) {
-    label_button->root_view()->SetStyleDeprecated(views::Button::STYLE_BUTTON);
-  }
   return label_button;
 }
 

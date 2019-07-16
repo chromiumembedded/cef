@@ -35,8 +35,8 @@
 
 #if defined(OS_WIN)
 #include "base/strings/utf_string_conversions.h"
+#include "chrome/chrome_elf/chrome_elf_main.h"
 #include "chrome/install_static/initialize_from_primary_module.h"
-#include "chrome_elf/chrome_elf_main.h"
 #include "components/crash/content/app/crashpad.h"
 #include "content/public/app/sandbox_helper_win.h"
 #include "sandbox/win/src/sandbox_types.h"
@@ -636,4 +636,7 @@ void CefContext::FinalizeShutdown() {
   sm_main_params_.reset(NULL);
   sm_main_delegate_.reset(NULL);
   main_delegate_.reset(NULL);
+
+  delete g_browser_process;
+  g_browser_process = NULL;
 }

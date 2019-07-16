@@ -7,7 +7,7 @@
 #include "libcef/common/content_client.h"
 
 #include "base/memory/ptr_util.h"
-#include "base/message_loop/message_loop.h"
+#include "base/message_loop/message_pump.h"
 #include "base/message_loop/message_pump_for_ui.h"
 
 #if defined(OS_MACOSX)
@@ -108,6 +108,6 @@ std::unique_ptr<base::MessagePump> MessagePumpFactoryForUI() {
 void InitMessagePumpFactoryForUI() {
   const CefSettings& settings = CefContext::Get()->settings();
   if (settings.external_message_pump) {
-    base::MessageLoop::InitMessagePumpForUIFactory(MessagePumpFactoryForUI);
+    base::MessagePump::OverrideMessagePumpForUIFactory(MessagePumpFactoryForUI);
   }
 }

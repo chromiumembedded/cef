@@ -547,6 +547,7 @@
       'tests/shared/browser/resource_util.h',
       'tests/shared/browser/resource_util_mac.mm',
       'tests/shared/browser/resource_util_posix.cc',
+      'tests/ceftests/audio_output_unittest.cc',
       'tests/ceftests/client_app_delegates.cc',
       'tests/ceftests/cookie_unittest.cc',
       'tests/ceftests/dom_unittest.cc',

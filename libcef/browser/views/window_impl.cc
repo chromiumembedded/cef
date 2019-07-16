@@ -14,6 +14,7 @@
 
 #include "ui/base/test/ui_controls.h"
 #include "ui/gfx/geometry/rect.h"
+#include "ui/views/controls/button/menu_button.h"
 #include "ui/views/controls/menu/menu_runner.h"
 
 #if defined(USE_AURA)
@@ -37,9 +38,8 @@ void InitializeUITesting() {
   if (!initialized) {
     ui_controls::EnableUIControls();
 
-
 #if defined(USE_AURA)
-#if defined(OS_LINUX)  && defined(USE_X11)
+#if defined(OS_LINUX) && defined(USE_X11)
     ui_controls::InstallUIControlsAura(
         views::test::CreateUIControlsDesktopAura());
 #else
@@ -437,7 +437,7 @@ void CefWindowImpl::ShowMenu(views::MenuButton* menu_button,
                             base::Bind(&CefWindowImpl::MenuClosed, this)));
 
   menu_runner_->RunMenuAt(
-      widget_, menu_button,
+      widget_, menu_button->button_controller(),
       gfx::Rect(gfx::Point(screen_point.x, screen_point.y), gfx::Size()),
       static_cast<views::MenuAnchorPosition>(anchor_position),
       ui::MENU_SOURCE_NONE);

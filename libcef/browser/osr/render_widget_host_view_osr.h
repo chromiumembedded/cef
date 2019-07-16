@@ -160,8 +160,7 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
                    content::RenderWidgetHostViewGuest* guest_view) override;
   void UpdateCursor(const content::WebCursor& cursor) override;
   void SetIsLoading(bool is_loading) override;
-  void RenderProcessGone(base::TerminationStatus status,
-                         int error_code) override;
+  void RenderProcessGone() override;
   void Destroy() override;
   void SetTooltipText(const base::string16& tooltip_text) override;
   content::CursorManager* GetCursorManager() override;

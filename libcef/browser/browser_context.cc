@@ -569,6 +569,28 @@ ProfileKey* CefBrowserContext::GetProfileKey() const {
   return key_.get();
 }
 
+policy::SchemaRegistryService*
+CefBrowserContext::GetPolicySchemaRegistryService() {
+  NOTREACHED();
+  return nullptr;
+}
+
+policy::UserCloudPolicyManager* CefBrowserContext::GetUserCloudPolicyManager() {
+  NOTREACHED();
+  return nullptr;
+}
+
+policy::ProfilePolicyConnector* CefBrowserContext::GetProfilePolicyConnector() {
+  NOTREACHED();
+  return nullptr;
+}
+
+const policy::ProfilePolicyConnector*
+CefBrowserContext::GetProfilePolicyConnector() const {
+  NOTREACHED();
+  return nullptr;
+}
+
 const CefRequestContextSettings& CefBrowserContext::GetSettings() const {
   return settings_;
 }
@@ -581,7 +603,7 @@ HostContentSettingsMap* CefBrowserContext::GetHostContentSettingsMap() {
     // that can be stored in the settings map (for example, default values set
     // via DefaultProvider::SetWebsiteSetting).
     host_content_settings_map_ =
-        new HostContentSettingsMap(GetPrefs(), false, false, false, false);
+        new HostContentSettingsMap(GetPrefs(), false, false, false);
 
     // Change the default plugin policy.
     const base::CommandLine* command_line =

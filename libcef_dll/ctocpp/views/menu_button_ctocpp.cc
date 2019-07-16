@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=65bbd880228104da2b65abf2c2a75acd5d698ecd$
+// $hash=0d2a3ffb1ec2b78d3784650f8720bd24a44dfd17$
 //
 
 #include "libcef_dll/ctocpp/views/menu_button_ctocpp.h"
@@ -32,8 +32,7 @@
 NO_SANITIZE("cfi-icall")
 CefRefPtr<CefMenuButton> CefMenuButton::CreateMenuButton(
     CefRefPtr<CefMenuButtonDelegate> delegate,
-    const CefString& text,
-    bool with_frame) {
+    const CefString& text) {
   shutdown_checker::AssertNotShutdown();
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -45,9 +44,8 @@ CefRefPtr<CefMenuButton> CefMenuButton::CreateMenuButton(
   // Unverified params: text
 
   // Execute
-  cef_menu_button_t* _retval =
-      cef_menu_button_create(CefMenuButtonDelegateCppToC::Wrap(delegate),
-                             text.GetStruct(), with_frame);
+  cef_menu_button_t* _retval = cef_menu_button_create(
+      CefMenuButtonDelegateCppToC::Wrap(delegate), text.GetStruct());
 
   // Return type: refptr_same
   return CefMenuButtonCToCpp::Wrap(_retval);

@@ -1,8 +1,8 @@
 diff --git .gn .gn
-index 2bccf9d2b12c..39ce25e36c22 100644
+index 01085ea84619..b79158a1a962 100644
 --- .gn
 +++ .gn
-@@ -664,6 +664,8 @@ exec_script_whitelist =
+@@ -666,6 +666,8 @@ exec_script_whitelist =
        # in the Chromium repo outside of //build.
        "//build_overrides/build.gni",
  
@@ -12,10 +12,10 @@ index 2bccf9d2b12c..39ce25e36c22 100644
        # https://crbug.com/474506.
        "//clank/java/BUILD.gn",
 diff --git BUILD.gn BUILD.gn
-index 2d6f3315e687..405ddd14fab6 100644
+index 8209523bebe9..84137b1a5cca 100644
 --- BUILD.gn
 +++ BUILD.gn
-@@ -187,6 +187,7 @@ group("gn_all") {
+@@ -202,6 +202,7 @@ group("gn_all") {
  
    if (!is_ios && !is_fuchsia) {
      deps += [
@@ -100,10 +100,10 @@ index ef8aeda56458..5b7f057311b9 100644
  
  
 diff --git build/vs_toolchain.py build/vs_toolchain.py
-index 0ce237fe1323..6201bbba992c 100755
+index 6a0dcbdb4fe2..9902f5da105a 100755
 --- build/vs_toolchain.py
 +++ build/vs_toolchain.py
-@@ -78,11 +78,18 @@ def SetEnvironmentAndGetRuntimeDllDirs():
+@@ -81,11 +81,18 @@ def SetEnvironmentAndGetRuntimeDllDirs():
      runtime_path = os.path.pathsep.join(vs_runtime_dll_dirs)
      os.environ['PATH'] = runtime_path + os.path.pathsep + os.environ['PATH']
    elif sys.platform == 'win32' and not depot_tools_win_toolchain:
@@ -123,10 +123,10 @@ index 0ce237fe1323..6201bbba992c 100755
      # directory in order to run binaries locally, but they are needed in order
      # to create isolates or the mini_installer. Copying them to the output
 diff --git chrome/chrome_paks.gni chrome/chrome_paks.gni
-index dc766a29cc34..97b47d0538e4 100644
+index 8ff44c72636e..bb5e1a42aed4 100644
 --- chrome/chrome_paks.gni
 +++ chrome/chrome_paks.gni
-@@ -265,7 +265,7 @@ template("chrome_paks") {
+@@ -275,7 +275,7 @@ template("chrome_paks") {
      }
  
      input_locales = locales

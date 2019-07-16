@@ -51,16 +51,16 @@ bool CefPrintRenderFrameHelperDelegate::OverridePrint(
   if (!frame->GetDocument().IsPluginDocument())
     return false;
 
-  auto mime_handlers = extensions::MimeHandlerViewContainer::FromRenderFrame(
-      content::RenderFrame::FromWebFrame(frame));
-  if (!mime_handlers.empty()) {
+  auto* post_message_support =
+      extensions::PostMessageSupport::FromWebLocalFrame(frame);
+  if (post_message_support) {
     // This message is handled in chrome/browser/resources/pdf/pdf.js and
     // instructs the PDF plugin to print. This is to make window.print() on a
     // PDF plugin document correctly print the PDF. See
     // https://crbug.com/448720.
     base::DictionaryValue message;
     message.SetString("type", "print");
-    mime_handlers.front()->PostMessageFromValue(message);
+    post_message_support->PostMessageFromValue(message);
     return true;
   }
   return false;

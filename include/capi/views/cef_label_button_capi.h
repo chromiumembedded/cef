@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=81babf6211a1e99886028bfc4fb9107ef7517c1f$
+// $hash=973d3f764a42f1bf255b52dcd1041aaba1f1475b$
 //
 
 #ifndef CEF_INCLUDE_CAPI_VIEWS_CEF_LABEL_BUTTON_CAPI_H_
@@ -148,16 +148,11 @@ typedef struct _cef_label_button_t {
 ///
 // Create a new LabelButton. A |delegate| must be provided to handle the button
 // click. |text| will be shown on the LabelButton and used as the default
-// accessible name. If |with_frame| is true (1) the button will have a visible
-// frame at all times, center alignment, additional padding and a default
-// minimum size of 70x33 DIP. If |with_frame| is false (0) the button will only
-// have a visible frame on hover/press, left alignment, less padding and no
-// default minimum size.
+// accessible name.
 ///
 CEF_EXPORT cef_label_button_t* cef_label_button_create(
     struct _cef_button_delegate_t* delegate,
-    const cef_string_t* text,
-    int with_frame);
+    const cef_string_t* text);
 
 #ifdef __cplusplus
 }

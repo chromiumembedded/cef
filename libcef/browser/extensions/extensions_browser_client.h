@@ -52,12 +52,12 @@ class CefExtensionsBrowserClient : public ExtensionsBrowserClient {
   base::FilePath GetBundleResourcePath(
       const network::ResourceRequest& request,
       const base::FilePath& extension_resources_path,
-      ComponentExtensionResourceInfo* resource_info) const override;
+      int* resource_id) const override;
   void LoadResourceFromResourceBundle(
       const network::ResourceRequest& request,
       network::mojom::URLLoaderRequest loader,
       const base::FilePath& resource_relative_path,
-      const ComponentExtensionResourceInfo& resource_info,
+      const int resource_id,
       const std::string& content_security_policy,
       network::mojom::URLLoaderClientPtr client,
       bool send_cors_header) override;
@@ -73,7 +73,7 @@ class CefExtensionsBrowserClient : public ExtensionsBrowserClient {
       content::BrowserContext* context) override;
   void GetEarlyExtensionPrefsObservers(
       content::BrowserContext* context,
-      std::vector<ExtensionPrefsObserver*>* observers) const override;
+      std::vector<EarlyExtensionPrefsObserver*>* observers) const override;
   ProcessManagerDelegate* GetProcessManagerDelegate() const override;
   std::unique_ptr<ExtensionHostDelegate> CreateExtensionHostDelegate() override;
   bool CreateBackgroundExtensionHost(const Extension* extension,
@@ -100,7 +100,6 @@ class CefExtensionsBrowserClient : public ExtensionsBrowserClient {
       events::HistogramValue histogram_value,
       const std::string& event_name,
       std::unique_ptr<base::ListValue> args) override;
-  net::NetLog* GetNetLog() override;
   ExtensionCache* GetExtensionCache() override;
   bool IsBackgroundUpdateAllowed() override;
   bool IsMinBrowserVersionSupported(const std::string& min_version) override;

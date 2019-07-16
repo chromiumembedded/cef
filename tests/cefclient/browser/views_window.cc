@@ -719,22 +719,12 @@ void ViewsWindow::CreateMenuModel() {
 CefRefPtr<CefLabelButton> ViewsWindow::CreateBrowseButton(
     const std::string& label,
     int id) {
-  // The default framed button image resources (IDR_BUTTON_*) look pretty bad
-  // with non-default background colors, so we'll use frameless buttons with
-  // ink drop when a background color is specified.
-  const bool with_frame = !views_style::IsSet();
 
   CefRefPtr<CefLabelButton> button =
-      CefLabelButton::CreateLabelButton(this, label, with_frame);
+      CefLabelButton::CreateLabelButton(this, label);
   button->SetID(id);
   button->SetEnabled(false);    // Disabled by default.
   button->SetFocusable(false);  // Don't give focus to the button.
-
-  if (!with_frame) {
-    views_style::ApplyTo(button);
-    button->SetInkDropEnabled(true);
-    button->SetHorizontalAlignment(CEF_HORIZONTAL_ALIGNMENT_CENTER);
-  }
 
   return button;
 }
@@ -762,7 +752,7 @@ void ViewsWindow::AddControls() {
 
   // Create the menu button.
   CefRefPtr<CefMenuButton> menu_button =
-      CefMenuButton::CreateMenuButton(this, CefString(), false);
+      CefMenuButton::CreateMenuButton(this, CefString());
   menu_button->SetID(ID_MENU_BUTTON);
   menu_button->SetImage(
       CEF_BUTTON_STATE_NORMAL,
@@ -907,7 +897,7 @@ void ViewsWindow::UpdateExtensionControls() {
   for (int id = ID_EXTENSION_BUTTON_FIRST;
        it != extensions_.end() && id <= ID_EXTENSION_BUTTON_LAST; ++id, ++it) {
     CefRefPtr<CefMenuButton> button =
-        CefMenuButton::CreateMenuButton(this, CefString(), false);
+        CefMenuButton::CreateMenuButton(this, CefString());
     button->SetID(id);
     button->SetImage(CEF_BUTTON_STATE_NORMAL, (*it).image_);
     views_style::ApplyTo(button.get());

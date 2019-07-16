@@ -165,8 +165,8 @@ void CefAudioPushSink::Close() {
     stop_stream_ = true;
     cef_audio_handler_->OnAudioStreamStopped(browser_.get(), audio_stream_id_);
 
-    const CloseCallback& cb = base::ResetAndReturn(&close_callback_);
-    if (!cb.is_null())
-      cb.Run(this);
+    if (!close_callback_.is_null()) {
+      std::move(close_callback_).Run(this);
+    }
   }
 }

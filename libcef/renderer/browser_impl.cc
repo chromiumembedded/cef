@@ -355,19 +355,6 @@ void CefBrowserImpl::OnDestruct() {
   CefContentRendererClient::Get()->OnBrowserDestroyed(this);
 }
 
-void CefBrowserImpl::DidFailProvisionalLoad(blink::WebLocalFrame* frame,
-                                            const blink::WebURLError& error) {
-  OnLoadError(frame, error);
-}
-
-void CefBrowserImpl::DidCommitProvisionalLoad(blink::WebLocalFrame* frame,
-                                              bool is_new_navigation) {
-  if (frame->Parent() == nullptr) {
-    OnLoadingStateChange(true);
-  }
-  OnLoadStart(frame);
-}
-
 void CefBrowserImpl::FrameDetached(int64_t frame_id) {
   if (!frames_.empty()) {
     // Remove the frame from the map.
@@ -408,40 +395,6 @@ void CefBrowserImpl::OnLoadingStateChange(bool isLoading) {
                                            canGoForward);
         last_loading_state_.reset(
             new LoadingState(isLoading, canGoBack, canGoForward));
-      }
-    }
-  }
-}
-
-void CefBrowserImpl::OnLoadStart(blink::WebLocalFrame* frame) {
-  CefRefPtr<CefApp> app = CefContentClient::Get()->application();
-  if (app.get()) {
-    CefRefPtr<CefRenderProcessHandler> handler = app->GetRenderProcessHandler();
-    if (handler.get()) {
-      CefRefPtr<CefLoadHandler> load_handler = handler->GetLoadHandler();
-      if (load_handler.get()) {
-        CefRefPtr<CefFrameImpl> cef_frame = GetWebFrameImpl(frame);
-        load_handler->OnLoadStart(this, cef_frame.get(), TT_EXPLICIT);
-      }
-    }
-  }
-}
-
-void CefBrowserImpl::OnLoadError(blink::WebLocalFrame* frame,
-                                 const blink::WebURLError& error) {
-  CefRefPtr<CefApp> app = CefContentClient::Get()->application();
-  if (app.get()) {
-    CefRefPtr<CefRenderProcessHandler> handler = app->GetRenderProcessHandler();
-    if (handler.get()) {
-      CefRefPtr<CefLoadHandler> load_handler = handler->GetLoadHandler();
-      if (load_handler.get()) {
-        CefRefPtr<CefFrameImpl> cef_frame = GetWebFrameImpl(frame);
-        const cef_errorcode_t errorCode =
-            static_cast<cef_errorcode_t>(error.reason());
-        const std::string& errorText = net::ErrorToString(error.reason());
-        const GURL& failedUrl = error.url();
-        load_handler->OnLoadError(this, cef_frame.get(), errorCode, errorText,
-                                  failedUrl.spec());
       }
     }
   }

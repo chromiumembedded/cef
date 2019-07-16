@@ -14,15 +14,16 @@
 #include "libcef/common/net_service/util.h"
 
 #include "base/command_line.h"
-#include "chrome/browser/net/chrome_net_log_helper.h"
 #include "chrome/browser/net/system_network_context_manager.h"
 #include "chrome/browser/policy/chrome_browser_policy_connector.h"
 #include "chrome/browser/printing/print_job_manager.h"
+#include "chrome/browser/ui/prefs/pref_watcher.h"
 #include "components/net_log/chrome_net_log.h"
 #include "components/net_log/net_export_file_writer.h"
 #include "components/prefs/pref_service.h"
 #include "content/browser/startup_helper.h"
 #include "content/public/common/content_switches.h"
+#include "net/log/net_log_capture_mode.h"
 #include "services/network/public/cpp/network_switches.h"
 #include "services/network/public/cpp/shared_url_loader_factory.h"
 
@@ -34,7 +35,6 @@ ChromeBrowserProcessStub::ChromeBrowserProcessStub()
 
 ChromeBrowserProcessStub::~ChromeBrowserProcessStub() {
   DCHECK((!initialized_ && !context_initialized_) || shutdown_);
-  g_browser_process = NULL;
 }
 
 void ChromeBrowserProcessStub::Initialize() {
@@ -79,6 +79,14 @@ void ChromeBrowserProcessStub::Shutdown() {
 
   if (net_service::IsEnabled() && SystemNetworkContextManager::GetInstance()) {
     SystemNetworkContextManager::DeleteInstance();
+  }
+
+  // Release any references to |local_state_| that are held by objects
+  // associated with a Profile. The Profile will be deleted later.
+  for (const auto& profile : CefBrowserContext::GetAll()) {
+    PrefWatcher* pref_watcher = PrefWatcher::Get(profile);
+    if (pref_watcher)
+      pref_watcher->Shutdown();
   }
 
   local_state_.reset();
@@ -319,6 +327,11 @@ ChromeBrowserProcessStub::optimization_guide_service() {
   return NULL;
 }
 
+StartupData* ChromeBrowserProcessStub::startup_data() {
+  NOTREACHED();
+  return NULL;
+}
+
 #if (defined(OS_WIN) || defined(OS_LINUX)) && !defined(OS_CHROMEOS)
 void ChromeBrowserProcessStub::StartAutoupdateTimer() {}
 #endif
@@ -332,7 +345,8 @@ net_log::ChromeNetLog* ChromeBrowserProcessStub::net_log() {
     if (command_line.HasSwitch(network::switches::kLogNetLog)) {
       net_log_->StartWritingToFile(
           command_line.GetSwitchValuePath(network::switches::kLogNetLog),
-          GetNetCaptureModeFromCommandLine(command_line),
+          net::GetNetCaptureModeFromCommandLine(command_line,
+                                                network::switches::kLogNetLog),
           command_line.GetCommandLineString(), std::string());
     }
   }

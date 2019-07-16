@@ -183,6 +183,10 @@ std::unique_ptr<PrefService> CreatePrefService(Profile* profile,
 #endif
   }
 
+  // Browser process preferences.
+  // Based on chrome/browser/browser_process_impl.cc RegisterPrefs.
+  registry->RegisterBooleanPref(prefs::kAllowCrossOriginAuthPrompt, false);
+
   // Browser UI preferences.
   // Based on chrome/browser/ui/browser_ui_prefs.cc RegisterBrowserPrefs.
   registry->RegisterBooleanPref(prefs::kAllowFileSelectionDialogs, true);

@@ -1,3 +1,85 @@
+diff --git chrome/chrome_elf/BUILD.gn chrome/chrome_elf/BUILD.gn
+index 9c59c4b5e7a6..e470635e88d2 100644
+--- chrome/chrome_elf/BUILD.gn
++++ chrome/chrome_elf/BUILD.gn
+@@ -7,6 +7,7 @@
+ 
+ import("//build/config/compiler/compiler.gni")
+ import("//build/config/win/manifest.gni")
++import("//cef/libcef/features/features.gni")
+ import("//chrome/process_version_rc_template.gni")
+ import("//testing/test.gni")
+ 
+@@ -132,9 +133,6 @@ source_set("constants") {
+ 
+ static_library("crash") {
+   sources = [
+-    "../app/chrome_crash_reporter_client_win.cc",
+-    "../app/chrome_crash_reporter_client_win.h",
+-    "../common/chrome_result_codes.h",
+     "crash/crash_helper.cc",
+     "crash/crash_helper.h",
+   ]
+@@ -142,6 +140,7 @@ static_library("crash") {
+     ":hook_util",
+     "//base",  # This needs to go.  DEP of app, crash_keys, client.
+     "//base:base_static",  # pe_image
++    "//cef/libcef/features",
+     "//chrome/install_static:install_static_util",
+     "//components/crash/content/app",
+     "//components/crash/core/common",  # crash_keys
+@@ -149,6 +148,17 @@ static_library("crash") {
+     "//content/public/common:result_codes",
+     "//third_party/crashpad/crashpad/client",  # DumpWithoutCrash
+   ]
++
++  if (enable_cef) {
++    deps += [ "//cef:chrome_elf_set" ]
++    include_dirs = [ "//cef" ]
++  } else {
++    sources += [
++      "//chrome/app/chrome_crash_reporter_client_win.cc",
++      "//chrome/app/chrome_crash_reporter_client_win.h",
++      "//chrome/common/chrome_result_codes.h",
++    ]
++  }
+ }
+ 
+ source_set("dll_hash") {
+diff --git chrome/chrome_elf/crash/crash_helper.cc chrome/chrome_elf/crash/crash_helper.cc
+index 381322aca895..a5622ddfe66d 100644
+--- chrome/chrome_elf/crash/crash_helper.cc
++++ chrome/chrome_elf/crash/crash_helper.cc
+@@ -11,12 +11,17 @@
+ #include <string>
+ #include <vector>
+ 
++#include "cef/libcef/features/features.h"
+ #include "chrome/app/chrome_crash_reporter_client_win.h"
+ #include "chrome/chrome_elf/hook_util/hook_util.h"
+ #include "components/crash/content/app/crashpad.h"
+ #include "components/crash/core/common/crash_keys.h"
+ #include "third_party/crashpad/crashpad/client/crashpad_client.h"
+ 
++#if BUILDFLAG(ENABLE_CEF)
++#include "cef/libcef/common/crash_reporter_client.h"
++#endif
++
+ namespace {
+ 
+ // Crash handling from elf is only enabled for the chrome.exe process.
+@@ -74,7 +79,11 @@ bool InitializeCrashReporting() {
+   g_crash_reports = new std::vector<crash_reporter::Report>;
+   g_set_unhandled_exception_filter = new elf_hook::IATHook();
+ 
++#if BUILDFLAG(ENABLE_CEF)
++  CefCrashReporterClient::InitializeCrashReportingForProcess();
++#else
+   ChromeCrashReporterClient::InitializeCrashReportingForProcess();
++#endif
+ 
+   g_crash_helper_enabled = true;
+   return true;
 diff --git chrome/common/crash_keys.cc chrome/common/crash_keys.cc
 index e0a839813a07..5c0d05bcc78c 100644
 --- chrome/common/crash_keys.cc
@@ -44,90 +126,8 @@ index bcf172e645a2..f879aa745adf 100644
  // Sets the kNumSwitches key and the set of keys named using kSwitchFormat based
  // on the given |command_line|.
  void SetCrashKeysFromCommandLine(const base::CommandLine& command_line);
-diff --git chrome_elf/BUILD.gn chrome_elf/BUILD.gn
-index 7643f2793a0a..5da3775ac932 100644
---- chrome_elf/BUILD.gn
-+++ chrome_elf/BUILD.gn
-@@ -7,6 +7,7 @@
- 
- import("//build/config/compiler/compiler.gni")
- import("//build/config/win/manifest.gni")
-+import("//cef/libcef/features/features.gni")
- import("//chrome/process_version_rc_template.gni")
- import("//testing/test.gni")
- 
-@@ -126,9 +127,6 @@ source_set("constants") {
- 
- static_library("crash") {
-   sources = [
--    "../chrome/app/chrome_crash_reporter_client_win.cc",
--    "../chrome/app/chrome_crash_reporter_client_win.h",
--    "../chrome/common/chrome_result_codes.h",
-     "crash/crash_helper.cc",
-     "crash/crash_helper.h",
-   ]
-@@ -136,6 +134,7 @@ static_library("crash") {
-     ":hook_util",
-     "//base",  # This needs to go.  DEP of app, crash_keys, client.
-     "//base:base_static",  # pe_image
-+    "//cef/libcef/features",
-     "//chrome/install_static:install_static_util",
-     "//components/crash/content/app",
-     "//components/crash/core/common",  # crash_keys
-@@ -143,6 +142,17 @@ static_library("crash") {
-     "//content/public/common:result_codes",
-     "//third_party/crashpad/crashpad/client",  # DumpWithoutCrash
-   ]
-+
-+  if (enable_cef) {
-+    deps += [ "//cef:chrome_elf_set" ]
-+    include_dirs = [ "//cef" ]
-+  } else {
-+    sources += [
-+      "//chrome/app/chrome_crash_reporter_client_win.cc",
-+      "//chrome/app/chrome_crash_reporter_client_win.h",
-+      "//chrome/common/chrome_result_codes.h",
-+    ]
-+  }
- }
- 
- source_set("dll_hash") {
-diff --git chrome_elf/crash/crash_helper.cc chrome_elf/crash/crash_helper.cc
-index fdc51ab22807..cb0a99dd190c 100644
---- chrome_elf/crash/crash_helper.cc
-+++ chrome_elf/crash/crash_helper.cc
-@@ -11,12 +11,17 @@
- #include <string>
- #include <vector>
- 
-+#include "cef/libcef/features/features.h"
- #include "chrome/app/chrome_crash_reporter_client_win.h"
- #include "chrome_elf/hook_util/hook_util.h"
- #include "components/crash/content/app/crashpad.h"
- #include "components/crash/core/common/crash_keys.h"
- #include "third_party/crashpad/crashpad/client/crashpad_client.h"
- 
-+#if BUILDFLAG(ENABLE_CEF)
-+#include "cef/libcef/common/crash_reporter_client.h"
-+#endif
-+
- namespace {
- 
- // Crash handling from elf is only enabled for the chrome.exe process.
-@@ -74,7 +79,11 @@ bool InitializeCrashReporting() {
-   g_crash_reports = new std::vector<crash_reporter::Report>;
-   g_set_unhandled_exception_filter = new elf_hook::IATHook();
- 
-+#if BUILDFLAG(ENABLE_CEF)
-+  CefCrashReporterClient::InitializeCrashReportingForProcess();
-+#else
-   ChromeCrashReporterClient::InitializeCrashReportingForProcess();
-+#endif
- 
-   g_crash_helper_enabled = true;
-   return true;
 diff --git components/crash/content/app/breakpad_linux.cc components/crash/content/app/breakpad_linux.cc
-index ecc7d66acb03..abc4371f429b 100644
+index 3ab8ad2c5aad..ba4a353c370b 100644
 --- components/crash/content/app/breakpad_linux.cc
 +++ components/crash/content/app/breakpad_linux.cc
 @@ -28,6 +28,7 @@
@@ -241,7 +241,7 @@ index 6e95af6ca7f5..061fb189d60f 100644
  extern void InitCrashKeysForTesting();
  
 diff --git components/crash/content/app/crash_reporter_client.cc components/crash/content/app/crash_reporter_client.cc
-index c3c3f9db07d4..c532a5a46740 100644
+index 4d2b6ad68d80..728ffd9e7b4c 100644
 --- components/crash/content/app/crash_reporter_client.cc
 +++ components/crash/content/app/crash_reporter_client.cc
 @@ -88,7 +88,7 @@ int CrashReporterClient::GetResultCodeRespawnFailed() {
@@ -261,7 +261,7 @@ index c3c3f9db07d4..c532a5a46740 100644
  base::FilePath CrashReporterClient::GetReporterLogFilename() {
    return base::FilePath();
  }
-@@ -105,6 +106,7 @@ bool CrashReporterClient::HandleCrashDump(const char* crashdump_filename) {
+@@ -106,6 +107,7 @@ bool CrashReporterClient::HandleCrashDump(const char* crashdump_filename,
    return false;
  }
  #endif
@@ -269,7 +269,7 @@ index c3c3f9db07d4..c532a5a46740 100644
  
  #if defined(OS_WIN)
  bool CrashReporterClient::GetCrashDumpLocation(base::string16* crash_dir) {
-@@ -147,6 +149,32 @@ bool CrashReporterClient::ReportingIsEnforcedByPolicy(bool* breakpad_enabled) {
+@@ -148,6 +150,32 @@ bool CrashReporterClient::ReportingIsEnforcedByPolicy(bool* breakpad_enabled) {
    return false;
  }
  
@@ -302,7 +302,7 @@ index c3c3f9db07d4..c532a5a46740 100644
  #if defined(OS_ANDROID)
  unsigned int CrashReporterClient::GetCrashDumpPercentage() {
    return 100;
-@@ -194,9 +222,11 @@ bool CrashReporterClient::ShouldMonitorCrashHandlerExpensively() {
+@@ -195,9 +223,11 @@ bool CrashReporterClient::ShouldMonitorCrashHandlerExpensively() {
    return false;
  }
  
@@ -318,7 +318,7 @@ index c3c3f9db07d4..c532a5a46740 100644
  
  }  // namespace crash_reporter
 diff --git components/crash/content/app/crash_reporter_client.h components/crash/content/app/crash_reporter_client.h
-index 1d35caa36716..7b96fb687b98 100644
+index d46bcc2a39b4..390654dd76fd 100644
 --- components/crash/content/app/crash_reporter_client.h
 +++ components/crash/content/app/crash_reporter_client.h
 @@ -5,7 +5,9 @@
@@ -348,15 +348,15 @@ index 1d35caa36716..7b96fb687b98 100644
    virtual base::FilePath GetReporterLogFilename();
  
    // Custom crash minidump handler after the minidump is generated.
-@@ -110,6 +113,7 @@ class CrashReporterClient {
-   // WARNING: this handler runs in a compromised context. It may not call into
+@@ -111,6 +114,7 @@ class CrashReporterClient {
    // libc nor allocate memory normally.
-   virtual bool HandleCrashDump(const char* crashdump_filename);
+   virtual bool HandleCrashDump(const char* crashdump_filename,
+                                uint64_t crash_pid);
 +#endif
  #endif
  
    // The location where minidump files should be written. Returns true if
-@@ -206,6 +210,30 @@ class CrashReporterClient {
+@@ -207,6 +211,30 @@ class CrashReporterClient {
  
    // Returns true if breakpad should run in the given process type.
    virtual bool EnableBreakpadForProcess(const std::string& process_type);
@@ -598,7 +598,7 @@ index 8f55759a6f4a..5d60fc3f84eb 100644
  
      if (crash_reporter_client->ShouldMonitorCrashHandlerExpensively()) {
 diff --git content/browser/frame_host/debug_urls.cc content/browser/frame_host/debug_urls.cc
-index d47b0305167e..d5941ed0e2af 100644
+index 59396b7f26e3..31491e1b5d20 100644
 --- content/browser/frame_host/debug_urls.cc
 +++ content/browser/frame_host/debug_urls.cc
 @@ -136,7 +136,9 @@ bool HandleDebugURL(const GURL& url, ui::PageTransition transition) {

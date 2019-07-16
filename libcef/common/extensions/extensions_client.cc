@@ -80,12 +80,6 @@ bool CefExtensionsClient::IsScriptableURL(const GURL& url,
   return true;
 }
 
-bool CefExtensionsClient::ShouldSuppressFatalErrors() const {
-  return true;
-}
-
-void CefExtensionsClient::RecordDidSuppressFatalError() {}
-
 const GURL& CefExtensionsClient::GetWebstoreBaseURL() const {
   return webstore_base_url_;
 }

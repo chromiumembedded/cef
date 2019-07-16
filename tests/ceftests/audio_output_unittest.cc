@@ -6,6 +6,9 @@
 #include "include/wrapper/cef_closure_task.h"
 #include "tests/ceftests/test_handler.h"
 #include "tests/gtest/include/gtest/gtest.h"
+#include "tests/shared/browser/client_app_browser.h"
+
+using client::ClientAppBrowser;
 
 namespace {
 
@@ -800,6 +803,22 @@ const char kTestHtml[] =
     "x5+fm5nB6slBlZ3Fcha363d5ut7u3ni1rLoPf728l3KcK\" allow=\"autoplay\" "
     "style=\"display:none\"></iframe></body></html>";
 
+class AudioOutputTest : public ClientAppBrowser::Delegate {
+ public:
+  AudioOutputTest() {}
+
+  void OnBeforeCommandLineProcessing(
+      CefRefPtr<ClientAppBrowser> app,
+      CefRefPtr<CefCommandLine> command_line) override {
+    // Allow media to autoplay without requiring user interaction.
+    command_line->AppendSwitchWithValue("autoplay-policy",
+                                        "no-user-gesture-required");
+  }
+
+ protected:
+  IMPLEMENT_REFCOUNTING(AudioOutputTest);
+};
+
 // a common base class for audio output tests
 class AudioOutputTestHandler : public TestHandler, public CefAudioHandler {
  public:
@@ -892,4 +911,10 @@ TEST(AudioOutputTest, AudioOutputTest) {
   CefRefPtr<AudioOutputTestHandler> handler = new AudioOutputTestHandler();
   handler->ExecuteTest();
   ReleaseAndWaitForDestructor(handler);
+}
+
+// Entry point for creating audio output test objects.
+// Called from client_app_delegates.cc.
+void CreateAudioOutputTests(ClientAppBrowser::DelegateSet& delegates) {
+  delegates.insert(new AudioOutputTest);
 }

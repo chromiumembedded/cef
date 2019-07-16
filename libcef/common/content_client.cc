@@ -249,7 +249,7 @@ base::string16 CefContentClient::GetLocalizedString(
     int message_id,
     const base::string16& replacement) const {
   base::string16 value = l10n_util::GetStringFUTF16(message_id, replacement);
-   if (value.empty())
+  if (value.empty())
     LOG(ERROR) << "No localized string available for id " << message_id;
 
   return value;
@@ -276,6 +276,10 @@ base::RefCountedMemory* CefContentClient::GetDataResourceBytes(
     LOG(ERROR) << "No data resource bytes available for id " << resource_id;
 
   return value;
+}
+
+bool CefContentClient::IsDataResourceGzipped(int resource_id) const {
+  return ui::ResourceBundle::GetSharedInstance().IsGzipped(resource_id);
 }
 
 gfx::Image& CefContentClient::GetNativeImageNamed(int resource_id) const {

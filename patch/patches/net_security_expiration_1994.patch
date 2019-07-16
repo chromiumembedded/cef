@@ -1,72 +1,15 @@
-diff --git components/certificate_transparency/chrome_ct_policy_enforcer.cc components/certificate_transparency/chrome_ct_policy_enforcer.cc
-index 99a4405290ea..d0b35f74e552 100644
---- components/certificate_transparency/chrome_ct_policy_enforcer.cc
-+++ components/certificate_transparency/chrome_ct_policy_enforcer.cc
-@@ -36,15 +36,6 @@ namespace certificate_transparency {
- 
- namespace {
- 
--// Returns true if the current build is recent enough to ensure that
--// built-in security information (e.g. CT Logs) is fresh enough.
--// TODO(eranm): Move to base or net/base
--bool IsBuildTimely() {
--  const base::Time build_time = base::GetBuildTime();
--  // We consider built-in information to be timely for 10 weeks.
--  return (base::Time::Now() - build_time).InDays() < 70 /* 10 weeks */;
--}
--
- // Returns a rounded-down months difference of |start| and |end|,
- // together with an indication of whether the last month was
- // a full month, because the range starts specified in the policy
-@@ -304,4 +295,16 @@ CTPolicyCompliance ChromeCTPolicyEnforcer::CheckCompliance(
-   return compliance;
- }
- 
-+// Returns true if the current build is recent enough to ensure that
-+// built-in security information (e.g. CT Logs) is fresh enough.
-+// TODO(eranm): Move to base or net/base
-+bool ChromeCTPolicyEnforcer::IsBuildTimely() const {
-+  if (!enforce_net_security_expiration_)
-+    return true;
-+
-+  const base::Time build_time = base::GetBuildTime();
-+  // We consider built-in information to be timely for 10 weeks.
-+  return (base::Time::Now() - build_time).InDays() < 70 /* 10 weeks */;
-+}
-+
- }  // namespace certificate_transparency
-diff --git components/certificate_transparency/chrome_ct_policy_enforcer.h components/certificate_transparency/chrome_ct_policy_enforcer.h
-index f61ff0d0564a..e6727c7b1cbc 100644
---- components/certificate_transparency/chrome_ct_policy_enforcer.h
-+++ components/certificate_transparency/chrome_ct_policy_enforcer.h
-@@ -26,6 +26,17 @@ class ChromeCTPolicyEnforcer : public net::CTPolicyEnforcer {
-       net::X509Certificate* cert,
-       const net::ct::SCTList& verified_scts,
-       const net::NetLogWithSource& net_log) override;
-+
-+  void set_enforce_net_security_expiration(bool enforce) {
-+    enforce_net_security_expiration_ = enforce;
-+  }
-+
-+ private:
-+  // Returns true if the current build is recent enough to ensure that
-+  // built-in security information (e.g. CT Logs) is fresh enough.
-+  bool IsBuildTimely() const;
-+
-+  bool enforce_net_security_expiration_ = true;
- };
- 
- }  // namespace certificate_transparency
 diff --git net/http/transport_security_state.cc net/http/transport_security_state.cc
-index b7a2bca7bf42..d0952ba4a4d7 100644
+index b7a2bca7bf42..5987ee212a12 100644
 --- net/http/transport_security_state.cc
 +++ net/http/transport_security_state.cc
-@@ -1100,8 +1100,10 @@ void TransportSecurityState::ClearReportCachesForTesting() {
+@@ -1100,8 +1100,12 @@ void TransportSecurityState::ClearReportCachesForTesting() {
    sent_expect_ct_reports_cache_.Clear();
  }
  
 -// static
 -bool TransportSecurityState::IsBuildTimely() {
++// Returns true if the current build is recent enough to ensure that
++// built-in security information (e.g. CT Logs) is fresh enough.
 +bool TransportSecurityState::IsBuildTimely() const {
 +  if (!enforce_net_security_expiration_)
 +    return true;

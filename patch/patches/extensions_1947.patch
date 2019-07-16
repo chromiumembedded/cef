@@ -132,18 +132,18 @@ index 4027505469b8..de8258562bb2 100644
    // A weak pointer to the current or pending RenderViewHost. We don't access
    // this through the host_contents because we want to deal with the pending
 diff --git extensions/browser/extensions_browser_client.h extensions/browser/extensions_browser_client.h
-index 93dce1cad08c..1eef00b03063 100644
+index 3ed389242f67..4cc4d2a5bed8 100644
 --- extensions/browser/extensions_browser_client.h
 +++ extensions/browser/extensions_browser_client.h
-@@ -62,6 +62,7 @@ class ComponentExtensionResourceManager;
+@@ -60,6 +60,7 @@ class ComponentExtensionResourceManager;
  class Extension;
  class ExtensionCache;
  class ExtensionError;
 +class ExtensionHost;
  class ExtensionHostDelegate;
- class ExtensionPrefsObserver;
  class ExtensionApiFrameIdMap;
-@@ -216,6 +217,14 @@ class ExtensionsBrowserClient {
+ class ExtensionApiFrameIdMapHelper;
+@@ -213,6 +214,14 @@ class ExtensionsBrowserClient {
    virtual std::unique_ptr<ExtensionHostDelegate>
    CreateExtensionHostDelegate() = 0;
  

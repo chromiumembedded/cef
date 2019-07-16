@@ -292,7 +292,11 @@ void CefContentRendererClient::WebKitInitialized() {
       blink::WebSecurityPolicy::AddOriginAccessAllowListEntry(
           gurl, blink::WebString::FromUTF8(entry.target_protocol),
           blink::WebString::FromUTF8(entry.target_domain),
-          entry.allow_target_subdomains,
+          /*destination_port=*/0,
+          entry.allow_target_subdomains
+              ? network::mojom::CorsDomainMatchMode::kAllowSubdomains
+              : network::mojom::CorsDomainMatchMode::kDisallowSubdomains,
+          network::mojom::CorsPortMatchMode::kAllowAnyPort,
           network::mojom::CorsOriginAccessMatchPriority::kDefaultPriority);
     }
     cross_origin_whitelist_entries_.clear();
@@ -418,7 +422,8 @@ void CefContentRendererClient::RenderThreadStarted() {
     pdf::PepperPDFHost::SetPrintClient(pdf_print_client_.get());
   }
 
-  for (auto& origin_or_hostname_pattern : network::GetSecureOriginAllowlist()) {
+  for (auto& origin_or_hostname_pattern :
+       network::SecureOriginAllowlist::GetInstance().GetCurrentAllowlist()) {
     blink::WebSecurityPolicy::AddOriginToTrustworthySafelist(
         blink::WebString::FromUTF8(origin_or_hostname_pattern));
   }

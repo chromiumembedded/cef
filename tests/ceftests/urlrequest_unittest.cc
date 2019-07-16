@@ -482,8 +482,9 @@ class RequestSchemeHandler : public CefResourceHandler {
       : settings_(settings), destroy_callback_(destroy_callback) {}
 
   ~RequestSchemeHandler() override {
-    if (IsNetworkServiceEnabled())
+    if (IsNetworkServiceEnabled()) {
       EXPECT_EQ(1, cancel_ct_);
+    }
 
     destroy_callback_.Run();
   }
@@ -564,8 +565,9 @@ class RequestRedirectSchemeHandler : public CefResourceHandler {
         destroy_callback_(destroy_callback) {}
 
   ~RequestRedirectSchemeHandler() override {
-    if (IsNetworkServiceEnabled())
+    if (IsNetworkServiceEnabled()) {
       EXPECT_EQ(1, cancel_ct_);
+    }
 
     destroy_callback_.Run();
   }

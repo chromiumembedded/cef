@@ -1,8 +1,8 @@
 diff --git ui/views/controls/native/native_view_host.cc ui/views/controls/native/native_view_host.cc
-index 3ec401eabdd3..49a3d5f9fd33 100644
+index 9d2c42e2ef46..e1b89a6a5d25 100644
 --- ui/views/controls/native/native_view_host.cc
 +++ ui/views/controls/native/native_view_host.cc
-@@ -152,7 +152,7 @@ void NativeViewHost::OnPaint(gfx::Canvas* canvas) {
+@@ -151,7 +151,7 @@ void NativeViewHost::OnPaint(gfx::Canvas* canvas) {
    // It would be nice if this used some approximation of the page's
    // current background color.
    if (native_wrapper_->HasInstalledClip())
@@ -12,7 +12,7 @@ index 3ec401eabdd3..49a3d5f9fd33 100644
  
  void NativeViewHost::VisibilityChanged(View* starting_from, bool is_visible) {
 diff --git ui/views/controls/native/native_view_host.h ui/views/controls/native/native_view_host.h
-index 1a4bcee29cb6..c7601201aacd 100644
+index c64341390fc4..6b2491ef4827 100644
 --- ui/views/controls/native/native_view_host.h
 +++ ui/views/controls/native/native_view_host.h
 @@ -86,6 +86,12 @@ class VIEWS_EXPORT NativeViewHost : public View {
@@ -25,12 +25,12 @@ index 1a4bcee29cb6..c7601201aacd 100644
 +    resize_background_color_ = resize_background_color;
 +  }
 +
-   // Value of fast_resize() the last time Layout() was invoked.
-   bool fast_resize_at_last_layout() const {
-     return fast_resize_at_last_layout_;
-@@ -141,6 +147,9 @@ class VIEWS_EXPORT NativeViewHost : public View {
-   // Value of |fast_resize_| during the last call to Layout.
-   bool fast_resize_at_last_layout_ = false;
+   gfx::NativeView native_view() const { return native_view_; }
+ 
+   void NativeViewDestroyed();
+@@ -133,6 +139,9 @@ class VIEWS_EXPORT NativeViewHost : public View {
+   // in the setter/accessor above.
+   bool fast_resize_ = false;
  
 +  // Color to paint in the background while resizing.
 +  SkColor resize_background_color_ = SK_ColorWHITE;
@@ -39,7 +39,7 @@ index 1a4bcee29cb6..c7601201aacd 100644
  };
  
 diff --git ui/views/controls/webview/webview.cc ui/views/controls/webview/webview.cc
-index c77cb52a0aa4..c58c7e8d473d 100644
+index 85a5587f4c5e..5621deed9417 100644
 --- ui/views/controls/webview/webview.cc
 +++ ui/views/controls/webview/webview.cc
 @@ -121,6 +121,10 @@ void WebView::EnableSizingFromWebContents(const gfx::Size& min_size,

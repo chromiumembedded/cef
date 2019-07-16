@@ -1,5 +1,5 @@
 diff --git build/config/compiler/BUILD.gn build/config/compiler/BUILD.gn
-index 4b24c762b6e9..d2fd1fc5d414 100644
+index a3f21b7ef850..882b4a38d14c 100644
 --- build/config/compiler/BUILD.gn
 +++ build/config/compiler/BUILD.gn
 @@ -157,7 +157,7 @@ declare_args() {
@@ -11,7 +11,7 @@ index 4b24c762b6e9..d2fd1fc5d414 100644
                 !(current_cpu == "x86" || current_cpu == "x64"))))
  }
  
-@@ -1701,8 +1701,6 @@ config("thin_archive") {
+@@ -1703,8 +1703,6 @@ config("thin_archive") {
    # archive names to 16 characters, which is not what we want).
    if ((is_posix && !is_nacl && !is_mac && !is_ios) || is_fuchsia) {
      arflags = [ "-T" ]

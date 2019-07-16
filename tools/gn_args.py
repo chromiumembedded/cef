@@ -256,10 +256,6 @@ def GetRequiredArgs():
     # issue #2424).
     result['use_bundled_fontconfig'] = False
 
-    # Disable vulkan to avoid linker errors.
-    # See https://bugs.chromium.org/p/chromium/issues/detail?id=848100#c4
-    result['enable_vulkan'] = False
-
     # Build without GTK dependencies (see issue #2014).
     result['use_gtk'] = False
 

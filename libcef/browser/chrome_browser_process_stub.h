@@ -87,6 +87,7 @@ class ChromeBrowserProcessStub : public BrowserProcess {
       override;
   optimization_guide::OptimizationGuideService* optimization_guide_service()
       override;
+  StartupData* startup_data() override;
 
 #if (defined(OS_WIN) || defined(OS_LINUX)) && !defined(OS_CHROMEOS)
   void StartAutoupdateTimer() override;

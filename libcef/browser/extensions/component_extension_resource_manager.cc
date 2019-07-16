@@ -21,7 +21,7 @@ CefComponentExtensionResourceManager::~CefComponentExtensionResourceManager() {}
 bool CefComponentExtensionResourceManager::IsComponentExtensionResource(
     const base::FilePath& extension_path,
     const base::FilePath& resource_path,
-    ComponentExtensionResourceInfo* resource_info) const {
+    int* resource_id) const {
   base::FilePath directory_path = extension_path;
   base::FilePath resources_dir;
   base::FilePath relative_path;
@@ -34,7 +34,7 @@ bool CefComponentExtensionResourceManager::IsComponentExtensionResource(
 
   auto entry = path_to_resource_info_.find(relative_path);
   if (entry != path_to_resource_info_.end()) {
-    *resource_info = entry->second;
+    *resource_id = entry->second;
     return true;
   }
 
@@ -48,7 +48,7 @@ CefComponentExtensionResourceManager::GetTemplateReplacementsForExtension(
 }
 
 void CefComponentExtensionResourceManager::AddComponentResourceEntries(
-    const GzippedGritResourceMap* entries,
+    const GritResourceMap* entries,
     size_t size) {
   for (size_t i = 0; i < size; ++i) {
     base::FilePath resource_path =
@@ -56,8 +56,7 @@ void CefComponentExtensionResourceManager::AddComponentResourceEntries(
     resource_path = resource_path.NormalizePathSeparators();
 
     DCHECK(!base::ContainsKey(path_to_resource_info_, resource_path));
-    path_to_resource_info_[resource_path] = {entries[i].value,
-                                             entries[i].gzipped};
+    path_to_resource_info_[resource_path] = entries[i].value;
   }
 }
 

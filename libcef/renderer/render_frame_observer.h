@@ -10,7 +10,8 @@
 
 namespace content {
 class RenderFrame;
-}
+class RenderView;
+}  // namespace content
 
 class CefFrameImpl;
 
@@ -23,10 +24,13 @@ class CefRenderFrameObserver : public content::RenderFrameObserver {
   void OnInterfaceRequestForFrame(
       const std::string& interface_name,
       mojo::ScopedMessagePipeHandle* interface_pipe) override;
+  void DidCommitProvisionalLoad(bool is_same_document_navigation,
+                                ui::PageTransition transition) override;
+  void DidFailProvisionalLoad(const blink::WebURLError& error) override;
   void DidFinishLoad() override;
   void FrameDetached() override;
   void FrameFocused() override;
-  void FocusedNodeChanged(const blink::WebNode& node) override;
+  void FocusedElementChanged(const blink::WebElement& element) override;
   void DraggableRegionsChanged() override;
   void DidCreateScriptContext(v8::Handle<v8::Context> context,
                               int world_id) override;
@@ -40,6 +44,9 @@ class CefRenderFrameObserver : public content::RenderFrameObserver {
   void AttachFrame(CefFrameImpl* frame);
 
  private:
+  void OnLoadStart();
+  void OnLoadError(const blink::WebURLError& error);
+
   service_manager::BinderRegistry registry_;
   CefFrameImpl* frame_ = nullptr;
 

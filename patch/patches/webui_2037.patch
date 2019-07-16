@@ -1,5 +1,5 @@
 diff --git chrome/browser/feedback/system_logs/log_sources/chrome_internal_log_source.cc chrome/browser/feedback/system_logs/log_sources/chrome_internal_log_source.cc
-index ea311eb90f4d..9e4a6ff96c56 100644
+index 00fb583bc90e..667ff3497c1c 100644
 --- chrome/browser/feedback/system_logs/log_sources/chrome_internal_log_source.cc
 +++ chrome/browser/feedback/system_logs/log_sources/chrome_internal_log_source.cc
 @@ -21,6 +21,7 @@
@@ -10,7 +10,7 @@ index ea311eb90f4d..9e4a6ff96c56 100644
  #include "components/prefs/pref_service.h"
  #include "components/sync/driver/about_sync_util.h"
  #include "components/sync/driver/sync_service.h"
-@@ -268,6 +269,10 @@ void ChromeInternalLogSource::Fetch(SysLogsSourceCallback callback) {
+@@ -275,6 +276,10 @@ void ChromeInternalLogSource::Fetch(SysLogsSourceCallback callback) {
  }
  
  void ChromeInternalLogSource::PopulateSyncLogs(SystemLogsResponse* response) {
@@ -21,7 +21,7 @@ index ea311eb90f4d..9e4a6ff96c56 100644
    // We are only interested in sync logs for the primary user profile.
    Profile* profile = ProfileManager::GetPrimaryUserProfile();
    if (!profile || !ProfileSyncServiceFactory::HasSyncService(profile))
-@@ -310,6 +315,12 @@ void ChromeInternalLogSource::PopulateExtensionInfoLogs(
+@@ -317,6 +322,12 @@ void ChromeInternalLogSource::PopulateExtensionInfoLogs(
    if (!profile)
      return;
  
@@ -34,6 +34,15 @@ index ea311eb90f4d..9e4a6ff96c56 100644
    extensions::ExtensionRegistry* extension_registry =
        extensions::ExtensionRegistry::Get(profile);
    std::string extensions_list;
+@@ -395,6 +406,8 @@ void ChromeInternalLogSource::PopulateLocalStateSettings(
+ #if defined(OS_WIN)
+ void ChromeInternalLogSource::PopulateUsbKeyboardDetected(
+     SystemLogsResponse* response) {
++  // The below call may result in some DLLs being loaded.
++  base::ScopedAllowBlockingForTesting allow_blocking;
+   std::string reason;
+   bool result =
+       base::win::IsKeyboardPresentOnSlate(&reason, ui::GetHiddenWindow());
 diff --git chrome/browser/memory_details.cc chrome/browser/memory_details.cc
 index 14b789a35c34..19a1f340a101 100644
 --- chrome/browser/memory_details.cc

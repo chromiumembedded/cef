@@ -76,7 +76,7 @@ CefRefPtr<CefMenuModel> ViewsMenuBar::CreateMenuModel(const CefString& label,
 
   // Create the new MenuButton.
   CefRefPtr<CefMenuButton> button =
-      CefMenuButton::CreateMenuButton(this, label, false);
+      CefMenuButton::CreateMenuButton(this, label);
   button->SetID(new_menu_id);
   views_style::ApplyTo(button.get());
   button->SetInkDropEnabled(true);

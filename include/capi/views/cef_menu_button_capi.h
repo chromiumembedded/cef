@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=f375009823015557083997f5a1c2033739de9c22$
+// $hash=889104f0418508aaa66ed8808b627fdd6652102c$
 //
 
 #ifndef CEF_INCLUDE_CAPI_VIEWS_CEF_MENU_BUTTON_CAPI_H_
@@ -89,8 +89,7 @@ typedef struct _cef_menu_button_t {
 ///
 CEF_EXPORT cef_menu_button_t* cef_menu_button_create(
     struct _cef_menu_button_delegate_t* delegate,
-    const cef_string_t* text,
-    int with_frame);
+    const cef_string_t* text);
 
 #ifdef __cplusplus
 }

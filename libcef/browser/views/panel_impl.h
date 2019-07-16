@@ -53,12 +53,12 @@ CEF_PANEL_IMPL_T class CefPanelImpl : public CEF_VIEW_IMPL_D {
                     bool include_children) override {
     ParentClass::GetDebugInfo(info, include_children);
     if (include_children) {
-      const size_t count = ParentClass::content_view()->child_count();
+      const size_t count = ParentClass::content_view()->children().size();
       if (count > 0U) {
         std::unique_ptr<base::ListValue> children(new base::ListValue());
 
         for (size_t i = 0U; i < count; ++i) {
-          views::View* view = ParentClass::content_view()->child_at(i);
+          views::View* view = ParentClass::content_view()->children()[i];
           CefViewAdapter* adapter = CefViewAdapter::GetFor(view);
           if (adapter) {
             std::unique_ptr<base::DictionaryValue> child_info(
@@ -128,9 +128,11 @@ CEF_PANEL_IMPL_T void CEF_PANEL_IMPL_D::AddChildViewAt(CefRefPtr<CefView> view,
   DCHECK(view->IsValid());
   DCHECK(!view->IsAttached());
   DCHECK_GE(index, 0);
-  DCHECK_LE(index, ParentClass::content_view()->child_count());
+  DCHECK_LE(static_cast<unsigned int>(index),
+            ParentClass::content_view()->children().size());
   if (!view.get() || !view->IsValid() || view->IsAttached() || index < 0 ||
-      index > ParentClass::content_view()->child_count()) {
+      (static_cast<unsigned int>(index) >
+       ParentClass::content_view()->children().size())) {
     return;
   }
 
@@ -179,27 +181,29 @@ CEF_PANEL_IMPL_T void CEF_PANEL_IMPL_D::RemoveChildView(
 CEF_PANEL_IMPL_T void CEF_PANEL_IMPL_D::RemoveAllChildViews() {
   CEF_REQUIRE_VALID_RETURN_VOID();
   while (!ParentClass::content_view()->children().empty()) {
-    CefRefPtr<CefView> view =
-        view_util::GetFor(ParentClass::content_view()->child_at(0), false);
+    CefRefPtr<CefView> view = view_util::GetFor(
+        ParentClass::content_view()->children().front(), false);
     RemoveChildView(view);
   }
 }
 
 CEF_PANEL_IMPL_T size_t CEF_PANEL_IMPL_D::GetChildViewCount() {
   CEF_REQUIRE_VALID_RETURN(0U);
-  return ParentClass::content_view()->child_count();
+  return ParentClass::content_view()->children().size();
 }
 
 CEF_PANEL_IMPL_T CefRefPtr<CefView> CEF_PANEL_IMPL_D::GetChildViewAt(
     int index) {
   CEF_REQUIRE_VALID_RETURN(nullptr);
   DCHECK_GE(index, 0);
-  DCHECK_LT(index, ParentClass::content_view()->child_count());
-  if (index < 0 || index >= ParentClass::content_view()->child_count())
+  DCHECK_LT(static_cast<unsigned int>(index),
+            ParentClass::content_view()->children().size());
+  if (index < 0 || (static_cast<unsigned int>(index) >=
+                    ParentClass::content_view()->children().size()))
     return nullptr;
 
   CefRefPtr<CefView> view =
-      view_util::GetFor(ParentClass::content_view()->child_at(index), false);
+      view_util::GetFor(ParentClass::content_view()->children()[index], false);
   DCHECK(view);
   return view;
 }

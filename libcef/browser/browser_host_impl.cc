@@ -2153,7 +2153,7 @@ void CefBrowserHostImpl::UpdateTargetURL(content::WebContents* source,
 
 bool CefBrowserHostImpl::DidAddMessageToConsole(
     content::WebContents* source,
-    int32_t level,
+    blink::mojom::ConsoleMessageLevel level,
     const base::string16& message,
     int32_t line_no,
     const base::string16& source_id) {
@@ -2163,13 +2163,16 @@ bool CefBrowserHostImpl::DidAddMessageToConsole(
       // Use LOGSEVERITY_DEBUG for unrecognized |level| values.
       cef_log_severity_t log_level = LOGSEVERITY_DEBUG;
       switch (level) {
-        case 0:
+        case blink::mojom::ConsoleMessageLevel::kVerbose:
+          log_level = LOGSEVERITY_DEBUG;
+          break;
+        case blink::mojom::ConsoleMessageLevel::kInfo:
           log_level = LOGSEVERITY_INFO;
           break;
-        case 1:
+        case blink::mojom::ConsoleMessageLevel::kWarning:
           log_level = LOGSEVERITY_WARNING;
           break;
-        case 2:
+        case blink::mojom::ConsoleMessageLevel::kError:
           log_level = LOGSEVERITY_ERROR;
           break;
       }

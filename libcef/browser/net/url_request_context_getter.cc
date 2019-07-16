@@ -17,6 +17,7 @@
 #include "libcef/common/cef_switches.h"
 #include "libcef/common/content_client.h"
 
+#include "base/build_time.h"
 #include "base/command_line.h"
 #include "base/files/file_util.h"
 #include "base/logging.h"
@@ -160,8 +161,7 @@ CreateLogVerifiersForKnownLogs() {
   for (const auto& log : certificate_transparency::GetKnownLogs()) {
     scoped_refptr<const net::CTLogVerifier> log_verifier =
         net::CTLogVerifier::Create(
-            base::StringPiece(log.log_key, log.log_key_length), log.log_name,
-            log.log_dns_domain);
+            base::StringPiece(log.log_key, log.log_key_length), log.log_name);
     // Make sure no null logs enter verifiers. Parsing of all statically
     // configured logs should always succeed, unless there has been binary or
     // memory corruption.
@@ -308,7 +308,8 @@ net::URLRequestContext* CefURLRequestContextGetter::GetURLRequestContext() {
 
     io_state_->storage_->set_host_resolver(
         net::HostResolver::CreateStandaloneResolver(io_state_->net_log_));
-    io_state_->storage_->set_cert_verifier(net::CertVerifier::CreateDefault());
+    io_state_->storage_->set_cert_verifier(
+        net::CertVerifier::CreateDefault(/*cert_net_fetcher=*/nullptr));
 
     std::unique_ptr<net::TransportSecurityState> transport_security_state(
         new net::TransportSecurityState);
@@ -323,12 +324,11 @@ net::URLRequestContext* CefURLRequestContextGetter::GetURLRequestContext() {
         new net::MultiLogCTVerifier());
     ct_verifier->AddLogs(ct_logs);
     io_state_->storage_->set_cert_transparency_verifier(std::move(ct_verifier));
-
     std::unique_ptr<certificate_transparency::ChromeCTPolicyEnforcer>
-        ct_policy_enforcer(
-            new certificate_transparency::ChromeCTPolicyEnforcer);
-    ct_policy_enforcer->set_enforce_net_security_expiration(
-        settings_.enable_net_security_expiration ? true : false);
+        ct_policy_enforcer(new certificate_transparency::ChromeCTPolicyEnforcer(
+            base::GetBuildTime(),
+            certificate_transparency::GetDisqualifiedLogs(),
+            certificate_transparency::GetLogsOperatedByGoogle()));
     io_state_->storage_->set_ct_policy_enforcer(std::move(ct_policy_enforcer));
 
     std::unique_ptr<net::ProxyResolutionService> system_proxy_service =

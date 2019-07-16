@@ -13,7 +13,7 @@ index 864f2a5a315a..78b71d523e86 100644
    explicit ContentServiceManagerMainDelegate(const ContentMainParams& params);
    ~ContentServiceManagerMainDelegate() override;
 diff --git content/browser/devtools/devtools_instrumentation.h content/browser/devtools/devtools_instrumentation.h
-index 605e388043ac..4566dd95f0b8 100644
+index 0ef3544d94bd..b27ea95697fb 100644
 --- content/browser/devtools/devtools_instrumentation.h
 +++ content/browser/devtools/devtools_instrumentation.h
 @@ -12,6 +12,7 @@
@@ -69,7 +69,7 @@ index 886bdf0edf8f..1d714000cce5 100644
  blink::mojom::V8CacheOptions GetV8CacheOptions();
  
 diff --git third_party/blink/renderer/controller/BUILD.gn third_party/blink/renderer/controller/BUILD.gn
-index c62ad20e5ef9..6e43db6a2fda 100644
+index 1abc6a3a8e11..e885e78c4d54 100644
 --- third_party/blink/renderer/controller/BUILD.gn
 +++ third_party/blink/renderer/controller/BUILD.gn
 @@ -26,6 +26,7 @@ jumbo_component("controller") {

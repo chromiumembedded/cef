@@ -1,10 +1,10 @@
 diff --git chrome/browser/browser_process.h chrome/browser/browser_process.h
-index cac72c6a2fd1..2ed83a4af1b3 100644
+index 761d300aa06b..f86558dd6efc 100644
 --- chrome/browser/browser_process.h
 +++ chrome/browser/browser_process.h
-@@ -39,6 +39,10 @@ class SystemNetworkContextManager;
- class WatchDogThread;
+@@ -40,6 +40,10 @@ class WatchDogThread;
  class WebRtcLogUploader;
+ class StartupData;
  
 +namespace net_log {
 +class NetExportFileWriter;
@@ -13,7 +13,7 @@ index cac72c6a2fd1..2ed83a4af1b3 100644
  namespace network {
  class NetworkQualityTracker;
  class SharedURLLoaderFactory;
-@@ -183,6 +187,9 @@ class BrowserProcess {
+@@ -184,6 +188,9 @@ class BrowserProcess {
    // backed by the IOThread's URLRequestContext.
    virtual SystemNetworkContextManager* system_network_context_manager() = 0;
  
@@ -24,10 +24,10 @@ index cac72c6a2fd1..2ed83a4af1b3 100644
    // network quality change events.
    virtual network::NetworkQualityTracker* network_quality_tracker() = 0;
 diff --git chrome/browser/browser_process_impl.cc chrome/browser/browser_process_impl.cc
-index 0b15890653cb..175eb09c6dc7 100644
+index c2e0b9172eb2..57c22ff16f4b 100644
 --- chrome/browser/browser_process_impl.cc
 +++ chrome/browser/browser_process_impl.cc
-@@ -681,6 +681,10 @@ BrowserProcessImpl::system_network_context_manager() {
+@@ -683,6 +683,10 @@ BrowserProcessImpl::system_network_context_manager() {
    return SystemNetworkContextManager::GetInstance();
  }
  
@@ -39,10 +39,10 @@ index 0b15890653cb..175eb09c6dc7 100644
  BrowserProcessImpl::shared_url_loader_factory() {
    return system_network_context_manager()->GetSharedURLLoaderFactory();
 diff --git chrome/browser/browser_process_impl.h chrome/browser/browser_process_impl.h
-index 6c8e21f6f5fe..4496c5579265 100644
+index 95a7bd8e8b58..af7685f86848 100644
 --- chrome/browser/browser_process_impl.h
 +++ chrome/browser/browser_process_impl.h
-@@ -141,6 +141,7 @@ class BrowserProcessImpl : public BrowserProcess,
+@@ -142,6 +142,7 @@ class BrowserProcessImpl : public BrowserProcess,
    // TODO(qinmin): Remove this method as callers can retrieve the global
    // instance from SystemNetworkContextManager directly.
    SystemNetworkContextManager* system_network_context_manager() override;
@@ -51,18 +51,18 @@ index 6c8e21f6f5fe..4496c5579265 100644
        override;
    network::NetworkQualityTracker* network_quality_tracker() override;
 diff --git chrome/browser/ui/BUILD.gn chrome/browser/ui/BUILD.gn
-index 535c4f04c0f3..8cd8768022ae 100644
+index 6bd5bea7ddb0..076306275b5b 100644
 --- chrome/browser/ui/BUILD.gn
 +++ chrome/browser/ui/BUILD.gn
-@@ -9,6 +9,7 @@ import("//build/config/features.gni")
- import("//build/config/jumbo.gni")
+@@ -10,6 +10,7 @@ import("//build/config/jumbo.gni")
+ import("//build/config/linux/gtk/gtk.gni")
  import("//build/config/ui.gni")
  import("//build/split_static_library.gni")
 +import("//cef/libcef/features/features.gni")
  import("//chrome/common/features.gni")
  import("//chromeos/assistant/assistant.gni")
  import("//components/feature_engagement/features.gni")
-@@ -351,6 +352,10 @@ jumbo_split_static_library("ui") {
+@@ -357,6 +358,10 @@ jumbo_split_static_library("ui") {
      "//build/config/compiler:wexit_time_destructors",
    ]
  
@@ -73,7 +73,7 @@ index 535c4f04c0f3..8cd8768022ae 100644
    # Since browser and browser_ui actually depend on each other,
    # we must omit the dependency from browser_ui to browser.
    # However, this means browser_ui and browser should more or less
-@@ -368,6 +373,7 @@ jumbo_split_static_library("ui") {
+@@ -374,6 +379,7 @@ jumbo_split_static_library("ui") {
      "//base:i18n",
      "//base/allocator:buildflags",
      "//cc/paint",
@@ -81,17 +81,8 @@ index 535c4f04c0f3..8cd8768022ae 100644
      "//chrome:extra_resources",
      "//chrome:resources",
      "//chrome:strings",
-@@ -2347,7 +2353,7 @@ jumbo_split_static_library("ui") {
-         "views/frame/native_browser_frame_factory_ozone.cc",
-       ]
-     } else {
--      if (use_aura) {
-+      if (use_aura && use_gtk) {
-         # This is the only component that can interact with gtk.
-         deps += [ "//chrome/browser/ui/libgtkui" ]
-       }
 diff --git chrome/browser/ui/webui/net_export_ui.cc chrome/browser/ui/webui/net_export_ui.cc
-index 6357cea3ca36..9ac953d5a885 100644
+index 1b9b3d857f47..84b875f0e01d 100644
 --- chrome/browser/ui/webui/net_export_ui.cc
 +++ chrome/browser/ui/webui/net_export_ui.cc
 @@ -20,14 +20,13 @@
@@ -125,7 +116,7 @@ index 6357cea3ca36..9ac953d5a885 100644
  
  #if defined(OS_ANDROID)
  #include "chrome/browser/android/intent_helper.h"
-@@ -69,6 +75,7 @@ content::WebUIDataSource* CreateNetExportHTMLSource() {
+@@ -68,6 +74,7 @@ content::WebUIDataSource* CreateNetExportHTMLSource() {
    return source;
  }
  
@@ -133,7 +124,7 @@ index 6357cea3ca36..9ac953d5a885 100644
  void SetIfNotNull(base::DictionaryValue* dict,
                    const base::StringPiece& path,
                    std::unique_ptr<base::Value> in_value) {
-@@ -76,6 +83,7 @@ void SetIfNotNull(base::DictionaryValue* dict,
+@@ -75,6 +82,7 @@ void SetIfNotNull(base::DictionaryValue* dict,
      dict->Set(path, std::move(in_value));
    }
  }
@@ -141,7 +132,7 @@ index 6357cea3ca36..9ac953d5a885 100644
  
  // This class receives javascript messages from the renderer.
  // Note that the WebUI infrastructure runs on the UI thread, therefore all of
-@@ -83,7 +91,9 @@ void SetIfNotNull(base::DictionaryValue* dict,
+@@ -82,7 +90,9 @@ void SetIfNotNull(base::DictionaryValue* dict,
  class NetExportMessageHandler
      : public WebUIMessageHandler,
        public base::SupportsWeakPtr<NetExportMessageHandler>,
@@ -151,7 +142,7 @@ index 6357cea3ca36..9ac953d5a885 100644
        public net_log::NetExportFileWriter::StateObserver {
   public:
    NetExportMessageHandler();
-@@ -99,11 +109,13 @@ class NetExportMessageHandler
+@@ -98,11 +108,13 @@ class NetExportMessageHandler
    void OnSendNetLog(const base::ListValue* list);
    void OnShowFile(const base::ListValue* list);
  
@@ -165,7 +156,7 @@ index 6357cea3ca36..9ac953d5a885 100644
  
    // net_log::NetExportFileWriter::StateObserver implementation.
    void OnNewState(const base::DictionaryValue& state) override;
-@@ -133,9 +145,16 @@ class NetExportMessageHandler
+@@ -132,9 +144,16 @@ class NetExportMessageHandler
    // renderer.
    void NotifyUIWithState(std::unique_ptr<base::DictionaryValue> state);
  
@@ -182,7 +173,7 @@ index 6357cea3ca36..9ac953d5a885 100644
  
    // Cached pointer to SystemNetworkContextManager's NetExportFileWriter.
    net_log::NetExportFileWriter* file_writer_;
-@@ -151,7 +170,9 @@ class NetExportMessageHandler
+@@ -150,7 +169,9 @@ class NetExportMessageHandler
    net::NetLogCaptureMode capture_mode_;
    uint64_t max_log_file_size_;
  
@@ -192,7 +183,7 @@ index 6357cea3ca36..9ac953d5a885 100644
  
    base::WeakPtrFactory<NetExportMessageHandler> weak_ptr_factory_;
  
-@@ -159,8 +180,7 @@ class NetExportMessageHandler
+@@ -158,8 +179,7 @@ class NetExportMessageHandler
  };
  
  NetExportMessageHandler::NetExportMessageHandler()
@@ -202,7 +193,7 @@ index 6357cea3ca36..9ac953d5a885 100644
        state_observer_manager_(this),
        weak_ptr_factory_(this) {
    file_writer_->Initialize();
-@@ -169,8 +189,10 @@ NetExportMessageHandler::NetExportMessageHandler()
+@@ -168,8 +188,10 @@ NetExportMessageHandler::NetExportMessageHandler()
  NetExportMessageHandler::~NetExportMessageHandler() {
    // There may be a pending file dialog, it needs to be told that the user
    // has gone away so that it doesn't try to call back.
@@ -213,7 +204,7 @@ index 6357cea3ca36..9ac953d5a885 100644
  
    file_writer_->StopNetLog(nullptr);
  }
-@@ -233,6 +255,7 @@ void NetExportMessageHandler::OnStartNetLog(const base::ListValue* list) {
+@@ -232,6 +254,7 @@ void NetExportMessageHandler::OnStartNetLog(const base::ListValue* list) {
    if (UsingMobileUI()) {
      StartNetLog(base::FilePath());
    } else {
@@ -221,7 +212,7 @@ index 6357cea3ca36..9ac953d5a885 100644
      base::FilePath initial_dir = last_save_dir.Pointer()->empty() ?
          DownloadPrefs::FromBrowserContext(
              web_ui()->GetWebContents()->GetBrowserContext())->DownloadPath() :
-@@ -240,6 +263,9 @@ void NetExportMessageHandler::OnStartNetLog(const base::ListValue* list) {
+@@ -239,6 +262,9 @@ void NetExportMessageHandler::OnStartNetLog(const base::ListValue* list) {
      base::FilePath initial_path =
          initial_dir.Append(FILE_PATH_LITERAL("chrome-net-export-log.json"));
      ShowSelectFileDialog(initial_path);
@@ -231,7 +222,7 @@ index 6357cea3ca36..9ac953d5a885 100644
    }
  }
  
-@@ -249,6 +275,7 @@ void NetExportMessageHandler::OnStopNetLog(const base::ListValue* list) {
+@@ -248,6 +274,7 @@ void NetExportMessageHandler::OnStopNetLog(const base::ListValue* list) {
    std::unique_ptr<base::DictionaryValue> ui_thread_polled_data(
        new base::DictionaryValue());
  
@@ -239,7 +230,7 @@ index 6357cea3ca36..9ac953d5a885 100644
    Profile* profile = Profile::FromWebUI(web_ui());
    SetIfNotNull(ui_thread_polled_data.get(), "prerenderInfo",
                 chrome_browser_net::GetPrerenderInfo(profile));
-@@ -258,6 +285,7 @@ void NetExportMessageHandler::OnStopNetLog(const base::ListValue* list) {
+@@ -257,6 +284,7 @@ void NetExportMessageHandler::OnStopNetLog(const base::ListValue* list) {
    SetIfNotNull(ui_thread_polled_data.get(), "serviceProviders",
                 chrome_browser_net::GetWindowsServiceProviders());
  #endif
@@ -247,7 +238,7 @@ index 6357cea3ca36..9ac953d5a885 100644
  
    file_writer_->StopNetLog(std::move(ui_thread_polled_data));
  }
-@@ -274,6 +302,7 @@ void NetExportMessageHandler::OnShowFile(const base::ListValue* list) {
+@@ -273,6 +301,7 @@ void NetExportMessageHandler::OnShowFile(const base::ListValue* list) {
        base::Bind(&NetExportMessageHandler::ShowFileInShell, AsWeakPtr()));
  }
  
@@ -255,7 +246,7 @@ index 6357cea3ca36..9ac953d5a885 100644
  void NetExportMessageHandler::FileSelected(const base::FilePath& path,
                                             int index,
                                             void* params) {
-@@ -292,6 +321,7 @@ void NetExportMessageHandler::FileSelectionCanceled(void* params) {
+@@ -291,6 +320,7 @@ void NetExportMessageHandler::FileSelectionCanceled(void* params) {
    DCHECK(select_file_dialog_);
    select_file_dialog_ = nullptr;
  }
@@ -263,7 +254,7 @@ index 6357cea3ca36..9ac953d5a885 100644
  
  void NetExportMessageHandler::OnNewState(const base::DictionaryValue& state) {
    NotifyUIWithState(state.CreateDeepCopy());
-@@ -356,6 +386,7 @@ void NetExportMessageHandler::NotifyUIWithState(
+@@ -355,6 +385,7 @@ void NetExportMessageHandler::NotifyUIWithState(
                                           *state);
  }
  
@@ -271,7 +262,7 @@ index 6357cea3ca36..9ac953d5a885 100644
  void NetExportMessageHandler::ShowSelectFileDialog(
      const base::FilePath& default_path) {
    // User may have clicked more than once before the save dialog appears.
-@@ -374,6 +405,43 @@ void NetExportMessageHandler::ShowSelectFileDialog(
+@@ -373,6 +404,43 @@ void NetExportMessageHandler::ShowSelectFileDialog(
        ui::SelectFileDialog::SELECT_SAVEAS_FILE, base::string16(), default_path,
        &file_type_info, 0, base::FilePath::StringType(), owning_window, nullptr);
  }

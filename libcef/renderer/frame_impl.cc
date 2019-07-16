@@ -230,13 +230,6 @@ CefString CefFrameImpl::GetURL() {
 
   if (frame_) {
     GURL gurl = frame_->GetDocument().Url();
-    if (gurl.is_empty()) {
-      // For popups the main document URL will be empty during loading. Return
-      // the provisional document URL instead.
-      blink::WebDocumentLoader* loader = frame_->GetProvisionalDocumentLoader();
-      if (loader)
-        gurl = loader->GetUrl();
-    }
     url = gurl.spec();
   }
   return url;

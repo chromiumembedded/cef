@@ -26,8 +26,7 @@ class CefMenuButtonImpl : public CefLabelButtonImpl<views::MenuButton,
   // Create a new CefMenuButton instance. |delegate| must not be nullptr.
   static CefRefPtr<CefMenuButtonImpl> Create(
       CefRefPtr<CefMenuButtonDelegate> delegate,
-      const CefString& text,
-      bool with_frame);
+      const CefString& text);
 
   // CefMenuButton methods:
   void ShowMenu(CefRefPtr<CefMenuModel> menu_model,

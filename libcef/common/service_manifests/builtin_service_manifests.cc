@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "libcef/common/service_manifests/cef_packaged_service_manifests.h"
+#include "libcef/common/service_manifests/builtin_service_manifests.h"
 
 #include "base/no_destructor.h"
 #include "build/build_config.h"
@@ -28,13 +28,16 @@ const service_manager::Manifest& GetCefManifest() {
     service_manager::ManifestBuilder()
         .WithServiceName(chrome::mojom::kServiceName)
         .WithDisplayName("CEF")
-        .WithOptions(service_manager::ManifestOptionsBuilder()
-                         .WithInstanceSharingPolicy(
-                             service_manager::Manifest::InstanceSharingPolicy::
-                                 kSharedAcrossGroups)
-                         .CanConnectToInstancesWithAnyId(true)
-                         .CanRegisterOtherServiceInstances(true)
-                         .Build())
+        .WithOptions(
+            service_manager::ManifestOptionsBuilder()
+                .WithExecutionMode(
+                    service_manager::Manifest::ExecutionMode::kInProcessBuiltin)
+                .WithInstanceSharingPolicy(
+                    service_manager::Manifest::InstanceSharingPolicy::
+                        kSharedAcrossGroups)
+                .CanConnectToInstancesWithAnyId(true)
+                .CanRegisterOtherServiceInstances(true)
+                .Build())
         .ExposeCapability("renderer",
                           service_manager::Manifest::InterfaceList<
 #if defined(OS_MACOSX)
@@ -50,7 +53,7 @@ const service_manager::Manifest& GetCefManifest() {
 
 }  // namespace
 
-const std::vector<service_manager::Manifest>& GetCefPackagedServiceManifests() {
+const std::vector<service_manager::Manifest>& GetBuiltinServiceManifests() {
   static base::NoDestructor<std::vector<service_manager::Manifest>> manifests{{
       GetCefManifest(),
       proxy_resolver::GetManifest(),

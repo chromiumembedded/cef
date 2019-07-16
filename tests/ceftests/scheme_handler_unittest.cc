@@ -36,11 +36,14 @@ class TestResults {
     got_request.reset();
     got_read.reset();
     got_output.reset();
+    got_sub_output.reset();
     got_redirect.reset();
     got_error.reset();
+    got_sub_error.reset();
     got_sub_request.reset();
     got_sub_read.reset();
     got_sub_success.reset();
+    got_exit_request.reset();
   }
 
   std::string url;
@@ -69,8 +72,9 @@ class TestResults {
   // Delay for returning scheme handler results.
   int delay;
 
-  TrackCallback got_request, got_read, got_output, got_redirect, got_error,
-      got_sub_redirect, got_sub_request, got_sub_read, got_sub_success;
+  TrackCallback got_request, got_read, got_output, got_sub_output, got_redirect,
+      got_error, got_sub_error, got_sub_redirect, got_sub_request, got_sub_read,
+      got_sub_success, got_exit_request;
 };
 
 // Current scheme handler object. Used when destroying the test from
@@ -102,18 +106,41 @@ class TestSchemeHandler : public TestHandler {
   // ClientSchemeHandler::ProcessRequest().
   void DestroyTest() override { TestHandler::DestroyTest(); }
 
+  void DestroyTestIfDone() {
+    if (!test_results_->exit_url.empty() && !test_results_->got_exit_request) {
+      return;
+    }
+
+    if (!test_results_->sub_url.empty() &&
+        !(test_results_->got_sub_output || test_results_->got_sub_error ||
+          test_results_->got_exit_request)) {
+      return;
+    }
+
+    if (!(test_results_->got_output || test_results_->got_error)) {
+      return;
+    }
+
+    DestroyTest();
+  }
+
+  bool IsExitURL(const std::string& url) const {
+    return !test_results_->exit_url.empty() &&
+           url.find(test_results_->exit_url) != std::string::npos;
+  }
+
   cef_return_value_t OnBeforeResourceLoad(
       CefRefPtr<CefBrowser> browser,
       CefRefPtr<CefFrame> frame,
       CefRefPtr<CefRequest> request,
       CefRefPtr<CefRequestCallback> callback) override {
-    std::string newUrl = request->GetURL();
-    if (!test_results_->exit_url.empty() &&
-        newUrl.find(test_results_->exit_url) != std::string::npos) {
+    const std::string& newUrl = request->GetURL();
+    if (IsExitURL(newUrl)) {
+      test_results_->got_exit_request.yes();
       // XHR tests use an exit URL to destroy the test.
       if (newUrl.find("SUCCESS") != std::string::npos)
         test_results_->got_sub_success.yes();
-      DestroyTest();
+      DestroyTestIfDone();
       return RV_CANCEL;
     }
 
@@ -140,16 +167,20 @@ class TestSchemeHandler : public TestHandler {
   void OnLoadEnd(CefRefPtr<CefBrowser> browser,
                  CefRefPtr<CefFrame> frame,
                  int httpStatusCode) override {
-    std::string url = frame->GetURL();
-    if (url == test_results_->url || test_results_->status_code != 200) {
+    const std::string& url = frame->GetURL();
+    if (url == test_results_->url)
       test_results_->got_output.yes();
+    else if (url == test_results_->sub_url)
+      test_results_->got_sub_output.yes();
+    else if (IsExitURL(url))
+      return;
 
+    if (url == test_results_->url || test_results_->status_code != 200) {
       // Test that the status code is correct.
       EXPECT_EQ(httpStatusCode, test_results_->status_code);
-
-      if (test_results_->sub_url.empty())
-        DestroyTest();
     }
+
+    DestroyTestIfDone();
   }
 
   void OnLoadError(CefRefPtr<CefBrowser> browser,
@@ -157,14 +188,22 @@ class TestSchemeHandler : public TestHandler {
                    ErrorCode errorCode,
                    const CefString& errorText,
                    const CefString& failedUrl) override {
-    test_results_->got_error.yes();
+    const std::string& url = failedUrl;
+    if (url == test_results_->url)
+      test_results_->got_error.yes();
+    else if (url == test_results_->sub_url)
+      test_results_->got_sub_error.yes();
+    else if (IsExitURL(url))
+      return;
+
     // Tests sometimes also fail with ERR_ABORTED.
     if (!(test_results_->expected_error_code == 0 &&
           errorCode == ERR_ABORTED)) {
       EXPECT_EQ(test_results_->expected_error_code, errorCode)
           << failedUrl.ToString();
     }
-    DestroyTest();
+
+    DestroyTestIfDone();
   }
 
  protected:

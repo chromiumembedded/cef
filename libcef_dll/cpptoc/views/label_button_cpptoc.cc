@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=ade8463314c8fc448c4e5ec3d3957406136b7093$
+// $hash=df8ed09a4f57cf6673ec186b5caebe35406b9a0c$
 //
 
 #include "libcef_dll/cpptoc/views/label_button_cpptoc.h"
@@ -30,8 +30,7 @@
 
 CEF_EXPORT cef_label_button_t* cef_label_button_create(
     cef_button_delegate_t* delegate,
-    const cef_string_t* text,
-    int with_frame) {
+    const cef_string_t* text) {
   shutdown_checker::AssertNotShutdown();
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -44,8 +43,7 @@ CEF_EXPORT cef_label_button_t* cef_label_button_create(
 
   // Execute
   CefRefPtr<CefLabelButton> _retval = CefLabelButton::CreateLabelButton(
-      CefButtonDelegateCToCpp::Wrap(delegate), CefString(text),
-      with_frame ? true : false);
+      CefButtonDelegateCToCpp::Wrap(delegate), CefString(text));
 
   // Return type: refptr_same
   return CefLabelButtonCppToC::Wrap(_retval);
