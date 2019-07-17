@@ -20,8 +20,6 @@ class CefBrowserPlatformDelegateViews
       std::unique_ptr<CefBrowserPlatformDelegateNative> native_delegate,
       CefRefPtr<CefBrowserViewImpl> browser_view);
 
-  void set_browser_view(CefRefPtr<CefBrowserViewImpl> browser_view);
-
   // CefBrowserPlatformDelegate methods:
   void WebContentsCreated(content::WebContents* web_contents) override;
   void BrowserCreated(CefBrowserHostImpl* browser) override;
@@ -76,12 +74,16 @@ class CefBrowserPlatformDelegateViews
   std::unique_ptr<CefMenuRunner> CreateMenuRunner() override;
   bool IsWindowless() const override;
   bool IsViewsHosted() const override;
+  gfx::Point GetDialogPosition(const gfx::Size& size) override;
+  gfx::Size GetMaximumDialogSize() override;
 
   // CefBrowserPlatformDelegateNative::WindowlessHandler methods:
   CefWindowHandle GetParentWindowHandle() const override;
   gfx::Point GetParentScreenPoint(const gfx::Point& view) const override;
 
  private:
+  void SetBrowserView(CefRefPtr<CefBrowserViewImpl> browser_view);
+
   std::unique_ptr<CefBrowserPlatformDelegateNative> native_delegate_;
   CefRefPtr<CefBrowserViewImpl> browser_view_;
 };

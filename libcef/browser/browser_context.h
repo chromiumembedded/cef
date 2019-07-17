@@ -13,6 +13,7 @@
 
 #include "base/files/file_path.h"
 #include "base/memory/ref_counted.h"
+#include "chrome/browser/download/download_prefs.h"
 #include "components/proxy_config/pref_proxy_config_tracker.h"
 #include "components/visitedlink/browser/visitedlink_delegate.h"
 #include "content/public/browser/browser_context.h"
@@ -257,6 +258,12 @@ class CefBrowserContext : public ChromeProfileStub,
     return url_request_getter_;
   }
 
+  // Called from DownloadPrefs::FromBrowserContext.
+  DownloadPrefs* GetDownloadPrefs();
+
+  // Returns true if this context supports print preview.
+  bool IsPrintPreviewSupported() const;
+
  private:
   // Allow deletion via std::unique_ptr().
   friend std::default_delete<CefBrowserContext>;
@@ -291,6 +298,8 @@ class CefBrowserContext : public ChromeProfileStub,
   // The key to index KeyedService instances created by
   // SimpleKeyedServiceFactory.
   std::unique_ptr<ProfileKey> key_;
+
+  std::unique_ptr<DownloadPrefs> download_prefs_;
 
   DISALLOW_COPY_AND_ASSIGN(CefBrowserContext);
 };

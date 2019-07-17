@@ -10,6 +10,7 @@
 #include "libcef/browser/prefs/pref_store.h"
 #include "libcef/browser/prefs/renderer_prefs.h"
 #include "libcef/common/cef_switches.h"
+#include "libcef/common/extensions/extensions_util.h"
 #include "libcef/common/net_service/util.h"
 
 #include "base/command_line.h"
@@ -18,6 +19,7 @@
 #include "base/task/post_task.h"
 #include "base/values.h"
 #include "chrome/browser/accessibility/accessibility_ui.h"
+#include "chrome/browser/download/download_prefs.h"
 #include "chrome/browser/net/prediction_options.h"
 #include "chrome/browser/net/profile_network_context_service.h"
 #include "chrome/browser/net/system_network_context_manager.h"
@@ -29,6 +31,7 @@
 #include "chrome/browser/supervised_user/supervised_user_settings_service.h"
 #include "chrome/browser/supervised_user/supervised_user_settings_service_factory.h"
 #include "chrome/browser/themes/theme_service.h"
+#include "chrome/browser/ui/webui/print_preview/sticky_settings.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/grit/locale_settings.h"
@@ -191,6 +194,10 @@ std::unique_ptr<PrefService> CreatePrefService(Profile* profile,
   // Based on chrome/browser/ui/browser_ui_prefs.cc RegisterBrowserPrefs.
   registry->RegisterBooleanPref(prefs::kAllowFileSelectionDialogs, true);
 
+  // From Chrome::RegisterBrowserUserPrefs.
+  registry->RegisterBooleanPref(prefs::kPrintPreviewUseSystemDefaultPrinter,
+                                true);
+
   if (command_line->HasSwitch(switches::kEnablePreferenceTesting)) {
     // Preferences used with unit tests.
     registry->RegisterBooleanPref("test.bool", true);
@@ -225,6 +232,13 @@ std::unique_ptr<PrefService> CreatePrefService(Profile* profile,
     // Print preferences.
     // Based on ProfileImpl::RegisterProfilePrefs.
     registry->RegisterBooleanPref(prefs::kPrintingEnabled, true);
+    registry->RegisterBooleanPref(prefs::kPrintPreviewDisabled,
+                                  !extensions::PrintPreviewEnabled());
+    registry->RegisterStringPref(
+        prefs::kPrintPreviewDefaultDestinationSelectionRules, std::string());
+    registry->RegisterBooleanPref(prefs::kCloudPrintSubmitEnabled, false);
+    printing::StickySettings::RegisterProfilePrefs(registry.get());
+    DownloadPrefs::RegisterProfilePrefs(registry.get());
 
     // Cache preferences.
     // Based on ProfileImpl::RegisterProfilePrefs.

@@ -14,6 +14,7 @@
 #include "libcef/browser/views/browser_view_view.h"
 #include "libcef/browser/views/view_impl.h"
 
+#include "base/callback_forward.h"
 #include "ui/views/controls/webview/unhandled_keyboard_event_handler.h"
 
 class CefBrowserViewImpl : public CefViewImpl<CefBrowserViewView,
@@ -43,7 +44,8 @@ class CefBrowserViewImpl : public CefViewImpl<CefBrowserViewView,
 
   // Called from CefBrowserPlatformDelegateViews.
   void WebContentsCreated(content::WebContents* web_contents);
-  void BrowserCreated(CefBrowserHostImpl* browser);
+  void BrowserCreated(CefBrowserHostImpl* browser,
+                      base::RepeatingClosure on_bounds_changed);
   void BrowserDestroyed(CefBrowserHostImpl* browser);
 
   // Called to handle accelerators when the event is unhandled by the web
@@ -66,6 +68,7 @@ class CefBrowserViewImpl : public CefViewImpl<CefBrowserViewView,
 
   // CefBrowserViewView::Delegate methods:
   void OnBrowserViewAdded() override;
+  void OnBoundsChanged() override;
 
  private:
   // Create a new implementation object.
@@ -99,6 +102,8 @@ class CefBrowserViewImpl : public CefViewImpl<CefBrowserViewView,
 
   views::UnhandledKeyboardEventHandler unhandled_keyboard_event_handler_;
   bool ignore_next_char_event_ = false;
+
+  base::RepeatingClosure on_bounds_changed_;
 
   IMPLEMENT_REFCOUNTING_DELETE_ON_UIT(CefBrowserViewImpl);
   DISALLOW_COPY_AND_ASSIGN(CefBrowserViewImpl);

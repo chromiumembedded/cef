@@ -201,8 +201,8 @@ bool CefBrowserPlatformDelegateNativeWin::CreateHostWindow() {
   bool always_on_top =
       (top_level_window_ex_styles & WS_EX_TOPMOST) == WS_EX_TOPMOST;
 
-  CefWindowDelegateView* delegate_view =
-      new CefWindowDelegateView(GetBackgroundColor(), always_on_top);
+  CefWindowDelegateView* delegate_view = new CefWindowDelegateView(
+      GetBackgroundColor(), always_on_top, GetBoundsChangedCallback());
   delegate_view->Init(window_info_.window, browser_->web_contents(),
                       gfx::Rect(0, 0, point.x(), point.y()));
 
@@ -592,6 +592,17 @@ void CefBrowserPlatformDelegateNativeWin::TranslateMouseEvent(
                       base::TimeDelta::FromMilliseconds(GetMessageTime()));
 
   result.pointer_type = blink::WebPointerProperties::PointerType::kMouse;
+}
+
+gfx::Point CefBrowserPlatformDelegateNativeWin::GetDialogPosition(
+    const gfx::Size& size) {
+  const gfx::Size& max_size = GetMaximumDialogSize();
+  return gfx::Point((max_size.width() - size.width()) / 2,
+                    (max_size.height() - size.height()) / 2);
+}
+
+gfx::Size CefBrowserPlatformDelegateNativeWin::GetMaximumDialogSize() {
+  return GetWindowWidget()->GetWindowBoundsInScreen().size();
 }
 
 // static

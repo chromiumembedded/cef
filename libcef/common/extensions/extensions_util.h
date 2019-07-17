@@ -13,6 +13,9 @@ bool ExtensionsEnabled();
 // Returns true if the PDF extension has not been disabled via the command-line.
 bool PdfExtensionEnabled();
 
+// Returns true if Print Preview has been enabled via the command-line.
+bool PrintPreviewEnabled();
+
 }  // namespace extensions
 
 #endif  // CEF_LIBCEF_COMMON_EXTENSIONS_EXTENSIONS_UTIL_H_

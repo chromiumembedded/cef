@@ -481,3 +481,16 @@ void CefBrowserPlatformDelegateNativeMac::TranslateMouseEvent(
 
   result.pointer_type = blink::WebPointerProperties::PointerType::kMouse;
 }
+
+gfx::Point CefBrowserPlatformDelegateNativeMac::GetDialogPosition(
+    const gfx::Size& size) {
+  // Dialogs are always re-positioned by the constrained window sheet controller
+  // so nothing interesting to return yet.
+  return gfx::Point();
+}
+
+gfx::Size CefBrowserPlatformDelegateNativeMac::GetMaximumDialogSize() {
+  // The dialog should try to fit within the overlay for the web contents.
+  // Note that, for things like print preview, this is just a suggested maximum.
+  return browser_->web_contents()->GetContainerBounds().size();
+}

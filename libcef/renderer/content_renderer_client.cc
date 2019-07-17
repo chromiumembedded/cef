@@ -468,9 +468,6 @@ void CefContentRendererClient::RenderFrameCreated(
   service_manager::BinderRegistry* registry = render_frame_observer->registry();
 
   new PepperHelper(render_frame);
-  new printing::PrintRenderFrameHelper(
-      render_frame,
-      base::WrapUnique(new extensions::CefPrintRenderFrameHelperDelegate()));
 
   if (extensions::ExtensionsEnabled())
     extensions_renderer_client_->RenderFrameCreated(render_frame, registry);
@@ -670,6 +667,12 @@ CefRefPtr<CefBrowserImpl> CefContentRendererClient::MaybeCreateBrowser(
   CefProcessHostMsg_GetNewBrowserInfo_Params params;
   content::RenderThread::Get()->Send(new CefProcessHostMsg_GetNewBrowserInfo(
       render_frame_routing_id, &params));
+
+  new printing::PrintRenderFrameHelper(
+      render_frame,
+      base::WrapUnique(new extensions::CefPrintRenderFrameHelperDelegate(
+          params.is_windowless)));
+
   if (params.browser_id == 0) {
     // The popup may have been canceled during creation.
     return nullptr;

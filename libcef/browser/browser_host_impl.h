@@ -276,6 +276,9 @@ class CefBrowserHostImpl : public CefBrowserHost,
   // Returns true if this browser is views-hosted.
   bool IsViewsHosted() const;
 
+  // Returns true if this browser supports print preview.
+  bool IsPrintPreviewSupported() const;
+
   // Called when the OS window hosting the browser is destroyed.
   void WindowDestroyed();
 
@@ -359,7 +362,7 @@ class CefBrowserHostImpl : public CefBrowserHost,
   // enabled and this browser has a full-page guest (for example, a full-page
   // PDF viewer extension) then the guest's WebContents will be returned.
   // Otherwise, the browser's WebContents will be returned.
-  content::WebContents* GetActionableWebContents();
+  content::WebContents* GetActionableWebContents() const;
 
   enum DestructionState {
     DESTRUCTION_STATE_NONE = 0,

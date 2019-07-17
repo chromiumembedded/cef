@@ -803,6 +803,7 @@ void CefContentBrowserClient::AppendExtraCommandLineSwitches(
         switches::kDisableExtensions,
         switches::kDisablePdfExtension,
         switches::kDisablePlugins,
+        switches::kDisablePrintPreview,
         switches::kDisableScrollBounce,
         switches::kDisableSpellChecking,
         switches::kEnableSpeechInput,
@@ -817,15 +818,22 @@ void CefContentBrowserClient::AppendExtraCommandLineSwitches(
                                    base::size(kSwitchNames));
 
     if (extensions::ExtensionsEnabled()) {
-      // Based on ChromeContentBrowserClientExtensionsPart::
-      // AppendExtraRendererCommandLineSwitches
       content::RenderProcessHost* process =
           content::RenderProcessHost::FromID(child_process_id);
-      content::BrowserContext* browser_context =
-          process ? process->GetBrowserContext() : NULL;
-      if (browser_context && extensions::ProcessMap::Get(browser_context)
-                                 ->Contains(process->GetID())) {
-        command_line->AppendSwitch(extensions::switches::kExtensionProcess);
+      CefBrowserContext* context =
+          process
+              ? CefBrowserContext::GetForContext(process->GetBrowserContext())
+              : nullptr;
+      if (context) {
+        if (context->IsPrintPreviewSupported()) {
+          command_line->AppendSwitch(switches::kEnablePrintPreview);
+        }
+
+        // Based on ChromeContentBrowserClientExtensionsPart::
+        // AppendExtraRendererCommandLineSwitches
+        if (extensions::ProcessMap::Get(context)->Contains(process->GetID())) {
+          command_line->AppendSwitch(extensions::switches::kExtensionProcess);
+        }
       }
     }
   } else {

@@ -15,7 +15,7 @@
 #include "include/views/cef_browser_view.h"
 #include "libcef/browser/browser_host_impl.h"
 
-#include "base/callback.h"
+#include "base/callback_forward.h"
 #include "content/public/browser/web_contents.h"
 
 namespace blink {
@@ -42,6 +42,7 @@ class CefBrowserInfo;
 class CefFileDialogRunner;
 class CefJavaScriptDialogRunner;
 class CefMenuRunner;
+class CefWebContentsDialogHelper;
 
 // Provides platform-specific implementations of browser functionality. All
 // methods are called on the browser process UI thread unless otherwise
@@ -109,7 +110,7 @@ class CefBrowserPlatformDelegate {
   // Returns the BrowserView associated with this browser. Only used with views-
   // based browsers.
   virtual CefRefPtr<CefBrowserView> GetBrowserView() const;
-#endif  // defined(USE_AURA)
+#endif
 
   // Called after the WebContents have been created for a new popup browser
   // parented to this browser but before the CefBrowserHostImpl is created for
@@ -274,6 +275,8 @@ class CefBrowserPlatformDelegate {
       const content::AXEventNotificationDetails& eventData);
   virtual void AccessibilityLocationChangesReceived(
       const std::vector<content::AXLocationChangeNotificationDetails>& locData);
+  virtual gfx::Point GetDialogPosition(const gfx::Size& size);
+  virtual gfx::Size GetMaximumDialogSize();
 
  protected:
   // Allow deletion via scoped_ptr only.
@@ -282,11 +285,16 @@ class CefBrowserPlatformDelegate {
   CefBrowserPlatformDelegate();
   virtual ~CefBrowserPlatformDelegate();
 
+  base::RepeatingClosure GetBoundsChangedCallback();
+
   static int TranslateModifiers(uint32 cef_modifiers);
 
   CefBrowserHostImpl* browser_;  // Not owned by this object.
 
  private:
+  // Used for the print preview dialog.
+  std::unique_ptr<CefWebContentsDialogHelper> web_contents_dialog_helper_;
+
   DISALLOW_COPY_AND_ASSIGN(CefBrowserPlatformDelegate);
 };
 

@@ -24,4 +24,22 @@ bool PdfExtensionEnabled() {
   return enabled;
 }
 
+bool PrintPreviewEnabled() {
+#if defined(OS_MACOSX)
+  // Not currently supported on macOS.
+  return false;
+#else
+  if (!PdfExtensionEnabled())
+    return false;
+
+  if (base::CommandLine::ForCurrentProcess()->HasSwitch(
+          switches::kDisablePrintPreview)) {
+    return false;
+  }
+
+  return base::CommandLine::ForCurrentProcess()->HasSwitch(
+      switches::kEnablePrintPreview);
+#endif
+}
+
 }  // namespace extensions

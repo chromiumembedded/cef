@@ -33,6 +33,7 @@
 #include "chrome/child/pdf_child_init.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_paths.h"
+#include "chrome/common/chrome_paths_internal.h"
 #include "chrome/common/chrome_switches.h"
 #include "components/content_settings/core/common/content_settings_pattern.h"
 #include "components/viz/common/features.h"
@@ -252,6 +253,26 @@ base::FilePath GetUserDataPath() {
 
   NOTREACHED();
   return result;
+}
+
+bool GetDefaultDownloadDirectory(base::FilePath* result) {
+  base::FilePath cur;
+  if (!chrome::GetUserDownloadsDirectory(&cur))
+    return false;
+  *result = cur;
+  return true;
+}
+
+bool GetDefaultDownloadSafeDirectory(base::FilePath* result) {
+  base::FilePath cur;
+#if defined(OS_WIN) || defined(OS_LINUX)
+  if (!chrome::GetUserDownloadsDirectorySafe(&cur))
+    return false;
+#else
+  GetDefaultDownloadDirectory(&cur);
+#endif
+  *result = cur;
+  return true;
 }
 
 // Returns true if |scale_factor| is supported by this platform.
@@ -661,6 +682,17 @@ void CefMainDelegate::PreSandboxStartup() {
 #endif
 
     OverridePepperFlashSystemPluginPath();
+
+    base::FilePath dir_default_download;
+    base::FilePath dir_default_download_safe;
+    if (GetDefaultDownloadDirectory(&dir_default_download)) {
+      base::PathService::Override(chrome::DIR_DEFAULT_DOWNLOADS,
+                                  dir_default_download);
+    }
+    if (GetDefaultDownloadSafeDirectory(&dir_default_download_safe)) {
+      base::PathService::Override(chrome::DIR_DEFAULT_DOWNLOADS_SAFE,
+                                  dir_default_download_safe);
+    }
 
     const base::FilePath& user_data_path = GetUserDataPath();
     base::PathService::Override(chrome::DIR_USER_DATA, user_data_path);

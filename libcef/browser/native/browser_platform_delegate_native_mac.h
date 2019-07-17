@@ -44,6 +44,8 @@ class CefBrowserPlatformDelegateNativeMac
   std::unique_ptr<CefJavaScriptDialogRunner> CreateJavaScriptDialogRunner()
       override;
   std::unique_ptr<CefMenuRunner> CreateMenuRunner() override;
+  gfx::Point GetDialogPosition(const gfx::Size& size) override;
+  gfx::Size GetMaximumDialogSize() override;
 
  private:
   void TranslateMouseEvent(blink::WebMouseEvent& result,

@@ -70,8 +70,11 @@ void CefBrowserViewImpl::WebContentsCreated(
     root_view()->SetWebContents(web_contents);
 }
 
-void CefBrowserViewImpl::BrowserCreated(CefBrowserHostImpl* browser) {
+void CefBrowserViewImpl::BrowserCreated(
+    CefBrowserHostImpl* browser,
+    base::RepeatingClosure on_bounds_changed) {
   browser_ = browser;
+  on_bounds_changed_ = on_bounds_changed;
 }
 
 void CefBrowserViewImpl::BrowserDestroyed(CefBrowserHostImpl* browser) {
@@ -163,6 +166,11 @@ void CefBrowserViewImpl::OnBrowserViewAdded() {
 
     pending_browser_create_params_.reset(nullptr);
   }
+}
+
+void CefBrowserViewImpl::OnBoundsChanged() {
+  if (!on_bounds_changed_.is_null())
+    on_bounds_changed_.Run();
 }
 
 CefBrowserViewImpl::CefBrowserViewImpl(

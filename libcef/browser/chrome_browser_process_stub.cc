@@ -16,7 +16,9 @@
 #include "base/command_line.h"
 #include "chrome/browser/net/system_network_context_manager.h"
 #include "chrome/browser/policy/chrome_browser_policy_connector.h"
+#include "chrome/browser/printing/background_printing_manager.h"
 #include "chrome/browser/printing/print_job_manager.h"
+#include "chrome/browser/printing/print_preview_dialog_controller.h"
 #include "chrome/browser/ui/prefs/pref_watcher.h"
 #include "components/net_log/chrome_net_log.h"
 #include "components/net_log/net_export_file_writer.h"
@@ -58,7 +60,6 @@ void ChromeBrowserProcessStub::OnContextInitialized() {
   print_job_manager_.reset(new printing::PrintJobManager());
   profile_manager_.reset(new ChromeProfileManagerStub());
   event_router_forwarder_ = new extensions::EventRouterForwarder();
-
   context_initialized_ = true;
 }
 
@@ -73,6 +74,7 @@ void ChromeBrowserProcessStub::Shutdown() {
   // tasks to run once teardown has started.
   print_job_manager_->Shutdown();
   print_job_manager_.reset(NULL);
+  print_preview_dialog_controller_ = NULL;
 
   profile_manager_.reset();
   event_router_forwarder_ = nullptr;
@@ -81,16 +83,25 @@ void ChromeBrowserProcessStub::Shutdown() {
     SystemNetworkContextManager::DeleteInstance();
   }
 
-  // Release any references to |local_state_| that are held by objects
-  // associated with a Profile. The Profile will be deleted later.
+  // Release any references held by objects associated with a Profile. The
+  // Profile will be deleted later.
   for (const auto& profile : CefBrowserContext::GetAll()) {
+    // Release any references to |local_state_|.
     PrefWatcher* pref_watcher = PrefWatcher::Get(profile);
     if (pref_watcher)
       pref_watcher->Shutdown();
+
+    // Unregister observers for |background_printing_manager_|.
+    if (background_printing_manager_) {
+      background_printing_manager_->DeletePreviewContentsForBrowserContext(
+          profile);
+    }
   }
 
   local_state_.reset();
   browser_policy_connector_.reset();
+
+  background_printing_manager_.reset();
 
   shutdown_ = true;
 }
@@ -254,14 +265,20 @@ printing::PrintJobManager* ChromeBrowserProcessStub::print_job_manager() {
 
 printing::PrintPreviewDialogController*
 ChromeBrowserProcessStub::print_preview_dialog_controller() {
-  NOTREACHED();
-  return NULL;
+  if (!print_preview_dialog_controller_.get()) {
+    print_preview_dialog_controller_ =
+        new printing::PrintPreviewDialogController();
+  }
+  return print_preview_dialog_controller_.get();
 }
 
 printing::BackgroundPrintingManager*
 ChromeBrowserProcessStub::background_printing_manager() {
-  NOTREACHED();
-  return NULL;
+  if (!background_printing_manager_.get()) {
+    background_printing_manager_.reset(
+        new printing::BackgroundPrintingManager());
+  }
+  return background_printing_manager_.get();
 }
 
 IntranetRedirectDetector*

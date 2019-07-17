@@ -12,11 +12,14 @@
 #include "ui/views/layout/fill_layout.h"
 #include "ui/views/widget/widget.h"
 
-CefWindowDelegateView::CefWindowDelegateView(SkColor background_color,
-                                             bool always_on_top)
+CefWindowDelegateView::CefWindowDelegateView(
+    SkColor background_color,
+    bool always_on_top,
+    base::RepeatingClosure on_bounds_changed)
     : background_color_(background_color),
       web_view_(NULL),
-      always_on_top_(always_on_top) {}
+      always_on_top_(always_on_top),
+      on_bounds_changed_(on_bounds_changed) {}
 
 void CefWindowDelegateView::Init(gfx::AcceleratedWidget parent_widget,
                                  content::WebContents* web_contents,
@@ -70,4 +73,10 @@ void CefWindowDelegateView::ViewHierarchyChanged(
     const views::ViewHierarchyChangedDetails& details) {
   if (details.is_add && details.child == this)
     InitContent();
+}
+
+void CefWindowDelegateView::OnBoundsChanged(const gfx::Rect& previous_bounds) {
+  views::WidgetDelegateView::OnBoundsChanged(previous_bounds);
+  if (!on_bounds_changed_.is_null())
+    on_bounds_changed_.Run();
 }

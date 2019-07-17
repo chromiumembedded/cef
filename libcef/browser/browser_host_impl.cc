@@ -43,6 +43,7 @@
 #include "base/bind.h"
 #include "base/bind_helpers.h"
 #include "base/command_line.h"
+#include "chrome/browser/printing/print_view_manager.h"
 #include "chrome/browser/spellchecker/spellcheck_factory.h"
 #include "chrome/browser/spellchecker/spellcheck_service.h"
 #include "chrome/browser/ui/prefs/prefs_tab_helper.h"
@@ -769,11 +770,19 @@ void CefBrowserHostImpl::DownloadImage(
 
 void CefBrowserHostImpl::Print() {
   if (CEF_CURRENTLY_ON_UIT()) {
-    content::WebContents* actionable_contents = GetActionableWebContents();
+    auto actionable_contents = GetActionableWebContents();
     if (!actionable_contents)
       return;
-    printing::CefPrintViewManager::FromWebContents(actionable_contents)
-        ->PrintNow(actionable_contents->GetRenderViewHost()->GetMainFrame());
+
+    auto rfh = actionable_contents->GetMainFrame();
+
+    if (IsPrintPreviewSupported()) {
+      printing::CefPrintViewManager::FromWebContents(actionable_contents)
+          ->PrintPreviewNow(rfh, false);
+    } else {
+      printing::PrintViewManager::FromWebContents(actionable_contents)
+          ->PrintNow(rfh);
+    }
   } else {
     CEF_POST_TASK(CEF_UIT, base::BindOnce(&CefBrowserHostImpl::Print, this));
   }
@@ -1480,6 +1489,22 @@ bool CefBrowserHostImpl::IsViewsHosted() const {
   return is_views_hosted_;
 }
 
+bool CefBrowserHostImpl::IsPrintPreviewSupported() const {
+  CEF_REQUIRE_UIT();
+  auto actionable_contents = GetActionableWebContents();
+  if (!actionable_contents)
+    return false;
+
+  if (!CefBrowserContext::GetForContext(
+           actionable_contents->GetBrowserContext())
+           ->IsPrintPreviewSupported()) {
+    return false;
+  }
+
+  // Print preview is not currently supported with OSR.
+  return !IsWindowless();
+}
+
 void CefBrowserHostImpl::WindowDestroyed() {
   CEF_REQUIRE_UIT();
   DCHECK(!window_destroyed_);
@@ -1492,8 +1517,8 @@ void CefBrowserHostImpl::DestroyBrowser() {
 
   destruction_state_ = DESTRUCTION_STATE_COMPLETED;
 
-  // Notify that this browser has been destroyed. These must be delivered in the
-  // expected order.
+  // Notify that this browser has been destroyed. These must be delivered in
+  // the expected order.
 
   // 1. Notify the platform delegate. With Views this will result in a call to
   // CefBrowserViewDelegate::OnBrowserDestroyed().
@@ -1559,7 +1584,7 @@ CefRefPtr<CefBrowserView> CefBrowserHostImpl::GetBrowserView() const {
     return platform_delegate_->GetBrowserView();
   return nullptr;
 }
-#endif  // defined(USE_AURA)
+#endif
 
 void CefBrowserHostImpl::CancelContextMenu() {
   CEF_REQUIRE_UIT();
@@ -1688,8 +1713,8 @@ content::BrowserContext* CefBrowserHostImpl::GetBrowserContext() {
 
 void CefBrowserHostImpl::OnSetFocus(cef_focus_source_t source) {
   if (CEF_CURRENTLY_ON_UIT()) {
-    // SetFocus() might be called while inside the OnSetFocus() callback. If so,
-    // don't re-enter the callback.
+    // SetFocus() might be called while inside the OnSetFocus() callback. If
+    // so, don't re-enter the callback.
     if (!is_in_onsetfocus_) {
       if (client_.get()) {
         CefRefPtr<CefFocusHandler> handler = client_->GetFocusHandler();
@@ -1720,8 +1745,8 @@ void CefBrowserHostImpl::RunFileChooser(
 }
 
 bool CefBrowserHostImpl::EmbedsFullscreenWidget() const {
-  // When using windowless rendering do not allow Flash to create its own full-
-  // screen widget.
+  // When using windowless rendering do not allow Flash to create its own
+  // full- screen widget.
   return IsWindowless();
 }
 
@@ -2071,8 +2096,8 @@ void CefBrowserHostImpl::LoadingStateChanged(content::WebContents* source,
   {
     base::AutoLock lock_scope(state_lock_);
 
-    // This method may be called multiple times in a row with |is_loading| true
-    // as a result of https://crrev.com/5e750ad0. Ignore the 2nd+ times.
+    // This method may be called multiple times in a row with |is_loading|
+    // true as a result of https://crrev.com/5e750ad0. Ignore the 2nd+ times.
     if (is_loading_ == is_loading && can_go_back_ == can_go_back &&
         can_go_forward_ == can_go_forward) {
       return;
@@ -2212,7 +2237,7 @@ bool CefBrowserHostImpl::HandleContextMenu(
   return HandleContextMenu(web_contents(), params);
 }
 
-content::WebContents* CefBrowserHostImpl::GetActionableWebContents() {
+content::WebContents* CefBrowserHostImpl::GetActionableWebContents() const {
   if (web_contents() && extensions::ExtensionsEnabled()) {
     content::WebContents* guest_contents =
         extensions::GetFullPageGuestForOwnerContents(web_contents());
@@ -2865,8 +2890,8 @@ CefBrowserHostImpl::CefBrowserHostImpl(
   // When navigating through the history, the restored NavigationEntry's title
   // will be used. If the entry ends up having the same title after we return
   // to it, as will usually be the case, the
-  // NOTIFICATION_WEB_CONTENTS_TITLE_UPDATED will then be suppressed, since the
-  // NavigationEntry's title hasn't changed.
+  // NOTIFICATION_WEB_CONTENTS_TITLE_UPDATED will then be suppressed, since
+  // the NavigationEntry's title hasn't changed.
   registrar_->Add(this, content::NOTIFICATION_LOAD_STOP,
                   content::Source<content::NavigationController>(
                       &web_contents->GetController()));

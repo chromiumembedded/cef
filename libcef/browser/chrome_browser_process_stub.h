@@ -118,6 +118,10 @@ class ChromeBrowserProcessStub : public BrowserProcess {
   std::unique_ptr<ChromeProfileManagerStub> profile_manager_;
   scoped_refptr<extensions::EventRouterForwarder> event_router_forwarder_;
   std::unique_ptr<net_log::ChromeNetLog> net_log_;
+  scoped_refptr<printing::PrintPreviewDialogController>
+      print_preview_dialog_controller_;
+  std::unique_ptr<printing::BackgroundPrintingManager>
+      background_printing_manager_;
   std::unique_ptr<net_log::NetExportFileWriter> net_export_file_writer_;
   std::unique_ptr<PrefService> local_state_;
   // Must be destroyed after |local_state_|.

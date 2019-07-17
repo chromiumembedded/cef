@@ -32,3 +32,8 @@ void CefBrowserViewView::ViewHierarchyChanged(
     browser_view_delegate_->OnBrowserViewAdded();
   }
 }
+
+void CefBrowserViewView::OnBoundsChanged(const gfx::Rect& previous_bounds) {
+  ParentClass::OnBoundsChanged(previous_bounds);
+  browser_view_delegate_->OnBoundsChanged();
+}

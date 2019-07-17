@@ -16,6 +16,7 @@
 #include "libcef/browser/extensions/extension_system_factory.h"
 #include "libcef/browser/extensions/extensions_browser_client.h"
 #include "libcef/browser/net/chrome_scheme_handler.h"
+#include "libcef/browser/printing/constrained_window_views_client.h"
 #include "libcef/browser/printing/printing_message_filter.h"
 #include "libcef/browser/thread_util.h"
 #include "libcef/common/extensions/extensions_client.h"
@@ -31,6 +32,7 @@
 #include "chrome/browser/chrome_browser_main_extra_parts.h"
 #include "chrome/browser/net/system_network_context_manager.h"
 #include "chrome/browser/plugins/plugin_finder.h"
+#include "components/constrained_window/constrained_window_views.h"
 #include "content/public/browser/gpu_data_manager.h"
 #include "extensions/browser/extension_system.h"
 #include "extensions/common/constants.h"
@@ -73,6 +75,7 @@ CefBrowserMainParts::CefBrowserMainParts(
     : BrowserMainParts(), devtools_delegate_(NULL) {}
 
 CefBrowserMainParts::~CefBrowserMainParts() {
+  constrained_window::SetConstrainedWindowViewsClient(nullptr);
   for (int i = static_cast<int>(chrome_extra_parts_.size()) - 1; i >= 0; --i)
     delete chrome_extra_parts_[i];
   chrome_extra_parts_.clear();
@@ -101,6 +104,7 @@ void CefBrowserMainParts::PostEarlyInitialization() {
 }
 
 void CefBrowserMainParts::ToolkitInitialized() {
+  SetConstrainedWindowViewsClient(CreateCefConstrainedWindowViewsClient());
 #if defined(USE_AURA)
   CHECK(aura::Env::GetInstance());
 

@@ -138,7 +138,8 @@ if (is_win) {
 
 # Set ENABLE_PRINTING=1 ENABLE_BASIC_PRINTING=1.
 assert(enable_basic_printing)
-assert(!enable_print_preview)
+assert(enable_print_preview)
+assert(!enable_service_discovery)
 
 # Enable support for Widevine CDM.
 assert(enable_widevine)
@@ -452,12 +453,12 @@ static_library("libcef_static") {
     "libcef/browser/prefs/renderer_prefs.h",
     "libcef/browser/print_settings_impl.cc",
     "libcef/browser/print_settings_impl.h",
+    "libcef/browser/printing/constrained_window_views_client.cc",
+    "libcef/browser/printing/constrained_window_views_client.h",
     "libcef/browser/printing/printing_message_filter.cc",
     "libcef/browser/printing/printing_message_filter.h",
     "libcef/browser/printing/print_view_manager.cc",
     "libcef/browser/printing/print_view_manager.h",
-    "libcef/browser/printing/print_view_manager_base.cc",
-    "libcef/browser/printing/print_view_manager_base.h",
     "libcef/browser/process_util_impl.cc",
     "libcef/browser/resource_context.cc",
     "libcef/browser/resource_context.h",
@@ -482,6 +483,8 @@ static_library("libcef_static") {
     "libcef/browser/trace_subscriber.cc",
     "libcef/browser/trace_subscriber.h",
     "libcef/browser/thread_util.h",
+    "libcef/browser/web_contents_dialog_helper.cc",
+    "libcef/browser/web_contents_dialog_helper.h",
     "libcef/browser/web_plugin_impl.cc",
     "libcef/browser/web_plugin_impl.h",
     "libcef/browser/x509_certificate_impl.cc",
@@ -605,10 +608,14 @@ static_library("libcef_static") {
     "libcef/utility/content_utility_client.cc",
     "libcef/utility/content_utility_client.h",
 
-    # Part of //chrome/renderer. Not included by that target because CEF builds
-    # with enable_print_preview=0.
-    "//chrome/renderer/pepper/chrome_pdf_print_client.cc",
-    "//chrome/renderer/pepper/chrome_pdf_print_client.h",
+    "//chrome/browser/local_discovery/service_discovery_device_lister.cc",
+    "//chrome/browser/local_discovery/service_discovery_device_lister.h",
+    "//chrome/browser/local_discovery/service_discovery_client_impl.cc",
+    "//chrome/browser/local_discovery/service_discovery_client_impl.h",
+    "//chrome/browser/local_discovery/service_discovery_client.cc",
+    "//chrome/browser/local_discovery/service_discovery_client.h",
+    "//chrome/browser/local_discovery/service_discovery_shared_client.cc",
+    "//chrome/browser/local_discovery/service_discovery_shared_client.h",    
   ]
 
   configs += [
@@ -1354,6 +1361,7 @@ repack("pak") {
   sources = [
     "$root_gen_dir/chrome/browser_resources.pak",
     "$root_gen_dir/chrome/net_internals_resources.pak",
+    "$root_gen_dir/chrome/print_preview_resources.pak",
     "$root_gen_dir/chrome/common_resources.pak",
     "$root_gen_dir/components/components_resources.pak",
     "$root_gen_dir/cef/cef_resources.pak",
@@ -1369,6 +1377,7 @@ repack("pak") {
   public_deps = [
     "//chrome/browser:resources",
     "//chrome/browser/resources:net_internals_resources",
+    "//chrome/browser/resources:print_preview_resources",
     "//chrome/common:resources",
     "//components/resources:components_resources",
     ":cef_resources",

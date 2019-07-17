@@ -89,7 +89,8 @@ bool CefBrowserPlatformDelegateNativeLinux::CreateHostWindow() {
   browser_->AddRef();
 
   CefWindowDelegateView* delegate_view = new CefWindowDelegateView(
-      GetBackgroundColor(), window_x11_->TopLevelAlwaysOnTop());
+      GetBackgroundColor(), window_x11_->TopLevelAlwaysOnTop(),
+      GetBoundsChangedCallback());
   delegate_view->Init(window_info_.window, browser_->web_contents(),
                       gfx::Rect(gfx::Point(), rect.size()));
 
@@ -409,4 +410,15 @@ void CefBrowserPlatformDelegateNativeLinux::TranslateMouseEvent(
                       base::TimeDelta::FromSeconds(GetSystemUptime()));
 
   result.pointer_type = blink::WebPointerProperties::PointerType::kMouse;
+}
+
+gfx::Point CefBrowserPlatformDelegateNativeLinux::GetDialogPosition(
+    const gfx::Size& size) {
+  const gfx::Size& max_size = GetMaximumDialogSize();
+  return gfx::Point((max_size.width() - size.width()) / 2,
+                    (max_size.height() - size.height()) / 2);
+}
+
+gfx::Size CefBrowserPlatformDelegateNativeLinux::GetMaximumDialogSize() {
+  return GetWindowWidget()->GetWindowBoundsInScreen().size();
 }

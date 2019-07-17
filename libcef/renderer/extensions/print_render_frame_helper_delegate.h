@@ -12,12 +12,16 @@ namespace extensions {
 class CefPrintRenderFrameHelperDelegate
     : public printing::PrintRenderFrameHelper::Delegate {
  public:
+  explicit CefPrintRenderFrameHelperDelegate(bool is_windowless);
   ~CefPrintRenderFrameHelperDelegate() override;
 
   bool CancelPrerender(content::RenderFrame* render_frame) override;
   blink::WebElement GetPdfElement(blink::WebLocalFrame* frame) override;
   bool IsPrintPreviewEnabled() override;
   bool OverridePrint(blink::WebLocalFrame* frame) override;
+
+ private:
+  bool is_windowless_;
 };
 
 }  // namespace extensions

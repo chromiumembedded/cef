@@ -9,6 +9,8 @@
 #include "libcef/browser/thread_util.h"
 #include "libcef/common/extensions/extensions_util.h"
 
+#include "chrome/browser/browser_process.h"
+#include "chrome/browser/printing/print_preview_dialog_controller.h"
 #include "content/browser/browser_plugin/browser_plugin_embedder.h"
 #include "content/browser/browser_plugin/browser_plugin_guest.h"
 #include "content/browser/web_contents/web_contents_impl.h"
@@ -58,7 +60,11 @@ content::WebContents* GetOwnerForGuestContents(content::WebContents* guest) {
       guest_impl->GetBrowserPluginGuest();
   if (plugin_guest)
     return plugin_guest->embedder_web_contents();
-  return NULL;
+
+  // Maybe it's a print preview dialog.
+  auto print_preview_controller =
+      g_browser_process->print_preview_dialog_controller();
+  return print_preview_controller->GetInitiator(guest);
 }
 
 CefRefPtr<CefBrowserHostImpl> GetOwnerBrowserForFrameRoute(

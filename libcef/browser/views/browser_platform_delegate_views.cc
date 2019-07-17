@@ -52,18 +52,23 @@ class PopupWindowDelegate : public CefWindowDelegate {
 CefBrowserPlatformDelegateViews::CefBrowserPlatformDelegateViews(
     std::unique_ptr<CefBrowserPlatformDelegateNative> native_delegate,
     CefRefPtr<CefBrowserViewImpl> browser_view)
-    : native_delegate_(std::move(native_delegate)),
-      browser_view_(browser_view) {
+    : native_delegate_(std::move(native_delegate)) {
+  if (browser_view)
+    SetBrowserView(browser_view);
   native_delegate_->set_windowless_handler(this);
 }
 
-void CefBrowserPlatformDelegateViews::set_browser_view(
+void CefBrowserPlatformDelegateViews::SetBrowserView(
     CefRefPtr<CefBrowserViewImpl> browser_view) {
+  DCHECK(!browser_view_);
+  DCHECK(browser_view);
   browser_view_ = browser_view;
 }
 
 void CefBrowserPlatformDelegateViews::WebContentsCreated(
     content::WebContents* web_contents) {
+  CefBrowserPlatformDelegate::WebContentsCreated(web_contents);
+
   browser_view_->WebContentsCreated(web_contents);
 }
 
@@ -71,7 +76,7 @@ void CefBrowserPlatformDelegateViews::BrowserCreated(
     CefBrowserHostImpl* browser) {
   CefBrowserPlatformDelegate::BrowserCreated(browser);
 
-  browser_view_->BrowserCreated(browser);
+  browser_view_->BrowserCreated(browser, GetBoundsChangedCallback());
 }
 
 void CefBrowserPlatformDelegateViews::NotifyBrowserCreated() {
@@ -143,7 +148,7 @@ void CefBrowserPlatformDelegateViews::PopupWebContentsCreated(
       CefBrowserViewImpl::CreateForPopup(settings, new_delegate);
 
   // Associate the PlatformDelegate with the new BrowserView.
-  new_platform_delegate_impl->set_browser_view(new_browser_view);
+  new_platform_delegate_impl->SetBrowserView(new_browser_view);
 }
 
 void CefBrowserPlatformDelegateViews::PopupBrowserCreated(
@@ -291,6 +296,23 @@ bool CefBrowserPlatformDelegateViews::IsWindowless() const {
 
 bool CefBrowserPlatformDelegateViews::IsViewsHosted() const {
   return true;
+}
+
+gfx::Point CefBrowserPlatformDelegateViews::GetDialogPosition(
+    const gfx::Size& size) {
+  const gfx::Rect& bounds = browser_view_->root_view()->GetBoundsInScreen();
+
+  // Offset relative to the top-level content view.
+  gfx::Point offset = bounds.origin();
+  view_util::ConvertPointFromScreen(
+      browser_view_->root_view()->GetWidget()->GetRootView(), &offset, false);
+
+  return gfx::Point(offset.x() + (bounds.width() - size.width()) / 2,
+                    offset.y() + (bounds.height() - size.height()) / 2);
+}
+
+gfx::Size CefBrowserPlatformDelegateViews::GetMaximumDialogSize() {
+  return browser_view_->root_view()->GetBoundsInScreen().size();
 }
 
 CefWindowHandle CefBrowserPlatformDelegateViews::GetParentWindowHandle() const {

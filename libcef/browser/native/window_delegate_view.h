@@ -20,7 +20,9 @@ class WebView;
 // will be deleted automatically when the associated root window is destroyed.
 class CefWindowDelegateView : public views::WidgetDelegateView {
  public:
-  CefWindowDelegateView(SkColor background_color, bool always_on_top);
+  CefWindowDelegateView(SkColor background_color,
+                        bool always_on_top,
+                        base::RepeatingClosure on_bounds_changed);
 
   // Create the Widget and associated root window.
   void Init(gfx::AcceleratedWidget parent_widget,
@@ -39,11 +41,13 @@ class CefWindowDelegateView : public views::WidgetDelegateView {
   // View methods:
   void ViewHierarchyChanged(
       const views::ViewHierarchyChangedDetails& details) override;
+  void OnBoundsChanged(const gfx::Rect& previous_bounds) override;
 
  private:
   SkColor background_color_;
   views::WebView* web_view_;
   bool always_on_top_;
+  base::RepeatingClosure on_bounds_changed_;
 
   DISALLOW_COPY_AND_ASSIGN(CefWindowDelegateView);
 };

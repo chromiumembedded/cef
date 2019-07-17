@@ -116,6 +116,9 @@ const char kEnablePreferenceTesting[] = "enable-preference-testing";
 // Enable date-based expiration of built in network security information.
 const char kEnableNetSecurityExpiration[] = "enable-net-security-expiration";
 
+// Enable print preview.
+extern const char kEnablePrintPreview[] = "enable-print-preview";
+
 #if defined(OS_MACOSX)
 // Path to the framework directory.
 const char kFrameworkDirPath[] = "framework-dir-path";

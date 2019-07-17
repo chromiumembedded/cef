@@ -6,6 +6,8 @@
 
 #include "libcef/browser/browser_host_impl.h"
 #include "libcef/browser/osr/browser_platform_delegate_osr.h"
+#include "libcef/browser/web_contents_dialog_helper.h"
+#include "libcef/common/extensions/extensions_util.h"
 
 #include "base/logging.h"
 #include "content/browser/renderer_host/render_widget_host_impl.h"
@@ -37,7 +39,13 @@ void CefBrowserPlatformDelegate::RenderViewCreated(
 
 void CefBrowserPlatformDelegate::BrowserCreated(CefBrowserHostImpl* browser) {
   DCHECK(!browser_);
+  DCHECK(browser);
   browser_ = browser;
+
+  if (browser_->IsPrintPreviewSupported()) {
+    web_contents_dialog_helper_.reset(
+        new CefWebContentsDialogHelper(browser_->web_contents(), this));
+  }
 }
 
 void CefBrowserPlatformDelegate::NotifyBrowserCreated() {}
@@ -68,7 +76,7 @@ CefRefPtr<CefBrowserView> CefBrowserPlatformDelegate::GetBrowserView() const {
   NOTREACHED();
   return nullptr;
 }
-#endif  // defined(USE_AURA)
+#endif
 
 void CefBrowserPlatformDelegate::PopupWebContentsCreated(
     const CefBrowserSettings& settings,
@@ -207,6 +215,25 @@ void CefBrowserPlatformDelegate::AccessibilityEventReceived(
 void CefBrowserPlatformDelegate::AccessibilityLocationChangesReceived(
     const std::vector<content::AXLocationChangeNotificationDetails>& locData) {
   NOTREACHED();
+}
+
+gfx::Point CefBrowserPlatformDelegate::GetDialogPosition(
+    const gfx::Size& size) {
+  NOTREACHED();
+  return gfx::Point();
+}
+
+gfx::Size CefBrowserPlatformDelegate::GetMaximumDialogSize() {
+  NOTREACHED();
+  return gfx::Size();
+}
+
+base::RepeatingClosure CefBrowserPlatformDelegate::GetBoundsChangedCallback() {
+  if (web_contents_dialog_helper_) {
+    return web_contents_dialog_helper_->GetBoundsChangedCallback();
+  }
+
+  return base::RepeatingClosure();
 }
 
 // static

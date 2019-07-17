@@ -236,8 +236,10 @@ def GetRequiredArgs():
   result = {
       # Set ENABLE_PRINTING=1 ENABLE_BASIC_PRINTING=1.
       'enable_basic_printing': True,
-      'enable_print_preview': False,
-
+      # ENABLE_SERVICE_DISCOVERY=0 for print preview support
+      'enable_print_preview': True,
+      'optimize_webui': True,
+      'enable_service_discovery': False,
       # Enable support for Widevine CDM.
       'enable_widevine': True,
 

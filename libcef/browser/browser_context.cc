@@ -27,6 +27,7 @@
 #include "chrome/browser/font_family_cache.h"
 #include "chrome/browser/plugins/chrome_plugin_service_filter.h"
 #include "chrome/browser/ui/zoom/chrome_zoom_level_prefs.h"
+#include "chrome/common/pref_names.h"
 #include "components/content_settings/core/browser/host_content_settings_map.h"
 #include "components/guest_view/browser/guest_view_manager.h"
 #include "components/keyed_service/content/browser_context_dependency_manager.h"
@@ -739,4 +740,20 @@ network::mojom::NetworkContext* CefBrowserContext::GetNetworkContext() {
   CEF_REQUIRE_UIT();
   DCHECK(net_service::IsEnabled());
   return GetDefaultStoragePartition(this)->GetNetworkContext();
+}
+
+DownloadPrefs* CefBrowserContext::GetDownloadPrefs() {
+  CEF_REQUIRE_UIT();
+  if (!download_prefs_) {
+    download_prefs_.reset(new DownloadPrefs(this));
+  }
+  return download_prefs_.get();
+}
+
+bool CefBrowserContext::IsPrintPreviewSupported() const {
+  CEF_REQUIRE_UIT();
+  if (!extensions::PrintPreviewEnabled())
+    return false;
+
+  return !GetPrefs()->GetBoolean(prefs::kPrintPreviewDisabled);
 }
