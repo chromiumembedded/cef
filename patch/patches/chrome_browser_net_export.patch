@@ -24,10 +24,10 @@ index 761d300aa06b..f86558dd6efc 100644
    // network quality change events.
    virtual network::NetworkQualityTracker* network_quality_tracker() = 0;
 diff --git chrome/browser/browser_process_impl.cc chrome/browser/browser_process_impl.cc
-index c2e0b9172eb2..57c22ff16f4b 100644
+index 39900e408887..44be9dbabb58 100644
 --- chrome/browser/browser_process_impl.cc
 +++ chrome/browser/browser_process_impl.cc
-@@ -683,6 +683,10 @@ BrowserProcessImpl::system_network_context_manager() {
+@@ -674,6 +674,10 @@ BrowserProcessImpl::system_network_context_manager() {
    return SystemNetworkContextManager::GetInstance();
  }
  
@@ -51,7 +51,7 @@ index 95a7bd8e8b58..af7685f86848 100644
        override;
    network::NetworkQualityTracker* network_quality_tracker() override;
 diff --git chrome/browser/ui/BUILD.gn chrome/browser/ui/BUILD.gn
-index 6bd5bea7ddb0..076306275b5b 100644
+index ff5b402eb7af..028f4bdce1d1 100644
 --- chrome/browser/ui/BUILD.gn
 +++ chrome/browser/ui/BUILD.gn
 @@ -10,6 +10,7 @@ import("//build/config/jumbo.gni")

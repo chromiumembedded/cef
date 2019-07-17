@@ -39,7 +39,7 @@ index cce16a111356..9f0a8b73adb5 100644
    virtual void MenuWillShow() {}
  
 diff --git ui/gfx/render_text.cc ui/gfx/render_text.cc
-index 87fd6313f5d8..42f58e7c13c9 100644
+index bad91f31f867..eb282f9ebdec 100644
 --- ui/gfx/render_text.cc
 +++ ui/gfx/render_text.cc
 @@ -532,6 +532,14 @@ void RenderText::SetElideBehavior(ElideBehavior elide_behavior) {
@@ -57,7 +57,7 @@ index 87fd6313f5d8..42f58e7c13c9 100644
  void RenderText::SetDisplayRect(const Rect& r) {
    if (r != display_rect_) {
      display_rect_ = r;
-@@ -1638,6 +1646,19 @@ void RenderText::OnTextAttributeChanged() {
+@@ -1654,6 +1662,19 @@ void RenderText::OnTextAttributeChanged() {
    if (!multiline_ && replace_newline_chars_with_symbols_)
      base::ReplaceChars(layout_text_, kNewline, kNewlineSymbol, &layout_text_);
  
@@ -78,7 +78,7 @@ index 87fd6313f5d8..42f58e7c13c9 100644
  }
  
 diff --git ui/gfx/render_text.h ui/gfx/render_text.h
-index 5c3985176054..ceab2a4fd9ba 100644
+index 5a422c0874bc..d53c1ac218c2 100644
 --- ui/gfx/render_text.h
 +++ ui/gfx/render_text.h
 @@ -310,6 +310,10 @@ class GFX_EXPORT RenderText {
@@ -92,7 +92,7 @@ index 5c3985176054..ceab2a4fd9ba 100644
    const Rect& display_rect() const { return display_rect_; }
    void SetDisplayRect(const Rect& r);
  
-@@ -956,6 +960,8 @@ class GFX_EXPORT RenderText {
+@@ -966,6 +970,8 @@ class GFX_EXPORT RenderText {
    // The cursor position in view space, used to traverse lines of varied widths.
    base::Optional<int> cached_cursor_x_;
  

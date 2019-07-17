@@ -13,4 +13,4 @@ index b5ccdc521a36..716117c141cc 100644
 + private:
    void UpdateRendererPreferences();
    void OnWebPrefChanged(const std::string& pref_name);
-
+ 

@@ -93,7 +93,7 @@ index f17983a5cc70..4a8f2fd8d415 100644
      "display/bsp_tree.h",
      "display/bsp_walk_action.cc",
 diff --git components/viz/service/display_embedder/output_surface_provider_impl.cc components/viz/service/display_embedder/output_surface_provider_impl.cc
-index 8fe397588eb4..1218985f7310 100644
+index 1f8132354d25..264ab0f85ba7 100644
 --- components/viz/service/display_embedder/output_surface_provider_impl.cc
 +++ components/viz/service/display_embedder/output_surface_provider_impl.cc
 @@ -11,6 +11,7 @@
@@ -104,7 +104,7 @@ index 8fe397588eb4..1218985f7310 100644
  #include "components/viz/common/display/renderer_settings.h"
  #include "components/viz/common/frame_sinks/begin_frame_source.h"
  #include "components/viz/service/display_embedder/gl_output_surface.h"
-@@ -243,6 +244,20 @@ OutputSurfaceProviderImpl::CreateSoftwareOutputDeviceForPlatform(
+@@ -244,6 +245,20 @@ OutputSurfaceProviderImpl::CreateSoftwareOutputDeviceForPlatform(
    if (headless_)
      return std::make_unique<SoftwareOutputDevice>();
  
@@ -163,7 +163,7 @@ index 906be544c90f..a110f254d7ec 100644
  
  #if ENABLE_SYNC_CALL_RESTRICTIONS
 diff --git services/viz/privileged/interfaces/compositing/display_private.mojom services/viz/privileged/interfaces/compositing/display_private.mojom
-index deb327b77054..d9926ec35165 100644
+index cd8dd80230d1..3b90812293ab 100644
 --- services/viz/privileged/interfaces/compositing/display_private.mojom
 +++ services/viz/privileged/interfaces/compositing/display_private.mojom
 @@ -77,12 +77,14 @@ interface DisplayPrivate {

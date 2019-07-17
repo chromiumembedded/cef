@@ -44,7 +44,7 @@ index 3de30fbbe096..a7cab9da38f2 100644
                                                          .Top()
                                                          .GetSecurityContext()
 diff --git third_party/blink/renderer/core/frame/local_frame.cc third_party/blink/renderer/core/frame/local_frame.cc
-index 4851cb4a227b..cc88dce2db46 100644
+index 06f9c9f62dc9..8115d99ac6a5 100644
 --- third_party/blink/renderer/core/frame/local_frame.cc
 +++ third_party/blink/renderer/core/frame/local_frame.cc
 @@ -1234,7 +1234,7 @@ WebContentSettingsClient* LocalFrame::GetContentSettingsClient() {
@@ -85,7 +85,7 @@ index e839efcfbd0b..1927d8dd2ed0 100644
  
  void DevToolsSession::FlushProtocolNotifications() {
 diff --git third_party/blink/renderer/core/page/page.cc third_party/blink/renderer/core/page/page.cc
-index bcab9669d29b..9e90c96b29e7 100644
+index 0f8ae2090eb6..c14c6f4c114f 100644
 --- third_party/blink/renderer/core/page/page.cc
 +++ third_party/blink/renderer/core/page/page.cc
 @@ -185,7 +185,8 @@ Page::Page(PageClients& page_clients)
@@ -98,7 +98,7 @@ index bcab9669d29b..9e90c96b29e7 100644
        // TODO(pdr): Initialize |validation_message_client_| lazily.
        validation_message_client_(
            MakeGarbageCollected<ValidationMessageClientImpl>(*this)),
-@@ -346,21 +347,40 @@ void Page::InitialStyleChanged() {
+@@ -344,21 +345,40 @@ void Page::InitialStyleChanged() {
    }
  }
  
@@ -148,7 +148,7 @@ index bcab9669d29b..9e90c96b29e7 100644
        page->NotifyPluginsChanged();
      }
    }
-@@ -832,7 +852,8 @@ void Page::Trace(blink::Visitor* visitor) {
+@@ -830,7 +850,8 @@ void Page::Trace(blink::Visitor* visitor) {
    visitor->Trace(link_highlights_);
    visitor->Trace(spatial_navigation_controller_);
    visitor->Trace(main_frame_);

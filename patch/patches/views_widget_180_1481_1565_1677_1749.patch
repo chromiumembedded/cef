@@ -18,7 +18,7 @@ index a2902adc59b6..2289ef03efc0 100644
    return renderer_frame_number_;
  }
 diff --git content/browser/renderer_host/render_widget_host_view_base.h content/browser/renderer_host/render_widget_host_view_base.h
-index 903131f45d4f..49b0a67cb39e 100644
+index 81bdc91eb351..d7de8c756168 100644
 --- content/browser/renderer_host/render_widget_host_view_base.h
 +++ content/browser/renderer_host/render_widget_host_view_base.h
 @@ -75,6 +75,7 @@ class CursorManager;
@@ -29,7 +29,7 @@ index 903131f45d4f..49b0a67cb39e 100644
  class SyntheticGestureTarget;
  class TextInputManager;
  class TouchSelectionControllerClientManager;
-@@ -96,6 +97,9 @@ class CONTENT_EXPORT RenderWidgetHostViewBase
+@@ -95,6 +96,9 @@ class CONTENT_EXPORT RenderWidgetHostViewBase
    float current_device_scale_factor() const {
      return current_device_scale_factor_;
    }
@@ -39,7 +39,7 @@ index 903131f45d4f..49b0a67cb39e 100644
  
    // Returns the focused RenderWidgetHost inside this |view|'s RWH.
    RenderWidgetHostImpl* GetFocusedWidget() const;
-@@ -130,6 +134,8 @@ class CONTENT_EXPORT RenderWidgetHostViewBase
+@@ -129,6 +133,8 @@ class CONTENT_EXPORT RenderWidgetHostViewBase
    void DisableAutoResize(const gfx::Size& new_size) override;
    bool IsScrollOffsetAtTop() override;
    float GetDeviceScaleFactor() final;
@@ -48,7 +48,7 @@ index 903131f45d4f..49b0a67cb39e 100644
    TouchSelectionControllerClientManager*
    GetTouchSelectionControllerClientManager() override;
    void SetRecordTabSwitchTimeRequest(base::TimeTicks start_time,
-@@ -491,6 +497,12 @@ class CONTENT_EXPORT RenderWidgetHostViewBase
+@@ -490,6 +496,12 @@ class CONTENT_EXPORT RenderWidgetHostViewBase
    // helps to position the full screen widget on the correct monitor.
    virtual void InitAsFullscreen(RenderWidgetHostView* reference_host_view) = 0;
  
@@ -61,7 +61,7 @@ index 903131f45d4f..49b0a67cb39e 100644
    // Sets the cursor for this view to the one associated with the specified
    // cursor_type.
    virtual void UpdateCursor(const WebCursor& cursor) = 0;
-@@ -664,6 +676,10 @@ class CONTENT_EXPORT RenderWidgetHostViewBase
+@@ -657,6 +669,10 @@ class CONTENT_EXPORT RenderWidgetHostViewBase
  
    bool is_currently_scrolling_viewport_ = false;
  
@@ -194,7 +194,7 @@ index 8ac960b083c8..66b6ff2a3259 100644
    // a reference.
    corewm::TooltipWin* tooltip_;
 diff --git ui/views/widget/desktop_aura/desktop_window_tree_host_x11.cc ui/views/widget/desktop_aura/desktop_window_tree_host_x11.cc
-index 81ef38287b65..f0e43abdc143 100644
+index 2c502b3a5334..e4e9312aee63 100644
 --- ui/views/widget/desktop_aura/desktop_window_tree_host_x11.cc
 +++ ui/views/widget/desktop_aura/desktop_window_tree_host_x11.cc
 @@ -211,6 +211,8 @@ std::vector<aura::Window*> DesktopWindowTreeHostX11::GetAllOpenWindows() {
