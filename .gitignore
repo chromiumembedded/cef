@@ -42,6 +42,10 @@ cscope.*
 Session.vim
 tags
 Thumbs.db
+# IDE's
+.vs/
+.kdev4/
+*.kdev4
 # CEF generated directories
 /binary_distrib
 /docs
