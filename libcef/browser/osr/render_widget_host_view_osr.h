@@ -262,7 +262,6 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
     child_host_view_ = popup_view;
   }
 
-  ui::Compositor* GetCompositor() const;
   content::RenderWidgetHostImpl* render_widget_host() const {
     return render_widget_host_;
   }
