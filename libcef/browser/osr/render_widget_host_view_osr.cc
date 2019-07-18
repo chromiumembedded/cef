@@ -953,8 +953,8 @@ void CefRenderWidgetHostViewOSR::SendExternalBeginFrame() {
   if (render_widget_host_)
     render_widget_host_->ProgressFlingIfNeeded(frame_time);
 
-  GetCompositor()->context_factory_private()->IssueExternalBeginFrame(
-      GetCompositor(), begin_frame_args);
+  compositor_->context_factory_private()->IssueExternalBeginFrame(
+      compositor_.get(), begin_frame_args);
 
   if (!IsPopupWidget() && popup_host_view_) {
     popup_host_view_->SendExternalBeginFrame();
@@ -1322,10 +1322,6 @@ void CefRenderWidgetHostViewOSR::OnPaint(const gfx::Rect& damage_rect,
   ReleaseResize();
 }
 
-ui::Compositor* CefRenderWidgetHostViewOSR::GetCompositor() const {
-  return compositor_.get();
-}
-
 ui::Layer* CefRenderWidgetHostViewOSR::GetRootLayer() const {
   return root_layer_.get();
 }
@@ -1349,26 +1345,16 @@ void CefRenderWidgetHostViewOSR::SetFrameRate() {
   if (frame_rate_threshold_us_ != 0)
     return;
 
-  ui::Compositor* compositor = GetCompositor();
-
   int frame_rate =
       osr_util::ClampFrameRate(browser->settings().windowless_frame_rate);
 
   frame_rate_threshold_us_ = 1000000 / frame_rate;
 
-#if defined(OS_MACOSX)
-  if (browser_compositor_) {
-    browser_compositor_->UpdateVSyncParameters(
+  if (compositor_) {
+    compositor_->SetDisplayVSyncParameters(
         base::TimeTicks::Now(),
         base::TimeDelta::FromMicroseconds(frame_rate_threshold_us_));
   }
-#else
-  if (compositor) {
-    compositor->SetDisplayVSyncParameters(
-        base::TimeTicks::Now(),
-        base::TimeDelta::FromMicroseconds(frame_rate_threshold_us_));
-  }
-#endif
 
   if (video_consumer_) {
     video_consumer_->SetFrameRate(
@@ -1430,12 +1416,11 @@ void CefRenderWidgetHostViewOSR::ResizeRootLayer(bool force) {
   local_surface_id_allocation_ =
       local_surface_id_allocator_.GetCurrentLocalSurfaceIdAllocation();
 
-  if (GetCompositor()) {
+  if (compositor_) {
     compositor_local_surface_id_allocator_.GenerateId();
-    GetCompositor()->SetScaleAndSize(current_device_scale_factor_,
-                                     size_in_pixels,
-                                     compositor_local_surface_id_allocator_
-                                         .GetCurrentLocalSurfaceIdAllocation());
+    compositor_->SetScaleAndSize(current_device_scale_factor_, size_in_pixels,
+                                 compositor_local_surface_id_allocator_
+                                     .GetCurrentLocalSurfaceIdAllocation());
   }
 
   GetDelegatedFrameHost()->EmbedSurface(
