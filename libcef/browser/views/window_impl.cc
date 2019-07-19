@@ -437,7 +437,7 @@ void CefWindowImpl::ShowMenu(views::MenuButton* menu_button,
                             base::Bind(&CefWindowImpl::MenuClosed, this)));
 
   menu_runner_->RunMenuAt(
-      widget_, menu_button->button_controller(),
+      widget_, menu_button ? menu_button->button_controller() : nullptr,
       gfx::Rect(gfx::Point(screen_point.x, screen_point.y), gfx::Size()),
       static_cast<views::MenuAnchorPosition>(anchor_position),
       ui::MENU_SOURCE_NONE);
