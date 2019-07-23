@@ -220,7 +220,7 @@ typedef struct _cef_settings_t {
 
   ///
   // The location where data for the global browser cache will be stored on
-  // disk. In non-empty this must be either equal to or a child directory of
+  // disk. If non-empty this must be either equal to or a child directory of
   // CefSettings.root_cache_path. If empty then browsers will be created in
   // "incognito mode" where in-memory caches are used for storage and no data is
   // persisted to disk. HTML5 databases such as localStorage will only persist
