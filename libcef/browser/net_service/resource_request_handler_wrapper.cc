@@ -166,7 +166,32 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
   class DestructionObserver : public CefBrowserHostImpl::Observer,
                               public CefContext::Observer {
    public:
-    DestructionObserver() = default;
+    explicit DestructionObserver(CefBrowserHostImpl* browser) {
+      if (browser) {
+        browser_info_ = browser->browser_info();
+        browser->AddObserver(this);
+      } else {
+        CefContext::Get()->AddObserver(this);
+      }
+    }
+
+    virtual ~DestructionObserver() {
+      CEF_REQUIRE_UIT();
+      if (!registered_)
+        return;
+
+      // Verify that the browser or context still exists before attempting to
+      // remove the observer.
+      if (browser_info_) {
+        auto browser = browser_info_->browser();
+        if (browser)
+          browser->RemoveObserver(this);
+      } else if (CefContext::Get()) {
+        // Network requests may be torn down during shutdown, so we can't check
+        // CONTEXT_STATE_VALID() here.
+        CefContext::Get()->RemoveObserver(this);
+      }
+    }
 
     void SetWrapper(base::WeakPtr<InterceptedRequestHandlerWrapper> wrapper) {
       CEF_REQUIRE_IOT();
@@ -176,23 +201,31 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
     void OnBrowserDestroyed(CefBrowserHostImpl* browser) override {
       CEF_REQUIRE_UIT();
       browser->RemoveObserver(this);
+      registered_ = false;
+      browser_info_ = nullptr;
       NotifyOnDestroyed();
     }
 
     void OnContextDestroyed() override {
       CEF_REQUIRE_UIT();
       CefContext::Get()->RemoveObserver(this);
+      registered_ = false;
       NotifyOnDestroyed();
     }
 
    private:
     void NotifyOnDestroyed() {
-      // It's not safe to test the WeakPtr on the UI thread, so we'll just post
-      // a task which will be ignored if the WeakPtr is invalid.
-      CEF_POST_TASK(CEF_IOT, base::BindOnce(
-                                 &InterceptedRequestHandlerWrapper::OnDestroyed,
-                                 wrapper_));
+      if (wrapper_.MaybeValid()) {
+        // This will be a no-op if the WeakPtr is invalid.
+        CEF_POST_TASK(
+            CEF_IOT,
+            base::BindOnce(&InterceptedRequestHandlerWrapper::OnDestroyed,
+                           wrapper_));
+      }
     }
+
+    scoped_refptr<CefBrowserInfo> browser_info_;
+    bool registered_ = true;
 
     base::WeakPtr<InterceptedRequestHandlerWrapper> wrapper_;
     DISALLOW_COPY_AND_ASSIGN(DestructionObserver);
@@ -211,25 +244,7 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
           // InterceptedRequestHandlerWrapper::SetInitialized().
           destruction_observer_->SetWrapper(nullptr);
         }
-        CEF_POST_TASK(
-            CEF_UIT,
-            base::BindOnce(&InitState::RemoveDestructionObserverOnUIThread,
-                           browser_ ? browser_->browser_info() : nullptr,
-                           std::move(destruction_observer_)));
-      }
-    }
-
-    static void RemoveDestructionObserverOnUIThread(
-        scoped_refptr<CefBrowserInfo> browser_info,
-        std::unique_ptr<DestructionObserver> observer) {
-      // Verify that the browser or context is still valid before attempting to
-      // remove the observer.
-      if (browser_info) {
-        auto browser = browser_info->browser();
-        if (browser)
-          browser->RemoveObserver(observer.get());
-      } else if (CONTEXT_STATE_VALID()) {
-        CefContext::Get()->RemoveObserver(observer.get());
+        DeleteDestructionObserver();
       }
     }
 
@@ -253,15 +268,12 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
       // that we can stop accepting new requests and cancel pending/in-progress
       // requests in a timely manner (e.g. before we start asserting about
       // leaked objects during CEF shutdown).
-      destruction_observer_.reset(new DestructionObserver());
+      destruction_observer_.reset(new DestructionObserver(browser.get()));
 
       if (browser) {
         // These references will be released in OnDestroyed().
         browser_ = browser;
         frame_ = frame;
-        browser->AddObserver(destruction_observer_.get());
-      } else {
-        CefContext::Get()->AddObserver(destruction_observer_.get());
       }
 
       render_process_id_ = render_process_id;
@@ -278,6 +290,17 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
       user_agent_ = CefContentClient::Get()->browser()->GetUserAgent();
       DCHECK(!user_agent_.empty());
     }
+
+    void DeleteDestructionObserver() {
+      DCHECK(destruction_observer_);
+      CEF_POST_TASK(
+          CEF_UIT,
+          base::BindOnce(&InitState::DeleteDestructionObserverOnUIThread,
+                         std::move(destruction_observer_)));
+    }
+
+    static void DeleteDestructionObserverOnUIThread(
+        std::unique_ptr<DestructionObserver> observer) {}
 
     // Only accessed on the UI thread.
     content::BrowserContext* browser_context_ = nullptr;
@@ -1071,8 +1094,7 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
     CEF_REQUIRE_IOT();
     DCHECK(init_state_);
 
-    DCHECK(init_state_->destruction_observer_);
-    init_state_->destruction_observer_.reset();
+    init_state_->DeleteDestructionObserver();
 
     // Stop accepting new requests.
     shutting_down_ = true;
@@ -1207,6 +1229,7 @@ void InitOnUIThread(
     }
 #endif
 
+    // May return nullptr for requests originating from guest views.
     browserPtr = CefBrowserHostImpl::GetBrowserForHost(frame);
     if (browserPtr) {
       framePtr = browserPtr->GetFrameForHost(frame);
@@ -1253,6 +1276,8 @@ std::unique_ptr<InterceptedRequestHandler> CreateInterceptedRequestHandler(
   if (frame) {
     render_frame_id = frame->GetRoutingID();
     frame_tree_node_id = frame->GetFrameTreeNodeId();
+
+    // May return nullptr for requests originating from guest views.
     browserPtr = CefBrowserHostImpl::GetBrowserForHost(frame);
     if (browserPtr) {
       framePtr = browserPtr->GetFrameForHost(frame);
