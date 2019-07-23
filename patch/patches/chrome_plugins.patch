@@ -125,7 +125,7 @@ index daf826ece047..615200c4b41c 100644
    // If we broke out of the loop, we have found an enabled plugin.
    bool enabled = i < matching_plugins.size();
 diff --git chrome/browser/plugins/plugin_utils.cc chrome/browser/plugins/plugin_utils.cc
-index 01ea0ba7f0cb..2828896bbcad 100644
+index 01ea0ba7f0cb..f573503df5c4 100644
 --- chrome/browser/plugins/plugin_utils.cc
 +++ chrome/browser/plugins/plugin_utils.cc
 @@ -5,6 +5,7 @@
@@ -148,12 +148,15 @@ index 01ea0ba7f0cb..2828896bbcad 100644
  #if BUILDFLAG(ENABLE_EXTENSIONS)
  #include "extensions/browser/info_map.h"
  #include "extensions/common/constants.h"
-@@ -180,10 +186,23 @@ PluginUtils::GetMimeTypeToExtensionIdMap(
+@@ -180,10 +186,26 @@ PluginUtils::GetMimeTypeToExtensionIdMap(
      content::ResourceContext* resource_context) {
    base::flat_map<std::string, std::string> mime_type_to_extension_id_map;
  #if BUILDFLAG(ENABLE_EXTENSIONS)
 +
 +#if BUILDFLAG(ENABLE_CEF)
++  if (!extensions::ExtensionsEnabled())
++    return mime_type_to_extension_id_map;
++
 +  CefResourceContext* context =
 +      static_cast<CefResourceContext*>(resource_context);
 +  bool profile_is_off_the_record = context->IsOffTheRecord();
@@ -172,7 +175,7 @@ index 01ea0ba7f0cb..2828896bbcad 100644
    std::vector<std::string> whitelist = MimeTypesHandler::GetMIMETypeWhitelist();
    // Go through the white-listed extensions and try to use them to intercept
    // the URL request.
-@@ -198,7 +217,7 @@ PluginUtils::GetMimeTypeToExtensionIdMap(
+@@ -198,7 +220,7 @@ PluginUtils::GetMimeTypeToExtensionIdMap(
      }
  
      if (extension_id == extension_misc::kPdfExtensionId &&
