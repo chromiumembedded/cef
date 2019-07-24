@@ -138,6 +138,9 @@ class CefContentRendererClient
   void DevToolsAgentDetached() override;
   void CreateRendererService(
       service_manager::mojom::ServiceRequest service_request) override;
+  std::unique_ptr<content::URLLoaderThrottleProvider>
+  CreateURLLoaderThrottleProvider(
+      content::URLLoaderThrottleProviderType provider_type) override;
 
   // service_manager::Service implementation.
   void OnBindInterface(const service_manager::BindSourceInfo& remote_info,

@@ -566,6 +566,13 @@ bool CefMainDelegate::BasicStartupComplete(int* exit_code) {
       }
     }
 
+    if (features::kMimeHandlerViewInCrossProcessFrame.default_state ==
+        base::FEATURE_ENABLED_BY_DEFAULT) {
+      // TODO: Add support for cross-process mime handler view (see issue #2727)
+      disable_features.push_back(
+          features::kMimeHandlerViewInCrossProcessFrame.name);
+    }
+
     if (!disable_features.empty()) {
       DCHECK(!base::FeatureList::GetInstance());
       std::string disable_features_str =

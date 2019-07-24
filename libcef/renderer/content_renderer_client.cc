@@ -37,6 +37,7 @@
 #include "libcef/renderer/render_message_filter.h"
 #include "libcef/renderer/render_thread_observer.h"
 #include "libcef/renderer/thread_util.h"
+#include "libcef/renderer/url_loader_throttle_provider_impl.h"
 #include "libcef/renderer/v8_impl.h"
 
 #include "base/command_line.h"
@@ -621,6 +622,12 @@ void CefContentRendererClient::CreateRendererService(
     service_manager::mojom::ServiceRequest service_request) {
   DCHECK(!service_binding_.is_bound());
   service_binding_.Bind(std::move(service_request));
+}
+
+std::unique_ptr<content::URLLoaderThrottleProvider>
+CefContentRendererClient::CreateURLLoaderThrottleProvider(
+    content::URLLoaderThrottleProviderType provider_type) {
+  return std::make_unique<CefURLLoaderThrottleProviderImpl>(provider_type);
 }
 
 void CefContentRendererClient::OnBindInterface(
