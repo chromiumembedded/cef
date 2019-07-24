@@ -106,6 +106,10 @@ class CefContentRendererClient
   void RenderThreadConnected() override;
   void RenderFrameCreated(content::RenderFrame* render_frame) override;
   void RenderViewCreated(content::RenderView* render_view) override;
+  bool IsPluginHandledExternally(content::RenderFrame* render_frame,
+                                 const blink::WebElement& plugin_element,
+                                 const GURL& original_url,
+                                 const std::string& mime_type) override;
   bool OverrideCreatePlugin(content::RenderFrame* render_frame,
                             const blink::WebPluginParams& params,
                             blink::WebPlugin** plugin) override;
@@ -138,6 +142,9 @@ class CefContentRendererClient
   void DevToolsAgentDetached() override;
   void CreateRendererService(
       service_manager::mojom::ServiceRequest service_request) override;
+  std::unique_ptr<content::URLLoaderThrottleProvider>
+  CreateURLLoaderThrottleProvider(
+      content::URLLoaderThrottleProviderType provider_type) override;
 
   // service_manager::Service implementation.
   void OnBindInterface(const service_manager::BindSourceInfo& remote_info,

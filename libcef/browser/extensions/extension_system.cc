@@ -199,7 +199,7 @@ void CefExtensionSystem::Init() {
   //    mime_handler_private.idl), and returns the unique View ID via the
   //    |payload| argument.
   // 5. The unique View ID arrives in the renderer process via
-  //    ResourceLoader::didReceiveData and triggers creation of a new Document.
+  //    ResourceLoader::DidReceiveData and triggers creation of a new Document.
   //    DOMImplementation::createDocument indirectly calls
   //    RendererBlinkPlatformImpl::getPluginList to retrieve the list of
   //    supported plugins from the browser process. If a plugin supports the

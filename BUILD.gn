@@ -603,6 +603,8 @@ static_library("libcef_static") {
     "libcef/renderer/render_urlrequest_impl.cc",
     "libcef/renderer/render_urlrequest_impl.h",
     "libcef/renderer/thread_util.h",
+    "libcef/renderer/url_loader_throttle_provider_impl.cc",
+    "libcef/renderer/url_loader_throttle_provider_impl.h",
     "libcef/renderer/v8_impl.cc",
     "libcef/renderer/v8_impl.h",
     "libcef/utility/content_utility_client.cc",

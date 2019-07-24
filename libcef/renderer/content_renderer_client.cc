@@ -37,6 +37,7 @@
 #include "libcef/renderer/render_message_filter.h"
 #include "libcef/renderer/render_thread_observer.h"
 #include "libcef/renderer/thread_util.h"
+#include "libcef/renderer/url_loader_throttle_provider_impl.h"
 #include "libcef/renderer/v8_impl.h"
 
 #include "base/command_line.h"
@@ -53,6 +54,7 @@
 #include "chrome/common/constants.mojom.h"
 #include "chrome/common/url_constants.h"
 #include "chrome/renderer/chrome_content_renderer_client.h"
+#include "chrome/renderer/extensions/chrome_extensions_renderer_client.h"
 #include "chrome/renderer/loadtimes_extension_bindings.h"
 #include "chrome/renderer/media/chrome_key_systems.h"
 #include "chrome/renderer/pepper/chrome_pdf_print_client.h"
@@ -74,6 +76,7 @@
 #include "content/public/common/content_constants.h"
 #include "content/public/common/content_paths.h"
 #include "content/public/common/content_switches.h"
+#include "content/public/common/mime_handler_view_mode.h"
 #include "content/public/renderer/plugin_instance_throttler.h"
 #include "content/public/renderer/render_view.h"
 #include "content/public/renderer/render_view_visitor.h"
@@ -494,6 +497,46 @@ void CefContentRendererClient::RenderViewCreated(
   MaybeCreateBrowser(render_view, render_view->GetMainRenderFrame());
 }
 
+bool CefContentRendererClient::IsPluginHandledExternally(
+    content::RenderFrame* render_frame,
+    const blink::WebElement& plugin_element,
+    const GURL& original_url,
+    const std::string& mime_type) {
+  if (!extensions::ExtensionsEnabled())
+    return false;
+
+  DCHECK(plugin_element.HasHTMLTagName("object") ||
+         plugin_element.HasHTMLTagName("embed"));
+  if (!content::MimeHandlerViewMode::UsesCrossProcessFrame())
+    return false;
+  // Blink will next try to load a WebPlugin which would end up in
+  // OverrideCreatePlugin, sending another IPC only to find out the plugin is
+  // not supported. Here it suffices to return false but there should perhaps be
+  // a more unified approach to avoid sending the IPC twice.
+  chrome::mojom::PluginInfoPtr plugin_info = chrome::mojom::PluginInfo::New();
+  ChromeContentRendererClient::GetPluginInfoHost()->GetPluginInfo(
+      render_frame->GetRoutingID(), original_url,
+      render_frame->GetWebFrame()->Top()->GetSecurityOrigin(), mime_type,
+      &plugin_info);
+  // TODO(ekaramad): Not continuing here due to a disallowed status should take
+  // us to CreatePlugin. See if more in depths investigation of |status| is
+  // necessary here (see https://crbug.com/965747). For now, returning false
+  // should take us to CreatePlugin after HTMLPlugInElement which is called
+  // through HTMLPlugInElement::LoadPlugin code path.
+  if (plugin_info->status != chrome::mojom::PluginStatus::kAllowed &&
+      plugin_info->status !=
+          chrome::mojom::PluginStatus::kPlayImportantContent) {
+    // We could get here when a MimeHandlerView is loaded inside a <webview>
+    // which is using permissions API (see WebViewPluginTests).
+    ChromeExtensionsRendererClient::DidBlockMimeHandlerViewForDisallowedPlugin(
+        plugin_element);
+    return false;
+  }
+  return ChromeExtensionsRendererClient::MaybeCreateMimeHandlerView(
+      plugin_element, original_url, plugin_info->actual_mime_type,
+      plugin_info->plugin);
+}
+
 bool CefContentRendererClient::OverrideCreatePlugin(
     content::RenderFrame* render_frame,
     const blink::WebPluginParams& params,
@@ -623,6 +666,12 @@ void CefContentRendererClient::CreateRendererService(
     service_manager::mojom::ServiceRequest service_request) {
   DCHECK(!service_binding_.is_bound());
   service_binding_.Bind(std::move(service_request));
+}
+
+std::unique_ptr<content::URLLoaderThrottleProvider>
+CefContentRendererClient::CreateURLLoaderThrottleProvider(
+    content::URLLoaderThrottleProviderType provider_type) {
+  return std::make_unique<CefURLLoaderThrottleProviderImpl>(provider_type);
 }
 
 void CefContentRendererClient::OnBindInterface(

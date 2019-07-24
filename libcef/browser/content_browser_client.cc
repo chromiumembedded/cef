@@ -62,6 +62,7 @@
 #include "chrome/browser/net/system_network_context_manager.h"
 #include "chrome/browser/plugins/plugin_info_host_impl.h"
 #include "chrome/browser/plugins/plugin_response_interceptor_url_loader_throttle.h"
+#include "chrome/browser/plugins/plugin_utils.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/renderer_host/pepper/chrome_browser_pepper_host_factory.h"
 #include "chrome/common/chrome_paths.h"
@@ -1448,6 +1449,16 @@ blink::UserAgentMetadata CefContentBrowserClient::GetUserAgentMetadata() const {
   metadata.model = "";
 
   return metadata;
+}
+
+base::flat_set<std::string>
+CefContentBrowserClient::GetPluginMimeTypesWithExternalHandlers(
+    content::ResourceContext* resource_context) {
+  base::flat_set<std::string> mime_types;
+  auto map = PluginUtils::GetMimeTypeToExtensionIdMap(resource_context);
+  for (const auto& pair : map)
+    mime_types.insert(pair.first);
+  return mime_types;
 }
 
 void CefContentBrowserClient::RegisterCustomScheme(const std::string& scheme) {
