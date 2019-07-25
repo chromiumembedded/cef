@@ -55,6 +55,7 @@ extern const char kEnableNetSecurityExpiration[];
 
 #if defined(OS_MACOSX)
 extern const char kFrameworkDirPath[];
+extern const char kMainBundlePath[];
 #endif
 
 }  // namespace switches

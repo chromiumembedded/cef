@@ -184,6 +184,13 @@ typedef struct _cef_settings_t {
   cef_string_t framework_dir_path;
 
   ///
+  // The path to the main bundle on macOS. If this value is empty then it
+  // defaults to the top-level app bundle. Also configurable using
+  // the "main-bundle-path" command-line switch.
+  ///
+  cef_string_t main_bundle_path;
+
+  ///
   // Set to true (1) to have the browser process message loop run in a separate
   // thread. If false (0) than the CefDoMessageLoopWork() function must be
   // called from your application message loop. This option is only supported on

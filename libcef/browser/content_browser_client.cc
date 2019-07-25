@@ -783,6 +783,7 @@ void CefContentBrowserClient::AppendExtraCommandLineSwitches(
       switches::kDisablePackLoading,
 #if defined(OS_MACOSX)
       switches::kFrameworkDirPath,
+      switches::kMainBundlePath,
 #endif
       switches::kLocalesDirPath,
       switches::kLogFile,

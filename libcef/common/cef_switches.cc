@@ -119,6 +119,7 @@ const char kEnableNetSecurityExpiration[] = "enable-net-security-expiration";
 #if defined(OS_MACOSX)
 // Path to the framework directory.
 const char kFrameworkDirPath[] = "framework-dir-path";
+const char kMainBundlePath[] = "main-bundle-path";
 #endif
 
 }  // namespace switches

@@ -65,6 +65,12 @@ base::FilePath GetMainProcessPath() {
 }
 
 base::FilePath GetMainBundlePath() {
+  base::FilePath main_bundle_path =
+      base::CommandLine::ForCurrentProcess()->GetSwitchValuePath(
+          switches::kMainBundlePath);
+  if (!main_bundle_path.empty())
+    return main_bundle_path;
+
   return base::mac::GetAppBundlePath(GetMainProcessPath());
 }
 
