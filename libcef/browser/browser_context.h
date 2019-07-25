@@ -189,6 +189,9 @@ class CefBrowserContext : public ChromeProfileStub,
 
   // Values checked in ProfileNetworkContextService::CreateNetworkContextParams
   // when creating the NetworkContext.
+  bool ShouldRestoreOldSessionCookies() override {
+    return should_persist_session_cookies_;
+  }
   bool ShouldPersistSessionCookies() override {
     return should_persist_session_cookies_;
   }

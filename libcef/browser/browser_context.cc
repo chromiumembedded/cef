@@ -288,6 +288,10 @@ void CefBrowserContext::Initialize() {
         CefString(&context->settings().accept_language_list);
   }
 
+  if (!!settings_.persist_session_cookies) {
+    set_should_persist_session_cookies(true);
+  }
+
   key_ = std::make_unique<ProfileKey>(GetPath());
   SimpleKeyMap::GetInstance()->Associate(this, key_.get());
 
