@@ -112,7 +112,7 @@ index 12f77178ea92..470b13bd7879 100644
  
  ConstrainedWebDialogUI::~ConstrainedWebDialogUI() {
 diff --git chrome/browser/ui/webui/print_preview/pdf_printer_handler.cc chrome/browser/ui/webui/print_preview/pdf_printer_handler.cc
-index e0d6a9034332..d99eb0bfe967 100644
+index e0d6a9034332..250cbeedd842 100644
 --- chrome/browser/ui/webui/print_preview/pdf_printer_handler.cc
 +++ chrome/browser/ui/webui/print_preview/pdf_printer_handler.cc
 @@ -144,8 +144,10 @@ PdfPrinterHandler::PdfPrinterHandler(Profile* profile,
@@ -163,7 +163,7 @@ index e0d6a9034332..d99eb0bfe967 100644
 +#else
 +      base::BindOnce(&PdfPrinterHandler::ShowCefSaveAsDialog,
 +                     weak_ptr_factory_.GetWeakPtr(), initiator,
-+		             default_filename));
++                     default_filename));
 +#endif
  }
  
@@ -214,31 +214,25 @@ index e0d6a9034332..d99eb0bfe967 100644
  
  }  // namespace printing
 diff --git chrome/browser/ui/webui/print_preview/pdf_printer_handler.h chrome/browser/ui/webui/print_preview/pdf_printer_handler.h
-index eae9098f2136..b4cffbcceb02 100644
+index eae9098f2136..1a4c4419e736 100644
 --- chrome/browser/ui/webui/print_preview/pdf_printer_handler.h
 +++ chrome/browser/ui/webui/print_preview/pdf_printer_handler.h
-@@ -11,13 +11,19 @@
+@@ -11,9 +11,14 @@
  #include "base/memory/ref_counted.h"
  #include "base/memory/weak_ptr.h"
  #include "base/strings/string16.h"
 +#include "cef/libcef/features/features.h"
  #include "chrome/browser/ui/webui/print_preview/printer_handler.h"
-+
-+#if !BUILDFLAG(ENABLE_CEF)
  #include "ui/shell_dialogs/select_file_dialog.h"
-+#else
+ 
++#if BUILDFLAG(ENABLE_CEF)
 +#include "cef/libcef/browser/browser_host_impl.h"
 +#endif
- 
++
  namespace base {
  class FilePath;
  class RefCountedMemory;
--}
-+}  // namespace base
- 
- namespace content {
- class WebContents;
-@@ -78,17 +84,28 @@ class PdfPrinterHandler : public PrinterHandler,
+@@ -78,17 +83,28 @@ class PdfPrinterHandler : public PrinterHandler,
    // The print preview web contents. Protected so unit tests can access it.
    content::WebContents* const preview_web_contents_;
  
