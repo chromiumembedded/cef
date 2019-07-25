@@ -56,6 +56,7 @@ extern const char kEnablePrintPreview[];
 
 #if defined(OS_MACOSX)
 extern const char kFrameworkDirPath[];
+extern const char kMainBundlePath[];
 #endif
 
 }  // namespace switches

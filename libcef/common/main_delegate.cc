@@ -476,6 +476,13 @@ bool CefMainDelegate::BasicStartupComplete(int* exit_code) {
       if (!file_path.empty())
         command_line->AppendSwitchPath(switches::kFrameworkDirPath, file_path);
     }
+
+    if (settings.main_bundle_path.length > 0) {
+      base::FilePath file_path =
+          base::FilePath(CefString(&settings.main_bundle_path));
+      if (!file_path.empty())
+        command_line->AppendSwitchPath(switches::kMainBundlePath, file_path);
+    }
 #endif
 
     if (no_sandbox)

@@ -122,6 +122,7 @@ extern const char kEnablePrintPreview[] = "enable-print-preview";
 #if defined(OS_MACOSX)
 // Path to the framework directory.
 const char kFrameworkDirPath[] = "framework-dir-path";
+const char kMainBundlePath[] = "main-bundle-path";
 #endif
 
 }  // namespace switches

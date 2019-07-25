@@ -543,6 +543,7 @@ struct CefSettingsTraits {
   static inline void clear(struct_type* s) {
     cef_string_clear(&s->browser_subprocess_path);
     cef_string_clear(&s->framework_dir_path);
+    cef_string_clear(&s->main_bundle_path);
     cef_string_clear(&s->cache_path);
     cef_string_clear(&s->user_data_path);
     cef_string_clear(&s->user_agent);
@@ -565,6 +566,8 @@ struct CefSettingsTraits {
                    &target->browser_subprocess_path, copy);
     cef_string_set(src->framework_dir_path.str, src->framework_dir_path.length,
                    &target->framework_dir_path, copy);
+    cef_string_set(src->main_bundle_path.str, src->main_bundle_path.length,
+                   &target->main_bundle_path, copy);
     target->multi_threaded_message_loop = src->multi_threaded_message_loop;
     target->external_message_pump = src->external_message_pump;
     target->windowless_rendering_enabled = src->windowless_rendering_enabled;
