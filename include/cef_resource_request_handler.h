@@ -46,7 +46,6 @@
 #include "include/cef_resource_handler.h"
 #include "include/cef_response.h"
 #include "include/cef_response_filter.h"
-#include "include/internal/cef_types_wrappers.h"
 
 class CefCookieAccessFilter;
 

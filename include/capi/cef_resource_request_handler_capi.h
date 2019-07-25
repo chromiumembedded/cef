@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=af8ddd4d2d19e5b64d0a40778cb3c62fd5f1d8c9$
+// $hash=adb3ca1e315a28efed7b2305c8aceb9c5eafdc66$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_RESOURCE_REQUEST_HANDLER_CAPI_H_
@@ -48,7 +48,6 @@
 #include "include/capi/cef_resource_handler_capi.h"
 #include "include/capi/cef_response_capi.h"
 #include "include/capi/cef_response_filter_capi.h"
-#include "include/internal/cef_types_wrappers.h"
 
 #ifdef __cplusplus
 extern "C" {
