@@ -720,6 +720,11 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
       return;
     }
 
+    if (state->cookie_filter_) {
+      // Remove the flags that were added in ContinueWithLoadedCookies.
+      request->load_flags &= ~kLoadNoCookiesFlags;
+    }
+
     if (!state->handler_) {
       // Cookies may come from a scheme handler.
       MaybeSaveCookies(
@@ -818,11 +823,6 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
         base::BindOnce(std::move(callback), response_mode, nullptr, new_url);
 
     if (response_mode == ResponseMode::RESTART) {
-      if (state->cookie_filter_) {
-        // Remove the flags that were added in ContinueWithLoadedCookies.
-        request->load_flags &= ~kLoadNoCookiesFlags;
-      }
-
       // Get any cookies after the restart.
       std::move(exec_callback).Run();
       return;
