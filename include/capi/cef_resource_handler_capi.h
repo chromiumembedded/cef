@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=f94ec1ef3928002394720160d526ed157282cc7a$
+// $hash=8c6ffeab9c9183cc5f77929839643767ce5c5c2f$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_RESOURCE_HANDLER_CAPI_H_
@@ -151,9 +151,9 @@ typedef struct _cef_resource_handler_t {
   ///
   // Skip response data when requested by a Range header. Skip over and discard
   // |bytes_to_skip| bytes of response data. If data is available immediately
-  // set |bytes_skipped| to the number of of bytes skipped and return true (1).
-  // To read the data at a later time set |bytes_skipped| to 0, return true (1)
-  // and execute |callback| when the data is available. To indicate failure set
+  // set |bytes_skipped| to the number of bytes skipped and return true (1). To
+  // read the data at a later time set |bytes_skipped| to 0, return true (1) and
+  // execute |callback| when the data is available. To indicate failure set
   // |bytes_skipped| to < 0 (e.g. -2 for ERR_FAILED) and return false (0). This
   // function will be called in sequence but not from a dedicated thread.
   ///
