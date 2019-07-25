@@ -142,7 +142,7 @@ class CefResourceHandler : public virtual CefBaseRefCounted {
   ///
   // Skip response data when requested by a Range header. Skip over and discard
   // |bytes_to_skip| bytes of response data. If data is available immediately
-  // set |bytes_skipped| to the number of of bytes skipped and return true. To
+  // set |bytes_skipped| to the number of bytes skipped and return true. To
   // read the data at a later time set |bytes_skipped| to 0, return true and
   // execute |callback| when the data is available. To indicate failure set
   // |bytes_skipped| to < 0 (e.g. -2 for ERR_FAILED) and return false. This
