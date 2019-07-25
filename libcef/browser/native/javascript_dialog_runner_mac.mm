@@ -26,8 +26,9 @@
     (CefJavaScriptDialogRunner::DialogClosedCallback)callback;
 - (NSAlert*)alert;
 - (NSTextField*)textField;
-- (void)alertDidEndWithResult:(NSModalResponse)returnCode
-                       dialog:(CefJavaScriptDialogRunnerMac*)dialog;
+- (void)alertDidEnd:(NSAlert*)alert
+         returnCode:(int)returnCode
+        contextInfo:(void*)contextInfo;
 - (void)cancel;
 
 @end
@@ -57,8 +58,9 @@
   return textField_;
 }
 
-- (void)alertDidEndWithResult:(NSModalResponse)returnCode
-                       dialog:(CefJavaScriptDialogRunnerMac*)dialog {
+- (void)alertDidEnd:(NSAlert*)alert
+         returnCode:(int)returnCode
+        contextInfo:(void*)contextInfo {
   if (returnCode == NSModalResponseStop)
     return;
 
@@ -139,11 +141,16 @@ void CefJavaScriptDialogRunnerMac::Run(
   // around the "callee requires a non-null argument" error that occurs when
   // building with the 10.11 SDK. See http://crbug.com/383820 for related
   // discussion.
+  // We can't use the newer beginSheetModalForWindow:completionHandler: variant
+  // because it fails silently when passed a nil argument (see issue #2726).
   id nilArg = nil;
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   [alert beginSheetModalForWindow:nilArg  // nil here makes it app-modal
-                completionHandler:^void(NSModalResponse returnCode) {
-                  [helper_ alertDidEndWithResult:returnCode dialog:this];
-                }];
+                    modalDelegate:helper_
+                   didEndSelector:@selector(alertDidEnd:returnCode:contextInfo:)
+                      contextInfo:this];
+#pragma clang diagnostic pop
 
   if ([alert accessoryView])
     [[alert window] makeFirstResponder:[alert accessoryView]];
