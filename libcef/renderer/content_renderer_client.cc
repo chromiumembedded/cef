@@ -648,12 +648,28 @@ void CefContentRendererClient::RunScriptsAtDocumentIdle(
 }
 
 void CefContentRendererClient::DevToolsAgentAttached() {
-  CEF_REQUIRE_RT();
+  // WebWorkers may be creating agents on a different thread.
+  if (!render_task_runner_->BelongsToCurrentThread()) {
+    render_task_runner_->PostTask(
+        FROM_HERE,
+        base::BindOnce(&CefContentRendererClient::DevToolsAgentAttached,
+                       base::Unretained(this)));
+    return;
+  }
+
   ++devtools_agent_count_;
 }
 
 void CefContentRendererClient::DevToolsAgentDetached() {
-  CEF_REQUIRE_RT();
+  // WebWorkers may be creating agents on a different thread.
+  if (!render_task_runner_->BelongsToCurrentThread()) {
+    render_task_runner_->PostTask(
+        FROM_HERE,
+        base::BindOnce(&CefContentRendererClient::DevToolsAgentDetached,
+                       base::Unretained(this)));
+    return;
+  }
+
   --devtools_agent_count_;
   if (devtools_agent_count_ == 0 && uncaught_exception_stack_size_ > 0) {
     // When the last DevToolsAgent is detached the stack size is set to 0.
