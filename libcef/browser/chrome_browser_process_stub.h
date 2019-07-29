@@ -47,7 +47,6 @@ class ChromeBrowserProcessStub : public BrowserProcess {
   rappor::RapporServiceImpl* rappor_service() override;
   IOThread* io_thread() override;
   SystemNetworkContextManager* system_network_context_manager() override;
-  net_log::NetExportFileWriter* net_export_file_writer() override;
   network::NetworkQualityTracker* network_quality_tracker() override;
   WatchDogThread* watchdog_thread() override;
   ProfileManager* profile_manager() override;
@@ -122,7 +121,6 @@ class ChromeBrowserProcessStub : public BrowserProcess {
       print_preview_dialog_controller_;
   std::unique_ptr<printing::BackgroundPrintingManager>
       background_printing_manager_;
-  std::unique_ptr<net_log::NetExportFileWriter> net_export_file_writer_;
   std::unique_ptr<PrefService> local_state_;
   // Must be destroyed after |local_state_|.
   std::unique_ptr<policy::ChromeBrowserPolicyConnector>

@@ -259,8 +259,7 @@ class ClientSchemeHandler : public CefResourceHandler {
       // CEF_SETTINGS_ACCEPT_LANGUAGE value from
       // CefSettings.accept_language_list set in CefTestSuite::GetSettings()
       // and expanded internally by ComputeAcceptLanguageFromPref.
-      EXPECT_STREQ(IsNetworkServiceEnabled() ? "en-GB,en;q=0.9" : "en-GB",
-                   accept_language.data());
+      EXPECT_STREQ("en-GB,en;q=0.9", accept_language.data());
     }
 
     if (handled) {
@@ -808,8 +807,7 @@ TEST(SchemeHandlerTest, CustomNonStandardNameNotHandled) {
 TEST(SchemeHandlerTest, CustomStandardDomainNotHandled) {
   RegisterTestScheme("customstd", "test");
   g_TestResults.url = "customstd://noexist/run.html";
-  g_TestResults.expected_error_code =
-      IsNetworkServiceEnabled() ? ERR_UNKNOWN_URL_SCHEME : ERR_FAILED;
+  g_TestResults.expected_error_code = ERR_UNKNOWN_URL_SCHEME;
 
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
   handler->ExecuteTest();
@@ -1904,10 +1902,7 @@ TEST(SchemeHandlerTest,
 }
 
 // Test that a custom standard scheme can generate cross-domain XHR requests
-// that perform redirects when using the cross-origin whitelist. This is
-// because we add an "Access-Control-Allow-Origin" header internally in
-// CefResourceDispatcherHostDelegate::OnRequestRedirected() for the redirect
-// request.
+// that perform redirects when using the cross-origin whitelist.
 TEST(SchemeHandlerTest,
      CustomStandardXHRDifferentOriginRedirectWithWhitelistAsync1) {
   RegisterTestScheme("customstd", "test1");
@@ -2013,10 +2008,7 @@ TEST(SchemeHandlerTest,
 }
 
 // Test that a custom standard scheme can generate cross-domain Fetch requests
-// that perform redirects when using the cross-origin whitelist. This is
-// because we add an "Access-Control-Allow-Origin" header internally in
-// CefResourceDispatcherHostDelegate::OnRequestRedirected() for the redirect
-// request.
+// that perform redirects when using the cross-origin whitelist.
 TEST(SchemeHandlerTest,
      CustomStandardFetchDifferentOriginRedirectWithWhitelist1) {
   RegisterTestScheme("customstdfetch", "test1");

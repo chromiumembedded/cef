@@ -6,7 +6,6 @@
 #define CEF_LIBCEF_BROWSER_BROWSER_MAIN_H_
 #pragma once
 
-#include "libcef/browser/net/url_request_context_getter.h"
 #include "libcef/browser/request_context_impl.h"
 
 #include "base/macros.h"
@@ -14,7 +13,6 @@
 #include "build/build_config.h"
 #include "components/prefs/pref_service.h"
 #include "content/public/browser/browser_main_parts.h"
-#include "net/url_request/url_request_context_getter.h"
 
 namespace content {
 struct MainFunctionParams;

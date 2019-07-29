@@ -8,6 +8,7 @@
 
 #include "include/cef_request_context.h"
 #include "include/cef_request_context_handler.h"
+#include "include/cef_scheme.h"
 
 #include "base/files/file_path.h"
 #include "chrome/common/plugin.mojom.h"
@@ -16,15 +17,11 @@
 #include "net/ssl/client_cert_store.h"
 #include "url/origin.h"
 
-class CefURLRequestContextGetter;
-
 // Acts as a bridge for resource loading. Life span is controlled by
 // CefBrowserContext. Created on the UI thread but accessed and destroyed on the
-// IO thread. URLRequest objects are associated with the ResourceContext via
-// ResourceDispatcherHost. When the ResourceContext is destroyed all outstanding
-// URLRequest objects will be deleted via the ResourceLoader that owns them and
-// removed from the associated URLRequestContext. Other URLRequest objects may
-// be created via URLFetcher that are not associated with a RequestContext.
+// IO thread. Network request objects are associated with the ResourceContext
+// via ProxyURLLoaderFactory. When the ResourceContext is destroyed all
+// outstanding network request objects will be canceled.
 // See browser_context.h for an object relationship diagram.
 class CefResourceContext : public content::ResourceContext {
  public:
@@ -100,7 +97,7 @@ class CefResourceContext : public content::ResourceContext {
   RenderIdHandlerMap render_id_handler_map_;
 
   // Map of frame_tree_node_id to handler. Keeping this map is necessary
-  // because, when navigating the main frame, a new (pre-commit) URLRequest
+  // because, when navigating the main frame, a new (pre-commit) network request
   // will be created before the RenderFrameHost. Consequently we can't rely
   // on valid render IDs. See https://crbug.com/776884 for background.
   typedef std::map<int, CefRefPtr<CefRequestContextHandler>> NodeIdHandlerMap;

@@ -32,8 +32,6 @@ class UploadData;
 class UploadDataStream;
 class UploadElement;
 class UploadElementReader;
-class URLFetcher;
-class URLRequest;
 }  // namespace net
 
 namespace network {
@@ -103,13 +101,6 @@ class CefRequestImpl : public CefRequest {
   // Populate this object from teh HttpRequestHeaders object.
   void Set(const net::HttpRequestHeaders& headers);
 
-  // Populate this object from the URLRequest object.
-  void Set(const net::URLRequest* request);
-
-  // Populate the URLRequest object from this object.
-  // If |changed_only| is true then only the changed fields will be updated.
-  void Get(net::URLRequest* request, bool changed_only) const;
-
   // Populate this object from the NavigationParams object.
   // TODO(cef): Remove the |is_main_frame| argument once NavigationParams is
   // reliable in reporting that value.
@@ -129,11 +120,6 @@ class CefRequestImpl : public CefRequest {
   // Populate the CefNavigateParams object from this object.
   // Called from CefBrowserHostImpl::LoadRequest().
   void Get(CefNavigateParams& params) const;
-
-  // Populate the URLFetcher object from this object.
-  // Called from
-  // CefBrowserURLRequestOld::Context::ContinueOnOriginatingThread().
-  void Get(net::URLFetcher& fetcher, int64& upload_data_size) const;
 
   void SetReadOnly(bool read_only);
 

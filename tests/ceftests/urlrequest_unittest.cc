@@ -455,7 +455,7 @@ void VerifyNormalRequest(const RequestRunSettings* settings,
   // CEF_SETTINGS_ACCEPT_LANGUAGE value from CefSettings.accept_language_list
   // set in CefTestSuite::GetSettings() and expanded internally by
   // ComputeAcceptLanguageFromPref.
-  EXPECT_STREQ(IsNetworkServiceEnabled() ? "en-GB,en;q=0.9" : "en-GB",
+  EXPECT_STREQ("en-GB,en;q=0.9",
                GetHeaderValue(headerMap, "accept-language").c_str());
 
   if (server_backend) {
@@ -553,10 +553,7 @@ class RequestSchemeHandler : public CefResourceHandler {
       : settings_(settings), destroy_callback_(destroy_callback) {}
 
   ~RequestSchemeHandler() override {
-    if (IsNetworkServiceEnabled()) {
-      EXPECT_EQ(1, cancel_ct_);
-    }
-
+    EXPECT_EQ(1, cancel_ct_);
     destroy_callback_.Run();
   }
 
@@ -636,10 +633,7 @@ class RequestRedirectSchemeHandler : public CefResourceHandler {
         destroy_callback_(destroy_callback) {}
 
   ~RequestRedirectSchemeHandler() override {
-    if (IsNetworkServiceEnabled()) {
-      EXPECT_EQ(1, cancel_ct_);
-    }
-
+    EXPECT_EQ(1, cancel_ct_);
     destroy_callback_.Run();
   }
 
@@ -707,11 +701,7 @@ class IncompleteSchemeHandler : public CefResourceHandler {
 
   ~IncompleteSchemeHandler() override {
     EXPECT_EQ(1, process_request_ct_);
-
-    if (IsNetworkServiceEnabled())
-      EXPECT_EQ(1, cancel_ct_);
-    else
-      EXPECT_EQ(0, cancel_ct_);
+    EXPECT_EQ(1, cancel_ct_);
 
     if (settings_->incomplete_type ==
         RequestRunSettings::INCOMPLETE_READ_RESPONSE) {
@@ -1558,7 +1548,7 @@ class RequestTestRunner : public base::RefCountedThreadSafe<RequestTestRunner> {
     // on stop redirects.
     settings_.response = CefResponse::Create();
     settings_.response->SetStatus(302);
-    if (IsNetworkServiceEnabled() && is_browser_process_) {
+    if (is_browser_process_) {
       settings_.response->SetStatusText("Found");
     }
 
@@ -2174,10 +2164,8 @@ class RequestTestRunner : public base::RefCountedThreadSafe<RequestTestRunner> {
 
     CefRefPtr<RequestClient> client = new RequestClient(complete_callback);
 
-    // Delegation to CefRequestHandler::GetAuthCredentials is only supported
-    // with NetworkService.
-    if ((!IsNetworkServiceEnabled() || !use_frame_method_) &&
-        settings_.expect_authentication) {
+    // Not delegating to CefRequestHandler::GetAuthCredentials.
+    if (!use_frame_method_ && settings_.expect_authentication) {
       client->has_authentication_ = true;
       client->username_ = settings_.username;
       client->password_ = settings_.password;
@@ -2891,18 +2879,16 @@ class RequestTestHandler : public TestHandler {
       EXPECT_TRUE(got_success_);
     }
 
-    if (IsNetworkServiceEnabled()) {
-      if (test_frame_method_) {
-        // Expect at least 1 call to OnBeforeResourceLoad for every test.
-        // Redirect tests may get multiple calls.
-        EXPECT_LE(1, test_frame_resource_load_ct_);
-      }
+    if (test_frame_method_) {
+      // Expect at least 1 call to OnBeforeResourceLoad for every test.
+      // Redirect tests may get multiple calls.
+      EXPECT_LE(1, test_frame_resource_load_ct_);
     }
 
     // CefRequestHandler::GetAuthCredentials should be called after
     // CefURLRequestClient::GetAuthCredentials when the request has an
     // associated frame.
-    if (IsNetworkServiceEnabled() && test_in_browser_ && test_frame_method_ &&
+    if (test_in_browser_ && test_frame_method_ &&
         test_runner_->settings_.expect_authentication) {
       EXPECT_EQ(1, auth_credentials_ct_);
     } else {
@@ -3011,20 +2997,10 @@ bool IsTestSupported(RequestTestMode test_mode,
                      bool test_in_browser,
                      bool test_server_backend,
                      bool test_frame_method) {
-  if (IsNetworkServiceEnabled()) {
-    if (!test_in_browser && !test_server_backend && !test_frame_method) {
-      // When NetworkService is enabled requests from the render process can
-      // only reach non-server backends when using the
-      // CefFrame::CreateURLRequest method.
-      return false;
-    }
-  } else {
-    if (test_mode == REQTEST_INCOMPLETE_PROCESS_REQUEST ||
-        test_mode == REQTEST_INCOMPLETE_READ_RESPONSE) {
-      // The old network implementation does not support the same behavior
-      // for canceling incomplete requests.
-      return false;
-    }
+  if (!test_in_browser && !test_server_backend && !test_frame_method) {
+    // Requests from the render process can only reach non-server backends when
+    // using the CefFrame::CreateURLRequest method.
+    return false;
   }
 
   return true;
@@ -3251,9 +3227,7 @@ class InvalidURLTestClient : public CefURLRequestClient {
 
   void OnRequestComplete(CefRefPtr<CefURLRequest> client) override {
     EXPECT_EQ(UR_FAILED, client->GetRequestStatus());
-    if (IsNetworkServiceEnabled()) {
-      EXPECT_EQ(ERR_UNKNOWN_URL_SCHEME, client->GetRequestError());
-    }
+    EXPECT_EQ(ERR_UNKNOWN_URL_SCHEME, client->GetRequestError());
 
     // Let the call stack unwind before signaling completion.
     CefPostTask(TID_UI,

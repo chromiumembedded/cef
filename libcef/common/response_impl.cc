@@ -12,7 +12,6 @@
 #include "base/strings/string_util.h"
 #include "net/http/http_request_headers.h"
 #include "net/http/http_response_headers.h"
-#include "net/url_request/url_request.h"
 #include "third_party/blink/public/platform/web_http_header_visitor.h"
 #include "third_party/blink/public/platform/web_string.h"
 #include "third_party/blink/public/platform/web_url.h"
@@ -204,14 +203,6 @@ void CefResponseImpl::Set(const blink::WebURLResponse& response) {
 
   HeaderVisitor visitor(&header_map_);
   response.VisitHttpHeaderFields(&visitor);
-}
-
-void CefResponseImpl::Set(const net::URLRequest* request) {
-  DCHECK(request);
-
-  const net::HttpResponseHeaders* headers = request->response_headers();
-  if (headers)
-    SetResponseHeaders(*headers);
 }
 
 void CefResponseImpl::SetReadOnly(bool read_only) {

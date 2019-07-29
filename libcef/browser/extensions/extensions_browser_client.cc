@@ -114,9 +114,8 @@ CefExtensionsBrowserClient::MaybeCreateResourceBundleRequestJob(
     const base::FilePath& directory_path,
     const std::string& content_security_policy,
     bool send_cors_header) {
-  return chrome_url_request_util::MaybeCreateURLRequestResourceBundleJob(
-      request, network_delegate, directory_path, content_security_policy,
-      send_cors_header);
+  NOTREACHED();
+  return nullptr;
 }
 
 base::FilePath CefExtensionsBrowserClient::GetBundleResourcePath(

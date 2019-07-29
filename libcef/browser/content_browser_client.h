@@ -10,7 +10,6 @@
 #include <utility>
 
 #include "include/cef_request_context_handler.h"
-#include "libcef/browser/net/url_request_context_getter.h"
 #include "libcef/browser/request_context_impl.h"
 
 #include "base/macros.h"
@@ -21,7 +20,6 @@
 
 class CefBrowserMainParts;
 class CefDevToolsDelegate;
-class CefResourceDispatcherHostDelegate;
 
 namespace content {
 class PluginServiceFilter;
@@ -121,7 +119,6 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
                        bool user_gesture,
                        bool opener_suppressed,
                        bool* no_javascript_access) override;
-  void ResourceDispatcherHostCreated() override;
   void OverrideWebkitPrefs(content::RenderViewHost* rvh,
                            content::WebPreferences* prefs) override;
   void BrowserURLHandlerCreated(content::BrowserURLHandler* handler) override;
@@ -232,8 +229,6 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
   CefBrowserMainParts* browser_main_parts_;
 
   std::unique_ptr<content::PluginServiceFilter> plugin_service_filter_;
-  std::unique_ptr<CefResourceDispatcherHostDelegate>
-      resource_dispatcher_host_delegate_;
 };
 
 #endif  // CEF_LIBCEF_BROWSER_CONTENT_BROWSER_CLIENT_H_

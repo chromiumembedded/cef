@@ -38,10 +38,7 @@ class NormalResourceHandler : public CefStreamResourceHandler {
         destroy_callback_(destroy_callback) {}
 
   ~NormalResourceHandler() override {
-    if (IsNetworkServiceEnabled())
-      EXPECT_EQ(1, cancel_ct_);
-    else
-      EXPECT_EQ(0, cancel_ct_);
+    EXPECT_EQ(1, cancel_ct_);
     destroy_callback_.Run();
   }
 
@@ -76,10 +73,7 @@ class IncompleteResourceHandler : public CefResourceHandler {
   ~IncompleteResourceHandler() override {
     EXPECT_EQ(1, process_request_ct_);
 
-    if (IsNetworkServiceEnabled())
-      EXPECT_EQ(1, cancel_ct_);
-    else
-      EXPECT_EQ(0, cancel_ct_);
+    EXPECT_EQ(1, cancel_ct_);
 
     if (test_mode_ == BLOCK_READ_RESPONSE) {
       EXPECT_EQ(1, get_response_headers_ct_);
@@ -280,7 +274,7 @@ class BasicResponseTest : public TestHandler {
     EXPECT_EQ(browser_id_, browser->GetIdentifier());
     EXPECT_TRUE(frame->IsMain());
 
-    if (IsNetworkServiceEnabled() && request_id_ == 0U) {
+    if (request_id_ == 0U) {
       // This is the first callback that provides a request ID.
       request_id_ = request->GetIdentifier();
       EXPECT_GT(request_id_, 0U);
@@ -443,9 +437,7 @@ class BasicResponseTest : public TestHandler {
         // Redirect again.
         new_url = GetURL(RESULT_HTML);
       } else {
-        DCHECK(!IsNetworkServiceEnabled());
-        // The URL redirected to above.
-        EXPECT_STREQ(GetURL(RESULT_HTML), new_url.ToString().c_str());
+        NOTREACHED();
       }
     }
 
@@ -560,129 +552,85 @@ class BasicResponseTest : public TestHandler {
   }
 
   void DestroyTest() override {
-    if (!IsNetworkServiceEnabled()) {
-      // Called once for each other callback.
-      EXPECT_EQ(on_before_resource_load_ct_ + get_resource_handler_ct_ +
-                    on_resource_redirect_ct_ + on_resource_response_ct_ +
-                    get_resource_response_filter_ct_ +
-                    on_resource_load_complete_ct_,
-                get_resource_request_handler_ct_);
-
-      // Only called at the time we handle cookies.
-      EXPECT_EQ(0, get_cookie_access_filter_ct_);
-    }
-
     if (mode_ == LOAD || mode_ == MODIFY_BEFORE_RESOURCE_LOAD) {
       EXPECT_EQ(1, on_before_browse_ct_);
-      if (IsNetworkServiceEnabled()) {
-        EXPECT_EQ(1, get_resource_request_handler_ct_);
-        EXPECT_EQ(1, get_cookie_access_filter_ct_);
-      }
+      EXPECT_EQ(1, get_resource_request_handler_ct_);
+      EXPECT_EQ(1, get_cookie_access_filter_ct_);
       EXPECT_EQ(1, on_before_resource_load_ct_);
       EXPECT_EQ(1, get_resource_handler_ct_);
       EXPECT_EQ(0, on_resource_redirect_ct_);
-      if (IsNetworkServiceEnabled()) {
-        // Unhandled requests won't see a call to GetResourceResponseFilter.
-        if (unhandled_)
-          EXPECT_EQ(0, get_resource_response_filter_ct_);
-        else
-          EXPECT_EQ(1, get_resource_response_filter_ct_);
+
+      // Unhandled requests won't see a call to GetResourceResponseFilter
+      // or OnResourceResponse.
+      if (unhandled_) {
+        EXPECT_EQ(0, get_resource_response_filter_ct_);
+        EXPECT_EQ(0, on_resource_response_ct_);
+      } else {
+        EXPECT_EQ(1, get_resource_response_filter_ct_);
+        EXPECT_EQ(1, on_resource_response_ct_);
+      }
+    } else if (mode_ == RESTART_RESOURCE_RESPONSE) {
+      EXPECT_EQ(1, on_before_browse_ct_);
+      EXPECT_EQ(2, get_resource_request_handler_ct_);
+      EXPECT_EQ(2, get_cookie_access_filter_ct_);
+      EXPECT_EQ(2, on_before_resource_load_ct_);
+      EXPECT_EQ(2, get_resource_handler_ct_);
+      EXPECT_EQ(0, on_resource_redirect_ct_);
+      // Unhandled requests won't see a call to GetResourceResponseFilter or
+      // OnResourceResponse. In this case we're restarting from inside
+      // OnResourceResponse.
+      if (unhandled_) {
+        EXPECT_EQ(0, get_resource_response_filter_ct_);
+        EXPECT_EQ(1, on_resource_response_ct_);
+      } else {
+        EXPECT_EQ(1, get_resource_response_filter_ct_);
+        EXPECT_EQ(2, on_resource_response_ct_);
+      }
+    } else if (IsRedirect()) {
+      EXPECT_EQ(2, on_before_browse_ct_);
+      EXPECT_EQ(2, get_resource_request_handler_ct_);
+      EXPECT_EQ(2, get_cookie_access_filter_ct_);
+      EXPECT_EQ(2, on_before_resource_load_ct_);
+      if (mode_ == REDIRECT_BEFORE_RESOURCE_LOAD) {
+        EXPECT_EQ(1, get_resource_handler_ct_);
+      } else {
+        EXPECT_EQ(2, get_resource_handler_ct_);
+      }
+      EXPECT_EQ(1, on_resource_redirect_ct_);
+
+      // Unhandled requests won't see a call to GetResourceResponseFilter.
+      if (unhandled_) {
+        EXPECT_EQ(0, get_resource_response_filter_ct_);
       } else {
         EXPECT_EQ(1, get_resource_response_filter_ct_);
       }
-      // Unhandled requests won't see a call to OnResourceResponse.
-      if (unhandled_)
-        EXPECT_EQ(0, on_resource_response_ct_);
-      else
-        EXPECT_EQ(1, on_resource_response_ct_);
-    } else if (mode_ == RESTART_RESOURCE_RESPONSE) {
-      EXPECT_EQ(1, on_before_browse_ct_);
-      if (IsNetworkServiceEnabled()) {
-        EXPECT_EQ(2, get_resource_request_handler_ct_);
-        EXPECT_EQ(2, get_cookie_access_filter_ct_);
-        EXPECT_EQ(2, on_before_resource_load_ct_);
-      } else {
-        // This seems like a bug in the old network implementation.
-        EXPECT_EQ(1, on_before_resource_load_ct_);
-      }
-      EXPECT_EQ(2, get_resource_handler_ct_);
-      EXPECT_EQ(0, on_resource_redirect_ct_);
-      if (IsNetworkServiceEnabled()) {
-        // Unhandled requests won't see a call to GetResourceResponseFilter.
-        if (unhandled_)
-          EXPECT_EQ(0, get_resource_response_filter_ct_);
-        else
-          EXPECT_EQ(1, get_resource_response_filter_ct_);
-      } else {
-        EXPECT_EQ(2, get_resource_response_filter_ct_);
-      }
-      // Unhandled requests won't see a call to OnResourceResponse.
-      // In this case we're restarting from inside OnResourceResponse.
-      if (unhandled_)
-        EXPECT_EQ(1, on_resource_response_ct_);
-      else
-        EXPECT_EQ(2, on_resource_response_ct_);
-    } else if (IsRedirect()) {
-      EXPECT_EQ(2, on_before_browse_ct_);
-      if (IsNetworkServiceEnabled()) {
-        EXPECT_EQ(2, get_resource_request_handler_ct_);
-        EXPECT_EQ(2, get_cookie_access_filter_ct_);
-      } else {
-        // Called at the time that we handle cookies.
-        EXPECT_EQ(0, get_cookie_access_filter_ct_);
-      }
-      EXPECT_EQ(2, on_before_resource_load_ct_);
-      if (mode_ == REDIRECT_BEFORE_RESOURCE_LOAD)
-        EXPECT_EQ(1, get_resource_handler_ct_);
-      else
-        EXPECT_EQ(2, get_resource_handler_ct_);
-      if (IsNetworkServiceEnabled()) {
-        EXPECT_EQ(1, on_resource_redirect_ct_);
-      } else {
-        if (mode_ == REDIRECT_RESOURCE_REDIRECT) {
-          // This seems like a bug in the old network implementation.
-          EXPECT_EQ(2, on_resource_redirect_ct_);
-        } else {
-          EXPECT_EQ(1, on_resource_redirect_ct_);
-        }
-      }
-      if (IsNetworkServiceEnabled()) {
-        // Unhandled requests won't see a call to GetResourceResponseFilter.
-        if (unhandled_)
-          EXPECT_EQ(0, get_resource_response_filter_ct_);
-        else
-          EXPECT_EQ(1, get_resource_response_filter_ct_);
-      } else {
-        if (mode_ == REDIRECT_RESOURCE_RESPONSE)
-          EXPECT_EQ(2, get_resource_response_filter_ct_);
-        else
-          EXPECT_EQ(1, get_resource_response_filter_ct_);
-      }
+
       // Unhandled requests won't see a call to OnResourceResponse.
       if (mode_ == REDIRECT_RESOURCE_RESPONSE) {
         // In this case we're redirecting from inside OnResourceResponse.
-        if (unhandled_)
+        if (unhandled_) {
           EXPECT_EQ(1, on_resource_response_ct_);
-        else
+        } else {
           EXPECT_EQ(2, on_resource_response_ct_);
+        }
       } else {
-        if (unhandled_)
+        if (unhandled_) {
           EXPECT_EQ(0, on_resource_response_ct_);
-        else
+        } else {
           EXPECT_EQ(1, on_resource_response_ct_);
+        }
       }
     } else if (IsIncomplete()) {
       EXPECT_EQ(1, on_before_browse_ct_);
-      if (IsNetworkServiceEnabled()) {
-        EXPECT_EQ(1, get_resource_request_handler_ct_);
-        EXPECT_EQ(1, get_cookie_access_filter_ct_);
-      }
+      EXPECT_EQ(1, get_resource_request_handler_ct_);
+      EXPECT_EQ(1, get_cookie_access_filter_ct_);
       EXPECT_EQ(1, on_before_resource_load_ct_);
 
-      if (IsIncompleteRequestHandler())
+      if (IsIncompleteRequestHandler()) {
         EXPECT_EQ(1, get_resource_handler_ct_);
-      else
+      } else {
         EXPECT_EQ(0, get_resource_handler_ct_);
+      }
 
       EXPECT_EQ(0, on_resource_redirect_ct_);
 
@@ -712,20 +660,23 @@ class BasicResponseTest : public TestHandler {
 
     EXPECT_EQ(resource_handler_created_ct_, resource_handler_destroyed_ct_);
 
-    if (IsAborted())
+    if (IsAborted()) {
       EXPECT_EQ(0, on_resource_load_complete_ct_);
-    else
+    } else {
       EXPECT_EQ(1, on_resource_load_complete_ct_);
+    }
 
-    if (IsIncomplete() || IsAborted())
+    if (IsIncomplete() || IsAborted()) {
       EXPECT_EQ(0, on_load_end_ct_);
-    else
+    } else {
       EXPECT_EQ(1, on_load_end_ct_);
+    }
 
-    if (custom_scheme_ && unhandled_ && !(IsIncomplete() || IsAborted()))
+    if (custom_scheme_ && unhandled_ && !(IsIncomplete() || IsAborted())) {
       EXPECT_EQ(1, on_protocol_execution_ct_);
-    else
+    } else {
       EXPECT_EQ(0, on_protocol_execution_ct_);
+    }
 
     TestHandler::DestroyTest();
 
@@ -900,7 +851,7 @@ class BasicResponseTest : public TestHandler {
       // Browser-side navigation no longer exposes the actual request
       // information.
       EXPECT_EQ(0U, request->GetIdentifier()) << callback;
-    } else if (IsNetworkServiceEnabled()) {
+    } else {
       // All resource-related callbacks share the same request ID.
       EXPECT_EQ(request_id_, request->GetIdentifier()) << callback;
     }
@@ -1080,41 +1031,14 @@ class BasicResponseTest : public TestHandler {
   IMPLEMENT_REFCOUNTING(BasicResponseTest);
 };
 
-bool IsTestSupported(BasicResponseTest::TestMode test_mode,
-                     bool custom_scheme,
-                     bool unhandled) {
-  if (!IsNetworkServiceEnabled()) {
-    if (custom_scheme || unhandled) {
-      // The old network implementation does not support the same functionality
-      // for custom schemes and unhandled requests.
-      return false;
-    }
-    if (test_mode == BasicResponseTest::ABORT_AFTER_CREATED ||
-        test_mode == BasicResponseTest::ABORT_BEFORE_BROWSE ||
-        test_mode == BasicResponseTest::INCOMPLETE_BEFORE_RESOURCE_LOAD ||
-        test_mode ==
-            BasicResponseTest::INCOMPLETE_REQUEST_HANDLER_PROCESS_REQUEST ||
-        test_mode ==
-            BasicResponseTest::INCOMPLETE_REQUEST_HANDLER_READ_RESPONSE) {
-      // The old network implementation does not support the same behavior
-      // for canceling incomplete requests.
-      return false;
-    }
-  }
-  return true;
-}
-
 }  // namespace
 
-#define BASIC_TEST(name, test_mode, custom, unhandled)                       \
-  TEST(ResourceRequestHandlerTest, Basic##name) {                            \
-    if (!IsTestSupported(BasicResponseTest::test_mode, custom, unhandled)) { \
-      return;                                                                \
-    }                                                                        \
-    CefRefPtr<BasicResponseTest> handler = new BasicResponseTest(            \
-        BasicResponseTest::test_mode, custom, unhandled);                    \
-    handler->ExecuteTest();                                                  \
-    ReleaseAndWaitForDestructor(handler);                                    \
+#define BASIC_TEST(name, test_mode, custom, unhandled)            \
+  TEST(ResourceRequestHandlerTest, Basic##name) {                 \
+    CefRefPtr<BasicResponseTest> handler = new BasicResponseTest( \
+        BasicResponseTest::test_mode, custom, unhandled);         \
+    handler->ExecuteTest();                                       \
+    ReleaseAndWaitForDestructor(handler);                         \
   }
 
 #define BASIC_TEST_ALL_MODES(name, custom, unhandled)                          \
@@ -1277,7 +1201,7 @@ class SubresourceResponseTest : public RoutingTestHandler {
 
     VerifyFrame(kGetResourceRequestHandler, frame);
 
-    if (IsNetworkServiceEnabled() && request_id_ == 0U) {
+    if (request_id_ == 0U) {
       // This is the first callback that provides a request ID.
       request_id_ = request->GetIdentifier();
       EXPECT_GT(request_id_, 0U);
@@ -1476,9 +1400,7 @@ class SubresourceResponseTest : public RoutingTestHandler {
         // Redirect again.
         new_url = GetURL(RESULT_JS);
       } else {
-        DCHECK(!IsNetworkServiceEnabled());
-        // The URL redirected to above.
-        EXPECT_STREQ(GetURL(RESULT_JS), new_url.ToString().c_str());
+        NOTREACHED();
       }
     }
 
@@ -1652,106 +1574,61 @@ class SubresourceResponseTest : public RoutingTestHandler {
   }
 
   void DestroyTest() override {
-    if (!IsNetworkServiceEnabled()) {
-      // Called once for each other callback.
-      EXPECT_EQ(on_before_resource_load_ct_ + get_resource_handler_ct_ +
-                    on_resource_redirect_ct_ + on_resource_response_ct_ +
-                    get_resource_response_filter_ct_ +
-                    on_resource_load_complete_ct_,
-                get_resource_request_handler_ct_);
-
-      // Only called at the time we handle cookies.
-      EXPECT_EQ(0, get_cookie_access_filter_ct_);
+    // Only called for the main and/or sub frame load.
+    if (subframe_) {
+      EXPECT_EQ(2, on_before_browse_ct_);
+    } else {
+      EXPECT_EQ(1, on_before_browse_ct_);
     }
 
-    // Only called for the main and/or sub frame load.
-    if (subframe_)
-      EXPECT_EQ(2, on_before_browse_ct_);
-    else
-      EXPECT_EQ(1, on_before_browse_ct_);
-
     if (mode_ == LOAD || mode_ == MODIFY_BEFORE_RESOURCE_LOAD) {
-      if (IsNetworkServiceEnabled()) {
-        EXPECT_EQ(1, get_resource_request_handler_ct_);
-        EXPECT_EQ(1, get_cookie_access_filter_ct_);
-      }
+      EXPECT_EQ(1, get_resource_request_handler_ct_);
+      EXPECT_EQ(1, get_cookie_access_filter_ct_);
       EXPECT_EQ(1, on_before_resource_load_ct_);
       EXPECT_EQ(1, get_resource_handler_ct_);
       EXPECT_EQ(0, on_resource_redirect_ct_);
-      if (IsNetworkServiceEnabled()) {
-        // Unhandled requests won't see a call to GetResourceResponseFilter.
-        if (unhandled_)
-          EXPECT_EQ(0, get_resource_response_filter_ct_);
-        else
-          EXPECT_EQ(1, get_resource_response_filter_ct_);
+      // Unhandled requests won't see a call to GetResourceResponseFilter or
+      // OnResourceResponse.
+      if (unhandled_) {
+        EXPECT_EQ(0, get_resource_response_filter_ct_);
+        EXPECT_EQ(0, on_resource_response_ct_);
       } else {
         EXPECT_EQ(1, get_resource_response_filter_ct_);
-      }
-      // Unhandled requests won't see a call to OnResourceResponse.
-      if (unhandled_)
-        EXPECT_EQ(0, on_resource_response_ct_);
-      else
         EXPECT_EQ(1, on_resource_response_ct_);
+      }
     } else if (mode_ == RESTART_RESOURCE_RESPONSE) {
-      if (IsNetworkServiceEnabled()) {
-        EXPECT_EQ(2, get_resource_request_handler_ct_);
-      }
-      if (IsNetworkServiceEnabled()) {
-        EXPECT_EQ(2, get_cookie_access_filter_ct_);
-        EXPECT_EQ(2, on_before_resource_load_ct_);
-      } else {
-        // This seems like a bug in the old network implementation.
-        EXPECT_EQ(1, on_before_resource_load_ct_);
-      }
+      EXPECT_EQ(2, get_resource_request_handler_ct_);
+      EXPECT_EQ(2, get_cookie_access_filter_ct_);
+      EXPECT_EQ(2, on_before_resource_load_ct_);
       EXPECT_EQ(2, get_resource_handler_ct_);
       EXPECT_EQ(0, on_resource_redirect_ct_);
-      if (IsNetworkServiceEnabled()) {
-        // Unhandled requests won't see a call to GetResourceResponseFilter.
-        if (unhandled_)
-          EXPECT_EQ(0, get_resource_response_filter_ct_);
-        else
-          EXPECT_EQ(1, get_resource_response_filter_ct_);
-      } else {
-        EXPECT_EQ(2, get_resource_response_filter_ct_);
-      }
-      // Unhandled requests won't see a call to OnResourceResponse.
-      // In this case we're restarting from inside OnResourceResponse.
-      if (unhandled_)
+      // Unhandled requests won't see a call to GetResourceResponseFilter or
+      // OnResourceResponse. In this case we're restarting from inside
+      // OnResourceResponse.
+      if (unhandled_) {
+        EXPECT_EQ(0, get_resource_response_filter_ct_);
         EXPECT_EQ(1, on_resource_response_ct_);
-      else
+      } else {
+        EXPECT_EQ(1, get_resource_response_filter_ct_);
         EXPECT_EQ(2, on_resource_response_ct_);
+      }
     } else if (IsRedirect()) {
-      if (IsNetworkServiceEnabled()) {
-        EXPECT_EQ(2, get_resource_request_handler_ct_);
-        EXPECT_EQ(2, get_cookie_access_filter_ct_);
-      }
+      EXPECT_EQ(2, get_resource_request_handler_ct_);
+      EXPECT_EQ(2, get_cookie_access_filter_ct_);
       EXPECT_EQ(2, on_before_resource_load_ct_);
-      if (mode_ == REDIRECT_BEFORE_RESOURCE_LOAD)
+      if (mode_ == REDIRECT_BEFORE_RESOURCE_LOAD) {
         EXPECT_EQ(1, get_resource_handler_ct_);
-      else
+      } else {
         EXPECT_EQ(2, get_resource_handler_ct_);
-      if (IsNetworkServiceEnabled()) {
-        EXPECT_EQ(1, on_resource_redirect_ct_);
-      } else {
-        if (mode_ == REDIRECT_RESOURCE_REDIRECT) {
-          // This seems like a bug in the old network implementation.
-          EXPECT_EQ(2, on_resource_redirect_ct_);
-        } else {
-          EXPECT_EQ(1, on_resource_redirect_ct_);
-        }
       }
-      if (IsNetworkServiceEnabled()) {
-        // Unhandled requests won't see a call to GetResourceResponseFilter.
-        if (unhandled_)
-          EXPECT_EQ(0, get_resource_response_filter_ct_);
-        else
-          EXPECT_EQ(1, get_resource_response_filter_ct_);
-      } else {
-        if (mode_ == REDIRECT_RESOURCE_RESPONSE)
-          EXPECT_EQ(2, get_resource_response_filter_ct_);
-        else
-          EXPECT_EQ(1, get_resource_response_filter_ct_);
-      }
+      EXPECT_EQ(1, on_resource_redirect_ct_);
+
+      // Unhandled requests won't see a call to GetResourceResponseFilter.
+      if (unhandled_)
+        EXPECT_EQ(0, get_resource_response_filter_ct_);
+      else
+        EXPECT_EQ(1, get_resource_response_filter_ct_);
+
       // Unhandled requests won't see a call to OnResourceResponse.
       if (mode_ == REDIRECT_RESOURCE_RESPONSE) {
         // In this case we're redirecting from inside OnResourceResponse.
@@ -1766,16 +1643,15 @@ class SubresourceResponseTest : public RoutingTestHandler {
           EXPECT_EQ(1, on_resource_response_ct_);
       }
     } else if (IsIncomplete()) {
-      if (IsNetworkServiceEnabled()) {
-        EXPECT_EQ(1, get_resource_request_handler_ct_);
-        EXPECT_EQ(1, get_cookie_access_filter_ct_);
-      }
+      EXPECT_EQ(1, get_resource_request_handler_ct_);
+      EXPECT_EQ(1, get_cookie_access_filter_ct_);
       EXPECT_EQ(1, on_before_resource_load_ct_);
 
-      if (IsIncompleteRequestHandler())
+      if (IsIncompleteRequestHandler()) {
         EXPECT_EQ(1, get_resource_handler_ct_);
-      else
+      } else {
         EXPECT_EQ(0, get_resource_handler_ct_);
+      }
 
       EXPECT_EQ(0, on_resource_redirect_ct_);
 
@@ -1797,21 +1673,24 @@ class SubresourceResponseTest : public RoutingTestHandler {
     if (IsIncomplete()) {
       EXPECT_EQ(0, on_load_end_ct_);
     } else {
-      if (subframe_)
+      if (subframe_) {
         EXPECT_EQ(2, on_load_end_ct_);
-      else
+      } else {
         EXPECT_EQ(1, on_load_end_ct_);
+      }
     }
 
-    if (unhandled_ || IsIncomplete())
+    if (unhandled_ || IsIncomplete()) {
       EXPECT_EQ(0, on_query_ct_);
-    else
+    } else {
       EXPECT_EQ(1, on_query_ct_);
+    }
 
-    if (custom_scheme_ && unhandled_ && !IsIncomplete())
+    if (custom_scheme_ && unhandled_ && !IsIncomplete()) {
       EXPECT_EQ(1, on_protocol_execution_ct_);
-    else
+    } else {
       EXPECT_EQ(0, on_protocol_execution_ct_);
+    }
 
     TestHandler::DestroyTest();
 
@@ -2047,11 +1926,7 @@ class SubresourceResponseTest : public RoutingTestHandler {
     else
       EXPECT_TRUE(frame->IsMain()) << callback;
 
-    // This is sometimes -4 (kInvalidFrameId) with the old network
-    // implementation.
-    if (IsNetworkServiceEnabled()) {
-      EXPECT_EQ(frame_id_, frame->GetIdentifier()) << callback;
-    }
+    EXPECT_EQ(frame_id_, frame->GetIdentifier()) << callback;
   }
 
   void VerifyState(Callback callback,
@@ -2072,10 +1947,8 @@ class SubresourceResponseTest : public RoutingTestHandler {
       EXPECT_TRUE(request->IsReadOnly()) << callback;
     }
 
-    if (IsNetworkServiceEnabled()) {
-      // All resource-related callbacks share the same request ID.
-      EXPECT_EQ(request_id_, request->GetIdentifier()) << callback;
-    }
+    // All resource-related callbacks share the same request ID.
+    EXPECT_EQ(request_id_, request->GetIdentifier()) << callback;
 
     if (IsLoad() || IsIncomplete()) {
       EXPECT_STREQ("GET", request->GetMethod().ToString().c_str()) << callback;
@@ -2106,16 +1979,8 @@ class SubresourceResponseTest : public RoutingTestHandler {
             << callback;
       } else {
         // After the redirect.
-        if (!IsNetworkServiceEnabled() && mode_ == REDIRECT_RESOURCE_REDIRECT) {
-          // With the old network stack we don't have a good signal to know when
-          // the final redirect has occurred.
-          const std::string& url = request->GetURL().ToString();
-          EXPECT_TRUE(url == GetURL(REDIRECT2_JS) || url == GetURL(RESULT_JS))
-              << callback;
-        } else {
-          EXPECT_STREQ(GetURL(RESULT_JS), request->GetURL().ToString().c_str())
-              << callback;
-        }
+        EXPECT_STREQ(GetURL(RESULT_JS), request->GetURL().ToString().c_str())
+            << callback;
       }
 
       if (response) {
@@ -2265,37 +2130,10 @@ class SubresourceResponseTest : public RoutingTestHandler {
   IMPLEMENT_REFCOUNTING(SubresourceResponseTest);
 };
 
-bool IsTestSupported(SubresourceResponseTest::TestMode test_mode,
-                     bool custom_scheme,
-                     bool unhandled,
-                     bool subframe) {
-  if (!IsNetworkServiceEnabled()) {
-    if (custom_scheme || unhandled) {
-      // The old network implementation does not support the same functionality
-      // for custom schemes and unhandled requests.
-      return false;
-    }
-    if (test_mode == SubresourceResponseTest::INCOMPLETE_BEFORE_RESOURCE_LOAD ||
-        test_mode == SubresourceResponseTest::
-                         INCOMPLETE_REQUEST_HANDLER_PROCESS_REQUEST ||
-        test_mode ==
-            SubresourceResponseTest::INCOMPLETE_REQUEST_HANDLER_READ_RESPONSE) {
-      // The old network implementation does not support the same behavior
-      // for canceling incomplete requests.
-      return false;
-    }
-  }
-  return true;
-}
-
 }  // namespace
 
 #define SUBRESOURCE_TEST(name, test_mode, custom, unhandled, subframe)        \
   TEST(ResourceRequestHandlerTest, Subresource##name) {                       \
-    if (!IsTestSupported(SubresourceResponseTest::test_mode, custom,          \
-                         unhandled, subframe)) {                              \
-      return;                                                                 \
-    }                                                                         \
     CefRefPtr<SubresourceResponseTest> handler = new SubresourceResponseTest( \
         SubresourceResponseTest::test_mode, custom, unhandled, subframe);     \
     handler->ExecuteTest();                                                   \
@@ -2552,13 +2390,8 @@ class RedirectResponseTest : public TestHandler {
 
       EXPECT_EQ(expected_resource_response_ct_, resource_response_ct_);
       EXPECT_EQ(expected_resource_response_ct_, get_resource_handler_ct_);
-      if (IsNetworkServiceEnabled()) {
-        EXPECT_EQ(expected_resource_load_complete_ct_,
-                  get_resource_response_filter_ct_);
-      } else {
-        EXPECT_EQ(expected_resource_response_ct_,
-                  get_resource_response_filter_ct_);
-      }
+      EXPECT_EQ(expected_resource_load_complete_ct_,
+                get_resource_response_filter_ct_);
       EXPECT_EQ(expected_before_resource_load_ct_, before_resource_load_ct_);
       EXPECT_EQ(expected_resource_redirect_ct_, resource_redirect_ct_);
       EXPECT_EQ(expected_resource_load_complete_ct_,
@@ -2603,10 +2436,7 @@ class RedirectResponseTest : public TestHandler {
     // With NetworkService we don't get an additional (unnecessary) redirect
     // callback.
     UrlResourceTest()
-        : ResourceTest("http://test.com/start_url.js",
-                       IsNetworkServiceEnabled() ? 2U : 3U,
-                       2U,
-                       1U) {
+        : ResourceTest("http://test.com/start_url.js", 2U, 2U, 1U) {
       redirect_url_ = "http://test.com/redirect_url.js";
     }
 
@@ -2653,9 +2483,7 @@ class RedirectResponseTest : public TestHandler {
     // With NetworkService we restart the request, so we get another call to
     // OnBeforeResourceLoad.
     HeaderResourceTest()
-        : ResourceTest("http://test.com/start_header.js",
-                       2U,
-                       IsNetworkServiceEnabled() ? 2U : 1U) {
+        : ResourceTest("http://test.com/start_header.js", 2U, 2U) {
       expected_headers_.insert(std::make_pair("Test-Key1", "Value1"));
       expected_headers_.insert(std::make_pair("Test-Key2", "Value2"));
     }
@@ -2686,10 +2514,7 @@ class RedirectResponseTest : public TestHandler {
    public:
     // With NetworkService we restart the request, so we get another call to
     // OnBeforeResourceLoad.
-    PostResourceTest()
-        : ResourceTest("http://test.com/start_post.js",
-                       2U,
-                       IsNetworkServiceEnabled() ? 2U : 1U) {
+    PostResourceTest() : ResourceTest("http://test.com/start_post.js", 2U, 2U) {
       CefRefPtr<CefPostDataElement> elem = CefPostDataElement::Create();
       const std::string data("Test Post Data");
       elem->SetToBytes(data.size(), data.c_str());
@@ -3118,14 +2943,9 @@ namespace {
 const char kResponseFilterTestUrl[] = "http://tests.com/response_filter.html";
 
 size_t GetResponseBufferSize() {
-  if (IsNetworkServiceEnabled()) {
-    // Match the default |capacity_num_bytes| value from
-    // mojo::Core::CreateDataPipe.
-    return 64 * 1024;  // 64kb
-  } else {
-    // Match |kBufferSize| from net/filter/filter_source_stream.cc.
-    return 32 * 1024;  // 32kb
-  }
+  // Match the default |capacity_num_bytes| value from
+  // mojo::Core::CreateDataPipe.
+  return 64 * 1024;  // 64kb
 }
 
 const char kInputHeader[] = "<html><head></head><body>";

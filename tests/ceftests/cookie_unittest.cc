@@ -921,10 +921,7 @@ class CookieTestSchemeHandler : public TestHandler {
       EXPECT_FALSE(got_cookie2_);
       EXPECT_FALSE(got_cookie3_);
     } else {
-      if (IsNetworkServiceEnabled())
-        EXPECT_TRUE(got_create_cookie_);
-      else
-        EXPECT_FALSE(got_create_cookie_);
+      EXPECT_TRUE(got_create_cookie_);
       EXPECT_TRUE(got_process_request_cookie_);
       EXPECT_TRUE(got_cookie1_);
       EXPECT_TRUE(got_cookie2_);
@@ -1946,34 +1943,15 @@ class CookieAccessTestHandler : public RoutingTestHandler,
   IMPLEMENT_REFCOUNTING(CookieAccessTestHandler);
 };
 
-bool IsTestSupported(CookieAccessTestHandler::TestMode test_mode,
-                     CookieAccessTestHandler::TestBackend backend_mode,
-                     bool custom_scheme,
-                     bool use_global) {
-  if (!IsNetworkServiceEnabled() &&
-      backend_mode == CookieAccessTestHandler::RESOURCE_HANDLER &&
-      custom_scheme) {
-    // The old network implementation does not support the same functionality
-    // for intercepting custom scheme requests via GetResourceHandler().
-    return false;
-  }
-  return true;
-}
-
 }  // namespace
 
-#define ACCESS_TEST(name, test_mode, backend_mode, custom_scheme, use_global)  \
-  TEST(CookieTest, Access##name) {                                             \
-    if (!IsTestSupported(CookieAccessTestHandler::test_mode,                   \
-                         CookieAccessTestHandler::backend_mode, custom_scheme, \
-                         use_global)) {                                        \
-      return;                                                                  \
-    }                                                                          \
-    CefRefPtr<CookieAccessTestHandler> handler = new CookieAccessTestHandler(  \
-        CookieAccessTestHandler::test_mode,                                    \
-        CookieAccessTestHandler::backend_mode, custom_scheme, use_global);     \
-    handler->ExecuteTest();                                                    \
-    ReleaseAndWaitForDestructor(handler);                                      \
+#define ACCESS_TEST(name, test_mode, backend_mode, custom_scheme, use_global) \
+  TEST(CookieTest, Access##name) {                                            \
+    CefRefPtr<CookieAccessTestHandler> handler = new CookieAccessTestHandler( \
+        CookieAccessTestHandler::test_mode,                                   \
+        CookieAccessTestHandler::backend_mode, custom_scheme, use_global);    \
+    handler->ExecuteTest();                                                   \
+    ReleaseAndWaitForDestructor(handler);                                     \
   }
 
 #define ACCESS_TEST_ALL_MODES(name, backend_mode, custom_scheme, use_global) \
@@ -2396,8 +2374,6 @@ class CookieRestartTestHandler : public RoutingTestHandler,
 }  // namespace
 
 TEST(CookieTest, RestartGlobal) {
-  if (!IsNetworkServiceEnabled())
-    return;
   CefRefPtr<CookieRestartTestHandler> handler =
       new CookieRestartTestHandler(true);
   handler->ExecuteTest();
@@ -2405,8 +2381,6 @@ TEST(CookieTest, RestartGlobal) {
 }
 
 TEST(CookieTest, RestartInMemory) {
-  if (!IsNetworkServiceEnabled())
-    return;
   CefRefPtr<CookieRestartTestHandler> handler =
       new CookieRestartTestHandler(false);
   handler->ExecuteTest();

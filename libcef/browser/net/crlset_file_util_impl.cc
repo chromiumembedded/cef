@@ -6,7 +6,6 @@
 
 #include "libcef/browser/context.h"
 #include "libcef/browser/thread_util.h"
-#include "libcef/common/net_service/util.h"
 
 #include "base/files/file_util.h"
 #include "base/logging.h"
@@ -40,11 +39,6 @@ void LoadFromDisk(const base::FilePath& path) {
 void CefLoadCRLSetsFile(const CefString& path) {
   if (!CONTEXT_STATE_VALID()) {
     NOTREACHED() << "context not valid";
-    return;
-  }
-
-  if (!net_service::IsEnabled()) {
-    NOTIMPLEMENTED();
     return;
   }
 

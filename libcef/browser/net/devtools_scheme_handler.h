@@ -7,14 +7,12 @@
 #pragma once
 
 class CefResourceContext;
-class CefURLRequestManager;
 
 namespace scheme {
 
 extern const char kChromeDevToolsHost[];
 
 // Register the chrome-devtools scheme handler.
-void RegisterChromeDevToolsHandler(CefURLRequestManager* request_manager);
 void RegisterChromeDevToolsHandler(CefResourceContext* resource_context);
 
 }  // namespace scheme

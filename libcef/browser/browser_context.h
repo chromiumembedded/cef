@@ -8,7 +8,6 @@
 
 #include "include/cef_request_context_handler.h"
 #include "libcef/browser/chrome_profile_stub.h"
-#include "libcef/browser/net/url_request_context_getter.h"
 #include "libcef/browser/resource_context.h"
 
 #include "base/files/file_path.h"
@@ -47,19 +46,9 @@
 //   controlled indirectly by BC.
 //
 // RC = CefResourceContext
-//   Acts as a bridge for resource loading. URLRequest life span is tied to this
-//   object. Must be destroyed before the associated URCG. Life span is
+//   Acts as a bridge for resource loading. Network request life span is tied to
+//   this object. Must be destroyed before the associated URCG. Life span is
 //   controlled by BC.
-//
-// URCG = CefURLRequestContextGetter
-//   Creates and owns the URC. Created by StoragePartitionImplMap::Get()
-//   calling BC::CreateRequestContext(). Life span is controlled by RC and (for
-//   the global context) CefBrowserMainParts, and SPI.
-//
-// URC = CefURLRequestContext
-//   Owns various network-related objects including the isolated cookie manager.
-//   Owns URLRequest objects which must be destroyed first. Life span is
-//   controlled by URCG.
 //
 //
 // Relationship diagram:
@@ -67,13 +56,13 @@
 //   own = ownership (std::unique_ptr)
 //   ptr = raw pointer
 //
-//                     CefBrowserMainParts--\   isolated cookie manager, etc.
-//                       |                   \             ^
-//                      own                  ref        ref/own
-//                       v                    v            |
-// BHI -own-> WC -ptr-> BC -own-> SPI -ref-> URCG --own-> URC
+//               CefBrowserMainParts
+//                       |
+//                      own
+//                       v
+// BHI -own-> WC -ptr-> BC -own-> SPI
 //
-// BHI -ref-> RCI -own-> BC -own-> RC -ref-> URCG
+// BHI -ref-> RCI -own-> BC -own-> RC
 //
 //
 // How shutdown works:
@@ -86,13 +75,7 @@
 //    CefBrowserMainParts::PostMainMessageLoopRun().
 // 4. CefResourceContext is destroyed asynchronously on the IO thread due to
 //    CefBrowserContext destruction. This cancels/destroys any pending
-//    URLRequests.
-// 5. CefURLRequestContextGetter is destroyed asynchronously on the IO thread
-//    due to CefResourceContext destruction (or ref release in
-//    CefBrowserMainParts::PostMainMessageLoopRun. This may be delayed if other
-//    network-related objects still have a reference to it.
-// 6. CefURLRequestContext is destroyed on the IO thread due to
-//    CefURLRequestContextGetter destruction.
+//    network requests.
 */
 
 class CefDownloadManagerDelegate;
@@ -256,11 +239,6 @@ class CefBrowserContext : public ChromeProfileStub,
     return extension_system_;
   }
 
-  // Guaranteed to exist once this object has been initialized.
-  scoped_refptr<CefURLRequestContextGetter> request_context_getter() const {
-    return url_request_getter_;
-  }
-
   // Called from DownloadPrefs::FromBrowserContext.
   DownloadPrefs* GetDownloadPrefs();
 
@@ -284,7 +262,6 @@ class CefBrowserContext : public ChromeProfileStub,
   std::unique_ptr<PrefProxyConfigTracker> pref_proxy_config_tracker_;
 
   std::unique_ptr<CefDownloadManagerDelegate> download_manager_delegate_;
-  scoped_refptr<CefURLRequestContextGetter> url_request_getter_;
   std::unique_ptr<CefSSLHostStateDelegate> ssl_host_state_delegate_;
   scoped_refptr<HostContentSettingsMap> host_content_settings_map_;
   std::unique_ptr<visitedlink::VisitedLinkMaster> visitedlink_master_;

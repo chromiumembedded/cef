@@ -11,7 +11,6 @@
 #include "libcef/browser/prefs/browser_prefs.h"
 #include "libcef/browser/thread_util.h"
 #include "libcef/common/cef_switches.h"
-#include "libcef/common/net_service/util.h"
 
 #include "base/command_line.h"
 #include "chrome/browser/net/system_network_context_manager.h"
@@ -21,7 +20,6 @@
 #include "chrome/browser/printing/print_preview_dialog_controller.h"
 #include "chrome/browser/ui/prefs/pref_watcher.h"
 #include "components/net_log/chrome_net_log.h"
-#include "components/net_log/net_export_file_writer.h"
 #include "components/prefs/pref_service.h"
 #include "content/browser/startup_helper.h"
 #include "content/public/common/content_switches.h"
@@ -79,7 +77,7 @@ void ChromeBrowserProcessStub::Shutdown() {
   profile_manager_.reset();
   event_router_forwarder_ = nullptr;
 
-  if (net_service::IsEnabled() && SystemNetworkContextManager::GetInstance()) {
+  if (SystemNetworkContextManager::GetInstance()) {
     SystemNetworkContextManager::DeleteInstance();
   }
 
@@ -143,14 +141,6 @@ SystemNetworkContextManager*
 ChromeBrowserProcessStub::system_network_context_manager() {
   DCHECK(SystemNetworkContextManager::GetInstance());
   return SystemNetworkContextManager::GetInstance();
-}
-
-net_log::NetExportFileWriter*
-ChromeBrowserProcessStub::net_export_file_writer() {
-  if (!net_export_file_writer_) {
-    net_export_file_writer_ = std::make_unique<net_log::NetExportFileWriter>();
-  }
-  return net_export_file_writer_.get();
 }
 
 network::NetworkQualityTracker*

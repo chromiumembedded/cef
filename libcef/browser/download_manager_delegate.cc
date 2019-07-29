@@ -319,8 +319,8 @@ void CefDownloadManagerDelegate::OnDownloadDestroyed(DownloadItem* item) {
 
 void CefDownloadManagerDelegate::OnDownloadCreated(DownloadManager* manager,
                                                    DownloadItem* item) {
-  // When NetworkService is enabled this callback may arrive after
-  // DetermineDownloadTarget, so we allow association from either method.
+  // This callback may arrive after DetermineDownloadTarget, so we allow
+  // association from either method.
   CefRefPtr<CefBrowserHostImpl> browser = GetOrAssociateBrowser(item);
   if (!browser) {
     // If the download is rejected (e.g. ALT+click on an invalid protocol link)
@@ -356,8 +356,8 @@ bool CefDownloadManagerDelegate::DetermineDownloadTarget(
     return true;
   }
 
-  // When NetworkService is enabled this callback may arrive before
-  // OnDownloadCreated, so we allow association from either method.
+  // This callback may arrive before OnDownloadCreated, so we allow association
+  // from either method.
   CefRefPtr<CefBrowserHostImpl> browser = GetOrAssociateBrowser(item);
   CefRefPtr<CefDownloadHandler> handler;
   if (browser.get())

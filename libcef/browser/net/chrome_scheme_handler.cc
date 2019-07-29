@@ -16,7 +16,6 @@
 #include "libcef/browser/extensions/chrome_api_registration.h"
 #include "libcef/browser/frame_host_impl.h"
 #include "libcef/browser/net/internal_scheme_handler.h"
-#include "libcef/browser/net/url_request_manager.h"
 #include "libcef/browser/thread_util.h"
 #include "libcef/common/content_client.h"
 
@@ -43,7 +42,6 @@
 #include "content/public/common/url_utils.h"
 #include "content/public/common/user_agent.h"
 #include "ipc/ipc_channel.h"
-#include "net/url_request/url_request.h"
 #include "v8/include/v8.h"
 
 using extensions::api::cef::kSupportedAPIs;
@@ -170,31 +168,6 @@ bool IsAllowedWebUIHost(const std::string& host) {
 const char* kAllowedDebugURLs[] = {
     content::kChromeUIBrowserCrashURL,
 };
-
-// Returns true for debug URLs that receive special handling (for crashes, etc).
-bool IsDebugURL(const GURL& url) {
-  // URLs handled by the renderer process in
-  // content/renderer/render_frame_impl.cc MaybeHandleDebugURL().
-  if (content::IsRendererDebugURL(url))
-    return true;
-
-  // Also include URLs handled by the browser process in
-  // content/browser/frame_host/debug_urls.cc HandleDebugURL().
-  for (size_t i = 0; i < chrome::kNumberOfChromeDebugURLs; ++i) {
-    GURL host(chrome::kChromeDebugURLs[i]);
-    if (url.GetOrigin() == host.GetOrigin())
-      return true;
-  }
-
-  for (size_t i = 0;
-       i < sizeof(kAllowedDebugURLs) / sizeof(kAllowedDebugURLs[0]); ++i) {
-    GURL host(kAllowedDebugURLs[i]);
-    if (url.GetOrigin() == host.GetOrigin())
-      return true;
-  }
-
-  return false;
-}
 
 void GetDebugURLs(std::vector<std::string>* urls) {
   for (size_t i = 0; i < chrome::kNumberOfChromeDebugURLs; ++i) {
@@ -791,43 +764,6 @@ void DidFinishChromeVersionLoad(CefRefPtr<CefFrame> frame) {
   CefVisitWebPluginInfo(new Visitor(frame));
 }
 
-// Wrapper for a ChromeProtocolHandler instance from
-// content/browser/webui/url_data_manager_backend.cc.
-class ChromeProtocolHandlerWrapper
-    : public net::URLRequestJobFactory::ProtocolHandler {
- public:
-  ChromeProtocolHandlerWrapper(
-      CefURLRequestManager* request_manager,
-      std::unique_ptr<net::URLRequestJobFactory::ProtocolHandler>
-          chrome_protocol_handler)
-      : request_manager_(request_manager),
-        chrome_protocol_handler_(std::move(chrome_protocol_handler)) {
-    DCHECK(request_manager_);
-  }
-
-  net::URLRequestJob* MaybeCreateJob(
-      net::URLRequest* request,
-      net::NetworkDelegate* network_delegate) const override {
-    // Don't handle debug URLs.
-    if (IsDebugURL(request->url()))
-      return nullptr;
-
-    // Only allow WebUI to handle chrome:// URLs whitelisted by CEF.
-    if (CefWebUIControllerFactory::AllowWebUIForURL(request->url())) {
-      return chrome_protocol_handler_->MaybeCreateJob(request,
-                                                      network_delegate);
-    }
-
-    // Use the protocol handler registered with CEF.
-    return request_manager_->GetRequestJob(request, network_delegate);
-  }
-
- private:
-  CefURLRequestManager* request_manager_;
-  std::unique_ptr<net::URLRequestJobFactory::ProtocolHandler>
-      chrome_protocol_handler_;
-};
-
 }  // namespace
 
 void RegisterWebUIControllerFactory() {
@@ -856,17 +792,6 @@ void DidFinishChromeLoad(CefRefPtr<CefFrame> frame, const GURL& validated_url) {
 
 bool IsWebUIAllowedToMakeNetworkRequests(const url::Origin& origin) {
   return CefWebUIControllerFactory::IsWebUIAllowedToMakeNetworkRequests(origin);
-}
-
-std::unique_ptr<net::URLRequestJobFactory::ProtocolHandler>
-WrapChromeProtocolHandler(
-    CefURLRequestManager* request_manager,
-    std::unique_ptr<net::URLRequestJobFactory::ProtocolHandler>
-        chrome_protocol_handler) {
-  std::unique_ptr<net::URLRequestJobFactory::ProtocolHandler> ret(
-      new ChromeProtocolHandlerWrapper(request_manager,
-                                       std::move(chrome_protocol_handler)));
-  return ret;
 }
 
 }  // namespace scheme

@@ -18,7 +18,6 @@
 #include "content/public/browser/devtools_agent_host.h"
 #include "content/public/browser/devtools_frontend_host.h"
 #include "content/public/browser/web_contents_observer.h"
-#include "net/url_request/url_fetcher_delegate.h"
 
 namespace base {
 class Value;
@@ -33,8 +32,7 @@ class WebContents;
 class PrefService;
 
 class CefDevToolsFrontend : public content::WebContentsObserver,
-                            public content::DevToolsAgentHostClient,
-                            public net::URLFetcherDelegate {
+                            public content::DevToolsAgentHostClient {
  public:
   static CefDevToolsFrontend* Show(
       CefRefPtr<CefBrowserHostImpl> inspected_browser,
@@ -78,9 +76,6 @@ class CefDevToolsFrontend : public content::WebContentsObserver,
   void DocumentAvailableInMainFrame() override;
   void WebContentsDestroyed() override;
 
-  // net::URLFetcherDelegate overrides.
-  void OnURLFetchComplete(const net::URLFetcher* source) override;
-
   void SendMessageAck(int request_id, const base::Value* arg1);
 
   PrefService* GetPrefs() const;
@@ -90,9 +85,6 @@ class CefDevToolsFrontend : public content::WebContentsObserver,
   scoped_refptr<content::DevToolsAgentHost> agent_host_;
   CefPoint inspect_element_at_;
   std::unique_ptr<content::DevToolsFrontendHost> frontend_host_;
-
-  using PendingRequestsMap = std::map<const net::URLFetcher*, int>;
-  PendingRequestsMap pending_requests_;
 
   class NetworkResourceLoader;
   std::set<std::unique_ptr<NetworkResourceLoader>, base::UniquePtrComparator>

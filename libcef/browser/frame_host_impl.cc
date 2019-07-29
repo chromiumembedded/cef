@@ -10,11 +10,9 @@
 #include "include/test/cef_test_helpers.h"
 #include "libcef/browser/browser_host_impl.h"
 #include "libcef/browser/navigate_params.h"
-#include "libcef/browser/net/browser_urlrequest_old_impl.h"
 #include "libcef/browser/net_service/browser_urlrequest_impl.h"
 #include "libcef/common/cef_messages.h"
 #include "libcef/common/frame_util.h"
-#include "libcef/common/net_service/util.h"
 #include "libcef/common/process_message_impl.h"
 #include "libcef/common/request_impl.h"
 #include "libcef/common/task_runner_impl.h"
@@ -266,17 +264,10 @@ CefRefPtr<CefURLRequest> CefFrameHostImpl::CreateURLRequest(
 
   auto request_context = browser->request_context();
 
-  if (net_service::IsEnabled()) {
-    CefRefPtr<CefBrowserURLRequest> impl =
-        new CefBrowserURLRequest(this, request, client, request_context);
-    if (impl->Start())
-      return impl.get();
-  } else {
-    CefRefPtr<CefBrowserURLRequestOld> impl =
-        new CefBrowserURLRequestOld(request, client, request_context);
-    if (impl->Start())
-      return impl.get();
-  }
+  CefRefPtr<CefBrowserURLRequest> impl =
+      new CefBrowserURLRequest(this, request, client, request_context);
+  if (impl->Start())
+    return impl.get();
   return nullptr;
 }
 

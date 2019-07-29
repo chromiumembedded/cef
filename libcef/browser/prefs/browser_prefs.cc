@@ -6,12 +6,10 @@
 
 #include "libcef/browser/browser_context.h"
 #include "libcef/browser/media_capture_devices_dispatcher.h"
-#include "libcef/browser/net/url_request_context_getter.h"
 #include "libcef/browser/prefs/pref_store.h"
 #include "libcef/browser/prefs/renderer_prefs.h"
 #include "libcef/common/cef_switches.h"
 #include "libcef/common/extensions/extensions_util.h"
-#include "libcef/common/net_service/util.h"
 
 #include "base/command_line.h"
 #include "base/files/file_path.h"
@@ -177,9 +175,7 @@ std::unique_ptr<PrefService> CreatePrefService(Profile* profile,
   SSLConfigServiceManager::RegisterPrefs(registry.get());
   update_client::RegisterPrefs(registry.get());
 
-  if (!net_service::IsEnabled()) {
-    CefURLRequestContextGetter::RegisterPrefs(registry.get());
-  } else if (!profile) {
+  if (!profile) {
     SystemNetworkContextManager::RegisterPrefs(registry.get());
 #if defined(OS_MACOSX)
     OSCrypt::RegisterLocalPrefs(registry.get());

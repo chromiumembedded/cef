@@ -40,16 +40,6 @@ class CefRequestContextImpl : public CefRequestContext {
       scoped_refptr<base::SingleThreadTaskRunner> task_runner,
       const BrowserContextCallback& callback);
 
-  // Executes |callback| either synchronously or asynchronously with the request
-  // context object when it's available. If |task_runner| is NULL the callback
-  // will be executed on the originating thread. The resulting context object
-  // can only be accessed on the IO thread.
-  typedef base::Callback<void(scoped_refptr<CefURLRequestContextGetter>)>
-      RequestContextCallback;
-  void GetRequestContextImpl(
-      scoped_refptr<base::SingleThreadTaskRunner> task_runner,
-      const RequestContextCallback& callback);
-
   bool IsSame(CefRefPtr<CefRequestContext> other) override;
   bool IsSharingWith(CefRefPtr<CefRequestContext> other) override;
   bool IsGlobal() override;
@@ -142,18 +132,7 @@ class CefRequestContextImpl : public CefRequestContext {
   void GetBrowserContextOnUIThread(
       scoped_refptr<base::SingleThreadTaskRunner> task_runner,
       const BrowserContextCallback& callback);
-  void GetRequestContextImplOnIOThread(
-      scoped_refptr<base::SingleThreadTaskRunner> task_runner,
-      const RequestContextCallback& callback,
-      CefBrowserContext* browser_context);
 
-  void RegisterSchemeHandlerFactoryInternal(
-      const CefString& scheme_name,
-      const CefString& domain_name,
-      CefRefPtr<CefSchemeHandlerFactory> factory,
-      scoped_refptr<CefURLRequestContextGetter> request_context);
-  void ClearSchemeHandlerFactoriesInternal(
-      scoped_refptr<CefURLRequestContextGetter> request_context);
   void PurgePluginListCacheInternal(bool reload_pages,
                                     CefBrowserContext* browser_context);
   void ClearCertificateExceptionsInternal(
@@ -162,21 +141,11 @@ class CefRequestContextImpl : public CefRequestContext {
   void ClearHttpAuthCredentialsInternal(
       CefRefPtr<CefCompletionCallback> callback,
       CefBrowserContext* browser_context);
-  void ClearHttpAuthCredentialsInternalOld(
-      CefRefPtr<CefCompletionCallback> callback,
-      scoped_refptr<CefURLRequestContextGetter> request_context);
   void CloseAllConnectionsInternal(CefRefPtr<CefCompletionCallback> callback,
                                    CefBrowserContext* browser_context);
-  void CloseAllConnectionsInternalOld(
-      CefRefPtr<CefCompletionCallback> callback,
-      scoped_refptr<CefURLRequestContextGetter> request_context);
   void ResolveHostInternal(const CefString& origin,
                            CefRefPtr<CefResolveCallback> callback,
                            CefBrowserContext* browser_context);
-  void ResolveHostInternalOld(
-      const CefString& origin,
-      CefRefPtr<CefResolveCallback> callback,
-      scoped_refptr<CefURLRequestContextGetter> request_context);
 
   CefBrowserContext* browser_context() const;
 
@@ -184,9 +153,6 @@ class CefRequestContextImpl : public CefRequestContext {
   CefBrowserContext* browser_context_ = nullptr;
 
   Config config_;
-
-  // Owned by the CefBrowserContext.
-  CefURLRequestContextGetter* request_context_getter_ = nullptr;
 
   IMPLEMENT_REFCOUNTING_DELETE_ON_UIT(CefRequestContextImpl);
   DISALLOW_COPY_AND_ASSIGN(CefRequestContextImpl);

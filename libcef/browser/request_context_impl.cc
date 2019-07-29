@@ -7,11 +7,9 @@
 #include "libcef/browser/content_browser_client.h"
 #include "libcef/browser/context.h"
 #include "libcef/browser/extensions/extension_system.h"
-#include "libcef/browser/net/cookie_manager_old_impl.h"
 #include "libcef/browser/net_service/cookie_manager_impl.h"
 #include "libcef/browser/thread_util.h"
 #include "libcef/common/extensions/extensions_util.h"
-#include "libcef/common/net_service/util.h"
 #include "libcef/common/task_runner_impl.h"
 #include "libcef/common/values_impl.h"
 
@@ -23,8 +21,6 @@
 #include "content/public/browser/plugin_service.h"
 #include "content/public/browser/ssl_host_state_delegate.h"
 #include "mojo/public/cpp/bindings/binding.h"
-#include "net/http/http_cache.h"
-#include "net/http/http_transaction_factory.h"
 #include "services/network/public/cpp/resolve_host_client_base.h"
 
 using content::BrowserThread;
@@ -247,25 +243,6 @@ void CefRequestContextImpl::GetBrowserContext(
   GetBrowserContextOnUIThread(task_runner, callback);
 }
 
-void CefRequestContextImpl::GetRequestContextImpl(
-    scoped_refptr<base::SingleThreadTaskRunner> task_runner,
-    const RequestContextCallback& callback) {
-  DCHECK(!net_service::IsEnabled());
-  if (!task_runner.get())
-    task_runner = CefTaskRunnerImpl::GetCurrentTaskRunner();
-  if (request_context_getter_) {
-    // The browser context already exists.
-    DCHECK(browser_context());
-    GetRequestContextImplOnIOThread(task_runner, callback, browser_context());
-  } else {
-    // Need to initialize the browser context first.
-    GetBrowserContextOnUIThread(
-        base::CreateSingleThreadTaskRunnerWithTraits({BrowserThread::IO}),
-        base::Bind(&CefRequestContextImpl::GetRequestContextImplOnIOThread,
-                   this, task_runner, callback));
-  }
-}
-
 bool CefRequestContextImpl::IsSame(CefRefPtr<CefRequestContext> other) {
   CefRequestContextImpl* other_impl =
       static_cast<CefRequestContextImpl*>(other.get());
@@ -310,11 +287,6 @@ bool CefRequestContextImpl::IsSharingWith(CefRefPtr<CefRequestContext> other) {
     return pending_other->IsSharingWith(this);
   }
 
-  if (request_context_getter_ && other_impl->request_context_getter_) {
-    // Both objects are initialized. Compare the request context objects.
-    return (request_context_getter_ == other_impl->request_context_getter_);
-  }
-
   // This or the other object is not initialized. Compare the cache path values.
   // If both are non-empty and the same then they'll share the same storage.
   if (config_.settings.cache_path.length > 0 &&
@@ -341,30 +313,15 @@ CefString CefRequestContextImpl::GetCachePath() {
 
 CefRefPtr<CefCookieManager> CefRequestContextImpl::GetCookieManager(
     CefRefPtr<CefCompletionCallback> callback) {
-  if (!net_service::IsEnabled()) {
-    CefRefPtr<CefCookieManagerOldImpl> cookie_manager =
-        new CefCookieManagerOldImpl();
-    cookie_manager->Initialize(this, CefString(), false, callback);
-    return cookie_manager.get();
-  } else {
-    CefRefPtr<CefCookieManagerImpl> cookie_manager = new CefCookieManagerImpl();
-    cookie_manager->Initialize(this, callback);
-    return cookie_manager.get();
-  }
+  CefRefPtr<CefCookieManagerImpl> cookie_manager = new CefCookieManagerImpl();
+  cookie_manager->Initialize(this, callback);
+  return cookie_manager.get();
 }
 
 bool CefRequestContextImpl::RegisterSchemeHandlerFactory(
     const CefString& scheme_name,
     const CefString& domain_name,
     CefRefPtr<CefSchemeHandlerFactory> factory) {
-  if (!net_service::IsEnabled()) {
-    GetRequestContextImpl(
-        base::CreateSingleThreadTaskRunnerWithTraits({BrowserThread::IO}),
-        base::Bind(&CefRequestContextImpl::RegisterSchemeHandlerFactoryInternal,
-                   this, scheme_name, domain_name, factory));
-    return true;
-  }
-
   if (!CEF_CURRENTLY_ON_UIT()) {
     CEF_POST_TASK(CEF_UIT,
                   base::BindOnce(
@@ -383,14 +340,6 @@ bool CefRequestContextImpl::RegisterSchemeHandlerFactory(
 }
 
 bool CefRequestContextImpl::ClearSchemeHandlerFactories() {
-  if (!net_service::IsEnabled()) {
-    GetRequestContextImpl(
-        base::CreateSingleThreadTaskRunnerWithTraits({BrowserThread::IO}),
-        base::Bind(&CefRequestContextImpl::ClearSchemeHandlerFactoriesInternal,
-                   this));
-    return true;
-  }
-
   if (!CEF_CURRENTLY_ON_UIT()) {
     CEF_POST_TASK(
         CEF_UIT,
@@ -548,48 +497,27 @@ void CefRequestContextImpl::ClearCertificateExceptions(
 
 void CefRequestContextImpl::ClearHttpAuthCredentials(
     CefRefPtr<CefCompletionCallback> callback) {
-  if (net_service::IsEnabled()) {
-    GetBrowserContext(
-        base::CreateSingleThreadTaskRunnerWithTraits({BrowserThread::UI}),
-        base::Bind(&CefRequestContextImpl::ClearHttpAuthCredentialsInternal,
-                   this, callback));
-  } else {
-    GetRequestContextImpl(
-        base::CreateSingleThreadTaskRunnerWithTraits({BrowserThread::IO}),
-        base::Bind(&CefRequestContextImpl::ClearHttpAuthCredentialsInternalOld,
-                   this, callback));
-  }
+  GetBrowserContext(
+      base::CreateSingleThreadTaskRunnerWithTraits({BrowserThread::UI}),
+      base::Bind(&CefRequestContextImpl::ClearHttpAuthCredentialsInternal, this,
+                 callback));
 }
 
 void CefRequestContextImpl::CloseAllConnections(
     CefRefPtr<CefCompletionCallback> callback) {
-  if (net_service::IsEnabled()) {
-    GetBrowserContext(
-        base::CreateSingleThreadTaskRunnerWithTraits({BrowserThread::UI}),
-        base::Bind(&CefRequestContextImpl::CloseAllConnectionsInternal, this,
-                   callback));
-  } else {
-    GetRequestContextImpl(
-        base::CreateSingleThreadTaskRunnerWithTraits({BrowserThread::IO}),
-        base::Bind(&CefRequestContextImpl::CloseAllConnectionsInternalOld, this,
-                   callback));
-  }
+  GetBrowserContext(
+      base::CreateSingleThreadTaskRunnerWithTraits({BrowserThread::UI}),
+      base::Bind(&CefRequestContextImpl::CloseAllConnectionsInternal, this,
+                 callback));
 }
 
 void CefRequestContextImpl::ResolveHost(
     const CefString& origin,
     CefRefPtr<CefResolveCallback> callback) {
-  if (net_service::IsEnabled()) {
-    GetBrowserContext(
-        base::CreateSingleThreadTaskRunnerWithTraits({BrowserThread::UI}),
-        base::Bind(&CefRequestContextImpl::ResolveHostInternal, this, origin,
-                   callback));
-  } else {
-    GetRequestContextImpl(
-        base::CreateSingleThreadTaskRunnerWithTraits({BrowserThread::IO}),
-        base::Bind(&CefRequestContextImpl::ResolveHostInternalOld, this, origin,
-                   callback));
-  }
+  GetBrowserContext(
+      base::CreateSingleThreadTaskRunnerWithTraits({BrowserThread::UI}),
+      base::Bind(&CefRequestContextImpl::ResolveHostInternal, this, origin,
+                 callback));
 }
 
 void CefRequestContextImpl::LoadExtension(
@@ -707,7 +635,6 @@ void CefRequestContextImpl::Initialize() {
   CEF_REQUIRE_UIT();
 
   DCHECK(!browser_context_);
-  DCHECK(!request_context_getter_);
 
   if (config_.other) {
     // Share storage with |config_.other|.
@@ -740,17 +667,6 @@ void CefRequestContextImpl::Initialize() {
   // Force our settings to match |browser_context_|.
   config_.settings = browser_context_->GetSettings();
 
-  if (!net_service::IsEnabled()) {
-    request_context_getter_ = browser_context_->request_context_getter().get();
-    DCHECK(request_context_getter_);
-
-    if (config_.handler.get()) {
-      // Keep the handler alive until the associated request context is
-      // destroyed.
-      request_context_getter_->AddHandler(config_.handler);
-    }
-  }
-
   if (config_.other) {
     // Clear the reference to |config_.other| after setting
     // |request_context_getter_|. This is the reverse order of checks in
@@ -767,7 +683,6 @@ void CefRequestContextImpl::EnsureBrowserContext() {
   if (!browser_context())
     Initialize();
   DCHECK(browser_context());
-  DCHECK(net_service::IsEnabled() || request_context_getter_);
 }
 
 void CefRequestContextImpl::GetBrowserContextOnUIThread(
@@ -790,51 +705,6 @@ void CefRequestContextImpl::GetBrowserContextOnUIThread(
     // Execute the callback on the target thread.
     task_runner->PostTask(FROM_HERE, base::Bind(callback, browser_context()));
   }
-}
-
-void CefRequestContextImpl::GetRequestContextImplOnIOThread(
-    scoped_refptr<base::SingleThreadTaskRunner> task_runner,
-    const RequestContextCallback& callback,
-    CefBrowserContext* browser_context) {
-  if (!CEF_CURRENTLY_ON_IOT()) {
-    CEF_POST_TASK(
-        CEF_IOT,
-        base::Bind(&CefRequestContextImpl::GetRequestContextImplOnIOThread,
-                   this, task_runner, callback, browser_context));
-    return;
-  }
-
-  DCHECK(!net_service::IsEnabled());
-  DCHECK(request_context_getter_);
-
-  // Make sure the request context exists.
-  request_context_getter_->GetURLRequestContext();
-
-  if (task_runner->BelongsToCurrentThread()) {
-    // Execute the callback immediately.
-    callback.Run(request_context_getter_);
-  } else {
-    // Execute the callback on the target thread.
-    task_runner->PostTask(
-        FROM_HERE,
-        base::Bind(callback, base::WrapRefCounted(request_context_getter_)));
-  }
-}
-
-void CefRequestContextImpl::RegisterSchemeHandlerFactoryInternal(
-    const CefString& scheme_name,
-    const CefString& domain_name,
-    CefRefPtr<CefSchemeHandlerFactory> factory,
-    scoped_refptr<CefURLRequestContextGetter> request_context) {
-  CEF_REQUIRE_IOT();
-  request_context->request_manager()->AddFactory(scheme_name, domain_name,
-                                                 factory);
-}
-
-void CefRequestContextImpl::ClearSchemeHandlerFactoriesInternal(
-    scoped_refptr<CefURLRequestContextGetter> request_context) {
-  CEF_REQUIRE_IOT();
-  request_context->request_manager()->ClearFactories();
 }
 
 void CefRequestContextImpl::PurgePluginListCacheInternal(
@@ -871,27 +741,6 @@ void CefRequestContextImpl::ClearHttpAuthCredentialsInternal(
       base::Time(), base::Bind(&CefCompletionCallback::OnComplete, callback));
 }
 
-void CefRequestContextImpl::ClearHttpAuthCredentialsInternalOld(
-    CefRefPtr<CefCompletionCallback> callback,
-    scoped_refptr<CefURLRequestContextGetter> request_context) {
-  CEF_REQUIRE_IOT();
-
-  net::URLRequestContext* url_context = request_context->GetURLRequestContext();
-  if (url_context) {
-    net::HttpNetworkSession* http_session =
-        url_context->http_transaction_factory()->GetSession();
-    DCHECK(http_session);
-
-    http_session->http_auth_cache()->ClearEntriesAddedSince(base::Time());
-    http_session->CloseAllConnections();
-  }
-
-  if (callback) {
-    CEF_POST_TASK(CEF_UIT,
-                  base::Bind(&CefCompletionCallback::OnComplete, callback));
-  }
-}
-
 void CefRequestContextImpl::CloseAllConnectionsInternal(
     CefRefPtr<CefCompletionCallback> callback,
     CefBrowserContext* browser_context) {
@@ -899,28 +748,6 @@ void CefRequestContextImpl::CloseAllConnectionsInternal(
 
   browser_context->GetNetworkContext()->CloseAllConnections(
       base::Bind(&CefCompletionCallback::OnComplete, callback));
-}
-
-void CefRequestContextImpl::CloseAllConnectionsInternalOld(
-    CefRefPtr<CefCompletionCallback> callback,
-    scoped_refptr<CefURLRequestContextGetter> request_context) {
-  CEF_REQUIRE_IOT();
-
-  net::URLRequestContext* url_context = request_context->GetURLRequestContext();
-  if (url_context) {
-    net::HttpTransactionFactory* http_factory =
-        url_context->http_transaction_factory();
-    if (http_factory) {
-      net::HttpCache* cache = http_factory->GetCache();
-      if (cache)
-        cache->CloseAllConnections();
-    }
-  }
-
-  if (callback) {
-    CEF_POST_TASK(CEF_UIT,
-                  base::Bind(&CefCompletionCallback::OnComplete, callback));
-  }
 }
 
 void CefRequestContextImpl::ResolveHostInternal(
@@ -932,33 +759,6 @@ void CefRequestContextImpl::ResolveHostInternal(
   // |helper| will be deleted in ResolveHostHelper::OnComplete().
   ResolveHostHelper* helper = new ResolveHostHelper(callback);
   helper->Start(browser_context, origin);
-}
-
-void CefRequestContextImpl::ResolveHostInternalOld(
-    const CefString& origin,
-    CefRefPtr<CefResolveCallback> callback,
-    scoped_refptr<CefURLRequestContextGetter> request_context) {
-  CEF_REQUIRE_IOT();
-
-  int retval = ERR_FAILED;
-
-  // |helper| will be deleted in ResolveHostHelperOld::OnResolveCompleted().
-  ResolveHostHelperOld* helper = new ResolveHostHelperOld(callback);
-
-  net::HostResolver* host_resolver = request_context->GetHostResolver();
-  if (host_resolver) {
-    helper->request_ = host_resolver->CreateRequest(
-        net::HostPortPair::FromURL(GURL(origin.ToString())),
-        net::NetLogWithSource(), {});
-    retval = helper->request_->Start(base::Bind(
-        &ResolveHostHelperOld::OnResolveCompleted, base::Unretained(helper)));
-    if (retval == net::ERR_IO_PENDING) {
-      // The result will be delivered asynchronously via the callback.
-      return;
-    }
-  }
-
-  helper->OnResolveCompleted(retval);
 }
 
 CefBrowserContext* CefRequestContextImpl::browser_context() const {

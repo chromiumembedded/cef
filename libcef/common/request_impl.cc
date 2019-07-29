@@ -22,7 +22,6 @@
 #include "base/task/post_task.h"
 #include "components/navigation_interception/navigation_params.h"
 #include "content/public/browser/browser_thread.h"
-#include "content/public/browser/resource_request_info.h"
 #include "content/public/common/content_switches.h"
 #include "content/public/common/resource_type.h"
 #include "net/base/elements_upload_data_stream.h"
@@ -34,8 +33,6 @@
 #include "net/http/http_request_headers.h"
 #include "net/http/http_util.h"
 #include "net/url_request/redirect_info.h"
-#include "net/url_request/url_fetcher.h"
-#include "net/url_request/url_request.h"
 #include "services/network/public/cpp/data_element.h"
 #include "services/network/public/cpp/network_switches.h"
 #include "services/network/public/cpp/resource_request.h"
@@ -50,7 +47,6 @@
 namespace {
 
 const char kReferrerLowerCase[] = "referer";
-const char kContentTypeLowerCase[] = "content-type";
 const char kCacheControlLowerCase[] = "cache-control";
 const char kCacheControlDirectiveNoCacheLowerCase[] = "no-cache";
 const char kCacheControlDirectiveNoStoreLowerCase[] = "no-store";
@@ -103,16 +99,6 @@ class FileElementReader : public net::UploadFileElementReader {
 
   DISALLOW_COPY_AND_ASSIGN(FileElementReader);
 };
-
-std::string GetURLRequestReferrer(const GURL& referrer_url) {
-  base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
-  if (!referrer_url.is_valid() ||
-      command_line->HasSwitch(network::switches::kNoReferrers)) {
-    return std::string();
-  }
-
-  return referrer_url.spec();
-}
 
 void MakeASCIILower(std::string* str) {
   std::transform(str->begin(), str->end(), str->begin(), ::tolower);
@@ -602,82 +588,6 @@ void CefRequestImpl::Set(const net::HttpRequestHeaders& headers) {
   ::GetHeaderMap(headers, headermap_);
 }
 
-void CefRequestImpl::Set(const net::URLRequest* request) {
-  base::AutoLock lock_scope(lock_);
-  CHECK_READONLY_RETURN_VOID();
-
-  Reset();
-
-  url_ = request->url();
-  method_ = request->method();
-  identifier_ = request->identifier();
-
-  // URLRequest::SetReferrer ensures that we do not send username and password
-  // fields in the referrer.
-  GURL referrer(request->referrer());
-
-  // Our consumer should have made sure that this is a safe referrer. See for
-  // instance WebCore::FrameLoader::HideReferrer.
-  if (referrer.is_valid()) {
-    referrer_url_ = referrer;
-    referrer_policy_ =
-        static_cast<cef_referrer_policy_t>(request->referrer_policy());
-  }
-
-  // Transfer request headers.
-  ::GetHeaderMap(request->extra_request_headers(), headermap_);
-
-  // Transfer post data, if any.
-  const net::UploadDataStream* data = request->get_upload();
-  if (data) {
-    postdata_ = CefPostData::Create();
-    static_cast<CefPostDataImpl*>(postdata_.get())->Set(*data);
-  }
-
-  first_party_for_cookies_ = request->site_for_cookies();
-
-  content::ResourceRequestInfo* info =
-      content::ResourceRequestInfo::ForRequest(request);
-  if (info) {
-    resource_type_ = static_cast<cef_resource_type_t>(info->GetResourceType());
-    transition_type_ =
-        static_cast<cef_transition_type_t>(info->GetPageTransition());
-  }
-}
-
-void CefRequestImpl::Get(net::URLRequest* request, bool changed_only) const {
-  base::AutoLock lock_scope(lock_);
-
-  if (ShouldSet(kChangedMethod, changed_only))
-    request->set_method(method_);
-
-  if (ShouldSet(kChangedReferrer, changed_only)) {
-    request->SetReferrer(GetURLRequestReferrer(referrer_url_));
-    request->set_referrer_policy(
-        static_cast<net::URLRequest::ReferrerPolicy>(referrer_policy_));
-  }
-
-  if (ShouldSet(kChangedHeaderMap, changed_only)) {
-    net::HttpRequestHeaders headers;
-    headers.AddHeadersFromString(HttpHeaderUtils::GenerateHeaders(headermap_));
-    request->SetExtraRequestHeaders(headers);
-  }
-
-  if (ShouldSet(kChangedPostData, changed_only)) {
-    if (postdata_.get()) {
-      request->set_upload(
-          static_cast<CefPostDataImpl*>(postdata_.get())->Get());
-    } else if (request->get_upload()) {
-      request->set_upload(std::unique_ptr<net::UploadDataStream>());
-    }
-  }
-
-  if (!first_party_for_cookies_.is_empty() &&
-      ShouldSet(kChangedFirstPartyForCookies, changed_only)) {
-    request->set_site_for_cookies(first_party_for_cookies_);
-  }
-}
-
 void CefRequestImpl::Set(
     const navigation_interception::NavigationParams& params,
     bool is_main_frame) {
@@ -865,106 +775,6 @@ void CefRequestImpl::Get(CefNavigateParams& params) const {
 
   params.site_for_cookies = first_party_for_cookies_;
   params.load_flags = flags_;
-}
-
-void CefRequestImpl::Get(net::URLFetcher& fetcher,
-                         int64& upload_data_size) const {
-  base::AutoLock lock_scope(lock_);
-
-  if (!referrer_url_.is_empty()) {
-    fetcher.SetReferrer(GetURLRequestReferrer(referrer_url_));
-    fetcher.SetReferrerPolicy(
-        static_cast<net::URLRequest::ReferrerPolicy>(referrer_policy_));
-  }
-
-  CefRequest::HeaderMap headerMap = headermap_;
-
-  std::string content_type;
-
-  // Extract the Content-Type header value.
-  {
-    HeaderMap::iterator it = headerMap.begin();
-    for (; it != headerMap.end(); ++it) {
-      if (base::LowerCaseEqualsASCII(it->first.ToString(),
-                                     kContentTypeLowerCase)) {
-        content_type = it->second;
-        headerMap.erase(it);
-        break;
-      }
-    }
-  }
-
-  fetcher.SetExtraRequestHeaders(HttpHeaderUtils::GenerateHeaders(headerMap));
-
-  if (postdata_.get()) {
-    CefPostData::ElementVector elements;
-    postdata_->GetElements(elements);
-    if (elements.size() == 1) {
-      // Default to URL encoding if not specified.
-      if (content_type.empty())
-        content_type = net_service::kContentTypeApplicationFormURLEncoded;
-
-      CefPostDataElementImpl* impl =
-          static_cast<CefPostDataElementImpl*>(elements[0].get());
-
-      switch (elements[0]->GetType()) {
-        case PDE_TYPE_BYTES: {
-          const size_t size = impl->GetBytesCount();
-          if (flags_ & UR_FLAG_REPORT_UPLOAD_PROGRESS) {
-            // Return the upload data size.
-            upload_data_size = size;
-          }
-          fetcher.SetUploadData(
-              content_type,
-              std::string(static_cast<char*>(impl->GetBytes()), size));
-          break;
-        }
-        case PDE_TYPE_FILE:
-          fetcher.SetUploadFilePath(
-              content_type, base::FilePath(impl->GetFile()), 0,
-              std::numeric_limits<uint64_t>::max(), GetFileTaskRunner());
-          break;
-        case PDE_TYPE_EMPTY:
-          break;
-      }
-    } else if (elements.size() > 1) {
-      NOTIMPLEMENTED() << " multi-part form data is not supported";
-    }
-  }
-
-  if (!first_party_for_cookies_.is_empty())
-    fetcher.SetInitiator(url::Origin::Create(first_party_for_cookies_));
-
-  int flags = flags_;
-  if (!(flags & kURCachePolicyMask)) {
-    // Only consider the Cache-Control directives when a cache policy is not
-    // explicitly set on the request.
-    flags |= GetCacheControlHeaderPolicy(headerMap);
-  }
-
-  if (flags & UR_FLAG_NO_RETRY_ON_5XX)
-    fetcher.SetAutomaticallyRetryOn5xx(false);
-  if (flags & UR_FLAG_STOP_ON_REDIRECT)
-    fetcher.SetStopOnRedirect(true);
-
-  int net_flags = 0;
-
-  if (flags & UR_FLAG_SKIP_CACHE) {
-    net_flags |= net::LOAD_BYPASS_CACHE;
-  }
-  if (flags & UR_FLAG_ONLY_FROM_CACHE) {
-    net_flags |= net::LOAD_ONLY_FROM_CACHE | net::LOAD_SKIP_CACHE_VALIDATION;
-  }
-  if (flags & UR_FLAG_DISABLE_CACHE) {
-    net_flags |= net::LOAD_DISABLE_CACHE;
-  }
-
-  if (!(flags & UR_FLAG_ALLOW_STORED_CREDENTIALS)) {
-    net_flags |= net::LOAD_DO_NOT_SEND_AUTH_DATA |
-                 net::LOAD_DO_NOT_SEND_COOKIES | net::LOAD_DO_NOT_SAVE_COOKIES;
-  }
-
-  fetcher.SetLoadFlags(net_flags);
 }
 
 void CefRequestImpl::SetReadOnly(bool read_only) {

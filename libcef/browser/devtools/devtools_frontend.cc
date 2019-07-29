@@ -11,7 +11,6 @@
 #include "libcef/browser/browser_context.h"
 #include "libcef/browser/devtools/devtools_manager_delegate.h"
 #include "libcef/browser/net/devtools_scheme_handler.h"
-#include "libcef/common/net_service/util.h"
 
 #include "base/base64.h"
 #include "base/guid.h"
@@ -46,68 +45,10 @@
 #include "net/base/net_errors.h"
 #include "net/http/http_response_headers.h"
 #include "net/traffic_annotation/network_traffic_annotation.h"
-#include "net/url_request/url_fetcher.h"
-#include "net/url_request/url_fetcher_response_writer.h"
 #include "services/network/public/cpp/simple_url_loader.h"
 #include "services/network/public/cpp/simple_url_loader_stream_consumer.h"
 
 namespace {
-
-// ResponseWriter -------------------------------------------------------------
-
-class ResponseWriter : public net::URLFetcherResponseWriter {
- public:
-  ResponseWriter(base::WeakPtr<CefDevToolsFrontend> shell_devtools_,
-                 int stream_id);
-  ~ResponseWriter() override;
-
-  // URLFetcherResponseWriter overrides:
-  int Initialize(net::CompletionOnceCallback callback) override;
-  int Write(net::IOBuffer* buffer,
-            int num_bytes,
-            net::CompletionOnceCallback callback) override;
-  int Finish(int net_error, net::CompletionOnceCallback callback) override;
-
- private:
-  base::WeakPtr<CefDevToolsFrontend> shell_devtools_;
-  int stream_id_;
-
-  DISALLOW_COPY_AND_ASSIGN(ResponseWriter);
-};
-
-ResponseWriter::ResponseWriter(
-    base::WeakPtr<CefDevToolsFrontend> shell_devtools,
-    int stream_id)
-    : shell_devtools_(shell_devtools), stream_id_(stream_id) {}
-
-ResponseWriter::~ResponseWriter() {}
-
-int ResponseWriter::Initialize(net::CompletionOnceCallback callback) {
-  return net::OK;
-}
-
-int ResponseWriter::Write(net::IOBuffer* buffer,
-                          int num_bytes,
-                          net::CompletionOnceCallback callback) {
-  std::string chunk = std::string(buffer->data(), num_bytes);
-  if (!base::IsStringUTF8(chunk))
-    return num_bytes;
-
-  base::Value* id = new base::Value(stream_id_);
-  base::Value* chunkValue = new base::Value(chunk);
-
-  base::PostTaskWithTraits(
-      FROM_HERE, {content::BrowserThread::UI},
-      base::BindOnce(&CefDevToolsFrontend::CallClientFunction, shell_devtools_,
-                     "DevToolsAPI.streamWrite", base::Owned(id),
-                     base::Owned(chunkValue), nullptr));
-  return num_bytes;
-}
-
-int ResponseWriter::Finish(int net_error,
-                           net::CompletionOnceCallback callback) {
-  return net::OK;
-}
 
 static std::string GetFrontendURL() {
   return base::StringPrintf("%s://%s/devtools_app.html",
@@ -279,10 +220,7 @@ CefDevToolsFrontend::CefDevToolsFrontend(
       file_manager_(frontend_browser.get(), GetPrefs()),
       weak_factory_(this) {}
 
-CefDevToolsFrontend::~CefDevToolsFrontend() {
-  for (const auto& pair : pending_requests_)
-    delete pair.first;
-}
+CefDevToolsFrontend::~CefDevToolsFrontend() {}
 
 void CefDevToolsFrontend::ReadyToCommitNavigation(
     content::NavigationHandle* navigation_handle) {
@@ -397,61 +335,43 @@ void CefDevToolsFrontend::HandleMessageFromDevToolsFrontend(
               }
             })");
 
-    if (net_service::IsEnabled()) {
-      // Based on DevToolsUIBindings::LoadNetworkResource.
-      auto resource_request = std::make_unique<network::ResourceRequest>();
-      resource_request->url = gurl;
-      // TODO(caseq): this preserves behavior of URLFetcher-based
-      // implementation. We really need to pass proper first party origin from
-      // the front-end.
-      resource_request->site_for_cookies = gurl;
-      resource_request->headers.AddHeadersFromString(headers);
+    // Based on DevToolsUIBindings::LoadNetworkResource.
+    auto resource_request = std::make_unique<network::ResourceRequest>();
+    resource_request->url = gurl;
+    // TODO(caseq): this preserves behavior of URLFetcher-based
+    // implementation. We really need to pass proper first party origin from
+    // the front-end.
+    resource_request->site_for_cookies = gurl;
+    resource_request->headers.AddHeadersFromString(headers);
 
-      std::unique_ptr<network::mojom::URLLoaderFactory> file_url_loader_factory;
-      scoped_refptr<network::SharedURLLoaderFactory> network_url_loader_factory;
-      std::unique_ptr<network::mojom::URLLoaderFactory>
-          webui_url_loader_factory;
-      network::mojom::URLLoaderFactory* url_loader_factory;
-      if (gurl.SchemeIsFile()) {
-        file_url_loader_factory = content::CreateFileURLLoaderFactory(
-            base::FilePath() /* profile_path */,
-            nullptr /* shared_cors_origin_access_list */);
-        url_loader_factory = file_url_loader_factory.get();
-      } else if (content::HasWebUIScheme(gurl)) {
-        base::DictionaryValue response;
-        response.SetInteger("statusCode", 403);
-        SendMessageAck(request_id, &response);
-        return;
-      } else {
-        auto* partition = content::BrowserContext::GetStoragePartitionForSite(
-            web_contents()->GetBrowserContext(), gurl);
-        network_url_loader_factory =
-            partition->GetURLLoaderFactoryForBrowserProcess();
-        url_loader_factory = network_url_loader_factory.get();
-      }
-
-      auto simple_url_loader = network::SimpleURLLoader::Create(
-          std::move(resource_request), traffic_annotation);
-      auto resource_loader = std::make_unique<NetworkResourceLoader>(
-          stream_id, this, std::move(simple_url_loader), url_loader_factory,
-          request_id);
-      loaders_.insert(std::move(resource_loader));
+    std::unique_ptr<network::mojom::URLLoaderFactory> file_url_loader_factory;
+    scoped_refptr<network::SharedURLLoaderFactory> network_url_loader_factory;
+    std::unique_ptr<network::mojom::URLLoaderFactory> webui_url_loader_factory;
+    network::mojom::URLLoaderFactory* url_loader_factory;
+    if (gurl.SchemeIsFile()) {
+      file_url_loader_factory = content::CreateFileURLLoaderFactory(
+          base::FilePath() /* profile_path */,
+          nullptr /* shared_cors_origin_access_list */);
+      url_loader_factory = file_url_loader_factory.get();
+    } else if (content::HasWebUIScheme(gurl)) {
+      base::DictionaryValue response;
+      response.SetInteger("statusCode", 403);
+      SendMessageAck(request_id, &response);
+      return;
     } else {
-      net::URLFetcher* fetcher =
-          net::URLFetcher::Create(gurl, net::URLFetcher::GET, this,
-                                  traffic_annotation)
-              .release();
-      pending_requests_[fetcher] = request_id;
-      fetcher->SetRequestContext(
-          content::BrowserContext::GetDefaultStoragePartition(
-              web_contents()->GetBrowserContext())
-              ->GetURLRequestContext());
-      fetcher->SetExtraRequestHeaders(headers);
-      fetcher->SaveResponseWithWriter(
-          std::unique_ptr<net::URLFetcherResponseWriter>(
-              new ResponseWriter(weak_factory_.GetWeakPtr(), stream_id)));
-      fetcher->Start();
+      auto* partition = content::BrowserContext::GetStoragePartitionForSite(
+          web_contents()->GetBrowserContext(), gurl);
+      network_url_loader_factory =
+          partition->GetURLLoaderFactoryForBrowserProcess();
+      url_loader_factory = network_url_loader_factory.get();
     }
+
+    auto simple_url_loader = network::SimpleURLLoader::Create(
+        std::move(resource_request), traffic_annotation);
+    auto resource_loader = std::make_unique<NetworkResourceLoader>(
+        stream_id, this, std::move(simple_url_loader), url_loader_factory,
+        request_id);
+    loaders_.insert(std::move(resource_loader));
     return;
   } else if (method == "getPreferences") {
     SendMessageAck(request_id,
@@ -534,32 +454,6 @@ void CefDevToolsFrontend::DispatchProtocolMessage(
     web_contents()->GetMainFrame()->ExecuteJavaScriptForTests(
         javascript, base::NullCallback());
   }
-}
-
-void CefDevToolsFrontend::OnURLFetchComplete(const net::URLFetcher* source) {
-  DCHECK(!net_service::IsEnabled());
-
-  // TODO(pfeldman): this is a copy of chrome's devtools_ui_bindings.cc.
-  // We should handle some of the commands including this one in content.
-  DCHECK(source);
-  PendingRequestsMap::iterator it = pending_requests_.find(source);
-  DCHECK(it != pending_requests_.end());
-
-  base::DictionaryValue response;
-  auto headers = std::make_unique<base::DictionaryValue>();
-  net::HttpResponseHeaders* rh = source->GetResponseHeaders();
-  response.SetInteger("statusCode", rh ? rh->response_code() : 200);
-
-  size_t iterator = 0;
-  std::string name;
-  std::string value;
-  while (rh && rh->EnumerateHeaderLines(&iterator, &name, &value))
-    headers->SetString(name, value);
-  response.Set("headers", std::move(headers));
-
-  SendMessageAck(it->second, &response);
-  pending_requests_.erase(it);
-  delete source;
 }
 
 void CefDevToolsFrontend::CallClientFunction(const std::string& function_name,

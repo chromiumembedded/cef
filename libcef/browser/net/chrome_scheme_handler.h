@@ -12,7 +12,6 @@
 #include "include/cef_frame.h"
 #include "include/cef_process_message.h"
 
-#include "net/url_request/url_request_job_factory.h"
 #include "url/gurl.h"
 
 namespace base {
@@ -26,8 +25,6 @@ class BrowserURLHandler;
 namespace url {
 class Origin;
 }
-
-class CefURLRequestManager;
 
 namespace scheme {
 
@@ -44,14 +41,6 @@ void DidFinishChromeLoad(CefRefPtr<CefFrame> frame, const GURL& validated_url);
 
 // Returns true if WebUI is allowed to make network requests.
 bool IsWebUIAllowedToMakeNetworkRequests(const url::Origin& origin);
-
-// Create a new ProtocolHandler that will filter the URLs passed to the default
-// "chrome" protocol handler and forward the rest to CEF's handler.
-std::unique_ptr<net::URLRequestJobFactory::ProtocolHandler>
-WrapChromeProtocolHandler(
-    CefURLRequestManager* request_manager,
-    std::unique_ptr<net::URLRequestJobFactory::ProtocolHandler>
-        chrome_protocol_handler);
 
 }  // namespace scheme
 

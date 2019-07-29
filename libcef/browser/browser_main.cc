@@ -22,7 +22,6 @@
 #include "libcef/common/extensions/extensions_client.h"
 #include "libcef/common/extensions/extensions_util.h"
 #include "libcef/common/net/net_resource_provider.h"
-#include "libcef/common/net_service/util.h"
 
 #include "base/bind.h"
 #include "base/message_loop/message_loop.h"
@@ -128,12 +127,10 @@ void CefBrowserMainParts::PreMainMessageLoopStart() {
 #endif
 
 #if defined(OS_MACOSX)
-  if (net_service::IsEnabled()) {
-    // Initialize the OSCrypt.
-    PrefService* local_state = g_browser_process->local_state();
-    DCHECK(local_state);
-    OSCrypt::Init(local_state);
-  }
+  // Initialize the OSCrypt.
+  PrefService* local_state = g_browser_process->local_state();
+  DCHECK(local_state);
+  OSCrypt::Init(local_state);
 #endif
 
   for (size_t i = 0; i < chrome_extra_parts_.size(); ++i)
@@ -162,10 +159,7 @@ int CefBrowserMainParts::PreCreateThreads() {
   // Initialize these objects before IO access restrictions are applied and
   // before the IO thread is started.
   content::GpuDataManager::GetInstance();
-  if (net_service::IsEnabled()) {
-    SystemNetworkContextManager::CreateInstance(
-        g_browser_process->local_state());
-  }
+  SystemNetworkContextManager::CreateInstance(g_browser_process->local_state());
 
   for (size_t i = 0; i < chrome_extra_parts_.size(); ++i)
     chrome_extra_parts_[i]->PreCreateThreads();

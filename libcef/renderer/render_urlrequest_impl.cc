@@ -316,9 +316,9 @@ class CefRenderURLRequest::Context
 
   void NotifyUploadProgressIfNecessary() {
     if (!got_upload_progress_complete_ && upload_data_size_ > 0) {
-      // URLFetcher sends upload notifications using a timer and will not send
-      // a notification if the request completes too quickly. We therefore
-      // send the notification here if necessary.
+      // Upload notifications are sent using a timer and may not occur if the
+      // request completes too quickly. We therefore send the notification here
+      // if necessary.
       client_->OnUploadProgress(url_request_.get(), upload_data_size_,
                                 upload_data_size_);
       got_upload_progress_complete_ = true;

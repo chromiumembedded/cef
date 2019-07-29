@@ -12,7 +12,6 @@
 
 namespace net {
 class HttpResponseHeaders;
-class URLRequest;
 }  // namespace net
 
 namespace blink {
@@ -46,7 +45,6 @@ class CefResponseImpl : public CefResponse {
   void SetResponseHeaders(const net::HttpResponseHeaders& headers);
 
   void Set(const blink::WebURLResponse& response);
-  void Set(const net::URLRequest* request);
 
   void SetReadOnly(bool read_only);
 

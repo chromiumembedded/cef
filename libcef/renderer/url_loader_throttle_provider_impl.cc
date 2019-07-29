@@ -46,8 +46,6 @@ CefURLLoaderThrottleProviderImpl::CreateThrottles(
 
   std::vector<std::unique_ptr<content::URLLoaderThrottle>> throttles;
 
-  bool network_service_enabled =
-      base::FeatureList::IsEnabled(network::features::kNetworkService);
   // Some throttles have already been added in the browser for frame resources.
   // Don't add them for frame requests.
   bool is_frame_resource = content::IsResourceTypeFrame(resource_type);
@@ -55,7 +53,7 @@ CefURLLoaderThrottleProviderImpl::CreateThrottles(
   DCHECK(!is_frame_resource ||
          type_ == content::URLLoaderThrottleProviderType::kFrame);
 
-  if (extensions::ExtensionsEnabled() && network_service_enabled &&
+  if (extensions::ExtensionsEnabled() &&
       type_ == content::URLLoaderThrottleProviderType::kFrame &&
       resource_type == content::ResourceType::kObject) {
     content::RenderFrame* render_frame =

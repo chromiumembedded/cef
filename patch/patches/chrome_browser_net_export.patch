@@ -1,55 +1,3 @@
-diff --git chrome/browser/browser_process.h chrome/browser/browser_process.h
-index 761d300aa06b..f86558dd6efc 100644
---- chrome/browser/browser_process.h
-+++ chrome/browser/browser_process.h
-@@ -40,6 +40,10 @@ class WatchDogThread;
- class WebRtcLogUploader;
- class StartupData;
- 
-+namespace net_log {
-+class NetExportFileWriter;
-+}
-+
- namespace network {
- class NetworkQualityTracker;
- class SharedURLLoaderFactory;
-@@ -184,6 +188,9 @@ class BrowserProcess {
-   // backed by the IOThread's URLRequestContext.
-   virtual SystemNetworkContextManager* system_network_context_manager() = 0;
- 
-+  // Provide direct accessor for CEF.
-+  virtual net_log::NetExportFileWriter* net_export_file_writer() = 0;
-+
-   // Returns a NetworkQualityTracker that can be used to subscribe for
-   // network quality change events.
-   virtual network::NetworkQualityTracker* network_quality_tracker() = 0;
-diff --git chrome/browser/browser_process_impl.cc chrome/browser/browser_process_impl.cc
-index c2e0b9172eb2..57c22ff16f4b 100644
---- chrome/browser/browser_process_impl.cc
-+++ chrome/browser/browser_process_impl.cc
-@@ -683,6 +683,10 @@ BrowserProcessImpl::system_network_context_manager() {
-   return SystemNetworkContextManager::GetInstance();
- }
- 
-+net_log::NetExportFileWriter* BrowserProcessImpl::net_export_file_writer() {
-+  return system_network_context_manager()->GetNetExportFileWriter();
-+}
-+
- scoped_refptr<network::SharedURLLoaderFactory>
- BrowserProcessImpl::shared_url_loader_factory() {
-   return system_network_context_manager()->GetSharedURLLoaderFactory();
-diff --git chrome/browser/browser_process_impl.h chrome/browser/browser_process_impl.h
-index 95a7bd8e8b58..af7685f86848 100644
---- chrome/browser/browser_process_impl.h
-+++ chrome/browser/browser_process_impl.h
-@@ -142,6 +142,7 @@ class BrowserProcessImpl : public BrowserProcess,
-   // TODO(qinmin): Remove this method as callers can retrieve the global
-   // instance from SystemNetworkContextManager directly.
-   SystemNetworkContextManager* system_network_context_manager() override;
-+  net_log::NetExportFileWriter* net_export_file_writer() override;
-   scoped_refptr<network::SharedURLLoaderFactory> shared_url_loader_factory()
-       override;
-   network::NetworkQualityTracker* network_quality_tracker() override;
 diff --git chrome/browser/ui/BUILD.gn chrome/browser/ui/BUILD.gn
 index 6bd5bea7ddb0..076306275b5b 100644
 --- chrome/browser/ui/BUILD.gn
@@ -82,7 +30,7 @@ index 6bd5bea7ddb0..076306275b5b 100644
      "//chrome:resources",
      "//chrome:strings",
 diff --git chrome/browser/ui/webui/net_export_ui.cc chrome/browser/ui/webui/net_export_ui.cc
-index 1b9b3d857f47..84b875f0e01d 100644
+index 1b9b3d857f47..85e2d1e5a5d5 100644
 --- chrome/browser/ui/webui/net_export_ui.cc
 +++ chrome/browser/ui/webui/net_export_ui.cc
 @@ -20,14 +20,13 @@
@@ -183,17 +131,7 @@ index 1b9b3d857f47..84b875f0e01d 100644
  
    base::WeakPtrFactory<NetExportMessageHandler> weak_ptr_factory_;
  
-@@ -158,8 +179,7 @@ class NetExportMessageHandler
- };
- 
- NetExportMessageHandler::NetExportMessageHandler()
--    : file_writer_(g_browser_process->system_network_context_manager()
--                       ->GetNetExportFileWriter()),
-+    : file_writer_(g_browser_process->net_export_file_writer()),
-       state_observer_manager_(this),
-       weak_ptr_factory_(this) {
-   file_writer_->Initialize();
-@@ -168,8 +188,10 @@ NetExportMessageHandler::NetExportMessageHandler()
+@@ -168,8 +189,10 @@ NetExportMessageHandler::NetExportMessageHandler()
  NetExportMessageHandler::~NetExportMessageHandler() {
    // There may be a pending file dialog, it needs to be told that the user
    // has gone away so that it doesn't try to call back.
@@ -204,7 +142,7 @@ index 1b9b3d857f47..84b875f0e01d 100644
  
    file_writer_->StopNetLog(nullptr);
  }
-@@ -232,6 +254,7 @@ void NetExportMessageHandler::OnStartNetLog(const base::ListValue* list) {
+@@ -232,6 +255,7 @@ void NetExportMessageHandler::OnStartNetLog(const base::ListValue* list) {
    if (UsingMobileUI()) {
      StartNetLog(base::FilePath());
    } else {
@@ -212,7 +150,7 @@ index 1b9b3d857f47..84b875f0e01d 100644
      base::FilePath initial_dir = last_save_dir.Pointer()->empty() ?
          DownloadPrefs::FromBrowserContext(
              web_ui()->GetWebContents()->GetBrowserContext())->DownloadPath() :
-@@ -239,6 +262,9 @@ void NetExportMessageHandler::OnStartNetLog(const base::ListValue* list) {
+@@ -239,6 +263,9 @@ void NetExportMessageHandler::OnStartNetLog(const base::ListValue* list) {
      base::FilePath initial_path =
          initial_dir.Append(FILE_PATH_LITERAL("chrome-net-export-log.json"));
      ShowSelectFileDialog(initial_path);
@@ -222,7 +160,7 @@ index 1b9b3d857f47..84b875f0e01d 100644
    }
  }
  
-@@ -248,6 +274,7 @@ void NetExportMessageHandler::OnStopNetLog(const base::ListValue* list) {
+@@ -248,6 +275,7 @@ void NetExportMessageHandler::OnStopNetLog(const base::ListValue* list) {
    std::unique_ptr<base::DictionaryValue> ui_thread_polled_data(
        new base::DictionaryValue());
  
@@ -230,7 +168,7 @@ index 1b9b3d857f47..84b875f0e01d 100644
    Profile* profile = Profile::FromWebUI(web_ui());
    SetIfNotNull(ui_thread_polled_data.get(), "prerenderInfo",
                 chrome_browser_net::GetPrerenderInfo(profile));
-@@ -257,6 +284,7 @@ void NetExportMessageHandler::OnStopNetLog(const base::ListValue* list) {
+@@ -257,6 +285,7 @@ void NetExportMessageHandler::OnStopNetLog(const base::ListValue* list) {
    SetIfNotNull(ui_thread_polled_data.get(), "serviceProviders",
                 chrome_browser_net::GetWindowsServiceProviders());
  #endif
@@ -238,7 +176,7 @@ index 1b9b3d857f47..84b875f0e01d 100644
  
    file_writer_->StopNetLog(std::move(ui_thread_polled_data));
  }
-@@ -273,6 +301,7 @@ void NetExportMessageHandler::OnShowFile(const base::ListValue* list) {
+@@ -273,6 +302,7 @@ void NetExportMessageHandler::OnShowFile(const base::ListValue* list) {
        base::Bind(&NetExportMessageHandler::ShowFileInShell, AsWeakPtr()));
  }
  
@@ -246,7 +184,7 @@ index 1b9b3d857f47..84b875f0e01d 100644
  void NetExportMessageHandler::FileSelected(const base::FilePath& path,
                                             int index,
                                             void* params) {
-@@ -291,6 +320,7 @@ void NetExportMessageHandler::FileSelectionCanceled(void* params) {
+@@ -291,6 +321,7 @@ void NetExportMessageHandler::FileSelectionCanceled(void* params) {
    DCHECK(select_file_dialog_);
    select_file_dialog_ = nullptr;
  }
@@ -254,7 +192,7 @@ index 1b9b3d857f47..84b875f0e01d 100644
  
  void NetExportMessageHandler::OnNewState(const base::DictionaryValue& state) {
    NotifyUIWithState(state.CreateDeepCopy());
-@@ -355,6 +385,7 @@ void NetExportMessageHandler::NotifyUIWithState(
+@@ -355,6 +386,7 @@ void NetExportMessageHandler::NotifyUIWithState(
                                           *state);
  }
  
@@ -262,7 +200,7 @@ index 1b9b3d857f47..84b875f0e01d 100644
  void NetExportMessageHandler::ShowSelectFileDialog(
      const base::FilePath& default_path) {
    // User may have clicked more than once before the save dialog appears.
-@@ -373,6 +404,43 @@ void NetExportMessageHandler::ShowSelectFileDialog(
+@@ -373,6 +405,43 @@ void NetExportMessageHandler::ShowSelectFileDialog(
        ui::SelectFileDialog::SELECT_SAVEAS_FILE, base::string16(), default_path,
        &file_type_info, 0, base::FilePath::StringType(), owning_window, nullptr);
  }

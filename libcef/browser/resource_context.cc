@@ -5,10 +5,8 @@
 #include "libcef/browser/resource_context.h"
 
 #include "libcef/browser/net/scheme_handler.h"
-#include "libcef/browser/net/url_request_context_getter.h"
 #include "libcef/browser/thread_util.h"
 #include "libcef/common/net/scheme_registration.h"
-#include "libcef/common/net_service/util.h"
 
 #include "base/i18n/case_conversion.h"
 #include "base/logging.h"
@@ -39,14 +37,7 @@ CefResourceContext::CefResourceContext(bool is_off_the_record)
                                     base::Unretained(this)));
 }
 
-CefResourceContext::~CefResourceContext() {
-  // This is normally called in the parent ResourceContext destructor, but we
-  // want to call it here so that this CefResourceContext object is still
-  // valid when CefNetworkDelegate::OnCompleted is called via the URLRequest
-  // destructor.
-  if (content::ResourceDispatcherHostImpl::Get())
-    content::ResourceDispatcherHostImpl::Get()->CancelRequestsForContext(this);
-}
+CefResourceContext::~CefResourceContext() {}
 
 std::unique_ptr<net::ClientCertStore>
 CefResourceContext::CreateClientCertStore() {
@@ -195,7 +186,6 @@ void CefResourceContext::RegisterSchemeHandlerFactory(
     const std::string& domain_name,
     CefRefPtr<CefSchemeHandlerFactory> factory) {
   CEF_REQUIRE_IOT();
-  DCHECK(net_service::IsEnabled());
 
   const std::string& scheme_lower = base::ToLowerASCII(scheme_name);
   std::string domain_lower;
@@ -222,7 +212,6 @@ void CefResourceContext::RegisterSchemeHandlerFactory(
 
 void CefResourceContext::ClearSchemeHandlerFactories() {
   CEF_REQUIRE_IOT();
-  DCHECK(net_service::IsEnabled());
 
   scheme_handler_factory_map_.clear();
 
@@ -233,7 +222,6 @@ void CefResourceContext::ClearSchemeHandlerFactories() {
 CefRefPtr<CefSchemeHandlerFactory> CefResourceContext::GetSchemeHandlerFactory(
     const GURL& url) {
   CEF_REQUIRE_IOT();
-  DCHECK(net_service::IsEnabled());
 
   if (scheme_handler_factory_map_.empty())
     return nullptr;
@@ -265,8 +253,6 @@ CefRefPtr<CefSchemeHandlerFactory> CefResourceContext::GetSchemeHandlerFactory(
 void CefResourceContext::InitOnIOThread() {
   CEF_REQUIRE_IOT();
 
-  if (net_service::IsEnabled()) {
-    // Add the default internal handlers.
-    scheme::RegisterInternalHandlers(this);
-  }
+  // Add the default internal handlers.
+  scheme::RegisterInternalHandlers(this);
 }

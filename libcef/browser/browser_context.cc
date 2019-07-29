@@ -17,7 +17,6 @@
 #include "libcef/browser/thread_util.h"
 #include "libcef/common/cef_switches.h"
 #include "libcef/common/extensions/extensions_util.h"
-#include "libcef/common/net_service/util.h"
 
 #include "base/command_line.h"
 #include "base/files/file_util.h"
@@ -245,7 +244,7 @@ CefBrowserContext::~CefBrowserContext() {
 
   if (resource_context_.get()) {
     // Destruction of the ResourceContext will trigger destruction of all
-    // associated URLRequests.
+    // associated network requests.
     content::BrowserThread::DeleteSoon(content::BrowserThread::IO, FROM_HERE,
                                        resource_context_.release());
   }
@@ -258,8 +257,6 @@ CefBrowserContext::~CefBrowserContext() {
 
   pref_proxy_config_tracker_->DetachFromPrefService();
 
-  if (url_request_getter_)
-    url_request_getter_->ShutdownOnUIThread();
   if (host_content_settings_map_)
     host_content_settings_map_->ShutdownOnUIThread();
 
@@ -352,15 +349,6 @@ void CefBrowserContext::Initialize() {
 
   ChromePluginServiceFilter::GetInstance()->RegisterResourceContext(
       this, resource_context_.get());
-
-  if (!net_service::IsEnabled()) {
-    // Create the CefURLRequestContextGetter via an indirect call to
-    // CreateRequestContext. Triggers a call to CefURLRequestContextGetter::
-    // GetURLRequestContext() on the IO thread which creates the
-    // CefURLRequestContext.
-    GetRequestContext();
-    DCHECK(url_request_getter_.get());
-  }
 }
 
 void CefBrowserContext::AddCefRequestContext(CefRequestContextImpl* context) {
@@ -410,9 +398,8 @@ CefBrowserContext::GetClientHintsControllerDelegate() {
 }
 
 net::URLRequestContextGetter* CefBrowserContext::GetRequestContext() {
-  CEF_REQUIRE_UIT();
-  DCHECK(!net_service::IsEnabled());
-  return GetDefaultStoragePartition(this)->GetURLRequestContext();
+  NOTREACHED() << "NetworkService is required";
+  return nullptr;
 }
 
 net::URLRequestContextGetter* CefBrowserContext::CreateMediaRequestContext() {
@@ -519,37 +506,8 @@ CefBrowserContext::GetBrowsingDataRemoverDelegate() {
 net::URLRequestContextGetter* CefBrowserContext::CreateRequestContext(
     content::ProtocolHandlerMap* protocol_handlers,
     content::URLRequestInterceptorScopedVector request_interceptors) {
-  CEF_REQUIRE_UIT();
-  DCHECK(!net_service::IsEnabled());
-  DCHECK(!url_request_getter_.get());
-
-  auto io_thread_runner =
-      base::CreateSingleThreadTaskRunnerWithTraits({BrowserThread::IO});
-
-  // Initialize the proxy configuration service.
-  // TODO(cef): Determine if we can use the Chrome/Mojo implementation from
-  // https://crrev.com/d0d0d050
-  std::unique_ptr<net::ProxyConfigService> base_service(
-      net::ProxyResolutionService::CreateSystemProxyConfigService(
-          io_thread_runner));
-  std::unique_ptr<net::ProxyConfigService> proxy_config_service(
-      pref_proxy_config_tracker_->CreateTrackingProxyConfigService(
-          std::move(base_service)));
-
-  if (extensions::ExtensionsEnabled()) {
-    // Handle only chrome-extension:// requests. CEF does not support
-    // chrome-extension-resource:// requests (it does not store shared extension
-    // data in its installation directory).
-    extensions::InfoMap* extension_info_map = extension_system()->info_map();
-    (*protocol_handlers)[extensions::kExtensionScheme] =
-        extensions::CreateExtensionProtocolHandler(IsOffTheRecord(),
-                                                   extension_info_map);
-  }
-
-  url_request_getter_ = new CefURLRequestContextGetter(
-      settings_, GetPrefs(), io_thread_runner, protocol_handlers,
-      std::move(proxy_config_service), std::move(request_interceptors));
-  return url_request_getter_.get();
+  NOTREACHED() << "NetworkService is required";
+  return nullptr;
 }
 
 net::URLRequestContextGetter*
@@ -742,7 +700,6 @@ void CefBrowserContext::ClearSchemeHandlerFactories() {
 
 network::mojom::NetworkContext* CefBrowserContext::GetNetworkContext() {
   CEF_REQUIRE_UIT();
-  DCHECK(net_service::IsEnabled());
   return GetDefaultStoragePartition(this)->GetNetworkContext();
 }
 

@@ -21,14 +21,12 @@
 #include "libcef/browser/extensions/extension_web_contents_observer.h"
 #include "libcef/browser/media_capture_devices_dispatcher.h"
 #include "libcef/browser/net/chrome_scheme_handler.h"
-#include "libcef/browser/net/net_util.h"
 #include "libcef/browser/net_service/login_delegate.h"
 #include "libcef/browser/net_service/proxy_url_loader_factory.h"
 #include "libcef/browser/net_service/resource_request_handler_wrapper.h"
 #include "libcef/browser/plugins/plugin_service_filter.h"
 #include "libcef/browser/prefs/renderer_prefs.h"
 #include "libcef/browser/printing/printing_message_filter.h"
-#include "libcef/browser/resource_dispatcher_host_delegate.h"
 #include "libcef/browser/speech_recognition_manager_delegate.h"
 #include "libcef/browser/ssl_info_impl.h"
 #include "libcef/browser/thread_util.h"
@@ -39,7 +37,6 @@
 #include "libcef/common/content_client.h"
 #include "libcef/common/extensions/extensions_util.h"
 #include "libcef/common/net/scheme_registration.h"
-#include "libcef/common/net_service/util.h"
 #include "libcef/common/request_impl.h"
 #include "libcef/common/service_manifests/builtin_service_manifests.h"
 #include "libcef/common/service_manifests/cef_content_browser_overlay_manifest.h"
@@ -1087,13 +1084,6 @@ bool CefContentBrowserClient::CanCreateWindow(
       user_gesture, opener_suppressed, no_javascript_access);
 }
 
-void CefContentBrowserClient::ResourceDispatcherHostCreated() {
-  resource_dispatcher_host_delegate_.reset(
-      new CefResourceDispatcherHostDelegate());
-  content::ResourceDispatcherHost::Get()->SetDelegate(
-      resource_dispatcher_host_delegate_.get());
-}
-
 void CefContentBrowserClient::OverrideWebkitPrefs(
     content::RenderViewHost* rvh,
     content::WebPreferences* prefs) {
@@ -1171,12 +1161,9 @@ CefContentBrowserClient::CreateURLLoaderThrottles(
   CEF_REQUIRE_IOT();
   std::vector<std::unique_ptr<content::URLLoaderThrottle>> result;
 
-  if (net_service::IsEnabled()) {
-    // Used to substitute View ID for PDF contents when using the PDF plugin.
-    result.push_back(
-        std::make_unique<PluginResponseInterceptorURLLoaderThrottle>(
-            resource_context, request.resource_type, frame_tree_node_id));
-  }
+  // Used to substitute View ID for PDF contents when using the PDF plugin.
+  result.push_back(std::make_unique<PluginResponseInterceptorURLLoaderThrottle>(
+      resource_context, request.resource_type, frame_tree_node_id));
 
   return result;
 }
@@ -1324,9 +1311,6 @@ bool CefContentBrowserClient::WillCreateURLLoaderFactory(
     network::mojom::URLLoaderFactoryRequest* factory_request,
     network::mojom::TrustedURLLoaderHeaderClientPtrInfo* header_client,
     bool* bypass_redirect_checks) {
-  if (!net_service::IsEnabled())
-    return false;
-
   auto request_handler = net_service::CreateInterceptedRequestHandler(
       browser_context, frame, render_process_id, is_navigation, is_download,
       request_initiator);
@@ -1339,9 +1323,6 @@ bool CefContentBrowserClient::WillCreateURLLoaderFactory(
 
 void CefContentBrowserClient::OnNetworkServiceCreated(
     network::mojom::NetworkService* network_service) {
-  if (!net_service::IsEnabled())
-    return;
-
   DCHECK(g_browser_process);
   PrefService* local_state = g_browser_process->local_state();
   DCHECK(local_state);
@@ -1392,16 +1373,7 @@ bool CefContentBrowserClient::HandleExternalProtocol(
     bool has_user_gesture,
     network::mojom::URLLoaderFactoryRequest* factory_request,
     network::mojom::URLLoaderFactory*& out_factory) {
-  if (net_service::IsEnabled()) {
-    // Call the other HandleExternalProtocol variant.
-    return false;
-  }
-
-  CefRefPtr<CefRequestImpl> requestPtr = new CefRequestImpl();
-  requestPtr->SetURL(url.spec());
-  requestPtr->SetReadOnly(true);
-
-  net_util::HandleExternalProtocol(requestPtr, web_contents_getter);
+  // Call the other HandleExternalProtocol variant.
   return false;
 }
 
@@ -1412,7 +1384,6 @@ bool CefContentBrowserClient::HandleExternalProtocol(
     const network::ResourceRequest& request,
     network::mojom::URLLoaderFactoryRequest* factory_request,
     network::mojom::URLLoaderFactory*& out_factory) {
-  DCHECK(net_service::IsEnabled());
   // CefBrowserPlatformDelegate::HandleExternalProtocol may be called if
   // nothing handles the request.
   auto request_handler = net_service::CreateInterceptedRequestHandler(
@@ -1423,8 +1394,7 @@ bool CefContentBrowserClient::HandleExternalProtocol(
 }
 
 std::string CefContentBrowserClient::GetProduct() const {
-  // Match the logic in chrome_content_browser_client.cc GetProduct() which
-  // will be called when the NetworkService is enabled.
+  // Match the logic in chrome_content_browser_client.cc GetProduct().
   return ::GetProduct();
 }
 
@@ -1433,8 +1403,7 @@ std::string CefContentBrowserClient::GetChromeProduct() const {
 }
 
 std::string CefContentBrowserClient::GetUserAgent() const {
-  // Match the logic in chrome_content_browser_client.cc GetUserAgent() which
-  // will be called when the NetworkService is enabled.
+  // Match the logic in chrome_content_browser_client.cc GetUserAgent().
   return ::GetUserAgent();
 }
 
