@@ -1,8 +1,8 @@
 diff --git .gn .gn
-index 01085ea84619..b79158a1a962 100644
+index 262f1b071b98..48452ac13306 100644
 --- .gn
 +++ .gn
-@@ -666,6 +666,8 @@ exec_script_whitelist =
+@@ -665,6 +665,8 @@ exec_script_whitelist =
        # in the Chromium repo outside of //build.
        "//build_overrides/build.gni",
  

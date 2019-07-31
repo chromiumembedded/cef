@@ -26,7 +26,7 @@ index cd2e8603c391..a0eb460fcae1 100644
    static void InitializeCommon(Platform* platform,
                                 std::unique_ptr<Thread> main_thread);
 diff --git third_party/blink/renderer/core/dom/dom_implementation.cc third_party/blink/renderer/core/dom/dom_implementation.cc
-index 3de30fbbe096..a7cab9da38f2 100644
+index 5e2b2fc592bd..e49fff54b36d 100644
 --- third_party/blink/renderer/core/dom/dom_implementation.cc
 +++ third_party/blink/renderer/core/dom/dom_implementation.cc
 @@ -244,10 +244,11 @@ Document* DOMImplementation::createDocument(const String& type,

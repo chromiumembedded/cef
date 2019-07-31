@@ -43,10 +43,10 @@ index 0d95af0ef882..463709a9152f 100644
            std::make_unique<media::InMemoryVideoDecodeStatsDBImpl>(nullptr);
      } else {
 diff --git content/browser/renderer_host/render_process_host_impl.cc content/browser/renderer_host/render_process_host_impl.cc
-index 4ae43e97654a..b61fddeaa2c5 100644
+index 67ec1115d928..02cf9cb0e482 100644
 --- content/browser/renderer_host/render_process_host_impl.cc
 +++ content/browser/renderer_host/render_process_host_impl.cc
-@@ -2200,6 +2200,9 @@ void RenderProcessHostImpl::RegisterMojoInterfaces() {
+@@ -2202,6 +2202,9 @@ void RenderProcessHostImpl::RegisterMojoInterfaces() {
      plugin_registry_.reset(
          new PluginRegistryImpl(GetBrowserContext()->GetResourceContext()));
    }
