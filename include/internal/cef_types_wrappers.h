@@ -545,6 +545,7 @@ struct CefSettingsTraits {
     cef_string_clear(&s->framework_dir_path);
     cef_string_clear(&s->main_bundle_path);
     cef_string_clear(&s->cache_path);
+    cef_string_clear(&s->root_cache_path);
     cef_string_clear(&s->user_data_path);
     cef_string_clear(&s->user_agent);
     cef_string_clear(&s->product_version);
@@ -575,6 +576,8 @@ struct CefSettingsTraits {
 
     cef_string_set(src->cache_path.str, src->cache_path.length,
                    &target->cache_path, copy);
+    cef_string_set(src->root_cache_path.str, src->root_cache_path.length,
+                   &target->root_cache_path, copy);
     cef_string_set(src->user_data_path.str, src->user_data_path.length,
                    &target->user_data_path, copy);
     target->persist_session_cookies = src->persist_session_cookies;
