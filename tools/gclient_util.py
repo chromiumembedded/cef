@@ -36,7 +36,8 @@ def RunAction(dir, command):
     command[0] = sys.executable
 
   try:
-    gclient_utils.CheckCallAndFilterAndHeader(command, cwd=dir, always=True)
+    gclient_utils.CheckCallAndFilter(
+        command, cwd=dir, always_show_header=True, print_stdout=True)
   except gclient_utils.Error, e:
     # Use a discrete exit status code of 2 to indicate that a hook action
     # failed.  Users of this script may wish to treat hook action failures
