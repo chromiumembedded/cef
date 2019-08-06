@@ -849,6 +849,8 @@ if platform == 'windows':
       'obj\\base\\win\\pe_image.lib',
       cef_sandbox_lib,
       'obj\\sandbox\\win\\sandbox.lib',
+      'obj\\third_party\\boringssl\\boringssl.lib',
+      'obj\\third_party\\boringssl\\boringssl_asm.lib',
   ]
 
   # Generate the cef_sandbox.lib merged library. A separate *_sandbox build
