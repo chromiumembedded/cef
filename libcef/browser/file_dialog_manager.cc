@@ -364,14 +364,14 @@ void CefFileDialogManager::OnRunFileChooserDelegateCallback(
 
   if (!file_paths.empty()) {
     if (mode == blink::mojom::FileChooserParams::Mode::kUploadFolder) {
-      base_dir = file_paths[0];
-    } else {
-      // Convert FilePath list to SelectedFileInfo list.
-      for (size_t i = 0; i < file_paths.size(); ++i) {
-        auto info = blink::mojom::FileChooserFileInfo::NewNativeFile(
-            blink::mojom::NativeFileInfo::New(file_paths[i], base::string16()));
-        selected_files.push_back(std::move(info));
-      }
+      base_dir = file_paths[0].DirName();
+    }
+
+    // Convert FilePath list to SelectedFileInfo list.
+    for (size_t i = 0; i < file_paths.size(); ++i) {
+      auto info = blink::mojom::FileChooserFileInfo::NewNativeFile(
+          blink::mojom::NativeFileInfo::New(file_paths[i], base::string16()));
+      selected_files.push_back(std::move(info));
     }
   }
 
