@@ -492,7 +492,10 @@ if(OS_WINDOWS)
     # Libraries required by cef_sandbox.lib.
     set(CEF_SANDBOX_STANDARD_LIBS
       dbghelp.lib
+      PowrProf.lib
+      Propsys.lib
       psapi.lib
+      SetupAPI.lib
       version.lib
       wbemuuid.lib
       winmm.lib
