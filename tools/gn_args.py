@@ -202,6 +202,9 @@ def GetRecommendedDefaultArgs():
       # in faster local builds but False is required to create a CEF binary
       # distribution.
       'is_component_build': False,
+
+      # Don't enforce component builds in debug mode
+      'forbid_non_component_debug_builds': False,
   }
 
   if platform == 'linux':

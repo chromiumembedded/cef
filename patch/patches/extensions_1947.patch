@@ -1,5 +1,5 @@
 diff --git chrome/browser/extensions/api/streams_private/streams_private_api.cc chrome/browser/extensions/api/streams_private/streams_private_api.cc
-index 9e81f0a33ede..b796e79ae7ef 100644
+index 3841b7adf65d..41ca32ea5e2f 100644
 --- chrome/browser/extensions/api/streams_private/streams_private_api.cc
 +++ chrome/browser/extensions/api/streams_private/streams_private_api.cc
 @@ -6,6 +6,7 @@
@@ -10,7 +10,7 @@ index 9e81f0a33ede..b796e79ae7ef 100644
  #include "chrome/browser/extensions/extension_tab_util.h"
  #include "chrome/browser/prerender/prerender_contents.h"
  #include "content/public/browser/browser_thread.h"
-@@ -42,6 +43,7 @@ void StreamsPrivateAPI::SendExecuteMimeTypeHandlerEvent(
+@@ -40,6 +41,7 @@ void StreamsPrivateAPI::SendExecuteMimeTypeHandlerEvent(
    if (!web_contents)
      return;
  
@@ -18,7 +18,7 @@ index 9e81f0a33ede..b796e79ae7ef 100644
    // If the request was for a prerender, abort the prerender and do not
    // continue. This is because plugins cancel prerender, see
    // http://crbug.com/343590.
-@@ -51,6 +53,7 @@ void StreamsPrivateAPI::SendExecuteMimeTypeHandlerEvent(
+@@ -49,6 +51,7 @@ void StreamsPrivateAPI::SendExecuteMimeTypeHandlerEvent(
      prerender_contents->Destroy(prerender::FINAL_STATUS_DOWNLOAD);
      return;
    }
@@ -27,7 +27,7 @@ index 9e81f0a33ede..b796e79ae7ef 100644
    auto* browser_context = web_contents->GetBrowserContext();
  
 diff --git extensions/browser/extension_host.cc extensions/browser/extension_host.cc
-index 8cc9503fc131..b74c385b40a2 100644
+index 5dc2d564c85a..864f2f12657c 100644
 --- extensions/browser/extension_host.cc
 +++ extensions/browser/extension_host.cc
 @@ -67,11 +67,12 @@ ExtensionHost::ExtensionHost(const Extension* extension,
@@ -97,7 +97,7 @@ index 8cc9503fc131..b74c385b40a2 100644
    ExtensionRegistry::Get(browser_context_)->RemoveObserver(this);
  
 diff --git extensions/browser/extension_host.h extensions/browser/extension_host.h
-index 4027505469b8..de8258562bb2 100644
+index c0f80fd848d6..75b0e53ae68e 100644
 --- extensions/browser/extension_host.h
 +++ extensions/browser/extension_host.h
 @@ -52,13 +52,19 @@ class ExtensionHost : public DeferredStartRenderHost,
@@ -121,7 +121,7 @@ index 4027505469b8..de8258562bb2 100644
    content::RenderViewHost* render_view_host() const;
    content::RenderProcessHost* render_process_host() const;
    bool has_loaded_once() const { return has_loaded_once_; }
-@@ -180,7 +186,8 @@ class ExtensionHost : public DeferredStartRenderHost,
+@@ -181,7 +187,8 @@ class ExtensionHost : public DeferredStartRenderHost,
    content::BrowserContext* browser_context_;
  
    // The host for our HTML content.
@@ -132,10 +132,10 @@ index 4027505469b8..de8258562bb2 100644
    // A weak pointer to the current or pending RenderViewHost. We don't access
    // this through the host_contents because we want to deal with the pending
 diff --git extensions/browser/extensions_browser_client.h extensions/browser/extensions_browser_client.h
-index 3ed389242f67..4cc4d2a5bed8 100644
+index 2f4890b54897..84164c1170a3 100644
 --- extensions/browser/extensions_browser_client.h
 +++ extensions/browser/extensions_browser_client.h
-@@ -60,6 +60,7 @@ class ComponentExtensionResourceManager;
+@@ -54,6 +54,7 @@ class ComponentExtensionResourceManager;
  class Extension;
  class ExtensionCache;
  class ExtensionError;
@@ -143,7 +143,7 @@ index 3ed389242f67..4cc4d2a5bed8 100644
  class ExtensionHostDelegate;
  class ExtensionApiFrameIdMap;
  class ExtensionApiFrameIdMapHelper;
-@@ -213,6 +214,14 @@ class ExtensionsBrowserClient {
+@@ -195,6 +196,14 @@ class ExtensionsBrowserClient {
    virtual std::unique_ptr<ExtensionHostDelegate>
    CreateExtensionHostDelegate() = 0;
  
@@ -159,10 +159,10 @@ index 3ed389242f67..4cc4d2a5bed8 100644
    // once each time the extensions system is loaded per browser_context. The
    // implementation may wish to use the BrowserContext to record the current
 diff --git extensions/browser/process_manager.cc extensions/browser/process_manager.cc
-index b203c136597a..4967c176f9b8 100644
+index e0f053ce45bd..3bf13bc0ad03 100644
 --- extensions/browser/process_manager.cc
 +++ extensions/browser/process_manager.cc
-@@ -383,9 +383,16 @@ bool ProcessManager::CreateBackgroundHost(const Extension* extension,
+@@ -382,9 +382,16 @@ bool ProcessManager::CreateBackgroundHost(const Extension* extension,
      return true;  // TODO(kalman): return false here? It might break things...
  
    DVLOG(1) << "CreateBackgroundHost " << extension->id();

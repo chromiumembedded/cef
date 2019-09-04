@@ -1,5 +1,5 @@
 diff --git chrome/browser/plugins/plugin_info_host_impl.cc chrome/browser/plugins/plugin_info_host_impl.cc
-index daf826ece047..615200c4b41c 100644
+index f2223e24ec7c..8374b7f0d56d 100644
 --- chrome/browser/plugins/plugin_info_host_impl.cc
 +++ chrome/browser/plugins/plugin_info_host_impl.cc
 @@ -18,6 +18,7 @@
@@ -51,7 +51,7 @@ index daf826ece047..615200c4b41c 100644
 +
    allow_outdated_plugins_.Init(prefs::kPluginsAllowOutdated,
                                 profile->GetPrefs());
-   allow_outdated_plugins_.MoveToThread(
+   allow_outdated_plugins_.MoveToSequence(
 @@ -234,6 +247,7 @@ void PluginInfoHostImpl::PluginsLoaded(
          plugin_metadata->identifier(), &output->status);
    }
@@ -125,7 +125,7 @@ index daf826ece047..615200c4b41c 100644
    // If we broke out of the loop, we have found an enabled plugin.
    bool enabled = i < matching_plugins.size();
 diff --git chrome/browser/plugins/plugin_utils.cc chrome/browser/plugins/plugin_utils.cc
-index 01ea0ba7f0cb..f573503df5c4 100644
+index 73d60aa7f77c..89bff0de7186 100644
 --- chrome/browser/plugins/plugin_utils.cc
 +++ chrome/browser/plugins/plugin_utils.cc
 @@ -5,6 +5,7 @@
@@ -146,49 +146,45 @@ index 01ea0ba7f0cb..f573503df5c4 100644
 +#endif
 +
  #if BUILDFLAG(ENABLE_EXTENSIONS)
- #include "extensions/browser/info_map.h"
- #include "extensions/common/constants.h"
-@@ -180,10 +186,26 @@ PluginUtils::GetMimeTypeToExtensionIdMap(
+ #include "chrome/common/pref_names.h"
+ #include "components/prefs/pref_service.h"
+@@ -251,12 +257,29 @@ base::flat_map<std::string, std::string>
+ PluginUtils::GetMimeTypeToExtensionIdMap(
      content::ResourceContext* resource_context) {
-   base::flat_map<std::string, std::string> mime_type_to_extension_id_map;
  #if BUILDFLAG(ENABLE_EXTENSIONS)
 +
 +#if BUILDFLAG(ENABLE_CEF)
 +  if (!extensions::ExtensionsEnabled())
-+    return mime_type_to_extension_id_map;
++    return {};
 +
 +  CefResourceContext* context =
 +      static_cast<CefResourceContext*>(resource_context);
 +  bool profile_is_off_the_record = context->IsOffTheRecord();
-+  const scoped_refptr<const extensions::InfoMap> extension_info_map(
-+      context->GetExtensionInfoMap());
++  scoped_refptr<extensions::InfoMap> extension_info_map(
++      const_cast<extensions::InfoMap*>(context->GetExtensionInfoMap()));
 +  bool always_open_pdf_externally = !extensions::PdfExtensionEnabled();
 +#else
    ProfileIOData* io_data = ProfileIOData::FromResourceContext(resource_context);
-   bool profile_is_off_the_record = io_data->IsOffTheRecord();
-   const scoped_refptr<const extensions::InfoMap> extension_info_map(
+   scoped_refptr<extensions::InfoMap> extension_info_map(
        io_data->GetExtensionInfoMap());
++  bool profile_is_off_the_record = io_data->IsOffTheRecord();
 +  bool always_open_pdf_externally =
 +      io_data->always_open_pdf_externally()->GetValue();
 +#endif
 +
-   std::vector<std::string> whitelist = MimeTypesHandler::GetMIMETypeWhitelist();
-   // Go through the white-listed extensions and try to use them to intercept
-   // the URL request.
-@@ -198,7 +220,7 @@ PluginUtils::GetMimeTypeToExtensionIdMap(
-     }
- 
-     if (extension_id == extension_misc::kPdfExtensionId &&
--        io_data->always_open_pdf_externally()->GetValue()) {
-+        always_open_pdf_externally) {
-       continue;
-     }
- 
+   return GetMimeTypeToExtensionIdMapInternal(
+-      io_data->IsOffTheRecord(),
+-      io_data->always_open_pdf_externally()->GetValue(),
++      profile_is_off_the_record,
++      always_open_pdf_externally,
+       base::BindRepeating(
+           [](const scoped_refptr<extensions::InfoMap>& info_map,
+              const std::string& extension_id) {
 diff --git chrome/renderer/chrome_content_renderer_client.cc chrome/renderer/chrome_content_renderer_client.cc
-index 4f04b84e4899..e4f6ee474393 100644
+index ae7e07340ea4..f193040e8bca 100644
 --- chrome/renderer/chrome_content_renderer_client.cc
 +++ chrome/renderer/chrome_content_renderer_client.cc
-@@ -775,6 +775,7 @@ WebPlugin* ChromeContentRendererClient::CreatePlugin(
+@@ -794,6 +794,7 @@ WebPlugin* ChromeContentRendererClient::CreatePlugin(
  
      if ((status == chrome::mojom::PluginStatus::kUnauthorized ||
           status == chrome::mojom::PluginStatus::kBlocked) &&
@@ -196,7 +192,7 @@ index 4f04b84e4899..e4f6ee474393 100644
          observer->IsPluginTemporarilyAllowed(identifier)) {
        status = chrome::mojom::PluginStatus::kAllowed;
      }
-@@ -967,7 +968,8 @@ WebPlugin* ChromeContentRendererClient::CreatePlugin(
+@@ -994,7 +995,8 @@ WebPlugin* ChromeContentRendererClient::CreatePlugin(
          render_frame->GetRemoteAssociatedInterfaces()->GetInterface(
              &plugin_auth_host);
          plugin_auth_host->BlockedUnauthorizedPlugin(group_name, identifier);
@@ -206,7 +202,7 @@ index 4f04b84e4899..e4f6ee474393 100644
          break;
        }
        case chrome::mojom::PluginStatus::kBlocked: {
-@@ -976,7 +978,8 @@ WebPlugin* ChromeContentRendererClient::CreatePlugin(
+@@ -1003,7 +1005,8 @@ WebPlugin* ChromeContentRendererClient::CreatePlugin(
              l10n_util::GetStringFUTF16(IDS_PLUGIN_BLOCKED, group_name));
          placeholder->AllowLoading();
          RenderThread::Get()->RecordAction(UserMetricsAction("Plugin_Blocked"));
@@ -216,7 +212,7 @@ index 4f04b84e4899..e4f6ee474393 100644
          break;
        }
        case chrome::mojom::PluginStatus::kBlockedByPolicy: {
-@@ -986,7 +989,8 @@ WebPlugin* ChromeContentRendererClient::CreatePlugin(
+@@ -1013,7 +1016,8 @@ WebPlugin* ChromeContentRendererClient::CreatePlugin(
                                         group_name));
          RenderThread::Get()->RecordAction(
              UserMetricsAction("Plugin_BlockedByPolicy"));
@@ -226,7 +222,7 @@ index 4f04b84e4899..e4f6ee474393 100644
          break;
        }
        case chrome::mojom::PluginStatus::kBlockedNoLoading: {
-@@ -994,7 +998,8 @@ WebPlugin* ChromeContentRendererClient::CreatePlugin(
+@@ -1021,7 +1025,8 @@ WebPlugin* ChromeContentRendererClient::CreatePlugin(
              IDR_BLOCKED_PLUGIN_HTML,
              l10n_util::GetStringFUTF16(IDS_PLUGIN_BLOCKED_NO_LOADING,
                                         group_name));

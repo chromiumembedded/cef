@@ -101,7 +101,7 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
       bool expired_previous_decision,
       const base::Callback<void(content::CertificateRequestResultType)>&
           callback) override;
-  void SelectClientCertificate(
+  base::OnceClosure SelectClientCertificate(
       content::WebContents* web_contents,
       net::SSLCertRequestInfo* cert_request_info,
       net::ClientCertIdentityList client_certs,
@@ -131,7 +131,7 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
   std::vector<std::unique_ptr<content::URLLoaderThrottle>>
   CreateURLLoaderThrottles(
       const network::ResourceRequest& request,
-      content::ResourceContext* resource_context,
+      content::BrowserContext* resource_context,
       const base::RepeatingCallback<content::WebContents*()>& wc_getter,
       content::NavigationUIData* navigation_ui_data,
       int frame_tree_node_id) override;
@@ -177,7 +177,7 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
       bool is_navigation,
       bool is_download,
       const url::Origin& request_initiator,
-      network::mojom::URLLoaderFactoryRequest* factory_request,
+      mojo::PendingReceiver<network::mojom::URLLoaderFactory>* factory_receiver,
       network::mojom::TrustedURLLoaderHeaderClientPtrInfo* header_client,
       bool* bypass_redirect_checks) override;
   void OnNetworkServiceCreated(
@@ -195,19 +195,19 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
       bool is_main_frame,
       ui::PageTransition page_transition,
       bool has_user_gesture,
-      network::mojom::URLLoaderFactoryRequest* factory_request,
-      network::mojom::URLLoaderFactory*& out_factory) override;
+      network::mojom::URLLoaderFactoryPtr* out_factory) override;
   bool HandleExternalProtocol(
       content::ResourceRequestInfo::WebContentsGetter web_contents_getter,
       int frame_tree_node_id,
       content::NavigationUIData* navigation_data,
       const network::ResourceRequest& request,
       network::mojom::URLLoaderFactoryRequest* factory_request,
-      network::mojom::URLLoaderFactory*& out_factory) override;
-  std::string GetProduct() const override;
-  std::string GetChromeProduct() const override;
-  std::string GetUserAgent() const override;
-  blink::UserAgentMetadata GetUserAgentMetadata() const override;
+      network::mojom::URLLoaderFactoryPtr* out_factory) override;
+
+  std::string GetProduct() override;
+  std::string GetChromeProduct() override;
+  std::string GetUserAgent() override;
+  blink::UserAgentMetadata GetUserAgentMetadata() override;
   base::flat_set<std::string> GetPluginMimeTypesWithExternalHandlers(
       content::ResourceContext* resource_context) override;
 

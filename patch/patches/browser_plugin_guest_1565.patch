@@ -1,8 +1,8 @@
 diff --git content/browser/browser_plugin/browser_plugin_guest.cc content/browser/browser_plugin/browser_plugin_guest.cc
-index dfd38d5252a5..6c178ff2a8f4 100644
+index ddb17ac729df..255d2ec9729d 100644
 --- content/browser/browser_plugin/browser_plugin_guest.cc
 +++ content/browser/browser_plugin/browser_plugin_guest.cc
-@@ -308,8 +308,11 @@ void BrowserPluginGuest::InitInternal(
+@@ -307,8 +307,11 @@ void BrowserPluginGuest::InitInternal(
            static_cast<WebContentsViewGuest*>(GetWebContents()->GetView());
      }
  
@@ -15,7 +15,7 @@ index dfd38d5252a5..6c178ff2a8f4 100644
  
      // Once a BrowserPluginGuest has an embedder WebContents, it's considered to
      // be attached.
-@@ -822,10 +825,19 @@ void BrowserPluginGuest::OnWillAttachComplete(
+@@ -821,10 +824,19 @@ void BrowserPluginGuest::OnWillAttachComplete(
          static_cast<WebContentsViewGuest*>(GetWebContents()->GetView());
      if (!web_contents()->GetRenderViewHost()->GetWidget()->GetView()) {
        web_contents_view->CreateViewForWidget(
@@ -37,10 +37,10 @@ index dfd38d5252a5..6c178ff2a8f4 100644
  
    attached_ = true;
 diff --git content/browser/frame_host/interstitial_page_impl.cc content/browser/frame_host/interstitial_page_impl.cc
-index 106239c65d0e..b3b3121dec54 100644
+index 875ec8ce299b..a8e1119d4b03 100644
 --- content/browser/frame_host/interstitial_page_impl.cc
 +++ content/browser/frame_host/interstitial_page_impl.cc
-@@ -632,7 +632,7 @@ WebContentsView* InterstitialPageImpl::CreateWebContentsView() {
+@@ -624,7 +624,7 @@ WebContentsView* InterstitialPageImpl::CreateWebContentsView() {
    WebContentsView* wcv =
        static_cast<WebContentsImpl*>(web_contents())->GetView();
    RenderWidgetHostViewBase* view =
@@ -79,10 +79,10 @@ index bfb918a2cba3..a193b5a0fed8 100644
    // Creates a new View that holds a non-top-level widget and receives messages
    // for it.
 diff --git content/browser/web_contents/web_contents_view_aura.cc content/browser/web_contents/web_contents_view_aura.cc
-index ee5760ecbe0f..73521279a506 100644
+index ab27502c3509..282985c05c45 100644
 --- content/browser/web_contents/web_contents_view_aura.cc
 +++ content/browser/web_contents/web_contents_view_aura.cc
-@@ -946,7 +946,8 @@ void WebContentsViewAura::CreateView(const gfx::Size& initial_size,
+@@ -947,7 +947,8 @@ void WebContentsViewAura::CreateView(const gfx::Size& initial_size,
  }
  
  RenderWidgetHostViewBase* WebContentsViewAura::CreateViewForWidget(
@@ -92,7 +92,7 @@ index ee5760ecbe0f..73521279a506 100644
    if (render_widget_host->GetView()) {
      // During testing, the view will already be set up in most cases to the
      // test view, so we don't want to clobber it with a real one. To verify that
-@@ -958,6 +959,7 @@ RenderWidgetHostViewBase* WebContentsViewAura::CreateViewForWidget(
+@@ -959,6 +960,7 @@ RenderWidgetHostViewBase* WebContentsViewAura::CreateViewForWidget(
          render_widget_host->GetView());
    }
  
@@ -101,10 +101,10 @@ index ee5760ecbe0f..73521279a506 100644
        g_create_render_widget_host_view
            ? g_create_render_widget_host_view(render_widget_host,
 diff --git content/browser/web_contents/web_contents_view_aura.h content/browser/web_contents/web_contents_view_aura.h
-index 46ca496af77b..cd6ad38ab5ae 100644
+index 9be20d50ba4b..84c5106d15f2 100644
 --- content/browser/web_contents/web_contents_view_aura.h
 +++ content/browser/web_contents/web_contents_view_aura.h
-@@ -121,7 +121,7 @@ class CONTENT_EXPORT WebContentsViewAura
+@@ -122,7 +122,7 @@ class CONTENT_EXPORT WebContentsViewAura
                    gfx::NativeView context) override;
    RenderWidgetHostViewBase* CreateViewForWidget(
        RenderWidgetHost* render_widget_host,
@@ -208,10 +208,10 @@ index 913fbc4bb00e..731a81c72803 100644
        RenderWidgetHost* render_widget_host) override;
    void SetPageTitle(const base::string16& title) override;
 diff --git content/browser/web_contents/web_contents_view_mac.h content/browser/web_contents/web_contents_view_mac.h
-index 1b577eacbcc2..f614825b14a6 100644
+index 35da7e53b6a6..df938f455be2 100644
 --- content/browser/web_contents/web_contents_view_mac.h
 +++ content/browser/web_contents/web_contents_view_mac.h
-@@ -74,7 +74,7 @@ class WebContentsViewMac : public WebContentsView,
+@@ -77,7 +77,7 @@ class WebContentsViewMac : public WebContentsView,
                    gfx::NativeView context) override;
    RenderWidgetHostViewBase* CreateViewForWidget(
        RenderWidgetHost* render_widget_host,
@@ -221,10 +221,10 @@ index 1b577eacbcc2..f614825b14a6 100644
        RenderWidgetHost* render_widget_host) override;
    void SetPageTitle(const base::string16& title) override;
 diff --git content/browser/web_contents/web_contents_view_mac.mm content/browser/web_contents/web_contents_view_mac.mm
-index c6adcdd2b33e..a77289b96036 100644
+index 1d1f44d6a943..275e928d6bd1 100644
 --- content/browser/web_contents/web_contents_view_mac.mm
 +++ content/browser/web_contents/web_contents_view_mac.mm
-@@ -323,7 +323,8 @@ void WebContentsViewMac::CreateView(
+@@ -327,7 +327,8 @@ void WebContentsViewMac::CreateView(
  }
  
  RenderWidgetHostViewBase* WebContentsViewMac::CreateViewForWidget(
@@ -234,7 +234,7 @@ index c6adcdd2b33e..a77289b96036 100644
    if (render_widget_host->GetView()) {
      // During testing, the view will already be set up in most cases to the
      // test view, so we don't want to clobber it with a real one. To verify that
-@@ -335,6 +336,7 @@ RenderWidgetHostViewBase* WebContentsViewMac::CreateViewForWidget(
+@@ -339,6 +340,7 @@ RenderWidgetHostViewBase* WebContentsViewMac::CreateViewForWidget(
          render_widget_host->GetView());
    }
  
@@ -243,7 +243,7 @@ index c6adcdd2b33e..a77289b96036 100644
        g_create_render_widget_host_view
            ? g_create_render_widget_host_view(render_widget_host,
 diff --git content/public/browser/browser_plugin_guest_delegate.h content/public/browser/browser_plugin_guest_delegate.h
-index b7db83c24fc5..edf379709ec0 100644
+index ea12af6b86b8..f1211f374328 100644
 --- content/public/browser/browser_plugin_guest_delegate.h
 +++ content/public/browser/browser_plugin_guest_delegate.h
 @@ -20,6 +20,7 @@ class GuestHost;
@@ -266,10 +266,10 @@ index b7db83c24fc5..edf379709ec0 100644
    // a BrowserPlugin even when we are using cross process frames for guests. It
    // should be removed after resolving https://crbug.com/642826).
 diff --git extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc
-index cf367d30422b..619c14dc05a1 100644
+index b7cb9fc9df13..a4a81ee1c863 100644
 --- extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc
 +++ extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc
-@@ -233,6 +233,8 @@ void MimeHandlerViewGuest::CreateWebContents(
+@@ -212,6 +212,8 @@ void MimeHandlerViewGuest::CreateWebContents(
    WebContents::CreateParams params(browser_context(),
                                     guest_site_instance.get());
    params.guest_delegate = this;
@@ -278,7 +278,7 @@ index cf367d30422b..619c14dc05a1 100644
    // TODO(erikchen): Fix ownership semantics for guest views.
    // https://crbug.com/832879.
    std::move(callback).Run(
-@@ -277,6 +279,18 @@ bool MimeHandlerViewGuest::ShouldDestroyOnDetach() const {
+@@ -256,6 +258,18 @@ bool MimeHandlerViewGuest::ShouldDestroyOnDetach() const {
    return true;
  }
  
@@ -298,10 +298,10 @@ index cf367d30422b..619c14dc05a1 100644
      WebContents* source,
      const content::OpenURLParams& params) {
 diff --git extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.h extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.h
-index 7cdbfafb8b38..be080396eaae 100644
+index a608b0f31be0..025e4ed3af85 100644
 --- extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.h
 +++ extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.h
-@@ -131,6 +131,10 @@ class MimeHandlerViewGuest
+@@ -125,6 +125,10 @@ class MimeHandlerViewGuest
    bool ZoomPropagatesFromEmbedderToGuest() const final;
    bool ShouldDestroyOnDetach() const final;
  

@@ -458,7 +458,7 @@ class CefURLDataSource : public content::URLDataSource {
   ~CefURLDataSource() override = default;
 
   // content::URLDataSource implementation.
-  std::string GetSource() const override { return host_; }
+  std::string GetSource() override { return host_; }
 
   void StartDataRequest(
       const std::string& path,
@@ -467,11 +467,11 @@ class CefURLDataSource : public content::URLDataSource {
     callback.Run(output_);
   }
 
-  std::string GetMimeType(const std::string& path) const override {
+  std::string GetMimeType(const std::string& path) override {
     return mime_type_;
   }
 
-  bool AllowCaching() const override { return false; }
+  bool AllowCaching() override { return false; }
 
  private:
   const std::string host_;
@@ -531,7 +531,7 @@ class CefWebUIControllerFactory : public content::WebUIControllerFactory {
 
   std::unique_ptr<content::WebUIController> CreateWebUIControllerForURL(
       content::WebUI* web_ui,
-      const GURL& url) const override {
+      const GURL& url) override {
     std::unique_ptr<content::WebUIController> controller;
     if (!AllowWebUIForURL(url))
       return controller;
@@ -551,7 +551,7 @@ class CefWebUIControllerFactory : public content::WebUIControllerFactory {
   }
 
   content::WebUI::TypeID GetWebUIType(content::BrowserContext* browser_context,
-                                      const GURL& url) const override {
+                                      const GURL& url) override {
     content::WebUI::TypeID type = content::WebUI::kNoWebUI;
     if (!AllowWebUIForURL(url))
       return type;
@@ -575,7 +575,7 @@ class CefWebUIControllerFactory : public content::WebUIControllerFactory {
   }
 
   bool UseWebUIForURL(content::BrowserContext* browser_context,
-                      const GURL& url) const override {
+                      const GURL& url) override {
     if (!AllowWebUIForURL(url))
       return false;
 
@@ -595,7 +595,7 @@ class CefWebUIControllerFactory : public content::WebUIControllerFactory {
   }
 
   bool UseWebUIBindingsForURL(content::BrowserContext* browser_context,
-                              const GURL& url) const override {
+                              const GURL& url) override {
     if (!AllowWebUIForURL(url))
       return false;
 

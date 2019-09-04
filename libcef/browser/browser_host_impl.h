@@ -432,16 +432,16 @@ class CefBrowserHostImpl : public CefBrowserHost,
   void RunFileChooser(content::RenderFrameHost* render_frame_host,
                       std::unique_ptr<content::FileSelectListener> listener,
                       const blink::mojom::FileChooserParams& params) override;
-  bool EmbedsFullscreenWidget() const override;
+  bool EmbedsFullscreenWidget() override;
   void EnterFullscreenModeForTab(
       content::WebContents* web_contents,
       const GURL& origin,
       const blink::WebFullscreenOptions& options) override;
   void ExitFullscreenModeForTab(content::WebContents* web_contents) override;
   bool IsFullscreenForTabOrPending(
-      const content::WebContents* web_contents) const override;
+      const content::WebContents* web_contents) override;
   blink::WebDisplayMode GetDisplayMode(
-      const content::WebContents* web_contents) const override;
+      const content::WebContents* web_contents) override;
   void FindReply(content::WebContents* web_contents,
                  int request_id,
                  int number_of_matches,
@@ -458,7 +458,7 @@ class CefBrowserHostImpl : public CefBrowserHost,
       content::MediaResponseCallback callback) override;
   bool CheckMediaAccessPermission(content::RenderFrameHost* render_frame_host,
                                   const GURL& security_origin,
-                                  blink::MediaStreamType type) override;
+                                  blink::mojom::MediaStreamType type) override;
   bool IsNeverVisible(content::WebContents* web_contents) override;
 
   // content::WebContentsObserver methods.

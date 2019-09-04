@@ -41,8 +41,8 @@ scoped_refptr<URLLoaderFactoryGetter> URLLoaderFactoryGetter::Create(
   // Create an intermediate pipe that can be used to proxy the request's
   // URLLoaderFactory.
   network::mojom::URLLoaderFactoryPtrInfo maybe_proxy_factory_ptr_info;
-  network::mojom::URLLoaderFactoryRequest maybe_proxy_factory_request =
-      MakeRequest(&maybe_proxy_factory_ptr_info);
+  mojo::PendingReceiver<network::mojom::URLLoaderFactory>
+      maybe_proxy_factory_request = MakeRequest(&maybe_proxy_factory_ptr_info);
 
   bool should_proxy = false;
   int render_process_id = -1;

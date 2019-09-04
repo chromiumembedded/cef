@@ -41,95 +41,110 @@ class CefCompositorHostWin : public gfx::WindowImpl {
 
 using blink::WebCursorInfo;
 
-LPCWSTR ToCursorID(WebCursorInfo::Type type) {
+LPCWSTR ToCursorID(ui::CursorType type) {
   switch (type) {
-    case WebCursorInfo::kTypePointer:
+    case ui::CursorType::kPointer:
       return IDC_ARROW;
-    case WebCursorInfo::kTypeCross:
+    case ui::CursorType::kCross:
       return IDC_CROSS;
-    case WebCursorInfo::kTypeHand:
+    case ui::CursorType::kHand:
       return IDC_HAND;
-    case WebCursorInfo::kTypeIBeam:
+    case ui::CursorType::kIBeam:
       return IDC_IBEAM;
-    case WebCursorInfo::kTypeWait:
+    case ui::CursorType::kWait:
       return IDC_WAIT;
-    case WebCursorInfo::kTypeHelp:
+    case ui::CursorType::kHelp:
       return IDC_HELP;
-    case WebCursorInfo::kTypeEastResize:
+    case ui::CursorType::kEastResize:
       return IDC_SIZEWE;
-    case WebCursorInfo::kTypeNorthResize:
+    case ui::CursorType::kNorthResize:
       return IDC_SIZENS;
-    case WebCursorInfo::kTypeNorthEastResize:
+    case ui::CursorType::kNorthEastResize:
       return IDC_SIZENESW;
-    case WebCursorInfo::kTypeNorthWestResize:
+    case ui::CursorType::kNorthWestResize:
       return IDC_SIZENWSE;
-    case WebCursorInfo::kTypeSouthResize:
+    case ui::CursorType::kSouthResize:
       return IDC_SIZENS;
-    case WebCursorInfo::kTypeSouthEastResize:
+    case ui::CursorType::kSouthEastResize:
       return IDC_SIZENWSE;
-    case WebCursorInfo::kTypeSouthWestResize:
+    case ui::CursorType::kSouthWestResize:
       return IDC_SIZENESW;
-    case WebCursorInfo::kTypeWestResize:
+    case ui::CursorType::kWestResize:
       return IDC_SIZEWE;
-    case WebCursorInfo::kTypeNorthSouthResize:
+    case ui::CursorType::kNorthSouthResize:
       return IDC_SIZENS;
-    case WebCursorInfo::kTypeEastWestResize:
+    case ui::CursorType::kEastWestResize:
       return IDC_SIZEWE;
-    case WebCursorInfo::kTypeNorthEastSouthWestResize:
+    case ui::CursorType::kNorthEastSouthWestResize:
       return IDC_SIZENESW;
-    case WebCursorInfo::kTypeNorthWestSouthEastResize:
+    case ui::CursorType::kNorthWestSouthEastResize:
       return IDC_SIZENWSE;
-    case WebCursorInfo::kTypeColumnResize:
+    case ui::CursorType::kColumnResize:
       return MAKEINTRESOURCE(IDC_COLRESIZE);
-    case WebCursorInfo::kTypeRowResize:
+    case ui::CursorType::kRowResize:
       return MAKEINTRESOURCE(IDC_ROWRESIZE);
-    case WebCursorInfo::kTypeMiddlePanning:
+    case ui::CursorType::kMiddlePanning:
       return MAKEINTRESOURCE(IDC_PAN_MIDDLE);
-    case WebCursorInfo::kTypeEastPanning:
+    case ui::CursorType::kEastPanning:
       return MAKEINTRESOURCE(IDC_PAN_EAST);
-    case WebCursorInfo::kTypeNorthPanning:
+    case ui::CursorType::kNorthPanning:
       return MAKEINTRESOURCE(IDC_PAN_NORTH);
-    case WebCursorInfo::kTypeNorthEastPanning:
+    case ui::CursorType::kNorthEastPanning:
       return MAKEINTRESOURCE(IDC_PAN_NORTH_EAST);
-    case WebCursorInfo::kTypeNorthWestPanning:
+    case ui::CursorType::kNorthWestPanning:
       return MAKEINTRESOURCE(IDC_PAN_NORTH_WEST);
-    case WebCursorInfo::kTypeSouthPanning:
+    case ui::CursorType::kSouthPanning:
       return MAKEINTRESOURCE(IDC_PAN_SOUTH);
-    case WebCursorInfo::kTypeSouthEastPanning:
+    case ui::CursorType::kSouthEastPanning:
       return MAKEINTRESOURCE(IDC_PAN_SOUTH_EAST);
-    case WebCursorInfo::kTypeSouthWestPanning:
+    case ui::CursorType::kSouthWestPanning:
       return MAKEINTRESOURCE(IDC_PAN_SOUTH_WEST);
-    case WebCursorInfo::kTypeWestPanning:
+    case ui::CursorType::kWestPanning:
       return MAKEINTRESOURCE(IDC_PAN_WEST);
-    case WebCursorInfo::kTypeMove:
+    case ui::CursorType::kMove:
       return IDC_SIZEALL;
-    case WebCursorInfo::kTypeVerticalText:
+    case ui::CursorType::kVerticalText:
       return MAKEINTRESOURCE(IDC_VERTICALTEXT);
-    case WebCursorInfo::kTypeCell:
+    case ui::CursorType::kCell:
       return MAKEINTRESOURCE(IDC_CELL);
-    case WebCursorInfo::kTypeContextMenu:
+    case ui::CursorType::kContextMenu:
       return IDC_ARROW;
-    case WebCursorInfo::kTypeAlias:
+    case ui::CursorType::kAlias:
       return MAKEINTRESOURCE(IDC_ALIAS);
-    case WebCursorInfo::kTypeProgress:
+    case ui::CursorType::kProgress:
       return IDC_APPSTARTING;
-    case WebCursorInfo::kTypeNoDrop:
+    case ui::CursorType::kNoDrop:
       return IDC_NO;
-    case WebCursorInfo::kTypeCopy:
+    case ui::CursorType::kCopy:
       return MAKEINTRESOURCE(IDC_COPYCUR);
-    case WebCursorInfo::kTypeNone:
+    case ui::CursorType::kNone:
       return MAKEINTRESOURCE(IDC_CURSOR_NONE);
-    case WebCursorInfo::kTypeNotAllowed:
+    case ui::CursorType::kNotAllowed:
       return IDC_NO;
-    case WebCursorInfo::kTypeZoomIn:
+    case ui::CursorType::kZoomIn:
       return MAKEINTRESOURCE(IDC_ZOOMIN);
-    case WebCursorInfo::kTypeZoomOut:
+    case ui::CursorType::kZoomOut:
       return MAKEINTRESOURCE(IDC_ZOOMOUT);
-    case WebCursorInfo::kTypeGrab:
+    case ui::CursorType::kGrab:
       return MAKEINTRESOURCE(IDC_HAND_GRAB);
-    case WebCursorInfo::kTypeGrabbing:
+    case ui::CursorType::kGrabbing:
       return MAKEINTRESOURCE(IDC_HAND_GRABBING);
-    case WebCursorInfo::kTypeCustom:
+    case ui::CursorType::kNull:
+      return IDC_NO;
+    case ui::CursorType::kMiddlePanningVertical:
+      return MAKEINTRESOURCE(IDC_PAN_MIDDLE_VERTICAL);
+    case ui::CursorType::kMiddlePanningHorizontal:
+      return MAKEINTRESOURCE(IDC_PAN_MIDDLE_HORIZONTAL);
+    // TODO(cef): Find better cursors for these things
+    case ui::CursorType::kDndNone:
+      return IDC_ARROW;
+    case ui::CursorType::kDndMove:
+      return IDC_ARROW;
+    case ui::CursorType::kDndCopy:
+      return IDC_ARROW;
+    case ui::CursorType::kDndLink:
+      return IDC_ARROW;
+    case ui::CursorType::kCustom:
       break;
   }
   NOTREACHED();
@@ -143,7 +158,7 @@ bool IsSystemCursorID(LPCWSTR cursor_id) {
 }  // namespace
 
 ui::PlatformCursor CefRenderWidgetHostViewOSR::GetPlatformCursor(
-    blink::WebCursorInfo::Type type) {
+    ui::CursorType type) {
   HMODULE module_handle = NULL;
   const wchar_t* cursor_id = ToCursorID(type);
   if (!IsSystemCursorID(cursor_id)) {

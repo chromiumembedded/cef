@@ -389,8 +389,7 @@ void CefDownloadManagerDelegate::GetNextId(
   callback.Run(next_id++);
 }
 
-std::string CefDownloadManagerDelegate::ApplicationClientIdForFileScanning()
-    const {
+std::string CefDownloadManagerDelegate::ApplicationClientIdForFileScanning() {
   const CefSettings& settings = CefContext::Get()->settings();
   if (settings.application_client_id_for_file_scanning.length > 0) {
     return CefString(&settings.application_client_id_for_file_scanning)

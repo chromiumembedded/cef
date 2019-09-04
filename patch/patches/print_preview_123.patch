@@ -34,18 +34,18 @@ index 323534a720c1..72b232f0ed85 100644
  
  bool DownloadPrefs::IsFromTrustedSource(const download::DownloadItem& item) {
 diff --git chrome/browser/printing/print_preview_dialog_controller.cc chrome/browser/printing/print_preview_dialog_controller.cc
-index c26ddaa9aa12..ad181fdc7478 100644
+index d2a3be7590a0..883825bfc996 100644
 --- chrome/browser/printing/print_preview_dialog_controller.cc
 +++ chrome/browser/printing/print_preview_dialog_controller.cc
-@@ -16,6 +16,7 @@
+@@ -15,6 +15,7 @@
  #include "base/path_service.h"
  #include "base/strings/utf_string_conversions.h"
  #include "build/build_config.h"
 +#include "cef/libcef/features/features.h"
  #include "chrome/browser/browser_process.h"
- #include "chrome/browser/chrome_notification_types.h"
  #include "chrome/browser/extensions/chrome_extension_web_contents_observer.h"
-@@ -420,8 +421,11 @@ WebContents* PrintPreviewDialogController::CreatePrintPreviewDialog(
+ #include "chrome/browser/printing/print_view_manager.h"
+@@ -440,8 +441,11 @@ WebContents* PrintPreviewDialogController::CreatePrintPreviewDialog(
    content::HostZoomMap::Get(preview_dialog->GetSiteInstance())
        ->SetZoomLevelForHostAndScheme(print_url.scheme(), print_url.host(), 0);
    PrintViewManager::CreateForWebContents(preview_dialog);
@@ -58,22 +58,22 @@ index c26ddaa9aa12..ad181fdc7478 100644
    // Add an entry to the map.
    preview_dialog_map_[preview_dialog] = initiator;
 diff --git chrome/browser/resources/print_preview/ui/destination_dialog.html chrome/browser/resources/print_preview/ui/destination_dialog.html
-index 624b32bd370e..69b6134bcc41 100644
+index a941dae7276b..73e875985b8e 100644
 --- chrome/browser/resources/print_preview/ui/destination_dialog.html
 +++ chrome/browser/resources/print_preview/ui/destination_dialog.html
-@@ -180,9 +180,7 @@
+@@ -182,9 +182,7 @@
          </print-preview-provisional-destination-resolver>
        </div>
        <div slot="button-container">
--        <paper-button on-click="onOpenSettingsPrintPage_">
+-        <cr-button on-click="onOpenSettingsPrintPage_">
 -          $i18n{manage}
--        </paper-button>
+-        </cr-button>
 +        <div></div>
-         <paper-button class="cancel-button" on-click="onCancelButtonClick_">
+         <cr-button class="cancel-button" on-click="onCancelButtonClick_">
            $i18n{cancel}
-         </paper-button>
+         </cr-button>
 diff --git chrome/browser/resources/print_preview/ui/destination_select.html chrome/browser/resources/print_preview/ui/destination_select.html
-index d8369b509661..a0791e34b570 100644
+index 2b7cb3cec173..af79ac632cb4 100644
 --- chrome/browser/resources/print_preview/ui/destination_select.html
 +++ chrome/browser/resources/print_preview/ui/destination_select.html
 @@ -47,10 +47,6 @@
@@ -112,11 +112,11 @@ index 12f77178ea92..470b13bd7879 100644
  
  ConstrainedWebDialogUI::~ConstrainedWebDialogUI() {
 diff --git chrome/browser/ui/webui/print_preview/pdf_printer_handler.cc chrome/browser/ui/webui/print_preview/pdf_printer_handler.cc
-index e0d6a9034332..250cbeedd842 100644
+index 6147b07f6dad..a68b5bfaf193 100644
 --- chrome/browser/ui/webui/print_preview/pdf_printer_handler.cc
 +++ chrome/browser/ui/webui/print_preview/pdf_printer_handler.cc
-@@ -144,8 +144,10 @@ PdfPrinterHandler::PdfPrinterHandler(Profile* profile,
-       weak_ptr_factory_(this) {}
+@@ -143,8 +143,10 @@ PdfPrinterHandler::PdfPrinterHandler(Profile* profile,
+       sticky_settings_(sticky_settings) {}
  
  PdfPrinterHandler::~PdfPrinterHandler() {
 +#if !BUILDFLAG(ENABLE_CEF)
@@ -126,7 +126,7 @@ index e0d6a9034332..250cbeedd842 100644
  }
  
  void PdfPrinterHandler::Reset() {
-@@ -180,12 +182,14 @@ void PdfPrinterHandler::StartPrint(
+@@ -179,12 +181,14 @@ void PdfPrinterHandler::StartPrint(
      return;
    }
  
@@ -141,7 +141,7 @@ index e0d6a9034332..250cbeedd842 100644
  
    DCHECK(!print_callback_);
    print_callback_ = std::move(callback);
-@@ -324,7 +328,11 @@ void PdfPrinterHandler::SelectFile(const base::FilePath& default_filename,
+@@ -323,7 +327,11 @@ void PdfPrinterHandler::SelectFile(const base::FilePath& default_filename,
    // If the directory is empty there is no reason to create it or use the
    // default location.
    if (path.empty()) {
@@ -153,7 +153,7 @@ index e0d6a9034332..250cbeedd842 100644
      return;
    }
  
-@@ -334,8 +342,14 @@ void PdfPrinterHandler::SelectFile(const base::FilePath& default_filename,
+@@ -333,8 +341,14 @@ void PdfPrinterHandler::SelectFile(const base::FilePath& default_filename,
    base::PostTaskWithTraitsAndReplyWithResult(
        FROM_HERE, {base::MayBlock(), base::TaskPriority::BEST_EFFORT},
        base::BindOnce(&SelectSaveDirectory, path, default_path),
@@ -168,7 +168,7 @@ index e0d6a9034332..250cbeedd842 100644
  }
  
  void PdfPrinterHandler::PostPrintToPdfTask() {
-@@ -351,6 +365,7 @@ void PdfPrinterHandler::OnGotUniqueFileName(const base::FilePath& path) {
+@@ -350,6 +364,7 @@ void PdfPrinterHandler::OnGotUniqueFileName(const base::FilePath& path) {
    FileSelected(path, 0, nullptr);
  }
  
@@ -176,7 +176,7 @@ index e0d6a9034332..250cbeedd842 100644
  void PdfPrinterHandler::OnDirectorySelected(const base::FilePath& filename,
                                              const base::FilePath& directory) {
    base::FilePath path = directory.Append(filename);
-@@ -375,5 +390,36 @@ void PdfPrinterHandler::OnDirectorySelected(const base::FilePath& filename,
+@@ -374,5 +389,36 @@ void PdfPrinterHandler::OnDirectorySelected(const base::FilePath& filename,
        &file_type_info, 0, base::FilePath::StringType(),
        platform_util::GetTopLevel(preview_web_contents_->GetNativeView()), NULL);
  }
@@ -214,7 +214,7 @@ index e0d6a9034332..250cbeedd842 100644
  
  }  // namespace printing
 diff --git chrome/browser/ui/webui/print_preview/pdf_printer_handler.h chrome/browser/ui/webui/print_preview/pdf_printer_handler.h
-index eae9098f2136..1a4c4419e736 100644
+index 06f5799efbb9..6119691b2700 100644
 --- chrome/browser/ui/webui/print_preview/pdf_printer_handler.h
 +++ chrome/browser/ui/webui/print_preview/pdf_printer_handler.h
 @@ -11,9 +11,14 @@
@@ -262,7 +262,7 @@ index eae9098f2136..1a4c4419e736 100644
    Profile* const profile_;
    StickySettings* const sticky_settings_;
 diff --git chrome/browser/ui/webui/print_preview/print_preview_handler.cc chrome/browser/ui/webui/print_preview/print_preview_handler.cc
-index 47528eaccd78..2ecd9e3d5c03 100644
+index e3d7c5f14cd5..70d1b47d35c9 100644
 --- chrome/browser/ui/webui/print_preview/print_preview_handler.cc
 +++ chrome/browser/ui/webui/print_preview/print_preview_handler.cc
 @@ -26,6 +26,7 @@
@@ -273,7 +273,7 @@ index 47528eaccd78..2ecd9e3d5c03 100644
  #include "chrome/browser/app_mode/app_mode_utils.h"
  #include "chrome/browser/bad_message.h"
  #include "chrome/browser/browser_process.h"
-@@ -1243,6 +1244,9 @@ PrinterHandler* PrintPreviewHandler::GetPrinterHandler(
+@@ -1226,6 +1227,9 @@ PrinterHandler* PrintPreviewHandler::GetPrinterHandler(
      }
      return privet_printer_handler_.get();
    }
@@ -283,7 +283,7 @@ index 47528eaccd78..2ecd9e3d5c03 100644
  #endif
    if (printer_type == PrinterType::kPdfPrinter) {
      if (!pdf_printer_handler_) {
-@@ -1325,6 +1329,7 @@ void PrintPreviewHandler::OnPrintResult(const std::string& callback_id,
+@@ -1308,6 +1312,7 @@ void PrintPreviewHandler::OnPrintResult(const std::string& callback_id,
  }
  
  void PrintPreviewHandler::RegisterForGaiaCookieChanges() {
@@ -291,7 +291,7 @@ index 47528eaccd78..2ecd9e3d5c03 100644
    DCHECK(!identity_manager_);
    cloud_print_enabled_ =
        GetPrefs()->GetBoolean(prefs::kCloudPrintSubmitEnabled);
-@@ -1340,6 +1345,7 @@ void PrintPreviewHandler::RegisterForGaiaCookieChanges() {
+@@ -1323,6 +1328,7 @@ void PrintPreviewHandler::RegisterForGaiaCookieChanges() {
  
    identity_manager_ = IdentityManagerFactory::GetForProfile(profile);
    identity_manager_->AddObserver(this);
@@ -300,7 +300,7 @@ index 47528eaccd78..2ecd9e3d5c03 100644
  
  void PrintPreviewHandler::UnregisterForGaiaCookieChanges() {
 diff --git chrome/browser/ui/webui/print_preview/print_preview_ui.cc chrome/browser/ui/webui/print_preview/print_preview_ui.cc
-index f90198efcf2a..d866bf90c13a 100644
+index 2dfc91469b8e..c6fd71452fb9 100644
 --- chrome/browser/ui/webui/print_preview/print_preview_ui.cc
 +++ chrome/browser/ui/webui/print_preview/print_preview_ui.cc
 @@ -25,6 +25,7 @@
@@ -311,7 +311,7 @@ index f90198efcf2a..d866bf90c13a 100644
  #include "chrome/browser/browser_process.h"
  #include "chrome/browser/printing/background_printing_manager.h"
  #include "chrome/browser/printing/print_preview_data_service.h"
-@@ -73,12 +74,16 @@ namespace printing {
+@@ -72,12 +73,16 @@ namespace printing {
  
  namespace {
  

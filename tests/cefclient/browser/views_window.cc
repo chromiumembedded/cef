@@ -719,7 +719,6 @@ void ViewsWindow::CreateMenuModel() {
 CefRefPtr<CefLabelButton> ViewsWindow::CreateBrowseButton(
     const std::string& label,
     int id) {
-
   CefRefPtr<CefLabelButton> button =
       CefLabelButton::CreateLabelButton(this, label);
   button->SetID(id);

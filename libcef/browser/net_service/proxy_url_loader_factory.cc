@@ -644,8 +644,8 @@ void InterceptedRequest::InterceptResponseReceived(
           network::cors::header_names::kAccessControlAllowOrigin, origin));
     }
 
-    if (request_.fetch_credentials_mode ==
-        network::mojom::FetchCredentialsMode::kInclude) {
+    if (request_.credentials_mode ==
+        network::mojom::CredentialsMode::kInclude) {
       head.headers->AddHeader(MakeHeader(
           network::cors::header_names::kAccessControlAllowCredentials, "true"));
     }
@@ -1045,9 +1045,11 @@ ProxyURLLoaderFactory::ProxyURLLoaderFactory(
   DCHECK(request_handler_);
 
   // Actual creation of the factory.
-  target_factory_.Bind(std::move(target_factory_info));
-  target_factory_.set_connection_error_handler(base::BindOnce(
-      &ProxyURLLoaderFactory::OnTargetFactoryError, base::Unretained(this)));
+  if (target_factory_info) {
+    target_factory_.Bind(std::move(target_factory_info));
+    target_factory_.set_connection_error_handler(base::BindOnce(
+        &ProxyURLLoaderFactory::OnTargetFactoryError, base::Unretained(this)));
+  }
   proxy_bindings_.AddBinding(this, std::move(loader_request));
   proxy_bindings_.set_connection_error_handler(base::BindRepeating(
       &ProxyURLLoaderFactory::OnProxyBindingError, base::Unretained(this)));
@@ -1085,15 +1087,12 @@ void ProxyURLLoaderFactory::SetDisconnectCallback(
 // static
 void ProxyURLLoaderFactory::CreateProxy(
     content::BrowserContext* browser_context,
-    network::mojom::URLLoaderFactoryRequest* factory_request,
+    network::mojom::URLLoaderFactoryRequest loader_request,
+    network::mojom::URLLoaderFactoryPtrInfo target_factory_info,
     network::mojom::TrustedURLLoaderHeaderClientPtrInfo* header_client,
     std::unique_ptr<InterceptedRequestHandler> request_handler) {
   CEF_REQUIRE_UIT();
   DCHECK(request_handler);
-
-  auto proxied_request = std::move(*factory_request);
-  network::mojom::URLLoaderFactoryPtrInfo target_factory_info;
-  *factory_request = mojo::MakeRequest(&target_factory_info);
 
   network::mojom::TrustedURLLoaderHeaderClientRequest header_client_request;
   if (header_client)
@@ -1106,7 +1105,7 @@ void ProxyURLLoaderFactory::CreateProxy(
   CEF_POST_TASK(
       CEF_IOT,
       base::BindOnce(
-          &ProxyURLLoaderFactory::CreateOnIOThread, std::move(proxied_request),
+          &ProxyURLLoaderFactory::CreateOnIOThread, std::move(loader_request),
           std::move(target_factory_info), std::move(header_client_request),
           base::Unretained(resource_context), std::move(request_handler)));
 }
@@ -1114,17 +1113,12 @@ void ProxyURLLoaderFactory::CreateProxy(
 // static
 ProxyURLLoaderFactory* ProxyURLLoaderFactory::CreateProxy(
     content::ResourceRequestInfo::WebContentsGetter web_contents_getter,
-    network::mojom::URLLoaderFactoryRequest* factory_request,
+    network::mojom::URLLoaderFactoryRequest loader_request,
     std::unique_ptr<InterceptedRequestHandler> request_handler) {
   CEF_REQUIRE_IOT();
   DCHECK(request_handler);
 
-  auto proxied_request = std::move(*factory_request);
-  network::mojom::URLLoaderFactoryPtrInfo target_factory_info;
-  *factory_request = mojo::MakeRequest(&target_factory_info);
-
-  auto proxy = new ProxyURLLoaderFactory(std::move(proxied_request),
-                                         std::move(target_factory_info),
+  auto proxy = new ProxyURLLoaderFactory(std::move(loader_request), nullptr,
                                          nullptr, std::move(request_handler));
   CEF_POST_TASK(CEF_UIT,
                 base::BindOnce(ResourceContextData::AddProxyOnUIThread,
@@ -1141,7 +1135,6 @@ void ProxyURLLoaderFactory::CreateLoaderAndStart(
     network::mojom::URLLoaderClientPtr client,
     const net::MutableNetworkTrafficAnnotationTag& traffic_annotation) {
   CEF_REQUIRE_IOT();
-
   if (!CONTEXT_STATE_VALID()) {
     // Don't start a request while we're shutting down.
     return;
@@ -1157,7 +1150,8 @@ void ProxyURLLoaderFactory::CreateLoaderAndStart(
   }
 
   network::mojom::URLLoaderFactoryPtr target_factory_clone;
-  target_factory_->Clone(MakeRequest(&target_factory_clone));
+  if (target_factory_)
+    target_factory_->Clone(MakeRequest(&target_factory_clone));
 
   InterceptedRequest* req = new InterceptedRequest(
       this, RequestId(request_id, routing_id), options, request,

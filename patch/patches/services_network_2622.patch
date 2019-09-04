@@ -1,5 +1,5 @@
 diff --git chrome/browser/net/profile_network_context_service.cc chrome/browser/net/profile_network_context_service.cc
-index 2b24d1ac1b5b..6577495d87a9 100644
+index 27ebbc3dd176..063ba271c51e 100644
 --- chrome/browser/net/profile_network_context_service.cc
 +++ chrome/browser/net/profile_network_context_service.cc
 @@ -14,6 +14,7 @@
@@ -8,11 +8,11 @@ index 2b24d1ac1b5b..6577495d87a9 100644
  #include "base/task/post_task.h"
 +#include "cef/libcef/features/features.h"
  #include "chrome/browser/browser_process.h"
+ #include "chrome/browser/content_settings/cookie_settings_factory.h"
  #include "chrome/browser/content_settings/host_content_settings_map_factory.h"
- #include "chrome/browser/data_reduction_proxy/data_reduction_proxy_chrome_settings.h"
-@@ -411,16 +412,23 @@ ProfileNetworkContextService::CreateNetworkContextParams(
-       CONTENT_SETTINGS_TYPE_COOKIES, std::string(), &settings);
-   network_context_params->cookie_manager_params->settings = std::move(settings);
+@@ -427,16 +428,23 @@ ProfileNetworkContextService::CreateNetworkContextParams(
+   network_context_params->cookie_manager_params =
+       CreateCookieManagerParams(profile_, *cookie_settings_);
  
 +  network_context_params->cookieable_schemes = profile_->GetCookieableSchemes();
 +
@@ -35,10 +35,10 @@ index 2b24d1ac1b5b..6577495d87a9 100644
          base_cache_path.Append(chrome::kCacheDirname);
      network_context_params->http_cache_max_size =
 diff --git chrome/browser/profiles/profile.h chrome/browser/profiles/profile.h
-index 15d2512dbeaa..04a34b73876b 100644
+index e47a8949199f..c713ada1b206 100644
 --- chrome/browser/profiles/profile.h
 +++ chrome/browser/profiles/profile.h
-@@ -352,6 +352,11 @@ class Profile : public content::BrowserContext {
+@@ -365,6 +365,11 @@ class Profile : public content::BrowserContext {
    virtual bool ShouldRestoreOldSessionCookies();
    virtual bool ShouldPersistSessionCookies();
  
@@ -51,10 +51,10 @@ index 15d2512dbeaa..04a34b73876b 100644
    // itself, if |relative_path| is empty).
    virtual network::mojom::NetworkContextPtr CreateNetworkContext(
 diff --git net/cookies/cookie_monster.cc net/cookies/cookie_monster.cc
-index 5772e2ac6eb7..86053af86f14 100644
+index 83a309d40b1b..7d93f7891426 100644
 --- net/cookies/cookie_monster.cc
 +++ net/cookies/cookie_monster.cc
-@@ -510,6 +510,25 @@ void CookieMonster::SetCookieableSchemes(
+@@ -509,6 +509,25 @@ void CookieMonster::SetCookieableSchemes(
    MaybeRunCookieCallback(std::move(callback), true);
  }
  
@@ -81,10 +81,10 @@ index 5772e2ac6eb7..86053af86f14 100644
  void CookieMonster::SetPersistSessionCookies(bool persist_session_cookies) {
    DCHECK(thread_checker_.CalledOnValidThread());
 diff --git net/cookies/cookie_monster.h net/cookies/cookie_monster.h
-index 9b7dbbe4f644..da5ee7fe3f28 100644
+index 913737e78194..05ad0e8deffd 100644
 --- net/cookies/cookie_monster.h
 +++ net/cookies/cookie_monster.h
-@@ -176,6 +176,8 @@ class NET_EXPORT CookieMonster : public CookieStore {
+@@ -180,6 +180,8 @@ class NET_EXPORT CookieMonster : public CookieStore {
    CookieChangeDispatcher& GetChangeDispatcher() override;
    void SetCookieableSchemes(const std::vector<std::string>& schemes,
                              SetCookieableSchemesCallback callback) override;
@@ -110,10 +110,10 @@ index d6299f543edd..ac8edd449452 100644
    virtual void DumpMemoryStats(base::trace_event::ProcessMemoryDump* pmd,
                                 const std::string& parent_absolute_name) const;
 diff --git services/network/cookie_manager.cc services/network/cookie_manager.cc
-index 8be1b9dea5f7..30f23449ac51 100644
+index a73b9f31cf17..4e0d4b4b4746 100644
 --- services/network/cookie_manager.cc
 +++ services/network/cookie_manager.cc
-@@ -214,14 +214,9 @@ void CookieManager::FlushCookieStore(FlushCookieStoreCallback callback) {
+@@ -206,14 +206,9 @@ void CookieManager::FlushCookieStore(FlushCookieStoreCallback callback) {
  void CookieManager::AllowFileSchemeCookies(
      bool allow,
      AllowFileSchemeCookiesCallback callback) {
@@ -132,18 +132,18 @@ index 8be1b9dea5f7..30f23449ac51 100644
  
  void CookieManager::SetForceKeepSessionState() {
 diff --git services/network/network_context.cc services/network/network_context.cc
-index 6082e82d5854..b68b48eda578 100644
+index dffa1299b1cf..169ea2925274 100644
 --- services/network/network_context.cc
 +++ services/network/network_context.cc
-@@ -1700,6 +1700,7 @@ URLRequestContextOwner NetworkContext::ApplyContextParamsToBuilder(
+@@ -1726,6 +1726,7 @@ URLRequestContextOwner NetworkContext::ApplyContextParamsToBuilder(
    }
  
    scoped_refptr<SessionCleanupCookieStore> session_cleanup_cookie_store;
 +  std::unique_ptr<net::CookieMonster> cookie_store;
    if (params_->cookie_path) {
      scoped_refptr<base::SequencedTaskRunner> client_task_runner =
-         base::MessageLoopCurrent::Get()->task_runner();
-@@ -1727,18 +1728,27 @@ URLRequestContextOwner NetworkContext::ApplyContextParamsToBuilder(
+         base::ThreadTaskRunnerHandle::Get();
+@@ -1753,18 +1754,27 @@ URLRequestContextOwner NetworkContext::ApplyContextParamsToBuilder(
      session_cleanup_cookie_store =
          base::MakeRefCounted<SessionCleanupCookieStore>(sqlite_store);
  
@@ -175,10 +175,10 @@ index 6082e82d5854..b68b48eda578 100644
        std::make_unique<net::StaticHttpUserAgentSettings>(
            params_->accept_language, params_->user_agent);
 diff --git services/network/public/mojom/network_context.mojom services/network/public/mojom/network_context.mojom
-index 482ec3cd0ba7..d135f0f19046 100644
+index 58b18e0c3c2b..38020694872a 100644
 --- services/network/public/mojom/network_context.mojom
 +++ services/network/public/mojom/network_context.mojom
-@@ -205,6 +205,9 @@ struct NetworkContextParams {
+@@ -206,6 +206,9 @@ struct NetworkContextParams {
    // cookies. Otherwise it should be false.
    bool persist_session_cookies = false;
  

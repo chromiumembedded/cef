@@ -599,6 +599,13 @@ bool CefMainDelegate::BasicStartupComplete(int* exit_code) {
           features::kMimeHandlerViewInCrossProcessFrame.name);
     }
 
+    if (features::kAudioServiceAudioStreams.default_state ==
+        base::FEATURE_ENABLED_BY_DEFAULT) {
+      // TODO: Add support for audio service (see issue #2755)
+      disable_features.push_back(
+          features::kAudioServiceAudioStreams.name);
+    }
+
     if (!disable_features.empty()) {
       DCHECK(!base::FeatureList::GetInstance());
       std::string disable_features_str =
@@ -862,7 +869,8 @@ void CefMainDelegate::InitializeResourceBundle() {
 
   const std::string loaded_locale =
       ui::ResourceBundle::InitSharedInstanceWithLocale(
-          locale, &content_client_, ui::ResourceBundle::LOAD_COMMON_RESOURCES);
+          locale, content_client_.GetCefResourceBundleDelegate(),
+          ui::ResourceBundle::LOAD_COMMON_RESOURCES);
   if (!loaded_locale.empty() && g_browser_process)
     g_browser_process->SetApplicationLocale(loaded_locale);
 

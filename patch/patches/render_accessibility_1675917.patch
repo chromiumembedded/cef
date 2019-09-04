@@ -1,0 +1,51 @@
+diff --git content/renderer/accessibility/render_accessibility_impl.cc content/renderer/accessibility/render_accessibility_impl.cc
+index 96ac02ca4dda..8812c390b681 100644
+--- content/renderer/accessibility/render_accessibility_impl.cc
++++ content/renderer/accessibility/render_accessibility_impl.cc
+@@ -194,7 +194,6 @@ void RenderAccessibilityImpl::DidCreateNewDocument() {
+ void RenderAccessibilityImpl::DidCommitProvisionalLoad(
+     bool is_same_document_navigation,
+     ui::PageTransition transition) {
+-  is_initial_load_processed_ = false;
+   has_injected_stylesheet_ = false;
+   // Remove the image annotator if the page is loading and it was added for
+   // the one-shot image annotation (i.e. AXMode for image annotation is not
+@@ -642,8 +641,6 @@ void RenderAccessibilityImpl::SendPendingAccessibilityEvents() {
+     // ids to locations.
+     for (size_t j = 0; j < update.nodes.size(); ++j) {
+       ui::AXNodeData& src = update.nodes[j];
+-      // TODO(accessibility) What if location hasn't been set yet?
+-      // Get cached location for this node or create a new entry if none exists.
+       ui::AXRelativeBounds& dst = locations_[update.nodes[j].id];
+       dst = src.relative_bounds;
+     }
+@@ -663,13 +660,11 @@ void RenderAccessibilityImpl::SendPendingAccessibilityEvents() {
+                                             ack_token_));
+   reset_token_ = 0;
+ 
+-  if (had_layout_complete_messages && is_initial_load_processed_)
++  if (had_layout_complete_messages)
+     SendLocationChanges();
+ 
+-  if (had_load_complete_messages) {
++  if (had_load_complete_messages)
+     has_injected_stylesheet_ = false;
+-    is_initial_load_processed_ = true;
+-  }
+ 
+   if (image_annotation_debugging_)
+     AddImageAnnotationDebuggingAttributes(bundle.updates);
+diff --git content/renderer/accessibility/render_accessibility_impl.h content/renderer/accessibility/render_accessibility_impl.h
+index e5e6325c1cf6..ebc2db666772 100644
+--- content/renderer/accessibility/render_accessibility_impl.h
++++ content/renderer/accessibility/render_accessibility_impl.h
+@@ -238,9 +238,6 @@ class CONTENT_EXPORT RenderAccessibilityImpl
+   // for debugging.
+   bool image_annotation_debugging_ = false;
+ 
+-  // Has all data related to the initial page load been processed.
+-  bool is_initial_load_processed_ = false;
+-
+   // So we can queue up tasks to be executed later.
+   base::WeakPtrFactory<RenderAccessibilityImpl> weak_factory_{this};
+ 

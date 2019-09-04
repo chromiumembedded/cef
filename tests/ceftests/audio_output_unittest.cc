@@ -907,11 +907,14 @@ class AudioOutputTestHandler : public TestHandler, public CefAudioHandler {
 }  // namespace
 
 // Test audio output callbacks called on valid threads
+// TODO: Reimplement audio mirroring support (see issue #2755).
+/*
 TEST(AudioOutputTest, AudioOutputTest) {
   CefRefPtr<AudioOutputTestHandler> handler = new AudioOutputTestHandler();
   handler->ExecuteTest();
   ReleaseAndWaitForDestructor(handler);
 }
+*/
 
 // Entry point for creating audio output test objects.
 // Called from client_app_delegates.cc.

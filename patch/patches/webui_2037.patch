@@ -1,5 +1,5 @@
 diff --git chrome/browser/feedback/system_logs/log_sources/chrome_internal_log_source.cc chrome/browser/feedback/system_logs/log_sources/chrome_internal_log_source.cc
-index 00fb583bc90e..667ff3497c1c 100644
+index 827f49d3a00f..2ddfbbab1ab7 100644
 --- chrome/browser/feedback/system_logs/log_sources/chrome_internal_log_source.cc
 +++ chrome/browser/feedback/system_logs/log_sources/chrome_internal_log_source.cc
 @@ -21,6 +21,7 @@
@@ -10,7 +10,7 @@ index 00fb583bc90e..667ff3497c1c 100644
  #include "components/prefs/pref_service.h"
  #include "components/sync/driver/about_sync_util.h"
  #include "components/sync/driver/sync_service.h"
-@@ -275,6 +276,10 @@ void ChromeInternalLogSource::Fetch(SysLogsSourceCallback callback) {
+@@ -267,6 +268,10 @@ void ChromeInternalLogSource::Fetch(SysLogsSourceCallback callback) {
  }
  
  void ChromeInternalLogSource::PopulateSyncLogs(SystemLogsResponse* response) {
@@ -21,7 +21,7 @@ index 00fb583bc90e..667ff3497c1c 100644
    // We are only interested in sync logs for the primary user profile.
    Profile* profile = ProfileManager::GetPrimaryUserProfile();
    if (!profile || !ProfileSyncServiceFactory::HasSyncService(profile))
-@@ -317,6 +322,12 @@ void ChromeInternalLogSource::PopulateExtensionInfoLogs(
+@@ -309,6 +314,12 @@ void ChromeInternalLogSource::PopulateExtensionInfoLogs(
    if (!profile)
      return;
  
@@ -34,7 +34,7 @@ index 00fb583bc90e..667ff3497c1c 100644
    extensions::ExtensionRegistry* extension_registry =
        extensions::ExtensionRegistry::Get(profile);
    std::string extensions_list;
-@@ -395,6 +406,8 @@ void ChromeInternalLogSource::PopulateLocalStateSettings(
+@@ -387,6 +398,8 @@ void ChromeInternalLogSource::PopulateLocalStateSettings(
  #if defined(OS_WIN)
  void ChromeInternalLogSource::PopulateUsbKeyboardDetected(
      SystemLogsResponse* response) {

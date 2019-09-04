@@ -12,10 +12,10 @@ index a277ffa5eb59..3935b9f8c17c 100644
      if (base::PathExists(sandbox_candidate))
        sandbox_binary = sandbox_candidate;
 diff --git ui/gl/init/gl_initializer_x11.cc ui/gl/init/gl_initializer_x11.cc
-index e3c481b97d89..5fde4a0bb388 100644
+index 3fc37d1c06bd..becd622d631e 100644
 --- ui/gl/init/gl_initializer_x11.cc
 +++ ui/gl/init/gl_initializer_x11.cc
-@@ -88,7 +88,7 @@ bool InitializeStaticEGLInternal(GLImplementation implementation) {
+@@ -86,7 +86,7 @@ bool InitializeStaticEGLInternal(GLImplementation implementation) {
    if (implementation == kGLImplementationSwiftShaderGL) {
  #if BUILDFLAG(ENABLE_SWIFTSHADER)
      base::FilePath module_path;
@@ -24,9 +24,9 @@ index e3c481b97d89..5fde4a0bb388 100644
        return false;
      module_path = module_path.Append("swiftshader/");
  
-@@ -100,7 +100,7 @@ bool InitializeStaticEGLInternal(GLImplementation implementation) {
-   } else if (cmd->GetSwitchValueASCII(switches::kUseGL) ==
-              kGLImplementationANGLEName) {
+@@ -97,7 +97,7 @@ bool InitializeStaticEGLInternal(GLImplementation implementation) {
+ #endif
+   } else if (implementation == kGLImplementationEGLANGLE) {
      base::FilePath module_path;
 -    if (!base::PathService::Get(base::DIR_MODULE, &module_path))
 +    if (!base::PathService::Get(base::DIR_ASSETS, &module_path))

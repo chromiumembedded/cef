@@ -7,7 +7,7 @@
 #include <queue>
 
 #include "mojo/public/cpp/system/simple_watcher.h"
-#include "mojo/public/cpp/system/string_data_pipe_producer.h"
+#include "mojo/public/cpp/system/string_data_source.h"
 
 namespace net_service {
 
@@ -39,7 +39,7 @@ class ResponseFilterWrapper {
   mojo::ScopedDataPipeConsumerHandle source_handle_;
   base::OnceClosure error_callback_;
 
-  std::unique_ptr<mojo::StringDataPipeProducer> forwarder_;
+  std::unique_ptr<mojo::DataPipeProducer> forwarder_;
   mojo::SimpleWatcher source_watcher_;
 
   bool read_pending_ = false;
@@ -73,8 +73,8 @@ bool ResponseFilterWrapper::CreateOutputHandle(
     return false;
   }
 
-  forwarder_ = std::make_unique<mojo::StringDataPipeProducer>(
-      std::move(forwarding_handle));
+  forwarder_ =
+      std::make_unique<mojo::DataPipeProducer>(std::move(forwarding_handle));
 
   source_watcher_.Watch(
       source_handle_.get(),
@@ -213,9 +213,9 @@ void ResponseFilterWrapper::Write(std::unique_ptr<std::string> data) {
   write_pending_ = true;
 
   base::StringPiece string_piece(*data);
-  forwarder_->Write(string_piece,
-                    mojo::StringDataPipeProducer::AsyncWritingMode::
-                        STRING_STAYS_VALID_UNTIL_COMPLETION,
+  forwarder_->Write(std::make_unique<mojo::StringDataSource>(
+                        string_piece, mojo::StringDataSource::AsyncWritingMode::
+                                          STRING_STAYS_VALID_UNTIL_COMPLETION),
                     base::BindOnce(&ResponseFilterWrapper::OnWriteComplete,
                                    base::Unretained(this), std::move(data)));
 }

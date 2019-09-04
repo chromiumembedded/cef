@@ -178,14 +178,17 @@ void CefWindowImpl::BringToTop() {
 
 void CefWindowImpl::SetAlwaysOnTop(bool on_top) {
   CEF_REQUIRE_VALID_RETURN_VOID();
-  if (widget_ && on_top != widget_->IsAlwaysOnTop())
-    widget_->SetAlwaysOnTop(on_top);
+  if (widget_ && on_top != (widget_->GetZOrderLevel() ==
+                            ui::ZOrderLevel::kFloatingWindow)) {
+    widget_->SetZOrderLevel(on_top ? ui::ZOrderLevel::kFloatingWindow
+                                   : ui::ZOrderLevel::kNormal);
+  }
 }
 
 bool CefWindowImpl::IsAlwaysOnTop() {
   CEF_REQUIRE_VALID_RETURN(false);
   if (widget_)
-    return widget_->IsAlwaysOnTop();
+    return widget_->GetZOrderLevel() == ui::ZOrderLevel::kFloatingWindow;
   return false;
 }
 

@@ -1303,7 +1303,6 @@ std::unique_ptr<InterceptedRequestHandler> CreateInterceptedRequestHandler(
     content::ResourceRequestInfo::WebContentsGetter web_contents_getter,
     int frame_tree_node_id,
     const network::ResourceRequest& request) {
-  CEF_REQUIRE_IOT();
   auto wrapper = std::make_unique<InterceptedRequestHandlerWrapper>();
   CEF_POST_TASK(CEF_UIT, base::BindOnce(InitOnUIThread, wrapper->init_helper(),
                                         web_contents_getter, frame_tree_node_id,

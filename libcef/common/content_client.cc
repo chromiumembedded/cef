@@ -188,7 +188,8 @@ CefContentClient::CefContentClient(CefRefPtr<CefApp> application)
     : application_(application),
       pack_loading_disabled_(false),
       allow_pack_file_load_(false),
-      scheme_info_list_locked_(false) {
+      scheme_info_list_locked_(false),
+      resource_bundle_delegate_(this) {
   DCHECK(!g_content_client);
   g_content_client = this;
 }
@@ -236,7 +237,7 @@ void CefContentClient::AddAdditionalSchemes(Schemes* schemes) {
   scheme_info_list_locked_ = true;
 }
 
-base::string16 CefContentClient::GetLocalizedString(int message_id) const {
+base::string16 CefContentClient::GetLocalizedString(int message_id) {
   base::string16 value =
       ui::ResourceBundle::GetSharedInstance().GetLocalizedString(message_id);
   if (value.empty())
@@ -247,7 +248,7 @@ base::string16 CefContentClient::GetLocalizedString(int message_id) const {
 
 base::string16 CefContentClient::GetLocalizedString(
     int message_id,
-    const base::string16& replacement) const {
+    const base::string16& replacement) {
   base::string16 value = l10n_util::GetStringFUTF16(message_id, replacement);
   if (value.empty())
     LOG(ERROR) << "No localized string available for id " << message_id;
@@ -257,7 +258,7 @@ base::string16 CefContentClient::GetLocalizedString(
 
 base::StringPiece CefContentClient::GetDataResource(
     int resource_id,
-    ui::ScaleFactor scale_factor) const {
+    ui::ScaleFactor scale_factor) {
   base::StringPiece value =
       ui::ResourceBundle::GetSharedInstance().GetRawDataResourceForScale(
           resource_id, scale_factor);
@@ -268,7 +269,7 @@ base::StringPiece CefContentClient::GetDataResource(
 }
 
 base::RefCountedMemory* CefContentClient::GetDataResourceBytes(
-    int resource_id) const {
+    int resource_id) {
   base::RefCountedMemory* value =
       ui::ResourceBundle::GetSharedInstance().LoadDataResourceBytes(
           resource_id);
@@ -278,11 +279,11 @@ base::RefCountedMemory* CefContentClient::GetDataResourceBytes(
   return value;
 }
 
-bool CefContentClient::IsDataResourceGzipped(int resource_id) const {
+bool CefContentClient::IsDataResourceGzipped(int resource_id) {
   return ui::ResourceBundle::GetSharedInstance().IsGzipped(resource_id);
 }
 
-gfx::Image& CefContentClient::GetNativeImageNamed(int resource_id) const {
+gfx::Image& CefContentClient::GetNativeImageNamed(int resource_id) {
   gfx::Image& value =
       ui::ResourceBundle::GetSharedInstance().GetNativeImageNamed(resource_id);
   if (value.IsEmpty())
@@ -328,74 +329,4 @@ void CefContentClient::SetPDFEntryFunctions(
   g_pdf_get_interface = get_interface;
   g_pdf_initialize_module = initialize_module;
   g_pdf_shutdown_module = shutdown_module;
-}
-
-base::FilePath CefContentClient::GetPathForResourcePack(
-    const base::FilePath& pack_path,
-    ui::ScaleFactor scale_factor) {
-  // Only allow the cef pack file to load.
-  if (!pack_loading_disabled_ && allow_pack_file_load_)
-    return pack_path;
-  return base::FilePath();
-}
-
-base::FilePath CefContentClient::GetPathForLocalePack(
-    const base::FilePath& pack_path,
-    const std::string& locale) {
-  if (!pack_loading_disabled_)
-    return pack_path;
-  return base::FilePath();
-}
-
-gfx::Image CefContentClient::GetImageNamed(int resource_id) {
-  return gfx::Image();
-}
-
-gfx::Image CefContentClient::GetNativeImageNamed(int resource_id) {
-  return gfx::Image();
-}
-
-base::RefCountedStaticMemory* CefContentClient::LoadDataResourceBytes(
-    int resource_id,
-    ui::ScaleFactor scale_factor) {
-  return NULL;
-}
-
-bool CefContentClient::GetRawDataResource(int resource_id,
-                                          ui::ScaleFactor scale_factor,
-                                          base::StringPiece* value) {
-  if (application_.get()) {
-    CefRefPtr<CefResourceBundleHandler> handler =
-        application_->GetResourceBundleHandler();
-    if (handler.get()) {
-      void* data = NULL;
-      size_t data_size = 0;
-      if (scale_factor != ui::SCALE_FACTOR_NONE) {
-        if (handler->GetDataResourceForScale(
-                resource_id, static_cast<cef_scale_factor_t>(scale_factor),
-                data, data_size)) {
-          *value = base::StringPiece(static_cast<char*>(data), data_size);
-        }
-      } else if (handler->GetDataResource(resource_id, data, data_size)) {
-        *value = base::StringPiece(static_cast<char*>(data), data_size);
-      }
-    }
-  }
-
-  return (pack_loading_disabled_ || !value->empty());
-}
-
-bool CefContentClient::GetLocalizedString(int message_id,
-                                          base::string16* value) {
-  if (application_.get()) {
-    CefRefPtr<CefResourceBundleHandler> handler =
-        application_->GetResourceBundleHandler();
-    if (handler.get()) {
-      CefString cef_str;
-      if (handler->GetLocalizedString(message_id, cef_str))
-        *value = cef_str;
-    }
-  }
-
-  return (pack_loading_disabled_ || !value->empty());
 }

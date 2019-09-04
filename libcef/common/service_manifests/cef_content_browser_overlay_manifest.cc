@@ -11,7 +11,7 @@
 #include "components/services/heap_profiling/public/mojom/heap_profiling_client.mojom.h"
 #include "extensions/buildflags/buildflags.h"
 #include "extensions/common/api/mime_handler.mojom.h"  // nogncheck
-#include "extensions/common/mojo/keep_alive.mojom.h"   // nogncheck
+#include "extensions/common/mojom/keep_alive.mojom.h"  // nogncheck
 #include "services/service_manager/public/cpp/manifest_builder.h"
 
 #if defined(OS_WIN)

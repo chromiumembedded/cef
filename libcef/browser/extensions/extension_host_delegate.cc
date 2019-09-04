@@ -8,6 +8,7 @@
 
 #include "base/logging.h"
 #include "content/public/browser/web_contents.h"
+#include "content/public/browser/web_contents_delegate.h"
 
 namespace extensions {
 
@@ -51,7 +52,7 @@ void CefExtensionHostDelegate::ProcessMediaAccessRequest(
 bool CefExtensionHostDelegate::CheckMediaAccessPermission(
     content::RenderFrameHost* render_frame_host,
     const GURL& security_origin,
-    blink::MediaStreamType type,
+    blink::mojom::MediaStreamType type,
     const Extension* extension) {
   // Never routed here from CefBrowserHostImpl.
   NOTREACHED();
@@ -62,12 +63,12 @@ ExtensionHostQueue* CefExtensionHostDelegate::GetExtensionHostQueue() const {
   return CefExtensionsBrowserClient::Get()->GetExtensionHostQueue();
 }
 
-gfx::Size CefExtensionHostDelegate::EnterPictureInPicture(
+content::PictureInPictureResult CefExtensionHostDelegate::EnterPictureInPicture(
     content::WebContents* web_contents,
     const viz::SurfaceId& surface_id,
     const gfx::Size& natural_size) {
   NOTREACHED();
-  return gfx::Size();
+  return content::PictureInPictureResult::kNotSupported;
 }
 
 void CefExtensionHostDelegate::ExitPictureInPicture() {

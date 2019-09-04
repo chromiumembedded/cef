@@ -81,7 +81,7 @@ index 381322aca895..a5622ddfe66d 100644
    g_crash_helper_enabled = true;
    return true;
 diff --git chrome/common/crash_keys.cc chrome/common/crash_keys.cc
-index e0a839813a07..5c0d05bcc78c 100644
+index 8072b8aa696e..e15894ca788f 100644
 --- chrome/common/crash_keys.cc
 +++ chrome/common/crash_keys.cc
 @@ -4,6 +4,8 @@
@@ -93,16 +93,16 @@ index e0a839813a07..5c0d05bcc78c 100644
  #include "base/base_switches.h"
  #include "base/command_line.h"
  #include "base/logging.h"
-@@ -26,7 +28,7 @@
- 
+@@ -27,7 +29,7 @@
  namespace crash_keys {
  
+ // Return true if we DON'T want to upload this flag to the crash server.
 -static bool IsBoringSwitch(const std::string& flag) {
 +bool IsBoringChromeSwitch(const std::string& flag) {
    static const char* const kIgnoreSwitches[] = {
      switches::kEnableLogging,
      switches::kFlagSwitchesBegin,
-@@ -77,7 +79,7 @@ static bool IsBoringSwitch(const std::string& flag) {
+@@ -82,7 +84,7 @@ static bool IsBoringSwitch(const std::string& flag) {
  }
  
  void SetCrashKeysFromCommandLine(const base::CommandLine& command_line) {
@@ -127,7 +127,7 @@ index bcf172e645a2..f879aa745adf 100644
  // on the given |command_line|.
  void SetCrashKeysFromCommandLine(const base::CommandLine& command_line);
 diff --git components/crash/content/app/breakpad_linux.cc components/crash/content/app/breakpad_linux.cc
-index 3ab8ad2c5aad..ba4a353c370b 100644
+index bb5ee46d3f2b..639958e189ad 100644
 --- components/crash/content/app/breakpad_linux.cc
 +++ components/crash/content/app/breakpad_linux.cc
 @@ -28,6 +28,7 @@
@@ -138,15 +138,15 @@ index 3ab8ad2c5aad..ba4a353c370b 100644
  #include "base/files/file_path.h"
  #include "base/lazy_instance.h"
  #include "base/linux_util.h"
-@@ -89,6 +90,7 @@ namespace {
- 
- #if !defined(OS_CHROMEOS)
+@@ -101,6 +102,7 @@ namespace {
+ uint64_t g_crash_loop_before_time = 0;
+ #else
  const char kUploadURL[] = "https://clients2.google.com/cr/report";
 +const char* g_crash_server_url = kUploadURL;
  #endif
  
  bool g_is_crash_reporter_enabled = false;
-@@ -702,7 +704,7 @@ bool CrashDone(const MinidumpDescriptor& minidump,
+@@ -714,7 +716,7 @@ bool CrashDone(const MinidumpDescriptor& minidump,
    info.process_type_length = 7;
    info.distro = base::g_linux_distro;
    info.distro_length = my_strlen(base::g_linux_distro);
@@ -155,7 +155,7 @@ index 3ab8ad2c5aad..ba4a353c370b 100644
    info.process_start_time = g_process_start_time;
    info.oom_size = base::g_oom_size;
    info.pid = g_pid;
-@@ -1357,7 +1359,7 @@ void ExecUploadProcessOrTerminate(const BreakpadInfo& info,
+@@ -1400,7 +1402,7 @@ void ExecUploadProcessOrTerminate(const BreakpadInfo& info,
      header_content_encoding,
      header_content_type,
      post_file,
@@ -164,7 +164,7 @@ index 3ab8ad2c5aad..ba4a353c370b 100644
      "--timeout=10",  // Set a timeout so we don't hang forever.
      "--tries=1",     // Don't retry if the upload fails.
      "-O",  // Output reply to the file descriptor path.
-@@ -1697,10 +1699,19 @@ void HandleCrashDump(const BreakpadInfo& info) {
+@@ -1740,10 +1742,19 @@ void HandleCrashDump(const BreakpadInfo& info) {
      GetCrashReporterClient()->GetProductNameAndVersion(&product_name, &version);
  
      writer.AddBoundary();
@@ -186,7 +186,7 @@ index 3ab8ad2c5aad..ba4a353c370b 100644
      if (info.pid > 0) {
        char pid_value_buf[kUint64StringSize];
        uint64_t pid_value_len = my_uint64_len(info.pid);
-@@ -1817,10 +1828,20 @@ void HandleCrashDump(const BreakpadInfo& info) {
+@@ -1860,10 +1871,20 @@ void HandleCrashDump(const BreakpadInfo& info) {
          crash_reporter::internal::TransitionalCrashKeyStorage;
      CrashKeyStorage::Iterator crash_key_iterator(*info.crash_keys);
      const CrashKeyStorage::Entry* entry;
@@ -208,7 +208,7 @@ index 3ab8ad2c5aad..ba4a353c370b 100644
        writer.AddBoundary();
        writer.Flush();
      }
-@@ -2032,6 +2053,17 @@ void SetChannelCrashKey(const std::string& channel) {
+@@ -2075,6 +2096,17 @@ void SetChannelCrashKey(const std::string& channel) {
    channel_key.Set(channel);
  }
  
@@ -227,7 +227,7 @@ index 3ab8ad2c5aad..ba4a353c370b 100644
  void InitNonBrowserCrashReporterForAndroid(const std::string& process_type) {
    SanitizationInfo sanitization_info;
 diff --git components/crash/content/app/breakpad_linux.h components/crash/content/app/breakpad_linux.h
-index 6e95af6ca7f5..061fb189d60f 100644
+index fb7f0a8af261..0d25d227fb8a 100644
 --- components/crash/content/app/breakpad_linux.h
 +++ components/crash/content/app/breakpad_linux.h
 @@ -20,6 +20,9 @@ extern void InitCrashReporter(const std::string& process_type);
@@ -597,18 +597,3 @@ index 8f55759a6f4a..5d60fc3f84eb 100644
      std::vector<std::string> arguments(start_arguments);
  
      if (crash_reporter_client->ShouldMonitorCrashHandlerExpensively()) {
-diff --git content/browser/frame_host/debug_urls.cc content/browser/frame_host/debug_urls.cc
-index 59396b7f26e3..31491e1b5d20 100644
---- content/browser/frame_host/debug_urls.cc
-+++ content/browser/frame_host/debug_urls.cc
-@@ -136,7 +136,9 @@ bool HandleDebugURL(const GURL& url, ui::PageTransition transition) {
-           cc::switches::kEnableGpuBenchmarking) &&
-       (PageTransitionCoreTypeIs(transition, ui::PAGE_TRANSITION_TYPED));
- 
--  if (!(transition & ui::PAGE_TRANSITION_FROM_ADDRESS_BAR) &&
-+  // CEF does not use PAGE_TRANSITION_FROM_ADDRESS_BAR.
-+  if (!(transition & (ui::PAGE_TRANSITION_TYPED |
-+                      ui::PAGE_TRANSITION_FROM_ADDRESS_BAR)) &&
-       !is_telemetry_navigation)
-     return false;
- 

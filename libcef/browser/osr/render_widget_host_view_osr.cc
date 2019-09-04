@@ -47,6 +47,7 @@
 #include "content/public/browser/render_view_host.h"
 #include "content/public/common/content_switches.h"
 #include "media/base/video_frame.h"
+#include "ui/base/cursor/types/cursor_types.h"
 #include "ui/compositor/compositor.h"
 #include "ui/events/blink/blink_event_util.h"
 #include "ui/events/gesture_detection/gesture_provider_config_helper.h"
@@ -142,7 +143,7 @@ ui::LatencyInfo CreateLatencyInfo(const blink::WebInputEvent& event) {
   base::TimeTicks time = event.TimeStamp();
   if (!time.is_null()) {
     latency_info.AddLatencyNumberWithTimestamp(
-        ui::INPUT_EVENT_LATENCY_ORIGINAL_COMPONENT, time, 1);
+        ui::INPUT_EVENT_LATENCY_ORIGINAL_COMPONENT, time);
   }
   return latency_info;
 }
@@ -520,7 +521,7 @@ void CefRenderWidgetHostViewOSR::UpdateCursor(
   const cef_cursor_type_t cursor_type =
       static_cast<cef_cursor_type_t>(cursor_info.type);
   CefCursorInfo custom_cursor_info;
-  if (cursor_info.type == blink::WebCursorInfo::kTypeCustom) {
+  if (cursor_info.type == ui::CursorType::kCustom) {
     custom_cursor_info.hotspot.x = cursor_info.hotspot.x();
     custom_cursor_info.hotspot.y = cursor_info.hotspot.y();
     custom_cursor_info.image_scale_factor = cursor_info.image_scale_factor;
@@ -533,7 +534,7 @@ void CefRenderWidgetHostViewOSR::UpdateCursor(
   content::WebCursor web_cursor(cursor_info);
 
   ui::PlatformCursor platform_cursor;
-  if (cursor_info.type == blink::WebCursorInfo::kTypeCustom) {
+  if (cursor_info.type == ui::CursorType::kCustom) {
     ui::Cursor ui_cursor(ui::CursorType::kCustom);
     SkBitmap bitmap;
     gfx::Point hotspot;
@@ -819,24 +820,6 @@ void CefRenderWidgetHostViewOSR::SetWantsAnimateOnlyBeginFrames() {
   if (GetDelegatedFrameHost()) {
     GetDelegatedFrameHost()->SetWantsAnimateOnlyBeginFrames();
   }
-}
-
-bool CefRenderWidgetHostViewOSR::TransformPointToLocalCoordSpaceLegacy(
-    const gfx::PointF& point,
-    const viz::SurfaceId& original_surface,
-    gfx::PointF* transformed_point) {
-  // Transformations use physical pixels rather than DIP, so conversion
-  // is necessary.
-  gfx::PointF point_in_pixels =
-      gfx::ConvertPointToPixel(current_device_scale_factor_, point);
-  if (!GetDelegatedFrameHost()->TransformPointToLocalCoordSpaceLegacy(
-          point_in_pixels, original_surface, transformed_point)) {
-    return false;
-  }
-
-  *transformed_point =
-      gfx::ConvertPointToDIP(current_device_scale_factor_, *transformed_point);
-  return true;
 }
 
 bool CefRenderWidgetHostViewOSR::TransformPointToCoordSpaceForView(

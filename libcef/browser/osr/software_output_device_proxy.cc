@@ -65,6 +65,13 @@ void SoftwareOutputDeviceProxy::Resize(const gfx::Size& viewport_pixel_size,
     return;
   }
 
+  base::UnsafeSharedMemoryRegion region =
+      base::UnsafeSharedMemoryRegion::Create(required_bytes);
+  if (!region.IsValid()) {
+    DLOG(ERROR) << "Failed to allocate " << required_bytes << " bytes";
+    return;
+  }
+
 #if !defined(OS_WIN)
   auto shm = mojo::CreateReadOnlySharedMemoryRegion(required_bytes);
   if (!shm.IsValid()) {
@@ -72,7 +79,7 @@ void SoftwareOutputDeviceProxy::Resize(const gfx::Size& viewport_pixel_size,
     return;
   }
 
-  shm_ = std::move(shm.mapping);
+  shm_ = region.Map();
   if (!shm_.IsValid()) {
     DLOG(ERROR) << "Failed to map " << required_bytes << " bytes";
     return;
@@ -81,27 +88,15 @@ void SoftwareOutputDeviceProxy::Resize(const gfx::Size& viewport_pixel_size,
   canvas_ = skia::CreatePlatformCanvasWithPixels(
       viewport_pixel_size_.width(), viewport_pixel_size_.height(), false,
       static_cast<uint8_t*>(shm_.memory()), skia::CRASH_ON_FAILURE);
-
-  mojo::ScopedSharedBufferHandle scoped_handle =
-      mojo::WrapReadOnlySharedMemoryRegion(std::move(shm.region));
 #else
-  base::SharedMemory shm;
-  if (!shm.CreateAnonymous(required_bytes)) {
-    DLOG(ERROR) << "Failed to allocate " << required_bytes << " bytes";
-    return;
-  }
   canvas_ = skia::CreatePlatformCanvasWithSharedSection(
       viewport_pixel_size_.width(), viewport_pixel_size_.height(), false,
-      shm.handle().GetHandle(), skia::CRASH_ON_FAILURE);
-
-  // Transfer handle ownership to the browser process.
-  mojo::ScopedSharedBufferHandle scoped_handle = mojo::WrapSharedMemoryHandle(
-      shm.GetReadOnlyHandle(), required_bytes,
-      mojo::UnwrappedSharedMemoryHandleProtection::kReadOnly);
+      region.GetPlatformHandle(), skia::CRASH_ON_FAILURE);
 #endif
 
+  // Transfer region ownership to the browser process.
   layered_window_updater_->OnAllocatedSharedMemory(viewport_pixel_size_,
-                                                   std::move(scoped_handle));
+                                                   std::move(region));
 }
 
 SkCanvas* SoftwareOutputDeviceProxy::BeginPaint(const gfx::Rect& damage_rect) {

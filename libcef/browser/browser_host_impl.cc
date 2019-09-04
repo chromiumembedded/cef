@@ -735,7 +735,7 @@ void CefBrowserHostImpl::StartDownload(const CefString& url) {
 
   std::unique_ptr<download::DownloadUrlParameters> params(
       content::DownloadRequestUtils::CreateDownloadForWebContentsMainFrame(
-          web_contents(), gurl, NO_TRAFFIC_ANNOTATION_YET));
+          web_contents(), gurl, MISSING_TRAFFIC_ANNOTATION));
   manager->DownloadUrl(std::move(params));
 }
 
@@ -1744,7 +1744,7 @@ void CefBrowserHostImpl::RunFileChooser(
   file_dialog_manager_->RunFileChooser(params, callback);
 }
 
-bool CefBrowserHostImpl::EmbedsFullscreenWidget() const {
+bool CefBrowserHostImpl::EmbedsFullscreenWidget() {
   // When using windowless rendering do not allow Flash to create its own
   // full- screen widget.
   return IsWindowless();
@@ -1763,12 +1763,12 @@ void CefBrowserHostImpl::ExitFullscreenModeForTab(
 }
 
 bool CefBrowserHostImpl::IsFullscreenForTabOrPending(
-    const content::WebContents* web_contents) const {
+    const content::WebContents* web_contents) {
   return is_fullscreen_;
 }
 
 blink::WebDisplayMode CefBrowserHostImpl::GetDisplayMode(
-    const content::WebContents* web_contents) const {
+    const content::WebContents* web_contents) {
   return is_fullscreen_ ? blink::kWebDisplayModeFullscreen
                         : blink::kWebDisplayModeBrowser;
 }
@@ -2442,18 +2442,21 @@ void CefBrowserHostImpl::RequestMediaAccessPermission(
       base::CommandLine::ForCurrentProcess();
   if (!command_line->HasSwitch(switches::kEnableMediaStream)) {
     // Cancel the request.
-    std::move(callback).Run(devices, blink::MEDIA_DEVICE_PERMISSION_DENIED,
-                            std::unique_ptr<content::MediaStreamUI>());
+    std::move(callback).Run(
+        devices, blink::mojom::MediaStreamRequestResult::PERMISSION_DENIED,
+        std::unique_ptr<content::MediaStreamUI>());
     return;
   }
 
   // Based on chrome/browser/media/media_stream_devices_controller.cc
   bool microphone_requested =
-      (request.audio_type == blink::MEDIA_DEVICE_AUDIO_CAPTURE);
-  bool webcam_requested =
-      (request.video_type == blink::MEDIA_DEVICE_VIDEO_CAPTURE);
+      (request.audio_type ==
+       blink::mojom::MediaStreamType::DEVICE_AUDIO_CAPTURE);
+  bool webcam_requested = (request.video_type ==
+                           blink::mojom::MediaStreamType::DEVICE_VIDEO_CAPTURE);
   bool screen_requested =
-      (request.video_type == blink::MEDIA_GUM_DESKTOP_VIDEO_CAPTURE);
+      (request.video_type ==
+       blink::mojom::MediaStreamType::GUM_DESKTOP_VIDEO_CAPTURE);
   if (microphone_requested || webcam_requested || screen_requested) {
     // Pick the desired device or fall back to the first available of the
     // given type.
@@ -2475,20 +2478,20 @@ void CefBrowserHostImpl::RequestMediaAccessPermission(
         media_id =
             content::DesktopMediaID::Parse(request.requested_video_device_id);
       }
-      devices.push_back(
-          blink::MediaStreamDevice(blink::MEDIA_GUM_DESKTOP_VIDEO_CAPTURE,
-                                   media_id.ToString(), "Screen"));
+      devices.push_back(blink::MediaStreamDevice(
+          blink::mojom::MediaStreamType::GUM_DESKTOP_VIDEO_CAPTURE,
+          media_id.ToString(), "Screen"));
     }
   }
 
-  std::move(callback).Run(devices, blink::MEDIA_DEVICE_OK,
+  std::move(callback).Run(devices, blink::mojom::MediaStreamRequestResult::OK,
                           std::unique_ptr<content::MediaStreamUI>());
 }
 
 bool CefBrowserHostImpl::CheckMediaAccessPermission(
     content::RenderFrameHost* render_frame_host,
     const GURL& security_origin,
-    blink::MediaStreamType type) {
+    blink::mojom::MediaStreamType type) {
   // Check media access permission without prompting the user. This is called
   // when loading the Pepper Flash plugin.
   const base::CommandLine* command_line =

@@ -25,6 +25,7 @@
 #include "content/browser/renderer_host/render_widget_host_view_base.h"
 #include "content/browser/renderer_host/text_input_manager.h"
 #include "content/public/common/widget_type.h"
+#include "ui/base/cursor/types/cursor_types.h"
 #include "ui/compositor/compositor.h"
 #include "ui/compositor/external_begin_frame_client.h"
 #include "ui/events/base_event_utils.h"
@@ -175,10 +176,6 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
   CreateSyntheticGestureTarget() override;
   void SetNeedsBeginFrames(bool enabled) override;
   void SetWantsAnimateOnlyBeginFrames() override;
-  bool TransformPointToLocalCoordSpaceLegacy(
-      const gfx::PointF& point,
-      const viz::SurfaceId& original_surface,
-      gfx::PointF* transformed_point) override;
   bool TransformPointToCoordSpaceForView(
       const gfx::PointF& point,
       RenderWidgetHostViewBase* target_view,
@@ -304,7 +301,7 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
   void UpdateBackgroundColorFromRenderer(SkColor color);
 
 #if defined(USE_AURA)
-  ui::PlatformCursor GetPlatformCursor(blink::WebCursorInfo::Type type);
+  ui::PlatformCursor GetPlatformCursor(ui::CursorType type);
 #endif
 
   // The background color of the web content.

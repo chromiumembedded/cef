@@ -103,7 +103,7 @@ void CefMediaCaptureDevicesDispatcher::OnMediaRequestStateChanged(
     int render_frame_id,
     int page_request_id,
     const GURL& security_origin,
-    blink::MediaStreamType stream_type,
+    blink::mojom::MediaStreamType stream_type,
     content::MediaRequestState state) {}
 
 void CefMediaCaptureDevicesDispatcher::OnCreatingAudioStream(
@@ -114,7 +114,7 @@ void CefMediaCaptureDevicesDispatcher::OnSetCapturingLinkSecured(
     int render_process_id,
     int render_frame_id,
     int page_request_id,
-    blink::MediaStreamType stream_type,
+    blink::mojom::MediaStreamType stream_type,
     bool is_secure) {}
 
 const MediaStreamDevices&

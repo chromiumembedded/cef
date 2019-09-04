@@ -1,5 +1,5 @@
 diff --git base/values.cc base/values.cc
-index 03acb86bbc04..b65a6d542987 100644
+index 7d042cdcd459..09eb01af5745 100644
 --- base/values.cc
 +++ base/values.cc
 @@ -23,20 +23,6 @@

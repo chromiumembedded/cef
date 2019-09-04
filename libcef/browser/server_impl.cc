@@ -237,7 +237,7 @@ void CefServerImpl::SendHttp404Response(int connection_id) {
     return;
   }
 
-  server_->Send404(connection_id, NO_TRAFFIC_ANNOTATION_YET);
+  server_->Send404(connection_id, MISSING_TRAFFIC_ANNOTATION);
   server_->Close(connection_id);
 }
 
@@ -262,7 +262,7 @@ void CefServerImpl::SendHttp500Response(int connection_id,
     return;
   }
 
-  server_->Send500(connection_id, error_message, NO_TRAFFIC_ANNOTATION_YET);
+  server_->Send500(connection_id, error_message, MISSING_TRAFFIC_ANNOTATION);
   server_->Close(connection_id);
 }
 
@@ -305,7 +305,7 @@ void CefServerImpl::SendHttpResponse(int connection_id,
         base::StringPrintf("%" PRIuS, static_cast<size_t>(content_length)));
   }
 
-  server_->SendResponse(connection_id, response, NO_TRAFFIC_ANNOTATION_YET);
+  server_->SendResponse(connection_id, response, MISSING_TRAFFIC_ANNOTATION);
   if (content_length == 0) {
     server_->Close(connection_id);
   }
@@ -367,7 +367,7 @@ void CefServerImpl::ContinueWebSocketRequest(
 
   if (allow) {
     server_->AcceptWebSocket(connection_id, request_info,
-                             NO_TRAFFIC_ANNOTATION_YET);
+                             MISSING_TRAFFIC_ANNOTATION);
     handler_->OnWebSocketConnected(this, connection_id);
   } else {
     server_->Close(connection_id);
@@ -399,7 +399,7 @@ void CefServerImpl::SendHttp200ResponseInternal(
   }
 
   server_->Send200(connection_id, *data, content_type,
-                   NO_TRAFFIC_ANNOTATION_YET);
+                   MISSING_TRAFFIC_ANNOTATION);
   server_->Close(connection_id);
 }
 
@@ -418,7 +418,7 @@ void CefServerImpl::SendRawDataInternal(int connection_id,
   if (!GetConnectionInfo(connection_id))
     return;
 
-  server_->SendRaw(connection_id, *data, NO_TRAFFIC_ANNOTATION_YET);
+  server_->SendRaw(connection_id, *data, MISSING_TRAFFIC_ANNOTATION);
 }
 
 void CefServerImpl::SendWebSocketMessageInternal(
@@ -444,7 +444,7 @@ void CefServerImpl::SendWebSocketMessageInternal(
     return;
   }
 
-  server_->SendOverWebSocket(connection_id, *data, NO_TRAFFIC_ANNOTATION_YET);
+  server_->SendOverWebSocket(connection_id, *data, MISSING_TRAFFIC_ANNOTATION);
 }
 
 void CefServerImpl::OnConnect(int connection_id) {

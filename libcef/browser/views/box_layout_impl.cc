@@ -54,8 +54,8 @@ CefBoxLayoutImpl::CefBoxLayoutImpl(const CefBoxLayoutSettings& settings)
 
 views::BoxLayout* CefBoxLayoutImpl::CreateLayout() {
   views::BoxLayout* layout = new views::BoxLayout(
-      settings_.horizontal ? views::BoxLayout::kHorizontal
-                           : views::BoxLayout::kVertical,
+      settings_.horizontal ? views::BoxLayout::Orientation::kHorizontal
+                           : views::BoxLayout::Orientation::kVertical,
       gfx::Insets(settings_.inside_border_vertical_spacing,
                   settings_.inside_border_horizontal_spacing),
       settings_.between_child_spacing);

@@ -366,10 +366,6 @@ void CefExtensionSystem::InitForRegularProfile(bool extensions_enabled) {
   app_sorting_.reset(new NullAppSorting);
 }
 
-void CefExtensionSystem::InitForIncognitoProfile() {
-  NOTREACHED();
-}
-
 ExtensionService* CefExtensionSystem::extension_service() {
   return nullptr;
 }

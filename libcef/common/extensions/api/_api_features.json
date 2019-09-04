@@ -22,19 +22,21 @@
     "channel": "stable",
     "matches": ["<all_urls>"]
   },
-  "resourcesPrivate": [{
-    "dependencies": ["permission:resourcesPrivate"],
-    "contexts": ["blessed_extension"]
-  }, {
-    "channel": "stable",
-    "contexts": ["webui"],
-    "matches": [
-      "chrome://print/*"
-    ]
-  }],
+  "resourcesPrivate": [
+    {
+      "dependencies": ["permission:resourcesPrivate"],
+      "contexts": ["blessed_extension"]
+    },
+    {
+      "channel": "stable",
+      "contexts": ["webui"],
+      "matches": ["chrome://print/*"]
+    }
+  ],
   "tabs": {
     "channel": "stable",
     "extension_types": ["extension", "legacy_packaged_app"],
-    "contexts": ["blessed_extension", "extension_service_worker"]
+    "contexts": ["blessed_extension"],
+    "disallow_for_service_workers": false
   }
 }

@@ -1,8 +1,8 @@
 diff --git content/browser/network_service_client.cc content/browser/network_service_client.cc
-index 2c2795aeaf51..7cded67a3fe3 100644
+index b89e764feb03..0bb056852db2 100644
 --- content/browser/network_service_client.cc
 +++ content/browser/network_service_client.cc
-@@ -205,10 +205,6 @@ class LoginHandlerDelegate {
+@@ -207,10 +207,6 @@ class LoginHandlerDelegate {
      }
  
      WebContents* web_contents = web_contents_getter_.Run();
@@ -13,20 +13,20 @@ index 2c2795aeaf51..7cded67a3fe3 100644
  
      // WeakPtr is not strictly necessary here due to OnRequestCancelled.
      creating_login_delegate_ = true;
-@@ -500,11 +496,6 @@ void NetworkServiceClient::OnAuthRequired(
-   base::RepeatingCallback<WebContents*(void)> web_contents_getter =
-       base::BindRepeating(GetWebContents, process_id, routing_id);
- 
+@@ -332,10 +328,7 @@ void OnAuthRequiredContinuation(
+     web_contents_getter =
+         base::BindRepeating(GetWebContents, process_id, routing_id);
+   }
 -  if (!web_contents_getter.Run()) {
 -    std::move(auth_challenge_responder)->OnAuthCredentials(base::nullopt);
 -    return;
 -  }
--
-   bool is_request_for_main_frame = IsMainFrameRequest(process_id, routing_id);
++
    new LoginHandlerDelegate(std::move(auth_challenge_responder),
                             std::move(web_contents_getter), auth_info,
+                            is_request_for_main_frame, process_id, routing_id,
 diff --git services/network/public/cpp/simple_url_loader.cc services/network/public/cpp/simple_url_loader.cc
-index 068b86169fab..b8488726b6a7 100644
+index b575b0bb3a35..a04e74d5896f 100644
 --- services/network/public/cpp/simple_url_loader.cc
 +++ services/network/public/cpp/simple_url_loader.cc
 @@ -227,6 +227,7 @@ class SimpleURLLoaderImpl : public SimpleURLLoader,
@@ -46,7 +46,7 @@ index 068b86169fab..b8488726b6a7 100644
    // Populated in the constructor, and cleared once no longer needed, when no
    // more retries are possible.
    std::unique_ptr<ResourceRequest> resource_request_;
-@@ -1368,6 +1371,12 @@ void SimpleURLLoaderImpl::SetTimeoutDuration(base::TimeDelta timeout_duration) {
+@@ -1363,6 +1366,12 @@ void SimpleURLLoaderImpl::SetTimeoutDuration(base::TimeDelta timeout_duration) {
    timeout_duration_ = timeout_duration;
  }
  
@@ -59,7 +59,7 @@ index 068b86169fab..b8488726b6a7 100644
  int SimpleURLLoaderImpl::NetError() const {
    // Should only be called once the request is compelete.
    DCHECK(request_state_->finished);
-@@ -1516,7 +1525,7 @@ void SimpleURLLoaderImpl::StartRequest(
+@@ -1511,7 +1520,7 @@ void SimpleURLLoaderImpl::StartRequest(
          string_upload_data_pipe_getter_->GetPtrForNewUpload());
    }
    url_loader_factory->CreateLoaderAndStart(

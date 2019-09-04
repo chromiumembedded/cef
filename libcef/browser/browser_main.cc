@@ -167,10 +167,9 @@ int CefBrowserMainParts::PreCreateThreads() {
   return 0;
 }
 
-void CefBrowserMainParts::ServiceManagerConnectionStarted(
-    content::ServiceManagerConnection* connection) {
+void CefBrowserMainParts::PostCreateThreads() {
   for (size_t i = 0; i < chrome_extra_parts_.size(); ++i)
-    chrome_extra_parts_[i]->ServiceManagerConnectionStarted(connection);
+    chrome_extra_parts_[i]->PostCreateThreads();
 }
 
 void CefBrowserMainParts::PreMainMessageLoopRun() {

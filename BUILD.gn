@@ -100,6 +100,7 @@ import("//build/config/sanitizers/sanitizers.gni")
 import("//build/config/ui.gni")
 import("//cef/cef_repack_locales.gni")
 import("//chrome/common/features.gni")
+import("//content/public/app/mac_helpers.gni")
 import("//extensions/buildflags/buildflags.gni")
 import("//media/media_options.gni")
 import("//mojo/public/tools/bindings/mojom.gni")
@@ -124,6 +125,110 @@ if (is_mac) {
   import("//build/mac/tweak_info_plist.gni")
   import("//build/util/version.gni")
   import("//media/cdm/library_cdm/cdm_paths.gni")
+  import("//build/config/mac/base_rules.gni")
+
+  # Template to compile .xib and .storyboard files.
+  #
+  # Arguments
+  #
+  #     sources:
+  #         list of string, sources to compile
+  #
+  #     ibtool_flags:
+  #         (optional) list of string, additional flags to pass to the ibtool
+  template("compile_ib_files") {
+    action_foreach(target_name) {
+      forward_variables_from(invoker,
+                            [
+                              "testonly",
+                              "visibility",
+                            ])
+      assert(defined(invoker.sources),
+            "sources must be specified for $target_name")
+      assert(defined(invoker.output_extension),
+            "output_extension must be specified for $target_name")
+
+      ibtool_flags = []
+      if (defined(invoker.ibtool_flags)) {
+        ibtool_flags = invoker.ibtool_flags
+      }
+
+      _output_extension = invoker.output_extension
+
+      script = "//cef/tools/compile_ib_files.py"
+      sources = invoker.sources
+      outputs = [
+        "$target_gen_dir/$target_name/{{source_name_part}}.$_output_extension",
+      ]
+      args = [
+        "--input",
+        "{{source}}",
+        "--output",
+        rebase_path(
+            "$target_gen_dir/$target_name/{{source_name_part}}.$_output_extension",
+            root_build_dir),
+      ]
+      if (!use_system_xcode) {
+        args += [
+          "--developer_dir",
+          hermetic_xcode_path,
+        ]
+      }
+      args += ibtool_flags
+    }
+  }
+
+  # Template to compile and package Mac XIB files as bundle data.
+  #
+  # Arguments
+  #
+  #     sources:
+  #         list of string, sources to comiple
+  #
+  #     output_path:
+  #         (optional) string, the path to use for the outputs list in the
+  #         bundle_data step. If unspecified, defaults to bundle_resources_dir.
+  template("mac_xib_bundle_data") {
+    _target_name = target_name
+    _compile_target_name = _target_name + "_compile_ibtool"
+
+    compile_ib_files(_compile_target_name) {
+      forward_variables_from(invoker, [ "testonly" ])
+      visibility = [ ":$_target_name" ]
+      sources = invoker.sources
+      output_extension = "nib"
+      ibtool_flags = [
+        "--minimum-deployment-target",
+        mac_deployment_target,
+
+        # TODO(rsesek): Enable this once all the bots are on Xcode 7+.
+        # "--target-device",
+        # "mac",
+      ]
+    }
+
+    bundle_data(_target_name) {
+      forward_variables_from(invoker,
+                            [
+                              "testonly",
+                              "visibility",
+                            ])
+
+      public_deps = [
+        ":$_compile_target_name",
+      ]
+      sources = get_target_outputs(":$_compile_target_name")
+
+      _output_path = "{{bundle_resources_dir}}"
+      if (defined(invoker.output_path)) {
+        _output_path = invoker.output_path
+      }
+
+      outputs = [
+        "$_output_path/{{source_file_part}}",
+      ]
+    }
+  }
 }
 if (is_win) {
   import("//build/config/win/console_app.gni")
@@ -249,6 +354,9 @@ if (is_win) {
       "//ppapi/buildflags:buildflags",
       "//printing/buildflags:buildflags",
       "//ui/base:buildflags",
+
+      # Required by content_switches.cc
+      "//media:media_buildflags",
     ]
   }
 }
@@ -519,6 +627,8 @@ static_library("libcef_static") {
     "libcef/common/process_message_impl.h",
     "libcef/common/request_impl.cc",
     "libcef/common/request_impl.h",
+    "libcef/common/resource_bundle_delegate.cc",
+    "libcef/common/resource_bundle_delegate.h",
     "libcef/common/resource_bundle_impl.cc",
     "libcef/common/resource_bundle_impl.h",
     "libcef/common/response_impl.cc",
@@ -659,7 +769,7 @@ static_library("libcef_static") {
     "//components/proxy_config",
     "//components/safe_browsing/db:test_database_manager",
     "//components/services/pdf_compositor/public/cpp:factory",
-    "//components/services/pdf_compositor/public/interfaces",
+    "//components/services/pdf_compositor/public/mojom",
     "//components/tracing",
     "//components/update_client",
     "//components/url_formatter",
@@ -1065,7 +1175,7 @@ source_set("cef_content_browser_overlay_manifest") {
     "//base",
     "//components/services/heap_profiling/public/mojom",
     "//extensions/buildflags",
-    "//extensions/common:mojo",
+    "//extensions/common:mojom",
     "//extensions/common/api:mojom",
     "//services/service_manager/public/cpp",
     "//third_party/blink/public/common",
@@ -1104,7 +1214,7 @@ source_set("cef_content_renderer_overlay_manifest") {
     "//components/services/heap_profiling/public/mojom",
     "//components/subresource_filter/content/mojom",
     "//extensions/buildflags",
-    "//extensions/common:mojo",
+    "//extensions/common:mojom",
     "//services/service_manager/public/cpp",
     "//third_party/blink/public/common",
   ]
@@ -1150,7 +1260,6 @@ source_set("builtin_service_manifests") {
     "//components/startup_metric_utils/common:interfaces",
     "//extensions/buildflags",
     "//printing/buildflags",
-    "//services/proxy_resolver/public/cpp:manifest",
     "//services/service_manager/public/cpp",
   ]
 }
@@ -1686,32 +1795,60 @@ if (is_mac) {
       ]
     }
 
-    mac_app_bundle("${app_name}_helper_app") {
-      testonly = app_testonly
-      output_name = app_helper_name
+    template("cef_helper_app") {
+      mac_app_bundle(target_name) {
+        assert(defined(invoker.helper_sources))
+        assert(defined(invoker.helper_name_suffix))
+        assert(defined(invoker.helper_bundle_id_suffix))
 
-      sources = invoker.helper_sources
+        testonly = app_testonly
+        output_name = app_helper_name + invoker.helper_name_suffix
 
-      deps = [
-        ":cef_make_headers",
-        ":cef_sandbox",
-        ":libcef_dll_wrapper",
-      ]
-      if (defined(invoker.helper_deps)) {
-        deps += invoker.helper_deps
+        sources = invoker.helper_sources
+
+        extra_substitutions = [
+          "BUNDLE_ID_SUFFIX=${invoker.helper_bundle_id_suffix}",
+        ]
+
+        deps = [
+          ":cef_make_headers",
+          ":cef_sandbox",
+          ":libcef_dll_wrapper",
+        ]
+        if (defined(invoker.helper_deps)) {
+          deps += invoker.helper_deps
+        }
+
+        ldflags = [
+          # The helper is in $app_name.app/Contents/Frameworks/$app_name Helper.app/Contents/MacOS/
+          # so set rpath up to the base.
+          "-rpath",
+           "@executable_path/../../../../../..",
+        ]
+
+        info_plist_target = ":${app_name}_helper_plist"
+
+        if (defined(invoker.helper_defines)) {
+          defines = invoker.helper_defines
+        }
       }
+    }
 
-      ldflags = [
-        # The helper is in $app_name.app/Contents/Frameworks/$app_name Helper.app/Contents/MacOS/
-        # so set rpath up to the base.
-        "-rpath",
-         "@executable_path/../../../../../..",
-      ]
+    foreach(helper_params, content_mac_helpers) {
+      _helper_target = helper_params[0]
+      _helper_bundle_id = helper_params[1]
+      _helper_suffix = helper_params[2]
+      cef_helper_app("${app_name}_helper_app_${_helper_target}") {
+        helper_sources = invoker.helper_sources
+        if (defined(invoker.helper_deps)) {
+          helper_deps = invoker.helper_deps
+        }
+        if (defined(invoker.helper_defines)) {
+          helper_defines = invoker.helper_defines
+        }
 
-      info_plist_target = ":${app_name}_helper_plist"
-
-      if (defined(invoker.helper_defines)) {
-        defines = invoker.helper_defines
+        helper_name_suffix = _helper_suffix
+        helper_bundle_id_suffix = _helper_bundle_id
       }
     }
 
@@ -1719,13 +1856,18 @@ if (is_mac) {
       testonly = app_testonly
       sources = [
         "$root_out_dir/$cef_framework_name.framework",
-        "$root_out_dir/$app_helper_name.app",
       ]
 
       public_deps = [
         ":cef_framework",
-        ":${app_name}_helper_app",
       ]
+
+      foreach(helper_params, content_mac_helpers) {
+        sources += [
+          "$root_out_dir/${app_helper_name}${helper_params[2]}.app",
+        ]
+        public_deps += [ ":${app_name}_helper_app_${helper_params[0]}" ]
+      }
 
       outputs = [
         "{{bundle_contents_dir}}/Frameworks/{{source_file_part}}",
@@ -1879,7 +2021,6 @@ if (is_mac) {
     sources = [
       "tests/cefsimple/mac/English.lproj/MainMenu.xib",
     ]
-
     output_path = "{{bundle_resources_dir}}/English.lproj"
   }
 
@@ -1940,7 +2081,6 @@ if (is_mac) {
     sources = [
       "tests/ceftests/resources/mac/English.lproj/MainMenu.xib",
     ]
-
     output_path = "{{bundle_resources_dir}}/English.lproj"
   }
 
@@ -2032,12 +2172,9 @@ if (is_mac) {
               gypi_paths2.shared_sources_browser +
               gypi_paths2.shared_sources_common +
               gypi_paths2.shared_sources_renderer +
-              gypi_paths2.shared_sources_resources +
               gypi_paths2.cefclient_sources_browser +
               gypi_paths2.cefclient_sources_common +
-              gypi_paths2.cefclient_sources_renderer +
-              gypi_paths2.cefclient_sources_resources +
-              gypi_paths2.cefclient_sources_resources_extensions_set_page_color
+              gypi_paths2.cefclient_sources_renderer
 
     deps = [
       ":libcef",
@@ -2188,7 +2325,6 @@ if (is_mac) {
               gypi_paths2.shared_sources_browser +
               gypi_paths2.shared_sources_common +
               gypi_paths2.shared_sources_renderer +
-              gypi_paths2.shared_sources_resources +
               gypi_paths2.ceftests_sources_common +
               gypi_paths2.ceftests_sources_views
 

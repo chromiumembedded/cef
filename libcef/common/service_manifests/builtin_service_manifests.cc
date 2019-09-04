@@ -14,7 +14,7 @@
 #include "components/startup_metric_utils/common/startup_metric.mojom.h"
 #include "extensions/buildflags/buildflags.h"
 #include "printing/buildflags/buildflags.h"
-#include "services/proxy_resolver/public/cpp/manifest.h"
+#include "services/proxy_resolver/public/mojom/proxy_resolver.mojom.h"
 #include "services/service_manager/public/cpp/manifest_builder.h"
 
 #if defined(OS_MACOSX)
@@ -56,7 +56,6 @@ const service_manager::Manifest& GetCefManifest() {
 const std::vector<service_manager::Manifest>& GetBuiltinServiceManifests() {
   static base::NoDestructor<std::vector<service_manager::Manifest>> manifests{{
       GetCefManifest(),
-      proxy_resolver::GetManifest(),
       printing::GetPdfCompositorManifest(),
       GetChromePrintingManifest(),
   }};

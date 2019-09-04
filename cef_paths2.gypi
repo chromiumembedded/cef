@@ -352,10 +352,7 @@
       'tests/cefclient/browser/window_test_runner_win.cc',
       'tests/cefclient/browser/window_test_runner_win.h',
       'tests/cefclient/cefclient_win.cc',
-      'tests/cefclient/resources/win/cefclient.exe.manifest',
-      'tests/cefclient/resources/win/cefclient.ico',
       'tests/cefclient/resources/win/cefclient.rc',
-      'tests/cefclient/resources/win/small.ico',
     ],
     'cefclient_sources_mac': [
       'tests/cefclient/browser/browser_window_osr_mac.h',
@@ -424,13 +421,10 @@
       'tests/cefsimple/simple_handler.h',
     ],
     'cefsimple_sources_win': [
-      'tests/cefsimple/cefsimple.exe.manifest',
       'tests/cefsimple/cefsimple.rc',
       'tests/cefsimple/cefsimple_win.cc',
       'tests/cefsimple/simple_handler_win.cc',
       'tests/cefsimple/resource.h',
-      'tests/cefsimple/res/cefsimple.ico',
-      'tests/cefsimple/res/small.ico',
     ],
     'cefsimple_sources_mac': [
       'tests/cefsimple/cefsimple_mac.mm',
@@ -531,10 +525,7 @@
     ],
     'ceftests_sources_win': [
       'tests/ceftests/resource_util_win_idmap.cc',
-      'tests/ceftests/resources/win/ceftests.exe.manifest',
-      'tests/ceftests/resources/win/ceftests.ico',
       'tests/ceftests/resources/win/ceftests.rc',
-      'tests/ceftests/resources/win/small.ico',
     ],
     'ceftests_sources_mac': [
       'tests/ceftests/os_rendering_unittest_mac.h',

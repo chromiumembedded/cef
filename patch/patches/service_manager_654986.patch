@@ -1,5 +1,5 @@
 diff --git services/service_manager/embedder/main.cc services/service_manager/embedder/main.cc
-index 0d1fa74a3f43..11c7b62ac2ad 100644
+index 0d1fa74a3f43..c06c98acffb2 100644
 --- services/service_manager/embedder/main.cc
 +++ services/service_manager/embedder/main.cc
 @@ -240,22 +240,36 @@ int RunService(MainDelegate* delegate) {
@@ -115,7 +115,7 @@ index 0d1fa74a3f43..11c7b62ac2ad 100644
    if (process_type == ProcessType::kEmbedder)
      delegate->ShutDownEmbedderProcess();
 +}
- 
++
 +int Main(MainParams& params) {
 +#if defined(OS_MACOSX)
 +  // We need this pool for all the objects created before we get to the event
@@ -125,7 +125,7 @@ index 0d1fa74a3f43..11c7b62ac2ad 100644
 +  params.autorelease_pool =
 +      std::make_unique<base::mac::ScopedNSAutoreleasePool>();
 +#endif
-+
+ 
 +  int exit_code = MainInitialize(params);
 +  if (exit_code >= 0)
 +    return exit_code;

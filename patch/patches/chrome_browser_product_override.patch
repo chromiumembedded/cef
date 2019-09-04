@@ -1,8 +1,8 @@
 diff --git chrome/browser/chrome_content_browser_client.cc chrome/browser/chrome_content_browser_client.cc
-index b5c53b099bb2..56aa2e75b114 100644
+index 0b29bc11f07c..9c0ffba4dc20 100644
 --- chrome/browser/chrome_content_browser_client.cc
 +++ chrome/browser/chrome_content_browser_client.cc
-@@ -1079,10 +1079,6 @@ void LaunchURL(
+@@ -1067,10 +1067,6 @@ void LaunchURL(
    }
  }
  
@@ -13,7 +13,7 @@ index b5c53b099bb2..56aa2e75b114 100644
  void MaybeAppendSecureOriginsAllowlistSwitch(base::CommandLine* cmdline) {
    // |allowlist| combines pref/policy + cmdline switch in the browser process.
    // For renderer and utility (e.g. NetworkService) processes the switch is the
-@@ -1100,6 +1096,14 @@ void MaybeAppendSecureOriginsAllowlistSwitch(base::CommandLine* cmdline) {
+@@ -1088,6 +1084,14 @@ void MaybeAppendSecureOriginsAllowlistSwitch(base::CommandLine* cmdline) {
  
  }  // namespace
  
@@ -29,11 +29,11 @@ index b5c53b099bb2..56aa2e75b114 100644
    base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
    if (command_line->HasSwitch(switches::kUserAgent)) {
 diff --git chrome/browser/chrome_content_browser_client.h chrome/browser/chrome_content_browser_client.h
-index 499af0b670a1..dc6247946b8a 100644
+index 069f597633a2..e81d7718cfca 100644
 --- chrome/browser/chrome_content_browser_client.h
 +++ chrome/browser/chrome_content_browser_client.h
-@@ -79,7 +79,8 @@ class Origin;
- 
+@@ -84,7 +84,8 @@ enum class Channel;
+ class ChromeHidDelegate;
  class ChromeSerialDelegate;
  
 -// Returns the user agent of Chrome.

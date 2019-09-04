@@ -1,8 +1,8 @@
 diff --git content/public/common/common_param_traits_macros.h content/public/common/common_param_traits_macros.h
-index 9ad8ad0bfa50..2724dab2f003 100644
+index c0c22fa5429f..f0a6215f3f54 100644
 --- content/public/common/common_param_traits_macros.h
 +++ content/public/common/common_param_traits_macros.h
-@@ -188,6 +188,7 @@ IPC_STRUCT_TRAITS_BEGIN(content::WebPreferences)
+@@ -191,6 +191,7 @@ IPC_STRUCT_TRAITS_BEGIN(content::WebPreferences)
    IPC_STRUCT_TRAITS_MEMBER(main_frame_resizes_are_orientation_changes)
    IPC_STRUCT_TRAITS_MEMBER(initialize_at_minimum_page_scale)
    IPC_STRUCT_TRAITS_MEMBER(smart_insert_delete_enabled)
@@ -11,11 +11,11 @@ index 9ad8ad0bfa50..2724dab2f003 100644
    IPC_STRUCT_TRAITS_MEMBER(navigate_on_drag_drop)
    IPC_STRUCT_TRAITS_MEMBER(spatial_navigation_enabled)
 diff --git content/public/common/web_preferences.cc content/public/common/web_preferences.cc
-index e2f3d5b5e1f9..3bf01af841ac 100644
+index 678bd07c0753..1ae838c3de32 100644
 --- content/public/common/web_preferences.cc
 +++ content/public/common/web_preferences.cc
-@@ -168,6 +168,7 @@ WebPreferences::WebPreferences()
-       spatial_navigation_enabled(false),
+@@ -169,6 +169,7 @@ WebPreferences::WebPreferences()
+       caret_browsing_enabled(false),
        use_solid_color_scrollbars(false),
        navigate_on_drag_drop(true),
 +      base_background_color(0xFFFFFFFF),  // Color::white
@@ -23,11 +23,11 @@ index e2f3d5b5e1f9..3bf01af841ac 100644
        record_whole_document(false),
        cookie_enabled(true),
 diff --git content/public/common/web_preferences.h content/public/common/web_preferences.h
-index f9a996476d5d..09d69329e037 100644
+index ca883e52fee0..0bc16d1e8330 100644
 --- content/public/common/web_preferences.h
 +++ content/public/common/web_preferences.h
-@@ -184,6 +184,7 @@ struct CONTENT_EXPORT WebPreferences {
-   bool spatial_navigation_enabled;
+@@ -186,6 +186,7 @@ struct CONTENT_EXPORT WebPreferences {
+   bool caret_browsing_enabled;
    bool use_solid_color_scrollbars;
    bool navigate_on_drag_drop;
 +  uint32_t base_background_color;
@@ -35,10 +35,10 @@ index f9a996476d5d..09d69329e037 100644
    bool record_whole_document;
  
 diff --git content/renderer/render_view_impl.cc content/renderer/render_view_impl.cc
-index 1aa52af90279..e3107e93c866 100644
+index d0ca81590d2b..8f2f30878650 100644
 --- content/renderer/render_view_impl.cc
 +++ content/renderer/render_view_impl.cc
-@@ -1012,6 +1012,8 @@ void RenderView::ApplyWebPreferences(const WebPreferences& prefs,
+@@ -1018,6 +1018,8 @@ void RenderView::ApplyWebPreferences(const WebPreferences& prefs,
  #endif
  
    WebRuntimeFeatures::EnableTranslateService(prefs.translate_service_available);

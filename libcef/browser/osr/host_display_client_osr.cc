@@ -35,16 +35,15 @@ class CefLayeredWindowUpdaterOSR : public viz::mojom::LayeredWindowUpdater {
   gfx::Size GetPixelSize() const;
 
   // viz::mojom::LayeredWindowUpdater implementation.
-  void OnAllocatedSharedMemory(
-      const gfx::Size& pixel_size,
-      mojo::ScopedSharedBufferHandle scoped_buffer_handle) override;
+  void OnAllocatedSharedMemory(const gfx::Size& pixel_size,
+                               base::UnsafeSharedMemoryRegion region) override;
   void Draw(const gfx::Rect& damage_rect, DrawCallback draw_callback) override;
 
  private:
   CefRenderWidgetHostViewOSR* const view_;
   mojo::Binding<viz::mojom::LayeredWindowUpdater> binding_;
   bool active_ = false;
-  base::ReadOnlySharedMemoryMapping shared_memory_;
+  base::WritableSharedMemoryMapping shared_memory_;
   gfx::Size pixel_size_;
 
   DISALLOW_COPY_AND_ASSIGN(CefLayeredWindowUpdaterOSR);
@@ -71,7 +70,7 @@ gfx::Size CefLayeredWindowUpdaterOSR::GetPixelSize() const {
 
 void CefLayeredWindowUpdaterOSR::OnAllocatedSharedMemory(
     const gfx::Size& pixel_size,
-    mojo::ScopedSharedBufferHandle scoped_buffer_handle) {
+    base::UnsafeSharedMemoryRegion region) {
   // Make sure |pixel_size| is sane.
   size_t expected_bytes;
   bool size_result = viz::ResourceSizes::MaybeSizeInBytes(
@@ -79,28 +78,8 @@ void CefLayeredWindowUpdaterOSR::OnAllocatedSharedMemory(
   if (!size_result)
     return;
 
-#if !defined(OS_WIN)
-  base::ReadOnlySharedMemoryRegion shm =
-      mojo::UnwrapReadOnlySharedMemoryRegion(std::move(scoped_buffer_handle));
-  if (!shm.IsValid()) {
-    LOG(ERROR) << "Shared memory region is invalid";
-    return;
-  }
-#else   // !defined(OS_WIN)
-  base::SharedMemoryHandle shm_handle;
-  MojoResult unwrap_result = mojo::UnwrapSharedMemoryHandle(
-      std::move(scoped_buffer_handle), &shm_handle, nullptr, nullptr);
-  if (unwrap_result != MOJO_RESULT_OK)
-    return;
-
-  base::ReadOnlySharedMemoryRegion shm =
-      base::ReadOnlySharedMemoryRegion::Deserialize(
-          base::subtle::PlatformSharedMemoryRegion::TakeFromSharedMemoryHandle(
-              shm_handle,
-              base::subtle::PlatformSharedMemoryRegion::Mode::kReadOnly));
-#endif  // !defined(OS_WIN)
   pixel_size_ = pixel_size;
-  shared_memory_ = shm.Map();
+  shared_memory_ = region.Map();
   DCHECK(shared_memory_.IsValid());
 }
 

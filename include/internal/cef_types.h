@@ -901,7 +901,7 @@ typedef enum {
   // No error.
   ERR_NONE = 0,
 
-#define NET_ERROR(label, value) ERR_ ## label = value,
+#define NET_ERROR(label, value) ERR_##label = value,
 #include "include/base/internal/cef_net_error_list.h"
 #undef NET_ERROR
 

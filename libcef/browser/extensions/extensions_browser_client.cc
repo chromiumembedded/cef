@@ -107,17 +107,6 @@ bool CefExtensionsBrowserClient::CanExtensionCrossIncognito(
   return false;
 }
 
-net::URLRequestJob*
-CefExtensionsBrowserClient::MaybeCreateResourceBundleRequestJob(
-    net::URLRequest* request,
-    net::NetworkDelegate* network_delegate,
-    const base::FilePath& directory_path,
-    const std::string& content_security_policy,
-    bool send_cors_header) {
-  NOTREACHED();
-  return nullptr;
-}
-
 base::FilePath CefExtensionsBrowserClient::GetBundleResourcePath(
     const network::ResourceRequest& request,
     const base::FilePath& extension_resources_path,

@@ -51,6 +51,9 @@ class CefExtensionsRendererClient : public ExtensionsRendererClient {
   void OnExtensionLoaded(const extensions::Extension& extension) override;
   void OnExtensionUnloaded(
       const extensions::ExtensionId& extension_id) override;
+  bool ExtensionAPIEnabledForServiceWorkerScript(
+      const GURL& scope,
+      const GURL& script_url) const override;
 
   // See CefContentRendererClient methods with the same names.
   void RenderThreadStarted();

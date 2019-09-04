@@ -1,8 +1,8 @@
 diff --git chrome/common/chrome_content_client.cc chrome/common/chrome_content_client.cc
-index 1db1b55b6da0..41187edcf3e1 100644
+index 1e9bc3b924db..eaf4ac0f22f8 100644
 --- chrome/common/chrome_content_client.cc
 +++ chrome/common/chrome_content_client.cc
-@@ -97,7 +97,8 @@
+@@ -92,7 +92,8 @@
  // Registers Widevine CDM if Widevine is enabled, the Widevine CDM is
  // bundled and not a component. When the Widevine CDM is a component, it is
  // registered in widevine_cdm_component_installer.cc.

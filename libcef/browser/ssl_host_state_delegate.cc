@@ -50,7 +50,7 @@ void CefSSLHostStateDelegate::HostRanInsecureContent(
 bool CefSSLHostStateDelegate::DidHostRunInsecureContent(
     const std::string& host,
     int child_id,
-    InsecureContentType content_type) const {
+    InsecureContentType content_type) {
   // Intentional no-op.
   return false;
 }
@@ -94,7 +94,7 @@ void CefSSLHostStateDelegate::RevokeUserAllowExceptions(
   cert_policy_for_host_.erase(host);
 }
 
-bool CefSSLHostStateDelegate::HasAllowException(const std::string& host) const {
+bool CefSSLHostStateDelegate::HasAllowException(const std::string& host) {
   auto policy_iterator = cert_policy_for_host_.find(host);
   return policy_iterator != cert_policy_for_host_.end() &&
          policy_iterator->second.HasAllowException();

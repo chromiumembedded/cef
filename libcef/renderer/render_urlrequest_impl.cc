@@ -50,7 +50,7 @@ class CefWebURLLoaderClient : public blink::WebURLLoaderClient {
       int64_t total_encoded_body_length,
       int64_t total_decoded_body_length,
       bool should_report_corb_blocking,
-      const std::vector<network::cors::PreflightTimingInfo>&) override;
+      const blink::WebVector<network::cors::PreflightTimingInfo>&) override;
   void DidFail(const WebURLError&,
                int64_t total_encoded_data_length,
                int64_t total_encoded_body_length,
@@ -117,6 +117,7 @@ class CefRenderURLRequest::Context
     WebURLRequest urlRequest;
     static_cast<CefRequestImpl*>(request_.get())
         ->Get(urlRequest, upload_data_size_);
+    urlRequest.SetPriority(blink::WebURLRequest::Priority::kMedium);
 
     // Set the origin to match the request. The requirement for an origin is
     // DCHECK'd in ResourceDispatcherHostImpl::ContinuePendingBeginRequest.
@@ -379,7 +380,7 @@ void CefWebURLLoaderClient::DidFinishLoading(
     int64_t total_encoded_body_length,
     int64_t total_decoded_body_length,
     bool should_report_corb_blocking,
-    const std::vector<network::cors::PreflightTimingInfo>&) {
+    const blink::WebVector<network::cors::PreflightTimingInfo>&) {
   context_->OnComplete();
 }
 

@@ -274,7 +274,7 @@ class CefBrowserURLRequest::Context
     }
 
     loader_ = network::SimpleURLLoader::Create(std::move(resource_request),
-                                               NO_TRAFFIC_ANNOTATION_YET);
+                                               MISSING_TRAFFIC_ANNOTATION);
 
     // Associate the request with |request_id|.
     request_id_ = request_id;

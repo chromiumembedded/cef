@@ -12,15 +12,14 @@
 #include <vector>
 
 #include "include/cef_app.h"
+#include "libcef/common/resource_bundle_delegate.h"
 
 #include "base/compiler_specific.h"
 #include "content/public/common/content_client.h"
 #include "content/public/common/pepper_plugin_info.h"
-#include "ui/base/resource/resource_bundle.h"
 #include "url/url_util.h"
 
-class CefContentClient : public content::ContentClient,
-                         public ui::ResourceBundle::Delegate {
+class CefContentClient : public content::ContentClient {
  public:
   static const char kPDFPluginPath[];
 
@@ -37,16 +36,14 @@ class CefContentClient : public content::ContentClient,
       std::vector<content::CdmInfo>* cdms,
       std::vector<media::CdmHostFilePath>* cdm_host_file_paths) override;
   void AddAdditionalSchemes(Schemes* schemes) override;
-  base::string16 GetLocalizedString(int message_id) const override;
-  base::string16 GetLocalizedString(
-      int message_id,
-      const base::string16& replacement) const override;
-  base::StringPiece GetDataResource(
-      int resource_id,
-      ui::ScaleFactor scale_factor) const override;
-  base::RefCountedMemory* GetDataResourceBytes(int resource_id) const override;
-  bool IsDataResourceGzipped(int resource_id) const override;
-  gfx::Image& GetNativeImageNamed(int resource_id) const override;
+  base::string16 GetLocalizedString(int message_id) override;
+  base::string16 GetLocalizedString(int message_id,
+                                    const base::string16& replacement) override;
+  base::StringPiece GetDataResource(int resource_id,
+                                    ui::ScaleFactor scale_factor) override;
+  base::RefCountedMemory* GetDataResourceBytes(int resource_id) override;
+  bool IsDataResourceGzipped(int resource_id) override;
+  gfx::Image& GetNativeImageNamed(int resource_id) override;
 
   // Values are registered with all processes (url/url_util.h) and with Blink
   // (SchemeRegistry) unless otherwise indicated.
@@ -104,28 +101,18 @@ class CefContentClient : public content::ContentClient,
   void set_pack_loading_disabled(bool val) { pack_loading_disabled_ = val; }
   bool pack_loading_disabled() const { return pack_loading_disabled_; }
   void set_allow_pack_file_load(bool val) { allow_pack_file_load_ = val; }
+  bool allow_pack_file_load() { return allow_pack_file_load_; }
 
   static void SetPDFEntryFunctions(
       content::PepperPluginInfo::GetInterfaceFunc get_interface,
       content::PepperPluginInfo::PPP_InitializeModuleFunc initialize_module,
       content::PepperPluginInfo::PPP_ShutdownModuleFunc shutdown_module);
 
- private:
-  // ui::ResourceBundle::Delegate methods.
-  base::FilePath GetPathForResourcePack(const base::FilePath& pack_path,
-                                        ui::ScaleFactor scale_factor) override;
-  base::FilePath GetPathForLocalePack(const base::FilePath& pack_path,
-                                      const std::string& locale) override;
-  gfx::Image GetImageNamed(int resource_id) override;
-  gfx::Image GetNativeImageNamed(int resource_id) override;
-  base::RefCountedStaticMemory* LoadDataResourceBytes(
-      int resource_id,
-      ui::ScaleFactor scale_factor) override;
-  bool GetRawDataResource(int resource_id,
-                          ui::ScaleFactor scale_factor,
-                          base::StringPiece* value) override;
-  bool GetLocalizedString(int message_id, base::string16* value) override;
+  CefResourceBundleDelegate* GetCefResourceBundleDelegate() {
+    return &resource_bundle_delegate_;
+  }
 
+ private:
   CefRefPtr<CefApp> application_;
   bool pack_loading_disabled_;
   bool allow_pack_file_load_;
@@ -133,6 +120,8 @@ class CefContentClient : public content::ContentClient,
   // Custom schemes handled by the client.
   SchemeInfoList scheme_info_list_;
   bool scheme_info_list_locked_;
+
+  CefResourceBundleDelegate resource_bundle_delegate_;
 };
 
 #endif  // CEF_LIBCEF_COMMON_CONTENT_CLIENT_H_

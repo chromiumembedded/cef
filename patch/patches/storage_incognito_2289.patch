@@ -1,5 +1,5 @@
 diff --git content/browser/blob_storage/chrome_blob_storage_context.cc content/browser/blob_storage/chrome_blob_storage_context.cc
-index 94588aa5822d..1c16a71c4524 100644
+index 859cf37ae470..ddf7c87e9327 100644
 --- content/browser/blob_storage/chrome_blob_storage_context.cc
 +++ content/browser/blob_storage/chrome_blob_storage_context.cc
 @@ -117,7 +117,8 @@ ChromeBlobStorageContext* ChromeBlobStorageContext::GetFor(
@@ -13,10 +13,10 @@ index 94588aa5822d..1c16a71c4524 100644
            {base::MayBlock(), base::TaskPriority::BEST_EFFORT,
             base::TaskShutdownBehavior::SKIP_ON_SHUTDOWN});
 diff --git content/browser/browser_context.cc content/browser/browser_context.cc
-index 0d95af0ef882..463709a9152f 100644
+index 5fbd75f67fb7..b92df84a2abf 100644
 --- content/browser/browser_context.cc
 +++ content/browser/browser_context.cc
-@@ -57,6 +57,7 @@
+@@ -58,6 +58,7 @@
  #include "content/public/common/content_switches.h"
  #include "content/public/common/service_manager_connection.h"
  #include "content/public/common/service_names.mojom.h"
@@ -24,7 +24,7 @@ index 0d95af0ef882..463709a9152f 100644
  #include "media/base/media_switches.h"
  #include "media/capabilities/in_memory_video_decode_stats_db_impl.h"
  #include "media/capabilities/video_decode_stats_db_impl.h"
-@@ -213,7 +214,7 @@ StoragePartition* GetStoragePartitionFromConfig(
+@@ -214,7 +215,7 @@ StoragePartition* GetStoragePartitionFromConfig(
    StoragePartitionImplMap* partition_map =
        GetStoragePartitionMap(browser_context);
  
@@ -33,7 +33,7 @@ index 0d95af0ef882..463709a9152f 100644
      in_memory = true;
  
    return partition_map->Get(partition_domain, partition_name, in_memory,
-@@ -795,7 +796,7 @@ media::VideoDecodePerfHistory* BrowserContext::GetVideoDecodePerfHistory() {
+@@ -798,7 +799,7 @@ media::VideoDecodePerfHistory* BrowserContext::GetVideoDecodePerfHistory() {
          kUseInMemoryDBDefault);
  
      std::unique_ptr<media::VideoDecodeStatsDB> stats_db;
@@ -43,10 +43,10 @@ index 0d95af0ef882..463709a9152f 100644
            std::make_unique<media::InMemoryVideoDecodeStatsDBImpl>(nullptr);
      } else {
 diff --git content/browser/renderer_host/render_process_host_impl.cc content/browser/renderer_host/render_process_host_impl.cc
-index 1aa874a2cf34..ff3279cbc323 100644
+index c49bdcea4b64..a578f26a7aa7 100644
 --- content/browser/renderer_host/render_process_host_impl.cc
 +++ content/browser/renderer_host/render_process_host_impl.cc
-@@ -2178,6 +2178,9 @@ void RenderProcessHostImpl::RegisterMojoInterfaces() {
+@@ -2213,6 +2213,9 @@ void RenderProcessHostImpl::RegisterMojoInterfaces() {
      plugin_registry_.reset(
          new PluginRegistryImpl(GetBrowserContext()->GetResourceContext()));
    }

@@ -54,11 +54,11 @@ index 5e5c5da4a3cf..30eca49765bd 100644
  #if defined(USE_X11)
    void DidCompleteSwapWithNewSize(const gfx::Size& size) override;
 diff --git components/viz/host/layered_window_updater_impl.cc components/viz/host/layered_window_updater_impl.cc
-index d3a49ed8be8d..38a927b8f734 100644
+index 65c26e2f7ae8..e0f60e2ac25e 100644
 --- components/viz/host/layered_window_updater_impl.cc
 +++ components/viz/host/layered_window_updater_impl.cc
-@@ -47,7 +47,7 @@ void LayeredWindowUpdaterImpl::OnAllocatedSharedMemory(
-   shm_handle.Close();
+@@ -43,7 +43,7 @@ void LayeredWindowUpdaterImpl::OnAllocatedSharedMemory(
+   // |region|'s handle will close when it goes out of scope.
  }
  
 -void LayeredWindowUpdaterImpl::Draw(DrawCallback draw_callback) {
@@ -67,20 +67,20 @@ index d3a49ed8be8d..38a927b8f734 100644
  
    if (!canvas_) {
 diff --git components/viz/host/layered_window_updater_impl.h components/viz/host/layered_window_updater_impl.h
-index 93c52d2b928c..4dc645e770a2 100644
+index d9a9730a78b9..d98426e9f789 100644
 --- components/viz/host/layered_window_updater_impl.h
 +++ components/viz/host/layered_window_updater_impl.h
 @@ -33,7 +33,7 @@ class VIZ_HOST_EXPORT LayeredWindowUpdaterImpl
-   void OnAllocatedSharedMemory(
-       const gfx::Size& pixel_size,
-       mojo::ScopedSharedBufferHandle scoped_buffer_handle) override;
+   // mojom::LayeredWindowUpdater implementation.
+   void OnAllocatedSharedMemory(const gfx::Size& pixel_size,
+                                base::UnsafeSharedMemoryRegion region) override;
 -  void Draw(DrawCallback draw_callback) override;
 +  void Draw(const gfx::Rect& damage_rect, DrawCallback draw_callback) override;
  
   private:
    const HWND hwnd_;
 diff --git components/viz/service/BUILD.gn components/viz/service/BUILD.gn
-index f17983a5cc70..4a8f2fd8d415 100644
+index fdd358f741e6..57afa1d3855e 100644
 --- components/viz/service/BUILD.gn
 +++ components/viz/service/BUILD.gn
 @@ -13,6 +13,8 @@ config("viz_service_implementation") {
@@ -93,10 +93,10 @@ index f17983a5cc70..4a8f2fd8d415 100644
      "display/bsp_tree.h",
      "display/bsp_walk_action.cc",
 diff --git components/viz/service/display_embedder/output_surface_provider_impl.cc components/viz/service/display_embedder/output_surface_provider_impl.cc
-index 8fe397588eb4..1218985f7310 100644
+index 7f61cb7c847b..f1e3f2fec151 100644
 --- components/viz/service/display_embedder/output_surface_provider_impl.cc
 +++ components/viz/service/display_embedder/output_surface_provider_impl.cc
-@@ -11,6 +11,7 @@
+@@ -12,6 +12,7 @@
  #include "base/compiler_specific.h"
  #include "base/threading/thread_task_runner_handle.h"
  #include "cc/base/switches.h"
@@ -104,7 +104,7 @@ index 8fe397588eb4..1218985f7310 100644
  #include "components/viz/common/display/renderer_settings.h"
  #include "components/viz/common/frame_sinks/begin_frame_source.h"
  #include "components/viz/service/display_embedder/gl_output_surface.h"
-@@ -243,6 +244,20 @@ OutputSurfaceProviderImpl::CreateSoftwareOutputDeviceForPlatform(
+@@ -219,6 +220,20 @@ OutputSurfaceProviderImpl::CreateSoftwareOutputDeviceForPlatform(
    if (headless_)
      return std::make_unique<SoftwareOutputDevice>();
  
@@ -126,10 +126,10 @@ index 8fe397588eb4..1218985f7310 100644
    return CreateSoftwareOutputDeviceWin(surface_handle, &output_device_backing_,
                                         display_client);
 diff --git components/viz/service/display_embedder/software_output_device_win.cc components/viz/service/display_embedder/software_output_device_win.cc
-index 4e3f0255d5fe..0de947b54b7c 100644
+index 73ea1986b214..d437e045de2f 100644
 --- components/viz/service/display_embedder/software_output_device_win.cc
 +++ components/viz/service/display_embedder/software_output_device_win.cc
-@@ -268,8 +268,9 @@ void SoftwareOutputDeviceWinProxy::EndPaintDelegated(
+@@ -265,8 +265,9 @@ void SoftwareOutputDeviceWinProxy::EndPaintDelegated(
    if (!canvas_)
      return;
  
@@ -163,10 +163,10 @@ index 906be544c90f..a110f254d7ec 100644
  
  #if ENABLE_SYNC_CALL_RESTRICTIONS
 diff --git services/viz/privileged/interfaces/compositing/display_private.mojom services/viz/privileged/interfaces/compositing/display_private.mojom
-index deb327b77054..d9926ec35165 100644
+index 8898b9162a65..3a93996f9893 100644
 --- services/viz/privileged/interfaces/compositing/display_private.mojom
 +++ services/viz/privileged/interfaces/compositing/display_private.mojom
-@@ -77,12 +77,14 @@ interface DisplayPrivate {
+@@ -79,12 +79,14 @@ interface DisplayPrivate {
  };
  
  interface DisplayClient {
@@ -183,10 +183,10 @@ index deb327b77054..d9926ec35165 100644
  
    // Notifies that a swap has occurred and provides information about the pixel
 diff --git services/viz/privileged/interfaces/compositing/layered_window_updater.mojom services/viz/privileged/interfaces/compositing/layered_window_updater.mojom
-index 360cab3eee4c..6834242f23d2 100644
+index 58a7e221eaab..dd141b16eace 100644
 --- services/viz/privileged/interfaces/compositing/layered_window_updater.mojom
 +++ services/viz/privileged/interfaces/compositing/layered_window_updater.mojom
-@@ -22,5 +22,5 @@ interface LayeredWindowUpdater {
+@@ -26,5 +26,5 @@ interface LayeredWindowUpdater {
    // Draws to the HWND by copying pixels from shared memory. Callback must be
    // called after draw operation is complete to signal shared memory can be
    // modified.
@@ -194,7 +194,7 @@ index 360cab3eee4c..6834242f23d2 100644
 +  Draw(gfx.mojom.Rect damage_rect) => ();
  };
 diff --git ui/compositor/compositor.h ui/compositor/compositor.h
-index 494241c374b7..1cbfb9cdb683 100644
+index 5158731bd851..07d3bda5f6ff 100644
 --- ui/compositor/compositor.h
 +++ ui/compositor/compositor.h
 @@ -23,7 +23,9 @@
@@ -207,7 +207,7 @@ index 494241c374b7..1cbfb9cdb683 100644
  #include "services/viz/privileged/interfaces/compositing/vsync_parameter_observer.mojom-forward.h"
  #include "third_party/skia/include/core/SkColor.h"
  #include "third_party/skia/include/core/SkMatrix44.h"
-@@ -199,6 +201,14 @@ class COMPOSITOR_EXPORT ContextFactory {
+@@ -194,6 +196,14 @@ class COMPOSITOR_EXPORT ContextFactory {
    virtual bool SyncTokensRequiredForDisplayCompositor() = 0;
  };
  
@@ -222,7 +222,7 @@ index 494241c374b7..1cbfb9cdb683 100644
  // Compositor object to take care of GPU painting.
  // A Browser compositor object is responsible for generating the final
  // displayable form of pixels comprising a single widget's contents. It draws an
-@@ -238,6 +248,9 @@ class COMPOSITOR_EXPORT Compositor : public cc::LayerTreeHostClient,
+@@ -233,6 +243,9 @@ class COMPOSITOR_EXPORT Compositor : public cc::LayerTreeHostClient,
    // Schedules a redraw of the layer tree associated with this compositor.
    void ScheduleDraw();
  
@@ -232,7 +232,7 @@ index 494241c374b7..1cbfb9cdb683 100644
    // Sets the root of the layer tree drawn by this Compositor. The root layer
    // must have no parent. The compositor's root layer is reset if the root layer
    // is destroyed. NULL can be passed to reset the root layer, in which case the
-@@ -454,6 +467,8 @@ class COMPOSITOR_EXPORT Compositor : public cc::LayerTreeHostClient,
+@@ -448,6 +461,8 @@ class COMPOSITOR_EXPORT Compositor : public cc::LayerTreeHostClient,
    ui::ContextFactory* context_factory_;
    ui::ContextFactoryPrivate* context_factory_private_;
  
@@ -242,7 +242,7 @@ index 494241c374b7..1cbfb9cdb683 100644
    Layer* root_layer_ = nullptr;
  
 diff --git ui/compositor/host/host_context_factory_private.cc ui/compositor/host/host_context_factory_private.cc
-index 0ff1e05244e0..5b8721034296 100644
+index 1c84de621781..3ebde59a8041 100644
 --- ui/compositor/host/host_context_factory_private.cc
 +++ ui/compositor/host/host_context_factory_private.cc
 @@ -99,8 +99,13 @@ void HostContextFactoryPrivate::ConfigureCompositor(

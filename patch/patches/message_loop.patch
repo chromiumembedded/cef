@@ -25,7 +25,7 @@ index a1d6acc4e78d..f9518bc96ce4 100644
  #if defined(OS_IOS)
    // On iOS, the main message loop cannot be Run().  Instead call Attach(),
 diff --git base/message_loop/message_loop_current.cc base/message_loop/message_loop_current.cc
-index 71a45d077a6a..fded5cf39adc 100644
+index 54e2d2b41dbd..cd299c90618b 100644
 --- base/message_loop/message_loop_current.cc
 +++ base/message_loop/message_loop_current.cc
 @@ -47,6 +47,8 @@ void MessageLoopCurrent::AddDestructionObserver(
@@ -38,10 +38,10 @@ index 71a45d077a6a..fded5cf39adc 100644
    current_->RemoveDestructionObserver(destruction_observer);
  }
 diff --git base/message_loop/message_loop_current.h base/message_loop/message_loop_current.h
-index f259d89d429c..ffcc61ee95c2 100644
+index 08a1c5e36735..48c5f8d102d0 100644
 --- base/message_loop/message_loop_current.h
 +++ base/message_loop/message_loop_current.h
-@@ -129,6 +129,12 @@ class BASE_EXPORT MessageLoopCurrent {
+@@ -124,6 +124,12 @@ class BASE_EXPORT MessageLoopCurrent {
    // posted tasks.
    void SetAddQueueTimeToTasks(bool enable);
  
@@ -54,7 +54,7 @@ index f259d89d429c..ffcc61ee95c2 100644
    // Enables or disables the recursive task processing. This happens in the case
    // of recursive message loops. Some unwanted message loops may occur when
    // using common controls or printer functions. By default, recursive task
-@@ -199,6 +205,13 @@ class BASE_EXPORT MessageLoopCurrent {
+@@ -194,6 +200,13 @@ class BASE_EXPORT MessageLoopCurrent {
    friend class web::TestWebThreadBundle;
  
    sequence_manager::internal::SequenceManagerImpl* current_;

@@ -75,7 +75,7 @@
 #include "components/services/heap_profiling/heap_profiling_service.h"
 #include "components/services/heap_profiling/public/mojom/constants.mojom.h"
 #include "components/services/pdf_compositor/public/cpp/pdf_compositor_service_factory.h"
-#include "components/services/pdf_compositor/public/interfaces/pdf_compositor.mojom.h"
+#include "components/services/pdf_compositor/public/mojom/pdf_compositor.mojom.h"
 #include "components/version_info/version_info.h"
 #include "content/browser/frame_host/navigation_handle_impl.h"
 #include "content/browser/frame_host/render_frame_host_impl.h"
@@ -116,7 +116,6 @@
 #include "net/ssl/ssl_cert_request_info.h"
 #include "ppapi/host/ppapi_host.h"
 #include "services/network/public/cpp/network_switches.h"
-#include "services/proxy_resolver/proxy_resolver_service.h"
 #include "services/proxy_resolver/public/mojom/proxy_resolver.mojom.h"
 #include "services/service_manager/embedder/switches.h"
 #include "services/service_manager/public/mojom/connector.mojom.h"
@@ -723,12 +722,6 @@ void CefContentBrowserClient::RunServiceInstance(
         std::make_unique<printing::PrintingService>(std::move(*receiver)));
     return;
   }
-  if (service_name == proxy_resolver::mojom::kProxyResolverServiceName) {
-    service_manager::Service::RunAsyncUntilTermination(
-        std::make_unique<proxy_resolver::ProxyResolverService>(
-            std::move(*receiver)));
-    return;
-  }
 }
 
 void CefContentBrowserClient::RunServiceInstanceOnIOThread(
@@ -896,8 +889,7 @@ void CefContentBrowserClient::AdjustUtilityServiceProcessCommandLine(
   // On Mac, the video-capture and audio services require a CFRunLoop, provided
   // by a UI message loop, to run AVFoundation and CoreAudio code.
   // See https://crbug.com/834581
-  if (identity.name() == video_capture::mojom::kServiceName ||
-      identity.name() == audio::mojom::kServiceName)
+  if (identity.name() == audio::mojom::kServiceName)
     command_line->AppendSwitch(switches::kMessageLoopTypeUi);
 #endif
 }
@@ -1022,7 +1014,7 @@ void CefContentBrowserClient::AllowCertificateError(
   }
 }
 
-void CefContentBrowserClient::SelectClientCertificate(
+base::OnceClosure CefContentBrowserClient::SelectClientCertificate(
     content::WebContents* web_contents,
     net::SSLCertRequestInfo* cert_request_info,
     net::ClientCertIdentityList client_certs,
@@ -1040,7 +1032,7 @@ void CefContentBrowserClient::SelectClientCertificate(
 
   if (!handler.get()) {
     delegate->ContinueWithCertificate(nullptr, nullptr);
-    return;
+    return base::OnceClosure();
   }
 
   CefRequestHandler::X509CertificateList certs;
@@ -1060,6 +1052,7 @@ void CefContentBrowserClient::SelectClientCertificate(
   if (!proceed && !certs.empty()) {
     callbackImpl->Select(certs[0]);
   }
+  return base::OnceClosure();
 }
 
 bool CefContentBrowserClient::CanCreateWindow(
@@ -1154,11 +1147,10 @@ CefContentBrowserClient::CreateThrottlesForNavigation(
 std::vector<std::unique_ptr<content::URLLoaderThrottle>>
 CefContentBrowserClient::CreateURLLoaderThrottles(
     const network::ResourceRequest& request,
-    content::ResourceContext* resource_context,
+    content::BrowserContext* resource_context,
     const base::RepeatingCallback<content::WebContents*()>& wc_getter,
     content::NavigationUIData* navigation_ui_data,
     int frame_tree_node_id) {
-  CEF_REQUIRE_IOT();
   std::vector<std::unique_ptr<content::URLLoaderThrottle>> result;
 
   // Used to substitute View ID for PDF contents when using the PDF plugin.
@@ -1308,15 +1300,20 @@ bool CefContentBrowserClient::WillCreateURLLoaderFactory(
     bool is_navigation,
     bool is_download,
     const url::Origin& request_initiator,
-    network::mojom::URLLoaderFactoryRequest* factory_request,
+    mojo::PendingReceiver<network::mojom::URLLoaderFactory>* factory_receiver,
     network::mojom::TrustedURLLoaderHeaderClientPtrInfo* header_client,
     bool* bypass_redirect_checks) {
   auto request_handler = net_service::CreateInterceptedRequestHandler(
       browser_context, frame, render_process_id, is_navigation, is_download,
       request_initiator);
 
+  auto proxied_receiver = std::move(*factory_receiver);
+  network::mojom::URLLoaderFactoryPtrInfo target_factory_info;
+  *factory_receiver = mojo::MakeRequest(&target_factory_info);
+
   net_service::ProxyURLLoaderFactory::CreateProxy(
-      browser_context, factory_request, header_client,
+      browser_context, std::move(proxied_receiver),
+      std::move(target_factory_info), header_client,
       std::move(request_handler));
   return true;
 }
@@ -1371,8 +1368,7 @@ bool CefContentBrowserClient::HandleExternalProtocol(
     bool is_main_frame,
     ui::PageTransition page_transition,
     bool has_user_gesture,
-    network::mojom::URLLoaderFactoryRequest* factory_request,
-    network::mojom::URLLoaderFactory*& out_factory) {
+    network::mojom::URLLoaderFactoryPtr* out_factory) {
   // Call the other HandleExternalProtocol variant.
   return false;
 }
@@ -1381,33 +1377,54 @@ bool CefContentBrowserClient::HandleExternalProtocol(
     content::ResourceRequestInfo::WebContentsGetter web_contents_getter,
     int frame_tree_node_id,
     content::NavigationUIData* navigation_data,
-    const network::ResourceRequest& request,
+    const network::ResourceRequest& resource_request,
     network::mojom::URLLoaderFactoryRequest* factory_request,
-    network::mojom::URLLoaderFactory*& out_factory) {
+    network::mojom::URLLoaderFactoryPtr* out_factory) {
+  auto request = mojo::MakeRequest(out_factory);
   // CefBrowserPlatformDelegate::HandleExternalProtocol may be called if
   // nothing handles the request.
-  auto request_handler = net_service::CreateInterceptedRequestHandler(
-      web_contents_getter, frame_tree_node_id, request);
-  out_factory = net_service::ProxyURLLoaderFactory::CreateProxy(
-      web_contents_getter, factory_request, std::move(request_handler));
+  if (CEF_CURRENTLY_ON_IOT()) {
+    auto request_handler = net_service::CreateInterceptedRequestHandler(
+        web_contents_getter, frame_tree_node_id, resource_request);
+    net_service::ProxyURLLoaderFactory::CreateProxy(
+        web_contents_getter, std::move(request), std::move(request_handler));
+  } else {
+    auto request_handler = net_service::CreateInterceptedRequestHandler(
+        web_contents_getter, frame_tree_node_id, resource_request);
+    CEF_POST_TASK(CEF_IOT,
+                  base::BindOnce(
+                      [](network::mojom::URLLoaderFactoryRequest request,
+                         std::unique_ptr<net_service::InterceptedRequestHandler>
+                             request_handler,
+                         content::ResourceRequestInfo::WebContentsGetter
+                             web_contents_getter) {
+                        // Manages its own lifetime.
+
+                        net_service::ProxyURLLoaderFactory::CreateProxy(
+                            web_contents_getter, std::move(request),
+                            std::move(request_handler));
+                      },
+                      std::move(request), std::move(request_handler),
+                      std::move(web_contents_getter)));
+  }
   return true;
 }
 
-std::string CefContentBrowserClient::GetProduct() const {
+std::string CefContentBrowserClient::GetProduct() {
   // Match the logic in chrome_content_browser_client.cc GetProduct().
   return ::GetProduct();
 }
 
-std::string CefContentBrowserClient::GetChromeProduct() const {
+std::string CefContentBrowserClient::GetChromeProduct() {
   return version_info::GetProductNameAndVersionForUserAgent();
 }
 
-std::string CefContentBrowserClient::GetUserAgent() const {
+std::string CefContentBrowserClient::GetUserAgent() {
   // Match the logic in chrome_content_browser_client.cc GetUserAgent().
   return ::GetUserAgent();
 }
 
-blink::UserAgentMetadata CefContentBrowserClient::GetUserAgentMetadata() const {
+blink::UserAgentMetadata CefContentBrowserClient::GetUserAgentMetadata() {
   blink::UserAgentMetadata metadata;
 
   metadata.brand = version_info::GetProductName();

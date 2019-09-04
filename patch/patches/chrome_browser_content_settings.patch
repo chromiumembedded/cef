@@ -1,5 +1,5 @@
 diff --git chrome/browser/content_settings/host_content_settings_map_factory.cc chrome/browser/content_settings/host_content_settings_map_factory.cc
-index bcc5cfe3b483..7798026b7a3a 100644
+index a3797e6705b8..6b7fe2e20a3f 100644
 --- chrome/browser/content_settings/host_content_settings_map_factory.cc
 +++ chrome/browser/content_settings/host_content_settings_map_factory.cc
 @@ -7,6 +7,7 @@
@@ -36,7 +36,7 @@ index bcc5cfe3b483..7798026b7a3a 100644
  #endif
  }
  
-@@ -89,10 +100,16 @@ scoped_refptr<RefcountedKeyedService>
+@@ -85,10 +96,16 @@ scoped_refptr<RefcountedKeyedService>
        base::FeatureList::IsEnabled(features::kPermissionDelegation)));
  
  #if BUILDFLAG(ENABLE_EXTENSIONS)
