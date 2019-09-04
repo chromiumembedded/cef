@@ -62,7 +62,7 @@ index 720ea6fcfb7f..9116fbdcf673 100644
    TransformationMatrix device_emulation_transform_;
  
 diff --git third_party/blink/renderer/core/page/chrome_client_impl.cc third_party/blink/renderer/core/page/chrome_client_impl.cc
-index 2df0aefc5764..6ef2dae97acd 100644
+index 97c37b0ae3ae..40f236651ced 100644
 --- third_party/blink/renderer/core/page/chrome_client_impl.cc
 +++ third_party/blink/renderer/core/page/chrome_client_impl.cc
 @@ -848,7 +848,7 @@ bool ChromeClientImpl::HasOpenedPopup() const {

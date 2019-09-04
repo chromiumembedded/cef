@@ -1,5 +1,5 @@
 diff --git content/browser/web_contents/web_contents_impl.cc content/browser/web_contents/web_contents_impl.cc
-index ae1bcfa7db7d..0ff65dcfe38f 100644
+index 21cac3c4da2a..a612822d5d57 100644
 --- content/browser/web_contents/web_contents_impl.cc
 +++ content/browser/web_contents/web_contents_impl.cc
 @@ -2131,21 +2131,30 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
@@ -95,7 +95,7 @@ index df508da0aef2..f6f4bf42b108 100644
  WebContents::CreateParams::CreateParams(const CreateParams& other) = default;
  
 diff --git content/public/browser/web_contents.h content/public/browser/web_contents.h
-index 50236e972100..8c09c1b53d27 100644
+index 367705d05ebc..7e25a0de3020 100644
 --- content/public/browser/web_contents.h
 +++ content/public/browser/web_contents.h
 @@ -76,9 +76,11 @@ class BrowserPluginGuestDelegate;

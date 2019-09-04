@@ -1,5 +1,5 @@
 diff --git chrome/browser/BUILD.gn chrome/browser/BUILD.gn
-index 8ce5e842bbb2..95b0356cab27 100644
+index c00a09a5ec2b..5596693cc879 100644
 --- chrome/browser/BUILD.gn
 +++ chrome/browser/BUILD.gn
 @@ -9,6 +9,7 @@ import("//build/config/jumbo.gni")

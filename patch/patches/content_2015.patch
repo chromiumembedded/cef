@@ -1,8 +1,8 @@
 diff --git chrome/browser/download/download_target_determiner.cc chrome/browser/download/download_target_determiner.cc
-index e0d2c5c42517..0849c5bf6b7e 100644
+index bf1ca3fd565b..7e758b4da15c 100644
 --- chrome/browser/download/download_target_determiner.cc
 +++ chrome/browser/download/download_target_determiner.cc
-@@ -631,8 +631,8 @@ void IsHandledBySafePlugin(content::ResourceContext* resource_context,
+@@ -630,8 +630,8 @@ void IsHandledBySafePlugin(content::ResourceContext* resource_context,
    content::PluginService* plugin_service =
        content::PluginService::GetInstance();
    bool plugin_found = plugin_service->GetPluginInfo(
@@ -129,7 +129,7 @@ index b0458c1168d9..98f7ae7b7899 100644
    if (stale) {
      // Refresh the plugins asynchronously.
 diff --git content/browser/loader/navigation_url_loader_impl.cc content/browser/loader/navigation_url_loader_impl.cc
-index 7dafa5c27290..14d97d465f2c 100644
+index 8a5502430547..689f5dbfe4a6 100644
 --- content/browser/loader/navigation_url_loader_impl.cc
 +++ content/browser/loader/navigation_url_loader_impl.cc
 @@ -1061,6 +1061,13 @@ class NavigationURLLoaderImpl::URLLoaderRequestController
@@ -373,10 +373,10 @@ index 0e2e86e6a2af..b44e90f69263 100644
    virtual void FocusedElementChanged(const blink::WebElement& element) {}
  
 diff --git content/renderer/render_frame_impl.cc content/renderer/render_frame_impl.cc
-index e2a9d4a370f3..2919772fef77 100644
+index 01b1d995c656..31bfea00ca60 100644
 --- content/renderer/render_frame_impl.cc
 +++ content/renderer/render_frame_impl.cc
-@@ -4095,7 +4095,8 @@ blink::WebPlugin* RenderFrameImpl::CreatePlugin(
+@@ -4118,7 +4118,8 @@ blink::WebPlugin* RenderFrameImpl::CreatePlugin(
    std::string mime_type;
    bool found = false;
    Send(new FrameHostMsg_GetPluginInfo(
@@ -386,7 +386,7 @@ index e2a9d4a370f3..2919772fef77 100644
        params.mime_type.Utf8(), &found, &info, &mime_type));
    if (!found)
      return nullptr;
-@@ -4510,6 +4511,8 @@ void RenderFrameImpl::FrameDetached(DetachType type) {
+@@ -4533,6 +4534,8 @@ void RenderFrameImpl::FrameDetached(DetachType type) {
  
  void RenderFrameImpl::FrameFocused() {
    Send(new FrameHostMsg_FrameFocused(routing_id_));

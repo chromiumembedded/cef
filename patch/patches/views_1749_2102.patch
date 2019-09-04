@@ -230,7 +230,7 @@ index ce169b164bc7..743509aa6acb 100644
    std::unique_ptr<SelectionController> selection_controller_;
  
 diff --git ui/views/controls/menu/menu_controller.cc ui/views/controls/menu/menu_controller.cc
-index 354216cafea8..16ec7b4c4c3f 100644
+index bceec6f17210..93476578a48a 100644
 --- ui/views/controls/menu/menu_controller.cc
 +++ ui/views/controls/menu/menu_controller.cc
 @@ -2571,8 +2571,13 @@ MenuItemView* MenuController::FindNextSelectableMenuItem(
@@ -472,7 +472,7 @@ index 4f865802a6e9..42d047bd68ad 100644
        // Move the cursor because EnterNotify/LeaveNotify are generated with the
        // current mouse position as a result of XGrabPointer()
 diff --git ui/views/view.h ui/views/view.h
-index a4f2ba254fb0..8d76cfa46fa6 100644
+index 75eecfb67d0a..d93bf32ffe66 100644
 --- ui/views/view.h
 +++ ui/views/view.h
 @@ -22,6 +22,7 @@

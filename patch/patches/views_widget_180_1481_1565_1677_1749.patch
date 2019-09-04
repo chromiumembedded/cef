@@ -173,7 +173,7 @@ index 70553b153c44..ecd99bc78373 100644
    return host ? host->GetAcceleratedWidget() : nullptr;
  }
 diff --git ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc
-index 7e31a1c159af..eb0451b8913a 100644
+index 0eedc2665313..53492f79fe17 100644
 --- ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc
 +++ ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc
 @@ -95,6 +95,7 @@ DesktopWindowTreeHostWin::DesktopWindowTreeHostWin(
@@ -198,7 +198,7 @@ index 7e31a1c159af..eb0451b8913a 100644
  
    remove_standard_frame_ = params.remove_standard_frame;
    has_non_client_view_ = Widget::RequiresNonClientView(params.type);
-@@ -891,11 +896,15 @@ void DesktopWindowTreeHostWin::HandleFrameChanged() {
+@@ -900,11 +905,15 @@ void DesktopWindowTreeHostWin::HandleFrameChanged() {
  }
  
  void DesktopWindowTreeHostWin::HandleNativeFocus(HWND last_focused_window) {
@@ -232,7 +232,7 @@ index 335db0db49bb..7f60402ed086 100644
    // a reference.
    corewm::TooltipWin* tooltip_;
 diff --git ui/views/widget/desktop_aura/desktop_window_tree_host_x11.cc ui/views/widget/desktop_aura/desktop_window_tree_host_x11.cc
-index b03a5bc9d509..bcbf960a130e 100644
+index 7c4f1e88e422..c21c8b24ba54 100644
 --- ui/views/widget/desktop_aura/desktop_window_tree_host_x11.cc
 +++ ui/views/widget/desktop_aura/desktop_window_tree_host_x11.cc
 @@ -139,6 +139,7 @@ ui::XWindow::Configuration ConvertInitParamsToX11WindowConfig(
@@ -261,7 +261,7 @@ index b03a5bc9d509..bcbf960a130e 100644
    gfx::Rect bounds_in_pixels = x11_window_->bounds();
    return ToDIPRect(bounds_in_pixels);
  }
-@@ -954,6 +959,9 @@ void DesktopWindowTreeHostX11::SetBoundsInPixels(
+@@ -955,6 +960,9 @@ void DesktopWindowTreeHostX11::SetBoundsInPixels(
  }
  
  gfx::Point DesktopWindowTreeHostX11::GetLocationOnScreenInPixels() const {
@@ -271,7 +271,7 @@ index b03a5bc9d509..bcbf960a130e 100644
    return x11_window_->bounds().origin();
  }
  
-@@ -1280,6 +1288,11 @@ void DesktopWindowTreeHostX11::InitX11Window(const Widget::InitParams& params) {
+@@ -1281,6 +1289,11 @@ void DesktopWindowTreeHostX11::InitX11Window(const Widget::InitParams& params) {
    config.background_color = background_color;
    config.prefer_dark_theme = linux_ui && linux_ui->PreferDarkTheme();
    config.icon = ViewsDelegate::GetInstance()->GetDefaultWindowIcon();
@@ -407,10 +407,10 @@ index 9edfa2c00c4b..8a9217578609 100644
        if (native_widget_delegate->IsDialogBox()) {
          *style |= DS_MODALFRAME;
 diff --git ui/views/win/hwnd_message_handler.cc ui/views/win/hwnd_message_handler.cc
-index 9b683f301913..8609f61ebd0f 100644
+index 4d674d15da3a..e7cb3a733823 100644
 --- ui/views/win/hwnd_message_handler.cc
 +++ ui/views/win/hwnd_message_handler.cc
-@@ -2963,10 +2963,13 @@ LRESULT HWNDMessageHandler::HandleMouseEventInternal(UINT message,
+@@ -2967,10 +2967,13 @@ LRESULT HWNDMessageHandler::HandleMouseEventInternal(UINT message,
    } else if (event.type() == ui::ET_MOUSEWHEEL) {
      ui::MouseWheelEvent mouse_wheel_event(msg);
      // Reroute the mouse wheel to the window under the pointer if applicable.
