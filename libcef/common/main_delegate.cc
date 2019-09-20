@@ -599,13 +599,6 @@ bool CefMainDelegate::BasicStartupComplete(int* exit_code) {
           features::kMimeHandlerViewInCrossProcessFrame.name);
     }
 
-    if (features::kAudioServiceAudioStreams.default_state ==
-        base::FEATURE_ENABLED_BY_DEFAULT) {
-      // TODO: Add support for audio service (see issue #2755)
-      disable_features.push_back(
-          features::kAudioServiceAudioStreams.name);
-    }
-
     if (!disable_features.empty()) {
       DCHECK(!base::FeatureList::GetInstance());
       std::string disable_features_str =

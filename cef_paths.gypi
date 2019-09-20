@@ -8,7 +8,7 @@
 # by hand. See the translator.README.txt file in the tools directory for
 # more information.
 #
-# $hash=a8e80ae73a0d30776c2e6aaceaf9dbd4031f6c74$
+# $hash=9e6f93e99114085f9251881661e562357608b75a$
 #
 
 {
@@ -16,7 +16,6 @@
     'autogen_cpp_includes': [
       'include/cef_accessibility_handler.h',
       'include/cef_app.h',
-      'include/cef_audio_handler.h',
       'include/cef_auth_callback.h',
       'include/cef_browser.h',
       'include/cef_browser_process_handler.h',
@@ -110,7 +109,6 @@
     'autogen_capi_includes': [
       'include/capi/cef_accessibility_handler_capi.h',
       'include/capi/cef_app_capi.h',
-      'include/capi/cef_audio_handler_capi.h',
       'include/capi/cef_auth_callback_capi.h',
       'include/capi/cef_browser_capi.h',
       'include/capi/cef_browser_process_handler_capi.h',
@@ -206,8 +204,6 @@
       'libcef_dll/ctocpp/accessibility_handler_ctocpp.h',
       'libcef_dll/ctocpp/app_ctocpp.cc',
       'libcef_dll/ctocpp/app_ctocpp.h',
-      'libcef_dll/ctocpp/audio_handler_ctocpp.cc',
-      'libcef_dll/ctocpp/audio_handler_ctocpp.h',
       'libcef_dll/cpptoc/auth_callback_cpptoc.cc',
       'libcef_dll/cpptoc/auth_callback_cpptoc.h',
       'libcef_dll/cpptoc/before_download_callback_cpptoc.cc',
@@ -498,8 +494,6 @@
       'libcef_dll/cpptoc/accessibility_handler_cpptoc.h',
       'libcef_dll/cpptoc/app_cpptoc.cc',
       'libcef_dll/cpptoc/app_cpptoc.h',
-      'libcef_dll/cpptoc/audio_handler_cpptoc.cc',
-      'libcef_dll/cpptoc/audio_handler_cpptoc.h',
       'libcef_dll/ctocpp/auth_callback_ctocpp.cc',
       'libcef_dll/ctocpp/auth_callback_ctocpp.h',
       'libcef_dll/ctocpp/before_download_callback_ctocpp.cc',

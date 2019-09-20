@@ -375,7 +375,6 @@ _simpletypes = {
     'uint64': ['uint64', '0'],
     'double': ['double', '0'],
     'float': ['float', '0'],
-    'float*': ['float*', 'NULL'],
     'long': ['long', '0'],
     'unsigned long': ['unsigned long', '0'],
     'long long': ['long long', '0'],

@@ -33,14 +33,13 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=c8b6ce6786bb8369c3d9bb9e932a115fb379b145$
+// $hash=f7ae1e9818919482e8eb526badb9013b039f0558$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_CLIENT_CAPI_H_
 #define CEF_INCLUDE_CAPI_CEF_CLIENT_CAPI_H_
 #pragma once
 
-#include "include/capi/cef_audio_handler_capi.h"
 #include "include/capi/cef_base_capi.h"
 #include "include/capi/cef_context_menu_handler_capi.h"
 #include "include/capi/cef_dialog_handler_capi.h"
@@ -69,12 +68,6 @@ typedef struct _cef_client_t {
   // Base structure.
   ///
   cef_base_ref_counted_t base;
-
-  ///
-  // Return the handler for audio rendering events.
-  ///
-  struct _cef_audio_handler_t*(CEF_CALLBACK* get_audio_handler)(
-      struct _cef_client_t* self);
 
   ///
   // Return the handler for context menus. If no handler is provided the default
