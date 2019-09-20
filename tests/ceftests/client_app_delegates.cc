@@ -37,10 +37,6 @@ void CreateBrowserDelegates(ClientAppBrowser::DelegateSet& delegates) {
   // Bring in the V8 tests.
   extern void CreateV8BrowserTests(ClientAppBrowser::DelegateSet & delegates);
   CreateV8BrowserTests(delegates);
-
-  // Bring in audio output tests.
-  extern void CreateAudioOutputTests(ClientAppBrowser::DelegateSet & delegates);
-  CreateAudioOutputTests(delegates);
 }
 
 void CreateRenderDelegates(ClientAppRenderer::DelegateSet& delegates) {

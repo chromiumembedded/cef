@@ -15,7 +15,6 @@
 #include "include/cef_client.h"
 #include "include/cef_frame.h"
 #include "include/views/cef_browser_view.h"
-#include "libcef/browser/audio_mirror_destination.h"
 #include "libcef/browser/browser_info.h"
 #include "libcef/browser/file_dialog_manager.h"
 #include "libcef/browser/frame_host_impl.h"
@@ -49,7 +48,6 @@ class Widget;
 }
 #endif  // defined(USE_AURA)
 
-class CefAudioMirrorDestination;
 class CefBrowserInfo;
 class CefBrowserPlatformDelegate;
 class CefDevToolsFrontend;
@@ -502,10 +500,6 @@ class CefBrowserHostImpl : public CefBrowserHost,
   void AddObserver(Observer* observer);
   void RemoveObserver(Observer* observer);
   bool HasObserver(Observer* observer) const;
-
-  bool StartAudioMirroring();
-  bool StopAudioMirroring();
-
   class NavigationLock final {
    private:
     friend class CefBrowserHostImpl;
@@ -667,9 +661,6 @@ class CefBrowserHostImpl : public CefBrowserHost,
   extensions::ExtensionHost* extension_host_ = nullptr;
   CefRefPtr<CefExtension> extension_;
   bool is_background_host_ = false;
-
-  // Used to mirror audio streams
-  scoped_refptr<CefAudioMirrorDestination> audio_mirror_destination_;
 
   // Used with auto-resize.
   bool auto_resize_enabled_ = false;
