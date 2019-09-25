@@ -42,3 +42,37 @@ index 87ecf1fc998b..924c24fa42a2 100644
  
    // Get the path of the last used profile, or if that's undefined, the default
    // profile.
+diff --git chrome/browser/profiles/renderer_updater.cc chrome/browser/profiles/renderer_updater.cc
+index 9dd42523f970..b8f5ae89ae3d 100644
+--- chrome/browser/profiles/renderer_updater.cc
++++ chrome/browser/profiles/renderer_updater.cc
+@@ -7,6 +7,7 @@
+ #include <utility>
+ 
+ #include "base/bind.h"
++#include "cef/libcef/features/features.h"
+ #include "chrome/browser/content_settings/host_content_settings_map_factory.h"
+ #include "chrome/browser/profiles/profile.h"
+ #include "chrome/browser/signin/identity_manager_factory.h"
+@@ -60,8 +61,12 @@ void GetGuestViewDefaultContentSettingRules(
+ 
+ RendererUpdater::RendererUpdater(Profile* profile)
+     : profile_(profile), identity_manager_observer_(this) {
++#if !BUILDFLAG(ENABLE_CEF)
+   identity_manager_ = IdentityManagerFactory::GetForProfile(profile);
+   identity_manager_observer_.Add(identity_manager_);
++#else
++  identity_manager_ = nullptr;
++#endif
+ #if defined(OS_CHROMEOS)
+   oauth2_login_manager_ =
+       chromeos::OAuth2LoginManagerFactory::GetForProfile(profile_);
+@@ -228,7 +233,7 @@ void RendererUpdater::UpdateRenderer(
+           force_google_safesearch_.GetValue(),
+           force_youtube_restrict_.GetValue(),
+           allowed_domains_for_apps_.GetValue(),
+-          identity_manager_->HasPrimaryAccount()
++          identity_manager_ && identity_manager_->HasPrimaryAccount()
+               ? cached_variation_ids_header_signed_in_
+               : cached_variation_ids_header_));
+ }

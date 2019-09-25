@@ -56,10 +56,14 @@
 #include "chrome/browser/plugins/plugin_response_interceptor_url_loader_throttle.h"
 #include "chrome/browser/plugins/plugin_utils.h"
 #include "chrome/browser/profiles/profile.h"
+#include "chrome/browser/profiles/renderer_updater.h"
+#include "chrome/browser/profiles/renderer_updater_factory.h"
 #include "chrome/browser/renderer_host/pepper/chrome_browser_pepper_host_factory.h"
 #include "chrome/browser/spellchecker/spell_check_host_chrome_impl.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/chrome_switches.h"
+#include "chrome/common/google_url_loader_throttle.h"
+#include "chrome/common/pref_names.h"
 #include "chrome/common/webui_url_constants.h"
 #include "chrome/grit/browser_resources.h"
 #include "chrome/grit/generated_resources.h"
@@ -67,6 +71,7 @@
 #include "components/navigation_interception/intercept_navigation_throttle.h"
 #include "components/navigation_interception/navigation_params.h"
 #include "components/spellcheck/common/spellcheck.mojom.h"
+#include "components/variations/variations_http_header_provider.h"
 #include "components/version_info/version_info.h"
 #include "content/browser/frame_host/navigation_handle_impl.h"
 #include "content/browser/frame_host/render_frame_host_impl.h"
@@ -540,8 +545,10 @@ void CefContentBrowserClient::RenderProcessWillLaunch(
   host->RemoveObserver(CefBrowserInfoManager::GetInstance());
   host->AddObserver(CefBrowserInfoManager::GetInstance());
 
-  host->Send(
-      new CefProcessMsg_SetIsIncognitoProcess(profile->IsOffTheRecord()));
+  // Forwards dynamic parameters to CefRenderThreadObserver.
+  Profile* original_profile = profile->GetOriginalProfile();
+  RendererUpdaterFactory::GetForProfile(original_profile)
+      ->InitializeRenderer(host);
 }
 
 bool CefContentBrowserClient::ShouldUseProcessPerSite(
@@ -1106,6 +1113,18 @@ CefContentBrowserClient::CreateURLLoaderThrottles(
   // Used to substitute View ID for PDF contents when using the PDF plugin.
   result.push_back(std::make_unique<PluginResponseInterceptorURLLoaderThrottle>(
       request.resource_type, frame_tree_node_id));
+
+  Profile* profile = Profile::FromBrowserContext(browser_context);
+  bool is_off_the_record = profile->IsOffTheRecord();
+
+  chrome::mojom::DynamicParams dynamic_params = {
+      profile->GetPrefs()->GetBoolean(prefs::kForceGoogleSafeSearch),
+      profile->GetPrefs()->GetInteger(prefs::kForceYouTubeRestrict),
+      profile->GetPrefs()->GetString(prefs::kAllowedDomainsForApps),
+      variations::VariationsHttpHeaderProvider::GetInstance()
+          ->GetClientDataHeader(false /* is_signed_in */)};
+  result.push_back(std::make_unique<GoogleURLLoaderThrottle>(
+      is_off_the_record, std::move(dynamic_params)));
 
   return result;
 }

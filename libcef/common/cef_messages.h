@@ -147,11 +147,6 @@ IPC_MESSAGE_ROUTED0(CefMsg_DidStopLoading)
 // Based on ChromeViewMsg_LoadBlockedPlugins.
 IPC_MESSAGE_ROUTED1(CefViewMsg_LoadBlockedPlugins, std::string /* identifier */)
 
-// Sent on process startup to indicate whether this process is running in
-// incognito mode. Based on ChromeViewMsg_SetIsIncognitoProcess.
-IPC_MESSAGE_CONTROL1(CefProcessMsg_SetIsIncognitoProcess,
-                     bool /* is_incognito_processs */)
-
 // Sent to child processes to add or remove a cross-origin whitelist entry.
 IPC_MESSAGE_CONTROL2(CefProcessMsg_ModifyCrossOriginWhitelistEntry,
                      bool /* add */,
