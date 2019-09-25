@@ -5,10 +5,12 @@
 #include "libcef/renderer/url_loader_throttle_provider_impl.h"
 
 #include "libcef/common/extensions/extensions_util.h"
+#include "libcef/renderer/render_thread_observer.h"
 
 #include <utility>
 
 #include "base/feature_list.h"
+#include "chrome/common/google_url_loader_throttle.h"
 #include "content/public/common/content_features.h"
 #include "content/public/renderer/render_frame.h"
 #include "extensions/renderer/guest_view/mime_handler_view/mime_handler_view_container.h"
@@ -69,6 +71,10 @@ CefURLLoaderThrottleProviderImpl::CreateThrottles(
       }
     }
   }
+
+  throttles.push_back(std::make_unique<GoogleURLLoaderThrottle>(
+      CefRenderThreadObserver::is_incognito_process(),
+      CefRenderThreadObserver::GetDynamicParams()));
 
   return throttles;
 }

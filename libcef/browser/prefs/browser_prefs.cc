@@ -31,6 +31,7 @@
 #include "chrome/browser/themes/theme_service.h"
 #include "chrome/browser/ui/webui/print_preview/sticky_settings.h"
 #include "chrome/common/chrome_switches.h"
+#include "chrome/common/net/safe_search_util.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/grit/locale_settings.h"
 #include "components/certificate_transparency/pref_names.h"
@@ -227,6 +228,10 @@ std::unique_ptr<PrefService> CreatePrefService(Profile* profile,
 
     // Print preferences.
     // Based on ProfileImpl::RegisterProfilePrefs.
+    registry->RegisterBooleanPref(prefs::kForceGoogleSafeSearch, false);
+    registry->RegisterIntegerPref(prefs::kForceYouTubeRestrict,
+                                  safe_search_util::YOUTUBE_RESTRICT_OFF);
+    registry->RegisterStringPref(prefs::kAllowedDomainsForApps, std::string());
     registry->RegisterBooleanPref(prefs::kPrintingEnabled, true);
     registry->RegisterBooleanPref(prefs::kPrintPreviewDisabled,
                                   !extensions::PrintPreviewEnabled());

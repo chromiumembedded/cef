@@ -15,11 +15,23 @@
 #include "content/public/common/service_manager_connection.h"
 #include "content/public/common/simple_connection_filter.h"
 #include "content/public/renderer/render_thread.h"
+#include "mojo/public/cpp/bindings/strong_binding.h"
 #include "net/base/net_module.h"
 #include "services/service_manager/public/cpp/binder_registry.h"
+#include "services/service_manager/public/cpp/connector.h"
+#include "third_party/blink/public/common/associated_interfaces/associated_interface_registry.h"
 #include "third_party/blink/public/platform/web_string.h"
 #include "third_party/blink/public/platform/web_url.h"
 #include "third_party/blink/public/web/web_security_policy.h"
+
+namespace {
+
+chrome::mojom::DynamicParams* GetDynamicConfigParams() {
+  static base::NoDestructor<chrome::mojom::DynamicParams> dynamic_params;
+  return dynamic_params.get();
+}
+
+}  // namespace
 
 bool CefRenderThreadObserver::is_incognito_process_ = false;
 
@@ -40,12 +52,16 @@ CefRenderThreadObserver::CefRenderThreadObserver()
 
 CefRenderThreadObserver::~CefRenderThreadObserver() {}
 
+// static
+const chrome::mojom::DynamicParams&
+CefRenderThreadObserver::GetDynamicParams() {
+  return *GetDynamicConfigParams();
+}
+
 bool CefRenderThreadObserver::OnControlMessageReceived(
     const IPC::Message& message) {
   bool handled = true;
   IPC_BEGIN_MESSAGE_MAP(CefRenderThreadObserver, message)
-    IPC_MESSAGE_HANDLER(CefProcessMsg_SetIsIncognitoProcess,
-                        OnSetIsIncognitoProcess)
     IPC_MESSAGE_HANDLER(CefProcessMsg_ModifyCrossOriginWhitelistEntry,
                         OnModifyCrossOriginWhitelistEntry)
     IPC_MESSAGE_HANDLER(CefProcessMsg_ClearCrossOriginWhitelist,
@@ -55,9 +71,42 @@ bool CefRenderThreadObserver::OnControlMessageReceived(
   return handled;
 }
 
-void CefRenderThreadObserver::OnSetIsIncognitoProcess(
-    bool is_incognito_process) {
+void CefRenderThreadObserver::RegisterMojoInterfaces(
+    blink::AssociatedInterfaceRegistry* associated_interfaces) {
+  associated_interfaces->AddInterface(base::Bind(
+      &CefRenderThreadObserver::OnRendererConfigurationAssociatedRequest,
+      base::Unretained(this)));
+}
+
+void CefRenderThreadObserver::UnregisterMojoInterfaces(
+    blink::AssociatedInterfaceRegistry* associated_interfaces) {
+  associated_interfaces->RemoveInterface(
+      chrome::mojom::RendererConfiguration::Name_);
+}
+
+void CefRenderThreadObserver::SetInitialConfiguration(
+    bool is_incognito_process,
+    chrome::mojom::ChromeOSListenerRequest chromeos_listener_request) {
   is_incognito_process_ = is_incognito_process;
+}
+
+void CefRenderThreadObserver::SetConfiguration(
+    chrome::mojom::DynamicParamsPtr params) {
+  *GetDynamicConfigParams() = std::move(*params);
+}
+
+void CefRenderThreadObserver::SetContentSettingRules(
+    const RendererContentSettingRules& rules) {}
+
+void CefRenderThreadObserver::SetFieldTrialGroup(
+    const std::string& trial_name,
+    const std::string& group_name) {
+  content::RenderThread::Get()->SetFieldTrialGroup(trial_name, group_name);
+}
+
+void CefRenderThreadObserver::OnRendererConfigurationAssociatedRequest(
+    chrome::mojom::RendererConfigurationAssociatedRequest request) {
+  renderer_configuration_bindings_.AddBinding(this, std::move(request));
 }
 
 void CefRenderThreadObserver::OnModifyCrossOriginWhitelistEntry(
