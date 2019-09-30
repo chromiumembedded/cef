@@ -373,7 +373,7 @@ index 0e2e86e6a2af..b44e90f69263 100644
    virtual void FocusedElementChanged(const blink::WebElement& element) {}
  
 diff --git content/renderer/render_frame_impl.cc content/renderer/render_frame_impl.cc
-index 01b1d995c656..31bfea00ca60 100644
+index f5f11bd31f7a..031ac3d689db 100644
 --- content/renderer/render_frame_impl.cc
 +++ content/renderer/render_frame_impl.cc
 @@ -4118,7 +4118,8 @@ blink::WebPlugin* RenderFrameImpl::CreatePlugin(

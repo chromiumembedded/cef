@@ -39,10 +39,10 @@ index 07f06ac694f5..831fd9f82dbe 100644
  
  void ChromeBrowserMainExtraPartsViewsLinux::ToolkitInitialized() {
 diff --git chrome/test/BUILD.gn chrome/test/BUILD.gn
-index 39a8fc308408..8097a58a5fe1 100644
+index 954efb536692..348043e3a82d 100644
 --- chrome/test/BUILD.gn
 +++ chrome/test/BUILD.gn
-@@ -4461,7 +4461,7 @@ test("unit_tests") {
+@@ -4462,7 +4462,7 @@ test("unit_tests") {
    if (use_gio) {
      configs += [ "//build/linux:gio_config" ]
    }
@@ -51,7 +51,7 @@ index 39a8fc308408..8097a58a5fe1 100644
      deps += [ "//chrome/browser/ui/libgtkui" ]
    }
  
-@@ -5475,7 +5475,7 @@ if (!is_android) {
+@@ -5476,7 +5476,7 @@ if (!is_android) {
            # suites, it seems like one or another starts timing out too.
            "../browser/ui/views/keyboard_access_browsertest.cc",
          ]

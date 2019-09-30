@@ -1,8 +1,8 @@
 diff --git chrome/browser/chrome_content_browser_client.cc chrome/browser/chrome_content_browser_client.cc
-index 0b29bc11f07c..9c0ffba4dc20 100644
+index 84354ff218e8..c5ac79c4d3aa 100644
 --- chrome/browser/chrome_content_browser_client.cc
 +++ chrome/browser/chrome_content_browser_client.cc
-@@ -1067,10 +1067,6 @@ void LaunchURL(
+@@ -1068,10 +1068,6 @@ void LaunchURL(
    }
  }
  
@@ -13,7 +13,7 @@ index 0b29bc11f07c..9c0ffba4dc20 100644
  void MaybeAppendSecureOriginsAllowlistSwitch(base::CommandLine* cmdline) {
    // |allowlist| combines pref/policy + cmdline switch in the browser process.
    // For renderer and utility (e.g. NetworkService) processes the switch is the
-@@ -1088,6 +1084,14 @@ void MaybeAppendSecureOriginsAllowlistSwitch(base::CommandLine* cmdline) {
+@@ -1089,6 +1085,14 @@ void MaybeAppendSecureOriginsAllowlistSwitch(base::CommandLine* cmdline) {
  
  }  // namespace
  
