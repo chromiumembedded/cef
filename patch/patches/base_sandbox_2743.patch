@@ -1,0 +1,40 @@
+diff --git base/BUILD.gn base/BUILD.gn
+index 2a50cd207695..b0e64eef29a5 100644
+--- base/BUILD.gn
++++ base/BUILD.gn
+@@ -32,6 +32,7 @@ import("//build/config/sysroot.gni")
+ import("//build/config/ui.gni")
+ import("//build/nocompile.gni")
+ import("//build/timestamp.gni")
++import("//cef/libcef/features/features.gni")
+ import("//testing/libfuzzer/fuzzer_test.gni")
+ import("//testing/test.gni")
+ 
+@@ -1604,7 +1605,11 @@ jumbo_component("base") {
+     "hash/md5_constexpr_internal.h",
+     "hash/sha1.h",
+   ]
+-  if (is_nacl) {
++  deps += [ "//cef/libcef/features" ]
++  if (enable_cef) {
++    configs += [ "//cef/libcef/features:config" ]
++  }
++  if (is_nacl || is_cef_sandbox_build) {
+     sources += [
+       "hash/md5_nacl.cc",
+       "hash/md5_nacl.h",
+diff --git base/hash/md5.h base/hash/md5.h
+index 8a49f08dcb04..2f03d7a6d1b3 100644
+--- base/hash/md5.h
++++ base/hash/md5.h
+@@ -10,8 +10,9 @@
+ #include "base/base_export.h"
+ #include "base/strings/string_piece.h"
+ #include "build/build_config.h"
++#include "cef/libcef/features/features.h"
+ 
+-#if defined(OS_NACL)
++#if defined(OS_NACL) || BUILDFLAG(IS_CEF_SANDBOX_BUILD)
+ #include "base/hash/md5_nacl.h"
+ #else
+ #include "base/hash/md5_boringssl.h"
