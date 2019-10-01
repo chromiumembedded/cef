@@ -445,6 +445,10 @@ def GetConfigArgsSandbox(platform, args, is_debug, cpu):
 
       # Avoid /LTCG linker warnings and generate smaller lib files.
       'is_official_build': False,
+
+      # Enable base target customizations necessary for distribution of the
+      # cef_sandbox static library.
+      'is_cef_sandbox_build': True,
   }
 
   if is_debug:

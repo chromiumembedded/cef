@@ -81,6 +81,7 @@ buildflag_header("features") {
 
   flags = [
     "ENABLE_CEF=$enable_cef",
+    "IS_CEF_SANDBOX_BUILD=$is_cef_sandbox_build",
   ]
 }
 
