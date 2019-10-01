@@ -941,13 +941,19 @@ if platform == 'windows':
     # transfer cefclient files
     transfer_gypi_files(cef_dir, cef_paths2['cefclient_sources_win'], \
                         'tests/cefclient/', cefclient_dir, options.quiet)
+    transfer_gypi_files(cef_dir, cef_paths2['cefclient_sources_resources_win'], \
+                        'tests/cefclient/', cefclient_dir, options.quiet)
 
     # transfer cefsimple files
     transfer_gypi_files(cef_dir, cef_paths2['cefsimple_sources_win'], \
                         'tests/cefsimple/', cefsimple_dir, options.quiet)
+    transfer_gypi_files(cef_dir, cef_paths2['cefsimple_sources_resources_win'], \
+                        'tests/cefsimple/', cefsimple_dir, options.quiet)
 
     # transfer ceftests files
     transfer_gypi_files(cef_dir, cef_paths2['ceftests_sources_win'], \
+                        'tests/ceftests/', ceftests_dir, options.quiet)
+    transfer_gypi_files(cef_dir, cef_paths2['ceftests_sources_resources_win'], \
                         'tests/ceftests/', ceftests_dir, options.quiet)
     transfer_gypi_files(cef_dir, cef_paths2['ceftests_sources_views'], \
                         'tests/ceftests/', ceftests_dir, options.quiet)
